@@ -20,8 +20,7 @@ Variables J C : precategory.
 Variable hs: has_homsets C.
 Variable F : functor J C.
 
-Definition ConeData := total2 (
-  λ a : C, ∏ j : J, a --> F j).
+Definition ConeData : UU := ∑ a : C, ∏ j : J, a --> F j.
 
 Definition ConeTop (a : ConeData) : C := pr1 a.
 Definition ConeMor (a : ConeData) (j : J) : ConeTop a --> F j := (pr2 a) j.
@@ -321,7 +320,7 @@ Lemma is_univalent_CONE : is_univalent CONE.
 Proof.
   split.
   - intros a b.
-    apply (gradth _  (@isotoid_CONE a b)).
+    apply (isweq_iso _  (@isotoid_CONE a b)).
     apply isotoid_CONE_idtoiso.
     apply idtoiso_isotoid_CONE.
   - intros x y. apply isaset_Cone_Mor.

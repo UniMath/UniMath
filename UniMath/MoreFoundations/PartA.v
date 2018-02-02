@@ -1,5 +1,6 @@
 (** This file contain various results that could be upstreamed to Foundations/PartA.v *)
 Require Import UniMath.MoreFoundations.Foundations.
+Require Import UniMath.MoreFoundations.Tactics.
 
 Lemma base_paths_pair_path_in2 {X : UU} (P : X → UU) {x : X} {p q : P x} (e : p = q) :
   base_paths _ _ (pair_path_in2 P e) = idpath x.
@@ -94,5 +95,46 @@ Lemma transportf_const (A B : UU) (a a' : A) (e : a = a') (b : B) :
    transportf (λ _, B) e b = b.
 Proof.
   induction e.
+  apply idpath.
+Defined.
+
+Lemma coprodcomm_coprodcomm {X Y : UU} (v : X ⨿ Y) : coprodcomm Y X (coprodcomm X Y v) = v.
+Proof.
+  induction v as [x|y]; reflexivity.
+Defined.
+
+Definition sumofmaps_funcomp {X1 X2 Y1 Y2 Z : UU} (f1 : X1 → X2) (f2 : X2 → Z) (g1 : Y1 → Y2)
+  (g2 : Y2 → Z) : sumofmaps (f2 ∘ f1) (g2 ∘ g1) ~ sumofmaps f2 g2 ∘ coprodf f1 g1.
+Proof.
+  intro x. induction x as [x|y]; reflexivity.
+Defined.
+
+Definition sumofmaps_homot {X Y Z : UU} {f f' : X → Z} {g g' : Y → Z} (h : f ~ f') (h2 : g ~ g')
+  : sumofmaps f g ~ sumofmaps f' g'.
+Proof.
+  intro x. induction x as [x|y].
+  - exact (h x).
+  - exact (h2 y).
+Defined.
+
+(** coprod computation helper lemmas  *)
+
+Definition coprod_rect_compute_1
+           (A B : UU) (P : A ⨿ B -> UU)
+           (f : ∏ (a : A), P (ii1 a))
+           (g : ∏ (b : B), P (ii2 b)) (a:A) :
+  coprod_rect P f g (ii1 a) = f a.
+Proof.
+  intros.
+  apply idpath.
+Defined.
+
+Definition coprod_rect_compute_2
+           (A B : UU) (P : A ⨿ B -> UU)
+           (f : ∏ a : A, P (ii1 a))
+           (g : ∏ b : B, P (ii2 b)) (b:B) :
+  coprod_rect P f g (ii2 b) = g b.
+Proof.
+  intros.
   apply idpath.
 Defined.

@@ -237,7 +237,7 @@ Lemma isColim_weq {g : graph} (D : diagram g C) (c : C) (cc : cocone D c) :
 Proof.
 split.
 - intros H d.
-  refine (gradth _ _ _ _).
+  refine (isweq_iso _ _ _ _).
   + intros k.
     exact (colimArrow (mk_ColimCocone D c cc H) _ k).
   + abstract (intro k; simpl;

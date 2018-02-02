@@ -101,7 +101,7 @@ Qed.
 Lemma fully_faithful_from_equivalence : fully_faithful F.
 Proof.
   unfold fully_faithful. intros a b.
-  apply (gradth _ (@inverse a b)).
+  apply (isweq_iso _ (@inverse a b)).
   - apply inverse_is_inverse_1.
   - apply inverse_is_inverse_2.
 Qed.

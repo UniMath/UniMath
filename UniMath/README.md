@@ -4,6 +4,20 @@ Univalent Mathematics Coq files
 Each subdirectory of this directory consists of a separate package, with
 various authors, as recorded in the README (or README.md) file in it.
 
+## Contributing code to UniMath
+
+Volunteers may look at unassigned issues at github and volunteer to be assigned
+one of them.  New proposals and ideas may be submitted as issues at github for
+discussion and feedback.
+
+Contributions are submitted in the form of pull requests at github and are
+subject to approval by the UniMath Development Team.
+
+Changes to the package "Foundations" are normally not accepted, for we are
+trying to keep it in a state close to what Vladimir Voevodsky originally
+intended.  A warning is issued if you run `make` or `make all` and have changed
+a file in the Foundations package.
+
 ## Adding a file to a package
 
 Each package contains a subdirectory called ".package".  The file
@@ -18,7 +32,7 @@ Create a subdirectory of this directory, populate it with your files, add a
 README (or README.md) file, and add a file .package/files, listing the *.v
 files of your package, as above.  Then add the name of your package to the head
 of the list assigned to "PACKAGES" in the file "./Makefile", or, alternatively,
-if you'd like to test your package with modifying "./Makefile", which you might
+if you'd like to test your package without modifying "./Makefile", which you might
 accidentally commit and push, add its name to the head of the list in
 "../build/Makefile-configuration", which is created from
 "../build/Makefile-configuration-template".
@@ -35,10 +49,8 @@ less fragile and to make the files have a more uniform and pleasing appearance.
   because using `exact` would be clearer.
 * Do not use `Prop` or `Set`, and ensure definitions don't produce
   elements of them.
-* Do not use `Type`, except in `Foundations/Basics/Preamble.v`.
-  Use `UU` instead.  If higher universes are needed, they should be
-  added to `Foundations/Basics/Preamble.v`.
-* Do not use `Inductive` or `Record`, except in `Foundations/Basics/Preamble.v`.
+* Do not use `Inductive` or `Record`.  Their use is limited to just a few basic
+  types, which are defined in `Foundations/Preamble.v`.
 * Do not use `Module` or `Structure`.
 * Do not use `Fixpoint`.
 * Do not use `destruct`, `match`, `case`, square brackets with `intros`, or
@@ -55,6 +67,9 @@ less fragile and to make the files have a more uniform and pleasing appearance.
 * Start all proofs with `Proof.` on a separate line and end it with
   `Defined.` on a separate line, as this makes it possible for us to generate
   HTML with expansible/collapsible proofs.
+* Use `Lemma`, `Proposition`, or `Theorem` for proofs of propositions;
+  for defining elements of types that are not propositions, use
+  `Definition`.
 * Use Unicode notation freely, but make the parsing conventions uniform across files, and consider
   putting them into a scope.
 * Each line should be limited to at most 100 (unicode) characters.  The
@@ -64,14 +79,18 @@ less fragile and to make the files have a more uniform and pleasing appearance.
 * Always use Coq's proof structuring syntax ( ` { } + - * ` ) to focus on a
   single goal immediately after a tactic creates additional goals.
 * Indentation should normally be that produced automatically by emacs' `coq-mode`.
-* Within the core `Foundations` package:
-  * Do not start lines with `:` or with `:=`.
-  * One should normally put an extra blank line between units.  Exceptions may
-    be made for closely related items.
 * When using `abstract` in a proof, it is unsound to refer later by name to the
   abstracted lemma (whose name typically ends with `_subproof`), because
   its type may vary from one version of Coq to another.  Coq's current behavior is also
   unlikely to be duplicated precisely by a future proof assistant. 
+* Define and use accessor functions for structures instead of chains
+  of `pr1` and `pr2`. This makes the code easier to maintain in the
+  long run (if the structure is rearranged the proofs will still work
+  if the accessor functions are changed accordingly).
+* Define constructor functions for structures taking all of the
+  required data in the right order. This way one can write `use
+  constructor` instead of having a nested chain of `use tpair` leading
+  to flatter proof scripts for instantiating structures.
 
 Our files don't adhere yet to all of these conventions, but it's a goal we
 strive for.
