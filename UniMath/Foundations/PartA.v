@@ -2867,9 +2867,9 @@ Proof.
   intros b. induction b as [|]. { exact unit. } { exact empty. }
 Defined.
 
-Theorem nopathstruetofalse@{} : true = false -> empty.
+Theorem nopathstruetofalse : true = false -> empty.
 Proof.
-  intro X. apply (transportf@{uu1} bool_to_type X tt).
+  intro X. apply (transportf bool_to_type X tt).
 Defined.
 
 Corollary nopathsfalsetotrue@{} : false = true -> empty.

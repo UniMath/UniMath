@@ -2679,15 +2679,21 @@ Proof.
   apply (isweq_iso _ _ egf efg).
 Defined.
 
-(** Comment: unfortunetely [weqsubquot] is not as useful as it should be at
+(** Comment: unfortunately [weqsubquot] is not as useful as it should be at
   moment due to the failure of the following code to work:
+  *)
 
-  [Lemma test (X : UU) (R : eqrel X) (P : hsubtype (setquot R)) (x : X)
-   (is : P (setquotpr R x)) :
-     paths (setquotpr (reseqrel R (funcomp (setquotpr R) P)) (tpair _ x is))
-           (fromsubquot R P (tpair _ (setquotpr R x) is)).
-   Proof. intros. apply idpath. Defined.]
+Lemma test (X : UU) (R : eqrel X) (P : hsubtype (setquot R)) (x : X)
+      (is : P (setquotpr R x)) :
+  setquotpr (reseqrel R (funcomp (setquotpr R) P)) (tpair _ x is)
+  =
+  fromsubquot R P (tpair _ (setquotpr R x) is).
+Proof.
+  intros.
+  Fail apply idpath.
+Abort.
 
+(**
   As one of the consequences we are forced to use a "hack" in the definition of
   multiplicative inverses for rationals in [hqmultinv].
 

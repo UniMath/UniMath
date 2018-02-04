@@ -693,18 +693,15 @@ Proof.
     apply (isofhlevelweqf n w s1).
 Defined.
 
-
-Section A.
-  Universe i j.
-  Constraint i < j.
-  Lemma isofhlevel_raise n (X:Type@{i}) : isofhlevel@{i} n X ≃ isofhlevel@{j} n X.
-  Proof.
-    intro.
-    induction n as [|n IH].
-    - intro. exact (idweq _).
-
-  Abort.
-End A.
+Lemma isofhlevel_raise@{i j|i<j} n (X:Type@{i}) : isofhlevel@{i} n X ≃ isofhlevel@{j} n X.
+(* if this fact turns out to be needed, finish the proof *)
+Proof.
+  intro.
+  Fail exact (λ X, idweq _).    (* cannot unify "isofhlevel@{i} n X" and "isofhlevel@{j} n X" *)
+  induction n as [|n IH].
+  - intro. exact (idweq _).
+  -
+Abort.
 
 (** ***  Functions to a contractible type *)
 

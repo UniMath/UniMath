@@ -1869,7 +1869,7 @@ Proof.
   induction n as [ | n IHn ].
   - apply ( isdecpropweqb ( weqexistsnatlehn0 P' ) ).
     apply ( is 0 ).
-  - apply ( isdecpropweqb ( weqexistsnatlehnsn' _ P' ) ).
+  - use ( isdecpropweqb ( weqexistsnatlehnsn' _ P' ) ).
     apply isdecprophdisj.
     + apply IHn.
     + apply ( is ( S n ) ).
@@ -2008,7 +2008,7 @@ Corollary dni_lastelement_is_inj {n : nat} {i j : ⟦n⟧ }
   i = j.
 Proof.
   intros n i j e.
-  apply isinjstntonat.
+  use isinjstntonat.
   unfold dni_lastelement in e.
   apply (maponpaths pr1) in e.
   exact e.
@@ -2018,7 +2018,7 @@ Corollary dni_lastelement_eq : ∏ (n : nat) (i : ⟦S n⟧ ) (ie : pr1 i < n),
     i = dni_lastelement (stnpair n (pr1 i) ie).
 Proof.
   intros n i ie.
-  apply isinjstntonat.
+  use isinjstntonat.
   apply idpath.
 Defined.
 
@@ -2027,7 +2027,7 @@ Corollary lastelement_eq : ∏ (n : nat) (i : ⟦S n⟧ ) (e : pr1 i = n),
 Proof.
   intros n i e.
   unfold lastelement.
-  apply isinjstntonat.
+  use isinjstntonat.
   apply e.
 Defined.
 

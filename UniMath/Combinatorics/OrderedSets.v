@@ -74,7 +74,7 @@ Lemma posetStructureIdentity {X:hSet} (R S:PartialOrder X) :
 Proof.
   intros. split.
   { intros e.
-    apply subtypeEquality. { intros T. apply isaprop_isPartialOrder. }
+    apply subtypeEquality. { intros T. use isaprop_isPartialOrder. }
     induction R as [R r]; induction S as [S s]; simpl.
     apply funextfun; intro x; apply funextfun; intro y.
     unfold isPosetEquivalence in e.
@@ -107,14 +107,16 @@ Defined.
 Lemma Poset_univalence_compute {X Y:Poset} (e:X=Y) :
   Poset_univalence_0 X Y e = Poset_univalence_map e.
 Proof.
-  try reflexivity.              (* fails, so we use "remakeweq" below *)
+  Fail reflexivity.              (* fails, so we use "remakeweq" below *)
 Abort.
 
 Theorem Poset_univalence (X Y:Poset) : X=Y ≃ X≅Y.
 Proof.
   intros.
   assert (k : pr1weq (Poset_univalence_0 X Y) ~ @Poset_univalence_map X Y).
-  { intro e. apply isinj_pr1_PosetEquivalence. induction e. reflexivity. }
+  { intro e.
+    refine (hfiberpr1 _ _ (iscontrpr1 (isinj_pr1_PosetEquivalence _ _ _ _ _))).
+    induction e. reflexivity. }
   exact (remakeweq k).
 Defined.
 
@@ -248,7 +250,7 @@ Proof. intros ? i ? ?. apply isdeceq_isdec_lessthan. now apply isfinite_isdeceq.
 Defined.
 
 Lemma isincl_underlyingPoset : isincl underlyingPoset.
-Proof. apply isinclpr1. intros X. apply isaprop_istotal. Defined.
+Proof. apply isinclpr1. intros X. use isaprop_istotal. Defined.
 
 Definition underlyingPoset_weq (X Y:OrderedSet) :
   X=Y ≃ (underlyingPoset X)=(underlyingPoset Y).

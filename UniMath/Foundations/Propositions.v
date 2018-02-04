@@ -143,10 +143,17 @@ Proof.
   intros A B s s'. apply invmap. apply subtypeInjectivity_prop.
 Defined.
 
-Corollary impred_prop {T : UU} (P : T -> hProp) : isaprop (∏ t : T, P t).
-Proof.
-  intros. apply impred; intro. apply propproperty.
-Defined.
+Section impred_prop.
+
+  Universe i.
+  Constraint uu0 < i.           (* without this, we get i = uu0 belo *)
+
+  Corollary impred_prop@{} {T : Type@{i}} (P : T -> hProp) : isaprop@{i} (∏ t : T, P t).
+  Proof.
+    intros. apply impred; intro. apply propproperty.
+  Defined.
+
+End impred_prop.
 
 Corollary isaprop_total2 (X : hProp) (Y : X -> hProp) : isaprop (∑ x, Y x).
 Proof.
@@ -159,7 +166,7 @@ Defined.
 Section forall_hProp.
 
   Universe i.
-  Constraint uu1 < i.           (* without this, the next def'n gives i = uu0 *)
+  Constraint uu0 < i.           (* without this, the next def'n gives i = uu0 *)
 
   Lemma isaprop_forall_hProp@{} (X : Type@{i}) (Y : X -> hProp) : isaprop@{i} (∏ x, Y x).
   Proof.
@@ -244,7 +251,7 @@ Proof.
   intros ? ? i f h. exact (@hinhuniv X (Q,,i) f h).
 Defined.
 
-Corollary squash_to_prop@{i j} {X Q : Type@{i}} : ishinh@{i} X -> isaprop Q -> (X -> Q) -> Q.
+Corollary squash_to_prop@{i} {X Q : Type@{i}} : ishinh@{i} X -> isaprop Q -> (X -> Q) -> Q.
 Proof.
   intros ? ? h i f. exact (@hinhuniv X (tpair@{i} _ (ResizeProp Q i) i) f h).
 Defined.

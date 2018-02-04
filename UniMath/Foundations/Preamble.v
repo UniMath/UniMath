@@ -176,7 +176,7 @@ adding the option "Set Primitive Projections".  It also speeds up compilation by
 Set Primitive Projections.
 Set Nonrecursive Elimination Schemes.
 
-Record total2@{i} { T: Type@{i} } ( P: T -> Type@{i} ) : Type@{i}
+Record total2@{i} {T : Type@{i}} (P : T -> Type@{i}) : Type@{i}
   := tpair { pr1 : T; pr2 : P pr1 }.
 
 Arguments tpair {_} _ _ _.
@@ -188,8 +188,3 @@ Notation "'∑'  x .. y , P" := (total2 (λ x, .. (total2 (λ y, P)) ..))
   (* type this in emacs in agda-input method with \sum *)
 
 Notation "x ,, y" := (tpair _ x y).
-
-Definition foo (X:Type) (xy : @total2 X (λ _, X)) : X.
-  induction xy as [x y].
-  exact x.
-Defined.

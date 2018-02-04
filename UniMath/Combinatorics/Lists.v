@@ -353,18 +353,25 @@ Proof.
   exact (weqpair _ (isweqlistfun _)).
 Defined.
 
-Lemma isofhleveliterprod (n : nat) (k : nat) {X : UU} (is1 : isofhlevel n X) : isofhlevel n (iterprod k X).
-Proof.
-  induction k as [|k IH].
-  - apply isofhlevelcontr, iscontrunit.
-  - apply isofhleveldirprod.
-    + apply is1.
-    + apply IH.
-Qed.
+Section isofhleveliterprod.
+
+  Universe i.
+  Constraint uu0 < i.           (* without this, we get uu0 = i in the next definition *)
+
+  Lemma isofhleveliterprod (n : nat) (k : nat) {X : Type@{i}} (is1 : isofhlevel n X) : isofhlevel n (iterprod k X).
+  Proof.
+    induction k as [|k IH].
+    - apply isofhlevelcontr, iscontrunit.
+    - apply isofhleveldirprod.
+      + apply is1.
+      + apply IH.
+  Qed.
+
+End isofhleveliterprod.
 
 Lemma isofhlevellist (n : nat) {X : UU} (is1 : isofhlevel (S (S n)) X) : isofhlevel (S (S n)) (list X).
 Proof.
   use isofhleveltotal2.
   - intros m k. apply isofhlevelsnprop, isasetnat.
-  - intro m. apply isofhleveliterprod, is1.
+  - intro m. use isofhleveliterprod. apply is1.
 Qed.

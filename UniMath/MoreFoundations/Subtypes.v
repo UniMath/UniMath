@@ -119,7 +119,7 @@ Notation "⋂ S" := (subtype_intersection S) (at level 100, no associativity) : 
 Section hsubtype_univalence.
 
   Universe i.
-  Constraint uu1 < i.
+  (* Constraint uu1 < i. *)
 
   Theorem hsubtype_univalence@{} {X:Type@{i}} (S T : hsubtype@{i} X) : (S = T) ≃ (S ≡ T).
   Proof.
