@@ -10,6 +10,7 @@ Require Export UniMath.Algebra.ConstructiveStructures.
 Require Export UniMath.Algebra.Archimedean.
 Require Export UniMath.Algebra.Lattice.
 Require Export UniMath.Algebra.IteratedBinaryOperations.
+Require Export UniMath.Algebra.Free_Monoids_and_Groups.
 Require Export UniMath.Algebra.Tests.
 Require Export UniMath.Algebra.Modules.Core.
 Require Export UniMath.Algebra.Modules.Submodule.
