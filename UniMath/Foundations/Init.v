@@ -4,6 +4,10 @@ Require Export Coq.Init.Logic.  (* this fixes the advanced forms of the 'rewrite
 
 Require Export Coq.Init.Notations. (* get the standard Coq reserved notations *)
 
+Require Export Coq.Init.Datatypes. (* this should get our replacement *)
+Definition is_this_our_nat := this_is_our_nat. (* verify it *)
+Definition test_nat_syntax := 123.
+
 (** Notations *)
 
 Notation "'∏'  x .. y , P" := (forall x, .. (forall y, P) ..)

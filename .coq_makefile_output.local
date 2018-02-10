@@ -1,0 +1,3 @@
+
+# Here we take care of our replacement for part of Coq.Init
+Coq/Init/Datatypes.vo : COQFLAGS += -boot
