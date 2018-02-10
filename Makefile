@@ -53,10 +53,6 @@ COQIDE_OPTION := opt
 endif
 endif
 
-all html install uninstall:; $(MAKE) -f build/CoqMakefile.make $@
-clean::; $(MAKE) -f build/CoqMakefile.make $@
-distclean::; $(MAKE) -f build/CoqMakefile.make cleanall archclean
-
 COQ_PATH := -Q Coq Coq -Q UniMath UniMath
 
 # override the definition in build/CoqMakefile.make, to eliminate the -utf8 option
@@ -68,12 +64,17 @@ PACKAGE_FILES := $(patsubst %, UniMath/%/.package/files, $(PACKAGES))
 
 ifneq "$(INCLUDE)" "no"
 include .coq_makefile_output.conf
+VFILES := $(COQMF_VFILES)
+VOFILES := $(VFILES:.v=.vo)
 endif
 
 ifeq ($(BUILD_COQ),yes)
-# this comes after including build/CoqMakefile.make, to bet VFILES defined
-$(VFILES:.v=.vo) : $(COQBIN)coqc
+$(VOFILES) : $(COQBIN)coqc
 endif
+
+all html install uninstall $(VOFILES) $(VFILES:.v=.v.d):; $(MAKE) -f build/CoqMakefile.make $@
+clean::; $(MAKE) -f build/CoqMakefile.make $@
+distclean::; $(MAKE) -f build/CoqMakefile.make cleanall archclean
 
 OTHERFLAGS += $(MOREFLAGS)
 OTHERFLAGS += -noinit -indices-matter -type-in-type -w '-notation-overridden,-local-declaration,+uniform-inheritance,-deprecated-option'
@@ -132,7 +133,7 @@ $(foreach P,$(PACKAGES),$(eval TAGS-$P: Makefile $(filter UniMath/$P/%,$(VFILES)
 TAGS : Makefile $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
 FILES_FILTER := grep -vE '^[[:space:]]*(\#.*)?$$'
 FILES_FILTER_2 := grep -vE '^[[:space:]]*(\#.*)?$$$$'
-$(foreach P,$(PACKAGES),$(eval $P: check-first $(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\)=UniMath/$P/\1o=" )))
+$(foreach P,$(PACKAGES),$(eval $P: check-first; $(MAKE) -f build/CoqMakefile.make $(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\).v=UniMath/$P/\1.vo=" )))
 install:all
 coqwc:; coqwc $(VFILES)
 lc:; wc -l $(VFILES)
