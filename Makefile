@@ -45,7 +45,7 @@ ifeq "$(BUILD_COQ)" "yes"
 COQBIN=sub/coq/bin/
 all: build-coq
 build-coq: sub/coq/bin/coqc
-build/CoqMakefile.make: $(COQBIN)coq_makefile
+build/CoqMakefile.make .coq_makefile_output.conf: $(COQBIN)coq_makefile
 ifeq "$(BUILD_COQIDE)" "yes"
 all: build-coqide
 build-coqide: sub/coq/bin/coqide

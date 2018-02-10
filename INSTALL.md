@@ -15,7 +15,7 @@ do that is with "Homebrew", available from http://brew.sh/, with the following
 command:
 
 ```bash
-$ brew install objective-caml ocaml-num camlp5 camlp4 lablgtk bash
+$ brew install objective-caml ocaml-num camlp5 lablgtk bash
 ```
 
 If installing `lablgtk` fails, you can omit it, but you won't be able to build
