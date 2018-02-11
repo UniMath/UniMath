@@ -76,16 +76,10 @@ Module Test_int.
 
   Goal true = (hzbooleq (natnattohz 3 4) (natnattohz 17 18)) . reflexivity. Qed.
   Goal false = (hzbooleq (natnattohz 3 4) (natnattohz 17 19)) . reflexivity. Qed.
-  (*
-    wait for numeral parsing
-  Goal 274 = (hzabsval (natnattohz 58 332)) . reflexivity. Qed.
-   *)
+  Goal 2 * 100 + 7 * 10 + 4 = (hzabsval (natnattohz (5 * 10 + 8) (3 * 100 + 3 * 10 + 2))) . reflexivity. Qed.
   Goal O = (hzabsval (hzplus (natnattohz 2 3) (natnattohz 3 2))) . reflexivity. Qed.
   Goal 2 = (hzabsval (hzminus (natnattohz 2 3) (natnattohz 3 2))) . reflexivity. Qed.
-  (*
-    wait for numeral parsing
-  Goal 300 =  (hzabsval (hzmult (natnattohz 20 50) (natnattohz 30 20))) . reflexivity. Qed.
-   *)
+  Goal 3 * 100 =  (hzabsval (hzmult (natnattohz (2 * 10) (5 * 10)) (natnattohz (3 * 10) (2 * 10)))) . reflexivity. Qed.
 
 End Test_int.
 
