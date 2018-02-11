@@ -2,6 +2,19 @@
 Require Import UniMath.MoreFoundations.Foundations.
 Require Import UniMath.MoreFoundations.Tactics.
 
+(** The type of curried functions between types is equivalent
+    to the type of uncurried functions between them. *)
+Lemma curried_uncurried_weq {X Z : UU} {Y : X -> UU} :
+  ((∑ x : X, Y x) -> Z) ≃ (∏ x : X, Y x -> Z).
+  apply (weq_iso curry uncurry);
+    intro;
+    apply funextsec;
+    intro.
+  - apply uncurry_curry.
+  - apply funextfun; intro.
+    apply curry_uncurry.
+Defined.
+
 Lemma base_paths_pair_path_in2 {X : UU} (P : X → UU) {x : X} {p q : P x} (e : p = q) :
   base_paths _ _ (pair_path_in2 P e) = idpath x.
 Proof.
