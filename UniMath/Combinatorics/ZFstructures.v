@@ -965,17 +965,6 @@ Proof.
   apply propproperty.
 Qed.
 
-(*
-REMOVE if OK
-Lemma isaset_ZFS : isaset ZFS.
-Proof.
-  apply (isofhleveltotal2 2).
-  - apply isaset_preZFS.
-  - intros x.
-     apply hlevelntosn.
-     apply isaprop_hasuniquerepbranch.
-Qed.
-*)
 
 Definition ZFS_Branch (X : ZFS) (x : X) : ZFS :=
   (Branch X x ,, ZFS_Branch_is_ZFS X x).
