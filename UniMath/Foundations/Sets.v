@@ -839,7 +839,7 @@ Definition carrierofposetmorphism (X Y : Poset) : posetmorphism X Y -> (X -> Y)
   := @pr1 _ _.
 Coercion carrierofposetmorphism : posetmorphism >-> Funclass.
 
-Definition isdec_ordering (X : Poset) : UU
+Definition isdec_ordering@{i j} (X : Poset@{i j}) : Type@{i}
   := ∏ (x y : X), decidable (x ≤ y)%poset.
 
 Lemma isaprop_isaposetmorphism {X Y : Poset} (f : X -> Y) :

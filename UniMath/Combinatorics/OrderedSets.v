@@ -319,10 +319,10 @@ Proof. intros. exact (pr2 (pr1 X)). Defined.
 Lemma FiniteOrderedSet_isdeceq {X:FiniteOrderedSet} : isdeceq X.
 Proof. intros. apply isfinite_isdeceq. apply finitenessProperty. Defined.
 
-Lemma FiniteOrderedSet_isdec_ordering {X:FiniteOrderedSet} : isdec_ordering X.
+Lemma FiniteOrderedSet_isdec_ordering@{i j} {X:FiniteOrderedSet@{i j}} : isdec_ordering X.
 Proof. intros. apply isfinite_isdec_ordering. apply finitenessProperty. Defined.
 
-Definition FiniteOrderedSetDecidableOrdering (X:FiniteOrderedSet) : DecidableRelation X :=
+Definition FiniteOrderedSetDecidableOrdering@{i j} (X:FiniteOrderedSet@{i j}) : DecidableRelation X :=
   λ (x y:X), decidable_to_DecidableProposition (FiniteOrderedSet_isdec_ordering x y).
 
 Definition FiniteOrderedSetDecidableEquality (X:FiniteOrderedSet) : DecidableRelation X :=
@@ -403,44 +403,23 @@ Proof.
 Defined.
 
 Local Open Scope foset.
-Definition transportFiniteOrdering {n} {X:UU} : X ≃ ⟦ n ⟧ -> FiniteOrderedSet.
+Definition transportFiniteOrdering@{i j} {n} {X:Type@{i}} : X ≃ ⟦ n ⟧ -> FiniteOrderedSet@{i j}.
 (* The new finite ordered set has X as its underlying set. *)
 Proof.
   intros ? ? w.
   simple refine (_,,_).
   - simple refine (_,,_).
     * simple refine (_,,_).
-    + exists X. apply (isofhlevelweqb 2 w). apply setproperty.
+      + exists X. apply (isofhlevelweqb 2 w). apply setproperty.
       + unfold PartialOrder; simpl. simple refine (_,,_).
-        { intros x y. exact (w x ≤ w y). }
-        simpl.
-        simple refine (inducedPartialOrder_weq w _ _).
-
-        exact (
-          inducedPartialOrder_weq w (posetRelation (⟦ n ⟧)%foset) pr221 (pr1 (⟦ n ⟧)%foset)
-        ).
-        exact (pr2 (pr2 (pr1 (pr1 (⟦ n ⟧))))).
+        -- intros x y. exact (w x ≤ w y).
+        -- exact (inducedPartialOrder_weq w (posetRelation (⟦ n ⟧)) pr221 (pr1 (⟦ n ⟧))).
     * intros x y. apply (pr2 (pr1 (⟦ n ⟧))).
   - simpl.
     apply (isfiniteweqb w).
     exact (pr2 (⟦ n ⟧)).
 Defined.
 Close Scope foset.
-
-transportFiniteOrdering =
-λ (n : nat) (X : UU) (w : X ≃ (⟦ n ⟧)%foset),
-(((X,, isofhlevelweqb 2 w (setproperty (⟦ n ⟧)%foset)),,
-  (λ x y : X, (w y >= w x)%foset),,
-  inducedPartialOrder_weq w (posetRelation (⟦ n ⟧)%foset) pr221 (pr1 (⟦ n ⟧)%foset)),,
- (λ (x : (X,, isofhlevelweqb 2 w (setproperty (⟦ n ⟧)%foset)),,
-         (λ x y : X, (w y >= w x)%foset),,
-         inducedPartialOrder_weq w (posetRelation (⟦ n ⟧)%foset) pr221 (pr1 (⟦ n ⟧)%foset))
-  (y : (X,, isofhlevelweqb 2 w (setproperty (⟦ n ⟧)%foset)),,
-       (λ x0 y : X, (w y >= w x0)%foset),,
-       inducedPartialOrder_weq w (posetRelation (⟦ n ⟧)%foset) pr221 (pr1 (⟦ n ⟧)%foset)),
-  pr21 (⟦ n ⟧)%foset (w x) (w y))),, isfiniteweqb w (pr2 (⟦ n ⟧)%foset)
-     : ∏ (n : nat) (X : UU), X ≃ (⟦ n ⟧)%foset → FiniteOrderedSet
-
 
 (** concatenating finite ordered families of finite ordered sets *)
 
