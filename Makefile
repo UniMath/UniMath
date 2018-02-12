@@ -29,11 +29,11 @@ BUILD_COQIDE ?= no
 COQBIN ?=
 ############################################
 
-.PHONY: our-all all everything install lc lcp wc describe clean distclean build-coq doc build-coqide
-our-all: check-first
-our-all: check-for-change-to-Foundations
-our-all: make-summary-files
-everything: TAGS our-all html install
+.PHONY: all everything install lc lcp wc describe clean distclean build-coq doc build-coqide html
+all: check-first
+all: check-for-change-to-Foundations
+all: make-summary-files
+everything: TAGS all html install
 check-first: enforce-prescribed-ordering check-travis
 
 COQIDE_OPTION := no
@@ -53,7 +53,7 @@ our-all: real-all
 
 # override the definition in build/CoqMakefile.make, to eliminate the -utf8 option
 COQDOC := coqdoc
-COQDOCFLAGS := -interpolate --charset utf-8
+COQDOCFLAGS := -interpolate --charset utf-8 -Q UniMath UniMath
 COQDOC_OPTIONS := -toc $(COQDOCFLAGS) $(COQDOCLIBS) -utf8
 
 PACKAGE_FILES := $(patsubst %, UniMath/%/.package/files, $(PACKAGES))
@@ -201,9 +201,12 @@ git-describe:
 doc: $(GLOBFILES) $(VFILES) 
 	mkdir -p $(ENHANCEDDOCTARGET)
 	cp $(ENHANCEDDOCSOURCE)/proofs-toggle.js $(ENHANCEDDOCTARGET)/proofs-toggle.js
-	$(COQDOC) -toc $(COQDOCFLAGS) -html $(COQDOCLIBS) -d $(ENHANCEDDOCTARGET) \
-	--with-header $(ENHANCEDDOCSOURCE)/header.html $(VFILES)
-	sed -i'.bk' -f $(ENHANCEDDOCSOURCE)/proofs-toggle.sed $(ENHANCEDDOCTARGET)/*html
+	$(SHOW)COQDOC
+	$(HIDE)$(COQDOC)							\
+	    -toc $(COQDOCFLAGS) -html $(COQDOCLIBS) -d $(ENHANCEDDOCTARGET)	\
+	    --with-header $(ENHANCEDDOCSOURCE)/header.html			\
+	    $(VFILES)
+	sed -i '.bk' -f $(ENHANCEDDOCSOURCE)/proofs-toggle.sed $(ENHANCEDDOCTARGET)/*html
 
 # Jason Gross' coq-tools bug isolator:
 # The isolated bug will appear in this file, in the UniMath directory:

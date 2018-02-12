@@ -122,32 +122,33 @@ Fixpoint min n m :=
     | S n', S m' => S (min n' m')
   end.
 
-(* some code is commented out with this comment: wait for numeral parsing *)
 Notation  "0" := (O) : nat_scope.
-Notation  "1" := (S O) : nat_scope.
-Notation  "2" := (S (S O)) : nat_scope.
-Notation  "3" := (S (S (S O))) : nat_scope.
-Notation  "4" := (S (S (S (S O)))) : nat_scope.
-Notation  "5" := (S (S (S (S (S O))))) : nat_scope.
-Notation  "6" := (S (S (S (S (S (S O)))))) : nat_scope.
-Notation  "7" := (S (S (S (S (S (S (S O))))))) : nat_scope.
-Notation  "8" := (S (S (S (S (S (S (S (S O)))))))) : nat_scope.
-Notation  "9" := (S (S (S (S (S (S (S (S (S O))))))))) : nat_scope.
-Notation "10" := (S (S (S (S (S (S (S (S (S (S O)))))))))) : nat_scope.
-Notation "11" := (S (S (S (S (S (S (S (S (S (S (S O))))))))))) : nat_scope.
-Notation "12" := (S (S (S (S (S (S (S (S (S (S (S (S O)))))))))))) : nat_scope.
-Notation "13" := (S (S (S (S (S (S (S (S (S (S (S (S (S O))))))))))))) : nat_scope.
-Notation "14" := (S (S (S (S (S (S (S (S (S (S (S (S (S (S O)))))))))))))) : nat_scope.
-Notation "15" := (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S O))))))))))))))) : nat_scope.
-Notation "16" := (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S O)))))))))))))))) : nat_scope.
-Notation "17" := (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S O))))))))))))))))) : nat_scope.
-Notation "18" := (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S O)))))))))))))))))) : nat_scope.
-Notation "19" := (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S O))))))))))))))))))) : nat_scope.
-Notation "20" := (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S O)))))))))))))))))))) : nat_scope.
-Notation "21" := (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S O))))))))))))))))))))) : nat_scope.
-Notation "22" := (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S O)))))))))))))))))))))) : nat_scope.
-Notation "23" := (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S O))))))))))))))))))))))) : nat_scope.
-Notation "24" := (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S (S O)))))))))))))))))))))))) : nat_scope.
+Notation  "1" := (S 0) : nat_scope.
+Notation  "2" := (S 1) : nat_scope.
+Notation  "3" := (S 2) : nat_scope.
+Notation  "4" := (S 3) : nat_scope.
+Notation  "5" := (S 4) : nat_scope.
+Notation  "6" := (S 5) : nat_scope.
+Notation  "7" := (S 6) : nat_scope.
+Notation  "8" := (S 7) : nat_scope.
+Notation  "9" := (S 8) : nat_scope.
+Notation "10" := (S 9) : nat_scope.
+Notation "11" := (S 10) : nat_scope.
+Notation "12" := (S 11) : nat_scope.
+Notation "13" := (S 12) : nat_scope.
+Notation "14" := (S 13) : nat_scope.
+Notation "15" := (S 14) : nat_scope.
+Notation "16" := (S 15) : nat_scope.
+Notation "17" := (S 16) : nat_scope.
+Notation "18" := (S 17) : nat_scope.
+Notation "19" := (S 18) : nat_scope.
+Notation "20" := (S 19) : nat_scope.
+Notation "21" := (S 20) : nat_scope.
+Notation "22" := (S 21) : nat_scope.
+Notation "23" := (S 22) : nat_scope.
+Notation "24" := (S 23) : nat_scope.
+Notation "100" := (10 * 10) : nat_scope.
+Notation "1000" := (10 * 100) : nat_scope.
 
 (** Identity Types *)
 
