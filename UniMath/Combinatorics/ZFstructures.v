@@ -39,17 +39,6 @@ Require Export UniMath.MoreFoundations.DecidablePropositions.
 *)
 
 
-Lemma iscontr_to_iscontrid (X : UU) : iscontr X → ∏ (x y : X), iscontr (x = y).
-Proof.
-  intros C x y.
-  destruct C as [c η].
-  exists ((η x) @ ! (η y)).
-  intros.
-  induction t.
-  symmetry.
-  apply (pathsinv0r _).
-Qed.
-
 Lemma iscontr_propid (P : UU) (is : isaprop P) : iscontr (P = P).
 Proof.
   assert (π : isaprop (P=P)).
@@ -508,7 +497,7 @@ Proof.
   intros x y p.
   induction p.
   intros q.
-  apply (iscontr_to_iscontrid (x = x) (preZFS_isrigid x) (idpath x) q).
+  apply (hlevelntosn 0 (x = x) (preZFS_isrigid x) (idpath x) q).
 Qed.
 
 Definition preZFS_iso (X Y : preZFS) := Tree_iso (pr1 X) (pr1 Y).
