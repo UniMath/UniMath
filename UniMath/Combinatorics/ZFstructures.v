@@ -64,40 +64,7 @@ Defined.
 
 Lemma contr_to_pr1contr (X : UU) (P : X → hProp) (T : ∑ x, P x) (C : iscontr (T = T)) : iscontr ((pr1 T) = (pr1 T)).
 Proof.
-  set (c := pr1 C).
-  apply total2_paths_equiv in c.
-  set (prc := pr1 c).
-  exists prc.
-  intros.
-  unfold iscontr in C.
-  destruct C as [cc η].
-  assert (extinv : pr1 (ext X P T t) = t).
-  {
-    reflexivity.
-  }
-  set (q := ext X P T t).
-  set (finv := @invweq _ _ (@total2_paths_equiv X P T T)).
-  set (f := @total2_paths_equiv X P T T).
-  set (H1 := η (finv q)).
-  set (H2 := η (finv c)).
-  set (HHH := @weqcompinvl _ _ f).
-  assert (LL : ∏ x, (f ∘ finv) x = x).
-  {
-    apply weqfunextsec.
-    apply total2_paths_equiv in HHH.
-    apply (pr1 HHH).
-  }
-  set (h1 := LL q).
-  set (h2 := LL c).
-  set (l := H1 @ ! H2).
-  assert (h3 : (f (finv q)) = (f (finv c))).
-  {
-    rewrite -> l. reflexivity.
-  }
-  set (Θ := (! h1 @ h3 @ h2)).
-  apply total2_paths_equiv in Θ.
-  set (θ := pr1 Θ).
-  apply θ.
+  exact (@isofhlevelweqf 0 (T = T) (pr1 T = pr1 T) (@total2_paths_hProp_equiv _ _ T T) C).
 Qed.
 
 
