@@ -14,6 +14,9 @@ Table of Contents:
       (3) Definition of ZFS
       (4) The Elementhood Relation
 
+A textbook reference for some of the material in this file can be found in:
+     - Mac Lane and Moerdijk, "Sheaves in Geometry and Logic", VI.10
+
 ****)
 
 
