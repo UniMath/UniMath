@@ -52,8 +52,8 @@ Local Lemma ident_is_prop : ∏ (P : UU -> hProp) (X X' : UU)
    isaprop (transportf P w pX = pX').
 Proof.
   intros P X X' pX pX' w.
-  apply isapropifcontr.
-  apply (pr2 (P X')).
+  use isapropifcontr.
+  use (pr2 (P X')).
 Defined.
 
 
@@ -182,7 +182,7 @@ Proof.
   simpl.
   intros [X pX] [X' pX'].
   set (H := isofhlevelweqb n
-       (Id_p_weq_Id (λ X, tpair isaprop (isofhlevel n X)
+       (Id_p_weq_Id (λ X, hProppair (isofhlevel n X)
                                (isapropisofhlevel _ _)) X X' pX pX')).
   apply H.
   apply isofhlevelpathspace;
@@ -213,6 +213,6 @@ Proof.
   intros n [X pX] [X' pX'].
   simpl.
   apply (UA_for_Predicates
-       (λ X, tpair isaprop (isofhlevel n X)
+       (λ X, hProppair (isofhlevel n X)
                                       (isapropisofhlevel _ _))).
 Defined.

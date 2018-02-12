@@ -13,9 +13,9 @@ Require Export UniMath.Foundations.Init.
 
 (** Universe structure *)
 
-Monomorphic Universe uu0.       (* level 0 -- empty, unit, resized propositions and elements of hProp live here *)
-Monomorphic Universe uu1.       (* level 1 -- bool, nat, and hProp live here *)
-Monomorphic Universe uu2.       (* level 2 -- hPropset lives here *)
+Monomorphic Universe uu0.       (* level 0 -- resized propositions and elements of hProp live here *)
+Monomorphic Universe uu1.       (* level 1 -- empty, unit, bool, nat, and hProp live here *)
+Monomorphic Universe uu2.       (* level 2 -- hPropset, unitset, natset, ... live here *)
 
 Constraint uu0 < uu1, uu1 < uu2.
 
@@ -35,13 +35,13 @@ Global Unset Printing Notations.
 
 (** The empty type *)
 
-Monomorphic Inductive empty : UU0 := .
+Monomorphic Inductive empty : UU1 := .
 
 Notation "∅" := empty.
 
 (** The one-element type *)
 
-Monomorphic Inductive unit : UU0 :=
+Monomorphic Inductive unit : UU1 :=
   | tt : unit.
 
 (** The two-element type *)

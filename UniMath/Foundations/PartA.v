@@ -1572,11 +1572,6 @@ Section isweqcontrtounit.
     use ifcontrthenunitl0.
   Defined.
 
-  Check (@isweqcontrtounit bool). (* detect the universe inconsistency *)
-
-  (* another way to fix it is to checkout sub/coq from
-     https://github.com/SkySkimmer/coq/tree/univ-cumul *)
-
 End isweqcontrtounit.
 
 Definition weqcontrtounit {T : UU} (is : iscontr T) : T ≃ unit :=
@@ -2862,7 +2857,7 @@ Proof.
   intro. induction x. apply (ii1 (idpath _)). apply (ii2 (idpath _)).
 Defined.
 
-Definition bool_to_type : bool -> UU0.
+Definition bool_to_type : bool -> UU1.
 Proof.
   intros b. induction b as [|]. { exact unit. } { exact empty. }
 Defined.

@@ -144,7 +144,7 @@ Notation "'∏' x .. y , P" := (forall_hSet (λ x,.. (forall_hSet (λ y, P))..))
   (at level 200, x binder, y binder, right associativity) : set.
   (* type this in emacs in agda-input method with \sum *)
 
-Definition unitset : hSet@{uu0 uu1} := hSetpair unit isasetunit.
+Definition unitset : hSet := hSetpair@{uu1 uu2} unit isasetunit.
 
 Definition dirprod_hSet (X Y : hSet) : hSet.
 Proof.
@@ -565,17 +565,17 @@ Definition neqchoice {X : UU} (R : hrel X) : UU
 
 (** proofs that the properties are propositions  *)
 
-Lemma isaprop_istrans {X : hSet} (R : hrel X) : isaprop (istrans R).
+Lemma isaprop_istrans@{i j} {X : hSet@{i j}} (R : hrel@{i} X) : isaprop (istrans@{i i i} R).
 Proof.
   intros. repeat (apply impred;intro). apply propproperty.
 Defined.
 
-Lemma isaprop_isrefl {X : hSet} (R : hrel X) : isaprop (isrefl R).
+Lemma isaprop_isrefl@{i j} {X : hSet@{i j}} (R : hrel@{i} X) : isaprop (isrefl@{i i i} R).
 Proof.
   intros. apply impred; intro. apply propproperty.
 Defined.
 
-Lemma isaprop_istotal {X : hSet} (R : hrel X) : isaprop (istotal R).
+Lemma isaprop_istotal@{i j} {X : hSet@{i j}} (R : hrel@{i} X) : isaprop (istotal@{i i i i} R).
 Proof.
   intros. unfold istotal.
   apply impred; intro x.
@@ -583,13 +583,13 @@ Proof.
   apply propproperty.
 Defined.
 
-Lemma isaprop_isantisymm {X : hSet} (R : hrel X) : isaprop (isantisymm R).
+Lemma isaprop_isantisymm@{i j} {X : hSet@{i j}} (R : hrel@{i} X) : isaprop (isantisymm@{i i i} R).
 Proof.
   intros. unfold isantisymm. apply impred; intro x. apply impred; intro y.
   apply impred; intro r. apply impred; intro s. apply setproperty.
 Defined.
 
-Lemma isaprop_ispreorder {X : hSet} (R : hrel X) : isaprop (ispreorder R).
+Lemma isaprop_ispreorder@{i j} {X : hSet@{i j}} (R : hrel@{i} X) : isaprop (ispreorder@{i i i i} R).
 Proof.
   intros.
   unfold ispreorder.
@@ -598,8 +598,8 @@ Proof.
   { apply isaprop_isrefl. }
 Defined.
 
-Lemma isaprop_isPartialOrder {X : hSet} (R : hrel X) :
-  isaprop (isPartialOrder R).
+Lemma isaprop_isPartialOrder@{i j} {X : hSet@{i j}} (R : hrel@{i} X) :
+  isaprop (isPartialOrder@{i i i i} R).
 Proof.
   intros.
   unfold isPartialOrder.
@@ -610,7 +610,7 @@ Defined.
 
 (** the relations on a set form a set *)
 
-Definition isaset_hrel (X : hSet) : isaset (hrel X).
+Definition isaset_hrel@{i j} (X : hSet@{i j}) : isaset (hrel@{i} X).
   intros. unfold hrel.
   apply impred_isaset; intro x.
   apply impred_isaset; intro y.
@@ -796,19 +796,19 @@ Coercion carrierofPreorderedSet : PreorderedSet >-> hSet.
 Definition PreorderedSetRelation (X : PreorderedSet) : hrel X := pr1 (pr2 X).
 
 (* partial orderings *)
-Definition PartialOrder (X : hSet) : UU := ∑ R : hrel X, isPartialOrder R.
+Definition PartialOrder@{i j} (X : hSet@{i j}) : Type@{i} := ∑ R : hrel@{i} X, isPartialOrder R.
 Definition PartialOrderpair {X : hSet} (R : hrel X) (is : isPartialOrder R) :
   PartialOrder X
   := tpair isPartialOrder R is.
 Definition carrierofPartialOrder {X : hSet} : PartialOrder X -> hrel X := pr1.
 Coercion carrierofPartialOrder : PartialOrder >-> hrel.
 
-Definition Poset : UU := ∑ X, PartialOrder X.
+Definition Poset@{i j} : Type@{j} := ∑ X : hSet@{i j}, PartialOrder X.
 Definition Posetpair (X : hSet) (R : PartialOrder X) : Poset
   := tpair PartialOrder X R.
-Definition carrierofposet : Poset -> hSet := pr1.
+Definition carrierofposet@{i j} : Poset@{i j} -> hSet@{i j} := pr1.
 Coercion carrierofposet : Poset >-> hSet.
-Definition posetRelation (X : Poset) : hrel X := pr1 (pr2 X).
+Definition posetRelation@{i j} (X : Poset@{i j}) : hrel@{i} X := pr1 (pr2 X).
 
 Lemma isrefl_posetRelation (X : Poset) : isrefl (posetRelation X).
 Proof.
@@ -860,7 +860,7 @@ Defined.
 
 (** the partial orders on a set form a set *)
 
-Definition isaset_PartialOrder X : isaset (PartialOrder X).
+Definition isaset_PartialOrder@{i j} X : isaset (PartialOrder@{i j} X).
   intros.
   unfold PartialOrder.
   apply (isofhleveltotal2 2).
@@ -919,8 +919,8 @@ Defined.
 Notation "m < n" := (m ≤ n × m != n)%poset (only parsing) : poset.
 Definition isMinimal {X : Poset} (x : X) : UU := ∏ y, x ≤ y.
 Definition isMaximal {X : Poset} (x : X) : UU := ∏ y, y ≤ x.
-Definition consecutive {X : Poset} (x y : X) : UU
-  := x < y × ∏ z, ¬ (x < z × z < y).
+Definition consecutive@{i j} {X : Poset@{i j}} (x y : X) : Type@{i}
+  := dirprod@{i} (x < y) (∏ z, ¬ (x < z × z < y)).
 
 Lemma isaprop_isMinimal {X : Poset} (x : X) : isaprop (isMaximal x).
 Proof.
@@ -932,10 +932,10 @@ Proof.
   intros. unfold isMaximal. apply impred_prop.
 Defined.
 
-Lemma isaprop_consecutive {X : Poset} (x y : X) : isaprop (consecutive x y).
+Lemma isaprop_consecutive@{i j} {X : Poset@{i j}} (x y : X) : isaprop (consecutive x y).
 Proof.
   intros. unfold consecutive. apply isapropdirprod.
-  - apply isapropdirprod. { apply pr2. } simpl. apply isapropneg.
+  - apply isapropdirprod. { use pr2. } simpl. apply isapropneg.
   - apply impred; intro z. apply isapropneg.
 Defined.
 
@@ -1208,8 +1208,11 @@ Notation " 'ct' ( R , is , x , y ) " := (ctlong R is x y (idpath true))
 Definition deceq_to_decrel {X:UU} : isdeceq X -> decrel X.
 Proof.
   intros ? i. use decrelpair.
-       - intros x y. exists (x=y). apply isasetifdeceq. assumption.
-       - exact i.
+  - intros x y.
+    refine (hProppair (x=y) _).
+    apply isasetifdeceq.
+    assumption.
+  - assumption.
 Defined.
 
 Definition confirm_equal {X : UU} (i : isdeceq X) (x x' : X)
@@ -2408,7 +2411,7 @@ Proof.
   {
     intros x1 x2.
     apply impred. intro.
-    apply (pr2 _).
+    use (pr2 _).
   }
   apply (setquotuniv2prop R (λ x1 x2, hProppair _ (int x1 x2))).
   intros x x'. intros r.

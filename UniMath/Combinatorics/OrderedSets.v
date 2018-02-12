@@ -9,9 +9,9 @@ Local Open Scope poset.
 
 (** partially ordered sets and ordered sets *)
 
-Definition isTotalOrder {X : hSet} (R : hrel X) : hProp
-  := hProppair (isPartialOrder R × istotal R)
-               (isapropdirprod _ _ (isaprop_isPartialOrder R) (isaprop_istotal R)).
+Definition isTotalOrder@{i j} {X : hSet@{i j}} (R : hrel@{i} X) : hProp
+  := hProppair (isPartialOrder@{i i i i} R × istotal@{i i i i} R)
+               (isapropdirprod@{i i i} _ _ (isaprop_isPartialOrder@{i j} R) (isaprop_istotal@{i j} R)).
 
 Section A.
 
@@ -172,7 +172,7 @@ Defined.
 
 (** see Bourbaki, Set Theory, III.1, where they are called totally ordered sets *)
 
-Definition OrderedSet := ∑ X:Poset, istotal (posetRelation X).
+Definition OrderedSet@{i j} :Type@{j} := ∑ X:Poset@{i j}, istotal@{i i i i} (posetRelation@{i j} X).
 
 Ltac unwrap_OrderedSet X :=
   induction X as [X total];
@@ -305,7 +305,7 @@ Ltac oset_induction f e := generalize f; apply OrderedSetEquivalence_rect; intro
 
 (* standard ordered sets *)
 
-Definition FiniteOrderedSet := ∑ X:OrderedSet, isfinite X.
+Definition FiniteOrderedSet@{i j} : Type@{j} := total2@{j} (λ X:OrderedSet@{i j}, isfinite@{i i} X).
 Definition underlyingOrderedSet (X:FiniteOrderedSet) : OrderedSet := pr1 X.
 Coercion underlyingOrderedSet : FiniteOrderedSet >-> OrderedSet.
 Definition finitenessProperty (X:FiniteOrderedSet) : isfinite X := pr2 X.
@@ -375,7 +375,7 @@ Abort.
 
 (** making finite ordered sets in various ways *)
 
-Definition standardFiniteOrderedSet (n:nat) : FiniteOrderedSet.
+Definition standardFiniteOrderedSet@{} (n:nat) : FiniteOrderedSet@{uu1 uu2}.
 Proof.
   intros. simple refine (_,,_).
   - exists (stnposet n). intros x y; apply istotalnatleh.
@@ -396,9 +396,11 @@ Proof.
   - intros x y a b. apply incl. exact (pr2 po (f x) (f y) a b).
 Defined.
 
-Corollary inducedPartialOrder_weq {X Y} (f:X≃Y) (R:hrel Y) (po:isPartialOrder R) :
+Corollary inducedPartialOrder_weq@{i} {X Y : Type@{i}} (f:X≃Y) (R:hrel Y) (po:isPartialOrder@{i i i i} R) :
   isPartialOrder (λ x x' : X, R (f x) (f x')).
-Proof. intros. exact (inducedPartialOrder f (incl_injectivity  f (weqproperty f)) R po). Defined.
+Proof.
+  intros. exact (inducedPartialOrder f (incl_injectivity  f (weqproperty f)) R po).
+Defined.
 
 Local Open Scope foset.
 Definition transportFiniteOrdering {n} {X:UU} : X ≃ ⟦ n ⟧ -> FiniteOrderedSet.
@@ -411,7 +413,12 @@ Proof.
     + exists X. apply (isofhlevelweqb 2 w). apply setproperty.
       + unfold PartialOrder; simpl. simple refine (_,,_).
         { intros x y. exact (w x ≤ w y). }
-        apply inducedPartialOrder_weq.
+        simpl.
+        simple refine (inducedPartialOrder_weq w _ _).
+
+        exact (
+          inducedPartialOrder_weq w (posetRelation (⟦ n ⟧)%foset) pr221 (pr1 (⟦ n ⟧)%foset)
+        ).
         exact (pr2 (pr2 (pr1 (pr1 (⟦ n ⟧))))).
     * intros x y. apply (pr2 (pr1 (⟦ n ⟧))).
   - simpl.
@@ -419,6 +426,21 @@ Proof.
     exact (pr2 (⟦ n ⟧)).
 Defined.
 Close Scope foset.
+
+transportFiniteOrdering =
+λ (n : nat) (X : UU) (w : X ≃ (⟦ n ⟧)%foset),
+(((X,, isofhlevelweqb 2 w (setproperty (⟦ n ⟧)%foset)),,
+  (λ x y : X, (w y >= w x)%foset),,
+  inducedPartialOrder_weq w (posetRelation (⟦ n ⟧)%foset) pr221 (pr1 (⟦ n ⟧)%foset)),,
+ (λ (x : (X,, isofhlevelweqb 2 w (setproperty (⟦ n ⟧)%foset)),,
+         (λ x y : X, (w y >= w x)%foset),,
+         inducedPartialOrder_weq w (posetRelation (⟦ n ⟧)%foset) pr221 (pr1 (⟦ n ⟧)%foset))
+  (y : (X,, isofhlevelweqb 2 w (setproperty (⟦ n ⟧)%foset)),,
+       (λ x0 y : X, (w y >= w x0)%foset),,
+       inducedPartialOrder_weq w (posetRelation (⟦ n ⟧)%foset) pr221 (pr1 (⟦ n ⟧)%foset)),
+  pr21 (⟦ n ⟧)%foset (w x) (w y))),, isfiniteweqb w (pr2 (⟦ n ⟧)%foset)
+     : ∏ (n : nat) (X : UU), X ≃ (⟦ n ⟧)%foset → FiniteOrderedSet
+
 
 (** concatenating finite ordered families of finite ordered sets *)
 

@@ -427,9 +427,9 @@ Defined.
 (** *** Intuitionistic logic on [hProp]. *)
 
 
-Definition htrue : hProp := hProppair_uu0 unit isapropunit.
+Definition htrue : hProp := hProppair unit isapropunit.
 
-Definition hfalse : hProp := hProppair_uu0 empty isapropempty.
+Definition hfalse : hProp := hProppair empty isapropempty.
 
 Definition hconj@{} (P Q : hProp) : hProp
   := hProppair_uu0 (P × Q) (isapropdirprod _ _ (pr2 P) (pr2 Q)).
