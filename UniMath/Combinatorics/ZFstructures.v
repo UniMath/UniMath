@@ -35,7 +35,7 @@ Require Export UniMath.MoreFoundations.DecidablePropositions.
 
 (** Contents **)
 (*
--Some auxilliary lemmas which may have already been proven, or which might be obtained as easy corollaries of things that have already been proven, but which I could not find, and which are useful in this form for this file.
+-Some auxilliary lemmas which which are useful stated in this form for this file.
 *)
 
 
