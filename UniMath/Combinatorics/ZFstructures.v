@@ -67,36 +67,9 @@ Proof.
   exact (@isofhlevelweqf 0 (T = T) (pr1 T = pr1 T) (@total2_paths_hProp_equiv _ _ T T) C).
 Qed.
 
-
-Lemma iscontrid (X : UU) (P : X → UU) (x : X) (π : P x) (is : isaprop (P x)) : iscontr (x = x) → iscontr (P x = P x) → iscontr ( x ,, π = x ,, π ).
+Lemma pr1contr_to_contr (X : UU) (P : X → hProp) (T : ∑ x, P x) (C : iscontr (pr1 T = pr1 T)) : iscontr (T = T).
 Proof.
-  intros C CC.
-  set (c := pr1 C). set (cc := pr1 CC). set (η := pr2 C). set (ηη := pr2 CC).
-  unfold iscontr.
-  exists (idpath (x,, π)).
-  intros.
-  assert (H : (x ,, π) = (x ,, π) ≃ (x ,, π) ╝ (x ,, π)).
-  {
-    apply (total2_paths_equiv P (x ,, π) (x ,, π)).
-  }
-  assert (Q : (pr1 H) t = (pr1 H) (idpath (x ,, π))).
-  {
-    apply total2_paths_equiv.
-    assert (q : pr1 ((pr1 H) t) = pr1 ((pr1 H) (idpath (x ,, π)))).
-    {
-      simpl.
-      assert (q1 : pr1 ((pr1 H) t) = c). apply C.
-      assert (q2 : pr1 ((pr1 H) (idpath (x ,, π))) = c). apply C.
-      rewrite q1. rewrite q2. reflexivity.
-    }
-    exists q. simpl.
-    assert (HH : iscontr (transportf (λ x : X, P x) (pr1 (pr1 H (idpath (x,, π)))) (pr2 (x,, π)) = pr2 (x,, π))). apply is.
-    set (ccc := pr1 HH).
-    assert (qq1 : pr2 (pr1 H (idpath (x,, π))) = ccc). apply HH.
-    assert (qq2 : transportf (λ x0 : x = x, transportf (λ x1 : X, P x1) x0 π = π) q (pr2 (pr1 H t)) = ccc). apply HH.
-    rewrite qq1. rewrite qq2. reflexivity.
-   }
-   apply (invmaponpathsweq H t (idpath (x,, π)) Q).
+  exact (@isofhlevelweqb 0 (T = T) (pr1 T = pr1 T) (@total2_paths_hProp_equiv _ _ T T) C).
 Qed.
 
 Lemma substructure_univalence (S : UU) (iso : S → S → UU) (u : ∏ (X Y : S), (X = Y) ≃ (iso X Y)) (Q : S → hProp) (A B : (∑ (X : S), Q X)) : (A = B) ≃ (iso (pr1 A) (pr1 B)).
@@ -105,6 +78,7 @@ Proof.
   apply (total2_paths_hProp_equiv Q A B).
   apply (u (pr1 A) (pr1 B)).
 Qed.
+
 
 (*** End of Auxilliary Lemmas ***)
 
@@ -444,15 +418,8 @@ Definition root (X : preZFS) : Ve X := pr1 (pr2 (pr2 (pr1 (pr1 X)))).
 
 Lemma preZFS_isrigid (X : preZFS) : iscontr (X = X).
 Proof.
-  apply iscontrid.
-  - apply isapropdirprod.
-    apply isaprop_Tree_isWellFounded.
-    apply isaprop_issuperrigid.
-  - apply (pr2 (pr2 X)).
-  - apply iscontr_propid.
-    apply isapropdirprod.
-    apply isaprop_Tree_isWellFounded.
-    apply isaprop_issuperrigid.
+  apply (pr1contr_to_contr _ (λ x, (ispreZFS x ,, isaprop_ispreZFS x)) X).
+  apply (pr2 (pr2 X)).
 Qed.
 
 Theorem isaset_preZFS : isaset preZFS.
@@ -768,23 +735,15 @@ Qed.
 Lemma preZFS_Branch_issuperrigid (T : preZFS) (x : T) : issuperrigid (preZFS_Branch T x).
  Proof.
   split.
-  - apply iscontrid.
-    -- apply isaprop_isatree.
-    -- set (C := (pr222 T) x).
-       apply (iscontrauto_Tree_TRRGraph (Up x) C).
-    -- apply iscontr_propid.
-       apply isaprop_isatree.
-  - intros y. apply iscontrid.
-    -- apply isaprop_isatree.
-    -- set (C := (pr222 T) (pr1 y)).
-       unfold preZFS_Branch.
-       unfold preZFS_Branch in y.
-       rewrite <- UpUpid.
-       apply (iscontrauto_Tree_TRRGraph (Up (pr1 y)) C).
-    -- apply iscontr_propid.
-       apply isaprop_isatree.
+  - apply (pr1contr_to_contr _ (λ x, (isatree x ,, isaprop_isatree x)) (preZFS_Branch T x)).
+    apply (iscontrauto_Tree_TRRGraph (Up x) ((pr222 T) x)).
+  - intros y. apply (pr1contr_to_contr _ (λ x, (isatree x ,, isaprop_isatree x)) (Up y)).
+    simpl.
+    unfold preZFS_Branch.
+    unfold preZFS_Branch in y.
+    rewrite <- UpUpid.
+    apply (iscontrauto_Tree_TRRGraph (Up (pr1 y)) ((pr222 T) (pr1 y))).
 Qed.
-
 
 Definition Branch (T : preZFS) (x : T) : preZFS :=
   preZFS_Branch T x ,, preZFS_Branch_isWellFounded T x ,, preZFS_Branch_issuperrigid T x.
