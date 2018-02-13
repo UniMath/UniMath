@@ -19,7 +19,6 @@ A textbook reference for some of the material in this file can be found in:
 
 ****)
 
-
 Require Export UniMath.Foundations.PartB.
 Require Export UniMath.Foundations.Propositions.
 Require Export UniMath.Foundations.Sets.
@@ -45,14 +44,6 @@ Proof.
   apply (isofhlevelpathspace 1 P P is is).
   apply (iscontraprop1 π (idpath P)).
 Qed.
-
-Lemma iseqset_iseqhset (X Y : hSet) (p : pr1 X = pr1 Y) : X = Y.
-Proof.
-  apply total2_paths_equiv.
-  exists p.
-  apply isapropisaset.
-Qed.
-
 
 Lemma contr_to_pr1contr (X : UU) (P : X → hProp) (T : ∑ x, P x) (C : iscontr (T = T)) : iscontr ((pr1 T) = (pr1 T)).
 Proof.
