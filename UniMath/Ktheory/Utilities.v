@@ -116,9 +116,6 @@ Proof. intros ? [Q i] f h. refine (h _ _). assumption. Defined.
 Lemma funspace_isaset {X Y} : isaset Y -> isaset (X -> Y).
 Proof. intros ? ? is. apply (impredfun 2). assumption. Defined.
 
-Lemma iscontr_if_inhab_prop {P} : isaprop P -> P -> iscontr P.
-Proof. intros ? i p. exists p. intros p'. apply i. Defined.
-
 Lemma squash_map_uniqueness {X S} (ip : isaset S) (g g' : ∥ X ∥ -> S) :
   g ∘ squash_element ~ g' ∘ squash_element -> g ~ g'.
 Proof.
