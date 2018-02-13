@@ -53,14 +53,6 @@ Proof.
   apply isapropisaset.
 Qed.
 
-Definition ext (X : UU) (P : X → hProp) (T : ∑ x, P x) : (pr1 T = pr1 T) → T ╝ T.
-Proof.
-  intros t.
-  destruct T as [x π].
-  simpl in t.
-  exists t.
-  apply propproperty.
-Defined.
 
 Lemma contr_to_pr1contr (X : UU) (P : X → hProp) (T : ∑ x, P x) (C : iscontr (T = T)) : iscontr ((pr1 T) = (pr1 T)).
 Proof.
