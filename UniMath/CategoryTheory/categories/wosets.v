@@ -55,10 +55,26 @@ Proof.
 intros x y z H1 H2 H3; simpl in *.
 generalize (WO_istotal X y z).
 apply (@hinhuniv _ (_,,isapropempty)); intros [H|H]; simpl.
-- apply H1.
-  exact (WO_istrans X y z x H H3).
+- now apply H1, (WO_istrans X y z x H H3).
 - now apply H2.
 Qed.
+
+Lemma WOlt_isirrefl (X : WellOrderedSet) : isirrefl (@WOlt X).
+Proof.
+now intros x; simpl; intros H; apply H, WO_isrefl.
+Qed.
+
+Lemma WOlt_trich (X : WellOrderedSet) (x y : X) : y < x ∨ x = y ∨ x < y.
+Admitted.
+
+(* Definition WOlt' (X : WellOrderedSet) (x y : X) : UU := (x ≤ y) × (x != y). *)
+
+(* Lemma WOlt_trich' (X : WellOrderedSet) (x y : X) : WOlt' X y x ∨ x = y ∨ WOlt' X x y. *)
+(* Proof. *)
+(* generalize (WO_istotal X x y). *)
+(* apply hinhuniv; intros [H|H]. *)
+(* unfold WOlt'. *)
+
 
 Section wosetcat.
 
@@ -73,8 +89,7 @@ intros h; apply isapropdirprod; do 3 (apply impred_isaprop; intros).
 - now apply isapropishinh.
 Qed.
 
-Definition wofun (X Y : WellOrderedSet) : UU :=
-  ∑ (f : X → Y), iswofun f.
+Definition wofun (X Y : WellOrderedSet) : UU := ∑ (f : X → Y), iswofun f.
 
 Definition pr1wofun (X Y : WellOrderedSet) : wofun X Y → (X → Y) := @pr1 _ _.
 
@@ -88,7 +103,7 @@ Qed.
 Lemma iswofun_idfun {X : WellOrderedSet} : iswofun (idfun X).
 Proof.
 split.
-- now intros x y.
+- now intros x.
 - intros x y hxy.
   now apply hinhpr; exists y.
 Qed.
@@ -156,8 +171,8 @@ Definition empty_woset : WellOrderedSet.
 Proof.
 exists emptyHSET.
 use tpair.
-- intros x; induction x.
-- abstract (repeat split; try (now intros x; induction x);
+- intros [].
+- abstract (repeat split; try (now intros []);
             now intros T t'; apply (squash_to_hProp t'); intros [[]]).
 Defined.
 
@@ -168,7 +183,7 @@ use mk_Initial.
 - apply mk_isInitial; intro a; simpl.
   use tpair.
   + exists fromempty.
-    abstract (now split; intros x; induction x).
+    abstract (now split; intros []).
   + abstract (now intros f; apply wofun_eq, funextfun; intros []).
 Defined.
 
@@ -183,7 +198,7 @@ use tpair.
   + now intros x y z [].
   + now intros x.
   + intros [] [] H H2.
-    now apply H2; left.
+    now apply H2, inl.
   + intros T t'; apply (squash_to_hProp t'); clear t'; intros [[] H].
     apply hinhpr; exists tt.
     now split; [|intros []].
@@ -202,6 +217,10 @@ Defined.
 
 (* In order not to unfold the relation below when running simpl *)
 Opaque WOlt.
+Opaque hdisj.
+
+Lemma foo (X : WellOrderedSet) (x y : X) : x ≤ y → (x < y) ⨿ (x = y).
+Admitted.
 
 (* TODO: upstream the product of relations and its properties *)
 Definition BinProduct_WellOrderedSet (X Y : WellOrderedSet) : WellOrderedSet.
@@ -209,19 +228,73 @@ Proof.
 exists (X × Y)%set.
 use tpair; simpl.
 - intros xy xy'.
-  exact ((pr1 xy < pr1 xy') ∨ (((pr1 xy = pr1 xy'),,pr21 X _ _) ∧ pr2 xy < pr2 xy')).
+  exact ((pr1 xy < pr1 xy') ∨ (((pr1 xy = pr1 xy'),,pr21 X _ _) ∧ pr2 xy ≤ pr2 xy')).
 - split;[split;[split;[split|]|]|].
   + intros [x1 x2] [y1 y2] [z1 z2].
     apply hinhuniv2; intros H1 H2; apply hinhpr.
     simpl in *.
     induction H1 as [H1|H1]; induction H2 as [H2|H2].
-    * now left; apply (WOlt_istrans _ _ _ _ H1 H2).
-    * now rewrite <- (pr1 H2); left.
-    * now rewrite (pr1 H1); left.
-    * right.
-      split; [exact (pathscomp0 (pr1 H1) (pr1 H2))|].
-      exact (WOlt_istrans _ _ _ _ (pr2 H1) (pr2 H2)).
-  + admit.
+    * now apply inl, (WOlt_istrans _ _ _ _ H1 H2).
+    * now rewrite <- (pr1 H2); apply inl.
+    * now rewrite (pr1 H1); apply inl.
+    * apply inr; split.
+      { exact (pathscomp0 (pr1 H1) (pr1 H2)). }
+      { exact (WO_istrans _ _ _ _ (pr2 H1) (pr2 H2)). }
+  + intros [x y]. simpl.
+    apply hinhpr, inr; split; trivial.
+    now apply WO_isrefl.
+  + intros [x1 y1] [x2 y2]; simpl; intros H.
+    apply factor_through_squash.
+    generalize (pr21 Y y1 y2).
+    generalize (pr21 X x1 x2).
+    admit.
+    intros H1.
+    generalize H; clear H.
+    apply factor_through_squash.
+    admit.
+    intros H2.
+    induction H1 as [H1|H1]; induction H2 as [H2|H2].
+    * now induction (WOlt_isirrefl _ _ (WOlt_istrans _ _ _ _ H1 H2)).
+    * rewrite (pr1 H2) in H1.
+      now induction (WOlt_isirrefl _ _ H1).
+    * rewrite (pr1 H1) in H2.
+      now induction (WOlt_isirrefl _ _ H2).
+    * now rewrite (pr1 H1), (WO_isantisymm Y _ _ (pr2 H1) (pr2 H2)).
+  + intros [x1 y1] [x2 y2]; simpl.
+    generalize (WO_istotal X x1 x2), (WO_istotal Y y1 y2).
+    apply hinhuniv2.
+    intros [Hx|Hx]; intros [Hy|Hy]; apply hinhpr.
+    * induction (foo X _ _ Hx) as [H|H].
+      now apply inl, hinhpr, inl.
+      now apply inl, hinhpr, inr.
+    * induction (foo X _ _ Hx) as [H|H].
+      now apply inl, hinhpr, inl.
+      now apply inr, hinhpr, inr.
+    * induction (foo X _ _ Hx) as [H|H].
+      now apply inr, hinhpr, inl.
+      now apply inl, hinhpr, inr.
+    * induction (foo X _ _ Hx) as [H|H].
+      now apply inr, hinhpr, inl.
+      now apply inr, hinhpr, inr.
+    Print isirrefl.
+    generalize
+    unfold isaprop.
+    simpl.
+    intros H1 H2.
+    intros xy1 xy2.
+
+    intros xx yy.
+    induction yy.
+    simpl.
+    Search dirprod isaprop.
+    Search (_,,_ = _,,_).
+    generalize (@total2_paths2).
+    apply squash_to_hProp.
+      generalize (WO_isantisymm X x1 x2).
+
+
+
+    Unset Printing Notations. right.
   + admit.
   + admit.
   + admit.
