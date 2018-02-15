@@ -81,42 +81,28 @@ Qed.
 
 (** The definition of transitive reflexive rooted graphs [TRRGraph] **)
 
-Definition RootedGraph := ∑ (V : hSet) (E : V → V → hProp), V.
+Definition RootedGraph := ∑ (V : hSet) (E : hrel V), V.
 
-Definition isreflexive {V : hSet} (E : V → V → hProp) : UU := (∏ x : V, E x x).
+Definition isaroot {V : hSet} (E : hrel V) (r : V) : UU := (∏ w : V, E r w).
 
-Lemma isaprop_isreflexive {V : hSet} (E : V → V → hProp) : isaprop (isreflexive E).
-Proof.
-  apply impred. intros. apply propproperty.
-Qed.
-
-Definition istransitive {V : hSet} (E : V → V → hProp) : UU := (∏ (x y z : V), E x y → E y z → E x z).
-
-Lemma isaprop_istransitive {V : hSet} (E : V → V → hProp) : isaprop (istransitive E).
+Lemma isaprop_isaroot {V : hSet} (E : hrel V) (r : V) : isaprop (isaroot E r).
 Proof.
   repeat (apply impred ; intros). apply propproperty.
 Qed.
 
-Definition isaroot {V : hSet} (E : V → V → hProp) (r : V) : UU := (∏ w : V, E r w).
+Definition isTRR (V : hSet) (E : hrel V) (r : V) : UU :=
+  isrefl E × istrans E × isaroot E r.
 
-Lemma isaprop_isaroot {V : hSet} (E : V → V → hProp) (r : V) : isaprop (isaroot E r).
-Proof.
-  repeat (apply impred ; intros). apply propproperty.
-Qed.
-
-Definition isTRR (V : hSet) (E : V → V → hProp) (r : V) : UU := isreflexive E × istransitive E × isaroot E r.
-
-Lemma isaprop_isTRR (V : hSet) (E : V → V → hProp) (r : V) : isaprop (isTRR V E r).
+Lemma isaprop_isTRR (V : hSet) (E : hrel V) (r : V) : isaprop (isTRR V E r).
 Proof.
   apply isapropdirprod.
-  - apply (isaprop_isreflexive E).
+  - apply (isaprop_isrefl E).
   - apply isapropdirprod.
-    -- apply (isaprop_istransitive E).
+    -- apply (isaprop_istrans E).
     -- apply (isaprop_isaroot E r).
 Qed.
 
-
-Definition TRRGraphData (V : hSet) : UU := ∑ (E : V → V → hProp) (r : V), isTRR V E r.
+Definition TRRGraphData (V : hSet) : UU := ∑ (E : hrel V) (r : V), isTRR V E r.
 
 Lemma isaset_TRRGraphData (V : hSet) : isaset (TRRGraphData V).
 Proof.
@@ -137,7 +123,7 @@ Local Notation "x ≤ y" := (TRRG_edgerel _ x y)(at level 70).
 
 Definition TRRG_root (G : TRRGraph) : pr1 G := pr122 G.
 
-Definition TRRG_transitivity (G : TRRGraph) : istransitive (TRRG_edgerel G) := pr12 (pr222 G).
+Definition TRRG_transitivity (G : TRRGraph) : istrans (TRRG_edgerel G) := pr12 (pr222 G).
 
 (** Definition of [TRRGraph] homomorphisms [isTRRGhomo], isomorphisms [TRRGraphiso], and a proof that isomorphisms are equivalent to identities [TRRGraph_univalence] **)
 
@@ -232,17 +218,18 @@ Definition selfedge (G : TRRGraph) (x : pr1 G) : pr1 (pr2 G) x x
 
 (** Definition of trees as a subtype [Tree] of [TRRGraph] and proof of univalence for trees [Tree_univalence] **)
 
-Definition DownwardClosure {G : TRRGraph} (x : pr1 G) : UU
-  := ∑ y : pr1 G, y ≤ x.
+Definition DownwardClosure {G : TRRGraph} (x : pr1 G) : UU :=
+  ∑ y : pr1 G, y ≤ x.
 
-Definition antisymmetric {G :TRRGraph} (y z : pr1 G) : UU
-  := (y ≤ z) × (z ≤ y) → (z = y).
 
-Definition total {G : TRRGraph} (y z : pr1 G) : hProp
-  := (y ≤ z) ∨ (z ≤ y).
+Definition antisymmetric {G :TRRGraph} (y z : pr1 G) : UU :=
+  (y ≤ z) × (z ≤ y) → (z = y).
 
-Definition isatree (G : TRRGraph) : UU
-  := ∏ (x : pr1 G) (y z : DownwardClosure x), antisymmetric (pr1 y) (pr1 z) × total (pr1 y) (pr1 z).
+Definition total {G : TRRGraph} (y z : pr1 G) : hProp :=
+  (y ≤ z) ∨ (z ≤ y).
+
+Definition isatree (G : TRRGraph) : UU :=
+  ∏ (x : pr1 G) (y z : DownwardClosure x), antisymmetric (pr1 y) (pr1 z) × total (pr1 y) (pr1 z).
 
 Lemma isaprop_isatree (G : TRRGraph) : isaprop (isatree G).
 Proof.
@@ -279,8 +266,8 @@ Proof.
   apply hProp_to_hSet.
 Qed.
 
-Definition Upw (T : Tree) (x : pr11 T) : hSet
-  := (∑ (y : pr11 T), pr121 T x y) ,, (isaset_Upw_underlying T x).
+Definition Upw (T : Tree) (x : pr11 T) : hSet :=
+  (∑ (y : pr11 T), pr121 T x y) ,, (isaset_Upw_underlying T x).
 
 Definition Upw_E (T : Tree) (x : pr11 T) (y z : Upw T x) : hProp
   := pr121 T (pr1 y) (pr1 z).
