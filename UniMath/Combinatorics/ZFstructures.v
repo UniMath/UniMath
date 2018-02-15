@@ -39,13 +39,6 @@ Require Export UniMath.MoreFoundations.DecidablePropositions.
 **)
 
 
-Lemma iscontr_propid (P : UU) (is : isaprop P) : iscontr (P = P).
-Proof.
-  assert (π : isaprop (P=P)).
-  apply (isofhlevelpathspace 1 P P is is).
-  apply (iscontraprop1 π (idpath P)).
-Qed.
-
 Lemma contr_to_pr1contr (X : UU) (P : X → hProp) (T : ∑ x, P x) (C : iscontr (T = T)) : iscontr ((pr1 T) = (pr1 T)).
 Proof.
   exact (@isofhlevelweqf 0 (T = T) (pr1 T = pr1 T) (@total2_paths_hProp_equiv _ _ T T) C).
