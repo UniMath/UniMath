@@ -74,7 +74,7 @@ Qed.
 
 (** The definition of transitive reflexive rooted graphs [TRRGraph] **)
 
-Definition RootedGraph := ∑ (V : hSet) (E : hrel V), V.
+Definition PointedGraph := ∑ (V : hSet) (E : hrel V), V.
 
 Definition isaroot {V : hSet} (E : hrel V) (r : V) : UU := (∏ w : V, E r w).
 
@@ -265,11 +265,11 @@ Definition Upw (T : Tree) (x : pr11 T) : hSet :=
 Definition Upw_E (T : Tree) (x : pr11 T) (y z : Upw T x) : hProp
   := pr121 T (pr1 y) (pr1 z).
 
-Definition Upw_to_RootedGraph (T : Tree) (x : pr11 T) : RootedGraph
+Definition Upw_to_PointedGraph (T : Tree) (x : pr11 T) : PointedGraph
   := Upw T x ,, Upw_E T x ,, (x ,, selfedge (pr1 T) x).
 
 Lemma Upw_reflexive (T : Tree) (x : pr11 T) :
-  ∏ (y : pr1 (Upw_to_RootedGraph T x)), pr12 (Upw_to_RootedGraph T x) y y.
+  ∏ (y : pr1 (Upw_to_PointedGraph T x)), pr12 (Upw_to_PointedGraph T x) y y.
 Proof.
   intros y.
   simpl.
@@ -291,7 +291,7 @@ Proof.
 Qed.
 
 Definition Upw_to_TRRGraph (T : Tree) (x : pr11 T) : TRRGraph :=
-  pr1 (Upw_to_RootedGraph T x) ,, pr12 (Upw_to_RootedGraph T x) ,, pr22 (Upw_to_RootedGraph T x) ,, Upw_reflexive T x ,, Upw_transitive T x ,, Upw_rooted T x.
+  pr1 (Upw_to_PointedGraph T x) ,, pr12 (Upw_to_PointedGraph T x) ,, pr22 (Upw_to_PointedGraph T x) ,, Upw_reflexive T x ,, Upw_transitive T x ,, Upw_rooted T x.
 
 Lemma isatree_Upw (T : Tree) (x : pr11 T) : isatree (Upw_to_TRRGraph T x).
 Proof.
@@ -382,12 +382,14 @@ Proof.
   apply propproperty.
 Qed.
 
-(** The definition of pre-ZF structures [preZFS].
+(** The definition of pre-ZF structures [preZFS]. **)
+
+(**
 
    [preZFS] is classically equivalent to the [ZFS] we define below but, as far as we can tell,
    constructively inequivalent.
 
- **)
+**)
 
 Definition ispreZFS (T : Tree) : UU := (Tree_isWellFounded T) × (issuperrigid T).
 
