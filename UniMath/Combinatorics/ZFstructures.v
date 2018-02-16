@@ -27,8 +27,8 @@ Require Export UniMath.Foundations.HLevels.
 
 Require Export UniMath.Combinatorics.WellOrderedSets.
 Require Export UniMath.Combinatorics.OrderedSets.
-Require Export UniMath.MoreFoundations.DecidablePropositions.
 
+Require Export UniMath.MoreFoundations.DecidablePropositions.
 
 
 (*** Auxilliary Lemmas ***)
@@ -118,6 +118,9 @@ Definition TRRG_root (G : TRRGraph) : pr1 G := pr122 G.
 
 Definition TRRG_transitivity (G : TRRGraph) : istrans (TRRG_edgerel G) := pr12 (pr222 G).
 
+Definition selfedge (G : TRRGraph) (x : pr1 G) : pr1 (pr2 G) x x
+  := (pr1 (pr2 (pr2 (pr2 G))) x).
+
 (** Definition of [TRRGraph] homomorphisms [isTRRGhomo], isomorphisms [TRRGraphiso], and a proof that isomorphisms are equivalent to identities [TRRGraph_univalence] **)
 
 Definition isTRRGhomo {G H : TRRGraph} (f : pr1 G → pr1 H) : UU :=
@@ -192,22 +195,76 @@ Definition TRRGraphiso (G H : TRRGraph) : UU := ∑ (f : pr1 G ≃ pr1 H), isTRR
 
 Local Notation "G ≅ H" := (TRRGraphiso G H).
 
-Theorem TRRGraph_univalence (G H : TRRGraph) : (G = H) ≃ (G ≅ H).
+Definition id_TRRGraphiso (G : TRRGraph) : TRRGraphiso G G.
 Proof.
-    { intermediate_weq (G ╝ H).
-      { apply total2_paths_equiv. }
-      { use weqbandf.
-        { apply (hSet_univalence (pr1 G) (pr1 H)). }
-        { intro p. simpl. apply weqimplimpl.
-           - intros q. apply (TRRGhomo_frompath (pr1 G) (pr1 H) (pr2 G) (pr2 H) p q).
-           - intros q. apply (TRRGhomo_topath (pr1 G) (pr1 H) (pr2 G) (pr2 H) p q).
-           - apply (isaset_TRRGraphData (pr1 H)).
-           - apply (isaprop_isTRRGhomo).
-         } } }
+  exists (idweq (pr1 G)).
+  split.
+  - intros. use isrefl_logeq.
+  - reflexivity.
+Defined.
+
+Definition TRRGraph_univalence_map (G H : TRRGraph) : (G = H) → (G ≅ H).
+Proof.
+  intro p.
+  induction p.
+  exact (id_TRRGraphiso G).
+Defined.
+
+Definition TRRGraph_univalence_weq1 (G H : TRRGraph) : G = H ≃ G ╝ H :=
+  total2_paths_equiv _ G H.
+
+Definition TRRGraph_univalence_weq2 (G H : TRRGraph) : G ╝ H ≃ G ≅ H.
+Proof.
+  use weqbandf.
+  - exact (hSet_univalence (pr1 G) (pr1 H)).
+  - intro p. simpl. use weqimplimpl.
+    * intros q. exact (TRRGhomo_frompath (pr1 G) (pr1 H) (pr2 G) (pr2 H) p q).
+    * intros q. exact (TRRGhomo_topath (pr1 G) (pr1 H) (pr2 G) (pr2 H) p q).
+    * exact (isaset_TRRGraphData (pr1 H) ((p # pr2 G)%transport) (pr2 H)).
+    * exact (isaprop_isTRRGhomo (hSet_univalence_map (pr1 G) (pr1 H) p)).
+Defined.
+
+Lemma TRRGraph_univalence_weq2_idpath (G : TRRGraph) :
+  TRRGraph_univalence_weq2 G G (idpath (pr1 G) ,, idpath (((idpath (pr1 G)) # pr2 G)%transport)) = id_TRRGraphiso G.
+Proof.
+  apply total2_paths_equiv.
+  exists (idpath (idweq (pr1 G))).
+  apply isaprop_isTRRGhomo.
 Qed.
 
-Definition selfedge (G : TRRGraph) (x : pr1 G) : pr1 (pr2 G) x x
-  := (pr1 (pr2 (pr2 (pr2 G))) x).
+Lemma TRRGraph_univalence_weq1_idpath (G : TRRGraph) :
+  ((TRRGraph_univalence_weq1 G G) (idpath G)) = (idpath (pr1 G) ,, idpath (((idpath (pr1 G)) # pr2 G)%transport)).
+Proof.
+  apply total2_paths_equiv.
+  exists (idpath (idpath (pr1 G))).
+  reflexivity.
+Qed.
+
+Theorem isweq_TRRGraph_univalence_map (G H : TRRGraph) : isweq (TRRGraph_univalence_map G H).
+Proof.
+  use isweqhomot.
+  - exact (weqcomp (TRRGraph_univalence_weq1 G H) (TRRGraph_univalence_weq2 G H)).
+  - intros e.
+    induction e.
+    use (pathscomp0 weqcomp_to_funcomp_app).
+    rewrite TRRGraph_univalence_weq1_idpath.
+    rewrite TRRGraph_univalence_weq2_idpath.
+    reflexivity.
+  - use weqproperty.
+Qed.
+
+Definition TRRGraph_univalence (G H : TRRGraph) : (G = H) ≃ (G ≅ H).
+Proof.
+  use weqpair.
+  - exact (TRRGraph_univalence_map G H).
+  - exact (isweq_TRRGraph_univalence_map G H).
+Defined.
+
+Lemma TRRGraph_univalence_compute (G H : TRRGraph) :
+  pr1 (TRRGraph_univalence G H) = TRRGraph_univalence_map G H.
+Proof.
+  reflexivity.
+Qed.
 
 (** Definition of trees as a subtype [Tree] of [TRRGraph] and proof of univalence for trees [Tree_univalence] **)
 
@@ -452,7 +509,10 @@ Definition preZFS_Branch (T : preZFS) (x : T) : Tree := Up x.
 Definition preZFS_Branch_hsubtype_tohsubtype (T : preZFS) (x : T) (S : hsubtype (pr11 (preZFS_Branch T x))) : hsubtype (pr111 T)
   := λ t, ∃ e, S (t ,, e).
 
-(** REMARK : The definition [preZFS_Branch_hsubtype_tohsubtype] probably does not need to be truncated. One can define it without truncation and prove the lemmas that it is a proposition. **)
+(**
+REMARK : The definition [preZFS_Branch_hsubtype_tohsubtype] probably does not need to be
+truncated. One can define it without truncation and prove the lemmas that it is a proposition.
+**)
 
 Definition hsubtype_to_preZFS_Branch_hsubtype (T : preZFS) (x : T) (S : hsubtype (pr111 T)) : hsubtype (pr11 (preZFS_Branch T x))
   := λ z, S (pr1 z) ∧ Ed T x (pr1 z).
