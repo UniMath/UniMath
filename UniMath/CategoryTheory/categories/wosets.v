@@ -64,20 +64,44 @@ Proof.
 now intros x; simpl; intros H; apply H, WO_isrefl.
 Qed.
 
-Lemma WOlt_trich (X : WellOrderedSet) (x y : X) : y < x ∨ x = y ∨ x < y.
-Admitted.
+(** Equivalent definition of the < relation *)
+Definition WOlt' (X : WellOrderedSet) (x y : X) : hProp.
+Proof.
+exists ((x ≤ y) × (x != y)).
+abstract (now apply isapropdirprod; [ apply propproperty | apply isapropneg ]).
+Defined.
 
-(* Definition WOlt' (X : WellOrderedSet) (x y : X) : UU := (x ≤ y) × (x != y). *)
+Lemma WOlt_to_WOlt' (X : WellOrderedSet) (hX : isdeceq X) (x y : X) : x < y → WOlt' X x y.
+Proof.
+intros H.
+generalize (WO_istotal X x y).
+apply hinhuniv; intros [Hle|Hle]; simpl.
+- induction (hX x y) as [Heq|Hneq].
+  + rewrite Heq in H.
+    induction (WOlt_isirrefl _ _ H).
+  + now split.
+- induction (H Hle).
+Qed.
 
-(* Lemma WOlt_trich' (X : WellOrderedSet) (x y : X) : WOlt' X y x ∨ x = y ∨ WOlt' X x y. *)
-(* Proof. *)
-(* generalize (WO_istotal X x y). *)
-(* apply hinhuniv; intros [H|H]. *)
-(* unfold WOlt'. *)
+Lemma WOlt'_to_WOlt (X : WellOrderedSet) (x y : X) : WOlt' X x y → x < y.
+Proof.
+intros [H1 H2] H3.
+now apply H2, (WO_isantisymm X x y H1 H3).
+Qed.
 
+Lemma WOlt_trich (X : WellOrderedSet) (hX : isdeceq X) (x y : X) :
+  y < x ∨ x = y ∨ x < y.
+Proof.
+induction (hX x y) as [Heq|Hneq].
+- now apply hinhpr, inr, hinhpr, inl.
+- generalize (WO_istotal X x y).
+  apply hinhuniv; intros [Hle|Hle].
+  + now apply hinhpr, inr, hinhpr, inr, WOlt'_to_WOlt.
+  + apply hinhpr, inl, WOlt'_to_WOlt; split; trivial.
+    now intros H; apply Hneq.
+Qed.
 
-Section wosetcat.
-
+(** Functions of well-ordered sets that preserve the ordering and initial segments *)
 Definition iswofun {X Y : WellOrderedSet} (f : X → Y) : UU :=
   (iscomprelrelfun (WOrel X) (WOrel Y) f) ×
   (∏ (x : X) (y : Y), y < f x → ∃ (z : X), z < x × f z = y).
@@ -125,48 +149,7 @@ split.
   now rewrite h2x'.
 Qed.
 
-Definition woset_precategory : precategory.
-Proof.
-use mk_precategory.
-- exists (WellOrderedSet,,wofun).
-  split; simpl.
-  + intros X.
-    exists (idfun X).
-    apply iswofun_idfun.
-  + intros X Y Z f g.
-    exists (pr1 g ∘ pr1 f).
-    apply iswofun_funcomp.
-- abstract (now repeat split; simpl; intros; apply wofun_eq).
-Defined.
-
-Lemma has_homsets_woset_precategory : has_homsets woset_precategory.
-Proof.
-intros X Y.
-apply (isasetsubset (pr1wofun X Y)).
-- apply isaset_set_fun_space.
-- apply isinclpr1; intro f.
-  apply isaprop_iswofun.
-Qed.
-
-Definition wosetcat : category :=
-  (woset_precategory,,has_homsets_woset_precategory).
-
-(* We need the following missing lemma: *)
-Lemma isaset_WellOrderedSet : isaset WellOrderedSet.
-Admitted.
-
-Definition wo_setcategory : setcategory.
-Proof.
-exists woset_precategory.
-split.
-- apply isaset_WellOrderedSet.
-- apply has_homsets_woset_precategory.
-Defined.
-
-End wosetcat.
-
-Section wosetcat_structures.
-
+(** The empty set is well-ordered *)
 Definition empty_woset : WellOrderedSet.
 Proof.
 exists emptyHSET.
@@ -176,17 +159,7 @@ use tpair.
             now intros T t'; apply (squash_to_hProp t'); intros [[]]).
 Defined.
 
-Lemma Initial_wosetcat : Initial wosetcat.
-Proof.
-use mk_Initial.
-- exact empty_woset.
-- apply mk_isInitial; intro a; simpl.
-  use tpair.
-  + exists fromempty.
-    abstract (now split; intros []).
-  + abstract (now intros f; apply wofun_eq, funextfun; intros []).
-Defined.
-
+(** The unit set is well-ordered *)
 Definition unit_woset : WellOrderedSet.
 Proof.
 exists unitHSET.
@@ -204,7 +177,57 @@ use tpair.
     now split; [|intros []].
 Defined.
 
-Lemma Terminal_wosetcat : Terminal wosetcat.
+(** * The category of well-ordered sets with order preserving morphisms *)
+Section wosetfuncat.
+
+Definition wosetfun_precategory : precategory.
+Proof.
+use mk_precategory.
+- exists (WellOrderedSet,,wofun).
+  split; simpl.
+  + intros X.
+    apply (_,,iswofun_idfun).
+  + intros X Y Z f g.
+    apply (_,,iswofun_funcomp f g).
+- abstract (now repeat split; simpl; intros; apply wofun_eq).
+Defined.
+
+Lemma has_homsets_wosetfun_precategory : has_homsets wosetfun_precategory.
+Proof.
+intros X Y.
+apply (isasetsubset (pr1wofun X Y)).
+- apply isaset_set_fun_space.
+- apply isinclpr1; intro f.
+  apply isaprop_iswofun.
+Qed.
+
+Definition wosetfuncat : category :=
+  (wosetfun_precategory,,has_homsets_wosetfun_precategory).
+
+(* TODO: We need the following missing lemma: *)
+(* Lemma isaset_WellOrderedSet : isaset WellOrderedSet. *)
+(* Admitted. *)
+
+(* Definition wo_setcategory : setcategory. *)
+(* Proof. *)
+(* exists wosetfun_precategory. *)
+(* split. *)
+(* - apply isaset_WellOrderedSet. *)
+(* - apply has_homsets_wosetfun_precategory. *)
+(* Defined. *)
+
+Lemma Initial_wosetfuncat : Initial wosetfuncat.
+Proof.
+use mk_Initial.
+- exact empty_woset.
+- apply mk_isInitial; intro a; simpl.
+  use tpair.
+  + exists fromempty.
+    abstract (now split; intros []).
+  + abstract (now intros f; apply wofun_eq, funextfun; intros []).
+Defined.
+
+Lemma Terminal_wosetfuncat : Terminal wosetfuncat.
 Proof.
 use mk_Terminal.
 + exact unit_woset.
@@ -215,128 +238,88 @@ use mk_Terminal.
   - abstract (now intros f; apply wofun_eq, funextfun; intros x; induction (pr1 f x)).
 Defined.
 
-(* In order not to unfold the relation below when running simpl *)
-Opaque WOlt.
-Opaque hdisj.
+(** Can we prove further properties of wosetcat? It doesn't seem like it has binary products, at
+least the lexicographic ordering does not work. Consider {0,1} × {2,3}, in it we have (0,3) < (1,2)
+but pr2 doesn't preserve the ordering, *)
 
-Lemma foo (X : WellOrderedSet) (x y : X) : x ≤ y → (x < y) ⨿ (x = y).
-Admitted.
+End wosetfuncat.
 
-(* TODO: upstream the product of relations and its properties *)
-Definition BinProduct_WellOrderedSet (X Y : WellOrderedSet) : WellOrderedSet.
+(** * The category of well-ordered sets with arbitrary functions as morphisms *)
+Section wosetcat.
+
+Definition woset_precategory : precategory.
 Proof.
-exists (X × Y)%set.
-use tpair; simpl.
-- intros xy xy'.
-  exact ((pr1 xy < pr1 xy') ∨ (((pr1 xy = pr1 xy'),,pr21 X _ _) ∧ pr2 xy ≤ pr2 xy')).
-- split;[split;[split;[split|]|]|].
-  + intros [x1 x2] [y1 y2] [z1 z2].
-    apply hinhuniv2; intros H1 H2; apply hinhpr.
-    simpl in *.
-    induction H1 as [H1|H1]; induction H2 as [H2|H2].
-    * now apply inl, (WOlt_istrans _ _ _ _ H1 H2).
-    * now rewrite <- (pr1 H2); apply inl.
-    * now rewrite (pr1 H1); apply inl.
-    * apply inr; split.
-      { exact (pathscomp0 (pr1 H1) (pr1 H2)). }
-      { exact (WO_istrans _ _ _ _ (pr2 H1) (pr2 H2)). }
-  + intros [x y]. simpl.
-    apply hinhpr, inr; split; trivial.
-    now apply WO_isrefl.
-  + intros [x1 y1] [x2 y2]; simpl; intros H.
-    apply factor_through_squash.
-    generalize (pr21 Y y1 y2).
-    generalize (pr21 X x1 x2).
-    admit.
-    intros H1.
-    generalize H; clear H.
-    apply factor_through_squash.
-    admit.
-    intros H2.
-    induction H1 as [H1|H1]; induction H2 as [H2|H2].
-    * now induction (WOlt_isirrefl _ _ (WOlt_istrans _ _ _ _ H1 H2)).
-    * rewrite (pr1 H2) in H1.
-      now induction (WOlt_isirrefl _ _ H1).
-    * rewrite (pr1 H1) in H2.
-      now induction (WOlt_isirrefl _ _ H2).
-    * now rewrite (pr1 H1), (WO_isantisymm Y _ _ (pr2 H1) (pr2 H2)).
-  + intros [x1 y1] [x2 y2]; simpl.
-    generalize (WO_istotal X x1 x2), (WO_istotal Y y1 y2).
-    apply hinhuniv2.
-    intros [Hx|Hx]; intros [Hy|Hy]; apply hinhpr.
-    * induction (foo X _ _ Hx) as [H|H].
-      now apply inl, hinhpr, inl.
-      now apply inl, hinhpr, inr.
-    * induction (foo X _ _ Hx) as [H|H].
-      now apply inl, hinhpr, inl.
-      now apply inr, hinhpr, inr.
-    * induction (foo X _ _ Hx) as [H|H].
-      now apply inr, hinhpr, inl.
-      now apply inl, hinhpr, inr.
-    * induction (foo X _ _ Hx) as [H|H].
-      now apply inr, hinhpr, inl.
-      now apply inr, hinhpr, inr.
-    Print isirrefl.
-    generalize
-    unfold isaprop.
-    simpl.
-    intros H1 H2.
-    intros xy1 xy2.
+use mk_precategory.
+- use tpair.
+  + exists WellOrderedSet.
+    apply (λ X Y, pr11 X → pr11 Y).
+  + split; simpl.
+    * intros X; apply idfun.
+    * intros X Y Z f g; apply (funcomp f g).
+- abstract (now intros).
+Defined.
 
-    intros xx yy.
-    induction yy.
-    simpl.
-    Search dirprod isaprop.
-    Search (_,,_ = _,,_).
-    generalize (@total2_paths2).
-    apply squash_to_hProp.
-      generalize (WO_isantisymm X x1 x2).
+Lemma has_homsets_wosetcat : has_homsets woset_precategory.
+Proof.
+now intros X Y; apply hset_fun_space.
+Qed.
 
+Definition wosetcat : category :=
+  (woset_precategory,,has_homsets_wosetcat).
 
+(* TODO: We need the following missing lemma: *)
+(* Lemma isaset_WellOrderedSet : isaset WellOrderedSet. *)
+(* Admitted. *)
 
-    Unset Printing Notations. right.
-  + admit.
-  + admit.
-  + admit.
-(*   + intros [x y]. *)
-(*     exact (WO_isrefl X x,,WO_isrefl Y y). *)
-(*   + intros [x1 y1] [x2 y2] [H1 H2] [H3 H4]; simpl in *. *)
-(*     now rewrite (WO_isantisymm X _ _ H1 H3), (WO_isantisymm Y _ _ H2 H4). *)
-(*   + intros [x1 y1] [x2 y2]. *)
-(*     generalize (WO_istotal X x1 x2). *)
-(*     apply hinhuniv; intros H1. *)
-(*     generalize (WO_istotal Y y1 y2). *)
-(*     apply hinhuniv; intros H2. *)
-(*     apply hinhpr. *)
-(*     simpl in *. *)
-(*     induction H1 as [H1|H1]. *)
-(*     induction H2 as [H2|H2]. *)
-(*     left. *)
-(*     now split. *)
-(*     trivial. *)
-(*     Print istotal. *)
-(*     intros HH. *)
-(*     apply HH. *)
-Admitted.
-
-(* Lemma BinProducts_wosetcat : BinProducts wosetcat. *)
+(* Definition wo_setcategory : setcategory. *)
 (* Proof. *)
-(* intros A B. *)
-(* use mk_BinProduct. *)
-(* - simpl in *. ; apply (tpair _ (A × B)). *)
-(*   abstract (apply isasetdirprod; apply setproperty). *)
-(* - simpl in *; apply pr1. *)
-(* - simpl in *; intros x; apply (pr2 x). *)
-(* - apply (mk_isBinProduct _ has_homsets_HSET). *)
-(*   intros C f g; simpl in *. *)
-(*   use tpair. *)
-(*   * apply (tpair _ (prodtofuntoprod (f ,, g))); abstract (split; apply idpath). *)
-(*   * abstract (intros h; apply subtypeEquality; *)
-(*     [ intros x; apply isapropdirprod; apply has_homsets_HSET *)
-(*     | destruct h as [t [ht1 ht2]]; simpl; apply funextfun; intro x; *)
-(*                rewrite <- ht2, <- ht1; unfold compose; simpl; *)
-(*                unfold prodtofuntoprod; *)
-(*                now case (t x)]). *)
+(* exists woset_precategory. *)
+(* split. *)
+(* - apply isaset_WellOrderedSet. *)
+(* - apply has_homsets_woset_precategory. *)
 (* Defined. *)
 
-End wosetcat_structures.
+Lemma Initial_wosetcat : Initial wosetcat.
+Proof.
+use mk_Initial.
+- exact empty_woset.
+- apply mk_isInitial; intro a.
+  use tpair.
+  + simpl; intro e; induction e.
+  + abstract (intro f; apply funextfun; intro e; induction e).
+Defined.
+
+Lemma Terminal_wosetcat : Terminal wosetcat.
+Proof.
+use mk_Terminal.
+- exact unit_woset.
+- apply mk_isTerminal; intro a.
+  exists (λ _, tt).
+  abstract (simpl; intro f; apply funextfun; intro x; case (f x); apply idpath).
+Defined.
+
+Check ZermeloWellOrdering.
+
+Variable AC : AxiomOfChoice.
+
+(** Direct proof that woset has binary products using Zermelo's well-ordering theorem. We could
+prove this using the lexicograpic ordering, but it seems like we need decidable equality for this to
+work which would not work for exponentials. *)
+Lemma hasBinProducts_wosetcat : hasBinProducts wosetcat.
+Proof.
+intros A B.
+apply (squash_to_hProp (@ZermeloWellOrdering (pr1 A × pr1 B)%set AC)); intros R.
+apply hinhpr.
+use mk_BinProduct.
+- apply ((pr1 A × pr1 B)%set,,R).
+- simpl in *; apply pr1.
+- simpl in *; intros x; apply (pr2 x).
+- apply (mk_isBinProduct _ has_homsets_wosetcat).
+  intros C f g; use tpair.
+  * exists (prodtofuntoprod (f,,g)); abstract (split; apply idpath).
+  * abstract (intros [t [ht1 ht2]]; apply subtypeEquality;
+             [ intros x; apply isapropdirprod; apply has_homsets_HSET
+             | now apply funextfun; intro x; rewrite <- ht2, <- ht1 ]).
+Defined.
+
+End wosetcat.
