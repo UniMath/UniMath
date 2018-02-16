@@ -133,3 +133,5 @@ DisplayedCats/Codomain.v
 DisplayedCats/SIP.v
 DisplayedCats/Limits.v
 DisplayedCats/Examples.v
+bicat/bicat.v
+
