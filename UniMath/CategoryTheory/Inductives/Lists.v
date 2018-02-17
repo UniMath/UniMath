@@ -465,7 +465,7 @@ Proof.
 apply (is_omega_cocont_functor_composite has_homsets_HSET).
 - apply omega_cocontConstProdFunctor.
 (* If I use this length doesn't compute with vm_compute... *)
-(* - apply (omega_cocont_constprod_functor1 _ _ has_homsets_HSET has_exponentials_HSET). *)
+(* - apply (omega_cocont_constprod_functor1 _ _ has_homsets_HSET Exponentials_HSET). *)
 - apply (omega_cocontConstCoprodFunctor _ has_homsets_HSET).
 Defined.
 

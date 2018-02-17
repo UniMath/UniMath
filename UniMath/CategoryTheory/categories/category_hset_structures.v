@@ -13,11 +13,11 @@ Contents:
 - General indexed products ([ProductsHSET]
 - Pullbacks ([PullbacksHSET])
 - Terminal object ([TerminalHSET])
-- Exponentials ([has_exponentials_HSET])
+- Exponentials ([Exponentials_HSET])
 - Construction of exponentials for functors into HSET
-  ([has_exponentials_functor_HSET])
+  ([Exponentials_functor_HSET])
 - Locally cartesian closed ([Terminal_HSET_slice],
-  [BinProducts_HSET_slice] and [has_exponentials_HSET_slice])
+  [BinProducts_HSET_slice] and [Exponentials_HSET_slice])
 - Products in Set/X ([Products_HSET_slice])
 - Forgetful functor Set/X to Set is left adjoint
   ([is_left_adjoint_slicecat_to_cat])
@@ -606,7 +606,7 @@ use tpair.
   | intro b; apply funextfun; intro f; apply idpath]).
 Defined.
 
-Lemma has_exponentials_HSET : has_exponentials BinProductsHSET.
+Lemma Exponentials_HSET : Exponentials BinProductsHSET.
 Proof.
 intro a.
 exists (exponential_functor a).
@@ -685,7 +685,7 @@ use tpair.
 Defined.
 
 (* This could be made nicer without the big abstract blocks... *)
-Lemma has_exponentials_functor_HSET : has_exponentials CP.
+Lemma Exponentials_functor_HSET : Exponentials CP.
 Proof.
 intro P.
 use left_adjoint_from_partial.
@@ -847,7 +847,7 @@ use mk_nat_trans.
   now repeat apply maponpaths; apply setproperty.
 Defined.
 
-Lemma has_exponentials_HSET_slice (X : HSET) : has_exponentials (BinProducts_HSET_slice X).
+Lemma Exponentials_HSET_slice (X : HSET) : Exponentials (BinProducts_HSET_slice X).
 Proof.
 intros f.
 exists (hfiber_functor _ f).

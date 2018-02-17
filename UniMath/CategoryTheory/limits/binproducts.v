@@ -33,7 +33,7 @@ Section binproduct_def.
 
 Variable C : precategory.
 
-Definition isBinProduct (c d p : C) (p1 : p --> c) (p2 : p --> d) :=
+Definition isBinProduct (c d p : C) (p1 : p --> c) (p2 : p --> d) : UU :=
   ∏ (a : C) (f : a --> c) (g : a --> d),
   ∃! fg, (fg · p1 = f) × (fg · p2 = g).
 
@@ -46,12 +46,12 @@ Proof.
   apply isapropiscontr.
 Qed.
 
-Definition BinProduct (c d : C) :=
+Definition BinProduct (c d : C) : UU :=
   ∑ pp1p2 : (∑ p : C, (p --> c) × (p --> d)),
     isBinProduct c d (pr1 pp1p2) (pr1 (pr2 pp1p2)) (pr2 (pr2 pp1p2)).
 
-Definition BinProducts := ∏ (c d : C), BinProduct c d.
-Definition hasBinProducts := ∏ (c d : C), ∥ BinProduct c d ∥.
+Definition BinProducts : UU := ∏ (c d : C), BinProduct c d.
+Definition hasBinProducts : UU := ∏ (c d : C), ∥ BinProduct c d ∥.
 
 Definition BinProductObject {c d : C} (P : BinProduct c d) : C := pr1 (pr1 P).
 Definition BinProductPr1 {c d : C} (P : BinProduct c d): BinProductObject P --> c :=

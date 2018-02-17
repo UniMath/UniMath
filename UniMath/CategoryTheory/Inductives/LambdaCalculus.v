@@ -58,9 +58,9 @@ Proof.
 apply (BinCoproducts_functor_precat _ _ BinCoproductsHSET).
 Defined.
 
-Local Lemma has_exponentials_HSET2 : has_exponentials BinProductsHSET2.
+Local Lemma Exponentials_HSET2 : Exponentials BinProductsHSET2.
 Proof.
-apply has_exponentials_functor_HSET, has_homsets_HSET.
+apply Exponentials_functor_HSET, has_homsets_HSET.
 Defined.
 
 Local Lemma InitialHSET2 : Initial HSET2.
@@ -79,7 +79,7 @@ Local Notation "'Id'" := (omega_cocont_functor_identity has_homsets_HSET2).
 Local Notation "F * G" :=
   (omega_cocont_BinProduct_of_functors_alt BinProductsHSET2 _
      has_homsets_HSET2 has_homsets_HSET2
-     (is_omega_cocont_constprod_functor1 _ has_homsets_HSET2 has_exponentials_HSET2) F G).
+     (is_omega_cocont_constprod_functor1 _ has_homsets_HSET2 Exponentials_HSET2) F G).
 
 Local Notation "F + G" :=
   (omega_cocont_BinCoproduct_of_functors BinCoproductsHSET2 has_homsets_HSET2 F G).
@@ -262,7 +262,7 @@ End lambdacalculus.
 (*   apply functor_category_has_homsets. *)
 (*   apply is_omega_cocont_binproduct_functor. *)
 (*   apply functor_category_has_homsets. *)
-(*   apply has_exponentials_functor_HSET. *)
+(*   apply Exponentials_functor_HSET. *)
 (*   apply has_homsets_HSET. *)
 (* apply is_omega_cocont_pre_composition_functor. *)
 (* apply LimsHSET. *)

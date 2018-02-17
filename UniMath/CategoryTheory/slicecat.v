@@ -767,7 +767,7 @@ apply PullbackArrowUnique.
 - now rewrite PullbackArrow_PullbackPr2.
 Defined.
 
-Lemma dependent_product_to_exponentials c : has_exponentials (BPC c).
+Lemma dependent_product_to_exponentials c : Exponentials (BPC c).
 Proof.
 intros Af.
 use tpair.
