@@ -228,123 +228,144 @@ Definition bicat_laws (C : bicat_data) : UU
        lassociator f g _  • lassociator _ _ _
       ).
 
+Definition bicat : UU := ∑ C : bicat_data, bicat_laws C.
+
+Coercion bicat_data_from_bicat (C : bicat) : bicat_data := pr1 C.
+Coercion bicat_laws_from_bicat (C : bicat) : bicat_laws C := pr2 C.
+
+
 Section bicat_law_projections.
 
-Context {C : bicat_data} (T : bicat_laws C).
+Context {C : bicat}.
 
-Definition id2_left :
-   (* 1a id2_left *)
-  (∏ (a b : C) (f g : C⟦a, b⟧) (x : f ==> g), id2 f • x = x)
-    := pr1 T.
+Definition id2_left
+           (* 1a id2_left *)
+           {a b : C} {f g : C⟦a, b⟧} (x : f ==> g)
+  : id2 f • x = x
+  := pr1 (pr2 C) _ _ _ _ x.
 
-Definition id2_right :
-      (* 1b id2_right *)
-  (∏ (a b : C) (f g : C⟦a, b⟧) (x : f ==> g), x • id2 g = x)
-    := pr1 (pr2 T).
-Definition vassocr :
-      (* 2 vassocr *)
-      (∏ (a b : C) (f g h k : C⟦a, b⟧) (x : f ==> g) (y : g ==> h) (z : h ==> k),
-       x • (y • z) = (x • y) • z)
-  := pr1 (pr2 (pr2 T)).
+Definition id2_right
+           (* 1b id2_right *)
+           {a b : C} {f g : C⟦a, b⟧} (x : f ==> g)
+  : x • id2 g = x
+  := pr1 (pr2 (pr2 C)) _ _ _ _ x.
 
-Definition lwhisker_id2 :
-      (* 3a lwhisker_id2 *)
-  (∏ (a b c : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧), f ◃ id2 g = id2 _ )
-    := pr1 (pr2 (pr2 (pr2 T))).
+Definition vassocr
+           (* 2 vassocr *)
+           {a b : C} {f g h k : C⟦a, b⟧} (x : f ==> g) (y : g ==> h) (z : h ==> k)
+  : x • (y • z) = (x • y) • z
+  := pr1 (pr2 (pr2 (pr2 C))) _ _ _ _ _ _ x y z.
 
-Definition id2_rwhisker :
-      (* 3b id2_rwhisker *)
-  (∏ (a b c : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧), id2 f ▹ g = id2 _ )
-  := pr1 (pr2 (pr2 (pr2 (pr2 T)))).
+Definition lwhisker_id2
+           (* 3a lwhisker_id2 *)
+           {a b c : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
+  : f ◃ id2 g = id2 _
+  := pr1 (pr2 (pr2 (pr2 (pr2 C)))) _ _ _ f g.
 
-Definition lwhisker_vcomp :
-      (* 4 lwhisker_vcomp *)
-      (∏ (a b c : C) (f : C⟦a, b⟧) (g h i : C⟦b, c⟧) (x : g ==> h) (y : h ==> i),
-       (f ◃ x) • (f ◃ y) = f ◃ (x • y))
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 T))))).
+Definition id2_rwhisker
+           (* 3b id2_rwhisker *)
+           {a b c : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
+  : id2 f ▹ g = id2 _
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 C))))) _ _ _ f g.
 
-Definition rwhisker_vcomp:
-      (* 5 rwhisker_vcomp *)
-      (∏ (a b c : C) (f g h : C⟦a, b⟧) (i : C⟦b, c⟧) (x : f ==> g) (y : g ==> h),
-       (x ▹ i) • (y ▹ i) = (x • y) ▹ i)
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 T)))))).
+Definition lwhisker_vcomp
+           (* 4 lwhisker_vcomp *)
+           {a b c : C} (f : C⟦a, b⟧) {g h i : C⟦b, c⟧}
+           (x : g ==> h) (y : h ==> i)
+  : (f ◃ x) • (f ◃ y) = f ◃ (x • y)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))) _ _ _ f _ _ _ x y.
 
-Definition vcomp_lunitor :
-      (* 6  vcomp_lunitor *)
-      (∏ (a b : C) (f g : C⟦a, b⟧) (x : f ==> g),
-       (identity _ ◃ x) • lunitor g = lunitor f • x )
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 T))))))).
+Definition rwhisker_vcomp
+           (* 5 rwhisker_vcomp *)
+           {a b c : C} {f g h : C⟦a, b⟧} (i : C⟦b, c⟧) (x : f ==> g) (y : g ==> h)
+  : (x ▹ i) • (y ▹ i) = (x • y) ▹ i
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))) _ _ _ _ _ _ i x y.
 
-Definition vcomp_runitor :
-      (* 7 vcomp_runitor *)
-      (∏ (a b : C) (f g : C⟦a, b⟧) (x : f ==> g),
-       (x ▹ identity _ ) • runitor g = runitor f • x )
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 T)))))))).
+Definition vcomp_lunitor
+           (* 6  vcomp_lunitor *)
+           {a b : C} (f g : C⟦a, b⟧) (x : f ==> g)
+  : (identity _ ◃ x) • lunitor g = lunitor f • x
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))) _ _ f g x.
 
-Definition lwhisker_lwhisker :
-      (* 8 lwhisker_lwhisker *)
-      (∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h i : c --> d) (x : h ==> i),
-       f ◃ (g ◃ x) • lassociator _ _ _ = lassociator _ _ _ • (f · g ◃ x))
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 T))))))))).
+Definition vcomp_runitor
+           (* 7 vcomp_runitor *)
+           {a b : C} (f g : C⟦a, b⟧) (x : f ==> g)
+  : (x ▹ identity _ ) • runitor g = runitor f • x
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))) _ _ f g x.
 
-Definition rwhisker_lwhisker :
-      (* 9 rwhisker_lwhisker *)
-      (∏ (a b c d : C) (f : C⟦a, b⟧) (g h : C⟦b, c⟧) (i : c --> d) (x : g ==> h),
-       (f ◃ (x ▹ i)) • lassociator _ _ _ = lassociator _ _ _ • ((f ◃ x) ▹ i))
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 T)))))))))).
+Definition lwhisker_lwhisker
+           (* 8 lwhisker_lwhisker *)
+           {a b c d : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧) {h i : c --> d} (x : h ==> i)
+  : f ◃ (g ◃ x) • lassociator _ _ _ = lassociator _ _ _ • (f · g ◃ x)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))) _ _ _ _ f g _ _ x.
 
-Definition rwhisker_rwhisker :
-      (* 10 rwhisker_rwhisker *)
-      (∏ (a b c d : C) (f g : C⟦a, b⟧) (h : C⟦b, c⟧) (i : c --> d) (x : f ==> g),
-       lassociator _ _ _ • ((x ▹ h) ▹ i) = (x ▹ h · i) • lassociator _ _ _ )
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 T))))))))))).
+Definition rwhisker_lwhisker
+           (* 9 rwhisker_lwhisker *)
+           {a b c d : C} (f : C⟦a, b⟧) {g h : C⟦b, c⟧} (i : c --> d) (x : g ==> h)
+  : (f ◃ (x ▹ i)) • lassociator _ _ _ = lassociator _ _ _ • ((f ◃ x) ▹ i)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))))) _ _ _ _ f _ _ i x.
 
-Definition vcomp_whisker :
-      (* 11 vcomp_whisker *)
-      (∏ (a b c : C) (f g : C⟦a, b⟧) (h i : C⟦b, c⟧) (x : f ==> g) (y : h ==> i),
-       (x ▹ h) • (g ◃ y) = (f ◃ y) • (x ▹ i))
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 T)))))))))))).
+Definition rwhisker_rwhisker
+           (* 10 rwhisker_rwhisker *)
+           {a b c d : C} {f g : C⟦a, b⟧} (h : C⟦b, c⟧) (i : c --> d) (x : f ==> g)
+  : lassociator _ _ _ • ((x ▹ h) ▹ i) = (x ▹ h · i) • lassociator _ _ _
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))) _ _ _ _ _ _ h i x.
 
-Definition lunitor_linvunitor :
-      (* 12a lunitor_linvunitor *)
-  (∏ (a b : C) (f : C⟦a, b⟧), lunitor f • linvunitor _ = id2 _ )
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 T))))))))))))).
+Definition vcomp_whisker
+           (* 11 vcomp_whisker *)
+           {a b c : C} {f g : C⟦a, b⟧} {h i : C⟦b, c⟧} (x : f ==> g) (y : h ==> i)
+  : (x ▹ h) • (g ◃ y) = (f ◃ y) • (x ▹ i)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))))))) _ _ _ _ _ _ _ x y.
 
-Definition linvunitor_lunitor :
-      (* 12b linvunitor_lunitor *)
-  (∏ (a b : C) (f : C⟦a, b⟧), linvunitor f • lunitor _ = id2 _ )
-      := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 T)))))))))))))).
-      Definition runitor_rinvunitor:
-      (* 13a runitor_rinvunitor *)
-        (∏ (a b : C) (f : C⟦a, b⟧), runitor f • rinvunitor _ = id2 _ )
-        := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 T))))))))))))))).
-      Definition rinvunitor_runitor :
-      (* 13b rinvunitor_runitor *)
-        (∏ (a b : C) (f : C⟦a, b⟧), rinvunitor f • runitor _ = id2 _ )
-        := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 T)))))))))))))))).
-      Definition lassociator_rassociator:
-      (* 14a lassociator_rassociator *)
-      (∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d),
-       lassociator f g h • rassociator _ _ _ = id2 _ )
-        := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 T))))))))))))))))).
-      Definition rassociator_lassociator :
-      (* 14b rassociator_lassociator *)
-      (∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d),
-       rassociator f g h • lassociator _ _ _ = id2 _ )
-        := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 T)))))))))))))))))).
-      Definition runitor_rwhisker:
-      (* 15 runitor_rwhisker *)
-      (∏ (a b c : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧),
-       lassociator _ _ _ • (runitor f ▹ g) = f ◃ lunitor g )
-        := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 T))))))))))))))))))).
+Definition lunitor_linvunitor
+           (* 12a lunitor_linvunitor *)
+           {a b : C} (f : C⟦a, b⟧)
+  : lunitor f • linvunitor _ = id2 _
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))))) _ _ f.
 
-      Definition lassociator_lassociator :
-      (* 16  lassociator_lassociator *)
-      (∏ (a b c d e: C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d) (i : C⟦d, e⟧),
-       (f ◃ lassociator g h i) • lassociator _ _ _  • (lassociator _ _ _ ▹ i) =
-       lassociator f g _  • lassociator _ _ _
-      )
-        := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 T))))))))))))))))))).
+Definition linvunitor_lunitor
+           (* 12b linvunitor_lunitor *)
+           {a b : C} (f : C⟦a, b⟧)
+  : linvunitor f • lunitor _ = id2 _
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))))))))) _ _ f.
+
+Definition runitor_rinvunitor
+           (* 13a runitor_rinvunitor *)
+           {a b : C} (f : C⟦a, b⟧)
+  : runitor f • rinvunitor _ = id2 _
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))))))) _ _ f.
+
+Definition rinvunitor_runitor
+           (* 13b rinvunitor_runitor *)
+           {a b : C} (f : C⟦a, b⟧)
+  : rinvunitor f • runitor _ = id2 _
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))))))))))) _ _ f.
+
+Definition lassociator_rassociator
+           (* 14a lassociator_rassociator *)
+           {a b c d : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d)
+  : lassociator f g h • rassociator _ _ _ = id2 _
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))))))))) _ _ _ _ f g h.
+
+Definition rassociator_lassociator
+           (* 14b rassociator_lassociator *)
+           {a b c d : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d)
+  : rassociator f g h • lassociator _ _ _ = id2 _
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))))))))))))) _ _ _ _ f g h.
+
+Definition runitor_rwhisker
+           (* 15 runitor_rwhisker *)
+           {a b c : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
+  : lassociator _ _ _ • (runitor f ▹ g) = f ◃ lunitor g
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))))))))))) _ _ _ f g .
+
+Definition lassociator_lassociator
+           (* 16  lassociator_lassociator *)
+           {a b c d e: C} (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d) (i : C⟦d, e⟧)
+  : (f ◃ lassociator g h i) • lassociator _ _ _  • (lassociator _ _ _ ▹ i) =
+    lassociator f g _  • lassociator _ _ _
+
+  := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))))))))))) _ _ _ _ _ f g h i.
 
 (** TODO: there is an analog to law nr 8 for right associator.
           can it be derived from 8 plus l being inverse to r associator?
@@ -356,10 +377,6 @@ Definition linvunitor_lunitor :
 
 End bicat_law_projections.
 
-Definition bicat : UU := ∑ C : bicat_data, bicat_laws C.
-
-Coercion bicat_data_from_bicat (C : bicat) : bicat_data := pr1 C.
-Coercion bicat_laws_from_bicat (C : bicat) : bicat_laws C := pr2 C.
 
 
 (** TODO:
