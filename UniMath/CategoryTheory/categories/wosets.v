@@ -6,6 +6,7 @@ Require Import UniMath.Combinatorics.WellOrderedSets.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.categories.category_hset.
+Require Import UniMath.CategoryTheory.categories.category_hset_structures.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
@@ -298,28 +299,21 @@ use mk_Terminal.
   abstract (simpl; intro f; apply funextfun; intro x; case (f x); apply idpath).
 Defined.
 
-Check ZermeloWellOrdering.
-
-Variable AC : AxiomOfChoice.
-
 (** Direct proof that woset has binary products using Zermelo's well-ordering theorem. We could
 prove this using the lexicograpic ordering, but it seems like we need decidable equality for this to
 work which would not work for exponentials. *)
-Lemma hasBinProducts_wosetcat : hasBinProducts wosetcat.
+Lemma hasBinProducts_wosetcat (AC : AxiomOfChoice) : hasBinProducts wosetcat.
 Proof.
 intros A B.
 apply (squash_to_hProp (@ZermeloWellOrdering (pr1 A × pr1 B)%set AC)); intros R.
 apply hinhpr.
 use mk_BinProduct.
-- apply ((pr1 A × pr1 B)%set,,R).
-- simpl in *; apply pr1.
-- simpl in *; intros x; apply (pr2 x).
-- apply (mk_isBinProduct _ has_homsets_wosetcat).
-  intros C f g; use tpair.
-  * exists (prodtofuntoprod (f,,g)); abstract (split; apply idpath).
-  * abstract (intros [t [ht1 ht2]]; apply subtypeEquality;
-             [ intros x; apply isapropdirprod; apply has_homsets_HSET
-             | now apply funextfun; intro x; rewrite <- ht2, <- ht1 ]).
+- exists (BinProductObject _ (BinProductsHSET (pr1 A) (pr1 B))).
+  exact R.
+- apply (BinProductPr1 _ (BinProductsHSET _ _)).
+- apply (BinProductPr2 _ (BinProductsHSET _ _)).
+- intros H.
+  apply (isBinProduct_BinProduct _ (BinProductsHSET (pr1 A) (pr1 B)) (pr1 H)).
 Defined.
 
 End wosetcat.
