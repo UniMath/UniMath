@@ -211,6 +211,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/Limits.v](CategoryTheory/DisplayedCats/Limits.v)
    - [DisplayedCats/Examples.v](CategoryTheory/DisplayedCats/Examples.v)
    - [bicat/bicat.v](CategoryTheory/bicat/bicat.v)
+   - [bicat/disp_bicat.v](CategoryTheory/bicat/disp_bicat.v)
+   - [bicat/bicategories.v](CategoryTheory/bicat/bicategories.v)
    - [All.v](CategoryTheory/All.v)
 ## Package [Ktheory](Ktheory/README.md)
    - [Tactics.v](Ktheory/Tactics.v)
