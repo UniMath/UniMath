@@ -41,8 +41,7 @@ Defined.
 
 Definition bcat_cells_1_id_comp : ∑ C : bicat_ob_mor_cells, precategory_id_comp C.
 Proof.
-  refine (bcat_ob_mor_cells,, _).
-  split.
+  exists bcat_ob_mor_cells. split.
   - simpl. intros. exact (identity_1mor _).
   - simpl. intros a b c f g. exact (compose_1mor f g).
 Defined.
@@ -63,11 +62,11 @@ Proof.
     unfold right_unitor_trans_type in p.
     exact (p f).
   - (* left inverse unitor *)
-    admit.
+    intros. exact (inv_from_iso (left_unitor f)).
   - (* right inverse unitor *)
-    admit.
+    intros. exact (inv_from_iso (right_unitor f)).
   - (* right associator *)
-    admit.
+    intros. exact (inv_from_iso (associator f g h)).
   - (* left associator *)
     intros.
     exact (associator_2mor f g h).
@@ -80,7 +79,7 @@ Proof.
   - (* right whiskering *)
     intros a b c f1 f2 g x.
     exact (compose_2mor_horizontal x (identity g)).
-Admitted.
+Defined.
 
 Definition bcat_data : ∑ C, bicat_2_id_comp_struct C.
 Proof.
