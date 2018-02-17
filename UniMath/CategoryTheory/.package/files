@@ -134,4 +134,6 @@ DisplayedCats/SIP.v
 DisplayedCats/Limits.v
 DisplayedCats/Examples.v
 bicat/bicat.v
+bicat/disp_bicat.v
+
 
