@@ -1,4 +1,5 @@
 Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 
 Open Scope cat.
@@ -409,10 +410,94 @@ Defined.
     define saturation/univalence for bicats
  *)
 (** TODO:
-    define displayed bicats
- *)
-(** TODO:
     trivial bicat structures on a (pre)category
     - discrete bicat
     - chaotic bicat
  *)
+
+
+(** Chaotic bicat *)
+
+Section chaotic_bicat.
+
+Variable C : precategory.
+
+Definition chaotic_bicat_data : bicat_data.
+Proof.
+  use tpair.
+  - use tpair.
+    + exact C.
+    + cbn. intros a b f g. exact unit.
+  - cbn; repeat (use tpair).
+    + intros; exact tt.
+    + intros; exact tt.
+    + intros; exact tt.
+    + intros; exact tt.
+    + intros; exact tt.
+    + intros; exact tt.
+    + intros; exact tt.
+    + intros; exact tt.
+    + intros; exact tt.
+    + cbn. intros. exact tt.
+Defined.
+
+Definition chaotic_bicat_laws : bicat_laws chaotic_bicat_data.
+Proof.
+  repeat (use tpair); cbn; intros;
+    apply isProofIrrelevantUnit.
+Qed.
+
+End chaotic_bicat.
+
+
+Section discrete_bicat.
+
+Variable C : category.
+
+Definition discrete_bicat_data : bicat_data.
+Proof.
+  use tpair.
+  - use tpair.
+    + exact C.
+    + cbn. intros a b f g. exact (f = g).
+  - cbn; repeat (use tpair); cbn.
+    + intros. apply idpath.
+    + intros. apply id_left.
+    + intros. apply id_right.
+    + intros. apply (!id_left _).
+    + intros. apply (!id_right _).
+    + intros. apply (! assoc _ _ _ ).
+    + intros. apply assoc.
+    + intros a b f g h r s. apply (r @ s).
+    + intros. apply (maponpaths). assumption.
+    + intros. apply (maponpaths_2). assumption.
+Defined.
+
+Definition discrete_bicat_laws : bicat_laws discrete_bicat_data.
+Proof.
+  repeat (use tpair); cbn.
+  - intros. apply idpath.
+  - intros. apply pathscomp0rid.
+  - intros. apply path_assoc.
+  - intros. apply idpath.
+  - intros. apply idpath.
+  - intros. apply pathsinv0. apply maponpathscomp0.
+  - intros. unfold maponpaths_2.
+    apply pathsinv0. apply (@maponpathscomp0  _ _ _ _ _ (λ x0 : C ⟦ a, b ⟧, x0 · i)).
+  - intros. induction x. simpl. apply pathsinv0. apply (pathscomp0rid).
+  - intros. induction x. apply pathsinv0. apply (pathscomp0rid).
+  - intros. induction x. simpl. apply pathsinv0. apply (pathscomp0rid).
+  - intros. induction x. simpl. apply pathsinv0. apply (pathscomp0rid).
+  - intros. induction x; simpl. apply (pathscomp0rid).
+  - intros. induction x; induction y; simpl. apply idpath.
+  - intros. apply pathsinv0r.
+  - intros. apply pathsinv0l.
+  - intros. apply pathsinv0r.
+  - intros. apply pathsinv0l.
+  - intros. apply pathsinv0r.
+  - intros. apply pathsinv0l.
+  - intros. apply homset_property.
+  - intros. apply homset_property.
+Qed.
+
+End discrete_bicat.
