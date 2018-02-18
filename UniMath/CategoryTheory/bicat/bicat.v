@@ -1,6 +1,7 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.functor_categories.
 
 Open Scope cat.
 
@@ -496,3 +497,75 @@ Proof.
 Qed.
 
 End discrete_bicat.
+
+
+Definition psfunctor_ob_mor_cell (C C' : bicat_data) : UU
+  := ∑ F : functor_data C C',
+           ∏ a b (f g : a --> b), f ==> g → #F f ==> #F g.
+
+Coercion functor_data_from_bifunctor_ob_mor_cell C C' (F : psfunctor_ob_mor_cell C C')
+  : functor_data C C' := pr1 F.
+
+Definition psfunctor_on_cells {C C' : bicat_data} (F : psfunctor_ob_mor_cell C C')
+           {a b : C} {f g : a --> b} (x : f ==> g)
+  : #F f ==> #F g
+  := pr2 F a b f g x.
+
+Notation "'##'" := (psfunctor_on_cells).
+
+Definition psfunctor_cell_data {C C' : bicat_data} (F : psfunctor_ob_mor_cell C C') : UU
+  :=
+    (∏ (a : C), #F (identity a) ==> identity _ )
+      ×
+    (∏ (a b c : C) (f : a --> b) (g : b --> c),
+     #F (f · g) ==> #F f · #F g).
+
+Definition psfunctor_data (C C' : bicat_data) : UU
+  := ∑ F : psfunctor_ob_mor_cell C C', psfunctor_cell_data F.
+
+Coercion psfunctor_ob_mor_cell_from_bifunctor_data C C' (F : psfunctor_data C C')
+  : psfunctor_ob_mor_cell _ _ := pr1 F.
+
+
+(** TODO: these should be isos *)
+
+Definition psfunctor_id {C C' : bicat_data} (F : psfunctor_data C C') (a : C)
+  : #F (identity a) ==> identity _
+  := pr1 (pr2 F) a.
+Definition psfunctor_comp {C C' : bicat_data} (F : psfunctor_data C C') {a b c : C}
+           (f : a --> b) (g : b --> c)
+  : #F (f · g) ==> #F f · #F g
+  := pr2 (pr2 F) a b c f g.
+
+
+Section psfunctor_laws.
+
+Context {C C' : bicat_data} (F : psfunctor_data C C').
+
+
+Definition psfunctor_id2 : UU
+  := ∏ (a b : C) (f : a --> b), ## F (id2 f) = id2 _ .
+
+Definition psfunctor_lunitor : UU
+  := ∏ (a b : C) (f : C⟦a, b⟧),
+     ## F (lunitor f) =
+     (psfunctor_comp F (identity a) f) • (psfunctor_id _ _ ▹ #F f) • lunitor (#F f).
+
+Definition psfunctor_runitor : UU
+  := ∏ (a b : C) (f : C⟦a, b⟧),
+     ## F (runitor f) =
+     (psfunctor_comp F f (identity b)) • (# F f ◃ psfunctor_id _ _ ) • runitor (#F f).
+
+(*
+Definition psfunctor_linvunitor : UU
+  := ∏ (a b : C) (f : C⟦a, b⟧),
+     ## F (linvunitor f) = linvunitor (#F f).
+     (bifunctor_comp F (identity a) f) • (bifunctor_id _ _ ▹ #F f) • linvunitor (#F f).
+
+Definition bifunctor_rinvunitor : UU
+  := ∏ (a b : C) (f : C⟦a, b⟧),
+     ## F (runitor f) =
+     (bifunctor_comp F f (identity b)) • (# F f ◃ bifunctor_id _ _ ) • runitor (#F f).
+*)
+
+End psfunctor_laws.
