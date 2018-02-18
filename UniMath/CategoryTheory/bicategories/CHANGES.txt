@@ -1,7 +1,10 @@
+Simplify definition of left and right unitors (natural transformation).
+
 Shorten names:
-  prebicategory_ob_1mor_2mor	-> prebicategory_ob_hom
-  identity_mor1				-> identity1
-  identity_mor2				-> identity2
+  - prebicategory_ob_1mor_2mor  -> prebicategory_ob_hom
+  - identity_1mor                               -> identity1
+  - identity_2mor                               -> identity2
+  - composition_1mor                     -> composition1
 
 Remove superfluous definition
   identity_2mor (just use identity)
@@ -12,11 +15,16 @@ Remove unused code
 Add explict type annotations in statemes.
 
 Notations
-   new scope "bicategories" (thus remove Local Notations);
-   open cat scope (and use it extensively);
-   extensive use of (unicode) notations.
+   - new scope "bicategories" (thus remove Local Notations);
+   - open cat scope (and use it extensively);
+   - make notations '-2->' and ':v;' specific for bicategories
+     (otherwise they would overlap with the already available notations for
+     categories);
+   - remove notation '-2->' (duplicate of '-->');
+   - fix spaces in notations;
 
 Formatting
-  indentation, trim spaces;
-  superfluous parenthesis;
-  etc, etc.
+  - extensive use of (unicode) notations;
+  - indentation, trim spaces;
+  - superfluous parenthesis;
+  - etc, etc.

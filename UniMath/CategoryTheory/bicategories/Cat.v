@@ -232,7 +232,7 @@ Defined.
 (******************************************************************************)
 (* The prebicategory of precategories *)
 
-Definition PreCat_1mor_2mor : precategory_ob_hom.
+Definition PreCat_1mor_2mor : prebicategory_ob_hom.
 Proof.
   exists category.
   intros a b.
@@ -313,7 +313,7 @@ Defined.
 (******************************************************************************)
 (* The bicategory of categories *)
 
-Definition Cat_1mor_2mor : precategory_ob_hom.
+Definition Cat_1mor_2mor : prebicategory_ob_hom.
 Proof.
   exists univalent_category.
   intros a b.

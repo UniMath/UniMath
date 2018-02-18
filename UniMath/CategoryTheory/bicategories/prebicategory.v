@@ -27,46 +27,47 @@ Open Scope cat.
    definition easier to work with. *)
 
 (* The pieces are:
-   precategory_ob_hom:   A type C, and for each a,b : C, a precategory (a -1-> b)
-   precategory_id_comp:  For each a : C, an object of (a -1-> a),
-                         For each a b c : C, a functor (a -1-> b) × (b -1-> c) to (a -1-> c)
-   precategory_data:     For each a b c d : C, an associator natural transformation
-                         For each a b : C, left and right unitor natural transformations
-   precategory:          Proofs that:
-                         Every precategory (a -1-> b)'s homs are sets
-                         The natural transformations above are isos
-                         The pentagon and triangle axioms hold
+   prebicategory_ob_hom:   A type C, and for each a,b : C, a precategory (a -1-> b)
+   prebicategory_id_comp:  For each a : C, an object of (a -1-> a),
+                           For each a b c : C, a functor (a -1-> b) × (b -1-> c) to (a -1-> c)
+   prebicategory_data:     For each a b c d : C, an associator natural transformation
+                           For each a b : C, left and right unitor natural transformations
+   prebicategory:          Proofs that:
+                           Every precategory (a -1-> b)'s homs are sets
+                           The natural transformations above are isos
+                           The pentagon and triangle axioms hold
  *)
 
 (* An alternative structure would be to define a prebicategory as a precategory such that
    each hom type itself has the structure of a precategory, together with appropriate
    axioms. *)
 
-Notation "C c× D" := (precategory_binproduct C D)
+Notation "C  'c×'  D" := (precategory_binproduct C D)
  (at level 75, right associativity) : bicategories.
 
-Notation "a -2-> b" := (precategory_morphisms a b) (at level 50) : bicategories.
+Definition prebicategory_ob_hom : UU := ∑ C : UU, ∏ a b : C, precategory.
 
-Notation "alpha ;v; beta" := (compose alpha beta)
- (at level 50, format "alpha ;v; beta", no associativity) : bicategories.
+Coercion bicat_ob (C : prebicategory_ob_hom) : UU := pr1 C.
 
-Definition precategory_ob_hom : UU := ∑ C : UU, ∏ a b : C, precategory.
+Definition homprecat {C : prebicategory_ob_hom} (a b : C) : precategory := pr2 C a b.
 
-Coercion bicat_ob (C : precategory_ob_hom) : UU := pr1 C.
-
-Definition homprecat {C : precategory_ob_hom} (a b : C) : precategory := pr2 C a b.
-
-Notation "a -1-> b" := (homprecat a b) (at level 50) : bicategories.
+Notation "a  '-1->'  b" := (homprecat a b) (at level 50) : bicategories.
 
 Open Scope bicategories.
 
+Notation "f  '-2->'  g" := (@precategory_morphisms (_ -1->_) f g)
+  (at level 50) : bicategories.
+
+Notation "alpha  ';v;'  beta" := (@compose (_ -1-> _) _ _ _ alpha beta)
+ (at level 50) : bicategories.
+
 Definition prebicategory_id_comp :=
-  ∑ C : precategory_ob_hom,
+  ∑ C : prebicategory_ob_hom,
         (∏ a : C, a -1-> a) ×
         (∏ a b c : C, ((a -1-> b) c× (b -1-> c)) ⟶ (a -1-> c)).
 
-Coercion precategory_ob_hom_from_prebicategory_id_comp (C : prebicategory_id_comp) :
-  precategory_ob_hom := pr1 C.
+Coercion prebicategory_ob_hom_from_prebicategory_id_comp (C : prebicategory_id_comp) :
+  prebicategory_ob_hom := pr1 C.
 
 Definition identity1 {C : prebicategory_id_comp} (a : C) : a -1-> a := pr1 (pr2 C) a.
 
@@ -77,8 +78,8 @@ Definition compose_functor {C : prebicategory_id_comp} (a b c : C)
 Definition compose1 {C : prebicategory_id_comp} {a b c : C} (f : a -1-> b) (g : b -1-> c)
   := functor_on_objects (compose_functor a b c) (dirprodpair f g).
 
-Notation "f ;1; g" := (compose1 f g)
-  (at level 50, format "f ;1; g", no associativity) : bicategories.
+Notation "f  ';1;'  g" := (compose1 f g)
+  (at level 50, no associativity) : bicategories.
 
 Definition compose_2mor_horizontal {C : prebicategory_id_comp} {a b c : C}
            {f f' : a -1-> b}
@@ -91,8 +92,8 @@ Proof.
   exact (precatbinprodmor alpha beta).
 Defined.
 
-Notation "alpha ;h; beta" := (compose_2mor_horizontal alpha beta)
-  (at level 50, format "alpha ;h; beta") : bicategories.
+Notation "alpha  ';h;'  beta" := (compose_2mor_horizontal alpha beta)
+  (at level 50) : bicategories.
 
 Definition compose_2mor_iso_horizontal {C : prebicategory_id_comp} {a b c : C}
            {f f' : a -1-> b}
@@ -104,8 +105,8 @@ Proof.
   apply functor_on_iso. exact (precatbinprodiso alpha beta).
 Defined.
 
-Notation "alpha ;hi; beta" := (compose_2mor_iso_horizontal alpha beta)
-  (at level 50, format "alpha ;hi; beta") : bicategories.
+Notation "alpha  ';hi;'  beta" := (compose_2mor_iso_horizontal alpha beta)
+  (at level 50) : bicategories.
 
 Definition associator_trans_type {C : prebicategory_id_comp} (a b c d : C) : UU
   := pair_functor (functor_identity (a -1-> b))
@@ -162,7 +163,7 @@ Definition associator_2mor {C : prebicategory_data} {a b c d : C}
 
 Definition left_unitor_trans {C : prebicategory_data} (a b : C)
   : bindelta_pair_functor
-      (unit_functor (a -1-> b) ∙ constant_functor unit_precategory (a -1-> a) (identity1 a))
+      (constant_functor (a -1-> b) (a -1-> a) (identity1 a))
       (functor_identity (a -1-> b)) ∙ compose_functor a a b
     ⟹
     functor_identity (a -1-> b)
@@ -176,8 +177,7 @@ Definition left_unitor_2mor {C : prebicategory_data} {a b : C}
 Definition right_unitor_trans {C : prebicategory_data} (a b : C)
   : bindelta_pair_functor
       (functor_identity (a -1-> b))
-      (unit_functor (a -1-> b) ∙
-                    constant_functor unit_precategory (b -1-> b) (identity1 b)) ∙
+      (constant_functor (a -1-> b) (b -1-> b) (identity1 b)) ∙
     compose_functor a b b
     ⟹
     functor_identity (a -1-> b)
@@ -189,14 +189,10 @@ Definition right_unitor_2mor {C : prebicategory_data} {a b : C}
   := right_unitor_trans a b f.
 
 Definition associator_and_unitors_are_iso (C : prebicategory_data)
-  :=   (∏ a b c d : C,
-        ∏ (f : a -1-> b)
-          (g : b -1-> c)
-          (h : c -1-> d), is_iso (associator_2mor f g h))
-     × (∏ a b : C,
-        ∏ f : a -1-> b, is_iso (left_unitor_2mor f))
-     × (∏ a b : C,
-        ∏ g : a -1-> b, is_iso (right_unitor_2mor g)).
+  :=   (∏ (a b c d : C) (f : a -1-> b) (g : b -1-> c) (h : c -1-> d),
+          is_iso (associator_2mor f g h))
+     × (∏ (a b : C) (f : a -1-> b), is_iso (left_unitor_2mor f))
+     × (∏ (a b : C) (g : a -1-> b), is_iso (right_unitor_2mor g)).
 
 (* It suffices to check the pentagon/triangle axioms pointwise *)
 
@@ -284,24 +280,23 @@ Proof.
 Defined.
 
 Definition pentagon_axiom {C : prebicategory} {a b c d e: C}
-  (k : a -1-> b)
-  (h : b -1-> c)
-  (g : c -1-> d)
-  (f : d -1-> e)
+    (k : a -1-> b)
+    (h : b -1-> c)
+    (g : c -1-> d)
+    (f : d -1-> e)
   : pentagon_axiom_type k h g f
   := pr1 (pr2 (pr2 (pr2 C))) a b c d e k h g f.
 
 Definition triangle_axiom {C : prebicategory} {a b c : C}
-  (f : a -1-> b) (g : b -1-> c)
+    (f : a -1-> b) (g : b -1-> c)
   : triangle_axiom_type f g
   := pr2 (pr2 (pr2 (pr2 C))) a b c f g.
 
 (******************************************************************************)
 (* Basics on identities and inverses *)
 
-Lemma id_2mor_left {C : prebicategory} {b c : C}
-  {g g' : b -1-> c}
-  (beta : g -2-> g')
+Lemma id_2mor_left {C : prebicategory} {b c : C} {g g' : b -1-> c}
+    (beta : g -2-> g')
   : identity (identity1 _) ;h; beta
   = left_unitor _ ;v; beta ;v; iso_inv_from_iso (left_unitor _).
 Proof.
@@ -353,8 +348,8 @@ Lemma interchange {C : prebicategory} {a b c : C}
 Proof.
   unfold compose_2mor_horizontal.
 
-  assert (X : (precatbinprodmor a1 b1) ;v; (precatbinprodmor a2 b2)
-            = (precatbinprodmor (a1;v;a2) (b1;v;b2))) by reflexivity.
+  assert (X : precatbinprodmor a1 b1 · precatbinprodmor a2 b2
+            = precatbinprodmor (a1 ;v; a2) (b1 ;v; b2)) by reflexivity.
   rewrite <- X.
 
   apply functor_comp.
