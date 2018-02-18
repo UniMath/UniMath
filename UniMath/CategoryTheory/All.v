@@ -80,7 +80,6 @@ Require Export UniMath.CategoryTheory.Inductives.Trees.
 Require Export UniMath.CategoryTheory.Inductives.LambdaCalculus.
 Require Export UniMath.CategoryTheory.catiso.
 Require Export UniMath.CategoryTheory.bicategories.prebicategory.
-Require Export UniMath.CategoryTheory.bicategories.notations.
 Require Export UniMath.CategoryTheory.bicategories.whiskering.
 Require Export UniMath.CategoryTheory.bicategories.Cat.
 Require Export UniMath.CategoryTheory.bicategories.internal_equivalence.

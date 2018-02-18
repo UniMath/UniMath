@@ -7,16 +7,16 @@ Require Import UniMath.CategoryTheory.equivalences.
 
 Require Import UniMath.CategoryTheory.bicategories.prebicategory.
 Require Import UniMath.CategoryTheory.bicategories.internal_equivalence.
-Require Import UniMath.CategoryTheory.bicategories.notations.
 
+Open Scope bicategories.
 
 (******************************************************************************)
 (* Definition of bicategory *)
 
-Definition is_bicategory (C : prebicategory)
-  := (has_homcats C) × (forall (a b : C), isweq (path_to_adj_int_equivalence a b)).
+Definition is_bicategory (C : prebicategory) : UU
+  := (has_homcats C) × (∏ (a b : C), isweq (path_to_adj_int_equivalence a b)).
 
-Definition bicategory := total2 (λ C : prebicategory, is_bicategory C).
+Definition bicategory : UU := ∑ C : prebicategory, is_bicategory C.
 
 (******************************************************************************)
 (* Being a bicategory is a prop *)
@@ -30,10 +30,3 @@ Proof.
   intro b.
   apply (isaprop_is_univalent (a -1-> b)).
 Qed.
-
-(* Definition isaprop_is_bicategory { C : prebicategory } *)
-(*   : isaprop (is_bicategory C). *)
-(* Proof. *)
-(*   apply isapropdirprod. *)
-(*   - exact isaprop_has_homcats. *)
-(*   - (* Todo *) *)

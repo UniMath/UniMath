@@ -1,0 +1,22 @@
+Shorten names:
+  prebicategory_ob_1mor_2mor	-> prebicategory_ob_hom
+  identity_mor1				-> identity1
+  identity_mor2				-> identity2
+
+Remove superfluous definition
+  identity_2mor (just use identity)
+
+Remove unused code
+  idto1mor
+
+Add explict type annotations in statemes.
+
+Notations
+   new scope "bicategories" (thus remove Local Notations);
+   open cat scope (and use it extensively);
+   extensive use of (unicode) notations.
+
+Formatting
+  indentation, trim spaces;
+  superfluous parenthesis;
+  etc, etc.

@@ -78,7 +78,6 @@ Inductives/Trees.v
 Inductives/LambdaCalculus.v
 catiso.v
 bicategories/prebicategory.v
-bicategories/notations.v
 bicategories/whiskering.v
 bicategories/Cat.v
 bicategories/internal_equivalence.v

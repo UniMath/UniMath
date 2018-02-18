@@ -42,8 +42,8 @@ Defined.
 Definition bcat_cells_1_id_comp : ∑ C : bicat_ob_mor_cells, precategory_id_comp C.
 Proof.
   exists bcat_ob_mor_cells. split.
-  - simpl. intros. exact (identity_1mor _).
-  - simpl. intros a b c f g. exact (compose_1mor f g).
+  - simpl. intros. exact (identity1 _).
+  - simpl. intros a b c f g. exact (compose1 f g).
 Defined.
 
 Definition bcat_2_id_comp_struct : bicat_2_id_comp_struct bcat_cells_1_id_comp.
@@ -105,9 +105,10 @@ Proof.
   - (* 6  vcomp_lunitor *)
     intros. unfold compose_2mor_horizontal.
     unfold lunitor; simpl.
-    unfold bcat_cells_1_id_comp.
-    progress simpl.
-    unfold bcat_ob_mor_cells.
+    unfold compose_functor.
+    simpl.
+    unfold left_unitor_2mor.
+    unfold left_unitor_trans.
     admit.
   - (* 7 vcomp_runitor *)
     admit.
