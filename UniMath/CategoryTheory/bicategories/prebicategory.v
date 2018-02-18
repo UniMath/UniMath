@@ -209,10 +209,8 @@ Definition triangle_axiom_type {C : prebicategory_data} {a b c : C}
     (f : a -1-> b)
     (g : b -1-> c)
   : UU
-  := identity f ;h; (left_unitor_2mor g)
-     =
-         associator_2mor f (identity1 b) g
-     ;v; (right_unitor_2mor f ;h; identity g).
+  := identity f ;h; left_unitor_2mor g =
+     associator_2mor f (identity1 b) g ;v; (right_unitor_2mor f ;h; identity g).
 
 Definition prebicategory_coherence (C : prebicategory_data) : UU
   :=   (∏ (a b c d e : C) (k : a -1-> b) (h : b -1-> c) (g : c -1-> d) (f : d -1-> e),
@@ -332,4 +330,23 @@ Proof.
             = precatbinprodmor (a1 ;v; a2) (b1 ;v; b2)) by reflexivity.
   rewrite <- X.
   apply functor_comp.
+Qed.
+
+(******************************************************************************)
+(* ** Further results. *)
+
+(** *** The othoter triangle identity. *)
+
+Lemma triangle_identity' {C : prebicategory} {a b c : C} (f : a -1-> b) (g : b -1-> c)
+  : right_unitor_2mor f ;h; identity g =
+    iso_inv_from_iso (associator f (identity1 b) g) ;v; (identity _ ;h; left_unitor_2mor _).
+Proof.
+  apply iso_inv_to_left.
+  change
+    (iso_inv_from_iso (iso_inv_from_iso (associator f (identity1 b) g)) ·
+     (right_unitor_2mor f ;h; identity g) =
+     identity f ;h; left_unitor_2mor g).
+  rewrite iso_inv_iso_inv.
+  apply pathsinv0.
+  apply triangle_axiom.
 Qed.
