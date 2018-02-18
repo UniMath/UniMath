@@ -370,7 +370,7 @@ Definition lassociator_lassociator
 (** TODO: there is an analog to law nr 8 for right associator.
           can it be derived from 8 plus l being inverse to r associator?
 
-∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h i : c --> d) (x : h ==> i),
+ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h i : c --> d) (x : h ==> i),
          (f · g) ◃ x • rassociator _ _ _ = rassociator _ _ _ • (f ◃ (g ◃ x))
 
 *)
@@ -378,10 +378,16 @@ Definition lassociator_lassociator
 End bicat_law_projections.
 
 
+Lemma hcomp1_hcomp2 {C : bicat} {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
+      (η : f1 ==> f2) (φ : g1 ==> g2)
+  : hcomp1 η φ = hcomp2 η φ.
+Proof.
+  unfold hcomp1.
+  unfold hcomp2.
+  apply vcomp_whisker.
+Defined.
 
-(** TODO:
-    implicit arguments for law projections
- *)
+
 
 (** TODO:
     construct a prebicategory (see CT/bicategories) from a bicat
