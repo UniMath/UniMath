@@ -6,6 +6,7 @@ Open Scope cat.
 Definition bicat_cell_struct (C : precategory_ob_mor) : UU :=
   ∏ (a b: C), C⟦a, b⟧ → C⟦a, b⟧ → UU.
 
+(*
 Definition bicat_ob_mor_cells : UU := ∑ (C : precategory_ob_mor), bicat_cell_struct C.
 
 Coercion precat_ob_mor_from_bicat_ob_mor_cells (T : bicat_ob_mor_cells)
@@ -13,10 +14,20 @@ Coercion precat_ob_mor_from_bicat_ob_mor_cells (T : bicat_ob_mor_cells)
 
 Definition bicat_cells (C : bicat_ob_mor_cells) {a b : C} (f g : C⟦a, b⟧) : UU :=
   pr2 C a b f g.
+ *)
+
+Definition bicat_1_id_comp_cells : UU := ∑ (C : precategory_data), bicat_cell_struct C.
+Coercion precat_data_from_bicat_1_id_comp_cells (C : bicat_1_id_comp_cells)
+  : precategory_data
+  := pr1 C.
+
+Definition bicat_cells (C : bicat_1_id_comp_cells) {a b : C} (f g : C⟦a, b⟧) : UU :=
+  pr2 C a b f g.
+
 
 Notation "f '==>' g" := (bicat_cells _ f g) (at level 60).
 Notation "f '<==' g" := (bicat_cells _ g f) (at level 60, only parsing).
-
+(*
 Definition bicat_cells_1_id_comp : UU := ∑ C : bicat_ob_mor_cells, precategory_id_comp C.
 
 Coercion precat_data_from_bicat_cells_1_id_comp (C : bicat_cells_1_id_comp) : precategory_data.
@@ -26,11 +37,11 @@ Proof.
 Defined.
 
 Check (fun (C : bicat_cells_1_id_comp) (a b c : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) => f · g).
+*)
 
 
 
-
-Definition bicat_2_id_comp_struct (C : bicat_cells_1_id_comp) : UU
+Definition bicat_2_id_comp_struct (C : bicat_1_id_comp_cells) : UU
   :=
     (* 2-unit *)
     (∏ (a b : C) (f : C⟦a, b⟧), f ==> f)
@@ -76,7 +87,7 @@ Definition bicat_2_id_comp_struct (C : bicat_cells_1_id_comp) : UU
 
 Definition bicat_data : UU := ∑ C, bicat_2_id_comp_struct C.
 
-Coercion bicat_cells_1_id_comp_from_bicat_data (C : bicat_data) : bicat_cells_1_id_comp
+Coercion bicat_cells_1_id_comp_from_bicat_data (C : bicat_data) : bicat_1_id_comp_cells
   := pr1 C.
 
 Definition id2 {C : bicat_data} {a b : C} (f : C⟦a, b⟧) : f ==> f

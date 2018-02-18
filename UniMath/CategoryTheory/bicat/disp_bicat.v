@@ -13,7 +13,7 @@ Context (C : bicat).
 Definition disp_cell_struct (D : disp_cat_ob_mor C) : UU
   := ∏ (c c' : C) (f g : C⟦c, c'⟧) (x : f ==> g)
        (d : D c) (d' : D c') (f' : d -->[f] d') (g' : d -->[g] d'), UU.
-
+(*
 Definition disp_bicat_ob_mor_cells : UU
   := ∑ D : disp_cat_ob_mor C, disp_cell_struct D.
 
@@ -25,10 +25,23 @@ Definition disp_cells {D : disp_bicat_ob_mor_cells}
            {d : D c} {d' : D c'} (f' : d -->[f] d') (g' : d -->[g] d')
   : UU
   := pr2 D c c' f g x d d' f' g'.
+ *)
+
+Definition disp_bicat_1_id_comp_cells : UU := ∑ D : disp_cat_data C, disp_cell_struct D.
+Coercion disp_cat_data_from_disp_bicat_1_id_comp_cells (C : disp_bicat_1_id_comp_cells)
+  : disp_cat_data _ := pr1 C.
+
+Definition disp_cells {D : disp_bicat_1_id_comp_cells}
+           {c c' : C} {f g : C⟦c, c'⟧} (x : f ==> g)
+           {d : D c} {d' : D c'} (f' : d -->[f] d') (g' : d -->[g] d')
+  : UU
+  := pr2 D c c' f g x d d' f' g'.
+
 
 Notation "f' ==>[ x ] g'" := (disp_cells x f' g') (at level 60).
 Notation "f' <==[ x ] g'" := (disp_cells x g' f') (at level 60, only parsing).
 
+(*
 Definition disp_bicat_ob_mor_cells_1_id_comp : UU := ∑ D : disp_bicat_ob_mor_cells, disp_cat_id_comp _ D.
 
 Coercion disp_cat_data_from_disp_bicat_cells_1_id_comp (D : disp_bicat_ob_mor_cells_1_id_comp)
@@ -37,7 +50,7 @@ Proof.
   exists (pr1 D).
   exact (pr2 D).
 Defined.
-
+*)
 
 
 (*
@@ -45,7 +58,7 @@ Check (fun (C : category) (D : disp_cat C) a b (f : C⟦a, b⟧)
            x y (ff : x -->[f] y) =>  id_disp _ ;; ff = transportf _ _ ff).
 *)
 
-Definition disp_bicat_ops (D : disp_bicat_ob_mor_cells_1_id_comp) : UU
+Definition disp_bicat_ops (D : disp_bicat_1_id_comp_cells) : UU
   :=
     (∏ (a b : C) (f : C⟦a, b⟧) (x : D a) (y : D b) (f' : x -->[f] y),
      f' ==>[id2 _ ] f')
@@ -92,12 +105,12 @@ Definition disp_bicat_ops (D : disp_bicat_ob_mor_cells_1_id_comp) : UU
 
 
 Definition disp_bicat_data : UU
-  := ∑ D : disp_bicat_ob_mor_cells_1_id_comp,
+  := ∑ D : disp_bicat_1_id_comp_cells,
            disp_bicat_ops D.
 
 Coercion disp_bicat_ob_mor_cells_1_id_comp_from_disp_bicat_data
          (D : disp_bicat_data)
-  : disp_bicat_ob_mor_cells_1_id_comp
+  : disp_bicat_1_id_comp_cells
   := pr1 D.
 Coercion disp_bicat_ops_from_disp_bicat_data (D : disp_bicat_data)
   : disp_bicat_ops D
@@ -309,6 +322,32 @@ Definition lassociator_rassociator_disp_law : UU
      lassociator_disp ff gg hh •• rassociator_disp _ _ _ =
      transportb (λ x', _ ==>[x'] _) (lassociator_rassociator _ _ _  ) (id2_disp  _ ).
 
+Definition rassociator_lassociator_disp_law : UU
+  := ∏ {a b c d : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d)
+       (w : D a) (x : D b) (y : D c) (z : D d)
+       (ff : w -->[f] x) (gg : x -->[g] y)
+       (hh : y -->[h] z),
+     rassociator_disp ff gg hh •• lassociator_disp _ _ _ =
+     transportb (λ x', _ ==>[x'] _) (rassociator_lassociator _ _ _  ) (id2_disp _).
+
+Definition runitor_rwhisker_disp_law : UU
+  := ∏ {a b c : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
+       (x : D a) (y : D b) (z : D c)
+       (ff : x -->[f] y) (gg : y -->[g] z),
+     lassociator_disp _ _ _ •• (runitor_disp ff ▹▹ gg) =
+     transportb (λ x', _ ==>[x'] _) (runitor_rwhisker _ _ ) (ff ◃◃ lunitor_disp gg).
+
+Definition lassociator_lassociator_disp_law : UU
+  := ∏ {a b c d e: C} (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d) (i : C⟦d, e⟧)
+       (v : D a) (w : D b) (x : D c) (y : D d) (z : D e)
+       (ff : v -->[f] w) (gg : w -->[g] x)
+       (hh : x -->[h] y) (ii : y -->[i] z),
+
+     (ff ◃◃ lassociator_disp gg hh ii) •• lassociator_disp _ _ _ •• (lassociator_disp _ _ _ ▹▹ ii) =
+     transportb (λ x', _ ==>[x'] _) (lassociator_lassociator _ _ _ _ )
+                (lassociator_disp ff gg _ •• lassociator_disp _ _ _).
+
+
 (*
 Definition id2_disp_left_law
            {a b : C} {f g : C⟦a, b⟧} (η : f ==> g)
@@ -476,7 +515,10 @@ Definition disp_bicat_laws : UU
       × linvunitor_lunitor_disp_law
       × runitor_rinvunitor_disp_law
       × rinvunitor_runitor_disp_law
-      × lassociator_rassociator_disp_law.
+      × lassociator_rassociator_disp_law
+      × rassociator_lassociator_disp_law
+      × runitor_rwhisker_disp_law
+      × lassociator_lassociator_disp_law.
 
 End disp_bicat_laws.
 
@@ -638,9 +680,167 @@ Definition lassociator_rassociator_disp
            (hh : y -->[h] z)
   : lassociator_disp ff gg hh •• rassociator_disp _ _ _ =
     transportb (λ x', _ ==>[x'] _) (lassociator_rassociator _ _ _  ) (id2_disp  _ )
-  := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))))))))) _ _ _ _ _ _ _ _ _ _ _ ff gg hh.
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))))))))))) _ _ _ _ _ _ _ _ _ _ _ ff gg hh.
+
+Definition rassociator_lassociator_disp
+           {a b c d : C} (f : C⟦a, b⟧) {g : C⟦b, c⟧} {h : c --> d}
+           {w : D a} {x : D b} {y : D c} {z : D d}
+           (ff : w -->[f] x) (gg : x -->[g] y)
+           (hh : y -->[h] z)
+  : rassociator_disp ff gg hh •• lassociator_disp _ _ _ =
+    transportb (λ x', _ ==>[x'] _) (rassociator_lassociator _ _ _  ) (id2_disp _)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))))))))))) _ _ _ _ _ _ _ _ _ _ _ ff gg hh.
+
+Definition runitor_rwhisker_disp
+           {a b c : C} {f : C⟦a, b⟧} {g : C⟦b, c⟧}
+           {x : D a} {y : D b} {z : D c}
+           (ff : x -->[f] y) (gg : y -->[g] z)
+  : lassociator_disp _ _ _ •• (runitor_disp ff ▹▹ gg) =
+    transportb (λ x', _ ==>[x'] _) (runitor_rwhisker _ _ ) (ff ◃◃ lunitor_disp gg)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))))))))))))) _ _ _ _ _ _ _ _ ff gg.
+
+
+Definition lassociator_lassociator_disp
+           {a b c d e: C} {f : C⟦a, b⟧} {g : C⟦b, c⟧} {h : c --> d} {i : C⟦d, e⟧}
+           {v : D a} {w : D b} {x : D c} {y : D d} {z : D e}
+           (ff : v -->[f] w) (gg : w -->[g] x)
+           (hh : x -->[h] y) (ii : y -->[i] z)
+  : (ff ◃◃ lassociator_disp gg hh ii) •• lassociator_disp _ _ _ •• (lassociator_disp _ _ _ ▹▹ ii) =
+     transportb (λ x', _ ==>[x'] _) (lassociator_lassociator _ _ _ _ )
+                (lassociator_disp ff gg _ •• lassociator_disp _ _ _)
+  := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))))))))))))) _ _ _ _ _ _ _ _ _ _ _ _ _ _ ff gg hh ii.
+
+
+
 
 End disp_bicat_law_projections.
 
+Section total_bicat.
+Variable D : disp_bicat.
+
+(** TODO : think how to unify with total_category_ob_mor
+
+    possible once https://github.com/UniMath/UniMath/pull/902
+    is merged
+
+*)
+Definition total_bicat_ob_mor : precategory_ob_mor.
+Proof.
+  exists (∑ x:C, D x).
+  intros xx yy.
+  exact (∑ (f : pr1 xx --> pr1 yy), pr2 xx -->[f] pr2 yy).
+Defined.
+
+Definition total_category_id_comp : precategory_id_comp (total_bicat_ob_mor).
+Proof.
+  apply tpair; simpl.
+  - intros.
+    exists (identity _ ).
+    apply id_disp.
+  - intros xx yy zz ff gg.
+    exists (pr1 ff · pr1 gg).
+    exact (pr2 ff ;; pr2 gg).
+Defined.
+
+Definition total_bicat_1_data : precategory_data := _ ,, total_category_id_comp.
+
+Definition total_bicat_cell_struct : bicat_cell_struct total_bicat_ob_mor
+  := λ a b f g, ∑ η : pr1 f ==> pr1 g, pr2 f ==>[η] pr2 g.
+
+Definition total_bicat_1_id_comp_cells : bicat_1_id_comp_cells
+  := (total_bicat_1_data,, total_bicat_cell_struct).
+
+Definition total_bicat_2_id_comp_struct : bicat_2_id_comp_struct total_bicat_1_id_comp_cells.
+Proof.
+  repeat split; cbn; unfold total_bicat_cell_struct.
+  - intros. exists (id2 _ ). exact (id2_disp _ ).
+  - intros. exists (lunitor _ ). exact (lunitor_disp _ ).
+  - intros. exists (runitor _ ). exact (runitor_disp _ ).
+  - intros. exists (linvunitor _ ). exact (linvunitor_disp _ ).
+  - intros. exists (rinvunitor _ ). exact (rinvunitor_disp _ ).
+  - intros. exists (rassociator _ _ _ ).
+    exact (rassociator_disp _ _ _ ).
+  - intros. exists (lassociator _ _ _ ).
+    exact (lassociator_disp _ _ _ ).
+  - intros a b f g h r s. exists (pr1 r • pr1 s).
+    exact (pr2 r •• pr2 s).
+  - intros a b d f g1 g2 r. exists (pr1 f ◃ pr1 r).
+    exact (pr2 f ◃◃ pr2 r).
+  - intros a b c f1 f2 g r. exists (pr1 r ▹ pr1 g).
+    exact (pr2 r ▹▹ pr2 g).
+Defined.
+
+Definition total_bicat_data : bicat_data := _ ,, total_bicat_2_id_comp_struct.
+
+Lemma total_bicat_laws : bicat_laws total_bicat_data.
+Proof.
+  repeat split; intros.
+  - use total2_paths_b.
+    + apply id2_left.
+    + apply id2_disp_left.
+  - use total2_paths_b.
+    + apply id2_right.
+    + apply id2_disp_right.
+  - use total2_paths_b.
+    + apply vassocr.
+    + apply vassocr_disp.
+  - use total2_paths_b.
+    + apply lwhisker_id2.
+    + apply lwhisker_id2_disp.
+  - use total2_paths_b.
+    + apply id2_rwhisker.
+    + apply id2_rwhisker_disp.
+  - use total2_paths_b.
+    + apply lwhisker_vcomp.
+    + apply lwhisker_vcomp_disp.
+  - use total2_paths_b.
+    + apply rwhisker_vcomp.
+    + apply rwhisker_vcomp_disp.
+  - use total2_paths_b.
+    + apply vcomp_lunitor.
+    + apply vcomp_lunitor_disp.
+  - use total2_paths_b.
+    + apply vcomp_runitor.
+    + apply vcomp_runitor_disp.
+  - use total2_paths_b.
+    + apply lwhisker_lwhisker.
+    + apply lwhisker_lwhisker_disp.
+  - use total2_paths_b.
+    + apply rwhisker_lwhisker.
+    + apply rwhisker_lwhisker_disp.
+  - use total2_paths_b.
+    + apply rwhisker_rwhisker.
+    + apply rwhisker_rwhisker_disp.
+  - use total2_paths_b.
+    + apply vcomp_whisker.
+    + apply vcomp_whisker_disp.
+  - use total2_paths_b.
+    + apply lunitor_linvunitor.
+    + apply lunitor_linvunitor_disp.
+  - use total2_paths_b.
+    + apply linvunitor_lunitor.
+    + apply linvunitor_lunitor_disp.
+  - use total2_paths_b.
+    + apply runitor_rinvunitor.
+    + apply runitor_rinvunitor_disp.
+  - use total2_paths_b.
+    + apply rinvunitor_runitor.
+    + apply rinvunitor_runitor_disp.
+  - use total2_paths_b.
+    + apply lassociator_rassociator.
+    + apply lassociator_rassociator_disp.
+  - use total2_paths_b.
+    + apply rassociator_lassociator.
+    + apply rassociator_lassociator_disp.
+  - use total2_paths_b.
+    + apply runitor_rwhisker.
+    + apply runitor_rwhisker_disp.
+  - use total2_paths_b.
+    + apply lassociator_lassociator.
+    + apply lassociator_lassociator_disp.
+Defined.
+
+Definition total_bicat : bicat := _ ,, total_bicat_laws.
+End total_bicat.
 
 End disp_bicat.
