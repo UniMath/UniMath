@@ -66,9 +66,9 @@ Proof.
   - (* vertical composition *)
     intros a b f g h x y. exact (x · y).
   - (* left whiskering *)
-    intros a b c f g1 g2 x. exact (compose_2mor_horizontal (identity f) x).
+    intros a b c f g1 g2 x. exact (compose2h (identity f) x).
   - (* right whiskering *)
-    intros a b c f1 f2 g x. exact (compose_2mor_horizontal x (identity g)).
+    intros a b c f1 f2 g x. exact (compose2h x (identity g)).
 Defined.
 
 Definition bcat_data : ∑ C, bicat_2_id_comp_struct C.
@@ -91,19 +91,19 @@ Proof.
   - (* 3b id2_rwhisker *)
     intros. use functor_id.
   - (* 4 lwhisker_vcomp *)
-    intros. unfold compose_2mor_horizontal.
+    intros. unfold compose2h.
     etrans. eapply pathsinv0. apply functor_comp. apply maponpaths.
     apply total2_paths2; simpl.
     + apply id_left.
     + reflexivity.
   - (* 5 rwhisker_vcomp *)
-    intros. unfold compose_2mor_horizontal.
+    intros. unfold compose2h.
     etrans. eapply pathsinv0. apply functor_comp. apply maponpaths.
     apply total2_paths2; simpl.
     + reflexivity.
     + apply id_left.
   - (* 6  vcomp_lunitor *)
-    intros. unfold compose_2mor_horizontal.
+    intros. unfold compose2h.
     unfold lunitor; simpl.
     unfold compose_functor.
     simpl.

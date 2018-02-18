@@ -63,8 +63,8 @@ Notation "alpha  ';v;'  beta" := (@compose (_ -1-> _) _ _ _ alpha beta)
 
 Definition prebicategory_id_comp :=
   ∑ C : prebicategory_ob_hom,
-        (∏ a : C, a -1-> a) ×
-        (∏ a b c : C, ((a -1-> b) c× (b -1-> c)) ⟶ (a -1-> c)).
+          (∏ a : C, a -1-> a)
+        × (∏ a b c : C, ((a -1-> b) c× (b -1-> c)) ⟶ (a -1-> c)).
 
 Coercion prebicategory_ob_hom_from_prebicategory_id_comp (C : prebicategory_id_comp) :
   prebicategory_ob_hom := pr1 C.
@@ -81,7 +81,7 @@ Definition compose1 {C : prebicategory_id_comp} {a b c : C} (f : a -1-> b) (g : 
 Notation "f  ';1;'  g" := (compose1 f g)
   (at level 50, no associativity) : bicategories.
 
-Definition compose_2mor_horizontal {C : prebicategory_id_comp} {a b c : C}
+Definition compose2h {C : prebicategory_id_comp} {a b c : C}
            {f f' : a -1-> b}
            {g g' : b -1-> c}
            (alpha : f -2-> f')
@@ -92,10 +92,9 @@ Proof.
   exact (precatbinprodmor alpha beta).
 Defined.
 
-Notation "alpha  ';h;'  beta" := (compose_2mor_horizontal alpha beta)
-  (at level 50) : bicategories.
+Notation "alpha  ';h;'  beta" := (compose2h alpha beta) (at level 50) : bicategories.
 
-Definition compose_2mor_iso_horizontal {C : prebicategory_id_comp} {a b c : C}
+Definition compose2h_iso {C : prebicategory_id_comp} {a b c : C}
            {f f' : a -1-> b}
            {g g' : b -1-> c}
            (alpha : iso f f')
@@ -105,8 +104,7 @@ Proof.
   apply functor_on_iso. exact (precatbinprodiso alpha beta).
 Defined.
 
-Notation "alpha  ';hi;'  beta" := (compose_2mor_iso_horizontal alpha beta)
-  (at level 50) : bicategories.
+Notation "alpha  ';hi;'  beta" := (compose2h_iso alpha beta) (at level 50) : bicategories.
 
 Definition associator_trans_type {C : prebicategory_id_comp} (a b c d : C) : UU
   := pair_functor (functor_identity (a -1-> b))
@@ -134,9 +132,9 @@ Definition right_unitor_trans_type {C : prebicategory_id_comp} (a b : C) : UU
 
 Definition prebicategory_data : UU :=
   ∑ C : prebicategory_id_comp,
-      (∏ a b c d : C, associator_trans_type a b c d) ×
-      (∏ a b : C, left_unitor_trans_type a b) ×
-      (∏ a b : C, right_unitor_trans_type a b).         (* Right *)
+          (∏ a b c d : C, associator_trans_type a b c d)
+        × (∏ a b : C, left_unitor_trans_type a b)
+        × (∏ a b : C, right_unitor_trans_type a b).         (* Right *)
 
 Coercion prebicategory_id_comp_from_prebicategory_data (C : prebicategory_data)
   : prebicategory_id_comp
@@ -183,12 +181,11 @@ Definition right_unitor_trans {C : prebicategory_data} (a b : C)
     functor_identity (a -1-> b)
   := pr2 (pr2 (pr2 C)) a b.
 
-Definition right_unitor_2mor {C : prebicategory_data} {a b : C}
-           (f : a -1-> b)
+Definition right_unitor_2mor {C : prebicategory_data} {a b : C} (f : a -1-> b)
   : f ;1; (identity1 b) -2-> f
   := right_unitor_trans a b f.
 
-Definition associator_and_unitors_are_iso (C : prebicategory_data)
+Definition associator_and_unitors_are_iso (C : prebicategory_data) : UU
   :=   (∏ (a b c d : C) (f : a -1-> b) (g : b -1-> c) (h : c -1-> d),
           is_iso (associator_2mor f g h))
      × (∏ (a b : C) (f : a -1-> b), is_iso (left_unitor_2mor f))
@@ -197,19 +194,16 @@ Definition associator_and_unitors_are_iso (C : prebicategory_data)
 (* It suffices to check the pentagon/triangle axioms pointwise *)
 
 Definition pentagon_axiom_type {C : prebicategory_data} {a b c d e : C}
-  (k : a -1-> b)
-  (h : b -1-> c)
-  (g : c -1-> d)
-  (f : d -1-> e)
+     (k : a -1-> b) (h : b -1-> c) (g : c -1-> d) (f : d -1-> e)
+  : UU
   :=
     (* Anticlockwise *)
-        (associator_2mor k h (g ;1; f))
-    ;v; (associator_2mor (k ;1; h) g f)
-   =
+    associator_2mor k h (g ;1; f) ;v; associator_2mor (k ;1; h) g f
+    =
     (* Clockwise *)
-        ((identity k) ;h; (associator_2mor h g f))
-    ;v; (associator_2mor k (h ;1; g) f)
-    ;v; ((associator_2mor k h g) ;h; (identity f)).
+        (identity k ;h; associator_2mor h g f)
+    ;v; associator_2mor k (h ;1; g) f
+    ;v; (associator_2mor k h g ;h; identity f).
 
 Definition triangle_axiom_type {C : prebicategory_data} {a b c : C}
     (f : a -1-> b)
@@ -217,26 +211,21 @@ Definition triangle_axiom_type {C : prebicategory_data} {a b c : C}
   : UU
   := identity f ;h; (left_unitor_2mor g)
      =
-         (associator_2mor f (identity1 b) g)
-     ;v; ((right_unitor_2mor f) ;h; (identity g)).
+         associator_2mor f (identity1 b) g
+     ;v; (right_unitor_2mor f ;h; identity g).
 
 Definition prebicategory_coherence (C : prebicategory_data) : UU
-  := (∏ a b c d e : C,
-      ∏ k : a -1-> b,
-      ∏ h : b -1-> c,
-      ∏ g : c -1-> d,
-      ∏ f : d -1-> e,
-        pentagon_axiom_type k h g f)
-     ×
-     (∏ a b c : C,
-      ∏ f : a -1-> b,
-      ∏ g : b -1-> c,
-        triangle_axiom_type f g).
+  :=   (∏ (a b c d e : C) (k : a -1-> b) (h : b -1-> c) (g : c -1-> d) (f : d -1-> e),
+          pentagon_axiom_type k h g f)
+     × (∏ (a b c : C) (f : a -1-> b) (g : b -1-> c), triangle_axiom_type f g).
 
-Definition is_prebicategory (C : prebicategory_data) : UU :=
-                (has_2mor_sets C)
-              × (associator_and_unitors_are_iso C)
-              × (prebicategory_coherence C).
+Definition is_prebicategory (C : prebicategory_data) : UU
+  :=   has_2mor_sets C
+     × associator_and_unitors_are_iso C
+     × prebicategory_coherence C.
+
+(* *********************************************************************************** *)
+(** ** Final packing and projections. *)
 
 Definition prebicategory : UU := total2 is_prebicategory.
 
@@ -247,13 +236,11 @@ Definition prebicategory_has_2mor_sets {C : prebicategory} (a b : C)
   : has_homsets (a -1-> b)
   := (pr1 (pr2 C)) a b.
 
-Definition has_homcats (C : prebicategory)
+Definition has_homcats (C : prebicategory) : UU
   := ∏ a b : C, is_univalent (a -1-> b).
 
 Definition associator {C : prebicategory} {a b c d : C}
-           (f : a -1-> b)
-           (g : b -1-> c)
-           (h : c -1-> d)
+    (f : a -1-> b) (g : b -1-> c) (h : c -1-> d)
   : iso (f ;1; (g ;1; h)) ((f ;1; g) ;1; h).
 Proof.
   use tpair.
@@ -266,24 +253,20 @@ Definition left_unitor {C : prebicategory} {a b : C}
   : iso ((identity1 a) ;1; f) f.
 Proof.
   use tpair.
-  - exact (left_unitor_2mor _).
+  - exact (left_unitor_2mor f).
   - exact ((pr1 (pr2 (pr1 (pr2 (pr2 C))))) a b f).
 Defined.
 
-Definition right_unitor {C : prebicategory} {a b : C}
-           (f : a -1-> b)
+Definition right_unitor {C : prebicategory} {a b : C} (f : a -1-> b)
   : iso (f ;1; (identity1 b)) f.
 Proof.
   use tpair.
-  - exact (right_unitor_2mor _).
+  - exact (right_unitor_2mor f).
   - exact ((pr2 (pr2 (pr1 (pr2 (pr2 C))))) a b f).
 Defined.
 
 Definition pentagon_axiom {C : prebicategory} {a b c d e: C}
-    (k : a -1-> b)
-    (h : b -1-> c)
-    (g : c -1-> d)
-    (f : d -1-> e)
+    (k : a -1-> b) (h : b -1-> c) (g : c -1-> d) (f : d -1-> e)
   : pentagon_axiom_type k h g f
   := pr1 (pr2 (pr2 (pr2 C))) a b c d e k h g f.
 
@@ -293,22 +276,20 @@ Definition triangle_axiom {C : prebicategory} {a b c : C}
   := pr2 (pr2 (pr2 (pr2 C))) a b c f g.
 
 (******************************************************************************)
-(* Basics on identities and inverses *)
+(** ** Basics on identities and inverses *)
 
-Lemma id_2mor_left {C : prebicategory} {b c : C} {g g' : b -1-> c}
-    (beta : g -2-> g')
-  : identity (identity1 _) ;h; beta
-  = left_unitor _ ;v; beta ;v; iso_inv_from_iso (left_unitor _).
+Lemma id_2mor_left {C : prebicategory} {b c : C} {g g' : b -1-> c} (beta : g -2-> g')
+  : identity (identity1 b) ;h; beta
+  = left_unitor g ;v; beta ;v; iso_inv_from_iso (left_unitor g').
 Proof.
   apply iso_inv_on_left.
   apply pathsinv0.
   apply (nat_trans_ax (left_unitor_trans b c)).
 Defined.
 
-Lemma id_2mor_right {C : prebicategory} {a b : C} {f f' : a -1-> b}
-      (alpha : f -2-> f')
-  : alpha ;h; identity (identity1 _) =
-    right_unitor _ ;v; alpha ;v; iso_inv_from_iso (right_unitor _).
+Lemma id_2mor_right {C : prebicategory} {a b : C} {f f' : a -1-> b} (alpha : f -2-> f')
+  : alpha ;h; identity (identity1 b) =
+    right_unitor f ;v; alpha ;v; iso_inv_from_iso (right_unitor f').
 Proof.
   apply iso_inv_on_left.
   apply pathsinv0.
@@ -316,10 +297,10 @@ Proof.
 Defined.
 
 Lemma horizontal_comp_id {C : prebicategory_id_comp} {a b c : C}
-      {f : a -1-> b} {g : b -1-> c}
+    {f : a -1-> b} {g : b -1-> c}
   : identity f ;h; identity g = identity (f ;1; g).
 Proof.
-  unfold compose_2mor_horizontal.
+  unfold compose2h.
   intermediate_path (functor_on_morphisms (compose_functor a b c)
             (identity (precatbinprodpair f g))).
     reflexivity.
@@ -327,12 +308,12 @@ Proof.
 Defined.
 
 Lemma inv_horizontal_comp {C : prebicategory_id_comp} {a b c : C}
-      {f f' : a -1-> b} {g g' : b -1-> c}
-      (alpha : iso f f') (beta : iso g g')
+    {f f' : a -1-> b} {g g' : b -1-> c}
+    (alpha : iso f f') (beta : iso g g')
   : (iso_inv_from_iso alpha) ;hi; (iso_inv_from_iso beta)
   = iso_inv_from_iso (alpha ;hi; beta).
 Proof.
-  unfold compose_2mor_iso_horizontal.
+  unfold compose2h_iso.
   rewrite precatbinprodiso_inv.
   apply functor_on_iso_inv.
 Defined.
@@ -341,16 +322,14 @@ Defined.
 (* Interchange Law *)
 
 Lemma interchange {C : prebicategory} {a b c : C}
-  {f1 f2 f3 : a -1-> b} {g1 g2 g3 : b -1-> c}
-  (a1 : f1 -2-> f2) (a2 : f2 -2-> f3)
-  (b1 : g1 -2-> g2) (b2 : g2 -2-> g3)
+    {f1 f2 f3 : a -1-> b} {g1 g2 g3 : b -1-> c}
+    (a1 : f1 -2-> f2) (a2 : f2 -2-> f3)
+    (b1 : g1 -2-> g2) (b2 : g2 -2-> g3)
   : (a1 ;v; a2) ;h; (b1 ;v; b2) = (a1 ;h; b1) ;v; (a2 ;h; b2).
 Proof.
-  unfold compose_2mor_horizontal.
-
+  unfold compose2h.
   assert (X : precatbinprodmor a1 b1 · precatbinprodmor a2 b2
             = precatbinprodmor (a1 ;v; a2) (b1 ;v; b2)) by reflexivity.
   rewrite <- X.
-
   apply functor_comp.
 Qed.

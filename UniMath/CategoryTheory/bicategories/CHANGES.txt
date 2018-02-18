@@ -2,9 +2,11 @@ Simplify definition of left and right unitors (natural transformation).
 
 Shorten names:
   - prebicategory_ob_1mor_2mor  -> prebicategory_ob_hom
-  - identity_1mor                               -> identity1
-  - identity_2mor                               -> identity2
-  - composition_1mor                     -> composition1
+  - identity_1mor -> identity1
+  - identity_2mor -> identity2
+  - composition_1mor -> composition1
+  - compose_2mor_horizontal -> compose2h
+  - compose_2mor_iso_horizontal -> compose2h_iso
 
 Remove superfluous definition
   identity_2mor (just use identity)

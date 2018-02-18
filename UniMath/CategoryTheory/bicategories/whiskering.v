@@ -138,8 +138,7 @@ Proof.
 Defined.
 
 Definition cancel_whisker_right {C : prebicategory} {a b c : C}
-  {f g : a -1-> b} {alpha alpha' : f -2-> g} (p : alpha = alpha')
-  (h : b -1-> c)
+    {f g : a -1-> b} {alpha alpha' : f -2-> g} (p : alpha = alpha') (h : b -1-> c)
   : whisker_right alpha h = whisker_right alpha' h.
 Proof.
   induction p.
@@ -326,7 +325,6 @@ Proof.
   rewrite whisker_right_on_comp.
   rewrite assoc.
   apply cancel_postcomposition.
-
   apply (pentagon_axiom f (identity1 b) g h).
 Defined.
 
@@ -378,7 +376,7 @@ End kelly_left_pieces.
 Lemma kelly_left {C : prebicategory} {b c d : C}
   {g : b -1-> c} {h : c -1-> d}
   : left_unitor_2mor (g ;1; h)
-  = (associator (identity1 b) g h) ;v; whisker_right_iso (left_unitor g) h.
+  = associator (identity1 b) g h ;v; whisker_right_iso (left_unitor g) h.
 Proof.
   apply whisker_left_id_inj.
   rewrite whisker_left_on_comp.
