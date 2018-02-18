@@ -409,11 +409,6 @@ Defined.
 (** TODO:
     define saturation/univalence for bicats
  *)
-(** TODO:
-    trivial bicat structures on a (pre)category
-    - discrete bicat
-    - chaotic bicat
- *)
 
 
 (** Chaotic bicat *)
