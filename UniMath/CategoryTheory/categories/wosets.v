@@ -5,24 +5,13 @@ Require Import UniMath.Combinatorics.WellOrderedSets.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.categories.category_hset.
 Require Import UniMath.CategoryTheory.categories.category_hset_structures.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.limits.coequalizers.
-Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.covyoneda.
-Require Import UniMath.CategoryTheory.slicecat.
-Require Import UniMath.CategoryTheory.Epis.
-Require Import UniMath.CategoryTheory.EpiFacts.
 
 Local Open Scope cat.
 Local Open Scope woset.
@@ -248,11 +237,17 @@ End wosetfuncat.
 (** * The category of well-ordered sets with arbitrary functions as morphisms *)
 Section wosetcat.
 
+(* TODO: We need the following missing lemma: *)
+Lemma isaset_WellOrderedSet : isaset WellOrderedSet.
+Admitted.
+
+Definition WOSET : hSet := (WellOrderedSet,,isaset_WellOrderedSet).
+
 Definition woset_precategory : precategory.
 Proof.
 use mk_precategory.
 - use tpair.
-  + exists WellOrderedSet.
+  + exists WOSET.
     apply (λ X Y, pr11 X → pr11 Y).
   + split; simpl.
     * intros X; apply idfun.
@@ -268,9 +263,6 @@ Qed.
 Definition wosetcat : category :=
   (woset_precategory,,has_homsets_wosetcat).
 
-(* TODO: We need the following missing lemma: *)
-(* Lemma isaset_WellOrderedSet : isaset WellOrderedSet. *)
-(* Admitted. *)
 
 (* Definition wo_setcategory : setcategory. *)
 (* Proof. *)
@@ -305,15 +297,74 @@ work which would not work for exponentials. *)
 Lemma hasBinProducts_wosetcat (AC : AxiomOfChoice) : hasBinProducts wosetcat.
 Proof.
 intros A B.
-apply (squash_to_hProp (@ZermeloWellOrdering (pr1 A × pr1 B)%set AC)); intros R.
+set (AB := BinProductObject _ (BinProductsHSET (pr1 A) (pr1 B)) : hSet).
+apply (squash_to_hProp (@ZermeloWellOrdering AB AC)); intros R.
 apply hinhpr.
 use mk_BinProduct.
-- exists (BinProductObject _ (BinProductsHSET (pr1 A) (pr1 B))).
+- exists AB.
   exact R.
 - apply (BinProductPr1 _ (BinProductsHSET _ _)).
 - apply (BinProductPr2 _ (BinProductsHSET _ _)).
 - intros H.
-  apply (isBinProduct_BinProduct _ (BinProductsHSET (pr1 A) (pr1 B)) (pr1 H)).
+  apply (isBinProduct_BinProduct _ (BinProductsHSET _ _) (pr1 H)).
 Defined.
+
+Definition squash_BinProducts_wosetcat (AC : AxiomOfChoice) : ∥ BinProducts wosetcat ∥.
+Proof.
+use AC; intros A; use AC; intros B.
+apply (hasBinProducts_wosetcat AC).
+Defined.
+
+Definition hasExponentials (C : precategory) : UU :=
+  ∏ (a : C), ∃ (H : BinProducts C), is_exponentiable H a.
+
+Lemma hasExponentials_wosetcat (AC : AxiomOfChoice) : hasExponentials wosetcat.
+Proof.
+intros A.
+generalize (squash_BinProducts_wosetcat AC); apply hinhuniv; intros H.
+(* apply hinhpr; exists H. *)
+(*   simpl in *. *)
+(*   generalize Exponentials_HSET. *)
+(*   intros [F hF]. *)
+(*   use tpair. *)
+(*   use mk_functor. *)
+(*   use tpair. *)
+(*   simpl. *)
+(*   intros X. *)
+(*   use tpair. *)
+(*   apply F. *)
+(*   apply X. *)
+(*   cbn. *)
+
+(* apply (pr1 (pr1 F)). *)
+(*   simpl. *)
+(*   simpl. *)
+(*   Search Exponentials. *)
+(*   simpl in *. *)
+(*   unfold is_exponentiable. *)
+(*   generalize (hasBinProducts_wosetcat AC). *)
+(*   unfold hasBinProducts. *)
+(*   intros H1. *)
+(*   assert (H : ∥ ∏ c d : wosetcat,  ∥ BinProduct wosetcat c d  ∥ ∥). *)
+(*   apply hinhpr. *)
+(*   apply H1. *)
+(*   generalize H. *)
+(*   apply hinhuniv. *)
+(*   intros . *)
+(*   apply hinhpr. *)
+(*   apply (squash_to_hProp (@ZermeloWellOrdering (pr1 A × pr1 B)%set AC)); intros R. *)
+(*   apply hinhuniv. *)
+(* intros A B. *)
+(* apply (squash_to_hProp (@ZermeloWellOrdering (pr1 A × pr1 B)%set AC)); intros R. *)
+(* apply hinhpr. *)
+(* use mk_BinProduct. *)
+(* - exists (BinProductObject _ (BinProductsHSET (pr1 A) (pr1 B))). *)
+(*   exact R. *)
+(* - apply (BinProductPr1 _ (BinProductsHSET _ _)). *)
+(* - apply (BinProductPr2 _ (BinProductsHSET _ _)). *)
+(* - intros H. *)
+(*   apply (isBinProduct_BinProduct _ (BinProductsHSET (pr1 A) (pr1 B)) (pr1 H)). *)
+(* Defined. *)
+Admitted.
 
 End wosetcat.
