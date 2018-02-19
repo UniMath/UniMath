@@ -2,6 +2,12 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+
+(* Needed?
+Require Import UniMath.CategoryTheory.HorizontalComposition.
+Require Import UniMath.CategoryTheory.equivalences.
+ *)
 
 Open Scope cat.
 
@@ -618,3 +624,119 @@ Definition psfunctor_rassociator_law : UU
 (** TODO : to be continued *)
 
 End psfunctor_laws.
+
+(* *********************************************************************************** *)
+(** Homs are categories. *)
+
+Section Hom_Spaces.
+
+Context {C : bicat} (a b : C).
+
+Definition hom_ob_mor : precategory_ob_mor.
+Proof.
+  exists (C ⟦a, b⟧). exact (λ f g, f ==> g).
+Defined.
+
+Definition hom_data : precategory_data.
+Proof.
+  exists hom_ob_mor. split.
+  - exact id2.
+  - exact (λ f g h x y, x • y).
+Defined.
+
+Lemma is_precategory_hom : is_precategory hom_data.
+Proof.
+  repeat split; simpl.
+  - intros f g. apply id2_left.
+  - intros f g. apply id2_right.
+  - intros f g h i. apply vassocr.
+Defined.
+
+Definition hom : precategory.
+Proof.
+  exists hom_data.
+  exact is_precategory_hom.
+Defined.
+
+End Hom_Spaces.
+
+Section vcomp_functor.
+
+Context {C : bicat} {a b c : C}.
+
+Lemma hcomp1_identity (f1 : C ⟦ a, b ⟧) (f2 : C ⟦ b, c ⟧)
+  : hcomp1 (id2 f1) (id2 f2) = id2 (f1 · f2).
+Proof.
+  unfold hcomp1.
+  rewrite id2_rwhisker.
+  rewrite id2_left.
+  apply lwhisker_id2.
+Defined.
+
+Lemma hcomp_vcomp
+      (f1 g1 h1 : C ⟦ a, b ⟧)
+      (f2 g2 h2 : C ⟦ b, c ⟧)
+      (x1 : f1 ==> g1)
+      (x2 : f2 ==> g2)
+      (y1 : g1 ==> h1)
+      (y2 : g2 ==> h2)
+  : hcomp1 (x1 • y1) (x2 • y2) = hcomp1 x1 x2 • hcomp1 y1 y2.
+Proof.
+  unfold hcomp1 at 2 3.
+  rewrite vassocr.
+  rewrite vcomp_whisker.
+  transitivity (((f1 ◃ x2) • ((x1 ▹ g2) • (y1 ▹ g2))) • (h1 ◃ y2)).
+  2: repeat rewrite vassocr; reflexivity.
+  rewrite rwhisker_vcomp.
+  rewrite <- vcomp_whisker.
+  rewrite <- vassocr.
+  rewrite lwhisker_vcomp.
+  unfold hcomp1.
+  reflexivity.
+Defined.
+
+Definition hcomp_functor_data
+  : functor_data (precategory_binproduct (hom a b) (hom b c)) (hom a c).
+Proof.
+  exists (λ p : (a-->b) × (b-->c), pr1 p · pr2 p).
+  unfold hom_ob_mor. simpl. intros (f1, f2) (g1, g2).
+  unfold precategory_binproduct_mor. simpl.
+  intros (x, y). apply hcomp1; assumption.
+Defined.
+
+Lemma is_functor_hcomp : is_functor hcomp_functor_data.
+Proof.
+  split; red; simpl.
+  - intros (f1, f2). simpl. apply hcomp1_identity.
+  - intros (f1, f2) (g1, g2) (h1, h2).
+    unfold precategory_binproduct_mor. simpl.
+    intros (x1, x2) (y1, y2). cbn. apply hcomp_vcomp.
+Defined.
+
+Definition hcomp_functor : precategory_binproduct (hom a b) (hom b c) ⟶ hom a c.
+Proof.
+  exists hcomp_functor_data. exact is_functor_hcomp.
+Defined.
+
+End vcomp_functor.
+
+Lemma hcomp1_lassoc {C : bicat} (a b c d : C)
+      (f1 g1 : C ⟦ a, b ⟧) (f2 g2 : C ⟦ b, c ⟧) (f3 g3 : C ⟦ c, d ⟧)
+      (x1 : f1 ==> g1) (x2 : f2 ==> g2) (x3 : f3 ==> g3)
+  :  hcomp1 x1 (hcomp1 x2 x3) • lassociator g1 g2 g3 =
+     lassociator f1 f2 f3 • hcomp1 (hcomp1 x1 x2) x3.
+Proof.
+  unfold hcomp1.
+  rewrite <- lwhisker_vcomp.
+  repeat rewrite <- vassocr.
+  rewrite lwhisker_lwhisker.
+  repeat rewrite vassocr.
+  apply maponpaths_2.
+  rewrite <- vassocr.
+  rewrite rwhisker_lwhisker.
+  rewrite vassocr.
+  rewrite <- rwhisker_rwhisker.
+  rewrite <- vassocr.
+  apply maponpaths.
+  apply rwhisker_vcomp.
+Defined.

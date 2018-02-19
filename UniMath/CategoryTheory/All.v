@@ -136,4 +136,5 @@ Require Export UniMath.CategoryTheory.DisplayedCats.Limits.
 Require Export UniMath.CategoryTheory.DisplayedCats.Examples.
 Require Export UniMath.CategoryTheory.bicat.bicat.
 Require Export UniMath.CategoryTheory.bicat.disp_bicat.
-Require Export UniMath.CategoryTheory.bicat.bicategories.
+Require Export UniMath.CategoryTheory.bicat.complete.
+Require Export UniMath.CategoryTheory.bicat.correct.
