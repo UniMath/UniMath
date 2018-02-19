@@ -4,6 +4,7 @@
 (* ========================================================================= *)
 
 Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -18,7 +19,42 @@ Require Import UniMath.CategoryTheory.bicat.bicat.
 Open Scope cat.
 
 (* ------------------------------------------------------------------------- *)
-(* From bicategory structure to bicat structor.                              *)
+(* Missing lemmas.                                                           *)
+(* ------------------------------------------------------------------------- *)
+
+Lemma whisker_left_left {C : prebicategory} {a b c d : C}
+      (f : a -1-> b) (g : b -1-> c) {h i : c -1-> d} (x : h -2-> i) :
+  whisker_left f (whisker_left g x) ;v; associator_2mor f g i =
+  associator_2mor f g h ;v; whisker_left (f ;1; g) x.
+Proof.
+  unfold whisker_left.
+  etrans; [ apply associator_naturality | idtac].
+  apply maponpaths.
+  apply maponpaths_2.
+  exact horizontal_comp_id.
+Defined.
+
+Lemma whisker_left_right {C : prebicategory} {a b c d : C}
+      (f : a -1-> b) (g h : b -1-> c) (i : c -1-> d) (x : g -2-> h) :
+  whisker_left f (whisker_right x i) ;v; associator_2mor f h i =
+  associator_2mor f g i ;v; whisker_right (whisker_left f x) i.
+Proof.
+  exact (associator_naturality (identity f) x (identity i)).
+Defined.
+
+Lemma whisker_right_right {C : prebicategory} {a b c d : C}
+      (f g : a -1-> b) (h : b -1-> c) (i : c -1-> d) (x : f -2-> g) :
+  associator_2mor f h i ;v; whisker_right (whisker_right x h) i =
+  whisker_right x (h ;1; i) ;v; associator_2mor g h i.
+Proof.
+  unfold whisker_right.
+  etrans; [ apply pathsinv0, associator_naturality | idtac].
+  apply maponpaths_2, maponpaths.
+  exact horizontal_comp_id.
+Defined.
+
+(* ------------------------------------------------------------------------- *)
+(* From bicategory structure to bicat structure.                             *)
 (* ------------------------------------------------------------------------- *)
 
 Section unfold_data.
@@ -75,6 +111,7 @@ Proof.
   exists bcat_cells_1_id_comp. exact bcat_2_id_comp_struct.
 Defined.
 
+
 Theorem bcat_laws : bicat_laws bcat_data.
 Proof.
   repeat split;
@@ -104,11 +141,11 @@ Proof.
   - (* 7 vcomp_runitor *)
     apply right_unitor_naturality.
   - (* 8 lwhisker_lwhisker *)
-    admit.
+    apply whisker_left_left.
   - (* 9 rwhisker_lwhisker *)
-    admit.
+    apply whisker_left_right.
   - (* 10 rwhisker_rwhisker *)
-    admit.
+    apply whisker_right_right.
   - (* 11 vcomp_whisker *)
     apply twomor_naturality.
   - (* 12a lunitor_linvunitor *)
@@ -127,6 +164,8 @@ Proof.
     apply pathsinv0, (triangle_axiom f g).
   - (* 16  lassociator_lassociator *)
     apply pathsinv0, (pentagon_axiom f g h).
-Admitted.
+Defined.
+
+Definition bcat : bicat := (bcat_data,, bcat_laws).
 
 End unfold_data.
