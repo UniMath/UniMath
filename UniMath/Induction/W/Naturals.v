@@ -27,20 +27,14 @@ Local Notation ℕ := nat.
 Definition nat_functor : functor type_precat type_precat :=
   polynomial_functor bool (bool_rect (λ _, UU) empty unit).
 
-(** Sometimes Coq won't infer that we mean `pr1 (v,, _) = pr1 (v,, _)` by
-    `idpath v`. It's annoying to rewrite this, though, so we make a notation. *)
-Local Notation total2_paths_f_idpath v :=
-  (total2_paths_f (idpath v : pr1 (v,, _) = pr1 (v,, _))).
-
 (** The intuition is that an algebra X for this functor is given by a constant
     x : X and a function X → X. The following equivalence verifies this. *)
-Definition nat_functor_algebra_equiv :
-  (∑ X, X × (X → X)) ≃ algebra_ob nat_functor.
+Definition nat_functor_equiv :
+  ∏ {X : UU}, (X × (X → X)) ≃ (nat_functor X -> X).
 Proof.
-  apply weqfibtototal; intro X; cbn in X.
+  intro X.
   use weq_iso.
   * intros dprodpair.
-    cbn.
     intros pairfun.
     induction pairfun as [b bfun]; induction b.
     - exact (pr1 dprodpair).
@@ -55,7 +49,7 @@ Proof.
     - (** There is a unique function out of the empty type *)
       apply subtypeEquality'; try reflexivity.
       apply isapropifcontr, iscontrfunfromempty.
-    - apply (total2_paths_f_idpath false); cbn.
+    - apply maponpaths.
       apply funextfun; intro t; induction t; reflexivity.
 Defined.
 
@@ -63,7 +57,7 @@ Defined.
     ℕ. Any choice of zero results in an isomorphic algebra.
  *)
 Definition nat_alg (n : ℕ) : algebra_ob nat_functor :=
-  nat_functor_algebra_equiv (ℕ,, dirprodpair n S).
+  (ℕ,, nat_functor_equiv (dirprodpair n S)).
 
 Definition nat_alg_z : algebra_ob nat_functor := nat_alg 0.
 
@@ -83,16 +77,13 @@ Lemma nat_algs_eq : nat_alg_z = nat_alg'. Proof. reflexivity. Defined.
 (** An algebra morphism between algebras for the nat functor is a
     function that respects all the relevant structure. *)
 Definition mk_nat_functor_algebra_mor {X Y : algebra_ob nat_functor} :
-  let X' := pr2 (invmap nat_functor_algebra_equiv X) in
-  let Y' := pr2 (invmap nat_functor_algebra_equiv Y) in
+  let X' := invmap nat_functor_equiv (pr2 X) in
+  let Y' := invmap nat_functor_equiv (pr2 Y) in
   ∏ (f : pr1 X → pr1 Y),
     (f (pr1 X') = (pr1 Y')) × (f ∘ (pr2 X') = (pr2 Y') ∘ f)
   → is_algebra_mor _ X Y f.
 Proof.
   intros X' Y' f.
-  unfold algebra_mor, is_algebra_mor, nat_functor, alg_map, compose, funcomp.
-  cbn.
-  unfold idfun.
   intro p.
   apply funextsec; intro pair.
   unfold compose, funcomp; cbn.
@@ -102,8 +93,7 @@ Proof.
       by (apply proofirrelevance, isapropifcontr, iscontrfunfromempty).
     rewrite funeq.
     refine (pr1 p @ _).
-    apply maponpaths.
-    apply (total2_paths_f_idpath true); cbn.
+    apply (maponpaths (pr2 Y)), maponpaths.
     apply proofirrelevance, isapropifcontr, iscontrfunfromempty.
   + unfold polynomial_functor_arr, funcomp; cbn.
     assert (funeq : bfun = λ _ : unit, bfun tt) by
@@ -142,13 +132,13 @@ Proof.
     refine ((eqtohomot is_mor (true,, fromempty)) @ _).
     apply (maponpaths x).
     unfold polynomial_functor_arr; cbn.
-    apply (total2_paths_f (idpath true : pr1 (true,, _) = pr1 (true,, fromempty))).
+    apply maponpaths.
     exact (pr2 (iscontrfunfromempty X) _).
   - (** Use the condition that mor is an algebra morphism *)
     refine ((eqtohomot is_mor (false,, _)) @ _); cbn.
     apply (maponpaths x).
     unfold polynomial_functor_arr; cbn.
-    apply (total2_paths_f (idpath false : pr1 (false,, _) = pr1 (false,, _))); cbn.
+    apply maponpaths.
     apply funextsec; intros ttt; induction ttt.
     apply IHn.
 Defined.
@@ -175,8 +165,7 @@ Proof.
   - assert (funeq : bfun = fromempty)
       by (apply proofirrelevance, isapropifcontr, iscontrfunfromempty).
     rewrite funeq. (* It would be nice to do this proof without `rewrite` *)
-    apply maponpaths.
-    apply (proofirrelevancecontr (iscontrsecoverempty _)).
+    apply maponpaths, (proofirrelevancecontr (iscontrsecoverempty _)).
   - assert (funeq : bfun = λ _ : unit, bfun tt) by
         (apply funextfun; intro t; induction t; reflexivity).
     rewrite funeq. (* It would be nice to do this proof without `rewrite` *)
