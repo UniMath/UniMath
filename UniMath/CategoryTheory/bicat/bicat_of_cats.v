@@ -2,8 +2,11 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.categories.category_hset.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.bicat.bicat.
+Require Import UniMath.CategoryTheory.bicat.disp_bicat.
 
 Open Scope cat.
 Open Scope mor_disp_scope.
@@ -88,3 +91,32 @@ Proof.
 Defined.
 
 Definition bicat_of_cats : bicat := _ ,, cat_bicat_laws.
+
+Local Notation "∁" := bicat_of_cats.
+Local Notation "'Set'" := hset_category.
+
+Definition presheaf_disp_cat_data : disp_cat_data ∁.
+Proof.
+  use tpair.
+  - use tpair.
+    + exact (λ c : category, functor c^op Set).
+    + cbn. intros c d ty ty' f.
+      exact (nat_trans ty (functor_composite (functor_opp f) ty')).
+  - use tpair.
+    + intros c f.
+      set (T:= nat_trans_id (pr1 f) ).
+      exact T.
+    + intros c d e f g ty ty' ty''.
+      intros x y.
+      set (T1 := x).
+      (*
+      set (T2 := @pre_whisker
+                   (c : category) (d : category) Set
+                   (pr1 f) _ _ (y : nat_trans (ty': functor _ _ )  _  )).
+
+      exact (nat_trans_comp x (pre_whisker f y)).
+*)
+Abort.
+
+Definition disp_presheaf : disp_bicat_1_id_comp_cells bicat_of_cats.
+Abort.
