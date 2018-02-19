@@ -14,6 +14,6 @@ by Benedikt Ahrens, Paolo Capriotti, and Régis Spadotti.
 The definition of fibered algebras is based on 
 ["Homotopy-initial algebras in type theory"](https://arxiv.org/abs/1504.05531v1)
 and [the corresponding Coq formalization](https://github.com/kristinas/hinitiality)
-by Benedikt Ahrens, Paolo Capriotti, and Régis Spadotti.
+by Steve Awodey, Nicola Gambino, Kristina Sojakova.
 
 Package written by Langston Barrett (@siddharthist).
