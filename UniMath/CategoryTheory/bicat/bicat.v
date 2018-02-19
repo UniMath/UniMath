@@ -1,11 +1,14 @@
 Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.functor_categories.
 
 Open Scope cat.
 
 Definition bicat_cell_struct (C : precategory_ob_mor) : UU :=
   ∏ (a b: C), C⟦a, b⟧ → C⟦a, b⟧ → UU.
 
+(*
 Definition bicat_ob_mor_cells : UU := ∑ (C : precategory_ob_mor), bicat_cell_struct C.
 
 Coercion precat_ob_mor_from_bicat_ob_mor_cells (T : bicat_ob_mor_cells)
@@ -13,10 +16,20 @@ Coercion precat_ob_mor_from_bicat_ob_mor_cells (T : bicat_ob_mor_cells)
 
 Definition bicat_cells (C : bicat_ob_mor_cells) {a b : C} (f g : C⟦a, b⟧) : UU :=
   pr2 C a b f g.
+ *)
+
+Definition bicat_1_id_comp_cells : UU := ∑ (C : precategory_data), bicat_cell_struct C.
+Coercion precat_data_from_bicat_1_id_comp_cells (C : bicat_1_id_comp_cells)
+  : precategory_data
+  := pr1 C.
+
+Definition bicat_cells (C : bicat_1_id_comp_cells) {a b : C} (f g : C⟦a, b⟧) : UU :=
+  pr2 C a b f g.
+
 
 Notation "f '==>' g" := (bicat_cells _ f g) (at level 60).
 Notation "f '<==' g" := (bicat_cells _ g f) (at level 60, only parsing).
-
+(*
 Definition bicat_cells_1_id_comp : UU := ∑ C : bicat_ob_mor_cells, precategory_id_comp C.
 
 Coercion precat_data_from_bicat_cells_1_id_comp (C : bicat_cells_1_id_comp) : precategory_data.
@@ -26,11 +39,11 @@ Proof.
 Defined.
 
 Check (fun (C : bicat_cells_1_id_comp) (a b c : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) => f · g).
+*)
 
 
 
-
-Definition bicat_2_id_comp_struct (C : bicat_cells_1_id_comp) : UU
+Definition bicat_2_id_comp_struct (C : bicat_1_id_comp_cells) : UU
   :=
     (* 2-unit *)
     (∏ (a b : C) (f : C⟦a, b⟧), f ==> f)
@@ -76,7 +89,7 @@ Definition bicat_2_id_comp_struct (C : bicat_cells_1_id_comp) : UU
 
 Definition bicat_data : UU := ∑ C, bicat_2_id_comp_struct C.
 
-Coercion bicat_cells_1_id_comp_from_bicat_data (C : bicat_data) : bicat_cells_1_id_comp
+Coercion bicat_cells_1_id_comp_from_bicat_data (C : bicat_data) : bicat_1_id_comp_cells
   := pr1 C.
 
 Definition id2 {C : bicat_data} {a b : C} (f : C⟦a, b⟧) : f ==> f
@@ -370,7 +383,7 @@ Definition lassociator_lassociator
 (** TODO: there is an analog to law nr 8 for right associator.
           can it be derived from 8 plus l being inverse to r associator?
 
-∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h i : c --> d) (x : h ==> i),
+ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h i : c --> d) (x : h ==> i),
          (f · g) ◃ x • rassociator _ _ _ = rassociator _ _ _ • (f ◃ (g ◃ x))
 
 *)
@@ -378,10 +391,16 @@ Definition lassociator_lassociator
 End bicat_law_projections.
 
 
+Lemma hcomp1_hcomp2 {C : bicat} {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
+      (η : f1 ==> f2) (φ : g1 ==> g2)
+  : hcomp1 η φ = hcomp2 η φ.
+Proof.
+  unfold hcomp1.
+  unfold hcomp2.
+  apply vcomp_whisker.
+Defined.
 
-(** TODO:
-    implicit arguments for law projections
- *)
+
 
 (** TODO:
     construct a prebicategory (see CT/bicategories) from a bicat
@@ -391,11 +410,162 @@ End bicat_law_projections.
 (** TODO:
     define saturation/univalence for bicats
  *)
-(** TODO:
-    define displayed bicats
- *)
-(** TODO:
-    trivial bicat structures on a (pre)category
-    - discrete bicat
-    - chaotic bicat
- *)
+
+
+(** Chaotic bicat *)
+
+Section chaotic_bicat.
+
+Variable C : precategory.
+
+Definition chaotic_bicat_data : bicat_data.
+Proof.
+  use tpair.
+  - use tpair.
+    + exact C.
+    + cbn. intros a b f g. exact unit.
+  - cbn; repeat (use tpair).
+    + intros; exact tt.
+    + intros; exact tt.
+    + intros; exact tt.
+    + intros; exact tt.
+    + intros; exact tt.
+    + intros; exact tt.
+    + intros; exact tt.
+    + intros; exact tt.
+    + intros; exact tt.
+    + cbn. intros. exact tt.
+Defined.
+
+Definition chaotic_bicat_laws : bicat_laws chaotic_bicat_data.
+Proof.
+  repeat (use tpair); cbn; intros;
+    apply isProofIrrelevantUnit.
+Qed.
+
+End chaotic_bicat.
+
+
+Section discrete_bicat.
+
+Variable C : category.
+
+Definition discrete_bicat_data : bicat_data.
+Proof.
+  use tpair.
+  - use tpair.
+    + exact C.
+    + cbn. intros a b f g. exact (f = g).
+  - cbn; repeat (use tpair); cbn.
+    + intros. apply idpath.
+    + intros. apply id_left.
+    + intros. apply id_right.
+    + intros. apply (!id_left _).
+    + intros. apply (!id_right _).
+    + intros. apply (! assoc _ _ _ ).
+    + intros. apply assoc.
+    + intros a b f g h r s. apply (r @ s).
+    + intros. apply (maponpaths). assumption.
+    + intros. apply (maponpaths_2). assumption.
+Defined.
+
+Definition discrete_bicat_laws : bicat_laws discrete_bicat_data.
+Proof.
+  repeat (use tpair); cbn.
+  - intros. apply idpath.
+  - intros. apply pathscomp0rid.
+  - intros. apply path_assoc.
+  - intros. apply idpath.
+  - intros. apply idpath.
+  - intros. apply pathsinv0. apply maponpathscomp0.
+  - intros. unfold maponpaths_2.
+    apply pathsinv0. apply (@maponpathscomp0  _ _ _ _ _ (λ x0 : C ⟦ a, b ⟧, x0 · i)).
+  - intros. induction x. simpl. apply pathsinv0. apply (pathscomp0rid).
+  - intros. induction x. apply pathsinv0. apply (pathscomp0rid).
+  - intros. induction x. simpl. apply pathsinv0. apply (pathscomp0rid).
+  - intros. induction x. simpl. apply pathsinv0. apply (pathscomp0rid).
+  - intros. induction x; simpl. apply (pathscomp0rid).
+  - intros. induction x; induction y; simpl. apply idpath.
+  - intros. apply pathsinv0r.
+  - intros. apply pathsinv0l.
+  - intros. apply pathsinv0r.
+  - intros. apply pathsinv0l.
+  - intros. apply pathsinv0r.
+  - intros. apply pathsinv0l.
+  - intros. apply homset_property.
+  - intros. apply homset_property.
+Qed.
+
+End discrete_bicat.
+
+
+Definition psfunctor_ob_mor_cell (C C' : bicat_data) : UU
+  := ∑ F : functor_data C C',
+           ∏ a b (f g : a --> b), f ==> g → #F f ==> #F g.
+
+Coercion functor_data_from_bifunctor_ob_mor_cell C C' (F : psfunctor_ob_mor_cell C C')
+  : functor_data C C' := pr1 F.
+
+Definition psfunctor_on_cells {C C' : bicat_data} (F : psfunctor_ob_mor_cell C C')
+           {a b : C} {f g : a --> b} (x : f ==> g)
+  : #F f ==> #F g
+  := pr2 F a b f g x.
+
+Notation "'##'" := (psfunctor_on_cells).
+
+Definition psfunctor_cell_data {C C' : bicat_data} (F : psfunctor_ob_mor_cell C C') : UU
+  :=
+    (∏ (a : C), #F (identity a) ==> identity _ )
+      ×
+    (∏ (a b c : C) (f : a --> b) (g : b --> c),
+     #F (f · g) ==> #F f · #F g).
+
+Definition psfunctor_data (C C' : bicat_data) : UU
+  := ∑ F : psfunctor_ob_mor_cell C C', psfunctor_cell_data F.
+
+Coercion psfunctor_ob_mor_cell_from_bifunctor_data C C' (F : psfunctor_data C C')
+  : psfunctor_ob_mor_cell _ _ := pr1 F.
+
+
+(** TODO: these should be isos *)
+
+Definition psfunctor_id {C C' : bicat_data} (F : psfunctor_data C C') (a : C)
+  : #F (identity a) ==> identity _
+  := pr1 (pr2 F) a.
+Definition psfunctor_comp {C C' : bicat_data} (F : psfunctor_data C C') {a b c : C}
+           (f : a --> b) (g : b --> c)
+  : #F (f · g) ==> #F f · #F g
+  := pr2 (pr2 F) a b c f g.
+
+
+Section psfunctor_laws.
+
+Context {C C' : bicat_data} (F : psfunctor_data C C').
+
+
+Definition psfunctor_id2 : UU
+  := ∏ (a b : C) (f : a --> b), ## F (id2 f) = id2 _ .
+
+Definition psfunctor_lunitor : UU
+  := ∏ (a b : C) (f : C⟦a, b⟧),
+     ## F (lunitor f) =
+     (psfunctor_comp F (identity a) f) • (psfunctor_id _ _ ▹ #F f) • lunitor (#F f).
+
+Definition psfunctor_runitor : UU
+  := ∏ (a b : C) (f : C⟦a, b⟧),
+     ## F (runitor f) =
+     (psfunctor_comp F f (identity b)) • (# F f ◃ psfunctor_id _ _ ) • runitor (#F f).
+
+(*
+Definition psfunctor_linvunitor : UU
+  := ∏ (a b : C) (f : C⟦a, b⟧),
+     ## F (linvunitor f) = linvunitor (#F f).
+     (bifunctor_comp F (identity a) f) • (bifunctor_id _ _ ▹ #F f) • linvunitor (#F f).
+
+Definition bifunctor_rinvunitor : UU
+  := ∏ (a b : C) (f : C⟦a, b⟧),
+     ## F (runitor f) =
+     (bifunctor_comp F f (identity b)) • (# F f ◃ bifunctor_id _ _ ) • runitor (#F f).
+*)
+
+End psfunctor_laws.
