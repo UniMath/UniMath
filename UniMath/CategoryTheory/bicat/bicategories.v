@@ -74,14 +74,26 @@ Proof.
   exists bcat_precategory_ob_mor. exact bcat_cell_struct.
 Defined.
 
+Definition bcat_1_id_comp_cells : bicat_1_id_comp_cells.
+Proof.
+  use tpair.
+  - exists bcat_precategory_ob_mor.
+    use tpair.
+    + simpl. intros. exact (identity1 _).
+    + simpl. intros a b c f g. exact (compose1 f g).
+  - exact bcat_cell_struct.
+Defined.
+
+(*
 Definition bcat_cells_1_id_comp : ∑ C : bicat_ob_mor_cells, precategory_id_comp C.
 Proof.
   exists bcat_ob_mor_cells. split.
   - simpl. intros. exact (identity1 _).
   - simpl. intros a b c f g. exact (compose1 f g).
 Defined.
+ *)
 
-Definition bcat_2_id_comp_struct : bicat_2_id_comp_struct bcat_cells_1_id_comp.
+Definition bcat_2_id_comp_struct : bicat_2_id_comp_struct bcat_1_id_comp_cells.
 Proof.
   repeat split; simpl; unfold bcat_cell_struct.
   - (* 2-unit *)
@@ -108,7 +120,7 @@ Defined.
 
 Definition bcat_data : ∑ C, bicat_2_id_comp_struct C.
 Proof.
-  exists bcat_cells_1_id_comp. exact bcat_2_id_comp_struct.
+  exists bcat_1_id_comp_cells. exact bcat_2_id_comp_struct.
 Defined.
 
 
@@ -119,7 +131,7 @@ Proof.
          rassociator, lassociator, lwhisker, rwhisker;
   simpl;
   unfold bcat_precategory_ob_mor, bcat_cell_struct, bcat_ob_mor_cells,
-         bcat_cells_1_id_comp, bcat_2_id_comp_struct, bcat_data;
+         bcat_1_id_comp_cells, bcat_2_id_comp_struct, bcat_data;
   simpl;
   first [ intros until 1 | intros ].
   - (* 1a id2_left *)
