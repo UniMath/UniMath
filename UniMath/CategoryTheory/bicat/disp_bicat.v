@@ -841,6 +841,69 @@ Proof.
 Defined.
 
 Definition total_bicat : bicat := _ ,, total_bicat_laws.
+
+Definition pr1_psfunctor_ob_mor_cell : psfunctor_ob_mor_cell total_bicat_data C.
+Proof.
+  use tpair.
+  - use tpair.
+    + exact pr1.
+    + intros a b. exact pr1.
+  - intros a b f g. exact pr1.
+Defined.
+
+Definition pr1_psfunctor_cell_data : psfunctor_cell_data pr1_psfunctor_ob_mor_cell.
+Proof.
+  use tpair.
+  - intro a. cbn.
+    apply id2_equivalence.
+  - cbn. intros a b c f g.
+    apply id2_equivalence.
+Defined.
+
+Definition pr1_psfunctor_data : psfunctor_data total_bicat_data C := _ ,, pr1_psfunctor_cell_data.
+
+Definition pr1_psfunctor_laws : psfunctor_laws pr1_psfunctor_data.
+Proof.
+  repeat split; intro a; intros; cbn.
+  - rewrite id2_rwhisker.
+    rewrite id2_left.
+    rewrite id2_left.
+    apply idpath.
+  - rewrite lwhisker_id2.
+    rewrite id2_left.
+    rewrite id2_left.
+    apply idpath.
+  - rewrite id2_rwhisker.
+    rewrite id2_right.
+    rewrite id2_right.
+    apply idpath.
+  - rewrite lwhisker_id2.
+    rewrite id2_right.
+    rewrite id2_right.
+    apply idpath.
+  - rewrite id2_right.
+    rewrite id2_left.
+    rewrite id2_rwhisker.
+    rewrite id2_left.
+    rewrite lwhisker_id2.
+    rewrite id2_right.
+    apply idpath.
+  - rewrite id2_right.
+    rewrite id2_left.
+    rewrite id2_rwhisker.
+    rewrite lwhisker_id2.
+    rewrite id2_left.
+    rewrite id2_right.
+    apply idpath.
+  - rewrite id2_right.
+    rewrite id2_left.
+    apply idpath.
+  -
+    rewrite id2_left.
+    rewrite id2_right.
+    apply idpath.
+Qed.
+
 End total_bicat.
 
 End disp_bicat.
