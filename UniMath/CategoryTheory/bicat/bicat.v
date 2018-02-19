@@ -401,6 +401,42 @@ Proof.
 Defined.
 
 
+(** Equivalences *)
+
+Section equivalences.
+
+Context {C : bicat_data}.
+
+Definition is_equivalence {a b : C} {f g : a --> b} (η : f ==> g)
+  : UU
+  := ∑ φ : g ==> f, η • φ = id2 _ × φ • η = id2 _ .
+
+Definition equivalence {a b : C} (f g : a --> b) : UU
+  := ∑ η : f ==> g, is_equivalence η.
+
+Coercion cell_from_equivalence {a b : C} {f g : a --> b} (η : equivalence f g) : f ==> g := pr1 η.
+
+Definition inv_cell {a b : C} {f g : a --> b} (η : equivalence f g)
+  : g ==> f
+  := pr1 (pr2 η).
+
+Definition equivalence_after_inv_cell {a b : C} {f g : a --> b} (η : equivalence f g)
+  : η • inv_cell η = id2 _
+  := pr1 (pr2 (pr2 η)).
+
+Definition inv_cell_after_equivalence {a b : C} {f g : a --> b} (η : equivalence f g)
+  : inv_cell η • η = id2 _
+  := pr2 (pr2 (pr2 η)).
+
+Definition inv_equivalence {a b : C} {f g : a --> b} (η : equivalence f g)
+  : equivalence g f
+  := (inv_cell η ,, cell_from_equivalence η ,, inv_cell_after_equivalence η ,, equivalence_after_inv_cell η ).
+
+(* requires cell types to be sets
+Lemma isaprop_isequivalence
+*)
+
+End equivalences.
 
 (** TODO:
     construct a prebicategory (see CT/bicategories) from a bicat
@@ -515,10 +551,10 @@ Notation "'##'" := (psfunctor_on_cells).
 
 Definition psfunctor_cell_data {C C' : bicat_data} (F : psfunctor_ob_mor_cell C C') : UU
   :=
-    (∏ (a : C), #F (identity a) ==> identity _ )
+    (∏ (a : C), equivalence (#F (identity a)) (identity _) )
       ×
     (∏ (a b c : C) (f : a --> b) (g : b --> c),
-     #F (f · g) ==> #F f · #F g).
+     equivalence (#F (f · g)) (#F f · #F g)).
 
 Definition psfunctor_data (C C' : bicat_data) : UU
   := ∑ F : psfunctor_ob_mor_cell C C', psfunctor_cell_data F.
@@ -527,14 +563,14 @@ Coercion psfunctor_ob_mor_cell_from_bifunctor_data C C' (F : psfunctor_data C C'
   : psfunctor_ob_mor_cell _ _ := pr1 F.
 
 
-(** TODO: these should be isos *)
+
 
 Definition psfunctor_id {C C' : bicat_data} (F : psfunctor_data C C') (a : C)
-  : #F (identity a) ==> identity _
+  : equivalence (#F (identity a)) (identity _)
   := pr1 (pr2 F) a.
 Definition psfunctor_comp {C C' : bicat_data} (F : psfunctor_data C C') {a b c : C}
            (f : a --> b) (g : b --> c)
-  : #F (f · g) ==> #F f · #F g
+  : equivalence (#F (f · g)) (#F f · #F g)
   := pr2 (pr2 F) a b c f g.
 
 
@@ -543,29 +579,42 @@ Section psfunctor_laws.
 Context {C C' : bicat_data} (F : psfunctor_data C C').
 
 
-Definition psfunctor_id2 : UU
+Definition psfunctor_id2_law : UU
   := ∏ (a b : C) (f : a --> b), ## F (id2 f) = id2 _ .
 
-Definition psfunctor_lunitor : UU
+Definition psfunctor_lunitor_law : UU
   := ∏ (a b : C) (f : C⟦a, b⟧),
      ## F (lunitor f) =
      (psfunctor_comp F (identity a) f) • (psfunctor_id _ _ ▹ #F f) • lunitor (#F f).
 
-Definition psfunctor_runitor : UU
+Definition psfunctor_runitor_law : UU
   := ∏ (a b : C) (f : C⟦a, b⟧),
      ## F (runitor f) =
      (psfunctor_comp F f (identity b)) • (# F f ◃ psfunctor_id _ _ ) • runitor (#F f).
 
-(*
-Definition psfunctor_linvunitor : UU
-  := ∏ (a b : C) (f : C⟦a, b⟧),
-     ## F (linvunitor f) = linvunitor (#F f).
-     (bifunctor_comp F (identity a) f) • (bifunctor_id _ _ ▹ #F f) • linvunitor (#F f).
 
-Definition bifunctor_rinvunitor : UU
+Definition psfunctor_linvunitor_law : UU
   := ∏ (a b : C) (f : C⟦a, b⟧),
-     ## F (runitor f) =
-     (bifunctor_comp F f (identity b)) • (# F f ◃ bifunctor_id _ _ ) • runitor (#F f).
-*)
+     ## F (linvunitor f) =
+     linvunitor (#F f)
+                • (inv_equivalence (psfunctor_id F a) ▹ #F f)
+                • (inv_equivalence (psfunctor_comp F _ _ )).
+
+Definition psfunctor_rinvunitor_law : UU
+  := ∏ (a b : C) (f : C⟦a, b⟧),
+     ## F (rinvunitor f) =
+     rinvunitor (#F f)
+                • (#F f ◃ inv_equivalence (psfunctor_id F b))
+                • (inv_equivalence (psfunctor_comp F _ _ )).
+
+Definition psfunctor_rassociator_law : UU
+  := ∏ {a b c d : C}
+       (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : C⟦c, d⟧),
+     ##F (rassociator f g h) =
+     (psfunctor_comp F _ _ ) • (psfunctor_comp F _ _ ▹ #F h) • rassociator (#F f) (#F g) (#F h)
+                             • (#F f ◃ inv_equivalence (psfunctor_comp F _ _ ))
+                             • (inv_equivalence (psfunctor_comp F _ _ )).
+
+(** TODO : to be continued *)
 
 End psfunctor_laws.
