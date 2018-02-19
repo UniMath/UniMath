@@ -173,3 +173,48 @@ Proof.
     apply maponpaths.
     reflexivity.
 Defined.
+
+(** Since fibered algebras are the "dependent version" of normal algebras,
+    we need some kind of "dependent version" of the lemmas above.
+ *)
+Lemma sec_fromempty {X : UU} {Y : X -> UU}
+      (f : ∅ -> X)
+      (t : ∏ z : ∅, Y (f z)) : t = λ e, fromempty e.
+Proof.
+  apply funextsec; intros ?; induction _.
+Defined.
+
+(** A fibered algebra over ℕ consists of a family ℕ → UU, a point x0 : X 0,
+    and a function from each X n to X (S n).
+ *)
+Definition fibered_algebra_nat :
+  fibered_alg nat_alg_z ≃ ∑ (X : ∏ n : ℕ, UU), (X 0) × (∏ n, X n → X (S n)).
+Proof.
+  apply weqfibtototal; intro X; cbn in X.
+  use weq_iso.
+  - intro x.
+    apply dirprodpair.
+    + exact (x (true,, fromempty) (λ e, fromempty e)).
+    + refine (λ n xn, _).
+      unfold fibered_alg in x; cbn in x.
+      apply (x (false,, λ _, n) (λ _, xn)).
+  - intro x.
+    unfold fibered_alg; cbn.
+    intros pair from; induction pair as [b bfun].
+    induction b; cbn in *.
+    + exact (pr1 x).
+    + exact (pr2 x (bfun tt) (from tt)).
+  - cbn; intro g.
+    apply funextsec; intro pair.
+    induction pair as [b bfun].
+    induction b; cbn; cbn in bfun.
+    + apply funextsec; intro z.
+      rewrite (sec_fromempty bfun z).
+      rewrite (eqfromempty bfun).
+      reflexivity.
+    + rewrite (eta_unit bfun).
+      apply funextsec; intro z.
+      apply maponpaths.
+      exact (!eta_unit z).
+  - reflexivity.
+Defined.
