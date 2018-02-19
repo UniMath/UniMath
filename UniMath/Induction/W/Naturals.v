@@ -27,6 +27,14 @@ Local Notation ℕ := nat.
 Definition nat_functor : functor type_precat type_precat :=
   polynomial_functor bool (bool_rect (λ _, UU) empty unit).
 
+(** The functor deals with functions from ∅ and unit; these lemmas will come in
+    handy in several proofs. *)
+Lemma eqfromempty {X : UU} (f : empty -> X) : f = fromempty.
+Proof. apply proofirrelevance, isapropifcontr, iscontrfunfromempty. Defined.
+
+Lemma eta_unit {X : UU} (f : unit -> X) : f = λ _, f tt.
+Proof. apply funextfun; intros ?; induction _; reflexivity. Defined.
+
 (** The intuition is that an algebra X for this functor is given by a constant
     x : X and a function X → X. The following equivalence verifies this. *)
 Definition nat_functor_equiv :
@@ -89,16 +97,12 @@ Proof.
   unfold compose, funcomp; cbn.
   induction pair as [b bfun]; induction b.
   + unfold polynomial_functor_arr, funcomp; cbn.
-    assert (funeq : bfun = fromempty)
-      by (apply proofirrelevance, isapropifcontr, iscontrfunfromempty).
-    rewrite funeq.
+    rewrite (eqfromempty bfun).
     refine (pr1 p @ _).
     apply (maponpaths (pr2 Y)), maponpaths.
-    apply proofirrelevance, isapropifcontr, iscontrfunfromempty.
+    symmetry; apply eqfromempty.
   + unfold polynomial_functor_arr, funcomp; cbn.
-    assert (funeq : bfun = λ _ : unit, bfun tt) by
-        (apply funextfun; intro t; induction t; reflexivity).
-    rewrite funeq.
+    rewrite (eta_unit bfun).
     exact (eqtohomot (pr2 p) (bfun tt)).
 Defined.
 
@@ -133,7 +137,7 @@ Proof.
     apply (maponpaths x).
     unfold polynomial_functor_arr; cbn.
     apply maponpaths.
-    exact (pr2 (iscontrfunfromempty X) _).
+    apply (eqfromempty _).
   - (** Use the condition that mor is an algebra morphism *)
     refine ((eqtohomot is_mor (false,, _)) @ _); cbn.
     apply (maponpaths x).
@@ -162,13 +166,10 @@ Proof.
   intros pair.
   induction pair as [b bfun]; cbn.
   induction b; cbn.
-  - assert (funeq : bfun = fromempty)
-      by (apply proofirrelevance, isapropifcontr, iscontrfunfromempty).
-    rewrite funeq. (* It would be nice to do this proof without `rewrite` *)
+  - (* It would be nice to do this proof without `rewrite` *)
+    rewrite (eqfromempty bfun).
     apply maponpaths, (proofirrelevancecontr (iscontrsecoverempty _)).
-  - assert (funeq : bfun = λ _ : unit, bfun tt) by
-        (apply funextfun; intro t; induction t; reflexivity).
-    rewrite funeq. (* It would be nice to do this proof without `rewrite` *)
+  - rewrite (eta_unit bfun). (* It would be nice to do this proof without `rewrite` *)
     apply maponpaths.
     reflexivity.
 Defined.
