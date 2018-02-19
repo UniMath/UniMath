@@ -3,4 +3,5 @@ M/Core.v
 M/Uniqueness.v
 W/Core.v
 W/Fibered.v
+W/Naturals.v
 W/Uniqueness.v

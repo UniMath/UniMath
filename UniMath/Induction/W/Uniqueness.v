@@ -13,7 +13,6 @@ Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.Ktheory.Utilities.
 Require Import UniMath.Induction.PolynomialFunctors.
 Require Import UniMath.Induction.W.Core.
-Require Import UniMath.Induction.M.Uniqueness.
 
 Section Uniqueness.
 
