@@ -95,28 +95,85 @@ Definition bicat_of_cats : bicat := _ ,, cat_bicat_laws.
 Local Notation "∁" := bicat_of_cats.
 Local Notation "'Set'" := hset_category.
 
-Definition presheaf_disp_cat_data : disp_cat_data ∁.
+Definition op_cat (c : category) : category := (opp_precat c,, has_homsets_opp (homset_property c) ).
+
+Definition op_nt {c d : category} {f g : functor c d} (a : nat_trans f g)
+  : nat_trans (functor_opp g) (functor_opp f).
 Proof.
   use tpair.
-  - use tpair.
+  - exact (λ c, a c).
+  - abstract
+      (intros x y h;
+       apply (! (nat_trans_ax a _ _ _ ))).
+Defined.
+
+Definition presheaf_disp_cat_ob_mor : disp_cat_ob_mor ∁.
+Proof.
+  use tpair.
     + exact (λ c : category, functor c^op Set).
     + cbn. intros c d ty ty' f.
       exact (nat_trans ty (functor_composite (functor_opp f) ty')).
-  - use tpair.
-    + intros c f.
-      set (T:= nat_trans_id (pr1 f) ).
-      exact T.
-    + intros c d e f g ty ty' ty''.
-      intros x y.
-      set (T1 := x).
-      (*
-      set (T2 := @pre_whisker
-                   (c : category) (d : category) Set
-                   (pr1 f) _ _ (y : nat_trans (ty': functor _ _ )  _  )).
+Defined.
 
-      exact (nat_trans_comp x (pre_whisker f y)).
-*)
-Abort.
+Definition presheaf_disp_cat_data : disp_cat_data ∁.
+Proof.
+  exists presheaf_disp_cat_ob_mor.
+  use tpair.
+  + intros c f.
+    set (T:= nat_trans_id (pr1 f) ).
+    exact T.
+  + intros c d e f g ty ty' ty''.
+    intros x y.
+    set (T1 := x).
+    set (T2 := @pre_whisker
+                 (op_cat c) (op_cat d) Set
+                 (functor_opp f) _ _ (y : nat_trans (ty': functor _ _ )  _  )).
+    exact (@nat_trans_comp (op_cat c) Set _ _ _ T1 T2 ).
+Defined.
 
-Definition disp_presheaf : disp_bicat_1_id_comp_cells bicat_of_cats.
+Definition presheaf_disp_bicat_1_id_comp_cells : disp_bicat_1_id_comp_cells bicat_of_cats.
+Proof.
+  exists presheaf_disp_cat_data.
+  intros c d f g a.
+  intros p p'.
+  intros x y.
+  exact (x = @nat_trans_comp (op_cat c) Set _  _ _ y (post_whisker (op_nt a)  p')).
+Defined.
+
+Definition presheaf_disp_bicat_ops : disp_bicat_ops _ presheaf_disp_bicat_1_id_comp_cells.
+Proof.
+  repeat split; cbn.
+  - intros. apply nat_trans_eq; try apply (homset_property Set); cbn.
+    intro. apply funextsec. intro. cbn. rewrite (functor_id y). apply idpath.
+  - intros. apply nat_trans_eq; try apply (homset_property Set); cbn.
+    intro. apply funextsec. intro. cbn. rewrite (functor_id y). apply idpath.
+  - intros. apply nat_trans_eq; try apply (homset_property Set); cbn.
+    intro. apply funextsec. intro. cbn. rewrite (functor_id y). apply idpath.
+  - intros. apply nat_trans_eq; try apply (homset_property Set); cbn.
+    intro. apply funextsec. intro. cbn. rewrite (functor_id y). apply idpath.
+  - intros. apply nat_trans_eq; try apply (homset_property Set); cbn.
+    intro. apply funextsec. intro. cbn. rewrite (functor_id y). apply idpath.
+  - intros. apply nat_trans_eq; try apply (homset_property Set); cbn.
+    intro. apply funextsec. intro. cbn. rewrite (functor_id z). apply idpath.
+  - intros. apply nat_trans_eq; try apply (homset_property Set); cbn.
+    intro. apply funextsec. intro. cbn. rewrite (functor_id z). apply idpath.
+  - intros. apply nat_trans_eq; try apply (homset_property Set).
+    intro.
+    rewrite X. rewrite X0.
+    cbn.
+    apply funextsec. intro.
+    pose (T:= @functor_comp (op_cat b) _ y).
+    specialize (T _ _ _ (s x0) (r x0)).
+    apply pathsinv0 in T.
+    apply (toforallpaths _ _ _ T _ ).
+  - intros. apply nat_trans_eq; try apply (homset_property Set); cbn.
+    rewrite X.
+    intro.
+    apply funextsec. intro. cbn. apply idpath.
+  - intros. apply nat_trans_eq; try apply (homset_property Set); cbn.
+    rewrite X.
+    intros. cbn.
+    apply funextsec. intro.
+
+    admit.
 Abort.
