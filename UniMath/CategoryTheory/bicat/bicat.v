@@ -468,6 +468,20 @@ Defined.
 End Derived_laws.
 
 (* ----------------------------------------------------------------------------------- *)
+(** ** bicategories. *)
+
+Definition isaset_cells (C : prebicat) : UU
+  := ∏ (a b : C) (f g : a --> b), isaset (f ==> g).
+
+Definition bicat : UU := ∑ C : prebicat, isaset_cells C.
+
+Coercion prebicat_of_bicat (C : bicat) : prebicat := pr1 C.
+
+Definition cellset_property {C : bicat} {a b : C} (f g : a --> b)
+  : isaset (f ==> g)
+  := pr2 C a b f g.
+
+(* ----------------------------------------------------------------------------------- *)
 (** ** Homs are categories. *)
 
 Section Hom_Spaces.
