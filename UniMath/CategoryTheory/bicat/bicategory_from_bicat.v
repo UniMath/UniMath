@@ -23,7 +23,7 @@ Local Notation "C  'c×'  D" := (precategory_binproduct C D)
 
 Section Build_Bicategory.
 
-Variable C : bicat.
+Variable C : prebicat.
 
 Definition bicate_ob_hom : prebicategory_ob_hom.
 Proof.
@@ -88,7 +88,7 @@ Proof.
   exists bicate_id_comp. exact bicate_transfs.
 Defined.
 
-Lemma bicat_associator_and_unitors_are_iso
+Lemma prebicat_associator_and_unitors_are_iso
   : associator_and_unitors_are_iso bicate_data.
 Proof.
   repeat split; cbn; intros.
@@ -128,7 +128,7 @@ Proof.
   apply pathsinv0. apply id2_left.
 Defined.
 
-Lemma bicat_prebicategory_coherence
+Lemma prebicat_prebicategory_coherence
   : prebicategory_coherence bicate_data.
 Proof.
   split.
@@ -139,8 +139,8 @@ Defined.
 Lemma is_prebicategory_bicate : is_prebicategory bicate_data.
 Proof.
   split; [ admit | split ].
-  - exact bicat_associator_and_unitors_are_iso.
-  - exact bicat_prebicategory_coherence.
+  - exact prebicat_associator_and_unitors_are_iso.
+  - exact prebicat_prebicategory_coherence.
 Admitted.
 
 Definition bicate : prebicategory.

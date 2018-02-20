@@ -27,15 +27,15 @@ Proof.
     exact (functor_composite f g).
 Defined.
 
-Definition cat_bicat_1_id_comp_cells : bicat_1_id_comp_cells.
+Definition cat_prebicat_1_id_comp_cells : prebicat_1_id_comp_cells.
 Proof.
   exists cat_precategory_data.
   intros a b f g. cbn in *. exact (nat_trans f g).
 Defined.
 
-Definition cat_bicat_data : bicat_data.
+Definition cat_prebicat_data : prebicat_data.
 Proof.
-  exists cat_bicat_1_id_comp_cells.
+  exists cat_prebicat_1_id_comp_cells.
   repeat (use tpair); cbn.
   - intros a b f. exact (nat_trans_id f).
   - intros a b f. exact (nat_trans_id f).
@@ -49,7 +49,7 @@ Proof.
   - intros a b c f1 f2 g x. exact (post_whisker x g).
 Defined.
 
-Definition cat_bicat_laws : bicat_laws cat_bicat_data.
+Definition cat_prebicat_laws : prebicat_laws cat_prebicat_data.
 Proof.
   repeat split; cbn.
   - intros. apply nat_trans_eq; try apply homset_property. intros. cbn. apply id_left.
@@ -90,7 +90,7 @@ Proof.
     repeat rewrite id_left. apply functor_id.
 Defined.
 
-Definition bicat_of_cats : bicat := _ ,, cat_bicat_laws.
+Definition prebicat_of_cats : prebicat := _ ,, cat_prebicat_laws.
 
 (** * The pseudofunctor op on the bicategory of categories *)
 
@@ -106,7 +106,7 @@ Proof.
        apply (! (nat_trans_ax a _ _ _ ))).
 Defined.
 
-Local Notation "∁" := bicat_of_cats.
+Local Notation "∁" := prebicat_of_cats.
 
 Definition op_functor_data : functor_data ∁ ∁.
 Proof.
@@ -151,7 +151,7 @@ Proof.
     exact (@nat_trans_comp (op_cat c) Set _ _ _ T1 T2 ).
 Defined.
 
-Definition presheaf_disp_bicat_1_id_comp_cells : disp_bicat_1_id_comp_cells bicat_of_cats.
+Definition presheaf_disp_prebicat_1_id_comp_cells : disp_prebicat_1_id_comp_cells prebicat_of_cats.
 Proof.
   exists presheaf_disp_cat_data.
   intros c d f g a.
@@ -160,7 +160,7 @@ Proof.
   exact (x = @nat_trans_comp (op_cat c) Set _  _ _ y (post_whisker (op_nt a)  p')).
 Defined.
 
-Definition presheaf_disp_bicat_ops : disp_bicat_ops _ presheaf_disp_bicat_1_id_comp_cells.
+Definition presheaf_disp_prebicat_ops : disp_prebicat_ops _ presheaf_disp_prebicat_1_id_comp_cells.
 Proof.
   repeat split; cbn.
   - intros. apply nat_trans_eq; try apply (homset_property Set); cbn.
@@ -199,14 +199,14 @@ Proof.
     apply (toforallpaths _ _ _ (T _ _ _ )).
 Qed.
 
-Definition presheaf_disp_bicat_data : disp_bicat_data ∁ := _ ,,  presheaf_disp_bicat_ops.
+Definition presheaf_disp_prebicat_data : disp_prebicat_data ∁ := _ ,,  presheaf_disp_prebicat_ops.
 
 Lemma nat_trans_eq_eq {c d : category} {f g : functor c d} {a b : nat_trans f g}
       (e e' : a = b)
   : e = e'.
 Proof.
 Admitted.
-Lemma presheaf_disp_bicat_laws : disp_bicat_laws _ presheaf_disp_bicat_data.
+Lemma presheaf_disp_prebicat_laws : disp_prebicat_laws _ presheaf_disp_prebicat_data.
 Proof.
   repeat split; intro.
   - intros.

@@ -10,21 +10,21 @@ Open Scope cat.
 
 (** * Definition of bicategory *)
 
-Definition bicat_cell_struct (C : precategory_ob_mor) : UU :=
+Definition prebicat_cell_struct (C : precategory_ob_mor) : UU :=
   ∏ (a b: C), C⟦a, b⟧ → C⟦a, b⟧ → UU.
 
-Definition bicat_1_id_comp_cells : UU := ∑ (C : precategory_data), bicat_cell_struct C.
-Coercion precat_data_from_bicat_1_id_comp_cells (C : bicat_1_id_comp_cells)
+Definition prebicat_1_id_comp_cells : UU := ∑ (C : precategory_data), prebicat_cell_struct C.
+Coercion precat_data_from_prebicat_1_id_comp_cells (C : prebicat_1_id_comp_cells)
   : precategory_data
   := pr1 C.
 
-Definition bicat_cells (C : bicat_1_id_comp_cells) {a b : C} (f g : C⟦a, b⟧) : UU :=
+Definition prebicat_cells (C : prebicat_1_id_comp_cells) {a b : C} (f g : C⟦a, b⟧) : UU :=
   pr2 C a b f g.
 
-Notation "f '==>' g" := (bicat_cells _ f g) (at level 60).
-Notation "f '<==' g" := (bicat_cells _ g f) (at level 60, only parsing).
+Notation "f '==>' g" := (prebicat_cells _ f g) (at level 60).
+Notation "f '<==' g" := (prebicat_cells _ g f) (at level 60, only parsing).
 
-Definition bicat_2_id_comp_struct (C : bicat_1_id_comp_cells) : UU
+Definition prebicat_2_id_comp_struct (C : prebicat_1_id_comp_cells) : UU
   :=
     (* 2-unit *)
     (∏ (a b : C) (f : C⟦a, b⟧), f ==> f)
@@ -62,51 +62,51 @@ Definition bicat_2_id_comp_struct (C : bicat_1_id_comp_cells) : UU
 
 
 
-Definition bicat_data : UU := ∑ C, bicat_2_id_comp_struct C.
+Definition prebicat_data : UU := ∑ C, prebicat_2_id_comp_struct C.
 
-Coercion bicat_cells_1_id_comp_from_bicat_data (C : bicat_data) : bicat_1_id_comp_cells
+Coercion prebicat_cells_1_id_comp_from_prebicat_data (C : prebicat_data) : prebicat_1_id_comp_cells
   := pr1 C.
 
-Definition id2 {C : bicat_data} {a b : C} (f : C⟦a, b⟧) : f ==> f
+Definition id2 {C : prebicat_data} {a b : C} (f : C⟦a, b⟧) : f ==> f
   := pr1 (pr2 C) a b f.
-Check (λ (C : bicat_data) , pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (C))))))) ))).
+Check (λ (C : prebicat_data) , pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (C))))))) ))).
 
 
-Definition lunitor {C : bicat_data} {a b : C} (f : C⟦a, b⟧)
+Definition lunitor {C : prebicat_data} {a b : C} (f : C⟦a, b⟧)
   : identity _ · f ==> f
   := pr1 (pr2 (pr2 C)) a b f.
 
-Definition runitor {C : bicat_data} {a b : C} (f : C⟦a, b⟧)
+Definition runitor {C : prebicat_data} {a b : C} (f : C⟦a, b⟧)
   : f · identity _ ==> f
   := pr1 (pr2 (pr2 (pr2 C))) a b f.
 
-Definition linvunitor {C : bicat_data} {a b : C} (f : C⟦a, b⟧)
+Definition linvunitor {C : prebicat_data} {a b : C} (f : C⟦a, b⟧)
   : identity _ · f <== f
   := pr1 (pr2 (pr2 (pr2 (pr2 C)))) a b f.
 
-Definition rinvunitor {C : bicat_data} {a b : C} (f : C⟦a, b⟧)
+Definition rinvunitor {C : prebicat_data} {a b : C} (f : C⟦a, b⟧)
   : f · identity _ <== f
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 C))))) a b f.
 
-Definition rassociator {C : bicat_data} {a b c d : C}
+Definition rassociator {C : prebicat_data} {a b c d : C}
            (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : C⟦c, d⟧)
   : (f · g) · h ==> f · (g · h)
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))) a b c d f g h.
 
-Definition lassociator {C : bicat_data} {a b c d : C}
+Definition lassociator {C : prebicat_data} {a b c d : C}
            (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : C⟦c, d⟧)
   : f · (g · h) ==> (f · g) · h
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))) a b c d f g h.
 
-Definition vcomp2 {C : bicat_data} {a b : C} {f g h: C⟦a, b⟧}
+Definition vcomp2 {C : prebicat_data} {a b : C} {f g h: C⟦a, b⟧}
   : f ==> g → g ==> h → f ==> h
   := λ x y, pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))) _ _ _ _ _  x y.
 
-Definition lwhisker {C : bicat_data} {a b c : C} (f : C⟦a, b⟧) {g1 g2 : C⟦b, c⟧}
+Definition lwhisker {C : prebicat_data} {a b c : C} (f : C⟦a, b⟧) {g1 g2 : C⟦b, c⟧}
   : g1 ==> g2 → f · g1 ==> f · g2
   := λ x, pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))) _ _ _ _ _ _ x.
 
-Definition rwhisker {C : bicat_data} {a b c : C} {f1 f2 : C⟦a, b⟧} (g : C⟦b, c⟧)
+Definition rwhisker {C : prebicat_data} {a b c : C} {f1 f2 : C⟦a, b⟧} (g : C⟦b, c⟧)
   : f1 ==> f2 → f1 · g ==> f2 · g
   := λ x, pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))) _ _ _ _ _ _ x.
 
@@ -115,7 +115,7 @@ Notation "x • y" := (vcomp2 x y) (at level 60).
 Notation "f ◃ x" := (lwhisker f x) (at level 60). (* \tw *)
 Notation "y ▹ g" := (rwhisker g y) (at level 60). (* \tw nr 2 *)
 
-Definition hcomp {C : bicat_data} {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
+Definition hcomp {C : prebicat_data} {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
   : f1 ==> f2 -> g1 ==> g2 -> f1 · g1 ==> f2 · g2.
 Proof.
   intros x y.
@@ -124,7 +124,7 @@ Proof.
   exact (xg1 • f2y).
 Defined.
 
-Definition hcomp' {C : bicat_data} {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
+Definition hcomp' {C : prebicat_data} {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
   : f1 ==> f2 -> g1 ==> g2 -> f1 · g1 ==> f2 · g2.
 Proof.
   intros x y.
@@ -136,7 +136,7 @@ Defined.
 Notation "x ⋆ y" := (hcomp x y) (at level 50).
 
 
-Definition bicat_laws (C : bicat_data) : UU
+Definition prebicat_laws (C : prebicat_data) : UU
   :=  (* 1a id2_left *)
       (∏ (a b : C) (f g : C⟦a, b⟧) (x : f ==> g), id2 f • x = x)
         ×
@@ -215,15 +215,15 @@ Definition bicat_laws (C : bicat_data) : UU
        lassociator f g _  • lassociator _ _ _
       ).
 
-Definition bicat : UU := ∑ C : bicat_data, bicat_laws C.
+Definition prebicat : UU := ∑ C : prebicat_data, prebicat_laws C.
 
-Coercion bicat_data_from_bicat (C : bicat) : bicat_data := pr1 C.
-Coercion bicat_laws_from_bicat (C : bicat) : bicat_laws C := pr2 C.
+Coercion prebicat_data_from_bicat (C : prebicat) : prebicat_data := pr1 C.
+Coercion prebicat_laws_from_bicat (C : prebicat) : prebicat_laws C := pr2 C.
 
 
-Section bicat_law_projections.
+Section prebicat_law_projections.
 
-Context {C : bicat}.
+Context {C : prebicat}.
 
 Definition id2_left
            (* 1a id2_left *)
@@ -355,7 +355,7 @@ Definition lassociator_lassociator
   := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))))))))))) _ _ _ _ _ f g h i.
 
 
-End bicat_law_projections.
+End prebicat_law_projections.
 
 
 (* ----------------------------------------------------------------------------------- *)
@@ -363,7 +363,7 @@ End bicat_law_projections.
 
 Section Derived_laws.
 
-Context {C : bicat}.
+Context {C : prebicat}.
 
 Lemma hcomp_hcomp' {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
       (η : f1 ==> f2) (φ : g1 ==> g2)
@@ -472,7 +472,7 @@ End Derived_laws.
 
 Section Hom_Spaces.
 
-Context {C : bicat} (a b : C).
+Context {C : prebicat} (a b : C).
 
 Definition hom_ob_mor : precategory_ob_mor.
 Proof.
@@ -507,7 +507,7 @@ End Hom_Spaces.
 
 Section hcomp_functor.
 
-Context {C : bicat} {a b c : C}.
+Context {C : prebicat} {a b c : C}.
 
 Definition hcomp_functor_data
   : functor_data (precategory_binproduct (hom a b) (hom b c)) (hom a c).
@@ -539,7 +539,7 @@ End hcomp_functor.
 
 Section equivalences.
 
-Context {C : bicat_data}.
+Context {C : prebicat_data}.
 
 Definition is_equivalence {a b : C} {f g : a --> b} (η : f ==> g)
   : UU
@@ -573,7 +573,7 @@ Lemma isaprop_isequivalence
 
 End equivalences.
 
-Definition id2_equivalence {C : bicat} {a b : C} (f : a --> b) : equivalence f f.
+Definition id2_equivalence {C : prebicat} {a b : C} (f : a --> b) : equivalence f f.
 Proof.
   repeat (use tpair).
   - apply (id2 _ ).
@@ -599,7 +599,7 @@ Section chaotic_bicat.
 
 Variable C : precategory.
 
-Definition chaotic_bicat_data : bicat_data.
+Definition chaotic_prebicat_data : prebicat_data.
 Proof.
   use tpair.
   - use tpair.
@@ -618,7 +618,7 @@ Proof.
     + cbn. intros. exact tt.
 Defined.
 
-Definition chaotic_bicat_laws : bicat_laws chaotic_bicat_data.
+Definition chaotic_prebicat_laws : prebicat_laws chaotic_prebicat_data.
 Proof.
   repeat (use tpair); cbn; intros;
     apply isProofIrrelevantUnit.
@@ -631,7 +631,7 @@ Section discrete_bicat.
 
 Variable C : category.
 
-Definition discrete_bicat_data : bicat_data.
+Definition discrete_prebicat_data : prebicat_data.
 Proof.
   use tpair.
   - use tpair.
@@ -650,7 +650,7 @@ Proof.
     + intros. apply (maponpaths_2). assumption.
 Defined.
 
-Definition discrete_bicat_laws : bicat_laws discrete_bicat_data.
+Definition discrete_prebicat_laws : prebicat_laws discrete_prebicat_data.
 Proof.
   repeat (use tpair); cbn.
   - intros. apply idpath.
@@ -680,28 +680,28 @@ Qed.
 End discrete_bicat.
 
 
-Definition psfunctor_ob_mor_cell (C C' : bicat_data) : UU
+Definition psfunctor_ob_mor_cell (C C' : prebicat_data) : UU
   := ∑ F : functor_data C C',
            ∏ a b (f g : a --> b), f ==> g → #F f ==> #F g.
 
 Coercion functor_data_from_bifunctor_ob_mor_cell C C' (F : psfunctor_ob_mor_cell C C')
   : functor_data C C' := pr1 F.
 
-Definition psfunctor_on_cells {C C' : bicat_data} (F : psfunctor_ob_mor_cell C C')
+Definition psfunctor_on_cells {C C' : prebicat_data} (F : psfunctor_ob_mor_cell C C')
            {a b : C} {f g : a --> b} (x : f ==> g)
   : #F f ==> #F g
   := pr2 F a b f g x.
 
 Notation "'##'" := (psfunctor_on_cells).
 
-Definition psfunctor_cell_data {C C' : bicat_data} (F : psfunctor_ob_mor_cell C C') : UU
+Definition psfunctor_cell_data {C C' : prebicat_data} (F : psfunctor_ob_mor_cell C C') : UU
   :=
     (∏ (a : C), equivalence (#F (identity a)) (identity _) )
       ×
     (∏ (a b c : C) (f : a --> b) (g : b --> c),
      equivalence (#F (f · g)) (#F f · #F g)).
 
-Definition psfunctor_data (C C' : bicat_data) : UU
+Definition psfunctor_data (C C' : prebicat_data) : UU
   := ∑ F : psfunctor_ob_mor_cell C C', psfunctor_cell_data F.
 
 Coercion psfunctor_ob_mor_cell_from_bifunctor_data C C' (F : psfunctor_data C C')
@@ -710,10 +710,10 @@ Coercion psfunctor_ob_mor_cell_from_bifunctor_data C C' (F : psfunctor_data C C'
 
 
 
-Definition psfunctor_id {C C' : bicat_data} (F : psfunctor_data C C') (a : C)
+Definition psfunctor_id {C C' : prebicat_data} (F : psfunctor_data C C') (a : C)
   : equivalence (#F (identity a)) (identity _)
   := pr1 (pr2 F) a.
-Definition psfunctor_comp {C C' : bicat_data} (F : psfunctor_data C C') {a b c : C}
+Definition psfunctor_comp {C C' : prebicat_data} (F : psfunctor_data C C') {a b c : C}
            (f : a --> b) (g : b --> c)
   : equivalence (#F (f · g)) (#F f · #F g)
   := pr2 (pr2 F) a b c f g.
@@ -721,7 +721,7 @@ Definition psfunctor_comp {C C' : bicat_data} (F : psfunctor_data C C') {a b c :
 
 Section psfunctor_laws.
 
-Context {C C' : bicat_data} (F : psfunctor_data C C').
+Context {C C' : prebicat_data} (F : psfunctor_data C C').
 
 
 Definition psfunctor_id2_law : UU
@@ -804,17 +804,17 @@ End psfunctor_laws.
 
 Section op2.
 
-Variable C : bicat.
+Variable C : prebicat.
 
-Definition op2_bicat_1_id_comp_cells : bicat_1_id_comp_cells.
+Definition op2_prebicat_1_id_comp_cells : prebicat_1_id_comp_cells.
 Proof.
   exists C.
   intros a b f g. exact (g ==> f).
 Defined.
 
-Definition op2_bicat_data : bicat_data.
+Definition op2_prebicat_data : prebicat_data.
 Proof.
-  exists op2_bicat_1_id_comp_cells.
+  exists op2_prebicat_1_id_comp_cells.
   repeat (use tpair).
   - intros; apply id2.
   - intros; cbn. apply linvunitor.
@@ -828,7 +828,7 @@ Proof.
   - cbn; intros. apply (X ▹ g).
 Defined.
 
-Definition op2_bicat_laws : bicat_laws op2_bicat_data.
+Definition op2_prebicat_laws : prebicat_laws op2_prebicat_data.
 Proof.
   repeat split; intros; cbn.
   - apply id2_right.
@@ -860,7 +860,7 @@ End op2.
 
 Section Associators_Unitors_Iso.
 
-Context {C : bicat}.
+Context {C : prebicat}.
 
 Lemma lassociator_iso {a b c d : C} (f : hom a b) (g : hom b c) (h : hom c d)
   : is_iso (lassociator f g h : (hom a d) ⟦ f · (g · h), (f · g) · h ⟧).
@@ -899,7 +899,7 @@ End Associators_Unitors_Iso.
 
 Section Associators_Unitors_Natural.
 
-Context {C : bicat}.
+Context {C : prebicat}.
 
 (** Left unitor *)
 

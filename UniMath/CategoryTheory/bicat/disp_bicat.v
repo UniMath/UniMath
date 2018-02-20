@@ -8,30 +8,30 @@ Open Scope mor_disp_scope.
 
 Section disp_bicat.
 
-Context (C : bicat).
+Context (C : prebicat).
 
 Definition disp_cell_struct (D : disp_cat_ob_mor C) : UU
   := ∏ (c c' : C) (f g : C⟦c, c'⟧) (x : f ==> g)
        (d : D c) (d' : D c') (f' : d -->[f] d') (g' : d -->[g] d'), UU.
 (*
-Definition disp_bicat_ob_mor_cells : UU
+Definition disp_prebicat_ob_mor_cells : UU
   := ∑ D : disp_cat_ob_mor C, disp_cell_struct D.
 
-Coercion disp_cat_ob_mor_from_disp_bicat_ob_mor_cells (C : disp_bicat_ob_mor_cells)
+Coercion disp_cat_ob_mor_from_disp_prebicat_ob_mor_cells (C : disp_prebicat_ob_mor_cells)
   : disp_cat_ob_mor _ := pr1 C.
 
-Definition disp_cells {D : disp_bicat_ob_mor_cells}
+Definition disp_cells {D : disp_prebicat_ob_mor_cells}
            {c c' : C} {f g : C⟦c, c'⟧} (x : f ==> g)
            {d : D c} {d' : D c'} (f' : d -->[f] d') (g' : d -->[g] d')
   : UU
   := pr2 D c c' f g x d d' f' g'.
  *)
 
-Definition disp_bicat_1_id_comp_cells : UU := ∑ D : disp_cat_data C, disp_cell_struct D.
-Coercion disp_cat_data_from_disp_bicat_1_id_comp_cells (C : disp_bicat_1_id_comp_cells)
+Definition disp_prebicat_1_id_comp_cells : UU := ∑ D : disp_cat_data C, disp_cell_struct D.
+Coercion disp_cat_data_from_disp_prebicat_1_id_comp_cells (C : disp_prebicat_1_id_comp_cells)
   : disp_cat_data _ := pr1 C.
 
-Definition disp_cells {D : disp_bicat_1_id_comp_cells}
+Definition disp_cells {D : disp_prebicat_1_id_comp_cells}
            {c c' : C} {f g : C⟦c, c'⟧} (x : f ==> g)
            {d : D c} {d' : D c'} (f' : d -->[f] d') (g' : d -->[g] d')
   : UU
@@ -42,9 +42,9 @@ Notation "f' ==>[ x ] g'" := (disp_cells x f' g') (at level 60).
 Notation "f' <==[ x ] g'" := (disp_cells x g' f') (at level 60, only parsing).
 
 (*
-Definition disp_bicat_ob_mor_cells_1_id_comp : UU := ∑ D : disp_bicat_ob_mor_cells, disp_cat_id_comp _ D.
+Definition disp_prebicat_ob_mor_cells_1_id_comp : UU := ∑ D : disp_prebicat_ob_mor_cells, disp_cat_id_comp _ D.
 
-Coercion disp_cat_data_from_disp_bicat_cells_1_id_comp (D : disp_bicat_ob_mor_cells_1_id_comp)
+Coercion disp_cat_data_from_disp_prebicat_cells_1_id_comp (D : disp_prebicat_ob_mor_cells_1_id_comp)
   : disp_cat_data C.
 Proof.
   exists (pr1 D).
@@ -58,7 +58,7 @@ Check (fun (C : category) (D : disp_cat C) a b (f : C⟦a, b⟧)
            x y (ff : x -->[f] y) =>  id_disp _ ;; ff = transportf _ _ ff).
 *)
 
-Definition disp_bicat_ops (D : disp_bicat_1_id_comp_cells) : UU
+Definition disp_prebicat_ops (D : disp_prebicat_1_id_comp_cells) : UU
   :=
     (∏ (a b : C) (f : C⟦a, b⟧) (x : D a) (y : D b) (f' : x -->[f] y),
      f' ==>[id2 _ ] f')
@@ -104,22 +104,22 @@ Definition disp_bicat_ops (D : disp_bicat_1_id_comp_cells) : UU
      ff1 ==>[r] ff2 → ff1 ;; gg ==>[ r ▹ g ] ff2 ;; gg).
 
 
-Definition disp_bicat_data : UU
-  := ∑ D : disp_bicat_1_id_comp_cells,
-           disp_bicat_ops D.
+Definition disp_prebicat_data : UU
+  := ∑ D : disp_prebicat_1_id_comp_cells,
+           disp_prebicat_ops D.
 
-Coercion disp_bicat_ob_mor_cells_1_id_comp_from_disp_bicat_data
-         (D : disp_bicat_data)
-  : disp_bicat_1_id_comp_cells
+Coercion disp_prebicat_ob_mor_cells_1_id_comp_from_disp_prebicat_data
+         (D : disp_prebicat_data)
+  : disp_prebicat_1_id_comp_cells
   := pr1 D.
-Coercion disp_bicat_ops_from_disp_bicat_data (D : disp_bicat_data)
-  : disp_bicat_ops D
+Coercion disp_prebicat_ops_from_disp_prebicat_data (D : disp_prebicat_data)
+  : disp_prebicat_ops D
   := pr2 D.
 
 
-Section disp_bicat_ops_projections.
+Section disp_prebicat_ops_projections.
 
-Context {D : disp_bicat_data}.
+Context {D : disp_prebicat_data}.
 
 Definition id2_disp
            {a b : C} {f : C⟦a, b⟧} {x : D a} {y : D b} (f' : x -->[f] y)
@@ -184,15 +184,15 @@ Definition rwhisker_disp
   : ff1 ==>[r] ff2 → ff1 ;; gg ==>[ r ▹ g ] ff2 ;; gg
   := λ rr, pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))) _ _ _ _ _ _ _ _ _ _ _ _ _ rr.
 
-End disp_bicat_ops_projections.
+End disp_prebicat_ops_projections.
 
 Notation "rr •• ss" := (vcomp2_disp rr ss) (at level 60).
 Notation "ff ◃◃ rr" := (lwhisker_disp ff rr) (at level 60).
 Notation "rr ▹▹ gg" := (rwhisker_disp gg rr) (at level 60).
 
-Section disp_bicat_laws.
+Section disp_prebicat_laws.
 
-Context (D : disp_bicat_data).
+Context (D : disp_prebicat_data).
 
 Definition id2_disp_left_law : UU
   := ∏ {a b : C} {f g : C⟦a, b⟧} (η : f ==> g)
@@ -496,7 +496,7 @@ Definition lassociator_rassociator_disp_law
   := lassociator_disp ff gg hh •• rassociator_disp _ _ _ =
      transportb (λ x', _ ==>[x'] _) (lassociator_rassociator _ _ _  ) (id2_disp  _ ).
 *)
-Definition disp_bicat_laws : UU
+Definition disp_prebicat_laws : UU
   :=
     id2_disp_left_law
       × id2_disp_right_law
@@ -520,12 +520,12 @@ Definition disp_bicat_laws : UU
       × runitor_rwhisker_disp_law
       × lassociator_lassociator_disp_law.
 
-End disp_bicat_laws.
+End disp_prebicat_laws.
 
-Definition disp_bicat : UU := ∑ D : disp_bicat_data, disp_bicat_laws D.
-Coercion disp_bicat_data_from_disp_bicat (D : disp_bicat) : disp_bicat_data := pr1 D.
+Definition disp_bicat : UU := ∑ D : disp_prebicat_data, disp_prebicat_laws D.
+Coercion disp_prebicat_data_from_disp_bicat (D : disp_bicat) : disp_prebicat_data := pr1 D.
 
-Section disp_bicat_law_projections.
+Section disp_prebicat_law_projections.
 
 Context {D : disp_bicat}.
 
@@ -713,7 +713,7 @@ Definition lassociator_lassociator_disp
 
 
 
-End disp_bicat_law_projections.
+End disp_prebicat_law_projections.
 
 Section total_bicat.
 Variable D : disp_bicat.
@@ -724,14 +724,14 @@ Variable D : disp_bicat.
     is merged
 
 *)
-Definition total_bicat_ob_mor : precategory_ob_mor.
+Definition total_prebicat_ob_mor : precategory_ob_mor.
 Proof.
   exists (∑ x:C, D x).
   intros xx yy.
   exact (∑ (f : pr1 xx --> pr1 yy), pr2 xx -->[f] pr2 yy).
 Defined.
 
-Definition total_category_id_comp : precategory_id_comp (total_bicat_ob_mor).
+Definition total_category_id_comp : precategory_id_comp (total_prebicat_ob_mor).
 Proof.
   apply tpair; simpl.
   - intros.
@@ -742,17 +742,17 @@ Proof.
     exact (pr2 ff ;; pr2 gg).
 Defined.
 
-Definition total_bicat_1_data : precategory_data := _ ,, total_category_id_comp.
+Definition total_prebicat_1_data : precategory_data := _ ,, total_category_id_comp.
 
-Definition total_bicat_cell_struct : bicat_cell_struct total_bicat_ob_mor
+Definition total_prebicat_cell_struct : prebicat_cell_struct total_prebicat_ob_mor
   := λ a b f g, ∑ η : pr1 f ==> pr1 g, pr2 f ==>[η] pr2 g.
 
-Definition total_bicat_1_id_comp_cells : bicat_1_id_comp_cells
-  := (total_bicat_1_data,, total_bicat_cell_struct).
+Definition total_prebicat_1_id_comp_cells : prebicat_1_id_comp_cells
+  := (total_prebicat_1_data,, total_prebicat_cell_struct).
 
-Definition total_bicat_2_id_comp_struct : bicat_2_id_comp_struct total_bicat_1_id_comp_cells.
+Definition total_prebicat_2_id_comp_struct : prebicat_2_id_comp_struct total_prebicat_1_id_comp_cells.
 Proof.
-  repeat split; cbn; unfold total_bicat_cell_struct.
+  repeat split; cbn; unfold total_prebicat_cell_struct.
   - intros. exists (id2 _ ). exact (id2_disp _ ).
   - intros. exists (lunitor _ ). exact (lunitor_disp _ ).
   - intros. exists (runitor _ ). exact (runitor_disp _ ).
@@ -770,9 +770,9 @@ Proof.
     exact (pr2 r ▹▹ pr2 g).
 Defined.
 
-Definition total_bicat_data : bicat_data := _ ,, total_bicat_2_id_comp_struct.
+Definition total_prebicat_data : prebicat_data := _ ,, total_prebicat_2_id_comp_struct.
 
-Lemma total_bicat_laws : bicat_laws total_bicat_data.
+Lemma total_prebicat_laws : prebicat_laws total_prebicat_data.
 Proof.
   repeat split; intros.
   - use total2_paths_b.
@@ -840,9 +840,9 @@ Proof.
     + apply lassociator_lassociator_disp.
 Defined.
 
-Definition total_bicat : bicat := _ ,, total_bicat_laws.
+Definition total_bicat : prebicat := _ ,, total_prebicat_laws.
 
-Definition pr1_psfunctor_ob_mor_cell : psfunctor_ob_mor_cell total_bicat_data C.
+Definition pr1_psfunctor_ob_mor_cell : psfunctor_ob_mor_cell total_prebicat_data C.
 Proof.
   use tpair.
   - use tpair.
@@ -860,7 +860,7 @@ Proof.
     apply id2_equivalence.
 Defined.
 
-Definition pr1_psfunctor_data : psfunctor_data total_bicat_data C := _ ,, pr1_psfunctor_cell_data.
+Definition pr1_psfunctor_data : psfunctor_data total_prebicat_data C := _ ,, pr1_psfunctor_cell_data.
 
 Definition pr1_psfunctor_laws : psfunctor_laws pr1_psfunctor_data.
 Proof.
