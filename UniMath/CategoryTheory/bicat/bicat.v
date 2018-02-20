@@ -605,11 +605,22 @@ Definition inv_equivalence {a b : C} {f g : a --> b} (η : equivalence f g)
   : equivalence g f
   := (inv_cell η ,, cell_from_equivalence η ,, inv_cell_after_equivalence η ,, equivalence_after_inv_cell η ).
 
+
 (* requires cell types to be sets
 Lemma isaprop_isequivalence
 *)
 
 End equivalences.
+
+Definition id2_equivalence {C : bicat} {a b : C} (f : a --> b) : equivalence f f.
+Proof.
+  repeat (use tpair).
+  - apply (id2 _ ).
+  - apply (id2 _ ).
+  - apply id2_left.
+  - apply id2_left.
+Defined.
+
 
 (** TODO:
     construct a prebicategory (see CT/bicategories) from a bicat
@@ -788,9 +799,100 @@ Definition psfunctor_rassociator_law : UU
                              • (#F f ◃ inv_equivalence (psfunctor_comp F _ _ ))
                              • (inv_equivalence (psfunctor_comp F _ _ )).
 
-(** TODO : to be continued *)
+Definition psfunctor_lassociator_law : UU
+  := ∏ {a b c d : C}
+       (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : C⟦c, d⟧),
+     ##F (lassociator f g h) =
+     (psfunctor_comp F _ _ ) • (#F f ◃ psfunctor_comp F _ _ ) • lassociator (#F f) (#F g) (#F h)
+                             • (inv_equivalence (psfunctor_comp F _ _ )▹ #F _ )
+                             • (inv_equivalence (psfunctor_comp F _ _ )).
+
+Definition psfunctor_vcomp2_law : UU
+  := ∏ {a b : C} {f g h: C⟦a, b⟧}
+       (η : f ==> g) (φ : g ==> h),
+     ##F (η • φ) = ##F η • ##F φ.
+
+Definition psfunctor_lwhisker_law : UU
+  := ∏ {a b c : C} (f : C⟦a, b⟧) {g1 g2 : C⟦b, c⟧}
+       (η : g1 ==> g2),
+     ##F (f ◃ η) =
+     (psfunctor_comp F _ _ ) • (#F f ◃ ##F η) • (inv_equivalence (psfunctor_comp F _ _ )).
+
+Definition psfunctor_rwhisker_law : UU
+  := ∏ {a b c : C} {f1 f2 : C⟦a, b⟧} (g : C⟦b, c⟧)
+       (η : f1 ==> f2),
+     ##F (η ▹ g) =
+     (psfunctor_comp F _ _ ) • (##F η ▹ #F g) • (inv_equivalence (psfunctor_comp F _ _ )).
+
+Definition psfunctor_laws : UU
+  :=
+    psfunctor_id2_law
+      × psfunctor_lunitor_law
+      × psfunctor_runitor_law
+      × psfunctor_linvunitor_law
+      × psfunctor_rinvunitor_law
+      × psfunctor_rassociator_law
+      × psfunctor_lassociator_law
+      × psfunctor_vcomp2_law
+      × psfunctor_lwhisker_law
+      × psfunctor_rwhisker_law.
 
 End psfunctor_laws.
+
+
+
+Section op2.
+
+Variable C : bicat.
+
+Definition op2_bicat_1_id_comp_cells : bicat_1_id_comp_cells.
+Proof.
+  exists C.
+  intros a b f g. exact (g ==> f).
+Defined.
+
+Definition op2_bicat_data : bicat_data.
+Proof.
+  exists op2_bicat_1_id_comp_cells.
+  repeat (use tpair).
+  - intros; apply id2.
+  - intros; cbn. apply linvunitor.
+  - intros; cbn. apply rinvunitor.
+  - intros; cbn. apply lunitor.
+  - intros; cbn. apply runitor.
+  - intros; cbn. apply lassociator.
+  - intros; cbn. apply rassociator.
+  - intros; cbn. apply ( X0 • X ).
+  - intros; cbn. apply ( f ◃ X ).
+  - cbn; intros. apply (X ▹ g).
+Defined.
+
+Definition op2_bicat_laws : bicat_laws op2_bicat_data.
+Proof.
+  repeat split; intros; cbn.
+  - apply id2_right.
+  - apply id2_left.
+  - apply (!vassocr _ _ _ ).
+  - apply lwhisker_id2.
+  - apply id2_rwhisker.
+  - apply lwhisker_vcomp.
+  - apply rwhisker_vcomp.
+  - admit.
+  - admit.
+  - admit.
+  - admit.
+  - admit.
+  - apply (!vcomp_whisker _ _  ).
+  - apply lunitor_linvunitor.
+  - apply linvunitor_lunitor.
+  - apply runitor_rinvunitor.
+  - apply rinvunitor_runitor.
+  - apply lassociator_rassociator.
+  - apply rassociator_lassociator.
+  - admit.
+  - admit.
+Admitted.
+End op2.
 
 (* ----------------------------------------------------------------------------------- *)
 (** Associators and unitors are isos. *)
@@ -965,3 +1067,4 @@ Proof.
 Defined.
 
 End Associators_Unitors_Natural.
+
