@@ -1,5 +1,4 @@
 (* ========================================================================= *)
-(* Check for correctness.                                                    *)
 (* Every (pre)bicategory of UniMath.CategoryTheory.bicategories is a         *)
 (* (pre)bicategory of UniMath.CategoryTheory.bicat.                          *)
 (* ========================================================================= *)
