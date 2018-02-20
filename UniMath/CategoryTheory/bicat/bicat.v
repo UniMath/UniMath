@@ -135,7 +135,6 @@ Defined.
 
 Notation "x ⋆ y" := (hcomp x y) (at level 50).
 
-
 Definition prebicat_laws (C : prebicat_data) : UU
   :=  (* 1a id2_left *)
       (∏ (a b : C) (f g : C⟦a, b⟧) (x : f ==> g), id2 f • x = x)
@@ -375,8 +374,8 @@ Defined.
 Lemma hcomp_lassoc {a b c d : C}
       {f1 g1 : C ⟦ a, b ⟧} {f2 g2 : C ⟦ b, c ⟧} {f3 g3 : C ⟦ c, d ⟧}
       (x1 : f1 ==> g1) (x2 : f2 ==> g2) (x3 : f3 ==> g3)
-  :  hcomp x1 (hcomp x2 x3) • lassociator g1 g2 g3 =
-     lassociator f1 f2 f3 • hcomp (hcomp x1 x2) x3.
+  : x1 ⋆ (x2 ⋆ x3) • lassociator g1 g2 g3 =
+    lassociator f1 f2 f3 • (x1 ⋆ x2) ⋆ x3.
 Proof.
   unfold hcomp.
   rewrite <- lwhisker_vcomp.
@@ -422,8 +421,8 @@ Defined.
 Lemma hcomp_rassoc {a b c d : C}
       (f1 g1 : C ⟦ a, b ⟧) (f2 g2 : C ⟦ b, c ⟧) (f3 g3 : C ⟦ c, d ⟧)
       (x1 : f1 ==> g1) (x2 : f2 ==> g2) (x3 : f3 ==> g3)
-  : hcomp (hcomp x1 x2) x3 • rassociator g1 g2 g3 =
-    rassociator f1 f2 f3 • hcomp x1 (hcomp x2 x3).
+  : (x1 ⋆ x2) ⋆ x3 • rassociator g1 g2 g3 =
+    rassociator f1 f2 f3 • x1 ⋆ (x2 ⋆ x3).
 Proof.
   apply lassociator_to_rassociator_post.
   apply pathsinv0.
@@ -433,7 +432,7 @@ Proof.
 Defined.
 
 Lemma hcomp_identity {a b c : C} (f1 : C ⟦ a, b ⟧) (f2 : C ⟦ b, c ⟧)
-  : hcomp (id2 f1) (id2 f2) = id2 (f1 · f2).
+  : id2 f1 ⋆ id2 f2 = id2 (f1 · f2).
 Proof.
   unfold hcomp.
   rewrite id2_rwhisker.
@@ -450,7 +449,7 @@ Lemma hcomp_vcomp {a b c : C}
       (x2 : f2 ==> g2)
       (y1 : g1 ==> h1)
       (y2 : g2 ==> h2)
-  : hcomp (x1 • y1) (x2 • y2) = hcomp x1 x2 • hcomp y1 y2.
+  : (x1 • y1) ⋆ (x2 • y2) = (x1 ⋆ x2) • (y1 ⋆ y2).
 Proof.
   unfold hcomp at 2 3.
   rewrite vassocr.
