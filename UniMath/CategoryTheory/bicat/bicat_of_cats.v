@@ -119,7 +119,10 @@ Definition op_psfunctor_ob_mor_cell : psfunctor_ob_mor_cell ∁ ∁.
 Proof.
   exists op_functor_data.
   intros a b f g x.
-  cbn in *. exact (op_nt x).
+  cbn in *.
+  (* exact (op_nt x). *)
+  admit.
+Abort.
 
 Local Notation "'Set'" := hset_category.
 
@@ -209,4 +212,5 @@ Proof.
   - intros.
     set(T:= vcomp2_disp ∁ (id2_disp ∁ ff) ηη).
     cbn in T.
-    set (T':= @nat_trans_eq_eq (op_cat a) Set _ _ _ _ T). _ _ _ _ T _ ).
+    admit.
+Abort.
