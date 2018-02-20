@@ -135,6 +135,7 @@ Require Export UniMath.CategoryTheory.DisplayedCats.SIP.
 Require Export UniMath.CategoryTheory.DisplayedCats.Limits.
 Require Export UniMath.CategoryTheory.DisplayedCats.Examples.
 Require Export UniMath.CategoryTheory.bicat.bicat.
+Require Export UniMath.CategoryTheory.bicat.pseudo_functors.
 Require Export UniMath.CategoryTheory.bicat.disp_bicat.
 Require Export UniMath.CategoryTheory.bicat.bicat_of_cats.
 Require Export UniMath.CategoryTheory.bicat.bicategory_from_bicat.
