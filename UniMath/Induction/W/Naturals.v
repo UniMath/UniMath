@@ -170,42 +170,6 @@ Proof.
     apply IHn.
 Defined.
 
-Definition nat_functor_algebra_mor_equiv (X Y : algebra_ob nat_functor) :
-  algebra_mor nat_functor X Y ≃
-  let X' := (invmap nat_functor_equiv (pr2 X)) in
-  let Y' := (invmap nat_functor_equiv (pr2 Y)) in
-  ∑ (f : pr1 X → pr1 Y),
-    (f (pr1 X') = (pr1 Y')) × (f ∘ (pr2 X') = (pr2 Y') ∘ f).
-Proof.
-  apply weqfibtototal.
-  intro f; cbn in f.
-  (** If we unfold a few things, we see that these definitions are essentially
-      identical. *)
-  unfold is_algebra_mor, alg_map, compose, funcomp.
-  cbn; unfold idfun.
-
-  use weq_iso.
-  - intro p.
-    split.
-    + refine (eqtohomot p (true,, fromempty) @ _).
-      unfold funcomp; apply maponpaths.
-      unfold polynomial_functor_arr; cbn.
-      apply maponpaths, eqfromempty.
-    + apply funextfun; intro x.
-      apply (eqtohomot p).
-  - intro p.
-    apply from_nat_functor_eq.
-    + refine (_ @ (maponpaths _ (!nat_functor_arr_true f fromempty))).
-      apply (pr1 p).
-    + intro h.
-      Check (nat_functor_arr_false f h).
-      refine (_ @ maponpaths _ (nat_functor_arr_false f h)).
-      refine (_ @ maponpaths _ (!nat_functor_arr_false f h)).
-      exact (eqtohomot (pr2 p) (h tt)).
-  - intro x.
-    cbn.
-Abort.
-
 (** Since fibered algebras are the "dependent version" of normal algebras,
     we need some kind of "dependent version" of the lemmas above.
  *)
@@ -236,8 +200,7 @@ Proof.
     induction b; cbn in *.
     + exact (pr1 x).
     + exact (pr2 x (bfun tt) (from tt)).
-  - cbn; intro g.
-    apply from_nat_functor_eq.
+  - cbn. intro g.
     apply funextsec; intro pair.
     induction pair as [b bfun].
     induction b; cbn; cbn in bfun.
