@@ -134,8 +134,8 @@ DisplayedCats/Limits.v
 DisplayedCats/Examples.v
 bicat/bicat.v
 bicat/pseudo_functors.v
+bicat/op2.v
 bicat/disp_bicat.v
 bicat/bicat_of_cats.v
 bicat/bicategory_from_bicat.v
 bicat/bicat_from_bicategory.v
-

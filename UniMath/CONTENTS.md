@@ -211,6 +211,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/Examples.v](CategoryTheory/DisplayedCats/Examples.v)
    - [bicat/bicat.v](CategoryTheory/bicat/bicat.v)
    - [bicat/pseudo_functors.v](CategoryTheory/bicat/pseudo_functors.v)
+   - [bicat/op2.v](CategoryTheory/bicat/op2.v)
    - [bicat/disp_bicat.v](CategoryTheory/bicat/disp_bicat.v)
    - [bicat/bicat_of_cats.v](CategoryTheory/bicat/bicat_of_cats.v)
    - [bicat/bicategory_from_bicat.v](CategoryTheory/bicat/bicategory_from_bicat.v)
