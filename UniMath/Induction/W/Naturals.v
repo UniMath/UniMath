@@ -35,6 +35,42 @@ Proof. apply proofirrelevance, isapropifcontr, iscontrfunfromempty. Defined.
 Lemma eta_unit {X : UU} (f : unit -> X) : f = λ _, f tt.
 Proof. apply funextfun; intros ?; induction _; reflexivity. Defined.
 
+(** Simplifying the action of the functor on arrows *)
+
+Lemma nat_functor_arr_true {X Y : UU} (f : X -> Y) g :
+  (functor_on_morphisms nat_functor) f (true,, g) = (true,, fromempty).
+Proof.
+  cbn; unfold polynomial_functor_arr; cbn.
+  apply maponpaths, eqfromempty.
+Defined.
+
+Lemma nat_functor_arr_false {X Y : UU} (f : X -> Y) g :
+  (functor_on_morphisms nat_functor) f (false,, g) = (false,, λ _, f (g tt)).
+Proof.
+  cbn; unfold polynomial_functor_arr; cbn.
+  apply maponpaths, eta_unit.
+Defined.
+
+(** Here's how to prove two functions from a nat_functor are equal:
+    check both cases. *)
+Lemma from_nat_functor_eq {X Y : UU} :
+  ∏ f g : nat_functor X → Y,
+    (f (true,, fromempty) = g (true,, fromempty)) ->
+    (∏ h, f (false,, λ _, h tt) = g (false,, λ _, h tt)) -> f = g.
+Proof.
+  intros f g ? eqfalse.
+  apply funextsec; intro pair.
+  induction pair as [b bfun].
+  induction b.
+  - refine (maponpaths (λ z, f (true,, z)) (eqfromempty bfun) @ _).
+    refine (_ @ !maponpaths (λ z, g (true,, z)) (eqfromempty bfun)).
+    assumption.
+  - cbn in eqfalse.
+    refine (maponpaths (λ z, f (false,, z)) (eta_unit bfun) @ _).
+    refine (_ @ !maponpaths (λ z, g (false,, z)) (eta_unit bfun)).
+    apply eqfalse.
+Defined.
+
 (** The intuition is that an algebra X for this functor is given by a constant
     x : X and a function X → X. The following equivalence verifies this. *)
 Definition nat_functor_equiv :
@@ -51,14 +87,7 @@ Proof.
     exact (dirprodpair (pairfun (true,, fromempty))
                        (λ x, pairfun (false,, λ _, x))).
   * reflexivity.
-  * intro Y.
-    apply funextsec; intro y; induction y as [b bfun].
-    induction b; cbn in *; apply (maponpaths Y).
-    - (** There is a unique function out of the empty type *)
-      apply subtypeEquality'; try reflexivity.
-      apply isapropifcontr, iscontrfunfromempty.
-    - apply maponpaths.
-      apply funextfun; intro t; induction t; reflexivity.
+  * intro Y; apply from_nat_functor_eq; reflexivity.
 Defined.
 
 (** Using our equivalence, we can consisely define the algebra corresponding to
@@ -91,19 +120,14 @@ Definition mk_nat_functor_algebra_mor {X Y : algebra_ob nat_functor} :
     (f (pr1 X') = (pr1 Y')) × (f ∘ (pr2 X') = (pr2 Y') ∘ f)
   → is_algebra_mor _ X Y f.
 Proof.
-  intros X' Y' f.
-  intro p.
-  apply funextsec; intro pair.
-  unfold compose, funcomp; cbn.
-  induction pair as [b bfun]; induction b.
-  + unfold polynomial_functor_arr, funcomp; cbn.
-    rewrite (eqfromempty bfun).
+  intros X' Y' f p.
+  apply from_nat_functor_eq.
+  + unfold funcomp.
+    refine (_ @ !maponpaths _ (nat_functor_arr_true f _)).
     refine (pr1 p @ _).
     apply (maponpaths (pr2 Y)), maponpaths.
-    symmetry; apply eqfromempty.
-  + unfold polynomial_functor_arr, funcomp; cbn.
-    rewrite (eta_unit bfun).
-    exact (eqtohomot (pr2 p) (bfun tt)).
+    reflexivity.
+  + intros ?; apply (eqtohomot (pr2 p)).
 Defined.
 
 (** Define the unique algebra morphism out of ℕ *)
@@ -130,14 +154,13 @@ Lemma nat_alg_func_is_unique :
 Proof.
   intros X mor.
   induction X as [X x]; induction mor as [mor is_mor]; cbn in x.
+  cbn in mor.
   apply funextfun; intros n; induction n; cbn.
-  - unfold is_algebra_mor in is_mor; cbn in is_mor.
+  - unfold is_algebra_mor in is_mor; cbn in mor, is_mor.
     (** Use the condition that mor is an algebra morphism *)
     refine ((eqtohomot is_mor (true,, fromempty)) @ _).
     apply (maponpaths x).
-    unfold polynomial_functor_arr; cbn.
-    apply maponpaths.
-    apply (eqfromempty _).
+    apply nat_functor_arr_true.
   - (** Use the condition that mor is an algebra morphism *)
     refine ((eqtohomot is_mor (false,, _)) @ _); cbn.
     apply (maponpaths x).
@@ -147,32 +170,41 @@ Proof.
     apply IHn.
 Defined.
 
-(** Define the section out of ℕ *)
-Definition nat_alg_sec (X : fibered_alg nat_alg_z) : ∏ n : ℕ, pr1 X n.
+Definition nat_functor_algebra_mor_equiv (X Y : algebra_ob nat_functor) :
+  algebra_mor nat_functor X Y ≃
+  let X' := (invmap nat_functor_equiv (pr2 X)) in
+  let Y' := (invmap nat_functor_equiv (pr2 Y)) in
+  ∑ (f : pr1 X → pr1 Y),
+    (f (pr1 X') = (pr1 Y')) × (f ∘ (pr2 X') = (pr2 Y') ∘ f).
 Proof.
-  pose (x := pr2 X).
-  apply nat_rect.
-  - exact (x (true,, fromempty) (empty_rect (pr1 X ∘ fromempty))).
-  - intros ? fn.
-    refine (x (false,, λ _, n) (λ b : unit, fn)).
-Defined.
+  apply weqfibtototal.
+  intro f; cbn in f.
+  (** If we unfold a few things, we see that these definitions are essentially
+      identical. *)
+  unfold is_algebra_mor, alg_map, compose, funcomp.
+  cbn; unfold idfun.
 
-(** Prove it's really a section *)
-Lemma nat_alg_is_preinitial_sec : is_preinitial_sec nat_alg_z.
-Proof.
-  intro E. pose (x := pr2 E).
-  unfold is_preinitial, algebra_section.
-  refine (nat_alg_sec E,, _).
-  intros pair.
-  induction pair as [b bfun]; cbn.
-  induction b; cbn.
-  - (* It would be nice to do this proof without `rewrite` *)
-    rewrite (eqfromempty bfun).
-    apply maponpaths, (proofirrelevancecontr (iscontrsecoverempty _)).
-  - rewrite (eta_unit bfun). (* It would be nice to do this proof without `rewrite` *)
-    apply maponpaths.
-    reflexivity.
-Defined.
+  use weq_iso.
+  - intro p.
+    split.
+    + refine (eqtohomot p (true,, fromempty) @ _).
+      unfold funcomp; apply maponpaths.
+      unfold polynomial_functor_arr; cbn.
+      apply maponpaths, eqfromempty.
+    + apply funextfun; intro x.
+      apply (eqtohomot p).
+  - intro p.
+    apply from_nat_functor_eq.
+    + refine (_ @ (maponpaths _ (!nat_functor_arr_true f fromempty))).
+      apply (pr1 p).
+    + intro h.
+      Check (nat_functor_arr_false f h).
+      refine (_ @ maponpaths _ (nat_functor_arr_false f h)).
+      refine (_ @ maponpaths _ (!nat_functor_arr_false f h)).
+      exact (eqtohomot (pr2 p) (h tt)).
+  - intro x.
+    cbn.
+Abort.
 
 (** Since fibered algebras are the "dependent version" of normal algebras,
     we need some kind of "dependent version" of the lemmas above.
@@ -188,7 +220,7 @@ Defined.
     and a function from each X n to X (S n).
  *)
 Definition fibered_algebra_nat :
-  fibered_alg nat_alg_z ≃ ∑ (X : ∏ n : ℕ, UU), (X 0) × (∏ n, X n → X (S n)).
+  fibered_alg nat_alg_z ≃ ∑ (X : ∏ n : ℕ, UU), (X 0) × (∏ {n}, X n → X (S n)).
 Proof.
   apply weqfibtototal; intro X; cbn in X.
   use weq_iso.
@@ -205,6 +237,7 @@ Proof.
     + exact (pr1 x).
     + exact (pr2 x (bfun tt) (from tt)).
   - cbn; intro g.
+    apply from_nat_functor_eq.
     apply funextsec; intro pair.
     induction pair as [b bfun].
     induction b; cbn; cbn in bfun.
@@ -216,5 +249,63 @@ Proof.
       apply funextsec; intro z.
       apply maponpaths.
       exact (!eta_unit z).
+  - reflexivity.
+Defined.
+
+(** A section from ℕ consists of a "point" x : ∏ n, X n such that
+    x agrees with the function which is a part of the fibered
+    algebra (see above).
+ *)
+Definition mk_nat_alg_sec :
+  ∏ (FA : fibered_alg nat_alg_z),
+  let FA' := fibered_algebra_nat FA
+  in ∏ (x : ∏ n : ℕ, pr1 FA' n)
+       (p1 : x 0 = pr1 (pr2 FA'))
+       (p2 : (∏ n, pr2 (pr2 FA') n (x n) = x (S n))),
+  algebra_section FA.
+Proof.
+  intros FA FA' x p1 p2.
+  unfold algebra_section.
+  refine (x,, _).
+  intro pair.
+  induction pair as [b bfun].
+  induction b; cbn; cbn in bfun.
+  - (** They are equal at 0 by hypothesis p1, the rest is noise. *)
+    refine (p1 @ _).
+    unfold FA', fibered_algebra_nat; cbn.
+    rewrite (eqfromempty bfun).
+    apply maponpaths.
+    apply funextsec.
+    intro e; induction e.
+  - refine (!p2 (bfun tt) @ _).
+    rewrite (eta_unit (bfun)).
+    reflexivity.
+Defined.
+
+(** Another way to make an algebra section given different starting data. *)
+Definition mk_nat_alg_sec' {X : ℕ -> UU} {ρ : ∏ n, X n → X (S n)}
+           (x : ∏ n : ℕ, X n) (H : ∏ n : ℕ, x (S n) = ρ n (x n)) :
+  algebra_section
+    (invmap fibered_algebra_nat (X,, (x 0,, ρ))).
+Proof.
+  refine (x,, _).
+  intros pair; induction pair as [b bfun]; induction b.
+  - reflexivity.
+  - apply H.
+Defined.
+
+(** Define the section out of ℕ, prove it's really a section *)
+Lemma nat_alg_is_preinitial_sec : is_preinitial_sec nat_alg_z.
+Proof.
+  intro E. pose (x := pr2 E).
+  unfold is_preinitial, algebra_section.
+  use mk_nat_alg_sec.
+  - apply nat_rect.
+    + exact (x (true,, fromempty) (empty_rect (pr1 E ∘ fromempty))).
+    + intros ? fn.
+      refine (x (false,, λ _, n) (λ b : unit, fn)).
+  - cbn.
+    apply maponpaths.
+    apply funextsec; intro e; induction e.
   - reflexivity.
 Defined.
