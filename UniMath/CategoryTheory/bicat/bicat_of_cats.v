@@ -92,8 +92,7 @@ Defined.
 
 Definition bicat_of_cats : bicat := _ ,, cat_bicat_laws.
 
-Local Notation "∁" := bicat_of_cats.
-Local Notation "'Set'" := hset_category.
+(** * The pseudofunctor op on the bicategory of categories *)
 
 Definition op_cat (c : category) : category := (opp_precat c,, has_homsets_opp (homset_property c) ).
 
@@ -106,6 +105,24 @@ Proof.
       (intros x y h;
        apply (! (nat_trans_ax a _ _ _ ))).
 Defined.
+
+Local Notation "∁" := bicat_of_cats.
+
+Definition op_functor_data : functor_data ∁ ∁.
+Proof.
+  use tpair.
+  - exact (λ c, op_cat c).
+  - intros c d f. exact (functor_opp f).
+Defined.
+
+Definition op_psfunctor_ob_mor_cell : psfunctor_ob_mor_cell ∁ ∁.
+Proof.
+  exists op_functor_data.
+  intros a b f g x.
+  cbn in *. exact (op_nt x).
+
+Local Notation "'Set'" := hset_category.
+
 
 Definition presheaf_disp_cat_ob_mor : disp_cat_ob_mor ∁.
 Proof.
@@ -174,6 +191,22 @@ Proof.
     rewrite X.
     intros. cbn.
     apply funextsec. intro.
+    pose (T:= nat_trans_ax gg).
+    cbn in T.
+    apply (toforallpaths _ _ _ (T _ _ _ )).
+Qed.
 
-    admit.
-Abort.
+Definition presheaf_disp_bicat_data : disp_bicat_data ∁ := _ ,,  presheaf_disp_bicat_ops.
+
+Lemma nat_trans_eq_eq {c d : category} {f g : functor c d} {a b : nat_trans f g}
+      (e e' : a = b)
+  : e = e'.
+Proof.
+Admitted.
+Lemma presheaf_disp_bicat_laws : disp_bicat_laws _ presheaf_disp_bicat_data.
+Proof.
+  repeat split; intro.
+  - intros.
+    set(T:= vcomp2_disp ∁ (id2_disp ∁ ff) ηη).
+    cbn in T.
+    set (T':= @nat_trans_eq_eq (op_cat a) Set _ _ _ _ T). _ _ _ _ T _ ).
