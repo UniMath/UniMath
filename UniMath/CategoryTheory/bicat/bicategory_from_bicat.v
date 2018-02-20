@@ -62,7 +62,7 @@ Proof.
   unfold precategory_binproduct_mor, hom_ob_mor. simpl.
   intros (x1, (x2, x3)). simpl.
   unfold bicate_lassociator_fun. simpl.
-  apply hcomp1_lassoc.
+  apply hcomp_lassoc.
 Defined.
 
 Definition bicate_lassociator (a b c d : bicate_id_comp) : associator_trans_type a b c d.
@@ -98,14 +98,14 @@ Proof.
 Defined.
 
 Lemma triangle_identity {a b c : C} (f : C ⟦ a, b ⟧) (g : C ⟦ b, c ⟧)
-  : hcomp1 (id2 f) (lunitor g) =
-    lassociator f (identity b) g • hcomp1 (runitor f) (id2 g).
+  : hcomp (id2 f) (lunitor g) =
+    lassociator f (identity b) g • hcomp (runitor f) (id2 g).
 Proof.
-    unfold hcomp1 at 2.
+    unfold hcomp at 2.
     rewrite vassocr.
     rewrite runitor_rwhisker.
-    rewrite hcomp1_hcomp2.
-    unfold hcomp2.
+    rewrite hcomp_hcomp'.
+    unfold hcomp'.
     apply maponpaths.
     rewrite lwhisker_id2.
     apply id2_rwhisker.
@@ -117,14 +117,14 @@ Lemma pentagon_identity {a b c d e : C}
       (g : C ⟦ c, d ⟧)
       (f : C ⟦ d, e ⟧)
   : lassociator k h (g · f) • lassociator (k · h) g f =
-    (hcomp1 (id2 k) (lassociator h g f) • lassociator k (h · g) f) •
-    hcomp1 (lassociator k h g) (id2 f).
+    (hcomp (id2 k) (lassociator h g f) • lassociator k (h · g) f) •
+    hcomp (lassociator k h g) (id2 f).
 Proof.
   rewrite <- lassociator_lassociator.
-  unfold hcomp1 at 2.
+  unfold hcomp at 2.
   rewrite lwhisker_id2. rewrite id2_right.
   apply maponpaths_2. apply maponpaths_2.
-  unfold hcomp1. rewrite id2_rwhisker.
+  unfold hcomp. rewrite id2_rwhisker.
   apply pathsinv0. apply id2_left.
 Defined.
 

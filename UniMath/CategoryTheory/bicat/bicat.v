@@ -4,25 +4,14 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
-(* Needed?
-Require Import UniMath.CategoryTheory.HorizontalComposition.
-Require Import UniMath.CategoryTheory.equivalences.
- *)
 
 Open Scope cat.
 
+
+(** * Definition of bicategory *)
+
 Definition bicat_cell_struct (C : precategory_ob_mor) : UU :=
   ∏ (a b: C), C⟦a, b⟧ → C⟦a, b⟧ → UU.
-
-(*
-Definition bicat_ob_mor_cells : UU := ∑ (C : precategory_ob_mor), bicat_cell_struct C.
-
-Coercion precat_ob_mor_from_bicat_ob_mor_cells (T : bicat_ob_mor_cells)
-  : precategory_ob_mor := pr1 T.
-
-Definition bicat_cells (C : bicat_ob_mor_cells) {a b : C} (f g : C⟦a, b⟧) : UU :=
-  pr2 C a b f g.
- *)
 
 Definition bicat_1_id_comp_cells : UU := ∑ (C : precategory_data), bicat_cell_struct C.
 Coercion precat_data_from_bicat_1_id_comp_cells (C : bicat_1_id_comp_cells)
@@ -32,22 +21,8 @@ Coercion precat_data_from_bicat_1_id_comp_cells (C : bicat_1_id_comp_cells)
 Definition bicat_cells (C : bicat_1_id_comp_cells) {a b : C} (f g : C⟦a, b⟧) : UU :=
   pr2 C a b f g.
 
-
 Notation "f '==>' g" := (bicat_cells _ f g) (at level 60).
 Notation "f '<==' g" := (bicat_cells _ g f) (at level 60, only parsing).
-(*
-Definition bicat_cells_1_id_comp : UU := ∑ C : bicat_ob_mor_cells, precategory_id_comp C.
-
-Coercion precat_data_from_bicat_cells_1_id_comp (C : bicat_cells_1_id_comp) : precategory_data.
-Proof.
-  exists (pr1 C).
-  exact (pr2 C).
-Defined.
-
-Check (fun (C : bicat_cells_1_id_comp) (a b c : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) => f · g).
-*)
-
-
 
 Definition bicat_2_id_comp_struct (C : bicat_1_id_comp_cells) : UU
   :=
@@ -86,12 +61,6 @@ Definition bicat_2_id_comp_struct (C : bicat_1_id_comp_cells) : UU
      f1 ==> f2 → f1 · g ==> f2 · g).
 
 
-
-
-(* Horizontal composition, to be derived from whiskering
-    ( ∏ (a b c : C) (f1 f2 : C⟦a, b⟧) (g1 g2 : C⟦b, c⟧),
-           f1 ==> f2 -> g1 ==> g2 -> f1 · g1 ==> f2 · g2).
-*)
 
 Definition bicat_data : UU := ∑ C, bicat_2_id_comp_struct C.
 
@@ -146,7 +115,7 @@ Notation "x • y" := (vcomp2 x y) (at level 60).
 Notation "f ◃ x" := (lwhisker f x) (at level 60). (* \tw *)
 Notation "y ▹ g" := (rwhisker g y) (at level 60). (* \tw nr 2 *)
 
-Definition hcomp1 {C : bicat_data} {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
+Definition hcomp {C : bicat_data} {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
   : f1 ==> f2 -> g1 ==> g2 -> f1 · g1 ==> f2 · g2.
 Proof.
   intros x y.
@@ -155,7 +124,7 @@ Proof.
   exact (xg1 • f2y).
 Defined.
 
-Definition hcomp2 {C : bicat_data} {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
+Definition hcomp' {C : bicat_data} {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
   : f1 ==> f2 -> g1 ==> g2 -> f1 · g1 ==> f2 · g2.
 Proof.
   intros x y.
@@ -164,9 +133,8 @@ Proof.
   exact (f1y • xg2).
 Defined.
 
-(*
-Notation "x ⋆ y" := (hcomp2 x y) (at level 50).
- *)
+Notation "x ⋆ y" := (hcomp x y) (at level 50).
+
 
 Definition bicat_laws (C : bicat_data) : UU
   :=  (* 1a id2_left *)
@@ -386,13 +354,6 @@ Definition lassociator_lassociator
 
   := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))))))))))) _ _ _ _ _ f g h i.
 
-(** TODO: there is an analog to law nr 8 for right associator.
-          can it be derived from 8 plus l being inverse to r associator?
-
- (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h i : c --> d) (x : h ==> i),
-         (f · g) ◃ x • rassociator _ _ _ = rassociator _ _ _ • (f ◃ (g ◃ x))
-
-*)
 
 End bicat_law_projections.
 
@@ -404,22 +365,20 @@ Section Derived_laws.
 
 Context {C : bicat}.
 
-Lemma hcomp1_hcomp2 {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
+Lemma hcomp_hcomp' {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
       (η : f1 ==> f2) (φ : g1 ==> g2)
-  : hcomp1 η φ = hcomp2 η φ.
+  : hcomp η φ = hcomp' η φ.
 Proof.
-  unfold hcomp1.
-  unfold hcomp2.
   apply vcomp_whisker.
 Defined.
 
-Lemma hcomp1_lassoc {a b c d : C}
+Lemma hcomp_lassoc {a b c d : C}
       {f1 g1 : C ⟦ a, b ⟧} {f2 g2 : C ⟦ b, c ⟧} {f3 g3 : C ⟦ c, d ⟧}
       (x1 : f1 ==> g1) (x2 : f2 ==> g2) (x3 : f3 ==> g3)
-  :  hcomp1 x1 (hcomp1 x2 x3) • lassociator g1 g2 g3 =
-     lassociator f1 f2 f3 • hcomp1 (hcomp1 x1 x2) x3.
+  :  hcomp x1 (hcomp x2 x3) • lassociator g1 g2 g3 =
+     lassociator f1 f2 f3 • hcomp (hcomp x1 x2) x3.
 Proof.
-  unfold hcomp1.
+  unfold hcomp.
   rewrite <- lwhisker_vcomp.
   repeat rewrite <- vassocr.
   rewrite lwhisker_lwhisker.
@@ -460,27 +419,29 @@ Proof.
   apply id2_left.
 Defined.
 
-Lemma hcomp1_rassoc {a b c d : C}
+Lemma hcomp_rassoc {a b c d : C}
       (f1 g1 : C ⟦ a, b ⟧) (f2 g2 : C ⟦ b, c ⟧) (f3 g3 : C ⟦ c, d ⟧)
       (x1 : f1 ==> g1) (x2 : f2 ==> g2) (x3 : f3 ==> g3)
-  : hcomp1 (hcomp1 x1 x2) x3 • rassociator g1 g2 g3 =
-    rassociator f1 f2 f3 • hcomp1 x1 (hcomp1 x2 x3).
+  : hcomp (hcomp x1 x2) x3 • rassociator g1 g2 g3 =
+    rassociator f1 f2 f3 • hcomp x1 (hcomp x2 x3).
 Proof.
   apply lassociator_to_rassociator_post.
   apply pathsinv0.
   repeat rewrite <- vassocr.
   apply lassociator_to_rassociator_pre.
-  apply hcomp1_lassoc.
+  apply hcomp_lassoc.
 Defined.
 
-Lemma hcomp1_identity {a b c : C} (f1 : C ⟦ a, b ⟧) (f2 : C ⟦ b, c ⟧)
-  : hcomp1 (id2 f1) (id2 f2) = id2 (f1 · f2).
+Lemma hcomp_identity {a b c : C} (f1 : C ⟦ a, b ⟧) (f2 : C ⟦ b, c ⟧)
+  : hcomp (id2 f1) (id2 f2) = id2 (f1 · f2).
 Proof.
-  unfold hcomp1.
+  unfold hcomp.
   rewrite id2_rwhisker.
   rewrite id2_left.
   apply lwhisker_id2.
 Defined.
+
+(** * Interchange law *)
 
 Lemma hcomp_vcomp {a b c : C}
       (f1 g1 h1 : C ⟦ a, b ⟧)
@@ -489,9 +450,9 @@ Lemma hcomp_vcomp {a b c : C}
       (x2 : f2 ==> g2)
       (y1 : g1 ==> h1)
       (y2 : g2 ==> h2)
-  : hcomp1 (x1 • y1) (x2 • y2) = hcomp1 x1 x2 • hcomp1 y1 y2.
+  : hcomp (x1 • y1) (x2 • y2) = hcomp x1 x2 • hcomp y1 y2.
 Proof.
-  unfold hcomp1 at 2 3.
+  unfold hcomp at 2 3.
   rewrite vassocr.
   rewrite vcomp_whisker.
   transitivity (((f1 ◃ x2) • ((x1 ▹ g2) • (y1 ▹ g2))) • (h1 ◃ y2)).
@@ -500,7 +461,7 @@ Proof.
   rewrite <- vcomp_whisker.
   rewrite <- vassocr.
   rewrite lwhisker_vcomp.
-  unfold hcomp1.
+  unfold hcomp.
   reflexivity.
 Defined.
 
@@ -554,13 +515,13 @@ Proof.
   exists (λ p : (a-->b) × (b-->c), pr1 p · pr2 p).
   unfold hom_ob_mor. simpl. intros (f1, f2) (g1, g2).
   unfold precategory_binproduct_mor. simpl.
-  intros (x, y). apply hcomp1; assumption.
+  intros (x, y). apply hcomp; assumption.
 Defined.
 
 Lemma is_functor_hcomp : is_functor hcomp_functor_data.
 Proof.
   split; red; simpl.
-  - intros (f1, f2). simpl. apply hcomp1_identity.
+  - intros (f1, f2). simpl. apply hcomp_identity.
   - intros (f1, f2) (g1, g2) (h1, h2).
     unfold precategory_binproduct_mor. simpl.
     intros (x1, x2) (y1, y2). cbn. apply hcomp_vcomp.
@@ -951,7 +912,7 @@ Lemma lunitor_natural (a b : C)
       (functor_identity (hom a b))
       lunitor.
 Proof.
-  red. cbn. intros f g x. unfold hcomp1.
+  red. cbn. intros f g x. unfold hcomp.
   rewrite <- vassocr. rewrite vcomp_lunitor.
   rewrite vassocr. apply maponpaths_2.
   rewrite id2_rwhisker. apply id2_left.
@@ -980,7 +941,7 @@ Lemma runitor_natural (a b : C)
       runitor.
 Proof.
   red. cbn. intros f g x.
-  rewrite hcomp1_hcomp2. unfold hcomp2.
+  rewrite hcomp_hcomp'. unfold hcomp'.
   rewrite <- vassocr.
   rewrite vcomp_runitor.
   rewrite vassocr. apply maponpaths_2.
@@ -1020,7 +981,7 @@ Proof.
   unfold precategory_binproduct_mor, hom_ob_mor. simpl.
   intros (x1, (x2, x3)). simpl.
   unfold lassociator_fun. simpl.
-  apply hcomp1_lassoc.
+  apply hcomp_lassoc.
 Defined.
 
 Definition lassociator_transf (a b c d : C)
@@ -1053,7 +1014,7 @@ Proof.
   unfold precategory_binproduct_mor, hom_ob_mor. simpl.
   intros (x1, (x2, x3)). simpl.
   unfold rassociator_fun. simpl.
-  apply hcomp1_rassoc.
+  apply hcomp_rassoc.
 Defined.
 
 Definition rassociator_transf (a b c d : C)
@@ -1067,4 +1028,3 @@ Proof.
 Defined.
 
 End Associators_Unitors_Natural.
-
