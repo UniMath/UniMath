@@ -121,21 +121,11 @@ End negProp_to_hProp.
 (* convenient corollaries of some theorems that take separate isaprop
    arguments: *)
 
-Section subtypeInjectivity_prop.
-
-  Universe i.
-  (* Constraint uu0 < i.           (* without this, Coq 8.7 makes uu0 = i; it's a bug *) *)
-
-  Corollary subtypeInjectivity_prop@{} {A : Type@{i}} (B : A -> hProp) :
-    ∏ (x y : total2 B), (x = y) ≃ (pr1 x = pr1@{i} y).
-  Proof.
-    intros. apply subtypeInjectivity. intro. use propproperty.
-  Defined.
-
-  Context (X:Type@{uu1}).
-  Check (@subtypeInjectivity_prop X). (* force an error if i = uu0 *)
-
-End subtypeInjectivity_prop.
+Corollary subtypeInjectivity_prop@{i} {A : Type@{i}} (B : A -> hProp) :
+  ∏ (x y : total2@{i} B), (x = y) ≃ (pr1 x = pr1 y).
+Proof.
+  intros. apply subtypeInjectivity. intro. use propproperty.
+Defined.
 
 Corollary subtypeEquality_prop {A : UU} {B : A -> hProp}
    {s s' : total2 (λ x, B x)} : pr1 s = pr1 s' -> s = s'.

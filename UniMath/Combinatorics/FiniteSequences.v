@@ -117,8 +117,8 @@ Proof.
   * intros.
     induction (r i) as [ p [ q e ]].
     simple refine (_ @ e @ _).
-    - now apply maponpaths, isinjstntonat.
-    - now apply maponpaths, isinjstntonat.
+    - apply maponpaths. use isinjstntonat. reflexivity.
+    - apply maponpaths. use isinjstntonat. reflexivity.
 Defined.
 
 Local Definition empty_fun {X} : stn 0 -> X.
@@ -144,7 +144,7 @@ Proof.
   rewrite replace_dni_last.
   unfold append_fun; simpl.
   induction (natlehchoice4 i n (natlthtolths i n b)) as [p|p].
-  - simpl. apply maponpaths. apply isinjstntonat; simpl. reflexivity.
+  - simpl. apply maponpaths. use isinjstntonat. reflexivity.
   - simpl. destruct p. induction (isirreflnatlth i b).
 Defined.
 
@@ -289,14 +289,14 @@ Proof.
   - unfold funcomp; simpl.
     unfold append_fun. simpl.
     induction (natlehchoice4 i n b) as [q|q].
-    + simpl. apply maponpaths. apply isinjstntonat; simpl. reflexivity.
+    + simpl. apply maponpaths. use isinjstntonat. reflexivity.
     + induction q. contradicts p (isirreflnatlth i).
   - induction p.
     unfold append_fun; simpl.
     induction (natlehchoice4 i i b) as [r|r].
     * simpl. unfold funcomp; simpl. apply maponpaths.
-      apply isinjstntonat; simpl. reflexivity.
-    * simpl. apply maponpaths. apply isinjstntonat; simpl. reflexivity.
+      use isinjstntonat. reflexivity.
+    * simpl. apply maponpaths. use isinjstntonat; simpl. reflexivity.
 Defined.
 
 Definition drop_and_append {X n} (x : stn (S n) -> X) :
@@ -351,7 +351,7 @@ Proof.
   apply funextfun; intro i. clear e. induction i as [i b].
   unfold funcomp, dni_lastelement; simpl.
   induction (natlehchoice4 i n (natlthtolths i n b)) as [d|d].
-  { simpl. apply maponpaths. now apply isinjstntonat. }
+  { simpl. apply maponpaths. now use isinjstntonat. }
   simpl. induction d; contradicts b (isirreflnatlth i).
 Defined.
 
@@ -511,7 +511,7 @@ Proof.
     induction (natlthorgeh i (length x + length y)) as [H | H].
     + induction (natlthorgeh (stnpair (length x + length y) i H) (length x)) as [H1 | H1].
       * induction (natlthorgeh i (length x)) as [H2 | H2].
-        -- apply maponpaths. apply isinjstntonat. apply idpath.
+        -- apply maponpaths. use isinjstntonat. apply idpath.
         -- apply fromempty. exact (natlthtonegnatgeh i (length x) H1 H2).
       * induction (natchoice0 (length y)) as [H2 | H2].
         -- apply fromempty. induction H2. induction (! (natplusr0 (length x))).
@@ -525,7 +525,7 @@ Proof.
                  use (natlehlthtrans (length y) (length y + length z) (length y) _ H2).
                  apply natlehnplusnm.
               ** cbn. induction (natlthorgeh (i - length x) (length y)) as [H5 | H5].
-                 --- apply maponpaths. apply isinjstntonat. apply idpath.
+                 --- apply maponpaths. use isinjstntonat. apply idpath.
                  --- apply fromempty.
                      use (natlthtonegnatgeh (i - (length x)) (length y)).
                      +++ set (tmp := natlthandminusl i (length x + length y) (length x) H
@@ -551,7 +551,7 @@ Proof.
                  rewrite minusplusnmm in H4.
                  --- rewrite natpluscomm in H4. exact H4.
                  --- exact H2.
-              ** apply maponpaths. apply isinjstntonat. cbn. apply (! (natminusminus _ _ _)).
+              ** apply maponpaths. use isinjstntonat. cbn. apply (! (natminusminus _ _ _)).
 Qed.
 
 (** Reverse *)
@@ -567,7 +567,7 @@ Proof.
   unfold reverse, dualelement, coprod_rect. cbn.
   induction (natchoice0 n) as [H | H].
   + apply fromempty. rewrite <- H in i. now apply negstn0.
-  + cbn. apply maponpaths. apply isinjstntonat. apply minusminusmmn. apply natgthtogehm1. apply stnlt.
+  + cbn. apply maponpaths. use isinjstntonat. apply minusminusmmn. apply natgthtogehm1. apply stnlt.
 Qed.
 
 Lemma reverse_index {X : UU} (x : Sequence X) (i : stn (length x)) :
@@ -576,8 +576,8 @@ Proof.
   intros X x i. cbn. unfold dualelement, coprod_rect.
   set (e := natgthtogehm1 (length x) i (stnlt i)).
   induction (natchoice0 (length x)) as [H' | H'].
-  - apply maponpaths. apply isinjstntonat. cbn. apply (minusminusmmn _ _ e).
-  - apply maponpaths. apply isinjstntonat. cbn. apply (minusminusmmn _ _ e).
+  - apply maponpaths. use isinjstntonat. cbn. apply (minusminusmmn _ _ e).
+  - apply maponpaths. use isinjstntonat. cbn. apply (minusminusmmn _ _ e).
 Qed.
 
 Lemma reverse_index' {X : UU} (x : Sequence X) (i : stn (length x)) :
@@ -585,8 +585,8 @@ Lemma reverse_index' {X : UU} (x : Sequence X) (i : stn (length x)) :
 Proof.
   intros X x i. cbn. unfold dualelement, coprod_rect.
   induction (natchoice0 (length x)) as [H' | H'].
-  - apply maponpaths. apply isinjstntonat. cbn. apply idpath.
-  - apply maponpaths. apply isinjstntonat. cbn. apply idpath.
+  - apply maponpaths. use isinjstntonat. cbn. apply idpath.
+  - apply maponpaths. use isinjstntonat. cbn. apply idpath.
 Qed.
 
 (* End of the file *)

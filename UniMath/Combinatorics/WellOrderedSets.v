@@ -118,7 +118,7 @@ Proof.
     apply hinhpr.
     exists B.
     split.
-    + apply (BSi x s Bx Ss). now apply (h1'' le).
+    + use (BSi x s Bx Ss). now apply (h1'' le).
     + exact (BS,,BT,,BSi,,BTi,,BST). }
   split.
   { intros x t M Tt le.
@@ -127,7 +127,7 @@ Proof.
     apply hinhpr.
     exists B.
     split.
-    + apply (BTi x t Bx Tt). now apply (h1'' le).
+    + use (BTi x t Bx Tt). now apply (h1'' le).
     + exact (BS,,BT,,BSi,,BTi,,BST). }
   intros x y.
   split.
@@ -135,7 +135,7 @@ Proof.
     apply (squash_to_hProp xm); intros [B [Bx [BS [BT [BSi [BTi BST]]]]]].
     apply (squash_to_hProp ym); intros [C [Cy [CS [CT [CSi [CTi CST]]]]]].
     assert (Cx : C x).
-    { apply (CSi y x Cy (BS x Bx)). now apply (h1'' le). }
+    { use (CSi y x Cy (BS x Bx)). now apply (h1'' le). }
     assert (Q := pr1 (CST (x,,Cx) (y,,Cy))); simpl in Q.
     assert (E : subtype_inc CS (x,, Cx) ≤ subtype_inc CS (y,, Cy)).
     { now apply (h1'' le). }
@@ -144,7 +144,7 @@ Proof.
     apply (squash_to_hProp xm); intros [B [Bx [BS [BT [BSi [BTi BST]]]]]].
     apply (squash_to_hProp ym); intros [C [Cy [CS [CT [CSi [CTi CST]]]]]].
     assert (Cx : C x).
-    { apply (CTi y x Cy (BT x Bx)). now apply (h1'' le). }
+    { use (CTi y x Cy (BT x Bx)). now apply (h1'' le). }
     assert (Q := pr2 (CST (x,,Cx) (y,,Cy))); simpl in Q.
     assert (E : subtype_inc CT (x,, Cx) ≤ subtype_inc CT (y,, Cy)).
     { now apply (h1'' le). }
@@ -158,7 +158,7 @@ Proof.
   { exact (pr2 le s s'). }
   { intro l. apply (squash_to_hProp (TOtot S s s')). intros [c|c].
     - exact c.
-    - apply (TOeq_to_refl S s s'). assert (k := pr2 le _ _ c); clear c.
+    - use (TOeq_to_refl S s s'). assert (k := pr2 le _ _ c); clear c.
       assert (k' := TOanti T _ _ l k); clear k l.
       apply subtypeEquality_prop. exact (maponpaths pr1 k'). }
 Defined.
@@ -502,7 +502,7 @@ Proof.
               { split.
                 { intros s s' le. exact le. }
                 { intros s t Ss St le. exact St. } } } }
-          { simpl. unfold WOSrel. simpl. intros [[a [b _]] [d [e _]]].
+          { intros [[a [b _]] [d [e _]]].
             assert (triv : ∏ (f:∏ x : X, S x → S x) (x:carrier_set S), subtype_inc f x = x).
             { intros f s. apply subtypeEquality_prop. reflexivity. }
             apply funextfun; intros s. apply funextfun; intros t.
@@ -891,7 +891,7 @@ Proof.
     assert (E : subtype_inc (subtype_union_containedIn S j) t' = t).
     { now apply subtypeEquality_prop. }
     rewrite <- E. unfold t0'.
-    apply (pr2 (chain_union_tosub_le chain j) t0 t'). apply (t0min t').
+    use (pr2 (chain_union_tosub_le chain j) t0 t'). use (t0min t').
     unfold T'. rewrite E. exact tinT.
 Defined.
 
@@ -925,7 +925,7 @@ Definition upto' {X:hSet} {C:WOSubset X} (c:C) : proper_subtypes_set X.
 Proof.
   exists (upto c). apply hinhpr. exists (pr1 c). intro n.
   simpl in n. induction n as [n o]. apply o; clear o.
-  apply (TOeq_to_refl C _ _). now apply subtypeEquality_prop.
+  use (TOeq_to_refl C _ _). now apply subtypeEquality_prop.
 Defined.
 
 (** ** Choice functions *)
@@ -1064,7 +1064,7 @@ Proof.
       split.
       { intros w' c' W'w' Cc' le.
         apply (squash_to_hProp W'w'); intros B. induction B as [Ww'|e].
-        - apply hinhpr, ii1. apply (WCi w' c' Ww' Cc'). now apply (h1'' le).
+        - apply hinhpr, ii1. use (WCi w' c' Ww' Cc'). now apply (h1'' le).
         - induction e.
           induction (lem (pr1 c = c')) as [e|ne].
           + induction e. exact W'c.
@@ -1077,7 +1077,7 @@ Proof.
       split.
       { intros w' d' W'w' Dd' le.
         apply (squash_to_hProp W'w'); intros B. induction B as [Ww'|e].
-        - apply hinhpr, ii1. apply (WDi w' d' Ww' Dd'). now apply (h1'' le).
+        - apply hinhpr, ii1. use (WDi w' d' Ww' Dd'). now apply (h1'' le).
         - induction e.
           induction (lem (pr1 d = d')) as [e|ne].
           + induction e. exact W'd.
@@ -1092,11 +1092,6 @@ Proof.
         apply (squash_to_hProp W'v); intros [Wv|Ev].
         - apply (squash_to_hProp W'w); intros [Ww|Ew].
           + assert (Q := WCD (v,,Wv) (w,,Ww)).
-            change (hProptoType (
-                        (subtype_inc WC (v,, Wv) ≤ subtype_inc WC (w,, Ww))
-                          ⇔
-                          (subtype_inc WD (v,, Wv) ≤ subtype_inc WD (w,, Ww))
-                      )%tosubset) in Q.
             assert (e : subtype_inc W'C (v,, W'v) = subtype_inc WC (v,, Wv)).
             { now apply subtypeEquality_prop. }
             induction e.
