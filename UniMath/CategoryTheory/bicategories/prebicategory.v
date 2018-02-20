@@ -107,8 +107,8 @@ Defined.
 Notation "alpha  ';hi;'  beta" := (compose2h_iso alpha beta) (at level 50) : bicategories.
 
 Definition associator_trans_type {C : prebicategory_id_comp} (a b c d : C) : UU
-  := pair_functor (functor_identity (a -1-> b))
-                  (compose_functor b c d) ∙ compose_functor a b d
+  := pair_functor (functor_identity (a -1-> b)) (compose_functor b c d) ∙
+     compose_functor a b d
      ⟹
      precategory_binproduct_assoc (a -1-> b) (b -1-> c) (c -1-> d) ∙
      (pair_functor (compose_functor a b c) (functor_identity (c -1-> d)) ∙
@@ -116,7 +116,7 @@ Definition associator_trans_type {C : prebicategory_id_comp} (a b c d : C) : UU
 
 Definition left_unitor_trans_type {C : prebicategory_id_comp} (a b : C) : UU
   := bindelta_pair_functor
-       (unit_functor (a -1-> b) ∙ constant_functor unit_precategory (a -1-> a) (identity1 a))
+       (constant_functor (a -1-> b) (a -1-> a) (identity1 a))
        (functor_identity (a -1-> b)) ∙ compose_functor a a b
      ⟹
      functor_identity (a -1-> b).
@@ -124,8 +124,7 @@ Definition left_unitor_trans_type {C : prebicategory_id_comp} (a b : C) : UU
 Definition right_unitor_trans_type {C : prebicategory_id_comp} (a b : C) : UU
   := bindelta_pair_functor
        (functor_identity (a -1-> b))
-       (unit_functor (a -1-> b) ∙
-                     constant_functor unit_precategory (b -1-> b) (identity1 b)) ∙
+       (constant_functor (a -1-> b) (b -1-> b) (identity1 b)) ∙
      compose_functor a b b
      ⟹
      functor_identity (a -1-> b).

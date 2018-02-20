@@ -1,6 +1,6 @@
 (* ========================================================================= *)
-(* Every prebicategory of UniMath.CategoryTheory.bicategories is a           *)
-(* prebicategory of UniMath.CategoryTheory.bicat.                            *)
+(* Every (pre)bicategory of UniMath.CategoryTheory.bicategories is a         *)
+(* (pre)bicategory of UniMath.CategoryTheory.bicat.                          *)
 (* ========================================================================= *)
 
 Require Import UniMath.Foundations.All.
