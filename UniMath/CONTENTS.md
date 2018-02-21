@@ -217,6 +217,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [bicat/bicategory_from_bicat.v](CategoryTheory/bicat/bicategory_from_bicat.v)
    - [bicat/bicat_from_bicategory.v](CategoryTheory/bicat/bicat_from_bicategory.v)
    - [bicat/presheaves.v](CategoryTheory/bicat/presheaves.v)
+   - [bicat/Constructions.v](CategoryTheory/bicat/Constructions.v)
    - [All.v](CategoryTheory/All.v)
 ## Package [Ktheory](Ktheory/README.md)
    - [Tactics.v](Ktheory/Tactics.v)

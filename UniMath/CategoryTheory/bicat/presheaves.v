@@ -13,40 +13,9 @@ Open Scope cat.
 Open Scope mor_disp_scope.
 
 
-(** * The pseudofunctor op on the bicategory of categories *)
-
-Definition op_cat (c : category) : category := (opp_precat c,, has_homsets_opp (homset_property c) ).
-
-Definition op_nt {c d : category} {f g : functor c d} (a : nat_trans f g)
-  : nat_trans (functor_opp g) (functor_opp f).
-Proof.
-  use tpair.
-  - exact (λ c, a c).
-  - abstract
-      (intros x y h;
-       apply (! (nat_trans_ax a _ _ _ ))).
-Defined.
-
-Local Notation "∁" := prebicat_of_cats.
-
-Definition op_functor_data : functor_data ∁ ∁.
-Proof.
-  use tpair.
-  - exact (λ c, op_cat c).
-  - intros c d f. exact (functor_opp f).
-Defined.
-
-Definition op_psfunctor_ob_mor_cell : psfunctor_ob_mor_cell ∁ ∁.
-Proof.
-  exists op_functor_data.
-  intros a b f g x.
-  cbn in *.
-  (* exact (op_nt x). *)
-  admit.
-Abort.
 
 Local Notation "'Set'" := hset_category.
-
+Local Notation "∁" := prebicat_of_cats.
 
 Definition presheaf_disp_cat_ob_mor : disp_cat_ob_mor ∁.
 Proof.
@@ -81,7 +50,7 @@ Proof.
   exact (x = @nat_trans_comp (op_cat c) Set _  _ _ y (post_whisker (op_nt a)  p')).
 Defined.
 
-Definition presheaf_disp_prebicat_ops : disp_prebicat_ops _ presheaf_disp_prebicat_1_id_comp_cells.
+Definition presheaf_disp_prebicat_ops : disp_prebicat_ops presheaf_disp_prebicat_1_id_comp_cells.
 Proof.
   repeat split; cbn.
   - intros. apply nat_trans_eq; try apply (homset_property Set); cbn.
@@ -127,11 +96,11 @@ Lemma nat_trans_eq_eq {c d : category} {f g : functor c d} {a b : nat_trans f g}
   : e = e'.
 Proof.
 Admitted.
-Lemma presheaf_disp_prebicat_laws : disp_prebicat_laws _ presheaf_disp_prebicat_data.
+Lemma presheaf_disp_prebicat_laws : disp_prebicat_laws presheaf_disp_prebicat_data.
 Proof.
   repeat split; intro.
   - intros.
-    set(T:= vcomp2_disp ∁ (id2_disp ∁ ff) ηη).
+    set(T:= vcomp2_disp (id2_disp ff) ηη).
     cbn in T.
     admit.
 Abort.

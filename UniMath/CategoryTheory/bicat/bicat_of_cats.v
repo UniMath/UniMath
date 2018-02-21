@@ -91,3 +91,36 @@ Proof.
 Defined.
 
 Definition prebicat_of_cats : prebicat := _ ,, cat_prebicat_laws.
+
+
+(** * The pseudofunctor op on the bicategory of categories *)
+
+Definition op_cat (c : category) : category := (opp_precat c,, has_homsets_opp (homset_property c) ).
+
+Definition op_nt {c d : category} {f g : functor c d} (a : nat_trans f g)
+  : nat_trans (functor_opp g) (functor_opp f).
+Proof.
+  use tpair.
+  - exact (λ c, a c).
+  - abstract
+      (intros x y h;
+       apply (! (nat_trans_ax a _ _ _ ))).
+Defined.
+
+Local Notation "∁" := prebicat_of_cats.
+
+Definition op_functor_data : functor_data ∁ ∁.
+Proof.
+  use tpair.
+  - exact (λ c, op_cat c).
+  - intros c d f. exact (functor_opp f).
+Defined.
+
+Definition op_psfunctor_ob_mor_cell : psfunctor_ob_mor_cell ∁ ∁.
+Proof.
+  exists op_functor_data.
+  intros a b f g x.
+  cbn in *.
+  (* exact (op_nt x). *)
+  admit.
+Abort.
