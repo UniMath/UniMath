@@ -779,16 +779,10 @@ Context {C : prebicat}.
 
 (** Left unitor *)
 
-Lemma lunitor_natural (a b : C)
-  : is_nat_trans
-      (bindelta_pair_functor
-         (constant_functor (hom a b) (hom a a) (identity a))
-         (functor_identity (hom a b)) ∙
-       hcomp_functor)
-      (functor_identity (hom a b))
-      lunitor.
+Lemma lunitor_natural (a b : C) (f g : C ⟦ a, b ⟧) (x : f ==> g)
+  : id2 (identity a) ⋆ x • lunitor g = lunitor f • x.
 Proof.
-  red. cbn. intros f g x. unfold hcomp.
+  unfold hcomp.
   rewrite <- vassocr. rewrite vcomp_lunitor.
   rewrite vassocr. apply maponpaths_2.
   rewrite id2_rwhisker. apply id2_left.
@@ -802,21 +796,16 @@ Definition lunitor_transf (a b : C)
     ⟹
     functor_identity (hom a b).
 Proof.
-  exists lunitor. apply lunitor_natural.
+  exists lunitor. red. apply lunitor_natural.
 Defined.
 
 (** Right unitor *)
 
 Lemma runitor_natural (a b : C)
-  : is_nat_trans
-      (bindelta_pair_functor
-         (functor_identity (hom a b))
-         (constant_functor (hom a b) (hom b b) (identity b)) ∙
-       hcomp_functor)
-      (functor_identity (hom a b))
-      runitor.
+      (f g : C ⟦ a, b ⟧)
+      (x : f ==> g)
+  : x ⋆ id2 (identity b) • runitor g = runitor f • x.
 Proof.
-  red. cbn. intros f g x.
   rewrite hcomp_hcomp'. unfold hcomp'.
   rewrite <- vassocr.
   rewrite vcomp_runitor.
@@ -832,10 +821,8 @@ Definition runitor_transf (a b : C)
     ⟹
     functor_identity (hom a b).
 Proof.
-  exists runitor. apply runitor_natural.
+  exists runitor. red. apply runitor_natural.
 Defined.
-
-Print runitor_transf.
 
 (** Left associator. *)
 
