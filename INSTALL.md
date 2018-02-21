@@ -15,7 +15,7 @@ do that is with "Homebrew", available from http://brew.sh/, with the following
 command:
 
 ```bash
-$ brew install objective-caml ocaml-num camlp5 camlp4 lablgtk bash
+$ brew install objective-caml ocaml-num camlp5 lablgtk bash
 ```
 
 If installing `lablgtk` fails, you can omit it, but you won't be able to build
@@ -37,12 +37,11 @@ available from http://brew.sh/, with the following command:
 
 ```bash
 $ brew install bash opam gtk+
-$ opam init --no-setup --compiler=4.02.3
-$ opam install --yes lablgtk camlp5 ocamlfind
+$ opam init --compiler=4.06.0
+$ opam install lablgtk camlp5 ocamlfind num
 ```
 
-(We choose version 4.02.3 of ocamlc above, because it can successfully compile
-Coq 8.6.1.)
+(Note: opam's camlp5 cannot be compiled with ocamlc 4.06.1 currently.)
 
 Now arrange for the programs installed by opam to be available to the currently
 running shell:

@@ -339,7 +339,7 @@ Definition weq_subtypes {X Y : UU} (w : X ≃ Y)
            (∏ x, S x <-> T (w x)) -> carrier S ≃ carrier T.
 Proof.
   intros ? ? ? ? ? eq. apply (weqbandf w). intro x. apply weqiff.
-  - apply eq.
+  - use eq.
   - apply propproperty.
   - apply propproperty.
 Defined.

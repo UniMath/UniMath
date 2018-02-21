@@ -591,6 +591,7 @@ Proof.
   intros x x'. apply isofhlevelcontr. apply (X0 x x').
 Defined.
 
+(** A proposition that is inhabited is contractible. *)
 Lemma iscontraprop1 {X : UU} (is : isaprop X) (x : X) : iscontr X.
 Proof.
   intros. unfold iscontr. split with x. intro t.

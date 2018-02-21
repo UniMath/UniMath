@@ -7,6 +7,7 @@ Require Export UniMath.Combinatorics.Graphs.
 Require Export UniMath.Combinatorics.Equivalence_Relations.
 Require Export UniMath.Combinatorics.OrderedSets.
 Require Export UniMath.Combinatorics.WellOrderedSets.
+Require Export UniMath.Combinatorics.ZFstructures.
 Require Export UniMath.Combinatorics.FiniteSequences.
 Require Export UniMath.Combinatorics.BoundedSearch.
 Require Export UniMath.Combinatorics.Tests.

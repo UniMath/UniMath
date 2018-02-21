@@ -17,6 +17,7 @@ env:
     - PACKAGES=SubstitutionSystems
     - PACKAGES=Tactics BUILD_COQIDE=yes BUILD_ALSO=TAGS
     - PACKAGES=Folds
+    - PACKAGES=Induction
     - FOUNDATIONS_CHANGE_ERROR=yes BUILD_ALSO="check-for-change-to-Foundations enforce-listing-of-proof-files"
 
 # The "docker run" command will pull if needed.

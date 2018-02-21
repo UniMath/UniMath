@@ -112,7 +112,7 @@ Module Discern.
   Proof. intros m. induction m as [|m IHm]. { reflexivity. } { simpl. apply IHm. } Defined.
 
   Lemma nat_discern_iscontr m : iscontr (nat_discern m m).
-  Proof. intros m. apply iscontr_if_inhab_prop.
+  Proof. intros m. apply iscontraprop1.
          { apply nat_discern_isaprop. }
          { induction m as [|m IHm]. { exact tt. } { simpl. exact IHm. } } Defined.
 

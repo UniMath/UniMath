@@ -80,33 +80,6 @@ Proof.
     induction (pr2 sec x). exact (pr2 (pr1 sec x)).
 Defined.
 
-(** ** The Axiom of Choice implies the Law of the Excluded Middle  *)
-
-(** This result is covered in the HoTT book, is due to Radu Diaconescu, "Axiom of choice and
-    complementation", Proceedings of the American Mathematical Society, 51 (1975) 176–178, and was
-    first mentioned on page 4 in F. W. Lawvere, "Toposes, algebraic geometry and logic (Conf.,
-    Dalhousie Univ., Halifax, N.S., 1971)", pp. 1–12, Lecture Notes in Math., Vol. 274, Springer,
-    Berlin, 1972.
-
-    The idea is to define an equivalence relation E on bool by setting [E true false := P], to use
-    AC to split the surjection f from bool to its quotient Y by E with a function g, and to observe
-    bool has decidable equality, and thus so does Y, because then Y is a retract of bool, to use
-    that to decide whether [f true = f false], and thus to decide P. *)
-
-Theorem AC_to_LEM : AxiomOfChoice -> LEM.
-Proof.
-  intros AC P.
-  set (f := setquotpr _ : bool -> setquotinset (eqrel_on_bool P)).
-  assert (q := pr1 AC_impl2 AC _ _ f (issurjsetquotpr _)).
-  apply (squash_to_prop q).
-  { apply isapropdec, propproperty. }
-  intro sec. induction sec as [g h].
-  (* reduce decidability of P to decidability of [f true = f false] *)
-  apply (logeq_dec (eqrel_on_bool_iff P)).
-  (* a retract of a type with decidable equality has decidable equality *)
-  apply (retract_dec f g h isdeceqbool).
-Defined.
-
 (** ** The Axiom of Choice implies a type receives a surjective map from a set *)
 
 Definition pi0 (X : UU) : hSet := setquotinset (pathseqrel X).
@@ -138,4 +111,52 @@ Proof.
   apply hinhpr.
   exists (g x).
   exact e.
+Defined.
+
+(** ** The Axiom of Choice implies the Law of the Excluded Middle  *)
+
+(** This result is covered in the HoTT book, is due to Radu Diaconescu, "Axiom of choice and
+    complementation", Proceedings of the American Mathematical Society, 51 (1975) 176–178, and was
+    first mentioned on page 4 in F. W. Lawvere, "Toposes, algebraic geometry and logic (Conf.,
+    Dalhousie Univ., Halifax, N.S., 1971)", pp. 1–12, Lecture Notes in Math., Vol. 274, Springer,
+    Berlin, 1972.
+
+    The idea is to define an equivalence relation E on bool by setting [E true false := P], to use
+    AC to split the surjection f from bool to its quotient Y by E with a function g, and to observe
+    bool has decidable equality, and thus so does Y, because then Y is a retract of bool, to use
+    that to decide whether [f true = f false], and thus to decide P. *)
+
+Theorem AC_to_LEM : AxiomOfChoice -> LEM.
+Proof.
+  intros AC P.
+  set (f := setquotpr _ : bool -> setquotinset (eqrel_on_bool P)).
+  assert (q := pr1 AC_impl2 AC _ _ f (issurjsetquotpr _)).
+  apply (squash_to_prop q).
+  { apply isapropdec, propproperty. }
+  intro sec. induction sec as [g h].
+  (* reduce decidability of P to decidability of [f true = f false] *)
+  apply (logeq_dec (eqrel_on_bool_iff P)).
+  (* a retract of a type with decidable equality has decidable equality *)
+  apply (retract_dec f g h isdeceqbool).
+Defined.
+
+(** A weaker Axiom of Choice *)
+
+(** Having proved above that the Axiom of Choice implies the Law of the Excluded Middle, we would
+    like to formulate a weaker axiom of choice that would be usable in formalization, but without
+    implying the Law of the Excluded Middle, thus making it a more acceptable omniscience principle.
+    Our idea here is to add the hypothesis that the base set have decidable equality.  Classically,
+    there is no difference between the two axioms.  Recall from [isasetifdeceq] that a type with
+    decidable equality is a set, so we don't include being a set explicitly in the statement of the
+    axiom. *)
+
+Definition AxiomOfDecidableChoice : hProp := ∀ (X:UU), isdeceq X ⇒ ischoicebase X.
+
+Theorem AC_iff_ADC_and_LEM : AxiomOfChoice ⇔ AxiomOfDecidableChoice ∧ LEM.
+Proof.
+  split.
+  - intros AC. split.
+    + intros X i. exact (AC (hSetpair X (isasetifdeceq X i))).
+    + exact (AC_to_LEM AC).
+  - intros [adc lem] X. refine (adc X _). intros x y. exact (lem (x = y)).
 Defined.
