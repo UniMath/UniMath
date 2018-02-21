@@ -1,15 +1,17 @@
 (** This file defines two category structures on well-ordered sets:
 
-1. This first where the morphisms are maps preserving ordering and initial segments ([wosetfuncat]).
+1. This first where the morphisms are maps that preserve the ordering and initial segments
+([wosetfuncat]).
 
 2. The second with arbitrary set theoretic functions as morphisms ([WOSET]).
 
 Both of these have initial ([Initial_wosetfuncat], [Initial_WOSET]) and terminal objects
 ([Terminal_wosetfuncat], [Terminal_WOSET]). The former doesn't seem to have binary products (see
 discussion below), but using Zermelo's well-ordering theorem (and hence the axiom of choice) I have
-proved that the latter merely has ([hasBinProducts_WOSET]). Because the category only merely has
-binary products I run into all kinds of problems when trying to prove that it merely has
-exponentials, see discussion at the end of the file.
+proved that the latter merely has binary products ([hasBinProducts_WOSET]). I believe that the
+proofs that WOSET has all limits and colimits carry over exactly like the proof for binary products,
+but because the category only merely has binary products I ran into all kinds of problems when
+trying to prove that it merely has exponentials, see discussion at the end of the file.
 
 Written by: Anders Mörtberg (Feb 2018)
 
@@ -180,10 +182,10 @@ Defined.
 
 (** Below follows an attempt to prove that this category has exponentials *)
 
-(* I first define a Weaker formulation of when a category has exponentials. This only requires the
+(* I first define a weaker formulation of when a category has exponentials. This only requires the
 binary products to merely exists. We could reformulate this condition in various ways, for instance
-by defining when the product with an element A merely exists or unfolding the definitions to state
-the property explicitly. I'm not sure which is the best. *)
+by defining when the product with an element a : C merely exists or unfolding the definitions to
+state the property explicitly. I'm not sure which is the best. *)
 (* Definition hasExponentials (C : precategory) : UU := *)
 (*   ∏ (a : C), ∃ (H : BinProducts C), is_exponentiable H a. *)
 
@@ -191,8 +193,8 @@ the property explicitly. I'm not sure which is the best. *)
 (* Definition exponential_functor_WOSET (AC : AxiomOfChoice) (A : WOSET) : ∥ functor WOSET WOSET ∥. *)
 (* Proof. *)
 (* The idea is to well-order the function space using Zermelo's well-ordering theorem, but I can't
-figure out how to write down the definition. It essientially boils down to some truncation juggling
-and various issues with the AC not computing and hence getting in the way. *)
+figure out how to write down the definition. It essentially boils down to some truncation juggling
+and various issues with AC not computing and hence getting in the way. *)
 
 (* Once I have figured out how to write the above definition I should be able to prove *)
 (* Lemma hasExponentials_WOSET (AC : AxiomOfChoice) : hasExponentials WOSET. *)
