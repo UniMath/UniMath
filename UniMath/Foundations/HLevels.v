@@ -184,6 +184,49 @@ Proof.
   set (H := isofhlevelweqb n
        (Id_p_weq_Id (λ X, hProppair (isofhlevel n X)
                                (isapropisofhlevel _ _)) X X' pX pX')).
+
+(*
+With sub/coq commit 2707021ad63dbfc729ff1024bbb3137bb96200a9 the line above works.
+That was the tip of SkySkimmer/univ-cumul on Feb 4.
+
+1 subgoal (ID 85)
+
+  n : nat
+  X : Type@{Top.209}
+  pX : isofhlevel@{Top.209} n X
+  X' : Type@{Top.209}
+  pX' : isofhlevel@{Top.209} n X'
+  H := isofhlevelweqb@{Top.199 Top.200 Top.201} n
+         (Id_p_weq_Id@{Top.202 Top.203 Top.204 Top.201 Top.206 Top.207}
+            (fun X : Type@{Top.202} =>
+             hProppair@{Top.209} (isofhlevel@{Top.209} n X)
+               (isapropisofhlevel@{Top.209} n X)) X X' pX pX')
+   : forall _ : isofhlevel@{Top.200} n (paths@{Top.207} X X'),
+     isofhlevel@{Top.199} n
+       (paths@{Top.206} {| pr1 := X; pr2 := pX |} {| pr1 := X'; pr2 := pX' |})
+  ============================
+  isofhlevel@{Top.196} n
+    (paths@{Top.196} {| pr1 := X; pr2 := pX |} {| pr1 := X'; pr2 := pX' |})
+*)
+
+(*
+
+with the latest SkySkimmer/univ-cumul on Feb 21 we get an error instead:
+
+Error:
+In environment
+n : nat
+X : Type@{Top.186}
+pX : isofhlevel@{Top.186} n X
+X' : Type@{Top.186}
+pX' : isofhlevel@{Top.186} n X'
+The term "pX" has type "isofhlevel@{Top.186} n X"
+while it is expected to have type
+ "hProptoType
+    (hProppair@{Top.198} (isofhlevel@{Top.198} n X)
+       (isapropisofhlevel@{Top.198} n X))".
+*)
+
   apply H.
   apply isofhlevelpathspace;
   assumption.

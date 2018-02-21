@@ -4,6 +4,7 @@ Require Export UniMath.Foundations.Init.
 Require Export UniMath.Foundations.Preamble.
 Require Export UniMath.Foundations.PartA.
 Require Export UniMath.Foundations.PartB.
+Require Export UniMath.Foundations.Resizing.
 Require Export UniMath.Foundations.UnivalenceAxiom.
 Require Export UniMath.Foundations.PartC.
 Require Export UniMath.Foundations.PartD.
