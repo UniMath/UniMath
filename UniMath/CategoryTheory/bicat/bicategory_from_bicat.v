@@ -98,8 +98,8 @@ Proof.
 Defined.
 
 Lemma triangle_identity {a b c : C} (f : C ⟦ a, b ⟧) (g : C ⟦ b, c ⟧)
-  : hcomp (id2 f) (lunitor g) =
-    lassociator f (identity b) g • hcomp (runitor f) (id2 g).
+  : id2 f ⋆ lunitor g =
+    lassociator f (identity b) g • (runitor f ⋆ id2 g).
 Proof.
     unfold hcomp at 2.
     rewrite vassocr.
@@ -117,8 +117,8 @@ Lemma pentagon_identity {a b c d e : C}
       (g : C ⟦ c, d ⟧)
       (f : C ⟦ d, e ⟧)
   : lassociator k h (g · f) • lassociator (k · h) g f =
-    (hcomp (id2 k) (lassociator h g f) • lassociator k (h · g) f) •
-    hcomp (lassociator k h g) (id2 f).
+    ((id2 k ⋆ lassociator h g f) • lassociator k (h · g) f) •
+    (lassociator k h g ⋆ id2 f).
 Proof.
   rewrite <- lassociator_lassociator.
   unfold hcomp at 2.
