@@ -357,6 +357,55 @@ Definition lassociator_lassociator
 End prebicat_law_projections.
 
 
+(** Equivalences *)
+
+Section equivalences.
+
+Context {C : prebicat_data}.
+
+Definition is_equivalence {a b : C} {f g : a --> b} (η : f ==> g)
+  : UU
+  := ∑ φ : g ==> f, η • φ = id2 _ × φ • η = id2 _ .
+
+Definition equivalence {a b : C} (f g : a --> b) : UU
+  := ∑ η : f ==> g, is_equivalence η.
+
+Coercion cell_from_equivalence {a b : C} {f g : a --> b} (η : equivalence f g) : f ==> g := pr1 η.
+
+Definition inv_cell {a b : C} {f g : a --> b} (η : equivalence f g)
+  : g ==> f
+  := pr1 (pr2 η).
+
+Definition equivalence_after_inv_cell {a b : C} {f g : a --> b} (η : equivalence f g)
+  : η • inv_cell η = id2 _
+  := pr1 (pr2 (pr2 η)).
+
+Definition inv_cell_after_equivalence {a b : C} {f g : a --> b} (η : equivalence f g)
+  : inv_cell η • η = id2 _
+  := pr2 (pr2 (pr2 η)).
+
+Definition inv_equivalence {a b : C} {f g : a --> b} (η : equivalence f g)
+  : equivalence g f
+  := (inv_cell η ,, cell_from_equivalence η ,, inv_cell_after_equivalence η ,, equivalence_after_inv_cell η ).
+
+
+(* requires cell types to be sets
+Lemma isaprop_isequivalence
+*)
+
+End equivalences.
+
+Definition id2_equivalence {C : prebicat} {a b : C} (f : a --> b) : equivalence f f.
+Proof.
+  repeat (use tpair).
+  - apply (id2 _ ).
+  - apply (id2 _ ).
+  - apply id2_left.
+  - apply id2_left.
+Defined.
+
+
+
 (* ----------------------------------------------------------------------------------- *)
 (** ** Derived laws *)
 
@@ -391,6 +440,67 @@ Proof.
   apply maponpaths.
   apply rwhisker_vcomp.
 Defined.
+
+Lemma cell_to_inv_cell_post {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
+      (z : f ==> h)
+      (H : is_equivalence y)
+  : x = z • inv_cell (y,,H) -> x • y = z.
+Proof.
+  intro H1.
+  etrans. apply maponpaths_2. apply H1.
+  etrans. apply (! vassocr _ _ _ ).
+  etrans. apply maponpaths. apply (inv_cell_after_equivalence (y,,H)).
+  apply id2_right.
+Qed.
+
+Lemma inv_cell_to_cell_post {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
+      (z : f ==> h)
+      (H : is_equivalence x)
+  : y = inv_cell (x,,H) • z -> x • y = z.
+Proof.
+  intro H1.
+  etrans. apply maponpaths. apply H1.
+  etrans. apply ( vassocr _ _ _ ).
+  etrans. apply maponpaths_2. apply (equivalence_after_inv_cell (x,,H)).
+  apply id2_left.
+Qed.
+
+Lemma is_equivalence_lunitor {a b : C} (f : C ⟦ a, b ⟧)
+  : is_equivalence (lunitor f).
+Proof.
+  exists (linvunitor f).
+  abstract (
+      apply ( (lunitor_linvunitor _ ) ,,
+              (linvunitor_lunitor _ ) )).
+Defined.
+
+Lemma is_equivalence_linvunitor {a b : C} (f : C ⟦ a, b ⟧)
+  : is_equivalence (linvunitor f).
+Proof.
+  exists (lunitor f).
+  abstract (
+      apply ( (linvunitor_lunitor _ ) ,,
+              (lunitor_linvunitor _ ) )).
+Defined.
+
+Lemma is_equivalence_runitor {a b : C} (f : C ⟦ a, b ⟧)
+  : is_equivalence (runitor f).
+Proof.
+  exists (rinvunitor f).
+  abstract (
+      apply ( (runitor_rinvunitor _ ) ,,
+              (rinvunitor_runitor _ ) )).
+Defined.
+
+Lemma is_equivalence_rinvunitor {a b : C} (f : C ⟦ a, b ⟧)
+  : is_equivalence (rinvunitor f).
+Proof.
+  exists (runitor f).
+  abstract (
+      apply ( (rinvunitor_runitor _ ) ,,
+              (runitor_rinvunitor _ ) )).
+Defined.
+
 
 Lemma lassociator_to_rassociator_post {a b c d : C}
       {f : C ⟦ a, b ⟧} {g : C ⟦ b, c ⟧} {h : C ⟦ c, d ⟧} {k : C ⟦ a, d ⟧}
@@ -462,6 +572,61 @@ Proof.
   rewrite lwhisker_vcomp.
   unfold hcomp.
   reflexivity.
+Defined.
+
+Lemma is_equivalence_lwhisker {a b c : C} (f : a --> b) {g1 g2 : b --> c}
+      (x : g1 ==> g2) : is_equivalence x -> is_equivalence (f ◃ x).
+Proof.
+  intro H.
+  set (xH := (x,,H) : equivalence _ _ ).
+  exists (f ◃ (inv_cell xH)).
+  split.
+  - abstract (
+        etrans; [ apply lwhisker_vcomp |];
+        etrans; [ apply maponpaths; apply (equivalence_after_inv_cell xH) |];
+        apply lwhisker_id2).
+  - abstract (
+        etrans; [ apply lwhisker_vcomp |];
+        etrans; [ apply maponpaths; apply (inv_cell_after_equivalence xH) |];
+        apply lwhisker_id2).
+Defined.
+
+Lemma is_equivalence_rwhisker {a b c : C} {f1 f2 : a --> b} (g : b --> c)
+      (x : f1 ==> f2) : is_equivalence x -> is_equivalence (x ▹ g).
+Proof.
+  intro H.
+  set (xH := (x,,H) : equivalence _ _ ).
+  exists ((inv_cell xH) ▹ g).
+  split.
+  - abstract (
+        etrans; [ apply rwhisker_vcomp |];
+        etrans; [ apply maponpaths; apply (equivalence_after_inv_cell xH) |];
+        apply id2_rwhisker).
+  - abstract (
+        etrans; [ apply rwhisker_vcomp |];
+        etrans; [ apply maponpaths; apply (inv_cell_after_equivalence xH) |];
+        apply id2_rwhisker).
+Defined.
+
+
+Definition is_equivalence_lassociator {a b c d : C}
+           (f1 : C ⟦ a, b ⟧) (f2 : C ⟦ b, c ⟧) (f3 : C ⟦ c, d ⟧)
+  : is_equivalence (lassociator f1 f2 f3).
+Proof.
+  exists (rassociator f1 f2 f3).
+  split.
+  - apply lassociator_rassociator.
+  - apply rassociator_lassociator.
+Defined.
+
+Definition is_equivalence_rassociator {a b c d : C}
+           (f1 : C ⟦ a, b ⟧) (f2 : C ⟦ b, c ⟧) (f3 : C ⟦ c, d ⟧)
+  : is_equivalence (rassociator f1 f2 f3).
+Proof.
+  exists (lassociator f1 f2 f3).
+  split.
+  - apply rassociator_lassociator.
+  - apply lassociator_rassociator.
 Defined.
 
 End Derived_laws.
@@ -548,52 +713,6 @@ Defined.
 End hcomp_functor.
 
 
-(** Equivalences *)
-
-Section equivalences.
-
-Context {C : prebicat_data}.
-
-Definition is_equivalence {a b : C} {f g : a --> b} (η : f ==> g)
-  : UU
-  := ∑ φ : g ==> f, η • φ = id2 _ × φ • η = id2 _ .
-
-Definition equivalence {a b : C} (f g : a --> b) : UU
-  := ∑ η : f ==> g, is_equivalence η.
-
-Coercion cell_from_equivalence {a b : C} {f g : a --> b} (η : equivalence f g) : f ==> g := pr1 η.
-
-Definition inv_cell {a b : C} {f g : a --> b} (η : equivalence f g)
-  : g ==> f
-  := pr1 (pr2 η).
-
-Definition equivalence_after_inv_cell {a b : C} {f g : a --> b} (η : equivalence f g)
-  : η • inv_cell η = id2 _
-  := pr1 (pr2 (pr2 η)).
-
-Definition inv_cell_after_equivalence {a b : C} {f g : a --> b} (η : equivalence f g)
-  : inv_cell η • η = id2 _
-  := pr2 (pr2 (pr2 η)).
-
-Definition inv_equivalence {a b : C} {f g : a --> b} (η : equivalence f g)
-  : equivalence g f
-  := (inv_cell η ,, cell_from_equivalence η ,, inv_cell_after_equivalence η ,, equivalence_after_inv_cell η ).
-
-
-(* requires cell types to be sets
-Lemma isaprop_isequivalence
-*)
-
-End equivalences.
-
-Definition id2_equivalence {C : prebicat} {a b : C} (f : a --> b) : equivalence f f.
-Proof.
-  repeat (use tpair).
-  - apply (id2 _ ).
-  - apply (id2 _ ).
-  - apply id2_left.
-  - apply id2_left.
-Defined.
 
 
 (** TODO:
