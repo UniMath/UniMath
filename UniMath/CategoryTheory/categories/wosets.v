@@ -1,3 +1,20 @@
+(** This file defines two category structures on well-ordered sets:
+
+1. This first where the morphisms are maps preserving ordering and initial segments ([wosetfuncat]).
+
+2. The second with arbitrary set theoretic functions as morphisms ([WOSET]).
+
+Both of these have initial ([Initial_wosetfuncat], [Initial_WOSET]) and terminal objects
+([Terminal_wosetfuncat], [Terminal_WOSET]). The former doesn't seem to have binary products (see
+discussion below), but using Zermelo's well-ordering theorem (and hence the axiom of choice) I have
+proved that the latter merely has ([hasBinProducts_WOSET]). Because the category only merely has
+binary products I run into all kinds of problems when trying to prove that it merely has
+exponentials, see discussion at the end of the file.
+
+Written by: Anders Mörtberg (Feb 2018)
+
+*)
+
 Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.Combinatorics.OrderedSets.
@@ -16,156 +33,6 @@ Require Import UniMath.CategoryTheory.exponentials.
 Local Open Scope cat.
 Local Open Scope woset.
 Local Open Scope functions.
-
-(* TODO: upstream *)
-Notation "x < y" := (WOlt x y) : woset.
-
-Lemma WO_isrefl (X : WellOrderedSet) : isrefl (WOrel X).
-Proof.
-exact (pr211 (WO_isTotalOrder X)).
-Defined.
-
-Lemma WO_istrans (X : WellOrderedSet) : istrans (WOrel X).
-Proof.
-exact (pr111 (WO_isTotalOrder X)).
-Defined.
-
-Lemma WO_istotal (X : WellOrderedSet) : istotal (WOrel X).
-Proof.
-exact (pr2 (WO_isTotalOrder X)).
-Defined.
-
-Lemma WO_isantisymm (X : WellOrderedSet) : isantisymm (WOrel X).
-Proof.
-exact (pr21 (WO_isTotalOrder X)).
-Defined.
-
-Lemma WOlt_istrans (X : WellOrderedSet) : istrans (@WOlt X).
-Proof.
-intros x y z H1 H2 H3; simpl in *.
-generalize (WO_istotal X y z).
-apply (@hinhuniv _ (_,,isapropempty)); intros [H|H]; simpl.
-- now apply H1, (WO_istrans X y z x H H3).
-- now apply H2.
-Qed.
-
-Lemma WOlt_isirrefl (X : WellOrderedSet) : isirrefl (@WOlt X).
-Proof.
-now intros x; simpl; intros H; apply H, WO_isrefl.
-Qed.
-
-(** Equivalent definition of the < relation *)
-Definition WOlt' (X : WellOrderedSet) (x y : X) : hProp.
-Proof.
-exists ((x ≤ y) × (x != y)).
-abstract (now apply isapropdirprod; [ apply propproperty | apply isapropneg ]).
-Defined.
-
-Lemma WOlt_to_WOlt' (X : WellOrderedSet) (hX : isdeceq X) (x y : X) : x < y → WOlt' X x y.
-Proof.
-intros H.
-generalize (WO_istotal X x y).
-apply hinhuniv; intros [Hle|Hle]; simpl.
-- induction (hX x y) as [Heq|Hneq].
-  + rewrite Heq in H.
-    induction (WOlt_isirrefl _ _ H).
-  + now split.
-- induction (H Hle).
-Qed.
-
-Lemma WOlt'_to_WOlt (X : WellOrderedSet) (x y : X) : WOlt' X x y → x < y.
-Proof.
-intros [H1 H2] H3.
-now apply H2, (WO_isantisymm X x y H1 H3).
-Qed.
-
-Lemma WOlt_trich (X : WellOrderedSet) (hX : isdeceq X) (x y : X) :
-  y < x ∨ x = y ∨ x < y.
-Proof.
-induction (hX x y) as [Heq|Hneq].
-- now apply hinhpr, inr, hinhpr, inl.
-- generalize (WO_istotal X x y).
-  apply hinhuniv; intros [Hle|Hle].
-  + now apply hinhpr, inr, hinhpr, inr, WOlt'_to_WOlt.
-  + apply hinhpr, inl, WOlt'_to_WOlt; split; trivial.
-    now intros H; apply Hneq.
-Qed.
-
-(** Functions of well-ordered sets that preserve the ordering and initial segments *)
-Definition iswofun {X Y : WellOrderedSet} (f : X → Y) : UU :=
-  (iscomprelrelfun (WOrel X) (WOrel Y) f) ×
-  (∏ (x : X) (y : Y), y < f x → ∃ (z : X), z < x × f z = y).
-
-Lemma isaprop_iswofun {X Y : WellOrderedSet} (f : X → Y) : isaprop (iswofun f).
-Proof.
-intros h; apply isapropdirprod; do 3 (apply impred_isaprop; intros).
-- now apply propproperty.
-- now apply isapropishinh.
-Qed.
-
-Definition wofun (X Y : WellOrderedSet) : UU := ∑ (f : X → Y), iswofun f.
-
-Definition pr1wofun (X Y : WellOrderedSet) : wofun X Y → (X → Y) := @pr1 _ _.
-
-Lemma wofun_eq {X Y : WellOrderedSet} {f g : wofun X Y} : pr1 f = pr1 g → f = g.
-Proof.
-intros Heq.
-apply subtypeEquality; trivial.
-now intros h; apply isaprop_iswofun.
-Qed.
-
-Lemma iswofun_idfun {X : WellOrderedSet} : iswofun (idfun X).
-Proof.
-split.
-- now intros x.
-- intros x y hxy.
-  now apply hinhpr; exists y.
-Qed.
-
-Lemma iswofun_funcomp {X Y Z : WellOrderedSet} (f : wofun X Y) (g : wofun Y Z) :
-  iswofun (pr1 g ∘ pr1 f).
-Proof.
-induction f as [f [h1f h2f]].
-induction g as [g [h1g h2g]].
-split.
-- intros x y hxy.
-  exact (h1g _ _ (h1f _ _ hxy)).
-- intros x z hf.
-  generalize (h2g (f x) z hf).
-  apply hinhuniv; intros [y [h1y h2y]].
-  generalize (h2f x y h1y).
-  apply hinhuniv; intros [x' [h1x' h2x']].
-  apply hinhpr; exists x'; cbn.
-  now rewrite h2x'.
-Qed.
-
-(** The empty set is well-ordered *)
-Definition empty_woset : WellOrderedSet.
-Proof.
-exists emptyHSET.
-use tpair.
-- intros [].
-- abstract (repeat split; try (now intros []);
-            now intros T t'; apply (squash_to_hProp t'); intros [[]]).
-Defined.
-
-(** The unit set is well-ordered *)
-Definition unit_woset : WellOrderedSet.
-Proof.
-exists unitHSET.
-use tpair.
-- intros x y.
-  exists (x = y).
-  abstract (apply isapropifcontr, isapropunit).
-- repeat split.
-  + now intros x y z [].
-  + now intros x.
-  + intros [] [] H H2.
-    now apply H2, inl.
-  + intros T t'; apply (squash_to_hProp t'); clear t'; intros [[] H].
-    apply hinhpr; exists tt.
-    now split; [|intros []].
-Defined.
 
 (** * The category of well-ordered sets with order preserving morphisms *)
 Section wosetfuncat.
@@ -194,17 +61,15 @@ Qed.
 Definition wosetfuncat : category :=
   (wosetfun_precategory,,has_homsets_wosetfun_precategory).
 
-(* TODO: We need the following missing lemma: *)
-(* Lemma isaset_WellOrderedSet : isaset WellOrderedSet. *)
-(* Admitted. *)
-
-(* Definition wo_setcategory : setcategory. *)
-(* Proof. *)
-(* exists wosetfun_precategory. *)
-(* split. *)
-(* - apply isaset_WellOrderedSet. *)
-(* - apply has_homsets_wosetfun_precategory. *)
-(* Defined. *)
+(** TODO: remove this assumption by proving it *)
+Definition wo_setcategory (isaset_WellOrderedSet : isaset WellOrderedSet) :
+  setcategory.
+Proof.
+exists wosetfun_precategory.
+split.
+- apply isaset_WellOrderedSet.
+- apply has_homsets_wosetfun_precategory.
+Defined.
 
 Lemma Initial_wosetfuncat : Initial wosetfuncat.
 Proof.
@@ -228,51 +93,46 @@ use mk_Terminal.
   - abstract (now intros f; apply wofun_eq, funextfun; intros x; induction (pr1 f x)).
 Defined.
 
-(** Can we prove further properties of wosetcat? It doesn't seem like it has binary products, at
+(** Can we prove any further properties of wosetcat? It doesn't seem like it has binary products, at
 least the lexicographic ordering does not work. Consider {0,1} × {2,3}, in it we have (0,3) < (1,2)
 but pr2 doesn't preserve the ordering, *)
 
 End wosetfuncat.
 
 (** * The category of well-ordered sets with arbitrary functions as morphisms *)
-Section wosetcat.
+Section WOSET.
 
-(* TODO: We need the following missing lemma: *)
-Lemma isaset_WellOrderedSet : isaset WellOrderedSet.
-Admitted.
+(** TODO: prove the following missing result *)
+Variable isaset_WellOrderedSet : isaset WellOrderedSet.
 
-Definition WOSET : hSet := (WellOrderedSet,,isaset_WellOrderedSet).
-
-Definition woset_precategory : precategory.
+Definition WOSET_precategory : precategory.
 Proof.
 use mk_precategory.
 - use tpair.
-  + exists WOSET.
+  + exists ((WellOrderedSet,,isaset_WellOrderedSet) : hSet).
     apply (λ X Y, pr11 X → pr11 Y).
   + split; simpl.
     * intros X; apply idfun.
-    * intros X Y Z f g; apply (funcomp f g).
+    * intros X Y Z f g; apply (g ∘ f).
 - abstract (now intros).
 Defined.
 
-Lemma has_homsets_wosetcat : has_homsets woset_precategory.
+Lemma has_homsets_WOSET : has_homsets WOSET_precategory.
 Proof.
 now intros X Y; apply hset_fun_space.
 Qed.
 
-Definition wosetcat : category :=
-  (woset_precategory,,has_homsets_wosetcat).
+Definition WOSET : category := (WOSET_precategory,,has_homsets_WOSET).
 
+Definition WOSET_setcategory : setcategory.
+Proof.
+exists WOSET.
+split.
+- apply setproperty.
+- apply has_homsets_WOSET.
+Defined.
 
-(* Definition wo_setcategory : setcategory. *)
-(* Proof. *)
-(* exists woset_precategory. *)
-(* split. *)
-(* - apply isaset_WellOrderedSet. *)
-(* - apply has_homsets_woset_precategory. *)
-(* Defined. *)
-
-Lemma Initial_wosetcat : Initial wosetcat.
+Lemma Initial_WOSET : Initial WOSET.
 Proof.
 use mk_Initial.
 - exact empty_woset.
@@ -282,7 +142,7 @@ use mk_Initial.
   + abstract (intro f; apply funextfun; intro e; induction e).
 Defined.
 
-Lemma Terminal_wosetcat : Terminal wosetcat.
+Lemma Terminal_WOSET : Terminal WOSET.
 Proof.
 use mk_Terminal.
 - exact unit_woset.
@@ -293,8 +153,8 @@ Defined.
 
 (** Direct proof that woset has binary products using Zermelo's well-ordering theorem. We could
 prove this using the lexicograpic ordering, but it seems like we need decidable equality for this to
-work which would not work for exponentials. *)
-Lemma hasBinProducts_wosetcat (AC : AxiomOfChoice) : hasBinProducts wosetcat.
+work which would not work very well when we construct exponentials. *)
+Lemma hasBinProducts_WOSET (AC : AxiomOfChoice) : hasBinProducts WOSET.
 Proof.
 intros A B.
 set (AB := BinProductObject _ (BinProductsHSET (pr1 A) (pr1 B)) : hSet).
@@ -309,62 +169,33 @@ use mk_BinProduct.
   apply (isBinProduct_BinProduct _ (BinProductsHSET _ _) (pr1 H)).
 Defined.
 
-Definition squash_BinProducts_wosetcat (AC : AxiomOfChoice) : ∥ BinProducts wosetcat ∥.
+(** Using the axiom of choice we can push the quantifiers into the truncation. Hopefully this will
+help with using this definition below for defining exponentials. However it might run into problems
+with AC not computing. *)
+Definition squash_BinProducts_WOSET (AC : AxiomOfChoice) : ∥ BinProducts WOSET ∥.
 Proof.
 use AC; intros A; use AC; intros B.
-apply (hasBinProducts_wosetcat AC).
+apply (hasBinProducts_WOSET AC).
 Defined.
 
-Definition hasExponentials (C : precategory) : UU :=
-  ∏ (a : C), ∃ (H : BinProducts C), is_exponentiable H a.
+(** Below follows an attempt to prove that this category has exponentials *)
 
-Lemma hasExponentials_wosetcat (AC : AxiomOfChoice) : hasExponentials wosetcat.
-Proof.
-intros A.
-generalize (squash_BinProducts_wosetcat AC); apply hinhuniv; intros H.
-(* apply hinhpr; exists H. *)
-(*   simpl in *. *)
-(*   generalize Exponentials_HSET. *)
-(*   intros [F hF]. *)
-(*   use tpair. *)
-(*   use mk_functor. *)
-(*   use tpair. *)
-(*   simpl. *)
-(*   intros X. *)
-(*   use tpair. *)
-(*   apply F. *)
-(*   apply X. *)
-(*   cbn. *)
+(* I first define a Weaker formulation of when a category has exponentials. This only requires the
+binary products to merely exists. We could reformulate this condition in various ways, for instance
+by defining when the product with an element A merely exists or unfolding the definitions to state
+the property explicitly. I'm not sure which is the best. *)
+(* Definition hasExponentials (C : precategory) : UU := *)
+(*   ∏ (a : C), ∃ (H : BinProducts C), is_exponentiable H a. *)
 
-(* apply (pr1 (pr1 F)). *)
-(*   simpl. *)
-(*   simpl. *)
-(*   Search Exponentials. *)
-(*   simpl in *. *)
-(*   unfold is_exponentiable. *)
-(*   generalize (hasBinProducts_wosetcat AC). *)
-(*   unfold hasBinProducts. *)
-(*   intros H1. *)
-(*   assert (H : ∥ ∏ c d : wosetcat,  ∥ BinProduct wosetcat c d  ∥ ∥). *)
-(*   apply hinhpr. *)
-(*   apply H1. *)
-(*   generalize H. *)
-(*   apply hinhuniv. *)
-(*   intros . *)
-(*   apply hinhpr. *)
-(*   apply (squash_to_hProp (@ZermeloWellOrdering (pr1 A × pr1 B)%set AC)); intros R. *)
-(*   apply hinhuniv. *)
-(* intros A B. *)
-(* apply (squash_to_hProp (@ZermeloWellOrdering (pr1 A × pr1 B)%set AC)); intros R. *)
-(* apply hinhpr. *)
-(* use mk_BinProduct. *)
-(* - exists (BinProductObject _ (BinProductsHSET (pr1 A) (pr1 B))). *)
-(*   exact R. *)
-(* - apply (BinProductPr1 _ (BinProductsHSET _ _)). *)
-(* - apply (BinProductPr2 _ (BinProductsHSET _ _)). *)
-(* - intros H. *)
-(*   apply (isBinProduct_BinProduct _ (BinProductsHSET (pr1 A) (pr1 B)) (pr1 H)). *)
-(* Defined. *)
-Admitted.
+(* I have run into some serious problems when trying to define the functor X ↦ X^A *)
+(* Definition exponential_functor_WOSET (AC : AxiomOfChoice) (A : WOSET) : ∥ functor WOSET WOSET ∥. *)
+(* Proof. *)
+(* The idea is to well-order the function space using Zermelo's well-ordering theorem, but I can't
+figure out how to write down the definition. It essientially boils down to some truncation juggling
+and various issues with the AC not computing and hence getting in the way. *)
 
-End wosetcat.
+(* Once I have figured out how to write the above definition I should be able to prove *)
+(* Lemma hasExponentials_WOSET (AC : AxiomOfChoice) : hasExponentials WOSET. *)
+(* Admitted. *)
+
+End WOSET.
