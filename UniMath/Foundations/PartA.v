@@ -1849,7 +1849,7 @@ Defined.
     http://github.com/HoTT/HoTT.
  *)
 
-Definition PathPair {A : UU} {B : A -> UU} (x y : ∑ x, B x) :=
+Definition PathPair@{i} {A : Type@{i}} {B : A -> Type@{i}} (x y : ∑ x, B x) :=
   ∑ p : pr1 x = pr1 y, transportf _ p (pr2 x) = pr2 y.
 
 Notation "a ╝ b" := (PathPair a b) : type_scope.
@@ -1858,7 +1858,7 @@ Notation "a ╝ b" := (PathPair a b) : type_scope.
 (* in agda input mode use \--= and select the 6-th one in the first set,
    or use \chimney *)
 
-Theorem total2_paths_equiv {A : UU} (B : A -> UU) (x y : ∑ x, B x) :
+Theorem total2_paths_equiv@{i} {A : Type@{i}} (B : A -> Type@{i}) (x y : ∑ x, B x) :
   x = y  ≃  x ╝ y.
 Proof.
   intros.
