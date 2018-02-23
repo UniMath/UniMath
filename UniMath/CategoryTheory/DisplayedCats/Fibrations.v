@@ -3,12 +3,12 @@
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.Categories.category_hset.
-Require Import UniMath.CategoryTheory.Limits.pullbacks.
+Require Import UniMath.CategoryTheory.FunctorCategories.
+Require Import UniMath.CategoryTheory.Categories.CategoryHset.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.Adjunctions.
-Require Import UniMath.CategoryTheory.equivalences.
-Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.Equivalences.
+Require Import UniMath.CategoryTheory.OppPrecat.
 Require Import UniMath.CategoryTheory.Presheaf.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.

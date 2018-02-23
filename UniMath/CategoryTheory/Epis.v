@@ -13,8 +13,8 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
-Require Import UniMath.CategoryTheory.sub_precategories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.SubPrecategories.
+Require Import UniMath.CategoryTheory.FunctorCategories.
 
 (** * Definition of Epis *)
 Section def_epi.
@@ -127,7 +127,7 @@ Section epis_subcategory.
   Definition hsubtype_mors_isEpi : ∏ (a b : C), hsubtype (C⟦a, b⟧) :=
     (λ a b : C, (fun f : C⟦a, b⟧ => hProppair _ (isapropisEpi C hs f))).
 
-  Definition subprecategory_of_epis : sub_precategories C.
+  Definition subprecategory_of_epis : SubPrecategories C.
   Proof.
     use tpair.
     split.

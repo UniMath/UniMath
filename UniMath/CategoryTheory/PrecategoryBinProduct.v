@@ -34,7 +34,7 @@ By PLL:
 Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.FunctorCategories.
 Local Open Scope cat.
 
 Definition precategory_binproduct_mor (C D : precategory_ob_mor) (cd cd' : C × D) := pr1 cd --> pr1 cd' × pr2 cd --> pr2 cd'.

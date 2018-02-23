@@ -15,13 +15,13 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.Limits.bincoproducts.
-Require Import UniMath.CategoryTheory.Limits.terminal.
+Require Import UniMath.CategoryTheory.FunctorCategories.
+Require Import UniMath.CategoryTheory.Limits.Bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Monads.Monads.
-Require Import UniMath.CategoryTheory.Categories.category_hset.
-Require Import UniMath.CategoryTheory.Categories.category_hset_structures.
-Require Import UniMath.CategoryTheory.slicecat.
+Require Import UniMath.CategoryTheory.Categories.CategoryHset.
+Require Import UniMath.CategoryTheory.Categories.CategoryHsetStructures.
+Require Import UniMath.CategoryTheory.Slicecat.
 
 Local Open Scope cat.
 

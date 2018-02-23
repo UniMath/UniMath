@@ -11,12 +11,12 @@ bicategories code strongly influenced the proofs in this file.
 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.FunctorCategories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
-Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.Equivalences.
 Local Open Scope cat.
-Require Import UniMath.CategoryTheory.Bicategories.prebicategory.
+Require Import UniMath.CategoryTheory.Bicategories.Prebicategory.
 
 (******************************************************************************)
 (* Lemmas for use in PreCat and Cat *)

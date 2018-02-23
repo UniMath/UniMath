@@ -2,7 +2,7 @@
 (** Date: Spring 2015.*)
 (** Description: Some tactics for monoids.*)
 
-Require Import UniMath.Algebra.Monoids_and_Groups
+Require Import UniMath.Algebra.MonoidsAndGroups
                UniMath.Tactics.Utilities.
 
 Ltac op_strip f :=

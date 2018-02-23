@@ -13,8 +13,8 @@ Unset Automatic Introduction.
 
 (** Imports *)
 
-Require Import UniMath.PAdics.lemmas.
-Require Import UniMath.Algebra.Rigs_and_Rings.
+Require Import UniMath.PAdics.Lemmas.
+Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.NumberSystems.Integers.
 
 (** ** I. Summation in a commutative ring *)

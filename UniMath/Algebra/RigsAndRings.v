@@ -65,7 +65,7 @@ Unset Kernel Term Sharing.
 
 (** Imports *)
 
-Require Export UniMath.Algebra.Monoids_and_Groups.
+Require Export UniMath.Algebra.MonoidsAndGroups.
 
 (** To upstream files *)
 

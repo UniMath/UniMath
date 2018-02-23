@@ -27,7 +27,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.FunctorCategories.
 
 Local Open Scope cat.
 
@@ -82,7 +82,7 @@ Definition α_functor_inv (X : functor C D)(Y : functor D E)(Z : functor E F) :
 (** as a motivation, we show here that, propositionally, both functors are equal, for each
     of the three pairs of functors; the extra assumption on having homsets is only used in order
     to have simple proofs, it is not necessary, as shown in Section "functor_equalities" in
-    functor_categories.v: Lemmas functor_identity_left, functor_identity_right and functor_assoc *)
+    FunctorCategories.v: Lemmas functor_identity_left, functor_identity_right and functor_assoc *)
 Local Lemma motivation_ρ_functor (hsD : has_homsets D)(X : functor C D) : functor_composite X (functor_identity D) = X.
 Proof.
   now apply (functor_eq _ _ hsD); induction X as [data laws]; induction data as [onobs onmorphs].

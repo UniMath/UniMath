@@ -21,7 +21,7 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.FunctorCategories.
 
 Local Open Scope cat.
 

@@ -11,8 +11,8 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
-Require Import UniMath.CategoryTheory.sub_precategories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.SubPrecategories.
+Require Import UniMath.CategoryTheory.FunctorCategories.
 
 (** * Definition of Monics *)
 Section def_monic.
@@ -126,7 +126,7 @@ Section monics_subcategory.
   Definition hsubtype_mors_isMonic : ∏ (a b : C), hsubtype (C⟦a, b⟧) :=
     (λ a b : C, (fun f : C⟦a, b⟧ => hProppair _ (isapropisMonic C hs f))).
 
-  Definition subprecategory_of_monics : sub_precategories C.
+  Definition subprecategory_of_monics : SubPrecategories C.
   Proof.
     use tpair.
     split.

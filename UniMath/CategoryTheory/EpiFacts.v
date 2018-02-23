@@ -18,17 +18,17 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.FunctorCategories.
 Require Import UniMath.CategoryTheory.Epis.
-Require Import UniMath.CategoryTheory.Limits.graphs.pullbacks.
-Require Import UniMath.CategoryTheory.Limits.graphs.limits.
-Require Import UniMath.CategoryTheory.Limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.Limits.graphs.coequalizers.
-Require Import UniMath.CategoryTheory.Limits.pullbacks.
-Require Import UniMath.CategoryTheory.Limits.graphs.pushouts.
-Require Import UniMath.CategoryTheory.Limits.graphs.eqdiag.
-Require Import UniMath.CategoryTheory.Limits.pushouts.
-Require Import UniMath.CategoryTheory.Limits.coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Pushouts.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Eqdiag.
+Require Import UniMath.CategoryTheory.Limits.Pushouts.
+Require Import UniMath.CategoryTheory.Limits.Coequalizers.
 
 Local Open Scope cat.
 
@@ -152,7 +152,7 @@ Section PointwiseEpi.
       exact (empty_rect _ )||exact (λ _, idpath _).
   Defined.
 
-  Lemma Pushouts_pw_epi (colimD : graphs.pushouts.Pushouts D) (A B : functor C D)
+  Lemma Pushouts_pw_epi (colimD : Graphs.Pushouts.Pushouts D) (A B : functor C D)
        (a: A ⟹ B)  (epia:isEpi (C:=CD) a) : ∏ (x:C), isEpi (a x).
   Proof.
     intro  x; simpl.

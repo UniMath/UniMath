@@ -13,14 +13,14 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.Limits.graphs.limits.
-Require Import UniMath.CategoryTheory.Limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.Limits.equalizers.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
 
 Local Open Scope cat.
 
 (** * Definition of equalizers in terms of limits *)
-Section def_equalizers.
+Section def_Equalizers.
 
   Variable C : precategory.
   Variable hs: has_homsets C.
@@ -246,7 +246,7 @@ Section def_equalizers.
     intros H a b f g. apply H.
   Defined.
 
-End def_equalizers.
+End def_Equalizers.
 
 
 (** * Definitions coincide
@@ -261,26 +261,26 @@ Section equalizers_coincide.
   (** ** isEqualizers *)
 
   Lemma equiv_isEqualizer1 {a b : C} {f g : C⟦a, b⟧} (e : C) (h : C⟦e, a⟧) (H : h · f = h · g) :
-    limits.equalizers.isEqualizer f g h H -> isEqualizer C f g e h H.
+    Limits.Equalizers.isEqualizer f g h H -> isEqualizer C f g e h H.
   Proof.
     intros X.
-    set (E := limits.equalizers.mk_Equalizer f g h H X).
+    set (E := Limits.Equalizers.mk_Equalizer f g h H X).
     use (mk_isEqualizer C hs).
     intros e' h' H'.
-    use (unique_exists (limits.equalizers.EqualizerIn E e' h' H')).
+    use (unique_exists (Limits.Equalizers.EqualizerIn E e' h' H')).
     (* Commutativity *)
-    - exact (limits.equalizers.EqualizerCommutes E e' h' H').
+    - exact (Limits.Equalizers.EqualizerCommutes E e' h' H').
     (* Equality on equalities of morphisms *)
     - intros y. apply hs.
     (* Uniqueness *)
     - intros y T. cbn in T.
-      use (limits.equalizers.EqualizerInsEq E).
+      use (Limits.Equalizers.EqualizerInsEq E).
       use (pathscomp0 T).
-      exact (!(limits.equalizers.EqualizerCommutes E e' h' H')).
+      exact (!(Limits.Equalizers.EqualizerCommutes E e' h' H')).
   Qed.
 
   Lemma equiv_isEqualizer2 {a b : C} (f g : C⟦a, b⟧) (e : C) (h : C⟦e, a⟧) (H : h · f = h · g) :
-    limits.equalizers.isEqualizer f g h H <- isEqualizer C f g e h H.
+    Limits.Equalizers.isEqualizer f g h H <- isEqualizer C f g e h H.
   Proof.
     intros X.
     set (E := mk_Equalizer C f g e h H X).
@@ -300,36 +300,36 @@ Section equalizers_coincide.
   (** ** Equalizers *)
 
   Definition equiv_Equalizer1 {a b : C} (f g : C⟦a, b⟧) :
-    limits.equalizers.Equalizer f g -> Equalizer C f g.
+    Limits.Equalizers.Equalizer f g -> Equalizer C f g.
   Proof.
     intros E.
     exact (mk_Equalizer
              C f g _ _ _
              (equiv_isEqualizer1
-                (limits.equalizers.EqualizerObject E)
-                (limits.equalizers.EqualizerArrow E)
-                (limits.equalizers.EqualizerEqAr E)
-                (limits.equalizers.isEqualizer_Equalizer E))).
+                (Limits.Equalizers.EqualizerObject E)
+                (Limits.Equalizers.EqualizerArrow E)
+                (Limits.Equalizers.EqualizerEqAr E)
+                (Limits.Equalizers.isEqualizer_Equalizer E))).
   Defined.
 
-  Definition equiv_Equalizers1 : @limits.equalizers.Equalizers C -> Equalizers C.
+  Definition equiv_Equalizers1 : @Limits.Equalizers.Equalizers C -> Equalizers C.
   Proof.
     intros E' a b f g.
     set (E := E' a b f g).
     exact (mk_Equalizer
              C f g _ _ _
              (equiv_isEqualizer1
-                (limits.equalizers.EqualizerObject E)
-                (limits.equalizers.EqualizerArrow E)
-                (limits.equalizers.EqualizerEqAr E)
-                (limits.equalizers.isEqualizer_Equalizer E))).
+                (Limits.Equalizers.EqualizerObject E)
+                (Limits.Equalizers.EqualizerArrow E)
+                (Limits.Equalizers.EqualizerEqAr E)
+                (Limits.Equalizers.isEqualizer_Equalizer E))).
   Defined.
 
   Definition equiv_Equalizer2 {a b : C} (f g : C⟦a, b⟧) :
-    limits.equalizers.Equalizer f g <- Equalizer C f g.
+    Limits.Equalizers.Equalizer f g <- Equalizer C f g.
   Proof.
     intros E.
-    exact (@limits.equalizers.mk_Equalizer
+    exact (@Limits.Equalizers.mk_Equalizer
              C (EqualizerObject C E) a b f g
              (EqualizerArrow C E)
              (EqualizerArrowEq C E)
@@ -340,11 +340,11 @@ Section equalizers_coincide.
                 (isEqualizer_Equalizer C hs E))).
   Defined.
 
-  Definition equiv_Equalizers2 : @limits.equalizers.Equalizers C <- Equalizers C.
+  Definition equiv_Equalizers2 : @Limits.Equalizers.Equalizers C <- Equalizers C.
   Proof.
     intros E' a b f g.
     set (E := E' a b f g).
-    exact (@limits.equalizers.mk_Equalizer
+    exact (@Limits.Equalizers.mk_Equalizer
              C (EqualizerObject C E) a b f g
              (EqualizerArrow C E)
              (EqualizerArrowEq C E)

@@ -18,12 +18,12 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.total2_paths.
+Require Import UniMath.CategoryTheory.Total2Paths.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.FunctorCategories.
 Require Import UniMath.CategoryTheory.ProductCategory.
-Require Import UniMath.CategoryTheory.Limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.Limits.graphs.limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
 
 Local Open Scope cat.
 
@@ -340,7 +340,7 @@ Defined.
 End def_functor_pointwise_prod.
 
 (** * Products from limits *)
-Section products_from_limits.
+Section products_from_Limits.
 
 Variables (I : UU) (C : precategory) (hsC : has_homsets C).
 
@@ -378,4 +378,4 @@ use mk_Product.
   - abstract (intros f Hf; apply limArrowUnique; simpl in *; intros i; apply Hf).
 Defined.
 
-End products_from_limits.
+End products_from_Limits.

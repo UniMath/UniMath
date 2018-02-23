@@ -26,13 +26,13 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 
 Require Import UniMath.Algebra.BinaryOperations.
-Require Import UniMath.Algebra.Monoids_and_Groups.
+Require Import UniMath.Algebra.MonoidsAndGroups.
 
 Require Import UniMath.NumberSystems.Integers.
 
-Require Import UniMath.CategoryTheory.total2_paths.
+Require Import UniMath.CategoryTheory.Total2Paths.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.FunctorCategories.
 
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
@@ -43,13 +43,13 @@ Require Import UniMath.CategoryTheory.PreAdditive.
 Require Import UniMath.CategoryTheory.Additive.
 Require Import UniMath.CategoryTheory.Abelian.
 
-Require Import UniMath.CategoryTheory.Limits.zero.
-Require Import UniMath.CategoryTheory.Limits.binproducts.
-Require Import UniMath.CategoryTheory.Limits.bincoproducts.
-Require Import UniMath.CategoryTheory.Limits.equalizers.
-Require Import UniMath.CategoryTheory.Limits.coequalizers.
-Require Import UniMath.CategoryTheory.Limits.kernels.
-Require Import UniMath.CategoryTheory.Limits.cokernels.
+Require Import UniMath.CategoryTheory.Limits.Zero.
+Require Import UniMath.CategoryTheory.Limits.Binproducts.
+Require Import UniMath.CategoryTheory.Limits.Bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
+Require Import UniMath.CategoryTheory.Limits.Coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Kernels.
+Require Import UniMath.CategoryTheory.Limits.Cokernels.
 Require Import UniMath.CategoryTheory.Limits.BinDirectSums.
 
 Local Open Scope cat.
@@ -625,7 +625,7 @@ End abgr_additive.
    - Kernels in the category of abelian groups
    - Cokernels in the category of abelian groups
  *)
-Section abgr_kernels_and_cokernels.
+Section abgr_kernels_and_Cokernels.
 
   Definition abgr_Kernel_monoidfun {A B : abgr} (f : monoidfun A B) :
     abgr_category⟦carrierofasubabgr (abgr_Kernel_subabgr f), A⟧ :=
@@ -930,7 +930,7 @@ Section abgr_kernels_and_cokernels.
     intros A B f. exact (abgr_Cokernel f).
   Defined.
 
-End abgr_kernels_and_cokernels.
+End abgr_kernels_and_Cokernels.
 
 
 (** * Monics are injective and epis are surjective
@@ -1068,7 +1068,7 @@ End abgr_monics_and_epis.
 
 
 (** * Monics are kernels of their cokernels and epis are cokernels of their kernels *)
-Section abgr_monic_kernels_epi_cokernels.
+Section abgr_monic_kernels_epi_Cokernels.
 
 
   (** ** Monics are kernels of their cokernels *)
@@ -1441,7 +1441,7 @@ Section abgr_monic_kernels_epi_cokernels.
     use idpath.
   Qed.
 
-End abgr_monic_kernels_epi_cokernels.
+End abgr_monic_kernels_epi_Cokernels.
 
 
 (** * Category of abelian groups is an abelian category *)

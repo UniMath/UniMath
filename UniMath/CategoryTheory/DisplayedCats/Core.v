@@ -34,7 +34,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.AxiomOfChoice.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.FunctorCategories.
 Local Open Scope cat.
 Local Open Scope cat_deprecated.
 

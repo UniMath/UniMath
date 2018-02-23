@@ -6,9 +6,9 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.CategoryTheory.Categories.
 
-Require Import UniMath.CategoryTheory.Limits.graphs.limits.
-Require Import UniMath.CategoryTheory.Limits.graphs.colimits.
-Require        UniMath.CategoryTheory.Limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require        UniMath.CategoryTheory.Limits.Pullbacks.
 
 Local Open Scope cat.
 
@@ -240,14 +240,14 @@ Qed.
 
 Lemma equiv_isPullback_1 {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
       (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 · f = p2· g) :
-  limits.pullbacks.isPullback f g p1 p2 H -> isPullback f g p1 p2 H.
+  Limits.Pullbacks.isPullback f g p1 p2 H -> isPullback f g p1 p2 H.
 Proof.
   intro X.
   intros R cc.
-  set (XR := limits.pullbacks.mk_Pullback _ _ _ _ _ _ X).
+  set (XR := Limits.Pullbacks.mk_Pullback _ _ _ _ _ _ X).
   use tpair.
   - use tpair.
-    + use (pullbacks.PullbackArrow XR).
+    + use (Pullbacks.PullbackArrow XR).
       * apply (coneOut cc One).
       * apply (coneOut cc Three).
       * abstract (
@@ -257,50 +257,50 @@ Proof.
         eapply pathscomp0; [| apply (XRT)]; apply idpath
          ).
     + use three_rec_dep.
-      * abstract (apply (pullbacks.PullbackArrow_PullbackPr1 XR)).
+      * abstract (apply (Pullbacks.PullbackArrow_PullbackPr1 XR)).
       * abstract (simpl;
         change (three_rec_dep (λ n, C⟦d,_⟧) _ _ _ _) with (p1 · f);
         rewrite assoc;
-        rewrite  (limits.pullbacks.PullbackArrow_PullbackPr1 XR);
+        rewrite  (Limits.Pullbacks.PullbackArrow_PullbackPr1 XR);
         assert (XRT := coneOutCommutes cc One Two tt); simpl in XRT;
         eapply pathscomp0; [| apply (XRT)]; apply idpath).
-      * abstract (apply (limits.pullbacks.PullbackArrow_PullbackPr2 XR)).
+      * abstract (apply (Limits.Pullbacks.PullbackArrow_PullbackPr2 XR)).
   - abstract (
     intro t;
     apply subtypeEquality;
     [intro; apply impred; intro; apply hs |];
     simpl; destruct t as [t HH];  simpl in *;
-    apply limits.pullbacks.PullbackArrowUnique;
+    apply Limits.Pullbacks.PullbackArrowUnique;
     [ apply (HH One) | apply (HH Three)] ).
 Qed.
 
 Definition equiv_Pullback_1 {a b c : C} (f : C⟦b, a⟧) (g : C⟦c, a⟧) :
-  limits.pullbacks.Pullback f g -> Pullback f g.
+  Limits.Pullbacks.Pullback f g -> Pullback f g.
 Proof.
   intros X.
   exact (mk_Pullback
-           f g (limits.pullbacks.PullbackObject X)
-           (limits.pullbacks.PullbackPr1 X)
-           (limits.pullbacks.PullbackPr2 X)
-           (limits.pullbacks.PullbackSqrCommutes X)
-           (equiv_isPullback_1 _ _ _ _ _ (limits.pullbacks.isPullback_Pullback X))).
+           f g (Limits.Pullbacks.PullbackObject X)
+           (Limits.Pullbacks.PullbackPr1 X)
+           (Limits.Pullbacks.PullbackPr2 X)
+           (Limits.Pullbacks.PullbackSqrCommutes X)
+           (equiv_isPullback_1 _ _ _ _ _ (Limits.Pullbacks.isPullback_Pullback X))).
 Defined.
 
-Definition equiv_Pullbacks_1: @limits.pullbacks.Pullbacks C -> Pullbacks.
+Definition equiv_Pullbacks_1: @Limits.Pullbacks.Pullbacks C -> Pullbacks.
 Proof.
   intros X' a b c f g.
   set (X := X' a b c f g).
   exact (mk_Pullback
-           f g (limits.pullbacks.PullbackObject X)
-           (limits.pullbacks.PullbackPr1 X)
-           (limits.pullbacks.PullbackPr2 X)
-           (limits.pullbacks.PullbackSqrCommutes X)
-           (equiv_isPullback_1 _ _ _ _ _ (limits.pullbacks.isPullback_Pullback X))).
+           f g (Limits.Pullbacks.PullbackObject X)
+           (Limits.Pullbacks.PullbackPr1 X)
+           (Limits.Pullbacks.PullbackPr2 X)
+           (Limits.Pullbacks.PullbackSqrCommutes X)
+           (equiv_isPullback_1 _ _ _ _ _ (Limits.Pullbacks.isPullback_Pullback X))).
 Defined.
 
 Lemma equiv_isPullback_2 {a b c d : C} (f : C ⟦b, a⟧) (g : C ⟦c, a⟧)
       (p1 : C⟦d,b⟧) (p2 : C⟦d,c⟧) (H : p1 · f = p2· g) :
-  limits.pullbacks.isPullback f g p1 p2 H <- isPullback f g p1 p2 H.
+  Limits.Pullbacks.isPullback f g p1 p2 H <- isPullback f g p1 p2 H.
 Proof.
   intro X.
   set (XR := mk_Pullback _ _ _ _ _  _ X).
@@ -321,10 +321,10 @@ Proof.
 Qed.
 
 Definition equiv_Pullback_2 {a b c : C} (f : C⟦b, a⟧) (g : C⟦c, a⟧) :
-  limits.pullbacks.Pullback f g <- Pullback f g.
+  Limits.Pullbacks.Pullback f g <- Pullback f g.
 Proof.
   intros X.
-  exact (limits.pullbacks.mk_Pullback
+  exact (Limits.Pullbacks.mk_Pullback
            f g
            (PullbackObject X)
            (PullbackPr1 X)
@@ -333,11 +333,11 @@ Proof.
            (equiv_isPullback_2 _ _ _ _ _ (isPullback_Pullback X))).
 Defined.
 
-Definition equiv_Pullbacks_2 : @limits.pullbacks.Pullbacks C <- Pullbacks.
+Definition equiv_Pullbacks_2 : @Limits.Pullbacks.Pullbacks C <- Pullbacks.
 Proof.
   intros X' a b c f g.
   set (X := X' a b c f g).
-  exact (limits.pullbacks.mk_Pullback
+  exact (Limits.Pullbacks.mk_Pullback
            f g
            (PullbackObject X)
            (PullbackPr1 X)

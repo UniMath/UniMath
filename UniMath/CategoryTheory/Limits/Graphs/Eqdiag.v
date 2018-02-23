@@ -37,10 +37,10 @@ This equality would not be needed if functional extensionality computed.
 Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.Limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.Limits.graphs.limits.
+Require Import UniMath.CategoryTheory.FunctorCategories.
+Require Import UniMath.CategoryTheory.Whiskering.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
 
 Local Open Scope cat.
 

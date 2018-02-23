@@ -14,11 +14,11 @@ Contents:
 
 Require Import UniMath.Foundations.Sets
         UniMath.CategoryTheory.Categories
-        UniMath.CategoryTheory.functor_categories
-        UniMath.CategoryTheory.Categories.category_hset
-        UniMath.CategoryTheory.slicecat
+        UniMath.CategoryTheory.FunctorCategories
+        UniMath.CategoryTheory.Categories.CategoryHset
+        UniMath.CategoryTheory.Slicecat
         UniMath.CategoryTheory.Adjunctions
-        UniMath.CategoryTheory.equivalences
+        UniMath.CategoryTheory.Equivalences
         UniMath.CategoryTheory.DiscreteCategory.
 Local Open Scope cat.
 

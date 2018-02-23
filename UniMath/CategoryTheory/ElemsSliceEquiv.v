@@ -11,11 +11,11 @@ Contents : Equivalence of the categories PreShv ∫P and
 Require Import UniMath.MoreFoundations.Tactics
         UniMath.Foundations.Sets
         UniMath.CategoryTheory.Categories
-        UniMath.CategoryTheory.functor_categories
-        UniMath.CategoryTheory.equivalences
-        UniMath.CategoryTheory.Categories.category_hset
-        UniMath.CategoryTheory.slicecat
-        UniMath.CategoryTheory.opp_precat
+        UniMath.CategoryTheory.FunctorCategories
+        UniMath.CategoryTheory.Equivalences
+        UniMath.CategoryTheory.Categories.CategoryHset
+        UniMath.CategoryTheory.Slicecat
+        UniMath.CategoryTheory.OppPrecat
         UniMath.CategoryTheory.Presheaf
         UniMath.CategoryTheory.ElementsOp.
 

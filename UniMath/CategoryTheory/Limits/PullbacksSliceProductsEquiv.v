@@ -15,11 +15,11 @@ Contents : Equivalence of binary products in C/Z to
 Require Import UniMath.MoreFoundations.Tactics
         UniMath.Foundations.Sets
         UniMath.CategoryTheory.Categories
-        UniMath.CategoryTheory.functor_categories
-        UniMath.CategoryTheory.slicecat
-        UniMath.CategoryTheory.equivalences
-        UniMath.CategoryTheory.Limits.binproducts
-        UniMath.CategoryTheory.Limits.pullbacks.
+        UniMath.CategoryTheory.FunctorCategories
+        UniMath.CategoryTheory.Slicecat
+        UniMath.CategoryTheory.Equivalences
+        UniMath.CategoryTheory.Limits.Binproducts
+        UniMath.CategoryTheory.Limits.Pullbacks.
 
 Local Open Scope cat.
 

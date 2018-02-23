@@ -19,9 +19,9 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.total2_paths.
+Require Import UniMath.CategoryTheory.Total2Paths.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.FunctorCategories.
 Require Import UniMath.CategoryTheory.Adjunctions.
 
 Local Open Scope cat.

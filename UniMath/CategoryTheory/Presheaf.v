@@ -27,22 +27,22 @@ Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.Algebra.Lattice.
 
-Require Import UniMath.CategoryTheory.total2_paths.
+Require Import UniMath.CategoryTheory.Total2Paths.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.Categories.category_hset.
-Require Import UniMath.CategoryTheory.Categories.category_hset_structures.
-Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.Limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.Limits.graphs.limits.
-Require Import UniMath.CategoryTheory.Limits.binproducts.
-Require Import UniMath.CategoryTheory.Limits.products.
-Require Import UniMath.CategoryTheory.Limits.bincoproducts.
-Require Import UniMath.CategoryTheory.Limits.coproducts.
-Require Import UniMath.CategoryTheory.Limits.initial.
-Require Import UniMath.CategoryTheory.Limits.terminal.
-Require Import UniMath.CategoryTheory.Limits.pullbacks.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.FunctorCategories.
+Require Import UniMath.CategoryTheory.Categories.CategoryHset.
+Require Import UniMath.CategoryTheory.Categories.CategoryHsetStructures.
+Require Import UniMath.CategoryTheory.OppPrecat.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Binproducts.
+Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.Bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.Initial.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.LatticeObject.
 
@@ -63,7 +63,7 @@ Qed.
 End basics.
 
 (** Various limits and colimits in PreShv C *)
-Section limits.
+Section Limits.
 
 Context {C : precategory}.
 
@@ -130,7 +130,7 @@ Proof.
 now apply has_exponentials_functor_HSET, has_homsets_opp, hsC.
 Defined.
 
-End limits.
+End Limits.
 
 (** * Define some standard presheaves *)
 Section presheaves.

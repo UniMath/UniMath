@@ -12,14 +12,14 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.Algebra.BinaryOperations.
-Require Import UniMath.Algebra.Monoids_and_Groups.
+Require Import UniMath.Algebra.MonoidsAndGroups.
 
-Require Import UniMath.CategoryTheory.total2_paths.
+Require Import UniMath.CategoryTheory.Total2Paths.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.Limits.binproducts.
-Require Import UniMath.CategoryTheory.Limits.bincoproducts.
-Require Import UniMath.CategoryTheory.Limits.zero.
+Require Import UniMath.CategoryTheory.Limits.Binproducts.
+Require Import UniMath.CategoryTheory.Limits.Bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.Zero.
 Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Import UniMath.CategoryTheory.PreAdditive.

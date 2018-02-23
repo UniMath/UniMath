@@ -26,8 +26,8 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.FunctorCategories.
+Require Import UniMath.CategoryTheory.Whiskering.
 Local Open Scope cat.
 
 Ltac simp_rew lem := let H:=fresh in

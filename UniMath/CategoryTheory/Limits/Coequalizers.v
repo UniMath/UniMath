@@ -15,7 +15,7 @@ Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Epis.
 
-Section def_coequalizers.
+Section def_Coequalizers.
 
   Context {C : precategory}.
 
@@ -67,7 +67,7 @@ Section def_coequalizers.
     apply (base_paths _ _ T').
   Defined.
 
-  (** Definition and construction of coequalizers. *)
+  (** Definition and construction of Coequalizers. *)
   Definition Coequalizer {y z : C} (f g : y --> z) : UU :=
     ∑ e : (∑ w : C, z --> w),
           (∑ H : f · (pr2 e) = g · (pr2 e), isCoequalizer f g (pr2 e) H).
@@ -222,7 +222,7 @@ Section def_coequalizers.
     exact (mk_Epi C (CoequalizerArrow E) (CoequalizerArrowisEpi E)).
   Defined.
 
-End def_coequalizers.
+End def_Coequalizers.
 
 (** Make the C not implicit for Coequalizers *)
 Arguments Coequalizers : clear implicits.

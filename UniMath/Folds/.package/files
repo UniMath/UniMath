@@ -1,8 +1,8 @@
 UnicodeNotations.v
-aux_lemmas.v
-folds_precat.v
-from_precats_to_folds_and_back.v
-folds_isomorphism.v
-folds_pre_2_cat.v
+AuxLemmas.v
+FoldsPrecat.v
+FromPrecatsToFoldsAndBack.v
+FoldsIsomorphism.v
+FoldsPre2Cat.v
 
 

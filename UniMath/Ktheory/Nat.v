@@ -3,10 +3,10 @@
 (** * Natural numbers *)
 
 Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.Algebra.Monoids_and_Groups
+Require Import UniMath.Algebra.MonoidsAndGroups
                UniMath.Foundations.NaturalNumbers
                UniMath.Foundations.UnivalenceAxiom
-               UniMath.CategoryTheory.total2_paths
+               UniMath.CategoryTheory.Total2Paths
                UniMath.Ktheory.Utilities.
 Unset Automatic Introduction.
 

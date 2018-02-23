@@ -5,12 +5,12 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
-Require Import UniMath.CategoryTheory.total2_paths.
+Require Import UniMath.CategoryTheory.Total2Paths.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.ProductCategory.
-Require Import UniMath.CategoryTheory.Limits.products.
-Require Import UniMath.CategoryTheory.Limits.binproducts.
-Require Import UniMath.CategoryTheory.Limits.terminal.
+Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.Binproducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 
 Local Open Scope cat.
 

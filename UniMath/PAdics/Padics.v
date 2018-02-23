@@ -12,10 +12,10 @@ Unset Automatic Introduction.
 
 (** Imports *)
 
-Require Import UniMath.PAdics.lemmas.
-Require Import UniMath.PAdics.fps.
-Require Import UniMath.PAdics.frac.
-Require Import UniMath.PAdics.z_mod_p.
+Require Import UniMath.PAdics.Lemmas.
+Require Import UniMath.PAdics.Fps.
+Require Import UniMath.PAdics.Frac.
+Require Import UniMath.PAdics.ZModP.
 
 Require Import UniMath.NumberSystems.Integers.
 

@@ -15,7 +15,7 @@ Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Monics.
 
-Section def_equalizers.
+Section def_Equalizers.
 
   Context {C : precategory}.
 
@@ -67,7 +67,7 @@ Section def_equalizers.
     apply (base_paths _ _ T').
   Defined.
 
-  (** Definition and construction of equalizers. *)
+  (** Definition and construction of Equalizers. *)
   Definition Equalizer {y z : C} (f g : y --> z) : UU :=
     ∑ e : (∑ w : C, w --> y),
           (∑ H : (pr2 e) · f = (pr2 e) · g, isEqualizer f g (pr2 e) H).
@@ -238,7 +238,7 @@ Section def_equalizers.
   Proof.
     exact (mk_Monic C (EqualizerArrow E) (EqualizerArrowisMonic E)).
   Defined.
-End def_equalizers.
+End def_Equalizers.
 
 (** Make the C not implicit for Equalizers *)
 Arguments Equalizers : clear implicits.

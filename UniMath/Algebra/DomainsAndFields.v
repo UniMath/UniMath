@@ -29,7 +29,7 @@ Unset Kernel Term Sharing.
 
 (** Imports *)
 
-Require Export UniMath.Algebra.Rigs_and_Rings.
+Require Export UniMath.Algebra.RigsAndRings.
 
 (** To upstream files *)
 

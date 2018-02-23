@@ -12,7 +12,7 @@ Unset Automatic Introduction.
 
 (** Imports *)
 
-Require Import UniMath.PAdics.lemmas.
+Require Import UniMath.PAdics.Lemmas.
 Require Import UniMath.NumberSystems.Integers.
 Require Import UniMath.Foundations.Preamble.
 
@@ -631,7 +631,7 @@ Proof.
               apply p.
               apply idpath.
             }
-            apply lemmas.hzabsvalneq0. (* the culprit is the prefix [lemmas] *)
+            apply Lemmas.hzabsvalneq0. (* the culprit is the prefix [Lemmas] *)
             assumption.
       }
       apply fromempty.
@@ -795,7 +795,7 @@ Proof.
   intros.
   split.
   - apply isreflhzleh.
-  - apply lemmas.hzabsvalneq0. (* [lemmas] is the culprit *)
+  - apply Lemmas.hzabsvalneq0. (* [Lemmas] is the culprit *)
     assumption.
 Defined.
 
@@ -876,7 +876,7 @@ Lemma hzqrandselfineq ( p : hz ) ( x : hzneq 0 p ) :
 Proof.
   split.
   - apply isreflhzleh.
-  - apply lemmas.hzabsvalneq0.
+  - apply Lemmas.hzabsvalneq0.
     assumption.
 Defined.
 
@@ -2232,7 +2232,7 @@ Proof.
                                      (dirprod (hzleh 0 (pr2 qr))
                                                  (hzlth (pr2 qr) (nattohz (hzabsval p))))) )
          ( dirprodpair k 0 ) (dirprodpair f'
-                              ( dirprodpair ( isreflhzleh 0 ) ( lemmas.hzabsvalneq0 p x ) ) ) ).
+                              ( dirprodpair ( isreflhzleh 0 ) ( Lemmas.hzabsvalneq0 p x ) ) ) ).
   assert ( e = ( pr1 ( divalgorithm a p x ) ) ) as s
   by apply ( pr2 ( divalgorithm a p x ) ).
   set ( w := pathintotalpr1 ( pathsinv0 s ) ).

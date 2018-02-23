@@ -39,22 +39,22 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.AxiomOfChoice.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.Categories.category_hset.
-Require Import UniMath.CategoryTheory.Limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.Limits.graphs.limits.
-Require Import UniMath.CategoryTheory.Limits.bincoproducts.
-Require Import UniMath.CategoryTheory.Limits.coproducts.
-Require Import UniMath.CategoryTheory.Limits.binproducts.
-Require Import UniMath.CategoryTheory.Limits.products.
-Require Import UniMath.CategoryTheory.Limits.initial.
-Require Import UniMath.CategoryTheory.Limits.terminal.
-Require Import UniMath.CategoryTheory.Limits.pullbacks.
-Require Import UniMath.CategoryTheory.Limits.coequalizers.
+Require Import UniMath.CategoryTheory.FunctorCategories.
+Require Import UniMath.CategoryTheory.Categories.CategoryHset.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.Binproducts.
+Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.Initial.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Coequalizers.
 Require Import UniMath.CategoryTheory.Adjunctions.
-Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.covyoneda.
-Require Import UniMath.CategoryTheory.slicecat.
+Require Import UniMath.CategoryTheory.Exponentials.
+Require Import UniMath.CategoryTheory.Covyoneda.
+Require Import UniMath.CategoryTheory.Slicecat.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.EpiFacts.
 
@@ -102,7 +102,7 @@ Arguments eqrel_from_hrel {_} _ _ _.
 
 
 (** colimits in HSET *)
-Section colimits.
+Section coLimits.
 
 Variable g : graph.
 Variable D : diagram g HSET.
@@ -234,7 +234,7 @@ abstract (intro f; apply subtypeEquality;
              now apply (toforallpaths _ _ _ (Hf u) fu)]).
 Defined.
 
-End colimits.
+End coLimits.
 
 Opaque from_colimHSET.
 
@@ -321,11 +321,11 @@ Defined.
 
 Section CoproductsHSET_from_Colims.
 
-Require UniMath.CategoryTheory.Limits.graphs.bincoproducts.
+Require UniMath.CategoryTheory.Limits.Graphs.Bincoproducts.
 
-Lemma BinCoproductsHSET_from_Colims : graphs.bincoproducts.BinCoproducts HSET.
+Lemma BinCoproductsHSET_from_Colims : Graphs.Bincoproducts.BinCoproducts HSET.
 Proof.
-now apply bincoproducts.BinCoproducts_from_Colims, ColimsHSET_of_shape.
+now apply Bincoproducts.BinCoproducts_from_Colims, ColimsHSET_of_shape.
 Defined.
 
 End CoproductsHSET_from_Colims.
@@ -341,16 +341,16 @@ Defined.
 
 Section InitialHSET_from_Colims.
 
-Require UniMath.CategoryTheory.Limits.graphs.initial.
+Require UniMath.CategoryTheory.Limits.Graphs.Initial.
 
-Lemma InitialHSET_from_Colims : graphs.initial.Initial HSET.
+Lemma InitialHSET_from_Colims : Graphs.Initial.Initial HSET.
 Proof.
-apply initial.Initial_from_Colims, ColimsHSET_of_shape.
+apply Initial.Initial_from_Colims, ColimsHSET_of_shape.
 Defined.
 
 End InitialHSET_from_Colims.
 
-Section limits.
+Section Limits.
 
 Variable g : graph.
 Variable D : diagram g HSET.
@@ -387,7 +387,7 @@ use mk_LimCone.
                 | apply funextsec; intro u; apply (toforallpaths _ _ _ (p u))]).
 Defined.
 
-End limits.
+End Limits.
 
 Lemma LimsHSET : Lims HSET.
 Proof.
@@ -401,9 +401,9 @@ Defined.
 
 
 (** Alternative definition of limits using cats/limits *)
-Section cats_limits.
+Section cats_Limits.
 
-Require UniMath.CategoryTheory.Limits.cats.limits.
+Require UniMath.CategoryTheory.Limits.Cats.Limits.
 
 Variable J : precategory.
 Variable D : functor J HSET.
@@ -421,7 +421,7 @@ Proof.
               apply isasetaprop, setproperty ].
 Defined.
 
-Lemma cats_LimConeHSET : cats.limits.LimCone D.
+Lemma cats_LimConeHSET : Cats.Limits.LimCone D.
 Proof.
 use mk_LimCone.
 - apply cats_limset.
@@ -440,14 +440,14 @@ use mk_LimCone.
        | simpl; apply funextsec; intro u; apply (toforallpaths _ _ _ (p u))]).
 Defined.
 
-End cats_limits.
+End cats_Limits.
 
-Lemma cats_LimsHSET : cats.limits.Lims HSET.
+Lemma cats_LimsHSET : Cats.Limits.Lims HSET.
 Proof.
 now intros g d; apply cats_LimConeHSET.
 Defined.
 
-Lemma cats_LimsHSET_of_shape (g : precategory) : cats.limits.Lims_of_shape g HSET.
+Lemma cats_LimsHSET_of_shape (g : precategory) : Cats.Limits.Lims_of_shape g HSET.
 Proof.
 now intros d; apply cats_LimConeHSET.
 Defined.
@@ -493,11 +493,11 @@ Defined.
 
 Section BinProductsHSET_from_Lims.
 
-Require UniMath.CategoryTheory.Limits.graphs.binproducts.
+Require UniMath.CategoryTheory.Limits.Graphs.Binproducts.
 
-Lemma BinProductsHSET_from_Lims : graphs.binproducts.BinProducts HSET.
+Lemma BinProductsHSET_from_Lims : Graphs.Binproducts.BinProducts HSET.
 Proof.
-now apply binproducts.BinProducts_from_Lims, LimsHSET_of_shape.
+now apply Binproducts.BinProducts_from_Lims, LimsHSET_of_shape.
 Defined.
 
 End BinProductsHSET_from_Lims.
@@ -512,11 +512,11 @@ Defined.
 
 Section TerminalHSET_from_Lims.
 
-Require UniMath.CategoryTheory.Limits.graphs.terminal.
+Require UniMath.CategoryTheory.Limits.Graphs.Terminal.
 
-Lemma TerminalHSET_from_Lims : graphs.terminal.Terminal HSET.
+Lemma TerminalHSET_from_Lims : Graphs.Terminal.Terminal HSET.
 Proof.
-now apply terminal.Terminal_from_Lims, LimsHSET_of_shape.
+now apply Terminal.Terminal_from_Lims, LimsHSET_of_shape.
 Defined.
 
 End TerminalHSET_from_Lims.
@@ -551,29 +551,29 @@ Defined.
 
 Section PullbacksHSET_from_Lims.
 
-  Require UniMath.CategoryTheory.Limits.graphs.pullbacks.
+  Require UniMath.CategoryTheory.Limits.Graphs.Pullbacks.
 
-  Lemma PullbacksHSET_from_Lims : graphs.pullbacks.Pullbacks HSET.
+  Lemma PullbacksHSET_from_Lims : Graphs.Pullbacks.Pullbacks HSET.
   Proof.
-    apply (graphs.pullbacks.Pullbacks_from_Lims HSET LimsHSET).
+    apply (Graphs.Pullbacks.Pullbacks_from_Lims HSET LimsHSET).
   Defined.
 
 End PullbacksHSET_from_Lims.
 
 Section EqualizersHSET_from_Lims.
 
-  Require UniMath.CategoryTheory.Limits.graphs.equalizers.
+  Require UniMath.CategoryTheory.Limits.Graphs.Equalizers.
 
-  Lemma EqualizersHSET_from_Lims : graphs.equalizers.Equalizers HSET.
+  Lemma EqualizersHSET_from_Lims : Graphs.Equalizers.Equalizers HSET.
   Proof.
-    apply (graphs.equalizers.Equalizers_from_Lims HSET LimsHSET).
+    apply (Graphs.Equalizers.Equalizers_from_Lims HSET LimsHSET).
   Defined.
 
 End EqualizersHSET_from_Lims.
 
 Section PushoutsHSET_from_colims.
-  Require UniMath.CategoryTheory.Limits.graphs.pushouts.
-  Lemma PushoutsHSET_from_Colims : graphs.pushouts.Pushouts HSET.
+  Require UniMath.CategoryTheory.Limits.Graphs.Pushouts.
+  Lemma PushoutsHSET_from_Colims : Graphs.Pushouts.Pushouts HSET.
   Proof.
     red.
     intros .
@@ -881,7 +881,7 @@ Section products_set_slice.
 (* The following is an experiment which computes what the product in Set/X
    should be from the one in [X,Set] using the equivalence between Set/X
    and [X,Set] *)
-(* Require Import UniMath.CategoryTheory.set_slice_fam_equiv. *)
+(* Require Import UniMath.CategoryTheory.setSliceFamEquiv. *)
 (* Require Import UniMath.CategoryTheory.DiscreteCategory. *)
 
 (* Lemma Products_HSET_slice I X : Products I (HSET / X). *)

@@ -12,7 +12,7 @@ Unset Automatic Introduction.
 Require Import
         UniMath.Foundations.NaturalNumbers
         UniMath.Tactics.Utilities
-        UniMath.Tactics.Abmonoids_Tactics.
+        UniMath.Tactics.AbmonoidsTactics.
 
 Local Open Scope nat_scope.
 

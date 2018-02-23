@@ -10,9 +10,9 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.Limits.initial.
-Require Import UniMath.CategoryTheory.Limits.bincoproducts.
-Require Import UniMath.CategoryTheory.Limits.coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Initial.
+Require Import UniMath.CategoryTheory.Limits.Bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coequalizers.
 Require Import UniMath.CategoryTheory.Epis.
 
 Local Open Scope cat.
@@ -334,7 +334,7 @@ Section epi_po.
 End epi_po.
 
 
-(** Criteria for existence of pushouts. *)
+(** Criteria for existence of Pushouts. *)
 Section po_criteria.
 
   Variable C : precategory.
@@ -416,7 +416,7 @@ Section po_criteria.
 End po_criteria.
 
 
-Section lemmas_on_pushouts.
+Section lemmas_on_Pushouts.
 
   Context {C : precategory} (hsC : has_homsets C).
   Context {a b c d : C}.
@@ -448,7 +448,7 @@ Section lemmas_on_pushouts.
       + exact (dirprod_pr1 X).
   Defined.
 
-End lemmas_on_pushouts.
+End lemmas_on_Pushouts.
 
 
 Section pushout_up_to_iso.

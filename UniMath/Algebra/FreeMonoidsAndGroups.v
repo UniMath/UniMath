@@ -1,7 +1,7 @@
 (** Authors Floris van Doorn, December 2017 *)
 
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Algebra.Monoids_and_Groups.
+Require Import UniMath.Algebra.MonoidsAndGroups.
 Require Import UniMath.Algebra.IteratedBinaryOperations.
 Require Import UniMath.MoreFoundations.Subtypes.
 Require Import UniMath.Combinatorics.Lists.

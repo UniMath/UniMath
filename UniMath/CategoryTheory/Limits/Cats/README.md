@@ -10,6 +10,6 @@ more developed definition of (co)limits see
 
 ## Contents
 
-* *limits.v*
+* *Limits.v*
   * cones given by a functor and a tip
   * pointwise constructions of limits in functor precategories

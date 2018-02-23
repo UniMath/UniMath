@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.Algebra.Monoids_and_Groups
-	       UniMath.CategoryTheory.total2_paths
+Require Import UniMath.Algebra.MonoidsAndGroups
+	       UniMath.CategoryTheory.Total2Paths
                UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Monoid.
 Unset Automatic Introduction.

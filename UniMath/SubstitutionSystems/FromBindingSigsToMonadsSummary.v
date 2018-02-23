@@ -17,27 +17,27 @@ about this formalization.
 Require Import UniMath.Foundations.NaturalNumbers.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.FunctorCategories.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.Categories.category_hset.
-Require Import UniMath.CategoryTheory.Categories.category_hset_structures.
-Require Import UniMath.CategoryTheory.Limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.Limits.initial.
-Require Import UniMath.CategoryTheory.Limits.binproducts.
-Require Import UniMath.CategoryTheory.Limits.products.
-Require Import UniMath.CategoryTheory.Limits.bincoproducts.
-Require Import UniMath.CategoryTheory.Limits.coproducts.
-Require Import UniMath.CategoryTheory.Limits.terminal.
+Require Import UniMath.CategoryTheory.Categories.CategoryHset.
+Require Import UniMath.CategoryTheory.Categories.CategoryHsetStructures.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Initial.
+Require Import UniMath.CategoryTheory.Limits.Binproducts.
+Require Import UniMath.CategoryTheory.Limits.Products.
+Require Import UniMath.CategoryTheory.Limits.Bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.ProductCategory.
-Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.Exponentials.
+Require Import UniMath.CategoryTheory.Whiskering.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 
 Require Import UniMath.SubstitutionSystems.SignatureCategory.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
-Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
+Require Import UniMath.SubstitutionSystems.LiftingInitialAlt.
 
 Local Open Scope cat.
 
@@ -84,39 +84,39 @@ Definition BindingSigToSignature :
 (** Definition 10 and Lemma 11 and 12: see UniMath/SubstitutionSystems/SignatureExamples.v *)
 
 (** Definition 15: Graph *)
-Definition graph : UU := @UniMath.CategoryTheory.Limits.graphs.colimits.graph.
+Definition graph : UU := @UniMath.CategoryTheory.Limits.Graphs.Colimits.graph.
 
 (** Definition 16: Diagram *)
 Definition diagram : graph → precategory → UU :=
-  @UniMath.CategoryTheory.Limits.graphs.colimits.diagram.
+  @UniMath.CategoryTheory.Limits.Graphs.Colimits.diagram.
 
 (** Definition 17: Cocone *)
 Definition cocone : ∏ {C : precategory} {g : graph}, diagram g C → C → UU :=
-  @UniMath.CategoryTheory.Limits.graphs.colimits.cocone.
+  @UniMath.CategoryTheory.Limits.Graphs.Colimits.cocone.
 
 (** Definition 18: Colimiting cocone *)
 Definition isColimCocone : ∏ {C : precategory} {g : graph} (d : diagram g C)
   (c0 : C), cocone d c0 → UU :=
-    @UniMath.CategoryTheory.Limits.graphs.colimits.isColimCocone.
+    @UniMath.CategoryTheory.Limits.Graphs.Colimits.isColimCocone.
 
 (** Colimits of a specific shape *)
 Definition Colims_of_shape : graph → precategory → UU :=
-  @UniMath.CategoryTheory.Limits.graphs.colimits.Colims_of_shape.
+  @UniMath.CategoryTheory.Limits.Graphs.Colimits.Colims_of_shape.
 
 (** Colimits of any shape *)
 Definition Colims : precategory → UU :=
-  @UniMath.CategoryTheory.Limits.graphs.colimits.Colims.
+  @UniMath.CategoryTheory.Limits.Graphs.Colimits.Colims.
 
 (** Remark 19: Uniqueness of colimits *)
 Lemma isaprop_Colims : ∏ C : univalent_category, isaprop (Colims C).
 Proof.
-exact @UniMath.CategoryTheory.Limits.graphs.colimits.isaprop_Colims.
+exact @UniMath.CategoryTheory.Limits.Graphs.Colimits.isaprop_Colims.
 Defined.
 
 (** Definition 20: Preservation of colimits *)
 Definition preserves_colimit : ∏ {C D : precategory}, functor C D
   → ∏ {g : graph} (d : diagram g C) (L : C), cocone d L → UU :=
-    @UniMath.CategoryTheory.Limits.graphs.colimits.preserves_colimit.
+    @UniMath.CategoryTheory.Limits.Graphs.Colimits.preserves_colimit.
 
 Definition is_cocont : ∏ {C D : precategory}, functor C D → UU :=
   @UniMath.CategoryTheory.CocontFunctors.is_cocont.
@@ -138,7 +138,7 @@ Defined.
 Definition ColimsFunctorCategory_of_shape :
   ∏ (g : graph) (A C : precategory) (hsC : has_homsets C),
     Colims_of_shape g C → Colims_of_shape g [A,C,hsC] :=
-  @UniMath.CategoryTheory.Limits.graphs.colimits.ColimsFunctorCategory_of_shape.
+  @UniMath.CategoryTheory.Limits.Graphs.Colimits.ColimsFunctorCategory_of_shape.
 
 (** Problem 24: Initial algebras of ω-cocontinuous functors *)
 Definition colimAlgInitial :
@@ -158,7 +158,7 @@ Defined.
 (** Problem 27: Colimits in Set *)
 Lemma ColimsHSET_of_shape : ∏ (g : graph), Colims_of_shape g HSET.
 Proof.
-exact @UniMath.CategoryTheory.Categories.category_hset_structures.ColimsHSET_of_shape.
+exact @UniMath.CategoryTheory.Categories.CategoryHsetStructures.ColimsHSET_of_shape.
 Defined.
 
 (** Lemma 31: Left adjoints preserve colimits *)
@@ -173,8 +173,8 @@ Defined.
 (** (i): Identity functor *)
 Lemma preserves_colimit_identity :
   ∏ C : precategory, has_homsets C
-  → ∏ (g : colimits.graph) (d : colimits.diagram g C)
-      (L : C) (cc : colimits.cocone d L),
+  → ∏ (g : Colimits.graph) (d : Colimits.diagram g C)
+      (L : C) (cc : Colimits.cocone d L),
   preserves_colimit (functor_identity C) d L cc.
 Proof.
 exact @UniMath.CategoryTheory.CocontFunctors.preserves_colimit_identity.
@@ -280,7 +280,7 @@ Defined.
 
 (** Example 35: Exponentials in Set *)
 Definition has_exponentials_HSET : has_exponentials BinProductsHSET :=
-  @UniMath.CategoryTheory.Categories.category_hset_structures.has_exponentials_HSET.
+  @UniMath.CategoryTheory.Categories.CategoryHsetStructures.has_exponentials_HSET.
 
 (** Lemma 36: Left and right product functors preserves colimits *)
 Lemma is_cocont_constprod_functor1 :
@@ -374,7 +374,7 @@ Definition InitHSS :
   Initial C → Colims_of_shape nat_graph C →
   ∏ H : Signature C hsC C hsC, is_omega_cocont (pr1 H) → hss_precategory CP H.
 Proof.
-exact @UniMath.SubstitutionSystems.LiftingInitial_alt.InitHSS.
+exact @UniMath.SubstitutionSystems.LiftingInitialAlt.InitHSS.
 Defined.
 
 Lemma isInitial_InitHSS :
@@ -383,7 +383,7 @@ Lemma isInitial_InitHSS :
   (HH : is_omega_cocont (pr1 H)),
   isInitial (hss_precategory CP H) (InitHSS C hsC CP IC CC H HH).
 Proof.
-exact @UniMath.SubstitutionSystems.LiftingInitial_alt.isInitial_InitHSS.
+exact @UniMath.SubstitutionSystems.LiftingInitialAlt.isInitial_InitHSS.
 Defined.
 
 (** Section 4.2: Binding signatures to monads *)

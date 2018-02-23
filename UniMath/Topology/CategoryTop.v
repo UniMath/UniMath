@@ -10,7 +10,7 @@ Require Import UniMath.Algebra.ConstructiveStructures.
 
 Require Import UniMath.Topology.Topology.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.Categories.category_hset.
+Require Import UniMath.CategoryTheory.Categories.CategoryHset.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
 (** * Displayed category of topological spaces *)

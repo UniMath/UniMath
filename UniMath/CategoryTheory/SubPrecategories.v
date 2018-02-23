@@ -41,7 +41,7 @@ Contents :
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.FunctorCategories.
 Local Open Scope cat.
 
 (** * Sub-precategories *)
@@ -58,7 +58,7 @@ Definition is_sub_precategory {C : precategory}
          (∏ (a b c : C) (f: a --> b) (g : b --> c),
                    Cmor' _ _ f -> Cmor' _ _  g -> Cmor' _ _  (f · g)).
 
-Definition sub_precategories (C : precategory) := total2 (
+Definition SubPrecategories (C : precategory) := total2 (
    fun C' : dirprod (hsubtype (ob C))
                     (∏ a b:ob C, hsubtype (a --> b)) =>
         is_sub_precategory (pr1 C') (pr2 C')).
@@ -75,7 +75,7 @@ Defined.
 
 Definition full_sub_precategory {C : precategory}
          (C': hsubtype (ob C)) :
-   sub_precategories C :=
+   SubPrecategories C :=
   tpair _  (dirprodpair C' (λ a b f, htrue)) (is_sub_precategory_full C C').
 
 
@@ -87,30 +87,30 @@ Definition full_sub_precategory {C : precategory}
 *)
 
 Definition sub_precategory_predicate_objects {C : precategory}
-     (C': sub_precategories C):
+     (C': SubPrecategories C):
        hsubtype (ob C) := pr1 (pr1 C').
 
-Definition sub_ob {C : precategory}(C': sub_precategories C): UU :=
+Definition sub_ob {C : precategory}(C': SubPrecategories C): UU :=
      (*carrier*) (sub_precategory_predicate_objects C').
 
 
 Definition sub_precategory_predicate_morphisms {C : precategory}
-        (C':sub_precategories C) (a b : C) : hsubtype (a --> b) := pr2 (pr1 C') a b.
+        (C':SubPrecategories C) (a b : C) : hsubtype (a --> b) := pr2 (pr1 C') a b.
 
-Definition sub_precategory_morphisms {C : precategory}(C':sub_precategories C)
+Definition sub_precategory_morphisms {C : precategory}(C':SubPrecategories C)
       (a b : C) : UU :=  sub_precategory_predicate_morphisms C' a b.
 
 (** Projections for compatibility of the predicate with identity and
     composition.
 *)
 
-Definition sub_precategory_id (C : precategory)(C':sub_precategories C) :
+Definition sub_precategory_id (C : precategory)(C':SubPrecategories C) :
    ∏ a : ob C,
        sub_precategory_predicate_objects C' a ->
        sub_precategory_predicate_morphisms  C' _ _ (identity a) :=
          pr1 (pr2 C').
 
-Definition sub_precategory_comp (C : precategory)(C':sub_precategories C) :
+Definition sub_precategory_comp (C : precategory)(C':SubPrecategories C) :
    ∏ (a b c: ob C) (f: a --> b) (g : b --> c),
           sub_precategory_predicate_morphisms C' _ _ f ->
           sub_precategory_predicate_morphisms C' _ _ g ->
@@ -122,7 +122,7 @@ Definition sub_precategory_comp (C : precategory)(C':sub_precategories C) :
      i haven't found that theorem
 *)
 
-Lemma is_set_sub_precategory_morphisms {C : precategory}(hs: has_homsets C)(C':sub_precategories C)
+Lemma is_set_sub_precategory_morphisms {C : precategory}(hs: has_homsets C)(C':SubPrecategories C)
       (a b : ob C) : isaset (sub_precategory_morphisms C' a b).
 Proof.
   change (isaset) with (isofhlevel 2).
@@ -134,7 +134,7 @@ Proof.
 Qed.
 
 Definition sub_precategory_morphisms_set {C : precategory}(hs: has_homsets C)
-  (C':sub_precategories C) (a b : ob C) : hSet :=
+  (C':SubPrecategories C) (a b : ob C) : hSet :=
     tpair _ (sub_precategory_morphisms C' a b)
         (is_set_sub_precategory_morphisms hs C' a b).
 
@@ -142,7 +142,7 @@ Definition sub_precategory_morphisms_set {C : precategory}(hs: has_homsets C)
 (** An object of a subcategory is an object of the original precategory. *)
 
 Definition precategory_object_from_sub_precategory_object (C:precategory)
-         (C':sub_precategories C) (a : sub_ob C') :
+         (C':SubPrecategories C) (a : sub_ob C') :
     ob C := pr1 a.
 Coercion precategory_object_from_sub_precategory_object :
      sub_ob >-> ob.
@@ -150,7 +150,7 @@ Coercion precategory_object_from_sub_precategory_object :
 (** A morphism of a subcategory is also a morphism of the original precategory. *)
 
 Definition precategory_morphism_from_sub_precategory_morphism (C:precategory)
-          (C':sub_precategories C) (a b : ob C)
+          (C':SubPrecategories C) (a b : ob C)
            (f : sub_precategory_morphisms C' a b) : a --> b := pr1 f .
 Coercion precategory_morphism_from_sub_precategory_morphism :
          sub_precategory_morphisms >-> precategory_morphisms.
@@ -158,7 +158,7 @@ Coercion precategory_morphism_from_sub_precategory_morphism :
 
 (** ** A sub-precategory forms a precategory. *)
 
-Definition sub_precategory_ob_mor (C : precategory)(C':sub_precategories C) :
+Definition sub_precategory_ob_mor (C : precategory)(C':SubPrecategories C) :
      precategory_ob_mor.
 Proof.
   exists (sub_ob C').
@@ -166,11 +166,11 @@ Proof.
 Defined.
 
 (*
-Coercion sub_precategory_ob_mor : sub_precategories >-> precategory_ob_mor.
+Coercion sub_precategory_ob_mor : SubPrecategories >-> precategory_ob_mor.
 *)
 
 
-Definition sub_precategory_data (C : precategory)(C':sub_precategories C) :
+Definition sub_precategory_data (C : precategory)(C':SubPrecategories C) :
       precategory_data.
 Proof.
   exists (sub_precategory_ob_mor C C').
@@ -187,7 +187,7 @@ Defined.
 
 (** A useful lemma for equality in the sub-precategory. *)
 
-Lemma eq_in_sub_precategory (C : precategory)(C':sub_precategories C)
+Lemma eq_in_sub_precategory (C : precategory)(C':SubPrecategories C)
       (a b : sub_ob C') (f g : sub_precategory_morphisms C' a b) :
           pr1 f = pr1 g -> f = g.
 Proof.
@@ -200,7 +200,7 @@ Proof.
 Qed.
 
 (*
-Lemma eq_in_sub_precategory2 (C : precategory)(C':sub_precategories C)
+Lemma eq_in_sub_precategory2 (C : precategory)(C':SubPrecategories C)
      (a b : sub_ob C') (f g : a --> b)
  (pf : sub_precategory_predicate_morphisms C' _ _ f)
  (pg : sub_precategory_predicate_morphisms C' _ _ g):
@@ -213,7 +213,7 @@ Proof.
   apply (two_arg_paths_f (idpath _ )).
 *)
 
-Definition is_precategory_sub_category (C : precategory)(C':sub_precategories C) :
+Definition is_precategory_sub_category (C : precategory)(C':SubPrecategories C) :
     is_precategory (sub_precategory_data C C').
 Proof.
   repeat split;
@@ -228,25 +228,25 @@ Proof.
   apply assoc.
 Qed.
 
-Definition carrier_of_sub_precategory (C : precategory)(C':sub_precategories C) :
+Definition carrier_of_sub_precategory (C : precategory)(C':SubPrecategories C) :
    precategory := tpair _ _ (is_precategory_sub_category C C').
 
-Coercion carrier_of_sub_precategory : sub_precategories >-> precategory.
+Coercion carrier_of_sub_precategory : SubPrecategories >-> precategory.
 
 (** An object satisfying the predicate is an object of the subcategory *)
-Definition precategory_object_in_subcat {C : precategory} {C':sub_precategories C}
+Definition precategory_object_in_subcat {C : precategory} {C':SubPrecategories C}
    (a : ob C)(p : sub_precategory_predicate_objects C' a) :
        ob C' := tpair _ a p.
 
 (** A morphism satisfying the predicate is a morphism of the subcategory *)
-Definition precategory_morphisms_in_subcat {C : precategory} {C':sub_precategories C}
+Definition precategory_morphisms_in_subcat {C : precategory} {C':SubPrecategories C}
    {a b : ob C'}(f : pr1 a --> pr1 b)
    (p : sub_precategory_predicate_morphisms C' (pr1 a) (pr1 b) (f)) :
        precategory_morphisms (C:=C') a b := tpair _ f p.
 
 (** ** Functor from a sub-precategory to the ambient precategory *)
 
-Definition sub_precategory_inclusion_data (C : precategory) (C':sub_precategories C):
+Definition sub_precategory_inclusion_data (C : precategory) (C':SubPrecategories C):
   functor_data C' C.
 Proof.
   exists (@pr1 _ _ ).
@@ -255,7 +255,7 @@ Proof.
 Defined.
 
 Definition is_functor_sub_precategory_inclusion (C : precategory)
-         (C':sub_precategories C) :
+         (C':SubPrecategories C) :
     is_functor  (sub_precategory_inclusion_data C C').
 Proof.
   split; simpl.
@@ -264,13 +264,13 @@ Proof.
 Qed.
 
 
-Definition sub_precategory_inclusion (C : precategory)(C': sub_precategories C) :
+Definition sub_precategory_inclusion (C : precategory)(C': SubPrecategories C) :
     functor C' C := tpair _ _ (is_functor_sub_precategory_inclusion C C').
 
 (** ** The (full) image of a functor *)
 
 Definition full_img_sub_precategory {C D : precategory}(F : functor C D) :
-    sub_precategories D :=
+    SubPrecategories D :=
        full_sub_precategory (sub_img_functor F).
 
 (** ** Given a functor F : C -> D, we obtain a functor F : C -> Img(F) *)

@@ -4,9 +4,9 @@
 
 Unset Automatic Introduction.
 
-Require Import UniMath.Algebra.Monoids_and_Groups
+Require Import UniMath.Algebra.MonoidsAndGroups
                UniMath.Tactics.Utilities
-               UniMath.Tactics.Monoids_Tactics.
+               UniMath.Tactics.MonoidsTactics.
 
 Open Scope multmonoid.
 

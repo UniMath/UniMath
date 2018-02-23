@@ -8,7 +8,7 @@ Require Import
 Require Import
         UniMath.Foundations.Sets
         UniMath.CategoryTheory.Categories
-        UniMath.CategoryTheory.functor_categories
+        UniMath.CategoryTheory.FunctorCategories
         UniMath.Ktheory.Utilities
         UniMath.Combinatorics.FiniteSets
         UniMath.Ktheory.Representation

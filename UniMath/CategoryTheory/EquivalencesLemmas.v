@@ -26,9 +26,9 @@ Contents :  Definition of adjunction
 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.FunctorCategories.
 Require Import UniMath.CategoryTheory.Adjunctions.
-Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.Equivalences.
 
 Section from_equiv_to_fully_faithful.
 

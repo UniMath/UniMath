@@ -19,7 +19,7 @@ had the name "RezkCompletion".
   * direct formalization of terminal objects
   * proof that terminal object is a property in a category
   * link with empty product
-* *pullbacks.v*
+* *Pullbacks.v*
   * direct formalization of pullbacks
   * proof that pullbacks form a property in a (saturated/univalent) category
   * symmetry
@@ -38,19 +38,19 @@ had the name "RezkCompletion".
   * definition of binary coproduct functor
 * *products.v* --- direct generalization to arbitrary products
 * *coproducts.v* --- direct generalization to arbitrary coproducts
-* *equalizers.v*
+* *Equalizers.v*
   * direct formalization of equalizer
   * equalizer arrows are monic
-* *coequalizers.v*
+* *Coequalizers.v*
   * direct formalization of coequalizer
   * coequalizer arrows are epi
 * *zero.v* --- direct formalization of zero objects
-* *kernels.v* --- direct formalization of kernels
-* *cokernels.v* --- direct formalization of cokernels
+* *Kernels.v* --- direct formalization of kernels
+* *Cokernels.v* --- direct formalization of cokernels
 * *FunctorsPointwiseBinProduct.v*  --- definition of a binary product structure on a functor category by taking pointwise binary products in the target category
 * *FunctorsPointwiseBinCoproduct.v* --- definition of a coproduct structure on a functor category by taking pointwise binary coproducts in the target category; option functor as special case
 * *FunctorsPointwiseProduct.v* --- same with arbitrary products
 * *FunctorsPointwiseCoproduct.v* --- same with arbitrary coproducts
-* *graphs* --- development of limits on the basis of descriptions of diagrams by graphs
-* *cats* --- development of limits on the basis of descriptions of diagrams by functors
+* *Graphs* --- development of limits on the basis of descriptions of diagrams by graphs
+* *Cats* --- development of limits on the basis of descriptions of diagrams by functors
 

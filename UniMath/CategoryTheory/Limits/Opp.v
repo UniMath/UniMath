@@ -23,19 +23,19 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
-Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.OppPrecat.
 
-Require Import UniMath.CategoryTheory.Limits.initial.
-Require Import UniMath.CategoryTheory.Limits.terminal.
-Require Import UniMath.CategoryTheory.Limits.zero.
-Require Import UniMath.CategoryTheory.Limits.equalizers.
-Require Import UniMath.CategoryTheory.Limits.coequalizers.
-Require Import UniMath.CategoryTheory.Limits.kernels.
-Require Import UniMath.CategoryTheory.Limits.cokernels.
-Require Import UniMath.CategoryTheory.Limits.pushouts.
-Require Import UniMath.CategoryTheory.Limits.pullbacks.
-Require Import UniMath.CategoryTheory.Limits.binproducts.
-Require Import UniMath.CategoryTheory.Limits.bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.Initial.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Zero.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
+Require Import UniMath.CategoryTheory.Limits.Coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Kernels.
+Require Import UniMath.CategoryTheory.Limits.Cokernels.
+Require Import UniMath.CategoryTheory.Limits.Pushouts.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Binproducts.
+Require Import UniMath.CategoryTheory.Limits.Bincoproducts.
 
 Local Open Scope cat.
 

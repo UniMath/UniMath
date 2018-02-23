@@ -17,11 +17,11 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.total2_paths.
+Require Import UniMath.CategoryTheory.Total2Paths.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.FunctorCategories.
 Require Import UniMath.CategoryTheory.ProductCategory.
-Require Import UniMath.CategoryTheory.Limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 
 Local Open Scope cat.
 
@@ -353,7 +353,7 @@ Defined.
 End def_functor_pointwise_coprod.
 
 (** * Coproducts from colimits *)
-Section coproducts_from_colimits.
+Section coproducts_from_coLimits.
 
 Variables (I : UU) (C : precategory) (hsC : has_homsets C).
 
@@ -388,4 +388,4 @@ use mk_Coproduct.
   - abstract (intros f Hf; apply colimArrowUnique; simpl in *; intros i; apply Hf).
 Defined.
 
-End coproducts_from_colimits.
+End coproducts_from_coLimits.

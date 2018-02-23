@@ -2,9 +2,9 @@
 (** Date: Spring 2015.*)
 (** Description: Some tactics for abelian monoids.*)
 
-Require Import UniMath.Algebra.Monoids_and_Groups
+Require Import UniMath.Algebra.MonoidsAndGroups
                UniMath.Tactics.Utilities
-               UniMath.Tactics.Monoids_Tactics.
+               UniMath.Tactics.MonoidsTactics.
 
 (** * I. Definitions.*)
 

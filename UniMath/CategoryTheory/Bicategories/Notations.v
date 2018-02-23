@@ -1,6 +1,6 @@
 Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.Bicategories.prebicategory.
+Require Import UniMath.CategoryTheory.Bicategories.Prebicategory.
 
 Notation "a -1-> b" := (homprecat a b)(at level 50).
 Notation "f ;1; g" := (compose_1mor f g) (at level 50, format "f ;1; g", no associativity).

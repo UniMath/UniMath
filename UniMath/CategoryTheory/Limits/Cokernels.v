@@ -13,13 +13,13 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.Epis.
-Require Import UniMath.CategoryTheory.Limits.coequalizers.
-Require Import UniMath.CategoryTheory.Limits.zero.
+Require Import UniMath.CategoryTheory.Limits.Coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Zero.
 
 Local Open Scope cat.
 
 (** * Definition of cokernels *)
-Section def_cokernels.
+Section def_Cokernels.
 
   Context {C : precategory}.
   Hypothesis hs : has_homsets C.
@@ -237,12 +237,12 @@ Section def_cokernels.
         rewrite id_right. apply idpath.
   Qed.
 
-End def_cokernels.
+End def_Cokernels.
 Arguments CokernelArrow [C] [Z] [x] [y] [f] _.
 
 
 (** * Correspondence of cokernels and coequalizers *)
-Section cokernels_coequalizers.
+Section cokernels_Coequalizers.
 
   Context {C : precategory}.
   Hypothesis hs : has_homsets C.
@@ -315,7 +315,7 @@ Section cokernels_coequalizers.
     - exact (CoequalizerCokernel_isCokernel CE).
   Defined.
 
-End cokernels_coequalizers.
+End cokernels_Coequalizers.
 
 
 (** * Cokernels up to iso*)

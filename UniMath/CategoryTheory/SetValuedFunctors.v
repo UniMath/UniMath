@@ -16,12 +16,12 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.Categories.category_hset.
-Require Import UniMath.CategoryTheory.Categories.category_hset_structures.
+Require Import UniMath.CategoryTheory.FunctorCategories.
+Require Import UniMath.CategoryTheory.Categories.CategoryHset.
+Require Import UniMath.CategoryTheory.Categories.CategoryHsetStructures.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.EpiFacts.
-Require Import UniMath.CategoryTheory.Limits.coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Coequalizers.
 
 Local Open Scope cat.
 
@@ -83,15 +83,15 @@ Section LiftEpiNatTrans.
   Proof.
     apply EffectiveEpis_Functor_HSET in surjectivep.
     red in surjectivep.
-    set (coeq := limits.coequalizers.mk_Coequalizer _ _ _ _ (pr2 surjectivep)).
-    apply (limits.coequalizers.CoequalizerOut coeq _ f).
+    set (coeq := Limits.Coequalizers.mk_Coequalizer _ _ _ _ (pr2 surjectivep)).
+    apply (Limits.Coequalizers.CoequalizerOut coeq _ f).
     abstract(
     apply (nat_trans_eq (has_homsets_HSET));
     intro c;
     apply funextfun;
     intro x;
     apply comp_epi;
-    assert (hcommut := limits.pullbacks.PullbackSqrCommutes (pr1 surjectivep));
+    assert (hcommut := Limits.Pullbacks.PullbackSqrCommutes (pr1 surjectivep));
     eapply nat_trans_eq_pointwise in hcommut;
     apply toforallpaths in hcommut;
     apply hcommut).

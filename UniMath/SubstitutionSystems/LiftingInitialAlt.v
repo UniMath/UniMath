@@ -19,25 +19,25 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.FunctorCategories.
+Require Import UniMath.CategoryTheory.Whiskering.
 Require Import UniMath.CategoryTheory.Monads.Monads.
-Require Import UniMath.CategoryTheory.Limits.binproducts.
-Require Import UniMath.CategoryTheory.Limits.bincoproducts.
-Require Import UniMath.CategoryTheory.Limits.initial.
+Require Import UniMath.CategoryTheory.Limits.Binproducts.
+Require Import UniMath.CategoryTheory.Limits.Bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.Initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.Limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Require Import UniMath.CategoryTheory.CocontFunctors.
-Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.yoneda.
-Require Import UniMath.CategoryTheory.Categories.category_hset.
+Require Import UniMath.CategoryTheory.OppPrecat.
+Require Import UniMath.CategoryTheory.Yoneda.
+Require Import UniMath.CategoryTheory.Categories.CategoryHset.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
-Require Import UniMath.SubstitutionSystems.GenMendlerIteration_alt.
+Require Import UniMath.SubstitutionSystems.GenMendlerIterationAlt.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.Notation.
 

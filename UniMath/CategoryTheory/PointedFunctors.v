@@ -25,7 +25,7 @@ Contents :
 Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.FunctorCategories.
 Local Open Scope cat.
 
 Section def_ptd.

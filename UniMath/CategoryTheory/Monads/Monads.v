@@ -26,10 +26,10 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.Limits.terminal.
-Require Import UniMath.CategoryTheory.Limits.bincoproducts.
+Require Import UniMath.CategoryTheory.FunctorCategories.
+Require Import UniMath.CategoryTheory.Whiskering.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Bincoproducts.
 
 Local Open Scope cat.
 

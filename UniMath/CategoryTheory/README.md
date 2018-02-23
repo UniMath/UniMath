@@ -19,11 +19,11 @@ For any question about this library, send an email to Benedikt Ahrens.
 * *precategories.v*
   * precategories
   * isomorphisms in precategories
-* *functor_categories.v*
+* *FunctorCategories.v*
   * functors and natural transformations
   * various properties of functors
   * the functor precategory is a category if the target category is
-* *sub_precategories.v*
+* *SubPrecategories.v*
   * sub-precategories
   * image factorization of a functor
   * a full subprecategory of a category is a category

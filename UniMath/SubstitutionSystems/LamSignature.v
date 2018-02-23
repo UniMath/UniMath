@@ -26,11 +26,11 @@ Contents :
 Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.FunctorCategories.
 Local Open Scope cat.
-Require Import UniMath.CategoryTheory.Limits.binproducts.
-Require Import UniMath.CategoryTheory.Limits.bincoproducts.
-Require Import UniMath.CategoryTheory.Limits.terminal.
+Require Import UniMath.CategoryTheory.Limits.Binproducts.
+Require Import UniMath.CategoryTheory.Limits.Bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.SubstitutionSystems.Signatures.
@@ -38,9 +38,9 @@ Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.CategoryTheory.CocontFunctors.
-Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.Limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Exponentials.
+Require Import UniMath.CategoryTheory.Whiskering.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 
 
 Section Preparations.
@@ -172,7 +172,7 @@ Defined.
    [Flat_H (X) := X o X]
 
    ingredients:
-     - functor_composite in CategoryTheory.functor_categories
+     - functor_composite in CategoryTheory.FunctorCategories
      - map given by horizontal composition in Substsystems.HorizontalComposition
 
  Alternatively : free in two arguments, then precomposed with diagonal

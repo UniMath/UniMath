@@ -21,10 +21,10 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.Limits.terminal.
-Require Import UniMath.CategoryTheory.Limits.binproducts.
-Require Import UniMath.CategoryTheory.Limits.equalizers.
+Require Import UniMath.CategoryTheory.FunctorCategories.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Binproducts.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
 Require Import UniMath.CategoryTheory.Monics.
 
 Local Open Scope cat.
@@ -401,7 +401,7 @@ End monic_pb.
 Arguments glueSquares {_ _ _ _ _ _ _ _ _ _ _ _ _ _ } _ _ .
 
 
-(** * Criteria for existence of pullbacks. *)
+(** * Criteria for existence of Pullbacks. *)
 Section pb_criteria.
 
   Variable C : precategory.
@@ -479,7 +479,7 @@ Section pb_criteria.
 
 End pb_criteria.
 
-Section lemmas_on_pullbacks.
+Section lemmas_on_Pullbacks.
 
 
 (** setup for this section
@@ -716,7 +716,7 @@ Defined.
 
 End pullback_iso.
 
-End lemmas_on_pullbacks.
+End lemmas_on_Pullbacks.
 
 (** * A fully faithful functor reflects limits *)
 Section functor_on_square.
@@ -978,7 +978,7 @@ Defined.
 End pullbacks_pointwise.
 
 (** * Construction of binary products from pullbacks *)
-Section binproduct_from_pullback.
+Section binproduct_from_Pullback.
 
 Context {C : precategory} (Pb : Pullbacks C) (T : Terminal C).
 
@@ -1019,7 +1019,7 @@ Defined.
 
 Definition BinProductsFromPullbacks : BinProducts C := BinProduct_Pullback.
 
-End binproduct_from_pullback.
+End binproduct_from_Pullback.
 
 
 (** * Pullbacks in functor_precategory

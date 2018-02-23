@@ -11,9 +11,9 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.Limits.graphs.limits.
-Require Import UniMath.CategoryTheory.Limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.Limits.pushouts.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Pushouts.
 
 Local Open Scope cat.
 
@@ -332,32 +332,32 @@ Section pushout_coincide.
 
   Lemma equiv_isPushout1 {a b c d : C} (f : C ⟦a, b⟧) (g : C ⟦a, c⟧)
         (i1 : C⟦b, d⟧) (i2 : C⟦c, d⟧) (H : f · i1 = g · i2) :
-    limits.pushouts.isPushout f g i1 i2 H -> isPushout C f g i1 i2 H.
+    Limits.Pushouts.isPushout f g i1 i2 H -> isPushout C f g i1 i2 H.
   Proof.
     intros X R cc.
-    set (XR := limits.pushouts.mk_Pushout f g d i1 i2 H X).
+    set (XR := Limits.Pushouts.mk_Pushout f g d i1 i2 H X).
     use unique_exists.
-    + use (limits.pushouts.PushoutArrow XR).
+    + use (Limits.Pushouts.PushoutArrow XR).
       - exact (coconeIn cc Two).
       - exact (coconeIn cc Three).
       - use (pathscomp0 ((coconeInCommutes cc One Two tt))).
         apply (!(coconeInCommutes cc One Three tt)).
     + use three_rec_dep; simpl.
       - change (three_rec_dep (λ n, C⟦three_rec a b c n, d⟧) _ _ _ _) with (f · i1).
-        rewrite <- assoc, (limits.pushouts.PushoutArrow_PushoutIn1 XR).
+        rewrite <- assoc, (Limits.Pushouts.PushoutArrow_PushoutIn1 XR).
         apply (coconeInCommutes cc One Two tt).
-      - apply (limits.pushouts.PushoutArrow_PushoutIn1 XR).
-      - apply (limits.pushouts.PushoutArrow_PushoutIn2 XR).
+      - apply (Limits.Pushouts.PushoutArrow_PushoutIn1 XR).
+      - apply (Limits.Pushouts.PushoutArrow_PushoutIn2 XR).
     + intros y; apply impred_isaprop; intros t; apply hs.
     + intros y T.
-      use limits.pushouts.PushoutArrowUnique.
+      use Limits.Pushouts.PushoutArrowUnique.
       - apply (T Two).
       - apply (T Three).
   Qed.
 
   Lemma equiv_isPushout2 {a b c d : C} (f : C⟦a, b⟧) (g : C⟦a, c⟧)
         (i1 : C⟦b, d⟧) (i2 : C⟦c, d⟧) (H : f · i1 = g · i2) :
-    limits.pushouts.isPushout f g i1 i2 H <- isPushout C f g i1 i2 H.
+    Limits.Pushouts.isPushout f g i1 i2 H <- isPushout C f g i1 i2 H.
   Proof.
     intros X R k h HH.
     set (XR := mk_Pushout C f g d i1 i2 H X).
@@ -381,22 +381,22 @@ Section pushout_coincide.
   (** ** Pushout *)
 
   Definition equiv_Pushout1 {a b c : C} (f : C⟦a, b⟧) (g : C⟦a, c⟧) :
-    limits.pushouts.Pushout f g -> Pushout C f g.
+    Limits.Pushouts.Pushout f g -> Pushout C f g.
   Proof.
     intros X.
     exact (mk_Pushout
              C f g X
-             (limits.pushouts.PushoutIn1 X)
-             (limits.pushouts.PushoutIn2 X)
-             (limits.pushouts.PushoutSqrCommutes X)
-             (equiv_isPushout1 _ _ _ _ _ (limits.pushouts.isPushout_Pushout X))).
+             (Limits.Pushouts.PushoutIn1 X)
+             (Limits.Pushouts.PushoutIn2 X)
+             (Limits.Pushouts.PushoutSqrCommutes X)
+             (equiv_isPushout1 _ _ _ _ _ (Limits.Pushouts.isPushout_Pushout X))).
   Defined.
 
   Definition equiv_Pushout2 {a b c : C} (f : C⟦a, b⟧) (g : C⟦a, c⟧) :
-    limits.pushouts.Pushout f g <- Pushout C f g.
+    Limits.Pushouts.Pushout f g <- Pushout C f g.
   Proof.
     intros X.
-    exact (limits.pushouts.mk_Pushout
+    exact (Limits.Pushouts.mk_Pushout
              f g
              (PushoutObject C X)
              (PushoutIn1 C X)

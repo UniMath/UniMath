@@ -10,14 +10,14 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.total2_paths.
+Require Import UniMath.CategoryTheory.Total2Paths.
 Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
-Require Import UniMath.CategoryTheory.Limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.Limits.graphs.limits.
-Require Import UniMath.CategoryTheory.Limits.graphs.initial.
-Require Import UniMath.CategoryTheory.Limits.graphs.terminal.
-Require Import UniMath.CategoryTheory.Limits.zero.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Initial.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Zero.
 
 
 (** * Definition of zero using limits and colimits *)
@@ -195,7 +195,7 @@ Section zero_coincides.
   (** ** isZero *)
 
   Lemma equiv_isZero1 (c : C) :
-    limits.zero.isZero C c -> isZero c.
+    Limits.Zero.isZero C c -> isZero c.
   Proof.
     intros X.
     use mk_isZero.
@@ -205,7 +205,7 @@ Section zero_coincides.
   Qed.
 
   Lemma equiv_isZero2 (c : C) :
-    limits.zero.isZero C c <- isZero c.
+    Limits.Zero.isZero C c <- isZero c.
   Proof.
     intros X.
     set (XZ := mk_Zero c X).
@@ -226,17 +226,17 @@ Section zero_coincides.
   (** ** Zero **)
 
   Definition equiv_Zero1 :
-    limits.zero.Zero C -> @Zero C.
+    Limits.Zero.Zero C -> @Zero C.
   Proof.
     intros Z.
     exact (mk_Zero Z (equiv_isZero1 _ (pr2 Z))).
   Defined.
 
   Definition equiv_Zero2 :
-    limits.zero.Zero C <- @Zero C.
+    Limits.Zero.Zero C <- @Zero C.
   Proof.
     intros Z.
-    exact (limits.zero.mk_Zero
+    exact (Limits.Zero.mk_Zero
              (ZeroObject Z)
              (equiv_isZero2
                 _ ((isInitial_Initial (Zero_to_Initial Z))
@@ -246,21 +246,21 @@ Section zero_coincides.
   (** ** Arrows *)
 
   Lemma equiv_ZeroArrowTo (x : C) (Z : Zero) :
-    @limits.zero.ZeroArrowTo C (equiv_Zero2 Z) x = ZeroArrowTo Z x.
+    @Limits.Zero.ZeroArrowTo C (equiv_Zero2 Z) x = ZeroArrowTo Z x.
   Proof.
     apply ZeroArrowToUnique.
   Qed.
 
   Lemma equiv_ZeroArrowFrom (x : C) (Z : Zero) :
-    @limits.zero.ZeroArrowFrom C (equiv_Zero2 Z) x = ZeroArrowFrom Z x.
+    @Limits.Zero.ZeroArrowFrom C (equiv_Zero2 Z) x = ZeroArrowFrom Z x.
   Proof.
     apply ZeroArrowFromUnique.
   Qed.
 
   Lemma equiv_ZeroArrow (x y : C) (Z : Zero) :
-    @limits.zero.ZeroArrow C (equiv_Zero2 Z) x y = ZeroArrow Z x y.
+    @Limits.Zero.ZeroArrow C (equiv_Zero2 Z) x y = ZeroArrow Z x y.
   Proof.
-    unfold limits.zero.ZeroArrow. unfold ZeroArrow.
+    unfold Limits.Zero.ZeroArrow. unfold ZeroArrow.
     rewrite equiv_ZeroArrowTo.
     rewrite equiv_ZeroArrowFrom.
     apply idpath.

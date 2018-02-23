@@ -2,7 +2,7 @@
 
 (** * Group actions *)
 
-Require Import UniMath.Algebra.Monoids_and_Groups
+Require Import UniMath.Algebra.MonoidsAndGroups
                UniMath.Foundations.UnivalenceAxiom
                UniMath.Combinatorics.OrderedSets
                UniMath.Ktheory.Utilities.

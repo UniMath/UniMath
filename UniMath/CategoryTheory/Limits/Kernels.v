@@ -14,13 +14,13 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.Monics.
-Require Import UniMath.CategoryTheory.Limits.equalizers.
-Require Import UniMath.CategoryTheory.Limits.zero.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
+Require Import UniMath.CategoryTheory.Limits.Zero.
 
 Local Open Scope cat.
 
 (** Definition of kernels *)
-Section def_kernels.
+Section def_Kernels.
 
   Context {C : precategory}.
   Hypothesis hs : has_homsets C.
@@ -243,12 +243,12 @@ Section def_kernels.
         rewrite id_left. apply idpath.
   Qed.
 
-End def_kernels.
+End def_Kernels.
 Arguments KernelArrow [C] [Z] [y] [z] [g] _.
 
 
 (** * Correspondence of kernels and equalizers *)
-Section kernel_equalizers.
+Section kernel_Equalizers.
 
   Context {C : precategory}.
   Hypothesis hs : has_homsets C.
@@ -317,7 +317,7 @@ Section kernel_equalizers.
     - exact (EqualizerKernel_isKernel E).
   Defined.
 
-End kernel_equalizers.
+End kernel_Equalizers.
 
 
 (** * Kernel up to isomorphism *)
@@ -553,7 +553,7 @@ End kernel_in_paths.
 
 
 (** * Transports of kernels *)
-Section transport_kernels.
+Section transport_Kernels.
 
   Variable C : precategory.
   Variable hs : has_homsets C.
@@ -577,4 +577,4 @@ Section transport_kernels.
     apply idpath.
   Qed.
 
-End transport_kernels.
+End transport_Kernels.

@@ -3,13 +3,13 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.FunctorCategories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
-Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.Equivalences.
 
-Require Import UniMath.CategoryTheory.Bicategories.prebicategory.
-Require Import UniMath.CategoryTheory.Bicategories.notations.
+Require Import UniMath.CategoryTheory.Bicategories.Prebicategory.
+Require Import UniMath.CategoryTheory.Bicategories.Notations.
 
 (******************************************************************************)
 (* Whiskering *)

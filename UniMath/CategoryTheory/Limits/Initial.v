@@ -12,11 +12,11 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.total2_paths.
+Require Import UniMath.CategoryTheory.Total2Paths.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.FunctorCategories.
 Require Import UniMath.CategoryTheory.Epis.
-Require Import UniMath.CategoryTheory.Limits.coproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
 
 Local Open Scope cat.
 
@@ -121,7 +121,7 @@ End Initial_and_EmptyCoprod.
 
 (* Section Initial_from_Colims. *)
 
-(* Require Import UniMath.CategoryTheory.Limits.graphs.colimits. *)
+(* Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits. *)
 
 (* Variable C : precategory. *)
 

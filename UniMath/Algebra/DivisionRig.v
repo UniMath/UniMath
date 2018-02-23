@@ -12,8 +12,8 @@ Unset Automatic Introduction. (** This line has to be removed for the file to co
 Unset Kernel Term Sharing.
 
 Require Export UniMath.Foundations.Sets.
-Require Export UniMath.Algebra.Rigs_and_Rings.
-Require Export UniMath.Algebra.Domains_and_Fields.
+Require Export UniMath.Algebra.RigsAndRings.
+Require Export UniMath.Algebra.DomainsAndFields.
 
 Require Import UniMath.MoreFoundations.Tactics.
 

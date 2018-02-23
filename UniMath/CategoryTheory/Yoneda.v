@@ -28,10 +28,10 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
-Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.Categories.category_hset.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.OppPrecat.
+Require Import UniMath.CategoryTheory.Categories.CategoryHset.
+Require Import UniMath.CategoryTheory.FunctorCategories.
+Require Import UniMath.CategoryTheory.Whiskering.
 
 Local Notation "'hom' C" := (precategory_morphisms (C := C)) (at level 2).
 

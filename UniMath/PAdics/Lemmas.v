@@ -14,10 +14,10 @@ Unset Automatic Introduction.
 Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.NaturalNumbers.
-Require Import UniMath.Algebra.Rigs_and_Rings.
-Require Import UniMath.Algebra.Domains_and_Fields.
+Require Import UniMath.Algebra.RigsAndRings.
+Require Export UniMath.Algebra.DomainsAndFields.
 Require Import UniMath.NumberSystems.Integers.
-Require Import UniMath.Algebra.Monoids_and_Groups.
+Require Import UniMath.Algebra.MonoidsAndGroups.
 
 Unset Kernel Term Sharing. (** for quicker proof-checking, approx. by factor 25 *)
 

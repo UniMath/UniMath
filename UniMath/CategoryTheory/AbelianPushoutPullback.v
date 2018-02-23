@@ -10,15 +10,15 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.Limits.zero.
-Require Import UniMath.CategoryTheory.Limits.pushouts.
-Require Import UniMath.CategoryTheory.Limits.pullbacks.
-Require Import UniMath.CategoryTheory.Limits.equalizers.
-Require Import UniMath.CategoryTheory.Limits.coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Zero.
+Require Import UniMath.CategoryTheory.Limits.Pushouts.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
+Require Import UniMath.CategoryTheory.Limits.Coequalizers.
 Require Import UniMath.CategoryTheory.Limits.Opp.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.OppPrecat.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
@@ -30,8 +30,8 @@ Require Import UniMath.CategoryTheory.Additive.
 Require Import UniMath.CategoryTheory.Abelian.
 Require Import UniMath.CategoryTheory.AbelianToAdditive.
 
-Require Import UniMath.CategoryTheory.Limits.kernels.
-Require Import UniMath.CategoryTheory.Limits.cokernels.
+Require Import UniMath.CategoryTheory.Limits.Kernels.
+Require Import UniMath.CategoryTheory.Limits.Cokernels.
 Require Import UniMath.CategoryTheory.Limits.BinDirectSums.
 
 

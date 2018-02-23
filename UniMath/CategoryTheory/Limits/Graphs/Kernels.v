@@ -8,16 +8,16 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.Categories.
 
-Require Import UniMath.CategoryTheory.Limits.graphs.limits.
-Require Import UniMath.CategoryTheory.Limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Local Open Scope cat.
-Require Import UniMath.CategoryTheory.Limits.graphs.zero.
-Require Import UniMath.CategoryTheory.Limits.graphs.equalizers.
-Require Import UniMath.CategoryTheory.Limits.kernels.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Zero.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Equalizers.
+Require Import UniMath.CategoryTheory.Limits.Kernels.
 
 
 (** * Definition of kernels in terms of limits *)
-Section def_kernels.
+Section def_Kernels.
 
   Variable C : precategory.
   Variable hs: has_homsets C.
@@ -26,14 +26,14 @@ Section def_kernels.
   Definition Kernel {a b : C} (f : C⟦a, b⟧) := Equalizer C f (ZeroArrow Z a b).
 
   (** ** Maps between Kernels as limits and direct definition. *)
-  Lemma equiv_Kernel1_eq {a b : C} (f : C⟦a, b⟧) (K : limits.kernels.Kernel (equiv_Zero2 Z) f) :
+  Lemma equiv_Kernel1_eq {a b : C} (f : C⟦a, b⟧) (K : Limits.Kernels.Kernel (equiv_Zero2 Z) f) :
     KernelArrow K · f = KernelArrow K · ZeroArrow Z a b.
   Proof.
     rewrite precomp_with_ZeroArrow. rewrite <- equiv_ZeroArrow. apply KernelCompZero.
   Qed.
 
   Lemma equiv_Kernel1_isEqualizer {a b : C} (f : C⟦a, b⟧)
-        (K : limits.kernels.Kernel (equiv_Zero2 Z) f) :
+        (K : Limits.Kernels.Kernel (equiv_Zero2 Z) f) :
     isEqualizer C f (ZeroArrow Z a b) K (KernelArrow K) (equiv_Kernel1_eq f K).
   Proof.
     use (mk_isEqualizer _ hs).
@@ -51,12 +51,12 @@ Section def_kernels.
     - intros y. apply hs.
     (* Uniqueness *)
     - intros y X. cbn in X.
-      use limits.kernels.KernelInsEq. unfold KernelArrow.
+      use Limits.Kernels.KernelInsEq. unfold KernelArrow.
       use (pathscomp0 X). apply pathsinv0.
-      use limits.kernels.KernelCommutes.
+      use Limits.Kernels.KernelCommutes.
   Qed.
 
-  Definition equiv_Kernel1 {a b : C} (f : C⟦a, b⟧) (K : limits.kernels.Kernel (equiv_Zero2 Z) f) :
+  Definition equiv_Kernel1 {a b : C} (f : C⟦a, b⟧) (K : Limits.Kernels.Kernel (equiv_Zero2 Z) f) :
     Kernel f.
   Proof.
     use mk_Equalizer.
@@ -69,7 +69,7 @@ Section def_kernels.
   (* Other direction *)
 
   Lemma equiv_Kernel2_eq {a b : C} (f : C⟦a, b⟧) (K : Kernel f) :
-    EqualizerArrow C K · f = limits.zero.ZeroArrow (equiv_Zero2 Z) (EqualizerObject C K) b.
+    EqualizerArrow C K · f = Limits.Zero.ZeroArrow (equiv_Zero2 Z) (EqualizerObject C K) b.
   Proof.
     rewrite (EqualizerArrowEq C K). rewrite equiv_ZeroArrow.
     rewrite precomp_with_ZeroArrow. apply idpath.
@@ -98,7 +98,7 @@ Section def_kernels.
   Qed.
 
   Definition equiv_Kernel2 {a b : C} (f : C⟦a, b⟧) (K : Kernel f) :
-    limits.kernels.Kernel (equiv_Zero2 Z) f.
+    Limits.Kernels.Kernel (equiv_Zero2 Z) f.
   Proof.
     use mk_Kernel.
     - exact (EqualizerObject C K).
@@ -107,4 +107,4 @@ Section def_kernels.
     - exact (equiv_Kernel2_isEqualizer f K).
   Defined.
 
-End def_kernels.
+End def_Kernels.

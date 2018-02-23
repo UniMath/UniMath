@@ -2,8 +2,8 @@
 
 Require Import UniMath.MoreFoundations.DecidablePropositions.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
-Require Import UniMath.Algebra.Monoids_and_Groups.
-Require Import UniMath.CategoryTheory.total2_paths.
+Require Import UniMath.Algebra.MonoidsAndGroups.
+Require Import UniMath.CategoryTheory.Total2Paths.
 Require Import UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Magma UniMath.Ktheory.QuotientSet.
 Unset Automatic Introduction.

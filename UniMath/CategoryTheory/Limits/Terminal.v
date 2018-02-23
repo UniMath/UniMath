@@ -12,10 +12,10 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.total2_paths.
+Require Import UniMath.CategoryTheory.Total2Paths.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.Limits.products.
+Require Import UniMath.CategoryTheory.FunctorCategories.
+Require Import UniMath.CategoryTheory.Limits.Products.
 Require Import UniMath.CategoryTheory.Monics.
 
 Local Open Scope cat.
@@ -119,9 +119,9 @@ End Terminal_and_EmptyProd.
 
 (* Section Terminal_from_Lims. *)
 
-(* Require Import UniMath.CategoryTheory.Limits.graphs.colimits. *)
-(* Require Import UniMath.CategoryTheory.Limits.graphs.limits. *)
-(* Require Import UniMath.CategoryTheory.opp_precat. *)
+(* Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits. *)
+(* Require Import UniMath.CategoryTheory.Limits.Graphs.Limits. *)
+(* Require Import UniMath.CategoryTheory.OppPrecat. *)
 
 (* Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op"). *)
 

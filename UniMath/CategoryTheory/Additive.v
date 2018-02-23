@@ -7,9 +7,9 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.Algebra.Monoids_and_Groups.
+Require Import UniMath.Algebra.MonoidsAndGroups.
 
-Require Import UniMath.CategoryTheory.total2_paths.
+Require Import UniMath.CategoryTheory.Total2Paths.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
@@ -18,13 +18,13 @@ Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Import UniMath.CategoryTheory.PreAdditive.
 
-Require Import UniMath.CategoryTheory.Limits.zero.
-Require Import UniMath.CategoryTheory.Limits.bincoproducts.
-Require Import UniMath.CategoryTheory.Limits.binproducts.
-Require Import UniMath.CategoryTheory.Limits.equalizers.
-Require Import UniMath.CategoryTheory.Limits.coequalizers.
-Require Import UniMath.CategoryTheory.Limits.kernels.
-Require Import UniMath.CategoryTheory.Limits.cokernels.
+Require Import UniMath.CategoryTheory.Limits.Zero.
+Require Import UniMath.CategoryTheory.Limits.Bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.Binproducts.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
+Require Import UniMath.CategoryTheory.Limits.Coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Kernels.
+Require Import UniMath.CategoryTheory.Limits.Cokernels.
 Require Import UniMath.CategoryTheory.Limits.BinDirectSums.
 
 Local Open Scope cat.
@@ -116,9 +116,9 @@ End additive_quot_additive.
 (** ** Introduction
 Let f g : X --> Y be morphisms in an additive category. In this section we show that a
 Cokernel of f - g is the Coequalizer of f and g, and vice versa. Similarly for Kernels
-and equalizers.
+and Equalizers.
  *)
-Section additive_kernel_equalizers.
+Section additive_kernel_Equalizers.
 
   Variable A : Additive.
 
@@ -283,7 +283,7 @@ Section additive_kernel_equalizers.
     - exact (AdditiveCoequalizerToCokernel_isCokernel f g CE).
   Defined.
 
-End additive_kernel_equalizers.
+End additive_kernel_Equalizers.
 
 
 (** * Sum and in to BinDirectSum is Monic *)

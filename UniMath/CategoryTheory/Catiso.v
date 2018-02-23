@@ -4,9 +4,9 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.FunctorCategories.
 Local Open Scope cat.
-Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.Whiskering.
 
 (******************************************************************************)
 (** * Isomorphism of (pre)categories *)

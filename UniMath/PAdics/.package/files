@@ -1,5 +1,5 @@
-lemmas.v
-fps.v
-frac.v
-z_mod_p.v
-padics.v
+Lemmas.v
+Fps.v
+Frac.v
+ZModP.v
+Padics.v

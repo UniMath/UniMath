@@ -45,7 +45,7 @@ Not surprisingly, these files heavily depend on the implementation of category t
   * signature of lambda calculus obtained from general constructions
   * equational laws for catamorphisms/folds on lambda calculus
   * obtain substitution monad on Set
-* *LamHSET.v* --- instantiates the main result of LiftingInitial_alt.v for Lam in the category HSET and obtains an
+* *LamHSET.v* --- instantiates the main result of LiftingInitialAlt.v for Lam in the category HSET and obtains an
   initial heterogeneous substitution system and a monad
 * *LamSignature.v*
   * "Manual" definition of the arities of the constructors of lambda calculus
@@ -59,7 +59,7 @@ Not surprisingly, these files heavily depend on the implementation of category t
 * *LiftingInitial.v*
   * Construction of a substitution system from an initial algebra 
   * Proof that the substitution system constructed from an initial algebra is an initial substitution system
-* *LiftingInitial_alt.v* --- a variant of LiftingInitial.v that differs in the hypotheses: here we use ω-cocontinuity
+* *LiftingInitialAlt.v* --- a variant of LiftingInitial.v that differs in the hypotheses: here we use ω-cocontinuity
   instead of Kan extensions (this means we use GenMendlerIteration_alt.v instead of GenMendlerIteration.v
 * *MLTT79.v* --- the syntax of Martin-Löf's type theory in the style of LamHSET.v
 * *MonadsFromSubstitutionSystems.v*

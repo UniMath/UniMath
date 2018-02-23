@@ -25,16 +25,16 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.FunctorCategories.
 Local Open Scope cat.
-Require Import UniMath.CategoryTheory.Categories.category_hset.
-Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.yoneda.
-Require Import UniMath.CategoryTheory.sub_precategories.
-Require Import UniMath.CategoryTheory.equivalences.
-Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.precomp_fully_faithful.
-Require Import UniMath.CategoryTheory.precomp_ess_surj.
+Require Import UniMath.CategoryTheory.Categories.CategoryHset.
+Require Import UniMath.CategoryTheory.OppPrecat.
+Require Import UniMath.CategoryTheory.Yoneda.
+Require Import UniMath.CategoryTheory.SubPrecategories.
+Require Import UniMath.CategoryTheory.Equivalences.
+Require Import UniMath.CategoryTheory.Whiskering.
+Require Import UniMath.CategoryTheory.PrecompFullyFaithful.
+Require Import UniMath.CategoryTheory.PrecompEssSurj.
 
 (** * Construction of the Rezk completion via Yoneda *)
 

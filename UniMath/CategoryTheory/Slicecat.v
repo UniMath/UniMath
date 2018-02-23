@@ -46,17 +46,17 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.Limits.graphs.limits.
-Require Import UniMath.CategoryTheory.Limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.Limits.pullbacks.
-Require Import UniMath.CategoryTheory.Limits.binproducts.
-Require Import UniMath.CategoryTheory.Limits.bincoproducts.
-Require Import UniMath.CategoryTheory.Limits.coproducts.
-Require Import UniMath.CategoryTheory.Limits.initial.
-Require Import UniMath.CategoryTheory.Limits.terminal.
+Require Import UniMath.CategoryTheory.FunctorCategories.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Binproducts.
+Require Import UniMath.CategoryTheory.Limits.Bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.Coproducts.
+Require Import UniMath.CategoryTheory.Limits.Initial.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
 Require Import UniMath.CategoryTheory.Adjunctions.
-Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Exponentials.
 
 Local Open Scope cat.
 
@@ -416,7 +416,7 @@ Qed.
 End slicecat_functor_theory.
 
 (** * Colimits in slice categories *)
-Section slicecat_colimits.
+Section slicecat_coLimits.
 
 Context (g : graph) {C : precategory} (hsC : has_homsets C) (x : C).
 
@@ -481,7 +481,7 @@ use mk_ColimCocone.
               intros v; apply (maponpaths pr1 (Hf v))).
 Defined.
 
-End slicecat_colimits.
+End slicecat_coLimits.
 
 Lemma slice_precat_colims_of_shape {C : precategory} (hsC : has_homsets C)
   {g : graph} (x : C) (CC : Colims_of_shape g C) :

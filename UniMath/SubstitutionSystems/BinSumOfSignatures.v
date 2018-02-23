@@ -21,16 +21,16 @@ Contents:
 Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.Limits.bincoproducts.
+Require Import UniMath.CategoryTheory.FunctorCategories.
+Require Import UniMath.CategoryTheory.Whiskering.
+Require Import UniMath.CategoryTheory.Limits.Bincoproducts.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.CategoryTheory.CocontFunctors.
-Require Import UniMath.CategoryTheory.Limits.binproducts.
+Require Import UniMath.CategoryTheory.Limits.Binproducts.
 
 Local Open Scope cat.
 
