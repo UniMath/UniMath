@@ -24,9 +24,9 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 
-Require Import UniMath.CategoryTheory.limits.zero.
-Require Import UniMath.CategoryTheory.limits.kernels.
-Require Import UniMath.CategoryTheory.limits.cokernels.
+Require Import UniMath.CategoryTheory.Limits.zero.
+Require Import UniMath.CategoryTheory.Limits.kernels.
+Require Import UniMath.CategoryTheory.Limits.cokernels.
 
 
 (** * Definition of a PreAdditive precategory

@@ -17,11 +17,11 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.categories.category_hset.
-Require Import UniMath.CategoryTheory.categories.category_hset_structures.
+Require Import UniMath.CategoryTheory.Categories.category_hset.
+Require Import UniMath.CategoryTheory.Categories.category_hset_structures.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.EpiFacts.
-Require Import UniMath.CategoryTheory.limits.coequalizers.
+Require Import UniMath.CategoryTheory.Limits.coequalizers.
 
 Local Open Scope cat.
 

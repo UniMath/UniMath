@@ -12,7 +12,7 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Local Open Scope cat.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Limits.graphs.colimits.
 
 Require Import UniMath.Ktheory.Representation.
 Require UniMath.Ktheory.Precategories.

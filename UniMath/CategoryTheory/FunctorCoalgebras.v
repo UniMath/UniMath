@@ -9,7 +9,7 @@ Contents:
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.Limits.terminal.
 
 Local Open Scope cat.
 

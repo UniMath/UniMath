@@ -9,22 +9,22 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.limits.equalizers.
-Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.Limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.equalizers.
+Require Import UniMath.CategoryTheory.Limits.products.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Local Open Scope cat.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.pullbacks.
 Require Import UniMath.CategoryTheory.slicecat.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Subobjects.
 Require Import UniMath.CategoryTheory.yoneda.
-Require Import UniMath.CategoryTheory.categories.category_hset.
+Require Import UniMath.CategoryTheory.Categories.category_hset.
 Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.categories.category_hset_structures.
-Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
-Require Import UniMath.CategoryTheory.limits.graphs.equalizers.
+Require Import UniMath.CategoryTheory.Categories.category_hset_structures.
+Require Import UniMath.CategoryTheory.Limits.graphs.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.graphs.equalizers.
 Require Import UniMath.CategoryTheory.sub_precategories.
 Require Import UniMath.CategoryTheory.equivalences.
 

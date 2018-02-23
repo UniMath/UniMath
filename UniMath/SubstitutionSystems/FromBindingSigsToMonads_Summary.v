@@ -19,15 +19,15 @@ Require Import UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.categories.category_hset.
-Require Import UniMath.CategoryTheory.categories.category_hset_structures.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.initial.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.products.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.coproducts.
-Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.Categories.category_hset.
+Require Import UniMath.CategoryTheory.Categories.category_hset_structures.
+Require Import UniMath.CategoryTheory.Limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Limits.initial.
+Require Import UniMath.CategoryTheory.Limits.binproducts.
+Require Import UniMath.CategoryTheory.Limits.products.
+Require Import UniMath.CategoryTheory.Limits.bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.coproducts.
+Require Import UniMath.CategoryTheory.Limits.terminal.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.exponentials.
@@ -84,39 +84,39 @@ Definition BindingSigToSignature :
 (** Definition 10 and Lemma 11 and 12: see UniMath/SubstitutionSystems/SignatureExamples.v *)
 
 (** Definition 15: Graph *)
-Definition graph : UU := @UniMath.CategoryTheory.limits.graphs.colimits.graph.
+Definition graph : UU := @UniMath.CategoryTheory.Limits.graphs.colimits.graph.
 
 (** Definition 16: Diagram *)
 Definition diagram : graph → precategory → UU :=
-  @UniMath.CategoryTheory.limits.graphs.colimits.diagram.
+  @UniMath.CategoryTheory.Limits.graphs.colimits.diagram.
 
 (** Definition 17: Cocone *)
 Definition cocone : ∏ {C : precategory} {g : graph}, diagram g C → C → UU :=
-  @UniMath.CategoryTheory.limits.graphs.colimits.cocone.
+  @UniMath.CategoryTheory.Limits.graphs.colimits.cocone.
 
 (** Definition 18: Colimiting cocone *)
 Definition isColimCocone : ∏ {C : precategory} {g : graph} (d : diagram g C)
   (c0 : C), cocone d c0 → UU :=
-    @UniMath.CategoryTheory.limits.graphs.colimits.isColimCocone.
+    @UniMath.CategoryTheory.Limits.graphs.colimits.isColimCocone.
 
 (** Colimits of a specific shape *)
 Definition Colims_of_shape : graph → precategory → UU :=
-  @UniMath.CategoryTheory.limits.graphs.colimits.Colims_of_shape.
+  @UniMath.CategoryTheory.Limits.graphs.colimits.Colims_of_shape.
 
 (** Colimits of any shape *)
 Definition Colims : precategory → UU :=
-  @UniMath.CategoryTheory.limits.graphs.colimits.Colims.
+  @UniMath.CategoryTheory.Limits.graphs.colimits.Colims.
 
 (** Remark 19: Uniqueness of colimits *)
 Lemma isaprop_Colims : ∏ C : univalent_category, isaprop (Colims C).
 Proof.
-exact @UniMath.CategoryTheory.limits.graphs.colimits.isaprop_Colims.
+exact @UniMath.CategoryTheory.Limits.graphs.colimits.isaprop_Colims.
 Defined.
 
 (** Definition 20: Preservation of colimits *)
 Definition preserves_colimit : ∏ {C D : precategory}, functor C D
   → ∏ {g : graph} (d : diagram g C) (L : C), cocone d L → UU :=
-    @UniMath.CategoryTheory.limits.graphs.colimits.preserves_colimit.
+    @UniMath.CategoryTheory.Limits.graphs.colimits.preserves_colimit.
 
 Definition is_cocont : ∏ {C D : precategory}, functor C D → UU :=
   @UniMath.CategoryTheory.CocontFunctors.is_cocont.
@@ -138,7 +138,7 @@ Defined.
 Definition ColimsFunctorCategory_of_shape :
   ∏ (g : graph) (A C : precategory) (hsC : has_homsets C),
     Colims_of_shape g C → Colims_of_shape g [A,C,hsC] :=
-  @UniMath.CategoryTheory.limits.graphs.colimits.ColimsFunctorCategory_of_shape.
+  @UniMath.CategoryTheory.Limits.graphs.colimits.ColimsFunctorCategory_of_shape.
 
 (** Problem 24: Initial algebras of ω-cocontinuous functors *)
 Definition colimAlgInitial :
@@ -158,7 +158,7 @@ Defined.
 (** Problem 27: Colimits in Set *)
 Lemma ColimsHSET_of_shape : ∏ (g : graph), Colims_of_shape g HSET.
 Proof.
-exact @UniMath.CategoryTheory.categories.category_hset_structures.ColimsHSET_of_shape.
+exact @UniMath.CategoryTheory.Categories.category_hset_structures.ColimsHSET_of_shape.
 Defined.
 
 (** Lemma 31: Left adjoints preserve colimits *)
@@ -280,7 +280,7 @@ Defined.
 
 (** Example 35: Exponentials in Set *)
 Definition has_exponentials_HSET : has_exponentials BinProductsHSET :=
-  @UniMath.CategoryTheory.categories.category_hset_structures.has_exponentials_HSET.
+  @UniMath.CategoryTheory.Categories.category_hset_structures.has_exponentials_HSET.
 
 (** Lemma 36: Left and right product functors preserves colimits *)
 Lemma is_cocont_constprod_functor1 :

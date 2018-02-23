@@ -11,7 +11,7 @@ Require Import UniMath.CategoryTheory.UnderCategories.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.sub_precategories.
 
-Require Import UniMath.CategoryTheory.limits.pushouts.
+Require Import UniMath.CategoryTheory.Limits.pushouts.
 
 
 (** * Definition of quotient objects *)

@@ -13,12 +13,12 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids_and_Groups.
 
-Require Import UniMath.CategoryTheory.limits.zero.
-Require Import UniMath.CategoryTheory.limits.pushouts.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.limits.equalizers.
-Require Import UniMath.CategoryTheory.limits.coequalizers.
-Require Import UniMath.CategoryTheory.limits.Opp.
+Require Import UniMath.CategoryTheory.Limits.zero.
+Require Import UniMath.CategoryTheory.Limits.pushouts.
+Require Import UniMath.CategoryTheory.Limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.equalizers.
+Require Import UniMath.CategoryTheory.Limits.coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Opp.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.opp_precat.
@@ -36,9 +36,9 @@ Require Import UniMath.CategoryTheory.PseudoElements.
 
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
-Require Import UniMath.CategoryTheory.limits.kernels.
-Require Import UniMath.CategoryTheory.limits.cokernels.
-Require Import UniMath.CategoryTheory.limits.BinDirectSums.
+Require Import UniMath.CategoryTheory.Limits.kernels.
+Require Import UniMath.CategoryTheory.Limits.cokernels.
+Require Import UniMath.CategoryTheory.Limits.BinDirectSums.
 
 
 (** ** FiveLemma

@@ -20,15 +20,15 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.Epis.
-Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.coequalizers.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.limits.graphs.pushouts.
-Require Import UniMath.CategoryTheory.limits.graphs.eqdiag.
-Require Import UniMath.CategoryTheory.limits.pushouts.
-Require Import UniMath.CategoryTheory.limits.coequalizers.
+Require Import UniMath.CategoryTheory.Limits.graphs.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.graphs.limits.
+Require Import UniMath.CategoryTheory.Limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Limits.graphs.coequalizers.
+Require Import UniMath.CategoryTheory.Limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.graphs.pushouts.
+Require Import UniMath.CategoryTheory.Limits.graphs.eqdiag.
+Require Import UniMath.CategoryTheory.Limits.pushouts.
+Require Import UniMath.CategoryTheory.Limits.coequalizers.
 
 Local Open Scope cat.
 

@@ -15,7 +15,7 @@ Contents:
 Require Import UniMath.Foundations.Sets
         UniMath.CategoryTheory.Categories
         UniMath.CategoryTheory.functor_categories
-        UniMath.CategoryTheory.categories.category_hset
+        UniMath.CategoryTheory.Categories.category_hset
         UniMath.CategoryTheory.slicecat
         UniMath.CategoryTheory.Adjunctions
         UniMath.CategoryTheory.equivalences

@@ -4,7 +4,7 @@ Require Import
         UniMath.CategoryTheory.opp_precat
         UniMath.CategoryTheory.yoneda
         UniMath.CategoryTheory.functor_categories
-        UniMath.CategoryTheory.categories.category_hset.
+        UniMath.CategoryTheory.Categories.category_hset.
 Require Import
         UniMath.Ktheory.Tactics
         UniMath.Ktheory.Precategories

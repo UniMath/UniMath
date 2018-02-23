@@ -35,13 +35,13 @@ Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Limits.bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.Presheaf.
 Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration_alt.
-Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.Limits.initial.
 
 (** A monad is a pointed endofunctor *)
 Definition ptd_from_mon {C:precategory} hsC (T:Monad C) : precategory_Ptd C hsC :=

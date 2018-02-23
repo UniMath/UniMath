@@ -10,7 +10,7 @@
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.Limits.pullbacks.
 
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
