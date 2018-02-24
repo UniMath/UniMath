@@ -140,3 +140,5 @@ bicat/bicat_of_cats.v
 bicat/bicategory_from_bicat.v
 bicat/bicat_from_bicategory.v
 bicat/presheaves.v
+bicat/sigma.v
+
