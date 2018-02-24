@@ -14,6 +14,44 @@ Open Scope mor_disp_scope.
 Notation "f' ==>[ x ] g'" := (disp_cells _ x f' g') (at level 60).
 Notation "f' <==[ x ] g'" := (disp_cells _ x g' f') (at level 60, only parsing).
 
+(* --------------------------------------------------------------------------------------------- *)
+(* Miscellanea.                                                                                  *)
+(* --------------------------------------------------------------------------------------------- *)
+
+Definition mk_total_ob {C : prebicat} {D : disp_bicat C} {a : C} (aa : D a)
+  : total_bicat C D
+  := (a,, aa).
+
+Definition mk_total_mor {C : prebicat} {D : disp_bicat C}
+           {a b : C} {f : C⟦a, b⟧}
+           {aa : D a} {bb : D b} (ff : aa -->[f] bb)
+  : mk_total_ob aa --> mk_total_ob bb
+  := (f,, ff).
+
+Definition mk_total_cell  {C : prebicat} {D : disp_bicat C}
+           {a b : C} {f g : C⟦a, b⟧}
+           {aa : D a} {bb : D b}
+           {ff : aa -->[f] bb}
+           {gg : aa -->[g] bb}
+           (η : f ==> g)
+           (ηη : ff ==>[η] gg)
+  : prebicat_cells _ (mk_total_mor ff) (mk_total_mor gg)
+  := (η,, ηη).
+
+(* Not what I need. *)
+Lemma total_cell_eq
+      {C : prebicat}
+      {D : disp_bicat C}
+      {a b : C} {f g : C⟦a, b⟧} {aa : D a} {bb : D b}
+      {ff : aa -->[f] bb} {gg : aa -->[g] bb}
+      (x y : mk_total_mor ff ==> mk_total_mor gg)
+      (e : pr1 x = pr1 y)
+      (ee : pr2 x = transportb (λ η : f ==> g, ff ==>[ η] gg) e (pr2 y))
+  : x = y.
+Proof.
+  exact (total2_paths2_b e ee).
+Defined.
+
 Section Sigma.
 
 Variable C : bicat.
@@ -52,6 +90,36 @@ Proof.
   exact (pr2 ff ==>[(x,, xx) : PPP] pr2 gg).
 Defined.
 
+Axiom Joker : ∏ A:UU, A.
+
+(*
+Lemma sigma_disp_cell_eq
+      (a b : C) (f g : a --> b)
+      (aa : sigma_prebicat_1_id_comp_cells a)
+      (bb : sigma_prebicat_1_id_comp_cells b)
+      (ff : aa -->[f] bb)
+      (gg : aa -->[g] bb)
+      (x y : f ==> g)
+      (xx : ff ==>[x] gg)
+      (yy : ff ==>[y] gg)
+      (e : x = y)
+      (ee : pr1 xx = transportb (λ z, pr1 ff ==>[z] pr1 gg) e (pr1 yy))
+  : xx = transportb (λ z, ff ==>[z] gg) e yy.
+Proof.
+  destruct aa as (aa, aaa).
+  destruct bb as (bb, bbb).
+  destruct ff as (ff, fff).
+  destruct gg as (gg, ggg).
+  destruct xx as (xx, xxx).
+  destruct yy as (yy, yyy).
+  cbn in *.
+  pose (PP := total2_paths_b ee).
+  Search "total2" (_ = _).
+  apply total2_paths2_b.
+  cbn in ee.
+  assert (xx = transportb (λ z, ff ==>[z] gg) e yy).
+ *)
+
 Definition sigma_bicat_data : disp_prebicat_data C.
 Proof.
   exists sigma_prebicat_1_id_comp_cells.
@@ -76,27 +144,21 @@ Proof.
     exact (rwhisker_disp _ (pr2 gg) (pr2 xx)).
 Defined.
 
-Definition mk_total_ob
-           {a : C} (aa : D a)
-  : total_bicat C D
-  := (a,,aa).
-
-Definition mk_total_mor
-           {a b : C}{f : C⟦a, b⟧}
-           {aa : D a} {bb : D b}
-           (ff : aa -->[f] bb)
-  : mk_total_ob aa --> mk_total_ob bb
-  := (_ ,, ff).
-
-Definition mk_total_cell
-           {a b : C}{f g : C⟦a, b⟧}
-           {aa : D a} {bb : D b}
-           {ff : aa -->[f] bb}
-           {gg : aa -->[g] bb}
-           (η : f ==> g)
-           (ηη : ff ==>[η] gg)
-  : prebicat_cells _ (mk_total_mor ff) (mk_total_mor gg)
-  := ( η ,, ηη).
+(*
+Lemma total_cell_eq {a b : C} {f g : C⟦a, b⟧} {aa : D a} {bb : D b}
+      {ff : aa -->[f] bb} {gg : aa -->[g] bb}
+      {α : f ==> g} (αα : ff ==>[α] gg)
+      {β : f ==> g} (ββ : ff ==>[β] gg)
+      (e : α = β)
+      (ee : αα = transportb (λ η, ff ==>[η] gg) e ββ)
+  : mk_total_cell α αα = mk_total_cell β ββ.
+Proof.
+  destruct e.
+  Check (mk_total_cell α αα).
+  apply pair_path_in2.
+  exact ee.
+Defined.
+*)
 
 Lemma pr2_transportf_map (A : UU) (B : A -> UU) (P : ∏ a, B a -> UU)
       (a a' : A) (e : a = a') (xs : ∑ b : B a, P a b) :
@@ -154,24 +216,73 @@ Proof.
   destruct e; apply idpath.
 Defined.
 
+Lemma total_sigma_cell_eq
+      {a b : total_bicat (total_bicat C D) E}
+      {f g : total_bicat (total_bicat C D) E ⟦a,b⟧}
+      (x y : f ==> g)
+      (eq1 : pr1 x = pr1 y)
+      (eq2 : pr2 x = transportb (λ z, pr2 f ==>[z] pr2 g) eq1 (pr2 y))
+  : x = y.
+Proof.
+  destruct x as (x, xx).
+  destruct y as (y, yy).
+  cbn in *.
+  destruct eq1.
+  cbn in *.
+  apply pair_path_in2.
+  exact eq2.
+Defined.
+
 Definition sigma_bicat : disp_bicat C.
 Proof.
   exists sigma_bicat_data.
-  repeat split; red; cbn; intros until 0.
-  - set (T:= @total2_reassoc_paths').
-    cbn in T.
-    specialize (T (f ==> g)  (fun x' => pr1 ff ==>[ x'] pr1 gg)).
-    cbn in T.
-    specialize (T (fun x'xx => pr2 ff ==>[ mk_total_cell (pr1 x'xx) (pr2 x'xx)] pr2 gg)).
-    cbn in T.
-    use T.
-    + cbn.
-      apply id2_disp_left.
-    + cbn.
-      etrans.
-      apply (id2_disp_left _ (pr2 ηη)).
-      apply maponpaths_2.  (* apply homset_property. *)
-      admit.
-Abort.
+  repeat split; red; cbn; intros until 0;
+  use (@total2_reassoc_paths'
+           (_ ==> _) (fun x' => _ ==>[ x'] _)
+           (fun x'xx => _ ==>[ mk_total_cell (pr1 x'xx) (pr2 x'xx)] _));
+  cbn.
+  - apply id2_disp_left.
+  - apply (id2_disp_left _ (pr2 ηη)).
+  - apply id2_disp_right.
+  - apply (id2_disp_right _ (pr2 ηη)).
+  - apply vassocr_disp.
+  - apply (vassocr_disp _ (pr2 ηη) (pr2 φφ) (pr2 ψψ)).
+  - apply lwhisker_id2_disp.
+  - apply (lwhisker_id2_disp _ (pr2 ff) (pr2 gg)).
+  - apply id2_rwhisker_disp.
+  - apply (id2_rwhisker_disp _ (pr2 ff) (pr2 gg)).
+  - apply lwhisker_vcomp_disp.
+  - apply (lwhisker_vcomp_disp _ (ff := (pr2 ff)) (pr2 ηη) (pr2 φφ)).
+  - apply rwhisker_vcomp_disp.
+  - apply (rwhisker_vcomp_disp _ (ii := pr2 ii) (pr2 ηη) (pr2 φφ)).
+  - apply vcomp_lunitor_disp.
+  - apply (vcomp_lunitor_disp _ (pr2 ηη)).
+  - apply vcomp_runitor_disp.
+  - apply (vcomp_runitor_disp _ (pr2 ηη)).
+  - apply lwhisker_lwhisker_disp.
+  - apply (lwhisker_lwhisker_disp _ (pr2 ff) (pr2 gg) (pr2 ηη)).
+  - apply rwhisker_lwhisker_disp.
+  - apply (rwhisker_lwhisker_disp _ (pr2 ff) (pr2 ii) (pr2 ηη)).
+  - apply rwhisker_rwhisker_disp.
+  - apply (rwhisker_rwhisker_disp _ _ _ (pr2 hh) (pr2 ii) (pr2 ηη)).
+  - apply vcomp_whisker_disp.
+  - apply (vcomp_whisker_disp _ _ _ _ _ _ (pr2 ff) (pr2 gg) (pr2 hh) (pr2 ii) (pr2 ηη) (pr2 φφ)).
+  - apply lunitor_linvunitor_disp.
+  - apply (lunitor_linvunitor_disp _ (pr2 ff)).
+  - apply linvunitor_lunitor_disp.
+  - apply (linvunitor_lunitor_disp _ (pr2 ff)).
+  - apply runitor_rinvunitor_disp.
+  - apply (runitor_rinvunitor_disp _ (pr2 ff)).
+  - apply rinvunitor_runitor_disp.
+  - apply (rinvunitor_runitor_disp _ (pr2 ff)).
+  - apply lassociator_rassociator_disp.
+  - apply (lassociator_rassociator_disp _ (pr2 ff) (pr2 gg) (pr2 hh)).
+  - apply rassociator_lassociator_disp.
+  - apply (rassociator_lassociator_disp _ _ (pr2 ff) (pr2 gg) (pr2 hh)).
+  - apply runitor_rwhisker_disp.
+  - apply (runitor_rwhisker_disp _ (pr2 ff) (pr2 gg)).
+  - apply lassociator_lassociator_disp.
+  - apply (lassociator_lassociator_disp _ (pr2 ff) (pr2 gg) (pr2 hh) (pr2 ii)).
+Qed.
 
 End Sigma.
