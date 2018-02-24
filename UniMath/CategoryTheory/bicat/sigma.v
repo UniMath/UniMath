@@ -11,8 +11,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Open Scope cat.
 Open Scope mor_disp_scope.
 
-Notation "f' ==>[ x ] g'" := (disp_cells _ x f' g') (at level 60).
-Notation "f' <==[ x ] g'" := (disp_cells _ x g' f') (at level 60, only parsing).
+Notation "f' ==>[ x ] g'" := (disp_cells x f' g') (at level 60).
+Notation "f' <==[ x ] g'" := (disp_cells x g' f') (at level 60, only parsing).
 
 (* --------------------------------------------------------------------------------------------- *)
 (* Miscellanea.                                                                                  *)
@@ -61,7 +61,7 @@ Proof.
 Defined.
 
 Definition mk_total_ob {C : prebicat} {D : disp_bicat C} {a : C} (aa : D a)
-  : total_bicat C D
+  : total_bicat D
   := (a,, aa).
 
 Definition mk_total_mor {C : prebicat} {D : disp_bicat C}
@@ -98,7 +98,7 @@ Section Sigma.
 
 Variable C : bicat.
 Variable D : disp_bicat C.
-Variable E : disp_bicat (total_bicat C D).
+Variable E : disp_bicat (total_bicat D).
 
 Definition sigma_disp_cat_ob_mor : disp_cat_ob_mor C.
 Proof.
@@ -127,7 +127,7 @@ Proof.
   intros c c' f g x d d' ff gg.
   cbn in *.
   use (∑ xx : pr1 ff ==>[x] pr1 gg , _).
-  set (PPP := @prebicat_cells (total_bicat C D) (c,, pr1 d) (c',, pr1 d')
+  set (PPP := @prebicat_cells (total_bicat D) (c,, pr1 d) (c',, pr1 d')
                               (f,, pr1 ff) (g,, pr1 gg)).
   exact (pr2 ff ==>[(x,, xx) : PPP] pr2 gg).
 Defined.
@@ -136,30 +136,30 @@ Definition sigma_bicat_data : disp_prebicat_data C.
 Proof.
   exists sigma_prebicat_1_id_comp_cells.
   repeat split; cbn; first [intros until 0 | intros].
-  - exists (id2_disp _ _). exact (id2_disp _ _).
-  - exists (lunitor_disp _ (pr1 f')). exact (lunitor_disp _ (pr2 f')).
-  - exists (runitor_disp _ (pr1 f')). exact (runitor_disp _ (pr2 f')).
-  - exists (linvunitor_disp _ (pr1 f')). exact (linvunitor_disp _ (pr2 f')).
-  - exists (rinvunitor_disp _ (pr1 f')). exact (rinvunitor_disp _ (pr2 f')).
-  - exists (rassociator_disp _ (pr1 ff) (pr1 gg) (pr1 hh)).
-    exact (rassociator_disp _ (pr2 ff) (pr2 gg) (pr2 hh)).
-  - exists (lassociator_disp _ (pr1 ff) (pr1 gg) (pr1 hh)).
-    exact (lassociator_disp _ (pr2 ff) (pr2 gg) (pr2 hh)).
+  - exists (id2_disp _). exact (id2_disp _).
+  - exists (lunitor_disp (pr1 f')). exact (lunitor_disp (pr2 f')).
+  - exists (runitor_disp (pr1 f')). exact (runitor_disp (pr2 f')).
+  - exists (linvunitor_disp (pr1 f')). exact (linvunitor_disp (pr2 f')).
+  - exists (rinvunitor_disp (pr1 f')). exact (rinvunitor_disp (pr2 f')).
+  - exists (rassociator_disp (pr1 ff) (pr1 gg) (pr1 hh)).
+    exact (rassociator_disp (pr2 ff) (pr2 gg) (pr2 hh)).
+  - exists (lassociator_disp (pr1 ff) (pr1 gg) (pr1 hh)).
+    exact (lassociator_disp (pr2 ff) (pr2 gg) (pr2 hh)).
   - intros xx yy.
-    exists (vcomp2_disp _ (pr1 xx) (pr1 yy)).
-    exact (vcomp2_disp _ (pr2 xx) (pr2 yy)).
+    exists (vcomp2_disp (pr1 xx) (pr1 yy)).
+    exact (vcomp2_disp (pr2 xx) (pr2 yy)).
   - intros xx.
-    exists (lwhisker_disp _ (pr1 ff) (pr1 xx)).
-    exact (lwhisker_disp _ (pr2 ff) (pr2 xx)).
+    exists (lwhisker_disp (pr1 ff) (pr1 xx)).
+    exact (lwhisker_disp (pr2 ff) (pr2 xx)).
   - intros xx.
-    exists (rwhisker_disp _ (pr1 gg) (pr1 xx)).
-    exact (rwhisker_disp _ (pr2 gg) (pr2 xx)).
+    exists (rwhisker_disp (pr1 gg) (pr1 xx)).
+    exact (rwhisker_disp (pr2 gg) (pr2 xx)).
 Defined.
 
 (* Needed? *)
 Lemma total_sigma_cell_eq
-      {a b : total_bicat (total_bicat C D) E}
-      {f g : total_bicat (total_bicat C D) E ⟦a,b⟧}
+      {a b : total_bicat E}
+      {f g : total_bicat E ⟦a,b⟧}
       (x y : f ==> g)
       (eq1 : pr1 x = pr1 y)
       (eq2 : pr2 x = transportb (λ z, pr2 f ==>[z] pr2 g) eq1 (pr2 y))
@@ -183,47 +183,47 @@ Proof.
            (fun x'xx => _ ==>[ mk_total_cell (pr1 x'xx) (pr2 x'xx)] _));
   cbn.
   - apply id2_disp_left.
-  - apply (id2_disp_left _ (pr2 ηη)).
+  - apply (id2_disp_left (pr2 ηη)).
   - apply id2_disp_right.
-  - apply (id2_disp_right _ (pr2 ηη)).
+  - apply (id2_disp_right (pr2 ηη)).
   - apply vassocr_disp.
-  - apply (vassocr_disp _ (pr2 ηη) (pr2 φφ) (pr2 ψψ)).
+  - apply (vassocr_disp (pr2 ηη) (pr2 φφ) (pr2 ψψ)).
   - apply lwhisker_id2_disp.
-  - apply (lwhisker_id2_disp _ (pr2 ff) (pr2 gg)).
+  - apply (lwhisker_id2_disp (pr2 ff) (pr2 gg)).
   - apply id2_rwhisker_disp.
-  - apply (id2_rwhisker_disp _ (pr2 ff) (pr2 gg)).
+  - apply (id2_rwhisker_disp (pr2 ff) (pr2 gg)).
   - apply lwhisker_vcomp_disp.
-  - apply (lwhisker_vcomp_disp _ (ff := (pr2 ff)) (pr2 ηη) (pr2 φφ)).
+  - apply (lwhisker_vcomp_disp (ff := (pr2 ff)) (pr2 ηη) (pr2 φφ)).
   - apply rwhisker_vcomp_disp.
-  - apply (rwhisker_vcomp_disp _ (ii := pr2 ii) (pr2 ηη) (pr2 φφ)).
+  - apply (rwhisker_vcomp_disp (ii := pr2 ii) (pr2 ηη) (pr2 φφ)).
   - apply vcomp_lunitor_disp.
-  - apply (vcomp_lunitor_disp _ (pr2 ηη)).
+  - apply (vcomp_lunitor_disp (pr2 ηη)).
   - apply vcomp_runitor_disp.
-  - apply (vcomp_runitor_disp _ (pr2 ηη)).
+  - apply (vcomp_runitor_disp (pr2 ηη)).
   - apply lwhisker_lwhisker_disp.
-  - apply (lwhisker_lwhisker_disp _ (pr2 ff) (pr2 gg) (pr2 ηη)).
+  - apply (lwhisker_lwhisker_disp (pr2 ff) (pr2 gg) (pr2 ηη)).
   - apply rwhisker_lwhisker_disp.
-  - apply (rwhisker_lwhisker_disp _ (pr2 ff) (pr2 ii) (pr2 ηη)).
+  - apply (rwhisker_lwhisker_disp (pr2 ff) (pr2 ii) (pr2 ηη)).
   - apply rwhisker_rwhisker_disp.
-  - apply (rwhisker_rwhisker_disp _ _ _ (pr2 hh) (pr2 ii) (pr2 ηη)).
+  - apply (rwhisker_rwhisker_disp _ _ (pr2 hh) (pr2 ii) (pr2 ηη)).
   - apply vcomp_whisker_disp.
-  - apply (vcomp_whisker_disp _ _ _ _ _ _ (pr2 ff) (pr2 gg) (pr2 hh) (pr2 ii) (pr2 ηη) (pr2 φφ)).
+  - apply (vcomp_whisker_disp _ _ _ _ _ (pr2 ff) (pr2 gg) (pr2 hh) (pr2 ii) (pr2 ηη) (pr2 φφ)).
   - apply lunitor_linvunitor_disp.
-  - apply (lunitor_linvunitor_disp _ (pr2 ff)).
+  - apply (lunitor_linvunitor_disp (pr2 ff)).
   - apply linvunitor_lunitor_disp.
-  - apply (linvunitor_lunitor_disp _ (pr2 ff)).
+  - apply (linvunitor_lunitor_disp (pr2 ff)).
   - apply runitor_rinvunitor_disp.
-  - apply (runitor_rinvunitor_disp _ (pr2 ff)).
+  - apply (runitor_rinvunitor_disp (pr2 ff)).
   - apply rinvunitor_runitor_disp.
-  - apply (rinvunitor_runitor_disp _ (pr2 ff)).
+  - apply (rinvunitor_runitor_disp (pr2 ff)).
   - apply lassociator_rassociator_disp.
-  - apply (lassociator_rassociator_disp _ (pr2 ff) (pr2 gg) (pr2 hh)).
+  - apply (lassociator_rassociator_disp (pr2 ff) (pr2 gg) (pr2 hh)).
   - apply rassociator_lassociator_disp.
-  - apply (rassociator_lassociator_disp _ _ (pr2 ff) (pr2 gg) (pr2 hh)).
+  - apply (rassociator_lassociator_disp _ (pr2 ff) (pr2 gg) (pr2 hh)).
   - apply runitor_rwhisker_disp.
-  - apply (runitor_rwhisker_disp _ (pr2 ff) (pr2 gg)).
+  - apply (runitor_rwhisker_disp (pr2 ff) (pr2 gg)).
   - apply lassociator_lassociator_disp.
-  - apply (lassociator_lassociator_disp _ (pr2 ff) (pr2 gg) (pr2 hh) (pr2 ii)).
+  - apply (lassociator_lassociator_disp (pr2 ff) (pr2 gg) (pr2 hh) (pr2 ii)).
 Qed.
 
 End Sigma.
