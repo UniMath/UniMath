@@ -13,7 +13,6 @@ Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.Ktheory.Utilities.
 Require Import UniMath.Induction.PolynomialFunctors.
 Require Import UniMath.Induction.W.Core.
-Require Import UniMath.Induction.M.Uniqueness.
 
 Section Uniqueness.
 
@@ -44,7 +43,7 @@ Section Uniqueness.
   Proof.
     intros X Y.
 
-    (** Get the coalgebra morphisms X → Y and Y → X via initiality *)
+    (** Get the algebra morphisms X → Y and Y → X via initiality *)
     pose (X_mor_Y := iscontrpr1 (pr2 X Y)).
     pose (Y_mor_X := iscontrpr1 (pr2 Y X)).
 
@@ -71,7 +70,7 @@ Section Uniqueness.
 
   (** Now we must prove that the algebra morphisms, when transported along
       the path W_carriers_eq, will be equal. *)
-  Lemma W_coalg_eq : ∏ X Y : W B, W_algebra B X = W_algebra B Y.
+  Lemma W_alg_eq : ∏ X Y : W B, W_algebra B X = W_algebra B Y.
   Proof.
     intros X Y.
     pose (f := pr1 ((pr2 X) (W_algebra B Y))).
@@ -142,6 +141,6 @@ Section Uniqueness.
     intros X Y.
     apply subtypeEquality.
     - exact isaprop_is_initial.
-    - exact (W_coalg_eq X Y).
+    - exact (W_alg_eq X Y).
   Defined.
 End Uniqueness.
