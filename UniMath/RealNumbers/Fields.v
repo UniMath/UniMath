@@ -1,6 +1,6 @@
 (** * Additional theorems about fields *)
 
-Require Export UniMath.Algebra.Domains_and_Fields.
+Require Export UniMath.Algebra.DomainsAndFields.
 
 Lemma isapropmultinvpair :
   ∏ (X : rig) (x : X), isaprop (multinvpair X x).

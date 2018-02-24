@@ -21,27 +21,27 @@ Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.FunctorCategories.
 Local Open Scope cat.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.Notation.
 Require Import UniMath.CategoryTheory.Monads.LModules.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.CategoryTheory.Monads.Monads.
-Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.Whiskering.
 
 Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Limits.Bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
 Require Import UniMath.CategoryTheory.CocontFunctors.
 Require Import UniMath.CategoryTheory.Presheaf.
-Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
-Require Import UniMath.SubstitutionSystems.GenMendlerIteration_alt.
-Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.SubstitutionSystems.LiftingInitialAlt.
+Require Import UniMath.SubstitutionSystems.GenMendlerIterationAlt.
+Require Import UniMath.CategoryTheory.Limits.Initial.
 
 (** A monad is a pointed endofunctor *)
 Definition ptd_from_mon {C:precategory} hsC (T:Monad C) : precategory_Ptd C hsC :=
@@ -325,11 +325,11 @@ Defined.
 
 Let Colims_of_shape_nat_graph_EndC : Colims_of_shape nat_graph EndC.
 Proof.
-  apply colimits.ColimsFunctorCategory_of_shape, CC.
+  apply Colimits.ColimsFunctorCategory_of_shape, CC.
 Defined.
 
 
-Let is_omega_cocont_Id_H' := LiftingInitial_alt .is_omega_cocont_Id_H C hs CP H HH.
+Let is_omega_cocont_Id_H' := LiftingInitialAlt .is_omega_cocont_Id_H C hs CP H HH.
 
 Local Notation j_mor := ((mor_from_algebra_mor _ _ _ j):nat_trans _ _).
 
@@ -365,14 +365,14 @@ the same Mendler iterator. We use Lemma 8 from "Heteregenous substitution system
 Let L := (pre_composition_functor C C C hs hs T_func).
 Let X := (M:functor _ _).
 
-(* inspired by LiftingInitial_alt *)
+(* inspired by LiftingInitialAlt *)
 Local Lemma HL : is_omega_cocont L.
 Proof.
   apply CocontFunctors.is_omega_cocont_pre_composition_functor, CC.
 Defined.
 
 Let isInitial_precomp' : isInitial [C, C, hs] (L InitialEndC) :=
-  LiftingInitial_alt.isInitial_pre_comp C hs IC p T_hss : isInitial [C, C, hs] (L InitialEndC).
+  LiftingInitialAlt.isInitial_pre_comp C hs IC p T_hss : isInitial [C, C, hs] (L InitialEndC).
 
 
 Local Definition ψ_pw Z : _ ⟦ψ_source hsEndC X L Z, ψ_target Id_H hsEndC X L Z⟧ .

@@ -2,11 +2,11 @@
 
 (** * abelian groups *)
 
-Require Import UniMath.Algebra.Monoids_and_Groups
+Require Import UniMath.Algebra.MonoidsAndGroups
                UniMath.NumberSystems.Integers
                UniMath.Ktheory.Tactics
                UniMath.Ktheory.Utilities
-               UniMath.CategoryTheory.functor_categories
+               UniMath.CategoryTheory.FunctorCategories
                UniMath.Ktheory.Representation
                UniMath.Ktheory.Precategories.
 Require UniMath.Ktheory.Group.
@@ -470,11 +470,11 @@ Definition power (I:Type) (X:abgr) : abgr.
 
 (** ** the category of abelian groups *)
 
-Require UniMath.Algebra.Monoids_and_Groups
+Require UniMath.Algebra.MonoidsAndGroups
         UniMath.CategoryTheory.Categories.
 
 Module Category.
-  Import UniMath.Algebra.Monoids_and_Groups
+  Import UniMath.Algebra.MonoidsAndGroups
          UniMath.CategoryTheory.Categories.
 
   Definition Ob := abgr.

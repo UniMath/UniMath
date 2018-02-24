@@ -13,8 +13,8 @@ A typical use for displayed categories is for constructing categories of structu
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.categories.category_hset.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Categories.CategoryHset.
+Require Import UniMath.CategoryTheory.FunctorCategories.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
@@ -345,8 +345,8 @@ Proof.
 Defined.
 
 
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits.
+Require Import UniMath.CategoryTheory.Limits.Graphs.Limits.
 
 Local Notation "'π'" := (pr1_category disp_cat_functor_alg).
 
@@ -492,7 +492,7 @@ End monad_algebras.
 
 (** * Any category is a displayed category over unit *)
 
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Categories.StandardCategories.
 
 Section over_terminal_category.
 

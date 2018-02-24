@@ -1,10 +1,10 @@
 Require Import UniMath.Foundations.Preamble.
 Require Import
         UniMath.CategoryTheory.Categories
-        UniMath.CategoryTheory.opp_precat
-        UniMath.CategoryTheory.yoneda
-        UniMath.CategoryTheory.functor_categories
-        UniMath.CategoryTheory.categories.category_hset.
+        UniMath.CategoryTheory.OppPrecat
+        UniMath.CategoryTheory.Yoneda
+        UniMath.CategoryTheory.FunctorCategories
+        UniMath.CategoryTheory.Categories.CategoryHset.
 Require Import
         UniMath.Ktheory.Tactics
         UniMath.Ktheory.Precategories

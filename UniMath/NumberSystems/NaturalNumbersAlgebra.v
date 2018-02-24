@@ -1,7 +1,7 @@
 (** * Facts about the natural numbers that depend on definitions from algebra *)
 
 Require Export UniMath.Algebra.Archimedean.
-Require Export UniMath.Algebra.Domains_and_Fields.
+Require Export UniMath.Algebra.DomainsAndFields.
 Require Export UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.MoreFoundations.Tactics.
 

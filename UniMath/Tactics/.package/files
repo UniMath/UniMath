@@ -1,5 +1,5 @@
 Utilities.v
-Monoids_Tactics.v
-Abmonoids_Tactics.v
-Groups_Tactics.v
-Nat_Tactics.v
+MonoidsTactics.v
+AbmonoidsTactics.v
+GroupsTactics.v
+NatTactics.v

@@ -25,24 +25,24 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.Algebra.Monoids_and_Groups.
+Require Import UniMath.Algebra.MonoidsAndGroups.
 
-Require Import UniMath.CategoryTheory.total2_paths.
+Require Import UniMath.CategoryTheory.Total2Paths.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.OppPrecat.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 
-Require Import UniMath.CategoryTheory.limits.zero.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.equalizers.
-Require Import UniMath.CategoryTheory.limits.coequalizers.
-Require Import UniMath.CategoryTheory.limits.kernels.
-Require Import UniMath.CategoryTheory.limits.cokernels.
-Require Import UniMath.CategoryTheory.limits.pushouts.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.limits.Opp.
+Require Import UniMath.CategoryTheory.Limits.Zero.
+Require Import UniMath.CategoryTheory.Limits.Binproducts.
+Require Import UniMath.CategoryTheory.Limits.Bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
+Require Import UniMath.CategoryTheory.Limits.Coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Kernels.
+Require Import UniMath.CategoryTheory.Limits.Cokernels.
+Require Import UniMath.CategoryTheory.Limits.Pushouts.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.Opp.
 
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
@@ -229,7 +229,7 @@ End abelian_monic_epi_iso.
   In the following section we prove that an abelian category has pullbacks of monics and pushouts of
   epis.
 *)
-Section abelian_monic_pullbacks.
+Section abelian_monic_Pullbacks.
 
   Variable A : AbelianPreCat.
   Hypothesis hs : has_homsets A.
@@ -557,12 +557,12 @@ Section abelian_monic_pullbacks.
                     (epis_Pushout_isPushout E1 E2 BinCoprod coker)).
   Defined.
 
-End abelian_monic_pullbacks.
+End abelian_monic_Pullbacks.
 
 (** * Equalizers and Coequalizers
   In the following section we show that equalizers and coequalizers exist in abelian categories.
 *)
-Section abelian_equalizers.
+Section abelian_Equalizers.
 
   Variable A : AbelianPreCat.
   Hypothesis hs : has_homsets A.
@@ -791,13 +791,13 @@ Section abelian_equalizers.
     apply Coequalizer.
   Defined.
 
-End abelian_equalizers.
+End abelian_Equalizers.
 
 
 (** * Pushouts and pullbacks
-  Abelian categories have pullbacks and pushouts.
+  Abelian categories have pullbacks and Pushouts.
 *)
-Section abelian_pushouts.
+Section abelian_Pushouts.
 
   Variable A : AbelianPreCat.
   Hypothesis hs : has_homsets A.
@@ -816,7 +816,7 @@ Section abelian_pushouts.
     apply (Coequalizers A hs).
   Defined.
 
-End abelian_pushouts.
+End abelian_Pushouts.
 
 
 (** * Monic kernels and Epi cokernels
@@ -1048,16 +1048,16 @@ Section abelian_factorization.
 
   (** ** Kernels, Cokernels, CoImage, and Image *)
 
-  Definition Kernel {x y : A} (f : x --> y) : kernels.Kernel (to_Zero A) f := to_Kernels A x y f.
+  Definition Kernel {x y : A} (f : x --> y) : Kernels.Kernel (to_Zero A) f := to_Kernels A x y f.
 
   Definition Cokernel {x y : A} (f : x --> y) : Cokernel (to_Zero A) f := to_Cokernels A x y f.
 
   Definition CoImage {x y : A} (f : x --> y) :
-    cokernels.Cokernel (to_Zero A) (KernelArrow (Kernel f)) :=
+    Cokernels.Cokernel (to_Zero A) (KernelArrow (Kernel f)) :=
     to_Cokernels A _ _ (KernelArrow (Kernel f)).
 
   Definition Image {x y : A} (f : x --> y) :
-    kernels.Kernel (to_Zero A) (CokernelArrow (Cokernel f)) :=
+    Kernels.Kernel (to_Zero A) (CokernelArrow (Cokernel f)) :=
     to_Kernels A _ _ (CokernelArrow (Cokernel f)).
 
   (** ** Construction of the morphism CoIm f --> Im f *)
@@ -1359,14 +1359,14 @@ Section abelian_kernel_cokernel.
   Variable A : AbelianPreCat.
   Hypothesis hs : has_homsets A.
 
-  Definition MonicToKernel' {x y : A} (M : Monic A x y) (CK : cokernels.Cokernel (to_Zero A) M) :
-    kernels.Kernel (to_Zero A) (CokernelArrow CK) :=
+  Definition MonicToKernel' {x y : A} (M : Monic A x y) (CK : Cokernels.Cokernel (to_Zero A) M) :
+    Kernels.Kernel (to_Zero A) (CokernelArrow CK) :=
     @Kernel_up_to_iso2 A hs (to_Zero A) _ _ _ (CokernelArrow (Cokernel M)) (CokernelArrow CK)
                        (iso_from_Cokernel_to_Cokernel (to_Zero A) (Cokernel M) CK)
                        (CokernelCommutes _ _ _ _ _) (MonicToKernel M).
 
-  Definition EpiToCokernel' {x y : A} (E : Epi A x y) (K : kernels.Kernel (to_Zero A) E) :
-    cokernels.Cokernel (to_Zero A) (KernelArrow K) :=
+  Definition EpiToCokernel' {x y : A} (E : Epi A x y) (K : Kernels.Kernel (to_Zero A) E) :
+    Cokernels.Cokernel (to_Zero A) (KernelArrow K) :=
     Cokernel_up_to_iso2 A hs (to_Zero A) (KernelArrow (Kernel E)) (KernelArrow K)
                         (iso_from_Kernel_to_Kernel (to_Zero A) K (Kernel E))
                         (KernelCommutes _ _ _ _ _) (EpiToCokernel E).

@@ -1,5 +1,5 @@
 NaturalNumbersAlgebra.v
-NaturalNumbers_le_Inductive.v
+NaturalNumbersLeInductive.v
 Integers.v
 RationalNumbers.v
 Tests.v

@@ -2,18 +2,18 @@ Require Import
         UniMath.Foundations.Preamble.
 Require Import
         UniMath.CategoryTheory.Categories
-        UniMath.CategoryTheory.functor_categories
+        UniMath.CategoryTheory.FunctorCategories
         UniMath.Ktheory.Utilities
         UniMath.Ktheory.Precategories.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Export UniMath.CategoryTheory.Categories.
-Require Export UniMath.CategoryTheory.opp_precat
-               UniMath.CategoryTheory.yoneda
-               UniMath.CategoryTheory.categories.category_hset.
-Require Export UniMath.CategoryTheory.functor_categories.
-Require Export UniMath.CategoryTheory.categories.category_hset.
+Require Export UniMath.CategoryTheory.OppPrecat
+               UniMath.CategoryTheory.Yoneda
+               UniMath.CategoryTheory.Categories.CategoryHset.
+Require Export UniMath.CategoryTheory.FunctorCategories.
+Require Export UniMath.CategoryTheory.Categories.CategoryHset.
 
 
 Local Open Scope cat.

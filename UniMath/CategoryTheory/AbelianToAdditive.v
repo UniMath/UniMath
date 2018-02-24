@@ -8,22 +8,22 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.Algebra.Monoids_and_Groups.
+Require Import UniMath.Algebra.MonoidsAndGroups.
 
-Require Import UniMath.CategoryTheory.total2_paths.
+Require Import UniMath.CategoryTheory.Total2Paths.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
-Require Import UniMath.CategoryTheory.limits.zero.
-Require Import UniMath.CategoryTheory.limits.binproducts.
-Require Import UniMath.CategoryTheory.limits.bincoproducts.
-Require Import UniMath.CategoryTheory.limits.equalizers.
-Require Import UniMath.CategoryTheory.limits.coequalizers.
-Require Import UniMath.CategoryTheory.limits.kernels.
-Require Import UniMath.CategoryTheory.limits.cokernels.
-Require Import UniMath.CategoryTheory.limits.pushouts.
-Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.limits.BinDirectSums.
+Require Import UniMath.CategoryTheory.Limits.Zero.
+Require Import UniMath.CategoryTheory.Limits.Binproducts.
+Require Import UniMath.CategoryTheory.Limits.Bincoproducts.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
+Require Import UniMath.CategoryTheory.Limits.Coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Kernels.
+Require Import UniMath.CategoryTheory.Limits.Cokernels.
+Require Import UniMath.CategoryTheory.Limits.Pushouts.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Require Import UniMath.CategoryTheory.Limits.BinDirectSums.
 
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
@@ -161,7 +161,7 @@ Section abelian_is_additive.
   Qed.
 
   Definition KernelOfPr1 {X : A} (BinProd : BinProduct A X X) :
-    kernels.Kernel (to_Zero A) (BinProductPr1 A BinProd).
+    Kernels.Kernel (to_Zero A) (BinProductPr1 A BinProd).
   Proof.
     exact (mk_Kernel (to_Zero A) (ZeroIdMap BinProd) _ (KernelOfPr1_Eq BinProd)
                      (KernelOfPr1_isKernel BinProd)).
@@ -217,7 +217,7 @@ Section abelian_is_additive.
   Qed.
 
   Definition KernelOfPr2 {X : A} (BinProd : BinProduct A X X) :
-    kernels.Kernel (to_Zero A) (BinProductPr2 A BinProd).
+    Kernels.Kernel (to_Zero A) (BinProductPr2 A BinProd).
   Proof.
     exact (mk_Kernel (to_Zero A) (IdZeroMap BinProd) _ (KernelOfPr2_Eq BinProd)
                      (KernelOfPr2_isKernel BinProd)).
@@ -226,14 +226,14 @@ Section abelian_is_additive.
   (** From properties of abelian categories, it follows that Pr1 and Pr2 are
       cokernels of the above kernels since they are epimorphisms. *)
   Definition CokernelOfKernelOfPr1 {X : A} (BinProd : BinProduct A X X) :
-    cokernels.Cokernel (to_Zero A) (KernelArrow (KernelOfPr1 BinProd)).
+    Cokernels.Cokernel (to_Zero A) (KernelArrow (KernelOfPr1 BinProd)).
   Proof.
     exact (EpiToCokernel' A hs (mk_Epi A _ (BinProductPr1_isEpi BinProd))
                           (KernelOfPr1 BinProd)).
   Defined.
 
   Definition CokernelOfKernelOfPr2 {X : A} (BinProd : BinProduct A X X) :
-    cokernels.Cokernel (to_Zero A) (KernelArrow (KernelOfPr2 BinProd)).
+    Cokernels.Cokernel (to_Zero A) (KernelArrow (KernelOfPr2 BinProd)).
   Proof.
     exact (EpiToCokernel' A hs (mk_Epi A _ (BinProductPr2_isEpi BinProd))
                           (KernelOfPr2 BinProd)).
@@ -313,7 +313,7 @@ Section abelian_is_additive.
   Qed.
 
   Definition CokernelOfDiagonal {X : A} (BinProd : BinProduct A X X) :
-    cokernels.Cokernel (to_Zero A) (DiagonalMap BinProd).
+    Cokernels.Cokernel (to_Zero A) (DiagonalMap BinProd).
   Proof.
     set (X0 := z_iso_inv (mk_z_iso _ _ (CokernelOfDiagonal_is_iso BinProd))).
     exact (Cokernel_up_to_iso A hs (to_Zero A) _

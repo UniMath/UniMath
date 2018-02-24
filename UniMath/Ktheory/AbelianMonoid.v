@@ -1,7 +1,7 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import UniMath.Foundations.Preamble.
-Require Import UniMath.Algebra.Monoids_and_Groups
+Require Import UniMath.Algebra.MonoidsAndGroups
                UniMath.Combinatorics.FiniteSets
                UniMath.NumberSystems.NaturalNumbersAlgebra
                UniMath.Ktheory.Utilities.

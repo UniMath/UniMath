@@ -21,13 +21,13 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.limits.zero.
-Require Import UniMath.CategoryTheory.limits.equalizers.
-Require Import UniMath.CategoryTheory.limits.coequalizers.
-Require Import UniMath.CategoryTheory.limits.Opp.
+Require Import UniMath.CategoryTheory.Limits.Zero.
+Require Import UniMath.CategoryTheory.Limits.Equalizers.
+Require Import UniMath.CategoryTheory.Limits.Coequalizers.
+Require Import UniMath.CategoryTheory.Limits.Opp.
 
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.OppPrecat.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.Morphisms.
@@ -38,9 +38,9 @@ Require Import UniMath.CategoryTheory.Additive.
 Require Import UniMath.CategoryTheory.Abelian.
 Require Import UniMath.CategoryTheory.AbelianToAdditive.
 
-Require Import UniMath.CategoryTheory.limits.kernels.
-Require Import UniMath.CategoryTheory.limits.cokernels.
-Require Import UniMath.CategoryTheory.limits.BinDirectSums.
+Require Import UniMath.CategoryTheory.Limits.Kernels.
+Require Import UniMath.CategoryTheory.Limits.Cokernels.
+Require Import UniMath.CategoryTheory.Limits.BinDirectSums.
 
 Local Open Scope cat.
 
@@ -973,9 +973,9 @@ Let f : A --> B and g : A --> C be morphisms. In this section we construct a rig
 sequence of the form
                      A --(f · i_1 - g · i_2)--> B ⊕ C --> W --> 0
 where B ⊕ C --> W is the coequalizer of f · i_1 and g · i_2. Similarly for left short exact
-sequences and equalizers.
+sequences and Equalizers.
  *)
-Section left_right_shortexact_and_pullbacks_pushouts.
+Section left_right_shortexact_and_pullbacks_Pushouts.
 
   Variable A : AbelianPreCat.
   Variable hs : has_homsets A.
@@ -1066,4 +1066,4 @@ Section left_right_shortexact_and_pullbacks_pushouts.
     - use CoequalizerArrowisEpi.
   Defined.
 
-End left_right_shortexact_and_pullbacks_pushouts.
+End left_right_shortexact_and_pullbacks_Pushouts.
