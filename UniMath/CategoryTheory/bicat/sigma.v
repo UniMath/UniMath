@@ -18,6 +18,48 @@ Notation "f' <==[ x ] g'" := (disp_cells _ x g' f') (at level 60, only parsing).
 (* Miscellanea.                                                                                  *)
 (* --------------------------------------------------------------------------------------------- *)
 
+(* Nice, but not used here. *)
+Definition transportf_strong (A : UU) (a b : A) (P : ∏ (x : A), a = x -> UU)
+           (e : a = b) (p : P a (idpath a))
+  : P b e.
+Proof.
+  set (T:= @transportf (∑ a' : A, a = a') (λ a'e, P (pr1 a'e) (pr2 a'e)) ).
+  specialize (T (a,, idpath _ )).
+  specialize (T (b,, e)).
+  apply T.
+  - use total2_paths_f.
+    + exact e.
+    + cbn. apply transportf_id1.
+  - cbn. apply p.
+Defined.
+
+Lemma pr2_transportf_map (A : UU) (B : A -> UU) (P : ∏ a, B a -> UU)
+      (a a' : A) (e : a = a') (xs : ∑ b : B a, P a b) :
+  P a (pr1 xs) -> P a' (transportf (λ x : A, B x) e (pr1 xs)).
+Proof.
+  intro p. induction e. apply p.
+Defined.
+
+Lemma pr2_transportf_map' (A : UU) (B : A -> UU) (P : ∏ a, B a -> UU)
+      (a a' : A) (e : a = a') (xs : ∑ b : B a, P a b) :
+  P a (pr1 xs) -> P a' (pr1 (transportf (λ x : A, ∑ b : B x, P x b) e xs)).
+Proof.
+  intro p.
+  set (T:= transportf_strong A a a'
+                             (λ (x : A) (e' : a = x),
+                              P x (pr1 (transportf (λ y : A, ∑ b : B y, P y b)
+                                                   e' xs)))).
+  cbn in T. apply T. apply p.
+Defined.
+
+Lemma pr2_transportf (A : UU) (B : A -> UU) (P : ∏ a, B a -> UU)
+   (a a' : A) (e : a = a') (xs : ∑ b : B a, P a b):
+  pr2 (transportf (λ x, ∑ b : B x, P _ b) e xs) =
+  pr2_transportf_map' A B P a a' e xs (pr2 xs).
+Proof.
+  destruct e; apply idpath.
+Defined.
+
 Definition mk_total_ob {C : prebicat} {D : disp_bicat C} {a : C} (aa : D a)
   : total_bicat C D
   := (a,, aa).
@@ -38,7 +80,7 @@ Definition mk_total_cell  {C : prebicat} {D : disp_bicat C}
   : prebicat_cells _ (mk_total_mor ff) (mk_total_mor gg)
   := (η,, ηη).
 
-(* Not what I need. *)
+(* Useful? *)
 Lemma total_cell_eq
       {C : prebicat}
       {D : disp_bicat C}
@@ -90,36 +132,6 @@ Proof.
   exact (pr2 ff ==>[(x,, xx) : PPP] pr2 gg).
 Defined.
 
-Axiom Joker : ∏ A:UU, A.
-
-(*
-Lemma sigma_disp_cell_eq
-      (a b : C) (f g : a --> b)
-      (aa : sigma_prebicat_1_id_comp_cells a)
-      (bb : sigma_prebicat_1_id_comp_cells b)
-      (ff : aa -->[f] bb)
-      (gg : aa -->[g] bb)
-      (x y : f ==> g)
-      (xx : ff ==>[x] gg)
-      (yy : ff ==>[y] gg)
-      (e : x = y)
-      (ee : pr1 xx = transportb (λ z, pr1 ff ==>[z] pr1 gg) e (pr1 yy))
-  : xx = transportb (λ z, ff ==>[z] gg) e yy.
-Proof.
-  destruct aa as (aa, aaa).
-  destruct bb as (bb, bbb).
-  destruct ff as (ff, fff).
-  destruct gg as (gg, ggg).
-  destruct xx as (xx, xxx).
-  destruct yy as (yy, yyy).
-  cbn in *.
-  pose (PP := total2_paths_b ee).
-  Search "total2" (_ = _).
-  apply total2_paths2_b.
-  cbn in ee.
-  assert (xx = transportb (λ z, ff ==>[z] gg) e yy).
- *)
-
 Definition sigma_bicat_data : disp_prebicat_data C.
 Proof.
   exists sigma_prebicat_1_id_comp_cells.
@@ -144,78 +156,7 @@ Proof.
     exact (rwhisker_disp _ (pr2 gg) (pr2 xx)).
 Defined.
 
-(*
-Lemma total_cell_eq {a b : C} {f g : C⟦a, b⟧} {aa : D a} {bb : D b}
-      {ff : aa -->[f] bb} {gg : aa -->[g] bb}
-      {α : f ==> g} (αα : ff ==>[α] gg)
-      {β : f ==> g} (ββ : ff ==>[β] gg)
-      (e : α = β)
-      (ee : αα = transportb (λ η, ff ==>[η] gg) e ββ)
-  : mk_total_cell α αα = mk_total_cell β ββ.
-Proof.
-  destruct e.
-  Check (mk_total_cell α αα).
-  apply pair_path_in2.
-  exact ee.
-Defined.
-*)
-
-Lemma pr2_transportf_map (A : UU) (B : A -> UU) (P : ∏ a, B a -> UU)
-      (a a' : A) (e : a = a') (xs : ∑ b : B a, P a b) :
-  P a (pr1 xs) -> P a' (transportf (λ x : A, B x) e (pr1 xs)).
-Proof.
-  intro p.
-  induction e.
-  apply p.
-Defined.
-
-
-Definition transportf_strong (A : UU) (a b : A) (P : ∏ (x : A), a = x -> UU)
-           (e : a = b) (p : P a (idpath a))
-  : P b e.
-Proof.
-  set (T:= @transportf (∑ a' : A, a = a') (λ a'e, P (pr1 a'e) (pr2 a'e)) ).
-  specialize (T (a,, idpath _ )).
-  specialize (T (b,, e)).
-  apply T.
-  -
-    use total2_paths_f.
-    + exact e.
-    + cbn.
-      apply transportf_id1.
-  - cbn.
-    apply p.
-Defined.
-
-Lemma pr2_transportf_map' (A : UU) (B : A -> UU) (P : ∏ a, B a -> UU)
-      (a a' : A) (e : a = a') (xs : ∑ b : B a, P a b) :
-  P a (pr1 xs) -> P a' (pr1 (transportf (λ x : A, ∑ b : B x, P x b) e xs)).
-Proof.
-  intro p.
-
-  set (T:= transportf_strong A a a' (λ (x : A) (e' : a = x),
-                                     P x (pr1 (transportf (λ y : A, ∑ b : B y, P y b)
-                                                 (e') xs)))).
-  cbn in T.
-  apply T.
-  (*
-  exact (
-      @transportf _ (λ (a'0 : A) (e0 : a = a'0), P a'0 (pr1 (transportf (λ x : A, ∑ b : B x, P x b) e0 xs))) e p).
-*)
-
-
-  apply p.
-Defined.
-
-
-Lemma pr2_transportf (A : UU) (B : A -> UU) (P : ∏ a, B a -> UU)
-   (a a' : A) (e : a = a') (xs : ∑ b : B a, P a b):
-  pr2 (transportf (λ x, ∑ b : B x, P _ b) e xs) =
-  pr2_transportf_map' A B P a a' e xs (pr2 xs).
-Proof.
-  destruct e; apply idpath.
-Defined.
-
+(* Needed? *)
 Lemma total_sigma_cell_eq
       {a b : total_bicat (total_bicat C D) E}
       {f g : total_bicat (total_bicat C D) E ⟦a,b⟧}
