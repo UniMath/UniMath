@@ -457,7 +457,7 @@ Section NatCard.
   Defined.
 
   Corollary nat_plus_associativity' n (m:stn n->nat) (k:∏ i, stn (m i) -> nat) :
-    stnsum (λ i, stnsum (k i)) = stnsum (uncurry k ∘ lexicalEnumeration m).
+    stnsum (λ i, stnsum (k i)) = stnsum (uncurry (Z := λ _,_) k ∘ lexicalEnumeration m).
   Proof. intros. exact (nat_plus_associativity (uncurry k)). Defined.
 
   Lemma iterop_fun_nat {n:nat} (x:stn n->nat) : iterop_fun 0 add x = stnsum x.

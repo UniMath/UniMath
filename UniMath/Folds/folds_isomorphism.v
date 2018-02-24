@@ -222,8 +222,8 @@ Qed.
 Lemma folds_iso_equal : i = i'.
 Proof.
   apply folds_iso_eq.
-  apply dirprodpath.
-  - apply dirprodpath.
+  apply dirprodeq.
+  - apply dirprodeq.
     + apply funextsec; intro.
       apply subtypeEquality.
       * intro. apply isapropisweq.
