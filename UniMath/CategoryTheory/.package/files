@@ -141,4 +141,6 @@ bicat/bicategory_from_bicat.v
 bicat/bicat_from_bicategory.v
 bicat/presheaves.v
 bicat/Constructions.v
+bicat/sigma.v
+
 
