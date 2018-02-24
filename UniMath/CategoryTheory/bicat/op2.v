@@ -119,4 +119,6 @@ Proof.
     apply lassociator_lassociator.
 Qed.
 
+Definition op2_prebicat : prebicat := _ ,, op2_prebicat_laws.
+
 End op2.

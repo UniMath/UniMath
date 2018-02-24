@@ -9,7 +9,7 @@ Open Scope mor_disp_scope.
 
 Section disp_bicat.
 
-Context (C : prebicat).
+Context {C : prebicat}.
 
 Definition disp_cell_struct (D : disp_cat_ob_mor C) : UU
   := ∏ (c c' : C) (f g : C⟦c, c'⟧) (x : f ==> g)
@@ -730,3 +730,7 @@ Qed.
 End total_bicat.
 
 End disp_bicat.
+
+Arguments disp_prebicat_1_id_comp_cells _ : clear implicits.
+Arguments disp_prebicat_data _ : clear implicits.
+Arguments disp_bicat _ : clear implicits.
