@@ -5,6 +5,7 @@ Graphs.v
 Equivalence_Relations.v
 OrderedSets.v
 WellOrderedSets.v
+ZFstructures.v
 FiniteSequences.v
 BoundedSearch.v
 Tests.v

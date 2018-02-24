@@ -822,7 +822,9 @@ End Univalent_Categories.
 (* Any displayed category has a total category, with a forgetful functor to the base category. *)
 Section Total_Category.
 
-Context {C : category} (D : disp_cat C).
+Section Total_Category_data.
+
+Context {C : precategory_data} (D : disp_cat_data C).
 
 Definition total_category_ob_mor : precategory_ob_mor.
 Proof.
@@ -845,8 +847,13 @@ Defined.
 Definition total_category_data : precategory_data
   := (total_category_ob_mor ,, total_category_id_comp).
 
+End Total_Category_data.
+
+
+Context {C : category} (D : disp_cat C).
+
 (* TODO: make notations [( ,, )] and [ ;; ] different levels?  ;; should bind tighter, perhaps, and ,, looser? *)
-Lemma total_category_is_precat : is_precategory (total_category_data).
+Lemma total_category_is_precat : is_precategory (total_category_data D).
 Proof.
   repeat apply tpair; simpl.
   - intros xx yy ff; cbn.
@@ -873,9 +880,9 @@ Qed.
 
 (* The “pre-category” version, without homsets *)
 Definition total_precategory : precategory
-  := (total_category_data ,, total_category_is_precat).
+  := (total_category_data D ,, total_category_is_precat).
 
-Lemma total_category_has_homsets : has_homsets (total_category_data).
+Lemma total_category_has_homsets : has_homsets (total_category_data D).
 Proof.
   intros xx yy; simpl. apply isaset_total2. apply homset_property.
   intros; apply homsets_disp.
