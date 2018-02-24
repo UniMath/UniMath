@@ -72,6 +72,12 @@ Proof.
     apply (dirprodpair (vcomp2_disp (pr1 X) (pr1 X0)) (vcomp2_disp (pr2 X) (pr2 X0))).
   - cbn. intros.
     apply (dirprodpair (lwhisker_disp (pr1 ff) (pr1 X)) (lwhisker_disp (pr2 ff) (pr2 X))).
-Abort.
+  - cbn. intros.
+    apply (dirprodpair (rwhisker_disp (pr1 gg) (pr1 X)) (rwhisker_disp (pr2 gg) (pr2 X))).
+Defined.
+
+Definition dirprod_disp_prebicat_data : disp_prebicat_data C := _ ,, dirprod_disp_prebicat_ops.
+
+
 
 End dirprod.
