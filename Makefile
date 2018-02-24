@@ -22,6 +22,7 @@ PACKAGES += Tactics
 PACKAGES += SubstitutionSystems
 PACKAGES += Folds
 PACKAGES += HomologicalAlgebra
+PACKAGES += Induction
 ############################################
 # other user options; see also build/Makefile-configuration-template
 BUILD_COQ ?= yes
