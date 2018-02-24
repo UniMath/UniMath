@@ -142,3 +142,4 @@ Require Export UniMath.CategoryTheory.bicat.bicat_of_cats.
 Require Export UniMath.CategoryTheory.bicat.bicategory_from_bicat.
 Require Export UniMath.CategoryTheory.bicat.bicat_from_bicategory.
 Require Export UniMath.CategoryTheory.bicat.presheaves.
+Require Export UniMath.CategoryTheory.bicat.sigma.
