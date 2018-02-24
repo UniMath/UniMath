@@ -80,7 +80,6 @@ Require Export UniMath.CategoryTheory.Inductives.Trees.
 Require Export UniMath.CategoryTheory.Inductives.LambdaCalculus.
 Require Export UniMath.CategoryTheory.catiso.
 Require Export UniMath.CategoryTheory.bicategories.prebicategory.
-Require Export UniMath.CategoryTheory.bicategories.notations.
 Require Export UniMath.CategoryTheory.bicategories.whiskering.
 Require Export UniMath.CategoryTheory.bicategories.Cat.
 Require Export UniMath.CategoryTheory.bicategories.internal_equivalence.
@@ -135,3 +134,11 @@ Require Export UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Export UniMath.CategoryTheory.DisplayedCats.SIP.
 Require Export UniMath.CategoryTheory.DisplayedCats.Limits.
 Require Export UniMath.CategoryTheory.DisplayedCats.Examples.
+Require Export UniMath.CategoryTheory.bicat.bicat.
+Require Export UniMath.CategoryTheory.bicat.pseudo_functors.
+Require Export UniMath.CategoryTheory.bicat.op2.
+Require Export UniMath.CategoryTheory.bicat.disp_bicat.
+Require Export UniMath.CategoryTheory.bicat.bicat_of_cats.
+Require Export UniMath.CategoryTheory.bicat.bicategory_from_bicat.
+Require Export UniMath.CategoryTheory.bicat.bicat_from_bicategory.
+Require Export UniMath.CategoryTheory.bicat.presheaves.

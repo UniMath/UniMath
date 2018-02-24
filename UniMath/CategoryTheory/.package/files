@@ -78,7 +78,6 @@ Inductives/Trees.v
 Inductives/LambdaCalculus.v
 catiso.v
 bicategories/prebicategory.v
-bicategories/notations.v
 bicategories/whiskering.v
 bicategories/Cat.v
 bicategories/internal_equivalence.v
@@ -133,3 +132,11 @@ DisplayedCats/Codomain.v
 DisplayedCats/SIP.v
 DisplayedCats/Limits.v
 DisplayedCats/Examples.v
+bicat/bicat.v
+bicat/pseudo_functors.v
+bicat/op2.v
+bicat/disp_bicat.v
+bicat/bicat_of_cats.v
+bicat/bicategory_from_bicat.v
+bicat/bicat_from_bicategory.v
+bicat/presheaves.v
