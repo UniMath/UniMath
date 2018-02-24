@@ -809,6 +809,8 @@ Proof.
   - intros. apply homset_property.
 Qed.
 
+Definition discrete_prebicat : prebicat := _ ,, discrete_prebicat_laws.
+
 End discrete_bicat.
 
 
@@ -1010,3 +1012,24 @@ Proof.
 Defined.
 
 End Associators_Unitors_Natural.
+
+
+(** ** Discrete bicategory *)
+
+Definition id2toequiv {C : prebicat} {a b : C} {f g : a --> b}
+  : f = g -> f ==> g.
+Proof.
+  intro e. induction e. apply id2.
+Defined.
+
+Definition is_discrete_prebicat (C : prebicat) : UU
+  := ∏ (a b : C) (f g : a --> b), isweq (λ e : f = g, id2toequiv e).
+
+Lemma is_discrete_discrete_prebicat (C : category)
+  : is_discrete_prebicat (discrete_prebicat C).
+Proof.
+  intros a b f g.
+  use weqhomot.
+  - exact (idweq _ ).
+  - intro e. induction e. apply idpath.
+Qed.
