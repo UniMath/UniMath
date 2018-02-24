@@ -3,7 +3,7 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.categories.category_hset.
+(* Require Import UniMath.CategoryTheory.categories.category_hset. *)
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.bicat.bicat.
 Require Import UniMath.CategoryTheory.bicat.disp_bicat.
@@ -13,14 +13,17 @@ Open Scope cat.
 Open Scope mor_disp_scope.
 
 
+Section fix_a_category.
 
-Local Notation "'Set'" := hset_category.
+Variable K : category.
+
+(* Local Notation "'Set'" := hset_category. *)
 Local Notation "∁" := prebicat_of_cats.
 
 Definition presheaf_disp_cat_ob_mor : disp_cat_ob_mor ∁.
 Proof.
   use tpair.
-    + exact (λ c : category, functor c^op Set).
+    + exact (λ c : category, functor c^op K).
     + cbn. intros c d ty ty' f.
       exact (nat_trans ty (functor_composite (functor_opp f) ty')).
 Defined.
@@ -36,9 +39,9 @@ Proof.
     intros x y.
     set (T1 := x).
     set (T2 := @pre_whisker
-                 (op_cat c) (op_cat d) Set
+                 (op_cat c) (op_cat d) K
                  (functor_opp f) _ _ (y : nat_trans (ty': functor _ _ )  _  )).
-    exact (@nat_trans_comp (op_cat c) Set _ _ _ T1 T2 ).
+    exact (@nat_trans_comp (op_cat c) K _ _ _ T1 T2 ).
 Defined.
 
 Definition presheaf_disp_prebicat_1_id_comp_cells : disp_prebicat_1_id_comp_cells prebicat_of_cats.
@@ -47,60 +50,54 @@ Proof.
   intros c d f g a.
   intros p p'.
   intros x y.
-  exact (x = @nat_trans_comp (op_cat c) Set _  _ _ y (post_whisker (op_nt a)  p')).
+  exact (x = @nat_trans_comp (op_cat c) K _  _ _ y (post_whisker (op_nt a)  p')).
 Defined.
 
 Definition presheaf_disp_prebicat_ops : disp_prebicat_ops presheaf_disp_prebicat_1_id_comp_cells.
 Proof.
   repeat split; cbn.
-  - intros. apply nat_trans_eq; try apply (homset_property Set); cbn.
-    intro. apply funextsec. intro. cbn. rewrite (functor_id y). apply idpath.
-  - intros. apply nat_trans_eq; try apply (homset_property Set); cbn.
-    intro. apply funextsec. intro. cbn. rewrite (functor_id y). apply idpath.
-  - intros. apply nat_trans_eq; try apply (homset_property Set); cbn.
-    intro. apply funextsec. intro. cbn. rewrite (functor_id y). apply idpath.
-  - intros. apply nat_trans_eq; try apply (homset_property Set); cbn.
-    intro. apply funextsec. intro. cbn. rewrite (functor_id y). apply idpath.
-  - intros. apply nat_trans_eq; try apply (homset_property Set); cbn.
-    intro. apply funextsec. intro. cbn. rewrite (functor_id y). apply idpath.
-  - intros. apply nat_trans_eq; try apply (homset_property Set); cbn.
-    intro. apply funextsec. intro. cbn. rewrite (functor_id z). apply idpath.
-  - intros. apply nat_trans_eq; try apply (homset_property Set); cbn.
-    intro. apply funextsec. intro. cbn. rewrite (functor_id z). apply idpath.
-  - intros. apply nat_trans_eq; try apply (homset_property Set).
+  - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
+    intro. rewrite (functor_id y). apply pathsinv0, id_right.
+  - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
+    intro.  rewrite (functor_id y). rewrite id_left, id_right. apply idpath.
+  - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
+    intro. rewrite (functor_id y). apply idpath.
+  - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
+    intro. rewrite (functor_id y). rewrite id_left, id_right. apply idpath.
+  - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
+    intro. rewrite (functor_id y). repeat rewrite id_right. apply idpath.
+  - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
+    intro. rewrite (functor_id z). rewrite id_right. apply pathsinv0, assoc.
+  - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
+    intro. rewrite (functor_id z). rewrite id_right. apply assoc.
+  - intros. apply nat_trans_eq; try apply (homset_property K).
     intro.
     rewrite X. rewrite X0.
     cbn.
-    apply funextsec. intro.
     pose (T:= @functor_comp (op_cat b) _ y).
-    specialize (T _ _ _ (s x0) (r x0)).
-    apply pathsinv0 in T.
-    apply (toforallpaths _ _ _ T _ ).
-  - intros. apply nat_trans_eq; try apply (homset_property Set); cbn.
+    rewrite <- assoc.
+    rewrite <- T.
+    apply idpath.
+  - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
     rewrite X.
-    intro.
-    apply funextsec. intro. cbn. apply idpath.
-  - intros. apply nat_trans_eq; try apply (homset_property Set); cbn.
+    intro. apply assoc.
+  - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
     rewrite X.
     intros. cbn.
-    apply funextsec. intro.
     pose (T:= nat_trans_ax gg).
     cbn in T.
-    apply (toforallpaths _ _ _ (T _ _ _ )).
+    rewrite <- assoc.
+    rewrite T.
+    apply assoc.
 Qed.
 
 Definition presheaf_disp_prebicat_data : disp_prebicat_data ∁ := _ ,,  presheaf_disp_prebicat_ops.
 
-Lemma nat_trans_eq_eq {c d : category} {f g : functor c d} {a b : nat_trans f g}
-      (e e' : a = b)
-  : e = e'.
-Proof.
-Admitted.
 Lemma presheaf_disp_prebicat_laws : disp_prebicat_laws presheaf_disp_prebicat_data.
 Proof.
-  repeat split; intro.
-  - intros.
-    set(T:= vcomp2_disp (id2_disp ff) ηη).
-    cbn in T.
-    admit.
-Abort.
+  repeat split; intro;
+    intros;
+    apply isaset_nat_trans; apply homset_property.
+Qed.
+
+End fix_a_category.

@@ -1,9 +1,7 @@
 Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.whiskering.
-Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.categories.category_hset.
+Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.bicat.bicat.
 Require Import UniMath.CategoryTheory.bicat.disp_bicat.
@@ -16,7 +14,7 @@ Notation "f' ==>[ x ] g'" := (disp_cells x f' g') (at level 60).
 Section dirprod.
 
 Context {C : bicat} (D1 D2 : disp_bicat C).
-
+Locate "==>".
 
 (** TODO: the next three defs are the same as for 1-cats, but there
     they are not well-written
@@ -78,6 +76,95 @@ Defined.
 
 Definition dirprod_disp_prebicat_data : disp_prebicat_data C := _ ,, dirprod_disp_prebicat_ops.
 
+Definition dirprod_disp_brebicat_laws : disp_prebicat_laws dirprod_disp_prebicat_data.
+Proof.
+  repeat split; intro.
+  - cbn. intros.
+    apply dirprod_paths; cbn; use (id2_disp_left _ @ _ ); apply pathsinv0.
+    + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
+    + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
+  - cbn. intros.
+    apply dirprod_paths; cbn; use (id2_disp_right _ @ _ ); apply pathsinv0.
+    + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
+    + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
+  - cbn. intros.
+    apply dirprod_paths; cbn; use (vassocr_disp _ _ _ @ _ ); apply pathsinv0.
+    + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
+    + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
+  - cbn. intros.
+    apply dirprod_paths; cbn; use (lwhisker_id2_disp _ _  @ _ ); apply pathsinv0.
+    + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
+    + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
+  - cbn. intros.
+    apply dirprod_paths; cbn; use (id2_rwhisker_disp _ _  @ _ ); apply pathsinv0.
+    + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
+    + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
+  - cbn. intros.
+    apply dirprod_paths; cbn; use (lwhisker_vcomp_disp _ _  @ _ ); apply pathsinv0.
+    + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
+    + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
+  - cbn. intros.
+    apply dirprod_paths; cbn; use (rwhisker_vcomp_disp _ _  @ _ ); apply pathsinv0.
+    + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
+    + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
+  - cbn. intros.
+    apply dirprod_paths; cbn; use (vcomp_lunitor_disp _ @ _ ); apply pathsinv0.
+    + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
+    + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
+  - cbn. intros.
+    apply dirprod_paths; cbn; use (vcomp_runitor_disp _  @ _ ); apply pathsinv0.
+    + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
+    + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
+  - cbn. intros.
+    apply dirprod_paths; cbn; use (lwhisker_lwhisker_disp _ _ _  @ _ ); apply pathsinv0.
+    + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
+    + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
+  - cbn. intros.
+    apply dirprod_paths; cbn; use (rwhisker_lwhisker_disp _ _ _  @ _ ); apply pathsinv0.
+    + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
+    + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
+  - cbn. intros.
+    apply dirprod_paths; cbn; use (rwhisker_rwhisker_disp _ _ _ _ _ @ _ ); apply pathsinv0.
+    + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
+    + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
+  - cbn. intros.
+    apply dirprod_paths; cbn; use (vcomp_whisker_disp _ _  _ _ _ _ _ _ _ _ _ @ _ ); apply pathsinv0.
+    + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
+    + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
+  - cbn. intros.
+    apply dirprod_paths; cbn; use (lunitor_linvunitor_disp _  @ _ ); apply pathsinv0.
+    + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
+    + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
+  - cbn. intros.
+    apply dirprod_paths; cbn; use (linvunitor_lunitor_disp _  @ _ ); apply pathsinv0.
+    + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
+    + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
+  - cbn. intros.
+    apply dirprod_paths; cbn; use (runitor_rinvunitor_disp _  @ _ ); apply pathsinv0.
+    + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
+    + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
+  - cbn. intros.
+    apply dirprod_paths; cbn; use (rinvunitor_runitor_disp _  @ _ ); apply pathsinv0.
+    + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
+    + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
+  - cbn. intros.
+    apply dirprod_paths; cbn; use (lassociator_rassociator_disp _ _ _  @ _ ); apply pathsinv0.
+    + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
+    + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
+  - cbn. intros.
+    apply dirprod_paths; cbn; use (rassociator_lassociator_disp _ _ _ _ @ _ ); apply pathsinv0.
+    + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
+    + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
+  - cbn. intros.
+    apply dirprod_paths; cbn; use (runitor_rwhisker_disp _ _  @ _ ); apply pathsinv0.
+    + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
+    + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
+  - cbn. intros.
+    apply dirprod_paths; cbn; use (lassociator_lassociator_disp _ _ _ _ @ _ ); apply pathsinv0.
+    + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
+    + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
+Qed.
 
+Definition dirprod_disp_bicat : disp_bicat C := _ ,, dirprod_disp_brebicat_laws.
 
 End dirprod.
