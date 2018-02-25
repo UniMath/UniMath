@@ -345,12 +345,12 @@ Definition disp_prebicat_laws : UU
 
 End disp_prebicat_laws.
 
-Definition disp_bicat : UU := ∑ D : disp_prebicat_data, disp_prebicat_laws D.
-Coercion disp_prebicat_data_from_disp_bicat (D : disp_bicat) : disp_prebicat_data := pr1 D.
+Definition disp_prebicat : UU := ∑ D : disp_prebicat_data, disp_prebicat_laws D.
+Coercion disp_prebicat_data_from_disp_prebicat (D : disp_prebicat) : disp_prebicat_data := pr1 D.
 
 Section disp_prebicat_law_projections.
 
-Context {D : disp_bicat}.
+Context {D : disp_prebicat}.
 
 Definition id2_disp_left
            {a b : C} {f g : C⟦a, b⟧} {η : f ==> g}
@@ -540,7 +540,7 @@ End disp_prebicat_law_projections.
 
 Section total_bicat.
 
-Variable D : disp_bicat.
+Variable D : disp_prebicat.
 
 (** TODO : think how to unify with total_category_ob_mor
 
@@ -733,4 +733,4 @@ End disp_bicat.
 
 Arguments disp_prebicat_1_id_comp_cells _ : clear implicits.
 Arguments disp_prebicat_data _ : clear implicits.
-Arguments disp_bicat _ : clear implicits.
+Arguments disp_prebicat _ : clear implicits.

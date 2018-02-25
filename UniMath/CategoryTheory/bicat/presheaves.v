@@ -100,4 +100,7 @@ Proof.
     apply isaset_nat_trans; apply homset_property.
 Qed.
 
+Definition presheaf_disp_prebicat : disp_prebicat ∁ :=
+  (presheaf_disp_prebicat_data,, presheaf_disp_prebicat_laws).
+
 End fix_a_category.

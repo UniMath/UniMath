@@ -13,8 +13,7 @@ Notation "f' ==>[ x ] g'" := (disp_cells x f' g') (at level 60).
 
 Section dirprod.
 
-Context {C : bicat} (D1 D2 : disp_bicat C).
-Locate "==>".
+Context {C : prebicat} (D1 D2 : disp_prebicat C).
 
 (** TODO: the next three defs are the same as for 1-cats, but there
     they are not well-written
@@ -165,6 +164,6 @@ Proof.
     + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
 Qed.
 
-Definition dirprod_disp_bicat : disp_bicat C := _ ,, dirprod_disp_brebicat_laws.
+Definition dirprod_disp_prebicat : disp_prebicat C := _ ,, dirprod_disp_brebicat_laws.
 
 End dirprod.

@@ -60,17 +60,17 @@ Proof.
   destruct e; apply idpath.
 Defined.
 
-Definition mk_total_ob {C : prebicat} {D : disp_bicat C} {a : C} (aa : D a)
+Definition mk_total_ob {C : prebicat} {D : disp_prebicat C} {a : C} (aa : D a)
   : total_bicat D
   := (a,, aa).
 
-Definition mk_total_mor {C : prebicat} {D : disp_bicat C}
+Definition mk_total_mor {C : prebicat} {D : disp_prebicat C}
            {a b : C} {f : C⟦a, b⟧}
            {aa : D a} {bb : D b} (ff : aa -->[f] bb)
   : mk_total_ob aa --> mk_total_ob bb
   := (f,, ff).
 
-Definition mk_total_cell  {C : prebicat} {D : disp_bicat C}
+Definition mk_total_cell  {C : prebicat} {D : disp_prebicat C}
            {a b : C} {f g : C⟦a, b⟧}
            {aa : D a} {bb : D b}
            {ff : aa -->[f] bb}
@@ -83,7 +83,7 @@ Definition mk_total_cell  {C : prebicat} {D : disp_bicat C}
 (* Useful? *)
 Lemma total_cell_eq
       {C : prebicat}
-      {D : disp_bicat C}
+      {D : disp_prebicat C}
       {a b : C} {f g : C⟦a, b⟧} {aa : D a} {bb : D b}
       {ff : aa -->[f] bb} {gg : aa -->[g] bb}
       (x y : mk_total_mor ff ==> mk_total_mor gg)
@@ -96,9 +96,9 @@ Defined.
 
 Section Sigma.
 
-Variable C : bicat.
-Variable D : disp_bicat C.
-Variable E : disp_bicat (total_bicat D).
+Variable C : prebicat.
+Variable D : disp_prebicat C.
+Variable E : disp_prebicat (total_bicat D).
 
 Definition sigma_disp_cat_ob_mor : disp_cat_ob_mor C.
 Proof.
@@ -174,7 +174,7 @@ Proof.
   exact eq2.
 Defined.
 
-Definition sigma_bicat : disp_bicat C.
+Definition sigma_prebicat : disp_prebicat C.
 Proof.
   exists sigma_bicat_data.
   repeat split; red; cbn; intros until 0;

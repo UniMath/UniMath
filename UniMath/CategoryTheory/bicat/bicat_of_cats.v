@@ -92,6 +92,15 @@ Defined.
 
 Definition prebicat_of_cats : prebicat := _ ,, cat_prebicat_laws.
 
+Lemma isaset_cells_prebicat_of_cats : isaset_cells prebicat_of_cats.
+Proof.
+  intros a b f g.
+  apply isaset_nat_trans.
+  apply homset_property.
+Qed.
+
+Definition bicat_of_cats : bicat
+  := (prebicat_of_cats,, isaset_cells_prebicat_of_cats).
 
 (** * The pseudofunctor op on the bicategory of categories *)
 

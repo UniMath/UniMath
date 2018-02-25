@@ -144,4 +144,4 @@ Require Export UniMath.CategoryTheory.bicat.bicat_from_bicategory.
 Require Export UniMath.CategoryTheory.bicat.presheaves.
 Require Export UniMath.CategoryTheory.bicat.Constructions.
 Require Export UniMath.CategoryTheory.bicat.sigma.
-
+Require Export UniMath.CategoryTheory.bicat.cofunctormaps.

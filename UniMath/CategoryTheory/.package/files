@@ -142,5 +142,4 @@ bicat/bicat_from_bicategory.v
 bicat/presheaves.v
 bicat/Constructions.v
 bicat/sigma.v
-
-
+bicat/cofunctormaps.v
