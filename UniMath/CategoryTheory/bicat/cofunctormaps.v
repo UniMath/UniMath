@@ -109,7 +109,7 @@ Section Cofunctormaps.
         rewrite <- assoc.
         apply maponpaths.
         apply h2.
-  Qed.
+  Defined.
 
   Definition cofunctormaps_disp_cat_data : disp_cat_data (total_bicat two_disp_presheaves)
     := (_ ,, cofunctormaps_disp_cat_id_comp).

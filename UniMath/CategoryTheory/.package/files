@@ -143,3 +143,4 @@ bicat/presheaves.v
 bicat/Constructions.v
 bicat/sigma.v
 bicat/cofunctormaps.v
+bicat/CwF.v

@@ -174,10 +174,9 @@ Proof.
   exact eq2.
 Defined.
 
-Definition sigma_prebicat : disp_prebicat C.
+Lemma sigma_prebicat_laws : disp_prebicat_laws sigma_bicat_data.
 Proof.
-  exists sigma_bicat_data.
-  repeat split; red; cbn; intros until 0;
+    repeat split; red; cbn; intros until 0;
   use (@total2_reassoc_paths'
            (_ ==> _) (fun x' => _ ==>[ x'] _)
            (fun x'xx => _ ==>[ mk_total_cell (pr1 x'xx) (pr2 x'xx)] _));
@@ -225,5 +224,8 @@ Proof.
   - apply lassociator_lassociator_disp.
   - apply (lassociator_lassociator_disp (pr2 ff) (pr2 gg) (pr2 hh) (pr2 ii)).
 Qed.
+
+Definition sigma_prebicat : disp_prebicat C
+  := sigma_bicat_data,, sigma_prebicat_laws.
 
 End Sigma.
