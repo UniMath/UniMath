@@ -20,3 +20,4 @@
 /latex/coqdoc.sty
 /COQC.log
 /.*.okay
+.coq_makefile_output.local
