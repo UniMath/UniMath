@@ -1,9 +1,10 @@
+(** Displayed bicategory of contravariant functors into a fixed category K. *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.opp_precat.
-(* Require Import UniMath.CategoryTheory.categories.category_hset. *)
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.bicat.bicat.
 Require Import UniMath.CategoryTheory.bicat.disp_bicat.
@@ -50,6 +51,7 @@ Proof.
   intros c d f g a.
   intros p p'.
   intros x y.
+  cbn in *.
   exact (x = @nat_trans_comp (op_cat c) K _  _ _ y (post_whisker (op_nt a)  p')).
 Defined.
 

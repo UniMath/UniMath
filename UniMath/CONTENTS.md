@@ -221,6 +221,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [bicat/Constructions.v](CategoryTheory/bicat/Constructions.v)
    - [bicat/sigma.v](CategoryTheory/bicat/sigma.v)
    - [bicat/cofunctormaps.v](CategoryTheory/bicat/cofunctormaps.v)
+   - [bicat/CwF.v](CategoryTheory/bicat/CwF.v)
    - [All.v](CategoryTheory/All.v)
 ## Package [Ktheory](Ktheory/README.md)
    - [Tactics.v](Ktheory/Tactics.v)

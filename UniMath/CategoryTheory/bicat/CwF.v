@@ -5,8 +5,11 @@
 (* bicategory of categories).                                                                    *)
 (* ============================================================================================= *)
 
+(* Foundations. *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
+
+(* Categories. *)
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -15,14 +18,18 @@ Require Import UniMath.CategoryTheory.categories.category_hset.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Export UniMath.CategoryTheory.yoneda.
 Require Export UniMath.CategoryTheory.limits.pullbacks.
+
+(* Displayed categories. *)
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
+
+(* (Displayed) Bicategories. *)
 Require Import UniMath.CategoryTheory.bicat.bicat.
 Require Import UniMath.CategoryTheory.bicat.disp_bicat.
 Require Import UniMath.CategoryTheory.bicat.Constructions.
-Require Import UniMath.CategoryTheory.bicat.bicat_of_cats.
 Require Import UniMath.CategoryTheory.bicat.presheaves.
 Require Import UniMath.CategoryTheory.bicat.sigma.
+Require Import UniMath.CategoryTheory.bicat.bicat_of_cats.
 Require Import UniMath.CategoryTheory.bicat.cofunctormaps.
 
 Notation "'PreShv' C" := [C^op,SET] (at level 4) : cat.
@@ -34,37 +41,42 @@ Local Notation "'SET'" := hset_category.
 
 Notation "'Yo'" := (yoneda _ (homset_property _) : functor _ (PreShv _)).
 
-Definition yy {C : precategory} {hsC : has_homsets C}
-  {F : PreShv C} {c : C} : ((F : functor _ _) c : hSet) ≃ _ ⟦ yoneda _ hsC c, F⟧.
-Proof.
-  apply invweq. apply yoneda_weq.
-Defined.
+Section Yoneda.
 
-Arguments yy {_ _ _ _}.
+  Context {C : precategory} {hsC : has_homsets C}.
 
-Lemma yy_natural {C : precategory} {hsC : has_homsets C}
-      (F : PreShv C) (c : C) (A : (F:functor _ _) c : hSet)
-      c' (f : C⟦c', c⟧)
-  : yy (functor_on_morphisms (F : functor _ _) f A) =
-    functor_on_morphisms (yoneda _ hsC) f · yy A.
-Proof.
-  assert (XTT := is_natural_yoneda_iso_inv _ hsC F _ _ f).
-  apply (toforallpaths _ _ _ XTT).
-Qed.
+  Definition yy {F : PreShv C} {c : C}
+    : ((F : C^op ⟶ SET) c : hSet) ≃
+      [C^op, HSET, has_homsets_HSET] ⟦ yoneda C hsC c, F⟧.
+  Proof.
+    apply invweq. apply yoneda_weq.
+  Defined.
 
-Lemma yy_comp_nat_trans {C : precategory} {hsC : has_homsets C}
-      (F F' : PreShv C) (p : _ ⟦F, F'⟧)
-      A (v : (F : functor _ _ ) A : hSet)
-  : yy (hsC:=hsC) v · p = yy ((p : nat_trans _ _ )  _ v).
-Proof.
-  apply nat_trans_eq.
-  - apply has_homsets_HSET.
-  - intro c. simpl.
-    apply funextsec. intro f. cbn.
-    assert (XR := toforallpaths _ _ _ (nat_trans_ax p _ _ f) v ).
-    cbn in XR.
-    apply XR.
-Qed.
+  Lemma yy_natural (F : PreShv C) (c : C)
+        (A : (F : C^op ⟶ SET) c : hSet)
+        c' (f : C⟦c', c⟧)
+    : yy (functor_on_morphisms (F : C^op ⟶ SET) f A) =
+      functor_on_morphisms (yoneda C hsC) f · yy A.
+  Proof.
+    assert (XTT := is_natural_yoneda_iso_inv _ hsC F _ _ f).
+    apply (toforallpaths _ _ _ XTT).
+  Qed.
+
+  Lemma yy_comp_nat_trans
+        (F F' : PreShv C) (p : _ ⟦F, F'⟧)
+        A (v : (F : C^op ⟶ SET) A : hSet)
+    : yy v · p = yy ((p : nat_trans _ _ )  _ v).
+  Proof.
+    apply nat_trans_eq.
+    - apply has_homsets_HSET.
+    - intro c. simpl.
+      apply funextsec. intro f. cbn.
+      assert (XR := toforallpaths _ _ _ (nat_trans_ax p _ _ f) v ).
+      cbn in XR.
+      apply XR.
+  Qed.
+
+End Yoneda.
 
 (* Adapted from
    TypeTheory/TypeTheory/Auxiliary/Auxiliary.v
@@ -80,7 +92,7 @@ Section Representation.
 
   Definition cwf_tm_of_ty {Γ : C} (A : Ty Γ : hSet) : UU
     := ∑ (t : (Tm Γ : hSet)),
-       (pp : nat_trans _ _ ) _ t = A.
+       (pp : nat_trans _ _) _ t = A.
 
   Lemma cwf_square_comm {Γ} {A}
         {ΓA : C} {π : ΓA --> Γ}
@@ -301,10 +313,16 @@ Section CwF.
     : disp_cat_data (total_bicat (morphisms_of_preshaves SET))
     := (_ ,, cwf_disp_cat_id_comp).
 
+  Definition cwf_disp : disp_prebicat _
+    := cell_unit_disp_prebicat cwf_disp_cat_data.
+
+(*
   Definition cwf_disp_prebicat_1_id_comp_cells
     : disp_prebicat_1_id_comp_cells (total_bicat (morphisms_of_preshaves SET)).
   Proof.
     exists cwf_disp_cat_data. red. cbn.
+    intros.
+      (*
     intros (C, ((Ty, Tm), pp)).
     intros (C', ((Ty', Tm'), pp')).
     cbn in *.
@@ -317,25 +335,9 @@ Section CwF.
     unfold cwf_representation in r.
     unfold cwf_fiber_representation in r.
     cbn in r.
+       *)
+    exact unit.
+  Defined.
+*)
 
-  Admitted.
-
-  Definition cwf_disp_prebicat_ops
-    : disp_prebicat_ops cwf_disp_prebicat_1_id_comp_cells.
-  Proof.
-    repeat apply tpair; cbn; intros.
-  Admitted.
-
-  Definition cwf_disp_prebicat_data
-    : disp_prebicat_data (total_bicat (morphisms_of_preshaves SET))
-    := _ ,, cwf_disp_prebicat_ops.
-
-  Definition cwf_disp_brebicat_laws : disp_prebicat_laws cwf_disp_prebicat_data.
-  Proof.
-
-  Admitted.
-
-  Definition cwf_disp_prebicat
-    : disp_prebicat (total_bicat (morphisms_of_preshaves SET))
-    := _ ,, cwf_disp_brebicat_laws.
 End CwF.
