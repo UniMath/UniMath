@@ -164,3 +164,17 @@ Proof.
     apply transitive_paths_weq.
     apply (toforallpaths _ _ _ (transportf_const p Y) y1).
 Defined.
+
+(** Flip the arguments of a function *)
+Definition flipsec {A B : UU} {C : A -> B -> UU} (f : ∏ a b, C a b) : ∏ b a, C a b :=
+  λ x y, f y x.
+Notation flip := flipsec.
+
+(** Flip is a weak equivalence (in fact, it is an involution) *)
+Lemma isweq_flipsec {A B : UU} {C : A -> B -> UU} : isweq (@flipsec A B C).
+Proof.
+  apply (isweq_iso _ flipsec); reflexivity.
+Defined.
+
+Definition flipsec_weq {A B : UU} {C : A -> B -> UU} :
+  (∏ a b, C a b) ≃ (∏ b a, C a b) := weqpair flipsec isweq_flipsec.
