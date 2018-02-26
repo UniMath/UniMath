@@ -254,5 +254,5 @@ Proof.
   - exact t.
 Defined.
 
-Eval lazy in Lists.sum (flatten _ testtree).
-Eval lazy in sum testtree.
+(* Eval lazy in Lists.sum (flatten _ testtree). *)
+(* Eval lazy in sum testtree. *)

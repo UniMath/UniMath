@@ -240,13 +240,13 @@ Definition sum : List natHSET -> nat :=
 (* Eval vm_compute in sum testlistS. *)
 
 (* All of these compute *)
-Eval lazy in length _ (nil natHSET).
-Eval lazy in length _ testlist.
-Eval lazy in length _ testlistS.
-Eval lazy in sum testlist.
-Eval lazy in sum testlistS.
-Eval lazy in length _ (concatenate _ testlist testlistS).
-Eval lazy in sum (concatenate _ testlist testlistS).
+(* Eval lazy in length _ (nil natHSET). *)
+(* Eval lazy in length _ testlist. *)
+(* Eval lazy in length _ testlistS. *)
+(* Eval lazy in sum testlist. *)
+(* Eval lazy in sum testlistS. *)
+(* Eval lazy in length _ (concatenate _ testlist testlistS). *)
+(* Eval lazy in sum (concatenate _ testlist testlistS). *)
 
 Goal (∏ l, length _ (2 :: l) = S (length _ l)).
 simpl.
@@ -336,7 +336,7 @@ Defined.
 (* Eval compute in (to_list _ testlist). *)
 
 (* This does compute: *)
-Eval lazy in (to_list _ testlist).
+(* Eval lazy in (to_list _ testlist). *)
 
 
 End list.
