@@ -1189,7 +1189,7 @@ End coproduct_of_functors.
 (** ** Constant product functors: C -> C, x |-> a * x  and  x |-> x * a are cocontinuous *)
 Section constprod_functors.
 
-Context {C : precategory} (PC : BinProducts C) (hsC : has_homsets C) (hE : has_exponentials PC).
+Context {C : precategory} (PC : BinProducts C) (hsC : has_homsets C) (hE : Exponentials PC).
 
 Lemma is_cocont_constprod_functor1 (x : C) : is_cocont (constprod_functor1 PC x).
 Proof.
@@ -1782,7 +1782,7 @@ Notation "'Id'" := (omega_cocont_functor_identity has_homsets_HSET) :
 Notation "F * G" :=
   (omega_cocont_BinProduct_of_functors_alt BinProductsHSET _
      has_homsets_HSET has_homsets_HSET
-     (is_omega_cocont_constprod_functor1 _ has_homsets_HSET has_exponentials_HSET)
+     (is_omega_cocont_constprod_functor1 _ has_homsets_HSET Exponentials_HSET)
      F G) : cocont_functor_hset_scope.
 
 Notation "F + G" :=
