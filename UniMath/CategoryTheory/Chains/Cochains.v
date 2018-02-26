@@ -24,7 +24,7 @@ Local Open Scope cat.
 Definition conat_graph : graph :=
     mk_graph nat (λ m n, match m with S m' => m' = n | 0 => empty end).
 
-Local Notation "'cochain'" := (diagram conat_graph).
+Notation "'cochain'" := (diagram conat_graph).
 
 Definition mapcochain {C D : precategory} (F : functor C D)
            (c : cochain C) : cochain D := mapdiagram F c.
