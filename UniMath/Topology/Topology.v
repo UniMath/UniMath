@@ -1254,11 +1254,11 @@ Definition isTopological_rig (X : rig) (is : isTopologicalSet X) :=
 Definition Topological_rig :=
   ∑ (X : rig) is, isTopological_rig X is.
 
-Definition isTopological_rng (X : rng) (is : isTopologicalSet X) :=
-  isTopological_gr (rngaddabgr X) is
+Definition isTopological_ring (X : ring) (is : isTopologicalSet X) :=
+  isTopological_gr (ringaddabgr X) is
   × isTopological_monoid (rigmultmonoid X) is.
-Definition Topological_rng :=
-  ∑ (X : rng) is, isTopological_rng X is.
+Definition Topological_ring :=
+  ∑ (X : ring) is, isTopological_ring X is.
 
 Definition isTopological_DivRig (X : DivRig) (is : isTopologicalSet X) :=
   isTopological_rig (pr1 X) is
@@ -1269,10 +1269,10 @@ Definition Topological_DivRig :=
   ∑ (X : DivRig) is, isTopological_DivRig X is.
 
 Definition isTopological_fld (X : fld) (is : isTopologicalSet X) :=
-  isTopological_rng (pr1 X) is
+  isTopological_ring (pr1 X) is
   × continuous_on (U := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is))
                   (V := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is))
-                  (λ x : X, hProppair (x != 0%rng) (isapropneg _))
+                  (λ x : X, hProppair (x != 0%ring) (isapropneg _))
                   fldmultinv.
 Definition Topological_fld :=
   ∑ (X : fld) is, isTopological_fld X is.
@@ -1286,7 +1286,7 @@ Definition Topological_ConstructiveDivisionRig :=
   ∑ (X : ConstructiveDivisionRig) is, isTopological_ConstructiveDivisionRig X is.
 
 Definition isTopological_ConstructiveField (X : ConstructiveField) (is : isTopologicalSet X) :=
-  isTopological_rng (pr1 X) is
+  isTopological_ring (pr1 X) is
   × continuous_on (U := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is))
                   (V := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is))
                   (λ x : X, (x ≠ 0)%CF) CFinv.

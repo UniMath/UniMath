@@ -55,7 +55,7 @@ Require Import UniMath.HomologicalAlgebra.MappingCone.
 Require Import UniMath.HomologicalAlgebra.KAPreTriangulated.
 
 Unset Kernel Term Sharing.
-Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommrngops ZeroArrow.
+Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommringops ZeroArrow.
 
 (** * K(A) as a triangulated category *)
 Section KATriangulated.

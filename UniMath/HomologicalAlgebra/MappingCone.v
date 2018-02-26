@@ -55,7 +55,7 @@ Unset Kernel Term Sharing.
 Local Open Scope hz_scope.
 Local Open Scope cat.
 
-Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommrngops ZeroArrow.
+Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommringops ZeroArrow.
 
 (** * Mapping cone *)
 (** ** Introduction

@@ -1,7 +1,7 @@
-(** * Category of commrngs *)
+(** * Category of commrings *)
 (** ** Contents
-- Precategory of commrngs
-- Category of commrngs
+- Precategory of commrings
+- Category of commrings
 *)
 
 Require Import UniMath.Foundations.PartD.
@@ -17,65 +17,65 @@ Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
 
 
-(** * Category of commrngs *)
-Section def_commrng_precategory.
+(** * Category of commrings *)
+Section def_commring_precategory.
 
-  Definition commrng_fun_space (A B : commrng) : hSet := hSetpair (rngfun A B) (isasetrigfun A B).
+  Definition commring_fun_space (A B : commring) : hSet := hSetpair (ringfun A B) (isasetrigfun A B).
 
-  Definition commrng_precategory_ob_mor : precategory_ob_mor :=
-    tpair (λ ob : UU, ob -> ob -> UU) commrng (λ A B : commrng, commrng_fun_space A B).
+  Definition commring_precategory_ob_mor : precategory_ob_mor :=
+    tpair (λ ob : UU, ob -> ob -> UU) commring (λ A B : commring, commring_fun_space A B).
 
-  Definition commrng_precategory_data : precategory_data :=
+  Definition commring_precategory_data : precategory_data :=
     precategory_data_pair
-      commrng_precategory_ob_mor (λ (X : commrng), (rigisotorigfun (idrigiso X)))
-      (fun (X Y Z : commrng) (f : rngfun X Y) (g : rngfun Y Z) => rigfuncomp f g).
+      commring_precategory_ob_mor (λ (X : commring), (rigisotorigfun (idrigiso X)))
+      (fun (X Y Z : commring) (f : ringfun X Y) (g : ringfun Y Z) => rigfuncomp f g).
 
-  Local Lemma commrng_id_left (X Y : commrng) (f : rngfun X Y) :
+  Local Lemma commring_id_left (X Y : commring) (f : ringfun X Y) :
     rigfuncomp (rigisotorigfun (idrigiso X)) f = f.
   Proof.
     use rigfun_paths. use idpath.
   Defined.
-  Opaque commrng_id_left.
+  Opaque commring_id_left.
 
-  Local Lemma commrng_id_right (X Y : commrng) (f : rngfun X Y) :
+  Local Lemma commring_id_right (X Y : commring) (f : ringfun X Y) :
     rigfuncomp f (rigisotorigfun (idrigiso Y)) = f.
   Proof.
     use rigfun_paths. use idpath.
   Defined.
-  Opaque commrng_id_right.
+  Opaque commring_id_right.
 
-  Local Lemma commrng_assoc (X Y Z W : commrng) (f : rngfun X Y) (g : rngfun Y Z)
-        (h : rngfun Z W) : rigfuncomp f (rigfuncomp g h) = rigfuncomp (rigfuncomp f g) h.
+  Local Lemma commring_assoc (X Y Z W : commring) (f : ringfun X Y) (g : ringfun Y Z)
+        (h : ringfun Z W) : rigfuncomp f (rigfuncomp g h) = rigfuncomp (rigfuncomp f g) h.
   Proof.
     use rigfun_paths. use idpath.
   Defined.
-  Opaque commrng_assoc.
+  Opaque commring_assoc.
 
-  Lemma is_precategory_commrng_precategory_data : is_precategory commrng_precategory_data.
+  Lemma is_precategory_commring_precategory_data : is_precategory commring_precategory_data.
   Proof.
     use mk_is_precategory.
-    - intros a b f. use commrng_id_left.
-    - intros a b f. use commrng_id_right.
-    - intros a b c d f g h. use commrng_assoc.
+    - intros a b f. use commring_id_left.
+    - intros a b f. use commring_id_right.
+    - intros a b c d f g h. use commring_assoc.
   Qed.
 
-  Definition commrng_precategory : precategory :=
-    mk_precategory commrng_precategory_data is_precategory_commrng_precategory_data.
+  Definition commring_precategory : precategory :=
+    mk_precategory commring_precategory_data is_precategory_commring_precategory_data.
 
-  Lemma has_homsets_commrng_precategory : has_homsets commrng_precategory.
+  Lemma has_homsets_commring_precategory : has_homsets commring_precategory.
   Proof.
     intros X Y. use isasetrigfun.
   Qed.
 
-End def_commrng_precategory.
+End def_commring_precategory.
 
 
-(** * Category of commrngs *)
-Section def_commrng_category.
+(** * Category of commrings *)
+Section def_commring_category.
 
-  (** ** (rngiso X Y) ≃ (iso X Y) *)
+  (** ** (ringiso X Y) ≃ (iso X Y) *)
 
-  Lemma commrng_iso_is_equiv (A B : ob commrng_precategory) (f : iso A B) : isweq (pr1 (pr1 f)).
+  Lemma commring_iso_is_equiv (A B : ob commring_precategory) (f : iso A B) : isweq (pr1 (pr1 f)).
   Proof.
     use isweq_iso.
     - exact (pr1rigfun _ _ (inv_from_iso f)).
@@ -86,100 +86,100 @@ Section def_commrng_category.
       use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_after_iso_inv f)) x).
       intros x0. use isapropisrigfun.
   Defined.
-  Opaque commrng_iso_is_equiv.
+  Opaque commring_iso_is_equiv.
 
-  Lemma commrng_iso_equiv (X Y : ob commrng_precategory) :
-    iso X Y -> rngiso (X : commrng) (Y : commrng).
+  Lemma commring_iso_equiv (X Y : ob commring_precategory) :
+    iso X Y -> ringiso (X : commring) (Y : commring).
   Proof.
     intro f.
-    use rngisopair.
-    - exact (weqpair (pr1 (pr1 f)) (commrng_iso_is_equiv X Y f)).
+    use ringisopair.
+    - exact (weqpair (pr1 (pr1 f)) (commring_iso_is_equiv X Y f)).
     - exact (pr2 (pr1 f)).
   Defined.
 
-  Lemma commrng_equiv_is_iso (X Y : ob commrng_precategory)
-        (f : rngiso (X : commrng) (Y : commrng)) :
-    @is_iso commrng_precategory X Y (rngfunconstr (pr2 f)).
+  Lemma commring_equiv_is_iso (X Y : ob commring_precategory)
+        (f : ringiso (X : commring) (Y : commring)) :
+    @is_iso commring_precategory X Y (ringfunconstr (pr2 f)).
   Proof.
     use is_iso_qinv.
-    - exact (rngfunconstr (pr2 (invrigiso f))).
+    - exact (ringfunconstr (pr2 (invrigiso f))).
     - use mk_is_inverse_in_precat.
       + use rigfun_paths. use funextfun. intros x. use homotinvweqweq.
       + use rigfun_paths. use funextfun. intros y. use homotweqinvweq.
   Defined.
-  Opaque commrng_equiv_is_iso.
+  Opaque commring_equiv_is_iso.
 
-  Lemma commrng_equiv_iso (X Y : ob commrng_precategory) :
-    rngiso (X : commrng) (Y : commrng) -> iso X Y.
+  Lemma commring_equiv_iso (X Y : ob commring_precategory) :
+    ringiso (X : commring) (Y : commring) -> iso X Y.
   Proof.
-    intros f. exact (@isopair commrng_precategory X Y (rngfunconstr (pr2 f))
-                              (commrng_equiv_is_iso X Y f)).
+    intros f. exact (@isopair commring_precategory X Y (ringfunconstr (pr2 f))
+                              (commring_equiv_is_iso X Y f)).
   Defined.
 
-  Lemma commrng_iso_equiv_is_equiv (X Y : commrng_precategory) : isweq (commrng_iso_equiv X Y).
+  Lemma commring_iso_equiv_is_equiv (X Y : commring_precategory) : isweq (commring_iso_equiv X Y).
   Proof.
     use isweq_iso.
-    - exact (commrng_equiv_iso X Y).
+    - exact (commring_equiv_iso X Y).
     - intros x. use eq_iso. use rigfun_paths. use idpath.
     - intros y. use rigiso_paths. use subtypeEquality.
       + intros x0. use isapropisweq.
       + use idpath.
   Defined.
-  Opaque commrng_iso_equiv_is_equiv.
+  Opaque commring_iso_equiv_is_equiv.
 
-  Definition commrng_iso_equiv_weq (X Y : ob commrng_precategory) :
-    weq (iso X Y) (rngiso (X : commrng) (Y : commrng)).
+  Definition commring_iso_equiv_weq (X Y : ob commring_precategory) :
+    weq (iso X Y) (ringiso (X : commring) (Y : commring)).
   Proof.
     use weqpair.
-    - exact (commrng_iso_equiv X Y).
-    - exact (commrng_iso_equiv_is_equiv X Y).
+    - exact (commring_iso_equiv X Y).
+    - exact (commring_iso_equiv_is_equiv X Y).
   Defined.
 
-  Lemma commrng_equiv_iso_is_equiv (X Y : ob commrng_precategory) : isweq (commrng_equiv_iso X Y).
+  Lemma commring_equiv_iso_is_equiv (X Y : ob commring_precategory) : isweq (commring_equiv_iso X Y).
   Proof.
     use isweq_iso.
-    - exact (commrng_iso_equiv X Y).
+    - exact (commring_iso_equiv X Y).
     - intros y. use rigiso_paths. use subtypeEquality.
       + intros x0. use isapropisweq.
       + use idpath.
     - intros x. use eq_iso. use rigfun_paths. use idpath.
   Defined.
-  Opaque commrng_equiv_iso_is_equiv.
+  Opaque commring_equiv_iso_is_equiv.
 
-  Definition commrng_equiv_weq_iso (X Y : ob commrng_precategory) :
-    (rngiso (X : commrng) (Y : commrng)) ≃ (iso X Y).
+  Definition commring_equiv_weq_iso (X Y : ob commring_precategory) :
+    (ringiso (X : commring) (Y : commring)) ≃ (iso X Y).
   Proof.
     use weqpair.
-    - exact (commrng_equiv_iso X Y).
-    - exact (commrng_equiv_iso_is_equiv X Y).
+    - exact (commring_equiv_iso X Y).
+    - exact (commring_equiv_iso_is_equiv X Y).
   Defined.
 
 
-  (** ** Category of commrngs *)
+  (** ** Category of commrings *)
 
-  Definition commrng_precategory_isweq (X Y : ob commrng_precategory) :
+  Definition commring_precategory_isweq (X Y : ob commring_precategory) :
     isweq (λ p : X = Y, idtoiso p).
   Proof.
     use (@isweqhomot
            (X = Y) (iso X Y)
-           (pr1weq (weqcomp (commrng_univalence X Y) (commrng_equiv_weq_iso X Y)))
-           _ _ (weqproperty (weqcomp (commrng_univalence X Y) (commrng_equiv_weq_iso X Y)))).
+           (pr1weq (weqcomp (commring_univalence X Y) (commring_equiv_weq_iso X Y)))
+           _ _ (weqproperty (weqcomp (commring_univalence X Y) (commring_equiv_weq_iso X Y)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.
     - use idpath.
     - use proofirrelevance. use isaprop_is_iso.
   Defined.
-  Opaque commrng_precategory_isweq.
+  Opaque commring_precategory_isweq.
 
-  Definition commrng_precategory_is_univalent : is_univalent commrng_precategory.
+  Definition commring_precategory_is_univalent : is_univalent commring_precategory.
   Proof.
     use mk_is_univalent.
-    - intros X Y. exact (commrng_precategory_isweq X Y).
-    - exact has_homsets_commrng_precategory.
+    - intros X Y. exact (commring_precategory_isweq X Y).
+    - exact has_homsets_commring_precategory.
   Defined.
 
-  Definition commrng_category : univalent_category :=
-    mk_category commrng_precategory commrng_precategory_is_univalent.
+  Definition commring_category : univalent_category :=
+    mk_category commring_precategory commring_precategory_is_univalent.
 
-End def_commrng_category.
+End def_commring_category.
