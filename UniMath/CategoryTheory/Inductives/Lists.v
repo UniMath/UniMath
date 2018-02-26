@@ -363,7 +363,7 @@ intros hF c L ccL HcL cc.
 use tpair.
 - transparent assert (HX : (cocone hF (hset_fun_space x HcL))).
   {  use mk_cocone.
-    * simpl; intro n; apply flip, curry, (pr1 cc).
+    * simpl; intro n; apply flip, (curry (Z := λ _,_)), (pr1 cc).
     * abstract (destruct cc as [f hf]; simpl; intros m n e;
                 rewrite <- (hf m n e); destruct e; simpl;
                 repeat (apply funextfun; intro); apply idpath).
@@ -389,7 +389,7 @@ use tpair.
     apply funextfun; intro xc; destruct xc as [x' c']; simpl;
     use (let g : HSET⟦colim (mk_ColimCocone hF c L ccL),
                                 hset_fun_space x HcL⟧ := _ in _);
-    [ simpl; apply flip, curry, t
+    [ simpl; apply flip, (curry (Z := λ _,_)), t
     | rewrite <- (colimArrowUnique _ _ _ g); [apply idpath | ];
       destruct cc as [f hf]; simpl in *;
       now intro n; simpl; rewrite <- (p n) ]

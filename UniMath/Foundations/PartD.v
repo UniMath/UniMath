@@ -558,7 +558,7 @@ Proof.
   intros. induction xp as [ x p ]. apply (a x p).
 Defined.
 
-
+(** General equivalence between curried and uncurried function types *)
 Definition weqsecovertotal2 {X : UU} (P : X -> UU) (Q : total2 P -> UU) :
   weq (∏ xp : total2 P, Q xp) (∏ x : X, ∏ p : P x, Q (tpair _ x p)).
 Proof.
