@@ -254,5 +254,4 @@ Proof.
   - exact t.
 Defined.
 
-Eval lazy in Lists.sum (flatten _ testtree).
-Eval lazy in sum testtree.
+Goal Lists.sum (flatten _ testtree) = sum testtree. reflexivity. Qed.
