@@ -72,7 +72,11 @@ limits/pullbacks_slice_products_equiv.v
 covyoneda.v
 categories/category_hset_structures.v
 SetValuedFunctors.v
-CocontFunctors.v
+Chains/Chains.v
+Chains/Cochains.v
+Chains/Adamek.v
+Chains/OmegaCocontFunctors.v
+Chains/All.v
 Inductives/Lists.v
 Inductives/Trees.v
 Inductives/LambdaCalculus.v
