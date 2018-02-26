@@ -69,8 +69,6 @@ Coercion prebicat_cells_1_id_comp_from_prebicat_data (C : prebicat_data) : prebi
 
 Definition id2 {C : prebicat_data} {a b : C} (f : C⟦a, b⟧) : f ==> f
   := pr1 (pr2 C) a b f.
-Check (λ (C : prebicat_data) , pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (C))))))) ))).
-
 
 Definition lunitor {C : prebicat_data} {a b : C} (f : C⟦a, b⟧)
   : identity _ · f ==> f

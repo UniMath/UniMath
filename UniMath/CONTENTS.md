@@ -217,7 +217,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [bicat/bicat_of_cats.v](CategoryTheory/bicat/bicat_of_cats.v)
    - [bicat/bicategory_from_bicat.v](CategoryTheory/bicat/bicategory_from_bicat.v)
    - [bicat/bicat_from_bicategory.v](CategoryTheory/bicat/bicat_from_bicategory.v)
-   - [bicat/presheaves.v](CategoryTheory/bicat/presheaves.v)
+   - [bicat/contravariant_functors.v](CategoryTheory/bicat/contravariant_functors.v)
    - [bicat/Constructions.v](CategoryTheory/bicat/Constructions.v)
    - [bicat/sigma.v](CategoryTheory/bicat/sigma.v)
    - [bicat/cofunctormaps.v](CategoryTheory/bicat/cofunctormaps.v)

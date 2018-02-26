@@ -166,19 +166,19 @@ Section disp_prebicat_laws.
 Context (D : disp_prebicat_data).
 
 Definition id2_disp_left_law : UU
-  := ∏ {a b : C} {f g : C⟦a, b⟧} (η : f ==> g)
+  := ∏ (a b : C) (f g : C⟦a, b⟧) (η : f ==> g)
       (x : D a) (y : D b) (ff : x -->[f] y) (gg : x -->[g] y)
       (ηη : ff ==>[η] gg),
       id2_disp _ •• ηη = transportb (fun x' => _ ==>[x'] _ ) (id2_left _) ηη.
 
 Definition id2_disp_right_law : UU
-  := ∏ {a b : C} {f g : C⟦a, b⟧} (η : f ==> g)
+  := ∏ (a b : C) (f g : C⟦a, b⟧) (η : f ==> g)
        (x : D a) (y : D b) (ff : x -->[f] y) (gg : x -->[g] y)
        (ηη : ff ==>[η] gg),
        ηη •• id2_disp _ = transportb (λ x', _ ==>[x'] _ ) (id2_right _) ηη.
 
 Definition vassocr_disp_law : UU
-  := ∏ {a b : C} {f g h k : C⟦a, b⟧} (η : f ==> g) (φ : g ==> h) (ψ : h ==> k)
+  := ∏ (a b : C) (f g h k : C⟦a, b⟧) (η : f ==> g) (φ : g ==> h) (ψ : h ==> k)
       (x : D a) (y : D b)
       (ff : x -->[f] y) (gg : x -->[g] y) (hh : x -->[h] y) (kk : x -->[k] y)
       (ηη : ff ==>[η] gg) (φφ : gg ==>[φ] hh) (ψψ : hh ==>[ψ] kk),
@@ -186,17 +186,17 @@ Definition vassocr_disp_law : UU
 
 
 Definition lwhisker_id2_disp_law : UU
-  := ∏ {a b c : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
+  := ∏ (a b c : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧)
        (x : D a) (y : D b) (z : D c) (ff : x -->[f] y) (gg : y -->[g] z),
      ff ◃◃ id2_disp gg = transportb (λ x', _ ==>[x'] _) (lwhisker_id2 _ _) (id2_disp (ff ;; gg)).
 
 Definition id2_rwhisker_disp_law : UU
-  := ∏ {a b c : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
+  := ∏ (a b c : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧)
        (x : D a) (y : D b) (z : D c) (ff : x -->[f] y) (gg : y -->[g] z),
      id2_disp ff ▹▹ gg = transportb (λ x', _ ==>[x'] _) (id2_rwhisker _ _) (id2_disp (ff ;; gg)).
 
 Definition lwhisker_vcomp_disp_law : UU
-  := ∏ {a b c : C} (f : C⟦a, b⟧) {g h i : C⟦b, c⟧}
+  := ∏ (a b c : C) (f : C⟦a, b⟧) (g h i : C⟦b, c⟧)
       (η : g ==> h) (φ : h ==> i)
       (x : D a) (y : D b) (z : D c) (ff : x -->[f] y)
       (gg : y -->[g] z) (hh : y -->[h] z) (ii : y -->[i] z)
@@ -204,7 +204,7 @@ Definition lwhisker_vcomp_disp_law : UU
      (ff ◃◃ ηη) •• (ff ◃◃ φφ) = transportb (λ x', _ ==>[x'] _) (lwhisker_vcomp _ _ _ ) (ff ◃◃ (ηη •• φφ)).
 
 Definition rwhisker_vcomp_disp_law : UU
-  := ∏ {a b c : C} {f g h : C⟦a, b⟧} (i : C⟦b, c⟧) (η : f ==> g) (φ : g ==> h)
+  := ∏ (a b c : C) (f g h : C⟦a, b⟧) (i : C⟦b, c⟧) (η : f ==> g) (φ : g ==> h)
        (x : D a) (y : D b) (z : D c)
        (ff : x -->[f] y) (gg : x -->[g] y) (hh : x -->[h] y)
        (ii : y -->[i] z)
@@ -212,21 +212,21 @@ Definition rwhisker_vcomp_disp_law : UU
      (ηη ▹▹ ii) •• (φφ ▹▹ ii) = transportb (λ x', _ ==>[x'] _) (rwhisker_vcomp _ _ _ ) ((ηη •• φφ) ▹▹ ii).
 
 Definition vcomp_lunitor_disp_law : UU
-  := ∏ {a b : C} (f g : C⟦a, b⟧) (η : f ==> g)
+  := ∏ (a b : C) (f g : C⟦a, b⟧) (η : f ==> g)
        (x : D a) (y : D b) (ff : x -->[f] y) (gg : x -->[g] y)
        (ηη : ff ==>[η] gg),
      (id_disp _ ◃◃ ηη) •• lunitor_disp gg =
      transportb (λ x', _ ==>[x'] _) (vcomp_lunitor _ _ _ ) (lunitor_disp ff •• ηη).
 
 Definition vcomp_runitor_disp_law : UU
-  := ∏ {a b : C} (f g : C⟦a, b⟧) (η : f ==> g)
+  := ∏ (a b : C) (f g : C⟦a, b⟧) (η : f ==> g)
        (x : D a) (y : D b) (ff : x -->[f] y) (gg : x -->[g] y)
        (ηη : ff ==>[η] gg),
      (ηη ▹▹ id_disp _) •• runitor_disp gg =
      transportb (λ x', _ ==>[x'] _) (vcomp_runitor _ _ _ ) (runitor_disp ff •• ηη).
 
 Definition lwhisker_lwhisker_disp_law : UU
-  := ∏ {a b c d : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧) {h i : c --> d} (η : h ==> i)
+  := ∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h i : c --> d) (η : h ==> i)
        (w : D a) (x : D b) (y : D c) (z : D d)
        (ff : w -->[f] x) (gg : x -->[g] y) (hh : y -->[h] z) (ii : y -->[i] z)
        (ηη : hh ==>[η] ii),
@@ -235,7 +235,7 @@ Definition lwhisker_lwhisker_disp_law : UU
                 (lassociator_disp _ _ _ •• (ff ;; gg ◃◃ ηη)).
 
 Definition rwhisker_lwhisker_disp_law : UU
-  := ∏ {a b c d : C} (f : C⟦a, b⟧) {g h : C⟦b, c⟧} (i : c --> d) (η : g ==> h)
+  := ∏ (a b c d : C) (f : C⟦a, b⟧) (g h : C⟦b, c⟧) (i : c --> d) (η : g ==> h)
        (w : D a) (x : D b) (y : D c) (z : D d)
        (ff : w -->[f] x) (gg : x -->[g] y) (hh : x -->[h] y) (ii : y -->[i] z)
        (ηη : gg ==>[η] hh),
@@ -244,7 +244,7 @@ Definition rwhisker_lwhisker_disp_law : UU
                 (lassociator_disp _ _ _ •• ((ff ◃◃ ηη) ▹▹ ii)).
 
 Definition rwhisker_rwhisker_disp_law : UU
-  := ∏ {a b c d : C} {f g : C⟦a, b⟧} (h : C⟦b, c⟧) (i : c --> d) (η : f ==> g)
+  := ∏ (a b c d : C) (f g : C⟦a, b⟧) (h : C⟦b, c⟧) (i : c --> d) (η : f ==> g)
        (w : D a) (x : D b) (y : D c) (z : D d)
        (ff : w -->[f] x) (gg : w -->[g] x) (hh : x -->[h] y) (ii : y -->[i] z)
        (ηη : ff ==>[η] gg),
@@ -252,7 +252,7 @@ Definition rwhisker_rwhisker_disp_law : UU
      transportb (λ x', _ ==>[x'] _) (rwhisker_rwhisker _ _ _ ) ((ηη ▹▹ hh ;; ii) •• lassociator_disp _ _ _ ).
 
 Definition vcomp_whisker_disp_law : UU
-  := ∏ {a b c : C} {f g : C⟦a, b⟧} {h i : C⟦b, c⟧}
+  := ∏ (a b c : C) (f g : C⟦a, b⟧) (h i : C⟦b, c⟧)
        (η : f ==> g) (φ : h ==> i)
        (x : D a) (y : D b) (z : D c)
        (ff : x -->[f] y) (gg : x -->[g] y)
@@ -262,31 +262,31 @@ Definition vcomp_whisker_disp_law : UU
      transportb (λ x', _ ==>[x'] _) (vcomp_whisker _ _ ) ((ff ◃◃ φφ) •• (ηη ▹▹ ii)).
 
 Definition lunitor_linvunitor_disp_law : UU
-  := ∏ {a b : C} (f : C⟦a, b⟧)
+  := ∏ (a b : C) (f : C⟦a, b⟧)
        (x : D a) (y : D b) (ff : x -->[f] y),
      lunitor_disp ff •• linvunitor_disp _ =
      transportb (λ x', _ ==>[x'] _) (lunitor_linvunitor _ ) (id2_disp (id_disp _ ;; ff)).
 
 Definition linvunitor_lunitor_disp_law : UU
-  := ∏ {a b : C} (f : C⟦a, b⟧)
+  := ∏ (a b : C) (f : C⟦a, b⟧)
        (x : D a) (y : D b) (ff : x -->[f] y),
      linvunitor_disp ff •• lunitor_disp _ =
      transportb (λ x', _ ==>[x'] _) (linvunitor_lunitor _ ) (id2_disp _).
 
 Definition runitor_rinvunitor_disp_law : UU
-  := ∏ {a b : C} (f : C⟦a, b⟧)
+  := ∏ (a b : C) (f : C⟦a, b⟧)
        (x : D a) (y : D b) (ff : x -->[f] y),
      runitor_disp ff •• rinvunitor_disp _ =
      transportb (λ x', _ ==>[x'] _) (runitor_rinvunitor _ ) (id2_disp _ ).
 
 Definition rinvunitor_runitor_disp_law : UU
-  := ∏ {a b : C} (f : C⟦a, b⟧)
+  := ∏ (a b : C) (f : C⟦a, b⟧)
        (x : D a) (y : D b) (ff : x -->[f] y),
      rinvunitor_disp ff •• runitor_disp _ =
      transportb (λ x', _ ==>[x'] _) (rinvunitor_runitor _ ) (id2_disp _).
 
 Definition lassociator_rassociator_disp_law : UU
-  := ∏ {a b c d : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d)
+  := ∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d)
        (w : D a) (x : D b) (y : D c) (z : D d)
        (ff : w -->[f] x) (gg : x -->[g] y)
        (hh : y -->[h] z),
@@ -294,7 +294,7 @@ Definition lassociator_rassociator_disp_law : UU
      transportb (λ x', _ ==>[x'] _) (lassociator_rassociator _ _ _  ) (id2_disp  _ ).
 
 Definition rassociator_lassociator_disp_law : UU
-  := ∏ {a b c d : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d)
+  := ∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d)
        (w : D a) (x : D b) (y : D c) (z : D d)
        (ff : w -->[f] x) (gg : x -->[g] y)
        (hh : y -->[h] z),
@@ -302,14 +302,14 @@ Definition rassociator_lassociator_disp_law : UU
      transportb (λ x', _ ==>[x'] _) (rassociator_lassociator _ _ _  ) (id2_disp _).
 
 Definition runitor_rwhisker_disp_law : UU
-  := ∏ {a b c : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
+  := ∏ (a b c : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧)
        (x : D a) (y : D b) (z : D c)
        (ff : x -->[f] y) (gg : y -->[g] z),
      lassociator_disp _ _ _ •• (runitor_disp ff ▹▹ gg) =
      transportb (λ x', _ ==>[x'] _) (runitor_rwhisker _ _ ) (ff ◃◃ lunitor_disp gg).
 
 Definition lassociator_lassociator_disp_law : UU
-  := ∏ {a b c d e: C} (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d) (i : C⟦d, e⟧)
+  := ∏ (a b c d e: C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d) (i : C⟦d, e⟧)
        (v : D a) (w : D b) (x : D c) (y : D d) (z : D e)
        (ff : v -->[f] w) (gg : w -->[g] x)
        (hh : x -->[h] y) (ii : y -->[i] z),

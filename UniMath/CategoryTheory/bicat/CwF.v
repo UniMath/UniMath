@@ -27,7 +27,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.bicat.bicat.
 Require Import UniMath.CategoryTheory.bicat.disp_bicat.
 Require Import UniMath.CategoryTheory.bicat.Constructions.
-Require Import UniMath.CategoryTheory.bicat.presheaves.
+Require Import UniMath.CategoryTheory.bicat.contravariant_functors.
 Require Import UniMath.CategoryTheory.bicat.sigma.
 Require Import UniMath.CategoryTheory.bicat.bicat_of_cats.
 Require Import UniMath.CategoryTheory.bicat.cofunctormaps.

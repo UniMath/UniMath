@@ -141,7 +141,7 @@ Require Export UniMath.CategoryTheory.bicat.disp_bicat.
 Require Export UniMath.CategoryTheory.bicat.bicat_of_cats.
 Require Export UniMath.CategoryTheory.bicat.bicategory_from_bicat.
 Require Export UniMath.CategoryTheory.bicat.bicat_from_bicategory.
-Require Export UniMath.CategoryTheory.bicat.presheaves.
+Require Export UniMath.CategoryTheory.bicat.contravariant_functors.
 Require Export UniMath.CategoryTheory.bicat.Constructions.
 Require Export UniMath.CategoryTheory.bicat.sigma.
 Require Export UniMath.CategoryTheory.bicat.cofunctormaps.
