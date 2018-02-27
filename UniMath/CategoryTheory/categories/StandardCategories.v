@@ -3,6 +3,8 @@
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.limits.terminal.
 
 Local Open Scope cat.
 
@@ -21,6 +23,18 @@ Proof.
     + exact (λ X, idfun X).
     + exact (λ X Y Z f g, funcomp f g).
   - repeat split; intros; apply idpath.
+Defined.
+
+Lemma InitialType : Initial type_precat.
+Proof.
+  apply (mk_Initial (empty : ob type_precat)).
+  exact iscontrfunfromempty.
+Defined.
+
+Lemma TerminalType : Terminal type_precat.
+Proof.
+  apply (mk_Terminal (unit : ob type_precat)).
+  exact iscontrfuntounit.
 Defined.
 
 (** *** the path groupoid *)

@@ -279,33 +279,33 @@ exact @UniMath.CategoryTheory.CocontFunctors.is_omega_cocont_family_functor.
 Defined.
 
 (** Example 35: Exponentials in Set *)
-Definition has_exponentials_HSET : has_exponentials BinProductsHSET :=
-  @UniMath.CategoryTheory.categories.category_hset_structures.has_exponentials_HSET.
+Definition Exponentials_HSET : Exponentials BinProductsHSET :=
+  @UniMath.CategoryTheory.categories.category_hset_structures.Exponentials_HSET.
 
 (** Lemma 36: Left and right product functors preserves colimits *)
 Lemma is_cocont_constprod_functor1 :
-  ∏ (C : precategory) (PC : BinProducts C), has_homsets C → has_exponentials PC
+  ∏ (C : precategory) (PC : BinProducts C), has_homsets C → Exponentials PC
   → ∏ x : C, is_cocont (constprod_functor1 PC x).
 Proof.
 exact @UniMath.CategoryTheory.CocontFunctors.is_cocont_constprod_functor1.
 Defined.
 
 Lemma is_omega_cocont_constprod_functor1 :
-  ∏ (C : precategory) (PC : BinProducts C), has_homsets C → has_exponentials PC
+  ∏ (C : precategory) (PC : BinProducts C), has_homsets C → Exponentials PC
   → ∏ x : C, is_omega_cocont (constprod_functor1 PC x).
 Proof.
 exact @UniMath.CategoryTheory.CocontFunctors.is_omega_cocont_constprod_functor1.
 Defined.
 
 Lemma is_cocont_constprod_functor2 :
-  ∏ (C : precategory) (PC : BinProducts C), has_homsets C → has_exponentials PC
+  ∏ (C : precategory) (PC : BinProducts C), has_homsets C → Exponentials PC
   → ∏ x : C, is_cocont (constprod_functor2 PC x).
 Proof.
 exact @UniMath.CategoryTheory.CocontFunctors.is_cocont_constprod_functor2.
 Defined.
 
 Lemma is_omega_cocont_constprod_functor2 :
-  ∏ (C : precategory) (PC : BinProducts C), has_homsets C → has_exponentials PC
+  ∏ (C : precategory) (PC : BinProducts C), has_homsets C → Exponentials PC
   → ∏ x : C, is_omega_cocont (constprod_functor2 PC x).
 Proof.
 exact @UniMath.CategoryTheory.CocontFunctors.is_omega_cocont_constprod_functor2.

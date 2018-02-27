@@ -200,6 +200,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [categories/modules.v](CategoryTheory/categories/modules.v)
    - [categories/StandardCategories.v](CategoryTheory/categories/StandardCategories.v)
    - [categories/preorder_categories.v](CategoryTheory/categories/preorder_categories.v)
+   - [categories/wosets.v](CategoryTheory/categories/wosets.v)
    - [Monads/Derivative.v](CategoryTheory/Monads/Derivative.v)
    - [DisplayedCats/Auxiliary.v](CategoryTheory/DisplayedCats/Auxiliary.v)
    - [DisplayedCats/Core.v](CategoryTheory/DisplayedCats/Core.v)

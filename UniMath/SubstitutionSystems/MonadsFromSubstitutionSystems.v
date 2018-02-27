@@ -301,10 +301,6 @@ Defined.
 
 Definition μ_3 : EndC ⟦ U T_squared • `T,  `T⟧ := fbracket T μ_2_ptd.
 
-(* for Travis *)
-
-Check μ_3.
-
 (*
 Definition μ_3' := fbracket T μ_2_ptd.
 Check μ_3'.
@@ -368,9 +364,6 @@ Proof.
         eapply pathscomp0; [ | apply H1]; clear H1.
         apply pathsinv0, assoc.
 Qed.
-
-(* for Travis *)
-Check μ_3_T_μ_2_μ_2.
 
 Local Notation "'T•T²'" := (functor_compose hs hs (functor_composite (`T) (`T)) (`T) : [C, C, hs]).
 (*
@@ -494,10 +487,6 @@ Proof.
       }
 Qed.
 
-(* for Travis *)
-Check  μ_3_μ_2_T_μ_2.
-
-
 (** proving a variant of the third monad law with assoc iso explicitly inserted *)
 
 Section third_monad_law_with_assoc.
@@ -592,9 +581,6 @@ Proof.
 Qed.
 
 End third_monad_law_with_assoc.
-
-(* for Travis *)
-Check third_monad_law_from_hss.
 
 Unset Printing All.
 Set Printing Notations.

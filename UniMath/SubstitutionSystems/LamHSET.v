@@ -49,7 +49,7 @@ Proof.
 apply is_omega_cocont_Lam.
 * apply is_omega_cocont_constprod_functor1.
   apply functor_category_has_homsets.
-  apply (has_exponentials_functor_HSET _ has_homsets_HSET).
+  apply (Exponentials_functor_HSET _ has_homsets_HSET).
 * apply ColimsHSET_of_shape.
 Defined.
 
