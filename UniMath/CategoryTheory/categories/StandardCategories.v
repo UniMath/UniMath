@@ -1,10 +1,12 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 
 Local Open Scope cat.
 
@@ -35,6 +37,23 @@ Lemma TerminalType : Terminal type_precat.
 Proof.
   apply (mk_Terminal (unit : ob type_precat)).
   exact iscontrfuntounit.
+Defined.
+
+Lemma BinCoproductsType : BinCoproducts type_precat.
+Proof.
+  intros X Y.
+  use tpair.
+  - exact (coprod X Y,, inl,, inr).
+  - intros other_coprod f g; cbn in f, g.
+    (** This is contractible because it is the fiber of the weak equivalence
+        [weqfunfromcoprodtoprod] between (X ⨿ Y → Z) and ((X → Z) × (Y → Z)).
+     *)
+    apply (@iscontrweqf
+             (hfiber (weqfunfromcoprodtoprod X Y other_coprod) (dirprodpair f g))).
+    + use weqfibtototal; intros other_fun; cbn.
+      unfold funfromcoprodtoprod; cbn.
+      apply pathsdirprodweq.
+    + apply weqproperty.
 Defined.
 
 (** *** the path groupoid *)

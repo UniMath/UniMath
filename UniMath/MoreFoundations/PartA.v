@@ -91,13 +91,6 @@ Proof.
   destruct e; apply idpath.
 Defined.
 
-Lemma transportf_const (A B : UU) (a a' : A) (e : a = a') (b : B) :
-   transportf (λ _, B) e b = b.
-Proof.
-  induction e.
-  apply idpath.
-Defined.
-
 Lemma coprodcomm_coprodcomm {X Y : UU} (v : X ⨿ Y) : coprodcomm Y X (coprodcomm X Y v) = v.
 Proof.
   induction v as [x|y]; reflexivity.
@@ -137,4 +130,19 @@ Definition coprod_rect_compute_2
 Proof.
   intros.
   apply idpath.
+Defined.
+
+(** A rewrite of [pathsdirprod] as an equivalence:
+    Two pairs are equal if and only if both of their components are. *)
+Definition pathsdirprodweq {X Y : UU} {x1 x2 : X} {y1 y2 : Y} :
+  (dirprodpair x1 y1 = dirprodpair x2 y2) ≃ (x1 = x2) × (y1 = y2).
+Proof.
+  intermediate_weq (dirprodpair x1 y1 ╝ dirprodpair x2 y2).
+  - apply (total2_paths_equiv (λ x : X, Y)).
+  - unfold PathPair; cbn.
+    intermediate_weq (∑ p : x1 = x2, y1 = y2).
+    + use weqfibtototal; intro p; cbn.
+      apply eqweqmap.
+      exact (maponpaths (λ x, x = y2) (eqtohomot (transportf_const p Y) y1)).
+    + exact (idfun _,, idisweq _).
 Defined.
