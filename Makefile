@@ -259,41 +259,49 @@ SHELL = bash
 enforce-prescribed-ordering: .enforce-prescribed-ordering.okay
 clean::; rm -f .enforce-prescribed-ordering.okay
 
-ifdef VDFILE
+# We arrange for the *.d files to be made, because we need to read them to enforce the prescribed ordering, by listing them as dependencies here.
+# Up to coq version 8.7, each *.v file had a corresponding *.v.d file.
+# After that, there is just one *.d file, it's name is .coqdeps.d, and it sits in this top-level directory.
+# So we have to distinguish the versions somehow; here we do that.
+clean::; rm -f $(VDFILE).d
+ifeq ($(shell grep -q ^VDFILE build/CoqMakefile.make && echo yes),yes)
 # Coq >= 8.8
-.enforce-prescribed-ordering.okay: Makefile $(VDFILE).d
+VDFILE := .coqdeps
+DEPFILES := $(VDFILE).d
+.enforce-prescribed-ordering.okay: Makefile $(DEPFILES) $(PACKAGE_FILES)
 	: "--- enforce ordering prescribed by the files UniMath/*/.packages/files ---"
-	@set -e ;															\
-	if declare -A seqnum 2>/dev/null ;												\
-	then n=0 ;															\
-	     for i in $(VOFILES) ;													\
-	     do n=$$(( $$n + 1 )) ;													\
-		seqnum[$$i]=$$n ;													\
-	     done ;															\
-	     for i in $(VFILES:.v=.vo);													\
-	     do grep $(VDFILE).d $$i ;													\
-	     done															\
-	     | sed -E -e 's/[^ ]*\.(glob|v\.beautified|v)([ :]|$$)/\2/g' -e 's/ *: */ /'						\
-	     | while read line ;													\
-	       do for i in $$line ; do echo $$i ; done											\
-		  | ( read target ;													\
-		      [ "$${seqnum[$$target]}" ] || (echo unknown target: $$target; false) >&2 ;					\
-		      while read prereq ;												\
-		      do [ "$${seqnum[$$prereq]}" ] || (echo "unknown prereq of $$target : $$prereq" ; false) >&2 ;			\
-			 echo "$$(($${seqnum[$$target]} > $${seqnum[$$prereq]})) error: *** $$target should not require $$prereq" ;	\
-		      done ) ;														\
-	       done | grep ^0 | sed 's/^0 //' |												\
-	       ( haderror= ;														\
-		 while read line ;													\
-		 do if [ ! "$$haderror" ] ; then haderror=1 ; fi ;									\
-		    echo "$$line" ;													\
-		 done ;															\
-		 [ ! "$$haderror" ] ) ;													\
-	else echo "make: *** skipping enforcement of linear ordering of packages, because 'bash' is too old" ;				\
+	@set -e ;														    \
+	if declare -A seqnum 2>/dev/null ;											    \
+	then n=0 ;														    \
+	     for i in $(VOFILES) ;												    \
+	     do n=$$(( $$n + 1 )) ;												    \
+		seqnum[$$i]=$$n ;												    \
+	     done ;														    \
+	     for i in $(VFILES:.v=.vo);												    \
+	     do grep "^$$i" $(DEPFILES) ;											    \
+	     done														    \
+	     | sed -E -e 's/[^ ]*\.(glob|v\.beautified|v)([ :]|$$)/\2/g' -e 's/ *: */ /'					    \
+	     | while read line ;												    \
+	       do for i in $$line ; do echo $$i ; done										    \
+		  | ( read target ;												    \
+		      [ "$${seqnum[$$target]}" ] || (echo unknown target: $$target; false) >&2 ;				    \
+		      while read prereq ;											    \
+		      do [ "$${seqnum[$$prereq]}" ] || (echo "unknown prereq of $$target : $$prereq" ; false) >&2 ;		    \
+			 echo "$$(($${seqnum[$$target]} > $${seqnum[$$prereq]})) error: *** $$target should not require $$prereq" ; \
+		      done ) ;													    \
+	       done | grep ^0 | sed 's/^0 //' |											    \
+	       ( haderror= ;													    \
+		 while read line ;												    \
+		 do if [ ! "$$haderror" ] ; then haderror=1 ; fi ;								    \
+		    echo "$$line" ;												    \
+		 done ;														    \
+		 [ ! "$$haderror" ] ) ;												    \
+	else echo "make: *** skipping enforcement of linear ordering of packages, because 'bash' is too old" ;			    \
 	fi
 	touch $@
 else
-.enforce-prescribed-ordering.okay: Makefile $(VFILES:.v=.v.d)
+DEPFILES := $(VFILES:.v=.v.d)
+.enforce-prescribed-ordering.okay: Makefile $(DEPFILES) $(PACKAGE_FILES)
 	: "--- enforce ordering prescribed by the files UniMath/*/.packages/files ---"
 	@set -e ;															\
 	if declare -A seqnum 2>/dev/null ;												\
@@ -302,7 +310,7 @@ else
 	     do n=$$(( $$n + 1 )) ;													\
 		seqnum[$$i]=$$n ;													\
 	     done ;															\
-	     for i in $(VFILES:.v=.v.d);												\
+	     for i in $(DEPFILES);													\
 	     do head -1 $$i ;														\
 	     done															\
 	     | sed -E -e 's/[^ ]*\.(glob|v\.beautified|v)([ :]|$$)/\2/g' -e 's/ *: */ /'						\

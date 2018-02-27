@@ -315,5 +315,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [M/Uniqueness.v](Induction/M/Uniqueness.v)
    - [W/Core.v](Induction/W/Core.v)
    - [W/Fibered.v](Induction/W/Fibered.v)
+   - [W/Naturals.v](Induction/W/Naturals.v)
    - [W/Uniqueness.v](Induction/W/Uniqueness.v)
    - [All.v](Induction/All.v)
