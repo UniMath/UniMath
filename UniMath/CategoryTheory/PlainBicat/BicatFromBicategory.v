@@ -15,6 +15,7 @@ Require Import UniMath.CategoryTheory.bicategories.prebicategory.
 Require Import UniMath.CategoryTheory.bicategories.whiskering.
 
 Require Import UniMath.CategoryTheory.PlainBicat.Bicat.
+Require Import UniMath.CategoryTheory.bicategories.Notations.
 
 Open Scope cat.
 

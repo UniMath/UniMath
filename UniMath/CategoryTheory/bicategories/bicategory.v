@@ -7,8 +7,7 @@ Require Import UniMath.CategoryTheory.equivalences.
 
 Require Import UniMath.CategoryTheory.bicategories.prebicategory.
 Require Import UniMath.CategoryTheory.bicategories.internal_equivalence.
-
-Open Scope bicategories.
+Require Import UniMath.CategoryTheory.bicategories.Notations.
 
 (******************************************************************************)
 (* Definition of bicategory *)

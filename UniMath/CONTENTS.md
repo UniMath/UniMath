@@ -156,6 +156,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Inductives/LambdaCalculus.v](CategoryTheory/Inductives/LambdaCalculus.v)
    - [catiso.v](CategoryTheory/catiso.v)
    - [bicategories/prebicategory.v](CategoryTheory/bicategories/prebicategory.v)
+   - [bicategories/Notations.v](CategoryTheory/bicategories/Notations.v)
    - [bicategories/whiskering.v](CategoryTheory/bicategories/whiskering.v)
    - [bicategories/Cat.v](CategoryTheory/bicategories/Cat.v)
    - [bicategories/internal_equivalence.v](CategoryTheory/bicategories/internal_equivalence.v)

@@ -7,8 +7,7 @@ Require Import UniMath.CategoryTheory.equivalences.
 
 Require Import UniMath.CategoryTheory.bicategories.prebicategory.
 Require Import UniMath.CategoryTheory.bicategories.whiskering.
-
-Open Scope bicategories.
+Require Import UniMath.CategoryTheory.bicategories.Notations.
 
 Definition inv {C:precategory} {a b : C}
  (f : iso a b)

@@ -9,8 +9,7 @@ Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.equivalences.
 
 Require Import UniMath.CategoryTheory.bicategories.prebicategory.
-
-Open Scope bicategories.
+Require Import UniMath.CategoryTheory.bicategories.Notations.
 
 (******************************************************************************)
 (* Whiskering *)

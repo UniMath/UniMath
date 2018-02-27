@@ -12,11 +12,11 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 
 Require Import UniMath.CategoryTheory.bicategories.prebicategory.
+Require Import UniMath.CategoryTheory.bicategories.Notations.
 
 Require Import UniMath.CategoryTheory.PlainBicat.Bicat.
 
 Open Scope cat.
-Open Scope bicategories.
 
 Local Notation "C  'c×'  D" := (precategory_binproduct C D)
  (at level 75, right associativity).
