@@ -24,13 +24,13 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
 (* (Displayed) Bicategories. *)
-Require Import UniMath.CategoryTheory.PlainBicat.bicat.
-Require Import UniMath.CategoryTheory.PlainBicat.disp_bicat.
+Require Import UniMath.CategoryTheory.PlainBicat.Bicat.
+Require Import UniMath.CategoryTheory.PlainBicat.DispBicat.
 Require Import UniMath.CategoryTheory.PlainBicat.Constructions.
-Require Import UniMath.CategoryTheory.PlainBicat.contravariant_functors.
-Require Import UniMath.CategoryTheory.PlainBicat.sigma.
-Require Import UniMath.CategoryTheory.PlainBicat.bicat_of_cats.
-Require Import UniMath.CategoryTheory.PlainBicat.cofunctormaps.
+Require Import UniMath.CategoryTheory.PlainBicat.ContravariantFunctor.
+Require Import UniMath.CategoryTheory.PlainBicat.Sigma.
+Require Import UniMath.CategoryTheory.PlainBicat.BicatOfCats.
+Require Import UniMath.CategoryTheory.PlainBicat.Cofunctormap.
 
 Notation "'PreShv' C" := [C^op,SET] (at level 4) : cat.
 

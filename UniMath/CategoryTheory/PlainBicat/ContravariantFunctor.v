@@ -6,9 +6,9 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.PlainBicat.bicat.
-Require Import UniMath.CategoryTheory.PlainBicat.disp_bicat.
-Require Import UniMath.CategoryTheory.PlainBicat.bicat_of_cats.
+Require Import UniMath.CategoryTheory.PlainBicat.Bicat.
+Require Import UniMath.CategoryTheory.PlainBicat.DispBicat.
+Require Import UniMath.CategoryTheory.PlainBicat.BicatOfCats.
 
 Open Scope cat.
 Open Scope mor_disp_scope.

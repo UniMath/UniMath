@@ -1,8 +1,8 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.PlainBicat.bicat.
-Require Import UniMath.CategoryTheory.PlainBicat.pseudo_functors.
+Require Import UniMath.CategoryTheory.PlainBicat.Bicat.
+Require Import UniMath.CategoryTheory.PlainBicat.PseudoFunctor.
 
 Open Scope cat.
 Open Scope mor_disp_scope.
