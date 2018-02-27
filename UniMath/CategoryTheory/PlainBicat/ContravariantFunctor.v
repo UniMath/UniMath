@@ -1,3 +1,9 @@
+(* ******************************************************************************* *)
+(** * Bicategories
+    Benedikt Ahrens, Marco Maggesi
+    February 2018
+ ********************************************************************************* *)
+
 (** Displayed bicategory of contravariant functors into a fixed category K. *)
 
 Require Import UniMath.Foundations.All.

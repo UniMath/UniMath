@@ -1,3 +1,9 @@
+(* ******************************************************************************* *)
+(** * Bicategories
+    Benedikt Ahrens, Marco Maggesi
+    February 2018
+ ********************************************************************************* *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.

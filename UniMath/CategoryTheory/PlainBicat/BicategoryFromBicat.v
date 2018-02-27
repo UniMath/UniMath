@@ -1,3 +1,9 @@
+(* ******************************************************************************* *)
+(** * Bicategories
+    Benedikt Ahrens, Marco Maggesi
+    February 2018
+ ********************************************************************************* *)
+
 (* =================================================================================== *)
 (* Every (pre)bicategory of UniMath.CategoryTheory.bicat  is a                         *)
 (* (pre)bicategory of UniMath.CategoryTheory.bicategories.                             *)
