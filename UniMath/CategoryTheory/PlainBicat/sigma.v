@@ -3,8 +3,8 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.bicat.bicat.
-Require Import UniMath.CategoryTheory.bicat.disp_bicat.
+Require Import UniMath.CategoryTheory.PlainBicat.bicat.
+Require Import UniMath.CategoryTheory.PlainBicat.disp_bicat.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 

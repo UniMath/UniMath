@@ -13,7 +13,7 @@ Require Import UniMath.CategoryTheory.HorizontalComposition.
 
 Require Import UniMath.CategoryTheory.bicategories.prebicategory.
 
-Require Import UniMath.CategoryTheory.bicat.bicat.
+Require Import UniMath.CategoryTheory.PlainBicat.bicat.
 
 Open Scope cat.
 Open Scope bicategories.

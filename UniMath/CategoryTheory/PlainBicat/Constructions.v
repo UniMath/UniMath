@@ -3,8 +3,8 @@ Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.bicat.bicat.
-Require Import UniMath.CategoryTheory.bicat.disp_bicat.
+Require Import UniMath.CategoryTheory.PlainBicat.bicat.
+Require Import UniMath.CategoryTheory.PlainBicat.disp_bicat.
 
 Open Scope cat.
 Open Scope mor_disp_scope.
