@@ -52,6 +52,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.Univalence.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
@@ -1119,9 +1120,6 @@ Proof.
   apply (pr2 A).
 Defined.
 
-
-
-
 Lemma transport_of_functor_map_is_pointwise (C : precategory_data) (D : precategory)
       (F0 G0 : ob C -> ob D)
     (F1 : ∏ a b : ob C, a --> b -> F0 a --> F0 b)
@@ -1138,14 +1136,6 @@ Proof.
   induction gamma.
   apply idpath.
 Defined.
-
-Lemma toforallpaths_funextsec : ∏ (T : UU) (P : T -> UU) (f g : ∏ t : T, P t)
-          (h : ∏ t : T, f t = g t),
-            toforallpaths _  _ _ (funextsec _ _ _ h) = h.
-Proof.
-  intros T P f g h.
-  exact (homotweqinvweq (weqtoforallpaths _ f g) h).
-Qed.
 
 Definition pr1_functor_eq_from_functor_iso (C : precategory_data) (D : precategory)(hs: has_homsets D)
     (H : is_univalent D) (F G : ob [C , D, hs]) :
