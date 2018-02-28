@@ -9,7 +9,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.FunctorCoalgebras.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.categories.Types.
 Require Import UniMath.Ktheory.Utilities.
 Require Import UniMath.Induction.PolynomialFunctors.
 Require Import UniMath.Induction.M.Core.

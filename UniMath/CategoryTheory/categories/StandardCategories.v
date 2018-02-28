@@ -1,4 +1,10 @@
-(* -*- coding: utf-8 -*- *)
+(** * Standard categories *)
+(** ** Contents:
+
+- The path groupoid ([path_groupoid])
+- The discrete univalent_category on n objects ([cat_n])
+
+*)
 
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.PartA.
@@ -8,6 +14,8 @@ Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Adjunctions.
 
 Local Open Scope cat.
 
@@ -15,65 +23,7 @@ Definition compose' { C:precategory_data } { a b c:ob C }
   (g:b --> c) (f:a --> b) : a --> c.
 Proof. intros. exact (compose f g). Defined.
 
-(** * The precategory of types of a fixed universe *)
-
-Definition type_precat : precategory.
-Proof.
-  use mk_precategory.
-  - use tpair; use tpair.
-    + exact UU.
-    + exact (λ X Y, X -> Y).
-    + exact (λ X, idfun X).
-    + exact (λ X Y Z f g, funcomp f g).
-  - repeat split; intros; apply idpath.
-Defined.
-
-Lemma InitialType : Initial type_precat.
-Proof.
-  apply (mk_Initial (empty : ob type_precat)).
-  exact iscontrfunfromempty.
-Defined.
-
-Lemma TerminalType : Terminal type_precat.
-Proof.
-  apply (mk_Terminal (unit : ob type_precat)).
-  exact iscontrfuntounit.
-Defined.
-
-Lemma BinCoproductsType : BinCoproducts type_precat.
-Proof.
-  intros X Y.
-  use tpair.
-  - exact (coprod X Y,, inl,, inr).
-  - intros other_coprod f g; cbn in f, g.
-    (** This is contractible because it is the fiber of the weak equivalence
-        [weqfunfromcoprodtoprod] between (X ⨿ Y → Z) and ((X → Z) × (Y → Z)).
-     *)
-    apply (@iscontrweqf
-             (hfiber (weqfunfromcoprodtoprod X Y other_coprod) (dirprodpair f g))).
-    + use weqfibtototal; intros other_fun; cbn.
-      unfold funfromcoprodtoprod; cbn.
-      apply pathsdirprodweq.
-    + apply weqproperty.
-Defined.
-
-Lemma BinProductsType : BinProducts type_precat.
-Proof.
-  intros X Y.
-  use tpair.
-  - exact ((X × Y),, dirprod_pr1,, dirprod_pr2).
-  - intros other_prod f g; cbn in f, g.
-    (** This is contractible because it is the fiber of the weak equivalence
-        [weqfuntoprodtoprod] between (Z → X × Y) and ((Z → X) × (Z → Y)).
-     *)
-    apply (@iscontrweqf
-             (hfiber (weqfuntoprodtoprod other_prod X Y) (dirprodpair f g))).
-    + use weqfibtototal; intros other_fun; cbn.
-      apply pathsdirprodweq.
-    + apply weqproperty.
-Defined.
-
-(** *** the path groupoid *)
+(** ** The path groupoid *)
 
 Definition is_groupoid (C : category) :=
   ∏ a b : ob C, isweq (fun p : a = b => idtomor a b p).
@@ -132,7 +82,7 @@ Definition path_groupoid (X:UU) : isofhlevel 3 X -> univalent_category.
 Proof. intros iobj. apply (univalent_category_pair (path_pregroupoid X iobj)).
   apply is_univalent_path_pregroupoid. Defined.
 
-(** *** the discrete univalent_category on n objects *)
+(** ** The discrete univalent_category on n objects ([cat_n]) *)
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Definition cat_n (n:nat): univalent_category.

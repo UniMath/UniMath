@@ -121,6 +121,7 @@ categories/intdoms.v
 categories/flds.v
 categories/modules.v
 categories/StandardCategories.v
+categories/Types.v
 categories/preorder_categories.v
 categories/wosets.v
 Monads/Derivative.v
