@@ -7,6 +7,7 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.limits.binproducts.
 
 Local Open Scope cat.
 
@@ -52,6 +53,22 @@ Proof.
              (hfiber (weqfunfromcoprodtoprod X Y other_coprod) (dirprodpair f g))).
     + use weqfibtototal; intros other_fun; cbn.
       unfold funfromcoprodtoprod; cbn.
+      apply pathsdirprodweq.
+    + apply weqproperty.
+Defined.
+
+Lemma BinProductsType : BinProducts type_precat.
+Proof.
+  intros X Y.
+  use tpair.
+  - exact ((X × Y),, dirprod_pr1,, dirprod_pr2).
+  - intros other_prod f g; cbn in f, g.
+    (** This is contractible because it is the fiber of the weak equivalence
+        [weqfuntoprodtoprod] between (Z → X × Y) and ((Z → X) × (Z → Y)).
+     *)
+    apply (@iscontrweqf
+             (hfiber (weqfuntoprodtoprod other_prod X Y) (dirprodpair f g))).
+    + use weqfibtototal; intros other_fun; cbn.
       apply pathsdirprodweq.
     + apply weqproperty.
 Defined.
