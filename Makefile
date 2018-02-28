@@ -46,7 +46,6 @@ ifeq "$(BUILD_COQ)" "yes"
 COQBIN=sub/coq/bin/
 all: build-coq
 build-coq: sub/coq/bin/coqc
-build/CoqMakefile.make .coq_makefile_output.conf: $(COQBIN)coq_makefile
 ifeq "$(BUILD_COQIDE)" "yes"
 all: build-coqide
 build-coqide: sub/coq/bin/coqide
@@ -73,9 +72,9 @@ ifeq ($(BUILD_COQ),yes)
 $(VOFILES) : $(COQBIN)coqc
 endif
 
-all html install uninstall $(VOFILES) $(VFILES:.v=.v.d):; $(MAKE) -f build/CoqMakefile.make $@
-clean::; $(MAKE) -f build/CoqMakefile.make $@
-distclean::; $(MAKE) -f build/CoqMakefile.make cleanall archclean
+all html install uninstall $(VOFILES) :build/CoqMakefile.make ; $(MAKE) -f build/CoqMakefile.make $@
+clean:: build/CoqMakefile.make; $(MAKE) -f build/CoqMakefile.make $@
+distclean:: build/CoqMakefile.make; $(MAKE) -f build/CoqMakefile.make cleanall archclean
 
 OTHERFLAGS += $(MOREFLAGS)
 OTHERFLAGS += -noinit -indices-matter -type-in-type -w '-notation-overridden,-local-declaration,+uniform-inheritance,-deprecated-option'
@@ -134,7 +133,11 @@ $(foreach P,$(PACKAGES),$(eval TAGS-$P: Makefile $(filter UniMath/$P/%,$(VFILES)
 TAGS : Makefile $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
 FILES_FILTER := grep -vE '^[[:space:]]*(\#.*)?$$'
 FILES_FILTER_2 := grep -vE '^[[:space:]]*(\#.*)?$$$$'
-$(foreach P,$(PACKAGES),$(eval $P: check-first; $(MAKE) -f build/CoqMakefile.make $(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\).v=UniMath/$P/\1.vo=" )))
+$(foreach P,$(PACKAGES),												\
+	$(eval $P: check-first build/CoqMakefile.make;									\
+		$(MAKE) -f build/CoqMakefile.make									\
+			$(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\).v=UniMath/$P/\1.vo=" )	\
+			UniMath/$P/All.vo))
 install:all
 coqwc:; coqwc $(VFILES)
 lc:; wc -l $(VFILES)
@@ -167,7 +170,7 @@ describe:; git describe --dirty --long --always --abbrev=40 --all
 	echo '# End:' ;\
 	) >$@
 # the '' above prevents emacs from mistaking the lines above as providing local variables when visiting this file
-build/CoqMakefile.make .coq_makefile_output.conf: .coq_makefile_input
+build/CoqMakefile.make .coq_makefile_output.conf: $(COQBIN)coq_makefile .coq_makefile_input
 	$(COQBIN)coq_makefile -f .coq_makefile_input -o .coq_makefile_output
 	mv .coq_makefile_output build/CoqMakefile.make
 
@@ -263,10 +266,12 @@ clean::; rm -f .enforce-prescribed-ordering.okay
 # Up to coq version 8.7, each *.v file had a corresponding *.v.d file.
 # After that, there is just one *.d file, it's name is .coqdeps.d, and it sits in this top-level directory.
 # So we have to distinguish the versions somehow; here we do that.
+# We expect the file build/CoqMakefile.make to exist now, because we have an include command above for the file .coq_makefile_output.conf,
+# and the same rule that make it makes build/CoqMakefile.make.
+VDFILE := .coqdeps
 clean::; rm -f $(VDFILE).d
 ifeq ($(shell grep -q ^VDFILE build/CoqMakefile.make && echo yes),yes)
 # Coq >= 8.8
-VDFILE := .coqdeps
 DEPFILES := $(VDFILE).d
 .enforce-prescribed-ordering.okay: Makefile $(DEPFILES) $(PACKAGE_FILES)
 	: "--- enforce ordering prescribed by the files UniMath/*/.packages/files ---"
@@ -333,6 +338,10 @@ DEPFILES := $(VFILES:.v=.v.d)
 	fi
 	touch $@
 endif
+
+# DEPFILES is defined above
+$(DEPFILES): | build/CoqMakefile.make
+	$(MAKE) -f build/CoqMakefile.make $@
 
 # here we ensure that the travis script checks every package
 check-travis:.check-travis.okay
