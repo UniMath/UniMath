@@ -13,6 +13,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+Require Import UniMath.CategoryTheory.categories.StandardCategories. (* unit *)
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.equivalences.
 
@@ -102,51 +103,58 @@ Proof.
   apply functor_on_iso. exact (precatbinprodiso alpha beta).
 Defined.
 
-Local Notation "alpha  ';hi;'  beta" := (compose2h_iso alpha beta) (at level 50).
+Local Notation "alpha ;hi; beta" := (compose_2mor_iso_horizontal alpha beta) (at level 50, format "alpha ;hi; beta").
 
-Definition associator_trans_type {C : prebicategory_id_comp} (a b c d : C) : UU
-  := pair_functor (functor_identity (a -1-> b)) (compose_functor b c d) ∙
-     compose_functor a b d
-     ⟹
-     precategory_binproduct_assoc (a -1-> b) (b -1-> c) (c -1-> d) ∙
-     (pair_functor (compose_functor a b c) (functor_identity (c -1-> d)) ∙
-      compose_functor a c d).
+Definition associator_trans_type { C : prebicategory_id_comp } (a b c d : C) :=
+  nat_trans
+    (functor_composite
+      (pair_functor (functor_identity _) (compose_functor b c d))
+      (compose_functor a b d))
+    (functor_composite
+      (precategory_binproduct_assoc _ _ _)
+      (functor_composite
+        (pair_functor (compose_functor a b c) (functor_identity _))
+        (compose_functor a c d))).
 
-Definition left_unitor_trans_type {C : prebicategory_id_comp} (a b : C) : UU
-  := bindelta_pair_functor
-       (constant_functor (a -1-> b) (a -1-> a) (identity1 a))
-       (functor_identity (a -1-> b)) ∙ compose_functor a a b
-     ⟹
-     functor_identity (a -1-> b).
+Definition left_unitor_trans_type { C : prebicategory_id_comp } (a b : C) :=
+  nat_trans
+    (functor_composite
+      (bindelta_pair_functor
+        (functor_composite (functor_to_unit _) (constant_functor unit_category _ (identity_1mor a)))
+        (functor_identity _))
+      (compose_functor a a b))
+    (functor_identity _).
 
-Definition right_unitor_trans_type {C : prebicategory_id_comp} (a b : C) : UU
-  := bindelta_pair_functor
-       (functor_identity (a -1-> b))
-       (constant_functor (a -1-> b) (b -1-> b) (identity1 b)) ∙
-     compose_functor a b b
-     ⟹
-     functor_identity (a -1-> b).
+Definition right_unitor_trans_type { C : prebicategory_id_comp } (a b : C) :=
+  nat_trans
+    (functor_composite
+      (bindelta_pair_functor
+        (functor_identity _)
+        (functor_composite (functor_to_unit _) (constant_functor unit_category _ (identity_1mor b))))
+      (compose_functor a b b))
+    (functor_identity _).
 
-Definition prebicategory_data : UU :=
-  ∑ C : prebicategory_id_comp,
-          (∏ a b c d : C, associator_trans_type a b c d)
-        × (∏ a b : C, left_unitor_trans_type a b)
-        × (∏ a b : C, right_unitor_trans_type a b).         (* Right *)
+Definition prebicategory_data :=
+  total2 (λ C : prebicategory_id_comp,
+    dirprod
+      (forall a b c d : C, associator_trans_type a b c d)
+      ( dirprod
+        (forall a b : C, left_unitor_trans_type a b)
+        (* Right *)
+        (forall a b : C, right_unitor_trans_type a b)
+      )).
 
-Coercion prebicategory_id_comp_from_prebicategory_data (C : prebicategory_data)
-  : prebicategory_id_comp
-  := pr1 C.
+Definition prebicategory_id_comp_from_prebicategory_data (C : prebicategory_data) :
+     prebicategory_id_comp := pr1 C.
+Coercion prebicategory_id_comp_from_prebicategory_data :
+  prebicategory_data >-> prebicategory_id_comp.
 
-Definition has_2mor_sets (C : prebicategory_data) : UU
-  := ∏ (a b : C) (f g : a -1-> b), isaset (f -2-> g).
+Definition has_2mor_sets (C : prebicategory_data) :=
+  forall a b : C,
+  forall f g : a -1-> b,
+    isaset (f -2-> g).
 
-Definition associator_trans {C : prebicategory_data} (a b c d : C)
-  : pair_functor (functor_identity (a -1-> b))
-                 (compose_functor b c d) ∙ compose_functor a b d
-    ⟹
-    precategory_binproduct_assoc (a -1-> b) (b -1-> c) (c -1-> d) ∙
-    (pair_functor (compose_functor a b c) (functor_identity (c -1-> d)) ∙
-     compose_functor a c d)
+Definition associator_trans {C : prebicategory_data} ( a b c d : C )
   := pr1 (pr2 C) a b c d.
 
 Definition associator_2mor {C : prebicategory_data} {a b c d : C}

@@ -5,6 +5,7 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+Require Import UniMath.CategoryTheory.categories.StandardCategories. (* unit *)
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.equivalences.
 
@@ -216,7 +217,7 @@ Proof.
   intermediate_path ((functor_on_morphisms
                  (functor_composite
                      (bindelta_pair_functor
-                        (functor_composite (unit_functor _) (constant_functor unit_precategory _ (identity1 a)))
+                        (functor_composite (functor_to_unit _) (constant_functor unit_category _ (identity_1mor a)))
                         (functor_identity _))
                      (compose_functor a a b))
                  alpha)
@@ -238,7 +239,7 @@ Proof.
                  (functor_composite
                     (bindelta_pair_functor
                        (functor_identity _)
-                       (functor_composite (unit_functor _) (constant_functor unit_precategory _ (identity1 b))))
+                       (functor_composite (functor_to_unit _) (constant_functor unit_category _ (identity_1mor b))))
                     (compose_functor a b b))
                  alpha)
            ;v;(right_unitor _)).
