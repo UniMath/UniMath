@@ -127,6 +127,7 @@ Require Export UniMath.CategoryTheory.categories.intdoms.
 Require Export UniMath.CategoryTheory.categories.flds.
 Require Export UniMath.CategoryTheory.categories.modules.
 Require Export UniMath.CategoryTheory.categories.StandardCategories.
+Require Export UniMath.CategoryTheory.categories.Cats.
 Require Export UniMath.CategoryTheory.categories.preorder_categories.
 Require Export UniMath.CategoryTheory.categories.wosets.
 Require Export UniMath.CategoryTheory.Monads.Derivative.
