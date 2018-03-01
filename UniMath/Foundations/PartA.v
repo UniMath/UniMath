@@ -209,7 +209,7 @@ Definition adjev2 {X Y : UU} (phi : ((X -> Y) -> Y) -> Y) : X -> Y :=
 
 (** *** Pairwise direct products *)
 
-Definition dirprod@{i} (X Y : Type@{i}) : Type@{i} := ∑ x:X, Y.
+Definition dirprod (X Y : Type) : Type := ∑ x:X, Y.
 
 Notation "A × B" := (dirprod A B) : type_scope.
 
@@ -271,7 +271,7 @@ Definition dneganddnegimpldneg {X Y : UU}
 
 (** *** Logical equivalence *)
 
-Definition logeq@{i} (X Y : Type@{i}) : Type@{i} := (X -> Y) × (Y -> X).
+Definition logeq (X Y : Type) : Type := (X -> Y) × (Y -> X).
 Notation " X <-> Y " := (logeq X Y) : type_scope.
 
 Lemma isrefl_logeq (X : UU) : X <-> X.
@@ -296,7 +296,7 @@ Proof.
   - intros y'. exact x.
 Defined.
 
-Definition logeq_both_false@{i} {X Y : Type@{i}} : neg@{i i} X -> neg@{i i} Y -> (X <-> Y).
+Definition logeq_both_false {X Y : Type} : neg X -> neg Y -> (X <-> Y).
 Proof.
   intros ? ? nx ny.
   split.
@@ -492,7 +492,7 @@ Defined.
 
 (** *** Homotopy between sections *)
 
-Definition homot@{i} {X : Type@{i}} {P : X -> Type@{i}} (f g : ∏ x : X, P x) := ∏ x : X , f x = g x.
+Definition homot {X : Type} {P : X -> Type} (f g : ∏ x : X, P x) := ∏ x : X , f x = g x.
 
 Notation "f ~ g" := (homot f g).
 
@@ -627,13 +627,13 @@ Proof.
   intro. apply idpath.
 Defined.
 
-Definition transportf@{i} {X : Type@{i}} (P : X -> Type@{i}) {x x' : X}
+Definition transportf {X : Type} (P : X -> Type) {x x' : X}
            (e : x = x') : P x -> P x' := pr1 (constr1 P e).
 
 Definition transportf_eq {X : UU} (P : X -> UU) {x x' : X} (e : x = x') ( p : P x ) :
   tpair _ x p = tpair  _ x' ( transportf P e p ) := ( pr1 ( pr2 ( constr1 P e ))) p .
 
-Definition transportb@{i} {X : Type@{i}} (P : X -> Type@{i}) {x x' : X}
+Definition transportb {X : Type} (P : X -> Type) {x x' : X}
            (e : x = x') : P x' -> P x := transportf P (!e).
 
 Notation "p #  x" := (transportf _ p x) (only parsing) : transport.
@@ -767,7 +767,7 @@ Proof.
   intros. induction p. induction q. apply idpath.
 Defined.
 
-Lemma two_arg_paths_f@{i} {A : Type@{i}} {B : A -> Type@{i}} {C:Type@{i}} {f : ∏ a, B a -> C} {a1 b1 a2 b2}
+Lemma two_arg_paths_f {A : Type} {B : A -> Type} {C:Type} {f : ∏ a, B a -> C} {a1 b1 a2 b2}
       (p : a1 = a2) (q : transportf B p b1 = b2) : f a1 b1 = f a2 b2.
 (* This lemma is a replacement for and a generalization of [total2_paths2_f], formerly called
    [total2_paths2], which does not refer to [total2].  The lemma [total2_paths2_f] can be obtained
@@ -964,8 +964,8 @@ Defined.
 
 (** *** Homotopies between families and the total spaces *)
 
-Definition famhomotfun@{i j} {X : Type@{i}} {P Q : X -> Type@{i}}
-           (h : homot@{j} P Q) (xp : total2 P) : total2 Q.
+Definition famhomotfun {X : Type} {P Q : X -> Type}
+           (h : homot P Q) (xp : total2 P) : total2 Q.
 (* move this function out of PartA, because it uses two universes, as VV observed *)
 Proof.
   intros.
@@ -992,7 +992,7 @@ Defined.
 
 (** *** Contractibility [ iscontr ] *)
 
-Definition iscontr@{i} (T:Type@{i}) : Type@{i} := ∑ cntr:T, ∏ t:T, t=cntr.
+Definition iscontr (T:Type) : Type := ∑ cntr:T, ∏ t:T, t=cntr.
 
 Notation "'∃!' x .. y , P"
   := (iscontr (∑ x, .. (∑ y, P) ..))
@@ -1032,7 +1032,7 @@ Defined.
 
 (** *** Homotopy fibers [ hfiber ] *)
 
-Definition hfiber@{i} {X Y : Type@{i}} (f : X -> Y) (y : Y) : Type@{i} := total2 (λ x, f x = y).
+Definition hfiber {X Y : Type} (f : X -> Y) (y : Y) : Type := total2 (λ x, f x = y).
 
 Definition hfiberpair {X Y : UU} (f : X -> Y) {y : Y}
            (x : X) (e : f x = y) : hfiber f y :=
@@ -1225,7 +1225,7 @@ Defined.
 
 (** *** Basics - [ isweq ] and [ weq ] *)
 
-Definition isweq@{i} {X Y : Type@{i}} (f : X -> Y) : Type@{i} :=
+Definition isweq {X Y : Type} (f : X -> Y) : Type :=
   ∏ y : Y, iscontr (hfiber f y).
 
 Lemma idisweq (T : UU) : isweq (idfun T).
@@ -1239,7 +1239,7 @@ Proof.
   apply idpath.
 Defined.
 
-Definition weq@{i} (X Y : Type@{i}) : Type@{i} := ∑ f:X->Y, isweq@{i} f.
+Definition weq (X Y : Type) : Type := ∑ f:X->Y, isweq f.
 
 Notation "X ≃ Y" := (weq X Y) : type_scope.
 (* written \~- or \simeq in Agda input method *)
@@ -1260,7 +1260,7 @@ Proof.
   intros. unfold weqccontrhfiber. apply (pr2 (pr2 w y)).
 Defined.
 
-Definition weqpair@{i} {X Y : Type@{i}} (f : X -> Y) (is: isweq f) : X ≃ Y :=
+Definition weqpair {X Y : Type} (f : X -> Y) (is: isweq f) : X ≃ Y :=
   tpair (λ f : X -> Y, isweq f) f is.
 
 Definition idweq (X : UU) : X ≃ X :=
@@ -1290,7 +1290,7 @@ Proof.
   - intro y. apply fromempty, ny. exact y.
 Defined.
 
-Definition invmap@{i} {X Y : Type@{i}} (w : X ≃ Y) : Y -> X :=
+Definition invmap {X Y : Type} (w : X ≃ Y) : Y -> X :=
   λ (y : Y), hfiberpr1 _ _ (weqccontrhfiber w y).
 
 (** *** Weak equivalences and paths spaces (more results in further sections) *)
@@ -1552,11 +1552,11 @@ Section isweqcontrtounit.
   Universe i.
   (* Constraint uu0 < i.           (* without this, we get i = uu0 in the next definition *) *)
 
-  Lemma isweqcontrtounit@{} {T : Type@{i}} (is : iscontr@{i} T) : isweq@{i} (λ _:T, tt).
+  Lemma isweqcontrtounit {T : Type} (is : iscontr T) : isweq (λ _:T, tt).
   Proof.
     intros. unfold isweq. intro y. induction y.
     induction is as [c h].
-    set (hc := hfiberpair@{i i i} _ c (idpath tt)).
+    set (hc := hfiberpair _ c (idpath tt)).
     split with hc.
     intros ha.
     induction ha as [x e].
@@ -1842,7 +1842,7 @@ Defined.
     http://github.com/HoTT/HoTT.
  *)
 
-Definition PathPair@{i} {A : Type@{i}} {B : A -> Type@{i}} (x y : ∑ x, B x) :=
+Definition PathPair {A : Type} {B : A -> Type} (x y : ∑ x, B x) :=
   ∑ p : pr1 x = pr1 y, transportf _ p (pr2 x) = pr2 y.
 
 Notation "a ╝ b" := (PathPair a b) : type_scope.
@@ -1851,7 +1851,7 @@ Notation "a ╝ b" := (PathPair a b) : type_scope.
 (* in agda input mode use \--= and select the 6-th one in the first set,
    or use \chimney *)
 
-Theorem total2_paths_equiv@{i} {A : Type@{i}} (B : A -> Type@{i}) (x y : ∑ x, B x) :
+Theorem total2_paths_equiv {A : Type} (B : A -> Type) (x y : ∑ x, B x) :
   x = y  ≃  x ╝ y.
 Proof.
   intros.
@@ -2198,7 +2198,7 @@ Definition weqcontrcontr {X Y : UU} (isx : iscontr X) (isy : iscontr Y) :=
 
 (** *** Composition of weak equivalences *)
 
-Definition weqcomp@{i} {X Y Z : Type@{i}} (w1 : X ≃ Y) (w2 : Y ≃ Z) : X ≃ Z :=
+Definition weqcomp {X Y Z : Type} (w1 : X ≃ Y) (w2 : Y ≃ Z) : X ≃ Z :=
   weqpair (λ (x : X), w2 (w1 x)) (twooutof3c w1 w2 (pr2 w1) (pr2 w2)).
 
 Notation "g ∘ f" := (weqcomp f g) : weq_scope.
@@ -2860,9 +2860,9 @@ Proof.
   intro X. apply (transportf bool_to_type X tt).
 Defined.
 
-Corollary nopathsfalsetotrue@{} : false = true -> empty.
+Corollary nopathsfalsetotrue : false = true -> empty.
 Proof.
-  intro X. apply (transportb@{uu1} bool_to_type X tt).
+  intro X. apply (transportb bool_to_type X tt).
 Defined.
 
 Definition truetonegfalse (x : bool) : x = true -> x != false.

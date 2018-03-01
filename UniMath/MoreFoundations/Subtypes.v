@@ -34,8 +34,8 @@ Notation " S ⊊ T " := (subtype_smallerThan S T) (at level 70) : subtype.
 
 Local Open Scope logic.
 
-Definition subtype_equal@{i} {X:Type@{i}} (S T : hsubtype@{i} X) : hProp
-  := forall_hProp@{i} (λ x, S x ⇔ T x).
+Definition subtype_equal {X:Type} (S T : hsubtype X) : hProp
+  := forall_hProp (λ x, S x ⇔ T x).
 
 Notation " S ≡ T " := (subtype_equal S T) (at level 70) : subtype.
 
@@ -121,7 +121,7 @@ Section hsubtype_univalence.
   Universe i.
   (* Constraint uu1 < i. *)
 
-  Theorem hsubtype_univalence@{} {X:Type@{i}} (S T : hsubtype@{i} X) : (S = T) ≃ (S ≡ T).
+  Theorem hsubtype_univalence {X:Type} (S T : hsubtype X) : (S = T) ≃ (S ≡ T).
   Proof.
     intros. intermediate_weq (∏ x, S x = T x).
     - apply weqtoforallpaths.
@@ -163,8 +163,8 @@ Defined.
 
 Definition isDecidablePredicate {X} (S:X->hProp) := ∏ x, decidable (S x).
 
-Definition subtype_plus@{i} {X:Type@{i}} (S:hsubtype@{i} X) (z:X) : hsubtype@{i} X
-  := λ x, hdisj@{i} (S x) (z = x).
+Definition subtype_plus {X:Type} (S:hsubtype X) (z:X) : hsubtype X
+  := λ x, hdisj (S x) (z = x).
 
 Definition subtype_plus_incl {X} (S:hsubtype X) (z:X) : S ⊆ subtype_plus S z.
 Proof.

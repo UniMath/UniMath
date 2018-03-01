@@ -173,7 +173,7 @@ Defined.
 
 (** We define the type [HLevel n] of types of hlevel n. *)
 
-Definition HLevel@{i j} n : Type@{j} := total2@{j} (λ X : Type@{i}, isofhlevel@{i} n X).
+Definition HLevel n : Type := total2 (λ X : Type, isofhlevel n X).
 
 (** * Main theorem: [HLevel n] is of hlevel [S n] *)
 

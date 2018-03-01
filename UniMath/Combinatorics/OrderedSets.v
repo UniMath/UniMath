@@ -9,9 +9,9 @@ Local Open Scope poset.
 
 (** partially ordered sets and ordered sets *)
 
-Definition isTotalOrder@{i j} {X : hSet@{i j}} (R : hrel@{i} X) : hProp
-  := hProppair (isPartialOrder@{i i i i} R × istotal@{i i i i} R)
-               (isapropdirprod@{i i i} _ _ (isaprop_isPartialOrder@{i j} R) (isaprop_istotal@{i j} R)).
+Definition isTotalOrder {X : hSet} (R : hrel X) : hProp
+  := hProppair (isPartialOrder R × istotal R)
+               (isapropdirprod _ _ (isaprop_isPartialOrder R) (isaprop_istotal R)).
 
 Section A.
 
@@ -172,7 +172,7 @@ Defined.
 
 (** see Bourbaki, Set Theory, III.1, where they are called totally ordered sets *)
 
-Definition OrderedSet@{i j} :Type@{j} := ∑ X:Poset@{i j}, istotal@{i i i i} (posetRelation@{i j} X).
+Definition OrderedSet :Type := ∑ X:Poset, istotal (posetRelation X).
 
 Ltac unwrap_OrderedSet X :=
   induction X as [X total];
@@ -305,7 +305,7 @@ Ltac oset_induction f e := generalize f; apply OrderedSetEquivalence_rect; intro
 
 (* standard ordered sets *)
 
-Definition FiniteOrderedSet@{i j} : Type@{j} := total2@{j} (λ X:OrderedSet@{i j}, isfinite@{i i} X).
+Definition FiniteOrderedSet : Type := total2 (λ X:OrderedSet, isfinite X).
 Definition underlyingOrderedSet (X:FiniteOrderedSet) : OrderedSet := pr1 X.
 Coercion underlyingOrderedSet : FiniteOrderedSet >-> OrderedSet.
 Definition finitenessProperty (X:FiniteOrderedSet) : isfinite X := pr2 X.
@@ -319,10 +319,10 @@ Proof. intros. exact (pr2 (pr1 X)). Defined.
 Lemma FiniteOrderedSet_isdeceq {X:FiniteOrderedSet} : isdeceq X.
 Proof. intros. apply isfinite_isdeceq. apply finitenessProperty. Defined.
 
-Lemma FiniteOrderedSet_isdec_ordering@{i j} {X:FiniteOrderedSet@{i j}} : isdec_ordering X.
+Lemma FiniteOrderedSet_isdec_ordering {X:FiniteOrderedSet} : isdec_ordering X.
 Proof. intros. apply isfinite_isdec_ordering. apply finitenessProperty. Defined.
 
-Definition FiniteOrderedSetDecidableOrdering@{i j} (X:FiniteOrderedSet@{i j}) : DecidableRelation X :=
+Definition FiniteOrderedSetDecidableOrdering (X:FiniteOrderedSet) : DecidableRelation X :=
   λ (x y:X), decidable_to_DecidableProposition (FiniteOrderedSet_isdec_ordering x y).
 
 Definition FiniteOrderedSetDecidableEquality (X:FiniteOrderedSet) : DecidableRelation X :=
@@ -375,7 +375,7 @@ Abort.
 
 (** making finite ordered sets in various ways *)
 
-Definition standardFiniteOrderedSet@{} (n:nat) : FiniteOrderedSet@{uu1 uu2}.
+Definition standardFiniteOrderedSet (n:nat) : FiniteOrderedSet@{uu1 uu2}.
 Proof.
   intros. simple refine (_,,_).
   - exists (stnposet n). intros x y; apply istotalnatleh.
@@ -396,14 +396,14 @@ Proof.
   - intros x y a b. apply incl. exact (pr2 po (f x) (f y) a b).
 Defined.
 
-Corollary inducedPartialOrder_weq@{i} {X Y : Type@{i}} (f:X≃Y) (R:hrel Y) (po:isPartialOrder@{i i i i} R) :
+Corollary inducedPartialOrder_weq {X Y : Type} (f:X≃Y) (R:hrel Y) (po:isPartialOrder R) :
   isPartialOrder (λ x x' : X, R (f x) (f x')).
 Proof.
   intros. exact (inducedPartialOrder f (incl_injectivity  f (weqproperty f)) R po).
 Defined.
 
 Local Open Scope foset.
-Definition transportFiniteOrdering@{i j} {n} {X:Type@{i}} : X ≃ ⟦ n ⟧ -> FiniteOrderedSet@{i j}.
+Definition transportFiniteOrdering {n} {X:Type} : X ≃ ⟦ n ⟧ -> FiniteOrderedSet.
 (* The new finite ordered set has X as its underlying set. *)
 Proof.
   intros ? ? w.

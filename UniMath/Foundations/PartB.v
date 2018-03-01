@@ -48,7 +48,7 @@ Require Export UniMath.Foundations.PartA.
 (** *** h-levels of types *)
 
 
-Fixpoint isofhlevel@{i} (n : nat) (X : Type@{i}) : Type@{i}
+Fixpoint isofhlevel (n : nat) (X : Type) : Type
   := match n with
      | O => iscontr X
      | S m => ∏ x : X, ∏ x' : X, (isofhlevel m (x = x'))
@@ -112,7 +112,7 @@ Defined.
 (** *** h-levels of functions *)
 
 
-Definition isofhlevelf@{i} (n : nat) {X Y : Type@{i}} (f : X -> Y) : Type@{i}
+Definition isofhlevelf (n : nat) {X Y : Type} (f : X -> Y) : Type
   := ∏ y : Y, isofhlevel n (hfiber f y).
 
 
@@ -430,7 +430,7 @@ Defined.
 (** *** h-levelf of [ pr1 ] *)
 
 
-Theorem isofhlevelfpr1@{i} (n : nat) {X : Type@{i}} (P : X -> Type@{i})
+Theorem isofhlevelfpr1 (n : nat) {X : Type} (P : X -> Type)
         (is : ∏ x : X, isofhlevel n (P x)) : isofhlevelf n (@pr1 X P).
 Proof.
   intros. unfold isofhlevelf. intro x.
@@ -695,7 +695,7 @@ Defined.
 (** *** Inclusions - functions of h-level 1 *)
 
 
-Definition isincl@{i} {X Y : Type@{i}} (f : X -> Y) := isofhlevelf@{i} 1 f.
+Definition isincl {X Y : Type} (f : X -> Y) := isofhlevelf 1 f.
 
 Definition incl (X Y : UU) := total2 (fun f : X -> Y => isincl f).
 Definition inclpair {X Y : UU} (f : X -> Y) (is : isincl f) :
@@ -805,8 +805,8 @@ Proof.
   intros X Y f X0. apply (isofhlevelfsn O f X0).
 Defined.
 
-Definition isinclpr1@{i} {X : Type@{i}} (P : X -> Type@{i}) (is : ∏ x : X, isaprop@{i} (P x)) :
-  isincl@{i} (@pr1 X P):= isofhlevelfpr1 (S O) P is.
+Definition isinclpr1 {X : Type} (P : X -> Type) (is : ∏ x : X, isaprop (P x)) :
+  isincl (@pr1 X P):= isofhlevelfpr1 (S O) P is.
 
 Theorem subtypeInjectivity {A : UU} (B : A -> UU) :
   isPredicate B -> ∏ (x y : total2 B), (x = y) ≃ (pr1 x = pr1 y).
@@ -814,7 +814,7 @@ Proof.
   intros. apply Injectivity. apply isweqonpathsincl. apply isinclpr1. exact X.
 Defined.
 
-Corollary subtypeEquality@{i} {A : Type@{i}} {B : A -> Type@{i}} (is : isPredicate B)
+Corollary subtypeEquality {A : Type} {B : A -> Type} (is : isPredicate B)
    {s s' : total2 (λ x, B x)} : pr1 s = pr1 s' -> s = s'.
 Proof.
   intros A B H s s'. apply invmap. apply subtypeInjectivity. exact H.
@@ -869,7 +869,7 @@ Defined.
 
 (** *** Basics about types of h-level 2 - "sets" *)
 
-Definition isaset@{i} (X : Type@{i}) : Type@{i} := ∏ x x' : X, isaprop (x = x').
+Definition isaset (X : Type) : Type := ∏ x x' : X, isaprop (x = x').
 
 (* Definition isaset := isofhlevel 2. *)
 
@@ -1011,28 +1011,28 @@ Defined.
 
 (** *** Propositions equivalent to negations of propositions *)
 
-Definition negProp@{i u} (P : Type@{i}) : Type@{u}
-  := @total2@{u} Type@{i} (λ Q, isaprop@{i} Q × (logeq@{i} (¬P) Q)).
+Definition negProp (P : Type) : Type
+  := @total2 Type (λ Q, isaprop Q × (logeq (¬P) Q)).
 
-Definition negProp_to_type@{i u} {P : Type@{i}} (negP : negProp@{i u} P) : Type@{i}
+Definition negProp_to_type {P : Type} (negP : negProp P) : Type
   := pr1 negP.
 
 Coercion negProp_to_type : negProp >-> Sortclass.
 
-Definition negProp_to_isaprop@{i u} {P:Type@{i}} (nP : negProp@{i u} P) : isaprop@{i} nP
+Definition negProp_to_isaprop {P:Type} (nP : negProp P) : isaprop nP
   := pr1 (pr2 nP).
 
-Definition negProp_to_iff@{i u} {P} (nP : negProp@{i u} P) : ¬P <-> nP
+Definition negProp_to_iff {P} (nP : negProp P) : ¬P <-> nP
   := pr2 (pr2 nP).
 
-Definition negProp_to_neg@{i u} {P:Type@{i}} {nP : negProp@{i u} P} : nP -> ¬P.
+Definition negProp_to_neg {P:Type} {nP : negProp P} : nP -> ¬P.
 Proof.
   intros ? ? np. exact (pr2 (negProp_to_iff nP) np).
 Defined.
 
 Coercion negProp_to_neg : negProp >-> Funclass.
 
-Definition neg_to_negProp@{i u} {P:Type@{i}} {nP : negProp@{i u} P} : ¬P -> nP.
+Definition neg_to_negProp {P:Type} {nP : negProp P} : ¬P -> nP.
 Proof.
   intros ? ? np. exact (pr1 (negProp_to_iff nP) np).
 Defined.
@@ -1128,7 +1128,7 @@ Proof.
   intros ? i c. exact (c,,i).
 Defined.
 
-Lemma isdecpropfromiscontr@{i} {P:Type@{i}} : iscontr P -> isdecprop@{i i i} P.
+Lemma isdecpropfromiscontr {P:Type} : iscontr P -> isdecprop P.
 Proof.
   intros ? i.
   split.
@@ -1241,7 +1241,7 @@ Proof.
   apply (isdeceqifisaprop _ isapropunit).
 Defined.
 
-Theorem isdeceqbool@{}: isdeceq@{uu1 uu1 uu1} bool.
+Theorem isdeceqbool: isdeceq bool.
 Proof.
   unfold isdeceq. intros x' x. induction x.
   - induction x'.
@@ -1443,9 +1443,9 @@ Defined.
 
 (** **** [ bool ] is a set *)
 
-Theorem isasetbool@{}: isaset@{uu1} bool.
+Theorem isasetbool: isaset bool.
 Proof.
-  apply (isasetifdeceq@{uu2} _ isdeceqbool).
+  apply (isasetifdeceq _ isdeceqbool).
 Defined.
 
 (** ** Splitting of [ X ] into a coproduct defined by a function [ X -> bool ] *)

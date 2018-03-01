@@ -358,7 +358,7 @@ Section isofhleveliterprod.
   Universe i.
   Constraint uu0 < i.           (* without this, we get uu0 = i in the next definition *)
 
-  Lemma isofhleveliterprod (n : nat) (k : nat) {X : Type@{i}} (is1 : isofhlevel n X) : isofhlevel n (iterprod k X).
+  Lemma isofhleveliterprod (n : nat) (k : nat) {X : Type} (is1 : isofhlevel n X) : isofhlevel n (iterprod k X).
   Proof.
     induction k as [|k IH].
     - apply isofhlevelcontr, iscontrunit.

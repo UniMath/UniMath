@@ -9,6 +9,11 @@ Require Export UniMath.Foundations.PartB.
 
 (** This file is the only file in UniMath that is compiled with type-in-type. *)
 
+Set Universe Polymorphism.
+Set Polymorphic Inductive Cumulativity.
+Unset Universe Minimization ToSet.
+Unset Cumulativity Use ULub.
+
 Section A.
 
   Universe i j.
@@ -17,14 +22,14 @@ Section A.
      the cases we want. *)
   Constraint i < j.
 
-  Definition ResizeProp@{} (T : Type@{j}) : isaprop@{j} T -> Type@{i}.
+  Definition ResizeProp@{} (T : Type@{j}) : isaprop T -> Type@{i}.
   (* this is related to the rule Voevodsky calls RR1 *)
   Proof.
     intros _.
     exact T.
   Defined.
 
-  Definition ResizeType@{} {S : Type@{i}} (T : Type@{j}) : weq@{j} S T -> Type@{i}.
+  Definition ResizeType@{} {S : Type@{i}} (T : Type@{j}) : weq S T -> Type@{i}.
   (* this is related to the rule Voevodsky calls RR5 *)
   Proof.
     intros _.

@@ -34,7 +34,7 @@ Require Export UniMath.Foundations.PartB.
 
 (* everything related to eta correction is obsolete *)
 
-Definition eqweqmap@{i j} { T1 T2 : Type@{i} } : paths@{j} T1 T2 -> T1 ≃ T2.
+Definition eqweqmap { T1 T2 : Type } : paths T1 T2 -> T1 ≃ T2.
 Proof.
   intro e. induction e. apply idweq.
 Defined.

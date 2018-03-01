@@ -10,7 +10,7 @@ Notation "A ⇒ B" := (himpl A B) : logic.
 
 Local Open Scope logic.
 
-Definition hequiv@{} (P Q:hProp) : hProp := (himpl_uu0 P Q) ∧ (himpl_uu0 Q P).
+Definition hequiv (P Q:hProp) : hProp := (himpl_uu0 P Q) ∧ (himpl_uu0 Q P).
 
 Notation "A ⇔ B" := (hequiv A B) (at level 95, no associativity) : logic.
 

@@ -76,6 +76,9 @@ Defined.
 
 (** See also [ isapropneg2 ] *)
 
+Set Printing Universes.
+Set Printing Coercions.
+Unset Printing Notations.
 
 Corollary isapropdneg (X : UU) : isaprop (dneg X).
 Proof.
@@ -699,15 +702,15 @@ Section isinclii1.
   Universe i.
   (* Constraint uu1 < i.           (* without this we get uu1 = i below *) *)
 
-  Theorem isinclii1@{} (X Y : Type@{i}) : isincl@{i} (@ii1 X Y).
+  Theorem isinclii1 (X Y : Type) : isincl (@ii1 X Y).
   Proof.
     intros.
-    set (f := @ii1 X Y). set (g := coprodtoboolsum@{i i i i} X Y).
+    set (f := @ii1 X Y). set (g := coprodtoboolsum X Y).
     set (gf := λ x : X, (g (f x))).
-    set (gf' := λ x : X, tpair@{i} (boolsumfun@{i i i} X Y) true x).
-    assert (h : ∏ x : X, paths@{i} (gf' x) (gf x))
+    set (gf' := λ x : X, tpair (boolsumfun X Y) true x).
+    assert (h : ∏ x : X, paths (gf' x) (gf x))
       by (intro; apply idpath).
-    assert (is1 : isofhlevelf@{i} (S O) gf')
+    assert (is1 : isofhlevelf (S O) gf')
       by apply (isofhlevelfsnfib O (boolsumfun X Y) true (isasetbool true true)).
     assert (is2 : isofhlevelf (S O) gf)
       by apply (isofhlevelfhomot (S O) gf' gf h is1).

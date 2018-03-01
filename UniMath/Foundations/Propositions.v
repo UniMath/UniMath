@@ -85,15 +85,15 @@ Require Export UniMath.Foundations.Resizing.
 (** [hProp] is essentially defined as [∑ T:Type, isaprop T], but
     here we make the universe levels explicit. *)
 
-Definition hProp@{} : Type@{uu1} := @total2@{uu1} Type@{uu0} isaprop@{uu0}.
+Definition hProp : Type@{uu1} := @total2@{uu1} Type@{uu0} isaprop@{uu0}.
 
-Definition hProppair@{i} (X : Type@{i}) (is : isaprop@{i} X) : hProp
+Definition hProppair (X : Type) (is : isaprop X) : hProp
   := tpair@{uu1} isaprop@{uu0} (ResizeProp@{uu0 i} X is) is.
 
-Definition hProppair_uu0@{} (X : Type@{uu0}) (is : isaprop@{uu0} X) : hProp
+Definition hProppair_uu0 (X : Type@{uu0}) (is : isaprop@{uu0} X) : hProp
   := tpair@{uu1} isaprop@{uu0} X is.
 
-Definition hProptoType@{} := @pr1@{uu1} _ _ : hProp -> Type@{uu0}.
+Definition hProptoType := @pr1@{uu1} _ _ : hProp -> Type@{uu0}.
 
 Coercion hProptoType : hProp >-> Sortclass.
 
@@ -109,9 +109,9 @@ Section negProp_to_hProp.
   Universe i u.
   (* Constraint uu1 < i. *)
 
-  Definition negProp_to_hProp@{} {P : Type@{i}} (Q : negProp@{i u} P) : hProp.
+  Definition negProp_to_hProp {P : Type} (Q : negProp P) : hProp.
   Proof.
-    intros. use (hProppair@{i} (negProp_to_type@{i u} Q)). apply negProp_to_isaprop.
+    intros. use (hProppair (negProp_to_type Q)). apply negProp_to_isaprop.
   Defined.
 
   Coercion negProp_to_hProp : negProp >-> hProp.
@@ -121,8 +121,8 @@ End negProp_to_hProp.
 (* convenient corollaries of some theorems that take separate isaprop
    arguments: *)
 
-Corollary subtypeInjectivity_prop@{i} {A : Type@{i}} (B : A -> hProp) :
-  ∏ (x y : total2@{i} B), (x = y) ≃ (pr1 x = pr1 y).
+Corollary subtypeInjectivity_prop {A : Type} (B : A -> hProp) :
+  ∏ (x y : total2 B), (x = y) ≃ (pr1 x = pr1 y).
 Proof.
   intros. apply subtypeInjectivity. intro. use propproperty.
 Defined.
@@ -138,7 +138,7 @@ Section impred_prop.
   Universe i.
   Constraint uu0 < i.           (* without this, we get i = uu0 belo *)
 
-  Corollary impred_prop@{} {T : Type@{i}} (P : T -> hProp) : isaprop@{i} (∏ t : T, P t).
+  Corollary impred_prop {T : Type} (P : T -> hProp) : isaprop (∏ t : T, P t).
   Proof.
     intros. apply impred; intro. apply propproperty.
   Defined.
@@ -158,13 +158,13 @@ Section forall_hProp.
   Universe i.
   Constraint uu0 < i.           (* without this, the next def'n gives i = uu0 *)
 
-  Lemma isaprop_forall_hProp@{} (X : Type@{i}) (Y : X -> hProp) : isaprop@{i} (∏ x, Y x).
+  Lemma isaprop_forall_hProp (X : Type) (Y : X -> hProp) : isaprop (∏ x, Y x).
   Proof.
     intros. apply impred_isaprop. intro x. apply propproperty.
   Defined.
 
-  Definition forall_hProp@{} {X : Type@{i}} (Y : X -> hProp) : hProp
-    := hProppair@{i} (∏ x, Y x) (isaprop_forall_hProp X Y).
+  Definition forall_hProp {X : Type} (Y : X -> hProp) : hProp
+    := hProppair (∏ x, Y x) (isaprop_forall_hProp X Y).
 
 End forall_hProp.
 
@@ -206,16 +206,16 @@ Definition isdecEq (X : UU) : hProp := hProppair _ (isapropisdeceq X).
 
 (** *** The [hProp] version of the "inhabited" construction. *)
 
-Definition ishinh_UU@{i} (X : Type@{i}) : Type@{i}
+Definition ishinh_UU (X : Type) : Type
   := ∏ P : hProp, ((X -> P) -> P).
 
-Lemma isapropishinh@{i} (X : Type@{i}) : isaprop@{i} (ishinh_UU@{i} X).
+Lemma isapropishinh (X : Type) : isaprop (ishinh_UU X).
 Proof.
   intro. apply impred. intros P. apply impred. intros _. apply propproperty.
 Qed.
 
-Definition ishinh@{i} (X : Type@{i}) : hProp
-  := hProppair (ishinh_UU@{i} X) (isapropishinh@{i} X).
+Definition ishinh (X : Type) : hProp
+  := hProppair (ishinh_UU X) (isapropishinh X).
 
 Notation nonempty := ishinh (only parsing).
 
@@ -241,9 +241,9 @@ Proof.
   intros ? ? i f h. exact (@hinhuniv X (Q,,i) f h).
 Defined.
 
-Corollary squash_to_prop@{i} {X Q : Type@{i}} : ishinh@{i} X -> isaprop Q -> (X -> Q) -> Q.
+Corollary squash_to_prop {X Q : Type} : ishinh X -> isaprop Q -> (X -> Q) -> Q.
 Proof.
-  intros ? ? h i f. exact (@hinhuniv X (tpair@{i} _ (ResizeProp Q i) i) f h).
+  intros ? ? h i f. exact (@hinhuniv X (tpair _ (ResizeProp Q i) i) f h).
 Defined.
 
 Definition hinhand {X Y : UU} (inx1 : ∥ X ∥) (iny1 : ∥ Y ∥) : ∥ X × Y ∥
@@ -324,12 +324,12 @@ Defined.
 (both depend only on the behavior of the corresponding function between the sets
 of connected components) **)
 
-Definition image@{i} {X Y : Type@{i}} (f : X -> Y) : Type@{i}
-  := total2 (λ y : Y, ishinh@{i} (hfiber f y)).
+Definition image {X Y : Type} (f : X -> Y) : Type
+  := total2 (λ y : Y, ishinh (hfiber f y)).
 Definition imagepair {X Y : UU} (f : X -> Y) :
   ∏ (t : Y), (λ y : Y, ∥ hfiber f y ∥) t → ∑ y : Y, ∥ hfiber f y ∥
   := tpair (λ y : Y, ishinh (hfiber f y)).
-Definition pr1image@{i j} {X Y : Type@{i}} (f : X -> Y) : image@{i} f → Y
+Definition pr1image {X Y : Type} (f : X -> Y) : image f → Y
   := @pr1 _  (λ y : Y, ishinh (hfiber f y)).
 
 Definition prtoimage {X Y : UU} (f : X -> Y) : X -> image f.
@@ -421,14 +421,14 @@ Definition htrue : hProp := hProppair unit isapropunit.
 
 Definition hfalse : hProp := hProppair empty isapropempty.
 
-Definition hconj@{} (P Q : hProp) : hProp
+Definition hconj (P Q : hProp) : hProp
   := hProppair_uu0 (P × Q) (isapropdirprod _ _ (pr2 P) (pr2 Q)).
 
 Notation "A ∧ B" := (hconj A B) (at level 80, right associativity) : type_scope.
   (* precedence same as /\ *)
   (* in agda-input method, type \and or \wedge *)
 
-Definition hdisj@{i} (P Q : Type@{i}) : hProp := ishinh@{i} (coprod P Q).
+Definition hdisj (P Q : Type) : hProp := ishinh (coprod P Q).
 
 Notation "X ∨ Y" := (hdisj X Y) (at level 85, right associativity) : type_scope.
   (* in agda-input method, type \or *)
@@ -459,12 +459,12 @@ Notation "'¬' X" := (hneg X) (at level 35, right associativity) : logic.
   (* type this in emacs in agda-input method with \neg *)
 Delimit Scope logic with logic.
 
-Definition himpl@{i} (P : Type@{i}) (Q : hProp) : hProp.
+Definition himpl (P : Type) (Q : hProp) : hProp.
 Proof.
-  intros. use (hProppair@{i} (P → Q)). apply impred. intro. apply propproperty.
+  intros. use (hProppair (P → Q)). apply impred. intro. apply propproperty.
 Defined.
 
-Definition himpl_uu0@{} (P : Type@{uu0}) (Q : hProp) : hProp.
+Definition himpl_uu0 (P : Type@{uu0}) (Q : hProp) : hProp.
 Proof.
   intros. use (tpair@{uu1} isaprop (P → Q)). apply impred. intro. apply propproperty.
 Defined.

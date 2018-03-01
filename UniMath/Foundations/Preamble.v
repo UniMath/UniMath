@@ -19,10 +19,10 @@ Monomorphic Universe uu2.       (* level 2 -- hPropset, unitset, natset, ... liv
 
 Constraint uu0 < uu1, uu1 < uu2.
 
-Global Set Universe Polymorphism.
-Global Set Polymorphic Inductive Cumulativity.
-Global Unset Universe Minimization ToSet.
-Global Unset Cumulativity Use ULub.
+(* Global Set Universe Polymorphism. *)
+(* Global Set Polymorphic Inductive Cumulativity. *)
+(* Global Unset Universe Minimization ToSet. *)
+(* Global Unset Cumulativity Use ULub. *)
 
 Notation UU  := Type (only parsing).
 Notation UU0 := Type@{uu0} (only parsing).
@@ -30,9 +30,9 @@ Notation UU1 := Type@{uu1} (only parsing). (* else we get this: Notation UU1 := 
 Notation UU2 := Type@{uu2} (only parsing).
 
 (* for debugging, temporarily: *)
-Global Set Printing Universes.
-Global Set Printing Coercions.
-Global Unset Printing Notations.
+(* Global Set Printing Universes. *)
+(* Global Set Printing Coercions. *)
+(* Global Unset Printing Notations. *)
 
 (** The empty type *)
 
@@ -153,7 +153,7 @@ Notation "1000" := (10 * 100) : nat_scope.
 
 (** Identity Types *)
 
-Inductive paths@{i} {A:Type@{i}} (a:A) : A -> Type@{i} := idpath : paths a a.
+Inductive paths {A:Type} (a:A) : A -> Type := idpath : paths a a.
 Hint Resolve idpath : core .
 Notation "a = b" := (paths a b) (at level 70, no associativity) : type_scope.
 
@@ -178,7 +178,7 @@ adding the option "Set Primitive Projections".  It also speeds up compilation by
 Set Primitive Projections.
 Set Nonrecursive Elimination Schemes.
 
-Record total2@{i} {T : Type@{i}} (P : T -> Type@{i}) : Type@{i}
+Record total2 {T : Type} (P : T -> Type) : Type
   := tpair { pr1 : T; pr2 : P pr1 }.
 
 Arguments tpair {_} _ _ _.

@@ -103,7 +103,7 @@ Proof.
   intros x x'. apply (negf (invmaponpathsS x x')).
 Defined.
 
-Lemma natneq_iff_neq@{} n m : ¬ (n = m) <-> n ≠ m.
+Lemma natneq_iff_neq n m : ¬ (n = m) <-> n ≠ m.
 Proof.
   intros n.
   induction n as [|n N].
@@ -135,7 +135,7 @@ Proof.
   intros ? ?. exact (pr1 (natneq_iff_neq n m)).
 Defined.
 
-Definition natneq@{} (m n : nat) : negProp@{uu1 uu2} (m = n).
+Definition natneq (m n : nat) : negProp@{uu1 uu2} (m = n).
 Proof.
   intros. exists (m ≠ n). split.
   - apply propproperty.
