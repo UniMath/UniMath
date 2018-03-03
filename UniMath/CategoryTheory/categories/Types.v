@@ -75,16 +75,8 @@ Proof.
   intros X Y.
   use tpair.
   - exact (coprod X Y,, inl,, inr).
-  - intros other_coprod f g; cbn in f, g.
-    (** This is contractible because it is the fiber of the weak equivalence
-        [weqfunfromcoprodtoprod] between (X ⨿ Y → Z) and ((X → Z) × (Y → Z)).
-     *)
-    apply (@iscontrweqf
-             (hfiber (weqfunfromcoprodtoprod X Y other_coprod) (dirprodpair f g))).
-    + use weqfibtototal; intros other_fun; cbn.
-      unfold funfromcoprodtoprod; cbn.
-      apply pathsdirprodweq.
-    + apply weqproperty.
+  - apply isBinCoproduct'_to_isBinCoproduct.
+    intro Z; apply (weqfunfromcoprodtoprod X Y Z).
 Defined.
 
 (** *** Limits *)
@@ -104,15 +96,8 @@ Proof.
   intros X Y.
   use tpair.
   - exact ((X × Y),, dirprod_pr1,, dirprod_pr2).
-  - intros other_prod f g; cbn in f, g.
-    (** This is contractible because it is the fiber of the weak equivalence
-        [weqfuntoprodtoprod] between (Z → X × Y) and ((Z → X) × (Z → Y)).
-     *)
-    apply (@iscontrweqf
-             (hfiber (weqfuntoprodtoprod other_prod X Y) (dirprodpair f g))).
-    + use weqfibtototal; intros other_fun; cbn.
-      apply pathsdirprodweq.
-    + apply weqproperty.
+  - apply isBinProduct'_to_isBinProduct.
+    intro; apply (weqfuntoprodtoprod _ X Y).
 Defined.
 
 (** ** Exponentials *)
