@@ -89,34 +89,7 @@ Proof.
         apply maponpaths_2. apply uip. apply homset_property.
 Defined.
 
-Definition disp_nat_trans_eq
-  {C' C : category}
-  {F' F : functor_data C' C}
-  (a : nat_trans F' F)
-  {D' : disp_cat_data C'}
-  {D : disp_cat C}
-  {R' : disp_functor_data F' D' D}
-  {R : disp_functor_data F D' D}
-  (b b'  :disp_nat_trans a R' R)
-  : (∏ x (xx : D' x), b x xx = b' x xx) → b = b'.
-Proof.
-  intro H.
-  apply subtypeEquality.
-  { intro r.  apply isaprop_disp_nat_trans_axioms. }
-  apply funextsec. intro x.
-  apply funextsec.  intro xx.
-  apply H.
-Qed.
 
-Lemma transportf_set {A : UU} (B : A → UU)
-      {a : A} (e : a = a) (b : B a)
-      (X : isaset A)
-  : transportf B e b = b.
-Proof.
-  pathvia (transportf B (idpath a) b).
-  - apply maponpaths_2, X.
-  - apply idpath.
-Defined.
 
 Lemma DispBicatOfDispCats_laws : disp_prebicat_laws disp_prebicat_of_disp_cats_data.
 Proof.
