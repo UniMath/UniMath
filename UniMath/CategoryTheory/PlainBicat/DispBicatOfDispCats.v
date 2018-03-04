@@ -89,7 +89,207 @@ Proof.
         apply maponpaths_2. apply uip. apply homset_property.
 Defined.
 
-Definition DispBicatOfDispCats : disp_prebicat bicat_of_cats.
+Definition disp_nat_trans_eq
+  {C' C : category}
+  {F' F : functor_data C' C}
+  (a : nat_trans F' F)
+  {D' : disp_cat_data C'}
+  {D : disp_cat C}
+  {R' : disp_functor_data F' D' D}
+  {R : disp_functor_data F D' D}
+  (b b'  :disp_nat_trans a R' R)
+  : (∏ x (xx : D' x), b x xx = b' x xx) → b = b'.
 Proof.
-  use tpair.
-  -
+  intro H.
+  apply subtypeEquality.
+  { intro r.  apply isaprop_disp_nat_trans_axioms. }
+  apply funextsec. intro x.
+  apply funextsec.  intro xx.
+  apply H.
+Qed.
+
+Lemma transportf_set {A : UU} (B : A → UU)
+      {a : A} (e : a = a) (b : B a)
+      (X : isaset A)
+  : transportf B e b = b.
+Proof.
+  pathvia (transportf B (idpath a) b).
+  - apply maponpaths_2, X.
+  - apply idpath.
+Defined.
+
+Lemma DispBicatOfDispCats_laws : disp_prebicat_laws disp_prebicat_of_disp_cats_data.
+Proof.
+  repeat split; red; intros;
+    apply disp_nat_trans_eq; intros;
+      apply pathsinv0;
+    unfold transportb.
+  - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
+    etrans; [
+      apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
+    apply pathsinv0.
+    etrans. apply id_left_disp.
+    apply pathsinv0; unfold transportb.
+    apply maponpaths_2. apply homset_property.
+  - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
+      etrans; [
+        apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
+    apply pathsinv0.
+    etrans. apply id_right_disp.
+    apply pathsinv0; unfold transportb.
+    apply maponpaths_2. apply homset_property.
+  - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
+      etrans; [
+        apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
+    apply pathsinv0.
+    etrans. apply assoc_disp.
+    apply pathsinv0; unfold transportb.
+    apply maponpaths_2. apply homset_property.
+  - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
+      etrans; [
+        apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
+    apply transportf_set. apply homset_property.
+  - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
+      etrans; [
+        apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
+    cbn.
+    apply pathsinv0.
+    etrans. apply disp_functor_id.
+    unfold transportb.
+    apply maponpaths_2. apply homset_property.
+  - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
+      etrans; [
+        apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
+    apply transportf_set. apply homset_property.
+  - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
+      etrans; [
+        apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
+    cbn.
+    etrans. apply maponpaths. apply disp_functor_comp.
+    etrans. apply transport_f_f.
+    apply transportf_set. apply homset_property.
+  - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
+      etrans; [
+        apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
+    cbn.
+    etrans. apply maponpaths. apply id_left_disp.
+    etrans. apply transport_f_f.
+    apply pathsinv0.
+    etrans. apply id_right_disp.
+    unfold transportb. apply maponpaths_2. apply homset_property.
+      - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
+      etrans; [
+        apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
+    cbn.
+    etrans. apply maponpaths. apply id_left_disp.
+    etrans. apply transport_f_f.
+    apply pathsinv0.
+    etrans. apply id_right_disp.
+    unfold transportb. apply maponpaths_2. apply homset_property.
+  - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
+      etrans; [
+        apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
+    cbn.
+    etrans. apply maponpaths. apply id_left_disp.
+    etrans. apply transport_f_f.
+    apply pathsinv0.
+    etrans. apply id_right_disp.
+    unfold transportb. apply maponpaths_2. apply homset_property.
+  - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
+      etrans; [
+        apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
+    cbn.
+    etrans. apply maponpaths. apply id_left_disp.
+    etrans. apply transport_f_f.
+    apply pathsinv0.
+    etrans. apply id_right_disp.
+    unfold transportb. apply maponpaths_2. apply homset_property.
+  - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
+      etrans; [
+        apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
+    cbn.
+    etrans. apply maponpaths. apply id_right_disp.
+    etrans. apply transport_f_f.
+    apply pathsinv0.
+    etrans. apply id_left_disp.
+    unfold transportb. apply maponpaths_2. apply homset_property.
+  - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
+      etrans; [
+        apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
+    cbn.
+    set (RR := @disp_nat_trans_ax_var _ _ _ _ _ _ _ _ _ φφ).
+    etrans. apply maponpaths. apply RR.
+    etrans. apply transport_f_f.
+    apply transportf_set. apply homset_property.
+  - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
+      etrans; [
+        apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
+    cbn.
+    apply pathsinv0.
+    etrans. apply id_right_disp.
+    unfold transportb. apply maponpaths_2. apply homset_property.
+  - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
+      etrans; [
+        apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
+    cbn.
+    apply pathsinv0.
+    etrans. apply id_right_disp.
+    unfold transportb. apply maponpaths_2. apply homset_property.
+  - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
+      etrans; [
+        apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
+    cbn.
+    apply pathsinv0.
+    etrans. apply id_right_disp.
+    unfold transportb. apply maponpaths_2. apply homset_property.
+  - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
+      etrans; [
+        apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
+    cbn.
+    apply pathsinv0.
+    etrans. apply id_right_disp.
+    unfold transportb. apply maponpaths_2. apply homset_property.
+  - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
+      etrans; [
+        apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
+    cbn.
+    apply pathsinv0.
+    etrans. apply id_right_disp.
+    unfold transportb. apply maponpaths_2. apply homset_property.
+  - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
+      etrans; [
+        apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
+    cbn.
+    apply pathsinv0.
+    etrans. apply id_right_disp.
+    unfold transportb. apply maponpaths_2. apply homset_property.
+  - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
+      etrans; [
+        apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
+    cbn.
+    apply pathsinv0.
+    etrans. apply id_left_disp.
+    etrans. apply maponpaths. apply disp_functor_id.
+    etrans. apply transport_f_f.
+    apply maponpaths_2. apply homset_property.
+  - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
+      etrans; [
+        apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
+    cbn.
+    apply pathsinv0.
+    etrans. apply assoc_disp_var.
+    etrans. apply maponpaths. apply id_left_disp.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply id_left_disp.
+    etrans. apply transport_f_f.
+    etrans. apply maponpaths. apply disp_functor_id.
+    etrans. apply transport_f_f.
+
+    apply pathsinv0.
+    etrans. apply maponpaths. apply id_left_disp.
+    etrans. apply transport_f_f.
+    apply maponpaths_2. apply homset_property.
+Defined.
+
+
+Definition DispBicatOfDispCats : disp_prebicat bicat_of_cats := _ ,, DispBicatOfDispCats_laws.
