@@ -14,7 +14,10 @@ Qed.
 Note: similar to [transportf_pathsinv0_var], [transportf_pathsinv0'],
 but not quite a special case of them, or (as far as I can find) any other
 library lemma.
-*)
+ *)
+
+
+
 Lemma transportf_transpose {X : UU} {P : X → UU} {x x' : X}
       (e : x = x') (y : P x) (y' : P x') :
       transportb P e y' = y -> y' = transportf P e y.
@@ -61,6 +64,18 @@ Proof.
     apply hs.
   - exact ex.
 Qed.
+
+
+Lemma transportf_set {A : UU} (B : A → UU)
+      {a : A} (e : a = a) (b : B a)
+      (X : isaset A)
+  : transportf B e b = b.
+Proof.
+  apply transportf_comp_lemma_hset.
+  - apply X.
+  - apply idpath.
+Defined.
+
 
 Lemma transportf_pair {A B} (P : A × B -> UU) {a a' : A} {b b' : B}
       (eA : a = a') (eB : b = b') (p : P (a,,b))
