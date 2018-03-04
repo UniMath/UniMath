@@ -7,12 +7,12 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
-Require Import UniMath.CategoryTheory.All.
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.PlainBicat.Bicat.
 Require Import UniMath.CategoryTheory.PlainBicat.DispBicat.
 Require Import UniMath.CategoryTheory.PlainBicat.BicatOfCats.

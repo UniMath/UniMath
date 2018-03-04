@@ -140,6 +140,7 @@ Require Export UniMath.CategoryTheory.PlainBicat.PseudoFunctor.
 Require Export UniMath.CategoryTheory.PlainBicat.OpCellBicat.
 Require Export UniMath.CategoryTheory.PlainBicat.DispBicat.
 Require Export UniMath.CategoryTheory.PlainBicat.BicatOfCats.
+Require Export UniMath.CategoryTheory.PlainBicat.DispBicatOfDispCats.
 Require Export UniMath.CategoryTheory.PlainBicat.BicategoryFromBicat.
 Require Export UniMath.CategoryTheory.PlainBicat.BicatFromBicategory.
 Require Export UniMath.CategoryTheory.PlainBicat.ContravariantFunctor.
