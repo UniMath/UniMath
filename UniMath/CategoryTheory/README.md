@@ -12,6 +12,19 @@ http://arxiv.org/abs/1401.0053.
 
 For any question about this library, send an email to Benedikt Ahrens.
 
+## Terminology
+
+The terminology in this package differs from that
+of [the HoTT book](https://homotopytypetheory.org/book/).
+The following table offers a comparison.
+
+| UniMath                      | HoTT Book       | Ob C | Hom_C | Univalence |
+|------------------------------|-----------------|------|-------|------------|
+| Precategory                  | n/a             | Type | Type  | No         |
+| Category                     | Precategory     | Type | Set   | No         |
+| Univalent/saturated category | Category        | Type | Set   | Yes        |
+| Set category                 | Strict category | Set  | Set   | No         |
+
 ## Contents
 
 ### The files containing the formalization of the Rezk Completion:
