@@ -91,13 +91,6 @@ Proof.
   destruct e; apply idpath.
 Defined.
 
-Lemma transportf_const (A B : UU) (a a' : A) (e : a = a') (b : B) :
-   transportf (λ _, B) e b = b.
-Proof.
-  induction e.
-  apply idpath.
-Defined.
-
 Lemma coprodcomm_coprodcomm {X Y : UU} (v : X ⨿ Y) : coprodcomm Y X (coprodcomm X Y v) = v.
 Proof.
   induction v as [x|y]; reflexivity.
@@ -137,4 +130,37 @@ Definition coprod_rect_compute_2
 Proof.
   intros.
   apply idpath.
+Defined.
+
+(** If x = y, then x = z if and only if y = z by transitivity. *)
+Definition transitive_paths_weq {X : UU} {x y z : X} :
+  x = y -> (x = z ≃ y = z).
+Proof.
+  intro xeqy.
+  use weq_iso.
+  - intro xeqz.
+    exact (!xeqy @ xeqz).
+  - intro yeqz.
+    exact (xeqy @ yeqz).
+  - intro xeqz.
+    refine (path_assoc _ _ _ @ _).
+    refine (maponpaths (λ p, p @ xeqz) (pathsinv0r xeqy) @ _).
+    reflexivity.
+  - intro yeqz.
+    refine (path_assoc _ _ _ @ _).
+    refine (maponpaths (λ p, p @ yeqz) (pathsinv0l xeqy) @ _).
+    reflexivity.
+Defined.
+
+(** A rewrite of [pathsdirprod] as an equivalence:
+    Two pairs are equal if and only if both of their components are. *)
+Definition pathsdirprodweq {X Y : UU} {x1 x2 : X} {y1 y2 : Y} :
+  (dirprodpair x1 y1 = dirprodpair x2 y2) ≃ (x1 = x2) × (y1 = y2).
+Proof.
+  intermediate_weq (dirprodpair x1 y1 ╝ dirprodpair x2 y2).
+  - apply total2_paths_equiv.
+  - unfold PathPair; cbn.
+    use weqfibtototal; intro p; cbn.
+    apply transitive_paths_weq.
+    apply (toforallpaths _ _ _ (transportf_const p Y) y1).
 Defined.

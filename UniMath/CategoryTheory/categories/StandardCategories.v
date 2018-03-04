@@ -1,10 +1,21 @@
-(* -*- coding: utf-8 -*- *)
+(** * Standard categories *)
+(** ** Contents:
+
+- The path groupoid ([path_groupoid])
+- The discrete univalent_category on n objects ([cat_n])
+
+*)
 
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Adjunctions.
 
 Local Open Scope cat.
 
@@ -12,32 +23,7 @@ Definition compose' { C:precategory_data } { a b c:ob C }
   (g:b --> c) (f:a --> b) : a --> c.
 Proof. intros. exact (compose f g). Defined.
 
-(** * The precategory of types of a fixed universe *)
-
-Definition type_precat : precategory.
-Proof.
-  use mk_precategory.
-  - use tpair; use tpair.
-    + exact UU.
-    + exact (λ X Y, X -> Y).
-    + exact (λ X, idfun X).
-    + exact (λ X Y Z f g, funcomp f g).
-  - repeat split; intros; apply idpath.
-Defined.
-
-Lemma InitialType : Initial type_precat.
-Proof.
-  apply (mk_Initial (empty : ob type_precat)).
-  exact iscontrfunfromempty.
-Defined.
-
-Lemma TerminalType : Terminal type_precat.
-Proof.
-  apply (mk_Terminal (unit : ob type_precat)).
-  exact iscontrfuntounit.
-Defined.
-
-(** *** the path groupoid *)
+(** ** The path groupoid *)
 
 Definition is_groupoid (C : category) :=
   ∏ a b : ob C, isweq (fun p : a = b => idtomor a b p).
@@ -96,7 +82,7 @@ Definition path_groupoid (X:UU) : isofhlevel 3 X -> univalent_category.
 Proof. intros iobj. apply (univalent_category_pair (path_pregroupoid X iobj)).
   apply is_univalent_path_pregroupoid. Defined.
 
-(** *** the discrete univalent_category on n objects *)
+(** ** The discrete univalent_category on n objects ([cat_n]) *)
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Definition cat_n (n:nat): univalent_category.
