@@ -26,14 +26,29 @@ Definition conat_graph : graph :=
 
 Notation "'cochain'" := (diagram conat_graph).
 
-Definition mk_cochain {C : precategory}
-           (obs : ∏ n : nat, ob C) (ars : ∏ n : nat, obs (S n) --> obs n) : cochain C.
+(** A diagram for a cochain is what it should be, a collection of objects and
+    arrows arranged so: X₀ ⟵ X₁ ⟵ ⋯. This can be used to easily construct
+    cochains, see e.g. [termCochain]. *)
+Definition cochain_weq {C : precategory} :
+  (∑ (obs : ∏ n : nat, ob C), (∏ n : nat, obs (S n) --> obs n)) ≃ cochain C.
 Proof.
-  use tpair.
-  - exact obs.
-  - intros a b aeqSb; cbn in *.
+  use weqfibtototal; intro obs; cbn.
+  use weq_iso.
+  - intros ars a b aeqSb.
     refine (_ · ars b).
     exact (transportf (λ o, C ⟦ obs o, obs (S b) ⟧) aeqSb (identity _)).
+  - exact (λ ars n, ars (S n) n (idpath _)).
+  - intros ars; cbn; unfold idfun.
+    apply funextsec; intro n.
+    apply id_left.
+  - intros ars.
+    cbn.
+    apply funextsec; intro a.
+    apply funextsec; intro b.
+    apply funextsec; intro p.
+    induction p.
+    cbn; unfold idfun.
+    apply id_left.
 Defined.
 
 Definition mapcochain {C D : precategory} (F : functor C D)
@@ -61,7 +76,7 @@ Defined.
 Definition termCochain {C : precategory} (TermC : Terminal C) (F : functor C C) :
   cochain C.
 Proof.
-  use mk_cochain.
+  use cochain_weq; use tpair.
   - exact (λ m, iter_functor F m TermC).
   - intros n; induction n as [|n IHn].
     * exact (TerminalArrow TermC _).
