@@ -22,9 +22,19 @@ Local Open Scope cat.
 *)
 
 Definition conat_graph : graph :=
-    mk_graph nat (λ m n, match m with S m' => m' = n | 0 => empty end).
+    mk_graph nat (λ m n, S n = m).
 
 Notation "'cochain'" := (diagram conat_graph).
+
+Definition mk_cochain {C : precategory}
+           (obs : ∏ n : nat, ob C) (ars : ∏ n : nat, obs (S n) --> obs n) : cochain C.
+Proof.
+  use tpair.
+  - exact obs.
+  - intros a b aeqSb; cbn in *.
+    refine (_ · ars b).
+    exact (transportf (λ o, C ⟦ obs o, obs (S b) ⟧) aeqSb (identity _)).
+Defined.
 
 Definition mapcochain {C D : precategory} (F : functor C D)
            (c : cochain C) : cochain D := mapdiagram F c.
@@ -39,7 +49,7 @@ induction j as [|j IHj].
   destruct (natlehchoice4 _ _ Hij) as [|H].
   + refine (_ · IHj h).
     apply (dmor c), (idpath _).
-  + apply (dmor c), (!H).
+  + apply (dmor c), (maponpaths S H).
 Defined.
 
 (** Construct the cochain:
@@ -51,10 +61,9 @@ Defined.
 Definition termCochain {C : precategory} (TermC : Terminal C) (F : functor C C) :
   cochain C.
 Proof.
-  exists (λ n, iter_functor F n TermC).
-  intros n m Hmn; compute in Hmn, n, m.
-  destruct n; try induction Hmn.
-  induction n as [|n IHn].
-  - exact (TerminalArrow TermC _).
-  - exact (# F IHn).
+  use mk_cochain.
+  - exact (λ m, iter_functor F m TermC).
+  - intros n; induction n as [|n IHn].
+    * exact (TerminalArrow TermC _).
+    * exact (# F IHn).
 Defined.
