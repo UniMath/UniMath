@@ -3,7 +3,7 @@ Require Export UniMath.Foundations.UnivalenceAxiom.
 Require Export UniMath.Inductives.functors.
 
 
-Lemma iscontr_based_paths {A : UU} (x : A) :
+Definition iscontr_based_paths {A : UU} (x : A) :
   iscontr (∑ y, x = y).
 Proof.
   use iscontrpair.
@@ -12,6 +12,11 @@ Proof.
     induction p.
     reflexivity.
 Defined.
+
+Definition isaprop_uniqueness {X} (is_prop : isaprop X) :
+    ∏ x1 x2 : X, x1 = x2 :=
+    λ x1 x2, iscontrpr1 (is_prop x1 x2).
+
 
 
 (*** Paths ***)
@@ -45,6 +50,16 @@ Proof.
   reflexivity.
 Defined.
 
+Definition transportf_total2_const :
+    ∏ (A B : UU) (C : A -> B -> UU) (a : A) (b1 b2 : B) (p : b1 = b2) (c : C a b1),
+    transportf (λ b, ∑ a : A, C a b) p (a,, c) =
+    a,, transportf (C a) p c.
+  Proof.
+    intros.
+    induction p.
+    reflexivity.
+  Defined.
+
 Definition maponpaths_funextsec {A : UU} {B : A -> UU}
            (f g : ∏ x, B x) (x : A) (p : f ~ g) :
   maponpaths (λ h, h x) (funextsec _ f g p) = p x.
@@ -66,6 +81,37 @@ Proof.
   }
   reflexivity.
 Defined.
+
+Definition transportf_weqtopaths :
+    ∏ (A B : UU) (e : A ≃ B) (a : A),
+    transportf (idfun _) (weqtopaths e) a = e a.
+  Proof.
+    intros.
+    unfold weqtopaths.
+    intermediate_path (univalence _ _ (invmap (univalence _ _) e) a). {
+      generalize (invmap (univalence _ _) e); intros p.
+      induction p.
+      reflexivity.
+    }
+    rewrite homotweqinvweq.
+    reflexivity.
+  Defined.
+
+  Definition transportb_weqtopaths :
+    ∏ (A B : UU) (e : A ≃ B) (b : B),
+    transportb (idfun _) (weqtopaths e) b = invmap e b.
+  Proof.
+    intros.
+    unfold weqtopaths.
+    intermediate_path (invmap (univalence _ _ (invmap (univalence _ _) e)) b). {
+      generalize (invmap (univalence _ _) e); intros p.
+      induction p.
+      reflexivity.
+    }
+    rewrite homotweqinvweq.
+    reflexivity.
+  Defined.
+
 
 
 (*** Equivalences with ∏ ***)
