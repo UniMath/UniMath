@@ -35,6 +35,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.PartA. (* flip *)
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.AxiomOfChoice.
 
@@ -586,8 +587,6 @@ use tpair.
   [ intro x; now (repeat apply funextfun; intro)
   | intros x y z f g; now (repeat apply funextfun; intro)]).
 Defined.
-
-Definition flip {A B C : UU} (f : A -> B -> C) : B -> A -> C := λ x y, f y x.
 
 (** This checks that if we use constprod_functor2 the flip is not necessary *)
 Lemma are_adjoints_constprod_functor2 A :
