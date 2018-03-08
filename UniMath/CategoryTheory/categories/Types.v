@@ -127,11 +127,6 @@ Section ExponentialFunctor.
     mk_functor exp_functor_data exp_functor_is_functor.
 End ExponentialFunctor.
 
-(** Flip the arguments of a function TODO: https://github.com/UniMath/UniMath/pull/924 *)
-Definition flipsec {A B : UU} {C : A -> B -> UU} (f : ∏ a b, C a b) : ∏ b a, C a b :=
-  λ x y, f y x.
-Notation flip := flipsec.
-
 Lemma ExponentialsType : Exponentials BinProductsType.
 Proof.
   intro X.
