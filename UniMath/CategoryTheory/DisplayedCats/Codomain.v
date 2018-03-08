@@ -70,14 +70,14 @@ Proof.
     destruct ff as [ff H].
     apply pathsinv0.
     etrans. use (pr1_transportf (C⟦x,y⟧)).
-    use transportf_const.
+    cbn; apply (eqtohomot (transportf_const _ _)).
   - apply subtypeEquality.
     { intro. apply homset_property. }
     etrans. apply id_right.
     destruct ff as [ff H].
     apply pathsinv0.
     etrans. use (pr1_transportf (C⟦x,y⟧)).
-    use transportf_const.
+    cbn; apply (eqtohomot (transportf_const _ _)).
   - apply subtypeEquality.
     { intro. apply homset_property. }
     etrans. apply assoc.
@@ -85,7 +85,7 @@ Proof.
     apply pathsinv0.
     etrans. unfold mor_disp.
     use (pr1_transportf (C⟦x,w⟧)).
-    use transportf_const.
+    cbn; apply (eqtohomot (transportf_const _ _)).
   - apply (isofhleveltotal2 2).
     + apply homset_property.
     + intro. apply isasetaprop. apply homset_property.

@@ -28,7 +28,7 @@ Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.CocontFunctors.
+Require Import UniMath.CategoryTheory.Chains.All.
 Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
@@ -119,10 +119,10 @@ Definition preserves_colimit : ∏ {C D : precategory}, functor C D
     @UniMath.CategoryTheory.limits.graphs.colimits.preserves_colimit.
 
 Definition is_cocont : ∏ {C D : precategory}, functor C D → UU :=
-  @UniMath.CategoryTheory.CocontFunctors.is_cocont.
+  @UniMath.CategoryTheory.Chains.Chains.is_cocont.
 
 Definition is_omega_cocont : ∏ {C D : precategory}, functor C D → UU :=
-  @UniMath.CategoryTheory.CocontFunctors.is_omega_cocont.
+  @UniMath.CategoryTheory.Chains.Chains.is_omega_cocont.
 
 (** Lemma 21: Invariance of cocontinuity under isomorphism *)
 Lemma preserves_colimit_iso :
@@ -131,7 +131,7 @@ Lemma preserves_colimit_iso :
     (g : graph) (d : diagram g C) (L : C) (cc : cocone d L),
   preserves_colimit F d L cc → preserves_colimit G d L cc.
 Proof.
-exact @UniMath.CategoryTheory.CocontFunctors.preserves_colimit_iso.
+exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.preserves_colimit_iso.
 Defined.
 
 (** Problem 22: Colimits in functor categories *)
@@ -145,7 +145,7 @@ Definition colimAlgInitial :
   ∏ (C : precategory) (hsC : has_homsets C) (InitC : Initial C)
     (F : functor C C), is_omega_cocont F → ColimCocone (initChain InitC F) →
     Initial (FunctorAlg F hsC) :=
-  @UniMath.CategoryTheory.CocontFunctors.colimAlgInitial.
+  @UniMath.CategoryTheory.Chains.Adamek.colimAlgInitial.
 
 (** Lemma 25: Lambek's lemma *)
 Lemma initialAlg_is_iso :
@@ -166,7 +166,7 @@ Lemma left_adjoint_cocont :
   ∏ (C D : precategory) (F : functor C D), Adjunctions.is_left_adjoint F
   → has_homsets C → has_homsets D → is_cocont F.
 Proof.
-exact @UniMath.CategoryTheory.CocontFunctors.left_adjoint_cocont.
+exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.left_adjoint_cocont.
 Defined.
 
 (** Lemma 32: Examples of preservation of colimits *)
@@ -177,27 +177,27 @@ Lemma preserves_colimit_identity :
       (L : C) (cc : colimits.cocone d L),
   preserves_colimit (functor_identity C) d L cc.
 Proof.
-exact @UniMath.CategoryTheory.CocontFunctors.preserves_colimit_identity.
+exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.preserves_colimit_identity.
 Defined.
 
 (** (ii): Constant functor *)
 Lemma is_omega_cocont_constant_functor : ∏ C D : precategory, has_homsets D
-  → ∏ x : D, CocontFunctors.is_omega_cocont (constant_functor C D x).
+  → ∏ x : D, Chains.Chains.is_omega_cocont (constant_functor C D x).
 Proof.
-exact @UniMath.CategoryTheory.CocontFunctors.is_omega_cocont_constant_functor.
+exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.is_omega_cocont_constant_functor.
 Defined.
 
 (** (iii): Diagonal functor *)
 Lemma is_cocont_delta_functor : ∏ (I : UU) (C : precategory),
   Products I C → has_homsets C → is_cocont (delta_functor I C).
 Proof.
-exact @UniMath.CategoryTheory.CocontFunctors.is_cocont_delta_functor.
+exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.is_cocont_delta_functor.
 Defined.
 
 Lemma is_omega_cocont_delta_functor : ∏ (I : UU) (C : precategory),
   Products I C → has_homsets C → is_omega_cocont (delta_functor I C).
 Proof.
-exact @UniMath.CategoryTheory.CocontFunctors.is_omega_cocont_delta_functor.
+exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.is_omega_cocont_delta_functor.
 Defined.
 
 (** (iv): Coproduct functor *)
@@ -205,14 +205,14 @@ Lemma is_cocont_coproduct_functor :
   ∏ (I : UU) (C : precategory) (PC : Coproducts I C),
   has_homsets C → is_cocont (coproduct_functor I PC).
 Proof.
-exact @UniMath.CategoryTheory.CocontFunctors.is_cocont_coproduct_functor.
+exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.is_cocont_coproduct_functor.
 Defined.
 
 Lemma is_omega_cocont_coproduct_functor :
   ∏ (I : UU) (C : precategory) (PC : Coproducts I C),
   has_homsets C → is_omega_cocont (coproduct_functor I PC).
 Proof.
-exact @UniMath.CategoryTheory.CocontFunctors.is_omega_cocont_coproduct_functor.
+exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.is_omega_cocont_coproduct_functor.
 Defined.
 
 (** Lemma 33: Examples of preservation of cocontinuity *)
@@ -225,7 +225,7 @@ Lemma preserves_colimit_functor_composite :
   → preserves_colimit G (mapdiagram F d) (F L) (mapcocone F d cc)
   → preserves_colimit (functor_composite F G) d L cc.
 Proof.
-exact @UniMath.CategoryTheory.CocontFunctors.preserves_colimit_functor_composite.
+exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.preserves_colimit_functor_composite.
 Defined.
 
 Lemma is_cocont_functor_composite :
@@ -233,7 +233,7 @@ Lemma is_cocont_functor_composite :
   → ∏ (F : functor C D) (G : functor D E), is_cocont F → is_cocont G
   → is_cocont (functor_composite F G).
 Proof.
-exact @UniMath.CategoryTheory.CocontFunctors.is_cocont_functor_composite.
+exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.is_cocont_functor_composite.
 Defined.
 
 Lemma is_omega_cocont_functor_composite :
@@ -241,7 +241,7 @@ Lemma is_omega_cocont_functor_composite :
   → ∏ (F : functor C D) (G : functor D E), is_omega_cocont F → is_omega_cocont G
   → is_omega_cocont (functor_composite F G).
 Proof.
-exact @UniMath.CategoryTheory.CocontFunctors.is_omega_cocont_functor_composite.
+exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.is_omega_cocont_functor_composite.
 Defined.
 
 (** (ii) Tuple functor *)
@@ -250,7 +250,7 @@ Lemma is_cocont_tuple_functor :
   ->  ∏ (F : ∏ i, functor A (B i)), (∏ i, is_cocont (F i))
   -> is_cocont (tuple_functor F).
 Proof.
-exact @UniMath.CategoryTheory.CocontFunctors.is_cocont_tuple_functor.
+exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.is_cocont_tuple_functor.
 Defined.
 
 Lemma is_omega_cocont_tuple_functor :
@@ -258,7 +258,7 @@ Lemma is_omega_cocont_tuple_functor :
   ->  ∏ (F : ∏ i, functor A (B i)), (∏ i, is_omega_cocont (F i))
   -> is_omega_cocont (tuple_functor F).
 Proof.
-exact @UniMath.CategoryTheory.CocontFunctors.is_omega_cocont_tuple_functor.
+exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.is_omega_cocont_tuple_functor.
 Defined.
 
 (** (iii): Families of functors *)
@@ -267,7 +267,7 @@ Lemma is_cocont_family_functor :
   → ∏ F : I → functor A B, (∏ i : I, is_cocont (F i))
   → is_cocont (family_functor I F).
 Proof.
-exact @UniMath.CategoryTheory.CocontFunctors.is_cocont_family_functor.
+exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.is_cocont_family_functor.
 Defined.
 
 Lemma is_omega_cocont_family_functor :
@@ -275,40 +275,40 @@ Lemma is_omega_cocont_family_functor :
   → ∏ F : I → functor A B, (∏ i : I, is_omega_cocont (F i))
   → is_omega_cocont (family_functor I F).
 Proof.
-exact @UniMath.CategoryTheory.CocontFunctors.is_omega_cocont_family_functor.
+exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.is_omega_cocont_family_functor.
 Defined.
 
 (** Example 35: Exponentials in Set *)
-Definition has_exponentials_HSET : has_exponentials BinProductsHSET :=
-  @UniMath.CategoryTheory.categories.category_hset_structures.has_exponentials_HSET.
+Definition Exponentials_HSET : Exponentials BinProductsHSET :=
+  @UniMath.CategoryTheory.categories.category_hset_structures.Exponentials_HSET.
 
 (** Lemma 36: Left and right product functors preserves colimits *)
 Lemma is_cocont_constprod_functor1 :
-  ∏ (C : precategory) (PC : BinProducts C), has_homsets C → has_exponentials PC
+  ∏ (C : precategory) (PC : BinProducts C), has_homsets C → Exponentials PC
   → ∏ x : C, is_cocont (constprod_functor1 PC x).
 Proof.
-exact @UniMath.CategoryTheory.CocontFunctors.is_cocont_constprod_functor1.
+exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.is_cocont_constprod_functor1.
 Defined.
 
 Lemma is_omega_cocont_constprod_functor1 :
-  ∏ (C : precategory) (PC : BinProducts C), has_homsets C → has_exponentials PC
+  ∏ (C : precategory) (PC : BinProducts C), has_homsets C → Exponentials PC
   → ∏ x : C, is_omega_cocont (constprod_functor1 PC x).
 Proof.
-exact @UniMath.CategoryTheory.CocontFunctors.is_omega_cocont_constprod_functor1.
+exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.is_omega_cocont_constprod_functor1.
 Defined.
 
 Lemma is_cocont_constprod_functor2 :
-  ∏ (C : precategory) (PC : BinProducts C), has_homsets C → has_exponentials PC
+  ∏ (C : precategory) (PC : BinProducts C), has_homsets C → Exponentials PC
   → ∏ x : C, is_cocont (constprod_functor2 PC x).
 Proof.
-exact @UniMath.CategoryTheory.CocontFunctors.is_cocont_constprod_functor2.
+exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.is_cocont_constprod_functor2.
 Defined.
 
 Lemma is_omega_cocont_constprod_functor2 :
-  ∏ (C : precategory) (PC : BinProducts C), has_homsets C → has_exponentials PC
+  ∏ (C : precategory) (PC : BinProducts C), has_homsets C → Exponentials PC
   → ∏ x : C, is_omega_cocont (constprod_functor2 PC x).
 Proof.
-exact @UniMath.CategoryTheory.CocontFunctors.is_omega_cocont_constprod_functor2.
+exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.is_omega_cocont_constprod_functor2.
 Defined.
 
 (** Theorem 37: Binary product functor is ω-cocontinuous *)
@@ -317,7 +317,7 @@ Lemma is_omega_cocont_binproduct_functor :
   → (∏ x : C, is_omega_cocont (constprod_functor1 PC x))
   → is_omega_cocont (binproduct_functor PC).
 Proof.
-exact @UniMath.CategoryTheory.CocontFunctors.is_omega_cocont_binproduct_functor.
+exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.is_omega_cocont_binproduct_functor.
 Defined.
 
 (** Example 38: Lists of sets *)
@@ -330,14 +330,14 @@ Lemma preserves_colimit_pre_composition_functor :
     (∏ b : B, ColimCocone (diagram_pointwise hsC d b))
   → preserves_colimit (pre_composition_functor A B C hsB hsC F) d G ccG.
 Proof.
-exact @UniMath.CategoryTheory.CocontFunctors.preserves_colimit_pre_composition_functor.
+exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.preserves_colimit_pre_composition_functor.
 Defined.
 
 Lemma is_omega_cocont_pre_composition_functor :
   ∏ (A B C : precategory) (F : functor A B) (hsB : has_homsets B) (hsC : has_homsets C),
   Colims_of_shape nat_graph C → is_omega_cocont (pre_composition_functor A B C hsB hsC F).
 Proof.
-exact @UniMath.CategoryTheory.CocontFunctors.is_omega_cocont_pre_composition_functor.
+exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.is_omega_cocont_pre_composition_functor.
 Defined.
 
 (** Theorem 43: Signature functor associated to a binding signature is ω-cocontinuous *)

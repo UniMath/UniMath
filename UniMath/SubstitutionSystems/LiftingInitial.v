@@ -338,9 +338,6 @@ Proof.
     apply idpath.
 Qed.
 
-(* produce some output to keep TRAVIS running *)
-Check bracket_Thm15_ok_part1.
-
 Lemma bracket_Thm15_ok_part2 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg  InitAlg ⟧):
  (theta H) ((alg_carrier _  InitAlg) ⊗ Z) ·  # H ⦃f⦄ · τ InitAlg
   =
@@ -400,10 +397,6 @@ Proof.
     repeat rewrite id_left.
     apply assoc.
 Qed.
-
-(* produce some output to keep TRAVIS running *)
-Check bracket_Thm15_ok_part2.
-
 
 Lemma bracket_Thm15_ok (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧):
  bracket_property_parts f ⦃f⦄.
@@ -497,10 +490,6 @@ Proof.
         became extremely slow *)
   - simpl; apply foo'.
 Defined.
-
-(* produce some output to keep TRAVIS running *)
-Check bracket_for_InitAlg.
-
 
 Definition InitHSS : hss_precategory CP H.
 Proof.

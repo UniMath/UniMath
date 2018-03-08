@@ -48,7 +48,7 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Adjunctions.
-Require Import UniMath.CategoryTheory.CocontFunctors.
+Require Import UniMath.CategoryTheory.Chains.All.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.categories.category_hset.
 Require Import UniMath.CategoryTheory.categories.category_hset_structures.
@@ -361,7 +361,7 @@ Defined.
 Local Lemma is_left_adjoint_proj_functor' (s : sort) : is_left_adjoint (proj_functor' s).
 Proof.
 use is_left_adjoint_functor_composite.
-- apply has_exponentials_HSET_slice.
+- apply Exponentials_HSET_slice.
 - apply is_left_adjoint_slicecat_to_cat_HSET.
 Defined.
 
@@ -434,7 +434,7 @@ induction xs as [[|n] xs].
     apply is_omega_cocont_BinProduct_of_functors; try apply homset_property.
     * apply BinProducts_functor_precat, BinProducts_slice_precat, PullbacksHSET.
     * apply is_omega_cocont_constprod_functor1; try apply functor_category_has_homsets.
-      apply has_exponentials_functor_HSET, homset_property.
+      apply Exponentials_functor_HSET, homset_property.
     * apply is_omega_cocont_exp_functor, H.
     * apply (IHn (k,,xs)).
 Defined.

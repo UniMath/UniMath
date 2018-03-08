@@ -1279,7 +1279,7 @@ Notation "x ≤ y" := (WOrel _ x y) : woset.
 
 Definition WOlt {X:WellOrderedSet} (x y : X) := ¬ (y ≤ x).
 
-Notation "x < y" := (WOlt x y) : wosubset.
+Notation "x < y" := (WOlt x y) : woset.
 
 Lemma isaprop_theSmallest {X : hSet}
       (R : hrel X) (total : isTotalOrder R) (S : hsubtype X) :
@@ -1293,9 +1293,72 @@ Proof.
   { apply anti. { exact (i y J). } { exact c. } }
 Defined.
 
+(** Accessor functions *)
+
 Definition WO_isTotalOrder (X : WellOrderedSet) : isTotalOrder (WOrel X) := pr122 X.
 
+Definition WO_isrefl (X : WellOrderedSet) : isrefl (WOrel X) := pr211 (WO_isTotalOrder X).
+
+Definition WO_istrans (X : WellOrderedSet) : istrans (WOrel X) := pr111 (WO_isTotalOrder X).
+
+Definition WO_istotal (X : WellOrderedSet) : istotal (WOrel X) := pr2 (WO_isTotalOrder X).
+
+Definition WO_isantisymm (X : WellOrderedSet) : isantisymm (WOrel X) := pr21 (WO_isTotalOrder X).
+
 Definition WO_hasSmallest (X : WellOrderedSet) : hasSmallest (WOrel X) := pr222 X.
+
+(** Lemmas about WOlt *)
+
+Lemma WOlt_istrans (X : WellOrderedSet) : istrans (@WOlt X).
+Proof.
+intros x y z H1 H2 H3; simpl in *.
+apply (@squash_to_hProp _ (_,,isapropempty) (WO_istotal X y z)); intros [H|H]; simpl.
+- now apply H1, (WO_istrans X y z x H H3).
+- now apply H2.
+Qed.
+
+Lemma WOlt_isirrefl (X : WellOrderedSet) : isirrefl (@WOlt X).
+Proof.
+now intros x; simpl; intros H; apply H, WO_isrefl.
+Qed.
+
+(** Equivalent definition (assuming decidable equality) of the WOlt relation *)
+Definition WOlt' (X : WellOrderedSet) (x y : X) : hProp.
+Proof.
+exists ((x ≤ y) × (x != y)).
+abstract (now apply isapropdirprod; [ apply propproperty | apply isapropneg ]).
+Defined.
+
+Lemma WOlt'_to_WOlt (X : WellOrderedSet) (x y : X) : WOlt' X x y → x < y.
+Proof.
+intros [H1 H2] H3.
+now use H2; apply (WO_isantisymm X x y H1 H3).
+Qed.
+
+(** One direction of the equivalence requires decidable equality *)
+Lemma WOlt_to_WOlt' (X : WellOrderedSet) (hX : isdeceq X) (x y : X) : x < y → WOlt' X x y.
+Proof.
+intros H.
+apply (squash_to_hProp (WO_istotal X x y)); intros [Hle|Hle]; simpl.
+- induction (hX x y) as [Heq|Hneq].
+  + rewrite Heq in H.
+    induction (WOlt_isirrefl _ _ H).
+  + now split.
+- induction (H Hle).
+Qed.
+
+(** Assuming decidable equality we can prove that < is a trichotomy *)
+Lemma WOlt_trich (X : WellOrderedSet) (hX : isdeceq X) (x y : X) :
+  y < x ∨ x = y ∨ x < y.
+Proof.
+induction (hX x y) as [Heq|Hneq].
+- now apply hinhpr, inr, hinhpr, inl.
+- apply (squash_to_hProp (WO_istotal X x y)); intros [Hle|Hle].
+  + now apply hinhpr, inr, hinhpr, inr, WOlt'_to_WOlt.
+  + apply hinhpr, inl, WOlt'_to_WOlt; split; trivial.
+    now intros H; apply Hneq.
+Qed.
+
 
 Definition theSmallest {X : WellOrderedSet} (S : hsubtype X) : hProp
   := (∃ s, S s) ⇒ hProppair
@@ -1316,6 +1379,88 @@ Proof.
   - apply isaprop_theSmallest. apply WO_isTotalOrder.
   - exact (WO_theSmallest S ne).
 Defined.
+
+(* Close these for now *)
+Local Close Scope set.
+Local Close Scope prop.
+
+(** Functions of well-ordered sets that preserve the ordering and initial segments *)
+Definition iswofun {X Y : WellOrderedSet} (f : X → Y) : UU :=
+  (iscomprelrelfun (WOrel X) (WOrel Y) f) ×
+  (∏ (x : X) (y : Y), y < f x → ∃ (z : X), z < x × f z = y).
+
+Lemma isaprop_iswofun {X Y : WellOrderedSet} (f : X → Y) : isaprop (iswofun f).
+Proof.
+intros h; apply isapropdirprod; do 3 (apply impred_isaprop; intros).
+- now apply propproperty.
+- now apply isapropishinh.
+Qed.
+
+Definition wofun (X Y : WellOrderedSet) : UU := ∑ (f : X -> Y), iswofun f.
+
+Definition pr1wofun (X Y : WellOrderedSet) : wofun X Y → (X → Y) := @pr1 _ _.
+
+Lemma wofun_eq {X Y : WellOrderedSet} {f g : wofun X Y} : pr1 f = pr1 g → f = g.
+Proof.
+intros Heq.
+apply subtypeEquality; trivial.
+now intros h; apply isaprop_iswofun.
+Qed.
+
+Lemma iswofun_idfun {X : WellOrderedSet} : iswofun (idfun X).
+Proof.
+split.
+- now intros x.
+- intros x y hxy.
+  now apply hinhpr; exists y.
+Qed.
+
+Lemma iswofun_funcomp {X Y Z : WellOrderedSet} (f : wofun X Y) (g : wofun Y Z) :
+  iswofun (pr1 g ∘ pr1 f).
+Proof.
+induction f as [f [h1f h2f]].
+induction g as [g [h1g h2g]].
+split.
+- intros x y hxy.
+  exact (h1g _ _ (h1f _ _ hxy)).
+- intros x z hf.
+  apply (squash_to_hProp (h2g (f x) z hf)); intros [y [h1y h2y]].
+  apply (squash_to_hProp (h2f x y h1y)); intros [x' [h1x' h2x']].
+  apply hinhpr; exists x'; cbn.
+  now rewrite h2x'.
+Qed.
+
+Local Open Scope set.
+Local Open Scope prop.
+
+(** The empty set is well-ordered *)
+Definition empty_woset : WellOrderedSet.
+Proof.
+exists (_,,isasetempty).
+use tpair.
+- intros [].
+- abstract (repeat split; try (now intros []);
+            now intros T t'; apply (squash_to_hProp t'); intros [[]]).
+Defined.
+
+(** The unit set is well-ordered *)
+Definition unit_woset : WellOrderedSet.
+Proof.
+exists (_,,isasetunit).
+use tpair.
+- intros x y.
+  exists (x = y).
+  abstract (apply isapropifcontr, isapropunit).
+- repeat split.
+  + now intros x y z [].
+  + now intros x.
+  + intros [] [] H H2.
+    now apply H2, inl.
+  + intros T t'; apply (squash_to_hProp t'); clear t'; intros [[] H].
+    apply hinhpr; exists tt.
+    now split; [|intros []].
+Defined.
+
 
 Lemma isaset_WellOrderedSet : isaset WellOrderedSet.
 Proof.

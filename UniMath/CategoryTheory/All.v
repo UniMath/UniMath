@@ -74,7 +74,11 @@ Require Export UniMath.CategoryTheory.limits.pullbacks_slice_products_equiv.
 Require Export UniMath.CategoryTheory.covyoneda.
 Require Export UniMath.CategoryTheory.categories.category_hset_structures.
 Require Export UniMath.CategoryTheory.SetValuedFunctors.
-Require Export UniMath.CategoryTheory.CocontFunctors.
+Require Export UniMath.CategoryTheory.Chains.Chains.
+Require Export UniMath.CategoryTheory.Chains.Cochains.
+Require Export UniMath.CategoryTheory.Chains.Adamek.
+Require Export UniMath.CategoryTheory.Chains.OmegaCocontFunctors.
+Require Export UniMath.CategoryTheory.Chains.All.
 Require Export UniMath.CategoryTheory.Inductives.Lists.
 Require Export UniMath.CategoryTheory.Inductives.Trees.
 Require Export UniMath.CategoryTheory.Inductives.LambdaCalculus.
@@ -124,6 +128,7 @@ Require Export UniMath.CategoryTheory.categories.flds.
 Require Export UniMath.CategoryTheory.categories.modules.
 Require Export UniMath.CategoryTheory.categories.StandardCategories.
 Require Export UniMath.CategoryTheory.categories.preorder_categories.
+Require Export UniMath.CategoryTheory.categories.wosets.
 Require Export UniMath.CategoryTheory.Monads.Derivative.
 Require Export UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Export UniMath.CategoryTheory.DisplayedCats.Core.

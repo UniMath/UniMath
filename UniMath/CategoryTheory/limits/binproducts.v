@@ -6,9 +6,11 @@ Direct implementation of binary products together with:
 - Definition of a binary product structure on a functor category by taking pointwise binary products
   in the target category ([BinProducts_functor_precat])
 - Binary products from limits ([BinProducts_from_Lims])
+- Equivalent universal property: (C --> A) × (C --> B) ≃ (C --> A × B)
 
 Written by: Benedikt Ahrens, Ralph Matthes
 Extended by: Anders Mörtberg and Tomi Pannila
+Extended by Langston Barrett (@siddharthist), 2018
 
 *)
 
@@ -16,6 +18,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.total2_paths.
@@ -33,25 +36,23 @@ Section binproduct_def.
 
 Variable C : precategory.
 
-Definition isBinProduct (c d p : C) (p1 : p --> c) (p2 : p --> d) :=
+Definition isBinProduct (c d p : C) (p1 : p --> c) (p2 : p --> d) : UU :=
   ∏ (a : C) (f : a --> c) (g : a --> d),
   ∃! fg, (fg · p1 = f) × (fg · p2 = g).
 
 Lemma isaprop_isBinProduct (c d p : C) (p1 : p --> c) (p2 : p --> d) :
   isaprop (isBinProduct c d p p1 p2).
 Proof.
-  apply impred_isaprop. intros t.
-  apply impred_isaprop. intros t0.
-  apply impred_isaprop. intros t1.
+  do 3 (apply impred_isaprop; intro).
   apply isapropiscontr.
 Qed.
 
-Definition BinProduct (c d : C) :=
+Definition BinProduct (c d : C) : UU :=
   ∑ pp1p2 : (∑ p : C, (p --> c) × (p --> d)),
     isBinProduct c d (pr1 pp1p2) (pr1 (pr2 pp1p2)) (pr2 (pr2 pp1p2)).
 
-Definition BinProducts := ∏ (c d : C), BinProduct c d.
-Definition hasBinProducts := ∏ (c d : C), ∥ BinProduct c d ∥.
+Definition BinProducts : UU := ∏ (c d : C), BinProduct c d.
+Definition hasBinProducts : UU := ∏ (c d : C), ∥ BinProduct c d ∥.
 
 Definition BinProductObject {c d : C} (P : BinProduct c d) : C := pr1 (pr1 P).
 Definition BinProductPr1 {c d : C} (P : BinProduct c d): BinProductObject P --> c :=
@@ -644,3 +645,50 @@ Section BinProduct_from_iso.
                                               (iso_to_isBinProduct BP i).
 
 End BinProduct_from_iso.
+
+(** Equivalent universal property: (C --> A) × (C --> B) ≃ (C --> A × B)
+
+ Compare to [weqfuntoprodtoprod].
+ *)
+
+Section EquivalentDefinition.
+  Context {C : precategory} {c d p : ob C} (p1 : p --> c) (p2 : p --> d).
+
+  Definition postcomp_with_projections (a : ob C) (f : a --> p) :
+    (a --> c) × (a --> d) := dirprodpair (f · p1)  (f · p2).
+
+  Definition isBinProduct' : UU := ∏ a : ob C, isweq (postcomp_with_projections a).
+
+  Definition isBinProduct'_weq (is : isBinProduct') :
+    ∏ a, (a --> p) ≃ (a --> c) × (a --> d) :=
+    λ a, weqpair (postcomp_with_projections a) (is a).
+
+  Lemma isBinProduct'_to_isBinProduct :
+    isBinProduct' -> isBinProduct _ _ _ p p1 p2.
+  Proof.
+    intros isBP' ? f g.
+    apply (@iscontrweqf (hfiber (isBinProduct'_weq isBP' _)
+                                (dirprodpair f g))).
+    - use weqfibtototal; intro; cbn.
+      unfold postcomp_with_projections.
+      apply pathsdirprodweq.
+    - apply weqproperty.
+  Defined.
+
+  Lemma isBinProduct_to_isBinProduct' :
+    isBinProduct _ _ _ p p1 p2 -> isBinProduct'.
+  Proof.
+    intros isBP ? fg.
+    unfold hfiber, postcomp_with_projections.
+    apply (@iscontrweqf (∑ u : C ⟦ a, p ⟧, u · p1 = pr1 fg × u · p2 = pr2 fg)).
+    - use weqfibtototal; intro; cbn.
+      apply invweq, pathsdirprodweq.
+    - exact (isBP a (pr1 fg) (pr2 fg)). (* apply universal property *)
+  Defined.
+
+  (* TODO: prove that [isBinProduct'_to_isBinProduct] is an equivalence *)
+
+End EquivalentDefinition.
+
+(** Match non-implicit arguments of [isBinProduct] *)
+Arguments isBinProduct' _ _ _ _ _ : clear implicits.
