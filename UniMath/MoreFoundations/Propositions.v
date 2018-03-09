@@ -1,6 +1,7 @@
 Require Export UniMath.MoreFoundations.Notations.
 Require Export UniMath.MoreFoundations.Tactics.
 Require Export UniMath.MoreFoundations.DecidablePropositions.
+Require Export UniMath.MoreFoundations.LogicalEquivalence.Props.
 
 Local Open Scope logic.
 
@@ -26,18 +27,6 @@ Proof.
   intros [p|q].
   - exact (f p).
   - exact q.
-Defined.
-
-Definition weqlogeq (P Q : hProp) : (P = Q) ≃ (P ⇔ Q).
-Proof.
-  intros.
-  apply weqimplimpl.
-  - intro e. induction e. apply isrefl_logeq.
-  - intro c. apply hPropUnivalence.
-    + exact (pr1 c).
-    + exact (pr2 c).
-  - apply isasethProp.
-  - apply propproperty.
 Defined.
 
 Lemma decidable_proof_by_contradiction {P:hProp} : decidable P -> ¬ ¬ P -> P.
@@ -107,22 +96,6 @@ Proof.
   induction q. exact (xp x).
 Defined.
 
-Lemma logeq_if_both_true (P Q : hProp) : P -> Q -> ( P ⇔ Q ).
-Proof.
-  intros p q.
-  split.
-  - intros _. exact q.
-  - intros _. exact p.
-Defined.
-
-Lemma logeq_if_both_false (P Q : hProp) : ¬P -> ¬Q -> ( P ⇔ Q ).
-Proof.
-  intros np nq.
-  split.
-  - intros p. apply fromempty. exact (np p).
-  - intros q. apply fromempty. exact (nq q).
-Defined.
-
 Definition proofirrelevance_hProp (X : hProp) : isProofIrrelevant X
   := proofirrelevance X (propproperty X).
 
@@ -139,124 +112,46 @@ Notation "'∃!' x .. y , P"
 (** Various algebraic properties of hProp *)
 Section hProp_logic.
 
-(** We first state the algebraic properties as bi-implications *)
-
-(* This is already in Foundations/Propositions.v *)
-(* Lemma islogeqcommhdisj {P Q : hProp} : hdisj P Q <-> hdisj Q P. *)
-
-Lemma islogeqassochconj {P Q R : hProp} : (P ∧ Q) ∧ R <-> P ∧ (Q ∧ R).
-Proof.
-split.
-- intros PQR.
-  exact (pr1 (pr1 PQR),,(pr2 (pr1 PQR),,pr2 PQR)).
-- intros PQR.
-  exact ((pr1 PQR,,pr1 (pr2 PQR)),,pr2 (pr2 PQR)).
-Defined.
-
-Lemma islogeqcommhconj {P Q : hProp} : P ∧ Q <-> Q ∧ P.
-Proof.
-split.
-- intros PQ.
-  exact (pr2 PQ,,pr1 PQ).
-- intros QP.
-  exact (pr2 QP,,pr1 QP).
-Defined.
-
-Lemma islogeqassochdisj {P Q R : hProp} : (P ∨ Q) ∨ R <-> P ∨ (Q ∨ R).
-Proof.
-split.
-- apply hinhuniv; intros hPQR.
-  induction hPQR as [hPQ|hR].
-  + use (hinhuniv _ hPQ); clear hPQ; intros hPQ.
-    induction hPQ as [hP|hQ].
-    * exact (hinhpr (ii1 hP)).
-    * exact (hinhpr (ii2 (hinhpr (ii1 hQ)))).
-  + exact (hinhpr (ii2 (hinhpr (ii2 hR)))).
-- apply hinhuniv; intros hPQR.
-  induction hPQR as [hP|hQR].
-  + exact (hinhpr (ii1 (hinhpr (ii1 hP)))).
-  + use (hinhuniv _ hQR); clear hQR; intros hQR.
-    induction hQR as [hQ|hR].
-    * exact (hinhpr (ii1 (hinhpr (ii2 hQ)))).
-    * exact (hinhpr (ii2 hR)).
-Defined.
-
-Lemma islogeqhconj_absorb_hdisj {P Q : hProp} : P ∧ (P ∨ Q) <-> P.
-Proof.
-split.
-- intros hPPQ; apply (pr1 hPPQ).
-- intros hP.
-  split; [ apply hP | apply (hinhpr (ii1 hP)) ].
-Defined.
-
-Lemma islogeqhdisj_absorb_hconj {P Q : hProp} : P ∨ (P ∧ Q) <-> P.
-Proof.
-split.
-- apply hinhuniv; intros hPPQ.
-  induction hPPQ as [hP|hPQ].
-  + exact hP.
-  + exact (pr1 hPQ).
-- intros hP; apply (hinhpr (ii1 hP)).
-Defined.
-
-Lemma islogeqhfalse_hdisj {P : hProp} : ∅ ∨ P <-> P.
-Proof.
-split.
-- apply hinhuniv; intros hPPQ.
-  induction hPPQ as [hF|hP].
-  + induction hF.
-  + exact hP.
-- intros hP; apply (hinhpr (ii2 hP)).
-Defined.
-
-Lemma islogeqhhtrue_hconj {P : hProp} : htrue ∧ P <-> P.
-Proof.
-split.
-- intros hP; apply (pr2 hP).
-- intros hP.
-  split; [ apply tt | apply hP ].
-Defined.
-
-
-(** We now turn these into equalities using univalence for propositions *)
+(** We now turn bi-implications into equalities using univalence for
+    propositions *)
 Lemma isassoc_hconj (P Q R : hProp) : ((P ∧ Q) ∧ R) = (P ∧ (Q ∧ R)).
 Proof.
-now apply hPropUnivalence; apply islogeqassochconj.
+  apply hPropUnivalence; apply hequiv_assoc_conj.
 Qed.
 
 Lemma iscomm_hconj (P Q : hProp) : (P ∧ Q) = (Q ∧ P).
 Proof.
-now apply hPropUnivalence; apply islogeqcommhconj.
+  apply hPropUnivalence; apply hequiv_comm_conj.
 Qed.
 
 Lemma isassoc_hdisj (P Q R : hProp) : ((P ∨ Q) ∨ R) = (P ∨ (Q ∨ R)).
 Proof.
-now apply hPropUnivalence; apply islogeqassochdisj.
+  apply hPropUnivalence; apply logeq_assoc_disj.
 Qed.
 
 Lemma iscomm_hdisj (P Q : hProp) : (P ∨ Q) = (Q ∨ P).
 Proof.
-now apply hPropUnivalence; apply islogeqcommhdisj.
+  apply hPropUnivalence; apply islogeqcommhdisj.
 Qed.
 
 Lemma hconj_absorb_hdisj (P Q : hProp) : (P ∧ (P ∨ Q)) = P.
 Proof.
-now apply hPropUnivalence; apply islogeqhconj_absorb_hdisj.
+  apply hPropUnivalence; apply logeq_conj_with_disj.
 Qed.
 
 Lemma hdisj_absorb_hconj (P Q : hProp) : (P ∨ (P ∧ Q)) = P.
 Proof.
-now apply hPropUnivalence; apply islogeqhdisj_absorb_hconj.
+  apply hPropUnivalence; apply logeq_disj_with_conj.
 Qed.
 
 Lemma hfalse_hdisj (P : hProp) : (∅ ∨ P) = P.
 Proof.
-now apply hPropUnivalence; apply islogeqhfalse_hdisj.
+  apply hPropUnivalence; apply logeq_disj_empty.
 Qed.
 
 Lemma htrue_hconj (P : hProp) : (htrue ∧ P) = P.
 Proof.
-now apply hPropUnivalence; apply islogeqhhtrue_hconj.
+  apply hPropUnivalence; apply hequiv_conj_true.
 Qed.
 
 End hProp_logic.

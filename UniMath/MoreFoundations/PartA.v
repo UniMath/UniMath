@@ -178,3 +178,16 @@ Defined.
 
 Definition flipsec_weq {A B : UU} {C : A -> B -> UU} :
   (∏ a b, C a b) ≃ (∏ b a, C a b) := weqpair flipsec isweq_flipsec.
+
+(** Every type is equivalent to its [coprod] with the [empty] type *)
+Lemma weq_coprod_empty {X : UU} : ∅ ⨿ X ≃ X.
+  use weq_iso.
+  - intros copr; induction copr as [empt | x].
+    + induction empt.
+    + exact x.
+  - exact inr.
+  - intros copr; induction copr as [empt | x]; cbn.
+    + induction empt.
+    + reflexivity.
+  - reflexivity.
+Defined.

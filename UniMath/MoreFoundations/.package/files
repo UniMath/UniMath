@@ -4,10 +4,12 @@ Notations.v
 AlternativeProofs.v
 Subposets.v
 DecidablePropositions.v
-Propositions.v
-Sets.v
-Subtypes.v
-AxiomOfChoice.v
-StructureIdentity.v
 PartA.v
 Univalence.v
+LogicalEquivalence/Types.v
+LogicalEquivalence/Props.v
+Propositions.v
+Subtypes.v
+Sets.v
+AxiomOfChoice.v
+StructureIdentity.v
