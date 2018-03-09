@@ -1,6 +1,7 @@
 total2_paths.v
 Categories.v
 functor_categories.v
+Groupoids.v
 Monads/RelativeMonads.v
 Monads/RelativeModules.v
 opp_precat.v
@@ -128,6 +129,7 @@ categories/Types.v
 categories/Cats.v
 categories/preorder_categories.v
 categories/wosets.v
+set_slice_fam_equiv.v
 Monads/Derivative.v
 DisplayedCats/Auxiliary.v
 DisplayedCats/Core.v
