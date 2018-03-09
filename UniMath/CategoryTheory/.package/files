@@ -68,6 +68,7 @@ CommaCategories.v
 RightKanExtension.v
 exponentials.v
 slicecat.v
+coslicecat.v
 limits/pullbacks_slice_products_equiv.v
 covyoneda.v
 categories/category_hset_structures.v
