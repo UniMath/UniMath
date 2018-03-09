@@ -2,6 +2,7 @@
 Require Export UniMath.Foundations.Init.
 Require Export UniMath.Induction.PolynomialFunctors.
 Require Export UniMath.Induction.M.Core.
+Require Export UniMath.Induction.M.Limits.
 Require Export UniMath.Induction.M.Uniqueness.
 Require Export UniMath.Induction.W.Core.
 Require Export UniMath.Induction.W.Fibered.

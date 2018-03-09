@@ -191,3 +191,8 @@ Lemma weq_coprod_empty {X : UU} : ∅ ⨿ X ≃ X.
     + reflexivity.
   - reflexivity.
 Defined.
+
+(** The product of two functions *)
+Definition dirprodoffun {X Y X' Y' : UU} (f : X → X') (g : Y → Y') :
+  (X × Y) → (X' × Y') :=
+  prodtofuntoprod (dirprodpair (f ∘ dirprod_pr1) (g ∘ dirprod_pr2))%functions.

@@ -7,6 +7,7 @@ Require Import UniMath.MoreFoundations.PartA.
 
 - Direct products
 - Coproducts
+- Sections
 *)
 
 (** A weak equivalence ([weq]) induces a logical equivalence ([logeq]) *)
@@ -63,6 +64,17 @@ Proof.
   apply invweq, weqtodirprodwithunit.
 Defined.
 
+(** If the factors are equivalent, so is their product. *)
+Definition logeqdirprodf {X Y X' Y' : UU} (logeqXY : X <-> Y) (logeqX'Y' : X' <-> Y') :
+  X × X' <-> Y × Y'.
+Proof.
+  use dirprodpair; use dirprodoffun.
+  - exact (pr1 logeqXY).
+  - exact (pr1 logeqX'Y').
+  - apply (pr2 logeqXY).
+  - apply (pr2 logeqX'Y').
+Defined.
+
 (** ** Coproducts *)
 
 (** Associativity of coproducts *)
@@ -83,4 +95,13 @@ Defined.
 Lemma logeq_coprod_empty {P : UU} : ∅ ⨿ P <-> P.
 Proof.
   apply weq_to_logeq, weq_coprod_empty.
+Defined.
+
+(** ** Sections *)
+
+(** Compare to [weqonsecfibers] *)
+Definition logeqonsecfibers {X : UU} (P Q : X -> UU) (f : ∏ x : X, (P x) <-> (Q x)) :
+  (∏ x : X, (P x)) <-> (∏ x : X, (Q x)).
+Proof.
+  use dirprodpair; intros h x; apply f; exact (h x).
 Defined.
