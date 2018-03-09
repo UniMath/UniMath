@@ -202,23 +202,6 @@ End category_products.
 Local Notation "C × D" := (prod_category C D)
   (at level 75, right associativity) : cat.
 
-(** * Groupoids *)
-Section Groupoids.
-(* TODO: search library more thoroughly for any of these! *)
-
-Definition is_groupoid (C : category)
-  := forall (x y : C) (f : x --> y), is_iso f.
-
-Lemma is_groupoid_functor_cat {C D : category}
-  (gr_D : is_groupoid D)
-  : is_groupoid (functor_category C D).
-Proof.
-  intros F G α; apply functor_iso_if_pointwise_iso.
-  intros c; apply gr_D.
-Defined.
-
-End Groupoids.
-
 (** * Discrete categories on hSets.
 
 In order to construct locally discrete bicategories below, we need some infrastructure on discrete categories. *)
