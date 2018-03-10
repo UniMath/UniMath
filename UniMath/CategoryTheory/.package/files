@@ -129,6 +129,7 @@ categories/Types.v
 categories/preorder_categories.v
 categories/wosets.v
 Monads/Derivative.v
+Actions.v
 DisplayedCats/Auxiliary.v
 DisplayedCats/Core.v
 DisplayedCats/Constructions.v
@@ -139,4 +140,3 @@ DisplayedCats/Codomain.v
 DisplayedCats/SIP.v
 DisplayedCats/Limits.v
 DisplayedCats/Examples.v
-Actions.v

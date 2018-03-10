@@ -185,16 +185,29 @@ Definition makecategory
               identity compose)
            ((right,,left),,associativity)),,homsets.
 
-
-Lemma isaprop_is_precategory (C : precategory_data)(hs: has_homsets C)
+Lemma isaprop_is_precategory (C : precategory_data) (hs: has_homsets C)
   : isaprop (is_precategory C).
 Proof.
   apply isofhleveltotal2.
-  { apply isofhleveltotal2. { repeat (apply impred; intro). apply hs. }
-    intros _. repeat (apply impred; intro); apply hs. }
-  intros _. repeat (apply impred; intro); apply hs.
+  - apply isofhleveltotal2;
+      intros;
+      do 3 (apply impred; intro);
+      apply hs.
+  - intros; do 7 (apply impred; intro); apply hs.
 Qed.
 
+(** Two categories are equal if their data are *)
+Lemma category_eq (C D : category) :
+  (C : precategory_data) = (D : precategory_data) -> C = D.
+Proof.
+  intro e.
+  apply subtypeEquality.
+  - intro; apply isaprop_has_homsets.
+  - apply subtypeEquality'.
+   + assumption.
+   + apply isaprop_is_precategory.
+     apply homset_property.
+Defined.
 
 Definition id_left (C : precategory) :
    ∏ (a b : C) (f : a --> b),

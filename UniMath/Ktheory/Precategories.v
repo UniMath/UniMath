@@ -77,16 +77,6 @@ Definition Functor_compose {C D} (F:functor C D) := @functor_comp _ _ F.
 
 Definition theUnivalenceProperty (C: univalent_category) := pr2 C : is_univalent C.
 
-Lemma category_eq (C D : category) :
-  (C:precategory_data) = (D:precategory_data) -> C=D.
-Proof.
-  intro e. apply subtypeEquality. intro. apply isaprop_has_homsets.
-  apply subtypeEquality'.
-  { assumption. }
-  apply isaprop_is_precategory.
-  apply homset_property.
-Defined.
-
 (** embeddings and isomorphism of categories  *)
 
 Definition categoryEmbedding (B C : category) := ∑ F:[B,C], fully_faithful F.
