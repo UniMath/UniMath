@@ -565,14 +565,14 @@ Proof.
   intros G. exact (iterop_unoseq_mon (M:=G)).
 Defined.
 
-Definition sum_unoseq_rng {R:rng} : MultipleOperation R.
+Definition sum_unoseq_ring {R:ring} : MultipleOperation R.
 Proof.
   intros R. exact (iterop_unoseq_mon (M:=R)).
 Defined.
 
-Definition product_unoseq_rng {R:commrng} : MultipleOperation R.
+Definition product_unoseq_ring {R:commring} : MultipleOperation R.
 Proof.
-  intros R. exact (iterop_unoseq_mon (M:=rngmultabmonoid R)).
+  intros R. exact (iterop_unoseq_mon (M:=ringmultabmonoid R)).
 Defined.
 
 Definition iterop_unoseq_unoseq_mon {M:abmonoid} : UnorderedSequence (UnorderedSequence M) -> M.

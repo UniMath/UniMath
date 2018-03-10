@@ -121,8 +121,8 @@ Require Export UniMath.CategoryTheory.categories.grs.
 Require Export UniMath.CategoryTheory.categories.abgrs.
 Require Export UniMath.CategoryTheory.categories.rigs.
 Require Export UniMath.CategoryTheory.categories.commrigs.
-Require Export UniMath.CategoryTheory.categories.rngs.
-Require Export UniMath.CategoryTheory.categories.commrngs.
+Require Export UniMath.CategoryTheory.categories.rings.
+Require Export UniMath.CategoryTheory.categories.commrings.
 Require Export UniMath.CategoryTheory.categories.intdoms.
 Require Export UniMath.CategoryTheory.categories.flds.
 Require Export UniMath.CategoryTheory.categories.modules.

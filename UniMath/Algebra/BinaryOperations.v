@@ -724,35 +724,35 @@ Defined.
 
 (** *)
 
-Definition isrngops {X : UU} (opp1 opp2 : binop X) : UU :=
+Definition isringops {X : UU} (opp1 opp2 : binop X) : UU :=
   dirprod ((isabgrop opp1) × (ismonoidop opp2)) (isdistr opp1 opp2).
 
-Definition mk_isrngops {X : UU} {opp1 opp2 : binop X} (H1 : isabgrop opp1) (H2 : ismonoidop opp2)
-           (H3 : isdistr opp1 opp2) : isrngops opp1 opp2 :=
+Definition mk_isringops {X : UU} {opp1 opp2 : binop X} (H1 : isabgrop opp1) (H2 : ismonoidop opp2)
+           (H3 : isdistr opp1 opp2) : isringops opp1 opp2 :=
   dirprodpair (dirprodpair H1 H2) H3.
 
-Definition rngop1axs_is {X : UU} {opp1 opp2 : binop X} : isrngops opp1 opp2 -> isabgrop opp1 :=
+Definition ringop1axs_is {X : UU} {opp1 opp2 : binop X} : isringops opp1 opp2 -> isabgrop opp1 :=
   λ is : _, pr1 (pr1 is).
 
-Definition rngop2axs_is {X : UU} {opp1 opp2 : binop X} : isrngops opp1 opp2 -> ismonoidop opp2 :=
+Definition ringop2axs_is {X : UU} {opp1 opp2 : binop X} : isringops opp1 opp2 -> ismonoidop opp2 :=
   λ is : _, pr2 (pr1 is).
 
-Definition rngdistraxs_is {X : UU} {opp1 opp2 : binop X} :
-  isrngops opp1 opp2 -> isdistr opp1 opp2 := λ is : _, pr2 is.
+Definition ringdistraxs_is {X : UU} {opp1 opp2 : binop X} :
+  isringops opp1 opp2 -> isdistr opp1 opp2 := λ is : _, pr2 is.
 
-Definition rngldistrax_is {X : UU} {opp1 opp2 : binop X} :
-  isrngops opp1 opp2 -> isldistr opp1 opp2 := λ is : _, pr1 (pr2 is).
+Definition ringldistrax_is {X : UU} {opp1 opp2 : binop X} :
+  isringops opp1 opp2 -> isldistr opp1 opp2 := λ is : _, pr1 (pr2 is).
 
-Definition rngrdistrax_is {X : UU} {opp1 opp2 : binop X} :
-  isrngops opp1 opp2 -> isrdistr opp1 opp2 := λ is : _, pr2 (pr2 is).
+Definition ringrdistrax_is {X : UU} {opp1 opp2 : binop X} :
+  isringops opp1 opp2 -> isrdistr opp1 opp2 := λ is : _, pr2 (pr2 is).
 
-Definition rngunel1_is {X : UU} {opp1 opp2 : binop X} (is : isrngops opp1 opp2) : X :=
+Definition ringunel1_is {X : UU} {opp1 opp2 : binop X} (is : isringops opp1 opp2) : X :=
   unel_is (pr1 (pr1 is)).
 
-Definition rngunel2_is {X : UU} {opp1 opp2 : binop X} (is : isrngops opp1 opp2) : X :=
+Definition ringunel2_is {X : UU} {opp1 opp2 : binop X} (is : isringops opp1 opp2) : X :=
   unel_is (pr2 (pr1 is)).
 
-Lemma isapropisrngops {X : hSet} (opp1 opp2 : binop X) : isaprop (isrngops opp1 opp2).
+Lemma isapropisringops {X : hSet} (opp1 opp2 : binop X) : isaprop (isringops opp1 opp2).
 Proof.
   apply (isofhleveldirprod 1).
   - apply (isofhleveldirprod 1).
@@ -830,8 +830,8 @@ Proof.
 Defined.
 Opaque isminusmultwithminus1_is_l.
 
-Lemma isrngopsif {X : UU} {opp1 opp2 : binop X} (is1 : isgrop opp1) (is2 : ismonoidop opp2)
-      (is12 : isdistr opp1 opp2) : isrngops opp1 opp2.
+Lemma isringopsif {X : UU} {opp1 opp2 : binop X} (is1 : isgrop opp1) (is2 : ismonoidop opp2)
+      (is12 : isdistr opp1 opp2) : isringops opp1 opp2.
 Proof.
   set (assoc1 := pr1 (pr1 is1)).
   split.
@@ -852,33 +852,33 @@ Proof.
   - apply is12.
 Defined.
 
-Definition rngmultx0_is {X : UU} {opp1 opp2 : binop X} (is : isrngops opp1 opp2) :
-  ∏ (x : X), opp2 x (unel_is (pr1 (rngop1axs_is is))) = unel_is (pr1 (rngop1axs_is is)) :=
-  multx0_is_l (rngop1axs_is is) (rngop2axs_is is) (rngdistraxs_is is).
+Definition ringmultx0_is {X : UU} {opp1 opp2 : binop X} (is : isringops opp1 opp2) :
+  ∏ (x : X), opp2 x (unel_is (pr1 (ringop1axs_is is))) = unel_is (pr1 (ringop1axs_is is)) :=
+  multx0_is_l (ringop1axs_is is) (ringop2axs_is is) (ringdistraxs_is is).
 
-Definition rngmult0x_is {X : UU} {opp1 opp2 : binop X} (is : isrngops opp1 opp2) :
-  ∏ (x : X), opp2 (unel_is (pr1 (rngop1axs_is is))) x = unel_is (pr1 (rngop1axs_is is)) :=
-  mult0x_is_l (rngop1axs_is is) (rngop2axs_is is) (rngdistraxs_is is).
+Definition ringmult0x_is {X : UU} {opp1 opp2 : binop X} (is : isringops opp1 opp2) :
+  ∏ (x : X), opp2 (unel_is (pr1 (ringop1axs_is is))) x = unel_is (pr1 (ringop1axs_is is)) :=
+  mult0x_is_l (ringop1axs_is is) (ringop2axs_is is) (ringdistraxs_is is).
 
-Definition rngminus1_is {X : UU} {opp1 opp2 : binop X} (is : isrngops opp1 opp2) : X :=
-  minus1_is_l (rngop1axs_is is) (rngop2axs_is is).
+Definition ringminus1_is {X : UU} {opp1 opp2 : binop X} (is : isringops opp1 opp2) : X :=
+  minus1_is_l (ringop1axs_is is) (ringop2axs_is is).
 
-Definition rngmultwithminus1_is {X : UU} {opp1 opp2 : binop X} (is : isrngops opp1 opp2) :
+Definition ringmultwithminus1_is {X : UU} {opp1 opp2 : binop X} (is : isringops opp1 opp2) :
   ∏ (x : X),
-  opp2 (minus1_is_l (rngop1axs_is is) (rngop2axs_is is)) x = grinv_is (rngop1axs_is is) x :=
-  isminusmultwithminus1_is_l (rngop1axs_is is) (rngop2axs_is is) (rngdistraxs_is is).
+  opp2 (minus1_is_l (ringop1axs_is is) (ringop2axs_is is)) x = grinv_is (ringop1axs_is is) x :=
+  isminusmultwithminus1_is_l (ringop1axs_is is) (ringop2axs_is is) (ringdistraxs_is is).
 
-Definition isrngopstoisrigops (X : UU) (opp1 opp2 : binop X) (is : isrngops opp1 opp2) :
+Definition isringopstoisrigops (X : UU) (opp1 opp2 : binop X) (is : isringops opp1 opp2) :
   isrigops opp1 opp2.
 Proof.
   split.
-  - split with (dirprodpair (isabgroptoisabmonoidop _ _ (rngop1axs_is is)) (rngop2axs_is is)).
+  - split with (dirprodpair (isabgroptoisabmonoidop _ _ (ringop1axs_is is)) (ringop2axs_is is)).
     split.
-    + simpl. apply (rngmult0x_is).
-    + simpl. apply (rngmultx0_is).
-  - apply (rngdistraxs_is is).
+    + simpl. apply (ringmult0x_is).
+    + simpl. apply (ringmultx0_is).
+  - apply (ringdistraxs_is is).
 Defined.
-Coercion isrngopstoisrigops : isrngops >-> isrigops.
+Coercion isringopstoisrigops : isringops >-> isrigops.
 
 (** *)
 
@@ -901,27 +901,27 @@ Defined.
 
 (** *)
 
-Definition iscommrngops {X : UU} (opp1 opp2 : binop X) : UU :=
-  (isrngops opp1 opp2) × (iscomm opp2).
+Definition iscommringops {X : UU} (opp1 opp2 : binop X) : UU :=
+  (isringops opp1 opp2) × (iscomm opp2).
 
-Definition pr1iscommrngops (X : UU) (opp1 opp2 : binop X) :
-  iscommrngops opp1 opp2 -> isrngops opp1 opp2 := @pr1 _ _.
-Coercion pr1iscommrngops : iscommrngops >-> isrngops.
+Definition pr1iscommringops (X : UU) (opp1 opp2 : binop X) :
+  iscommringops opp1 opp2 -> isringops opp1 opp2 := @pr1 _ _.
+Coercion pr1iscommringops : iscommringops >-> isringops.
 
-Definition rngiscommop2_is {X : UU} {opp1 opp2 : binop X} (is : iscommrngops opp1 opp2) :
+Definition ringiscommop2_is {X : UU} {opp1 opp2 : binop X} (is : iscommringops opp1 opp2) :
   iscomm opp2 := pr2 is.
 
-Lemma isapropiscommrng {X : hSet} (opp1 opp2 : binop X) : isaprop (iscommrngops opp1 opp2).
+Lemma isapropiscommring {X : hSet} (opp1 opp2 : binop X) : isaprop (iscommringops opp1 opp2).
 Proof.
   apply (isofhleveldirprod 1).
-  - apply isapropisrngops.
+  - apply isapropisringops.
   - apply isapropiscomm.
 Defined.
 
-Definition iscommrngopstoiscommrigops (X : UU) (opp1 opp2 : binop X)
-           (is : iscommrngops opp1 opp2) : iscommrigops opp1 opp2 :=
-  dirprodpair (isrngopstoisrigops _ _ _ (pr1 is)) (pr2 is).
-Coercion iscommrngopstoiscommrigops : iscommrngops >-> iscommrigops.
+Definition iscommringopstoiscommrigops (X : UU) (opp1 opp2 : binop X)
+           (is : iscommringops opp1 opp2) : iscommrigops opp1 opp2 :=
+  dirprodpair (isringopstoisrigops _ _ _ (pr1 is)) (pr2 is).
+Coercion iscommringopstoiscommrigops : iscommringops >-> iscommrigops.
 
 (** **** Transfer properties of binary operations relative to weak equivalences *)
 
@@ -1127,8 +1127,8 @@ Proof.
   - apply isdistr_weq_fwd, (pr2 is).
 Defined.
 
-Lemma isrngops_weq_fwd {X Y : UU} (H : X ≃ Y) (op1 op2 : binop X) :
-  isrngops op1 op2 → isrngops (binop_weq_fwd H op1) (binop_weq_fwd H op2).
+Lemma isringops_weq_fwd {X Y : UU} (H : X ≃ Y) (op1 op2 : binop X) :
+  isringops op1 op2 → isringops (binop_weq_fwd H op1) (binop_weq_fwd H op2).
 Proof.
   intro is.
   split.
@@ -1147,12 +1147,12 @@ Proof.
   - apply iscomm_weq_fwd, (pr2 is).
 Defined.
 
-Lemma iscommrngops_weq_fwd {X Y : UU} (H : X ≃ Y) (op1 op2 : binop X) :
-  iscommrngops op1 op2 → iscommrngops (binop_weq_fwd H op1) (binop_weq_fwd H op2).
+Lemma iscommringops_weq_fwd {X Y : UU} (H : X ≃ Y) (op1 op2 : binop X) :
+  iscommringops op1 op2 → iscommringops (binop_weq_fwd H op1) (binop_weq_fwd H op2).
 Proof.
   intro is.
   split.
-  - apply isrngops_weq_fwd, (pr1 is).
+  - apply isringops_weq_fwd, (pr1 is).
   - apply iscomm_weq_fwd, (pr2 is).
 Defined.
 
@@ -1355,8 +1355,8 @@ Proof.
   - apply isdistr_weq_bck, (pr2 is).
 Defined.
 
-Lemma isrngops_weq_bck {X Y : UU} (H : X ≃ Y) (op1 op2 : binop Y) :
-  isrngops op1 op2 → isrngops (binop_weq_bck H op1) (binop_weq_bck H op2).
+Lemma isringops_weq_bck {X Y : UU} (H : X ≃ Y) (op1 op2 : binop Y) :
+  isringops op1 op2 → isringops (binop_weq_bck H op1) (binop_weq_bck H op2).
 Proof.
   intro is.
   split.
@@ -1375,12 +1375,12 @@ Proof.
   - apply iscomm_weq_bck, (pr2 is).
 Defined.
 
-Lemma iscommrngops_weq_bck {X Y : UU} (H : X ≃ Y) (op1 op2 : binop Y) :
-  iscommrngops op1 op2 → iscommrngops (binop_weq_bck H op1) (binop_weq_bck H op2).
+Lemma iscommringops_weq_bck {X Y : UU} (H : X ≃ Y) (op1 op2 : binop Y) :
+  iscommringops op1 op2 → iscommringops (binop_weq_bck H op1) (binop_weq_bck H op2).
 Proof.
   intro is.
   split.
-  - apply isrngops_weq_bck, (pr1 is).
+  - apply isringops_weq_bck, (pr1 is).
   - apply iscomm_weq_bck, (pr2 is).
 Defined.
 
@@ -2615,25 +2615,25 @@ Proof.
   apply (isrigopsisof (invtwobinopiso f) is).
 Defined.
 
-Definition isrngopsisof {X Y : setwith2binop} (f : twobinopiso X Y)
-           (is : isrngops (@op1 X) (@op2 X)) : isrngops (@op1 Y) (@op2 Y) :=
-  dirprodpair (dirprodpair (isabgropisof (binop1iso f) (rngop1axs_is is))
-                           (ismonoidopisof (binop2iso f) (rngop2axs_is is)))
+Definition isringopsisof {X Y : setwith2binop} (f : twobinopiso X Y)
+           (is : isringops (@op1 X) (@op2 X)) : isringops (@op1 Y) (@op2 Y) :=
+  dirprodpair (dirprodpair (isabgropisof (binop1iso f) (ringop1axs_is is))
+                           (ismonoidopisof (binop2iso f) (ringop2axs_is is)))
               (isdistrisof f (pr2 is)).
 
-Definition isrngopsisob {X Y : setwith2binop} (f : twobinopiso X Y)
-           (is : isrngops (@op1 Y) (@op2 Y)) : isrngops (@op1 X) (@op2 X) :=
-  dirprodpair (dirprodpair (isabgropisob (binop1iso f) (rngop1axs_is is))
-                           (ismonoidopisob (binop2iso f) (rngop2axs_is is)))
+Definition isringopsisob {X Y : setwith2binop} (f : twobinopiso X Y)
+           (is : isringops (@op1 Y) (@op2 Y)) : isringops (@op1 X) (@op2 X) :=
+  dirprodpair (dirprodpair (isabgropisob (binop1iso f) (ringop1axs_is is))
+                           (ismonoidopisob (binop2iso f) (ringop2axs_is is)))
               (isdistrisob f (pr2 is)).
 
-Definition iscommrngopsisof {X Y : setwith2binop} (f : twobinopiso X Y)
-           (is : iscommrngops (@op1 X) (@op2 X)) : iscommrngops (@op1 Y) (@op2 Y) :=
-  dirprodpair (isrngopsisof f is) (iscommisof (binop2iso f) (pr2 is)).
+Definition iscommringopsisof {X Y : setwith2binop} (f : twobinopiso X Y)
+           (is : iscommringops (@op1 X) (@op2 X)) : iscommringops (@op1 Y) (@op2 Y) :=
+  dirprodpair (isringopsisof f is) (iscommisof (binop2iso f) (pr2 is)).
 
-Definition iscommrngopsisob {X Y : setwith2binop} (f : twobinopiso X Y)
-           (is : iscommrngops (@op1 Y) (@op2 Y)) : iscommrngops (@op1 X) (@op2 X) :=
-  dirprodpair (isrngopsisob f is) (iscommisob (binop2iso f) (pr2 is)).
+Definition iscommringopsisob {X Y : setwith2binop} (f : twobinopiso X Y)
+           (is : iscommringops (@op1 Y) (@op2 Y)) : iscommringops (@op1 X) (@op2 X) :=
+  dirprodpair (isringopsisob f is) (iscommisob (binop2iso f) (pr2 is)).
 
 
 (** **** Subobjects *)

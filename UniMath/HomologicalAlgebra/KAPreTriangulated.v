@@ -58,7 +58,7 @@ Require Import UniMath.HomologicalAlgebra.TranslationFunctors.
 Require Import UniMath.HomologicalAlgebra.MappingCone.
 
 Unset Kernel Term Sharing.
-Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommrngops ZeroArrow.
+Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommringops ZeroArrow.
 
 
 (** * K(A) with a structure of a pretriangulated category *)
