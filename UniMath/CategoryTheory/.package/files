@@ -119,8 +119,8 @@ categories/grs.v
 categories/abgrs.v
 categories/rigs.v
 categories/commrigs.v
-categories/rngs.v
-categories/commrngs.v
+categories/rings.v
+categories/commrings.v
 categories/intdoms.v
 categories/flds.v
 categories/modules.v

@@ -67,7 +67,7 @@ Lemma hqldistr :
   ∏ x y z, x * (y + z) = x * y + x * z.
 Proof.
   intros x y z.
-  now apply rngldistr.
+  now apply ringldistr.
 Qed.
 
 Lemma hqmult2r :

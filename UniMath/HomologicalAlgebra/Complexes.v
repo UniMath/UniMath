@@ -50,7 +50,7 @@ Require Import UniMath.CategoryTheory.AbelianToAdditive.
 Unset Kernel Term Sharing.
 
 Open Scope hz_scope.
-Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommrngops ZeroArrow.
+Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommringops ZeroArrow.
 
 (** * Definition of complexes *)
 (** ** Introduction

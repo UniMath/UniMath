@@ -20,7 +20,7 @@ Local Open Scope cat.
 (** * Precategory of flds *)
 Section def_fld_precategory.
 
-  Definition fld_fun_space (A B : fld) : hSet := hSetpair (rngfun A B) (isasetrigfun A B).
+  Definition fld_fun_space (A B : fld) : hSet := hSetpair (ringfun A B) (isasetrigfun A B).
 
   Definition fld_precategory_ob_mor : precategory_ob_mor :=
     tpair (λ ob : UU, ob -> ob -> UU) fld (λ A B : fld, fld_fun_space A B).
@@ -28,23 +28,23 @@ Section def_fld_precategory.
   Definition fld_precategory_data : precategory_data :=
     precategory_data_pair
       fld_precategory_ob_mor (λ (X : fld), (rigisotorigfun (idrigiso X)))
-      (fun (X Y Z : fld) (f : rngfun X Y) (g : rngfun Y Z) => rigfuncomp f g).
+      (fun (X Y Z : fld) (f : ringfun X Y) (g : ringfun Y Z) => rigfuncomp f g).
 
-  Local Lemma fld_id_left (X Y : fld) (f : rngfun X Y) :
+  Local Lemma fld_id_left (X Y : fld) (f : ringfun X Y) :
     rigfuncomp (rigisotorigfun (idrigiso X)) f = f.
   Proof.
     use rigfun_paths. use idpath.
   Defined.
   Opaque fld_id_left.
 
-  Local Lemma fld_id_right (X Y : fld) (f : rngfun X Y) :
+  Local Lemma fld_id_right (X Y : fld) (f : ringfun X Y) :
     rigfuncomp f (rigisotorigfun (idrigiso Y)) = f.
   Proof.
     use rigfun_paths. use idpath.
   Defined.
   Opaque fld_id_right.
 
-  Local Lemma fld_assoc (X Y Z W : fld) (f : rngfun X Y) (g : rngfun Y Z) (h : rngfun Z W) :
+  Local Lemma fld_assoc (X Y Z W : fld) (f : ringfun X Y) (g : ringfun Y Z) (h : ringfun Z W) :
     rigfuncomp f (rigfuncomp g h) = rigfuncomp (rigfuncomp f g) h.
   Proof.
     use rigfun_paths. use idpath.
@@ -88,28 +88,28 @@ Section def_fld_category.
   Defined.
   Opaque fld_iso_is_equiv.
 
-  Lemma fld_iso_equiv (X Y : ob fld_precategory) : iso X Y -> rngiso (X : fld) (Y : fld).
+  Lemma fld_iso_equiv (X Y : ob fld_precategory) : iso X Y -> ringiso (X : fld) (Y : fld).
   Proof.
     intro f.
-    use rngisopair.
+    use ringisopair.
     - exact (weqpair (pr1 (pr1 f)) (fld_iso_is_equiv X Y f)).
     - exact (pr2 (pr1 f)).
   Defined.
 
-  Lemma fld_equiv_is_iso (X Y : ob fld_precategory) (f : rngiso (X : fld) (Y : fld)) :
-    @is_iso fld_precategory X Y (rngfunconstr (pr2 f)).
+  Lemma fld_equiv_is_iso (X Y : ob fld_precategory) (f : ringiso (X : fld) (Y : fld)) :
+    @is_iso fld_precategory X Y (ringfunconstr (pr2 f)).
   Proof.
     use is_iso_qinv.
-    - exact (rngfunconstr (pr2 (invrigiso f))).
+    - exact (ringfunconstr (pr2 (invrigiso f))).
     - use mk_is_inverse_in_precat.
       + use rigfun_paths. use funextfun. intros x. use homotinvweqweq.
       + use rigfun_paths. use funextfun. intros y. use homotweqinvweq.
   Defined.
   Opaque fld_equiv_is_iso.
 
-  Lemma fld_equiv_iso (X Y : ob fld_precategory) : rngiso (X : fld) (Y : fld) -> iso X Y.
+  Lemma fld_equiv_iso (X Y : ob fld_precategory) : ringiso (X : fld) (Y : fld) -> iso X Y.
   Proof.
-    intros f. exact (@isopair fld_precategory X Y (rngfunconstr (pr2 f))
+    intros f. exact (@isopair fld_precategory X Y (ringfunconstr (pr2 f))
                               (fld_equiv_is_iso X Y f)).
   Defined.
 
@@ -125,7 +125,7 @@ Section def_fld_category.
   Opaque fld_iso_equiv_is_equiv.
 
   Definition fld_iso_equiv_weq (X Y : ob fld_precategory) :
-    weq (iso X Y) (rngiso (X : fld) (Y : fld)).
+    weq (iso X Y) (ringiso (X : fld) (Y : fld)).
   Proof.
     use weqpair.
     - exact (fld_iso_equiv X Y).
@@ -144,7 +144,7 @@ Section def_fld_category.
   Opaque fld_equiv_iso_is_equiv.
 
   Definition fld_equiv_weq_iso (X Y : ob fld_precategory) :
-    (rngiso (X : fld) (Y : fld)) ≃ (iso X Y).
+    (ringiso (X : fld) (Y : fld)) ≃ (iso X Y).
   Proof.
     use weqpair.
     - exact (fld_equiv_iso X Y).

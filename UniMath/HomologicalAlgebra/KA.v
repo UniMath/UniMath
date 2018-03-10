@@ -48,7 +48,7 @@ Unset Kernel Term Sharing.
 Global Opaque hz.
 
 Open Scope hz_scope.
-Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommrngops ZeroArrow ishinh.
+Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommringops ZeroArrow ishinh.
 
 (** * Homotopies of complexes and K(A), the naive homotopy category of A. *)
 (** ** Introduction
