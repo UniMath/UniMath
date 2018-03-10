@@ -44,15 +44,13 @@ Proof.
     + apply isapropisweq.
 Defined.
 
-(** Two propositions are logically equivalent just when they're bi-implicative. *)
-Definition weq_logeq_hequiv (P Q : hProp) : (pr1 P <-> pr1 Q) ≃ (P ⇔ Q).
-  intermediate_weq (P ≃ Q).
-  - apply weq_logeq_weq.
-  - intermediate_weq (P = Q).
-    + apply invweq.
-      apply weqeqweqhProp.
-    + apply weqlogeq.
-Defined.
+(** One might further want the following weak equivalence, which states that
+    two propositions are logically equivalent just when they're bi-implicative:
+    <<
+      Definition weq_logeq_hequiv (P Q : hProp) : (pr1 P <-> pr1 Q) ≃ (P ⇔ Q).
+    >>
+    However, it has a trivial proof: `apply idweq`.
+ *)
 
 (** Two propositions are bi-implicative just when their underlying types are. *)
 
@@ -79,18 +77,18 @@ Defined.
 
 Lemma hequiv_assoc_conj {P Q R : hProp} : (P ∧ Q) ∧ R ⇔ P ∧ (Q ∧ R).
 Proof.
-  apply weq_logeq_hequiv, logeq_assoc_dirprod.
+  apply logeq_assoc_dirprod.
 Defined.
 
 Lemma hequiv_comm_conj {P Q : hProp} : P ∧ Q ⇔ Q ∧ P.
 Proof.
-  apply weq_logeq_hequiv, logeq_comm_dirprod.
+  apply logeq_comm_dirprod.
 Defined.
 
 (** Projections from conjuction with [htrue] *)
 Lemma hequiv_conj_true {P : hProp} : htrue ∧ P ⇔ P.
 Proof.
-  apply weq_logeq_hequiv, logeq_dirprod_unit_l.
+  apply logeq_dirprod_unit_l.
 Defined.
 
 (** ** Disjunction *)
