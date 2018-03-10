@@ -188,24 +188,29 @@ Section ElementsWithInverses.
   Definition is_inv_inv : ∏ (x x0 : X), (isinvel x x0 -> isinvel x0 x) :=
     fun x x0 isinv => (dirprodpair (pr2 isinv) (pr1 isinv)).
 
-  (** This is a similar statement to grinvop *)
+  (** This is a similar statement to [grinvop] *)
   Lemma invop :
     ∏ (x y : X), (hasinv x -> hasinv y -> hasinv (opp x y)).
   Proof.
     intros x y xhasinv yhasinv.
     unfold hasinv, hProptoType in *; cbn in *.
     apply (@hinhfun2 (∑ x0 : X, isinvel x x0) (∑ y0 : X, isinvel y y0));
-      try assumption.
-    intros [xinv [isxlinv isxrinv]] [yinv [isylinv isyrinv]].
-    refine (opp yinv xinv,, _).
-    pose (assoc := pr1 is).
-    split; unfold islinvel, isrinvel;
-      rewrite <- assoc;
-      rewrite (assoc4 opp assoc);
-      first [rewrite isylinv | rewrite isxrinv];
-      rewrite (runax_is is);
-      assumption.
-  Defined.
+      [ | assumption | assumption ].
+    intros xinv yinv.
+    use tpair.
+    - exact (opp (pr1 yinv) (pr1 xinv)).
+    - pose (assoc := pr1 is).
+      use dirprodpair; unfold islinvel, isrinvel;
+        rewrite <- assoc.
+      + rewrite (assoc4 opp assoc).
+        rewrite (pr1 (pr2 yinv)).
+        rewrite (runax_is is).
+        exact (pr1 (pr2 xinv)).
+      + rewrite (assoc4 opp assoc).
+        rewrite (pr2 (pr2 xinv)).
+        rewrite (runax_is is).
+        exact (pr2 (pr2 yinv)).
+  Qed.
 
 End ElementsWithInverses.
 
@@ -224,23 +229,12 @@ Section ElementsWithInversesSet.
 
   Context {X : hSet} (opp : binop X) (is : ismonoidop opp).
 
-  Definition isapropislinvel (x x0 : X) : isaprop (islinvel opp is x x0) :=
-    setproperty X _ _.
-
-  Definition isapropisrinvel (x x0 : X) : isaprop (isrinvel opp is x x0) :=
-    setproperty X _ _.
-
-  Definition isapropisinvel (x x0 : X) : isaprop (isinvel opp is x x0) :=
-    isapropdirprod _ _ (isapropislinvel _ _) (isapropisrinvel _ _).
-
-  Definition isaprophaslinv (x : X) : isaprop (haslinv opp is x) :=
-    isapropishinh _.
-
-  Definition isaprophasrinv (x : X) : isaprop (haslinv opp is x) :=
-    isapropishinh _.
-
-  Definition isaprophasinv (x : X) : isaprop (hasinv opp is x) :=
-    isapropishinh _.
+  Definition isapropislinvel (x x0 : X) : isaprop (islinvel opp is x x0) := setproperty X _ _.
+  Definition isapropisrinvel (x x0 : X) : isaprop (isrinvel opp is x x0) := setproperty X _ _.
+  Definition isapropisinvel (x x0 : X) : isaprop (isinvel opp is x x0) := isapropdirprod _ _ (isapropislinvel _ _) (isapropisrinvel _ _).
+  Definition isaprophaslinv (x : X) : isaprop (haslinv opp is x) := isapropishinh _.
+  Definition isaprophasrinv (x : X) : isaprop (haslinv opp is x) := isapropishinh _.
+  Definition isaprophasinv (x : X) : isaprop (hasinv opp is x) := isapropishinh _.
 
   (** The subset of elements that have inverses *)
 

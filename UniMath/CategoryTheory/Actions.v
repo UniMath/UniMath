@@ -1,13 +1,16 @@
-(** Author: Langston Barrett (@siddharthist) *)
-(** ** Actions *)
+(** * Actions
+
+    Author: Langston Barrett (@siddharthist)
+ *)
+
 (** ** Contents
-- Strutures on morphisms
- - Endomorphisms and the endomorphism monoid
- - Automorphisms and the automorphism group
- - The endomorphism ring in an additive category
-- Actions
- - Monoid (group) actions
- - Ring  actions
+    - Strutures on morphisms
+      - Endomorphisms and the endomorphism monoid
+      - Automorphisms and the automorphism group
+      - The endomorphism ring in an additive category
+    - Actions
+      - Monoid (group) actions
+      - Ring  actions
  *)
 
 (** TODO:

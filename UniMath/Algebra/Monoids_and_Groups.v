@@ -450,7 +450,7 @@ Proof.
 Defined.
 
 Definition submonoid_incl {X : monoid} (A : submonoid X) : monoidfun A X :=
-  monoidfunconstr (ismonoidfun_pr1 AUTO).
+  monoidfunconstr (ismonoidfun_pr1 A).
 
 (** Every monoid has a submonoid which is a group, the collection of elements
     with inverses. This is used to construct the automorphism group from the
@@ -459,15 +459,13 @@ Local Open Scope multmonoid.
 
 Definition invertible_submonoid (X : monoid) : @submonoid X.
 Proof.
-  intros X.
   refine (invertible_elements (@op X) (pr2 X),, _).
   split.
-  (** This is a similar statement to grinvop *)
-  - intros [x x_has_inv] [y y_has_inv].
+  (** This is a similar statement to [grinvop] *)
+  - intros xpair ypair.
     unfold invertible_elements in *.
-    apply invop; assumption.
-  - apply hinhpr.
-    refine (1,, dirprodpair (lunax _ 1) (lunax _ 1)).
+    apply invop; exact (pr2 _).
+  - apply hinhpr; exact (1,, dirprodpair (lunax _ 1) (lunax _ 1)).
 Defined.
 
 (** This submonoid is closed under inversion *)
@@ -476,10 +474,10 @@ Lemma inverse_in_submonoid (X : monoid) :
                 isinvel (@op X) (pr2 X) x x0 ->
                 invertible_elements (@op X) (pr2 X) x0.
 Proof.
-  intros X x x0 _ x0isxinv.
+  intros x x0 _ x0isxinv.
   unfold invertible_elements, hasinv.
   apply hinhpr.
-  refine (x,, is_inv_inv (@op X) _ _ _ x0isxinv).
+  exact (x,, is_inv_inv (@op X) _ _ _ x0isxinv).
 Defined.
 
 Local Close Scope multmonoid.
@@ -2118,25 +2116,25 @@ Local Open Scope multmonoid.
 
 Definition invertible_submonoid_grop X : isgrop (@op (invertible_submonoid X)).
 Proof.
-  intros X.
   pose (submon := invertible_submonoid X).
   pose (submon_carrier := ismonoidcarrier submon).
 
   (** We know that if each element has an inverse, it's a grop *)
   apply (isgropif submon_carrier).
 
-  intros [x x_in_submon].
+  intros xpair.
+  pose (x := pr1 xpair).
   pose (unel := (unel_is submon_carrier)).
 
   (** We can use other hProps when proving an hProp (assume it has an inverse) *)
-  apply (squash_to_prop x_in_submon (isaprophaslinv op submon_carrier _)).
+  apply (squash_to_prop (pr2 xpair) (isaprophaslinv op submon_carrier _)).
 
-  intros [xinv isxinv].
+  intros xinv.
   unfold haslinv.
   apply hinhpr.
-  refine ((xinv,, inverse_in_submonoid _ x xinv x_in_submon isxinv),, _).
+  refine ((pr1 xinv,, inverse_in_submonoid _ x (pr1 xinv) (pr2 xpair) (pr2 xinv)),, _).
   apply subtypeEquality_prop.
-  exact (pr1 isxinv).
+  exact (pr1 (pr2 xinv)).
 Defined.
 
 Local Close Scope multmonoid.
