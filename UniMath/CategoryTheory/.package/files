@@ -140,3 +140,4 @@ DisplayedCats/Codomain.v
 DisplayedCats/SIP.v
 DisplayedCats/Limits.v
 DisplayedCats/Examples.v
+DisplayedCats/Adjunctions.v
