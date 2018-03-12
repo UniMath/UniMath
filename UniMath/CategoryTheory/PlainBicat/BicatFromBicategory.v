@@ -73,10 +73,10 @@ Proof.
   exists C. exact (λ a b, homprecat a b).
 Defined.
 
-Definition bcat_cell_struct : prebicat_cell_struct bcat_precategory_ob_mor
+Definition bcat_cell_struct : prebicat_2cell_struct bcat_precategory_ob_mor
   := λ (a b : C) (f g : homprecat a b), (homprecat a b) ⟦ f, g ⟧.
 
-Definition bcat_ob_mor_cells : ∑ (C : precategory_ob_mor), prebicat_cell_struct C.
+Definition bcat_ob_mor_cells : ∑ (C : precategory_ob_mor), prebicat_2cell_struct C.
 Proof.
   exists bcat_precategory_ob_mor. exact bcat_cell_struct.
 Defined.

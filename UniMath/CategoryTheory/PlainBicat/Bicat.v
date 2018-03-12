@@ -16,10 +16,10 @@ Open Scope cat.
 
 (** * Definition of bicategory *)
 
-Definition prebicat_cell_struct (C : precategory_ob_mor) : UU :=
+Definition prebicat_2cell_struct (C : precategory_ob_mor) : UU :=
   ∏ (a b: C), C⟦a, b⟧ → C⟦a, b⟧ → UU.
 
-Definition prebicat_1_id_comp_cells : UU := ∑ (C : precategory_data), prebicat_cell_struct C.
+Definition prebicat_1_id_comp_cells : UU := ∑ (C : precategory_data), prebicat_2cell_struct C.
 Coercion precat_data_from_prebicat_1_id_comp_cells (C : prebicat_1_id_comp_cells)
   : precategory_data
   := pr1 C.
@@ -120,22 +120,12 @@ Notation "f ◃ x" := (lwhisker f x) (at level 60). (* \tw *)
 Notation "y ▹ g" := (rwhisker g y) (at level 60). (* \tw nr 2 *)
 
 Definition hcomp {C : prebicat_data} {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
-  : f1 ==> f2 -> g1 ==> g2 -> f1 · g1 ==> f2 · g2.
-Proof.
-  intros x y.
-  set (xg1 := x ▹ g1).
-  set (f2y := f2 ◃ y).
-  exact (xg1 • f2y).
-Defined.
+  : f1 ==> f2 -> g1 ==> g2 -> f1 · g1 ==> f2 · g2
+  := λ x y, (x ▹ g1) • (f2 ◃ y).
 
 Definition hcomp' {C : prebicat_data} {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
-  : f1 ==> f2 -> g1 ==> g2 -> f1 · g1 ==> f2 · g2.
-Proof.
-  intros x y.
-  set (f1y := f1 ◃ y).
-  set (xg2 := x ▹ g2).
-  exact (f1y • xg2).
-Defined.
+  : f1 ==> f2 -> g1 ==> g2 -> f1 · g1 ==> f2 · g2
+  := λ x y, (f1 ◃ y) • (x ▹ g2).
 
 Notation "x ⋆ y" := (hcomp x y) (at level 50).
 
@@ -748,17 +738,7 @@ Proof.
   - use tpair.
     + exact C.
     + cbn. intros a b f g. exact unit.
-  - cbn; repeat (use tpair).
-    + intros; exact tt.
-    + intros; exact tt.
-    + intros; exact tt.
-    + intros; exact tt.
-    + intros; exact tt.
-    + intros; exact tt.
-    + intros; exact tt.
-    + intros; exact tt.
-    + intros; exact tt.
-    + cbn. intros. exact tt.
+  - cbn; repeat (use tpair); cbn; intros; exact tt.
 Defined.
 
 Definition chaotic_prebicat_laws : prebicat_laws chaotic_prebicat_data.

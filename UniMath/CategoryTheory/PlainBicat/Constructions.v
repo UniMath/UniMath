@@ -15,7 +15,7 @@ Require Import UniMath.CategoryTheory.PlainBicat.DispBicat.
 Open Scope cat.
 Open Scope mor_disp_scope.
 
-Notation "f' ==>[ x ] g'" := (disp_cells x f' g') (at level 60).
+Notation "f' ==>[ x ] g'" := (disp_2cells x f' g') (at level 60).
 
 Section dirprod.
 

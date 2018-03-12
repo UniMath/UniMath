@@ -1,7 +1,14 @@
 (* ******************************************************************************* *)
-(** * Bicategories
+(** * Displayed bicategories
     Benedikt Ahrens, Marco Maggesi
     February 2018
+
+  This file develops displayed bicategories analogous to
+  displayed (1-)categories as presented in
+  Benedikt Ahrens and Peter LeFanu Lumsdaine, Displayed categories
+  http://dx.doi.org/10.4230/LIPIcs.FSCD.2017.5
+
+
  ********************************************************************************* *)
 
 Require Import UniMath.Foundations.All.
@@ -17,22 +24,22 @@ Section disp_bicat.
 
 Context {C : prebicat}.
 
-Definition disp_cell_struct (D : disp_cat_ob_mor C) : UU
+Definition disp_2cell_struct (D : disp_cat_ob_mor C) : UU
   := ∏ (c c' : C) (f g : C⟦c, c'⟧) (x : f ==> g)
        (d : D c) (d' : D c') (f' : d -->[f] d') (g' : d -->[g] d'), UU.
 
-Definition disp_prebicat_1_id_comp_cells : UU := ∑ D : disp_cat_data C, disp_cell_struct D.
+Definition disp_prebicat_1_id_comp_cells : UU := ∑ D : disp_cat_data C, disp_2cell_struct D.
 Coercion disp_cat_data_from_disp_prebicat_1_id_comp_cells (C : disp_prebicat_1_id_comp_cells)
   : disp_cat_data _ := pr1 C.
 
-Definition disp_cells {D : disp_prebicat_1_id_comp_cells}
+Definition disp_2cells {D : disp_prebicat_1_id_comp_cells}
            {c c' : C} {f g : C⟦c, c'⟧} (x : f ==> g)
            {d : D c} {d' : D c'} (f' : d -->[f] d') (g' : d -->[g] d')
   : UU
   := pr2 D c c' f g x d d' f' g'.
 
-Notation "f' ==>[ x ] g'" := (disp_cells x f' g') (at level 60).
-Notation "f' <==[ x ] g'" := (disp_cells x g' f') (at level 60, only parsing).
+Notation "f' ==>[ x ] g'" := (disp_2cells x f' g') (at level 60).
+Notation "f' <==[ x ] g'" := (disp_2cells x g' f') (at level 60, only parsing).
 
 
 Definition disp_prebicat_ops (D : disp_prebicat_1_id_comp_cells) : UU
@@ -574,7 +581,7 @@ Defined.
 
 Definition total_prebicat_1_data : precategory_data := _ ,, total_category_id_comp.
 
-Definition total_prebicat_cell_struct : prebicat_cell_struct total_prebicat_ob_mor
+Definition total_prebicat_cell_struct : prebicat_2cell_struct total_prebicat_ob_mor
   := λ a b f g, ∑ η : pr1 f ==> pr1 g, pr2 f ==>[η] pr2 g.
 
 Definition total_prebicat_1_id_comp_cells : prebicat_1_id_comp_cells
