@@ -20,7 +20,7 @@ Require Import UniMath.CategoryTheory.PlainBicat.BicatOfCats.
 Open Scope cat.
 Open Scope mor_disp_scope.
 
-Notation "f' ==>[ x ] g'" := (disp_cells x f' g') (at level 60).
+Notation "f' ==>[ x ] g'" := (disp_2cells x f' g') (at level 60).
 
 
 Definition disp_prebicat_of_disp_cats_cat_data : disp_cat_data bicat_of_cats.
@@ -262,7 +262,7 @@ Proof.
     etrans. apply maponpaths. apply id_left_disp.
     etrans. apply transport_f_f.
     apply maponpaths_2. apply homset_property.
-Defined.
+Qed.
 
 
 Definition DispBicatOfDispCats : disp_prebicat bicat_of_cats := _ ,, DispBicatOfDispCats_laws.
