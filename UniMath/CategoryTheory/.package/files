@@ -145,6 +145,7 @@ PlainBicat/PseudoFunctor.v
 PlainBicat/OpCellBicat.v
 PlainBicat/DispBicat.v
 PlainBicat/BicatOfCats.v
+PlainBicat/DispBicatOfDispCats.v
 PlainBicat/BicategoryFromBicat.v
 PlainBicat/BicatFromBicategory.v
 PlainBicat/ContravariantFunctor.v

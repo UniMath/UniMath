@@ -28,36 +28,6 @@ Require Import UniMath.CategoryTheory.PlainBicat.Sigma.
 Open Scope cat.
 Open Scope mor_disp_scope.
 
-Section Disp_Prebicat_Cells_Unit.
-
-  Context {C : prebicat} (D : disp_cat_data C).
-
-  Definition disp_prebicat_cells_unit
-    : disp_prebicat_1_id_comp_cells C.
-  Proof.
-    exists D. red. intros. exact unit.
-  Defined.
-
-  Definition disp_prebicat_cells_unit_ops
-    : disp_prebicat_ops disp_prebicat_cells_unit.
-  Proof.
-    repeat use tpair; cbn; intros; exact tt.
-  Defined.
-
-  Definition disp_prebicat_cells_unit_data : disp_prebicat_data C
-    := _ ,, disp_prebicat_cells_unit_ops.
-
-  Lemma disp_prebicat_cells_unit_laws
-    : disp_prebicat_laws disp_prebicat_cells_unit_data.
-  Proof.
-    repeat use tpair; red; intros; apply (proofirrelevance _ isapropunit).
-  Qed.
-
-  Definition cell_unit_disp_prebicat : disp_prebicat C
-    := _ ,, disp_prebicat_cells_unit_laws.
-
-End Disp_Prebicat_Cells_Unit.
-
 (* Local Notation "'SET'" := hset_category. *)
 Arguments nat_trans_comp {C C' F G H} a b.
 
