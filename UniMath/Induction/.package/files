@@ -1,6 +1,8 @@
 PolynomialFunctors.v
 M/Core.v
+M/Limits.v
 M/Uniqueness.v
 W/Core.v
 W/Fibered.v
+W/Naturals.v
 W/Uniqueness.v

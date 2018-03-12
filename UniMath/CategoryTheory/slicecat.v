@@ -44,6 +44,7 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.Univalence.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -767,7 +768,7 @@ apply PullbackArrowUnique.
 - now rewrite PullbackArrow_PullbackPr2.
 Defined.
 
-Lemma dependent_product_to_exponentials c : has_exponentials (BPC c).
+Lemma dependent_product_to_exponentials c : Exponentials (BPC c).
 Proof.
 intros Af.
 use tpair.

@@ -21,7 +21,7 @@ Local Open Scope cat.
 (** * Precategory of intdoms *)
 Section def_intdom_precategory.
 
-  Definition intdom_fun_space (A B : intdom) : hSet := hSetpair (rngfun A B) (isasetrigfun A B).
+  Definition intdom_fun_space (A B : intdom) : hSet := hSetpair (ringfun A B) (isasetrigfun A B).
 
   Definition intdom_precategory_ob_mor : precategory_ob_mor :=
     tpair (λ ob : UU, ob -> ob -> UU) intdom (λ A B : intdom, intdom_fun_space A B).
@@ -29,23 +29,23 @@ Section def_intdom_precategory.
   Definition intdom_precategory_data : precategory_data :=
     precategory_data_pair
       intdom_precategory_ob_mor (λ (X : intdom), (rigisotorigfun (idrigiso X)))
-      (fun (X Y Z : intdom) (f : rngfun X Y) (g : rngfun Y Z) => rigfuncomp f g).
+      (fun (X Y Z : intdom) (f : ringfun X Y) (g : ringfun Y Z) => rigfuncomp f g).
 
-  Local Lemma intdom_id_left (X Y : intdom) (f : rngfun X Y) :
+  Local Lemma intdom_id_left (X Y : intdom) (f : ringfun X Y) :
     rigfuncomp (rigisotorigfun (idrigiso X)) f = f.
   Proof.
     use rigfun_paths. use idpath.
   Defined.
   Opaque intdom_id_left.
 
-  Local Lemma intdom_id_right (X Y : intdom) (f : rngfun X Y) :
+  Local Lemma intdom_id_right (X Y : intdom) (f : ringfun X Y) :
     rigfuncomp f (rigisotorigfun (idrigiso Y)) = f.
   Proof.
     use rigfun_paths. use idpath.
   Defined.
   Opaque intdom_id_right.
 
-  Local Lemma intdom_assoc (X Y Z W : intdom) (f : rngfun X Y) (g : rngfun Y Z) (h : rngfun Z W) :
+  Local Lemma intdom_assoc (X Y Z W : intdom) (f : ringfun X Y) (g : ringfun Y Z) (h : ringfun Z W) :
     rigfuncomp f (rigfuncomp g h) = rigfuncomp (rigfuncomp f g) h.
   Proof.
     use rigfun_paths. use idpath.
@@ -89,28 +89,28 @@ Section def_intdom_category.
   Defined.
   Opaque intdom_iso_is_equiv.
 
-  Lemma intdom_iso_equiv (X Y : ob intdom_precategory) : iso X Y -> rngiso (X : intdom) (Y : intdom).
+  Lemma intdom_iso_equiv (X Y : ob intdom_precategory) : iso X Y -> ringiso (X : intdom) (Y : intdom).
   Proof.
     intro f.
-    use rngisopair.
+    use ringisopair.
     - exact (weqpair (pr1 (pr1 f)) (intdom_iso_is_equiv X Y f)).
     - exact (pr2 (pr1 f)).
   Defined.
 
-  Lemma intdom_equiv_is_iso (X Y : ob intdom_precategory) (f : rngiso (X : intdom) (Y : intdom)) :
-    @is_iso intdom_precategory X Y (rngfunconstr (pr2 f)).
+  Lemma intdom_equiv_is_iso (X Y : ob intdom_precategory) (f : ringiso (X : intdom) (Y : intdom)) :
+    @is_iso intdom_precategory X Y (ringfunconstr (pr2 f)).
   Proof.
     use is_iso_qinv.
-    - exact (rngfunconstr (pr2 (invrigiso f))).
+    - exact (ringfunconstr (pr2 (invrigiso f))).
     - use mk_is_inverse_in_precat.
       + use rigfun_paths. use funextfun. intros x. use homotinvweqweq.
       + use rigfun_paths. use funextfun. intros y. use homotweqinvweq.
   Defined.
   Opaque intdom_equiv_is_iso.
 
-  Lemma intdom_equiv_iso (X Y : ob intdom_precategory) : rngiso (X : intdom) (Y : intdom) -> iso X Y.
+  Lemma intdom_equiv_iso (X Y : ob intdom_precategory) : ringiso (X : intdom) (Y : intdom) -> iso X Y.
   Proof.
-    intros f. exact (@isopair intdom_precategory X Y (rngfunconstr (pr2 f))
+    intros f. exact (@isopair intdom_precategory X Y (ringfunconstr (pr2 f))
                               (intdom_equiv_is_iso X Y f)).
   Defined.
 
@@ -126,7 +126,7 @@ Section def_intdom_category.
   Opaque intdom_iso_equiv_is_equiv.
 
   Definition intdom_iso_equiv_weq (X Y : ob intdom_precategory) :
-    weq (iso X Y) (rngiso (X : intdom) (Y : intdom)).
+    weq (iso X Y) (ringiso (X : intdom) (Y : intdom)).
   Proof.
     use weqpair.
     - exact (intdom_iso_equiv X Y).
@@ -146,7 +146,7 @@ Section def_intdom_category.
   Opaque intdom_equiv_iso_is_equiv.
 
   Definition intdom_equiv_weq_iso (X Y : ob intdom_precategory) :
-    (rngiso (X : intdom) (Y : intdom)) ≃ (iso X Y).
+    (ringiso (X : intdom) (Y : intdom)) ≃ (iso X Y).
   Proof.
     use weqpair.
     - exact (intdom_equiv_iso X Y).

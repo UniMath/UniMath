@@ -22,7 +22,7 @@ Section Mod.
 
 Local Open Scope cat.
 
-Context {R : rng}.
+Context {R : ring}.
 
 (** * The category of (left) R-modules ([mod_category]) *)
 

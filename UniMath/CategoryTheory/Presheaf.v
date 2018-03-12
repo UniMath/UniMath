@@ -13,7 +13,7 @@ Contents:
 - Initial object ([Initial_PreShv])
 - Terminal object ([Terminal_PreShv])
 - Pullbacks ([Pullbacks_PreShv])
-- Exponentials ([has_exponentials_PreShv])
+- Exponentials ([Exponentials_PreShv])
 - Constant presheaf ([constant_PreShv])
 - Definition of the subobject classifier (without proof) ([Ω_PreShv], [Ω_mor])
 - Proof that [Ω_PreShv] is a bounded lattice object ([Ω_PreShv_lattice],
@@ -124,10 +124,10 @@ Proof.
 now apply FunctorcategoryPullbacks, PullbacksHSET.
 Defined.
 
-Lemma has_exponentials_PreShv (hsC : has_homsets C) :
-  has_exponentials BinProducts_PreShv.
+Lemma Exponentials_PreShv (hsC : has_homsets C) :
+  Exponentials BinProducts_PreShv.
 Proof.
-now apply has_exponentials_functor_HSET, has_homsets_opp, hsC.
+now apply Exponentials_functor_HSET, has_homsets_opp, hsC.
 Defined.
 
 End limits.

@@ -79,7 +79,7 @@ Module Test_finsum.
 
   Section Iteration.
     Local Notation "s □ x" := (append s x) (at level 64, left associativity).
-    Context (G:abgr) (R:rng) (S:commrng) (g g' g'':G) (r r' r'':R) (s s' s'':S).
+    Context (G:abgr) (R:ring) (S:commring) (g g' g'':G) (r r' r'':R) (s s' s'':S).
     Local Open Scope multmonoid.
     Goal iterop_unoseq_abgr (nil : Sequence G) = 1. reflexivity. Qed.
     Goal iterop_unoseq_abgr (nil □ g □ g') = g*g'. reflexivity. Qed.
@@ -89,13 +89,13 @@ Module Test_finsum.
     Goal iterop_unoseq_unoseq_mon (M:=G) (sequenceToUnorderedSequence(nil □ sequenceToUnorderedSequence(nil) □ sequenceToUnorderedSequence(nil □ g))) = 1 * g. reflexivity. Qed.
     Close Scope multmonoid.
 
-    Local Open Scope rng.
-    Goal sum_unoseq_rng (nil : Sequence R) = 0. reflexivity. Qed.
-    Goal sum_unoseq_rng (nil □ r □ r') = r+r'. reflexivity. Qed.
-    Goal sum_unoseq_rng (nil □ r □ r' □ r'') = r+r'+r''. reflexivity. Qed.
-    Goal product_unoseq_rng (nil : Sequence S) = 1. reflexivity. Qed.
-    Goal product_unoseq_rng (nil □ s □ s') = s*s'. reflexivity. Qed.
-    Goal product_unoseq_rng (nil □ s □ s' □ s'') = s*s'*s''. reflexivity. Qed.
+    Local Open Scope ring.
+    Goal sum_unoseq_ring (nil : Sequence R) = 0. reflexivity. Qed.
+    Goal sum_unoseq_ring (nil □ r □ r') = r+r'. reflexivity. Qed.
+    Goal sum_unoseq_ring (nil □ r □ r' □ r'') = r+r'+r''. reflexivity. Qed.
+    Goal product_unoseq_ring (nil : Sequence S) = 1. reflexivity. Qed.
+    Goal product_unoseq_ring (nil □ s □ s') = s*s'. reflexivity. Qed.
+    Goal product_unoseq_ring (nil □ s □ s' □ s'') = s*s'*s''. reflexivity. Qed.
   End Iteration.
 
 End Test_finsum.

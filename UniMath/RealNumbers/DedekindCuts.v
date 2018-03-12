@@ -298,7 +298,7 @@ Proof.
     rewrite hqmultx0, hqisrinvmultinv.
     exact hq1_gt0.
     apply hqgth_hqneq, hq2_gt0. }
-  assert (H1 : hqlth (pr1 r) (nattorng (pr1 n) * (hqdiv (pr1 c) 2))).
+  assert (H1 : hqlth (pr1 r) (nattoring (pr1 n) * (hqdiv (pr1 c) 2))).
   { unfold hqlth in Hc.
     apply hqgthandmultrinv with (/ (hqdiv (pr1 c) 2)).
     - apply hqgthandmultlinv with (hqdiv (pr1 c) 2).
@@ -311,15 +311,15 @@ Proof.
       unfold hqdiv in n.
       exact (pr2 n).
       apply hqgth_hqneq, Hc'. }
-  assert (Hn : ¬ D (nattorng (pr1 n) * hqdiv (pr1 c) 2)).
+  assert (Hn : ¬ D (nattoring (pr1 n) * hqdiv (pr1 c) 2)).
   { generalize (pr2 (pr2 H) _ _ H1).
     apply (hinhuniv (P := hneg _)), sumofmaps ; intro H2.
     apply fromempty, (pr2 r), H2.
     apply H2. }
   assert (H2 : ∏ (m : nat),
-               nattorng m * hqdiv (pr1 c) 2 + pr1 c = nattorng (m + 2) * hqdiv (pr1 c) 2).
+               nattoring m * hqdiv (pr1 c) 2 + pr1 c = nattoring (m + 2) * hqdiv (pr1 c) 2).
   { intros m.
-    unfold nattorng.
+    unfold nattoring.
     rewrite 2!(@nattorig_natmult hq).
     rewrite natmult_plus.
     apply maponpaths.
@@ -332,7 +332,7 @@ Proof.
 
   generalize (pr1 n) Hn.
   clear -H H0 Hc Hc' H2 ; intros n Hn.
-  assert (Hm : D (nattorng O * hqdiv (pr1 c) 2)).
+  assert (Hm : D (nattoring O * hqdiv (pr1 c) 2)).
   { rewrite hqmult0x.
     exact H0. }
   destruct n.
@@ -340,8 +340,8 @@ Proof.
   rewrite <- (natplusl0 n), plus_n_Sm in Hn.
   revert Hm Hn.
   set (m := O).
-  change (D (nattorng m * hqdiv (pr1 c) 2)
-  → ¬ D (nattorng (m + S n) * hqdiv (pr1 c) 2)
+  change (D (nattoring m * hqdiv (pr1 c) 2)
+  → ¬ D (nattoring (m + S n) * hqdiv (pr1 c) 2)
     → ∃ q : NonnegativeRationals, D (pr1 q) × ¬ D (pr1 (q + c)%NRat)).
   generalize m ; clear m H0.
   revert D H.
@@ -349,12 +349,12 @@ Proof.
   - apply hinhpr.
     use tpair.
     use tpair.
-    apply (nattorng m * hqdiv (pr1 c) 2).
+    apply (nattoring m * hqdiv (pr1 c) 2).
     abstract (apply hq0lehandmult ;
               [ clear ;
                 induction m ;
                 [ apply isreflhqleh
-                | unfold nattorng ;
+                | unfold nattoring ;
                   rewrite nattorigS ;
                   apply hq0lehandplus ;
                   [ exact hq1ge0 | exact IHm ]]
@@ -362,23 +362,23 @@ Proof.
     simpl.
     split.
     exact Hm.
-    change (¬ D ((nattorng m * hqdiv (pr1 c) 2) + (pr1 c))).
+    change (¬ D ((nattoring m * hqdiv (pr1 c) 2) + (pr1 c))).
     intros H0.
     refine (hinhuniv' _ _ _).
     apply isapropempty.
-    2: apply (pr2 (pr2 H) (nattorng (m + 1) * hqdiv (pr1 c) 2) (nattorng m * hqdiv (pr1 c) 2 + pr1 c)).
+    2: apply (pr2 (pr2 H) (nattoring (m + 1) * hqdiv (pr1 c) 2) (nattoring m * hqdiv (pr1 c) 2 + pr1 c)).
     apply sumofmaps.
     exact Hn.
     intros H1 ; apply H1, H0.
     rewrite H2.
     apply hqlthandmultr.
     exact Hc'.
-    unfold nattorng.
+    unfold nattoring.
     rewrite <- (plus_n_Sm m 1%nat).
     rewrite nattorigS, hqpluscomm.
     apply hqlthnsn.
   - refine (hinhuniv _ _).
-    2: apply (pr2 (pr2 H) (nattorng (m + 1) * hqdiv (pr1 c) 2) (nattorng (m + 2) * hqdiv (pr1 c) 2)).
+    2: apply (pr2 (pr2 H) (nattoring (m + 1) * hqdiv (pr1 c) 2) (nattoring (m + 2) * hqdiv (pr1 c) 2)).
     apply sumofmaps ; intros Hm'.
     + apply IHn with (m + 1)%nat.
       * exact H.
@@ -388,12 +388,12 @@ Proof.
     + apply hinhpr.
       use tpair.
       use tpair.
-      apply (nattorng m * hqdiv (pr1 c) 2).
+      apply (nattoring m * hqdiv (pr1 c) 2).
       abstract (apply hq0lehandmult ;
                 [ clear ;
                   induction m ;
                   [ apply isreflhqleh
-                  | unfold nattorng ;
+                  | unfold nattoring ;
                     rewrite nattorigS ;
                     apply hq0lehandplus ;
                     [ exact hq1ge0 | exact IHm ]]
@@ -401,12 +401,12 @@ Proof.
       simpl.
       split.
       exact Hm.
-      change (¬ D ((nattorng m * hqdiv (pr1 c) 2) + (pr1 c))).
+      change (¬ D ((nattoring m * hqdiv (pr1 c) 2) + (pr1 c))).
       rewrite H2.
       exact Hm'.
     + apply hqlthandmultr.
       exact Hc'.
-      unfold nattorng.
+      unfold nattoring.
       rewrite <- (plus_n_Sm m 1%nat).
       rewrite nattorigS, hqpluscomm.
       apply hqlthnsn.

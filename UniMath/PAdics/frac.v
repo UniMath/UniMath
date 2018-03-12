@@ -18,7 +18,7 @@ Require Import UniMath.Algebra.Domains_and_Fields.
 
 (** * I. The field of fractions for an integrable domain with an apartness relation *)
 
-Open Scope rng_scope.
+Open Scope ring_scope.
 
 Section aint.
 
@@ -26,39 +26,39 @@ Variable A : aintdom.
 
 Ltac permute := solve
   [
-    repeat rewrite rngassoc2;
+    repeat rewrite ringassoc2;
     match goal with
     | [  |- ?X = ?X ] => apply idpath
     | [ |- ?X * ?Y = ?X * ?Z ] => apply  maponpaths; permute
     | [ |- ?Y * ?X = ?Z * ?X ] => apply (  maponpaths ( fun x => x * X ) ); permute
-    | [ |- ?X * ?Y = ?Y * ?X ]  => apply rngcomm2
+    | [ |- ?X * ?Y = ?Y * ?X ]  => apply ringcomm2
     | [ |- ?X * ?Y = ?K ] => solve
              [
-               repeat rewrite  <- rngassoc2;
+               repeat rewrite  <- ringassoc2;
                match goal with
-               | [ |- ?H = ?V * X ] => rewrite ( @rngcomm2 A V X );
-                                     repeat rewrite rngassoc2;
+               | [ |- ?H = ?V * X ] => rewrite ( @ringcomm2 A V X );
+                                     repeat rewrite ringassoc2;
                                      apply maponpaths;
                                      permute
                end
-             | repeat rewrite rngassoc2;
+             | repeat rewrite ringassoc2;
                match goal with
-               | [ |- ?H =  ?Z * ?V ] => repeat rewrite <- rngassoc2;
+               | [ |- ?H =  ?Z * ?V ] => repeat rewrite <- ringassoc2;
                                        match goal with
-                                       | [ |- ?W  * Z = ?L ] => rewrite ( @rngcomm2 A W Z );
-                                                              repeat rewrite rngassoc2;
+                                       | [ |- ?W  * Z = ?L ] => rewrite ( @ringcomm2 A W Z );
+                                                              repeat rewrite ringassoc2;
                                                               apply maponpaths;
                                                               permute
                                        end
                end
              ]
-    | [ |- ?X * ( ?Y * ?Z  ) = ?K ] => rewrite ( @rngcomm2 A Y Z ); permute
+    | [ |- ?X * ( ?Y * ?Z  ) = ?K ] => rewrite ( @ringcomm2 A Y Z ); permute
     end
-  | repeat rewrite <- rngassoc2;
+  | repeat rewrite <- ringassoc2;
     match goal with
     | [ |- ?X * ?Y = ?X * ?Z ] => apply maponpaths; permute
     | [ |- ?Y * ?X = ?Z * ?X ] => apply ( maponpaths ( fun x => x * X ) ); permute
-    | [ |- ?X * ?Y = ?Y * ?X ] => apply rngcomm2
+    | [ |- ?X * ?Y = ?Y * ?X ] => apply ringcomm2
     end
   | apply idpath
   | idtac "The tactic permute does not apply to the current goal!"
@@ -86,7 +86,7 @@ Lemma azerolmultcomp { a b c : A } ( p : a # 0 ) ( q : b # c ) : a * b # a * c.
 Proof.
   intros.
   apply aminuszeroa.
-  rewrite <- rngminusdistr.
+  rewrite <- ringminusdistr.
   apply ( pr2 A ).
   - assumption.
   - apply aaminuszero.
@@ -96,8 +96,8 @@ Defined.
 Lemma azerormultcomp { a b c : A } ( p : a # 0 ) ( q : b # c ) : b * a # c * a.
 Proof.
   intros.
-  rewrite ( @rngcomm2 A b ).
-  rewrite ( @rngcomm2 A c ).
+  rewrite ( @ringcomm2 A b ).
+  rewrite ( @ringcomm2 A c ).
   apply ( azerolmultcomp p q ).
 Defined.
 
@@ -106,7 +106,7 @@ Definition afldfracapartrelpre : hrel ( dirprod A ( aintdomazerosubmonoid A ) ) 
                    ( ( pr1 cd ) * ( pr1 ( pr2 ab ) ) ).
 
 Lemma afldfracapartiscomprel :
-  iscomprelrel ( eqrelcommrngfrac A ( aintdomazerosubmonoid A ) )
+  iscomprelrel ( eqrelcommringfrac A ( aintdomazerosubmonoid A ) )
                ( afldfracapartrelpre ).
 Proof.
   intros ab cd ef gh p q.
@@ -142,10 +142,10 @@ Proof.
       by (apply azerormultcomp; assumption).
       apply azerormultcomp; assumption.
     }
-    apply ( pr2 ( acommrng_amult A ) b ).
-    apply ( pr2 ( acommrng_amult A ) f ).
-    apply ( pr2 ( acommrng_amult A ) i ).
-    apply ( pr2 ( acommrng_amult A ) i' ).
+    apply ( pr2 ( acommring_amult A ) b ).
+    apply ( pr2 ( acommring_amult A ) f ).
+    apply ( pr2 ( acommring_amult A ) i ).
+    apply ( pr2 ( acommring_amult A ) i' ).
     assert ( a * f * d * i * h * i' = c * h * b * f * i * i' ) as l.
     { assert ( a * f * d * i * h * i' = a * d * i * f * h * i' ) as l0.
       { change ( @op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A a f ) d ) i ) h ) i' =
@@ -194,10 +194,10 @@ Proof.
              ++ apply b'.
              ++ assumption.
     }
-    apply ( pr2 ( acommrng_amult A ) d ).
-    apply ( pr2 ( acommrng_amult A ) h ).
-    apply ( pr2 ( acommrng_amult A ) i ).
-    apply ( pr2 ( acommrng_amult A ) i' ).
+    apply ( pr2 ( acommring_amult A ) d ).
+    apply ( pr2 ( acommring_amult A ) h ).
+    apply ( pr2 ( acommring_amult A ) i ).
+    apply ( pr2 ( acommring_amult A ) i' ).
     assert ( c * h * b * f * i * i' = a * f * d * h * i * i' ) as k.
     { assert ( c * h * b * f * i * i' = c * b * i * f * h * i' ) as k0.
       { change ( @op2 A ( @op2 A ( @op2 A ( @op2 A ( @op2 A c h ) b ) f ) i ) i' =
@@ -235,13 +235,13 @@ Definition afldfracapartrel := quotrel afldfracapartiscomprel.
 Lemma isirreflafldfracapartrelpre : isirrefl afldfracapartrelpre.
 Proof.
   intros ab.
-  apply acommrng_airrefl.
+  apply acommring_airrefl.
 Defined.
 
 Lemma issymmafldfracapartrelpre : issymm afldfracapartrelpre.
 Proof.
   intros ab cd.
-  apply ( acommrng_asymm A ).
+  apply ( acommring_asymm A ).
 Defined.
 
 Lemma iscotransafldfracapartrelpre : iscotrans afldfracapartrelpre.
@@ -256,21 +256,21 @@ Proof.
   assert ( a * f * d # e * b * d ) as v.
   { apply azerormultcomp; assumption. }
   use (hinhuniv _
-    ( ( acommrng_acotrans A ( a * f * d ) ( c * b * f ) ( e * b * d ) ) v ) ).
+    ( ( acommring_acotrans A ( a * f * d ) ( c * b * f ) ( e * b * d ) ) v ) ).
   intro u. intros P k.
   apply k.
   unfold afldfracapartrelpre in *.
   simpl in *.
   destruct u as [ left | right ].
   - apply ii1.
-    apply ( pr2 ( acommrng_amult A ) f ).
+    apply ( pr2 ( acommring_amult A ) f ).
     assert ( @op2 A ( @op2 A a f ) d = @op2 A ( @op2 A a d ) f ) as i
     by permute.
     change ( @op2 A ( @op2 A a d ) f # @op2 A ( @op2 A c b ) f ).
     rewrite <- i.
     assumption.
   - apply ii2.
-    apply ( pr2 ( acommrng_amult A ) b ).
+    apply ( pr2 ( acommring_amult A ) b ).
     assert ( @op2 A ( @op2 A c f ) b = @op2 A ( @op2 A c b ) f ) as i
     by permute.
     change ( @op2 A ( @op2 A c f ) b # @op2 A ( @op2 A e d ) b ).
@@ -295,7 +295,7 @@ Proof.
       exact iscotransafldfracapartrelpre.
 Defined.
 
-Definition afldfracapart : apart ( commrngfrac A (aintdomazerosubmonoid A)).
+Definition afldfracapart : apart ( commringfrac A (aintdomazerosubmonoid A)).
 Proof.
   intros.
   unfold apart.
@@ -307,9 +307,9 @@ Lemma isbinapartlafldfracop1 : isbinopapartl afldfracapart op1.
 Proof.
   intros.
   unfold isbinopapartl.
-  assert ( forall a b c : commrngfrac A ( aintdomazerosubmonoid A ),
-    isaprop ( pr1 (afldfracapart) ( commrngfracop1 A ( aintdomazerosubmonoid A ) a b)
-                                  ( commrngfracop1 A ( aintdomazerosubmonoid A ) a c) ->
+  assert ( forall a b c : commringfrac A ( aintdomazerosubmonoid A ),
+    isaprop ( pr1 (afldfracapart) ( commringfracop1 A ( aintdomazerosubmonoid A ) a b)
+                                  ( commringfracop1 A ( aintdomazerosubmonoid A ) a c) ->
                                   pr1 (afldfracapart ) b c) ) as int.
   { intros a b c.
     apply impred.
@@ -338,55 +338,55 @@ Proof.
   by apply p.
   unfold afldfracapartrelpre in u.
   simpl in u.
-  rewrite 2! ( @rngrdistr A ) in u.
-  do 4 rewrite <- rngassoc2 in u.
-  assert ( (@op2 (pr1rng (commrngtorng (acommrngtocommrng (pr1aintdom A))))
-           (@op2 (pr1rng (commrngtorng (acommrngtocommrng (pr1aintdom A))))
+  rewrite 2! ( @ringrdistr A ) in u.
+  do 4 rewrite <- ringassoc2 in u.
+  assert ( (@op2 (pr1ring (commringtoring (acommringtocommring (pr1aintdom A))))
+           (@op2 (pr1ring (commringtoring (acommringtocommring (pr1aintdom A))))
            (@op2 (@pr1 setwith2binop (fun X : setwith2binop =>
-    @iscommrngops (pr1setwith2binop X) (@op1 X) (@op2 X))
-    (acommrngtocommrng (pr1aintdom A))) d a) b) f) =
-           (@op2 (pr1rng (commrngtorng (acommrngtocommrng (pr1aintdom A))))
-           (@op2 (pr1rng (commrngtorng (acommrngtocommrng (pr1aintdom A))))
+    @iscommringops (pr1setwith2binop X) (@op1 X) (@op2 X))
+    (acommringtocommring (pr1aintdom A))) d a) b) f) =
+           (@op2 (pr1ring (commringtoring (acommringtocommring (pr1aintdom A))))
+           (@op2 (pr1ring (commringtoring (acommringtocommring (pr1aintdom A))))
            (@op2 (@pr1 setwith2binop (fun X : setwith2binop =>
-     @iscommrngops (pr1setwith2binop X) (@op1 X) (@op2 X))
-     (acommrngtocommrng (pr1aintdom A))) f a) b) d) ) as i
+     @iscommringops (pr1setwith2binop X) (@op1 X) (@op2 X))
+     (acommringtocommring (pr1aintdom A))) f a) b) d) ) as i
   by permute.
   rewrite i in u.
-  assert ( (@op2 (pr1rng (commrngtorng (acommrngtocommrng (pr1aintdom A))))
-           (@op2 (pr1rng (commrngtorng (acommrngtocommrng (pr1aintdom A))))
+  assert ( (@op2 (pr1ring (commringtoring (acommringtocommring (pr1aintdom A))))
+           (@op2 (pr1ring (commringtoring (acommringtocommring (pr1aintdom A))))
            (@op2 (@pr1 setwith2binop (fun X : setwith2binop =>
-    @iscommrngops (pr1setwith2binop X) (@op1 X) (@op2 X))
-    (acommrngtocommrng (pr1aintdom A))) b c) b) f) =
-          (@op2 (pr1rng (commrngtorng (acommrngtocommrng (pr1aintdom A))))
-          (@op2 (pr1rng (commrngtorng (acommrngtocommrng (pr1aintdom A))))
+    @iscommringops (pr1setwith2binop X) (@op1 X) (@op2 X))
+    (acommringtocommring (pr1aintdom A))) b c) b) f) =
+          (@op2 (pr1ring (commringtoring (acommringtocommring (pr1aintdom A))))
+          (@op2 (pr1ring (commringtoring (acommringtocommring (pr1aintdom A))))
           (@op2 (@pr1 setwith2binop (fun X : setwith2binop =>
-   @iscommrngops (pr1setwith2binop X) (@op1 X) (@op2 X))
-   (acommrngtocommrng (pr1aintdom A))) c f) b) b) ) as j
+   @iscommringops (pr1setwith2binop X) (@op1 X) (@op2 X))
+   (acommringtocommring (pr1aintdom A))) c f) b) b) ) as j
   by permute.
   rewrite j in u.
-  assert ( (@op2 (pr1rng (commrngtorng (acommrngtocommrng (pr1aintdom A))))
-           (@op2 (pr1rng (commrngtorng (acommrngtocommrng (pr1aintdom A))))
+  assert ( (@op2 (pr1ring (commringtoring (acommringtocommring (pr1aintdom A))))
+           (@op2 (pr1ring (commringtoring (acommringtocommring (pr1aintdom A))))
            (@op2 (@pr1 setwith2binop (fun X : setwith2binop =>
-    @iscommrngops (pr1setwith2binop X) (@op1 X) (@op2 X))
-    (acommrngtocommrng (pr1aintdom A))) b e) b) d) =
-           (@op2 (pr1rng (commrngtorng (acommrngtocommrng (pr1aintdom A))))
-           (@op2 (pr1rng (commrngtorng (acommrngtocommrng (pr1aintdom A))))
+    @iscommringops (pr1setwith2binop X) (@op1 X) (@op2 X))
+    (acommringtocommring (pr1aintdom A))) b e) b) d) =
+           (@op2 (pr1ring (commringtoring (acommringtocommring (pr1aintdom A))))
+           (@op2 (pr1ring (commringtoring (acommringtocommring (pr1aintdom A))))
            (@op2 (@pr1 setwith2binop (fun X : setwith2binop =>
-    @iscommrngops (pr1setwith2binop X) (@op1 X) (@op2 X))
-    (acommrngtocommrng (pr1aintdom A))) e d) b) b) ) as j'
+    @iscommringops (pr1setwith2binop X) (@op1 X) (@op2 X))
+    (acommringtocommring (pr1aintdom A))) e d) b) b) ) as j'
   by permute.
   rewrite j' in u.
-  apply ( pr2 ( acommrng_amult A ) b ).
-  apply ( pr2 ( acommrng_amult A ) b ).
-  apply ( pr1 ( acommrng_aadd A) ( f * a * b * d ) ).
+  apply ( pr2 ( acommring_amult A ) b ).
+  apply ( pr2 ( acommring_amult A ) b ).
+  apply ( pr1 ( acommring_aadd A) ( f * a * b * d ) ).
   assumption.
 Defined.
 
 Lemma isbinapartrafldfracop1 : isbinopapartr afldfracapart op1.
 Proof.
   intros a b c.
-  rewrite rngcomm1.
-  rewrite ( rngcomm1 _ c ).
+  rewrite ringcomm1.
+  rewrite ( ringcomm1 _ c ).
   apply isbinapartlafldfracop1.
 Defined.
 
@@ -394,9 +394,9 @@ Lemma isbinapartlafldfracop2 : isbinopapartl afldfracapart op2.
 Proof.
   intros.
   unfold isbinopapartl.
-  assert ( forall a b c : commrngfrac A ( aintdomazerosubmonoid A ),
-    isaprop ( pr1 (afldfracapart ) ( commrngfracop2 A ( aintdomazerosubmonoid A ) a b)
-                                   ( commrngfracop2 A ( aintdomazerosubmonoid A ) a c) ->
+  assert ( forall a b c : commringfrac A ( aintdomazerosubmonoid A ),
+    isaprop ( pr1 (afldfracapart ) ( commringfracop2 A ( aintdomazerosubmonoid A ) a b)
+                                   ( commringfracop2 A ( aintdomazerosubmonoid A ) a c) ->
                                    pr1 (afldfracapart ) b c) ) as int.
   { intros a b c.
     apply impred.
@@ -420,22 +420,22 @@ Proof.
   simpl.
   unfold afldfracapartrel.
   unfold quotrel.
-  rewrite ( setquotuniv2comm ( eqrelcommrngfrac A ( aintdomazerosubmonoid A ) ) ).
+  rewrite ( setquotuniv2comm ( eqrelcommringfrac A ( aintdomazerosubmonoid A ) ) ).
   unfold afldfracapartrelpre in *.
   simpl.
   simpl in u.
-  apply ( pr2 ( acommrng_amult A ) a ).
-  apply ( pr2 ( acommrng_amult A ) b ).
+  apply ( pr2 ( acommring_amult A ) a ).
+  apply ( pr2 ( acommring_amult A ) b ).
   assert ( c * f * a * b =
     (@op2 (@pr1 setwith2binop (fun X : setwith2binop =>
-        @iscommrngops (pr1setwith2binop X) (@op1 X) (@op2 X))
-                (acommrngtocommrng (pr1aintdom A)))
+        @iscommringops (pr1setwith2binop X) (@op1 X) (@op2 X))
+                (acommringtocommring (pr1aintdom A)))
     (@op2 (@pr1 setwith2binop (fun X : setwith2binop =>
-        @iscommrngops (pr1setwith2binop X) (@op1 X) (@op2 X))
-                (acommrngtocommrng (pr1aintdom A))) a c)
+        @iscommringops (pr1setwith2binop X) (@op1 X) (@op2 X))
+                (acommringtocommring (pr1aintdom A))) a c)
     (@op2 (@pr1 setwith2binop (fun X : setwith2binop =>
-        @iscommrngops (pr1setwith2binop X) (@op1 X) (@op2 X))
-                (acommrngtocommrng (pr1aintdom A))) b f)) ) as i.
+        @iscommringops (pr1setwith2binop X) (@op1 X) (@op2 X))
+                (acommringtocommring (pr1aintdom A))) b f)) ) as i.
   { change ( c * f * a * b = a * c * ( b * f ) ).
     permute.
   }
@@ -443,14 +443,14 @@ Proof.
   rewrite i.
   assert ( e * d * a * b =
     (@op2 (@pr1 setwith2binop (fun X : setwith2binop =>
-        @iscommrngops (pr1setwith2binop X) (@op1 X) (@op2 X))
-                (acommrngtocommrng (pr1aintdom A)))
+        @iscommringops (pr1setwith2binop X) (@op1 X) (@op2 X))
+                (acommringtocommring (pr1aintdom A)))
     (@op2 (@pr1 setwith2binop (fun X : setwith2binop =>
-        @iscommrngops (pr1setwith2binop X) (@op1 X) (@op2 X))
-                (acommrngtocommrng (pr1aintdom A))) a e)
+        @iscommringops (pr1setwith2binop X) (@op1 X) (@op2 X))
+                (acommringtocommring (pr1aintdom A))) a e)
     (@op2 (@pr1 setwith2binop (fun X : setwith2binop =>
-        @iscommrngops (pr1setwith2binop X) (@op1 X) (@op2 X))
-                (acommrngtocommrng (pr1aintdom A))) b d)) ) as i'.
+        @iscommringops (pr1setwith2binop X) (@op1 X) (@op2 X))
+                (acommringtocommring (pr1aintdom A))) b d)) ) as i'.
   { change ( e * d * a * b = a * e * ( b * d ) ).
     permute.
   }
@@ -461,15 +461,15 @@ Defined.
 Lemma isbinapartrafldfracop2 : isbinopapartr (afldfracapart ) op2.
 Proof.
   intros a b c.
-  rewrite rngcomm2.
-  rewrite ( rngcomm2 _ c ).
+  rewrite ringcomm2.
+  rewrite ( ringcomm2 _ c ).
   apply isbinapartlafldfracop2.
 Defined.
 
-Definition afldfrac0 : acommrng.
+Definition afldfrac0 : acommring.
 Proof.
   intros.
-  split with ( commrngfrac A ( aintdomazerosubmonoid A ) ).
+  split with ( commringfrac A ( aintdomazerosubmonoid A ) ).
   split with afldfracapart.
   split.
   - split.
@@ -481,7 +481,7 @@ Proof.
 Defined.
 
 Definition afldfracmultinvint ( ab : dirprod A ( aintdomazerosubmonoid A ) )
-           ( is : afldfracapartrelpre ab ( dirprodpair ( @rngunel1 A )
+           ( is : afldfracapartrelpre ab ( dirprodpair ( @ringunel1 A )
                               ( unel ( aintdomazerosubmonoid A ) ) ) ) :
   dirprod A ( aintdomazerosubmonoid A ).
 Proof.
@@ -494,8 +494,8 @@ Proof.
   unfold afldfracapartrelpre in is.
   simpl in is.
   change ( a # 0 ).
-  rewrite ( @rngmult0x A ) in is.
-  rewrite ( @rngrunax2 A ) in is.
+  rewrite ( @ringmult0x A ) in is.
+  rewrite ( @ringrunax2 A ) in is.
   assumption.
 Defined.
 
@@ -514,40 +514,40 @@ Proof.
     intros bc q.
     destruct bc as [ b c ].
     assert ( afldfracapartrelpre ( dirprodpair b c )
-      ( dirprodpair ( @rngunel1 A ) ( unel (aintdomazerosubmonoid A ) ) ) ) as is'
+      ( dirprodpair ( @ringunel1 A ) ( unel (aintdomazerosubmonoid A ) ) ) ) as is'
     by apply q.
-    split with (setquotpr (eqrelcommrngfrac A (aintdomazerosubmonoid A))
+    split with (setquotpr (eqrelcommringfrac A (aintdomazerosubmonoid A))
                               (afldfracmultinvint ( dirprodpair b c ) is' ) ).
     split.
-    - change ( setquotpr ( eqrelcommrngfrac A ( aintdomazerosubmonoid A ) )
+    - change ( setquotpr ( eqrelcommringfrac A ( aintdomazerosubmonoid A ) )
         ( dirprodpair ( @op2 A ( pr1 ( afldfracmultinvint ( dirprodpair b c ) is' ) ) b )
                       ( @op ( aintdomazerosubmonoid A ) ( pr2 ( afldfracmultinvint
                                                   ( dirprodpair b c ) is' ) ) c ) ) =
-      ( commrngfracunel2 A ( aintdomazerosubmonoid A ) ) ).
+      ( commringfracunel2 A ( aintdomazerosubmonoid A ) ) ).
       apply iscompsetquotpr.
-      unfold commrngfracunel2int.
+      unfold commringfracunel2int.
       destruct c as [ c c' ].
       simpl.
       apply total2tohexists.
       split with ( carrierpair ( fun x : pr1 A => x # 0 ) 1 ( pr1 ( pr2 A ) ) ).
       simpl.
-      rewrite 3! ( @rngrunax2 A ).
-      rewrite ( @rnglunax2 A ).
-      apply ( @rngcomm2 A ).
-    - change ( setquotpr ( eqrelcommrngfrac A ( aintdomazerosubmonoid A ) )
+      rewrite 3! ( @ringrunax2 A ).
+      rewrite ( @ringlunax2 A ).
+      apply ( @ringcomm2 A ).
+    - change ( setquotpr ( eqrelcommringfrac A ( aintdomazerosubmonoid A ) )
         ( dirprodpair ( @op2 A b ( pr1 ( afldfracmultinvint ( dirprodpair b c ) is' ) ) )
                       ( @op ( aintdomazerosubmonoid A ) c ( pr2 ( afldfracmultinvint
                                                   ( dirprodpair b c ) is' ) ) ) ) =
-      ( commrngfracunel2 A ( aintdomazerosubmonoid A ) ) ).
+      ( commringfracunel2 A ( aintdomazerosubmonoid A ) ) ).
       apply iscompsetquotpr.
       destruct c as [ c c' ].
       simpl.
       apply total2tohexists.
       split with ( carrierpair ( fun x : pr1 A => x # 0 ) 1 ( pr1 ( pr2 A ) ) ).
       simpl.
-      rewrite 3! ( @rngrunax2 A ).
-      rewrite ( @rnglunax2 A ).
-      apply ( @rngcomm2 A ).
+      rewrite 3! ( @ringrunax2 A ).
+      rewrite ( @ringlunax2 A ).
+      apply ( @ringcomm2 A ).
   }
   apply p.
   assumption.
@@ -558,16 +558,16 @@ Proof.
   intros.
   split.
   - change ( ( afldfracapartrel )
-               ( @rngunel2 ( commrngfrac A (aintdomazerosubmonoid A ) ) )
-               ( @rngunel1 ( commrngfrac A ( aintdomazerosubmonoid A ) ) ) ).
+               ( @ringunel2 ( commringfrac A (aintdomazerosubmonoid A ) ) )
+               ( @ringunel1 ( commringfrac A ( aintdomazerosubmonoid A ) ) ) ).
     unfold afldfracapartrel.
-    set ( aux := ( @op2 A ( @rngunel2 A ) ( @rngunel2 A ) ) #
-                 ( @op2 A ( @rngunel1 A ) ( @rngunel2 A ) ) ).
+    set ( aux := ( @op2 A ( @ringunel2 A ) ( @ringunel2 A ) ) #
+                 ( @op2 A ( @ringunel1 A ) ( @ringunel2 A ) ) ).
     cut (pr1 aux). (* [pr1] is needed here *)
     + intro v.
       apply v.
     + unfold aux.
-      rewrite 2! ( @rngrunax2 A ).
+      rewrite 2! ( @ringrunax2 A ).
       apply A.
   - intros a p.
     apply afldfracmultinv.
@@ -578,5 +578,5 @@ Definition afldfrac := afldpair afldfrac0 afldfracisafld.
 
 End aint.
 
-Close Scope rng_scope.
+Close Scope ring_scope.
 (** END OF FILE *)

@@ -71,11 +71,6 @@ terminal and initial objects in categories, directly
 
 Zero objects and zero maps in precategories.
 
-## StandardCategories.v
-
-simple examples of categories, including the path groupoid of a type of h-level
-3, and the discrete category with n objects
-
 ## Elements.v
 
 Elements.cat is the category of elements associated to a functor C ==> Set.

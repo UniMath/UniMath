@@ -29,7 +29,7 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.CocontFunctors.
+Require Import UniMath.CategoryTheory.Chains.All.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.categories.category_hset.
 Require Import UniMath.CategoryTheory.categories.category_hset_structures.
@@ -288,7 +288,7 @@ intro i; apply is_omega_cocont_Arity_to_Signature.
 + apply ColimsHSET_of_shape.
 + intros F.
   apply (is_omega_cocont_constprod_functor1 _ has_homsets_HSET2).
-  apply has_exponentials_functor_HSET, has_homsets_HSET.
+  apply Exponentials_functor_HSET, has_homsets_HSET.
 Defined.
 
 (** ** Construction of initial algebra for a signature with strength for HSET *)
@@ -312,7 +312,7 @@ intros sig; use (BindingSigToMonad _ _ _ _ _ _ _ sig).
 - apply ColimsHSET_of_shape.
 - intros F.
   apply (is_omega_cocont_constprod_functor1 _ has_homsets_HSET2).
-  apply has_exponentials_functor_HSET, has_homsets_HSET.
+  apply Exponentials_functor_HSET, has_homsets_HSET.
 - apply CoproductsHSET.
   apply BindingSigIsaset.
 Defined.
