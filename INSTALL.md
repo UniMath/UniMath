@@ -38,7 +38,7 @@ available from http://brew.sh/, with the following command:
 ```bash
 $ brew install bash opam gtk+
 $ opam init --no-setup --compiler=4.02.3
-$ opam install --yes lablgtk camlp5 ocamlfind
+$ opam install --yes lablgtk camlp5 ocamlfind num
 ```
 
 (We choose version 4.02.3 of ocamlc above, because it can successfully compile
