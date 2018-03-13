@@ -86,7 +86,7 @@ Defined.
 
 Definition Catlike_associator_is_iso ( a b c d : precategory )
   (hsB : has_homsets b) (hsC : has_homsets c) (hsD : has_homsets d) :
-  forall f g h, is_iso (Catlike_associator a b c d hsB hsC hsD
+  ∏ f g h, is_iso (Catlike_associator a b c d hsB hsC hsD
                     (precatbinprodpair f (precatbinprodpair g h))).
 Proof.
   intros f g h.
@@ -134,7 +134,7 @@ Defined.
 
 Definition Catlike_left_unitor_is_iso (a b : precategory)
   (hsA : has_homsets a) (hsB : has_homsets b) :
-  forall f, is_iso (Catlike_left_unitor a b hsA hsB f).
+  ∏ f, is_iso (Catlike_left_unitor a b hsA hsB f).
 Proof.
   intros f.
   apply functor_iso_if_pointwise_iso.
@@ -168,7 +168,7 @@ Proof.
 Defined.
 
 Definition Catlike_right_unitor_is_iso (a b : precategory) (hsB : has_homsets b) :
-  forall f, is_iso (Catlike_right_unitor a b hsB f).
+  ∏ f, is_iso (Catlike_right_unitor a b hsB f).
 Proof.
   intros f.
   apply functor_iso_if_pointwise_iso.
@@ -180,7 +180,7 @@ Defined.
 Definition Catlike_pentagon ( a b c d e : precategory )
   (hsB : has_homsets b) (hsC : has_homsets c) (hsD : has_homsets d)
   (hsE : has_homsets e) :
-  forall k h g f,
+  ∏ k h g f,
   (Catlike_associator a b c e _ _ _)
      (precatbinprodpair k
         (precatbinprodpair h ((functorial_composition c d e hsD _) (dirprodpair g f)))) ·
@@ -212,7 +212,7 @@ Defined.
 
 Definition Catlike_triangle ( a b c : precategory )
   (hsB : has_homsets b) (hsC : has_homsets c) :
-   forall f g, functor_on_morphisms (functorial_composition a b c _ _)
+   ∏ f g, functor_on_morphisms (functorial_composition a b c _ _)
                                (precatbinprodmor (identity f) (Catlike_left_unitor b c _ hsC g))
    =
       (Catlike_associator a b b c hsB _ _
@@ -232,7 +232,7 @@ Defined.
 (******************************************************************************)
 (* The prebicategory of precategories *)
 
-Definition PreCat_1mor_2mor : prebicategory_ob_1mor_2mor.
+Definition PreCat_1mor_2mor : prebicategory_ob_hom.
 Proof.
   exists category.
   intros a b.
@@ -313,7 +313,7 @@ Defined.
 (******************************************************************************)
 (* The bicategory of categories *)
 
-Definition Cat_1mor_2mor : prebicategory_ob_1mor_2mor.
+Definition Cat_1mor_2mor : prebicategory_ob_hom.
 Proof.
   exists univalent_category.
   intros a b.
