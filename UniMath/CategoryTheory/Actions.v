@@ -5,27 +5,33 @@
 
 (** ** Contents
     - Strutures on morphisms
-      - Endomorphisms and the endomorphism monoid
-      - Automorphisms and the automorphism group
-      - The endomorphism ring in an additive category
+      - Endomorphisms and the endomorphism monoid ([endomorphism_monoid])
+      - Automorphisms and the automorphism group ([automorphism_grp])
+      - The endomorphism ring in an additive category ([endomorphism_ring])
     - Algebraic structures as categories
       - Lemmas about categories with one object ([contr_cat])
-      - Monoids as categories ([monoid_weq_contr_category])
-      - Groups as groupoids
+      - Monoids
+        - Monoids as categories ([monoid_weq_contr_category])
+        - Monoid morphisms as functors ([monoid_fun_weq_functor])
+      - Groups
+        - Groups as groupoids
+        - Group morphisms as functors
+      - Rings
     - Actions
-      - Monoid (group) actions
-      - Ring actions
+      - As homomorphisms
+        - Monoid (group) actions ([monaction_as_morphism])
+        - Ring actions ([ringaction_as_morphism])
+      - As functors
+        - Equivariant maps
+        - Monoid (group) actions ([monaction])
+        - Ring actions
  *)
 
 (** TODO:
  1. Rephrase definitions, prove equivalences with the originals:
    - Modules as abelian groups with a ring  action
    - Group actions (Ktheory/GroupAction) as sets with a group action
- 2. Category of actions
- 3. Actions as functors, equivariant maps as natural transformations,
-    categories of actions as functor categories. Prerequisites:
-   - Groups as single object categories
-   - Rings as single object categories
+ 2. Prove equivalence of rings as one-object categories
  *)
 
 Require Import UniMath.Foundations.Preamble.
@@ -71,6 +77,36 @@ Proof.
       * exact (@id_right C X X).
 Defined.
 
+(** The automorphism group is a submonoid of the endomorphism monoid *)
+
+(** When the hom-types of C are sets, we can form the automorphism grp *)
+Definition automorphism_grp {C : category} (X : ob C) : gr :=
+  gr_invertible_elements (endomorphism_monoid X).
+
+Example symmetric_grp (X : hSet) := @automorphism_grp hset_category X.
+
+(** *** The endomorphism ring in an additive category *)
+
+Definition endomorphism_ring {C : Additive}
+           (_ : ob (categoryWithAbgrops_category C)) : ring.
+Proof.
+  (** The multiplication operation is composition, we reuse the proof
+      from the endomorphism monoid. The addition operation is the addition
+      on homsets, we extract this with to_binop *)
+  pose (end_monoid := @endomorphism_monoid (categoryWithAbgrops_category C) X).
+  refine ((pr1 (pr1 end_monoid),,
+          dirprodpair (to_binop X X) (pr2 (pr1 end_monoid))),, _).
+
+  split; split.
+  (** We know by assumption on C that + is an abgrop.*)
+  - exact (to_isabgrop _ _).
+  (** We already proved this *)
+  - exact (pr2 end_monoid).
+  (** By assumption on C *)
+  - intros f g h; apply (to_premor_monoid C _ _ _ h).
+  - intros f g h; apply (to_postmor_monoid C _ _ _ h).
+Defined.
+
 (** ** Algebraic structures as categories *)
 
 (** *** Lemmas about categories with one object *)
@@ -84,8 +120,11 @@ Definition contr_cat_center (C : contr_cat) : ob C :=
 
 Section ContrCatLemmas.
 
-  Context {C D : contr_cat}.
+  Context {C : contr_cat}.
 
+  (** The hom-set between any two objects in a contractible category is
+      equivalent to the hom-set of endomorphisms of the center (b/c both objects
+      are, in fact, equal to the center). *)
   Lemma contr_cat_hom_weq :
     ∏ a b : ob C, (a --> b) ≃ (contr_cat_center C --> contr_cat_center C).
   Proof.
@@ -115,6 +154,10 @@ Section ContrCatLemmas.
                 reflexivity).
   Defined.
 
+  Context {D : contr_cat}.
+
+  (** A functor between contractible categories is fully specified by its mapping
+      of the endomorphisms of the center. *)
   Definition contr_cat_functor_data
              (f : C ⟦ contr_cat_center C, contr_cat_center C ⟧ ->
                   D ⟦ contr_cat_center D, contr_cat_center D ⟧) : functor_data C D.
@@ -126,6 +169,7 @@ Section ContrCatLemmas.
       apply (contr_cat_hom_weq a b); assumption.
   Defined.
 
+  (** Any fully faithful functor between contractible categories is an isomorphism. *)
   Lemma contr_cat_fully_faithful_to_isiso {F : functor C D} (ff : fully_faithful F) :
     is_catiso F.
   Proof.
@@ -133,6 +177,8 @@ Section ContrCatLemmas.
     apply isweqcontrcontr; apply contr_cat_iscontr.
   Defined.
 
+  (** Two contractible categories are equal if there is a fully faithful
+      functor between them. *)
   Lemma contr_cat_eq {F : functor C D} (ff : fully_faithful F) : C = D.
   Proof.
     apply subtypeEquality'.
@@ -145,9 +191,11 @@ Section ContrCatLemmas.
 
 End ContrCatLemmas.
 
-(** *** Monoids as categories*)
+(** *** Monoids *)
 
 Local Open Scope multmonoid_scope.
+
+(** **** Monoids as categories ([monoid_weq_contr_category]) *)
 
 Definition monoid_to_category (Mon : monoid) : contr_cat.
 Proof.
@@ -204,8 +252,7 @@ Proof.
           intros a; cbn in *.
           abstract (induction a; reflexivity).
         }
-        {
-          unfold functor_compax.
+        { unfold functor_compax.
           intros a b c.
           abstract (induction a, b, c; reflexivity).
         }
@@ -214,60 +261,160 @@ Proof.
      abstract (induction a, b; exact (idisweq _)).
 Defined.
 
-(** *** Groups as categories*)
+(** **** Monoid morphisms as functors ([monoid_fun_weq_functor]) *)
 
-(** The automorphism group is a submonoid of the endomorphism monoid *)
-
-(** When the hom-types of C are sets, we can form the automorphism grp *)
-Definition automorphism_grp {C : category} (X : ob C) : gr :=
-  gr_invertible_elements (endomorphism_monoid X).
-
-Example symmetric_grp (X : hSet) := @automorphism_grp hset_category X.
-
-(** *** The endomorphism ring in an additive category *)
-
-Definition endomorphism_rng {C : Additive}
-           (_ : ob (categoryWithAbgrops_category C)) : rng.
+(** Monoid morphism --> functor *)
+Definition monoidfun_to_functor {Mon1 Mon2 : monoid} (monfun : monoidfun Mon1 Mon2) :
+  functor (monoid_weq_contr_category Mon1) (monoid_weq_contr_category Mon2).
 Proof.
-  (** The multiplication operation is composition, we reuse the proof
-      from the endomorphism monoid. The addition operation is the addition
-      on homsets, we extract this with to_binop *)
-  pose (end_monoid := @endomorphism_monoid (categoryWithAbgrops_category C) X).
-  refine ((pr1 (pr1 end_monoid),,
-          dirprodpair (to_binop X X) (pr2 (pr1 end_monoid))),, _).
-
-  split; split.
-  (** We know by assumption on C that + is an abgrop.*)
-  - exact (to_isabgrop _ _).
-  (** We already proved this *)
-  - exact (pr2 end_monoid).
-  (** By assumption on C *)
-  - intros f g h; apply (to_premor_monoid C _ _ _ h).
-  - intros f g h; apply (to_postmor_monoid C _ _ _ h).
+  use mk_functor.
+  - apply contr_cat_functor_data.
+    exact monfun.
+  - use dirprodpair.
+    + intros a.
+      abstract (induction a;
+                apply monoidfununel).
+    + intros a b c ? ?.
+      abstract (induction a, b, c;
+                apply monoidfunmul).
 Defined.
+
+(** Throwaway lemma: transport intertwines composition *)
+Local Lemma transport_compose {C : precategory} {a b : ob C} {p : a = b}
+           (f : a --> a) (g : a --> a) :
+  transportf (λ x, C ⟦ x, b ⟧) p (transportf (λ x, C ⟦ a, x ⟧) p f) ·
+  transportf (λ x, C ⟦ x, b ⟧) p (transportf (λ x, C ⟦ a, x ⟧) p g)
+  = transportf (λ x, C ⟦ x, b ⟧) p (transportf (λ x, C ⟦ a, x ⟧) p (f · g)).
+Proof.
+  induction p; reflexivity.
+Defined.
+
+(** Throwaway lemma: transport intertwines identity *)
+Local Lemma transport_identity {C : precategory} {a b : ob C} {p : a = b} :
+  transportf (λ x, C ⟦ x, b ⟧) p (transportf (λ x, C ⟦ a, x ⟧) p (identity a)) =
+  identity b.
+Proof.
+  induction p; reflexivity.
+Defined.
+
+(** Functor --> monoid morphism *)
+Definition functor_to_monoidfun {CC1 CC2 : contr_cat} (funct : functor CC1 CC2) :
+  monoidfun (invmap monoid_weq_contr_category CC1)
+            (invmap monoid_weq_contr_category CC2).
+Proof.
+  use monoidfunconstr.
+  - cbn in *.
+    intros endo.
+    apply (contr_cat_hom_weq (funct (iscontrpr1 (pr2 CC1)))
+                             (funct (iscontrpr1 (pr2 CC1)))).
+    exact (# funct endo).
+  - use mk_ismonoidfun.
+    + intros a b; cbn.
+      abstract (rewrite functor_comp;
+                rewrite <- transport_compose;
+                reflexivity).
+    + abstract (cbn; rewrite functor_id_id; [|reflexivity];
+                rewrite transport_identity;
+                reflexivity).
+Defined.
+
+(** The above functions constitute a weak equivalence. *)
+Lemma monoid_fun_weq_functor {Mon1 Mon2 : monoid} :
+      (monoidfun Mon1 Mon2) ≃
+      functor (monoid_weq_contr_category Mon1) (monoid_weq_contr_category Mon2).
+Proof.
+  use weq_iso.
+  - exact monoidfun_to_functor.
+  - exact functor_to_monoidfun.
+  - intros mfun.
+    apply monoidfun_paths.
+    reflexivity.
+  - intros funct.
+    apply functor_eq; [apply homset_property|].
+    use functor_data_eq.
+    + intros ?.
+      exact (!(pr2 iscontrunit _)).
+    + intros c1 c2 ?.
+      (** Compare to proof of [contr_cat_hom_weq] *)
+      abstract (induction c1, c2; cbn;
+                do 2 (rewrite (transport_f_f _ (isProofIrrelevantUnit _ _)
+                                             (! (isProofIrrelevantUnit _ _)) _);
+                      rewrite pathsinv0r; cbn; unfold idfun);
+                reflexivity).
+Defined.
+
+(** *** Groups *)
+
+(** **** Groups as groupoids *)
+
+(** **** Group morphisms as functors *)
 
 (** ** Actions *)
 
-Section Actions.
-  (** Fix a category to act on *)
-  Context {C : category}.
+(** *** As homomorphisms *)
 
-  Definition contr_cat_action (CC : contr_cat) (X : ob C) :=
-    functor CC (monoid_weq_contr_category (endomorphism_monoid X)).
+(** **** Monoid (group) actions *)
 
-  (** An equivariant map, or intertwiner, is simply a natural transformation *)
-  Definition equivariant_map {CC : contr_cat} {X : ob C}
-                             (actA : contr_cat_action CC X)
-                             (actB : contr_cat_action CC X) : UU :=
+Definition monaction_as_morphism {C : category} (Mon : monoid) (X : ob C) : UU :=
+  monoidfun Mon (endomorphism_monoid X).
+Identity Coercion id_monaction :  monaction_as_morphism >-> monoidfun.
+
+(** Let f and g be actions of M on objects X and Y, respectively. An
+    _equivariant map_ h from f to g is one that intertwines the actions of M,
+    that is, for any m : M,
+
+    <<
+      X -- f m --> X
+      |            |
+      h            h
+      V            V
+      Y -- g m --> Y
+    >>
+
+    i.e. f m · h = h · g m.
+ *)
+
+Definition monaction_equivariant_map
+           {C : category} {M : monoid} {X Y : ob C}
+           (actX : monaction_as_morphism M X)
+           (actY : monaction_as_morphism M Y) : UU :=
+  ∑ f : X --> Y, ∏ m, actX m · f = f · actY m.
+
+(** **** Ring actions *)
+
+Definition ringaction_as_morphism {C : Additive} (R : ring) (X : ob C) :=
+  ringfun R (endomorphism_ring X).
+
+(** *** As functors *)
+
+(** **** Equivariant maps (intertwiners) *)
+
+Definition contr_cat_action (CC : contr_cat) (C : category) : UU := (CC ⟶ C).
+Identity Coercion id_contr_cat_action : contr_cat_action >-> functor.
+
+Section FunctorActions.
+  Context {CC : contr_cat} {C : category}
+          (actA : contr_cat_action CC C) (actB : contr_cat_action CC C).
+
+  (** Now we can provide a uniform definition of equivariant maps for monoids,
+      groups, and rings: equivariant map, or intertwiner, is simply a natural
+      transformation. *)
+  Definition equivariant_map : UU :=
     nat_trans (functor_data_from_functor _ _ actA)
               (functor_data_from_functor _ _ actB).
-End Actions.
 
-(** *** Monoid (group) actions *)
+  Definition equivariant_map' : UU :=
+    ∑ f : actA (contr_cat_center CC) --> actB (contr_cat_center CC),
+    ∏ g : CC ⟦ contr_cat_center CC, contr_cat_center CC ⟧,
+      # actA g · f = f · # actB g.
+
+End FunctorActions.
+
+(** **** Monoid (group) actions *)
 
 (** A monoid action is a functor from the monoid (viewed as a category)
- *)
-Definition monaction {C : category} (Mon : monoid) (X : ob C) :=
-  contr_cat_action (monoid_weq_contr_category Mon) X.
+    to the target category. *)
+Definition monaction_functor (Mon : monoid) (C : category) :=
+  contr_cat_action (monoid_weq_contr_category Mon) C.
 
-(** *** Ring actions *)
+(** **** Ring actions *)
