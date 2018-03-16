@@ -193,3 +193,17 @@ Defined.
 
 Definition flipsec_weq {A B : UU} {C : A -> B -> UU} :
   (∏ a b, C a b) ≃ (∏ b a, C a b) := weqpair flipsec isweq_flipsec.
+
+(** The subtypes of a type of hlevel S n are also of hlevel S n.
+    This doesn't work for types of hlevel 0: a subtype of a contractible
+    type might be empty, not contractible! *)
+Lemma isofhlevel_hsubtype {X : UU} {n : nat} (isof : isofhlevel (S n) X) :
+  ∏ subt : hsubtype X, isofhlevel (S n) subt.
+Proof.
+  intros subt.
+  apply isofhleveltotal2.
+  - assumption.
+  - intro.
+    apply isofhlevelsnprop.
+    apply propproperty.
+Defined.
