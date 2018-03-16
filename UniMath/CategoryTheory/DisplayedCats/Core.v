@@ -1909,6 +1909,26 @@ Proof.
   - apply disp_nat_trans_comp_ax.
 Defined.
 
+Definition disp_nat_trans_eq
+  {C' C : category}
+  {F' F : functor_data C' C}
+  (a : nat_trans F' F)
+  {D' : disp_cat_data C'}
+  {D : disp_cat C}
+  {R' : disp_functor_data F' D' D}
+  {R : disp_functor_data F D' D}
+  (b b' : disp_nat_trans a R' R)
+  : (∏ x (xx : D' x), b x xx = b' x xx) → b = b'.
+Proof.
+  intro H.
+  apply subtypeEquality.
+  { intro r.  apply isaprop_disp_nat_trans_axioms. }
+  apply funextsec. intro x.
+  apply funextsec.  intro xx.
+  apply H.
+Qed.
+
+
 End Disp_Nat_Trans.
 
 (** some TODOs for the displayed-cats library:
