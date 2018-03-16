@@ -9,7 +9,8 @@ whiskering.v
 Adjunctions.v
 equivalences.v
 equivalences_lemmas.v
-sub_precategories.v
+Subcategory/Core.v
+Subcategory/Full.v
 Monics.v
 Epis.v
 CategoriesWithBinOps.v
@@ -48,6 +49,7 @@ limits/FinOrdProducts.v
 limits/FinOrdCoproducts.v
 limits/Opp.v
 limits/graphs/eqdiag.v
+Subcategory/Limits.v
 EpiFacts.v
 categories/category_hset.v
 SimplicialSets.v
