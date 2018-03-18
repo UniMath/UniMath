@@ -74,6 +74,7 @@ coslicecat.v
 limits/pullbacks_slice_products_equiv.v
 covyoneda.v
 categories/category_hset_structures.v
+categories/FinSet.v
 SetValuedFunctors.v
 Chains/Chains.v
 Chains/Cochains.v

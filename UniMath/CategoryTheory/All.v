@@ -76,6 +76,7 @@ Require Export UniMath.CategoryTheory.coslicecat.
 Require Export UniMath.CategoryTheory.limits.pullbacks_slice_products_equiv.
 Require Export UniMath.CategoryTheory.covyoneda.
 Require Export UniMath.CategoryTheory.categories.category_hset_structures.
+Require Export UniMath.CategoryTheory.categories.FinSet.
 Require Export UniMath.CategoryTheory.SetValuedFunctors.
 Require Export UniMath.CategoryTheory.Chains.Chains.
 Require Export UniMath.CategoryTheory.Chains.Cochains.
