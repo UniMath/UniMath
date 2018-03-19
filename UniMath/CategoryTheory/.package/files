@@ -143,6 +143,7 @@ DisplayedCats/Codomain.v
 DisplayedCats/SIP.v
 DisplayedCats/Limits.v
 DisplayedCats/Examples.v
+DisplayedCats/Adjunctions.v
 PlainBicat/Bicat.v
 PlainBicat/PseudoFunctor.v
 PlainBicat/OpCellBicat.v
