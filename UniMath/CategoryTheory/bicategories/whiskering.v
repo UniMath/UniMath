@@ -217,7 +217,7 @@ Proof.
   intermediate_path ((functor_on_morphisms
                  (functor_composite
                      (bindelta_pair_functor
-                        (functor_composite (functor_to_unit _) (constant_functor unit_category _ (identity_1mor a)))
+                        (functor_composite (functor_to_unit _) (constant_functor unit_category _ (identity1 a)))
                         (functor_identity _))
                      (compose_functor a a b))
                  alpha)
@@ -239,7 +239,7 @@ Proof.
                  (functor_composite
                     (bindelta_pair_functor
                        (functor_identity _)
-                       (functor_composite (functor_to_unit _) (constant_functor unit_category _ (identity_1mor b))))
+                       (functor_composite (functor_to_unit _) (constant_functor unit_category _ (identity1 b))))
                     (compose_functor a b b))
                  alpha)
            ;v;(right_unitor _)).

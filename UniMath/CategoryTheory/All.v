@@ -70,6 +70,7 @@ Require Export UniMath.CategoryTheory.CommaCategories.
 Require Export UniMath.CategoryTheory.RightKanExtension.
 Require Export UniMath.CategoryTheory.exponentials.
 Require Export UniMath.CategoryTheory.slicecat.
+Require Export UniMath.CategoryTheory.coslicecat.
 Require Export UniMath.CategoryTheory.limits.pullbacks_slice_products_equiv.
 Require Export UniMath.CategoryTheory.covyoneda.
 Require Export UniMath.CategoryTheory.categories.category_hset_structures.
@@ -83,12 +84,6 @@ Require Export UniMath.CategoryTheory.Inductives.Lists.
 Require Export UniMath.CategoryTheory.Inductives.Trees.
 Require Export UniMath.CategoryTheory.Inductives.LambdaCalculus.
 Require Export UniMath.CategoryTheory.catiso.
-Require Export UniMath.CategoryTheory.bicategories.prebicategory.
-Require Export UniMath.CategoryTheory.bicategories.Notations.
-Require Export UniMath.CategoryTheory.bicategories.whiskering.
-Require Export UniMath.CategoryTheory.bicategories.Cat.
-Require Export UniMath.CategoryTheory.bicategories.internal_equivalence.
-Require Export UniMath.CategoryTheory.bicategories.bicategory.
 Require Export UniMath.CategoryTheory.Additive.
 Require Export UniMath.CategoryTheory.Abelian.
 Require Export UniMath.CategoryTheory.category_binops.
@@ -127,9 +122,16 @@ Require Export UniMath.CategoryTheory.categories.intdoms.
 Require Export UniMath.CategoryTheory.categories.flds.
 Require Export UniMath.CategoryTheory.categories.modules.
 Require Export UniMath.CategoryTheory.categories.StandardCategories.
+Require Export UniMath.CategoryTheory.categories.Types.
 Require Export UniMath.CategoryTheory.categories.Cats.
 Require Export UniMath.CategoryTheory.categories.preorder_categories.
 Require Export UniMath.CategoryTheory.categories.wosets.
+Require Export UniMath.CategoryTheory.bicategories.prebicategory.
+Require Export UniMath.CategoryTheory.bicategories.Notations.
+Require Export UniMath.CategoryTheory.bicategories.whiskering.
+Require Export UniMath.CategoryTheory.bicategories.Cat.
+Require Export UniMath.CategoryTheory.bicategories.internal_equivalence.
+Require Export UniMath.CategoryTheory.bicategories.bicategory.
 Require Export UniMath.CategoryTheory.Monads.Derivative.
 Require Export UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Export UniMath.CategoryTheory.DisplayedCats.Core.
@@ -141,6 +143,7 @@ Require Export UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Export UniMath.CategoryTheory.DisplayedCats.SIP.
 Require Export UniMath.CategoryTheory.DisplayedCats.Limits.
 Require Export UniMath.CategoryTheory.DisplayedCats.Examples.
+Require Export UniMath.CategoryTheory.DisplayedCats.Adjunctions.
 Require Export UniMath.CategoryTheory.PlainBicat.Bicat.
 Require Export UniMath.CategoryTheory.PlainBicat.PseudoFunctor.
 Require Export UniMath.CategoryTheory.PlainBicat.OpCellBicat.
