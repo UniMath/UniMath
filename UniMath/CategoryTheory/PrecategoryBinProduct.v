@@ -7,6 +7,10 @@ SubstitutionSystems
 
 2015
 
+For the general case, see [product_precategory].
+
+See [unit_category] for the unit category, which is the unit
+under cartesian product up to isomorphism.
 ************************************************************)
 
 
@@ -21,12 +25,11 @@ Contents :
 
 By PLL:
 
-- Definition of the unit precategory
-
 - Definition of the associator functors
 
 - Definition of the pair of two functors: A × C → B × D
   given A → B and C → D
+
 
 ************************************************************)
 
@@ -167,30 +170,6 @@ Proof.
 Defined.
 
 End assoc.
-
-(** The terminal precategory *)
-
-Section unit_precategory.
-
-Definition unit_precategory : precategory.
-Proof.
-  use tpair. use tpair.
-  (* ob, mor *) exists unit. intros; exact unit.
-  (* identity, comp *) split; intros; constructor.
-  (* id_left *) simpl; split; try split; intros; apply isProofIrrelevantUnit.
-Defined.
-
-Definition unit_functor C : functor C unit_precategory.
-Proof.
-  use tpair. use tpair.
-  (* functor_on_objects *) intros; exact tt.
-  (* functor_on_morphisms *) intros F a b; apply identity.
-  split.
-  (* functor_id *) intros x; apply paths_refl.
-  (* functor_comp *) intros x y z w v; apply paths_refl.
-Defined.
-
-End unit_precategory.
 
 (** Fixing one argument of C × D -> E results in a functor *)
 Section functor_fix_fst_arg.
