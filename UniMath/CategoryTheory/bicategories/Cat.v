@@ -13,6 +13,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+Require Import UniMath.CategoryTheory.categories.StandardCategories. (* unit *)
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.equivalences.
 Local Open Scope cat.
@@ -100,8 +101,8 @@ Definition Catlike_left_unitor (a b : precategory) (hsA : has_homsets a) (hsB : 
   nat_trans
      (functor_composite
         (bindelta_pair_functor
-           (functor_composite (unit_functor (functor_precategory a b hsB))
-              (constant_functor unit_precategory (functor_precategory a a hsA) (functor_identity a)))
+           (functor_composite (functor_to_unit (functor_precategory a b hsB))
+              (constant_functor unit_category (functor_precategory a a hsA) (functor_identity a)))
            (functor_identity (functor_precategory a b hsB)))
         (functorial_composition a a b hsA hsB))
      (functor_identity (functor_precategory a b hsB)).
@@ -146,8 +147,8 @@ Definition Catlike_right_unitor (a b : precategory) (hsB : has_homsets b) :
   nat_trans
      (functor_composite
         (bindelta_pair_functor (functor_identity (functor_precategory a b hsB))
-           (functor_composite (unit_functor (functor_precategory a b hsB))
-              (constant_functor unit_precategory (functor_precategory b b hsB) (functor_identity b))))
+           (functor_composite (functor_to_unit (functor_precategory a b hsB))
+              (constant_functor unit_category (functor_precategory b b hsB) (functor_identity b))))
         (functorial_composition a b b hsB hsB))
      (functor_identity (functor_precategory a b hsB)).
 Proof.
