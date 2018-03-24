@@ -51,7 +51,7 @@ Unset Kernel Term Sharing.
 Local Open Scope hz_scope.
 Local Open Scope cat.
 
-Local Opaque hz isdecrelhzeq hzplus iscommrngops ZeroArrow.
+Local Opaque hz isdecrelhzeq hzplus iscommringops ZeroArrow.
 
 (** * Mapping cylinder *)
 (** ** Introduction
@@ -842,5 +842,5 @@ Section mapping_cylinder_KA_iso.
 
 End mapping_cylinder_KA_iso.
 
-Local Transparent hz isdecrelhzeq hzplus iscommrngops ZeroArrow.
+Local Transparent hz isdecrelhzeq hzplus iscommringops ZeroArrow.
 Close Scope hz_scope.
