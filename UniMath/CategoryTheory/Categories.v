@@ -213,6 +213,15 @@ Arguments id_left [C a b] f.
 Arguments id_right [C a b] f.
 Arguments assoc [C a b c d] f g h.
 
+(** For use with `auto with cat` and `autorewrite with cat`. *)
+Hint Resolve id_left : cat.
+Hint Resolve id_right : cat.
+Hint Resolve assoc : cat.
+Hint Rewrite id_left : cat.
+Hint Rewrite id_right : cat.
+Hint Rewrite -> assoc : cat.
+Hint Rewrite <- assoc : cat.
+
 Lemma assoc4 (C : precategory) (a b c d e : C) (f : a --> b) (g : b --> c)
        (h : c --> d) (i : d --> e) :
      ((f · g) · h) · i = f · (g · h) · i.
@@ -617,9 +626,16 @@ Definition is_inverse_in_precat2 {C : precategory_data} {a b : C} {f : a --> b} 
            (H : is_inverse_in_precat f g) :
   g · f = identity b := dirprod_pr2 H.
 
+Hint Resolve is_inverse_in_precat1 : cat.
+Hint Resolve is_inverse_in_precat2 : cat.
+Hint Rewrite @is_inverse_in_precat2 : cat.
+Hint Rewrite @is_inverse_in_precat2 : cat.
+
 Definition is_inverse_in_precat_inv {C : precategory_data} {a b : C} {f : a --> b} {g : b --> a}
            (H : is_inverse_in_precat f g) : is_inverse_in_precat g f :=
   dirprodpair (is_inverse_in_precat2 H) (is_inverse_in_precat1 H).
+
+Hint Resolve is_inverse_in_precat_inv : cat.
 
 Definition is_inverse_in_precat_comp {C : precategory} {a b c : C} {f1 : a --> b} {f2 : b --> c}
            {g1 : b --> a} {g2 : c --> b} (H1 : is_inverse_in_precat f1 g1)
@@ -653,6 +669,8 @@ Proof.
     apply remove_id_left.
     apply (pr1 H). apply idpath.
 Defined.
+
+Hint Resolve is_iso_qinv : cat.
 
 Definition iso_comp_left_weq {C:precategory} {a b:C} (h:iso a b) (c:C) :
  (c --> a) ≃ (c --> b) := weqpair _ (iso_comp_left_isweq h c).
@@ -724,6 +742,8 @@ Definition is_z_isomorphism_is_inverse_in_precat {C : precategory_data} {a b : C
            {f : a --> b} (I : is_z_isomorphism f) :
   is_inverse_in_precat f (is_z_isomorphism_mor I) := pr2 I.
 Coercion is_z_isomorphism_is_inverse_in_precat : is_z_isomorphism >-> is_inverse_in_precat.
+
+Hint Resolve is_z_isomorphism_is_inverse_in_precat.
 
 Definition is_z_isomorphism_inv {C : precategory_data} {a b : C} {f : a --> b}
            (I : is_z_isomorphism f) : is_z_isomorphism (is_z_isomorphism_mor I).
@@ -869,6 +889,11 @@ Proof.
   exact H.
 Qed.
 
+Hint Resolve post_comp_with_z_iso_is_inj : cat.
+Hint Resolve post_comp_with_z_iso_inv_is_inj : cat.
+Hint Resolve pre_comp_with_z_iso_is_inj : cat.
+Hint Resolve pre_comp_with_z_iso_inv_is_inj : cat.
+
 Lemma z_iso_eq {C : category} {a b : C} (i i' : z_iso a b) (e : z_iso_mor i = z_iso_mor i') :
   i = i'.
 Proof.
@@ -955,6 +980,8 @@ Definition z_iso_after_z_iso_inv (C : precategory_data) (a b : ob C)
    (f : z_iso a b) : inv_from_z_iso f · f = identity _ :=
       pr2 (pr2 (pr2 f)).
 
+Hint Resolve z_iso_inv_after_z_iso : cat.
+Hint Resolve z_iso_after_z_iso_inv : cat.
 
 Lemma z_iso_inv_on_right (C : precategory) (a b c: ob C)
   (f : z_iso a  b) (g : b --> c) (h : a --> c) (H : h = f·g) :
