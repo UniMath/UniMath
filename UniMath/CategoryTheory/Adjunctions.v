@@ -641,7 +641,7 @@ Section Adjunction_from_HomSetIso.
           {natural_postcomp : ∏ (A : C) (B : D) (f : F A --> B) (Y : D) (k : B --> Y),
                               hom_weq (f · k) = hom_weq f · #G k}.
 
-  Definition hom_inv {A : C} {B : D}: A --> G B → F A --> B
+  Local Definition hom_inv {A : C} {B : D}: A --> G B → F A --> B
     := invmap (hom_weq A B).
 
   Definition inv_natural_precomp {A : C} {B : D} (g : A --> G B) {X : C} (h : X --> A)
@@ -686,13 +686,10 @@ Section Adjunction_from_HomSetIso.
       apply id_right.
   Defined.
 
-  Let η := unit_from_hom.
-  Let ε := counit_from_hom.
-
   Definition adj_from_homsetiso : are_adjoints F G.
   Proof.
-    apply (mk_are_adjoints F G η ε).
-    apply tpair.
+    apply (mk_are_adjoints F G unit_from_hom counit_from_hom).
+    apply dirprodpair.
     - intro a. cbn.
       rewrite <- inv_natural_precomp.
       rewrite id_right.
