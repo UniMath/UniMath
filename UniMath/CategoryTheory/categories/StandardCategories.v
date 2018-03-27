@@ -3,7 +3,8 @@
 
 - The path groupoid ([path_groupoid])
 - The discrete univalent_category on n objects ([cat_n])
-
+  - The category with one object ([unit_category])
+  - The category with no objects ([empty_category])
 *)
 
 Require Import UniMath.Foundations.Sets.
@@ -98,6 +99,7 @@ Proof. apply isofhleveltotal2. apply isapropisaset.
 Lemma is_discrete_cat_n (n:nat) : is_discrete (cat_n n).
 Proof. split. apply isasetstn. apply is_groupoid_path_pregroupoid. Qed.
 
+(** ** The category with one object ([unit_category]) *)
 
 Definition unit_category : univalent_category.
 Proof.
@@ -106,42 +108,81 @@ Proof.
   - do 2 (apply hlevelntosn). apply isapropunit.
 Defined.
 
+Section FunctorToUnit.
+  Context (A : precategory).
 
-Section functor.
+  Definition functor_to_unit_data : functor_data A unit_category.
+  Proof.
+    use mk_functor_data.
+    - exact tounit.
+    - exact (λ _ _ _, idpath _ ).
+  Defined.
 
-Variable A : precategory.
+  Definition is_functor_to_unit : is_functor functor_to_unit_data.
+  Proof.
+    split.
+    - intro. apply idpath.
+    - intros ? ? ? ? ?; apply idpath.
+  Qed.
 
-Definition functor_to_unit_data : functor_data A unit_category.
+  Definition functor_to_unit : functor A _ := mk_functor _ is_functor_to_unit.
+
+  Lemma iscontr_functor_to_unit : iscontr (functor A unit_category).
+  Proof.
+    use iscontrpair.
+    - exact functor_to_unit.
+    - intro F.
+      apply functor_eq.
+      + apply (homset_property unit_category).
+      + use total2_paths_f.
+        * apply funextsec. intro. cbn.
+          apply proofirrelevance.
+          apply isapropunit.
+        * do 3 (apply funextsec; intro).
+          apply proofirrelevance.
+          simpl.
+          apply hlevelntosn.
+          apply isapropunit.
+  Qed.
+End FunctorToUnit.
+
+(** ** The category with no objects ([empty_category]) *)
+
+Definition empty_category : univalent_category.
 Proof.
-  exists (λ _, tt).
-  exact (λ _ _ _, idpath _ ).
+  use path_groupoid.
+  - exact empty.
+  - do 2 (apply hlevelntosn). apply isapropempty.
 Defined.
 
-Definition is_functor_to_unit : is_functor functor_to_unit_data.
-Proof.
-  split.
-  - intro a. apply idpath.
-  - intros a b c f g . apply idpath.
-Qed.
+Section FunctorFromEmpty.
+  Context (A : precategory).
 
-Definition functor_to_unit : functor A _ := _ ,, is_functor_to_unit.
+  Definition functor_from_empty_data : functor_data empty_category A.
+  Proof.
+    use mk_functor_data.
+    - exact fromempty.
+    - intros empt ?; induction empt.
+  Defined.
 
-Lemma functor_to_unit_unique (F : functor A unit_category)
-  : F = functor_to_unit.
-Proof.
-  apply functor_eq.
-  - apply (homset_property unit_category).
-  - use total2_paths_f.
-    + apply funextsec. intro. cbn.
-      apply proofirrelevance.
-      apply isapropunit.
-    + do 3 (apply funextsec; intro).
-      apply proofirrelevance.
-      simpl.
-      apply hlevelntosn.
-      apply isapropunit.
-Qed.
+  Definition is_functor_from_empty : is_functor functor_from_empty_data.
+  Proof.
+    use tpair; intro a; induction a.
+  Defined.
 
-End functor.
+  Definition functor_from_empty : functor empty_category A :=
+    mk_functor _ is_functor_from_empty.
+
+  Lemma iscontr_functor_from_empty {hs : has_homsets A} :
+    iscontr (functor empty_category A).
+  Proof.
+    use iscontrpair.
+    - exact functor_from_empty.
+    - intro F.
+      apply functor_eq; [assumption|].
+      use total2_paths_f;
+        apply funextsec; intro empt; induction empt.
+  Qed.
+End FunctorFromEmpty.
 
 (* *)

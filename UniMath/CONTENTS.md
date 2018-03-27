@@ -338,4 +338,5 @@ The packages and files are listed here in logical order: each file depends only 
    - [W/Fibered.v](Induction/W/Fibered.v)
    - [W/Naturals.v](Induction/W/Naturals.v)
    - [W/Uniqueness.v](Induction/W/Uniqueness.v)
+   - [M/Chains.v](Induction/M/Chains.v)
    - [All.v](Induction/All.v)

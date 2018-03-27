@@ -147,39 +147,6 @@ Proof.
   apply idpath.
 Defined.
 
-(** If x = y, then x = z if and only if y = z by transitivity. *)
-Definition transitive_paths_weq {X : UU} {x y z : X} :
-  x = y -> (x = z ≃ y = z).
-Proof.
-  intro xeqy.
-  use weq_iso.
-  - intro xeqz.
-    exact (!xeqy @ xeqz).
-  - intro yeqz.
-    exact (xeqy @ yeqz).
-  - intro xeqz.
-    refine (path_assoc _ _ _ @ _).
-    refine (maponpaths (λ p, p @ xeqz) (pathsinv0r xeqy) @ _).
-    reflexivity.
-  - intro yeqz.
-    refine (path_assoc _ _ _ @ _).
-    refine (maponpaths (λ p, p @ yeqz) (pathsinv0l xeqy) @ _).
-    reflexivity.
-Defined.
-
-(** A rewrite of [pathsdirprod] as an equivalence:
-    Two pairs are equal if and only if both of their components are. *)
-Definition pathsdirprodweq {X Y : UU} {x1 x2 : X} {y1 y2 : Y} :
-  (dirprodpair x1 y1 = dirprodpair x2 y2) ≃ (x1 = x2) × (y1 = y2).
-Proof.
-  intermediate_weq (dirprodpair x1 y1 ╝ dirprodpair x2 y2).
-  - apply total2_paths_equiv.
-  - unfold PathPair; cbn.
-    use weqfibtototal; intro p; cbn.
-    apply transitive_paths_weq.
-    apply (toforallpaths _ _ _ (transportf_const p Y) y1).
-Defined.
-
 (** Flip the arguments of a function *)
 Definition flipsec {A B : UU} {C : A -> B -> UU} (f : ∏ a b, C a b) : ∏ b a, C a b :=
   λ x y, f y x.
