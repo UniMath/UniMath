@@ -25,31 +25,6 @@ Definition compose' { C:precategory_data } { a b c:ob C }
   (g:b --> c) (f:a --> b) : a --> c.
 Proof. intros. exact (compose f g). Defined.
 
-(** * The precategory of types of a fixed universe *)
-
-Definition type_precat : precategory.
-Proof.
-  use mk_precategory.
-  - use tpair; use tpair.
-    + exact UU.
-    + exact (λ X Y, X -> Y).
-    + exact (λ X, idfun X).
-    + exact (λ X Y Z f g, funcomp f g).
-  - repeat split; intros; apply idpath.
-Defined.
-
-Lemma InitialType : Initial type_precat.
-Proof.
-  apply (mk_Initial (empty : ob type_precat)).
-  exact iscontrfunfromempty.
-Defined.
-
-Lemma TerminalType : Terminal type_precat.
-Proof.
-  apply (mk_Terminal (unit : ob type_precat)).
-  exact iscontrfuntounit.
-Defined.
-
 (** ** The path/fundamental groupoid of a type *)
 
 (** The pregroupoid with points in X as objects and paths as morphisms *)
