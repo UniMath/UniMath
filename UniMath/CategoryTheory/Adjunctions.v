@@ -628,3 +628,76 @@ Section HomSetIso_from_Adjunction.
   Qed.
 
 End HomSetIso_from_Adjunction.
+
+
+(** * Adjunction defined from a natural isomorphism on homsets (F A --> B) ≃ (A --> G B) *)
+
+Section Adjunction_from_HomSetIso.
+
+  Context {C D : precategory} {F : functor C D} {G : functor D C}
+          {hom_weq :  ∏ {A : C} {B : D}, F A --> B ≃ A --> G B}
+          {natural_precomp : ∏ (A : C) (B : D) (f : F A --> B) (X : C) (h : X --> A),
+                             hom_weq (#F h · f) = h · hom_weq f}
+          {natural_postcomp : ∏ (A : C) (B : D) (f : F A --> B) (Y : D) (k : B --> Y),
+                              hom_weq (f · k) = hom_weq f · #G k}.
+
+  Local Definition hom_inv {A : C} {B : D}: A --> G B → F A --> B
+    := invmap (hom_weq A B).
+
+  Definition inv_natural_precomp {A : C} {B : D} (g : A --> G B) {X : C} (h : X --> A)
+    : hom_inv (h · g) = #F h · hom_inv g.
+  Proof.
+    apply pathsinv0, pathsweq1.
+    rewrite natural_precomp.
+    apply cancel_precomposition.
+    apply homotweqinvweq.
+  Defined.
+
+  Definition inv_natural_postcomp {A : C} {B : D} (g : A --> G B) {Y : D} (k : B --> Y)
+    : hom_inv (g · #G k) = hom_inv g · k.
+  Proof.
+    apply pathsinv0, pathsweq1.
+    rewrite natural_postcomp.
+    apply cancel_postcomposition.
+    apply homotweqinvweq.
+  Defined.
+
+  Definition unit_from_hom : nat_trans (functor_identity C) (F ∙ G).
+  Proof.
+    use mk_nat_trans.
+    - exact (λ A, (hom_weq _ _ (identity (F A)))).
+    - intros A A' h. cbn.
+      rewrite <- natural_precomp.
+      rewrite <- natural_postcomp.
+      apply maponpaths.
+      rewrite id_left.
+      apply id_right.
+  Defined.
+
+  Definition counit_from_hom : nat_trans (G ∙ F) (functor_identity D).
+  Proof.
+    use mk_nat_trans.
+    - exact (λ B, hom_inv (identity (G B))).
+    - intros B B' k. cbn.
+      rewrite <- inv_natural_postcomp.
+      rewrite <- inv_natural_precomp.
+      apply maponpaths.
+      rewrite id_left.
+      apply id_right.
+  Defined.
+
+  Definition adj_from_homsetiso : are_adjoints F G.
+  Proof.
+    apply (mk_are_adjoints F G unit_from_hom counit_from_hom).
+    apply dirprodpair.
+    - intro a. cbn.
+      rewrite <- inv_natural_precomp.
+      rewrite id_right.
+      apply homotinvweqweq.
+    - intro b. cbn.
+      rewrite <- natural_postcomp.
+      rewrite id_left.
+      apply homotweqinvweq.
+  Defined.
+
+End Adjunction_from_HomSetIso.
