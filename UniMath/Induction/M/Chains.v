@@ -4,6 +4,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Univalence.
+Require Import UniMath.MoreFoundations.WeakEquivalences.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -75,26 +76,6 @@ Local Tactic Notation "≃" constr(H) "by" tactic(t) := intermediate_weq H; [t|]
 Local Tactic Notation "≃'" constr(H) "by" tactic(t) := intermediate_weq H; [|t].
 Local Tactic Notation "≃" constr(H) := intermediate_weq H.
 Local Tactic Notation "≃'" constr(H) := apply invweq; intermediate_weq H.
-
-Lemma dirprod_with_contr : ∏ X Y : UU, iscontr X -> (Y ≃ Y × X).
-Proof.
-  intros X Y iscontrX.
-  ≃ (Y × unit) by (apply weqtodirprodwithunit).
-  - apply weqdirprodf.
-    * apply idweq.
-    * apply invweq, weqcontrtounit; assumption.
-Defined.
-
-(** TODO: can this be derived from [weqtotal2comm12] or similar? *)
-Definition weqtotal2comm {A B : UU} {C : A → B → UU} :
-  (∑ (a : A) (b : B), C a b) ≃ (∑ (b : B) (a : A), C a b).
-Proof.
-  use weq_iso.
-  - exact (λ pair, pr1 (pr2 pair),, pr1 pair,, pr2 (pr2 pair)).
-  - exact (λ pair, pr1 (pr2 pair),, pr1 pair,, pr2 (pr2 pair)).
-  - reflexivity.
-  - reflexivity.
-Defined.
 
 Local Lemma combine_over_nat_basic {X Y Z : nat → UU} :
   X 0 ≃ Z 0 → (∏ n : nat, Y (S n) ≃ Z (S n)) →
@@ -184,7 +165,7 @@ Proof.
       ∘ transportf (λ o : nat, X (S o) → X (S (S v))) e
       (idfun (X (S (S v))))) (xs u) = xs v)
     × (∑ x0 : X 0, (π 0 (xs 0)) = x0)) by
-    (apply weqfibtototal; intro; apply dirprod_with_contr; apply isc).
+    (apply weqfibtototal; intro; apply dirprod_with_contr_r; apply isc).
 
   (** Now, we swap the components in the direct product. *)
   ≃ (∑ xs : ∏ v : nat, X (S v),
