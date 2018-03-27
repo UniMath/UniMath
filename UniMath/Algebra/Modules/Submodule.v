@@ -14,17 +14,17 @@ Require Import UniMath.Algebra.Modules.Core.
 Definition issubsetwithsmul {R : hSet} {M : hSet} (smul : R → M → M) (A : hsubtype M) : UU :=
   ∏ r m, A m → A (smul r m).
 
-Definition issubmodule {R : rng} {M : module R} (A : hsubtype M) : UU :=
+Definition issubmodule {R : ring} {M : module R} (A : hsubtype M) : UU :=
   issubgr A × issubsetwithsmul (module_mult M) A.
 
-Definition issubmodulepair {R : rng} {M : module R} {A : hsubtype M}
+Definition issubmodulepair {R : ring} {M : module R} {A : hsubtype M}
            (H1 : issubgr A) (H2 : issubsetwithsmul (module_mult M) A) : issubmodule A :=
   dirprodpair H1 H2.
 
-Definition issubmodule_is {R : rng} {M : module R} (A : hsubtype M) : UU :=
+Definition issubmodule_is {R : ring} {M : module R} (A : hsubtype M) : UU :=
   issubgr A × issubsetwithsmul (module_mult M) A.
 
-Lemma isapropissubmodule {R : rng} {M : module R} (A : hsubtype M) : isaprop (issubmodule A).
+Lemma isapropissubmodule {R : ring} {M : module R} (A : hsubtype M) : isaprop (issubmodule A).
 Proof.
   intros. apply (isofhleveldirprod 1).
   - apply isapropissubgr.
@@ -36,30 +36,30 @@ Defined.
 
 (* Submodules *)
 
-Definition submodule {R : rng} (M : module R) : UU := total2 (λ A : hsubtype M, issubmodule A).
+Definition submodule {R : ring} (M : module R) : UU := total2 (λ A : hsubtype M, issubmodule A).
 
-Definition submodulepair {R : rng} {M : module R} :
+Definition submodulepair {R : ring} {M : module R} :
   ∏ (t : hsubtype M), (λ A : hsubtype M, issubmodule A) t → ∑ A : hsubtype M, issubmodule A :=
   tpair (λ A : hsubtype M, issubmodule A).
 
-Definition submoduletosubabgr {R : rng} {M : module R} : submodule M -> @subabgr M :=
+Definition submoduletosubabgr {R : ring} {M : module R} : submodule M -> @subabgr M :=
   λ A : _, subgrpair (pr1 A) (pr1 (pr2 A)).
 Coercion submoduletosubabgr : submodule >-> subabgr.
 
-Definition submodule_to_issubsetwithsmul {R : rng} {M : module R} (A : submodule M) :
+Definition submodule_to_issubsetwithsmul {R : ring} {M : module R} (A : submodule M) :
   issubsetwithsmul (module_mult M) A :=
   pr2 (pr2 A).
 
 Local Open Scope module_scope.
 
-Definition submodule_smul {R : rng} {M : module R} {A : submodule M} (r : R) (m : A) : A.
+Definition submodule_smul {R : ring} {M : module R} {A : submodule M} (r : R) (m : A) : A.
 Proof.
   use tpair.
   - exact (r * pr1 m).
   - exact (submodule_to_issubsetwithsmul A r (pr1 m) (pr2 m)).
 Defined.
 
-Definition carrierofasubmodule {R : rng} {M : module R} (A : submodule M) : module R.
+Definition carrierofasubmodule {R : ring} {M : module R} (A : submodule M) : module R.
 Proof.
   use mult_to_module.
   - exact (carrierofasubabgr A).
@@ -71,7 +71,7 @@ Proof.
 Defined.
 
 Coercion carrierofasubmodule : submodule >-> module.
-Lemma intersection_submodule {R : rng} {M : module R} {I : UU} (S : I -> hsubtype M)
+Lemma intersection_submodule {R : ring} {M : module R} {I : UU} (S : I -> hsubtype M)
       (each_is_submodule : ∏ i : I, issubmodule (S i)) :
   issubmodule (subtype_intersection S).
 Proof.
@@ -81,19 +81,19 @@ Proof.
   - intros r m a i. exact (pr2 (each_is_submodule i) r m (a i)).
 Qed.
 
-Lemma ismodulefun_pr1 {R : rng} {M : module R} (A : submodule M) : @ismodulefun R A M pr1.
+Lemma ismodulefun_pr1 {R : ring} {M : module R} (A : submodule M) : @ismodulefun R A M pr1.
 Proof.
   use ismodulefunpair.
   exact (pr1 (ismonoidfun_pr1 A)).
   intros r a. reflexivity.
 Defined.
 
-Definition submodule_incl {R : rng} {M : module R} (A : submodule M) : modulefun A M :=
+Definition submodule_incl {R : ring} {M : module R} (A : submodule M) : modulefun A M :=
   modulefunpair _ (ismodulefun_pr1 A).
 
 
 (* Kernel and image *)
-Lemma issubmodule_kernel {R : rng} {A B : module R} (f : modulefun A B) :
+Lemma issubmodule_kernel {R : ring} {A B : module R} (f : modulefun A B) :
   issubmodule (abgr_kernel_hsubtype (modulefun_to_monoidfun f)).
 Proof.
   split.
@@ -102,10 +102,10 @@ Proof.
     now rewrite (modulefun_to_islinear f), <- (module_mult_1 r), <- p.
 Defined.
 
-Definition module_kernel {R : rng} {A B : module R} (f : modulefun A B) : submodule A :=
+Definition module_kernel {R : ring} {A B : module R} (f : modulefun A B) : submodule A :=
   submodulepair _ (issubmodule_kernel f).
 
-Lemma module_kernel_eq {R : rng} {A B : module R} (f : modulefun A B) x :
+Lemma module_kernel_eq {R : ring} {A B : module R} (f : modulefun A B) x :
   f (submodule_incl (module_kernel f) x) = unel B.
 Proof.
   use (squash_to_prop (pr2 x)).
@@ -113,7 +113,7 @@ Proof.
   - apply idfun.
 Defined.
 
-Lemma issubmodule_image {R : rng} {A B : module R} (f : modulefun A B) :
+Lemma issubmodule_image {R : ring} {A B : module R} (f : modulefun A B) :
   issubmodule (abgr_image_hsubtype (modulefun_to_monoidfun f)).
 Proof.
   split.
@@ -122,5 +122,5 @@ Proof.
     split with (r * a). now rewrite (modulefun_to_islinear f), <- p.
 Defined.
 
-Definition module_image {R : rng} {A B : module R} (f : modulefun A B) : submodule B :=
+Definition module_image {R : ring} {A B : module R} (f : modulefun A B) : submodule B :=
   submodulepair _ (issubmodule_image f).

@@ -13,6 +13,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+Require Import UniMath.CategoryTheory.categories.StandardCategories. (* unit *)
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.equivalences.
 Local Open Scope cat.
@@ -86,7 +87,7 @@ Defined.
 
 Definition Catlike_associator_is_iso ( a b c d : precategory )
   (hsB : has_homsets b) (hsC : has_homsets c) (hsD : has_homsets d) :
-  forall f g h, is_iso (Catlike_associator a b c d hsB hsC hsD
+  ∏ f g h, is_iso (Catlike_associator a b c d hsB hsC hsD
                     (precatbinprodpair f (precatbinprodpair g h))).
 Proof.
   intros f g h.
@@ -100,8 +101,8 @@ Definition Catlike_left_unitor (a b : precategory) (hsA : has_homsets a) (hsB : 
   nat_trans
      (functor_composite
         (bindelta_pair_functor
-           (functor_composite (unit_functor (functor_precategory a b hsB))
-              (constant_functor unit_precategory (functor_precategory a a hsA) (functor_identity a)))
+           (functor_composite (functor_to_unit (functor_precategory a b hsB))
+              (constant_functor unit_category (functor_precategory a a hsA) (functor_identity a)))
            (functor_identity (functor_precategory a b hsB)))
         (functorial_composition a a b hsA hsB))
      (functor_identity (functor_precategory a b hsB)).
@@ -134,7 +135,7 @@ Defined.
 
 Definition Catlike_left_unitor_is_iso (a b : precategory)
   (hsA : has_homsets a) (hsB : has_homsets b) :
-  forall f, is_iso (Catlike_left_unitor a b hsA hsB f).
+  ∏ f, is_iso (Catlike_left_unitor a b hsA hsB f).
 Proof.
   intros f.
   apply functor_iso_if_pointwise_iso.
@@ -146,8 +147,8 @@ Definition Catlike_right_unitor (a b : precategory) (hsB : has_homsets b) :
   nat_trans
      (functor_composite
         (bindelta_pair_functor (functor_identity (functor_precategory a b hsB))
-           (functor_composite (unit_functor (functor_precategory a b hsB))
-              (constant_functor unit_precategory (functor_precategory b b hsB) (functor_identity b))))
+           (functor_composite (functor_to_unit (functor_precategory a b hsB))
+              (constant_functor unit_category (functor_precategory b b hsB) (functor_identity b))))
         (functorial_composition a b b hsB hsB))
      (functor_identity (functor_precategory a b hsB)).
 Proof.
@@ -168,7 +169,7 @@ Proof.
 Defined.
 
 Definition Catlike_right_unitor_is_iso (a b : precategory) (hsB : has_homsets b) :
-  forall f, is_iso (Catlike_right_unitor a b hsB f).
+  ∏ f, is_iso (Catlike_right_unitor a b hsB f).
 Proof.
   intros f.
   apply functor_iso_if_pointwise_iso.
@@ -180,7 +181,7 @@ Defined.
 Definition Catlike_pentagon ( a b c d e : precategory )
   (hsB : has_homsets b) (hsC : has_homsets c) (hsD : has_homsets d)
   (hsE : has_homsets e) :
-  forall k h g f,
+  ∏ k h g f,
   (Catlike_associator a b c e _ _ _)
      (precatbinprodpair k
         (precatbinprodpair h ((functorial_composition c d e hsD _) (dirprodpair g f)))) ·
@@ -212,7 +213,7 @@ Defined.
 
 Definition Catlike_triangle ( a b c : precategory )
   (hsB : has_homsets b) (hsC : has_homsets c) :
-   forall f g, functor_on_morphisms (functorial_composition a b c _ _)
+   ∏ f g, functor_on_morphisms (functorial_composition a b c _ _)
                                (precatbinprodmor (identity f) (Catlike_left_unitor b c _ hsC g))
    =
       (Catlike_associator a b b c hsB _ _
@@ -232,7 +233,7 @@ Defined.
 (******************************************************************************)
 (* The prebicategory of precategories *)
 
-Definition PreCat_1mor_2mor : prebicategory_ob_1mor_2mor.
+Definition PreCat_1mor_2mor : prebicategory_ob_hom.
 Proof.
   exists category.
   intros a b.
@@ -313,7 +314,7 @@ Defined.
 (******************************************************************************)
 (* The bicategory of categories *)
 
-Definition Cat_1mor_2mor : prebicategory_ob_1mor_2mor.
+Definition Cat_1mor_2mor : prebicategory_ob_hom.
 Proof.
   exists univalent_category.
   intros a b.

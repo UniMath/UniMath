@@ -481,8 +481,8 @@ not product), which seems to require some additional assumption (e.g. decidable 
 perhaps other conditions might also suffice. *)
 (* NOTE: other lemmas in below on cocones in [power_precategory] may be able to be simplified using this. *)
 Lemma isColimCocone_in_product_precategory
-  {g : graph} (c : diagram g (product_precategory I B))
-  (b : product_precategory I B) (cc : cocone c b)
+  {g : graph} (c : diagram g (product_precategory B))
+  (b : product_precategory B) (cc : cocone c b)
   (M : ∏ i, isColimCocone _ _ (mapcocone (pr_functor I B i) _ cc))
   : isColimCocone c b cc.
 Proof.
@@ -511,7 +511,7 @@ Proof.
 Defined.
 
 Lemma is_cocont_functor_into_product_precategory
-  {F : functor A (product_precategory I B)}
+  {F : functor A (product_precategory B)}
   (HF : ∏ (i : I), is_cocont (functor_composite F (pr_functor I B i))) :
   is_cocont F.
 Proof.
@@ -523,7 +523,7 @@ Proof.
 Defined.
 
 Lemma is_omega_cocont_functor_into_product_precategory
-  {F : functor A (product_precategory I B)}
+  {F : functor A (product_precategory B)}
   (HF : ∏ (i : I), is_omega_cocont (functor_composite F (pr_functor I B i))) :
   is_omega_cocont F.
 Proof.
@@ -633,7 +633,7 @@ Defined.
 Lemma isColimCocone_family_functor {gr : graph} (F : ∏ (i : I), functor A B)
   (HF : ∏ i (d : diagram gr A) (c : A) (cc : cocone d c) (h : isColimCocone d c cc),
         isColimCocone _ _ (mapcocone (F i) d cc)) :
-  ∏ (d : diagram gr (product_precategory I (λ _, A))) (cd : I -> A) (cc : cocone d cd),
+  ∏ (d : diagram gr (product_precategory (λ _, A))) (cd : I -> A) (cc : cocone d cd),
   isColimCocone _ _ cc ->
   isColimCocone _ _ (mapcocone (family_functor I F) d cc).
 Proof.

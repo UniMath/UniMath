@@ -213,7 +213,7 @@ doc: $(GLOBFILES) $(VFILES)
 	    -toc $(COQDOCFLAGS) -html $(COQDOCLIBS) -d $(ENHANCEDDOCTARGET)	\
 	    --with-header $(ENHANCEDDOCSOURCE)/header.html			\
 	    $(VFILES)
-	sed -i '.bk' -f $(ENHANCEDDOCSOURCE)/proofs-toggle.sed $(ENHANCEDDOCTARGET)/*html
+	sed -i'.bk' -f $(ENHANCEDDOCSOURCE)/proofs-toggle.sed $(ENHANCEDDOCTARGET)/*html
 
 # Jason Gross' coq-tools bug isolator:
 # The isolated bug will appear in this file, in the UniMath directory:
