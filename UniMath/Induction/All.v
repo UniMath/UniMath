@@ -8,3 +8,4 @@ Require Export UniMath.Induction.W.Core.
 Require Export UniMath.Induction.W.Fibered.
 Require Export UniMath.Induction.W.Naturals.
 Require Export UniMath.Induction.W.Uniqueness.
+Require Export UniMath.Induction.M.Chains.

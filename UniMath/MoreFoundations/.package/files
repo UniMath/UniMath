@@ -1,4 +1,5 @@
 Foundations.v
+WeakEquivalences.v
 Tactics.v
 Notations.v
 AlternativeProofs.v
