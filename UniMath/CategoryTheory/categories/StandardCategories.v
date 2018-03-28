@@ -48,7 +48,7 @@ Definition path_pregroupoid (X:UU) : pregroupoid.
 Defined.
 
 (** If X [isofhlevel] 3, then in particular, its path types are sets *)
-Definition has_homsets_path_pregroupoid {X : UU) (iobj : isofhlevel 3 X) :
+Definition has_homsets_path_pregroupoid {X : UU} (iobj : isofhlevel 3 X) :
   has_homsets (path_pregroupoid X).
 Proof.
   intros ? ? ? ? ? ?.
@@ -92,24 +92,34 @@ Definition path_univalent_groupoid (X : UU) (i3 : isofhlevel 3 X) :
 (** ** The discrete univalent_category on n objects ([cat_n]) *)
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
-Definition cat_n (n:nat): univalent_category.
-  apply (path_groupoid (stn n)). apply hlevelntosn.
-  apply isasetstn. Defined.
-Definition is_discrete (C : category) := isaset (ob C) × is_groupoid C.
 
-Lemma isaprop_is_discrete (C : category) :
-  isaprop (is_discrete C).
-Proof. apply isofhleveltotal2. apply isapropisaset.
-  intro is. apply isaprop_is_groupoid. Qed.
+Definition cat_n (n:nat): univalent_category.
+  apply (path_univalent_groupoid (stn n)).
+  apply hlevelntosn, isasetstn.
+Defined.
+
+Definition is_discrete (C : category) := isaset (ob C) × is_pregroupoid C.
+
+Lemma isaprop_is_discrete (C : category) : isaprop (is_discrete C).
+Proof.
+  apply isofhleveltotal2.
+  apply isapropisaset.
+  intro is.
+  apply isaprop_is_pregroupoid.
+Qed.
 
 Lemma is_discrete_cat_n (n:nat) : is_discrete (cat_n n).
-Proof. split. apply isasetstn. apply is_groupoid_path_pregroupoid. Qed.
+Proof.
+  split.
+  - apply isasetstn.
+  - apply pregroupoid_is_pregroupoid.
+Qed.
 
 (** ** The category with one object ([unit_category]) *)
 
 Definition unit_category : univalent_category.
 Proof.
-  use path_groupoid.
+  use path_univalent_groupoid.
   - exact unit.
   - do 2 (apply hlevelntosn). apply isapropunit.
 Defined.
@@ -156,7 +166,7 @@ End FunctorToUnit.
 
 Definition empty_category : univalent_category.
 Proof.
-  use path_groupoid.
+  use path_univalent_groupoid.
   - exact empty.
   - do 2 (apply hlevelntosn). apply isapropempty.
 Defined.
