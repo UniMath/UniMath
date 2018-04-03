@@ -99,14 +99,14 @@ Section BinaryOperations.
   Defined.
 
   Definition iterop_fun_step' (lunax : islunit op unel) {m} (xs:stn m -> X) (x:X) :
-    iterop_fun (append_fun xs x) = op (iterop_fun xs) x.
+    iterop_fun (append_vec xs x) = op (iterop_fun xs) x.
   Proof.
     intros lunax ? ? ?.
     unfold iterop_fun at 1.
     simpl.
     induction m as [|m _].
-    - simpl. rewrite append_fun_compute_2. apply pathsinv0. apply lunax.
-    - simpl. rewrite append_fun_compute_2.
+    - simpl. rewrite append_vec_compute_2. apply pathsinv0. apply lunax.
+    - simpl. rewrite append_vec_compute_2.
       apply (maponpaths (λ y, op y x)). apply maponpaths.
       apply append_and_drop_fun.
   Defined.
@@ -123,15 +123,15 @@ Section BinaryOperations.
   Defined.
 
   Definition iterop_fun_append (lunax : islunit op unel) {m} (x:stn m -> X) (y:X) :
-    iterop_fun (append_fun x y) = op (iterop_fun x) y.
+    iterop_fun (append_vec x y) = op (iterop_fun x) y.
   Proof.
     intros lunax. intros.
     rewrite (iterop_fun_step lunax).
-    rewrite append_fun_compute_2.
+    rewrite append_vec_compute_2.
     apply (maponpaths (λ x, op (iterop_fun x) y)).
     apply funextfun; intro i.
     unfold funcomp.
-    rewrite append_fun_compute_1.
+    rewrite append_vec_compute_1.
     reflexivity.
   Defined.
 
@@ -195,12 +195,12 @@ Section Monoids.
     iterop_seq_mon (append x m) = iterop_seq_mon x * m.
   Proof.
      intros [n x] ?. unfold append. rewrite iterop_seq_mon_step.
-     rewrite append_fun_compute_2.
+     rewrite append_vec_compute_2.
      apply (maponpaths (λ a, a * m)).
      apply (maponpaths (λ x, iterop_seq_mon (n,,x))).
      apply funextfun; intros [i b]; simpl.
      unfold funcomp.
-     now rewrite append_fun_compute_1.
+     now rewrite append_vec_compute_1.
   Defined.
 
   Local Lemma iterop_seq_seq_mon_step {n} (x:stn (S n) -> Sequence M) :
@@ -326,7 +326,7 @@ Proof.
   Local Open Scope transport.
   set (f := nil □ j □ S O □ n-j : stn 3 -> nat).
   assert (B : stnsum f = S n).
-  { unfold stnsum, f; simpl. repeat unfold append_fun; simpl. rewrite natplusassoc.
+  { unfold stnsum, f; simpl. repeat unfold append_vec; simpl. rewrite natplusassoc.
     rewrite (natpluscomm 1). rewrite <- natplusassoc.
     rewrite natpluscomm. apply (maponpaths S). rewrite natpluscomm. now apply minusplusnmm. }
   set (r := weqfibtototal _ _ (λ k, eqweqmap (maponpaths (λ n, k < n : UU) B) ) :
@@ -351,7 +351,7 @@ Proof.
   change (f s0) with j; change (f s1) with (S O); change (f s2) with (n-j).
   set (f' := nil □ j □ n-j : stn 2 -> nat).
   assert (B' : stnsum f' = n).
-  { unfold stnsum, f'; simpl. repeat unfold append_fun; simpl.
+  { unfold stnsum, f'; simpl. repeat unfold append_vec; simpl.
     rewrite natpluscomm. now apply minusplusnmm. }
   set (r' := weqfibtototal _ _ (λ k, eqweqmap (maponpaths (λ n, k < n : UU) B') ) :
               stn (stnsum f') ≃ stn n).

@@ -1,13 +1,211 @@
+(** * Finite sequences
+
+Vectors and matrices defined in March 2018 by Langston Barrett (@siddharthist).
+ *)
+
+(** ** Contents
+
+  - Vectors
+  - Matrices
+  - Sequences
+    - Definitions
+    - Lemmas
+
+ *)
+
 Require Export UniMath.Combinatorics.FiniteSets.
 Require Export UniMath.Combinatorics.Lists.
 
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Unset Automatic Introduction.
 
 Local Open Scope transport.
 
-Definition Sequence (X:UU) := ∑ n, stn n -> X.
+(** ** Vectors *)
+
+(** A [Vector] of length n with values in X is an ordered n-tuple of elements of X,
+    encoded here as a function ⟦n⟧ → X. *)
+Definition Vector (X : UU) (n : nat) : UU := stn n -> X.
+
+(** hlevel of vectors *)
+Lemma vector_hlevel (X : UU) (n : nat) {m : nat} (ism : isofhlevel m X) :
+  isofhlevel m (Vector X n).
+Proof.
+  intros ? ? ? ?; apply impred; auto.
+Defined.
+
+(** Constant vector *)
+Definition const_vec {X : UU} {n : nat} (x : X) : Vector X n := λ _, x.
+
+(** The unique empty vector *)
+Definition iscontr_vector_0 X : iscontr (Vector X 0).
+Proof.
+  intros. apply (@iscontrweqb _ (empty -> X)).
+  - apply invweq. apply weqbfun. apply weqstn0toempty.
+  - apply iscontrfunfromempty.
+Defined.
+
+Definition empty_vec {X : UU} : Vector X 0 := iscontrpr1 (iscontr_vector_0 X).
+
+(** Every type is equivalent to vectors of length 1 on that type. *)
+Lemma weq_vector_1 {X : UU} : X ≃ Vector X 1.
+  intros X.
+  intermediate_weq (unit → X).
+  - apply invweq, weqfunfromunit.
+  - apply weqbfun.
+    exact weqstn1tounit.
+Defined.
+
+Section Append.
+
+  Context {X : UU} {n : nat} (vec : Vector X n) (x : X).
+
+  Definition append_vec : Vector X (S n).
+  Proof.
+    intros i.
+    induction (natlehchoice4 (pr1 i) n (pr2 i)) as [c|d].
+    - exact (vec (pr1 i,,c)).
+    - exact x.
+  Defined.
+
+  Definition append_vec_compute_1 i : append_vec (dni lastelement i) = vec i.
+  Proof.
+    intros.
+    induction i as [i b]; simpl.
+    rewrite replace_dni_last.
+    unfold append_vec; simpl.
+    induction (natlehchoice4 i n (natlthtolths i n b)) as [p|p].
+    - simpl. apply maponpaths. apply isinjstntonat; simpl. reflexivity.
+    - simpl. destruct p. induction (isirreflnatlth i b).
+  Defined.
+
+  Definition append_vec_compute_2 : append_vec lastelement = x.
+  Proof.
+    intros; unfold append_vec; simpl.
+    induction (natlehchoice4 n n (natgthsnn n)) as [a|a]; simpl.
+    - contradicts a (isirreflnatlth n).
+    - reflexivity.
+  Defined.
+
+End Append.
+
+Lemma drop_and_append_vec {X n} (x : Vector X (S n)) :
+  append_vec (x ∘ dni_lastelement) (x lastelement) = x.
+Proof.
+  intros.
+  apply funextfun; intros [i b].
+  simpl.
+  induction (natlehchoice4 i n b) as [p|p].
+  - unfold funcomp; simpl.
+    unfold append_vec. simpl.
+    induction (natlehchoice4 i n b) as [q|q].
+    + simpl. apply maponpaths. apply isinjstntonat; simpl. reflexivity.
+    + induction q. contradicts p (isirreflnatlth i).
+  - induction p.
+    unfold append_vec; simpl.
+    induction (natlehchoice4 i i b) as [r|r].
+    * simpl. unfold funcomp; simpl. apply maponpaths.
+      apply isinjstntonat; simpl. reflexivity.
+    * simpl. apply maponpaths. apply isinjstntonat; simpl. reflexivity.
+Defined.
+
+(** An induction principle for vectors: If a statement is true for the empty
+    vector, and if it is true for vectors of length n it is also true for those
+    of length S n, then it is true for all vectors.
+ *)
+Definition Vector_rect {X : UU} {P : ∏ n, Vector X n -> UU}
+           (p0 : P 0 empty_vec)
+           (ind : ∏ (n : nat) (vec : Vector X n) (x : X),
+                  P n vec -> P (S n) (append_vec vec x))
+           {n : nat} (vec : Vector X n) : P n vec.
+Proof.
+  intros.
+  induction n as [|n IH].
+  - refine (transportf (P 0) _ p0).
+    apply proofirrelevance, isapropifcontr, iscontr_vector_0.
+  - exact (transportf (P _) (drop_and_append_vec vec)
+                      (ind _ (vec ∘ dni_lastelement)
+                             (vec lastelement)
+                             (IH (vec ∘ dni_lastelement)))).
+Defined.
+
+Section Lemmas.
+
+  Context {X : UU} {n : nat}.
+
+  Definition vectorEquality {m : nat} (f : Vector X n) (g : Vector X m) (p : n = m) :
+    (∏ i, f i = g (transportf stn p i))
+    -> transportf (Vector X) p f = g.
+  Proof.
+    intros ? ? ? p ?.
+    induction p.
+    apply funextfun.
+    assumption.
+  Defined.
+
+  Definition tail (vecsn : Vector X (S n)) : Vector X n :=
+    vecsn ∘ dni (0,, natgthsn0 n).
+
+  (** It doesn't matter what the proofs are in the stn inputs. *)
+  Definition vector_stn_proofirrelevance {vec : Vector X n}
+            {i j : stn n} : (stntonat _ i = stntonat _ j) -> vec i = vec j.
+  Proof.
+    intros ? ? ? ?.
+    apply maponpaths, isinjstntonat; assumption.
+  Defined.
+End Lemmas.
+
+(** ** Matrices *)
+
+Open Scope stn.
+
+(** An m × n matrix is an m-length vector of n-length vectors (rows).
+    <<
+        <--- n --->
+      | [ * * * * ]
+      m [ * * * * ]
+      | [ * * * * ]
+    >>
+    Since [Vector]s are encoded as functions ⟦n⟧ → X, a matrix is a function (of
+    two arguments). Thus, the (i, j)-entry of a matrix Mat is simply Mat i j.
+
+    We don't allow for empty matrices.
+ *)
+Definition Matrix (X : UU) (m n : nat) : UU := Vector (Vector X (S n)) (S m).
+
+(** The transpose is obtained by flipping the arguments. *)
+Definition transpose {X : UU} {n m : nat} (mat : Matrix X m n) : Matrix X n m :=
+  flip mat.
+
+Definition row {X : UU} {m n : nat} (mat : Matrix X m n) : ⟦ S m ⟧ → Vector X (S n) := mat.
+
+Definition col {X : UU} {m n : nat} (mat : Matrix X m n) : ⟦ S n ⟧ → Vector X (S m) := transpose mat.
+
+(** hlevel of matrices *)
+Lemma matrix_hlevel (X : UU) (n m : nat) {o : nat} (ism : isofhlevel o X) :
+  isofhlevel o (Matrix X n m).
+Proof.
+  intros ? ? ? ? ?; do 2 apply vector_hlevel; assumption.
+Defined.
+
+(** Constant matrix *)
+Definition const_matrix {X : UU} {n m : nat} (x : X) : Matrix X n m :=
+  const_vec (const_vec x).
+
+(** Every type is equivalent to 1 × 1 matrices on that type. *)
+Lemma weq_matrix_1_1 {X : UU} : X ≃ Matrix X 0 0.
+  intros X.
+  intermediate_weq (Vector X 1); apply weq_vector_1.
+Defined.
+
+(** ** Sequences *)
+
+(** *** Definitions *)
+
+(** A [Sequence] is a [Vector] of any length. *)
+Definition Sequence (X : UU) := ∑ n, Vector X n.
 
 Definition NonemptySequence (X:UU) := ∑ n, stn (S n) -> X.
 
@@ -47,6 +245,8 @@ Definition NonemptySequenceToSequence {X} (x:NonemptySequence X) := functionToSe
 
 Coercion NonemptySequenceToSequence : NonemptySequence >-> Sequence.
 
+(** *** Lemmas *)
+
 Definition composeSequence {X Y} (f:X->Y) : Sequence X -> Sequence Y := λ x, functionToSequence (f ∘ x).
 
 Definition composeSequence' {X m n} (f:stn n -> X) (g:stn m -> stn n) : Sequence X
@@ -66,16 +266,11 @@ Definition transport_stn m n i (b:i<m) (p:m=n) :
   transportf stn p (i,,b) = (i,,transportf (λ m,i<m) p b).
 Proof. intros. induction p. reflexivity. Defined.
 
-Definition sequenceEquality {X m n} (f:stn m->X) (g:stn n->X) (p:m=n) :
-  (∏ i, f i = g (transportf stn p i))
-  -> transportf (λ m, stn m->X) p f = g.
-Proof. intros ? ? ? ? ? ? e. induction p. apply funextfun. exact e. Defined.
-
 Definition sequenceEquality2 {X} (f g:Sequence X) (p:length f=length g) :
   (∏ i, f i = g (transportf stn p i)) -> f = g.
 Proof.
   intros ? ? ? ? e. induction f as [m f]. induction g as [n g]. simpl in p.
-  apply (total2_paths2_f p). now apply sequenceEquality.
+  apply (total2_paths2_f p). now apply vectorEquality.
 Defined.
 
 (** The following two lemmas are the key lemmas that allow to prove (transportational) equality of
@@ -121,58 +316,26 @@ Proof.
     - now apply maponpaths, isinjstntonat.
 Defined.
 
-Local Definition empty_fun {X} : stn 0 -> X.
-Proof. intros ? i. contradicts i negstn0. Defined.
-
-Notation fromstn0 := empty_fun.
+Notation fromstn0 := empty_vec.
 
 Definition nil {X} : Sequence X.
-Proof. intros. exact (0,, empty_fun). Defined.
-
-Definition append_fun {X n} : (stn n -> X) -> X -> stn (S n) -> X.
-Proof.
-  intros ? ? x y i.
-  induction (natlehchoice4 (pr1 i) n (pr2 i)) as [c|d].
-  { exact (x (pr1 i,,c)). }
-  { exact y. }
-Defined.
-
-Definition append_fun_compute_1 {X n} (s:stn n->X) (x:X) i : append_fun s x (dni lastelement i) = s i.
-Proof.
-  intros.
-  induction i as [i b]; simpl.
-  rewrite replace_dni_last.
-  unfold append_fun; simpl.
-  induction (natlehchoice4 i n (natlthtolths i n b)) as [p|p].
-  - simpl. apply maponpaths. apply isinjstntonat; simpl. reflexivity.
-  - simpl. destruct p. induction (isirreflnatlth i b).
-Defined.
-
-Definition append_fun_compute_2 {X n} (s:stn n->X) (x:X) : append_fun s x lastelement = x.
-Proof.
-  intros.
-  unfold append_fun; simpl.
-  induction (natlehchoice4 n n (natgthsnn n)) as [a|a].
-  - simpl. contradicts a (isirreflnatlth n).
-  - simpl. reflexivity.
-Defined.
+Proof. intros. exact (0,, empty_vec). Defined.
 
 Definition append {X} : Sequence X -> X -> Sequence X.
-Proof. intros ? x y. exact (S (length x),, append_fun (pr2 x) y).
+Proof. intros ? x y. exact (S (length x),, append_vec (pr2 x) y).
+Defined.
+
+Definition drop_and_append {X n} (x : stn (S n) -> X) :
+  append (n,,x ∘ dni_lastelement) (x lastelement) = (S n,, x).
+Proof.
+  intros. apply pair_path_in2. apply drop_and_append_vec.
 Defined.
 
 Local Notation "s □ x" := (append s x) (at level 64, left associativity).
 
-Definition stn0_fun_iscontr X : iscontr (stn 0 -> X).
-Proof.
-  intros. apply (@iscontrweqb _ (empty -> X)).
-  - apply invweq. apply weqbfun. apply weqstn0toempty.
-  - apply iscontrfunfromempty.
-Defined.
-
 Definition nil_unique {X} (x : stn 0 -> X) : nil = (0,,x).
 Proof.
-  intros. unfold nil. apply maponpaths. apply isapropifcontr. apply stn0_fun_iscontr.
+  intros. unfold nil. apply maponpaths. apply isapropifcontr. apply iscontr_vector_0.
 Defined.
 
 Definition isaset_transportf {X : hSet} (P : X ->UU) {x : X} (e : x = x) (p : P x) :
@@ -263,12 +426,12 @@ Definition drop' {X} (x:Sequence X) : x != nil -> Sequence X.
 Proof. intros ? ? h. exact (drop x (pr2 (logeqnegs (nil_length x)) h)). Defined.
 
 Lemma append_and_drop_fun {X n} (x : stn n -> X) y :
-  append_fun x y ∘ dni lastelement = x.
+  append_vec x y ∘ dni lastelement = x.
 Proof.
   intros.
   apply funextsec; intros i.
   unfold funcomp.
-  unfold append_fun.
+  unfold append_vec.
   induction (natlehchoice4 (pr1 (dni lastelement i)) n (pr2 (dni lastelement i))) as [I|J].
   - simpl. apply maponpaths. apply subtypeEquality_prop. simpl. apply di_eq1. exact (stnlt i).
   - apply fromempty. simpl in J.
@@ -279,36 +442,10 @@ Proof.
     exact (isirreflnatlth _ r).
 Defined.
 
-Lemma drop_and_append_fun {X n} (x : stn (S n) -> X) :
-  append_fun (x ∘ dni_lastelement) (x lastelement) = x.
-Proof.
-  intros.
-  apply funextfun; intros [i b].
-  simpl.
-  induction (natlehchoice4 i n b) as [p|p].
-  - unfold funcomp; simpl.
-    unfold append_fun. simpl.
-    induction (natlehchoice4 i n b) as [q|q].
-    + simpl. apply maponpaths. apply isinjstntonat; simpl. reflexivity.
-    + induction q. contradicts p (isirreflnatlth i).
-  - induction p.
-    unfold append_fun; simpl.
-    induction (natlehchoice4 i i b) as [r|r].
-    * simpl. unfold funcomp; simpl. apply maponpaths.
-      apply isinjstntonat; simpl. reflexivity.
-    * simpl. apply maponpaths. apply isinjstntonat; simpl. reflexivity.
-Defined.
-
-Definition drop_and_append {X n} (x : stn (S n) -> X) :
-  append (n,,x ∘ dni_lastelement) (x lastelement) = (S n,, x).
-Proof.
-  intros. apply pair_path_in2. apply drop_and_append_fun.
-Defined.
-
 Definition drop_and_append' {X n} (x : stn (S n) -> X) :
   append (drop (S n,,x) (negpathssx0 _)) (x lastelement) = (S n,, x).
 Proof.
-  intros. simpl. apply pair_path_in2. apply drop_and_append_fun.
+  intros. simpl. apply pair_path_in2. apply drop_and_append_vec.
 Defined.
 
 Definition disassembleSequence {X} : Sequence X -> coprod unit (X × Sequence X).
@@ -343,8 +480,8 @@ Proof.
     apply proofirrelevancecontr. apply iscontrunit. }
   induction p as [x y]. induction y as [n y].
   apply (maponpaths (@inr unit (X × Sequence X))).
-  unfold append_fun, lastelement, funcomp; simpl.
-  unfold append_fun. simpl.
+  unfold append_vec, lastelement, funcomp; simpl.
+  unfold append_vec. simpl.
   induction (natlehchoice4 n n (natgthsnn n)) as [e|e].
   { contradicts e (isirreflnatlth n). }
   simpl. apply maponpaths, maponpaths.
@@ -354,6 +491,7 @@ Proof.
   { simpl. apply maponpaths. now apply isinjstntonat. }
   simpl. induction d; contradicts b (isirreflnatlth i).
 Defined.
+
 
 Definition Sequence_rect {X} {P : Sequence X ->UU}
            (p0 : P nil)
@@ -422,7 +560,7 @@ Proof.
   - cbn. apply natplusnsm.
   - intros i r s.
     unfold concatenate, concatenate', weqfromcoprodofstn_invmap; cbn.
-    unfold append_fun, coprod_rect, funcomp; cbn.
+    unfold append_vec, coprod_rect, funcomp; cbn.
     induction (natlthorgeh i m) as [H | H].
     + induction (natlehchoice4 i (m + n) s) as [H1 | H1].
       * reflexivity.
@@ -588,5 +726,3 @@ Proof.
   - apply maponpaths. apply isinjstntonat. cbn. apply idpath.
   - apply maponpaths. apply isinjstntonat. cbn. apply idpath.
 Qed.
-
-(* End of the file *)

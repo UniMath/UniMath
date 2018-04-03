@@ -86,6 +86,8 @@ Definition lunax (X : monoid) : islunit (@op X) (unel X) := pr1 (pr2 (pr2 (pr2 X
 
 Definition runax (X : monoid) : isrunit (@op X) (unel X) := pr2 (pr2 (pr2 (pr2 X))).
 
+Definition unax (X : monoid) : isunit (@op X) (unel X) := dirprodpair (lunax X) (runax X).
+
 Definition isasetmonoid (X : monoid) : isaset X := pr2 (pr1 (pr1 X)).
 
 Notation "x + y" := (op x y) : addmonoid_scope.
