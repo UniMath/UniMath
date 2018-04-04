@@ -183,6 +183,12 @@ Definition row {X : UU} {m n : nat} (mat : Matrix X m n) : ⟦ S m ⟧ → Vecto
 
 Definition col {X : UU} {m n : nat} (mat : Matrix X m n) : ⟦ S n ⟧ → Vector X (S m) := transpose mat.
 
+Definition row_vec {X : UU} {n : nat} (vec : Vector X (S n)) : Matrix X 0 n :=
+  λ i j, vec j.
+
+Definition col_vec {X : UU} {n : nat} (vec : Vector X (S n)) : Matrix X n 0 :=
+  λ i j, vec i.
+
 (** hlevel of matrices *)
 Lemma matrix_hlevel (X : UU) (n m : nat) {o : nat} (ism : isofhlevel o X) :
   isofhlevel o (Matrix X n m).

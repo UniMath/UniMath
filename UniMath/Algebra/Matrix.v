@@ -311,10 +311,83 @@ Section MatrixMult.
     - exact (rigunel1). (* The additive identity *)
   Defined.
 
-  (*
-  Lemma matrix_mult_assoc {m n : nat} (mat1 : Matrix R m n)
-                          {p : nat} (mat2 : Matrix R n p)
-                          {q : nat} (mat3 : Matrix R p q) :
-    ((mat1 ** mat2) ** mat3) = (mat1 ** (mat2 ** mat3)).
-  *)
 End MatrixMult.
+
+Local Notation Σ := (iterop_fun rigunel1 op1).
+Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
+Local Notation "A ** B" := (matrix_mult A B) (at level 80).
+
+
+(** The following is based on "The magnitude of metric spaces" by Tom Leinster
+    (arXiv:1012.5857v3). *)
+Section Weighting.
+
+  Context {R : rig}.
+
+  (** Definition 1.1.1 in arXiv:1012.5857v3 *)
+  Definition weighting {m n : nat} (mat : Matrix R m n) : UU :=
+    ∑ vec : Vector R (S n), (mat ** (col_vec vec)) = col_vec (const_vec (1%rig)).
+
+  Definition coweighting {m n : nat} (mat : Matrix R m n) : UU :=
+    ∑ vec : Vector R (S m), ((row_vec vec) ** mat) = row_vec (const_vec (1%rig)).
+
+  Lemma matrix_mult_vectors {n : nat} (vec1 vec2 : Vector R (S n)) :
+    ((row_vec vec1) ** (col_vec vec2)) = weq_matrix_1_1 (Σ (vec1 ^ vec2)).
+  Proof.
+    apply funextfun; intro i; apply funextfun; intro j; reflexivity.
+  Defined.
+
+  (** Multiplying a column vector by the identity row vector is the same as
+      taking the sum of its entries. *)
+  Local Lemma sum_entries1 {n : nat} (vec : Vector R (S n)) :
+    weq_matrix_1_1 (Σ vec) = ((row_vec (const_vec (1%rig))) ** (col_vec vec)).
+  Proof.
+    refine (_ @ !matrix_mult_vectors _ _).
+    do 2 apply maponpaths.
+    apply pathsinv0.
+    refine (pointwise_lunit 1%rig _ vec).
+    apply riglunax2.
+  Defined.
+
+  Local Lemma sum_entries2 {n : nat} (vec : Vector R (S n)) :
+      weq_matrix_1_1 (Σ vec) = (row_vec vec ** col_vec (const_vec 1%rig)).
+  Proof.
+    refine (_ @ !matrix_mult_vectors _ _).
+    do 2 apply maponpaths.
+    apply pathsinv0.
+    refine (pointwise_runit 1%rig _ vec).
+    apply rigrunax2.
+  Defined.
+
+  (** TODO: prove this so that the below isn't hypothetical *)
+  Definition matrix_mult_assoc_statement : UU :=
+    ∏ {m n : nat} (mat1 : Matrix R m n)
+      {p : nat} (mat2 : Matrix R n p)
+      {q : nat} (mat3 : Matrix R p q),
+    ((mat1 ** mat2) ** mat3) = (mat1 ** (mat2 ** mat3)).
+
+  (** Lemma 1.1.2 in arXiv:1012.5857v3 *)
+  Lemma weighting_coweighting_sum {m n : nat} (mat : Matrix R m n)
+        (wei : weighting mat) (cowei : coweighting mat)
+        (assocax : matrix_mult_assoc_statement) :
+    Σ (pr1 wei) = Σ (pr1 cowei).
+  Proof.
+    apply (invmaponpathsweq weq_matrix_1_1).
+    intermediate_path ((row_vec (const_vec (1%rig))) ** (col_vec (pr1 wei))).
+    - apply sum_entries1.
+    - refine (!maponpaths (λ z, z ** _) (pr2 cowei) @ _).
+      refine (assocax _ _ _ _ _ _ _ @ _).
+      refine (maponpaths (λ z, _ ** z) (pr2 wei) @ _).
+      apply pathsinv0, sum_entries2 .
+  Defined.
+
+  (** Definition 1.1.3 in arXiv:1012.5857v3 *)
+  Definition has_magnitude {n m : nat} (mat : Matrix R m n) : UU :=
+    (weighting mat) × (coweighting mat).
+
+  Definition magnitude {n m : nat} (m : Matrix R m n) (has : has_magnitude m) : R :=
+    Σ (pr1 (dirprod_pr1 has)).
+
+  Notation "| Mat |" := (magnitude Mat _) : magnitude.
+
+End Weighting.
