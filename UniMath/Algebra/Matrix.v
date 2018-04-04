@@ -21,7 +21,6 @@ Require Import UniMath.Algebra.Rigs_and_Rings.
    - Structures
  - Matrices
    - Standard conditions on one binary operation
-   - Standard conditions on a pair of binary operations
    - Structures
    - Matrix rig
 *)
@@ -113,19 +112,6 @@ Section TwoOps.
     - apply pointwise_rdistr; apply (dirprod_pr2 isdistrax).
   Defined.
 
-  Definition pointwise_isrigops (isrigopsax : isrigops op op') :
-    isrigops (pointwise n op) (pointwise n op').
-  Proof.
-    use mk_isrigops.
-    - apply pointwise_abmonoidop, (rigop1axs_is isrigopsax).
-    - apply pointwise_monoidop, (rigop2axs_is isrigopsax).
-    - intro; apply funextfun; intro;
-        apply (dirprod_pr1 (pr2 (dirprod_pr1 isrigopsax))).
-    - intro; apply funextfun; intro;
-        apply (dirprod_pr2 (pr2 (dirprod_pr1 isrigopsax))).
-    - apply pointwise_distr, rigdistraxs_is; assumption.
-  Defined.
-
 End TwoOps.
 
 (** *** Structures *)
@@ -168,13 +154,6 @@ Section Structures.
     use abmonoidpair.
     - apply pointwise_setwithbinop; [exact X|assumption].
     - apply pointwise_abmonoidop; exact (pr2 X).
-  Defined.
-
-  Definition pointwise_rig (X : rig) (n : nat) : rig.
-  Proof.
-    use rigpair.
-    - apply pointwise_setwith2binop; [exact X|assumption].
-    - apply pointwise_isrigops; exact (pr2 X).
   Defined.
 
 End Structures.
@@ -239,45 +218,9 @@ Section OneOpMat.
 
 End OneOpMat.
 
-(** *** Standard conditions on a pair of binary operations *)
-
-Section TwoOpsMat.
-  Context {X : UU} {n m : nat} {op : binop X} {op' : binop X}.
-
-  Definition entrywise_ldistr (isldistrax : isldistr op op') :
-    isldistr (entrywise n m op) (entrywise n m op').
-  Proof.
-    intros ? ? ?; apply funextfun; intro; apply pointwise_ldistr, isldistrax.
-  Defined.
-
-  Definition entrywise_rdistr (isrdistrax : isrdistr op op') :
-    isrdistr (entrywise n m op) (entrywise n m op').
-  Proof.
-    intros ? ? ?; apply funextfun; intro; apply pointwise_rdistr, isrdistrax.
-  Defined.
-
-  Definition entrywise_distr (isdistrax : isdistr op op') :
-    isdistr (entrywise n m op) (entrywise n m op').
-  Proof.
-    use dirprodpair.
-    - apply entrywise_ldistr; apply (dirprod_pr1 isdistrax).
-    - apply entrywise_rdistr; apply (dirprod_pr2 isdistrax).
-  Defined.
-
-  Definition entrywise_isrigops (isrigopsax : isrigops op op') :
-    isrigops (entrywise n m op) (entrywise n m op').
-  Proof.
-    use mk_isrigops.
-    - apply entrywise_abmonoidop, (rigop1axs_is isrigopsax).
-    - apply entrywise_monoidop, (rigop2axs_is isrigopsax).
-    - do 2 (intro; apply funextfun); intro;
-        apply (dirprod_pr1 (pr2 (dirprod_pr1 isrigopsax))).
-    - do 2 (intro; apply funextfun); intro;
-        apply (dirprod_pr2 (pr2 (dirprod_pr1 isrigopsax))).
-    - apply entrywise_distr, rigdistraxs_is; assumption.
-  Defined.
-
-End TwoOpsMat.
+(** It is uncommon to consider two entrywise binary operations on matrices,
+    so we don't derive "standard conditions on a pair of binar operations"
+    for matrices. *)
 
 (** *** Structures *)
 
@@ -317,7 +260,6 @@ Local Notation Σ := (iterop_fun rigunel1 op1).
 Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 Local Notation "A ** B" := (matrix_mult A B) (at level 80).
 
-
 (** The following is based on "The magnitude of metric spaces" by Tom Leinster
     (arXiv:1012.5857v3). *)
 Section Weighting.
@@ -326,12 +268,12 @@ Section Weighting.
 
   (** Definition 1.1.1 in arXiv:1012.5857v3 *)
   Definition weighting {m n : nat} (mat : Matrix R m n) : UU :=
-    ∑ vec : Vector R (S n), (mat ** (col_vec vec)) = col_vec (const_vec (1%rig)).
+    ∑ vec : Vector R n, (mat ** (col_vec vec)) = col_vec (const_vec (1%rig)).
 
   Definition coweighting {m n : nat} (mat : Matrix R m n) : UU :=
-    ∑ vec : Vector R (S m), ((row_vec vec) ** mat) = row_vec (const_vec (1%rig)).
+    ∑ vec : Vector R m, ((row_vec vec) ** mat) = row_vec (const_vec (1%rig)).
 
-  Lemma matrix_mult_vectors {n : nat} (vec1 vec2 : Vector R (S n)) :
+  Lemma matrix_mult_vectors {n : nat} (vec1 vec2 : Vector R n) :
     ((row_vec vec1) ** (col_vec vec2)) = weq_matrix_1_1 (Σ (vec1 ^ vec2)).
   Proof.
     apply funextfun; intro i; apply funextfun; intro j; reflexivity.
@@ -339,7 +281,7 @@ Section Weighting.
 
   (** Multiplying a column vector by the identity row vector is the same as
       taking the sum of its entries. *)
-  Local Lemma sum_entries1 {n : nat} (vec : Vector R (S n)) :
+  Local Lemma sum_entries1 {n : nat} (vec : Vector R n) :
     weq_matrix_1_1 (Σ vec) = ((row_vec (const_vec (1%rig))) ** (col_vec vec)).
   Proof.
     refine (_ @ !matrix_mult_vectors _ _).
@@ -349,7 +291,7 @@ Section Weighting.
     apply riglunax2.
   Defined.
 
-  Local Lemma sum_entries2 {n : nat} (vec : Vector R (S n)) :
+  Local Lemma sum_entries2 {n : nat} (vec : Vector R n) :
       weq_matrix_1_1 (Σ vec) = (row_vec vec ** col_vec (const_vec 1%rig)).
   Proof.
     refine (_ @ !matrix_mult_vectors _ _).
