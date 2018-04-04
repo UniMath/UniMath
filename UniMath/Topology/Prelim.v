@@ -261,7 +261,7 @@ Proof.
   intros X A L.
   rewrite finite_intersection_case.
   simpl.
-  rewrite append_fun_compute_2.
+  rewrite append_vec_compute_2.
   apply funextfun ; intro x.
   apply maponpaths.
   apply map_on_two_paths.
@@ -270,7 +270,7 @@ Proof.
     apply funextfun ; intro m.
     unfold funcomp.
     rewrite <- replace_dni_last.
-    apply append_fun_compute_1.
+    apply append_vec_compute_1.
   - reflexivity.
 Qed.
 
@@ -304,10 +304,10 @@ Proof.
     + intros L A IHl Hl.
       rewrite finite_intersection_append.
       apply (pr2 Hp).
-      * rewrite <- (append_fun_compute_2 L A).
+      * rewrite <- (append_vec_compute_2 L A).
         now apply Hl.
       * apply IHl.
         intros n.
-        rewrite <- (append_fun_compute_1 L A).
+        rewrite <- (append_vec_compute_1 L A).
         apply Hl.
 Qed.
