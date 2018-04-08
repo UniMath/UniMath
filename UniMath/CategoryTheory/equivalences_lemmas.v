@@ -120,7 +120,7 @@ End from_equiv_to_fully_faithful.
     that C is univalent, and use the fact that a fully faithful, essentially
     surjective functor out of a univalent category is an equivalence. *)
 
-Lemma compose_equivalences {C : univalent_category} (D E : precategory)
+Lemma compose_equivalences_univalent {C : univalent_category} (D E : precategory)
       (E1 : total2 (@adj_equivalence_of_precats C D))
       (E2 : total2 (@adj_equivalence_of_precats D E)) :
   (total2 (@adj_equivalence_of_precats C E)).

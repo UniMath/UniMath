@@ -14,7 +14,7 @@ Authors: Benedikt Ahrens, Chris Kapulkin, Mike Shulman (January 2013)
       - preserve isos, inverses, composition
               backwards
 
-    - essentially surjective
+    - (Split) essentially surjective functors
     - faithful
     - full
     - fully faithful is the same as full and faithful
@@ -648,7 +648,21 @@ Proof.
 Qed.
 
 
-(** ** Essentially surjective functors *)
+(** ** (Split) essentially surjective functors *)
+
+(** See [CategoryTheory.equivalences] for more lemmas about (split) essential
+    surjectivity, especially where the domain is a [univalent_category]. *)
+
+(** See "Univalent categories and the Rezk completion" (arXiv:1303.0584v2)
+    Definition 6.5. *)
+Definition split_essentially_surjective {C D : precategory_data} (F : functor C D) :=
+  ∏ b, (∑ a : ob C, iso (F a) b).
+
+(** Split essentially surjective functors have "inverses" on objects, where we
+    map d : ob D to the c : ob C such that F c ≅ d. *)
+Definition split_essentially_surjective_inv_on_obj {C D : precategory_data}
+           (F : functor C D) (HF : split_essentially_surjective F) : ob D → ob C :=
+  λ d, (pr1 (HF d)).
 
 Definition essentially_surjective {C D : precategory_data} (F : functor C D) :=
   ∏ b, ishinh (total2 (λ a, iso (F a) b)).
