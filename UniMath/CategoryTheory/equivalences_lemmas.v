@@ -1,34 +1,29 @@
-(** **********************************************************
+(** ** Lemmas about equivalences of categories
 
-Benedikt Ahrens, Chris Kapulkin, Mike Shulman
-january 2013
+Authors: Benedikt Ahrens, Chris Kapulkin, Mike Shulman (January 2013)
 
-Revised by Marco Maggesi, november 2017
+Revised by: Marco Maggesi (November 2017), Langston Barrett (April 2018)
 
-************************************************************)
+*)
 
 
-(** **********************************************************
+(** ** Contents :
 
-Contents :  Definition of adjunction
-
-	    Definition of equivalence of precategories
-
-	    Equivalence of categories yields weak equivalence
-            of object types
-
-            A fully faithful and ess. surjective functor induces
-            equivalence of precategories, if the source
-            is a category.
-
-************************************************************)
+ - Fully faithful functor from an equivalence
+ - Functor from an equivalence is essentially surjective
+ - Composition of equivalences
+*)
 
 
 Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.equivalences.
+
+
+(** ** Fully faithful functor from an equivalence *)
 
 Section from_equiv_to_fully_faithful.
 
@@ -67,7 +62,7 @@ Lemma triangle_id_inverse (a : A)
   : iso_inv_from_iso (functor_on_iso F (eta a)) = eps (F a).
 Proof.
   apply eq_iso. simpl.
-  match goal with [|- ?x = ?y] => transitivity (x · identity _) end.
+  match goal with | [ |- ?x = ?y ] => transitivity (x · identity _) end.
   apply pathsinv0, id_right.
   apply iso_inv_on_right.
   set (H' := triangle_id_left_ad (pr2 (pr1 H)) a).
@@ -106,4 +101,38 @@ Proof.
   - apply inverse_is_inverse_2.
 Qed.
 
+(** ** Functor from an equivalence is essentially surjective *)
+
+Lemma functor_from_equivalence_is_essentially_surjective :
+  essentially_surjective F.
+Proof.
+  unfold essentially_surjective.
+  intros b; apply hinhpr.
+  exists (G b).
+  apply counit_pointwise_iso_from_adj_equivalence.
+Defined.
+
 End from_equiv_to_fully_faithful.
+
+(** ** Composition of equivalences *)
+
+(** There is probably a more general way to do this. We assume
+    that C is univalent, and use the fact that a fully faithful, essentially
+    surjective functor out of a univalent category is an equivalence. *)
+
+Lemma compose_equivalences {C : univalent_category} (D E : precategory)
+      (E1 : total2 (@adj_equivalence_of_precats C D))
+      (E2 : total2 (@adj_equivalence_of_precats D E)) :
+  (total2 (@adj_equivalence_of_precats C E)).
+Proof.
+  exists (functor_composite (pr1 E1) (pr1 E2)).
+  use rad_equivalence_of_precats.
+  - apply univalent_category_is_univalent.
+  - apply comp_ff_is_ff; apply fully_faithful_from_equivalence.
+    + apply (pr2 E1).
+    + apply (pr2 E2).
+  - apply comp_essentially_surjective;
+      apply functor_from_equivalence_is_essentially_surjective.
+    + apply (pr2 E1).
+    + apply (pr2 E2).
+Defined.

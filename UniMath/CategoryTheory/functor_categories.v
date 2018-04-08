@@ -653,6 +653,36 @@ Qed.
 Definition essentially_surjective {C D : precategory_data} (F : functor C D) :=
   ∏ b, ishinh (total2 (λ a, iso (F a) b)).
 
+Lemma isaprop_essentially_surjective {C D : precategory_data} (F : functor C D) :
+   isaprop (essentially_surjective F).
+Proof.
+  apply impred; intro; apply isapropishinh.
+Defined.
+
+(** Composition of essentially surjective functors yields an essentially
+    surjective functor. *)
+
+(** Let e : E. Since G is essentially surjective, there is some g
+    such that e ≅ G g. Since F is essentially surjective, there is some f
+    such that G g ≅ F f. Composing these isomorphisms proves the goal.
+ *)
+Lemma comp_essentially_surjective {C D E : precategory}
+      (F : functor C D) (esF : essentially_surjective F)
+      (G : functor D E) (esG : essentially_surjective G) :
+  essentially_surjective (functor_composite F G).
+Proof.
+  unfold essentially_surjective.
+  intros e.
+  apply (squash_to_prop (esG e)); [apply isapropishinh|]; intros isoGe.
+  apply (squash_to_prop (esF (pr1 isoGe))); [apply isapropishinh|]; intros isoFGe.
+  apply hinhpr.
+  exists (pr1 isoFGe); unfold functor_composite; cbn.
+  apply (@iso_comp E _ (G (pr1 isoGe))).
+  - apply functor_on_iso.
+    exact (pr2 isoFGe).
+  - apply (pr2 isoGe).
+Defined.
+
 (** ** Faithful functors *)
 
 Definition faithful {C D : precategory_data} (F : functor C D) :=

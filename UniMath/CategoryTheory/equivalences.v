@@ -1,20 +1,17 @@
-(** **********************************************************
+(** ** Equivalence of categories
 
-Benedikt Ahrens, Chris Kapulkin, Mike Shulman
-january 2013
+Authors: Benedikt Ahrens, Chris Kapulkin, Mike Shulman (January 2013)
 
-************************************************************)
+*)
 
 
-(** **********************************************************
+(** ** Contents:
 
-Contents:
-
-- Definition of equivalence of precategories
+- Definition of (adjoint) equivalence of precategories
 - Equivalence of categories yields weak equivalence of object types
 - A fully faithful and ess. surjective functor induces equivalence of precategories, if the source is a univalent_category.
 
-************************************************************)
+*)
 
 
 Require Import UniMath.Foundations.PartD.
