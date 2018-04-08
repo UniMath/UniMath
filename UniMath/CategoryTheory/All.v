@@ -53,6 +53,8 @@ Require Export UniMath.CategoryTheory.limits.Opp.
 Require Export UniMath.CategoryTheory.limits.graphs.eqdiag.
 Require Export UniMath.CategoryTheory.Subcategory.Limits.
 Require Export UniMath.CategoryTheory.EpiFacts.
+Require Export UniMath.CategoryTheory.exponentials.
+Require Export UniMath.CategoryTheory.categories.Types.
 Require Export UniMath.CategoryTheory.categories.category_hset.
 Require Export UniMath.CategoryTheory.SimplicialSets.
 Require Export UniMath.CategoryTheory.yoneda.
@@ -70,7 +72,6 @@ Require Export UniMath.CategoryTheory.HorizontalComposition.
 Require Export UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Export UniMath.CategoryTheory.CommaCategories.
 Require Export UniMath.CategoryTheory.RightKanExtension.
-Require Export UniMath.CategoryTheory.exponentials.
 Require Export UniMath.CategoryTheory.slicecat.
 Require Export UniMath.CategoryTheory.coslicecat.
 Require Export UniMath.CategoryTheory.limits.pullbacks_slice_products_equiv.
@@ -125,7 +126,6 @@ Require Export UniMath.CategoryTheory.categories.intdoms.
 Require Export UniMath.CategoryTheory.categories.flds.
 Require Export UniMath.CategoryTheory.categories.modules.
 Require Export UniMath.CategoryTheory.categories.StandardCategories.
-Require Export UniMath.CategoryTheory.categories.Types.
 Require Export UniMath.CategoryTheory.categories.Cats.
 Require Export UniMath.CategoryTheory.categories.preorder_categories.
 Require Export UniMath.CategoryTheory.categories.wosets.

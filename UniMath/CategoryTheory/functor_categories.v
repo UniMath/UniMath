@@ -9,11 +9,10 @@ Authors: Benedikt Ahrens, Chris Kapulkin, Mike Shulman (January 2013)
 
   - Functors
     - preserve isos, inverses
+    - Conservative functors ([conservative])
     - Composition of functors, identity functors
     - fully faithful functors
-      - preserve isos, inverses, composition
-              backwards
-
+      - preserve isos, inverses, composition backwards
     - (Split) essentially surjective functors
     - faithful
     - full
@@ -38,6 +37,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Univalence.
 Require Import UniMath.MoreFoundations.Tactics.
 
@@ -315,6 +315,14 @@ Proof.
   apply functor_id.
 Qed.
 
+(** ** Conservative functors *)
+
+(** These are functors that reflect isomorphisms. F : C ⟶ D is conservative
+    if whenever # F f is an iso, so is f. *)
+
+Definition conservative {C D : precategory} (F : functor C D) : UU :=
+  ∏ (a b : ob C) (f : C ⟦a, b⟧), is_iso (# F f) → is_iso f.
+
 (** ** Composition of functors, identity functors *)
 
 (** *** Composition *)
@@ -423,13 +431,22 @@ Proof.
   exact (FF a b).
 Defined.
 
-
-Definition fully_faithful_inv_hom {C D : precategory_data}{F : functor C D}
+Definition fully_faithful_inv_hom {C D : precategory_data} {F : functor C D}
       (FF : fully_faithful F) (a b : ob C) :
       F a --> F b -> a --> b :=
  invweq (weq_from_fully_faithful FF a b).
 
 Local Notation "FF ^-1" := (fully_faithful_inv_hom FF _ _ ) (at level 20).
+
+(** FF^1 is indeed post-inverse to # F. *)
+Lemma fully_faithful_inv_hom_is_inv {C D : precategory} {F : functor C D}
+      (FF : fully_faithful F) {a b : ob C} (f : C⟦a, b⟧) :
+  FF^-1 (# F f) = f.
+Proof.
+  cbn.
+  apply invmap_eq.
+  reflexivity.
+Defined.
 
 Lemma fully_faithful_inv_identity (C D : precategory_data) (F : functor C D)
       (FF : fully_faithful F) (a : ob C) :
@@ -504,7 +521,19 @@ Proof.
   apply inv_of_ff_inv_is_inv.
 Defined.
 
-Definition  iso_from_fully_faithful_reflection {C D : precategory}{F : functor C D}
+(** A slight restatement of the above: fully faithful functors are conservative. *)
+Lemma fully_faithful_conservative {C D : precategory} (F : functor C D)
+      (FF : fully_faithful F) : conservative F.
+Proof.
+  unfold conservative.
+  intros a b f is_iso_Ff.
+  use transportf.
+  - exact (FF^-1 (# F f)).
+  - apply fully_faithful_inv_hom_is_inv.
+  - apply (fully_faithful_reflects_iso_proof _ _ _ _ _ _ (isopair _ is_iso_Ff)).
+Defined.
+
+Definition  iso_from_fully_faithful_reflection {C D : precategory} {F : functor C D}
         (HF : fully_faithful F)
     {a b : ob C} (f : iso (F a) (F b)) :
       iso a b.
