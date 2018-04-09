@@ -121,18 +121,14 @@ End from_equiv_to_fully_faithful.
     surjective functor out of a univalent category is an equivalence. *)
 
 Lemma compose_equivalences_univalent {C : univalent_category} (D E : precategory)
-      (E1 : total2 (@adj_equivalence_of_precats C D))
-      (E2 : total2 (@adj_equivalence_of_precats D E)) :
-  (total2 (@adj_equivalence_of_precats C E)).
+      (F : functor C D) (FE : adj_equivalence_of_precats F)
+      (G : functor D E) (GE : adj_equivalence_of_precats G) :
+  adj_equivalence_of_precats (functor_composite F G).
 Proof.
-  exists (functor_composite (pr1 E1) (pr1 E2)).
   use rad_equivalence_of_precats.
   - apply univalent_category_is_univalent.
-  - apply comp_ff_is_ff; apply fully_faithful_from_equivalence.
-    + apply (pr2 E1).
-    + apply (pr2 E2).
+  - apply comp_ff_is_ff; apply fully_faithful_from_equivalence; assumption.
   - apply comp_essentially_surjective;
-      apply functor_from_equivalence_is_essentially_surjective.
-    + apply (pr2 E1).
-    + apply (pr2 E2).
+      apply functor_from_equivalence_is_essentially_surjective;
+      assumption.
 Defined.
