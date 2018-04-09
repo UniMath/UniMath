@@ -317,11 +317,17 @@ Qed.
 
 (** ** Conservative functors *)
 
+(** The generic property of "reflecting" a property of a morphism. *)
+
+Definition reflects_morphism {C D : precategory} (F : functor C D)
+           (P : ∏ (C : precategory) (a b : ob C), C⟦a, b⟧ → UU) : UU :=
+  ∏ a b f, P D (F a) (F b) (# F f) → P C a b f.
+
 (** These are functors that reflect isomorphisms. F : C ⟶ D is conservative
     if whenever # F f is an iso, so is f. *)
 
 Definition conservative {C D : precategory} (F : functor C D) : UU :=
-  ∏ (a b : ob C) (f : C ⟦a, b⟧), is_iso (# F f) → is_iso f.
+  reflects_morphism F (@is_iso).
 
 (** ** Composition of functors, identity functors *)
 
@@ -748,6 +754,20 @@ Proof.
   unfold faithful in *.
   intros ? ?; apply (isinclcomp (_,, faithF _ _) (_,, faithG _ _)).
 Qed.
+
+(** Faithful functors reflect commutative triangles. If F f · F g = F h,
+    in D, then f · g = h in C. (Really, this is true more generally for any
+    diagram.) *)
+
+Lemma faithful_reflects_commutative_triangle {C D : precategory} (F : functor C D)
+      (FF : faithful F) {a b c : ob C} (f : C ⟦a, b⟧) (g : C ⟦b, c⟧) (h : C ⟦a, c⟧) :
+  # F f · # F g = # F h → f · g = h.
+Proof.
+  intros feq.
+  apply (Injectivity (# F)).
+  - apply isweqonpathsincl, FF.
+  - exact (functor_comp F f g @ feq).
+Defined.
 
 (** ** Full functors *)
 
