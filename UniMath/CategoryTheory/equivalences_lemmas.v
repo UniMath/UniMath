@@ -12,6 +12,8 @@ Revised by: Marco Maggesi (November 2017), Langston Barrett (April 2018)
  - Fully faithful functor from an equivalence
  - Functor from an equivalence is essentially surjective
  - Composition of equivalences
+ - Fully faithful essentially surjective functors preserve all [hProp]s on
+   hom-types
 *)
 
 
@@ -22,12 +24,11 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.equivalences.
 
+Local Open Scope cat.
 
 (** ** Fully faithful functor from an equivalence *)
 
 Section from_equiv_to_fully_faithful.
-
-Local Open Scope cat.
 
 Variables A B : precategory.
 Variable F : A ⟶ B.
@@ -132,3 +133,79 @@ Proof.
       apply functor_from_equivalence_is_essentially_surjective;
       assumption.
 Defined.
+
+(** ** Fully faithful essentially surjective functors preserve all [hProp]s on hom-types *)
+
+Section HomtypeProperties.
+
+  Context {C D : precategory} (F : functor C D).
+
+  (** For every hom-type in D, there merely exists a hom-type in C to which
+      it is equivalent. For split essentially surjective functors, this
+      could be strengthened to an untruncated version. *)
+  (* TODO: better name? *)
+  Lemma ff_es_homtype_weq (FFF : fully_faithful F) (FES : essentially_surjective F) :
+    (∏ d d' : ob D, ∥ ∑ c c' : ob C,  C⟦c, c'⟧ ≃ D⟦d, d'⟧ ∥).
+  Proof.
+    intros d d'.
+
+    (** Obtain the c, c' for which F c ≅ d and F c' ≅ d'. *)
+    apply (squash_to_prop (FES d)); [apply isapropishinh|]; intros c.
+    apply (squash_to_prop (FES d')); [apply isapropishinh|]; intros c'.
+    apply hinhpr.
+    exists (pr1 c), (pr1 c').
+
+    (** Homsets between isomorphic objects are equivalent. *)
+    intermediate_weq (D ⟦ F (pr1 c), F (pr1 c') ⟧).
+    - apply weq_from_fully_faithful; assumption.
+    - intermediate_weq (D ⟦ F (pr1 c), d' ⟧).
+      + eapply weqpair.
+        apply iso_comp_left_isweq.
+        Unshelve.
+        exact (pr2 c').
+      + eapply weqpair.
+        apply iso_comp_right_weq.
+        Unshelve.
+        exact (iso_inv_from_is_iso (pr1 (pr2 c)) (pr2 (pr2 c))).
+  Defined.
+
+  Lemma ff_es_homtype_property (FFF : fully_faithful F)
+        (FES : essentially_surjective F) (P : UU → hProp)
+        (prop : ∏ a b : ob C, P (C⟦a, b⟧)) : (∏ a b : ob D, P (D⟦a, b⟧)).
+  Proof.
+    intros a b.
+    apply (squash_to_prop (ff_es_homtype_weq FFF FES a b));
+      [apply propproperty|]; intros H.
+    use transportf.
+    - exact (P (C⟦(pr1 H), (pr1 (pr2 H))⟧)).
+    - apply maponpaths.
+      apply weqtopaths.
+      exact (pr2 (pr2 H)).
+    - apply prop.
+  Defined.
+
+  (** Corollary: Equivalences preserve [hProp]s on hom-types. *)
+  Corollary equivalence_homtype_property (E : adj_equivalence_of_precats F)
+            (P : UU → hProp) (prop : ∏ a b : ob C, P (C⟦a, b⟧)) :
+    (∏ a b : ob D, P (D⟦a, b⟧)).
+  Proof.
+    apply ff_es_homtype_property.
+    - apply fully_faithful_from_equivalence; assumption.
+    - apply functor_from_equivalence_is_essentially_surjective; assumption.
+    - assumption.
+  Defined.
+
+  (** Corollary: Fully faithful essentially surjective functors preserve the
+      property of having hom-sets. *)
+  Corollary ff_es_preserves_homsets (FFF : fully_faithful F)
+            (FES : essentially_surjective F) (hsC : has_homsets C) : has_homsets D.
+  Proof.
+    refine (ff_es_homtype_property FFF FES
+              (λ t, hProppair _ (isapropisaset t)) _).
+    apply hsC.
+  Defined.
+
+  (** Other applications: ff/es functors preserve univalence, being a groupoid,
+      merely having any type of (co)limits, etc. *)
+
+End HomtypeProperties.
