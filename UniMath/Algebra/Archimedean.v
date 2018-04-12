@@ -12,7 +12,7 @@ Unset Kernel Term Sharing.
 
 (** Imports *)
 
-Require Import UniMath.Algebra.Rigs_and_Rings .
+Require Import UniMath.Algebra.RigsAndRings .
 Require Import UniMath.Algebra.DivisionRig .
 Require Import UniMath.Algebra.Domains_and_Fields .
 Require Import UniMath.Algebra.ConstructiveStructures.

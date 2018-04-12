@@ -7,6 +7,7 @@
   - Functions between monoids compatible with structures (homomorphisms)
     and their properties
   - Subobjects
+  - Kernels
   - Quotient objects
   - Direct products
  - Abelian (commutative) monoids
@@ -33,6 +34,7 @@
   - Basic definitions
   - Univalence for abelian groups
   - Subobjects
+  - Kernels
   - Quotient objects
   - Direct products
   - Abelian group of fractions of an abelian unitary monoid
@@ -450,6 +452,38 @@ Defined.
 
 Definition submonoid_incl {X : monoid} (A : submonoid X) : monoidfun A X :=
 monoidfunconstr (ismonoidfun_pr1 A).
+
+(** **** Kernels *)
+
+(** Kernels
+    Let f : X → Y be a morphism of monoids. The kernel of f is
+    the submonoid of X consisting of elements x such that [f x = unel Y].
+ *)
+
+Definition monoid_kernel_hsubtype {A B : monoid} (f : monoidfun A B) : hsubtype A.
+Proof.
+  intros a.
+  use hProppair.
+  - exact (f a = unel B).
+  - apply setproperty.
+Defined.
+
+(** Kernel as a monoid *)
+
+Definition kernel_issubmonoid {A B : monoid} (f : monoidfun A B) :
+  issubmonoid (monoid_kernel_hsubtype f).
+Proof.
+  use issubmonoidpair.
+  - intros x y.
+    refine (monoidfunmul f _ _ @ _).
+    refine (maponpaths _ (pr2 y) @ _).
+    refine (runax _ _ @ _).
+    exact (pr2 x).
+  - apply monoidfununel.
+Defined.
+
+Definition kernel_submonoid {A B : monoid} (f : monoidfun A B) : @submonoid A :=
+  submonoidpair _ (kernel_issubmonoid f).
 
 (** **** Quotient objects *)
 

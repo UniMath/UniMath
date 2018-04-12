@@ -431,7 +431,6 @@ Definition carrierofasubrig (X : rig) (A : subrig X) : rig.
 Proof. intros. split with A. apply isrigcarrier. Defined.
 Coercion carrierofasubrig : subrig >-> rig.
 
-
 (** **** Quotient objects *)
 
 Definition rigeqrel {X : rig} : UU := @twobinopeqrel X.
