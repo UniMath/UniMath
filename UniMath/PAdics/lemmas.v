@@ -947,25 +947,6 @@ Proof.
   - apply ( pr2 p ). intro Q. auto.
 Defined.
 
-Lemma stronginduction { E : nat -> UU } ( p : E 0%nat )
-  ( q : forall n : nat, natneq n 0%nat -> ( ( forall m : nat, natlth m n -> E m ) -> E n ) ) :
-  forall n : nat, E n.
-Proof.
-  intros. destruct n.
-  - assumption.
-  - apply q.
-    + split.
-    + induction n.
-      * intros m t.
-        rewrite ( natlth1tois0 m t ). assumption.
-      * intros m t.
-        destruct ( natlehchoice _ _ ( natlthsntoleh _ _ t ) ) as [ left | right ].
-        -- apply IHn. assumption.
-        -- apply q.
-           ++ rewrite right. split.
-           ++ intros k s. rewrite right in s. apply ( IHn k ). assumption.
-Defined.
-
 Lemma setquotprpathsandR { X : UU } ( R : eqrel X ) :
   forall x y : X, setquotpr R x = setquotpr R y -> R x y.
 Proof.

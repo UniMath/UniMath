@@ -6,6 +6,7 @@ Some definitions are derived from Coq.ZArith.Znumtheory.
 *)
 
 (** ** Contents
+- Strong induction (or complete induction) ([stronginduction])
 - Primality
   - Divisibility ([nat_divides])
   - Greatest common divisors ([nat_gcd])
@@ -16,6 +17,59 @@ Some definitions are derived from Coq.ZArith.Znumtheory.
 Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.MoreFoundations.PartA.
+
+(** Strong induction (or complete induction) ([stronginduction]) *)
+
+Lemma stronginduction {P : nat -> UU} (p : P 0)
+      (q : ∏ n : nat, n ≠ 0 → (∏ m : nat, m < n → P m) → P n) :
+  ∏ n : nat, P n.
+Proof.
+  intros. destruct n.
+  - assumption.
+  - apply q.
+    + split.
+    + induction n.
+      * intros m t.
+        use transportf.
+        -- exact 0.
+        -- exact (!natlth1tois0 m t).
+        -- assumption.
+      * intros m t.
+        destruct (natlehchoice _ _ (natlthsntoleh _ _ t)) as [ left | right ].
+        -- apply IHn. assumption.
+        -- apply q.
+           ++ rewrite right. split.
+           ++ intros k s.
+              rewrite right in s.
+              apply (IHn k).
+              assumption.
+Defined.
+
+(** The following unifies the case of n = 0 with the rest. *)
+Lemma stronginduction'
+{P : nat -> UU} (q : ∏ n : nat, (∏ m : nat, m < n → P m) → P n) :
+  ∏ n : nat, P n.
+Proof.
+  (** Rephrase the proposition we're doing induction on *)
+  pose (Q n := ∏ m, m < n → P m).
+  assert (impl : (∏ n, Q n) → ∏ n, P n).
+  - intros qn n.
+    apply q, qn.
+  (** Do standard induction on the modified proposition *)
+  - apply impl; unfold Q.
+    intros n.
+    induction n.
+    + intros ? mlt0.
+      induction (negnatlthn0 _ mlt0).
+    + intros m msn.
+      apply q.
+      intros p pm.
+      apply IHn.
+      pose (mlen := natlthsntoleh m n msn).
+      induction (natlehchoice _ _ mlen) as [lt | eq].
+      * exact (istransnatlth _ _ _ pm lt).
+      * exact (transportf (λ z, p < z) eq pm).
+Defined.
 
 (** ** Primality *)
 
