@@ -13,4 +13,5 @@ Require Export UniMath.MoreFoundations.Subtypes.
 Require Export UniMath.MoreFoundations.AxiomOfChoice.
 Require Export UniMath.MoreFoundations.StructureIdentity.
 Require Export UniMath.MoreFoundations.PartA.
+Require Export UniMath.MoreFoundations.NaturalNumbers.
 Require Export UniMath.MoreFoundations.Univalence.

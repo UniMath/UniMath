@@ -11,4 +11,5 @@ Subtypes.v
 AxiomOfChoice.v
 StructureIdentity.v
 PartA.v
+NaturalNumbers.v
 Univalence.v
