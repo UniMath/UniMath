@@ -7,9 +7,10 @@ Some definitions are derived from Coq.ZArith.Znumtheory.
 
 (** ** Contents
 - Primality
-  - Greatest common divisors ([gcd])
-  - Relative primality ([rel_prime])
-  - Primality ([is_prime])
+  - Divisibility ([nat_divides])
+  - Greatest common divisors ([nat_gcd])
+  - Relative primality ([nat_rel_prime])
+  - Primality ([nat_prime])
 *)
 
 Require Import UniMath.Foundations.PartA.
@@ -18,10 +19,10 @@ Require Import UniMath.MoreFoundations.PartA.
 
 (** ** Primality *)
 
-(** *** Greatest common divisors ([gcd]) *)
+(** *** Divisibility ([natdivides]) *)
 
 (** First definition: the remainder when dividing m by n is 0. *)
-Definition natdivides (n m : nat) : hProp.
+Definition nat_divides (n m : nat) : hProp.
 Proof.
   use hProppair.
   - exact (natrem m n = 0).
@@ -29,7 +30,7 @@ Proof.
 Defined.
 
 (** Alternative definition: there exists some p such that n * p = m. *)
-Definition natdivides' (n m : nat) : hProp.
+Definition nat_divides' (n m : nat) : hProp.
 Proof.
   use hProppair.
   - exact (n ≠ 0 → ∑ p, n * p = m).
@@ -47,17 +48,17 @@ Proof.
       exact (!pr2 p').
 Defined.
 
-Notation "n | m" := (natdivides n m) (at level 50) : nat.
+Notation "n | m" := (nat_divides n m) (at level 50) : nat.
 
 Local Open Scope nat.
 
 (** Note that due to the definition of [natdivmod], 0 divides everything. *)
-Lemma natdivides_0 (n : nat) : 0 | n.
+Lemma nat_divides_0 (n : nat) : 0 | n.
 Proof.
   destruct n; reflexivity.
 Defined.
 
-Lemma natdivides_1 (n : nat) : 1 | n.
+Lemma nat_divides_1 (n : nat) : 1 | n.
 Proof.
   destruct n; reflexivity.
 Defined.
@@ -71,13 +72,15 @@ Lemma if_divides_then_factor {n m : nat} : n ≠ 0 → (n | m) → m = (m / n) *
   assumption.
 Defined.
 
-Corollary natdivides_to_natdivides' {n m : nat} : natdivides n m → natdivides' n m.
+Corollary nat_divides_to_nat_divides' {n m : nat} : nat_divides n m → nat_divides' n m.
   intros divs.
   exists (m / n).
   refine (natmultcomm _ _ @ _).
   apply pathsinv0.
   apply if_divides_then_factor; assumption.
 Defined.
+
+(** *** Greatest common divisors ([nat_gcd]) *)
 
 Definition is_nat_gcd (n m g : nat) : hProp.
 Proof.
@@ -154,10 +157,10 @@ Abort.
 Lemma nat_gcd_1 : ∏ (n : nat), nat_gcd_is n 1 1.
 Abort.
 
-(** *** Relative primality ([rel_prime]) *)
+(** *** Relative primality ([nat_rel_prime]) *)
 
 (** Two numbers are relatively prime if their [nat_gcd] is 1. *)
-Definition rel_prime (n : nat) (m : nat) : hProp.
+Definition nat_rel_prime (n : nat) (m : nat) : hProp.
 Proof.
   use hProppair.
   - exact (∏ g : nat_gcd n m, nat_gcd_num g = 1).
@@ -166,24 +169,21 @@ Defined.
 
 (** Relative primality is symmetric *)
 
-(** *** Primality ([natprime]) *)
+(** *** Primality ([nat_prime]) *)
 
 (** A number is prime if it is relatively prime with every number less than it. *)
-Definition natprime (n : nat) : hProp.
+Definition nat_prime (n : nat) : hProp.
 Proof.
   use hProppair.
-  - exact (1 < n × (∏ m, m < n -> rel_prime n m)).
+  - exact (1 < n × (∏ m, m < n -> nat_rel_prime n m)).
   - apply isapropdirprod.
     + apply propproperty.
     + do 2 (apply impred; intro).
       apply propproperty.
 Defined.
 
-(** It would be great to prove
-    <<
-    Lemma prime_2 : prime 2.
-    >>
+(** It would be great to prove the following.
     For this, it seems one needs that nat_gcd(n, 0) = 1 and nat_gcd(n, 1) = 1.
  *)
-Lemma prime_2 : natprime 2.
+Lemma prime_2 : nat_prime 2.
 Abort.
