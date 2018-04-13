@@ -2308,7 +2308,7 @@ Definition subabgr_incl {X : abgr} (A : subabgr X) : monoidfun A X :=
   submonoid_incl A.
 
 Definition abgr_kernel_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtype A :=
-  (λ x : A, ishinh ((f x) = unel B)).
+  monoid_kernel_hsubtype f.
 
 Definition abgr_image_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtype B :=
   (λ y : B, ∃ x : A, (f x) = y).
@@ -2324,23 +2324,16 @@ Definition abgr_Kernel_subabgr_issubgr {A B : abgr} (f : monoidfun A B) :
   issubgr (abgr_kernel_hsubtype f).
 Proof.
   use issubgrpair.
-  - use issubmonoidpair.
-    + intros a a'.
-      use (hinhuniv _ (pr2 a)). intros ae.
-      use (hinhuniv _ (pr2 a')). intros a'e.
-      use hinhpr.
-      use (pathscomp0 (binopfunisbinopfun f (pr1 a) (pr1 a'))).
-      rewrite ae. rewrite a'e. use (runax B).
-    + use hinhpr. exact (monoidfununel f).
+  - apply kernel_issubmonoid.
   - intros x a.
-    use (hinhuniv _ a). intros ae.
-    use hinhpr.
-    use (grrcan B (f x)).
-    use (pathscomp0 (! (binopfunisbinopfun f (grinv A x) x))).
-    use (pathscomp0 (maponpaths (λ a : A, f a) (grlinvax A x))).
-    use (pathscomp0 (monoidfununel f)).
-    use pathsinv0. use (pathscomp0 (lunax B (f x))). exact ae.
-Qed.
+    apply (grrcan B (f x)).
+    apply (pathscomp0 (! (binopfunisbinopfun f (grinv A x) x))).
+    apply (pathscomp0 (maponpaths (λ a : A, f a) (grlinvax A x))).
+    apply (pathscomp0 (monoidfununel f)).
+    apply pathsinv0.
+    apply (pathscomp0 (lunax B (f x))).
+    exact a.
+Defined.
 
 Definition abgr_Kernel_subabgr {A B : abgr} (f : monoidfun A B) : @subabgr A :=
   subgrconstr (@abgr_kernel_hsubtype A B f) (abgr_Kernel_subabgr_issubgr f).

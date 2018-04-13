@@ -269,15 +269,7 @@ Local Open Scope ring_scope.
 
 (** **** General definitions *)
 
-Definition isnonzeroring (X : ring) : UU := neg (@paths X 1 0).
-
-Lemma isapropisnonzeroring (X : ring) : isaprop (isnonzeroring X).
-Proof.
-  intros X. use isapropneg.
-Defined.
-Opaque isapropisnonzeroring.
-
-Lemma isnonzerolinvel (X : ring) (is : isnonzeroring X) (x : X) (x' : multlinvpair X x) :
+Lemma isnonzerolinvel (X : ring) (is : isnonzerorig X) (x : X) (x' : multlinvpair X x) :
   neg ((pr1 x') = 0).
 Proof.
   intros.
@@ -287,7 +279,7 @@ Proof.
   rewrite (ringmult0x X _). apply is.
 Defined.
 
-Lemma isnonzerorinvel (X : ring) (is : isnonzeroring X) (x : X) (x' : multrinvpair X x) :
+Lemma isnonzerorinvel (X : ring) (is : isnonzerorig X) (x : X) (x' : multrinvpair X x) :
   neg ((pr1 x') = 0).
 Proof.
   intros.
@@ -297,7 +289,7 @@ Proof.
   rewrite e. rewrite (ringmultx0 X _). apply is.
 Defined.
 
-Lemma isnonzerofromlinvel (X : ring) (is : isnonzeroring X) (x : X) (x' : multlinvpair X x) :
+Lemma isnonzerofromlinvel (X : ring) (is : isnonzerorig X) (x : X) (x' : multlinvpair X x) :
   x != 0.
 Proof.
   intros. apply (negf (maponpaths (λ a : X, (pr1 x') * a))).
@@ -306,7 +298,7 @@ Proof.
   rewrite e. rewrite (ringmultx0 X _). apply is.
 Defined.
 
-Lemma isnonzerofromrinvel (X : ring) (is : isnonzeroring X) (x : X) (x' : multrinvpair X x) :
+Lemma isnonzerofromrinvel (X : ring) (is : isnonzerorig X) (x : X) (x' : multrinvpair X x) :
   x != 0.
 Proof.
   intros. apply (negf (maponpaths (λ a : X, a * (pr1 x')))).
@@ -316,13 +308,13 @@ Proof.
 Defined.
 
 Definition isintdom (X : commring) : UU :=
-  dirprod (isnonzeroring X) (∏ (a1 a2 : X), paths (a1 * a2) 0 -> hdisj (eqset a1 0) (eqset a2 0)).
+  dirprod (isnonzerorig X) (∏ (a1 a2 : X), paths (a1 * a2) 0 -> hdisj (eqset a1 0) (eqset a2 0)).
 
 Lemma isapropisintdom (X : commring) : isaprop (isintdom X).
 Proof.
   intros X.
   use isapropdirprod.
-  - use isapropisnonzeroring.
+  - apply propproperty.
   - use impred. intros x1. use impred. intros x2. use impred. intros H.
     use propproperty.
 Defined.
@@ -506,13 +498,13 @@ Defined.
 (** **** Main definitions *)
 
 Definition isafield (X : commring) : UU :=
-  (isnonzeroring X) × (∏ x : X, (multinvpair X x) ⨿ (x = 0)).
+  (isnonzerorig X) × (∏ x : X, (multinvpair X x) ⨿ (x = 0)).
 
 Lemma isapropisafield (X : commring) : isaprop (isafield X).
 Proof.
   intros X.
   use isofhleveltotal2.
-  - use isapropisnonzeroring.
+  - apply propproperty.
   - intros H.
     use impred. intros x. use isapropcoprod.
     + use isapropinvpair.

@@ -89,7 +89,7 @@ Local Open Scope hz_scope .
 
 (** *** [ hz ] is a non-zero ring *)
 
-Lemma isnonzeroringhz : isnonzeroring hz .
+Lemma isnonzerorighz : isnonzerorig hz .
 Proof . apply  ( ct ( hzneq , isdecrelhzneq, 1 , 0 ) ) . Defined .
 
 
@@ -676,7 +676,7 @@ rewrite en .  rewrite ( hzmultx0 m ) . apply isreflhzgeh .   Defined .
 
 
 Lemma isintdomhz : isintdom hz .
-Proof . split with isnonzeroringhz .  intros a b e0 .  destruct ( isdeceqhz a 0 ) as [ ea | nea ] .  apply ( hinhpr ( ii1 ea ) ) . destruct ( isdeceqhz b 0 ) as [ eb | neb ] . apply ( hinhpr ( ii2 eb ) ) .  destruct ( hzneqchoice _ _ nea ) as [ ga | la ] .  destruct ( hzneqchoice _ _ neb ) as [ gb | lb ] . destruct ( hzgthtoneq _ _ ( hzmultgth0gth0 ga gb ) e0 ) .  destruct ( hzlthtoneq _ _ ( hzmultgth0lth0 ga lb ) e0 ) .  destruct ( hzneqchoice _ _ neb ) as [ gb | lb ] .  destruct ( hzlthtoneq _ _ ( hzmultlth0gth0 la gb ) e0 ) .  destruct ( hzgthtoneq _ _ ( hzmultlth0lth0 la lb ) e0 ) .  Defined .
+Proof . split with isnonzerorighz .  intros a b e0 .  destruct ( isdeceqhz a 0 ) as [ ea | nea ] .  apply ( hinhpr ( ii1 ea ) ) . destruct ( isdeceqhz b 0 ) as [ eb | neb ] . apply ( hinhpr ( ii2 eb ) ) .  destruct ( hzneqchoice _ _ nea ) as [ ga | la ] .  destruct ( hzneqchoice _ _ neb ) as [ gb | lb ] . destruct ( hzgthtoneq _ _ ( hzmultgth0gth0 ga gb ) e0 ) .  destruct ( hzlthtoneq _ _ ( hzmultgth0lth0 ga lb ) e0 ) .  destruct ( hzneqchoice _ _ neb ) as [ gb | lb ] .  destruct ( hzlthtoneq _ _ ( hzmultlth0gth0 la gb ) e0 ) .  destruct ( hzgthtoneq _ _ ( hzmultlth0lth0 la lb ) e0 ) .  Defined .
 
 
 Definition hzintdom : intdom := tpair _ _ isintdomhz .

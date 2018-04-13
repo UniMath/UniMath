@@ -98,20 +98,18 @@ Lemma issubmodule_kernel {R : ring} {A B : module R} (f : modulefun A B) :
 Proof.
   split.
   - apply abgr_Kernel_subabgr_issubgr.
-  - intros r x. apply hinhfun. cbn. intro p.
-    now rewrite (modulefun_to_islinear f), <- (module_mult_1 r), <- p.
+  - intros r x p.
+    cbn.
+    rewrite (modulefun_to_islinear f).
+    rewrite <- (module_mult_1 r), <- p.
+    reflexivity.
 Defined.
 
 Definition module_kernel {R : ring} {A B : module R} (f : modulefun A B) : submodule A :=
   submodulepair _ (issubmodule_kernel f).
 
-Lemma module_kernel_eq {R : ring} {A B : module R} (f : modulefun A B) x :
-  f (submodule_incl (module_kernel f) x) = unel B.
-Proof.
-  use (squash_to_prop (pr2 x)).
-  - apply isasetmodule.
-  - apply idfun.
-Defined.
+Definition module_kernel_eq {R : ring} {A B : module R} (f : modulefun A B) x :
+  f (submodule_incl (module_kernel f) x) = unel B := (pr2 x).
 
 Lemma issubmodule_image {R : ring} {A B : module R} (f : modulefun A B) :
   issubmodule (abgr_image_hsubtype (modulefun_to_monoidfun f)).

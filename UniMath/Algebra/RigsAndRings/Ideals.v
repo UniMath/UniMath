@@ -9,6 +9,7 @@ Author: Langston Barrett (@siddharthist)
   - Left ideals ([lideal])
   - Right ideals ([rideal])
   - Two-sided ideals ([ideal])
+  - The above notions coincide for commutative rigs
 - Kernel ideal
  *)
 
@@ -61,6 +62,35 @@ Section Definitions.
              (isl : is_lideal S) (isr : is_rideal S) : ideal :=
     tpair _ S (dirprodpair isl isr).
 End Definitions.
+
+Arguments lideal _ : clear implicits.
+Arguments rideal _ : clear implicits.
+Arguments ideal _ : clear implicits.
+
+(** *** The above notions for commutative rigs *)
+
+Lemma commrig_ideals (R : commrig) (S : subabmonoid (rigaddabmonoid  R)) :
+  is_lideal S ≃ is_rideal S.
+Proof.
+  apply weqimplimpl.
+  - intros islid r s ss.
+    use transportf.
+    + exact (S (r * s)).
+    + exact (maponpaths S (rigcomm2 _ _ _)).
+    + apply (islid r s ss).
+  - intros isrid r s ss.
+    use transportf.
+    + exact (S (s * r)).
+    + exact (maponpaths S (rigcomm2 _ _ _)).
+    + apply (isrid r s ss).
+  - apply propproperty.
+  - apply propproperty.
+Defined.
+
+Corollary commrig_ideals' (R : commrig) : lideal R ≃ rideal R.
+Proof.
+  apply weqfibtototal; intro; apply commrig_ideals.
+Defined.
 
 (** ** Kernel ideal *)
 
