@@ -11,7 +11,8 @@ Require Export UniMath.CategoryTheory.whiskering.
 Require Export UniMath.CategoryTheory.Adjunctions.
 Require Export UniMath.CategoryTheory.equivalences.
 Require Export UniMath.CategoryTheory.equivalences_lemmas.
-Require Export UniMath.CategoryTheory.sub_precategories.
+Require Export UniMath.CategoryTheory.Subcategory.Core.
+Require Export UniMath.CategoryTheory.Subcategory.Full.
 Require Export UniMath.CategoryTheory.Monics.
 Require Export UniMath.CategoryTheory.Epis.
 Require Export UniMath.CategoryTheory.CategoriesWithBinOps.
@@ -50,6 +51,7 @@ Require Export UniMath.CategoryTheory.limits.FinOrdProducts.
 Require Export UniMath.CategoryTheory.limits.FinOrdCoproducts.
 Require Export UniMath.CategoryTheory.limits.Opp.
 Require Export UniMath.CategoryTheory.limits.graphs.eqdiag.
+Require Export UniMath.CategoryTheory.Subcategory.Limits.
 Require Export UniMath.CategoryTheory.EpiFacts.
 Require Export UniMath.CategoryTheory.categories.category_hset.
 Require Export UniMath.CategoryTheory.SimplicialSets.
@@ -74,6 +76,7 @@ Require Export UniMath.CategoryTheory.coslicecat.
 Require Export UniMath.CategoryTheory.limits.pullbacks_slice_products_equiv.
 Require Export UniMath.CategoryTheory.covyoneda.
 Require Export UniMath.CategoryTheory.categories.category_hset_structures.
+Require Export UniMath.CategoryTheory.categories.FinSet.
 Require Export UniMath.CategoryTheory.SetValuedFunctors.
 Require Export UniMath.CategoryTheory.Chains.Chains.
 Require Export UniMath.CategoryTheory.Chains.Cochains.

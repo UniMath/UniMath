@@ -7,6 +7,7 @@ Local Open Scope subtype.
 
 Local Open Scope logic.
 
+(** The powerset, or set of all subsets, of a set. *)
 Definition subtype_set X : hSet := hSetpair (hsubtype X) (isasethsubtype X).
 
 Definition subtype_isIn {X:UU} {S:hsubtype X} (s:S) (T:hsubtype X) : hProp := T (pr1 s).
