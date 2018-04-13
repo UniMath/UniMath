@@ -459,23 +459,24 @@ Local Open Scope multmonoid.
 
 Definition invertible_submonoid (X : monoid) : @submonoid X.
 Proof.
-  refine (invertible_elements (@op X) (pr2 X),, _).
+  refine (merely_invertible_elements (@op X) (pr2 X),, _).
   split.
   (** This is a similar statement to [grinvop] *)
   - intros xpair ypair.
-    unfold invertible_elements in *.
-    apply invop; exact (pr2 _).
+    apply mere_invop.
+    + exact (pr2 xpair).
+    + exact (pr2 ypair).
   - apply hinhpr; exact (1,, dirprodpair (lunax _ 1) (lunax _ 1)).
 Defined.
 
 (** This submonoid is closed under inversion *)
 Lemma inverse_in_submonoid (X : monoid) :
-  ∏ (x x0 : X), invertible_elements (@op X) (pr2 X) x ->
+  ∏ (x x0 : X), merely_invertible_elements (@op X) (pr2 X) x ->
                 isinvel (@op X) (pr2 X) x x0 ->
-                invertible_elements (@op X) (pr2 X) x0.
+                merely_invertible_elements (@op X) (pr2 X) x0.
 Proof.
   intros x x0 _ x0isxinv.
-  unfold invertible_elements, hasinv.
+  unfold merely_invertible_elements, hasinv.
   apply hinhpr.
   exact (x,, is_inv_inv (@op X) _ _ _ x0isxinv).
 Defined.
@@ -2127,19 +2128,19 @@ Proof.
   pose (unel := (unel_is submon_carrier)).
 
   (** We can use other hProps when proving an hProp (assume it has an inverse) *)
-  apply (squash_to_prop (pr2 xpair) (isaprophaslinv op submon_carrier _)).
+  apply (squash_to_prop (pr2 xpair) (propproperty _)).
 
   intros xinv.
   unfold haslinv.
   apply hinhpr.
   refine ((pr1 xinv,, inverse_in_submonoid _ x (pr1 xinv) (pr2 xpair) (pr2 xinv)),, _).
   apply subtypeEquality_prop.
-  exact (pr1 (pr2 xinv)).
+  exact (pr2 (pr2 xinv)).
 Defined.
 
 Local Close Scope multmonoid.
 
-Definition gr_invertible_elements : monoid -> gr :=
+Definition gr_merely_invertible_elements : monoid -> gr :=
   fun X => (carrierofasubsetwithbinop
              (submonoidtosubsetswithbinop
                 _ (invertible_submonoid X)),, invertible_submonoid_grop X).
