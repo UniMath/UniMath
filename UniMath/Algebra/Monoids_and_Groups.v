@@ -9,6 +9,7 @@
   - Subobjects
   - Kernels
   - Quotient objects
+  - Cosets
   - Direct products
  - Abelian (commutative) monoids
   - Basic definitions
@@ -29,6 +30,7 @@
   - Relations on groups
   - Subobjects
   - Quotient objects
+  - Cosets
   - Direct products
  - Abelian groups
   - Basic definitions
@@ -543,6 +545,19 @@ Proof.
   - exact (setquotunivcomm _ _ _ _ _ @ monoidfununel _).
 Defined.
 
+(** The universal property of the quotient monoid. If X, Y are monoids, R is a congruence on X, and
+    [f : X → Y] is a homomorphism which respects R, then there exists a unique homomorphism
+    [f' : X/R → Y] making the following diagram commute:
+    <<
+    X -π-> X/R
+     \      |
+       f    | ∃! f'
+         \  |
+          V V
+           Y
+    >>
+ *)
+
 Definition monoidquotuniv {X Y : monoid} {R : binopeqrel X} (f : monoidfun X Y)
       (H : iscomprelfun R f) : monoidfun (monoidquot R) Y :=
   monoidfunconstr (ismonoidfun_setquotuniv f H).
@@ -551,6 +566,39 @@ Definition monoidquotfun {X Y : monoid} {R : binopeqrel X} {S : binopeqrel Y}
   (f : monoidfun X Y) (H : ∏ x x' : X, R x x' → S (f x) (f x')) : monoidfun (monoidquot R) (monoidquot S) :=
 monoidquotuniv (monoidfuncomp f (monoidquotpr S)) (λ x x' r, iscompsetquotpr _ _ _ (H _ _ r)).
 
+(** Quotients by the equivalence relation of being in the same fiber.
+    This is exactly X / ker f for a homomorphism f. *)
+
+Local Open Scope multmonoid.
+
+Definition fiber_binopeqrel {X Y : monoid} (f : monoidfun X Y) : binopeqrel X.
+Proof.
+  use binopeqrelpair.
+  - exact (same_fiber_eqrel f).
+  - use mk_isbinophrel; intros ? ? ? same;
+      refine (monoidfunmul _ _ _ @ _ @ !monoidfunmul _ _ _).
+    + (** Prove that it's a congruence for left multiplication *)
+      apply maponpaths.
+      exact same.
+    + (** Prove that it's a congruence for right multiplication *)
+      apply (maponpaths (λ z, z * f c)).
+      exact same.
+Defined.
+
+Definition quotient_by_monoidfun {X Y : monoid} (f : monoidfun X Y) : monoid :=
+  monoidquot (fiber_binopeqrel f).
+
+(** **** Cosets *)
+
+Section Cosets.
+  Context {X : monoid} (Y : submonoid X).
+
+  Definition in_same_left_coset (x1 x2 : X) : UU :=
+    ∑ y : Y, x1 * (pr1 y) = x2.
+
+  Definition in_same_right_coset (x1 x2 : X) : UU :=
+    ∑ y : Y, (pr1 y) * x1 = x2.
+End Cosets.
 
 (** **** Direct products *)
 
@@ -2094,6 +2142,78 @@ Definition isgrquot {X : gr} (R : binopeqrel X) : isgrop (@op (setwithbinopquot 
 Definition grquot {X : gr} (R : binopeqrel X) : gr.
 Proof. split with (setwithbinopquot R). apply isgrquot. Defined.
 
+(** **** Cosets *)
+
+Section GrCosets.
+  Context {X : gr} (Y : subgr X).
+
+  Lemma isaprop_in_same_left_coset (x1 x2 : X) :
+    isaprop (in_same_left_coset Y x1 x2).
+  Proof.
+    apply invproofirrelevance.
+    intros p q.
+    apply subtypeEquality'; [|apply setproperty].
+    apply subtypeEquality'; [|apply propproperty].
+    refine (!lunax _ _ @ _ @ lunax _ _).
+    refine (maponpaths (λ z, z * _) (!grlinvax X x1) @ _ @
+            maponpaths (λ z, z * _) (grlinvax X x1)).
+    refine (assocax _ _ _ _ @ _ @ !assocax _ _ _ _).
+    refine (maponpaths _ (pr2 p) @ _ @ !maponpaths _ (pr2 q)).
+    reflexivity.
+  Defined.
+
+  Lemma isaprop_in_same_right_coset (x1 x2 : X) :
+    isaprop (in_same_right_coset Y x1 x2).
+  Proof.
+    apply invproofirrelevance.
+    intros p q.
+    apply subtypeEquality'; [|apply setproperty].
+    apply subtypeEquality'; [|apply propproperty].
+    refine (!runax _ _ @ _ @ runax _ _).
+    refine (maponpaths (λ z, _ * z) (!grrinvax X x1) @ _ @
+            maponpaths (λ z, _ * z) (grrinvax X x1)).
+    refine (!assocax _ _ _ _ @ _ @ assocax _ _ _ _).
+    refine (maponpaths (λ z, z * _) (pr2 p) @ _ @ !maponpaths (λ z, z * _) (pr2 q)).
+    reflexivity.
+  Defined.
+
+  (** The property of being in the same coset defines an equivalence relation. *)
+
+  Definition in_same_left_coset_eqrel : eqrel X.
+    use eqrelpair.
+    - intros x1 x2.
+      use hProppair.
+      + exact (in_same_left_coset Y x1 x2).
+      + apply isaprop_in_same_left_coset.
+    - use iseqrelconstr.
+      + (** Transitivity *)
+        intros ? ? ?; cbn; intros inxy inyz.
+        unfold in_same_left_coset in *.
+        use tpair.
+        * exists (pr11 inxy * pr11 inyz).
+          apply (pr2 Y).
+        * cbn.
+          refine (_ @ pr2 inyz).
+          refine (_ @ maponpaths (λ z, z * _) (pr2 inxy)).
+          apply pathsinv0, assocax.
+      + (** Reflexivity *)
+        intro; cbn.
+        use tpair.
+        * exists 1; apply (pr2 Y).
+        * apply runax.
+      + (** Symmetry *)
+        intros x y inxy.
+        use tpair.
+        * exists (grinv X (pr1 (pr1 inxy))).
+          apply (pr2 Y).
+          exact (pr2 (pr1 inxy)).
+        * cbn in *.
+          refine (!maponpaths (λ z, z * _) (pr2 inxy) @ _).
+          refine (assocax _ _ _ _ @ _).
+          refine (maponpaths _ (grrinvax _ _) @ _).
+          apply runax.
+  Defined.
+End GrCosets.
 
 (** **** Direct products *)
 
