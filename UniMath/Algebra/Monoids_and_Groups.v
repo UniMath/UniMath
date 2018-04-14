@@ -2146,21 +2146,45 @@ Proof. split with (setwithbinopquot R). apply isgrquot. Defined.
 (** **** Cosets *)
 
 Section GrCosets.
-  Context {X : gr} (Y : subgr X).
+  Context {X : gr}.
+
+  Local Lemma isaprop_mult_eq_r (x y : X) : isaprop (∑ z : X, x * z = y).
+  Proof.
+    apply invproofirrelevance; intros z1 z2.
+    apply subtypeEquality'; [|apply setproperty].
+    refine (!lunax _ _ @ _ @ lunax _ _).
+    refine (maponpaths (λ z, z * _) (!grlinvax X x) @ _ @
+            maponpaths (λ z, z * _) (grlinvax X x)).
+    refine (assocax _ _ _ _ @ _ @ !assocax _ _ _ _).
+    refine (maponpaths _ (pr2 z1) @ _ @ !maponpaths _ (pr2 z2)).
+    reflexivity.
+  Defined.
+
+  Local Lemma isaprop_mult_eq_l (x y : X) : isaprop (∑ z : X, z * x = y).
+  Proof.
+    apply invproofirrelevance; intros z1 z2.
+    apply subtypeEquality'; [|apply setproperty].
+    refine (!runax _ _ @ _ @ runax _ _).
+    refine (maponpaths (λ z, _ * z) (!grrinvax X x) @ _ @
+            maponpaths (λ z, _ * z) (grrinvax X x)).
+    refine (!assocax _ _ _ _ @ _ @ assocax _ _ _ _).
+    refine (maponpaths (λ z, z * _) (pr2 z1) @ _ @ !maponpaths (λ z, z * _) (pr2 z2)).
+    reflexivity.
+  Defined.
+
+  Context (Y : subgr X).
 
   Lemma isaprop_in_same_left_coset (x1 x2 : X) :
     isaprop (in_same_left_coset Y x1 x2).
   Proof.
-    apply invproofirrelevance.
-    intros p q.
+    unfold in_same_left_coset.
+    apply invproofirrelevance; intros p q.
     apply subtypeEquality'; [|apply setproperty].
     apply subtypeEquality'; [|apply propproperty].
-    refine (!lunax _ _ @ _ @ lunax _ _).
-    refine (maponpaths (λ z, z * _) (!grlinvax X x1) @ _ @
-            maponpaths (λ z, z * _) (grlinvax X x1)).
-    refine (assocax _ _ _ _ @ _ @ !assocax _ _ _ _).
-    refine (maponpaths _ (pr2 p) @ _ @ !maponpaths _ (pr2 q)).
-    reflexivity.
+    pose (p' := (pr11 p,, pr2 p) : ∑ y : X, x1 * y = x2).
+    pose (q' := (pr11 q,, pr2 q) : ∑ y : X, x1 * y = x2).
+    Check proofirrelevance.
+    apply (maponpaths pr1 (iscontrpr1 (isaprop_mult_eq_r _ _ p' q'))).
   Defined.
 
   Lemma isaprop_in_same_right_coset (x1 x2 : X) :
@@ -2170,12 +2194,9 @@ Section GrCosets.
     intros p q.
     apply subtypeEquality'; [|apply setproperty].
     apply subtypeEquality'; [|apply propproperty].
-    refine (!runax _ _ @ _ @ runax _ _).
-    refine (maponpaths (λ z, _ * z) (!grrinvax X x1) @ _ @
-            maponpaths (λ z, _ * z) (grrinvax X x1)).
-    refine (!assocax _ _ _ _ @ _ @ assocax _ _ _ _).
-    refine (maponpaths (λ z, z * _) (pr2 p) @ _ @ !maponpaths (λ z, z * _) (pr2 q)).
-    reflexivity.
+    pose (p' := (pr11 p,, pr2 p) : ∑ y : X, y * x1 = x2).
+    pose (q' := (pr11 q,, pr2 q) : ∑ y : X, y * x1 = x2).
+    apply (maponpaths pr1 (iscontrpr1 (isaprop_mult_eq_l _ _ p' q'))).
   Defined.
 
   (** The property of being in the same coset defines an equivalence relation. *)
@@ -2213,6 +2234,30 @@ Section GrCosets.
           refine (assocax _ _ _ _ @ _).
           refine (maponpaths _ (grrinvax _ _) @ _).
           apply runax.
+  Defined.
+
+  (** x₁ and x₂ are in the same Y-coset if and only if x₁⁻¹ * x₂ is in Y.
+      (Proposition 4 in Dummit and Foote) *)
+
+  Definition in_same_coset_test (x1 x2 : X) :
+             (Y ((grinv _ x1) * x2)) ≃ in_same_left_coset Y x1 x2.
+  Proof.
+    apply weqimplimpl; unfold in_same_left_coset in *.
+    - intros yx1x2.
+      exists ((grinv _ x1) * x2,, yx1x2); cbn.
+      refine (!assocax X _ _ _ @ _).
+      refine (maponpaths (λ z, z * _) (grrinvax X _) @ _).
+      apply lunax.
+    - intros y.
+      use (transportf (pr1 Y)).
+      + exact (pr11 y).
+      + refine (_ @ maponpaths _ (pr2 y)).
+        refine (_ @ assocax _ _ _ _).
+        refine (_ @ !maponpaths (λ z, z * _) (grlinvax X _)).
+        apply pathsinv0, lunax.
+      + exact (pr2 (pr1 y)).
+    - apply propproperty.
+    - apply isaprop_in_same_left_coset.
   Defined.
 End GrCosets.
 
