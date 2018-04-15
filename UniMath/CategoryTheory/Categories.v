@@ -285,8 +285,19 @@ Defined.
 
 (** * Setcategories: Precategories whose objects and morphisms are sets *)
 
-Definition setcategory := total2 (
-   λ C : precategory, dirprod (isaset (ob C)) (has_homsets C)).
+Definition object_hlevel (n : nat) (C : precategory) : hProp :=
+  hProppair _ (isapropisofhlevel n (ob C)).
+
+(* TODO: someday, [has_homsets] should be rephrased in terms of this *)
+Definition homtype_hlevel (n : nat) (C : precategory) : hProp :=
+  hProppair (∏ a b : C, isofhlevel n (C ⟦ a, b ⟧))
+            (impred _ _ (λ _, impred _ _ (λ _, isapropisofhlevel n _))).
+
+Definition object_homtype_hlevel (n m : nat) (C : precategory) : hProp :=
+  object_hlevel n C ∧ homtype_hlevel m C.
+
+Definition is_setcategory : precategory → hProp := object_homtype_hlevel 2 2.
+Definition setcategory := total2 is_setcategory.
 
 Definition precategory_from_setcategory (C : setcategory) : precategory := pr1 C.
 Coercion precategory_from_setcategory : setcategory >-> precategory.
@@ -1402,9 +1413,7 @@ Proof.
   apply isofhleveldirprod.
   - exact (pr1 (pr2 C)).
   - exact (pr1 (pr2 C)).
-  - intro ab.
-    induction ab as [c c'].
-    apply (pr2 (pr2 C)).
+  - intro ab; apply ((pr2 (pr2 C)) (dirprod_pr1 ab) (dirprod_pr2 ab)).
 Qed.
 
 Definition setcategory_total_morphisms_set (C : setcategory) : hSet :=
