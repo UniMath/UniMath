@@ -13,6 +13,7 @@ january 2013
 Contents :
 - precategories: homs are arbitrary types [precategory]
 - categories: hom-types are sets [category]
+  - Charaterization of paths in precategories
 - univalent categories: [idtoiso] is an equivalence
    [univalent_category]
 - set-categories: objects and morphisms are sets [setcategory]
@@ -195,6 +196,45 @@ Proof.
   intros _. repeat (apply impred; intro); apply hs.
 Qed.
 
+(** ** Charaterization of paths in precategories *)
+
+Section CatPaths.
+
+  (** This helps us to apply [Injectivity] in [category_paths_weq].
+      The reason is that [isaprop_is_precategory] relies on access to the hypothesis
+      of hom-sets. *)
+  Local Lemma category_rearrange :
+    category ≃ ∑ x : precategory_data, has_homsets x × is_precategory x.
+  Proof.
+    unfold category, precategory.
+    intermediate_weq (∑ x : precategory_data, is_precategory x × has_homsets x).
+    - apply weqtotal2asstor.
+    - apply weqfibtototal; intro.
+      apply weqdirprodcomm.
+  Defined.
+
+  (** Again, we need the hypothesis of hom-sets to utilize [isaprop_is_precategory] *)
+  Local Lemma isapropdirprod' (X Y : UU) : isaprop X -> (X → isaprop Y) -> isaprop (X × Y).
+  Proof.
+    intros isx isxy.
+    apply invproofirrelevance; intros x y.
+    apply pathsdirprod.
+    apply isx.
+    apply (isxy (dirprod_pr1 x)).
+  Defined.
+
+  (** Two categories are equal just when their data are. *)
+  Lemma category_paths_weq {A B : category} :
+    (A = B) ≃
+    (precategory_data_from_precategory A = precategory_data_from_precategory B).
+    intermediate_weq (category_rearrange A = category_rearrange B).
+    - apply Injectivity, incl_injectivity, isinclweq, weqproperty.
+    - apply subtypeInjectivity; intro.
+      apply isapropdirprod'.
+      apply isaprop_has_homsets.
+      intros ?; apply isaprop_is_precategory; assumption.
+  Defined.
+End CatPaths.
 
 Definition id_left (C : precategory) :
    ∏ (a b : C) (f : a --> b),
