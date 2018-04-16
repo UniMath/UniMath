@@ -13,9 +13,10 @@ january 2013
 Contents :
 - precategories: homs are arbitrary types [precategory]
 - categories: hom-types are sets [category]
-  - Charaterization of paths in precategories
+  - Characterization of paths in categories
 - univalent categories: [idtoiso] is an equivalence
    [univalent_category]
+  - Characterization of paths in univalent categories
 - set-categories: objects and morphisms are sets [setcategory]
 - isomorphisms: [iso], [isiso f := isweq (precomp_with f)]
 - various lemmas:
@@ -196,7 +197,7 @@ Proof.
   intros _. repeat (apply impred; intro); apply hs.
 Qed.
 
-(** ** Charaterization of paths in precategories *)
+(** ** Characterization of paths in categories *)
 
 Section CatPaths.
 
@@ -1230,6 +1231,48 @@ Proof.
   apply isaset_iso.
   apply (pr2 (pr2 C)).
 Qed.
+
+(** ** Characterization of paths in univalent categories *)
+
+Section UniCatPaths.
+
+  Lemma univalent_category_weq1 :
+    univalent_category ≃
+    ∑ C : precategory,
+          has_homsets C × ∏ (a b : ob C), isweq (fun p : a = b => idtoiso p).
+  Proof.
+    unfold univalent_category, is_univalent, category.
+    apply weqfibtototal; intro.
+    apply weqdirprodcomm.
+  Defined.
+
+  Lemma univalent_category_weq2 :
+    univalent_category ≃
+    ∑ C : category, ∏ (a b : ob C), isweq (fun p : a = b => idtoiso p).
+  Proof.
+    unfold univalent_category, is_univalent, category.
+    intermediate_weq
+      (∑ C : precategory, has_homsets C × ∏ a b : C, isweq (λ p : a = b, idtoiso p)).
+    - apply univalent_category_weq1.
+    - apply invweq, weqtotal2asstor.
+  Defined.
+
+  (** Two univalent categories are equal just when their data are. *)
+  Lemma univalent_category_paths_weq (A B : univalent_category) :
+    (A = B) ≃
+    (precategory_data_from_precategory A = precategory_data_from_precategory B).
+    (* It may be helpful to use the following to see implicit coercions: *)
+    (* Set Printing Coercions. *)
+    intermediate_weq
+      (univalent_category_weq2 A = univalent_category_weq2 B).
+    - apply Injectivity, incl_injectivity, isinclweq, weqproperty.
+    - intermediate_weq (univalent_category_to_category A =
+                        univalent_category_to_category B).
+      apply subtypeInjectivity; intro.
+      + do 2 (apply impred; intro); apply isapropisweq.
+      + apply category_paths_weq.
+  Defined.
+End UniCatPaths.
 
 (** ** Definition of [isotoid] *)
 
