@@ -1,3 +1,23 @@
+(** * Isomorphism of (pre)categories
+
+    As in "Univalent categories and the Rezk completion" by
+    Benedikt Ahrens, Chris Kapulkin, Michael Shulman (arXiv:1303.0584).
+ *)
+
+(** ** Contents
+
+- Definitions
+- Construction of a map (catiso A B) -> (A = B)
+- Univalence for categories (catiso A B ≃ A = B)
+  - Characterization of paths for [precategory_ob_mor]
+  - Characterization of paths for [precategory_data] (not yet complete)
+  - Characterization of paths for [category]:
+    categories are equal just when their [precategory_data] are
+  - Characterization of paths for [univalent_category]:
+    similar to the case of [category].
+  - Univalence for categories (not yet complete)
+ *)
+
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
@@ -5,12 +25,16 @@ Require Import UniMath.Foundations.UnivalenceAxiom.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
 
-(******************************************************************************)
-(** * Isomorphism of (pre)categories *)
-(* (as defined in the paper) *)
+(* The following are used in the characterization of paths *)
+Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.MoreFoundations.Univalence.
+Require Import UniMath.MoreFoundations.WeakEquivalences.
+
+Local Open Scope cat.
+
+(** ** Definitions *)
 
 Definition is_catiso {A B : precategory_data}
   (F : functor A B)
@@ -69,8 +93,7 @@ Proof.
   apply (catiso_fully_faithful_weq F).
 Defined.
 
-(******************************************************************************)
-(** * Construction of a map (catiso A B) -> (A = B) *)
+(** ** Construction of a map (catiso A B) -> (A = B) *)
 
 (* The path "p : ob A = ob B" is clear. The next task is to construct a path
    "A a a' = (transportb p B) a a'" for all a, a' : A. We transport backwards
@@ -470,3 +493,245 @@ Proof.
     apply isaprop_is_precategory.
     apply hs.
 Defined.
+
+(** ** Univalence for categories (catiso A B ≃ A = B) (not yet complete) *)
+
+Local Tactic Notation "≃" constr(H) "by" tactic(t) := intermediate_weq H; [t|].
+Local Tactic Notation "≃'" constr(H) "by" tactic(t) := intermediate_weq H; [|t].
+Local Tactic Notation "≃" constr(H) := intermediate_weq H.
+Local Tactic Notation "≃'" constr(H) := apply invweq; intermediate_weq H.
+
+(** *** Characterization of paths for [precategory_ob_mor] *)
+
+(** This requires a lot of preliminary lemmas*)
+
+Lemma weqtoforallpaths2 {X Y Z : UU} (f g : X → Y → Z) :
+  f = g ≃ ∏ x y, f x y = g x y.
+Proof.
+  intermediate_weq (∏ x, f x = g x).
+  - apply weqtoforallpaths.
+  - apply weqonsecfibers; intro.
+    apply weqtoforallpaths.
+Defined.
+
+Lemma isweq_uncurry {X Y Z : UU} : isweq (@uncurry X (λ _, Y) (λ _, Z)).
+  use isweq_iso.
+  - apply curry.
+  - reflexivity.
+  - reflexivity.
+Defined.
+
+Lemma transportf_uncurry {X Y : UU} (f : X → X → UU) (g : Y → Y → UU) (p : X = Y) :
+      (transportf (λ Z : UU, Z → Z → UU) p f = g) ≃
+      (transportf (λ Z : UU, Z × Z → UU) p (uncurry f) = (uncurry g)).
+Proof.
+  intermediate_weq
+    (uncurry (Z := λ _, UU) (transportf (λ Z : UU, Z → Z → UU) p f) =
+      uncurry (Z := λ _, UU) g).
+  apply Injectivity, incl_injectivity, isinclweq, isweq_uncurry.
+  apply transitive_paths_weq.
+  abstract (induction p; reflexivity).
+Defined.
+
+Lemma transportb_uncurry {X Y : UU} (f : X → X → UU) (g : Y → Y → UU) (p : X = Y) :
+      (transportb (λ Z : UU, Z → Z → UU) p g = f) ≃
+      (transportb (λ Z : UU, Z × Z → UU) p (uncurry g) = (uncurry f)).
+Proof.
+  induction p; cbn; unfold idfun.
+  apply Injectivity, incl_injectivity, isinclweq, isweq_uncurry.
+Defined.
+
+Lemma transportf_transpose_weq {X : UU} {P : X → UU} {x x' : X}
+      (e : x = x') (y : P x) (y' : P x') :
+      transportb P e y' = y ≃ y' = transportf P e y.
+Proof.
+  induction e; apply idweq.
+Defined.
+
+Definition pr1_eqweqmap2 { X Y } ( e: X = Y ) :
+  pr1 (eqweqmap e) = transportf (λ T:Type, T) e.
+Proof. intros. induction e. reflexivity. Defined.
+
+Definition weqpath_transport {X Y} (w : X ≃ Y) :
+  transportf (idfun UU) (weqtopaths w) = pr1 w.
+Proof. intros. exact (!pr1_eqweqmap2 _ @ maponpaths pr1 (weqpathsweq w)). Defined.
+
+(** Compare to [pr1_transportf]. *)
+Lemma dirprod_pr2_transportf (A : UU) (B C : A -> UU)
+  (a a' : A) (e : a = a') (xs : B a × C a):
+  dirprod_pr2 (transportf (λ x, B x × C x) e xs) =
+    transportf (λ x, C x) e (dirprod_pr2 xs).
+Proof.
+  destruct e; apply idpath.
+Defined.
+
+(** Equality between [precategory_ob_mor]s [(A,B)] is equivalent to a pair
+    [(w1, w2)] of equivalences where
+    - [w1] is an equivalence between their object types
+    - for each pair [(a1, a2)] of objects, [w2] is an equivalence between their
+      hom-type in [A] and the hom-type of their images under [w1] in [B].
+    *)
+Lemma precategory_ob_mor_paths_weq {A B : precategory_ob_mor} :
+  A = B ≃ ∑ w : pr1 A ≃ pr1 B, ∏ a1 a2 : A, A ⟦ a1, a2 ⟧ ≃ B ⟦ w a1, w a2 ⟧.
+Proof.
+  ≃ (∑ w : pr1 A ≃ pr1 B, transportf _ (weqtopaths w) (pr2 A) = pr2 B)
+    by apply (total2_paths_UU_equiv A B).
+  apply weqfibtototal; intro w.
+
+  ≃ (pr2 B = transportf (λ ob : UU, ob → ob → UU) (weqtopaths w) (pr2 A)).
+  apply (weqpair _ (isweqpathsinv0 _ _)).
+  ≃ (transportb (λ ob : UU, ob → ob → UU) (weqtopaths w) (pr2 B) = pr2 A).
+  apply invweq, (transportf_transpose_weq (weqtopaths w) (pr2 A) (pr2 B)).
+
+  ≃ (∏ a1 a2, transportb _ (weqtopaths w) (pr2 B) a1 a2 = pr2 A a1 a2) by
+    apply weqtoforallpaths2.
+  apply weqonsecfibers; intros a1.
+  apply weqonsecfibers; intros a2.
+
+  ≃' (A ⟦ a1, a2 ⟧ = B ⟦ w a1, w a2 ⟧) by apply univalence.
+  ≃' (B ⟦ w a1, w a2 ⟧ = A ⟦ a1, a2 ⟧) by apply (weqpair _ (isweqpathsinv0 _ _)).
+  apply transitive_paths_weq.
+
+  generalize a2; apply toforallpaths.
+  generalize a1; apply toforallpaths.
+  eapply invweq.
+  apply (transportb_uncurry (λ a1 a2, pr2 B (w a1) (w a2)) (pr2 B) (weqtopaths w)).
+
+  apply funextsec; intros pair.
+  refine (!@transportb_fun' _ _ UU (pr1 A) (pr1 B) (uncurry (pr2 B)) _ pair @ _).
+
+  unfold uncurry; apply two_arg_paths.
+  + refine (pr1_transportf UU _ _ _ _ _ pair @ _).
+    refine (toforallpaths _ _ _ _ _).
+    refine (weqpath_transport w @ _); reflexivity.
+  + refine (dirprod_pr2_transportf UU _ _ _ _ _ _ @ _).
+    refine (toforallpaths _ _ _ _ _).
+    refine (weqpath_transport w @ _); reflexivity.
+Defined.
+
+(** *** Characterization of paths for [precategory_data] *)
+
+Lemma precategory_id_comp_paths {C : precategory_ob_mor}
+      (id1 id2 : precategory_id_comp C) :
+  id1 = id2 ≃
+  (∏ a : C, pr1 id1 a = pr1 id2 a) ×                 (* identities *)
+  ∏ (a b c : C) (f : C ⟦ a, b ⟧) (g : C ⟦ b, c ⟧),   (* composition *)
+    pr2 id1 a b c f g = pr2 id2 a b c f g.
+Abort.
+
+(** This is much harder than e.g univalence for rigs because it's a
+    more deeply nested ∑-type. *)
+
+Local Lemma precategory_data_rearrange :
+  precategory_data ≃
+  ∑ X : UU, ∑ Y : X → X → UU, precategory_id_comp (X ,, Y).
+Proof.
+  unfold precategory_data, precategory_ob_mor.
+  apply weqtotal2asstor.
+Defined.
+
+Lemma precategory_data_paths_weq {A B : precategory_data} :
+  A = B ≃
+  ∑ w1 : pr1 A ≃ pr1 B,                                    (* objects *)
+  ∑ w2 : ∏ a1 a2 : A, A ⟦ a1, a2 ⟧ ≃ B ⟦ w1 a1, w1 a2 ⟧,   (* hom-types *)
+  ∏ a : A, w2 a a (identity a) = identity (w1 a) ×         (* identities *)
+  ∏ (a b c : A) (f : A ⟦ a, b ⟧) (g : A ⟦ b, c ⟧),         (* composition *)
+    w2 a c (f · g) = w2 a b f · w2 b c g.
+Proof.
+  (** Extract the underlying equivalence w1 *)
+  ≃ (precategory_data_rearrange A = precategory_data_rearrange B) by
+    (apply Injectivity, incl_injectivity, isinclweq, weqproperty).
+  ≃ (∑ w : pr1 _ ≃ pr1 _,
+      transportf _ (weqtopaths w) (pr2 (precategory_data_rearrange A)) =
+      pr2 (precategory_data_rearrange B)) by
+    apply (total2_paths_UU_equiv (precategory_data_rearrange A) _).
+  apply weqfibtototal; intro w; cbn in w.
+Abort.
+
+(** *** Characterization of paths for [category]:
+        categories are equal just when their [precategory_data] are *)
+
+(** This helps us to apply [Injectivity] in [category_paths_weq].
+    The reason is that [isaprop_is_precategory] relies on access to the hypothesis
+    of hom-sets. *)
+Local Lemma category_rearrange :
+  category ≃ ∑ x : precategory_data, has_homsets x × is_precategory x.
+Proof.
+  unfold category, precategory.
+  intermediate_weq (∑ x : precategory_data, is_precategory x × has_homsets x).
+  - apply weqtotal2asstor.
+  - apply weqfibtototal; intro.
+    apply weqdirprodcomm.
+Defined.
+
+(** Again, we need the hypothesis of hom-sets to utilize [isaprop_is_precategory] *)
+Local Lemma isapropdirprod' (X Y : UU) : isaprop X -> (X → isaprop Y) -> isaprop (X × Y).
+Proof.
+  intros isx isxy.
+  apply invproofirrelevance; intros x y.
+  apply pathsdirprod.
+  apply isx.
+  apply (isxy (dirprod_pr1 x)).
+Defined.
+
+(** Two categories are equal just when their data are. *)
+Lemma category_paths_weq {A B : category} :
+  (A = B) ≃
+  (precategory_data_from_precategory A = precategory_data_from_precategory B).
+  intermediate_weq (category_rearrange A = category_rearrange B).
+  - apply Injectivity, incl_injectivity, isinclweq, weqproperty.
+  - apply subtypeInjectivity; intro.
+    apply isapropdirprod'.
+    apply isaprop_has_homsets.
+    intros ?; apply isaprop_is_precategory; assumption.
+Defined.
+
+(** *** Characterization of paths for [univalent_category]:
+        similar to the case of [category]. *)
+
+Lemma univalent_category_weq1 :
+  univalent_category ≃
+  ∑ C : precategory,
+        has_homsets C × ∏ (a b : ob C), isweq (fun p : a = b => idtoiso p).
+Proof.
+  unfold univalent_category, is_univalent, category.
+  apply weqfibtototal; intro.
+  apply weqdirprodcomm.
+Defined.
+
+Lemma univalent_category_weq2 :
+  univalent_category ≃
+  ∑ C : category, ∏ (a b : ob C), isweq (fun p : a = b => idtoiso p).
+Proof.
+  unfold univalent_category, is_univalent, category.
+  intermediate_weq
+    (∑ C : precategory, has_homsets C × ∏ a b : C, isweq (λ p : a = b, idtoiso p)).
+  - apply univalent_category_weq1.
+  - apply invweq, weqtotal2asstor.
+Defined.
+
+(** Two univalent categories are equal just when their data are. *)
+Lemma univalent_category_paths_weq (A B : univalent_category) :
+  (A = B) ≃
+  (precategory_data_from_precategory A = precategory_data_from_precategory B).
+  (* It may be helpful to use the following to see implicit coercions: *)
+  (* Set Printing Coercions. *)
+  intermediate_weq
+    (univalent_category_weq2 A = univalent_category_weq2 B).
+  - apply Injectivity, incl_injectivity, isinclweq, weqproperty.
+  - intermediate_weq (univalent_category_to_category A =
+                      univalent_category_to_category B).
+    apply subtypeInjectivity; intro.
+    + do 2 (apply impred; intro); apply isapropisweq.
+    + apply category_paths_weq.
+Defined.
+
+(** *** Univalence for categories *)
+
+Lemma category_univalence1 {A B : category} :
+  (precategory_data_from_precategory A = precategory_data_from_precategory B) ≃
+  (catiso A B).
+Abort.
+
+Theorem category_univalence {A B : category} : (A = B) ≃ (catiso A B).
+Abort.
