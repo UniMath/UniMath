@@ -170,7 +170,13 @@ describe:; git describe --dirty --long --always --abbrev=40 --all
 	echo '# End:' ;\
 	) >$@
 # the '' above prevents emacs from mistaking the lines above as providing local variables when visiting this file
-build/CoqMakefile.make .coq_makefile_output.conf: $(COQBIN)coq_makefile .coq_makefile_input
+
+ifdef COQBIN
+build/CoqMakefile.make .coq_makefile_output.conf: $(COQBIN)coq_makefile
+else
+build/CoqMakefile.make .coq_makefile_output.conf: $(shell command -v coq_makefile)
+endif
+build/CoqMakefile.make .coq_makefile_output.conf: .coq_makefile_input
 	$(COQBIN)coq_makefile -f .coq_makefile_input -o .coq_makefile_output
 	mv .coq_makefile_output build/CoqMakefile.make
 
