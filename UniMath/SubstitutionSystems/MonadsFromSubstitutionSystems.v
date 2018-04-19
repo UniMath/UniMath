@@ -324,7 +324,7 @@ Proof.
     (* rewrite <- assoc. *)
     intermediate_path (μ_2 c · identity _ ).
     + apply pathsinv0, id_right.
-    + eapply pathscomp0. Focus 2.  apply assoc.
+    + eapply pathscomp0. 2: apply assoc.
       apply pathsinv0.
       apply maponpaths. apply Monad_law_1_from_hss.
   - rewrite functor_comp.
@@ -354,7 +354,7 @@ Proof.
       * eapply pathscomp0. apply (!assoc _ _ _).
         eapply pathscomp0. apply (!assoc _ _ _ ).
         apply maponpaths.
-        eapply pathscomp0. Focus 2. apply H3.
+        eapply pathscomp0. 2: apply H3.
         apply assoc.
       * clear H3.
         repeat rewrite assoc.
@@ -433,8 +433,9 @@ Proof.
       apply cancel_postcomposition.
       apply cancel_postcomposition.
       unfold Ac. clear Ac.
-      eapply pathscomp0. Focus 2. apply assoc.
-      eapply pathscomp0. Focus 2. apply maponpaths. apply (!HXX).
+      eapply pathscomp0. 2: apply assoc.
+      eapply pathscomp0.
+      2: { apply maponpaths. apply (!HXX). }
       clear HXX.
       assert (Strength_2 : ∏ α : functor_compose hs hs (functor_composite (`T) (`T))(`T) --> functor_composite (` T) (`T),
 
