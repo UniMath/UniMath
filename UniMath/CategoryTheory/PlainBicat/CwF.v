@@ -106,7 +106,7 @@ Section Representation.
     : functor_on_morphisms Yo π · yy A = yy t · pp.
   Proof.
     apply pathsinv0.
-    etrans. Focus 2. apply yy_natural.
+    etrans. 2: apply yy_natural.
     etrans. apply yy_comp_nat_trans.
     apply maponpaths, e.
   Qed.
