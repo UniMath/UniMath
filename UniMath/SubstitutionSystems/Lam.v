@@ -346,7 +346,7 @@ Proof.
 *)
 
       match goal with |[ T3' : _ = ?f |- _ = ?a · ?b · _ · ?d  ] => transitivity (a · b · #T f · d) end.
-        Focus 2. apply cancel_postcomposition. apply maponpaths. apply maponpaths. apply (!T3').
+      2: { apply cancel_postcomposition. apply maponpaths. apply maponpaths. apply (!T3'). }
       clear T3'.
       apply pathsinv0.
 
@@ -389,8 +389,8 @@ Proof.
       assert (X := μ_2_nat _ _ (f c)).
       unfold μ_2 in X.
 
-      eapply pathscomp0. Focus 2. apply cancel_postcomposition. apply X. clear X.
-
+      eapply pathscomp0. 2: { apply cancel_postcomposition. apply X. }
+      clear X.
       rewrite functor_comp.
       repeat rewrite <- assoc.
       apply maponpaths.
@@ -455,12 +455,12 @@ Proof.
       clear HT. clear H2.
 
       match goal with |[X : _ = ?f |- _ ] => transitivity f end.
-       Focus 2. rewrite τ_LamE_algebra_on_Lam.
-       eapply pathscomp0. apply assoc.
-       apply cancel_postcomposition. apply BinCoproductIn1Commutes.
-
+       2: { rewrite τ_LamE_algebra_on_Lam.
+            eapply pathscomp0. apply assoc.
+            apply cancel_postcomposition. apply BinCoproductIn1Commutes.
+       }
       match goal with |[X : ?e = _ |- _ ] => transitivity e end.
-       Focus 2. apply X.
+       2: apply X.
 
       rewrite τ_LamE_algebra_on_Lam.
 
