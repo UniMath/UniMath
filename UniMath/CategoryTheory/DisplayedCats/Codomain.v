@@ -107,15 +107,15 @@ Definition isPullback_cartesian_in_cod_disp
 Proof.
   intros Hpb Δ g q hh.
   eapply iscontrweqf.
-  Focus 2. {
+  2: {
     use Hpb.
     + exact (pr1 q).
     + exact (pr1 hh).
     + simpl in q. use (pr2 q · g).
     + etrans. apply (pr2 hh). apply assoc.
-  } Unfocus.
+  }
   eapply weqcomp.
-  Focus 2. apply weqtotal2asstol.
+  2: apply weqtotal2asstol.
   apply weq_subtypes_iff.
   - intro. apply isapropdirprod; apply homset_property.
   - intro. apply (isofhleveltotal2 1).
@@ -143,14 +143,14 @@ Proof.
   unfold is_cartesian in cf.
   simpl in *.
   eapply iscontrweqf.
-  Focus 2. {
+  2: {
     use cf.
     + exact Γ'.
     + exact (identity _ ).
     + exists c. exact k.
     + cbn. exists h.
       etrans. apply H. apply maponpaths. apply (! id_left _ ).
-  } Unfocus.
+  }
   eapply weqcomp.
   apply weqtotal2asstor.
   apply weq_subtypes_iff.

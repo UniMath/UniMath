@@ -318,9 +318,11 @@ use mk_Coproduct.
         intro x; rewrite <- ht; destruct x; apply idpath]).
 Defined.
 
-Section CoproductsHSET_from_Colims.
+
 
 Require UniMath.CategoryTheory.limits.graphs.bincoproducts.
+
+Section CoproductsHSET_from_Colims.
 
 Lemma BinCoproductsHSET_from_Colims : graphs.bincoproducts.BinCoproducts HSET.
 Proof.
@@ -338,9 +340,11 @@ use tpair.
 - abstract (intro f; apply funextfun; intro e; induction e).
 Defined.
 
-Section InitialHSET_from_Colims.
 
 Require UniMath.CategoryTheory.limits.graphs.initial.
+
+Section InitialHSET_from_Colims.
+
 
 Lemma InitialHSET_from_Colims : graphs.initial.Initial HSET.
 Proof.
@@ -399,10 +403,10 @@ now intros d; apply LimConeHSET.
 Defined.
 
 
+Require UniMath.CategoryTheory.limits.cats.limits.
+
 (** Alternative definition of limits using cats/limits *)
 Section cats_limits.
-
-Require UniMath.CategoryTheory.limits.cats.limits.
 
 Variable J : precategory.
 Variable D : functor J HSET.
@@ -485,9 +489,9 @@ use mk_Product.
          apply funextsec; intro i; rewrite <- ht; apply idpath ]).
 Defined.
 
-Section BinProductsHSET_from_Lims.
-
 Require UniMath.CategoryTheory.limits.graphs.binproducts.
+
+Section BinProductsHSET_from_Lims.
 
 Lemma BinProductsHSET_from_Lims : graphs.binproducts.BinProducts HSET.
 Proof.
@@ -504,9 +508,10 @@ exists (λ _, tt).
 abstract (simpl; intro f; apply funextfun; intro x; case (f x); apply idpath).
 Defined.
 
-Section TerminalHSET_from_Lims.
 
 Require UniMath.CategoryTheory.limits.graphs.terminal.
+
+Section TerminalHSET_from_Lims.
 
 Lemma TerminalHSET_from_Lims : graphs.terminal.Terminal HSET.
 Proof.
@@ -543,9 +548,10 @@ use mk_Pullback.
     now rewrite <- (toforallpaths _ _ _ H1 x), <- (toforallpaths _ _ _ H2 x)).
 Defined.
 
-Section PullbacksHSET_from_Lims.
 
-  Require UniMath.CategoryTheory.limits.graphs.pullbacks.
+Require UniMath.CategoryTheory.limits.graphs.pullbacks.
+
+Section PullbacksHSET_from_Lims.
 
   Lemma PullbacksHSET_from_Lims : graphs.pullbacks.Pullbacks HSET.
   Proof.
@@ -554,9 +560,11 @@ Section PullbacksHSET_from_Lims.
 
 End PullbacksHSET_from_Lims.
 
+
+Require UniMath.CategoryTheory.limits.graphs.equalizers.
+
 Section EqualizersHSET_from_Lims.
 
-  Require UniMath.CategoryTheory.limits.graphs.equalizers.
 
   Lemma EqualizersHSET_from_Lims : graphs.equalizers.Equalizers HSET.
   Proof.
@@ -565,8 +573,10 @@ Section EqualizersHSET_from_Lims.
 
 End EqualizersHSET_from_Lims.
 
+Require UniMath.CategoryTheory.limits.graphs.pushouts.
+
 Section PushoutsHSET_from_colims.
-  Require UniMath.CategoryTheory.limits.graphs.pushouts.
+
   Lemma PushoutsHSET_from_Colims : graphs.pushouts.Pushouts HSET.
   Proof.
     red.
