@@ -59,7 +59,7 @@ Proof.
     { apply eq_iso. cbn. simpl. unfold precomp_with.
       etrans. apply maponpaths_2. apply id_right.
       etrans. eapply pathsinv0. apply functor_comp.
-      etrans. Focus 2. apply functor_id.
+      etrans. 2: apply functor_id.
       apply maponpaths. apply iso_after_iso_inv.
    }
     set (XRT := transportf (λ r, iso_disp r (FF x dd) yy )
@@ -571,8 +571,8 @@ Proof.
     set (Hxx := FF_split x xx).
     set (Hyy := FF_split y yy).
     apply FFinv.
-    refine (transportf (mor_disp _ _) _ _). Focus 2.
-    exact ((pr2 Hxx ;; ff) ;; inv_mor_disp_from_iso (pr2 Hyy)).
+    refine (transportf (mor_disp _ _) _ _).
+    2: exact ((pr2 Hxx ;; ff) ;; inv_mor_disp_from_iso (pr2 Hyy)).
     cbn. etrans. apply id_right. apply id_left.
 Defined.
 
@@ -581,7 +581,7 @@ Proof.
   split; simpl.
   + intros x xx.
     apply invmap_eq. cbn.
-    etrans. Focus 2. apply @pathsinv0, (disp_functor_id FF).
+    etrans. 2: apply @pathsinv0, (disp_functor_id FF).
     etrans. apply maponpaths.
       etrans. apply maponpaths_2, id_right_disp.
       etrans. apply mor_disp_transportf_postwhisker.
@@ -591,46 +591,48 @@ Proof.
     unfold transportb. apply maponpaths_2, homset_property.
   + intros x y z xx yy zz f g ff gg.
     apply invmap_eq. cbn.
-    etrans. Focus 2. apply @pathsinv0.
-      etrans. apply (disp_functor_comp FF).
-      etrans. apply maponpaths.
-        etrans. apply maponpaths; use homotweqinvweq.
-        apply maponpaths_2; use homotweqinvweq.
-      etrans. apply maponpaths.
-        etrans. apply mor_disp_transportf_prewhisker.
-        apply maponpaths.
-        etrans. apply mor_disp_transportf_postwhisker.
-        apply maponpaths.
-        etrans. apply maponpaths, assoc_disp_var.
-        etrans. apply mor_disp_transportf_prewhisker.
-        apply maponpaths.
-        etrans. apply assoc_disp.
-        apply maponpaths.
-        etrans. apply maponpaths_2.
-          etrans. apply assoc_disp_var.
-          apply maponpaths.
-          etrans. apply maponpaths.
-            exact (iso_disp_after_inv_mor (pr2 (FF_split _ _))).
-          etrans. apply mor_disp_transportf_prewhisker.
-          etrans. apply maponpaths, id_right_disp.
-          apply transport_f_f.
-        etrans. apply maponpaths_2, transport_f_f.
-        apply mor_disp_transportf_postwhisker.
-      etrans. apply transport_f_f.
-      etrans. apply transport_f_f.
-      etrans. apply transport_f_f.
-      etrans. apply transport_f_f.
-      etrans. apply transport_f_f.
-      (* A trick to hide the huge equality term: *)
-      apply maponpaths_2. shelve.
+    etrans.
+    2: { apply @pathsinv0.
+         etrans. apply (disp_functor_comp FF).
+         etrans. apply maponpaths.
+         etrans. apply maponpaths; use homotweqinvweq.
+         apply maponpaths_2; use homotweqinvweq.
+         etrans. apply maponpaths.
+         etrans. apply mor_disp_transportf_prewhisker.
+         apply maponpaths.
+         etrans. apply mor_disp_transportf_postwhisker.
+         apply maponpaths.
+         etrans. apply maponpaths, assoc_disp_var.
+         etrans. apply mor_disp_transportf_prewhisker.
+         apply maponpaths.
+         etrans. apply assoc_disp.
+         apply maponpaths.
+         etrans. apply maponpaths_2.
+         etrans. apply assoc_disp_var.
+         apply maponpaths.
+         etrans. apply maponpaths.
+         exact (iso_disp_after_inv_mor (pr2 (FF_split _ _))).
+         etrans. apply mor_disp_transportf_prewhisker.
+         etrans. apply maponpaths, id_right_disp.
+         apply transport_f_f.
+         etrans. apply maponpaths_2, transport_f_f.
+         apply mor_disp_transportf_postwhisker.
+         etrans. apply transport_f_f.
+         etrans. apply transport_f_f.
+         etrans. apply transport_f_f.
+         etrans. apply transport_f_f.
+         etrans. apply transport_f_f.
+         (* A trick to hide the huge equality term: *)
+         apply maponpaths_2. shelve.
+    }
     etrans. apply maponpaths.
-      etrans. apply maponpaths_2, assoc_disp.
-      etrans. apply mor_disp_transportf_postwhisker.
-      apply maponpaths. apply assoc_disp_var.
+    etrans. apply maponpaths_2, assoc_disp.
+    etrans. apply mor_disp_transportf_postwhisker.
+    apply maponpaths. apply assoc_disp_var.
     etrans. apply transport_f_f.
     etrans. apply transport_f_f.
     apply maponpaths_2, homset_property.
-    Unshelve. Focus 2. apply idpath.
+    Unshelve. 2: apply idpath.
 Qed.
 
 Definition GG : disp_functor _ _ _ := (_ ,, GG_ax).
