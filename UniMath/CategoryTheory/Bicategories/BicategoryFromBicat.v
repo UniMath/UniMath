@@ -142,12 +142,16 @@ Proof.
   - intros. apply triangle_identity.
 Defined.
 
+Hypothesis sc : isaset_cells C.
+
 Lemma is_prebicategory_bicate : is_prebicategory bicate_data.
 Proof.
-  split; [ admit | split ].
-  - exact prebicat_associator_and_unitors_are_iso.
-  - exact prebicat_prebicategory_coherence.
-Admitted.
+  split.
+  - apply sc.
+  - split.
+    + exact prebicat_associator_and_unitors_are_iso.
+    + exact prebicat_prebicategory_coherence.
+Qed.
 
 Definition bicate : prebicategory.
 Proof.
