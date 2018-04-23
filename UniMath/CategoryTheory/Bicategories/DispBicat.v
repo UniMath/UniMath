@@ -747,3 +747,29 @@ End disp_bicat.
 Arguments disp_prebicat_1_id_comp_cells _ : clear implicits.
 Arguments disp_prebicat_data _ : clear implicits.
 Arguments disp_prebicat _ : clear implicits.
+
+Section Display_Equivalence.
+
+  Notation "f' ==>[ x ] g'" := (disp_2cells x f' g') (at level 60).
+  Notation "f' <==[ x ] g'" := (disp_2cells x g' f') (at level 60, only parsing).
+  Notation "rr •• ss" := (vcomp2_disp rr ss) (at level 60).
+
+  Context {C : prebicat} {D : disp_prebicat C}
+          {c c' : C} {f f' : C⟦c,c'⟧}
+          {d : D c} {d' : D c'}
+          (ff : d -->[f] d') (ff' : d -->[f'] d')
+          (α : equivalence f f').
+
+  Definition is_disp_equivalence (x : ff ==>[α] ff')
+    : UU
+    := ∑ (y : ff' ==>[inv_equivalence α] ff),
+       (x •• y =
+        transportb (λ x', _ ==>[x'] _) (equivalence_after_inv_cell α)  (id2_disp ff)) ×
+       (y •• x =
+        transportb (λ x', _ ==>[x'] _) (inv_cell_after_equivalence α)  (id2_disp ff')).
+
+  Definition disp_equivalence
+    : UU
+    := ∑ (x : ff ==>[α] ff'), is_disp_equivalence x.
+
+End Display_Equivalence.
