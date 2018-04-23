@@ -17,10 +17,10 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 
-Require Import UniMath.CategoryTheory.bicategories.prebicategory.
-Require Import UniMath.CategoryTheory.bicategories.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.WkCatEnrichment.prebicategory.
+Require Import UniMath.CategoryTheory.Bicategories.WkCatEnrichment.Notations.
 
-Require Import UniMath.CategoryTheory.PlainBicat.Bicat.
+Require Import UniMath.CategoryTheory.Bicategories.Bicat.
 
 Open Scope cat.
 
