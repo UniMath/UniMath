@@ -149,6 +149,7 @@ Bicategories/DispBicatOfDispCats.v
 Bicategories/ContravariantFunctor.v
 Bicategories/Constructions.v
 Bicategories/Sigma.v
+Bicategories/Fibration.v
 Bicategories/Cofunctormap.v
 Bicategories/InternalAdjunction.v
 Bicategories/CwF.v

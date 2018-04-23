@@ -772,4 +772,21 @@ Section Display_Equivalence.
     : UU
     := ∑ (x : ff ==>[α] ff'), is_disp_equivalence x.
 
+  Coercion disp_cell_from_equivalence (e : disp_equivalence)
+    : ff ==>[α] ff'
+    := pr1 e.
+
+  Definition inv_disp_cell (e : disp_equivalence)
+    : ff' ==>[inv_cell α] ff
+    := pr1 (pr2 e).
+
+  (*
+  Definition disp_equivalence_after_inv_cell (x : disp_equivalence).
+       (x •• inv_disp_cell x =
+        transportb (λ x', _ ==>[x'] _) (equivalence_after_inv_cell α)  (id2_disp ff))
+
+       (y •• x =
+        transportb (λ x', _ ==>[x'] _) (inv_cell_after_equivalence α)  (id2_disp ff')).
+   *)
+
 End Display_Equivalence.
