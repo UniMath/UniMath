@@ -595,28 +595,28 @@ Proof.
     2: { apply @pathsinv0.
          etrans. apply (disp_functor_comp FF).
          etrans. apply maponpaths.
-         etrans. apply maponpaths; use homotweqinvweq.
-         apply maponpaths_2; use homotweqinvweq.
+           etrans. apply maponpaths; use homotweqinvweq.
+           apply maponpaths_2; use homotweqinvweq.
          etrans. apply maponpaths.
-         etrans. apply mor_disp_transportf_prewhisker.
-         apply maponpaths.
-         etrans. apply mor_disp_transportf_postwhisker.
-         apply maponpaths.
-         etrans. apply maponpaths, assoc_disp_var.
-         etrans. apply mor_disp_transportf_prewhisker.
-         apply maponpaths.
-         etrans. apply assoc_disp.
-         apply maponpaths.
-         etrans. apply maponpaths_2.
-         etrans. apply assoc_disp_var.
-         apply maponpaths.
-         etrans. apply maponpaths.
-         exact (iso_disp_after_inv_mor (pr2 (FF_split _ _))).
-         etrans. apply mor_disp_transportf_prewhisker.
-         etrans. apply maponpaths, id_right_disp.
-         apply transport_f_f.
-         etrans. apply maponpaths_2, transport_f_f.
-         apply mor_disp_transportf_postwhisker.
+           etrans. apply mor_disp_transportf_prewhisker.
+           apply maponpaths.
+           etrans. apply mor_disp_transportf_postwhisker.
+           apply maponpaths.
+           etrans. apply maponpaths, assoc_disp_var.
+           etrans. apply mor_disp_transportf_prewhisker.
+           apply maponpaths.
+           etrans. apply assoc_disp.
+           apply maponpaths.
+           etrans. apply maponpaths_2.
+             etrans. apply assoc_disp_var.
+             apply maponpaths.
+             etrans. apply maponpaths.
+               exact (iso_disp_after_inv_mor (pr2 (FF_split _ _))).
+             etrans. apply mor_disp_transportf_prewhisker.
+             etrans. apply maponpaths, id_right_disp.
+             apply transport_f_f.
+           etrans. apply maponpaths_2, transport_f_f.
+           apply mor_disp_transportf_postwhisker.
          etrans. apply transport_f_f.
          etrans. apply transport_f_f.
          etrans. apply transport_f_f.
@@ -624,11 +624,11 @@ Proof.
          etrans. apply transport_f_f.
          (* A trick to hide the huge equality term: *)
          apply maponpaths_2. shelve.
-    }
+       }
     etrans. apply maponpaths.
-    etrans. apply maponpaths_2, assoc_disp.
-    etrans. apply mor_disp_transportf_postwhisker.
-    apply maponpaths. apply assoc_disp_var.
+      etrans. apply maponpaths_2, assoc_disp.
+      etrans. apply mor_disp_transportf_postwhisker.
+      apply maponpaths. apply assoc_disp_var.
     etrans. apply transport_f_f.
     etrans. apply transport_f_f.
     apply maponpaths_2, homset_property.
