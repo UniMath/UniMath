@@ -748,7 +748,7 @@ Arguments disp_prebicat_1_id_comp_cells _ : clear implicits.
 Arguments disp_prebicat_data _ : clear implicits.
 Arguments disp_prebicat _ : clear implicits.
 
-Section Display_Equivalence.
+Section Display_Invertible_2cell.
 
   Notation "f' ==>[ x ] g'" := (disp_2cells x f' g') (at level 60).
   Notation "f' <==[ x ] g'" := (disp_2cells x g' f') (at level 60, only parsing).
@@ -758,35 +758,35 @@ Section Display_Equivalence.
           {c c' : C} {f f' : C⟦c,c'⟧}
           {d : D c} {d' : D c'}
           (ff : d -->[f] d') (ff' : d -->[f'] d')
-          (α : equivalence f f').
+          (α : invertible_2cell f f').
 
-  Definition is_disp_equivalence (x : ff ==>[α] ff')
+  Definition is_disp_invertible_2cell (x : ff ==>[α] ff')
     : UU
-    := ∑ (y : ff' ==>[inv_equivalence α] ff),
+    := ∑ (y : ff' ==>[inv_invertible_2cell α] ff),
        (x •• y =
-        transportb (λ x', _ ==>[x'] _) (equivalence_after_inv_cell α)  (id2_disp ff)) ×
+        transportb (λ x', _ ==>[x'] _) (invertible_2cell_after_inv_cell α)  (id2_disp ff)) ×
        (y •• x =
-        transportb (λ x', _ ==>[x'] _) (inv_cell_after_equivalence α)  (id2_disp ff')).
+        transportb (λ x', _ ==>[x'] _) (inv_cell_after_invertible_2cell α)  (id2_disp ff')).
 
-  Definition disp_equivalence
+  Definition disp_invertible_2cell
     : UU
-    := ∑ (x : ff ==>[α] ff'), is_disp_equivalence x.
+    := ∑ (x : ff ==>[α] ff'), is_disp_invertible_2cell x.
 
-  Coercion disp_cell_from_equivalence (e : disp_equivalence)
+  Coercion disp_cell_from_invertible_2cell (e : disp_invertible_2cell)
     : ff ==>[α] ff'
     := pr1 e.
 
-  Definition inv_disp_cell (e : disp_equivalence)
+  Definition inv_disp_cell (e : disp_invertible_2cell)
     : ff' ==>[inv_cell α] ff
     := pr1 (pr2 e).
 
   (*
-  Definition disp_equivalence_after_inv_cell (x : disp_equivalence).
+  Definition disp_invertible_2cell_after_inv_cell (x : disp_invertible_2cell).
        (x •• inv_disp_cell x =
-        transportb (λ x', _ ==>[x'] _) (equivalence_after_inv_cell α)  (id2_disp ff))
+        transportb (λ x', _ ==>[x'] _) (invertible_2cell_after_inv_cell α)  (id2_disp ff))
 
        (y •• x =
-        transportb (λ x', _ ==>[x'] _) (inv_cell_after_equivalence α)  (id2_disp ff')).
+        transportb (λ x', _ ==>[x'] _) (inv_cell_after_invertible_2cell α)  (id2_disp ff')).
    *)
 
-End Display_Equivalence.
+End Display_Invertible_2cell.

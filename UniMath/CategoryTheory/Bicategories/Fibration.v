@@ -28,8 +28,8 @@ Section LocalIsoFibration.
     := ∏ (c c' : C) (f f' : C⟦c,c'⟧)
          (d : D c) (d' : D c')
          (ff' : d -->[f'] d')
-         (α : equivalence f f'),
-       ∑ ff : d -->[f] d', disp_equivalence ff ff' α.
+         (α : invertible_2cell f f'),
+       ∑ ff : d -->[f] d', disp_invertible_2cell ff ff' α.
 
   Section Projections.
 
@@ -37,14 +37,14 @@ Section LocalIsoFibration.
             {c c' : C} {f f' : C⟦c,c'⟧}
             {d : D c} {d' : D c'}
             (ff' : d -->[f'] d')
-            (α : equivalence f f').
+            (α : invertible_2cell f f').
 
     Definition local_iso_cleaving_1cell
       : d -->[f] d'
       := pr1 (lic c c' f f' d d' ff' α).
 
-    Definition local_iso_cleaving_disp_equivalence
-      : disp_equivalence local_iso_cleaving_1cell ff' α
+    Definition local_iso_cleaving_disp_invertible_2cell
+      : disp_invertible_2cell local_iso_cleaving_1cell ff' α
       := pr2 (lic c c' f f' d d' ff' α).
 
   End Projections.
@@ -60,10 +60,10 @@ Section LocalIsoFibration.
       - cbn. exact (λ (d : D c) (d' : D c), d -->[identity _] d').
     Defined.
 
-    Definition idempunitor : equivalence (identity c) (identity c · identity c).
+    Definition idempunitor : invertible_2cell (identity c) (identity c · identity c).
     Proof.
       exists (linvunitor (identity c)).
-      apply is_equivalence_linvunitor.
+      apply is_invertible_2cell_linvunitor.
     Defined.
 
     Definition discrete_fiber_precategory_data : precategory_data.
@@ -92,20 +92,20 @@ Section LocalIsoFibration.
       repeat split; cbn.
       - intros. exact (id2_disp _).
       - intros d d' ff.
-        set (PP := local_iso_cleaving_disp_equivalence h (id_disp d;; ff) idempunitor).
+        set (PP := local_iso_cleaving_disp_invertible_2cell h (id_disp d;; ff) idempunitor).
         set (RR := PP •• lunitor_disp ff).
         assert (Heq : idempunitor • lunitor (identity c) = id2 (identity c)).
         { unfold idempunitor. simpl. apply linvunitor_lunitor. }
         exact (transportf (λ x, _ ==>[x] _) Heq RR).
       - intros d d' ff.
-        set (PP := local_iso_cleaving_disp_equivalence h (ff;; id_disp d') idempunitor).
+        set (PP := local_iso_cleaving_disp_invertible_2cell h (ff;; id_disp d') idempunitor).
         set (RR := PP •• runitor_disp ff).
         assert (Heq : idempunitor • runitor (identity c) = id2 (identity c)).
         unfold idempunitor. simpl.
         { admit. }
         exact (transportf (λ x, _ ==>[x] _) Heq RR).
       - intros d d' ff.
-        set (PP := local_iso_cleaving_disp_equivalence h (id_disp d;; ff) idempunitor).
+        set (PP := local_iso_cleaving_disp_invertible_2cell h (id_disp d;; ff) idempunitor).
         set (RR := lunitor_disp ff •• PP).
 
 
