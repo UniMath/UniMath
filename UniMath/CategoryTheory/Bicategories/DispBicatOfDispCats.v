@@ -70,9 +70,8 @@ Proof.
       apply pathsinv0.
       apply disp_functor_comp_var.
       etrans.
-      Focus 2.
-      apply maponpaths.
-      apply disp_functor_comp_var.
+      2: { apply maponpaths.
+      apply disp_functor_comp_var. }
       apply pathsinv0.
       etrans.
       apply transport_f_f.
