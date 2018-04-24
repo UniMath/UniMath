@@ -115,11 +115,33 @@ Section Internal_Adjunction.
     apply is_internal_adjunction_identity.
   Defined.
 
-  Definition identity_internal_adjoint_equivalence (a : C)
+  Definition internal_adjoint_equivalence_identity (a : C)
     : internal_adjoint_equivalence a a.
   Proof.
     exists (identity a).
     eapply is_internal_adjoint_equivalence_identity.
   Defined.
 
+  Definition idtoiso_2_0 (a b : C)
+    : a = b -> internal_adjoint_equivalence a b.
+  Proof.
+    induction 1.
+    apply internal_adjoint_equivalence_identity.
+  Defined.
+
+  Definition idtoiso_2_1 {a b : C} (f g : C⟦a,b⟧)
+    : f = g -> invertible_2cell f g.
+  Proof.
+    induction 1. apply id2_invertible_2cell.
+  Defined.
+
 End Internal_Adjunction.
+
+Definition is_univalent_2_1 (C : prebicat) : UU
+  := ∏ (a b : C) (f g : C⟦a,b⟧), isweq (idtoiso_2_1 f g).
+
+Definition is_univalent_2_0 (C : prebicat) : UU
+    := ∏ (a b : C), isweq (idtoiso_2_0 a b).
+
+Definition is_univalent_2 (C : bicat) : UU
+  := is_univalent_2_0 C × is_univalent_2_1 C.

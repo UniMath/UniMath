@@ -143,6 +143,7 @@ DisplayedCats/Adjunctions.v
 Bicategories/Bicat.v
 Bicategories/PseudoFunctor.v
 Bicategories/OpCellBicat.v
+Bicategories/Univalence.v
 Bicategories/DispBicat.v
 Bicategories/BicatOfCats.v
 Bicategories/DispBicatOfDispCats.v
@@ -151,7 +152,6 @@ Bicategories/Constructions.v
 Bicategories/Sigma.v
 Bicategories/Fibration.v
 Bicategories/Cofunctormap.v
-Bicategories/InternalAdjunction.v
 Bicategories/CwF.v
 Bicategories/WkCatEnrichment/prebicategory.v
 Bicategories/WkCatEnrichment/Notations.v
