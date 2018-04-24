@@ -51,9 +51,6 @@ Section Internal_Adjunction.
   Definition internal_adjoint_equivalence (a b : C) : UU
     := ∑ (f : C⟦a,b⟧), is_internal_adjoint_equivalence f.
 
-  Axiom lunitor_runitor_identity :
-    ∏ a : C, lunitor (identity a) = runitor (identity a).
-
   Definition is_internal_adjunction_identity (a : C)
     : is_internal_adjunction (linvunitor (identity a),, lunitor (identity a)).
   Proof.

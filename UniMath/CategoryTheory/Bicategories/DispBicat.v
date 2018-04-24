@@ -756,11 +756,12 @@ Section Display_Invertible_2cell.
 
   Context {C : prebicat} {D : disp_prebicat C}
           {c c' : C} {f f' : C⟦c,c'⟧}
-          {d : D c} {d' : D c'}
-          (ff : d -->[f] d') (ff' : d -->[f'] d')
-          (α : invertible_2cell f f').
+          {d : D c} {d' : D c'}.
 
-  Definition is_disp_invertible_2cell (x : ff ==>[α] ff')
+  Definition is_disp_invertible_2cell
+             {α : invertible_2cell f f'}
+             {ff : d -->[f] d'} {ff' : d -->[f'] d'}
+             (x : ff ==>[α] ff')
     : UU
     := ∑ (y : ff' ==>[inv_invertible_2cell α] ff),
        (x •• y =
@@ -768,15 +769,20 @@ Section Display_Invertible_2cell.
        (y •• x =
         transportb (λ x', _ ==>[x'] _) (inv_cell_after_invertible_2cell α)  (id2_disp ff')).
 
-  Definition disp_invertible_2cell
+  Definition disp_invertible_2cell (α : invertible_2cell f f')
+             (ff : d -->[f] d') (ff' : d -->[f'] d')
     : UU
     := ∑ (x : ff ==>[α] ff'), is_disp_invertible_2cell x.
 
-  Coercion disp_cell_from_invertible_2cell (e : disp_invertible_2cell)
+  Coercion disp_cell_from_invertible_2cell {α : invertible_2cell f f'}
+           {ff : d -->[f] d'} {ff' : d -->[f'] d'}
+           (e : disp_invertible_2cell α ff ff')
     : ff ==>[α] ff'
     := pr1 e.
 
-  Definition inv_disp_cell (e : disp_invertible_2cell)
+  Definition inv_disp_cell {α : invertible_2cell f f'}
+             {ff : d -->[f] d'} {ff' : d -->[f'] d'}
+             (e : disp_invertible_2cell α ff ff')
     : ff' ==>[inv_cell α] ff
     := pr1 (pr2 e).
 

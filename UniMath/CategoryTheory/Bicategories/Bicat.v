@@ -638,6 +638,9 @@ Proof.
   - apply lassociator_rassociator.
 Defined.
 
+Axiom lunitor_runitor_identity :
+  ∏ a : C, lunitor (identity a) = runitor (identity a).
+
 End Derived_laws.
 
 (* ----------------------------------------------------------------------------------- *)
