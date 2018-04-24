@@ -38,31 +38,31 @@ Definition psfunctor_linvunitor_law : UU
   := ∏ (a b : C) (f : C⟦a, b⟧),
      ## F (linvunitor f) =
      linvunitor (#F f)
-                • (inv_equivalence (psfunctor_id F a) ▹ #F f)
-                • (inv_equivalence (psfunctor_comp F _ _ )).
+                • (inv_invertible_2cell (psfunctor_id F a) ▹ #F f)
+                • (inv_invertible_2cell (psfunctor_comp F _ _ )).
 
 Definition psfunctor_rinvunitor_law : UU
   := ∏ (a b : C) (f : C⟦a, b⟧),
      ## F (rinvunitor f) =
      rinvunitor (#F f)
-                • (#F f ◃ inv_equivalence (psfunctor_id F b))
-                • (inv_equivalence (psfunctor_comp F _ _ )).
+                • (#F f ◃ inv_invertible_2cell (psfunctor_id F b))
+                • (inv_invertible_2cell (psfunctor_comp F _ _ )).
 
 Definition psfunctor_rassociator_law : UU
   := ∏ (a b c d : C)
        (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : C⟦c, d⟧),
      ##F (rassociator f g h) =
      (psfunctor_comp F _ _ ) • (psfunctor_comp F _ _ ▹ #F h) • rassociator (#F f) (#F g) (#F h)
-                             • (#F f ◃ inv_equivalence (psfunctor_comp F _ _ ))
-                             • (inv_equivalence (psfunctor_comp F _ _ )).
+                             • (#F f ◃ inv_invertible_2cell (psfunctor_comp F _ _ ))
+                             • (inv_invertible_2cell (psfunctor_comp F _ _ )).
 
 Definition psfunctor_lassociator_law : UU
   := ∏ (a b c d : C)
        (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : C⟦c, d⟧),
      ##F (lassociator f g h) =
      (psfunctor_comp F _ _ ) • (#F f ◃ psfunctor_comp F _ _ ) • lassociator (#F f) (#F g) (#F h)
-                             • (inv_equivalence (psfunctor_comp F _ _ )▹ #F _ )
-                             • (inv_equivalence (psfunctor_comp F _ _ )).
+                             • (inv_invertible_2cell (psfunctor_comp F _ _ )▹ #F _ )
+                             • (inv_invertible_2cell (psfunctor_comp F _ _ )).
 
 Definition psfunctor_vcomp2_law : UU
   := ∏ (a b : C) (f g h: C⟦a, b⟧)
@@ -73,13 +73,13 @@ Definition psfunctor_lwhisker_law : UU
   := ∏ (a b c : C) (f : C⟦a, b⟧) (g1 g2 : C⟦b, c⟧)
        (η : g1 ==> g2),
      ##F (f ◃ η) =
-     (psfunctor_comp F _ _ ) • (#F f ◃ ##F η) • (inv_equivalence (psfunctor_comp F _ _ )).
+     (psfunctor_comp F _ _ ) • (#F f ◃ ##F η) • (inv_invertible_2cell (psfunctor_comp F _ _ )).
 
 Definition psfunctor_rwhisker_law : UU
   := ∏ (a b c : C) (f1 f2 : C⟦a, b⟧) (g : C⟦b, c⟧)
        (η : f1 ==> f2),
      ##F (η ▹ g) =
-     (psfunctor_comp F _ _ ) • (##F η ▹ #F g) • (inv_equivalence (psfunctor_comp F _ _ )).
+     (psfunctor_comp F _ _ ) • (##F η ▹ #F g) • (inv_invertible_2cell (psfunctor_comp F _ _ )).
 
 Definition psfunctor_laws : UU
   :=

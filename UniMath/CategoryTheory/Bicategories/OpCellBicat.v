@@ -51,18 +51,18 @@ Proof.
   - apply id2_rwhisker.
   - apply lwhisker_vcomp.
   - apply rwhisker_vcomp.
-  - use inv_cell_to_cell_post; [ apply is_equivalence_linvunitor |].
+  - use inv_cell_to_cell_post; [ apply is_invertible_2cell_linvunitor |].
     cbn.
     apply pathsinv0.
     etrans. apply vassocr.
-    use cell_to_inv_cell_post; [ apply is_equivalence_linvunitor |].
+    use cell_to_inv_cell_post; [ apply is_invertible_2cell_linvunitor |].
     cbn.
     apply pathsinv0. apply vcomp_lunitor.
-  - use inv_cell_to_cell_post; [ apply is_equivalence_rinvunitor |].
+  - use inv_cell_to_cell_post; [ apply is_invertible_2cell_rinvunitor |].
     cbn.
     apply pathsinv0.
     etrans. apply vassocr.
-    use cell_to_inv_cell_post; [ apply is_equivalence_rinvunitor |].
+    use cell_to_inv_cell_post; [ apply is_invertible_2cell_rinvunitor |].
     cbn.
     apply pathsinv0. apply vcomp_runitor.
   - apply lassociator_to_rassociator_pre.
@@ -88,37 +88,37 @@ Proof.
   - apply lassociator_rassociator.
   - apply rassociator_lassociator.
   - use inv_cell_to_cell_post.
-    { use is_equivalence_rwhisker.
-      apply is_equivalence_rinvunitor.
+    { use is_invertible_2cell_rwhisker.
+      apply is_invertible_2cell_rinvunitor.
     } cbn.
     apply pathsinv0.
     use cell_to_inv_cell_post.
-    { use is_equivalence_lwhisker.
-      apply is_equivalence_linvunitor.
+    { use is_invertible_2cell_lwhisker.
+      apply is_invertible_2cell_linvunitor.
     } cbn.
     apply pathsinv0.
     apply lassociator_to_rassociator_pre.
     apply pathsinv0, runitor_rwhisker.
   - use inv_cell_to_cell_post.
-    { use is_equivalence_rwhisker.
-      apply is_equivalence_rassociator.
+    { use is_invertible_2cell_rwhisker.
+      apply is_invertible_2cell_rassociator.
     } cbn.
     apply pathsinv0.
     etrans. apply vassocr.
     use cell_to_inv_cell_post.
-    { apply is_equivalence_rassociator.
+    { apply is_invertible_2cell_rassociator.
     } cbn.
     use cell_to_inv_cell_post.
-    { apply is_equivalence_rassociator.
+    { apply is_invertible_2cell_rassociator.
     } cbn.
     apply pathsinv0.
     repeat rewrite <- vassocr.
     use inv_cell_to_cell_post.
-    { apply is_equivalence_rassociator.
+    { apply is_invertible_2cell_rassociator.
     } cbn.
     use inv_cell_to_cell_post.
-    { apply is_equivalence_lwhisker.
-      apply is_equivalence_rassociator.
+    { apply is_invertible_2cell_lwhisker.
+      apply is_invertible_2cell_rassociator.
     } cbn.
     apply pathsinv0.
     rewrite vassocr.

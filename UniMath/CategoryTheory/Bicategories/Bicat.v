@@ -358,45 +358,45 @@ Definition lassociator_lassociator
 End prebicat_law_projections.
 
 
-(** Equivalences *)
+(** Invertible_2cells *)
 
-Section equivalences.
+Section invertible_2cells.
 
 Context {C : prebicat_data}.
 
-Definition is_equivalence {a b : C} {f g : a --> b} (η : f ==> g)
+Definition is_invertible_2cell {a b : C} {f g : a --> b} (η : f ==> g)
   : UU
   := ∑ φ : g ==> f, η • φ = id2 _ × φ • η = id2 _ .
 
-Definition equivalence {a b : C} (f g : a --> b) : UU
-  := ∑ η : f ==> g, is_equivalence η.
+Definition invertible_2cell {a b : C} (f g : a --> b) : UU
+  := ∑ η : f ==> g, is_invertible_2cell η.
 
-Coercion cell_from_equivalence {a b : C} {f g : a --> b} (η : equivalence f g) : f ==> g := pr1 η.
+Coercion cell_from_invertible_2cell {a b : C} {f g : a --> b} (η : invertible_2cell f g) : f ==> g := pr1 η.
 
-Definition inv_cell {a b : C} {f g : a --> b} (η : equivalence f g)
+Definition inv_cell {a b : C} {f g : a --> b} (η : invertible_2cell f g)
   : g ==> f
   := pr1 (pr2 η).
 
-Definition equivalence_after_inv_cell {a b : C} {f g : a --> b} (η : equivalence f g)
+Definition invertible_2cell_after_inv_cell {a b : C} {f g : a --> b} (η : invertible_2cell f g)
   : η • inv_cell η = id2 _
   := pr1 (pr2 (pr2 η)).
 
-Definition inv_cell_after_equivalence {a b : C} {f g : a --> b} (η : equivalence f g)
+Definition inv_cell_after_invertible_2cell {a b : C} {f g : a --> b} (η : invertible_2cell f g)
   : inv_cell η • η = id2 _
   := pr2 (pr2 (pr2 η)).
 
-Definition inv_equivalence {a b : C} {f g : a --> b} (η : equivalence f g)
-  : equivalence g f
-  := (inv_cell η ,, cell_from_equivalence η ,, inv_cell_after_equivalence η ,, equivalence_after_inv_cell η ).
+Definition inv_invertible_2cell {a b : C} {f g : a --> b} (η : invertible_2cell f g)
+  : invertible_2cell g f
+  := (inv_cell η ,, cell_from_invertible_2cell η ,, inv_cell_after_invertible_2cell η ,, invertible_2cell_after_inv_cell η ).
 
 
 (* requires cell types to be sets
-Lemma isaprop_isequivalence
+Lemma isaprop_isinvertible_2cell
 *)
 
-End equivalences.
+End invertible_2cells.
 
-Definition id2_equivalence {C : prebicat} {a b : C} (f : a --> b) : equivalence f f.
+Definition id2_invertible_2cell {C : prebicat} {a b : C} (f : a --> b) : invertible_2cell f f.
 Proof.
   repeat (use tpair).
   - apply (id2 _ ).
@@ -444,30 +444,30 @@ Defined.
 
 Lemma cell_to_inv_cell_post {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
       (z : f ==> h)
-      (H : is_equivalence y)
+      (H : is_invertible_2cell y)
   : x = z • inv_cell (y,,H) -> x • y = z.
 Proof.
   intro H1.
   etrans. apply maponpaths_2. apply H1.
   etrans. apply (! vassocr _ _ _ ).
-  etrans. apply maponpaths. apply (inv_cell_after_equivalence (y,,H)).
+  etrans. apply maponpaths. apply (inv_cell_after_invertible_2cell (y,,H)).
   apply id2_right.
 Qed.
 
 Lemma inv_cell_to_cell_post {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
       (z : f ==> h)
-      (H : is_equivalence x)
+      (H : is_invertible_2cell x)
   : y = inv_cell (x,,H) • z -> x • y = z.
 Proof.
   intro H1.
   etrans. apply maponpaths. apply H1.
   etrans. apply ( vassocr _ _ _ ).
-  etrans. apply maponpaths_2. apply (equivalence_after_inv_cell (x,,H)).
+  etrans. apply maponpaths_2. apply (invertible_2cell_after_inv_cell (x,,H)).
   apply id2_left.
 Qed.
 
-Lemma is_equivalence_lunitor {a b : C} (f : C ⟦ a, b ⟧)
-  : is_equivalence (lunitor f).
+Lemma is_invertible_2cell_lunitor {a b : C} (f : C ⟦ a, b ⟧)
+  : is_invertible_2cell (lunitor f).
 Proof.
   exists (linvunitor f).
   abstract (
@@ -475,8 +475,8 @@ Proof.
               (linvunitor_lunitor _ ) )).
 Defined.
 
-Lemma is_equivalence_linvunitor {a b : C} (f : C ⟦ a, b ⟧)
-  : is_equivalence (linvunitor f).
+Lemma is_invertible_2cell_linvunitor {a b : C} (f : C ⟦ a, b ⟧)
+  : is_invertible_2cell (linvunitor f).
 Proof.
   exists (lunitor f).
   abstract (
@@ -484,8 +484,8 @@ Proof.
               (lunitor_linvunitor _ ) )).
 Defined.
 
-Lemma is_equivalence_runitor {a b : C} (f : C ⟦ a, b ⟧)
-  : is_equivalence (runitor f).
+Lemma is_invertible_2cell_runitor {a b : C} (f : C ⟦ a, b ⟧)
+  : is_invertible_2cell (runitor f).
 Proof.
   exists (rinvunitor f).
   abstract (
@@ -493,8 +493,8 @@ Proof.
               (rinvunitor_runitor _ ) )).
 Defined.
 
-Lemma is_equivalence_rinvunitor {a b : C} (f : C ⟦ a, b ⟧)
-  : is_equivalence (rinvunitor f).
+Lemma is_invertible_2cell_rinvunitor {a b : C} (f : C ⟦ a, b ⟧)
+  : is_invertible_2cell (rinvunitor f).
 Proof.
   exists (runitor f).
   abstract (
@@ -575,44 +575,44 @@ Proof.
   reflexivity.
 Defined.
 
-Lemma is_equivalence_lwhisker {a b c : C} (f : a --> b) {g1 g2 : b --> c}
-      (x : g1 ==> g2) : is_equivalence x -> is_equivalence (f ◃ x).
+Lemma is_invertible_2cell_lwhisker {a b c : C} (f : a --> b) {g1 g2 : b --> c}
+      (x : g1 ==> g2) : is_invertible_2cell x -> is_invertible_2cell (f ◃ x).
 Proof.
   intro H.
-  set (xH := (x,,H) : equivalence _ _ ).
+  set (xH := (x,,H) : invertible_2cell _ _ ).
   exists (f ◃ (inv_cell xH)).
   split.
   - abstract (
         etrans; [ apply lwhisker_vcomp |];
-        etrans; [ apply maponpaths; apply (equivalence_after_inv_cell xH) |];
+        etrans; [ apply maponpaths; apply (invertible_2cell_after_inv_cell xH) |];
         apply lwhisker_id2).
   - abstract (
         etrans; [ apply lwhisker_vcomp |];
-        etrans; [ apply maponpaths; apply (inv_cell_after_equivalence xH) |];
+        etrans; [ apply maponpaths; apply (inv_cell_after_invertible_2cell xH) |];
         apply lwhisker_id2).
 Defined.
 
-Lemma is_equivalence_rwhisker {a b c : C} {f1 f2 : a --> b} (g : b --> c)
-      (x : f1 ==> f2) : is_equivalence x -> is_equivalence (x ▹ g).
+Lemma is_invertible_2cell_rwhisker {a b c : C} {f1 f2 : a --> b} (g : b --> c)
+      (x : f1 ==> f2) : is_invertible_2cell x -> is_invertible_2cell (x ▹ g).
 Proof.
   intro H.
-  set (xH := (x,,H) : equivalence _ _ ).
+  set (xH := (x,,H) : invertible_2cell _ _ ).
   exists ((inv_cell xH) ▹ g).
   split.
   - abstract (
         etrans; [ apply rwhisker_vcomp |];
-        etrans; [ apply maponpaths; apply (equivalence_after_inv_cell xH) |];
+        etrans; [ apply maponpaths; apply (invertible_2cell_after_inv_cell xH) |];
         apply id2_rwhisker).
   - abstract (
         etrans; [ apply rwhisker_vcomp |];
-        etrans; [ apply maponpaths; apply (inv_cell_after_equivalence xH) |];
+        etrans; [ apply maponpaths; apply (inv_cell_after_invertible_2cell xH) |];
         apply id2_rwhisker).
 Defined.
 
 
-Definition is_equivalence_lassociator {a b c d : C}
+Definition is_invertible_2cell_lassociator {a b c d : C}
            (f1 : C ⟦ a, b ⟧) (f2 : C ⟦ b, c ⟧) (f3 : C ⟦ c, d ⟧)
-  : is_equivalence (lassociator f1 f2 f3).
+  : is_invertible_2cell (lassociator f1 f2 f3).
 Proof.
   exists (rassociator f1 f2 f3).
   split.
@@ -620,9 +620,9 @@ Proof.
   - apply rassociator_lassociator.
 Defined.
 
-Definition is_equivalence_rassociator {a b c d : C}
+Definition is_invertible_2cell_rassociator {a b c d : C}
            (f1 : C ⟦ a, b ⟧) (f2 : C ⟦ b, c ⟧) (f3 : C ⟦ c, d ⟧)
-  : is_equivalence (rassociator f1 f2 f3).
+  : is_invertible_2cell (rassociator f1 f2 f3).
 Proof.
   exists (lassociator f1 f2 f3).
   split.
@@ -719,7 +719,7 @@ End hcomp_functor.
 (** TODO:
     construct a prebicategory (see CT/bicategories) from a bicat
     Bonus:
-    Equivalence of types between these two
+    Invertible_2cell of types between these two
  *)
 (** TODO:
     define saturation/univalence for bicats
@@ -821,10 +821,10 @@ Notation "'##'" := (psfunctor_on_cells).
 
 Definition psfunctor_cell_data {C C' : prebicat_data} (F : psfunctor_ob_mor_cell C C') : UU
   :=
-    (∏ (a : C), equivalence (#F (identity a)) (identity _) )
+    (∏ (a : C), invertible_2cell (#F (identity a)) (identity _) )
       ×
     (∏ (a b c : C) (f : a --> b) (g : b --> c),
-     equivalence (#F (f · g)) (#F f · #F g)).
+     invertible_2cell (#F (f · g)) (#F f · #F g)).
 
 Definition psfunctor_data (C C' : prebicat_data) : UU
   := ∑ F : psfunctor_ob_mor_cell C C', psfunctor_cell_data F.
@@ -836,11 +836,11 @@ Coercion psfunctor_ob_mor_cell_from_bifunctor_data C C' (F : psfunctor_data C C'
 
 
 Definition psfunctor_id {C C' : prebicat_data} (F : psfunctor_data C C') (a : C)
-  : equivalence (#F (identity a)) (identity _)
+  : invertible_2cell (#F (identity a)) (identity _)
   := pr1 (pr2 F) a.
 Definition psfunctor_comp {C C' : prebicat_data} (F : psfunctor_data C C') {a b c : C}
            (f : a --> b) (g : b --> c)
-  : equivalence (#F (f · g)) (#F f · #F g)
+  : invertible_2cell (#F (f · g)) (#F f · #F g)
   := pr2 (pr2 F) a b c f g.
 
 (* ----------------------------------------------------------------------------------- *)

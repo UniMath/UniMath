@@ -692,9 +692,9 @@ Definition pr1_psfunctor_cell_data : psfunctor_cell_data pr1_psfunctor_ob_mor_ce
 Proof.
   use tpair.
   - intro a. cbn.
-    apply id2_equivalence.
+    apply id2_invertible_2cell.
   - cbn. intros a b c f g.
-    apply id2_equivalence.
+    apply id2_invertible_2cell.
 Defined.
 
 Definition pr1_psfunctor_data : psfunctor_data total_prebicat_data C := _ ,, pr1_psfunctor_cell_data.
