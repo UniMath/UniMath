@@ -101,6 +101,7 @@ Section LocalIsoFibration.
         set (PP := local_iso_cleaving_disp_equivalence h (ff;; id_disp d') idempunitor).
         set (RR := PP •• runitor_disp ff).
         assert (Heq : idempunitor • runitor (identity c) = id2 (identity c)).
+        unfold idempunitor. simpl.
         { admit. }
         exact (transportf (λ x, _ ==>[x] _) Heq RR).
       - intros d d' ff.

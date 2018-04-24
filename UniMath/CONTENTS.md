@@ -228,6 +228,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Bicategories/ContravariantFunctor.v](CategoryTheory/Bicategories/ContravariantFunctor.v)
    - [Bicategories/Constructions.v](CategoryTheory/Bicategories/Constructions.v)
    - [Bicategories/Sigma.v](CategoryTheory/Bicategories/Sigma.v)
+   - [Bicategories/Fibration.v](CategoryTheory/Bicategories/Fibration.v)
    - [Bicategories/Cofunctormap.v](CategoryTheory/Bicategories/Cofunctormap.v)
    - [Bicategories/CwF.v](CategoryTheory/Bicategories/CwF.v)
    - [Bicategories/WkCatEnrichment/prebicategory.v](CategoryTheory/Bicategories/WkCatEnrichment/prebicategory.v)
