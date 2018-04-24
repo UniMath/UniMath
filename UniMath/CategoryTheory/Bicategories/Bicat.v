@@ -414,6 +414,40 @@ Section Derived_laws.
 
 Context {C : prebicat}.
 
+Lemma lassociator_to_rassociator_post {a b c d : C}
+      {f : C ⟦ a, b ⟧} {g : C ⟦ b, c ⟧} {h : C ⟦ c, d ⟧} {k : C ⟦ a, d ⟧}
+      (x : k ==> (f · g) · h)
+      (y : k ==> f · (g · h))
+  : x = y • lassociator f g h → x • rassociator f g h = y.
+Proof.
+  intros p.
+  rewrite p.
+  rewrite <- vassocr.
+  rewrite lassociator_rassociator.
+  apply id2_right.
+Defined.
+
+Lemma lassociator_to_rassociator_pre {a b c d : C}
+      {f : C ⟦ a, b ⟧} {g : C ⟦ b, c ⟧} {h : C ⟦ c, d ⟧} {k : C ⟦ a, d ⟧}
+      (x : f · (g · h) ==> k)
+      (y : (f · g) · h ==> k) :
+  x = lassociator f g h • y → rassociator f g h • x = y.
+Proof.
+  intros p.
+  rewrite p.
+  rewrite vassocr.
+  rewrite rassociator_lassociator.
+  apply id2_left.
+Defined.
+
+Lemma lunitor_lwhisker {a b c : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
+  : rassociator _ _ _ • (f ◃ lunitor g) = runitor f ▹ g.
+Proof.
+  apply lassociator_to_rassociator_pre.
+  apply pathsinv0.
+  apply runitor_rwhisker.
+Qed.
+
 Lemma hcomp_hcomp' {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
       (η : f1 ==> f2) (φ : g1 ==> g2)
   : hcomp η φ = hcomp' η φ.
@@ -441,6 +475,7 @@ Proof.
   apply maponpaths.
   apply rwhisker_vcomp.
 Defined.
+
 
 Lemma cell_to_inv_cell_post {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
       (z : f ==> h)
@@ -500,33 +535,6 @@ Proof.
   abstract (
       apply ( (rinvunitor_runitor _ ) ,,
               (runitor_rinvunitor _ ) )).
-Defined.
-
-
-Lemma lassociator_to_rassociator_post {a b c d : C}
-      {f : C ⟦ a, b ⟧} {g : C ⟦ b, c ⟧} {h : C ⟦ c, d ⟧} {k : C ⟦ a, d ⟧}
-      (x : k ==> (f · g) · h)
-      (y : k ==> f · (g · h))
-  : x = y • lassociator f g h → x • rassociator f g h = y.
-Proof.
-  intros p.
-  rewrite p.
-  rewrite <- vassocr.
-  rewrite lassociator_rassociator.
-  apply id2_right.
-Defined.
-
-Lemma lassociator_to_rassociator_pre {a b c d : C}
-      {f : C ⟦ a, b ⟧} {g : C ⟦ b, c ⟧} {h : C ⟦ c, d ⟧} {k : C ⟦ a, d ⟧}
-      (x : f · (g · h) ==> k)
-      (y : (f · g) · h ==> k) :
-  x = lassociator f g h • y → rassociator f g h • x = y.
-Proof.
-  intros p.
-  rewrite p.
-  rewrite vassocr.
-  rewrite rassociator_lassociator.
-  apply id2_left.
 Defined.
 
 Lemma hcomp_rassoc {a b c d : C}
