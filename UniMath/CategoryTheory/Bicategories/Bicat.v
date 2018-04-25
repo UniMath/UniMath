@@ -414,36 +414,88 @@ Section Derived_laws.
 
 Context {C : prebicat}.
 
+Lemma is_invertible_rassociator {a b c d : C}
+      (f : C⟦a,b⟧) (g : C⟦b,c⟧) (h : C⟦c,d⟧)
+  : is_invertible_2cell (rassociator f g h).
+Proof.
+  exists (lassociator f g h).
+  abstract
+    (split;
+     [ apply rassociator_lassociator
+     | apply lassociator_rassociator ]).
+Defined.
+
+Lemma is_invertible_lassociator {a b c d : C}
+      (f : C⟦a,b⟧) (g : C⟦b,c⟧) (h : C⟦c,d⟧)
+  : is_invertible_2cell (lassociator f g h).
+Proof.
+  exists (rassociator f g h).
+  abstract
+    (split;
+     [ apply lassociator_rassociator
+     | apply rassociator_lassociator ]).
+Defined.
+
+Lemma cell_to_inv_cell_post {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
+      (z : f ==> h)
+      (H : is_invertible_2cell y)
+  : x = z • inv_cell (y,,H) -> x • y = z.
+Proof.
+  intro H1.
+  etrans. apply maponpaths_2. apply H1.
+  etrans. apply (! vassocr _ _ _ ).
+  etrans. apply maponpaths. apply (inv_cell_after_invertible_2cell (y,,H)).
+  apply id2_right.
+Qed.
+
+Lemma inv_cell_to_cell_post {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
+      (z : f ==> h)
+      (H : is_invertible_2cell x)
+  : y = inv_cell (x,,H) • z -> x • y = z.
+Proof.
+  intro H1.
+  etrans. apply maponpaths. apply H1.
+  etrans. apply ( vassocr _ _ _ ).
+  etrans. apply maponpaths_2. apply (invertible_2cell_after_inv_cell (x,,H)).
+  apply id2_left.
+Qed.
+
+Definition vassocl {a b : C} {f g h k : C⟦a, b⟧} (x : f ==> g) (y : g ==> h) (z : h ==> k)
+  : (x • y) • z = x • (y • z).
+Proof.
+  apply pathsinv0. apply vassocr.
+Defined.
+
 Lemma lassociator_to_rassociator_post {a b c d : C}
       {f : C ⟦ a, b ⟧} {g : C ⟦ b, c ⟧} {h : C ⟦ c, d ⟧} {k : C ⟦ a, d ⟧}
       (x : k ==> (f · g) · h)
       (y : k ==> f · (g · h))
-  : x = y • lassociator f g h → x • rassociator f g h = y.
+      (p : x = y • lassociator f g h)
+  : x • rassociator f g h = y.
 Proof.
-  intros p.
-  rewrite p.
-  rewrite <- vassocr.
-  rewrite lassociator_rassociator.
-  apply id2_right.
+  use cell_to_inv_cell_post.
+  - apply is_invertible_rassociator.
+  - exact p.
 Defined.
 
 Lemma lassociator_to_rassociator_pre {a b c d : C}
       {f : C ⟦ a, b ⟧} {g : C ⟦ b, c ⟧} {h : C ⟦ c, d ⟧} {k : C ⟦ a, d ⟧}
       (x : f · (g · h) ==> k)
-      (y : (f · g) · h ==> k) :
-  x = lassociator f g h • y → rassociator f g h • x = y.
+      (y : (f · g) · h ==> k)
+      (p : x = lassociator f g h • y)
+  : rassociator f g h • x = y.
 Proof.
-  intros p.
-  rewrite p.
-  rewrite vassocr.
-  rewrite rassociator_lassociator.
-  apply id2_left.
+  use inv_cell_to_cell_post.
+  - apply is_invertible_rassociator.
+  - exact p.
 Defined.
 
 Lemma lunitor_lwhisker {a b c : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
   : rassociator _ _ _ • (f ◃ lunitor g) = runitor f ▹ g.
 Proof.
-  apply lassociator_to_rassociator_pre.
+  use inv_cell_to_cell_post.
+  apply is_invertible_rassociator.
+  cbn.
   apply pathsinv0.
   apply runitor_rwhisker.
 Qed.
@@ -477,29 +529,6 @@ Proof.
 Defined.
 
 
-Lemma cell_to_inv_cell_post {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
-      (z : f ==> h)
-      (H : is_invertible_2cell y)
-  : x = z • inv_cell (y,,H) -> x • y = z.
-Proof.
-  intro H1.
-  etrans. apply maponpaths_2. apply H1.
-  etrans. apply (! vassocr _ _ _ ).
-  etrans. apply maponpaths. apply (inv_cell_after_invertible_2cell (y,,H)).
-  apply id2_right.
-Qed.
-
-Lemma inv_cell_to_cell_post {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
-      (z : f ==> h)
-      (H : is_invertible_2cell x)
-  : y = inv_cell (x,,H) • z -> x • y = z.
-Proof.
-  intro H1.
-  etrans. apply maponpaths. apply H1.
-  etrans. apply ( vassocr _ _ _ ).
-  etrans. apply maponpaths_2. apply (invertible_2cell_after_inv_cell (x,,H)).
-  apply id2_left.
-Qed.
 
 Lemma is_invertible_2cell_lunitor {a b : C} (f : C ⟦ a, b ⟧)
   : is_invertible_2cell (lunitor f).
@@ -543,10 +572,12 @@ Lemma hcomp_rassoc {a b c d : C}
   : (x1 ⋆ x2) ⋆ x3 • rassociator g1 g2 g3 =
     rassociator f1 f2 f3 • x1 ⋆ (x2 ⋆ x3).
 Proof.
-  apply lassociator_to_rassociator_post.
+  use cell_to_inv_cell_post.
+  apply is_invertible_rassociator.
+  etrans; [ | apply vassocr ].
   apply pathsinv0.
-  repeat rewrite <- vassocr.
-  apply lassociator_to_rassociator_pre.
+  use inv_cell_to_cell_post.
+  apply is_invertible_rassociator.
   apply hcomp_lassoc.
 Defined.
 
