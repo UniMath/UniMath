@@ -152,6 +152,7 @@ Proof.
   apply (lunitor_disp _ ).
 Defined.
 
+(*
 Definition is_disp_internal_adjunction_identity {a : C} (aa : D a)
   : is_disp_internal_adjunction (disp_internal_adjunction_data_identity aa).
 Proof.
@@ -203,7 +204,6 @@ Proof.
     etrans; [apply maponpaths, lunitor_runitor_identity | ].
     apply rinvunitor_runitor.
 Qed.
-
-
+*)
 
 End Displayed_Internal_Adjunction.
