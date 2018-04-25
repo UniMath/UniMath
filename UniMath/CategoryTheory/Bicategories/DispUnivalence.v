@@ -131,110 +131,29 @@ Definition disp_internal_equivalence
   : UU
   := ∑ jj : disp_internal_adjunction_data j aa bb, is_disp_internal_equivalence jj.
 
-
-(*
-Definition is_disp_internal_equivalence_over {a b : C}
-           {j : internal_equivalence a b}
-           {aa: D a} {bb : D b}
-           {ff : aa -->[f] bb}
-           {gg : bb -->[g] aa}
-           (jj : disp_internal_adjunction_over j ff gg)
-           (ηη := disp_internal_unit jj)
-           (εε := disp_internal_counit jj)
+Definition disp_internal_adjoint_equivalence
+           {a b : C}
+           (j : internal_adjoint_equivalence a b)
+           (aa: D a) (bb : D b)
   : UU
-  := is_disp_invertible_2cell ηη × is_disp_invertible_2cell εε.
- *)
-
-(* ========================================================================= *)
-(* HIC SUNT LEONES !!                                                        *)
-(* ========================================================================= *)
-
-
-(*
-  Definition is_internal_equivalence {a b : C} (j : internal_adjunction_data a b)
-    : UU
-    := is_internal_equivalence_over j.
-
-  Definition internal_equivalence (a b : C)
-    : UU
-    := ∑ (j : internal_adjunction_data a b), is_internal_equivalence j.
-
-  Coercion internal_adjunction_data_from_internal_equivalence {a b : C}
-           (j : internal_equivalence a b)
-    : internal_adjunction_data a b
-    := pr1 j.
-
-  Coercion is_internal_equivalence_from_internal_equivalence {a b : C}
-           (j : internal_equivalence a b)
-    : is_internal_equivalence j
-    := pr2 j.
-
-  Definition is_internal_left_adjoint_internal_equivalence {a b : C} (f : C⟦a,b⟧)
-    : UU
-    := ∑ (g : C⟦b,a⟧) (j : internal_adjunction_over f g),
-         is_internal_equivalence_over j
-       × is_internal_adjunction j.
-
-  Definition internal_adjoint_internal_equivalence (a b : C) : UU
-    := ∑ (f : C⟦a,b⟧), is_internal_left_adjoint_internal_equivalence f.
-
-*)
+  := ∑ jj : disp_internal_adjunction_data j aa bb,
+            is_disp_internal_equivalence
+               (j := internal_equivalence_from_internal_adjoint_equivalence j) jj
+         ×  is_disp_internal_adjunction
+               (j := internal_adjunction_from_internal_adjoint_equivalence j) jj.
 
 
-  Definition is_internal_equivalence_over {a b : C} {f : C⟦a,b⟧} {g : C⟦b,a⟧}
-             (j : internal_adjunction_over f g)
-             (η := internal_unit j)
-             (ε := internal_counit j)
-    : UU
-    := is_invertible_2cell η × is_invertible_2cell ε.
+Definition disp_internal_adjunction_data_identity {a : C} (aa : D a)
+  : disp_internal_adjunction_data (internal_adjunction_identity a) aa aa.
+Proof.
+  exists (id_disp _ ).
+  exists (id_disp _ ).
+  exists (linvunitor_disp _ ).
+  apply (lunitor_disp _ ).
+Defined.
 
-  Definition is_internal_equivalence {a b : C} (j : internal_adjunction_data a b)
-    : UU
-    := is_internal_equivalence_over j.
-
-  Definition is_internal_left_adjoint_internal_equivalence {a b : C} (f : C⟦a,b⟧)
-    : UU
-    := ∑ (g : C⟦b,a⟧) (j : internal_adjunction_over f g),
-         is_internal_equivalence_over j
-       × is_internal_adjunction j.
-
-
-
-
-
-
-
-Definition disp_is_internal_equivalence {a b : C} {f : C⟦a,b⟧} {g : C⟦b,a⟧}
-           {j : internal_adjunction_data f g}
-           {aa : D a} {bb : D b}
-           {ff : aa -->[internal_left_adjoint j] bb}
-           {gg : bb -->[internal_right_adjoint j] aa}
-           (jj : disp_internal_adjunction_over j ff gg)
-  : UU
-  := let (ηη,εε) := jj in
-       is_disp_invertible_2cell ηη
-     × is_disp_invertible_2cell εε.
-
-
-(*
-  Definition is_equivalence {a b : C} {f : C⟦a,b⟧} {g : C⟦b,a⟧}
-             (adj : internal_adjunction_data f g)
-    : UU
-    := let (η,ε) := adj in
-         is_invertible_2cell η
-       × is_invertible_2cell ε.
-
-  Definition is_internal_adjoint_equivalence {a b : C} (f : C⟦a,b⟧)
-    : UU
-    := ∑ (g : C⟦b,a⟧) (adj : internal_adjunction_data f g),
-         is_equivalence adj
-       × is_internal_adjunction adj.
-
-  Definition internal_adjoint_equivalence (a b : C) : UU
-    := ∑ (f : C⟦a,b⟧), is_internal_adjoint_equivalence f.
-
-  Definition is_internal_adjunction_identity (a : C)
-    : is_internal_adjunction (linvunitor (identity a),, lunitor (identity a)).
+Definition is_disp_internal_adjunction_identity {a : C} (aa : D a)
+    : is_disp_internal_adjunction (disp_internal_adjunction_data_identity aa).
   Proof.
     split.
     - etrans.
@@ -284,49 +203,6 @@ Definition disp_is_internal_equivalence {a b : C} {f : C⟦a,b⟧} {g : C⟦b,a�
       apply rinvunitor_runitor.
   Qed.
 
-  Definition is_internal_adjoint_equivalence_identity (a : C)
-    : is_internal_adjoint_equivalence (identity a).
-  Proof.
-    exists (identity a).
-    exists (linvunitor (identity a),, lunitor (identity a)).
-    split.
-    { split.
-      + apply is_invertible_2cell_linvunitor.
-      + apply is_invertible_2cell_lunitor.
-    }
-    apply is_internal_adjunction_identity.
-  Defined.
 
-  Definition internal_adjoint_equivalence_identity (a : C)
-    : internal_adjoint_equivalence a a.
-  Proof.
-    exists (identity a).
-    eapply is_internal_adjoint_equivalence_identity.
-  Defined.
-
-  Definition idtoiso_2_0 (a b : C)
-    : a = b -> internal_adjoint_equivalence a b.
-  Proof.
-    induction 1.
-    apply internal_adjoint_equivalence_identity.
-  Defined.
-
-  Definition idtoiso_2_1 {a b : C} (f g : C⟦a,b⟧)
-    : f = g -> invertible_2cell f g.
-  Proof.
-    induction 1. apply id2_invertible_2cell.
-  Defined.
-
-End Internal_Adjunction.
-
-Definition is_univalent_2_1 (C : prebicat) : UU
-  := ∏ (a b : C) (f g : C⟦a,b⟧), isweq (idtoiso_2_1 f g).
-
-Definition is_univalent_2_0 (C : prebicat) : UU
-    := ∏ (a b : C), isweq (idtoiso_2_0 a b).
-
-Definition is_univalent_2 (C : bicat) : UU
-  := is_univalent_2_0 C × is_univalent_2_1 C.
-*)
 
 End Displayed_Internal_Adjunction.

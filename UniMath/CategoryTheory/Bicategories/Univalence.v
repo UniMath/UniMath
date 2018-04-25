@@ -34,6 +34,11 @@ Section Internal_Adjunction.
     : internal_adjunction_over (internal_left_adjoint j) (internal_right_adjoint j)
     := pr2 (pr2 j).
 
+  Coercion interna_adjunction_data_from_over {a b : C}
+           {f : C⟦a, b⟧} {g : C⟦b, a⟧} (H : internal_adjunction_over f g)
+    : internal_adjunction_data a b
+    := (f ,, g ,, H).
+
   Definition internal_unit {a b : C} {f : C⟦a,b⟧} {g : C⟦b,a⟧}
              (adj : internal_adjunction_over f g)
     : identity a ==> f · g
@@ -115,8 +120,50 @@ Section Internal_Adjunction.
          is_internal_equivalence_over j
        × is_internal_adjunction j.
 
-  Definition internal_adjoint_internal_equivalence (a b : C) : UU
-    := ∑ (f : C⟦a,b⟧), is_internal_left_adjoint_internal_equivalence f.
+  Coercion is_internal_equivalence_over_from_is_foo {a b : C} {f : C⟦a,b⟧}
+           (H : is_internal_left_adjoint_internal_equivalence f)
+    : is_internal_equivalence_over _
+    := pr1 (pr2 (pr2 H)).
+
+  Coercion is_internal_adjunction_over_from_is_foo {a b : C} {f : C⟦a,b⟧}
+           (H : is_internal_left_adjoint_internal_equivalence f)
+    : is_internal_adjunction _
+    := pr2 (pr2 (pr2 H)).
+
+  Coercion internal_adjunction_over_from_is_foo {a b : C} {f : C⟦a,b⟧}
+           (H : is_internal_left_adjoint_internal_equivalence f)
+    : internal_adjunction_over _ _
+    := pr1 (pr2 H).
+
+
+  Definition internal_adjoint_equivalence (a b : C) : UU
+    := ∑ j : internal_adjunction_data a b,
+             is_internal_equivalence j
+           × is_internal_adjunction j.
+
+  Coercion internal_adjunction_data_from_internal_adjoint_equivalence
+           {a b : C}
+           (f : internal_adjoint_equivalence a b)
+    : internal_adjunction_data a b
+    := pr1 f.
+
+  Coercion internal_equivalence_from_internal_adjoint_equivalence
+           {a b : C}
+           (f : internal_adjoint_equivalence a b)
+    : internal_equivalence a b := pr1 f ,, pr1 (pr2 f).
+
+  Coercion internal_adjunction_from_internal_adjoint_equivalence
+           {a b : C}
+           (f : internal_adjoint_equivalence a b)
+    : internal_adjunction a b := pr1 f ,, pr2 (pr2 f).
+
+  Definition internal_adjunction_data_identity (a : C)
+    : internal_adjunction_data a a.
+  Proof.
+    exists (identity a).
+    exists (identity a).
+    exact (linvunitor (identity a),, lunitor (identity a)).
+  Defined.
 
   Definition is_internal_adjunction_identity (a : C)
     : is_internal_adjunction (linvunitor (identity a),, lunitor (identity a)).
@@ -182,18 +229,35 @@ Section Internal_Adjunction.
     apply is_internal_adjunction_identity.
   Defined.
 
-  Definition internal_adjoint_internal_equivalence_identity (a : C)
-    : internal_adjoint_internal_equivalence a a.
+  Lemma is_internal_equivalence_identity (a : C)
+    : is_internal_equivalence (internal_adjunction_data_identity a).
   Proof.
-    exists (identity a).
-    eapply is_internal_left_adjoint_internal_equivalence_identity.
+    split.
+    + apply is_invertible_2cell_linvunitor.
+    + apply is_invertible_2cell_lunitor.
+  Defined.
+
+  Definition internal_adjunction_identity (a : C)
+    : internal_adjunction a a.
+  Proof.
+    exists (internal_adjunction_data_identity a).
+    apply is_internal_adjunction_identity.
+  Defined.
+
+  Definition internal_adjoint_equivalence_identity (a : C)
+    : internal_adjoint_equivalence a a.
+  Proof.
+    exists (internal_adjunction_data_identity a).
+    split.
+    - apply is_internal_equivalence_identity.
+    - apply is_internal_adjunction_identity.
   Defined.
 
   Definition idtoiso_2_0 (a b : C)
-    : a = b -> internal_adjoint_internal_equivalence a b.
+    : a = b -> internal_adjoint_equivalence a b.
   Proof.
     induction 1.
-    apply internal_adjoint_internal_equivalence_identity.
+    apply internal_adjoint_equivalence_identity.
   Defined.
 
   Definition idtoiso_2_1 {a b : C} (f g : C⟦a,b⟧)
@@ -212,3 +276,20 @@ Definition is_univalent_2_0 (C : prebicat) : UU
 
 Definition is_univalent_2 (C : bicat) : UU
   := is_univalent_2_0 C × is_univalent_2_1 C.
+
+
+
+(*
+Definition internal_adjoint_equivalence (a b : C) : UU
+  := ∑ (f : C⟦a,b⟧), is_internal_left_adjoint_internal_equivalence f.
+
+Coercion left_adjoint_from_internal_adjoint_equivalent
+         {a b : C} (f : internal_adjoint_equivalence a b)
+    : C⟦a, b⟧
+  := pr1 f.
+
+Coercion is_from_internal_adjoint_equivalence {a b : C}
+         (f : internal_adjoint_equivalence a b)
+  : is_internal_left_adjoint_internal_equivalence f
+  := pr2 f.
+*)
