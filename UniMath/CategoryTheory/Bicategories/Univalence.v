@@ -18,12 +18,12 @@ Section Internal_Adjunction.
     :=   (identity a ==> f · g)
        × (g · f ==> identity b).
 
-  Definition internal_unit {a b : C} (f : C⟦a,b⟧) (g : C⟦b,a⟧)
+  Definition internal_unit {a b : C} {f : C⟦a,b⟧} {g : C⟦b,a⟧}
              (adj : internal_adjunction_data f g)
     : identity a ==> f · g
     := pr1 adj.
 
-  Definition internal_counit {a b : C} (f : C⟦a,b⟧) (g : C⟦b,a⟧)
+  Definition internal_counit {a b : C} {f : C⟦a,b⟧} {g : C⟦b,a⟧}
              (adj : internal_adjunction_data f g)
     : g · f ==> identity b
     := pr2 adj.
@@ -34,6 +34,19 @@ Section Internal_Adjunction.
     := let (η,ε) := adj in
          ( linvunitor f • (η ▹ f) • rassociator _ _ _ • (f ◃ ε) • runitor f = id2 f )
        × ( rinvunitor g • (g ◃ η) • lassociator _ _ _ • (ε ▹ g) • lunitor g = id2 g ).
+
+  Definition internal_triangle1 {a b : C} {f : C⟦a,b⟧} {g : C⟦b,a⟧}
+             {adj : internal_adjunction_data f g}
+             (H : is_internal_adjunction adj)
+    : linvunitor f • (internal_unit adj ▹ f) • rassociator _ _ _ • (f ◃ internal_counit adj) • runitor f = id2 f
+    := pr1 H.
+
+  Definition internal_triangle2 {a b : C} {f : C⟦a,b⟧} {g : C⟦b,a⟧}
+             {adj : internal_adjunction_data f g}
+             (H : is_internal_adjunction adj)
+    : rinvunitor g • (g ◃ internal_unit adj) • lassociator _ _ _ • (internal_counit adj ▹ g) • lunitor g = id2 g
+    := pr2 H.
+
 
   Definition internal_adjunction (a b : C) :=
     ∑ (f : C⟦a,b⟧) (g : C⟦b,a⟧) (adj : internal_adjunction_data f g),

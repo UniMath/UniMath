@@ -32,21 +32,22 @@ Definition disp_internal_adjunction_data {a b : C} {f : C⟦a,b⟧} {g : C⟦b,a
        (id_disp aa ==>[η] ff ;; gg)
      × (gg ;; ff ==>[ε] id_disp bb).
 
-Definition is_disp_internal_adjunction {a b : C} {f : C⟦a,b⟧} {g : C⟦b,a⟧}
-           {j : internal_adjunction_data f g}
-           (H : is_internal_adjunction j)
+Definition is_disp_internal_adjunction {a b : C}
+           {j : internal_adjunction a b}
+           (f := internal_left_adjoint j)
+           (g := internal_right_adjoint j)
            {aa : D a} {bb : D b}
            {ff : aa -->[f] bb} {gg : bb -->[g] aa}
-           {jj : disp_internal_adjunction_data j ff gg}
+           (jj : disp_internal_adjunction_data j ff gg)
   : UU
-  := let (H1,H2) := H in
-     let (ηη,εε) := jj in
+  := let (ηη,εε) := jj in
        ( linvunitor_disp ff •• (ηη ▹▹ ff) •• rassociator_disp _ _ _ ••
          (ff ◃◃ εε) •• runitor_disp ff =
-         transportb (λ x, _ ==>[x] _) H1 (id2_disp ff) )
+         transportb (λ x, _ ==>[x] _) (internal_triangle1 j) (id2_disp ff) )
      × ( rinvunitor_disp gg •• (gg ◃◃ ηη) •• lassociator_disp _ _ _ ••
          (εε ▹▹ gg) •• lunitor_disp gg =
-         transportb (λ x, _ ==>[x] _) H2 (id2_disp gg) ).
+         transportb (λ x, _ ==>[x] _) (internal_triangle2 j) (id2_disp gg) ).
+
 
 Definition disp_internal_adjunction {a b : C}
            (j : internal_adjunction a b)
