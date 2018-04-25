@@ -103,9 +103,9 @@ Definition disp_internal_adjunction {a b : C}
 
 Definition form_disp_internal_equivalence {a b : C}
            {j : internal_equivalence a b}
-           {aa: D a} {bb : D b}
            (f := internal_left_adjoint j)
            (g := internal_right_adjoint j)
+           {aa: D a} {bb : D b}
            {ff : aa -->[f] bb}
            {gg : bb -->[g] aa}
            (η := internal_unit_iso j)
@@ -114,6 +114,23 @@ Definition form_disp_internal_equivalence {a b : C}
            (εε : (gg ;; ff) ==>[ε] id_disp bb)
   : UU
   := is_disp_invertible_2cell ηη × is_disp_invertible_2cell εε.
+
+
+Definition is_disp_internal_equivalence
+           {a b : C}
+           {j : internal_equivalence a b}
+           {aa: D a} {bb : D b}
+           (jj: disp_internal_adjunction_data j aa bb)
+  : UU
+  := form_disp_internal_equivalence (disp_internal_unit jj) (disp_internal_counit jj).
+
+Definition disp_internal_equivalence
+           {a b : C}
+           (j : internal_equivalence a b)
+           (aa: D a) (bb : D b)
+  : UU
+  := ∑ jj : disp_internal_adjunction_data j aa bb, is_disp_internal_equivalence jj.
+
 
 (*
 Definition is_disp_internal_equivalence_over {a b : C}
