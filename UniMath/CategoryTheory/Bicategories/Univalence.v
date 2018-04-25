@@ -13,40 +13,62 @@ Section Internal_Adjunction.
 
   Context {C:prebicat}.
 
-  Section Core.
+  Definition internal_adjunction_data {a b : C} (f : C⟦a,b⟧) (g : C⟦b,a⟧)
+    : UU
+    :=   (identity a ==> f · g)
+       × (g · f ==> identity b).
 
-    Context {a b : C}.
+  Definition internal_unit {a b : C} (f : C⟦a,b⟧) (g : C⟦b,a⟧)
+             (adj : internal_adjunction_data f g)
+    : identity a ==> f · g
+    := pr1 adj.
 
-    Definition internal_adjunction_data (f : C⟦a,b⟧) (g : C⟦b,a⟧)
-      : UU
-      :=   (identity a ==> f · g)
-         × (g · f ==> identity b).
+  Definition internal_counit {a b : C} (f : C⟦a,b⟧) (g : C⟦b,a⟧)
+             (adj : internal_adjunction_data f g)
+    : g · f ==> identity b
+    := pr2 adj.
 
-    Definition is_internal_adjunction {f : C⟦a,b⟧} {g : C⟦b,a⟧}
-               (adj : internal_adjunction_data f g)
-      : UU
-      := let (η,ε) := adj in
-           ( linvunitor f • (η ▹ f) • rassociator _ _ _ • (f ◃ ε) • runitor f = id2 f )
-         × ( rinvunitor g • (g ◃ η) • lassociator _ _ _ • (ε ▹ g) • lunitor g = id2 g ).
+  Definition is_internal_adjunction {a b : C} {f : C⟦a,b⟧} {g : C⟦b,a⟧}
+             (adj : internal_adjunction_data f g)
+    : UU
+    := let (η,ε) := adj in
+         ( linvunitor f • (η ▹ f) • rassociator _ _ _ • (f ◃ ε) • runitor f = id2 f )
+       × ( rinvunitor g • (g ◃ η) • lassociator _ _ _ • (ε ▹ g) • lunitor g = id2 g ).
 
-    Definition internal_adjunction :=
-      ∑ (f : C⟦a,b⟧) (g : C⟦b,a⟧) (adj : internal_adjunction_data f g),
-      is_internal_adjunction adj.
+  Definition internal_adjunction (a b : C) :=
+    ∑ (f : C⟦a,b⟧) (g : C⟦b,a⟧) (adj : internal_adjunction_data f g),
+    is_internal_adjunction adj.
 
-    Definition form_equivalence {f : C⟦a,b⟧} {g : C⟦b,a⟧}
-               (adj : internal_adjunction_data f g)
-      : UU
-      := let (η,ε) := adj in
-           is_invertible_2cell η
-         × is_invertible_2cell ε.
+  Definition internal_left_adjoint {a b : C} (j : internal_adjunction a b)
+    : C⟦a,b⟧
+    := pr1 j.
 
-    Definition is_internal_adjoint_equivalence (f : C⟦a,b⟧)
-      : UU
-      := ∑ (g : C⟦b,a⟧) (adj : internal_adjunction_data f g),
-           form_equivalence adj
-         × is_internal_adjunction adj.
+  Definition internal_right_adjoint {a b : C} (j : internal_adjunction a b)
+    : C⟦b,a⟧
+    := pr1 (pr2 j).
 
-  End Core.
+  Coercion internal_adjunction_data_from_internal_adjunction {a b : C}
+           (j : internal_adjunction a b)
+    : internal_adjunction_data (internal_left_adjoint j) (internal_right_adjoint j)
+    := pr1 (pr2 (pr2 j)).
+
+  Coercion is_internal_adjunction_from_internal_adjunction {a b : C}
+           (j : internal_adjunction a b)
+    : is_internal_adjunction j
+    := pr2 (pr2 (pr2 j)).
+
+  Definition form_equivalence {a b : C} {f : C⟦a,b⟧} {g : C⟦b,a⟧}
+             (adj : internal_adjunction_data f g)
+    : UU
+    := let (η,ε) := adj in
+         is_invertible_2cell η
+       × is_invertible_2cell ε.
+
+  Definition is_internal_adjoint_equivalence {a b : C} (f : C⟦a,b⟧)
+    : UU
+    := ∑ (g : C⟦b,a⟧) (adj : internal_adjunction_data f g),
+         form_equivalence adj
+       × is_internal_adjunction adj.
 
   Definition internal_adjoint_equivalence (a b : C) : UU
     := ∑ (f : C⟦a,b⟧), is_internal_adjoint_equivalence f.
