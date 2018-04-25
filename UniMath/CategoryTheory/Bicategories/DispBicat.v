@@ -593,6 +593,7 @@ Qed.
   Notation "f' <==[ x ] g'" := (disp_2cells x g' f') (at level 60, only parsing).
   Notation "rr •• ss" := (vcomp2_disp rr ss) (at level 60).
 
+Section Display_Invertible_2cell.
   Context {D : disp_prebicat}.
 
   Section Def_inv_2cell.
