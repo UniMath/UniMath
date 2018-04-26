@@ -24,6 +24,20 @@ Section auxiliary.
 
 Context {C : prebicat}.
 
+(* rwhisker_lwhisker
+(∏ (a b c d : C) (f : C⟦a, b⟧) (g h : C⟦b, c⟧) (i : c --> d) (x : g ==> h),
+       (f ◃ (x ▹ i)) • lassociator _ _ _ = lassociator _ _ _ • ((f ◃ x) ▹ i))
+ *)
+
+Lemma rwhisker_lwhisker_rassociator
+      (a b c d : C) (f : C⟦a, b⟧) (g h : C⟦b, c⟧) (i : c --> d) (x : g ==> h)
+  : rassociator _ _ _ • (f ◃ (x ▹ i)) = ((f ◃ x) ▹ i) • rassociator _ _ _ .
+Proof.
+  admit.
+Admitted.
+
+
+
 
 End auxiliary.
 
@@ -32,6 +46,48 @@ Section unitors.
 Context {C : prebicat}.
 
 
+(** The triangle with "?" in the proof of the Proposition *)
+(** Notes:
+
+
+
+
+*)
+Lemma runitor_rwhisker_rwhisker {a b c d: C} (f : C⟦a, b⟧)
+      (g : C⟦b, c⟧) (h : C⟦c, d⟧)
+  : (rassociator f g (identity _ ) ▹ h) • ((f ◃ runitor _ ) ▹ h) =
+    runitor _  ▹ h.
+Proof.
+  admit.
+Admitted.
+
+Lemma rwhisker_id_inj {a b : C} (f g : C⟦a, b⟧)
+      (x y : f  ==> g)
+  : x ▹ identity _ = y ▹ identity _ → x = y.
+Proof.
+  intro H.
+  use inv_2cell_left_cancellable.
+  - apply (f · identity _ ).
+  - apply runitor.
+  - apply is_invertible_2cell_runitor.
+  - etrans. apply pathsinv0, vcomp_runitor.
+    etrans. 2: apply vcomp_runitor.
+    apply maponpaths_2. apply H.
+Qed.
+
+Lemma lwhisker_id_inj {a b : C} (f g : C⟦a, b⟧)
+      (x y : f  ==> g)
+  : identity _ ◃ x = identity _ ◃ y → x = y.
+Proof.
+  intro H.
+  use inv_2cell_left_cancellable.
+  - apply (identity _ · f).
+  - apply lunitor.
+  - apply is_invertible_2cell_lunitor.
+  - etrans. apply pathsinv0, vcomp_lunitor.
+    etrans. 2: apply vcomp_lunitor.
+    apply maponpaths_2. apply H.
+Qed.
 
 
 (** The first triangle in the Proposition *)
@@ -39,8 +95,11 @@ Context {C : prebicat}.
 Lemma runitor_triangle {a b c: C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
   : rassociator f g (identity c) • (f ◃ runitor g) = runitor (f · g).
 Proof.
-  admit.
-Admitted.
+  apply rwhisker_id_inj.
+  etrans. 2: apply runitor_rwhisker_rwhisker.
+  apply pathsinv0, rwhisker_vcomp.
+Qed.
+
 
 (** The second triangle in the Proposition *)
 
@@ -91,5 +150,6 @@ Proof.
   etrans. { apply maponpaths_2. apply lwhisker_runitor_lunitor. }
   apply maponpaths_2. apply (!lunitor_is_lunitor_lwhisker _).
 Qed.
+
 
 End unitors.
