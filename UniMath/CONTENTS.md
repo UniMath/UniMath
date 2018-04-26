@@ -220,6 +220,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/Examples.v](CategoryTheory/DisplayedCats/Examples.v)
    - [DisplayedCats/Adjunctions.v](CategoryTheory/DisplayedCats/Adjunctions.v)
    - [Bicategories/Bicat.v](CategoryTheory/Bicategories/Bicat.v)
+   - [Bicategories/Unitors.v](CategoryTheory/Bicategories/Unitors.v)
    - [Bicategories/PseudoFunctor.v](CategoryTheory/Bicategories/PseudoFunctor.v)
    - [Bicategories/OpCellBicat.v](CategoryTheory/Bicategories/OpCellBicat.v)
    - [Bicategories/Univalence.v](CategoryTheory/Bicategories/Univalence.v)

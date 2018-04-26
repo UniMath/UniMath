@@ -113,8 +113,7 @@ Definition form_disp_internal_equivalence {a b : C}
            (ηη : id_disp aa ==>[η] (ff ;; gg))
            (εε : (gg ;; ff) ==>[ε] id_disp bb)
   : UU
-  := is_disp_invertible_2cell ηη × is_disp_invertible_2cell εε.
-
+  := is_disp_invertible_2cell η ηη × is_disp_invertible_2cell ε εε.
 
 Definition is_disp_internal_equivalence
            {a b : C}
@@ -152,7 +151,6 @@ Proof.
   apply (lunitor_disp _ ).
 Defined.
 
-(*
 Definition is_disp_internal_adjunction_identity {a : C} (aa : D a)
   : is_disp_internal_adjunction (disp_internal_adjunction_data_identity aa).
 Proof.
@@ -162,7 +160,7 @@ Proof.
     { apply maponpaths_2.
       etrans; [apply (!vassocr'_disp _ _ _) | ].
       etrans.
-      { apply maponpaths.
+      { apply maponpaths. apply maponpaths.
         etrans; [apply lunitor_lwhisker_disp | ].
         apply maponpaths, pathsinv0, lunitor_runitor_identity.
       }

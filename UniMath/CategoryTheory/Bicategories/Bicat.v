@@ -373,6 +373,10 @@ Definition invertible_2cell {a b : C} (f g : a --> b) : UU
 
 Coercion cell_from_invertible_2cell {a b : C} {f g : a --> b} (η : invertible_2cell f g) : f ==> g := pr1 η.
 
+Coercion property_from_invertible_2cell {a b : C} {f g : a --> b} (η : invertible_2cell f g)
+  : is_invertible_2cell η
+  := pr2 η.
+
 Definition inv_cell {a b : C} {f g : a --> b} (η : invertible_2cell f g)
   : g ==> f
   := pr1 (pr2 η).
@@ -480,6 +484,13 @@ Proof.
      | apply rassociator_lassociator ]).
 Defined.
 
+Definition vassocl {a b : C} {f g h k : C⟦a, b⟧} (x : f ==> g) (y : g ==> h) (z : h ==> k)
+  : (x • y) • z = x • (y • z).
+Proof.
+  apply pathsinv0. apply vassocr.
+Defined.
+
+(* TODO: Change name like rhs_inv_cell_left *)
 Lemma cell_to_inv_cell_post {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
       (z : f ==> h)
       (H : is_invertible_2cell y)
@@ -492,6 +503,7 @@ Proof.
   apply id2_right.
 Qed.
 
+(* TODO: Change name like rhs_inv_cell_left *)
 Lemma inv_cell_to_cell_post {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
       (z : f ==> h)
       (H : is_invertible_2cell x)
@@ -504,12 +516,50 @@ Proof.
   apply id2_left.
 Qed.
 
-
-Definition vassocl {a b : C} {f g h k : C⟦a, b⟧} (x : f ==> g) (y : g ==> h) (z : h ==> k)
-  : (x • y) • z = x • (y • z).
+Lemma rhs_inv_cell_right {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
+      (z : f ==> h)
+      (H : is_invertible_2cell y)
+  : x • y = z -> x = z • inv_cell (y,,H).
 Proof.
-  apply pathsinv0. apply vassocr.
-Defined.
+  intro H1.
+  use (inv_2cell_right_cancellable y H).
+  etrans.
+  { apply H1. }
+  etrans. 2: apply vassocr.
+  apply pathsinv0.
+  etrans. apply maponpaths.
+  apply inv_cell_after_invertible_2cell.
+  apply id2_right.
+Qed.
+
+Lemma rhs_inv_cell_left {a b : C} {f g h : a --> b} (x : g ==> h) (y : f ==> g)
+      (z : f ==> h)
+      (H : is_invertible_2cell y)
+  : y • x = z -> x = inv_cell (y,,H) • z.
+Proof.
+  intro H1.
+  use (inv_2cell_left_cancellable y H).
+  etrans.
+  { apply H1. }
+  etrans. 2: apply vassocl.
+  apply pathsinv0.
+  etrans. apply maponpaths_2.
+  apply (invertible_2cell_after_inv_cell (y,,H)).
+  apply id2_left.
+Qed.
+
+Lemma rassociator_to_lassociator_post {a b c d : C}
+      {f : C ⟦ a, b ⟧} {g : C ⟦ b, c ⟧} {h : C ⟦ c, d ⟧} {k : C ⟦ a, d ⟧}
+      (x : k ==> (f · g) · h)
+      (y : k ==> f · (g · h))
+      (p : x • rassociator f g h = y)
+  : x = y • lassociator f g h.
+Proof.
+  apply pathsinv0.
+  use cell_to_inv_cell_post.
+  - apply is_invertible_lassociator.
+  - cbn. exact (!p).
+Qed.
 
 Lemma lassociator_to_rassociator_post {a b c d : C}
       {f : C ⟦ a, b ⟧} {g : C ⟦ b, c ⟧} {h : C ⟦ c, d ⟧} {k : C ⟦ a, d ⟧}
@@ -521,7 +571,7 @@ Proof.
   use cell_to_inv_cell_post.
   - apply is_invertible_rassociator.
   - exact p.
-Defined.
+Qed.
 
 Lemma lassociator_to_rassociator_pre {a b c d : C}
       {f : C ⟦ a, b ⟧} {g : C ⟦ b, c ⟧} {h : C ⟦ c, d ⟧} {k : C ⟦ a, d ⟧}
@@ -533,7 +583,20 @@ Proof.
   use inv_cell_to_cell_post.
   - apply is_invertible_rassociator.
   - exact p.
-Defined.
+Qed.
+
+Lemma rassociator_to_lassociator_pre {a b c d : C}
+      {f : C ⟦ a, b ⟧} {g : C ⟦ b, c ⟧} {h : C ⟦ c, d ⟧} {k : C ⟦ a, d ⟧}
+      (x : f · (g · h) ==> k)
+      (y : (f · g) · h ==> k)
+      (p : rassociator f g h • x = y)
+  : x = lassociator f g h • y.
+Proof.
+  apply pathsinv0.
+  use inv_cell_to_cell_post.
+  - apply is_invertible_lassociator.
+  - exact (!p).
+Qed.
 
 Lemma lunitor_lwhisker {a b c : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
   : rassociator _ _ _ • (f ◃ lunitor g) = runitor f ▹ g.

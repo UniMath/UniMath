@@ -589,6 +589,7 @@ Proof.
   apply pathsinv0, pathsinv0inv0.
 Qed.
 
+
   Notation "f' ==>[ x ] g'" := (disp_2cells x f' g') (at level 60).
   Notation "f' <==[ x ] g'" := (disp_2cells x g' f') (at level 60, only parsing).
   Notation "rr •• ss" := (vcomp2_disp rr ss) (at level 60).
@@ -601,7 +602,7 @@ Section Display_Invertible_2cell.
   Context {c c' : C} {f f' : C⟦c,c'⟧}
           {d : D c} {d' : D c'}.
 
-  Definition is_disp_invertible_2cell
+  Definition is_disp_invertible_2cell'
              {α : invertible_2cell f f'}
              {ff : d -->[f] d'} {ff' : d -->[f'] d'}
              (x : ff ==>[α] ff')
@@ -612,10 +613,22 @@ Section Display_Invertible_2cell.
        (y •• x =
         transportb (λ x', _ ==>[x'] _) (inv_cell_after_invertible_2cell α)  (id2_disp ff')).
 
+  Definition is_disp_invertible_2cell
+             {α : f ==> f'}
+             (Hα : is_invertible_2cell α)
+             {ff : d -->[f] d'} {ff' : d -->[f'] d'}
+             (x : ff ==>[α] ff')
+    : UU
+    := ∑ (y : ff' ==>[inv_invertible_2cell (α,,Hα)] ff),
+       (x •• y =
+        transportb (λ x', _ ==>[x'] _) (invertible_2cell_after_inv_cell (α,,Hα))  (id2_disp ff)) ×
+       (y •• x =
+        transportb (λ x', _ ==>[x'] _) (inv_cell_after_invertible_2cell (α,,Hα))  (id2_disp ff')).
+
   Definition disp_invertible_2cell (α : invertible_2cell f f')
              (ff : d -->[f] d') (ff' : d -->[f'] d')
     : UU
-    := ∑ (x : ff ==>[α] ff'), is_disp_invertible_2cell x.
+    := ∑ (x : ff ==>[α] ff'), is_disp_invertible_2cell (pr2 α) x.
 
   Coercion disp_cell_from_invertible_2cell {α : invertible_2cell f f'}
            {ff : d -->[f] d'} {ff' : d -->[f'] d'}
@@ -665,7 +678,7 @@ Section Display_Invertible_2cell.
     destruct ef; apply idpath.
   Qed.
 
-  Lemma disp_cell_to_inv_cell_post {a b : C} {f g h : a --> b}
+  Lemma disp_cell_to_inv_cell_post' {a b : C} {f g h : a --> b}
         {x : f ==> g} {y : invertible_2cell g h} {z : f ==> h}
         {p : x = z • inv_cell y}
         {aa : D a} {bb : D b}
@@ -675,7 +688,7 @@ Section Display_Invertible_2cell.
         (xx : ff ==>[x] gg)
         (yy : gg ==>[y] hh)
         (zz : ff ==>[z] hh)
-        (H : is_disp_invertible_2cell yy)
+        (H : is_disp_invertible_2cell y yy)
         (q := cell_to_inv_cell_post _ _ _ _ p)
         (pp : xx = transportb (λ x, _ ==>[x] _) p (zz •• inv_disp_cell (yy,,H)))
     : xx •• yy = transportb (λ x, _ ==>[x] _) q zz.
@@ -698,14 +711,42 @@ Section Display_Invertible_2cell.
     admit.  (* Todo: remove this admit using homcells. *)
   Admitted.
 
-  (*
-  Definition disp_invertible_2cell_after_inv_cell (x : disp_invertible_2cell).
-       (x •• inv_disp_cell x =
-        transportb (λ x', _ ==>[x'] _) (invertible_2cell_after_inv_cell α)  (id2_disp ff))
+  Lemma disp_cell_to_inv_cell_post {a b : C} {f g h : a --> b}
+        {x : f ==> g} {y : g ==> h} {z : f ==> h}
+        (Hy : is_invertible_2cell y)
+        {aa : D a} {bb : D b}
+        {ff : aa -->[f] bb}
+        {gg : aa -->[g] bb}
+        {hh : aa -->[h] bb}
+        (xx : ff ==>[x] gg)
+        (yy : gg ==>[y] hh)
+        (zz : ff ==>[z] hh)
+        (H : is_disp_invertible_2cell Hy yy)
+        (q : x • y = z)
+        (p  := rhs_inv_cell_right _ _ _ Hy q : x = z • inv_cell (y,,Hy) )
+        (pp : xx = transportb (λ x, _ ==>[x] _) p (zz •• inv_disp_cell ((yy,,H):disp_invertible_2cell (y,,Hy) gg hh)))
+    : xx •• yy = transportb (λ x, _ ==>[x] _) q zz.
+  Proof.
+    etrans.
+    use (disp_cell_to_inv_cell_post' _ _ _ _ pp).
+    apply maponpaths_2.
+    admit.
+  Admitted.
 
-       (y •• x =
-        transportb (λ x', _ ==>[x'] _) (inv_cell_after_invertible_2cell α)  (id2_disp ff')).
-   *)
+  (* TODO *)
+  Lemma disp_inv_cell_to_cell_post {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
+        (z : f ==> h)
+        (H : is_invertible_2cell x)
+    : y = inv_cell (x,,H) • z -> x • y = z.
+  (*
+  Proof.
+    intro H1.
+    etrans. apply maponpaths. apply H1.
+    etrans. apply ( vassocr _ _ _ ).
+    etrans. apply maponpaths_2. apply (invertible_2cell_after_inv_cell (x,,H)).
+    apply id2_left.
+  Qed.
+  *)
 
 End Display_Invertible_2cell.
 
@@ -713,8 +754,47 @@ Section Derived_Laws.
 
 Context {D : disp_prebicat}.
 
+Definition is_disp_invertible_2cell_lassociator {a b c d : C}
+           {f1 : C ⟦ a, b ⟧} {f2 : C ⟦ b, c ⟧} {f3 : C ⟦ c, d ⟧}
+           {aa : D a} {bb : D b} {cc : D c} {dd : D d}
+           (ff1 : aa -->[f1] bb)
+           (ff2 : bb -->[f2] cc)
+           (ff3 : cc -->[f3] dd)
+  : is_disp_invertible_2cell (is_invertible_2cell_lassociator _ _ _)
+                             (lassociator_disp ff1 ff2 ff3).
+Proof.
+  exists (rassociator_disp ff1 ff2 ff3).
+  split.
+  - apply lassociator_rassociator_disp.
+  - apply rassociator_lassociator_disp.
+Defined.
+
+Definition is_disp_invertible_2cell_rassociator {a b c d : C}
+           {f1 : C ⟦ a, b ⟧} {f2 : C ⟦ b, c ⟧} {f3 : C ⟦ c, d ⟧}
+           {aa : D a} {bb : D b} {cc : D c} {dd : D d}
+           (ff1 : aa -->[f1] bb)
+           (ff2 : bb -->[f2] cc)
+           (ff3 : cc -->[f3] dd)
+  : is_disp_invertible_2cell (is_invertible_2cell_rassociator _ _ _)
+                             (rassociator_disp ff1 ff2 ff3).
+Proof.
+  exists (lassociator_disp ff1 ff2 ff3).
+  split.
+  - apply rassociator_lassociator_disp.
+  - apply lassociator_rassociator_disp.
+Defined.
+
+
 (*
-Lemma lassociator_to_rassociator_post_disp {a b c d : C}
+Lemma lassociator_to_rassociator_post {a b c d : C}
+      {f : C ⟦ a, b ⟧} {g : C ⟦ b, c ⟧} {h : C ⟦ c, d ⟧} {k : C ⟦ a, d ⟧}
+      (x : k ==> (f · g) · h)
+      (y : k ==> f · (g · h))
+      (p : x = y • lassociator f g h)
+  : x • rassociator f g h = y.
+  *)
+
+Lemma lassociator_to_rassociator_post_disp' {a b c d : C}
       {f : C ⟦ a, b ⟧} {g : C ⟦ b, c ⟧} {h : C ⟦ c, d ⟧} {k : C ⟦ a, d ⟧}
       {x : k ==> (f · g) · h}
       {y : k ==> f · (g · h)}
@@ -727,39 +807,97 @@ Lemma lassociator_to_rassociator_post_disp {a b c d : C}
       (xx : kk ==>[x] (ff ;; gg) ;; hh)
       (yy : kk ==>[y] ff ;; (gg ;; hh))
       (q := lassociator_to_rassociator_post x y p)
-  :   xx = transportb (λ x, _ ==>[x] _) p (yy •• lassociator_disp ff gg hh)
-    → xx •• rassociator_disp ff gg hh =
-      transportb (λ x, _ ==>[x] _) q (yy).
+      (pp : xx = transportb (λ x, _ ==>[x] _) p (yy •• lassociator_disp ff gg hh))
+  : xx •• rassociator_disp ff gg hh = transportb (λ x, _ ==>[x] _) q (yy).
 Proof.
-  intros pp.
-  rewrite pp.
-  rewrite <- vassocr_disp.
-  rewrite lassociator_rassociator.
-  apply id2_right.
-Defined.
+  etrans.
+  use disp_cell_to_inv_cell_post.
+  - exact y.
+  - apply is_invertible_2cell_rassociator.
+  - exact yy.
+  - apply is_disp_invertible_2cell_rassociator.
+  - apply lassociator_to_rassociator_post. exact p.
+  - cbn. etrans. apply pp.
+    apply maponpaths_2.
+    admit.
+Admitted.
 
-Lemma lassociator_to_rassociator_pre {a b c d : C}
+Search (_ • lassociator _ _ _) rassociator.
+
+Lemma lassociator_to_rassociator_post_disp {a b c d : C}
       {f : C ⟦ a, b ⟧} {g : C ⟦ b, c ⟧} {h : C ⟦ c, d ⟧} {k : C ⟦ a, d ⟧}
-      (x : f · (g · h) ==> k)
-      (y : (f · g) · h ==> k) :
-  x = lassociator f g h • y → rassociator f g h • x = y.
+      {x : k ==> (f · g) · h}
+      {y : k ==> f · (g · h)}
+      {aa : D a} {bb : D b} {cc : D c} {dd : D d}
+      {ff : aa -->[f] bb}
+      {gg : bb -->[g] cc}
+      {hh : cc -->[h] dd}
+      {kk : aa -->[k] dd}
+      (xx : kk ==>[x] (ff ;; gg) ;; hh)
+      (yy : kk ==>[y] ff ;; (gg ;; hh))
+      (q : x • rassociator f g h = y)
+      (p := rassociator_to_lassociator_post _ _ q : x = y • lassociator f g h)
+      (pp : xx = transportb (λ x, _ ==>[x] _) p (yy •• lassociator_disp ff gg hh))
+  : xx •• rassociator_disp ff gg hh = transportb (λ x, _ ==>[x] _) q (yy).
 Proof.
-  intros p.
-  rewrite p.
-  rewrite vassocr.
-  rewrite rassociator_lassociator.
-  apply id2_left.
+  etrans.
+  use lassociator_to_rassociator_post_disp'.
+  - exact y.
+  - exact p.
+  - exact yy.
+  - exact pp.
+  - apply maponpaths_2. admit.
+Admitted.
+
+Lemma lassociator_to_rassociator_pre_disp {a b c d : C}
+      {f : C ⟦ a, b ⟧} {g : C ⟦ b, c ⟧} {h : C ⟦ c, d ⟧} {k : C ⟦ a, d ⟧}
+      {x : f · (g · h) ==> k}
+      {y : (f · g) · h ==> k}
+      {aa : D a} {bb : D b} {cc : D c} {dd : D d}
+      {ff : aa -->[f] bb}
+      {gg : bb -->[g] cc}
+      {hh : cc -->[h] dd}
+      {kk : aa -->[k] dd}
+      (xx : ff ;; (gg ;; hh) ==>[x] kk)
+      (yy : (ff ;; gg) ;; hh ==>[y] kk)
+      (q : rassociator f g h • x = y)
+      (p := rassociator_to_lassociator_pre _ _ q : x = lassociator f g h • y)
+      (pp : xx = transportb (λ x, _ ==>[x] _) p (lassociator_disp ff gg hh •• yy))
+  : rassociator_disp ff gg hh •• xx = transportb (λ x, _ ==>[x] _) q (yy).
+Proof.
+  etrans.
+  Search (_ •• _ = _) (inv_disp_cell _).
+  use disp_cell_to_inv_cell_post.
+  - exact x.
+  - apply is_invertible_2cell_lassociator.
+  - exact yy.
+  - apply is_disp_invertible_2cell_rassociator.
+  - apply lassociator_to_rassociator_post. exact p.
+  - cbn. etrans. apply pp.
+    apply maponpaths_2.
+    admit.
+Admitted.
+
+Proof.
+  use inv_cell_to_cell_post.
+  - apply is_invertible_rassociator.
+  - exact p.
 Defined.
 
+
+*)
 
 Lemma lunitor_lwhisker_disp {a b c : C} {f : C⟦a, b⟧} {g : C⟦b, c⟧}
       {aa : D a} {bb : D b} {cc : D c}
       (ff : aa -->[f] bb)
       (gg : bb -->[g] cc)
   : (rassociator_disp _ _ _ •• (ff ◃◃ lunitor_disp gg)) =
-    transportb (λ x', _ ==>[x'] _) (lunitor_lwhisker _ _) (runitor_disp ff ▹▹ gg).
+    transportb (λ x', _ ==>[x'] _)
+               (lunitor_lwhisker _ _)
+               (runitor_disp ff ▹▹ gg).
 Proof.
-  apply lassociator_to_rassociator_pre.
+  etrans.
+  use lassociator_to_rassociator_pre_disp.
   apply pathsinv0.
   apply runitor_rwhisker.
 Qed.
