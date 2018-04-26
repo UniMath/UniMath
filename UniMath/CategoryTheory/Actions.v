@@ -25,6 +25,8 @@
         - Equivariant maps
         - Monoid (group) actions ([monaction])
         - Ring actions
+    - Theory
+        - Translation groupoid ([translation_groupoid])
  *)
 
 (** TODO:
@@ -418,3 +420,39 @@ Definition monaction_functor (Mon : monoid) (C : category) :=
   contr_cat_action (monoid_weq_contr_category Mon) C.
 
 (** **** Ring actions *)
+
+(** ** Theory *)
+
+(** *** Translation groupoid ([translation_groupoid]) *)
+
+Definition translation_groupoid_precat {CC : contr_cat}
+           (F : contr_cat_action CC hset_category) : precategory.
+Proof.
+  pose (center := contr_cat_center CC).
+  use mk_precategory.
+  - use precategory_data_pair.
+    + use precategory_ob_mor_pair.
+      * exact (pr1 (F center)).
+      * intros x1 x2; exact (∑ c : CC ⟦center, center⟧, # F c x1 = x2).
+    + intros c; exists (identity center).
+      refine (@eqtohomot _ _ (# F (identity center)) (idfun _) _ c).
+      apply (functor_id F center).
+    + intros a b c f g.
+      cbn in *.
+      exists (pr1 f · pr1 g).
+      refine (maponpaths (λ z, z _) (functor_comp F (pr1 f) (pr1 g)) @ _); cbn.
+      refine (maponpaths _ (pr2 f) @ _).
+      exact (pr2 g).
+  - use dirprodpair.
+    + use dirprodpair;
+        intros ? ? ?;
+        apply subtypeEquality'.
+      * apply id_left.
+      * apply setproperty.
+      * apply id_right.
+      * apply setproperty.
+    + cbn.
+      intros a b c d f g h.
+      apply subtypeEquality'; [|apply setproperty].
+      apply assoc.
+Defined.
