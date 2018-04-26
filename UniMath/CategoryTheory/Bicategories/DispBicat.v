@@ -628,7 +628,7 @@ Section Display_Invertible_2cell.
   Definition disp_invertible_2cell (α : invertible_2cell f f')
              (ff : d -->[f] d') (ff' : d -->[f'] d')
     : UU
-    := ∑ (x : ff ==>[α] ff'), is_disp_invertible_2cell (pr2 α) x.
+    := ∑ (x : ff ==>[α] ff'), is_disp_invertible_2cell α x.
 
   Coercion disp_cell_from_invertible_2cell {α : invertible_2cell f f'}
            {ff : d -->[f] d'} {ff' : d -->[f'] d'}
@@ -855,8 +855,6 @@ Proof.
     admit.
 Admitted.
 
-Search (_ • lassociator _ _ _) rassociator.
-
 Lemma lassociator_to_rassociator_post_disp {a b c d : C}
       {f : C ⟦ a, b ⟧} {g : C ⟦ b, c ⟧} {h : C ⟦ c, d ⟧} {k : C ⟦ a, d ⟧}
       {x : k ==> (f · g) · h}
@@ -899,27 +897,18 @@ Lemma lassociator_to_rassociator_pre_disp {a b c d : C}
   : rassociator_disp ff gg hh •• xx = transportb (λ x, _ ==>[x] _) q (yy).
 Proof.
   etrans.
-  Search (_ •• _ = _) (inv_disp_cell _).
-  use disp_cell_to_inv_cell_post.
-  - exact x.
-  - apply is_invertible_2cell_lassociator.
+  use disp_inv_cell_to_cell_post.
+  - exact y.
+  - apply is_invertible_2cell_rassociator.
   - exact yy.
   - apply is_disp_invertible_2cell_rassociator.
-  - apply lassociator_to_rassociator_post. exact p.
+  - apply lassociator_to_rassociator_pre. exact p.
   - cbn. etrans. apply pp.
     apply maponpaths_2.
     admit.
 Admitted.
 
-Proof.
-  use inv_cell_to_cell_post.
-  - apply is_invertible_rassociator.
-  - exact p.
-Defined.
-
-
-*)
-
+(*
 Lemma lunitor_lwhisker_disp {a b c : C} {f : C⟦a, b⟧} {g : C⟦b, c⟧}
       {aa : D a} {bb : D b} {cc : D c}
       (ff : aa -->[f] bb)
