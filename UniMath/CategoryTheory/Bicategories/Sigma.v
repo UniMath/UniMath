@@ -11,8 +11,8 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
-Require Import UniMath.CategoryTheory.PlainBicat.Bicat.
-Require Import UniMath.CategoryTheory.PlainBicat.DispBicat.
+Require Import UniMath.CategoryTheory.Bicategories.Bicat.
+Require Import UniMath.CategoryTheory.Bicategories.DispBicat.
 
 Open Scope cat.
 Open Scope mor_disp_scope.

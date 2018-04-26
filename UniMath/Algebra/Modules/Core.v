@@ -341,7 +341,7 @@ Defined.
 Lemma module_mult_neg1 {R : ring} {M : module R} (x : M) : ringminus1 * x = @grinv _ x.
 Proof.
   apply pathsinv0. apply grinv_path_from_op_path.
-  refine (maponpaths (λ y, y * _)%multmonoid (!(module_mult_unel2 x)) @ _).
+  refine (maponpaths (λ y, y * ((_ * x)%module))%multmonoid (!(module_mult_unel2 x)) @ _).
   now rewrite <- module_mult_is_rdistr, ringrinvax1, module_mult_0_to_0.
 Defined.
 
