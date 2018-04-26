@@ -204,7 +204,7 @@ Proof.
     set (XR := functor_on_iso GG (functor_on_iso FF εntiso)).
     set (XR':= iso_inv_from_iso XR). apply XR'.
   eapply iso_comp.
-     Focus 2. apply εntiso.
+     2: apply εntiso.
   set (XR := functor_on_iso (pre_composition_functor _ _ _ (homset_property _) (homset_property _ ) G) (iso_inv_from_iso ηntiso)).
   set (XR':= functor_on_iso (post_composition_functor _ _ _ (homset_property _ )(homset_property _ ) F) XR).
   apply XR'.

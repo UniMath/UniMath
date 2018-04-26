@@ -55,7 +55,7 @@ Proof.
     { apply eq_iso. cbn. simpl. unfold precomp_with.
       etrans. apply maponpaths_2. apply id_right.
       etrans. eapply pathsinv0. apply functor_comp.
-      etrans. Focus 2. apply functor_id.
+      etrans. 2: apply functor_id.
       apply maponpaths. apply iso_after_iso_inv.
    }
     set (XRT := transportf (λ r, iso_disp r (FF x dd) yy )

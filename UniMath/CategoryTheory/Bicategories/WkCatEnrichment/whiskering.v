@@ -9,8 +9,8 @@ Require Import UniMath.CategoryTheory.categories.StandardCategories. (* unit *)
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.equivalences.
 
-Require Import UniMath.CategoryTheory.bicategories.prebicategory.
-Require Import UniMath.CategoryTheory.bicategories.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.WkCatEnrichment.prebicategory.
+Require Import UniMath.CategoryTheory.Bicategories.WkCatEnrichment.Notations.
 
 (******************************************************************************)
 (* Whiskering *)

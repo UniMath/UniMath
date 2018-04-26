@@ -356,8 +356,7 @@ Proof.
   eapply pathscomp0.
   apply precompWithBinCoproductArrow.
   eapply pathscomp0.
-Focus 2.
-  apply (!(postcompWithBinCoproductArrow _ _ _ _ _)).
+  2: apply (!(postcompWithBinCoproductArrow _ _ _ _ _)).
   simpl.
   rewrite id_left.
   rewrite <- assoc.
@@ -380,8 +379,7 @@ Focus 2.
     * apply idpath.
   + apply maponpaths.
     eapply pathscomp0.
-Focus 2.
-    apply (!(BinCoproductOfArrowsIn2 _ _ _ _ _ )).
+    2: apply (!(BinCoproductOfArrowsIn2 _ _ _ _ _ )).
     apply idpath.
 
 
@@ -460,8 +458,9 @@ Proof.
   simpl.
   eapply pathscomp0. apply precompWithBinCoproductArrow.
 (*  rewrite precompWithBinCoproductArrow. *)
-  eapply pathscomp0. Focus 2. eapply pathsinv0.
-  apply postcompWithBinCoproductArrow.
+  eapply pathscomp0.
+  2: { eapply pathsinv0.
+       apply postcompWithBinCoproductArrow. }
 (*
   eapply cancel_postcomposition. apply postcompWithBinCoproductArrow.
 *)
@@ -517,9 +516,8 @@ Proof.
   destruct Z' as [Z' e'];
   simpl.
   eapply pathscomp0.
-Focus 2.
-  eapply pathsinv0.
-  apply postcompWithBinCoproductArrow.
+  2: { eapply pathsinv0.
+       apply postcompWithBinCoproductArrow. }
   simpl in *.
   apply BinCoproductArrow_eq.
   + rewrite <- assoc.
@@ -546,9 +544,8 @@ Focus 2.
   + rewrite <- functor_comp.
     apply maponpaths.
     eapply pathscomp0.
-Focus 2.
-    eapply pathsinv0.
-    apply BinCoproductIn2Commutes.
+    2: { eapply pathsinv0.
+         apply BinCoproductIn2Commutes. }
     apply idpath.
 Qed.
 
@@ -591,8 +588,7 @@ Proof.
   rewrite β_is_pointed.
   simpl.
   eapply pathscomp0.
-Focus 2.
-  apply (nat_trans_ax e').
+  2: apply (nat_trans_ax e').
   apply idpath.
 Qed.
 
