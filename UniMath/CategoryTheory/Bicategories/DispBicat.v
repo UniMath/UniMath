@@ -733,12 +733,11 @@ Section Display_Invertible_2cell.
     admit.
   Admitted.
 
-  (* TODO *)
-  Lemma disp_inv_cell_to_cell_post {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
+  (*
+  Lemma inv_cell_to_cell_post {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
         (z : f ==> h)
         (H : is_invertible_2cell x)
     : y = inv_cell (x,,H) • z -> x • y = z.
-  (*
   Proof.
     intro H1.
     etrans. apply maponpaths. apply H1.
@@ -747,6 +746,40 @@ Section Display_Invertible_2cell.
     apply id2_left.
   Qed.
   *)
+
+  Lemma disp_inv_cell_to_cell_post {a b : C} {f g h : a --> b}
+        {x : f ==> g} {y : g ==> h} {z : f ==> h} {H : is_invertible_2cell x}
+        {aa : D a} {bb : D b}
+        {ff : aa -->[f] bb}
+        {gg : aa -->[g] bb}
+        {hh : aa -->[h] bb}
+        (xx : ff ==>[x] gg)
+        (yy : gg ==>[y] hh)
+        (zz : ff ==>[z] hh)
+        (HH : is_disp_invertible_2cell H xx)
+        (q :  x • y = z)
+        (p := rhs_inv_cell_left _ _ _ H q : y = inv_cell (x,,H) • z)
+        (pp : yy = transportb
+                     (λ x, _ ==>[x] _) p
+                     (inv_disp_cell ((xx,,HH):disp_invertible_2cell (x,,H) ff gg) •• zz))
+    : xx •• yy = transportb (λ x, _ ==>[x] _) q zz.
+  Proof.
+    etrans. apply maponpaths. apply pp.
+    etrans.
+    apply mor_disp_transportf_prewhisker_disp.
+    etrans. apply maponpaths.
+    apply vassocr_disp.
+    etrans. apply (transport_f_f (λ x, _ ==>[x] _)).
+    etrans. apply maponpaths.
+    apply maponpaths_2.
+    apply (inv_cell_after_disp_invertible_2cell ((xx,,HH):disp_invertible_2cell (x,,H) _ _)).
+    etrans. apply maponpaths. apply mor_disp_transportf_postwhisker_disp.
+    etrans. unfold transportb. apply (transport_f_f (λ x, _ ==>[x] _)).
+    etrans. apply maponpaths. apply id2_disp_left.
+    etrans. unfold transportb. apply (transport_f_f (λ x, _ ==>[x] _)).
+    unfold transportb.
+    apply maponpaths_2. admit.
+  Admitted.
 
 End Display_Invertible_2cell.
 
