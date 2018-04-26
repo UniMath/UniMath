@@ -570,13 +570,14 @@ intermediate_path (pr1 (pr1 X)).
       simpl.
       unfold coproduct_nat_trans_in2_data.
       repeat rewrite <- assoc.
-      eapply pathscomp0. Focus 2.
-        apply maponpaths.
-        apply BinCoproductIn2Commutes_right_in_ctx_dir.
-        rewrite <- assoc.
-        apply maponpaths.
-        apply BinCoproductIn2Commutes_right_dir.
-        apply idpath.
+      eapply pathscomp0.
+      2: { apply maponpaths.
+           apply BinCoproductIn2Commutes_right_in_ctx_dir.
+           rewrite <- assoc.
+           apply maponpaths.
+           apply BinCoproductIn2Commutes_right_dir.
+           apply idpath.
+      }
       do 2 rewrite assoc.
       eapply pathscomp0.
         apply cancel_postcomposition.
@@ -609,9 +610,8 @@ intermediate_path (pr1 (pr1 X)).
                  θ (tpair (λ _ : functor C C, ptd_obj C) (alg_carrier _ (InitialObject IA)) Z) ·
                  # H (# (pr1 (ℓ(U Z))) β ·
                  fbracket T' (f· ptd_from_alg_mor C hsC CP H β0)))).
-      Focus 2.
-      assert (Hyp_c := nat_trans_eq_pointwise Hyp c); clear Hyp.
-      exact Hyp_c.
+      2: { assert (Hyp_c := nat_trans_eq_pointwise Hyp c); clear Hyp.
+           exact Hyp_c. }
       clear c. clear X. clear rhohat.
       rewrite (functor_comp H).
       rewrite assoc.

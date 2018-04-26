@@ -268,7 +268,7 @@ Proof.
   clear XH2 XH'.
   assert (XH' := XH _ _ f).
   assert (XH2 := toforallpaths _ _ _ XH').
-  eapply pathscomp0. Focus 2. apply XH2.
+  eapply pathscomp0. 2: apply XH2.
   rewrite id_right.
   apply idpath.
 Qed.
