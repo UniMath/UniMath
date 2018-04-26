@@ -781,6 +781,12 @@ Defined.
 Axiom lunitor_runitor_identity :
   ∏ a : C, lunitor (identity a) = runitor (identity a).
 
+Lemma runitor_lunitor_identity (a : C)
+  : runitor (identity a) = lunitor (identity a).
+Proof.
+  apply pathsinv0, lunitor_runitor_identity.
+Defined.
+
 End Derived_laws.
 
 (* ----------------------------------------------------------------------------------- *)

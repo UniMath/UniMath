@@ -678,6 +678,16 @@ Section Display_Invertible_2cell.
     destruct ef; apply idpath.
   Qed.
 
+  Lemma mor_disp_transportf_prewhisker_disp_gen (a b : C)
+        {x y z : C⟦a,b⟧} {f : x ==> y} {A : UU} {t : A → y ==> z} {g g' : A} (ef : g = g')
+        {aa : D a} {bb : D b}
+        {xx : aa -->[x] bb} {yy} {zz} (ff : xx ==>[f] yy) (gg : yy ==>[t g] zz)
+    : ff •• (transportf (λ x, _ ==>[t x] _) ef gg)
+      = transportf (λ x, _ ==>[x] _) (maponpaths (λ h, f • t h) ef) (ff •• gg).
+  Proof.
+    destruct ef; apply idpath.
+  Qed.
+
   Lemma disp_cell_to_inv_cell_post' {a b : C} {f g h : a --> b}
         {x : f ==> g} {y : invertible_2cell g h} {z : f ==> h}
         {p : x = z • inv_cell y}
