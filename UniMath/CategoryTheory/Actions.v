@@ -81,7 +81,7 @@ Defined.
 
 (** When the hom-types of C are sets, we can form the automorphism grp *)
 Definition automorphism_grp {C : category} (X : ob C) : gr :=
-  gr_invertible_elements (endomorphism_monoid X).
+  gr_merely_invertible_elements (endomorphism_monoid X).
 
 Example symmetric_grp (X : hSet) := @automorphism_grp hset_category X.
 
