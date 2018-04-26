@@ -141,6 +141,7 @@ DisplayedCats/Examples.v
 DisplayedCats/Adjunctions.v
 
 Bicategories/Bicat.v
+Bicategories/Unitors.v
 Bicategories/PseudoFunctor.v
 Bicategories/OpCellBicat.v
 Bicategories/Univalence.v

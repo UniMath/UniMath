@@ -414,6 +414,50 @@ Section Derived_laws.
 
 Context {C : prebicat}.
 
+Lemma inv_2cell_right_cancellable {a b : C} {f g : C⟦a, b⟧}
+      (x : f ==> g) (H : is_invertible_2cell x)
+      {e : C⟦a, b⟧} (y z : e ==> f)
+  : y • x = z • x -> y = z.
+Proof.
+  intro R.
+  set (xiso := x,, H : invertible_2cell f g).
+  etrans.
+  { etrans. { apply (! id2_right _ ). }
+            apply maponpaths. apply (! invertible_2cell_after_inv_cell xiso). }
+  etrans. apply vassocr.
+  apply pathsinv0.
+  etrans.
+  { etrans. { apply (! id2_right _ ). }
+            apply maponpaths. apply (! invertible_2cell_after_inv_cell xiso). }
+  etrans. apply vassocr.
+
+  apply pathsinv0.
+  apply maponpaths_2.
+  apply R.
+Qed.
+
+Lemma inv_2cell_left_cancellable {a b : C} {f g : C⟦a, b⟧}
+      (x : f ==> g) (H : is_invertible_2cell x)
+      {h : C⟦a, b⟧} (y z : g ==> h)
+  : x • y = x • z -> y = z.
+Proof.
+  intro R.
+  set (xiso := x,, H : invertible_2cell f g).
+  etrans.
+  { etrans. { apply (! id2_left _ ). }
+            apply maponpaths_2. apply (! inv_cell_after_invertible_2cell xiso). }
+  etrans. apply (!vassocr _ _ _ ).
+  apply pathsinv0.
+  etrans.
+  { etrans. { apply (! id2_left _ ). }
+            apply maponpaths_2. apply (! inv_cell_after_invertible_2cell xiso). }
+  etrans. apply (!vassocr _ _ _ ).
+  apply pathsinv0.
+  apply maponpaths.
+  apply R.
+Qed.
+
+
 Lemma is_invertible_rassociator {a b c d : C}
       (f : C⟦a,b⟧) (g : C⟦b,c⟧) (h : C⟦c,d⟧)
   : is_invertible_2cell (rassociator f g h).
@@ -460,6 +504,7 @@ Proof.
   apply id2_left.
 Qed.
 
+
 Definition vassocl {a b : C} {f g h k : C⟦a, b⟧} (x : f ==> g) (y : g ==> h) (z : h ==> k)
   : (x • y) • z = x • (y • z).
 Proof.
@@ -499,6 +544,7 @@ Proof.
   apply pathsinv0.
   apply runitor_rwhisker.
 Qed.
+
 
 Lemma hcomp_hcomp' {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
       (η : f1 ==> f2) (φ : g1 ==> g2)

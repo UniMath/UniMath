@@ -24,63 +24,14 @@ Section auxiliary.
 
 Context {C : prebicat}.
 
-Lemma inv_2cell_right_cancellable {a b : C} {f g : C⟦a, b⟧}
-      (x : f ==> g) (H : is_invertible_2cell x)
-      {e : C⟦a, b⟧} (y z : e ==> f)
-  : y • x = z • x -> y = z.
-Proof.
-  intro R.
-  set (xiso := x,, H : invertible_2cell f g).
-  etrans.
-  { etrans. { apply (! id2_right _ ). }
-            apply maponpaths. apply (! invertible_2cell_after_inv_cell xiso). }
-  etrans. apply vassocr.
-  apply pathsinv0.
-  etrans.
-  { etrans. { apply (! id2_right _ ). }
-            apply maponpaths. apply (! invertible_2cell_after_inv_cell xiso). }
-  etrans. apply vassocr.
-
-  apply pathsinv0.
-  apply maponpaths_2.
-  apply R.
-Qed.
-
-Lemma inv_2cell_left_cancellable {a b : C} {f g : C⟦a, b⟧}
-      (x : f ==> g) (H : is_invertible_2cell x)
-      {h : C⟦a, b⟧} (y z : g ==> h)
-  : x • y = x • z -> y = z.
-Proof.
-  intro R.
-  set (xiso := x,, H : invertible_2cell f g).
-  etrans.
-  { etrans. { apply (! id2_left _ ). }
-            apply maponpaths_2. apply (! inv_cell_after_invertible_2cell xiso). }
-  etrans. apply (!vassocr _ _ _ ).
-  apply pathsinv0.
-  etrans.
-  { etrans. { apply (! id2_left _ ). }
-            apply maponpaths_2. apply (! inv_cell_after_invertible_2cell xiso). }
-  etrans. apply (!vassocr _ _ _ ).
-  apply pathsinv0.
-  apply maponpaths.
-  apply R.
-Qed.
-
-
-Lemma rassociator_runitor_lunitor {a b c : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
-  : rassociator _ _ _ • (f ◃ lunitor g) = (runitor f ▹ g).
-Proof.
-  use inv_cell_to_cell_post.
-  - apply is_invertible_2cell_rassociator.
-  - apply pathsinv0, runitor_rwhisker.
-Qed.
 
 End auxiliary.
 
 Section unitors.
 
 Context {C : prebicat}.
+
+
 
 
 (** The first triangle in the Proposition *)
@@ -127,7 +78,7 @@ Proof.
   use (inv_2cell_left_cancellable (rassociator _ _ _ )).
   - apply is_invertible_2cell_rassociator.
   - rewrite runitor_triangle.
-    rewrite rassociator_runitor_lunitor.
+    rewrite lunitor_lwhisker.
     apply runitor_is_runitor_rwhisker.
 Qed.
 
