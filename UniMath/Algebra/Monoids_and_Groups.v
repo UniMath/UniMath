@@ -2183,7 +2183,6 @@ Section GrCosets.
     apply subtypeEquality'; [|apply propproperty].
     pose (p' := (pr11 p,, pr2 p) : ∑ y : X, x1 * y = x2).
     pose (q' := (pr11 q,, pr2 q) : ∑ y : X, x1 * y = x2).
-    Check proofirrelevance.
     apply (maponpaths pr1 (iscontrpr1 (isaprop_mult_eq_r _ _ p' q'))).
   Defined.
 
