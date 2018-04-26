@@ -733,20 +733,6 @@ Section Display_Invertible_2cell.
     admit.
   Admitted.
 
-  (*
-  Lemma inv_cell_to_cell_post {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
-        (z : f ==> h)
-        (H : is_invertible_2cell x)
-    : y = inv_cell (x,,H) • z -> x • y = z.
-  Proof.
-    intro H1.
-    etrans. apply maponpaths. apply H1.
-    etrans. apply ( vassocr _ _ _ ).
-    etrans. apply maponpaths_2. apply (invertible_2cell_after_inv_cell (x,,H)).
-    apply id2_left.
-  Qed.
-  *)
-
   Lemma disp_inv_cell_to_cell_post {a b : C} {f g h : a --> b}
         {x : f ==> g} {y : g ==> h} {z : f ==> h} {H : is_invertible_2cell x}
         {aa : D a} {bb : D b}
@@ -816,16 +802,6 @@ Proof.
   - apply rassociator_lassociator_disp.
   - apply lassociator_rassociator_disp.
 Defined.
-
-
-(*
-Lemma lassociator_to_rassociator_post {a b c d : C}
-      {f : C ⟦ a, b ⟧} {g : C ⟦ b, c ⟧} {h : C ⟦ c, d ⟧} {k : C ⟦ a, d ⟧}
-      (x : k ==> (f · g) · h)
-      (y : k ==> f · (g · h))
-      (p : x = y • lassociator f g h)
-  : x • rassociator f g h = y.
-  *)
 
 Lemma lassociator_to_rassociator_post_disp' {a b c d : C}
       {f : C ⟦ a, b ⟧} {g : C ⟦ b, c ⟧} {h : C ⟦ c, d ⟧} {k : C ⟦ a, d ⟧}
@@ -908,7 +884,6 @@ Proof.
     admit.
 Admitted.
 
-(*
 Lemma lunitor_lwhisker_disp {a b c : C} {f : C⟦a, b⟧} {g : C⟦b, c⟧}
       {aa : D a} {bb : D b} {cc : D c}
       (ff : aa -->[f] bb)
@@ -920,10 +895,17 @@ Lemma lunitor_lwhisker_disp {a b c : C} {f : C⟦a, b⟧} {g : C⟦b, c⟧}
 Proof.
   etrans.
   use lassociator_to_rassociator_pre_disp.
-  apply pathsinv0.
-  apply runitor_rwhisker.
-Qed.
- *)
+  - exact (runitor f ▹ g).
+  - exact (runitor_disp ff ▹▹ gg).
+  - apply lunitor_lwhisker.
+  - apply pathsinv0.
+    etrans.
+    apply maponpaths. apply runitor_rwhisker_disp.
+    etrans.
+    apply (transport_f_f (λ x', _ ==>[x'] _)).
+    apply (transportf_set (λ x', _ ==>[x'] _)).
+    admit.
+Admitted.
 
 End Derived_Laws.
 

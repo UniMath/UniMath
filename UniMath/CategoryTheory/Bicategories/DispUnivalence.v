@@ -151,27 +151,28 @@ Proof.
   apply (lunitor_disp _ ).
 Defined.
 
-(*
 Definition is_disp_internal_adjunction_identity {a : C} (aa : D a)
-(??)    : is_disp_internal_adjunction (disp_internal_adjunction_data_identity aa).
-(??)  Proof.
-(??)    split.
-(??)    - etrans.
-(??)      { apply maponpaths_2.
-(??)        etrans; [apply (!vassocr _ _ _) | ].
-(??)        etrans.
-(??)        { apply maponpaths.
-(??)          etrans; [apply lunitor_lwhisker | ].
-(??)          apply maponpaths, pathsinv0, lunitor_runitor_identity.
-(??)        }
-(??)        etrans; [apply (!vassocr _ _ _) | ].
-(??)        etrans.
-(??)        { apply maponpaths.
-(??)          etrans; [apply rwhisker_vcomp | ].
-(??)          etrans; [apply maponpaths, linvunitor_lunitor | ].
-(??)          apply id2_rwhisker.
-(??)        }
-(??)        apply id2_right.
+  : is_disp_internal_adjunction (disp_internal_adjunction_data_identity aa).
+Proof.
+  split.
+  - etrans.
+    { apply maponpaths_2.
+      etrans; [apply vassocl_disp | ].
+      etrans.
+      { apply maponpaths. apply maponpaths.
+        etrans; [apply lunitor_lwhisker_disp | ].
+        apply maponpaths.
+        apply maponpaths. apply pathsinv0.
+        apply lunitor_runitor_identity.
+      }
+      etrans; [apply (!vassocr _ _ _) | ].
+      etrans.
+      { apply maponpaths.
+        etrans; [apply rwhisker_vcomp | ].
+        etrans; [apply maponpaths, linvunitor_lunitor | ].
+        apply id2_rwhisker.
+      }
+      apply id2_right.
       }
       etrans; [apply (!vassocr _ _ _) | ].
       etrans.
