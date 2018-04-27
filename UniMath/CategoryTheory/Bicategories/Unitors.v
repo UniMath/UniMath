@@ -33,10 +33,46 @@ Lemma rwhisker_lwhisker_rassociator
       (a b c d : C) (f : C⟦a, b⟧) (g h : C⟦b, c⟧) (i : c --> d) (x : g ==> h)
   : rassociator _ _ _ • (f ◃ (x ▹ i)) = ((f ◃ x) ▹ i) • rassociator _ _ _ .
 Proof.
-  admit.
-Admitted.
+  use (inv_2cell_left_cancellable (lassociator f g i)).
+  { apply  is_invertible_2cell_lassociator. }
+  etrans. etrans. apply vassocr. apply maponpaths_2. apply lassociator_rassociator.
+  etrans. apply id2_left.
+
+  use (inv_2cell_right_cancellable (lassociator f h i)).
+  { apply  is_invertible_2cell_lassociator. }
+  apply pathsinv0.
+  etrans. apply vassocl.
+  etrans. apply maponpaths. apply vassocl.
+  etrans. do 2 apply maponpaths. apply  rassociator_lassociator.
+  etrans. apply maponpaths. apply id2_right.
+  apply pathsinv0, rwhisker_lwhisker.
+Qed.
 
 
+(** 8 lwhisker_lwhisker
+(∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h i : c --> d) (x : h ==> i),
+ f ◃ (g ◃ x) • lassociator _ _ _ = lassociator _ _ _ • (f · g ◃ x))
+*)
+
+(** 8 lwhisker_lwhisker *)
+Lemma lwhisker_lwhisker_rassociator (a b c d : C) (f : C⟦a, b⟧)
+      (g : C⟦b, c⟧) (h i : c --> d) (x : h ==> i)
+  : rassociator f g h  • (f ◃ (g ◃ x)) = (f · g ◃ x) • rassociator _ _ _ .
+Proof.
+  use (inv_2cell_left_cancellable (lassociator f g h)).
+  { apply  is_invertible_2cell_lassociator. }
+  etrans. etrans. apply vassocr. apply maponpaths_2. apply lassociator_rassociator.
+  etrans. apply id2_left.
+
+  use (inv_2cell_right_cancellable (lassociator f g i)).
+  { apply  is_invertible_2cell_lassociator. }
+  apply pathsinv0.
+  etrans. apply vassocl.
+  etrans. apply maponpaths. apply vassocl.
+  etrans. do 2 apply maponpaths. apply  rassociator_lassociator.
+  etrans. apply maponpaths. apply id2_right.
+  apply pathsinv0, lwhisker_lwhisker.
+Qed.
 
 
 End auxiliary.
@@ -50,14 +86,35 @@ Context {C : prebicat}.
 (** Notes:
 
 
-
-
 *)
 Lemma runitor_rwhisker_rwhisker {a b c d: C} (f : C⟦a, b⟧)
       (g : C⟦b, c⟧) (h : C⟦c, d⟧)
   : (rassociator f g (identity _ ) ▹ h) • ((f ◃ runitor _ ) ▹ h) =
     runitor _  ▹ h.
 Proof.
+  (** rewrite with uppler left triangle *)
+  apply pathsinv0.
+  etrans. apply pathsinv0. apply lunitor_lwhisker.
+
+  (** attach rassociator on both sides *)
+  use (inv_2cell_right_cancellable (rassociator _ _ _ )).
+  { apply is_invertible_2cell_rassociator. }
+
+  (** rewrite upper right square *)
+
+  etrans. apply vassocl.
+  etrans. apply maponpaths.
+  apply pathsinv0, lwhisker_lwhisker_rassociator.
+
+  (** rewrite lower middle square *)
+  apply pathsinv0.
+  etrans. apply vassocl.
+  etrans. apply maponpaths. apply pathsinv0, rwhisker_lwhisker_rassociator.
+
+  (** rewrite lower right triangle *)
+  etrans.
+  do 3 apply maponpaths. apply pathsinv0. apply lunitor_lwhisker.
+
   admit.
 Admitted.
 
