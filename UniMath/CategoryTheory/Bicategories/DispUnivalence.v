@@ -199,6 +199,20 @@ Proof.
   induction p. apply idpath.
 Defined.
 
+Lemma disp_rwhisker_transport_right {a b c : C}
+      {f : C⟦a,b⟧} {g1 g2 : C⟦b,c⟧}
+      {x x' : g1 ==> g2} (p : x = x')
+      {aa : D a} {bb : D b} {cc : D c}
+      {ff : aa -->[f] bb}
+      (gg1 : bb -->[g1] cc)
+      (gg2 : bb -->[g2] cc)
+      (xx : gg1 ==>[x] gg2)
+  : ff ◃◃ (transportf (λ x, _ ==>[x] _) p xx) =
+    transportf (λ x, _ ==>[x] _) (maponpaths (λ x, f ◃ x) p) (ff ◃◃ xx).
+Proof.
+  induction p. apply idpath.
+Defined.
+
 Definition is_disp_internal_adjunction_identity {a : C} (aa : D a)
   : is_disp_internal_adjunction (disp_internal_adjunction_data_identity aa).
 Proof.
@@ -238,49 +252,89 @@ Proof.
           etrans. { apply (transport_f_f (λ x, _ ==>[x] _)). }
           apply maponpaths. apply id2_rwhisker_disp.
         }
-
-(***** HIC SUNT LEONES!!! *****)
-
-        apply id2_right.
-      }
-      etrans; [apply (!vassocr _ _ _) | ].
-      etrans.
-      { apply maponpaths.
-        etrans; [apply rwhisker_vcomp | ].
-        etrans; [apply maponpaths, linvunitor_lunitor | ].
-        apply id2_rwhisker.
-      }
-      apply id2_right.
+        etrans. { apply maponpaths, mor_disp_transportf_prewhisker_disp. }
+        etrans; [ apply (transport_f_f (λ x, _ ==>[x] _)) | ].
+        etrans. { apply maponpaths, mor_disp_transportf_prewhisker_disp. }
+        etrans; [ apply (transport_f_f (λ x, _ ==>[x] _)) | ].
+        apply maponpaths, id2_disp_right. }
+      apply (transport_f_f (λ x, _ ==>[x] _)).
     }
-    etrans; [apply maponpaths, pathsinv0, lunitor_runitor_identity | ].
-    apply linvunitor_lunitor.
+    etrans; [ apply mor_disp_transportf_postwhisker_disp | ].
+    etrans.
+    { apply maponpaths.
+      etrans; [ apply maponpaths, disp_runitor_lunitor_identity | ].
+      etrans; [ apply mor_disp_transportf_prewhisker_disp | ].
+      apply maponpaths. apply linvunitor_lunitor_disp.
+    }
+    etrans; [ apply (transport_f_f (λ x, _ ==>[x] _)) | ].
+    etrans; [ apply (transport_f_f (λ x, _ ==>[x] _)) | ].
+    cbn.
+    unfold transportb.
+    apply maponpaths_2.
+    admit.
   - etrans.
     { apply maponpaths_2.
-      etrans; [apply (!vassocr _ _ _) | ].
+      etrans; [apply vassocl_disp | ].
+      etrans.
+      { apply maponpaths, maponpaths.
+        etrans; [ apply maponpaths, maponpaths, disp_lunitor_runitor_identity | ].
+        etrans; [ apply maponpaths, disp_rwhisker_transport_left_new | ].
+        etrans; [ apply mor_disp_transportf_prewhisker_disp | ].
+        apply maponpaths, runitor_rwhisker_disp. }
+      etrans; [apply maponpaths, vassocl_disp | ].
+      apply maponpaths, maponpaths.
+      etrans; [ apply maponpaths, mor_disp_transportf_prewhisker_disp | ].
+      etrans; [ apply mor_disp_transportf_prewhisker_disp | ].
+      etrans.
+      { apply maponpaths, maponpaths.
+        etrans; [ apply mor_disp_transportf_prewhisker_disp | ].
+        apply maponpaths, lwhisker_vcomp_disp. }
+      etrans; [ apply maponpaths, mor_disp_transportf_prewhisker_disp | ].
+      etrans; [ apply (transport_f_f (λ x, _ ==>[x] _)) | ].
+      apply maponpaths.
+      etrans; [ apply mor_disp_transportf_prewhisker_disp | ].
+      { apply maponpaths, maponpaths, maponpaths.
+        apply linvunitor_lunitor_disp. }
+    }
+    etrans; [ apply mor_disp_transportf_postwhisker_disp | ].
+    etrans; [ apply maponpaths, mor_disp_transportf_postwhisker_disp | ].
+    etrans; [ apply (transport_f_f (λ x, _ ==>[x] _)) | ].
+    etrans; [ apply maponpaths, mor_disp_transportf_postwhisker_disp | ].
+    etrans; [ apply (transport_f_f (λ x, _ ==>[x] _)) | ].
+    etrans; [ apply maponpaths, mor_disp_transportf_postwhisker_disp | ].
+    etrans; [ apply (transport_f_f (λ x, _ ==>[x] _)) | ].
+    etrans.
+    { apply maponpaths.
+      etrans; [apply vassocl_disp | ].
+      apply maponpaths.
       etrans.
       { apply maponpaths.
         etrans.
-        { apply maponpaths.
-          apply maponpaths.
-          apply lunitor_runitor_identity.
-        }
-        apply runitor_rwhisker.
+        { apply maponpaths_2.
+          apply disp_rwhisker_transport_right. }
+        cbn.
+        etrans; [ apply mor_disp_transportf_postwhisker_disp | ].
+        etrans; [ apply maponpaths, maponpaths_2, lwhisker_id2_disp | ].
+        etrans; [ apply maponpaths, mor_disp_transportf_postwhisker_disp | ].
+        etrans; [ apply (transport_f_f (λ x, _ ==>[x] _)) | ].
+        apply maponpaths. apply id2_disp_left.
       }
-      etrans; [apply (!vassocr _ _ _) | ].
-      apply maponpaths.
-      etrans; [ apply lwhisker_vcomp | ].
-      apply maponpaths.
-      apply linvunitor_lunitor.
+      etrans; [ apply maponpaths, (transport_f_f (λ x, _ ==>[x] _)) | ].
+      etrans; [ apply mor_disp_transportf_prewhisker_disp | ].
+      etrans; [ apply maponpaths, maponpaths, disp_lunitor_runitor_identity | ].
+      etrans; [ apply maponpaths, mor_disp_transportf_prewhisker_disp | ].
+      etrans; [ apply (transport_f_f (λ x, _ ==>[x] _)) | ].
+      etrans.
+      { apply maponpaths.
+        apply rinvunitor_runitor_disp. }
+      apply (transport_f_f (λ x, _ ==>[x] _)).
     }
-    etrans; [apply (!vassocr _ _ _) | ].
-    etrans.
-    { apply maponpaths.
-      etrans; [apply maponpaths_2, lwhisker_id2 | ].
-      apply id2_left.
-    }
-    etrans; [apply maponpaths, lunitor_runitor_identity | ].
-    apply rinvunitor_runitor.
-Qed.
-*)
+    etrans; [ apply (transport_f_f (λ x, _ ==>[x] _)) | ].
+    etrans; [ apply (transport_f_f (λ x, _ ==>[x] _)) | ].
+    cbn.
+    unfold transportb.
+    apply maponpaths_2.
+    admit.
+Admitted.
 
 End Displayed_Internal_Adjunction.
