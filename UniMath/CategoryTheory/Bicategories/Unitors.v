@@ -115,6 +115,10 @@ Proof.
   etrans.
   do 3 apply maponpaths. apply pathsinv0. apply lunitor_lwhisker.
 
+  (** distribute the whiskering *)
+  etrans. apply maponpaths. apply maponpaths. apply pathsinv0, lwhisker_vcomp.
+
+
   admit.
 Admitted.
 
