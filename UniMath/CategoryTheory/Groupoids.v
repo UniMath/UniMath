@@ -191,7 +191,10 @@ Defined.
 
 (** ** Discrete categories *)
 
-(** A discrete category is a univalent [pregroupoid] an underlying [setcategory].
+(** See [Categories.categories.StandardCategories] for a proof that any discrete
+    category is equivalent to the path groupoid of its objects. *)
+
+(** A discrete category is a univalent [pregroupoid] with an underlying [setcategory].
     Why? In this case, all arrows must be identities: every arrow has an inverse,
     and isos induce equality (by univalence).
  *)

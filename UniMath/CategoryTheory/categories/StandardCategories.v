@@ -154,7 +154,8 @@ Qed.
 
 (** *** Characterization of discrete categories *)
 
-(** Discrete categories are isomorphic to the path groupoid on their set of objects. *)
+(** Discrete categories are isomorphic to the path groupoid on their set of objects.
+    This is analogous to the statement that any skeletal groupoid is discrete. *)
 
 Lemma discrete_category_iso_path_groupoid (C : discrete_category) :
   catiso C (discrete_category_hset
