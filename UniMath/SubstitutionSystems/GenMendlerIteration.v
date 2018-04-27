@@ -133,8 +133,7 @@ Proof.
   rewrite <- (φ_adj_natural_precomp (pr2 is_left_adj_L)).
   apply maponpaths.
   eapply pathscomp0.
-Focus 2.
-  apply ψ_naturality.
+  2: apply ψ_naturality.
   apply maponpaths.
   rewrite truth_about_ε.
   rewrite <- (φ_adj_inv_natural_precomp (pr2 is_left_adj_L)).
@@ -174,15 +173,14 @@ Lemma preIt_uniq (t : ∑ h : L μF --> X, # L inF· h = ψ μF h):
 Proof.
     destruct t as [h h_rec_eq]; simpl.
     assert (same: h = preIt).
-Focus 2.
-    apply subtypeEquality.
-    + intro.
-      simpl.
-      apply hsC'.
-Focus 2.
-    simpl.
-    exact same.
-
+    2: {
+      apply subtypeEquality.
+      + intro.
+        simpl.
+        apply hsC'.
+      + simpl.
+        exact same.
+    }
     apply cancel_φ.
     unfold preIt.
     rewrite (φ_adj_after_φ_adj_inv (pr2 is_left_adj_L)).

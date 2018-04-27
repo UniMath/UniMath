@@ -6,7 +6,7 @@
 
 (* ========================================================================= *)
 (* Every (pre)bicategory of UniMath.CategoryTheory.bicategories is a         *)
-(* (pre)bicategory of UniMath.CategoryTheory.PlainBicat.                     *)
+(* (pre)bicategory of UniMath.CategoryTheory.Bicategories.                     *)
 (* ========================================================================= *)
 
 Require Import UniMath.Foundations.All.
@@ -17,11 +17,11 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 
-Require Import UniMath.CategoryTheory.bicategories.prebicategory.
-Require Import UniMath.CategoryTheory.bicategories.whiskering.
+Require Import UniMath.CategoryTheory.Bicategories.WkCatEnrichment.prebicategory.
+Require Import UniMath.CategoryTheory.Bicategories.WkCatEnrichment.whiskering.
 
-Require Import UniMath.CategoryTheory.PlainBicat.Bicat.
-Require Import UniMath.CategoryTheory.bicategories.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.Bicat.
+Require Import UniMath.CategoryTheory.Bicategories.WkCatEnrichment.Notations.
 
 Open Scope cat.
 

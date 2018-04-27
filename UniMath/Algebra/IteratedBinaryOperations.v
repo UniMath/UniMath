@@ -433,10 +433,11 @@ Defined.
 
 (** finite products (or sums) in monoids *)
 
-Section NatCard.
 
   Require Export UniMath.Combinatorics.FiniteSets.
   Require Export UniMath.Foundations.NaturalNumbers.
+
+Section NatCard.
 
   (** first a toy warm-up with addition in nat, based on cardinalities of standard finite sets *)
 

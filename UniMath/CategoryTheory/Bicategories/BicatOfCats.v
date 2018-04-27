@@ -11,8 +11,8 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.categories.category_hset.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.PlainBicat.Bicat.
-Require Import UniMath.CategoryTheory.PlainBicat.DispBicat.
+Require Import UniMath.CategoryTheory.Bicategories.Bicat.
+Require Import UniMath.CategoryTheory.Bicategories.DispBicat.
 
 Open Scope cat.
 Open Scope mor_disp_scope.
