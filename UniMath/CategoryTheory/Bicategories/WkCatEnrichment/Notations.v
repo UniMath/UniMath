@@ -4,7 +4,7 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.equivalences.
-Require Export UniMath.CategoryTheory.bicategories.prebicategory.
+Require Export UniMath.CategoryTheory.Bicategories.WkCatEnrichment.prebicategory.
 
 (* Local Notation "C  'c×'  D" := (precategory_binproduct C D) (at level 75, right associativity). *)
 Notation "a  '-1->'  b" := (homprecat a b) (at level 50).

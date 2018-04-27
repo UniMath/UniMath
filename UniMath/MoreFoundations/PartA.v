@@ -39,10 +39,10 @@ Lemma transportf_comp_lemma (X : UU) (B : X -> UU) {A A' A'': X} (e : A = A'') (
   -> transportf _ e x = transportf _ e' x'.
 Proof.
   intro H.
-  eapply pathscomp0. Focus 2.
-    apply maponpaths. exact H.
-  eapply pathscomp0. Focus 2.
-    symmetry. apply transport_f_f.
+  eapply pathscomp0.
+  2: { apply maponpaths. exact H. }
+  eapply pathscomp0.
+  2: { symmetry. apply transport_f_f. }
   apply (maponpaths (λ p, transportf _ p x)).
   apply pathsinv0.
   eapply pathscomp0.

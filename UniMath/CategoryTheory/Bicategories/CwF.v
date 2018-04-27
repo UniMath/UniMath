@@ -30,13 +30,13 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
 (* (Displayed) Bicategories. *)
-Require Import UniMath.CategoryTheory.PlainBicat.Bicat.
-Require Import UniMath.CategoryTheory.PlainBicat.DispBicat.
-Require Import UniMath.CategoryTheory.PlainBicat.Constructions.
-Require Import UniMath.CategoryTheory.PlainBicat.ContravariantFunctor.
-Require Import UniMath.CategoryTheory.PlainBicat.Sigma.
-Require Import UniMath.CategoryTheory.PlainBicat.BicatOfCats.
-Require Import UniMath.CategoryTheory.PlainBicat.Cofunctormap.
+Require Import UniMath.CategoryTheory.Bicategories.Bicat.
+Require Import UniMath.CategoryTheory.Bicategories.DispBicat.
+Require Import UniMath.CategoryTheory.Bicategories.Constructions.
+Require Import UniMath.CategoryTheory.Bicategories.ContravariantFunctor.
+Require Import UniMath.CategoryTheory.Bicategories.Sigma.
+Require Import UniMath.CategoryTheory.Bicategories.BicatOfCats.
+Require Import UniMath.CategoryTheory.Bicategories.Cofunctormap.
 
 Notation "'PreShv' C" := [C^op,SET] (at level 4) : cat.
 
@@ -106,7 +106,7 @@ Section Representation.
     : functor_on_morphisms Yo π · yy A = yy t · pp.
   Proof.
     apply pathsinv0.
-    etrans. Focus 2. apply yy_natural.
+    etrans. 2: apply yy_natural.
     etrans. apply yy_comp_nat_trans.
     apply maponpaths, e.
   Qed.

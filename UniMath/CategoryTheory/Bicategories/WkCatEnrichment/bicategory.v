@@ -5,9 +5,9 @@ Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.equivalences.
 
-Require Import UniMath.CategoryTheory.bicategories.prebicategory.
-Require Import UniMath.CategoryTheory.bicategories.internal_equivalence.
-Require Import UniMath.CategoryTheory.bicategories.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.WkCatEnrichment.prebicategory.
+Require Import UniMath.CategoryTheory.Bicategories.WkCatEnrichment.internal_equivalence.
+Require Import UniMath.CategoryTheory.Bicategories.WkCatEnrichment.Notations.
 
 (******************************************************************************)
 (* Definition of bicategory *)

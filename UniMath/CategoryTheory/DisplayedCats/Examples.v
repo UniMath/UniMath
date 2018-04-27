@@ -249,6 +249,9 @@ Definition precat_of_elements {C : category} (P : functor C SET)
 End Elements_Disp.
 
 
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
+
 
 Section functor_algebras.
 
@@ -344,9 +347,6 @@ Proof.
       * split; apply homset_property.
 Defined.
 
-
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
 
 Local Notation "'π'" := (pr1_category disp_cat_functor_alg).
 
