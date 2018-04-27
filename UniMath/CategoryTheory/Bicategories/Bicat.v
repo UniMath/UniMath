@@ -10,9 +10,7 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
-
 Open Scope cat.
-
 
 (** * Definition of bicategory *)
 
@@ -27,8 +25,8 @@ Coercion precat_data_from_prebicat_1_id_comp_cells (C : prebicat_1_id_comp_cells
 Definition prebicat_cells (C : prebicat_1_id_comp_cells) {a b : C} (f g : C⟦a, b⟧) : UU :=
   pr2 C a b f g.
 
-Notation "f '==>' g" := (prebicat_cells _ f g) (at level 60).
-Notation "f '<==' g" := (prebicat_cells _ g f) (at level 60, only parsing).
+Local Notation "f '==>' g" := (prebicat_cells _ f g) (at level 60).
+Local Notation "f '<==' g" := (prebicat_cells _ g f) (at level 60, only parsing).
 
 Definition prebicat_2_id_comp_struct (C : prebicat_1_id_comp_cells) : UU
   :=
@@ -65,8 +63,6 @@ Definition prebicat_2_id_comp_struct (C : prebicat_1_id_comp_cells) : UU
     (* right whiskering *)
     (∏ (a b c : C) (f1 f2 : C⟦a, b⟧) (g : C⟦b, c⟧),
      f1 ==> f2 → f1 · g ==> f2 · g).
-
-
 
 Definition prebicat_data : UU := ∑ C, prebicat_2_id_comp_struct C.
 
@@ -114,10 +110,9 @@ Definition rwhisker {C : prebicat_data} {a b c : C} {f1 f2 : C⟦a, b⟧} (g : C
   : f1 ==> f2 → f1 · g ==> f2 · g
   := λ x, pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))) _ _ _ _ _ _ x.
 
-
-Notation "x • y" := (vcomp2 x y) (at level 60).
-Notation "f ◃ x" := (lwhisker f x) (at level 60). (* \tw *)
-Notation "y ▹ g" := (rwhisker g y) (at level 60). (* \tw nr 2 *)
+Local Notation "x • y" := (vcomp2 x y) (at level 60).
+Local Notation "f ◃ x" := (lwhisker f x) (at level 60). (* \tw *)
+Local Notation "y ▹ g" := (rwhisker g y) (at level 60). (* \tw nr 2 *)
 
 Definition hcomp {C : prebicat_data} {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
   : f1 ==> f2 -> g1 ==> g2 -> f1 · g1 ==> f2 · g2
@@ -127,7 +122,7 @@ Definition hcomp' {C : prebicat_data} {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 :
   : f1 ==> f2 -> g1 ==> g2 -> f1 · g1 ==> f2 · g2
   := λ x y, (f1 ◃ y) • (x ▹ g2).
 
-Notation "x ⋆ y" := (hcomp x y) (at level 50).
+Local Notation "x ⋆ y" := (hcomp x y) (at level 50).
 
 (** The numbers in the following laws refer to
     the list of axioms given in ncatlab
@@ -219,7 +214,6 @@ Definition prebicat : UU := ∑ C : prebicat_data, prebicat_laws C.
 
 Coercion prebicat_data_from_bicat (C : prebicat) : prebicat_data := pr1 C.
 Coercion prebicat_laws_from_bicat (C : prebicat) : prebicat_laws C := pr2 C.
-
 
 Section prebicat_law_projections.
 
@@ -354,9 +348,7 @@ Definition lassociator_lassociator
 
   := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))))))))))) _ _ _ _ _ f g h i.
 
-
 End prebicat_law_projections.
-
 
 (** Invertible_2cells *)
 
@@ -393,7 +385,6 @@ Definition inv_invertible_2cell {a b : C} {f g : a --> b} (η : invertible_2cell
   : invertible_2cell g f
   := (inv_cell η ,, cell_from_invertible_2cell η ,, inv_cell_after_invertible_2cell η ,, invertible_2cell_after_inv_cell η ).
 
-
 (* requires cell types to be sets
 Lemma isaprop_isinvertible_2cell
 *)
@@ -408,8 +399,6 @@ Proof.
   - apply id2_left.
   - apply id2_left.
 Defined.
-
-
 
 (* ----------------------------------------------------------------------------------- *)
 (** ** Derived laws *)
@@ -461,7 +450,6 @@ Proof.
   apply R.
 Qed.
 
-
 Lemma is_invertible_rassociator {a b c d : C}
       (f : C⟦a,b⟧) (g : C⟦b,c⟧) (h : C⟦c,d⟧)
   : is_invertible_2cell (rassociator f g h).
@@ -490,8 +478,7 @@ Proof.
   apply pathsinv0. apply vassocr.
 Defined.
 
-(* TODO: Change name like rhs_inv_cell_left *)
-Lemma cell_to_inv_cell_post {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
+Lemma lhs_right_invert_cell {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
       (z : f ==> h)
       (H : is_invertible_2cell y)
   : x = z • inv_cell (y,,H) -> x • y = z.
@@ -503,8 +490,7 @@ Proof.
   apply id2_right.
 Qed.
 
-(* TODO: Change name like rhs_inv_cell_left *)
-Lemma inv_cell_to_cell_post {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
+Lemma lhs_left_invert_cell {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
       (z : f ==> h)
       (H : is_invertible_2cell x)
   : y = inv_cell (x,,H) • z -> x • y = z.
@@ -516,7 +502,7 @@ Proof.
   apply id2_left.
 Qed.
 
-Lemma rhs_inv_cell_right {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
+Lemma rhs_right_inv_cell {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
       (z : f ==> h)
       (H : is_invertible_2cell y)
   : x • y = z -> x = z • inv_cell (y,,H).
@@ -532,7 +518,7 @@ Proof.
   apply id2_right.
 Qed.
 
-Lemma rhs_inv_cell_left {a b : C} {f g h : a --> b} (x : g ==> h) (y : f ==> g)
+Lemma rhs_left_inv_cell {a b : C} {f g h : a --> b} (x : g ==> h) (y : f ==> g)
       (z : f ==> h)
       (H : is_invertible_2cell y)
   : y • x = z -> x = inv_cell (y,,H) • z.
@@ -556,7 +542,7 @@ Lemma rassociator_to_lassociator_post {a b c d : C}
   : x = y • lassociator f g h.
 Proof.
   apply pathsinv0.
-  use cell_to_inv_cell_post.
+  use lhs_right_invert_cell.
   - apply is_invertible_lassociator.
   - cbn. exact (!p).
 Qed.
@@ -568,7 +554,7 @@ Lemma lassociator_to_rassociator_post {a b c d : C}
       (p : x = y • lassociator f g h)
   : x • rassociator f g h = y.
 Proof.
-  use cell_to_inv_cell_post.
+  use lhs_right_invert_cell.
   - apply is_invertible_rassociator.
   - exact p.
 Qed.
@@ -580,7 +566,7 @@ Lemma lassociator_to_rassociator_pre {a b c d : C}
       (p : x = lassociator f g h • y)
   : rassociator f g h • x = y.
 Proof.
-  use inv_cell_to_cell_post.
+  use lhs_left_invert_cell.
   - apply is_invertible_rassociator.
   - exact p.
 Qed.
@@ -593,7 +579,7 @@ Lemma rassociator_to_lassociator_pre {a b c d : C}
   : x = lassociator f g h • y.
 Proof.
   apply pathsinv0.
-  use inv_cell_to_cell_post.
+  use lhs_left_invert_cell.
   - apply is_invertible_lassociator.
   - exact (!p).
 Qed.
@@ -601,13 +587,12 @@ Qed.
 Lemma lunitor_lwhisker {a b c : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
   : rassociator _ _ _ • (f ◃ lunitor g) = runitor f ▹ g.
 Proof.
-  use inv_cell_to_cell_post.
+  use lhs_left_invert_cell.
   apply is_invertible_rassociator.
   cbn.
   apply pathsinv0.
   apply runitor_rwhisker.
 Qed.
-
 
 Lemma hcomp_hcomp' {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
       (η : f1 ==> f2) (φ : g1 ==> g2)
@@ -636,8 +621,6 @@ Proof.
   apply maponpaths.
   apply rwhisker_vcomp.
 Defined.
-
-
 
 Lemma is_invertible_2cell_lunitor {a b : C} (f : C ⟦ a, b ⟧)
   : is_invertible_2cell (lunitor f).
@@ -681,11 +664,11 @@ Lemma hcomp_rassoc {a b c d : C}
   : (x1 ⋆ x2) ⋆ x3 • rassociator g1 g2 g3 =
     rassociator f1 f2 f3 • x1 ⋆ (x2 ⋆ x3).
 Proof.
-  use cell_to_inv_cell_post.
+  use lhs_right_invert_cell.
   apply is_invertible_rassociator.
   etrans; [ | apply vassocr ].
   apply pathsinv0.
-  use inv_cell_to_cell_post.
+  use lhs_left_invert_cell.
   apply is_invertible_rassociator.
   apply hcomp_lassoc.
 Defined.
@@ -756,7 +739,6 @@ Proof.
         etrans; [ apply maponpaths; apply (inv_cell_after_invertible_2cell xH) |];
         apply id2_rwhisker).
 Defined.
-
 
 Definition is_invertible_2cell_lassociator {a b c d : C}
            (f1 : C ⟦ a, b ⟧) (f2 : C ⟦ b, c ⟧) (f3 : C ⟦ c, d ⟧)
@@ -870,9 +852,6 @@ Defined.
 
 End hcomp_functor.
 
-
-
-
 (** TODO:
     construct a prebicategory (see CT/bicategories) from a bicat
     Bonus:
@@ -881,7 +860,6 @@ End hcomp_functor.
 (** TODO:
     define saturation/univalence for bicats
  *)
-
 
 (** Chaotic bicat *)
 
@@ -905,7 +883,6 @@ Proof.
 Qed.
 
 End chaotic_bicat.
-
 
 Section discrete_bicat.
 
@@ -961,7 +938,6 @@ Definition discrete_prebicat : prebicat := _ ,, discrete_prebicat_laws.
 
 End discrete_bicat.
 
-
 Definition psfunctor_ob_mor_cell (C C' : prebicat_data) : UU
   := ∑ F : functor_data C C',
            ∏ a b (f g : a --> b), f ==> g → #F f ==> #F g.
@@ -974,7 +950,7 @@ Definition psfunctor_on_cells {C C' : prebicat_data} (F : psfunctor_ob_mor_cell 
   : #F f ==> #F g
   := pr2 F a b f g x.
 
-Notation "'##'" := (psfunctor_on_cells).
+Local Notation "'##'" := (psfunctor_on_cells).
 
 Definition psfunctor_cell_data {C C' : prebicat_data} (F : psfunctor_ob_mor_cell C C') : UU
   :=
@@ -988,9 +964,6 @@ Definition psfunctor_data (C C' : prebicat_data) : UU
 
 Coercion psfunctor_ob_mor_cell_from_bifunctor_data C C' (F : psfunctor_data C C')
   : psfunctor_ob_mor_cell _ _ := pr1 F.
-
-
-
 
 Definition psfunctor_id {C C' : prebicat_data} (F : psfunctor_data C C') (a : C)
   : invertible_2cell (#F (identity a)) (identity _)
@@ -1161,7 +1134,6 @@ Defined.
 
 End Associators_Unitors_Natural.
 
-
 (** ** Discrete bicategory *)
 
 Definition id2toequiv {C : prebicat} {a b : C} {f g : a --> b}
@@ -1181,3 +1153,19 @@ Proof.
   - exact (idweq _ ).
   - intro e. induction e. apply idpath.
 Qed.
+
+(* =================================================================================== *)
+(** ** Notations.                                                                      *)
+(* =================================================================================== *)
+
+Module Notations.
+
+Notation "f '==>' g" := (prebicat_cells _ f g) (at level 60).
+Notation "f '<==' g" := (prebicat_cells _ g f) (at level 60, only parsing).
+Notation "x • y" := (vcomp2 x y) (at level 60).
+Notation "f ◃ x" := (lwhisker f x) (at level 60). (* \tw *)
+Notation "y ▹ g" := (rwhisker g y) (at level 60). (* \tw nr 2 *)
+Notation "x ⋆ y" := (hcomp x y) (at level 50).
+Notation "'##'" := (psfunctor_on_cells).
+
+End Notations.

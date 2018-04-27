@@ -5,21 +5,15 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.Bicategories.Bicat.
+Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.Bicategories.DispBicat.
+Require Import UniMath.CategoryTheory.Bicategories.DispBicat. Import DispBicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Univalence.
 
 Open Scope cat.
 Open Scope mor_disp_scope.
 
 Section Displayed_Internal_Adjunction.
-
-Notation "f' ==>[ x ] g'" := (disp_2cells x f' g') (at level 60).
-Notation "f' <==[ x ] g'" := (disp_2cells x g' f') (at level 60, only parsing).
-Notation "rr •• ss" := (disp_vcomp2 rr ss) (at level 60).
-Notation "ff ◃◃ rr" := (disp_lwhisker ff rr) (at level 60).
-Notation "rr ▹▹ gg" := (disp_rwhisker gg rr) (at level 60).
 
 Context {C : bicat} {D : disp_prebicat C}.
 

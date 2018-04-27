@@ -8,14 +8,13 @@
   Benedikt Ahrens and Peter LeFanu Lumsdaine, Displayed categories
   http://dx.doi.org/10.4230/LIPIcs.FSCD.2017.5
 
-
  ********************************************************************************* *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.Bicategories.Bicat.
+Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctor.
 
 Open Scope cat.
@@ -52,9 +51,8 @@ Definition disp_2cells {D : disp_prebicat_1_id_comp_cells}
   : UU
   := pr2 D c c' f g x d d' f' g'.
 
-Notation "f' ==>[ x ] g'" := (disp_2cells x f' g') (at level 60).
-Notation "f' <==[ x ] g'" := (disp_2cells x g' f') (at level 60, only parsing).
-
+Local Notation "f' ==>[ x ] g'" := (disp_2cells x f' g') (at level 60).
+Local Notation "f' <==[ x ] g'" := (disp_2cells x g' f') (at level 60, only parsing).
 
 Definition disp_prebicat_ops (D : disp_prebicat_1_id_comp_cells) : UU
   :=
@@ -101,7 +99,6 @@ Definition disp_prebicat_ops (D : disp_prebicat_1_id_comp_cells) : UU
        (ff1 : x -->[f1] y) (ff2 : x -->[f2] y) (gg : y -->[g] z),
      ff1 ==>[r] ff2 → ff1 ;; gg ==>[ r ▹ g ] ff2 ;; gg).
 
-
 Definition disp_prebicat_data : UU
   := ∑ D : disp_prebicat_1_id_comp_cells,
            disp_prebicat_ops D.
@@ -113,7 +110,6 @@ Coercion disp_prebicat_ob_mor_cells_1_id_comp_from_disp_prebicat_data
 Coercion disp_prebicat_ops_from_disp_prebicat_data (D : disp_prebicat_data)
   : disp_prebicat_ops D
   := pr2 D.
-
 
 Section disp_prebicat_ops_projections.
 
@@ -184,9 +180,9 @@ Definition disp_rwhisker
 
 End disp_prebicat_ops_projections.
 
-Notation "rr •• ss" := (disp_vcomp2 rr ss) (at level 60).
-Notation "ff ◃◃ rr" := (disp_lwhisker ff rr) (at level 60).
-Notation "rr ▹▹ gg" := (disp_rwhisker gg rr) (at level 60).
+Local Notation "rr •• ss" := (disp_vcomp2 rr ss) (at level 60).
+Local Notation "ff ◃◃ rr" := (disp_lwhisker ff rr) (at level 60).
+Local Notation "rr ▹▹ gg" := (disp_rwhisker gg rr) (at level 60).
 
 Section disp_prebicat_laws.
 
@@ -210,7 +206,6 @@ Definition disp_vassocr_law : UU
       (ff : x -->[f] y) (gg : x -->[g] y) (hh : x -->[h] y) (kk : x -->[k] y)
       (ηη : ff ==>[η] gg) (φφ : gg ==>[φ] hh) (ψψ : hh ==>[ψ] kk),
      ηη •• (φφ •• ψψ) = transportb (λ x', _ ==>[x'] _ ) (vassocr _ _ _ ) ((ηη •• φφ) •• ψψ).
-
 
 Definition disp_lwhisker_id2_law : UU
   := ∏ (a b c : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧)
@@ -344,7 +339,6 @@ Definition disp_lassociator_lassociator_law : UU
      (ff ◃◃ disp_lassociator gg hh ii) •• disp_lassociator _ _ _ •• (disp_lassociator _ _ _ ▹▹ ii) =
      transportb (λ x', _ ==>[x'] _) (lassociator_lassociator _ _ _ _ )
                 (disp_lassociator ff gg _ •• disp_lassociator _ _ _).
-
 
 Definition disp_prebicat_laws : UU
   :=
@@ -480,7 +474,6 @@ Definition disp_rwhisker_lwhisker
                (disp_lassociator _ _ _ •• ((ff ◃◃ ηη) ▹▹ ii))
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))) _ _ _ _ _ _ _ _ _  _ _ _ _ _ _ _ _ ηη.
 
-
 Definition disp_rwhisker_rwhisker
            {a b c d : C} {f g : C⟦a, b⟧} {h : C⟦b, c⟧} (i : c --> d) (η : f ==> g)
            {w : D a} {x : D b} {y : D c} {z : D d}
@@ -489,7 +482,6 @@ Definition disp_rwhisker_rwhisker
   : disp_lassociator _ _ _ •• ((ηη ▹▹ hh) ▹▹ ii) =
     transportb (λ x', _ ==>[x'] _) (rwhisker_rwhisker _ _ _ ) ((ηη ▹▹ hh ;; ii) •• disp_lassociator _ _ _ )
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))))) _ _ _ _ _ _ _ _ _  _ _ _ _ _ _ _ _ ηη.
-
 
 Definition disp_vcomp_whisker
            {a b c : C} {f g : C⟦a, b⟧} {h i : C⟦b, c⟧}
@@ -501,7 +493,6 @@ Definition disp_vcomp_whisker
   : (ηη ▹▹ hh) •• (gg ◃◃ φφ) =
     transportb (λ x', _ ==>[x'] _) (vcomp_whisker _ _ ) ((ff ◃◃ φφ) •• (ηη ▹▹ ii))
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))))) _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ ηη φφ.
-
 
 Definition disp_lunitor_linvunitor
            {a b : C} {f : C⟦a, b⟧}
@@ -517,7 +508,6 @@ Definition disp_linvunitor_lunitor
     transportb (λ x', _ ==>[x'] _) (linvunitor_lunitor _ ) (disp_id2 _)
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))))))) _ _ _ _ _ ff.
 
-
 Definition disp_runitor_rinvunitor
            {a b : C} {f : C⟦a, b⟧}
            {x : D a} {y : D b} (ff : x -->[f] y)
@@ -525,14 +515,12 @@ Definition disp_runitor_rinvunitor
     transportb (λ x', _ ==>[x'] _) (runitor_rinvunitor _ ) (disp_id2 _ )
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))))))))) _ _ _ _ _ ff.
 
-
 Definition disp_rinvunitor_runitor
            {a b : C} {f : C⟦a, b⟧}
            {x : D a} {y : D b} (ff : x -->[f] y)
   : disp_rinvunitor ff •• disp_runitor _ =
     transportb (λ x', _ ==>[x'] _) (rinvunitor_runitor _ ) (disp_id2 _)
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))))))))) _ _ _ _ _ ff.
-
 
 Definition disp_lassociator_rassociator
            {a b c d : C} {f : C⟦a, b⟧} {g : C⟦b, c⟧} {h : c --> d}
@@ -559,7 +547,6 @@ Definition disp_runitor_rwhisker
   : disp_lassociator _ _ _ •• (disp_runitor ff ▹▹ gg) =
     transportb (λ x', _ ==>[x'] _) (runitor_rwhisker _ _ ) (ff ◃◃ disp_lunitor gg)
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))))))))))))) _ _ _ _ _ _ _ _ ff gg.
-
 
 Definition disp_lassociator_lassociator
            {a b c d e: C} {f : C⟦a, b⟧} {g : C⟦b, c⟧} {h : c --> d} {i : C⟦d, e⟧}
@@ -588,11 +575,6 @@ Proof.
   unfold vassocl.
   apply pathsinv0, pathsinv0inv0.
 Qed.
-
-
-  Notation "f' ==>[ x ] g'" := (disp_2cells x f' g') (at level 60).
-  Notation "f' <==[ x ] g'" := (disp_2cells x g' f') (at level 60, only parsing).
-  Notation "rr •• ss" := (disp_vcomp2 rr ss) (at level 60).
 
 Section Display_Invertible_2cell.
   Context {D : disp_prebicat}.
@@ -688,7 +670,7 @@ Section Display_Invertible_2cell.
     destruct ef; apply idpath.
   Qed.
 
-  Lemma disp_cell_to_inv_cell_post' {a b : C} {f g h : a --> b}
+  Lemma disp_lhs_right_invert_cell' {a b : C} {f g h : a --> b}
         {x : f ==> g} {y : invertible_2cell g h} {z : f ==> h}
         {p : x = z • inv_cell y}
         {aa : D a} {bb : D b}
@@ -699,7 +681,7 @@ Section Display_Invertible_2cell.
         (yy : gg ==>[y] hh)
         (zz : ff ==>[z] hh)
         (H : is_disp_invertible_2cell y yy)
-        (q := cell_to_inv_cell_post _ _ _ _ p)
+        (q := lhs_right_invert_cell _ _ _ _ p)
         (pp : xx = transportb (λ x, _ ==>[x] _) p (zz •• disp_inv_cell (yy,,H)))
     : xx •• yy = transportb (λ x, _ ==>[x] _) q zz.
   Proof.
@@ -721,7 +703,7 @@ Section Display_Invertible_2cell.
     apply cellset_property.
   Qed.
 
-  Lemma disp_cell_to_inv_cell_post {a b : C} {f g h : a --> b}
+  Lemma disp_lhs_right_invert_cell {a b : C} {f g h : a --> b}
         {x : f ==> g} {y : g ==> h} {z : f ==> h}
         (Hy : is_invertible_2cell y)
         {aa : D a} {bb : D b}
@@ -733,17 +715,17 @@ Section Display_Invertible_2cell.
         (zz : ff ==>[z] hh)
         (H : is_disp_invertible_2cell Hy yy)
         (q : x • y = z)
-        (p  := rhs_inv_cell_right _ _ _ Hy q : x = z • inv_cell (y,,Hy) )
+        (p  := rhs_right_inv_cell _ _ _ Hy q : x = z • inv_cell (y,,Hy) )
         (pp : xx = transportb (λ x, _ ==>[x] _) p (zz •• disp_inv_cell ((yy,,H):disp_invertible_2cell (y,,Hy) gg hh)))
     : xx •• yy = transportb (λ x, _ ==>[x] _) q zz.
   Proof.
     etrans.
-    use (disp_cell_to_inv_cell_post' _ _ _ _ pp).
+    use (disp_lhs_right_invert_cell' _ _ _ _ pp).
     apply maponpaths_2.
     apply cellset_property.
   Qed.
 
-  Lemma disp_inv_cell_to_cell_post {a b : C} {f g h : a --> b}
+  Lemma disp_lhs_left_invert_cell {a b : C} {f g h : a --> b}
         {x : f ==> g} {y : g ==> h} {z : f ==> h} {H : is_invertible_2cell x}
         {aa : D a} {bb : D b}
         {ff : aa -->[f] bb}
@@ -754,7 +736,7 @@ Section Display_Invertible_2cell.
         (zz : ff ==>[z] hh)
         (HH : is_disp_invertible_2cell H xx)
         (q :  x • y = z)
-        (p := rhs_inv_cell_left _ _ _ H q : y = inv_cell (x,,H) • z)
+        (p := rhs_left_inv_cell _ _ _ H q : y = inv_cell (x,,H) • z)
         (pp : yy = transportb
                      (λ x, _ ==>[x] _) p
                      (disp_inv_cell ((xx,,HH):disp_invertible_2cell (x,,H) ff gg) •• zz))
@@ -830,7 +812,7 @@ Lemma disp_lassociator_to_rassociator_post' {a b c d : C}
   : xx •• disp_rassociator ff gg hh = transportb (λ x, _ ==>[x] _) q (yy).
 Proof.
   etrans.
-  use disp_cell_to_inv_cell_post.
+  use disp_lhs_right_invert_cell.
   - exact y.
   - apply is_invertible_2cell_rassociator.
   - exact yy.
@@ -884,7 +866,7 @@ Lemma disp_lassociator_to_rassociator_pre {a b c d : C}
   : disp_rassociator ff gg hh •• xx = transportb (λ x, _ ==>[x] _) q (yy).
 Proof.
   etrans.
-  use disp_inv_cell_to_cell_post.
+  use disp_lhs_left_invert_cell.
   - exact y.
   - apply is_invertible_2cell_rassociator.
   - exact yy.
@@ -1154,3 +1136,19 @@ Arguments disp_prebicat_1_id_comp_cells _ : clear implicits.
 Arguments disp_prebicat_data _ : clear implicits.
 Arguments disp_prebicat _ : clear implicits.
 Arguments disp_bicat _ : clear implicits.
+
+(* =================================================================================== *)
+(** ** Notations.                                                                      *)
+(* =================================================================================== *)
+
+Module Notations.
+
+Export Bicat.Notations.
+
+Notation "f' ==>[ x ] g'" := (disp_2cells x f' g') (at level 60).
+Notation "f' <==[ x ] g'" := (disp_2cells x g' f') (at level 60, only parsing).
+Notation "rr •• ss" := (disp_vcomp2 rr ss) (at level 60).
+Notation "ff ◃◃ rr" := (disp_lwhisker ff rr) (at level 60).
+Notation "rr ▹▹ gg" := (disp_rwhisker gg rr) (at level 60).
+
+End Notations.

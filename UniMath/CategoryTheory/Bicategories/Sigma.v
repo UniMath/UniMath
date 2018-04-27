@@ -11,14 +11,11 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
-Require Import UniMath.CategoryTheory.Bicategories.Bicat.
-Require Import UniMath.CategoryTheory.Bicategories.DispBicat.
+Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.DispBicat. Import DispBicat.Notations.
 
 Open Scope cat.
 Open Scope mor_disp_scope.
-
-Notation "f' ==>[ x ] g'" := (disp_2cells x f' g') (at level 60).
-Notation "f' <==[ x ] g'" := (disp_2cells x g' f') (at level 60, only parsing).
 
 (* --------------------------------------------------------------------------------------------- *)
 (* Miscellanea.                                                                                  *)
