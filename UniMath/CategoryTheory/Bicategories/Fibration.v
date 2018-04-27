@@ -23,7 +23,7 @@ Section LocalIsoFibration.
   Notation "ff ◃◃ rr" := (lwhisker_disp ff rr) (at level 60).
   Notation "rr ▹▹ gg" := (rwhisker_disp gg rr) (at level 60).
 
-  Context {C : prebicat}.
+  Context {C : bicat}.
 
   Definition local_iso_cleaving (D : disp_prebicat C)
     : UU

@@ -34,9 +34,9 @@ Definition transportf_transpose_alt {X : UU} {P : X → UU}
 (** ** Definition of displayed bicategories.                                           *)
 (* =================================================================================== *)
 
-Section disp_bicat.
+Section disp_prebicat.
 
-Context {C : prebicat}.
+Context {C : bicat}.
 
 Definition disp_2cell_struct (D : disp_cat_ob_mor C) : UU
   := ∏ (c c' : C) (f g : C⟦c, c'⟧) (x : f ==> g)
@@ -718,8 +718,8 @@ Section Display_Invertible_2cell.
     etrans. unfold transportb. apply (transport_f_f (λ x' : f ==> h, ff ==>[ x'] hh)).
     unfold transportb.
     apply maponpaths_2.
-    admit.  (* Todo: remove this admit using homcells. *)
-  Admitted.
+    apply cellset_property.
+  Qed.
 
   Lemma disp_cell_to_inv_cell_post {a b : C} {f g h : a --> b}
         {x : f ==> g} {y : g ==> h} {z : f ==> h}
@@ -740,8 +740,8 @@ Section Display_Invertible_2cell.
     etrans.
     use (disp_cell_to_inv_cell_post' _ _ _ _ pp).
     apply maponpaths_2.
-    admit.
-  Admitted.
+    apply cellset_property.
+  Qed.
 
   Lemma disp_inv_cell_to_cell_post {a b : C} {f g h : a --> b}
         {x : f ==> g} {y : g ==> h} {z : f ==> h} {H : is_invertible_2cell x}
@@ -774,8 +774,8 @@ Section Display_Invertible_2cell.
     etrans. apply maponpaths. apply id2_disp_left.
     etrans. unfold transportb. apply (transport_f_f (λ x, _ ==>[x] _)).
     unfold transportb.
-    apply maponpaths_2. admit.
-  Admitted.
+    apply maponpaths_2. apply cellset_property.
+  Qed.
 
 End Display_Invertible_2cell.
 
@@ -838,8 +838,9 @@ Proof.
   - apply lassociator_to_rassociator_post. exact p.
   - cbn. etrans. apply pp.
     apply maponpaths_2.
-    admit.
-Admitted.
+    apply cellset_property.
+  - apply maponpaths_2. apply cellset_property.
+Qed.
 
 Lemma lassociator_to_rassociator_post_disp {a b c d : C}
       {f : C ⟦ a, b ⟧} {g : C ⟦ b, c ⟧} {h : C ⟦ c, d ⟧} {k : C ⟦ a, d ⟧}
@@ -863,8 +864,8 @@ Proof.
   - exact p.
   - exact yy.
   - exact pp.
-  - apply maponpaths_2. admit.
-Admitted.
+  - apply maponpaths_2. apply cellset_property.
+Qed.
 
 Lemma lassociator_to_rassociator_pre_disp {a b c d : C}
       {f : C ⟦ a, b ⟧} {g : C ⟦ b, c ⟧} {h : C ⟦ c, d ⟧} {k : C ⟦ a, d ⟧}
@@ -891,8 +892,10 @@ Proof.
   - apply lassociator_to_rassociator_pre. exact p.
   - cbn. etrans. apply pp.
     apply maponpaths_2.
-    admit.
-Admitted.
+    apply cellset_property.
+  - apply maponpaths_2.
+    apply cellset_property.
+Qed.
 
 Lemma lunitor_lwhisker_disp {a b c : C} {f : C⟦a, b⟧} {g : C⟦b, c⟧}
       {aa : D a} {bb : D b} {cc : D c}
@@ -914,12 +917,13 @@ Proof.
     etrans.
     apply (transport_f_f (λ x', _ ==>[x'] _)).
     apply (transportf_set (λ x', _ ==>[x'] _)).
-    admit.
-Admitted.
+    apply cellset_property.
+  - apply maponpaths_2, cellset_property.
+Qed.
 
 End Derived_Laws.
 
-Section total_bicat.
+Section total_prebicat.
 
 Variable D : disp_prebicat.
 
@@ -1045,7 +1049,7 @@ Proof.
     + apply lassociator_lassociator_disp.
 Defined.
 
-Definition total_bicat : prebicat := _ ,, total_prebicat_laws.
+Definition total_prebicat : prebicat := _ ,, total_prebicat_laws.
 
 Definition pr1_psfunctor_ob_mor_cell : psfunctor_ob_mor_cell total_prebicat_data C.
 Proof.
@@ -1108,10 +1112,45 @@ Proof.
     apply idpath.
 Qed.
 
-End total_bicat.
+End total_prebicat.
 
-End disp_bicat.
+Definition has_disp_cellset (D : disp_prebicat) : UU
+  := ∏ (a b : C) (f g : C⟦a,b⟧) (x : f ==> g)
+       (aa : D a) (bb : D b)
+       (ff : aa -->[f] bb)
+       (gg : aa -->[g] bb),
+     isaset (ff ==>[x] gg).
+
+Definition disp_bicat : UU
+  := ∑ D : disp_prebicat, has_disp_cellset D.
+
+Coercion disp_prebicat_of_disp_bicat (D : disp_bicat)
+  : disp_prebicat
+  := pr1 D.
+
+Definition disp_cellset_property (D : disp_bicat)
+  : has_disp_cellset D
+  := pr2 D.
+
+Lemma isaset_cells_total_prebicat (D : disp_bicat)
+  : isaset_cells (total_prebicat D).
+Proof.
+red.
+cbn.
+intros.
+unfold total_prebicat_cell_struct.
+apply isaset_total2.
+apply cellset_property.
+intros.
+apply disp_cellset_property.
+Qed.
+
+Definition total_bicat (D : disp_bicat) : bicat
+  := total_prebicat D,, isaset_cells_total_prebicat D.
+
+End disp_prebicat.
 
 Arguments disp_prebicat_1_id_comp_cells _ : clear implicits.
 Arguments disp_prebicat_data _ : clear implicits.
 Arguments disp_prebicat _ : clear implicits.
+Arguments disp_bicat _ : clear implicits.

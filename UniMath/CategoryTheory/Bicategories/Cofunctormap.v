@@ -35,11 +35,11 @@ Section Cofunctormaps.
 
   Variable (K : category).
 
-  Definition disp_presheaf : disp_prebicat prebicat_of_cats
-    := presheaf_disp_prebicat K.
+  Definition disp_presheaf : disp_bicat bicat_of_cats
+    := presheaf_disp_bicat K.
 
-  Definition two_disp_presheaves : disp_prebicat prebicat_of_cats
-    := dirprod_disp_prebicat disp_presheaf disp_presheaf.
+  Definition two_disp_presheaves : disp_bicat bicat_of_cats
+    := dirprod_disp_bicat disp_presheaf disp_presheaf.
 
   Definition cofunctormaps_disp_cat_ob_mor : disp_cat_ob_mor (total_bicat two_disp_presheaves).
   Proof.
@@ -94,11 +94,22 @@ Section Cofunctormaps.
     : disp_prebicat (total_bicat two_disp_presheaves)
     := cell_unit_disp_prebicat cofunctormaps_disp_cat_data.
 
-  Definition morphisms_of_preshaves : disp_prebicat prebicat_of_cats.
+  Lemma has_disp_cellset_cofunctormaps_disp_prebicat
+    : has_disp_cellset cofunctormaps_disp_prebicat.
   Proof.
-    use sigma_prebicat.
+    red; cbn; intros.
+    exact isasetunit.
+  Qed.
+
+  Definition cofunctormaps_disp_bicat
+    : disp_bicat (total_bicat two_disp_presheaves)
+    := cofunctormaps_disp_prebicat,, has_disp_cellset_cofunctormaps_disp_prebicat.
+
+  Definition morphisms_of_preshaves : disp_bicat bicat_of_cats.
+  Proof.
+    use sigma_bicat.
     apply two_disp_presheaves.
-    exact cofunctormaps_disp_prebicat.
+    exact cofunctormaps_disp_bicat.
   Defined.
 
 End Cofunctormaps.

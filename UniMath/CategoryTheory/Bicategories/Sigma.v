@@ -66,19 +66,18 @@ Proof.
   destruct e; apply idpath.
 Defined.
 
-Definition mk_total_ob {C : prebicat} {D : disp_prebicat C} {a : C} (aa : D a)
+Definition mk_total_ob {C : bicat} {D : disp_bicat C} {a : C} (aa : D a)
   : total_bicat D
   := (a,, aa).
 
-Definition mk_total_mor {C : prebicat} {D : disp_prebicat C}
+Definition mk_total_mor {C : bicat} {D : disp_bicat C}
            {a b : C} {f : C⟦a, b⟧}
            {aa : D a} {bb : D b} (ff : aa -->[f] bb)
   : mk_total_ob aa --> mk_total_ob bb
   := (f,, ff).
 
-Definition mk_total_cell  {C : prebicat} {D : disp_prebicat C}
-           {a b : C} {f g : C⟦a, b⟧}
-           {aa : D a} {bb : D b}
+Definition mk_total_cell {C : bicat} {D : disp_bicat C}
+           {a b : C} {f g : C⟦a, b⟧} {aa : D a} {bb : D b}
            {ff : aa -->[f] bb}
            {gg : aa -->[g] bb}
            (η : f ==> g)
@@ -87,9 +86,7 @@ Definition mk_total_cell  {C : prebicat} {D : disp_prebicat C}
   := (η,, ηη).
 
 (* Useful? *)
-Lemma total_cell_eq
-      {C : prebicat}
-      {D : disp_prebicat C}
+Lemma total_cell_eq {C : bicat} {D : disp_bicat C}
       {a b : C} {f g : C⟦a, b⟧} {aa : D a} {bb : D b}
       {ff : aa -->[f] bb} {gg : aa -->[g] bb}
       (x y : mk_total_mor ff ==> mk_total_mor gg)
@@ -102,9 +99,9 @@ Defined.
 
 Section Sigma.
 
-Variable C : prebicat.
-Variable D : disp_prebicat C.
-Variable E : disp_prebicat (total_bicat D).
+Variable C : bicat.
+Variable D : disp_bicat C.
+Variable E : disp_bicat (total_bicat D).
 
 Definition sigma_disp_cat_ob_mor : disp_cat_ob_mor C.
 Proof.
@@ -233,5 +230,18 @@ Qed.
 
 Definition sigma_prebicat : disp_prebicat C
   := sigma_bicat_data,, sigma_prebicat_laws.
+
+Lemma has_disp_cellset_sigma_prebicat
+  : has_disp_cellset sigma_prebicat.
+Proof.
+  red; cbn; intros.
+  apply isaset_total2.
+  - apply disp_cellset_property.
+  - intros. apply disp_cellset_property.
+Qed.
+
+Definition sigma_bicat
+  : disp_bicat C
+  := sigma_prebicat,, has_disp_cellset_sigma_prebicat.
 
 End Sigma.

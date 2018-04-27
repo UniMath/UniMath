@@ -21,7 +21,7 @@ Notation "rr •• ss" := (vcomp2_disp rr ss) (at level 60).
 Notation "ff ◃◃ rr" := (lwhisker_disp ff rr) (at level 60).
 Notation "rr ▹▹ gg" := (rwhisker_disp gg rr) (at level 60).
 
-Context {C : prebicat} {D : disp_prebicat C}.
+Context {C : bicat} {D : disp_prebicat C}.
 
 Definition disp_internal_adjunction_over {a b : C} {f : C⟦a,b⟧} {g : C⟦b,a⟧}
            (j : internal_adjunction_over f g)
@@ -245,7 +245,6 @@ Proof.
         { apply maponpaths. apply maponpaths.
           etrans; [apply rwhisker_vcomp_disp | ].
           etrans; [apply maponpaths, maponpaths, linvunitor_lunitor_disp | ].
-          Check (linvunitor_lunitor (identity a)).
           etrans.
           { apply maponpaths.
             apply disp_rwhisker_transport_left_new. }
@@ -271,7 +270,7 @@ Proof.
     cbn.
     unfold transportb.
     apply maponpaths_2.
-    admit.
+    apply cellset_property.
   - etrans.
     { apply maponpaths_2.
       etrans; [apply vassocl_disp | ].
@@ -334,7 +333,7 @@ Proof.
     cbn.
     unfold transportb.
     apply maponpaths_2.
-    admit.
-Admitted.
+    apply cellset_property.
+Qed.
 
 End Displayed_Internal_Adjunction.

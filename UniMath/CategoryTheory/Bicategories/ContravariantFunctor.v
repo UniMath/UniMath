@@ -24,8 +24,7 @@ Section fix_a_category.
 
 Variable K : category.
 
-(* Local Notation "'Set'" := hset_category. *)
-Local Notation "∁" := prebicat_of_cats.
+Local Notation "∁" := bicat_of_cats.
 
 Definition presheaf_disp_cat_ob_mor : disp_cat_ob_mor ∁.
 Proof.
@@ -51,7 +50,7 @@ Proof.
     exact (@nat_trans_comp (op_cat c) K _ _ _ T1 T2 ).
 Defined.
 
-Definition presheaf_disp_prebicat_1_id_comp_cells : disp_prebicat_1_id_comp_cells prebicat_of_cats.
+Definition presheaf_disp_prebicat_1_id_comp_cells : disp_prebicat_1_id_comp_cells bicat_of_cats.
 Proof.
   exists presheaf_disp_cat_data.
   intros c d f g a.
@@ -110,5 +109,20 @@ Qed.
 
 Definition presheaf_disp_prebicat : disp_prebicat ∁ :=
   (presheaf_disp_prebicat_data,, presheaf_disp_prebicat_laws).
+
+Lemma has_disp_cellset_presheaf_disp_prebicat
+  : has_disp_cellset presheaf_disp_prebicat.
+Proof.
+  red. intros.
+  unfold disp_2cells.
+  cbn.
+  apply isasetaprop.
+  cbn in *.
+  apply isaset_nat_trans.
+  apply homset_property.
+Qed.
+
+Definition presheaf_disp_bicat : disp_bicat ∁ :=
+  (presheaf_disp_prebicat,, has_disp_cellset_presheaf_disp_prebicat).
 
 End fix_a_category.

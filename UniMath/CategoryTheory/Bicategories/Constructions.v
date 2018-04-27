@@ -19,7 +19,7 @@ Notation "f' ==>[ x ] g'" := (disp_2cells x f' g') (at level 60).
 
 Section Disp_Prebicat_Cells_Unit.
 
-  Context {C : prebicat} (D : disp_cat_data C).
+  Context {C : bicat} (D : disp_cat_data C).
 
   Definition disp_prebicat_cells_unit
     : disp_prebicat_1_id_comp_cells C.
@@ -49,7 +49,7 @@ End Disp_Prebicat_Cells_Unit.
 
 Section FullSubBicat.
 
-  Variable C : prebicat.
+  Variable C : bicat.
   Variable P : C → UU.
 
   (** TODO: share constructions with Full_Subcat in
@@ -67,16 +67,22 @@ Section FullSubBicat.
   Definition disp_full_sub_data : disp_cat_data C
     := disp_full_sub_ob_mor,, disp_full_sub_id_comp.
 
-  Definition disp_fullsubbicat : disp_prebicat C
+  Definition disp_fullsubprebicat : disp_prebicat C
     := cell_unit_disp_prebicat disp_full_sub_data.
 
-  Definition fullsubprebicat : prebicat := total_bicat disp_fullsubbicat.
+  Definition disp_fullsubbicat : disp_bicat C.
+  Proof.
+    exists disp_fullsubprebicat.
+    red. cbn. intros. exact isasetunit.
+  Defined.
+
+  Definition fullsubprebicat : bicat := total_bicat disp_fullsubbicat.
 
 End FullSubBicat.
 
 Section dirprod.
 
-Context {C : prebicat} (D1 D2 : disp_prebicat C).
+Context {C : bicat} (D1 D2 : disp_prebicat C).
 
 (** TODO: the next three defs are the same as for 1-cats, but there
     they are not well-written
@@ -230,3 +236,12 @@ Qed.
 Definition dirprod_disp_prebicat : disp_prebicat C := _ ,, dirprod_disp_brebicat_laws.
 
 End dirprod.
+
+Definition dirprod_disp_bicat {C : bicat} (D1 D2 : disp_bicat C) : disp_bicat C.
+Proof.
+  exists (dirprod_disp_prebicat D1 D2).
+  red. cbn. intros.
+  apply isasetdirprod.
+  apply (disp_cellset_property D1).
+  apply (disp_cellset_property D2).
+Defined.
