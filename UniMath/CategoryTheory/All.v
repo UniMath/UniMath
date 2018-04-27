@@ -104,6 +104,7 @@ Require Export UniMath.CategoryTheory.GrothendieckTopos.
 Require Export UniMath.CategoryTheory.AbelianPushoutPullback.
 Require Export UniMath.CategoryTheory.PseudoElements.
 Require Export UniMath.CategoryTheory.FiveLemma.
+Require Export UniMath.CategoryTheory.set_slice_fam_equiv.
 Require Export UniMath.CategoryTheory.LatticeObject.
 Require Export UniMath.CategoryTheory.Presheaf.
 Require Export UniMath.CategoryTheory.Elements.

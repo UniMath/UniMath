@@ -118,6 +118,24 @@ Proof.
     * apply isaprop_is_iso.
 Defined.
 
+Lemma pregroupoid_hom_weq_iso_idtoiso {pgpd : pregroupoid} (a : pgpd) :
+  pregroupoid_hom_weq_iso a a (identity a) = idtoiso (idpath a).
+Proof.
+  apply subtypeEquality'.
+  - reflexivity.
+  - apply isaprop_is_iso.
+Defined.
+
+Lemma pregroupoid_hom_weq_iso_comp {pgpd : pregroupoid} {a b c : ob pgpd}
+      (f : a --> b) (g : b --> c) :
+  iso_comp (pregroupoid_hom_weq_iso _ _ f) (pregroupoid_hom_weq_iso _ _ g) =
+  (pregroupoid_hom_weq_iso _ _ (f · g)).
+Proof.
+  apply subtypeEquality'.
+  - reflexivity.
+  - apply isaprop_is_iso.
+Defined.
+
 (** If D is a groupoid, then a functor category into it is as well. *)
 Lemma is_pregroupoid_functor_cat {C : precategory} {D : category}
   (gr_D : is_pregroupoid D)

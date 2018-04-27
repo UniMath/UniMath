@@ -182,6 +182,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [AbelianPushoutPullback.v](CategoryTheory/AbelianPushoutPullback.v)
    - [PseudoElements.v](CategoryTheory/PseudoElements.v)
    - [FiveLemma.v](CategoryTheory/FiveLemma.v)
+   - [set_slice_fam_equiv.v](CategoryTheory/set_slice_fam_equiv.v)
    - [LatticeObject.v](CategoryTheory/LatticeObject.v)
    - [Presheaf.v](CategoryTheory/Presheaf.v)
    - [Elements.v](CategoryTheory/Elements.v)

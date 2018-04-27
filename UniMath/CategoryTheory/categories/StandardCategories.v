@@ -3,6 +3,7 @@
 
 - The path groupoid ([path_groupoid])
 - Discrete categories ([is_discrete])
+  - Characterization of discrete categories
 - The discrete univalent_category on n objects ([cat_n])
   - The category with one object ([unit_category])
   - The category with no objects ([empty_category])
@@ -20,6 +21,7 @@ Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Adjunctions.
+Require Import UniMath.CategoryTheory.catiso.
 
 Local Open Scope cat.
 
@@ -149,6 +151,55 @@ Proof.
   - apply id_left.
   - apply pathsinv0. apply id_right.
 Qed.
+
+(** *** Characterization of discrete categories *)
+
+(** Discrete categories are isomorphic to the path groupoid on their set of objects. *)
+
+Lemma discrete_category_iso_path_groupoid (C : discrete_category) :
+  catiso C (discrete_category_hset
+              (setcategory_objects_set (_,, discrete_category_is_setcategory C))).
+Proof.
+  use tpair.
+  - use mk_functor.
+    + use mk_functor_data.
+      * exact (idfun _).
+      * intros a b f.
+        apply isotoid.
+        -- apply univalent_category_is_univalent.
+        -- exact (@pregroupoid_hom_weq_iso C _ _ f).
+    + use dirprodpair.
+      * intros c.
+        unfold functor_on_morphisms, mk_functor_data, pr2.
+        refine (maponpaths _ (@pregroupoid_hom_weq_iso_idtoiso C c) @ _).
+        apply isotoid_idtoiso.
+      * intros a b c f g.
+        unfold functor_on_morphisms, mk_functor_data, pr2.
+        refine (_ @ isotoid_comp _ _ _ _ _ _ _).
+        apply maponpaths, pathsinv0.
+        apply (@pregroupoid_hom_weq_iso_comp C).
+  - use dirprodpair.
+    + intros a b.
+      use isweq_iso.
+      * intros f.
+        apply idtoiso.
+        assumption.
+      * intros g.
+        exact (maponpaths pr1 (idtoiso_isotoid
+                                 C _ a b (@pregroupoid_hom_weq_iso C _ _ g))).
+      * intros y.
+        cbn in *; unfold idfun in y.
+        induction y.
+        assert (H : (pr1 (idtoiso _),,
+                       dirprod_pr1 (dirprod_pr2 (pr2 C)) a a (pr1 (idtoiso (idpath a)))) =
+                    idtoiso (idpath a)).
+        -- apply subtypeEquality'.
+           ++ reflexivity.
+           ++ apply isaprop_is_iso.
+        -- refine (maponpaths _ H @ _).
+           apply isotoid_idtoiso.
+   + apply idisweq.
+Defined.
 
 (** ** The discrete univalent_category on n objects ([cat_n]) *)
 

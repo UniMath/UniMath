@@ -95,7 +95,6 @@ Morphisms.v
 ShortExactSequences.v
 AdditiveFunctors.v
 LocalizingClass.v
-DiscreteCategory.v
 UnderCategories.v
 Subobjects.v
 Quotobjects.v
