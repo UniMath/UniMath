@@ -27,7 +27,7 @@ Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.CocontFunctors.
+Require Import UniMath.CategoryTheory.Chains.All.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.yoneda.
 Require Import UniMath.CategoryTheory.categories.category_hset.
@@ -288,9 +288,6 @@ eapply pathscomp0, pathscomp0; [|apply (!h_eq1'_inst)|]; clear h_eq1'_inst.
   now rewrite id_left, assoc.
 Qed.
 
-(* produce some output to keep TRAVIS running *)
-Check bracket_Thm15_ok_part1.
-
 Lemma bracket_Thm15_ok_part2 (Z : Ptd) (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :
   (theta H) ((alg_carrier _ InitAlg) ⊗ Z) ·  # H ⦃f⦄ · τ InitAlg =
   # (pr1 (ℓ (U Z))) (τ InitAlg) · ⦃f⦄.
@@ -317,9 +314,6 @@ eapply pathscomp0, pathscomp0; [|apply (!h_eq2'_inst)|]; clear h_eq2'_inst.
 - apply BinCoproductIn2Commutes_left_in_ctx_dir.
   now rewrite id_left; apply assoc.
 Qed.
-
-(* produce some output to keep TRAVIS running *)
-Check bracket_Thm15_ok_part2.
 
 Lemma bracket_Thm15_ok (Z : Ptd) (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :
   bracket_property_parts f ⦃f⦄.
@@ -373,9 +367,6 @@ use tpair.
        became extremely slow *)
 - cbn. apply bracket_unique.
 Defined.
-
-(* produce some output to keep TRAVIS running *)
-Check bracket_for_InitAlg.
 
 Definition InitHSS : hss_precategory CP H.
 Proof.
@@ -579,13 +570,14 @@ intermediate_path (pr1 (pr1 X)).
       simpl.
       unfold coproduct_nat_trans_in2_data.
       repeat rewrite <- assoc.
-      eapply pathscomp0. Focus 2.
-        apply maponpaths.
-        apply BinCoproductIn2Commutes_right_in_ctx_dir.
-        rewrite <- assoc.
-        apply maponpaths.
-        apply BinCoproductIn2Commutes_right_dir.
-        apply idpath.
+      eapply pathscomp0.
+      2: { apply maponpaths.
+           apply BinCoproductIn2Commutes_right_in_ctx_dir.
+           rewrite <- assoc.
+           apply maponpaths.
+           apply BinCoproductIn2Commutes_right_dir.
+           apply idpath.
+      }
       do 2 rewrite assoc.
       eapply pathscomp0.
         apply cancel_postcomposition.
@@ -618,9 +610,8 @@ intermediate_path (pr1 (pr1 X)).
                  θ (tpair (λ _ : functor C C, ptd_obj C) (alg_carrier _ (InitialObject IA)) Z) ·
                  # H (# (pr1 (ℓ(U Z))) β ·
                  fbracket T' (f· ptd_from_alg_mor C hsC CP H β0)))).
-      Focus 2.
-      assert (Hyp_c := nat_trans_eq_pointwise Hyp c); clear Hyp.
-      exact Hyp_c.
+      2: { assert (Hyp_c := nat_trans_eq_pointwise Hyp c); clear Hyp.
+           exact Hyp_c. }
       clear c. clear X. clear rhohat.
       rewrite (functor_comp H).
       rewrite assoc.

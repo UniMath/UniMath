@@ -16,6 +16,7 @@ Contents :
         - morphism [f : C ⟦c, c'⟧] induces
           [functor_cComma_mor : functor (c' ↓ K) (c ↓ K)]
         - general comma precategories [comma_precategory]
+          - projection functors ([comma_pr1], [comma_pr2])
 
 ************************************************************)
 
@@ -277,5 +278,28 @@ Definition is_precategory_comma_cat_data : is_precategory comma_cat_data :=
 
 Definition comma_precategory : precategory := mk_precategory comma_cat_data is_precategory_comma_cat_data.
 
+(** ** Projection functors *)
+
+Definition comma_domain : functor comma_precategory E.
+Proof.
+  use mk_functor.
+  - use mk_functor_data.
+    + intros uvf; exact (dirprod_pr1 (pr1 uvf)).
+    + intros ? ? mor; exact (dirprod_pr1 (pr1 mor)).
+  - use dirprodpair.
+    + intro; reflexivity.
+    + intros ? ? ? ? ?; reflexivity.
+Defined.
+
+Definition comma_codomain : functor comma_precategory D.
+Proof.
+  use mk_functor.
+  - use mk_functor_data.
+    + intros uvf; exact (dirprod_pr2 (pr1 uvf)).
+    + intros ? ? mor; exact (dirprod_pr2 (pr1 mor)).
+  - use dirprodpair.
+    + intro; reflexivity.
+    + intros ? ? ? ? ?; reflexivity.
+Defined.
 
 End general_comma_precategories.

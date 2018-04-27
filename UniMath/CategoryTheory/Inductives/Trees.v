@@ -24,7 +24,7 @@ Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.CocontFunctors.
+Require Import UniMath.CategoryTheory.Chains.All.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.Inductives.Lists.
@@ -254,5 +254,4 @@ Proof.
   - exact t.
 Defined.
 
-Eval lazy in Lists.sum (flatten _ testtree).
-Eval lazy in sum testtree.
+Goal Lists.sum (flatten _ testtree) = sum testtree. reflexivity. Qed.

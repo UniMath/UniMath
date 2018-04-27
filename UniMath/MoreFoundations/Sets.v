@@ -48,3 +48,50 @@ Proof.
 Defined.
 
 Definition eqset_to_path {X:hSet} (x y:X) : eqset x y -> x = y := λ e, e.
+
+Lemma isapropiscomprelfun {X : UU} {Y : hSet} (R : hrel X) (f : X -> Y) : isaprop (iscomprelfun R f).
+Proof.
+  apply impred. intro x. apply impred. intro x'. apply impred. intro r. apply Y.
+Defined.
+
+Lemma iscomprelfun_funcomp {X Y Z : UU} {R : hrel X} {S : hrel Y}
+           {f : X → Y} {g : Y → Z} (Hf : iscomprelrelfun R S f) (Hg : iscomprelfun S g) :
+  iscomprelfun R (g ∘ f).
+Proof.
+  intros x x' r. exact (Hg _ _ (Hf x x' r)).
+Defined.
+
+Theorem setquotunivprop' {X : UU} {R : eqrel X} (P : setquot (pr1 R) -> UU)
+        (H : ∏ x, isaprop (P x)) (ps : ∏ x : X, P (setquotpr R x)) : ∏ c : setquot (pr1 R), P c.
+Proof.
+  exact (setquotunivprop R (λ x, hProppair (P x) (H x)) ps).
+Defined.
+
+Theorem setquotuniv2prop' {X : UU} {R : eqrel X} (P : setquot (pr1 R) → setquot (pr1 R) → UU)
+        (H : ∏ x1 x2, isaprop (P x1 x2))
+        (ps : ∏ x1 x2, P (setquotpr R x1) (setquotpr R x2)) : ∏ c1 c2 : setquot (pr1 R), P c1 c2.
+Proof.
+  exact (setquotuniv2prop R (λ x1 x2, hProppair (P x1 x2) (H x1 x2)) ps).
+Defined.
+
+Theorem setquotuniv3prop' {X : UU} {R : eqrel X}
+        (P : setquot (pr1 R) → setquot (pr1 R) → setquot (pr1 R) → UU)
+        (H : ∏ x1 x2 x3, isaprop (P x1 x2 x3))
+        (ps : ∏ x1 x2 x3, P (setquotpr R x1) (setquotpr R x2) (setquotpr R x3)) :
+  ∏ c1 c2 c3 : setquot (pr1 R), P c1 c2 c3.
+Proof.
+  exact (setquotuniv3prop R (λ x1 x2 x3, hProppair (P x1 x2 x3) (H x1 x2 x3)) ps).
+Defined.
+
+Theorem setquotuniv4prop' {X : UU} {R : eqrel X}
+        (P : setquot (pr1 R) → setquot (pr1 R) → setquot (pr1 R) → setquot (pr1 R) → UU)
+        (H : ∏ x1 x2 x3 x4, isaprop (P x1 x2 x3 x4))
+        (ps : ∏ x1 x2 x3 x4,
+              P (setquotpr R x1) (setquotpr R x2) (setquotpr R x3) (setquotpr R x4)) :
+  ∏ c1 c2 c3 c4 : setquot (pr1 R), P c1 c2 c3 c4.
+Proof.
+  exact (setquotuniv4prop R (λ x1 x2 x3 x4, hProppair (P x1 x2 x3 x4) (H x1 x2 x3 x4)) ps).
+Defined.
+
+Definition setcoprod (X Y : hSet) : hSet :=
+  hSetpair (X ⨿ Y) (isasetcoprod X Y (pr2 X) (pr2 Y)).

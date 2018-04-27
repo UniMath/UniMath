@@ -71,14 +71,15 @@ Proof.
       etrans. eapply (maponpaths (λ x, x · _  )). apply functor_id.
       apply id_left.
     apply (r_bind_r_eta R).
-  - etrans. Focus 2. eapply pathsinv0; apply (r_bind_r_bind R).
+  - etrans. 2: { eapply pathsinv0; apply (r_bind_r_bind R). }
     apply maponpaths.
     etrans.
     apply map_on_two_paths. apply functor_comp. apply idpath.
-    etrans. Focus 2.
-      etrans. Focus 2. apply assoc.
-      eapply pathsinv0. apply maponpaths. apply (r_eta_r_bind R).
-      apply pathsinv0, assoc.
+    etrans.
+    2: { etrans. 2: apply assoc.
+         eapply pathsinv0. apply maponpaths. apply (r_eta_r_bind R).
+    }
+    apply pathsinv0, assoc.
 Defined.
 
 End RMonad_def.

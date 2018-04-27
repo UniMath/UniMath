@@ -23,17 +23,8 @@ Section BinaryOperations.
   (* we use an extra induction step in each of the following definitions so
      we don't end up with superfluous unel factors *)
 
-  Definition iterop_list : list X -> X.
-  Proof.
-    intro k.
-    simple refine (list_ind (λ _, X) _ _ k).
-    - simpl. exact unel.
-    - intros x m _.
-      generalize x; clear x.
-      simple refine (list_ind (λ _, X -> X) _ _ m).
-      + simpl. intro x. exact x.
-      + simpl. intros y _ z x. exact (op x (z y)).
-  Defined.
+  Definition iterop_list : list X -> X :=
+    foldr1 op unel.
 
   Definition iterop_fun {n} (x:stn n->X) : X.
   Proof.
@@ -176,7 +167,7 @@ Section Monoids.
     reflexivity.
   Defined.
 
-  Definition iterop_seq_mon_step {n} (x:stn (S n) -> M) :
+  Lemma iterop_seq_mon_step {n} (x:stn (S n) -> M) :
     iterop_seq_mon (S n,,x) = iterop_seq_mon (n,,x ∘ dni lastelement) * x lastelement.
   Proof.
     intros. induction n as [|n _].
@@ -184,13 +175,23 @@ Section Monoids.
     - reflexivity.
   Defined.
 
-  Definition iterop_list_mon_step (x:M) (xs:list M) :
+  Lemma iterop_list_mon_nil : iterop_list_mon [] = 1.
+  Proof.
+    reflexivity.
+  Defined.
+
+  Lemma iterop_list_mon_step (x:M) (xs:list M) :
     iterop_list_mon (x::xs) = x * iterop_list_mon xs.
   Proof.
     intros x xs. apply iterop_list_step. apply runax.
   Defined.
 
-  Local Definition iterop_seq_mon_append (x:Sequence M) (m:M) :
+  Lemma iterop_list_mon_singleton (x : M) : iterop_list_mon (x::[]) = x.
+  Proof.
+    intro x. reflexivity.
+  Defined.
+
+  Local Lemma iterop_seq_mon_append (x:Sequence M) (m:M) :
     iterop_seq_mon (append x m) = iterop_seq_mon x * m.
   Proof.
      intros [n x] ?. unfold append. rewrite iterop_seq_mon_step.
@@ -202,7 +203,7 @@ Section Monoids.
      now rewrite append_fun_compute_1.
   Defined.
 
-  Local Definition iterop_seq_seq_mon_step {n} (x:stn (S n) -> Sequence M) :
+  Local Lemma iterop_seq_seq_mon_step {n} (x:stn (S n) -> Sequence M) :
     iterop_seq_seq_mon (S n,,x) = iterop_seq_seq_mon (n,,x ∘ dni lastelement) * iterop_seq_mon (x lastelement).
   Proof.
     intros.
@@ -244,6 +245,17 @@ End Monoids2.
 
 (** The general associativity theorem. *)
 
+Lemma iterop_list_mon_concatenate {M : monoid} (l s : list M) :
+  iterop_list_mon (Lists.concatenate l s) = iterop_list_mon l * iterop_list_mon s.
+Proof.
+  intros M l s. revert l. apply list_ind.
+  - apply pathsinv0, lunax.
+  - intros x xs J. rewrite Lists.concatenateStep.
+    unfold iterop_list_mon.
+    rewrite 2 (iterop_list_step _ _ (runax M)).
+    rewrite assocax. apply maponpaths. exact J.
+Defined.
+
 Theorem associativityOfProducts_list (M:monoid) : isAssociative_list (unel M) (@op M).
 Proof.
   (** This proof comes from the Associativity theorem, % \cite[section 1.3, Theorem 1, page 4]{BourbakiAlgebraI}. \par % *)
@@ -252,18 +264,10 @@ Proof.
   apply list_ind.
   - simpl. reflexivity.
   - intros x xs I. simpl in I.
-    rewrite Lists.flattenStep.
-    unfold iterop_list_list_mon. unfold iterop_list_list. rewrite mapStep.
+    rewrite Lists.flattenStep. refine (iterop_list_mon_concatenate _ _ @ _).
+    unfold iterop_list_list. rewrite mapStep.
     rewrite (iterop_list_step _ _ (runax M)).
-    intermediate_path (iterop_list 1 op x * iterop_list 1 op (Lists.flatten xs)).
-    + generalize (Lists.flatten xs) as y; clear xs I; intro y.
-      generalize x; clear x.
-      apply list_ind.
-      * cbn. apply pathsinv0, lunax.
-      * intros x xs J. rewrite Lists.concatenateStep.
-        rewrite 2 (iterop_list_step _ _ (runax M)).
-        rewrite assocax. apply maponpaths. exact J.
-    + apply maponpaths. exact I.
+    + apply (maponpaths (λ x, _ * x)). exact I.
 Defined.
 
 Theorem associativityOfProducts_seq (M:monoid) : isAssociative_seq (unel M) (@op M).
@@ -429,10 +433,11 @@ Defined.
 
 (** finite products (or sums) in monoids *)
 
-Section NatCard.
 
   Require Export UniMath.Combinatorics.FiniteSets.
   Require Export UniMath.Foundations.NaturalNumbers.
+
+Section NatCard.
 
   (** first a toy warm-up with addition in nat, based on cardinalities of standard finite sets *)
 
@@ -453,7 +458,7 @@ Section NatCard.
   Defined.
 
   Corollary nat_plus_associativity' n (m:stn n->nat) (k:∏ i, stn (m i) -> nat) :
-    stnsum (λ i, stnsum (k i)) = stnsum (uncurry k ∘ lexicalEnumeration m).
+    stnsum (λ i, stnsum (k i)) = stnsum (uncurry (Z := λ _,_) k ∘ lexicalEnumeration m).
   Proof. intros. exact (nat_plus_associativity (uncurry k)). Defined.
 
   Lemma iterop_fun_nat {n:nat} (x:stn n->nat) : iterop_fun 0 add x = stnsum x.
@@ -561,14 +566,14 @@ Proof.
   intros G. exact (iterop_unoseq_mon (M:=G)).
 Defined.
 
-Definition sum_unoseq_rng {R:rng} : MultipleOperation R.
+Definition sum_unoseq_ring {R:ring} : MultipleOperation R.
 Proof.
   intros R. exact (iterop_unoseq_mon (M:=R)).
 Defined.
 
-Definition product_unoseq_rng {R:commrng} : MultipleOperation R.
+Definition product_unoseq_ring {R:commring} : MultipleOperation R.
 Proof.
-  intros R. exact (iterop_unoseq_mon (M:=rngmultabmonoid R)).
+  intros R. exact (iterop_unoseq_mon (M:=ringmultabmonoid R)).
 Defined.
 
 Definition iterop_unoseq_unoseq_mon {M:abmonoid} : UnorderedSequence (UnorderedSequence M) -> M.

@@ -441,22 +441,22 @@ Proof.
   destruct A as [[[Ao Am] [Ai Ac]] Aax].
   destruct B as [[[Bo Bm] [Bi Bc]] Bax].
 
-  eapply total2_paths_b. Unshelve. Focus 2. simpl.
-  - exact (catiso_to_precategory_ob_mor_path F).
-  - apply pathsinv0.
-    eapply pathscomp0.
-    apply (transportb_dirprod _ _ _ _ _ (catiso_to_precategory_ob_mor_path F)).
-    apply dirprodeq.
-    + apply funextsec.
-      intros a.
-      apply (catiso_to_precategory_id_path F).
-    + apply funextsec.
-      intro.
-      apply funextsec.
-      intro.
-      apply funextsec.
-      intro.
-      apply (catiso_to_precategory_comp_path F).
+  eapply total2_paths_b. Unshelve.
+  2: { simpl. exact (catiso_to_precategory_ob_mor_path F). }
+  apply pathsinv0.
+  eapply pathscomp0.
+  apply (transportb_dirprod _ _ _ _ _ (catiso_to_precategory_ob_mor_path F)).
+  apply dirprodeq.
+  - apply funextsec.
+    intros a.
+    apply (catiso_to_precategory_id_path F).
+  - apply funextsec.
+    intro.
+    apply funextsec.
+    intro.
+    apply funextsec.
+    intro.
+    apply (catiso_to_precategory_comp_path F).
 Defined.
 
 Lemma catiso_to_precategory_path {A B : precategory}
@@ -464,9 +464,9 @@ Lemma catiso_to_precategory_path {A B : precategory}
   (F : catiso A B)
   : A = B.
 Proof.
-  eapply total2_paths_b. Unshelve. Focus 2. simpl.
-  - exact (catiso_to_precategory_data_path F).
-  - apply proofirrelevance.
-    apply isaprop_is_precategory.
-    apply hs.
+  eapply total2_paths_b. Unshelve.
+  2: { simpl. exact (catiso_to_precategory_data_path F). }
+  apply proofirrelevance.
+  apply isaprop_is_precategory.
+  apply hs.
 Defined.

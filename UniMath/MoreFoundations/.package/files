@@ -1,4 +1,5 @@
 Foundations.v
+WeakEquivalences.v
 Tactics.v
 Notations.v
 AlternativeProofs.v
@@ -10,4 +11,4 @@ Subtypes.v
 AxiomOfChoice.v
 StructureIdentity.v
 PartA.v
-All.v
+Univalence.v

@@ -1616,8 +1616,8 @@ Definition isarchNonnegativeRationals :
   isarchrig gtNonnegativeRationals.
 Proof.
   set (H := isarchhq).
-  apply isarchfld_isarchrng in H.
-  apply isarchrng_isarchrig in H.
+  apply isarchfld_isarchring in H.
+  apply isarchring_isarchrig in H.
   assert (∏ n, pr1 (nattorig (X := pr1 (CommDivRig_DivRig NonnegativeRationals)) n) = nattorig (X := pr1fld hq) n).
   { induction n as [|n IHn].
     - reflexivity.
@@ -1648,9 +1648,9 @@ Proof.
     generalize (pr2 n) ; intros Hn.
     rewrite <- X in Hn.
     exact Hn.
-  - exact isrngaddhzgth.
-  - exact isrngaddhzgth.
-  - exact isrngmulthqgth.
+  - exact isringaddhzgth.
+  - exact isringaddhzgth.
+  - exact isringmulthqgth.
   - exact isirreflhqgth.
 Qed.
 

@@ -42,10 +42,11 @@ Citing UniMath
 To cite UniMath in your article, you can use the following bibtex item:
 ```bibtex
 @Misc{UniMath,
-   author = {Voevodsky, Vladimir and Ahrens, Benedikt and Grayson, Daniel and others},
-   title = {{\em UniMath}: {Univalent} {Mathematics}},
-   howpublished = {Available at \url{https://github.com/UniMath}}
-}
+    author = {Voevodsky, Vladimir and Ahrens, Benedikt and Grayson, Daniel and others},
+    title = {{UniMath --- a computer-checked library of univalent mathematics}},
+    url = {https://github.com/UniMath/UniMath},
+    howpublished = {{available} at \url{https://github.com/UniMath/UniMath}}
+ }
 ```
 Note that this requires ```\usepackage{url}``` or ```\usepackage{hyperref}```.
 
@@ -53,7 +54,15 @@ Note that this requires ```\usepackage{url}``` or ```\usepackage{hyperref}```.
 The UniMath Development Team
 ----------------------------
 
-The members of the UniMath Development Team are 
-- Vladimir Voevodsky, 
-- Benedikt Ahrens, and 
-- Daniel Grayson.
+The UniMath project was started in 2014 by merging the repository
+[Foundations](https://github.com/UniMath/Foundations), by Vladimir Voevodsky
+(written in 2010), with two repositories based on it:
+[rezk_completion](https://github.com/benediktahrens/rezk_completion), by
+Benedikt Ahrens, and [Ktheory](https://github.com/DanGrayson/Ktheory), by
+Daniel Grayson.  Vladimir Voevodsky was a member of the team until his death in
+September, 2017.
+
+The current members of the UniMath Development Team are:
+
+- Benedikt Ahrens
+- Daniel Grayson

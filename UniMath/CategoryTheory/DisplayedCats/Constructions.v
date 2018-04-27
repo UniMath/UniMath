@@ -360,7 +360,7 @@ Proof.
     + abstract ( etrans;
         [ apply iso_disp_after_inv_mor
         | apply pathsinv0, pr1_transportf_sigma_disp]).
-    + etrans. Focus 2. apply @pathsinv0, pr2_transportf_sigma_disp.
+    + etrans. 2: apply @pathsinv0, pr2_transportf_sigma_disp.
       etrans. apply maponpaths.
         use (mor_disp_transportf_postwhisker
           (@inv_mor_total_iso _ _ (_,,_) (_,,_) f ffi) _ (pr2 fff)).
@@ -373,7 +373,7 @@ Proof.
     + abstract ( etrans;
         [ apply inv_mor_after_iso_disp
         | apply pathsinv0, pr1_transportf_sigma_disp ]).
-    + etrans. Focus 2. apply @pathsinv0, pr2_transportf_sigma_disp.
+    + etrans. 2: apply @pathsinv0, pr2_transportf_sigma_disp.
       etrans. apply maponpaths.
       use (mor_disp_transportf_prewhisker
         (@inv_mor_total_iso _ _ (_,,_) (_,,_) f ffi) (pr2 fff) _).
@@ -498,7 +498,7 @@ Variable D : disp_cat C.
 
 Let FunctorsC'C := functor_category C' C.
 
-Lemma foo
+Lemma disp_nat_trans_transportf
   (F' F : functor C' C)
   (a' a : nat_trans F' F)
   (p : a' = a )
@@ -536,7 +536,7 @@ Proof.
   apply funextsec; intro c'.
   apply funextsec; intro xx'.
   apply pathsinv0.
-  etrans. apply foo.
+  etrans. apply disp_nat_trans_transportf.
   apply pathsinv0.
   etrans. apply id_left_disp.
   unfold transportb.
@@ -560,7 +560,7 @@ Proof.
   apply funextsec; intro c'.
   apply funextsec; intro xx'.
   apply pathsinv0.
-  etrans. apply foo.
+  etrans. apply disp_nat_trans_transportf.
   apply pathsinv0.
   etrans. apply id_right_disp.
   unfold transportb.
@@ -590,7 +590,7 @@ Proof.
   apply funextsec; intro c'.
   apply funextsec; intro xx'.
   apply pathsinv0.
-  etrans. apply foo.
+  etrans. apply disp_nat_trans_transportf.
   apply pathsinv0.
   etrans. apply assoc_disp.
   unfold transportb.
@@ -690,7 +690,7 @@ Proof.
       apply pathsinv0.
       etrans. apply XRT'.
       clear XRT' XRT XR.
-      assert (XR := foo).
+      assert (XR := disp_nat_trans_transportf).
       specialize (XR _ _ _ _ (! iso_after_iso_inv f)).
       etrans. apply XR.
       apply maponpaths_2, homset_property.
@@ -703,7 +703,7 @@ Proof.
       apply pathsinv0.
       etrans. apply XRT'.
       clear XRT' XRT XR.
-      assert (XR := foo).
+      assert (XR := disp_nat_trans_transportf).
       specialize (XR _ _ _ _ (! iso_inv_after_iso f)).
       etrans. apply XR.
       apply maponpaths_2, homset_property.
@@ -833,7 +833,7 @@ Proof.
       apply funextsec; intro c'.
       apply funextsec; intro xx'.
       apply pathsinv0.
-      etrans. apply foo.
+      etrans. apply disp_nat_trans_transportf.
       cbn.
       apply pathsinv0.
       etrans. apply mor_disp_transportf_postwhisker.
@@ -845,7 +845,7 @@ Proof.
       apply funextsec; intro c'.
       apply funextsec; intro xx'.
       apply pathsinv0.
-      etrans. apply foo.
+      etrans. apply disp_nat_trans_transportf.
       cbn.
       apply pathsinv0.
       etrans. apply mor_disp_transportf_prewhisker.

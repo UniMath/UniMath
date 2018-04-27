@@ -173,19 +173,13 @@ Notation "g ∘ f" := (funcomp f g) : functions.
 (** back and forth between functions of pairs and functions returning
   functions *)
 
-Definition curry {X Z : UU} {Y : X -> UU} (f : (∑ x : X, Y x) -> Z) :
-  ∏ x, Y x -> Z.
-Proof.
-  intros ? ? ? ? ? y.
-  exact (f (x,,y)).
-Defined.
+Definition curry {X : UU} {Y : X -> UU} {Z : (∑ x, Y x) -> UU}
+           (f : ∏ p, Z p) : (∏ x : X, ∏ y : Y x, Z (x,, y)) :=
+  λ x y, f (x,, y).
 
-Definition uncurry {X Z : UU} {Y : X -> UU} (g : ∏ x : X, Y x -> Z) :
-  (∑ x, Y x) -> Z.
-Proof.
-  intros ? ? ? ? xy.
-  exact (g (pr1 xy) (pr2 xy)).
-Defined.
+Definition uncurry {X : UU} {Y : X -> UU} {Z : (∑ x, Y x) -> UU}
+           (g : ∏ x : X, ∏ y : Y x, Z (x,, y)) : (∏ p, Z p) :=
+  λ x, g (pr1 x) (pr2 x).
 
 (** *** Definition of binary operation *)
 
@@ -343,7 +337,6 @@ Lemma curry_uncurry {X Z : UU} {Y : X -> UU} (g : ∏ x : X, Y x -> Z) :
 Proof.
   intros. apply idpath.
 Defined.
-
 
 (** *** Composition of paths and inverse paths *)
 
@@ -638,8 +631,8 @@ Definition transportf_eq {X : UU} (P : X -> UU) {x x' : X} (e : x = x') ( p : P 
 Definition transportb {X : UU} (P : X -> UU) {x x' : X}
            (e : x = x') : P x' -> P x := transportf P (!e).
 
-Notation "p #  x" := (transportf _ p x) : transport.
-Notation "p #' x" := (transportb _ p x) : transport.
+Notation "p #  x" := (transportf _ p x) (only parsing) : transport.
+Notation "p #' x" := (transportb _ p x) (only parsing) : transport.
 Delimit Scope transport with transport.
 
 Definition idpath_transportf {X : UU} (P : X -> UU) {x : X} (p : P x) :

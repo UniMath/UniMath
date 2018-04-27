@@ -45,7 +45,8 @@ Definition constprod_functor2 (a : C) : functor C C :=
 
 Definition is_exponentiable (a : C) : UU := is_left_adjoint (constprod_functor1 a).
 
-Definition has_exponentials : UU := ∏ (a : C), is_exponentiable a.
+Definition Exponentials : UU := ∏ (a : C), is_exponentiable a.
+Definition hasExponentials : UU := ∏ (a : C), ∥ is_exponentiable a ∥.
 
 Definition nat_trans_constprod_functor1 (a : C) :
   nat_trans (constprod_functor1 a) (constprod_functor2 a).

@@ -8,6 +8,7 @@ ConstructiveStructures.v
 Archimedean.v
 Lattice.v
 IteratedBinaryOperations.v
+Free_Monoids_and_Groups.v
 Tests.v
 Modules/Core.v
 Modules/Submodule.v

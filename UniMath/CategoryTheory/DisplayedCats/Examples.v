@@ -249,6 +249,9 @@ Definition precat_of_elements {C : category} (P : functor C SET)
 End Elements_Disp.
 
 
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.limits.graphs.limits.
+
 
 Section functor_algebras.
 
@@ -344,9 +347,6 @@ Proof.
       * split; apply homset_property.
 Defined.
 
-
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.limits.graphs.limits.
 
 Local Notation "'π'" := (pr1_category disp_cat_functor_alg).
 
@@ -516,10 +516,10 @@ Proof.
   - apply id_left.
   - etrans. apply id_right.
     apply pathsinv0. unfold mor_disp. cbn.
-    apply transportf_const.
+    apply (eqtohomot (transportf_const _ _)).
   - etrans. apply assoc.
     apply pathsinv0. unfold mor_disp. cbn.
-    apply transportf_const.
+    apply (eqtohomot (transportf_const _ _)).
   - apply homset_property.
 Qed.
 
@@ -558,11 +558,11 @@ Proof.
       cbn in xx.
       unfold mor_disp. cbn.
       etrans. eapply pathsinv0. apply id_right.
-      apply maponpaths. apply pathsinv0.
-      apply transportf_const.
+      apply maponpaths, pathsinv0.
+      apply (eqtohomot (transportf_const _ _)).
     + cbn in *.
       unfold mor_disp. cbn.
-      etrans. apply maponpaths. apply transportf_const.
+      etrans. apply maponpaths, (eqtohomot (transportf_const _ _)).
       etrans. apply assoc.
       etrans. apply maponpaths_2. apply X.
       etrans. eapply pathsinv0, assoc.
@@ -612,15 +612,15 @@ Proof.
   repeat split; intros; cbn.
   - etrans. apply id_left.
     apply pathsinv0.
-    etrans. unfold mor_disp. cbn. apply transportf_const.
+    etrans. unfold mor_disp. cbn. apply (eqtohomot (transportf_const _ _)).
     apply idpath.
   - etrans. apply id_right.
     apply pathsinv0.
-    etrans. unfold mor_disp. cbn. apply transportf_const.
+    etrans. unfold mor_disp. cbn. apply (eqtohomot (transportf_const _ _)).
     apply idpath.
   - etrans. apply assoc.
     apply pathsinv0.
-    etrans. unfold mor_disp. cbn. apply transportf_const.
+    etrans. unfold mor_disp. cbn. apply (eqtohomot (transportf_const _ _)).
     apply idpath.
   - apply homset_property.
 Qed.

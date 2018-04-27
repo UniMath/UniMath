@@ -55,7 +55,7 @@ Proof.
     { apply eq_iso. cbn. simpl. unfold precomp_with.
       etrans. apply maponpaths_2. apply id_right.
       etrans. eapply pathsinv0. apply functor_comp.
-      etrans. Focus 2. apply functor_id.
+      etrans. 2: apply functor_id.
       apply maponpaths. apply iso_after_iso_inv.
    }
     set (XRT := transportf (λ r, iso_disp r (FF x dd) yy )
@@ -544,7 +544,7 @@ Proof.
     etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
     etrans. apply transport_f_f.
     unfold FFffinv'; clear FFffinv'.
-    etrans. apply maponpaths. eapply maponpaths_2. apply transportf_const.
+    etrans. apply maponpaths. eapply maponpaths_2. apply (eqtohomot (transportf_const _ _)).
     etrans. apply maponpaths. unfold FFffinv. apply (iso_disp_after_inv_mor isiso).
     etrans. apply transport_f_f.
     apply pathsinv0.
@@ -559,7 +559,7 @@ Proof.
         etrans. apply maponpaths. apply mor_disp_transportf_prewhisker.
     etrans. apply transport_f_f.
     unfold FFffinv'; clear FFffinv'.
-    etrans. apply maponpaths. eapply maponpaths. apply transportf_const.
+    etrans. apply maponpaths. eapply maponpaths. apply (eqtohomot (transportf_const _ _)).
     etrans. apply maponpaths. unfold FFffinv. apply (inv_mor_after_iso_disp isiso).
     etrans. apply transport_f_f.
     apply pathsinv0.
