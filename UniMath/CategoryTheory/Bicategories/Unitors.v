@@ -1,5 +1,5 @@
 (* ******************************************************************************* *)
-(** * Displayed bicategories
+(** * Bicategories
     Benedikt Ahrens, Marco Maggesi
     April 2018
 
@@ -23,6 +23,20 @@ Open Scope mor_disp_scope.
 Section auxiliary.
 
 Context {C : prebicat}.
+
+
+Lemma cell_id_if_inv_cell_id {a b : C} {f g : C ⟦a, b⟧} (x y : f ==> g)
+      (hx : is_invertible_2cell x) (hy : is_invertible_2cell y)
+  : inv_invertible_2cell (x,,hx) = inv_invertible_2cell (y,,hy) → x = y.
+Proof.
+  intro H.
+  set (P:= (inv_invertible_2cell (inv_invertible_2cell (x,,hx)))).
+  intermediate_path (pr1 P).
+  { apply idpath. }
+  unfold P.
+  rewrite H.
+  apply idpath.
+Qed.
 
 (* rwhisker_lwhisker
 (∏ (a b c d : C) (f : C⟦a, b⟧) (g h : C⟦b, c⟧) (i : c --> d) (x : g ==> h),
@@ -118,9 +132,23 @@ Proof.
   (** distribute the whiskering *)
   etrans. apply maponpaths. apply maponpaths. apply pathsinv0, lwhisker_vcomp.
 
+  (** remove trailing lunitor *)
 
-  admit.
+  Search ( _ • _ • _ ).
+
+  etrans. apply vassocr.
+  etrans. apply vassocr.
+
+  apply pathsinv0.
+  etrans. apply vassocr.
+  apply maponpaths_2.
+
+  (** turn the rassociators into lassociators *)
+
+  use cell_id_if_inv_cell_id.
 Admitted.
+
+
 
 Lemma rwhisker_id_inj {a b : C} (f g : C⟦a, b⟧)
       (x y : f  ==> g)
