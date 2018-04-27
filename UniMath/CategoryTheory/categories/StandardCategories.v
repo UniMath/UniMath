@@ -169,35 +169,16 @@ Proof.
         -- apply univalent_category_is_univalent.
         -- exact (@pregroupoid_hom_weq_iso C _ _ f).
     + use dirprodpair.
-      * intros c.
-        unfold functor_on_morphisms, mk_functor_data, pr2.
-        refine (maponpaths _ (@pregroupoid_hom_weq_iso_idtoiso C c) @ _).
-        apply isotoid_idtoiso.
-      * intros a b c f g.
-        unfold functor_on_morphisms, mk_functor_data, pr2.
-        refine (_ @ isotoid_comp _ _ _ _ _ _ _).
-        apply maponpaths, pathsinv0.
-        apply (@pregroupoid_hom_weq_iso_comp C).
+      * intro; apply setproperty.
+      * intros ? ? ? ? ?; apply setproperty.
   - use dirprodpair.
     + intros a b.
       use isweq_iso.
       * intros f.
         apply idtoiso.
         assumption.
-      * intros g.
-        exact (maponpaths pr1 (idtoiso_isotoid
-                                 C _ a b (@pregroupoid_hom_weq_iso C _ _ g))).
-      * intros y.
-        cbn in *; unfold idfun in y.
-        induction y.
-        assert (H : (pr1 (idtoiso _),,
-                       dirprod_pr1 (dirprod_pr2 (pr2 C)) a a (pr1 (idtoiso (idpath a)))) =
-                    idtoiso (idpath a)).
-        -- apply subtypeEquality'.
-           ++ reflexivity.
-           ++ apply isaprop_is_iso.
-        -- refine (maponpaths _ H @ _).
-           apply isotoid_idtoiso.
+      * intro; apply discrete_category_hom_prop.
+      * intro; apply setproperty.
    + apply idisweq.
 Defined.
 
