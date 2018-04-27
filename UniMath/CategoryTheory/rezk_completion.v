@@ -30,7 +30,8 @@ Local Open Scope cat.
 Require Import UniMath.CategoryTheory.categories.category_hset.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.yoneda.
-Require Import UniMath.CategoryTheory.sub_precategories.
+Require Import UniMath.CategoryTheory.Subcategory.Core.
+Require Import UniMath.CategoryTheory.Subcategory.Full.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.precomp_fully_faithful.

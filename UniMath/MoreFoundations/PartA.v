@@ -39,10 +39,10 @@ Lemma transportf_comp_lemma (X : UU) (B : X -> UU) {A A' A'': X} (e : A = A'') (
   -> transportf _ e x = transportf _ e' x'.
 Proof.
   intro H.
-  eapply pathscomp0. Focus 2.
-    apply maponpaths. exact H.
-  eapply pathscomp0. Focus 2.
-    symmetry. apply transport_f_f.
+  eapply pathscomp0.
+  2: { apply maponpaths. exact H. }
+  eapply pathscomp0.
+  2: { symmetry. apply transport_f_f. }
   apply (maponpaths (λ p, transportf _ p x)).
   apply pathsinv0.
   eapply pathscomp0.
@@ -178,3 +178,17 @@ Defined.
 Definition dirprodoffun {X Y X' Y' : UU} (f : X → X') (g : Y → Y') :
   (X × Y) → (X' × Y') :=
   prodtofuntoprod (dirprodpair (f ∘ dirprod_pr1) (g ∘ dirprod_pr2))%functions.
+
+(** The subtypes of a type of hlevel S n are also of hlevel S n.
+    This doesn't work for types of hlevel 0: a subtype of a contractible
+    type might be empty, not contractible! *)
+Lemma isofhlevel_hsubtype {X : UU} {n : nat} (isof : isofhlevel (S n) X) :
+  ∏ subt : hsubtype X, isofhlevel (S n) subt.
+Proof.
+  intros subt.
+  apply isofhleveltotal2.
+  - assumption.
+  - intro.
+    apply isofhlevelsnprop.
+    apply propproperty.
+Defined.

@@ -170,7 +170,13 @@ describe:; git describe --dirty --long --always --abbrev=40 --all
 	echo '# End:' ;\
 	) >$@
 # the '' above prevents emacs from mistaking the lines above as providing local variables when visiting this file
-build/CoqMakefile.make .coq_makefile_output.conf: $(COQBIN)coq_makefile .coq_makefile_input
+
+ifdef COQBIN
+build/CoqMakefile.make .coq_makefile_output.conf: $(COQBIN)coq_makefile
+else
+build/CoqMakefile.make .coq_makefile_output.conf: $(shell command -v coq_makefile)
+endif
+build/CoqMakefile.make .coq_makefile_output.conf: .coq_makefile_input
 	$(COQBIN)coq_makefile -f .coq_makefile_input -o .coq_makefile_output
 	mv .coq_makefile_output build/CoqMakefile.make
 
@@ -193,7 +199,7 @@ sub/coq/configure.ml:
 	git submodule update --init sub/coq
 sub/coq/config/coq_config.ml: sub/coq/configure.ml
 	: making $@ because of $?
-	cd sub/coq && ./configure -coqide "$(COQIDE_OPTION)" -with-doc no -annotate -debug -local
+	cd sub/coq && ./configure -coqide "$(COQIDE_OPTION)" -with-doc no -annotate -local
 # instead of "coqlight" below, we could use simply "theories/Init/Prelude.vo"
 sub/coq/bin/coq_makefile sub/coq/bin/coqc: sub/coq/config/coq_config.ml
 .PHONY: rebuild-coq

@@ -157,8 +157,7 @@ Proof.
     eapply pathscomp0.
 (*    match goal with |[ H :  ?f = _ |- _ ] => transitivity f end. *)
 (*    etransitivity. *)
-    Focus 2.
-      apply T.
+    2: apply T.
 (*  unfold θ_target_mor. simpl. *)
     clear T.
     apply maponpaths.
@@ -273,7 +272,7 @@ Proof.
   assert (functor_comp_H_c := nat_trans_eq_pointwise functor_comp_H c).
   simpl in functor_comp_H_c.
   eapply pathscomp0.
-    Focus 2. apply functor_comp_H_c.
+  2: apply functor_comp_H_c.
   clear functor_comp_H functor_comp_H_c.
   revert c.
   apply nat_trans_eq_pointwise.
