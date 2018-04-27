@@ -133,9 +133,6 @@ Proof.
   etrans. apply maponpaths. apply maponpaths. apply pathsinv0, lwhisker_vcomp.
 
   (** remove trailing lunitor *)
-
-  Search ( _ • _ • _ ).
-
   etrans. apply vassocr.
   etrans. apply vassocr.
 

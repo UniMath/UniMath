@@ -688,7 +688,7 @@ Section Display_Invertible_2cell.
     destruct ef; apply idpath.
   Qed.
 
-  Lemma disp_cell_to_inv_cell_post' {a b : C} {f g h : a --> b}
+  Lemma disp_lhs_right_invert_cell' {a b : C} {f g h : a --> b}
         {x : f ==> g} {y : invertible_2cell g h} {z : f ==> h}
         {p : x = z • inv_cell y}
         {aa : D a} {bb : D b}
@@ -699,7 +699,7 @@ Section Display_Invertible_2cell.
         (yy : gg ==>[y] hh)
         (zz : ff ==>[z] hh)
         (H : is_disp_invertible_2cell y yy)
-        (q := cell_to_inv_cell_post _ _ _ _ p)
+        (q := lhs_right_invert_cell _ _ _ _ p)
         (pp : xx = transportb (λ x, _ ==>[x] _) p (zz •• disp_inv_cell (yy,,H)))
     : xx •• yy = transportb (λ x, _ ==>[x] _) q zz.
   Proof.
@@ -721,7 +721,7 @@ Section Display_Invertible_2cell.
     apply cellset_property.
   Qed.
 
-  Lemma disp_cell_to_inv_cell_post {a b : C} {f g h : a --> b}
+  Lemma disp_lhs_right_invert_cell {a b : C} {f g h : a --> b}
         {x : f ==> g} {y : g ==> h} {z : f ==> h}
         (Hy : is_invertible_2cell y)
         {aa : D a} {bb : D b}
@@ -733,17 +733,17 @@ Section Display_Invertible_2cell.
         (zz : ff ==>[z] hh)
         (H : is_disp_invertible_2cell Hy yy)
         (q : x • y = z)
-        (p  := rhs_inv_cell_right _ _ _ Hy q : x = z • inv_cell (y,,Hy) )
+        (p  := rhs_right_inv_cell _ _ _ Hy q : x = z • inv_cell (y,,Hy) )
         (pp : xx = transportb (λ x, _ ==>[x] _) p (zz •• disp_inv_cell ((yy,,H):disp_invertible_2cell (y,,Hy) gg hh)))
     : xx •• yy = transportb (λ x, _ ==>[x] _) q zz.
   Proof.
     etrans.
-    use (disp_cell_to_inv_cell_post' _ _ _ _ pp).
+    use (disp_lhs_right_invert_cell' _ _ _ _ pp).
     apply maponpaths_2.
     apply cellset_property.
   Qed.
 
-  Lemma disp_inv_cell_to_cell_post {a b : C} {f g h : a --> b}
+  Lemma disp_lhs_left_invert_cell {a b : C} {f g h : a --> b}
         {x : f ==> g} {y : g ==> h} {z : f ==> h} {H : is_invertible_2cell x}
         {aa : D a} {bb : D b}
         {ff : aa -->[f] bb}
@@ -754,7 +754,7 @@ Section Display_Invertible_2cell.
         (zz : ff ==>[z] hh)
         (HH : is_disp_invertible_2cell H xx)
         (q :  x • y = z)
-        (p := rhs_inv_cell_left _ _ _ H q : y = inv_cell (x,,H) • z)
+        (p := rhs_left_inv_cell _ _ _ H q : y = inv_cell (x,,H) • z)
         (pp : yy = transportb
                      (λ x, _ ==>[x] _) p
                      (disp_inv_cell ((xx,,HH):disp_invertible_2cell (x,,H) ff gg) •• zz))
@@ -830,7 +830,7 @@ Lemma disp_lassociator_to_rassociator_post' {a b c d : C}
   : xx •• disp_rassociator ff gg hh = transportb (λ x, _ ==>[x] _) q (yy).
 Proof.
   etrans.
-  use disp_cell_to_inv_cell_post.
+  use disp_lhs_right_invert_cell.
   - exact y.
   - apply is_invertible_2cell_rassociator.
   - exact yy.
@@ -884,7 +884,7 @@ Lemma disp_lassociator_to_rassociator_pre {a b c d : C}
   : disp_rassociator ff gg hh •• xx = transportb (λ x, _ ==>[x] _) q (yy).
 Proof.
   etrans.
-  use disp_inv_cell_to_cell_post.
+  use disp_lhs_left_invert_cell.
   - exact y.
   - apply is_invertible_2cell_rassociator.
   - exact yy.
