@@ -17,9 +17,9 @@ Section Displayed_Internal_Adjunction.
 
 Notation "f' ==>[ x ] g'" := (disp_2cells x f' g') (at level 60).
 Notation "f' <==[ x ] g'" := (disp_2cells x g' f') (at level 60, only parsing).
-Notation "rr •• ss" := (vcomp2_disp rr ss) (at level 60).
-Notation "ff ◃◃ rr" := (lwhisker_disp ff rr) (at level 60).
-Notation "rr ▹▹ gg" := (rwhisker_disp gg rr) (at level 60).
+Notation "rr •• ss" := (disp_vcomp2 rr ss) (at level 60).
+Notation "ff ◃◃ rr" := (disp_lwhisker ff rr) (at level 60).
+Notation "rr ▹▹ gg" := (disp_rwhisker gg rr) (at level 60).
 
 Context {C : bicat} {D : disp_prebicat C}.
 
@@ -88,12 +88,12 @@ Definition is_disp_internal_adjunction {a b : C}
            (ηη := disp_internal_unit jj)
            (εε := disp_internal_counit jj)
   : UU
-  :=   ( linvunitor_disp ff •• (ηη ▹▹ ff) •• rassociator_disp _ _ _ ••
-         (ff ◃◃ εε) •• runitor_disp ff =
-         transportb (λ x, _ ==>[x] _) (internal_triangle1 j) (id2_disp ff) )
-     × ( rinvunitor_disp gg •• (gg ◃◃ ηη) •• lassociator_disp _ _ _ ••
-         (εε ▹▹ gg) •• lunitor_disp gg =
-         transportb (λ x, _ ==>[x] _) (internal_triangle2 j) (id2_disp gg) ).
+  :=   ( disp_linvunitor ff •• (ηη ▹▹ ff) •• disp_rassociator _ _ _ ••
+         (ff ◃◃ εε) •• disp_runitor ff =
+         transportb (λ x, _ ==>[x] _) (internal_triangle1 j) (disp_id2 ff) )
+     × ( disp_rinvunitor gg •• (gg ◃◃ ηη) •• disp_lassociator _ _ _ ••
+         (εε ▹▹ gg) •• disp_lunitor gg =
+         transportb (λ x, _ ==>[x] _) (internal_triangle2 j) (disp_id2 gg) ).
 
 Definition disp_internal_adjunction {a b : C}
            (j : internal_adjunction a b)
@@ -147,21 +147,21 @@ Definition disp_internal_adjunction_data_identity {a : C} (aa : D a)
 Proof.
   exists (id_disp _ ).
   exists (id_disp _ ).
-  exists (linvunitor_disp _ ).
-  apply (lunitor_disp _ ).
+  exists (disp_linvunitor _ ).
+  apply (disp_lunitor _ ).
 Defined.
 
 Theorem disp_lunitor_runitor_identity {a : C} (aa : D a)
-  : lunitor_disp (id_disp aa) =
+  : disp_lunitor (id_disp aa) =
     transportb (λ x, _ ==>[x] _) (lunitor_runitor_identity a)
-               (runitor_disp (id_disp aa)).
+               (disp_runitor (id_disp aa)).
 Proof.
 Admitted.
 
 Theorem disp_runitor_lunitor_identity {a : C} (aa : D a)
-  : runitor_disp (id_disp aa) =
+  : disp_runitor (id_disp aa) =
     transportb (λ x, _ ==>[x] _) (runitor_lunitor_identity a)
-               (lunitor_disp (id_disp aa)).
+               (disp_lunitor (id_disp aa)).
 Proof.
   apply (transportf_transpose (P := λ x, _ ==>[x] _)).
   apply pathsinv0.
@@ -219,14 +219,14 @@ Proof.
   split.
   - etrans.
     { apply maponpaths_2.
-      etrans; [apply vassocl_disp | ].
+      etrans; [apply disp_vassocl | ].
       etrans.
       { apply maponpaths. apply maponpaths.
-        etrans; [apply lunitor_lwhisker_disp | ].
+        etrans; [apply disp_lunitor_lwhisker | ].
         apply maponpaths.
         apply maponpaths.
         apply disp_runitor_lunitor_identity. }
-      etrans. { apply maponpaths. apply mor_disp_transportf_prewhisker_disp. }
+      etrans. { apply maponpaths. apply disp_mor_transportf_prewhisker. }
       etrans. { apply (transport_f_f (λ x, _ ==>[x] _)). }
       etrans.
       { etrans.
@@ -236,34 +236,34 @@ Proof.
         cbn.
         etrans.
         { apply maponpaths.
-          apply mor_disp_transportf_prewhisker_disp. }
+          apply disp_mor_transportf_prewhisker. }
         etrans. { apply (transport_f_f (λ x, _ ==>[x] _)). }
         etrans.
-        apply maponpaths. apply vassocl_disp.
+        apply maponpaths. apply disp_vassocl.
         etrans. { apply (transport_f_f (λ x, _ ==>[x] _)). }
         etrans.
         { apply maponpaths. apply maponpaths.
-          etrans; [apply rwhisker_vcomp_disp | ].
-          etrans; [apply maponpaths, maponpaths, linvunitor_lunitor_disp | ].
+          etrans; [apply disp_rwhisker_vcomp | ].
+          etrans; [apply maponpaths, maponpaths, disp_linvunitor_lunitor | ].
           etrans.
           { apply maponpaths.
             apply disp_rwhisker_transport_left_new. }
           etrans. { apply (transport_f_f (λ x, _ ==>[x] _)). }
-          apply maponpaths. apply id2_rwhisker_disp.
+          apply maponpaths. apply disp_id2_rwhisker.
         }
-        etrans. { apply maponpaths, mor_disp_transportf_prewhisker_disp. }
+        etrans. { apply maponpaths, disp_mor_transportf_prewhisker. }
         etrans; [ apply (transport_f_f (λ x, _ ==>[x] _)) | ].
-        etrans. { apply maponpaths, mor_disp_transportf_prewhisker_disp. }
+        etrans. { apply maponpaths, disp_mor_transportf_prewhisker. }
         etrans; [ apply (transport_f_f (λ x, _ ==>[x] _)) | ].
-        apply maponpaths, id2_disp_right. }
+        apply maponpaths, disp_id2_right. }
       apply (transport_f_f (λ x, _ ==>[x] _)).
     }
-    etrans; [ apply mor_disp_transportf_postwhisker_disp | ].
+    etrans; [ apply disp_mor_transportf_postwhisker | ].
     etrans.
     { apply maponpaths.
       etrans; [ apply maponpaths, disp_runitor_lunitor_identity | ].
-      etrans; [ apply mor_disp_transportf_prewhisker_disp | ].
-      apply maponpaths. apply linvunitor_lunitor_disp.
+      etrans; [ apply disp_mor_transportf_prewhisker | ].
+      apply maponpaths. apply disp_linvunitor_lunitor.
     }
     etrans; [ apply (transport_f_f (λ x, _ ==>[x] _)) | ].
     etrans; [ apply (transport_f_f (λ x, _ ==>[x] _)) | ].
@@ -273,38 +273,38 @@ Proof.
     apply cellset_property.
   - etrans.
     { apply maponpaths_2.
-      etrans; [apply vassocl_disp | ].
+      etrans; [apply disp_vassocl | ].
       etrans.
       { apply maponpaths, maponpaths.
         etrans; [ apply maponpaths, maponpaths, disp_lunitor_runitor_identity | ].
         etrans; [ apply maponpaths, disp_rwhisker_transport_left_new | ].
-        etrans; [ apply mor_disp_transportf_prewhisker_disp | ].
-        apply maponpaths, runitor_rwhisker_disp. }
-      etrans; [apply maponpaths, vassocl_disp | ].
+        etrans; [ apply disp_mor_transportf_prewhisker | ].
+        apply maponpaths, disp_runitor_rwhisker. }
+      etrans; [apply maponpaths, disp_vassocl | ].
       apply maponpaths, maponpaths.
-      etrans; [ apply maponpaths, mor_disp_transportf_prewhisker_disp | ].
-      etrans; [ apply mor_disp_transportf_prewhisker_disp | ].
+      etrans; [ apply maponpaths, disp_mor_transportf_prewhisker | ].
+      etrans; [ apply disp_mor_transportf_prewhisker | ].
       etrans.
       { apply maponpaths, maponpaths.
-        etrans; [ apply mor_disp_transportf_prewhisker_disp | ].
-        apply maponpaths, lwhisker_vcomp_disp. }
-      etrans; [ apply maponpaths, mor_disp_transportf_prewhisker_disp | ].
+        etrans; [ apply disp_mor_transportf_prewhisker | ].
+        apply maponpaths, disp_lwhisker_vcomp. }
+      etrans; [ apply maponpaths, disp_mor_transportf_prewhisker | ].
       etrans; [ apply (transport_f_f (λ x, _ ==>[x] _)) | ].
       apply maponpaths.
-      etrans; [ apply mor_disp_transportf_prewhisker_disp | ].
+      etrans; [ apply disp_mor_transportf_prewhisker | ].
       { apply maponpaths, maponpaths, maponpaths.
-        apply linvunitor_lunitor_disp. }
+        apply disp_linvunitor_lunitor. }
     }
-    etrans; [ apply mor_disp_transportf_postwhisker_disp | ].
-    etrans; [ apply maponpaths, mor_disp_transportf_postwhisker_disp | ].
+    etrans; [ apply disp_mor_transportf_postwhisker | ].
+    etrans; [ apply maponpaths, disp_mor_transportf_postwhisker | ].
     etrans; [ apply (transport_f_f (λ x, _ ==>[x] _)) | ].
-    etrans; [ apply maponpaths, mor_disp_transportf_postwhisker_disp | ].
+    etrans; [ apply maponpaths, disp_mor_transportf_postwhisker | ].
     etrans; [ apply (transport_f_f (λ x, _ ==>[x] _)) | ].
-    etrans; [ apply maponpaths, mor_disp_transportf_postwhisker_disp | ].
+    etrans; [ apply maponpaths, disp_mor_transportf_postwhisker | ].
     etrans; [ apply (transport_f_f (λ x, _ ==>[x] _)) | ].
     etrans.
     { apply maponpaths.
-      etrans; [apply vassocl_disp | ].
+      etrans; [apply disp_vassocl | ].
       apply maponpaths.
       etrans.
       { apply maponpaths.
@@ -312,20 +312,20 @@ Proof.
         { apply maponpaths_2.
           apply disp_rwhisker_transport_right. }
         cbn.
-        etrans; [ apply mor_disp_transportf_postwhisker_disp | ].
-        etrans; [ apply maponpaths, maponpaths_2, lwhisker_id2_disp | ].
-        etrans; [ apply maponpaths, mor_disp_transportf_postwhisker_disp | ].
+        etrans; [ apply disp_mor_transportf_postwhisker | ].
+        etrans; [ apply maponpaths, maponpaths_2, disp_lwhisker_id2 | ].
+        etrans; [ apply maponpaths, disp_mor_transportf_postwhisker | ].
         etrans; [ apply (transport_f_f (λ x, _ ==>[x] _)) | ].
-        apply maponpaths. apply id2_disp_left.
+        apply maponpaths. apply disp_id2_left.
       }
       etrans; [ apply maponpaths, (transport_f_f (λ x, _ ==>[x] _)) | ].
-      etrans; [ apply mor_disp_transportf_prewhisker_disp | ].
+      etrans; [ apply disp_mor_transportf_prewhisker | ].
       etrans; [ apply maponpaths, maponpaths, disp_lunitor_runitor_identity | ].
-      etrans; [ apply maponpaths, mor_disp_transportf_prewhisker_disp | ].
+      etrans; [ apply maponpaths, disp_mor_transportf_prewhisker | ].
       etrans; [ apply (transport_f_f (λ x, _ ==>[x] _)) | ].
       etrans.
       { apply maponpaths.
-        apply rinvunitor_runitor_disp. }
+        apply disp_rinvunitor_runitor. }
       apply (transport_f_f (λ x, _ ==>[x] _)).
     }
     etrans; [ apply (transport_f_f (λ x, _ ==>[x] _)) | ].

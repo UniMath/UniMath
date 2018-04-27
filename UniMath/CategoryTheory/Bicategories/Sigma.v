@@ -139,24 +139,24 @@ Definition sigma_bicat_data : disp_prebicat_data C.
 Proof.
   exists sigma_prebicat_1_id_comp_cells.
   repeat split; cbn; first [intros until 0 | intros].
-  - exists (id2_disp _). exact (id2_disp _).
-  - exists (lunitor_disp (pr1 f')). exact (lunitor_disp (pr2 f')).
-  - exists (runitor_disp (pr1 f')). exact (runitor_disp (pr2 f')).
-  - exists (linvunitor_disp (pr1 f')). exact (linvunitor_disp (pr2 f')).
-  - exists (rinvunitor_disp (pr1 f')). exact (rinvunitor_disp (pr2 f')).
-  - exists (rassociator_disp (pr1 ff) (pr1 gg) (pr1 hh)).
-    exact (rassociator_disp (pr2 ff) (pr2 gg) (pr2 hh)).
-  - exists (lassociator_disp (pr1 ff) (pr1 gg) (pr1 hh)).
-    exact (lassociator_disp (pr2 ff) (pr2 gg) (pr2 hh)).
+  - exists (disp_id2 _). exact (disp_id2 _).
+  - exists (disp_lunitor (pr1 f')). exact (disp_lunitor (pr2 f')).
+  - exists (disp_runitor (pr1 f')). exact (disp_runitor (pr2 f')).
+  - exists (disp_linvunitor (pr1 f')). exact (disp_linvunitor (pr2 f')).
+  - exists (disp_rinvunitor (pr1 f')). exact (disp_rinvunitor (pr2 f')).
+  - exists (disp_rassociator (pr1 ff) (pr1 gg) (pr1 hh)).
+    exact (disp_rassociator (pr2 ff) (pr2 gg) (pr2 hh)).
+  - exists (disp_lassociator (pr1 ff) (pr1 gg) (pr1 hh)).
+    exact (disp_lassociator (pr2 ff) (pr2 gg) (pr2 hh)).
   - intros xx yy.
-    exists (vcomp2_disp (pr1 xx) (pr1 yy)).
-    exact (vcomp2_disp (pr2 xx) (pr2 yy)).
+    exists (disp_vcomp2 (pr1 xx) (pr1 yy)).
+    exact (disp_vcomp2 (pr2 xx) (pr2 yy)).
   - intros xx.
-    exists (lwhisker_disp (pr1 ff) (pr1 xx)).
-    exact (lwhisker_disp (pr2 ff) (pr2 xx)).
+    exists (disp_lwhisker (pr1 ff) (pr1 xx)).
+    exact (disp_lwhisker (pr2 ff) (pr2 xx)).
   - intros xx.
-    exists (rwhisker_disp (pr1 gg) (pr1 xx)).
-    exact (rwhisker_disp (pr2 gg) (pr2 xx)).
+    exists (disp_rwhisker (pr1 gg) (pr1 xx)).
+    exact (disp_rwhisker (pr2 gg) (pr2 xx)).
 Defined.
 
 (* Needed? *)
@@ -184,48 +184,48 @@ Proof.
            (_ ==> _) (fun x' => _ ==>[ x'] _)
            (fun x'xx => _ ==>[ mk_total_cell (pr1 x'xx) (pr2 x'xx)] _));
   cbn.
-  - apply id2_disp_left.
-  - apply (id2_disp_left (pr2 ηη)).
-  - apply id2_disp_right.
-  - apply (id2_disp_right (pr2 ηη)).
-  - apply vassocr_disp.
-  - apply (vassocr_disp (pr2 ηη) (pr2 φφ) (pr2 ψψ)).
-  - apply lwhisker_id2_disp.
-  - apply (lwhisker_id2_disp (pr2 ff) (pr2 gg)).
-  - apply id2_rwhisker_disp.
-  - apply (id2_rwhisker_disp (pr2 ff) (pr2 gg)).
-  - apply lwhisker_vcomp_disp.
-  - apply (lwhisker_vcomp_disp (ff := (pr2 ff)) (pr2 ηη) (pr2 φφ)).
-  - apply rwhisker_vcomp_disp.
-  - apply (rwhisker_vcomp_disp (ii := pr2 ii) (pr2 ηη) (pr2 φφ)).
-  - apply vcomp_lunitor_disp.
-  - apply (vcomp_lunitor_disp (pr2 ηη)).
-  - apply vcomp_runitor_disp.
-  - apply (vcomp_runitor_disp (pr2 ηη)).
-  - apply lwhisker_lwhisker_disp.
-  - apply (lwhisker_lwhisker_disp (pr2 ff) (pr2 gg) (pr2 ηη)).
-  - apply rwhisker_lwhisker_disp.
-  - apply (rwhisker_lwhisker_disp (pr2 ff) (pr2 ii) (pr2 ηη)).
-  - apply rwhisker_rwhisker_disp.
-  - apply (rwhisker_rwhisker_disp _ _ (pr2 hh) (pr2 ii) (pr2 ηη)).
-  - apply vcomp_whisker_disp.
-  - apply (vcomp_whisker_disp _ _ _ _ _ (pr2 ff) (pr2 gg) (pr2 hh) (pr2 ii) (pr2 ηη) (pr2 φφ)).
-  - apply lunitor_linvunitor_disp.
-  - apply (lunitor_linvunitor_disp (pr2 ff)).
-  - apply linvunitor_lunitor_disp.
-  - apply (linvunitor_lunitor_disp (pr2 ff)).
-  - apply runitor_rinvunitor_disp.
-  - apply (runitor_rinvunitor_disp (pr2 ff)).
-  - apply rinvunitor_runitor_disp.
-  - apply (rinvunitor_runitor_disp (pr2 ff)).
-  - apply lassociator_rassociator_disp.
-  - apply (lassociator_rassociator_disp (pr2 ff) (pr2 gg) (pr2 hh)).
-  - apply rassociator_lassociator_disp.
-  - apply (rassociator_lassociator_disp _ (pr2 ff) (pr2 gg) (pr2 hh)).
-  - apply runitor_rwhisker_disp.
-  - apply (runitor_rwhisker_disp (pr2 ff) (pr2 gg)).
-  - apply lassociator_lassociator_disp.
-  - apply (lassociator_lassociator_disp (pr2 ff) (pr2 gg) (pr2 hh) (pr2 ii)).
+  - apply disp_id2_left.
+  - apply (disp_id2_left (pr2 ηη)).
+  - apply disp_id2_right.
+  - apply (disp_id2_right (pr2 ηη)).
+  - apply disp_vassocr.
+  - apply (disp_vassocr (pr2 ηη) (pr2 φφ) (pr2 ψψ)).
+  - apply disp_lwhisker_id2.
+  - apply (disp_lwhisker_id2 (pr2 ff) (pr2 gg)).
+  - apply disp_id2_rwhisker.
+  - apply (disp_id2_rwhisker (pr2 ff) (pr2 gg)).
+  - apply disp_lwhisker_vcomp.
+  - apply (disp_lwhisker_vcomp (ff := (pr2 ff)) (pr2 ηη) (pr2 φφ)).
+  - apply disp_rwhisker_vcomp.
+  - apply (disp_rwhisker_vcomp (ii := pr2 ii) (pr2 ηη) (pr2 φφ)).
+  - apply disp_vcomp_lunitor.
+  - apply (disp_vcomp_lunitor (pr2 ηη)).
+  - apply disp_vcomp_runitor.
+  - apply (disp_vcomp_runitor (pr2 ηη)).
+  - apply disp_lwhisker_lwhisker.
+  - apply (disp_lwhisker_lwhisker (pr2 ff) (pr2 gg) (pr2 ηη)).
+  - apply disp_rwhisker_lwhisker.
+  - apply (disp_rwhisker_lwhisker (pr2 ff) (pr2 ii) (pr2 ηη)).
+  - apply disp_rwhisker_rwhisker.
+  - apply (disp_rwhisker_rwhisker _ _ (pr2 hh) (pr2 ii) (pr2 ηη)).
+  - apply disp_vcomp_whisker.
+  - apply (disp_vcomp_whisker _ _ _ _ _ (pr2 ff) (pr2 gg) (pr2 hh) (pr2 ii) (pr2 ηη) (pr2 φφ)).
+  - apply disp_lunitor_linvunitor.
+  - apply (disp_lunitor_linvunitor (pr2 ff)).
+  - apply disp_linvunitor_lunitor.
+  - apply (disp_linvunitor_lunitor (pr2 ff)).
+  - apply disp_runitor_rinvunitor.
+  - apply (disp_runitor_rinvunitor (pr2 ff)).
+  - apply disp_rinvunitor_runitor.
+  - apply (disp_rinvunitor_runitor (pr2 ff)).
+  - apply disp_lassociator_rassociator.
+  - apply (disp_lassociator_rassociator (pr2 ff) (pr2 gg) (pr2 hh)).
+  - apply disp_rassociator_lassociator.
+  - apply (disp_rassociator_lassociator _ (pr2 ff) (pr2 gg) (pr2 hh)).
+  - apply disp_runitor_rwhisker.
+  - apply (disp_runitor_rwhisker (pr2 ff) (pr2 gg)).
+  - apply disp_lassociator_lassociator.
+  - apply (disp_lassociator_lassociator (pr2 ff) (pr2 gg) (pr2 hh) (pr2 ii)).
 Qed.
 
 Definition sigma_prebicat : disp_prebicat C

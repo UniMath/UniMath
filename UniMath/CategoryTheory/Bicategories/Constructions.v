@@ -42,7 +42,7 @@ Section Disp_Prebicat_Cells_Unit.
     repeat use tpair; red; intros; apply (proofirrelevance _ isapropunit).
   Qed.
 
-  Definition cell_unit_disp_prebicat : disp_prebicat C
+  Definition disp_cell_unit_prebicat : disp_prebicat C
     := _ ,, disp_prebicat_cells_unit_laws.
 
 End Disp_Prebicat_Cells_Unit.
@@ -68,7 +68,7 @@ Section FullSubBicat.
     := disp_full_sub_ob_mor,, disp_full_sub_id_comp.
 
   Definition disp_fullsubprebicat : disp_prebicat C
-    := cell_unit_disp_prebicat disp_full_sub_data.
+    := disp_cell_unit_prebicat disp_full_sub_data.
 
   Definition disp_fullsubbicat : disp_bicat C.
   Proof.
@@ -90,15 +90,15 @@ Context {C : bicat} (D1 D2 : disp_prebicat C).
     For the time being, I am making the same mistake here...
 
 *)
-Definition dirprod_disp_cat_ob_mor : disp_cat_ob_mor C.
+Definition disp_dirprod_cat_ob_mor : disp_cat_ob_mor C.
 Proof.
   exists (λ c, D1 c × D2 c).
   intros x y xx yy f.
   exact (pr1 xx -->[f] pr1 yy × pr2 xx -->[f] pr2 yy).
 Defined.
 
-Definition dirprod_disp_cat_id_comp
-  : disp_cat_id_comp _ dirprod_disp_cat_ob_mor.
+Definition disp_dirprod_cat_id_comp
+  : disp_cat_id_comp _ disp_dirprod_cat_ob_mor.
 Proof.
   apply tpair.
   - intros x xx. exact (id_disp _,, id_disp _).
@@ -106,140 +106,140 @@ Proof.
     exact ((pr1 ff ;; pr1 gg),, (pr2 ff ;; pr2 gg)).
 Defined.
 
-Definition dirprod_disp_cat_data : disp_cat_data C
-  := (_ ,, dirprod_disp_cat_id_comp).
+Definition disp_dirprod_cat_data : disp_cat_data C
+  := (_ ,, disp_dirprod_cat_id_comp).
 
-Definition dirprod_disp_prebicat_1_id_comp_cells : disp_prebicat_1_id_comp_cells C.
+Definition disp_dirprod_prebicat_1_id_comp_cells : disp_prebicat_1_id_comp_cells C.
 Proof.
-  exists dirprod_disp_cat_data.
+  exists disp_dirprod_cat_data.
   intros c c' f g x d d' f' g'.
   cbn in *.
   exact ( (pr1 f' ==>[ x ] pr1 g') × (pr2 f' ==>[ x ] pr2 g')).
 Defined.
 
-Definition dirprod_disp_prebicat_ops : disp_prebicat_ops dirprod_disp_prebicat_1_id_comp_cells.
+Definition disp_dirprod_prebicat_ops : disp_prebicat_ops disp_dirprod_prebicat_1_id_comp_cells.
 Proof.
   repeat (use tpair).
   - cbn. intros.
-    apply (dirprodpair (id2_disp _ ) (id2_disp  _)).
+    apply (dirprodpair (disp_id2 _ ) (disp_id2  _)).
   - cbn. intros.
-    apply (dirprodpair (lunitor_disp _ ) (lunitor_disp  _)).
+    apply (dirprodpair (disp_lunitor _ ) (disp_lunitor  _)).
   - cbn. intros.
-    apply (dirprodpair (runitor_disp _ ) (runitor_disp  _)).
+    apply (dirprodpair (disp_runitor _ ) (disp_runitor  _)).
   - cbn. intros.
-    apply (dirprodpair (linvunitor_disp _ ) (linvunitor_disp  _)).
+    apply (dirprodpair (disp_linvunitor _ ) (disp_linvunitor  _)).
   - cbn. intros.
-    apply (dirprodpair (rinvunitor_disp _ ) (rinvunitor_disp  _)).
+    apply (dirprodpair (disp_rinvunitor _ ) (disp_rinvunitor  _)).
   - cbn. intros.
-    apply (dirprodpair (rassociator_disp _ _ _ ) (rassociator_disp _ _ _)).
+    apply (dirprodpair (disp_rassociator _ _ _ ) (disp_rassociator _ _ _)).
   - cbn. intros.
-    apply (dirprodpair (lassociator_disp _ _ _ ) (lassociator_disp _ _ _)).
+    apply (dirprodpair (disp_lassociator _ _ _ ) (disp_lassociator _ _ _)).
   - cbn. intros.
-    apply (dirprodpair (vcomp2_disp (pr1 X) (pr1 X0)) (vcomp2_disp (pr2 X) (pr2 X0))).
+    apply (dirprodpair (disp_vcomp2 (pr1 X) (pr1 X0)) (disp_vcomp2 (pr2 X) (pr2 X0))).
   - cbn. intros.
-    apply (dirprodpair (lwhisker_disp (pr1 ff) (pr1 X)) (lwhisker_disp (pr2 ff) (pr2 X))).
+    apply (dirprodpair (disp_lwhisker (pr1 ff) (pr1 X)) (disp_lwhisker (pr2 ff) (pr2 X))).
   - cbn. intros.
-    apply (dirprodpair (rwhisker_disp (pr1 gg) (pr1 X)) (rwhisker_disp (pr2 gg) (pr2 X))).
+    apply (dirprodpair (disp_rwhisker (pr1 gg) (pr1 X)) (disp_rwhisker (pr2 gg) (pr2 X))).
 Defined.
 
-Definition dirprod_disp_prebicat_data : disp_prebicat_data C := _ ,, dirprod_disp_prebicat_ops.
+Definition disp_dirprod_prebicat_data : disp_prebicat_data C := _ ,, disp_dirprod_prebicat_ops.
 
-Definition dirprod_disp_brebicat_laws : disp_prebicat_laws dirprod_disp_prebicat_data.
+Definition disp_dirprod_brebicat_laws : disp_prebicat_laws disp_dirprod_prebicat_data.
 Proof.
   repeat split; intro.
   - cbn. intros.
-    apply dirprod_paths; cbn; use (id2_disp_left _ @ _ ); apply pathsinv0.
+    apply dirprod_paths; cbn; use (disp_id2_left _ @ _ ); apply pathsinv0.
     + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
     + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
   - cbn. intros.
-    apply dirprod_paths; cbn; use (id2_disp_right _ @ _ ); apply pathsinv0.
+    apply dirprod_paths; cbn; use (disp_id2_right _ @ _ ); apply pathsinv0.
     + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
     + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
   - cbn. intros.
-    apply dirprod_paths; cbn; use (vassocr_disp _ _ _ @ _ ); apply pathsinv0.
+    apply dirprod_paths; cbn; use (disp_vassocr _ _ _ @ _ ); apply pathsinv0.
     + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
     + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
   - cbn. intros.
-    apply dirprod_paths; cbn; use (lwhisker_id2_disp _ _  @ _ ); apply pathsinv0.
+    apply dirprod_paths; cbn; use (disp_lwhisker_id2 _ _  @ _ ); apply pathsinv0.
     + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
     + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
   - cbn. intros.
-    apply dirprod_paths; cbn; use (id2_rwhisker_disp _ _  @ _ ); apply pathsinv0.
+    apply dirprod_paths; cbn; use (disp_id2_rwhisker _ _  @ _ ); apply pathsinv0.
     + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
     + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
   - cbn. intros.
-    apply dirprod_paths; cbn; use (lwhisker_vcomp_disp _ _  @ _ ); apply pathsinv0.
+    apply dirprod_paths; cbn; use (disp_lwhisker_vcomp _ _  @ _ ); apply pathsinv0.
     + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
     + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
   - cbn. intros.
-    apply dirprod_paths; cbn; use (rwhisker_vcomp_disp _ _  @ _ ); apply pathsinv0.
+    apply dirprod_paths; cbn; use (disp_rwhisker_vcomp _ _  @ _ ); apply pathsinv0.
     + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
     + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
   - cbn. intros.
-    apply dirprod_paths; cbn; use (vcomp_lunitor_disp _ @ _ ); apply pathsinv0.
+    apply dirprod_paths; cbn; use (disp_vcomp_lunitor _ @ _ ); apply pathsinv0.
     + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
     + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
   - cbn. intros.
-    apply dirprod_paths; cbn; use (vcomp_runitor_disp _  @ _ ); apply pathsinv0.
+    apply dirprod_paths; cbn; use (disp_vcomp_runitor _  @ _ ); apply pathsinv0.
     + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
     + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
   - cbn. intros.
-    apply dirprod_paths; cbn; use (lwhisker_lwhisker_disp _ _ _  @ _ ); apply pathsinv0.
+    apply dirprod_paths; cbn; use (disp_lwhisker_lwhisker _ _ _  @ _ ); apply pathsinv0.
     + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
     + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
   - cbn. intros.
-    apply dirprod_paths; cbn; use (rwhisker_lwhisker_disp _ _ _  @ _ ); apply pathsinv0.
+    apply dirprod_paths; cbn; use (disp_rwhisker_lwhisker _ _ _  @ _ ); apply pathsinv0.
     + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
     + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
   - cbn. intros.
-    apply dirprod_paths; cbn; use (rwhisker_rwhisker_disp _ _ _ _ _ @ _ ); apply pathsinv0.
+    apply dirprod_paths; cbn; use (disp_rwhisker_rwhisker _ _ _ _ _ @ _ ); apply pathsinv0.
     + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
     + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
   - cbn. intros.
-    apply dirprod_paths; cbn; use (vcomp_whisker_disp _ _  _ _ _ _ _ _ _ _ _ @ _ ); apply pathsinv0.
+    apply dirprod_paths; cbn; use (disp_vcomp_whisker _ _  _ _ _ _ _ _ _ _ _ @ _ ); apply pathsinv0.
     + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
     + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
   - cbn. intros.
-    apply dirprod_paths; cbn; use (lunitor_linvunitor_disp _  @ _ ); apply pathsinv0.
+    apply dirprod_paths; cbn; use (disp_lunitor_linvunitor _  @ _ ); apply pathsinv0.
     + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
     + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
   - cbn. intros.
-    apply dirprod_paths; cbn; use (linvunitor_lunitor_disp _  @ _ ); apply pathsinv0.
+    apply dirprod_paths; cbn; use (disp_linvunitor_lunitor _  @ _ ); apply pathsinv0.
     + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
     + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
   - cbn. intros.
-    apply dirprod_paths; cbn; use (runitor_rinvunitor_disp _  @ _ ); apply pathsinv0.
+    apply dirprod_paths; cbn; use (disp_runitor_rinvunitor _  @ _ ); apply pathsinv0.
     + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
     + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
   - cbn. intros.
-    apply dirprod_paths; cbn; use (rinvunitor_runitor_disp _  @ _ ); apply pathsinv0.
+    apply dirprod_paths; cbn; use (disp_rinvunitor_runitor _  @ _ ); apply pathsinv0.
     + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
     + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
   - cbn. intros.
-    apply dirprod_paths; cbn; use (lassociator_rassociator_disp _ _ _  @ _ ); apply pathsinv0.
+    apply dirprod_paths; cbn; use (disp_lassociator_rassociator _ _ _  @ _ ); apply pathsinv0.
     + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
     + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
   - cbn. intros.
-    apply dirprod_paths; cbn; use (rassociator_lassociator_disp _ _ _ _ @ _ ); apply pathsinv0.
+    apply dirprod_paths; cbn; use (disp_rassociator_lassociator _ _ _ _ @ _ ); apply pathsinv0.
     + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
     + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
   - cbn. intros.
-    apply dirprod_paths; cbn; use (runitor_rwhisker_disp _ _  @ _ ); apply pathsinv0.
+    apply dirprod_paths; cbn; use (disp_runitor_rwhisker _ _  @ _ ); apply pathsinv0.
     + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
     + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
   - cbn. intros.
-    apply dirprod_paths; cbn; use (lassociator_lassociator_disp _ _ _ _ @ _ ); apply pathsinv0.
+    apply dirprod_paths; cbn; use (disp_lassociator_lassociator _ _ _ _ @ _ ); apply pathsinv0.
     + exact (pr1_transportf (_ ==> _) _ (λ a _ , _ ) _ _ _ _  ).
     + apply (@pr2_transportf (_ ==> _) (λ a, _ ==>[a]_ ) (λ a, _ ==>[a]_ ) ).
 Qed.
 
-Definition dirprod_disp_prebicat : disp_prebicat C := _ ,, dirprod_disp_brebicat_laws.
+Definition disp_dirprod_prebicat : disp_prebicat C := _ ,, disp_dirprod_brebicat_laws.
 
 End dirprod.
 
-Definition dirprod_disp_bicat {C : bicat} (D1 D2 : disp_bicat C) : disp_bicat C.
+Definition disp_dirprod_bicat {C : bicat} (D1 D2 : disp_bicat C) : disp_bicat C.
 Proof.
-  exists (dirprod_disp_prebicat D1 D2).
+  exists (disp_dirprod_prebicat D1 D2).
   red. cbn. intros.
   apply isasetdirprod.
   apply (disp_cellset_property D1).

@@ -26,7 +26,7 @@ Variable K : category.
 
 Local Notation "∁" := bicat_of_cats.
 
-Definition presheaf_disp_cat_ob_mor : disp_cat_ob_mor ∁.
+Definition disp_presheaf_cat_ob_mor : disp_cat_ob_mor ∁.
 Proof.
   use tpair.
     + exact (λ c : category, functor c^op K).
@@ -34,9 +34,9 @@ Proof.
       exact (nat_trans ty (functor_composite (functor_opp f) ty')).
 Defined.
 
-Definition presheaf_disp_cat_data : disp_cat_data ∁.
+Definition disp_presheaf_cat_data : disp_cat_data ∁.
 Proof.
-  exists presheaf_disp_cat_ob_mor.
+  exists disp_presheaf_cat_ob_mor.
   use tpair.
   + intros c f.
     set (T:= nat_trans_id (pr1 f) ).
@@ -50,9 +50,9 @@ Proof.
     exact (@nat_trans_comp (op_cat c) K _ _ _ T1 T2 ).
 Defined.
 
-Definition presheaf_disp_prebicat_1_id_comp_cells : disp_prebicat_1_id_comp_cells bicat_of_cats.
+Definition disp_presheaf_prebicat_1_id_comp_cells : disp_prebicat_1_id_comp_cells bicat_of_cats.
 Proof.
-  exists presheaf_disp_cat_data.
+  exists disp_presheaf_cat_data.
   intros c d f g a.
   intros p p'.
   intros x y.
@@ -60,7 +60,7 @@ Proof.
   exact (x = @nat_trans_comp (op_cat c) K _  _ _ y (post_whisker (op_nt a)  p')).
 Defined.
 
-Definition presheaf_disp_prebicat_ops : disp_prebicat_ops presheaf_disp_prebicat_1_id_comp_cells.
+Definition disp_presheaf_prebicat_ops : disp_prebicat_ops disp_presheaf_prebicat_1_id_comp_cells.
 Proof.
   repeat split; cbn.
   - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
@@ -98,20 +98,20 @@ Proof.
     apply assoc.
 Qed.
 
-Definition presheaf_disp_prebicat_data : disp_prebicat_data ∁ := _ ,,  presheaf_disp_prebicat_ops.
+Definition disp_presheaf_prebicat_data : disp_prebicat_data ∁ := _ ,,  disp_presheaf_prebicat_ops.
 
-Lemma presheaf_disp_prebicat_laws : disp_prebicat_laws presheaf_disp_prebicat_data.
+Lemma disp_presheaf_prebicat_laws : disp_prebicat_laws disp_presheaf_prebicat_data.
 Proof.
   repeat split; intro;
     intros;
     apply isaset_nat_trans; apply homset_property.
 Qed.
 
-Definition presheaf_disp_prebicat : disp_prebicat ∁ :=
-  (presheaf_disp_prebicat_data,, presheaf_disp_prebicat_laws).
+Definition disp_presheaf_prebicat : disp_prebicat ∁ :=
+  (disp_presheaf_prebicat_data,, disp_presheaf_prebicat_laws).
 
-Lemma has_disp_cellset_presheaf_disp_prebicat
-  : has_disp_cellset presheaf_disp_prebicat.
+Lemma has_disp_cellset_disp_presheaf_prebicat
+  : has_disp_cellset disp_presheaf_prebicat.
 Proof.
   red. intros.
   unfold disp_2cells.
@@ -122,7 +122,7 @@ Proof.
   apply homset_property.
 Qed.
 
-Definition presheaf_disp_bicat : disp_bicat ∁ :=
-  (presheaf_disp_prebicat,, has_disp_cellset_presheaf_disp_prebicat).
+Definition disp_presheaf_bicat : disp_bicat ∁ :=
+  (disp_presheaf_prebicat,, has_disp_cellset_disp_presheaf_prebicat).
 
 End fix_a_category.

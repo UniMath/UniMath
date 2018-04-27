@@ -19,9 +19,9 @@ Section LocalIsoFibration.
 
   Notation "f' ==>[ x ] g'" := (disp_2cells x f' g') (at level 60).
   Notation "f' <==[ x ] g'" := (disp_2cells x g' f') (at level 60, only parsing).
-  Notation "rr •• ss" := (vcomp2_disp rr ss) (at level 60).
-  Notation "ff ◃◃ rr" := (lwhisker_disp ff rr) (at level 60).
-  Notation "rr ▹▹ gg" := (rwhisker_disp gg rr) (at level 60).
+  Notation "rr •• ss" := (disp_vcomp2 rr ss) (at level 60).
+  Notation "ff ◃◃ rr" := (disp_lwhisker ff rr) (at level 60).
+  Notation "rr ▹▹ gg" := (disp_rwhisker gg rr) (at level 60).
 
   Context {C : bicat}.
 
@@ -45,7 +45,7 @@ Section LocalIsoFibration.
       : d -->[f] d'
       := pr1 (lic c c' f f' d d' ff' α).
 
-    Definition local_iso_cleaving_disp_invertible_2cell
+    Definition disp_local_iso_cleaving_invertible_2cell
       : disp_invertible_2cell α local_iso_cleaving_1cell ff'
       := pr2 (lic c c' f f' d d' ff' α).
 
@@ -91,10 +91,10 @@ Section LocalIsoFibration.
     Proof.
       exists discrete_fiber_1_id_comp_cells.
       repeat split; cbn.
-      - intros. exact (id2_disp _).
+      - intros. exact (disp_id2 _).
       - intros d d' ff.
-        set (PP := local_iso_cleaving_disp_invertible_2cell h (id_disp d;; ff) idempunitor).
-        set (RR := PP •• lunitor_disp ff).
+        set (PP := disp_local_iso_cleaving_invertible_2cell h (id_disp d;; ff) idempunitor).
+        set (RR := PP •• disp_lunitor ff).
         assert (Heq : idempunitor • lunitor (identity c) = id2 (identity c)).
         { unfold idempunitor. simpl. apply linvunitor_lunitor. }
         exact (transportf (λ x, _ ==>[x] _) Heq RR).
@@ -103,29 +103,29 @@ Section LocalIsoFibration.
         { unfold idempunitor. cbn.
           etrans. apply maponpaths. apply pathsinv0.
           apply lunitor_runitor_identity. apply linvunitor_lunitor. }
-        set (PP := local_iso_cleaving_disp_invertible_2cell h (ff;; id_disp d') idempunitor).
-        exact (transportf (λ x, _ ==>[x] _) Heq (PP •• runitor_disp ff)).
+        set (PP := disp_local_iso_cleaving_invertible_2cell h (ff;; id_disp d') idempunitor).
+        exact (transportf (λ x, _ ==>[x] _) Heq (PP •• disp_runitor ff)).
       - intros d d' ff.
-        set (PP := inv_disp_cell
-                     (local_iso_cleaving_disp_invertible_2cell h (id_disp d;; ff) idempunitor)).
+        set (PP := disp_inv_cell
+                     (disp_local_iso_cleaving_invertible_2cell h (id_disp d;; ff) idempunitor)).
         assert (Heq : linvunitor (identity c) • inv_cell idempunitor = id2 (identity c)).
         { unfold idempunitor. cbn. apply linvunitor_lunitor. }
-        exact (transportf (λ x, _ ==>[x] _) Heq (linvunitor_disp ff •• PP)).
+        exact (transportf (λ x, _ ==>[x] _) Heq (disp_linvunitor ff •• PP)).
       - cbn. intros d d' ff.
-        set (PP := inv_disp_cell
-                     (local_iso_cleaving_disp_invertible_2cell h (ff;; id_disp d') idempunitor)).
+        set (PP := disp_inv_cell
+                     (disp_local_iso_cleaving_invertible_2cell h (ff;; id_disp d') idempunitor)).
         assert (Heq : rinvunitor (identity c) • inv_cell idempunitor = id2 (identity c)).
         { unfold idempunitor. cbn.
           etrans; [ apply maponpaths, lunitor_runitor_identity | ].
           apply rinvunitor_runitor.
         }
-        exact (transportf (λ x, _ ==>[x] _) Heq (rinvunitor_disp ff •• PP)).
+        exact (transportf (λ x, _ ==>[x] _) Heq (disp_rinvunitor ff •• PP)).
       - intros d0 d1 d2 d3 ff gg hh.
-        set (Hfg := local_iso_cleaving_disp_invertible_2cell h (ff;; gg) idempunitor).
-        set (Hgh := local_iso_cleaving_disp_invertible_2cell h (gg;; hh) idempunitor).
-        set (Hfg_h := local_iso_cleaving_disp_invertible_2cell
+        set (Hfg := disp_local_iso_cleaving_invertible_2cell h (ff;; gg) idempunitor).
+        set (Hgh := disp_local_iso_cleaving_invertible_2cell h (gg;; hh) idempunitor).
+        set (Hfg_h := disp_local_iso_cleaving_invertible_2cell
                         h (local_iso_cleaving_1cell h (ff;; gg) idempunitor;; hh) idempunitor).
-        set (Hf_gh := local_iso_cleaving_disp_invertible_2cell
+        set (Hf_gh := disp_local_iso_cleaving_invertible_2cell
                         h (ff;; local_iso_cleaving_1cell h (gg;; hh) idempunitor) idempunitor).
         set (h1 := Hfg_h •• (Hfg ▹▹ hh)).
         set (h2 := Hf_gh •• (ff ◃◃ Hgh)).

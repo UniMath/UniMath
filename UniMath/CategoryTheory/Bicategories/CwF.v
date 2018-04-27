@@ -184,7 +184,7 @@ End Representation_Morphisms.
 
 Section CwF.
 
-  Definition cwf_disp_cat_ob_mor
+  Definition disp_cwf_cat_ob_mor
     : disp_cat_ob_mor (total_bicat (morphisms_of_preshaves SET)).
   Proof.
     use tpair; cbn.
@@ -200,7 +200,7 @@ Section CwF.
              var_compatibility_type R R' fty ftm Γ A φ).
   Defined.
 
-  Lemma cwf_disp_cat_id_comp_internal
+  Lemma disp_cwf_cat_id_comp_internal
         {C1 : category}
         {Ty1 Tm1 : opp_precat C1 ⟶ hset_precategory}
         (pp1 : Tm1 ⟹ Ty1)
@@ -276,8 +276,8 @@ Section CwF.
       exact var_gcomp.
   Qed.
 
-  Definition cwf_disp_cat_id_comp
-    : disp_cat_id_comp _ cwf_disp_cat_ob_mor.
+  Definition disp_cwf_cat_id_comp
+    : disp_cat_id_comp _ disp_cwf_cat_ob_mor.
   Proof.
     apply tpair. cbn.
     - intros (C, ((Ty, Tm), p)).
@@ -311,22 +311,22 @@ Section CwF.
         destruct gcomp as (gφ, (π_gcomp, var_gcomp)).
         unfold isoext_type in gφ.
         exact (iso_comp (functor_on_iso g fφ) gφ).
-      + pose (rmk := @cwf_disp_cat_id_comp_internal). cbn in rmk.
+      + pose (rmk := @disp_cwf_cat_id_comp_internal). cbn in rmk.
         apply rmk; [exact feq | exact geq].
   Defined.
 
-  Definition cwf_disp_cat_data
+  Definition disp_cwf_cat_data
     : disp_cat_data (total_bicat (morphisms_of_preshaves SET))
-    := (_ ,, cwf_disp_cat_id_comp).
+    := (_ ,, disp_cwf_cat_id_comp).
 
-  Definition cwf_disp : disp_prebicat _
-    := cell_unit_disp_prebicat cwf_disp_cat_data.
+  Definition disp_cwf : disp_prebicat _
+    := disp_cell_unit_prebicat disp_cwf_cat_data.
 
 (*
-  Definition cwf_disp_prebicat_1_id_comp_cells
+  Definition disp_cwf_prebicat_1_id_comp_cells
     : disp_prebicat_1_id_comp_cells (total_bicat (morphisms_of_preshaves SET)).
   Proof.
-    exists cwf_disp_cat_data. red. cbn.
+    exists disp_cwf_cat_data. red. cbn.
     intros.
       (*
     intros (C, ((Ty, Tm), pp)).
