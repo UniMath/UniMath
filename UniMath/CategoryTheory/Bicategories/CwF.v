@@ -30,7 +30,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
 (* (Displayed) Bicategories. *)
-Require Import UniMath.CategoryTheory.Bicategories.Bicat.
+Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.DispBicat.
 Require Import UniMath.CategoryTheory.Bicategories.Constructions.
 Require Import UniMath.CategoryTheory.Bicategories.ContravariantFunctor.
@@ -38,14 +38,12 @@ Require Import UniMath.CategoryTheory.Bicategories.Sigma.
 Require Import UniMath.CategoryTheory.Bicategories.BicatOfCats.
 Require Import UniMath.CategoryTheory.Bicategories.Cofunctormap.
 
-Notation "'PreShv' C" := [C^op,SET] (at level 4) : cat.
-
 Open Scope cat.
 Open Scope mor_disp_scope.
 
 Local Notation "'SET'" := hset_category.
-
-Notation "'Yo'" := (yoneda _ (homset_property _) : functor _ (PreShv _)).
+Local Notation "'PreShv' C" := [C^op,SET] (at level 4) : cat.
+Local Notation "'Yo'" := (yoneda _ (homset_property _) : functor _ (PreShv _)).
 
 Section Yoneda.
 

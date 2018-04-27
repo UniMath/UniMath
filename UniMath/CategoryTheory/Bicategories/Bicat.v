@@ -25,8 +25,8 @@ Coercion precat_data_from_prebicat_1_id_comp_cells (C : prebicat_1_id_comp_cells
 Definition prebicat_cells (C : prebicat_1_id_comp_cells) {a b : C} (f g : C⟦a, b⟧) : UU :=
   pr2 C a b f g.
 
-Notation "f '==>' g" := (prebicat_cells _ f g) (at level 60).
-Notation "f '<==' g" := (prebicat_cells _ g f) (at level 60, only parsing).
+Local Notation "f '==>' g" := (prebicat_cells _ f g) (at level 60).
+Local Notation "f '<==' g" := (prebicat_cells _ g f) (at level 60, only parsing).
 
 Definition prebicat_2_id_comp_struct (C : prebicat_1_id_comp_cells) : UU
   :=
@@ -110,9 +110,9 @@ Definition rwhisker {C : prebicat_data} {a b c : C} {f1 f2 : C⟦a, b⟧} (g : C
   : f1 ==> f2 → f1 · g ==> f2 · g
   := λ x, pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))) _ _ _ _ _ _ x.
 
-Notation "x • y" := (vcomp2 x y) (at level 60).
-Notation "f ◃ x" := (lwhisker f x) (at level 60). (* \tw *)
-Notation "y ▹ g" := (rwhisker g y) (at level 60). (* \tw nr 2 *)
+Local Notation "x • y" := (vcomp2 x y) (at level 60).
+Local Notation "f ◃ x" := (lwhisker f x) (at level 60). (* \tw *)
+Local Notation "y ▹ g" := (rwhisker g y) (at level 60). (* \tw nr 2 *)
 
 Definition hcomp {C : prebicat_data} {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
   : f1 ==> f2 -> g1 ==> g2 -> f1 · g1 ==> f2 · g2
@@ -122,7 +122,7 @@ Definition hcomp' {C : prebicat_data} {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 :
   : f1 ==> f2 -> g1 ==> g2 -> f1 · g1 ==> f2 · g2
   := λ x y, (f1 ◃ y) • (x ▹ g2).
 
-Notation "x ⋆ y" := (hcomp x y) (at level 50).
+Local Notation "x ⋆ y" := (hcomp x y) (at level 50).
 
 (** The numbers in the following laws refer to
     the list of axioms given in ncatlab
@@ -950,7 +950,7 @@ Definition psfunctor_on_cells {C C' : prebicat_data} (F : psfunctor_ob_mor_cell 
   : #F f ==> #F g
   := pr2 F a b f g x.
 
-Notation "'##'" := (psfunctor_on_cells).
+Local Notation "'##'" := (psfunctor_on_cells).
 
 Definition psfunctor_cell_data {C C' : prebicat_data} (F : psfunctor_ob_mor_cell C C') : UU
   :=
@@ -1153,3 +1153,19 @@ Proof.
   - exact (idweq _ ).
   - intro e. induction e. apply idpath.
 Qed.
+
+(* =================================================================================== *)
+(** ** Notations.                                                                      *)
+(* =================================================================================== *)
+
+Module Notations.
+
+Notation "f '==>' g" := (prebicat_cells _ f g) (at level 60).
+Notation "f '<==' g" := (prebicat_cells _ g f) (at level 60, only parsing).
+Notation "x • y" := (vcomp2 x y) (at level 60).
+Notation "f ◃ x" := (lwhisker f x) (at level 60). (* \tw *)
+Notation "y ▹ g" := (rwhisker g y) (at level 60). (* \tw nr 2 *)
+Notation "x ⋆ y" := (hcomp x y) (at level 50).
+Notation "'##'" := (psfunctor_on_cells).
+
+End Notations.

@@ -18,7 +18,7 @@ Require Import UniMath.CategoryTheory.categories.category_hset.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
-Require Import UniMath.CategoryTheory.Bicategories.Bicat.
+Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.DispBicat.
 Require Import UniMath.CategoryTheory.Bicategories.Constructions.
 Require Import UniMath.CategoryTheory.Bicategories.BicatOfCats.
@@ -28,7 +28,6 @@ Require Import UniMath.CategoryTheory.Bicategories.Sigma.
 Open Scope cat.
 Open Scope mor_disp_scope.
 
-(* Local Notation "'SET'" := hset_category. *)
 Arguments nat_trans_comp {C C' F G H} a b.
 
 Section Cofunctormaps.

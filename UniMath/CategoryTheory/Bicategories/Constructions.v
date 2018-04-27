@@ -9,13 +9,11 @@ Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.Bicategories.Bicat.
-Require Import UniMath.CategoryTheory.Bicategories.DispBicat.
+Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.DispBicat. Import DispBicat.Notations.
 
 Open Scope cat.
 Open Scope mor_disp_scope.
-
-Notation "f' ==>[ x ] g'" := (disp_2cells x f' g') (at level 60).
 
 Section Disp_Prebicat_Cells_Unit.
 

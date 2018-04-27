@@ -14,7 +14,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.Bicategories.Bicat.
+Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 
 Open Scope cat.
 Open Scope mor_disp_scope.

@@ -11,7 +11,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.Bicategories.Bicat.
+Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 
 Open Scope cat.
 
