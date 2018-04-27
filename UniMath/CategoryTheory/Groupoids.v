@@ -112,18 +112,13 @@ Proof.
   - intros f; refine (f,, _); apply pregroupoid_is_pregroupoid.
   - apply pr1.
   - reflexivity.
-  - intros f.
-    apply subtypeEquality'.
-    * reflexivity.
-    * apply isaprop_is_iso.
+  - intro; apply eq_iso; reflexivity.
 Defined.
 
 Lemma pregroupoid_hom_weq_iso_idtoiso {pgpd : pregroupoid} (a : pgpd) :
   pregroupoid_hom_weq_iso a a (identity a) = idtoiso (idpath a).
 Proof.
-  apply subtypeEquality'.
-  - reflexivity.
-  - apply isaprop_is_iso.
+  apply eq_iso; reflexivity.
 Defined.
 
 Lemma pregroupoid_hom_weq_iso_comp {pgpd : pregroupoid} {a b c : ob pgpd}
@@ -131,9 +126,7 @@ Lemma pregroupoid_hom_weq_iso_comp {pgpd : pregroupoid} {a b c : ob pgpd}
   iso_comp (pregroupoid_hom_weq_iso _ _ f) (pregroupoid_hom_weq_iso _ _ g) =
   (pregroupoid_hom_weq_iso _ _ (f · g)).
 Proof.
-  apply subtypeEquality'.
-  - reflexivity.
-  - apply isaprop_is_iso.
+  apply eq_iso; reflexivity.
 Defined.
 
 (** If D is a groupoid, then a functor category into it is as well. *)
@@ -172,21 +165,16 @@ Proof.
       * intros ? ? ? f g; exact (pr1 g ∘ pr1 f,, is_iso_comp_of_isos f g).
     + use dirprodpair;
         intros;
-        apply subtypeEquality'.
+        apply eq_iso.
       * apply id_left.
-      * apply isaprop_is_iso.
       * apply id_right.
-      * apply isaprop_is_iso.
-    + intros ? ? ? ? ? ? ?; cbn in *; apply subtypeEquality'.
-      * apply assoc.
-      * apply isaprop_is_iso.
+    + intros ? ? ? ? ? ? ?; apply eq_iso.
+      apply assoc.
   - intros ? ? f; use (is_iso_qinv f).
     + exact (iso_inv_from_iso f).
-    + use dirprodpair; apply subtypeEquality'.
+    + use dirprodpair; apply eq_iso.
       * apply iso_inv_after_iso.
-      * apply isaprop_is_iso.
       * apply iso_after_iso_inv.
-      * apply isaprop_is_iso.
 Defined.
 
 (** ** Discrete categories *)
