@@ -21,32 +21,40 @@ Open Scope cat.
 Open Scope mor_disp_scope.
 
 (* =================================================================================== *)
-(** ** Miscellanea.                                                                    *)
+(** ** Displayed bicategories.                                                         *)
 (* =================================================================================== *)
+
+(* ----------------------------------------------------------------------------------- *)
+(** ** Miscellanea.                                                                    *)
+(* ----------------------------------------------------------------------------------- *)
 
 Definition transportf_transpose_alt {X : UU} {P : X → UU}
            {x x' : X} {e : x = x'} {y : P x} {y' : P x'} {p : y = transportb P e y'}
   : transportf P e y = y'
   := !transportf_transpose _ _ _ (!p).
 
-(* =================================================================================== *)
+(* ----------------------------------------------------------------------------------- *)
 (** ** Definition of displayed bicategories.                                           *)
-(* =================================================================================== *)
+(* ----------------------------------------------------------------------------------- *)
 
 Section disp_prebicat.
 
 Context {C : bicat}.
 
 Definition disp_2cell_struct (D : disp_cat_ob_mor C) : UU
-  := ∏ (c c' : C) (f g : C⟦c, c'⟧) (x : f ==> g)
+  := ∏ (c c' : C) (f g : C⟦c,c'⟧) (x : f ==> g)
        (d : D c) (d' : D c') (f' : d -->[f] d') (g' : d -->[g] d'), UU.
 
-Definition disp_prebicat_1_id_comp_cells : UU := ∑ D : disp_cat_data C, disp_2cell_struct D.
-Coercion disp_cat_data_from_disp_prebicat_1_id_comp_cells (C : disp_prebicat_1_id_comp_cells)
-  : disp_cat_data _ := pr1 C.
+Definition disp_prebicat_1_id_comp_cells : UU
+  := ∑ D : disp_cat_data C, disp_2cell_struct D.
+
+Coercion disp_cat_data_from_disp_prebicat_1_id_comp_cells
+         (C : disp_prebicat_1_id_comp_cells)
+  : disp_cat_data _
+  := pr1 C.
 
 Definition disp_2cells {D : disp_prebicat_1_id_comp_cells}
-           {c c' : C} {f g : C⟦c, c'⟧} (x : f ==> g)
+           {c c' : C} {f g : C⟦c,c'⟧} (x : f ==> g)
            {d : D c} {d' : D c'} (f' : d -->[f] d') (g' : d -->[g] d')
   : UU
   := pr2 D c c' f g x d d' f' g'.
@@ -55,128 +63,118 @@ Local Notation "f' ==>[ x ] g'" := (disp_2cells x f' g') (at level 60).
 Local Notation "f' <==[ x ] g'" := (disp_2cells x g' f') (at level 60, only parsing).
 
 Definition disp_prebicat_ops (D : disp_prebicat_1_id_comp_cells) : UU
-  :=
-    (∏ (a b : C) (f : C⟦a, b⟧) (x : D a) (y : D b) (f' : x -->[f] y),
-     f' ==>[id2 _ ] f')
-      ×
-    (∏ (a b : C) (f : C⟦a, b⟧) (x : D a) (y : D b) (f' : x -->[f] y),
-     id_disp x ;; f' ==>[lunitor _ ] f')
-    ×
-    (∏ (a b : C) (f : C⟦a, b⟧) (x : D a) (y : D b) (f' : x -->[f] y),
-     f' ;; id_disp y ==>[runitor _ ] f')
-    ×
-    (∏ (a b : C) (f : C⟦a, b⟧) (x : D a) (y : D b) (f' : x -->[f] y),
-     id_disp x ;; f' <==[linvunitor _ ] f')
-    ×
-    (∏ (a b : C) (f : C⟦a, b⟧) (x : D a) (y : D b) (f' : x -->[f] y),
-     f' ;; id_disp y <==[rinvunitor _ ] f')
-    ×
-    (∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : C⟦c, d⟧)
-       (w : D a) (x : D b) (y : D c) (z : D d)
-       (ff : w -->[f] x) (gg : x -->[g] y) (hh : y -->[h] z),
-     (ff ;; gg) ;; hh ==>[ rassociator _ _ _  ] ff ;; (gg ;; hh))
-    ×
-    (∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : C⟦c, d⟧)
-       (w : D a) (x : D b) (y : D c) (z : D d)
-       (ff : w -->[f] x) (gg : x -->[g] y) (hh : y -->[h] z),
-     ff ;; (gg ;; hh) ==>[ lassociator _ _ _  ] (ff ;; gg) ;; hh)
-    ×
-    (∏ (a b : C) (f g h : C⟦a, b⟧)
-       (r : f ==> g) (s : g ==> h)
-       (x : D a) (y : D b)
-       (ff : x -->[f] y) (gg : x -->[g] y) (hh : x -->[h] y),
-     ff ==>[r] gg  →  gg ==>[s] hh  →  ff ==>[ r • s ] hh)
-    ×
-    (∏ (a b c : C) (f : C⟦a, b⟧) (g1 g2 : C⟦b, c⟧)
-         (r : g1 ==> g2)
-         (x : D a) (y : D b) (z : D c)
-         (ff : x -->[f] y) (gg1 : y -->[g1] z) (gg2 : y -->[g2] z),
-     gg1 ==>[r] gg2  →  ff ;; gg1  ==>[f ◃ r] ff ;; gg2)
-    ×
-    (∏ (a b c : C) (f1 f2 : C⟦a, b⟧) (g : C⟦b, c⟧)
-       (r : f1 ==> f2)
-       (x : D a) (y : D b) (z : D c)
-       (ff1 : x -->[f1] y) (ff2 : x -->[f2] y) (gg : y -->[g] z),
-     ff1 ==>[r] ff2 → ff1 ;; gg ==>[ r ▹ g ] ff2 ;; gg).
+  :=   (∏ (a b : C) (f : C⟦a,b⟧) (x : D a) (y : D b) (f' : x -->[f] y),
+        f' ==>[id2 _] f')
+     × (∏ (a b : C) (f : C⟦a,b⟧) (x : D a) (y : D b) (f' : x -->[f] y),
+        id_disp x ;; f' ==>[lunitor _] f')
+     × (∏ (a b : C) (f : C⟦a,b⟧) (x : D a) (y : D b) (f' : x -->[f] y),
+        f' ;; id_disp y ==>[runitor _] f')
+     × (∏ (a b : C) (f : C⟦a,b⟧) (x : D a) (y : D b) (f' : x -->[f] y),
+        id_disp x ;; f' <==[linvunitor _] f')
+     × (∏ (a b : C) (f : C⟦a,b⟧) (x : D a) (y : D b) (f' : x -->[f] y),
+        f' ;; id_disp y <==[rinvunitor _] f')
+     × (∏ (a b c d : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧) (h : C⟦c,d⟧)
+          (w : D a) (x : D b) (y : D c) (z : D d)
+          (ff : w -->[f] x) (gg : x -->[g] y) (hh : y -->[h] z),
+        (ff ;; gg) ;; hh ==>[rassociator _ _ _] ff ;; (gg ;; hh))
+     × (∏ (a b c d : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧) (h : C⟦c,d⟧)
+          (w : D a) (x : D b) (y : D c) (z : D d)
+          (ff : w -->[f] x) (gg : x -->[g] y) (hh : y -->[h] z),
+        ff ;; (gg ;; hh) ==>[lassociator _ _ _] (ff ;; gg) ;; hh)
+     × (∏ (a b : C) (f g h : C⟦a,b⟧) (r : f ==> g) (s : g ==> h)
+          (x : D a) (y : D b) (ff : x -->[f] y) (gg : x -->[g] y) (hh : x -->[h] y),
+        ff ==>[r] gg  →  gg ==>[s] hh  →  ff ==>[r • s] hh)
+     × (∏ (a b c : C) (f : C⟦a,b⟧) (g1 g2 : C⟦b,c⟧)
+          (r : g1 ==> g2) (x : D a) (y : D b) (z : D c)
+          (ff : x -->[f] y) (gg1 : y -->[g1] z) (gg2 : y -->[g2] z),
+        gg1 ==>[r] gg2  →  ff ;; gg1  ==>[f ◃ r] ff ;; gg2)
+     × (∏ (a b c : C) (f1 f2 : C⟦a,b⟧) (g : C⟦b,c⟧)
+          (r : f1 ==> f2) (x : D a) (y : D b) (z : D c)
+          (ff1 : x -->[f1] y) (ff2 : x -->[f2] y) (gg : y -->[g] z),
+        ff1 ==>[r] ff2 → ff1 ;; gg ==>[r ▹ g] ff2 ;; gg).
 
 Definition disp_prebicat_data : UU
-  := ∑ D : disp_prebicat_1_id_comp_cells,
-           disp_prebicat_ops D.
+  := ∑ D : disp_prebicat_1_id_comp_cells, disp_prebicat_ops D.
 
 Coercion disp_prebicat_ob_mor_cells_1_id_comp_from_disp_prebicat_data
          (D : disp_prebicat_data)
   : disp_prebicat_1_id_comp_cells
   := pr1 D.
+
 Coercion disp_prebicat_ops_from_disp_prebicat_data (D : disp_prebicat_data)
   : disp_prebicat_ops D
   := pr2 D.
+
+(* ----------------------------------------------------------------------------------- *)
+(** ** Data projections                                                                *)
+(* ----------------------------------------------------------------------------------- *)
 
 Section disp_prebicat_ops_projections.
 
 Context {D : disp_prebicat_data}.
 
-Definition disp_id2
-           {a b : C} {f : C⟦a, b⟧} {x : D a} {y : D b} (f' : x -->[f] y)
-  : f' ==>[id2 _ ] f'
+Definition disp_id2 {a b : C} {f : C⟦a,b⟧} {x : D a} {y : D b} (f' : x -->[f] y)
+  : f' ==>[id2 _] f'
   := pr1 (pr2 D) a b f x y f'.
 
-Definition disp_lunitor
-           {a b : C} {f : C⟦a, b⟧} {x : D a} {y : D b} (f' : x -->[f] y)
-  : id_disp x ;; f' ==>[lunitor _ ] f'
+Definition disp_lunitor {a b : C} {f : C⟦a,b⟧} {x : D a} {y : D b} (f' : x -->[f] y)
+  : id_disp x ;; f' ==>[lunitor _] f'
   := pr1 (pr2 (pr2 D)) a b f x y f'.
 
-Definition disp_runitor
-           {a b : C} {f : C⟦a, b⟧} {x : D a} {y : D b} (f' : x -->[f] y)
-  : f' ;; id_disp y ==>[runitor _ ] f'
+Definition disp_runitor {a b : C} {f : C⟦a,b⟧} {x : D a} {y : D b} (f' : x -->[f] y)
+  : f' ;; id_disp y ==>[runitor _] f'
   := pr1 (pr2 (pr2 (pr2 D))) _ _ f _ _ f'.
 
 Definition disp_linvunitor
-           {a b : C} {f : C⟦a, b⟧} {x : D a} {y : D b} (f' : x -->[f] y)
-  : id_disp x ;; f' <==[linvunitor _ ] f'
+           {a b : C} {f : C⟦a,b⟧} {x : D a} {y : D b} (f' : x -->[f] y)
+  : id_disp x ;; f' <==[linvunitor _] f'
   := pr1 (pr2 (pr2 (pr2 (pr2 D)))) _ _ f _ _ f'.
 
 Definition disp_rinvunitor
-           {a b : C} {f : C⟦a, b⟧} {x : D a} {y : D b} (f' : x -->[f] y)
-  : f' ;; id_disp y <==[rinvunitor _ ] f'
+           {a b : C} {f : C⟦a,b⟧} {x : D a} {y : D b} (f' : x -->[f] y)
+  : f' ;; id_disp y <==[rinvunitor _] f'
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 D))))) _ _ f _ _ f'.
 
 Definition disp_rassociator
-           {a b c d : C} {f : C⟦a, b⟧} {g : C⟦b, c⟧} {h : C⟦c, d⟧}
+           {a b c d : C} {f : C⟦a,b⟧} {g : C⟦b,c⟧} {h : C⟦c,d⟧}
        {w : D a} {x : D b} {y : D c} {z : D d}
        (ff : w -->[f] x) (gg : x -->[g] y) (hh : y -->[h] z)
-  : (ff ;; gg) ;; hh ==>[ rassociator _ _ _  ] ff ;; (gg ;; hh)
+  : (ff ;; gg) ;; hh ==>[rassociator _ _ _] ff ;; (gg ;; hh)
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))) _ _ _ _ _ _ _ w _ _ _ ff gg hh.
 
 Definition disp_lassociator
-           {a b c d : C} {f : C⟦a, b⟧} {g : C⟦b, c⟧} {h : C⟦c, d⟧}
+           {a b c d : C} {f : C⟦a,b⟧} {g : C⟦b,c⟧} {h : C⟦c,d⟧}
            {w : D a} {x : D b} {y : D c} {z : D d}
            (ff : w -->[f] x) (gg : x -->[g] y) (hh : y -->[h] z)
-  : ff ;; (gg ;; hh) ==>[ lassociator _ _ _  ] (ff ;; gg) ;; hh
+  : ff ;; (gg ;; hh) ==>[lassociator _ _ _] (ff ;; gg) ;; hh
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))) _ _ _ _ _ _ _ w _ _ _ ff gg hh.
 
 Definition disp_vcomp2
-           {a b : C} {f g h : C⟦a, b⟧}
+           {a b : C} {f g h : C⟦a,b⟧}
            {r : f ==> g} {s : g ==> h}
            {x : D a} {y : D b}
            {ff : x -->[f] y} {gg : x -->[g] y} {hh : x -->[h] y}
-  : ff ==>[r] gg  →  gg ==>[s] hh  →  ff ==>[ r • s ] hh
-  := λ rr ss,  pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))) _ _ _ _ _ _ _ _ _ _ _ _ rr ss.
+  : ff ==>[r] gg  →  gg ==>[s] hh  →  ff ==>[r • s] hh
+  := λ rr ss,  pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))
+                   _ _ _ _ _ _ _ _ _ _ _ _ rr ss.
 
 Definition disp_lwhisker
-           {a b c : C} {f : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
+           {a b c : C} {f : C⟦a,b⟧} {g1 g2 : C⟦b,c⟧}
            {r : g1 ==> g2}
            {x : D a} {y : D b} {z : D c}
            (ff : x -->[f] y) {gg1 : y -->[g1] z} {gg2 : y -->[g2] z}
   : gg1 ==>[r] gg2  →  ff ;; gg1  ==>[f ◃ r] ff ;; gg2
-  := λ rr, pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))) _ _ _ _ _ _ _ _ _ _ _ _ _ rr.
+  := λ rr, pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))
+               _ _ _ _ _ _ _ _ _ _ _ _ _ rr.
 
 Definition disp_rwhisker
-           {a b c : C} {f1 f2 : C⟦a, b⟧} {g : C⟦b, c⟧}
+           {a b c : C} {f1 f2 : C⟦a,b⟧} {g : C⟦b,c⟧}
            {r : f1 ==> f2}
            {x : D a} {y : D b} {z : D c}
            {ff1 : x -->[f1] y} {ff2 : x -->[f2] y} (gg : y -->[g] z)
-  : ff1 ==>[r] ff2 → ff1 ;; gg ==>[ r ▹ g ] ff2 ;; gg
-  := λ rr, pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))) _ _ _ _ _ _ _ _ _ _ _ _ _ rr.
+  : ff1 ==>[r] ff2 → ff1 ;; gg ==>[r ▹ g] ff2 ;; gg
+  := λ rr, pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))
+               _ _ _ _ _ _ _ _ _ _ _ _ _ rr.
 
 End disp_prebicat_ops_projections.
 
@@ -189,385 +187,413 @@ Section disp_prebicat_laws.
 Context (D : disp_prebicat_data).
 
 Definition disp_id2_left_law : UU
-  := ∏ (a b : C) (f g : C⟦a, b⟧) (η : f ==> g)
-      (x : D a) (y : D b) (ff : x -->[f] y) (gg : x -->[g] y)
-      (ηη : ff ==>[η] gg),
-      disp_id2 _ •• ηη = transportb (fun x' => _ ==>[x'] _ ) (id2_left _) ηη.
-
-Definition disp_id2_right_law : UU
-  := ∏ (a b : C) (f g : C⟦a, b⟧) (η : f ==> g)
+  := ∏ (a b : C) (f g : C⟦a,b⟧) (η : f ==> g)
        (x : D a) (y : D b) (ff : x -->[f] y) (gg : x -->[g] y)
        (ηη : ff ==>[η] gg),
-       ηη •• disp_id2 _ = transportb (λ x', _ ==>[x'] _ ) (id2_right _) ηη.
+     disp_id2 _ •• ηη = transportb (λ α, _ ==>[α] _) (id2_left _) ηη.
+
+Definition disp_id2_right_law : UU
+  := ∏ (a b : C) (f g : C⟦a,b⟧) (η : f ==> g)
+       (x : D a) (y : D b) (ff : x -->[f] y) (gg : x -->[g] y)
+       (ηη : ff ==>[η] gg),
+     ηη •• disp_id2 _ = transportb (λ α, _ ==>[α] _) (id2_right _) ηη.
 
 Definition disp_vassocr_law : UU
-  := ∏ (a b : C) (f g h k : C⟦a, b⟧) (η : f ==> g) (φ : g ==> h) (ψ : h ==> k)
-      (x : D a) (y : D b)
-      (ff : x -->[f] y) (gg : x -->[g] y) (hh : x -->[h] y) (kk : x -->[k] y)
-      (ηη : ff ==>[η] gg) (φφ : gg ==>[φ] hh) (ψψ : hh ==>[ψ] kk),
-     ηη •• (φφ •• ψψ) = transportb (λ x', _ ==>[x'] _ ) (vassocr _ _ _ ) ((ηη •• φφ) •• ψψ).
+  := ∏ (a b : C) (f g h k : C⟦a,b⟧) (η : f ==> g) (φ : g ==> h) (ψ : h ==> k)
+       (x : D a) (y : D b)
+       (ff : x -->[f] y) (gg : x -->[g] y) (hh : x -->[h] y) (kk : x -->[k] y)
+       (ηη : ff ==>[η] gg) (φφ : gg ==>[φ] hh) (ψψ : hh ==>[ψ] kk),
+     ηη •• (φφ •• ψψ) =
+     transportb (λ α, _ ==>[α] _) (vassocr _ _ _) ((ηη •• φφ) •• ψψ).
 
 Definition disp_lwhisker_id2_law : UU
-  := ∏ (a b c : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧)
+  := ∏ (a b c : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧)
        (x : D a) (y : D b) (z : D c) (ff : x -->[f] y) (gg : y -->[g] z),
-     ff ◃◃ disp_id2 gg = transportb (λ x', _ ==>[x'] _) (lwhisker_id2 _ _) (disp_id2 (ff ;; gg)).
+     ff ◃◃ disp_id2 gg =
+     transportb (λ α, _ ==>[α] _) (lwhisker_id2 _ _) (disp_id2 (ff ;; gg)).
 
 Definition disp_id2_rwhisker_law : UU
-  := ∏ (a b c : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧)
+  := ∏ (a b c : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧)
        (x : D a) (y : D b) (z : D c) (ff : x -->[f] y) (gg : y -->[g] z),
-     disp_id2 ff ▹▹ gg = transportb (λ x', _ ==>[x'] _) (id2_rwhisker _ _) (disp_id2 (ff ;; gg)).
+     disp_id2 ff ▹▹ gg =
+     transportb (λ α, _ ==>[α] _) (id2_rwhisker _ _) (disp_id2 (ff ;; gg)).
 
 Definition disp_lwhisker_vcomp_law : UU
-  := ∏ (a b c : C) (f : C⟦a, b⟧) (g h i : C⟦b, c⟧)
+  := ∏ (a b c : C) (f : C⟦a,b⟧) (g h i : C⟦b,c⟧)
       (η : g ==> h) (φ : h ==> i)
       (x : D a) (y : D b) (z : D c) (ff : x -->[f] y)
       (gg : y -->[g] z) (hh : y -->[h] z) (ii : y -->[i] z)
       (ηη : gg ==>[η] hh) (φφ : hh ==>[φ] ii),
-     (ff ◃◃ ηη) •• (ff ◃◃ φφ) = transportb (λ x', _ ==>[x'] _) (lwhisker_vcomp _ _ _ ) (ff ◃◃ (ηη •• φφ)).
+     (ff ◃◃ ηη) •• (ff ◃◃ φφ) =
+     transportb (λ α, _ ==>[α] _) (lwhisker_vcomp _ _ _) (ff ◃◃ (ηη •• φφ)).
 
 Definition disp_rwhisker_vcomp_law : UU
-  := ∏ (a b c : C) (f g h : C⟦a, b⟧) (i : C⟦b, c⟧) (η : f ==> g) (φ : g ==> h)
+  := ∏ (a b c : C) (f g h : C⟦a,b⟧) (i : C⟦b,c⟧) (η : f ==> g) (φ : g ==> h)
        (x : D a) (y : D b) (z : D c)
        (ff : x -->[f] y) (gg : x -->[g] y) (hh : x -->[h] y)
        (ii : y -->[i] z)
        (ηη : ff ==>[η] gg) (φφ : gg ==>[φ] hh),
-     (ηη ▹▹ ii) •• (φφ ▹▹ ii) = transportb (λ x', _ ==>[x'] _) (rwhisker_vcomp _ _ _ ) ((ηη •• φφ) ▹▹ ii).
+     (ηη ▹▹ ii) •• (φφ ▹▹ ii) =
+     transportb (λ α, _ ==>[α] _) (rwhisker_vcomp _ _ _) ((ηη •• φφ) ▹▹ ii).
 
 Definition disp_vcomp_lunitor_law : UU
-  := ∏ (a b : C) (f g : C⟦a, b⟧) (η : f ==> g)
+  := ∏ (a b : C) (f g : C⟦a,b⟧) (η : f ==> g)
        (x : D a) (y : D b) (ff : x -->[f] y) (gg : x -->[g] y)
        (ηη : ff ==>[η] gg),
      (id_disp _ ◃◃ ηη) •• disp_lunitor gg =
-     transportb (λ x', _ ==>[x'] _) (vcomp_lunitor _ _ _ ) (disp_lunitor ff •• ηη).
+     transportb (λ α, _ ==>[α] _) (vcomp_lunitor _ _ _) (disp_lunitor ff •• ηη).
 
 Definition disp_vcomp_runitor_law : UU
-  := ∏ (a b : C) (f g : C⟦a, b⟧) (η : f ==> g)
+  := ∏ (a b : C) (f g : C⟦a,b⟧) (η : f ==> g)
        (x : D a) (y : D b) (ff : x -->[f] y) (gg : x -->[g] y)
        (ηη : ff ==>[η] gg),
      (ηη ▹▹ id_disp _) •• disp_runitor gg =
-     transportb (λ x', _ ==>[x'] _) (vcomp_runitor _ _ _ ) (disp_runitor ff •• ηη).
+     transportb (λ α, _ ==>[α] _) (vcomp_runitor _ _ _) (disp_runitor ff •• ηη).
 
 Definition disp_lwhisker_lwhisker_law : UU
-  := ∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h i : c --> d) (η : h ==> i)
+  := ∏ (a b c d : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧) (h i : c --> d) (η : h ==> i)
        (w : D a) (x : D b) (y : D c) (z : D d)
        (ff : w -->[f] x) (gg : x -->[g] y) (hh : y -->[h] z) (ii : y -->[i] z)
        (ηη : hh ==>[η] ii),
      ff ◃◃ (gg ◃◃ ηη) •• disp_lassociator _ _ _ =
-     transportb (λ x', _ ==>[x'] _) (lwhisker_lwhisker _ _ _ )
+     transportb (λ α, _ ==>[α] _) (lwhisker_lwhisker _ _ _)
                 (disp_lassociator _ _ _ •• (ff ;; gg ◃◃ ηη)).
 
 Definition disp_rwhisker_lwhisker_law : UU
-  := ∏ (a b c d : C) (f : C⟦a, b⟧) (g h : C⟦b, c⟧) (i : c --> d) (η : g ==> h)
+  := ∏ (a b c d : C) (f : C⟦a,b⟧) (g h : C⟦b,c⟧) (i : c --> d) (η : g ==> h)
        (w : D a) (x : D b) (y : D c) (z : D d)
        (ff : w -->[f] x) (gg : x -->[g] y) (hh : x -->[h] y) (ii : y -->[i] z)
        (ηη : gg ==>[η] hh),
      (ff ◃◃ (ηη ▹▹ ii)) •• disp_lassociator _ _ _ =
-     transportb (λ x', _ ==>[x'] _) (rwhisker_lwhisker _ _ _)
+     transportb (λ α, _ ==>[α] _) (rwhisker_lwhisker _ _ _)
                 (disp_lassociator _ _ _ •• ((ff ◃◃ ηη) ▹▹ ii)).
 
 Definition disp_rwhisker_rwhisker_law : UU
-  := ∏ (a b c d : C) (f g : C⟦a, b⟧) (h : C⟦b, c⟧) (i : c --> d) (η : f ==> g)
+  := ∏ (a b c d : C) (f g : C⟦a,b⟧) (h : C⟦b,c⟧) (i : c --> d) (η : f ==> g)
        (w : D a) (x : D b) (y : D c) (z : D d)
        (ff : w -->[f] x) (gg : w -->[g] x) (hh : x -->[h] y) (ii : y -->[i] z)
        (ηη : ff ==>[η] gg),
      disp_lassociator _ _ _ •• ((ηη ▹▹ hh) ▹▹ ii) =
-     transportb (λ x', _ ==>[x'] _) (rwhisker_rwhisker _ _ _ ) ((ηη ▹▹ hh ;; ii) •• disp_lassociator _ _ _ ).
+     transportb (λ α, _ ==>[α] _) (rwhisker_rwhisker _ _ _)
+                ((ηη ▹▹ hh ;; ii) •• disp_lassociator _ _ _).
 
 Definition disp_vcomp_whisker_law : UU
-  := ∏ (a b c : C) (f g : C⟦a, b⟧) (h i : C⟦b, c⟧)
+  := ∏ (a b c : C) (f g : C⟦a,b⟧) (h i : C⟦b,c⟧)
        (η : f ==> g) (φ : h ==> i)
        (x : D a) (y : D b) (z : D c)
        (ff : x -->[f] y) (gg : x -->[g] y)
        (hh : y -->[h] z) (ii : y -->[i] z)
        (ηη : ff ==>[η] gg) (φφ : hh ==>[φ] ii),
      (ηη ▹▹ hh) •• (gg ◃◃ φφ) =
-     transportb (λ x', _ ==>[x'] _) (vcomp_whisker _ _ ) ((ff ◃◃ φφ) •• (ηη ▹▹ ii)).
+     transportb (λ α, _ ==>[α] _) (vcomp_whisker _ _) ((ff ◃◃ φφ) •• (ηη ▹▹ ii)).
 
 Definition disp_lunitor_linvunitor_law : UU
-  := ∏ (a b : C) (f : C⟦a, b⟧)
+  := ∏ (a b : C) (f : C⟦a,b⟧)
        (x : D a) (y : D b) (ff : x -->[f] y),
      disp_lunitor ff •• disp_linvunitor _ =
-     transportb (λ x', _ ==>[x'] _) (lunitor_linvunitor _ ) (disp_id2 (id_disp _ ;; ff)).
+     transportb (λ α, _ ==>[α] _) (lunitor_linvunitor _) (disp_id2 (id_disp _ ;; ff)).
 
 Definition disp_linvunitor_lunitor_law : UU
-  := ∏ (a b : C) (f : C⟦a, b⟧)
+  := ∏ (a b : C) (f : C⟦a,b⟧)
        (x : D a) (y : D b) (ff : x -->[f] y),
      disp_linvunitor ff •• disp_lunitor _ =
-     transportb (λ x', _ ==>[x'] _) (linvunitor_lunitor _ ) (disp_id2 _).
+     transportb (λ α, _ ==>[α] _) (linvunitor_lunitor _) (disp_id2 _).
 
 Definition disp_runitor_rinvunitor_law : UU
-  := ∏ (a b : C) (f : C⟦a, b⟧)
+  := ∏ (a b : C) (f : C⟦a,b⟧)
        (x : D a) (y : D b) (ff : x -->[f] y),
      disp_runitor ff •• disp_rinvunitor _ =
-     transportb (λ x', _ ==>[x'] _) (runitor_rinvunitor _ ) (disp_id2 _ ).
+     transportb (λ α, _ ==>[α] _) (runitor_rinvunitor _) (disp_id2 _).
 
 Definition disp_rinvunitor_runitor_law : UU
-  := ∏ (a b : C) (f : C⟦a, b⟧)
+  := ∏ (a b : C) (f : C⟦a,b⟧)
        (x : D a) (y : D b) (ff : x -->[f] y),
      disp_rinvunitor ff •• disp_runitor _ =
-     transportb (λ x', _ ==>[x'] _) (rinvunitor_runitor _ ) (disp_id2 _).
+     transportb (λ α, _ ==>[α] _) (rinvunitor_runitor _) (disp_id2 _).
 
 Definition disp_lassociator_rassociator_law : UU
-  := ∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d)
+  := ∏ (a b c d : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧) (h : c --> d)
        (w : D a) (x : D b) (y : D c) (z : D d)
        (ff : w -->[f] x) (gg : x -->[g] y)
        (hh : y -->[h] z),
      disp_lassociator ff gg hh •• disp_rassociator _ _ _ =
-     transportb (λ x', _ ==>[x'] _) (lassociator_rassociator _ _ _  ) (disp_id2  _ ).
+     transportb (λ α, _ ==>[α] _) (lassociator_rassociator _ _ _ ) (disp_id2  _).
 
 Definition disp_rassociator_lassociator_law : UU
-  := ∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d)
+  := ∏ (a b c d : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧) (h : c --> d)
        (w : D a) (x : D b) (y : D c) (z : D d)
        (ff : w -->[f] x) (gg : x -->[g] y)
        (hh : y -->[h] z),
      disp_rassociator ff gg hh •• disp_lassociator _ _ _ =
-     transportb (λ x', _ ==>[x'] _) (rassociator_lassociator _ _ _  ) (disp_id2 _).
+     transportb (λ α, _ ==>[α] _) (rassociator_lassociator _ _ _ ) (disp_id2 _).
 
 Definition disp_runitor_rwhisker_law : UU
-  := ∏ (a b c : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧)
+  := ∏ (a b c : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧)
        (x : D a) (y : D b) (z : D c)
        (ff : x -->[f] y) (gg : y -->[g] z),
      disp_lassociator _ _ _ •• (disp_runitor ff ▹▹ gg) =
-     transportb (λ x', _ ==>[x'] _) (runitor_rwhisker _ _ ) (ff ◃◃ disp_lunitor gg).
+     transportb (λ α, _ ==>[α] _) (runitor_rwhisker _ _) (ff ◃◃ disp_lunitor gg).
 
 Definition disp_lassociator_lassociator_law : UU
-  := ∏ (a b c d e: C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d) (i : C⟦d, e⟧)
+  := ∏ (a b c d e: C) (f : C⟦a,b⟧) (g : C⟦b,c⟧) (h : c --> d) (i : C⟦d,e⟧)
        (v : D a) (w : D b) (x : D c) (y : D d) (z : D e)
        (ff : v -->[f] w) (gg : w -->[g] x)
        (hh : x -->[h] y) (ii : y -->[i] z),
 
-     (ff ◃◃ disp_lassociator gg hh ii) •• disp_lassociator _ _ _ •• (disp_lassociator _ _ _ ▹▹ ii) =
-     transportb (λ x', _ ==>[x'] _) (lassociator_lassociator _ _ _ _ )
+     (ff ◃◃ disp_lassociator gg hh ii) •• disp_lassociator _ _ _ ••
+     (disp_lassociator _ _ _ ▹▹ ii) =
+     transportb (λ α, _ ==>[α] _) (lassociator_lassociator _ _ _ _)
                 (disp_lassociator ff gg _ •• disp_lassociator _ _ _).
 
+(* ----------------------------------------------------------------------------------- *)
+(** ** Laws                                                                            *)
+(* ----------------------------------------------------------------------------------- *)
+
 Definition disp_prebicat_laws : UU
-  :=
-    disp_id2_left_law
-      × disp_id2_right_law
-      × disp_vassocr_law
-      × disp_lwhisker_id2_law
-      × disp_id2_rwhisker_law
-      × disp_lwhisker_vcomp_law
-      × disp_rwhisker_vcomp_law
-      × disp_vcomp_lunitor_law
-      × disp_vcomp_runitor_law
-      × disp_lwhisker_lwhisker_law
-      × disp_rwhisker_lwhisker_law
-      × disp_rwhisker_rwhisker_law
-      × disp_vcomp_whisker_law
-      × disp_lunitor_linvunitor_law
-      × disp_linvunitor_lunitor_law
-      × disp_runitor_rinvunitor_law
-      × disp_rinvunitor_runitor_law
-      × disp_lassociator_rassociator_law
-      × disp_rassociator_lassociator_law
-      × disp_runitor_rwhisker_law
-      × disp_lassociator_lassociator_law.
+  :=   disp_id2_left_law
+     × disp_id2_right_law
+     × disp_vassocr_law
+     × disp_lwhisker_id2_law
+     × disp_id2_rwhisker_law
+     × disp_lwhisker_vcomp_law
+     × disp_rwhisker_vcomp_law
+     × disp_vcomp_lunitor_law
+     × disp_vcomp_runitor_law
+     × disp_lwhisker_lwhisker_law
+     × disp_rwhisker_lwhisker_law
+     × disp_rwhisker_rwhisker_law
+     × disp_vcomp_whisker_law
+     × disp_lunitor_linvunitor_law
+     × disp_linvunitor_lunitor_law
+     × disp_runitor_rinvunitor_law
+     × disp_rinvunitor_runitor_law
+     × disp_lassociator_rassociator_law
+     × disp_rassociator_lassociator_law
+     × disp_runitor_rwhisker_law
+     × disp_lassociator_lassociator_law.
 
 End disp_prebicat_laws.
 
-Definition disp_prebicat : UU := ∑ D : disp_prebicat_data, disp_prebicat_laws D.
-Coercion disp_prebicat_data_from_disp_prebicat (D : disp_prebicat) : disp_prebicat_data := pr1 D.
+(* ----------------------------------------------------------------------------------- *)
+(** Laws projections                                                                   *)
+(* ----------------------------------------------------------------------------------- *)
+
+Definition disp_prebicat : UU
+  := ∑ D : disp_prebicat_data, disp_prebicat_laws D.
+
+Coercion disp_prebicat_data_from_disp_prebicat (D : disp_prebicat)
+  : disp_prebicat_data
+  := pr1 D.
 
 Section disp_prebicat_law_projections.
 
 Context {D : disp_prebicat}.
 
-Definition disp_id2_left
-           {a b : C} {f g : C⟦a, b⟧} {η : f ==> g}
+Definition disp_id2_left {a b : C} {f g : C⟦a,b⟧} {η : f ==> g}
            {x : D a} {y : D b} {ff : x -->[f] y} {gg : x -->[g] y}
            (ηη : ff ==>[η] gg)
-  : disp_id2 _ •• ηη = transportb (fun x' => _ ==>[x'] _ ) (id2_left _) ηη
+  : disp_id2 _ •• ηη = transportb (λ α, _ ==>[α] _) (id2_left _) ηη
   := pr1 (pr2 D) _ _ _ _ _ x y ff gg ηη.
 
-Definition disp_id2_right
-           {a b : C} {f g : C⟦a, b⟧} {η : f ==> g}
+Definition disp_id2_right {a b : C} {f g : C⟦a,b⟧} {η : f ==> g}
            {x : D a} {y : D b} {ff : x -->[f] y} {gg : x -->[g] y}
            (ηη : ff ==>[η] gg)
-  : ηη •• disp_id2 _ = transportb (λ x', _ ==>[x'] _ ) (id2_right _) ηη
+  : ηη •• disp_id2 _ = transportb (λ α, _ ==>[α] _) (id2_right _) ηη
   := pr1 (pr2 (pr2 D)) _ _ _ _ _ _ _ _ _ ηη.
 
-Definition disp_vassocr
-           {a b : C} {f g h k : C⟦a, b⟧} {η : f ==> g} {φ : g ==> h} {ψ : h ==> k}
+Definition disp_vassocr {a b : C} {f g h k : C⟦a,b⟧}
+           {η : f ==> g} {φ : g ==> h} {ψ : h ==> k}
            {x : D a} {y : D b}
            {ff : x -->[f] y} {gg : x -->[g] y} {hh : x -->[h] y} {kk : x -->[k] y}
            (ηη : ff ==>[η] gg) (φφ : gg ==>[φ] hh) (ψψ : hh ==>[ψ] kk)
-  : ηη •• (φφ •• ψψ) = transportb (λ x', _ ==>[x'] _ ) (vassocr _ _ _ ) ((ηη •• φφ) •• ψψ)
+  : ηη •• (φφ •• ψψ) =
+    transportb (λ α, _ ==>[α] _) (vassocr _ _ _) ((ηη •• φφ) •• ψψ)
   := pr1 (pr2 (pr2 (pr2 D))) _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ ηη φφ ψψ .
 
-Definition disp_vassocr'
-           {a b : C} {f g h k : C⟦a, b⟧} {η : f ==> g} {φ : g ==> h} {ψ : h ==> k}
+Definition disp_vassocr' {a b : C} {f g h k : C⟦a,b⟧}
+           {η : f ==> g} {φ : g ==> h} {ψ : h ==> k}
            {x : D a} {y : D b}
            {ff : x -->[f] y} {gg : x -->[g] y} {hh : x -->[h] y} {kk : x -->[k] y}
            (ηη : ff ==>[η] gg) (φφ : gg ==>[φ] hh) (ψψ : hh ==>[ψ] kk)
-  : transportf (λ x', _ ==>[x'] _ ) (vassocr _ _ _ ) (ηη •• (φφ •• ψψ)) =
+  : transportf (λ α, _ ==>[α] _) (vassocr _ _ _) (ηη •• (φφ •• ψψ)) =
     ((ηη •• φφ) •• ψψ).
 Proof.
-  use (transportf_transpose_alt (P := λ x' : f ==> k, ff ==>[ x'] kk)).
+  use (transportf_transpose_alt (P := λ x' : f ==> k, ff ==>[x'] kk)).
   apply disp_vassocr.
 Defined.
 
-Definition disp_lwhisker_id2
-           {a b c : C} {f : C⟦a, b⟧} {g : C⟦b, c⟧}
+Definition disp_lwhisker_id2 {a b c : C} {f : C⟦a,b⟧} {g : C⟦b,c⟧}
            {x : D a} {y : D b} {z : D c} (ff : x -->[f] y) (gg : y -->[g] z)
-  : ff ◃◃ disp_id2 gg = transportb (λ x', _ ==>[x'] _) (lwhisker_id2 _ _) (disp_id2 (ff ;; gg))
+  : ff ◃◃ disp_id2 gg =
+    transportb (λ α, _ ==>[α] _) (lwhisker_id2 _ _) (disp_id2 (ff ;; gg))
   := pr1 (pr2 (pr2 (pr2 (pr2 D)))) _ _ _ _ _ _ _ _ ff gg.
 
-Definition disp_id2_rwhisker
-           {a b c : C} {f : C⟦a, b⟧} {g : C⟦b, c⟧}
+Definition disp_id2_rwhisker {a b c : C} {f : C⟦a,b⟧} {g : C⟦b,c⟧}
            {x : D a} {y : D b} {z : D c}
            (ff : x -->[f] y) (gg : y -->[g] z)
-  : disp_id2 ff ▹▹ gg = transportb (λ x', _ ==>[x'] _) (id2_rwhisker _ _) (disp_id2 (ff ;; gg))
+  : disp_id2 ff ▹▹ gg =
+    transportb (λ α, _ ==>[α] _) (id2_rwhisker _ _) (disp_id2 (ff ;; gg))
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 D))))) _ _ _ _ _ _ _ _ ff gg.
 
-Definition disp_lwhisker_vcomp
-           {a b c : C} {f : C⟦a, b⟧} {g h i : C⟦b, c⟧}
+Definition disp_lwhisker_vcomp {a b c : C} {f : C⟦a,b⟧} {g h i : C⟦b,c⟧}
            {η : g ==> h} {φ : h ==> i}
            {x : D a} {y : D b} {z : D c} {ff : x -->[f] y}
            {gg : y -->[g] z} {hh : y -->[h] z} {ii : y -->[i] z}
            (ηη : gg ==>[η] hh) (φφ : hh ==>[φ] ii)
-  : (ff ◃◃ ηη) •• (ff ◃◃ φφ) = transportb (λ x', _ ==>[x'] _) (lwhisker_vcomp _ _ _ ) (ff ◃◃ (ηη •• φφ))
+  : (ff ◃◃ ηη) •• (ff ◃◃ φφ) =
+    transportb (λ α, _ ==>[α] _) (lwhisker_vcomp _ _ _) (ff ◃◃ (ηη •• φφ))
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))) _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ ηη φφ.
 
-Definition disp_rwhisker_vcomp
-           {a b c : C} {f g h : C⟦a, b⟧} {i : C⟦b, c⟧} {η : f ==> g} {φ : g ==> h}
+Definition disp_rwhisker_vcomp {a b c : C} {f g h : C⟦a,b⟧} {i : C⟦b,c⟧}
+           {η : f ==> g} {φ : g ==> h}
            {x : D a} {y : D b} {z : D c}
-           {ff : x -->[f] y} {gg : x -->[g] y} {hh : x -->[h] y}
-           {ii : y -->[i] z}
+           {ff : x -->[f] y} {gg : x -->[g] y} {hh : x -->[h] y} {ii : y -->[i] z}
            (ηη : ff ==>[η] gg) (φφ : gg ==>[φ] hh)
-  : (ηη ▹▹ ii) •• (φφ ▹▹ ii) = transportb (λ x', _ ==>[x'] _) (rwhisker_vcomp _ _ _ ) ((ηη •• φφ) ▹▹ ii)
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))) _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ ηη φφ.
+  : (ηη ▹▹ ii) •• (φφ ▹▹ ii) =
+    transportb (λ α, _ ==>[α] _) (rwhisker_vcomp _ _ _) ((ηη •• φφ) ▹▹ ii)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))
+         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ ηη φφ.
 
-Definition disp_vcomp_lunitor
-           {a b : C} {f g : C⟦a, b⟧} {η : f ==> g}
+Definition disp_vcomp_lunitor {a b : C} {f g : C⟦a,b⟧} {η : f ==> g}
            {x : D a} {y : D b} {ff : x -->[f] y} {gg : x -->[g] y}
            (ηη : ff ==>[η] gg)
   : (id_disp _ ◃◃ ηη) •• disp_lunitor gg =
-    transportb (λ x', _ ==>[x'] _) (vcomp_lunitor _ _ _ ) (disp_lunitor ff •• ηη)
+    transportb (λ α, _ ==>[α] _) (vcomp_lunitor _ _ _) (disp_lunitor ff •• ηη)
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))) _ _ _ _ _ _ _ _ _  ηη.
 
-Definition disp_vcomp_runitor
-           {a b : C} {f g : C⟦a, b⟧} {η : f ==> g}
+Definition disp_vcomp_runitor {a b : C} {f g : C⟦a,b⟧} {η : f ==> g}
            {x : D a} {y : D b} {ff : x -->[f] y} {gg : x -->[g] y}
            (ηη : ff ==>[η] gg)
   : (ηη ▹▹ id_disp _) •• disp_runitor gg =
-    transportb (λ x', _ ==>[x'] _) (vcomp_runitor _ _ _ ) (disp_runitor ff •• ηη)
+    transportb (λ α, _ ==>[α] _) (vcomp_runitor _ _ _) (disp_runitor ff •• ηη)
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))) _ _ _ _ _ _ _ _ _  ηη.
 
-Definition disp_lwhisker_lwhisker
-           {a b c d : C} {f : C⟦a, b⟧} {g : C⟦b, c⟧} {h i : c --> d} {η : h ==> i}
+Definition disp_lwhisker_lwhisker {a b c d : C} {f : C⟦a,b⟧} {g : C⟦b,c⟧}
+           {h i : c --> d} {η : h ==> i}
            {w : D a} {x : D b} {y : D c} {z : D d}
            (ff : w -->[f] x) (gg : x -->[g] y) {hh : y -->[h] z} {ii : y -->[i] z}
            (ηη : hh ==>[η] ii)
   : ff ◃◃ (gg ◃◃ ηη) •• disp_lassociator _ _ _ =
-    transportb (λ x', _ ==>[x'] _) (lwhisker_lwhisker _ _ _ )
+    transportb (λ α, _ ==>[α] _) (lwhisker_lwhisker _ _ _)
                (disp_lassociator _ _ _ •• (ff ;; gg ◃◃ ηη))
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))) _ _ _ _ _ _ _ _ _  _ _ _ _ _ _ _ _ ηη.
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))
+         _ _ _ _ _ _ _ _ _  _ _ _ _ _ _ _ _ ηη.
 
-Definition disp_rwhisker_lwhisker
-           {a b c d : C} {f : C⟦a, b⟧} {g h : C⟦b, c⟧} {i : c --> d} {η : g ==> h}
+Definition disp_rwhisker_lwhisker {a b c d : C} {f : C⟦a,b⟧} {g h : C⟦b,c⟧}
+           {i : c --> d} {η : g ==> h}
            {w : D a} {x : D b} {y : D c} {z : D d}
            (ff : w -->[f] x) {gg : x -->[g] y} {hh : x -->[h] y} (ii : y -->[i] z)
            (ηη : gg ==>[η] hh)
   : (ff ◃◃ (ηη ▹▹ ii)) •• disp_lassociator _ _ _ =
-    transportb (λ x', _ ==>[x'] _) (rwhisker_lwhisker _ _ _)
+    transportb (λ α, _ ==>[α] _) (rwhisker_lwhisker _ _ _)
                (disp_lassociator _ _ _ •• ((ff ◃◃ ηη) ▹▹ ii))
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))) _ _ _ _ _ _ _ _ _  _ _ _ _ _ _ _ _ ηη.
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))))
+         _ _ _ _ _ _ _ _ _  _ _ _ _ _ _ _ _ ηη.
 
-Definition disp_rwhisker_rwhisker
-           {a b c d : C} {f g : C⟦a, b⟧} {h : C⟦b, c⟧} (i : c --> d) (η : f ==> g)
+Definition disp_rwhisker_rwhisker {a b c d : C} {f g : C⟦a,b⟧} {h : C⟦b,c⟧}
+           (i : c --> d) (η : f ==> g)
            {w : D a} {x : D b} {y : D c} {z : D d}
            {ff : w -->[f] x} {gg : w -->[g] x} (hh : x -->[h] y) (ii : y -->[i] z)
            (ηη : ff ==>[η] gg)
   : disp_lassociator _ _ _ •• ((ηη ▹▹ hh) ▹▹ ii) =
-    transportb (λ x', _ ==>[x'] _) (rwhisker_rwhisker _ _ _ ) ((ηη ▹▹ hh ;; ii) •• disp_lassociator _ _ _ )
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))))) _ _ _ _ _ _ _ _ _  _ _ _ _ _ _ _ _ ηη.
+    transportb (λ α, _ ==>[α] _) (rwhisker_rwhisker _ _ _)
+               ((ηη ▹▹ hh ;; ii) •• disp_lassociator _ _ _)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))))
+         _ _ _ _ _ _ _ _ _  _ _ _ _ _ _ _ _ ηη.
 
-Definition disp_vcomp_whisker
-           {a b c : C} {f g : C⟦a, b⟧} {h i : C⟦b, c⟧}
+Definition disp_vcomp_whisker {a b c : C} {f g : C⟦a,b⟧} {h i : C⟦b,c⟧}
            (η : f ==> g) (φ : h ==> i)
            (x : D a) (y : D b) (z : D c)
-           (ff : x -->[f] y) (gg : x -->[g] y)
-           (hh : y -->[h] z) (ii : y -->[i] z)
+           (ff : x -->[f] y) (gg : x -->[g] y) (hh : y -->[h] z) (ii : y -->[i] z)
            (ηη : ff ==>[η] gg) (φφ : hh ==>[φ] ii)
   : (ηη ▹▹ hh) •• (gg ◃◃ φφ) =
-    transportb (λ x', _ ==>[x'] _) (vcomp_whisker _ _ ) ((ff ◃◃ φφ) •• (ηη ▹▹ ii))
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))))) _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ ηη φφ.
+    transportb (λ α, _ ==>[α] _) (vcomp_whisker _ _) ((ff ◃◃ φφ) •• (ηη ▹▹ ii))
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))))))
+         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ ηη φφ.
 
-Definition disp_lunitor_linvunitor
-           {a b : C} {f : C⟦a, b⟧}
+Definition disp_lunitor_linvunitor {a b : C} {f : C⟦a,b⟧}
            {x : D a} {y : D b} (ff : x -->[f] y)
   : disp_lunitor ff •• disp_linvunitor _ =
-    transportb (λ x', _ ==>[x'] _) (lunitor_linvunitor _ ) (disp_id2 (id_disp _ ;; ff))
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))))))) _ _ _ _ _ ff.
+    transportb (λ α, _ ==>[α] _) (lunitor_linvunitor _) (disp_id2 (id_disp _ ;; ff))
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+            (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))))))
+         _ _ _ _ _ ff.
 
-Definition disp_linvunitor_lunitor
-           {a b : C} {f : C⟦a, b⟧}
+Definition disp_linvunitor_lunitor {a b : C} {f : C⟦a,b⟧}
            {x : D a} {y : D b} (ff : x -->[f] y)
   : disp_linvunitor ff •• disp_lunitor _ =
-    transportb (λ x', _ ==>[x'] _) (linvunitor_lunitor _ ) (disp_id2 _)
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))))))) _ _ _ _ _ ff.
+    transportb (λ α, _ ==>[α] _) (linvunitor_lunitor _) (disp_id2 _)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+            (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))))))) _ _ _ _ _ ff.
 
-Definition disp_runitor_rinvunitor
-           {a b : C} {f : C⟦a, b⟧}
+Definition disp_runitor_rinvunitor {a b : C} {f : C⟦a,b⟧}
            {x : D a} {y : D b} (ff : x -->[f] y)
   : disp_runitor ff •• disp_rinvunitor _ =
-    transportb (λ x', _ ==>[x'] _) (runitor_rinvunitor _ ) (disp_id2 _ )
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))))))))) _ _ _ _ _ ff.
+    transportb (λ α, _ ==>[α] _) (runitor_rinvunitor _) (disp_id2 _)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+            (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))))))))) _ _ _ _ _ ff.
 
-Definition disp_rinvunitor_runitor
-           {a b : C} {f : C⟦a, b⟧}
+Definition disp_rinvunitor_runitor {a b : C} {f : C⟦a,b⟧}
            {x : D a} {y : D b} (ff : x -->[f] y)
   : disp_rinvunitor ff •• disp_runitor _ =
-    transportb (λ x', _ ==>[x'] _) (rinvunitor_runitor _ ) (disp_id2 _)
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))))))))) _ _ _ _ _ ff.
+    transportb (λ α, _ ==>[α] _) (rinvunitor_runitor _) (disp_id2 _)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+            (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))))))))) _ _ _ _ _ ff.
 
-Definition disp_lassociator_rassociator
-           {a b c d : C} {f : C⟦a, b⟧} {g : C⟦b, c⟧} {h : c --> d}
-           {w : D a} {x : D b} {y : D c} {z : D d}
-           (ff : w -->[f] x) (gg : x -->[g] y)
-           (hh : y -->[h] z)
+Definition disp_lassociator_rassociator {a b c d : C} {f : C⟦a,b⟧} {g : C⟦b,c⟧}
+           {h : c --> d} {w : D a} {x : D b} {y : D c} {z : D d}
+           (ff : w -->[f] x) (gg : x -->[g] y) (hh : y -->[h] z)
   : disp_lassociator ff gg hh •• disp_rassociator _ _ _ =
-    transportb (λ x', _ ==>[x'] _) (lassociator_rassociator _ _ _  ) (disp_id2  _ )
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))))))))))) _ _ _ _ _ _ _ _ _ _ _ ff gg hh.
+    transportb (λ α, _ ==>[α] _) (lassociator_rassociator _ _ _ ) (disp_id2  _)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+            (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))))))))))
+         _ _ _ _ _ _ _ _ _ _ _ ff gg hh.
 
 Definition disp_rassociator_lassociator
-           {a b c d : C} (f : C⟦a, b⟧) {g : C⟦b, c⟧} {h : c --> d}
+           {a b c d : C} (f : C⟦a,b⟧) {g : C⟦b,c⟧} {h : c --> d}
            {w : D a} {x : D b} {y : D c} {z : D d}
            (ff : w -->[f] x) (gg : x -->[g] y)
            (hh : y -->[h] z)
   : disp_rassociator ff gg hh •• disp_lassociator _ _ _ =
-    transportb (λ x', _ ==>[x'] _) (rassociator_lassociator _ _ _  ) (disp_id2 _)
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))))))))))) _ _ _ _ _ _ _ _ _ _ _ ff gg hh.
+    transportb (λ α, _ ==>[α] _) (rassociator_lassociator _ _ _ ) (disp_id2 _)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+            (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))))))))))))
+         _ _ _ _ _ _ _ _ _ _ _ ff gg hh.
 
-Definition disp_runitor_rwhisker
-           {a b c : C} {f : C⟦a, b⟧} {g : C⟦b, c⟧}
-           {x : D a} {y : D b} {z : D c}
-           (ff : x -->[f] y) (gg : y -->[g] z)
+Definition disp_runitor_rwhisker {a b c : C} {f : C⟦a,b⟧} {g : C⟦b,c⟧}
+           {x : D a} {y : D b} {z : D c} (ff : x -->[f] y) (gg : y -->[g] z)
   : disp_lassociator _ _ _ •• (disp_runitor ff ▹▹ gg) =
-    transportb (λ x', _ ==>[x'] _) (runitor_rwhisker _ _ ) (ff ◃◃ disp_lunitor gg)
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))))))))))))) _ _ _ _ _ _ _ _ ff gg.
+    transportb (λ α, _ ==>[α] _) (runitor_rwhisker _ _) (ff ◃◃ disp_lunitor gg)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+            (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))))))))))))
+         _ _ _ _ _ _ _ _ ff gg.
 
-Definition disp_lassociator_lassociator
-           {a b c d e: C} {f : C⟦a, b⟧} {g : C⟦b, c⟧} {h : c --> d} {i : C⟦d, e⟧}
+Definition disp_lassociator_lassociator {a b c d e: C} {f : C⟦a,b⟧} {g : C⟦b,c⟧}
+           {h : c --> d} {i : C⟦d,e⟧}
            {v : D a} {w : D b} {x : D c} {y : D d} {z : D e}
-           (ff : v -->[f] w) (gg : w -->[g] x)
-           (hh : x -->[h] y) (ii : y -->[i] z)
-  : (ff ◃◃ disp_lassociator gg hh ii) •• disp_lassociator _ _ _ •• (disp_lassociator _ _ _ ▹▹ ii) =
-     transportb (λ x', _ ==>[x'] _) (lassociator_lassociator _ _ _ _ )
-                (disp_lassociator ff gg _ •• disp_lassociator _ _ _)
-  := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D)))))))))))))))))))) _ _ _ _ _ _ _ _ _ _ _ _ _ _ ff gg hh ii.
+           (ff : v -->[f] w) (gg : w -->[g] x) (hh : x -->[h] y) (ii : y -->[i] z)
+  : (ff ◃◃ disp_lassociator gg hh ii) •• disp_lassociator _ _ _ ••
+    (disp_lassociator _ _ _ ▹▹ ii) =
+    transportb (λ α, _ ==>[α] _) (lassociator_lassociator _ _ _ _)
+               (disp_lassociator ff gg _ •• disp_lassociator _ _ _)
+  := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+            (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 D))))))))))))))))))))
+         _ _ _ _ _ _ _ _ _ _ _ _ _ _ ff gg hh ii.
 
 End disp_prebicat_law_projections.
 
-Lemma disp_vassocl {D : disp_prebicat}
-      {a b : C} {f g h k : C⟦a, b⟧} {η : f ==> g} {φ : g ==> h} {ψ : h ==> k}
-      {x : D a} {y : D b}
+(* ----------------------------------------------------------------------------------- *)
+(** ** Invertible displayed 2-cells.                                                   *)
+(* ----------------------------------------------------------------------------------- *)
+
+Lemma disp_vassocl {D : disp_prebicat} {a b : C} {f g h k : C⟦a,b⟧}
+      {η : f ==> g} {φ : g ==> h} {ψ : h ==> k} {x : D a} {y : D b}
       {ff : x -->[f] y} {gg : x -->[g] y} {hh : x -->[h] y} {kk : x -->[k] y}
       (ηη : ff ==>[η] gg) (φφ : gg ==>[φ] hh) (ψψ : hh ==>[ψ] kk)
-  : (ηη •• φφ) •• ψψ = transportb (λ x', _ ==>[x'] _ ) (vassocl _ _ _ ) (ηη •• (φφ •• ψψ)).
+  : (ηη •• φφ) •• ψψ
+    = transportb (λ α, _ ==>[α] _) (vassocl _ _ _) (ηη •• (φφ •• ψψ)).
 Proof.
-  apply (transportf_transpose (P := λ x', _ ==>[x'] _ )).
+  apply (transportf_transpose (P := λ x', _ ==>[x'] _)).
   apply pathsinv0.
   etrans.
   apply disp_vassocr.
@@ -581,31 +607,29 @@ Section Display_Invertible_2cell.
 
   Section Def_inv_2cell.
 
-  Context {c c' : C} {f f' : C⟦c,c'⟧}
-          {d : D c} {d' : D c'}.
+  Context {c c' : C} {f f' : C⟦c,c'⟧} {d : D c} {d' : D c'}.
 
-  Definition is_disp_invertible_2cell'
-             {α : invertible_2cell f f'}
-             {ff : d -->[f] d'} {ff' : d -->[f'] d'}
-             (x : ff ==>[α] ff')
+  Definition is_disp_invertible_2cell' {α : invertible_2cell f f'}
+             {ff : d -->[f] d'} {ff' : d -->[f'] d'} (x : ff ==>[α] ff')
     : UU
     := ∑ (y : ff' ==>[inv_invertible_2cell α] ff),
-       (x •• y =
-        transportb (λ x', _ ==>[x'] _) (invertible_2cell_after_inv_cell α)  (disp_id2 ff)) ×
-       (y •• x =
-        transportb (λ x', _ ==>[x'] _) (inv_cell_after_invertible_2cell α)  (disp_id2 ff')).
+         (x •• y =
+          transportb (λ α, _ ==>[α] _) (invertible_2cell_after_inv_cell α)
+                     (disp_id2 ff))
+       × (y •• x =
+          transportb (λ α, _ ==>[α] _) (inv_cell_after_invertible_2cell α)
+                     (disp_id2 ff')).
 
-  Definition is_disp_invertible_2cell
-             {α : f ==> f'}
-             (Hα : is_invertible_2cell α)
-             {ff : d -->[f] d'} {ff' : d -->[f'] d'}
-             (x : ff ==>[α] ff')
+  Definition is_disp_invertible_2cell {α : f ==> f'} (Hα : is_invertible_2cell α)
+             {ff : d -->[f] d'} {ff' : d -->[f'] d'} (x : ff ==>[α] ff')
     : UU
     := ∑ (y : ff' ==>[inv_invertible_2cell (α,,Hα)] ff),
-       (x •• y =
-        transportb (λ x', _ ==>[x'] _) (invertible_2cell_after_inv_cell (α,,Hα))  (disp_id2 ff)) ×
-       (y •• x =
-        transportb (λ x', _ ==>[x'] _) (inv_cell_after_invertible_2cell (α,,Hα))  (disp_id2 ff')).
+         (x •• y =
+          transportb (λ α, _ ==>[α] _) (invertible_2cell_after_inv_cell (α,,Hα))
+                     (disp_id2 ff))
+       × (y •• x =
+          transportb (λ α, _ ==>[α] _) (inv_cell_after_invertible_2cell (α,,Hα))
+                     (disp_id2 ff')).
 
   Definition disp_invertible_2cell (α : invertible_2cell f f')
              (ff : d -->[f] d') (ff' : d -->[f'] d')
@@ -628,21 +652,20 @@ Section Display_Invertible_2cell.
              {ff : d -->[f] d'} {ff' : d -->[f'] d'}
              (e : disp_invertible_2cell α ff ff')
     : e •• disp_inv_cell e =
-      transportb (λ x', _ ==>[x'] _) (invertible_2cell_after_inv_cell α)  (disp_id2 ff)
+      transportb (λ α, _ ==>[α] _) (invertible_2cell_after_inv_cell α) (disp_id2 ff)
     := pr1 (pr2 (pr2 e)).
 
   Definition disp_invertible_2cell_after_inv_cell {α : invertible_2cell f f'}
              {ff : d -->[f] d'} {ff' : d -->[f'] d'}
              (e : disp_invertible_2cell α ff ff')
     : disp_inv_cell e •• e =
-      transportb (λ x', _ ==>[x'] _) (inv_cell_after_invertible_2cell α)  (disp_id2 ff')
+      transportb (λ α, _ ==>[α] _) (inv_cell_after_invertible_2cell α) (disp_id2 ff')
     := pr2 (pr2 (pr2 e)).
 
   End Def_inv_2cell.
 
-  Lemma disp_mor_transportf_postwhisker (a b : C)
-        {x y z : C⟦a,b⟧} {f f' : x ==> y} (ef : f = f') {g : y ==> z}
-        {aa : D a} {bb : D b}
+  Lemma disp_mor_transportf_postwhisker (a b : C) {x y z : C⟦a,b⟧} {f f' : x ==> y}
+        (ef : f = f') {g : y ==> z} {aa : D a} {bb : D b}
         {xx : aa -->[x] bb} {yy} {zz} (ff : xx ==>[f] yy) (gg : yy ==>[g] zz)
     : (transportf (λ x, _ ==>[x] _) ef ff) •• gg
       = transportf (λ x, _ ==>[x] _) (maponpaths (λ h, h • g) ef) (ff •• gg).
@@ -650,8 +673,8 @@ Section Display_Invertible_2cell.
     destruct ef; apply idpath.
   Qed.
 
-  Lemma disp_mor_transportf_prewhisker (a b : C)
-        {x y z : C⟦a,b⟧} {f : x ==> y} {g g' : y ==> z} (ef : g = g')
+  Lemma disp_mor_transportf_prewhisker (a b : C) {x y z : C⟦a,b⟧}
+        {f : x ==> y} {g g' : y ==> z} (ef : g = g')
         {aa : D a} {bb : D b}
         {xx : aa -->[x] bb} {yy} {zz} (ff : xx ==>[f] yy) (gg : yy ==>[g] zz)
     : ff •• (transportf (λ x, _ ==>[x] _) ef gg)
@@ -660,8 +683,8 @@ Section Display_Invertible_2cell.
     destruct ef; apply idpath.
   Qed.
 
-  Lemma disp_mor_transportf_prewhisker_gen (a b : C)
-        {x y z : C⟦a,b⟧} {f : x ==> y} {A : UU} {t : A → y ==> z} {g g' : A} (ef : g = g')
+  Lemma disp_mor_transportf_prewhisker_gen (a b : C) {x y z : C⟦a,b⟧} {f : x ==> y}
+        {A : UU} {t : A → y ==> z} {g g' : A} (ef : g = g')
         {aa : D a} {bb : D b}
         {xx : aa -->[x] bb} {yy} {zz} (ff : xx ==>[f] yy) (gg : yy ==>[t g] zz)
     : ff •• (transportf (λ x, _ ==>[t x] _) ef gg)
@@ -689,15 +712,15 @@ Section Display_Invertible_2cell.
     etrans. apply maponpaths_2. apply pp.
     etrans. apply disp_mor_transportf_postwhisker.
     etrans. apply maponpaths. apply disp_vassocl.
-    etrans. unfold transportb. apply (transport_f_f (λ x' : f ==> h, ff ==>[ x'] hh)).
+    etrans. unfold transportb. apply (transport_f_f (λ x' : f ==> h, ff ==>[x'] hh)).
     etrans. apply maponpaths. apply maponpaths.
     apply disp_invertible_2cell_after_inv_cell.
     etrans. apply maponpaths.
     apply disp_mor_transportf_prewhisker.
-    etrans. unfold transportb. apply (transport_f_f (λ x' : f ==> h, ff ==>[ x'] hh)).
+    etrans. unfold transportb. apply (transport_f_f (λ x' : f ==> h, ff ==>[x'] hh)).
     etrans. apply maponpaths.
     apply disp_id2_right.
-    etrans. unfold transportb. apply (transport_f_f (λ x' : f ==> h, ff ==>[ x'] hh)).
+    etrans. unfold transportb. apply (transport_f_f (λ x' : f ==> h, ff ==>[x'] hh)).
     unfold transportb.
     apply maponpaths_2.
     apply cellset_property.
@@ -715,8 +738,11 @@ Section Display_Invertible_2cell.
         (zz : ff ==>[z] hh)
         (H : is_disp_invertible_2cell Hy yy)
         (q : x • y = z)
-        (p  := rhs_right_inv_cell _ _ _ Hy q : x = z • inv_cell (y,,Hy) )
-        (pp : xx = transportb (λ x, _ ==>[x] _) p (zz •• disp_inv_cell ((yy,,H):disp_invertible_2cell (y,,Hy) gg hh)))
+        (p  := rhs_right_inv_cell _ _ _ Hy q : x = z • inv_cell (y,,Hy))
+        (pp : xx =
+              transportb
+                (λ x, _ ==>[x] _) p
+                (zz •• disp_inv_cell ((yy,,H):disp_invertible_2cell (y,,Hy) gg hh)))
     : xx •• yy = transportb (λ x, _ ==>[x] _) q zz.
   Proof.
     etrans.
@@ -737,9 +763,10 @@ Section Display_Invertible_2cell.
         (HH : is_disp_invertible_2cell H xx)
         (q :  x • y = z)
         (p := rhs_left_inv_cell _ _ _ H q : y = inv_cell (x,,H) • z)
-        (pp : yy = transportb
-                     (λ x, _ ==>[x] _) p
-                     (disp_inv_cell ((xx,,HH):disp_invertible_2cell (x,,H) ff gg) •• zz))
+        (pp : yy =
+              transportb
+                (λ x, _ ==>[x] _) p
+                (disp_inv_cell ((xx,,HH):disp_invertible_2cell (x,,H) ff gg) •• zz))
     : xx •• yy = transportb (λ x, _ ==>[x] _) q zz.
   Proof.
     etrans. apply maponpaths. apply pp.
@@ -750,7 +777,8 @@ Section Display_Invertible_2cell.
     etrans. apply (transport_f_f (λ x, _ ==>[x] _)).
     etrans. apply maponpaths.
     apply maponpaths_2.
-    apply (disp_inv_cell_after_invertible_2cell ((xx,,HH):disp_invertible_2cell (x,,H) _ _)).
+    apply (disp_inv_cell_after_invertible_2cell
+             ((xx,,HH):disp_invertible_2cell (x,,H) _ _)).
     etrans. apply maponpaths. apply disp_mor_transportf_postwhisker.
     etrans. unfold transportb. apply (transport_f_f (λ x, _ ==>[x] _)).
     etrans. apply maponpaths. apply disp_id2_left.
@@ -761,12 +789,16 @@ Section Display_Invertible_2cell.
 
 End Display_Invertible_2cell.
 
+(* ----------------------------------------------------------------------------------- *)
+(** ** Derived laws                                                                    *)
+(* ----------------------------------------------------------------------------------- *)
+
 Section Derived_Laws.
 
 Context {D : disp_prebicat}.
 
 Definition is_disp_invertible_2cell_lassociator {a b c d : C}
-           {f1 : C ⟦ a, b ⟧} {f2 : C ⟦ b, c ⟧} {f3 : C ⟦ c, d ⟧}
+           {f1 : C⟦a,b⟧} {f2 : C⟦b,c⟧} {f3 : C⟦c,d⟧}
            {aa : D a} {bb : D b} {cc : D c} {dd : D d}
            (ff1 : aa -->[f1] bb)
            (ff2 : bb -->[f2] cc)
@@ -781,7 +813,7 @@ Proof.
 Defined.
 
 Definition is_disp_invertible_2cell_rassociator {a b c d : C}
-           {f1 : C ⟦ a, b ⟧} {f2 : C ⟦ b, c ⟧} {f3 : C ⟦ c, d ⟧}
+           {f1 : C⟦a,b⟧} {f2 : C⟦b,c⟧} {f3 : C⟦c,d⟧}
            {aa : D a} {bb : D b} {cc : D c} {dd : D d}
            (ff1 : aa -->[f1] bb)
            (ff2 : bb -->[f2] cc)
@@ -796,7 +828,7 @@ Proof.
 Defined.
 
 Lemma disp_lassociator_to_rassociator_post' {a b c d : C}
-      {f : C ⟦ a, b ⟧} {g : C ⟦ b, c ⟧} {h : C ⟦ c, d ⟧} {k : C ⟦ a, d ⟧}
+      {f : C⟦a,b⟧} {g : C⟦b,c⟧} {h : C⟦c,d⟧} {k : C⟦a,d⟧}
       {x : k ==> (f · g) · h}
       {y : k ==> f · (g · h)}
       (p : x = y • lassociator f g h)
@@ -825,7 +857,7 @@ Proof.
 Qed.
 
 Lemma disp_lassociator_to_rassociator_post {a b c d : C}
-      {f : C ⟦ a, b ⟧} {g : C ⟦ b, c ⟧} {h : C ⟦ c, d ⟧} {k : C ⟦ a, d ⟧}
+      {f : C⟦a,b⟧} {g : C⟦b,c⟧} {h : C⟦c,d⟧} {k : C⟦a,d⟧}
       {x : k ==> (f · g) · h}
       {y : k ==> f · (g · h)}
       {aa : D a} {bb : D b} {cc : D c} {dd : D d}
@@ -850,7 +882,7 @@ Proof.
 Qed.
 
 Lemma disp_lassociator_to_rassociator_pre {a b c d : C}
-      {f : C ⟦ a, b ⟧} {g : C ⟦ b, c ⟧} {h : C ⟦ c, d ⟧} {k : C ⟦ a, d ⟧}
+      {f : C⟦a,b⟧} {g : C⟦b,c⟧} {h : C⟦c, d⟧} {k : C⟦a,d⟧}
       {x : f · (g · h) ==> k}
       {y : (f · g) · h ==> k}
       {aa : D a} {bb : D b} {cc : D c} {dd : D d}
@@ -879,13 +911,12 @@ Proof.
     apply cellset_property.
 Qed.
 
-Lemma disp_lunitor_lwhisker {a b c : C} {f : C⟦a, b⟧} {g : C⟦b, c⟧}
+Lemma disp_lunitor_lwhisker {a b c : C} {f : C⟦a,b⟧} {g : C⟦b,c⟧}
       {aa : D a} {bb : D b} {cc : D c}
       (ff : aa -->[f] bb)
       (gg : bb -->[g] cc)
   : (disp_rassociator _ _ _ •• (ff ◃◃ disp_lunitor gg)) =
-    transportb (λ x', _ ==>[x'] _)
-               (lunitor_lwhisker _ _)
+    transportb (λ α, _ ==>[α] _) (lunitor_lwhisker _ _)
                (disp_runitor ff ▹▹ gg).
 Proof.
   etrans.
@@ -897,13 +928,17 @@ Proof.
     etrans.
     apply maponpaths. apply disp_runitor_rwhisker.
     etrans.
-    apply (transport_f_f (λ x', _ ==>[x'] _)).
-    apply (transportf_set (λ x', _ ==>[x'] _)).
+    apply (transport_f_f (λ α, _ ==>[α] _)).
+    apply (transportf_set (λ α, _ ==>[α] _)).
     apply cellset_property.
   - apply maponpaths_2, cellset_property.
 Qed.
 
 End Derived_Laws.
+
+(* ----------------------------------------------------------------------------------- *)
+(** ** Total bicategory of a displayed bicategory                                      *)
+(* ----------------------------------------------------------------------------------- *)
 
 Section total_prebicat.
 
@@ -914,7 +949,8 @@ Variable D : disp_prebicat.
     possible once https://github.com/UniMath/UniMath/pull/902
     is merged
 
-*)
+ *)
+
 Definition total_prebicat_ob_mor : precategory_ob_mor.
 Proof.
   exists (∑ x:C, D x).
@@ -926,14 +962,15 @@ Definition total_category_id_comp : precategory_id_comp (total_prebicat_ob_mor).
 Proof.
   apply tpair; simpl.
   - intros.
-    exists (identity _ ).
+    exists (identity _).
     apply id_disp.
   - intros xx yy zz ff gg.
     exists (pr1 ff · pr1 gg).
     exact (pr2 ff ;; pr2 gg).
 Defined.
 
-Definition total_prebicat_1_data : precategory_data := _ ,, total_category_id_comp.
+Definition total_prebicat_1_data : precategory_data
+  := total_prebicat_ob_mor ,, total_category_id_comp.
 
 Definition total_prebicat_cell_struct : prebicat_2cell_struct total_prebicat_ob_mor
   := λ a b f g, ∑ η : pr1 f ==> pr1 g, pr2 f ==>[η] pr2 g.
@@ -941,18 +978,19 @@ Definition total_prebicat_cell_struct : prebicat_2cell_struct total_prebicat_ob_
 Definition total_prebicat_1_id_comp_cells : prebicat_1_id_comp_cells
   := (total_prebicat_1_data,, total_prebicat_cell_struct).
 
-Definition total_prebicat_2_id_comp_struct : prebicat_2_id_comp_struct total_prebicat_1_id_comp_cells.
+Definition total_prebicat_2_id_comp_struct
+  : prebicat_2_id_comp_struct total_prebicat_1_id_comp_cells.
 Proof.
   repeat split; cbn; unfold total_prebicat_cell_struct.
-  - intros. exists (id2 _ ). exact (disp_id2 _ ).
-  - intros. exists (lunitor _ ). exact (disp_lunitor _ ).
-  - intros. exists (runitor _ ). exact (disp_runitor _ ).
-  - intros. exists (linvunitor _ ). exact (disp_linvunitor _ ).
-  - intros. exists (rinvunitor _ ). exact (disp_rinvunitor _ ).
-  - intros. exists (rassociator _ _ _ ).
-    exact (disp_rassociator _ _ _ ).
-  - intros. exists (lassociator _ _ _ ).
-    exact (disp_lassociator _ _ _ ).
+  - intros. exists (id2 _). exact (disp_id2 _).
+  - intros. exists (lunitor _). exact (disp_lunitor _).
+  - intros. exists (runitor _). exact (disp_runitor _).
+  - intros. exists (linvunitor _). exact (disp_linvunitor _).
+  - intros. exists (rinvunitor _). exact (disp_rinvunitor _).
+  - intros. exists (rassociator _ _ _).
+    exact (disp_rassociator _ _ _).
+  - intros. exists (lassociator _ _ _).
+    exact (disp_lassociator _ _ _).
   - intros a b f g h r s. exists (pr1 r • pr1 s).
     exact (pr2 r •• pr2 s).
   - intros a b d f g1 g2 r. exists (pr1 f ◃ pr1 r).
@@ -961,7 +999,8 @@ Proof.
     exact (pr2 r ▹▹ pr2 g).
 Defined.
 
-Definition total_prebicat_data : prebicat_data := _ ,, total_prebicat_2_id_comp_struct.
+Definition total_prebicat_data : prebicat_data
+  := _ ,, total_prebicat_2_id_comp_struct.
 
 Lemma total_prebicat_laws : prebicat_laws total_prebicat_data.
 Proof.
@@ -1051,7 +1090,8 @@ Proof.
     apply id2_invertible_2cell.
 Defined.
 
-Definition pr1_psfunctor_data : psfunctor_data total_prebicat_data C := _ ,, pr1_psfunctor_cell_data.
+Definition pr1_psfunctor_data : psfunctor_data total_prebicat_data C
+  := pr1_psfunctor_ob_mor_cell ,, pr1_psfunctor_cell_data.
 
 Definition pr1_psfunctor_laws : psfunctor_laws pr1_psfunctor_data.
 Proof.
@@ -1137,9 +1177,9 @@ Arguments disp_prebicat_data _ : clear implicits.
 Arguments disp_prebicat _ : clear implicits.
 Arguments disp_bicat _ : clear implicits.
 
-(* =================================================================================== *)
+(* -----------------------------------------------------------------------------------*)
 (** ** Notations.                                                                      *)
-(* =================================================================================== *)
+(* -----------------------------------------------------------------------------------*)
 
 Module Notations.
 
