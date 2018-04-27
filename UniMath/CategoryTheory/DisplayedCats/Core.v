@@ -1079,7 +1079,7 @@ Definition total_iso_equiv (xx yy : total_category)
 Lemma is_univalent_total_category (CC : is_univalent C) (DD : is_univalent_disp D)
   : is_univalent (total_category).
 Proof.
-  split. Focus 2. apply homset_property.
+  split. 2: apply homset_property.
   intros xs ys.
   set (x := pr1 xs). set (xx := pr2 xs).
   set (y := pr1 ys). set (yy := pr2 ys).
@@ -1142,14 +1142,14 @@ Proof.
     eapply pathscomp0. apply transport_b_f.
     eapply pathscomp0. apply maponpaths, id_left_disp.
     eapply pathscomp0. apply transport_f_b.
-    eapply pathscomp0. Focus 2. apply @pathsinv0, (functtransportb (# F)).
+    eapply pathscomp0. 2: apply @pathsinv0, (functtransportb (# F)).
     unfold transportb; apply maponpaths_2, homset_property.
   - intros x y f xx yy ff.
     eapply pathscomp0. apply maponpaths, mor_disp_transportf_prewhisker.
     eapply pathscomp0. apply transport_b_f.
     eapply pathscomp0. apply maponpaths, id_right_disp.
     eapply pathscomp0. apply transport_f_b.
-    eapply pathscomp0. Focus 2. apply @pathsinv0, (functtransportb (# F)).
+    eapply pathscomp0. 2: apply @pathsinv0, (functtransportb (# F)).
     unfold transportb; apply maponpaths_2, homset_property.
   - intros x y z w f g h xx yy zz ww ff gg hh.
     eapply pathscomp0. apply maponpaths, mor_disp_transportf_prewhisker.
