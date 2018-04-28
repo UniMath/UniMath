@@ -22,21 +22,86 @@ Open Scope mor_disp_scope.
 (** To be moved to Bicat *)
 Section auxiliary.
 
-Context {C : prebicat}.
+Context {C : bicat}.
+
+
+Lemma isaprop_is_invertible_2cell
+      {a b : C} {f g : C ⟦a, b⟧} (x : f ==> g)
+  : isaprop (is_invertible_2cell x).
+Proof.
+  apply invproofirrelevance.
+  intros p q.
+  apply subtypeEquality.
+  { intro. apply isapropdirprod; apply cellset_property. }
+  destruct p as [y [hy1 hy2]].
+  destruct q as [z [hz1 hz2]].
+  cbn in *.
+  intermediate_path (y • (x • z)).
+  - rewrite hz1. apply pathsinv0, id2_right.
+  - rewrite vassocr. rewrite hy2. apply id2_left.
+Qed.
 
 
 Lemma cell_id_if_inv_cell_id {a b : C} {f g : C ⟦a, b⟧} (x y : f ==> g)
       (hx : is_invertible_2cell x) (hy : is_invertible_2cell y)
-  : inv_invertible_2cell (x,,hx) = inv_invertible_2cell (y,,hy) → x = y.
+  : inv_cell (x,,hx) = inv_cell (y,,hy) → x = y.
 Proof.
   intro H.
   set (P:= (inv_invertible_2cell (inv_invertible_2cell (x,,hx)))).
   intermediate_path (pr1 P).
   { apply idpath. }
   unfold P.
-  rewrite H.
+  assert (foo : inv_invertible_2cell (x,, hx) = inv_invertible_2cell (y,, hy)).
+  { apply subtypeEquality. intro. apply isaprop_is_invertible_2cell.
+    apply H.
+  }
+  rewrite foo.
   apply idpath.
 Qed.
+
+Lemma vassoc4 {a b : C} {f g h i j: C ⟦a, b⟧}
+      (w : f ==> g) (x : g ==> h) (y : h ==> i) (z : i ==> j)
+  : w • (x • (y • z)) = w • (x • y) • z.
+Proof.
+  repeat rewrite vassocr.
+  apply idpath.
+Qed.
+
+Lemma is_invertible_2cell_composite {a b : C} {f g h: C ⟦a, b⟧}
+      (x : f ==> g) (y : g ==> h)
+      (hx : is_invertible_2cell x) (hy : is_invertible_2cell y)
+  : is_invertible_2cell (x • y).
+Proof.
+  exists (inv_invertible_2cell (y,,hy) • inv_invertible_2cell (x,,hx)).
+  split.
+  - abstract (
+        repeat rewrite vassocl;
+        etrans; [apply vassoc4|];
+        etrans; [ apply maponpaths_2, maponpaths;
+                  apply (invertible_2cell_after_inv_cell (y,,hy)) |];
+        rewrite id2_right;
+        apply  (invertible_2cell_after_inv_cell (x,,hx))
+      ).
+  - abstract (
+        repeat rewrite vassocl;
+        etrans; [apply vassoc4|];
+        etrans; [ apply maponpaths_2, maponpaths;
+                  apply (inv_cell_after_invertible_2cell (x,,hx)) |];
+        rewrite id2_right;
+        apply  (inv_cell_after_invertible_2cell (y,,hy))
+      ).
+Defined.
+
+Lemma inv_cell_of_composite {a b : C} {f g h: C ⟦a, b⟧}
+      (x : f ==> g) (y : g ==> h)
+      (hx : is_invertible_2cell x) (hy : is_invertible_2cell y)
+  : inv_cell ((x • y),,is_invertible_2cell_composite _ _ hx hy)  =
+    inv_invertible_2cell (y,,hy) • inv_invertible_2cell (x,,hx).
+Proof.
+  cbn. apply idpath.
+Defined.
+
+
 
 (* rwhisker_lwhisker
 (∏ (a b c d : C) (f : C⟦a, b⟧) (g h : C⟦b, c⟧) (i : c --> d) (x : g ==> h),
@@ -93,7 +158,7 @@ End auxiliary.
 
 Section unitors.
 
-Context {C : prebicat}.
+Context {C : bicat}.
 
 
 (** The triangle with "?" in the proof of the Proposition *)
@@ -133,6 +198,7 @@ Proof.
   etrans. apply maponpaths. apply maponpaths. apply pathsinv0, lwhisker_vcomp.
 
   (** remove trailing lunitor *)
+
   etrans. apply vassocr.
   etrans. apply vassocr.
 
@@ -143,7 +209,21 @@ Proof.
   (** turn the rassociators into lassociators *)
 
   use cell_id_if_inv_cell_id.
-Admitted.
+  - use is_invertible_2cell_composite.
+    + apply is_invertible_2cell_rassociator.
+    + apply is_invertible_2cell_rassociator.
+  - use is_invertible_2cell_composite.
+    + use is_invertible_2cell_composite.
+      * apply is_invertible_2cell_rwhisker.
+        apply is_invertible_2cell_rassociator.
+      * apply is_invertible_2cell_rassociator.
+    + apply is_invertible_2cell_lwhisker.
+      apply is_invertible_2cell_rassociator.
+  - cbn.
+    apply pathsinv0.
+    etrans. apply vassocr.
+    apply lassociator_lassociator.
+Qed.
 
 
 
