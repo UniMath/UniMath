@@ -12,61 +12,65 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
 Open Scope cat.
 
-(** * Definition of bicategory *)
+(* ----------------------------------------------------------------------------------- *)
+(** * Definition of bicategory                                                         *)
+(*                                                                                     *)
+(** ** Data                                                                            *)
+(* ----------------------------------------------------------------------------------- *)
 
-Definition prebicat_2cell_struct (C : precategory_ob_mor) : UU :=
-  ∏ (a b: C), C⟦a, b⟧ → C⟦a, b⟧ → UU.
+Definition prebicat_2cell_struct (C : precategory_ob_mor)
+  : UU
+  := ∏ (a b: C), C⟦a, b⟧ → C⟦a, b⟧ → UU.
 
-Definition prebicat_1_id_comp_cells : UU := ∑ (C : precategory_data), prebicat_2cell_struct C.
+Definition prebicat_1_id_comp_cells : UU
+  := ∑ (C : precategory_data), prebicat_2cell_struct C.
+
 Coercion precat_data_from_prebicat_1_id_comp_cells (C : prebicat_1_id_comp_cells)
   : precategory_data
   := pr1 C.
 
-Definition prebicat_cells (C : prebicat_1_id_comp_cells) {a b : C} (f g : C⟦a, b⟧) : UU :=
-  pr2 C a b f g.
+Definition prebicat_cells (C : prebicat_1_id_comp_cells) {a b : C} (f g : C⟦a, b⟧)
+  : UU
+  := pr2 C a b f g.
 
 Local Notation "f '==>' g" := (prebicat_cells _ f g) (at level 60).
 Local Notation "f '<==' g" := (prebicat_cells _ g f) (at level 60, only parsing).
 
 Definition prebicat_2_id_comp_struct (C : prebicat_1_id_comp_cells) : UU
   :=
-    (* 2-unit *)
-    (∏ (a b : C) (f : C⟦a, b⟧), f ==> f)
-      ×
-    (* left unitor *)
-    (∏ (a b : C) (f : C⟦a, b⟧), identity _ · f ==> f)
-      ×
-    (* right unitor *)
-    (∏ (a b : C) (f : C⟦a, b⟧), f · identity _  ==> f)
-      ×
-    (* left inverse unitor *)
-    (∏ (a b : C) (f : C⟦a, b⟧), identity _ · f <== f)
-      ×
-    (* right inverse unitor *)
-      (∏ (a b : C) (f : C⟦a, b⟧), f · identity _  <== f)
-      ×
-    (* right associator *)
-    (∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : C⟦c, d⟧),
-     (f · g) · h ==> f · (g · h))
-          ×
-    (* left associator *)
-    (∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : C⟦c, d⟧),
-       f · (g · h) ==> (f · g) · h)
-      ×
-    (* vertical composition *)
-    (∏ (a b : C) (f g h : C⟦a, b⟧), f ==> g -> g ==> h -> f ==> h)
-    ×
-    (* left whiskering *)
-    (∏ (a b c : C) (f : C⟦a, b⟧) (g1 g2 : C⟦b, c⟧),
-     g1 ==> g2 → f · g1 ==> f · g2)
-    ×
-    (* right whiskering *)
-    (∏ (a b c : C) (f1 f2 : C⟦a, b⟧) (g : C⟦b, c⟧),
-     f1 ==> f2 → f1 · g ==> f2 · g).
+       (* 2-unit *)
+       (∏ (a b : C) (f : C⟦a, b⟧), f ==> f)
+     × (* left unitor *)
+       (∏ (a b : C) (f : C⟦a, b⟧), identity _ · f ==> f)
+     × (* right unitor *)
+       (∏ (a b : C) (f : C⟦a, b⟧), f · identity _  ==> f)
+     × (* left inverse unitor *)
+       (∏ (a b : C) (f : C⟦a, b⟧), identity _ · f <== f)
+     × (* right inverse unitor *)
+       (∏ (a b : C) (f : C⟦a, b⟧), f · identity _  <== f)
+     × (* right associator *)
+       (∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : C⟦c, d⟧),
+        (f · g) · h ==> f · (g · h))
+     × (* left associator *)
+       (∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : C⟦c, d⟧),
+        f · (g · h) ==> (f · g) · h)
+     × (* vertical composition *)
+       (∏ (a b : C) (f g h : C⟦a, b⟧), f ==> g -> g ==> h -> f ==> h)
+     × (* left whiskering *)
+       (∏ (a b c : C) (f : C⟦a, b⟧) (g1 g2 : C⟦b, c⟧),
+        g1 ==> g2 → f · g1 ==> f · g2)
+     × (* right whiskering *)
+       (∏ (a b c : C) (f1 f2 : C⟦a, b⟧) (g : C⟦b, c⟧),
+        f1 ==> f2 → f1 · g ==> f2 · g).
 
 Definition prebicat_data : UU := ∑ C, prebicat_2_id_comp_struct C.
 
-Coercion prebicat_cells_1_id_comp_from_prebicat_data (C : prebicat_data) : prebicat_1_id_comp_cells
+(* ----------------------------------------------------------------------------------- *)
+(** Data projections.                                                                  *)
+(* ----------------------------------------------------------------------------------- *)
+
+Coercion prebicat_cells_1_id_comp_from_prebicat_data (C : prebicat_data)
+  : prebicat_1_id_comp_cells
   := pr1 C.
 
 Definition id2 {C : prebicat_data} {a b : C} (f : C⟦a, b⟧) : f ==> f
@@ -100,7 +104,7 @@ Definition lassociator {C : prebicat_data} {a b c d : C}
 
 Definition vcomp2 {C : prebicat_data} {a b : C} {f g h: C⟦a, b⟧}
   : f ==> g → g ==> h → f ==> h
-  := λ x y, pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))) _ _ _ _ _  x y.
+  := λ x y, pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))) _ _ _ _ _ x y.
 
 Definition lwhisker {C : prebicat_data} {a b c : C} (f : C⟦a, b⟧) {g1 g2 : C⟦b, c⟧}
   : g1 ==> g2 → f · g1 ==> f · g2
@@ -131,226 +135,214 @@ Local Notation "x ⋆ y" := (hcomp x y) (at level 50).
     version of October 7, 2015 10:35:36
 *)
 
-Definition prebicat_laws (C : prebicat_data) : UU
-  :=  (** 1a id2_left *)
-      (∏ (a b : C) (f g : C⟦a, b⟧) (x : f ==> g), id2 f • x = x)
-        ×
-      (** 1b id2_right *)
-      (∏ (a b : C) (f g : C⟦a, b⟧) (x : f ==> g), x • id2 g = x)
-      ×
-      (** 2 vassocr *)
-      (∏ (a b : C) (f g h k : C⟦a, b⟧) (x : f ==> g) (y : g ==> h) (z : h ==> k),
-       x • (y • z) = (x • y) • z)
-      ×
-      (** 3a lwhisker_id2 *)
-      (∏ (a b c : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧), f ◃ id2 g = id2 _ )
-      ×
-      (** 3b id2_rwhisker *)
-      (∏ (a b c : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧), id2 f ▹ g = id2 _ )
-      ×
-      (** 4 lwhisker_vcomp *)
-      (∏ (a b c : C) (f : C⟦a, b⟧) (g h i : C⟦b, c⟧) (x : g ==> h) (y : h ==> i),
-       (f ◃ x) • (f ◃ y) = f ◃ (x • y))
-      ×
-      (** 5 rwhisker_vcomp *)
-      (∏ (a b c : C) (f g h : C⟦a, b⟧) (i : C⟦b, c⟧) (x : f ==> g) (y : g ==> h),
-       (x ▹ i) • (y ▹ i) = (x • y) ▹ i)
-      ×
-      (** 6  vcomp_lunitor *)
-      (∏ (a b : C) (f g : C⟦a, b⟧) (x : f ==> g),
-       (identity _ ◃ x) • lunitor g = lunitor f • x )
-      ×
-      (** 7 vcomp_runitor *)
-      (∏ (a b : C) (f g : C⟦a, b⟧) (x : f ==> g),
-       (x ▹ identity _ ) • runitor g = runitor f • x )
-      ×
-      (** 8 lwhisker_lwhisker *)
-      (∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h i : c --> d) (x : h ==> i),
-       f ◃ (g ◃ x) • lassociator _ _ _ = lassociator _ _ _ • (f · g ◃ x))
-      ×
-      (** 9 rwhisker_lwhisker *)
-      (∏ (a b c d : C) (f : C⟦a, b⟧) (g h : C⟦b, c⟧) (i : c --> d) (x : g ==> h),
-       (f ◃ (x ▹ i)) • lassociator _ _ _ = lassociator _ _ _ • ((f ◃ x) ▹ i))
-      ×
-      (** 10 rwhisker_rwhisker *)
-      (∏ (a b c d : C) (f g : C⟦a, b⟧) (h : C⟦b, c⟧) (i : c --> d) (x : f ==> g),
-       lassociator _ _ _ • ((x ▹ h) ▹ i) = (x ▹ h · i) • lassociator _ _ _ )
-      ×
-      (** 11 vcomp_whisker *)
-      (∏ (a b c : C) (f g : C⟦a, b⟧) (h i : C⟦b, c⟧) (x : f ==> g) (y : h ==> i),
-       (x ▹ h) • (g ◃ y) = (f ◃ y) • (x ▹ i))
-      ×
-      (** 12a lunitor_linvunitor *)
-      (∏ (a b : C) (f : C⟦a, b⟧), lunitor f • linvunitor _ = id2 _ )
-      ×
-      (** 12b linvunitor_lunitor *)
-      (∏ (a b : C) (f : C⟦a, b⟧), linvunitor f • lunitor _ = id2 _ )
-      ×
-      (** 13a runitor_rinvunitor *)
-      (∏ (a b : C) (f : C⟦a, b⟧), runitor f • rinvunitor _ = id2 _ )
-      ×
-      (** 13b rinvunitor_runitor *)
-      (∏ (a b : C) (f : C⟦a, b⟧), rinvunitor f • runitor _ = id2 _ )
-      ×
-      (** 14a lassociator_rassociator *)
-      (∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d),
-       lassociator f g h • rassociator _ _ _ = id2 _ )
-      ×
-      (** 14b rassociator_lassociator *)
-      (∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d),
-       rassociator f g h • lassociator _ _ _ = id2 _ )
-      ×
-      (** 15 runitor_rwhisker *)
-      (∏ (a b c : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧),
-       lassociator _ _ _ • (runitor f ▹ g) = f ◃ lunitor g )
-      ×
-      (** 16  lassociator_lassociator *)
-      (∏ (a b c d e: C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d) (i : C⟦d, e⟧),
-       (f ◃ lassociator g h i) • lassociator _ _ _  • (lassociator _ _ _ ▹ i) =
-       lassociator f g _  • lassociator _ _ _
-      ).
+(* ----------------------------------------------------------------------------------- *)
+(** ** Laws                                                                            *)
+(* ----------------------------------------------------------------------------------- *)
+
+Definition prebicat_laws (C : prebicat_data)
+  : UU
+  :=   (** 1a id2_left *)
+       (∏ (a b : C) (f g : C⟦a, b⟧) (x : f ==> g), id2 f • x = x)
+     × (** 1b id2_right *)
+       (∏ (a b : C) (f g : C⟦a, b⟧) (x : f ==> g), x • id2 g = x)
+     × (** 2 vassocr *)
+       (∏ (a b : C) (f g h k : C⟦a, b⟧) (x : f ==> g) (y : g ==> h) (z : h ==> k),
+        x • (y • z) = (x • y) • z)
+     × (** 3a lwhisker_id2 *)
+       (∏ (a b c : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧), f ◃ id2 g = id2 _)
+     × (** 3b id2_rwhisker *)
+       (∏ (a b c : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧), id2 f ▹ g = id2 _)
+     × (** 4 lwhisker_vcomp *)
+       (∏ (a b c : C) (f : C⟦a, b⟧) (g h i : C⟦b, c⟧) (x : g ==> h) (y : h ==> i),
+        (f ◃ x) • (f ◃ y) = f ◃ (x • y))
+     × (** 5 rwhisker_vcomp *)
+       (∏ (a b c : C) (f g h : C⟦a, b⟧) (i : C⟦b, c⟧) (x : f ==> g) (y : g ==> h),
+        (x ▹ i) • (y ▹ i) = (x • y) ▹ i)
+     × (** 6  vcomp_lunitor *)
+       (∏ (a b : C) (f g : C⟦a, b⟧) (x : f ==> g),
+        (identity _ ◃ x) • lunitor g = lunitor f • x)
+     × (** 7 vcomp_runitor *)
+       (∏ (a b : C) (f g : C⟦a, b⟧) (x : f ==> g),
+        (x ▹ identity _) • runitor g = runitor f • x)
+     × (** 8 lwhisker_lwhisker *)
+       (∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h i : c --> d) (x : h ==> i),
+        f ◃ (g ◃ x) • lassociator _ _ _ = lassociator _ _ _ • (f · g ◃ x))
+     × (** 9 rwhisker_lwhisker *)
+       (∏ (a b c d : C) (f : C⟦a, b⟧) (g h : C⟦b, c⟧) (i : c --> d) (x : g ==> h),
+        (f ◃ (x ▹ i)) • lassociator _ _ _ = lassociator _ _ _ • ((f ◃ x) ▹ i))
+     × (** 10 rwhisker_rwhisker *)
+       (∏ (a b c d : C) (f g : C⟦a, b⟧) (h : C⟦b, c⟧) (i : c --> d) (x : f ==> g),
+        lassociator _ _ _ • ((x ▹ h) ▹ i) = (x ▹ h · i) • lassociator _ _ _)
+     × (** 11 vcomp_whisker *)
+       (∏ (a b c : C) (f g : C⟦a, b⟧) (h i : C⟦b, c⟧) (x : f ==> g) (y : h ==> i),
+        (x ▹ h) • (g ◃ y) = (f ◃ y) • (x ▹ i))
+     × (** 12a lunitor_linvunitor *)
+       (∏ (a b : C) (f : C⟦a, b⟧), lunitor f • linvunitor _ = id2 _)
+     × (** 12b linvunitor_lunitor *)
+       (∏ (a b : C) (f : C⟦a, b⟧), linvunitor f • lunitor _ = id2 _)
+     × (** 13a runitor_rinvunitor *)
+       (∏ (a b : C) (f : C⟦a, b⟧), runitor f • rinvunitor _ = id2 _)
+     × (** 13b rinvunitor_runitor *)
+     (∏ (a b : C) (f : C⟦a, b⟧), rinvunitor f • runitor _ = id2 _)
+     × (** 14a lassociator_rassociator *)
+       (∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d),
+        lassociator f g h • rassociator _ _ _ = id2 _)
+     × (** 14b rassociator_lassociator *)
+       (∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d),
+        rassociator f g h • lassociator _ _ _ = id2 _)
+     × (** 15 runitor_rwhisker *)
+       (∏ (a b c : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧),
+        lassociator _ _ _ • (runitor f ▹ g) = f ◃ lunitor g)
+     × (** 16  lassociator_lassociator *)
+       (∏ (a b c d e: C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d) (i : C⟦d, e⟧),
+        (f ◃ lassociator g h i) • lassociator _ _ _  • (lassociator _ _ _ ▹ i) =
+        lassociator f g _  • lassociator _ _ _).
 
 Definition prebicat : UU := ∑ C : prebicat_data, prebicat_laws C.
 
 Coercion prebicat_data_from_bicat (C : prebicat) : prebicat_data := pr1 C.
 Coercion prebicat_laws_from_bicat (C : prebicat) : prebicat_laws C := pr2 C.
 
+(* ----------------------------------------------------------------------------------- *)
+(** Laws projections.                                                                  *)
+(* ----------------------------------------------------------------------------------- *)
+
 Section prebicat_law_projections.
 
 Context {C : prebicat}.
 
-Definition id2_left
-           (** 1a id2_left *)
-           {a b : C} {f g : C⟦a, b⟧} (x : f ==> g)
+(** 1a id2_left *)
+Definition id2_left {a b : C} {f g : C⟦a, b⟧} (x : f ==> g)
   : id2 f • x = x
   := pr1 (pr2 C) _ _ _ _ x.
 
-Definition id2_right
-           (** 1b id2_right *)
-           {a b : C} {f g : C⟦a, b⟧} (x : f ==> g)
+(** 1b id2_right *)
+Definition id2_right {a b : C} {f g : C⟦a, b⟧} (x : f ==> g)
   : x • id2 g = x
   := pr1 (pr2 (pr2 C)) _ _ _ _ x.
 
-Definition vassocr
-           (** 2 vassocr *)
-           {a b : C} {f g h k : C⟦a, b⟧} (x : f ==> g) (y : g ==> h) (z : h ==> k)
+(** 2 vassocr *)
+Definition vassocr {a b : C} {f g h k : C⟦a, b⟧}
+           (x : f ==> g) (y : g ==> h) (z : h ==> k)
   : x • (y • z) = (x • y) • z
   := pr1 (pr2 (pr2 (pr2 C))) _ _ _ _ _ _ x y z.
 
-Definition lwhisker_id2
-           (** 3a lwhisker_id2 *)
-           {a b c : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
+(** 3a lwhisker_id2 *)
+Definition lwhisker_id2 {a b c : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
   : f ◃ id2 g = id2 _
   := pr1 (pr2 (pr2 (pr2 (pr2 C)))) _ _ _ f g.
 
-Definition id2_rwhisker
-           (** 3b id2_rwhisker *)
-           {a b c : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
+(** 3b id2_rwhisker *)
+Definition id2_rwhisker {a b c : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
   : id2 f ▹ g = id2 _
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 C))))) _ _ _ f g.
 
-Definition lwhisker_vcomp
-           (** 4 lwhisker_vcomp *)
-           {a b c : C} (f : C⟦a, b⟧) {g h i : C⟦b, c⟧}
+(** 4 lwhisker_vcomp *)
+Definition lwhisker_vcomp {a b c : C} (f : C⟦a, b⟧) {g h i : C⟦b, c⟧}
            (x : g ==> h) (y : h ==> i)
   : (f ◃ x) • (f ◃ y) = f ◃ (x • y)
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))) _ _ _ f _ _ _ x y.
 
-Definition rwhisker_vcomp
-           (** 5 rwhisker_vcomp *)
-           {a b c : C} {f g h : C⟦a, b⟧} (i : C⟦b, c⟧) (x : f ==> g) (y : g ==> h)
+(** 5 rwhisker_vcomp *)
+Definition rwhisker_vcomp {a b c : C} {f g h : C⟦a, b⟧}
+           (i : C⟦b, c⟧) (x : f ==> g) (y : g ==> h)
   : (x ▹ i) • (y ▹ i) = (x • y) ▹ i
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))) _ _ _ _ _ _ i x y.
 
-Definition vcomp_lunitor
-           (** 6  vcomp_lunitor *)
-           {a b : C} (f g : C⟦a, b⟧) (x : f ==> g)
+(** 6  vcomp_lunitor *)
+Definition vcomp_lunitor {a b : C} (f g : C⟦a, b⟧) (x : f ==> g)
   : (identity _ ◃ x) • lunitor g = lunitor f • x
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))) _ _ f g x.
 
-Definition vcomp_runitor
-           (** 7 vcomp_runitor *)
-           {a b : C} (f g : C⟦a, b⟧) (x : f ==> g)
-  : (x ▹ identity _ ) • runitor g = runitor f • x
+(** 7 vcomp_runitor *)
+Definition vcomp_runitor {a b : C} (f g : C⟦a, b⟧) (x : f ==> g)
+  : (x ▹ identity _) • runitor g = runitor f • x
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))) _ _ f g x.
 
-Definition lwhisker_lwhisker
-           (** 8 lwhisker_lwhisker *)
-           {a b c d : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧) {h i : c --> d} (x : h ==> i)
+(** 8 lwhisker_lwhisker *)
+Definition lwhisker_lwhisker {a b c d : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
+           {h i : c --> d} (x : h ==> i)
   : f ◃ (g ◃ x) • lassociator _ _ _ = lassociator _ _ _ • (f · g ◃ x)
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))) _ _ _ _ f g _ _ x.
 
-Definition rwhisker_lwhisker
-           (** 9 rwhisker_lwhisker *)
-           {a b c d : C} (f : C⟦a, b⟧) {g h : C⟦b, c⟧} (i : c --> d) (x : g ==> h)
+(** 9 rwhisker_lwhisker *)
+Definition rwhisker_lwhisker {a b c d : C} (f : C⟦a, b⟧) {g h : C⟦b, c⟧}
+           (i : c --> d) (x : g ==> h)
   : (f ◃ (x ▹ i)) • lassociator _ _ _ = lassociator _ _ _ • ((f ◃ x) ▹ i)
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))))) _ _ _ _ f _ _ i x.
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+       (pr2 (pr2 (pr2 C))))))))))) _ _ _ _ f _ _ i x.
 
-Definition rwhisker_rwhisker
-           (** 10 rwhisker_rwhisker *)
-           {a b c d : C} {f g : C⟦a, b⟧} (h : C⟦b, c⟧) (i : c --> d) (x : f ==> g)
+(** 10 rwhisker_rwhisker *)
+Definition rwhisker_rwhisker {a b c d : C} {f g : C⟦a, b⟧} (h : C⟦b, c⟧)
+           (i : c --> d) (x : f ==> g)
   : lassociator _ _ _ • ((x ▹ h) ▹ i) = (x ▹ h · i) • lassociator _ _ _
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))) _ _ _ _ _ _ h i x.
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+       (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))) _ _ _ _ _ _ h i x.
 
-Definition vcomp_whisker
-           (** 11 vcomp_whisker *)
-           {a b c : C} {f g : C⟦a, b⟧} {h i : C⟦b, c⟧} (x : f ==> g) (y : h ==> i)
+(** 11 vcomp_whisker *)
+Definition vcomp_whisker {a b c : C} {f g : C⟦a, b⟧} {h i : C⟦b, c⟧}
+           (x : f ==> g) (y : h ==> i)
   : (x ▹ h) • (g ◃ y) = (f ◃ y) • (x ▹ i)
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))))))) _ _ _ _ _ _ _ x y.
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+       (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))))))) _ _ _ _ _ _ _ x y.
 
-Definition lunitor_linvunitor
-           (** 12a lunitor_linvunitor *)
-           {a b : C} (f : C⟦a, b⟧)
+(** 12a lunitor_linvunitor *)
+Definition lunitor_linvunitor {a b : C} (f : C⟦a, b⟧)
   : lunitor f • linvunitor _ = id2 _
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))))) _ _ f.
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+       (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))))) _ _ f.
 
-Definition linvunitor_lunitor
-           (** 12b linvunitor_lunitor *)
-           {a b : C} (f : C⟦a, b⟧)
+(** 12b linvunitor_lunitor *)
+Definition linvunitor_lunitor {a b : C} (f : C⟦a, b⟧)
   : linvunitor f • lunitor _ = id2 _
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))))))))) _ _ f.
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+       (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))))))))) _ _ f.
 
-Definition runitor_rinvunitor
-           (** 13a runitor_rinvunitor *)
-           {a b : C} (f : C⟦a, b⟧)
+(** 13a runitor_rinvunitor *)
+Definition runitor_rinvunitor {a b : C} (f : C⟦a, b⟧)
   : runitor f • rinvunitor _ = id2 _
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))))))) _ _ f.
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+       (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))))))) _ _ f.
 
-Definition rinvunitor_runitor
-           (** 13b rinvunitor_runitor *)
-           {a b : C} (f : C⟦a, b⟧)
+(** 13b rinvunitor_runitor *)
+Definition rinvunitor_runitor {a b : C} (f : C⟦a, b⟧)
   : rinvunitor f • runitor _ = id2 _
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))))))))))) _ _ f.
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+       (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))))))))))) _ _ f.
 
-Definition lassociator_rassociator
-           (** 14a lassociator_rassociator *)
-           {a b c d : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d)
+(** 14a lassociator_rassociator *)
+Definition lassociator_rassociator {a b c d : C}
+           (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d)
   : lassociator f g h • rassociator _ _ _ = id2 _
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))))))))) _ _ _ _ f g h.
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+       (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))))))))) _ _ _ _ f g h.
 
-Definition rassociator_lassociator
-           (** 14b rassociator_lassociator *)
-           {a b c d : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d)
+(** 14b rassociator_lassociator *)
+Definition rassociator_lassociator {a b c d : C}
+           (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d)
   : rassociator f g h • lassociator _ _ _ = id2 _
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))))))))))))) _ _ _ _ f g h.
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+       (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))))))))))))) _ _ _ _ f g h.
 
-Definition runitor_rwhisker
-           (** 15 runitor_rwhisker *)
-           {a b c : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
+(** 15 runitor_rwhisker *)
+Definition runitor_rwhisker {a b c : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
   : lassociator _ _ _ • (runitor f ▹ g) = f ◃ lunitor g
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))))))))))) _ _ _ f g .
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+      (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))))))))))) _ _ _ f g .
 
-Definition lassociator_lassociator
-           (** 16  lassociator_lassociator *)
-           {a b c d e: C} (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d) (i : C⟦d, e⟧)
+(** 16  lassociator_lassociator *)
+Definition lassociator_lassociator {a b c d e: C}
+           (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : c --> d) (i : C⟦d, e⟧)
   : (f ◃ lassociator g h i) • lassociator _ _ _  • (lassociator _ _ _ ▹ i) =
     lassociator f g _  • lassociator _ _ _
-
-  := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))))))))))) _ _ _ _ _ f g h i.
+  := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2
+       (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))))))))))) _ _ _ _ _ f g h i.
 
 End prebicat_law_projections.
 
-(** Invertible_2cells *)
+(* ----------------------------------------------------------------------------------- *)
+(** ** Invertible 2-cells                                                              *)
+(* ----------------------------------------------------------------------------------- *)
 
 Section invertible_2cells.
 
@@ -363,9 +355,12 @@ Definition is_invertible_2cell {a b : C} {f g : a --> b} (η : f ==> g)
 Definition invertible_2cell {a b : C} (f g : a --> b) : UU
   := ∑ η : f ==> g, is_invertible_2cell η.
 
-Coercion cell_from_invertible_2cell {a b : C} {f g : a --> b} (η : invertible_2cell f g) : f ==> g := pr1 η.
+Coercion cell_from_invertible_2cell {a b : C} {f g : a --> b} (η : invertible_2cell f g)
+  : f ==> g
+  := pr1 η.
 
-Coercion property_from_invertible_2cell {a b : C} {f g : a --> b} (η : invertible_2cell f g)
+Coercion property_from_invertible_2cell {a b : C} {f g : a --> b}
+         (η : invertible_2cell f g)
   : is_invertible_2cell η
   := pr2 η.
 
@@ -373,39 +368,45 @@ Definition inv_cell {a b : C} {f g : a --> b} (η : invertible_2cell f g)
   : g ==> f
   := pr1 (pr2 η).
 
-Definition invertible_2cell_after_inv_cell {a b : C} {f g : a --> b} (η : invertible_2cell f g)
+Definition invertible_2cell_after_inv_cell {a b : C} {f g : a --> b}
+           (η : invertible_2cell f g)
   : η • inv_cell η = id2 _
   := pr1 (pr2 (pr2 η)).
 
-Definition inv_cell_after_invertible_2cell {a b : C} {f g : a --> b} (η : invertible_2cell f g)
+Definition inv_cell_after_invertible_2cell {a b : C} {f g : a --> b}
+           (η : invertible_2cell f g)
   : inv_cell η • η = id2 _
   := pr2 (pr2 (pr2 η)).
 
 Definition inv_invertible_2cell {a b : C} {f g : a --> b} (η : invertible_2cell f g)
   : invertible_2cell g f
-  := (inv_cell η ,, cell_from_invertible_2cell η ,, inv_cell_after_invertible_2cell η ,, invertible_2cell_after_inv_cell η ).
-
-(* requires cell types to be sets
-Lemma isaprop_isinvertible_2cell
-*)
+  := ( inv_cell η ,, cell_from_invertible_2cell η ,,
+       inv_cell_after_invertible_2cell η ,, invertible_2cell_after_inv_cell η).
 
 End invertible_2cells.
 
-Definition id2_invertible_2cell {C : prebicat} {a b : C} (f : a --> b) : invertible_2cell f f.
+Definition id2_invertible_2cell {C : prebicat} {a b : C} (f : a --> b)
+  : invertible_2cell f f.
 Proof.
-  repeat (use tpair).
-  - apply (id2 _ ).
-  - apply (id2 _ ).
-  - apply id2_left.
-  - apply id2_left.
+  exists (id2 _).
+  exists (id2 _).
+  split; apply id2_left.
 Defined.
 
 (* ----------------------------------------------------------------------------------- *)
-(** ** Derived laws *)
+(** ** Derived laws                                                                    *)
+(* ----------------------------------------------------------------------------------- *)
 
 Section Derived_laws.
 
 Context {C : prebicat}.
+
+Definition vassocl {a b : C} {f g h k : C⟦a, b⟧}
+           (x : f ==> g) (y : g ==> h) (z : h ==> k)
+  : (x • y) • z = x • (y • z).
+Proof.
+  apply pathsinv0. apply vassocr.
+Defined.
 
 Lemma inv_2cell_right_cancellable {a b : C} {f g : C⟦a, b⟧}
       (x : f ==> g) (H : is_invertible_2cell x)
@@ -415,13 +416,13 @@ Proof.
   intro R.
   set (xiso := x,, H : invertible_2cell f g).
   etrans.
-  { etrans. { apply (! id2_right _ ). }
-            apply maponpaths. apply (! invertible_2cell_after_inv_cell xiso). }
+  { etrans. { apply (! id2_right _). }
+    apply maponpaths. apply (! invertible_2cell_after_inv_cell xiso). }
   etrans. apply vassocr.
   apply pathsinv0.
   etrans.
-  { etrans. { apply (! id2_right _ ). }
-            apply maponpaths. apply (! invertible_2cell_after_inv_cell xiso). }
+  { etrans. { apply (! id2_right _). }
+    apply maponpaths. apply (! invertible_2cell_after_inv_cell xiso). }
   etrans. apply vassocr.
 
   apply pathsinv0.
@@ -437,14 +438,14 @@ Proof.
   intro R.
   set (xiso := x,, H : invertible_2cell f g).
   etrans.
-  { etrans. { apply (! id2_left _ ). }
-            apply maponpaths_2. apply (! inv_cell_after_invertible_2cell xiso). }
-  etrans. apply (!vassocr _ _ _ ).
+  { etrans. { apply (! id2_left _). }
+    apply maponpaths_2. apply (! inv_cell_after_invertible_2cell xiso). }
+  etrans. apply vassocl.
   apply pathsinv0.
   etrans.
-  { etrans. { apply (! id2_left _ ). }
-            apply maponpaths_2. apply (! inv_cell_after_invertible_2cell xiso). }
-  etrans. apply (!vassocr _ _ _ ).
+  { etrans. { apply (! id2_left _). }
+    apply maponpaths_2. apply (! inv_cell_after_invertible_2cell xiso). }
+  etrans. apply vassocl.
   apply pathsinv0.
   apply maponpaths.
   apply R.
@@ -455,10 +456,7 @@ Lemma is_invertible_rassociator {a b c d : C}
   : is_invertible_2cell (rassociator f g h).
 Proof.
   exists (lassociator f g h).
-  abstract
-    (split;
-     [ apply rassociator_lassociator
-     | apply lassociator_rassociator ]).
+  abstract (split; [ apply rassociator_lassociator | apply lassociator_rassociator ]).
 Defined.
 
 Lemma is_invertible_lassociator {a b c d : C}
@@ -466,51 +464,38 @@ Lemma is_invertible_lassociator {a b c d : C}
   : is_invertible_2cell (lassociator f g h).
 Proof.
   exists (rassociator f g h).
-  abstract
-    (split;
-     [ apply lassociator_rassociator
-     | apply rassociator_lassociator ]).
+  abstract (split; [ apply lassociator_rassociator | apply rassociator_lassociator ]).
 Defined.
 
-Definition vassocl {a b : C} {f g h k : C⟦a, b⟧} (x : f ==> g) (y : g ==> h) (z : h ==> k)
-  : (x • y) • z = x • (y • z).
-Proof.
-  apply pathsinv0. apply vassocr.
-Defined.
-
-Lemma lhs_right_invert_cell {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
-      (z : f ==> h)
-      (H : is_invertible_2cell y)
+Lemma lhs_right_invert_cell {a b : C} {f g h : a --> b}
+      (x : f ==> g) (y : g ==> h) (z : f ==> h) (H : is_invertible_2cell y)
   : x = z • inv_cell (y,,H) -> x • y = z.
 Proof.
   intro H1.
   etrans. apply maponpaths_2. apply H1.
-  etrans. apply (! vassocr _ _ _ ).
+  etrans. apply vassocl.
   etrans. apply maponpaths. apply (inv_cell_after_invertible_2cell (y,,H)).
   apply id2_right.
 Qed.
 
-Lemma lhs_left_invert_cell {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
-      (z : f ==> h)
-      (H : is_invertible_2cell x)
+Lemma lhs_left_invert_cell {a b : C} {f g h : a --> b}
+      (x : f ==> g) (y : g ==> h) (z : f ==> h) (H : is_invertible_2cell x)
   : y = inv_cell (x,,H) • z -> x • y = z.
 Proof.
   intro H1.
   etrans. apply maponpaths. apply H1.
-  etrans. apply ( vassocr _ _ _ ).
+  etrans. apply vassocr.
   etrans. apply maponpaths_2. apply (invertible_2cell_after_inv_cell (x,,H)).
   apply id2_left.
 Qed.
 
-Lemma rhs_right_inv_cell {a b : C} {f g h : a --> b} (x : f ==> g) (y : g ==> h)
-      (z : f ==> h)
-      (H : is_invertible_2cell y)
+Lemma rhs_right_inv_cell {a b : C} {f g h : a --> b}
+      (x : f ==> g) (y : g ==> h) (z : f ==> h) (H : is_invertible_2cell y)
   : x • y = z -> x = z • inv_cell (y,,H).
 Proof.
   intro H1.
   use (inv_2cell_right_cancellable y H).
-  etrans.
-  { apply H1. }
+  etrans. { apply H1. }
   etrans. 2: apply vassocr.
   apply pathsinv0.
   etrans. apply maponpaths.
@@ -518,15 +503,13 @@ Proof.
   apply id2_right.
 Qed.
 
-Lemma rhs_left_inv_cell {a b : C} {f g h : a --> b} (x : g ==> h) (y : f ==> g)
-      (z : f ==> h)
-      (H : is_invertible_2cell y)
+Lemma rhs_left_inv_cell {a b : C} {f g h : a --> b}
+      (x : g ==> h) (y : f ==> g) (z : f ==> h) (H : is_invertible_2cell y)
   : y • x = z -> x = inv_cell (y,,H) • z.
 Proof.
   intro H1.
   use (inv_2cell_left_cancellable y H).
-  etrans.
-  { apply H1. }
+  etrans. { apply H1. }
   etrans. 2: apply vassocl.
   apply pathsinv0.
   etrans. apply maponpaths_2.
@@ -626,36 +609,28 @@ Lemma is_invertible_2cell_lunitor {a b : C} (f : C ⟦ a, b ⟧)
   : is_invertible_2cell (lunitor f).
 Proof.
   exists (linvunitor f).
-  abstract (
-      apply ( (lunitor_linvunitor _ ) ,,
-              (linvunitor_lunitor _ ) )).
+  abstract (apply (lunitor_linvunitor _ ,, linvunitor_lunitor _)).
 Defined.
 
 Lemma is_invertible_2cell_linvunitor {a b : C} (f : C ⟦ a, b ⟧)
   : is_invertible_2cell (linvunitor f).
 Proof.
   exists (lunitor f).
-  abstract (
-      apply ( (linvunitor_lunitor _ ) ,,
-              (lunitor_linvunitor _ ) )).
+  abstract (apply (linvunitor_lunitor _ ,, lunitor_linvunitor _)).
 Defined.
 
 Lemma is_invertible_2cell_runitor {a b : C} (f : C ⟦ a, b ⟧)
   : is_invertible_2cell (runitor f).
 Proof.
   exists (rinvunitor f).
-  abstract (
-      apply ( (runitor_rinvunitor _ ) ,,
-              (rinvunitor_runitor _ ) )).
+  abstract (apply (runitor_rinvunitor _ ,, rinvunitor_runitor _)).
 Defined.
 
 Lemma is_invertible_2cell_rinvunitor {a b : C} (f : C ⟦ a, b ⟧)
   : is_invertible_2cell (rinvunitor f).
 Proof.
   exists (runitor f).
-  abstract (
-      apply ( (rinvunitor_runitor _ ) ,,
-              (runitor_rinvunitor _ ) )).
+  abstract (apply (rinvunitor_runitor _ ,, runitor_rinvunitor _)).
 Defined.
 
 Lemma hcomp_rassoc {a b c d : C}
@@ -682,7 +657,9 @@ Proof.
   apply lwhisker_id2.
 Defined.
 
-(** * Interchange law *)
+(* ----------------------------------------------------------------------------------- *)
+(** ** Interchange law                                                                 *)
+(* ----------------------------------------------------------------------------------- *)
 
 Lemma hcomp_vcomp {a b c : C}
       (f1 g1 h1 : C ⟦ a, b ⟧)
@@ -707,10 +684,11 @@ Proof.
 Defined.
 
 Lemma is_invertible_2cell_lwhisker {a b c : C} (f : a --> b) {g1 g2 : b --> c}
-      (x : g1 ==> g2) : is_invertible_2cell x -> is_invertible_2cell (f ◃ x).
+      (x : g1 ==> g2)
+  : is_invertible_2cell x -> is_invertible_2cell (f ◃ x).
 Proof.
   intro H.
-  set (xH := (x,,H) : invertible_2cell _ _ ).
+  set (xH := (x,,H) : invertible_2cell _ _).
   exists (f ◃ (inv_cell xH)).
   split.
   - abstract (
@@ -724,10 +702,11 @@ Proof.
 Defined.
 
 Lemma is_invertible_2cell_rwhisker {a b c : C} {f1 f2 : a --> b} (g : b --> c)
-      (x : f1 ==> f2) : is_invertible_2cell x -> is_invertible_2cell (x ▹ g).
+      (x : f1 ==> f2)
+  : is_invertible_2cell x -> is_invertible_2cell (x ▹ g).
 Proof.
   intro H.
-  set (xH := (x,,H) : invertible_2cell _ _ ).
+  set (xH := (x,,H) : invertible_2cell _ _).
   exists ((inv_cell xH) ▹ g).
   split.
   - abstract (
@@ -772,30 +751,34 @@ Defined.
 End Derived_laws.
 
 (* ----------------------------------------------------------------------------------- *)
-(** ** bicategories. *)
+(** ** Bicategories.                                                                   *)
+(* ----------------------------------------------------------------------------------- *)
 
 Definition isaset_cells (C : prebicat) : UU
   := ∏ (a b : C) (f g : a --> b), isaset (f ==> g).
 
-Definition bicat : UU := ∑ C : prebicat, isaset_cells C.
+Definition bicat : UU
+  := ∑ C : prebicat, isaset_cells C.
 
-Coercion prebicat_of_bicat (C : bicat) : prebicat := pr1 C.
+Coercion prebicat_of_bicat (C : bicat)
+  : prebicat
+  := pr1 C.
 
 Definition cellset_property {C : bicat} {a b : C} (f g : a --> b)
   : isaset (f ==> g)
   := pr2 C a b f g.
 
 (* ----------------------------------------------------------------------------------- *)
-(** ** Homs are categories. *)
+(** ** Homs are categories.                                                            *)
+(* ----------------------------------------------------------------------------------- *)
 
 Section Hom_Spaces.
 
 Context {C : prebicat} (a b : C).
 
-Definition hom_ob_mor : precategory_ob_mor.
-Proof.
-  exists (C ⟦a, b⟧). exact (λ f g, f ==> g).
-Defined.
+Definition hom_ob_mor
+  : precategory_ob_mor
+  := precategory_ob_mor_pair (C⟦a,b⟧) (λ (f g : C⟦a,b⟧), f ==> g).
 
 Definition hom_data : precategory_data.
 Proof.
@@ -821,7 +804,8 @@ Defined.
 End Hom_Spaces.
 
 (* ----------------------------------------------------------------------------------- *)
-(** Functor structure on horizontal composition. *)
+(** ** Functor structure on horizontal composition.                                    *)
+(* ----------------------------------------------------------------------------------- *)
 
 Section hcomp_functor.
 
@@ -861,7 +845,9 @@ End hcomp_functor.
     define saturation/univalence for bicats
  *)
 
-(** Chaotic bicat *)
+(* ----------------------------------------------------------------------------------- *)
+(** ** Chaotic bicat                                                                   *)
+(* ----------------------------------------------------------------------------------- *)
 
 Section chaotic_bicat.
 
@@ -884,6 +870,10 @@ Qed.
 
 End chaotic_bicat.
 
+(* ----------------------------------------------------------------------------------- *)
+(** ** Discrete bicat                                                                  *)
+(* ----------------------------------------------------------------------------------- *)
+
 Section discrete_bicat.
 
 Variable C : category.
@@ -900,7 +890,7 @@ Proof.
     + intros. apply id_right.
     + intros. apply (!id_left _).
     + intros. apply (!id_right _).
-    + intros. apply (! assoc _ _ _ ).
+    + intros. apply (! assoc _ _ _).
     + intros. apply assoc.
     + intros a b f g h r s. apply (r @ s).
     + intros. apply (maponpaths). assumption.
@@ -938,43 +928,70 @@ Definition discrete_prebicat : prebicat := _ ,, discrete_prebicat_laws.
 
 End discrete_bicat.
 
+Definition id2toequiv {C : prebicat} {a b : C} {f g : a --> b}
+  : f = g -> f ==> g.
+Proof.
+  intro e. induction e. apply id2.
+Defined.
+
+Definition is_discrete_prebicat (C : prebicat) : UU
+  := ∏ (a b : C) (f g : a --> b), isweq (λ e : f = g, id2toequiv e).
+
+Lemma is_discrete_discrete_prebicat (C : category)
+  : is_discrete_prebicat (discrete_prebicat C).
+Proof.
+  intros a b f g.
+  use weqhomot.
+  - exact (idweq _).
+  - intro e. induction e. apply idpath.
+Qed.
+
+(* ----------------------------------------------------------------------------------- *)
+(** ** Pseudo-functors                                                                 *)
+(* ----------------------------------------------------------------------------------- *)
+
 Definition psfunctor_ob_mor_cell (C C' : prebicat_data) : UU
   := ∑ F : functor_data C C',
-           ∏ a b (f g : a --> b), f ==> g → #F f ==> #F g.
+     ∏ a b (f g : a --> b), f ==> g → #F f ==> #F g.
 
-Coercion functor_data_from_bifunctor_ob_mor_cell C C' (F : psfunctor_ob_mor_cell C C')
+Coercion functor_data_from_bifunctor_ob_mor_cell {C C' : prebicat_data}
+         (F : psfunctor_ob_mor_cell C C')
   : functor_data C C' := pr1 F.
 
-Definition psfunctor_on_cells {C C' : prebicat_data} (F : psfunctor_ob_mor_cell C C')
+Definition psfunctor_on_cells {C C' : prebicat_data}
+           (F : psfunctor_ob_mor_cell C C')
            {a b : C} {f g : a --> b} (x : f ==> g)
   : #F f ==> #F g
   := pr2 F a b f g x.
 
 Local Notation "'##'" := (psfunctor_on_cells).
 
-Definition psfunctor_cell_data {C C' : prebicat_data} (F : psfunctor_ob_mor_cell C C') : UU
-  :=
-    (∏ (a : C), invertible_2cell (#F (identity a)) (identity _) )
-      ×
-    (∏ (a b c : C) (f : a --> b) (g : b --> c),
-     invertible_2cell (#F (f · g)) (#F f · #F g)).
+Definition psfunctor_cell_data {C C' : prebicat_data} (F : psfunctor_ob_mor_cell C C')
+  : UU
+  :=   (∏ (a : C), invertible_2cell (#F (identity a)) (identity _))
+     × (∏ (a b c : C) (f : a --> b) (g : b --> c),
+        invertible_2cell (#F (f · g)) (#F f · #F g)).
 
 Definition psfunctor_data (C C' : prebicat_data) : UU
   := ∑ F : psfunctor_ob_mor_cell C C', psfunctor_cell_data F.
 
-Coercion psfunctor_ob_mor_cell_from_bifunctor_data C C' (F : psfunctor_data C C')
-  : psfunctor_ob_mor_cell _ _ := pr1 F.
+Coercion psfunctor_ob_mor_cell_from_bifunctor_data {C C' : prebicat_data}
+         (F : psfunctor_data C C')
+  : psfunctor_ob_mor_cell _ _
+  := pr1 F.
 
 Definition psfunctor_id {C C' : prebicat_data} (F : psfunctor_data C C') (a : C)
   : invertible_2cell (#F (identity a)) (identity _)
   := pr1 (pr2 F) a.
-Definition psfunctor_comp {C C' : prebicat_data} (F : psfunctor_data C C') {a b c : C}
-           (f : a --> b) (g : b --> c)
+
+Definition psfunctor_comp {C C' : prebicat_data} (F : psfunctor_data C C')
+           {a b c : C} (f : a --> b) (g : b --> c)
   : invertible_2cell (#F (f · g)) (#F f · #F g)
   := pr2 (pr2 F) a b c f g.
 
 (* ----------------------------------------------------------------------------------- *)
-(** Associators and unitors are isos. *)
+(** ** Associators and unitors are isos.                                               *)
+(* ----------------------------------------------------------------------------------- *)
 
 Section Associators_Unitors_Iso.
 
@@ -1013,13 +1030,16 @@ Defined.
 End Associators_Unitors_Iso.
 
 (* ----------------------------------------------------------------------------------- *)
-(** Functor structure on associators and unitors. *)
+(** ** Functor structure on associators and unitors.                                   *)
+(* ----------------------------------------------------------------------------------- *)
 
 Section Associators_Unitors_Natural.
 
 Context {C : prebicat}.
 
-(** Left unitor *)
+(* -----------------------------------------------------------------------------------*)
+(** Left unitor                                                                       *)
+(* -----------------------------------------------------------------------------------*)
 
 Lemma lunitor_natural (a b : C) (f g : C ⟦ a, b ⟧) (x : f ==> g)
   : id2 (identity a) ⋆ x • lunitor g = lunitor f • x.
@@ -1041,7 +1061,9 @@ Proof.
   exists lunitor. red. apply lunitor_natural.
 Defined.
 
-(** Right unitor *)
+(* -----------------------------------------------------------------------------------*)
+(** Right unitor                                                                      *)
+(* -----------------------------------------------------------------------------------*)
 
 Lemma runitor_natural (a b : C)
       (f g : C ⟦ a, b ⟧)
@@ -1066,10 +1088,12 @@ Proof.
   exists runitor. red. apply runitor_natural.
 Defined.
 
-(** Left associator. *)
+(* -----------------------------------------------------------------------------------*)
+(** Left associator.                                                                  *)
+(* -----------------------------------------------------------------------------------*)
 
 Definition lassociator_fun {a b c d : C}
-           (x : C ⟦ a, b ⟧ × C ⟦ b, c ⟧ × C ⟦ c, d ⟧)
+           (x : C⟦a,b⟧ × C⟦b,c⟧ × C⟦c,d⟧)
   :  pr1 x · (pr12 x · pr22 x) ==> (pr1 x · pr12 x) · pr22 x
   := lassociator (pr1 x) (pr12 x) (pr22 x).
 
@@ -1099,10 +1123,12 @@ Proof.
   exists lassociator_fun. exact lassociator_fun_natural.
 Defined.
 
-(** Right associator. *)
+(* -----------------------------------------------------------------------------------*)
+(** Right associator.                                                                 *)
+(* -----------------------------------------------------------------------------------*)
 
 Definition rassociator_fun {a b c d : C}
-           (x : C ⟦ a, b ⟧ × C ⟦ b, c ⟧ × C ⟦ c, d ⟧)
+           (x : C⟦a,b⟧ × C⟦b,c⟧ × C⟦c,d⟧)
   : (pr1 x · pr12 x) · pr22 x ==> pr1 x · (pr12 x · pr22 x)
   := rassociator (pr1 x) (pr12 x) (pr22 x).
 
@@ -1134,29 +1160,9 @@ Defined.
 
 End Associators_Unitors_Natural.
 
-(** ** Discrete bicategory *)
-
-Definition id2toequiv {C : prebicat} {a b : C} {f g : a --> b}
-  : f = g -> f ==> g.
-Proof.
-  intro e. induction e. apply id2.
-Defined.
-
-Definition is_discrete_prebicat (C : prebicat) : UU
-  := ∏ (a b : C) (f g : a --> b), isweq (λ e : f = g, id2toequiv e).
-
-Lemma is_discrete_discrete_prebicat (C : category)
-  : is_discrete_prebicat (discrete_prebicat C).
-Proof.
-  intros a b f g.
-  use weqhomot.
-  - exact (idweq _ ).
-  - intro e. induction e. apply idpath.
-Qed.
-
-(* =================================================================================== *)
-(** ** Notations.                                                                      *)
-(* =================================================================================== *)
+(* -----------------------------------------------------------------------------------*)
+(** ** Notations.                                                                     *)
+(* -----------------------------------------------------------------------------------*)
 
 Module Notations.
 
