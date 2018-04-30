@@ -3,13 +3,13 @@
 (* =================================================================================== *)
 
 (* ----------------------------------------------------------------------------------- *)
-(* Contents:                                                                           *)
-(*                                                                                     *)
-(* - Definition of module over a relative monads [RelModule]                           *)
-(* - Functoriality for modules [mlift]                                                 *)
-(* - Morphisms between relative modules (over the same monad).                         *)
-(*                                                                                     *)
-(* Written by: Marco Maggesi (started March 2018)                                      *)
+(** Contents:                                                                          *)
+(**                                                                                    *)
+(**   - Definition of module over a relative monads [RelModule]                        *)
+(**   - Functoriality for modules [mlift]                                              *)
+(**   - Morphisms between relative modules (over the same monad).                      *)
+(**                                                                                    *)
+(** Written by: Marco Maggesi (started March 2018)                                     *)
 (* ----------------------------------------------------------------------------------- *)
 
 Require Import UniMath.Foundations.All.
