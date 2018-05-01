@@ -82,6 +82,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Categories.v](CategoryTheory/Categories.v)
    - [functor_categories.v](CategoryTheory/functor_categories.v)
    - [Monads/RelativeMonads.v](CategoryTheory/Monads/RelativeMonads.v)
+   - [Monads/RelativeModules.v](CategoryTheory/Monads/RelativeModules.v)
    - [opp_precat.v](CategoryTheory/opp_precat.v)
    - [PrecategoryBinProduct.v](CategoryTheory/PrecategoryBinProduct.v)
    - [ProductCategory.v](CategoryTheory/ProductCategory.v)
