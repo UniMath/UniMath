@@ -144,5 +144,10 @@ Definition psfunctor_laws : UU
 
 End psfunctor_laws.
 
+Definition psfunctor (C C' : prebicat_data)
+  : UU
+  := ∑ F : psfunctor_data C C', psfunctor_laws F.
 
-Notation "'##'" := (psfunctor_on_cells).
+Module Notations.
+  Notation "'##'" := (psfunctor_on_cells).
+End Notations.
