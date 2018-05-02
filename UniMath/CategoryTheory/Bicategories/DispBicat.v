@@ -1134,7 +1134,7 @@ Proof.
     apply idpath.
 Qed.
 
-Definition pr1_psfunctor : psfunctor (total_prebicat_data ) C := _ ,, pr1_psfunctor_laws.
+Definition pr1_psfunctor : psfunctor total_prebicat_data C := _ ,, pr1_psfunctor_laws.
 
 End total_prebicat.
 
