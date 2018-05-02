@@ -946,48 +946,6 @@ Proof.
   - intro e. induction e. apply idpath.
 Qed.
 
-(* ----------------------------------------------------------------------------------- *)
-(** ** Pseudo-functors                                                                 *)
-(* ----------------------------------------------------------------------------------- *)
-
-Definition psfunctor_ob_mor_cell (C C' : prebicat_data) : UU
-  := ∑ F : functor_data C C',
-     ∏ a b (f g : a --> b), f ==> g → #F f ==> #F g.
-
-Coercion functor_data_from_bifunctor_ob_mor_cell {C C' : prebicat_data}
-         (F : psfunctor_ob_mor_cell C C')
-  : functor_data C C' := pr1 F.
-
-Definition psfunctor_on_cells {C C' : prebicat_data}
-           (F : psfunctor_ob_mor_cell C C')
-           {a b : C} {f g : a --> b} (x : f ==> g)
-  : #F f ==> #F g
-  := pr2 F a b f g x.
-
-Local Notation "'##'" := (psfunctor_on_cells).
-
-Definition psfunctor_cell_data {C C' : prebicat_data} (F : psfunctor_ob_mor_cell C C')
-  : UU
-  :=   (∏ (a : C), invertible_2cell (#F (identity a)) (identity _))
-     × (∏ (a b c : C) (f : a --> b) (g : b --> c),
-        invertible_2cell (#F (f · g)) (#F f · #F g)).
-
-Definition psfunctor_data (C C' : prebicat_data) : UU
-  := ∑ F : psfunctor_ob_mor_cell C C', psfunctor_cell_data F.
-
-Coercion psfunctor_ob_mor_cell_from_bifunctor_data {C C' : prebicat_data}
-         (F : psfunctor_data C C')
-  : psfunctor_ob_mor_cell _ _
-  := pr1 F.
-
-Definition psfunctor_id {C C' : prebicat_data} (F : psfunctor_data C C') (a : C)
-  : invertible_2cell (#F (identity a)) (identity _)
-  := pr1 (pr2 F) a.
-
-Definition psfunctor_comp {C C' : prebicat_data} (F : psfunctor_data C C')
-           {a b c : C} (f : a --> b) (g : b --> c)
-  : invertible_2cell (#F (f · g)) (#F f · #F g)
-  := pr2 (pr2 F) a b c f g.
 
 (* ----------------------------------------------------------------------------------- *)
 (** ** Associators and unitors are isos.                                               *)
@@ -1172,6 +1130,5 @@ Notation "x • y" := (vcomp2 x y) (at level 60).
 Notation "f ◃ x" := (lwhisker f x) (at level 60). (* \tw *)
 Notation "y ▹ g" := (rwhisker g y) (at level 60). (* \tw nr 2 *)
 Notation "x ⋆ y" := (hcomp x y) (at level 50).
-Notation "'##'" := (psfunctor_on_cells).
 
 End Notations.
