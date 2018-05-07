@@ -39,7 +39,7 @@
 Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.Algebra.Monoids_and_Groups.
-Require Import UniMath.Algebra.Rigs_and_Rings.
+Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.catiso.
