@@ -1,6 +1,6 @@
 Require Export UniMath.Combinatorics.Lists.
 Require Export UniMath.Combinatorics.FiniteSequences.
-Require Export UniMath.Algebra.Rigs_and_Rings.
+Require Export UniMath.Algebra.RigsAndRings.
 Require Export UniMath.Foundations.UnivalenceAxiom.
 
 Require Import UniMath.MoreFoundations.Tactics.
@@ -478,38 +478,6 @@ Section NatCard.
     intermediate_path (stnsum (λ i : stn n, stnsum (x i))).
     - apply maponpaths. apply funextfun; intro. apply iterop_fun_nat.
     - now apply nat_plus_associativity'.
-  Defined.
-
-  Theorem nat_plus_commutativity : isCommutative_fun_mon nat_add_abmonoid.
-  Proof.
-    intros ? ? ?. apply weqtoeqstn.
-    intermediate_weq (∑ i, stn (x i)).
-    - intermediate_weq (∑ i, stn (x(f i))).
-      + apply invweq. rewrite iterop_fun_nat. apply weqstnsum1.
-      + apply (weqfp _ (stn∘x)).
-    - rewrite iterop_fun_nat. apply weqstnsum1.
-  Defined.
-
-  Arguments nat_plus_commutativity {_} _ _.
-
-  Definition finsum {X} (fin : isfinite X) (f : X -> nat) : nat.
-  Proof.
-    intros.
-    unfold isfinite,finstruct,nelstruct in fin.
-    simple refine (squash_to_set
-                     isasetnat
-                     (λ (x : ∑ n, stn n ≃ X), iterop_fun_mon (M := nat_add_abmonoid) (f ∘ pr2 x))
-                     _ fin).
-    intros.
-    induction x as [n x].
-    induction x' as [n' x'].
-    assert (p := weqtoeqstn (invweq x' ∘ x)%weq).
-    induction p.
-    assert (w := nat_plus_commutativity (f ∘ x') (invweq x' ∘ x)%weq).
-    simple refine (_ @ w).
-    unfold iterop_fun_mon.
-    apply maponpaths. rewrite weqcomp_to_funcomp. apply funextfun; intro i.
-    unfold funcomp. apply maponpaths. exact (! homotweqinvweq x' (x i)).
   Defined.
 
   (* A shorter definition: *)

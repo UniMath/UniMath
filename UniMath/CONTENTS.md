@@ -47,7 +47,8 @@ The packages and files are listed here in logical order: each file depends only 
 ## Package Algebra
    - [BinaryOperations.v](Algebra/BinaryOperations.v)
    - [Monoids_and_Groups.v](Algebra/Monoids_and_Groups.v)
-   - [Rigs_and_Rings.v](Algebra/Rigs_and_Rings.v)
+   - [RigsAndRings.v](Algebra/RigsAndRings.v)
+   - [RigsAndRings/Ideals.v](Algebra/RigsAndRings/Ideals.v)
    - [Domains_and_Fields.v](Algebra/Domains_and_Fields.v)
    - [DivisionRig.v](Algebra/DivisionRig.v)
    - [Apartness.v](Algebra/Apartness.v)
