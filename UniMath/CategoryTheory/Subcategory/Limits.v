@@ -69,7 +69,6 @@ Proof.
 Defined.
 
 (** *** Binary products *)
-Context .
 
 Lemma bin_products_in_full_subcategory {C : category} (C' : hsubtype (ob C))
       (BPC : BinProducts C)
