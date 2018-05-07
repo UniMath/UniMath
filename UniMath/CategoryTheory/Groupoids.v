@@ -88,7 +88,9 @@ Proof.
   apply isaprop_is_iso.
 Qed.
 
-(** The alternative characterization implies the normal one. *)
+(** The alternative characterization implies the normal one.
+    Note that the other implication is missing, it should be completed
+    if possible. *)
 Lemma is_univalent_pregroupoid_is_univalent {pgpd : pregroupoid} :
   is_univalent_pregroupoid pgpd -> is_univalent pgpd.
 Proof.
