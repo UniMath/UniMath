@@ -47,7 +47,8 @@ The packages and files are listed here in logical order: each file depends only 
 ## Package Algebra
    - [BinaryOperations.v](Algebra/BinaryOperations.v)
    - [Monoids_and_Groups.v](Algebra/Monoids_and_Groups.v)
-   - [Rigs_and_Rings.v](Algebra/Rigs_and_Rings.v)
+   - [RigsAndRings.v](Algebra/RigsAndRings.v)
+   - [RigsAndRings/Ideals.v](Algebra/RigsAndRings/Ideals.v)
    - [Domains_and_Fields.v](Algebra/Domains_and_Fields.v)
    - [DivisionRig.v](Algebra/DivisionRig.v)
    - [Apartness.v](Algebra/Apartness.v)
@@ -82,6 +83,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Categories.v](CategoryTheory/Categories.v)
    - [functor_categories.v](CategoryTheory/functor_categories.v)
    - [Monads/RelativeMonads.v](CategoryTheory/Monads/RelativeMonads.v)
+   - [Monads/RelativeModules.v](CategoryTheory/Monads/RelativeModules.v)
    - [opp_precat.v](CategoryTheory/opp_precat.v)
    - [PrecategoryBinProduct.v](CategoryTheory/PrecategoryBinProduct.v)
    - [ProductCategory.v](CategoryTheory/ProductCategory.v)

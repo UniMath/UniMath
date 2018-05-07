@@ -7,7 +7,9 @@
   - Functions between monoids compatible with structures (homomorphisms)
     and their properties
   - Subobjects
+  - Kernels
   - Quotient objects
+  - Cosets
   - Direct products
  - Abelian (commutative) monoids
   - Basic definitions
@@ -28,11 +30,13 @@
   - Relations on groups
   - Subobjects
   - Quotient objects
+  - Cosets
   - Direct products
  - Abelian groups
   - Basic definitions
   - Univalence for abelian groups
   - Subobjects
+  - Kernels
   - Quotient objects
   - Direct products
   - Abelian group of fractions of an abelian unitary monoid
@@ -44,6 +48,7 @@
   - Relations and the canonical homomorphism to [abgrdiff]
 *)
 
+(** For some examples, see [UniMath.NumberSystems.NaturalNumbersAlgebra] *)
 
 (** ** Preamble *)
 
@@ -451,6 +456,38 @@ Defined.
 Definition submonoid_incl {X : monoid} (A : submonoid X) : monoidfun A X :=
 monoidfunconstr (ismonoidfun_pr1 A).
 
+(** **** Kernels *)
+
+(** Kernels
+    Let f : X → Y be a morphism of monoids. The kernel of f is
+    the submonoid of X consisting of elements x such that [f x = unel Y].
+ *)
+
+Definition monoid_kernel_hsubtype {A B : monoid} (f : monoidfun A B) : hsubtype A.
+Proof.
+  intros a.
+  use hProppair.
+  - exact (f a = unel B).
+  - apply setproperty.
+Defined.
+
+(** Kernel as a monoid *)
+
+Definition kernel_issubmonoid {A B : monoid} (f : monoidfun A B) :
+  issubmonoid (monoid_kernel_hsubtype f).
+Proof.
+  use issubmonoidpair.
+  - intros x y.
+    refine (monoidfunmul f _ _ @ _).
+    refine (maponpaths _ (pr2 y) @ _).
+    refine (runax _ _ @ _).
+    exact (pr2 x).
+  - apply monoidfununel.
+Defined.
+
+Definition kernel_submonoid {A B : monoid} (f : monoidfun A B) : @submonoid A :=
+  submonoidpair _ (kernel_issubmonoid f).
+
 (** **** Quotient objects *)
 
 Lemma isassocquot {X : monoid} (R : binopeqrel X) : isassoc (@op (setwithbinopquot R)).
@@ -509,6 +546,19 @@ Proof.
   - exact (setquotunivcomm _ _ _ _ _ @ monoidfununel _).
 Defined.
 
+(** The universal property of the quotient monoid. If X, Y are monoids, R is a congruence on X, and
+    [f : X → Y] is a homomorphism which respects R, then there exists a unique homomorphism
+    [f' : X/R → Y] making the following diagram commute:
+    <<
+    X -π-> X/R
+     \      |
+       f    | ∃! f'
+         \  |
+          V V
+           Y
+    >>
+ *)
+
 Definition monoidquotuniv {X Y : monoid} {R : binopeqrel X} (f : monoidfun X Y)
       (H : iscomprelfun R f) : monoidfun (monoidquot R) Y :=
   monoidfunconstr (ismonoidfun_setquotuniv f H).
@@ -517,6 +567,39 @@ Definition monoidquotfun {X Y : monoid} {R : binopeqrel X} {S : binopeqrel Y}
   (f : monoidfun X Y) (H : ∏ x x' : X, R x x' → S (f x) (f x')) : monoidfun (monoidquot R) (monoidquot S) :=
 monoidquotuniv (monoidfuncomp f (monoidquotpr S)) (λ x x' r, iscompsetquotpr _ _ _ (H _ _ r)).
 
+(** Quotients by the equivalence relation of being in the same fiber.
+    This is exactly X / ker f for a homomorphism f. *)
+
+Local Open Scope multmonoid.
+
+Definition fiber_binopeqrel {X Y : monoid} (f : monoidfun X Y) : binopeqrel X.
+Proof.
+  use binopeqrelpair.
+  - exact (same_fiber_eqrel f).
+  - use mk_isbinophrel; intros ? ? ? same;
+      refine (monoidfunmul _ _ _ @ _ @ !monoidfunmul _ _ _).
+    + (** Prove that it's a congruence for left multiplication *)
+      apply maponpaths.
+      exact same.
+    + (** Prove that it's a congruence for right multiplication *)
+      apply (maponpaths (λ z, z * f c)).
+      exact same.
+Defined.
+
+Definition quotient_by_monoidfun {X Y : monoid} (f : monoidfun X Y) : monoid :=
+  monoidquot (fiber_binopeqrel f).
+
+(** **** Cosets *)
+
+Section Cosets.
+  Context {X : monoid} (Y : submonoid X).
+
+  Definition in_same_left_coset (x1 x2 : X) : UU :=
+    ∑ y : Y, x1 * (pr1 y) = x2.
+
+  Definition in_same_right_coset (x1 x2 : X) : UU :=
+    ∑ y : Y, (pr1 y) * x1 = x2.
+End Cosets.
 
 (** **** Direct products *)
 
@@ -2060,6 +2143,122 @@ Definition isgrquot {X : gr} (R : binopeqrel X) : isgrop (@op (setwithbinopquot 
 Definition grquot {X : gr} (R : binopeqrel X) : gr.
 Proof. split with (setwithbinopquot R). apply isgrquot. Defined.
 
+(** **** Cosets *)
+
+Section GrCosets.
+  Context {X : gr}.
+
+  Local Lemma isaprop_mult_eq_r (x y : X) : isaprop (∑ z : X, x * z = y).
+  Proof.
+    apply invproofirrelevance; intros z1 z2.
+    apply subtypeEquality'; [|apply setproperty].
+    refine (!lunax _ _ @ _ @ lunax _ _).
+    refine (maponpaths (λ z, z * _) (!grlinvax X x) @ _ @
+            maponpaths (λ z, z * _) (grlinvax X x)).
+    refine (assocax _ _ _ _ @ _ @ !assocax _ _ _ _).
+    refine (maponpaths _ (pr2 z1) @ _ @ !maponpaths _ (pr2 z2)).
+    reflexivity.
+  Defined.
+
+  Local Lemma isaprop_mult_eq_l (x y : X) : isaprop (∑ z : X, z * x = y).
+  Proof.
+    apply invproofirrelevance; intros z1 z2.
+    apply subtypeEquality'; [|apply setproperty].
+    refine (!runax _ _ @ _ @ runax _ _).
+    refine (maponpaths (λ z, _ * z) (!grrinvax X x) @ _ @
+            maponpaths (λ z, _ * z) (grrinvax X x)).
+    refine (!assocax _ _ _ _ @ _ @ assocax _ _ _ _).
+    refine (maponpaths (λ z, z * _) (pr2 z1) @ _ @ !maponpaths (λ z, z * _) (pr2 z2)).
+    reflexivity.
+  Defined.
+
+  Context (Y : subgr X).
+
+  Lemma isaprop_in_same_left_coset (x1 x2 : X) :
+    isaprop (in_same_left_coset Y x1 x2).
+  Proof.
+    unfold in_same_left_coset.
+    apply invproofirrelevance; intros p q.
+    apply subtypeEquality'; [|apply setproperty].
+    apply subtypeEquality'; [|apply propproperty].
+    pose (p' := (pr11 p,, pr2 p) : ∑ y : X, x1 * y = x2).
+    pose (q' := (pr11 q,, pr2 q) : ∑ y : X, x1 * y = x2).
+    apply (maponpaths pr1 (iscontrpr1 (isaprop_mult_eq_r _ _ p' q'))).
+  Defined.
+
+  Lemma isaprop_in_same_right_coset (x1 x2 : X) :
+    isaprop (in_same_right_coset Y x1 x2).
+  Proof.
+    apply invproofirrelevance.
+    intros p q.
+    apply subtypeEquality'; [|apply setproperty].
+    apply subtypeEquality'; [|apply propproperty].
+    pose (p' := (pr11 p,, pr2 p) : ∑ y : X, y * x1 = x2).
+    pose (q' := (pr11 q,, pr2 q) : ∑ y : X, y * x1 = x2).
+    apply (maponpaths pr1 (iscontrpr1 (isaprop_mult_eq_l _ _ p' q'))).
+  Defined.
+
+  (** The property of being in the same coset defines an equivalence relation. *)
+
+  Definition in_same_left_coset_eqrel : eqrel X.
+    use eqrelpair.
+    - intros x1 x2.
+      use hProppair.
+      + exact (in_same_left_coset Y x1 x2).
+      + apply isaprop_in_same_left_coset.
+    - use iseqrelconstr.
+      + (** Transitivity *)
+        intros ? ? ?; cbn; intros inxy inyz.
+        unfold in_same_left_coset in *.
+        use tpair.
+        * exists (pr11 inxy * pr11 inyz).
+          apply (pr2 Y).
+        * cbn.
+          refine (_ @ pr2 inyz).
+          refine (_ @ maponpaths (λ z, z * _) (pr2 inxy)).
+          apply pathsinv0, assocax.
+      + (** Reflexivity *)
+        intro; cbn.
+        use tpair.
+        * exists 1; apply (pr2 Y).
+        * apply runax.
+      + (** Symmetry *)
+        intros x y inxy.
+        use tpair.
+        * exists (grinv X (pr1 (pr1 inxy))).
+          apply (pr2 Y).
+          exact (pr2 (pr1 inxy)).
+        * cbn in *.
+          refine (!maponpaths (λ z, z * _) (pr2 inxy) @ _).
+          refine (assocax _ _ _ _ @ _).
+          refine (maponpaths _ (grrinvax _ _) @ _).
+          apply runax.
+  Defined.
+
+  (** x₁ and x₂ are in the same Y-coset if and only if x₁⁻¹ * x₂ is in Y.
+      (Proposition 4 in Dummit and Foote) *)
+
+  Definition in_same_coset_test (x1 x2 : X) :
+             (Y ((grinv _ x1) * x2)) ≃ in_same_left_coset Y x1 x2.
+  Proof.
+    apply weqimplimpl; unfold in_same_left_coset in *.
+    - intros yx1x2.
+      exists ((grinv _ x1) * x2,, yx1x2); cbn.
+      refine (!assocax X _ _ _ @ _).
+      refine (maponpaths (λ z, z * _) (grrinvax X _) @ _).
+      apply lunax.
+    - intros y.
+      use (transportf (pr1 Y)).
+      + exact (pr11 y).
+      + refine (_ @ maponpaths _ (pr2 y)).
+        refine (_ @ assocax _ _ _ _).
+        refine (_ @ !maponpaths (λ z, z * _) (grlinvax X _)).
+        apply pathsinv0, lunax.
+      + exact (pr2 (pr1 y)).
+    - apply propproperty.
+    - apply isaprop_in_same_left_coset.
+  Defined.
+End GrCosets.
 
 (** **** Direct products *)
 
@@ -2274,7 +2473,7 @@ Definition subabgr_incl {X : abgr} (A : subabgr X) : monoidfun A X :=
   submonoid_incl A.
 
 Definition abgr_kernel_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtype A :=
-  (λ x : A, ishinh ((f x) = unel B)).
+  monoid_kernel_hsubtype f.
 
 Definition abgr_image_hsubtype {A B : abgr} (f : monoidfun A B) : hsubtype B :=
   (λ y : B, ∃ x : A, (f x) = y).
@@ -2290,23 +2489,16 @@ Definition abgr_Kernel_subabgr_issubgr {A B : abgr} (f : monoidfun A B) :
   issubgr (abgr_kernel_hsubtype f).
 Proof.
   use issubgrpair.
-  - use issubmonoidpair.
-    + intros a a'.
-      use (hinhuniv _ (pr2 a)). intros ae.
-      use (hinhuniv _ (pr2 a')). intros a'e.
-      use hinhpr.
-      use (pathscomp0 (binopfunisbinopfun f (pr1 a) (pr1 a'))).
-      rewrite ae. rewrite a'e. use (runax B).
-    + use hinhpr. exact (monoidfununel f).
+  - apply kernel_issubmonoid.
   - intros x a.
-    use (hinhuniv _ a). intros ae.
-    use hinhpr.
-    use (grrcan B (f x)).
-    use (pathscomp0 (! (binopfunisbinopfun f (grinv A x) x))).
-    use (pathscomp0 (maponpaths (λ a : A, f a) (grlinvax A x))).
-    use (pathscomp0 (monoidfununel f)).
-    use pathsinv0. use (pathscomp0 (lunax B (f x))). exact ae.
-Qed.
+    apply (grrcan B (f x)).
+    apply (pathscomp0 (! (binopfunisbinopfun f (grinv A x) x))).
+    apply (pathscomp0 (maponpaths (λ a : A, f a) (grlinvax A x))).
+    apply (pathscomp0 (monoidfununel f)).
+    apply pathsinv0.
+    apply (pathscomp0 (lunax B (f x))).
+    exact a.
+Defined.
 
 Definition abgr_Kernel_subabgr {A B : abgr} (f : monoidfun A B) : @subabgr A :=
   subgrconstr (@abgr_kernel_hsubtype A B f) (abgr_Kernel_subabgr_issubgr f).
@@ -2852,15 +3044,3 @@ Defined.
 Opaque iscomptoabgrdiff.
 
 Close Scope addmonoid_scope.
-
-(** simple examples *)
-
-Require Export UniMath.Foundations.NaturalNumbers.
-
-Definition nat_add_abmonoid : abmonoid :=
-  (natset,, add),, (natplusassoc,, 0,, natplusl0,, natplusr0),, natpluscomm.
-
-Definition nat_mul_abmonoid : abmonoid :=
-  (natset,, mul),, (natmultassoc,, 1,, natmultl1,, natmultr1),, natmultcomm.
-
-(* End of the file algebra1b.v *)
