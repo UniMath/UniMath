@@ -2313,7 +2313,7 @@ Proof.
     unfold precarry.
     rewrite hzqrand1r.
     rewrite hzqrand0r.
-    apply isnonzeroringhz.
+    apply isnonzerorighz.
   - apply padicintsareintdom.
 Defined.
 

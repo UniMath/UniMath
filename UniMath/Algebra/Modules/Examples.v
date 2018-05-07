@@ -3,7 +3,7 @@
 Require Import UniMath.Algebra.Modules.Core.
 Require Import UniMath.Algebra.Modules.Multimodules.
 Require Import UniMath.Algebra.Monoids_and_Groups.
-Require Import UniMath.Algebra.Rigs_and_Rings.
+Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.MoreFoundations.Tactics.
 
