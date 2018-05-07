@@ -11,7 +11,7 @@ Require Import UniMath.Combinatorics.FiniteSequences.
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.IteratedBinaryOperations.
 
-Require Import UniMath.Algebra.Rigs_and_Rings.
+Require Import UniMath.Algebra.RigsAndRings.
 
 (** ** Contents
 
