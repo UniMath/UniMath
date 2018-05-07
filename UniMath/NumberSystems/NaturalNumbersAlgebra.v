@@ -1,9 +1,11 @@
 (** * Facts about the natural numbers that depend on definitions from algebra *)
 
-Require Export UniMath.Algebra.Archimedean.
-Require Export UniMath.Algebra.Domains_and_Fields.
 Require Export UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.MoreFoundations.Tactics.
+
+Require Export UniMath.Algebra.Archimedean.
+Require Export UniMath.Algebra.Domains_and_Fields.
+Require Export UniMath.Algebra.IteratedBinaryOperations.
 
 Definition nataddabmonoid : abmonoid :=
   abmonoidpair (setwithbinoppair natset (λ n m : nat, n + m))
@@ -36,6 +38,38 @@ Proof.
   intros.
   apply (invmaponpathsincl _ (isinclpr1carrier _) (@op natnonzero a b) (@op natnonzero b a)).
   simpl. apply natmultcomm.
+Defined.
+
+Theorem nat_plus_commutativity : isCommutative_fun_mon nataddabmonoid.
+Proof.
+  intros ? ? ?. apply weqtoeqstn.
+  intermediate_weq (∑ i, stn (x i)).
+  - intermediate_weq (∑ i, stn (x(f i))).
+    + apply invweq. rewrite iterop_fun_nat. apply weqstnsum1.
+    + apply (weqfp _ (stn∘x)).
+  - rewrite iterop_fun_nat. apply weqstnsum1.
+Defined.
+
+Arguments nat_plus_commutativity {_} _ _.
+
+Definition finsum {X} (fin : isfinite X) (f : X -> nat) : nat.
+Proof.
+  intros.
+  unfold isfinite,finstruct,nelstruct in fin.
+  simple refine (squash_to_set
+                    isasetnat
+                    (λ (x : ∑ n, stn n ≃ X), iterop_fun_mon (M := nataddabmonoid) (f ∘ pr2 x))
+                    _ fin).
+  intros.
+  induction x as [n x].
+  induction x' as [n' x'].
+  assert (p := weqtoeqstn (invweq x' ∘ x)%weq).
+  induction p.
+  assert (w := nat_plus_commutativity (f ∘ x') (invweq x' ∘ x)%weq).
+  simple refine (_ @ w).
+  unfold iterop_fun_mon.
+  apply maponpaths. rewrite weqcomp_to_funcomp. apply funextfun; intro i.
+  unfold funcomp. apply maponpaths. exact (! homotweqinvweq x' (x i)).
 Defined.
 
 (** *** [nat] as a commutative rig *)

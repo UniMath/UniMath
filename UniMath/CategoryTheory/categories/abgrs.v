@@ -641,18 +641,18 @@ Section abgr_kernels_and_cokernels.
   Definition abgr_Kernel_eq {A B : abgr} (f : monoidfun A B) :
     abgr_Kernel_monoidfun f · f = ZeroArrow abgr_Zero (carrierofasubabgr (abgr_Kernel_subabgr f)) B.
   Proof.
-    use monoidfun_paths. use funextfun. intros x.
-    use (squash_to_prop (pr2 x) (setproperty B _ _)).
-    intros H. exact H.
+    apply monoidfun_paths.
+    apply funextfun; intro x.
+    apply (pr2 x).
   Qed.
 
   (** *** KernelIn morphism *)
 
   Lemma abgr_KernelArrowIn_map_property {A B C : abgr_category} (h : C --> A) (f : A --> B)
              (H : h · f = ZeroArrow abgr_Zero C B) (c : (C : abgr)) :
-    ishinh_UU (pr1 f (pr1 h c) = 1%multmonoid).
+    (pr1 f (pr1 h c) = 1%multmonoid).
   Proof.
-    use hinhpr. use (pathscomp0 (toforallpaths _ _ _ (base_paths _ _ H) c)). use idpath.
+    use (pathscomp0 (toforallpaths _ _ _ (base_paths _ _ H) c)). use idpath.
   Qed.
 
   Definition abgr_KernelArrowIn_map {A B C : abgr_category} (h : C --> A) (f : A --> B)
@@ -1240,12 +1240,11 @@ Section abgr_monic_kernels_epi_cokernels.
 
   (** ** Epis are cokernels of their kernels *)
 
-  Definition abgr_epi_cokernel_out_kernel_hsubtype {A B : abgr} (f : abgr_category⟦A, B⟧) (a : A)
+  Definition abgr_epi_cokernel_out_kernel_hsubtype {A B : abgr}
+             (f : abgr_category⟦A, B⟧) (a : A)
              (H : pr1 f a = 1%multmonoid) : abgr_kernel_hsubtype f.
   Proof.
-    use tpair.
-    - exact a.
-    - use hinhpr. exact H.
+    exact (a,, H).
   Defined.
 
   Lemma abgr_epi_cokernel_out_data_eq {A B C : abgr} (f : abgr_category⟦A, B⟧)

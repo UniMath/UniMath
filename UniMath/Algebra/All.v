@@ -2,7 +2,8 @@
 Require Export UniMath.Foundations.Init.
 Require Export UniMath.Algebra.BinaryOperations.
 Require Export UniMath.Algebra.Monoids_and_Groups.
-Require Export UniMath.Algebra.Rigs_and_Rings.
+Require Export UniMath.Algebra.RigsAndRings.
+Require Export UniMath.Algebra.RigsAndRings.Ideals.
 Require Export UniMath.Algebra.Domains_and_Fields.
 Require Export UniMath.Algebra.DivisionRig.
 Require Export UniMath.Algebra.Apartness.
