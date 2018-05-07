@@ -1,6 +1,7 @@
 BinaryOperations.v
 Monoids_and_Groups.v
-Rigs_and_Rings.v
+RigsAndRings.v
+RigsAndRings/Ideals.v
 Domains_and_Fields.v
 DivisionRig.v
 Apartness.v

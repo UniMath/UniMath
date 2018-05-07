@@ -95,3 +95,16 @@ Defined.
 
 Definition setcoprod (X Y : hSet) : hSet :=
   hSetpair (X ⨿ Y) (isasetcoprod X Y (pr2 X) (pr2 Y)).
+
+(** ** The equivalence relation of being in the same fiber *)
+
+Definition same_fiber_eqrel {X Y : hSet} (f : X → Y) : eqrel X.
+Proof.
+  use eqrelpair.
+  - intros x y.
+    exact (eqset (f x) (f y)).
+  - use iseqrelconstr.
+    + intros ? ? ? xy yz; exact (xy @ yz).
+    + intro; reflexivity.
+    + intros ? ? eq; exact (!eq).
+Defined.

@@ -1,7 +1,7 @@
 (** Authors Anthony Bordg and Floris van Doorn, February-December 2017 *)
 
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Algebra.Rigs_and_Rings.
+Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.Monoids_and_Groups.
 
 (** ** Contents

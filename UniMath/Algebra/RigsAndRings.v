@@ -9,6 +9,8 @@
   - Quotient objects
   - Direct products
   - Opposite rigs
+  - Nonzero rigs
+  - Group of units
  - Commutative rigs
   - General definitions
   - Relations similar to "greater" on commutative rigs
@@ -431,7 +433,6 @@ Definition carrierofasubrig (X : rig) (A : subrig X) : rig.
 Proof. intros. split with A. apply isrigcarrier. Defined.
 Coercion carrierofasubrig : subrig >-> rig.
 
-
 (** **** Quotient objects *)
 
 Definition rigeqrel {X : rig} : UU := @twobinopeqrel X.
@@ -540,6 +541,15 @@ Proof.
   intros X.
   refine ((idfun X,, idisweq X),, _).
   repeat split.
+Defined.
+
+(** **** Nonzero rigs *)
+
+Definition isnonzerorig (X : rig) : hProp.
+Proof.
+  intros; use hProppair.
+  - exact (¬ (@paths X 1 0)).
+  - apply isapropneg.
 Defined.
 
 Local Close Scope rig.
