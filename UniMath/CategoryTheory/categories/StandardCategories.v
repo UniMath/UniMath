@@ -2,7 +2,7 @@
 (** ** Contents:
 
 - The path groupoid ([path_groupoid])
-- Discrete categories ([is_discrete])
+- Discrete categories
   - Characterization of discrete categories
 - The discrete univalent_category on n objects ([cat_n])
   - The category with one object ([unit_category])
