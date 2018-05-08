@@ -8,7 +8,7 @@
     - Pregroupoid
     - Groupoid
     - Univalent groupoid
-  - An alternative characterization of univalence for groupouds
+  - An alternative characterization of univalence for groupoids
   - Lemmas
   - Subgroupoids
   - Discrete categories
