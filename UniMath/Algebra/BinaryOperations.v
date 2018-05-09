@@ -142,6 +142,9 @@ Definition lunax_is {X : UU} {opp : binop X} (is : ismonoidop opp) :
 Definition runax_is {X : UU} {opp : binop X} (is : ismonoidop opp) :
   isrunit opp (pr1 (pr2 is)) := pr2 (pr2 (pr2 is)).
 
+Definition unax_is {X : UU} {opp : binop X} (is : ismonoidop opp) :
+  isunit opp (pr1 (pr2 is)) := dirprodpair (lunax_is is) (runax_is is).
+
 Lemma isapropismonoidop {X : hSet} (opp : binop X) : isaprop (ismonoidop opp).
 Proof.
   apply (isofhleveldirprod 1).
@@ -587,7 +590,7 @@ Definition isrigops {X : UU} (opp1 opp2 : binop X) : UU :=
              × (∏ x : X, (opp2 x (unel_is (pr1 axs))) = (unel_is (pr1 axs))))
     × (isdistr opp1 opp2).
 
-Definition mk_isrigops {X : hSet} {opp1 opp2 : binop X} (H1 : isabmonoidop opp1)
+Definition mk_isrigops {X : UU} {opp1 opp2 : binop X} (H1 : isabmonoidop opp1)
            (H2 : ismonoidop opp2) (H3 : ∏ x : X, (opp2 (unel_is H1) x) = (unel_is H1))
            (H4 : ∏ x : X, (opp2 x (unel_is H1)) = (unel_is H1))
            (H5 : isdistr opp1 opp2) : isrigops opp1 opp2 :=

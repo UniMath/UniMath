@@ -24,9 +24,10 @@ Definition natmultabmonoid : abmonoid :=
 
 (** *** Submonoid of non-zero elements in [nat] *)
 
+Local Open Scope nat_scope.
 Definition natnonzero : @subabmonoid natmultabmonoid.
 Proof.
-  split with (λ a, a ≠ 0). unfold issubmonoid. split.
+  split with (λ a : natset, a ≠ 0). unfold issubmonoid. split.
   - unfold issubsetwithbinop. intros a a'.
     apply (natneq0andmult _ _ (pr2 a) (pr2 a')).
   - apply (ct (natneq, isdecrel_natneq, 1, 0)).
