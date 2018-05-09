@@ -19,6 +19,7 @@ Author: Langston Barrett (@siddharthist), Feb 2018
 - Exponentials
   - The exponential functor y ↦ yˣ ([exp_functor])
   - Exponentials ([ExponentialsType])
+- Isomorphisms and weak equivalences
 - Hom functors
   - As a bifunctor ([hom_functor])
   - Covariant ([cov_hom_functor])
@@ -154,6 +155,50 @@ Proof.
         exact (λ pair, (pr2 pair) (pr1 pair)).
       * intros ? ? ?; reflexivity.
   - use mk_form_adjunction; reflexivity.
+Defined.
+
+(** ** Isomorphisms and weak equivalences *)
+
+(** The following are mostly copied verbatim from
+    [CategoryTheory.categories.category_hset]. *)
+
+Lemma type_iso_is_equiv (A B : ob type_precat) (f : iso A B) : isweq (pr1 f).
+Proof.
+  apply (isweq_iso _ (inv_from_iso f)).
+  - intro x.
+    set (T:=iso_inv_after_iso f).
+    set (T':=toforallpaths _ _ _ T). apply T'.
+  - intro x.
+    apply (toforallpaths _ _ _ (iso_after_iso_inv f)).
+Defined.
+
+Lemma hset_iso_equiv (A B : ob type_precat) : iso A B -> A ≃ B.
+Proof.
+  intro f; use weqpair; [exact (pr1 f)|apply type_iso_is_equiv].
+Defined.
+
+(** Given a weak equivalence, we construct an iso. Again mostly unwrapping and
+    packing. *)
+
+Lemma type_equiv_is_iso (A B : ob type_precat) (f : A ≃ B) :
+           is_iso (C := type_precat) (pr1 f).
+Proof.
+  apply (is_iso_qinv (C := type_precat) _ (invmap f)).
+  split; simpl.
+  - apply funextfun; intro; simpl in *.
+    unfold compose, identity; simpl.
+    apply homotinvweqweq.
+  - apply funextfun; intro; simpl in *.
+    unfold compose, identity; simpl.
+    apply homotweqinvweq.
+Defined.
+
+Lemma type_precat_equiv_iso (A B : ob type_precat) : A ≃ B -> iso A B.
+Proof.
+  intro f.
+  use isopair.
+  - exact (pr1 f).
+  - apply type_equiv_is_iso.
 Defined.
 
 (** ** Hom functors *)
