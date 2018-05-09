@@ -1569,11 +1569,11 @@ Opaque ispartbinopabmonoidfracrelint.
 
 (* ??? Coq 8.4-8.5 trunk hangs here on the following line:
 
-Axiom ispartlbinopabmonoidfracrel : ∏ (X : abmonoid) (A : subabmonoid X)
- {L : hrel X} (is : ispartbinophrel A L) (aa aa' : A)
- (z z' : abmonoidfrac X A) (l : abmonoidfracrel X A is z z'),
-abmonoidfracrel X A is ((prabmonoidfrac X A (pr1 aa) aa') + z)
-                       ((prabmonoidfrac X A (pr1 aa) aa') + z').
+(* Axiom ispartlbinopabmonoidfracrel : ∏ (X : abmonoid) (A : subabmonoid X) *)
+(*  {L : hrel X} (is : ispartbinophrel A L) (aa aa' : A) *)
+(*  (z z' : abmonoidfrac X A) (l : abmonoidfracrel X A is z z'), *)
+(* abmonoidfracrel X A is ((prabmonoidfrac X A (pr1 aa) aa') + z) *)
+(*                        ((prabmonoidfrac X A (pr1 aa) aa') + z'). *)
 
 *)
 
