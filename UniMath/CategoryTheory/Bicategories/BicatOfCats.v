@@ -13,6 +13,9 @@ Require Import UniMath.CategoryTheory.categories.category_hset.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.DispBicat.
+Require Import UniMath.CategoryTheory.Bicategories.OpCellBicat.
+Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctor.
+
 
 Open Scope cat.
 Open Scope mor_disp_scope.
@@ -108,34 +111,39 @@ Qed.
 Definition bicat_of_cats : bicat
   := (prebicat_of_cats,, isaset_cells_prebicat_of_cats).
 
+
+
 (** * The pseudofunctor op on the bicategory of categories *)
 
-Definition op_cat (c : category) : category := (opp_precat c,, has_homsets_opp (homset_property c) ).
+Local Notation "∁" := bicat_of_cats.
 
-Definition op_nt {c d : category} {f g : functor c d} (a : nat_trans f g)
-  : nat_trans (functor_opp g) (functor_opp f).
-Proof.
-  use tpair.
-  - exact (λ c, a c).
-  - abstract
-      (intros x y h;
-       apply (! (nat_trans_ax a _ _ _ ))).
-Defined.
-
-Local Notation "∁" := prebicat_of_cats.
-
-Definition op_functor_data : functor_data ∁ ∁.
+Definition op_functor_data : functor_data (op2_prebicat ∁) ∁.
 Proof.
   use tpair.
   - exact (λ c, op_cat c).
   - intros c d f. exact (functor_opp f).
 Defined.
 
-Definition op_psfunctor_ob_mor_cell : psfunctor_ob_mor_cell ∁ ∁.
+Definition op_psfunctor_ob_mor_cell : psfunctor_ob_mor_cell (op2_prebicat ∁) ∁.
 Proof.
   exists op_functor_data.
   intros a b f g x.
   cbn in *.
-  (* exact (op_nt x). *)
-  admit.
+  apply (op_nt x).
+Defined.
+
+Definition op_psfunctor_cell_data : psfunctor_cell_data op_psfunctor_ob_mor_cell.
+Proof.
+  split; cbn.
+  - intro c.
+    use tpair.
+    + cbn. use tpair.
+      * cbn. intro. apply identity.
+      * intros a b f.
+        cbn in *.
+        etrans.
+        apply id_left. apply (! id_right _ ).
+    + cbn.
 Abort.
+
+(* TODO: finish the construction of this pseudo-functor *)

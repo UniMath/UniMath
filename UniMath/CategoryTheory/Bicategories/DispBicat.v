@@ -1134,6 +1134,8 @@ Proof.
     apply idpath.
 Qed.
 
+Definition pr1_psfunctor : psfunctor total_prebicat_data C := _ ,, pr1_psfunctor_laws.
+
 End total_prebicat.
 
 Definition has_disp_cellset (D : disp_prebicat) : UU
