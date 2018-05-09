@@ -1,4 +1,4 @@
-(** **********************************************************
+(** * Category of [hSet]s
 
 Started by: Benedikt Ahrens, Chris Kapulkin, Mike Shulman
 
@@ -6,20 +6,19 @@ january 2013
 
 Extended by: Anders Mörtberg (October 2015)
 
-************************************************************)
+*)
 
 
-(** **********************************************************
+(** ** Contents:
 
-Contents:
+- Category [HSET] of [hSet]s ([hset_category])
+- [HSET] is a [univalent_category] ([is_univalent_HSET])
+  - Equivalence between isomorphisms and weak equivalences of two [hSet]s
+- Forgetful [functor] to [type_precat]
 
-- Category HSET of hSets ([hset_category])
-- HSET is a univalent_category ([is_univalent_HSET])
+For structures (like (co)limits) on HSET see [CategoryTheory.category_hset_structures].
 
-For structures (like (co)limits) on HSET see
-category_hset_structures.v
-
-************************************************************)
+*)
 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
@@ -30,10 +29,11 @@ Require Import UniMath.Foundations.HLevels.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.categories.Types.
 
 Local Open Scope cat.
 
-(** * category of hSets *)
+(** ** Category HSET of [hSet]s ([hset_category]) *)
 Section HSET_precategory.
 
 Definition hset_fun_space (A B : hSet) : hSet :=
@@ -74,17 +74,14 @@ End HSET_precategory.
 Notation "'HSET'" := hset_precategory : cat.
 Notation "'SET'" := hset_category : cat.
 
-(** * The precategory of hSets is a univalent_category. *)
+(** ** HSET is a univalent_category ([is_univalent_HSET]) *)
 
 Section HSET_category.
 
-(** ** Equivalence between isomorphisms and weak equivalences
-       of two hsets.
-*)
+(** *** Equivalence between isomorphisms and weak equivalences of two [hSet]s. *)
 
 (** Given an iso, we construct a weak equivalence.
-   This is basically unpacking and packing again.
-*)
+   This is basically unpacking and packing again. *)
 
 Lemma hset_iso_is_equiv (A B : ob HSET)
    (f : iso A B) : isweq (pr1 f).
@@ -242,3 +239,26 @@ abstract (apply isasetnat).
 Defined.
 
 End HSETs.
+
+(** ** Forgetful [functor] to [type_precat] *)
+
+Definition forgetful_HSET : functor HSET type_precat.
+Proof.
+  use mk_functor.
+  - use mk_functor_data.
+    + exact pr1.
+    + exact (λ _ _, idfun _).
+  - split.
+    + intro; reflexivity.
+    + intros ? ? ? ? ?; reflexivity.
+Defined.
+
+(** This functor is conservative; it reflects isomorphisms. *)
+
+Lemma conservative_forgetful_HSET : conservative forgetful_HSET.
+Proof.
+  unfold conservative.
+  intros a b f is_iso_forget_f.
+  refine (hset_equiv_is_iso a b (weqpair f _)).
+  apply (type_iso_is_equiv _ _ (isopair _ is_iso_forget_f)).
+Defined.
