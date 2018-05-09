@@ -8,6 +8,7 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Bicategories.DispBicat. Import DispBicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.Unitors.
 Require Import UniMath.CategoryTheory.Bicategories.Univalence.
 
 Open Scope cat.
@@ -145,12 +146,27 @@ Proof.
   apply (disp_lunitor _ ).
 Defined.
 
+
+Definition disp_lunitor_runitor_identity_type {a : C} (aa : D a)
+  : UU
+  := disp_lunitor (id_disp aa) =
+     transportb (λ x, _ ==>[x] _) (lunitor_runitor_identity a)
+                (disp_runitor (id_disp aa)).
+
+(** TODO: prove this theorem *)
 Theorem disp_lunitor_runitor_identity {a : C} (aa : D a)
-  : disp_lunitor (id_disp aa) =
-    transportb (λ x, _ ==>[x] _) (lunitor_runitor_identity a)
-               (disp_runitor (id_disp aa)).
+  : disp_lunitor_runitor_identity_type aa.
 Proof.
-Admitted.
+Abort.
+
+
+(** TODO: once the theorem above is proved,
+    remove this section and its assumption.
+*)
+Section assume_disp_lunitor_runitor_identity.
+
+Variable disp_lunitor_runitor_identity :
+  ∏ {a : C} (aa : D a), disp_lunitor_runitor_identity_type aa.
 
 Theorem disp_runitor_lunitor_identity {a : C} (aa : D a)
   : disp_runitor (id_disp aa) =
@@ -161,8 +177,7 @@ Proof.
   apply pathsinv0.
   etrans. apply disp_lunitor_runitor_identity.
   apply maponpaths_2.
-  unfold runitor_lunitor_identity.
-  apply pathsinv0, pathsinv0inv0.
+  apply cellset_property.
 Qed.
 
 Lemma disp_rwhisker_transport_left {a b c : C}
@@ -329,5 +344,7 @@ Proof.
     apply maponpaths_2.
     apply cellset_property.
 Qed.
+
+End assume_disp_lunitor_runitor_identity.
 
 End Displayed_Internal_Adjunction.

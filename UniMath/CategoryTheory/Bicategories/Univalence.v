@@ -6,12 +6,13 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.Unitors.
 
 Open Scope cat.
 
 Section Internal_Adjunction.
 
-  Context {C:prebicat}.
+  Context {C : bicat}.
 
   Definition internal_adjunction_over {a b : C} (f : C⟦a,b⟧) (g : C⟦b,a⟧)
     : UU
@@ -268,10 +269,10 @@ Section Internal_Adjunction.
 
 End Internal_Adjunction.
 
-Definition is_univalent_2_1 (C : prebicat) : UU
+Definition is_univalent_2_1 (C : bicat) : UU
   := ∏ (a b : C) (f g : C⟦a,b⟧), isweq (idtoiso_2_1 f g).
 
-Definition is_univalent_2_0 (C : prebicat) : UU
+Definition is_univalent_2_0 (C : bicat) : UU
     := ∏ (a b : C), isweq (idtoiso_2_0 a b).
 
 Definition is_univalent_2 (C : bicat) : UU
