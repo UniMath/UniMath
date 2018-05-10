@@ -170,3 +170,20 @@ Section monics_functorcategories.
   Qed.
 
 End monics_functorcategories.
+
+
+(** Faithful functors reflect monomorphisms. *)
+
+Lemma faithful_reflects_mono {C D : precategory} (F : functor C D)
+      (FF : faithful F) : reflects_morphism F (@isMonic).
+Proof.
+  unfold reflects_morphism.
+  intros ? ? ? is_monic_Ff.
+  intros ? ? ? eqcomp.
+  apply (Injectivity (# F)).
+  - apply isweqonpathsincl, FF.
+  - apply is_monic_Ff.
+    refine (!(functor_comp F g f) @ _).
+    refine (_ @ functor_comp F h f).
+    apply maponpaths; assumption.
+Defined.
