@@ -252,6 +252,7 @@ Defined.
    bicategory.                                                                         *)
 (* ----------------------------------------------------------------------------------- *)
 
+(* TODO: Move to file UniMath/CategoryTheory/DisplayedCats/Core.v *)
 Definition mk_disp_cat_ob_mor
            (C : precategory_ob_mor)
            (obd : C -> UU)
@@ -259,8 +260,12 @@ Definition mk_disp_cat_ob_mor
   : disp_cat_ob_mor C
   := obd,, mord.
 
-Definition transportb_trivial (A B : UU) (a b : A) (p : a = b) (x : B) :
-  x = transportb (λ x : A, B) p x.
+(* TODO: This might be superfluous, since it is the extensional version of
+   [transportf_const] (and [transportb_const]), nevertheless, this is introduced here
+   since I (Marco) do not see an easy way to use transportf_const. *)
+
+Definition transportf_trivial (A B : UU) (a b : A) (p : a = b) (x : B) :
+  x = transportf (λ x : A, B) p x.
 Proof.
   destruct p. apply idpath.
 Defined.
@@ -311,27 +316,27 @@ Defined.
 Lemma trivial_disp_prebicat_laws : disp_prebicat_laws trivial_displayed_data.
 Proof.
   repeat apply dirprodpair; red; cbn; intros.
-  - etrans. apply id2_left. apply transportb_trivial.
-  - etrans. apply id2_right. apply transportb_trivial.
-  - etrans. apply vassocr. apply transportb_trivial.
-  - etrans. apply lwhisker_id2. apply transportb_trivial.
-  - etrans. apply id2_rwhisker. apply transportb_trivial.
-  - etrans. apply lwhisker_vcomp. apply transportb_trivial.
-  - etrans. apply rwhisker_vcomp. apply transportb_trivial.
-  - etrans. apply vcomp_lunitor. apply transportb_trivial.
-  - etrans. apply vcomp_runitor. apply transportb_trivial.
-  - etrans. apply lwhisker_lwhisker. apply transportb_trivial.
-  - etrans. apply rwhisker_lwhisker. apply transportb_trivial.
-  - etrans. apply rwhisker_rwhisker. apply transportb_trivial.
-  - etrans. apply vcomp_whisker. apply transportb_trivial.
-  - etrans. apply lunitor_linvunitor. apply transportb_trivial.
-  - etrans. apply linvunitor_lunitor. apply transportb_trivial.
-  - etrans. apply runitor_rinvunitor. apply transportb_trivial.
-  - etrans. apply rinvunitor_runitor. apply transportb_trivial.
-  - etrans. apply lassociator_rassociator. apply transportb_trivial.
-  - etrans. apply rassociator_lassociator. apply transportb_trivial.
-  - etrans. apply runitor_rwhisker. apply transportb_trivial.
-  - etrans. apply lassociator_lassociator. apply transportb_trivial.
+  - etrans. apply id2_left. apply transportf_trivial.
+  - etrans. apply id2_right. apply transportf_trivial.
+  - etrans. apply vassocr. apply transportf_trivial.
+  - etrans. apply lwhisker_id2. apply transportf_trivial.
+  - etrans. apply id2_rwhisker. apply transportf_trivial.
+  - etrans. apply lwhisker_vcomp. apply transportf_trivial.
+  - etrans. apply rwhisker_vcomp. apply transportf_trivial.
+  - etrans. apply vcomp_lunitor. apply transportf_trivial.
+  - etrans. apply vcomp_runitor. apply transportf_trivial.
+  - etrans. apply lwhisker_lwhisker. apply transportf_trivial.
+  - etrans. apply rwhisker_lwhisker. apply transportf_trivial.
+  - etrans. apply rwhisker_rwhisker. apply transportf_trivial.
+  - etrans. apply vcomp_whisker. apply transportf_trivial.
+  - etrans. apply lunitor_linvunitor. apply transportf_trivial.
+  - etrans. apply linvunitor_lunitor. apply transportf_trivial.
+  - etrans. apply runitor_rinvunitor. apply transportf_trivial.
+  - etrans. apply rinvunitor_runitor. apply transportf_trivial.
+  - etrans. apply lassociator_rassociator. apply transportf_trivial.
+  - etrans. apply rassociator_lassociator. apply transportf_trivial.
+  - etrans. apply runitor_rwhisker. apply transportf_trivial.
+  - etrans. apply lassociator_lassociator. apply transportf_trivial.
 Qed.
 
 Definition trivial_displayed : disp_prebicat B
