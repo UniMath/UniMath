@@ -67,30 +67,30 @@ End Auxiliary.
 (** * Full subcategories *)
 
 Section full_subcat.
-Variable C : category.
-Variable P : C -> UU.
 
-Definition disp_full_sub_ob_mor : disp_cat_ob_mor C.
-Proof.
-  exists P.
-  intros. exact unit.
-Defined.
+Definition disp_full_sub_ob_mor (C : precategory_ob_mor) (P : C → UU)
+  : disp_cat_ob_mor C
+  := (P,, (λ a b aa bb f, unit)).
 
-Definition disp_full_sub_id_comp : disp_cat_id_comp C disp_full_sub_ob_mor.
+Definition disp_full_sub_id_comp (C : precategory_data) (P : C → UU)
+  : disp_cat_id_comp C (disp_full_sub_ob_mor C P).
 Proof.
   split; intros; apply tt.
 Qed.
 
-Definition disp_full_sub_data : disp_cat_data C
-  :=  disp_full_sub_ob_mor,, disp_full_sub_id_comp.
+Definition disp_full_sub_data (C : precategory_data) (P : C → UU)
+  : disp_cat_data C
+  :=  disp_full_sub_ob_mor C P,, disp_full_sub_id_comp C P.
 
-Definition disp_full_sub_axioms : disp_cat_axioms _ disp_full_sub_data.
+Definition disp_full_sub_axioms (C : category) (P : C → UU)
+  : disp_cat_axioms _ (disp_full_sub_data C P).
 Proof.
   repeat split; intros; try (apply proofirrelevance; apply isapropunit).
   apply isasetaprop; apply isapropunit.
 Qed.
 
-Definition disp_full_sub : disp_cat C := _ ,, disp_full_sub_axioms.
+Definition disp_full_sub (C : category) (P : C → UU)
+  : disp_cat C := _ ,, disp_full_sub_axioms C P.
 
 End full_subcat.
 

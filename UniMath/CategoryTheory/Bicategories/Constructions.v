@@ -9,6 +9,7 @@ Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.StandardBicategories.
 Require Import UniMath.CategoryTheory.Bicategories.DispBicat. Import DispBicat.Notations.
@@ -51,23 +52,8 @@ Section FullSubBicat.
   Variable C : bicat.
   Variable P : C → UU.
 
-  (** TODO: share constructions with Full_Subcat in
-      CategoryTheory/DisplayedCats/Constructions.
-      Problem: discrepancy in the premises (category vs precategory).  *)
-
-  Definition disp_full_sub_ob_mor : disp_cat_ob_mor C
-    := (P,, (λ (x y : C) (_ : P x) (_ : P y) (_ : C ⟦ x, y ⟧), unit)).
-
-  Definition disp_full_sub_id_comp : disp_cat_id_comp C disp_full_sub_ob_mor.
-  Proof.
-    split; intros; apply tt.
-  Defined.
-
-  Definition disp_full_sub_data : disp_cat_data C
-    := disp_full_sub_ob_mor,, disp_full_sub_id_comp.
-
   Definition disp_fullsubprebicat : disp_prebicat C
-    := disp_cell_unit_prebicat disp_full_sub_data.
+    := disp_cell_unit_prebicat (disp_full_sub_data C P).
 
   Definition disp_fullsubbicat : disp_bicat C.
   Proof.
