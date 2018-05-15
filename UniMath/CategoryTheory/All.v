@@ -165,3 +165,4 @@ Require Export UniMath.CategoryTheory.Bicategories.WkCatEnrichment.internal_equi
 Require Export UniMath.CategoryTheory.Bicategories.WkCatEnrichment.bicategory.
 Require Export UniMath.CategoryTheory.Bicategories.BicategoryFromBicat.
 Require Export UniMath.CategoryTheory.Bicategories.BicatFromBicategory.
+Require Export UniMath.CategoryTheory.Bicategories.Graph.
