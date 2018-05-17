@@ -66,11 +66,11 @@ script:
        git submodule update --init sub/coq &&
        if [ $COQ_BRANCH != "" ]
        then ( cd sub/coq && 
-       	      git checkout $COQ_BRANCH )
+              git checkout $COQ_BRANCH )
        fi &&
        ( cd sub/coq && 
          git branch &&
-	 git describe --dirty --long --always --abbrev=40 --tags ) &&
+         git describe --dirty --long --always --abbrev=40 --tags ) &&
        time make build-coq BUILD_COQIDE=$BUILD_COQIDE &&
        time make TIMECMD=time $PACKAGES $BUILD_ALSO FOUNDATIONS_CHANGE_ERROR=$FOUNDATIONS_CHANGE_ERROR"
 
