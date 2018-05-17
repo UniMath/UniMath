@@ -19,6 +19,7 @@ env:
     - PACKAGES=Folds
     - PACKAGES=Induction
     - FOUNDATIONS_CHANGE_ERROR=yes BUILD_ALSO="check-for-change-to-Foundations enforce-listing-of-proof-files"
+    - PACKAGES="Foundations Combinatorics Algebra NumberSystems" COQ_BRANCH=master
 
 # The "docker run" command will pull if needed.
 # Running this first gives two tries in case of network lossage.
@@ -62,6 +63,14 @@ script:
          git checkout -qf $TRAVIS_COMMIT
        fi &&
        . /root/.opam/opam-init/init.sh &&
+       git submodule update --init sub/coq &&
+       if [ $COQ_BRANCH != "" ]
+       then ( cd sub/coq && 
+       	      git checkout $COQ_BRANCH )
+       fi &&
+       ( cd sub/coq && 
+         git branch &&
+	 git describe --dirty --long --always --abbrev=40 --tags ) &&
        time make build-coq BUILD_COQIDE=$BUILD_COQIDE &&
        time make TIMECMD=time $PACKAGES $BUILD_ALSO FOUNDATIONS_CHANGE_ERROR=$FOUNDATIONS_CHANGE_ERROR"
 
