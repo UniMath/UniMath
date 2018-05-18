@@ -64,7 +64,7 @@ script:
        fi &&
        . /root/.opam/opam-init/init.sh &&
        git submodule update --init sub/coq &&
-       if [ $COQ_BRANCH != "" ]
+       if [ '$COQ_BRANCH' != '' ]
        then ( cd sub/coq && 
               git checkout $COQ_BRANCH )
        fi &&
