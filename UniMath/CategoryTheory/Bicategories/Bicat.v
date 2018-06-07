@@ -65,6 +65,10 @@ Definition prebicat_2_id_comp_struct (C : prebicat_1_id_comp_cells) : UU
 
 Definition prebicat_data : UU := ∑ C, prebicat_2_id_comp_struct C.
 
+Definition mk_prebicat_data C (str : prebicat_2_id_comp_struct C)
+  : prebicat_data
+  := C,, str.
+
 (* ----------------------------------------------------------------------------------- *)
 (** Data projections.                                                                  *)
 (* ----------------------------------------------------------------------------------- *)
