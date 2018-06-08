@@ -944,35 +944,10 @@ Section total_prebicat.
 
 Variable D : disp_prebicat.
 
-(** TODO : think how to unify with total_category_ob_mor
-
-    possible once https://github.com/UniMath/UniMath/pull/902
-    is merged
-
- *)
-
-Definition total_prebicat_ob_mor : precategory_ob_mor.
-Proof.
-  exists (∑ x:C, D x).
-  intros xx yy.
-  exact (∑ (f : pr1 xx --> pr1 yy), pr2 xx -->[f] pr2 yy).
-Defined.
-
-Definition total_category_id_comp : precategory_id_comp (total_prebicat_ob_mor).
-Proof.
-  apply tpair; simpl.
-  - intros.
-    exists (identity _).
-    apply id_disp.
-  - intros xx yy zz ff gg.
-    exists (pr1 ff · pr1 gg).
-    exact (pr2 ff ;; pr2 gg).
-Defined.
-
 Definition total_prebicat_1_data : precategory_data
-  := total_prebicat_ob_mor ,, total_category_id_comp.
+  := total_category_ob_mor D ,, total_category_id_comp D.
 
-Definition total_prebicat_cell_struct : prebicat_2cell_struct total_prebicat_ob_mor
+Definition total_prebicat_cell_struct : prebicat_2cell_struct (total_category_ob_mor D)
   := λ a b f g, ∑ η : pr1 f ==> pr1 g, pr2 f ==>[η] pr2 g.
 
 Definition total_prebicat_1_id_comp_cells : prebicat_1_id_comp_cells

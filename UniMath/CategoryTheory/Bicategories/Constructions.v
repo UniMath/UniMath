@@ -73,8 +73,8 @@ Context {C : bicat} (D1 D2 : disp_prebicat C).
     they are not well-written
 
     For the time being, I am making the same mistake here...
+ *)
 
-*)
 Definition disp_dirprod_cat_ob_mor : disp_cat_ob_mor C.
 Proof.
   exists (λ c, D1 c × D2 c).
@@ -238,17 +238,9 @@ Defined.
    bicategory.                                                                         *)
 (* ----------------------------------------------------------------------------------- *)
 
-(* TODO: Move to file UniMath/CategoryTheory/DisplayedCats/Core.v *)
-Definition mk_disp_cat_ob_mor
-           (C : precategory_ob_mor)
-           (obd : C -> UU)
-           (mord : ∏ x y:C, obd x -> obd y -> (x --> y) -> UU)
-  : disp_cat_ob_mor C
-  := obd,, mord.
-
-(* TODO: This might be superfluous, since it is the extensional version of
-   [transportf_const] (and [transportb_const]), nevertheless, this is introduced here
-   since I (Marco) do not see an easy way to use transportf_const. *)
+(* ----------------------------------------------------------------------------------- *)
+(* NB: This is similar to [transportf_const], but eta-expanded.                        *)
+(* ----------------------------------------------------------------------------------- *)
 
 Definition transportf_trivial (A B : UU) (a b : A) (p : a = b) (x : B) :
   x = transportf (λ x : A, B) p x.

@@ -98,6 +98,13 @@ Section Disp_Cat.
 Definition disp_cat_ob_mor (C : precategory_ob_mor)
   := ∑ (obd : C -> UU), (∏ x y:C, obd x -> obd y -> (x --> y) -> UU).
 
+Definition mk_disp_cat_ob_mor
+           (C : precategory_ob_mor)
+           (obd : C -> UU)
+           (mord : ∏ x y:C, obd x -> obd y -> (x --> y) -> UU)
+  : disp_cat_ob_mor C
+  := obd,, mord.
+
 Definition ob_disp {C} (D : disp_cat_ob_mor C) : C -> UU := pr1 D.
 Coercion ob_disp : disp_cat_ob_mor >-> Funclass.
 
