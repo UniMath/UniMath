@@ -37,32 +37,33 @@ Definition transportf_transpose_alt {X : UU} {P : X → UU}
 (** ** Definition of displayed bicategories.                                           *)
 (* ----------------------------------------------------------------------------------- *)
 
-Section disp_prebicat.
-
-Context {C : bicat}.
-
-Definition disp_2cell_struct (D : disp_cat_ob_mor C) : UU
+Definition disp_2cell_struct {C : prebicat_1_id_comp_cells} (D : disp_cat_ob_mor C) : UU
   := ∏ (c c' : C) (f g : C⟦c,c'⟧) (x : f ==> g)
        (d : D c) (d' : D c') (f' : d -->[f] d') (g' : d -->[g] d'), UU.
 
-Definition disp_prebicat_1_id_comp_cells : UU
+Definition disp_prebicat_1_id_comp_cells (C : prebicat_1_id_comp_cells) : UU
   := ∑ D : disp_cat_data C, disp_2cell_struct D.
 
 Coercion disp_cat_data_from_disp_prebicat_1_id_comp_cells
-         (C : disp_prebicat_1_id_comp_cells)
-  : disp_cat_data _
-  := pr1 C.
+         {C : prebicat_1_id_comp_cells} (D : disp_prebicat_1_id_comp_cells C)
+  : disp_cat_data C
+  := pr1 D.
 
-Definition disp_2cells {D : disp_prebicat_1_id_comp_cells}
+Definition disp_2cells {C : prebicat_1_id_comp_cells}
+           {D : disp_prebicat_1_id_comp_cells C}
            {c c' : C} {f g : C⟦c,c'⟧} (x : f ==> g)
            {d : D c} {d' : D c'} (f' : d -->[f] d') (g' : d -->[g] d')
   : UU
   := pr2 D c c' f g x d d' f' g'.
 
+Section disp_prebicat.
+
+Context {C : bicat}.
+
 Local Notation "f' ==>[ x ] g'" := (disp_2cells x f' g') (at level 60).
 Local Notation "f' <==[ x ] g'" := (disp_2cells x g' f') (at level 60, only parsing).
 
-Definition disp_prebicat_ops (D : disp_prebicat_1_id_comp_cells) : UU
+Definition disp_prebicat_ops (D : disp_prebicat_1_id_comp_cells C) : UU
   :=   (∏ (a b : C) (f : C⟦a,b⟧) (x : D a) (y : D b) (f' : x -->[f] y),
         f' ==>[id2 _] f')
      × (∏ (a b : C) (f : C⟦a,b⟧) (x : D a) (y : D b) (f' : x -->[f] y),
@@ -94,11 +95,11 @@ Definition disp_prebicat_ops (D : disp_prebicat_1_id_comp_cells) : UU
         ff1 ==>[r] ff2 → ff1 ;; gg ==>[r ▹ g] ff2 ;; gg).
 
 Definition disp_prebicat_data : UU
-  := ∑ D : disp_prebicat_1_id_comp_cells, disp_prebicat_ops D.
+  := ∑ D : disp_prebicat_1_id_comp_cells C, disp_prebicat_ops D.
 
 Coercion disp_prebicat_ob_mor_cells_1_id_comp_from_disp_prebicat_data
          (D : disp_prebicat_data)
-  : disp_prebicat_1_id_comp_cells
+  : disp_prebicat_1_id_comp_cells C
   := pr1 D.
 
 Coercion disp_prebicat_ops_from_disp_prebicat_data (D : disp_prebicat_data)

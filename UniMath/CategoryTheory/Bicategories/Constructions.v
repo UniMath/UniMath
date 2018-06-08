@@ -69,34 +69,9 @@ Section dirprod.
 
 Context {C : bicat} (D1 D2 : disp_prebicat C).
 
-(** TODO: the next three defs are the same as for 1-cats, but there
-    they are not well-written
-
-    For the time being, I am making the same mistake here...
- *)
-
-Definition disp_dirprod_cat_ob_mor : disp_cat_ob_mor C.
-Proof.
-  exists (λ c, D1 c × D2 c).
-  intros x y xx yy f.
-  exact (pr1 xx -->[f] pr1 yy × pr2 xx -->[f] pr2 yy).
-Defined.
-
-Definition disp_dirprod_cat_id_comp
-  : disp_cat_id_comp _ disp_dirprod_cat_ob_mor.
-Proof.
-  apply tpair.
-  - intros x xx. exact (id_disp _,, id_disp _).
-  - intros x y z f g xx yy zz ff gg.
-    exact ((pr1 ff ;; pr1 gg),, (pr2 ff ;; pr2 gg)).
-Defined.
-
-Definition disp_dirprod_cat_data : disp_cat_data C
-  := (_ ,, disp_dirprod_cat_id_comp).
-
 Definition disp_dirprod_prebicat_1_id_comp_cells : disp_prebicat_1_id_comp_cells C.
 Proof.
-  exists disp_dirprod_cat_data.
+  exists (dirprod_disp_cat_data D1 D2).
   intros c c' f g x d d' f' g'.
   cbn in *.
   exact ( (pr1 f' ==>[ x ] pr1 g') × (pr2 f' ==>[ x ] pr2 g')).
