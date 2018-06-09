@@ -858,6 +858,83 @@ Proof.
   apply pathsinv0, lwhisker_lwhisker.
 Qed.
 
+(** Analog to [rwhisker_rwhisker]. *)
+Lemma rwhisker_rwhisker_alt {a b c d : C}
+      (f : C ⟦ b, a ⟧) (g : C ⟦ c, b ⟧) {h i : C ⟦ d, c ⟧} (x : h ==> i)
+  : ((x ▹ g) ▹ f) • rassociator i g f = rassociator h g f • (x ▹ g · f).
+Proof.
+  apply inv_2cell_left_cancellable with (lassociator h g f).
+  { apply is_invertible_2cell_lassociator. }
+  etrans. { apply vassocr. }
+  etrans. { apply maponpaths_2, rwhisker_rwhisker. }
+  etrans. { apply vassocl. }
+  etrans. { apply maponpaths, lassociator_rassociator. }
+  apply pathsinv0.
+  etrans. { apply vassocr. }
+  etrans. { apply maponpaths_2, lassociator_rassociator. }
+  etrans.
+  - apply id2_left.
+  - apply pathsinv0, id2_right.
+Qed.
+
+Lemma rassociator_rassociator {a b c d e : C}
+      (f : C ⟦ a, b ⟧) (g : C ⟦ b, c ⟧) (h : C ⟦ c, d ⟧) (i : C ⟦ d, e ⟧)
+  : ((rassociator f g h ▹ i) • rassociator f (g · h) i) • (f ◃ rassociator g h i) =
+    rassociator (f · g) h i • rassociator f g (h · i).
+Proof.
+  apply inv_2cell_left_cancellable with (lassociator (f · g) h i).
+  { apply is_invertible_2cell_lassociator. }
+  apply inv_2cell_left_cancellable with (lassociator f g (h · i)).
+  { apply is_invertible_2cell_lassociator. }
+  etrans. { apply vassocr. }
+  etrans.
+  { apply maponpaths_2, pathsinv0.
+    apply lassociator_lassociator. }
+  etrans. { apply vassocl. }
+  etrans.
+  { apply maponpaths.
+    etrans.
+    { apply maponpaths, vassocl. }
+    etrans. { apply vassocr. }
+    apply maponpaths_2.
+    etrans. { apply rwhisker_vcomp. }
+    apply maponpaths, lassociator_rassociator.
+  }
+  apply pathsinv0.
+  etrans.
+  { apply maponpaths.
+    etrans. { apply vassocr. }
+    etrans. { apply maponpaths_2, lassociator_rassociator. }
+    apply id2_left. }
+  etrans.
+  apply lassociator_rassociator.
+  apply pathsinv0.
+  etrans.
+  { apply maponpaths.
+    etrans.
+    { apply vassocr. }
+    apply maponpaths_2.
+    etrans. { apply maponpaths_2, id2_rwhisker. }
+    apply id2_left.
+  }
+  etrans.
+  apply vassocl.
+  etrans.
+  apply maponpaths.
+  etrans.
+  apply vassocr.
+  etrans.
+  apply maponpaths_2.
+  apply lassociator_rassociator.
+  apply id2_left.
+  etrans.
+  apply lwhisker_vcomp.
+  etrans.
+  apply maponpaths.
+  apply lassociator_rassociator.
+  apply lwhisker_id2.
+Qed.
+
 End Derived_laws.
 
 (* ----------------------------------------------------------------------------------- *)
