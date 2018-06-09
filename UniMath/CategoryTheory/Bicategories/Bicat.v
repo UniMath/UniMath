@@ -13,9 +13,9 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Open Scope cat.
 
 (* ----------------------------------------------------------------------------------- *)
-(** * Definition of bicategory                                                         *)
+(** ** Definition of prebicategory                                                     *)
 (*                                                                                     *)
-(** ** Data                                                                            *)
+(** *** Data                                                                           *)
 (* ----------------------------------------------------------------------------------- *)
 
 Definition prebicat_2cell_struct (C : precategory_ob_mor)
@@ -132,15 +132,15 @@ Definition hcomp' {C : prebicat_data} {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 :
 
 Local Notation "x ⋆ y" := (hcomp x y) (at level 50).
 
-(** The numbers in the following laws refer to
-    the list of axioms given in ncatlab
-    (Section "Definition / Details")
-    https://ncatlab.org/nlab/show/bicategory#detailedDefn
-    version of October 7, 2015 10:35:36
-*)
-
 (* ----------------------------------------------------------------------------------- *)
 (** ** Laws                                                                            *)
+(* ----------------------------------------------------------------------------------- *)
+
+(* ----------------------------------------------------------------------------------- *)
+(** The numbers in the following laws refer to the list of axioms given in ncatlab
+    (Section "Definition / Details")
+    https://ncatlab.org/nlab/show/bicategory#detailedDefn
+    version of October 7, 2015 10:35:36                                                *)
 (* ----------------------------------------------------------------------------------- *)
 
 Definition prebicat_laws (C : prebicat_data)
@@ -345,7 +345,7 @@ Definition lassociator_lassociator {a b c d e: C}
 End prebicat_law_projections.
 
 (* ----------------------------------------------------------------------------------- *)
-(** ** Bicategories.                                                                   *)
+(** ** Bicategories                                                                    *)
 (* ----------------------------------------------------------------------------------- *)
 
 Definition isaset_cells (C : prebicat) : UU
@@ -361,7 +361,6 @@ Coercion prebicat_of_bicat (C : bicat)
 Definition cellset_property {C : bicat} {a b : C} (f g : a --> b)
   : isaset (f ==> g)
   := pr2 C a b f g.
-
 
 (* ----------------------------------------------------------------------------------- *)
 (** ** Invertible 2-cells                                                              *)
@@ -433,7 +432,6 @@ Proof.
   - rewrite vassocr. rewrite hy2. apply id2_left.
 Qed.
 
-
 Lemma cell_id_if_inv_cell_id {C : bicat} {a b : C} {f g : C ⟦a, b⟧} (x y : f ==> g)
       (hx : is_invertible_2cell x) (hy : is_invertible_2cell y)
   : inv_cell (x,,hx) = inv_cell (y,,hy) → x = y.
@@ -451,8 +449,6 @@ Proof.
   apply idpath.
 Qed.
 
-
-
 (* ----------------------------------------------------------------------------------- *)
 (** ** Derived laws                                                                    *)
 (* ----------------------------------------------------------------------------------- *)
@@ -463,10 +459,8 @@ Context {C : prebicat}.
 
 Definition vassocl {a b : C} {f g h k : C⟦a, b⟧}
            (x : f ==> g) (y : g ==> h) (z : h ==> k)
-  : (x • y) • z = x • (y • z).
-Proof.
-  apply pathsinv0. apply vassocr.
-Defined.
+  : (x • y) • z = x • (y • z)
+  := !vassocr x y z.
 
 Lemma vassoc4 {a b : C} {f g h i j: C ⟦a, b⟧}
       (w : f ==> g) (x : g ==> h) (y : h ==> i) (z : i ==> j)
@@ -725,11 +719,9 @@ Proof.
   apply lwhisker_id2.
 Defined.
 
-
 (* ----------------------------------------------------------------------------------- *)
 (** ** Inverse 2cell of a composition                                                  *)
 (* ----------------------------------------------------------------------------------- *)
-
 
 Lemma is_invertible_2cell_composite {a b : C} {f g h: C ⟦a, b⟧}
       (x : f ==> g) (y : g ==> h)
@@ -764,7 +756,6 @@ Lemma inv_cell_of_composite {a b : C} {f g h: C ⟦a, b⟧}
 Proof.
   cbn. apply idpath.
 Defined.
-
 
 (* ----------------------------------------------------------------------------------- *)
 (** ** Interchange law                                                                 *)
@@ -887,12 +878,10 @@ Proof.
   apply pathsinv0, lwhisker_lwhisker.
 Qed.
 
-
 End Derived_laws.
 
-
 (* ----------------------------------------------------------------------------------- *)
-(** ** Homs are categories.                                                            *)
+(** ** Homs are categories                                                             *)
 (* ----------------------------------------------------------------------------------- *)
 
 Section Hom_Spaces.
@@ -903,26 +892,21 @@ Definition hom_ob_mor
   : precategory_ob_mor
   := precategory_ob_mor_pair (C⟦a,b⟧) (λ (f g : C⟦a,b⟧), f ==> g).
 
-Definition hom_data : precategory_data.
-Proof.
-  exists hom_ob_mor. split.
-  - exact id2.
-  - exact (λ f g h x y, x • y).
-Defined.
+Definition hom_data
+  : precategory_data
+  := precategory_data_pair hom_ob_mor id2 (λ f g h x y, x • y).
 
 Lemma is_precategory_hom : is_precategory hom_data.
 Proof.
-  repeat split; simpl.
+  repeat split; cbn.
   - intros f g. apply id2_left.
   - intros f g. apply id2_right.
   - intros f g h i. apply vassocr.
 Defined.
 
-Definition hom : precategory.
-Proof.
-  exists hom_data.
-  exact is_precategory_hom.
-Defined.
+Definition hom
+  : precategory
+  := mk_precategory hom_data is_precategory_hom.
 
 End Hom_Spaces.
 
@@ -945,28 +929,18 @@ Defined.
 
 Lemma is_functor_hcomp : is_functor hcomp_functor_data.
 Proof.
-  split; red; simpl.
-  - intros (f1, f2). simpl. apply hcomp_identity.
+  split; red; cbn.
+  - intros (f1, f2). cbn. apply hcomp_identity.
   - intros (f1, f2) (g1, g2) (h1, h2).
-    unfold precategory_binproduct_mor. simpl.
+    unfold precategory_binproduct_mor. cbn.
     intros (x1, x2) (y1, y2). cbn. apply hcomp_vcomp.
-Defined.
+Qed.
 
-Definition hcomp_functor : precategory_binproduct (hom a b) (hom b c) ⟶ hom a c.
-Proof.
-  exists hcomp_functor_data. exact is_functor_hcomp.
-Defined.
+Definition hcomp_functor
+  : precategory_binproduct (hom a b) (hom b c) ⟶ hom a c
+  := mk_functor hcomp_functor_data is_functor_hcomp.
 
 End hcomp_functor.
-
-(** TODO:
-    construct a prebicategory (see CT/bicategories) from a bicat
-    Bonus:
-    Invertible_2cell of types between these two
- *)
-(** TODO:
-    define saturation/univalence for bicats
- *)
 
 (* ----------------------------------------------------------------------------------- *)
 (** ** Chaotic bicat                                                                   *)
@@ -987,9 +961,19 @@ Defined.
 
 Definition chaotic_prebicat_laws : prebicat_laws chaotic_prebicat_data.
 Proof.
-  repeat (use tpair); cbn; intros;
-    apply isProofIrrelevantUnit.
+  repeat apply dirprodpair; intros; apply isProofIrrelevantUnit.
 Qed.
+
+Definition chaotic_prebicat : prebicat
+  := chaotic_prebicat_data,, chaotic_prebicat_laws.
+
+Lemma isaset_chaotic_cells : isaset_cells chaotic_prebicat.
+Proof.
+  red. cbn. intros. exact isasetunit.
+Qed.
+
+Definition chaotic_bicat : bicat
+  := chaotic_prebicat,, isaset_chaotic_cells.
 
 End chaotic_bicat.
 
@@ -1031,12 +1015,12 @@ Proof.
   - intros. apply pathsinv0. apply maponpathscomp0.
   - intros. unfold maponpaths_2.
     apply pathsinv0. apply (@maponpathscomp0  _ _ _ _ _ (λ x0 : C ⟦ a, b ⟧, x0 · i)).
-  - intros. induction x. simpl. apply pathsinv0. apply (pathscomp0rid).
+  - intros. induction x. cbn. apply pathsinv0. apply (pathscomp0rid).
   - intros. induction x. apply pathsinv0. apply (pathscomp0rid).
-  - intros. induction x. simpl. apply pathsinv0. apply (pathscomp0rid).
-  - intros. induction x. simpl. apply pathsinv0. apply (pathscomp0rid).
-  - intros. induction x; simpl. apply (pathscomp0rid).
-  - intros. induction x; induction y; simpl. apply idpath.
+  - intros. induction x. cbn. apply pathsinv0. apply (pathscomp0rid).
+  - intros. induction x. cbn. apply pathsinv0. apply (pathscomp0rid).
+  - intros. induction x; cbn. apply (pathscomp0rid).
+  - intros. induction x; induction y; cbn. apply idpath.
   - intros. apply pathsinv0r.
   - intros. apply pathsinv0l.
   - intros. apply pathsinv0r.
@@ -1068,7 +1052,6 @@ Proof.
   - exact (idweq _).
   - intro e. induction e. apply idpath.
 Qed.
-
 
 (* ----------------------------------------------------------------------------------- *)
 (** ** Associators and unitors are isos.                                               *)
@@ -1137,10 +1120,8 @@ Definition lunitor_transf (a b : C)
       (functor_identity (hom a b)) ∙
     hcomp_functor
     ⟹
-    functor_identity (hom a b).
-Proof.
-  exists lunitor. red. apply lunitor_natural.
-Defined.
+    functor_identity (hom a b)
+  := lunitor,, lunitor_natural a b.
 
 (* -----------------------------------------------------------------------------------*)
 (** Right unitor                                                                      *)
@@ -1187,10 +1168,10 @@ Lemma lassociator_fun_natural {a b c d : C}
       lassociator_fun.
 Proof.
   red; cbn. intros (f1, (f2, f3)) (g1, (g2, g3)).
-  unfold precategory_binproduct_mor, hom_ob_mor. simpl.
-  unfold precategory_binproduct_mor, hom_ob_mor. simpl.
-  intros (x1, (x2, x3)). simpl.
-  unfold lassociator_fun. simpl.
+  unfold precategory_binproduct_mor, hom_ob_mor. cbn.
+  unfold precategory_binproduct_mor, hom_ob_mor. cbn.
+  intros (x1, (x2, x3)). cbn.
+  unfold lassociator_fun. cbn.
   apply hcomp_lassoc.
 Defined.
 
@@ -1199,10 +1180,8 @@ Definition lassociator_transf (a b c d : C)
     ⟹
     precategory_binproduct_assoc (hom a b) (hom b c) (hom c d) ∙
     pair_functor hcomp_functor (functor_identity (hom c d)) ∙
-    hcomp_functor.
-Proof.
-  exists lassociator_fun. exact lassociator_fun_natural.
-Defined.
+    hcomp_functor
+  := lassociator_fun,, lassociator_fun_natural.
 
 (* -----------------------------------------------------------------------------------*)
 (** Right associator.                                                                 *)
@@ -1222,10 +1201,10 @@ Lemma rassociator_fun_natural {a b c d : C}
       rassociator_fun.
 Proof.
   red; cbn. intros (f1, (f2, f3)) (g1, (g2, g3)).
-  unfold precategory_binproduct_mor, hom_ob_mor. simpl.
-  unfold precategory_binproduct_mor, hom_ob_mor. simpl.
-  intros (x1, (x2, x3)). simpl.
-  unfold rassociator_fun. simpl.
+  unfold precategory_binproduct_mor, hom_ob_mor. cbn.
+  unfold precategory_binproduct_mor, hom_ob_mor. cbn.
+  intros (x1, (x2, x3)). cbn.
+  unfold rassociator_fun. cbn.
   apply hcomp_rassoc.
 Defined.
 
@@ -1234,10 +1213,8 @@ Definition rassociator_transf (a b c d : C)
     pair_functor hcomp_functor (functor_identity (hom c d)) ∙
     hcomp_functor
     ⟹
-    pair_functor (functor_identity (hom a b)) hcomp_functor ∙ hcomp_functor.
-Proof.
-  exists rassociator_fun. exact rassociator_fun_natural.
-Defined.
+    pair_functor (functor_identity (hom a b)) hcomp_functor ∙ hcomp_functor
+  := rassociator_fun,, rassociator_fun_natural.
 
 End Associators_Unitors_Natural.
 
