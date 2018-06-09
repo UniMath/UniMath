@@ -15,22 +15,22 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.OpMorBicat.
+Require Import UniMath.CategoryTheory.Bicategories.OpCellBicat.
 
 Open Scope cat.
 Open Scope mor_disp_scope.
-
 
 Section unitors.
 
 Context {C : bicat}.
 
-
 (** The triangle with "?" in the proof of the Proposition *)
 
 Lemma runitor_rwhisker_rwhisker {a b c d: C} (f : C⟦a, b⟧)
       (g : C⟦b, c⟧) (h : C⟦c, d⟧)
-  : (rassociator f g (identity _ ) ▹ h) • ((f ◃ runitor _ ) ▹ h) =
-    runitor _  ▹ h.
+  : (rassociator f g (identity c) ▹ h) • ((f ◃ runitor g) ▹ h) =
+    runitor (f · g) ▹ h.
 Proof.
   (** rewrite with uppler left triangle *)
   apply pathsinv0.
@@ -41,7 +41,6 @@ Proof.
   { apply is_invertible_2cell_rassociator. }
 
   (** rewrite upper right square *)
-
   etrans. apply vassocl.
   etrans. apply maponpaths.
   apply pathsinv0, lwhisker_lwhisker_rassociator.
@@ -59,7 +58,6 @@ Proof.
   etrans. apply maponpaths. apply maponpaths. apply pathsinv0, lwhisker_vcomp.
 
   (** remove trailing lunitor *)
-
   etrans. apply vassocr.
   etrans. apply vassocr.
 
@@ -68,7 +66,6 @@ Proof.
   apply maponpaths_2.
 
   (** turn the rassociators into lassociators *)
-
   use cell_id_if_inv_cell_id.
   - use is_invertible_2cell_composite.
     + apply is_invertible_2cell_rassociator.
@@ -86,11 +83,9 @@ Proof.
     apply lassociator_lassociator.
 Qed.
 
-
-
 Lemma rwhisker_id_inj {a b : C} (f g : C⟦a, b⟧)
       (x y : f  ==> g)
-  : x ▹ identity _ = y ▹ identity _ → x = y.
+  : x ▹ identity b = y ▹ identity b → x = y.
 Proof.
   intro H.
   use inv_2cell_left_cancellable.
@@ -104,7 +99,7 @@ Qed.
 
 Lemma lwhisker_id_inj {a b : C} (f g : C⟦a, b⟧)
       (x y : f  ==> g)
-  : identity _ ◃ x = identity _ ◃ y → x = y.
+  : identity a ◃ x = identity a ◃ y → x = y.
 Proof.
   intro H.
   use inv_2cell_left_cancellable.
@@ -116,7 +111,6 @@ Proof.
     apply maponpaths_2. apply H.
 Qed.
 
-
 (** The first triangle in the Proposition *)
 (** a · (1 ⊗ r) = r *)
 Lemma runitor_triangle {a b c: C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
@@ -126,19 +120,6 @@ Proof.
   etrans. 2: apply runitor_rwhisker_rwhisker.
   apply pathsinv0, rwhisker_vcomp.
 Qed.
-
-(** TODO
-    This lemma is not needed to show that
-    the unitors coincide on the identity,
-    but it should be proved eventually.
-*)
-(** The second triangle in the Proposition *)
-Lemma lunitor_triangle {a b c: C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
-  : rassociator (identity a) f g • lunitor (f · g) = lunitor f ▹ g .
-Proof.
-  admit.
-Abort.
-
 
 (** The square in the Proposition *)
 
@@ -153,7 +134,7 @@ Qed.
 
 (** l = 1 ⊗ l *)
 Lemma lunitor_is_lunitor_lwhisker (a : C)
-  : lunitor (identity _ · identity _ ) = identity a ◃ lunitor _ .
+  : lunitor (identity a · identity a) = identity a ◃ lunitor (identity a).
 Proof.
   use (inv_2cell_right_cancellable (lunitor _ )).
   - apply is_invertible_2cell_lunitor.
@@ -162,7 +143,7 @@ Qed.
 
 (**  1 ⊗ r = 1 ⊗ l *)
 Lemma lwhisker_runitor_lunitor (a : C)
-  : (identity a ) ◃ runitor _ = (identity _ ) ◃ lunitor _ .
+  : identity a  ◃ runitor (identity a) = identity a ◃ lunitor (identity a).
 Proof.
   use (inv_2cell_left_cancellable (rassociator _ _ _ )).
   - apply is_invertible_2cell_rassociator.
@@ -172,7 +153,7 @@ Proof.
 Qed.
 
 Lemma runitor_lunitor_identity (a : C)
-  : runitor (identity a) = lunitor _ .
+  : runitor (identity a) = lunitor (identity a).
 Proof.
   apply (inv_2cell_left_cancellable (lunitor _ )).
   { apply is_invertible_2cell_lunitor. }
@@ -188,3 +169,15 @@ Proof.
 Qed.
 
 End unitors.
+
+(* ----------------------------------------------------------------------------------- *)
+(** ** Examples of laws derived by reversing morphisms or cells.                       *)
+(* ----------------------------------------------------------------------------------- *)
+
+Definition rinvunitor_triangle (C : bicat) (a b c : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧)
+  : (f ◃ rinvunitor g) • lassociator f g (identity c) = rinvunitor (f · g)
+  := runitor_triangle (C := op2_bicat C) f g.
+
+Definition lunitor_triangle (C : bicat) (a b c : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧)
+  : lassociator (identity a) f g • (lunitor f ▹ g) = lunitor (f · g)
+  := runitor_triangle (C := op1_bicat C) g f.

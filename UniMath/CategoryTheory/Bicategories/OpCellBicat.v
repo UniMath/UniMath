@@ -1,10 +1,15 @@
-(* ******************************************************************************* *)
+(* *********************************************************************************** *)
 (** * Bicategories
-    Benedikt Ahrens, Marco Maggesi
-    February 2018
- ********************************************************************************* *)
 
-(** * op2 bicategory. *)
+    Benedikt Ahrens, Marco Maggesi
+    February 2018                                                                      *)
+(* *********************************************************************************** *)
+
+(* ----------------------------------------------------------------------------------- *)
+(** ** op2 bicategory.
+
+    Bicategory obtained by formally reversing 2-cells.                                 *)
+(* ----------------------------------------------------------------------------------- *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -22,13 +27,13 @@ Definition op2_2cell_struct (C : prebicat_1_id_comp_cells)
 
 Definition op2_prebicat_1_id_comp_cells (C : prebicat_1_id_comp_cells)
   : prebicat_1_id_comp_cells
-    := (C:precategory_data),, op2_2cell_struct C.
+  := (C:precategory_data),, op2_2cell_struct C.
 
 Definition op2_prebicat_data (C : prebicat_data)
   : prebicat_data.
 Proof.
   exists (op2_prebicat_1_id_comp_cells C).
-  repeat use tpair.
+  repeat use dirprodpair.
   - intros; apply id2.
   - intros; cbn. apply linvunitor.
   - intros; cbn. apply rinvunitor.
@@ -129,12 +134,12 @@ Proof.
     apply lassociator_lassociator.
 Qed.
 
-Definition op2_prebicat : prebicat := _ ,, op2_prebicat_laws.
+Definition op2_prebicat : prebicat := op2_prebicat_data C ,, op2_prebicat_laws.
 
 End op2.
 
-Definition op2_isaset_cells (C : bicat) : isaset_cells C
-  := λ (a b : C) (f g : C ⟦ a, b ⟧), cellset_property f g.
+Definition op2_isaset_cells (C : bicat) : isaset_cells (op2_prebicat C)
+  := λ (a b : C) (f g : C ⟦ a, b ⟧), cellset_property g f.
 
 Definition op2_bicat (C : bicat) : bicat
-  := (C:prebicat),, op2_isaset_cells C.
+  := op2_prebicat C,, op2_isaset_cells C.

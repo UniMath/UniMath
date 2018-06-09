@@ -513,20 +513,20 @@ Proof.
   apply R.
 Qed.
 
-Lemma is_invertible_rassociator {a b c d : C}
+Lemma is_invertible_2cell_rassociator {a b c d : C}
       (f : C⟦a,b⟧) (g : C⟦b,c⟧) (h : C⟦c,d⟧)
   : is_invertible_2cell (rassociator f g h).
 Proof.
   exists (lassociator f g h).
-  abstract (split; [ apply rassociator_lassociator | apply lassociator_rassociator ]).
+  split; [ apply rassociator_lassociator | apply lassociator_rassociator ].
 Defined.
 
-Lemma is_invertible_lassociator {a b c d : C}
+Lemma is_invertible_2cell_lassociator {a b c d : C}
       (f : C⟦a,b⟧) (g : C⟦b,c⟧) (h : C⟦c,d⟧)
   : is_invertible_2cell (lassociator f g h).
 Proof.
   exists (rassociator f g h).
-  abstract (split; [ apply lassociator_rassociator | apply rassociator_lassociator ]).
+  split; [ apply lassociator_rassociator | apply rassociator_lassociator ].
 Defined.
 
 Lemma lhs_right_invert_cell {a b : C} {f g h : a --> b}
@@ -588,7 +588,7 @@ Lemma rassociator_to_lassociator_post {a b c d : C}
 Proof.
   apply pathsinv0.
   use lhs_right_invert_cell.
-  - apply is_invertible_lassociator.
+  - apply is_invertible_2cell_lassociator.
   - cbn. exact (!p).
 Qed.
 
@@ -600,7 +600,7 @@ Lemma lassociator_to_rassociator_post {a b c d : C}
   : x • rassociator f g h = y.
 Proof.
   use lhs_right_invert_cell.
-  - apply is_invertible_rassociator.
+  - apply is_invertible_2cell_rassociator.
   - exact p.
 Qed.
 
@@ -612,7 +612,7 @@ Lemma lassociator_to_rassociator_pre {a b c d : C}
   : rassociator f g h • x = y.
 Proof.
   use lhs_left_invert_cell.
-  - apply is_invertible_rassociator.
+  - apply is_invertible_2cell_rassociator.
   - exact p.
 Qed.
 
@@ -625,7 +625,7 @@ Lemma rassociator_to_lassociator_pre {a b c d : C}
 Proof.
   apply pathsinv0.
   use lhs_left_invert_cell.
-  - apply is_invertible_lassociator.
+  - apply is_invertible_2cell_lassociator.
   - exact (!p).
 Qed.
 
@@ -633,7 +633,7 @@ Lemma lunitor_lwhisker {a b c : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
   : rassociator _ _ _ • (f ◃ lunitor g) = runitor f ▹ g.
 Proof.
   use lhs_left_invert_cell.
-  apply is_invertible_rassociator.
+  apply is_invertible_2cell_rassociator.
   cbn.
   apply pathsinv0.
   apply runitor_rwhisker.
@@ -702,11 +702,11 @@ Lemma hcomp_rassoc {a b c d : C}
     rassociator f1 f2 f3 • x1 ⋆ (x2 ⋆ x3).
 Proof.
   use lhs_right_invert_cell.
-  apply is_invertible_rassociator.
+  apply is_invertible_2cell_rassociator.
   etrans; [ | apply vassocr ].
   apply pathsinv0.
   use lhs_left_invert_cell.
-  apply is_invertible_rassociator.
+  apply is_invertible_2cell_rassociator.
   apply hcomp_lassoc.
 Defined.
 
@@ -817,26 +817,6 @@ Proof.
         etrans; [ apply rwhisker_vcomp |];
         etrans; [ apply maponpaths; apply (inv_cell_after_invertible_2cell xH) |];
         apply id2_rwhisker).
-Defined.
-
-Definition is_invertible_2cell_lassociator {a b c d : C}
-           (f1 : C ⟦ a, b ⟧) (f2 : C ⟦ b, c ⟧) (f3 : C ⟦ c, d ⟧)
-  : is_invertible_2cell (lassociator f1 f2 f3).
-Proof.
-  exists (rassociator f1 f2 f3).
-  split.
-  - apply lassociator_rassociator.
-  - apply rassociator_lassociator.
-Defined.
-
-Definition is_invertible_2cell_rassociator {a b c d : C}
-           (f1 : C ⟦ a, b ⟧) (f2 : C ⟦ b, c ⟧) (f3 : C ⟦ c, d ⟧)
-  : is_invertible_2cell (rassociator f1 f2 f3).
-Proof.
-  exists (lassociator f1 f2 f3).
-  split.
-  - apply rassociator_lassociator.
-  - apply lassociator_rassociator.
 Defined.
 
 Lemma rwhisker_lwhisker_rassociator
