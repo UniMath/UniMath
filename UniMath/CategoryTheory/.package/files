@@ -142,9 +142,10 @@ DisplayedCats/Adjunctions.v
 
 Bicategories/Bicat.v
 Bicategories/StandardBicategories.v
+Bicategories/OpCellBicat.v
+Bicategories/OpMorBicat.v
 Bicategories/Unitors.v
 Bicategories/PseudoFunctor.v
-Bicategories/OpCellBicat.v
 Bicategories/Univalence.v
 Bicategories/DispBicat.v
 Bicategories/BicatOfCats.v
