@@ -1,6 +1,9 @@
-(* =================================================================================== *)
-(* Internal adjunciton in displayed bicategories.                                      *)
-(* =================================================================================== *)
+(* *********************************************************************************** *)
+(** * Internal adjunciton in displayed bicategories
+
+    Benedikt Ahrens, Marco Maggesi
+    April 2018                                                                         *)
+(* *********************************************************************************** *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -153,16 +156,13 @@ Definition disp_lunitor_runitor_identity_type {a : C} (aa : D a)
      transportb (λ x, _ ==>[x] _) (lunitor_runitor_identity a)
                 (disp_runitor (id_disp aa)).
 
-(** TODO: prove this theorem *)
 Theorem disp_lunitor_runitor_identity {a : C} (aa : D a)
   : disp_lunitor_runitor_identity_type aa.
 Proof.
 Abort.
 
+(** Once the theorem above is proved, remove this section and its assumption. *)
 
-(** TODO: once the theorem above is proved,
-    remove this section and its assumption.
-*)
 Section assume_disp_lunitor_runitor_identity.
 
 Variable disp_lunitor_runitor_identity :

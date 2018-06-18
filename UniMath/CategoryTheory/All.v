@@ -145,9 +145,10 @@ Require Export UniMath.CategoryTheory.DisplayedCats.Examples.
 Require Export UniMath.CategoryTheory.DisplayedCats.Adjunctions.
 Require Export UniMath.CategoryTheory.Bicategories.Bicat.
 Require Export UniMath.CategoryTheory.Bicategories.StandardBicategories.
+Require Export UniMath.CategoryTheory.Bicategories.OpCellBicat.
+Require Export UniMath.CategoryTheory.Bicategories.OpMorBicat.
 Require Export UniMath.CategoryTheory.Bicategories.Unitors.
 Require Export UniMath.CategoryTheory.Bicategories.PseudoFunctor.
-Require Export UniMath.CategoryTheory.Bicategories.OpCellBicat.
 Require Export UniMath.CategoryTheory.Bicategories.Univalence.
 Require Export UniMath.CategoryTheory.Bicategories.DispBicat.
 Require Export UniMath.CategoryTheory.Bicategories.BicatOfCats.
