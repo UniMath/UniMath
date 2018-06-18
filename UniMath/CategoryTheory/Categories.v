@@ -285,24 +285,24 @@ Defined.
 
 (** * Setcategories: Precategories whose objects and morphisms are sets *)
 
-Definition setcategory := total2 (
-   λ C : precategory, dirprod (isaset (ob C)) (has_homsets C)).
+Definition is_setcategory (C : precategory) : UU := (isaset (ob C)) × (has_homsets C).
+Definition setcategory : UU := total2 is_setcategory.
+Definition category_from_setcategory (C : setcategory) : category :=
+  (pr1 C,, (dirprod_pr2 (pr2 C))).
+Coercion category_from_setcategory : setcategory >-> category.
 
-Definition precategory_from_setcategory (C : setcategory) : precategory := pr1 C.
-Coercion precategory_from_setcategory : setcategory >-> precategory.
+Lemma isaprop_is_setcategory (C : precategory) : isaprop (is_setcategory C).
+Proof.
+  apply isapropdirprod.
+  - apply isapropisaset.
+  - apply isaprop_has_homsets.
+Defined.
 
 Definition setcategory_objects_set (C : setcategory) : hSet :=
     hSetpair (ob C) (pr1 (pr2 C)).
 
-Lemma isaset_ob (C : setcategory) : isaset C.
-Proof.
-  exact (pr1 (pr2 C)).
-Qed.
-
-Lemma isaset_mor (C : setcategory) : has_homsets C.
-Proof.
-  exact (pr2 (pr2 C)).
-Qed.
+Definition isaset_ob (C : setcategory) : isaset C := (dirprod_pr1 (pr2 C)).
+Definition isaset_mor (C : setcategory) : has_homsets C := homset_property C.
 
 Lemma setcategory_eq_morphism_pi (C : setcategory) (a b : ob C)
       (e e': a = b) : idtomor _ _ e = idtomor _ _ e'.

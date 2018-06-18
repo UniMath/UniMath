@@ -19,19 +19,22 @@ Require Import UniMath.Foundations.Sets
         UniMath.CategoryTheory.slicecat
         UniMath.CategoryTheory.Adjunctions
         UniMath.CategoryTheory.equivalences
-        UniMath.CategoryTheory.DiscreteCategory.
+        UniMath.CategoryTheory.Groupoids
+        UniMath.CategoryTheory.categories.StandardCategories.
 Local Open Scope cat.
 
 Section set_slice_fam_equiv.
 
   Variable X : hSet.
 
-  Local Definition slice (A : hSet) := slice_precat HSET A has_homsets_HSET.
-  Local Definition discrete (A : hSet) := discrete_precategory (pr1 A).
-  Local Definition discrete_has_homsets (A : hSet) :=
-    has_homsets_discrete_precategory (pr1 A) (hlevelntosn 2 (pr1 A) (isofhlevelssnset 0 (pr1 A) (pr2 A))).
-  Local Definition fam (A : hSet) := functor_precategory (discrete A) HSET has_homsets_HSET.
-  Local Definition mkfam (f : X → hSet) := functor_discrete_precategory (pr1 X) HSET f.
+  Local Definition slice (A : hSet) : precategory := slice_precat HSET A has_homsets_HSET.
+  Local Definition discrete (A : hSet) : discrete_category := discrete_category_hset A.
+  Local Definition discrete_has_homsets (A : hSet) :
+    has_homsets (discrete_category_hset A) := homset_property _.
+  Local Definition fam (A : hSet) : precategory :=
+    functor_precategory (discrete A) HSET has_homsets_HSET.
+  Local Definition mkfam (f : X → hSet) : functor (discrete X) HSET :=
+    functor_path_pregroupoid (f : X → ob HSET).
 
   Definition slice_to_fam_fun (a : slice X) : fam X :=
     mkfam (λ x : X, hfiber_hSet (pr2 a) x).
@@ -46,7 +49,7 @@ Section set_slice_fam_equiv.
     is_nat_trans (s_to_f a : functor (discrete X) HSET)
                  (s_to_f b : functor (discrete X) HSET)
                  (slice_to_fam_mor_fun f)
-    := is_nat_trans_discrete_precategory X has_homsets_HSET (slice_to_fam_mor_fun f).
+    := is_nat_trans_discrete_precategory has_homsets_HSET (slice_to_fam_mor_fun f).
 
   Definition slice_to_fam_mor {a b : slice X} (f : a --> b) : s_to_f a --> s_to_f b :=
     (slice_to_fam_mor_fun f) ,, (is_nat_trans_slice_to_fam_mor f).
@@ -142,7 +145,7 @@ Section set_slice_fam_equiv.
     is_nat_trans (pr1 ((functor_identity_data _) f))
                  (pr1 ((functor_composite_data fam_to_slice_data slice_to_fam_data) f))
                  (fam_unit_fun_fun f) :=
-    is_nat_trans_discrete_precategory X has_homsets_HSET (fam_unit_fun_fun f).
+    is_nat_trans_discrete_precategory has_homsets_HSET (fam_unit_fun_fun f).
 
   Definition fam_unit_fun (f : fam X) :
     (functor_identity_data _) f --> (functor_composite_data fam_to_slice_data slice_to_fam_data) f :=

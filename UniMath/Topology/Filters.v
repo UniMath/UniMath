@@ -1192,7 +1192,7 @@ Proof.
           3: apply IHl.
           intros C.
           generalize (Hl lastelement) ; simpl.
-          rewrite append_fun_compute_2.
+          rewrite append_vec_compute_2.
           apply hinhfun.
           apply sumofmaps ; [intros Fl | intros ->].
           + refine (tpair _ _ _).
@@ -1217,7 +1217,7 @@ Proof.
           + intros.
             generalize (Hl (dni_lastelement m)) ; simpl.
             rewrite <- replace_dni_last.
-            now rewrite append_fun_compute_1. }
+            now rewrite append_vec_compute_1. }
       revert B.
       apply hinhuniv.
       intros B.

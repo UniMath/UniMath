@@ -1,6 +1,6 @@
 Require Export UniMath.Combinatorics.Lists.
 Require Export UniMath.Combinatorics.FiniteSequences.
-Require Export UniMath.Algebra.Rigs_and_Rings.
+Require Export UniMath.Algebra.RigsAndRings.
 Require Export UniMath.Foundations.UnivalenceAxiom.
 
 Require Import UniMath.MoreFoundations.Tactics.
@@ -99,14 +99,14 @@ Section BinaryOperations.
   Defined.
 
   Definition iterop_fun_step' (lunax : islunit op unel) {m} (xs:stn m -> X) (x:X) :
-    iterop_fun (append_fun xs x) = op (iterop_fun xs) x.
+    iterop_fun (append_vec xs x) = op (iterop_fun xs) x.
   Proof.
     intros lunax ? ? ?.
     unfold iterop_fun at 1.
     simpl.
     induction m as [|m _].
-    - simpl. rewrite append_fun_compute_2. apply pathsinv0. apply lunax.
-    - simpl. rewrite append_fun_compute_2.
+    - simpl. rewrite append_vec_compute_2. apply pathsinv0. apply lunax.
+    - simpl. rewrite append_vec_compute_2.
       apply (maponpaths (λ y, op y x)). apply maponpaths.
       apply append_and_drop_fun.
   Defined.
@@ -123,15 +123,15 @@ Section BinaryOperations.
   Defined.
 
   Definition iterop_fun_append (lunax : islunit op unel) {m} (x:stn m -> X) (y:X) :
-    iterop_fun (append_fun x y) = op (iterop_fun x) y.
+    iterop_fun (append_vec x y) = op (iterop_fun x) y.
   Proof.
     intros lunax. intros.
     rewrite (iterop_fun_step lunax).
-    rewrite append_fun_compute_2.
+    rewrite append_vec_compute_2.
     apply (maponpaths (λ x, op (iterop_fun x) y)).
     apply funextfun; intro i.
     unfold funcomp.
-    rewrite append_fun_compute_1.
+    rewrite append_vec_compute_1.
     reflexivity.
   Defined.
 
@@ -195,12 +195,12 @@ Section Monoids.
     iterop_seq_mon (append x m) = iterop_seq_mon x * m.
   Proof.
      intros [n x] ?. unfold append. rewrite iterop_seq_mon_step.
-     rewrite append_fun_compute_2.
+     rewrite append_vec_compute_2.
      apply (maponpaths (λ a, a * m)).
      apply (maponpaths (λ x, iterop_seq_mon (n,,x))).
      apply funextfun; intros [i b]; simpl.
      unfold funcomp.
-     now rewrite append_fun_compute_1.
+     now rewrite append_vec_compute_1.
   Defined.
 
   Local Lemma iterop_seq_seq_mon_step {n} (x:stn (S n) -> Sequence M) :
@@ -326,7 +326,7 @@ Proof.
   Local Open Scope transport.
   set (f := nil □ j □ S O □ n-j : stn 3 -> nat).
   assert (B : stnsum f = S n).
-  { unfold stnsum, f; simpl. repeat unfold append_fun; simpl. rewrite natplusassoc.
+  { unfold stnsum, f; simpl. repeat unfold append_vec; simpl. rewrite natplusassoc.
     rewrite (natpluscomm 1). rewrite <- natplusassoc.
     rewrite natpluscomm. apply (maponpaths S). rewrite natpluscomm. now apply minusplusnmm. }
   set (r := weqfibtototal _ _ (λ k, eqweqmap (maponpaths (λ n, k < n : UU) B) ) :
@@ -351,7 +351,7 @@ Proof.
   change (f s0) with j; change (f s1) with (S O); change (f s2) with (n-j).
   set (f' := nil □ j □ n-j : stn 2 -> nat).
   assert (B' : stnsum f' = n).
-  { unfold stnsum, f'; simpl. repeat unfold append_fun; simpl.
+  { unfold stnsum, f'; simpl. repeat unfold append_vec; simpl.
     rewrite natpluscomm. now apply minusplusnmm. }
   set (r' := weqfibtototal _ _ (λ k, eqweqmap (maponpaths (λ n, k < n : UU) B') ) :
               stn (stnsum f') ≃ stn n).
@@ -478,38 +478,6 @@ Section NatCard.
     intermediate_path (stnsum (λ i : stn n, stnsum (x i))).
     - apply maponpaths. apply funextfun; intro. apply iterop_fun_nat.
     - now apply nat_plus_associativity'.
-  Defined.
-
-  Theorem nat_plus_commutativity : isCommutative_fun_mon nat_add_abmonoid.
-  Proof.
-    intros ? ? ?. apply weqtoeqstn.
-    intermediate_weq (∑ i, stn (x i)).
-    - intermediate_weq (∑ i, stn (x(f i))).
-      + apply invweq. rewrite iterop_fun_nat. apply weqstnsum1.
-      + apply (weqfp _ (stn∘x)).
-    - rewrite iterop_fun_nat. apply weqstnsum1.
-  Defined.
-
-  Arguments nat_plus_commutativity {_} _ _.
-
-  Definition finsum {X} (fin : isfinite X) (f : X -> nat) : nat.
-  Proof.
-    intros.
-    unfold isfinite,finstruct,nelstruct in fin.
-    simple refine (squash_to_set
-                     isasetnat
-                     (λ (x : ∑ n, stn n ≃ X), iterop_fun_mon (M := nat_add_abmonoid) (f ∘ pr2 x))
-                     _ fin).
-    intros.
-    induction x as [n x].
-    induction x' as [n' x'].
-    assert (p := weqtoeqstn (invweq x' ∘ x)%weq).
-    induction p.
-    assert (w := nat_plus_commutativity (f ∘ x') (invweq x' ∘ x)%weq).
-    simple refine (_ @ w).
-    unfold iterop_fun_mon.
-    apply maponpaths. rewrite weqcomp_to_funcomp. apply funextfun; intro i.
-    unfold funcomp. apply maponpaths. exact (! homotweqinvweq x' (x i)).
   Defined.
 
   (* A shorter definition: *)
