@@ -77,7 +77,6 @@ The following table offers a comparison.
 * *CommaCategories.v* --- special comma categories (c ↓ K)
 * *Complexes.v*c --- category of complexes over an additive category
 * *covyoneda.v* --- covariant Yoneda functor
-* *DiscretePrecategory.v*
 * *EndofunctorsMonoidal.v*
   * Definition of the (weak) monoidal structure on endofunctors
 * *Epis.v*
@@ -96,6 +95,7 @@ The following table offers a comparison.
 * *exponentials.v*
 * *FunctorAlgebras.v* --- algebras of an endofunctor, Lambek's lemma
 * *GrothendieckTopos.v*
+* *Groupoids.v* --- Basic definitions of groupoids and discrete categories
 * *HorizontalComposition.v*
   * Definition of horizontal composition for natural transformations
 * *Kleisli.v* --- the "Kleisli" definition of monad and its equivalence to the "monoidal" definition

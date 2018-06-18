@@ -535,7 +535,7 @@ Module Test_search.
 
   Goal 1 = pr1 (minimal_n P P_dec P_inhab). reflexivity. Defined.
 
-  Axiom P_inhab' : ∃ n, P n.
+  Variable P_inhab' : ∃ n, P n.
 
   Definition new_n' :  ∑ n : nat, P n := minimal_n P P_dec P_inhab'.
 

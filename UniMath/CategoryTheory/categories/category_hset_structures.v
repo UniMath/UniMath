@@ -884,7 +884,6 @@ Section products_set_slice.
    should be from the one in [X,Set] using the equivalence between Set/X
    and [X,Set] *)
 (* Require Import UniMath.CategoryTheory.set_slice_fam_equiv. *)
-(* Require Import UniMath.CategoryTheory.DiscreteCategory. *)
 
 (* Lemma Products_HSET_slice I X : Products I (HSET / X). *)
 (* Proof. *)
