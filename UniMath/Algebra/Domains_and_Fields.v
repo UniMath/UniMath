@@ -29,7 +29,7 @@ Unset Kernel Term Sharing.
 
 (** Imports *)
 
-Require Export UniMath.Algebra.Rigs_and_Rings.
+Require Export UniMath.Algebra.RigsAndRings.
 
 (** To upstream files *)
 
@@ -185,7 +185,7 @@ Definition multrinvpair (X : rig) (x : X) : UU := rinvpair (rigmultmonoid X) x.
 
 Definition multinvpair (X : rig) (x : X) : UU := invpair (rigmultmonoid X) x.
 
-Definition rigneq0andmultlinv (X : rig) (n m : X) (isnm : neg (paths (n * m) 0)%rig) :
+Definition rigneq0andmultlinv (X : rig) (n m : X) (isnm : ((n * m) != 0)%rig) :
   n != 0%rig.
 Proof.
   intros. intro e. rewrite e in isnm.
@@ -193,7 +193,7 @@ Proof.
   destruct (isnm (idpath _)).
 Defined.
 
-Definition rigneq0andmultrinv (X : rig) (n m : X) (isnm : neg (paths (n * m) 0)%rig) :
+Definition rigneq0andmultrinv (X : rig) (n m : X) (isnm : ((n * m) != 0)%rig) :
   m != 0%rig.
 Proof.
   intros. intro e. rewrite e in isnm. rewrite (rigmultx0 _) in isnm.
@@ -204,14 +204,14 @@ Defined.
 
 Local Open Scope ring_scope.
 
-Definition ringneq0andmultlinv (X : ring) (n m : X) (isnm : neg (paths (n * m) 0)) : n != 0.
+Definition ringneq0andmultlinv (X : ring) (n m : X) (isnm : ((n * m) != 0)) : n != 0.
 Proof.
   intros. intro e. rewrite e in isnm.
   rewrite (ringmult0x X) in isnm.
   destruct (isnm (idpath _)).
 Defined.
 
-Definition ringneq0andmultrinv (X : ring) (n m : X) (isnm : neg (paths (n * m) 0)) : m != 0.
+Definition ringneq0andmultrinv (X : ring) (n m : X) (isnm : ((n * m) != 0)) : m != 0.
 Proof.
   intros. intro e. rewrite e in isnm.
   rewrite (ringmultx0 _) in isnm.
@@ -269,16 +269,8 @@ Local Open Scope ring_scope.
 
 (** **** General definitions *)
 
-Definition isnonzeroring (X : ring) : UU := neg (@paths X 1 0).
-
-Lemma isapropisnonzeroring (X : ring) : isaprop (isnonzeroring X).
-Proof.
-  intros X. use isapropneg.
-Defined.
-Opaque isapropisnonzeroring.
-
-Lemma isnonzerolinvel (X : ring) (is : isnonzeroring X) (x : X) (x' : multlinvpair X x) :
-  neg ((pr1 x') = 0).
+Lemma isnonzerolinvel (X : ring) (is : isnonzerorig X) (x : X) (x' : multlinvpair X x) :
+  ((pr1 x') != 0).
 Proof.
   intros.
   apply (negf (maponpaths (λ a : X, a * x))).
@@ -287,8 +279,8 @@ Proof.
   rewrite (ringmult0x X _). apply is.
 Defined.
 
-Lemma isnonzerorinvel (X : ring) (is : isnonzeroring X) (x : X) (x' : multrinvpair X x) :
-  neg ((pr1 x') = 0).
+Lemma isnonzerorinvel (X : ring) (is : isnonzerorig X) (x : X) (x' : multrinvpair X x) :
+  ((pr1 x') != 0).
 Proof.
   intros.
   apply (negf (maponpaths (λ a : X, x * a))).
@@ -297,7 +289,7 @@ Proof.
   rewrite e. rewrite (ringmultx0 X _). apply is.
 Defined.
 
-Lemma isnonzerofromlinvel (X : ring) (is : isnonzeroring X) (x : X) (x' : multlinvpair X x) :
+Lemma isnonzerofromlinvel (X : ring) (is : isnonzerorig X) (x : X) (x' : multlinvpair X x) :
   x != 0.
 Proof.
   intros. apply (negf (maponpaths (λ a : X, (pr1 x') * a))).
@@ -306,7 +298,7 @@ Proof.
   rewrite e. rewrite (ringmultx0 X _). apply is.
 Defined.
 
-Lemma isnonzerofromrinvel (X : ring) (is : isnonzeroring X) (x : X) (x' : multrinvpair X x) :
+Lemma isnonzerofromrinvel (X : ring) (is : isnonzerorig X) (x : X) (x' : multrinvpair X x) :
   x != 0.
 Proof.
   intros. apply (negf (maponpaths (λ a : X, a * (pr1 x')))).
@@ -316,13 +308,13 @@ Proof.
 Defined.
 
 Definition isintdom (X : commring) : UU :=
-  dirprod (isnonzeroring X) (∏ (a1 a2 : X), paths (a1 * a2) 0 -> hdisj (eqset a1 0) (eqset a2 0)).
+  dirprod (isnonzerorig X) (∏ (a1 a2 : X), paths (a1 * a2) 0 -> hdisj (eqset a1 0) (eqset a2 0)).
 
 Lemma isapropisintdom (X : commring) : isaprop (isintdom X).
 Proof.
   intros X.
   use isapropdirprod.
-  - use isapropisnonzeroring.
+  - apply propproperty.
   - use impred. intros x1. use impred. intros x2. use impred. intros H.
     use propproperty.
 Defined.
@@ -336,7 +328,7 @@ Coercion pr1intdom : intdom >-> commring.
 Definition nonzeroax (X : intdom) : neg (@paths X 1 0) := pr1 (pr2 X).
 
 Definition intdomax (X : intdom) :
-  ∏ (a1 a2 : X), paths (a1 * a2) 0 -> hdisj (eqset a1 0) (eqset a2 0) := pr2 (pr2 X).
+  ∏ (a1 a2 : X), (a1 * a2) = 0 -> hdisj (eqset a1 0) (eqset a2 0) := pr2 (pr2 X).
 
 
 (** **** (X = Y) ≃ (ringiso X Y)
@@ -418,7 +410,7 @@ Proof.
 Defined.
 
 Definition intdomneq0andmult (X : intdom) (n m : X) (isn : n != 0)
-           (ism : m != 0) : neg (paths (n * m) 0).
+           (ism : m != 0) : ((n * m) != 0).
 Proof.
   intros. intro e. destruct (ism (intdomax2l X n m e isn )).
 Defined.
@@ -506,13 +498,13 @@ Defined.
 (** **** Main definitions *)
 
 Definition isafield (X : commring) : UU :=
-  (isnonzeroring X) × (∏ x : X, (multinvpair X x) ⨿ (x = 0)).
+  (isnonzerorig X) × (∏ x : X, (multinvpair X x) ⨿ (x = 0)).
 
 Lemma isapropisafield (X : commring) : isaprop (isafield X).
 Proof.
   intros X.
   use isofhleveltotal2.
-  - use isapropisnonzeroring.
+  - apply propproperty.
   - intros H.
     use impred. intros x. use isapropcoprod.
     + use isapropinvpair.
@@ -659,8 +651,8 @@ Definition fldfracmultinv0 (X : intdom) (is : isdeceq X)
   commringfrac X (intdomnonzerosubmonoid X) := setquotfun _ _ _ (fldfracmultinvintcomp X is) x.
 
 Lemma nonzeroincommringfrac (X : commring) (S : @submonoid (ringmultmonoid X)) (xa : dirprod X S)
-      (ne : neg (paths (setquotpr (eqrelcommringfrac X S) xa)
-                       (setquotpr _ (dirprodpair 0 (unel S))))) : neg ((pr1 xa) = 0).
+      (ne : (setquotpr (eqrelcommringfrac X S) xa !=
+             setquotpr _ (dirprodpair 0 (unel S)))) : (pr1 xa != 0).
 Proof.
   intros. set (x := pr1 xa). set (aa := pr2 xa).
   assert (e' := negf (weqpathsinsetquot (eqrelcommringfrac X S) _ _) ne).
@@ -673,7 +665,7 @@ Defined.
 Opaque nonzeroincommringfrac.
 
 Lemma zeroincommringfrac (X : intdom) (S : @submonoid (ringmultmonoid X))
-      (is : ∏ s : S, neg ((pr1 s) = 0)) (x : X) (aa : S)
+      (is : ∏ s : S, (pr1 s != 0)) (x : X) (aa : S)
       (e : paths (setquotpr (eqrelcommringfrac X S) (dirprodpair x aa))
                  (setquotpr _ (dirprodpair 0 (unel S)))) : x = 0.
 Proof.

@@ -3,7 +3,9 @@ Require Export UniMath.Foundations.Init.
 Require Export UniMath.CategoryTheory.total2_paths.
 Require Export UniMath.CategoryTheory.Categories.
 Require Export UniMath.CategoryTheory.functor_categories.
+Require Export UniMath.CategoryTheory.Groupoids.
 Require Export UniMath.CategoryTheory.Monads.RelativeMonads.
+Require Export UniMath.CategoryTheory.Monads.RelativeModules.
 Require Export UniMath.CategoryTheory.opp_precat.
 Require Export UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Export UniMath.CategoryTheory.ProductCategory.
@@ -53,6 +55,8 @@ Require Export UniMath.CategoryTheory.limits.Opp.
 Require Export UniMath.CategoryTheory.limits.graphs.eqdiag.
 Require Export UniMath.CategoryTheory.Subcategory.Limits.
 Require Export UniMath.CategoryTheory.EpiFacts.
+Require Export UniMath.CategoryTheory.exponentials.
+Require Export UniMath.CategoryTheory.categories.Types.
 Require Export UniMath.CategoryTheory.categories.category_hset.
 Require Export UniMath.CategoryTheory.SimplicialSets.
 Require Export UniMath.CategoryTheory.yoneda.
@@ -70,7 +74,6 @@ Require Export UniMath.CategoryTheory.HorizontalComposition.
 Require Export UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Export UniMath.CategoryTheory.CommaCategories.
 Require Export UniMath.CategoryTheory.RightKanExtension.
-Require Export UniMath.CategoryTheory.exponentials.
 Require Export UniMath.CategoryTheory.slicecat.
 Require Export UniMath.CategoryTheory.coslicecat.
 Require Export UniMath.CategoryTheory.limits.pullbacks_slice_products_equiv.
@@ -95,7 +98,6 @@ Require Export UniMath.CategoryTheory.Morphisms.
 Require Export UniMath.CategoryTheory.ShortExactSequences.
 Require Export UniMath.CategoryTheory.AdditiveFunctors.
 Require Export UniMath.CategoryTheory.LocalizingClass.
-Require Export UniMath.CategoryTheory.DiscreteCategory.
 Require Export UniMath.CategoryTheory.UnderCategories.
 Require Export UniMath.CategoryTheory.Subobjects.
 Require Export UniMath.CategoryTheory.Quotobjects.
@@ -125,10 +127,10 @@ Require Export UniMath.CategoryTheory.categories.intdoms.
 Require Export UniMath.CategoryTheory.categories.flds.
 Require Export UniMath.CategoryTheory.categories.modules.
 Require Export UniMath.CategoryTheory.categories.StandardCategories.
-Require Export UniMath.CategoryTheory.categories.Types.
 Require Export UniMath.CategoryTheory.categories.Cats.
 Require Export UniMath.CategoryTheory.categories.preorder_categories.
 Require Export UniMath.CategoryTheory.categories.wosets.
+Require Export UniMath.CategoryTheory.set_slice_fam_equiv.
 Require Export UniMath.CategoryTheory.Monads.Derivative.
 Require Export UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Export UniMath.CategoryTheory.DisplayedCats.Core.
