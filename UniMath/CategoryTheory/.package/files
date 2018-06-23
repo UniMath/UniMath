@@ -103,7 +103,6 @@ GrothendieckTopos.v
 AbelianPushoutPullback.v
 PseudoElements.v
 FiveLemma.v
-set_slice_fam_equiv.v
 LatticeObject.v
 Presheaf.v
 Elements.v
