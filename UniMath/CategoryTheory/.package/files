@@ -1,6 +1,7 @@
 total2_paths.v
 Categories.v
 functor_categories.v
+Groupoids.v
 Monads/RelativeMonads.v
 Monads/RelativeModules.v
 opp_precat.v
@@ -52,6 +53,8 @@ limits/Opp.v
 limits/graphs/eqdiag.v
 Subcategory/Limits.v
 EpiFacts.v
+exponentials.v
+categories/Types.v
 categories/category_hset.v
 SimplicialSets.v
 yoneda.v
@@ -69,7 +72,6 @@ HorizontalComposition.v
 PointedFunctorsComposition.v
 CommaCategories.v
 RightKanExtension.v
-exponentials.v
 slicecat.v
 coslicecat.v
 limits/pullbacks_slice_products_equiv.v
@@ -94,7 +96,6 @@ Morphisms.v
 ShortExactSequences.v
 AdditiveFunctors.v
 LocalizingClass.v
-DiscreteCategory.v
 UnderCategories.v
 Subobjects.v
 Quotobjects.v
@@ -124,10 +125,10 @@ categories/intdoms.v
 categories/flds.v
 categories/modules.v
 categories/StandardCategories.v
-categories/Types.v
 categories/Cats.v
 categories/preorder_categories.v
 categories/wosets.v
+set_slice_fam_equiv.v
 Monads/Derivative.v
 Actions.v
 DisplayedCats/Auxiliary.v
