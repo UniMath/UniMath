@@ -72,7 +72,7 @@ ifeq ($(BUILD_COQ),yes)
 $(VOFILES) : $(COQBIN)coqc
 endif
 
-all html install uninstall $(VOFILES) :build/CoqMakefile.make ; $(MAKE) -f build/CoqMakefile.make $@
+all html install uninstall $(VOFILES): build/CoqMakefile.make ; $(MAKE) -f build/CoqMakefile.make $@
 clean:: build/CoqMakefile.make; $(MAKE) -f build/CoqMakefile.make $@
 distclean:: build/CoqMakefile.make; $(MAKE) -f build/CoqMakefile.make cleanall archclean
 
@@ -199,7 +199,7 @@ sub/coq/configure.ml:
 	git submodule update --init sub/coq
 sub/coq/config/coq_config.ml: sub/coq/configure.ml
 	: making $@ because of $?
-	cd sub/coq && ./configure -coqide "$(COQIDE_OPTION)" -with-doc no -annotate -local
+	cd sub/coq && ./configure -coqide "$(COQIDE_OPTION)" -with-doc no -local
 # instead of "coqlight" below, we could use simply "theories/Init/Prelude.vo"
 sub/coq/bin/coq_makefile sub/coq/bin/coqc: sub/coq/config/coq_config.ml
 .PHONY: rebuild-coq
