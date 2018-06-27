@@ -25,11 +25,13 @@ Section OperationsDistrLaws.
   Proof.
     red.
     apply (nat_trans_comp (α_functor _ _ _)).
-    refine (nat_trans_comp _ (α_functor _ _ _)).
+    use (nat_trans_comp _ (α_functor _ _ _)).
     apply (nat_trans_comp (pre_whisker H' lambda)).
     apply (nat_trans_comp (α_functor_inv _ _ _)).
     exact (post_whisker lambda' K).
     Defined.
+
+
 
   Definition id_distr_law  {C D : precategory} (F : functor C D) : DistrLaw F F (functor_identity C) (functor_identity D).
   Proof.
@@ -38,6 +40,12 @@ Section OperationsDistrLaws.
     apply ρ_functor_inv.
   Defined.
 
-(*Lemma comp_distr_laws_assoc : .*)
+  Lemma comp_distr_laws_assoc  : {C C' C'' C''' D D' D'' D''' : precategory} {F : functor C D} {F' : functor C' D'}  {F'' : functor C'' D''} {F''' : functor C''' D'''} {H : functor C' C} {H' : functor C'' C'} {H'' : functor C''' C''} {K : functor D' D} {K' : functor D'' D'} {K'' : functor D''' D''} (lambda : DistrLaw F F' H K) (lambda' : DistrLaw F' F'' H' K') (lambda'' : DistrLaw F'' F''' H'' K'') :
+      nat_trans (comp_distr_laws (comp_distr_laws lambda lambda') lambda'')
+                (comp_distr_laws lambda (comp_distr_laws lambda' lambda'')).
+  Proof.
+  Admitted.
+  Defined.
+
 
 End OperationsDistrLaws.
