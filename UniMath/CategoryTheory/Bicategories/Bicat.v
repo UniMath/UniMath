@@ -424,12 +424,18 @@ Proof.
   intros p q.
   apply subtypeEquality.
   { intro. apply isapropdirprod; apply cellset_property. }
-  destruct p as [y [hy1 hy2]].
-  destruct q as [z [hz1 hz2]].
+  set (Hz1 := pr12 q).
+  set (Hy2 := pr22 p).
+  set (y := pr1 p).
+  set (z := pr1 q).
   cbn in *.
   intermediate_path (y • (x • z)).
-  - rewrite hz1. apply pathsinv0, id2_right.
-  - rewrite vassocr. rewrite hy2. apply id2_left.
+  - apply pathsinv0.
+    etrans. { apply maponpaths. apply Hz1. }
+    apply id2_right.
+  - etrans. { apply vassocr. }
+    etrans. { apply maponpaths_2. apply Hy2. }
+    apply id2_left.
 Qed.
 
 Lemma cell_id_if_inv_cell_id {C : bicat} {a b : C} {f g : C ⟦a, b⟧} (x y : f ==> g)

@@ -245,9 +245,9 @@ Section CwF.
     cbn in *. apply tpair.
     - unfold π_compatibility_type. cbn.
       set (fcomp' := fcomp Γ A).
-      destruct fcomp' as (fφ, (π_fcomp, var_fcomp)).
       set (gcomp' := gcomp (f Γ) (fty _ A)).
-      destruct gcomp' as (gφ, (π_gcomp, var_gcomp)).
+      set (π_fcomp := pr12 fcomp').
+      set (π_gcomp := pr12 gcomp').
       unfold π_compatibility_type in π_fcomp, π_gcomp.
       etrans. { apply maponpaths. apply π_fcomp. }
       rewrite functor_comp.
@@ -255,9 +255,11 @@ Section CwF.
       apply π_gcomp.
     - unfold var_compatibility_type. cbn.
       set (fcomp' := fcomp Γ A).
-      destruct fcomp' as (fφ, (π_fcomp, var_fcomp)).
       set (gcomp' := gcomp (f Γ) (fty _ A)).
-      destruct gcomp' as (gφ, (π_gcomp, var_gcomp)).
+      set (fφ := pr1 fcomp').
+      set (gφ := pr1 gcomp').
+      set (var_fcomp := pr22 fcomp').
+      set (var_gcomp := pr22 gcomp').
       unfold var_compatibility_type in var_fcomp, var_gcomp.
       cbn in *.
       rewrite <- var_fcomp.
@@ -303,10 +305,10 @@ Section CwF.
       use tpair.
       + unfold isoext_type. cbn.
         specialize (fcomp Γ A).
-        destruct fcomp as (fφ, (π_fcomp, var_fcomp)).
+        set (fφ := pr1 fcomp).
         unfold isoext_type in fφ.
         specialize (gcomp (f Γ) (fty _ A)).
-        destruct gcomp as (gφ, (π_gcomp, var_gcomp)).
+        set (gφ := pr1 gcomp).
         unfold isoext_type in gφ.
         exact (iso_comp (functor_on_iso g fφ) gφ).
       + pose (rmk := @disp_cwf_cat_id_comp_internal). cbn in rmk.

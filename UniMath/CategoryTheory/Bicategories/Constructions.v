@@ -220,7 +220,7 @@ Defined.
 Definition transportf_trivial (A B : UU) (a b : A) (p : a = b) (x : B) :
   x = transportf (λ x : A, B) p x.
 Proof.
-  destruct p. apply idpath.
+  induction p. apply idpath.
 Defined.
 
 Section Trivial_Displayed.
