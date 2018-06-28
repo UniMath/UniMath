@@ -60,7 +60,7 @@ Lemma pr2_transportf (A : UU) (B : A -> UU) (P : ∏ a, B a -> UU)
   pr2 (transportf (λ x, ∑ b : B x, P _ b) e xs) =
   pr2_transportf_map' A B P a a' e xs (pr2 xs).
 Proof.
-  destruct e; apply idpath.
+  induction e; apply idpath.
 Defined.
 
 Definition mk_total_ob {C : bicat} {D : disp_bicat C} {a : C} (aa : D a)
@@ -165,10 +165,10 @@ Lemma total_sigma_cell_eq
       (eq2 : pr2 x = transportb (λ z, pr2 f ==>[z] pr2 g) eq1 (pr2 y))
   : x = y.
 Proof.
-  destruct x as (x, xx).
-  destruct y as (y, yy).
+  induction x as (x, xx).
+  induction y as (y, yy).
   cbn in *.
-  destruct eq1.
+  induction eq1.
   cbn in *.
   apply pair_path_in2.
   exact eq2.

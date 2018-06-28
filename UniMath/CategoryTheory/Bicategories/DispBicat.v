@@ -671,7 +671,7 @@ Section Display_Invertible_2cell.
     : (transportf (λ x, _ ==>[x] _) ef ff) •• gg
       = transportf (λ x, _ ==>[x] _) (maponpaths (λ h, h • g) ef) (ff •• gg).
   Proof.
-    destruct ef; apply idpath.
+    induction ef; apply idpath.
   Qed.
 
   Lemma disp_mor_transportf_prewhisker (a b : C) {x y z : C⟦a,b⟧}
@@ -681,7 +681,7 @@ Section Display_Invertible_2cell.
     : ff •• (transportf (λ x, _ ==>[x] _) ef gg)
       = transportf (λ x, _ ==>[x] _) (maponpaths (λ h, f • h) ef) (ff •• gg).
   Proof.
-    destruct ef; apply idpath.
+    induction ef; apply idpath.
   Qed.
 
   Lemma disp_mor_transportf_prewhisker_gen (a b : C) {x y z : C⟦a,b⟧} {f : x ==> y}
@@ -691,7 +691,7 @@ Section Display_Invertible_2cell.
     : ff •• (transportf (λ x, _ ==>[t x] _) ef gg)
       = transportf (λ x, _ ==>[x] _) (maponpaths (λ h, f • t h) ef) (ff •• gg).
   Proof.
-    destruct ef; apply idpath.
+    induction ef; apply idpath.
   Qed.
 
   Lemma disp_lhs_right_invert_cell' {a b : C} {f g h : a --> b}
