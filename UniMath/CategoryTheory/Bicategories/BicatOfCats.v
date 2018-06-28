@@ -11,8 +11,11 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.categories.category_hset.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.Bicategories.Bicat.
+Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.DispBicat.
+Require Import UniMath.CategoryTheory.Bicategories.OpCellBicat.
+Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctor.
+
 
 Open Scope cat.
 Open Scope mor_disp_scope.
@@ -108,34 +111,124 @@ Qed.
 Definition bicat_of_cats : bicat
   := (prebicat_of_cats,, isaset_cells_prebicat_of_cats).
 
+
+
 (** * The pseudofunctor op on the bicategory of categories *)
 
-Definition op_cat (c : category) : category := (opp_precat c,, has_homsets_opp (homset_property c) ).
+Local Notation "∁" := bicat_of_cats.
 
-Definition op_nt {c d : category} {f g : functor c d} (a : nat_trans f g)
-  : nat_trans (functor_opp g) (functor_opp f).
-Proof.
-  use tpair.
-  - exact (λ c, a c).
-  - abstract
-      (intros x y h;
-       apply (! (nat_trans_ax a _ _ _ ))).
-Defined.
-
-Local Notation "∁" := prebicat_of_cats.
-
-Definition op_functor_data : functor_data ∁ ∁.
+Definition op_functor_data : functor_data (op2_prebicat ∁) ∁.
 Proof.
   use tpair.
   - exact (λ c, op_cat c).
   - intros c d f. exact (functor_opp f).
 Defined.
 
-Definition op_psfunctor_ob_mor_cell : psfunctor_ob_mor_cell ∁ ∁.
+Definition op_psfunctor_ob_mor_cell : psfunctor_ob_mor_cell (op2_prebicat ∁) ∁.
 Proof.
   exists op_functor_data.
   intros a b f g x.
   cbn in *.
-  (* exact (op_nt x). *)
-  admit.
-Abort.
+  apply (op_nt x).
+Defined.
+
+Definition op_psfunctor_cell_data : psfunctor_cell_data op_psfunctor_ob_mor_cell.
+Proof.
+  split; cbn.
+  - intro C.
+    use tpair.
+    + cbn. use tpair.
+      * cbn. intro. apply identity.
+      * intros a b f.
+        cbn in *.
+        etrans. { apply id_left. } apply (! id_right _ ).
+    + cbn.
+      use tpair.
+      * {  use tpair.
+           - cbn. intro. apply identity.
+           - intros a b f.
+             cbn in *.
+             etrans. { apply id_left. } apply (! id_right _ ).
+        }
+      * { split.
+          - apply nat_trans_eq. apply homset_property.
+            cbn. intro. apply id_left.
+          - apply nat_trans_eq. apply homset_property.
+            cbn. intro. apply id_left.
+        }
+  - intros C D E F G.
+    use tpair.
+    + cbn. use tpair.
+      * cbn. intro. apply identity.
+      * intros a b f.
+        cbn in *.
+        etrans. { apply id_left. } apply (! id_right _ ).
+    + cbn.
+      use tpair.
+      * {  use tpair.
+           - cbn. intro. apply identity.
+           - intros a b f.
+             cbn in *.
+             etrans. { apply id_left. } apply (! id_right _ ).
+        }
+      * { split.
+          - apply nat_trans_eq. apply homset_property.
+            cbn. intro. apply id_left.
+          - apply nat_trans_eq. apply homset_property.
+            cbn. intro. apply id_left.
+        }
+Defined.
+
+Definition op_psfunctor_data : psfunctor_data (op2_prebicat ∁) ∁
+  := _ ,, op_psfunctor_cell_data.
+
+Definition op_psfunctor_laws : psfunctor_laws op_psfunctor_data.
+Proof.
+  repeat split.
+  - intros C D F. cbn in *.
+    apply nat_trans_eq; [apply (homset_property (op_cat D) )|].
+    intro. apply idpath.
+  - intros C D F. cbn in *.
+    apply nat_trans_eq; [apply (homset_property (op_cat D) )|].
+    intro. cbn. apply pathsinv0.
+    rewrite id_left. rewrite id_right. apply functor_id.
+  - intros C D F. cbn in *.
+    apply nat_trans_eq; [apply (homset_property (op_cat D) )|].
+    intro. cbn. apply pathsinv0.
+    rewrite id_left. rewrite id_right. apply idpath.
+  - intros C D F. cbn in *.
+    apply nat_trans_eq; [apply (homset_property (op_cat D) )|].
+    intro. cbn. apply pathsinv0.
+    rewrite id_left. rewrite id_right. apply functor_id.
+  - intros C D F. cbn in *.
+    apply nat_trans_eq; [apply (homset_property (op_cat D) )|].
+    intro. cbn. apply pathsinv0.
+    rewrite id_left. rewrite id_right. apply idpath.
+  - intros C1 C2 C3 C4 F G H. cbn in *.
+    apply nat_trans_eq; [apply (homset_property (op_cat C4) )|].
+    intro. cbn. apply pathsinv0.
+    rewrite id_left. rewrite id_right.
+    rewrite id_left. rewrite id_left.
+    apply functor_id.
+  - intros C1 C2 C3 C4 F G H. cbn in *.
+    apply nat_trans_eq; [apply (homset_property (op_cat C4) )|].
+    intro. cbn. apply pathsinv0.
+    rewrite id_left. rewrite id_right.
+    rewrite id_left. rewrite id_right.
+    apply functor_id.
+  - intros C1 C2  F G H alpha beta. cbn in *.
+    apply nat_trans_eq; [apply (homset_property (op_cat C2) )|].
+    intro. cbn. apply idpath.
+  - intros C1 C2 C3 F G1 G2 alpha. cbn in *.
+    apply nat_trans_eq; [apply (homset_property (op_cat C3) )|].
+    intro. cbn. apply pathsinv0.
+    rewrite id_left. rewrite id_right.
+    apply idpath.
+  - intros C1 C2 C3  F G H alpha. cbn in *.
+    apply nat_trans_eq; [apply (homset_property (op_cat C3) )|].
+    intro. cbn. apply pathsinv0.
+    rewrite id_left. rewrite id_right.
+    apply idpath.
+Qed.
+
+Definition op_psfunctor : psfunctor (op2_prebicat ∁) ∁ := _ ,, op_psfunctor_laws.
