@@ -40,12 +40,30 @@ Section OperationsDistrLaws.
     apply ρ_functor_inv.
   Defined.
 
-  Lemma comp_distr_laws_assoc  : {C C' C'' C''' D D' D'' D''' : precategory} {F : functor C D} {F' : functor C' D'}  {F'' : functor C'' D''} {F''' : functor C''' D'''} {H : functor C' C} {H' : functor C'' C'} {H'' : functor C''' C''} {K : functor D' D} {K' : functor D'' D'} {K'' : functor D''' D''} (lambda : DistrLaw F F' H K) (lambda' : DistrLaw F' F'' H' K') (lambda'' : DistrLaw F'' F''' H'' K'') :
-      nat_trans (comp_distr_laws (comp_distr_laws lambda lambda') lambda'')
-                (comp_distr_laws lambda (comp_distr_laws lambda' lambda'')).
+  Lemma comp_distr_laws_assoc {C C' C'' C''' D D' D'' D''' : precategory} {F : functor C D} {F' : functor C' D'}  {F'' : functor C'' D''} {F''' : functor C''' D'''} {H : functor C' C} {H' : functor C'' C'} {H'' : functor C''' C''} {K : functor D' D} {K' : functor D'' D'} {K'' : functor D''' D''} (hs : has_homsets D) (lambda : DistrLaw F F' H K) (lambda' : DistrLaw F' F'' H' K') (lambda'' : DistrLaw F'' F''' H'' K'') :
+       comp_distr_laws (comp_distr_laws lambda lambda') lambda'' =
+                comp_distr_laws lambda (comp_distr_laws lambda' lambda'').
   Proof.
-  Admitted.
-  Defined.
+    apply (nat_trans_eq hs).
+intro c.
+simpl.
+repeat rewrite id_left.
+repeat rewrite id_right.
+set (aux1 := nat_trans_ax lambda).
+(*rewrite <- assoc.*)
+(*début variante à rewrite assoc*)
+eapply pathscomp0.
+apply pathsinv0.
+apply assoc.
+(*fin variante rewrite*)
+apply cancel_precomposition.
+apply pathsinv0.
+eapply pathscomp0.
+apply functor_comp.
+apply cancel_precomposition.
+apply idpath.
+  Qed.
 
+  (*lois unitaires : composition avec l'identité, idF neutre à gauche et à droite*)
 
 End OperationsDistrLaws.
