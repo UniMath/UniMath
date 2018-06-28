@@ -443,16 +443,13 @@ Lemma cell_id_if_inv_cell_id {C : bicat} {a b : C} {f g : C ⟦a, b⟧} (x y : f
   : inv_cell (x,,hx) = inv_cell (y,,hy) → x = y.
 Proof.
   intro H.
-  set (P:= (inv_invertible_2cell (inv_invertible_2cell (x,,hx)))).
-  intermediate_path (pr1 P).
-  { apply idpath. }
-  unfold P.
-  assert (foo : inv_invertible_2cell (x,, hx) = inv_invertible_2cell (y,, hy)).
-  { apply subtypeEquality. intro. apply isaprop_is_invertible_2cell.
-    apply H.
-  }
-  rewrite foo.
-  apply idpath.
+  change (pr1 (inv_invertible_2cell (inv_invertible_2cell (x,,hx)))
+          =
+          pr1 (inv_invertible_2cell (inv_invertible_2cell (y,,hy)))).
+  apply maponpaths, maponpaths.
+  apply subtypeEquality.
+  { intro. apply isaprop_is_invertible_2cell. }
+  apply H.
 Qed.
 
 (* ----------------------------------------------------------------------------------- *)
