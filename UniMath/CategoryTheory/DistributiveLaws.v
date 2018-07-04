@@ -1,5 +1,6 @@
 (** Author : Hichem Saghrouni
-Internship at IRIT, 2018 *)
+Internship at IRIT, 2018
+Under the supervision of Ralph Matthes *)
 
 Require Import UniMath.CategoryTheory.All.
 
@@ -13,7 +14,9 @@ Variable H : functor C' C.
 Variable K : functor D' D.
 *)
 
-Definition DistrLaw {C C' D D' : precategory} (F : functor C D) (F' : functor C' D') (H : functor C' C) (K : functor D' D) : UU := nat_trans (functor_composite H F) (functor_composite F' K).
+  Definition DistrLaw {C C' D D' : precategory} (F : functor C D) (F' : functor C' D') (H : functor C' C) (K : functor D' D) : UU := nat_trans (functor_composite H F) (functor_composite F' K).
+
+Definition is_distr_law {C C' D D' : precategory} (F : functor C D) (F' : functor C' D') (H : functor C' C) (K : functor D' D) (t : ∏ x : ob C', (functor_composite H F) x -->  (functor_composite F' K) x) := is_nat_trans _ _ t.
 
 End DefDistrLaw.
 
@@ -70,11 +73,8 @@ apply idpath.
     ∏ (C' D' : precategory) (F' : functor C' D') (H : functor C' C) (K : functor D' D) (hs : has_homsets D) (lambda : DistrLaw F F' H K),
     comp_distr_laws (id_distr_law F) lambda  = lambda.
   Proof.
-intro C'.
-intro D'.
-intro F'.
-intro H.
-intro K.
+intros C' D'.
+intros F' H K.
 intro hs.
 intro lambda.
 apply (nat_trans_eq hs).
@@ -91,11 +91,8 @@ apply idpath.
     ∏ (C D : precategory) (F : functor C D) (H : functor C' C) (K : functor D' D) (hs : has_homsets D) (lambda : DistrLaw F F' H K),
     comp_distr_laws lambda (id_distr_law F')  = lambda.
   Proof.
-intro C.
-intro D.
-intro F.
-intro H.
-intro K.
+intros C D.
+intros F H K.
 intro hs.
 intro lambda.
 apply (nat_trans_eq hs).
@@ -110,3 +107,34 @@ apply id_right.
   Qed.
 
 End OperationsDistrLaws.
+
+Section Conjugates.
+
+  Locate "-->".
+  Print φ_adj.
+  Print Adjunctions.φ_adj.
+(* Condition 3.11a *)
+  Definition is_conjugate1 {C C' D D' : precategory}  {L : functor D C} {R : functor C D} {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' } (h : are_adjoints L R) (h' : are_adjoints L' R') (σ : DistrLaw L' L K H) (τ : DistrLaw K H R R') :=
+    ∏ (A : D) (B : C) (f : (L A) --> B),
+    φ_adj h' (pr1 σ A · #H f) = #K (φ_adj h f) · pr1 τ B.
+
+  Definition is_conjugate2 {C C' D D' : precategory}  {L : functor D C} {R : functor C D} {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' } (h : are_adjoints L R) (h' : are_adjoints L' R') (σ : DistrLaw L' L K H) (τ : DistrLaw K H R R') :=
+    ∏ (A : D) (B : C) (g : A --> R B),
+    pr1 σ A · #H (φ_adj_inv h g) = φ_adj_inv h' (#K g · pr1 τ B ).
+
+  Locate "×".
+
+  Definition is_conjugate {C C' D D' : precategory}  {L : functor D C} {R : functor C D} {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' } (h : are_adjoints L R) (h' : are_adjoints L' R') (σ : DistrLaw L' L K H) (τ : DistrLaw K H R R') :=
+    is_conjugate1 h h' σ τ × is_conjugate2 h h' σ τ.
+
+  Definition σ_from_τ {C C' D D' : precategory}  {L : functor D C} {R : functor C D} {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' } (h : are_adjoints L R) (h' : are_adjoints L' R') (τ : DistrLaw K H R R') :=
+    λ A : D, φ_adj_inv h' (#K (pr1 (unit_from_are_adjoints h) A) · pr1 τ (L A)).
+
+  Definition τ_from_σ {C C' D D' : precategory}  {L : functor D C} {R : functor C D} {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' } (h : are_adjoints L R) (h' : are_adjoints L' R') (σ : DistrLaw L' L K H) :=
+    λ B : C, φ_adj h' (pr1 σ (R B) · #H (pr1 (counit_from_are_adjoints h) B)).
+
+
+
+End Conjugates.
+
+‌‌
