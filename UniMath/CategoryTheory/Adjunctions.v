@@ -618,6 +618,18 @@ Section HomSetIso_from_Adjunction.
     apply (functor_comp G).
   Qed.
 
+  Corollary φ_adj_natural_prepostcomp (A X : C) (B Y : D) (f : F A --> B) (h : X --> A) (k : B --> Y)
+    : φ_adj (#F h · f · k) = h · φ_adj f · #G k.
+  Proof.
+    etrans.
+    rewrite <- assoc.
+    apply φ_adj_natural_precomp.
+    rewrite <- assoc.
+    apply maponpaths.
+    apply φ_adj_natural_postcomp.
+  Qed.
+
+
   Lemma φ_adj_inv_natural_precomp (A : C) (B : D) (g : A --> G B) (X : C) (h : X --> A)
     : φ_adj_inv (h · g) = #F h · φ_adj_inv g.
   Proof.
@@ -636,6 +648,16 @@ Section HomSetIso_from_Adjunction.
     rewrite T.
     apply assoc.
   Qed.
+
+  Corollary φ_adj_inv_natural_prepostcomp (A X : C) (B Y : D) (g : A --> G B) (h : X --> A) (k : B --> Y)
+    : φ_adj_inv (h · g · #G k) = #F h · φ_adj_inv g · k.
+  Proof.
+    etrans.
+    apply φ_adj_inv_natural_postcomp.
+    apply cancel_postcomposition.
+    apply φ_adj_inv_natural_precomp.
+  Qed.
+
 
 End HomSetIso_from_Adjunction.
 
