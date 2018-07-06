@@ -173,7 +173,56 @@ Admitted.
     red.
     intros d d' f.
     unfold σ_data_from_τ.
-  Admitted.
+    etrans.
+    apply pathsinv0.
+    simpl.
+    apply  φ_adj_inv_natural_precomp.
+    (*simpl.*)
+    apply pathsinv0.
+    etrans.
+    apply pathsinv0.
+    simpl.
+    apply  φ_adj_inv_natural_postcomp.
+    apply maponpaths.
+    apply pathsinv0.
+    etrans.
+    rewrite assoc.
+    (*
+    set (Kcompax1 := pr2 K).
+    set (Kcompax2 := pr2  (pr2 K)).
+    unfold is_functor in Kcompax1.
+    unfold functor_compax in Kcompax2.
+
+    apply Kcompax2.
+     *)
+    rewrite <- functor_comp.
+
+    2: {
+      set (Hτ := nat_trans_ax τ).
+      change  (# R' (# H (# L f))) with ( # (H ∙ R') (#L f)).
+      (*égal par définition*)
+      (*replace (# R' (# H (# L f))) with ( # (H ∙ R') (#L f)). + preuve que l'on peut remplacer, ie trouver un chemin entre les deux *)
+      rewrite <- assoc.
+      apply cancel_precomposition.
+      (*exact (Hτ _ _ _).*)
+      apply Hτ.
+    }
+
+    rewrite assoc.
+    apply cancel_postcomposition.
+    change (# (R ∙ K) (# L f)) with (# K (# (L ∙ R) f)).
+    etrans.
+    2 : {
+      use functor_comp.
+    }
+    apply maponpaths.
+    (*apply pathsinv0.*)
+    etrans.
+    set (Hη := nat_trans_ax (unit_from_are_adjoints h)).
+    apply Hη.
+    apply idpath.
+  Qed.
+
 
 Lemma σ_from_τ_is_conjugate {C C' D D' : precategory}  {L : functor D C} {R : functor C D} {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' } (h : are_adjoints L R) (h' : are_adjoints L' R') (τ : DistrLaw K H R R') : are_conjugates' h h' (σ_from_τ h h' τ) τ.
 Proof.
