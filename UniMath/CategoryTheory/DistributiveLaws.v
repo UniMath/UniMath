@@ -221,23 +221,51 @@ Admitted.
     set (Hη := nat_trans_ax (unit_from_are_adjoints h)).
     apply Hη.
     apply idpath.
-  Qed.
+  Defined.
+
+  (*Definition σ_data_from_τ_from_σ_from_τ {C C' D D' : precategory}  {L : functor D C} {R : functor C D} {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' } (h : are_adjoints L R) (h' : are_adjoints L' R') (τ : DistrLaw K H R R') :
+    DistrLaw_data_type L' L K H
+    := pr1 (σ_from_τ h h' τ).*)
+ (*
+Coercion σ_data_from_τ_from_σ_from_τ {C C' D D' : precategory}  {L : functor D C} {R : functor C D} {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' } (h : are_adjoints L R) (h' : are_adjoints L' R') (τ : DistrLaw K H R R') (σ : (σ_from_τ h h' τ)) := pr1 σ.*)
 
 
-Lemma σ_from_τ_is_conjugate {C C' D D' : precategory}  {L : functor D C} {R : functor C D} {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' } (h : are_adjoints L R) (h' : are_adjoints L' R') (τ : DistrLaw K H R R') : are_conjugates' h h' (σ_from_τ h h' τ) τ.
+Lemma σ_from_τ_is_conjugate {C C' D D' : precategory}  {L : functor D C} {R : functor C D} {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' } (h : are_adjoints L R) (h' : are_adjoints L' R') (hs : has_homsets C') (τ : DistrLaw K H R R') : are_conjugates' h h' (σ_from_τ h h' τ) τ.
 Proof.
-Admitted.
+  red.
+  intros A B g.
+  unfold σ_from_τ.
+  simpl.
+  unfold  σ_data_from_τ.
+  set (η := (unit_from_are_adjoints h)).
+  etrans.
+  apply pathsinv0.
+  apply φ_adj_inv_natural_postcomp.
+  apply maponpaths.
+  set (Hτ := nat_trans_ax τ).
+  etrans.
+  rewrite <- assoc.
+  apply cancel_precomposition.
+  apply pathsinv0.
+  apply Hτ.
+  rewrite assoc.
+  apply cancel_postcomposition.
+  change (# (R ∙ K) (φ_adj_inv h g)) with (# K (# R (φ_adj_inv h g))).
+  etrans.
+  apply pathsinv0.
+  use functor_comp.
+  apply maponpaths.
+  Locate "·".
+  change (pr1 η A · # R (φ_adj_inv h g)) with (φ_adj h (φ_adj_inv h g)).
+  apply φ_adj_after_φ_adj_inv.
+Qed.
+
+
 
 Definition τ_data_from_σ {C C' D D' : precategory}  {L : functor D C} {R : functor C D} {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' } (h : are_adjoints L R) (h' : are_adjoints L' R') (σ : DistrLaw L' L K H) : DistrLaw_data_type K H R R'
   :=
-      λ B : C, φ_adj h' (pr1 σ (R B) · #H (pr1 (counit_from_are_adjoints h) B)).
+    λ B : C, φ_adj h' (pr1 σ (R B) · #H (pr1 (counit_from_are_adjoints h) B)).
 
-
-
-
-
-
-Print φ_adj.
 
 End Conjugates.
 
