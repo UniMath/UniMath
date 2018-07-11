@@ -69,11 +69,15 @@ Module Test_nat.
 End Test_nat.
 
 
+Require UniMath.Algebra.IteratedBinaryOperations.
+Require UniMath.Combinatorics.FiniteSets.
+Require UniMath.NumberSystems.NaturalNumbersAlgebra.
+
 Module Test_finsum.
 
-  Require Import UniMath.Algebra.IteratedBinaryOperations.
-  Require Import UniMath.Combinatorics.FiniteSets.
-  Require Import UniMath.NumberSystems.NaturalNumbersAlgebra.
+  Import UniMath.Algebra.IteratedBinaryOperations.
+  Import UniMath.Combinatorics.FiniteSets.
+  Import UniMath.NumberSystems.NaturalNumbersAlgebra.
 
   Goal ∏ X (fin : finstruct X) (f : X -> nat),
     finsum (hinhpr fin) f = stnsum (f ∘ pr1weq (pr2 fin)).
