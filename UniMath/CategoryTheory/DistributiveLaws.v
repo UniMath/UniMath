@@ -266,6 +266,11 @@ Definition τ_data_from_σ {C C' D D' : precategory}  {L : functor D C} {R : fun
   :=
     λ B : C, φ_adj h' (pr1 σ (R B) · #H (pr1 (counit_from_are_adjoints h) B)).
 
+Lemma adjuncts_mutually_inverse1 {C D : precategory} {A : D} {B : C} {L : functor D C} {R : functor C D} (h : are_adjoints L R) (f : L A --> B) (g : A --> R B) : f = φ_adj_inv h g -> φ_adj h f = g.
+
+Proof.
+  intro p.
+
 
 End Conjugates.
 
