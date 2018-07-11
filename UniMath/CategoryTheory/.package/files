@@ -103,7 +103,6 @@ GrothendieckTopos.v
 AbelianPushoutPullback.v
 PseudoElements.v
 FiveLemma.v
-set_slice_fam_equiv.v
 LatticeObject.v
 Presheaf.v
 Elements.v
@@ -143,14 +142,20 @@ DisplayedCats/Examples.v
 DisplayedCats/Adjunctions.v
 
 Bicategories/Bicat.v
-Bicategories/PseudoFunctor.v
+Bicategories/StandardBicategories.v
 Bicategories/OpCellBicat.v
+Bicategories/OpMorBicat.v
+Bicategories/Unitors.v
+Bicategories/PseudoFunctor.v
+Bicategories/Univalence.v
 Bicategories/DispBicat.v
 Bicategories/BicatOfCats.v
 Bicategories/DispBicatOfDispCats.v
+Bicategories/DispUnivalence.v
 Bicategories/ContravariantFunctor.v
 Bicategories/Constructions.v
 Bicategories/Sigma.v
+Bicategories/Fibration.v
 Bicategories/Cofunctormap.v
 Bicategories/CwF.v
 Bicategories/WkCatEnrichment/prebicategory.v
@@ -161,3 +166,4 @@ Bicategories/WkCatEnrichment/internal_equivalence.v
 Bicategories/WkCatEnrichment/bicategory.v
 Bicategories/BicategoryFromBicat.v
 Bicategories/BicatFromBicategory.v
+Bicategories/Graph.v

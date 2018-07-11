@@ -105,7 +105,6 @@ Require Export UniMath.CategoryTheory.GrothendieckTopos.
 Require Export UniMath.CategoryTheory.AbelianPushoutPullback.
 Require Export UniMath.CategoryTheory.PseudoElements.
 Require Export UniMath.CategoryTheory.FiveLemma.
-Require Export UniMath.CategoryTheory.set_slice_fam_equiv.
 Require Export UniMath.CategoryTheory.LatticeObject.
 Require Export UniMath.CategoryTheory.Presheaf.
 Require Export UniMath.CategoryTheory.Elements.
@@ -144,14 +143,20 @@ Require Export UniMath.CategoryTheory.DisplayedCats.Limits.
 Require Export UniMath.CategoryTheory.DisplayedCats.Examples.
 Require Export UniMath.CategoryTheory.DisplayedCats.Adjunctions.
 Require Export UniMath.CategoryTheory.Bicategories.Bicat.
-Require Export UniMath.CategoryTheory.Bicategories.PseudoFunctor.
+Require Export UniMath.CategoryTheory.Bicategories.StandardBicategories.
 Require Export UniMath.CategoryTheory.Bicategories.OpCellBicat.
+Require Export UniMath.CategoryTheory.Bicategories.OpMorBicat.
+Require Export UniMath.CategoryTheory.Bicategories.Unitors.
+Require Export UniMath.CategoryTheory.Bicategories.PseudoFunctor.
+Require Export UniMath.CategoryTheory.Bicategories.Univalence.
 Require Export UniMath.CategoryTheory.Bicategories.DispBicat.
 Require Export UniMath.CategoryTheory.Bicategories.BicatOfCats.
 Require Export UniMath.CategoryTheory.Bicategories.DispBicatOfDispCats.
+Require Export UniMath.CategoryTheory.Bicategories.DispUnivalence.
 Require Export UniMath.CategoryTheory.Bicategories.ContravariantFunctor.
 Require Export UniMath.CategoryTheory.Bicategories.Constructions.
 Require Export UniMath.CategoryTheory.Bicategories.Sigma.
+Require Export UniMath.CategoryTheory.Bicategories.Fibration.
 Require Export UniMath.CategoryTheory.Bicategories.Cofunctormap.
 Require Export UniMath.CategoryTheory.Bicategories.CwF.
 Require Export UniMath.CategoryTheory.Bicategories.WkCatEnrichment.prebicategory.
@@ -162,3 +167,4 @@ Require Export UniMath.CategoryTheory.Bicategories.WkCatEnrichment.internal_equi
 Require Export UniMath.CategoryTheory.Bicategories.WkCatEnrichment.bicategory.
 Require Export UniMath.CategoryTheory.Bicategories.BicategoryFromBicat.
 Require Export UniMath.CategoryTheory.Bicategories.BicatFromBicategory.
+Require Export UniMath.CategoryTheory.Bicategories.Graph.
