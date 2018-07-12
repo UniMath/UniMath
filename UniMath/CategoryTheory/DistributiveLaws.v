@@ -113,6 +113,60 @@ End OperationsDistrLaws.
 
 Section Conjugates.
 
+Lemma adjuncts_mutually_inverse1 {C D : precategory} {A : D} {B : C} {L : functor D C} {R : functor C D} (h : are_adjoints L R) (f : L A --> B) (g : A --> R B) : f = φ_adj_inv h g -> φ_adj h f = g.
+
+Proof.
+  intro p.
+  set (η := unit_from_are_adjoints h).
+  set (ε := counit_from_are_adjoints h).
+  set (triangle_right := triangle_id_right_ad h).
+  change (unit_from_are_adjoints h) with η in triangle_right.
+  change (counit_from_are_adjoints h) with ε in triangle_right.
+  unfold φ_adj.
+  assert (hyp : f = (φ_adj_inv h g)).
+  - exact p.
+  - rewrite hyp.
+    unfold φ_adj_inv.
+    rewrite functor_comp.
+    change (# R (# L g)) with (# (L ∙ R) g).
+    rewrite assoc.
+    set (Hη := nat_trans_ax η).
+    etrans.
+    apply cancel_postcomposition.
+    apply pathsinv0.
+    apply Hη.
+    rewrite <- id_right.
+    rewrite <-  assoc.
+    apply cancel_precomposition.
+    exact (triangle_right B).
+Defined.
+
+Lemma adjuncts_mutually_inverse2 {C D : precategory} {A : D} {B : C} {L : functor D C} {R : functor C D} (h : are_adjoints L R) (f : L A --> B) (g : A --> R B) : φ_adj h f = g -> f = φ_adj_inv h g.
+Proof.
+  intro p.
+  set (η := unit_from_are_adjoints h).
+  set (ε := counit_from_are_adjoints h).
+  set (triangle_left := triangle_id_left_ad h).
+  unfold φ_adj_inv.
+  assert (hyp : g = (φ_adj h f)).
+  - apply pathsinv0.
+    exact p.
+  - rewrite hyp.
+    unfold φ_adj.
+    rewrite functor_comp.
+    change ( # L (# R f)) with (# (R ∙ L) f).
+    rewrite <- assoc.
+    set (Hε := nat_trans_ax ε).
+    apply pathsinv0.
+    etrans.
+    apply cancel_precomposition.
+    apply Hε.
+    rewrite <- id_left.
+    rewrite assoc.
+    apply cancel_postcomposition.
+    exact (triangle_left A).
+Defined.
+
   Locate "-->".
   Print φ_adj.
   Print Adjunctions.φ_adj.
@@ -157,10 +211,43 @@ Section Conjugates.
     - apply isaprop_are_conjugates'.
       assumption.
     - (* direction from left to right *)
-      admit.
+      red.
+      intro P.
+      red in P.
+      intros A B g.
+      set (hyp := (P A B (φ_adj_inv h g))).
+      apply adjuncts_mutually_inverse2 in hyp.
+      assert (hyp2 : # K (φ_adj h (φ_adj_inv h g)) = # K g).
+      + apply maponpaths.
+        apply φ_adj_after_φ_adj_inv.
+      + apply pathsinv0 in hyp.
+        eapply pathscomp0 in hyp.
+        2 : {
+          apply maponpaths.
+          apply cancel_postcomposition.
+          apply pathsinv0.
+          apply hyp2.
+
+        }
+        apply pathsinv0 in hyp.
+        exact hyp.
     - (* direction from right to left *)
-      admit.
-Admitted.
+      red.
+      intro P.
+      red in P.
+      intros A B f.
+      set (hyp := (P A B (φ_adj h f))).
+      apply (adjuncts_mutually_inverse1 h' (pr1 σ A · # H (φ_adj_inv h (φ_adj h f))) (# K (φ_adj h f) · pr1 τ B)) in hyp.
+      eapply pathscomp0 in hyp.
+      2 : {
+        apply maponpaths.
+        apply cancel_precomposition.
+        apply maponpaths.
+        apply pathsinv0.
+        apply φ_adj_inv_after_φ_adj.
+      }
+      exact hyp.
+Defined.
 
 
   Definition σ_data_from_τ {C C' D D' : precategory}  {L : functor D C} {R : functor C D} {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' } (h : are_adjoints L R) (h' : are_adjoints L' R') (τ : DistrLaw K H R R') : DistrLaw_data_type L' L K H
@@ -266,12 +353,64 @@ Definition τ_data_from_σ {C C' D D' : precategory}  {L : functor D C} {R : fun
   :=
     λ B : C, φ_adj h' (pr1 σ (R B) · #H (pr1 (counit_from_are_adjoints h) B)).
 
-Lemma adjuncts_mutually_inverse1 {C D : precategory} {A : D} {B : C} {L : functor D C} {R : functor C D} (h : are_adjoints L R) (f : L A --> B) (g : A --> R B) : f = φ_adj_inv h g -> φ_adj h f = g.
-
-Proof.
-  intro p.
-
 
 End Conjugates.
 
-‌‌
+Section Liftings.
+
+(** first the forgetful functor from FunctorAlg to its underlying category *)
+
+(* first step of definition *)
+Definition forget_algebras_data {C : precategory} (hsC: has_homsets C) (F: functor C C): functor_data (FunctorAlg F hsC) C.
+Proof.
+  set (onobs := fun alg : FunctorAlg F hsC => alg_carrier F alg).
+  apply (mk_functor_data onobs).
+  intros alg1 alg2 m.
+  simpl in m.
+  exact (mor_from_algebra_mor _ _ _ m).
+Defined.
+
+(* the forgetful functor *)
+Definition forget_algebras {C : precategory} (hsC: has_homsets C) (F: functor C C): functor (FunctorAlg F hsC) C.
+Proof.
+  apply (mk_functor (forget_algebras_data hsC F)).
+  red.
+  split; red.
+  - intro alg. apply idpath.
+  - intros alg1 alg2 alg3 m n. apply idpath.
+Defined.
+
+
+
+Definition is_lifting {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D) {F: functor C C} {G: functor D D} (H: functor C D) (HH: functor (FunctorAlg F hsC) (FunctorAlg G hsD)): UU.
+Proof.
+Admitted.
+
+Definition lifting_from_distr_law {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D) {F: functor C C} {G: functor D D} {H: functor C D} (lambda : DistrLaw H H F G): functor (FunctorAlg F hsC) (FunctorAlg G hsD).
+Proof.
+Admitted.
+
+Lemma lifting_from_distr_law_is_lifting {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D) {F: functor C C} {G: functor D D} (H: functor C D) (lambda : DistrLaw H H F G):
+  is_lifting hsC hsD H (lifting_from_distr_law hsC hsD lambda).
+Proof.
+Admitted.
+
+End Liftings.
+
+Section AdjointFolds.
+
+(* the conclusion of the following theorem is done after the example of [UniMath.SubstitutionSystems.GenMendlerIteration],
+   and its proof should be divided in the same way *)
+
+Theorem TheoremOfHinzeAndWu {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D)
+  {L: functor D C} {R: functor C D}  (h : are_adjoints L R) {CC: functor C C} {DD: functor D D}
+  (μDD_Initial : Initial (FunctorAlg DD hsD))
+  {σ: DistrLaw L L DD CC} {τ: DistrLaw DD CC R R} (hh: are_conjugates h h σ τ)
+  {B: C} (b: CC B --> B):
+  let μDD: D := alg_carrier _ (InitialObject μDD_Initial) in
+  let inDD: DD(μDD) --> μDD := alg_map _ (InitialObject μDD_Initial) in
+  iscontr (∑ x : L μDD --> B, #L inDD · x = nat_trans_data σ μDD · # CC x · b).
+Proof.
+Admitted.
+
+End AdjointFolds.
