@@ -1109,11 +1109,9 @@ Definition padictimes := @op2 commringofpadicints.
 (** * III. The apartness relation on p-adic integers *)
 
 Definition padicapart0 :
-  hrel ( fpscommring hz ) :=
-  fun a b : _ =>
-    ( hexists ( fun n : nat =>
-                  ( neq _ ( carry p ( isaprimetoneq0 is) a n )
-                        ( carry p ( isaprimetoneq0 is ) b n ) ) ) ).
+  hrel ( fpscommring hz ) := fun a b =>
+    ∃ n : nat, neq _ ( carry p ( isaprimetoneq0 is) a n )
+                   ( carry p ( isaprimetoneq0 is) b n ).
 
 Lemma padicapartiscomprel :
   iscomprelrel ( carryequiv p ( isaprimetoneq0 is ) ) padicapart0.

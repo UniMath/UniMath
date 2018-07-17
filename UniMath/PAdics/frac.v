@@ -67,12 +67,12 @@ Ltac permute := solve
 Lemma azerorelcomp ( cd : A × aintdomazerosubmonoid A )
   ( ef : A × aintdomazerosubmonoid A )
   ( p : ( pr1 cd ) * ( pr1 ( pr2 ef ) ) =
-      ( ( pr1 ef ) * ( pr1 ( pr2 cd ) ) ) )
+        ( pr1 ef ) * ( pr1 ( pr2 cd ) ) )
   ( q : ( pr1 cd ) # 0 ) : ( pr1 ef ) # 0.
 Proof.
   intros.
-  change ( ( @op2 A ( pr1 cd ) ( pr1 ( pr2 ef ) ) ) =
-           ( @op2 A ( pr1 ef ) ( pr1 ( pr2 cd ) ) ) ) in p.
+  change ( @op2 A ( pr1 cd ) ( pr1 ( pr2 ef ) ) =
+           @op2 A ( pr1 ef ) ( pr1 ( pr2 cd ) ) ) in p.
   assert ( ( @op2 A ( pr1 cd ) ( pr1 ( pr2 ef ) ) ) # 0 ) as v.
   { apply A.
     assumption.
@@ -102,8 +102,7 @@ Proof.
 Defined.
 
 Definition afldfracapartrelpre : hrel ( A × aintdomazerosubmonoid A ) :=
-  fun ab cd : _ => ( ( pr1 ab ) * ( pr1 ( pr2 cd ) ) ) #
-                   ( ( pr1 cd ) * ( pr1 ( pr2 ab ) ) ).
+  fun ab cd => ( pr1 ab  * pr1 ( pr2 cd ) ) # ( pr1 cd * pr1 ( pr2 ab ) ).
 
 Lemma afldfracapartiscomprel :
   iscomprelrel ( eqrelcommringfrac A ( aintdomazerosubmonoid A ) )
@@ -468,7 +467,6 @@ Defined.
 
 Definition afldfrac0 : acommring.
 Proof.
-  intros.
   split with ( commringfrac A ( aintdomazerosubmonoid A ) ).
   split with afldfracapart.
   split.

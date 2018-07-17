@@ -27,19 +27,21 @@ Unset Kernel Term Sharing. (** for quicker proof-checking, approx. by factor 25 
 
 Arguments tpair [ T P ].
 
-Lemma pathintotalfiber ( B : UU ) ( E : B -> UU ) ( b0 b1 : B ) ( e0 :
-E b0 ) ( e1 : E b1 ) ( p0 : b0 = b1 ) ( p1 : transportf E p0 e0 = e1 ) : ( tpair b0 e0 ) = ( tpair b1 e1 ).
+Lemma pathintotalfiber ( B : UU ) ( E : B -> UU ) ( b0 b1 : B )
+      ( e0 : E b0 ) ( e1 : E b1 ) ( p0 : b0 = b1 ) ( p1 : transportf E p0 e0 = e1 ) :
+  ( tpair b0 e0 ) = ( tpair b1 e1 ).
 Proof.
   intros. destruct p0, p1. apply idpath.
 Defined.
 
-Definition neq ( X : UU ) : X -> X -> hProp :=
+Definition neq ( X : UU ) : hrel X :=
   fun x y : X => hProppair (neg (x = y)) (isapropneg (x = y)).
 
-Definition pathintotalpr1 { B : UU } { E : B -> UU } { v w : total2 E} ( p : v = w ) : ( pr1 v ) = ( pr1 w ) :=
-  maponpaths ( fun x => pr1 x ) p.
+Definition pathintotalpr1 { B : UU } { E : B -> UU } { v w : total2 E} ( p : v = w ) :
+  ( pr1 v ) = ( pr1 w ) := maponpaths ( fun x => pr1 x ) p.
 
-Lemma isinclisinj { A B : UU } { f : A -> B } ( p : isincl f ) { a b : A } ( p : f a = f b ) : a = b.
+Lemma isinclisinj { A B : UU } { f : A -> B } ( p : isincl f ) { a b : A }
+      ( p : f a = f b ) : a = b.
 Proof.
   intros.
   set ( q := p ( f a )).
@@ -311,7 +313,7 @@ Proof.
 Defined.
 
 Lemma natlehdecomp ( b a : nat ) :
-  hexists ( fun c : nat => ( a + c )%nat = b ) -> natleh a b.
+  ( ∃ c : nat, ( a + c )%nat = b ) -> natleh a b.
 Proof.
   intro b. induction b.
   - intros a p. use (hinhuniv _ p).
@@ -842,8 +844,8 @@ Definition aintdompair := tpair ( P := fun A : acommring =>
   forall a b : A, ( a # 0 ) -> ( b # 0 ) -> ( ( a * b ) # 0 ) ).
 Definition aintdomconstr := aintdompair.
 
-Definition pr1aintdom : aintdom -> acommring := @pr1 _ _.  Coercion
-pr1aintdom : aintdom >-> acommring.
+Definition pr1aintdom : aintdom -> acommring := @pr1 _ _.
+Coercion pr1aintdom : aintdom >-> acommring.
 
 Definition aintdomazerosubmonoid ( A : aintdom ) : @subabmonoid ( ringmultabmonoid A ).
 Proof.
@@ -993,7 +995,7 @@ Proof.
 Defined.
 
 Lemma bndexistsisdecnatprop ( P : nat -> hProp ) ( is : isdecnatprop P ) :
-  isdecnatprop ( fun n : nat => hexists ( fun m : nat => natleh m n × P m ) ).
+  isdecnatprop ( fun n : nat => ∃ m : nat, natleh m n × P m ).
 Proof.
   intros P is n. induction n.
   - destruct ( is 0%nat ) as [ l | r ].
@@ -1045,8 +1047,7 @@ Proof.
 Defined.
 
 Lemma isdecisbndqdec ( P : nat -> hProp ) ( is : isdecnatprop P ) ( n : nat ) :
-  ( forall m : nat, natleh m n -> P m ) ⨿
-  hexists ( fun m : nat => natleh m n × neg ( P m ) ).
+  ( forall m : nat, natleh m n -> P m ) ⨿ ∃ m : nat, natleh m n × neg ( P m ).
 Proof.
   intros P is n.
   destruct ( bndexistsisdecnatprop _ ( negisdecnatprop P is ) n ) as [ l | r ].
@@ -1061,8 +1062,8 @@ Proof.
 Defined.
 
 Lemma leastelementprinciple ( n : nat ) ( P : nat -> hProp )
-      ( is : isdecnatprop P ) : P n -> hexists ( fun k : nat =>
-        P k × forall m : nat, natlth m k -> neg ( P m ) ).
+      ( is : isdecnatprop P ) : P n ->
+      ∃ k : nat, P k × forall m : nat, natlth m k -> neg ( P m ).
 Proof.
   intro n. induction n.
   - intros P is u.

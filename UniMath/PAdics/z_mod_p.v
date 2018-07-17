@@ -25,8 +25,7 @@ Open Scope hz_scope.
 Definition hzdiv0 : hz -> hz -> hz -> UU :=
   fun n m k => ( n * k = m ).
 
-Definition hzdiv : hz -> hz -> hProp :=
-  fun n m => hexists ( fun k : hz => hzdiv0 n m k ).
+Definition hzdiv : hrel hz := fun n m => ∃ k : hz, hzdiv0 n m k.
 
 Lemma hzdivisrefl : isrefl hzdiv.
 Proof.
@@ -2037,11 +2036,11 @@ Proof.
   apply isasethz.
 Defined.
 
-Definition hzmod ( p : hz ) ( x : hzneq 0 p ) : hz -> hz -> hProp.
+Definition hzmod ( p : hz ) ( x : hzneq 0 p ) : hrel hz.
 Proof.
   intros p x n m.
-  exact ( hProppair ( hzremaindermod p x n =
-                    ( hzremaindermod p x m ) ) ( hzmodisaprop p x n m ) ).
+  exact ( hProppair ( hzremaindermod p x n = hzremaindermod p x m )
+                    ( hzmodisaprop p x n m ) ).
 Defined.
 
 Lemma hzmodisrefl ( p : hz ) ( x : hzneq 0 p ) : isrefl ( hzmod p x ).

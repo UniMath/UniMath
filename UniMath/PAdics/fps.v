@@ -1747,7 +1747,7 @@ Defined.
 
 Lemma apartnatsummation0 ( R : acommring ) ( upper : nat )
   ( f : nat -> R ) ( p : ( natsummation0 upper f ) # 0 ) :
-  hexists ( fun n : nat => natleh n upper × f n # 0 ).
+  ∃ n : nat, natleh n upper × f n # 0.
 Proof.
   intros R upper.
   induction upper.
@@ -1783,7 +1783,7 @@ Proof.
 Defined.
 
 Definition fpsapart0 ( R : acommring ) : hrel ( fpscommring R ) :=
-  fun s t : fpscommring R => ( hexists ( fun n : nat => ( s n # t n ) ) ).
+  fun s t : fpscommring R => ∃ n : nat, s n # t n.
 
 Definition fpsapart ( R : acommring ) : apart ( fpscommring R ).
 Proof.
