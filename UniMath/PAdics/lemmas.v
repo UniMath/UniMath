@@ -335,7 +335,7 @@ Proof.
 Defined.
 
 Lemma natdivleh ( a b k : nat ) ( f : ( a * k )%nat = b ) :
-  coprod ( natleh a b ) ( b = 0%nat ).
+  natleh a b ⨿ ( b = 0%nat ).
 Proof.
   intros. destruct k.
   - rewrite natmultcomm in f. simpl in f. apply ii2.
@@ -370,20 +370,20 @@ Proof.
   - change ( ( ( b' * a' ) * ( a * b ) )%ring = (@ringunel2 A )).
     rewrite ( ringassoc2 A b').
     rewrite <- ( ringassoc2 A a' ).
-    change ( dirprod ( ( a' * a )%ring = ( @ringunel2 A ) )
-                     ( ( a * a' )%ring = ( @ringunel2 A ) ) ) in p.
-    change ( dirprod ( ( b' * b )%ring = ( @ringunel2 A ) )
-                     ( ( b * b' )%ring = ( @ringunel2 A ) ) ) in q.
+    change ( ( ( a' * a )%ring = ( @ringunel2 A ) ) ×
+             ( ( a * a' )%ring = ( @ringunel2 A ) ) ) in p.
+    change ( ( ( b' * b )%ring = ( @ringunel2 A ) ) ×
+             ( ( b * b' )%ring = ( @ringunel2 A ) ) ) in q.
     rewrite <- ( pr1 q ). apply maponpaths.
     assert ( a' * a * b = 1 * b ) as f by
           apply ( maponpaths ( fun x => x * b ) ( pr1 p ) ).
     rewrite ringlunax2 in f. assumption.
   - change ( ( ( a * b ) * ( b' * a' ) )%ring = ( @ringunel2 A )).
     rewrite ( ringassoc2 A a). rewrite <- ( ringassoc2 A b ).
-    change ( dirprod ( ( a' * a )%ring = ( @ringunel2 A ) )
-                     ( ( a * a' )%ring = ( @ringunel2 A ) ) ) in p.
-    change ( dirprod ( ( b' * b )%ring = ( @ringunel2 A ) )
-                     ( ( b * b' )%ring = ( @ringunel2 A ) ) ) in q.
+    change ( ( ( a' * a )%ring = ( @ringunel2 A ) ) ×
+             ( ( a * a' )%ring = ( @ringunel2 A ) ) ) in p.
+    change ( ( ( b' * b )%ring = ( @ringunel2 A ) ) ×
+             ( ( b * b' )%ring = ( @ringunel2 A ) ) ) in q.
     rewrite <- ( pr2 q ). rewrite ( pr2 q ).
     rewrite ringlunax2. apply (pr2 p).
 Defined.
@@ -419,8 +419,8 @@ Proof.
       apply ringlunax2.
     }
     apply pathintotalfiber with ( p0 := f0 ).
-    assert ( isaprop ( dirprod (c * a = ( @ringunel2 X ) )
-                               (a * c = ( @ringunel2 X )) ) ) as is.
+    assert ( isaprop ( (c * a = ( @ringunel2 X ) ) ×
+                       (a * c = ( @ringunel2 X ) ) ) ) as is.
     { apply isofhleveldirprod.
       - apply ( setproperty X ).
       - apply ( setproperty X ).
@@ -498,7 +498,7 @@ Proof.
 Defined.
 
 Lemma hzabsvalchoice ( n : hz ) :
-  coprod ( 0%nat = ( hzabsval n ) ) ( total2 ( fun x : nat => S x = ( hzabsval n ) ) ).
+  ( 0%nat = ( hzabsval n ) ) ⨿ ( ∑ x : nat, S x = hzabsval n ).
 Proof.
   intros.
   destruct ( natlehchoice _ _ ( natleh0n ( hzabsval n ) ) ) as [ l | r ].
@@ -528,8 +528,8 @@ Proof.
 Defined.
 
 Lemma hzlthminusequiv ( n m : hz ) :
-  dirprod ( ( hzlth n m ) -> (hzlth 0 ( m - n ) ) )
-          ( ( hzlth 0 ( m - n ) ) -> ( hzlth n m ) ).
+  ( hzlth n m  -> hzlth 0 ( m - n ) ) ×
+  ( hzlth 0 ( m - n )  -> hzlth n m ).
 Proof.
   intros. rewrite <- ( hzrminus n ).
   change ( n - n ) with ( n + - n ).
@@ -745,15 +745,15 @@ Close Scope hz_scope.
 (** * IV. Generalities on apartness relations *)
 
 Definition iscomparel { X : UU } ( R : hrel X ) :=
-  forall x y z : X, R x y -> coprod ( R x z ) ( R z y ).
+  forall x y z : X, R x y -> R x z ⨿ R z y.
 
 Definition isapart { X : UU } ( R : hrel X ) :=
-  dirprod ( isirrefl R ) ( dirprod ( issymm R ) ( iscotrans R ) ).
+  isirrefl R × ( issymm R × iscotrans R ).
 
 Definition istightapart { X : UU } ( R : hrel X ) :=
-  dirprod ( isapart R ) ( forall x y : X, neg ( R x y ) -> ( x = y ) ).
+  isapart R × forall x y : X, neg ( R x y ) -> x = y.
 
-Definition apart ( X : hSet ) := total2 ( fun R : hrel X => isapart R ).
+Definition apart ( X : hSet ) := ∑ R : hrel X, isapart R.
 
 Definition isbinopapartl { X : hSet } ( R : apart X ) ( opp : binop X ) :=
   forall a b c : X, ( ( pr1 R ) ( opp a b ) ( opp a c ) ) -> ( pr1 R ) b c.
@@ -762,7 +762,7 @@ Definition isbinopapartr { X : hSet } ( R : apart X ) ( opp : binop X ) :=
   forall a b c : X, ( pr1 R ) ( opp b a ) ( opp c a ) -> ( pr1 R ) b c.
 
 Definition isbinopapart { X : hSet } ( R : apart X ) ( opp : binop X ) :=
-  dirprod ( isbinopapartl R opp ) ( isbinopapartr R opp ).
+  isbinopapartl R opp × isbinopapartr R opp.
 
 Lemma deceqtoneqapart { X : UU } ( is : isdeceq X ) : isapart ( neq X ).
 Proof.
@@ -779,7 +779,7 @@ Proof.
 Defined.
 
 Definition isapartdec { X : hSet } ( R : apart X ) :=
-  forall a b : X, coprod ( ( pr1 R ) a b ) ( a = b ).
+  forall a b : X, ( pr1 R ) a b  ⨿ ( a = b ).
 
 Lemma isapartdectodeceq { X : hSet } ( R : apart X ) ( is : isapartdec R ) :
   isdeceq X.
@@ -802,13 +802,11 @@ Defined.
 
 Open Scope ring_scope.
 
-Definition acommring := total2 ( fun X : commring =>
-  total2 ( fun R : apart X =>
-    dirprod ( isbinopapart R ( @op1 X ) ) ( isbinopapart R ( @op2 X ) ) ) ).
+Definition acommring := ∑ (X : commring) (R : apart X),
+  isbinopapart R ( @op1 X ) × isbinopapart R ( @op2 X ).
 
 Definition acommringpair := tpair ( P := fun X : commring =>
-  total2 ( fun R : apart X =>
-    dirprod ( isbinopapart R ( @op1 X ) ) (isbinopapart R ( @op2 X ) ) ) ).
+  ∑ R : apart X, isbinopapart R ( @op1 X ) × isbinopapart R ( @op2 X ) ).
 Definition acommringconstr := acommringpair.
 
 Definition acommringtocommring : acommring -> commring := @pr1 _ _.
@@ -835,13 +833,13 @@ Definition acommring_asymm ( X : acommring ) : issymm ( pr1 ( pr1 ( pr2 X ) ) ) 
 Definition acommring_acotrans ( X : acommring ) : iscotrans ( pr1 ( pr1 ( pr2 X ) ) ) :=
   pr2 ( pr2 ( pr2 ( pr1 ( pr2 X ) ) ) ).
 
-Definition aintdom := total2 ( fun A : acommring =>
-  dirprod ( ( ringunel2 ( X := A ) ) # 0 )
-          ( forall a b : A, ( a # 0 ) -> ( b # 0 ) -> ( ( a * b ) # 0 ) ) ).
+Definition aintdom := ∑ A : acommring,
+  ( ringunel2 ( X := A ) ) # 0 ×
+  forall a b : A, ( a # 0 ) -> ( b # 0 ) -> ( ( a * b ) # 0 ).
 
 Definition aintdompair := tpair ( P := fun A : acommring =>
-  dirprod ( ( ringunel2 ( X := A ) ) # 0 )
-          ( forall a b : A, ( a # 0 ) -> ( b # 0 ) -> ( ( a * b ) # 0 ) ) ).
+  ( ringunel2 ( X := A ) ) # 0 ×
+  forall a b : A, ( a # 0 ) -> ( b # 0 ) -> ( ( a * b ) # 0 ) ).
 Definition aintdomconstr := aintdompair.
 
 Definition pr1aintdom : aintdom -> acommring := @pr1 _ _.  Coercion
@@ -858,10 +856,10 @@ Proof.
 Defined.
 
 Definition isaafield ( A : acommring ) :=
-  dirprod ( ( ringunel2 ( X := A ) ) # 0 )
-          ( forall x : A, x # 0 -> multinvpair A x ).
+  ( ringunel2 ( X := A ) ) # 0 ×
+  forall x : A, x # 0 -> multinvpair A x.
 
-Definition afld := total2 ( fun A : acommring => isaafield A ).
+Definition afld := ∑ A : acommring, isaafield A.
 Definition afldpair ( A : acommring ) ( is : isaafield A ) : afld := tpair A is .
 Definition pr1afld : afld -> acommring := @pr1 _ _ .
 Coercion pr1afld : afld >-> acommring.
@@ -897,7 +895,7 @@ Proof.
 Defined.
 
 Lemma timesazero { A : acommring } { a b : A } ( p : a * b # 0 ) :
-  dirprod ( a # 0 ) ( b # 0 ).
+  a # 0 × b # 0.
 Proof.
   intros. split.
   - assert ( a * b # 0 * b ) as h.
@@ -939,7 +937,7 @@ Close Scope ring_scope.
 (** * VI. Lemmas on logic *)
 
 Lemma horelim ( A B : UU ) ( P : hProp ) :
-  dirprod ( ishinh_UU A -> P ) ( ishinh_UU B -> P ) -> ( hdisj A B -> P ).
+  ( ishinh_UU A -> P ) × ( ishinh_UU B -> P ) -> ( hdisj A B -> P ).
 Proof.
   intros A B P p q. simpl in q. apply q.
   intro u. destruct u as [ u | v ].
@@ -980,7 +978,8 @@ Defined.
 
 (* Some lemmas on decidable properties of natural numbers. *)
 
-Definition isdecnatprop ( P : nat -> hProp ) := forall m : nat, coprod ( P m ) ( neg ( P m ) ).
+Definition isdecnatprop ( P : nat -> hProp ) :=
+  forall m : nat, P m ⨿ neg ( P m ).
 
 Lemma negisdecnatprop ( P : nat -> hProp ) ( is : isdecnatprop P ) :
   isdecnatprop ( fun n : nat => hneg ( P n ) ).
@@ -994,7 +993,7 @@ Proof.
 Defined.
 
 Lemma bndexistsisdecnatprop ( P : nat -> hProp ) ( is : isdecnatprop P ) :
-  isdecnatprop ( fun n : nat => hexists ( fun m : nat => dirprod ( natleh m n ) ( P m ) ) ).
+  isdecnatprop ( fun n : nat => hexists ( fun m : nat => natleh m n × P m ) ).
 Proof.
   intros P is n. induction n.
   - destruct ( is 0%nat ) as [ l | r ].
@@ -1046,8 +1045,8 @@ Proof.
 Defined.
 
 Lemma isdecisbndqdec ( P : nat -> hProp ) ( is : isdecnatprop P ) ( n : nat ) :
-  coprod ( forall m : nat, natleh m n -> P m )
-         ( hexists ( fun m : nat => dirprod ( natleh m n ) ( neg ( P m ) ) ) ).
+  ( forall m : nat, natleh m n -> P m ) ⨿
+  hexists ( fun m : nat => natleh m n × neg ( P m ) ).
 Proof.
   intros P is n.
   destruct ( bndexistsisdecnatprop _ ( negisdecnatprop P is ) n ) as [ l | r ].
@@ -1063,7 +1062,7 @@ Defined.
 
 Lemma leastelementprinciple ( n : nat ) ( P : nat -> hProp )
       ( is : isdecnatprop P ) : P n -> hexists ( fun k : nat =>
-        dirprod ( P k ) ( forall m : nat, natlth m k -> neg ( P m ) ) ).
+        P k × forall m : nat, natlth m k -> neg ( P m ) ).
 Proof.
   intro n. induction n.
   - intros P is u.
@@ -1081,7 +1080,7 @@ Proof.
         apply fromempty.
         apply ( negnatgth0n m i ).
     + set ( P' := fun m : nat => P ( S m ) ).
-      assert ( forall m : nat, coprod ( P' m ) ( neg ( P' m ) ) ) as is'.
+      assert ( forall m : nat, P' m ⨿ neg ( P' m ) ) as is'.
       { intros m. unfold P'. apply ( is ( S m ) ). }
       set ( c := IHn P' is' u ).
       use (hinhuniv _ c).

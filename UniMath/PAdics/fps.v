@@ -288,10 +288,10 @@ Defined.
 automorphisms of the interval of summation.*)
 
 Definition isnattruncauto ( upper : nat ) ( i : nat -> nat ) :=
-  dirprod ( forall x : nat, natleh x upper -> total2 ( fun y : nat =>
-    dirprod ( natleh y upper )
-      ( dirprod ( i y = x ) ( forall z : nat, natleh z upper -> i z = x -> y = z ) ) ) )
-          ( forall x : nat, natleh x upper -> natleh ( i x ) upper ).
+  ( forall x : nat, natleh x upper ->
+    ∑ (y : nat), natleh y upper ×
+      ( i y = x  × forall z : nat, natleh z upper -> i z = x -> y = z ) ) ×
+  forall x : nat, natleh x upper -> natleh ( i x ) upper.
 
 Lemma nattruncautoisinj { upper : nat } { i : nat -> nat }
   ( p : isnattruncauto upper i ) { n m : nat } ( n' : natleh n upper )
@@ -1747,7 +1747,7 @@ Defined.
 
 Lemma apartnatsummation0 ( R : acommring ) ( upper : nat )
   ( f : nat -> R ) ( p : ( natsummation0 upper f ) # 0 ) :
-  hexists ( fun n : nat => dirprod ( natleh n upper ) ( f n # 0 ) ).
+  hexists ( fun n : nat => natleh n upper × f n # 0 ).
 Proof.
   intros R upper.
   induction upper.

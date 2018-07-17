@@ -364,8 +364,8 @@ Proof.
 Defined.
 
 Lemma hzqrandcarryineq ( a : fpscommring hz ) ( n : nat ) :
-  dirprod ( hzleh 0 ( carry a n ) )
-          ( hzlth ( carry a n ) ( nattohz ( hzabsval m ) ) ).
+  hzleh 0 ( carry a n ) ×
+  hzlth ( carry a n ) ( nattohz ( hzabsval m ) ).
 Proof.
   intros.
   split.
@@ -921,11 +921,11 @@ Proof.
 Defined.
 
 Lemma hzfpstimesnonzero ( a : fpscommring hz ) ( k : nat )
-      ( is : dirprod ( neq hz ( a k ) 0%hz )
-                     ( forall m : nat, natlth m k -> ( a m ) = 0%hz ) ) :
+      ( is : neq hz ( a k ) 0%hz ×
+             forall m : nat, natlth m k -> ( a m ) = 0%hz ) :
   forall k' : nat, forall b : fpscommring hz ,
-      forall is' : dirprod ( neq hz ( b k' ) 0%hz )
-                      ( forall m : nat, natlth m k' -> ( b m ) = 0%hz ),
+      forall is' : neq hz ( b k' ) 0%hz ×
+              forall m : nat, natlth m k' -> ( b m ) = 0%hz,
         ( a * b ) ( k + k' )%nat = ( a k ) * ( b k' ).
 Proof.
   intros a k is k'.
@@ -2176,18 +2176,16 @@ Proof.
       apply ( ( pr2 o' ) m m0 ).
       assumption.
   }
-  assert ( dirprod
-             ( neq hz ( carry p ( isaprimetoneq0 is ) a k ) 0%hz )
-             ( forall m : nat, natlth m k ->
-                 ( carry p ( isaprimetoneq0 is ) a m ) = 0%hz ) ) as three.
+  assert ( neq hz ( carry p ( isaprimetoneq0 is ) a k ) 0%hz ×
+           forall m : nat, natlth m k ->
+                 ( carry p ( isaprimetoneq0 is ) a m ) = 0%hz ) as three.
   { split.
     - apply k'.
     - assumption.
   }
-  assert ( dirprod
-             ( neq hz ( carry p ( isaprimetoneq0 is ) b o ) 0%hz )
-             ( forall m : nat, natlth m o ->
-                 ( carry p ( isaprimetoneq0 is ) b m ) = 0%hz ) ) as four.
+  assert ( neq hz ( carry p ( isaprimetoneq0 is ) b o ) 0%hz ×
+           forall m : nat, natlth m o ->
+                 ( carry p ( isaprimetoneq0 is ) b m ) = 0%hz ) as four.
   { split.
     - apply o'.
     - assumption.
