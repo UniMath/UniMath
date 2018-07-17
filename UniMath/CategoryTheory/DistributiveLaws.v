@@ -384,16 +384,94 @@ Defined.
 
 Definition is_lifting {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D) {F: functor C C} {G: functor D D} (H: functor C D) (HH: functor (FunctorAlg F hsC) (FunctorAlg G hsD)): UU.
 Proof.
-Admitted.
+  set (UF := forget_algebras hsC F).
+  set (UG := forget_algebras hsD G).
+  exact (UF ∙ H = HH ∙ UG).
+Defined.
 
-Definition lifting_from_distr_law {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D) {F: functor C C} {G: functor D D} {H: functor C D} (lambda : DistrLaw H H F G): functor (FunctorAlg F hsC) (FunctorAlg G hsD).
+Print FunctorAlg.
+
+Definition lifting_from_distr_law_data {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D) {F: functor C C} {G: functor D D} {H: functor C D} (lambda : DistrLaw G F H H): functor_data (FunctorAlg F hsC) (FunctorAlg G hsD).
 Proof.
+  use mk_functor_data.
+  simpl.
+  intro Aa.
+  set (A := pr1 Aa).
+  set (a := pr2 Aa).
+  simpl in a.
+  set (B := H A).
+  set (b := pr1 lambda A · (# H a)).
+  use tpair.
+  exact B.
+  exact b.
+
+  simpl.
+  intros Aa Bb.
+  intro h.
+  set (H_lambda_h := #H h).
+  unfold algebra_mor.
+  simpl.
+  use tpair.
+  apply H_lambda_h.
+
+  unfold is_algebra_mor.
+  simpl.
+  unfold H_lambda_h.
+  set (ax := nat_trans_ax lambda).
+  apply pathsinv0.
+  etrans.
+  rewrite assoc.
+  apply cancel_postcomposition.
+  apply ax.
+
+  rewrite <- assoc.
+  apply pathsinv0.
+  rewrite <- assoc.
+  apply cancel_precomposition.
+  set (h_commutes := algebra_mor_commutes _ _ _ h).
+  rewrite <- functor_comp.
+  apply pathsinv0.
+  change (# (F ∙ H) h) with (# H (# F h)).
+  etrans.
+  apply pathsinv0.
+  apply (functor_comp H).
+
+  apply maponpaths.
+  apply pathsinv0.
+  apply h_commutes.
+Defined.
+
+
+Definition lifting_from_distr_law {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D) {F: functor C C} {G: functor D D} {H: functor C D} (lambda : DistrLaw G F H H): functor (FunctorAlg F hsC) (FunctorAlg G hsD).
+Proof.
+  set (HH_data := lifting_from_distr_law_data hsC hsD lambda).
+  use (mk_functor HH_data).
+  unfold is_functor.
+  split.
+  unfold functor_idax.
+  intro Aa.
+  unfold HH_data.
+
+
+  unfold lifting_from_distr_law_data; simpl. apply idpath.
+(*  replace (# H (identity (alg_carrier F Aa))) with  (identity (H (alg_carrier F Aa))).
+
+  replace (# F (identity (alg_carrier F Aa))) with (identity ( F (alg_carrier F Aa)) ).*)
+
 Admitted.
 
-Lemma lifting_from_distr_law_is_lifting {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D) {F: functor C C} {G: functor D D} (H: functor C D) (lambda : DistrLaw H H F G):
+
+
+Lemma lifting_from_distr_law_is_lifting {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D) {F: functor C C} {G: functor D D} (H: functor C D) (lambda : DistrLaw G F H H):
   is_lifting hsC hsD H (lifting_from_distr_law hsC hsD lambda).
 Proof.
-Admitted.
+  unfold is_lifting.
+  unfold forget_algebras.
+  simpl.
+  unfold mk_functor.
+  red.
+
+  Admitted.
 
 End Liftings.
 
