@@ -200,7 +200,7 @@ Proof.
 Defined.
 
 Lemma natdoubleminus { n k l : nat } ( p : natleh k n ) ( q : natleh l k ) :
-  ( sub n k) = ( sub ( sub n l ) ( sub k l ) ).
+  sub n k = sub ( sub n l ) ( sub k l ).
 Proof.
   intro n. induction n.
   - auto.
@@ -305,9 +305,9 @@ Defined.
 Lemma isinjnatcoface ( i x y : nat ) : natcoface i x = natcoface i y -> x = y.
 Proof.
   intros i x y p.
-  change x with ( ( idfun _ ) x).
+  change x with ( idfun _ x).
   rewrite <- ( natcofaceretractisretract i ).
-  change y with ( ( idfun _ ) y ).
+  change y with ( idfun _ y ).
   rewrite <- ( natcofaceretractisretract i ).
   unfold funcomp. rewrite p. apply idpath.
 Defined.
@@ -353,13 +353,13 @@ Defined.
 Open Scope ring_scope.
 
 Lemma ringminusdistr { X : commring } ( a b c : X ) :
-  a * (b - c) = (a * b - a * c).
+  a * (b - c) = a * b - a * c.
 Proof.
   intros. rewrite ringldistr. rewrite ringrmultminus. apply idpath.
 Defined.
 
 Lemma ringminusdistl { X : commring } ( a b c : X ) :
-  (b - c) * a = (b * a - c * a).
+  (b - c) * a = b * a - c * a.
 Proof.
   intros. rewrite ringrdistr. rewrite ringlmultminus. apply idpath.
 Defined.
@@ -369,23 +369,23 @@ Lemma multinvmultstable ( A : commring ) ( a b : A ) ( p : multinvpair A a )
 Proof.
   intros. destruct p as [ a' p ]. destruct q as [ b' q ].
   split with ( b' * a' ). split.
-  - change ( ( ( b' * a' ) * ( a * b ) )%ring = (@ringunel2 A )).
+  - change ( ( ( b' * a' ) * ( a * b ) )%ring = @ringunel2 A ).
     rewrite ( ringassoc2 A b').
     rewrite <- ( ringassoc2 A a' ).
-    change ( ( ( a' * a )%ring = ( @ringunel2 A ) ) ×
-             ( ( a * a' )%ring = ( @ringunel2 A ) ) ) in p.
-    change ( ( ( b' * b )%ring = ( @ringunel2 A ) ) ×
-             ( ( b * b' )%ring = ( @ringunel2 A ) ) ) in q.
+    change ( ( ( a' * a )%ring = @ringunel2 A ) ×
+             ( ( a * a' )%ring = @ringunel2 A ) ) in p.
+    change ( ( ( b' * b )%ring = @ringunel2 A ) ×
+             ( ( b * b' )%ring = @ringunel2 A ) ) in q.
     rewrite <- ( pr1 q ). apply maponpaths.
     assert ( a' * a * b = 1 * b ) as f by
           apply ( maponpaths ( fun x => x * b ) ( pr1 p ) ).
     rewrite ringlunax2 in f. assumption.
-  - change ( ( ( a * b ) * ( b' * a' ) )%ring = ( @ringunel2 A )).
+  - change ( ( ( a * b ) * ( b' * a' ) )%ring = @ringunel2 A ).
     rewrite ( ringassoc2 A a). rewrite <- ( ringassoc2 A b ).
-    change ( ( ( a' * a )%ring = ( @ringunel2 A ) ) ×
-             ( ( a * a' )%ring = ( @ringunel2 A ) ) ) in p.
-    change ( ( ( b' * b )%ring = ( @ringunel2 A ) ) ×
-             ( ( b * b' )%ring = ( @ringunel2 A ) ) ) in q.
+    change ( ( ( a' * a )%ring = @ringunel2 A ) ×
+             ( ( a * a' )%ring = @ringunel2 A ) ) in p.
+    change ( ( ( b' * b )%ring = @ringunel2 A ) ×
+             ( ( b * b' )%ring = @ringunel2 A ) ) in q.
     rewrite <- ( pr2 q ). rewrite ( pr2 q ).
     rewrite ringlunax2. apply (pr2 p).
 Defined.
@@ -411,7 +411,7 @@ Proof.
     destruct c as [ c c'].
     assert ( b = c ) as f0.
     { rewrite <- ( @ringrunax2 X b ).
-      change ( b * ( @ringunel2 X ) ) with ( b * 1 )%multmonoid.
+      change ( b * @ringunel2 X ) with ( b * 1 )%multmonoid.
       rewrite <- ( pr2 c' ).
       change ( ( b * ( a * c ) )%ring = c ).
       rewrite <- ( ringassoc2 X ).
@@ -421,8 +421,8 @@ Proof.
       apply ringlunax2.
     }
     apply pathintotalfiber with ( p0 := f0 ).
-    assert ( isaprop ( (c * a = ( @ringunel2 X ) ) ×
-                       (a * c = ( @ringunel2 X ) ) ) ) as is.
+    assert ( isaprop ( c * a = ( @ringunel2 X )  ×
+                       a * c = ( @ringunel2 X ) ) ) as is.
     { apply isofhleveldirprod.
       - apply ( setproperty X ).
       - apply ( setproperty X ).
@@ -449,31 +449,31 @@ Close Scope ring_scope.
 
 Open Scope hz_scope.
 
-Lemma hzaddinvplus ( n m : hz ) : - ( n + m ) = ( ( - n ) + ( - m ) ).
+Lemma hzaddinvplus ( n m : hz ) : - ( n + m ) = ( - n ) + ( - m ).
 Proof.
   intros.
   apply commringaddinvunique with ( a := n + m ).
   - apply ringrinvax1.
-  - assert ( ( n + m ) + ( - n + - m ) = ( n + - n + m + - m ) ) as i.
-    { assert ( n + m + ( - n + - m ) = ( n + ( m + ( - n + - m ) ) ) ) as i0 by
+  - assert ( ( n + m ) + ( - n + - m ) = n + - n + m + - m ) as i.
+    { assert ( n + m + ( - n + - m ) = n + ( m + ( - n + - m ) ) ) as i0 by
             apply ringassoc1.
-      assert ( n + ( m + ( - n + - m ) ) = ( n + ( m + - n + - m ) ) ) as i1.
+      assert ( n + ( m + ( - n + - m ) ) = n + ( m + - n + - m ) ) as i1.
       { apply maponpaths. apply pathsinv0. apply ringassoc1. }
-      assert ( n + ( m + - n + - m ) = ( n + (- n + m + - m ) ) ) as i2.
-      { apply maponpaths. apply ( maponpaths ( fun x : _ => x + - m ) ).
+      assert ( n + ( m + - n + - m ) = n + (- n + m + - m ) ) as i2.
+      { apply maponpaths. apply ( maponpaths ( fun x => x + - m ) ).
         apply ringcomm1. }
-      assert ( n + ( - n + m + - m ) = ( n + ( - n + m ) + - m ) ) as i3.
+      assert ( n + ( - n + m + - m ) = n + ( - n + m ) + - m ) as i3.
       { apply pathsinv0. apply ringassoc1. }
-      assert ( n + ( - n + m ) + - m = ( n + - n + m + - m ) ) as i4.
-      { apply pathsinv0. apply ( maponpaths ( fun x : _ => x + - m ) ).
+      assert ( n + ( - n + m ) + - m = n + - n + m + - m ) as i4.
+      { apply pathsinv0. apply ( maponpaths ( fun x => x + - m ) ).
         apply ringassoc1. }
       exact ( pathscomp0 i0 ( pathscomp0 i1 ( pathscomp0 i2 ( pathscomp0 i3 i4 ) ) ) ).    }
     assert ( n + - n + m + -m = 0 ) as j.
-    { assert ( n + - n + m + - m = ( 0 + m + - m ) ) as j0.
-      { apply ( maponpaths ( fun x : _ => x + m + - m ) ).
+    { assert ( n + - n + m + - m = 0 + m + - m ) as j0.
+      { apply ( maponpaths ( fun x => x + m + - m ) ).
         apply ringrinvax1. }
-      assert ( 0 + m + - m = ( m + - m ) ) as j1.
-      { apply ( maponpaths ( fun x : _ => x + - m ) ).
+      assert ( 0 + m + - m = m + - m ) as j1.
+      { apply ( maponpaths ( fun x => x + - m ) ).
         apply ringlunax1. }
       assert ( m + - m = 0 ) as j2 by apply ringrinvax1.
       exact ( pathscomp0 j0 ( pathscomp0 j1 j2 ) ).
@@ -500,7 +500,7 @@ Proof.
 Defined.
 
 Lemma hzabsvalchoice ( n : hz ) :
-  ( 0%nat = ( hzabsval n ) ) ⨿ ( ∑ x : nat, S x = hzabsval n ).
+  ( 0%nat = hzabsval n ) ⨿ ( ∑ x : nat, S x = hzabsval n ).
 Proof.
   intros.
   destruct ( natlehchoice _ _ ( natleh0n ( hzabsval n ) ) ) as [ l | r ].
@@ -518,7 +518,7 @@ Proof.
   change ( hzlth ( n + - n + - m ) ( - n ) ).
   rewrite hzplusassoc. rewrite ( hzpluscomm ( -n ) ).
   rewrite <- hzplusassoc.
-  assert ( - n = ( 0 + - n ) ) as f.
+  assert ( - n = 0 + - n ) as f.
   { apply pathsinv0. apply hzplusl0. }
   assert ( hzlth ( n + - m + - n ) ( 0 + - n ) ) as q.
   { apply hzlthandplusr.  rewrite <- ( hzrminus m ).
@@ -531,7 +531,7 @@ Defined.
 
 Lemma hzlthminusequiv ( n m : hz ) :
   ( hzlth n m  -> hzlth 0 ( m - n ) ) ×
-  ( hzlth 0 ( m - n )  -> hzlth n m ).
+  ( hzlth 0 ( m - n ) -> hzlth n m ).
 Proof.
   intros. rewrite <- ( hzrminus n ).
   change ( n - n ) with ( n + - n ).
@@ -609,7 +609,7 @@ Proof.
       }
       rewrite ( hzabsvallth0 b ).
       rewrite hzabsvalgth0.
-      * change ( ( n + - m ) = - ( m + - n ) ).
+      * change ( n + - m = - ( m + - n ) ).
         rewrite hzaddinvplus.
         change ( - - n ) with ( - - n )%ring.
         rewrite ringminusminus.
@@ -631,10 +631,10 @@ Proof.
     + apply right.
 Defined.
 
-Definition hzrdistr ( a b c : hz ) : ( a + b ) * c = ( ( a * c ) + ( b * c ) ) :=
+Definition hzrdistr ( a b c : hz ) : ( a + b ) * c = ( a * c ) + ( b * c ) :=
   ringrdistr hz a b c.
 
-Definition hzldistr ( a b c : hz ) : c * ( a + b ) = ( ( c * a ) + ( c * b ) ) :=
+Definition hzldistr ( a b c : hz ) : c * ( a + b ) = ( c * a ) + ( c * b ) :=
   ringldistr hz a b c.
 
 
@@ -644,7 +644,7 @@ Proof.
   rewrite hzabsvalgth0.
   - rewrite nattohzand1.
     apply idpath.
-  - rewrite <- ( hzplusl0 1). apply ( hzlthnsn 0 ).
+  - rewrite <- ( hzplusl0 1 ). apply ( hzlthnsn 0 ).
 Defined.
 
 Lemma hzabsvalandplusnonneg ( n m : hz ) ( p : hzleh 0 n ) ( q : hzleh 0 m ) :
@@ -758,10 +758,10 @@ Definition istightapart { X : UU } ( R : hrel X ) :=
 Definition apart ( X : hSet ) := ∑ R : hrel X, isapart R.
 
 Definition isbinopapartl { X : hSet } ( R : apart X ) ( opp : binop X ) :=
-  forall a b c : X, ( ( pr1 R ) ( opp a b ) ( opp a c ) ) -> ( pr1 R ) b c.
+  forall a b c : X, ( pr1 R ( opp a b ) ( opp a c ) ) -> pr1 R b c.
 
 Definition isbinopapartr { X : hSet } ( R : apart X ) ( opp : binop X ) :=
-  forall a b c : X, ( pr1 R ) ( opp b a ) ( opp c a ) -> ( pr1 R ) b c.
+  forall a b c : X, pr1 R ( opp b a ) ( opp c a ) -> pr1 R b c.
 
 Definition isbinopapart { X : hSet } ( R : apart X ) ( opp : binop X ) :=
   isbinopapartl R opp × isbinopapartr R opp.
@@ -781,13 +781,13 @@ Proof.
 Defined.
 
 Definition isapartdec { X : hSet } ( R : apart X ) :=
-  forall a b : X, ( pr1 R ) a b  ⨿ ( a = b ).
+  forall a b : X, pr1 R a b  ⨿ ( a = b ).
 
 Lemma isapartdectodeceq { X : hSet } ( R : apart X ) ( is : isapartdec R ) :
   isdeceq X.
 Proof.
   intros X R is y z. destruct ( is y z ) as [ l | r ].
-  - apply ii2. intros f. apply ( ( pr1 ( pr2 R ) ) z).
+  - apply ii2. intros f. apply ( pr1 ( pr2 R ) z).
     rewrite f in l. assumption.
   - apply ii1. assumption.
 Defined.
@@ -821,10 +821,10 @@ Notation " a # b " := ( acommringapartrel _ a b )  (* ( at level 50 ) *) :
 ring_scope.
 
 Definition acommring_aadd ( X : acommring ) : isbinopapart ( pr1 ( pr2 X ) ) op1 :=
-  ( pr1 ( pr2 ( pr2 X ) ) ).
+  pr1 ( pr2 ( pr2 X ) ).
 
 Definition acommring_amult ( X : acommring ) : isbinopapart ( pr1 ( pr2 X ) ) op2 :=
-  ( pr2 ( pr2 ( pr2 X ) ) ).
+  pr2 ( pr2 ( pr2 X ) ).
 
 Definition acommring_airrefl ( X : acommring ) : isirrefl ( pr1 ( pr1 ( pr2 X ) ) ) :=
   pr1 ( pr2 ( pr1 ( pr2 X ) ) ).
@@ -837,11 +837,11 @@ Definition acommring_acotrans ( X : acommring ) : iscotrans ( pr1 ( pr1 ( pr2 X 
 
 Definition aintdom := ∑ A : acommring,
   ( ringunel2 ( X := A ) ) # 0 ×
-  forall a b : A, ( a # 0 ) -> ( b # 0 ) -> ( ( a * b ) # 0 ).
+  forall a b : A, a # 0 -> b # 0 -> ( a * b ) # 0.
 
 Definition aintdompair := tpair ( P := fun A : acommring =>
   ( ringunel2 ( X := A ) ) # 0 ×
-  forall a b : A, ( a # 0 ) -> ( b # 0 ) -> ( ( a * b ) # 0 ) ).
+  forall a b : A, a # 0 -> b # 0 -> ( a * b ) # 0 ).
 Definition aintdomconstr := aintdompair.
 
 Definition pr1aintdom : aintdom -> acommring := @pr1 _ _.
@@ -849,7 +849,7 @@ Coercion pr1aintdom : aintdom >-> acommring.
 
 Definition aintdomazerosubmonoid ( A : aintdom ) : @subabmonoid ( ringmultabmonoid A ).
 Proof.
-  intros. split with ( fun x : A => ( x # 0 ) ).
+  intros. split with ( fun x : A => x # 0 ).
   split.
   - intros a b. simpl in *. apply (pr2 (pr2 A)).
     + simpl in a. apply (pr2 a).
@@ -877,11 +877,11 @@ Proof.
     apply (pr2 A).
   }
   assert ( a' * a # a' * ( ringunel1 ( X := A ) ) ) as q'.
-  { assert ( ( ringunel1 ( X := A ) ) = ( a' * ( ringunel1 ( X := A ) ) ) ) as f.
+  { assert ( ringunel1 ( X := A ) = a' * ( ringunel1 ( X := A ) ) ) as f.
     { apply pathsinv0. apply ( ringmultx0 A ). }
     rewrite <- f. assumption.
   }
-  apply ( ( pr1 ( acommring_amult A ) ) a' ).
+  apply ( pr1 ( acommring_amult A ) a' ).
   assumption.
 Defined.
 
@@ -902,8 +902,8 @@ Proof.
   intros. split.
   - assert ( a * b # 0 * b ) as h.
     { rewrite ( ringmult0x A ). assumption. }
-    apply ( ( pr2 ( acommring_amult A ) ) b ). assumption.
-  - apply ( ( pr1 ( acommring_amult A ) ) a ).
+    apply ( pr2 ( acommring_amult A ) b ). assumption.
+  - apply ( pr1 ( acommring_amult A ) a ).
     rewrite ( ringmultx0 A ). assumption.
 Defined.
 
@@ -912,7 +912,7 @@ Proof.
   intros.
   rewrite <- ( ringrunax1 A a ) in p.
   rewrite <- ( ringrunax1 A b ) in p.
-  assert ( a + 0 = ( a + ( b - b ) ) ) as f.
+  assert ( a + 0 = a + ( b - b ) ) as f.
   { rewrite <- ( ringrinvax1 A b ). apply idpath. }
   rewrite f in p.
   rewrite <- ( ringmultwithminus1 A ) in p.
@@ -920,7 +920,7 @@ Proof.
   rewrite ( ringcomm1 A a ) in p.
   rewrite ( ringassoc1 A b ) in p.
   rewrite ( ringmultwithminus1 A ) in p.
-  apply ( ( pr1 ( acommring_aadd A ) ) b ( a - b ) 0 ).
+  apply ( pr1 ( acommring_aadd A ) b ( a - b ) 0 ).
   assumption.
 Defined.
 
@@ -930,7 +930,7 @@ Proof.
   change 0 with ( @ringunel1 A ) in p.
   rewrite <- ( ringrinvax1 A b ) in p.
   rewrite <- ( ringmultwithminus1 A ) in p.
-  apply ( ( pr2 ( acommring_aadd A ) ) ( -1 * b ) a b ).
+  apply ( pr2 ( acommring_aadd A ) ( -1 * b ) a b ).
   assumption.
 Defined.
 
@@ -1008,7 +1008,7 @@ Proof.
       { simpl in j. apply j. intro m.
         destruct m as [ m m' ].
         apply r.
-        change ((natleh m 0) × P m) in m'.
+        change ( natleh m 0 × P m ) in m'.
         rewrite ( natleh0tois0 ( pr1 m' ) ) in m'.
         apply (pr2 m').
       }
