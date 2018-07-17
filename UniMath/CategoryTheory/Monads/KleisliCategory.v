@@ -74,9 +74,10 @@ Proof.
       unfold identity; unfold compose; simpl.
       apply η_bind.
     + intros a b f.
+      unfold identity; unfold compose; simpl.
       rewrite <- id_right.
-      rewrite <- bind_η.
-      reflexivity.
+      apply cancel_precomposition.
+      apply bind_η.
   - intros a b c d f g h.
     unfold compose; simpl.
     rewrite <- bind_bind.
@@ -95,16 +96,6 @@ Defined.
 Definition Kleisli_cat_monad {C : category} (T : Monad C): category 
   := (Kleisli_precat_monad T,, Kleisli_precat_monad_has_homsets T
   (homset_property C)).
-
-(*A lemma to essentitally unfold composition in the Kleisli category without unfolding composition in the original category. It often doesn't work if used after simpl.*)
-
-Lemma Kleisli_compose_def {C : precategory} {T : Monad C} {a b c : C} 
-  (f : C ⟦a , T b⟧) (g : C ⟦b, T c⟧) : 
-  @compose (Kleisli_precat_monad T) a b c f g 
-  = @compose C a (T b) (T c) f (bind g).
-Proof.
-  reflexivity.
-Defined.
 
 (*TODO: show that this is equivalent to the definition of the Kleisli category of a relative monad with respect to the identity*)
 
@@ -127,8 +118,8 @@ Proof.
     unfold Left_Kleisli_functor_data; simpl.
     apply id_left.
   - intros a b c f g.
-    rewrite Kleisli_compose_def.
     unfold Left_Kleisli_functor_data; simpl.
+    unfold compose at 3; simpl.
     do 2 (rewrite <- assoc).
     apply cancel_precomposition.
     apply pathsinv0.
@@ -177,7 +168,7 @@ Proof.
     + intro c.
       simpl.
       reflexivity.
-    + intros C1 C2 f; simpl.
+    + intros a b f; simpl.
       do 2 (rewrite idpath_transportf).
       apply bind_comp_η.
 Defined.
@@ -192,14 +183,11 @@ Proof.
     + simpl.
       apply idfun.
     + simpl.
-      use isweq_iso.
-      * apply idfun.
-      * reflexivity.
-      * reflexivity.
+      apply idisweq.
   - unfold idfun; split.
     + intros a b f c h.
-      rewrite Kleisli_compose_def.
       simpl.
+      unfold compose at 1; simpl.
       rewrite <- assoc.
       apply cancel_precomposition.
       apply η_bind.
