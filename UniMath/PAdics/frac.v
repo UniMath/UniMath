@@ -66,9 +66,9 @@ Ltac permute := solve
 
 Lemma azerorelcomp ( cd : A × aintdomazerosubmonoid A )
   ( ef : A × aintdomazerosubmonoid A )
-  ( p : ( pr1 cd ) * ( pr1 ( pr2 ef ) ) =
-        ( pr1 ef ) * ( pr1 ( pr2 cd ) ) )
-  ( q : ( pr1 cd ) # 0 ) : ( pr1 ef ) # 0.
+  ( p : pr1 cd * pr1 ( pr2 ef ) =
+        pr1 ef * pr1 ( pr2 cd ) )
+  ( q : pr1 cd # 0 ) : pr1 ef # 0.
 Proof.
   intros.
   change ( @op2 A ( pr1 cd ) ( pr1 ( pr2 ef ) ) =
@@ -255,7 +255,7 @@ Proof.
   assert ( a * f * d # e * b * d ) as v.
   { apply azerormultcomp; assumption. }
   use (hinhuniv _
-    ( ( acommring_acotrans A ( a * f * d ) ( c * b * f ) ( e * b * d ) ) v ) ).
+    ( acommring_acotrans A ( a * f * d ) ( c * b * f ) ( e * b * d ) v )).
   intro u. intros P k.
   apply k.
   unfold afldfracapartrelpre in *.
@@ -555,12 +555,12 @@ Theorem afldfracisafld : isaafield afldfrac0.
 Proof.
   intros.
   split.
-  - change ( ( afldfracapartrel )
+  - change ( afldfracapartrel
                ( @ringunel2 ( commringfrac A (aintdomazerosubmonoid A ) ) )
                ( @ringunel1 ( commringfrac A ( aintdomazerosubmonoid A ) ) ) ).
     unfold afldfracapartrel.
-    set ( aux := ( @op2 A ( @ringunel2 A ) ( @ringunel2 A ) ) #
-                 ( @op2 A ( @ringunel1 A ) ( @ringunel2 A ) ) ).
+    set ( aux := @op2 A ( @ringunel2 A ) ( @ringunel2 A ) #
+                 @op2 A ( @ringunel1 A ) ( @ringunel2 A ) ).
     cut (pr1 aux). (* [pr1] is needed here *)
     + intro v.
       apply v.
