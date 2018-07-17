@@ -1912,7 +1912,7 @@ Proof.
 Defined.
 
 Lemma primedivorcoprime ( a : hz ) :
-  hdisj ( hzdiv p a ) ( gcd p a ( isaprimetoneq0 is ) = 1 ).
+  hzdiv p a ∨ gcd p a ( isaprimetoneq0 is ) = 1.
 Proof.
   intro a. intros P i.
   use (hinhuniv _ ( pr2 is
@@ -1929,7 +1929,7 @@ Proof.
 Defined.
 
 Lemma primeandtimes ( a b : hz ) ( x : hzdiv p ( a * b ) ) :
-  hdisj ( hzdiv p a ) ( hzdiv p b ).
+  hzdiv p a  ∨ hzdiv p b.
 Proof.
   intros.
   use (hinhuniv _ ( primedivorcoprime a )).
@@ -1981,8 +1981,8 @@ Defined.
 
 Lemma hzremaindermodprimeandtimes ( a b : hz )
   ( x : hzremaindermod p ( isaprimetoneq0 is ) ( a * b ) = 0 ) :
-  hdisj ( hzremaindermod p ( isaprimetoneq0 is ) a = 0)
-        ( hzremaindermod p ( isaprimetoneq0 is ) b = 0).
+  hzremaindermod p ( isaprimetoneq0 is ) a = 0 ∨
+  hzremaindermod p ( isaprimetoneq0 is ) b = 0.
 Proof.
   intros.
   assert ( hzdiv p ( a * b ) ) as i.

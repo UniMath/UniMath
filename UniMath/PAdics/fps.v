@@ -1726,7 +1726,7 @@ Defined.
 (** * IV. Apartness relation on formal power series *)
 
 Lemma apartbinarysum0 ( R : acommring ) ( a b : R ) ( p : a + b # 0 ) :
-  hdisj ( a # 0 ) ( b # 0 ).
+  a # 0 ∨ b # 0.
 Proof.
   intros. intros P s.
   use ( hinhuniv _ ( acommring_acotrans R ( a + b ) a 0 p ) ).

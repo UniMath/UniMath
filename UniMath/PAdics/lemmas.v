@@ -939,16 +939,16 @@ Close Scope ring_scope.
 (** * VI. Lemmas on logic *)
 
 Lemma horelim ( A B : UU ) ( P : hProp ) :
-  ( ishinh_UU A -> P ) × ( ishinh_UU B -> P ) -> ( hdisj A B -> P ).
+  ( ishinh_UU A -> P ) × ( ishinh_UU B -> P ) -> A ∨ B -> P.
 Proof.
   intros A B P p q. simpl in q. apply q.
   intro u. destruct u as [ u | v ].
-  - apply ( pr1 p ). intro Q. auto.
-  - apply ( pr2 p ). intro Q. auto.
+  - apply ( pr1 p ). intro Q. intro H. apply H. assumption.
+  - apply ( pr2 p ). intro Q. intro H. apply H. assumption.
 Defined.
 
 Lemma stronginduction { E : nat -> UU } ( p : E 0%nat )
-  ( q : forall n : nat, natneq n 0%nat -> ( ( forall m : nat, natlth m n -> E m ) -> E n ) ) :
+  ( q : forall n : nat, natneq n 0%nat -> ( forall m : nat, natlth m n -> E m ) -> E n ) :
   forall n : nat, E n.
 Proof.
   intros. destruct n.
