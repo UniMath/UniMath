@@ -452,15 +452,21 @@ Proof.
     simpl.
     UniMath.MoreFoundations.Tactics.show_id_type.
     apply algebra_mor_eq.
+    Locate algebra_mor_eq.
     + assumption.
     + simpl.
       apply functor_id.
-
-(*  replace (# H (identity (alg_carrier F Aa))) with  (identity (H (alg_carrier F Aa))).
-
-  replace (# F (identity (alg_carrier F Aa))) with (identity ( F (alg_carrier F Aa)) ).*)
-
-Admitted.
+  - red.
+    intros Aa Bb Cc f g.
+    unfold HH_data.
+    unfold lifting_from_distr_law_data.
+    simpl.
+    UniMath.MoreFoundations.Tactics.show_id_type.
+    apply algebra_mor_eq.
+    + assumption.
+    + simpl.
+      apply functor_comp.
+Defined.
 
 
 
@@ -468,12 +474,19 @@ Lemma lifting_from_distr_law_is_lifting {C D: precategory} (hsC: has_homsets C) 
   is_lifting hsC hsD H (lifting_from_distr_law hsC hsD lambda).
 Proof.
   unfold is_lifting.
-  unfold forget_algebras.
-  simpl.
-  unfold mk_functor.
-  red.
-
-  Admitted.
+  set (Hλ := lifting_from_distr_law hsC hsD lambda).
+  (*UniMath.MoreFoundations.Tactics.show_id_type.*)
+  Locate "⟶".
+  apply functor_eq.
+  - assumption.
+  - UniMath.MoreFoundations.Tactics.show_id_type.
+    use functor_data_eq.
+    + intro h.
+      apply idpath.
+    +  simpl.
+       intros Aa Bb f.
+       apply idpath.
+Defined.
 
 End Liftings.
 
