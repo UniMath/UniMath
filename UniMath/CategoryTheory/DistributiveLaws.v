@@ -84,8 +84,7 @@ Section OperationsDistrLaws.
     intro c.
     simpl.
     repeat rewrite id_left.
-    rewrite id_right.
-    apply idpath.
+    apply id_right.
   Qed.
 
   Locate "·".
@@ -102,7 +101,7 @@ Section OperationsDistrLaws.
     intro c.
     simpl.
     repeat rewrite id_left.
-    repeat rewrite id_right.
+    rewrite id_right.
     etrans.
     apply cancel_precomposition.
     apply functor_id.
@@ -173,12 +172,12 @@ Defined.
   (* Condition 3.11a *)
   Definition are_conjugates {C C' D D' : precategory}  {L : functor D C} {R : functor C D} {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' } (h : are_adjoints L R) (h' : are_adjoints L' R') (σ : DistrLaw L' L K H) (τ : DistrLaw K H R R') : UU :=
     ∏ (A : D) (B : C) (f : (L A) --> B),
-    φ_adj h' (pr1 σ A · #H f) = #K (φ_adj h f) · pr1 τ B.
+    φ_adj h' (nat_trans_data σ A · #H f) = #K (φ_adj h f) · nat_trans_data τ B.
 
   (* Condition 3.11b *)
   Definition are_conjugates' {C C' D D' : precategory}  {L : functor D C} {R : functor C D} {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' } (h : are_adjoints L R) (h' : are_adjoints L' R') (σ : DistrLaw L' L K H) (τ : DistrLaw K H R R') : UU :=
     ∏ (A : D) (B : C) (g : A --> R B),
-    pr1 σ A · #H (φ_adj_inv h g) = φ_adj_inv h' (#K g · pr1 τ B ).
+    nat_trans_data σ A · #H (φ_adj_inv h g) = φ_adj_inv h' (#K g · nat_trans_data τ B ).
 
   Locate "×".
 
@@ -252,24 +251,24 @@ Defined.
 
   Definition σ_data_from_τ {C C' D D' : precategory}  {L : functor D C} {R : functor C D} {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' } (h : are_adjoints L R) (h' : are_adjoints L' R') (τ : DistrLaw K H R R') : DistrLaw_data_type L' L K H
     :=
-    λ A : D, φ_adj_inv h' (#K (pr1 (unit_from_are_adjoints h) A) · pr1 τ (L A)).
+    λ A : D, φ_adj_inv h' (#K (unit_from_are_adjoints h A) · nat_trans_data τ (L A)).
 
   Definition σ_from_τ {C C' D D' : precategory}  {L : functor D C} {R : functor C D} {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' } (h : are_adjoints L R) (h' : are_adjoints L' R') (τ : DistrLaw K H R R') : DistrLaw L' L K H.
   Proof.
-    apply (mk_nat_trans (functor_composite K L') (functor_composite L H) (σ_data_from_τ h h' τ)).
+    apply (mk_nat_trans _ _ (σ_data_from_τ h h' τ)).
     red.
     intros d d' f.
     unfold σ_data_from_τ.
     etrans.
     apply pathsinv0.
     simpl.
-    apply  φ_adj_inv_natural_precomp.
+    apply φ_adj_inv_natural_precomp.
     (*simpl.*)
     apply pathsinv0.
     etrans.
     apply pathsinv0.
     simpl.
-    apply  φ_adj_inv_natural_postcomp.
+    apply φ_adj_inv_natural_postcomp.
     apply maponpaths.
     apply pathsinv0.
     etrans.
@@ -304,10 +303,8 @@ Defined.
     }
     apply maponpaths.
     (*apply pathsinv0.*)
-    etrans.
     set (Hη := nat_trans_ax (unit_from_are_adjoints h)).
     apply Hη.
-    apply idpath.
   Defined.
 
   (*Definition σ_data_from_τ_from_σ_from_τ {C C' D D' : precategory}  {L : functor D C} {R : functor C D} {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' } (h : are_adjoints L R) (h' : are_adjoints L' R') (τ : DistrLaw K H R R') :
@@ -323,7 +320,7 @@ Proof.
   intros A B g.
   unfold σ_from_τ.
   simpl.
-  unfold  σ_data_from_τ.
+  unfold σ_data_from_τ.
   set (η := (unit_from_are_adjoints h)).
   etrans.
   apply pathsinv0.
@@ -343,7 +340,7 @@ Proof.
   use functor_comp.
   apply maponpaths.
   Locate "·".
-  change (pr1 η A · # R (φ_adj_inv h g)) with (φ_adj h (φ_adj_inv h g)).
+  change (nat_trans_data η A · # R (φ_adj_inv h g)) with (φ_adj h (φ_adj_inv h g)).
   apply φ_adj_after_φ_adj_inv.
 Qed.
 
@@ -351,7 +348,7 @@ Qed.
 
 Definition τ_data_from_σ {C C' D D' : precategory}  {L : functor D C} {R : functor C D} {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' } (h : are_adjoints L R) (h' : are_adjoints L' R') (σ : DistrLaw L' L K H) : DistrLaw_data_type K H R R'
   :=
-    λ B : C, φ_adj h' (pr1 σ (R B) · #H (pr1 (counit_from_are_adjoints h) B)).
+    λ B : C, φ_adj h' (nat_trans_data σ (R B) · #H (counit_from_are_adjoints h B)).
 
 
 End Conjugates.
@@ -396,11 +393,11 @@ Proof.
   use mk_functor_data.
   simpl.
   intro Aa.
-  set (A := pr1 Aa).
-  set (a := pr2 Aa).
+  set (A := alg_carrier _ Aa).
+  set (a := alg_map _ Aa).
   simpl in a.
   set (B := H A).
-  set (b := pr1 lambda A · (# H a)).
+  set (b := nat_trans_data lambda A · (# H a)).
   use tpair.
   exact B.
   exact b.
@@ -446,14 +443,19 @@ Definition lifting_from_distr_law {C D: precategory} (hsC: has_homsets C) (hsD: 
 Proof.
   set (HH_data := lifting_from_distr_law_data hsC hsD lambda).
   use (mk_functor HH_data).
-  unfold is_functor.
+  red.
   split.
-  unfold functor_idax.
-  intro Aa.
-  unfold HH_data.
+  - red.
+    intro Aa.
+    unfold HH_data.
+    unfold lifting_from_distr_law_data.
+    simpl.
+    UniMath.MoreFoundations.Tactics.show_id_type.
+    apply algebra_mor_eq.
+    + assumption.
+    + simpl.
+      apply functor_id.
 
-
-  unfold lifting_from_distr_law_data; simpl. apply idpath.
 (*  replace (# H (identity (alg_carrier F Aa))) with  (identity (H (alg_carrier F Aa))).
 
   replace (# F (identity (alg_carrier F Aa))) with (identity ( F (alg_carrier F Aa)) ).*)
