@@ -471,7 +471,7 @@ Defined.
 
 
 Lemma lifting_from_distr_law_is_lifting {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D) {F: functor C C} {G: functor D D} (H: functor C D) (lambda : DistrLaw G F H H):
-  is_lifting hsC hsD H (lifting_from_distr_law hsC hsD lambda).
+  is_lifting hsC hsD H (lifting_from_distr_law hsC hsD lambda ).
 Proof.
   unfold is_lifting.
   set (Hλ := lifting_from_distr_law hsC hsD lambda).
@@ -480,12 +480,7 @@ Proof.
   apply functor_eq.
   - assumption.
   - UniMath.MoreFoundations.Tactics.show_id_type.
-    use functor_data_eq.
-    + intro h.
-      apply idpath.
-    +  simpl.
-       intros Aa Bb f.
-       apply idpath.
+    apply idpath.
 Defined.
 
 End Liftings.
@@ -495,15 +490,109 @@ Section AdjointFolds.
 (* the conclusion of the following theorem is done after the example of [UniMath.SubstitutionSystems.GenMendlerIteration],
    and its proof should be divided in the same way *)
 
-Theorem TheoremOfHinzeAndWu {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D)
+  Local Notation "↓ f" := (mor_from_algebra_mor _ _ _ f) (at level 3, format "↓ f").
+  (* in Agda mode \downarrow *)
+
+
+Context {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D)
   {L: functor D C} {R: functor C D}  (h : are_adjoints L R) {CC: functor C C} {DD: functor D D}
   (μDD_Initial : Initial (FunctorAlg DD hsD))
   {σ: DistrLaw L L DD CC} {τ: DistrLaw DD CC R R} (hh: are_conjugates h h σ τ)
-  {B: C} (b: CC B --> B):
-  let μDD: D := alg_carrier _ (InitialObject μDD_Initial) in
-  let inDD: DD(μDD) --> μDD := alg_map _ (InitialObject μDD_Initial) in
-  iscontr (∑ x : L μDD --> B, #L inDD · x = nat_trans_data σ μDD · # CC x · b).
+  {B: C} (b: CC B --> B).
+
+Let AF := FunctorAlg DD hsD.
+Let AF' := FunctorAlg CC hsC.
+
+Definition AlgConstr (A : D) (α : DD A --> A) : AF.
 Proof.
+  exists A.
+  exact α.
+Defined.
+
+Definition AlgConstr' (A : C) (a : CC A --> A) : AF'.
+Proof.
+  exists B.
+  exact b.
+Defined.
+
+Notation "⟨ A , α ⟩" := (AlgConstr A α).
+
+Let μDD: D := alg_carrier _ (InitialObject μDD_Initial).
+Let inDD: DD(μDD) --> μDD := alg_map _ (InitialObject μDD_Initial).
+
+(*Let iter {A : D} (α : DD A --> A) : μDD --> A :=
+  ↓(InitialArrow μDD_Initial ⟨A,α⟩).*)
+
+(*Let iter' {A : D} (α : DD A --> A) : algebra_mor DD ⟨μDD,inDD⟩ ⟨A,α⟩ :=
+  InitialArrow μDD_Initial ⟨A,α⟩.*)
+
+Definition traho_of_Hinze_Wu : L μDD --> B.
+Proof.
+  set (x := φ_adj_inv h ↓(InitialArrow μDD_Initial (lifting_from_distr_law hsC hsD τ (AlgConstr' B b)))).
+  exact x.
+Defined.
+
+Lemma traho_of_Hinze_Wu_ok : #L inDD · traho_of_Hinze_Wu = nat_trans_data σ μDD · # CC traho_of_Hinze_Wu · b.
+Proof.
+  etrans.
+  apply pathsinv0.
+  use φ_adj_inv_after_φ_adj .
+  exact R.
+  exact h.
+  apply pathsinv0.
+  etrans.
+  apply pathsinv0.
+  use φ_adj_inv_after_φ_adj .
+  exact R.
+  exact h.
+  apply maponpaths.
+
+  etrans.
+  use φ_adj_natural_postcomp.
+  apply pathsinv0.
+  etrans.
+  use φ_adj_natural_precomp.
+  apply pathsinv0.
+  etrans.
+  apply cancel_postcomposition.
+  use hh .
+
+  rewrite <- assoc.
+  change (nat_trans_data τ B · # R b) with ((lifting_from_distr_law hsC hsD τ) (AlgConstr' B b)).
+
+
+
+
+
+
+  apply idpath.
+  use φ_adj_inv_after_φ_adj.
+
+
+Admitted.
+
+
+
+
+Theorem TheoremOfHinzeAndWu : iscontr (∑ x : L μDD --> B, #L inDD · x = nat_trans_data σ μDD · # CC x · b).
+Proof.
+red.
+exists (traho_of_Hinze_Wu,, traho_of_Hinze_Wu_ok).
+
+intro t.
+induction t as [x hyp].
+assert (same: x = traho_of_Hinze_Wu).
+    2: {
+      apply subtypeEquality.
+      + intro.
+        simpl.
+        apply hsC.
+      + simpl.
+        exact same.
+    }
+
+
+
 Admitted.
 
 End AdjointFolds.
