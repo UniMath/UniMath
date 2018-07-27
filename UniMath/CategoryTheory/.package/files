@@ -60,6 +60,7 @@ categories/category_hset.v
 SimplicialSets.v
 yoneda.v
 Monads/Monads.v
+Monads/KleisliCategory.v
 Monads/LModules.v
 FunctorAlgebras.v
 FunctorCoalgebras.v

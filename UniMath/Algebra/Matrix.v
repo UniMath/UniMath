@@ -303,9 +303,9 @@ Section Weighting.
 
   (** TODO: prove this so that the below isn't hypothetical *)
   Definition matrix_mult_assoc_statement : UU :=
-    ∏ {m n : nat} (mat1 : Matrix R m n)
-      {p : nat} (mat2 : Matrix R n p)
-      {q : nat} (mat3 : Matrix R p q),
+    ∏ (m n : nat) (mat1 : Matrix R m n)
+      (p : nat) (mat2 : Matrix R n p)
+      (q : nat) (mat3 : Matrix R p q),
     ((mat1 ** mat2) ** mat3) = (mat1 ** (mat2 ** mat3)).
 
   (** Lemma 1.1.2 in arXiv:1012.5857v3 *)
