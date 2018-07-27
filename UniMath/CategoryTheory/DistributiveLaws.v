@@ -518,6 +518,7 @@ Defined.
 Notation "⟨ A , α ⟩" := (AlgConstr A α).
 
 Let μDD: D := alg_carrier _ (InitialObject μDD_Initial).
+Locate InitialObject.
 Let inDD: DD(μDD) --> μDD := alg_map _ (InitialObject μDD_Initial).
 
 (*Let iter {A : D} (α : DD A --> A) : μDD --> A :=
@@ -531,6 +532,17 @@ Proof.
   set (x := φ_adj_inv h ↓(InitialArrow μDD_Initial (lifting_from_distr_law hsC hsD τ (AlgConstr' B b)))).
   exact x.
 Defined.
+
+Definition φ_adj_traho_of_Hinze_Wu : algebra_mor DD (InitialObject μDD_Initial) ((lifting_from_distr_law hsC hsD τ) (AlgConstr' B b)).
+Proof.
+  use tpair.
+  - exact (φ_adj h traho_of_Hinze_Wu).
+  - red.
+    unfold traho_of_Hinze_Wu.
+    rewrite φ_adj_after_φ_adj_inv.
+    apply algebra_mor_commutes.
+Defined.
+
 
 Lemma traho_of_Hinze_Wu_ok : #L inDD · traho_of_Hinze_Wu = nat_trans_data σ μDD · # CC traho_of_Hinze_Wu · b.
 Proof.
@@ -558,20 +570,19 @@ Proof.
   use hh .
 
   rewrite <- assoc.
-  change (nat_trans_data τ B · # R b) with ((lifting_from_distr_law hsC hsD τ) (AlgConstr' B b)).
+  (*
+  set (n := nat_trans_data τ B · # R b).
+  set (m := alg_map DD ((lifting_from_distr_law hsC hsD τ) (AlgConstr' B b))).
+  simpl in m.
+  change (nat_trans_data τ B · # R b) with m.
+   *)
+  change (nat_trans_data τ B · # R b) with
+      (alg_map DD ((lifting_from_distr_law hsC hsD τ) (AlgConstr' B b))).
+  Locate InitialArrow.
 
-
-
-
-
-
-  apply idpath.
-  use φ_adj_inv_after_φ_adj.
-
-
-Admitted.
-
-
+  apply pathsinv0.
+  apply  (algebra_mor_commutes DD _ _ φ_adj_traho_of_Hinze_Wu).
+Qed.
 
 
 Theorem TheoremOfHinzeAndWu : iscontr (∑ x : L μDD --> B, #L inDD · x = nat_trans_data σ μDD · # CC x · b).
