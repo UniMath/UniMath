@@ -181,10 +181,6 @@ Defined.
 
   Locate "×".
 
-(*
-  Definition are_conjugates {C C' D D' : precategory}  {L : functor D C} {R : functor C D} {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' } (h : are_adjoints L R) (h' : are_adjoints L' R') (σ : DistrLaw L' L K H) (τ : DistrLaw K H R R') :=
-    coprod (are_conjugates1 h h' σ τ) (are_conjugates2 h h' σ τ).
- *)
 
   Lemma isaprop_are_conjugates  {C C' D D' : precategory}  {L : functor D C} {R : functor C D} {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' } (h : are_adjoints L R) (h' : are_adjoints L' R') (σ : DistrLaw L' L K H) (τ : DistrLaw K H R R') (hs: has_homsets D') : isaprop (are_conjugates h h' σ τ).
   Proof.
@@ -273,7 +269,7 @@ Defined.
     apply pathsinv0.
     etrans.
     rewrite assoc.
-    (*
+    (* Variant:
     set (Kcompax1 := pr2 K).
     set (Kcompax2 := pr2  (pr2 K)).
     unfold is_functor in Kcompax1.
@@ -286,8 +282,8 @@ Defined.
     2: {
       set (Hτ := nat_trans_ax τ).
       change  (# R' (# H (# L f))) with ( # (H ∙ R') (#L f)).
-      (*égal par définition*)
-      (*replace (# R' (# H (# L f))) with ( # (H ∙ R') (#L f)). + preuve que l'on peut remplacer, ie trouver un chemin entre les deux *)
+      (*equals by defintion*)
+      (*replace (# R' (# H (# L f))) with ( # (H ∙ R') (#L f)). + proof that we can replace, ie find a path between the two*)
       rewrite <- assoc.
       apply cancel_precomposition.
       (*exact (Hτ _ _ _).*)
@@ -306,12 +302,6 @@ Defined.
     set (Hη := nat_trans_ax (unit_from_are_adjoints h)).
     apply Hη.
   Defined.
-
-  (*Definition σ_data_from_τ_from_σ_from_τ {C C' D D' : precategory}  {L : functor D C} {R : functor C D} {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' } (h : are_adjoints L R) (h' : are_adjoints L' R') (τ : DistrLaw K H R R') :
-    DistrLaw_data_type L' L K H
-    := pr1 (σ_from_τ h h' τ).*)
- (*
-Coercion σ_data_from_τ_from_σ_from_τ {C C' D D' : precategory}  {L : functor D C} {R : functor C D} {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' } (h : are_adjoints L R) (h' : are_adjoints L' R') (τ : DistrLaw K H R R') (σ : (σ_from_τ h h' τ)) := pr1 σ.*)
 
 
 Lemma σ_from_τ_is_conjugate {C C' D D' : precategory}  {L : functor D C} {R : functor C D} {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' } (h : are_adjoints L R) (h' : are_adjoints L' R') (hs : has_homsets C') (τ : DistrLaw K H R R') : are_conjugates' h h' (σ_from_τ h h' τ) τ.
@@ -591,7 +581,8 @@ Lemma lemma1 (x : C ⟦ L μDD, B ⟧) : (# DD (φ_adj h x) · alg_map DD
   inDD · φ_adj h x) -> (φ_adj h x =
                        ↓ (InitialArrow μDD_Initial ((lifting_from_distr_law hsC hsD τ) (AlgConstr' B b)))).
 Proof.
-  Admitted.
+
+Admitted.
 
 
 Theorem TheoremOfHinzeAndWu : iscontr (∑ x : L μDD --> B, #L inDD · x = nat_trans_data σ μDD · # CC x · b).
@@ -657,6 +648,6 @@ assert (same: x = traho_of_Hinze_Wu).
     apply pathsinv0.
     exact hyp.
 
-Admitted.
+Defined.
 
 End AdjointFolds.
