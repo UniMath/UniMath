@@ -585,6 +585,15 @@ Proof.
 Qed.
 
 
+Lemma lemma1 (x : C ⟦ L μDD, B ⟧) : (# DD (φ_adj h x) · alg_map DD
+                                       ((lifting_from_distr_law hsC hsD τ)
+                                          (AlgConstr' B b)) =
+  inDD · φ_adj h x) -> (φ_adj h x =
+                       ↓ (InitialArrow μDD_Initial ((lifting_from_distr_law hsC hsD τ) (AlgConstr' B b)))).
+Proof.
+  Admitted.
+
+
 Theorem TheoremOfHinzeAndWu : iscontr (∑ x : L μDD --> B, #L inDD · x = nat_trans_data σ μDD · # CC x · b).
 Proof.
 red.
@@ -602,7 +611,51 @@ assert (same: x = traho_of_Hinze_Wu).
         exact same.
     }
 
+    etrans.
+    apply pathsinv0.
+    apply (φ_adj_inv_after_φ_adj h).
+    etrans.
+    2: {
+      apply (φ_adj_inv_after_φ_adj h).
+    }
+    apply maponpaths.
+    unfold traho_of_Hinze_Wu.
+    rewrite (φ_adj_after_φ_adj_inv h).
 
+    (*
+    eapply pathscomp0 in hyp.
+    2: {
+      use (φ_adj_inv_after_φ_adj h).
+    }
+    apply pathsinv0 in hyp.
+    eapply pathscomp0 in hyp.
+    2: {
+      use (φ_adj_inv_after_φ_adj h).
+    }
+     *)
+
+    (*
+    apply (@maponpaths _ _ (φ_adj_inv h) (φ_adj h (nat_trans_data σ μDD · # CC x · b)) (φ_adj h (# L inDD · x))) in hyp.
+     *)
+    apply lemma1.
+    simpl.
+
+    etrans.
+    rewrite assoc.
+    apply cancel_postcomposition.
+    apply pathsinv0.
+    apply hh.
+
+    etrans.
+    apply pathsinv0.
+    apply φ_adj_natural_postcomp.
+    etrans.
+    2 : {
+      apply φ_adj_natural_precomp.
+    }
+    apply maponpaths.
+    apply pathsinv0.
+    exact hyp.
 
 Admitted.
 
