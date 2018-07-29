@@ -581,6 +581,22 @@ Lemma lemma1 (x : C ⟦ L μDD, B ⟧) : (# DD (φ_adj h x) · alg_map DD
   inDD · φ_adj h x) -> (φ_adj h x =
                        ↓ (InitialArrow μDD_Initial ((lifting_from_distr_law hsC hsD τ) (AlgConstr' B b)))).
 Proof.
+  intro e.
+  apply pathsinv0 in e.
+
+  (* TO ADAPT FROM GenMendleriteration :
+
+  use (let X : AF ⟦ InitialObject μF_Initial, ⟨ R X, φ (ψ (R X) (ε X)) ⟩ ⟧ := _ in _)
+  * apply (tpair _ (φ h)). assumption.
+  * apply (maponpaths pr1 (InitialArrowUnique _ _ X0)).
+
+  *)
+
+
+  (*
+  apply (algebra_mor_commutes DD (InitialObject μDD_Initial) ((lifting_from_distr_law hsC hsD τ) (AlgConstr' B b)) (φ_adj h x)) in e.
+  set (traho :=  ((φ_adj h x),, e)).
+   *)
 
 Admitted.
 
