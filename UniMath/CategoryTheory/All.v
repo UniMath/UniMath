@@ -11,7 +11,6 @@ Require Export UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Export UniMath.CategoryTheory.ProductCategory.
 Require Export UniMath.CategoryTheory.whiskering.
 Require Export UniMath.CategoryTheory.Adjunctions.
-Require Export UniMath.CategoryTheory.DistributiveLaws.
 Require Export UniMath.CategoryTheory.equivalences.
 Require Export UniMath.CategoryTheory.equivalences_lemmas.
 Require Export UniMath.CategoryTheory.Subcategory.Core.
@@ -70,6 +69,7 @@ Require Export UniMath.CategoryTheory.precomp_ess_surj.
 Require Export UniMath.CategoryTheory.rezk_completion.
 Require Export UniMath.CategoryTheory.EquivalencesExamples.
 Require Export UniMath.CategoryTheory.EndofunctorsMonoidal.
+Require Export UniMath.CategoryTheory.DistributiveLaws.
 Require Export UniMath.CategoryTheory.PointedFunctors.
 Require Export UniMath.CategoryTheory.HorizontalComposition.
 Require Export UniMath.CategoryTheory.PointedFunctorsComposition.
