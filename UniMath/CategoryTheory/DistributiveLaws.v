@@ -283,7 +283,7 @@ Defined.
       set (Hτ := nat_trans_ax τ).
       change  (# R' (# H (# L f))) with ( # (H ∙ R') (#L f)).
       (*equals by defintion*)
-      (*replace (# R' (# H (# L f))) with ( # (H ∙ R') (#L f)). + proof that we can replace, ie find a path between the two*)
+      (*Variant : replace (# R' (# H (# L f))) with ( # (H ∙ R') (#L f)). + proof that we can replace, ie find a path between the two*)
       rewrite <- assoc.
       apply cancel_precomposition.
       (*exact (Hτ _ _ _).*)
@@ -339,6 +339,8 @@ Qed.
 Definition τ_data_from_σ {C C' D D' : precategory}  {L : functor D C} {R : functor C D} {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' } (h : are_adjoints L R) (h' : are_adjoints L' R') (σ : DistrLaw L' L K H) : DistrLaw_data_type K H R R'
   :=
     λ B : C, φ_adj h' (nat_trans_data σ (R B) · #H (counit_from_are_adjoints h B)).
+
+(* Proofs that τ_data_from_σ is a distributive law, and that τ_from_σ and σ are conjugates are left to the reader. *)
 
 
 End Conjugates.
@@ -493,11 +495,6 @@ Context {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D)
 Let AF := FunctorAlg DD hsD.
 Let AF' := FunctorAlg CC hsC.
 
-Definition AlgConstr (A : D) (α : DD A --> A) : AF.
-Proof.
-  exists A.
-  exact α.
-Defined.
 
 Definition AlgConstr' (A : C) (a : CC A --> A) : AF'.
 Proof.
@@ -505,17 +502,10 @@ Proof.
   exact b.
 Defined.
 
-Notation "⟨ A , α ⟩" := (AlgConstr A α).
-
 Let μDD: D := alg_carrier _ (InitialObject μDD_Initial).
 Locate InitialObject.
 Let inDD: DD(μDD) --> μDD := alg_map _ (InitialObject μDD_Initial).
 
-(*Let iter {A : D} (α : DD A --> A) : μDD --> A :=
-  ↓(InitialArrow μDD_Initial ⟨A,α⟩).*)
-
-(*Let iter' {A : D} (α : DD A --> A) : algebra_mor DD ⟨μDD,inDD⟩ ⟨A,α⟩ :=
-  InitialArrow μDD_Initial ⟨A,α⟩.*)
 
 Definition traho_of_Hinze_Wu : L μDD --> B.
 Proof.
@@ -574,31 +564,34 @@ Proof.
   apply  (algebra_mor_commutes DD _ _ φ_adj_traho_of_Hinze_Wu).
 Qed.
 
-
-Lemma lemma1 (x : C ⟦ L μDD, B ⟧) : (# DD (φ_adj h x) · alg_map DD
+Definition φ_adj_h_x (x : C ⟦ L μDD, B ⟧)(Hyp: # DD (φ_adj h x) · alg_map DD
                                        ((lifting_from_distr_law hsC hsD τ)
-                                          (AlgConstr' B b)) =
-  inDD · φ_adj h x) -> (φ_adj h x =
-                       ↓ (InitialArrow μDD_Initial ((lifting_from_distr_law hsC hsD τ) (AlgConstr' B b)))).
+                                          (AlgConstr' B b)) = inDD · φ_adj h x):
+
+  algebra_mor DD (InitialObject μDD_Initial) ((lifting_from_distr_law hsC hsD τ) (AlgConstr' B b)).
 Proof.
-  intro e.
-  apply pathsinv0 in e.
+  use tpair.
+  - exact (φ_adj h x).
+  - red.
+    apply pathsinv0.
+    apply Hyp.
+Defined.
 
-  (* TO ADAPT FROM GenMendleriteration :
+Lemma φ_adj_h_x_equals_initial_arrow (x : C ⟦ L μDD, B ⟧) : (# DD (φ_adj h x) · alg_map DD
+                                       ((lifting_from_distr_law hsC hsD τ)
+                                          (AlgConstr' B b)) = inDD · φ_adj h x) ->
 
-  use (let X : AF ⟦ InitialObject μF_Initial, ⟨ R X, φ (ψ (R X) (ε X)) ⟩ ⟧ := _ in _)
-  * apply (tpair _ (φ h)). assumption.
-  * apply (maponpaths pr1 (InitialArrowUnique _ _ X0)).
-
-  *)
-
-
-  (*
-  apply (algebra_mor_commutes DD (InitialObject μDD_Initial) ((lifting_from_distr_law hsC hsD τ) (AlgConstr' B b)) (φ_adj h x)) in e.
-  set (traho :=  ((φ_adj h x),, e)).
-   *)
-
-Admitted.
+ φ_adj h x = ↓ (InitialArrow μDD_Initial ((lifting_from_distr_law hsC hsD τ) (AlgConstr' B b))).
+Proof.
+  intro Hyp.
+  set (aux := InitialArrowUnique μDD_Initial _ (φ_adj_h_x x Hyp)).
+  (* UniMath.MoreFoundations.Tactics.show_id_type. *)
+  set (aux' := mor_from_algebra_mor _ _ _ (φ_adj_h_x x Hyp)).
+  simpl in aux'.
+  change (φ_adj h x) with (mor_from_algebra_mor _ _ _ (φ_adj_h_x x Hyp)).
+  rewrite aux.
+  apply idpath.
+Qed.
 
 
 Theorem TheoremOfHinzeAndWu : iscontr (∑ x : L μDD --> B, #L inDD · x = nat_trans_data σ μDD · # CC x · b).
@@ -629,22 +622,7 @@ assert (same: x = traho_of_Hinze_Wu).
     unfold traho_of_Hinze_Wu.
     rewrite (φ_adj_after_φ_adj_inv h).
 
-    (*
-    eapply pathscomp0 in hyp.
-    2: {
-      use (φ_adj_inv_after_φ_adj h).
-    }
-    apply pathsinv0 in hyp.
-    eapply pathscomp0 in hyp.
-    2: {
-      use (φ_adj_inv_after_φ_adj h).
-    }
-     *)
-
-    (*
-    apply (@maponpaths _ _ (φ_adj_inv h) (φ_adj h (nat_trans_data σ μDD · # CC x · b)) (φ_adj h (# L inDD · x))) in hyp.
-     *)
-    apply lemma1.
+    apply φ_adj_h_x_equals_initial_arrow.
     simpl.
 
     etrans.
