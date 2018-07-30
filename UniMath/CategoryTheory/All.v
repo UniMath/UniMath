@@ -11,7 +11,6 @@ Require Export UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Export UniMath.CategoryTheory.ProductCategory.
 Require Export UniMath.CategoryTheory.whiskering.
 Require Export UniMath.CategoryTheory.Adjunctions.
-Require Export UniMath.CategoryTheory.DistributiveLaws.
 Require Export UniMath.CategoryTheory.equivalences.
 Require Export UniMath.CategoryTheory.equivalences_lemmas.
 Require Export UniMath.CategoryTheory.Subcategory.Core.
