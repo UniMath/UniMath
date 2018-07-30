@@ -338,7 +338,7 @@ Proof.
   simpl.
   apply BinCoproductArrow.
   + exact (BinCoproductIn1 _ _ ·
-           nat_trans_data (pr2 (pr2 XZ)) (BinCoproductObject C (CC (TerminalObject terminal) A))).
+           nat_trans_data_from_nat_trans (pr2 (pr2 XZ)) (BinCoproductObject C (CC (TerminalObject terminal) A))).
   + exact (# (pr1 (pr2 XZ)) (BinCoproductIn2 _ (CC (TerminalObject terminal) A))).
 Defined.
 

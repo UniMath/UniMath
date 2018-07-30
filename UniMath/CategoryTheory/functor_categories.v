@@ -875,20 +875,22 @@ Definition is_in_img_functor {C D : precategory_data} (F : functor C D)
 Definition sub_img_functor {C D : precategory_data}(F : functor C D) :
     hsubtype (ob D) :=
        λ d : ob D, is_in_img_functor F d.
+
 (** * Natural transformations *)
 Section nat_trans.
 
-(** ** Definition of natural transformations *)
+  (** ** Definition of natural transformations *)
+
+Definition nat_trans_data {C C' : precategory_data} (F F' : functor_data C C'): UU :=
+  ∏ x : ob C, F x -->  F' x.
 
 Definition is_nat_trans {C C' : precategory_data}
-  (F F' : functor_data C C')
-  (t : ∏ x : ob C, F x -->  F' x) :=
-  ∏ (x x' : ob C)(f : x --> x'),
-    # F f · t x' = t x · #F' f.
+  (F F' : functor_data C C') (t : nat_trans_data F F') :=
+  ∏ (x x' : ob C)(f : x --> x'), # F f · t x' = t x · #F' f.
 
 
 Lemma isaprop_is_nat_trans (C C' : precategory_data) (hs: has_homsets C')
-  (F F' : functor_data C C') (t : ∏ x : ob C, F x -->  F' x):
+  (F F' : functor_data C C') (t : nat_trans_data F F'):
   isaprop (is_nat_trans F F' t).
 Proof.
   repeat (apply impred; intro).
@@ -896,14 +898,14 @@ Proof.
 Qed.
 
 Definition nat_trans {C C' : precategory_data} (F F' : functor_data C C') : UU :=
-  total2 (fun t : ∏ x : ob C, F x -->  F' x => is_nat_trans F F' t).
+  total2 (fun t : nat_trans_data F F' => is_nat_trans F F' t).
 
 Notation "F ⟹ G" := (nat_trans F G) (at level 39) : cat.
 (* to input: type "\==>" with Agda input method *)
 
 (** Note that this makes the second component opaque for efficiency reasons *)
 Definition mk_nat_trans {C C' : precategory_data} (F F' : functor_data C C')
-           (t : ∏ x : ob C, F x --> F' x) (H : is_nat_trans F F' t) :
+           (t : nat_trans_data F F') (H : is_nat_trans F F' t) :
            nat_trans F F'.
 Proof.
 exists t.
@@ -918,10 +920,14 @@ Proof.
   + intro x; apply isasetaprop, isaprop_is_nat_trans, hs.
 Qed.
 
-Definition nat_trans_data {C C' : precategory_data}
- {F F' : functor_data C C'}(a : nat_trans F F') :
-   ∏ x : ob C, F x --> F' x := pr1 a.
-Coercion nat_trans_data : nat_trans >-> Funclass.
+Definition nat_trans_data_from_nat_trans {C C' : precategory_data}
+  {F F' : functor_data C C'}(a : nat_trans F F') :
+  nat_trans_data F F' := pr1 a.
+
+Definition nat_trans_data_from_nat_trans_funclass {C C' : precategory_data}
+  {F F' : functor_data C C'}(a : nat_trans F F') :
+  ∏ x : ob C, F x -->  F' x := pr1 a.
+Coercion nat_trans_data_from_nat_trans_funclass : nat_trans >-> Funclass.
 
 Definition nat_trans_ax {C C' : precategory_data}
   {F F' : functor_data C C'} (a : nat_trans F F') :

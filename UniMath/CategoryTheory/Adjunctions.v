@@ -351,7 +351,7 @@ Defined.
 Local Definition counit :  nat_trans (functor_composite G F) (functor_identity A).
 Proof.
   use tpair.
-  * apply eps.
+  * red. apply eps.
   * abstract (intros a b f; simpl; apply (pathsinv0 (pr2 (pr1 (Huniv b (G0 a) (eps a · f)))))).
 Defined.
 
@@ -454,7 +454,7 @@ Defined.
 Local Definition unit_left_from_partial : functor_identity X ⟹ functor_composite F G.
 Proof.
   use tpair.
-  * apply eta.
+  * red. apply eta.
   * abstract (intros a b f; simpl; apply (pathsinv0 (pr2 (pr1 (Huniv _ _  (f · eta _ )))))).
 Defined.
 
@@ -512,7 +512,7 @@ Proof.
   use tpair.
   - split.
     + use mk_nat_trans.
-      * simpl; intros F'.
+      * simpl; intros F'. simpl in F'.
         apply (nat_trans_comp _ _ _
                               (nat_trans_comp _ _ _ (nat_trans_functor_id_right_inv F')
                                               (pre_whisker F' η))
@@ -520,7 +520,7 @@ Proof.
       * abstract (intros F1 F2 α; apply (nat_trans_eq hsD); intro c; simpl in *;
                     now rewrite !id_right, !id_left; apply (nat_trans_ax η (F1 c) _ (α c))).
     + use mk_nat_trans.
-      * simpl; intros F'.
+      * simpl; intros F'. simpl in F'.
         apply (nat_trans_comp _ _ _
                               (nat_trans_functor_assoc _ _ _)
                               (nat_trans_comp _ _ _ (pre_whisker F' ε)

@@ -161,6 +161,30 @@ Proof.
   assumption.
 Qed.
 
+
+(** forgetful functor from FunctorAlg to its underlying category *)
+
+(* first step of definition *)
+Definition forget_algebras_data (hsC: has_homsets C): functor_data (FunctorAlg hsC) C.
+Proof.
+  set (onobs := fun alg : FunctorAlg hsC => alg_carrier alg).
+  apply (mk_functor_data onobs).
+  intros alg1 alg2 m.
+  simpl in m.
+  exact (mor_from_algebra_mor _ _ m).
+Defined.
+
+(* the forgetful functor *)
+Definition forget_algebras (hsC: has_homsets C): functor (FunctorAlg hsC) C.
+Proof.
+  apply (mk_functor (forget_algebras_data hsC)).
+  red.
+  split; red.
+  - intro alg. apply idpath.
+  - intros alg1 alg2 alg3 m n. apply idpath.
+Defined.
+
+
 (** ** This category is saturated if the base category is  *)
 
 Section FunctorAlg_saturated.
