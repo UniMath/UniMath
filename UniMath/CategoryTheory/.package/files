@@ -9,7 +9,6 @@ PrecategoryBinProduct.v
 ProductCategory.v
 whiskering.v
 Adjunctions.v
-DistributiveLaws.v
 equivalences.v
 equivalences_lemmas.v
 Subcategory/Core.v
@@ -69,6 +68,7 @@ precomp_ess_surj.v
 rezk_completion.v
 EquivalencesExamples.v
 EndofunctorsMonoidal.v
+DistributiveLaws.v
 PointedFunctors.v
 HorizontalComposition.v
 PointedFunctorsComposition.v
