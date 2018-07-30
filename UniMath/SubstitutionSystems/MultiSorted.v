@@ -587,7 +587,7 @@ use tpair.
   - apply proj_gen_fun.
   - intros d1 d2 f.
     use tpair.
-    * simpl; intro F; apply (# F f).
+    * red; simpl; intro F; apply (# F f).
     * abstract (intros F G α; simpl in *; apply pathsinv0, (nat_trans_ax α d1 d2 f)).
 + abstract (split;
   [ intros F; simpl; apply nat_trans_eq; [apply homset_property|]; intro G; simpl; apply functor_id
@@ -631,7 +631,7 @@ use tpair.
 + apply (option_fun s).
 + cbn. intros F G α.
   use tpair.
-  * simpl; intro t.
+  * red; simpl; intro t.
     induction (eq s t) as [p|p]; simpl; clear p.
     { apply (BinCoproductOfArrows _ _ _ (α t) (identity _)). }
     { apply α. }
