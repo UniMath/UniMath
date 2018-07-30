@@ -23,13 +23,12 @@ Variable H : functor C' C.
 Variable K : functor D' D.
 *)
 
-   Definition DistrLaw {C C' D D' : precategory} (F : functor C D) (F' :
-functor C' D') (H : functor C' C) (K : functor D' D) : UU := nat_trans
-(functor_composite H F) (functor_composite F' K).
+Definition DistrLaw {C C' D D' : precategory} (F : functor C D) (F' : functor C' D')
+  (H : functor C' C) (K : functor D' D) : UU :=
+  nat_trans (H ∙ F) (F' ∙ K).
 
-Definition DistrLaw_data_type {C C' D D' : precategory} (F : functor C
-D) (F' : functor C' D') (H : functor C' C) (K : functor D' D) : UU :=  ∏
-x : ob C', (functor_composite H F) x --> (functor_composite F' K) x.
+Definition DistrLaw_data_type {C C' D D' : precategory} (F : functor C D) (F' : functor C' D') (H : functor C' C) (K : functor D' D) : UU :=  ∏
+x : ob C', (H ∙ F) x --> (F' ∙ K) x.
 
 
 Definition is_distr_law {C C' D D' : precategory} (F : functor C D) (F'
@@ -46,7 +45,7 @@ Section OperationsDistrLaws.
 functor C D} {F' : functor C' D'}  {F'' : functor C'' D''} {H : functor
 C' C} {H' : functor C'' C'} {K : functor D' D} {K' : functor D'' D'}
 (lambda : DistrLaw F F' H K) (lambda' : DistrLaw F' F'' H' K') :
-DistrLaw F F'' (functor_composite H' H ) (functor_composite K' K).
+DistrLaw F F'' (H' ∙ H ) (K' ∙ K).
    Proof.
      red.
      apply (nat_trans_comp _ _ _ (α_functor _ _ _)).
