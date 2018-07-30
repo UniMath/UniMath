@@ -18,17 +18,15 @@ Section DefDistrLaw.
 Context {C C' D D' : precategory} (F : functor C D) (F' : functor C' D')
           (H : functor C' C) (K : functor D' D).
 
-Definition DistrLaw (* {C C' D D' : precategory} (F : functor C D) (F' : functor C' D')
+(** the definition of Hinze and Wu - no other laws required for being considered a distributive law *)
+Definition DistrLaw (*{C C' D D' : precategory} (F : functor C D) (F' : functor C' D')
   (H : functor C' C) (K : functor D' D)*) : UU :=
   nat_trans (H ∙ F) (F' ∙ K).
 
+(** a small help for later type-checking *)
 Definition DistrLaw_data (*{C C' D D' : precategory} (F : functor C D) (F' : functor C' D')
   (H : functor C' C) (K : functor D' D)*) : UU :=
   nat_trans_data (H ∙ F) (F' ∙ K).
-
-Definition DistrLaw_ax (*{C C' D D' : precategory} (F : functor C D) (F' : functor C' D')
-  (H : functor C' C) (K : functor D' D)*) (t : DistrLaw_data ) : UU :=
-  is_nat_trans _ _ t.
 
 End DefDistrLaw.
 
