@@ -5,7 +5,7 @@ Under the supervision of Ralph Matthes
 Work on the paper
 HINZE, R. and WU, N., 2016. Unifying structured recursion schemes. Journal of Functional Programming, 26.
 
-THe purpose of this file is to formulate in UniMath the recursion scheme presented by Hinze and Wu, with an original approach making use of conjugates. *)
+THe purpose of this file is to formulate in UniMath the recursion scheme presented by Hinze and Wu, with an original approach making use of liftings and conjugates. *)
 
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Categories.
@@ -77,11 +77,11 @@ Proof.
   repeat rewrite id_right.
   set (aux1 := nat_trans_ax lambda).
   (*rewrite <- assoc.*)
-  (*début variante à rewrite assoc*)
+  (*Beginning of variant to : rewrite assoc*)
   eapply pathscomp0. (*etrans.*)
   { apply pathsinv0.
     apply assoc.
-    (*fin variante rewrite*)
+    (*End of variant to rewrite*)
   }
   apply cancel_precomposition.
   apply pathsinv0.
@@ -416,8 +416,6 @@ Proof.
   exact (UF ∙ H = HH ∙ UG).
 Defined.
 
-Print FunctorAlg.
-
 Definition lifting_from_distr_law_data {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D) {F: functor C C} {G: functor D D} {H: functor C D} (lambda : DistrLaw G F H H): functor_data (FunctorAlg F hsC) (FunctorAlg G hsD).
 Proof.
   use mk_functor_data.
@@ -482,7 +480,7 @@ Proof.
     simpl.
     UniMath.MoreFoundations.Tactics.show_id_type.
     apply algebra_mor_eq.
-    Locate algebra_mor_eq.
+    (*Locate algebra_mor_eq.*)
     + assumption.
     + simpl.
       apply functor_id.
@@ -506,7 +504,7 @@ Proof.
   unfold is_lifting.
   set (Hλ := lifting_from_distr_law hsC hsD lambda).
   (*UniMath.MoreFoundations.Tactics.show_id_type.*)
-  Locate "⟶".
+  (*Locate "⟶".*)
   apply functor_eq.
   - assumption.
   - UniMath.MoreFoundations.Tactics.show_id_type.
@@ -595,7 +593,7 @@ Proof.
    *)
   change (nat_trans_data_from_nat_trans τ B · # R b) with
       (alg_map DD ((lifting_from_distr_law hsC hsD τ) (AlgConstr B b))).
-  Locate InitialArrow.
+  (*Locate InitialArrow.*)
 
   apply pathsinv0.
   apply  (algebra_mor_commutes DD _ _ φ_adj_traho_of_Hinze_Wu).
