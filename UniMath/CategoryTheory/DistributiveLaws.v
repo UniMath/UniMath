@@ -1,6 +1,11 @@
 (** Author : Hichem Saghrouni
 Internship at IRIT, 2018
-Under the supervision of Ralph Matthes *)
+Under the supervision of Ralph Matthes
+
+Work on the paper
+HINZE, R. and WU, N., 2016. Unifying structured recursion schemes. Journal of Functional Programming, 26.
+
+THe purpose of this file is to formulate in UniMath the recursion scheme presented by Hinze and Wu, with an original approach making use of conjugates. *)
 
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Categories.
