@@ -3,9 +3,12 @@ Internship at IRIT, 2018
 Under the supervision of Ralph Matthes
 
 Work on the paper
-HINZE, R. and WU, N., 2016. Unifying structured recursion schemes. Journal of Functional Programming, 26.
+HINZE, R. and WU, N., 2016. Unifying structured recursion schemes: An Extended Study. Journal of Functional Programming, vol. 26, https://doi.org/10.1017/S0956796815000258.
 
-THe purpose of this file is to formulate in UniMath the recursion scheme presented by Hinze and Wu, with an original approach making use of liftings and conjugates. *)
+The purpose of this file is to formulate in UniMath the recursion scheme presented by Hinze and Wu, with an original approach making use of liftings and conjugates.
+
+It is based on what they call distributive laws, which are plainly natural transformations between compositions of functors.
+*)
 
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Categories.
@@ -201,7 +204,7 @@ Defined.
   Print φ_adj.
   Print Adjunctions.φ_adj. *)
 
-(* Condition 3.11a *)
+(* Condition 3.11a in Hinze & Wu *)
 Definition are_conjugates {C C' D D' : precategory} {L : functor D C} {R : functor C D}
            {L' : functor D' C'} {R' : functor C' D'}{H : functor C C'} {K : functor D D' }
            (h : are_adjoints L R) (h' : are_adjoints L' R')
@@ -209,7 +212,7 @@ Definition are_conjugates {C C' D D' : precategory} {L : functor D C} {R : funct
   ∏ (A : D) (B : C) (f : (L A) --> B),
   φ_adj h' (nat_trans_data_from_nat_trans σ A · #H f) = #K (φ_adj h f) · nat_trans_data_from_nat_trans τ B.
 
-(* Condition 3.11b *)
+(* Condition 3.11b in Hinze & Wu *)
 Definition are_conjugates' {C C' D D' : precategory} {L : functor D C} {R : functor C D}
            {L' : functor D' C'} {R' : functor C' D'}  {H : functor C C'} {K : functor D D' }
            (h : are_adjoints L R) (h' : are_adjoints L' R')
@@ -626,7 +629,7 @@ Proof.
   apply idpath.
 Qed.
 
-
+(** The following formalizes Theorem 5.2 (Adjoint folds) of Hinze and Wu. *)
 Theorem TheoremOfHinzeAndWu :
   iscontr (∑ x : L μDD --> B, #L inDD · x = nat_trans_data_from_nat_trans σ μDD · # CC x · b).
 Proof.
