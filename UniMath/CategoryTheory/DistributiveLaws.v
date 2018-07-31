@@ -8,11 +8,11 @@ HINZE, R. and WU, N., 2016. Unifying structured recursion schemes: An Extended S
 The purpose of this file is to formulate in UniMath the recursion scheme presented by Hinze and Wu, with an original approach making use of liftings and conjugates.
 
 We introduce the notions of
-- Distributive Laws, which are plainly natural transformations between compositions of functors
-- Conjugates, which are distributive laws bound by certain identities (found in this document)
-- Liftings, which constitute a certain type of functors between F-Algebras
+- Distributive Laws, which are natural transformations between compositions of functors
+- Conjugates, which induce a binary relation between distributive laws, defined by certain identities found in this document
+- Liftings, which constitute a specific type of functors between F-Algebras
 
-We finally use these notions to prove the Theorem of Hinze and Wu (Found under "Theorem 5.2 (Adjoint folds)" in their paper). *)
+We finally use these constructions to reprove the Theorem of Hinze and Wu (Found under "Theorem 5.2 (Adjoint folds)" in their paper). *)
 
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Categories.
