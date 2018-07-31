@@ -12,7 +12,7 @@ We introduce the notions of
 - Conjugates, which induce a binary relation between distributive laws, defined by certain identities found in this document
 - Liftings, which constitute a specific type of functors between F-Algebras
 
-We finally use these constructions to reprove the Theorem of Hinze and Wu (Found under "Theorem 5.2 (Adjoint folds)" in their paper). *)
+We finally use these constructions to reprove the Theorem of Hinze and Wu formally (Found under "Theorem 5.2 (Adjoint folds)" in their paper). *)
 
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Categories.
