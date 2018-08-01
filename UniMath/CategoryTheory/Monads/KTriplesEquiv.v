@@ -122,7 +122,7 @@ Defined.
 (* ----- Kleisli associated to a Monad. ----- *)
 
 Definition Monad_Kleisli_data {C : precategory} (M : Monad_data C) : Kleisli_Data M :=
-  nat_trans_data (Monads.η M),, (λ (a b : C) (f : a --> M b), (Monads.μ M) b ∘ # M f).
+  (Monads.η M: nat_trans_data _ _),, (λ (a b : C) (f : a --> M b), (Monads.μ M) b ∘ # M f).
 
 Lemma Monad_Kleisli_laws {C : precategory} (M : Monad C) :
   Kleisli_Laws (Monad_Kleisli_data M).

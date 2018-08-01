@@ -68,6 +68,7 @@ precomp_ess_surj.v
 rezk_completion.v
 EquivalencesExamples.v
 EndofunctorsMonoidal.v
+CategoricalRecursionSchemes.v
 PointedFunctors.v
 HorizontalComposition.v
 PointedFunctorsComposition.v

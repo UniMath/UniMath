@@ -61,6 +61,7 @@ Require Export UniMath.CategoryTheory.categories.category_hset.
 Require Export UniMath.CategoryTheory.SimplicialSets.
 Require Export UniMath.CategoryTheory.yoneda.
 Require Export UniMath.CategoryTheory.Monads.Monads.
+Require Export UniMath.CategoryTheory.Monads.KleisliCategory.
 Require Export UniMath.CategoryTheory.Monads.LModules.
 Require Export UniMath.CategoryTheory.FunctorAlgebras.
 Require Export UniMath.CategoryTheory.FunctorCoalgebras.
@@ -69,6 +70,7 @@ Require Export UniMath.CategoryTheory.precomp_ess_surj.
 Require Export UniMath.CategoryTheory.rezk_completion.
 Require Export UniMath.CategoryTheory.EquivalencesExamples.
 Require Export UniMath.CategoryTheory.EndofunctorsMonoidal.
+Require Export UniMath.CategoryTheory.CategoricalRecursionSchemes.
 Require Export UniMath.CategoryTheory.PointedFunctors.
 Require Export UniMath.CategoryTheory.HorizontalComposition.
 Require Export UniMath.CategoryTheory.PointedFunctorsComposition.
