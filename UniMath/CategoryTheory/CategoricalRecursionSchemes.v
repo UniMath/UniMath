@@ -2,23 +2,31 @@
 Internship at IRIT, 2018
 Under the supervision of Ralph Matthes
 
+Later continued by Ralph Matthes (R.M.), see the end of this comment.
+
 Work on the paper
 HINZE, R. and WU, N., 2016. Unifying structured recursion schemes: An Extended Study. Journal of Functional Programming, vol. 26, https://doi.org/10.1017/S0956796815000258.
 
-The purpose of this file is to formalize in UniMath the recursion scheme 
-presented by Hinze and Wu, with their original approach making use of 
+The purpose of this file is to formalize in UniMath the recursion scheme
+presented by Hinze and Wu, with their original approach making use of
 liftings and conjugates.
 
 For this, we formalize the notions of
-- Distributive Laws, which are natural transformations between 
+- Distributive Laws, which are natural transformations between
 compositions of functors
-- Conjugates, which induce a binary relation between distributive laws, 
+- Conjugates, which induce a binary relation between distributive laws,
 defined by certain identities found in this document
 - Liftings, which constitute a specific type of functors between F-Algebras
 
-These constructions finally allow us to follow the proof by Hinze and Wu 
-of their theorem (found under "Theorem 5.2 (Adjoint folds)" in their 
-paper) and thus reprove it formally. *)
+These constructions finally allow us to follow the proof by Hinze and Wu
+of their theorem (found under "Theorem 5.2 (Adjoint folds)" in their
+paper) and thus reprove it formally.
+
+
+Added by R.M.: how canonically defined liftings compose
+
+
+*)
 
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Categories.
@@ -523,6 +531,39 @@ Proof.
   - UniMath.MoreFoundations.Tactics.show_id_type.
     apply idpath.
 Defined.
+
+
+Lemma liftings_from_distr_laws_compose {C C' C'': precategory} (hsC: has_homsets C) (hsC': has_homsets C') (hsC'': has_homsets C'') {F: functor C C} {F': functor C' C'} {F'': functor C'' C''} {H: functor C C'} {H': functor C' C''} (lambda : DistrLaw F' F H H)(lambda' : DistrLaw F'' F' H' H'): lifting_from_distr_law hsC hsC' lambda ∙ lifting_from_distr_law hsC' hsC'' lambda' = lifting_from_distr_law hsC hsC'' (H := H ∙ H') (comp_distr_laws lambda' lambda).
+Proof.
+  (* UniMath.MoreFoundations.Tactics.show_id_type. *)
+  apply functor_eq.
+  { apply (has_homsets_FunctorAlg _ hsC''). }
+  simpl.
+  (* UniMath.MoreFoundations.Tactics.show_id_type. *)
+  use functor_data_eq.
+  - intro alg.
+    simpl.
+    UniMath.MoreFoundations.Tactics.show_id_type.
+    use total2_paths2_f.
+    + apply idpath.
+    + rewrite idpath_transportf.
+      repeat rewrite id_left.
+      rewrite id_right.
+      induction alg as [A α].
+      simpl.
+      rewrite <- assoc.
+      apply maponpaths.
+      apply functor_comp.
+  - intros alg1 alg2 m.
+    (* UniMath.MoreFoundations.Tactics.show_id_type. *)
+    apply algebra_mor_eq.
+    { assumption. }
+    simpl.
+    UniMath.MoreFoundations.Tactics.show_id_type.
+    induction alg1 as [A1 α1].
+    induction alg2 as [A2 α2].
+    (* total failure ! *)
+Abort.
 
 End Liftings.
 
