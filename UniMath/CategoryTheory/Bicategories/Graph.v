@@ -44,9 +44,7 @@ Definition graph_mor_comp {G1 G2 G3 : pregraph} (f : graph_mor G1 G2) (g : graph
 Definition graph_mor_eq G1 G2 (f g : graph_mor G1 G2)
       (e0 : ∏ a, f a = g a)
       (e1 : ∏ a b (p : edge G1 a b),
-              transportf (λ x, edge G2 (g a) x) (e0 b)
-                         (transportf (λ x, edge G2 x (f b)) (e0 a) (graphmap f p))
-            = graphmap g p)
+              double_transport (e0 a) (e0 b) (graphmap f p) = graphmap g p)
   : f = g
   := functor_data_eq G1 G2 f g e0 e1.
 

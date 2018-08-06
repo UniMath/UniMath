@@ -112,11 +112,10 @@ exists F.
 abstract (exact H).
 Defined.
 
-Lemma functor_data_eq_prf C C' (F F' : functor_data C C')
+Lemma functor_data_eq_prf (C C': precategory_ob_mor) (F F' : functor_data C C')
       (H : ∏ c, F c = F' c)
       (H1 : ∏ C1 C2 (f : C1 --> C2),
-            transportf (λ x, F' C1 --> x) (H C2)
-                       (transportf (λ x, x --> F C2) (H C1) (pr2 F C1 C2 f)) =
+            double_transport (H C1) (H C2) (pr2 F C1 C2 f) =
             pr2 F' C1 C2 f) :
   transportf (λ x : C → C', ∏ a b : C, C ⟦ a, b ⟧ → C' ⟦ x a, x b ⟧)
     (funextfun F F' (λ c : C, H c)) (pr2 F) = pr2 F'.
@@ -131,11 +130,11 @@ rewrite e, transport_mor_funextfun, transport_source_funextfun, transport_target
 exact (H1 C1 C2 f).
 Qed.
 
-Lemma functor_data_eq C C' (F F' : functor_data C C')
+Lemma functor_data_eq (C C': precategory_ob_mor) (F F' : functor_data C C')
       (H : ∏ c, F c = F' c)
       (H1 : ∏ C1 C2 (f : C1 --> C2),
-            transportf (λ x, F' C1 --> x) (H C2)
-              (transportf (λ x, x --> F C2) (H C1) (pr2 F C1 C2 f)) = pr2 F' C1 C2 f) :
+            double_transport (H C1) (H C2) (pr2 F C1 C2 f) =
+            pr2 F' C1 C2 f) :
       F = F'.
 Proof.
 use total2_paths_f.
