@@ -131,8 +131,7 @@ exact (H1 C1 C2 f).
 Qed.
 
 Lemma functor_data_eq (C C': precategory_ob_mor) (F F' : functor_data C C')
-      (H : ∏ c, F c = F' c)
-      (H1 : ∏ C1 C2 (f : C1 --> C2),
+      (H : F ~ F') (H1 : ∏ C1 C2 (f : C1 --> C2),
             double_transport (H C1) (H C2) (pr2 F C1 C2 f) =
             pr2 F' C1 C2 f) :
       F = F'.

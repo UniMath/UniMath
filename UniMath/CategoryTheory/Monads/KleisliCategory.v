@@ -165,7 +165,7 @@ Proof.
   use functor_eq.
   - exact hs.
   - use functor_data_eq.
-    + reflexivity.
+    + intro a; apply idpath.
     + intros a b f; unfold double_transport.
       do 2 (rewrite idpath_transportf).
       simpl.
