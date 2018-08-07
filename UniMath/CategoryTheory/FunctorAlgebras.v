@@ -338,6 +338,21 @@ Defined.
 
 End FunctorAlg_saturated.
 
+
+Lemma idtomor_FunctorAlg_commutes (hsC: has_homsets C)(X Y: FunctorAlg hsC)(e: X = Y): mor_from_algebra_mor _ _ (idtomor _ _ e) = idtomor _ _ (maponpaths alg_carrier e).
+Proof.
+  induction e.
+  apply idpath.
+Qed.
+
+Corollary idtoiso_FunctorAlg_commutes (hsC: has_homsets C)(X Y: FunctorAlg hsC)(e: X = Y): mor_from_algebra_mor _ _ (morphism_from_iso _ _ _ (idtoiso e)) = idtoiso (maponpaths alg_carrier e).
+Proof.
+  unfold morphism_from_iso.
+  do 2 rewrite eq_idtoiso_idtomor.
+  apply idtomor_FunctorAlg_commutes.
+Qed.
+
+
 End Algebra_Definition.
 
 Notation FunctorAlg := precategory_FunctorAlg.

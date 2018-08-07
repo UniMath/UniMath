@@ -1,10 +1,10 @@
 (** **********************************************************
 Contents:
         - Definition of the Kleisli category of a monad.
-        - The canonical adjunction between a category C and the Kleisli 
+        - The canonical adjunction between a category C and the Kleisli
           category of a monad on C.
 TODO:
-        - Show that this definition is equivalent to the Kleisli category of a 
+        - Show that this definition is equivalent to the Kleisli category of a
           relative monad with respect to the identity functor.
 
 
@@ -33,7 +33,7 @@ Proof.
   apply bind_η.
 Qed.
 
-Lemma bind_identity {C : precategory} {T : Monad C} (a : C) : 
+Lemma bind_identity {C : precategory} {T : Monad C} (a : C) :
   bind (identity (T a)) = (μ T) a.
 Proof.
   unfold bind.
@@ -82,7 +82,7 @@ Proof.
     unfold compose; simpl.
     rewrite <- bind_bind.
     apply assoc.
-Defined. 
+Defined.
 
 Definition Kleisli_precat_monad {C : precategory} (T : Monad C) : precategory := (Kleisli_precat_data_monad T,,Kleisli_precat_monad_is_precat T).
 
@@ -93,7 +93,7 @@ Proof.
   apply hs.
 Defined.
 
-Definition Kleisli_cat_monad {C : category} (T : Monad C): category 
+Definition Kleisli_cat_monad {C : category} (T : Monad C): category
   := (Kleisli_precat_monad T,, Kleisli_precat_monad_has_homsets T
   (homset_property C)).
 
@@ -127,10 +127,10 @@ Proof.
 Defined.
 
 Definition Left_Kleisli_functor {C : precategory} (T : Monad C) :
-  functor C (Kleisli_precat_monad T) 
+  functor C (Kleisli_precat_monad T)
   := (Left_Kleisli_functor_data T,,Left_Kleisli_is_functor T).
 
-Definition Right_Kleisli_functor_data {C : precategory} (T : Monad C) :  
+Definition Right_Kleisli_functor_data {C : precategory} (T : Monad C) :
   functor_data (Kleisli_precat_monad T) C.
 Proof.
   use mk_functor_data.
@@ -139,7 +139,7 @@ Proof.
     apply bind.
 Defined.
 
-Lemma Right_Kleisli_is_functor {C : precategory} (T : Monad C) : 
+Lemma Right_Kleisli_is_functor {C : precategory} (T : Monad C) :
   is_functor (Right_Kleisli_functor_data T).
 Proof.
   use tpair.
@@ -152,24 +152,23 @@ Proof.
     apply bind_bind.
 Defined.
 
-Definition Right_Kleisli_functor {C : precategory} (T : Monad C) : 
-  functor (Kleisli_precat_monad T) C 
+Definition Right_Kleisli_functor {C : precategory} (T : Monad C) :
+  functor (Kleisli_precat_monad T) C
   := (Right_Kleisli_functor_data T,,Right_Kleisli_is_functor T).
 
 (*Composition of the left and right Kleisli functors is equal to T as a functor*)
 
-Definition Kleisli_functor_left_right_compose {C : precategory} 
-  (hs : has_homsets C) (T : Monad C) : 
+Definition Kleisli_functor_left_right_compose {C : precategory}
+  (hs : has_homsets C) (T : Monad C) :
   (Left_Kleisli_functor T) ∙ (Right_Kleisli_functor T) = T.
 Proof.
   use functor_eq.
   - exact hs.
   - use functor_data_eq.
-    + intro c.
-      simpl.
-      reflexivity.
-    + intros a b f; simpl.
+    + intro a; apply idpath.
+    + intros a b f; unfold double_transport.
       do 2 (rewrite idpath_transportf).
+      simpl.
       apply bind_comp_η.
 Defined.
 

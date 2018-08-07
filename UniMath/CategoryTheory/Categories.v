@@ -1216,7 +1216,7 @@ Qed.
 
 (** ** Properties of [idtoiso] and [isotoid] *)
 
-Definition double_transport {C : precategory} {a a' b b' : ob C}
+Definition double_transport {C : precategory_ob_mor} {a a' b b' : ob C}
    (p : a = a') (q : b = b') (f : a --> b) : a' --> b' :=
   transportf (λ c, a' --> c) q (transportf (λ c, c --> b) p f).
 

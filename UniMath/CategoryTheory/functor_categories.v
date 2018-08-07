@@ -112,11 +112,10 @@ exists F.
 abstract (exact H).
 Defined.
 
-Lemma functor_data_eq_prf C C' (F F' : functor_data C C')
+Lemma functor_data_eq_prf (C C': precategory_ob_mor) (F F' : functor_data C C')
       (H : ∏ c, F c = F' c)
       (H1 : ∏ C1 C2 (f : C1 --> C2),
-            transportf (λ x, F' C1 --> x) (H C2)
-                       (transportf (λ x, x --> F C2) (H C1) (pr2 F C1 C2 f)) =
+            double_transport (H C1) (H C2) (pr2 F C1 C2 f) =
             pr2 F' C1 C2 f) :
   transportf (λ x : C → C', ∏ a b : C, C ⟦ a, b ⟧ → C' ⟦ x a, x b ⟧)
     (funextfun F F' (λ c : C, H c)) (pr2 F) = pr2 F'.
@@ -131,17 +130,18 @@ rewrite e, transport_mor_funextfun, transport_source_funextfun, transport_target
 exact (H1 C1 C2 f).
 Qed.
 
-Lemma functor_data_eq C C' (F F' : functor_data C C')
-      (H : ∏ c, F c = F' c)
-      (H1 : ∏ C1 C2 (f : C1 --> C2),
-            transportf (λ x, F' C1 --> x) (H C2)
-              (transportf (λ x, x --> F C2) (H C1) (pr2 F C1 C2 f)) = pr2 F' C1 C2 f) :
+Lemma functor_data_eq (C C': precategory_ob_mor) (F F' : functor_data C C')
+      (H : F ~ F') (H1 : ∏ C1 C2 (f : C1 --> C2),
+            double_transport (H C1) (H C2) (pr2 F C1 C2 f) =
+            pr2 F' C1 C2 f) :
       F = F'.
 Proof.
 use total2_paths_f.
 - use funextfun. intros c. exact (H c).
 - now apply functor_data_eq_prf.
 Defined.
+
+
 
 Lemma functor_eq (C C' : precategory_data) (hs: has_homsets C') (F F': functor C C'):
     pr1 F = pr1 F' -> F = F'.
@@ -881,7 +881,7 @@ Section nat_trans.
 
   (** ** Definition of natural transformations *)
 
-Definition nat_trans_data {C C' : precategory_data} (F F' : functor_data C C'): UU :=
+Definition nat_trans_data {C C' : precategory_ob_mor} (F F' : functor_data C C'): UU :=
   ∏ x : ob C, F x -->  F' x.
 
 Definition is_nat_trans {C C' : precategory_data}
@@ -953,6 +953,23 @@ Proof.
   intro h.
   now apply toforallpaths, maponpaths.
 Qed.
+
+(** a more intuitive variant of [functor_data_eq] *)
+Lemma functor_data_eq_from_nat_trans (C C': precategory) (F F' : functor_data C C')
+      (H : F ~ F') (H1 : is_nat_trans F F' (fun c:C => idtomor _ _ (H c))) :
+      F = F'.
+Proof.
+  apply (functor_data_eq _ _ _ _ H).
+  intros c1 c2 f.
+  rewrite double_transport_idtoiso.
+  rewrite <- assoc.
+  apply iso_inv_on_right.
+(* make the coercion visible: *)
+  unfold morphism_from_iso.
+  do 2 rewrite eq_idtoiso_idtomor.
+  apply H1.
+Qed.
+
 
 (** ** Functor category [[C, D]] *)
 

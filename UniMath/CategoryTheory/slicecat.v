@@ -761,11 +761,12 @@ Lemma const_prod_functor1_slicecat c (Af : C / c) :
   functor_composite (base_change_functor (pr2 Af)) (slicecat_functor hsC (pr2 Af)).
 Proof.
 apply functor_eq; try apply has_homsets_slice_precat.
-use functor_data_eq; try trivial.
-intros x y f; apply (eq_mor_slicecat hsC); simpl.
-apply PullbackArrowUnique.
-- now rewrite PullbackArrow_PullbackPr1, id_right.
-- now rewrite PullbackArrow_PullbackPr2.
+use functor_data_eq.
+- intro x; apply idpath.
+- intros x y f; apply (eq_mor_slicecat hsC); simpl.
+  apply PullbackArrowUnique.
+  + now rewrite PullbackArrow_PullbackPr1, id_right.
+  + now rewrite PullbackArrow_PullbackPr2.
 Defined.
 
 Lemma dependent_product_to_exponentials c : Exponentials (BPC c).
