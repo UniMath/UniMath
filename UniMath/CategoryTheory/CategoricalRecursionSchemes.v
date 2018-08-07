@@ -532,38 +532,94 @@ Proof.
     apply idpath.
 Defined.
 
+(** a simple preparation for the next lemma - strictly speaking, not even needed *)
+Ltac get_sides_of_eq := match goal with |- @paths _ ?L ?R => set (left := L); set (right := R) end.
 
-Lemma liftings_from_distr_laws_compose {C C' C'': precategory} (hsC: has_homsets C) (hsC': has_homsets C') (hsC'': has_homsets C'') {F: functor C C} {F': functor C' C'} {F'': functor C'' C''} {H: functor C C'} {H': functor C' C''} (lambda : DistrLaw F' F H H)(lambda' : DistrLaw F'' F' H' H'): lifting_from_distr_law hsC hsC' lambda ∙ lifting_from_distr_law hsC' hsC'' lambda' = lifting_from_distr_law hsC hsC'' (H := H ∙ H') (comp_distr_laws lambda' lambda).
+Arguments idtomor {_ _ _ } _.
+
+(** unnamed result by Hinze & Wu, mentioned in their Sect. 3.2.1 *)
+Lemma liftings_from_distr_laws_compose {C C' C'': precategory}
+      (hsC: has_homsets C) (hsC': has_homsets C') (hsC'': has_homsets C'')
+      {F: functor C C} {F': functor C' C'} {F'': functor C'' C''}
+      {H: functor C C'} {H': functor C' C''}
+      (lambda : DistrLaw F' F H H)(lambda' : DistrLaw F'' F' H' H'):
+  lifting_from_distr_law hsC hsC' lambda ∙ lifting_from_distr_law hsC' hsC'' lambda' =
+  lifting_from_distr_law hsC hsC'' (H := H ∙ H') (comp_distr_laws lambda' lambda).
 Proof.
   (* UniMath.MoreFoundations.Tactics.show_id_type. *)
   apply functor_eq.
   { apply (has_homsets_FunctorAlg _ hsC''). }
   simpl.
   (* UniMath.MoreFoundations.Tactics.show_id_type. *)
-  use functor_data_eq.
-  - intro alg.
+  get_sides_of_eq.
+  (* we have to read the expressions back, so as to get functor_data between precategories: *)
+  set (left' := functor_composite_data (lifting_from_distr_law_data hsC hsC' lambda)
+            (lifting_from_distr_law_data hsC' hsC'' lambda')).
+  set (right' := lifting_from_distr_law_data hsC hsC'' (comp_distr_laws lambda' lambda)
+   : functor_data (FunctorAlg F hsC) (FunctorAlg F'' hsC'')).
+  transparent assert (okonobs: (functor_on_objects left' ~ functor_on_objects right')).
+  { intro alg.
     simpl.
-    UniMath.MoreFoundations.Tactics.show_id_type.
-    use total2_paths2_f.
-    + apply idpath.
-    + rewrite idpath_transportf.
-      repeat rewrite id_left.
-      rewrite id_right.
-      induction alg as [A α].
-      simpl.
-      rewrite <- assoc.
-      apply maponpaths.
-      apply functor_comp.
-  - intros alg1 alg2 m.
     (* UniMath.MoreFoundations.Tactics.show_id_type. *)
-    apply algebra_mor_eq.
-    { assumption. }
-    simpl.
+    apply (maponpaths (λ p, tpair _ (H' (H (alg_carrier F alg))) p )).
+    abstract (repeat rewrite id_left; rewrite id_right;
+              rewrite <- assoc; apply maponpaths; apply functor_comp).
+  }
+  (* UniMath.MoreFoundations.Tactics.show_id_type. *)
+  apply (functor_data_eq_from_nat_trans _ _ _ _ okonobs).
+  red.
+  intros alg1 alg2 m.
+  (* UniMath.MoreFoundations.Tactics.show_id_type. *)
+  apply algebra_mor_eq.
+  { assumption. }
+  simpl.
+  (* UniMath.MoreFoundations.Tactics.show_id_type. *)
+  etrans.
+  { apply cancel_precomposition.
     UniMath.MoreFoundations.Tactics.show_id_type.
-    induction alg1 as [A1 α1].
-    induction alg2 as [A2 α2].
-    (* total failure ! *)
-Abort.
+    apply (idtomor_FunctorAlg_commutes _ _ _ _ (okonobs alg2)).
+  }
+  etrans.
+  2: {
+    apply cancel_postcomposition.
+    UniMath.MoreFoundations.Tactics.show_id_type.
+    apply pathsinv0.
+    apply (idtomor_FunctorAlg_commutes _ _ _ _ (okonobs alg1)).
+  }
+  assert (Hyp: (idtomor (maponpaths (alg_carrier F'') (okonobs alg1)) = identity _) ×
+               (idtomor (maponpaths (alg_carrier F'') (okonobs alg2)) = identity _)).
+  { unfold okonobs; split.
+    - etrans.
+      { apply maponpaths.
+        apply (maponpathscomp (λ p :
+       C'' ⟦ F'' (H' (H (alg_carrier F alg1))), H' (H (alg_carrier F alg1)) ⟧,
+       tpair (fun X: C'' => C'' ⟦ F'' X, X ⟧)
+             (H' (H (alg_carrier F alg1))) p)
+                              (alg_carrier F'')).
+      }
+      unfold funcomp.
+      simpl.
+      rewrite UniMath.MoreFoundations.PartA.maponpaths_for_constant_function.
+      apply idpath.
+    - etrans.
+      { apply maponpaths.
+        apply (maponpathscomp (λ p :
+       C'' ⟦ F'' (H' (H (alg_carrier F alg2))), H' (H (alg_carrier F alg2)) ⟧,
+       tpair (fun X: C'' => C'' ⟦ F'' X, X ⟧)
+             (H' (H (alg_carrier F alg2))) p)
+                              (alg_carrier F'')).
+      }
+      unfold funcomp.
+      simpl.
+      rewrite UniMath.MoreFoundations.PartA.maponpaths_for_constant_function.
+      apply idpath.
+  }
+  induction Hyp as [Hyp1 Hyp2].
+  rewrite Hyp1. rewrite Hyp2.
+  rewrite id_right.
+  apply pathsinv0.
+  apply id_left.
+Qed.
 
 End Liftings.
 
