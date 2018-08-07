@@ -1220,12 +1220,6 @@ Definition double_transport {C : precategory_ob_mor} {a a' b b' : ob C}
    (p : a = a') (q : b = b') (f : a --> b) : a' --> b' :=
   transportf (λ c, a' --> c) q (transportf (λ c, c --> b) p f).
 
-(*
-Definition double_transport_perm {C : precategory_ob_mor} {a a' b b' : ob C}
-   (p : a = a') (q : b = b') (f : a --> b) : a' --> b' :=
-   transportf (λ c, c --> b') p (transportf (λ c, a --> c) q f).
- *)
-
 Lemma idtoiso_postcompose (C : precategory) (a b b' : ob C)
   (p : b = b') (f : a --> b) :
       f · idtoiso p = transportf (λ b, a --> b) p f.
@@ -1270,19 +1264,6 @@ Proof.
   - apply pathsinv0; apply id_left.
   - apply pathsinv0; apply id_right.
 Defined.
-
-(*
-Lemma double_transport_perm_idtoiso (C : precategory) (a a' b b' : ob C)
-  (p : a = a') (q : b = b')  (f : a --> b) :
-  double_transport_perm p q f = inv_from_iso (idtoiso p) · f · idtoiso q.
-Proof.
-  destruct p.
-  destruct q.
-  intermediate_path (identity _ · f).
-  - apply pathsinv0; apply id_left.
-  - apply pathsinv0; apply id_right.
-Defined.
-*)
 
 Lemma idtoiso_inv (C : precategory) (a a' : ob C)
   (p : a = a') : idtoiso (!p) = iso_inv_from_iso (idtoiso p).
