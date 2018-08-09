@@ -97,22 +97,23 @@ Section RelModule_Definition.
       - apply isapropdirprod; repeat (apply impred; intros); apply hs.
     Qed.
 
+
+    Lemma mbind_mlift {M : RelModule_data R} (X : RelModule_laws M) {c d e : C} (f : J c --> R d) (g : d --> e)
+      : mbind M f · mlift M g = mbind M (f · r_lift R g).
+    Proof.
+      apply (mbind_mbind X).
+    Qed.
+
+
   End Projections_and_Laws.
 End RelModule_Definition.
 
 
-(* Since r_lift currently depends on RelMonad (instead of RelMonad_data),
-   we make a separate section with stronger hypothesis to state fusion laws
-   involving r_lift. *)
+(* We make a separate section with stronger hypothesis [RelMonad] to state
+   another fusion law involving [r_lift]. *)
 Section Projections_and_Laws_2.
 
 Context {C : precategory_data} {D : precategory}{J : C ⟶ D} {R : RelMonad J} {M : RelModule_data R} (X : RelModule_laws M).
-
-Lemma mbind_mlift {c d e : C} (f : J c --> R d) (g : d --> e)
-  : mbind M f · mlift M g = mbind M (f · r_lift R g).
-Proof.
-  apply (mbind_mbind X).
-Qed.
 
 Lemma mlift_mbind {c d e : C} (f : c --> d) (g : J d --> R e)
   : mlift M f · mbind M g = mbind M (#J f · g).
@@ -156,11 +157,10 @@ Coercion RelModule_laws_from_RelModule {C D : precategory_data} {J : C ⟶ D}
 
 Section Functor_from_RelModule.
 
-  (* Again: R should be in RelMonad_data. *)
-  Context {C : precategory_data} {D : precategory} {J : C ⟶ D} {R : RelMonad J}
-          {M : RelModule_data R} (X : RelModule_laws M).
+  Context {C : precategory_data} {D : precategory} {J : C ⟶ D}.
 
-  Lemma mlift_id (c : C) : mlift M (identity c) = identity (M c).
+  Lemma mlift_id {R : RelMonad_data J} {M : RelModule_data R} (X : RelModule_laws M) (c : C) :
+    mlift M (identity c) = identity (M c).
   Proof.
     transitivity (mbind M (r_eta R c)).
     2: apply (mbind_r_eta X).
@@ -171,8 +171,10 @@ Section Functor_from_RelModule.
     apply functor_id.
   Qed.
 
-  Lemma mlift_mlift {c d e : C} (f : c --> d) (g : d --> e)
-    : mlift M f · mlift M g = mlift M (f · g).
+  Context {R : RelMonad J} {M : RelModule_data R} (X : RelModule_laws M).
+
+  Lemma mlift_mlift {c d e : C} (f : c --> d) (g : d --> e) :
+    mlift M f · mlift M g = mlift M (f · g).
   Proof.
     unfold mlift at 2.
     etrans. { apply (mlift_mbind X). }
@@ -190,7 +192,7 @@ Section Functor_from_RelModule.
   Definition is_functor_mlift : is_functor functor_data_from_relmodule.
   Proof.
     split.
-    - exact mlift_id.
+    - red; intro a. apply (mlift_id X).
     - red. intros. cbn. apply pathsinv0. apply mlift_mlift.
   Defined.
 
@@ -205,7 +207,7 @@ End Functor_from_RelModule.
 
 Section RelModule_Morphism_Definition.
 Section Part1.
-  Context {C D : precategory_data} {J : C ⟶ D} {R : RelMonad J}.
+  Context {C D : precategory_data} {J : C ⟶ D} {R : RelMonad_data J}.
 
   Definition is_relmodule_mor (M N : RelModule_data R) (φ : ∏ a : C, M a --> N a) : UU
     := (∏ a b (f : J a --> R b), mbind M f · φ b = φ a · mbind N f).
@@ -230,7 +232,7 @@ Section Part1.
     := pr2 φ.
 
 End Part1.
-(** now with [D : precategory] *)
+(** now with [D : precategory, R : RelMonad J] *)
 Section Part2.
   Context {C : precategory_data} {D : precategory} {J : C ⟶ D} {R : RelMonad J}.
 

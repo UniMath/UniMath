@@ -60,7 +60,7 @@ Definition RelMonad : UU := ∑ R : RelMonad_data, RelMonad_axioms R.
 Coercion RelMonad_data_from_RelMonad (R : RelMonad) : RelMonad_data := pr1 R.
 Coercion RelMonad_axioms_from_RelMonad (R : RelMonad) : RelMonad_axioms R := pr2 R.
 
-Definition r_lift (R : RelMonad) {c d : C} (f : c --> d) : R c --> R d
+Definition r_lift (R : RelMonad_data) {c d : C} (f : c --> d) : R c --> R d
   := r_bind R (#J f · r_eta R _ ).
 
 End RMonad_def.
@@ -92,16 +92,16 @@ Arguments RelMonad {C} {D} J.
 (** Kleisli precategory associated to a relative monad *)
 Section Kleisli_precat.
 
-Context {C: precategory_data} {D : precategory} {J : functor C D} (R : RelMonad J).
+Context {C: precategory_data} {D : precategory} {J : functor C D}.
 
-Definition Kleisli_precat_ob_mor : precategory_ob_mor :=
+Definition Kleisli_precat_ob_mor (R : RelMonad_data J) : precategory_ob_mor :=
   precategory_ob_mor_pair (ob C) (λ c d, J c --> R d).
 
-Definition Kleisli_precat_data : precategory_data :=
-  precategory_data_pair Kleisli_precat_ob_mor (λ c, r_eta R c)
+Definition Kleisli_precat_data (R : RelMonad_data J) : precategory_data :=
+  precategory_data_pair (Kleisli_precat_ob_mor R) (λ c, r_eta R c)
                                               (λ a b c f g, f · r_bind R g).
 
-Lemma Kleisli_precat_is_precat : is_precategory Kleisli_precat_data.
+Lemma Kleisli_precat_is_precat (R : RelMonad J) : is_precategory (Kleisli_precat_data R).
   do 2 try apply tpair;
     try unfold compose; simpl.
   - intros a b f.
@@ -112,7 +112,7 @@ Lemma Kleisli_precat_is_precat : is_precategory Kleisli_precat_data.
     now rewrite <- assoc, (r_bind_r_bind R).
 Qed.
 
-Definition Kleisli_precat : precategory := (_,, Kleisli_precat_is_precat).
+Definition Kleisli_precat (R : RelMonad J) : precategory := (_,, Kleisli_precat_is_precat R).
 
 End Kleisli_precat.
 
