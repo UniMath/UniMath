@@ -45,7 +45,7 @@ End Monad_Lemmas.
 
 Section Kleisli_Categories.
 
-Definition Kleisli_precat_ob_mor_monad {C : precategory} (T : Monad C) :
+Definition Kleisli_precat_ob_mor_monad {C : precategory_data} (T : Monad_data C) :
   precategory_ob_mor.
 Proof.
   use tpair.
@@ -54,7 +54,7 @@ Proof.
     exact (X --> T Y).
 Defined.
 
-Definition Kleisli_precat_data_monad {C : precategory} (T : Monad C) :
+Definition Kleisli_precat_data_monad {C : precategory_data} (T : Monad_data C) :
   precategory_data.
 Proof.
   use precategory_data_pair.
@@ -164,11 +164,11 @@ Definition Kleisli_functor_left_right_compose {C : precategory}
 Proof.
   use functor_eq.
   - exact hs.
-  - use functor_data_eq.
+  - use functor_data_eq_from_nat_trans.
     + intro a; apply idpath.
-    + intros a b f; unfold double_transport.
-      do 2 (rewrite idpath_transportf).
-      simpl.
+    + intros a b f; simpl.
+      rewrite id_right.
+      rewrite id_left.
       apply bind_comp_η.
 Defined.
 

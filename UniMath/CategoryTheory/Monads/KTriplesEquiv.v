@@ -28,7 +28,7 @@ Require Import UniMath.CategoryTheory.equivalences_lemmas.
 Local Open Scope cat.
 
 
-Lemma Monad_Mor_eq {C : precategory} (hs : has_homsets C) (T T' : Monad C) (α β : Monad_Mor T T')
+Lemma Monad_Mor_eq {C : precategory_data} (hs : has_homsets C) (T T' : Monad_data C) (α β : Monad_Mor T T')
       (e : ∏ a : C, α a = β a) :
   α = β.
 Proof.
@@ -107,13 +107,13 @@ Definition functor_unkleislify {C : precategory} (hs: has_homsets C) :
 
 (* ----- Support Lemmas. ----- *)
 
-Lemma Monad_law4 {C : precategory} {T : Monad C} {a b : C} (f : a --> b) :
+Lemma Monad_law4 {C : precategory_data} {T : Monad_data C} {a b : C} (f : a --> b) :
   Monads.η T a · # T f = f · Monads.η T b.
 Proof.
   apply pathsinv0. apply (nat_trans_ax (Monads.η T) _ _ f).
 Defined.
 
-Lemma Monad_law5 {C : precategory} {T : Monad C} {a b: C} (f: a --> b) :
+Lemma Monad_law5 {C : precategory_data} {T : Monad_data C} {a b: C} (f: a --> b) :
   # T (# T f) · (Monads.μ T b) = (Monads.μ T a) · (# T f).
 Proof.
   apply (nat_trans_ax (Monads.μ T) _ _ f).
@@ -433,7 +433,7 @@ Section Adjunction.
       (functor_identity_data (precategory_Monad_data C)) eta_morph.
   Proof.
     red; simpl. intros T T' f.
-    apply (Monad_Mor_eq hs).
+    apply (Monad_Mor_eq hs (unkleislify (kleislify T))).
     intros. simpl.
     unfold eta_arrow.
     now rewrite id_left, id_right.
@@ -450,7 +450,8 @@ Section Adjunction.
                     eps_natural eta_natural.
   Proof.
     split; red; simpl.
-    - intro K. apply (Monad_Mor_eq hs).
+    - intro K.
+      apply (Monad_Mor_eq hs (unkleislify K) (unkleislify K)).
       intros. simpl.
       unfold eps.
       now rewrite id_left.

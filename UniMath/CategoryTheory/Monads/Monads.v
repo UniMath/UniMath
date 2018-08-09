@@ -106,25 +106,25 @@ Proof.
   apply impred; intro c; apply hs.
 Qed.
 
-Definition Monad_Mor {C : precategory_data} (T T' : Monad C) : UU
+Definition Monad_Mor {C : precategory_data} (T T' : Monad_data C) : UU
   := ∑ α : T ⟹ T', Monad_Mor_laws α.
 
-Coercion nat_trans_from_monad_mor (C : precategory_data) (T T' : Monad C) (s : Monad_Mor T T')
+Coercion nat_trans_from_monad_mor (C : precategory_data) (T T' : Monad_data C) (s : Monad_Mor T T')
   : T ⟹ T' := pr1 s.
 
-Definition Monad_Mor_η {C : precategory_data} {T T' : Monad C} (α : Monad_Mor T T')
+Definition Monad_Mor_η {C : precategory_data} {T T' : Monad_data C} (α : Monad_Mor T T')
   : ∏ a : C, η T a · α a = η T' a.
 Proof.
   exact (pr2 (pr2 α)).
 Qed.
 
-Definition Monad_Mor_μ {C : precategory_data} {T T' : Monad C} (α : Monad_Mor T T')
+Definition Monad_Mor_μ {C : precategory_data} {T T' : Monad_data C} (α : Monad_Mor T T')
   : ∏ a : C, μ T a · α a = α (T a) · #T' (α a) · μ T' a.
 Proof.
   exact (pr1 (pr2 α)).
 Qed.
 
-Lemma Monad_identity_laws {C : precategory} (T : Monad C)
+Lemma Monad_identity_laws {C : precategory} (T : Monad_data C)
   : Monad_Mor_laws (nat_trans_id T).
 Proof.
   split; intros a; simpl.
@@ -135,7 +135,7 @@ Qed.
 Definition Monad_identity {C : precategory} (T : Monad C)
   : Monad_Mor T T := tpair _ _ (Monad_identity_laws T).
 
-Lemma Monad_composition_laws {C : precategory} {T T' T'' : Monad C}
+Lemma Monad_composition_laws {C : precategory} {T T' T'' : Monad_data C}
   (α : Monad_Mor T T') (α' : Monad_Mor T' T'') : Monad_Mor_laws (nat_trans_comp _ _ _ α α').
 Proof.
   split; intros; simpl.
@@ -157,7 +157,7 @@ Definition Monad_composition {C : precategory} {T T' T'' : Monad C}
   : Monad_Mor T T'' := tpair _ _ (Monad_composition_laws α α').
 
 Definition Monad_Mor_equiv {C : precategory} (hs : has_homsets C)
-  {T T' : Monad C} (α β : Monad_Mor T T')
+  {T T' : Monad_data C} (α β : Monad_Mor T T')
   : α = β ≃ (pr1 α = pr1 β).
 Proof.
   apply subtypeInjectivity; intro a.
@@ -234,10 +234,10 @@ End Monad_precategory.
 (** * Definition and lemmas for bind *)
 Section bind.
 
-Context {C : precategory} {T : Monad C}.
-
 (** Definition of bind *)
-Definition bind {a b : C} (f : C⟦a,T b⟧) : C⟦T a,T b⟧ := # T f · μ T b.
+Definition bind {C : precategory_data} {T : Monad_data C} {a b : C} (f : C⟦a,T b⟧) : C⟦T a,T b⟧ := # T f · μ T b.
+
+Context {C : precategory} {T : Monad C}.
 
 Lemma η_bind {a b : C} (f : C⟦a,T b⟧) : η T a · bind f = f.
 Proof.
