@@ -497,7 +497,7 @@ Section Adjunction.
       intros. simpl.
       unfold eps.
       now rewrite id_left.
-    - intro T. UniMath.MoreFoundations.Tactics.show_id_type.
+    - intro T. (* UniMath.MoreFoundations.Tactics.show_id_type. *)
       apply (Kleisli_Mor_eq (T:=kleislify T) (T':=kleislify T) hs).
       intros. simpl.
       apply funextsec.
