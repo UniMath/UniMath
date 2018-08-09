@@ -272,8 +272,8 @@ between the pullback modules along m.
 *)
 Section Pullback_Module_Morphism.
 
-  Context {B} {M M':Monad B} (m:Monad_Mor M M') {C:precategory} {T T' :LModule M' C}
-          (n : LModule_Mor _ T T').
+  Context {B: precategory} {M M': Monad B} (m: Monad_Mor M M') {C: precategory} {T T': LModule M' C}
+          (n: LModule_Mor _ T T').
 
   Local Notation pbmT := (pb_LModule m T).
   Local Notation pbmT' := (pb_LModule m T').
