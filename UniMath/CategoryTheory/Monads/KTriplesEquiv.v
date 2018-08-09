@@ -121,43 +121,43 @@ Defined.
 
 (* ----- Kleisli associated to a Monad. ----- *)
 
-Definition Monad_Kleisli_data {C : precategory} (M : Monad_data C) : Kleisli_Data M :=
-  (Monads.η M: nat_trans_data _ _),, (λ (a b : C) (f : a --> M b), (Monads.μ M) b ∘ # M f).
+Definition Monad_Kleisli_data {C : precategory} (T : Monad_data C) : Kleisli_Data C := (pr1(pr1(pr1 (pr1 T))),,
+  (Monads.η T: nat_trans_data _ _),, (@Monads.bind C T)).
 
-Lemma Monad_Kleisli_laws {C : precategory} (M : Monad C) :
-  Kleisli_Laws (Monad_Kleisli_data M).
+Lemma Monad_Kleisli_laws {C : precategory} (T : Monad C) :
+  Kleisli_Laws (Monad_Kleisli_data T).
 Proof.
-  split; simpl; intros.
-  - rewrite assoc. rewrite (functor_comp M).
-    rewrite assoc4. set (H := Monad_law5 (T:=M) g). simpl in H.
-    rewrite <- H. rewrite functor_comp. do 2 rewrite <- assoc4.
-    set (H2 := Monad_law3 (T:=M) c). simpl in H2.
-    do 4 rewrite <- assoc.
-    now rewrite <- H2.
-  - split; simpl; intros.
-    + rewrite assoc. set (H := Monad_law4 (T:= M) f).
-      simpl in H. rewrite H. rewrite <- assoc.
-      set (H2 := Monad_law1 (T:=M) b). simpl in H2.
-      rewrite H2. apply id_right.
-    + apply Monad_law2.
+  split.
+  - exact Monad_law2.
+  - split.
+    + exact (@Monads.η_bind C T).
+    + exact (@Monads.bind_bind C T).
 Defined.
 
 (* ----- Kleisli morphism associated to a Monad morphism. ----- *)
 
 Definition kleislify {C : precategory} (M : Monad C) : Kleisli C :=
-  (λ x, M x) ,, Monad_Kleisli_data M ,, Monad_Kleisli_laws M.
+  Monad_Kleisli_data M ,, Monad_Kleisli_laws M.
 
 Lemma kleislify_mor_law {C : precategory} {M M' : Monad C} (α : Monad_Mor M M') :
-  Kleisli_Mor_laws (λ x : C, α x) (kleislify M) (kleislify M').
+  Kleisli_Mor_laws (kleislify M) (kleislify M') (λ x : C, α x).
 Proof.
   split; simpl; intros.
   - apply Monad_Mor_η.
-  - rewrite functor_comp. do 2 rewrite assoc.
+  - unfold bind. unfold Monad_Kleisli_data. simpl. unfold Monads.bind.
+    rewrite functor_comp. do 2 rewrite assoc.
     set (H := nat_trans_ax α). simpl in H. rewrite <- H. rewrite assoc4.
     rewrite <-H. rewrite <- assoc4. set (H2 :=  Monad_Mor_μ α b).
-    simpl in H2. do 3 rewrite <- assoc. rewrite H2.
+    simpl in H2. do 3 rewrite <- assoc.
+    unfold Monads.μ in H2. simpl in H2.
+    unfold Monads.μ. simpl.
     do 3 rewrite assoc. rewrite assoc4.
-    now rewrite H.
+    repeat rewrite <- assoc.
+    apply cancel_precomposition.
+    rewrite assoc.
+    rewrite H.
+    apply pathsinv0.
+    apply H2.
 Defined.
 
 Definition kleislify_mor {C : precategory} {M M' : Monad C}
@@ -199,6 +199,7 @@ Section Adjunction.
   Context {C : precategory}.
   Variable (hs : has_homsets C).
 
+  (* this result could not be preserved with the parameter [F] as field of [Kleisli_Data]:
   Lemma Kleisli_data_eq {F : C → C} (K K' : Kleisli_Data F)
         (η_eq : ∏ a : C, η K a = η K' a)
         (bind_eq : ∏ (a b : C) (f : a --> F b), bind K f = bind K' f) :
@@ -209,12 +210,16 @@ Section Adjunction.
     - apply funextsec. intro a. apply funextsec. intro b. apply funextfun.
       intro f. apply bind_eq.
   Defined.
+*)
 
   Lemma unkleislify_data_eq  (T : Kleisli C) : Monad_Kleisli_data (unkleislify_data T) = T.
   Proof.
+    (* UniMath.MoreFoundations.Tactics.show_id_type. *)
+    apply (maponpaths (λ p, tpair _ _ p )).
     apply pair_path_in2.
     simpl. apply funextsec. intro a. apply funextsec. intro b.
     apply funextfun. intro f.
+    unfold Monads.bind.
     abstract (simpl; unfold μ; rewrite (bind_map T); rewrite id_right; apply idpath).
   Defined.
 
@@ -222,11 +227,11 @@ Section Adjunction.
     kleislify (unkleislify T) = T.
   Proof.
     unfold unkleislify, kleislify. simpl.
-    destruct T as (F , (K , L)). simpl.
-    change (λ x : C, F x) with F.
-    apply (pair_path_in2). apply subtypeEquality'.
-    2: apply (isaprop_Kleisli_Laws hs K).
-    simpl. apply (unkleislify_data_eq (F,, K,, L)).
+    destruct T as (D, L). simpl.
+    use total2_paths_f; simpl.
+    apply unkleislify_data_eq.
+    (* UniMath.MoreFoundations.Tactics.show_id_type. *)
+    apply (isaprop_Kleisli_Laws hs D).
   Defined.
 
   Lemma unkleislify_kleislify (M : Monad C) :
@@ -234,55 +239,66 @@ Section Adjunction.
   Proof.
     apply (Monad_eq_raw_data hs).
     unfold Monad_to_raw_data. simpl.
-    change (λ x:C, M x) with (M: ob C → ob C).
     apply (pair_path_in2). apply total2_paths2.
     2: apply idpath.
     apply total2_paths2.
     - apply funextsec. intro a.
       apply funextsec; intro b.
       apply funextfun; intro f.
-      simpl. rewrite functor_comp. rewrite <- assoc.
+      simpl. unfold map. unfold bind. unfold η. simpl.
+      unfold Monads.bind, Monads.η.
+      rewrite functor_comp. rewrite <- assoc.
       set (H:= Monad_law2 (T:=M) b). simpl in H.
-      rewrite H. apply id_right.
+      unfold Monads.η, Monads.μ in H. simpl in H.
+      unfold Monads.μ.
+      etrans.
+      { apply cancel_precomposition. apply H. }
+      apply id_right.
     - apply funextsec; intro x.
       set (H:= functor_id (C:=C) (C':=C) M (M x)). simpl in H.
-      unfold μ. simpl. rewrite H. apply id_left.
+      unfold μ. simpl.
+      unfold bind, Monads.μ. simpl. unfold Monads.bind, Monads.μ.
+      etrans.
+      { apply cancel_postcomposition. apply H. }
+      apply id_left.
   Defined.
 
 
-  Definition eps (K : Kleisli C) (a : C) : C ⟦ kleisli_ob K a, kleisli_ob K a ⟧ :=
-    identity (pr1 K a).
+  Definition eps (T : Kleisli C) (a : C) : C ⟦ T a, T a ⟧ :=
+    identity (pr1 T a).
 
-  Lemma eps_morph_law (K : Kleisli C) :
-    Kleisli_Mor_laws (eps K) K (kleislify (unkleislify K)).
+  Lemma eps_morph_law (T : Kleisli C) :
+    Kleisli_Mor_laws T (kleislify (unkleislify T)) (eps T).
   Proof.
     split; simpl; intros.
     - apply id_right.
     - rewrite id_left, id_right. rewrite id_right.
-      unfold μ. rewrite (bind_map K). now rewrite id_right.
+      unfold μ. unfold bind. simpl. unfold Monads.bind. unfold Monads.μ. simpl.
+      unfold μ. rewrite (bind_map T). now rewrite id_right.
   Defined.
 
-  Definition eps_morph (K : Kleisli C) :
-    Kleisli_Mor K (kleislify (unkleislify K)) :=
-    eps K ,, eps_morph_law K.
+  Definition eps_morph (T : Kleisli C) :
+    Kleisli_Mor T (kleislify (unkleislify T)) :=
+    eps T ,, eps_morph_law T.
 
-  Lemma epsinv_morph_law (K : Kleisli C) :
-    Kleisli_Mor_laws (eps K) (kleislify (unkleislify K)) K.
+  Lemma epsinv_morph_law (T : Kleisli C) :
+    Kleisli_Mor_laws (kleislify (unkleislify T)) T (eps T).
   Proof.
     split; simpl; intros.
     - apply id_right.
     - rewrite id_left, id_right. rewrite id_right.
-      unfold μ. rewrite (bind_map K). now rewrite id_right.
+      unfold μ. unfold bind. simpl. unfold Monads.bind. unfold Monads.μ. simpl.
+      unfold μ. rewrite (bind_map T). now rewrite id_right.
   Defined.
 
-  Definition epsinv_morph (K : Kleisli C) :
-    Kleisli_Mor (kleislify (unkleislify K)) K :=
-    eps K ,, epsinv_morph_law K.
+  Definition epsinv_morph (T : Kleisli C) :
+    Kleisli_Mor (kleislify (unkleislify T)) T :=
+    eps T ,, epsinv_morph_law T.
 
-  Lemma is_inverse_epsinv (K : Kleisli C) :
+  Lemma is_inverse_epsinv (T : Kleisli C) :
     is_inverse_in_precat
-      (eps_morph K : precategory_Kleisli C hs ⟦K, kleislify (unkleislify K)⟧)
-      (epsinv_morph K).
+      (eps_morph T : precategory_Kleisli C hs ⟦T, kleislify (unkleislify T)⟧)
+      (epsinv_morph T).
   Proof.
     split.
     - apply (Kleisli_Mor_eq hs).
@@ -293,20 +309,21 @@ Section Adjunction.
       unfold eps. apply id_left.
   Defined.
 
-  Definition is_iso_eps_morph (K : Kleisli C) :
-    is_iso (eps_morph K :
-              precategory_Kleisli C hs ⟦ K,(kleislify (unkleislify K))⟧) :=
+  Definition is_iso_eps_morph (T : Kleisli C) :
+    is_iso (eps_morph T :
+              precategory_Kleisli C hs ⟦ T,(kleislify (unkleislify T))⟧) :=
     is_iso_from_is_z_iso
-      (eps_morph K : precategory_Kleisli C hs ⟦K, kleislify (unkleislify K)⟧)
-      (epsinv_morph K,, is_inverse_epsinv K).
+      (eps_morph T : precategory_Kleisli C hs ⟦T, kleislify (unkleislify T)⟧)
+      (epsinv_morph T,, is_inverse_epsinv T).
 
   Lemma is_natural_eps :
     is_nat_trans (functor_identity (precategory_Kleisli C hs))
                  (functor_unkleislify hs ∙ functor_kleislify hs)
                  eps_morph.
   Proof.
-    red. simpl. intros K K' f.
-    apply (Kleisli_Mor_eq hs). simpl.
+    red. simpl. intros T T' α.
+    (* UniMath.MoreFoundations.Tactics.show_id_type. *)
+    apply (Kleisli_Mor_eq(T := T)(T' := kleislify(unkleislify T')) hs). simpl.
     apply funextsec. intro a.
     unfold nat_trans_from_kleisli_mor, eps.
     rewrite id_left. apply id_right.
@@ -325,10 +342,14 @@ Section Adjunction.
     intros a b f. simpl.
     unfold eta_arrow.
     rewrite id_left, id_right.
+    unfold map, bind, η. simpl. unfold Monads.bind, Monads.η, Monads.μ.
     rewrite functor_comp.
     rewrite <- assoc.
     set (H := Monad_law2 (T := T) b). progress simpl in H.
-    rewrite H. now rewrite id_right.
+    unfold Monads.η, Monads.μ in H.
+    etrans.
+    { apply cancel_precomposition. apply H. }
+    now rewrite id_right.
   Defined.
 
   Definition eta_data (T : Monad C) : kleisli_functor_data (kleislify T) ⟹ T :=
@@ -342,10 +363,14 @@ Section Adjunction.
     unfold eta_arrow.
     rewrite id_right.
     rewrite id_left.
+    unfold map, bind, η. simpl. unfold Monads.bind, Monads.η, Monads.μ.
     rewrite functor_comp.
     rewrite <- assoc.
     set (H := Monad_law2 (T := T) b). progress simpl in H.
-    rewrite H. now rewrite id_right.
+    unfold Monads.η, Monads.μ in H.
+    etrans.
+    2: { apply cancel_precomposition. apply pathsinv0. apply H. }
+    now rewrite id_right.
   Defined.
 
   Definition etainv_data (T : Monad C) : T ⟹ kleisli_functor_data (kleislify T) :=
@@ -359,13 +384,22 @@ Section Adjunction.
     split; simpl; intros.
     - unfold eta_arrow.
       rewrite id_right.
+      unfold map, μ, Monads.μ, bind. simpl. unfold Monads.bind, η, Monads.μ. simpl.
+      unfold Monads.η.
       do 2 rewrite id_left.
       rewrite functor_id, id_left.
       rewrite <- assoc.
-      set (H := Monad_law3 (T := T) a). progress simpl in H. rewrite <- H.
+      set (H := Monad_law3 (T := T) a). progress simpl in H.
+      unfold Monads.μ in H.
+      etrans.
+      2: { apply cancel_precomposition. apply H. }
       rewrite assoc.
       rewrite <- functor_comp.
-      set (H1 := Monad_law1 (T := T) a). progress simpl in H1. rewrite H1.
+      set (H1 := Monad_law1 (T := T) a). progress simpl in H1.
+      unfold Monads.η, Monads.μ in H1.
+      etrans.
+      2: { apply cancel_postcomposition. apply maponpaths. apply pathsinv0.
+           (* UniMath.MoreFoundations.Tactics.show_id_type. *) eapply H1. }
       now rewrite functor_id, id_left.
     - apply id_right.
   Defined.
@@ -374,16 +408,23 @@ Section Adjunction.
     Monad_Mor T (unkleislify (kleislify T)) :=
     etainv_data T ,, etainv_data_laws T.
 
-  Lemma etainv_morph_law (M : Monad C) :
-    Monad_Mor_laws (T := M) (T' := (unkleislify (kleislify M))) (etainv_data M).
+  Lemma etainv_morph_law (T : Monad C) :
+    Monad_Mor_laws (T := T) (T' := (unkleislify (kleislify T))) (etainv_data T).
   Proof.
     split; simpl; intro a.
     - unfold eta_arrow.
       rewrite id_right.
       rewrite id_left.
-      rewrite functor_comp, functor_id.
+      unfold Monads.μ, bind, μ, map, μ, bind, map, μ. simpl. unfold Monads.bind; simpl.
+      unfold Monads.μ, η.
+      rewrite functor_comp. do 2 rewrite functor_id.
       do 2 rewrite id_left.
-      set (H1 := Monad_law2 (T := M) (M a)). progress simpl in H1. rewrite H1.
+      set (H1 := Monad_law2 (T := T) (T a)).
+      unfold Monads.μ, Monads.η in H1.
+      progress simpl in H1.
+      simpl. unfold Monads.η.
+      etrans.
+      2: { apply cancel_postcomposition. apply pathsinv0. apply H1. }
       now rewrite id_left.
     - apply id_right.
   Defined.
@@ -397,7 +438,8 @@ Section Adjunction.
     - unfold eta_arrow.
       rewrite id_right.
       rewrite id_left.
-      now rewrite functor_id, id_left.
+      unfold Monads.μ, μ, bind, μ. simpl. unfold Monads.bind, Monads.μ.
+      do 2 rewrite functor_id. do 2 rewrite id_left. apply idpath.
     - apply id_right.
   Defined.
 
@@ -405,10 +447,10 @@ Section Adjunction.
     Monad_Mor (unkleislify (kleislify T)) T :=
     eta_data T ,, eta_data_laws T.
 
-  Lemma is_inverse_etainv (M : Monad C) :
+  Lemma is_inverse_etainv (T : Monad C) :
     is_inverse_in_precat
-      (eta_morph M : precategory_Monad C hs ⟦unkleislify (kleislify M), M⟧)
-      (etainv_morph M : precategory_Monad C hs ⟦M, unkleislify (kleislify M)⟧).
+      (eta_morph T : precategory_Monad C hs ⟦unkleislify (kleislify T), T⟧)
+      (etainv_morph T : precategory_Monad C hs ⟦T, unkleislify (kleislify T)⟧).
   Proof.
     split.
     - apply (Monad_Mor_eq hs).
@@ -419,12 +461,12 @@ Section Adjunction.
       unfold eta_arrow. apply id_left.
   Defined.
 
-  Definition is_iso_eta_morph (M : Monad C) :
-    is_iso (eta_morph M :
-              precategory_Monad C hs ⟦unkleislify (kleislify M), M⟧)
+  Definition is_iso_eta_morph (T : Monad C) :
+    is_iso (eta_morph T :
+              precategory_Monad C hs ⟦unkleislify (kleislify T), T⟧)
    := is_iso_from_is_z_iso
-      (eta_morph M : precategory_Monad C hs ⟦unkleislify (kleislify M), M⟧)
-      (etainv_morph M,, is_inverse_etainv M).
+      (eta_morph T : precategory_Monad C hs ⟦unkleislify (kleislify T), T⟧)
+      (etainv_morph T,, is_inverse_etainv T).
 
   Lemma is_natural_eta :
     is_nat_trans
@@ -432,7 +474,7 @@ Section Adjunction.
                               (functor_data_unkleislify C hs))
       (functor_identity_data (precategory_Monad_data C)) eta_morph.
   Proof.
-    red; simpl. intros T T' f.
+    red; simpl. intros T T' α.
     apply (Monad_Mor_eq hs (unkleislify (kleislify T))).
     intros. simpl.
     unfold eta_arrow.
@@ -450,12 +492,13 @@ Section Adjunction.
                     eps_natural eta_natural.
   Proof.
     split; red; simpl.
-    - intro K.
-      apply (Monad_Mor_eq hs (unkleislify K) (unkleislify K)).
+    - intro T.
+      apply (Monad_Mor_eq hs (unkleislify T) (unkleislify T)).
       intros. simpl.
       unfold eps.
       now rewrite id_left.
-    - intro T. apply (Kleisli_Mor_eq hs).
+    - intro T. UniMath.MoreFoundations.Tactics.show_id_type.
+      apply (Kleisli_Mor_eq (T:=kleislify T) (T':=kleislify T) hs).
       intros. simpl.
       apply funextsec.
       intro a.
@@ -475,8 +518,8 @@ Section Adjunction.
     forms_equivalence is_left_adjoint_functor_unkleislify.
   Proof.
     split; simpl.
-    - intros K. apply is_iso_eps_morph.
-    - intros M. apply is_iso_eta_morph.
+    - intros T. apply is_iso_eps_morph.
+    - intros T. apply is_iso_eta_morph.
   Defined.
 
   Lemma is_catiso : is_catiso(functor_unkleislify hs).
@@ -485,7 +528,7 @@ Section Adjunction.
     - apply fully_faithful_from_equivalence.
       use (is_left_adjoint_functor_unkleislify,, form_equivalence_unkleislify).
     - apply (gradth _ (λ T : Monad C, kleislify T)).
-      + intro K. simpl. apply kleislify_unkleislify.
+      + intro T. simpl. apply kleislify_unkleislify.
       + simpl. apply unkleislify_kleislify.
   Defined.
 
