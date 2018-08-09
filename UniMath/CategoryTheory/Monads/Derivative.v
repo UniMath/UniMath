@@ -36,7 +36,8 @@ Local Open Scope cat.
  cf. Beck "Distributive laws" (1969) *)
 Section comp_def.
 
-Context {C : precategory} {S T : Monad C}.
+Section DistrLaws.
+Context {C : precategory_data} {S T : Monad_data C}.
 
 (** distributivity law for a pair of monads *)
 Definition monad_dist_laws (a : T ∙ S ⟹ S ∙ T) :=
@@ -50,15 +51,20 @@ Definition monad_dist_law2 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) := 
 Definition monad_dist_law3 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) := (pr2 (pr1 l)).
 Definition monad_dist_law4 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) := pr2 l.
 
+End DistrLaws.
+
 (** composition of monads with a distributive law *)
-Definition monad_comp_mu (a : T ∙ S ⟹ S ∙ T) : (S ∙ T ∙ S ∙ T) ⟹ (S ∙ T) :=
+Definition monad_comp_mu {C : precategory} {S T : Monad_data C} (a : T ∙ S ⟹ S ∙ T) :
+  (S ∙ T ∙ S ∙ T) ⟹ (S ∙ T) :=
   nat_trans_comp _ _ _ (post_whisker (pre_whisker S a) T)
                        (nat_trans_comp _ _ _ (pre_whisker (S ∙ S) (μ T)) (post_whisker (μ S) T)).
 
-Definition monad_comp_eta (a : T ∙ S ⟹ S ∙ T): functor_identity C ⟹ S ∙ T :=
+Definition monad_comp_eta {C : precategory} {S T : Monad_data C} (a : T ∙ S ⟹ S ∙ T):
+  functor_identity C ⟹ S ∙ T :=
   nat_trans_comp _ _ _ (η S) (pre_whisker S (η T)).
 
-Definition monad_comp_data (a : T ∙ S ⟹ S ∙ T) : Monad_data C :=
+Definition monad_comp_data {C : precategory} {S T : Monad_data C} (a : T ∙ S ⟹ S ∙ T) :
+  Monad_data C :=
   (tpair _ (tpair _ (S ∙ T) (monad_comp_mu a)) (monad_comp_eta a)).
 
 (** Below are the proofs of the monad laws for the composition of monads. We prove them as separate
@@ -88,7 +94,9 @@ TSTSx ---------------> TTSSx ----------->  TSSx  ------------> TSx
   | _________________/                                /
   |/                               id                /
  TSx ------------------------------------------------
-*)
+ *)
+
+Context {C : precategory} {S T : Monad C}.
 Local Lemma monad_comp_law1 {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) : ∏ x : C,
   (η S (T (S x))) · (η T (S (T (S x)))) · (#T (a (S x)) · (μ T (S (S x)) · #T (μ S x))) =
   identity (T (S x)).
@@ -344,6 +352,9 @@ Context {C : precategory} (o : C) (co : BinCoproducts C).
 
 Definition maybe_functor : functor C C :=
   constcoprod_functor1 co o.
+(** [maybe_functor] is the same as [UniMath.SubstitutionSystems.SignatureExamples.genopt],
+    which is introduced there only by [Let], and a different notion of distributive law
+    is studied *)
 
 Definition maybe_mu : maybe_functor ∙ maybe_functor ⟹ maybe_functor :=
   coproduct_nat_trans C C co (constant_functor C C o) maybe_functor maybe_functor
