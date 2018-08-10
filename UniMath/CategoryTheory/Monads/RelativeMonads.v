@@ -9,6 +9,7 @@ Contents:
 Reference: % \cite{DBLP:journals/corr/AltenkirchCU14} \par %
 
 Written by: Benedikt Ahrens (started May 2017)
+Extended by: Ralph Matthes (starting August 2018)
 
 
 ************************************************************)
@@ -60,12 +61,15 @@ Definition RelMonad : UU := ∑ R : RelMonad_data, RelMonad_axioms R.
 Coercion RelMonad_data_from_RelMonad (R : RelMonad) : RelMonad_data := pr1 R.
 Coercion RelMonad_axioms_from_RelMonad (R : RelMonad) : RelMonad_axioms R := pr2 R.
 
+(** generalize [UniMath.CategoryTheory.Monads.KTriples.map] *)
 Definition r_lift (R : RelMonad_data) {c d : C} (f : c --> d) : R c --> R d
   := r_bind R (#J f · r_eta R _ ).
 
 End RMonad_def.
 
-Definition is_functor_r_lift {C: precategory_data} {D: precategory}{J : functor C D}(R : RelMonad)
+(** generalize [UniMath.CategoryTheory.Monads.KTriples.map_id] and
+               [UniMath.CategoryTheory.Monads.KTriples.map_map] *)
+Definition is_functor_r_lift {C: precategory_data} {D: precategory} {J : functor C D} (R : RelMonad)
   : is_functor (RelMonad_ob R,, @r_lift _ _ J R).
 Proof.
   split; [intro c | intros a b c f g]; cbn; unfold r_lift; cbn.
@@ -82,6 +86,43 @@ Proof.
          eapply pathsinv0. apply maponpaths. apply (r_eta_r_bind R).
     }
     apply pathsinv0, assoc.
+Defined.
+
+Definition R_functor {C: precategory_data} {D: precategory} {J : functor C D}
+  (R : RelMonad): functor C D
+  := _,, is_functor_r_lift(J:=J) R.
+
+(** generalize [UniMath.CategoryTheory.Monads.KTriples.map_η] *)
+Definition is_nat_trans_r_eta {C: precategory_data} {D: precategory} {J : functor C D}(R : RelMonad)
+  : is_nat_trans J (R_functor R) (r_eta R).
+Proof.
+  red.
+  intros c c' f.
+  unfold R_functor; simpl.
+  unfold r_lift; simpl.
+  apply pathsinv0.
+  apply (r_eta_r_bind R).
+Defined.
+
+(** generalize [UniMath.CategoryTheory.Monads.KTriples.map_bind] *)
+Definition r_lift_r_bind {C: precategory_data} {D: precategory} {J : functor C D}(R : RelMonad)(a b c : C) (f : b --> c) (g : J a --> R b)
+  : r_bind R g · r_lift R f = r_bind R (g · r_lift R f).
+Proof.
+  unfold r_lift.
+  rewrite <- (r_bind_r_bind R).
+  apply idpath.
+Defined.
+
+(** generalize [UniMath.CategoryTheory.Monads.KTriples.bind_map] *)
+Definition r_bind_r_lift {C: precategory_data} {D: precategory} {J : functor C D}(R : RelMonad)(a b c : C) (f : J b --> R c) (g : a --> b)
+  : r_lift R g · r_bind R f = r_bind R (#J g · f).
+Proof.
+  unfold r_lift.
+  rewrite (r_bind_r_bind R).
+  apply maponpaths.
+  rewrite <- assoc.
+  apply cancel_precomposition.
+  apply (r_eta_r_bind R).
 Defined.
 
 
