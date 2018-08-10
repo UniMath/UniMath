@@ -22,6 +22,7 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Adjunctions.
 
 Local Open Scope cat.
 
@@ -392,3 +393,115 @@ Defined.
 
 
 End PrecategoryOfRelativeMonads.
+
+Section RelAdjunctionWithKleisliCategory.
+(** The canonical relative adjunction between J and the Kleisli category of a J-relative monad
+
+    This is the obvious generalization of the material in [UniMath.CategoryTheory.Monads.KleisliCategory].
+
+*)
+
+Definition Left_rKleisli_functor_data {C: precategory_data} {D : precategory}
+             {J : functor_data C D} (R: RelMonad J) :
+  functor_data C (Kleisli_precat R).
+Proof.
+  use mk_functor_data.
+  - apply idfun.
+  - intros a b f; unfold idfun.
+    exact (#J f · (r_eta R) b).
+Defined.
+
+Lemma Left_rKleisli_is_functor {C: precategory_data} {D : precategory}
+      {J : functor C D} (R: RelMonad J) :
+  is_functor (Left_rKleisli_functor_data R).
+Proof.
+  split.
+  - intro a.
+    unfold Left_rKleisli_functor_data; simpl.
+    rewrite functor_id.
+    apply id_left.
+  - intros a b c f g.
+    unfold Left_rKleisli_functor_data; simpl.
+    unfold compose at 3; simpl.
+    rewrite functor_comp.
+    do 2 (rewrite <- assoc).
+    apply cancel_precomposition.
+    apply pathsinv0.
+    apply (r_eta_r_bind R).
+Defined.
+
+Definition Left_rKleisli_functor {C: precategory_data} {D : precategory}
+      {J : functor C D} (R: RelMonad J) :
+  functor C (Kleisli_precat R)
+  := (Left_rKleisli_functor_data R,,Left_rKleisli_is_functor R).
+
+Definition Right_rKleisli_functor_data {C: precategory_data} {D : precategory}
+      {J : functor_data C D} (R: RelMonad J):
+  functor_data (Kleisli_precat R) D.
+Proof.
+  use mk_functor_data.
+  - exact R.
+  - intros a b.
+    apply r_bind.
+Defined.
+
+Lemma Right_rKleisli_is_functor {C: precategory_data} {D : precategory}
+      {J : functor C D} (R: RelMonad J) :
+  is_functor (Right_rKleisli_functor_data R).
+Proof.
+  use tpair.
+  - intro a.
+    unfold Right_rKleisli_functor_data; unfold identity;
+    unfold functor_on_morphisms; simpl.
+    apply (r_bind_r_eta R).
+  - intros a b c f g; simpl.
+    apply pathsinv0.
+    apply (r_bind_r_bind R).
+Defined.
+
+Definition Right_rKleisli_functor {C: precategory_data} {D : precategory}
+      {J : functor C D} (R: RelMonad J) :
+  functor (Kleisli_precat R) D
+  := (Right_rKleisli_functor_data R,,Right_rKleisli_is_functor R).
+
+(** Composition of the left and right Kleisli functors is equal to [R] as a functor **)
+
+Definition rKleisli_functor_left_right_compose {C: precategory} {D : precategory}
+  (hs : has_homsets D) {J : functor C D} (R: RelMonad J) :
+  (Left_rKleisli_functor R) ∙ (Right_rKleisli_functor R) = R_functor R.
+Proof.
+  use functor_eq.
+  - exact hs.
+  - use functor_data_eq_from_nat_trans.
+    + intro a; apply idpath.
+    + intros a b f; simpl.
+      rewrite id_right.
+      rewrite id_left.
+      apply idpath.
+Defined.
+
+(** Showing that these functors are relative adjoints *)
+
+Definition rKleisli_functors_are_relative_adjoints {C: precategory_data} {D : precategory}
+           (hs : has_homsets D) {J : functor C D} (R: RelMonad J) :
+  are_relative_adjoints J (Left_rKleisli_functor R) (Right_rKleisli_functor R).
+Proof.
+  use tpair.
+  - intros a b.
+    use tpair.
+    + simpl.
+      apply idfun.
+    + simpl.
+      apply idisweq.
+  - unfold idfun; split.
+    + intros a b f c h.
+      simpl.
+      unfold compose at 1; simpl.
+      rewrite <- assoc.
+      apply cancel_precomposition.
+      apply (r_eta_r_bind R).
+    + intros a b f c k; simpl.
+      reflexivity.
+Defined.
+
+End RelAdjunctionWithKleisliCategory.
