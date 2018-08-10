@@ -4,13 +4,13 @@ Require Export UniMath.CategoryTheory.total2_paths.
 Require Export UniMath.CategoryTheory.Categories.
 Require Export UniMath.CategoryTheory.functor_categories.
 Require Export UniMath.CategoryTheory.Groupoids.
-Require Export UniMath.CategoryTheory.Monads.RelativeMonads.
-Require Export UniMath.CategoryTheory.Monads.RelativeModules.
 Require Export UniMath.CategoryTheory.opp_precat.
 Require Export UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Export UniMath.CategoryTheory.ProductCategory.
 Require Export UniMath.CategoryTheory.whiskering.
 Require Export UniMath.CategoryTheory.Adjunctions.
+Require Export UniMath.CategoryTheory.Monads.RelativeMonads.
+Require Export UniMath.CategoryTheory.Monads.RelativeModules.
 Require Export UniMath.CategoryTheory.equivalences.
 Require Export UniMath.CategoryTheory.equivalences_lemmas.
 Require Export UniMath.CategoryTheory.Subcategory.Core.

@@ -2,13 +2,13 @@ total2_paths.v
 Categories.v
 functor_categories.v
 Groupoids.v
-Monads/RelativeMonads.v
-Monads/RelativeModules.v
 opp_precat.v
 PrecategoryBinProduct.v
 ProductCategory.v
 whiskering.v
 Adjunctions.v
+Monads/RelativeMonads.v
+Monads/RelativeModules.v
 equivalences.v
 equivalences_lemmas.v
 Subcategory/Core.v
