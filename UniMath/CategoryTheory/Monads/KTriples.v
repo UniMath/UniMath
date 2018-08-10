@@ -219,9 +219,7 @@ Lemma Kleisli_Mor_eq {C : precategory} (hs : has_homsets C)
       {T T' : Kleisli C} (α α' : Kleisli_Mor T T') :
   nat_trans_from_kleisli_mor α  = nat_trans_from_kleisli_mor α' → α = α'.
 Proof.
-  intros.
-  apply (subtypeEquality' X).
-  now apply isaprop_Kleisli_Mor_laws.
+  apply Kleisli_Mor_equiv; assumption.
 Defined.
 
 (* ----- η natural transformation. ----- *)
