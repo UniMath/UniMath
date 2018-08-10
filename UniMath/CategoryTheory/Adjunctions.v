@@ -807,3 +807,27 @@ Section Adjunction_HomSetIso_weq.
   Defined.
 
 End Adjunction_HomSetIso_weq.
+
+Section RelativeAdjunction_by_natural_hom_weq.
+
+(** this definition is according to Altenkirch, Chapman and Uustalu
+Reference: % \cite{DBLP:journals/corr/AltenkirchCU14} \par %
+*)
+
+Definition are_relative_adjoints {I: precategory_data} {C D: precategory_data}
+  (J: functor_data I C) (L: functor_data I D) (R: functor_data D C) : UU
+  :=  ∑ (hom_weq :  ∏ {X : I} {Y : D}, L X --> Y ≃ J X --> R Y),
+       (∏ (Y : I) (Z : D) (f : L Y --> Z) (X : I) (h : X --> Y),
+        hom_weq (#L h · f) = #J h · hom_weq f) ×
+       (∏ (X : I) (Y : D) (f : L X --> Y) (Z : D) (k : Y --> Z),
+        hom_weq (f · k) = hom_weq f · #R k).
+
+(** the notion is a proper generalization of one of the criteria for being an adjunction *)
+Lemma natural_hom_weq_is_are_relative_adjoints {C D: precategory}
+      (L: functor C D) (R: functor  D C):
+   are_relative_adjoints (functor_identity C) L R = natural_hom_weq L R.
+Proof.
+  apply idpath.
+Qed.
+
+End RelativeAdjunction_by_natural_hom_weq.
