@@ -192,7 +192,7 @@ Section FunctorAlg_saturated.
 Hypothesis H : is_univalent C.
 
 Definition algebra_eq_type (X Y : FunctorAlg (pr2 H)) : UU
-  := ∑ p : iso (pr1 X) (pr1 Y), pr2 X · p = #F p · pr2 Y.
+  := ∑ p : iso (pr1 X) (pr1 Y), is_algebra_mor X Y p.
 
 Definition algebra_ob_eq (X Y : FunctorAlg (pr2 H)) :
   (X = Y) ≃ algebra_eq_type X Y.
@@ -206,15 +206,11 @@ Proof.
     destruct X as [X α].
     destruct Y as [Y β]; simpl in *.
     destruct p.
-    apply weqimplimpl.
-    + intro x; simpl.
-      rewrite functor_id.
-      rewrite id_left, id_right.
-      apply x.
-    + simpl; rewrite functor_id, id_left, id_right.
-      induction 1. apply idpath.
-    + apply (pr2 H).
-    + apply (pr2 H).
+    rewrite idpath_transportf.
+    unfold is_algebra_mor; simpl.
+    rewrite functor_id.
+    rewrite id_left, id_right.
+    apply idweq.
 Defined.
 
 Definition is_iso_from_is_algebra_iso (X Y : FunctorAlg (pr2 H)) (f : X --> Y)
@@ -269,8 +265,9 @@ Definition algebra_iso_first_iso {X Y : FunctorAlg (pr2 H)}
   : iso X Y ≃ ∑ f : X --> Y, is_iso (pr1 f).
 Proof.
   apply (weqbandf (idweq _ )).
+  unfold idweq. simpl.
   intro f.
-  apply weqimplimpl; simpl.
+  apply weqimplimpl.
   - apply is_iso_from_is_algebra_iso.
   - apply is_algebra_iso_from_is_iso.
   - apply isaprop_is_iso.
@@ -301,9 +298,9 @@ Proof.
     apply invweq.
     eapply weqcomp.
     + apply weqtotal2asstor.
-    + apply (weqbandf (idweq _ )).
-      intro f; simpl.
-      apply swapweq.
+    + simpl. apply (weqbandf (idweq _ )).
+      unfold idweq. simpl.
+      intro f; apply swapweq.
 Defined.
 
 Definition algebra_idtoiso (X Y : FunctorAlg (pr2 H)) :
