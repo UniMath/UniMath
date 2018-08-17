@@ -356,20 +356,21 @@ Defined.
 Lemma slicecat_functor_identity (x : C) :
   slicecat_functor _ (identity x) = functor_identity (C / x).
 Proof.
-apply (functor_eq _ _ (has_homsets_slice_precat _ _)); simpl.
-apply (two_arg_paths_f (slicecat_functor_identity_ob _)).
-apply funextsec; intros [a f].
-apply funextsec; intros [b g].
-apply funextsec; intros [h hh].
-rewrite transport_of_functor_map_is_pointwise; simpl in *.
-unfold slicecat_mor.
-rewrite transportf_total2.
-apply subtypePairEquality; [intro; apply hsC | ].
-rewrite transportf_total2; simpl.
-unfold slicecat_functor_identity_ob.
-rewrite toforallpaths_funextsec; simpl.
-case (id_right f).
-now case (id_right g).
+  apply (functor_eq _ _ (has_homsets_slice_precat _ _)); simpl.
+  apply (two_arg_paths_f (slicecat_functor_identity_ob _)).
+  apply funextsec; intros [a f].
+  apply funextsec; intros [b g].
+  apply funextsec; intros [h hh].
+  rewrite transport_of_functor_map_is_pointwise; simpl in *.
+  unfold double_transport. unfold slicecat_mor, slice_precat_ob_mor, slicecat_mor.
+  simpl.
+  rewrite transportf_total2.
+  apply subtypePairEquality; [intro; apply hsC | ].
+  rewrite transportf_total2; simpl.
+  unfold slicecat_functor_identity_ob.
+  rewrite toforallpaths_funextsec; simpl.
+  case (id_right f).
+  now case (id_right g).
 Qed.
 
 Lemma slicecat_functor_comp_ob {x y z : C} (f : C⟦x,y⟧) (g : C⟦y,z⟧) :
@@ -393,7 +394,8 @@ apply funextsec; intros [a fax].
 apply funextsec; intros [b fbx].
 apply funextsec; intros [h hh].
 rewrite transport_of_functor_map_is_pointwise; simpl in *.
-unfold slicecat_mor.
+unfold double_transport. unfold slicecat_mor, slice_precat_ob_mor, slicecat_mor.
+simpl.
 rewrite transportf_total2.
 apply subtypePairEquality; [intro; apply hsC | ].
 rewrite transportf_total2; simpl.
