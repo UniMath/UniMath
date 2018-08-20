@@ -1404,7 +1404,7 @@ Proof.
   - intros a b.
     apply isaset_nat_trans.
     apply (pr2 H).
-Qed.
+Defined.
 
 
 Lemma functor_category_has_homsets (C D : precategory) (hs: has_homsets D):
