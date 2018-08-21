@@ -860,6 +860,24 @@ Proof.
 Defined.
 
 
+Lemma relmonad_eq_from_relmonad_iso_idtoiso {C : precategory_data} {D : precategory}
+           (H: is_univalent D) (J : functor C D) {R R': RelMonad J} (p: R = R') :
+  relmonad_eq_from_relmonad_iso H J (idtoiso(C := precategory_RelMonad (pr2 H) J) p) = p.
+Proof.
+
+Abort.
+
+Lemma idtoiso_relmonad_eq_from_relmonad_iso {C : precategory_data} {D : precategory}
+           (H: is_univalent D) (J : functor C D) {R R': RelMonad J}
+           (α : iso(C := precategory_RelMonad (pr2 H) J) R R') :
+        idtoiso(C := precategory_RelMonad (pr2 H) J) (relmonad_eq_from_relmonad_iso H J α) = α.
+Proof.
+
+Abort.
+
+
+
+(* currently commented
 Definition relmonadmor_idtoiso {C : precategory_data} {D : precategory}
            (H: is_univalent D) (J : functor C D)(R R': RelMonad J) :
   (R = R') ≃ iso(C := precategory_RelMonad (pr2 H) J) R R'.
@@ -867,10 +885,9 @@ Proof.
   apply (weqpair (@idtoiso (precategory_RelMonad (pr2 H) J) R R')).
   use isweq_iso.
   - exact (relmonad_eq_from_relmonad_iso H J).
-  - admit.
-  - admit.
-Admitted.
-
+  - intro p. exact (relmonad_eq_from_relmonad_iso_idtoiso H J p).
+  - intro α. exact (idtoiso_relmonad_eq_from_relmonad_iso H J α).
+Defined.
 
 Lemma isweq_idtoiso_RelMonad {C : precategory_data} {D : precategory}
            (H: is_univalent D) (J : functor C D)(R R': RelMonad J)
@@ -878,11 +895,9 @@ Lemma isweq_idtoiso_RelMonad {C : precategory_data} {D : precategory}
 Proof.
   apply (isweqhomot (relmonadmor_idtoiso H J R R')).
   - intro p. induction p.
-    simpl. apply eq_iso. apply RelMonadMor_equiv.
-    + apply (pr2 H).
-    + admit. (* apply idpath. cannot yet compute *)
+    apply idpath.
   - apply (pr2 _ ).
-Admitted.
+Qed.
 
 Lemma is_univalent_RelMonad {C : precategory_data} {D : precategory}
       (H: is_univalent D) (J : functor C D)(R R': RelMonad J)
@@ -893,6 +908,7 @@ Proof.
   - clear R R'. intros R R'.
     apply (has_homsets_RelMonad (pr2 H) J).
 Defined.
+*)
 
 
 End RelativeMonads_saturated.
