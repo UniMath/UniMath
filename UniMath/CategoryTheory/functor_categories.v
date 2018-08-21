@@ -1321,7 +1321,7 @@ Proof.
 Defined.
 
 
-Lemma idtoiso_compute_pointwise (C : precategory_data) (D : precategory)
+Lemma idtoiso_functorcat_compute_pointwise (C : precategory_data) (D : precategory)
   (hs: has_homsets D) (F G : ob [C, D, hs])
      (p : F = G) (a : ob C) :
   functor_iso_pointwise_if_iso C D _ F G (idtoiso p) (pr2 (idtoiso p)) a =
@@ -1351,7 +1351,7 @@ Proof.
   simpl.
   rewrite toforallpaths_funextsec.
   apply funextsec; intro a.
-  rewrite idtoiso_compute_pointwise.
+  rewrite idtoiso_functorcat_compute_pointwise.
   apply isotoid_idtoiso.
 Qed.
 
@@ -1363,7 +1363,7 @@ Lemma idtoiso_functor_eq_from_functor_iso (C : precategory_data) (D : precategor
 Proof.
   apply eq_iso.
   simpl; apply nat_trans_eq; intro a. apply hs.
-  assert (H' := idtoiso_compute_pointwise C D _ F G (functor_eq_from_functor_iso _ H F G gamma) a).
+  assert (H' := idtoiso_functorcat_compute_pointwise C D _ F G (functor_eq_from_functor_iso _ H F G gamma) a).
   simpl in *.
   assert (H2 := maponpaths (@pr1 _ _ ) H'). simpl in H2.
   etrans.
