@@ -1101,7 +1101,7 @@ Lemma is_nat_trans_inv_from_pointwise_inv_ext {C : precategory_data} {D : precat
   is_nat_trans _ _
      (λ a : ob C, inv_from_iso (tpair _ _ (H a))).
 Proof.
-  unfold is_nat_trans.
+  red.
   intros x x' f.
   apply pathsinv0.
   apply iso_inv_on_right.
@@ -1109,9 +1109,9 @@ Proof.
   apply iso_inv_on_left.
   set (HA:= pr2 A).
   simpl in *.
+  apply pathsinv0.
   unfold is_nat_trans in HA.
-  rewrite HA.
-  apply idpath.
+  apply HA.
 Qed.
 
 Lemma is_nat_trans_inv_from_pointwise_inv (C : precategory_data)(D : precategory)
@@ -1155,11 +1155,11 @@ Proof.
   simpl; split; simpl.
   - apply nat_trans_eq. apply hs.
     intro x; simpl.
-    set (T:=iso_inv_after_iso (tpair _ (pr1 A x) (H x))).
+    set (T := iso_inv_after_iso (tpair _ (pr1 A x) (H x))).
     apply T.
   - apply nat_trans_eq. apply hs.
     intro x; simpl.
-    set (T:=iso_after_iso_inv (tpair _ (pr1 A x) (H x))).
+    set (T := iso_after_iso_inv (tpair _ (pr1 A x) (H x))).
     apply T.
 Qed.
 
@@ -1190,12 +1190,11 @@ Lemma is_functor_iso_pointwise_if_iso (C : precategory_data)(C' : precategory)
        ∏ a : ob C, is_iso (pr1 A a).
 Proof.
   intros H a.
-  set (T:= inv_from_iso (tpair _ A H)).
-  set (TA:=iso_inv_after_iso (tpair _ A H)).
-  set (TA':= iso_after_iso_inv (tpair _ A H)).
+  set (T := inv_from_iso (tpair _ A H)).
+  set (TA := iso_inv_after_iso (tpair _ A H)).
+  set (TA' := iso_after_iso_inv (tpair _ A H)).
   simpl in *.
   apply (is_iso_qinv _ (T a)).
-  simpl in *.
   unfold is_inverse_in_precat in *; simpl; split.
   - unfold T.
     set (H1' := nat_trans_eq_pointwise TA). apply H1'.
@@ -1208,9 +1207,9 @@ Lemma nat_trans_inv_pointwise_inv_before (C : precategory_data) (C' : precategor
        ∏ a : C, pr1 (inv_from_iso (isopair A Aiso)) a · pr1 A a = identity _ .
 Proof.
   intro a.
-  set (T:= inv_from_iso (isopair A Aiso)).
-  set (TA:=iso_inv_after_iso (isopair A Aiso)).
-  set (TA':= iso_after_iso_inv (isopair A Aiso)).
+  set (T := inv_from_iso (isopair A Aiso)).
+  set (TA := iso_inv_after_iso (isopair A Aiso)).
+  set (TA' := iso_after_iso_inv (isopair A Aiso)).
   apply (nat_trans_eq_pointwise TA').
 Defined.
 
@@ -1220,9 +1219,9 @@ Lemma nat_trans_inv_pointwise_inv_after (C : precategory_data) (C' : precategory
        ∏ a : C, pr1 A a · pr1 (inv_from_iso (isopair A Aiso)) a = identity _ .
 Proof.
   intro a.
-  set (T:= inv_from_iso (isopair A Aiso)).
-  set (TA:=iso_inv_after_iso (isopair A Aiso)).
-  set (TA':= iso_after_iso_inv (isopair A Aiso)).
+  set (T := inv_from_iso (isopair A Aiso)).
+  set (TA := iso_inv_after_iso (isopair A Aiso)).
+  set (TA' := iso_after_iso_inv (isopair A Aiso)).
   apply (nat_trans_eq_pointwise TA).
 Defined.
 
@@ -1243,8 +1242,9 @@ Lemma nat_trans_inv_pointwise_inv_after_p (C : precategory_data) (C' : precatego
 Proof.
   apply pathsinv0.
   apply inv_iso_unique'.
+  unfold precomp_with.
   simpl.
-  set (TA:=iso_inv_after_iso (isopair A Aiso)).
+  set (TA := iso_inv_after_iso (isopair A Aiso)).
   simpl in TA.
   apply (nat_trans_eq_pointwise TA).
 Defined.
@@ -1265,16 +1265,15 @@ Defined.
 
 Lemma transport_of_functor_map_is_pointwise (C : precategory_data) (D : precategory)
       (F0 G0 : ob C -> ob D)
-    (F1 : ∏ a b : ob C, a --> b -> F0 a --> F0 b)
-   (gamma : F0  = G0 )
-    (a b : ob C) (f : a --> b) :
-transportf (fun x : ob C -> ob D =>
-            ∏ a0 b0 : ob  C, a0 --> b0 -> x a0 --> x b0)
-           gamma  F1 a b f =
-transportf (λ TT : ob D, G0 a --> TT)
-  (toforallpaths (λ _ : ob C, D) F0 G0 gamma b)
-  (transportf (λ SS : ob D, SS --> F0 b)
-     (toforallpaths (λ _ : ob C, D) F0 G0 gamma a) (F1 a b f)).
+      (F1 : ∏ a b : ob C, a --> b -> F0 a --> F0 b)
+      (gamma : F0  = G0 )
+      (a b : ob C) (f : a --> b) :
+  transportf (fun x : ob C -> ob D =>
+                ∏ a0 b0 : ob  C, a0 --> b0 -> x a0 --> x b0)
+             gamma F1 a b f =
+  double_transport (toforallpaths (λ _ : ob C, D) F0 G0 gamma a)
+                   (toforallpaths (λ _ : ob C, D) F0 G0 gamma b)
+                   (F1 a b f).
 Proof.
   induction gamma.
   apply idpath.
@@ -1292,40 +1291,23 @@ Proof.
   apply funextsec; intro f.
   rewrite transport_of_functor_map_is_pointwise.
   rewrite toforallpaths_funextsec.
-  intermediate_path ((inv_from_iso
-        (idtoiso
-           (isotoid D H
-              (functor_iso_pointwise_if_iso C D _ F G A (pr2 A) a)))·
-      pr2 (pr1 F) a b f)·
-     idtoiso
-       (isotoid D H
-          (functor_iso_pointwise_if_iso C D _ F G A (pr2 A) b))).
-    set (H':= double_transport_idtoiso D _ _ _ _
-         (isotoid D H (functor_iso_pointwise_if_iso C D _ F G A (pr2 A) a))
-         (isotoid D H (functor_iso_pointwise_if_iso C D _ F G A (pr2 A) b))
-          (pr2 (pr1 F) a b f)).
-      unfold double_transport in H'.
-      apply H'; clear H'.
+  etrans.
+  { apply double_transport_idtoiso. }
   rewrite idtoiso_isotoid.
   rewrite idtoiso_isotoid.
-  destruct A as [A Aiso].
-  simpl in *.
-  intermediate_path
-    (inv_from_iso (functor_iso_pointwise_if_iso C D hs F G A Aiso a) ·
-       (A a · #G f)).
-  rewrite <- assoc.
-  apply maponpaths.
-  apply (nat_trans_ax A).
+  etrans.
+  { rewrite <- assoc.
+    apply cancel_precomposition.
+    apply (nat_trans_ax (pr1 A)).
+  }
+  etrans.
+  { apply cancel_postcomposition.
+    apply nat_trans_inv_pointwise_inv_after_p. }
   rewrite assoc.
-
-  apply remove_id_left.
-  - rewrite nat_trans_inv_pointwise_inv_after_p.
-    set (T:= inv_from_iso (C:=[C,D,hs])(tpair _ A Aiso)).
-    set (TA:=iso_inv_after_iso (C:=[C,D,hs])(tpair _ A Aiso)).
-    set (TA':= iso_after_iso_inv (C:=[C,D,hs])(tpair _ A Aiso)).
-    set (TA'':=nat_trans_comp_pointwise _ _ _ _ _ _ _ _  _ TA').
-    apply TA''.
-  - apply idpath.
+  apply remove_id_left; try apply idpath.
+  set (TA' := iso_after_iso_inv A).
+  set (TA'' := nat_trans_comp_pointwise _ _ _ _ _ _ _ _  _ TA').
+  apply TA''.
 Defined.
 
 Definition functor_eq_from_functor_iso {C : precategory_data} {D : precategory}
@@ -1339,7 +1321,7 @@ Proof.
 Defined.
 
 
-Lemma idtoiso_compute_pointwise (C : precategory_data) (D : precategory)
+Lemma idtoiso_functorcat_compute_pointwise (C : precategory_data) (D : precategory)
   (hs: has_homsets D) (F G : ob [C, D, hs])
      (p : F = G) (a : ob C) :
   functor_iso_pointwise_if_iso C D _ F G (idtoiso p) (pr2 (idtoiso p)) a =
@@ -1369,7 +1351,7 @@ Proof.
   simpl.
   rewrite toforallpaths_funextsec.
   apply funextsec; intro a.
-  rewrite idtoiso_compute_pointwise.
+  rewrite idtoiso_functorcat_compute_pointwise.
   apply isotoid_idtoiso.
 Qed.
 
@@ -1379,18 +1361,14 @@ Lemma idtoiso_functor_eq_from_functor_iso (C : precategory_data) (D : precategor
     (F G : ob [C, D, hs]) (gamma : iso F G) :
         idtoiso (functor_eq_from_functor_iso _ H F G gamma) = gamma.
 Proof.
-
   apply eq_iso.
   simpl; apply nat_trans_eq; intro a. apply hs.
-  assert (H':= idtoiso_compute_pointwise C D _ F G (functor_eq_from_functor_iso _ H F G gamma) a).
+  assert (H' := idtoiso_functorcat_compute_pointwise C D _ F G (functor_eq_from_functor_iso _ H F G gamma) a).
   simpl in *.
-  intermediate_path (pr1
-       (idtoiso
-          (toforallpaths (λ _ : ob C, D) (pr1 (pr1 F)) (pr1 (pr1 G))
-             (base_paths (pr1 F) (pr1 G)
-                (base_paths F G (functor_eq_from_functor_iso hs H F G gamma))) a))).
-      assert (H2 := maponpaths (@pr1 _ _ ) H').
-      simpl in H2. apply H2.
+  assert (H2 := maponpaths (@pr1 _ _ ) H'). simpl in H2.
+  etrans.
+  { apply H2. }
+  clear H' H2.
   unfold functor_eq_from_functor_iso.
   unfold functor_eq.
   rewrite base_total2_paths.
@@ -1398,12 +1376,13 @@ Proof.
   rewrite base_total2_paths.
   intermediate_path (pr1 (idtoiso
      (isotoid D H (functor_iso_pointwise_if_iso C D hs F G gamma (pr2 gamma) a)))).
+  2: { rewrite idtoiso_isotoid.
+       apply idpath.
+  }
   apply maponpaths.
   apply maponpaths.
   unfold pr1_pr1_functor_eq_from_functor_iso.
   rewrite toforallpaths_funextsec.
-  apply idpath.
-  rewrite idtoiso_isotoid.
   apply idpath.
 Qed.
 
@@ -1425,7 +1404,7 @@ Proof.
   - intros a b.
     apply isaset_nat_trans.
     apply (pr2 H).
-Qed.
+Defined.
 
 
 Lemma functor_category_has_homsets (C D : precategory) (hs: has_homsets D):

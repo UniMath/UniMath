@@ -532,4 +532,13 @@ Section Adjunction.
       + simpl. apply unkleislify_kleislify.
   Defined.
 
+  Corollary weq_Kleisli_Monad_precategories:
+    (precategory_Monad C hs) ≃ (precategory_Kleisli C hs).
+  Proof.
+    set (aux := pr2 is_catiso).
+    exact (invweq (weqpair _ aux)).
+  Defined.
+(** This is the main result of [UniMath.CategoryTheory.Monad.Kleisli]. *)
+
+
 End Adjunction.

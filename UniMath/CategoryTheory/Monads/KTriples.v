@@ -368,4 +368,14 @@ Proof.
       now rewrite p.
 Defined.
 
+
+(** inherit the univalence result from [precategory_RelMonad] *)
+Lemma is_univalent_precategory_Kleisli {C : precategory}
+      (H: is_univalent C) (R R': Kleisli C)
+  : is_univalent (precategory_Kleisli C (pr2 H)).
+Proof.
+  exact (is_univalent_RelMonad H (functor_identity C) R R').
+Qed.
+
+
 End Kleisli_precategory.
