@@ -125,7 +125,7 @@ Definition module_image {R : ring} {A B : module R} (f : modulefun A B) : submod
 
 Section submodule_helpers.
 
-  Context {R : rng}
+  Context {R : ring}
           {M : module R}
           (A : submodule M).
 
