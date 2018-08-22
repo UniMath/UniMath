@@ -15,7 +15,7 @@ structure
 *)
 Section quotmod_rel.
 
-  Context {R : rng}
+  Context {R : ring}
           (M : module R).
 
 
@@ -43,7 +43,7 @@ End quotmod_rel.
 *)
 Section quotmod_submodule.
 
-  Context {R : rng}
+  Context {R : ring}
           (M : module R)
           (A : submodule M).
 
@@ -112,7 +112,7 @@ End quotmod_submodule.
 *)
 Section quotmod_def.
 
-  Context {R : rng}
+  Context {R : ring}
           (M : module R)
           (E : module_eqrel M).
 
@@ -122,7 +122,7 @@ Section quotmod_def.
 
   Definition quotmod_abgr : abgr := abgrquot E.
 
-  Definition quotmod_rngact (r : R) : quotmod_abgr -> quotmod_abgr.
+  Definition quotmod_ringact (r : R) : quotmod_abgr -> quotmod_abgr.
   Proof.
     use setquotuniv.
     - intros m.
@@ -132,15 +132,15 @@ Section quotmod_def.
       now apply isactionhrelmodule_eqrel.
   Defined.
 
-  Definition quotmod_rngmap : R -> rngofendabgr quotmod_abgr.
+  Definition quotmod_ringmap : R -> ringofendabgr quotmod_abgr.
   Proof.
     intros r. use tpair.
-    + exact (quotmod_rngact r).
+    + exact (quotmod_ringact r).
     + use mk_ismonoidfun.
       * use mk_isbinopfun.
         use (setquotuniv2prop E (λ a b, hProppair _ _)); [use isasetsetquot|].
         intros m m'.
-        unfold quotmod_rngact, setquotfun2;
+        unfold quotmod_ringact, setquotfun2;
           rewrite (setquotunivcomm E), (setquotunivcomm E);
           simpl; unfold setquotfun2;
             rewrite (setquotuniv2comm E), (setquotuniv2comm E), (setquotunivcomm E).
@@ -148,18 +148,18 @@ Section quotmod_def.
         assert (H : r * (m + m') = r * m + r * m') by use module_mult_is_ldistr.
         simpl in H; rewrite H.
         use eqrelrefl.
-      * unfold unel, quotmod_rngact; simpl; rewrite (setquotunivcomm E).
+      * unfold unel, quotmod_ringact; simpl; rewrite (setquotunivcomm E).
         apply maponpaths.
         apply module_mult_1.
   Defined.
 
-  Definition quotmod_rngfun : rngfun R (rngofendabgr quotmod_abgr).
+  Definition quotmod_ringfun : ringfun R (ringofendabgr quotmod_abgr).
   Proof.
-    unfold rngfun, rigfun.
+    unfold ringfun, rigfun.
     use rigfunconstr.
-    - exact quotmod_rngmap.
+    - exact quotmod_ringmap.
     - use mk_isrigfun.
-      (* To show that quotmod_rngmap is a ring action, we show it is a monoid homomorphism with
+      (* To show that quotmod_ringmap is a ring action, we show it is a monoid homomorphism with
       respect to both monoids on R. *)
       all: use mk_ismonoidfun;
         (* To show that a map is a monoid homomorphism, we show that it respects the binary
@@ -171,7 +171,7 @@ Section quotmod_def.
       (* We show this using the universal property of the set quotient. *)
       all: use (setquotunivprop E (λ m, hProppair _ _)); [use isasetsetquot|].
       (* Expand out some definitions. *)
-      all: intros m; simpl; unfold unel, quotmod_rngact, funcomp.
+      all: intros m; simpl; unfold unel, quotmod_ringact, funcomp.
       (* Apply the computation rule of the universal property of the set quotient. *)
       all: [> do 3 rewrite (setquotunivcomm E) | rewrite (setquotunivcomm E)
             | do 3 rewrite (setquotunivcomm E) | rewrite (setquotunivcomm E)].
@@ -185,7 +185,7 @@ Section quotmod_def.
       + use module_mult_unel2.
   Defined.
 
-  Definition quotmod_mod_struct : module_struct R quotmod_abgr := quotmod_rngfun.
+  Definition quotmod_mod_struct : module_struct R quotmod_abgr := quotmod_ringfun.
 
   Definition quotmod : module R.
   Proof.
@@ -237,7 +237,7 @@ End quotmod_def.
 *)
 Section from_submodule.
 
-  Context {R : rng}
+  Context {R : ring}
           (M : module R)
           (A : submodule M).
 
