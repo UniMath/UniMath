@@ -28,7 +28,7 @@ Section quotmod_rel.
   Definition hrelmodule_eqrel (E : module_eqrel) : eqrel M := pr1 E.
   Coercion hrelmodule_eqrel : module_eqrel >-> eqrel.
 
-  Definition binophrelmodule_eqrel (E : module_eqrel) : binopeqrel := binopeqrelpair E (pr1 (pr2 E)).
+  Definition binophrelmodule_eqrel (E : module_eqrel) : binopeqrel M := binopeqrelpair E (pr1 (pr2 E)).
   Coercion binophrelmodule_eqrel : module_eqrel >-> binopeqrel.
 
   Definition isactionhrelmodule_eqrel (E : module_eqrel) : isactionhrel E := pr2 (pr2 E).
