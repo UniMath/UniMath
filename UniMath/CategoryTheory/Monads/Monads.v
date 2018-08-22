@@ -193,18 +193,23 @@ Definition precategory_Monad (C : precategory) (hs : has_homsets C) : precategor
   := tpair _ _ (precategory_Monad_axioms C hs).
 
 
-Lemma has_homsets_Monad (C : category) : has_homsets (precategory_Monad C (homset_property C)).
+Lemma has_homsets_precategory_Monad (C : precategory) (hs: has_homsets C) : has_homsets (precategory_Monad C hs).
 Proof.
   intros F G.
   simpl.
   unfold Monad_Mor.
   apply isaset_total2 .
   - apply isaset_nat_trans.
-    apply homset_property.
+    exact hs.
   - intro m.
     apply isasetaprop.
     apply isaprop_Monad_Mor_laws.
-    apply homset_property.
+    exact hs.
+Qed.
+
+Corollary has_homsets_Monad (C : category) : has_homsets (precategory_Monad C (homset_property C)).
+Proof.
+  exact (has_homsets_precategory_Monad C (homset_property C)).
 Qed.
 
 Definition category_Monad (C : category) : category :=
