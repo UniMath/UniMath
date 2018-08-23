@@ -52,13 +52,13 @@ Coercion bicat_ob (C : prebicategory_ob_hom) : UU := pr1 C.
 
 Definition homprecat {C : prebicategory_ob_hom} (a b : C) : precategory := pr2 C a b.
 
-Local Notation "a  '-1->'  b" := (homprecat a b) (at level 50).
+Local Notation "a  '-1->'  b" := (homprecat a b) (at level 50, left associativity).
 
 Local Notation "f  '-2->'  g" := (@precategory_morphisms (_ -1->_) f g)
-  (at level 50).
+  (at level 50, left associativity).
 
 Local Notation "alpha  ';v;'  beta" := (@compose (_ -1-> _) _ _ _ alpha beta)
- (at level 50).
+ (at level 50, left associativity).
 
 Definition prebicategory_id_comp :=
   ∑ C : prebicategory_ob_hom,
@@ -78,7 +78,7 @@ Definition compose1 {C : prebicategory_id_comp} {a b c : C} (f : a -1-> b) (g : 
   := functor_on_objects (compose_functor a b c) (dirprodpair f g).
 
 Local Notation "f  ';1;'  g" := (compose1 f g)
-  (at level 50, no associativity).
+  (at level 50, left associativity).
 
 Definition compose2h {C : prebicategory_id_comp} {a b c : C}
            {f f' : a -1-> b}
@@ -91,7 +91,7 @@ Proof.
   exact (precatbinprodmor alpha beta).
 Defined.
 
-Local Notation "alpha  ';h;'  beta" := (compose2h alpha beta) (at level 50).
+Local Notation "alpha  ';h;'  beta" := (compose2h alpha beta) (at level 50, left associativity).
 
 Definition compose2h_iso {C : prebicategory_id_comp} {a b c : C}
            {f f' : a -1-> b}
@@ -103,7 +103,7 @@ Proof.
   apply functor_on_iso. exact (precatbinprodiso alpha beta).
 Defined.
 
-Local Notation "alpha  ';hi;'  beta" := (compose2h_iso alpha beta) (at level 50).
+Local Notation "alpha  ';hi;'  beta" := (compose2h_iso alpha beta) (at level 50, left associativity).
 
 Definition associator_trans_type {C : prebicategory_id_comp} (a b c d : C) : UU
   := pair_functor (functor_identity (a -1-> b)) (compose_functor b c d) ∙

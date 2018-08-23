@@ -57,18 +57,20 @@ Reserved Notation "'¬' X" (at level 35, right associativity).
 
 Reserved Notation "A × B" (at level 75, right associativity).
 
-Reserved Notation "C ⟦ a , b ⟧" (at level 50).
+Reserved Notation "C ⟦ a , b ⟧" (at level 49, right associativity).
 (* ⟦   to input: type "\[[" or "\(" with Agda input method
    ⟧   to input: type "\]]" or "\)" with Agda input method *)
+
+Reserved Notation "⟦ a ⟧" (at level 48, left associativity).
 
 Reserved Notation "f ;; g"  (at level 50, left associativity, only parsing). (* deprecated *)
 
 Reserved Notation "f · g"  (at level 50, format "f  ·  g", left associativity).
 (* to input: type "\centerdot" or "\cdot" with Agda input method *)
 
-Reserved Notation "a --> b" (at level 50).
+Reserved Notation "a --> b" (at level 50, left associativity).
 
-Reserved Notation "! p " (at level 50).
+Reserved Notation "! p " (at level 50, left associativity).
 
 (* conflict:
     Reserved Notation "# F"  (at level 3).
@@ -79,11 +81,11 @@ Reserved Notation "p #' x" (right associativity, at level 65, only parsing).
 
 Reserved Notation "C '^op'" (at level 3, format "C ^op").
 
-Reserved Notation "a <-- b" (at level 50).
+Reserved Notation "a <-- b" (at level 50, left associativity).
 
 Reserved Notation "[ C , D ]" .
 
-Reserved Notation "C [ a , b ]"  (at level 50).
+Reserved Notation "C [ a , b ]"  (at level 50, left associativity).
 
 Reserved Notation "X ⟶ Y"  (at level 39).
 (* to input: type "\-->" with Agda input method *)
@@ -114,7 +116,7 @@ Reserved Notation "F ▭ f"  (at level 40, left associativity). (* \rew1 *)
     (* to input: type "\Rightarrow" or "\r=" or "\r" or "\Longrightarrow" or "\=>" with Agda input method *)
 *)
 
-Reserved Notation "X ⇐ c"   (at level 50).
+Reserved Notation "X ⇐ c"   (at level 50, left associativity).
 (* to input: type "\Leftarrow" or "\Longleftarrow" or "\l=" or "\l" with Agda input method *)
 
 Reserved Notation "x ⟲ f"  (at level 50, left associativity).
@@ -126,7 +128,7 @@ Reserved Notation "q ⟳ x"  (at level 50, left associativity).
 Reserved Notation "p ◽ b"  (at level 40).
 (* to input: type "\sqw" or "\sq" with Agda input method *)
 
-Reserved Notation "xe ⟲⟲ p"  (at level 50).
+Reserved Notation "xe ⟲⟲ p"  (at level 50, left associativity).
 (* to input: type "\l" and select from the menu, row 4, spot 2, with Agda input method *)
 
 Reserved Notation "r \\ x"  (at level 50, left associativity).

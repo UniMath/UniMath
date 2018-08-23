@@ -130,7 +130,7 @@ Definition hcomp' {C : prebicat_data} {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 :
   : f1 ==> f2 -> g1 ==> g2 -> f1 · g1 ==> f2 · g2
   := λ x y, (f1 ◃ y) • (x ▹ g2).
 
-Local Notation "x ⋆ y" := (hcomp x y) (at level 50).
+Local Notation "x ⋆ y" := (hcomp x y) (at level 50, left associativity).
 
 (* ----------------------------------------------------------------------------------- *)
 (** ** Laws                                                                            *)
@@ -1289,6 +1289,6 @@ Notation "f '<==' g" := (prebicat_cells _ g f) (at level 60, only parsing).
 Notation "x • y" := (vcomp2 x y) (at level 60).
 Notation "f ◃ x" := (lwhisker f x) (at level 60). (* \tw *)
 Notation "y ▹ g" := (rwhisker g y) (at level 60). (* \tw nr 2 *)
-Notation "x ⋆ y" := (hcomp x y) (at level 50).
+Notation "x ⋆ y" := (hcomp x y) (at level 50, left associativity).
 
 End Notations.
