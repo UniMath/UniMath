@@ -62,6 +62,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Modules/Submodule.v](Algebra/Modules/Submodule.v)
    - [Modules/Multimodules.v](Algebra/Modules/Multimodules.v)
    - [Modules/Examples.v](Algebra/Modules/Examples.v)
+   - [Modules/Quotient.v](Algebra/Modules/Quotient.v)
    - [Modules.v](Algebra/Modules.v)
    - [Matrix.v](Algebra/Matrix.v)
    - [All.v](Algebra/All.v)
