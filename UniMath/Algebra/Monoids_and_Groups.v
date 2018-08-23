@@ -2547,7 +2547,6 @@ Proof.
   split with (isgrquot R).
   apply (pr2 (@isabmonoidquot X R)).
 Defined.
-Global Opaque isabgrquot.
 
 Definition abgrquot {X : abgr} (R : binopeqrel X) : abgr.
 Proof. split with (setwithbinopquot R). apply isabgrquot. Defined.

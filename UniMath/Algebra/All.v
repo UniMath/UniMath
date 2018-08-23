@@ -16,5 +16,6 @@ Require Export UniMath.Algebra.Modules.Core.
 Require Export UniMath.Algebra.Modules.Submodule.
 Require Export UniMath.Algebra.Modules.Multimodules.
 Require Export UniMath.Algebra.Modules.Examples.
+Require Export UniMath.Algebra.Modules.Quotient.
 Require Export UniMath.Algebra.Modules.
 Require Export UniMath.Algebra.Matrix.

@@ -489,8 +489,10 @@ Definition modulefun {R : ring} (M N : module R) : UU := ∑ f : M -> N, ismodul
 Definition modulefunpair {R : ring} {M N : module R} (f : M -> N) (is : ismodulefun f) :
   modulefun M N := tpair _ f is.
 
+Local Notation "R-mod( M , N )" := (modulefun M N) : module_scope.
+
 Section accessors.
-  Context {R : ring} {M N : module R} (f : modulefun M N).
+  Context {R : ring} {M N : module R} (f : R-mod(M, N)).
 
   Definition pr1modulefun : M -> N := pr1 f.
 
@@ -510,7 +512,7 @@ End accessors.
 
 Coercion pr1modulefun : modulefun >-> Funclass.
 
-Lemma ismodulefun_comp {R} {M N P : module R} (f : modulefun M N) (g : modulefun N P) :
+Lemma ismodulefun_comp {R} {M N P : module R} (f : R-mod(M,N)) (g : R-mod(N,P)) :
   ismodulefun (g ∘ f)%functions.
 Proof.
   exact (dirprodpair (isbinopfuncomp (modulefun_to_binopfun f)
@@ -520,10 +522,10 @@ Proof.
 Defined.
 
 Definition modulefun_comp
-  {R} {M N P : module R} (f : modulefun M N) (g : modulefun N P) : modulefun M P :=
+  {R} {M N P : module R} (f : R-mod(M, N)) (g : R-mod(N,P)) : R-mod(M,P) :=
   (funcomp f g,, ismodulefun_comp f g).
 
-Lemma modulefun_unel {R : ring} {M N : module R} (f : modulefun M N) : f (unel M) = unel N.
+Lemma modulefun_unel {R : ring} {M N : module R} (f : R-mod(M, N)) : f (unel M) = unel N.
 Proof.
    rewrite <- (module_mult_0_to_0 (unel M)).
    rewrite ((modulefun_to_islinear f) ringunel1 (unel M)).
@@ -533,15 +535,15 @@ Defined.
 
 Definition moduletomonoid  {R : ring} (M : module R) : abmonoid := abgrtoabmonoid (pr1module M).
 
-Definition modulefun_to_monoidfun {R : ring} {M N : module R} (f : modulefun M N) :
+Definition modulefun_to_monoidfun {R : ring} {M N : module R} (f : R-mod(M, N)) :
   monoidfun (moduletomonoid M) (moduletomonoid N) :=
   tpair _ (pr1 f) (tpair _ (pr1 (pr2 f)) (modulefun_unel f)).
 
-Definition modulefun_from_monoidfun {R : ring} {M N : module R} (f : monoidfun M N)
-           (H : islinear (pr1 f)) : modulefun M N :=
+Definition modulefun_from_monoidfun {R : ring} {M N : module R} (f : R-mod(M, N))
+           (H : islinear (pr1 f)) : R-mod(M, N) :=
   modulefunpair (pr1 f) (ismodulefunpair (pr1 (pr2 f)) H).
 
-Lemma modulefun_paths {R : ring} {M N : module R} {f g : modulefun M N} (p : pr1 f = pr1 g) :
+Lemma modulefun_paths {R : ring} {M N : module R} {f g : R-mod(M, N)} (p : pr1 f = pr1 g) :
   f = g.
 Proof.
   use total2_paths_f.
@@ -553,7 +555,7 @@ Lemma modulefun_paths2 {R : ring} {M N : module R} {f g : modulefun M N} (p : pr
   f = g.
 Proof. exact (modulefun_paths (funextfun _ _ p)). Defined.
 
-Lemma isasetmodulefun {R : ring} (M N : module R) : isaset (modulefun M N).
+Lemma isasetmodulefun {R : ring} (M N : module R) : isaset (R-mod(M, N)).
 Proof.
   intros. apply (isasetsubset (@pr1modulefun R M N)).
   - change (isofhlevel 2 (M -> N)).
@@ -564,7 +566,7 @@ Proof.
 Defined.
 
 (* module structure of morphisms between modules *)
-Lemma modulehombinop_ismodulefun {R : ring} {M N : module R} (f g : modulefun M N) :
+Lemma modulehombinop_ismodulefun {R : ring} {M N : module R} (f g : R-mod(M, N)) :
   @ismodulefun R M N (λ x : pr1 M, (pr1 f x * pr1 g x)%multmonoid).
 Proof.
   use ismodulefunpair.
@@ -574,7 +576,7 @@ Proof.
     rewrite <- module_mult_is_ldistr. reflexivity.
 Defined.
 
-Definition modulehombinop {R : ring} {M N : module R} : binop (modulefun M N) :=
+Definition modulehombinop {R : ring} {M N : module R} : binop (R-mod(M, N)) :=
   (λ f g, modulefunpair _ (modulehombinop_ismodulefun f g)).
 
 Lemma unelmodulefun_ismodulefun {R : ring} (M N : module R) : ismodulefun (λ x : M, (unel N)).
@@ -584,35 +586,35 @@ Proof.
   - intros r m. rewrite module_mult_1. reflexivity.
 Qed.
 
-Definition unelmodulefun {R : ring} (M N : module R) : modulefun M N :=
+Definition unelmodulefun {R : ring} (M N : module R) : R-mod(M, N) :=
   modulefunpair _ (unelmodulefun_ismodulefun M N).
 
-Lemma modulebinop_runax {R : ring} {M N : module R} (f : modulefun M N) :
+Lemma modulebinop_runax {R : ring} {M N : module R} (f : R-mod(M, N)) :
   modulehombinop f (unelmodulefun M N) = f.
 Proof.
   use modulefun_paths2. intros x. use (runax N).
 Qed.
 
-Lemma modulebinop_lunax {R : ring} {M N : module R} (f : modulefun M N) :
+Lemma modulebinop_lunax {R : ring} {M N : module R} (f : R-mod(M, N)) :
   modulehombinop (unelmodulefun M N) f = f.
 Proof.
   use modulefun_paths2. intros x. use (lunax N).
 Qed.
 
-Lemma modulehombinop_assoc {R : ring} {M N : module R} (f g h : modulefun M N) :
+Lemma modulehombinop_assoc {R : ring} {M N : module R} (f g h : R-mod(M, N)) :
   modulehombinop (modulehombinop f g) h = modulehombinop f (modulehombinop g h).
 Proof.
   use modulefun_paths2. intros x. use assocax.
 Qed.
 
-Lemma modulehombinop_comm {R : ring} {M N : module R} (f g : modulefun M N) :
+Lemma modulehombinop_comm {R : ring} {M N : module R} (f g : R-mod(M, N)) :
   modulehombinop f g = modulehombinop g f.
 Proof.
   use modulefun_paths2. intros x. use (commax N).
 Qed.
 
 Lemma modulehomabmodule_ismoduleop {R : ring} {M N : module R} :
-  ismonoidop (λ f g : modulefun M N, modulehombinop f g).
+  ismonoidop (λ f g : R-mod(M, N), modulehombinop f g).
 Proof.
   use mk_ismonoidop.
   - intros f g h. exact (modulehombinop_assoc f g h).
@@ -623,7 +625,7 @@ Proof.
       * intros f. exact (modulebinop_runax f).
 Defined.
 
-Lemma modulehombinop_inv_ismodulefun {R : ring} {M N : module R} (f : modulefun M N) :
+Lemma modulehombinop_inv_ismodulefun {R : ring} {M N : module R} (f : R-mod(M, N)) :
   ismodulefun (λ m : M, grinv N (pr1 f m)).
 Proof.
   use tpair.
@@ -633,23 +635,23 @@ Proof.
     apply (pr2 f).
 Qed.
 
-Definition modulehombinop_inv {R : ring} {M N : module R} (f : modulefun M N) : modulefun M N :=
+Definition modulehombinop_inv {R : ring} {M N : module R} (f : R-mod(M, N)) : R-mod(M, N) :=
   tpair _ _ (modulehombinop_inv_ismodulefun f).
 
-Lemma modulehombinop_linvax {R : ring} {M N : module R} (f : modulefun M N) :
+Lemma modulehombinop_linvax {R : ring} {M N : module R} (f : R-mod(M, N)) :
   modulehombinop (modulehombinop_inv f) f = unelmodulefun M N.
 Proof.
   use modulefun_paths2. intros x. use (@grlinvax N).
 Qed.
 
-Lemma modulehombinop_rinvax {R : ring} {M N : module R} (f : modulefun M N) :
+Lemma modulehombinop_rinvax {R : ring} {M N : module R} (f : R-mod(M, N)) :
   modulehombinop f (modulehombinop_inv f) = unelmodulefun M N.
 Proof.
   use modulefun_paths2. intros x. use (grrinvax N).
 Qed.
 
 Lemma modulehomabgr_isabgrop {R : ring} (M N : module R) :
-  isabgrop (λ f g : modulefun M N, modulehombinop f g).
+  isabgrop (λ f g : R-mod(M, N), modulehombinop f g).
 Proof.
   use mk_isabgrop.
   use mk_isgrop.
@@ -667,14 +669,14 @@ Proof.
   use abgrpair.
   use setwithbinoppair.
   use hSetpair.
-  - exact (modulefun M N).
+  - exact (R-mod(M, N)).
   - exact (isasetmodulefun M N).
   - exact (@modulehombinop R M N).
   - exact (modulehomabgr_isabgrop M N).
 Defined.
 
 Definition modulehombinop_scalar_ismodulefun {R : commring} {M N : module R} (r : R)
-           (f : modulefun M N) : ismodulefun (λ m : M, r * (pr1 f m)).
+           (f : R-mod(M, N)) : ismodulefun (λ m : M, r * (pr1 f m)).
 Proof.
   use tpair.
   - use mk_isbinopfun. intros x x'. cbn.
@@ -683,7 +685,7 @@ Proof.
     rewrite ringcomm2. reflexivity.
 Qed.
 
-Definition modulehombinop_smul {R : commring} {M N : module R} (r : R) (f : modulefun M N) :
+Definition modulehombinop_smul {R : commring} {M N : module R} (r : R) (f : R-mod(M, N)) :
   modulefun M N :=
   modulefunpair _ (modulehombinop_scalar_ismodulefun r f).
 
@@ -709,7 +711,7 @@ Section accessors_moduleiso.
 
   Definition moduleiso_to_weq : (pr1module M) ≃ (pr1module N) := pr1 f.
   Definition moduleiso_ismodulefun : ismodulefun moduleiso_to_weq := pr2 f.
-  Definition moduleiso_to_modulefun : modulefun M N :=
+  Definition moduleiso_to_modulefun : R-mod(M, N) :=
     (tpair _ (pr1weq moduleiso_to_weq) (pr2 f)).
 End accessors_moduleiso.
 
