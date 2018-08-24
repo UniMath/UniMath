@@ -29,6 +29,7 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 
@@ -469,3 +470,46 @@ Section Monad_eq_helper.
   Qed.
 
 End Monad_eq_helper.
+
+Section Monads_from_adjunctions.
+
+Definition functor_with_μ_from_adjunction {C D : precategory} 
+  {L : functor C D} {R : functor D C} (H : are_adjoints L R) :
+  functor_with_μ C.
+Proof.
+  use tpair.
+  - exact (L∙R).
+  - exact (pre_whisker L (post_whisker (adjcounit H) R)).
+Defined.
+
+Definition Monad_data_from_adjunction {C D : precategory} {L : functor C D}
+  {R : functor D C} (H : are_adjoints L R) : Monad_data C.
+Proof.
+  use tpair.
+  - exact (functor_with_μ_from_adjunction H).
+  - cbn.
+    exact (adjunit H).
+Defined.
+
+Definition Monad_from_adjunction {C D : precategory} {L : functor C D}
+  {R : functor D C} (H : are_adjoints L R) : Monad C.
+Proof.
+  use tpair.
+  - exact (Monad_data_from_adjunction H).
+  - cbn.
+    use dirprodpair.
+    + use dirprodpair.
+      * intro c; cbn.
+        apply triangle_id_right_ad.
+      * intro c; cbn.
+        rewrite <- functor_id.
+        rewrite <- functor_comp.
+        apply maponpaths.
+        apply triangle_id_left_ad.
+    + intro c; cbn.
+      do 2 (rewrite <- functor_comp).
+      apply maponpaths.
+      apply (nat_trans_ax ((counit_from_are_adjoints H))).
+Defined.
+
+End Monads_from_adjunctions.
