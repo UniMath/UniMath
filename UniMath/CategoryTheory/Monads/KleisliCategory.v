@@ -71,15 +71,15 @@ Proof.
   split.
   - split.
     + intros a b f.
-      unfold identity; unfold compose; simpl.
+      unfold identity; unfold compose; cbn.
       apply η_bind.
     + intros a b f.
-      unfold identity; unfold compose; simpl.
+      unfold identity; unfold compose; cbn.
       rewrite <- id_right.
       apply cancel_precomposition.
       apply bind_η.
   - intros a b c d f g h.
-    unfold compose; simpl.
+    unfold compose; cbn.
     rewrite <- bind_bind.
     apply assoc.
 Defined.
@@ -115,11 +115,10 @@ Lemma Left_Kleisli_is_functor {C : precategory} (T: Monad C) :
 Proof.
   split.
   - intro a.
-    unfold Left_Kleisli_functor_data; simpl.
+    unfold Left_Kleisli_functor_data; cbn.
     apply id_left.
   - intros a b c f g.
-    unfold Left_Kleisli_functor_data; simpl.
-    unfold compose at 3; simpl.
+    unfold Left_Kleisli_functor_data; cbn.
     do 2 (rewrite <- assoc).
     apply cancel_precomposition.
     apply pathsinv0.
@@ -145,9 +144,9 @@ Proof.
   use tpair.
   - intro a.
     unfold Right_Kleisli_functor_data; unfold identity;
-    unfold functor_on_morphisms; simpl.
+    unfold functor_on_morphisms; cbn.
     apply bind_η.
-  - intros a b c f g; simpl.
+  - intros a b c f g; cbn.
     apply pathsinv0.
     apply bind_bind.
 Defined.
@@ -166,7 +165,7 @@ Proof.
   - exact hs.
   - use functor_data_eq_from_nat_trans.
     + intro a; apply idpath.
-    + intros a b f; simpl.
+    + intros a b f; cbn.
       rewrite id_right.
       rewrite id_left.
       apply bind_comp_η.
@@ -177,23 +176,52 @@ Defined.
 Definition Kleisli_homset_iso {C : precategory} (T : Monad C) : natural_hom_weq (Left_Kleisli_functor T) (Right_Kleisli_functor T).
 Proof.
   use tpair.
-  - intros a b.
-    use tpair.
-    + simpl.
-      apply idfun.
-    + simpl.
-      apply idisweq.
-  - unfold idfun; split.
-    + intros a b f c h.
-      simpl.
-      unfold compose at 1; simpl.
+  - intros a b; cbn.
+    apply idweq.
+  - cbn; unfold idfun; split.
+    + intros.
       rewrite <- assoc.
       apply cancel_precomposition.
       apply η_bind.
-    + intros a b f c k; simpl.
-      reflexivity.
+    + reflexivity.
 Defined.
 
 Definition Kleisli_functors_are_adjoints {C : precategory} (T : Monad C) : are_adjoints (Left_Kleisli_functor T) (Right_Kleisli_functor T) := adj_from_nathomweq (Kleisli_homset_iso T).
+
+Definition Left_Kleisli_is_left_adjoint {C : precategory} (T : Monad C) 
+  : is_left_adjoint (Left_Kleisli_functor T) 
+    := are_adjoints_to_is_left_adjoint (Left_Kleisli_functor T)
+    (Right_Kleisli_functor T) (Kleisli_functors_are_adjoints T).
+
+Definition Right_Kleisli_is_right_adjoint {C : precategory} (T : Monad C) 
+  : is_right_adjoint (Right_Kleisli_functor T) 
+    := are_adjoints_to_is_right_adjoint (Left_Kleisli_functor T)
+    (Right_Kleisli_functor T) (Kleisli_functors_are_adjoints T).
+
+Theorem Kleisli_adjunction_monad_eq {C : precategory} (hs : has_homsets C) (T : Monad C)  : Monad_from_adjunction (Kleisli_functors_are_adjoints T) = T.
+Proof.
+  use Monad_eq_raw_data.
+  - exact hs.
+  - apply total2_paths_equiv; use tpair.
+    + cbn.
+      reflexivity.
+    + cbn.
+      apply total2_paths_equiv; use tpair.
+      * cbn.
+        apply total2_paths_equiv; use tpair.
+        -- cbn.
+           do 2 (apply funextsec; intro).
+           apply funextfun; intro f.
+           cbn.
+           apply bind_comp_η.
+        -- cbn.
+           rewrite transportf_const.
+           unfold idfun.
+           apply funextsec; intro c.
+           apply bind_identity.
+      * cbn.
+        rewrite transportf_const.
+        reflexivity.
+Defined.
 
 End Kleisli_Categories.
