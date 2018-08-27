@@ -5,7 +5,7 @@ A wild mix of material from multiple authors.
 
 ## Contents
 
-* *Monads.v* --- monads based on monad multiplication, def. of bind operation and substitution, a rawer data format for such monads
+* *Monads.v* --- monads based on monad multiplication, def. of bind operation and substitution, a rawer data format for such monads, monad construction from adjunction
 * *KleisliCategory.v* --- Kleisli category based on def. in Monads.v and its canonical adjunction
 * *RelativeMonads.v* --- relative monads (naturally in the setting of Kleisli triples), their Kleisli category (and its canonical relative adjunction), univalence
 * *KTriples.v* --- monads based on Kleisli triples (i.e., with Haskell-style bind operator), which are a special case of the relative monads
