@@ -4,7 +4,7 @@ Contents:
 
 - Definition of relative monads [RelMonad]
 - Functoriality for relative monads [r_lift]
-- Kleisli category associated to a relative monad [Kleisli_precat] [Kleisli_cat]
+- Kleisli category associated to a relative monad [Kleisli_precat] [Kleisli_cat], canonical relative adjunction [rKleisli_functors_are_relative_adjoints]
 - Category of relative monads is univalent if the target category is [is_univalent_RelMonad]
 
 Reference: % \cite{DBLP:journals/corr/AltenkirchCU14} \par %
