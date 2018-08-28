@@ -11,7 +11,9 @@ Contents:
         - A helper lemma for proving equality of Monads ([Monad_eq_raw_data])
 
 TODO:
-        - Proof that [precategory_Monad C] is saturated if [C] is
+        - Proof that [precategory_Monad C] is univalent if [C] is
+          (should follow easily from same result for relative monads [RelativeMonads.is_univalent_RelMonad] and
+           isomorphism of categories with Kleisli triples [KTriplesEquiv.is_catiso])
 
 
 Written by: Benedikt Ahrens (started March 2015)
