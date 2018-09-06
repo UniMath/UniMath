@@ -4,6 +4,11 @@
     February 2018
  ********************************************************************************* *)
 
+(* ========================================================================= *)
+(* Every (pre)bicategory of UniMath.CategoryTheory.Bicategories.Bicat is a   *)
+(* (pre)bicategory of UniMath.CategoryTheory.WkCatEnrichment.                *)
+(* ========================================================================= *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
