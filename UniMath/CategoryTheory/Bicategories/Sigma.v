@@ -17,52 +17,6 @@ Require Import UniMath.CategoryTheory.Bicategories.DispBicat. Import DispBicat.N
 Open Scope cat.
 Open Scope mor_disp_scope.
 
-(* --------------------------------------------------------------------------------------------- *)
-(* Miscellanea.                                                                                  *)
-(* --------------------------------------------------------------------------------------------- *)
-
-(* Nice, but not used here. *)
-Definition transportf_strong (A : UU) (a b : A) (P : ∏ (x : A), a = x -> UU)
-           (e : a = b) (p : P a (idpath a))
-  : P b e.
-Proof.
-  set (T:= @transportf (∑ a' : A, a = a') (λ a'e, P (pr1 a'e) (pr2 a'e)) ).
-  specialize (T (a,, idpath _ )).
-  specialize (T (b,, e)).
-  apply T.
-  - use total2_paths_f.
-    + exact e.
-    + cbn. apply transportf_id1.
-  - cbn. apply p.
-Defined.
-
-Lemma pr2_transportf_map (A : UU) (B : A -> UU) (P : ∏ a, B a -> UU)
-      (a a' : A) (e : a = a') (xs : ∑ b : B a, P a b) :
-  P a (pr1 xs) -> P a' (transportf (λ x : A, B x) e (pr1 xs)).
-Proof.
-  intro p. induction e. apply p.
-Defined.
-
-Lemma pr2_transportf_map' (A : UU) (B : A -> UU) (P : ∏ a, B a -> UU)
-      (a a' : A) (e : a = a') (xs : ∑ b : B a, P a b) :
-  P a (pr1 xs) -> P a' (pr1 (transportf (λ x : A, ∑ b : B x, P x b) e xs)).
-Proof.
-  intro p.
-  set (T:= transportf_strong A a a'
-                             (λ (x : A) (e' : a = x),
-                              P x (pr1 (transportf (λ y : A, ∑ b : B y, P y b)
-                                                   e' xs)))).
-  cbn in T. apply T. apply p.
-Defined.
-
-Lemma pr2_transportf (A : UU) (B : A -> UU) (P : ∏ a, B a -> UU)
-   (a a' : A) (e : a = a') (xs : ∑ b : B a, P a b):
-  pr2 (transportf (λ x, ∑ b : B x, P _ b) e xs) =
-  pr2_transportf_map' A B P a a' e xs (pr2 xs).
-Proof.
-  induction e; apply idpath.
-Defined.
-
 Definition mk_total_ob {C : bicat} {D : disp_bicat C} {a : C} (aa : D a)
   : total_bicat D
   := (a,, aa).

@@ -1,13 +1,12 @@
 (* ******************************************************************************* *)
 (** * Bicategories
-    Benedikt Ahrens, Marco Maggesi
-    February 2018
- ********************************************************************************* *)
 
-(* ========================================================================= *)
-(* Every (pre)bicategory of UniMath.CategoryTheory.Bicategories.Bicat is a   *)
-(* (pre)bicategory of UniMath.CategoryTheory.WkCatEnrichment.                *)
-(* ========================================================================= *)
+    Benedikt Ahrens, Marco Maggesi
+
+    February 2018
+
+    Bicategory of 1-category and pseudofunctor "op".
+ ********************************************************************************* *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Categories.

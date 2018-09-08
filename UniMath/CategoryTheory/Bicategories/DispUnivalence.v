@@ -1,5 +1,5 @@
 (* *********************************************************************************** *)
-(** * Internal adjunciton in displayed bicategories
+(** * Internal adjunction in displayed bicategories
 
     Benedikt Ahrens, Marco Maggesi
     April 2018                                                                         *)

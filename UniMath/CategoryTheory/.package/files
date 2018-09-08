@@ -169,3 +169,4 @@ Bicategories/WkCatEnrichment/bicategory.v
 Bicategories/BicategoryOfBicat.v
 Bicategories/BicatOfBicategory.v
 Bicategories/Graph.v
+Bicategories/Extras.v

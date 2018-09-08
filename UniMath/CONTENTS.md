@@ -251,6 +251,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Bicategories/BicategoryOfBicat.v](CategoryTheory/Bicategories/BicategoryOfBicat.v)
    - [Bicategories/BicatOfBicategory.v](CategoryTheory/Bicategories/BicatOfBicategory.v)
    - [Bicategories/Graph.v](CategoryTheory/Bicategories/Graph.v)
+   - [Bicategories/Extras.v](CategoryTheory/Bicategories/Extras.v)
    - [All.v](CategoryTheory/All.v)
 ## Package [Ktheory](Ktheory/README.md)
    - [Tactics.v](Ktheory/Tactics.v)

@@ -2,6 +2,8 @@
 (** * Bicategories
     Benedikt Ahrens, Marco Maggesi
     February 2018
+
+ Displayed bicategory of displayed structures on 1-categories.
  ********************************************************************************* *)
 
 Require Import UniMath.Foundations.All.
