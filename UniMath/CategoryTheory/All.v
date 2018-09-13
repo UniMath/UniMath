@@ -151,7 +151,6 @@ Require Export UniMath.CategoryTheory.Bicategories.Unitors.
 Require Export UniMath.CategoryTheory.Bicategories.PseudoFunctor.
 Require Export UniMath.CategoryTheory.Bicategories.Univalence.
 Require Export UniMath.CategoryTheory.Bicategories.DispBicat.
-Require Export UniMath.CategoryTheory.Bicategories.DispUnitors.
 Require Export UniMath.CategoryTheory.Bicategories.BicatOfCats.
 Require Export UniMath.CategoryTheory.Bicategories.DispBicatOfDispCats.
 Require Export UniMath.CategoryTheory.Bicategories.DispUnivalence.
