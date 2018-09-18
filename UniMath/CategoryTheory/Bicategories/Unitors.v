@@ -13,13 +13,11 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.OpMorBicat.
 Require Import UniMath.CategoryTheory.Bicategories.OpCellBicat.
 
 Open Scope cat.
-Open Scope mor_disp_scope.
 
 Section unitors.
 
@@ -34,35 +32,48 @@ Lemma runitor_rwhisker_rwhisker {a b c d: C} (f : C⟦a, b⟧)
 Proof.
   (** rewrite with uppler left triangle *)
   apply pathsinv0.
-  etrans. apply pathsinv0. apply lunitor_lwhisker.
+  etrans.
+  { apply pathsinv0. apply lunitor_lwhisker. }
 
   (** attach rassociator on both sides *)
   use (inv_2cell_right_cancellable (rassociator _ _ _ )).
   { apply is_invertible_2cell_rassociator. }
 
   (** rewrite upper right square *)
-  etrans. apply vassocl.
-  etrans. apply maponpaths.
-  apply pathsinv0, lwhisker_lwhisker_rassociator.
+  etrans.
+  { apply vassocl. }
+  etrans.
+  { apply maponpaths.
+    apply pathsinv0, lwhisker_lwhisker_rassociator.
+  }
 
   (** rewrite lower middle square *)
   apply pathsinv0.
-  etrans. apply vassocl.
-  etrans. apply maponpaths. apply pathsinv0, rwhisker_lwhisker_rassociator.
+  etrans. { apply vassocl. }
+  etrans.
+  { apply maponpaths.
+    apply pathsinv0, rwhisker_lwhisker_rassociator.
+  }
 
   (** rewrite lower right triangle *)
   etrans.
-  do 3 apply maponpaths. apply pathsinv0. apply lunitor_lwhisker.
+  { do 3 apply maponpaths.
+    apply pathsinv0.
+    apply lunitor_lwhisker.
+  }
 
   (** distribute the whiskering *)
-  etrans. apply maponpaths. apply maponpaths. apply pathsinv0, lwhisker_vcomp.
+  etrans.
+  { do 2 apply maponpaths.
+    apply pathsinv0, lwhisker_vcomp.
+  }
 
   (** remove trailing lunitor *)
-  etrans. apply vassocr.
-  etrans. apply vassocr.
+  etrans. { apply vassocr. }
+  etrans. { apply vassocr. }
 
   apply pathsinv0.
-  etrans. apply vassocr.
+  etrans. { apply vassocr. }
   apply maponpaths_2.
 
   (** turn the rassociators into lassociators *)
