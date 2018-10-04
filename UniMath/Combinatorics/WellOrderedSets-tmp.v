@@ -16,7 +16,7 @@ Section Background.
 
   (* Hopefully already somewhere in library: *)
   Lemma funextsec_refl {A} {B} (f : forall x:A, B x)
-    : funextsec _ f f (fun x => idpath (f x)) = idpath f.
+    : funextsec _ f f (λ x, idpath (f x)) = idpath f.
   Proof.
     exact (funextsec_toforallpaths (idpath f)).
   Defined.
@@ -31,10 +31,10 @@ Definition hereditary {X} (lt : X -> X -> UU) (P : X -> UU) : UU
 
 Definition strongly_well_founded {X} (lt : X -> X -> UU)
   := forall (P : X -> UU) (H_P : hereditary lt P),
-    ∑ (f : forall x, P x), forall x, f x = H_P x (fun y lxy => f y).
+    ∑ (f : forall x, P x), forall x, f x = H_P x (λ y lxy, f y).
 
 Definition weakly_well_founded {X} (lt : X -> X -> UU)
-  := forall P : X -> hProp, hereditary lt (fun x => P x) -> forall x, P x.
+  := forall P : X -> hProp, hereditary lt (λ x, P x) -> forall x, P x.
 
 Section Attempts.
 
@@ -50,7 +50,7 @@ Section Attempts.
 
   Fixpoint cons {x y z} (l : z < y) (p : y <* x) : z <* x.
   Proof.
-    destruct p as [ y | w x' y' p' l' ].
+    induction p as [ y | w x' y' p' _ l' ].
     - exact (cons' (nil z) l).
     - exact (cons' (cons _ _ _ l p') l').
   Defined.
@@ -75,7 +75,7 @@ Section Attempts.
     : attempt x -> (forall y, y < x -> attempt y).
   Proof.
     intros f y lyx.
-    exists (fun z pzy => f _ (cons' pzy lyx)).
+    exists (λ z pzy, f _ (cons' pzy lyx)).
     intros z pzy.
     apply attempt_comp.
   Defined.
@@ -83,11 +83,11 @@ Section Attempts.
   Definition assemble_attempt {x:X}
     : (forall y, y < x -> attempt y) -> attempt x.
   Proof.
-    intros fs. simple refine (_,,_).
-    - intros y pyx; destruct pyx as [ x | x y z pzy lyx ].
+    intros fs. use tpair.
+    - intros y pyx. induction pyx as [ x | x y z pzy _ lyx ].
       + apply H. intros y lyx. exact (fs _ lyx _ (nil _)).
       + exact (fs _ lyx _ pzy).
-    - intros y pyx; destruct pyx as [ x | x y z pzy lyx ]; cbn.
+    - intros y pyx; induction pyx as [ x | x y z pzy lyx ]; cbn.
       + apply idpath.
       + apply attempt_comp.
   Defined.
@@ -97,7 +97,7 @@ Section Attempts.
       (e_comp : forall y pyx,
           attempt_comp f y pyx
            @ (maponpaths _ (funextsec _ _ _
-                  (fun z => funextsec _ _ _ (fun lwz => e_fun _ _))))
+                  (λ z, funextsec _ _ _ (λ lwz, e_fun _ _))))
           = e_fun y pyx @ attempt_comp g y pyx)
     : f = g.
   Proof.
@@ -105,7 +105,7 @@ Section Attempts.
     assert (wlog
       : forall (T : (∏ (y:X) (pyx : y <* x), f y pyx = g y pyx) -> UU),
         (forall (e : attempt_fun f = attempt_fun g),
-              T (fun y pyx => toforallpaths _ _ _ (toforallpaths _ _ _ e y) pyx))
+              T (λ y pyx, toforallpaths _ _ _ (toforallpaths _ _ _ e y) pyx))
         -> forall e, T e).
     { intros T HT e.
       transparent assert (e' : (attempt_fun f = attempt_fun g)).
@@ -120,7 +120,7 @@ Section Attempts.
       refine (toforallpaths _ _ _ _ _); apply toforallpaths_funextsec.
     }
     refine (wlog _ _); clear wlog.
-    intros e. destruct f as [f0 f1], g as [g0 g1]. cbn in e; destruct e.
+    intros e. induction f as [f0 f1], g as [g0 g1]. cbn in e; induction e.
     cbn. intros e_comp; apply maponpaths.
     apply funextsec; intros y; apply funextsec; intros pyx.
     refine (!_ @ e_comp _ _).
@@ -135,10 +135,10 @@ Section Attempts.
     : assemble_attempt (disassemble_attempt f) = f.
   Proof.
     use attempt_paths.
-    - intros y pyx; destruct pyx as [ x | x y z pzy lyx ]; cbn.
+    - intros y pyx; induction pyx as [ x | x y z pzy lyx ]; cbn.
       + apply pathsinv0, attempt_comp.
       + apply idpath.
-    - intros y pyx; destruct pyx as [ x | x y z pzy lyx ]; cbn.
+    - intros y pyx; induction pyx as [ x | x y z pzy lyx ]; cbn.
       + refine (@maponpaths _ _ _ _ (idpath _) _ @ ! pathsinv0l _).
         refine (maponpaths _ _ @ funextsec_refl _).
         apply funextsec; intros z.
@@ -154,11 +154,11 @@ Section Attempts.
 
   Definition iscontr_attempt : forall x, iscontr (attempt x).
   Proof.
-    apply (wwf_lt (fun x => iscontr_hProp (attempt x))).
+    apply (wwf_lt (λ x, iscontr_hProp (attempt x))).
     intros x IH.
     apply (iscontrretract _ _ assemble_disassemble).
-    apply impred_iscontr; intros y.
-    apply impred_iscontr, IH.
+    apply impred_iscontr; intros y; apply impred_iscontr; intros l.
+    exact (IH y l).
   Defined.
 
   Local Definition the_attempt (x:X) : attempt x
@@ -167,10 +167,9 @@ Section Attempts.
   Local Definition the_value (x : X) : P x
     := the_attempt x x (nil x).
 
-  Local Definition the_comp (x : X)
-      : the_value x = H x (fun y lyx => the_value y).
+  Local Definition the_comp (x : X) : the_value x = H x (λ y lyx, the_value y).
   Proof.
-    assert (e : the_attempt x = assemble_attempt (fun y _ => the_attempt y)).
+    assert (e : the_attempt x = assemble_attempt (λ y _, the_attempt y)).
     { apply isapropifcontr, iscontr_attempt. }
     exact (toforallpaths _ _ _ (toforallpaths _ _ _ (maponpaths attempt_fun e) x) (nil x)).
   Defined.
