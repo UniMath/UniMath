@@ -40,15 +40,18 @@ Section Attempts.
 
   Context {X} (lt : X -> X -> UU).
 
+  Notation "x < y" := (lt x y).
+
   (* a list-like/path-like presentation of the reflexive+transitive closure of the relation [lt] *)
   Inductive ltstar : X -> X -> UU :=
     | nil (x:X) : ltstar x x
-    | cons' {x y z} (pzy : ltstar z y) (lyx : lt y x) : ltstar z x.
+    | cons' {x y z} (pzy : ltstar z y) (lyx : y < x) : ltstar z x.
+  Notation "x <* y" := (ltstar x y) (at level 70).
 
-  Fixpoint cons {x y z} (l : lt z y) (p : ltstar y x) : ltstar z x.
+  Fixpoint cons {x y z} (l : z < y) (p : y <* x) : z <* x.
   Proof.
     destruct p as [ y | w x' y' p' l' ].
-    - exact (cons' (nil _) l).
+    - exact (cons' (nil z) l).
     - exact (cons' (cons _ _ _ l p') l').
   Defined.
 
@@ -61,7 +64,7 @@ Section Attempts.
      since (y <* x) isn’t necessarily an hprop. *)
 
   Definition attempt (x:X)
-    := ∑ (f : forall y, ltstar y x -> P y), forall y pyx, f y pyx = H y (λ z lzy, f z (cons lzy pyx)).
+    := ∑ (f : forall y, y <* x -> P y), forall y pyx, f y pyx = H y (λ z lzy, f z (cons lzy pyx)).
 
   Definition attempt_fun {x} : attempt x -> (forall y pyx, P y) := pr1.
   Coercion attempt_fun : attempt >-> Funclass.
@@ -69,7 +72,7 @@ Section Attempts.
   Definition attempt_comp {x} : forall (f : attempt x), _ := pr2.
 
   Definition disassemble_attempt {x:X}
-    : attempt x -> (forall y, lt y x -> attempt y).
+    : attempt x -> (forall y, y < x -> attempt y).
   Proof.
     intros f y lyx.
     exists (fun z pzy => f _ (cons' pzy lyx)).
@@ -78,7 +81,7 @@ Section Attempts.
   Defined.
 
   Definition assemble_attempt {x:X}
-    : (forall y, lt y x -> attempt y) -> attempt x.
+    : (forall y, y < x -> attempt y) -> attempt x.
   Proof.
     intros fs. simple refine (_,,_).
     - intros y pyx; destruct pyx as [ x | x y z pzy lyx ].
@@ -100,7 +103,7 @@ Section Attempts.
   Proof.
     revert e_fun e_comp.
     assert (wlog
-      : forall (T : (∏ (y:X) (pyx : ltstar y x), f y pyx = g y pyx) -> UU),
+      : forall (T : (∏ (y:X) (pyx : y <* x), f y pyx = g y pyx) -> UU),
         (forall (e : attempt_fun f = attempt_fun g),
               T (fun y pyx => toforallpaths _ _ _ (toforallpaths _ _ _ e y) pyx))
         -> forall e, T e).
