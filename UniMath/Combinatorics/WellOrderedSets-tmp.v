@@ -29,11 +29,11 @@ End Background.
 
 Hereditariness is the usual hypothesis required for well-founded induction into a predicate. *)
 Definition hereditary {X} (lt : X -> X -> UU) (P : X -> UU) : UU
-  := forall x, (forall y' y, y'=y -> lt y x -> P y') -> P x.
+  := forall x, (forall y, lt y x -> P y) -> P x.
 
 Definition strongly_well_founded {X} (lt : X -> X -> UU)
   := forall (P : X -> UU) (H : hereditary lt P),
-    ∑ (f : forall x, P x), forall x, f x = H x (λ y _ _ _, f y).
+    ∑ (f : forall x, P x), forall x, f x = H x (λ y _, f y).
 
 Definition weakly_well_founded {X} (lt : X -> X -> UU)
   := forall P : X -> hProp, hereditary lt (λ x, P x) -> forall x, P x.
@@ -91,7 +91,7 @@ Section Attempts.
      since (y ≤ x) isn’t necessarily an hprop. *)
 
   Definition attempt (x:X)
-    := ∑ (f : forall y, y ≤ x -> P y), forall y pyx, f y pyx = H y (λ z w e l, f z (cons e l pyx)).
+    := ∑ (f : forall y, y ≤ x -> P y), forall y pyx, f y pyx = H y (λ z l, f z (cons (idpath z) l pyx)).
 
   Definition attempt_fun {x} : attempt x -> (forall y pyx, P y) := pr1.
   Coercion attempt_fun : attempt >-> Funclass.
@@ -112,7 +112,7 @@ Section Attempts.
   Proof.
     intros fs. use tpair.
     - intros y [[|n] c].
-      + apply H. intros w z e lzy. exact (fs z y lzy c w (0,,e)).
+      + apply H. intros z lzy. exact (fs z y lzy c z (nil (idpath z))).
       + induction c as [s [t [c' [l' e']]]]. exact (fs s t l' e' y (n,,c')).
     - intros y [[|n] c].
       + reflexivity.
@@ -123,7 +123,7 @@ Section Attempts.
       (e_fun : forall y pyx, f y pyx = g y pyx)
       (e_comp : forall y pyx,
           attempt_comp f y pyx
-           @ maponpaths (H y) (funextsec (λ z:X, (funextsec (λ z':X, funextsec (λ ezz' : z=z', funextsec (λ lz'y : z'<y, e_fun z (cons ezz' lz'y pyx)))))))
+           @ maponpaths (H y) (funextsec (λ z:X, funextsec (λ lzy : z<y, e_fun z (cons (idpath z) lzy pyx))))
           = e_fun y pyx @ attempt_comp g y pyx)
     : f = g.
   Proof.
@@ -154,15 +154,7 @@ Section Attempts.
     refine (@maponpaths _ _ _ _ (idpath _) _).
     refine (maponpaths funextsec _ @ funextsec_refl _).
     apply funextsec; intros z.
-    intermediate_path (
-        (funextsec (g := fun z' ezz' lz'y => f0 z (cons ezz' lz'y pyx))
-               (fun z' => funextsec (fun ezz' : z = z' => idpath _)))).
-    - apply maponpaths. apply funextsec. intro.
-      apply maponpaths. apply funextsec. intro.
-      apply funextsec_refl.
-    - intermediate_path (funextsec (g := fun z' ezz' lz'y => f0 z (@cons x y z z' ezz' lz'y pyx)) (homotrefl _)).
-      + apply maponpaths. apply funextsec. intro. apply funextsec_refl.
-      + apply funextsec_refl.
+    apply funextsec_refl.
   Defined.
 
   Definition assemble_disassemble {x} (f : attempt x)
@@ -177,38 +169,12 @@ Section Attempts.
         refine (@maponpaths _ _ _ _ (idpath _) _ @ ! pathsinv0l _).
         refine (maponpaths _ _ @ funextsec_refl _).
         apply funextsec; intros z.
-        intermediate_path (funextsec
-               (g := fun (z' : X) ezz' (lz'y : lt z' y) =>
-                @attempt_fun x f z (cons ezz' lz'y (O,, pyx)))
-               (fun z' : X => funextsec
-                  (g := fun ezz' (lz'y : lt z' y) => @attempt_fun x f z (cons ezz' lz'y (O,, pyx)))
-                  (homotrefl _))).
-        * apply maponpaths. apply funextsec. intro.
-          apply maponpaths. apply funextsec. intro. apply funextsec_refl.
-        * intermediate_path
-            (funextsec
-               (g := fun (z' : X) (ezz' : @paths X z z') (lz'y : lt z' y) => @attempt_fun _ f _ (cons ezz' lz'y (O,, pyx)))
-               (homotrefl _)).
-          -- apply maponpaths. apply funextsec. intro. apply funextsec_refl.
-          -- apply funextsec_refl.
+        apply funextsec_refl.
       + refine (maponpaths _ _ @ pathscomp0rid _).
         refine (@maponpaths _ _ _ _ (idpath _) _).
         refine (maponpaths funextsec _ @ funextsec_refl _).
         apply funextsec; intros w.
-        intermediate_path (funextsec
-               (g := fun (z' : X) ezz' lz'y => @attempt_fun _ f _ (cons ezz' lz'y (S n,, pyx)))
-               (fun z' : X =>
-                funextsec (g := fun ezz' (lz'y : lt z' y) =>
-                   @attempt_fun x f w (cons ezz' lz'y (S n,, pyx)))
-                  (homotrefl _))).
-        * apply maponpaths. apply funextsec. intro.
-          apply maponpaths. apply funextsec. intro.
-          apply funextsec_refl.
-        * intermediate_path (funextsec
-               (g := fun (z' : X) ezz' (lz'y : lt z' y) => @attempt_fun x f w (cons ezz' lz'y (S n,, pyx)))
-               (homotrefl _)).
-          -- apply maponpaths. apply funextsec. intro. apply funextsec_refl.
-          -- apply funextsec_refl.
+        apply funextsec_refl.
   Defined.
 
   Context (wwf_lt : weakly_well_founded lt).
@@ -222,7 +188,7 @@ Section Attempts.
     apply impred_iscontr; intro z'.
     apply impred_iscontr; intro l.
     apply impred_iscontr; intro e.
-    exact (IH z z (idpath z) (transportf _ e l)). (* a surprising transport *)
+    exact (IH z (transportf _ e l)).
   Defined.
 
   Local Definition the_attempt (x:X) : attempt x
@@ -231,19 +197,11 @@ Section Attempts.
   Local Definition the_value (x : X) : P x
     := the_attempt x x (nil (idpath x)).
 
-  Local Definition the_comp (x : X) : the_value x = H x (λ y y' e l, the_value y).
+  Local Definition the_comp (x : X) : the_value x = H x (λ y l, the_value y).
   Proof.
     assert (e : the_attempt x = assemble_attempt (λ y y' l e, the_attempt y)).
     { apply isapropifcontr, iscontr_attempt. }
-    refine (toforallpaths _ _ _ (toforallpaths _ _ _ (maponpaths attempt_fun e) x) (nil (idpath x)) @ _).
-    cbn.
-    apply maponpaths.
-    apply funextsec. intro y.
-    apply funextsec. intro z.
-    apply funextsec. intro p.
-    apply funextsec. intro l.
-    induction p.
-    reflexivity.
+    exact (toforallpaths _ _ _ (toforallpaths _ _ _ (maponpaths attempt_fun e) x) (nil (idpath x))).
   Defined.
 
 End Attempts.
