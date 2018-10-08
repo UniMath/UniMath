@@ -173,3 +173,4 @@ Bicategories/Graph.v
 Monoidal/BinaryProductCategories.v
 Monoidal/NaturalIsomorphisms.v
 Monoidal/MonoidalCategories.v
+Monoidal/MonoidalFunctors.v
