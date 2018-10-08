@@ -252,6 +252,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Bicategories/BicatFromBicategory.v](CategoryTheory/Bicategories/BicatFromBicategory.v)
    - [Bicategories/Graph.v](CategoryTheory/Bicategories/Graph.v)
    - [Monoidal/BinaryProductCategories.v](CategoryTheory/Monoidal/BinaryProductCategories.v)
+   - [Monoidal/NaturalIsomorphisms.v](CategoryTheory/Monoidal/NaturalIsomorphisms.v)
    - [All.v](CategoryTheory/All.v)
 ## Package [Ktheory](Ktheory/README.md)
    - [Tactics.v](Ktheory/Tactics.v)

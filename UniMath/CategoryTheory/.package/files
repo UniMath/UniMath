@@ -171,3 +171,4 @@ Bicategories/BicatFromBicategory.v
 Bicategories/Graph.v
 
 Monoidal/BinaryProductCategories.v
+Monoidal/NaturalIsomorphisms.v
