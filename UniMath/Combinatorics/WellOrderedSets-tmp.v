@@ -18,7 +18,7 @@ Local Arguments toforallpaths {_ _ _ _} _.
 Section Background.
 
   (* Hopefully already somewhere in library: *)
-  Lemma funextsec_refl {A} {B} (f : forall x:A, B x)
+  Lemma funextsec_refl {A} {B} (f : ∏ x:A, B x)
     : funextsec (λ x, idpath (f x)) = idpath f.
   Proof.
     exact (funextsec_toforallpaths (idpath f)).
@@ -29,23 +29,23 @@ End Background.
 (* A predicate is _hereditary_ w.r.t. a relation if whenever it holds everywhere below some element, it holds at some element.
 
 Hereditariness is the usual hypothesis required for well-founded induction into a predicate. *)
-Definition hereditary {X} (lt : X -> X -> UU) (P : X -> UU) : UU
-  := forall x, (forall y, lt y x -> P y) -> P x.
+Definition hereditary {X} (lt : X -> X -> Type) (P : X -> Type) : Type
+  := ∏ x, (∏ y, lt y x -> P y) -> P x.
 
-Definition strongly_well_founded {X} (lt : X -> X -> UU)
-  := forall (P : X -> UU) (H : hereditary lt P),
-    ∑ (f : forall x, P x), forall x, f x = H x (λ y _, f y).
+Definition strongly_well_founded {X} (lt : X -> X -> Type)
+  := ∏ (P : X -> Type) (H : hereditary lt P),
+    ∑ (f : ∏ x, P x), ∏ x, f x = H x (λ y _, f y).
 
-Definition weakly_well_founded {X} (lt : X -> X -> UU)
-  := forall P : X -> hProp, hereditary lt (λ x, P x) -> forall x, P x.
+Definition weakly_well_founded {X} (lt : X -> X -> Type)
+  := ∏ P : X -> hProp, hereditary lt P -> ∏ x, P x.
 
 Section Attempts.
 
-  Context {X} (lt : X -> X -> UU).
+  Context {X} (lt : X -> X -> Type).
 
   Notation "x < y" := (lt x y).
 
-  Definition chain (n : nat) (x y:X) : UU.
+  Definition chain (n : nat) (x y:X) : Type.
   (* an element of [chain n] will be an ascending sequence [x = s_1 < t_1 = s_2 < t_2 = ... = s_n < t_n = y] *)
   Proof.
     revert x y.
@@ -54,7 +54,7 @@ Section Attempts.
     - intros x y. exact (∑ s t, H x s × s<t × t=y).
   Defined.
 
-  Definition ltstar (x y : X) : UU := ∑ n, chain n x y.
+  Definition ltstar (x y : X) : Type := ∑ n, chain n x y.
 
   Notation "x ≤ y" := (ltstar x y) (at level 70).
 
@@ -83,7 +83,7 @@ Section Attempts.
     reflexivity.
   Defined.
 
-  Context (P : X -> UU) (H : hereditary lt P).
+  Context (P : X -> Type) (H : hereditary lt P).
 
   (* An “attempt” up to x: a partial function into P defined for all y ≤ x, and satisfying the
      specification given by hereditariness of P.
@@ -92,15 +92,15 @@ Section Attempts.
      since (y ≤ x) isn’t necessarily an hprop. *)
 
   Definition attempt x
-    := ∑ (f : forall y, y ≤ x -> P y), forall y pyx, f y pyx = H y (λ z l, f z (cons (idpath z) l pyx)).
+    := ∑ (f : ∏ y, y ≤ x -> P y), ∏ y pyx, f y pyx = H y (λ z l, f z (cons (idpath z) l pyx)).
 
-  Definition attempt_fun {x} : attempt x -> (forall y pyx, P y) := pr1.
+  Definition attempt_fun {x} : attempt x -> (∏ y pyx, P y) := pr1.
   Coercion attempt_fun : attempt >-> Funclass.
 
-  Definition attempt_comp {x} : forall (f : attempt x), _ := pr2.
+  Definition attempt_comp {x} : ∏ (f : attempt x), _ := pr2.
 
   Definition disassemble_attempt {x}
-    : attempt x -> (forall y w, y<w -> w=x -> attempt y).
+    : attempt x -> (∏ y w, y<w -> w=x -> attempt y).
   Proof.
     intros f y' y l e.
     exists (λ t p, f _ (cons' p l e)).
@@ -109,7 +109,7 @@ Section Attempts.
   Defined.
 
   Definition assemble_attempt {x}
-    : (forall y y', y<y' -> y'=x -> attempt y) -> attempt x.
+    : (∏ y y', y<y' -> y'=x -> attempt y) -> attempt x.
   Proof.
     intros fs. use tpair.
     - intros y [[|n] c].
@@ -120,34 +120,31 @@ Section Attempts.
       + use attempt_comp.
   Defined.
 
-  Definition attempt_paths {x} (f g : attempt x)
-      (e_fun : forall y pyx, f y pyx = g y pyx)
-      (e_comp : forall y pyx,
+  Definition attempt_paths {x} (f g : attempt x) :
+      ∏ (e_fun : ∏ y pyx, f y pyx = g y pyx),
+      (∏ y pyx,
           attempt_comp f y pyx
            @ maponpaths (H y) (funextsec (λ z, funextsec (λ lzy : z<y, e_fun z (cons (idpath z) lzy pyx))))
           = e_fun y pyx @ attempt_comp g y pyx)
-    : f = g.
+    -> f = g.
   Proof.
-    revert e_fun e_comp.
-    assert (wlog
-      : forall (T : (∏ y (pyx : y ≤ x), f y pyx = g y pyx) -> UU),
-        (forall (e : attempt_fun f = attempt_fun g),
-              T (λ y pyx, toforallpaths (toforallpaths e y) pyx))
-        -> forall e, T e).
+    assert (wlog :
+              ∏ (T : (∏ y (pyx : y ≤ x), f y pyx = g y pyx) -> Type),
+                (∏ (e : attempt_fun f = attempt_fun g),
+                    T (λ y pyx, toforallpaths (toforallpaths e y) pyx))
+                -> ∏ e, T e).
     { intros T HT e.
       transparent assert (e' : (attempt_fun f = attempt_fun g)).
-        apply funextsec; intros y; apply funextsec; intros pyx; apply e.
-      refine (transportb T _ (HT e')).
+      { apply funextsec; intros y; apply funextsec; intros pyx; apply e. }
+      refine (transportb _ _ (HT e')).
       apply funextsec; intros y; apply funextsec; intros pyx.
       apply pathsinv0.
       eapply pathscomp0.
       { refine (toforallpaths _ _); apply maponpaths.
-        refine (toforallpaths _ _); apply toforallpaths_funextsec.
-      }
-      refine (toforallpaths _ _); apply toforallpaths_funextsec.
-    }
+        refine (toforallpaths _ _); apply toforallpaths_funextsec. }
+      refine (toforallpaths _ _); apply toforallpaths_funextsec. }
     refine (wlog _ _); clear wlog.
-    intros e. induction f as [f0 f1], g as [g0 g1]. cbn in e; induction e.
+    intros e. induction f as [f0 f1], g as [g0 g1]. cbn in e. induction e.
     cbn. intros e_comp; apply maponpaths.
     apply funextsec; intros y; apply funextsec; intros pyx.
     refine (!_ @ e_comp _ _).
@@ -164,7 +161,7 @@ Section Attempts.
     use attempt_paths.
     - intros y [[|n] pyx].
       + apply pathsinv0. use attempt_comp.
-      + apply idpath.
+      + reflexivity.
     - intros y [[|n] pyx].
       + cbn.
         refine (@maponpaths _ _ _ _ (idpath _) _ @ ! pathsinv0l _).
@@ -180,7 +177,7 @@ Section Attempts.
 
   Context (wwf_lt : weakly_well_founded lt).
 
-  Definition iscontr_attempt : forall x, iscontr (attempt x).
+  Definition iscontr_attempt : ∏ x, iscontr (attempt x).
   Proof.
     apply (wwf_lt (λ x, iscontr_hProp (attempt x))).
     intros x IH.
@@ -208,7 +205,7 @@ Section Attempts.
 End Attempts.
 
 (* Main goal of the file: *)
-Theorem strongly_from_weakly_well_founded {X} (lt : X -> X -> UU)
+Theorem strongly_from_weakly_well_founded {X} (lt : X -> X -> Type)
   : weakly_well_founded lt -> strongly_well_founded lt.
 Proof.
   intros wwf_lt P H_P.
