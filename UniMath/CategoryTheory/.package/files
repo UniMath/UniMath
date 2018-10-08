@@ -169,3 +169,5 @@ Bicategories/WkCatEnrichment/bicategory.v
 Bicategories/BicategoryFromBicat.v
 Bicategories/BicatFromBicategory.v
 Bicategories/Graph.v
+
+Monoidal/BinaryProductCategories.v
