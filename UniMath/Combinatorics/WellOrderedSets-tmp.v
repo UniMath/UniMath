@@ -13,6 +13,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
 Local Arguments funextsec {_ _ _ _} _.
+Local Arguments toforallpaths {_ _ _ _} _.
 
 Section Background.
 
@@ -50,14 +51,14 @@ Section Attempts.
     revert x y.
     induction n as [|n H].
     - intros x y. exact (x = y).
-    - intros x y. exact (∑ (s t:X), H x s × s<t × t=y).
+    - intros x y. exact (∑ s t, H x s × s<t × t=y).
   Defined.
 
   Definition ltstar (x y : X) : UU := ∑ n, chain n x y.
 
   Notation "x ≤ y" := (ltstar x y) (at level 70).
 
-  Definition nil {x x'} : x=x' -> x≤x' := λ e, (0,,e).
+  Definition nil {x} : x≤x := (0,,idpath x).
 
   Definition cons' {x x' y z} (p : z ≤ y) (l : y < x') (e : x' = x) : z ≤ x.
   Proof.
@@ -90,7 +91,7 @@ Section Attempts.
      Caveat: we should actually have said not “partial function” but “multivalued partial function”,
      since (y ≤ x) isn’t necessarily an hprop. *)
 
-  Definition attempt (x:X)
+  Definition attempt x
     := ∑ (f : forall y, y ≤ x -> P y), forall y pyx, f y pyx = H y (λ z l, f z (cons (idpath z) l pyx)).
 
   Definition attempt_fun {x} : attempt x -> (forall y pyx, P y) := pr1.
@@ -98,7 +99,7 @@ Section Attempts.
 
   Definition attempt_comp {x} : forall (f : attempt x), _ := pr2.
 
-  Definition disassemble_attempt {x:X}
+  Definition disassemble_attempt {x}
     : attempt x -> (forall y w, y<w -> w=x -> attempt y).
   Proof.
     intros f y' y l e.
@@ -107,31 +108,31 @@ Section Attempts.
     use attempt_comp.
   Defined.
 
-  Definition assemble_attempt {x:X}
+  Definition assemble_attempt {x}
     : (forall y y', y<y' -> y'=x -> attempt y) -> attempt x.
   Proof.
     intros fs. use tpair.
     - intros y [[|n] c].
-      + apply H. intros z lzy. exact (fs z y lzy c z (nil (idpath z))).
+      + apply H. intros z lzy. exact (fs z y lzy c z nil).
       + induction c as [s [t [c' [l' e']]]]. exact (fs s t l' e' y (n,,c')).
     - intros y [[|n] c].
       + reflexivity.
       + use attempt_comp.
   Defined.
 
-  Definition attempt_paths {x:X} (f g : attempt x)
+  Definition attempt_paths {x} (f g : attempt x)
       (e_fun : forall y pyx, f y pyx = g y pyx)
       (e_comp : forall y pyx,
           attempt_comp f y pyx
-           @ maponpaths (H y) (funextsec (λ z:X, funextsec (λ lzy : z<y, e_fun z (cons (idpath z) lzy pyx))))
+           @ maponpaths (H y) (funextsec (λ z, funextsec (λ lzy : z<y, e_fun z (cons (idpath z) lzy pyx))))
           = e_fun y pyx @ attempt_comp g y pyx)
     : f = g.
   Proof.
     revert e_fun e_comp.
     assert (wlog
-      : forall (T : (∏ (y:X) (pyx : y ≤ x), f y pyx = g y pyx) -> UU),
+      : forall (T : (∏ y (pyx : y ≤ x), f y pyx = g y pyx) -> UU),
         (forall (e : attempt_fun f = attempt_fun g),
-              T (λ y pyx, toforallpaths _ _ _ (toforallpaths _ _ _ e y) pyx))
+              T (λ y pyx, toforallpaths (toforallpaths e y) pyx))
         -> forall e, T e).
     { intros T HT e.
       transparent assert (e' : (attempt_fun f = attempt_fun g)).
@@ -140,10 +141,10 @@ Section Attempts.
       apply funextsec; intros y; apply funextsec; intros pyx.
       apply pathsinv0.
       eapply pathscomp0.
-      { refine (toforallpaths _ _ _ _ _); apply maponpaths.
-        refine (toforallpaths _ _ _ _ _); apply toforallpaths_funextsec.
+      { refine (toforallpaths _ _); apply maponpaths.
+        refine (toforallpaths _ _); apply toforallpaths_funextsec.
       }
-      refine (toforallpaths _ _ _ _ _); apply toforallpaths_funextsec.
+      refine (toforallpaths _ _); apply toforallpaths_funextsec.
     }
     refine (wlog _ _); clear wlog.
     intros e. induction f as [f0 f1], g as [g0 g1]. cbn in e; induction e.
@@ -191,17 +192,17 @@ Section Attempts.
     exact (IH z (transportf _ e l)).
   Defined.
 
-  Local Definition the_attempt (x:X) : attempt x
+  Local Definition the_attempt x : attempt x
     := iscontrpr1 (iscontr_attempt x).
 
-  Local Definition the_value (x : X) : P x
-    := the_attempt x x (nil (idpath x)).
+  Local Definition the_value x : P x
+    := the_attempt x x nil.
 
-  Local Definition the_comp (x : X) : the_value x = H x (λ y l, the_value y).
+  Local Definition the_comp x : the_value x = H x (λ y l, the_value y).
   Proof.
-    assert (e : the_attempt x = assemble_attempt (λ y y' l e, the_attempt y)).
+    assert (e : the_attempt x = assemble_attempt (λ y _ _ _, the_attempt y)).
     { apply isapropifcontr, iscontr_attempt. }
-    exact (toforallpaths _ _ _ (toforallpaths _ _ _ (maponpaths attempt_fun e) x) (nil (idpath x))).
+    exact (toforallpaths (toforallpaths (maponpaths attempt_fun e) x) nil).
   Defined.
 
 End Attempts.
