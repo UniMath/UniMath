@@ -1678,5 +1678,11 @@ Definition nat_iso_to_trans {C D : precategory} {F G : C ⟶ D} (ν : nat_iso F 
 Definition nat_iso_to_trans_inv {C D : precategory} {F G : C ⟶ D} (ν : nat_iso F G) : G ⟹ F :=
   pr1 (nat_iso_inv ν).
 
-Definition is_nat_iso_id {C D : precategory} {F G : C ⟶ D} (ν : nat_iso F G) : UU :=
-  ∏ (c : C), (nat_iso_to_trans ν c) · (nat_iso_to_trans_inv ν c) = identity (F c).
+Definition nat_comp_to_endo {C D : precategory} {F G : C ⟶ D} (eq : F = G) {c : C} (f : F c --> G c) : F c --> F c.
+Proof.
+  rewrite <- eq in f.
+  assumption.
+Defined.
+
+Definition is_nat_iso_id {C D : precategory} {F G : C ⟶ D} (eq : F = G) (ν : nat_iso F G) : UU :=
+  ∏ (c : C), nat_comp_to_endo eq (nat_iso_to_trans ν c) = identity (F c).

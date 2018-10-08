@@ -1,8 +1,8 @@
-(*
+(**
   Monoidal categories
 
   Based on an implementation by Anthony Bordg.
-*)
+**)
 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.CategoryTheory.Categories.
@@ -155,8 +155,8 @@ Definition triangle_eq (λ' : left_unitor) (ρ' : right_unitor) (α' : associato
 Definition pentagon_eq (α' : associator) : UU :=
   ∏ (a b c d : C), pr1 α' ((a ⊗ b, c), d) · pr1 α' ((a, b), c ⊗ d) = pr1 α' ((a, b), c) #⊗ id d · pr1 α' ((a, b ⊗ c), d) · id a #⊗ pr1 α' ((b, c), d).
 
-Definition is_strict (λ' : left_unitor) (ρ' : right_unitor) (α' : associator) : UU :=
-  (is_nat_iso_id λ') × (is_nat_iso_id ρ') × (is_nat_iso_id α').
+Definition is_strict (eq_λ : I_pretensor = functor_identity C) (λ' : left_unitor) (eq_ρ : I_posttensor = functor_identity C) (ρ' : right_unitor) (eq_α : assoc_left = assoc_right) (α' : associator) : UU :=
+  (is_nat_iso_id eq_λ λ') × (is_nat_iso_id eq_ρ ρ') × (is_nat_iso_id eq_α α').
 
 End Monoidal_Precat.
 
@@ -188,4 +188,11 @@ Definition monoidal_precat_eq := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M))))).
 End Monoidal_Precat_Accessors.
 
 Definition strict_monoidal_precat : UU :=
-  ∑ M : monoidal_precat, is_strict (monoidal_precat_tensor M) (monoidal_precat_unit M) (monoidal_precat_left_unitor M) (monoidal_precat_right_unitor M) (monoidal_precat_associator M).
+  ∑ M : monoidal_precat,
+  ∏ (eq_λ : I_pretensor (monoidal_precat_tensor M) (monoidal_precat_unit M) =
+  functor_identity (pr1 M)),
+  ∏ (eq_ρ : I_posttensor (monoidal_precat_tensor M) (monoidal_precat_unit M) =
+  functor_identity (pr1 M)),
+  ∏ (eq_α : assoc_left (monoidal_precat_tensor M) =
+  assoc_right (monoidal_precat_tensor M)),
+  is_strict (monoidal_precat_tensor M) (monoidal_precat_unit M) eq_λ (monoidal_precat_left_unitor M) eq_ρ (monoidal_precat_right_unitor M) eq_α (monoidal_precat_associator M).

@@ -1,4 +1,4 @@
-(* Monoidal functors *)
+(** Monoidal functors **)
 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.CategoryTheory.Categories.

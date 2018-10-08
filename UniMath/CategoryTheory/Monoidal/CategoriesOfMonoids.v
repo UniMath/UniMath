@@ -1,4 +1,4 @@
-(* Categories of monoids for monoidal categories *)
+(** Categories of monoids for monoidal categories **)
 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.CategoryTheory.Categories.
