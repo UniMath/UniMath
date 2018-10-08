@@ -12,11 +12,13 @@ Set Universe Polymorphism.
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
+Local Arguments funextsec {_ _ _ _} _.
+
 Section Background.
 
   (* Hopefully already somewhere in library: *)
   Lemma funextsec_refl {A} {B} (f : forall x:A, B x)
-    : funextsec _ f f (λ x, idpath (f x)) = idpath f.
+    : funextsec (λ x, idpath (f x)) = idpath f.
   Proof.
     exact (funextsec_toforallpaths (idpath f)).
   Defined.
@@ -96,8 +98,7 @@ Section Attempts.
       (e_fun : forall y pyx, f y pyx = g y pyx)
       (e_comp : forall y pyx,
           attempt_comp f y pyx
-           @ (maponpaths _ (funextsec _ _ _
-                  (λ z, funextsec _ _ _ (λ lwz, e_fun _ _))))
+           @ (maponpaths (H y) (funextsec (λ z, funextsec (λ lzy, e_fun z (cons lzy pyx)))))
           = e_fun y pyx @ attempt_comp g y pyx)
     : f = g.
   Proof.
@@ -126,7 +127,7 @@ Section Attempts.
     refine (!_ @ e_comp _ _).
     refine (maponpaths _ _ @ pathscomp0rid _).
     refine (@maponpaths _ _ _ _ (idpath _) _).
-    refine (maponpaths (funextsec _ _ _) _ @ funextsec_refl _).
+    refine (maponpaths funextsec _ @ funextsec_refl _).
     apply funextsec; intros w.
     apply funextsec_refl.
   Defined.
@@ -145,7 +146,7 @@ Section Attempts.
         apply funextsec_refl.
       + refine (maponpaths _ _ @ pathscomp0rid _).
         refine (@maponpaths _ _ _ _ (idpath _) _).
-        refine (maponpaths (funextsec _ _ _) _ @ funextsec_refl _).
+        refine (maponpaths funextsec _ @ funextsec_refl _).
         apply funextsec; intros w.
         apply funextsec_refl.
   Defined.
