@@ -78,23 +78,22 @@ Defined.
 
 Definition monoid_mor_comp (X Y Z : monoid_ob) (f : monoid_mor X Y) (g : monoid_mor Y Z) : monoid_mor X Z.
 Proof.
-	use tpair.
+	use tpair; [| split].
 	- exact (f · g).
-	- split.
-    + rewrite assoc.
-      assert (goal' : (monoid_mult X · pr1 f · g = # tensor (f · g #, f · g) · monoid_mult Z)); [| exact goal'].
-      rewrite (pr1 (pr2 f)).
-      rewrite <- assoc.
-      rewrite binprod_comp.
-      assert (goal' : (# tensor (pr1 f #, pr1 f) · (monoid_mult Y · pr1 g) = # tensor ((f #, f) · (g #, g)) · monoid_mult Z)); [| exact goal'].
-      rewrite functor_comp.
-      rewrite (pr1 (pr2 g)).
-			rewrite assoc.
-			reflexivity.
-		+ rewrite assoc.
-			rewrite <- (pr2 (pr2 g)).
-			rewrite <- (pr2 (pr2 f)).
-			apply idpath.
+	- rewrite assoc.
+    assert (goal' : (monoid_mult X · pr1 f · g = # tensor (f · g #, f · g) · monoid_mult Z)); [| exact goal'].
+    rewrite (pr1 (pr2 f)).
+    rewrite <- assoc.
+    rewrite binprod_comp.
+    assert (goal' : (# tensor (pr1 f #, pr1 f) · (monoid_mult Y · pr1 g) = # tensor ((f #, f) · (g #, g)) · monoid_mult Z)); [| exact goal'].
+    rewrite functor_comp.
+    rewrite (pr1 (pr2 g)).
+    rewrite assoc.
+    reflexivity.
+	- rewrite assoc.
+    rewrite <- (pr2 (pr2 g)).
+    rewrite <- (pr2 (pr2 f)).
+    apply idpath.
 Defined.
 
 Definition precategory_monoid_ob_mor : precategory_ob_mor.

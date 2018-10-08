@@ -29,8 +29,8 @@ Local Notation "( c , d )" := (binprod_ob c d).
 Definition binprod_mor {C D : precategory} {c c' : C} {d d' : D} (f : c --> c') (g : d --> d') : (c, d) --> (c', d').
   intro x.
   induction x.
-  exact f.
-  exact g.
+  - exact f.
+  - exact g.
 Defined.
 
 Local Notation "( f #, g )" := (binprod_mor f g).

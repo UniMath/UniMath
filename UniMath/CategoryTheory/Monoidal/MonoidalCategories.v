@@ -9,7 +9,6 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.Monoidal.BinaryProductCategories.
-Require Import UniMath.CategoryTheory.Monoidal.NaturalIsomorphisms.
 
 Local Open Scope cat.
 

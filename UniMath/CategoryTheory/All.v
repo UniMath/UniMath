@@ -170,7 +170,6 @@ Require Export UniMath.CategoryTheory.Bicategories.BicategoryFromBicat.
 Require Export UniMath.CategoryTheory.Bicategories.BicatFromBicategory.
 Require Export UniMath.CategoryTheory.Bicategories.Graph.
 Require Export UniMath.CategoryTheory.Monoidal.BinaryProductCategories.
-Require Export UniMath.CategoryTheory.Monoidal.NaturalIsomorphisms.
 Require Export UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Export UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
 Require Export UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
