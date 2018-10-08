@@ -120,32 +120,33 @@ Section Attempts.
       + use attempt_comp.
   Defined.
 
-  Definition attempt_paths {x} (f g : attempt x) :
-      ∏ (e_fun : ∏ y pyx, f y pyx = g y pyx),
-      (∏ y pyx,
-          attempt_comp f y pyx
-           @ maponpaths (H y) (funextsec (λ z, funextsec (λ lzy : z<y, e_fun z (cons (idpath z) lzy pyx))))
-          = e_fun y pyx @ attempt_comp g y pyx)
-    -> f = g.
+  Definition attempt_lemma {x} (f g : attempt x)
+             (T : (∏ y (pyx : y ≤ x), f y pyx = g y pyx) -> Type) :
+             (∏ (e : attempt_fun f = attempt_fun g), T (λ y pyx, toforallpaths (toforallpaths e y) pyx))
+             -> ∏ e, T e.
   Proof.
-    assert (wlog :
-              ∏ (T : (∏ y (pyx : y ≤ x), f y pyx = g y pyx) -> Type),
-                (∏ (e : attempt_fun f = attempt_fun g),
-                    T (λ y pyx, toforallpaths (toforallpaths e y) pyx))
-                -> ∏ e, T e).
-    { intros T HT e.
-      transparent assert (e' : (attempt_fun f = attempt_fun g)).
-      { apply funextsec; intros y; apply funextsec; intros pyx; apply e. }
-      refine (transportb _ _ (HT e')).
-      apply funextsec; intros y; apply funextsec; intros pyx.
+    intros HT e.
+    simple refine (transportb _ _ (HT _)).
+    { apply funextsec; intros y. apply funextsec; intros pyx.
       apply pathsinv0.
       eapply pathscomp0.
       { refine (toforallpaths _ _); apply maponpaths.
         refine (toforallpaths _ _); apply toforallpaths_funextsec. }
       refine (toforallpaths _ _); apply toforallpaths_funextsec. }
-    refine (wlog _ _); clear wlog.
+  Defined.
+
+  Definition attempt_paths {x} (f g : attempt x) :
+      ∏ (e_fun : ∏ y pyx, f y pyx = g y pyx),
+      (∏ y pyx,
+          attempt_comp f y pyx
+           @ maponpaths (H y) (funextsec (λ z, funextsec (λ lzy, e_fun z (cons (idpath z) lzy pyx))))
+          = e_fun y pyx @ attempt_comp g y pyx)
+    -> f = g.
+  Proof.
+    use attempt_lemma.
     intros e. induction f as [f0 f1], g as [g0 g1]. cbn in e. induction e.
-    cbn. intros e_comp; apply maponpaths.
+    cbn.
+    intros e_comp. apply maponpaths.
     apply funextsec; intros y; apply funextsec; intros pyx.
     refine (!_ @ e_comp _ _).
     refine (maponpaths _ _ @ pathscomp0rid _).
