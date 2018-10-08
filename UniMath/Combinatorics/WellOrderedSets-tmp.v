@@ -85,8 +85,8 @@ Section Attempts.
 
   Context (P : X -> Type) (H : hereditary lt P).
 
-  (* An “attempt” up to x: a partial function into P defined for all y ≤ x, and satisfying the
-     specification given by hereditariness of P.
+  (* An “attempt” up to x: a partial function into P defined just for all y ≤ x, and guided by the
+     term H witnessing the hereditariness of P.
 
      Caveat: we should actually have said not “partial function” but “multivalued partial function”,
      since (y ≤ x) isn’t necessarily an hprop. *)
@@ -126,13 +126,12 @@ Section Attempts.
              -> ∏ e, T e.
   Proof.
     intros HT e.
-    simple refine (transportb _ _ (HT _)).
-    { apply funextsec; intros y. apply funextsec; intros pyx.
-      apply pathsinv0.
+    simple refine (transportf _ _ (HT _)).
+    { apply funextsec; intros y; apply funextsec; intros pyx.
       eapply pathscomp0.
-      { refine (toforallpaths _ _); apply maponpaths.
-        refine (toforallpaths _ _); apply toforallpaths_funextsec. }
-      refine (toforallpaths _ _); apply toforallpaths_funextsec. }
+      { refine (toforallpaths _ _). apply maponpaths.
+        refine (toforallpaths _ _). apply toforallpaths_funextsec. }
+      refine (toforallpaths _ _). apply toforallpaths_funextsec. }
   Defined.
 
   Definition attempt_paths {x} (f g : attempt x) :
@@ -183,11 +182,10 @@ Section Attempts.
     apply (wwf_lt (λ x, iscontr_hProp (attempt x))).
     intros x IH.
     apply (iscontrretract _ _ assemble_disassemble).
-    apply impred_iscontr; intro z.
-    apply impred_iscontr; intro z'.
-    apply impred_iscontr; intro l.
-    apply impred_iscontr; intro e.
-    exact (IH z (transportf _ e l)).
+    apply impred_iscontr; intro z; apply impred_iscontr; intro z';
+      apply impred_iscontr; intro l; apply impred_iscontr; intro e.
+    induction e.
+    exact (IH z l).
   Defined.
 
   Local Definition the_attempt x : attempt x
