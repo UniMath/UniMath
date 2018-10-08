@@ -251,7 +251,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [Bicategories/BicategoryFromBicat.v](CategoryTheory/Bicategories/BicategoryFromBicat.v)
    - [Bicategories/BicatFromBicategory.v](CategoryTheory/Bicategories/BicatFromBicategory.v)
    - [Bicategories/Graph.v](CategoryTheory/Bicategories/Graph.v)
-   - [Monoidal/BinaryProductCategories.v](CategoryTheory/Monoidal/BinaryProductCategories.v)
    - [Monoidal/MonoidalCategories.v](CategoryTheory/Monoidal/MonoidalCategories.v)
    - [Monoidal/MonoidalFunctors.v](CategoryTheory/Monoidal/MonoidalFunctors.v)
    - [Monoidal/CategoriesOfMonoids.v](CategoryTheory/Monoidal/CategoriesOfMonoids.v)

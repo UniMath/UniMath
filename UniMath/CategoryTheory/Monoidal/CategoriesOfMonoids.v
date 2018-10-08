@@ -3,7 +3,7 @@
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.Monoidal.BinaryProductCategories.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 
 Local Open Scope cat.
@@ -84,6 +84,8 @@ Proof.
     assert (goal' : (monoid_mult X · pr1 f · g = # tensor (f · g #, f · g) · monoid_mult Z)); [| exact goal'].
     rewrite (pr1 (pr2 f)).
     rewrite <- assoc.
+    assert (goal' : (# tensor (f #, f) · (monoid_mult Y · g) =
+    # tensor (precatbinprodmor (f · g) (f · g)) · monoid_mult Z)); [| exact goal'].
     rewrite binprod_comp.
     assert (goal' : (# tensor (pr1 f #, pr1 f) · (monoid_mult Y · pr1 g) = # tensor ((f #, f) · (g #, g)) · monoid_mult Z)); [| exact goal'].
     rewrite functor_comp.

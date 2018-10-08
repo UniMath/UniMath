@@ -84,8 +84,6 @@ Definition ob2 (x : precategory_binproduct) : D := pr2 x.
 Definition mor1 (x x' : precategory_binproduct) (f : _ ⟦x, x'⟧) : _ ⟦ob1 x, ob1 x'⟧ := pr1 f.
 Definition mor2 (x x' : precategory_binproduct) (f : _ ⟦x, x'⟧) : _ ⟦ob2 x, ob2 x'⟧ := pr2 f.
 
-
-
 End precategory_binproduct.
 
 Arguments ob1 { _ _ } _ .
@@ -99,10 +97,41 @@ Definition precatbinprodpair {C D : precategory} (X : C) (Y : D) : precategory_b
   := dirprodpair X Y.
 
 Local Notation "A ⊗ B" := (precatbinprodpair A B) (at level 10).
+Local Notation "( A , B )" := (precatbinprodpair A B).
 
 Definition precatbinprodmor {C D : precategory} {X X' : C} {Z Z' : D} (α : X --> X') (β : Z --> Z')
   : X ⊗ Z --> X' ⊗ Z'
   := dirprodpair α β.
+
+Local Notation "( f #, g )" := (precatbinprodmor f g).
+
+(* Some useful facts about product precategories *)
+Definition binprod_id {C D : precategory} (c : C) (d : D) : (identity c #, identity d) = identity (c, d).
+Proof.
+  split.
+Defined.
+
+Definition binprod_comp {C D : precategory} (c c' c'' : C) (d d' d'' : D) (f : c --> c') (f' : c' --> c'') (g : d --> d') (g' : d' --> d'') : (f · f' #, g · g') = (f #, g) · (f' #, g').
+Proof.
+  split.
+Defined.
+
+Definition is_iso_binprod_iso {C D : precategory} {c c' : C} {d d' : D} {f : c --> c'} {g : d --> d'} (f_is_iso : is_iso f)
+  (g_is_iso : is_iso g) : is_iso (f #, g).
+Proof.
+  apply (is_iso_qinv (f #, g) (inv_from_iso (isopair f f_is_iso) #, inv_from_iso (isopair g g_is_iso))).
+  apply dirprodpair.
+  - transitivity ((isopair f f_is_iso) · (inv_from_iso (isopair f f_is_iso)) #, (isopair g g_is_iso) · (inv_from_iso (isopair g g_is_iso))).
+    + symmetry.
+      apply binprod_comp.
+    + rewrite 2 iso_inv_after_iso.
+      apply binprod_id.
+  - transitivity ((inv_from_iso (isopair f f_is_iso)) · (isopair f f_is_iso) #, (inv_from_iso (isopair g g_is_iso)) · (isopair g g_is_iso)).
+    + symmetry.
+      apply binprod_comp.
+    + rewrite 2 iso_after_iso_inv.
+      apply binprod_id.
+Defined.
 
 (** Isos in product precategories *)
 Definition precatbinprodiso {C D : precategory} {X X' : C} {Z Z' : D} (α : iso X X') (β : iso Z Z')

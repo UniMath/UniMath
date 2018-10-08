@@ -8,15 +8,15 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.ProductCategory.
-Require Import UniMath.CategoryTheory.Monoidal.BinaryProductCategories.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
 Local Open Scope cat.
 
 Notation "'id' X" := (identity X) (at level 30).
 
-Notation "C ⊠ D" := (binprod_precat C D) (at level 38).
-Notation "( c , d )" := (binprod_ob c d).
-Notation "( f #, g )" := (binprod_mor f g).
+Notation "C ⊠ D" := (precategory_binproduct C D) (at level 38).
+Notation "( c , d )" := (precatbinprodpair c d).
+Notation "( f #, g )" := (precatbinprodmor f g).
 
 Section Monoidal_Precat.
 
@@ -106,45 +106,43 @@ Definition right_unitor : UU :=
 (* (- ⊗ =) ⊗ ≡ *)
 Definition assoc_left : (C ⊠ C) ⊠ C ⟶ C.
 Proof.
-  use tpair.
+  use tpair; [| split].
   - use tpair.
-    exact (λ c, (c true true ⊗ c true false) ⊗ c false).
+    exact (λ c, (ob1 (ob1 c) ⊗ ob2 (ob1 c)) ⊗ ob2 c).
     intros ? ? f.
-    exact ((f true true #⊗ f true false) #⊗ f false).
-  - split.
-    + intro a.
-      simpl.
-      repeat rewrite (binprod_proj_id a); repeat rewrite binprod_proj_id.
-      do 2 rewrite tensor_id.
-      reflexivity.
-    + unfold functor_compax.
-      simpl.
-      intros a b c f g.
-      repeat rewrite (binprod_proj_comp f); repeat rewrite binprod_proj_comp.
-      do 2 rewrite tensor_comp.
-      reflexivity.
+    exact ((mor1 (mor1 f) #⊗ mor2 (mor1 f)) #⊗ mor2 f).
+  - intro a.
+    simpl.
+    repeat rewrite (binprod_proj_id a); repeat rewrite binprod_proj_id.
+    do 2 rewrite tensor_id.
+    reflexivity.
+  - unfold functor_compax.
+    simpl.
+    intros a b c f g.
+    repeat rewrite (binprod_proj_comp f); repeat rewrite binprod_proj_comp.
+    do 2 rewrite tensor_comp.
+    reflexivity.
 Defined.
 
 (* - ⊗ (= ⊗ ≡) *)
 Definition assoc_right : (C ⊠ C) ⊠ C ⟶ C.
 Proof.
-  use tpair.
+  use tpair; [| split].
   - use tpair.
-    exact (λ c, c true true ⊗ (c true false ⊗ c false)).
+    exact (λ c, ob1 (ob1 c) ⊗ (ob2 (ob1 c) ⊗ ob2 c)).
     intros ? ? f.
-    exact (f true true #⊗ (f true false #⊗ f false)).
-  - split.
-    + intro a.
-      simpl.
-      repeat rewrite (binprod_proj_id a); repeat rewrite binprod_proj_id.
-      do 2 rewrite tensor_id.
-      reflexivity.
-    + unfold functor_compax.
-      simpl.
-      intros a b c f g.
-      repeat rewrite (binprod_proj_comp f); repeat rewrite binprod_proj_comp.
-      do 2 rewrite tensor_comp.
-      reflexivity.
+    exact (mor1 (mor1 f) #⊗ (mor2 (mor1 f) #⊗ mor2 f)).
+  - intro a.
+    simpl.
+    repeat rewrite (binprod_proj_id a); repeat rewrite binprod_proj_id.
+    do 2 rewrite tensor_id.
+    reflexivity.
+  - unfold functor_compax.
+    simpl.
+    intros a b c f g.
+    repeat rewrite (binprod_proj_comp f); repeat rewrite binprod_proj_comp.
+    do 2 rewrite tensor_comp.
+    reflexivity.
 Defined.
 
 (* α *)

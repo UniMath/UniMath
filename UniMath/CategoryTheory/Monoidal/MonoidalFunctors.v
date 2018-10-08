@@ -3,7 +3,7 @@
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.Monoidal.BinaryProductCategories.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 
 Local Open Scope cat.
@@ -34,49 +34,42 @@ Section Monoidal_Functor_Conditions.
 
 Context (F : C ⟶ D).
 
-Definition monoidal_functor_map_dom : C ⊠ C ⟶ D.
-use tpair.
+Definition monoidal_functor_map_dom : precategory_binproduct C C ⟶ D.
+use tpair; [| split].
 - use tpair.
-  exact (λ c, F (c true) ⊗_D F (c false)).
+  exact (λ c, F (ob1 c) ⊗_D F (ob2 c)).
   intros ? ? f.
-  exact (#F (f true) #⊗_D #F (f false)).
-- split.
-  + intro.
-    simpl.
-    rewrite (binprod_proj_id a).
-    repeat rewrite (binprod_proj_id a).
-    repeat rewrite functor_id.
-    apply tensor_id.
-  + unfold functor_compax.
-    simpl.
-    intros.
-    repeat rewrite (binprod_proj_comp f).
-    repeat rewrite functor_comp.
-    apply tensor_comp.
+  exact (#F (mor1 f) #⊗_D #F (mor2 f)).
+- intro.
+  simpl.
+  repeat rewrite functor_id.
+  apply tensor_id.
+- unfold functor_compax.
+  simpl.
+  intros.
+  repeat rewrite functor_comp.
+  apply tensor_comp.
 Defined.
 
-Definition monoidal_functor_map_codom : C ⊠ C ⟶ D.
-use tpair.
+Definition monoidal_functor_map_codom : precategory_binproduct C C ⟶ D.
+use tpair; [| split].
 - use tpair.
-  exact (λ c, F (c true ⊗_C c false)).
+  exact (λ c, F (ob1 c ⊗_C ob2 c)).
   intros ? ? f.
-  exact (#F (f true #⊗_C f false)).
-- split.
-  + intro.
-    simpl.
-    repeat rewrite (binprod_proj_id a).
-    rewrite binprod_id.
-    rewrite (functor_id tensor_C).
-    rewrite functor_id.
-    reflexivity.
-  + unfold functor_compax.
-    simpl.
-    intros.
-    repeat rewrite (binprod_proj_comp f).
-    rewrite binprod_comp.
-    rewrite (functor_comp tensor_C).
-    rewrite functor_comp.
-    reflexivity.
+  exact (#F (mor1 f #⊗_C mor2 f)).
+- intro.
+  simpl.
+  rewrite binprod_id.
+  rewrite (functor_id tensor_C).
+  rewrite functor_id.
+  reflexivity.
+- unfold functor_compax.
+  simpl.
+  intros.
+  rewrite binprod_comp.
+  rewrite (functor_comp tensor_C).
+  rewrite functor_comp.
+  reflexivity.
 Defined.
 
 Definition monoidal_functor_map :=

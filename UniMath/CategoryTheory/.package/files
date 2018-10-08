@@ -170,7 +170,6 @@ Bicategories/BicategoryFromBicat.v
 Bicategories/BicatFromBicategory.v
 Bicategories/Graph.v
 
-Monoidal/BinaryProductCategories.v
 Monoidal/MonoidalCategories.v
 Monoidal/MonoidalFunctors.v
 Monoidal/CategoriesOfMonoids.v
