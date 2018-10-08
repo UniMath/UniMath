@@ -255,6 +255,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monoidal/NaturalIsomorphisms.v](CategoryTheory/Monoidal/NaturalIsomorphisms.v)
    - [Monoidal/MonoidalCategories.v](CategoryTheory/Monoidal/MonoidalCategories.v)
    - [Monoidal/MonoidalFunctors.v](CategoryTheory/Monoidal/MonoidalFunctors.v)
+   - [Monoidal/CategoriesOfMonoids.v](CategoryTheory/Monoidal/CategoriesOfMonoids.v)
    - [All.v](CategoryTheory/All.v)
 ## Package [Ktheory](Ktheory/README.md)
    - [Tactics.v](Ktheory/Tactics.v)

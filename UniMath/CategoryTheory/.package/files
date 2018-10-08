@@ -174,3 +174,4 @@ Monoidal/BinaryProductCategories.v
 Monoidal/NaturalIsomorphisms.v
 Monoidal/MonoidalCategories.v
 Monoidal/MonoidalFunctors.v
+Monoidal/CategoriesOfMonoids.v
