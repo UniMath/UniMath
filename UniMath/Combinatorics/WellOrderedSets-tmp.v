@@ -17,7 +17,8 @@ Local Arguments toforallpaths {_ _ _ _} _.
 
 Section Background.
 
-  (* Hopefully already somewhere in library: *)
+  (* Move upstream *)
+
   Lemma funextsec_refl {A} {B} (f : ∏ x:A, B x)
     : funextsec (λ x, idpath (f x)) = idpath f.
   Proof.
@@ -26,15 +27,17 @@ Section Background.
 
 End Background.
 
-(* A predicate is _hereditary_ w.r.t. a relation if whenever it holds everywhere below some element, it holds at some element.
+(* A predicate is called hereditary w.r.t. a relation if whenever it holds everywhere below some element,
+   it holds at that element.
 
-Hereditariness is the usual hypothesis required for well-founded induction into a predicate. *)
+   Hereditariness is the usual hypothesis required for well-founded induction into a predicate. *)
+
 Definition hereditary {X} (lt : X -> X -> Type) (P : X -> Type) : Type
   := ∏ x, (∏ y, lt y x -> P y) -> P x.
 
 Definition strongly_well_founded {X} (lt : X -> X -> Type)
   := ∏ (P : X -> Type) (H : hereditary lt P),
-    ∑ (f : ∏ x, P x), ∏ x, f x = H x (λ y _, f y).
+     ∑ (f : ∏ x, P x), ∏ x, f x = H x (λ y _, f y).
 
 Definition weakly_well_founded {X} (lt : X -> X -> Type)
   := ∏ P : X -> hProp, hereditary lt P -> ∏ x, P x.
@@ -54,9 +57,9 @@ Section Attempts.
     - intros x y. exact (∑ s t, H x s × s<t × t=y).
   Defined.
 
-  Definition ltstar (x y : X) : Type := ∑ n, chain n x y.
+  Definition le (x y : X) : Type := ∑ n, chain n x y.
 
-  Notation "x ≤ y" := (ltstar x y) (at level 70).
+  Notation "x ≤ y" := (le x y) (at level 70).
 
   Definition nil {x} : x≤x := (0,,idpath x).
 
@@ -94,7 +97,7 @@ Section Attempts.
   Definition attempt x
     := ∑ (f : ∏ y, y ≤ x -> P y), ∏ y pyx, f y pyx = H y (λ z l, f z (cons (idpath z) l pyx)).
 
-  Definition attempt_fun {x} : attempt x -> (∏ y pyx, P y) := pr1.
+  Definition attempt_fun {x} : attempt x -> (∏ y _, P y) := pr1.
   Coercion attempt_fun : attempt >-> Funclass.
 
   Definition attempt_comp {x} : ∏ (f : attempt x), _ := pr2.
@@ -103,7 +106,7 @@ Section Attempts.
     : attempt x -> (∏ y w, y<w -> w=x -> attempt y).
   Proof.
     intros f y' y l e.
-    exists (λ t p, f _ (cons' p l e)).
+    exists (λ t p, f t (cons' p l e)).
     intros z p.
     use attempt_comp.
   Defined.
@@ -122,8 +125,8 @@ Section Attempts.
 
   Definition attempt_lemma {x} (f g : attempt x)
              (T : (∏ y (pyx : y ≤ x), f y pyx = g y pyx) -> Type) :
-             (∏ (e : attempt_fun f = attempt_fun g), T (λ y pyx, toforallpaths (toforallpaths e y) pyx))
-             -> ∏ e, T e.
+    (∏ (e : attempt_fun f = attempt_fun g), T (λ y pyx, toforallpaths (toforallpaths e y) pyx))
+    -> ∏ e, T e.
   Proof.
     intros HT e.
     simple refine (transportf _ _ (HT _)).
@@ -197,13 +200,14 @@ Section Attempts.
   Local Definition the_comp x : the_value x = H x (λ y l, the_value y).
   Proof.
     assert (e : the_attempt x = assemble_attempt (λ y _ _ _, the_attempt y)).
-    { apply isapropifcontr, iscontr_attempt. }
+    { apply pathsinv0, iscontr_uniqueness. }
     exact (toforallpaths (toforallpaths (maponpaths attempt_fun e) x) nil).
   Defined.
 
 End Attempts.
 
-(* Main goal of the file: *)
+(* The main theorem of this file *)
+
 Theorem strongly_from_weakly_well_founded {X} (lt : X -> X -> Type)
   : weakly_well_founded lt -> strongly_well_founded lt.
 Proof.
