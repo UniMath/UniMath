@@ -108,12 +108,12 @@ Local Notation "( f #, g )" := (precatbinprodmor f g).
 (* Some useful facts about product precategories *)
 Definition binprod_id {C D : precategory} (c : C) (d : D) : (identity c #, identity d) = identity (c, d).
 Proof.
-  split.
+  apply idpath.
 Defined.
 
 Definition binprod_comp {C D : precategory} (c c' c'' : C) (d d' d'' : D) (f : c --> c') (f' : c' --> c'') (g : d --> d') (g' : d' --> d'') : (f · f' #, g · g') = (f #, g) · (f' #, g').
 Proof.
-  split.
+  apply idpath.
 Defined.
 
 Definition is_iso_binprod_iso {C D : precategory} {c c' : C} {d d' : D} {f : c --> c'} {g : d --> d'} (f_is_iso : is_iso f)

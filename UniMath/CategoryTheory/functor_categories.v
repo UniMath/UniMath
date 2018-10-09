@@ -1620,12 +1620,6 @@ Definition is_nat_iso {C D : precategory} {F G : C ⟶ D} (μ : F ⟹ G) : UU :=
 Definition is_nat_id {C D : precategory} {F : C ⟶ D} (μ : F ⟹ F) : UU :=
 ∏ (c : C), μ c = identity (F c).
 
-Definition mk_iso {C : precategory} {c c' : C} {f : c --> c'} (ii : is_iso f) : iso c c'.
-Proof.
-  exists f.
-  exact ii.
-Defined.
-
 Definition nat_iso {C D : precategory} (F G : C ⟶ D) : UU
 := ∑ (μ : F ⟹ G), is_nat_iso μ.
 
