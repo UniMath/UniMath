@@ -99,7 +99,7 @@ Proof.
 Defined.
 
 Lemma comm_comm_iso_id (A B C:category) :
-  nat_iso (bifunctor_comm B A C □ bifunctor_comm A B C) (functor_identity _).
+  Precategories.nat_iso (bifunctor_comm B A C □ bifunctor_comm A B C) (functor_identity _).
 Proof.
   intros. unshelve refine (makeNatiso _ _).
   { intro F.
