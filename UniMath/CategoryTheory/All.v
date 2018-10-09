@@ -173,3 +173,4 @@ Require Export UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Export UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
 Require Export UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
 Require Export UniMath.CategoryTheory.Monoidal.Actions.
+Require Export UniMath.CategoryTheory.Monoidal.Strengths.

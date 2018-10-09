@@ -21,7 +21,6 @@ Notation "X ⊗ Y" := (tensor (X , Y)) (at level 31).
 Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
 Let α' := monoidal_precat_associator Mon_V.
 Let λ' := monoidal_precat_left_unitor Mon_V.
-Let ρ' := monoidal_precat_right_unitor Mon_V.
 
 Section Actions_Definition.
 
