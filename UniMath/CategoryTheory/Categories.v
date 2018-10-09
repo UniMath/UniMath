@@ -349,7 +349,7 @@ Definition isopair {C: precategory_data}{a b : C} (f : a --> b) (fiso: is_iso f)
 Definition inv_from_iso {C:precategory_data}{a b : C} (f : iso a b) : b --> a :=
    invmap (weqpair (precomp_with f) (pr2 f a)) (identity _ ).
 
-Definition iso_inv_after_iso {C : precategory} {a b : C} (f: iso a b) :
+Definition iso_inv_after_iso {C : precategory_data} {a b : C} (f: iso a b) :
    f · inv_from_iso f = identity _ .
 Proof.
   set (T:=homotweqinvweq (weqpair (precomp_with f) (pr2 f a ))).
