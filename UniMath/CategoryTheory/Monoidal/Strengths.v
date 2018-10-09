@@ -100,3 +100,9 @@ Definition strength : UU := ∏ F : A ⟶ A', ∑ (ϛ : strength_nat F),
 (strength_triangle_eq F ϛ) × (strength_pentagon_eq F ϛ).
 
 End Strengths_Definition.
+
+(*
+  The standard tensorial strength:
+  F(A) ⊗ B --> F(A ⊗ B)
+*)
+Definition tensorial_strength := strength tensorial_action tensorial_action.

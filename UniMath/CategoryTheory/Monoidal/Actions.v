@@ -9,6 +9,7 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
 
 Local Open Scope cat.
 
@@ -21,6 +22,7 @@ Notation "X ⊗ Y" := (tensor (X , Y)) (at level 31).
 Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
 Let α' := monoidal_precat_associator Mon_V.
 Let λ' := monoidal_precat_left_unitor Mon_V.
+Let ρ' := monoidal_precat_right_unitor Mon_V.
 
 Section Actions_Definition.
 
@@ -115,10 +117,20 @@ Definition action_pentagon_eq (χ : action_convertor) := ∏ (a : A), ∏ (x y z
 
 End Actions_Natural_Transformations.
 
-(* Action *)
-
+(* Action over a monoidal category. *)
 Definition action : UU := ∑ A : precategory, ∑ (odot : A ⊠ V ⟶ A), ∑ (ϱ : action_right_unitor A odot), ∑ (χ : action_convertor A odot), (action_triangle_eq A odot ϱ χ) × (action_pentagon_eq A odot χ).
 
 Definition action_struct : UU := ∑ A : precategory, ∑ (odot : A ⊠ V ⟶ A), ∑ (ϱ : action_right_unitor A odot), ∑ (χ : action_convertor A odot), unit.
 
 End Actions_Definition.
+
+(* The canonical tensorial action on a monoidal category. *)
+Definition tensorial_action : action.
+Proof.
+  exists V.
+  exists tensor.
+  exists ρ'.
+  exists α'.
+  exact (monoidal_precat_eq Mon_V).
+Defined.
+
