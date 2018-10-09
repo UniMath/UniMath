@@ -173,3 +173,4 @@ Bicategories/Graph.v
 Monoidal/MonoidalCategories.v
 Monoidal/MonoidalFunctors.v
 Monoidal/CategoriesOfMonoids.v
+Monoidal/Actions.v
