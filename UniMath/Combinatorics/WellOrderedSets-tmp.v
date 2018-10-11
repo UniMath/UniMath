@@ -25,6 +25,67 @@ Section Background.
     exact (funextsec_toforallpaths (idpath f)).
   Defined.
 
+  Lemma wma_dneg {X} P : ¬¬ P -> (P -> ¬ X) -> ¬ X.
+  Proof.
+    intros dnp p.
+    apply dnegnegtoneg.
+    assert (q := dnegf p); clear p.
+    apply q; clear q.
+    apply dnp.
+  Defined.
+
+  Lemma dneg_decidable P : ¬¬ decidable P.
+  Proof.
+    intros ndec.
+    unfold decidable in ndec.
+    assert (q := fromnegcoprod ndec); clear ndec.
+    contradicts (pr1 q) (pr2 q).
+  Defined.
+
+  Lemma wma_decidable {X} P : (decidable P -> ¬ X) -> ¬ X.
+  Proof.
+    apply (wma_dneg (decidable P)).
+    apply dneg_decidable.
+  Defined.
+
+  Lemma neghexisttoforallneg' {X : UU} (F : X -> UU) :
+    ¬ (∑ x, F x) -> ∏ x : X, ¬ (F x).
+  Proof.
+    intros nhe x. intro fx.
+    exact (nhe (tpair F x fx)).
+  Defined.
+
+  Lemma negforall_to_existsneg' {X} (P:X->Type) : (¬ ∏ x, ¬¬ (P x)) -> ¬¬ (∑ x, ¬ (P x)).
+  Proof.
+    intros nf c. use nf; clear nf. intro x.
+    assert (q := neghexisttoforallneg' _ c x); clear c; simpl in q.
+    exact q.
+  Defined.
+
+  Lemma dneg_lem : ¬¬ LEM.
+  Proof.
+    unfold LEM.
+    (* We can't hope to prove [¬¬ (∀ P : Type, decidable_P)], because that would imply while proving
+       [¬ true] that every type has decidable equality, hence that every type is a set,
+       contradicting univalence. *)
+    intros ndec.
+    (* I don't know whether this is true. *)
+  Abort.
+
+  Lemma wma_decidable' {X} : ((∏ P, decidable P) -> ¬ X) -> ¬ X.
+  Proof.
+    intros p.
+    apply dnegnegtoneg.
+    assert (q := dnegf p); clear p.
+    apply q; clear q.
+  Abort.
+
+  Open Scope logic.
+
+  Notation "'¬¬' X" := (hneg (hneg X)) : logic.
+
+  Close Scope logic.
+
 End Background.
 
 (* A predicate is called hereditary w.r.t. a relation if whenever it holds everywhere below some element,
@@ -94,21 +155,19 @@ Section Attempts.
      Caveat: we should actually have said not “partial function” but “multivalued partial function”,
      since (y ≤ x) isn’t necessarily an hprop. *)
 
-  Definition attempt x
-    := ∑ (f : ∏ y, y ≤ x -> P y), ∏ y pyx, f y pyx = H y (λ z l, f z (cons (idpath z) l pyx)).
+  Definition guided_by x (f : ∏ y, y ≤ x -> P y) H := ∏ y pyx, f y pyx = H y (λ z l, f z (cons (idpath z) l pyx)).
+
+  Definition attempt x := ∑ f, guided_by x f H.
 
   Definition attempt_fun {x} : attempt x -> (∏ y _, P y) := pr1.
   Coercion attempt_fun : attempt >-> Funclass.
 
   Definition attempt_comp {x} : ∏ (f : attempt x), _ := pr2.
 
-  Definition disassemble_attempt {x}
-    : attempt x -> (∏ y w, y<w -> w=x -> attempt y).
+  Definition disassemble_attempt {x} : attempt x -> (∏ y w, y<w -> w=x -> attempt y).
   Proof.
-    intros f y' y l e.
-    exists (λ t p, f t (cons' p l e)).
-    intros z p.
-    use attempt_comp.
+    intros f y' y l e. exists (λ t p, f t (cons' p l e)).
+    intros z p. use attempt_comp.
   Defined.
 
   Definition assemble_attempt {x}
@@ -206,7 +265,7 @@ Section Attempts.
 
 End Attempts.
 
-(* The main theorem of this file *)
+(* The main theorem of this file, due to Peter Lumsdaine. *)
 
 Theorem strongly_from_weakly_well_founded {X} (lt : X -> X -> Type)
   : weakly_well_founded lt -> strongly_well_founded lt.
@@ -215,3 +274,35 @@ Proof.
   exists (the_value lt P H_P wwf_lt).
   exact  (the_comp  lt P H_P wwf_lt).
 Defined.
+
+Section OrderedSets.
+
+  (* These facts might be well known. *)
+
+  Context {X:hSet} (lt : X -> X -> Type).
+
+  Context (wwf_lt : weakly_well_founded lt).
+
+  Notation "x < y" := (lt x y).
+
+  Context (equal : isdeceq X).
+
+  Notation "x == y" := (equal x y) (at level 50).
+
+  Lemma irrefl x : ¬ (x < x).
+  Proof.
+    intro l. set (P := λ t, if x == t then hfalse else htrue).
+    assert (H : hereditary lt P).
+    { intros t h. induction (x == t) as [p|n].
+      - induction p. exact (h x l).
+      - unfold P. induction (x == t) as [q|_].
+        + contradicts n q.
+        + exact tt. }
+    assert (k := wwf_lt _ H x).
+    unfold P in k.
+    induction (x == x) as [_|b].
+    - exact k.
+    - now apply b.
+  Defined.
+
+End OrderedSets.
