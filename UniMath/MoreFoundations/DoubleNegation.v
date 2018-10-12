@@ -1,7 +1,7 @@
 Require Import UniMath.Foundations.All.
 
+(** When proving a negation, we may undo a double negation. *)
 Lemma wma_dneg {X} P : ¬¬ P -> (P -> ¬ X) -> ¬ X.
-(* when proving a negation, we may undo a double negation *)
 Proof.
   intros dnp p.
   apply dnegnegtoneg.
@@ -10,8 +10,8 @@ Proof.
   apply dnp.
 Defined.
 
+(** It's not false that a type is decidable. *)
 Lemma dneg_decidable P : ¬¬ decidable P.
-(* it's not false that a type is decidable *)
 Proof.
   intros ndec.
   unfold decidable in ndec.
@@ -19,8 +19,8 @@ Proof.
   contradicts (pr1 q) (pr2 q).
 Defined.
 
+(** When proving a negation, we may assume a type is decidable. *)
 Lemma wma_decidable {X} P : (decidable P -> ¬ X) -> ¬ X.
-(* when proving a negation, we may assume a type is decidable *)
 Proof.
   apply (wma_dneg (decidable P)).
   apply dneg_decidable.
@@ -28,8 +28,8 @@ Defined.
 
 Open Scope logic.
 
+(** Compare with [negforall_to_existsneg], which uses LEM instead. *)
 Lemma negforall_to_existsneg' {X} (P:X->Type) : (¬ ∏ x, ¬¬ (P x)) -> ¬¬ (∃ x, ¬ (P x)).
-(* compare with [negforall_to_existsneg], which uses LEM *)
 Proof.
   intros nf c. use nf; clear nf. intro x.
   assert (q := neghexisttoforallneg _ c x); clear c; simpl in q.
