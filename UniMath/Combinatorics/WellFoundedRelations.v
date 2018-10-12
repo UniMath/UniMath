@@ -216,30 +216,23 @@ Section OrderedSets.
 
   (* These facts might be well known. *)
 
-  Context {X:hSet} (lt : X -> X -> Type).
+  Context {X:UU} (lt : X -> X -> Type).
 
   Context (wwf_lt : weakly_well_founded lt).
 
   Notation "x < y" := (lt x y).
 
-  Context (equal : isdeceq X).
-
-  Notation "x == y" := (equal x y) (at level 50).
+  Open Scope logic.
 
   Lemma irrefl x : ¬ (x < x).
   Proof.
-    intro l. set (P := λ t, if x == t then hfalse else htrue).
+    (** This proof is provided by Marc Bezem. *)
+    intro l. set (P := λ t, ¬ (x=t)).
     assert (H : hereditary lt P).
-    { intros t h. induction (x == t) as [p|n].
-      - induction p. exact (h x l).
-      - unfold P. induction (x == t) as [q|_].
-        + contradicts n q.
-        + exact tt. }
+    { intros z h. unfold P. intro e. induction e. exact (h x l (idpath x)). }
     assert (k := wwf_lt _ H x).
     unfold P in k.
-    induction (x == x) as [_|b].
-    - exact k.
-    - now apply b.
+    exact (k (idpath x)).
   Defined.
 
   Definition Transitivity := ∏ x y z, x<y -> y<z -> x<z.
@@ -280,14 +273,5 @@ Section OrderedSets.
       induction e.
       exact (cons1 lt (idpath u) k d).
   Defined.
-
-  Context (hle := λ x y, ∥ le x y ∥).
-
-  Lemma wo : isTotalOrder hle.
-  Proof.
-    repeat split.
-    - intros. intros x y z l m.
-      revert l m. apply hinhfun2. intros l m.
-  Abort.
 
 End OrderedSets.
