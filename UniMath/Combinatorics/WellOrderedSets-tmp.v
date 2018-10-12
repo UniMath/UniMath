@@ -1,10 +1,10 @@
 (* from Peter Lumsdaine, Aug 29, 2018 *)
 
 (*
-Attempt at an answer to a question of Dan Grayson:
+  Prompted by a question of Dan Grayson:
 
-if you assume a relation is a well-order in the sense of having induction into families of _propositions_,
-does it then have induction into arbitrary type families?
+  If you assume a relation is a well-order in the sense of having induction into families of propositions,
+  does it then have induction into arbitrary type families?
 *)
 
 Set Universe Polymorphism.
@@ -15,83 +15,9 @@ Require Import UniMath.MoreFoundations.All.
 Local Arguments funextsec {_ _ _ _} _.
 Local Arguments toforallpaths {_ _ _ _} _.
 
-Section Background.
-
-  (* Move upstream *)
-
-  Lemma funextsec_refl {A} {B} (f : ∏ x:A, B x)
-    : funextsec (λ x, idpath (f x)) = idpath f.
-  Proof.
-    exact (funextsec_toforallpaths (idpath f)).
-  Defined.
-
-  Lemma wma_dneg {X} P : ¬¬ P -> (P -> ¬ X) -> ¬ X.
-  Proof.
-    intros dnp p.
-    apply dnegnegtoneg.
-    assert (q := dnegf p); clear p.
-    apply q; clear q.
-    apply dnp.
-  Defined.
-
-  Lemma dneg_decidable P : ¬¬ decidable P.
-  Proof.
-    intros ndec.
-    unfold decidable in ndec.
-    assert (q := fromnegcoprod ndec); clear ndec.
-    contradicts (pr1 q) (pr2 q).
-  Defined.
-
-  Lemma wma_decidable {X} P : (decidable P -> ¬ X) -> ¬ X.
-  Proof.
-    apply (wma_dneg (decidable P)).
-    apply dneg_decidable.
-  Defined.
-
-  Lemma neghexisttoforallneg' {X : UU} (F : X -> UU) :
-    ¬ (∑ x, F x) -> ∏ x : X, ¬ (F x).
-  Proof.
-    intros nhe x. intro fx.
-    exact (nhe (tpair F x fx)).
-  Defined.
-
-  Lemma negforall_to_existsneg' {X} (P:X->Type) : (¬ ∏ x, ¬¬ (P x)) -> ¬¬ (∑ x, ¬ (P x)).
-  Proof.
-    intros nf c. use nf; clear nf. intro x.
-    assert (q := neghexisttoforallneg' _ c x); clear c; simpl in q.
-    exact q.
-  Defined.
-
-  Lemma dneg_lem : ¬¬ LEM.
-  Proof.
-    unfold LEM.
-    (* We can't hope to prove [¬¬ (∀ P : Type, decidable_P)], because that would imply while proving
-       [¬ true] that every type has decidable equality, hence that every type is a set,
-       contradicting univalence. *)
-    intros ndec.
-    (* I don't know whether this is true. *)
-  Abort.
-
-  Lemma wma_decidable' {X} : ((∏ P, decidable P) -> ¬ X) -> ¬ X.
-  Proof.
-    intros p.
-    apply dnegnegtoneg.
-    assert (q := dnegf p); clear p.
-    apply q; clear q.
-  Abort.
-
-  Open Scope logic.
-
-  Notation "'¬¬' X" := (hneg (hneg X)) : logic.
-
-  Close Scope logic.
-
-End Background.
-
-(* A predicate is called hereditary w.r.t. a relation if whenever it holds everywhere below some element,
-   it holds at that element.
-
-   Hereditariness is the usual hypothesis required for well-founded induction into a predicate. *)
+(* A predicate is called hereditary with respect to a relation if whenever it holds everywhere below
+   some element, it holds at that element.  Hereditariness is the usual hypothesis required for
+   well-founded induction into a predicate. *)
 
 Definition hereditary {X} (lt : X -> X -> Type) (P : X -> Type) : Type
   := ∏ x, (∏ y, lt y x -> P y) -> P x.
@@ -110,7 +36,8 @@ Section Attempts.
   Notation "x < y" := (lt x y).
 
   Definition chain (n : nat) (x y:X) : Type.
-  (* an element of [chain n] will be an ascending sequence [x = s_1 < t_1 = s_2 < t_2 = ... = s_n < t_n = y] *)
+  (* An element of [chain n] will be an ascending sequence [x = s_1 < t_1 = s_2 < t_2 = ... = s_n < t_n = y].
+     We use this to implement the transitive reflexive closure of [lt]. *)
   Proof.
     revert x y.
     induction n as [|n H].
@@ -130,10 +57,8 @@ Section Attempts.
     exact (S n,,y,,x',,c,,l,,e).
   Defined.
 
-  Definition cons {x y z z'} (e : z = z') (l : z' < y) (p : y ≤ x) : z ≤ x.
+  Definition cons1 {n x y z z'} (e : z = z') (l : z' < y) (c : chain n y x) : chain (S n) z x.
   Proof.
-    induction p as [n c].
-    exists (S n).
     revert e l x c.
     induction n as [|n H].
     - intros e l x c. exact (z',,y,,e,,l,,c).
@@ -141,8 +66,15 @@ Section Attempts.
       exact (s,,t,,H e l s c',,l',,e').
   Defined.
 
-  Lemma assoc {w w' x y z' z} (e : w=w') (l : w'<x) (p : x≤y) (m : y<z') (f : z'=z) : cons e l (cons' p m f) = cons' (cons e l p) m f.
-  (* used implicitly below, so let's check it *)
+  Definition cons {x y z z'} (e : z = z') (l : z' < y) (p : y ≤ x) : z ≤ x.
+  Proof.
+    induction p as [n c]. exists (S n). exact (cons1 e l c).
+  Defined.
+
+  Lemma assoc {w w' x y z' z} (e : w=w') (l : w'<x) (p : x≤y) (m : y<z') (f : z'=z) :
+    cons e l (cons' p m f) = cons' (cons e l p) m f.
+  (* This associativity property is used implicitly below, so let's check it.
+     Here we see the advantage of defining [x≤y] the way we did, as it makes some identities judgmental. *)
   Proof.
     reflexivity.
   Defined.
@@ -155,7 +87,8 @@ Section Attempts.
      Caveat: we should actually have said not “partial function” but “multivalued partial function”,
      since (y ≤ x) isn’t necessarily an hprop. *)
 
-  Definition guided_by x (f : ∏ y, y ≤ x -> P y) H := ∏ y pyx, f y pyx = H y (λ z l, f z (cons (idpath z) l pyx)).
+  Definition guided_by x (f : ∏ y, y ≤ x -> P y) H
+    := ∏ y pyx, f y pyx = H y (λ z l, f z (cons (idpath z) l pyx)).
 
   Definition attempt x := ∑ f, guided_by x f H.
 
@@ -212,9 +145,9 @@ Section Attempts.
     refine (!_ @ e_comp _ _).
     refine (maponpaths _ _ @ pathscomp0rid _).
     refine (@maponpaths _ _ _ _ (idpath _) _).
-    refine (maponpaths funextsec _ @ funextsec_refl _).
+    refine (maponpaths funextsec _ @ funextsec_toforallpaths _).
     apply funextsec; intros z.
-    apply funextsec_refl.
+    apply (funextsec_toforallpaths (idpath _)).
   Defined.
 
   Definition assemble_disassemble {x} (f : attempt x)
@@ -227,14 +160,14 @@ Section Attempts.
     - intros y [[|n] pyx].
       + cbn.
         refine (@maponpaths _ _ _ _ (idpath _) _ @ ! pathsinv0l _).
-        refine (maponpaths _ _ @ funextsec_refl _).
+        refine (maponpaths _ _ @ funextsec_toforallpaths _).
         apply funextsec; intros z.
-        apply funextsec_refl.
+        apply (funextsec_toforallpaths (idpath _)).
       + refine (maponpaths _ _ @ pathscomp0rid _).
         refine (@maponpaths _ _ _ _ (idpath _) _).
-        refine (maponpaths funextsec _ @ funextsec_refl _).
+        refine (maponpaths funextsec _ @ funextsec_toforallpaths _).
         apply funextsec; intros w.
-        apply funextsec_refl.
+        apply (funextsec_toforallpaths (idpath _)).
   Defined.
 
   Context (wwf_lt : weakly_well_founded lt).
@@ -265,6 +198,8 @@ Section Attempts.
 
 End Attempts.
 
+Arguments le {_ _} _ _.
+
 (* The main theorem of this file, due to Peter Lumsdaine. *)
 
 Theorem strongly_from_weakly_well_founded {X} (lt : X -> X -> Type)
@@ -274,6 +209,8 @@ Proof.
   exists (the_value lt P H_P wwf_lt).
   exact  (the_comp  lt P H_P wwf_lt).
 Defined.
+
+Require Export UniMath.Combinatorics.OrderedSets.
 
 Section OrderedSets.
 
@@ -304,5 +241,53 @@ Section OrderedSets.
     - exact k.
     - now apply b.
   Defined.
+
+  Definition Transitivity := ∏ x y z, x<y -> y<z -> x<z.
+
+  Lemma notboth {x y} : Transitivity -> (x<y) -> ¬ (y<x).
+  Proof.
+    intros trans l. intro m.
+    assert (c := trans _ _ _ l m); clear l m.
+    exact (irrefl _ c).
+  Defined.
+
+  Context (le := le (lt := lt)).
+
+  Notation "x ≤ y" := (le x y) (at level 70).
+
+  Lemma diagRecursion
+        (f : nat -> nat -> Type)
+        (init : ∏ n, f 0 n)
+        (ind : ∏ m n, f m (S n) -> f (S m) n):
+    ∏ m n, f m n.
+  Proof.
+    intros m.
+    induction m as [|m H].
+    - exact init.
+    - intros n. apply ind. apply H.
+  Defined.
+
+  Lemma chaintrans {x y z m n} : chain lt m x y -> chain lt n y z -> chain lt (m+n) x z.
+  Proof.
+    revert m n y.
+    apply (diagRecursion (λ m n, ∏ y, chain lt m x y → chain lt n y z → chain lt (m + n) x z)).
+    - intros k y c. induction c. exact (idfun _).
+    - intros r s p y c d.
+      induction c as [u [t [b [k e]]]].
+      change ((S r) + s) with (S (r+s)).
+      rewrite plus_n_Sm.
+      apply (p u b); clear p b x r.
+      induction e.
+      exact (cons1 lt (idpath u) k d).
+  Defined.
+
+  Context (hle := λ x y, ∥ le x y ∥).
+
+  Lemma wo : isTotalOrder hle.
+  Proof.
+    repeat split.
+    - intros. intros x y z l m.
+      revert l m. apply hinhfun2. intros l m.
+  Abort.
 
 End OrderedSets.
