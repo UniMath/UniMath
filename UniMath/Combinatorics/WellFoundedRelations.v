@@ -224,15 +224,13 @@ Section OrderedSets.
 
   Open Scope logic.
 
-  Lemma irrefl x : ¬ (x < x).
+  Lemma irrefl z : ¬ (z < z).
   Proof.
     (** This proof is provided by Marc Bezem. *)
-    intro l. set (P := λ t, ¬ (x=t)).
-    assert (H : hereditary lt P).
-    { intros z h. unfold P. intro e. induction e. exact (h x l (idpath x)). }
-    assert (k := wwf_lt _ H x).
-    unfold P in k.
-    exact (k (idpath x)).
+    intro l. use (wwf_lt (λ t, ¬ (z=t))).
+    - intros x h. intro e. induction e. exact (h z l (idpath z)).
+    - exact z.
+    - reflexivity.
   Defined.
 
   Definition Transitivity := ∏ x y z, x<y -> y<z -> x<z.
