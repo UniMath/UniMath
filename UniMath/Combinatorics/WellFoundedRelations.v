@@ -233,18 +233,16 @@ Section OrderedSets.
     - reflexivity.
   Defined.
 
-  Definition Transitivity := ∏ x y z, x<y -> y<z -> x<z.
-
-  Lemma notboth {x y} : Transitivity -> (x<y) -> ¬ (y<x).
+  Lemma notboth {r s} : (r<s) -> ¬ (s<r).
   Proof.
-    intros trans l. intro m.
-    assert (c := trans _ _ _ l m); clear l m.
-    exact (irrefl _ c).
+    (** This proof is modeled after Marc's proof above. *)
+    intros l m. use (wwf_lt (λ t, ¬ ((r=t) ⨿ (s=t)))).
+    - intros x h. intro c. induction c as [e|e].
+      + induction e. exact (h s m (ii2 (idpath s))).
+      + induction e. exact (h r l (ii1 (idpath r))).
+    - exact r.
+    - exact (ii1 (idpath r)).
   Defined.
-
-  Context (le := le (lt := lt)).
-
-  Notation "x ≤ y" := (le x y) (at level 70).
 
   Lemma diagRecursion
         (f : nat -> nat -> Type)
