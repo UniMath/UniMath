@@ -1,10 +1,10 @@
-WellFoundedRelations.v
 StandardFiniteSets.v
 Lists.v
 FiniteSets.v
 Graphs.v
 Equivalence_Relations.v
 OrderedSets.v
+WellFoundedRelations.v
 WellOrderedSets.v
 ZFstructures.v
 FiniteSequences.v
