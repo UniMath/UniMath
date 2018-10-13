@@ -55,18 +55,17 @@ Section Attempts.
     exact (S n,,y,,x',,c,,l,,e).
   Defined.
 
-  Definition cons1 {n x y z z'} (e : z = z') (l : z' < y) (c : chain n y x) : chain (S n) z x.
+  Definition cons1 {n y z z'} : ∏ (x : X) (e : z = z') (l : z' < y) (c : chain n y x), chain (S n) z x.
   Proof.
-    revert e l x c.
     induction n as [|n H].
-    - intros e l x c. exact (z',,y,,e,,l,,c).
-    - intros e l x c. induction c as [s [t [c' [l' e']]]].
-      exact (s,,t,,H e l s c',,l',,e').
+    - intros x e l c. exact (z',,y,,e,,l,,c).
+    - intros x e l c. induction c as [s [t [c' [l' e']]]].
+      exact (s,,t,,H s e l c',,l',,e').
   Defined.
 
   Definition cons {x y z z'} (e : z = z') (l : z' < y) (p : y ≤ x) : z ≤ x.
   Proof.
-    induction p as [n c]. exists (S n). exact (cons1 e l c).
+    induction p as [n c]. exists (S n). exact (cons1 x e l c).
   Defined.
 
   Lemma assoc {w w' x y z' z} (e : w=w') (l : w'<x) (p : x≤y) (m : y<z') (f : z'=z) :
@@ -265,7 +264,7 @@ Section OrderedSets.
       rewrite plus_n_Sm.
       apply (p u b); clear p b x r.
       induction e.
-      exact (cons1 lt (idpath u) k d).
+      exact (cons1 lt z (idpath u) k d).
   Defined.
 
 End OrderedSets.
