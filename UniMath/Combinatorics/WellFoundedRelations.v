@@ -68,7 +68,7 @@ Section Attempts.
     induction p as [n c]. exists (S n). exact (cons1 x e l c).
   Defined.
 
-  Lemma assoc {w w' x y z' z} (e : w=w') (l : w'<x) (p : x≤y) (m : y<z') (f : z'=z) :
+  Goal ∏ w w' x y z' z (e : w=w') (l : w'<x) (p : x≤y) (m : y<z') (f : z'=z),
     cons e l (cons' p m f) = cons' (cons e l p) m f.
   (* This associativity property is used implicitly below, so let's check it.
      Here we see the advantage of defining [x≤y] the way we did, as it makes some identities judgmental. *)
