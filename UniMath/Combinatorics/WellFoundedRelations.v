@@ -7,6 +7,12 @@
 
   Answer: yes.  See the theorem below.
 
+  The result is also Proposition 1.4 of this article:
+
+        Intuitionistic Sets and Ordinals, by Paul Taylor
+        The Journal of Symbolic Logic, Vol. 61, No. 3 (Sep., 1996), pp. 705-744
+        https://www.jstor.org/stable/pdf/2275781.pdf
+
 *)
 
 Require Import UniMath.Foundations.All.
