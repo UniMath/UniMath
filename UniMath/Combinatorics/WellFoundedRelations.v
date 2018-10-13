@@ -207,8 +207,6 @@ Proof.
   exact  (the_comp  lt P H_P wwf_lt).
 Defined.
 
-Require Export UniMath.Combinatorics.OrderedSets.
-
 Section OrderedSets.
 
   (* These facts might be well known. *)
