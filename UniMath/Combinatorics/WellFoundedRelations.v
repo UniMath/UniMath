@@ -34,11 +34,10 @@ Section Attempts.
 
   Notation "x < y" := (lt x y).
 
-  Definition chain (n : nat) (x y:X) : Type.
+  Definition chain (n : nat) : ∏ (x y:X), Type.
   (* An element of [chain n] will be an ascending sequence [x = s_1 < t_1 = s_2 < t_2 = ... = s_n < t_n = y].
      We use this to implement the transitive reflexive closure of [lt]. *)
   Proof.
-    revert x y.
     induction n as [|n H].
     - intros x y. exact (x = y).
     - intros x y. exact (∑ s t, H x s × s<t × t=y).
