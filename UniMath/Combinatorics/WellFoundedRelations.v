@@ -1,10 +1,12 @@
-(* from Peter Lumsdaine, Aug 29, 2018 *)
+(** From Peter Lumsdaine, Aug 29, 2018:
 
-(*
   Prompted by a question of Dan Grayson:
 
   If you assume a relation is a well-order in the sense of having induction into families of propositions,
   does it then have induction into arbitrary type families?
+
+  Answer: yes.  See the theorem below.
+
 *)
 
 Set Universe Polymorphism.
