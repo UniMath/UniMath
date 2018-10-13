@@ -199,7 +199,7 @@ Arguments le {_ _} _ _.
 
 (* The main theorem of this file, due to Peter Lumsdaine. *)
 
-Theorem strongly_from_weakly_well_founded {X} (lt : X -> X -> Type)
+Theorem strongly_from_weakly_well_founded {X} {lt : X -> X -> Type}
   : weakly_well_founded lt -> strongly_well_founded lt.
 Proof.
   intros wwf_lt P H_P.
@@ -217,26 +217,28 @@ Section OrderedSets.
 
   Notation "x < y" := (lt x y).
 
-  Open Scope logic.
-
   Lemma irrefl z : ¬ (z < z).
   Proof.
-    (** This proof is provided by Marc Bezem. *)
-    intro l. use (wwf_lt (λ t, ¬ (z=t))).
-    - intros x h. intro e. induction e. exact (h z l (idpath z)).
-    - exact z.
-    - reflexivity.
+    (** This proof is provided by Marc Bezem.
+
+        We use the strong version of well foundedness, so we can avoid needing
+        [funextemptyAxiom] to prove that [¬ (z=t)] is a proposition. *)
+    intro l.
+    simple refine (pr1 (strongly_from_weakly_well_founded wwf_lt
+                        (λ t, ¬ (z=t)) _) z (idpath z)).
+    intros x h e. induction e.
+    exact (h z l (idpath z)).
   Defined.
 
   Lemma notboth {r s} : (r<s) -> ¬ (s<r).
   Proof.
     (** This proof is modeled after Marc's proof above. *)
-    intros l m. use (wwf_lt (λ t, ¬ ((r=t) ⨿ (s=t)))).
-    - intros x h. intro c. induction c as [e|e].
-      + induction e. exact (h s m (ii2 (idpath s))).
-      + induction e. exact (h r l (ii1 (idpath r))).
-    - exact r.
-    - exact (ii1 (idpath r)).
+    intros l m.
+    simple refine (pr1 (strongly_from_weakly_well_founded wwf_lt
+                        (λ t, ¬ ((r=t) ⨿ (s=t))) _) r (ii1 (idpath r))).
+    intros x h c. induction c as [e|e].
+    + induction e. exact (h s m (ii2 (idpath s))).
+    + induction e. exact (h r l (ii1 (idpath r))).
   Defined.
 
   Lemma diagRecursion
