@@ -15,7 +15,6 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
 Local Arguments funextsec {_ _ _ _} _.
-Local Arguments toforallpaths {_ _ _ _} _.
 
 (* A predicate is called hereditary with respect to a relation if whenever it holds everywhere below
    some element, it holds at that element.  Hereditariness is the usual hypothesis required for
@@ -119,16 +118,16 @@ Section Attempts.
 
   Definition attempt_lemma {x} (f g : attempt x)
              (T : (∏ y (pyx : y ≤ x), f y pyx = g y pyx) -> Type) :
-    (∏ (e : attempt_fun f = attempt_fun g), T (λ y pyx, toforallpaths (toforallpaths e y) pyx))
+    (∏ (e : attempt_fun f = attempt_fun g), T (λ y pyx, eqtohomot (eqtohomot e y) pyx))
     -> ∏ e, T e.
   Proof.
     intros HT e.
     simple refine (transportf _ _ (HT _)).
     { apply funextsec; intros y; apply funextsec; intros pyx.
       eapply pathscomp0.
-      { refine (toforallpaths _ _). apply maponpaths.
-        refine (toforallpaths _ _). apply toforallpaths_funextsec. }
-      refine (toforallpaths _ _). apply toforallpaths_funextsec. }
+      { refine (eqtohomot _ _). apply maponpaths.
+        refine (eqtohomot _ _). apply toforallpaths_funextsec. }
+      refine (eqtohomot _ _). apply toforallpaths_funextsec. }
   Defined.
 
   Definition attempt_paths {x} (f g : attempt x) :
@@ -195,7 +194,7 @@ Section Attempts.
   Proof.
     assert (e : the_attempt x = assemble_attempt (λ y _ _ _, the_attempt y)).
     { apply pathsinv0, iscontr_uniqueness. }
-    exact (toforallpaths (toforallpaths (maponpaths attempt_fun e) x) nil).
+    exact (eqtohomot (eqtohomot (maponpaths attempt_fun e) x) nil).
   Defined.
 
 End Attempts.
