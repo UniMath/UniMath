@@ -83,6 +83,7 @@ The packages and files are listed here in logical order: each file depends only 
 ## Package [CategoryTheory](CategoryTheory/README.md)
    - [total2_paths.v](CategoryTheory/total2_paths.v)
    - [Categories.v](CategoryTheory/Categories.v)
+   - [NNO.v](CategoryTheory/NNO.v)
    - [functor_categories.v](CategoryTheory/functor_categories.v)
    - [Groupoids.v](CategoryTheory/Groupoids.v)
    - [opp_precat.v](CategoryTheory/opp_precat.v)
