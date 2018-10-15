@@ -191,91 +191,108 @@ Qed.
 
 Definition otimes_U_functor : A ⊠ V ⟶ A := mk_functor otimes_U_functor_data otimes_U_is_functor.
 
-Definition U_action_ρ : action_right_unitor A otimes_U_functor.
+Definition U_action_ρ_nat_trans_data : nat_trans_data (odot_I_functor A otimes_U_functor) (functor_identity A).
 Proof.
-  unfold action_right_unitor.
-  unfold nat_iso.
-  use tpair.
-  + (* natural transformation *)
-    unfold nat_trans.
-    pose (ϵ_inv := inv_from_iso (mk_iso (pr1 (pr2 U)))).
-    exists (λ x, id x #⊗_A ϵ_inv · pr1 ρ_A x). (* ϱ *)
-    intros x x' f.
-    pose (ρ_nat_law := pr2 (pr1 ρ_A) x x' f).
-    simpl; simpl in ρ_nat_law.
-    assert (ϵ_coher : id x #⊗_A ϵ_inv · f #⊗_A id I_A = f #⊗_A (#U (id I)) · id x' #⊗_A ϵ_inv).
-    * do 2 rewrite <- functor_comp.
-      do 2 rewrite <- binprod_comp.
-      rewrite functor_id.
-      do 2 (rewrite id_left; rewrite id_right).
-      reflexivity.
-    * rewrite assoc.
-      assert (ϵ_coher' : (# tensor_A (id x #, ϵ_inv) · # tensor_A (f #, id I_A) = # tensor_A (f #, # U (id I)) · # tensor_A (id x' #, ϵ_inv))) by (exact ϵ_coher); clear ϵ_coher; rename ϵ_coher' into ϵ_coher.
-      assert (goal' : (# tensor_A (f #, # U (id I)) · # tensor_A (id x' #, ϵ_inv) · (pr1 ρ_A) x' = # tensor_A (id x #, ϵ_inv) · (pr1 ρ_A) x · f)); [| exact goal'].
-      rewrite <- ϵ_coher.
-      repeat rewrite <- assoc.
-      assert (goal' : (# tensor_A (id x #, ϵ_inv) · (# tensor_A (f #, id I_A) · (pr1 ρ_A) x') = # tensor_A (id x #, ϵ_inv) · (pr1 (pr1 ρ_A) x · f))); [| exact goal'].
-      assert (ρ_nat_law' : (# (pr1 (pr2 Mon_A)) (f #, id pr1 (pr2 (pr2 Mon_A))) · pr1 (pr1 ρ_A) x' = pr1 (pr1 ρ_A) x · f)) by (exact ρ_nat_law); clear ρ_nat_law; rename ρ_nat_law' into ρ_nat_law.
-      rewrite <- ρ_nat_law.
-      reflexivity.
-  + (* is_nat_iso ϱ *)
-    intro.
-    simpl.
-    use is_iso_comp_of_is_isos.
-    use is_iso_tensor_iso.
-    exact (identity_is_iso _ _).
-    use is_iso_inv_from_iso.
-    exact (pr2 ρ_A c).
+  pose (ϵ_inv := inv_from_iso (mk_iso (pr1 (pr2 U)))).
+  exact (λ x, id x #⊗_A ϵ_inv · pr1 ρ_A x).
 Defined.
 
-Definition U_action_χ : action_convertor A otimes_U_functor.
-Proof.
-  use tpair.
-  + (* natural transformation *)
-    unfold nat_trans.
-    pose (μ := pr1 (pr2 (pr2 (pr1 U)))).
-    use tpair.
-    intro x.
-    pose (k := ob1 (ob1 x)); pose (k' := ob2 (ob1 x)); pose (k'' := ob2 x).
-    exact (pr1 α_A ((k, U k'), U k'') · id k #⊗_A pr1 μ (k', k'')). (* χ *)
-    intros x x' g.
-    simpl.
-    pose (k_1 := ob1 (ob1 x)); pose (k'_1 := ob2 (ob1 x)); pose (k''_1 := ob2 x).
-    pose (k_2 := ob1 (ob1 x')); pose (k'_2 := ob2 (ob1 x')); pose (k''_2 := ob2 x').
-    pose (f := mor1 (mor1 g)); pose (f' := mor2 (mor1 g)); pose (f'' := mor2 g).
-    fold monoidal_precat_precat.
-    pose (α_nat_law := pr2 (pr1 α_A) ((k_1, U k'_1), U k''_1) ((k_2, U k'_2), U k''_2) ((f #, #U f') #, #U f'')).
-    assert (μ_coher : id k_1 #⊗_A (pr1 μ (k'_1, k''_1)) · (f #⊗_A #U (f' #⊗ f'')) = f #⊗_A (#U f' #⊗_A #U f'') · id k_2 #⊗_A (pr1 μ (k'_2, k''_2))).
-    do 2 rewrite <- tensor_comp.
-    rewrite id_left; rewrite id_right.
-    assert (snd_eq : pr1 μ (k'_1, k''_1) · # U (f' #⊗ f'') = # tensor_A (# U f' #, # U f'') · pr1 μ (k'_2, k''_2)).
-    symmetry.
-    exact (pr2 μ (k'_1, k''_1) (k'_2, k''_2) (f' #, f'')).
-    assert (goal' : (# tensor_A (f #, pr1 μ (k'_1, k''_1) · # U (# tensor (f' #, f''))) = # tensor_A (f #, # tensor_A (# U f' #, # U f'') · pr1 μ (k'_2, k''_2)))); [| exact goal'].
-    rewrite <- snd_eq.
+Definition U_action_ρ_is_nat_trans : is_nat_trans (odot_I_functor A otimes_U_functor) (functor_identity A) U_action_ρ_nat_trans_data.
+  intros x x' f.
+  pose (ρ_nat_law := pr2 (pr1 ρ_A) x x' f).
+  simpl; simpl in ρ_nat_law.
+  pose (ϵ_inv := inv_from_iso (mk_iso (pr1 (pr2 U)))).
+  assert (ϵ_coher : id x #⊗_A ϵ_inv · f #⊗_A id I_A = f #⊗_A (#U (id I)) · id x' #⊗_A ϵ_inv).
+  * do 2 rewrite <- functor_comp.
+    do 2 rewrite <- binprod_comp.
+    rewrite functor_id.
+    do 2 (rewrite id_left; rewrite id_right).
     reflexivity.
-    assert (α_nat_law' : (# tensor_A (# tensor_A (f #, # U f') #, # U f'') · pr1 (pr1 α_A) ((k_2, U k'_2), U k''_2) = pr1 (pr1 α_A) ((k_1, U k'_1), U k''_1) · # tensor_A (f #, # tensor_A (# U f' #, # U f'')))) by (exact α_nat_law); clear α_nat_law; rename α_nat_law' into α_nat_law.
-    pose (α_nat_law' := maponpaths (λ p, p · id k_2 #⊗_A (pr1 μ (k'_2, k''_2))) α_nat_law).
-    simpl in α_nat_law'.
-    repeat rewrite <- assoc in α_nat_law'.
-    assert (α_nat_law'' : (# tensor_A (# tensor_A (f #, # U f') #, # U f'') · (pr1 (pr1 α_A) ((k_2, U k'_2), U k''_2) · # tensor_A (id k_2 #, pr1 μ (k'_2, k''_2))) = pr1 (pr1 α_A) ((k_1, U k'_1), U k''_1) · (# tensor_A (f #, # tensor_A (# U f' #, # U f'')) · # tensor_A (id k_2 #, pr1 μ (k'_2, k''_2))))) by (exact α_nat_law'); clear α_nat_law'; rename α_nat_law'' into α_nat_law'.
-    assert (μ_coher' : (# tensor_A (id k_1 #, pr1 μ (k'_1, k''_1)) · # tensor_A (f #, # U (# tensor (f' #, f''))) = # tensor_A (f #, # tensor_A (# U f' #, # U f'')) · # tensor_A (id k_2 #, pr1 μ (k'_2, k''_2)))) by (exact μ_coher); clear μ_coher; rename μ_coher' into μ_coher.
-    pose (common := (# tensor_A (f #, # tensor_A (# U f' #, # U f'')) · # tensor_A (id k_2 #, pr1 μ (k'_2, k''_2)))).
-    fold common in μ_coher.
-    fold common in α_nat_law'.
-    rewrite <- μ_coher in α_nat_law'.
-    repeat rewrite assoc in α_nat_law'.
-    repeat rewrite assoc.
-    exact α_nat_law'.
-  + (* is_nat_iso χ *)
-    intro x.
-    pose (k := ob1 (ob1 x)); pose (k' := ob2 (ob1 x)); pose (k'' := ob2 x).
-    use is_iso_comp_of_is_isos.
-    exact (pr2 α_A ((k, U k'), U k'')).
-    use is_iso_tensor_iso.
-    use identity_is_iso.
-    exact (pr2 (pr2 U) (k', k'')).
+  * unfold U_action_ρ_nat_trans_data.
+    rewrite assoc.
+    assert (goal' : (# tensor_A (f #, # U (id I)) · # tensor_A (id x' #, ϵ_inv) · (pr1 ρ_A) x' = # tensor_A (id x #, ϵ_inv) · (pr1 ρ_A) x · f)); [| exact goal'].
+    rewrite <- ϵ_coher.
+    repeat rewrite <- assoc.
+    assert (goal' : (# tensor_A (id x #, ϵ_inv) · (# tensor_A (f #, id I_A) · (pr1 ρ_A) x') = # tensor_A (id x #, ϵ_inv) · (pr1 (pr1 ρ_A) x · f))); [| exact goal'].
+    assert (ρ_nat_law' : (# (pr1 (pr2 Mon_A)) (f #, id pr1 (pr2 (pr2 Mon_A))) · pr1 (pr1 ρ_A) x' = pr1 (pr1 ρ_A) x · f)) by (exact ρ_nat_law); clear ρ_nat_law; rename ρ_nat_law' into ρ_nat_law.
+    rewrite <- ρ_nat_law.
+    reflexivity.
+Qed.
+
+Definition U_action_ρ_nat_trans : odot_I_functor A otimes_U_functor ⟹ functor_identity A := mk_nat_trans _ _ U_action_ρ_nat_trans_data U_action_ρ_is_nat_trans.
+
+Definition U_action_ρ_is_nat_iso : is_nat_iso U_action_ρ_nat_trans.
+Proof.
+  intro.
+  simpl.
+  use is_iso_comp_of_is_isos.
+  use is_iso_tensor_iso.
+  exact (identity_is_iso _ _).
+  use is_iso_inv_from_iso.
+  exact (pr2 ρ_A c).
+Qed.
+
+Definition U_action_ρ : action_right_unitor A otimes_U_functor := mk_nat_iso _ _ U_action_ρ_nat_trans U_action_ρ_is_nat_iso.
+
+Definition U_action_χ_nat_trans_data : nat_trans_data (odot_x_odot_y_functor A otimes_U_functor)
+(odot_x_otimes_y_functor A otimes_U_functor).
+Proof.
+  pose (μ := pr1 (pr2 (pr2 (pr1 U)))).
+  intro x.
+  pose (k := ob1 (ob1 x)); pose (k' := ob2 (ob1 x)); pose (k'' := ob2 x).
+  exact (pr1 α_A ((k, U k'), U k'') · id k #⊗_A pr1 μ (k', k'')).
 Defined.
+
+Definition U_action_χ_is_nat_trans : is_nat_trans (odot_x_odot_y_functor A otimes_U_functor)
+(odot_x_otimes_y_functor A otimes_U_functor) U_action_χ_nat_trans_data.
+Proof.
+  pose (μ := pr1 (pr2 (pr2 (pr1 U)))).
+  unfold U_action_χ_nat_trans_data.
+  intros x x' g.
+  simpl.
+  pose (k_1 := ob1 (ob1 x)); pose (k'_1 := ob2 (ob1 x)); pose (k''_1 := ob2 x).
+  pose (k_2 := ob1 (ob1 x')); pose (k'_2 := ob2 (ob1 x')); pose (k''_2 := ob2 x').
+  pose (f := mor1 (mor1 g)); pose (f' := mor2 (mor1 g)); pose (f'' := mor2 g).
+  fold monoidal_precat_precat.
+  pose (α_nat_law := pr2 (pr1 α_A) ((k_1, U k'_1), U k''_1) ((k_2, U k'_2), U k''_2) ((f #, #U f') #, #U f'')).
+  assert (μ_coher : id k_1 #⊗_A (pr1 μ (k'_1, k''_1)) · (f #⊗_A #U (f' #⊗ f'')) = f #⊗_A (#U f' #⊗_A #U f'') · id k_2 #⊗_A (pr1 μ (k'_2, k''_2))).
+  do 2 rewrite <- tensor_comp.
+  rewrite id_left; rewrite id_right.
+  assert (snd_eq : pr1 μ (k'_1, k''_1) · # U (f' #⊗ f'') = # tensor_A (# U f' #, # U f'') · pr1 μ (k'_2, k''_2)).
+  symmetry.
+  exact (pr2 μ (k'_1, k''_1) (k'_2, k''_2) (f' #, f'')).
+  assert (goal' : (# tensor_A (f #, pr1 μ (k'_1, k''_1) · # U (# tensor (f' #, f''))) = # tensor_A (f #, # tensor_A (# U f' #, # U f'') · pr1 μ (k'_2, k''_2)))); [| exact goal'].
+  rewrite <- snd_eq.
+  reflexivity.
+  assert (α_nat_law' : (# tensor_A (# tensor_A (f #, # U f') #, # U f'') · pr1 (pr1 α_A) ((k_2, U k'_2), U k''_2) = pr1 (pr1 α_A) ((k_1, U k'_1), U k''_1) · # tensor_A (f #, # tensor_A (# U f' #, # U f'')))) by (exact α_nat_law); clear α_nat_law; rename α_nat_law' into α_nat_law.
+  pose (α_nat_law' := maponpaths (λ p, p · id k_2 #⊗_A (pr1 μ (k'_2, k''_2))) α_nat_law).
+  simpl in α_nat_law'.
+  repeat rewrite <- assoc in α_nat_law'.
+  assert (α_nat_law'' : (# tensor_A (# tensor_A (f #, # U f') #, # U f'') · (pr1 (pr1 α_A) ((k_2, U k'_2), U k''_2) · # tensor_A (id k_2 #, pr1 μ (k'_2, k''_2))) = pr1 (pr1 α_A) ((k_1, U k'_1), U k''_1) · (# tensor_A (f #, # tensor_A (# U f' #, # U f'')) · # tensor_A (id k_2 #, pr1 μ (k'_2, k''_2))))) by (exact α_nat_law'); clear α_nat_law'; rename α_nat_law'' into α_nat_law'.
+  assert (μ_coher' : (# tensor_A (id k_1 #, pr1 μ (k'_1, k''_1)) · # tensor_A (f #, # U (# tensor (f' #, f''))) = # tensor_A (f #, # tensor_A (# U f' #, # U f'')) · # tensor_A (id k_2 #, pr1 μ (k'_2, k''_2)))) by (exact μ_coher); clear μ_coher; rename μ_coher' into μ_coher.
+  pose (common := (# tensor_A (f #, # tensor_A (# U f' #, # U f'')) · # tensor_A (id k_2 #, pr1 μ (k'_2, k''_2)))).
+  fold common in μ_coher.
+  fold common in α_nat_law'.
+  rewrite <- μ_coher in α_nat_law'.
+  repeat rewrite assoc in α_nat_law'.
+  repeat rewrite assoc.
+  exact α_nat_law'.
+Qed.
+
+Definition U_action_χ_nat_trans : odot_x_odot_y_functor A otimes_U_functor ⟹ odot_x_otimes_y_functor A otimes_U_functor := mk_nat_trans _ _ U_action_χ_nat_trans_data U_action_χ_is_nat_trans.
+
+Definition U_action_χ_is_nat_iso : is_nat_iso U_action_χ_nat_trans.
+Proof.
+  intro x.
+  pose (k := ob1 (ob1 x)); pose (k' := ob2 (ob1 x)); pose (k'' := ob2 x).
+  use is_iso_comp_of_is_isos.
+  exact (pr2 α_A ((k, U k'), U k'')).
+  use is_iso_tensor_iso.
+  use identity_is_iso.
+  exact (pr2 (pr2 U) (k', k'')).
+Qed.
+
+Definition U_action_χ : action_convertor A otimes_U_functor := mk_nat_iso _ _ U_action_χ_nat_trans U_action_χ_is_nat_iso.
 
 Definition U_action_struct : action_struct.
 Proof.
