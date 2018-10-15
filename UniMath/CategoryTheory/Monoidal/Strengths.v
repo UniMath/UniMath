@@ -42,13 +42,16 @@ Notation "f #⊙ g" := (#odot (f #, g)) (at level 31).
 Notation "X ⊙' Y" := (odot' (X , Y)) (at level 31).
 Notation "f #⊙' g" := (#odot' (f #, g)) (at level 31).
 
-Definition strength_dom : functor (precategory_binproduct A V) A'.
+Definition strength_dom_data : functor_data (precategory_binproduct A V) A'.
 Proof.
-  use tpair; [| split].
-  - use tpair.
-    exact (λ ax, F (ob1 ax) ⊙' (ob2 ax)).
-    intros ? ? f.
-    exact ((#F (mor1 f)) #⊙' (mor2 f)).
+  exists (λ ax, F (ob1 ax) ⊙' (ob2 ax)).
+  intros ? ? f.
+  exact ((#F (mor1 f)) #⊙' (mor2 f)).
+Defined.
+
+Definition strength_dom_is_functor : is_functor strength_dom_data.
+Proof.
+  split.
   - intro.
     simpl.
     rewrite (functor_id F).
@@ -62,15 +65,20 @@ Proof.
     rewrite <- binprod_comp.
     rewrite <- (functor_comp F).
     reflexivity.
+Qed.
+
+Definition strength_dom : (precategory_binproduct A V) ⟶ A' := mk_functor strength_dom_data strength_dom_is_functor.
+
+Definition strength_codom_data : functor_data (A ⊠ V) A'.
+Proof.
+  exists (λ ax, F (ob1 ax ⊙ ob2 ax)).
+  intros ? ? f.
+  exact (#F (mor1 f #⊙ mor2 f)).
 Defined.
 
-Definition strength_codom : A ⊠ V ⟶ A'.
+Definition strength_codom_is_functor : is_functor strength_codom_data.
 Proof.
-  use tpair; [| split].
-  - use tpair.
-    exact (λ ax, F (ob1 ax ⊙ ob2 ax)).
-    intros ? ? f.
-    exact (#F (mor1 f #⊙ mor2 f)).
+  split.
   - intro.
     simpl.
     rewrite <- (functor_id F).
@@ -84,7 +92,9 @@ Proof.
     rewrite <- (functor_comp odot).
     rewrite <- binprod_comp.
     reflexivity.
-Defined.
+Qed.
+
+Definition strength_codom : A ⊠ V ⟶ A' := mk_functor strength_codom_data strength_codom_is_functor.
 
 Definition strength_nat : UU := nat_iso strength_dom strength_codom.
 

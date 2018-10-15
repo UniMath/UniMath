@@ -660,11 +660,6 @@ Proof.
     apply (pr1 H). apply idpath.
 Defined.
 
-Definition is_iso_id {C : precategory} {c : C} : is_iso (identity c).
-Proof.
-  exact (is_iso_qinv (identity c) (identity c) (is_inverse_in_precat_identity c)).
-Defined.
-
 Definition iso_comp_left_weq {C:precategory} {a b:C} (h:iso a b) (c:C) :
  (c --> a) ≃ (c --> b) := weqpair _ (iso_comp_left_isweq h c).
 
