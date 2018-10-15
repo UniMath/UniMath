@@ -110,13 +110,10 @@ Reserved Notation "F ◾ b"  (at level 40, left associativity).
 Reserved Notation "F ▭ f"  (at level 40, left associativity). (* \rew1 *)
 (* to input: type "\rew" or "\re" with Agda input method *)
 
-(* conflict:
-    Reserved Notation "A ⇒ B" (at level 95, no associativity).
-    Reserved Notation "c ⇒ X" (at level 50).
-    (* to input: type "\Rightarrow" or "\r=" or "\r" or "\Longrightarrow" or "\=>" with Agda input method *)
-*)
+Reserved Notation "A ⇒ B" (at level 95, no associativity).
+(* to input: type "\Rightarrow" or "\r=" or "\r" or "\Longrightarrow" or "\=>" with Agda input method *)
 
-Reserved Notation "X ⇐ c"   (at level 50, left associativity).
+Reserved Notation "X ⇐ c"   (at level 95, no associativity).
 (* to input: type "\Leftarrow" or "\Longleftarrow" or "\l=" or "\l" with Agda input method *)
 
 Reserved Notation "x ⟲ f"  (at level 50, left associativity).
