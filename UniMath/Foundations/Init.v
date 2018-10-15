@@ -104,6 +104,9 @@ Reserved Notation "F ∙ G" (at level 35).
     (* to input: type "\Box" or "\square" or "\sqw" or "\sq" with Agda input method *)
 *)
 
+Reserved Notation "X ⊗ Y"  (at level 40, left associativity).
+(* to input: type "\ox" or "\otimes" with Agda input method *)
+
 Reserved Notation "F ◾ b"  (at level 40, left associativity).
 (* to input: type "\sqb" or "\sq" with Agda input method *)
 
