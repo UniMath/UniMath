@@ -20,3 +20,6 @@
 /latex/coqdoc.sty
 /COQC.log
 /.*.okay
+.vscode
+_CoqProject
+*.zip
