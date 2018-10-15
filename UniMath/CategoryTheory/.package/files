@@ -51,6 +51,7 @@ limits/FinOrdProducts.v
 limits/FinOrdCoproducts.v
 limits/Opp.v
 limits/graphs/eqdiag.v
+NNO.v
 Subcategory/Limits.v
 EpiFacts.v
 exponentials.v

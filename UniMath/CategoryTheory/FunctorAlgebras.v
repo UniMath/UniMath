@@ -17,7 +17,7 @@ Contents :
 
 - Lambek's lemma: if (A,a) is an inital F-algebra then a is an iso
 
-- The natural numbers are intial for X ↦ 1 + X
+- The natural numbers are initial for X ↦ 1 + X
 
 ******************************************************************)
 
@@ -34,6 +34,7 @@ Require Import UniMath.CategoryTheory.limits.initial.
 (* The following are used for examples *)
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
+Require Import UniMath.CategoryTheory.NNO.
 
 Local Open Scope cat.
 
@@ -578,3 +579,32 @@ Section Nats.
   Opaque nat_ob_rec_s.
 
 End Nats.
+
+(** nat_ob implies NNO *)
+Lemma nat_ob_NNO {C : precategory} (BC : BinCoproducts C) (hsC : has_homsets C) (TC : Terminal C) :
+  nat_ob C BC hsC TC → NNO TC.
+Proof.
+intros N.
+use mk_NNO.
+- exact (nat_ob_carrier _ _ _ _ N).
+- apply nat_ob_z.
+- apply nat_ob_s.
+- intros n z s.
+  use unique_exists.
+  + apply (nat_ob_rec _ _ _ _ _ z s).
+  + split; [ apply nat_ob_rec_z | apply nat_ob_rec_s ].
+  + intros x; apply isapropdirprod; apply hsC.
+  + intros x [H1 H2].
+    transparent assert (xalg : (FunctorAlg (BinCoproduct_of_functors C C BC
+                                              (constant_functor C C TC)
+                                              (functor_identity C)) hsC
+                                              ⟦ InitialObject N, mk_F_alg C BC hsC TC z s ⟧)).
+    { refine (x,,_).
+      abstract (apply pathsinv0; etrans; [apply precompWithBinCoproductArrow |];
+                rewrite id_left, <- H1;
+                etrans; [eapply maponpaths, pathsinv0, H2|];
+                now apply pathsinv0, BinCoproductArrowUnique; rewrite assoc;
+                apply maponpaths).
+    }
+    exact (maponpaths pr1 (InitialArrowUnique N (mk_F_alg C BC hsC TC z s) xalg)).
+Defined.
