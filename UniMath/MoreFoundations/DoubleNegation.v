@@ -26,7 +26,7 @@ Proof.
   apply dneg_decidable.
 Defined.
 
-Open Scope logic.
+Local Open Scope logic.
 
 (** Compare with [negforall_to_existsneg], which uses LEM instead. *)
 Lemma negforall_to_existsneg' {X} (P:X->Type) : (¬ ∏ x, ¬¬ (P x)) -> ¬¬ (∃ x, ¬ (P x)).
