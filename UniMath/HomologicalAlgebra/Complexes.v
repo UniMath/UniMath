@@ -487,7 +487,7 @@ Section def_complexes.
     intros M1 M2 M3.
     use MorphismEq.
     intros i. cbn.
-    apply (assocax (to_abgrop (C1 i) (C2 i))).
+    apply (assocax (to_abgr (C1 i) (C2 i))).
   Qed.
 
   Lemma MorphismOp_isunit (C1 C2 : Complex) :
@@ -543,7 +543,7 @@ Section def_complexes.
     intros M1 M2.
     use MorphismEq.
     intros i. cbn.
-    apply (commax (to_abgrop (C1 i) (C2 i)) (MMor M1 i) (MMor M2 i)).
+    apply (commax (to_abgr (C1 i) (C2 i)) (MMor M1 i) (MMor M2 i)).
   Qed.
 
   Definition MorphismOp_isabgrop (C1 C2 : Complex) : @isabgrop (Morphisms_hSet C1 C2) MorphismOp.
