@@ -106,7 +106,7 @@ Section KAPreTriangulated.
 
   Local Opaque ComplexHomotFunctor ComplexHomotSubset Quotcategory identity
         MappingConePr1 MappingConeIn2 RotMorphism RotMorphismInv InvRotMorphism InvRotMorphismInv
-        to_inv compose pathsinv0 pathscomp0 ishinh to_abgrop.
+        to_inv compose pathsinv0 pathscomp0 ishinh to_abgr.
 
   Definition MappingConeTri {x y : ob (ComplexHomot_Additive A)} (f : x --> y)
              (f' : hfiber (# (ComplexHomotFunctor A)) f) :
