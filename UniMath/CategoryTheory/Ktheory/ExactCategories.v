@@ -27,21 +27,21 @@ Delimit Scope addcat with addcat.
 
 Delimit Scope excat with excat.
 
-Notation "a --> b" := (to_abgrop a b) : addcat.
+Notation "a --> b" := (to_abgr a b) : addcat.
 
-Notation "C ⟦ a , b ⟧" := (to_abgrop (PA:=C) a b) : addcat.
+Notation "C ⟦ a , b ⟧" := (to_abgr (PA:=C) a b) : addcat.
 
-Notation "f · g" := (compose f g : to_abgrop _ _) : addcat.
+Notation "f · g" := (compose f g : to_abgr _ _) : addcat.
 
-Notation "0" := (AdditiveZeroArrow _ _ : to_abgrop _ _) : addcat.
+Notation "0" := (AdditiveZeroArrow _ _ : to_abgr _ _) : addcat.
 
 Notation "0" := (ZeroArrow (to_Zero _) _ _) : cat.
 
-Notation "1" := (identity _ : to_abgrop _ _) : addcat.
+Notation "1" := (identity _ : to_abgr _ _) : addcat.
 
 Notation "f = g" := (eqset f g) : addcat.
 
-Notation "f - g" := (@op _ f (grinv _ g) : to_abgrop _ _) : addcat.
+Notation "f - g" := (@op _ f (grinv _ g) : to_abgr _ _) : addcat.
 
 Notation "A ⊕ B" := (to_BinDirectSums _ A B) (at level 60, right associativity) : addcat.
 
