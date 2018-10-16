@@ -19,15 +19,31 @@ Local Open Scope logic.
 
 Delimit Scope addcat with addcat.
 
+Delimit Scope excat with excat.
+
 Notation "a --> b" := (to_abgrop a b) : addcat.
 
 Notation "C ⟦ a , b ⟧" := (to_abgrop (PA:=C) a b) : addcat.
 
 Notation "f · g" := (compose f g : to_abgrop _ _) : addcat.
 
+Notation "0" := (AdditiveZeroArrow _ _ : to_abgrop _ _) : addcat.
+
+Notation "1" := (identity _ : to_abgrop _ _) : addcat.
+
 Notation "f = g" := (eqset f g) : addcat.
 
+Notation "f - g" := (@op _ f (grinv _ g) : to_abgrop _ _) : addcat.
+
+Notation "A ++ B" := (BinDirectSumOb _ (to_BinDirectSums _ A B)) : addcat.
+
 Section MoveUpstream.
+
+  Reserved Notation "A ↣ B" (at level 50).
+  (* to input: type "\r->" or "\rightarrowtail" or "\r" with Agda input method *)
+
+  Reserved Notation "B ↠ C" (at level 50).
+  (* to input: type "\rr-" or "\r" or "\twoheadrightarrow" with Agda input method *)
 
   Local Open Scope cat.
 
@@ -41,11 +57,22 @@ Section MoveUpstream.
 
 End MoveUpstream.
 
-Section theDefinition.
+Local Open Scope addmonoid_scope.
+Local Open Scope addcat.
 
-  Context (M:Additive).
+Section AdditiveCategories'.     (* maybe move upstream *)
 
-  Local Open Scope addcat.
+  Context (M : Additive).
+
+  Definition ShortSequence := ∑ (A B C:M), A --> B × B --> C.
+
+End AdditiveCategories'.
+
+Section AdditiveCategories.     (* maybe move upstream *)
+
+  Context {M : Additive}.
+
+  Context (Zero := to_Zero M).
 
   Goal ∏ (a b:M), hSet.
     intros. exact (a --> b).
@@ -55,50 +82,94 @@ Section theDefinition.
     intros. exact (f = g).
   Defined.
 
-  Context (Z := to_Zero M).
-
-  Context (dirsum : BinDirectSums M := to_BinDirectSums M).
-
-  Local Notation zero := (ZeroArrow Z _ _ : _ --> _).
-
   Goal ∏ (a b:M) (f : a --> b), hProp.
-    intros. exact (f = zero).
+    intros. exact (f = 0).
   Defined.
 
   Goal ∏ (a b:M) (f : a --> b), hProp.
-    intros. exact (zero = f).
+    intros. exact (0 = f).
   Defined.
 
-  Definition ShortSequence := ∑ (A B C:M), A --> B × B --> C.
+  Goal ∏ (a b:M) (f g : a --> b), a --> b.
+    intros. exact (f + g).
+  Defined.
 
-  Definition left (P : ShortSequence) : M := pr1 P.
-  Definition middle (P : ShortSequence) : M := pr12 P.
-  Definition right (P : ShortSequence) : M := pr122 P.
-  Definition leftmap (P : ShortSequence) : left P --> middle P := pr1 (pr222 P).
-  Definition rightmap (P : ShortSequence) : middle P --> right P := pr2 (pr222 P).
+  Goal ∏ (a b:M) (f g : a --> b), a --> b.
+    intros. exact (f - g).
+  Defined.
 
-  Context (E : ShortSequence -> hProp).
+  Definition isKernelCokernelPair {A B C:M} (i : A --> B) (p: B --> C) : hProp.
+  Proof.
+    exists (∑ (ip : i · p = 0), isKernel' i p ip ∧ isCokernel' i p ip).
+    apply (isofhleveltotal2 1).
+    - apply setproperty.
+    - intro ip. apply propproperty.
+  Defined.
+
+  Lemma kerCoker10 (A:M) : isKernelCokernelPair (1 : A --> A) (0 : A --> Zero).
+  Proof.
+  Abort.
+
+  Lemma kerCoker01 (A:M) : isKernelCokernelPair (0 : Zero --> A) (1 : A --> A).
+  Proof.
+  Abort.
+
+  Lemma kerCokerSum (A B:M) : isKernelCokernelPair (to_In1 _ _ : A --> (A ++ B)) (to_Pr2 _ _ : (A ++ B) --> B).
+  Proof.
+  Abort.
+
+  (* Lemma kerCokerDirsum *)
+  (*       {A B C:M} (i : A --> B) (p : B --> C) *)
+  (*       {A' B' C':M} (i' : A' --> B') (p' : B' --> C') : *)
+  (*   isKernelCokernelPair (i ++ i') (p ++ p'). *)
+  (* Proof. *)
+  (* Abort. *)
+
+  Definition left (P : ShortSequence M) : M := pr1 P.
+  Definition middle (P : ShortSequence M) : M := pr12 P.
+  Definition right (P : ShortSequence M) : M := pr122 P.
+  Definition leftmap (P : ShortSequence M) : left P --> middle P := pr1 (pr222 P).
+  Definition rightmap (P : ShortSequence M) : middle P --> right P := pr2 (pr222 P).
+
+End AdditiveCategories.
+
+Local Open Scope excat.
+
+Section theDefinition.
+
+  Context (M:Additive).
+
+  Context (Zero := to_Zero M).
+
+  Context (E : ShortSequence M -> hProp).
 
   Definition isAdmissibleMonomorphism {A B:M} (i : A --> B) : hProp :=
     ∃ C (p : B --> C), E (A,,B,,C,,i,,p).
 
+  Definition AdmissibleMonomorphism (A B:M) : hSet :=
+    (∑ (i : A --> B), isAdmissibleMonomorphism i) % set.
+
+  Definition AdmMonoToMap {A B:M} : AdmissibleMonomorphism A B -> A --> B := pr1.
+
+  Notation "A ↣ B" := (AdmissibleMonomorphism A B) (at level 50) : excat.
+  (* to input: type "\r->" or "\rightarrowtail" or "\r" with Agda input method *)
+
   Definition isAdmissibleEpimorphism {B C:M} (p : B --> C) : hProp :=
     ∃ A (i : A --> B), E (A,,B,,C,,i,,p).
 
-  Definition ShortSequenceIsomorphism (P Q : ShortSequence) :=
+  Definition AdmissibleEpimorphism (B C:M) : hSet :=
+    (∑ (p : B --> C), isAdmissibleMonomorphism p) % set.
+
+  Definition AdmEpiToMap {B C:M} : AdmissibleEpimorphism B C -> B --> C := pr1.
+
+  Notation "B ↠ C" := (AdmissibleEpimorphism B C) (at level 50) : excat.
+  (* to input: type "\rr-" or "\r" or "\twoheadrightarrow" with Agda input method *)
+
+  Definition ShortSequenceIsomorphism (P Q : ShortSequence M) :=
     ∑ (f : iso (left P) (left Q))
       (g : iso (middle P) (middle Q))
       (h : iso (right P) (right Q)),
     f · leftmap Q = leftmap P · g  ×  g · rightmap Q = rightmap P · h.
-
-  Definition isKernelCokernelPair {A B C:M} (i : A --> B) (p: B --> C) : hProp.
-  Proof.
-    exists (∑ (ip : i · p = zero), isKernel' i p ip ∧ isCokernel' i p ip).
-    apply (isofhleveltotal2 1).
-    - Set Printing All.
-      apply setproperty.
-    - intros e. apply propproperty.
-  Defined.
 
   (** This is definition 2.1 from the paper of Bühler. *)
   Local Definition isExactFamily : hProp :=
@@ -110,35 +181,46 @@ Section theDefinition.
       ∧
       (∀ P, E P ⇒ isKernelCokernelPair (leftmap P) (rightmap P))
       ∧
-      (∀ A B C (f : A --> B) (g : B --> C),
-       isAdmissibleMonomorphism f ⇒ isAdmissibleMonomorphism g ⇒ isAdmissibleMonomorphism (f · g))
+      (∀ A B C (f : A ↣ B) (g : B ↣ C), isAdmissibleMonomorphism (AdmMonoToMap f · AdmMonoToMap g))
       ∧
-      (∀ A B C (f : A --> B) (g : B --> C),
-       isAdmissibleEpimorphism f ⇒ isAdmissibleEpimorphism g ⇒ isAdmissibleEpimorphism (f · g))
+      (∀ A B C (f : A ↠ B) (g : B ↠ C), isAdmissibleEpimorphism (AdmEpiToMap f · AdmEpiToMap g))
       ∧
-      (∀ A B C (f : A --> B) (g : C --> B),
-       isAdmissibleEpimorphism f ⇒ ∃ (pb : Pullback f g), isAdmissibleEpimorphism (PullbackPr2 pb))
+      (∀ A B C (f : A ↠ B) (g : C --> B),
+          ∃ (pb : Pullback (AdmEpiToMap f) g), isAdmissibleEpimorphism (PullbackPr2 pb))
       ∧
-      (∀ A B C (f : B --> A) (g : B --> C),
-       isAdmissibleMonomorphism f ⇒ ∃ (po : Pushout f g), isAdmissibleMonomorphism (PushoutIn2 po)).
-
-  Context (ie : isExactFamily).
-
-  Definition standardSplitShortSequence (A B:M) : ShortSequence.
-  Proof.
-    set (SUM := dirsum A B).
-    set (C := BinDirectSumOb _ SUM).
-    set (in1 := to_In1 _ SUM).
-    set (pr2 := to_Pr2 _ SUM).
-    exact (A,,C,,B,,in1,,pr2).
-  Defined.
-
-  (** Now prove one of the properties in Quillen's definition.  *)
-
-  Lemma splitIsExact (A B:M) : E (standardSplitShortSequence A B).
-  Proof.
-  Abort.
+      (∀ A B C (f : B ↣ A) (g : B --> C),
+          ∃ (po : Pushout (AdmMonoToMap f) g), isAdmissibleMonomorphism (PushoutIn2 po)).
 
 End theDefinition.
 
-Definition ExactCategory := ∑ (M:Additive) (E : ShortSequence M -> hProp), isExactFamily M E.
+Definition ExactCategory := ∑ (M:Additive) (E : @ShortSequence M -> hProp), @isExactFamily M E.
+
+Definition ExCatToAddCat : ExactCategory -> Additive := pr1.
+
+Coercion ExCatToAddCat : ExactCategory >-> Additive.
+
+Definition ExCatToExFam (M : ExactCategory) : ShortSequence M -> hProp := pr12 M.
+
+Section ExactCategoryProperties.
+
+  Context (M : ExactCategory).
+
+  Notation "A ↣ B" := (AdmissibleMonomorphism M (ExCatToExFam _) A B) (at level 50) : excat.
+  (* to input: type "\r->" or "\rightarrowtail" or "\r" with Agda input method *)
+
+  Notation "B ↠ C" := (AdmissibleEpimorphism M (ExCatToExFam _) B C) (at level 50) : excat.
+  (* to input: type "\rr-" or "\r" or "\twoheadrightarrow" with Agda input method *)
+
+  Definition isExact (E : ShortSequence M) := ExCatToExFam M E.
+
+  Definition standardSplitShortSequence (A B:M) : ShortSequence M
+    := A,,(A ++ B),,B,,to_In1 _ _,,to_Pr2 _ _.
+
+  (** Now prove one of the properties in Quillen's definition.  *)
+
+  Lemma splitIsExact (A B:M) : isExact (standardSplitShortSequence A B).
+  Proof.
+
+  Abort.
+
+End ExactCategoryProperties.
