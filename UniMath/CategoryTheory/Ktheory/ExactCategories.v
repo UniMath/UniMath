@@ -37,13 +37,13 @@ Notation "f - g" := (@op _ f (grinv _ g) : to_abgrop _ _) : addcat.
 
 Notation "A ++ B" := (BinDirectSumOb _ (to_BinDirectSums _ A B)) : addcat.
 
+Reserved Notation "A ↣ B" (at level 50). (* move upstream to Init.v *)
+(* to input: type "\r->" or "\rightarrowtail" or "\r" with Agda input method *)
+
+Reserved Notation "B ↠ C" (at level 50). (* move upstream to Init.v *)
+(* to input: type "\rr-" or "\r" or "\twoheadrightarrow" with Agda input method *)
+
 Section MoveUpstream.
-
-  Reserved Notation "A ↣ B" (at level 50).
-  (* to input: type "\r->" or "\rightarrowtail" or "\r" with Agda input method *)
-
-  Reserved Notation "B ↠ C" (at level 50).
-  (* to input: type "\rr-" or "\r" or "\twoheadrightarrow" with Agda input method *)
 
   Local Open Scope cat.
 
@@ -72,7 +72,15 @@ Section AdditiveCategories.     (* maybe move upstream *)
 
   Context {M : Additive}.
 
+  Definition toShortSequence {A B C:M} (f : A --> B) (g : B --> C) : ShortSequence M
+    := A,,B,,C,,f,,g.
+
+  Definition standardSplitShortSequence (A B:M) : ShortSequence M
+    := toShortSequence (to_In1 _ _ : A --> (A ++ B)) (to_Pr2 _ _ : (A ++ B) --> B).
+
   Context (Zero := to_Zero M).
+
+  (* some sanity checks for our notations *)
 
   Goal ∏ (a b:M), hSet.
     intros. exact (a --> b).
@@ -151,7 +159,7 @@ Section theDefinition.
 
   Definition AdmMonoToMap {A B:M} : AdmissibleMonomorphism A B -> A --> B := pr1.
 
-  Notation "A ↣ B" := (AdmissibleMonomorphism A B) (at level 50) : excat.
+  Notation "A ↣ B" := (AdmissibleMonomorphism A B) : excat.
   (* to input: type "\r->" or "\rightarrowtail" or "\r" with Agda input method *)
 
   Definition isAdmissibleEpimorphism {B C:M} (p : B --> C) : hProp :=
@@ -162,7 +170,7 @@ Section theDefinition.
 
   Definition AdmEpiToMap {B C:M} : AdmissibleEpimorphism B C -> B --> C := pr1.
 
-  Notation "B ↠ C" := (AdmissibleEpimorphism B C) (at level 50) : excat.
+  Notation "B ↠ C" := (AdmissibleEpimorphism B C) : excat.
   (* to input: type "\rr-" or "\r" or "\twoheadrightarrow" with Agda input method *)
 
   Definition ShortSequenceIsomorphism (P Q : ShortSequence M) :=
@@ -199,22 +207,25 @@ Definition ExCatToAddCat : ExactCategory -> Additive := pr1.
 
 Coercion ExCatToAddCat : ExactCategory >-> Additive.
 
-Definition ExCatToExFam (M : ExactCategory) : ShortSequence M -> hProp := pr12 M.
+Definition isExact {M : ExactCategory} : ShortSequence M -> hProp := pr12 M.
+
+Notation "A ↣ B" := (AdmissibleMonomorphism _ isExact A B) : excat.
+(* to input: type "\r->" or "\rightarrowtail" or "\r" with Agda input method *)
+
+Notation "B ↠ C" := (AdmissibleEpimorphism _ isExact B C) : excat.
+(* to input: type "\rr-" or "\r" or "\twoheadrightarrow" with Agda input method *)
 
 Section ExactCategoryProperties.
 
-  Context (M : ExactCategory).
+  Context {M : ExactCategory}.
 
-  Notation "A ↣ B" := (AdmissibleMonomorphism M (ExCatToExFam _) A B) (at level 50) : excat.
-  (* to input: type "\r->" or "\rightarrowtail" or "\r" with Agda input method *)
+  Goal ∏ (a b:M), hSet.
+    intros. exact (a ↣ b).
+  Defined.
 
-  Notation "B ↠ C" := (AdmissibleEpimorphism M (ExCatToExFam _) B C) (at level 50) : excat.
-  (* to input: type "\rr-" or "\r" or "\twoheadrightarrow" with Agda input method *)
-
-  Definition isExact (E : ShortSequence M) := ExCatToExFam M E.
-
-  Definition standardSplitShortSequence (A B:M) : ShortSequence M
-    := A,,(A ++ B),,B,,to_In1 _ _,,to_Pr2 _ _.
+  Goal ∏ (a b:M), hSet.
+    intros. exact (a ↠ b).
+  Defined.
 
   (** Now prove one of the properties in Quillen's definition.  *)
 
