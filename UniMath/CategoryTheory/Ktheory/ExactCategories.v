@@ -7,6 +7,7 @@ Require Export UniMath.CategoryTheory.limits.cokernels.
 Require Export UniMath.CategoryTheory.limits.pullbacks.
 Require Export UniMath.CategoryTheory.limits.pushouts.
 Require Export UniMath.CategoryTheory.limits.BinDirectSums.
+Require Export UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Export UniMath.CategoryTheory.Categories.
 Require Export UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Export UniMath.CategoryTheory.PreAdditive.
@@ -14,6 +15,11 @@ Require Export UniMath.CategoryTheory.Additive.
 Require Export UniMath.MoreFoundations.Notations.
 Require Export UniMath.MoreFoundations.Propositions.
 Require Export UniMath.Algebra.Monoids_and_Groups.
+
+Local Arguments to_Pr1 {_ _ _} _.
+Local Arguments to_Pr2 {_ _ _} _.
+Local Arguments to_In1 {_ _ _} _.
+Local Arguments to_In2 {_ _ _} _.
 
 Local Open Scope logic.
 
@@ -29,13 +35,15 @@ Notation "f · g" := (compose f g : to_abgrop _ _) : addcat.
 
 Notation "0" := (AdditiveZeroArrow _ _ : to_abgrop _ _) : addcat.
 
+Notation "0" := (ZeroArrow (to_Zero _) _ _) : cat.
+
 Notation "1" := (identity _ : to_abgrop _ _) : addcat.
 
 Notation "f = g" := (eqset f g) : addcat.
 
 Notation "f - g" := (@op _ f (grinv _ g) : to_abgrop _ _) : addcat.
 
-Notation "A ++ B" := (BinDirectSumOb _ (to_BinDirectSums _ A B)) : addcat.
+Notation "A ⊕ B" := (to_BinDirectSums _ A B) (at level 60, right associativity) : addcat.
 
 Reserved Notation "A ↣ B" (at level 50). (* move upstream to Init.v *)
 (* to input: type "\r->" or "\rightarrowtail" or "\r" with Agda input method *)
@@ -43,9 +51,10 @@ Reserved Notation "A ↣ B" (at level 50). (* move upstream to Init.v *)
 Reserved Notation "B ↠ C" (at level 50). (* move upstream to Init.v *)
 (* to input: type "\rr-" or "\r" or "\twoheadrightarrow" with Agda input method *)
 
-Section MoveUpstream.
+Local Open Scope cat.
+Local Open Scope Cat.
 
-  Local Open Scope cat.
+Section MoveUpstream.
 
   Context {C : precategory} {hs : has_homsets C} {Z : Zero C}.
 
@@ -57,16 +66,11 @@ Section MoveUpstream.
 
 End MoveUpstream.
 
+Definition ShortSequence (M : Additive) := ∑ (A B C:M), A --> B × B --> C.
+
+Local Open Scope addoperation_scope.
 Local Open Scope addmonoid_scope.
 Local Open Scope addcat.
-
-Section AdditiveCategories'.     (* maybe move upstream *)
-
-  Context (M : Additive).
-
-  Definition ShortSequence := ∑ (A B C:M), A --> B × B --> C.
-
-End AdditiveCategories'.
 
 Section AdditiveCategories.     (* maybe move upstream *)
 
@@ -76,7 +80,7 @@ Section AdditiveCategories.     (* maybe move upstream *)
     := A,,B,,C,,f,,g.
 
   Definition standardSplitShortSequence (A B:M) : ShortSequence M
-    := toShortSequence (to_In1 _ _ : A --> (A ++ B)) (to_Pr2 _ _ : (A ++ B) --> B).
+    := toShortSequence (to_In1 _ : A --> (A ⊕ B)) (to_Pr2 _ : (A ⊕ B) --> B).
 
   Context (Zero := to_Zero M).
 
@@ -99,7 +103,7 @@ Section AdditiveCategories.     (* maybe move upstream *)
   Defined.
 
   Goal ∏ (a b:M) (f g : a --> b), a --> b.
-    intros. exact (f + g).
+    intros. exact (f + g).      (* this prints as (f * g)%multmonoid, sadly *)
   Defined.
 
   Goal ∏ (a b:M) (f g : a --> b), a --> b.
@@ -116,20 +120,46 @@ Section AdditiveCategories.     (* maybe move upstream *)
 
   Lemma kerCoker10 (A:M) : isKernelCokernelPair (1 : A --> A) (0 : A --> Zero).
   Proof.
-  Abort.
+    exists (id_left _).
+    split.
+    - apply kernels.KernelOfZeroArrow_isKernel, to_has_homsets.
+    - try apply cokernels.CokernelOfIdentity_isCokernel. (* ?? *)
+      intros w h H. use unique_exists.
+      + exact 0.
+      + cbn. rewrite id_left in H. rewrite H. clear H. apply ZeroArrow_comp_right.
+      + intros B. apply to_has_homsets.
+      + intros f e. use ArrowsFromZero.
+  Defined.
 
   Lemma kerCoker01 (A:M) : isKernelCokernelPair (0 : Zero --> A) (1 : A --> A).
   Proof.
-  Abort.
+    exists (id_right _).
+    split.
+    - try apply kernels.KernelOfIdentity_isKernel. (* ?? *)
+      intros w h H. use unique_exists.
+      + exact 0.
+      + cbn. rewrite id_right in H. rewrite H. clear H. apply ZeroArrow_comp_right.
+      + intros B. apply to_has_homsets.
+      + intros f e. use ArrowsToZero.
+    - apply cokernels.CokernelOfZeroArrow_isCokernel, to_has_homsets.
+  Defined.
 
-  Lemma kerCokerSum (A B:M) : isKernelCokernelPair (to_In1 _ _ : A --> (A ++ B)) (to_Pr2 _ _ : (A ++ B) --> B).
+  Lemma kerCokerSum (A B:M) : isKernelCokernelPair (to_In1 _ : A --> (A ⊕ B)) (to_Pr2 _ : (A ⊕ B) --> B).
   Proof.
+    exists (to_Unel1' _).
+    split.
+    - intros C h H. use unique_exists.
+      + exact (h · to_Pr1 _).
+      + cbn. rewrite <- assoc.
+        set (Q := A ⊕ B).
+        assert (L := to_BinOpId _ Q : (to_Pr1 Q · to_In1 Q) + (to_Pr2 Q · to_In2 Q) = identity Q).
+
   Abort.
 
   (* Lemma kerCokerDirsum *)
   (*       {A B C:M} (i : A --> B) (p : B --> C) *)
   (*       {A' B' C':M} (i' : A' --> B') (p' : B' --> C') : *)
-  (*   isKernelCokernelPair (i ++ i') (p ++ p'). *)
+  (*   isKernelCokernelPair (i ⊕ i') (p ⊕ p'). *)
   (* Proof. *)
   (* Abort. *)
 
