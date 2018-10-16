@@ -48,11 +48,11 @@ Section def_additivefunctor.
   (** ** isAdditiveFunctor *)
 
   Definition isAdditiveFunctor {A B : Additive} (F : functor A B) : UU :=
-    ∏ (a1 a2 : A), @ismonoidfun (to_abgrop a1 a2) (to_abgrop (F a1) (F a2)) (# F).
+    ∏ (a1 a2 : A), @ismonoidfun (to_abgr a1 a2) (to_abgr (F a1) (F a2)) (# F).
 
   Definition mk_isAdditiveFunctor {A B : Additive} (F : functor A B)
              (H : ∏ (a1 a2 : A),
-                  @ismonoidfun (to_abgrop a1 a2) (to_abgrop (F a1) (F a2)) (# F)) :
+                  @ismonoidfun (to_abgr a1 a2) (to_abgr (F a1) (F a2)) (# F)) :
     isAdditiveFunctor F.
   Proof.
     intros a1 a2.
