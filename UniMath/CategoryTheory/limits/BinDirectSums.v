@@ -569,9 +569,9 @@ Section bindirectsums_in_quot.
     use mk_isBinCoproduct.
     - apply has_homsets_Quotcategory.
     - intros c f g.
-      set (f'' := @issurjsetquotpr (@to_abgrop A x c) (binopeqrel_subgr_eqrel (PAS x c)) f).
+      set (f'' := @issurjsetquotpr (@to_abgr A x c) (binopeqrel_subgr_eqrel (PAS x c)) f).
       use (squash_to_prop f''). apply isapropiscontr. intros f'. clear f''.
-      set (g'' := @issurjsetquotpr (@to_abgrop A y c) (binopeqrel_subgr_eqrel (PAS y c)) g).
+      set (g'' := @issurjsetquotpr (@to_abgr A y c) (binopeqrel_subgr_eqrel (PAS y c)) g).
       use (squash_to_prop g''). apply isapropiscontr. intros g'. clear g''.
       induction f' as [f1 f2]. induction g' as [g1 g2]. cbn in f1, g1.
       use unique_exists.
@@ -583,7 +583,7 @@ Section bindirectsums_in_quot.
           rewrite BinDirectSumIn2Commutes. exact g2.
       + intros y0. apply isapropdirprod; apply has_homsets_Quotcategory.
       + intros y0 T. cbn beta in T. induction T as [T1 T2].
-        * set (y'' := @issurjsetquotpr (@to_abgrop A (BD x y) c)
+        * set (y'' := @issurjsetquotpr (@to_abgr A (BD x y) c)
                                        (binopeqrel_subgr_eqrel (PAS (BD x y) c)) y0).
           use (squash_to_prop y''). apply has_homsets_Quotcategory. intros y'. clear y''.
           induction y' as [y1 y2]. rewrite <- y2. rewrite <- y2 in T1. rewrite <- y2 in T2.
@@ -627,9 +627,9 @@ Section bindirectsums_in_quot.
     use mk_isBinProduct.
     - apply has_homsets_Quotcategory.
     - intros c f g.
-      set (f'' := @issurjsetquotpr (@to_abgrop A c x) (binopeqrel_subgr_eqrel (PAS c x)) f).
+      set (f'' := @issurjsetquotpr (@to_abgr A c x) (binopeqrel_subgr_eqrel (PAS c x)) f).
       use (squash_to_prop f''). apply isapropiscontr. intros f'. clear f''.
-      set (g'' := @issurjsetquotpr (@to_abgrop A c y) (binopeqrel_subgr_eqrel (PAS c y)) g).
+      set (g'' := @issurjsetquotpr (@to_abgr A c y) (binopeqrel_subgr_eqrel (PAS c y)) g).
       use (squash_to_prop g''). apply isapropiscontr. intros g'. clear g''.
       induction f' as [f1 f2]. induction g' as [g1 g2]. cbn in f1, g1.
       use unique_exists.
@@ -641,7 +641,7 @@ Section bindirectsums_in_quot.
           rewrite BinDirectSumPr2Commutes. exact g2.
       + intros y0. apply isapropdirprod; apply has_homsets_Quotcategory.
       + intros y0 T. cbn beta in T. induction T as [T1 T2].
-        * set (y'' := @issurjsetquotpr (@to_abgrop A c (BD x y))
+        * set (y'' := @issurjsetquotpr (@to_abgr A c (BD x y))
                                        (binopeqrel_subgr_eqrel (PAS c (BD x y))) y0).
           use (squash_to_prop y''). apply has_homsets_Quotcategory. intros y'. clear y''.
           induction y' as [y1 y2]. rewrite <- y2. rewrite <- y2 in T1. rewrite <- y2 in T2.
