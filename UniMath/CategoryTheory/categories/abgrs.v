@@ -1486,7 +1486,7 @@ Section abgr_corollaries.
 
   Lemma AdditiveZeroArrow_postmor_Abelian {Add : Additive} (x y z : Add) :
     to_postmor_monoidfun Add x y z (ZeroArrow (Additive.to_Zero Add) y z) =
-    ZeroArrow (to_Zero abgr_Abelian) (@to_abgrop Add x y) (@to_abgrop Add x z).
+    ZeroArrow (to_Zero abgr_Abelian) (@to_abgr Add x y) (@to_abgr Add x z).
   Proof.
     rewrite <- PreAdditive_unel_zero.
     use monoidfun_paths. use funextfun. intros f. exact (to_premor_unel Add z f).
@@ -1494,7 +1494,7 @@ Section abgr_corollaries.
 
   Lemma AdditiveZeroArrow_premor_Abelian {Add : Additive} (x y z : Add) :
     to_premor_monoidfun Add x y z (ZeroArrow (Additive.to_Zero Add) x y) =
-    ZeroArrow (to_Zero abgr_Abelian) (@to_abgrop Add y z) (@to_abgrop Add x z).
+    ZeroArrow (to_Zero abgr_Abelian) (@to_abgr Add y z) (@to_abgr Add x z).
   Proof.
     rewrite <- PreAdditive_unel_zero.
     use monoidfun_paths. use funextfun. intros f. exact (to_postmor_unel Add x f).
@@ -1556,13 +1556,13 @@ Section abgr_corollaries.
         {f : x --> y}
         (H1 : @is_z_isomorphism abgr_Abelian _ _ (to_premor_monoidfun Add x y x f))
         (H2 : @is_z_isomorphism abgr_Abelian _ _ (to_postmor_monoidfun Add y x y f)) :
-    is_inverse_in_precat f ((is_z_isomorphism_mor H1 : monoidfun (to_abgrop x x) (to_abgrop y x))
-                              (identity x : to_abgrop x x)).
+    is_inverse_in_precat f ((is_z_isomorphism_mor H1 : monoidfun (to_abgr x x) (to_abgr y x))
+                              (identity x : to_abgr x x)).
   Proof.
-    set (mor1 := ((is_z_isomorphism_mor H1) : (monoidfun (to_abgrop x x) (to_abgrop y x)))
-                   ((identity x) : to_abgrop x x)).
-    set (mor2 := ((is_z_isomorphism_mor H2) : (monoidfun (to_abgrop y y) (to_abgrop y x)))
-                   ((identity y) : to_abgrop y y)).
+    set (mor1 := ((is_z_isomorphism_mor H1) : (monoidfun (to_abgr x x) (to_abgr y x)))
+                   ((identity x) : to_abgr x x)).
+    set (mor2 := ((is_z_isomorphism_mor H2) : (monoidfun (to_abgr y y) (to_abgr y x)))
+                   ((identity y) : to_abgr y y)).
     assert (Hx : f · mor1 = identity x).
     {
       exact (toforallpaths _ _ _ (base_paths _ _ (is_inverse_in_precat2 H1)) (identity x)).
@@ -1591,8 +1591,8 @@ Section abgr_corollaries.
     is_z_isomorphism f.
   Proof.
     use mk_is_z_isomorphism.
-    - exact (((is_z_isomorphism_mor H1) : (monoidfun (to_abgrop x x) (to_abgrop y x)))
-               ((identity x) : to_abgrop x x)).
+    - exact (((is_z_isomorphism_mor H1) : (monoidfun (to_abgr x x) (to_abgr y x)))
+               ((identity x) : to_abgr x x)).
     - exact (abgr_Additive_premor_postmor_is_iso_inverses _ _ H1 H2).
   Defined.
 

@@ -150,7 +150,7 @@ Section complexes_homotopies.
 
   (** This lemma shows that the subset [ComplexHomotSubset] satisfies the axioms of a subgroup. *)
   Lemma ComplexHomotisSubgrop (C1 C2 : Complex A) :
-    @issubgr (@to_abgrop (ComplexPreCat_Additive A) C1 C2) (ComplexHomotSubset C1 C2).
+    @issubgr (@to_abgr (ComplexPreCat_Additive A) C1 C2) (ComplexHomotSubset C1 C2).
   Proof.
     use tpair.
     - use tpair.
@@ -198,10 +198,10 @@ Section complexes_homotopies.
             induction (hzrminusplus i 1). apply idpath.
           }
           cbn in e1. rewrite e1. clear e1.
-          set (tmp := @assocax (@to_abgrop A (C1 i) (C2 i))). cbn in tmp.
+          set (tmp := @assocax (@to_abgr A (C1 i) (C2 i))). cbn in tmp.
           rewrite tmp. rewrite tmp. apply maponpaths.
           rewrite <- tmp. rewrite <- tmp.
-          set (tmp' := @commax (@to_abgrop A (C1 i) (C2 i))). cbn in tmp'.
+          set (tmp' := @commax (@to_abgr A (C1 i) (C2 i))). cbn in tmp'.
           rewrite tmp'.
           rewrite (tmp' _ (transportf (precategory_morphisms (C1 i))
                                       (maponpaths C2 (hzrplusminus i 1))
@@ -219,13 +219,13 @@ Section complexes_homotopies.
     - intros f H. use (squash_to_prop H). apply propproperty. intros H'. clear H.
       induction H' as [homot eq]. use hinhpr.
       use tpair.
-      + intros i. exact (grinv (to_abgrop (C1 i) (C2 (i - 1))) (homot i)).
+      + intros i. exact (grinv (to_abgr (C1 i) (C2 (i - 1))) (homot i)).
       + cbn. rewrite <- eq. use MorphismEq. intros i. cbn.
         set (tmp := @PreAdditive_invrcomp A _ _ _ (Diff C1 i) (homot (i + 1))).
         unfold to_inv in tmp. cbn in tmp. cbn. rewrite <- tmp. clear tmp.
         assert (e0 : (transportf (precategory_morphisms (C1 i))
                                  (maponpaths C2 (hzrplusminus i 1))
-                                 (grinv (to_abgrop (C1 i) (C2 (i + 1 - 1)))
+                                 (grinv (to_abgr (C1 i) (C2 (i + 1 - 1)))
                                         (Diff C1 i · homot (i + 1)))) =
                      to_inv (transportf (precategory_morphisms (C1 i))
                                         (maponpaths C2 (hzrplusminus i 1))
@@ -235,7 +235,7 @@ Section complexes_homotopies.
         }
         cbn in e0. rewrite e0. clear e0.
         assert (e1 : (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrminusplus i 1))
-                                 (grinv (to_abgrop (C1 i) (C2 (i - 1)))
+                                 (grinv (to_abgr (C1 i) (C2 (i - 1)))
                                         (homot i) · Diff C2 (i - 1))) =
                      to_inv (transportf (precategory_morphisms (C1 i))
                                         (maponpaths C2 (hzrminusplus i 1))
@@ -248,14 +248,14 @@ Section complexes_homotopies.
           apply tmp.
         }
         cbn in e1. rewrite e1. clear e1.
-        set (tmp' := @commax (@to_abgrop A (C1 i) (C2 i))). cbn in tmp'. rewrite tmp'. clear tmp'.
-        set (tmp := @grinvop (@to_abgrop A (C1 i) (C2 i))). cbn in tmp. unfold to_inv.
+        set (tmp' := @commax (@to_abgr A (C1 i) (C2 i))). cbn in tmp'. rewrite tmp'. clear tmp'.
+        set (tmp := @grinvop (@to_abgr A (C1 i) (C2 i))). cbn in tmp. unfold to_inv.
         apply pathsinv0.
         apply tmp.
   Qed.
 
   Definition ComplexHomotSubgrp (C1 C2 : Complex A) :
-    @subabgr (@to_abgrop (ComplexPreCat_Additive A) C1 C2).
+    @subabgr (@to_abgr (ComplexPreCat_Additive A) C1 C2).
   Proof.
     use subgrconstr.
     - exact (ComplexHomotSubset C1 C2).
