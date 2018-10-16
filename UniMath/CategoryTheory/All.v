@@ -95,6 +95,7 @@ Require Export UniMath.CategoryTheory.Additive.
 Require Export UniMath.CategoryTheory.Abelian.
 Require Export UniMath.CategoryTheory.category_binops.
 Require Export UniMath.CategoryTheory.AbelianToAdditive.
+Require Export UniMath.CategoryTheory.Ktheory.ExactCategories.
 Require Export UniMath.CategoryTheory.Morphisms.
 Require Export UniMath.CategoryTheory.ShortExactSequences.
 Require Export UniMath.CategoryTheory.AdditiveFunctors.

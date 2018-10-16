@@ -94,6 +94,7 @@ Additive.v
 Abelian.v
 category_binops.v
 AbelianToAdditive.v
+Ktheory/ExactCategories.v
 Morphisms.v
 ShortExactSequences.v
 AdditiveFunctors.v
