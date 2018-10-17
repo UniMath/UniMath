@@ -10,6 +10,7 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.Notations.
 
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids_and_Groups.
@@ -35,69 +36,114 @@ Local Open Scope cat.
     i1 · p2 = unit      and   i2 · p1 = unit
             p1 · i1 + p2 · i2 = identity
 *)
+
+Lemma rewrite_op {A:PreAdditive} (x y:A) :
+  @to_binop (categoryWithAbgrops_precategoryWithBinOps (PreAdditive_categoryWithAbgrops A)) x y
+  =
+  @op (pr1monoid (grtomonoid (abgrtogr (@to_abgr (PreAdditive_categoryWithAbgrops A) x y)))).
+Proof.
+  reflexivity.
+Defined.
+
 Section def_bindirectsums.
 
   Variable A : PreAdditive.
-  Hypothesis hs : has_homsets A.
+  Context (hs := @to_has_homsets A : has_homsets A).
 
-  (** Definition of isBinDirectSum *)
+  Open Scope addmonoid.
+  Open Scope multmonoid.
+  Open Scope abgrcat.
+  Import AddNotation.
+
+  (** Definition of binary direct sum. *)
   Definition isBinDirectSum (a b co : A) (i1 : a --> co) (i2 : b --> co)
-             (p1 : co --> a) (p2 : co --> b) : UU :=
-    (isBinCoproduct A a b co i1 i2)
-      × (isBinProduct A a b co p1 p2)
-      × (i1 · p1 = identity a) × (i2 · p2 = identity b)
-      × (i1 · p2 = (to_unel a b)) × (i2 · p1 = (to_unel b a))
-      × ((to_binop co co) (p1 · i1) (p2 · i2) = identity co).
-
-  Lemma isaprop_isBinDirectSum {a b co : A} {i1 : a --> co} {i2 : b --> co}
-        {p1 : co --> a} {p2 : co --> b} :
-    isaprop (isBinDirectSum a b co i1 i2 p1 p2).
-  Proof.
-    apply isapropdirprod.
-    - apply isaprop_isBinCoproduct.
-    - apply isapropdirprod.
-      + apply isaprop_isBinProduct.
-      + do 5 (apply isapropdirprod; try apply hs).
-  Qed.
+             (p1 : co --> a) (p2 : co --> b) : hProp :=
+    i1 · p1 = 1  ∧  i2 · p2 = 1  ∧
+    i1 · p2 = 0  ∧  i2 · p1 = 0  ∧
+    p1 · i1 + p2 · i2 = 1.
 
   Definition to_isBinCoproduct {a b co : A} {i1 : a --> co} {i2 : b --> co}
-             {p1 : co --> a} {p2 : co --> b} (B : isBinDirectSum a b co i1 i2 p1 p2) :
-    isBinCoproduct A a b co i1 i2 := dirprod_pr1 B.
+             {p1 : co --> a} {p2 : co --> b} :
+    isBinDirectSum a b co i1 i2 p1 p2 -> isBinCoproduct A a b co i1 i2.
+  Proof.
+    intros [e11 [e22 [e12 [e21 e]]]].
+    intros T f g.
+    use unique_exists.
+    - exact ((p1 · f) + (p2 · g)).
+    - cbn beta. split.
+      + (* This is clumsy: should rewrite PreAdditive.v ! *)
+        assert (q := to_premor_linear' i1 (p1 · f) (p2 · g)).
+        rewrite 2 rewrite_op in q. rewrite q. clear q.
+        rewrite 2 assoc. rewrite e11. rewrite id_left.
+        rewrite e12. rewrite to_postmor_unel'. rewrite runax.
+        reflexivity.
+      + assert (q := to_premor_linear' i2 (p1 · f) (p2 · g)).
+        rewrite 2 rewrite_op in q. rewrite q. clear q.
+        rewrite 2 assoc. rewrite e22. rewrite id_left.
+        rewrite e21. rewrite to_postmor_unel'. rewrite lunax.
+        reflexivity.
+    - intros h. cbn beta. apply isapropdirprod;apply hs.
+    - intros h. cbn beta. intros [p q]. rewrite <- p, <- q.
+      rewrite 2 assoc.
+      assert (Q := to_postmor_linear' (p1 · i1) (p2 · i2) h).
+      rewrite 2 rewrite_op in Q. rewrite <- Q.
+      rewrite e. rewrite id_left. reflexivity.
+  Defined.
 
   Definition to_isBinProduct {a b co : A} {i1 : a --> co} {i2 : b --> co}
-             {p1 : co --> a} {p2 : co --> b} (B : isBinDirectSum a b co i1 i2 p1 p2) :
-    isBinProduct A a b co p1 p2 := dirprod_pr1 (dirprod_pr2 B).
+             {p1 : co --> a} {p2 : co --> b} :
+    isBinDirectSum a b co i1 i2 p1 p2 -> isBinProduct A a b co p1 p2.
+  Proof.
+    intros [e11 [e22 [e12 [e21 e]]]].
+    intros T f g.
+    use unique_exists.
+    - exact ((f · i1) + (g · i2)).
+    - cbn beta. split.
+      + assert (q := to_postmor_linear' (f · i1) (g · i2) p1).
+        rewrite 2 rewrite_op in q. rewrite q. clear q.
+        rewrite <- 2 assoc. rewrite e11. rewrite id_right.
+        rewrite e21. rewrite to_premor_unel'. rewrite runax.
+        reflexivity.
+      + assert (q := to_postmor_linear' (f · i1) (g · i2) p2).
+        rewrite 2 rewrite_op in q. rewrite q. clear q.
+        rewrite <- 2 assoc. rewrite e22. rewrite id_right.
+        rewrite e12. rewrite to_premor_unel'. rewrite lunax.
+        reflexivity.
+    - intros h. cbn beta. apply isapropdirprod;apply hs.
+    - intros h. cbn beta. intros [p q]. rewrite <- p, <- q.
+      rewrite <- 2 assoc.
+      assert (Q := to_premor_linear' h (p1 · i1) (p2 · i2)).
+      rewrite 2 rewrite_op in Q. rewrite <- Q.
+      rewrite e. rewrite id_right. reflexivity.
+  Defined.
 
   Definition to_IdIn1 {a b co : A} {i1 : a --> co} {i2 : b --> co} {p1 : co --> a} {p2 : co --> b}
              (B : isBinDirectSum a b co i1 i2 p1 p2) :
-    i1 · p1 = identity a := dirprod_pr1 (dirprod_pr2 (dirprod_pr2 B)).
+    i1 · p1 = identity a := pr1 B.
 
   Definition to_IdIn2 {a b co : A} {i1 : a --> co} {i2 : b --> co} {p1 : co --> a} {p2 : co --> b}
              (B : isBinDirectSum a b co i1 i2 p1 p2) :
-    i2 · p2 = identity b := dirprod_pr1 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 B))).
+    i2 · p2 = identity b := pr12 B.
 
   Definition to_Unel1 {a b co : A} {i1 : a --> co} {i2 : b --> co} {p1 : co --> a} {p2 : co --> b}
              (B : isBinDirectSum a b co i1 i2 p1 p2) :
-    i1 · p2 = (to_unel a b) := pr1 (pr2 (pr2 (pr2 (pr2 B)))).
+    i1 · p2 = (to_unel a b) := pr122 B.
 
   Definition to_Unel2 {a b co : A} {i1 : a --> co} {i2 : b --> co} {p1 : co --> a} {p2 : co --> b}
              (B : isBinDirectSum a b co i1 i2 p1 p2) :
-    i2 · p1 = (to_unel b a) := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 B))))).
+    i2 · p1 = (to_unel b a) := pr122 (pr2 B).
 
   Definition to_BinOpId {a b co : A} {i1 : a --> co} {i2 : b --> co} {p1 : co --> a} {p2 : co --> b}
              (B : isBinDirectSum a b co i1 i2 p1 p2) :
-    (to_binop co co) (p1 · i1) (p2 · i2) = identity co := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 B))))).
-
+    (to_binop co co) (p1 · i1) (p2 · i2) = identity co := pr222 (pr2 B).
 
   (** The following definition constructs isBinDirectSum from data. *)
   Definition mk_isBinDirectSum (a b co : A)
              (i1 : a --> co) (i2 : b --> co) (p1 : co --> a) (p2 : co --> b)
-             (isBC : isBinCoproduct A a b co i1 i2)
-             (isBP : isBinProduct A a b co p1 p2)
              (H1 : i1 · p1 = identity a) (H2 : i2 · p2 = identity b)
              (H3 : i1 · p2 = (to_unel a b)) (H4 : i2 · p1 = (to_unel b a))
              (H5 : (to_binop co co) (p1 · i1) (p2 · i2) = identity co)
-    : isBinDirectSum a b co i1 i2 p1 p2 := isBC,,(isBP,,(H1,,(H2,,(H3,,(H4,,H5))))).
+    : isBinDirectSum a b co i1 i2 p1 p2 := H1,,H2,,H3,,H4,,H5.
 
   (** Definition of BinDirectSums. *)
   Definition BinDirectSum (a b : A) : UU :=
@@ -136,7 +182,7 @@ Section def_bindirectsums.
   (** Another coercion *)
   Definition BinDirectSum_isBinDirectSum {a b : A} (B : BinDirectSum a b) :
     isBinDirectSum a b B (to_In1 B) (to_In2 B) (to_Pr1 B) (to_Pr2 B) := pr2 B.
-  Coercion BinDirectSum_isBinDirectSum : BinDirectSum >-> isBinDirectSum.
+  Coercion BinDirectSum_isBinDirectSum : BinDirectSum >-> hProptoType.
 
   (** Construction of BinCoproduct and BinProduct from BinDirectSum. *)
   Definition BinDirectSum_BinCoproduct {a b : A} (B : BinDirectSum a b) :
@@ -348,7 +394,7 @@ Section def_bindirectsums.
     BinDirectSumIndAr f1 g1 B1 B2 · BinDirectSumIndAr f2 g2 B2 B3 =
     BinDirectSumIndAr (f1 · f2) (g1 · g2) B1 B3.
   Proof.
-    rewrite BinDirectSumIndArEq1. rewrite BinDirectSumIndArEq1. rewrite BinDirectSumIndArEq1.
+    rewrite BinDirectSumIndArEq1. rewrite (BinDirectSumIndArEq1 f2). rewrite (BinDirectSumIndArEq1 (f1 · f2)).
     unfold BinDirectSumIndArFormula.
     rewrite to_postmor_linear'.
     rewrite to_premor_linear'.
@@ -532,8 +578,6 @@ Section bindirectsums_criteria.
       (BinProductPr2 A P)
       (mk_isBinDirectSum
          _ _ _ _ _ _ _ _
-         (BinDirectSums_from_binproduct_bincoproducts_isCoproduct P)
-         (BinDirectSums_from_binproduct_bincoproducts_isProduct P)
          (BinDirectSums_from_binproduct_bincoproducts_eq1 P)
          (BinDirectSums_from_binproduct_bincoproducts_eq4 P)
          (BinDirectSums_from_binproduct_bincoproducts_eq2 P)
@@ -685,8 +729,6 @@ Section bindirectsums_in_quot.
       (to_quot_mor A PAS (to_Pr1 A (BD x y))) (to_quot_mor A PAS (to_Pr2 A (BD x y))).
   Proof.
     use mk_isBinDirectSum.
-    - exact (Quotcategory_isBinCoproduct x y).
-    - exact (Quotcategory_isBinProduct x y).
     - unfold to_quot_mor.
       rewrite <- comp_eq.
       set (tmp := @Quotcategory_comp_linear A PAS PAC x (BD x y) x).
