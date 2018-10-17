@@ -130,7 +130,7 @@ apply BinProducts_functor_precat, BinProductsHSET.
 Defined.
 
 Local Notation "'1'" := (functor_identity SET_over_sort).
-Local Notation "x ⊗ y" := (BinProductObject _ (BP x y)) (at level 10).
+Local Notation "x ⊗ y" := (BinProductObject _ (BP x y)).
 
 (** The variables *)
 
@@ -140,7 +140,7 @@ Definition var_map : SET_over_sort2⟦1,STLC⟧ :=
 
 (** The source of the application constructor *)
 Definition app_source (s t : sort) (X : SET_over_sort2) : SET_over_sort2 :=
-  (X ∙ proj_functor sort (arr s t)) ⊗ (X ∙ proj_functor sort s) ∙ hat_functor sort t.
+  ((X ∙ proj_functor sort (arr s t)) ⊗ (X ∙ proj_functor sort s)) ∙ hat_functor sort t.
 
 (** The application constructor *)
 Definition app_map (s t : sort) : SET_over_sort2⟦app_source s t STLC,STLC⟧ :=

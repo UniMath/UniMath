@@ -164,6 +164,7 @@ describe:; git describe --dirty --long --always --abbrev=40 --all
 	do <UniMath/$$i/.package/files $(FILES_FILTER) |sed "s=^=UniMath/$$i/="  ;\
 	   echo UniMath/$$i/All.v ;\
 	done ;\
+	echo UniMath/All.v ;\
 	echo ;\
 	echo '# Local ''Variables:' ;\
 	echo '# compile-command: "$(COQBIN)coq_makefile -f .coq_makefile_input -o CoqMakefile.make.tmp && mv CoqMakefile.make.tmp build/CoqMakefile.make"' ;\
@@ -446,6 +447,17 @@ UniMath/$1/All.v: UniMath/$1/.package/files
 	<UniMath/$1/.package/files $(FILES_FILTER_2) | grep -v '^All.v$$$$' |sed -e "s=^=Require Export UniMath.$1.=" -e "s=/=.=g" -e s/\.v$$$$/./
 endef
 $(foreach P, $(PACKAGES), $(eval $(call make-summary-file,$P)) $(eval make-summary-files: UniMath/$P/All.v))
+
+# Here we create the file UniMath/All.v.  It will "Require Export" all of the All.v files for the various packages.
+make-summary-files: UniMath/All.v
+UniMath/All.v: Makefile
+	$(SHOW)'making $@'
+	$(HIDE)									\
+	exec > $@ ;								\
+	echo "(* This file has been auto-generated, do not edit it. *)" ;	\
+	for P in $(PACKAGES);							\
+	do echo "Require Export UniMath.$$P.All.";				\
+	done
 
 #################################
 # targets best used with INCLUDE=no

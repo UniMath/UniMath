@@ -180,7 +180,7 @@ apply BinProducts_functor_precat, BinProductsHSET.
 Defined.
 
 Local Notation "'Id'" := (functor_identity SET_over_sort).
-Local Notation "x ⊗ y" := (BinProductObject _ (BP x y)) (at level 10).
+Local Notation "x ⊗ y" := (BinProductObject _ (BP x y)).
 
 (** The variables *)
 Definition var_map : SET_over_sort2⟦Id,CCS⟧ :=
