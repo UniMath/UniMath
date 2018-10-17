@@ -33,9 +33,9 @@ Notation "C ⟦ a , b ⟧" := (to_abgr (PA:=C) a b) : addcat.
 
 Notation "f · g" := (compose f g : to_abgr _ _) : addcat.
 
-Notation "0" := (AdditiveZeroArrow _ _ : to_abgr _ _) : addcat.
+Notation "0" := (unel _ : to_abgr _ _) : addcat.
 
-Notation "0" := (ZeroArrow (to_Zero _) _ _) : cat.
+(* Notation "0" := (ZeroArrow (to_Zero _) _ _) : cat. *)
 
 Notation "1" := (identity _ : to_abgr _ _) : addcat.
 
@@ -54,35 +54,48 @@ Reserved Notation "B ↠ C" (at level 50). (* move upstream to Init.v *)
 Local Open Scope cat.
 Local Open Scope Cat.
 
-Section MoveUpstream.
-
-  Context {C : precategory} {hs : has_homsets C} {Z : Zero C}.
-
-  Definition isKernel' {x y z : C} (f : x --> y) (g : y --> z) (H : f · g = ZeroArrow Z x z) : hProp :=
-    ∀ (w : C) (h : w --> y) (H : h · g = ZeroArrow Z w z), ∃! φ : w --> x, φ · f = h.
-
-  Definition isCokernel' {x y z : C} (f : x --> y) (g : y --> z) (H : f · g = (ZeroArrow Z x z)) : hProp :=
-    ∀ (w : C) (h : y --> w) (H : f · h = ZeroArrow Z x w), ∃! φ : z --> w, g · φ = h.
-
-End MoveUpstream.
-
 Definition ShortSequence (M : Additive) := ∑ (A B C:M), A --> B × B --> C.
 
-Local Open Scope addoperation_scope.
-Local Open Scope addmonoid_scope.
+Local Open Scope addmonoid.
 Local Open Scope addcat.
+Import AddNotation.
 
 Section AdditiveCategories.     (* maybe move upstream *)
 
   Context {M : Additive}.
+
+  Context (Z := to_Zero M).
+
+  (** Reprove some standard facts with the 0 map (the zero element of the group)
+      replacing the zero map defined by composing maps to and from the zero object. *)
+
+  Lemma ZeroArrow_comp_left' (a b c : M) (f : b --> c) : (0 : a --> b) · f = 0.
+  Proof.
+    refine (_ @ ZeroArrow_comp_left M Z a b c f @ _).
+    - apply (maponpaths (λ g, g · f)). apply PreAdditive_unel_zero.
+    - apply pathsinv0, PreAdditive_unel_zero.
+  Defined.
+
+  Lemma ZeroArrow_comp_right' (a b c : M) (f : a --> b) : f · (0 : b --> c) = 0.
+  Proof.
+    refine (_ @ ZeroArrow_comp_right M Z a b c f @ _).
+    - apply maponpaths, PreAdditive_unel_zero.
+    - apply pathsinv0, PreAdditive_unel_zero.
+  Defined.
+
+  Definition isKernel' {x y z : M} (f : x --> y) (g : y --> z) (H : f · g = 0) : hProp :=
+    ∀ (w : M) (h : w --> y) (H : h · g = 0), ∃! φ : w --> x, φ · f = h.
+
+  Definition isCokernel' {x y z : M} (f : x --> y) (g : y --> z) (H : f · g = 0) : hProp :=
+    ∀ (w : M) (h : y --> w) (H : f · h = 0), ∃! φ : z --> w, g · φ = h.
+
+  (** Now for something new.  *)
 
   Definition toShortSequence {A B C:M} (f : A --> B) (g : B --> C) : ShortSequence M
     := A,,B,,C,,f,,g.
 
   Definition standardSplitShortSequence (A B:M) : ShortSequence M
     := toShortSequence (to_In1 _ : A --> (A ⊕ B)) (to_Pr2 _ : (A ⊕ B) --> B).
-
-  Context (Zero := to_Zero M).
 
   (* some sanity checks for our notations *)
 
@@ -118,50 +131,65 @@ Section AdditiveCategories.     (* maybe move upstream *)
     - intro ip. apply propproperty.
   Defined.
 
-  Lemma kerCoker10 (A:M) : isKernelCokernelPair (1 : A --> A) (0 : A --> Zero).
+  Lemma kerCokerDirectSum (A B:M) (S:BinDirectSum M A B) : isKernelCokernelPair (to_In1 S) (to_Pr2 S).
+  Proof.
+    assert (E := BinDirectSum_isBinDirectSum M S).
+    use tpair.
+    - exact (to_Unel1 M S).
+    - cbn beta. split.
+      * intros T h H. use unique_exists; cbn beta.
+        + exact (h · to_Pr1 _).
+        + rewrite <- assoc. refine (_ @ id_right h). rewrite <- (to_BinOpId _ S).
+          rewrite to_premor_linear'. rewrite (assoc h (to_Pr2 S) (to_In2 S)).
+          rewrite H; clear H.
+          rewrite ZeroArrow_comp_left'.
+          exact (! runax _ (h · (to_Pr1 S · to_In1 S))).
+        + intros k. apply to_has_homsets.
+        + clear H. intros k e. induction e. rewrite <- assoc.
+          rewrite (to_IdIn1 M S). apply pathsinv0, id_right.
+      * intros T h H. use unique_exists; cbn beta.
+        + exact (to_In2 _ · h).
+        + rewrite assoc. refine (_ @ id_left h). rewrite <- (to_BinOpId _ S).
+          rewrite to_postmor_linear'.
+          rewrite <- (assoc (to_Pr1 S) (to_In1 S) h). rewrite H; clear H.
+          rewrite ZeroArrow_comp_right'.
+          exact (! lunax _ (to_Pr2 S · to_In2 S · h)).
+        + intros k. apply to_has_homsets.
+        + clear H. intros k e. induction e. rewrite assoc. rewrite (to_IdIn2 M S).
+          apply pathsinv0, id_left.
+  Defined.
+
+  Lemma kerCoker10 (A:M) : isKernelCokernelPair (1 : A --> A) (0 : A --> Z).
   Proof.
     exists (id_left _).
     split.
-    - apply kernels.KernelOfZeroArrow_isKernel, to_has_homsets.
-    - try apply cokernels.CokernelOfIdentity_isCokernel. (* ?? *)
-      intros w h H. use unique_exists.
+    - intros T h H. use unique_exists.
+      + exact h.
+      + cbn beta. apply id_right.
+      + cbn beta. intro h'. apply to_has_homsets.
+      + cbn beta. intros h' e. refine (_ @ e); clear e. apply pathsinv0,id_right.
+    - intros T h H. use unique_exists.
       + exact 0.
-      + cbn. rewrite id_left in H. rewrite H. clear H. apply ZeroArrow_comp_right.
-      + intros B. apply to_has_homsets.
+      + cbn beta. rewrite id_left in H. rewrite H; clear H. apply ZeroArrow_comp_right'.
+      + intros k. cbn beta. apply to_has_homsets.
       + intros f e. use ArrowsFromZero.
   Defined.
 
-  Lemma kerCoker01 (A:M) : isKernelCokernelPair (0 : Zero --> A) (1 : A --> A).
+  Lemma kerCoker01 (A:M) : isKernelCokernelPair (0 : Z --> A) (1 : A --> A).
   Proof.
     exists (id_right _).
     split.
-    - try apply kernels.KernelOfIdentity_isKernel. (* ?? *)
-      intros w h H. use unique_exists.
+    - intros T h H. use unique_exists.
       + exact 0.
-      + cbn. rewrite id_right in H. rewrite H. clear H. apply ZeroArrow_comp_right.
-      + intros B. apply to_has_homsets.
+      + cbn beta. rewrite id_right in H. rewrite H; clear H. apply ZeroArrow_comp_right'.
+      + intros g. apply to_has_homsets.
       + intros f e. use ArrowsToZero.
-    - apply cokernels.CokernelOfZeroArrow_isCokernel, to_has_homsets.
+    - intros T h H. use unique_exists.
+      + exact h.
+      + cbn beta. rewrite id_left. reflexivity.
+      + intros k. cbn beta. apply to_has_homsets.
+      + intros f e. cbn beta in e. rewrite id_left in e. exact e.
   Defined.
-
-  Lemma kerCokerSum (A B:M) : isKernelCokernelPair (to_In1 _ : A --> (A ⊕ B)) (to_Pr2 _ : (A ⊕ B) --> B).
-  Proof.
-    exists (to_Unel1' _).
-    split.
-    - intros C h H. use unique_exists.
-      + exact (h · to_Pr1 _).
-      + cbn. rewrite <- assoc.
-        set (Q := A ⊕ B).
-        assert (L := to_BinOpId _ Q : (to_Pr1 Q · to_In1 Q) + (to_Pr2 Q · to_In2 Q) = identity Q).
-
-  Abort.
-
-  (* Lemma kerCokerDirsum *)
-  (*       {A B C:M} (i : A --> B) (p : B --> C) *)
-  (*       {A' B' C':M} (i' : A' --> B') (p' : B' --> C') : *)
-  (*   isKernelCokernelPair (i ⊕ i') (p ⊕ p'). *)
-  (* Proof. *)
-  (* Abort. *)
 
   Definition left (P : ShortSequence M) : M := pr1 P.
   Definition middle (P : ShortSequence M) : M := pr12 P.
@@ -177,7 +205,7 @@ Section theDefinition.
 
   Context (M:Additive).
 
-  Context (Zero := to_Zero M).
+  Context (Z := to_Zero M).
 
   Context (E : ShortSequence M -> hProp).
 
