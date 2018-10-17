@@ -96,7 +96,7 @@ Local Notation "C × D" := (precategory_binproduct C D) (at level 75, right asso
 Definition precatbinprodpair {C D : precategory} (X : C) (Y : D) : precategory_binproduct C D
   := dirprodpair X Y.
 
-Local Notation "A ⊗ B" := (precatbinprodpair A B) (at level 10).
+Local Notation "A ⊗ B" := (precatbinprodpair A B).
 Local Notation "( A , B )" := (precatbinprodpair A B).
 
 Definition precatbinprodmor {C D : precategory} {X X' : C} {Z Z' : D} (α : X --> X') (β : Z --> Z')

@@ -17,7 +17,7 @@ Let Mon_V := Actions.Mon_V.
 Let V := monoidal_precat_precat Mon_V.
 Let I := monoidal_precat_unit Mon_V.
 Let tensor := monoidal_precat_tensor Mon_V.
-Notation "X ⊗ Y" := (tensor (X , Y)) (at level 31).
+Notation "X ⊗ Y" := (tensor (X , Y)).
 
 Section Strengths_Definition.
 
