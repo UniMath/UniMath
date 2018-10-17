@@ -81,6 +81,26 @@ Section AdditiveCategories.     (* maybe move upstream *)
     - apply pathsinv0, PreAdditive_unel_zero.
   Defined.
 
+  Definition leftComp (a b c : M) (f : a --> b) : (b --> c) -> (a --> c)
+    := λ g, f · g.
+
+  Definition rightComp (a b c : M) (f : b --> c) : (a --> b) -> (a --> c)
+    := λ g, g · f.
+
+  Lemma leftCompHomo (a b c : M) (f : a --> b) : ismonoidfun (leftComp a b c f).
+  Proof.
+    split.
+    - intros g h. apply to_premor_linear'.
+    - apply ZeroArrow_comp_right'.
+  Defined.
+
+  Lemma rightCompHomo (a b c : M) (f : b --> c) : ismonoidfun (rightComp a b c f).
+  Proof.
+    split.
+    - intros g h. apply to_postmor_linear'.
+    - apply ZeroArrow_comp_left'.
+  Defined.
+
   Definition isKernel' {x y z : M} (f : x --> y) (g : y --> z) (H : f · g = 0) : hProp :=
     ∀ (w : M) (h : w --> y) (H : h · g = 0), ∃! φ : w --> x, φ · f = h.
 
