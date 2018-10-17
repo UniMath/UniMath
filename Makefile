@@ -27,6 +27,7 @@ PACKAGES += Induction
 # other user options; see also build/Makefile-configuration-template
 BUILD_COQ ?= yes
 BUILD_COQIDE ?= no
+DEBUG_COQ ?= no
 COQBIN ?=
 ############################################
 SHOW := $(if $(VERBOSE),@true "",@echo "")
@@ -48,7 +49,6 @@ all: build-coq
 build-coq: sub/coq/bin/coqc
 ifeq "$(BUILD_COQIDE)" "yes"
 all: build-coqide
-build-coqide: sub/coq/bin/coqide
 COQIDE_OPTION := opt
 endif
 endif
@@ -194,21 +194,34 @@ distclean::          ; - $(MAKE) -C sub/coq distclean
 distclean::          ; rm -f build/Makefile-configuration
 distclean::          ; - $(MAKE) -C sub/lablgtk arch-clean
 
+#############################################################################
 # building coq:
 export PATH:=$(shell pwd)/sub/coq/bin:$(PATH)
+CONFIGURE_OPTIONS := -coqide "$(COQIDE_OPTION)" -with-doc no -local -no-custom
+BUILD_TARGETS := coqbinaries tools states
+ifeq ($(DEBUG_COQ),yes)
+CONFIGURE_OPTIONS += -annot
+BUILD_TARGETS += byte
+BUILD_OPTIONS += VERBOSE=true
+BUILD_OPTIONS += READABLE_ML4=yes
+endif
+ifeq ($(BUILD_COQIDE),yes)
+BUILD_TARGETS += coqide-files bin/coqide
+endif
 sub/coq/configure.ml:
 	git submodule update --init sub/coq
 sub/coq/config/coq_config.ml: sub/coq/configure.ml
 	: making $@ because of $?
-	cd sub/coq && ./configure -coqide "$(COQIDE_OPTION)" -with-doc no -local
-# instead of "coqlight" below, we could use simply "theories/Init/Prelude.vo"
+	cd sub/coq && ./configure $(CONFIGURE_OPTIONS)
 sub/coq/bin/coq_makefile sub/coq/bin/coqc: sub/coq/config/coq_config.ml
 .PHONY: rebuild-coq
 rebuild-coq sub/coq/bin/coq_makefile sub/coq/bin/coqc:
-	$(MAKE) -w -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqbinaries tools states
-sub/coq/bin/coqide: sub/coq/config/coq_config.ml
-	$(MAKE) -w -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqide-files bin/coqide
-configure-coq: sub/coq/config/coq_config.ml
+	$(MAKE) -w -C sub/coq $(BUILD_OPTIONS) $(BUILD_TARGETS)
+ifeq ($(DEBUG_COQ),yes)
+	$(MAKE) -w -C sub/coq tags
+endif
+#############################################################################
+
 git-describe:
 	git describe --dirty --long --always --abbrev=40
 	git submodule foreach git describe --dirty --long --always --abbrev=40 --tags
