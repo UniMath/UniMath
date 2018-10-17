@@ -9,6 +9,7 @@ Require UniMath.Ktheory.QuotientSet UniMath.Ktheory.Monoid.
 Unset Automatic Introduction.
 Close Scope multmonoid_scope.
 Open Scope addmonoid_scope.
+Import UniMath.Algebra.Monoids_and_Groups.AddNotation.
 Local Notation Hom := monoidfun.
 Definition dni_first n : stn n -> stn (S n) := @dni n firstelement.
 Definition dni_last  n : stn n -> stn (S n) := @dni n lastelement.

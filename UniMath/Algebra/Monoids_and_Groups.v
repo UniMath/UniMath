@@ -95,16 +95,20 @@ Definition unax (X : monoid) : isunit (@op X) (unel X) := dirprodpair (lunax X) 
 
 Definition isasetmonoid (X : monoid) : isaset X := pr2 (pr1 (pr1 X)).
 
-Notation "x + y" := (op x y) : addmonoid_scope.
-Notation "0" := (unel _) : addmonoid_scope.
-
 Delimit Scope addmonoid_scope with addmonoid.
+Delimit Scope multmonoid_scope with multmonoid.
 
 Notation "x * y" := (op x y) : multmonoid_scope.
 Notation "1" := (unel _) : multmonoid_scope.
 
-Delimit Scope multmonoid_scope with multmonoid.
+Module AddNotation.
+  Notation "x + y" := (op x y) : addmonoid_scope.
+  Notation "0" := (unel _) : addmonoid_scope.
+End AddNotation.
 
+(* To get additive notation in a file that uses this one, insert the following command:
+   Import UniMath.Algebra.Monoids_and_Groups.AddNotation.
+*)
 
 (** **** Construction of the trivial monoid consisting of one element given by unit. *)
 
@@ -912,6 +916,8 @@ Note : the following construction uses onbly associativity and commutativity
 of the [abmonoid] operations but does not use the unit element. *)
 
 Open Scope addmonoid_scope.
+
+Import AddNotation.
 
 Definition abmonoidfracopint (X : abmonoid) (A : submonoid X) :
   binop (X × A) := @op (setwithbinopdirprod X A).

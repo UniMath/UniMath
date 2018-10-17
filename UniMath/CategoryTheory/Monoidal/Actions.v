@@ -18,7 +18,7 @@ Context (Mon_V : monoidal_precat).
 Let V := monoidal_precat_precat Mon_V.
 Let I := monoidal_precat_unit Mon_V.
 Let tensor := monoidal_precat_tensor Mon_V.
-Notation "X ⊗ Y" := (tensor (X , Y)) (at level 31).
+Notation "X ⊗ Y" := (tensor (X , Y)).
 Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
 Let α' := monoidal_precat_associator Mon_V.
 Let λ' := monoidal_precat_left_unitor Mon_V.

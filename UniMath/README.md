@@ -91,7 +91,8 @@ less fragile and to make the files have a more uniform and pleasing appearance.
   elements of them.
 * Do not use `Inductive` or `Record`.  Their use is limited to just a few basic
   types, which are defined in `Foundations/Preamble.v`.
-* Do not use `Module` or `Structure`.
+* Do not use `Structure`.
+* Use `Module` only naively, to create blocks of code that can be imported.  Do not use `Module Type`.
 * Do not use `Fixpoint`.
 * Do not use `destruct`, `match`, `case`, square brackets with `intros`, or
   nested square brackets with `induction`.  (The goal is to prevent generation of
