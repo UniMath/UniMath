@@ -65,7 +65,7 @@ Reserved Notation "⟦ a ⟧" (at level 48, left associativity).
 
 Reserved Notation "f ;; g"  (at level 50, left associativity, only parsing). (* deprecated *)
 
-Reserved Notation "f · g"  (at level 50, format "f  ·  g", left associativity).
+Reserved Notation "f · g"  (at level 40, format "f  ·  g", left associativity).
 (* to input: type "\centerdot" or "\cdot" with Agda input method *)
 
 Reserved Notation "a --> b" (at level 50, left associativity).

@@ -96,8 +96,7 @@ Section def_precategory_with_abgrops.
   Definition to_postmor (x : PA) {y z : PA} (f : y --> z) : to_abgr x y -> to_abgr x z :=
     fun (g : (to_abgr x y)) => g · f.
 
-
-  (** Some equatios on inverses *)
+  (** Some equations on inverses *)
   Lemma inv_inv_eq {x y : PA} (f : PA⟦x, y⟧) : to_inv (to_inv f) = f.
   Proof.
     unfold to_inv.
@@ -184,6 +183,7 @@ Section def_precategory_with_abgrops.
   Qed.
 
 End def_precategory_with_abgrops.
+
 Arguments to_has_homsets [PA] _ _ _ _ _ _.
 Arguments to_homset [PA] _ _.
 Arguments to_setwithbinoppair [PA] _ _.
@@ -198,6 +198,12 @@ Arguments to_inv [PA] [x] [y] _.
 Arguments inv_inv_eq [PA] [x] [y] _.
 Arguments cancel_inv [PA] [x] [y] _ _ _.
 
+Delimit Scope abgrcat with abgrcat.
+Notation "a --> b" := (to_abgr a b) : abgrcat.
+Notation "f · g" := (compose f g : to_abgr _ _) : abgrcat.
+Notation "1" := (identity _ : to_abgr _ _) : abgrcat.
+Notation "0" := (unel _ : to_abgr _ _) : abgrcat.
+Notation "f = g" := (eqset f g) : abgrcat.
 
 Section transport_morphisms.
 
