@@ -292,7 +292,7 @@ Proof.
 now apply from_terminal_isMonic.
 Qed.
 
-Local Notation "c '⊗' d" := (BinProductObject _ (BinProducts_PreShv c d)) (at level 75) : cat.
+Local Notation "c ⊗ d" := (BinProductObject _ (BinProducts_PreShv c d)) : cat.
 
 Definition Ω_PreShv_meet : PreShv(C)⟦Ω_PreShv ⊗ Ω_PreShv,Ω_PreShv⟧.
 Proof.
