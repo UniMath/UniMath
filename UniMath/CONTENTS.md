@@ -22,6 +22,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Notations.v](MoreFoundations/Notations.v)
    - [AlternativeProofs.v](MoreFoundations/AlternativeProofs.v)
    - [Subposets.v](MoreFoundations/Subposets.v)
+   - [DoubleNegation.v](MoreFoundations/DoubleNegation.v)
    - [DecidablePropositions.v](MoreFoundations/DecidablePropositions.v)
    - [Propositions.v](MoreFoundations/Propositions.v)
    - [Sets.v](MoreFoundations/Sets.v)
