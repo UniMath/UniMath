@@ -64,21 +64,19 @@ Section AdditiveCategories.     (* maybe move upstream *)
 
   Context {M : Additive}.
 
-  Context (Z := to_Zero M).
-
   (** Reprove some standard facts with the 0 map (the zero element of the group)
       replacing the zero map defined by composing maps to and from the zero object. *)
 
   Lemma ZeroArrow_comp_left' (a b c : M) (f : b --> c) : (0 : a --> b) · f = 0.
   Proof.
-    refine (_ @ ZeroArrow_comp_left M Z a b c f @ _).
+    refine (_ @ ZeroArrow_comp_left M (to_Zero M) a b c f @ _).
     - apply (maponpaths (λ g, g · f)). apply PreAdditive_unel_zero.
     - apply pathsinv0, PreAdditive_unel_zero.
   Defined.
 
   Lemma ZeroArrow_comp_right' (a b c : M) (f : a --> b) : f · (0 : b --> c) = 0.
   Proof.
-    refine (_ @ ZeroArrow_comp_right M Z a b c f @ _).
+    refine (_ @ ZeroArrow_comp_right M (to_Zero M) a b c f @ _).
     - apply maponpaths, PreAdditive_unel_zero.
     - apply pathsinv0, PreAdditive_unel_zero.
   Defined.
@@ -131,7 +129,7 @@ Section AdditiveCategories.     (* maybe move upstream *)
     - intro ip. apply propproperty.
   Defined.
 
-  Lemma kerCokerDirectSum (A B:M) (S:BinDirectSum M A B) : isKernelCokernelPair (to_In1 S) (to_Pr2 S).
+  Lemma kerCokerDirectSum {A B:M} (S:BinDirectSum M A B) : isKernelCokernelPair (to_In1 S) (to_Pr2 S).
   Proof.
     assert (E := BinDirectSum_isBinDirectSum M S).
     use tpair.
@@ -159,36 +157,38 @@ Section AdditiveCategories.     (* maybe move upstream *)
           apply pathsinv0, id_left.
   Defined.
 
-  Lemma kerCoker10 (A:M) : isKernelCokernelPair (1 : A --> A) (0 : A --> Z).
+  Definition TrivialDirectSum (Z:Zero M) (A:M) : BinDirectSum M A Z.
   Proof.
-    exists (id_left _).
-    split.
-    - intros T h H. use unique_exists.
-      + exact h.
-      + cbn beta. apply id_right.
-      + cbn beta. intro h'. apply to_has_homsets.
-      + cbn beta. intros h' e. refine (_ @ e); clear e. apply pathsinv0,id_right.
-    - intros T h H. use unique_exists.
-      + exact 0.
-      + cbn beta. rewrite id_left in H. rewrite H; clear H. apply ZeroArrow_comp_right'.
-      + intros k. cbn beta. apply to_has_homsets.
-      + intros f e. use ArrowsFromZero.
+    exists (A,,1,,0,,1,,0).
+    repeat split; cbn.
+    - apply id_right.
+    - apply ArrowsToZero.
+    - apply ArrowsToZero.
+    - apply ArrowsFromZero.
+    - rewrite id_right. rewrite ZeroArrow_comp_right'. rewrite rewrite_op.
+      rewrite runax. reflexivity.
   Defined.
 
-  Lemma kerCoker01 (A:M) : isKernelCokernelPair (0 : Z --> A) (1 : A --> A).
+  Definition TrivialDirectSum' (Z:Zero M) (A:M) : BinDirectSum M Z A.
   Proof.
-    exists (id_right _).
-    split.
-    - intros T h H. use unique_exists.
-      + exact 0.
-      + cbn beta. rewrite id_right in H. rewrite H; clear H. apply ZeroArrow_comp_right'.
-      + intros g. apply to_has_homsets.
-      + intros f e. use ArrowsToZero.
-    - intros T h H. use unique_exists.
-      + exact h.
-      + cbn beta. rewrite id_left. reflexivity.
-      + intros k. cbn beta. apply to_has_homsets.
-      + intros f e. cbn beta in e. rewrite id_left in e. exact e.
+    exists (A,,0,,1,,0,,1).
+    repeat split; cbn.
+    - apply ArrowsToZero.
+    - apply id_right.
+    - apply ArrowsFromZero.
+    - apply ArrowsToZero.
+    - rewrite id_right. rewrite ZeroArrow_comp_right'. rewrite rewrite_op.
+      rewrite lunax. reflexivity.
+  Defined.
+
+  Lemma kerCoker10 (Z:Zero M) (A:M) : isKernelCokernelPair (1 : A --> A) (0 : A --> Z).
+  Proof.
+    exact (kerCokerDirectSum (TrivialDirectSum Z A)).
+  Defined.
+
+  Lemma kerCoker01 (Z:Zero M) (A:M) : isKernelCokernelPair (0 : Z --> A) (1 : A --> A).
+  Proof.
+    exact (kerCokerDirectSum (TrivialDirectSum' Z A)).
   Defined.
 
   Definition left (P : ShortSequence M) : M := pr1 P.
