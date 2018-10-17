@@ -53,6 +53,7 @@ Section def_bindirectsums.
   Open Scope addmonoid.
   Open Scope multmonoid.
   Open Scope abgrcat.
+  Import AddNotation.
 
   (** Definition of binary direct sum. *)
   Definition isBinDirectSum (a b co : A) (i1 : a --> co) (i2 : b --> co)
