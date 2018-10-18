@@ -227,7 +227,7 @@ Proof.
 Defined.
  *)
 
-Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)) (at level 50).
+Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)).
 
 Local Definition monadSubstGen_instantiated {T:Monad (SET / sort)}{Γ2 : SET_over_sort}(Γ1: SET_over_sort) (e : SET_over_sort⟦Γ2,T Γ1⟧) :
   SET_over_sort⟦T (Γ2 ⊕ Γ1),T Γ1⟧ := monadSubstGen T BC Γ1 e.
