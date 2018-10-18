@@ -29,13 +29,13 @@ Delimit Scope excat with excat.
 
 Notation "a --> b" := (to_abgr a b) : addcat.
 
-Notation "C ⟦ a , b ⟧" := (to_abgr (PA:=C) a b) : addcat.
+Notation "C ⟦ a , b ⟧" := (@to_abgr C a b) : addcat.
 
 Notation "f · g" := (compose f g : to_abgr _ _) : addcat.
 
-Notation "0" := (unel _ : to_abgr _ _) : addcat.
+Notation "0" := (ZeroArrow (to_Zero _) _ _) : cat.
 
-(* Notation "0" := (ZeroArrow (to_Zero _) _ _) : cat. *)
+Notation "0" := (unel _ : to_abgr _ _) : addcat.
 
 Notation "1" := (identity _ : to_abgr _ _) : addcat.
 
@@ -43,13 +43,9 @@ Notation "f = g" := (eqset f g) : addcat.
 
 Notation "f - g" := (@op _ f (grinv _ g) : to_abgr _ _) : addcat.
 
-Notation "A ⊕ B" := (to_BinDirectSums _ A B) (at level 60, right associativity) : addcat.
+Reserved Notation "A ⊕ B" (at level 60, right associativity). (* move upstream *)
 
-Reserved Notation "A ↣ B" (at level 50). (* move upstream to Init.v *)
-(* to input: type "\r->" or "\rightarrowtail" or "\r" with Agda input method *)
-
-Reserved Notation "B ↠ C" (at level 50). (* move upstream to Init.v *)
-(* to input: type "\rr-" or "\r" or "\twoheadrightarrow" with Agda input method *)
+Notation "A ⊕ B" := (to_BinDirectSums _ A B) : addcat.
 
 Local Open Scope cat.
 Local Open Scope Cat.
@@ -225,17 +221,16 @@ Section theDefinition.
 
   Context (M:Additive).
 
-  Context (Z := to_Zero M).
-
   Context (E : ShortSequence M -> hProp).
 
   Definition isAdmissibleMonomorphism {A B:M} (i : A --> B) : hProp :=
     ∃ C (p : B --> C), E (A,,B,,C,,i,,p).
 
-  Definition AdmissibleMonomorphism (A B:M) : hSet :=
-    (∑ (i : A --> B), isAdmissibleMonomorphism i) % set.
+  Definition AdmissibleMonomorphism (A B:M) : Type :=
+    ∑ (i : A --> B), isAdmissibleMonomorphism i.
 
-  Definition AdmMonoToMap {A B:M} : AdmissibleMonomorphism A B -> A --> B := pr1.
+  Coercion AdmMonoToMap {A B:M} : AdmissibleMonomorphism A B -> A --> B := pr1.
+  Coercion AdmMonoToMap' {A B:M} : AdmissibleMonomorphism A B -> (A --> B)%cat := pr1.
 
   Notation "A ↣ B" := (AdmissibleMonomorphism A B) : excat.
   (* to input: type "\r->" or "\rightarrowtail" or "\r" with Agda input method *)
@@ -243,10 +238,11 @@ Section theDefinition.
   Definition isAdmissibleEpimorphism {B C:M} (p : B --> C) : hProp :=
     ∃ A (i : A --> B), E (A,,B,,C,,i,,p).
 
-  Definition AdmissibleEpimorphism (B C:M) : hSet :=
-    (∑ (p : B --> C), isAdmissibleMonomorphism p) % set.
+  Definition AdmissibleEpimorphism (B C:M) : Type :=
+    ∑ (p : B --> C), isAdmissibleMonomorphism p.
 
-  Definition AdmEpiToMap {B C:M} : AdmissibleEpimorphism B C -> B --> C := pr1.
+  Coercion AdmEpiToMap {B C:M} : AdmissibleEpimorphism B C -> B --> C := pr1.
+  Coercion AdmEpiToMap' {B C:M} : AdmissibleEpimorphism B C -> (B --> C)%cat := pr1.
 
   Notation "B ↠ C" := (AdmissibleEpimorphism B C) : excat.
   (* to input: type "\rr-" or "\r" or "\twoheadrightarrow" with Agda input method *)
@@ -267,15 +263,15 @@ Section theDefinition.
       ∧
       (∀ P, E P ⇒ isKernelCokernelPair (leftmap P) (rightmap P))
       ∧
-      (∀ A B C (f : A ↣ B) (g : B ↣ C), isAdmissibleMonomorphism (AdmMonoToMap f · AdmMonoToMap g))
+      (∀ A B C (f : A ↣ B) (g : B ↣ C), isAdmissibleMonomorphism (f · g))
       ∧
-      (∀ A B C (f : A ↠ B) (g : B ↠ C), isAdmissibleEpimorphism (AdmEpiToMap f · AdmEpiToMap g))
+      (∀ A B C (f : A ↠ B) (g : B ↠ C), isAdmissibleEpimorphism (f · g))
       ∧
       (∀ A B C (f : A ↠ B) (g : C --> B),
-          ∃ (pb : Pullback (AdmEpiToMap f) g), isAdmissibleEpimorphism (PullbackPr2 pb))
+          ∃ (pb : Pullback f g), isAdmissibleEpimorphism (PullbackPr2 pb))
       ∧
       (∀ A B C (f : B ↣ A) (g : B --> C),
-          ∃ (po : Pushout (AdmMonoToMap f) g), isAdmissibleMonomorphism (PushoutIn2 po)).
+          ∃ (po : Pushout f g), isAdmissibleMonomorphism (PushoutIn2 po)).
 
 End theDefinition.
 
@@ -296,14 +292,6 @@ Notation "B ↠ C" := (AdmissibleEpimorphism _ isExact B C) : excat.
 Section ExactCategoryProperties.
 
   Context {M : ExactCategory}.
-
-  Goal ∏ (a b:M), hSet.
-    intros. exact (a ↣ b).
-  Defined.
-
-  Goal ∏ (a b:M), hSet.
-    intros. exact (a ↠ b).
-  Defined.
 
   (** Now prove one of the properties in Quillen's definition.  *)
 

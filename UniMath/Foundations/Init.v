@@ -83,6 +83,12 @@ Reserved Notation "C '^op'" (at level 3, format "C ^op").
 
 Reserved Notation "a <-- b" (at level 50, left associativity).
 
+Reserved Notation "A ↣ B" (at level 50).
+(* to input: type "\r->" or "\rightarrowtail" or "\r" with Agda input method *)
+
+Reserved Notation "B ↠ C" (at level 50).
+(* to input: type "\rr-" or "\r" or "\twoheadrightarrow" with Agda input method *)
+
 Reserved Notation "[ C , D ]" .
 
 Reserved Notation "C [ a , b ]"  (at level 50, left associativity).
