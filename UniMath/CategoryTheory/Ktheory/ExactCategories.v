@@ -1,6 +1,8 @@
 (** Exact categories *)
 
 Require Export UniMath.Foundations.All.
+Require Export UniMath.CategoryTheory.Monics.
+Require Export UniMath.CategoryTheory.Epis.
 Require Export UniMath.CategoryTheory.limits.zero.
 Require Export UniMath.CategoryTheory.limits.kernels.
 Require Export UniMath.CategoryTheory.limits.cokernels.
@@ -25,8 +27,8 @@ Local Open Scope logic.
 
 Delimit Scope addcat with addcat. (* move upstream *)
 
-Notation "a --> b" := (to_abgr a b) : addcat.
 Notation "C ⟦ a , b ⟧" := (@to_abgr C a b) : addcat.
+Notation "a --> b" := (to_abgr a b) : addcat.
 Notation "f · g" := (compose f g : to_abgr _ _) : addcat.
 Notation "0" := (ZeroArrow (to_Zero _) _ _) : cat.
 Notation "0" := (unel _ : to_abgr _ _) : addcat.
@@ -36,26 +38,14 @@ Notation "f - g" := (@op _ f (grinv _ g) : to_abgr _ _) : addcat.
 Notation "A ⊕ B" := (to_BinDirectSums _ A B) : addcat.
 
 Local Open Scope cat.
-Local Open Scope Cat.
-
-Definition ShortSequence (M : Additive) := ∑ (A B C:M), A --> B × B --> C.
-Section ShortSequenceAccessorFunctions.
-  Context {M : Additive}.
-  Definition SS_left (P : ShortSequence M) : M := pr1 P.
-  Definition SS_middle (P : ShortSequence M) : M := pr12 P.
-  Definition SS_right (P : ShortSequence M) : M := pr122 P.
-  Definition SS_leftmap (P : ShortSequence M) : SS_left P --> SS_middle P := pr1 (pr222 P).
-  Definition SS_rightmap (P : ShortSequence M) : SS_middle P --> SS_right P := pr2 (pr222 P).
-End ShortSequenceAccessorFunctions.
-
 Local Open Scope addmonoid.
 Local Open Scope addcat.
 Import AddNotation.
 
 Section AdditiveCategories.     (* maybe move upstream *)
   Context {M : Additive}.
-  (** Reprove some standard facts with the 0 map (the zero element of the group)
-      replacing the zero map (defined by composing maps to and from the zero object). *)
+  (** Reprove some standard facts in additive categories with the 0 map (the zero element of the
+      group) replacing the zero map (defined by composing maps to and from the zero object). *)
   Lemma ZeroArrow_comp_left' (a b c : M) (f : b --> c) : (0 : a --> b) · f = 0.
   Proof.
     refine (_ @ ZeroArrow_comp_left M (to_Zero M) a b c f @ _).
@@ -69,9 +59,9 @@ Section AdditiveCategories.     (* maybe move upstream *)
     - apply pathsinv0, PreAdditive_unel_zero.
   Defined.
   Definition leftComp (a b c : M) (f : a --> b) : (b --> c) -> (a --> c)
-    := λ g, f · g.
+    := precomp_with f.
   Definition rightComp (a b c : M) (f : b --> c) : (a --> b) -> (a --> c)
-    := λ g, g · f.
+    := postcomp_with f.
   Lemma leftCompHomo (a b c : M) (f : a --> b) : ismonoidfun (leftComp a b c f).
   Proof.
     split.
@@ -84,50 +74,113 @@ Section AdditiveCategories.     (* maybe move upstream *)
     - intros g h. apply to_postmor_linear'.
     - apply ZeroArrow_comp_left'.
   Defined.
-  Definition isKernel' {x y z : M} (f : x --> y) (g : y --> z) (H : f · g = 0) : hProp :=
-    ∀ (w : M) (h : w --> y) (H : h · g = 0), ∃! φ : w --> x, φ · f = h.
-  Definition isCokernel' {x y z : M} (f : x --> y) (g : y --> z) (H : f · g = 0) : hProp :=
-    ∀ (w : M) (h : y --> w) (H : f · h = 0), ∃! φ : z --> w, g · φ = h.
-
-  (** Now for something new.  *)
-
-  Definition toShortSequence {A B C:M} (f : A --> B) (g : B --> C) : ShortSequence M
-    := A,,B,,C,,f,,g.
-  Definition standardSplitShortSequence (A B:M) : ShortSequence M
-    := toShortSequence (to_In1 _ : A --> (A ⊕ B)) (to_Pr2 _ : (A ⊕ B) --> B).
-  Definition isKernelCokernelPair {A B C:M} (i : A --> B) (p: B --> C) : hProp.
+  Definition isKernel' {x y z : M} (f : x --> y) (g : y --> z) : hProp :=
+    f · g = 0 ∧ ∀ (w : M) (h : w --> y), h · g = 0 ⇒ ∃! φ : w --> x, φ · f = h.
+  Definition isCokernel' {x y z : M} (f : x --> y) (g : y --> z) : hProp :=
+    f · g = 0 ∧ ∀ (w : M) (h : y --> w), f · h = 0 ⇒ ∃! φ : z --> w, g · φ = h.
+  Lemma KernelIsMonic {x y z:M} (f : x --> y) (g : y --> z) : isKernel' f g -> isMonic f.
   Proof.
-    exists (∑ (ip : i · p = 0), isKernel' i p ip ∧ isCokernel' i p ip).
-    apply (isofhleveltotal2 1).
-    - apply setproperty.
-    - intro ip. apply propproperty.
+    intros [t i] w p q e.
+    set (T := ∑ r : w --> x, r · f = q · f). assert (ic : isProofIrrelevant T).
+    { apply proofirrelevance, isapropifcontr.
+      use i. rewrite <- assoc. rewrite t. apply ZeroArrow_comp_right'. }
+    set (t1 := (p,,e) : T). set (t2 := (q,,idpath _) : T).
+    assert (Q := ic t1 t2). exact (maponpaths pr1 Q).
+  Defined.
+  Lemma CokernelIsEpi {x y z:M} (f : x --> y) (g : y --> z) : isCokernel' f g -> isEpi g.
+  Proof.
+    intros [t i] w p q e.
+    set (T := ∑ r : z --> w, g · r = g · q). assert (ic : isProofIrrelevant T).
+    { apply proofirrelevance, isapropifcontr.
+      use i. rewrite assoc. rewrite t. apply ZeroArrow_comp_left'. }
+    set (t1 := (p,,e) : T). set (t2 := (q,,idpath _) : T).
+    assert (Q := ic t1 t2). exact (maponpaths pr1 Q).
+  Defined.
+  Definition IsoArrowTo   {A A' B:M} (g : A --> B) (g' : A' --> B) := ∑ i : iso A A', i · g' = g .
+  Definition IsoArrowFrom {A B B':M} (g : A --> B) (g' : A --> B') := ∑ i : iso B B', g · i  = g'.
+  Lemma IsoArrowTo_isaprop {A A' B:M} (g : A --> B) (g' : A' --> B) :
+    isMonic g' -> isaprop (IsoArrowTo g g').
+  Proof.
+    intros i. apply invproofirrelevance; intros k k'. apply subtypeEquality'.
+    - induction k as [[k K] e], k' as [[k' K'] e']; cbn; cbn in e, e'.
+      induction (i A k k' (e @ !e')). apply maponpaths. apply isaprop_is_iso.
+    - apply propproperty.
+  Defined.
+  Lemma IsoArrowFrom_isaprop {A B B':M} (g : A --> B) (g' : A --> B') :
+     isEpi g -> isaprop (IsoArrowFrom g g').
+  Proof.
+    intros i. apply invproofirrelevance; intros k k'. apply subtypeEquality'.
+    - induction k as [[k K] e], k' as [[k' K'] e']; cbn; cbn in e, e'.
+      unfold isEpi in i.
+      induction (i B' k k' (e @ !e')). apply maponpaths. apply isaprop_is_iso.
+    - apply propproperty.
+  Defined.
+  Lemma KernelUniqueness {x x' y z : M} (f : x --> y) (f' : x' --> y) (g : y --> z) :
+    isKernel' f g -> isKernel' f' g -> iscontr (IsoArrowTo f f').
+  Proof.
+    intros i j. apply iscontraprop1.
+    - apply IsoArrowTo_isaprop. exact (KernelIsMonic f' g j).
+    - induction (iscontrpr1 (pr2 j _ f (pr1 i))) as [p P].
+      induction (iscontrpr1 (pr2 i _ f' (pr1 j))) as [q Q].
+      assert (d : is_iso p).
+      { apply is_iso_from_is_z_iso. exists q. split.
+        - apply (KernelIsMonic _ _ i). rewrite <- assoc. rewrite Q. rewrite P. rewrite id_left. reflexivity.
+        - apply (KernelIsMonic _ _ j). rewrite <- assoc. rewrite P. rewrite Q. rewrite id_left. reflexivity. }
+      set (θ := isopair p d). exists θ. exact P.
+  Defined.
+  Lemma CokernelUniqueness {x y z z' : M} (f : x --> y) (g : y --> z) (g' : y --> z') :
+    isCokernel' f g -> isCokernel' f g' -> iscontr (IsoArrowFrom g g').
+  Proof.
+    intros i j. apply iscontraprop1.
+    - apply IsoArrowFrom_isaprop. exact (CokernelIsEpi f g i).
+    - induction (iscontrpr1 (pr2 j _ g (pr1 i))) as [p P].
+      induction (iscontrpr1 (pr2 i _ g' (pr1 j))) as [q Q].
+      assert (d : is_iso q).
+      { apply is_iso_from_is_z_iso. exists p. split.
+        - apply (CokernelIsEpi _ _ i). rewrite assoc. rewrite Q. rewrite P. rewrite id_right. reflexivity.
+        - apply (CokernelIsEpi _ _ j). rewrite assoc. rewrite P. rewrite Q. rewrite id_right. reflexivity. }
+      set (θ := isopair q d). exists θ. exact Q.
+  Defined.
+End AdditiveCategories.
+
+Section KernelCokernelPairs.
+  Context {M : Additive}.
+  Definition isKernelCokernelPair {A B C:M} (i : A --> B) (p: B --> C) : hProp
+    := isKernel' i p ∧ isCokernel' i p.
+  Lemma PairUniqueness1 {A A' B C:M} (i : A --> B) (i' : A' --> B) (p: B --> C) :
+    isKernelCokernelPair i p -> isKernelCokernelPair i' p -> iscontr (IsoArrowTo i i').
+  Proof.
+    intros [? _] [? _]. now use KernelUniqueness.
+  Defined.
+  Lemma PairUniqueness2 {A B C C':M} (i : A --> B) (p: B --> C) (p': B --> C') :
+    isKernelCokernelPair i p -> isKernelCokernelPair i p' -> iscontr (IsoArrowFrom p p').
+  Proof.
+    intros [_ ?] [_ ?]. now use (CokernelUniqueness i).
   Defined.
   Lemma kerCokerDirectSum {A B:M} (S:BinDirectSum M A B) : isKernelCokernelPair (to_In1 S) (to_Pr2 S).
   Proof.
     assert (E := BinDirectSum_isBinDirectSum M S).
-    use tpair.
-    - exact (to_Unel1 M S).
-    - cbn beta. split.
-      * intros T h H. use unique_exists; cbn beta.
-        + exact (h · to_Pr1 _).
-        + rewrite <- assoc. refine (_ @ id_right h). rewrite <- (to_BinOpId _ S).
-          rewrite to_premor_linear'. rewrite (assoc h (to_Pr2 S) (to_In2 S)).
-          rewrite H; clear H.
-          rewrite ZeroArrow_comp_left'.
-          exact (! runax _ (h · (to_Pr1 S · to_In1 S))).
-        + intros k. apply to_has_homsets.
-        + clear H. intros k e. induction e. rewrite <- assoc.
-          rewrite (to_IdIn1 M S). apply pathsinv0, id_right.
-      * intros T h H. use unique_exists; cbn beta.
-        + exact (to_In2 _ · h).
-        + rewrite assoc. refine (_ @ id_left h). rewrite <- (to_BinOpId _ S).
-          rewrite to_postmor_linear'.
-          rewrite <- (assoc (to_Pr1 S) (to_In1 S) h). rewrite H; clear H.
-          rewrite ZeroArrow_comp_right'.
-          exact (! lunax _ (to_Pr2 S · to_In2 S · h)).
-        + intros k. apply to_has_homsets.
-        + clear H. intros k e. induction e. rewrite assoc. rewrite (to_IdIn2 M S).
-          apply pathsinv0, id_left.
+    split.
+    - exists (to_Unel1 M S). intros T h H. use unique_exists; cbn beta.
+      + exact (h · to_Pr1 _).
+      + rewrite <- assoc. refine (_ @ id_right h). rewrite <- (to_BinOpId _ S).
+        rewrite to_premor_linear'. rewrite (assoc h (to_Pr2 S) (to_In2 S)).
+        rewrite H; clear H.
+        rewrite ZeroArrow_comp_left'.
+        exact (! runax _ (h · (to_Pr1 S · to_In1 S))).
+      + intros k. apply to_has_homsets.
+      + clear H. intros k e. induction e. rewrite <- assoc.
+        rewrite (to_IdIn1 M S). apply pathsinv0, id_right.
+    - exists (to_Unel1 M S). intros T h H. use unique_exists; cbn beta.
+      + exact (to_In2 _ · h).
+      + rewrite assoc. refine (_ @ id_left h). rewrite <- (to_BinOpId _ S).
+        rewrite to_postmor_linear'.
+        rewrite <- (assoc (to_Pr1 S) (to_In1 S) h). rewrite H; clear H.
+        rewrite ZeroArrow_comp_right'.
+        exact (! lunax _ (to_Pr2 S · to_In2 S · h)).
+      + intros k. apply to_has_homsets.
+      + clear H. intros k e. induction e. rewrite assoc. rewrite (to_IdIn2 M S).
+        apply pathsinv0, id_left.
   Defined.
   Definition TrivialDirectSum (Z:Zero M) (A:M) : BinDirectSum M A Z.
   Proof.
@@ -159,11 +212,24 @@ Section AdditiveCategories.     (* maybe move upstream *)
   Proof.
     exact (kerCokerDirectSum (TrivialDirectSum' Z A)).
   Defined.
-
-End AdditiveCategories.
+End KernelCokernelPairs.
 
 Delimit Scope excat with excat.
 Local Open Scope excat.
+
+Section ShortSequences.
+  Definition ShortSequence (M : Additive) := ∑ (A B C:M), A --> B × B --> C.
+  Context {M : Additive}.
+  Definition SS_left (P : ShortSequence M) : M := pr1 P.
+  Definition SS_middle (P : ShortSequence M) : M := pr12 P.
+  Definition SS_right (P : ShortSequence M) : M := pr122 P.
+  Definition SS_leftmap (P : ShortSequence M) : SS_left P --> SS_middle P := pr1 (pr222 P).
+  Definition SS_rightmap (P : ShortSequence M) : SS_middle P --> SS_right P := pr2 (pr222 P).
+  Definition toShortSequence {A B C:M} (f : A --> B) (g : B --> C) : ShortSequence M
+    := A,,B,,C,,f,,g.
+  Definition standardSplitShortSequence (A B:M) : ShortSequence M
+    := toShortSequence (to_In1 _ : A --> (A ⊕ B)) (to_Pr2 _ : (A ⊕ B) --> B).
+End ShortSequences.
 
 Section theDefinition.
   Context (M:Additive) (E : ShortSequence M -> hProp).
@@ -253,10 +319,17 @@ Section ShortExactSequencesAccessorFunctions.
     := EC_ExactToKernelCokernel P (pr2 P).
 End ShortExactSequencesAccessorFunctions.
 
-Section ExactCategoryProperties.
+Section ExactCategoryFacts.
   Context {M : ExactCategory}.
-  (** Now prove one of the properties in Quillen's definition.  *)
-  Lemma splitIsExact (A B:M) : isExact (standardSplitShortSequence A B).
+
+  Lemma DirectSumToExact {A B:M} (S:BinDirectSum M A B) : isExact (toShortSequence (to_In1 S) (to_Pr2 S)).
   Proof.
+    set (C := BinDirectSumOb _ S).
+    set (i1 := to_In1 S).
+    set (i2 := to_In2 S).
+    set (p1 := to_Pr1 S).
+    set (p2 := to_Pr2 S).
+
   Abort.
-End ExactCategoryProperties.
+
+End ExactCategoryFacts.
