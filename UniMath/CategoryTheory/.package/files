@@ -51,6 +51,7 @@ limits/FinOrdProducts.v
 limits/FinOrdCoproducts.v
 limits/Opp.v
 limits/graphs/eqdiag.v
+NNO.v
 Subcategory/Limits.v
 EpiFacts.v
 exponentials.v
@@ -173,3 +174,5 @@ Bicategories/Graph.v
 Monoidal/MonoidalCategories.v
 Monoidal/MonoidalFunctors.v
 Monoidal/CategoriesOfMonoids.v
+Monoidal/Actions.v
+Monoidal/Strengths.v

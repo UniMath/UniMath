@@ -65,7 +65,7 @@ Reserved Notation "⟦ a ⟧" (at level 48, left associativity).
 
 Reserved Notation "f ;; g"  (at level 50, left associativity, only parsing). (* deprecated *)
 
-Reserved Notation "f · g"  (at level 50, format "f  ·  g", left associativity).
+Reserved Notation "f · g"  (at level 40, format "f  ·  g", left associativity).
 (* to input: type "\centerdot" or "\cdot" with Agda input method *)
 
 Reserved Notation "a --> b" (at level 50, left associativity).
@@ -104,19 +104,19 @@ Reserved Notation "F ∙ G" (at level 35).
     (* to input: type "\Box" or "\square" or "\sqw" or "\sq" with Agda input method *)
 *)
 
+Reserved Notation "X ⊗ Y"  (at level 40, left associativity).
+(* to input: type "\ox" or "\otimes" with Agda input method *)
+
 Reserved Notation "F ◾ b"  (at level 40, left associativity).
 (* to input: type "\sqb" or "\sq" with Agda input method *)
 
 Reserved Notation "F ▭ f"  (at level 40, left associativity). (* \rew1 *)
 (* to input: type "\rew" or "\re" with Agda input method *)
 
-(* conflict:
-    Reserved Notation "A ⇒ B" (at level 95, no associativity).
-    Reserved Notation "c ⇒ X" (at level 50).
-    (* to input: type "\Rightarrow" or "\r=" or "\r" or "\Longrightarrow" or "\=>" with Agda input method *)
-*)
+Reserved Notation "A ⇒ B" (at level 95, right associativity).
+(* to input: type "\Rightarrow" or "\r=" or "\r" or "\Longrightarrow" or "\=>" with Agda input method *)
 
-Reserved Notation "X ⇐ c"   (at level 50, left associativity).
+Reserved Notation "X ⇐ c"   (at level 94, left associativity).
 (* to input: type "\Leftarrow" or "\Longleftarrow" or "\l=" or "\l" with Agda input method *)
 
 Reserved Notation "x ⟲ f"  (at level 50, left associativity).

@@ -150,10 +150,10 @@ Definition functor_mor_application {B C:category} {b b':B} (F:[B,C]) :
 Notation "F ▭ f" := (functor_mor_application F f) (at level 40, left associativity) : cat. (* \rew1 *)
 
 Definition arrow {C:category} (c : C) (X : [C^op,SET]) : hSet := X ◾ c.
-Notation "c ⇒ X" := (arrow c X)  (at level 50, left associativity) : cat. (* \r= *)
+Notation "c ⇒ X" := (arrow c X) : cat. (* \r= *)
 
 Definition arrow' {C:category} (c : C) (X : [C^op^op,SET]) : hSet := X ◾ c.
-Notation "X ⇐ c" := (arrow' c X)  (at level 50, left associativity) : cat. (* \l= *)
+Notation "X ⇐ c" := (arrow' c X) : cat. (* \l= *)
 
 Definition arrow_morphism_composition {C:category} {c' c:C} {X:[C^op,SET]} :
   c'-->c -> c⇒X -> c'⇒X

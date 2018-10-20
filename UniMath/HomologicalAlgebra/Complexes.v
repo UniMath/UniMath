@@ -169,7 +169,7 @@ Section def_complexes.
       · (BinDirectSumIndAr A (Diff C1 (i + 1)) (Diff C2 (i + 1)) B2 B3) =
     ZeroArrow (Additive.to_Zero A) B1 B3.
   Proof.
-    cbn.
+    intros.
     rewrite BinDirectSumIndArComp.
     unfold BinDirectSumIndAr.
     rewrite (DSq C1 i). rewrite ZeroArrow_comp_right.
@@ -332,9 +332,7 @@ Section def_complexes.
     (to_In1 A B1) · (BinDirectSumIndAr A (Diff C1 i) (Diff C2 i) B1 B2) =
     (Diff C1 i) · (to_In1 A B2).
   Proof.
-    cbn.
-    set (B1 := to_BinDirectSums A (C1 i) (C2 i)).
-    set (B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1))).
+    intros.
     rewrite BinDirectSumIndArEq1.
     unfold BinDirectSumIndArFormula.
     rewrite to_premor_linear'.
@@ -357,9 +355,7 @@ Section def_complexes.
     (to_In2 A B1) · (BinDirectSumIndAr A (Diff C1 i) (Diff C2 i) B1 B2) =
     (Diff C2 i) · (to_In2 A B2).
   Proof.
-    cbn.
-    set (B1 := to_BinDirectSums A (C1 i) (C2 i)).
-    set (B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1))).
+    intros.
     rewrite BinDirectSumIndArEq1.
     unfold BinDirectSumIndArFormula.
     rewrite to_premor_linear'. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
@@ -381,9 +377,7 @@ Section def_complexes.
     (to_Pr1 A B1) · (Diff C1 i) =
     (BinDirectSumIndAr A (Diff C1 i) (Diff C2 i) B1 B2) · (to_Pr1 A B2).
   Proof.
-    cbn.
-    set (B1 := to_BinDirectSums A (C1 i) (C2 i)).
-    set (B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1))).
+    intros.
     rewrite BinDirectSumIndArEq1.
     unfold BinDirectSumIndArFormula.
     rewrite to_postmor_linear'.
@@ -406,9 +400,7 @@ Section def_complexes.
     (to_Pr2 A B1) · (Diff C2 i) =
     (BinDirectSumIndAr A (Diff C1 i) (Diff C2 i) B1 B2) · (to_Pr2 A B2).
   Proof.
-    cbn.
-    set (B1 := to_BinDirectSums A (C1 i) (C2 i)).
-    set (B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1))).
+    intros.
     rewrite BinDirectSumIndArEq1.
     unfold BinDirectSumIndArFormula.
     rewrite to_postmor_linear'.
@@ -487,7 +479,7 @@ Section def_complexes.
     intros M1 M2 M3.
     use MorphismEq.
     intros i. cbn.
-    apply (assocax (to_abgrop (C1 i) (C2 i))).
+    apply (assocax (to_abgr (C1 i) (C2 i))).
   Qed.
 
   Lemma MorphismOp_isunit (C1 C2 : Complex) :
@@ -543,7 +535,7 @@ Section def_complexes.
     intros M1 M2.
     use MorphismEq.
     intros i. cbn.
-    apply (commax (to_abgrop (C1 i) (C2 i)) (MMor M1 i) (MMor M2 i)).
+    apply (commax (to_abgr (C1 i) (C2 i)) (MMor M1 i) (MMor M2 i)).
   Qed.
 
   Definition MorphismOp_isabgrop (C1 C2 : Complex) : @isabgrop (Morphisms_hSet C1 C2) MorphismOp.
@@ -572,75 +564,6 @@ Section def_complexes.
     set (B := to_BinDirectSums A (C1 i) (C2 i)).
     apply (to_BinOpId A B).
   Qed.
-
-  (** The unique morphisms in and out of BinDirectSum *)
-  Local Lemma DirectSumMorOut_comm {C1 C2 D : Complex} (f : Morphism C1 D) (g : Morphism C2 D)
-        (i : hz) :
-    let B1 := to_BinDirectSums A (C1 i) (C2 i) in
-    let B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1)) in
-    (FromBinDirectSum A B1 (f i) (g i)) · (Diff D i) =
-    (BinDirectSumIndAr A (Diff C1 i) (Diff C2 i) B1 B2)
-      · (FromBinDirectSum A B2 (f (i + 1)) (g (i + 1))).
-  Proof.
-    cbn.
-    set (B1 := to_BinDirectSums A (C1 i) (C2 i)).
-    set (B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1))).
-    rewrite BinDirectSumIndArEq1.
-    unfold BinDirectSumIndArFormula. cbn.
-    rewrite to_postmor_linear'.
-    rewrite <- assoc. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
-    rewrite BinDirectSumIn1Commutes.
-    rewrite BinDirectSumIn2Commutes.
-    rewrite <- (MComm f i).
-    rewrite <- (MComm g i).
-    rewrite assoc. rewrite assoc.
-    rewrite <- to_postmor_linear'.
-    apply cancel_postcomposition.
-    rewrite <- FromBinDirectSumFormulaUnique.
-    unfold FromBinDirectSumFormula.
-    apply idpath.
-  Qed.
-
-  Definition DirectSumMorOut {C1 C2 D : Complex} (f : Morphism C1 D) (g : Morphism C2 D) :
-    Morphism (DirectSumComplex C1 C2) D.
-  Proof.
-    use mk_Morphism.
-    - intros i. exact (FromBinDirectSum A _ (f i) (g i)).
-    - intros i. exact (DirectSumMorOut_comm f g i).
-  Defined.
-
-  Local Lemma DirectSumMorIn_comm {C1 C2 D : Complex} (f : Morphism D C1) (g : Morphism D C2)
-        (i : hz) :
-    let B1 := to_BinDirectSums A (C1 i) (C2 i) in
-    let B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1)) in
-    (ToBinDirectSum A B1 (f i) (g i))
-      · (BinDirectSumIndAr A (Diff C1 i) (Diff C2 i) B1 B2) =
-    (Diff D i) · (ToBinDirectSum A B2 (f (i + 1)) (g (i + 1))).
-  Proof.
-    intros B1 B2.
-    rewrite BinDirectSumIndArEq1.
-    unfold BinDirectSumIndArFormula.
-    rewrite to_premor_linear'.
-    rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
-    rewrite BinDirectSumPr1Commutes.
-    rewrite BinDirectSumPr2Commutes.
-    rewrite (MComm f i).
-    rewrite (MComm g i).
-    rewrite <- assoc. rewrite <- assoc.
-    rewrite <- to_premor_linear'.
-    apply cancel_precomposition.
-    rewrite <- ToBinDirectSumFormulaUnique.
-    unfold ToBinDirectSumFormula.
-    apply idpath.
-  Qed.
-
-  Definition DirectSumMorIn {C1 C2 D : Complex} (f : Morphism D C1) (g : Morphism D C2) :
-    Morphism D (DirectSumComplex C1 C2).
-  Proof.
-    use mk_Morphism.
-    - intros i. exact (ToBinDirectSum A _ (f i) (g i)).
-    - intros i. exact (DirectSumMorIn_comm f g i).
-  Defined.
 
 End def_complexes.
 Arguments Diff [A] _ _.
@@ -1371,61 +1294,6 @@ Section complexes_additive.
   Defined.
   Opaque ComplexPreCat_isZero.
 
-  Lemma ComplexPreCat_isBinCoproduct (C1 C2 : Complex A) :
-    isBinCoproduct ComplexPreCat_PreAdditive C1 C2 (DirectSumComplex A C1 C2)
-                         (DirectSumComplexIn1 A C1 C2) (DirectSumComplexIn2 A C1 C2).
-  Proof.
-    use mk_isBinCoproduct.
-    - apply has_homsets_ComplexPreCat.
-    - intros D f g.
-      use unique_exists.
-      + exact (DirectSumMorOut A f g).
-      (* Commutativity *)
-      + split.
-        * use MorphismEq.
-          intros i. cbn.
-          apply BinDirectSumIn1Commutes.
-        * use MorphismEq.
-          intros i. cbn.
-          apply BinDirectSumIn2Commutes.
-      + intros y. apply isapropdirprod.
-        * apply has_homsets_ComplexPreCat.
-        * apply has_homsets_ComplexPreCat.
-      + intros y T. cbn beta in T.
-        use MorphismEq.
-        intros i. cbn.
-        use FromBinDirectSumUnique.
-        * rewrite <- (pr1 T). apply idpath.
-        * rewrite <- (pr2 T). apply idpath.
-  Qed.
-
-  Lemma ComplexPreCat_isBinProduct (C1 C2 : Complex A) :
-    isBinProduct ComplexPreCat_PreAdditive C1 C2 (DirectSumComplex A C1 C2)
-                     (DirectSumComplexPr1 A C1 C2) (DirectSumComplexPr2 A C1 C2).
-  Proof.
-    use mk_isBinProduct.
-    - apply has_homsets_ComplexPreCat.
-    - intros D f g.
-      use unique_exists.
-      + exact (DirectSumMorIn A f g).
-      (* Commutativity *)
-      + split.
-        * use MorphismEq.
-          intros i. cbn.
-          apply BinDirectSumPr1Commutes.
-        * use MorphismEq.
-          intros i. cbn.
-          apply BinDirectSumPr2Commutes.
-      + intros y. apply isapropdirprod.
-        * apply has_homsets_ComplexPreCat.
-        * apply has_homsets_ComplexPreCat.
-      + intros y T. cbn beta in T.
-        use MorphismEq.
-        intros i. cbn.
-        use ToBinDirectSumUnique.
-        * rewrite <- (pr1 T). apply idpath.
-        * rewrite <- (pr2 T). apply idpath.
-  Qed.
 
   Lemma ComplexPreCat_isBinDirectSum (C1 C2 : Complex A) :
     isBinDirectSum
@@ -1433,8 +1301,6 @@ Section complexes_additive.
       (DirectSumComplexIn2 A C1 C2) (DirectSumComplexPr1 A C1 C2) (DirectSumComplexPr2 A C1 C2).
   Proof.
     use mk_isBinDirectSum.
-    - exact (ComplexPreCat_isBinCoproduct C1 C2).
-    - exact (ComplexPreCat_isBinProduct C1 C2).
     - apply (! (DirectSumIdIn1 A C1 C2)).
     - apply (! (DirectSumIdIn2 A C1 C2)).
     - cbn. rewrite (DirectSumUnit1 A C1 C2). apply idpath.
