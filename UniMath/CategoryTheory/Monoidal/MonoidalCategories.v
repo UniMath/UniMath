@@ -160,12 +160,25 @@ Definition is_strict (eq_λ : I_pretensor = functor_identity C) (λ' : left_unit
 
 End Monoidal_Precat.
 
-Definition monoidal_precat : UU :=
-  ∑ C : precategory, ∑ tensor : C ⊠ C ⟶ C, ∑ I : C,
+Definition monoidal_precat_structure (C : precategory) : UU :=
+  ∑ tensor : C ⊠ C ⟶ C, ∑ I : C,
   ∑ λ' : left_unitor tensor I,
   ∑ ρ' : right_unitor tensor I,
   ∑ α' : associator tensor,
   (triangle_eq tensor I λ' ρ' α') × (pentagon_eq tensor α').
+
+(** Constructor ([use mk_monoidal_precat_structure]) *)
+Definition mk_monoidal_precat_structure (C : precategory)
+           (tensor : C ⊠ C ⟶ C) (I : C)
+           (λ' : left_unitor tensor I) (ρ' : right_unitor tensor I)
+           (α' : associator tensor) (teq : triangle_eq tensor I λ' ρ' α')
+           (peq : pentagon_eq tensor α') : monoidal_precat_structure C.
+Proof.
+  do 6 (use tpair; cbn; auto).
+Defined.
+
+Definition monoidal_precat : UU :=
+  ∑ C : precategory, monoidal_precat_structure C.
 
 Section Monoidal_Precat_Accessors.
 
