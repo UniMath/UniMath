@@ -448,6 +448,15 @@ UniMath/$1/All.v: UniMath/$1/.package/files
 endef
 $(foreach P, $(PACKAGES), $(eval $(call make-summary-file,$P)) $(eval make-summary-files: UniMath/$P/All.v))
 
+# Running the debugger.
+# (Hint: use the emacs package tuareg to make debugging easier.)
+ifeq ($(BUILD_COQ),yes)
+debug: sub/coq/bin/coqtop.byte
+	sub/coq/dev/ocamldebug-coq $< $(OTHERFLAGS) $(COQ_PATH) -compile $(FILE)
+sub/coq/bin/coqtop.byte:	# need dependencies here
+	$(MAKE) -C sub/coq byte
+endif
+
 # Here we create the file UniMath/All.v.  It will "Require Export" all of the All.v files for the various packages.
 make-summary-files: UniMath/All.v
 UniMath/All.v: Makefile
