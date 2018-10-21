@@ -115,7 +115,7 @@ Section AdditiveCategories.     (* maybe move upstream *)
       induction (i B' k k' (e @ !e')). apply maponpaths. apply isaprop_is_iso.
     - apply propproperty.
   Defined.
-  Lemma KernelUniqueness {x x' y z : M} (f : x --> y) (f' : x' --> y) (g : y --> z) :
+  Lemma KernelUniqueness {x x' y z : M} {f : x --> y} {f' : x' --> y} {g : y --> z} :
     isKernel' f g -> isKernel' f' g -> iscontr (IsoArrowTo f f').
   Proof.
     intros i j. apply iscontraprop1.
@@ -128,7 +128,7 @@ Section AdditiveCategories.     (* maybe move upstream *)
         - apply (KernelIsMonic _ _ j). rewrite <- assoc. rewrite P. rewrite Q. rewrite id_left. reflexivity. }
       set (θ := isopair p d). exists θ. exact P.
   Defined.
-  Lemma CokernelUniqueness {x y z z' : M} (f : x --> y) (g : y --> z) (g' : y --> z') :
+  Lemma CokernelUniqueness {x y z z' : M} {f : x --> y} {g : y --> z} {g' : y --> z'} :
     isCokernel' f g -> isCokernel' f g' -> iscontr (IsoArrowFrom g g').
   Proof.
     intros i j. apply iscontraprop1.
@@ -150,12 +150,12 @@ Section KernelCokernelPairs.
   Lemma PairUniqueness1 {A A' B C:M} (i : A --> B) (i' : A' --> B) (p: B --> C) :
     isKernelCokernelPair i p -> isKernelCokernelPair i' p -> iscontr (IsoArrowTo i i').
   Proof.
-    intros [? _] [? _]. now use KernelUniqueness.
+    intros [k _] [k' _]. exact (KernelUniqueness k k').
   Defined.
   Lemma PairUniqueness2 {A B C C':M} (i : A --> B) (p: B --> C) (p': B --> C') :
     isKernelCokernelPair i p -> isKernelCokernelPair i p' -> iscontr (IsoArrowFrom p p').
   Proof.
-    intros [_ ?] [_ ?]. now use (CokernelUniqueness i).
+    intros [_ c] [_ c']. exact (CokernelUniqueness c c').
   Defined.
   Lemma kerCokerDirectSum {A B:M} (S:BinDirectSum M A B) : isKernelCokernelPair (to_In1 S) (to_Pr2 S).
   Proof.
@@ -214,6 +214,9 @@ Section KernelCokernelPairs.
   Defined.
 End KernelCokernelPairs.
 
+Delimit Scope preexcat with preexcat.
+Local Open Scope preexcat.
+
 Delimit Scope excat with excat.
 Local Open Scope excat.
 
@@ -227,83 +230,82 @@ Section ShortSequences.
   Definition SS_rightmap (P : ShortSequence M) : SS_middle P --> SS_right P := pr2 (pr222 P).
   Definition toShortSequence {A B C:M} (f : A --> B) (g : B --> C) : ShortSequence M
     := A,,B,,C,,f,,g.
-  Definition standardSplitShortSequence (A B:M) : ShortSequence M
-    := toShortSequence (to_In1 _ : A --> (A ⊕ B)) (to_Pr2 _ : (A ⊕ B) --> B).
 End ShortSequences.
 
 Section theDefinition.
-  Context (M:Additive) (E : ShortSequence M -> hProp).
+  Definition AddCatWithExactness := ∑ M:Additive, ShortSequence M -> hProp. (* properties added below *)
+  Coercion AE_to_AC (ME : AddCatWithExactness) : Additive := pr1 ME.
+  Context (M : AddCatWithExactness).
+  Definition isExact (E : ShortSequence M) : hProp := pr2 M E.
   Definition isAdmissibleMonomorphism {A B:M} (i : A --> B) : hProp :=
-    ∃ C (p : B --> C), E (A,,B,,C,,i,,p).
+    ∃ C (p : B --> C), isExact (toShortSequence i p).
   Definition AdmissibleMonomorphism (A B:M) : Type :=
     ∑ (i : A --> B), isAdmissibleMonomorphism i.
   Coercion AdmMonoToMap {A B:M} : AdmissibleMonomorphism A B -> A --> B := pr1.
   Coercion AdmMonoToMap' {A B:M} : AdmissibleMonomorphism A B -> (A --> B)%cat := pr1.
   Notation "A ↣ B" := (AdmissibleMonomorphism A B) : excat.
-  (* to input: type "\r->" or "\rightarrowtail" or "\r" with Agda input method *)
   Definition isAdmissibleEpimorphism {B C:M} (p : B --> C) : hProp :=
-    ∃ A (i : A --> B), E (A,,B,,C,,i,,p).
+    ∃ A (i : A --> B), isExact (toShortSequence i p).
   Definition AdmissibleEpimorphism (B C:M) : Type :=
     ∑ (p : B --> C), isAdmissibleMonomorphism p.
   Coercion AdmEpiToMap {B C:M} : AdmissibleEpimorphism B C -> B --> C := pr1.
   Coercion AdmEpiToMap' {B C:M} : AdmissibleEpimorphism B C -> (B --> C)%cat := pr1.
   Notation "B ↠ C" := (AdmissibleEpimorphism B C) : excat.
-  (* to input: type "\rr-" or "\r" or "\twoheadrightarrow" with Agda input method *)
   Definition ShortSequenceIsomorphism (P Q : ShortSequence M) :=
     ∑ (f : iso (SS_left P) (SS_left Q))
       (g : iso (SS_middle P) (SS_middle Q))
       (h : iso (SS_right P) (SS_right Q)),
     f · SS_leftmap Q = SS_leftmap P · g  ×  g · SS_rightmap Q = SS_rightmap P · h.
   (** This is definition 2.1 from the paper of Bühler. *)
-  Local Definition isExactFamily : hProp :=
-      (∀ P Q, ShortSequenceIsomorphism P Q ⇒ E P ⇒ E Q) ∧
+  Local Definition ExactCategoryProperties : hProp :=
+      (∀ P Q, ShortSequenceIsomorphism P Q ⇒ isExact P ⇒ isExact Q) ∧
       (∀ A, isAdmissibleMonomorphism (identity A)) ∧
       (∀ A, isAdmissibleEpimorphism (identity A)) ∧
-      (∀ P, E P ⇒ isKernelCokernelPair (SS_leftmap P) (SS_rightmap P)) ∧
+      (∀ P, isExact P ⇒ isKernelCokernelPair (SS_leftmap P) (SS_rightmap P)) ∧
       (∀ A B C (f : A ↣ B) (g : B ↣ C), isAdmissibleMonomorphism (f · g)) ∧
       (∀ A B C (f : A ↠ B) (g : B ↠ C), isAdmissibleEpimorphism (f · g)) ∧
       (∀ A B C (f : A ↠ B) (g : C --> B), ∃ (PB : Pullback f g), isAdmissibleEpimorphism (PullbackPr2 PB)) ∧
       (∀ A B C (f : B ↣ A) (g : B --> C), ∃ (PO : Pushout f g), isAdmissibleMonomorphism (PushoutIn2 PO)).
 End theDefinition.
 
-Definition ExactCategory := ∑ (M:Additive) (E : @ShortSequence M -> hProp), @isExactFamily M E.
-Coercion ExCatToAddCat (E:ExactCategory) : Additive := pr1 E.
+Arguments isExact {_}.
 
-Definition isExact {E : ExactCategory} : ShortSequence E -> hProp := pr12 E.
+Definition ExactCategory := ∑ (ME:AddCatWithExactness), ExactCategoryProperties ME.
+Coercion ExCatToAddCatWithExactness (E:ExactCategory) : AddCatWithExactness := pr1 E.
 
-Notation "A ↣ B" := (AdmissibleMonomorphism _ isExact A B) : excat.
-Notation "B ↠ C" := (AdmissibleEpimorphism _ isExact B C) : excat.
+Notation "A ↣ B" := (AdmissibleMonomorphism _ A B) : excat.
+Notation "B ↠ C" := (AdmissibleEpimorphism _ B C) : excat.
 
 Arguments ShortSequenceIsomorphism {_}.
-Arguments isAdmissibleMonomorphism {_ _ _ _}.
-Arguments isAdmissibleEpimorphism {_ _ _ _}.
+Arguments isAdmissibleMonomorphism {_ _ _}.
+Arguments isAdmissibleEpimorphism {_ _ _}.
 
 Section ExactCategoryAccessFunctions.
   Context {M:ExactCategory}.
   Definition EC_IsomorphicToExact
     : ∀ (P Q:ShortSequence M), ShortSequenceIsomorphism P Q ⇒ isExact P ⇒ isExact Q
-    := pr122 M.
+    := pr12 M.
   Definition EC_IdentityIsMono
     : ∀ (A:M), isAdmissibleMonomorphism (identity A)
-    := pr122 (pr2 M).
+    := pr122 M.
   Definition EC_IdentityIsEpi
     : ∀ (A:M), isAdmissibleEpimorphism (identity A)
-    := pr122 (pr22 M).
+    := pr122 (pr2 M).
   Definition EC_ExactToKernelCokernel
     : ∀ (P : ShortSequence M), isExact P ⇒ isKernelCokernelPair (SS_leftmap P) (SS_rightmap P)
-    := pr122 (pr222 M).
+    := pr122 (pr22 M).
   Definition EC_ComposeMono
     : ∀ (A B C:M) (f : A ↣ B) (g : B ↣ C), isAdmissibleMonomorphism (f · g)
-    := pr122 (pr222 (pr2 M)).
+    := pr122 (pr222 M).
   Definition EC_ComposeEpi
     : ∀ (A B C:M) (f : A ↠ B) (g : B ↠ C), isAdmissibleEpimorphism (f · g)
-    := pr122 (pr222 (pr22 M)).
+    := pr122 (pr222 (pr2 M)).
   Definition EC_PullbackEpi
     : ∀ (A B C:M) (f : A ↠ B) (g : C --> B), ∃ (PB : Pullback f g), isAdmissibleEpimorphism (PullbackPr2 PB)
-    := pr122 (pr222 (pr222 M)).
+    := pr122 (pr222 (pr22 M)).
   Definition EC_PushoutMono
     : ∀ (A B C:M) (f : B ↣ A) (g : B --> C), ∃ (PO : Pushout f g), isAdmissibleMonomorphism (PushoutIn2 PO)
-    := pr222 (pr222 (pr222 M)).
+    := pr222 (pr222 (pr22 M)).
 End ExactCategoryAccessFunctions.
 
 Section ShortExactSequences.
@@ -321,7 +323,38 @@ End ShortExactSequencesAccessorFunctions.
 
 Section ExactCategoryFacts.
   Context {M : ExactCategory}.
-
+  Lemma ExactSequenceFromMono {A B C:M} (i : A --> B) (p : B --> C) :
+    isCokernel' i p -> isAdmissibleMonomorphism i -> isExact (toShortSequence i p).
+  Proof.
+    intros co mo.
+    unfold isAdmissibleMonomorphism in mo.
+    apply (squash_to_hProp mo); clear mo; intros [C' [p' e]].
+    assert (co' := pr2 (EC_ExactToKernelCokernel _ e) : isCokernel' i p').
+    assert (R := iscontrpr1 (CokernelUniqueness co' co)). induction R as [R r].
+    use (EC_IsomorphicToExact _ _ _ e).
+    exists (identity_iso _). exists (identity_iso _).
+    use tpair; cbn.
+    - exact R.
+    - split.
+      + exact (id_left _ @ ! id_right _).
+      + exact (id_left _ @ ! r).
+  Defined.
+  Lemma ExactSequenceFromEpi {A B C:M} (i : A --> B) (p : B --> C) :
+    isKernel' i p -> isAdmissibleEpimorphism p -> isExact (toShortSequence i p).
+  Proof.
+    intros co mo.
+    unfold isAdmissibleMonomorphism in mo.
+    apply (squash_to_hProp mo); clear mo; intros [A' [i' e]].
+    assert (co' := pr1 (EC_ExactToKernelCokernel _ e) : isKernel' i' p).
+    assert (R := iscontrpr1 (KernelUniqueness co' co)). induction R as [R r].
+    use (EC_IsomorphicToExact _ _ _ e).
+    use tpair; cbn.
+    - exact R.
+    - exists (identity_iso _). exists (identity_iso _).
+      split.
+      + exact (r @ ! id_right _).
+      + exact (id_left _ @ ! id_right _).
+  Defined.
   Lemma DirectSumToExact {A B:M} (S:BinDirectSum M A B) : isExact (toShortSequence (to_In1 S) (to_Pr2 S)).
   Proof.
     set (C := BinDirectSumOb _ S).
@@ -330,6 +363,6 @@ Section ExactCategoryFacts.
     set (p1 := to_Pr1 S).
     set (p2 := to_Pr2 S).
 
-  Abort.
 
+  Abort.
 End ExactCategoryFacts.
