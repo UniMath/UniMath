@@ -842,12 +842,12 @@ Section Assoc.
   Context (BPC : BinProducts C).
   Context (hsC : has_homsets C).
 
-  Local Notation "c '⊗' d" := (BinProductObject C (BPC c d)) (at level 75) : cat.
-  Let π1 {x y} : C⟦x ⊗ y,x⟧ := BinProductPr1 _ (BPC x y).
-  Let π2 {x y} : C⟦x ⊗ y,y⟧ := BinProductPr2 _ (BPC x y).
-  Definition binprod_assoc (x y z : C) : C⟦(x ⊗ y) ⊗ z,x ⊗ (y ⊗ z)⟧ :=
+  Local Notation "c '⊠' d" := (BinProductObject C (BPC c d)) (at level 40) : cat.
+  Let π1 {x y} : C⟦x ⊠ y,x⟧ := BinProductPr1 _ (BPC x y).
+  Let π2 {x y} : C⟦x ⊠ y,y⟧ := BinProductPr2 _ (BPC x y).
+  Definition binprod_assoc (x y z : C) : C⟦(x ⊠ y) ⊠ z, x ⊠ (y ⊠ z)⟧ :=
     BinProductArrow _ _ (π1 · π1) (BinProductArrow _ _ (π1 · π2) π2).
-  Let α {x y z} : C⟦(x ⊗ y) ⊗ z,x ⊗ (y ⊗ z)⟧ := binprod_assoc x y z.
+  Let α {x y z} : C⟦(x ⊠ y) ⊠ z, x ⊠ (y ⊠ z)⟧ := binprod_assoc x y z.
 
   (** A type with three inhabitants, used for indexing ternary products *)
   Let three : UU := coprod unit bool.
@@ -872,12 +872,12 @@ Section Assoc.
       + exact pc.
   Defined.
 
-  Local Definition l_pr1 {x y z : C} : C ⟦(x ⊗ y) ⊗ z, x⟧ := π1 · π1.
-  Local Definition l_pr2 {x y z : C} : C ⟦(x ⊗ y) ⊗ z, y⟧ := π1 · π2.
-  Local Definition l_pr3 {x y z : C} : C ⟦(x ⊗ y) ⊗ z, z⟧ := π2.
+  Local Definition l_pr1 {x y z : C} : C ⟦(x ⊠ y) ⊠ z, x⟧ := π1 · π1.
+  Local Definition l_pr2 {x y z : C} : C ⟦(x ⊠ y) ⊠ z, y⟧ := π1 · π2.
+  Local Definition l_pr3 {x y z : C} : C ⟦(x ⊠ y) ⊠ z, z⟧ := π2.
 
   Lemma left_assoc_ternary_product :
-    ∏ a b c : C, isProduct _ _ (three_rec a b c) ((a ⊗ b) ⊗ c)
+    ∏ a b c : C, isProduct _ _ (three_rec a b c) ((a ⊠ b) ⊠ c)
                                (three_ind l_pr1 l_pr2 l_pr3).
   Proof.
     intros a b c.
@@ -915,12 +915,12 @@ Section Assoc.
   Defined.
 
 
-  Local Definition r_pr1 {x y z : C} : C ⟦x ⊗ (y ⊗ z), x⟧ := π1.
-  Local Definition r_pr2 {x y z : C} : C ⟦x ⊗ (y ⊗ z), y⟧ := π2 · π1.
-  Local Definition r_pr3 {x y z : C} : C ⟦x ⊗ (y ⊗ z), z⟧ := π2 · π2.
+  Local Definition r_pr1 {x y z : C} : C ⟦x ⊠ (y ⊠ z), x⟧ := π1.
+  Local Definition r_pr2 {x y z : C} : C ⟦x ⊠ (y ⊠ z), y⟧ := π2 · π1.
+  Local Definition r_pr3 {x y z : C} : C ⟦x ⊠ (y ⊠ z), z⟧ := π2 · π2.
 
   Lemma right_assoc_ternary_product :
-    ∏ a b c : C, isProduct _ _ (three_rec a b c) (a ⊗ (b ⊗ c))
+    ∏ a b c : C, isProduct _ _ (three_rec a b c) (a ⊠ (b ⊠ c))
                                (three_ind r_pr1 r_pr2 r_pr3).
   Proof.
     intros a b c.
@@ -957,15 +957,15 @@ Section Assoc.
         apply hsC.
   Defined.
 
-  Lemma binproduct_assoc_iso : ∏ a b c : C, iso (a ⊗ (b ⊗ c)) ((a ⊗ b) ⊗ c).
+  Lemma binproduct_assoc_iso : ∏ a b c : C, iso (a ⊠ (b ⊠ c)) ((a ⊠ b) ⊠ c).
   Proof.
     intros.
-    pose (p1 := mk_Product _ _ _ (a ⊗ (b ⊗ c)) _
+    pose (p1 := mk_Product _ _ _ (a ⊠ (b ⊠ c)) _
                              ltac:(apply right_assoc_ternary_product)).
-    pose (p2 := mk_Product _ _ _ ((a ⊗ b) ⊗ c) _
+    pose (p2 := mk_Product _ _ _ ((a ⊠ b) ⊠ c) _
                              ltac:(apply left_assoc_ternary_product)).
-    replace (a ⊗ (b ⊗ c)) with (ProductObject _ _ p1) by reflexivity.
-    replace ((a ⊗ b) ⊗ c) with (ProductObject _ _ p2) by reflexivity.
+    replace (a ⊠ (b ⊠ c)) with (ProductObject _ _ p1) by reflexivity.
+    replace ((a ⊠ b) ⊠ c) with (ProductObject _ _ p2) by reflexivity.
     eapply mk_iso.
     eapply product_unique.
   Qed.
