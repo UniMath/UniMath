@@ -77,8 +77,6 @@ Defined.
 
 Lemma opp_opp_precat (C : precategory) (hs : has_homsets C) : C = C^op^op.
 Proof.
-
-
   use total2_paths_f.
   - apply opp_opp_precat_data.
   - apply (isaprop_is_precategory _ hs).
@@ -131,6 +129,7 @@ Defined.
 Lemma has_homsets_opp {C : precategory} (hsC : has_homsets C) : has_homsets C^op.
 Proof. intros a b; apply hsC. Qed.
 
+Definition op_cat (c : category) : category := (opp_precat c,, has_homsets_opp (homset_property c) ).
 
 (** * The opposite functor *)
 
@@ -242,3 +241,14 @@ Qed.
 Definition functor_from_opp_opp_to_opp (A C : precategory) (hsC : has_homsets C) :
   functor [A^op, C^op, has_homsets_opp hsC] [A, C, hsC]^op :=
     tpair _ _ (is_functor_from_opp_opp_to_opp A C hsC).
+
+
+Definition op_nt {c d : category} {f g : functor c d} (a : nat_trans f g)
+  : nat_trans (functor_opp g) (functor_opp f).
+Proof.
+  use tpair.
+  - exact (λ c, a c).
+  - abstract
+      (intros x y h;
+       apply (! (nat_trans_ax a _ _ _ ))).
+Defined.

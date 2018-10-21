@@ -92,7 +92,7 @@ Definition universalElement {C:category} {X:[C^op,SET]} (r:Representation X) :
 Coercion universalElement : Representation >-> pr1hSet.
 
 Definition universalProperty {C:category} {X:[C^op,SET]} (r:Representation X) (c:C) :
-  c --> universalObject r ≃ c ⇒ X
+  c --> universalObject r ≃ (c ⇒ X)
   := weqpair (λ f : c --> universalObject r, r ⟲ f)
              (pr2 (pr2 r) c).
 

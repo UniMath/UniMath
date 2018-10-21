@@ -25,7 +25,7 @@ Section Uniqueness.
   (** Following the paper, we have [X ⇒ Y] = Hom(X, Y) *)
   Local Notation F := (polynomial_functor A B). (* can be coerced to a function *)
   Local Notation "F*" := (polynomial_functor_arr A B).
-  Local Notation "X ⇒ Y" := (coalgebra_homo F X Y) (at level 20).
+  Local Notation "X ⇒ Y" := (coalgebra_homo F X Y).
 
   (** Since we can't use the standard categorical proof, we must re-prove that
       final coalgebras are unique up to isomorphism.

@@ -122,3 +122,28 @@ Defined.
 
 Definition module_image {R : ring} {A B : module R} (f : modulefun A B) : submodule B :=
   submodulepair _ (issubmodule_image f).
+
+Section submodule_helpers.
+
+  Context {R : ring}
+          {M : module R}
+          (A : submodule M).
+
+  Local Notation "x + y" := (@op _ x y).
+  Local Notation "x - y" := (@op _ x (grinv _ y)).
+
+  Definition submoduleadd (x y : M) : A x -> A y -> A (x + y).
+  Proof.
+    intros ax ay.
+    exact (pr1 (pr1 (pr1 (pr2 A))) (carrierpair A x ax) (carrierpair A y ay)).
+  Defined.
+
+  Definition submodule0 : A (unel M) := pr2 (pr1 (pr1 (pr2 A))).
+
+  Definition submoduleinv (x : M) : A x -> A (grinv _ x) := λ ax, (pr2 (pr1 (pr2 A)) x ax).
+
+  Local Open Scope module.
+
+  Definition submodulemult (r : R) (m : M) : A m -> A (r * m) := (pr2 (pr2 A) r m).
+
+End submodule_helpers.

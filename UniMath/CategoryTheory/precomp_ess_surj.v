@@ -803,6 +803,7 @@ Proof.
   apply funextsec; intro f.
   rewrite transport_of_functor_map_is_pointwise.
   unfold extphi.
+  unfold double_transport.
   rewrite toforallpaths_funextsec.
   rewrite <- idtoiso_postcompose.
   rewrite <- idtoiso_precompose.

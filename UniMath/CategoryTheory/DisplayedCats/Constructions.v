@@ -67,30 +67,30 @@ End Auxiliary.
 (** * Full subcategories *)
 
 Section full_subcat.
-Variable C : category.
-Variable P : C -> UU.
 
-Definition disp_full_sub_ob_mor : disp_cat_ob_mor C.
-Proof.
-  exists P.
-  intros. exact unit.
-Defined.
+Definition disp_full_sub_ob_mor (C : precategory_ob_mor) (P : C → UU)
+  : disp_cat_ob_mor C
+  := (P,, (λ a b aa bb f, unit)).
 
-Definition disp_full_sub_id_comp : disp_cat_id_comp C disp_full_sub_ob_mor.
+Definition disp_full_sub_id_comp (C : precategory_data) (P : C → UU)
+  : disp_cat_id_comp C (disp_full_sub_ob_mor C P).
 Proof.
   split; intros; apply tt.
 Qed.
 
-Definition disp_full_sub_data : disp_cat_data C
-  :=  disp_full_sub_ob_mor,, disp_full_sub_id_comp.
+Definition disp_full_sub_data (C : precategory_data) (P : C → UU)
+  : disp_cat_data C
+  :=  disp_full_sub_ob_mor C P,, disp_full_sub_id_comp C P.
 
-Definition disp_full_sub_axioms : disp_cat_axioms _ disp_full_sub_data.
+Definition disp_full_sub_axioms (C : category) (P : C → UU)
+  : disp_cat_axioms _ (disp_full_sub_data C P).
 Proof.
   repeat split; intros; try (apply proofirrelevance; apply isapropunit).
   apply isasetaprop; apply isapropunit.
 Qed.
 
-Definition disp_full_sub : disp_cat C := _ ,, disp_full_sub_axioms.
+Definition disp_full_sub (C : category) (P : C → UU)
+  : disp_cat C := _ ,, disp_full_sub_axioms C P.
 
 End full_subcat.
 
@@ -139,11 +139,10 @@ End struct_hom.
 We directly define direct products of displayed categories over a base.
 
 An alternative would be to define the direct product as the [sigma_disp_cat] of the pullback to either factor.  *)
-Section Dirprod.
 
-Context {C : category} (D1 D2 : disp_cat C).
-
-Definition dirprod_disp_cat_ob_mor : disp_cat_ob_mor C.
+Definition dirprod_disp_cat_ob_mor
+           {C : precategory_ob_mor} (D1 D2 : disp_cat_ob_mor C)
+  : disp_cat_ob_mor C.
 Proof.
   exists (λ c, D1 c × D2 c).
   intros x y xx yy f.
@@ -151,21 +150,31 @@ Proof.
 Defined.
 
 Definition dirprod_disp_cat_id_comp
-  : disp_cat_id_comp _ dirprod_disp_cat_ob_mor.
+           {C : precategory_data}
+           (D1 D2 : disp_cat_data C)
+  : disp_cat_id_comp _ (dirprod_disp_cat_ob_mor D1 D2).
 Proof.
   apply tpair.
-  - intros x xx. exact (id_disp _,, id_disp _).
+  - intros x (x1, x2).
+    exact (id_disp x1,, id_disp x2).
   - intros x y z f g xx yy zz ff gg.
     exact ((pr1 ff ;; pr1 gg),, (pr2 ff ;; pr2 gg)).
 Defined.
 
-Definition dirprod_disp_cat_data : disp_cat_data C
-  := (_ ,, dirprod_disp_cat_id_comp).
+Definition dirprod_disp_cat_data
+           {C : precategory_data}
+           (D1 D2 : disp_cat_data C)
+  : disp_cat_data C
+  := (_ ,, dirprod_disp_cat_id_comp D1 D2).
+
+Section Dirprod.
+
+Context {C : category} (D1 D2 : disp_cat C).
 
 Definition dirprod_disp_cat_axioms
-  : disp_cat_axioms _ dirprod_disp_cat_data.
+  : disp_cat_axioms _ (dirprod_disp_cat_data D1 D2).
 Proof.
-  repeat apply tpair.
+  repeat apply dirprodpair.
   - intros. apply dirprod_paths; use (id_left_disp @ !_).
     + use pr1_transportf.
     + apply pr2_transportf.

@@ -40,7 +40,7 @@ Notation " 'stnel' ( i , j ) " := ( (j,,idpath _) : stn i ) ( at level 70 ).
 
 Delimit Scope stn with stn.
 
-Notation "⟦ n ⟧" := (stn n) (at level 50) : stn.
+Notation "⟦ n ⟧" := (stn n) : stn.
 (* in agda-mode \[[ n \]] *)
 
 Notation "● i" := (i ,, (idpath _ : natgtb _ _ = _)) (at level 35) : stn.

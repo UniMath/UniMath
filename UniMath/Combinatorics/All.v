@@ -1,5 +1,5 @@
 (* This file has been auto-generated, do not edit it. *)
-Require Export UniMath.Foundations.Init.
+Require Export UniMath.Combinatorics.WellFoundedRelations.
 Require Export UniMath.Combinatorics.StandardFiniteSets.
 Require Export UniMath.Combinatorics.Lists.
 Require Export UniMath.Combinatorics.FiniteSets.

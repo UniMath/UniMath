@@ -1,5 +1,4 @@
 (* This file has been auto-generated, do not edit it. *)
-Require Export UniMath.Foundations.Init.
 Require Export UniMath.SubstitutionSystems.Notation.
 Require Export UniMath.SubstitutionSystems.Signatures.
 Require Export UniMath.SubstitutionSystems.BinSumOfSignatures.

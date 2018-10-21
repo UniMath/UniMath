@@ -825,7 +825,7 @@ Section abelian_is_additive.
     - use mk_isAdditive.
       + exact (to_Zero A).
       + exact (BinDirectSums_from_BinProducts
-                 AbelianToPreAdditive hs (to_Zero A) (to_BinProducts A)).
+                 AbelianToPreAdditive (to_Zero A) (to_BinProducts A)).
   Defined.
 
 End abelian_is_additive.

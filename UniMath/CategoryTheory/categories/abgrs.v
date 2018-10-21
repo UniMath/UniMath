@@ -432,170 +432,12 @@ Section abgr_additive.
     - use (lunax B).
   Qed.
 
-  Lemma abgr_isBinCoproduct_Comm1 {X Y Z : abgr}
-        (f : abgr_PreAdditive ⟦X, Z⟧) (g : abgr_PreAdditive ⟦Y, Z⟧) :
-    (monoidfuncomp (abgr_DirectSumIn1 X Y)
-                   (@abmonoidshombinop
-                      (abgrdirprod X Y) Z
-                      (monoidfuncomp (abgr_DirectSumPr1 X Y) f)
-                      (monoidfuncomp (abgr_DirectSumPr2 X Y) g)) = f)
-      × (monoidfuncomp (abgr_DirectSumIn2 X Y)
-                       (@abmonoidshombinop
-                          (abgrdirprod X Y) Z
-                          (monoidfuncomp (abgr_DirectSumPr1 X Y) f)
-                          (monoidfuncomp (abgr_DirectSumPr2 X Y) g)) = g).
-  Proof.
-    use dirprodpair.
-    - use monoidfun_paths. use funextfun. intros x.
-      use (pathscomp0
-             (maponpaths (λ z : (Z : abgr), (pr1 f x * z)%multmonoid) (monoidfununel g))).
-      use (runax (Z : abgr)).
-    - use monoidfun_paths. use funextfun. intros y.
-      use (pathscomp0
-             (maponpaths (λ z : (Z : abgr), (z * pr1 g y)%multmonoid) (monoidfununel f))).
-      use (lunax (Z : abgr)).
-  Qed.
-
-  Lemma abgr_isBinCoproduct_Path1 {X Y Z : abgr}
-        (f : abgr_PreAdditive ⟦X, Z⟧) (g : abgr_PreAdditive ⟦Y, Z⟧)
-        (t1 : abgr_PreAdditive ⟦abgrdirprod X Y, Z⟧)
-        (H1 : abgr_DirectSumIn1 X Y · t1 = f) (H2 : abgr_DirectSumIn2 X Y · t1 = g) :
-    t1 = @abmonoidshombinop
-           (abgrdirprod X Y) Z
-           (monoidfuncomp (abgr_DirectSumPr1 X Y) f)
-           (monoidfuncomp (abgr_DirectSumPr2 X Y) g).
-  Proof.
-    use monoidfun_paths. use pathscomp0.
-    - exact (pr1 (@abmonoidshombinop
-                    (abgrdirprod X Y) Z
-                    ((abgr_DirectSumPr1 X Y) · abgr_DirectSumIn1 X Y · t1)
-                    ((abgr_DirectSumPr2 X Y) · abgr_DirectSumIn2 X Y · t1))).
-    - use funextfun. intros x. induction x as [x1 x2].
-      use (pathscomp0 _ (binopfunisbinopfun
-                           (t1 : monoidfun (abgrdirprod X Y) (Z : abgr))
-                           (@dirprodpair X Y x1 (unel Y)) (@dirprodpair X Y (unel X) x2))).
-      use maponpaths. use dirprod_paths.
-      + use pathsinv0. use (runax X).
-      + use pathsinv0. use (lunax Y).
-    - cbn. rewrite <- H1. rewrite <- H2.
-      use funextfun. intros x. use idpath.
-  Qed.
-
-  Lemma abgr_isBinCoproduct_Pair {X Y Z : abgr} (f : monoidfun X Z) (g : monoidfun Y Z) :
-    ∑ (k : abgr_PreAdditive ⟦abgrdirprod X Y, Z⟧),
-    (abgr_DirectSumIn1 X Y · k = f) × (abgr_DirectSumIn2 X Y · k = g).
-  Proof.
-    use tpair.
-    - exact (@abmonoidshombinop
-               (abgrdirprod X Y) Z (abgr_DirectSumPr1 X Y · f) (abgr_DirectSumPr2 X Y · g)).
-    - exact (abgr_isBinCoproduct_Comm1 f g).
-  Defined.
-
-  Lemma abgr_isBinCoproduct_Uniqueness {X Y Z : abgr} (f : monoidfun X Z) (g : monoidfun Y Z)
-        (t : ∑ (k : abgr_PreAdditive ⟦abgrdirprod X Y, Z⟧),
-             (abgr_DirectSumIn1 X Y · k = f) × (abgr_DirectSumIn2 X Y · k = g)) :
-    t = abgr_isBinCoproduct_Pair f g.
-  Proof.
-    use total2_paths_f.
-    - exact (abgr_isBinCoproduct_Path1
-               f g (pr1 t) (dirprod_pr1 (pr2 t)) (dirprod_pr2 (pr2 t))).
-    - use proofirrelevance. use isapropdirprod.
-      + use setproperty.
-      + use setproperty.
-  Qed.
-
-  Lemma abgr_isBinCoproduct (X Y : abgr) :
-    isBinCoproduct
-      abgr_PreAdditive X Y (abgrdirprod X Y) (abgr_DirectSumIn1 X Y) (abgr_DirectSumIn2 X Y).
-  Proof.
-    use mk_isBinCoproduct.
-    - use homset_property.
-    - intros Z f g. use iscontrpair.
-      + exact (abgr_isBinCoproduct_Pair f g).
-      + intros t. exact (abgr_isBinCoproduct_Uniqueness f g t).
-  Defined.
-
-  Lemma abgr_isBinProduct_Comm1 {X Y Z : abgr} (f : abgr_PreAdditive ⟦Z, X⟧)
-        (g : abgr_PreAdditive ⟦Z, Y⟧) :
-    (monoidfuncomp
-       (@abmonoidshombinop
-          Z (abgrdirprod X Y)
-          (monoidfuncomp f (abgr_DirectSumIn1 X Y)) (monoidfuncomp g (abgr_DirectSumIn2 X Y)))
-       (abgr_DirectSumPr1 X Y) = f)
-      × (monoidfuncomp
-           (@abmonoidshombinop
-              Z (abgrdirprod X Y)
-              (monoidfuncomp f (abgr_DirectSumIn1 X Y)) (monoidfuncomp g (abgr_DirectSumIn2 X Y)))
-           (abgr_DirectSumPr2 X Y) = g).
-  Proof.
-    use dirprodpair.
-    - use monoidfun_paths. use funextfun. intros z. use (runax X).
-    - use monoidfun_paths. use funextfun. intros z. use (lunax Y).
-  Qed.
-
-  Lemma abgr_isBinProduct_Paths1 {X Y Z : abgr} (f : abgr_PreAdditive ⟦Z, X⟧)
-        (g : abgr_PreAdditive ⟦Z, Y⟧) (t : abgr_PreAdditive ⟦Z, abgrdirprod X Y⟧)
-        (H1 : t · abgr_DirectSumPr1 X Y = f) (H2 : t · abgr_DirectSumPr2 X Y = g) :
-    t = @abmonoidshombinop
-          Z (abgrdirprod X Y)
-          (monoidfuncomp f (abgr_DirectSumIn1 X Y))
-          (monoidfuncomp g (abgr_DirectSumIn2 X Y)).
-  Proof.
-    use monoidfun_paths. use pathscomp0.
-    - exact (pr1 (@abmonoidshombinop
-                    Z (abgrdirprod X Y)
-                    (t · (abgr_DirectSumPr1 X Y) · abgr_DirectSumIn1 X Y)
-                    (t · (abgr_DirectSumPr2 X Y) · abgr_DirectSumIn2 X Y))).
-    - use funextfun. intros z. use dirprod_paths.
-      + use pathsinv0. use (runax X).
-      + use pathsinv0. use (lunax Y).
-    - cbn. rewrite <- H1. rewrite <- H2. use funextfun. intros z. use idpath.
-  Qed.
-
-  Definition abgr_isBinProduct_Pair {X Y Z : abgr} (f : abgr_category⟦Z, X⟧)
-             (g : abgr_category⟦Z, Y⟧) :
-    ∑ (k : abgr_PreAdditive ⟦Z, abgrdirprod X Y⟧),
-    (k · abgr_DirectSumPr1 X Y = f) × (k · abgr_DirectSumPr2 X Y = g).
-  Proof.
-    use tpair.
-    - exact (@abmonoidshombinop
-               Z (abgrdirprod X Y) (f · abgr_DirectSumIn1 X Y) (g · abgr_DirectSumIn2 X Y)).
-    - exact (abgr_isBinProduct_Comm1 f g).
-  Defined.
-
-  Lemma abgr_isBinProduct_Uniqueness {X Y Z : abgr} (f : abgr_category⟦Z, X⟧)
-        (g : abgr_category⟦Z, Y⟧)
-        (t : ∑ k : abgr_PreAdditive ⟦ Z, abgrdirprod X Y ⟧,
-                   k · abgr_DirectSumPr1 X Y = f × k · abgr_DirectSumPr2 X Y = g) :
-    t = abgr_isBinProduct_Pair f g.
-  Proof.
-    use total2_paths_f.
-    - exact (abgr_isBinProduct_Paths1
-               f g (pr1 t) (dirprod_pr1 (pr2 t)) (dirprod_pr2 (pr2 t))).
-    - use proofirrelevance. use isapropdirprod.
-      + use setproperty.
-      + use setproperty.
-  Qed.
-
-  Lemma abgr_isBinProduct (X Y : abgr) :
-    isBinProduct
-      abgr_PreAdditive X Y (abgrdirprod X Y) (abgr_DirectSumPr1 X Y) (abgr_DirectSumPr2 X Y).
-  Proof.
-    use mk_isBinProduct.
-    - use homset_property.
-    - intros Z f g. use iscontrpair.
-      + exact (abgr_isBinProduct_Pair f g).
-      + intros t. exact (abgr_isBinProduct_Uniqueness f g t).
-  Defined.
-
   Lemma abgr_isBinDirectSum (X Y : abgr) :
     isBinDirectSum
       abgr_PreAdditive X Y (abgrdirprod X Y) (abgr_DirectSumIn1 X Y) (abgr_DirectSumIn2 X Y)
       (abgr_DirectSumPr1 X Y) (abgr_DirectSumPr2 X Y).
   Proof.
     use mk_isBinDirectSum.
-    - exact (abgr_isBinCoproduct X Y).
-    - exact (abgr_isBinProduct X Y).
     - exact (abgr_DirectSumIdIn1 X Y).
     - exact (abgr_DirectSumIdIn2 X Y).
     - exact (abgr_DirectSumUnel1 X Y).
@@ -1486,7 +1328,7 @@ Section abgr_corollaries.
 
   Lemma AdditiveZeroArrow_postmor_Abelian {Add : Additive} (x y z : Add) :
     to_postmor_monoidfun Add x y z (ZeroArrow (Additive.to_Zero Add) y z) =
-    ZeroArrow (to_Zero abgr_Abelian) (@to_abgrop Add x y) (@to_abgrop Add x z).
+    ZeroArrow (to_Zero abgr_Abelian) (@to_abgr Add x y) (@to_abgr Add x z).
   Proof.
     rewrite <- PreAdditive_unel_zero.
     use monoidfun_paths. use funextfun. intros f. exact (to_premor_unel Add z f).
@@ -1494,7 +1336,7 @@ Section abgr_corollaries.
 
   Lemma AdditiveZeroArrow_premor_Abelian {Add : Additive} (x y z : Add) :
     to_premor_monoidfun Add x y z (ZeroArrow (Additive.to_Zero Add) x y) =
-    ZeroArrow (to_Zero abgr_Abelian) (@to_abgrop Add y z) (@to_abgrop Add x z).
+    ZeroArrow (to_Zero abgr_Abelian) (@to_abgr Add y z) (@to_abgr Add x z).
   Proof.
     rewrite <- PreAdditive_unel_zero.
     use monoidfun_paths. use funextfun. intros f. exact (to_postmor_unel Add x f).
@@ -1556,13 +1398,13 @@ Section abgr_corollaries.
         {f : x --> y}
         (H1 : @is_z_isomorphism abgr_Abelian _ _ (to_premor_monoidfun Add x y x f))
         (H2 : @is_z_isomorphism abgr_Abelian _ _ (to_postmor_monoidfun Add y x y f)) :
-    is_inverse_in_precat f ((is_z_isomorphism_mor H1 : monoidfun (to_abgrop x x) (to_abgrop y x))
-                              (identity x : to_abgrop x x)).
+    is_inverse_in_precat f ((is_z_isomorphism_mor H1 : monoidfun (to_abgr x x) (to_abgr y x))
+                              (identity x : to_abgr x x)).
   Proof.
-    set (mor1 := ((is_z_isomorphism_mor H1) : (monoidfun (to_abgrop x x) (to_abgrop y x)))
-                   ((identity x) : to_abgrop x x)).
-    set (mor2 := ((is_z_isomorphism_mor H2) : (monoidfun (to_abgrop y y) (to_abgrop y x)))
-                   ((identity y) : to_abgrop y y)).
+    set (mor1 := ((is_z_isomorphism_mor H1) : (monoidfun (to_abgr x x) (to_abgr y x)))
+                   ((identity x) : to_abgr x x)).
+    set (mor2 := ((is_z_isomorphism_mor H2) : (monoidfun (to_abgr y y) (to_abgr y x)))
+                   ((identity y) : to_abgr y y)).
     assert (Hx : f · mor1 = identity x).
     {
       exact (toforallpaths _ _ _ (base_paths _ _ (is_inverse_in_precat2 H1)) (identity x)).
@@ -1591,8 +1433,8 @@ Section abgr_corollaries.
     is_z_isomorphism f.
   Proof.
     use mk_is_z_isomorphism.
-    - exact (((is_z_isomorphism_mor H1) : (monoidfun (to_abgrop x x) (to_abgrop y x)))
-               ((identity x) : to_abgrop x x)).
+    - exact (((is_z_isomorphism_mor H1) : (monoidfun (to_abgr x x) (to_abgr y x)))
+               ((identity x) : to_abgr x x)).
     - exact (abgr_Additive_premor_postmor_is_iso_inverses _ _ H1 H2).
   Defined.
 

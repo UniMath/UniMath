@@ -98,9 +98,7 @@ The following table offers a comparison.
 * *Groupoids.v* --- Basic definitions of groupoids and discrete categories
 * *HorizontalComposition.v*
   * Definition of horizontal composition for natural transformations
-* *Kleisli.v* --- the "Kleisli" definition of monad and its equivalence to the "monoidal" definition
 * *LocalizingClass.v* --- localizing class and localization of categories
-* *Monads.v* --- monads, bind operation and substitution
 * *Monics.v* --- monics, their subcategory and their construction in functor categories
 * *Morphisms.v*
   *pair of morphisms*
@@ -121,7 +119,6 @@ The following table offers a comparison.
 * *Quotobjects.v* --- quotient objects
 * *RightKanExtension.v*
   * Definition of global right Kan extension as right adjoint to precomposition
-* *RModules.v* --- right modules over a monad
 * *ShortExactSequences.v*
 * *slicecat.v* --- slice precategories and colimits therein
 * *Subobjects.v*
@@ -139,3 +136,4 @@ The following table offers a comparison.
   * with 6 .v files there: notations.v, bicategory.v, Cat.v, internal_equivalence.v, prebicategory.v, whiskering.v
 * *Inductives* by Anders Mörtberg
   * with three case studies: Lists.v, Trees.v, LambdaCalculus.v
+* *Monads* --- developments about monads (incl. relative monads, modules for monads), see its own doc

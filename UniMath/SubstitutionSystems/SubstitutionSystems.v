@@ -107,9 +107,9 @@ Definition bracket_property (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_
            (h : `T • (U Z)  --> `T) : UU
   :=
     alg_map _ T •• (U Z) · h =
-          identity (U Z) ⊕ θ (`T ⊗ Z) ·
-          identity (U Z) ⊕ #H h ·
-          BinCoproductArrow _ (CPEndC _ _ ) (#U f) (tau_from_alg T).
+          (identity (U Z) ⊕ θ (`T ⊗ Z)) ·
+          (identity (U Z) ⊕ #H h) ·
+          (BinCoproductArrow _ (CPEndC _ _ ) (#U f) (tau_from_alg T)).
 
 Definition bracket_at (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_alg T): UU :=
   ∃! h : `T • (U Z)  --> `T, bracket_property T f h.
