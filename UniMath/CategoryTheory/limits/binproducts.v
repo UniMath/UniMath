@@ -15,6 +15,8 @@ Extended by: Langston Barrett (@siddharthist), 2018
 - Binary products from limits ([BinProducts_from_Lims])
 - Equivalent universal property: [(C --> A) × (C --> B) ≃ (C --> A × B)]
 - Terminal object as the unit (up to isomorphism) of binary products
+- Equivalence with indexed products over [bool]
+- Associativity
 
  *)
 
@@ -33,6 +35,7 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
@@ -141,8 +144,7 @@ Definition make_isBinProduct (a b p : C)
     ∃! k : C⟦c,p⟧, k · pa = f × k · pb = g) ->
   isBinProduct a b p pa pb.
 Proof.
-  intros H c cc g.
-  apply H.
+  auto.
 Defined.
 
 Lemma BinProductArrowEta (c d : C) (P : BinProduct c d) (x : C)
@@ -696,6 +698,15 @@ Arguments isBinProduct' _ _ _ _ _ : clear implicits.
 
 (** ** Terminal object as the unit (up to isomorphism) of binary products *)
 
+(** Generalize [maponpaths_2] to this lemma *)
+Local Lemma f_equal_2 :
+  forall {A B C : UU} (f : A -> B -> C) (a a' : A) (b b' : B),
+    a = a' -> b = b' -> f a b = f a' b'.
+Proof.
+  do 8 intro; intros eq1 eq2.
+  abstract (now rewrite eq1; rewrite eq2).
+Defined.
+
 (** [T × x ≅ x]*)
 Lemma terminal_binprod_unit_l {C : category}
       (T : Terminal C) (BC : BinProducts C) :
@@ -738,3 +749,225 @@ Proof.
     + exact (id_right _ @ !id_left _).
     + apply TerminalArrowEq.
 Defined.
+
+(** ** Equivalence with indexed products over [bool] *)
+
+(** Copied from section "CoproductsBool" *)
+
+Section ProductsBool.
+  Context  {C : precategory} (hsC : has_homsets C).
+
+  Lemma BinproductsToProductsBool (BPC : BinProducts C) : Products bool C.
+  Proof.
+    intros H.
+    use mk_Product.
+    - apply (BPC (H true) (H false)).
+    - induction i; apply (pr1 (BPC (H true) (H false))).
+    - use (mk_isProduct _ _ hsC); intros c f.
+      induction (pr2 (BPC (H true) (H false)) c (f true) (f false)) as [[x1 [x2 x3]] x4].
+      use unique_exists.
+      + apply x1.
+      + cbn; induction i; assumption.
+      + intros x; apply impred; intros; apply hsC.
+      + intros h1 h2.
+        apply (maponpaths pr1 (x4 (h1,,(h2 true,,h2 false)))).
+  Defined.
+
+  Lemma ProductsBoolToBinproducts (PBC : Products bool C) : BinProducts C.
+  Proof.
+    intros x y.
+    (** The indexing function *)
+    pose (index := bool_rec (fun _ => C) x y).
+    use mk_BinProduct.
+    - eapply ProductObject.
+      apply (PBC index).
+    - replace x with (index true) by reflexivity.
+      apply ProductPr.
+    - replace y with (index false) by reflexivity.
+      apply ProductPr.
+    - use mk_isBinProduct; [assumption|]; cbn.
+      intros z f g; use iscontrpair.
+      pose (indexz := bool_rec (fun b => C⟦ z, index b ⟧) f g).
+      use tpair.
+      + apply ProductArrow; exact indexz.
+      + split.
+        * apply (ProductPrCommutes _ _ _ (PBC index) z indexz true).
+        * apply (ProductPrCommutes _ _ _ (PBC index) z indexz false).
+      + intros prod'.
+        use total2_paths_f.
+        * cbn; apply ProductArrowUnique.
+          abstract
+            (intros i; case i; [exact (pr1 (pr2 prod'))|exact (pr2 (pr2 prod'))]).
+        * apply proofirrelevance.
+          apply isapropdirprod; apply hsC.
+  Defined.
+
+  (** In a poset, the two notions are related by a weak equivalence.
+
+      This could probably be strengthened. *)
+  Lemma isweq_BinproductsToProductsBool_poset
+        (posetC : ∏ a b : C, isaprop (C⟦a,b⟧)) :
+        isweq BinproductsToProductsBool.
+  Proof.
+    apply (isweq_iso _ ProductsBoolToBinproducts).
+    - intros x.
+      unfold BinProducts in *.
+      do 2 (apply funextsec; intro).
+      unfold BinProduct in *.
+      use total2_paths_f; [|apply isaprop_isBinProduct].
+      reflexivity.
+    - intros y.
+      unfold Products in *.
+      apply funextsec; intro.
+      unfold Product in *.
+      use total2_paths_f; [|apply isaprop_isProduct].
+      use total2_paths_f; cbn.
+      + assert (xeq : x = (bool_rec (λ _ : bool, C) (x true) (x false))).
+        * abstract (apply funextfun; intros i; now case i).
+        * abstract (now rewrite <- xeq).
+      + apply proofirrelevance.
+        apply impred; intro.
+        apply posetC.
+  Defined.
+End ProductsBool.
+
+(** ** Associativity *)
+
+(** We show associativity by demonstrating that [(a × b) × c] and
+    [a × (b × c)] are both ternary products of a, b, and c, and so
+    are isomorphic. *)
+
+Section Assoc.
+  Context {C : precategory}.
+  Context (BPC : BinProducts C).
+  Context (hsC : has_homsets C).
+
+  Local Notation "c '⊗' d" := (BinProductObject C (BPC c d)) (at level 75) : cat.
+  Let π1 {x y} : C⟦x ⊗ y,x⟧ := BinProductPr1 _ (BPC x y).
+  Let π2 {x y} : C⟦x ⊗ y,y⟧ := BinProductPr2 _ (BPC x y).
+  Definition binprod_assoc (x y z : C) : C⟦(x ⊗ y) ⊗ z,x ⊗ (y ⊗ z)⟧ :=
+    BinProductArrow _ _ (π1 · π1) (BinProductArrow _ _ (π1 · π2) π2).
+  Let α {x y z} : C⟦(x ⊗ y) ⊗ z,x ⊗ (y ⊗ z)⟧ := binprod_assoc x y z.
+
+  (** A type with three inhabitants, used for indexing ternary products *)
+  Let three : UU := coprod unit bool.
+
+  Local Definition three_rec {T : UU} (x y z : T) : three -> T.
+  Proof.
+    refine (coprod_rec _ _ _ _ _).
+    - intro; exact x.
+    - refine (bool_rec _ _ _).
+      + exact y.
+      + exact z.
+  Defined.
+
+  Local Definition three_ind {T : UU} {a b c : T} {P : T -> UU}
+    (pa : P a) (pb : P b) (pc : P c) :
+    ∏ i : three, P (three_rec a b c i).
+  Proof.
+    refine (coprod_rec _ _ _ _ _).
+    - intro; exact pa.
+    - refine (bool_rec _ _ _).
+      + exact pb.
+      + exact pc.
+  Defined.
+
+  Local Definition l_pr1 {x y z : C} : C ⟦(x ⊗ y) ⊗ z, x⟧ := π1 · π1.
+  Local Definition l_pr2 {x y z : C} : C ⟦(x ⊗ y) ⊗ z, y⟧ := π1 · π2.
+  Local Definition l_pr3 {x y z : C} : C ⟦(x ⊗ y) ⊗ z, z⟧ := π2.
+
+  Lemma left_assoc_ternary_product :
+    ∏ a b c : C, isProduct _ _ (three_rec a b c) ((a ⊗ b) ⊗ c)
+                               (three_ind l_pr1 l_pr2 l_pr3).
+  Proof.
+    intros a b c.
+    unfold isProduct.
+    intros d f.
+    use iscontrpair.
+    - use tpair.
+      + apply BinProductArrow; [apply BinProductArrow|].
+        * apply (f (inl tt)).
+        * apply (f (inr true)).
+        * apply (f (inr false)).
+      + cbn; intro i.
+        destruct i as [? | [ | ]]; cbn.
+        * unfold l_pr1.
+          assert (eq : tt = u).
+          -- apply proofirrelevance, isapropunit.
+          -- abstract (rewrite assoc;
+                       do 2 rewrite BinProductPr1Commutes;
+                       now rewrite eq).
+        * unfold l_pr2.
+          abstract
+            (now rewrite assoc, BinProductPr1Commutes, BinProductPr2Commutes).
+        * unfold l_pr3.
+          now rewrite BinProductPr2Commutes.
+    - cbn.
+      intros t.
+      use total2_paths_f; cbn.
+      + apply BinProductArrowUnique; [apply BinProductArrowUnique|].
+        * abstract (rewrite <- assoc; apply (pr2 t (inl tt))).
+        * abstract (rewrite <- assoc; apply (pr2 t (inr true))).
+        * apply (pr2 t (inr false)).
+      + apply proofirrelevance.
+        apply impred; intro.
+        apply hsC.
+  Defined.
+
+
+  Local Definition r_pr1 {x y z : C} : C ⟦x ⊗ (y ⊗ z), x⟧ := π1.
+  Local Definition r_pr2 {x y z : C} : C ⟦x ⊗ (y ⊗ z), y⟧ := π2 · π1.
+  Local Definition r_pr3 {x y z : C} : C ⟦x ⊗ (y ⊗ z), z⟧ := π2 · π2.
+
+  Lemma right_assoc_ternary_product :
+    ∏ a b c : C, isProduct _ _ (three_rec a b c) (a ⊗ (b ⊗ c))
+                               (three_ind r_pr1 r_pr2 r_pr3).
+  Proof.
+    intros a b c.
+    unfold isProduct.
+    intros d f.
+    use iscontrpair.
+    - use tpair.
+      + apply BinProductArrow; [|apply BinProductArrow].
+        * apply (f (inl tt)).
+        * apply (f (inr true)).
+        * apply (f (inr false)).
+      + cbn; intro i.
+        destruct i as [? | [ | ]]; cbn.
+        * unfold r_pr1.
+          assert (eq : tt = u).
+          -- apply proofirrelevance, isapropunit.
+          -- abstract (rewrite BinProductPr1Commutes;
+                       now rewrite eq).
+        * unfold r_pr2.
+          abstract
+            (now rewrite assoc, BinProductPr2Commutes, BinProductPr1Commutes).
+        * unfold r_pr3.
+          abstract
+            (now rewrite assoc, BinProductPr2Commutes, BinProductPr2Commutes).
+    - cbn.
+      intros t.
+      use total2_paths_f; cbn.
+      + apply BinProductArrowUnique; [|apply BinProductArrowUnique].
+        * apply (pr2 t (inl tt)).
+        * abstract (rewrite <- assoc; apply (pr2 t (inr true))).
+        * abstract (rewrite <- assoc; apply (pr2 t (inr false))).
+      + apply proofirrelevance.
+        apply impred; intro.
+        apply hsC.
+  Defined.
+
+  Lemma binproduct_assoc_iso : ∏ a b c : C, iso (a ⊗ (b ⊗ c)) ((a ⊗ b) ⊗ c).
+  Proof.
+    intros.
+    pose (p1 := mk_Product _ _ _ (a ⊗ (b ⊗ c)) _
+                             ltac:(apply right_assoc_ternary_product)).
+    pose (p2 := mk_Product _ _ _ ((a ⊗ b) ⊗ c) _
+                             ltac:(apply left_assoc_ternary_product)).
+    replace (a ⊗ (b ⊗ c)) with (ProductObject _ _ p1) by reflexivity.
+    replace ((a ⊗ b) ⊗ c) with (ProductObject _ _ p2) by reflexivity.
+    eapply mk_iso.
+    eapply product_unique.
+  Qed.
+
+End Assoc.

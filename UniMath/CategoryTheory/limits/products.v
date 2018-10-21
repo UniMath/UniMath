@@ -385,7 +385,7 @@ End products_from_limits.
 (** * Uniqueness of products *)
 
 Section uniqueness.
-  Context (I : UU) {C : category} (hsC : has_homsets C) (c : I -> C).
+  Context (I : UU) {C : category} (c : I -> C).
 
   (** The arrow from p1 to p2 induced by the projections from p1 is an iso *)
   Lemma product_unique (p1 p2 : Product I C c) :
