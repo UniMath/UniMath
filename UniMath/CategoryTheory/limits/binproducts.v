@@ -1,18 +1,22 @@
-(**
-
-Direct implementation of binary products together with:
-
-- Definition of binary product functor ([binproduct_functor])
-- Definition of a binary product structure on a functor category by taking pointwise binary products
-  in the target category ([BinProducts_functor_precat])
-- Binary products from limits ([BinProducts_from_Lims])
-- Equivalent universal property: (C --> A) × (C --> B) ≃ (C --> A × B)
+(** * Direct implementation of binary products
 
 Written by: Benedikt Ahrens, Ralph Matthes
 Extended by: Anders Mörtberg and Tomi Pannila
-Extended by Langston Barrett (@siddharthist), 2018
+Extended by: Langston Barrett (@siddharthist), 2018
 
 *)
+
+(** ** Contents
+
+- Definition of binary products
+- Definition of binary product functor ([binproduct_functor])
+- Definition of a binary product structure on a functor category by taking
+  pointwise binary products in the target category ([BinProducts_functor_precat])
+- Binary products from limits ([BinProducts_from_Lims])
+- Equivalent universal property: [(C --> A) × (C --> B) ≃ (C --> A × B)]
+- Terminal object as the unit (up to isomorphism) of binary products
+
+ *)
 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
@@ -26,13 +30,14 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 
 Local Open Scope cat.
 
-(** Definition of binary products *)
+(** ** Definition of binary products *)
 Section binproduct_def.
 
 Variable C : precategory.
@@ -261,6 +266,8 @@ Qed.
 
 End BinProduct_unique.
 
+(** ** Binary products from limits ([BinProducts_from_Lims]) *)
+
 Section BinProducts_from_Lims.
 
 Variables (C : precategory) (hsC : has_homsets C).
@@ -312,7 +319,8 @@ Check (λ c d : C, c x d).
 *)
 End test.
 
-(* The binary product functor: C * C -> C *)
+(** ** Definition of binary product functor ([binproduct_functor]) *)
+
 Section binproduct_functor.
 
 Context {C : precategory} (PC : BinProducts C).
@@ -371,6 +379,7 @@ Section BinProduct_zeroarrow.
 
 End BinProduct_zeroarrow.
 
+(** ** Definition of a binary product structure on a functor category *)
 
 (** Goal: lift binary products from the target (pre)category to the functor (pre)category *)
 Section def_functor_pointwise_binprod.
@@ -647,7 +656,7 @@ Section BinProduct_from_iso.
 
 End BinProduct_from_iso.
 
-(** Equivalent universal property: (C --> A) × (C --> B) ≃ (C --> A × B)
+(** ** Equivalent universal property: [(C --> A) × (C --> B) ≃ (C --> A × B)]
 
  Compare to [weqfuntoprodtoprod].
  *)
@@ -693,3 +702,56 @@ End EquivalentDefinition.
 
 (** Match non-implicit arguments of [isBinProduct] *)
 Arguments isBinProduct' _ _ _ _ _ : clear implicits.
+
+(** ** Terminal object as the unit (up to isomorphism) of binary products *)
+
+Local Lemma f_equal_2 :
+  forall {A B C : UU} (f : A -> B -> C) (a a' : A) (b b' : B),
+    a = a' -> b = b' -> f a b = f a' b'.
+Proof.
+  do 8 intro; intros eq1 eq2.
+  abstract (now rewrite eq1; rewrite eq2).
+Defined.
+
+(** [T × x ≅ x]*)
+Lemma terminal_binprod_unit_l {C : precategory}
+      (T : Terminal C) (BC : BinProducts C) :
+  ∏ x : C, is_iso (BinProductPr2 C (BC T x)).
+Proof.
+  intros x.
+  use is_iso_qinv.
+  apply BinProductArrow.
+  - (** The unique [x -> T] *)
+    apply TerminalArrow.
+  - apply identity.
+  - (** These are inverses *)
+    unfold is_inverse_in_precat.
+    split; [|apply BinProductPr2Commutes].
+    refine (precompWithBinProductArrow _ _ _ _ _ @ _).
+    refine (_ @ !BinProductArrowEta _ _ _ _ _ (identity _)).
+    apply f_equal_2.
+    + apply TerminalArrowEq.
+    + exact (id_right _ @ !id_left _).
+Defined.
+
+(** [x × T ≅ x]*)
+
+Lemma terminal_binprod_unit_r {C : precategory}
+      (T : Terminal C) (BC : BinProducts C) :
+  ∏ x : C, is_iso (BinProductPr1 C (BC x T)).
+Proof.
+  intros x.
+  use is_iso_qinv.
+  apply BinProductArrow.
+  - apply identity.
+  - (** The unique [x -> T] *)
+    apply TerminalArrow.
+  - (** These are inverses *)
+    unfold is_inverse_in_precat.
+    split; [|apply BinProductPr1Commutes].
+    refine (precompWithBinProductArrow _ _ _ _ _ @ _).
+    refine (_ @ !BinProductArrowEta _ _ _ _ _ (identity _)).
+    apply f_equal_2.
+    + exact (id_right _ @ !id_left _).
+    + apply TerminalArrowEq.
+Defined.
