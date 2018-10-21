@@ -34,7 +34,7 @@ Section LatticeObject_def.
 
 Context {C : precategory} {BPC : BinProducts C}.
 
-Local Notation "c '⊗' d" := (BinProductObject C (BPC c d)) (at level 75) : cat.
+Local Notation "c ⊗ d" := (BinProductObject C (BPC c d)) : cat.
 Local Notation "f '××' g" := (BinProductOfArrows _ _ _ f g) (at level 80) : cat.
 Local Notation "1" := (identity _) : cat.
 
@@ -203,7 +203,7 @@ Section SublatticeObject.
 Context {C : precategory} (BPC : BinProducts C) {M L : C}.
 Context {i : C⟦M,L⟧} (Hi : isMonic i) (l : latticeob BPC L).
 
-Local Notation "c '⊗' d" := (BinProductObject C (BPC c d)) (at level 75) : cat.
+Local Notation "c ⊗ d" := (BinProductObject C (BPC c d)) : cat.
 Local Notation "f '××' g" := (BinProductOfArrows _ _ _ f g) (at level 90) : cat.
 
 (** This asserts that i is a lattice homomorphism internally *)
@@ -310,7 +310,7 @@ Section SubboundedlatticeObject.
 Context {C : precategory} (BPC : BinProducts C) (TC : Terminal C).
 Context {M L : C} {i : C⟦M,L⟧} (Hi : isMonic i) (l : bounded_latticeob BPC TC L).
 
-Local Notation "c '⊗' d" := (BinProductObject C (BPC c d)) (at level 75) : cat.
+Local Notation "c ⊗ d" := (BinProductObject C (BPC c d)) : cat.
 Local Notation "f '××' g" := (BinProductOfArrows _ _ _ f g) (at level 90) : cat.
 
 Context {meet_mor_M : C⟦M ⊗ M,M⟧} (Hmeet : meet_mor_M · i = (i ×× i) · meet_mor l).

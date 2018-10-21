@@ -643,6 +643,7 @@ End latticedec_gt.
 (** ** Lattice in an abmonoid *)
 
 Local Open Scope addmonoid.
+Import UniMath.Algebra.Monoids_and_Groups.AddNotation.
 
 Section lattice_abmonoid.
 

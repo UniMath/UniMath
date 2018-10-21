@@ -5,6 +5,7 @@ Require Export UniMath.MoreFoundations.Tactics.
 Require Export UniMath.MoreFoundations.Notations.
 Require Export UniMath.MoreFoundations.AlternativeProofs.
 Require Export UniMath.MoreFoundations.Subposets.
+Require Export UniMath.MoreFoundations.DoubleNegation.
 Require Export UniMath.MoreFoundations.DecidablePropositions.
 Require Export UniMath.MoreFoundations.Propositions.
 Require Export UniMath.MoreFoundations.Sets.

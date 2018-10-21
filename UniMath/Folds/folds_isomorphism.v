@@ -36,7 +36,7 @@ Require Import UniMath.Folds.aux_lemmas.
 Require Import UniMath.Folds.folds_precat.
 Require Import UniMath.Folds.from_precats_to_folds_and_back.
 
-Local Notation "a ⇒ b" := (folds_morphisms a b)(at level 50).
+Local Notation "a ⇒ b" := (folds_morphisms a b).
 
 
 (** * Definition of FOLDS precat isomorphisms **)

@@ -1623,6 +1623,12 @@ Definition is_nat_id {C D : precategory} {F : C ⟶ D} (μ : F ⟹ F) : UU :=
 Definition nat_iso {C D : precategory} (F G : C ⟶ D) : UU
 := ∑ (μ : F ⟹ G), is_nat_iso μ.
 
+Definition mk_nat_iso {C D : precategory} (F G : C ⟶ D) (μ : F ⟹ G) (is_iso : is_nat_iso μ) : nat_iso F G.
+Proof.
+  exists μ.
+  abstract (exact is_iso).
+Defined.
+
 Definition iso_inv_after_iso' {C : precategory} {a b : C} (f : a --> b) (f' : iso a b) (deref : pr1 f' = f) : f · inv_from_iso f' = identity _.
 Proof.
   rewrite <- deref.

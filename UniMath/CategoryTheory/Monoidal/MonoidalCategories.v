@@ -22,7 +22,7 @@ Section Monoidal_Precat.
 
 Context {C : precategory} (tensor : C ⊠ C ⟶ C) (I : C).
 
-Notation "X ⊗ Y" := (tensor (X, Y)) (at level 31).
+Notation "X ⊗ Y" := (tensor (X, Y)).
 Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
 
 Definition tensor_id {X Y : C} : id X #⊗ id Y = id (X ⊗ Y).

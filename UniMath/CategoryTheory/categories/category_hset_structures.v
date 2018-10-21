@@ -13,6 +13,7 @@ Contents:
 - General indexed products ([ProductsHSET]
 - Pullbacks ([PullbacksHSET])
 - Terminal object ([TerminalHSET])
+- Natural numbers object ([NNO_HSET])
 - Exponentials ([Exponentials_HSET])
 - Construction of exponentials for functors into HSET
   ([Exponentials_functor_HSET])
@@ -58,6 +59,7 @@ Require Import UniMath.CategoryTheory.covyoneda.
 Require Import UniMath.CategoryTheory.slicecat.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.EpiFacts.
+Require Import UniMath.CategoryTheory.NNO.
 
 Local Open Scope cat.
 
@@ -508,6 +510,31 @@ exists (λ _, tt).
 abstract (simpl; intro f; apply funextfun; intro x; case (f x); apply idpath).
 Defined.
 
+Lemma isNNO_nat : isNNO TerminalHSET natHSET (λ _, 0) S.
+Proof.
+intros X z s.
+use unique_exists.
++ intros n.
+  induction n as [|_ n].
+  * exact (z tt).
+  * exact (s n).
++ now split; apply funextfun; intros [].
++ now intros; apply isapropdirprod; apply setproperty.
++ intros q [hq1 hq2].
+  apply funextfun; intros n.
+  induction n as [|n IH].
+  * now rewrite <- hq1.
+  * cbn in *; now rewrite (toforallpaths _ _ _ hq2 n), IH.
+Qed.
+
+Definition NNO_HSET : NNO TerminalHSET.
+Proof.
+use mk_NNO.
+- exact natHSET.
+- exact (λ _, 0).
+- exact S.
+- exact isNNO_nat.
+Defined.
 
 Require UniMath.CategoryTheory.limits.graphs.terminal.
 
