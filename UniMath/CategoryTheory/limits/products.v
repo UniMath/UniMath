@@ -6,9 +6,10 @@ Direct implementation of indexed products together with:
 - Definition of a product structure on a functor category by taking pointwise products in the target
   category (adapted from the binary version) ([Products_functor_precat])
 - Products from limits ([Products_from_Lims])
+- Uniqueness of products
 
 Written by: Anders Mörtberg 2016
-
+Extended by: Langston Barrett 2018
 
 *)
 
@@ -55,6 +56,14 @@ Definition isProduct_Product {c : ∏ i, C} (P : Product c) :
    isProduct c (ProductObject P) (ProductPr P).
  Proof.
   exact (pr2 P).
+Defined.
+
+Definition isaprop_isProduct (c : ∏ (i : I), C) (p : C)
+           (pi : ∏ i, p --> c i) : isaprop (isProduct c p pi).
+Proof.
+  unfold isProduct.
+  do 2 (apply impred; intro).
+  apply isapropiscontr.
 Defined.
 
 Definition ProductArrow {c : ∏ i, C} (P : Product c) {a : C} (f : ∏ i, a --> c i)
@@ -372,3 +381,34 @@ use make_Product.
 Defined.
 
 End products_from_limits.
+
+(** * Uniqueness of products *)
+
+Section uniqueness.
+  Context (I : UU) {C : category} (hsC : has_homsets C) (c : I -> C).
+
+  (** The arrow from p1 to p2 induced by the projections from p1 is an iso *)
+  Lemma product_unique (p1 p2 : Product I C c) :
+    is_iso (ProductArrow _ _ p2 (ProductPr I C p1)).
+  Proof.
+    use is_iso_qinv.
+    - (** The inverse is the induced arrow in the other direction *)
+      apply ProductArrow, ProductPr.
+    - split.
+      + rewrite precompWithProductArrow.
+        pose (H := ProductPrCommutes I C c p2 _ (ProductPr _ _ p1)).
+        rewrite ProductArrowEta.
+        apply maponpaths.
+        apply funextsec; intro.
+        rewrite H.
+        now rewrite id_left.
+      + rewrite precompWithProductArrow.
+        pose (H := ProductPrCommutes I C c p2 _ (ProductPr _ _ p1)).
+        rewrite ProductArrowEta.
+        apply maponpaths.
+        apply funextsec; intro.
+        rewrite ProductPrCommutes.
+        now rewrite id_left.
+  Qed.
+
+End uniqueness.
