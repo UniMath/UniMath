@@ -14,6 +14,7 @@ Require Export UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Export UniMath.CategoryTheory.Categories.
 Require Export UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Export UniMath.CategoryTheory.PreAdditive.
+Require Export UniMath.CategoryTheory.Morphisms.
 Require Export UniMath.CategoryTheory.Additive.
 Require Export UniMath.MoreFoundations.Notations.
 Require Export UniMath.MoreFoundations.Propositions.
@@ -24,6 +25,7 @@ Local Arguments to_Pr1 {_ _ _} _.
 Local Arguments to_Pr2 {_ _ _} _.
 Local Arguments to_In1 {_ _ _} _.
 Local Arguments to_In2 {_ _ _} _.
+Local Arguments MorphismPair : clear implicits.
 
 Local Open Scope logic.
 
@@ -224,11 +226,11 @@ Section KernelCokernelPairs.
     - rewrite id_right. rewrite ZeroArrow_comp_right'. rewrite rewrite_op.
       rewrite lunax. reflexivity.
   Defined.
-  Lemma kerCoker10 (Z:Zero M) (A:M) : isKernelCokernelPair (1 : A --> A) (0 : A --> Z).
+  Lemma kerCoker10 (Z:Zero M) (A:M) : isKernelCokernelPair (identity A) (0 : A --> Z).
   Proof.
     exact (kerCokerDirectSum (TrivialDirectSum Z A)).
   Defined.
-  Lemma kerCoker01 (Z:Zero M) (A:M) : isKernelCokernelPair (0 : Z --> A) (1 : A --> A).
+  Lemma kerCoker01 (Z:Zero M) (A:M) : isKernelCokernelPair (0 : Z --> A) (identity A).
   Proof.
     exact (kerCokerDirectSum (TrivialDirectSum' Z A)).
   Defined.
@@ -240,48 +242,36 @@ Local Open Scope preexcat.
 Delimit Scope excat with excat.
 Local Open Scope excat.
 
-Section ShortSequences.
-  Definition ShortSequence (M : Additive) := ∑ (A B C:M), A --> B × B --> C.
-  Context {M : Additive}.
-  Definition SS_left (P : ShortSequence M) : M := pr1 P.
-  Definition SS_middle (P : ShortSequence M) : M := pr12 P.
-  Definition SS_right (P : ShortSequence M) : M := pr122 P.
-  Definition SS_leftmap (P : ShortSequence M) : SS_left P --> SS_middle P := pr1 (pr222 P).
-  Definition SS_rightmap (P : ShortSequence M) : SS_middle P --> SS_right P := pr2 (pr222 P).
-  Definition toShortSequence {A B C:M} (f : A --> B) (g : B --> C) : ShortSequence M
-    := A,,B,,C,,f,,g.
-End ShortSequences.
-
 Section theDefinition.
-  Definition AddCatWithExactness := ∑ M:Additive, ShortSequence M -> hProp. (* properties added below *)
+  Definition AddCatWithExactness := ∑ M:Additive, MorphismPair M -> hProp. (* properties added below *)
   Coercion AE_to_AC (ME : AddCatWithExactness) : Additive := pr1 ME.
   Context (M : AddCatWithExactness).
-  Definition isExact (E : ShortSequence M) : hProp := pr2 M E.
+  Definition isExact (E : MorphismPair M) : hProp := pr2 M E.
   Definition isAdmissibleMonomorphism {A B:M} (i : A --> B) : hProp :=
-    ∃ C (p : B --> C), isExact (toShortSequence i p).
+    ∃ C (p : B --> C), isExact (mk_MorphismPair i p).
   Definition AdmissibleMonomorphism (A B:M) : Type :=
     ∑ (i : A --> B), isAdmissibleMonomorphism i.
   Coercion AdmMonoToMap {A B:M} : AdmissibleMonomorphism A B -> A --> B := pr1.
   Coercion AdmMonoToMap' {A B:M} : AdmissibleMonomorphism A B -> (A --> B)%cat := pr1.
   Notation "A ↣ B" := (AdmissibleMonomorphism A B) : excat.
   Definition isAdmissibleEpimorphism {B C:M} (p : B --> C) : hProp :=
-    ∃ A (i : A --> B), isExact (toShortSequence i p).
+    ∃ A (i : A --> B), isExact (mk_MorphismPair i p).
   Definition AdmissibleEpimorphism (B C:M) : Type :=
-    ∑ (p : B --> C), isAdmissibleMonomorphism p.
+    ∑ (p : B --> C), isAdmissibleEpimorphism p.
   Coercion AdmEpiToMap {B C:M} : AdmissibleEpimorphism B C -> B --> C := pr1.
   Coercion AdmEpiToMap' {B C:M} : AdmissibleEpimorphism B C -> (B --> C)%cat := pr1.
   Notation "B ↠ C" := (AdmissibleEpimorphism B C) : excat.
-  Definition ShortSequenceIsomorphism (P Q : ShortSequence M) :=
-    ∑ (f : iso (SS_left P) (SS_left Q))
-      (g : iso (SS_middle P) (SS_middle Q))
-      (h : iso (SS_right P) (SS_right Q)),
-    f · SS_leftmap Q = SS_leftmap P · g  ×  g · SS_rightmap Q = SS_rightmap P · h.
+  Definition MorphismPairIsomorphism (P Q : MorphismPair M) :=
+    ∑ (f : iso (Ob1 P) (Ob1 Q))
+      (g : iso (Ob2 P) (Ob2 Q))
+      (h : iso (Ob3 P) (Ob3 Q)),
+    f · Mor1 Q = Mor1 P · g  ×  g · Mor2 Q = Mor2 P · h.
   (** This is definition 2.1 from the paper of Bühler. *)
   Local Definition ExactCategoryProperties : hProp :=
-      (∀ P Q, ShortSequenceIsomorphism P Q ⇒ isExact P ⇒ isExact Q) ∧
+      (∀ P Q, MorphismPairIsomorphism P Q ⇒ isExact P ⇒ isExact Q) ∧
       (∀ A, isAdmissibleMonomorphism (identity A)) ∧
       (∀ A, isAdmissibleEpimorphism (identity A)) ∧
-      (∀ P, isExact P ⇒ isKernelCokernelPair (SS_leftmap P) (SS_rightmap P)) ∧
+      (∀ P, isExact P ⇒ isKernelCokernelPair (Mor1 P) (Mor2 P)) ∧
       (∀ A B C (f : A ↣ B) (g : B ↣ C), isAdmissibleMonomorphism (f · g)) ∧
       (∀ A B C (f : A ↠ B) (g : B ↠ C), isAdmissibleEpimorphism (f · g)) ∧
       (∀ A B C (f : A ↠ B) (g : C --> B), ∃ (PB : Pullback f g), isAdmissibleEpimorphism (PullbackPr2 PB)) ∧
@@ -296,23 +286,23 @@ Coercion ExCatToAddCatWithExactness (E:ExactCategory) : AddCatWithExactness := p
 Notation "A ↣ B" := (AdmissibleMonomorphism _ A B) : excat.
 Notation "B ↠ C" := (AdmissibleEpimorphism _ B C) : excat.
 
-Arguments ShortSequenceIsomorphism {_}.
+Arguments MorphismPairIsomorphism {_}.
 Arguments isAdmissibleMonomorphism {_ _ _}.
 Arguments isAdmissibleEpimorphism {_ _ _}.
 
 Section ExactCategoryAccessFunctions.
   Context {M:ExactCategory}.
   Definition EC_IsomorphicToExact
-    : ∀ (P Q:ShortSequence M), ShortSequenceIsomorphism P Q ⇒ isExact P ⇒ isExact Q
+    : ∀ (P Q:MorphismPair M), MorphismPairIsomorphism P Q ⇒ isExact P ⇒ isExact Q
     := pr12 M.
-  Definition EC_IdentityIsMono
-    : ∀ (A:M), isAdmissibleMonomorphism (identity A)
-    := pr122 M.
-  Definition EC_IdentityIsEpi
-    : ∀ (A:M), isAdmissibleEpimorphism (identity A)
-    := pr122 (pr2 M).
+  Definition EC_IdentityIsMono (A:M)
+    : isAdmissibleMonomorphism (identity A)
+    := pr122 M A.
+  Definition EC_IdentityIsEpi (A:M)
+    : isAdmissibleEpimorphism (identity A)
+    := pr122 (pr2 M) A.
   Definition EC_ExactToKernelCokernel
-    : ∀ (P : ShortSequence M), isExact P ⇒ isKernelCokernelPair (SS_leftmap P) (SS_rightmap P)
+    : ∀ (P : MorphismPair M), isExact P ⇒ isKernelCokernelPair (Mor1 P) (Mor2 P)
     := pr122 (pr22 M).
   Definition EC_ComposeMono
     : ∀ (A B C:M) (f : A ↣ B) (g : B ↣ C), isAdmissibleMonomorphism (f · g)
@@ -320,9 +310,9 @@ Section ExactCategoryAccessFunctions.
   Definition EC_ComposeEpi
     : ∀ (A B C:M) (f : A ↠ B) (g : B ↠ C), isAdmissibleEpimorphism (f · g)
     := pr122 (pr222 (pr2 M)).
-  Definition EC_PullbackEpi
-    : ∀ (A B C:M) (f : A ↠ B) (g : C --> B), ∃ (PB : Pullback f g), isAdmissibleEpimorphism (PullbackPr2 PB)
-    := pr122 (pr222 (pr22 M)).
+  Definition EC_PullbackEpi {A B C:M} (f : A ↠ B) (g : C --> B) :
+    ∃ (PB : Pullback f g), isAdmissibleEpimorphism (PullbackPr2 PB)
+    := pr122 (pr222 (pr22 M)) A B C f g.
   Definition EC_PushoutMono
     : ∀ (A B C:M) (f : B ↣ A) (g : B --> C), ∃ (PO : Pushout f g), isAdmissibleMonomorphism (PushoutIn2 PO)
     := pr222 (pr222 (pr22 M)).
@@ -330,21 +320,21 @@ End ExactCategoryAccessFunctions.
 
 Section ShortExactSequences.
   Context (M:ExactCategory).
-  Definition ShortExactSequence := ∑ (P : ShortSequence M), isExact P.
-  Coercion ShortExactSequenceToShortSequence (P : ShortExactSequence) : ShortSequence M := pr1 P.
+  Definition ShortExactSequence := ∑ (P : MorphismPair M), isExact P.
+  Coercion ShortExactSequenceToMorphismPair (P : ShortExactSequence) : MorphismPair M := pr1 P.
 End ShortExactSequences.
 
 Section ShortExactSequencesAccessorFunctions.
   Context {M:ExactCategory} (P : ShortExactSequence M).
   Definition ES_ExactToKernelCokernel
-    : isKernelCokernelPair (SS_leftmap P) (SS_rightmap P)
+    : isKernelCokernelPair (Mor1 P) (Mor2 P)
     := EC_ExactToKernelCokernel P (pr2 P).
 End ShortExactSequencesAccessorFunctions.
 
 Section ExactCategoryFacts.
   Context {M : ExactCategory}.
   Lemma ExactSequenceFromMono {A B C:M} (i : A --> B) (p : B --> C) :
-    isCokernel' i p -> isAdmissibleMonomorphism i -> isExact (toShortSequence i p).
+    isCokernel' i p -> isAdmissibleMonomorphism i -> isExact (mk_MorphismPair i p).
   Proof.
     intros co mo.
     unfold isAdmissibleMonomorphism in mo.
@@ -360,7 +350,7 @@ Section ExactCategoryFacts.
       + exact (id_left _ @ ! r).
   Defined.
   Lemma ExactSequenceFromEpi {A B C:M} (i : A --> B) (p : B --> C) :
-    isKernel' i p -> isAdmissibleEpimorphism p -> isExact (toShortSequence i p).
+    isKernel' i p -> isAdmissibleEpimorphism p -> isExact (mk_MorphismPair i p).
   Proof.
     intros co mo.
     unfold isAdmissibleMonomorphism in mo.
@@ -375,14 +365,32 @@ Section ExactCategoryFacts.
       + exact (r @ ! id_right _).
       + exact (id_left _ @ ! id_right _).
   Defined.
-  Lemma DirectSumToExact {A B:M} (S:BinDirectSum A B) : isExact (toShortSequence (to_In1 S) (to_Pr2 S)).
+  Lemma ExactSequence10 (A:M) (Z:Zero M) : isExact (mk_MorphismPair (identity A) (0 : A --> Z)).
   Proof.
-    set (C := BinDirectSumOb _ S).
-    set (i1 := to_In1 S).
-    set (i2 := to_In2 S).
-    set (p1 := to_Pr1 S).
-    set (p2 := to_Pr2 S).
-
+    exact (ExactSequenceFromMono _ _ (pr2 (kerCoker10 Z A)) (EC_IdentityIsMono A)).
+  Defined.
+  Lemma ExactSequence01 (A:M) (Z:Zero M) : isExact (mk_MorphismPair (0 : Z --> A) (identity A)).
+  Proof.
+    exact (ExactSequenceFromEpi _ _ (pr1 (kerCoker01 Z A)) (EC_IdentityIsEpi A)).
+  Defined.
+  Lemma MonoToZero (Z:Zero M) (A:M) : Z ↣ A.
+  Proof.
+    exists (0 : Z --> A). apply hinhpr. exists A. exists (identity A). use ExactSequence01.
+  Defined.
+  Lemma EpiToZero (A:M) (Z:Zero M) : A ↠ Z.
+  Proof.
+    exists (0 : A --> Z). apply hinhpr. exists A. exists (identity A). use ExactSequence10.
+  Defined.
+  Lemma DirectSumToExact {A B:M} (S:BinDirectSum A B) :
+    isExact (mk_MorphismPair (to_In1 S) (to_Pr2 S)).
+  Proof.
+    set (Z := to_Zero M).
+    set (p := EpiToZero A Z).
+    assert (pb := DirectSumToPullback S Z).
+    assert (Q := @EC_PullbackEpi M A Z B p 0).
+    apply (squash_to_hProp Q); clear Q; intros [pb' R].
+    assert (T := iso_from_Pullback_to_Pullback pb pb').
+    set (t := morphism_from_iso _ _ _ T).
 
   Abort.
 End ExactCategoryFacts.
