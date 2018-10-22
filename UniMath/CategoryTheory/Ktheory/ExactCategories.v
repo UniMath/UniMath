@@ -45,10 +45,6 @@ Local Notation "A ⊕ B" := (to_BinDirectSums _ A B) : addcat.
 Local Open Scope cat.
 Import AddNotation.
 
-Section Pullbacks.
-  Context {M : category}.
-End Pullbacks.
-
 Local Open Scope addmonoid.
 Local Open Scope addcat.
 
@@ -170,6 +166,18 @@ Section AdditiveCategories.     (* maybe move upstream *)
     - cbn. use tpair.
       + apply ArrowsFromZero.
       + cbn. intros T f g e. exact (to_isBinCoproduct M S T f g).
+  Defined.
+  Definition reverseBinDirectSum {A B:M} : BinDirectSum A B -> BinDirectSum B A.
+  Proof.
+    intros S.
+    use tpair.
+    - exact (BinDirectSumOb M S ,, to_In2 S ,, to_In1 S ,, to_Pr2 S ,, to_Pr1 S).
+    - cbn. repeat split.
+      + exact (to_IdIn2 M (pr2 S)).
+      + exact (to_IdIn1 M (pr2 S)).
+      + exact (to_Unel2 M (pr2 S)).
+      + exact (to_Unel1 M (pr2 S)).
+      + refine (_ @ to_BinOpId _ (pr2 S)). use (commax (to_abgr _ _)).
   Defined.
 End AdditiveCategories.
 
@@ -458,5 +466,10 @@ Section ExactCategoryFacts.
     apply (squash_to_hProp Q); clear Q; intros [pb' R'].
     assert (K := pullbackiso2 pb' pb).
     exact (IsomEpi (PullbackPr2 pb',,R') _ K).
+  Defined.
+  Lemma DirectSumToExact' {A B:M} (S:BinDirectSum A B) :
+    isExact (mk_MorphismPair (to_In2 S) (to_Pr1 S)).
+  Proof.
+    exact (DirectSumToExact (reverseBinDirectSum S)).
   Defined.
 End ExactCategoryFacts.
