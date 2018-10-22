@@ -26,6 +26,7 @@ Local Arguments to_Pr2 {_ _ _} _.
 Local Arguments to_In1 {_ _ _} _.
 Local Arguments to_In2 {_ _ _} _.
 Local Arguments MorphismPair : clear implicits.
+Local Arguments morphism_from_iso {_ _ _}.
 
 Local Open Scope logic.
 
@@ -100,8 +101,10 @@ Section AdditiveCategories.     (* maybe move upstream *)
     set (t1 := (p,,e) : T). set (t2 := (q,,idpath _) : T).
     assert (Q := ic t1 t2). exact (maponpaths pr1 Q).
   Defined.
-  Definition IsoArrowTo   {A A' B:M} (g : A --> B) (g' : A' --> B) := ∑ i : iso A A', i · g' = g .
-  Definition IsoArrowFrom {A B B':M} (g : A --> B) (g' : A --> B') := ∑ i : iso B B', g · i  = g'.
+  Definition IsoArrowTo     {A A' B:M} (g : A --> B) (g' : A' --> B) := ∑ i : iso A A', i · g' = g .
+  Coercion IsoArrowTo_pr1   {A A' B:M} (g : A --> B) (g' : A' --> B) : IsoArrowTo g g' -> iso A A' := pr1.
+  Definition IsoArrowFrom   {A B B':M} (g : A --> B) (g' : A --> B') := ∑ i : iso B B', g · i  = g'.
+  Coercion IsoArrowFrom_pr1 {A B B':M} (g : A --> B) (g' : A --> B') : IsoArrowFrom g g' -> iso B B' := pr1.
   Lemma IsoArrowTo_isaprop {A A' B:M} (g : A --> B) (g' : A' --> B) :
     isMonic g' -> isaprop (IsoArrowTo g g').
   Proof.
@@ -292,30 +295,28 @@ Arguments isAdmissibleEpimorphism {_ _ _}.
 
 Section ExactCategoryAccessFunctions.
   Context {M:ExactCategory}.
-  Definition EC_IsomorphicToExact
-    : ∀ (P Q:MorphismPair M), MorphismPairIsomorphism P Q ⇒ isExact P ⇒ isExact Q
-    := pr12 M.
-  Definition EC_IdentityIsMono (A:M)
-    : isAdmissibleMonomorphism (identity A)
+  Definition EC_IsomorphicToExact {P Q:MorphismPair M}
+    : MorphismPairIsomorphism P Q ⇒ isExact P ⇒ isExact Q
+    := pr12 M P Q.
+  Definition EC_IdentityIsMono (A:M) : isAdmissibleMonomorphism (identity A)
     := pr122 M A.
-  Definition EC_IdentityIsEpi (A:M)
-    : isAdmissibleEpimorphism (identity A)
+  Definition EC_IdentityIsEpi (A:M) : isAdmissibleEpimorphism (identity A)
     := pr122 (pr2 M) A.
-  Definition EC_ExactToKernelCokernel
-    : ∀ (P : MorphismPair M), isExact P ⇒ isKernelCokernelPair (Mor1 P) (Mor2 P)
-    := pr122 (pr22 M).
-  Definition EC_ComposeMono
-    : ∀ (A B C:M) (f : A ↣ B) (g : B ↣ C), isAdmissibleMonomorphism (f · g)
-    := pr122 (pr222 M).
-  Definition EC_ComposeEpi
-    : ∀ (A B C:M) (f : A ↠ B) (g : B ↠ C), isAdmissibleEpimorphism (f · g)
-    := pr122 (pr222 (pr2 M)).
+  Definition EC_ExactToKernelCokernel {P : MorphismPair M} :
+    isExact P ⇒ isKernelCokernelPair (Mor1 P) (Mor2 P)
+    := pr122 (pr22 M) P.
+  Definition EC_ComposeMono {A B C:M} (f : A ↣ B) (g : B ↣ C) :
+    isAdmissibleMonomorphism (f · g)
+    := pr122 (pr222 M) A B C f g.
+  Definition EC_ComposeEpi {A B C:M} (f : A ↠ B) (g : B ↠ C) :
+    isAdmissibleEpimorphism (f · g)
+    := pr122 (pr222 (pr2 M)) A B C f g.
   Definition EC_PullbackEpi {A B C:M} (f : A ↠ B) (g : C --> B) :
     ∃ (PB : Pullback f g), isAdmissibleEpimorphism (PullbackPr2 PB)
     := pr122 (pr222 (pr22 M)) A B C f g.
-  Definition EC_PushoutMono
-    : ∀ (A B C:M) (f : B ↣ A) (g : B --> C), ∃ (PO : Pushout f g), isAdmissibleMonomorphism (PushoutIn2 PO)
-    := pr222 (pr222 (pr22 M)).
+  Definition EC_PushoutMono {A B C:M} (f : B ↣ A) (g : B --> C) :
+    ∃ (PO : Pushout f g), isAdmissibleMonomorphism (PushoutIn2 PO)
+    := pr222 (pr222 (pr22 M)) A B C f g.
 End ExactCategoryAccessFunctions.
 
 Section ShortExactSequences.
@@ -328,7 +329,7 @@ Section ShortExactSequencesAccessorFunctions.
   Context {M:ExactCategory} (P : ShortExactSequence M).
   Definition ES_ExactToKernelCokernel
     : isKernelCokernelPair (Mor1 P) (Mor2 P)
-    := EC_ExactToKernelCokernel P (pr2 P).
+    := EC_ExactToKernelCokernel (pr2 P).
 End ShortExactSequencesAccessorFunctions.
 
 Section ExactCategoryFacts.
@@ -339,9 +340,9 @@ Section ExactCategoryFacts.
     intros co mo.
     unfold isAdmissibleMonomorphism in mo.
     apply (squash_to_hProp mo); clear mo; intros [C' [p' e]].
-    assert (co' := pr2 (EC_ExactToKernelCokernel _ e) : isCokernel' i p').
+    assert (co' := pr2 (EC_ExactToKernelCokernel e) : isCokernel' i p').
     assert (R := iscontrpr1 (CokernelUniqueness co' co)). induction R as [R r].
-    use (EC_IsomorphicToExact _ _ _ e).
+    use (EC_IsomorphicToExact _ e).
     exists (identity_iso _). exists (identity_iso _).
     use tpair; cbn.
     - exact R.
@@ -355,9 +356,9 @@ Section ExactCategoryFacts.
     intros co mo.
     unfold isAdmissibleMonomorphism in mo.
     apply (squash_to_hProp mo); clear mo; intros [A' [i' e]].
-    assert (co' := pr1 (EC_ExactToKernelCokernel _ e) : isKernel' i' p).
+    assert (co' := pr1 (EC_ExactToKernelCokernel e) : isKernel' i' p).
     assert (R := iscontrpr1 (KernelUniqueness co' co)). induction R as [R r].
-    use (EC_IsomorphicToExact _ _ _ e).
+    use (EC_IsomorphicToExact _ e).
     use tpair; cbn.
     - exact R.
     - exists (identity_iso _). exists (identity_iso _).
@@ -381,16 +382,47 @@ Section ExactCategoryFacts.
   Proof.
     exists (0 : A --> Z). apply hinhpr. exists A. exists (identity A). use ExactSequence10.
   Defined.
+  Lemma IsomMono {A B B':M} (f : A ↣ B) (f' : A --> B') : IsoArrowFrom f f' -> isAdmissibleMonomorphism f'.
+  Proof.
+    intros [i I]. induction f as [f E]; cbn in I.
+    apply (squash_to_hProp E); clear E; intros [C [p E]].
+    apply hinhpr. exists C. exists (iso_inv_from_iso i · p). use (EC_IsomorphicToExact _ E).
+    exists (identity_iso A). exists i. exists (identity_iso C). split; cbn.
+    - exact (id_left _ @ ! I).
+    - intermediate_path p.
+      + intermediate_path ((i · inv_from_iso i) · p).
+        * apply assoc.
+        * intermediate_path (identity _ · p).
+          -- apply (maponpaths (λ k, k · p)). apply iso_inv_after_iso.
+          -- apply id_left.
+      + apply pathsinv0, id_right.
+  Defined.
+  Lemma IsomEpi {A A' B:M} (f : A ↠ B) (f' : A' --> B) : IsoArrowTo f f' -> isAdmissibleEpimorphism f'.
+  Proof.
+    intros [i I]. induction f as [f E]; cbn in I.
+    apply (squash_to_hProp E); clear E; intros [K [j E]].
+    apply hinhpr. exists K. exists (j · i). use (EC_IsomorphicToExact _ E).
+    exists (identity_iso K). exists i. exists (identity_iso B). split; cbn.
+    - apply id_left.
+    - exact (I @ ! id_right f).
+  Defined.
   Lemma DirectSumToExact {A B:M} (S:BinDirectSum A B) :
     isExact (mk_MorphismPair (to_In1 S) (to_Pr2 S)).
   Proof.
     set (Z := to_Zero M).
     set (p := EpiToZero A Z).
-    assert (pb := DirectSumToPullback S Z).
-    assert (Q := @EC_PullbackEpi M A Z B p 0).
-    apply (squash_to_hProp Q); clear Q; intros [pb' R].
-    assert (T := iso_from_Pullback_to_Pullback pb pb').
-    set (t := morphism_from_iso _ _ _ T).
-
-  Abort.
+    set (pb := DirectSumToPullback S Z).
+    assert (Q := @EC_PullbackEpi M A Z B p 0); apply (squash_to_hProp Q); clear Q; intros [pb' R'].
+    assert (K : IsoArrowTo (PullbackPr2 pb') (PullbackPr2 pb)).
+    { use tpair; cbn.
+      - exact (iso_from_Pullback_to_Pullback pb' pb).
+      - exact (PullbackArrow_PullbackPr2 pb pb' _ _ _).
+    }
+    assert (R : isAdmissibleEpimorphism (PullbackPr2 pb)).
+    { apply (IsomEpi (PullbackPr2 pb',, R') (PullbackPr2 pb) K). }
+    clear R' K pb' p.
+    apply ExactSequenceFromEpi.
+    - exact (pr1 (kerCokerDirectSum S)).
+    - exact R.
+  Defined.
 End ExactCategoryFacts.
