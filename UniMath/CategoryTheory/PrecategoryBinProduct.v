@@ -30,6 +30,7 @@ By PLL:
 - Definition of the pair of two functors: A × C → B × D
   given A → B and C → D
 
+- Definition of the diagonal functor [bindelta_functor].
 
 ************************************************************)
 
@@ -401,6 +402,7 @@ use tpair.
 - intros x y f; simpl; apply (precatbinprodmor f f).
 Defined.
 
+(* The diagonal functor Δ *)
 Definition bindelta_functor (C : precategory) :
   functor C (precategory_binproduct C C).
 Proof.
