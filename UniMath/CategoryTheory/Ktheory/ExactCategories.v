@@ -32,20 +32,25 @@ Local Open Scope logic.
 
 Delimit Scope addcat with addcat. (* move upstream *)
 
-Notation "C ⟦ a , b ⟧" := (@to_abgr C a b) : addcat.
-Notation "a --> b" := (to_abgr a b) : addcat.
-Notation "f · g" := (compose f g : to_abgr _ _) : addcat.
-Notation "0" := (ZeroArrow (to_Zero _) _ _) : cat.
-Notation "0" := (unel _ : to_abgr _ _) : addcat.
-Notation "1" := (identity _ : to_abgr _ _) : addcat.
-Notation "f = g" := (eqset f g) : addcat.
-Notation "f - g" := (@op _ f (grinv _ g) : to_abgr _ _) : addcat.
-Notation "A ⊕ B" := (to_BinDirectSums _ A B) : addcat.
+Local Notation "C ⟦ a , b ⟧" := (@to_abgr C a b) : addcat.
+Local Notation "a --> b" := (to_abgr a b) : addcat.
+Local Notation "f · g" := (compose f g : to_abgr _ _) : addcat.
+Local Notation "0" := (ZeroArrow (to_Zero _) _ _) : cat.
+Local Notation "0" := (unel _ : to_abgr _ _) : addcat.
+Local Notation "1" := (identity _ : to_abgr _ _) : addcat.
+Local Notation "f = g" := (eqset f g) : addcat.
+Local Notation "f - g" := (@op _ f (grinv _ g) : to_abgr _ _) : addcat.
+Local Notation "A ⊕ B" := (to_BinDirectSums _ A B) : addcat.
 
 Local Open Scope cat.
+Import AddNotation.
+
+Section Pullbacks.
+  Context {M : category}.
+End Pullbacks.
+
 Local Open Scope addmonoid.
 Local Open Scope addcat.
-Import AddNotation.
 
 Section AdditiveCategories.     (* maybe move upstream *)
   Context {M : Additive}.
@@ -172,6 +177,10 @@ Section KernelCokernelPairs.
   Context {M : Additive}.
   Definition isKernelCokernelPair {A B C:M} (i : A --> B) (p: B --> C) : hProp
     := isKernel' i p ∧ isCokernel' i p.
+  Definition PairToKernel {A B C:M} {i : A --> B} {p: B --> C} :
+    isKernelCokernelPair i p -> isKernel' i p := pr1.
+  Definition PairToCokernel {A B C:M} {i : A --> B} {p: B --> C} :
+    isKernelCokernelPair i p -> isCokernel' i p := pr2.
   Lemma PairUniqueness1 {A A' B C:M} (i : A --> B) (i' : A' --> B) (p: B --> C) :
     isKernelCokernelPair i p -> isKernelCokernelPair i' p -> iscontr (IsoArrowTo i i').
   Proof.
@@ -382,9 +391,10 @@ Section ExactCategoryFacts.
   Proof.
     exists (0 : A --> Z). apply hinhpr. exists A. exists (identity A). use ExactSequence10.
   Defined.
-  Lemma IsomMono {A B B':M} (f : A ↣ B) (f' : A --> B') : IsoArrowFrom f f' -> isAdmissibleMonomorphism f'.
+  Lemma IsomMono {A B B':M} (f : A --> B) (f' : A --> B') :
+    IsoArrowFrom f f' -> isAdmissibleMonomorphism f -> isAdmissibleMonomorphism f'.
   Proof.
-    intros [i I]. induction f as [f E]; cbn in I.
+    intros [i I] E.
     apply (squash_to_hProp E); clear E; intros [C [p E]].
     apply hinhpr. exists C. exists (iso_inv_from_iso i · p). use (EC_IsomorphicToExact _ E).
     exists (identity_iso A). exists i. exists (identity_iso C). split; cbn.
@@ -406,23 +416,47 @@ Section ExactCategoryFacts.
     - apply id_left.
     - exact (I @ ! id_right f).
   Defined.
+
+  Lemma pullbackiso {A B C:M} {f : A --> C} {g : B --> C}
+        (pb : Pullback f g) (pb' : Pullback f g)
+    : ∑ (t : iso (PullbackObject pb) (PullbackObject pb')),
+      t · PullbackPr1 pb' = PullbackPr1 pb ×
+      t · PullbackPr2 pb' = PullbackPr2 pb.
+  Proof.
+    use tpair.
+    - use iso_from_Pullback_to_Pullback.
+    - cbn beta. split.
+      + use PullbackArrow_PullbackPr1.
+      + use PullbackArrow_PullbackPr2.
+  Defined.
+  Lemma pullbackiso1 {A B C:M} {f : A --> C} {g : B --> C}
+        (pb : Pullback f g) (pb' : Pullback f g)
+    : IsoArrowTo (PullbackPr1 pb) (PullbackPr1 pb').
+  Proof.
+    assert (K := pullbackiso pb pb'). induction K as [K [E _]].
+    exists K.
+    exact E.
+  Defined.
+  Lemma pullbackiso2 {A B C:M} {f : A --> C} {g : B --> C}
+        (pb : Pullback f g) (pb' : Pullback f g)
+    : IsoArrowTo (PullbackPr2 pb) (PullbackPr2 pb').
+  Proof.
+    assert (K := pullbackiso pb pb'). induction K as [K [_ E]].
+    exists K.
+    exact E.
+  Defined.
   Lemma DirectSumToExact {A B:M} (S:BinDirectSum A B) :
     isExact (mk_MorphismPair (to_In1 S) (to_Pr2 S)).
   Proof.
     set (Z := to_Zero M).
-    set (p := EpiToZero A Z).
+    assert (Q := @EC_PullbackEpi M A Z B (EpiToZero A Z) 0).
+    use ExactSequenceFromEpi.
+    { exact (PairToKernel (kerCokerDirectSum S)). }
     set (pb := DirectSumToPullback S Z).
-    assert (Q := @EC_PullbackEpi M A Z B p 0); apply (squash_to_hProp Q); clear Q; intros [pb' R'].
-    assert (K : IsoArrowTo (PullbackPr2 pb') (PullbackPr2 pb)).
-    { use tpair; cbn.
-      - exact (iso_from_Pullback_to_Pullback pb' pb).
-      - exact (PullbackArrow_PullbackPr2 pb pb' _ _ _).
-    }
-    assert (R : isAdmissibleEpimorphism (PullbackPr2 pb)).
-    { apply (IsomEpi (PullbackPr2 pb',, R') (PullbackPr2 pb) K). }
-    clear R' K pb' p.
-    apply ExactSequenceFromEpi.
-    - exact (pr1 (kerCokerDirectSum S)).
-    - exact R.
+    change (isAdmissibleEpimorphism (PullbackPr2 pb)).
+    generalize pb; clear pb; intro pb.
+    apply (squash_to_hProp Q); clear Q; intros [pb' R'].
+    assert (K := pullbackiso2 pb' pb).
+    exact (IsomEpi (PullbackPr2 pb',,R') _ K).
   Defined.
 End ExactCategoryFacts.
