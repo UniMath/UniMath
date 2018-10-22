@@ -968,6 +968,6 @@ Section Assoc.
     replace ((a ⊠ b) ⊠ c) with (ProductObject _ _ p2) by reflexivity.
     eapply mk_iso.
     eapply product_unique.
-  Qed.
+  Defined.
 
 End Assoc.
