@@ -6,6 +6,7 @@ Require Export UniMath.CategoryTheory.Epis.
 Require Export UniMath.CategoryTheory.limits.zero.
 Require Export UniMath.CategoryTheory.limits.kernels.
 Require Export UniMath.CategoryTheory.limits.cokernels.
+Require Export UniMath.CategoryTheory.limits.binproducts.
 Require Export UniMath.CategoryTheory.limits.pullbacks.
 Require Export UniMath.CategoryTheory.limits.pushouts.
 Require Export UniMath.CategoryTheory.limits.BinDirectSums.
@@ -18,6 +19,7 @@ Require Export UniMath.MoreFoundations.Notations.
 Require Export UniMath.MoreFoundations.Propositions.
 Require Export UniMath.Algebra.Monoids_and_Groups.
 
+Local Arguments BinDirectSum {_}.
 Local Arguments to_Pr1 {_ _ _} _.
 Local Arguments to_Pr2 {_ _ _} _.
 Local Arguments to_In1 {_ _ _} _.
@@ -141,6 +143,24 @@ Section AdditiveCategories.     (* maybe move upstream *)
         - apply (CokernelIsEpi _ _ j). rewrite assoc. rewrite P. rewrite Q. rewrite id_right. reflexivity. }
       set (θ := isopair q d). exists θ. exact Q.
   Defined.
+  Lemma DirectSumToPullback {A B:M} (S : BinDirectSum A B) (Z : Zero M) :
+    Pullback (0 : A --> Z) (0 : B --> Z).
+  Proof.
+    use tpair.
+    - exists S. exact (to_Pr1 S,, to_Pr2 S).
+    - cbn. use tpair.
+      + apply ArrowsToZero.
+      + cbn. intros T f g e. exact (to_isBinProduct M S T f g).
+  Defined.
+  Lemma DirectSumToPushout {A B:M} (S : BinDirectSum A B) (Z : Zero M) :
+    Pushout (0 : Z --> A) (0 : Z --> B).
+  Proof.
+    use tpair.
+    - exists S. exact (to_In1 S,, to_In2 S).
+    - cbn. use tpair.
+      + apply ArrowsFromZero.
+      + cbn. intros T f g e. exact (to_isBinCoproduct M S T f g).
+  Defined.
 End AdditiveCategories.
 
 Section KernelCokernelPairs.
@@ -157,7 +177,7 @@ Section KernelCokernelPairs.
   Proof.
     intros [_ c] [_ c']. exact (CokernelUniqueness c c').
   Defined.
-  Lemma kerCokerDirectSum {A B:M} (S:BinDirectSum M A B) : isKernelCokernelPair (to_In1 S) (to_Pr2 S).
+  Lemma kerCokerDirectSum {A B:M} (S:BinDirectSum A B) : isKernelCokernelPair (to_In1 S) (to_Pr2 S).
   Proof.
     assert (E := BinDirectSum_isBinDirectSum M S).
     split.
@@ -182,7 +202,7 @@ Section KernelCokernelPairs.
       + clear H. intros k e. induction e. rewrite assoc. rewrite (to_IdIn2 M S).
         apply pathsinv0, id_left.
   Defined.
-  Definition TrivialDirectSum (Z:Zero M) (A:M) : BinDirectSum M A Z.
+  Definition TrivialDirectSum (Z:Zero M) (A:M) : BinDirectSum A Z.
   Proof.
     exists (A,,1,,0,,1,,0).
     repeat split; cbn.
@@ -193,7 +213,7 @@ Section KernelCokernelPairs.
     - rewrite id_right. rewrite ZeroArrow_comp_right'. rewrite rewrite_op.
       rewrite runax. reflexivity.
   Defined.
-  Definition TrivialDirectSum' (Z:Zero M) (A:M) : BinDirectSum M Z A.
+  Definition TrivialDirectSum' (Z:Zero M) (A:M) : BinDirectSum Z A.
   Proof.
     exists (A,,0,,1,,0,,1).
     repeat split; cbn.
@@ -355,7 +375,7 @@ Section ExactCategoryFacts.
       + exact (r @ ! id_right _).
       + exact (id_left _ @ ! id_right _).
   Defined.
-  Lemma DirectSumToExact {A B:M} (S:BinDirectSum M A B) : isExact (toShortSequence (to_In1 S) (to_Pr2 S)).
+  Lemma DirectSumToExact {A B:M} (S:BinDirectSum A B) : isExact (toShortSequence (to_In1 S) (to_Pr2 S)).
   Proof.
     set (C := BinDirectSumOb _ S).
     set (i1 := to_In1 S).
