@@ -55,7 +55,6 @@ End Sanity2.
 Local Notation "a --> b" := (precategory_morphisms a b) : cat.
 Local Notation "a --> b" := (hSetpair (precategory_morphisms a b) (homset_property _ a b)) : Cat.
 Local Notation "a --> b" := (to_abgr a b) : addcat.
-Local Notation "C ⟦ a , b ⟧" := (@to_abgr C a b) : addcat.
 Local Notation "f · g" := (compose f g : to_abgr _ _) : Cat.
 Local Notation "f · g" := (compose f g : to_abgr _ _) : addcat.
 Local Notation "0" := (ZeroArrow (to_Zero _) _ _) : cat.
@@ -67,6 +66,15 @@ Local Notation "A ⊕ B" := (to_BinDirectSums _ A B) : addcat.
 
 Local Open Scope cat.
 Import AddNotation.
+
+Section MorphismPairs.          (* move upstream *)
+  Context {M : precategory}.
+  Definition MorphismPairIsomorphism (P Q : MorphismPair M) :=
+    ∑ (f : iso (Ob1 P) (Ob1 Q))
+      (g : iso (Ob2 P) (Ob2 Q))
+      (h : iso (Ob3 P) (Ob3 Q)),
+    f · Mor1 Q = Mor1 P · g  ×  g · Mor2 Q = Mor2 P · h.
+End MorphismPairs.
 
 Section Pullbacks.              (* move upstream *)
   Context {M : precategory}.
@@ -90,22 +98,20 @@ Section Pullbacks.              (* move upstream *)
         (pb : Pullback f g) (pb' : Pullback f g)
     : IsoArrowTo (PullbackPr1 pb) (PullbackPr1 pb').
   Proof.
-    assert (K := pullbackiso pb pb'). induction K as [K [E _]].
-    exists K.
-    exact E.
+    exact (pr1 (pullbackiso pb pb'),, pr12 (pullbackiso pb pb')).
   Defined.
   Lemma pullbackiso2 {A B C:M} {f : A --> C} {g : B --> C}
         (pb : Pullback f g) (pb' : Pullback f g)
     : IsoArrowTo (PullbackPr2 pb) (PullbackPr2 pb').
   Proof.
-    assert (K := pullbackiso pb pb'). induction K as [K [_ E]].
-    exists K.
-    exact E.
+    exact (pr1 (pullbackiso pb pb'),, pr22 (pullbackiso pb pb')).
   Defined.
 End Pullbacks.
 
+Local Open Scope Cat.
+
 Section Pullbacks2.              (* move upstream *)
-  Context {M : category}.
+  Context (M : category).        (* giving this argument makes it work better (?) *)
   Lemma IsoArrowTo_isaprop {A A' B:M} (g : A --> B) (g' : A' --> B) :
     isMonic g' -> isaprop (IsoArrowTo g g').
   Proof.
@@ -125,7 +131,6 @@ Section Pullbacks2.              (* move upstream *)
   Defined.
 End Pullbacks2.
 
-Local Open Scope Cat.
 Local Open Scope addmonoid.
 Local Open Scope addcat.
 
@@ -187,8 +192,7 @@ Section AdditiveCategories.     (* move upstream *)
     isKernel' f g -> isKernel' f' g -> iscontr (IsoArrowTo f f').
   Proof.
     intros i j. apply iscontraprop1.
-    - exact (IsoArrowTo_isaprop (f : Hom M x y) (* why is this cast needed? *)
-                                f' (KernelIsMonic f' g j)).
+    - exact (IsoArrowTo_isaprop M f f' (KernelIsMonic f' g j)).
     - induction (iscontrpr1 (pr2 j _ f (pr1 i))) as [p P].
       induction (iscontrpr1 (pr2 i _ f' (pr1 j))) as [q Q].
       assert (d : is_iso p).
@@ -201,8 +205,7 @@ Section AdditiveCategories.     (* move upstream *)
     isCokernel' f g -> isCokernel' f g' -> iscontr (IsoArrowFrom g g').
   Proof.
     intros i j. apply iscontraprop1.
-    - exact (IsoArrowFrom_isaprop (g : Hom M _ _) (* why is this cast needed? *)
-                                  g' (CokernelIsEpi f g i)).
+    - exact (IsoArrowFrom_isaprop M g g' (CokernelIsEpi f g i)).
     - induction (iscontrpr1 (pr2 j _ g (pr1 i))) as [p P].
       induction (iscontrpr1 (pr2 i _ g' (pr1 j))) as [q Q].
       assert (d : is_iso q).
@@ -343,12 +346,7 @@ Section theDefinition.
   Coercion AdmEpiToMap {B C:M} : AdmissibleEpimorphism B C -> B --> C := pr1.
   Coercion AdmEpiToMap' {B C:M} : AdmissibleEpimorphism B C -> (B --> C)%cat := pr1.
   Notation "B ↠ C" := (AdmissibleEpimorphism B C) : excat.
-  Definition MorphismPairIsomorphism (P Q : MorphismPair M) :=
-    ∑ (f : iso (Ob1 P) (Ob1 Q))
-      (g : iso (Ob2 P) (Ob2 Q))
-      (h : iso (Ob3 P) (Ob3 Q)),
-    f · Mor1 Q = Mor1 P · g  ×  g · Mor2 Q = Mor2 P · h.
-  (** This is definition 2.1 from the paper of Bühler. *)
+  (** The following definition is definition 2.1 from the paper of Bühler. *)
   Local Definition ExactCategoryProperties : hProp :=
       (∀ P Q, MorphismPairIsomorphism P Q ⇒ isExact P ⇒ isExact Q) ∧
       (∀ A, isAdmissibleMonomorphism (identity A)) ∧
@@ -491,7 +489,7 @@ Section ExactCategoryFacts.
     isExact (mk_MorphismPair (to_In1 S) (to_Pr2 S)).
   Proof.
     set (Z := to_Zero M).
-    assert (Q := @EC_PullbackEpi M A Z B (EpiToZero A Z) 0).
+    assert (Q := EC_PullbackEpi (EpiToZero A Z) (0 : B --> Z)).
     use ExactSequenceFromEpi.
     { exact (PairToKernel (kerCokerDirectSum S)). }
     set (pb := DirectSumToPullback S Z).
