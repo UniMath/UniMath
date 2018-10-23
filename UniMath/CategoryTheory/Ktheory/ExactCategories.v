@@ -32,23 +32,104 @@ Local Open Scope logic.
 
 Delimit Scope addcat with addcat. (* move upstream *)
 
-Local Notation "C ⟦ a , b ⟧" := (@to_abgr C a b) : addcat.
+Local Definition hom (C:precategory_data) : ob C -> ob C -> UU := λ c c', precategory_morphisms c c'.
+Local Definition Hom (C : category) : ob C -> ob C -> hSet := λ c c', hSetpair _ (homset_property C c c').
+Local Definition Hom_add (C : PreAdditive) : ob C -> ob C -> abgr := λ c c', (@to_abgr C c c').
+
+Section Sanity.
+  Context (M : category) (x y:M) (f : hom M x y) (g : Hom M x y).
+  Goal Hom M x y. exact f. Defined.
+  Goal hom M x y. exact g. Defined.
+End Sanity.
+
+Section Sanity2.
+  Context (M : PreAdditive) (x y:M) (f : hom M x y) (g : Hom M x y) (h : Hom_add M x y).
+  Goal Hom_add M x y. exact f. Defined.
+  Goal Hom_add M x y. exact g. Defined.
+  Goal Hom M x y. exact f. Defined.
+  Goal Hom M x y. exact h. Defined.
+  Goal hom M x y. exact g. Defined.
+  Goal hom M x y. exact h. Defined.
+End Sanity2.
+
+Local Notation "a --> b" := (precategory_morphisms a b) : cat.
+Local Notation "a --> b" := (hSetpair (precategory_morphisms a b) (homset_property _ a b)) : Cat.
 Local Notation "a --> b" := (to_abgr a b) : addcat.
+Local Notation "C ⟦ a , b ⟧" := (@to_abgr C a b) : addcat.
+Local Notation "f · g" := (compose f g : to_abgr _ _) : Cat.
 Local Notation "f · g" := (compose f g : to_abgr _ _) : addcat.
 Local Notation "0" := (ZeroArrow (to_Zero _) _ _) : cat.
 Local Notation "0" := (unel _ : to_abgr _ _) : addcat.
 Local Notation "1" := (identity _ : to_abgr _ _) : addcat.
-Local Notation "f = g" := (eqset f g) : addcat.
+Local Notation "f = g" := (eqset f g) : Cat.
 Local Notation "f - g" := (@op _ f (grinv _ g) : to_abgr _ _) : addcat.
 Local Notation "A ⊕ B" := (to_BinDirectSums _ A B) : addcat.
 
 Local Open Scope cat.
 Import AddNotation.
 
+Section Pullbacks.              (* move upstream *)
+  Context {M : precategory}.
+  Lemma pullbackiso {A B C:M} {f : A --> C} {g : B --> C}
+        (pb : Pullback f g) (pb' : Pullback f g)
+    : ∑ (t : iso (PullbackObject pb) (PullbackObject pb')),
+      t · PullbackPr1 pb' = PullbackPr1 pb ×
+      t · PullbackPr2 pb' = PullbackPr2 pb.
+  Proof.
+    use tpair.
+    - use iso_from_Pullback_to_Pullback.
+    - cbn beta. split.
+      + use PullbackArrow_PullbackPr1.
+      + use PullbackArrow_PullbackPr2.
+  Defined.
+  Definition IsoArrowTo     {A A' B:M} (g : A --> B) (g' : A' --> B) := ∑ i : iso A A', i · g' = g .
+  Coercion IsoArrowTo_pr1   {A A' B:M} (g : A --> B) (g' : A' --> B) : IsoArrowTo g g' -> iso A A' := pr1.
+  Definition IsoArrowFrom   {A B B':M} (g : A --> B) (g' : A --> B') := ∑ i : iso B B', g · i  = g'.
+  Coercion IsoArrowFrom_pr1 {A B B':M} (g : A --> B) (g' : A --> B') : IsoArrowFrom g g' -> iso B B' := pr1.
+  Lemma pullbackiso1 {A B C:M} {f : A --> C} {g : B --> C}
+        (pb : Pullback f g) (pb' : Pullback f g)
+    : IsoArrowTo (PullbackPr1 pb) (PullbackPr1 pb').
+  Proof.
+    assert (K := pullbackiso pb pb'). induction K as [K [E _]].
+    exists K.
+    exact E.
+  Defined.
+  Lemma pullbackiso2 {A B C:M} {f : A --> C} {g : B --> C}
+        (pb : Pullback f g) (pb' : Pullback f g)
+    : IsoArrowTo (PullbackPr2 pb) (PullbackPr2 pb').
+  Proof.
+    assert (K := pullbackiso pb pb'). induction K as [K [_ E]].
+    exists K.
+    exact E.
+  Defined.
+End Pullbacks.
+
+Section Pullbacks2.              (* move upstream *)
+  Context {M : category}.
+  Lemma IsoArrowTo_isaprop {A A' B:M} (g : A --> B) (g' : A' --> B) :
+    isMonic g' -> isaprop (IsoArrowTo g g').
+  Proof.
+    intros i. apply invproofirrelevance; intros k k'. apply subtypeEquality'.
+    - induction k as [[k K] e], k' as [[k' K'] e']; cbn; cbn in e, e'.
+      induction (i A k k' (e @ !e')). apply maponpaths. apply isaprop_is_iso.
+    - apply homset_property.
+  Defined.
+  Lemma IsoArrowFrom_isaprop {A B B':M} (g : A --> B) (g' : A --> B') :
+     isEpi g -> isaprop (IsoArrowFrom g g').
+  Proof.
+    intros i. apply invproofirrelevance; intros k k'. apply subtypeEquality'.
+    - induction k as [[k K] e], k' as [[k' K'] e']; cbn; cbn in e, e'.
+      unfold isEpi in i.
+      induction (i B' k k' (e @ !e')). apply maponpaths. apply isaprop_is_iso.
+    - apply homset_property.
+  Defined.
+End Pullbacks2.
+
+Local Open Scope Cat.
 Local Open Scope addmonoid.
 Local Open Scope addcat.
 
-Section AdditiveCategories.     (* maybe move upstream *)
+Section AdditiveCategories.     (* move upstream *)
   Context {M : Additive}.
   (** Reprove some standard facts in additive categories with the 0 map (the zero element of the
       group) replacing the zero map (defined by composing maps to and from the zero object). *)
@@ -65,9 +146,9 @@ Section AdditiveCategories.     (* maybe move upstream *)
     - apply pathsinv0, PreAdditive_unel_zero.
   Defined.
   Definition leftComp (a b c : M) (f : a --> b) : (b --> c) -> (a --> c)
-    := precomp_with f.
+    := precomp_with f.          (* replace with to_premor *)
   Definition rightComp (a b c : M) (f : b --> c) : (a --> b) -> (a --> c)
-    := postcomp_with f.
+    := postcomp_with f.         (* replace with to_postmor *)
   Lemma leftCompHomo (a b c : M) (f : a --> b) : ismonoidfun (leftComp a b c f).
   Proof.
     split.
@@ -102,32 +183,12 @@ Section AdditiveCategories.     (* maybe move upstream *)
     set (t1 := (p,,e) : T). set (t2 := (q,,idpath _) : T).
     assert (Q := ic t1 t2). exact (maponpaths pr1 Q).
   Defined.
-  Definition IsoArrowTo     {A A' B:M} (g : A --> B) (g' : A' --> B) := ∑ i : iso A A', i · g' = g .
-  Coercion IsoArrowTo_pr1   {A A' B:M} (g : A --> B) (g' : A' --> B) : IsoArrowTo g g' -> iso A A' := pr1.
-  Definition IsoArrowFrom   {A B B':M} (g : A --> B) (g' : A --> B') := ∑ i : iso B B', g · i  = g'.
-  Coercion IsoArrowFrom_pr1 {A B B':M} (g : A --> B) (g' : A --> B') : IsoArrowFrom g g' -> iso B B' := pr1.
-  Lemma IsoArrowTo_isaprop {A A' B:M} (g : A --> B) (g' : A' --> B) :
-    isMonic g' -> isaprop (IsoArrowTo g g').
-  Proof.
-    intros i. apply invproofirrelevance; intros k k'. apply subtypeEquality'.
-    - induction k as [[k K] e], k' as [[k' K'] e']; cbn; cbn in e, e'.
-      induction (i A k k' (e @ !e')). apply maponpaths. apply isaprop_is_iso.
-    - apply propproperty.
-  Defined.
-  Lemma IsoArrowFrom_isaprop {A B B':M} (g : A --> B) (g' : A --> B') :
-     isEpi g -> isaprop (IsoArrowFrom g g').
-  Proof.
-    intros i. apply invproofirrelevance; intros k k'. apply subtypeEquality'.
-    - induction k as [[k K] e], k' as [[k' K'] e']; cbn; cbn in e, e'.
-      unfold isEpi in i.
-      induction (i B' k k' (e @ !e')). apply maponpaths. apply isaprop_is_iso.
-    - apply propproperty.
-  Defined.
   Lemma KernelUniqueness {x x' y z : M} {f : x --> y} {f' : x' --> y} {g : y --> z} :
     isKernel' f g -> isKernel' f' g -> iscontr (IsoArrowTo f f').
   Proof.
     intros i j. apply iscontraprop1.
-    - apply IsoArrowTo_isaprop. exact (KernelIsMonic f' g j).
+    - exact (IsoArrowTo_isaprop (f : Hom M x y) (* why is this cast needed? *)
+                                f' (KernelIsMonic f' g j)).
     - induction (iscontrpr1 (pr2 j _ f (pr1 i))) as [p P].
       induction (iscontrpr1 (pr2 i _ f' (pr1 j))) as [q Q].
       assert (d : is_iso p).
@@ -140,7 +201,8 @@ Section AdditiveCategories.     (* maybe move upstream *)
     isCokernel' f g -> isCokernel' f g' -> iscontr (IsoArrowFrom g g').
   Proof.
     intros i j. apply iscontraprop1.
-    - apply IsoArrowFrom_isaprop. exact (CokernelIsEpi f g i).
+    - exact (IsoArrowFrom_isaprop (g : Hom M _ _) (* why is this cast needed? *)
+                                  g' (CokernelIsEpi f g i)).
     - induction (iscontrpr1 (pr2 j _ g (pr1 i))) as [p P].
       induction (iscontrpr1 (pr2 i _ g' (pr1 j))) as [q Q].
       assert (d : is_iso q).
@@ -415,7 +477,8 @@ Section ExactCategoryFacts.
           -- apply id_left.
       + apply pathsinv0, id_right.
   Defined.
-  Lemma IsomEpi {A A' B:M} (f : A ↠ B) (f' : A' --> B) : IsoArrowTo f f' -> isAdmissibleEpimorphism f'.
+  Lemma IsomEpi {A A' B:M} (f : A ↠ B) (f' : A' --> B) :
+    IsoArrowTo f f' -> isAdmissibleEpimorphism f'.
   Proof.
     intros [i I]. induction f as [f E]; cbn in I.
     apply (squash_to_hProp E); clear E; intros [K [j E]].
@@ -423,35 +486,6 @@ Section ExactCategoryFacts.
     exists (identity_iso K). exists i. exists (identity_iso B). split; cbn.
     - apply id_left.
     - exact (I @ ! id_right f).
-  Defined.
-
-  Lemma pullbackiso {A B C:M} {f : A --> C} {g : B --> C}
-        (pb : Pullback f g) (pb' : Pullback f g)
-    : ∑ (t : iso (PullbackObject pb) (PullbackObject pb')),
-      t · PullbackPr1 pb' = PullbackPr1 pb ×
-      t · PullbackPr2 pb' = PullbackPr2 pb.
-  Proof.
-    use tpair.
-    - use iso_from_Pullback_to_Pullback.
-    - cbn beta. split.
-      + use PullbackArrow_PullbackPr1.
-      + use PullbackArrow_PullbackPr2.
-  Defined.
-  Lemma pullbackiso1 {A B C:M} {f : A --> C} {g : B --> C}
-        (pb : Pullback f g) (pb' : Pullback f g)
-    : IsoArrowTo (PullbackPr1 pb) (PullbackPr1 pb').
-  Proof.
-    assert (K := pullbackiso pb pb'). induction K as [K [E _]].
-    exists K.
-    exact E.
-  Defined.
-  Lemma pullbackiso2 {A B C:M} {f : A --> C} {g : B --> C}
-        (pb : Pullback f g) (pb' : Pullback f g)
-    : IsoArrowTo (PullbackPr2 pb) (PullbackPr2 pb').
-  Proof.
-    assert (K := pullbackiso pb pb'). induction K as [K [_ E]].
-    exists K.
-    exact E.
   Defined.
   Lemma DirectSumToExact {A B:M} (S:BinDirectSum A B) :
     isExact (mk_MorphismPair (to_In1 S) (to_Pr2 S)).
