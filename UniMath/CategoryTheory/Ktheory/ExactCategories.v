@@ -74,6 +74,14 @@ Import AddNotation.
 
 Section MorphismPairs.          (* move upstream *)
   Context {M : precategory}.
+  Definition MorphismPairMap (P Q : MorphismPair M) :=
+    ∑ (f : Ob1 P --> Ob1 Q)
+      (g : Ob2 P --> Ob2 Q)
+      (h : Ob3 P --> Ob3 Q),
+    f · Mor1 Q = Mor1 P · g  ×  g · Mor2 Q = Mor2 P · h.
+  Definition Map1 {P Q : MorphismPair M} (f : MorphismPairMap P Q) : Ob1 P --> Ob1 Q := pr1 f.
+  Definition Map2 {P Q : MorphismPair M} (f : MorphismPairMap P Q) : Ob2 P --> Ob2 Q := pr12 f.
+  Definition Map3 {P Q : MorphismPair M} (f : MorphismPairMap P Q) : Ob3 P --> Ob3 Q := pr122 f.
   Definition MorphismPairIsomorphism (P Q : MorphismPair M) :=
     ∑ (f : iso (Ob1 P) (Ob1 Q))
       (g : iso (Ob2 P) (Ob2 Q))
@@ -128,11 +136,12 @@ Section Pullbacks2.              (* move upstream *)
   Lemma IsoArrowFrom_isaprop {A B B':M} (g : A --> B) (g' : A --> B') :
      isEpi g -> isaprop (IsoArrowFrom g g').
   Proof.
-    intros i. apply invproofirrelevance; intros k k'. apply subtypeEquality'.
-    - induction k as [[k K] e], k' as [[k' K'] e']; cbn; cbn in e, e'.
-      unfold isEpi in i.
-      induction (i B' k k' (e @ !e')). apply maponpaths. apply isaprop_is_iso.
-    - apply homset_property.
+    intros i. apply invproofirrelevance; intros k k'. apply subtypeEquality.
+    { intros j. apply homset_property. }
+    induction k as [[k K] e], k' as [[k' K'] e']; cbn; cbn in e, e'.
+    apply subtypeEquality; cbn.
+    { intros f. apply isaprop_is_iso. }
+    use i. exact (e @ !e').
   Qed.
 End Pullbacks2.
 
@@ -593,7 +602,7 @@ Section ExactCategoryFacts.
     exists po. use ExactSequenceFromMono.
     { exact (PairPushoutCokernel i p (EC_ExactToKernelCokernel pr) r po). }
     exact J.
-  Defined.
+  Qed.
   Lemma ExactPullback {A B C A':M} (i : A <-- B) (p : B <-- C)
         (pr : isExact (mk_MorphismPair p i))
         (r : A <-- A') :
@@ -606,18 +615,16 @@ Section ExactCategoryFacts.
     exists pb. use ExactSequenceFromEpi.
     { exact (PairPullbackKernel i p (EC_ExactToKernelCokernel pr) r pb). }
     exact J.
-  Defined.
+  Qed.
 End ExactCategoryFacts.
 
 Section ShortExactSequences.
-  Context (M:ExactCategory).
-  Definition ShortExactSequence := ∑ (P : MorphismPair M), isExact P.
-  Coercion ShortExactSequenceToMorphismPair (P : ShortExactSequence) : MorphismPair M := pr1 P.
-End ShortExactSequences.
-
-Section ShortExactSequencesAccessorFunctions.
-  Context {M:ExactCategory} (P : ShortExactSequence M).
-  Definition ES_ExactToKernelCokernel
+  (* I'm not sure this type will be useful. *)
+  Definition ShortExactSequence (M:ExactCategory) := ∑ (P : MorphismPair M), isExact P.
+  Coercion ShortExactSequenceToMorphismPair {M:ExactCategory} (P : ShortExactSequence M) : MorphismPair M := pr1 P.
+  Definition ES_ExactToKernelCokernel {M:ExactCategory} (P : ShortExactSequence M)
     : isKernelCokernelPair (Mor1 P) (Mor2 P)
     := EC_ExactToKernelCokernel (pr2 P).
-End ShortExactSequencesAccessorFunctions.
+  Context {M:ExactCategory}.
+  Definition ShortExactSequenceMap (P Q:ShortExactSequence M) := MorphismPairMap P Q.
+End ShortExactSequences.
