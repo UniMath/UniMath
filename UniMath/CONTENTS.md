@@ -180,6 +180,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Abelian.v](CategoryTheory/Abelian.v)
    - [category_binops.v](CategoryTheory/category_binops.v)
    - [AbelianToAdditive.v](CategoryTheory/AbelianToAdditive.v)
+   - [Ktheory/ExactCategories.v](CategoryTheory/Ktheory/ExactCategories.v)
    - [Morphisms.v](CategoryTheory/Morphisms.v)
    - [ShortExactSequences.v](CategoryTheory/ShortExactSequences.v)
    - [AdditiveFunctors.v](CategoryTheory/AdditiveFunctors.v)
