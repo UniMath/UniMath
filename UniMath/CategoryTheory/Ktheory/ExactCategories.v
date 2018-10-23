@@ -75,6 +75,19 @@ Local Notation "f - g" := (@op _ f (grinv _ g) : to_abgr _ _) : addcat.
 Local Notation "A ⊕ B" := (to_BinDirectSums _ A B) : addcat.
 
 Local Open Scope cat.
+
+Section Categories.
+  Definition is_iso' {C : precategory_data} {b c : C} (f : b --> c) :=
+    ∏ a, isweq (postcomp_with f (a:=a)).
+  Lemma is_iso'_to_is_iso {C : precategory_data} {b c : C} (f : b --> c) :
+    is_iso' f -> is_iso f.
+  Proof.
+    intros i.
+
+
+  Admitted.
+End Categories.
+
 Import AddNotation.
 
 Section MorphismPairs.          (* move upstream *)
@@ -157,14 +170,14 @@ Section AdditiveCategories.     (* move upstream *)
   Context {M : Additive}.
   (** Reprove some standard facts in additive categories with the 0 map (the zero element of the
       group) replacing the zero map (defined by composing maps to and from the zero object). *)
-  Lemma zeroLeft (a b c : M) (f : b --> c) : (0 : a --> b) · f = 0.
+  Lemma zeroLeft {a b c : M} (f : b --> c) : (0 : a --> b) · f = 0.
   (* compare with ZeroArrow_comp_left *)
   Proof.
     refine (_ @ ZeroArrow_comp_left M (to_Zero M) a b c f @ _).
     - apply (maponpaths (λ g, g · f)). apply PreAdditive_unel_zero.
     - apply pathsinv0, PreAdditive_unel_zero.
   Qed.
-  Lemma zeroRight (a b c : M) (f : a --> b) : f · (0 : b --> c) = 0.
+  Lemma zeroRight {a b c : M} (f : a --> b) : f · (0 : b --> c) = 0.
   (* compare with ZeroArrow_comp_right *)
   Proof.
     refine (_ @ ZeroArrow_comp_right M (to_Zero M) a b c f @ _).
@@ -209,6 +222,17 @@ Section AdditiveCategories.     (* move upstream *)
     set (t1 := (p,,e) : T). set (t2 := (q,,idpath _) : T).
     assert (Q := ic t1 t2). exact (maponpaths pr1 Q).
   Qed.
+  Lemma KernelOfZeroMapIsIso {x y z:M} (g : x --> y) : isKernel' g (0 : y --> z) -> is_iso g.
+  (* compare with KernelofZeroArrow_is_iso *)
+  Proof.
+    intros [_ ke]. apply is_iso'_to_is_iso. intros T h. use ke. apply zeroRight.
+  Defined.
+  Lemma CokernelOfZeroMapIsIso {x y z:M} (g : y --> z) : isCokernel' (0 : x --> y) g -> is_iso g.
+  (* compare with CokernelofZeroArrow_is_iso *)
+  Proof.
+    (* this proof makes efficient use of the definition of is_iso *)
+    intros [_ co] T h. use co. apply zeroLeft.
+  Defined.
   Lemma KernelUniqueness {x x' y z : M} {f : x --> y} {f' : x' --> y} {g : y --> z} :
     isKernel' f g -> isKernel' f' g -> iscontr (IsoArrowTo f f').
   Proof.
@@ -596,6 +620,19 @@ Section ExactCategoryFacts.
     { exact (PairPullbackKernel i p (EC_ExactToKernelCokernel pr) r pb). }
     exact J.
   Qed.
+  Lemma MonicAdmEpiIsIso {A B:M} (p : A ↠ B) : isMonic p -> is_iso p.
+  Proof.
+    induction p as [p E]. cbn. intros I. apply (squash_to_prop E).
+    { apply isaprop_is_iso. }
+    clear E; intros [K [i E]].
+    assert (Q := EC_ExactToKernelCokernel E); clear E.
+    induction Q as [ke co];
+      change (hProptoType (isKernel' i p)) in ke;
+      change (hProptoType (isCokernel' i p)) in co.
+    assert (Q : i = 0).
+    { use (I K i 0). exact (pr1 ke @ ! zeroLeft _). }
+    clear I ke. induction (!Q); clear Q. exact (CokernelOfZeroMapIsIso p co).
+  Defined.
 End ExactCategoryFacts.
 
 Section ShortExactSequences.
