@@ -295,7 +295,7 @@ Section KernelCokernelPairs.
       + intros k. apply to_has_homsets.
       + clear H. intros k e. induction e. rewrite assoc. rewrite (to_IdIn2 M S).
         apply pathsinv0, id_left.
-  Defined.
+  Qed.
   Definition TrivialDirectSum (Z:Zero M) (A:M) : BinDirectSum A Z.
   Proof.
     exists (A,,1,,0,,1,,0).
@@ -321,11 +321,11 @@ Section KernelCokernelPairs.
   Lemma kerCoker10 (Z:Zero M) (A:M) : isKernelCokernelPair (identity A) (0 : A --> Z).
   Proof.
     exact (kerCokerDirectSum (TrivialDirectSum Z A)).
-  Defined.
+  Qed.
   Lemma kerCoker01 (Z:Zero M) (A:M) : isKernelCokernelPair (0 : Z --> A) (identity A).
   Proof.
     exact (kerCokerDirectSum (TrivialDirectSum' Z A)).
-  Defined.
+  Qed.
   Lemma PairPushoutMap {A B C A':M} (i : A --> B) (p : B --> C)
         (pr : isKernelCokernelPair i p)
         (r : A --> A') (po : Pushout i r) :
@@ -336,19 +336,20 @@ Section KernelCokernelPairs.
   Defined.
   Lemma PairPullbackMap {A B C A':M} (i : A <-- B) (p : B <-- C)
         (pr : isKernelCokernelPair p i)
-        (r : A <-- A') (po : Pullback i r) :
-    ∑ (q : po <-- C), PullbackPr1 po ∘ q = p × PullbackPr2 po ∘ q = 0.
+        (r : A <-- A') (pb : Pullback i r) :
+    ∑ (q : pb <-- C), PullbackPr1 pb ∘ q = p × PullbackPr2 pb ∘ q = 0.
   Proof.
-    refine (iscontrpr1 (isPullback_Pullback po C p 0 _)).
+    refine (iscontrpr1 (isPullback_Pullback pb C p 0 _)).
     refine (pr1 (PairToCokernel pr) @ ! _). apply zeroLeft.
   Defined.
   Lemma PairPushoutCokernel {A B C A':M} (i : A --> B) (p : B --> C)
         (pr : isKernelCokernelPair i p)
         (r : A --> A') (po : Pushout i r)
-        (s := PushoutIn1 po) (j := PushoutIn2 po)
+        (j := PushoutIn2 po)
         (pp := PairPushoutMap i p pr r po) :
     isCokernel' j (pr1 pp).
   Proof.
+    set (s := PushoutIn1 po).
     induction pp as [q [e1 e2]]; change (isCokernel' j q);
       change (hProptoType (s · q = p)) in e1;
       change (hProptoType (j · q = 0)) in e2.
@@ -374,14 +375,15 @@ Section KernelCokernelPairs.
     use (MorphismsOutofPushoutEqual (isPushout_Pushout po)); fold s j.
     { refine (assoc _ _ _ @ _ @ e3). apply (maponpaths (λ s, s · k)). exact e1. }
     { refine (assoc _ _ _ @ _ @ ! e). rewrite e2. apply zeroLeft. }
-  Defined.
+  Qed.
   Lemma PairPullbackKernel {A B C A':M} (i : A <-- B) (p : B <-- C)
         (pr : isKernelCokernelPair p i)
-        (r : A <-- A') (po : Pullback i r)
-        (s := PullbackPr1 po) (j := PullbackPr2 po)
-        (pp := PairPullbackMap i p pr r po) :
+        (r : A <-- A') (pb : Pullback i r)
+        (j := PullbackPr2 pb)
+        (pp := PairPullbackMap i p pr r pb) :
     isKernel' (pr1 pp) j.
   Proof.
+    set (s := PullbackPr1 pb).
     induction pp as [q [e1 e2]]; change (isKernel' q j);
       change (hProptoType (s ∘ q = p)) in e1;
       change (hProptoType (j ∘ q = 0)) in e2.
@@ -390,7 +392,7 @@ Section KernelCokernelPairs.
     assert (L : i ∘ (s ∘ h) = 0).
     { refine (! assoc _ _ _ @ _).
       intermediate_path (r ∘ j ∘ h).
-      { apply (maponpaths (λ s, s ∘ h)). exact (PullbackSqrCommutes po). }
+      { apply (maponpaths (λ s, s ∘ h)). exact (PullbackSqrCommutes pb). }
       refine (assoc _ _ _ @ _).
       induction (!e).
       apply zeroLeft. }
@@ -404,10 +406,10 @@ Section KernelCokernelPairs.
       { apply (isMonic_postcomp M q s). rewrite e1. apply (KernelIsMonic p i). apply pr. }
       exact (e4 @ ! e5). }
     exists  k.
-    use (MorphismsIntoPullbackEqual (isPullback_Pullback po)); fold s j.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback pb)); fold s j.
     { refine (! assoc _ _ _ @ _ @ e3). apply (maponpaths (λ s, s ∘ k)). exact e1. }
     { refine (! assoc _ _ _ @ _ @ ! e). rewrite e2. apply zeroRight. }
-  Defined.
+  Qed.
 End KernelCokernelPairs.
 
 Delimit Scope preexcat with preexcat.
@@ -485,19 +487,6 @@ Section ExactCategoryAccessFunctions.
     := pr222 (pr222 (pr22 M)) A B C f g.
 End ExactCategoryAccessFunctions.
 
-Section ShortExactSequences.
-  Context (M:ExactCategory).
-  Definition ShortExactSequence := ∑ (P : MorphismPair M), isExact P.
-  Coercion ShortExactSequenceToMorphismPair (P : ShortExactSequence) : MorphismPair M := pr1 P.
-End ShortExactSequences.
-
-Section ShortExactSequencesAccessorFunctions.
-  Context {M:ExactCategory} (P : ShortExactSequence M).
-  Definition ES_ExactToKernelCokernel
-    : isKernelCokernelPair (Mor1 P) (Mor2 P)
-    := EC_ExactToKernelCokernel (pr2 P).
-End ShortExactSequencesAccessorFunctions.
-
 Section ExactCategoryFacts.
   Context {M : ExactCategory}.
   Lemma ExactSequenceFromMono {A B C:M} (i : A --> B) (p : B --> C) :
@@ -515,7 +504,7 @@ Section ExactCategoryFacts.
     - split.
       + exact (id_left _ @ ! id_right _).
       + exact (id_left _ @ ! r).
-  Defined.
+  Qed.
   Lemma ExactSequenceFromEpi {A B C:M} (i : A --> B) (p : B --> C) :
     isKernel' i p -> isAdmissibleEpimorphism p -> isExact (mk_MorphismPair i p).
   Proof.
@@ -531,15 +520,15 @@ Section ExactCategoryFacts.
       split.
       + exact (r @ ! id_right _).
       + exact (id_left _ @ ! id_right _).
-  Defined.
+  Qed.
   Lemma ExactSequence10 (A:M) (Z:Zero M) : isExact (mk_MorphismPair (identity A) (0 : A --> Z)).
   Proof.
     exact (ExactSequenceFromMono _ _ (pr2 (kerCoker10 Z A)) (EC_IdentityIsMono A)).
-  Defined.
+  Qed.
   Lemma ExactSequence01 (A:M) (Z:Zero M) : isExact (mk_MorphismPair (0 : Z --> A) (identity A)).
   Proof.
     exact (ExactSequenceFromEpi _ _ (pr1 (kerCoker01 Z A)) (EC_IdentityIsEpi A)).
-  Defined.
+  Qed.
   Lemma MonoToZero (Z:Zero M) (A:M) : Z ↣ A.
   Proof.
     exists (0 : Z --> A). apply hinhpr. exists A. exists (identity A). use ExactSequence01.
@@ -563,7 +552,7 @@ Section ExactCategoryFacts.
           -- apply (maponpaths (λ k, k · p)). apply iso_inv_after_iso.
           -- apply id_left.
       + apply pathsinv0, id_right.
-  Defined.
+  Qed.
   Lemma IsomEpi {A A' B:M} (f : A ↠ B) (f' : A' --> B) :
     IsoArrowTo f f' -> isAdmissibleEpimorphism f'.
   Proof.
@@ -572,7 +561,7 @@ Section ExactCategoryFacts.
     apply hinhpr. exists K. exists (j · i). use (EC_IsomorphicToExact _ E).
     exists (identity_iso K). exists i. exists (identity_iso B). cbn.
     exists (id_left _). exact (I @ ! id_right f).
-  Defined.
+  Qed.
   Lemma DirectSumToExact {A B:M} (S:BinDirectSum A B) :
     isExact (mk_MorphismPair (to_In1 S) (to_Pr2 S)).
   Proof.
@@ -586,10 +575,49 @@ Section ExactCategoryFacts.
     apply (squash_to_hProp Q); clear Q; intros [pb' R'].
     assert (K := pullbackiso2 pb' pb).
     exact (IsomEpi (PullbackPr2 pb',,R') _ K).
-  Defined.
+  Qed.
   Lemma DirectSumToExact' {A B:M} (S:BinDirectSum A B) :
     isExact (mk_MorphismPair (to_In2 S) (to_Pr1 S)).
   Proof.
     exact (DirectSumToExact (reverseBinDirectSum S)).
+  Qed.
+  Lemma ExactPushout {A B C A':M} (i : A --> B) (p : B --> C)
+        (pr : isExact (mk_MorphismPair i p))
+        (r : A --> A') :
+    ∃ (po : Pushout i r),
+      isExact (mk_MorphismPair (PushoutIn2 po) (pr1 (PairPushoutMap i p (EC_ExactToKernelCokernel pr) r po))).
+  Proof.
+    assert (I := hinhpr (C ,, p ,, pr) : isAdmissibleMonomorphism i).
+    assert (R := EC_PushoutMono (i,,I) r).
+    apply (squash_to_hProp R); clear R; intros [po J]; apply hinhpr.
+    exists po. use ExactSequenceFromMono.
+    { exact (PairPushoutCokernel i p (EC_ExactToKernelCokernel pr) r po). }
+    exact J.
+  Defined.
+  Lemma ExactPullback {A B C A':M} (i : A <-- B) (p : B <-- C)
+        (pr : isExact (mk_MorphismPair p i))
+        (r : A <-- A') :
+    ∃ (pb : Pullback i r),
+      isExact (mk_MorphismPair (pr1 (PairPullbackMap i p (EC_ExactToKernelCokernel pr) r pb)) (PullbackPr2 pb)).
+  Proof.
+    assert (I := hinhpr (C ,, p ,, pr) : isAdmissibleEpimorphism i).
+    assert (R := EC_PullbackEpi (i,,I) r).
+    apply (squash_to_hProp R); clear R; intros [pb J]; apply hinhpr.
+    exists pb. use ExactSequenceFromEpi.
+    { exact (PairPullbackKernel i p (EC_ExactToKernelCokernel pr) r pb). }
+    exact J.
   Defined.
 End ExactCategoryFacts.
+
+Section ShortExactSequences.
+  Context (M:ExactCategory).
+  Definition ShortExactSequence := ∑ (P : MorphismPair M), isExact P.
+  Coercion ShortExactSequenceToMorphismPair (P : ShortExactSequence) : MorphismPair M := pr1 P.
+End ShortExactSequences.
+
+Section ShortExactSequencesAccessorFunctions.
+  Context {M:ExactCategory} (P : ShortExactSequence M).
+  Definition ES_ExactToKernelCokernel
+    : isKernelCokernelPair (Mor1 P) (Mor2 P)
+    := EC_ExactToKernelCokernel (pr2 P).
+End ShortExactSequencesAccessorFunctions.
