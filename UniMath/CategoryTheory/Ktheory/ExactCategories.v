@@ -25,6 +25,11 @@ Local Arguments to_Pr1 {_ _ _} _.
 Local Arguments to_Pr2 {_ _ _} _.
 Local Arguments to_In1 {_ _ _} _.
 Local Arguments to_In2 {_ _ _} _.
+Local Arguments to_BinOpId {_ _ _ _ _ _ _ _}.
+Local Arguments to_IdIn1 {_ _ _ _ _ _ _ _}.
+Local Arguments to_IdIn2 {_ _ _ _ _ _ _ _}.
+Local Arguments to_Unel1 {_ _ _ _ _ _ _ _}.
+Local Arguments to_Unel2 {_ _ _ _ _ _ _ _}.
 Local Arguments MorphismPair : clear implicits.
 Local Arguments morphism_from_iso {_ _ _}.
 
@@ -254,11 +259,11 @@ Section AdditiveCategories.     (* move upstream *)
     use tpair.
     - exact (BinDirectSumOb M S ,, to_In2 S ,, to_In1 S ,, to_Pr2 S ,, to_Pr1 S).
     - cbn. repeat split.
-      + exact (to_IdIn2 M (pr2 S)).
-      + exact (to_IdIn1 M (pr2 S)).
-      + exact (to_Unel2 M (pr2 S)).
-      + exact (to_Unel1 M (pr2 S)).
-      + refine (_ @ to_BinOpId _ (pr2 S)). use (commax (to_abgr _ _)).
+      + exact (to_IdIn2 (pr2 S)).
+      + exact (to_IdIn1 (pr2 S)).
+      + exact (to_Unel2 (pr2 S)).
+      + exact (to_Unel1 (pr2 S)).
+      + refine (_ @ to_BinOpId (pr2 S)). use (commax (to_abgr _ _)).
   Defined.
 End AdditiveCategories.
 
@@ -284,26 +289,23 @@ Section KernelCokernelPairs.
   Proof.
     assert (E := BinDirectSum_isBinDirectSum M S).
     split.
-    - exists (to_Unel1 M S). intros T h H. use unique_exists; cbn beta.
-      + exact (h · to_Pr1 _).
-      + rewrite <- assoc. refine (_ @ id_right h). rewrite <- (to_BinOpId _ S).
+    - exists (to_Unel1 S). intros T h H. use unique_exists; cbn beta.
+      + exact (h · to_Pr1 S).
+      + refine (! assoc _ _ _ @ _ @ id_right _). rewrite <- (to_BinOpId S).
         rewrite to_premor_linear'. rewrite (assoc h (to_Pr2 S) (to_In2 S)).
-        rewrite H; clear H.
-        rewrite zeroLeft.
-        exact (! runax _ (h · (to_Pr1 S · to_In1 S))).
+        rewrite H; clear H. rewrite zeroLeft. exact (! runax _ (h · _)).
       + intros k. apply to_has_homsets.
       + clear H. intros k e. induction e. rewrite <- assoc.
-        rewrite (to_IdIn1 M S). apply pathsinv0, id_right.
-    - exists (to_Unel1 M S). intros T h H. use unique_exists; cbn beta.
+        rewrite (to_IdIn1 S). apply pathsinv0, id_right.
+    - exists (to_Unel1 S). intros T h H. use unique_exists; cbn beta.
       + exact (to_In2 _ · h).
-      + rewrite assoc. refine (_ @ id_left h). rewrite <- (to_BinOpId _ S).
+      + refine (assoc _ _ _ @ _ @ id_left h). rewrite <- (to_BinOpId S).
         rewrite to_postmor_linear'.
         rewrite <- (assoc (to_Pr1 S) (to_In1 S) h). rewrite H; clear H.
-        rewrite zeroRight.
-        exact (! lunax _ (to_Pr2 S · to_In2 S · h)).
+        rewrite zeroRight. exact (! lunax _ (to_Pr2 S · to_In2 S · h)).
       + intros k. apply to_has_homsets.
-      + clear H. intros k e. induction e. rewrite assoc. rewrite (to_IdIn2 M S).
-        apply pathsinv0, id_left.
+      + clear H. intros k e. induction e. rewrite assoc. rewrite (to_IdIn2 S).
+        exact (! id_left _).
   Qed.
   Definition TrivialDirectSum (Z:Zero M) (A:M) : BinDirectSum A Z.
   Proof.
@@ -501,34 +503,21 @@ Section ExactCategoryFacts.
   Lemma ExactSequenceFromMono {A B C:M} (i : A --> B) (p : B --> C) :
     isCokernel' i p -> isAdmissibleMonomorphism i -> isExact (mk_MorphismPair i p).
   Proof.
-    intros co mo.
-    unfold isAdmissibleMonomorphism in mo.
-    apply (squash_to_hProp mo); clear mo; intros [C' [p' e]].
+    intros co mo. apply (squash_to_hProp mo); clear mo; intros [C' [p' e]].
     assert (co' := pr2 (EC_ExactToKernelCokernel e) : isCokernel' i p').
     assert (R := iscontrpr1 (CokernelUniqueness co' co)). induction R as [R r].
     use (EC_IsomorphicToExact _ e).
     exists (identity_iso _). exists (identity_iso _).
-    use tpair; cbn.
-    - exact R.
-    - split.
-      + exact (id_left _ @ ! id_right _).
-      + exact (id_left _ @ ! r).
+    exact (R ,, (id_left _ @ ! id_right _) ,, id_left _ @ ! r).
   Qed.
   Lemma ExactSequenceFromEpi {A B C:M} (i : A --> B) (p : B --> C) :
     isKernel' i p -> isAdmissibleEpimorphism p -> isExact (mk_MorphismPair i p).
   Proof.
-    intros co mo.
-    unfold isAdmissibleMonomorphism in mo.
-    apply (squash_to_hProp mo); clear mo; intros [A' [i' e]].
+    intros co mo. apply (squash_to_hProp mo); clear mo; intros [A' [i' e]].
     assert (co' := pr1 (EC_ExactToKernelCokernel e) : isKernel' i' p).
     assert (R := iscontrpr1 (KernelUniqueness co' co)). induction R as [R r].
     use (EC_IsomorphicToExact _ e).
-    use tpair; cbn.
-    - exact R.
-    - exists (identity_iso _). exists (identity_iso _).
-      split.
-      + exact (r @ ! id_right _).
-      + exact (id_left _ @ ! id_right _).
+    exact (R ,, (identity_iso _) ,, (identity_iso _) ,, (r @ ! id_right _) ,, (id_left _ @ ! id_right _)).
   Qed.
   Lemma ExactSequence10 (A:M) (Z:Zero M) : isExact (mk_MorphismPair (identity A) (0 : A --> Z)).
   Proof.
@@ -549,24 +538,17 @@ Section ExactCategoryFacts.
   Lemma IsomMono {A B B':M} (f : A --> B) (f' : A --> B') :
     IsoArrowFrom f f' -> isAdmissibleMonomorphism f -> isAdmissibleMonomorphism f'.
   Proof.
-    intros [i I] E.
-    apply (squash_to_hProp E); clear E; intros [C [p E]].
+    intros [i I] E. apply (squash_to_hProp E); clear E; intros [C [p E]].
     apply hinhpr. exists C. exists (iso_inv_from_iso i · p). use (EC_IsomorphicToExact _ E).
     exists (identity_iso A). exists i. exists (identity_iso C). split; cbn.
     - exact (id_left _ @ ! I).
-    - intermediate_path p.
-      + intermediate_path ((i · inv_from_iso i) · p).
-        * apply assoc.
-        * intermediate_path (identity _ · p).
-          -- apply (maponpaths (λ k, k · p)). apply iso_inv_after_iso.
-          -- apply id_left.
-      + apply pathsinv0, id_right.
+    - refine (assoc _ _ _ @ _ @ id_left _ @ ! id_right _).
+      apply (maponpaths (λ k, k · p)). apply iso_inv_after_iso.
   Qed.
-  Lemma IsomEpi {A A' B:M} (f : A ↠ B) (f' : A' --> B) :
-    IsoArrowTo f f' -> isAdmissibleEpimorphism f'.
+  Lemma IsomEpi {A A' B:M} (f : A --> B) (f' : A' --> B) :
+    IsoArrowTo f f' -> isAdmissibleEpimorphism f -> isAdmissibleEpimorphism f'.
   Proof.
-    intros [i I]. induction f as [f E]; cbn in I.
-    apply (squash_to_hProp E); clear E; intros [K [j E]].
+    intros [i I] E. apply (squash_to_hProp E); clear E; intros [K [j E]].
     apply hinhpr. exists K. exists (j · i). use (EC_IsomorphicToExact _ E).
     exists (identity_iso K). exists i. exists (identity_iso B). cbn.
     exists (id_left _). exact (I @ ! id_right f).
@@ -574,16 +556,14 @@ Section ExactCategoryFacts.
   Lemma DirectSumToExact {A B:M} (S:BinDirectSum A B) :
     isExact (mk_MorphismPair (to_In1 S) (to_Pr2 S)).
   Proof.
-    set (Z := to_Zero M).
-    assert (Q := EC_PullbackEpi (EpiToZero A Z) (0 : B --> Z)).
     use ExactSequenceFromEpi.
     { exact (PairToKernel (kerCokerDirectSum S)). }
+    set (Z := to_Zero M).
     set (pb := DirectSumToPullback S Z).
     change (isAdmissibleEpimorphism (PullbackPr2 pb)).
-    generalize pb; clear pb; intro pb.
+    assert (Q := EC_PullbackEpi (EpiToZero A Z) (0 : B --> Z)).
     apply (squash_to_hProp Q); clear Q; intros [pb' R'].
-    assert (K := pullbackiso2 pb' pb).
-    exact (IsomEpi (PullbackPr2 pb',,R') _ K).
+    exact (IsomEpi (PullbackPr2 pb') (PullbackPr2 pb) (pullbackiso2 pb' pb) R').
   Qed.
   Lemma DirectSumToExact' {A B:M} (S:BinDirectSum A B) :
     isExact (mk_MorphismPair (to_In2 S) (to_Pr1 S)).
