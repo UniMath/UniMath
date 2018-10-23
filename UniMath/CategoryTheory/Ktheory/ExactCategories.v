@@ -55,8 +55,13 @@ End Sanity2.
 Local Notation "a --> b" := (precategory_morphisms a b) : cat.
 Local Notation "a --> b" := (hSetpair (precategory_morphisms a b) (homset_property _ a b)) : Cat.
 Local Notation "a --> b" := (to_abgr a b) : addcat.
+Local Notation "b <-- a" := (precategory_morphisms a b) (only parsing) : cat.
+Local Notation "b <-- a" := (hSetpair (precategory_morphisms a b) (homset_property _ a b)) (only parsing) : Cat.
+Local Notation "b <-- a" := (to_abgr a b) (only parsing) : addcat.
 Local Notation "f · g" := (compose f g : to_abgr _ _) : Cat.
 Local Notation "f · g" := (compose f g : to_abgr _ _) : addcat.
+Local Notation "g ∘ f" := (compose f g : to_abgr _ _) : Cat.
+Local Notation "g ∘ f" := (compose f g : to_abgr _ _) : addcat.
 Local Notation "0" := (ZeroArrow (to_Zero _) _ _) : cat.
 Local Notation "0" := (unel _ : to_abgr _ _) : addcat.
 Local Notation "1" := (identity _ : to_abgr _ _) : addcat.
@@ -329,6 +334,14 @@ Section KernelCokernelPairs.
     refine (iscontrpr1 (isPushout_Pushout po C p 0 _)).
     refine (pr1 (PairToCokernel pr) @ ! _). apply zeroRight.
   Defined.
+  Lemma PairPullbackMap {A B C A':M} (i : A <-- B) (p : B <-- C)
+        (pr : isKernelCokernelPair p i)
+        (r : A <-- A') (po : Pullback i r) :
+    ∑ (q : po <-- C), PullbackPr1 po ∘ q = p × PullbackPr2 po ∘ q = 0.
+  Proof.
+    refine (iscontrpr1 (isPullback_Pullback po C p 0 _)).
+    refine (pr1 (PairToCokernel pr) @ ! _). apply zeroLeft.
+  Defined.
   Lemma PairPushoutCokernel {A B C A':M} (i : A --> B) (p : B --> C)
         (pr : isKernelCokernelPair i p)
         (r : A --> A') (po : Pushout i r)
@@ -355,12 +368,45 @@ Section KernelCokernelPairs.
       apply subtypeEquality_prop.
       induction φ as [φ e4]; induction φ' as [φ' e5]; cbn.
       use (_ : isEpi q).
-      { apply (isEpi_precomp M s). rewrite e1. apply (CokernelIsEpi i). apply pr. }
+      { apply (isEpi_precomp M s q). rewrite e1. apply (CokernelIsEpi i p). apply pr. }
       exact (e4 @ ! e5). }
     exists  k.
     use (MorphismsOutofPushoutEqual (isPushout_Pushout po)); fold s j.
     { refine (assoc _ _ _ @ _ @ e3). apply (maponpaths (λ s, s · k)). exact e1. }
     { refine (assoc _ _ _ @ _ @ ! e). rewrite e2. apply zeroLeft. }
+  Defined.
+  Lemma PairPullbackKernel {A B C A':M} (i : A <-- B) (p : B <-- C)
+        (pr : isKernelCokernelPair p i)
+        (r : A <-- A') (po : Pullback i r)
+        (s := PullbackPr1 po) (j := PullbackPr2 po)
+        (pp := PairPullbackMap i p pr r po) :
+    isKernel' (pr1 pp) j.
+  Proof.
+    induction pp as [q [e1 e2]]; change (isKernel' q j);
+      change (hProptoType (s ∘ q = p)) in e1;
+      change (hProptoType (j ∘ q = 0)) in e2.
+    exists e2.
+    intros T h e.
+    assert (L : i ∘ (s ∘ h) = 0).
+    { refine (! assoc _ _ _ @ _).
+      intermediate_path (r ∘ j ∘ h).
+      { apply (maponpaths (λ s, s ∘ h)). exact (PullbackSqrCommutes po). }
+      refine (assoc _ _ _ @ _).
+      induction (!e).
+      apply zeroLeft. }
+    assert (V := iscontrpr1 ((pr21 pr) T (s ∘ h) L)); clear L.
+    induction V as [k e3].
+    use iscontraprop1.
+    { apply invproofirrelevance; intros φ φ'.
+      apply subtypeEquality_prop.
+      induction φ as [φ e4]; induction φ' as [φ' e5]; cbn.
+      use (_ : isMonic q).
+      { apply (isMonic_postcomp M q s). rewrite e1. apply (KernelIsMonic p i). apply pr. }
+      exact (e4 @ ! e5). }
+    exists  k.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback po)); fold s j.
+    { refine (! assoc _ _ _ @ _ @ e3). apply (maponpaths (λ s, s ∘ k)). exact e1. }
+    { refine (! assoc _ _ _ @ _ @ ! e). rewrite e2. apply zeroRight. }
   Defined.
 End KernelCokernelPairs.
 
