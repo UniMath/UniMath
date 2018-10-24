@@ -298,16 +298,26 @@ Section AdditiveCategories.     (* move upstream *)
   Defined.
   Definition directSumMap {a b c d:M} (f : a --> b) (g : c --> d) : (a ⊕ c) --> (b ⊕ d)
     := BinDirectSumIndAr M f g _ _.
-  Lemma directSumMapEq1 {a b c d:M} (f : a --> b) (g : c --> d) :
+  Lemma directSumMapEqPr1 {a b c d:M} (f : a --> b) (g : c --> d) :
     directSumMap f g · to_Pr1 _ = to_Pr1 _ · f.
   Proof.
     apply BinDirectSumPr1Commutes.
-  Defined.
-  Lemma directSumMapEq2 {a b c d:M} (f : a --> b) (g : c --> d) :
+  Qed.
+  Lemma directSumMapEqPr2 {a b c d:M} (f : a --> b) (g : c --> d) :
     directSumMap f g · to_Pr2 _ = to_Pr2 _ · g.
   Proof.
     apply BinDirectSumPr2Commutes.
-  Defined.
+  Qed.
+  Lemma directSumMapEqIn1 {a b c d:M} (f : a --> b) (g : c --> d) :
+    to_In1 _ · directSumMap f g = f · to_In1 _.
+  Proof.
+    unfold directSumMap. rewrite BinDirectSumIndArEq. apply BinDirectSumIn1Commutes.
+  Qed.
+  Lemma directSumMapEqIn2 {a b c d:M} (f : a --> b) (g : c --> d) :
+    to_In2 _ · directSumMap f g = g · to_In2 _.
+  Proof.
+    unfold directSumMap. rewrite BinDirectSumIndArEq. apply BinDirectSumIn2Commutes.
+  Qed.
   Lemma SumOfKernels {x y z x' y' z' : M}
         (f : x --> y) (g : y --> z) (f' : x' --> y') (g' : y' --> z') :
     isKernel' f g -> isKernel' f' g' -> isKernel' (directSumMap f f') (directSumMap g g').
@@ -320,12 +330,12 @@ Section AdditiveCategories.     (* move upstream *)
     intros w h e. apply iscontraprop1.
     2:{
       assert (e1 := ! assoc _ _ _
-                      @ ! maponpaths (precomp_with _) (directSumMapEq1 _ _)
+                      @ ! maponpaths (precomp_with _) (directSumMapEqPr1 _ _)
                       @ assoc _ _ _
                       @ maponpaths (postcomp_with _) e
                       @ zeroLeft _).
       assert (e2 := ! assoc _ _ _
-                      @ ! maponpaths (precomp_with _) (directSumMapEq2 _ _)
+                      @ ! maponpaths (precomp_with _) (directSumMapEqPr2 _ _)
                       @ assoc _ _ _
                       @ maponpaths (postcomp_with _) e
                       @ zeroLeft _).
@@ -334,13 +344,13 @@ Section AdditiveCategories.     (* move upstream *)
       exists (ToBinDirectSum _ _ h1 h2).
       apply ToBinDirectSumsEq.
       + refine (! assoc _ _ _ @ _ @ H1).
-        refine (maponpaths (precomp_with _) (directSumMapEq1 _ _) @ _).
+        refine (maponpaths (precomp_with _) (directSumMapEqPr1 _ _) @ _).
         unfold precomp_with.
         refine (assoc _ _ _ @ _).
         apply (maponpaths (postcomp_with _)).
         apply BinDirectSumPr1Commutes.
       + refine (! assoc _ _ _ @ _ @ H2).
-        refine (maponpaths (precomp_with _) (directSumMapEq2 _ _) @ _).
+        refine (maponpaths (precomp_with _) (directSumMapEqPr2 _ _) @ _).
         unfold precomp_with.
         refine (assoc _ _ _ @ _).
         apply (maponpaths (postcomp_with _)).
@@ -351,21 +361,79 @@ Section AdditiveCategories.     (* move upstream *)
     apply ToBinDirectSumsEq.
     - refine (KernelIsMonic _ _ i _ _ _ _).
       exact (! assoc _ _ _
-               @ ! maponpaths (precomp_with k) (directSumMapEq1 f f')
+               @ ! maponpaths (precomp_with k) (directSumMapEqPr1 f f')
                @ assoc _ _ _
                @ maponpaths (postcomp_with _) (K @ !K')
                @ ! assoc _ _ _
-               @ maponpaths (precomp_with k') (directSumMapEq1 f f')
+               @ maponpaths (precomp_with k') (directSumMapEqPr1 f f')
                @ assoc _ _ _).
     - refine (KernelIsMonic _ _ i' _ _ _ _).
       exact (! assoc _ _ _
-               @ ! maponpaths (precomp_with k) (directSumMapEq2 f f')
+               @ ! maponpaths (precomp_with k) (directSumMapEqPr2 f f')
                @ assoc _ _ _
                @ maponpaths (postcomp_with _) (K @ !K')
                @ ! assoc _ _ _
-               @ maponpaths (precomp_with k') (directSumMapEq2 f f')
+               @ maponpaths (precomp_with k') (directSumMapEqPr2 f f')
                @ assoc _ _ _).
-  Defined.
+  Qed.
+  Lemma SumOfCokernels {x y z x' y' z' : M}
+        (f : x --> y) (g : y --> z) (f' : x' --> y') (g' : y' --> z') :
+    isCokernel' f g -> isCokernel' f' g' -> isCokernel' (directSumMap f f') (directSumMap g g').
+  Proof.
+    intros i i'. split.
+    { refine (BinDirectSumIndArComp _ _ _ _ _ _ _ _ @ ! _).
+      apply ToBinDirectSumUnique.
+      - exact (zeroLeft _ @ ! zeroRight _ @ maponpaths _ (! pr1 i)).
+      - exact (zeroLeft _ @ ! zeroRight _ @ maponpaths _ (! pr1 i')). }
+    intros w h e. apply iscontraprop1.
+    2:{
+      assert (e1 := assoc _ _ _
+                      @ ! maponpaths (postcomp_with _) (directSumMapEqIn1 _ _)
+                      @ ! assoc _ _ _
+                      @ maponpaths (precomp_with _) e
+                      @ zeroRight _).
+      assert (e2 := assoc _ _ _
+                      @ ! maponpaths (postcomp_with _) (directSumMapEqIn2 _ _)
+                      @ ! assoc _ _ _
+                      @ maponpaths (precomp_with _) e
+                      @ zeroRight _).
+      induction (iscontrpr1 (pr2 i  w (to_In1 _ · h) e1)) as [h1 H1].
+      induction (iscontrpr1 (pr2 i' w (to_In2 _ · h) e2)) as [h2 H2].
+      exists (FromBinDirectSum _ _ h1 h2).
+      apply FromBinDirectSumsEq.
+      + refine (assoc _ _ _ @ _ @ H1).
+        refine (maponpaths (postcomp_with _) (directSumMapEqIn1 _ _) @ _).
+        unfold postcomp_with.
+        refine (! assoc _ _ _ @ _).
+        apply (maponpaths (precomp_with _)).
+        apply BinDirectSumIn1Commutes.
+      + refine (assoc _ _ _ @ _ @ H2).
+        refine (maponpaths (postcomp_with _) (directSumMapEqIn2 _ _) @ _).
+        unfold postcomp_with.
+        refine (! assoc _ _ _ @ _).
+        apply (maponpaths (precomp_with _)).
+        apply BinDirectSumIn2Commutes. }
+    apply invproofirrelevance.
+    intros [k K] [k' K'].
+    apply subtypeEquality_prop; cbn.
+    apply FromBinDirectSumsEq.
+    - refine (CokernelIsEpi _ _ i _ _ _ _).
+      exact (assoc _ _ _
+               @ ! maponpaths (postcomp_with k) (directSumMapEqIn1 g g')
+               @ ! assoc _ _ _
+               @ maponpaths (precomp_with _) (K @ !K')
+               @ assoc _ _ _
+               @ maponpaths (postcomp_with k') (directSumMapEqIn1 g g')
+               @ ! assoc _ _ _).
+    - refine (CokernelIsEpi _ _ i' _ _ _ _).
+      exact (assoc _ _ _
+               @ ! maponpaths (postcomp_with k) (directSumMapEqIn2 g g')
+               @ ! assoc _ _ _
+               @ maponpaths (precomp_with _) (K @ !K')
+               @ assoc _ _ _
+               @ maponpaths (postcomp_with k') (directSumMapEqIn2 g g')
+               @ ! assoc _ _ _).
+  Qed.
 End AdditiveCategories.
 
 Section KernelCokernelPairs.
