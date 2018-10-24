@@ -76,7 +76,7 @@ Local Notation "A ⊕ B" := (to_BinDirectSums _ A B) : addcat.
 
 Local Open Scope cat.
 
-Section Categories.             (* move upstream *)
+Section Precategories.             (* move upstream *)
   Definition iso_to_z_iso {C : precategory} {b c : C} (f : iso b c) : z_iso b c
     := pr1 f ,, is_z_iso_from_is_iso (pr1 f) (pr2 f).
   Definition z_iso_to_iso {C : precategory} {b c : C} (f : z_iso b c) : iso b c
@@ -98,7 +98,7 @@ Section Categories.             (* move upstream *)
     set (y := (_,,Y) : hfiber (postcomp_with f) f).
     exact (maponpaths pr1 ((proofirrelevance _ (isapropifcontr (i b f))) y x)).
   Defined.
-End Categories.
+End Precategories.
 
 Import AddNotation.
 
@@ -193,22 +193,21 @@ Section AdditiveCategories.     (* move upstream *)
     - apply maponpaths, PreAdditive_unel_zero.
     - apply pathsinv0, PreAdditive_unel_zero.
   Qed.
-  Definition leftComp (a b c : M) (f : a --> b) : (b --> c) -> (a --> c)
-    := precomp_with f.          (* replace with to_premor *)
-  Definition rightComp (a b c : M) (f : b --> c) : (a --> b) -> (a --> c)
-    := postcomp_with f.         (* replace with to_postmor *)
-  Lemma leftCompHomo (a b c : M) (f : a --> b) : ismonoidfun (leftComp a b c f).
+  Lemma leftCompHomo (a b c : M) (f : a --> b) : ismonoidfun (to_premor c f).
   Proof.
     split.
     - intros g h. apply to_premor_linear'.
     - apply zeroRight.
   Defined.
-  Lemma rightCompHomo (a b c : M) (f : b --> c) : ismonoidfun (rightComp a b c f).
+  Lemma rightCompHomo (a b c : M) (f : b --> c) : ismonoidfun (to_postmor c f).
   Proof.
     split.
     - intros g h. apply to_postmor_linear'.
     - apply zeroLeft.
   Qed.
+  Definition directSumMap {a b c d:M} (f : a --> b) (g : b --> d) : (a ⊕ c) --> (b ⊕ d).
+  Proof.
+  Abort.
   Definition isKernel' {x y z : M} (f : x --> y) (g : y --> z) : hProp :=
     f · g = 0 ∧ ∀ (w : M) (h : w --> y), h · g = 0 ⇒ ∃! φ : w --> x, φ · f = h.
   Definition isCokernel' {x y z : M} (f : x --> y) (g : y --> z) : hProp :=
