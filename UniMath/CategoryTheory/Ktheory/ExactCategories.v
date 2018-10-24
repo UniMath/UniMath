@@ -76,16 +76,19 @@ Local Notation "A ⊕ B" := (to_BinDirectSums _ A B) : addcat.
 
 Local Open Scope cat.
 
-Section Categories.
+Section Categories.             (* move upstream *)
+  Definition iso_to_z_iso {C : precategory} {b c : C} (f : iso b c) : z_iso b c
+    := pr1 f ,, is_z_iso_from_is_iso (pr1 f) (pr2 f).
+  Definition z_iso_to_iso {C : precategory} {b c : C} (f : z_iso b c) : iso b c
+    := pr1 f ,, is_iso_from_is_z_iso (pr1 f) (pr2 f).
   Definition is_iso' {C : precategory} {b c : C} (f : b --> c) :=
     ∏ a, isweq (postcomp_with f (a:=a)).
-  Lemma is_iso'_to_is_iso {C : precategory} {b c : C} (f : b --> c) :
-    is_iso' f -> is_iso f.
+  Lemma is_iso'_to_is_z_iso (C : precategory) {b c : C} (f : b --> c) :
+    is_iso' f -> is_z_isomorphism f.
   Proof.
-    intros i. use is_iso_from_is_z_iso.
+    intros i.
     assert (Q := i c (identity c)). induction Q as [[g E] _]. unfold postcomp_with in E.
-    exists g.
-    split.
+    exists g. split.
     2 : { exact E. }
     assert (X := id_left _ : postcomp_with f (identity _) = f).
     assert (Y := ! assoc _ _ _ @ maponpaths (precomp_with f) E @ id_right _
@@ -110,9 +113,9 @@ Section MorphismPairs.          (* move upstream *)
   Definition Map2 {P Q : MorphismPair M} (f : MorphismPairMap P Q) : Ob2 P --> Ob2 Q := pr12 f.
   Definition Map3 {P Q : MorphismPair M} (f : MorphismPairMap P Q) : Ob3 P --> Ob3 Q := pr122 f.
   Definition MorphismPairIsomorphism (P Q : MorphismPair M) :=
-    ∑ (f : iso (Ob1 P) (Ob1 Q))
-      (g : iso (Ob2 P) (Ob2 Q))
-      (h : iso (Ob3 P) (Ob3 Q)),
+    ∑ (f : z_iso (Ob1 P) (Ob1 Q))
+      (g : z_iso (Ob2 P) (Ob2 Q))
+      (h : z_iso (Ob3 P) (Ob3 Q)),
     f · Mor1 Q = Mor1 P · g  ×  g · Mor2 Q = Mor2 P · h.
 End MorphismPairs.
 
@@ -120,32 +123,28 @@ Section Pullbacks.              (* move upstream *)
   Context {M : precategory}.
   Lemma pullbackiso {A B C:M} {f : A --> C} {g : B --> C}
         (pb : Pullback f g) (pb' : Pullback f g)
-    : ∑ (t : iso (PullbackObject pb) (PullbackObject pb')),
+    : ∑ (t : z_iso (PullbackObject pb) (PullbackObject pb')),
       t · PullbackPr1 pb' = PullbackPr1 pb ×
       t · PullbackPr2 pb' = PullbackPr2 pb.
   Proof.
     use tpair.
-    - use iso_from_Pullback_to_Pullback.
+    - apply iso_to_z_iso. use iso_from_Pullback_to_Pullback.
     - cbn beta. split.
       + use PullbackArrow_PullbackPr1.
       + use PullbackArrow_PullbackPr2.
   Defined.
-  Definition IsoArrowTo     {A A' B:M} (g : A --> B) (g' : A' --> B) := ∑ i : iso A A', i · g' = g .
-  Coercion IsoArrowTo_pr1   {A A' B:M} (g : A --> B) (g' : A' --> B) : IsoArrowTo g g' -> iso A A' := pr1.
-  Definition IsoArrowFrom   {A B B':M} (g : A --> B) (g' : A --> B') := ∑ i : iso B B', g · i  = g'.
-  Coercion IsoArrowFrom_pr1 {A B B':M} (g : A --> B) (g' : A --> B') : IsoArrowFrom g g' -> iso B B' := pr1.
-  Lemma pullbackiso1 {A B C:M} {f : A --> C} {g : B --> C}
+  Definition IsoArrowTo     {A A' B:M} (g : A --> B) (g' : A' --> B) := ∑ i : z_iso A A', i · g' = g .
+  Coercion IsoArrowTo_pr1   {A A' B:M} (g : A --> B) (g' : A' --> B) : IsoArrowTo g g' -> z_iso A A' := pr1.
+  Definition IsoArrowFrom   {A B B':M} (g : A --> B) (g' : A --> B') := ∑ i : z_iso B B', g · i  = g'.
+  Coercion IsoArrowFrom_pr1 {A B B':M} (g : A --> B) (g' : A --> B') : IsoArrowFrom g g' -> z_iso B B' := pr1.
+  Definition pullbackiso1 {A B C:M} {f : A --> C} {g : B --> C}
         (pb : Pullback f g) (pb' : Pullback f g)
-    : IsoArrowTo (PullbackPr1 pb) (PullbackPr1 pb').
-  Proof.
-    exact (pr1 (pullbackiso pb pb'),, pr12 (pullbackiso pb pb')).
-  Defined.
-  Lemma pullbackiso2 {A B C:M} {f : A --> C} {g : B --> C}
+    : IsoArrowTo (PullbackPr1 pb) (PullbackPr1 pb')
+    := pr1 (pullbackiso pb pb'),,pr12 (pullbackiso pb pb').
+  Definition pullbackiso2 {A B C:M} {f : A --> C} {g : B --> C}
         (pb : Pullback f g) (pb' : Pullback f g)
-    : IsoArrowTo (PullbackPr2 pb) (PullbackPr2 pb').
-  Proof.
-    exact (pr1 (pullbackiso pb pb'),, pr22 (pullbackiso pb pb')).
-  Defined.
+    : IsoArrowTo (PullbackPr2 pb) (PullbackPr2 pb')
+    := pr1 (pullbackiso pb pb'),,pr22 (pullbackiso pb pb').
 End Pullbacks.
 
 Local Open Scope Cat.
@@ -157,7 +156,8 @@ Section Pullbacks2.              (* move upstream *)
   Proof.
     intros i. apply invproofirrelevance; intros k k'. apply subtypeEquality'.
     - induction k as [[k K] e], k' as [[k' K'] e']; cbn; cbn in e, e'.
-      induction (i A k k' (e @ !e')). apply maponpaths. apply isaprop_is_iso.
+      induction (i A k k' (e @ !e')). apply maponpaths. apply isaprop_is_z_isomorphism.
+      apply homset_property.
     - apply homset_property.
   Qed.
   Lemma IsoArrowFrom_isaprop {A B B':M} (g : A --> B) (g' : A --> B') :
@@ -167,7 +167,7 @@ Section Pullbacks2.              (* move upstream *)
     { intros j. apply homset_property. }
     induction k as [[k K] e], k' as [[k' K'] e']; cbn; cbn in e, e'.
     apply subtypeEquality; cbn.
-    { intros f. apply isaprop_is_iso. }
+    { intros f. apply isaprop_is_z_isomorphism. apply homset_property. }
     use i. exact (e @ !e').
   Qed.
 End Pullbacks2.
@@ -234,39 +234,40 @@ Section AdditiveCategories.     (* move upstream *)
   Lemma KernelOfZeroMapIsIso {x y z:M} (g : x --> y) : isKernel' g (0 : y --> z) -> is_iso g.
   (* compare with KernelofZeroArrow_is_iso *)
   Proof.
-    intros [_ ke]. apply is_iso'_to_is_iso. intros T h. use ke. apply zeroRight.
+    intros [_ ke]. use is_iso_from_is_z_iso. use (is_iso'_to_is_z_iso M).
+    intros T h. exact (ke _ _ (zeroRight _)).
   Defined.
   Lemma CokernelOfZeroMapIsIso {x y z:M} (g : y --> z) : isCokernel' (0 : x --> y) g -> is_iso g.
   (* compare with CokernelofZeroArrow_is_iso *)
   Proof.
     (* this proof makes efficient use of the definition of is_iso *)
-    intros [_ co] T h. use co. apply zeroLeft.
+    intros [_ co] T h. exact (co _ _ (zeroLeft _)).
   Defined.
   Lemma KernelUniqueness {x x' y z : M} {f : x --> y} {f' : x' --> y} {g : y --> z} :
-    isKernel' f g -> isKernel' f' g -> iscontr (IsoArrowTo f f').
+    isKernel' f g -> isKernel' f' g -> iscontr (IsoArrowTo (M:=M) f f').
   Proof.
     intros i j. apply iscontraprop1.
     - exact (IsoArrowTo_isaprop M f f' (KernelIsMonic f' g j)).
     - induction (iscontrpr1 (pr2 j _ f (pr1 i))) as [p P].
       induction (iscontrpr1 (pr2 i _ f' (pr1 j))) as [q Q].
-      assert (d : is_iso p).
-      { apply is_iso_from_is_z_iso. exists q. split.
-        - apply (KernelIsMonic _ _ i). rewrite <- assoc. rewrite Q. rewrite P. rewrite id_left. reflexivity.
-        - apply (KernelIsMonic _ _ j). rewrite <- assoc. rewrite P. rewrite Q. rewrite id_left. reflexivity. }
-      set (θ := isopair p d). exists θ. exact P.
+      use tpair.
+      + exists p. exists q. split.
+        * apply (KernelIsMonic _ _ i). rewrite <- assoc. rewrite Q. rewrite P. rewrite id_left. reflexivity.
+        * apply (KernelIsMonic _ _ j). rewrite <- assoc. rewrite P. rewrite Q. rewrite id_left. reflexivity.
+      + cbn. exact P.
   Defined.
   Lemma CokernelUniqueness {x y z z' : M} {f : x --> y} {g : y --> z} {g' : y --> z'} :
-    isCokernel' f g -> isCokernel' f g' -> iscontr (IsoArrowFrom g g').
+    isCokernel' f g -> isCokernel' f g' -> iscontr (IsoArrowFrom (M:=M) g g').
   Proof.
     intros i j. apply iscontraprop1.
     - exact (IsoArrowFrom_isaprop M g g' (CokernelIsEpi f g i)).
     - induction (iscontrpr1 (pr2 j _ g (pr1 i))) as [p P].
       induction (iscontrpr1 (pr2 i _ g' (pr1 j))) as [q Q].
-      assert (d : is_iso q).
-      { apply is_iso_from_is_z_iso. exists p. split.
-        - apply (CokernelIsEpi _ _ i). rewrite assoc. rewrite Q. rewrite P. rewrite id_right. reflexivity.
-        - apply (CokernelIsEpi _ _ j). rewrite assoc. rewrite P. rewrite Q. rewrite id_right. reflexivity. }
-      set (θ := isopair q d). exists θ. exact Q.
+      use tpair.
+      + exists q. exists p. split.
+        * apply (CokernelIsEpi _ _ i). rewrite assoc. rewrite Q. rewrite P. rewrite id_right. reflexivity.
+        * apply (CokernelIsEpi _ _ j). rewrite assoc. rewrite P. rewrite Q. rewrite id_right. reflexivity.
+      + cbn. exact Q.
   Defined.
   Lemma DirectSumToPullback {A B:M} (S : BinDirectSum A B) (Z : Zero M) :
     Pullback (0 : A --> Z) (0 : B --> Z).
@@ -309,12 +310,12 @@ Section KernelCokernelPairs.
   Definition PairToCokernel {A B C:M} {i : A --> B} {p: B --> C} :
     isKernelCokernelPair i p -> isCokernel' i p := pr2.
   Lemma PairUniqueness1 {A A' B C:M} (i : A --> B) (i' : A' --> B) (p: B --> C) :
-    isKernelCokernelPair i p -> isKernelCokernelPair i' p -> iscontr (IsoArrowTo i i').
+    isKernelCokernelPair i p -> isKernelCokernelPair i' p -> iscontr (IsoArrowTo (M:=M) i i').
   Proof.
     intros [k _] [k' _]. exact (KernelUniqueness k k').
   Defined.
   Lemma PairUniqueness2 {A B C C':M} (i : A --> B) (p: B --> C) (p': B --> C') :
-    isKernelCokernelPair i p -> isKernelCokernelPair i p' -> iscontr (IsoArrowFrom p p').
+    isKernelCokernelPair i p -> isKernelCokernelPair i p' -> iscontr (IsoArrowFrom (M:=M) p p').
   Proof.
     intros [_ c] [_ c']. exact (CokernelUniqueness c c').
   Defined.
@@ -483,7 +484,7 @@ Section theDefinition.
   Notation "B ↠ C" := (AdmissibleEpimorphism B C) : excat.
   (** The following definition is definition 2.1 from the paper of Bühler. *)
   Local Definition ExactCategoryProperties : hProp :=
-      (∀ P Q, MorphismPairIsomorphism P Q ⇒ isExact P ⇒ isExact Q) ∧
+      (∀ P Q, MorphismPairIsomorphism (M:=M) P Q ⇒ isExact P ⇒ isExact Q) ∧
       (∀ A, isAdmissibleMonomorphism (identity A)) ∧
       (∀ A, isAdmissibleEpimorphism (identity A)) ∧
       (∀ P, isExact P ⇒ isKernelCokernelPair (Mor1 P) (Mor2 P)) ∧
@@ -508,7 +509,7 @@ Arguments isAdmissibleEpimorphism {_ _ _}.
 Section ExactCategoryAccessFunctions.
   Context {M:ExactCategory}.
   Definition EC_IsomorphicToExact {P Q:MorphismPair M}
-    : MorphismPairIsomorphism P Q ⇒ isExact P ⇒ isExact Q
+    : MorphismPairIsomorphism (M:=M) P Q ⇒ isExact P ⇒ isExact Q
     := pr12 M P Q.
   Definition EC_IdentityIsMono (A:M) : isAdmissibleMonomorphism (identity A)
     := pr122 M A.
@@ -540,7 +541,7 @@ Section ExactCategoryFacts.
     assert (co' := pr2 (EC_ExactToKernelCokernel e) : isCokernel' i p').
     assert (R := iscontrpr1 (CokernelUniqueness co' co)). induction R as [R r].
     use (EC_IsomorphicToExact _ e).
-    exists (identity_iso _). exists (identity_iso _).
+    exists (identity_z_iso _). exists (identity_z_iso _).
     exact (R ,, (id_left _ @ ! id_right _) ,, id_left _ @ ! r).
   Qed.
   Lemma ExactSequenceFromEpi {A B C:M} (i : A --> B) (p : B --> C) :
@@ -550,7 +551,7 @@ Section ExactCategoryFacts.
     assert (co' := pr1 (EC_ExactToKernelCokernel e) : isKernel' i' p).
     assert (R := iscontrpr1 (KernelUniqueness co' co)). induction R as [R r].
     use (EC_IsomorphicToExact _ e).
-    exact (R ,, (identity_iso _) ,, (identity_iso _) ,, (r @ ! id_right _) ,, (id_left _ @ ! id_right _)).
+    exact (R ,, (identity_z_iso _) ,, (identity_z_iso _) ,, (r @ ! id_right _) ,, (id_left _ @ ! id_right _)).
   Qed.
   Lemma ExactSequence10 (A:M) (Z:Zero M) : isExact (mk_MorphismPair (identity A) (0 : A --> Z)).
   Proof.
@@ -572,18 +573,18 @@ Section ExactCategoryFacts.
     IsoArrowFrom f f' -> isAdmissibleMonomorphism f -> isAdmissibleMonomorphism f'.
   Proof.
     intros [i I] E. apply (squash_to_hProp E); clear E; intros [C [p E]].
-    apply hinhpr. exists C. exists (iso_inv_from_iso i · p). use (EC_IsomorphicToExact _ E).
-    exists (identity_iso A). exists i. exists (identity_iso C). split; cbn.
+    apply hinhpr. exists C. exists (z_iso_inv i · p). use (EC_IsomorphicToExact _ E).
+    exists (identity_z_iso A). exists i. exists (identity_z_iso C). split; cbn.
     - exact (id_left _ @ ! I).
     - refine (assoc _ _ _ @ _ @ id_left _ @ ! id_right _).
-      apply (maponpaths (λ k, k · p)). apply iso_inv_after_iso.
+      apply (maponpaths (λ k, k · p)). apply z_iso_inv_after_z_iso.
   Qed.
   Lemma IsomEpi {A A' B:M} (f : A --> B) (f' : A' --> B) :
     IsoArrowTo f f' -> isAdmissibleEpimorphism f -> isAdmissibleEpimorphism f'.
   Proof.
     intros [i I] E. apply (squash_to_hProp E); clear E; intros [K [j E]].
     apply hinhpr. exists K. exists (j · i). use (EC_IsomorphicToExact _ E).
-    exists (identity_iso K). exists i. exists (identity_iso B). cbn.
+    exists (identity_z_iso K). exists i. exists (identity_z_iso B). cbn.
     exists (id_left _). exact (I @ ! id_right f).
   Qed.
   Lemma DirectSumToExact {A B:M} (S:BinDirectSum A B) :
