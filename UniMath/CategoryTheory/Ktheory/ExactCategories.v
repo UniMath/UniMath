@@ -77,15 +77,24 @@ Local Notation "A ⊕ B" := (to_BinDirectSums _ A B) : addcat.
 Local Open Scope cat.
 
 Section Categories.
-  Definition is_iso' {C : precategory_data} {b c : C} (f : b --> c) :=
+  Definition is_iso' {C : precategory} {b c : C} (f : b --> c) :=
     ∏ a, isweq (postcomp_with f (a:=a)).
-  Lemma is_iso'_to_is_iso {C : precategory_data} {b c : C} (f : b --> c) :
+  Lemma is_iso'_to_is_iso {C : precategory} {b c : C} (f : b --> c) :
     is_iso' f -> is_iso f.
   Proof.
-    intros i.
-
-
-  Admitted.
+    intros i. use is_iso_from_is_z_iso.
+    assert (Q := i c (identity c)). induction Q as [[g E] _]. unfold postcomp_with in E.
+    exists g.
+    split.
+    2 : { exact E. }
+    assert (X := id_left _ : postcomp_with f (identity _) = f).
+    assert (Y := ! assoc _ _ _ @ maponpaths (precomp_with f) E @ id_right _
+                 : postcomp_with f (f · g) = f).
+    clear E.
+    set (x := (_,,X) : hfiber (postcomp_with f) f).
+    set (y := (_,,Y) : hfiber (postcomp_with f) f).
+    exact (maponpaths pr1 ((proofirrelevance _ (isapropifcontr (i b f))) y x)).
+  Defined.
 End Categories.
 
 Import AddNotation.
@@ -632,6 +641,19 @@ Section ExactCategoryFacts.
     assert (Q : i = 0).
     { use (I K i 0). exact (pr1 ke @ ! zeroLeft _). }
     clear I ke. induction (!Q); clear Q. exact (CokernelOfZeroMapIsIso p co).
+  Defined.
+  Lemma EpiAdmMonoIsIso {A B:M} (i : A ↣ B) : isEpi i -> is_iso i.
+  Proof.
+    induction i as [i E]. cbn. intros I. apply (squash_to_prop E).
+    { apply isaprop_is_iso. }
+    clear E; intros [K [p E]].
+    assert (Q := EC_ExactToKernelCokernel E); clear E.
+    induction Q as [ke co];
+      change (hProptoType (isKernel' i p)) in ke;
+      change (hProptoType (isCokernel' i p)) in co.
+    assert (Q : p = 0).
+    { use (I K p 0). exact (pr1 co @ ! zeroRight _). }
+    clear I co. induction (!Q); clear Q. exact (KernelOfZeroMapIsIso i ke).
   Defined.
 End ExactCategoryFacts.
 
