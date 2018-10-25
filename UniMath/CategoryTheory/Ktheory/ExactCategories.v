@@ -138,6 +138,7 @@ Section Pullbacks.              (* move upstream *)
   Coercion IsoArrowTo_pr1   {A A' B:M} (g : A --> B) (g' : A' --> B) : IsoArrowTo g g' -> z_iso A A' := pr1.
   Definition IsoArrowFrom   {A B B':M} (g : A --> B) (g' : A --> B') := ∑ i : z_iso B B', g · i  = g'.
   Coercion IsoArrowFrom_pr1 {A B B':M} (g : A --> B) (g' : A --> B') : IsoArrowFrom g g' -> z_iso B B' := pr1.
+  Definition IsoArrow       {A A' B B':M} (g : A --> B) (g' : A' --> B') := ∑ (i : z_iso A A') (j : z_iso B B'), i · g' = g · j.
   Definition pullbackiso1 {A B C:M} {f : A --> C} {g : B --> C}
         (pb : Pullback f g) (pb' : Pullback f g)
     : IsoArrowTo (PullbackPr1 pb) (PullbackPr1 pb')
@@ -177,9 +178,17 @@ Local Open Scope addmonoid.
 Local Open Scope addcat.
 
 Section AdditiveCategories.     (* move upstream *)
-  Context {M : Additive}.
   (** Reprove some standard facts in additive categories with the 0 map (the zero element of the
       group) replacing the zero map (defined by composing maps to and from the zero object). *)
+  Context {M : Additive}.
+  Lemma DirectSumIn1Pr2 {a b:M} (S:BinDirectSum a b) : to_In1 S · to_Pr2 S = 0.
+  Proof.
+    exact (to_Unel1 S).
+  Defined.
+  Lemma DirectSumIn2Pr1 {a b:M} (S:BinDirectSum a b) : to_In2 S · to_Pr1 S = 0.
+  Proof.
+    exact (to_Unel2 S).
+  Defined.
   Lemma zeroLeft {a b c : M} (f : b --> c) : (0 : a --> b) · f = 0.
   (* compare with ZeroArrow_comp_left *)
   Proof.
@@ -200,10 +209,24 @@ Section AdditiveCategories.     (* move upstream *)
     - intros g h. apply to_premor_linear'.
     - apply zeroRight.
   Defined.
-  Lemma rightCompHomo (a b c : M) (f : b --> c) : ismonoidfun (to_postmor c f).
+  Lemma rightCompHomo (a b c : M) (f : b --> c) : ismonoidfun (to_postmor a f).
   Proof.
     split.
     - intros g h. apply to_postmor_linear'.
+    - apply zeroLeft.
+  Qed.
+  Lemma rightDistribute {a b c : M} (f : a --> b) (g h : b --> c) : f · (g + h) = f · g + f · h.
+  Proof.
+    apply leftCompHomo.
+  Qed.
+  Lemma leftDistribute {a b c : M} (f g : a --> b) (h : b --> c) : (f + g) · h = f · h + g · h.
+  Proof.
+    apply rightCompHomo.
+  Qed.
+  Lemma ThroughZeroIsZero (a b:M) (Z : Zero M) (f : a --> Z) (g : Z --> b) : f · g = 0.
+  Proof.
+    intermediate_path ((0:a-->Z) · g).
+    - apply (maponpaths (postcomp_with g)). apply ArrowsToZero.
     - apply zeroLeft.
   Qed.
   Definition isKernel' {x y z : M} (f : x --> y) (g : y --> z) : hProp :=
@@ -227,6 +250,19 @@ Section AdditiveCategories.     (* move upstream *)
       use i. rewrite assoc. rewrite t. apply zeroLeft. }
     set (t1 := (p,,e) : T). set (t2 := (q,,idpath _) : T).
     assert (Q := ic t1 t2). exact (maponpaths pr1 Q).
+  Qed.
+  Lemma IsoWithKernel {x y z z':M} (f : x --> y) (g : y --> z) (h : z --> z') :
+    isKernel' f g -> is_z_isomorphism h -> isKernel' f (g·h).
+  Proof.
+    intros i j.
+    exists (assoc _ _ _ @ maponpaths (postcomp_with _) (pr1 i) @ zeroLeft h).
+    intros w q e.
+    apply iscontraprop1.
+    { apply invproofirrelevance. intros [r R] [s S]. apply subtypeEquality_prop; cbn.
+      apply (KernelIsMonic _ _ i). exact (R @ !S). }
+    apply (pr2 i).
+    refine (post_comp_with_iso_is_inj _ _ _ h (is_iso_from_is_z_iso h j) _ _ _ _).
+    refine (! assoc _ _ _ @ e @ ! zeroLeft _).
   Qed.
   Lemma KernelOfZeroMapIsIso {x y z:M} (g : x --> y) : isKernel' g (0 : y --> z) -> is_iso g.
   (* compare with KernelofZeroArrow_is_iso *)
@@ -318,6 +354,34 @@ Section AdditiveCategories.     (* move upstream *)
   Proof.
     unfold directSumMap. rewrite BinDirectSumIndArEq. apply BinDirectSumIn2Commutes.
   Qed.
+  Definition SwitchMap (a b:M) : a ⊕ b --> b ⊕ a := to_Pr1 _ · to_In2 _ + to_Pr2 _ · to_In1 _.
+  Lemma SwitchMapEqn {a b:M} : SwitchMap a b · SwitchMap b a = 1.
+  Proof.
+    unfold SwitchMap.
+    rewrite leftDistribute, 2 rightDistribute.
+    rewrite <- assoc. rewrite (assoc (to_In2 (b ⊕ a))). rewrite DirectSumIn2Pr1.
+    rewrite zeroLeft. rewrite zeroRight. rewrite lunax.
+    rewrite <- assoc. rewrite (assoc (to_In2 (b ⊕ a))). rewrite (to_IdIn2 (b ⊕ a)). rewrite id_left.
+    rewrite <- assoc. rewrite (assoc (to_In1 (b ⊕ a))). rewrite (to_IdIn1 (b ⊕ a)). rewrite id_left.
+    rewrite <- assoc. rewrite (assoc (to_In1 (b ⊕ a))). rewrite DirectSumIn1Pr2. rewrite zeroLeft. rewrite zeroRight. rewrite runax.
+    apply (to_BinOpId (a⊕b)).
+  Defined.
+  Definition SwitchIso (a b:M) : z_iso (a⊕b) (b⊕a).
+  Proof.
+    exists (SwitchMap _ _). exists (SwitchMap _ _). split; apply SwitchMapEqn.
+  Defined.
+  Definition SwitchMapMapEqn {a b c d:M} (f : a --> b) (g : c --> d) :
+    SwitchMap _ _ · directSumMap f g = directSumMap g f · SwitchMap _ _.
+  Proof.
+
+
+  Admitted.
+  Definition directSumMapSwitch {a b c d:M} (f : a --> b) (g : c --> d) :
+    IsoArrow (directSumMap f g) (directSumMap g f).
+  Proof.
+    exists (SwitchIso _ _). exists (SwitchIso _ _).
+    apply SwitchMapMapEqn.
+  Defined.
   Lemma SumOfKernels {x y z x' y' z' : M}
         (f : x --> y) (g : y --> z) (f' : x' --> y') (g' : y' --> z') :
     isKernel' f g -> isKernel' f' g' -> isKernel' (directSumMap f f') (directSumMap g g').
@@ -590,8 +654,8 @@ Section KernelCokernelPairs.
     { refine (! assoc _ _ _ @ _ @ e3). apply (maponpaths (λ s, s ∘ k)). exact e1. }
     { refine (! assoc _ _ _ @ _ @ ! e). rewrite e2. apply zeroRight. }
   Qed.
-  Lemma SumOfKernelCokernalPairs {x y z x' y' z' : M}
-        (f : x --> y) (g : y --> z) (f' : x' --> y') (g' : y' --> z')
+  Lemma SumOfKernelCokernelPairs {x y z x' y' z' : M}
+        {f : x --> y} {g : y --> z} {f' : x' --> y'} {g' : y' --> z'}
     : isKernelCokernelPair f g -> isKernelCokernelPair f' g' -> isKernelCokernelPair (directSumMap f f') (directSumMap g g').
   Proof.
     intros i i'.
@@ -627,10 +691,18 @@ Section theDefinition.
       (∀ A, isAdmissibleMonomorphism (identity A)) ∧
       (∀ A, isAdmissibleEpimorphism (identity A)) ∧
       (∀ P, isExact P ⇒ isKernelCokernelPair (Mor1 P) (Mor2 P)) ∧
-      (∀ A B C (f : A ↣ B) (g : B ↣ C), isAdmissibleMonomorphism (f · g)) ∧
-      (∀ A B C (f : A ↠ B) (g : B ↠ C), isAdmissibleEpimorphism (f · g)) ∧
-      (∀ A B C (f : A ↠ B) (g : C --> B), ∃ (PB : Pullback f g), isAdmissibleEpimorphism (PullbackPr2 PB)) ∧
-      (∀ A B C (f : B ↣ A) (g : B --> C), ∃ (PO : Pushout f g), isAdmissibleMonomorphism (PushoutIn2 PO)).
+      (∀ A B C (f : A --> B) (g : B --> C),
+          isAdmissibleMonomorphism f ⇒ isAdmissibleMonomorphism g ⇒
+          isAdmissibleMonomorphism (f · g)) ∧
+      (∀ A B C (f : A --> B) (g : B --> C),
+          isAdmissibleEpimorphism f ⇒ isAdmissibleEpimorphism g ⇒
+          isAdmissibleEpimorphism (f · g)) ∧
+      (∀ A B C (f : A --> B) (g : C --> B),
+          isAdmissibleEpimorphism f ⇒
+          ∃ (PB : Pullback f g), isAdmissibleEpimorphism (PullbackPr2 PB)) ∧
+      (∀ A B C (f : B --> A) (g : B --> C),
+          isAdmissibleMonomorphism f ⇒
+          ∃ (PO : Pushout f g), isAdmissibleMonomorphism (PushoutIn2 PO)).
 End theDefinition.
 
 Arguments isExact {_}.
@@ -663,22 +735,42 @@ Section ExactCategoryAccessFunctions.
   Definition EC_ExactToCokernel {P : MorphismPair M} :
     isExact P ⇒ isCokernel' (Mor1 P) (Mor2 P)
     := λ i, (pr2 (pr122 (pr22 M) P i)).
-  Definition EC_ComposeMono {A B C:M} (f : A ↣ B) (g : B ↣ C) :
+  Definition EC_ComposeMono {A B C:M} (f : A --> B) (g : B --> C) :
+    isAdmissibleMonomorphism f -> isAdmissibleMonomorphism g ->
     isAdmissibleMonomorphism (f · g)
     := pr122 (pr222 M) A B C f g.
-  Definition EC_ComposeEpi {A B C:M} (f : A ↠ B) (g : B ↠ C) :
+  Definition EC_ComposeEpi {A B C:M} (f : A --> B) (g : B --> C) :
+    isAdmissibleEpimorphism f ⇒ isAdmissibleEpimorphism g ⇒
     isAdmissibleEpimorphism (f · g)
     := pr122 (pr222 (pr2 M)) A B C f g.
-  Definition EC_PullbackEpi {A B C:M} (f : A ↠ B) (g : C --> B) :
+  Definition EC_PullbackEpi {A B C:M} (f : A --> B) (g : C --> B) :
+    isAdmissibleEpimorphism f ⇒
     ∃ (PB : Pullback f g), isAdmissibleEpimorphism (PullbackPr2 PB)
     := pr122 (pr222 (pr22 M)) A B C f g.
-  Definition EC_PushoutMono {A B C:M} (f : B ↣ A) (g : B --> C) :
+  Definition EC_PushoutMono {A B C:M} (f : B --> A) (g : B --> C) :
+    isAdmissibleMonomorphism f ⇒
     ∃ (PO : Pushout f g), isAdmissibleMonomorphism (PushoutIn2 PO)
     := pr222 (pr222 (pr22 M)) A B C f g.
 End ExactCategoryAccessFunctions.
 
 Section ExactCategoryFacts.
   Context {M : ExactCategory}.
+  Lemma ExactToAdmMono {A B C:M} {i : A --> B} {p : B --> C} : isExact2 i p -> isAdmissibleMonomorphism i.
+  Proof.
+    intros e. exact (hinhpr(C,,p,,e)).
+  Qed.
+  Lemma ExactToAdmEpi {A B C:M} {i : A --> B} {p : B --> C} : isExact2 i p -> isAdmissibleEpimorphism p.
+  Proof.
+    intros e. exact (hinhpr(A,,i,,e)).
+  Qed.
+  Lemma ExactToMono {A B C:M} {i : A --> B} {p : B --> C} : isExact2 i p -> isMonic i.
+  Proof.
+    intros e. exact (KernelIsMonic i p (EC_ExactToKernel e)).
+  Qed.
+  Lemma ExactToEpi {A B C:M} {i : A --> B} {p : B --> C} : isExact2 i p -> isEpi p.
+  Proof.
+    intros e. refine (CokernelIsEpi i p (EC_ExactToCokernel e)).
+  Qed.
   Lemma ExactSequenceFromMono {A B C:M} (i : A --> B) (p : B --> C) :
     isCokernel' i p -> isAdmissibleMonomorphism i -> isExact2 i p.
   Proof.
@@ -706,7 +798,7 @@ Section ExactCategoryFacts.
   Proof.
     exact (ExactSequenceFromEpi _ _ (pr1 (kerCoker01 Z A)) (EC_IdentityIsEpi A)).
   Qed.
-  Lemma MonoToZero (Z:Zero M) (A:M) : Z ↣ A.
+  Lemma MonoFromZero (Z:Zero M) (A:M) : Z ↣ A.
   Proof.
     exists (0 : Z --> A). apply hinhpr. exists A. exists (identity A). use ExactSequence01.
   Defined.
@@ -714,7 +806,15 @@ Section ExactCategoryFacts.
   Proof.
     exists (0 : A --> Z). apply hinhpr. exists A. exists (identity A). use ExactSequence10.
   Defined.
-  Lemma IsomMono {A B B':M} (f : A --> B) (f' : A --> B') :
+  Lemma FromZeroIsMono (Z:Zero M) (A:M) : isAdmissibleMonomorphism (0 : Z --> A).
+  Proof.
+    apply MonoFromZero.
+  Defined.
+  Lemma ToZeroIsEpi (A:M) (Z:Zero M) : isAdmissibleEpimorphism (0 : A --> Z).
+  Proof.
+    apply EpiToZero.
+  Defined.
+  Lemma IsomMono1 {A B B':M} (f : A --> B) (f' : A --> B') :
     IsoArrowFrom f f' -> isAdmissibleMonomorphism f -> isAdmissibleMonomorphism f'.
   Proof.
     intros [i I] E. apply (squash_to_hProp E); clear E; intros [C [p E]].
@@ -724,13 +824,35 @@ Section ExactCategoryFacts.
     - refine (assoc _ _ _ @ _ @ id_left _ @ ! id_right _).
       apply (maponpaths (λ k, k · p)). apply z_iso_inv_after_z_iso.
   Qed.
-  Lemma IsomEpi {A A' B:M} (f : A --> B) (f' : A' --> B) :
+  Lemma IsomEpi1 {A A' B:M} (f : A --> B) (f' : A' --> B) :
     IsoArrowTo f f' -> isAdmissibleEpimorphism f -> isAdmissibleEpimorphism f'.
   Proof.
-    intros [i I] E. apply (squash_to_hProp E); clear E; intros [K [j E]].
-    apply hinhpr. exists K. exists (j · i). use (EC_IsomorphicToExact _ E).
-    exists (identity_z_iso K). exists i. exists (identity_z_iso B). cbn.
-    exists (id_left _). exact (I @ ! id_right f).
+    intros [i I] E. apply (squash_to_hProp E); clear E; intros [C [p E]].
+    apply hinhpr. exists C. exists (p · i). use (EC_IsomorphicToExact _ E).
+    exists (identity_z_iso _). exists i. exists (identity_z_iso _). split; cbn.
+    - exact (id_left _).
+    - exact (I @ ! id_right _).
+  Qed.
+  Lemma IsomMono {A A' B B':M} (f : A --> B) (f' : A' --> B') :
+    IsoArrow f f' -> isAdmissibleMonomorphism f -> isAdmissibleMonomorphism f'.
+  Proof.
+    intros [g [h e]] i. apply (squash_to_hProp i); clear i; intros [C [p E]].
+    apply hinhpr. exists C. exists (z_iso_inv h · p). use (EC_IsomorphicToExact _ E).
+    exists g; exists h; exists (identity_z_iso C); cbn. exists e.
+    refine (assoc _ _ _ @ maponpaths (postcomp_with p) _ @ id_left p @ ! id_right p).
+    apply z_iso_inv_after_z_iso.
+  Qed.
+  Lemma IsoIsMono {A B:M} (f:z_iso A B) : isAdmissibleMonomorphism (z_iso_mor f).
+  Proof.
+    use (IsomMono1 (identity A) (z_iso_mor f)).
+    - exists f. apply id_left.
+    - apply EC_IdentityIsMono.
+  Qed.
+  Lemma IsoIsEpi {A B:M} (f:z_iso A B) : isAdmissibleEpimorphism (z_iso_mor f).
+  Proof.
+    use (IsomEpi1 (identity B) (z_iso_mor f)).
+    - exists (z_iso_inv f). apply z_iso_after_z_iso_inv.
+    - apply EC_IdentityIsEpi.
   Qed.
   Lemma DirectSumToExact {A B:M} (S:BinDirectSum A B) : isExact2 (to_In1 S) (to_Pr2 S).
   Proof.
@@ -739,13 +861,29 @@ Section ExactCategoryFacts.
     set (Z := to_Zero M).
     set (pb := DirectSumToPullback S Z).
     change (isAdmissibleEpimorphism (PullbackPr2 pb)).
-    assert (Q := EC_PullbackEpi (EpiToZero A Z) (0 : B --> Z)).
+    assert (Q := EC_PullbackEpi (0 : A --> Z) (0 : B --> Z) (ToZeroIsEpi A Z)).
     apply (squash_to_hProp Q); clear Q; intros [pb' R'].
-    exact (IsomEpi (PullbackPr2 pb') (PullbackPr2 pb) (pullbackiso2 pb' pb) R').
+    exact (IsomEpi1 (PullbackPr2 pb') (PullbackPr2 pb) (pullbackiso2 pb' pb) R').
   Qed.
   Lemma DirectSumToExact' {A B:M} (S:BinDirectSum A B) : isExact2 (to_In2 S) (to_Pr1 S).
   Proof.
     exact (DirectSumToExact (reverseBinDirectSum S)).
+  Qed.
+  Lemma DirectSumIn1Mono {A B:M} (S:BinDirectSum A B) : isAdmissibleMonomorphism (to_In1 S : A --> S).
+  Proof.
+    exact (hinhpr (B,,to_Pr2 S,,DirectSumToExact S)).
+  Qed.
+  Lemma DirectSumIn2Mono {A B:M} (S:BinDirectSum A B) : isAdmissibleMonomorphism (to_In2 S : B --> S).
+  Proof.
+    exact (hinhpr (A,,to_Pr1 S,,DirectSumToExact' S)).
+  Qed.
+  Lemma DirectSumPr1Epi {A B:M} (S:BinDirectSum A B) : isAdmissibleEpimorphism (to_Pr1 S : S --> A).
+  Proof.
+    exact (hinhpr (B,,to_In2 S,,DirectSumToExact' S)).
+  Qed.
+  Lemma DirectSumPr2Epi {A B:M} (S:BinDirectSum A B) : isAdmissibleEpimorphism (to_Pr2 S : S --> B).
+  Proof.
+    exact (hinhpr (A,,to_In1 S,,DirectSumToExact S)).
   Qed.
   Lemma ExactPushout {A B C A':M} (i : A --> B) (p : B --> C)
         (pr : isExact2 i p) (r : A --> A') :
@@ -753,7 +891,7 @@ Section ExactCategoryFacts.
       isExact2 (PushoutIn2 po) (pr1 (PairPushoutMap i p (EC_ExactToKernelCokernel pr) r po)).
   Proof.
     assert (I := hinhpr (C ,, p ,, pr) : isAdmissibleMonomorphism i).
-    assert (R := EC_PushoutMono (i,,I) r).
+    assert (R := EC_PushoutMono i r I).
     apply (squash_to_hProp R); clear R; intros [po J]; apply hinhpr.
     exists po. use ExactSequenceFromMono.
     { exact (PairPushoutCokernel i p (EC_ExactToKernelCokernel pr) r po). }
@@ -766,7 +904,7 @@ Section ExactCategoryFacts.
       isExact2 (pr1 (PairPullbackMap i p (EC_ExactToKernelCokernel pr) r pb)) (PullbackPr2 pb).
   Proof.
     assert (I := hinhpr (C ,, p ,, pr) : isAdmissibleEpimorphism i).
-    assert (R := EC_PullbackEpi (i,,I) r).
+    assert (R := EC_PullbackEpi i r I).
     apply (squash_to_hProp R); clear R; intros [pb J]; apply hinhpr.
     exists pb. use ExactSequenceFromEpi.
     { exact (PairPullbackKernel i p (EC_ExactToKernelCokernel pr) r pb). }
@@ -798,20 +936,58 @@ Section ExactCategoryFacts.
     { use (I K p 0). exact (pr1 co @ ! zeroRight _). }
     clear I co. induction (!Q); clear Q. exact (KernelOfZeroMapIsIso i ke).
   Defined.
+  Lemma MonoPlusIdentity {A B:M} (f:A-->B) (C:M) :
+    isAdmissibleMonomorphism f -> isAdmissibleMonomorphism (directSumMap f (identity C)).
+  Proof.
+    (* see Bühler's 2.9 *)
+    intro i. apply (squash_to_hProp i). intros [D [p j]].
+    apply hinhpr. exists D. exists (to_Pr1 _ · p). apply ExactSequenceFromEpi.
+    2:{ apply EC_ComposeEpi.
+        - apply DirectSumPr1Epi.
+        - exact (hinhpr(A,,f,,j)). }
+    assert (Z := to_Zero M).
+    assert (m := pr1 (SumOfKernelCokernelPairs
+                   (EC_ExactToKernelCokernel j : isKernelCokernelPair f p)
+                   (kerCoker10 Z C : isKernelCokernelPair (identity C) 0))).
+    assert (R : directSumMap p 0 · to_Pr1 (D⊕Z) = to_Pr1 (B⊕C) · p).
+    { apply directSumMapEqPr1. }
+    induction R. apply IsoWithKernel.
+    { exact m. }
+    exists (to_In1 _). split.
+    { refine (! runax _ (to_Pr1 (D ⊕ Z) · to_In1 (D ⊕ Z)) @ ! _ @ to_BinOpId (D⊕Z)).
+      apply maponpaths. apply ThroughZeroIsZero. }
+    { refine (to_IdIn1 (D⊕Z)). }
+  Qed.
   Lemma SumOfExactSequences {A B C A' B' C':M}
         (f : A --> B) (g : B --> C) (f' : A' --> B') (g' : B' --> C') :
     isExact2 f g -> isExact2 f' g' -> isExact2 (directSumMap f f') (directSumMap g g').
   Proof.
+    (* see Bühler's 2.9 *)
     intros i i'. apply ExactSequenceFromMono.
     { use SumOfCokernels.
       - exact (EC_ExactToCokernel i).
       - exact (EC_ExactToCokernel i'). }
     set (j := directSumMap f (identity B')).
-    assert (J : isAdmissibleMonomorphism j).
-    {
-
-
     set (k := directSumMap (identity A) f').
+    assert (kj : k · j = directSumMap f f').
+    { apply ToBinDirectSumUnique.
+      - refine (! assoc _ _ _ @ _). intermediate_path (k · (to_Pr1 _ · f)).
+        + apply maponpaths. apply directSumMapEqPr1.
+        + refine (assoc _ _ _ @ _). apply (maponpaths (postcomp_with _)).
+          exact (directSumMapEqPr1 _ _ @ id_right _).
+      - refine (! assoc _ _ _ @ _). intermediate_path (k · (to_Pr2 _ · (identity B'))).
+        + apply maponpaths. apply directSumMapEqPr2.
+        + refine (assoc _ _ _ @ id_right _ @ _). apply directSumMapEqPr2.
+      }
+    induction kj.
+    use (EC_ComposeMono k j).
+    2:{ apply MonoPlusIdentity. exact (ExactToAdmMono i). }
+    use IsomMono.
+    - exact (A' ⊕ A).
+    - exact (B' ⊕ A).
+    - exact (directSumMap f' (identity A)).
+    - unfold k.
+
 
   Abort.
 
