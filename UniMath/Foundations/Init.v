@@ -71,7 +71,7 @@ Reserved Notation "f ;; g"  (at level 50, left associativity, only parsing). (* 
 Reserved Notation "f · g"  (at level 40, format "f  ·  g", left associativity).
 (* to input: type "\centerdot" or "\cdot" with Agda input method *)
 
-Reserved Notation "a --> b" (at level 50, left associativity).
+Reserved Notation "a --> b" (at level 55).
 
 Reserved Notation "! p " (at level 50, left associativity).
 
@@ -84,7 +84,7 @@ Reserved Notation "p #' x" (right associativity, at level 65, only parsing).
 
 Reserved Notation "C '^op'" (at level 3, format "C ^op").
 
-Reserved Notation "a <-- b" (at level 50, left associativity).
+Reserved Notation "a <-- b" (at level 55).
 
 Reserved Notation "A ↣ B" (at level 50).
 (* to input: type "\r->" or "\rightarrowtail" or "\r" with Agda input method *)
