@@ -124,7 +124,10 @@ Proof.
   - apply monoid_mor_eq.
     + apply hs.
     + apply assoc.
-Qed.
+  - apply monoid_mor_eq.
+    + apply hs.
+    + apply assoc'.
+Defined.
 
 Definition precategory_monoid (hs : has_homsets C)
   : precategory := tpair _ _ (is_precategory_precategory_monoid_data hs).

@@ -1041,11 +1041,16 @@ Section complexes_precat.
         use MorphismEq.
         intros i. cbn.
         apply id_right.
-    - intros a b c d f g h.
-      use MorphismEq.
-      intros i. cbn.
-      apply assoc.
-  Qed.
+    - split.
+      + intros a b c d f g h.
+        use MorphismEq.
+        intros i. cbn.
+        apply assoc.
+      + intros a b c d f g h.
+        use MorphismEq.
+        intros i. cbn.
+        apply assoc'.
+  Defined.
 
   Definition ComplexPreCat : precategory := tpair _ _ is_precategory_ComplexPreCat_data.
 

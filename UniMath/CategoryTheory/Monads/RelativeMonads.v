@@ -203,6 +203,8 @@ Definition Kleisli_precat_data (R : RelMonad_data J) : precategory_data :=
                                               (λ a b c f g, f · r_bind R g).
 
 Lemma Kleisli_precat_is_precat (R : RelMonad J) : is_precategory (Kleisli_precat_data R).
+Proof.
+  apply is_precategory_one_assoc_to_two.
   do 2 try apply tpair;
     try unfold compose; simpl.
   - intros a b f.
@@ -372,6 +374,8 @@ Proof.
     apply funextsec. intros x. apply id_right.
   - apply (invmap (RelMonadMor_equiv hs _ _ )).
     apply funextsec. intros x. apply assoc.
+  - apply (invmap (RelMonadMor_equiv hs _ _ )).
+    apply funextsec. intros x. apply assoc'.
 Defined.
 
 Definition precategory_RelMonad {C : precategory_data} {D : precategory}

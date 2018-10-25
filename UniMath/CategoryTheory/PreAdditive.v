@@ -836,19 +836,32 @@ Section preadditive_quotient.
           -- apply idpath.
           -- apply idpath.
     (* assoc *)
-    - intros a b c d f g h. cbn.
-      set (f'' := @issurjsetquotpr (to_abgr a b) (binopeqrel_subgr_eqrel (PAS a b)) f).
-      use (squash_to_prop f''). apply isasetsetquot. intros f'. clear f''.
-      set (g'' := @issurjsetquotpr (to_abgr b c) (binopeqrel_subgr_eqrel (PAS b c)) g).
-      use (squash_to_prop g''). apply isasetsetquot. intros g'. clear g''.
-      set (h'' := @issurjsetquotpr (to_abgr c d) (binopeqrel_subgr_eqrel (PAS c d)) h).
-      use (squash_to_prop h''). apply isasetsetquot. intros h'. clear h''.
-      induction f' as [f1 f2]. induction g' as [g1 g2]. induction h' as [h1 h2].
-      cbn in f1, g1, h1.
-      rewrite (Quot_assoc1 f g h f1 f2 g1 g2 h1 h2).
-      rewrite <- (Quot_assoc2 f g h f1 f2 g1 g2 h1 h2).
-      rewrite assoc. apply idpath.
-  Qed.
+    - split.
+      + intros a b c d f g h. cbn.
+        set (f'' := @issurjsetquotpr (to_abgr a b) (binopeqrel_subgr_eqrel (PAS a b)) f).
+        use (squash_to_prop f''). apply isasetsetquot. intros f'. clear f''.
+        set (g'' := @issurjsetquotpr (to_abgr b c) (binopeqrel_subgr_eqrel (PAS b c)) g).
+        use (squash_to_prop g''). apply isasetsetquot. intros g'. clear g''.
+        set (h'' := @issurjsetquotpr (to_abgr c d) (binopeqrel_subgr_eqrel (PAS c d)) h).
+        use (squash_to_prop h''). apply isasetsetquot. intros h'. clear h''.
+        induction f' as [f1 f2]. induction g' as [g1 g2]. induction h' as [h1 h2].
+        cbn in f1, g1, h1.
+        rewrite (Quot_assoc1 f g h f1 f2 g1 g2 h1 h2).
+        rewrite <- (Quot_assoc2 f g h f1 f2 g1 g2 h1 h2).
+        rewrite assoc. apply idpath.
+      + intros a b c d f g h. cbn.
+        set (f'' := @issurjsetquotpr (to_abgr a b) (binopeqrel_subgr_eqrel (PAS a b)) f).
+        use (squash_to_prop f''). apply isasetsetquot. intros f'. clear f''.
+        set (g'' := @issurjsetquotpr (to_abgr b c) (binopeqrel_subgr_eqrel (PAS b c)) g).
+        use (squash_to_prop g''). apply isasetsetquot. intros g'. clear g''.
+        set (h'' := @issurjsetquotpr (to_abgr c d) (binopeqrel_subgr_eqrel (PAS c d)) h).
+        use (squash_to_prop h''). apply isasetsetquot. intros h'. clear h''.
+        induction f' as [f1 f2]. induction g' as [g1 g2]. induction h' as [h1 h2].
+        cbn in f1, g1, h1.
+        rewrite (Quot_assoc1 f g h f1 f2 g1 g2 h1 h2).
+        rewrite <- (Quot_assoc2 f g h f1 f2 g1 g2 h1 h2).
+        rewrite assoc'. apply idpath.
+  Defined.
 
   Definition Quotcategory : precategory :=
     tpair _ _ is_precategory_Quotcategory_data.

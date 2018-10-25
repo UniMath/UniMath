@@ -24,7 +24,7 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-
+Require Import UniMath.CategoryTheory.opp_precat.
 Local Open Scope cat.
 
 Section dep_product_precategory.
@@ -52,11 +52,12 @@ Section dep_product_precategory.
   Lemma is_precategory_product_precategory_data :
     is_precategory product_precategory_data.
   Proof.
-  repeat split; intros; apply funextsec; intro i.
-  - apply id_left.
-  - apply id_right.
-  - apply assoc.
-  Qed.
+    repeat split; intros; apply funextsec; intro i.
+    - apply id_left.
+    - apply id_right.
+    - apply assoc.
+    - apply assoc'.
+  Defined.
 
   Definition product_precategory : precategory
     := tpair _ _ is_precategory_product_precategory_data.
@@ -69,6 +70,10 @@ Section dep_product_precategory.
   Qed.
 
 End dep_product_precategory.
+
+Goal ∏ (I:UU) (C:I->precategory), product_precategory (λ i, (C i)^op) = (product_precategory C)^op.
+  reflexivity.
+Qed.
 
 (** The product of categories is again a category. *)
 Definition product_category {I : UU} (C : I -> category) : category.

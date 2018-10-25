@@ -434,18 +434,19 @@ Goal ∏ X Y (f:X->Y), f = λ x, f x.
 
 Definition categoryWithStructure (C:category) (P:ob C -> UU) : category.
 Proof.
-  unshelve refine (makecategory _ _ _ _ _ _ _ _).
+  use makecategory.
   (* add a new component to each object: *)
   - exact (∑ c:C, P c).
   (* the homsets ignore the extra structure: *)
   - intros x y. exact (pr1 x --> pr1 y).
   (* the rest is the same: *)
+  - intros. apply homset_property.
   - intros x. apply identity.
   - intros x y z f g. exact (g ∘ f).
-  - intros. simpl. refine (homset_property C _ _).
   - intros. apply id_left.
   - intros. apply id_right.
   - intros. apply assoc.
+  - intros. apply assoc'.
 Defined.
 
 Definition functorWithStructures {C:category} {P Q:ob C -> UU}

@@ -19,6 +19,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.Notations.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -34,19 +35,16 @@ Definition opp_precat_data (C : precategory_data) : precategory_data :=
   tpair _ _ (tpair _ (λ c : opp_precat_ob_mor C, identity c)
                      (λ (a b c : opp_precat_ob_mor C) f g, g · f)).
 
-Lemma is_precat_opp_precat_data (C : precategory) : is_precategory (opp_precat_data C).
-Proof.
-repeat split; intros; unfold compose; simpl.
-- apply id_right.
-- apply id_left.
-- apply pathsinv0.              (* this prevents C^op^op and C being the same, judgmentally *)
-  apply assoc.
-Qed.
+Definition is_precat_opp_precat_data (C : precategory) : is_precategory (opp_precat_data C)
+  := ((λ a b, pr212 C b a),,(λ a b, pr112 C b a)),,
+     ((λ a b c d f g h, pr222 C d c b a h g f),,(λ a b c d f g h, pr122 C d c b a h g f)).
 
 Definition opp_precat (C : precategory) : precategory :=
   tpair _ (opp_precat_data C) (is_precat_opp_precat_data C).
 
 Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op") : cat.
+
+Goal ∏ C:precategory, C^op^op = C. reflexivity. Qed.
 
 Definition opp_ob {C : precategory} (c : ob C) : ob C^op := c.
 
