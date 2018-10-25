@@ -590,28 +590,32 @@ Section KernelCokernelPairs.
     { refine (! assoc _ _ _ @ _ @ e3). apply (maponpaths (λ s, s ∘ k)). exact e1. }
     { refine (! assoc _ _ _ @ _ @ ! e). rewrite e2. apply zeroRight. }
   Qed.
+  Lemma SumOfKernelCokernalPairs {x y z x' y' z' : M}
+        (f : x --> y) (g : y --> z) (f' : x' --> y') (g' : y' --> z')
+    : isKernelCokernelPair f g -> isKernelCokernelPair f' g' -> isKernelCokernelPair (directSumMap f f') (directSumMap g g').
+  Proof.
+    intros i i'.
+    exists (SumOfKernels   f g f' g' (pr1 i) (pr1 i')).
+    exact  (SumOfCokernels f g f' g' (pr2 i) (pr2 i')).
+  Qed.
 End KernelCokernelPairs.
-
-Delimit Scope preexcat with preexcat.
-Local Open Scope preexcat.
-
 Delimit Scope excat with excat.
 Local Open Scope excat.
-
 Section theDefinition.
   Definition AddCatWithExactness := ∑ M:Additive, MorphismPair M -> hProp. (* properties added below *)
   Coercion AE_to_AC (ME : AddCatWithExactness) : Additive := pr1 ME.
   Context (M : AddCatWithExactness).
   Definition isExact (E : MorphismPair M) : hProp := pr2 M E.
+  Definition isExact2 {A B C:M} (f:A-->B) (g:B-->C) := isExact (mk_MorphismPair f g).
   Definition isAdmissibleMonomorphism {A B:M} (i : A --> B) : hProp :=
-    ∃ C (p : B --> C), isExact (mk_MorphismPair i p).
+    ∃ C (p : B --> C), isExact2 i p.
   Definition AdmissibleMonomorphism (A B:M) : Type :=
     ∑ (i : A --> B), isAdmissibleMonomorphism i.
   Coercion AdmMonoToMap {A B:M} : AdmissibleMonomorphism A B -> A --> B := pr1.
   Coercion AdmMonoToMap' {A B:M} : AdmissibleMonomorphism A B -> (A --> B)%cat := pr1.
   Notation "A ↣ B" := (AdmissibleMonomorphism A B) : excat.
   Definition isAdmissibleEpimorphism {B C:M} (p : B --> C) : hProp :=
-    ∃ A (i : A --> B), isExact (mk_MorphismPair i p).
+    ∃ A (i : A --> B), isExact2 i p.
   Definition AdmissibleEpimorphism (B C:M) : Type :=
     ∑ (p : B --> C), isAdmissibleEpimorphism p.
   Coercion AdmEpiToMap {B C:M} : AdmissibleEpimorphism B C -> B --> C := pr1.
@@ -630,6 +634,7 @@ Section theDefinition.
 End theDefinition.
 
 Arguments isExact {_}.
+Arguments isExact2 {_ _ _ _}.
 
 Definition ExactCategory := ∑ (ME:AddCatWithExactness), ExactCategoryProperties ME.
 Coercion ExCatToAddCatWithExactness (E:ExactCategory) : AddCatWithExactness := pr1 E.
@@ -637,7 +642,6 @@ Coercion ExCatToAddCatWithExactness (E:ExactCategory) : AddCatWithExactness := p
 Notation "A ↣ B" := (AdmissibleMonomorphism _ A B) : excat.
 Notation "B ↠ C" := (AdmissibleEpimorphism _ B C) : excat.
 
-Arguments MorphismPairIsomorphism {_}.
 Arguments isAdmissibleMonomorphism {_ _ _}.
 Arguments isAdmissibleEpimorphism {_ _ _}.
 
@@ -653,6 +657,12 @@ Section ExactCategoryAccessFunctions.
   Definition EC_ExactToKernelCokernel {P : MorphismPair M} :
     isExact P ⇒ isKernelCokernelPair (Mor1 P) (Mor2 P)
     := pr122 (pr22 M) P.
+  Definition EC_ExactToKernel {P : MorphismPair M} :
+    isExact P ⇒ isKernel' (Mor1 P) (Mor2 P)
+    := λ i, (pr1 (pr122 (pr22 M) P i)).
+  Definition EC_ExactToCokernel {P : MorphismPair M} :
+    isExact P ⇒ isCokernel' (Mor1 P) (Mor2 P)
+    := λ i, (pr2 (pr122 (pr22 M) P i)).
   Definition EC_ComposeMono {A B C:M} (f : A ↣ B) (g : B ↣ C) :
     isAdmissibleMonomorphism (f · g)
     := pr122 (pr222 M) A B C f g.
@@ -670,7 +680,7 @@ End ExactCategoryAccessFunctions.
 Section ExactCategoryFacts.
   Context {M : ExactCategory}.
   Lemma ExactSequenceFromMono {A B C:M} (i : A --> B) (p : B --> C) :
-    isCokernel' i p -> isAdmissibleMonomorphism i -> isExact (mk_MorphismPair i p).
+    isCokernel' i p -> isAdmissibleMonomorphism i -> isExact2 i p.
   Proof.
     intros co mo. apply (squash_to_hProp mo); clear mo; intros [C' [p' e]].
     assert (co' := pr2 (EC_ExactToKernelCokernel e) : isCokernel' i p').
@@ -680,7 +690,7 @@ Section ExactCategoryFacts.
     exact (R ,, (id_left _ @ ! id_right _) ,, id_left _ @ ! r).
   Qed.
   Lemma ExactSequenceFromEpi {A B C:M} (i : A --> B) (p : B --> C) :
-    isKernel' i p -> isAdmissibleEpimorphism p -> isExact (mk_MorphismPair i p).
+    isKernel' i p -> isAdmissibleEpimorphism p -> isExact2 i p.
   Proof.
     intros co mo. apply (squash_to_hProp mo); clear mo; intros [A' [i' e]].
     assert (co' := pr1 (EC_ExactToKernelCokernel e) : isKernel' i' p).
@@ -688,11 +698,11 @@ Section ExactCategoryFacts.
     use (EC_IsomorphicToExact _ e).
     exact (R ,, (identity_z_iso _) ,, (identity_z_iso _) ,, (r @ ! id_right _) ,, (id_left _ @ ! id_right _)).
   Qed.
-  Lemma ExactSequence10 (A:M) (Z:Zero M) : isExact (mk_MorphismPair (identity A) (0 : A --> Z)).
+  Lemma ExactSequence10 (A:M) (Z:Zero M) : isExact2 (identity A) (0 : A --> Z).
   Proof.
     exact (ExactSequenceFromMono _ _ (pr2 (kerCoker10 Z A)) (EC_IdentityIsMono A)).
   Qed.
-  Lemma ExactSequence01 (A:M) (Z:Zero M) : isExact (mk_MorphismPair (0 : Z --> A) (identity A)).
+  Lemma ExactSequence01 (A:M) (Z:Zero M) : isExact2 (0 : Z --> A) (identity A).
   Proof.
     exact (ExactSequenceFromEpi _ _ (pr1 (kerCoker01 Z A)) (EC_IdentityIsEpi A)).
   Qed.
@@ -722,8 +732,7 @@ Section ExactCategoryFacts.
     exists (identity_z_iso K). exists i. exists (identity_z_iso B). cbn.
     exists (id_left _). exact (I @ ! id_right f).
   Qed.
-  Lemma DirectSumToExact {A B:M} (S:BinDirectSum A B) :
-    isExact (mk_MorphismPair (to_In1 S) (to_Pr2 S)).
+  Lemma DirectSumToExact {A B:M} (S:BinDirectSum A B) : isExact2 (to_In1 S) (to_Pr2 S).
   Proof.
     use ExactSequenceFromEpi.
     { exact (PairToKernel (kerCokerDirectSum S)). }
@@ -734,16 +743,14 @@ Section ExactCategoryFacts.
     apply (squash_to_hProp Q); clear Q; intros [pb' R'].
     exact (IsomEpi (PullbackPr2 pb') (PullbackPr2 pb) (pullbackiso2 pb' pb) R').
   Qed.
-  Lemma DirectSumToExact' {A B:M} (S:BinDirectSum A B) :
-    isExact (mk_MorphismPair (to_In2 S) (to_Pr1 S)).
+  Lemma DirectSumToExact' {A B:M} (S:BinDirectSum A B) : isExact2 (to_In2 S) (to_Pr1 S).
   Proof.
     exact (DirectSumToExact (reverseBinDirectSum S)).
   Qed.
   Lemma ExactPushout {A B C A':M} (i : A --> B) (p : B --> C)
-        (pr : isExact (mk_MorphismPair i p))
-        (r : A --> A') :
+        (pr : isExact2 i p) (r : A --> A') :
     ∃ (po : Pushout i r),
-      isExact (mk_MorphismPair (PushoutIn2 po) (pr1 (PairPushoutMap i p (EC_ExactToKernelCokernel pr) r po))).
+      isExact2 (PushoutIn2 po) (pr1 (PairPushoutMap i p (EC_ExactToKernelCokernel pr) r po)).
   Proof.
     assert (I := hinhpr (C ,, p ,, pr) : isAdmissibleMonomorphism i).
     assert (R := EC_PushoutMono (i,,I) r).
@@ -753,10 +760,10 @@ Section ExactCategoryFacts.
     exact J.
   Qed.
   Lemma ExactPullback {A B C A':M} (i : A <-- B) (p : B <-- C)
-        (pr : isExact (mk_MorphismPair p i))
+        (pr : isExact2 p i)
         (r : A <-- A') :
     ∃ (pb : Pullback i r),
-      isExact (mk_MorphismPair (pr1 (PairPullbackMap i p (EC_ExactToKernelCokernel pr) r pb)) (PullbackPr2 pb)).
+      isExact2 (pr1 (PairPullbackMap i p (EC_ExactToKernelCokernel pr) r pb)) (PullbackPr2 pb).
   Proof.
     assert (I := hinhpr (C ,, p ,, pr) : isAdmissibleEpimorphism i).
     assert (R := EC_PullbackEpi (i,,I) r).
@@ -791,6 +798,23 @@ Section ExactCategoryFacts.
     { use (I K p 0). exact (pr1 co @ ! zeroRight _). }
     clear I co. induction (!Q); clear Q. exact (KernelOfZeroMapIsIso i ke).
   Defined.
+  Lemma SumOfExactSequences {A B C A' B' C':M}
+        (f : A --> B) (g : B --> C) (f' : A' --> B') (g' : B' --> C') :
+    isExact2 f g -> isExact2 f' g' -> isExact2 (directSumMap f f') (directSumMap g g').
+  Proof.
+    intros i i'. apply ExactSequenceFromMono.
+    { use SumOfCokernels.
+      - exact (EC_ExactToCokernel i).
+      - exact (EC_ExactToCokernel i'). }
+    set (j := directSumMap f (identity B')).
+    assert (J : isAdmissibleMonomorphism j).
+    {
+
+
+    set (k := directSumMap (identity A) f').
+
+  Abort.
+
 End ExactCategoryFacts.
 
 Section ShortExactSequences.
