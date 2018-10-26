@@ -1,7 +1,6 @@
 (* This file has been auto-generated, do not edit it. *)
 Require Export UniMath.CategoryTheory.total2_paths.
 Require Export UniMath.CategoryTheory.Categories.
-Require Export UniMath.CategoryTheory.NNO.
 Require Export UniMath.CategoryTheory.functor_categories.
 Require Export UniMath.CategoryTheory.Groupoids.
 Require Export UniMath.CategoryTheory.opp_precat.
@@ -53,6 +52,7 @@ Require Export UniMath.CategoryTheory.limits.FinOrdProducts.
 Require Export UniMath.CategoryTheory.limits.FinOrdCoproducts.
 Require Export UniMath.CategoryTheory.limits.Opp.
 Require Export UniMath.CategoryTheory.limits.graphs.eqdiag.
+Require Export UniMath.CategoryTheory.NNO.
 Require Export UniMath.CategoryTheory.Subcategory.Limits.
 Require Export UniMath.CategoryTheory.EpiFacts.
 Require Export UniMath.CategoryTheory.exponentials.
@@ -96,8 +96,8 @@ Require Export UniMath.CategoryTheory.Additive.
 Require Export UniMath.CategoryTheory.Abelian.
 Require Export UniMath.CategoryTheory.category_binops.
 Require Export UniMath.CategoryTheory.AbelianToAdditive.
-Require Export UniMath.CategoryTheory.Ktheory.ExactCategories.
 Require Export UniMath.CategoryTheory.Morphisms.
+Require Export UniMath.CategoryTheory.Ktheory.ExactCategories.
 Require Export UniMath.CategoryTheory.ShortExactSequences.
 Require Export UniMath.CategoryTheory.AdditiveFunctors.
 Require Export UniMath.CategoryTheory.LocalizingClass.
