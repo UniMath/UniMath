@@ -13,6 +13,7 @@ Require Export UniMath.CategoryTheory.limits.pushouts.
 Require Export UniMath.CategoryTheory.limits.BinDirectSums.
 Require Export UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Export UniMath.CategoryTheory.Categories.
+Require Export UniMath.CategoryTheory.opp_precat.
 Require Export UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Export UniMath.CategoryTheory.PreAdditive.
 Require Export UniMath.CategoryTheory.Morphisms.
@@ -184,18 +185,8 @@ End Pullbacks2.
 Local Open Scope addmonoid.
 Local Open Scope addcat.
 
-Section AdditiveCategories.     (* move upstream *)
-  (** Reprove some standard facts in additive categories with the 0 map (the zero element of the
-      group) replacing the zero map (defined by composing maps to and from the zero object). *)
+Section AdditiveBasics.         (* move upstream *)
   Context {M : Additive}.
-  Lemma DirectSumIn1Pr2 {a b:M} (S:BinDirectSum a b) : to_In1 S · to_Pr2 S = 0.
-  Proof.
-    exact (to_Unel1 S).
-  Defined.
-  Lemma DirectSumIn2Pr1 {a b:M} (S:BinDirectSum a b) : to_In2 S · to_Pr1 S = 0.
-  Proof.
-    exact (to_Unel2 S).
-  Defined.
   Lemma zeroLeft {a b c : M} (f : b --> c) : (0 : a --> b) · f = 0.
   (* compare with ZeroArrow_comp_left *)
   Proof.
@@ -210,18 +201,63 @@ Section AdditiveCategories.     (* move upstream *)
     - apply maponpaths, PreAdditive_unel_zero.
     - apply pathsinv0, PreAdditive_unel_zero.
   Qed.
-  Lemma leftCompHomo (a b c : M) (f : a --> b) : ismonoidfun (to_premor c f).
+  Definition leftCompHomo  (a b c : M) (f : a --> b) : ismonoidfun (to_premor c f)
+    := @to_premor_monoid _ M _ _ _ _.
+  Definition rightCompHomo (a b c : M) (f : b --> c) : ismonoidfun (to_postmor a f)
+    := @to_postmor_monoid _ M _ _ _ _.
+End AdditiveBasics.
+
+Section OppositeAdditiveCategory.     (* move upstream *)
+  Definition oppositePrecategoryWithBinOps (M : precategoryWithBinOps) : precategoryWithBinOps
+    := mk_precategoryWithBinOps
+         (opp_precat M)
+         (λ A B f g, to_binop B A f g).
+  Definition oppositeCategoryWithAbgrops (M : categoryWithAbgrops) : categoryWithAbgrops
+    := mk_categoryWithAbgrops
+         (oppositePrecategoryWithBinOps M)
+         (λ A B, to_has_homsets B A)
+         (λ A B, to_isabgrop B A).
+  Definition oppositePreAdditive (M : PreAdditive) : PreAdditive
+    := mk_PreAdditive
+             (oppositeCategoryWithAbgrops M)
+             (mk_isPreAdditive (oppositeCategoryWithAbgrops M)
+                               (λ x y z f, @to_postmor_monoid M M z y x f)
+                               (λ x y z f, @to_premor_monoid M M z y x f)).
+  Definition oppositeAdditiveCategory (M:Additive) : Additive.
   Proof.
-    split.
-    - intros g h. apply to_premor_linear'.
-    - apply zeroRight.
+    use (mk_Additive (oppositePreAdditive M)).
+    use mk_isAdditive.
+    - use mk_Zero; cbn.
+      + exact (to_Zero M).
+      + use mk_isZero;cbn.
+        * exact (pr22 (to_Zero M)).
+        * exact (pr12 (to_Zero M)).
+    - intros A B.
+      assert (Q := to_BinDirectSums M A B).
+      use mk_BinDirectSum.
+      + exact (BinDirectSumOb M Q).
+      + exact (to_Pr1 Q).
+      + exact (to_Pr2 Q).
+      + exact (to_In1 Q).
+      + exact (to_In2 Q).
+      + exact (mk_isBinDirectSum (oppositePreAdditive M) _ _ _ _ _ _ _
+           (to_IdIn1 Q) (to_IdIn2 Q) (to_Unel2 Q) (to_Unel1 Q)
+           (to_BinOpId Q)).
   Defined.
-  Lemma rightCompHomo (a b c : M) (f : b --> c) : ismonoidfun (to_postmor a f).
+End OppositeAdditiveCategory.
+
+Section AdditiveCategories.     (* move upstream *)
+  (** Reprove some standard facts in additive categories with the 0 map (the zero element of the
+      group) replacing the zero map (defined by composing maps to and from the zero object). *)
+  Context {M : Additive}.
+  Lemma DirectSumIn1Pr2 {a b:M} (S:BinDirectSum a b) : to_In1 S · to_Pr2 S = 0.
   Proof.
-    split.
-    - intros g h. apply to_postmor_linear'.
-    - apply zeroLeft.
-  Qed.
+    exact (to_Unel1 S).
+  Defined.
+  Lemma DirectSumIn2Pr1 {a b:M} (S:BinDirectSum a b) : to_In2 S · to_Pr1 S = 0.
+  Proof.
+    exact (to_Unel2 S).
+  Defined.
   Lemma rightDistribute {a b c : M} (f : a --> b) (g h : b --> c) : f · (g + h) = f · g + f · h.
   Proof.
     apply leftCompHomo.
