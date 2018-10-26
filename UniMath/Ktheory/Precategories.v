@@ -13,7 +13,7 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Local Open Scope cat.
 
-Notation "a <-- b" := (@precategory_morphisms (opp_precat _) a b) (at level 50, left associativity) : cat.
+Notation "a <-- b" := (@precategory_morphisms (opp_precat _) a b) : cat.
 
 Definition src {C:precategory} {a b:C} (f:a-->b) : C := a.
 Definition tar {C:precategory} {a b:C} (f:a-->b) : C := b.
