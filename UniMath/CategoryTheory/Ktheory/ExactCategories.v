@@ -26,10 +26,6 @@ Local Arguments to_Pr1 {_ _ _} _.
 Local Arguments to_Pr2 {_ _ _} _.
 Local Arguments to_In1 {_ _ _} _.
 Local Arguments to_In2 {_ _ _} _.
-Local Notation "'π₁'" := (to_Pr1 _).
-Local Notation "'π₂'" := (to_Pr2 _).
-Local Notation "'ι₁'" := (to_In1 _).
-Local Notation "'ι₂'" := (to_In2 _).
 Local Arguments to_BinOpId {_ _ _ _ _ _ _ _}.
 Local Arguments to_IdIn1 {_ _ _ _ _ _ _ _}.
 Local Arguments to_IdIn2 {_ _ _ _ _ _ _ _}.
@@ -62,22 +58,28 @@ Section Sanity2.
   Goal hom M x y. exact h. Defined.
 End Sanity2.
 
+
 Local Notation "a --> b" := (precategory_morphisms a b) : cat.
-Local Notation "a --> b" := (hSetpair (precategory_morphisms a b) (homset_property _ a b)) : Cat.
+(* Local Notation "a --> b" := (hSetpair (precategory_morphisms a b) (homset_property _ a b)) : Cat. *)
 Local Notation "a --> b" := (to_abgr a b) : addcat.
 Local Notation "b <-- a" := (precategory_morphisms a b) (only parsing) : cat.
-Local Notation "b <-- a" := (hSetpair (precategory_morphisms a b) (homset_property _ a b)) (only parsing) : Cat.
+(* Local Notation "b <-- a" := (hSetpair (precategory_morphisms a b) (homset_property _ a b)) (only parsing) : Cat. *)
 Local Notation "b <-- a" := (to_abgr a b) (only parsing) : addcat.
-Local Notation "f · g" := (compose f g : to_abgr _ _) : Cat.
+(* Local Notation "f · g" := (compose f g : to_abgr _ _) : Cat. *)
 Local Notation "f · g" := (compose f g : to_abgr _ _) : addcat.
-Local Notation "g ∘ f" := (compose f g : to_abgr _ _) : Cat.
+(* Local Notation "g ∘ f" := (compose f g : to_abgr _ _) : Cat. *)
 Local Notation "g ∘ f" := (compose f g : to_abgr _ _) : addcat.
 Local Notation "0" := (ZeroArrow (to_Zero _) _ _) : cat.
 Local Notation "0" := (unel _ : to_abgr _ _) : addcat.
 Local Notation "1" := (identity _ : to_abgr _ _) : addcat.
-Local Notation "f = g" := (eqset f g) : Cat.
+(* Local Notation "f = g" := (eqset f g) : Cat. *)
+Local Notation "f = g" := (eqset f g) : addcat.
 Local Notation "f - g" := (@op _ f (grinv _ g) : to_abgr _ _) : addcat.
 Local Notation "A ⊕ B" := (to_BinDirectSums _ A B) : addcat.
+Local Notation "'π₁'" := (to_Pr1 _) : addcat.
+Local Notation "'π₂'" := (to_Pr2 _) : addcat.
+Local Notation "'ι₁'" := (to_In1 _) : addcat.
+Local Notation "'ι₂'" := (to_In2 _) : addcat.
 
 Local Open Scope cat.
 
@@ -153,7 +155,8 @@ Section Pullbacks.              (* move upstream *)
     := pr1 (pullbackiso pb pb'),,pr22 (pullbackiso pb pb').
 End Pullbacks.
 
-Local Open Scope Cat.
+(* Local Open Scope Cat. *)
+Local Open Scope cat.
 
 Section Pullbacks2.              (* move upstream *)
   Context (M : category).        (* giving this argument makes it work better (?) *)
@@ -328,7 +331,7 @@ Section AdditiveCategories.     (* move upstream *)
   Proof.
     intros S.
     use tpair.
-    - exact (BinDirectSumOb M S ,, to_In2 S ,, to_In1 S ,, to_Pr2 S ,, to_Pr1 S).
+    - exact (BinDirectSumOb M S ,, ι₂ ,, ι₁ ,, π₂ ,, π₁).
     - cbn. repeat split.
       + exact (to_IdIn2 (pr2 S)).
       + exact (to_IdIn1 (pr2 S)).
@@ -339,52 +342,58 @@ Section AdditiveCategories.     (* move upstream *)
   Definition directSumMap {a b c d:M} (f : a --> b) (g : c --> d) : (a ⊕ c) --> (b ⊕ d)
     := BinDirectSumIndAr M f g _ _.
   Lemma directSumMapEqPr1 {a b c d:M} (f : a --> b) (g : c --> d) :
-    directSumMap f g · to_Pr1 _ = to_Pr1 _ · f.
+    directSumMap f g · π₁ = π₁ · f.
   Proof.
     apply BinDirectSumPr1Commutes.
   Qed.
   Lemma directSumMapEqPr2 {a b c d:M} (f : a --> b) (g : c --> d) :
-    directSumMap f g · to_Pr2 _ = to_Pr2 _ · g.
+    directSumMap f g · π₂ = π₂ · g.
   Proof.
     apply BinDirectSumPr2Commutes.
   Qed.
   Lemma directSumMapEqIn1 {a b c d:M} (f : a --> b) (g : c --> d) :
-    to_In1 _ · directSumMap f g = f · to_In1 _.
+    ι₁ · directSumMap f g = f · ι₁.
   Proof.
     unfold directSumMap. rewrite BinDirectSumIndArEq. apply BinDirectSumIn1Commutes.
   Qed.
   Lemma directSumMapEqIn2 {a b c d:M} (f : a --> b) (g : c --> d) :
-    to_In2 _ · directSumMap f g = g · to_In2 _.
+    ι₂ · directSumMap f g = g · ι₂.
   Proof.
     unfold directSumMap. rewrite BinDirectSumIndArEq. apply BinDirectSumIn2Commutes.
   Qed.
-  Definition SwitchMap (a b:M) : a ⊕ b --> b ⊕ a := to_Pr1 _ · to_In2 _ + to_Pr2 _ · to_In1 _.
+  Definition change_binop (a b:M) (f g:a --> b) : to_binop _ _ f g = f+g := idpath _.
+  Definition SwitchMap (a b:M) : a ⊕ b --> b ⊕ a := π₁ · ι₂ + π₂ · ι₁.
   Lemma SwitchMapEqn {a b:M} : SwitchMap a b · SwitchMap b a = 1.
   Proof.
+    Local Open Scope addcat.
+    Local Open Scope cat.           (* ? *)
+    Local Open Scope addmonoid.
     unfold SwitchMap.
+    rewrite <- (to_BinOpId (a⊕b)), change_binop.
     rewrite leftDistribute, 2 rightDistribute.
-    rewrite <- assoc. rewrite (assoc (to_In2 (b ⊕ a))). rewrite DirectSumIn2Pr1.
-    rewrite zeroLeft. rewrite zeroRight. rewrite lunax.
-    rewrite <- assoc. rewrite (assoc (to_In2 (b ⊕ a))). rewrite (to_IdIn2 (b ⊕ a)). rewrite id_left.
-    rewrite <- assoc. rewrite (assoc (to_In1 (b ⊕ a))). rewrite (to_IdIn1 (b ⊕ a)). rewrite id_left.
-    rewrite <- assoc. rewrite (assoc (to_In1 (b ⊕ a))). rewrite DirectSumIn1Pr2. rewrite zeroLeft. rewrite zeroRight. rewrite runax.
-    apply (to_BinOpId (a⊕b)).
+    rewrite <- assoc, (assoc ι₂). rewrite DirectSumIn2Pr1.
+    rewrite zeroLeft, zeroRight, lunax.
+    rewrite <- assoc, (assoc ι₂). rewrite (to_IdIn2 (b ⊕ a)), id_left.
+    apply maponpaths.
+    rewrite <- assoc, (assoc ι₁). rewrite (to_IdIn1 (b ⊕ a)), id_left.
+    rewrite <- assoc, (assoc ι₁). rewrite DirectSumIn1Pr2.
+    rewrite zeroLeft, zeroRight, runax.
+    reflexivity.
   Defined.
   Definition SwitchIso (a b:M) : z_iso (a⊕b) (b⊕a).
   Proof.
     exists (SwitchMap _ _). exists (SwitchMap _ _). split; apply SwitchMapEqn.
   Defined.
-  Definition change_binop (a b:M) (f g:a --> b) : to_binop _ _ f g = f+g := idpath _.
   Definition SwitchMapMapEqn {a b c d:M} (f : a --> b) (g : c --> d) :
     SwitchMap _ _ · directSumMap f g = directSumMap g f · SwitchMap _ _.
   Proof.
     unfold SwitchMap.
-    rewrite leftDistribute, rightDistribute.
-    rewrite assoc. rewrite directSumMapEqPr1.
+    rewrite leftDistribute.
     rewrite <- assoc. rewrite directSumMapEqIn2. rewrite assoc.
+    rewrite rightDistribute. rewrite assoc. rewrite directSumMapEqPr1.
     apply maponpaths.
-    rewrite <- assoc. rewrite directSumMapEqIn1.
-    rewrite 2 assoc. rewrite directSumMapEqPr2.
+    rewrite <- assoc. rewrite directSumMapEqIn1. rewrite assoc.
+    rewrite assoc. rewrite directSumMapEqPr2.
     reflexivity.
   Qed.
   Definition directSumMapSwitch {a b c d:M} (f : a --> b) (g : c --> d) :
@@ -414,8 +423,8 @@ Section AdditiveCategories.     (* move upstream *)
                       @ assoc _ _ _
                       @ maponpaths (postcomp_with _) e
                       @ zeroLeft _).
-      induction (iscontrpr1 (pr2 i  w (h · to_Pr1 _) e1)) as [h1 H1].
-      induction (iscontrpr1 (pr2 i' w (h · to_Pr2 _) e2)) as [h2 H2].
+      induction (iscontrpr1 (pr2 i  w (h · π₁) e1)) as [h1 H1].
+      induction (iscontrpr1 (pr2 i' w (h · π₂) e2)) as [h2 H2].
       exists (ToBinDirectSum _ _ h1 h2).
       apply ToBinDirectSumsEq.
       + refine (! assoc _ _ _ @ _ @ H1).
@@ -472,8 +481,8 @@ Section AdditiveCategories.     (* move upstream *)
                       @ ! assoc _ _ _
                       @ maponpaths (precomp_with _) e
                       @ zeroRight _).
-      induction (iscontrpr1 (pr2 i  w (to_In1 _ · h) e1)) as [h1 H1].
-      induction (iscontrpr1 (pr2 i' w (to_In2 _ · h) e2)) as [h2 H2].
+      induction (iscontrpr1 (pr2 i  w (ι₁ · h) e1)) as [h1 H1].
+      induction (iscontrpr1 (pr2 i' w (ι₂ · h) e2)) as [h2 H2].
       exists (FromBinDirectSum _ _ h1 h2).
       apply FromBinDirectSumsEq.
       + refine (assoc _ _ _ @ _ @ H1).
@@ -542,7 +551,7 @@ Section KernelCokernelPairs.
       + clear H. intros k e. induction e. rewrite <- assoc.
         rewrite (to_IdIn1 S). apply pathsinv0, id_right.
     - exists (to_Unel1 S). intros T h H. use unique_exists; cbn beta.
-      + exact (to_In2 _ · h).
+      + exact (ι₂ · h).
       + refine (assoc _ _ _ @ _ @ id_left h). rewrite <- (to_BinOpId S).
         rewrite to_postmor_linear'.
         rewrite <- (assoc (to_Pr1 S) (to_In1 S) h). rewrite H; clear H.
@@ -952,7 +961,7 @@ Section ExactCategoryFacts.
   Proof.
     (* see Bühler's 2.9 *)
     intro i. apply (squash_to_hProp i). intros [D [p j]].
-    apply hinhpr. exists D. exists (to_Pr1 _ · p). apply ExactSequenceFromEpi.
+    apply hinhpr. exists D. exists (π₁ · p). apply ExactSequenceFromEpi.
     2:{ apply EC_ComposeEpi.
         - apply DirectSumPr1Epi.
         - exact (hinhpr(A,,f,,j)). }
@@ -964,7 +973,7 @@ Section ExactCategoryFacts.
     { apply directSumMapEqPr1. }
     induction R. apply IsoWithKernel.
     { exact m. }
-    exists (to_In1 _). split.
+    exists (ι₁). split.
     { refine (! runax _ (to_Pr1 (D ⊕ Z) · to_In1 (D ⊕ Z)) @ ! _ @ to_BinOpId (D⊕Z)).
       apply maponpaths. apply ThroughZeroIsZero. }
     { refine (to_IdIn1 (D⊕Z)). }
@@ -993,11 +1002,11 @@ Section ExactCategoryFacts.
     set (k := directSumMap (identity A) f').
     assert (kj : k · j = directSumMap f f').
     { apply ToBinDirectSumUnique.
-      - refine (! assoc _ _ _ @ _). intermediate_path (k · (to_Pr1 _ · f)).
+      - refine (! assoc _ _ _ @ _). intermediate_path (k · (π₁ · f)).
         + apply maponpaths. apply directSumMapEqPr1.
         + refine (assoc _ _ _ @ _). apply (maponpaths (postcomp_with _)).
           exact (directSumMapEqPr1 _ _ @ id_right _).
-      - refine (! assoc _ _ _ @ _). intermediate_path (k · (to_Pr2 _ · (identity B'))).
+      - refine (! assoc _ _ _ @ _). intermediate_path (k · (π₂ · (identity B'))).
         + apply maponpaths. apply directSumMapEqPr2.
         + refine (assoc _ _ _ @ id_right _ @ _). apply directSumMapEqPr2. }
     induction kj. use (EC_ComposeMono k j).
