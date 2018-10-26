@@ -26,6 +26,10 @@ Local Arguments to_Pr1 {_ _ _} _.
 Local Arguments to_Pr2 {_ _ _} _.
 Local Arguments to_In1 {_ _ _} _.
 Local Arguments to_In2 {_ _ _} _.
+Local Notation "'π₁'" := (to_Pr1 _).
+Local Notation "'π₂'" := (to_Pr2 _).
+Local Notation "'ι₁'" := (to_In1 _).
+Local Notation "'ι₂'" := (to_In2 _).
 Local Arguments to_BinOpId {_ _ _ _ _ _ _ _}.
 Local Arguments to_IdIn1 {_ _ _ _ _ _ _ _}.
 Local Arguments to_IdIn2 {_ _ _ _ _ _ _ _}.
@@ -370,12 +374,19 @@ Section AdditiveCategories.     (* move upstream *)
   Proof.
     exists (SwitchMap _ _). exists (SwitchMap _ _). split; apply SwitchMapEqn.
   Defined.
+  Definition change_binop (a b:M) (f g:a --> b) : to_binop _ _ f g = f+g := idpath _.
   Definition SwitchMapMapEqn {a b c d:M} (f : a --> b) (g : c --> d) :
     SwitchMap _ _ · directSumMap f g = directSumMap g f · SwitchMap _ _.
   Proof.
-
-
-  Admitted.
+    unfold SwitchMap.
+    rewrite leftDistribute, rightDistribute.
+    rewrite assoc. rewrite directSumMapEqPr1.
+    rewrite <- assoc. rewrite directSumMapEqIn2. rewrite assoc.
+    apply maponpaths.
+    rewrite <- assoc. rewrite directSumMapEqIn1.
+    rewrite 2 assoc. rewrite directSumMapEqPr2.
+    reflexivity.
+  Qed.
   Definition directSumMapSwitch {a b c d:M} (f : a --> b) (g : c --> d) :
     IsoArrow (directSumMap f g) (directSumMap g f).
   Proof.
@@ -958,6 +969,17 @@ Section ExactCategoryFacts.
       apply maponpaths. apply ThroughZeroIsZero. }
     { refine (to_IdIn1 (D⊕Z)). }
   Qed.
+  Lemma IdentityPlusMono {B C:M} (A:M) (f:B-->C) :
+    isAdmissibleMonomorphism f -> isAdmissibleMonomorphism (directSumMap (identity A) f).
+  Proof.
+    intros i.
+    use IsomMono.
+    - exact (B ⊕ A).
+    - exact (C ⊕ A).
+    - exact (directSumMap f (identity A)).
+    - exists (SwitchIso _ _). exists (SwitchIso _ _). apply SwitchMapMapEqn.
+    - apply MonoPlusIdentity. exact i.
+  Defined.
   Lemma SumOfExactSequences {A B C A' B' C':M}
         (f : A --> B) (g : B --> C) (f' : A' --> B') (g' : B' --> C') :
     isExact2 f g -> isExact2 f' g' -> isExact2 (directSumMap f f') (directSumMap g g').
@@ -977,20 +999,11 @@ Section ExactCategoryFacts.
           exact (directSumMapEqPr1 _ _ @ id_right _).
       - refine (! assoc _ _ _ @ _). intermediate_path (k · (to_Pr2 _ · (identity B'))).
         + apply maponpaths. apply directSumMapEqPr2.
-        + refine (assoc _ _ _ @ id_right _ @ _). apply directSumMapEqPr2.
-      }
-    induction kj.
-    use (EC_ComposeMono k j).
+        + refine (assoc _ _ _ @ id_right _ @ _). apply directSumMapEqPr2. }
+    induction kj. use (EC_ComposeMono k j).
     2:{ apply MonoPlusIdentity. exact (ExactToAdmMono i). }
-    use IsomMono.
-    - exact (A' ⊕ A).
-    - exact (B' ⊕ A).
-    - exact (directSumMap f' (identity A)).
-    - unfold k.
-
-
-  Abort.
-
+    apply IdentityPlusMono. exact (ExactToAdmMono i').
+  Defined.
 End ExactCategoryFacts.
 
 Section ShortExactSequences.
