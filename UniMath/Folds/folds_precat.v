@@ -31,7 +31,7 @@ Definition ob (C : folds_ob_mor) : UU := @pr1 _ _ C.
 Coercion ob : folds_ob_mor >-> UU.
 
 Definition folds_morphisms {C : folds_ob_mor} : C → C → UU := pr2 C.
-Local Notation "a ⇒ b" := (folds_morphisms a b)(at level 50).
+Local Notation "a ⇒ b" := (folds_morphisms a b).
 
 Definition has_folds_homsets (C : folds_ob_mor) : UU := ∏ a b: C, isaset (a ⇒ b).
 

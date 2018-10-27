@@ -2,6 +2,13 @@
 Require Import UniMath.MoreFoundations.Foundations.
 Require Import UniMath.MoreFoundations.Tactics.
 
+Lemma maponpaths_for_constant_function {T1 T2 : UU} (x : T2) {t1 t2 : T1}
+      (e: t1 = t2): maponpaths (fun _: T1 => x) e = idpath x.
+Proof.
+  induction e.
+  apply idpath.
+Qed.
+
 Lemma base_paths_pair_path_in2 {X : UU} (P : X → UU) {x : X} {p q : P x} (e : p = q) :
   base_paths _ _ (pair_path_in2 P e) = idpath x.
 Proof.

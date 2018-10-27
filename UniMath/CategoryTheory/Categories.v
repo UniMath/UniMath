@@ -296,24 +296,24 @@ Definition homtype_hlevel (n : nat) (C : precategory) : hProp :=
 Definition object_homtype_hlevel (n m : nat) (C : precategory) : hProp :=
   object_hlevel n C ∧ homtype_hlevel m C.
 
-Definition is_setcategory : precategory → hProp := object_homtype_hlevel 2 2.
+Definition is_setcategory : precategory → UU := object_homtype_hlevel 2 2.
 Definition setcategory := total2 is_setcategory.
+Definition category_from_setcategory (C : setcategory) : category :=
+  (pr1 C,, (dirprod_pr2 (pr2 C))).
+Coercion category_from_setcategory : setcategory >-> category.
 
-Definition precategory_from_setcategory (C : setcategory) : precategory := pr1 C.
-Coercion precategory_from_setcategory : setcategory >-> precategory.
+Lemma isaprop_is_setcategory (C : precategory) : isaprop (is_setcategory C).
+Proof.
+  apply isapropdirprod.
+  - apply isapropisaset.
+  - apply isaprop_has_homsets.
+Defined.
 
 Definition setcategory_objects_set (C : setcategory) : hSet :=
     hSetpair (ob C) (pr1 (pr2 C)).
 
-Lemma isaset_ob (C : setcategory) : isaset C.
-Proof.
-  exact (pr1 (pr2 C)).
-Qed.
-
-Lemma isaset_mor (C : setcategory) : has_homsets C.
-Proof.
-  exact (pr2 (pr2 C)).
-Qed.
+Definition isaset_ob (C : setcategory) : isaset C := (dirprod_pr1 (pr2 C)).
+Definition isaset_mor (C : setcategory) : has_homsets C := homset_property C.
 
 Lemma setcategory_eq_morphism_pi (C : setcategory) (a b : ob C)
       (e e': a = b) : idtomor _ _ e = idtomor _ _ e'.
@@ -346,6 +346,12 @@ Definition iso {C: precategory_data}(a b : C) := total2 (fun f : a --> b => is_i
 Definition morphism_from_iso (C:precategory_data)(a b : C) (f : iso a b) : a --> b := pr1 f.
 Coercion morphism_from_iso : iso >-> precategory_morphisms.
 
+Definition mk_iso {C : precategory} {c c' : C} {f : c --> c'} (ii : is_iso f) : iso c c'.
+Proof.
+  exists f.
+  exact ii.
+Defined.
+
 Definition iso_is_iso {C: precategory_data} {a b : C} (f : iso a b) : is_iso f := pr2 f.
 
 Definition isopair {C: precategory_data}{a b : C} (f : a --> b) (fiso: is_iso f) : iso a b :=
@@ -354,7 +360,7 @@ Definition isopair {C: precategory_data}{a b : C} (f : a --> b) (fiso: is_iso f)
 Definition inv_from_iso {C:precategory_data}{a b : C} (f : iso a b) : b --> a :=
    invmap (weqpair (precomp_with f) (pr2 f a)) (identity _ ).
 
-Definition iso_inv_after_iso {C : precategory_data}{a b : C} (f: iso a b) :
+Definition iso_inv_after_iso {C : precategory_data} {a b : C} (f: iso a b) :
    f · inv_from_iso f = identity _ .
 Proof.
   set (T:=homotweqinvweq (weqpair (precomp_with f) (pr2 f a ))).
@@ -362,7 +368,7 @@ Proof.
   apply T.
 Defined.
 
-Definition iso_after_iso_inv {C : precategory}{a b : C} (f : iso a b) :
+Definition iso_after_iso_inv {C : precategory} {a b : C} (f : iso a b) :
   inv_from_iso f · f = identity _ .
 Proof.
   set (T:= invmaponpathsweq (weqpair (precomp_with f) (pr2 f b))).
@@ -1227,7 +1233,7 @@ Qed.
 
 (** ** Properties of [idtoiso] and [isotoid] *)
 
-Definition double_transport {C : precategory} {a a' b b' : ob C}
+Definition double_transport {C : precategory_ob_mor} {a a' b b' : ob C}
    (p : a = a') (q : b = b') (f : a --> b) : a' --> b' :=
   transportf (λ c, a' --> c) q (transportf (λ c, c --> b) p f).
 

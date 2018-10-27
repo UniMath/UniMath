@@ -99,7 +99,7 @@ Proof.
 Defined.
 
 Lemma comm_comm_iso_id (A B C:category) :
-  nat_iso (bifunctor_comm B A C □ bifunctor_comm A B C) (functor_identity _).
+  Precategories.nat_iso (bifunctor_comm B A C □ bifunctor_comm A B C) (functor_identity _).
 Proof.
   intros. unshelve refine (makeNatiso _ _).
   { intro F.
@@ -232,7 +232,7 @@ Definition θ_map {B C:category} {F' F:[B, C]} {X : [B, [C^op, SET]]} :
   F' --> F -> F ⟹ X -> F' ⟹ X
   := λ p xe, θ_map_1 p xe ,, θ_map_2 p xe.
 
-Notation "xe ⟲⟲ p" := (θ_map p xe) (at level 50) : cat.
+Notation "xe ⟲⟲ p" := (θ_map p xe) (at level 50, left associativity) : cat.
 
 Definition φ_map_1 {B C:category} {F:[B, C]} {X' X: [B, [C^op, SET]]} :
   F ⟹ X -> X --> X' -> θ_1 F X'

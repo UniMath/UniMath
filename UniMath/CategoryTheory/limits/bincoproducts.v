@@ -741,7 +741,7 @@ Section BinCoproduct_of_functors.
 
 Variables F G : functor C D.
 
-Local Notation "c ⊗ d" := (BinCoproductObject _ (HD c d))(at level 45).
+Local Notation "c ⊗ d" := (BinCoproductObject _ (HD c d)).
 
 Definition BinCoproduct_of_functors_ob (c : C) : D := F c ⊗ G c.
 

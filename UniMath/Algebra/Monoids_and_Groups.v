@@ -95,16 +95,20 @@ Definition unax (X : monoid) : isunit (@op X) (unel X) := dirprodpair (lunax X) 
 
 Definition isasetmonoid (X : monoid) : isaset X := pr2 (pr1 (pr1 X)).
 
-Notation "x + y" := (op x y) : addmonoid_scope.
-Notation "0" := (unel _) : addmonoid_scope.
-
 Delimit Scope addmonoid_scope with addmonoid.
+Delimit Scope multmonoid_scope with multmonoid.
 
 Notation "x * y" := (op x y) : multmonoid_scope.
 Notation "1" := (unel _) : multmonoid_scope.
 
-Delimit Scope multmonoid_scope with multmonoid.
+Module AddNotation.
+  Notation "x + y" := (op x y) : addmonoid_scope.
+  Notation "0" := (unel _) : addmonoid_scope.
+End AddNotation.
 
+(* To get additive notation in a file that uses this one, insert the following command:
+   Import UniMath.Algebra.Monoids_and_Groups.AddNotation.
+*)
 
 (** **** Construction of the trivial monoid consisting of one element given by unit. *)
 
@@ -913,6 +917,8 @@ of the [abmonoid] operations but does not use the unit element. *)
 
 Open Scope addmonoid_scope.
 
+Import AddNotation.
+
 Definition abmonoidfracopint (X : abmonoid) (A : submonoid X) :
   binop (X × A) := @op (setwithbinopdirprod X A).
 
@@ -1567,15 +1573,6 @@ Proof.
 Defined.
 Opaque ispartbinopabmonoidfracrelint.
 
-(* ??? Coq 8.4-8.5 trunk hangs here on the following line:
-
-Axiom ispartlbinopabmonoidfracrel : ∏ (X : abmonoid) (A : subabmonoid X)
- {L : hrel X} (is : ispartbinophrel A L) (aa aa' : A)
- (z z' : abmonoidfrac X A) (l : abmonoidfracrel X A is z z'),
-abmonoidfracrel X A is ((prabmonoidfrac X A (pr1 aa) aa') + z)
-                       ((prabmonoidfrac X A (pr1 aa) aa') + z').
-
-*)
 
 Lemma ispartlbinopabmonoidfracrel (X : abmonoid) (A : subabmonoid X) {L : hrel X}
       (is : ispartbinophrel A L) (aa aa' : A) (z z' : abmonoidfrac X A)
@@ -2556,7 +2553,6 @@ Proof.
   split with (isgrquot R).
   apply (pr2 (@isabmonoidquot X R)).
 Defined.
-Global Opaque isabgrquot.
 
 Definition abgrquot {X : abgr} (R : binopeqrel X) : abgr.
 Proof. split with (setwithbinopquot R). apply isabgrquot. Defined.
