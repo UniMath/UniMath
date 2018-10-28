@@ -334,6 +334,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monoidal/ActionsFormBicategory.v](CategoryTheory/Monoidal/ActionsFormBicategory.v)
    - [Monoidal/ActionBasedStrengthOnHomsInBicat.v](CategoryTheory/Monoidal/ActionBasedStrengthOnHomsInBicat.v)
    - [Monoidal/BraidedMonoidalCategories.v](CategoryTheory/Monoidal/BraidedMonoidalCategories.v)
+   - [Monoidal/Strengths.v](CategoryTheory/Monoidal/Strengths.v)
+   - [Monoidal/Cartesian.v](CategoryTheory/Monoidal/Cartesian.v)
    - [SkewMonoidal/SkewMonoidalCategories.v](CategoryTheory/SkewMonoidal/SkewMonoidalCategories.v)
    - [SkewMonoidal/CategoriesOfMonoids.v](CategoryTheory/SkewMonoidal/CategoriesOfMonoids.v)
    - [Enriched/Enriched.v](CategoryTheory/Enriched/Enriched.v)

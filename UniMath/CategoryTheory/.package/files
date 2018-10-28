@@ -214,6 +214,8 @@ Monoidal/ActionBasedStrongFunctorCategory.v
 Monoidal/ActionsFormBicategory.v
 Monoidal/ActionBasedStrengthOnHomsInBicat.v
 Monoidal/BraidedMonoidalCategories.v
+Monoidal/Strengths.v
+Monoidal/Cartesian.v
 
 SkewMonoidal/SkewMonoidalCategories.v
 SkewMonoidal/CategoriesOfMonoids.v
