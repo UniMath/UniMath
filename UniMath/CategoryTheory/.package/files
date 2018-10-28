@@ -176,3 +176,4 @@ Monoidal/MonoidalFunctors.v
 Monoidal/CategoriesOfMonoids.v
 Monoidal/Actions.v
 Monoidal/Strengths.v
+Monoidal/Cartesian.v

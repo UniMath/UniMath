@@ -259,6 +259,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monoidal/CategoriesOfMonoids.v](CategoryTheory/Monoidal/CategoriesOfMonoids.v)
    - [Monoidal/Actions.v](CategoryTheory/Monoidal/Actions.v)
    - [Monoidal/Strengths.v](CategoryTheory/Monoidal/Strengths.v)
+   - [Monoidal/Cartesian.v](CategoryTheory/Monoidal/Cartesian.v)
    - [All.v](CategoryTheory/All.v)
 ## Package [Ktheory](Ktheory/README.md)
    - [Tactics.v](Ktheory/Tactics.v)
