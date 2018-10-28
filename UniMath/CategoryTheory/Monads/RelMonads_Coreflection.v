@@ -46,9 +46,11 @@ Let ηinv (X : C)  : G (F X) --> X := inv_from_iso (isopair (eta X) (corefl X ))
 Let ηinv_is_natural : is_nat_trans (G □ F) (functor_identity _ ) (fun X => ηinv X).
 Proof. use is_nat_trans_inv_from_pointwise_inv. apply C. Qed.
 
+Section RelMonad_transfer_object.
+
 Variable (T : RelMonad_data J).
 
-Definition Foo : RelMonad_data (F □ J).
+Definition RelMonad_composed_data : RelMonad_data (F □ J).
 Proof.
   repeat use tpair.
   - exact (λ a, F (T a)).
@@ -64,7 +66,7 @@ Notation "'φ-1'" := (φ_adj_inv R).
 
 Variable (TH : RelMonad_axioms T).
 
-Definition Bar : RelMonad_axioms Foo.
+Definition RelMonad_composed_axioms : RelMonad_axioms RelMonad_composed_data.
 Proof.
   repeat split; intros; cbn.
   - etrans.
@@ -149,5 +151,70 @@ Proof.
     cbn.
     apply assoc.
 Qed.
+
+End RelMonad_transfer_object.
+
+Definition RelMonad_composed (T : RelMonad J) : RelMonad (F □ J)
+    := RelMonad_composed_data T,, RelMonad_composed_axioms _ T.
+
+Section RelMonad_transfer_morphism.
+
+Context {T T' : RelMonad J}
+        (f : RelMonadMor T T').
+
+Notation "'σ'" := (r_bind _).
+Notation "'v'" := (r_eta _).
+Notation "'φ'" := (φ_adj R).
+Notation "'φ-1'" := (φ_adj_inv R).
+
+
+Definition RelMonadMor_composed_data
+  : RelMonadMor_data (RelMonad_composed T) (RelMonad_composed T')
+  := λ a, (#F (RelMonadMor_map f a)).
+
+Lemma RelMonadMor_composed_axioms : RelMonadMor_axioms RelMonadMor_composed_data.
+Proof.
+  repeat split; cbn; intros.
+  - unfold RelMonadMor_composed_data. cbn.
+    etrans. apply (!functor_comp _ _ _ ).
+    apply maponpaths. apply r_eta_α. apply f.
+  - unfold RelMonadMor_composed_data. cbn.
+    etrans. apply pathsinv0. apply (inv_natural_precomp NHW). cbn.
+    rewrite assoc.
+    etrans.
+    apply (inv_natural_precomp NHW). cbn.
+    etrans. apply maponpaths.
+    apply φ_adj_inv_unit. rewrite id_right.
+    rewrite functor_comp.
+
+    apply pathsinv0.
+    etrans. apply maponpaths_2. apply (inv_natural_precomp NHW). cbn.
+
+    etrans. apply maponpaths_2. apply maponpaths.
+    apply φ_adj_inv_unit. rewrite id_right.
+
+    etrans. apply (!functor_comp _ _ _ ).
+    etrans. apply maponpaths. apply (!(α_r_bind f) _ _ _ ).
+    cbn.
+
+    apply pathsinv0.
+    etrans. apply (!functor_comp _ _ _ ).
+    apply maponpaths.
+    apply maponpaths. apply maponpaths.
+    etrans. apply maponpaths_2. apply φ_adj_natural_postcomp.
+
+    etrans. apply (!assoc _ _ _ ).
+
+    etrans. apply maponpaths. apply ηinv_is_natural.
+    apply assoc.
+Qed.
+
+Definition RelMonadMor_composed : RelMonadMor (RelMonad_composed T) (RelMonad_composed T')
+  := RelMonadMor_composed_data ,, RelMonadMor_composed_axioms.
+
+End RelMonad_transfer_morphism.
+
+
+
 
 End RMonad_transfer.
