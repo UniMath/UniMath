@@ -71,48 +71,15 @@ Section CartesianMonoidal.
   (* Local Notation "π1[ ( x ) ⊗ ( y ) ]" := (BinProductPr1 _ (BC x y)). *)
   (* Local Notation "π2[ ( x ) ⊗ ( y ) ]" := (BinProductPr2 _ (BC x y)). *)
 
+  (* Equalities for which it almost always pays to rewrite forward *)
   Hint Resolve BinProductArrow : binprod.
   Hint Resolve BinProductPr1 : binprod.
   Hint Resolve BinProductPr2 : binprod.
   Hint Resolve compose : binprod.
-
-  (** The behavior of eauto here is to [apply] the above hints until successful *)
-  Definition binprod_assoc_r {x y z} : C⟦x ⊗ (y ⊗ z), (x ⊗ y) ⊗ z⟧.
-  Proof.
-    eauto with binprod.
-  Defined.
-
-  Definition binprod_assoc_l {x y z} : C⟦(x ⊗ y) ⊗ z, x ⊗ (y ⊗ z)⟧.
-  Proof.
-    eauto with binprod.
-  Defined.
-
-  (* Equalities for which it almost always pays to rewrite forward *)
   Hint Rewrite BinProductPr1Commutes : binprod.
   Hint Rewrite BinProductPr2Commutes : binprod.
   Hint Rewrite BinProductOfArrowsPr1 : binprod.
   Hint Rewrite BinProductOfArrowsPr2 : binprod.
-
-  Lemma assoc_l_qinv_assoc_r {x y z : C} :
-    is_inverse_in_precat (@binprod_assoc_l x y z) (@binprod_assoc_r x y z).
-  Proof.
-    unfold is_inverse_in_precat.
-    split.
-    - unfold binprod_assoc_l, binprod_assoc_r.
-      do 2 rewrite precompWithBinProductArrow.
-      repeat ( rewrite assoc || autorewrite with binprod ).
-      refine (_ @ !BinProductArrowEta _ _ _ _ _ (id (x ⊗ y ⊗ z))).
-      do 2 rewrite id_left.
-      apply (maponpaths (fun f => BinProductArrow _ _ f _)).
-      exact (! BinProductArrowEta _ _ _ _ _ (BinProductPr1 _ _)).
-    - unfold binprod_assoc_l, binprod_assoc_r.
-      do 2 rewrite precompWithBinProductArrow.
-      repeat ( rewrite assoc || autorewrite with binprod ).
-      refine (_ @ !BinProductArrowEta _ _ _ _ _ (id (x ⊗ (y ⊗ z)))).
-      do 2 rewrite id_left.
-      apply (maponpaths (fun f => BinProductArrow _ _ _ f)).
-      exact (! BinProductArrowEta _ _ _ _ _ (BinProductPr2 _ _)).
-  Qed.
 
   Local Lemma f_equal_2 :
     forall {A B C : UU} (f : A -> B -> C) (a a' : A) (b b' : B),
@@ -138,6 +105,7 @@ Section CartesianMonoidal.
       use tpair.
       + use mk_nat_trans.
         * intros x.
+          unfold assoc_left; cbn.
           apply binprod_assoc_l.
         * intros x y f; cbn.
           unfold binprod_assoc_l.

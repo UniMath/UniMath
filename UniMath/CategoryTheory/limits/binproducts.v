@@ -17,6 +17,8 @@ Extended by: Langston Barrett (@siddharthist), 2018
 - Terminal object as the unit (up to isomorphism) of binary products
 - Equivalence with indexed products over [bool]
 - Associativity
+  - Direct proof
+  - Alternate proof based on equivalence with three-way products
 
  *)
 
@@ -833,11 +835,70 @@ End ProductsBool.
 
 (** ** Associativity *)
 
+(** *** Direct proof *)
+
+Section Assoc.
+  Context {C : precategory}.
+  Context (BC : BinProducts C).
+
+  Hint Resolve BinProductArrow : binprod.
+  Hint Resolve BinProductPr1 : binprod.
+  Hint Resolve BinProductPr2 : binprod.
+  Hint Resolve compose : binprod.
+
+  Local Notation "c '⊗' d" := (BinProductObject C (BC c d)) : cat.
+  Local Notation "f '××' g" := (BinProductOfArrows _ _ _ f g) (at level 80) : cat.
+  Local Open Scope cat.
+
+  (** The behavior of eauto here is to [apply] the above hints until successful *)
+  Definition binprod_assoc_r {x y z} : C⟦x ⊗ (y ⊗ z), (x ⊗ y) ⊗ z⟧.
+  Proof.
+    eauto with binprod.
+  Defined.
+
+  Definition binprod_assoc_l {x y z} : C⟦(x ⊗ y) ⊗ z, x ⊗ (y ⊗ z)⟧.
+  Proof.
+    eauto with binprod.
+  Defined.
+
+  (* Equalities for which it almost always pays to rewrite forward *)
+  Hint Rewrite BinProductPr1Commutes : binprod.
+  Hint Rewrite BinProductPr2Commutes : binprod.
+  Hint Rewrite BinProductOfArrowsPr1 : binprod.
+  Hint Rewrite BinProductOfArrowsPr2 : binprod.
+
+  (** This isomorphism extends to a natural ismorphism, see
+      [CategoryTheory.Monoidal.Cartesian]. *)
+  Lemma assoc_l_qinv_assoc_r {x y z : C} :
+    is_inverse_in_precat (@binprod_assoc_l x y z) (@binprod_assoc_r x y z).
+  Proof.
+    unfold is_inverse_in_precat.
+    split.
+    - unfold binprod_assoc_l, binprod_assoc_r.
+      do 2 rewrite precompWithBinProductArrow.
+      do 4 ( rewrite assoc || autorewrite with binprod ).
+      refine (_ @ !BinProductArrowEta _ _ _ _ _ (identity _)).
+      do 2 rewrite id_left.
+      apply (maponpaths (fun f => BinProductArrow _ _ f _)).
+      exact (! BinProductArrowEta _ _ _ _ _ (BinProductPr1 _ _)).
+    - unfold binprod_assoc_l, binprod_assoc_r.
+      do 2 rewrite precompWithBinProductArrow.
+      do 4 ( rewrite assoc || autorewrite with binprod ).
+      refine (_ @ !BinProductArrowEta _ _ _ _ _ (identity _)).
+      do 2 rewrite id_left.
+      apply (maponpaths (fun f => BinProductArrow _ _ _ f)).
+      exact (! BinProductArrowEta _ _ _ _ _ (BinProductPr2 _ _)).
+  Qed.
+
+End Assoc.
+
+(** *** Alternate proof based on equivalence with three-way products *)
+
 (** We show associativity by demonstrating that [(a × b) × c] and
     [a × (b × c)] are both ternary products of a, b, and c, and so
     are isomorphic. *)
 
-Section Assoc.
+Section Assoc3.
   Context {C : precategory}.
   Context (BPC : BinProducts C).
   Context (hsC : has_homsets C).
@@ -970,4 +1031,4 @@ Section Assoc.
     eapply product_unique.
   Defined.
 
-End Assoc.
+End Assoc3.
