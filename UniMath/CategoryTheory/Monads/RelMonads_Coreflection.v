@@ -215,6 +215,80 @@ Definition RelMonadMor_composed : RelMonadMor (RelMonad_composed T) (RelMonad_co
 End RelMonad_transfer_morphism.
 
 
+Section RelMonad_transfer_radj_object.
 
+Variable (T : RelMonad_data (F □ J)).
+
+Definition RelMonad_composed_radj_data : RelMonad_data J.
+Proof.
+  repeat use tpair.
+  - exact (λ a, G (T a)).
+  - cbn. intro a. exact (φ (r_eta T _ )).
+  - cbn. intros a b f.
+    exact (#G (r_bind T (φ_adj_inv R f))).
+Defined.
+
+Notation "'σ'" := (r_bind T).
+Notation "'v'" := (r_eta T).
+Notation "'φ'" := (φ_adj R).
+Notation "'φ-1'" := (φ_adj_inv R).
+
+Variable (TH : RelMonad_axioms T).
+
+Definition RelMonad_composed_radj_axioms : RelMonad_axioms RelMonad_composed_radj_data.
+Proof.
+  repeat split; intros; cbn.
+  - etrans.
+    do 2 apply maponpaths.
+    apply φ_adj_inv_after_φ_adj.
+    etrans. apply maponpaths. apply r_bind_r_eta. apply TH.
+    apply functor_id.
+  - etrans. apply pathsinv0. apply φ_adj_natural_postcomp.
+    etrans. apply maponpaths. apply (r_eta_r_bind TH).
+    apply φ_adj_after_φ_adj_inv.
+  - etrans. apply (!functor_comp _ _ _ ).
+    apply maponpaths.
+    etrans. apply (r_bind_r_bind TH).
+    apply maponpaths.
+    apply pathsinv0. apply (φ_adj_inv_natural_postcomp R).
+Defined.
+
+End RelMonad_transfer_radj_object.
+
+Definition RelMonad_composed_radj (T : RelMonad (F □ J)) : RelMonad J
+    := RelMonad_composed_radj_data T,, RelMonad_composed_radj_axioms _ T.
+
+Section RelMonad_transfer_radj_morphism.
+
+Context {T T' : RelMonad (F □ J)}
+        (f : RelMonadMor T T').
+
+Notation "'σ'" := (r_bind _).
+Notation "'v'" := (r_eta _).
+Notation "'φ'" := (φ_adj R).
+Notation "'φ-1'" := (φ_adj_inv R).
+
+
+Definition RelMonadMor_composed_radj_data
+  : RelMonadMor_data (RelMonad_composed_radj T) (RelMonad_composed_radj T')
+  := λ a, (#G (RelMonadMor_map f a)).
+
+Lemma RelMonadMor_composed_radj_axioms : RelMonadMor_axioms RelMonadMor_composed_radj_data.
+Proof.
+  repeat split; cbn; intros.
+  - unfold RelMonadMor_composed_radj_data. cbn.
+    etrans. apply pathsinv0, φ_adj_natural_postcomp .
+    apply maponpaths. apply (r_eta_α f).
+  - unfold RelMonadMor_composed_radj_data. cbn.
+    etrans. apply (!functor_comp _ _ _ ).
+    etrans. 2: { apply functor_comp. } apply maponpaths.
+    etrans. apply maponpaths. apply maponpaths. apply (φ_adj_inv_natural_postcomp R).
+    apply (α_r_bind f).
+Qed.
+
+Definition RelMonadMor_composed_radj : RelMonadMor (RelMonad_composed_radj T) (RelMonad_composed_radj T')
+  := RelMonadMor_composed_radj_data ,, RelMonadMor_composed_radj_axioms.
+
+End RelMonad_transfer_radj_morphism.
 
 End RMonad_transfer.
