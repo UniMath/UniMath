@@ -115,7 +115,7 @@ Proof.
   - exact (opp_is_inverse_in_precat (is_inverse_in_precat_inv H)).
 Defined.
 
-Definition opp_z_iso {C : precategory} {a b : C} (f : a --> b) : @z_iso C a b -> @z_iso C^op b a.
+Definition opp_z_iso {C : precategory} {a b : C} : @z_iso C a b -> @z_iso C^op b a.
 Proof.
   intros H.
   use mk_z_iso.
