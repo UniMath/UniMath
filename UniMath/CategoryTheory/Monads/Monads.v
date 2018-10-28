@@ -190,7 +190,9 @@ Proof.
     apply (@id_right (functor_precategory C C hs)).
   - apply (invmap (Monad_Mor_equiv hs _ _ )).
     apply (@assoc (functor_precategory C C hs)).
-Qed.
+  - apply (invmap (Monad_Mor_equiv hs _ _ )).
+    apply (@assoc' (functor_precategory C C hs)).
+Defined.
 
 Definition precategory_Monad (C : precategory) (hs : has_homsets C) : precategory
   := tpair _ _ (precategory_Monad_axioms C hs).
@@ -475,7 +477,7 @@ End Monad_eq_helper.
 
 Section Monads_from_adjunctions.
 
-Definition functor_with_μ_from_adjunction {C D : precategory} 
+Definition functor_with_μ_from_adjunction {C D : precategory}
   {L : functor C D} {R : functor D C} (H : are_adjoints L R) :
   functor_with_μ C.
 Proof.

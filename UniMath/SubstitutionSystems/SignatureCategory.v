@@ -135,7 +135,9 @@ repeat split; simpl.
   apply (nat_trans_eq (functor_category_has_homsets _ _ hsD)); intros X; apply id_right.
 - intros Ht1 Ht2 Ht3 Ht4 F1 F2 F3; apply SignatureMor_eq; simpl.
   apply (nat_trans_eq (functor_category_has_homsets _ _ hsD)); intros X; apply assoc.
-Qed.
+- intros Ht1 Ht2 Ht3 Ht4 F1 F2 F3; apply SignatureMor_eq; simpl.
+  apply (nat_trans_eq (functor_category_has_homsets _ _ hsD)); intros X; apply assoc'.
+Defined.
 
 Definition Signature_precategory : precategory :=
  (Signature_precategory_data,,is_precategory_Signature_precategory_data).

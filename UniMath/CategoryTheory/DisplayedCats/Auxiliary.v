@@ -128,7 +128,8 @@ Proof.
   (* id_left *) apply dirprod_paths; simpl; apply id_left.
   (* id_right *) apply dirprod_paths; simpl; apply id_right.
   (* assoc *) apply dirprod_paths; simpl; apply assoc.
-Qed.
+  (* assoc' *) apply dirprod_paths; simpl; apply assoc'.
+Defined.
 
 Definition prod_precategory (C D : precategory) : precategory
   := (_ ,, prod_precategory_is_precategory C D).

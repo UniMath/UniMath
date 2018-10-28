@@ -79,6 +79,7 @@ Definition graph_precategory_data : precategory_data
 
 Lemma is_precategory_graph : is_precategory graph_precategory_data.
 Proof.
+  apply is_precategory_one_assoc_to_two.
   repeat apply dirprodpair; cbn.
   - apply graph_mor_id_right.
   - apply graph_mor_id_left.

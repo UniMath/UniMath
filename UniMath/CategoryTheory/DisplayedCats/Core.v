@@ -862,6 +862,7 @@ Context {C : category} (D : disp_cat C).
 (* TODO: make notations [( ,, )] and [ ;; ] different levels?  ;; should bind tighter, perhaps, and ,, looser? *)
 Lemma total_category_is_precat : is_precategory (total_category_data D).
 Proof.
+  apply is_precategory_one_assoc_to_two.
   repeat apply tpair; simpl.
   - intros xx yy ff; cbn.
     use total2_paths_f; simpl.

@@ -19,6 +19,7 @@ Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.opp_precat.
 
 Local Open Scope cat.
 
@@ -170,14 +171,32 @@ Proof.
         apply eq_iso.
       * apply id_left.
       * apply id_right.
-    + intros ? ? ? ? ? ? ?; apply eq_iso.
-      apply assoc.
+    + use dirprodpair; intros; apply eq_iso.
+      * apply assoc.
+      * apply assoc'.
   - intros ? ? f; use (is_iso_qinv f).
     + exact (iso_inv_from_iso f).
     + use dirprodpair; apply eq_iso.
       * apply iso_inv_after_iso.
       * apply iso_after_iso_inv.
 Defined.
+
+Goal ∏ C:precategory, pregroupoid_to_precategory (@maximal_subgroupoid (C^op))
+                      = (@maximal_subgroupoid C)^op.
+Proof.
+  Fail reflexivity.
+Abort.
+(* The first thing preventing the proof above is this: *)
+Goal ∏ (C:precategory) (a b:C) (f : C ⟦ b, a ⟧), @is_iso C^op a b f = @is_iso C b a f.
+Proof.
+  Fail reflexivity.
+Abort.
+(* And this wouldn't help: *)
+Goal ∏ (C:precategory) (a b:C) (f : C ⟦ b, a ⟧),
+      @is_z_isomorphism C^op a b f = @is_z_isomorphism C b a f.
+Proof.
+  Fail reflexivity.
+Abort.
 
 (** ** Discrete categories *)
 

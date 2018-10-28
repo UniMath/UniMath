@@ -500,7 +500,10 @@ Module Category.
       { simpl. split.
         { simpl. intros. apply MorEquality. reflexivity. }
         { intros. apply MorEquality. reflexivity. } }
-      { intros. apply MorEquality. reflexivity. } }
+      { split.
+        { intros. apply MorEquality. reflexivity. }
+        { intros. apply MorEquality. reflexivity. }
+      } }
     { simpl. intros F G. exact (setproperty (Mor F G)). }
   Defined.
 

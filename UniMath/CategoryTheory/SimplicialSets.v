@@ -67,6 +67,7 @@ Proof.
     { split.
       { intros m. apply monfunstnid. }
       { intros l m n f g. exact (monfunstncomp f g). } } }
+  apply is_precategory_one_assoc_to_two.
   simpl. split.
   { simpl. split.
     { intros m n f. now apply monfunstnpr1_isInjective. }
