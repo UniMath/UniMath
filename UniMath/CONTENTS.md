@@ -332,6 +332,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monoidal/DisplayedMonoidal.v](CategoryTheory/Monoidal/DisplayedMonoidal.v)
    - [Monoidal/CategoriesOfMonoids.v](CategoryTheory/Monoidal/CategoriesOfMonoids.v)
    - [Monoidal/BraidedMonoidalCategories.v](CategoryTheory/Monoidal/BraidedMonoidalCategories.v)
+   - [Monoidal/Strengths.v](CategoryTheory/Monoidal/Strengths.v)
+   - [Monoidal/Cartesian.v](CategoryTheory/Monoidal/Cartesian.v)
    - [SkewMonoidal/SkewMonoidalCategories.v](CategoryTheory/SkewMonoidal/SkewMonoidalCategories.v)
    - [SkewMonoidal/CategoriesOfMonoids.v](CategoryTheory/SkewMonoidal/CategoriesOfMonoids.v)
    - [Enriched/Enriched.v](CategoryTheory/Enriched/Enriched.v)
