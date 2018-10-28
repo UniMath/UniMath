@@ -905,6 +905,7 @@ Defined.
 
 Lemma fiber_is_precategory : is_precategory fiber_category_data.
 Proof.
+  apply is_precategory_one_assoc_to_two.
   repeat split; intros; cbn.
   - etrans. apply maponpaths. apply id_left_disp.
     etrans. apply transport_f_f. apply transportf_comp_lemma_hset.

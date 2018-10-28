@@ -164,7 +164,11 @@ Proof.
   intros;
   apply Cone_Mor_eq;
   simpl; apply assoc.
-Qed.
+
+  intros;
+  apply Cone_Mor_eq;
+  simpl; apply assoc'.
+Defined.
 
 Definition CONE : precategory := tpair _ _ is_precategory_Cone.
 

@@ -51,7 +51,7 @@ Section def_gr_precategory.
 
   Lemma is_precategory_gr_precategory_data : is_precategory gr_precategory_data.
   Proof.
-    use mk_is_precategory.
+    use mk_is_precategory_one_assoc.
     - intros a b f. use gr_id_left.
     - intros a b f. use gr_id_right.
     - intros a b c d f g h. use gr_assoc.

@@ -40,7 +40,7 @@ Local Open Scope functions.
 
 Definition precat_precat : precategory.
 Proof.
-  use mk_precategory.
+  use mk_precategory_one_assoc.
   - use tpair; use tpair; cbn.
     + exact precategory.
     + exact functor.
@@ -55,7 +55,7 @@ Defined.
 
 Definition cat_precat : precategory.
 Proof.
-  use mk_precategory.
+  use mk_precategory_one_assoc.
   - use tpair; use tpair; cbn.
     + exact category.
     + exact functor.

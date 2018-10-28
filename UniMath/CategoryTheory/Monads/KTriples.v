@@ -308,6 +308,8 @@ Proof.
     apply funextsec. intros x. apply id_right.
   - apply (invmap (Kleisli_Mor_equiv hs _ _ )).
     apply funextsec. intros x. apply assoc.
+  - apply (invmap (Kleisli_Mor_equiv hs _ _ )).
+    apply funextsec. intros x. apply assoc'.
 Defined.
 
 Definition precategory_Kleisli (C : precategory) (hs : has_homsets C) : precategory :=

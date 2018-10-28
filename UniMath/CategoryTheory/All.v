@@ -2,8 +2,8 @@
 Require Export UniMath.CategoryTheory.total2_paths.
 Require Export UniMath.CategoryTheory.Categories.
 Require Export UniMath.CategoryTheory.functor_categories.
-Require Export UniMath.CategoryTheory.Groupoids.
 Require Export UniMath.CategoryTheory.opp_precat.
+Require Export UniMath.CategoryTheory.Groupoids.
 Require Export UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Export UniMath.CategoryTheory.ProductCategory.
 Require Export UniMath.CategoryTheory.whiskering.
