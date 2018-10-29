@@ -106,6 +106,50 @@ Section Precategories.             (* move upstream *)
     set (y := (_,,Y) : hfiber (postcomp_with f) f).
     exact (maponpaths pr1 ((proofirrelevance _ (isapropifcontr (i b f))) y x)).
   Defined.
+  (** Here's why we prefer to use z_iso instead of iso : *)
+  Definition opp_iso' {C : precategory} {a b : C} : @iso C^op b a -> @iso C a b.
+    intro f.
+    exists (pr1 f).
+    set (T := is_z_iso_from_is_iso _ (pr2 f)).
+    apply (is_iso_qinv (C:=C) _ (pr1 T)).
+    split; [ apply (pr2 (pr2 T)) | apply (pr1 (pr2 T)) ].
+  Defined.
+  Definition opp_z_iso {C : precategory} {a b : C} : @z_iso C a b -> @z_iso C^op b a.
+  Proof.
+    intros H.
+    use mk_z_iso.
+    - exact (z_iso_mor H).
+    - exact (z_iso_inv_mor H).
+    - exact (opp_is_inverse_in_precat (is_inverse_in_precat_inv H)).
+  Defined.
+  Definition opp_z_iso' {C : precategory} {a b : C} : @z_iso C^op b a -> @z_iso C a b.
+  Proof.
+    intros H.
+    use mk_z_iso.
+    - exact (z_iso_mor H).
+    - exact (z_iso_inv_mor H).
+    - exact (opp_is_inverse_in_precat (is_inverse_in_precat_inv H)).
+  Defined.
+  Goal ∏ (C:precategory) (a b:C) (f:z_iso a b), z_iso_inv (z_iso_inv f) = f.
+    reflexivity.
+  Defined.
+  Goal ∏ (C:precategory) (a b:C) (f:z_iso a b), opp_z_iso' (opp_z_iso f) = f.
+    reflexivity.
+  Defined.
+  Goal ∏ (C:precategory) (a b:C) (f:z_iso (C:=C^op) b a), opp_z_iso (opp_z_iso' f) = f.
+    reflexivity.
+  Defined.
+  Goal ∏ (C:precategory) (a b:C) (f:iso a b), iso_inv_from_iso (iso_inv_from_iso f) = f.
+    Fail reflexivity.
+  Abort.
+  Goal ∏ (C:precategory) (a b:C) (f:iso a b), opp_iso' (opp_iso f) = f.
+    Fail reflexivity.
+  Abort.
+  (* It would be even better if one of these would work: *)
+  Goal ∏ (C:precategory) (a b:C), @iso C a b -> @iso C^op b a.
+    intros C a b f. Fail exact f. Abort.
+  Goal ∏ (C:precategory) (a b:C), @z_iso C a b -> @z_iso C^op b a.
+    intros C a b f. Fail exact f. Abort.
 End Precategories.
 
 Import AddNotation.
@@ -125,6 +169,14 @@ Section MorphismPairs.          (* move upstream *)
       (g : z_iso (Ob2 P) (Ob2 Q))
       (h : z_iso (Ob3 P) (Ob3 Q)),
     f · Mor1 Q = Mor1 P · g  ×  g · Mor2 Q = Mor2 P · h.
+  Definition InverseMorphismPairIsomorphism {P Q : MorphismPair M} :
+    MorphismPairIsomorphism P Q -> MorphismPairIsomorphism Q P.
+  Proof.
+    intros [i [j [k [l m]]]].
+    exists (z_iso_inv i).
+    exists (z_iso_inv j).
+    exists (z_iso_inv k).
+  Admitted.
 End MorphismPairs.
 
 Section Pullbacks.              (* move upstream *)
@@ -766,6 +818,7 @@ Arguments isExact2 {_ _ _ _}.
 
 Definition ExactCategory := ∑ (ME:AddCatWithExactness), ExactCategoryProperties ME.
 Coercion ExCatToAddCatWithExactness (E:ExactCategory) : AddCatWithExactness := pr1 E.
+Definition mk_ExactCategory (ME:AddCatWithExactness) (p : ExactCategoryProperties ME) : ExactCategory := ME,,p.
 
 Notation "A ↣ B" := (AdmissibleMonomorphism _ A B) : excat.
 Notation "B ↠ C" := (AdmissibleEpimorphism _ B C) : excat.
@@ -808,6 +861,66 @@ Section ExactCategoryAccessFunctions.
     ∃ (PO : Pushout f g), isAdmissibleMonomorphism (PushoutIn2 PO)
     := pr222 (pr222 (pr22 M)) A B C f g.
 End ExactCategoryAccessFunctions.
+
+Section OppositeExactCategory.
+  Definition oppositeMorphismPair {M:precategory} (p:MorphismPair M) : MorphismPair (M^op)
+    := pr122 p,,pr12 p,,pr1 p,,pr2 (pr222 p),,pr1 (pr222 p).
+  Definition oppositeMorphismPair' {M:precategory} (p:MorphismPair (M^op)) : MorphismPair M
+    := pr122 p,,pr12 p,,pr1 p,,pr2 (pr222 p),,pr1 (pr222 p).
+  Definition opposite_is_z_isomorphism (M:precategory) (a b:M) (f:hom M a b) :
+    @is_z_isomorphism M a b f -> @is_z_isomorphism M^op b a f
+    := λ i, is_z_isomorphism_mor i ,,
+               is_inverse_in_precat2 (is_z_isomorphism_is_inverse_in_precat i) ,,
+               is_inverse_in_precat1 (is_z_isomorphism_is_inverse_in_precat i).
+  Definition opposite_z_iso {M:precategory} {a b:M} : @z_iso M a b -> @z_iso M^op b a
+    := λ i, pr1 i,, pr12 i,, pr222 i,, pr122 i.
+  Definition oppositeMorphismPairIsomorphism (M:precategory) (P Q : MorphismPair M)
+    : MorphismPairIsomorphism P Q ->
+      MorphismPairIsomorphism (oppositeMorphismPair Q) (oppositeMorphismPair P).
+  Proof.
+    intros [i [j [k [l m]]]].
+    exists (opposite_z_iso k).
+    exists (opposite_z_iso j).
+    exists (opposite_z_iso i).
+    split.
+    - exact (!m).               (* oops, inserting a proof *)
+    - exact (!l).
+  Defined.
+  Definition oppositeMorphismPairIsomorphism' (M:precategory) (P Q : MorphismPair M^op)
+    : MorphismPairIsomorphism P Q ->
+      MorphismPairIsomorphism (oppositeMorphismPair' Q) (oppositeMorphismPair' P).
+  Proof.
+    intros [i [j [k [l m]]]].
+    exists (opposite_z_iso k).
+    exists (opposite_z_iso j).
+    exists (opposite_z_iso i).
+    split.
+    - exact (!m).               (* oops, inserting a proof *)
+    - exact (!l).
+  Defined.
+  Definition oppositeExactCategory (M:ExactCategory) : ExactCategory.
+  Proof.
+    set (M' := oppositeAdditiveCategory M).
+    set (E' := λ p, @isExact M (oppositeMorphismPair' p)).
+    use mk_ExactCategory.
+    - exact (M',,E').
+    - set (ME := (M',,E') : AddCatWithExactness).
+      split.
+      { cbn. intros p q i. use EC_IsomorphicToExact.
+        exact (oppositeMorphismPairIsomorphism' M q p (InverseMorphismPairIsomorphism i)). (* oops *) }
+      split.
+      { intros A. cbn in A. exact (@EC_IdentityIsEpi M A). }
+      split.
+      { intros A. cbn in A. exact (@EC_IdentityIsMono M A). }
+      split.
+      { intros P i.
+        set (E := @EC_ExactToKernelCokernel M (oppositeMorphismPair' P) i).
+        split.
+        - exact (pr2 E).
+        - exact (pr1 E). }
+  Abort.
+
+End OppositeExactCategory.
 
 Section ExactCategoryFacts.
   Context {M : ExactCategory}.
