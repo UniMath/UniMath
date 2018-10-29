@@ -724,15 +724,14 @@ Lemma opposite_directSumMap {M:Additive} {a b c d:M} (f : a --> b) (g : c --> d)
   opp_mor (directSumMap (M:=M) f g).
 Proof.
   apply BinDirectSumIndArEq.
-Defined.
+Qed.
 Lemma opposite_directSumMap' {M:Additive} {a b c d:M} (f : a --> b) (g : c --> d) :
   opp_mor (directSumMap (M:=oppositeAdditiveCategory M) (opp_mor f) (opp_mor g))
   =
   directSumMap (M:=M) f g.
 Proof.
-  apply (maponpaths opp_mor).
-  apply BinDirectSumIndArEq.
-Defined.
+  apply (maponpaths opp_mor). apply BinDirectSumIndArEq.
+Qed.
 Section KernelCokernelPairs.
   Context {M : Additive}.
   Definition isKernelCokernelPair {A B C:M} (i : A --> B) (p: B --> C) : hProp
@@ -914,6 +913,9 @@ Section theDefinition.
   Definition isExact2 {A B C:M} (f:A-->B) (g:B-->C) := isExact (mk_MorphismPair f g).
   Definition isAdmissibleMonomorphism {A B:M} (i : A --> B) : hProp :=
     ∃ C (p : B --> C), isExact2 i p.
+  Definition mk_isAdmissibleMonomorphism {A B C:M} (i : A --> B) (p : B --> C) (e:isExact2 i p)
+    : isAdmissibleMonomorphism i
+    := hinhpr (C,,p,,e).
   Definition AdmissibleMonomorphism (A B:M) : Type :=
     ∑ (i : A --> B), isAdmissibleMonomorphism i.
   Coercion AdmMonoToMap {A B:M} : AdmissibleMonomorphism A B -> A --> B := pr1.
@@ -921,6 +923,9 @@ Section theDefinition.
   Notation "A ↣ B" := (AdmissibleMonomorphism A B) : excat.
   Definition isAdmissibleEpimorphism {B C:M} (p : B --> C) : hProp :=
     ∃ A (i : A --> B), isExact2 i p.
+  Definition mk_isAdmissibleEpimorphism {A B C:M} (i : A --> B) (p : B --> C) (e:isExact2 i p)
+    : isAdmissibleEpimorphism p
+    := hinhpr (A,,i,,e).
   Definition AdmissibleEpimorphism (B C:M) : Type :=
     ∑ (p : B --> C), isAdmissibleEpimorphism p.
   Coercion AdmEpiToMap {B C:M} : AdmissibleEpimorphism B C -> B --> C := pr1.
@@ -949,6 +954,8 @@ End theDefinition.
 
 Arguments isExact {_}.
 Arguments isExact2 {_ _ _ _}.
+Arguments mk_isAdmissibleMonomorphism {_ _ _ _ _ _}.
+Arguments mk_isAdmissibleEpimorphism {_ _ _ _ _ _}.
 
 Definition ExactCategory := ∑ (ME:AddCatWithExactness), ExactCategoryProperties ME.
 Coercion ExCatToAddCatWithExactness (E:ExactCategory) : AddCatWithExactness := pr1 E.
@@ -1291,7 +1298,7 @@ Section ExactCategoryFacts.
   Defined.
   Context {M : ExactCategory}.
   Lemma SumOfExactSequences {A B C A' B' C':M}
-        (f : A --> B) (g : B --> C) (f' : A' --> B') (g' : B' --> C') :
+        {f : A --> B} {g : B --> C} {f' : A' --> B'} {g' : B' --> C'} :
     isExact2 f g -> isExact2 f' g' -> isExact2 (directSumMap f f') (directSumMap g g').
   Proof.
     (* see Bühler's 2.9 *)
@@ -1313,7 +1320,25 @@ Section ExactCategoryFacts.
     induction kj. use (EC_ComposeMono k j).
     2:{ apply MonoPlusIdentity. exact (ExactToAdmMono i). }
     apply IdentityPlusMono. exact (ExactToAdmMono i').
-  Defined.
+  Qed.
+  Lemma SumOfAdmissibleEpis {A B A' B':M}
+        (f : A --> B) (f' : A' --> B') :
+    isAdmissibleEpimorphism f -> isAdmissibleEpimorphism f' -> isAdmissibleEpimorphism (directSumMap f f').
+  Proof.
+    intros e e'.
+    apply (squash_to_hProp e); clear e; intros [C [g e]].
+    apply (squash_to_hProp e'); clear e'; intros [C' [g' e']].
+    exact (mk_isAdmissibleEpimorphism (SumOfExactSequences e e')).
+  Qed.
+  Lemma SumOfAdmissibleMonos {A B A' B':M}
+        (f : A --> B) (f' : A' --> B') :
+    isAdmissibleMonomorphism f -> isAdmissibleMonomorphism f' -> isAdmissibleMonomorphism (directSumMap f f').
+  Proof.
+    intros e e'.
+    apply (squash_to_hProp e); clear e; intros [C [g e]].
+    apply (squash_to_hProp e'); clear e'; intros [C' [g' e']].
+    exact (mk_isAdmissibleMonomorphism (SumOfExactSequences e e')).
+  Qed.
 End ExactCategoryFacts.
 
 Section ShortExactSequences.
