@@ -38,7 +38,7 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
-
+Require Import UniMath.MoreFoundations.Notations.
 
 (** * Definition of a precategory *)
 
@@ -128,21 +128,46 @@ Definition is_precategory (C : precategory_data) : UU
      ×
      (∏ (a b : C) (f : a --> b), f · identity b = f))
     ×
+    ((∏ (a b c d : C) (f : a --> b) (g : b --> c) (h : c --> d), f · (g · h) = (f · g) · h)
+       ×
+     (∏ (a b c d : C) (f : a --> b) (g : b --> c) (h : c --> d), (f · g) · h = f · (g · h))).
+
+Definition is_precategory_one_assoc (C : precategory_data) : UU
+  :=
+    ((∏ (a b : C) (f : a --> b), identity a · f = f)
+     ×
+     (∏ (a b : C) (f : a --> b), f · identity b = f))
+    ×
     (∏ (a b c d : C) (f : a --> b) (g : b --> c) (h : c --> d), f · (g · h) = (f · g) · h).
+
+Definition is_precategory_one_assoc_to_two (C : precategory_data) :
+  is_precategory_one_assoc C -> is_precategory C
+  := λ i, (pr11 i,,pr21 i),,(pr2 i,,λ a b c d f g h, pathsinv0 (pr2 i a b c d f g h)).
 
 Definition mk_is_precategory {C : precategory_data}
            (H1 : ∏ (a b : C) (f : a --> b), identity a · f = f)
            (H2 : ∏ (a b : C) (f : a --> b), f · identity b = f)
            (H3 : ∏ (a b c d : C) (f : a --> b) (g : b --> c) (h : c --> d), f · (g · h) = (f · g) · h)
+           (H4 : ∏ (a b c d : C) (f : a --> b) (g : b --> c) (h : c --> d), (f · g) · h = f · (g · h))
   : is_precategory C
-  := dirprodpair (dirprodpair H1 H2) H3.
+  := (H1,,H2),,(H3,,H4).
 
+Definition mk_is_precategory_one_assoc {C : precategory_data}
+           (H1 : ∏ (a b : C) (f : a --> b), identity a · f = f)
+           (H2 : ∏ (a b : C) (f : a --> b), f · identity b = f)
+           (H3 : ∏ (a b c d : C) (f : a --> b) (g : b --> c) (h : c --> d), f · (g · h) = (f · g) · h)
+  : is_precategory C
+  := (H1,,H2),,(H3,,λ a b c d f g h, pathsinv0 (H3 a b c d f g h)).
 
 Definition precategory := total2 is_precategory.
 
 Definition mk_precategory (C : precategory_data) (H : is_precategory C)
   : precategory
   := tpair _ C H.
+
+Definition mk_precategory_one_assoc (C : precategory_data) (H : is_precategory_one_assoc C)
+  : precategory
+  := tpair _ C (is_precategory_one_assoc_to_two C H).
 
 Definition precategory_data_from_precategory (C : precategory) :
        precategory_data := pr1 C.
@@ -176,6 +201,8 @@ Definition makecategory
     (left  : ∏ i j (f:mor i j), compose _ _ _ f (identity j) = f)
     (associativity : ∏ a b c d (f:mor a b) (g:mor b c) (h:mor c d),
         compose _ _ _ f (compose _ _ _ g h) = compose _ _ _ (compose _ _ _ f g) h)
+    (associativity' : ∏ a b c d (f:mor a b) (g:mor b c) (h:mor c d),
+        compose _ _ _ (compose _ _ _ f g) h = compose _ _ _ f (compose _ _ _ g h))
   : category
   := (precategory_pair
            (precategory_data_pair
@@ -183,8 +210,7 @@ Definition makecategory
                  obj
                  (λ i j, mor i j))
               identity compose)
-           ((right,,left),,associativity)),,homsets.
-
+           ((right,,left),,(associativity,,associativity'))),,homsets.
 
 Lemma isaprop_is_precategory (C : precategory_data)(hs: has_homsets C)
   : isaprop (is_precategory C).
@@ -192,26 +218,34 @@ Proof.
   apply isofhleveltotal2.
   { apply isofhleveltotal2. { repeat (apply impred; intro). apply hs. }
     intros _. repeat (apply impred; intro); apply hs. }
-  intros _. repeat (apply impred; intro); apply hs.
+  intros _. apply isofhleveltotal2.
+  { repeat (apply impred; intro); apply hs. }
+  { intros. repeat (apply impred; intro). apply hs. }
 Qed.
 
 
 Definition id_left (C : precategory) :
    ∏ (a b : C) (f : a --> b),
-           identity a · f = f := pr1 (pr1 (pr2 C)).
+           identity a · f = f := pr112 C.
 
 Definition id_right (C : precategory) :
    ∏ (a b : C) (f : a --> b),
-           f · identity b = f := pr2 (pr1 (pr2 C)).
+           f · identity b = f := pr212 C.
 
 Definition assoc (C : precategory) :
    ∏ (a b c d : C)
-          (f : a --> b)(g : b --> c) (h : c --> d),
-                     f · (g · h) = (f · g) · h := pr2 (pr2 C).
+          (f : a --> b) (g : b --> c) (h : c --> d),
+                     f · (g · h) = (f · g) · h := pr122 C.
+
+Definition assoc' (C : precategory) :
+   ∏ (a b c d : C)
+          (f : a --> b) (g : b --> c) (h : c --> d),
+                     (f · g) · h = f · (g · h) := pr222 C.
 
 Arguments id_left [C a b] f.
 Arguments id_right [C a b] f.
 Arguments assoc [C a b c d] f g h.
+Arguments assoc' [C a b c d] f g h.
 
 Lemma assoc4 (C : precategory) (a b c d e : C) (f : a --> b) (g : b --> c)
        (h : c --> d) (i : d --> e) :

@@ -958,6 +958,7 @@ Definition hom_data
 
 Lemma is_precategory_hom : is_precategory hom_data.
 Proof.
+  apply is_precategory_one_assoc_to_two.
   repeat split; cbn.
   - intros f g. apply id2_left.
   - intros f g. apply id2_right.

@@ -130,7 +130,9 @@ repeat split; simpl.
   apply subtypePairEquality; [ intro; apply hsC | apply id_right ].
 * intros a b c d f g h.
   apply subtypePairEquality; [ intro; apply hsC | apply assoc ].
-Qed.
+* intros a b c d f g h.
+  apply subtypePairEquality; [ intro; apply hsC | apply assoc' ].
+Defined.
 
 Definition slice_precat (hsC : has_homsets C) : precategory :=
   (_,,is_precategory_slice_precat_data hsC).

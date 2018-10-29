@@ -54,7 +54,7 @@ Section def_intdom_precategory.
 
   Lemma is_precategory_intdom_precategory_data : is_precategory intdom_precategory_data.
   Proof.
-    use mk_is_precategory.
+    use mk_is_precategory_one_assoc.
     - intros a b f. use intdom_id_left.
     - intros a b f. use intdom_id_right.
     - intros a b c d f g h. use intdom_assoc.

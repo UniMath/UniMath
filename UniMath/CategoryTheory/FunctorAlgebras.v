@@ -147,7 +147,10 @@ Proof.
   - apply algebra_mor_eq.
     + apply hs.
     + apply assoc.
-Qed.
+  - apply algebra_mor_eq.
+    + apply hs.
+    + apply assoc'.
+Defined.
 
 Definition precategory_FunctorAlg (hs : has_homsets C)
   : precategory := tpair _ _ (is_precategory_precategory_alg_data hs).

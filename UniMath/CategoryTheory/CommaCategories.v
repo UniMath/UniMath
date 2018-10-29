@@ -106,7 +106,9 @@ Proof.
     simpl. apply id_right.
   - intros. apply cComma_mor_eq.
     simpl. apply assoc.
-Qed.
+  - intros. apply cComma_mor_eq.
+    simpl. apply assoc'.
+Defined.
 
 Definition cComma : precategory.
 Proof.
@@ -273,8 +275,19 @@ Proof.
   - apply (homset_property C).
 Qed.
 
+Definition comma_cat_data_assoc' :
+  ∏ (stf uvg xyh zwi : comma_cat_data) (jkp : stf --> uvg) (lmq : uvg --> xyh) (nor : xyh --> zwi), (jkp · lmq) · nor = jkp · (lmq · nor).
+Proof.
+  intros stf uvg xyh zwi jkp lmq nor.
+  use total2_paths2_f.
+  - use total2_paths2.
+    + cbn. apply assoc'.
+    + cbn. apply assoc'.
+  - apply (homset_property C).
+Qed.
+
 Definition is_precategory_comma_cat_data : is_precategory comma_cat_data :=
-  mk_is_precategory comma_cat_data_id_left comma_cat_data_id_right comma_cat_data_assoc.
+  mk_is_precategory comma_cat_data_id_left comma_cat_data_id_right comma_cat_data_assoc comma_cat_data_assoc'.
 
 Definition comma_precategory : precategory := mk_precategory comma_cat_data is_precategory_comma_cat_data.
 

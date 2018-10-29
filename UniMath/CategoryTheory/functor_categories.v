@@ -1029,6 +1029,7 @@ Lemma is_precategory_functor_precategory_data
   (C:precategory_data)(C' : precategory) (hs: has_homsets C'):
    is_precategory (functor_precategory_data C C').
 Proof.
+  apply is_precategory_one_assoc_to_two.
   repeat split; simpl; intros.
   unfold identity.
   simpl.

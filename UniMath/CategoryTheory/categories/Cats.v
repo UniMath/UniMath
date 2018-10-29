@@ -53,11 +53,11 @@ Local Open Scope functions.
 
 (** ** Definitions *)
 
-(** *** The precategory of 𝒰-small precategories (for fixed U) ([precat_precat]) *)
+(** *** The precategory of 𝒰-small precategories (for fixed 𝒰) ([precat_precat]) *)
 
 Definition precat_precat : precategory.
 Proof.
-  use mk_precategory.
+  use mk_precategory_one_assoc.
   - use tpair; use tpair; cbn.
     + exact precategory.
     + exact functor.
