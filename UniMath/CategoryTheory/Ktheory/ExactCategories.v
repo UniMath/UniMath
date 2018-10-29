@@ -879,7 +879,8 @@ Section theDefinition.
   Notation "B ↠ C" := (AdmissibleEpimorphism B C) : excat.
   (** The following definition is definition 2.1 from the paper of Bühler. *)
   Local Definition ExactCategoryProperties : hProp :=
-      (∀ P Q, MorphismPairIsomorphism (M:=M) P Q ⇒ isExact P ⇒ isExact Q) ∧
+      ((∀ P Q, MorphismPairIsomorphism (M:=M) P Q ⇒ isExact P ⇒ isExact Q) ∧
+       (∀ P Q, MorphismPairIsomorphism (M:=M) Q P ⇒ isExact P ⇒ isExact Q)) ∧
       (∀ A, isAdmissibleMonomorphism (identity A)) ∧
       (∀ A, isAdmissibleEpimorphism (identity A)) ∧
       (∀ P, isExact P ⇒ isKernelCokernelPair (Mor1 P) (Mor2 P)) ∧
@@ -914,7 +915,10 @@ Section ExactCategoryAccessFunctions.
   Context {M:ExactCategory}.
   Definition EC_IsomorphicToExact {P Q:MorphismPair M}
     : MorphismPairIsomorphism (M:=M) P Q ⇒ isExact P ⇒ isExact Q
-    := pr12 M P Q.
+    := pr112 M P Q.
+  Definition EC_IsomorphicToExact' {P Q:MorphismPair M}
+    : MorphismPairIsomorphism (M:=M) Q P ⇒ isExact P ⇒ isExact Q
+    := pr212 M P Q.
   Definition EC_IdentityIsMono (A:M) : isAdmissibleMonomorphism (identity A)
     := pr122 M A.
   Definition EC_IdentityIsEpi (A:M) : isAdmissibleEpimorphism (identity A)
@@ -951,13 +955,28 @@ Section OppositeExactCategory.
   Proof.
     set (M' := oppositeAdditiveCategory M).
     set (E' := λ p, @isExact M (oppositeMorphismPair (M:=M^op) p)).
-    use mk_ExactCategory.
-    - exact (M',,E').
-    - set (ME := (M',,E') : AddCatWithExactness).
-      split.
-      { cbn. intros p q i. use EC_IsomorphicToExact.
-  Abort.
-
+    set (ME := (M',,E') : AddCatWithExactness).
+    use (mk_ExactCategory ME).
+    split.
+    { split.
+      * intros P Q f. exact (EC_IsomorphicToExact' (oppositeMorphismPairIsomorphism f)).
+      * intros P Q f. exact (EC_IsomorphicToExact (oppositeMorphismPairIsomorphism f)). }
+    exists EC_IdentityIsEpi.
+    exists EC_IdentityIsMono.
+    split.
+    { intros P i. exact (opposite_isKernelCokernelPair _ _ (EC_ExactToKernelCokernel i)). }
+    split.
+    { intros A B C f g i j. exact (@EC_ComposeEpi M C B A g f j i). }
+    split.
+    { intros A B C f g i j. exact (@EC_ComposeMono M C B A g f j i). }
+    split.
+    { exact (@EC_PushoutMono M). }
+    { exact (@EC_PullbackEpi M). }
+  Defined.
+  Goal ∏ (M:ExactCategory), oppositeExactCategory (oppositeExactCategory M) = M.
+  Proof.
+    reflexivity.
+  Defined.
 End OppositeExactCategory.
 
 Section ExactCategoryFacts.
