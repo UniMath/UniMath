@@ -53,7 +53,7 @@ Section def_commrig_precategory.
 
   Lemma is_precategory_commrig_precategory_data : is_precategory commrig_precategory_data.
   Proof.
-    use mk_is_precategory.
+    use mk_is_precategory_one_assoc.
     - intros a b f. use commrig_id_left.
     - intros a b f. use commrig_id_commright.
     - intros a b c d f g h. use commrig_assoc.

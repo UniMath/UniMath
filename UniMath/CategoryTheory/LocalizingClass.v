@@ -1106,6 +1106,7 @@ Section def_roofs.
 
   Lemma is_precategory_loc_precategory_data : is_precategory loc_precategory_data.
   Proof.
+    apply is_precategory_one_assoc_to_two.
     split.
     - split.
       + intros a b f.

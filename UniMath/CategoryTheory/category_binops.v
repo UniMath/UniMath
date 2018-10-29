@@ -67,7 +67,10 @@ Section BINOPS_precategory.
 
     intros a b c d f g h. apply pathsinv0.
     apply (binopfuncomp_assoc a b c d f g h).
-  Qed.
+
+    intros a b c d f g h.
+    apply (binopfuncomp_assoc a b c d f g h).
+  Defined.
 
   Definition binop_precategory : precategory :=
     tpair _ _ is_precategory_binop_precategory_data.

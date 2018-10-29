@@ -39,6 +39,7 @@ Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.opp_precat.
 Local Open Scope cat.
 
 Definition precategory_binproduct_mor (C D : precategory_ob_mor) (cd cd' : C × D) := pr1 cd --> pr1 cd' × pr2 cd --> pr2 cd'.
@@ -66,7 +67,8 @@ Proof.
   - apply dirprodeq; apply id_left.
   - apply dirprodeq; apply id_right.
   - apply dirprodeq; apply assoc.
-Qed.
+  - apply dirprodeq; apply assoc'.
+Defined.
 
 Definition precategory_binproduct : precategory
   := tpair _ _ is_precategory_precategory_binproduct_data.
@@ -92,6 +94,10 @@ Arguments ob2 { _ _ } _ .
 Arguments mor1 { _ _ _ _ } _ .
 Arguments mor2 { _ _ _ _ } _ .
 Local Notation "C × D" := (precategory_binproduct C D) (at level 75, right associativity).
+
+Goal ∏ (C D:precategory), (C × D)^op = (C^op × D^op).
+  reflexivity.
+Qed.
 
 (** Objects and morphisms in the product precategory of two precategories *)
 Definition precatbinprodpair {C D : precategory} (X : C) (Y : D) : precategory_binproduct C D
