@@ -718,6 +718,21 @@ Defined.
 Goal ∏ (M:Additive) (x y z : M) (f : x --> y) (g : y --> z), isCokernel' (M:=M) f g = isKernel' (M:=oppositeAdditiveCategory M) g f.
   reflexivity.
 Defined.
+Lemma opposite_directSumMap {M:Additive} {a b c d:M} (f : a --> b) (g : c --> d) :
+  directSumMap (M:=oppositeAdditiveCategory M) (opp_mor f) (opp_mor g)
+  =
+  opp_mor (directSumMap (M:=M) f g).
+Proof.
+  apply BinDirectSumIndArEq.
+Defined.
+Lemma opposite_directSumMap' {M:Additive} {a b c d:M} (f : a --> b) (g : c --> d) :
+  opp_mor (directSumMap (M:=oppositeAdditiveCategory M) (opp_mor f) (opp_mor g))
+  =
+  directSumMap (M:=M) f g.
+Proof.
+  apply (maponpaths opp_mor).
+  apply BinDirectSumIndArEq.
+Defined.
 Section KernelCokernelPairs.
   Context {M : Additive}.
   Definition isKernelCokernelPair {A B C:M} (i : A --> B) (p: B --> C) : hProp
@@ -1133,6 +1148,12 @@ Section ExactCategoryFacts.
       refine (assoc _ _ _ @ maponpaths (postcomp_with p) _ @ id_left p @ ! id_right p).
       apply z_iso_inv_after_z_iso.
   Qed.
+  Lemma IsomEpi {M : ExactCategory} {A A' B B':M} (f : A --> B) (f' : A' --> B') :
+    IsoArrow f' f -> isAdmissibleEpimorphism f -> isAdmissibleEpimorphism f'.
+  Proof.
+    intros i.
+    exact (IsomMono (M:=oppositeExactCategory M) f f' (opposite_IsoArrow _ _ i)).
+  Defined.
   Lemma IsoIsMono {M : ExactCategory} {A B:M} (f:z_iso A B) : isAdmissibleMonomorphism (z_iso_mor f).
   Proof.
     use (IsomMono1 (identity A) (z_iso_mor f)).
@@ -1217,8 +1238,7 @@ Section ExactCategoryFacts.
     intros e.
     exact (opp_is_z_isomorphism _ (MonicAdmEpiIsIso (M:=oppositeExactCategory M) i e)).
   Qed.
-  Context {M : ExactCategory}.
-  Lemma MonoPlusIdentity {A B:M} (f:A-->B) (C:M) :
+  Lemma MonoPlusIdentity {M : ExactCategory} {A B:M} (f:A-->B) (C:M) :
     isAdmissibleMonomorphism f -> isAdmissibleMonomorphism (directSumMap f (identity C)).
   Proof.
     (* see Bühler's 2.9 *)
@@ -1240,7 +1260,14 @@ Section ExactCategoryFacts.
       apply maponpaths. apply ThroughZeroIsZero. }
     { refine (to_IdIn1 (D⊕Z)). }
   Qed.
-  Lemma IdentityPlusMono {B C:M} (A:M) (f:B-->C) :
+  Lemma EpiPlusIdentity {M : ExactCategory} {A B:M} (f:A-->B) (C:M) :
+    isAdmissibleEpimorphism f -> isAdmissibleEpimorphism (directSumMap f (identity C)).
+  Proof.
+    intro i.
+    rewrite <- opposite_directSumMap'.
+    exact (@MonoPlusIdentity (oppositeExactCategory M) B A f C i).
+  Defined.
+  Lemma IdentityPlusMono {M : ExactCategory} {B C:M} (A:M) (f:B-->C) :
     isAdmissibleMonomorphism f -> isAdmissibleMonomorphism (directSumMap (identity A) f).
   Proof.
     intros i.
@@ -1251,6 +1278,18 @@ Section ExactCategoryFacts.
     - exists (SwitchIso _ _). exists (SwitchIso _ _). apply SwitchMapMapEqn.
     - apply MonoPlusIdentity. exact i.
   Defined.
+  Lemma IdentityPlusEpi {M : ExactCategory} {B C:M} (A:M) (f:B-->C) :
+    isAdmissibleEpimorphism f -> isAdmissibleEpimorphism (directSumMap (identity A) f).
+  Proof.
+    intros i.
+    use IsomEpi.
+    - exact (B ⊕ A).
+    - exact (C ⊕ A).
+    - exact (directSumMap f (identity A)).
+    - exists (SwitchIso _ _). exists (SwitchIso _ _). apply SwitchMapMapEqn.
+    - apply EpiPlusIdentity. exact i.
+  Defined.
+  Context {M : ExactCategory}.
   Lemma SumOfExactSequences {A B C A' B' C':M}
         (f : A --> B) (g : B --> C) (f' : A' --> B') (g' : B' --> C') :
     isExact2 f g -> isExact2 f' g' -> isExact2 (directSumMap f f') (directSumMap g g').
