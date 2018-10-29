@@ -92,7 +92,7 @@ Section Precategories.             (* move upstream *)
     := pr1 f ,, is_iso_from_is_z_iso (pr1 f) (pr2 f).
   Definition is_iso' {C : precategory} {b c : C} (f : b --> c) :=
     ∏ a, isweq (postcomp_with f (a:=a)).
-  Lemma is_iso'_to_is_z_iso (C : precategory) {b c : C} (f : b --> c) :
+  Lemma is_z_iso_from_is_iso' (C : precategory) {b c : C} (f : b --> c) :
     is_iso' f -> is_z_isomorphism f.
   Proof.
     intros i.
@@ -251,6 +251,7 @@ Section Pullbacks.              (* move upstream *)
   Coercion IsoArrowTo_pr1   {A A' B:M} (g : A --> B) (g' : A' --> B) : IsoArrowTo g g' -> z_iso A A' := pr1.
   Definition IsoArrowFrom   {A B B':M} (g : A --> B) (g' : A --> B') := ∑ i : z_iso B B', g · i  = g'.
   Coercion IsoArrowFrom_pr1 {A B B':M} (g : A --> B) (g' : A --> B') : IsoArrowFrom g g' -> z_iso B B' := pr1.
+  (* this definition of IsoArrow is asymmetric *)
   Definition IsoArrow       {A A' B B':M} (g : A --> B) (g' : A' --> B') := ∑ (i : z_iso A A') (j : z_iso B B'), i · g' = g · j.
   Definition pullbackiso1 {A B C:M} {f : A --> C} {g : B --> C}
         (pb : Pullback f g) (pb' : Pullback f g)
@@ -261,6 +262,41 @@ Section Pullbacks.              (* move upstream *)
     : IsoArrowTo (PullbackPr2 pb) (PullbackPr2 pb')
     := pr1 (pullbackiso pb pb'),,pr22 (pullbackiso pb pb').
 End Pullbacks.
+
+Section OppositeIsoArrows.
+  Definition opposite_IsoArrowTo {M:precategory} {A A' B:M} {g : A --> B} {g' : A' --> B} :
+    IsoArrowTo g g' -> IsoArrowFrom (M:=M^op) g' g.
+  Proof.
+    intros i. use tpair.
+    - exact (opp_z_iso (pr1 i)).
+    - cbn. exact (pr2 i).
+  Defined.
+  Definition opposite_IsoArrowFrom {M:precategory} {A B B':M} {g : A --> B} {g' : A --> B'} :
+    IsoArrowFrom g g' -> IsoArrowTo (M:=M^op) g' g.
+  Proof.
+    intros i. use tpair.
+    - exact (opp_z_iso (pr1 i)).
+    - cbn. exact (pr2 i).
+  Defined.
+  Goal ∏ (M:precategory) (A A' B:M) (g : A --> B) (g' : A' --> B) (i:IsoArrowTo g g'),
+    opposite_IsoArrowFrom (opposite_IsoArrowTo i) = i.
+  Proof.
+    reflexivity.
+  Defined.
+  Goal ∏ (M:precategory) (A B B':M) (g : A --> B) (g' : A --> B') (i:IsoArrowFrom g g'),
+    opposite_IsoArrowTo (opposite_IsoArrowFrom i) = i.
+  Proof.
+    reflexivity.
+  Defined.
+  Definition opposite_IsoArrow {M:precategory} {A A' B B':M} (g : A --> B) (g' : A' --> B') :
+    IsoArrow g g' -> IsoArrow (M:=M^op) (opp_mor g') (opp_mor g).
+  Proof.
+    intros i.
+    exists (opp_z_iso (pr12 i)).
+    exists (opp_z_iso (pr1 i)).
+    exact (! pr22 i).
+  Defined.
+End OppositeIsoArrows.
 
 (* Local Open Scope Cat. *)
 Local Open Scope cat.
@@ -430,17 +466,15 @@ Section AdditiveCategories.     (* move upstream *)
     refine (post_comp_with_iso_is_inj _ _ _ h (is_iso_from_is_z_iso h j) _ _ _ _).
     refine (! assoc _ _ _ @ e @ ! zeroLeft _).
   Qed.
-  Lemma KernelOfZeroMapIsIso {x y z:M} (g : x --> y) : isKernel' g (0 : y --> z) -> is_iso g.
+  Lemma KernelOfZeroMapIsIso {x y z:M} (g : x --> y) : isKernel' g (0 : y --> z) -> is_z_isomorphism g.
   (* compare with KernelofZeroArrow_is_iso *)
   Proof.
-    intros [_ ke]. use is_iso_from_is_z_iso. use (is_iso'_to_is_z_iso M).
-    intros T h. exact (ke _ _ (zeroRight _)).
+    intros [_ ke]. use (is_z_iso_from_is_iso' M). intros T h. exact (ke _ _ (zeroRight _)).
   Defined.
-  Lemma CokernelOfZeroMapIsIso {x y z:M} (g : y --> z) : isCokernel' (0 : x --> y) g -> is_iso g.
+  Lemma CokernelOfZeroMapIsIso {x y z:M} (g : y --> z) : isCokernel' (0 : x --> y) g -> is_z_isomorphism g.
   (* compare with CokernelofZeroArrow_is_iso *)
   Proof.
-    (* this proof makes efficient use of the definition of is_iso *)
-    intros [_ co] T h. exact (co _ _ (zeroLeft _)).
+    intros [_ co]. use is_z_iso_from_is_iso. intros T h. exact (co _ _ (zeroLeft _)).
   Defined.
   Lemma KernelUniqueness {x x' y z : M} {f : x --> y} {f' : x' --> y} {g : y --> z} :
     isKernel' f g -> isKernel' f' g -> iscontr (IsoArrowTo (M:=M) f f').
@@ -910,6 +944,8 @@ Notation "B ↠ C" := (AdmissibleEpimorphism _ B C) : excat.
 
 Arguments isAdmissibleMonomorphism {_ _ _}.
 Arguments isAdmissibleEpimorphism {_ _ _}.
+Arguments AdmissibleMonomorphism {_}.
+Arguments AdmissibleEpimorphism {_}.
 
 Section ExactCategoryAccessFunctions.
   Context {M:ExactCategory}.
@@ -977,27 +1013,45 @@ Section OppositeExactCategory.
   Proof.
     reflexivity.
   Defined.
+  Goal ∏ (M:ExactCategory) (A B:M) (f : A --> B),
+    isAdmissibleMonomorphism f -> isAdmissibleEpimorphism (M:=oppositeExactCategory M) (opp_mor f).
+  Proof.
+    intros M A B f i. exact i.
+  Defined.
+  Goal ∏ (M:ExactCategory) (A B:M) (f : A --> B), isAdmissibleEpimorphism f -> isAdmissibleMonomorphism (M:=oppositeExactCategory M) (opp_mor f).
+  Proof.
+    intros M A B f i. exact i.
+  Defined.
+  Goal ∏ (M:ExactCategory) (A B:M),
+    AdmissibleMonomorphism A B -> @AdmissibleEpimorphism (oppositeExactCategory M) B A.
+  Proof.
+    intros M A B f. exact f.
+  Defined.
+  Goal ∏ (M:ExactCategory) (A B:M),
+    AdmissibleEpimorphism A B -> @AdmissibleMonomorphism (oppositeExactCategory M) B A.
+  Proof.
+    intros M A B f. exact f.
+  Defined.
 End OppositeExactCategory.
 
 Section ExactCategoryFacts.
-  Context {M : ExactCategory}.
-  Lemma ExactToAdmMono {A B C:M} {i : A --> B} {p : B --> C} : isExact2 i p -> isAdmissibleMonomorphism i.
+  Lemma ExactToAdmMono {M : ExactCategory} {A B C:M} {i : A --> B} {p : B --> C} : isExact2 i p -> isAdmissibleMonomorphism i.
   Proof.
     intros e. exact (hinhpr(C,,p,,e)).
   Qed.
-  Lemma ExactToAdmEpi {A B C:M} {i : A --> B} {p : B --> C} : isExact2 i p -> isAdmissibleEpimorphism p.
+  Lemma ExactToAdmEpi {M : ExactCategory} {A B C:M} {i : A --> B} {p : B --> C} : isExact2 i p -> isAdmissibleEpimorphism p.
   Proof.
     intros e. exact (hinhpr(A,,i,,e)).
   Qed.
-  Lemma ExactToMono {A B C:M} {i : A --> B} {p : B --> C} : isExact2 i p -> isMonic i.
+  Lemma ExactToMono {M : ExactCategory} {A B C:M} {i : A --> B} {p : B --> C} : isExact2 i p -> isMonic i.
   Proof.
     intros e. exact (KernelIsMonic i p (EC_ExactToKernel e)).
   Qed.
-  Lemma ExactToEpi {A B C:M} {i : A --> B} {p : B --> C} : isExact2 i p -> isEpi p.
+  Lemma ExactToEpi {M : ExactCategory} {A B C:M} {i : A --> B} {p : B --> C} : isExact2 i p -> isEpi p.
   Proof.
     intros e. refine (CokernelIsEpi i p (EC_ExactToCokernel e)).
   Qed.
-  Lemma ExactSequenceFromMono {A B C:M} (i : A --> B) (p : B --> C) :
+  Lemma ExactSequenceFromMono {M : ExactCategory} {A B C:M} (i : A --> B) (p : B --> C) :
     isCokernel' i p -> isAdmissibleMonomorphism i -> isExact2 i p.
   Proof.
     intros co mo. apply (squash_to_hProp mo); clear mo; intros [C' [p' e]].
@@ -1013,47 +1067,38 @@ Section ExactCategoryFacts.
       + exact (id_left _ @ ! r).
       + exact (r @ !id_left _).
   Qed.
-  Lemma ExactSequenceFromEpi {A B C:M} (i : A --> B) (p : B --> C) :
+  Lemma ExactSequenceFromEpi {M : ExactCategory} {A B C:M} (i : A --> B) (p : B --> C) :
     isKernel' i p -> isAdmissibleEpimorphism p -> isExact2 i p.
   Proof.
-    intros co mo. apply (squash_to_hProp mo); clear mo; intros [A' [i' e]].
-    assert (co' := pr1 (EC_ExactToKernelCokernel e) : isKernel' i' p).
-    assert (R := iscontrpr1 (KernelUniqueness co' co)). induction R as [R r].
-    use (EC_IsomorphicToExact _ e).
-    exists R. exists (identity_z_iso _). exists (identity_z_iso _).
-    split.
-    - split.
-      + exact (r @ !id_right _).
-      + exact (id_right _ @ ! r).
-    - split.
-      + exact (id_left _ @ ! id_right _).
-      + exact (id_right _ @ ! id_left _).
+    intros k e. apply (ExactSequenceFromMono (M := oppositeExactCategory M)).
+    - exact k.
+    - exact e.
   Qed.
-  Lemma ExactSequence10 (A:M) (Z:Zero M) : isExact2 (identity A) (0 : A --> Z).
+  Lemma ExactSequence10 {M : ExactCategory} (A:M) (Z:Zero M) : isExact2 (identity A) (0 : A --> Z).
   Proof.
     exact (ExactSequenceFromMono _ _ (pr2 (kerCoker10 Z A)) (EC_IdentityIsMono A)).
   Qed.
-  Lemma ExactSequence01 (A:M) (Z:Zero M) : isExact2 (0 : Z --> A) (identity A).
+  Lemma ExactSequence01 {M : ExactCategory} (A:M) (Z:Zero M) : isExact2 (0 : Z --> A) (identity A).
   Proof.
     exact (ExactSequenceFromEpi _ _ (pr1 (kerCoker01 Z A)) (EC_IdentityIsEpi A)).
   Qed.
-  Lemma MonoFromZero (Z:Zero M) (A:M) : Z ↣ A.
+  Lemma MonoFromZero {M : ExactCategory} (Z:Zero M) (A:M) : Z ↣ A.
   Proof.
     exists (0 : Z --> A). apply hinhpr. exists A. exists (identity A). use ExactSequence01.
   Defined.
-  Lemma EpiToZero (A:M) (Z:Zero M) : A ↠ Z.
+  Lemma EpiToZero {M : ExactCategory} (A:M) (Z:Zero M) : A ↠ Z.
   Proof.
     exists (0 : A --> Z). apply hinhpr. exists A. exists (identity A). use ExactSequence10.
   Defined.
-  Lemma FromZeroIsMono (Z:Zero M) (A:M) : isAdmissibleMonomorphism (0 : Z --> A).
+  Lemma FromZeroIsMono {M : ExactCategory} (Z:Zero M) (A:M) : isAdmissibleMonomorphism (0 : Z --> A).
   Proof.
     apply MonoFromZero.
   Defined.
-  Lemma ToZeroIsEpi (A:M) (Z:Zero M) : isAdmissibleEpimorphism (0 : A --> Z).
+  Lemma ToZeroIsEpi {M : ExactCategory} (A:M) (Z:Zero M) : isAdmissibleEpimorphism (0 : A --> Z).
   Proof.
     apply EpiToZero.
   Defined.
-  Lemma IsomMono1 {A B B':M} (f : A --> B) (f' : A --> B') :
+  Lemma IsomMono1 {M : ExactCategory} {A B B':M} (f : A --> B) (f' : A --> B') :
     IsoArrowFrom f f' -> isAdmissibleMonomorphism f -> isAdmissibleMonomorphism f'.
   Proof.
     intros [i I] E. apply (squash_to_hProp E); clear E; intros [C [p E]].
@@ -1069,20 +1114,13 @@ Section ExactCategoryFacts.
         refine (assoc _ _ _ @ _ @ id_left _ @ ! id_right _).
         apply (maponpaths (λ k, k · p)). apply z_iso_inv_after_z_iso.
   Qed.
-  Lemma IsomEpi1 {A A' B:M} (f : A --> B) (f' : A' --> B) :
-    IsoArrowTo f f' -> isAdmissibleEpimorphism f -> isAdmissibleEpimorphism f'.
+  Lemma IsomEpi1 {M : ExactCategory} {A A' B:M} (f : A --> B) (f' : A' --> B) :
+    IsoArrowTo f' f -> isAdmissibleEpimorphism f -> isAdmissibleEpimorphism f'.
   Proof.
-    intros [i I] E. apply (squash_to_hProp E); clear E; intros [C [p E]].
-    apply hinhpr. exists C. exists (p · i). use (EC_IsomorphicToExact _ E).
-    exists (identity_z_iso _). exists i. exists (identity_z_iso _). split; cbn.
-    - split.
-      + exact (id_left _).
-      + exact (! id_left _).
-    - split.
-      + exact (I @ ! id_right _).
-      + exact (id_right _ @ ! I).
+    intros i e.
+    exact (IsomMono1 (M:=oppositeExactCategory M) _ _ (opposite_IsoArrowTo i) e).
   Qed.
-  Lemma IsomMono {A A' B B':M} (f : A --> B) (f' : A' --> B') :
+  Lemma IsomMono {M : ExactCategory} {A A' B B':M} (f : A --> B) (f' : A' --> B') :
     IsoArrow f f' -> isAdmissibleMonomorphism f -> isAdmissibleMonomorphism f'.
   Proof.
     intros [g [h e]] i. apply (squash_to_hProp i); clear i; intros [C [p E]].
@@ -1095,19 +1133,17 @@ Section ExactCategoryFacts.
       refine (assoc _ _ _ @ maponpaths (postcomp_with p) _ @ id_left p @ ! id_right p).
       apply z_iso_inv_after_z_iso.
   Qed.
-  Lemma IsoIsMono {A B:M} (f:z_iso A B) : isAdmissibleMonomorphism (z_iso_mor f).
+  Lemma IsoIsMono {M : ExactCategory} {A B:M} (f:z_iso A B) : isAdmissibleMonomorphism (z_iso_mor f).
   Proof.
     use (IsomMono1 (identity A) (z_iso_mor f)).
     - exists f. apply id_left.
     - apply EC_IdentityIsMono.
   Qed.
-  Lemma IsoIsEpi {A B:M} (f:z_iso A B) : isAdmissibleEpimorphism (z_iso_mor f).
+  Lemma IsoIsEpi {M : ExactCategory} {A B:M} (f:z_iso A B) : isAdmissibleEpimorphism (z_iso_mor f).
   Proof.
-    use (IsomEpi1 (identity B) (z_iso_mor f)).
-    - exists (z_iso_inv f). apply z_iso_after_z_iso_inv.
-    - apply EC_IdentityIsEpi.
+    exact (IsoIsMono (M:=oppositeExactCategory M) (opp_z_iso f)).
   Qed.
-  Lemma DirectSumToExact {A B:M} (S:BinDirectSum A B) : isExact2 (to_In1 S) (to_Pr2 S).
+  Lemma DirectSumToExact {M : ExactCategory} {A B:M} (S:BinDirectSum A B) : isExact2 (to_In1 S) (to_Pr2 S).
   Proof.
     use ExactSequenceFromEpi.
     { exact (PairToKernel (kerCokerDirectSum S)). }
@@ -1116,29 +1152,29 @@ Section ExactCategoryFacts.
     change (isAdmissibleEpimorphism (PullbackPr2 pb)).
     assert (Q := EC_PullbackEpi (0 : A --> Z) (0 : B --> Z) (ToZeroIsEpi A Z)).
     apply (squash_to_hProp Q); clear Q; intros [pb' R'].
-    exact (IsomEpi1 (PullbackPr2 pb') (PullbackPr2 pb) (pullbackiso2 pb' pb) R').
+    exact (IsomEpi1 (PullbackPr2 pb') (PullbackPr2 pb) (pullbackiso2 pb pb') R').
   Qed.
-  Lemma DirectSumToExact' {A B:M} (S:BinDirectSum A B) : isExact2 (to_In2 S) (to_Pr1 S).
+  Lemma DirectSumToExact' {M : ExactCategory} {A B:M} (S:BinDirectSum A B) : isExact2 (to_In2 S) (to_Pr1 S).
   Proof.
     exact (DirectSumToExact (reverseBinDirectSum S)).
   Qed.
-  Lemma DirectSumIn1Mono {A B:M} (S:BinDirectSum A B) : isAdmissibleMonomorphism (to_In1 S : A --> S).
+  Lemma DirectSumIn1Mono {M : ExactCategory} {A B:M} (S:BinDirectSum A B) : isAdmissibleMonomorphism (to_In1 S : A --> S).
   Proof.
     exact (hinhpr (B,,to_Pr2 S,,DirectSumToExact S)).
   Qed.
-  Lemma DirectSumIn2Mono {A B:M} (S:BinDirectSum A B) : isAdmissibleMonomorphism (to_In2 S : B --> S).
+  Lemma DirectSumIn2Mono {M : ExactCategory} {A B:M} (S:BinDirectSum A B) : isAdmissibleMonomorphism (to_In2 S : B --> S).
   Proof.
     exact (hinhpr (A,,to_Pr1 S,,DirectSumToExact' S)).
   Qed.
-  Lemma DirectSumPr1Epi {A B:M} (S:BinDirectSum A B) : isAdmissibleEpimorphism (to_Pr1 S : S --> A).
+  Lemma DirectSumPr1Epi {M : ExactCategory} {A B:M} (S:BinDirectSum A B) : isAdmissibleEpimorphism (to_Pr1 S : S --> A).
   Proof.
     exact (hinhpr (B,,to_In2 S,,DirectSumToExact' S)).
   Qed.
-  Lemma DirectSumPr2Epi {A B:M} (S:BinDirectSum A B) : isAdmissibleEpimorphism (to_Pr2 S : S --> B).
+  Lemma DirectSumPr2Epi {M : ExactCategory} {A B:M} (S:BinDirectSum A B) : isAdmissibleEpimorphism (to_Pr2 S : S --> B).
   Proof.
     exact (hinhpr (A,,to_In1 S,,DirectSumToExact S)).
   Qed.
-  Lemma ExactPushout {A B C A':M} (i : A --> B) (p : B --> C)
+  Lemma ExactPushout {M : ExactCategory} {A B C A':M} (i : A --> B) (p : B --> C)
         (pr : isExact2 i p) (r : A --> A') :
     ∃ (po : Pushout i r),
       isExact2 (PushoutIn2 po) (pr1 (PairPushoutMap i p (EC_ExactToKernelCokernel pr) r po)).
@@ -1150,7 +1186,7 @@ Section ExactCategoryFacts.
     { exact (PairPushoutCokernel i p (EC_ExactToKernelCokernel pr) r po). }
     exact J.
   Qed.
-  Lemma ExactPullback {A B C A':M} (i : A <-- B) (p : B <-- C)
+  Lemma ExactPullback {M : ExactCategory} {A B C A':M} (i : A <-- B) (p : B <-- C)
         (pr : isExact2 p i)
         (r : A <-- A') :
     ∃ (pb : Pullback i r),
@@ -1163,10 +1199,10 @@ Section ExactCategoryFacts.
     { exact (PairPullbackKernel i p (EC_ExactToKernelCokernel pr) r pb). }
     exact J.
   Qed.
-  Lemma MonicAdmEpiIsIso {A B:M} (p : A ↠ B) : isMonic p -> is_iso p.
+  Lemma MonicAdmEpiIsIso {M : ExactCategory} {A B:M} (p : A ↠ B) : isMonic p -> is_z_isomorphism p.
   Proof.
     induction p as [p E]. cbn. intros I. apply (squash_to_prop E).
-    { apply isaprop_is_iso. }
+    { apply isaprop_is_z_isomorphism. apply to_has_homsets. }
     clear E; intros [K [i E]].
     assert (Q := EC_ExactToKernelCokernel E); clear E.
     induction Q as [ke co];
@@ -1175,20 +1211,13 @@ Section ExactCategoryFacts.
     assert (Q : i = 0).
     { use (I K i 0). exact (pr1 ke @ ! zeroLeft _). }
     clear I ke. induction (!Q); clear Q. exact (CokernelOfZeroMapIsIso p co).
-  Defined.
-  Lemma EpiAdmMonoIsIso {A B:M} (i : A ↣ B) : isEpi i -> is_iso i.
+  Qed.
+  Lemma EpiAdmMonoIsIso {M : ExactCategory} {A B:M} (i : A ↣ B) : isEpi i -> is_z_isomorphism i.
   Proof.
-    induction i as [i E]. cbn. intros I. apply (squash_to_prop E).
-    { apply isaprop_is_iso. }
-    clear E; intros [K [p E]].
-    assert (Q := EC_ExactToKernelCokernel E); clear E.
-    induction Q as [ke co];
-      change (hProptoType (isKernel' i p)) in ke;
-      change (hProptoType (isCokernel' i p)) in co.
-    assert (Q : p = 0).
-    { use (I K p 0). exact (pr1 co @ ! zeroRight _). }
-    clear I co. induction (!Q); clear Q. exact (KernelOfZeroMapIsIso i ke).
-  Defined.
+    intros e.
+    exact (opp_is_z_isomorphism _ (MonicAdmEpiIsIso (M:=oppositeExactCategory M) i e)).
+  Qed.
+  Context {M : ExactCategory}.
   Lemma MonoPlusIdentity {A B:M} (f:A-->B) (C:M) :
     isAdmissibleMonomorphism f -> isAdmissibleMonomorphism (directSumMap f (identity C)).
   Proof.
