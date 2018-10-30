@@ -703,7 +703,7 @@ Section KernelCokernelPairs.
     isKernelCokernelPair i p -> isKernel' i p := pr1.
   Definition PairToCokernel {M : Additive} {A B C:M} {i : A --> B} {p: B --> C} :
     isKernelCokernelPair i p -> isCokernel' i p := pr2.
-  Definition opposite_isKernelCokernelPair {M:Additive} {A B C:M} (i : A --> B) (p: B --> C) :
+  Definition opposite_isKernelCokernelPair {M:Additive} {A B C:M} {i : A --> B} {p: B --> C} :
     isKernelCokernelPair (M:=M) i p -> isKernelCokernelPair (M:=M^op) p i.
   Proof.
     intros s.
@@ -773,7 +773,7 @@ Section KernelCokernelPairs.
   Proof.
     exact (kerCokerDirectSum (TrivialDirectSum' Z A)).
   Qed.
-  Lemma PairPushoutMap {M : Additive} {A B C A':M} (i : A --> B) (p : B --> C)
+  Lemma PairPushoutMap {M : Additive} {A B C A':M} {i : A --> B} {p : B --> C}
         (pr : isKernelCokernelPair i p)
         (r : A --> A') (po : Pushout i r) :
     ∑ (q : po --> C), PushoutIn1 po · q = p × PushoutIn2 po · q = 0.
@@ -781,19 +781,37 @@ Section KernelCokernelPairs.
     refine (iscontrpr1 (isPushout_Pushout po C p 0 _)).
     refine (pr1 (PairToCokernel pr) @ ! _). apply zeroRight.
   Qed.
-  Lemma PairPullbackMap {M : Additive} {A B C A':M} (i : A <-- B) (p : B <-- C)
+  Lemma PairPullbackMap {M : Additive} {A B C A':M} {i : A <-- B} {p : B <-- C}
         (pr : isKernelCokernelPair p i)
         (r : A <-- A') (pb : Pullback i r) :
     ∑ (q : pb <-- C), PullbackPr1 pb ∘ q = p × PullbackPr2 pb ∘ q = 0.
   Proof.
     (* giving the dual proof here helps later! *)
-    exact (PairPushoutMap (M:=M^op) i p (opposite_isKernelCokernelPair p i pr) r pb).
+    exact (PairPushoutMap (M:=M^op) (opposite_isKernelCokernelPair pr) r pb).
+  Defined.
+  Goal ∏ (M : Additive) (A B C A':M) (i : A <-- B) (p : B <-- C)
+        (pr : isKernelCokernelPair p i)
+        (r : A <-- A') (pb : Pullback i r),
+    PairPullbackMap pr r pb
+    =
+    PairPushoutMap (M:=M^op) (opposite_isKernelCokernelPair pr) r pb.
+  Proof.
+    reflexivity.
+  Defined.
+  Goal ∏ (M : Additive) (A B C A':M) (i : A --> B) (p : B --> C)
+        (pr : isKernelCokernelPair i p)
+        (r : A --> A') (po : Pushout i r),
+    PairPushoutMap pr r po
+    =
+    PairPullbackMap (M:=M^op) (opposite_isKernelCokernelPair pr) r po.
+  Proof.
+    reflexivity.
   Defined.
   Lemma PairPushoutCokernel {M : Additive} {A B C A':M} (i : A --> B) (p : B --> C)
         (pr : isKernelCokernelPair i p)
         (r : A --> A') (po : Pushout i r)
         (j := PushoutIn2 po)
-        (pp := PairPushoutMap i p pr r po) :
+        (pp := PairPushoutMap pr r po) :
     isCokernel' j (pr1 pp).
   Proof.
     set (s := PushoutIn1 po).
@@ -827,11 +845,11 @@ Section KernelCokernelPairs.
         (pr : isKernelCokernelPair p i)
         (r : A <-- A') (pb : Pullback i r)
         (j := PullbackPr2 pb)
-        (pp := PairPullbackMap i p pr r pb) :
+        (pp := PairPullbackMap pr r pb) :
     isKernel' (pr1 pp) j.
   Proof.
     (* Here's where giving the right proof of PairPullbackMap above helped us give this dual proof here. *)
-    exact (PairPushoutCokernel (M:=M^op) i p (opposite_isKernelCokernelPair p i pr) r pb).
+    exact (PairPushoutCokernel (M:=M^op) i p (opposite_isKernelCokernelPair pr) r pb).
   Qed.
   Lemma SumOfKernelCokernelPairs {M : Additive} {x y z x' y' z' : M}
         {f : x --> y} {g : y --> z} {f' : x' --> y'} {g' : y' --> z'}
@@ -957,7 +975,7 @@ Section OppositeExactCategory.
     exists EC_IdentityIsEpi.
     exists EC_IdentityIsMono.
     split.
-    { intros P i. exact (opposite_isKernelCokernelPair _ _ (EC_ExactToKernelCokernel i)). }
+    { intros P i. exact (opposite_isKernelCokernelPair (EC_ExactToKernelCokernel i)). }
     split.
     { intros A B C f g i j. exact (@EC_ComposeEpi M C B A g f j i). }
     split.
@@ -1137,7 +1155,7 @@ Section ExactCategoryFacts.
   Lemma ExactPushout {M : ExactCategory} {A B C A':M} (i : A --> B) (p : B --> C)
         (pr : isExact2 i p) (r : A --> A') :
     ∃ (po : Pushout i r),
-      isExact2 (PushoutIn2 po) (pr1 (PairPushoutMap i p (EC_ExactToKernelCokernel pr) r po)).
+      isExact2 (PushoutIn2 po) (pr1 (PairPushoutMap (EC_ExactToKernelCokernel pr) r po)).
   Proof.
     assert (I := hinhpr (C ,, p ,, pr) : isAdmissibleMonomorphism i).
     assert (R := EC_PushoutMono i r I).
@@ -1150,7 +1168,7 @@ Section ExactCategoryFacts.
         (pr : isExact2 p i)
         (r : A <-- A') :
     ∃ (pb : Pullback i r),
-      isExact2 (pr1 (PairPullbackMap i p (EC_ExactToKernelCokernel pr) r pb)) (PullbackPr2 pb).
+      isExact2 (pr1 (PairPullbackMap (EC_ExactToKernelCokernel pr) r pb)) (PullbackPr2 pb).
   Proof.
     assert (I := hinhpr (C ,, p ,, pr) : isAdmissibleEpimorphism i).
     assert (R := EC_PullbackEpi i r I).
@@ -1218,7 +1236,6 @@ Section ExactCategoryFacts.
     - exists (SwitchIso _ _). exists (SwitchIso _ _). apply SwitchMapMapEqn.
     - apply EpiPlusIdentity. exact i.
   Defined.
-  Set Printing All.
   Lemma SumOfExactSequences {M:ExactCategory} {A B C A' B' C':M}
         {f : A --> B} {g : B --> C} {f' : A' --> B'} {g' : B' --> C'} :
     isExact2 f g -> isExact2 f' g' -> isExact2 (directSumMap f f') (directSumMap g g').
@@ -1243,8 +1260,7 @@ Section ExactCategoryFacts.
     2:{ apply MonoPlusIdentity. exact (ExactToAdmMono i). }
     apply IdentityPlusMono. exact (ExactToAdmMono i').
   Qed.
-  Lemma SumOfAdmissibleEpis {M:ExactCategory} {A B A' B':M}
-        (f : A --> B) (f' : A' --> B') :
+  Lemma SumOfAdmissibleEpis {M:ExactCategory} {A B A' B':M} (f : A --> B) (f' : A' --> B') :
     isAdmissibleEpimorphism f -> isAdmissibleEpimorphism f' -> isAdmissibleEpimorphism (directSumMap f f').
   Proof.
     intros e e'.
@@ -1252,8 +1268,7 @@ Section ExactCategoryFacts.
     apply (squash_to_hProp e'); clear e'; intros [C' [g' e']].
     exact (ExactToAdmEpi (SumOfExactSequences e e')).
   Qed.
-  Lemma SumOfAdmissibleMonos {M:ExactCategory} {A B A' B':M}
-        (f : A --> B) (f' : A' --> B') :
+  Lemma SumOfAdmissibleMonos {M:ExactCategory} {A B A' B':M} (f : A --> B) (f' : A' --> B') :
     isAdmissibleMonomorphism f -> isAdmissibleMonomorphism f' -> isAdmissibleMonomorphism (directSumMap f f').
   Proof.
     intros e e'.
