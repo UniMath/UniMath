@@ -398,12 +398,13 @@ Section OppositeAdditiveCategory.     (* move upstream *)
            (to_IdIn1 Q) (to_IdIn2 Q) (to_Unel2 Q) (to_Unel1 Q)
            (to_BinOpId Q)).
   Defined.
-  Notation "C '^op'" := (oppositeAdditiveCategory C) (at level 3, format "C ^op") : addcat.
-  Goal ∏ (M : Additive), M^op^op = M.
-  Proof.
-    reflexivity.
-  Defined.
 End OppositeAdditiveCategory.
+
+Local Notation "C '^op'" := (oppositeAdditiveCategory C) (at level 3, format "C ^op") : addcat.
+Goal ∏ (M : Additive), M^op^op = M.
+Proof.
+  reflexivity.
+Defined.
 
 Section AdditiveCategories.     (* move upstream *)
   (** Reprove some standard facts in additive categories with the 0 map (the zero element of the
@@ -712,21 +713,21 @@ Section AdditiveCategories.     (* move upstream *)
                @ ! assoc _ _ _).
   Qed.
 End AdditiveCategories.
-Goal ∏ (M:Additive) (x y z : M) (f : x --> y) (g : y --> z), isKernel' (M:=M) f g = isCokernel' (M:=oppositeAdditiveCategory M) g f.
+Goal ∏ (M:Additive) (x y z : M) (f : x --> y) (g : y --> z), isKernel' (M:=M) f g = isCokernel' (M:=M^op) g f.
   reflexivity.
 Defined.
-Goal ∏ (M:Additive) (x y z : M) (f : x --> y) (g : y --> z), isCokernel' (M:=M) f g = isKernel' (M:=oppositeAdditiveCategory M) g f.
+Goal ∏ (M:Additive) (x y z : M) (f : x --> y) (g : y --> z), isCokernel' (M:=M) f g = isKernel' (M:=M^op) g f.
   reflexivity.
 Defined.
 Lemma opposite_directSumMap {M:Additive} {a b c d:M} (f : a --> b) (g : c --> d) :
-  directSumMap (M:=oppositeAdditiveCategory M) (opp_mor f) (opp_mor g)
+  directSumMap (M:=M^op) (opp_mor f) (opp_mor g)
   =
   opp_mor (directSumMap (M:=M) f g).
 Proof.
   apply BinDirectSumIndArEq.
 Qed.
 Lemma opposite_directSumMap' {M:Additive} {a b c d:M} (f : a --> b) (g : c --> d) :
-  opp_mor (directSumMap (M:=oppositeAdditiveCategory M) (opp_mor f) (opp_mor g))
+  opp_mor (directSumMap (M:=M^op) (opp_mor f) (opp_mor g))
   =
   directSumMap (M:=M) f g.
 Proof.
@@ -896,7 +897,7 @@ Section KernelCokernelPairs.
   Qed.
 End KernelCokernelPairs.
 Definition opposite_isKernelCokernelPair {M:Additive} {A B C:M} (i : A --> B) (p: B --> C) :
-  isKernelCokernelPair (M:=M) i p -> isKernelCokernelPair (M:=oppositeAdditiveCategory M) p i.
+  isKernelCokernelPair (M:=M) i p -> isKernelCokernelPair (M:=M^op) p i.
 Proof.
   intros s.
   split.
@@ -1011,7 +1012,7 @@ End ExactCategoryAccessFunctions.
 Section OppositeExactCategory.
   Definition oppositeExactCategory (M:ExactCategory) : ExactCategory.
   Proof.
-    set (M' := oppositeAdditiveCategory M).
+    set (M' := M^op).
     set (E' := λ p, @isExact M (oppositeMorphismPair (M:=M^op) p)).
     set (ME := (M',,E') : AddCatWithExactness).
     use (mk_ExactCategory ME).
@@ -1092,9 +1093,7 @@ Section ExactCategoryFacts.
   Lemma ExactSequenceFromEpi {M : ExactCategory} {A B C:M} (i : A --> B) (p : B --> C) :
     isKernel' i p -> isAdmissibleEpimorphism p -> isExact2 i p.
   Proof.
-    intros k e. apply (ExactSequenceFromMono (M := oppositeExactCategory M)).
-    - exact k.
-    - exact e.
+    exact (ExactSequenceFromMono (M := oppositeExactCategory M) p i).
   Qed.
   Lemma ExactSequence10 {M : ExactCategory} (A:M) (Z:Zero M) : isExact2 (identity A) (0 : A --> Z).
   Proof.
