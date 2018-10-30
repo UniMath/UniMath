@@ -194,6 +194,14 @@ Section MorphismPairs.          (* move upstream *)
       + apply reverseCommIsoSquare. exact (pr12 (pr222 f)).
       + apply reverseCommIsoSquare'. exact (pr22 (pr222 f)).
   Defined.
+  Definition mk_MorphismPairIsomorphism
+             (P Q : MorphismPair M)
+             (f : z_iso (Ob1 P) (Ob1 Q))
+             (g : z_iso (Ob2 P) (Ob2 Q))
+             (h : z_iso (Ob3 P) (Ob3 Q)) :
+    f · Mor1 Q = Mor1 P · g ->
+    g · Mor2 Q = Mor2 P · h -> MorphismPairIsomorphism P Q
+    := λ r s, (f,,g,,h,,(r,,!r),,(s,,!s)).
   Goal ∏ (P Q : MorphismPair M) (f:MorphismPairIsomorphism P Q),
        InverseMorphismPairIsomorphism (InverseMorphismPairIsomorphism f) = f.
   Proof.
@@ -844,9 +852,6 @@ Section theDefinition.
   Definition isExact2 {A B C:M} (f:A-->B) (g:B-->C) := isExact (mk_MorphismPair f g).
   Definition isAdmissibleMonomorphism {A B:M} (i : A --> B) : hProp :=
     ∃ C (p : B --> C), isExact2 i p.
-  Definition mk_isAdmissibleMonomorphism {A B C:M} (i : A --> B) (p : B --> C) (e:isExact2 i p)
-    : isAdmissibleMonomorphism i
-    := hinhpr (C,,p,,e).
   Definition AdmissibleMonomorphism (A B:M) : Type :=
     ∑ (i : A --> B), isAdmissibleMonomorphism i.
   Coercion AdmMonoToMap {A B:M} : AdmissibleMonomorphism A B -> A --> B := pr1.
@@ -854,9 +859,6 @@ Section theDefinition.
   Notation "A ↣ B" := (AdmissibleMonomorphism A B) : excat.
   Definition isAdmissibleEpimorphism {B C:M} (p : B --> C) : hProp :=
     ∃ A (i : A --> B), isExact2 i p.
-  Definition mk_isAdmissibleEpimorphism {A B C:M} (i : A --> B) (p : B --> C) (e:isExact2 i p)
-    : isAdmissibleEpimorphism p
-    := hinhpr (A,,i,,e).
   Definition AdmissibleEpimorphism (B C:M) : Type :=
     ∑ (p : B --> C), isAdmissibleEpimorphism p.
   Coercion AdmEpiToMap {B C:M} : AdmissibleEpimorphism B C -> B --> C := pr1.
@@ -885,8 +887,6 @@ End theDefinition.
 
 Arguments isExact {_}.
 Arguments isExact2 {_ _ _ _}.
-Arguments mk_isAdmissibleMonomorphism {_ _ _ _ _ _}.
-Arguments mk_isAdmissibleEpimorphism {_ _ _ _ _ _}.
 
 Definition ExactCategory := ∑ (ME:AddCatWithExactness), ExactCategoryProperties ME.
 Coercion ExCatToAddCatWithExactness (E:ExactCategory) : AddCatWithExactness := pr1 E.
@@ -910,8 +910,12 @@ Section ExactCategoryAccessFunctions.
     := pr212 M P Q.
   Definition EC_IdentityIsMono (A:M) : isAdmissibleMonomorphism (identity A)
     := pr122 M A.
+  Definition IdentityMono (A:M) : AdmissibleMonomorphism A A
+    := identity A,, EC_IdentityIsMono A.
   Definition EC_IdentityIsEpi (A:M) : isAdmissibleEpimorphism (identity A)
     := pr122 (pr2 M) A.
+  Definition IdentityEpi (A:M) : AdmissibleEpimorphism A A
+    := identity A,, EC_IdentityIsEpi A.
   Definition EC_ExactToKernelCokernel {P : MorphismPair M} :
     isExact P ⇒ isKernelCokernelPair (Mor1 P) (Mor2 P)
     := pr122 (pr22 M) P.
@@ -967,25 +971,27 @@ Section OppositeExactCategory.
     reflexivity.
   Defined.
   Goal ∏ (M:ExactCategory) (A B:M) (f : A --> B),
-    isAdmissibleMonomorphism f -> isAdmissibleEpimorphism (M:=oppositeExactCategory M) (opp_mor f).
+    isAdmissibleMonomorphism f = isAdmissibleEpimorphism (M:=oppositeExactCategory M) (opp_mor f).
   Proof.
-    intros M A B f i. exact i.
+    reflexivity.
   Defined.
-  Goal ∏ (M:ExactCategory) (A B:M) (f : A --> B), isAdmissibleEpimorphism f -> isAdmissibleMonomorphism (M:=oppositeExactCategory M) (opp_mor f).
+  Goal ∏ (M:ExactCategory) (A B:M) (f : A --> B), isAdmissibleEpimorphism f = isAdmissibleMonomorphism (M:=oppositeExactCategory M) (opp_mor f).
   Proof.
-    intros M A B f i. exact i.
-  Defined.
-  Goal ∏ (M:ExactCategory) (A B:M),
-    AdmissibleMonomorphism A B -> @AdmissibleEpimorphism (oppositeExactCategory M) B A.
-  Proof.
-    intros M A B f. exact f.
+    reflexivity.
   Defined.
   Goal ∏ (M:ExactCategory) (A B:M),
-    AdmissibleEpimorphism A B -> @AdmissibleMonomorphism (oppositeExactCategory M) B A.
+    AdmissibleMonomorphism A B = @AdmissibleEpimorphism (oppositeExactCategory M) B A.
   Proof.
-    intros M A B f. exact f.
+    reflexivity.
+  Defined.
+  Goal ∏ (M:ExactCategory) (A B:M),
+    AdmissibleEpimorphism A B = @AdmissibleMonomorphism (oppositeExactCategory M) B A.
+  Proof.
+    reflexivity.
   Defined.
 End OppositeExactCategory.
+
+Local Notation "C '^op'" := (oppositeExactCategory C) (at level 3, format "C ^op") : excat.
 
 Section ExactCategoryFacts.
   Lemma ExactToAdmMono {M : ExactCategory} {A B C:M} {i : A --> B} {p : B --> C} : isExact2 i p -> isAdmissibleMonomorphism i.
@@ -1023,7 +1029,7 @@ Section ExactCategoryFacts.
   Lemma ExactSequenceFromEpi {M : ExactCategory} {A B C:M} (i : A --> B) (p : B --> C) :
     isKernel' i p -> isAdmissibleEpimorphism p -> isExact2 i p.
   Proof.
-    exact (ExactSequenceFromMono (M := oppositeExactCategory M) p i).
+    exact (ExactSequenceFromMono (M:=M^op) p i).
   Qed.
   Lemma ExactSequence10 {M : ExactCategory} (A:M) (Z:Zero M) : isExact2 (identity A) (0 : A --> Z).
   Proof.
@@ -1033,22 +1039,21 @@ Section ExactCategoryFacts.
   Proof.
     exact (ExactSequenceFromEpi _ _ (pr1 (kerCoker01 Z A)) (EC_IdentityIsEpi A)).
   Qed.
-  Lemma MonoFromZero {M : ExactCategory} (Z:Zero M) (A:M) : Z ↣ A.
-  Proof.
-    exists (0 : Z --> A). apply hinhpr. exists A. exists (identity A). use ExactSequence01.
-  Defined.
-  Lemma EpiToZero {M : ExactCategory} (A:M) (Z:Zero M) : A ↠ Z.
-  Proof.
-    exists (0 : A --> Z). apply hinhpr. exists A. exists (identity A). use ExactSequence10.
-  Defined.
   Lemma FromZeroIsMono {M : ExactCategory} (Z:Zero M) (A:M) : isAdmissibleMonomorphism (0 : Z --> A).
   Proof.
-    apply MonoFromZero.
+    apply hinhpr. exists A. exists (identity A). use ExactSequence01.
   Defined.
+  Definition MonoFromZero {M : ExactCategory} (Z:Zero M) (A:M) : Z ↣ A
+    := (0 : Z --> A),,FromZeroIsMono Z A.
   Lemma ToZeroIsEpi {M : ExactCategory} (A:M) (Z:Zero M) : isAdmissibleEpimorphism (0 : A --> Z).
   Proof.
-    apply EpiToZero.
+    apply hinhpr. exists A. exists (identity A). use ExactSequence10.
   Defined.
+  Definition EpiToZero {M : ExactCategory} (A:M) (Z:Zero M) : A ↠ Z
+    := (0 : A --> Z),,ToZeroIsEpi A Z.
+  Local Open Scope excat.
+  Goal ∏ (M:ExactCategory) (A:M) (Z:Zero M), EpiToZero A Z = MonoFromZero (M:=M^op) (Zero_opp M Z) A.
+  Abort.
   Lemma IsomMono1 {M : ExactCategory} {A B B':M} (f : A --> B) (f' : A --> B') :
     IsoArrowFrom f f' -> isAdmissibleMonomorphism f -> isAdmissibleMonomorphism f'.
   Proof.
@@ -1069,27 +1074,25 @@ Section ExactCategoryFacts.
     IsoArrowTo f' f -> isAdmissibleEpimorphism f -> isAdmissibleEpimorphism f'.
   Proof.
     intros i e.
-    exact (IsomMono1 (M:=oppositeExactCategory M) _ _ (opposite_IsoArrowTo i) e).
+    exact (IsomMono1 (M:=M^op) f f' (opposite_IsoArrowTo i) e).
   Qed.
   Lemma IsomMono {M : ExactCategory} {A A' B B':M} (f : A --> B) (f' : A' --> B') :
     IsoArrow f f' -> isAdmissibleMonomorphism f -> isAdmissibleMonomorphism f'.
   Proof.
     intros [g [h e]] i. apply (squash_to_hProp i); clear i; intros [C [p E]].
     apply hinhpr. exists C. exists (z_iso_inv h · p). use (EC_IsomorphicToExact _ E).
-    exists g; exists h; exists (identity_z_iso C); cbn. exists (e,,!e).
-    split.
-    - refine (assoc _ _ _ @ maponpaths (postcomp_with p) _ @ id_left p @ ! id_right p).
-      apply z_iso_inv_after_z_iso.
-    - apply pathsinv0.
-      refine (assoc _ _ _ @ maponpaths (postcomp_with p) _ @ id_left p @ ! id_right p).
-      apply z_iso_inv_after_z_iso.
+    simple refine (mk_MorphismPairIsomorphism
+                     (mk_MorphismPair f p) (mk_MorphismPair f' (z_iso_inv h · p))
+                     g h (identity_z_iso C) e _).
+    refine (assoc _ _ _ @ maponpaths (postcomp_with p) _ @ id_left p @ ! id_right p).
+    apply z_iso_inv_after_z_iso.
   Qed.
   Lemma IsomEpi {M : ExactCategory} {A A' B B':M} (f : A --> B) (f' : A' --> B') :
     IsoArrow f' f -> isAdmissibleEpimorphism f -> isAdmissibleEpimorphism f'.
   Proof.
     intros i.
-    exact (IsomMono (M:=oppositeExactCategory M) f f' (opposite_IsoArrow _ _ i)).
-  Defined.
+    exact (IsomMono (M:=M^op) f f' (opposite_IsoArrow _ _ i)).
+  Qed.
   Lemma IsoIsMono {M : ExactCategory} {A B:M} (f:z_iso A B) : isAdmissibleMonomorphism (z_iso_mor f).
   Proof.
     use (IsomMono1 (identity A) (z_iso_mor f)).
@@ -1098,7 +1101,7 @@ Section ExactCategoryFacts.
   Qed.
   Lemma IsoIsEpi {M : ExactCategory} {A B:M} (f:z_iso A B) : isAdmissibleEpimorphism (z_iso_mor f).
   Proof.
-    exact (IsoIsMono (M:=oppositeExactCategory M) (opp_z_iso f)).
+    exact (IsoIsMono (M:=M^op) (opp_z_iso f)).
   Qed.
   Lemma DirectSumToExact {M : ExactCategory} {A B:M} (S:BinDirectSum A B) : isExact2 (to_In1 S) (to_Pr2 S).
   Proof.
@@ -1172,7 +1175,7 @@ Section ExactCategoryFacts.
   Lemma EpiAdmMonoIsIso {M : ExactCategory} {A B:M} (i : A ↣ B) : isEpi i -> is_z_isomorphism i.
   Proof.
     intros e.
-    exact (opp_is_z_isomorphism _ (MonicAdmEpiIsIso (M:=oppositeExactCategory M) i e)).
+    exact (opp_is_z_isomorphism _ (MonicAdmEpiIsIso (M:=M^op) i e)).
   Qed.
   Lemma MonoPlusIdentity {M : ExactCategory} {A B:M} (f:A-->B) (C:M) :
     isAdmissibleMonomorphism f -> isAdmissibleMonomorphism (directSumMap f (identity C)).
@@ -1199,34 +1202,24 @@ Section ExactCategoryFacts.
   Lemma EpiPlusIdentity {M : ExactCategory} {A B:M} (f:A-->B) (C:M) :
     isAdmissibleEpimorphism f -> isAdmissibleEpimorphism (directSumMap f (identity C)).
   Proof.
-    intro i.
-    rewrite <- opposite_directSumMap'.
-    exact (@MonoPlusIdentity (oppositeExactCategory M) B A f C i).
+    intro i. rewrite <- opposite_directSumMap'. exact (MonoPlusIdentity (M:=M^op) f C i).
   Defined.
   Lemma IdentityPlusMono {M : ExactCategory} {B C:M} (A:M) (f:B-->C) :
     isAdmissibleMonomorphism f -> isAdmissibleMonomorphism (directSumMap (identity A) f).
   Proof.
-    intros i.
-    use IsomMono.
-    - exact (B ⊕ A).
-    - exact (C ⊕ A).
-    - exact (directSumMap f (identity A)).
+    intros i. use (IsomMono (directSumMap f (identity A)) (directSumMap (identity A) f)).
     - exists (SwitchIso _ _). exists (SwitchIso _ _). apply SwitchMapMapEqn.
     - apply MonoPlusIdentity. exact i.
   Defined.
   Lemma IdentityPlusEpi {M : ExactCategory} {B C:M} (A:M) (f:B-->C) :
     isAdmissibleEpimorphism f -> isAdmissibleEpimorphism (directSumMap (identity A) f).
   Proof.
-    intros i.
-    use IsomEpi.
-    - exact (B ⊕ A).
-    - exact (C ⊕ A).
-    - exact (directSumMap f (identity A)).
+    intros i. use (IsomEpi (directSumMap f (identity A)) (directSumMap (identity A) f)).
     - exists (SwitchIso _ _). exists (SwitchIso _ _). apply SwitchMapMapEqn.
     - apply EpiPlusIdentity. exact i.
   Defined.
-  Context {M : ExactCategory}.
-  Lemma SumOfExactSequences {A B C A' B' C':M}
+  Set Printing All.
+  Lemma SumOfExactSequences {M:ExactCategory} {A B C A' B' C':M}
         {f : A --> B} {g : B --> C} {f' : A' --> B'} {g' : B' --> C'} :
     isExact2 f g -> isExact2 f' g' -> isExact2 (directSumMap f f') (directSumMap g g').
   Proof.
@@ -1250,23 +1243,23 @@ Section ExactCategoryFacts.
     2:{ apply MonoPlusIdentity. exact (ExactToAdmMono i). }
     apply IdentityPlusMono. exact (ExactToAdmMono i').
   Qed.
-  Lemma SumOfAdmissibleEpis {A B A' B':M}
+  Lemma SumOfAdmissibleEpis {M:ExactCategory} {A B A' B':M}
         (f : A --> B) (f' : A' --> B') :
     isAdmissibleEpimorphism f -> isAdmissibleEpimorphism f' -> isAdmissibleEpimorphism (directSumMap f f').
   Proof.
     intros e e'.
     apply (squash_to_hProp e); clear e; intros [C [g e]].
     apply (squash_to_hProp e'); clear e'; intros [C' [g' e']].
-    exact (mk_isAdmissibleEpimorphism (SumOfExactSequences e e')).
+    exact (ExactToAdmEpi (SumOfExactSequences e e')).
   Qed.
-  Lemma SumOfAdmissibleMonos {A B A' B':M}
+  Lemma SumOfAdmissibleMonos {M:ExactCategory} {A B A' B':M}
         (f : A --> B) (f' : A' --> B') :
     isAdmissibleMonomorphism f -> isAdmissibleMonomorphism f' -> isAdmissibleMonomorphism (directSumMap f f').
   Proof.
     intros e e'.
     apply (squash_to_hProp e); clear e; intros [C [g e]].
     apply (squash_to_hProp e'); clear e'; intros [C' [g' e']].
-    exact (mk_isAdmissibleMonomorphism (SumOfExactSequences e e')).
+    exact (ExactToAdmMono (SumOfExactSequences e e')).
   Qed.
 End ExactCategoryFacts.
 
