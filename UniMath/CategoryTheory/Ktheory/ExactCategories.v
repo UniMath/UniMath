@@ -850,7 +850,7 @@ Section KernelCokernelPairs.
   Proof.
     (* Here's where giving the right proof of PairPullbackMap above helped us give this dual proof here. *)
     exact (PairPushoutCokernel (M:=M^op) i p (opposite_isKernelCokernelPair pr) r pb).
-  Qed.
+  Defined.
   Lemma SumOfKernelCokernelPairs {M : Additive} {x y z x' y' z' : M}
         {f : x --> y} {g : y --> z} {f' : x' --> y'} {g' : y' --> z'}
     : isKernelCokernelPair f g -> isKernelCokernelPair f' g' -> isKernelCokernelPair (directSumMap f f') (directSumMap g g').
@@ -1048,7 +1048,7 @@ Section ExactCategoryFacts.
     isKernel' i p -> isAdmissibleEpimorphism p -> isExact2 i p.
   Proof.
     exact (ExactSequenceFromMono (M:=M^op) p i).
-  Qed.
+  Defined.
   Lemma ExactSequence10 {M : ExactCategory} (A:M) (Z:Zero M) : isExact2 (identity A) (0 : A --> Z).
   Proof.
     exact (ExactSequenceFromMono _ _ (pr2 (kerCoker10 Z A)) (EC_IdentityIsMono A)).
@@ -1093,7 +1093,7 @@ Section ExactCategoryFacts.
   Proof.
     intros i e.
     exact (IsomMono1 (M:=M^op) f f' (opposite_IsoArrowTo i) e).
-  Qed.
+  Defined.
   Lemma IsomMono {M : ExactCategory} {A A' B B':M} (f : A --> B) (f' : A' --> B') :
     IsoArrow f f' -> isAdmissibleMonomorphism f -> isAdmissibleMonomorphism f'.
   Proof.
@@ -1110,7 +1110,7 @@ Section ExactCategoryFacts.
   Proof.
     intros i.
     exact (IsomMono (M:=M^op) f f' (opposite_IsoArrow _ _ i)).
-  Qed.
+  Defined.
   Lemma IsoIsMono {M : ExactCategory} {A B:M} (f:z_iso A B) : isAdmissibleMonomorphism (z_iso_mor f).
   Proof.
     use (IsomMono1 (identity A) (z_iso_mor f)).
@@ -1120,7 +1120,7 @@ Section ExactCategoryFacts.
   Lemma IsoIsEpi {M : ExactCategory} {A B:M} (f:z_iso A B) : isAdmissibleEpimorphism (z_iso_mor f).
   Proof.
     exact (IsoIsMono (M:=M^op) (opp_z_iso f)).
-  Qed.
+  Defined.
   Lemma DirectSumToExact {M : ExactCategory} {A B:M} (S:BinDirectSum A B) : isExact2 (to_In1 S) (to_Pr2 S).
   Proof.
     use ExactSequenceFromEpi.
@@ -1194,7 +1194,7 @@ Section ExactCategoryFacts.
   Proof.
     intros e.
     exact (opp_is_z_isomorphism _ (MonicAdmEpiIsIso (M:=M^op) i e)).
-  Qed.
+  Defined.
   Lemma MonoPlusIdentity {M : ExactCategory} {A B:M} (f:A-->B) (C:M) :
     isAdmissibleMonomorphism f -> isAdmissibleMonomorphism (directSumMap f (identity C)).
   Proof.
