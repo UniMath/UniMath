@@ -23,6 +23,7 @@ Require Export UniMath.MoreFoundations.Notations.
 Require Export UniMath.MoreFoundations.Propositions.
 Require Export UniMath.Algebra.Monoids_and_Groups.
 
+Local Arguments grinv {_}.
 Local Arguments BinDirectSum {_}.
 Local Arguments to_Pr1 {_ _ _} _.
 Local Arguments to_Pr2 {_ _ _} _.
@@ -35,6 +36,7 @@ Local Arguments to_Unel1 {_ _ _ _ _ _ _ _}.
 Local Arguments to_Unel2 {_ _ _ _ _ _ _ _}.
 Local Arguments MorphismPair : clear implicits.
 Local Arguments morphism_from_iso {_ _ _}.
+Local Arguments ToBinDirectSum {_ _ _} _ {_}.
 
 Local Open Scope logic.
 
@@ -60,6 +62,7 @@ Section Sanity2.
   Goal hom M x y. exact h. Defined.
 End Sanity2.
 
+Definition compose_addcat {M:Additive} {A B C:M} (f : Hom_add M A B) (g : Hom_add M B C) : Hom_add M A C := compose f g.
 
 Local Notation "a --> b" := (precategory_morphisms a b) : cat.
 (* Local Notation "a --> b" := (hSetpair (precategory_morphisms a b) (homset_property _ a b)) : Cat. *)
@@ -68,7 +71,10 @@ Local Notation "b <-- a" := (precategory_morphisms a b) (only parsing) : cat.
 (* Local Notation "b <-- a" := (hSetpair (precategory_morphisms a b) (homset_property _ a b)) (only parsing) : Cat. *)
 Local Notation "b <-- a" := (to_abgr a b) (only parsing) : addcat.
 (* Local Notation "f · g" := (compose f g : to_abgr _ _) : Cat. *)
+
 Local Notation "f · g" := (compose f g : to_abgr _ _) : addcat.
+(* Local Notation "f · g" := (compose_addcat f g) : addcat. *)
+
 (* Local Notation "g ∘ f" := (compose f g : to_abgr _ _) : Cat. *)
 Local Notation "g ∘ f" := (compose f g : to_abgr _ _) : addcat.
 Local Notation "0" := (ZeroArrow (to_Zero _) _ _) : cat.
@@ -76,7 +82,7 @@ Local Notation "0" := (unel _ : to_abgr _ _) : addcat.
 Local Notation "1" := (identity _ : to_abgr _ _) : addcat.
 (* Local Notation "f = g" := (eqset f g) : Cat. *)
 Local Notation "f = g" := (eqset f g) : addcat.
-Local Notation "f - g" := (@op _ f (grinv _ g) : to_abgr _ _) : addcat.
+Local Notation "f - g" := (@op _ f (grinv g) : to_abgr _ _) : addcat.
 Local Notation "A ⊕ B" := (to_BinDirectSums _ A B) : addcat.
 Local Notation "'π₁'" := (to_Pr1 _) : addcat.
 Local Notation "'π₂'" := (to_Pr2 _) : addcat.
@@ -356,10 +362,14 @@ Section AdditiveBasics.         (* move upstream *)
     - apply maponpaths, PreAdditive_unel_zero.
     - apply pathsinv0, PreAdditive_unel_zero.
   Defined.
-  Definition leftCompHomo  (a b c : M) (f : a --> b) : ismonoidfun (to_premor c f)
+  Definition leftCompIsHomo {a b : M} (f : a --> b) (c:M) : ismonoidfun (to_premor c f)
     := @to_premor_monoid _ M _ _ _ _.
-  Definition rightCompHomo (a b c : M) (f : b --> c) : ismonoidfun (to_postmor a f)
+  Definition rightCompIsHomo {b c : M} (a:M) (f : b --> c) : ismonoidfun (to_postmor a f)
     := @to_postmor_monoid _ M _ _ _ _.
+  Definition leftCompHomo {a b : M} (f : a --> b) (c:M) : monoidfun (b-->c) (a-->c)
+    := to_premor c f,, leftCompIsHomo f c.
+  Definition rightCompHomo {b c : M} (a:M) (f : b --> c) : monoidfun (a-->b) (a-->c)
+    := to_postmor a f,, rightCompIsHomo a f.
 End AdditiveBasics.
 
 Section OppositeAdditiveCategory.     (* move upstream *)
@@ -433,11 +443,19 @@ Section AdditiveCategories.     (* move upstream *)
   Defined.
   Lemma rightDistribute {M:Additive} {a b c : M} (f : a --> b) (g h : b --> c) : f · (g + h) = f · g + f · h.
   Proof.
-    apply leftCompHomo.
+    apply leftCompIsHomo.
   Qed.
   Lemma leftDistribute {M:Additive} {a b c : M} (f g : a --> b) (h : b --> c) : (f + g) · h = f · h + g · h.
   Proof.
-    apply rightCompHomo.
+    apply rightCompIsHomo.
+  Qed.
+  Lemma rightMinus {M:Additive} {a b c : M} (f : a --> b) (g : b --> c) : f · (grinv g) = grinv (f·g).
+  Proof.
+    exact (monoidfuninvtoinv (leftCompHomo f c) g).
+  Qed.
+  Lemma leftMinus {M:Additive} {a b c : M} (f : a --> b) (g : b --> c) : (grinv f) · g = grinv (f·g).
+  Proof.
+    exact (monoidfuninvtoinv (rightCompHomo a g) f).
   Qed.
   Lemma ThroughZeroIsZero {M:Additive} (a b:M) (Z : Zero M) (f : a --> Z) (g : Z --> b) : f · g = 0.
   Proof.
@@ -445,10 +463,26 @@ Section AdditiveCategories.     (* move upstream *)
     - apply (maponpaths (postcomp_with g)). apply ArrowsToZero.
     - apply zeroLeft.
   Qed.
+  Definition Elem21 {M:Additive} {A B:M} (f:A-->B) : z_iso (A⊕B) (A⊕B).
+  Proof.
+    exists (1 + π₁·f·ι₂). exists (1 - π₁·f·ι₂). split.
+    - rewrite leftDistribute, 2 rightDistribute. rewrite id_left. refine (_ @ runax _ 1).
+      rewrite assocax. apply maponpaths. rewrite id_right, id_left. rewrite rightMinus.
+      rewrite <- assocax. rewrite grlinvax. rewrite lunax. rewrite <- assoc. rewrite <- (assoc π₁ f ι₂).
+      rewrite (assoc ι₂). rewrite DirectSumIn2Pr1. rewrite zeroLeft. rewrite zeroRight. use grinvunel.
+    - rewrite leftDistribute, 2 rightDistribute. rewrite id_left. refine (_ @ runax _ 1).
+      rewrite assocax. apply maponpaths. rewrite id_right, id_left. rewrite leftMinus.
+      rewrite <- assocax. rewrite grrinvax. rewrite lunax. rewrite <- assoc. rewrite <- (assoc π₁ f ι₂).
+      rewrite (assoc ι₂). rewrite DirectSumIn2Pr1. rewrite zeroLeft. rewrite zeroRight. use grinvunel.
+  Defined.
   Definition isKernel' {M:Additive} {x y z : M} (f : x --> y) (g : y --> z) : hProp :=
     f · g = 0 ∧ ∀ (w : M) (h : w --> y), h · g = 0 ⇒ ∃! φ : w --> x, φ · f = h.
+  Definition hasKernel {M:Additive} {y z : M} (g : y --> z) : hProp :=
+    ∃ x (f:x-->y), isKernel' f g.
   Definition isCokernel' {M:Additive} {x y z : M} (f : x --> y) (g : y --> z) : hProp :=
     f · g = 0 ∧ ∀ (w : M) (h : y --> w), f · h = 0 ⇒ ∃! φ : z --> w, g · φ = h.
+  Definition hasCokernel {M:Additive} {x y : M} (f : x --> y) : hProp :=
+    ∃ z (g:y-->z), isCokernel' f g.
   Lemma KernelIsMonic {M:Additive} {x y z:M} (f : x --> y) (g : y --> z) : isKernel' f g -> isMonic f.
   Proof.
     intros [t i] w p q e.
@@ -645,7 +679,7 @@ Section AdditiveCategories.     (* move upstream *)
                       @ zeroLeft _).
       induction (iscontrpr1 (pr2 i  w (h · π₁) e1)) as [h1 H1].
       induction (iscontrpr1 (pr2 i' w (h · π₂) e2)) as [h2 H2].
-      exists (ToBinDirectSum _ _ h1 h2).
+      exists (ToBinDirectSum _ h1 h2).
       apply ToBinDirectSumsEq.
       + refine (! assoc _ _ _ @ _ @ H1).
         refine (maponpaths (precomp_with _) (directSumMapEqPr1 _ _) @ _).
@@ -1111,16 +1145,28 @@ Section ExactCategoryFacts.
     intros i.
     exact (IsomMono (M:=M^op) f f' (opposite_IsoArrow _ _ i)).
   Defined.
-  Lemma IsoIsMono {M : ExactCategory} {A B:M} (f:z_iso A B) : isAdmissibleMonomorphism (z_iso_mor f).
+  Lemma IsIsoIsMono {M : ExactCategory} {A B:M} (f:A-->B) :
+    is_z_isomorphism f -> isAdmissibleMonomorphism f.
   Proof.
-    use (IsomMono1 (identity A) (z_iso_mor f)).
-    - exists f. apply id_left.
+    intros i.
+    use (IsomMono1 (identity A)).
+    - use tpair.
+      + exact (f,,i).
+      + cbn. apply id_left.
     - apply EC_IdentityIsMono.
   Qed.
+  Lemma IsoIsMono {M : ExactCategory} {A B:M} (f:z_iso A B) : isAdmissibleMonomorphism (z_iso_mor f).
+  Proof.
+    use IsIsoIsMono. apply f.
+  Qed.
+  Definition IsoToAdmMono {M : ExactCategory} {A B:M} (f:z_iso A B) : AdmissibleMonomorphism A B
+    := z_iso_mor f,,IsoIsMono f.
   Lemma IsoIsEpi {M : ExactCategory} {A B:M} (f:z_iso A B) : isAdmissibleEpimorphism (z_iso_mor f).
   Proof.
     exact (IsoIsMono (M:=M^op) (opp_z_iso f)).
   Defined.
+  Definition IsoToAdmEpi {M : ExactCategory} {A B:M} (f:z_iso A B) : AdmissibleEpimorphism A B
+    := z_iso_mor f,,IsoIsEpi f.
   Lemma DirectSumToExact {M : ExactCategory} {A B:M} (S:BinDirectSum A B) : isExact2 (to_In1 S) (to_Pr2 S).
   Proof.
     use ExactSequenceFromEpi.
@@ -1136,22 +1182,26 @@ Section ExactCategoryFacts.
   Proof.
     exact (DirectSumToExact (reverseBinDirectSum S)).
   Qed.
-  Lemma DirectSumIn1Mono {M : ExactCategory} {A B:M} (S:BinDirectSum A B) : isAdmissibleMonomorphism (to_In1 S : A --> S).
+  Lemma In1IsAdmMono {M : ExactCategory} {A B:M} (S:BinDirectSum A B) : isAdmissibleMonomorphism (ι₁ : A --> S).
   Proof.
     exact (hinhpr (B,,to_Pr2 S,,DirectSumToExact S)).
   Qed.
-  Lemma DirectSumIn2Mono {M : ExactCategory} {A B:M} (S:BinDirectSum A B) : isAdmissibleMonomorphism (to_In2 S : B --> S).
+  Lemma In2IsAdmMono {M : ExactCategory} {A B:M} (S:BinDirectSum A B) : isAdmissibleMonomorphism (ι₂ : B --> S).
   Proof.
     exact (hinhpr (A,,to_Pr1 S,,DirectSumToExact' S)).
   Qed.
-  Lemma DirectSumPr1Epi {M : ExactCategory} {A B:M} (S:BinDirectSum A B) : isAdmissibleEpimorphism (to_Pr1 S : S --> A).
+  Lemma Pr1IsAdmEpi {M : ExactCategory} {A B:M} (S:BinDirectSum A B) : isAdmissibleEpimorphism (π₁ : S --> A).
   Proof.
     exact (hinhpr (B,,to_In2 S,,DirectSumToExact' S)).
   Qed.
-  Lemma DirectSumPr2Epi {M : ExactCategory} {A B:M} (S:BinDirectSum A B) : isAdmissibleEpimorphism (to_Pr2 S : S --> B).
+  Lemma Pr2IsAdmEpi {M : ExactCategory} {A B:M} (S:BinDirectSum A B) : isAdmissibleEpimorphism (π₂ : S --> B).
   Proof.
     exact (hinhpr (A,,to_In1 S,,DirectSumToExact S)).
   Qed.
+  Definition In1AdmMono {M : ExactCategory} {A B:M} (S:BinDirectSum A B) : AdmissibleMonomorphism A S := ι₁ ,, In1IsAdmMono S.
+  Definition In2AdmMono {M : ExactCategory} {A B:M} (S:BinDirectSum A B) : AdmissibleMonomorphism B S := ι₂ ,, In2IsAdmMono S.
+  Definition Pr1AdmEpi {M : ExactCategory} {A B:M} (S:BinDirectSum A B) : AdmissibleEpimorphism S A := π₁ ,, Pr1IsAdmEpi S.
+  Definition Pr2AdmEpi {M : ExactCategory} {A B:M} (S:BinDirectSum A B) : AdmissibleEpimorphism S B := π₂ ,, Pr2IsAdmEpi S.
   Lemma ExactPushout {M : ExactCategory} {A B C A':M} (i : A --> B) (p : B --> C)
         (pr : isExact2 i p) (r : A --> A') :
     ∃ (po : Pushout i r),
@@ -1202,7 +1252,7 @@ Section ExactCategoryFacts.
     intro i. apply (squash_to_hProp i). intros [D [p j]].
     apply hinhpr. exists D. exists (π₁ · p). apply ExactSequenceFromEpi.
     2:{ apply EC_ComposeEpi.
-        - apply DirectSumPr1Epi.
+        - apply Pr1IsAdmEpi.
         - exact (hinhpr(A,,f,,j)). }
     assert (Z := to_Zero M).
     assert (m := pr1 (SumOfKernelCokernelPairs
@@ -1241,6 +1291,7 @@ Section ExactCategoryFacts.
     isExact2 f g -> isExact2 f' g' -> isExact2 (directSumMap f f') (directSumMap g g').
   Proof.
     (* see Bühler's 2.9 *)
+    Local Open Scope cat.
     intros i i'. apply ExactSequenceFromMono.
     { use SumOfCokernels.
       - exact (EC_ExactToCokernel i).
@@ -1257,8 +1308,37 @@ Section ExactCategoryFacts.
         + apply maponpaths. apply directSumMapEqPr2.
         + refine (assoc _ _ _ @ id_right _ @ _). apply directSumMapEqPr2. }
     induction kj. use (EC_ComposeMono k j).
-    2:{ apply MonoPlusIdentity. exact (ExactToAdmMono i). }
-    apply IdentityPlusMono. exact (ExactToAdmMono i').
+    - apply IdentityPlusMono. exact (ExactToAdmMono i').
+    - apply MonoPlusIdentity. exact (ExactToAdmMono i).
+  Qed.
+  Local Open Scope addcat.
+  Lemma AdmMonoEnlargement {M:ExactCategory} {A B A':M} (i:A-->B) (f:A-->A') :
+    isAdmissibleMonomorphism i -> isAdmissibleMonomorphism (ToBinDirectSum (B⊕A') i f).
+  Proof.
+    (* see Bühler's 2.12 *)
+    intros I.
+    assert (e : ToBinDirectSum (B⊕A') i f  = ι₁ · (1 + π₁·f·ι₂) · (directSumMap i (identity A'))).
+    { apply ToBinDirectSumsEq.
+      - rewrite BinDirectSumPr1Commutes. unfold directSumMap.
+        unfold BinDirectSumIndAr. rewrite <- assoc. rewrite BinDirectSumPr1Commutes.
+        rewrite assoc. rewrite rightDistribute. rewrite 2 leftDistribute.
+        rewrite id_right. rewrite (to_IdIn1 (A ⊕ A')). rewrite id_left.
+        refine (! runax _ i @ _). apply maponpaths. rewrite assoc.
+        rewrite (assoc' _ ι₂ π₁). rewrite (to_Unel2 (A ⊕ A')). unfold to_unel.
+        rewrite zeroRight, zeroLeft. reflexivity.
+      - rewrite BinDirectSumPr2Commutes. unfold directSumMap.
+        unfold BinDirectSumIndAr. rewrite <- assoc. rewrite BinDirectSumPr2Commutes.
+        rewrite assoc. rewrite rightDistribute. rewrite 2 leftDistribute.
+        rewrite 2 id_right. rewrite (to_Unel1 (A ⊕ A')). unfold to_unel.
+        rewrite lunax. rewrite id_right. rewrite 2 assoc.
+        rewrite (to_IdIn1 (A ⊕ A')). rewrite id_left.
+        rewrite <- assoc. rewrite (to_IdIn2 (A ⊕ A')). rewrite id_right. reflexivity. }
+    induction (!e); clear e.
+    apply EC_ComposeMono.
+    - apply EC_ComposeMono.
+      + apply In1IsAdmMono.
+      + apply IsIsoIsMono. apply (Elem21 f).
+    - use MonoPlusIdentity. exact I.
   Qed.
   Lemma SumOfAdmissibleEpis {M:ExactCategory} {A B A' B':M} (f : A --> B) (f' : A' --> B') :
     isAdmissibleEpimorphism f -> isAdmissibleEpimorphism f' -> isAdmissibleEpimorphism (directSumMap f f').
@@ -1276,6 +1356,19 @@ Section ExactCategoryFacts.
     apply (squash_to_hProp e'); clear e'; intros [C' [g' e']].
     exact (ExactToAdmMono (SumOfExactSequences e e')).
   Qed.
+  (** The "obscure" axiom c of Quillen. *)
+  Lemma AdmMonoFromComposite {M:ExactCategory} {A B C:M} (i:A-->B) (j:B-->C) :
+    hasCokernel i -> isAdmissibleMonomorphism (i·j) -> isAdmissibleMonomorphism i.
+  Proof.
+    (* see Bühler's 2.16 *)
+    Local Open Scope addcat.
+    intros hc im.
+    apply (squash_to_hProp hc); clear hc; intros [D [k ic]].
+    assert (Q := EC_PushoutMono (i·j) i im).
+    apply (squash_to_hProp Q); clear Q; intros [E mo].
+
+
+  Abort.
 End ExactCategoryFacts.
 
 Section ShortExactSequences.
