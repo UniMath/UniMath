@@ -465,7 +465,8 @@ Section AdditiveCategories.     (* move upstream *)
   Qed.
   Definition Elem21 {M:Additive} {A B:M} (f:A-->B) : z_iso (A⊕B) (A⊕B).
   Proof.
-    exists (1 + π₁·f·ι₂). exists (1 - π₁·f·ι₂). split.
+    exists (1 + π₁·f·ι₂). exists (1 - π₁·f·ι₂).
+    split.
     - rewrite leftDistribute, 2 rightDistribute. rewrite id_left. refine (_ @ runax _ 1).
       rewrite assocax. apply maponpaths. rewrite id_right, id_left. rewrite rightMinus.
       rewrite <- assocax. rewrite grlinvax. rewrite lunax. rewrite <- assoc. rewrite <- (assoc π₁ f ι₂).
@@ -474,6 +475,22 @@ Section AdditiveCategories.     (* move upstream *)
       rewrite assocax. apply maponpaths. rewrite id_right, id_left. rewrite leftMinus.
       rewrite <- assocax. rewrite grrinvax. rewrite lunax. rewrite <- assoc. rewrite <- (assoc π₁ f ι₂).
       rewrite (assoc ι₂). rewrite DirectSumIn2Pr1. rewrite zeroLeft. rewrite zeroRight. use grinvunel.
+  Defined.
+  Definition Elem12 {M:Additive} {A B:M} (f:B-->A) : z_iso (A⊕B) (A⊕B).
+  Proof.
+    exists (1 + π₂·f·ι₁). exists (1 - π₂·f·ι₁).
+    split.
+    - rewrite leftDistribute, 2 rightDistribute. rewrite id_left. refine (_ @ runax _ 1).
+      rewrite assocax. apply maponpaths. rewrite id_right, id_left. rewrite rightMinus.
+      rewrite <- assocax. rewrite grlinvax. rewrite lunax. rewrite <- assoc. rewrite <- (assoc _ f _).
+      rewrite 2 (assoc ι₁). rewrite DirectSumIn1Pr2. rewrite zeroLeft. rewrite zeroLeft.
+      rewrite 2 zeroRight.
+      use grinvunel.
+    - rewrite leftDistribute, 2 rightDistribute. rewrite id_left. refine (_ @ runax _ 1).
+      rewrite assocax. apply maponpaths. rewrite id_right, id_left. rewrite leftMinus.
+      rewrite <- assocax. rewrite grrinvax. rewrite lunax. rewrite <- assoc. rewrite <- (assoc _ f _).
+      rewrite (assoc ι₁). rewrite (assoc ι₁). rewrite DirectSumIn1Pr2. rewrite 2 zeroLeft.
+      rewrite 2 zeroRight. use grinvunel.
   Defined.
   Definition isKernel' {M:Additive} {x y z : M} (f : x --> y) (g : y --> z) : hProp :=
     f · g = 0 ∧ ∀ (w : M) (h : w --> y), h · g = 0 ⇒ ∃! φ : w --> x, φ · f = h.
@@ -724,6 +741,7 @@ Section AdditiveCategories.     (* move upstream *)
     apply (SumOfKernels (M:=M^op) g f g' f' i i').
   Qed.
 End AdditiveCategories.
+Local Notation "f ++ g" := (directSumMap f g) : addcat.
 Goal ∏ (M:Additive) (x y z : M) (f : x --> y) (g : y --> z), isKernel' (M:=M) f g = isCokernel' (M:=M^op) g f.
   reflexivity.
 Defined.
@@ -1317,17 +1335,18 @@ Section ExactCategoryFacts.
   Proof.
     (* see Bühler's 2.12 *)
     intros I.
-    assert (e : ToBinDirectSum (B⊕A') i f  = ι₁ · (1 + π₁·f·ι₂) · (directSumMap i (identity A'))).
+    (* write the map as a composite of three maps *)
+    assert (e : ToBinDirectSum _ i f  = ι₁ · (1 + π₁·f·ι₂) · (i ++ 1)).
     { apply ToBinDirectSumsEq.
-      - rewrite BinDirectSumPr1Commutes. unfold directSumMap.
-        unfold BinDirectSumIndAr. rewrite <- assoc. rewrite BinDirectSumPr1Commutes.
+      - rewrite BinDirectSumPr1Commutes. rewrite <- assoc. unfold directSumMap.
+        unfold BinDirectSumIndAr. rewrite BinDirectSumPr1Commutes.
         rewrite assoc. rewrite rightDistribute. rewrite 2 leftDistribute.
         rewrite id_right. rewrite (to_IdIn1 (A ⊕ A')). rewrite id_left.
         refine (! runax _ i @ _). apply maponpaths. rewrite assoc.
         rewrite (assoc' _ ι₂ π₁). rewrite (to_Unel2 (A ⊕ A')). unfold to_unel.
         rewrite zeroRight, zeroLeft. reflexivity.
-      - rewrite BinDirectSumPr2Commutes. unfold directSumMap.
-        unfold BinDirectSumIndAr. rewrite <- assoc. rewrite BinDirectSumPr2Commutes.
+      - rewrite BinDirectSumPr2Commutes. rewrite <- assoc. unfold directSumMap.
+        unfold BinDirectSumIndAr. rewrite BinDirectSumPr2Commutes.
         rewrite assoc. rewrite rightDistribute. rewrite 2 leftDistribute.
         rewrite 2 id_right. rewrite (to_Unel1 (A ⊕ A')). unfold to_unel.
         rewrite lunax. rewrite id_right. rewrite 2 assoc.
@@ -1362,10 +1381,12 @@ Section ExactCategoryFacts.
   Proof.
     (* see Bühler's 2.16 *)
     Local Open Scope addcat.
+    Local Open Scope cat.
     intros hc im.
     apply (squash_to_hProp hc); clear hc; intros [D [k ic]].
     assert (Q := EC_PushoutMono (i·j) i im).
     apply (squash_to_hProp Q); clear Q; intros [E mo].
+    assert (s := AdmMonoEnlargement (i·j) i im).
 
 
   Abort.
