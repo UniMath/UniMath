@@ -23,6 +23,7 @@ Require Export UniMath.MoreFoundations.Notations.
 Require Export UniMath.MoreFoundations.Propositions.
 Require Export UniMath.Algebra.Monoids_and_Groups.
 
+Local Arguments to_binop {_ _ _}.
 Local Arguments grinv {_}.
 Local Arguments BinDirectSum {_}.
 Local Arguments to_Pr1 {_ _ _} _.
@@ -375,7 +376,7 @@ Section OppositeAdditiveCategory.     (* move upstream *)
   Definition oppositePrecategoryWithBinOps (M : precategoryWithBinOps) : precategoryWithBinOps
     := mk_precategoryWithBinOps
          (opp_precat M)
-         (λ A B f g, to_binop B A f g).
+         (λ A B f g, to_binop f g).
   Goal ∏ (M : precategoryWithBinOps), oppositePrecategoryWithBinOps (oppositePrecategoryWithBinOps M) = M.
   Proof.
     reflexivity.
@@ -629,12 +630,16 @@ Section AdditiveCategories.     (* move upstream *)
   Proof.
     unfold directSumMap. rewrite BinDirectSumIndArEq. apply BinDirectSumIn2Commutes.
   Qed.
-  Definition change_binop {M:Additive} (a b:M) (f g:a --> b) : to_binop _ _ f g = f+g := idpath _.
+  (* This should replace to_BinOpId upstream.  Also fix ToBinDirectSumFormula and FromBinDirectSumFormula. *)
+  Definition to_BinOpId' {M:PreAdditive} {a b co : M} {i1 : a --> co} {i2 : b --> co} {p1 : co --> a} {p2 : co --> b}
+             (B : isBinDirectSum _ a b co i1 i2 p1 p2) :
+    p1 · i1 + p2 · i2 = identity co := to_BinOpId B.
+  Definition change_binop {M:Additive} (a b:M) (f g:a --> b) : to_binop f g = f+g := idpath _.
   Definition SwitchMap {M:Additive} (a b:M) : a ⊕ b --> b ⊕ a := π₁ · ι₂ + π₂ · ι₁.
   Lemma SwitchMapEqn {M:Additive} {a b:M} : SwitchMap a b · SwitchMap b a = 1.
   Proof.
     unfold SwitchMap.
-    rewrite <- (to_BinOpId (a⊕b)), change_binop.
+    rewrite <- (to_BinOpId' (a⊕b)).
     rewrite leftDistribute, 2 rightDistribute.
     rewrite <- assoc, (assoc ι₂). rewrite DirectSumIn2Pr1.
     rewrite zeroLeft, zeroRight, lunax.
@@ -802,16 +807,16 @@ Section KernelCokernelPairs.
     split.
     - exists (to_Unel1 S). intros T h H. use unique_exists; cbn beta.
       + exact (h · to_Pr1 S).
-      + refine (! assoc _ _ _ @ _ @ id_right _). rewrite <- (to_BinOpId S).
-        rewrite to_premor_linear'. rewrite (assoc h (to_Pr2 S) (to_In2 S)).
+      + refine (! assoc _ _ _ @ _ @ id_right _). rewrite <- (to_BinOpId' S).
+        rewrite rightDistribute. rewrite (assoc h (to_Pr2 S) (to_In2 S)).
         rewrite H; clear H. rewrite zeroLeft. exact (! runax _ (h · _)).
       + intros k. apply to_has_homsets.
       + clear H. intros k e. induction e. rewrite <- assoc.
         rewrite (to_IdIn1 S). apply pathsinv0, id_right.
     - exists (to_Unel1 S). intros T h H. use unique_exists; cbn beta.
       + exact (ι₂ · h).
-      + refine (assoc _ _ _ @ _ @ id_left h). rewrite <- (to_BinOpId S).
-        rewrite to_postmor_linear'.
+      + refine (assoc _ _ _ @ _ @ id_left h). rewrite <- (to_BinOpId' S).
+        rewrite leftDistribute.
         rewrite <- (assoc (to_Pr1 S) (to_In1 S) h). rewrite H; clear H.
         rewrite zeroRight. exact (! lunax _ (to_Pr2 S · to_In2 S · h)).
       + intros k. apply to_has_homsets.
@@ -1322,7 +1327,7 @@ Section ExactCategoryFacts.
     induction R. apply IsoWithKernel.
     { exact m. }
     exists (ι₁). split.
-    { refine (! runax _ (to_Pr1 (D ⊕ Z) · to_In1 (D ⊕ Z)) @ ! _ @ to_BinOpId (D⊕Z)).
+    { refine (! runax _ (to_Pr1 (D ⊕ Z) · to_In1 (D ⊕ Z)) @ ! _ @ to_BinOpId' (D⊕Z)).
       apply maponpaths. apply ThroughZeroIsZero. }
     { refine (to_IdIn1 (D⊕Z)). }
   Qed.
@@ -1428,10 +1433,6 @@ Section ExactCategoryFacts.
       rewrite BinDirectSumPr2Commutes. rewrite id_right. apply pathsinv0.
       use (to_Unel1 (A⊕C)).
   Qed.
-  Lemma fix_binop {M:Additive} {A B:M} (f g:A-->B) : to_binop A B f g = f+g.
-  Proof.
-    reflexivity.
-  Defined.
   Lemma KernelPlusIdentity {M:ExactCategory} {A B C:M} (f:A-->B) (g:B-->C) (D:M) :
     isKernel' (f · ι₁) (directSumMap g (identity D)) -> isKernel' f g.
   Proof.
@@ -1479,7 +1480,7 @@ Section ExactCategoryFacts.
     rewrite <- leftDistribute.
     refine (_ @ id_left _).
     apply (maponpaths (λ w, w·h)).
-    apply (to_BinOpId (B⊕D)).
+    apply (to_BinOpId' (B⊕D)).
   Defined.
   Lemma MapPlusIdentityToPullback {M:ExactCategory} {A B:M} (f:A-->B) (C:M) :
     isPullback _ _ _ _ (MapPlusIdentityToCommSq f C).
@@ -1497,7 +1498,7 @@ Section ExactCategoryFacts.
         rewrite (assoc g). rewrite e. rewrite (assoc' h _ π₁).
         unfold directSumMap. unfold BinDirectSumIndAr. rewrite BinDirectSumPr1Commutes.
         rewrite assoc. reflexivity.
-      + refine (_ @ id_right _). rewrite <- (to_BinOpId (A⊕C)). rewrite fix_binop.
+      + refine (_ @ id_right _). rewrite <- (to_BinOpId' (A⊕C)).
         rewrite rightDistribute. rewrite assoc. refine (! runax _ (h · π₁ · ι₁) @ _).
         apply maponpaths. rewrite assoc. apply pathsinv0.
         assert (K : h · π₂ = 0).
@@ -1545,7 +1546,7 @@ Section ExactCategoryFacts.
     assert (es := ExactSequenceFromMono _ _ co); clear co.
     assert (t : i · to_In1 (B⊕C) = ToBinDirectSum (B ⊕ C) i 0).
     { rewrite <- ToBinDirectSumFormulaUnique. unfold ToBinDirectSumFormula.
-      rewrite fix_binop. rewrite zeroLeft, runax. reflexivity. }
+      rewrite change_binop. rewrite zeroLeft, runax. reflexivity. }
     assert (l' : isAdmissibleMonomorphism (i · to_In1 (B⊕C))).
     { induction (!t). exact l. }
     clear l t.
