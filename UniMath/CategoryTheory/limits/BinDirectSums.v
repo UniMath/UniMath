@@ -27,7 +27,12 @@ Require Import UniMath.CategoryTheory.PreAdditive.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 
+Import AddNotation.
+Import AddGroupNotation.
 Local Open Scope cat.
+Local Open Scope addmonoid.
+Local Open Scope abgr.
+Local Open Scope abgrcat.
 
 (** BinDirectSum is at the same time product and coproduct of the underlying objects together
     with the following equalities
@@ -48,12 +53,7 @@ Defined.
 Section def_bindirectsums.
 
   Variable A : PreAdditive.
-  Context (hs := @to_has_homsets A : has_homsets A).
-
-  Open Scope addmonoid.
-  Open Scope multmonoid.
-  Open Scope abgrcat.
-  Import AddNotation.
+  Context (hs := @to_has_homsets A : has_homsets A). (* get rid of this *)
 
   (** Definition of binary direct sum. *)
   Definition isBinDirectSum (a b co : A) (i1 : a --> co) (i2 : b --> co)
@@ -459,7 +459,7 @@ End bindirectsums_monics_and_epis.
 Section bindirectsums_criteria.
 
   Variable A : PreAdditive.
-  Hypothesis hs : has_homsets A.
+  Hypothesis hs : has_homsets A. (* get rid of this *)
   Variable Z : Zero A.
 
   Definition BinDirectSums_from_binproduct_bincoproducts_eq1 {X Y : A} (P : BinProduct A X Y) :

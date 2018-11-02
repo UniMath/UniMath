@@ -19,7 +19,10 @@ Require Import UniMath.Algebra.Domains_and_Fields.
 Require Import UniMath.Algebra.ConstructiveStructures.
 
 Require Import UniMath.MoreFoundations.Tactics.
-Import UniMath.Algebra.Monoids_and_Groups.AddNotation.
+
+Require Import UniMath.Algebra.Monoids_and_Groups.
+Import AddNotation.
+Import MultNotation.
 
 (** ** The standard function from the natural numbers to a monoid *)
 
