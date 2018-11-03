@@ -214,9 +214,9 @@ Local Open Scope abgr.
 Local Open Scope abgrcat.
 
 (* This duplicates notation in addoperation_scope and abgr: *)
-   Notation "f + g" := (@op (pr1monoid (grtomonoid (abgrtogr (to_abgr _ _)))) f g) : abgrcat.
-   Notation "f - g" := (@op (pr1monoid (grtomonoid (abgrtogr (to_abgr _ _)))) f (grinv (abgrtogr (to_abgr _ _)) g)) : abgrcat.
-   Notation "- g" := (grinv (abgrtogr (to_abgr _ _)) g) : abgrcat.
+   Notation "f + g" := (@op (to_abgr _ _) f g) : abgrcat.
+   Notation "f - g" := (@op (to_abgr _ _) f (grinv (abgrtogr (to_abgr _ _)) g)) : abgrcat.
+   Notation "- g" := (grinv (to_abgr _ _) g) : abgrcat.
 (* But the duplication is needed, because we want the resulting type to be of the form
            pr1hSet
              (pr1setwithbinop
