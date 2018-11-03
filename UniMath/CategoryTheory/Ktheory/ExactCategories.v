@@ -470,11 +470,11 @@ Section AdditiveCategories.     (* move upstream *)
       unfold elem21. split.
       - rewrite leftDistribute, 2 rightDistribute. rewrite id_left. refine (_ @ runax (_-->_) _).
         rewrite assocax. apply maponpaths. rewrite id_right, id_left. rewrite rightMinus.
-        rewrite <- assocax. rewrite grlinvax. rewrite lunax. rewrite <- assoc. rewrite <- (assoc π₁ f ι₂).
+        rewrite <- assocax. rewrite grlinvax. rewrite lunax. rewrite assoc'. rewrite <- (assoc π₁ f ι₂).
         rewrite (assoc ι₂). rewrite DirectSumIn2Pr1. rewrite zeroLeft. rewrite zeroRight. use grinvunel.
       - rewrite leftDistribute, 2 rightDistribute. rewrite id_left. refine (_ @ runax (_-->_) _).
         rewrite assocax. apply maponpaths. rewrite id_right, id_left. rewrite leftMinus.
-        rewrite <- assocax. rewrite grrinvax. rewrite lunax. rewrite <- assoc. rewrite <- (assoc π₁ f ι₂).
+        rewrite <- assocax. rewrite grrinvax. rewrite lunax. rewrite assoc'. rewrite <- (assoc π₁ f ι₂).
         rewrite (assoc ι₂). rewrite DirectSumIn2Pr1. rewrite zeroLeft. rewrite zeroRight. use grinvunel.
     Defined.
   End Foo.
@@ -484,13 +484,13 @@ Section AdditiveCategories.     (* move upstream *)
     exists (1 - π₂·f·ι₁). unfold elem12. split.
     - rewrite leftDistribute, 2 rightDistribute. rewrite id_left. refine (_ @ runax (A⊕B-->A⊕B) _).
       rewrite assocax. apply maponpaths. rewrite id_right, id_left. rewrite rightMinus.
-      rewrite <- assocax. rewrite grlinvax. rewrite lunax. rewrite <- assoc. rewrite <- (assoc _ f _).
+      rewrite <- assocax. rewrite grlinvax. rewrite lunax. rewrite assoc'. rewrite <- (assoc _ f _).
       rewrite 2 (assoc ι₁). rewrite DirectSumIn1Pr2. rewrite zeroLeft. rewrite zeroLeft.
       rewrite 2 zeroRight.
       use grinvunel.
     - rewrite leftDistribute, 2 rightDistribute. rewrite id_left. refine (_ @ runax (A⊕B-->A⊕B) _).
       rewrite assocax. apply maponpaths. rewrite id_right, id_left. rewrite leftMinus.
-      rewrite <- assocax. rewrite grrinvax. rewrite lunax. rewrite <- assoc. rewrite <- (assoc _ f _).
+      rewrite <- assocax. rewrite grrinvax. rewrite lunax. rewrite assoc'. rewrite <- (assoc _ f _).
       rewrite (assoc ι₁). rewrite (assoc ι₁). rewrite DirectSumIn1Pr2. rewrite 2 zeroLeft.
       rewrite 2 zeroRight. use grinvunel.
   Defined.
@@ -507,7 +507,7 @@ Section AdditiveCategories.     (* move upstream *)
     intros [t i] w p q e.
     set (T := ∑ r : w --> x, r · f = q · f). assert (ic : isProofIrrelevant T).
     { apply proofirrelevance, isapropifcontr.
-      use i. rewrite <- assoc. rewrite t. apply zeroRight. }
+      use i. rewrite assoc'. rewrite t. apply zeroRight. }
     set (t1 := (p,,e) : T). set (t2 := (q,,idpath _) : T).
     assert (Q := ic t1 t2). exact (maponpaths pr1 Q).
   Qed.
@@ -563,8 +563,8 @@ Section AdditiveCategories.     (* move upstream *)
       induction (iscontrpr1 (pr2 i _ f' (pr1 j))) as [q Q].
       use tpair.
       + exists p. exists q. split.
-        * apply (KernelIsMonic _ _ i). rewrite <- assoc. rewrite Q. rewrite P. rewrite id_left. reflexivity.
-        * apply (KernelIsMonic _ _ j). rewrite <- assoc. rewrite P. rewrite Q. rewrite id_left. reflexivity.
+        * apply (KernelIsMonic _ _ i). rewrite assoc'. rewrite Q. rewrite P. rewrite id_left. reflexivity.
+        * apply (KernelIsMonic _ _ j). rewrite assoc'. rewrite P. rewrite Q. rewrite id_left. reflexivity.
       + cbn. exact P.
   Defined.
   Lemma CokernelUniqueness {M:Additive} {x y z z' : M} {f : x --> y} {g : y --> z} {g' : y --> z'} :
@@ -643,12 +643,12 @@ Section AdditiveCategories.     (* move upstream *)
     unfold SwitchMap.
     rewrite <- (to_BinOpId' (a⊕b)).
     rewrite leftDistribute, 2 rightDistribute.
-    rewrite <- assoc, (assoc ι₂). rewrite DirectSumIn2Pr1.
+    rewrite assoc', (assoc ι₂). rewrite DirectSumIn2Pr1.
     rewrite zeroLeft, zeroRight, lunax.
-    rewrite <- assoc, (assoc ι₂). rewrite (to_IdIn2 (b ⊕ a)), id_left.
+    rewrite assoc', (assoc ι₂). rewrite (to_IdIn2 (b ⊕ a)), id_left.
     apply maponpaths.
-    rewrite <- assoc, (assoc ι₁). rewrite (to_IdIn1 (b ⊕ a)), id_left.
-    rewrite <- assoc, (assoc ι₁). rewrite DirectSumIn1Pr2.
+    rewrite assoc', (assoc ι₁). rewrite (to_IdIn1 (b ⊕ a)), id_left.
+    rewrite assoc', (assoc ι₁). rewrite DirectSumIn1Pr2.
     rewrite zeroLeft, zeroRight, runax.
     reflexivity.
   Defined.
@@ -675,10 +675,10 @@ Section AdditiveCategories.     (* move upstream *)
   Proof.
     unfold SwitchMap.
     rewrite leftDistribute.
-    rewrite <- assoc. rewrite directSumMapEqIn2. rewrite assoc.
+    rewrite assoc'. rewrite directSumMapEqIn2. rewrite assoc.
     rewrite rightDistribute. rewrite assoc. rewrite directSumMapEqPr1.
     apply maponpaths.
-    rewrite <- assoc. rewrite directSumMapEqIn1. rewrite assoc.
+    rewrite assoc'. rewrite directSumMapEqIn1. rewrite assoc.
     rewrite assoc. rewrite directSumMapEqPr2.
     reflexivity.
   Qed.
@@ -812,7 +812,7 @@ Section KernelCokernelPairs.
         rewrite rightDistribute. rewrite (assoc h (to_Pr2 S) (to_In2 S)).
         rewrite H; clear H. rewrite zeroLeft. apply pathsinv0. apply (runax (T-->S)).
       + intros k. apply to_has_homsets.
-      + clear H. intros k e. induction e. rewrite <- assoc.
+      + clear H. intros k e. induction e. rewrite assoc'.
         rewrite (to_IdIn1 S). apply pathsinv0, id_right.
     - exists (to_Unel1 S). intros T h H. use unique_exists; cbn beta.
       + exact (ι₂ · h).
@@ -1380,20 +1380,20 @@ Section ExactCategoryFacts.
     (* write the map as a composite of three maps *)
     assert (e : ToBinDirectSum _ i f  = ι₁ · (1 + π₁·f·ι₂) · (i ++ 1)).
     { apply ToBinDirectSumsEq.
-      - rewrite BinDirectSumPr1Commutes. rewrite <- assoc. unfold directSumMap.
+      - rewrite BinDirectSumPr1Commutes. rewrite assoc'. unfold directSumMap.
         unfold BinDirectSumIndAr. rewrite BinDirectSumPr1Commutes.
         rewrite assoc. rewrite rightDistribute. rewrite 2 leftDistribute.
         rewrite id_right. rewrite (to_IdIn1 (A ⊕ A')). rewrite id_left.
-        refine (! runax (A-->B) i @ _). apply maponpaths. rewrite assoc.
-        rewrite (assoc' _ ι₂ π₁). rewrite (to_Unel2 (A ⊕ A')). unfold to_unel.
+        refine (! runax (A-->B) _ @ _). apply maponpaths. rewrite assoc.
+        rewrite (assoc' _ _ π₁). rewrite (to_Unel2 (A ⊕ A')). unfold to_unel.
         rewrite zeroRight, zeroLeft. reflexivity.
-      - rewrite BinDirectSumPr2Commutes. rewrite <- assoc. unfold directSumMap.
+      - rewrite BinDirectSumPr2Commutes. rewrite assoc'. unfold directSumMap.
         unfold BinDirectSumIndAr. rewrite BinDirectSumPr2Commutes.
         rewrite assoc. rewrite rightDistribute. rewrite 2 leftDistribute.
         rewrite 2 id_right. rewrite (to_Unel1 (A ⊕ A')). unfold to_unel.
         rewrite lunax. rewrite id_right. rewrite 2 assoc.
         rewrite (to_IdIn1 (A ⊕ A')). rewrite id_left.
-        rewrite <- assoc. rewrite (to_IdIn2 (A ⊕ A')). rewrite id_right. reflexivity. }
+        rewrite assoc'. rewrite (to_IdIn2 (A ⊕ A')). rewrite id_right. reflexivity. }
     induction (!e); clear e.
     apply EC_ComposeMono.
     - apply EC_ComposeMono.
@@ -1476,7 +1476,7 @@ Section ExactCategoryFacts.
     refine (_ @ id_left _).
     apply (maponpaths (λ w, w·h)).
     apply (to_BinOpId' (B⊕D)).
-  Defined.
+  Qed.
   Lemma MapPlusIdentityToPullback {M:ExactCategory} {A B:M} (f:A-->B) (C:M) :
     isPullback _ _ _ _ (MapPlusIdentityToCommSq f C).
   Proof.
@@ -1547,7 +1547,12 @@ Section ExactCategoryFacts.
     use (ExactToAdmMono (p:=k)). use (ExactSequenceFromEpi i k).
     - use (KernelPlusIdentity _ _ C). exact (EC_ExactToKernel ee).
     - use (IsPullbackEpiIsEpi PB). exact (ExactToAdmEpi ee).
-  Defined.
+  Qed.
+  Lemma AdmEpiFromComposite {M:ExactCategory} {A B C:M} (i:A-->B) (j:B-->C) :
+    hasKernel j -> isAdmissibleEpimorphism (i·j) -> isAdmissibleEpimorphism j.
+  Proof.
+    exact (AdmMonoFromComposite (M:=M^op) j i).
+  Qed.
 End ExactCategoryFacts.
 
 Section ShortExactSequences.
