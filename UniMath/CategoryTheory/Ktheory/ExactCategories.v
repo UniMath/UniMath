@@ -1031,6 +1031,28 @@ Section theDefinition.
        (∀ A B C (f : B --> A) (g : B --> C),
           isAdmissibleMonomorphism f ⇒
           ∃ (PO : Pushout f g), isAdmissibleMonomorphism (PushoutIn2 PO))).
+  (** The following definition is from Higher Algebraic K-theory I, by Quillen. *)
+  Local Definition ExactCategoryProperties_Quillen : hProp :=
+      (∀ P Q, MorphismPairIsomorphism P Q ⇒ isExact P ⇒ isExact Q) ∧
+      (∀ A B (AB:BinDirectSum A B), isExact2 (to_In1 AB) (to_Pr2 AB)) ∧
+      (∀ P, isExact P ⇒ isKernel' (Mor1 P) (Mor2 P) ∧ isCokernel' (Mor1 P) (Mor2 P)) ∧
+      ((∀ A B C (f : A --> B) (g : B --> C),
+          isAdmissibleMonomorphism f ⇒ isAdmissibleMonomorphism g ⇒
+          isAdmissibleMonomorphism (f · g)) ∧
+       (∀ A B C (f : A --> B) (g : B --> C),
+          isAdmissibleEpimorphism f ⇒ isAdmissibleEpimorphism g ⇒
+          isAdmissibleEpimorphism (f · g))) ∧
+      ((∀ A B C (f : A --> B) (g : C --> B),
+          isAdmissibleEpimorphism f ⇒
+          ∃ (PB : Pullback f g), isAdmissibleEpimorphism (PullbackPr2 PB)) ∧
+       (∀ A B C (f : B --> A) (g : B --> C),
+          isAdmissibleMonomorphism f ⇒
+          ∃ (PO : Pushout f g), isAdmissibleMonomorphism (PushoutIn2 PO))) ∧
+       ((∀ A B C (i:A-->B) (j:B-->C),
+          hasCokernel i ⇒ isAdmissibleMonomorphism (i·j) ⇒ isAdmissibleMonomorphism i) ∧
+        (∀ A B C (i:A-->B) (j:B-->C),
+          hasKernel j ⇒ isAdmissibleEpimorphism (i·j) ⇒ isAdmissibleEpimorphism j)).
+  (** We prove below that the two definitions are equivalent. *)
 End theDefinition.
 
 Arguments isExact {_}.
@@ -1637,6 +1659,55 @@ Section ExactCategoryFacts.
     exact (AdmMonoFromComposite (M:=M^op) j i).
   Qed.
 End ExactCategoryFacts.
+
+Section EquivalenceOfTwoDefinitions.
+  Theorem EquivalenceOfTwoDefinitions (D:ExactCategoryData) :
+    ExactCategoryProperties D ⇔ ExactCategoryProperties_Quillen D.
+  Proof.
+    split.
+    { intros prop.
+      set (M := (D,,prop) : ExactCategory).
+      split.
+      { exact (@EC_IsomorphicToExact M). }
+      split.
+      { exact (@DirectSumToExact M). }
+      split.
+      { exact (@EC_ExactToKernelCokernel M). }
+      split.
+      { split.
+        { exact (@EC_ComposeMono M). }
+        { exact (@EC_ComposeEpi M). } }
+      split.
+      { split.
+        { exact (@EC_PullbackEpi M). }
+        { exact (@EC_PushoutMono M). } }
+      { split.
+        { exact (@AdmMonoFromComposite M). }
+        { exact (@AdmEpiFromComposite M). } } }
+    { intros [P1 [P2 [P3 [[P4 P4'] [[P5 P5'] [P6 P7]]]]]].
+      split.
+      { split.
+        { exact P1. }
+        { intros P Q i. exact (P1 P Q (InverseMorphismPairIsomorphism i)). } }
+      { split.
+        { split.
+          { intros A. apply (squash_to_hProp (to_Zero' D)); intros Z. apply hinhpr.
+            exists Z. set (Q := TrivialDirectSum Z A). exists (to_Pr2 Q).
+            exact (P2 A Z Q). }
+          { intros A. apply (squash_to_hProp (to_Zero' D)); intros Z. apply hinhpr.
+            exists Z. set (Q := TrivialDirectSum' Z A). exists (to_In1 Q).
+            exact (P2 Z A Q). } }
+        split.
+        { exact P3. }
+        split.
+        { split.
+          { exact P4. }
+          { exact P4'. } }
+        split.
+        { exact P5. }
+        { exact P5'. } } }
+  Defined.
+End EquivalenceOfTwoDefinitions.
 
 Section ShortExactSequences.
   (* I'm not sure this type will be useful. *)
