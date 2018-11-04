@@ -192,7 +192,7 @@ Proof.
     apply (@assoc (functor_precategory C C hs)).
   - apply (invmap (Monad_Mor_equiv hs _ _ )).
     apply (@assoc' (functor_precategory C C hs)).
-Defined.
+Qed.
 
 Definition precategory_Monad (C : precategory) (hs : has_homsets C) : precategory
   := tpair _ _ (precategory_Monad_axioms C hs).

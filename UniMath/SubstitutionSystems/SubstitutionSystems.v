@@ -629,7 +629,7 @@ Proof.
     apply (@assoc EndC).
   - apply (invmap (hssMor_eq _ _ _ _ )).
     apply (@assoc' EndC).
-Defined.
+Qed.
 
 Definition hss_precategory : precategory := tpair _ _ is_precategory_hss.
 
