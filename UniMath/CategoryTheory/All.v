@@ -175,3 +175,4 @@ Require Export UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
 Require Export UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
 Require Export UniMath.CategoryTheory.Monoidal.Actions.
 Require Export UniMath.CategoryTheory.Monoidal.Strengths.
+Require Export UniMath.CategoryTheory.Enriched.Enriched.
