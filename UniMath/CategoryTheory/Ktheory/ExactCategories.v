@@ -236,7 +236,12 @@ Section OppositeMorphismPairs.
   Qed.
 End OppositeMorphismPairs.
 
+Section Pushouts.              (* move upstream *)
+  Definition hasPushout {M : precategory} {A B C:M} (f:A-->B) (g:A-->C) := ∥ Pushout f g ∥.
+End Pushouts.
+
 Section Pullbacks.              (* move upstream *)
+  Definition hasPullback {M : precategory} {A B C:M} (f:A-->C) (g:B-->C) := ∥ Pullback f g ∥.
   Context {M : precategory}.
   Goal ∏ (A B C:M) (f : A --> C) (g : B --> C), Pullback f g = Pushout (C:=M^op) f g.
     reflexivity.
@@ -421,27 +426,21 @@ Section AdditiveBasics.         (* move upstream *)
 
   Context {M : Additive'}.
   Lemma zeroLeft {a b c : M} (f : b --> c) : ((0 : a --> b) · f = 0)%abgrcat.
-  (* remove this lemma *)
   Proof.
     apply to_postmor_unel'.
   Defined.
   Lemma zeroRight {a b c : M} (f : a --> b) : f · (0 : b --> c) = 0.
-  (* remove this lemma *)
   Proof.
     apply to_premor_unel'.
   Defined.
   Definition leftCompIsHomo {a b : M} (f : a --> b) (c:M) : ismonoidfun (to_premor c f)
-    (* remove this *)
     := @to_premor_monoid _ M _ _ _ _.
   Definition rightCompIsHomo {b c : M} (a:M) (f : b --> c) : ismonoidfun (to_postmor a f)
-    (* remove this *)
     := @to_postmor_monoid _ M _ _ _ _.
   Definition leftCompHomo {a b : M} (f : a --> b) (c:M) : monoidfun (b-->c) (a-->c)
-    (* remove this *)
-    := to_premor c f,, leftCompIsHomo f c.
+    := to_premor c f,, to_premor_monoid M _ _ _ f.
   Definition rightCompHomo {b c : M} (a:M) (f : b --> c) : monoidfun (a-->b) (a-->c)
-    (* remove this *)
-    := to_postmor a f,, rightCompIsHomo a f.
+    := to_postmor a f,, to_postmor_monoid M _ _ _ f.
 End AdditiveBasics.
 
 Local Notation "A ⊕ B" := (to_BinDirectSums' A B) : addcat.
@@ -470,22 +469,18 @@ Section AdditiveCategories.     (* move upstream *)
   Local Open Scope abgr.
   Local Open Scope abgrcat.
   Lemma DirectSumIn1Pr2 {M:Additive'} {a b:M} (S:BinDirectSum a b) : to_In1 S · to_Pr2 S = 0.
-  (* remove this? *)
   Proof.
     exact (to_Unel1 S).
   Defined.
   Lemma DirectSumIn2Pr1 {M:Additive'} {a b:M} (S:BinDirectSum a b) : to_In2 S · to_Pr1 S = 0.
-  (* remove this? *)
   Proof.
     exact (to_Unel2 S).
   Defined.
   Lemma rightDistribute {M:Additive'} {a b c : M} (f : a --> b) (g h : b --> c) : f · (g + h) = f · g + f · h.
-  (* remove this? *)
   Proof.
     apply leftCompIsHomo.
   Qed.
   Lemma leftDistribute {M:Additive'} {a b c : M} (f g : a --> b) (h : b --> c) : (f + g) · h = f · h + g · h.
-  (* remove this? *)
   Proof.
     apply rightCompIsHomo.
   Qed.
@@ -501,7 +496,7 @@ Section AdditiveCategories.     (* move upstream *)
   Proof.
     intermediate_path ((0:a-->Z) · g).
     - apply (maponpaths (postcomp_with g)). apply ArrowsToZero.
-    - apply zeroLeft.
+    - apply to_postmor_unel'.
   Qed.
   Definition elem21 {M:Additive'} {A B:M} (AB : BinDirectSum A B) (f:A-->B) : AB-->AB := 1 + π₁·f·ι₂.
   Section Foo.
@@ -1000,9 +995,9 @@ Section KernelCokernelPairs.
 End KernelCokernelPairs.
 
 Section theDefinition.
-  Definition AddCatWithExactness := ∑ M:Additive', MorphismPair M -> hProp. (* properties added below *)
-  Coercion AE_to_AC (ME : AddCatWithExactness) : Additive' := pr1 ME.
-  Context (M : AddCatWithExactness).
+  Definition ExactCategoryData := ∑ M:Additive', MorphismPair M -> hProp. (* properties added below *)
+  Coercion ECD_to_AC (ME : ExactCategoryData) : Additive' := pr1 ME.
+  Context (M : ExactCategoryData).
   Definition isExact (E : MorphismPair M) : hProp := pr2 M E.
   Definition isExact2 {A B C:M} (f:A-->B) (g:B-->C) := isExact (mk_MorphismPair f g).
   Definition isAdmissibleMonomorphism {A B:M} (i : A --> B) : hProp :=
@@ -1021,29 +1016,29 @@ Section theDefinition.
   Local Definition ExactCategoryProperties : hProp :=
       ((∀ P Q, MorphismPairIsomorphism P Q ⇒ isExact P ⇒ isExact Q) ∧
        (∀ P Q, MorphismPairIsomorphism Q P ⇒ isExact P ⇒ isExact Q)) ∧
-      (∀ A, isAdmissibleMonomorphism (identity A)) ∧
-      (∀ A, isAdmissibleEpimorphism (identity A)) ∧
+      ((∀ A, isAdmissibleMonomorphism (identity A)) ∧
+       (∀ A, isAdmissibleEpimorphism (identity A))) ∧
       (∀ P, isExact P ⇒ isKernelCokernelPair (Mor1 P) (Mor2 P)) ∧
-      (∀ A B C (f : A --> B) (g : B --> C),
+      ((∀ A B C (f : A --> B) (g : B --> C),
           isAdmissibleMonomorphism f ⇒ isAdmissibleMonomorphism g ⇒
           isAdmissibleMonomorphism (f · g)) ∧
-      (∀ A B C (f : A --> B) (g : B --> C),
+       (∀ A B C (f : A --> B) (g : B --> C),
           isAdmissibleEpimorphism f ⇒ isAdmissibleEpimorphism g ⇒
-          isAdmissibleEpimorphism (f · g)) ∧
-      (∀ A B C (f : A --> B) (g : C --> B),
+          isAdmissibleEpimorphism (f · g))) ∧
+      ((∀ A B C (f : A --> B) (g : C --> B),
           isAdmissibleEpimorphism f ⇒
           ∃ (PB : Pullback f g), isAdmissibleEpimorphism (PullbackPr2 PB)) ∧
-      (∀ A B C (f : B --> A) (g : B --> C),
+       (∀ A B C (f : B --> A) (g : B --> C),
           isAdmissibleMonomorphism f ⇒
-          ∃ (PO : Pushout f g), isAdmissibleMonomorphism (PushoutIn2 PO)).
+          ∃ (PO : Pushout f g), isAdmissibleMonomorphism (PushoutIn2 PO))).
 End theDefinition.
 
 Arguments isExact {_}.
 Arguments isExact2 {_ _ _ _}.
 
-Definition ExactCategory := ∑ (ME:AddCatWithExactness), ExactCategoryProperties ME.
-Coercion ExCatToAddCatWithExactness (E:ExactCategory) : AddCatWithExactness := pr1 E.
-Definition mk_ExactCategory (ME:AddCatWithExactness) (p : ExactCategoryProperties ME) : ExactCategory := ME,,p.
+Definition ExactCategory := ∑ (ME:ExactCategoryData), ExactCategoryProperties ME.
+Coercion ExCatToExactCategoryData (E:ExactCategory) : ExactCategoryData := pr1 E.
+Definition mk_ExactCategory (ME:ExactCategoryData) (p : ExactCategoryProperties ME) : ExactCategory := ME,,p.
 
 Delimit Scope excat with excat.
 Local Open Scope excat.
@@ -1064,62 +1059,69 @@ Section ExactCategoryAccessFunctions.
     : MorphismPairIsomorphism Q P ⇒ isExact P ⇒ isExact Q
     := pr212 M P Q.
   Definition EC_IdentityIsMono (A:M) : isAdmissibleMonomorphism (identity A)
-    := pr122 M A.
+    := pr1 (pr122 M) A.
   Definition IdentityMono (A:M) : AdmissibleMonomorphism A A
     := identity A,, EC_IdentityIsMono A.
   Definition EC_IdentityIsEpi (A:M) : isAdmissibleEpimorphism (identity A)
-    := pr122 (pr2 M) A.
+    := pr2 (pr122 M) A.
   Definition IdentityEpi (A:M) : AdmissibleEpimorphism A A
     := identity A,, EC_IdentityIsEpi A.
   Definition EC_ExactToKernelCokernel {P : MorphismPair M} :
     isExact P ⇒ isKernelCokernelPair (Mor1 P) (Mor2 P)
-    := pr122 (pr22 M) P.
+    := pr12 (pr22 M) P.
   Definition EC_ExactToKernel {P : MorphismPair M} :
     isExact P ⇒ isKernel' (Mor1 P) (Mor2 P)
-    := λ i, (pr1 (pr122 (pr22 M) P i)).
+    := λ i, (pr1 (EC_ExactToKernelCokernel i)).
   Definition EC_ExactToCokernel {P : MorphismPair M} :
     isExact P ⇒ isCokernel' (Mor1 P) (Mor2 P)
-    := λ i, (pr2 (pr122 (pr22 M) P i)).
+    := λ i, (pr2 (EC_ExactToKernelCokernel i)).
   Definition EC_ComposeMono {A B C:M} (f : A --> B) (g : B --> C) :
     isAdmissibleMonomorphism f -> isAdmissibleMonomorphism g ->
     isAdmissibleMonomorphism (f · g)
-    := pr122 (pr222 M) A B C f g.
+    := pr112 (pr222 M) A B C f g.
   Definition EC_ComposeEpi {A B C:M} (f : A --> B) (g : B --> C) :
     isAdmissibleEpimorphism f ⇒ isAdmissibleEpimorphism g ⇒
     isAdmissibleEpimorphism (f · g)
-    := pr122 (pr222 (pr2 M)) A B C f g.
+    := pr212 (pr222 M) A B C f g.
   Definition EC_PullbackEpi {A B C:M} (f : A --> B) (g : C --> B) :
     isAdmissibleEpimorphism f ⇒
     ∃ (PB : Pullback f g), isAdmissibleEpimorphism (PullbackPr2 PB)
-    := pr122 (pr222 (pr22 M)) A B C f g.
+    := pr122 (pr222 M) A B C f g.
   Definition EC_PushoutMono {A B C:M} (f : B --> A) (g : B --> C) :
     isAdmissibleMonomorphism f ⇒
     ∃ (PO : Pushout f g), isAdmissibleMonomorphism (PushoutIn2 PO)
-    := pr222 (pr222 (pr22 M)) A B C f g.
+    := pr222 (pr222 M) A B C f g.
 End ExactCategoryAccessFunctions.
 
 Section OppositeExactCategory.
+  Definition oppositeExactCategoryData (M:ExactCategoryData) : ExactCategoryData.
+  Proof.
+    exists (M^op).
+    exact (λ p, @isExact M (oppositeMorphismPair (M:=M^op) p)).
+  Defined.
+  Goal ∏ (M:ExactCategoryData), oppositeExactCategoryData (oppositeExactCategoryData M) = M.
+    reflexivity.
+  Qed.
   Definition oppositeExactCategory (M:ExactCategory) : ExactCategory.
   Proof.
-    set (M' := M^op).
-    set (E' := λ p, @isExact M (oppositeMorphismPair (M:=M^op) p)).
-    set (ME := (M',,E') : AddCatWithExactness).
-    use (mk_ExactCategory ME).
+    use (mk_ExactCategory (oppositeExactCategoryData M)).
+    split.
+    { split;intros P Q f.
+      - exact (EC_IsomorphicToExact' (oppositeMorphismPairIsomorphism f)).
+      - exact (EC_IsomorphicToExact (oppositeMorphismPairIsomorphism f)). }
     split.
     { split.
-      * intros P Q f. exact (EC_IsomorphicToExact' (oppositeMorphismPairIsomorphism f)).
-      * intros P Q f. exact (EC_IsomorphicToExact (oppositeMorphismPairIsomorphism f)). }
-    exists EC_IdentityIsEpi.
-    exists EC_IdentityIsMono.
+      - exact EC_IdentityIsEpi.
+      - exact EC_IdentityIsMono. }
     split.
     { intros P i. exact (opposite_isKernelCokernelPair (EC_ExactToKernelCokernel i)). }
     split.
-    { intros A B C f g i j. exact (@EC_ComposeEpi M C B A g f j i). }
-    split.
-    { intros A B C f g i j. exact (@EC_ComposeMono M C B A g f j i). }
-    split.
-    { exact (@EC_PushoutMono M). }
-    { exact (@EC_PullbackEpi M). }
+    { split.
+      { intros A B C f g i j. exact (@EC_ComposeEpi M C B A g f j i). }
+      { intros A B C f g i j. exact (@EC_ComposeMono M C B A g f j i). } }
+    { split.
+      { exact (@EC_PushoutMono M). }
+      { exact (@EC_PullbackEpi M). } }
   Defined.
   Goal ∏ (M:ExactCategory), oppositeExactCategory (oppositeExactCategory M) = M.
   Proof.
