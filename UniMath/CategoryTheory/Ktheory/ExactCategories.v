@@ -1575,3 +1575,32 @@ Section ShortExactSequences.
   Context {M:ExactCategory}.
   Definition ShortExactSequenceMap (P Q:ShortExactSequence M) := MorphismPairMap P Q.
 End ShortExactSequences.
+
+Section AdditiveToExact.
+  Context (M:Additive).
+  Definition isSplit2 {A B C:M} (i:A-->B) (p:B-->C) : hProp :=
+    ∃ (q:A<--B) (j:B<--C), isBinDirectSum M A C B i j q p.
+  Definition isSplit (P : MorphismPair M) : hProp := isSplit2 (Mor1 P) (Mor2 P).
+  Lemma AdditiveExactnessProperties : ExactCategoryProperties (M,,isSplit).
+  Proof.
+    split.
+    - split.
+      + unfold isExact,pr2. intros P Q [f' [f [f'' [[e _] [e' _]]]]] ex.
+        apply (squash_to_hProp ex); clear ex; intros [q [j su]]; apply hinhpr.
+        exists (z_iso_inv f · q · f').
+        exists (z_iso_inv f'' · j · f).
+        split.
+        * intermediate_path (z_iso_inv f' · Mor1 P · q · f').
+          { rewrite 2 assoc. apply (maponpaths (λ k, k·f')).
+            apply (maponpaths (λ k, k·q)). apply pathsinv0.
+            apply z_iso_inv_on_right. rewrite assoc. apply z_iso_inv_on_left. exact e. }
+          { rewrite 2 assoc'. rewrite (assoc _ q _).
+            intermediate_path (z_iso_inv f' · (identity _ · f')).
+            { apply maponpaths. apply (maponpaths (λ k, k·f')). exact (to_IdIn1 su). }
+            { rewrite id_left. apply z_iso_after_z_iso_inv. } }
+        *
+
+
+  Abort.
+End AdditiveToExact.
+
