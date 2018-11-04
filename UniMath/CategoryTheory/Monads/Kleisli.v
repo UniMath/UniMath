@@ -19,9 +19,9 @@ Local Open Scope cat.
 (** * Definition of "Kleisli style" monad *)
 Section Kleisli_def.
 
-  Definition Kleisli (C : precategory) : UU := RelMonad (functor_identity C).
+  Definition Kleisli (C : precategory_data) : UU := RelMonad (functor_identity C).
 
-  Definition RelMonad_from_Kleisli {C : precategory} (T : Kleisli C) := (T : RelMonad (functor_identity C)).
+  Definition RelMonad_from_Kleisli {C : precategory_data} (T : Kleisli C) := (T : RelMonad (functor_identity C)).
   Coercion RelMonad_from_Kleisli : Kleisli >-> RelMonad.
 
 End Kleisli_def.
@@ -37,12 +37,8 @@ Section monad_types_equiv.
     use mk_functor.
     - use mk_functor_data.
       + exact T.
-      + exact (fun (a b : C) (f : a --> b) => r_bind T (f · r_eta T b)).
-    - apply tpair.
-      + intro a; simpl.
-        now rewrite id_left, (r_bind_r_eta T).
-      + intros a b c f g; simpl.
-        now rewrite (r_bind_r_bind T), <- !assoc, (r_eta_r_bind T b).
+      + apply r_lift.
+    - apply is_functor_r_lift.
   Defined.
 
   Definition Kleisli_to_μ {C : precategory} (T: Kleisli C) :
@@ -51,6 +47,7 @@ Section monad_types_equiv.
     use tpair.
     - exact (λ (x : C), r_bind T (identity (T x))).
     - intros x x' f; simpl.
+      unfold r_lift.
       now rewrite (r_bind_r_bind T), <- assoc, (r_eta_r_bind T (T x')), id_right, (r_bind_r_bind T), id_left.
   Defined.
 
@@ -60,6 +57,7 @@ Section monad_types_equiv.
     use tpair.
     - exact (r_eta T).
     - intros x x' f; simpl.
+      unfold r_lift.
       now rewrite (r_eta_r_bind T x).
   Defined.
 
@@ -68,22 +66,20 @@ Section monad_types_equiv.
     use (((Kleisli_to_functor T,, Kleisli_to_μ T) ,, Kleisli_to_η T) ,, _).
     do 2 try apply tpair; intros; simpl.
     - apply (r_eta_r_bind T).
-    - now rewrite (r_bind_r_bind T), <- assoc, (r_eta_r_bind T (T c)), id_right, (r_bind_r_eta T).
-    - now rewrite !(r_bind_r_bind T), id_left, <- assoc, (r_eta_r_bind T (T c)), id_right.
+    - unfold r_lift. now rewrite (r_bind_r_bind T), <- assoc, (r_eta_r_bind T (T c)), id_right, (r_bind_r_eta T).
+    - unfold r_lift. now rewrite !(r_bind_r_bind T), id_left, <- assoc, (r_eta_r_bind T (T c)), id_right.
   Defined.
 
   Proposition Kleisli_to_Monad_to_Kleisli {C : precategory} (hs : has_homsets C) (T : Kleisli C) :
     Monad_to_Kleisli (Kleisli_to_Monad T) = T.
   Proof.
     apply subtypeEquality'.
-    - use total2_paths_f.
-      + apply idpath.
-      + rewrite idpath_transportf.
-        apply dirprod_paths.
-        * apply idpath.
-        * repeat (apply funextsec; unfold homot; intro).
-          simpl; unfold Monads.bind; simpl.
-          now rewrite (r_bind_r_bind T), <- assoc, (r_eta_r_bind T (T x0)), id_right.
+    - apply (maponpaths (λ p, tpair _ _ p )); simpl.
+      apply dirprod_paths.
+      * apply idpath.
+      * repeat (apply funextsec; unfold homot; intro).
+        simpl; unfold Monads.bind; simpl; unfold r_lift.
+        now rewrite (r_bind_r_bind T), <- assoc, (r_eta_r_bind T (T x0)), id_right.
     - do 2 try apply isapropdirprod;
         do 5 try (apply impred; intro);
         apply hs.
@@ -92,20 +88,18 @@ Section monad_types_equiv.
   Lemma Monad_to_Kleisli_to_Monad_raw_data {C : precategory} (T : Monad C) :
     Monad_to_raw_data (Kleisli_to_Monad (Monad_to_Kleisli T)) = Monad_to_raw_data T.
   Proof.
-    use total2_paths_f.
-    - apply idpath.
-    - rewrite idpath_transportf.
-      apply dirprod_paths.
-      + apply dirprod_paths;
+    apply (maponpaths (λ p, tpair _ _ p )); simpl.
+    apply dirprod_paths.
+    + apply dirprod_paths;
         repeat (apply funextsec; unfold homot; intro);
         simpl.
-        * unfold Monads.bind, r_bind, r_eta; simpl.
-          rewrite (functor_comp T), <- assoc.
-          change (# T x1 · (# T (η T x0) · μ T x0) = #T x1).
-          now rewrite (@Monad_law2 C T x0), id_right.
-        * unfold Monads.bind, r_bind; simpl.
-          now rewrite (functor_id T), id_left.
-      + apply idpath.
+      * unfold r_lift, r_bind, r_eta; simpl. unfold Monads.bind.
+        rewrite (functor_comp T), <- assoc.
+        change (# T x1 · (# T (η T x0) · μ T x0) = #T x1).
+        now rewrite (@Monad_law2 C T x0), id_right.
+      * unfold Monads.bind, r_bind; simpl.
+        now rewrite (functor_id T), id_left.
+    + apply idpath.
   Defined.
 
   Definition Monad_to_Kleisli_to_Monad {C : precategory} (hs : has_homsets C) (T : Monad C) :

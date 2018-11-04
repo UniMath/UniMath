@@ -536,12 +536,13 @@ End MBindingSig.
 
 (** Alternative version using [X,SET] instead of SET/X below. There is no proof that the
     functor we obtain using this approach is omega-cocontinuous yet. *)
-Require UniMath.CategoryTheory.DiscreteCategory.
+Require UniMath.CategoryTheory.categories.StandardCategories.
 Require UniMath.CategoryTheory.EquivalencesExamples.
 
 Module alt.
 
-Import UniMath.CategoryTheory.DiscreteCategory.
+Import UniMath.CategoryTheory.Groupoids.
+Import UniMath.CategoryTheory.categories.StandardCategories.
 Import UniMath.CategoryTheory.EquivalencesExamples.
 
 (** * Definition of multisorted binding signatures *)
@@ -551,7 +552,7 @@ Variables (sort : UU) (eq : isdeceq sort). (* Can we eliminate this assumption? 
 Variables (C : category) (BP : BinProducts C) (BC : BinCoproducts C) (TC : Terminal C).
 
 (** Define the discrete category of sorts *)
-Let sort_cat : precategory := discrete_precategory sort.
+Let sort_cat : precategory := path_pregroupoid sort.
 
 Let hsC : has_homsets C := homset_property C.
 
@@ -568,8 +569,7 @@ Proof.
 apply (BinProducts_functor_precat _ _ BP).
 Defined.
 
-Local Definition mk_sortToC (f : sort → C) : sortToC :=
-  functor_discrete_precategory _ _ f.
+Local Definition mk_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid f.
 
 Local Definition proj_gen_fun (D : precategory) (E : category) (d : D) : functor [D,E] E.
 Proof.
@@ -587,7 +587,7 @@ use tpair.
   - apply proj_gen_fun.
   - intros d1 d2 f.
     use tpair.
-    * simpl; intro F; apply (# F f).
+    * red; simpl; intro F; apply (# F f).
     * abstract (intros F G α; simpl in *; apply pathsinv0, (nat_trans_ax α d1 d2 f)).
 + abstract (split;
   [ intros F; simpl; apply nat_trans_eq; [apply homset_property|]; intro G; simpl; apply functor_id
@@ -631,7 +631,7 @@ use tpair.
 + apply (option_fun s).
 + cbn. intros F G α.
   use tpair.
-  * simpl; intro t.
+  * red; simpl; intro t.
     induction (eq s t) as [p|p]; simpl; clear p.
     { apply (BinCoproductOfArrows _ _ _ (α t) (identity _)). }
     { apply α. }
@@ -771,10 +771,10 @@ Local Definition MultiSortedSigToFunctor_fun (M : MultiSortedSig) (CC : ∏ s, C
   : [sort_cat, [[sortToC, sortToC], [sortToC, C]]].
 Proof.
 (* As we're defining a functor out of a discrete category it suffices to give a function: *)
-apply functor_discrete_precategory; intro s.
-use (coproduct_of_functors (indices M s)).
-+ apply Coproducts_functor_precat, CC.
-+ intros y; apply (exp_functors (args M s y)).
+  apply functor_path_pregroupoid; intro s.
+  use (coproduct_of_functors (indices M s)).
+  + apply Coproducts_functor_precat, CC.
+  + intros y; apply (exp_functors (args M s y)).
 Defined.
 
 (* Lemma is_omega_cocont_MultiSortedSigToFunctor_fun *)

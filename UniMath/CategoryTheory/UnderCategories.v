@@ -92,6 +92,7 @@ Section def_underprecategories.
     - intros. apply Under_mor_equality. apply id_left.
     - intros. apply Under_mor_equality. apply id_right.
     - intros. apply Under_mor_equality. apply assoc.
+    - intros. apply Under_mor_equality. apply assoc'.
   Defined.
 
   Definition Undercategory : precategory.

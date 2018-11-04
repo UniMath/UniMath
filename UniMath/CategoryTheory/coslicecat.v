@@ -83,7 +83,9 @@ Proof.
   * apply id_right.
   * intro; apply sets.
   * apply assoc.
-Qed.
+  * intro; apply sets.
+  * apply assoc'.
+Defined.
 
 Definition coslice_precat (sets : ∏ y, isaset (x --> y)) : precategory :=
   (_,,is_precategory_coslice_precat_data sets).

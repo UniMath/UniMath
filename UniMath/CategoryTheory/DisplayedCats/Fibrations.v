@@ -653,7 +653,7 @@ Proof.
   use tpair.
   - intro F.
     cbn. use tpair.
-    + cbn. intro c; apply idfun.
+    + red. cbn. intro c; apply idfun.
     + intros c c' f. cbn in *. apply idpath.
   - abstract (
         intros F G a;

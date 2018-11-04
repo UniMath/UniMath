@@ -12,12 +12,14 @@ Unset Kernel Term Sharing.
 
 (** Imports *)
 
-Require Import UniMath.Algebra.Rigs_and_Rings .
-Require Import UniMath.Algebra.DivisionRig .
-Require Import UniMath.Algebra.Domains_and_Fields .
+Require Import UniMath.Foundations.NaturalNumbers.
+Require Import UniMath.Algebra.RigsAndRings.
+Require Import UniMath.Algebra.DivisionRig.
+Require Import UniMath.Algebra.Domains_and_Fields.
 Require Import UniMath.Algebra.ConstructiveStructures.
 
 Require Import UniMath.MoreFoundations.Tactics.
+Import UniMath.Algebra.Monoids_and_Groups.AddNotation.
 
 (** ** The standard function from the natural numbers to a monoid *)
 

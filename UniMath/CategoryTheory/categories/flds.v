@@ -11,7 +11,7 @@ Require Import UniMath.Foundations.UnivalenceAxiom.
 
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids_and_Groups.
-Require Import UniMath.Algebra.Rigs_and_Rings.
+Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.Domains_and_Fields.
 
 Require Import UniMath.CategoryTheory.Categories.
@@ -53,7 +53,7 @@ Section def_fld_precategory.
 
   Lemma is_precategory_fld_precategory_data : is_precategory fld_precategory_data.
   Proof.
-    use mk_is_precategory.
+    use mk_is_precategory_one_assoc.
     - intros a b f. use fld_id_left.
     - intros a b f. use fld_id_right.
     - intros a b c d f g h. use fld_assoc.

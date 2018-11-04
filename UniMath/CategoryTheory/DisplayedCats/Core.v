@@ -98,6 +98,13 @@ Section Disp_Cat.
 Definition disp_cat_ob_mor (C : precategory_ob_mor)
   := ∑ (obd : C -> UU), (∏ x y:C, obd x -> obd y -> (x --> y) -> UU).
 
+Definition mk_disp_cat_ob_mor
+           (C : precategory_ob_mor)
+           (obd : C -> UU)
+           (mord : ∏ x y:C, obd x -> obd y -> (x --> y) -> UU)
+  : disp_cat_ob_mor C
+  := obd,, mord.
+
 Definition ob_disp {C} (D : disp_cat_ob_mor C) : C -> UU := pr1 D.
 Coercion ob_disp : disp_cat_ob_mor >-> Funclass.
 
@@ -105,7 +112,7 @@ Definition mor_disp {C} {D : disp_cat_ob_mor C}
   {x y} xx yy (f : x --> y)
 := pr2 D x y xx yy f : UU.
 
-Local Notation "xx -->[ f ] yy" := (mor_disp xx yy f) (at level 50, yy at next level).
+Local Notation "xx -->[ f ] yy" := (mor_disp xx yy f) (at level 50, left associativity, yy at next level).
 
 Definition disp_cat_id_comp (C : precategory_data)
   (D : disp_cat_ob_mor C)
@@ -297,7 +304,7 @@ End Lemmas.
 End Disp_Cat.
 
 (** Redeclare sectional notations globally. *)
-Notation "xx -->[ f ] yy" := (mor_disp xx yy f) (at level 50, yy at next level).
+Notation "xx -->[ f ] yy" := (mor_disp xx yy f) (at level 50, left associativity, yy at next level).
 
 Notation "ff ;; gg" := (comp_disp ff gg)
   (at level 50, left associativity, format "ff  ;;  gg")
@@ -855,6 +862,7 @@ Context {C : category} (D : disp_cat C).
 (* TODO: make notations [( ,, )] and [ ;; ] different levels?  ;; should bind tighter, perhaps, and ,, looser? *)
 Lemma total_category_is_precat : is_precategory (total_category_data D).
 Proof.
+  apply is_precategory_one_assoc_to_two.
   repeat apply tpair; simpl.
   - intros xx yy ff; cbn.
     use total2_paths_f; simpl.

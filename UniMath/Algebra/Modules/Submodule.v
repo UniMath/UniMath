@@ -1,7 +1,7 @@
 (** Authors Floris van Doorn, December 2017 *)
 
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Algebra.Rigs_and_Rings.
+Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.Monoids_and_Groups.
 Require Import UniMath.Algebra.Modules.Core.
 
@@ -98,20 +98,18 @@ Lemma issubmodule_kernel {R : ring} {A B : module R} (f : modulefun A B) :
 Proof.
   split.
   - apply abgr_Kernel_subabgr_issubgr.
-  - intros r x. apply hinhfun. cbn. intro p.
-    now rewrite (modulefun_to_islinear f), <- (module_mult_1 r), <- p.
+  - intros r x p.
+    cbn.
+    rewrite (modulefun_to_islinear f).
+    rewrite <- (module_mult_1 r), <- p.
+    reflexivity.
 Defined.
 
 Definition module_kernel {R : ring} {A B : module R} (f : modulefun A B) : submodule A :=
   submodulepair _ (issubmodule_kernel f).
 
-Lemma module_kernel_eq {R : ring} {A B : module R} (f : modulefun A B) x :
-  f (submodule_incl (module_kernel f) x) = unel B.
-Proof.
-  use (squash_to_prop (pr2 x)).
-  - apply isasetmodule.
-  - apply idfun.
-Defined.
+Definition module_kernel_eq {R : ring} {A B : module R} (f : modulefun A B) x :
+  f (submodule_incl (module_kernel f) x) = unel B := (pr2 x).
 
 Lemma issubmodule_image {R : ring} {A B : module R} (f : modulefun A B) :
   issubmodule (abgr_image_hsubtype (modulefun_to_monoidfun f)).
@@ -124,3 +122,28 @@ Defined.
 
 Definition module_image {R : ring} {A B : module R} (f : modulefun A B) : submodule B :=
   submodulepair _ (issubmodule_image f).
+
+Section submodule_helpers.
+
+  Context {R : ring}
+          {M : module R}
+          (A : submodule M).
+
+  Local Notation "x + y" := (@op _ x y).
+  Local Notation "x - y" := (@op _ x (grinv _ y)).
+
+  Definition submoduleadd (x y : M) : A x -> A y -> A (x + y).
+  Proof.
+    intros ax ay.
+    exact (pr1 (pr1 (pr1 (pr2 A))) (carrierpair A x ax) (carrierpair A y ay)).
+  Defined.
+
+  Definition submodule0 : A (unel M) := pr2 (pr1 (pr1 (pr2 A))).
+
+  Definition submoduleinv (x : M) : A x -> A (grinv _ x) := λ ax, (pr2 (pr1 (pr2 A)) x ax).
+
+  Local Open Scope module.
+
+  Definition submodulemult (r : R) (m : M) : A m -> A (r * m) := (pr2 (pr2 A) r m).
+
+End submodule_helpers.

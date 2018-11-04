@@ -30,7 +30,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
 (* (Displayed) Bicategories. *)
-Require Import UniMath.CategoryTheory.Bicategories.Bicat.
+Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.DispBicat.
 Require Import UniMath.CategoryTheory.Bicategories.Constructions.
 Require Import UniMath.CategoryTheory.Bicategories.ContravariantFunctor.
@@ -38,14 +38,12 @@ Require Import UniMath.CategoryTheory.Bicategories.Sigma.
 Require Import UniMath.CategoryTheory.Bicategories.BicatOfCats.
 Require Import UniMath.CategoryTheory.Bicategories.Cofunctormap.
 
-Notation "'PreShv' C" := [C^op,SET] (at level 4) : cat.
-
 Open Scope cat.
 Open Scope mor_disp_scope.
 
 Local Notation "'SET'" := hset_category.
-
-Notation "'Yo'" := (yoneda _ (homset_property _) : functor _ (PreShv _)).
+Local Notation "'PreShv' C" := [C^op,SET] (at level 4) : cat.
+Local Notation "'Yo'" := (yoneda _ (homset_property _) : functor _ (PreShv _)).
 
 Section Yoneda.
 
@@ -184,7 +182,7 @@ End Representation_Morphisms.
 
 Section CwF.
 
-  Definition cwf_disp_cat_ob_mor
+  Definition disp_cwf_cat_ob_mor
     : disp_cat_ob_mor (total_bicat (morphisms_of_preshaves SET)).
   Proof.
     use tpair; cbn.
@@ -200,7 +198,7 @@ Section CwF.
              var_compatibility_type R R' fty ftm Γ A φ).
   Defined.
 
-  Lemma cwf_disp_cat_id_comp_internal
+  Lemma disp_cwf_cat_id_comp_internal
         {C1 : category}
         {Ty1 Tm1 : opp_precat C1 ⟶ hset_precategory}
         (pp1 : Tm1 ⟹ Ty1)
@@ -247,9 +245,9 @@ Section CwF.
     cbn in *. apply tpair.
     - unfold π_compatibility_type. cbn.
       set (fcomp' := fcomp Γ A).
-      destruct fcomp' as (fφ, (π_fcomp, var_fcomp)).
       set (gcomp' := gcomp (f Γ) (fty _ A)).
-      destruct gcomp' as (gφ, (π_gcomp, var_gcomp)).
+      set (π_fcomp := pr12 fcomp').
+      set (π_gcomp := pr12 gcomp').
       unfold π_compatibility_type in π_fcomp, π_gcomp.
       etrans. { apply maponpaths. apply π_fcomp. }
       rewrite functor_comp.
@@ -257,9 +255,11 @@ Section CwF.
       apply π_gcomp.
     - unfold var_compatibility_type. cbn.
       set (fcomp' := fcomp Γ A).
-      destruct fcomp' as (fφ, (π_fcomp, var_fcomp)).
       set (gcomp' := gcomp (f Γ) (fty _ A)).
-      destruct gcomp' as (gφ, (π_gcomp, var_gcomp)).
+      set (fφ := pr1 fcomp').
+      set (gφ := pr1 gcomp').
+      set (var_fcomp := pr22 fcomp').
+      set (var_gcomp := pr22 gcomp').
       unfold var_compatibility_type in var_fcomp, var_gcomp.
       cbn in *.
       rewrite <- var_fcomp.
@@ -276,8 +276,8 @@ Section CwF.
       exact var_gcomp.
   Qed.
 
-  Definition cwf_disp_cat_id_comp
-    : disp_cat_id_comp _ cwf_disp_cat_ob_mor.
+  Definition disp_cwf_cat_id_comp
+    : disp_cat_id_comp _ disp_cwf_cat_ob_mor.
   Proof.
     apply tpair. cbn.
     - intros (C, ((Ty, Tm), p)).
@@ -305,28 +305,28 @@ Section CwF.
       use tpair.
       + unfold isoext_type. cbn.
         specialize (fcomp Γ A).
-        destruct fcomp as (fφ, (π_fcomp, var_fcomp)).
+        set (fφ := pr1 fcomp).
         unfold isoext_type in fφ.
         specialize (gcomp (f Γ) (fty _ A)).
-        destruct gcomp as (gφ, (π_gcomp, var_gcomp)).
+        set (gφ := pr1 gcomp).
         unfold isoext_type in gφ.
         exact (iso_comp (functor_on_iso g fφ) gφ).
-      + pose (rmk := @cwf_disp_cat_id_comp_internal). cbn in rmk.
+      + pose (rmk := @disp_cwf_cat_id_comp_internal). cbn in rmk.
         apply rmk; [exact feq | exact geq].
   Defined.
 
-  Definition cwf_disp_cat_data
+  Definition disp_cwf_cat_data
     : disp_cat_data (total_bicat (morphisms_of_preshaves SET))
-    := (_ ,, cwf_disp_cat_id_comp).
+    := (_ ,, disp_cwf_cat_id_comp).
 
-  Definition cwf_disp : disp_prebicat _
-    := cell_unit_disp_prebicat cwf_disp_cat_data.
+  Definition disp_cwf : disp_prebicat _
+    := disp_cell_unit_prebicat disp_cwf_cat_data.
 
 (*
-  Definition cwf_disp_prebicat_1_id_comp_cells
+  Definition disp_cwf_prebicat_1_id_comp_cells
     : disp_prebicat_1_id_comp_cells (total_bicat (morphisms_of_preshaves SET)).
   Proof.
-    exists cwf_disp_cat_data. red. cbn.
+    exists disp_cwf_cat_data. red. cbn.
     intros.
       (*
     intros (C, ((Ty, Tm), pp)).
