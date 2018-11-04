@@ -135,7 +135,7 @@ TAGS : Makefile $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
 FILES_FILTER := grep -vE '^[[:space:]]*(\#.*)?$$'
 FILES_FILTER_2 := grep -vE '^[[:space:]]*(\#.*)?$$$$'
 $(foreach P,$(PACKAGES),												\
-	$(eval $P: check-first build/CoqMakefile.make;									\
+	$(eval $P: make-first check-first build/CoqMakefile.make;									\
 		+$(MAKE) -f build/CoqMakefile.make									\
 			$(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\).v=UniMath/$P/\1.vo=" )	\
 			UniMath/$P/All.vo))
