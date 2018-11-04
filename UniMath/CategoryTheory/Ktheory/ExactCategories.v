@@ -136,6 +136,32 @@ Section Precategories.             (* move upstream *)
   Goal ∏ (C:precategory) (a b:C) (f:iso a b), opp_iso (opp_iso f) = f.
     Fail reflexivity.
   Abort.
+  Lemma cancel_z_iso {M:precategory} {x y z : M} (f f' : x --> y) (g : z_iso y z) :
+    f · g = f' · g -> f = f'.
+  Proof.
+    intros e.
+    refine (_ @ maponpaths (λ k, k · z_iso_inv g) e @ _).
+    - rewrite assoc'. rewrite z_iso_inv_after_z_iso. rewrite id_right. reflexivity.
+    - rewrite assoc'. rewrite z_iso_inv_after_z_iso. rewrite id_right. reflexivity.
+  Qed.
+  Lemma cancel_z_iso' {M:precategory} {w x y : M} (g : z_iso w x) (f f' : x --> y) :
+    g · f = g · f' -> f = f'.
+  Proof.
+    intros e.
+    refine (_ @ maponpaths (λ k, z_iso_inv g · k) e @ _).
+    - rewrite assoc. rewrite z_iso_inv_after_z_iso. rewrite id_left. reflexivity.
+    - rewrite assoc. rewrite z_iso_inv_after_z_iso. rewrite id_left. reflexivity.
+  Qed.
+  Lemma wrap_inverse {M:precategory} {x y : M} (g : hom M x x) (f : z_iso x y) :
+    g = identity x -> z_iso_inv f · g · f = identity y.
+  Proof.
+    intros e. rewrite e. rewrite id_right. apply z_iso_after_z_iso_inv.
+  Defined.
+  Lemma wrap_inverse' {M:precategory} {x y : M} (g : hom M x x) (f : z_iso y x) :
+    g = identity x -> f · g · z_iso_inv f = identity y.
+  Proof.
+    intros e. rewrite e. rewrite id_right. apply z_iso_inv_after_z_iso.
+  Defined.
 End Precategories.
 
 Section MorphismPairs.          (* move upstream *)
@@ -390,6 +416,46 @@ Section PreAdditive.
   Proof.
     reflexivity.
   Defined.
+  Lemma zeroLeft {M:PreAdditive} {a b c : M} (f : b --> c) : ((0 : a --> b) · f = 0)%abgrcat.
+  Proof.
+    apply to_postmor_unel'.
+  Defined.
+  Lemma zeroRight {M:PreAdditive} {a b c : M} (f : a --> b) : f · (0 : b --> c) = 0.
+  Proof.
+    apply to_premor_unel'.
+  Defined.
+  Definition leftCompIsHomo {M:PreAdditive} {a b : M} (f : a --> b) (c:M) : ismonoidfun (to_premor c f)
+    := @to_premor_monoid _ M _ _ _ _.
+  Definition rightCompIsHomo {M:PreAdditive} {b c : M} (a:M) (f : b --> c) : ismonoidfun (to_postmor a f)
+    := @to_postmor_monoid _ M _ _ _ _.
+  Definition leftCompHomo {M:PreAdditive} {a b : M} (f : a --> b) (c:M) : monoidfun (b-->c) (a-->c)
+    := to_premor c f,, to_premor_monoid M _ _ _ f.
+  Definition rightCompHomo {M:PreAdditive} {b c : M} (a:M) (f : b --> c) : monoidfun (a-->b) (a-->c)
+    := to_postmor a f,, to_postmor_monoid M _ _ _ f.
+  Lemma DirectSumIn1Pr2 {M:PreAdditive} {a b:M} (S:BinDirectSum a b) : to_In1 S · to_Pr2 S = 0.
+  Proof.
+    exact (to_Unel1 S).
+  Defined.
+  Lemma DirectSumIn2Pr1 {M:PreAdditive} {a b:M} (S:BinDirectSum a b) : to_In2 S · to_Pr1 S = 0.
+  Proof.
+    exact (to_Unel2 S).
+  Defined.
+  Lemma rightDistribute {M:PreAdditive} {a b c : M} (f : a --> b) (g h : b --> c) : f · (g + h) = f · g + f · h.
+  Proof.
+    apply leftCompIsHomo.
+  Qed.
+  Lemma leftDistribute {M:PreAdditive} {a b c : M} (f g : a --> b) (h : b --> c) : (f + g) · h = f · h + g · h.
+  Proof.
+    apply rightCompIsHomo.
+  Qed.
+  Lemma rightMinus {M:PreAdditive} {a b c : M} (f : a --> b) (g : b --> c) : f · (- g) = - (f·g).
+  Proof.
+    exact (monoidfuninvtoinv (leftCompHomo f c) g).
+  Qed.
+  Lemma leftMinus {M:PreAdditive} {a b c : M} (f : a --> b) (g : b --> c) : (- f) · g = - (f·g).
+  Proof.
+    exact (monoidfuninvtoinv (rightCompHomo a g) f).
+  Qed.
 End PreAdditive.
 
 Section DirectSums.
@@ -412,6 +478,34 @@ Section DirectSums.
   Goal ∏ (M:PreAdditive) (A B:M) (AB : BinDirectSum A B), reverseBinDirectSum (reverseBinDirectSum AB) = AB.
     Fail reflexivity.
   Abort.
+  Definition isTrivialDirectSum {M : PreAdditive} (Z:Zero M) (A:M) :
+    isBinDirectSum M A Z A 1 0 1 0.
+  Proof.
+    repeat split; cbn.
+    - apply id_right.
+    - apply ArrowsToZero.
+    - apply ArrowsToZero.
+    - apply ArrowsFromZero.
+    - rewrite id_right. rewrite zeroRight. rewrite rewrite_op. rewrite runax. reflexivity.
+  Qed.
+  Definition TrivialDirectSum {M : PreAdditive} (Z:Zero M) (A:M) : BinDirectSum A Z.
+  Proof.
+    exact (mk_BinDirectSum _ _ _ _ _ _ _ _ (isTrivialDirectSum _ _)).
+  Defined.
+  Definition isTrivialDirectSum' {M : PreAdditive} (Z:Zero M) (A:M) :
+    isBinDirectSum M Z A A 0 1 0 1.
+  Proof.
+    repeat split; cbn.
+    - apply ArrowsToZero.
+    - apply id_right.
+    - apply ArrowsFromZero.
+    - apply ArrowsToZero.
+    - rewrite id_right. rewrite zeroRight. rewrite rewrite_op. rewrite lunax. reflexivity.
+  Qed.
+  Definition TrivialDirectSum' {M : PreAdditive} (Z:Zero M) (A:M) : BinDirectSum Z A.
+  Proof.
+    exact (mk_BinDirectSum _ _ _ _ _ _ _ _ (isTrivialDirectSum' _ _)).
+  Defined.
 End DirectSums.
 
 Section AdditiveBasics.         (* move upstream *)
@@ -425,22 +519,6 @@ Section AdditiveBasics.         (* move upstream *)
   Definition to_BinDirectSums' {A : Additive'} : hasBinDirectSums A := pr22 A.
 
   Context {M : Additive'}.
-  Lemma zeroLeft {a b c : M} (f : b --> c) : ((0 : a --> b) · f = 0)%abgrcat.
-  Proof.
-    apply to_postmor_unel'.
-  Defined.
-  Lemma zeroRight {a b c : M} (f : a --> b) : f · (0 : b --> c) = 0.
-  Proof.
-    apply to_premor_unel'.
-  Defined.
-  Definition leftCompIsHomo {a b : M} (f : a --> b) (c:M) : ismonoidfun (to_premor c f)
-    := @to_premor_monoid _ M _ _ _ _.
-  Definition rightCompIsHomo {b c : M} (a:M) (f : b --> c) : ismonoidfun (to_postmor a f)
-    := @to_postmor_monoid _ M _ _ _ _.
-  Definition leftCompHomo {a b : M} (f : a --> b) (c:M) : monoidfun (b-->c) (a-->c)
-    := to_premor c f,, to_premor_monoid M _ _ _ f.
-  Definition rightCompHomo {b c : M} (a:M) (f : b --> c) : monoidfun (a-->b) (a-->c)
-    := to_postmor a f,, to_postmor_monoid M _ _ _ f.
 End AdditiveBasics.
 
 Local Notation "A ⊕ B" := (to_BinDirectSums' A B) : addcat.
@@ -468,30 +546,6 @@ Section AdditiveCategories.     (* move upstream *)
   Local Open Scope addmonoid.
   Local Open Scope abgr.
   Local Open Scope abgrcat.
-  Lemma DirectSumIn1Pr2 {M:Additive'} {a b:M} (S:BinDirectSum a b) : to_In1 S · to_Pr2 S = 0.
-  Proof.
-    exact (to_Unel1 S).
-  Defined.
-  Lemma DirectSumIn2Pr1 {M:Additive'} {a b:M} (S:BinDirectSum a b) : to_In2 S · to_Pr1 S = 0.
-  Proof.
-    exact (to_Unel2 S).
-  Defined.
-  Lemma rightDistribute {M:Additive'} {a b c : M} (f : a --> b) (g h : b --> c) : f · (g + h) = f · g + f · h.
-  Proof.
-    apply leftCompIsHomo.
-  Qed.
-  Lemma leftDistribute {M:Additive'} {a b c : M} (f g : a --> b) (h : b --> c) : (f + g) · h = f · h + g · h.
-  Proof.
-    apply rightCompIsHomo.
-  Qed.
-  Lemma rightMinus {M:Additive'} {a b c : M} (f : a --> b) (g : b --> c) : f · (- g) = - (f·g).
-  Proof.
-    exact (monoidfuninvtoinv (leftCompHomo f c) g).
-  Qed.
-  Lemma leftMinus {M:Additive'} {a b c : M} (f : a --> b) (g : b --> c) : (- f) · g = - (f·g).
-  Proof.
-    exact (monoidfuninvtoinv (rightCompHomo a g) f).
-  Qed.
   Lemma ThroughZeroIsZero {M:Additive'} (a b:M) (Z : Zero M) (f : a --> Z) (g : Z --> b) : f · g = 0.
   Proof.
     intermediate_path ((0:a-->Z) · g).
@@ -869,34 +923,6 @@ Section KernelCokernelPairs.
       + clear H. intros k e. induction e. rewrite assoc. rewrite (to_IdIn2 S).
         exact (! id_left _).
   Qed.
-  Definition isTrivialDirectSum {M : Additive'} (Z:Zero M) (A:M) :
-    isBinDirectSum M A Z A 1 0 1 0.
-  Proof.
-    repeat split; cbn.
-    - apply id_right.
-    - apply ArrowsToZero.
-    - apply ArrowsToZero.
-    - apply ArrowsFromZero.
-    - rewrite id_right. rewrite zeroRight. rewrite rewrite_op. rewrite runax. reflexivity.
-  Qed.
-  Definition TrivialDirectSum {M : Additive'} (Z:Zero M) (A:M) : BinDirectSum A Z.
-  Proof.
-    exact (mk_BinDirectSum _ _ _ _ _ _ _ _ (isTrivialDirectSum _ _)).
-  Defined.
-  Definition isTrivialDirectSum' {M : Additive'} (Z:Zero M) (A:M) :
-    isBinDirectSum M Z A A 0 1 0 1.
-  Proof.
-    repeat split; cbn.
-    - apply ArrowsToZero.
-    - apply id_right.
-    - apply ArrowsFromZero.
-    - apply ArrowsToZero.
-    - rewrite id_right. rewrite zeroRight. rewrite rewrite_op. rewrite lunax. reflexivity.
-  Qed.
-  Definition TrivialDirectSum' {M : Additive'} (Z:Zero M) (A:M) : BinDirectSum Z A.
-  Proof.
-    exact (mk_BinDirectSum _ _ _ _ _ _ _ _ (isTrivialDirectSum' _ _)).
-  Defined.
   Lemma kerCoker10 {M : Additive'} (Z:Zero M) (A:M) : isKernelCokernelPair (identity A) (0 : A --> Z).
   Proof.
     exact (kerCokerDirectSum (TrivialDirectSum Z A)).
@@ -1720,30 +1746,67 @@ Section ShortExactSequences.
   Definition ShortExactSequenceMap (P Q:ShortExactSequence M) := MorphismPairMap P Q.
 End ShortExactSequences.
 
-Section AdditiveToExact.
-  Context (M:Additive').
+Section SplitSequences.
+  Local Open Scope addmonoid.
+  Local Open Scope abgr.
+  Open Scope abgrcat.
+  Context {M:PreAdditive}.
   Definition isSplit2 {A B C:M} (i:A-->B) (p:B-->C) : hProp :=
     ∃ (q:A<--B) (j:B<--C), isBinDirectSum M A C B i j q p.
   Definition isSplit (P : MorphismPair M) : hProp := isSplit2 (Mor1 P) (Mor2 P).
+  Lemma IsomorphicToSplit (P Q : MorphismPair M) :
+    MorphismPairIsomorphism P Q ⇒ isSplit P ⇒ isSplit Q.
+  Proof.
+    intros [f' [f [f'' [[e _] [e' _]]]]] ex.
+    apply (squash_to_hProp ex); clear ex; intros [q [j su]]; apply hinhpr.
+    exists (z_iso_inv f · q · f').
+    exists (z_iso_inv f'' · j · f).
+    split.
+    { intermediate_path (z_iso_inv f' · Mor1 P · q · f').
+      { rewrite 2 assoc. apply (maponpaths (λ k, k·f')).
+        apply (maponpaths (λ k, k·q)). apply pathsinv0.
+        apply z_iso_inv_on_right. rewrite assoc. apply z_iso_inv_on_left. exact e. }
+      { rewrite 2 assoc'. rewrite (assoc _ q _).
+        intermediate_path (z_iso_inv f' · (identity _ · f')).
+        { apply maponpaths. apply (maponpaths (λ k, k·f')). exact (to_IdIn1 su). }
+        { rewrite id_left. apply z_iso_after_z_iso_inv. } } }
+    split.
+    { rewrite assoc'. rewrite e'.  rewrite assoc. rewrite (assoc' _ j _).
+      apply wrap_inverse. apply (to_IdIn2 su). }
+    split.
+    { assert (r := to_Unel1 su); unfold to_unel in r.
+      assert (r' := maponpaths (λ t, t · f'') r); cbn in r'; clear r.
+      rewrite assoc' in r'. rewrite <- e' in r'. rewrite assoc in r'.
+      rewrite <- e in r'. assert (r'' := maponpaths (λ t, z_iso_inv f' · t) r'); clear r'; cbn in r''.
+      rewrite 2 assoc in r''. rewrite z_iso_after_z_iso_inv in r''.
+      rewrite assoc' in r''. rewrite id_left in r''. rewrite zeroLeft,zeroRight in r''.
+      exact r''. }
+    split.
+    { rewrite 2 assoc. rewrite (assoc' _ f _). rewrite z_iso_inv_after_z_iso.
+      rewrite id_right. rewrite (assoc' _ j _). rewrite (to_Unel2 su).
+      unfold to_unel. rewrite zeroRight, zeroLeft. reflexivity. }
+    { apply (cancel_z_iso' f). rewrite id_right. rewrite rightDistribute.
+      rewrite 3 (assoc f). rewrite z_iso_inv_after_z_iso, id_left.
+      rewrite assoc'. rewrite e. rewrite assoc.
+      rewrite (assoc f). rewrite e'. rewrite (assoc' _ f'').
+      rewrite 2 (assoc f''). rewrite z_iso_inv_after_z_iso, id_left. rewrite assoc.
+      rewrite <- leftDistribute. rewrite (to_BinOpId' su). rewrite id_left. reflexivity. }
+  Qed.
+End SplitSequences.
+
+Section AdditiveToExact.
+  Context (M:Additive').
   Lemma AdditiveExactnessProperties : ExactCategoryProperties (M,,isSplit).
   Proof.
-    split.
+    split;unfold ECD_to_AC,pr1.
     - split.
-      + unfold isExact,pr2. intros P Q [f' [f [f'' [[e _] [e' _]]]]] ex.
-        apply (squash_to_hProp ex); clear ex; intros [q [j su]]; apply hinhpr.
-        exists (z_iso_inv f · q · f').
-        exists (z_iso_inv f'' · j · f).
-        split.
-        * intermediate_path (z_iso_inv f' · Mor1 P · q · f').
-          { rewrite 2 assoc. apply (maponpaths (λ k, k·f')).
-            apply (maponpaths (λ k, k·q)). apply pathsinv0.
-            apply z_iso_inv_on_right. rewrite assoc. apply z_iso_inv_on_left. exact e. }
-          { rewrite 2 assoc'. rewrite (assoc _ q _).
-            intermediate_path (z_iso_inv f' · (identity _ · f')).
-            { apply maponpaths. apply (maponpaths (λ k, k·f')). exact (to_IdIn1 su). }
-            { rewrite id_left. apply z_iso_after_z_iso_inv. } }
-        *
-
+      { intros P Q. apply IsomorphicToSplit. }
+      { intros P Q i e. use IsomorphicToSplit.
+        2 : { exact (InverseMorphismPairIsomorphism i). }
+        exact e. }
+    - split.
+      { split.
+        {
 
   Abort.
 End AdditiveToExact.
