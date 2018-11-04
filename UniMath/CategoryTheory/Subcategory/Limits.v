@@ -38,19 +38,40 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.Subcategory.Core.
 Require Import UniMath.CategoryTheory.Subcategory.Full.
 
+Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.initial.
 
 Local Open Scope cat.
 
 Section Limits.
 
-Context {C : category} (C' : hsubtype (ob C)).
-
 (** ** Limits *)
+
+(** *** Terminal objects *)
+
+(** As long as the predicate holds for the terminal object, it's terminal in the full subcategory. *)
+Lemma terminal_in_full_subcategory {C : precategory} (C' : hsubtype (ob C))
+        (TC : Terminal C) (TC' : C' (TerminalObject TC)) :
+  Terminal (full_sub_precategory C').
+Proof.
+  use tpair.
+  - use precategory_object_in_subcat.
+    + exact (TerminalObject TC).
+    + assumption.
+  - cbn.
+    intros X.
+    use iscontrpair.
+    + use morphism_in_full_subcat.
+      apply TerminalArrow.
+    + intro; apply eq_in_sub_precategory; cbn.
+      apply TerminalArrowUnique.
+Defined.
 
 (** *** Binary products *)
 
-Lemma bin_products_in_full_subcategory (BPC : BinProducts C)
+Lemma bin_products_in_full_subcategory {C : category} (C' : hsubtype (ob C))
+      (BPC : BinProducts C)
       (all : ∏ c1 c2 : ob C, C' c1 -> C' c2 -> C' (BinProductObject _ (BPC c1 c2))) :
   BinProducts (full_sub_precategory C').
 Proof.
@@ -94,5 +115,25 @@ Proof.
 Defined.
 
 (** ** Colimits *)
+
+(** *** Initial objects *)
+
+(** As long as the predicate holds for the initial object, it's initial in the full subcategory. *)
+Lemma initial_in_full_subcategory {C : precategory} (C' : hsubtype (ob C))
+      (IC : Initial C) (IC' : C' (InitialObject IC)) :
+  Initial (full_sub_precategory C').
+Proof.
+  use tpair.
+  - use precategory_object_in_subcat.
+    + exact (InitialObject IC).
+    + assumption.
+  - cbn.
+    intros X.
+    use iscontrpair.
+    + use morphism_in_full_subcat.
+      apply InitialArrow.
+    + intro; apply eq_in_sub_precategory; cbn.
+      apply InitialArrowUnique.
+Defined.
 
 End Limits.

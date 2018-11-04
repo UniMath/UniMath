@@ -167,7 +167,7 @@ Proof.
     apply (@assoc (functor_precategory B C hs)).
   - apply (invmap (LModule_Mor_equiv hs _ _ )).
     apply (@assoc' (functor_precategory B C hs)).
-Defined.
+Qed.
 
 Definition precategory_LModule (C : category) : precategory
   := tpair _ _ (precategory_LModule_axioms C (homset_property C)).
