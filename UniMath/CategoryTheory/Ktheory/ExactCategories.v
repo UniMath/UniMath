@@ -40,6 +40,7 @@ Local Arguments to_Unel2 {_ _ _ _ _ _ _ _}.
 Local Arguments MorphismPair : clear implicits.
 Local Arguments morphism_from_iso {_ _ _}.
 Local Arguments ToBinDirectSum {_ _ _} _ {_}.
+Local Arguments isBinDirectSum {_ _ _ _}.
 
 Local Open Scope logic.
 
@@ -486,8 +487,7 @@ Section DirectSums.
   Goal ∏ (M:PreAdditive) (A B:M) (AB : BinDirectSum A B), reverseBinDirectSum (reverseBinDirectSum AB) = AB.
     Fail reflexivity.
   Abort.
-  Definition isTrivialDirectSum {M : PreAdditive} (Z:Zero M) (A:M) :
-    isBinDirectSum M A Z A 1 0 1 0.
+  Definition isTrivialDirectSum {M : PreAdditive} (Z:Zero M) (A:M) : @isBinDirectSum M A Z A 1 0 1 0.
   Proof.
     repeat split; cbn.
     - apply id_right.
@@ -500,8 +500,7 @@ Section DirectSums.
   Proof.
     exact (mk_BinDirectSum _ _ _ _ _ _ _ _ (isTrivialDirectSum _ _)).
   Defined.
-  Definition isTrivialDirectSum' {M : PreAdditive} (Z:Zero M) (A:M) :
-    isBinDirectSum M Z A A 0 1 0 1.
+  Definition isTrivialDirectSum' {M : PreAdditive} (Z:Zero M) (A:M) : @isBinDirectSum M Z A A 0 1 0 1.
   Proof.
     repeat split; cbn.
     - apply ArrowsToZero.
@@ -741,7 +740,7 @@ Section AdditiveCategories.     (* move upstream *)
   Qed.
   (* One of these should replace to_BinOpId upstream.  Also fix ToBinDirectSumFormula and FromBinDirectSumFormula. *)
   Definition to_BinOpId' {M:PreAdditive} {a b co : M} {i1 : a --> co} {i2 : b --> co} {p1 : co --> a} {p2 : co --> b}
-             (B : isBinDirectSum _ a b co i1 i2 p1 p2) :
+             (B : isBinDirectSum i1 i2 p1 p2) :
     p1 · i1 + p2 · i2 = identity co := to_BinOpId B.
   Definition to_BinOpId'' {M:PreAdditive} {a b : M} (ab : BinDirectSum a b) := to_BinOpId ab.
   Definition SwitchMap {M:PreAdditive} (a b:M) (ab : BinDirectSum a b) (ba : BinDirectSum b a) : ab --> ba := π₁ · ι₂ + π₂ · ι₁.
@@ -1765,9 +1764,42 @@ Section SplitSequences.
   Local Open Scope addmonoid.
   Local Open Scope abgr.
   Local Open Scope abgrcat.
-  Definition isSplit2 {M:PreAdditive} {A B C:M} (i:A-->B) (p:B-->C) : hProp :=
-    ∃ (q:A<--B) (j:B<--C), isBinDirectSum M A C B i j q p.
+  Definition isSplit2 {M:PreAdditive} {A B C:M} (i:A-->B) (q:B-->C) : hProp :=
+    ∃ (p:A<--B) (j:B<--C), isBinDirectSum i j p q.
+  Lemma commax_hom {M:PreAdditive} {A B:M} (f g:A-->B) : f+g = g+f.
+  Proof.
+    exact (commax (A-->B) f g).
+  Qed.
+  Lemma opposite_isSplit2 {M:PreAdditive} {A B C:M} (i:A-->B) (p:B-->C) :
+    isSplit2 i p -> isSplit2 (M := oppositePreAdditive M) p i.
+  Proof.
+    intros s. use (hinhfun _ s); intros [q [j jq]]. exists j. exists q.
+    exists (to_IdIn2 jq). exists (to_IdIn1 jq).
+    exists (to_Unel1 jq). exists (to_Unel2 jq).
+    rewrite commax_hom. exact (to_BinOpId' jq).
+  Qed.
   Definition isSplit {M:PreAdditive} (P : MorphismPair M) : hProp := isSplit2 (Mor1 P) (Mor2 P).
+  Lemma opposite_isSplit {M:PreAdditive} (P : MorphismPair M) :
+    isSplit P -> isSplit (M:=oppositePreAdditive M) (oppositeMorphismPair P).
+  Proof.
+    exact (opposite_isSplit2 _ _).
+  Qed.
+  Definition isSplitMonomorphism {M:PreAdditive} {A B:M} (i : A --> B) : hProp :=
+    ∃ C (p : B --> C), isSplit2 i p.
+  Definition isSplitEpimorphism {M:PreAdditive} {B C:M} (p : B --> C) : hProp :=
+    ∃ A (i : A --> B), isSplit2 i p.
+  Lemma opposite_isSplitMonomorphism {M:PreAdditive} {A B:M} (i : A --> B) :
+    isSplitMonomorphism i -> isSplitEpimorphism (M:=oppositePreAdditive M) i.
+  Proof.
+    intros s. use (hinhfun _ s); clear s. intros [C [p s]].
+    exists C. exists p. exact (opposite_isSplit2 _ _ s).
+  Qed.
+  Lemma opposite_isSplitEpimorphism {M:PreAdditive} {A B:M} (p : A --> B) :
+    isSplitEpimorphism p -> isSplitMonomorphism (M:=oppositePreAdditive M) p.
+  Proof.
+    intros s. use (hinhfun _ s); clear s. intros [C [i s]].
+    exists C. exists i. exact (opposite_isSplit2 _ _ s).
+  Qed.
   Lemma DirectSumToSplit {M:PreAdditive} {A B:M} (AB : BinDirectSum A B) : isSplit2 (to_In1 AB) (to_Pr2 AB).
   Proof.
     exact (hinhpr (π₁,, ι₂,, BinDirectSum_isBinDirectSum M AB)).
@@ -1842,6 +1874,124 @@ Section SplitSequences.
     set (S := mk_BinDirectSum _ _ _ _ _ _ _ _ issum).
     exact (DirectSumToKernel S,,DirectSumToCokernel S).
   Qed.
+  Lemma ComposeSplitMono {M:Additive'} {A B C : M} (i : A --> B) (j : B --> C) :
+    isSplitMonomorphism i ⇒ isSplitMonomorphism j ⇒ isSplitMonomorphism (i · j).
+  Proof.
+    intros s t.
+    apply (squash_to_hProp s); clear s; intros [P [p ip]];cbn in P.
+    apply (squash_to_hProp ip); clear ip; intros [p' [i' ip]].
+    change (M ⟦ B, A ⟧) in p'.
+    change (M ⟦ P, B ⟧) in i'.
+    change (hProptoType (isBinDirectSum i i' p' p)) in ip.
+    apply (squash_to_hProp t); clear t; intros [Q [q jq]];cbn in Q.
+    apply (squash_to_hProp jq); clear jq; intros [q' [j' jq]].
+    change (M ⟦ C, B ⟧) in q'.
+    change (M ⟦ Q, C ⟧) in j'.
+    change (hProptoType (isBinDirectSum j j' q' q)) in jq.
+    apply (squash_to_hProp (to_BinDirectSums' P Q)); intros PQ.
+    apply hinhpr;unfold ECD_to_AC,pr1.
+    exists PQ.
+    Open Scope abgrcat.
+    exists (q' · p · ι₁ + q · ι₂).
+    apply hinhpr.
+    unfold Ob1,Ob2,Ob3,Mor1,Mor2,mk_MorphismPair,dirprod_pr1,dirprod_pr2,dirprodpair,pr1,pr2.
+    exists (q' · p').
+    exists (π₁ · i' · j + π₂ · j').
+    split; unfold eqset; cbn.
+    { rewrite assoc'. rewrite (assoc j). rewrite (to_IdIn1 jq). rewrite id_left.
+      rewrite (to_IdIn1 ip). reflexivity. }
+    { rewrite 3 rewrite_op.
+      split.
+      { rewrite rightDistribute, 2 leftDistribute.
+        rewrite (assoc' q'). rewrite (assoc' _ j).
+        rewrite (assoc j). rewrite (to_IdIn1 jq). rewrite id_left.
+        rewrite assoc'. rewrite (assoc i'). rewrite (to_IdIn2 ip). rewrite id_left.
+        rewrite (assoc _ q'). rewrite (assoc' _ j'). rewrite (to_Unel2 jq).
+        unfold to_unel. rewrite zeroRight, zeroLeft, runax.
+        rewrite (assoc' _ j). rewrite (assoc j). rewrite (to_Unel1 jq). unfold to_unel.
+        rewrite zeroLeft, zeroRight, lunax. rewrite assoc'.
+        rewrite (assoc j'). rewrite (to_IdIn2 jq). rewrite id_left.
+        apply (to_BinOpId PQ). }
+      split.
+      { rewrite rightDistribute. rewrite assoc'. rewrite (assoc' q').
+        rewrite (assoc j). rewrite (to_IdIn1 jq). rewrite id_left.
+        rewrite assoc. rewrite (to_Unel1 ip). unfold to_unel.
+        rewrite zeroLeft. rewrite lunax. rewrite assoc'.
+        rewrite (assoc j). rewrite (to_Unel1 jq). unfold to_unel.
+        rewrite zeroLeft, zeroRight. reflexivity. }
+      split.
+      { rewrite leftDistribute. rewrite assoc'. rewrite (assoc j).
+        rewrite (to_IdIn1 jq). rewrite id_left. rewrite (assoc' _ i').
+        rewrite (to_Unel2 ip). unfold to_unel.
+        rewrite zeroRight. rewrite lunax. rewrite assoc'.
+        rewrite (assoc j'). rewrite (to_Unel2 jq). unfold to_unel.
+        rewrite zeroLeft, zeroRight. reflexivity. }
+      { rewrite rightDistribute, 2 leftDistribute. rewrite assoc.
+        rewrite (assoc' _ i'). rewrite (assoc' _ ι₁). rewrite (assoc ι₁).
+        rewrite (to_IdIn1 PQ). rewrite id_left. rewrite assoc.
+        rewrite (assoc' q). rewrite (assoc _ _ (i' · j)).
+        rewrite (to_Unel2 PQ); unfold to_unel. rewrite zeroLeft, zeroRight, runax.
+        rewrite <- assocax. rewrite <- (leftDistribute _ _ j).
+        rewrite 2 (assoc' q'). rewrite <- (rightDistribute q').
+        rewrite (to_BinOpId' ip). rewrite id_right.
+        rewrite (assoc' _ ι₁). rewrite (assoc ι₁). rewrite (to_Unel1 PQ); unfold to_unel.
+        rewrite zeroLeft, zeroRight, lunax. rewrite (assoc' q).
+        rewrite (assoc ι₂). unfold ECD_to_AC,pr1. rewrite (to_IdIn2 PQ).
+        rewrite id_left. exact (to_BinOpId' jq). } }
+  Qed.
+  Lemma ComposeSplitEpi {M:Additive'} {A B C : M} (p : A --> B) (q : B --> C) :
+    isSplitEpimorphism p ⇒ isSplitEpimorphism q ⇒ isSplitEpimorphism (p · q).
+  Proof.
+    intros r s.
+    exact (opposite_isSplitMonomorphism _
+             (ComposeSplitMono (M:=oppositeAdditiveCategory M)
+                               _ _ (opposite_isSplitEpimorphism _ s) (opposite_isSplitEpimorphism _ r))).
+  Qed.
+  Lemma PullbackSplitEpi {M:Additive'} {A A'' C : M} (q : A --> A'') (g : C --> A'') :
+    isSplitEpimorphism q -> ∃ PB : Pullback q g, isSplitEpimorphism (PullbackPr2 PB).
+  Proof.
+    intros s.
+    apply (squash_to_hProp s); clear s; intros [A' [i e]].
+    apply (squash_to_hProp e); clear e; intros [p [j e]].
+    apply (squash_to_hProp (to_BinDirectSums' A' C)); intros A'C.
+    apply hinhpr.
+    use tpair.
+    - use tpair.
+      + exists A'C. exists (π₁ · i + π₂ · g · j). exact π₂.
+      + simpl. rewrite rewrite_op.
+        use tpair.
+        * rewrite leftDistribute. rewrite (assoc' _ j q). rewrite (to_IdIn2 e).
+          rewrite id_right. rewrite (assoc' _ i q). rewrite (to_Unel1 e); unfold to_unel.
+          rewrite zeroRight, lunax. reflexivity.
+        * intros T r s eqn. apply iscontraprop1.
+          { apply invproofirrelevance. intros h k.
+            apply subtypeEquality.
+            { intros l. apply isapropdirprod;apply to_has_homsets. }
+            induction h as [h [H H']], k as [k [K K']]. simpl.
+            rewrite <- (id_right h), <- (id_right k). rewrite <- (to_BinOpId' A'C).
+            rewrite 2 rightDistribute. rewrite 4 assoc. rewrite H', K'.
+            apply (maponpaths (λ z, z + s · ι₂)). rewrite rightDistribute in H, K.
+            rewrite 3 assoc in H, K. rewrite H' in H. rewrite K' in K.
+            apply (maponpaths (λ z, z · ι₁)).
+            apply (to_In1_isMonic _ (mk_BinDirectSum _ _ _ _ _ _ _ _ e)).
+            change (h · π₁ · i = k · π₁ · i). apply (grrcan (T-->A) (s · g · j)).
+            exact (H @ !K). }
+          exists (r · p · ι₁ + s · ι₂).
+          split.
+          { rewrite leftDistribute, 2 rightDistribute.
+            rewrite assoc'. rewrite (assoc _ _ i). rewrite (to_IdIn1 A'C). rewrite id_left.
+            rewrite (assoc' (r · p)). rewrite 2 (assoc ι₁).
+            rewrite (to_Unel1 A'C); unfold to_unel. rewrite 2 zeroLeft, zeroRight, runax.
+            rewrite (assoc' s). rewrite (assoc ι₂). rewrite (to_Unel2 A'C); unfold to_unel.
+            rewrite zeroLeft, zeroRight, lunax. rewrite 2 assoc. rewrite (assoc' s).
+            rewrite (to_IdIn2 A'C). rewrite id_right. rewrite (!eqn).
+            rewrite 2 assoc'. rewrite <- (rightDistribute r). rewrite (to_BinOpId' e).
+            apply id_right. }
+          { rewrite leftDistribute. rewrite (assoc' (r · p)). rewrite (to_Unel1 A'C); unfold to_unel.
+            rewrite zeroRight, lunax. rewrite assoc'. rewrite (to_IdIn2 A'C).
+            apply id_right. }
+    - cbn. exact (hinhpr(A',,ι₁,, hinhpr (π₁,,ι₂,,BinDirectSum_isBinDirectSum _ A'C))).
+  Qed.
 End SplitSequences.
 
 Section AdditiveToExact.
@@ -1866,70 +2016,10 @@ Section AdditiveToExact.
       { intros P e. exact (isSplitToKernelCokernelPair _ _ e). }
       split.
       { split.
-        { intros A B C i j s t.
-          apply (squash_to_hProp s); clear s; intros [P [p ip]];cbn in P.
-          apply (squash_to_hProp ip); clear ip; intros [p' [i' ip]].
-          change (M ⟦ B, A ⟧) in p'.
-          change (M ⟦ P, B ⟧) in i'.
-          change (hProptoType (isBinDirectSum M A P B i i' p' p)) in ip.
-          apply (squash_to_hProp t); clear t; intros [Q [q jq]];cbn in Q.
-          apply (squash_to_hProp jq); clear jq; intros [q' [j' jq]].
-          change (M ⟦ C, B ⟧) in q'.
-          change (M ⟦ Q, C ⟧) in j'.
-          change (hProptoType (isBinDirectSum M B Q C j j' q' q)) in jq.
-          apply (squash_to_hProp (to_BinDirectSums' P Q)); intros PQ.
-          apply hinhpr;unfold ECD_to_AC,pr1.
-          exists PQ.
-          exists (q' · p · ι₁ + q · ι₂).
-          apply hinhpr.
-          unfold Ob1,Ob2,Ob3,Mor1,Mor2,mk_MorphismPair,dirprod_pr1,dirprod_pr2,dirprodpair,pr1,pr2.
-          exists (q' · p').
-          exists (π₁ · i' · j + π₂ · j').
-          split; unfold eqset; cbn.
-          { rewrite assoc'. rewrite (assoc j). rewrite (to_IdIn1 jq). rewrite id_left.
-            rewrite (to_IdIn1 ip). reflexivity. }
-          { rewrite 3 rewrite_op.
-            split.
-            { rewrite rightDistribute, 2 leftDistribute.
-              rewrite (assoc' q'). rewrite (assoc' _ j).
-              rewrite (assoc j). rewrite (to_IdIn1 jq). rewrite id_left.
-              rewrite assoc'. rewrite (assoc i'). rewrite (to_IdIn2 ip). rewrite id_left.
-              rewrite (assoc _ q'). rewrite (assoc' _ j'). rewrite (to_Unel2 jq).
-              unfold to_unel. rewrite zeroRight, zeroLeft, runax.
-              rewrite (assoc' _ j). rewrite (assoc j). rewrite (to_Unel1 jq). unfold to_unel.
-              rewrite zeroLeft, zeroRight, lunax. rewrite assoc'.
-              rewrite (assoc j'). rewrite (to_IdIn2 jq). rewrite id_left.
-              apply (to_BinOpId PQ). }
-            split.
-            { rewrite rightDistribute. rewrite assoc'. rewrite (assoc' q').
-              rewrite (assoc j). rewrite (to_IdIn1 jq). rewrite id_left.
-              rewrite assoc. rewrite (to_Unel1 ip). unfold to_unel.
-              rewrite zeroLeft. rewrite lunax. rewrite assoc'.
-              rewrite (assoc j). rewrite (to_Unel1 jq). unfold to_unel.
-              rewrite zeroLeft, zeroRight. reflexivity. }
-            split.
-            { rewrite leftDistribute. rewrite assoc'. rewrite (assoc j).
-              rewrite (to_IdIn1 jq). rewrite id_left. rewrite (assoc' _ i').
-              rewrite (to_Unel2 ip). unfold to_unel.
-              rewrite zeroRight. rewrite lunax. rewrite assoc'.
-              rewrite (assoc j'). rewrite (to_Unel2 jq). unfold to_unel.
-              rewrite zeroLeft, zeroRight. reflexivity. }
-            { rewrite rightDistribute, 2 leftDistribute. rewrite assoc.
-              rewrite (assoc' _ i'). rewrite (assoc' _ ι₁). rewrite (assoc ι₁).
-              rewrite (to_IdIn1 PQ). rewrite id_left. rewrite assoc.
-              rewrite (assoc' q). rewrite (assoc _ _ (i' · j)).
-              rewrite (to_Unel2 PQ); unfold to_unel. rewrite zeroLeft, zeroRight, runax.
-              rewrite <- assocax. rewrite <- (leftDistribute _ _ j).
-              rewrite 2 (assoc' q'). rewrite <- (rightDistribute q').
-              rewrite (to_BinOpId' ip). rewrite id_right.
-              rewrite (assoc' _ ι₁). rewrite (assoc ι₁). rewrite (to_Unel1 PQ); unfold to_unel.
-              rewrite zeroLeft, zeroRight, lunax. rewrite (assoc' q).
-              rewrite (assoc ι₂). unfold ECD_to_AC,pr1. rewrite (to_IdIn2 PQ).
-              rewrite id_left. exact (to_BinOpId' jq). } } }
-        { admit. } }
-      split.
+        { exact (@ComposeSplitMono M). }
+        { exact (@ComposeSplitEpi M). } }
+      { split.
+        { admit. }
       { admit. }
-      { admit. }
-  (* Admitted. *)
   Abort.
 End AdditiveToExact.
