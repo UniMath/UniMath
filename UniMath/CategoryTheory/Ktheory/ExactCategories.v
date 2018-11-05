@@ -1992,11 +1992,20 @@ Section SplitSequences.
             apply id_right. }
     - cbn. exact (hinhpr(A',,ι₁,, hinhpr (π₁,,ι₂,,BinDirectSum_isBinDirectSum _ A'C))).
   Qed.
+  Open Scope abgrcat.
+  Lemma PushoutSplitMono {M:Additive'} {A A' C : M} (i : A' --> A) (g : A' --> C) :
+    isSplitMonomorphism i ⇒ ∃ PO : Pushout i g, isSplitMonomorphism (PushoutIn2 PO).
+  Proof.
+    intros s.
+    assert (Q := @PullbackSplitEpi (oppositeAdditiveCategory M) _ _ _ i g (opposite_isSplitMonomorphism _ s)).
+    use (hinhfun _ Q); clear Q; intros [A''C epi].
+    exists (A''C).
+    exact (opposite_isSplitEpimorphism _ epi).
+  Qed.
 End SplitSequences.
 
 Section AdditiveToExact.
-  Context (M:Additive').
-  Lemma AdditiveExactnessProperties : ExactCategoryProperties (M,,isSplit).
+  Lemma AdditiveExactnessProperties (M:Additive') : ExactCategoryProperties (M,,isSplit).
   Proof.
     split;unfold ECD_to_AC,pr1.
     - split.
@@ -2013,13 +2022,15 @@ Section AdditiveToExact.
           apply hinhpr. exists Z. set (Q := TrivialDirectSum' Z A).
           exact (to_In1 Q,, DirectSumToSplit Q). } }
       split.
-      { intros P e. exact (isSplitToKernelCokernelPair _ _ e). }
+      { intros P. exact (isSplitToKernelCokernelPair (Mor1 P) (Mor2 P)). }
       split.
       { split.
         { exact (@ComposeSplitMono M). }
         { exact (@ComposeSplitEpi M). } }
       { split.
-        { admit. }
-      { admit. }
-  Abort.
+        { exact (@PullbackSplitEpi M). }
+        { exact (@PushoutSplitMono M). } }
+  Qed.
+  Definition AdditiveToExact : Additive' -> ExactCategory
+    :=  λ M, mk_ExactCategory (M,,isSplit) (AdditiveExactnessProperties M).
 End AdditiveToExact.
