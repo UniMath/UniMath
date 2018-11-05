@@ -166,6 +166,12 @@ End Precategories.
 
 Section MorphismPairs.          (* move upstream *)
   Context {M : precategory}.
+  Definition rewrite_Ob1 {A B C:M} (i:A-->B) (p:B-->C) : Ob1 (mk_MorphismPair i p) = A
+    := idpath _.
+  Definition rewrite_Ob2 {A B C:M} (i:A-->B) (p:B-->C) : Ob2 (mk_MorphismPair i p) = B
+    := idpath _.
+  Definition rewrite_Ob3 {A B C:M} (i:A-->B) (p:B-->C) : Ob3 (mk_MorphismPair i p) = C
+    := idpath _.
   Lemma reverseCommIsoSquare {P Q P' Q':M} (f:P'-->P) (g:Q'-->Q) (i:z_iso P' Q') (j:z_iso P Q) :
     i · g = f · j -> z_iso_inv i · f = g · z_iso_inv j.
   Proof.
@@ -1860,12 +1866,70 @@ Section AdditiveToExact.
       { intros P e. exact (isSplitToKernelCokernelPair _ _ e). }
       split.
       { split.
-        {
-
-
-
-
+        { intros A B C i j s t.
+          apply (squash_to_hProp s); clear s; intros [P [p ip]];cbn in P.
+          apply (squash_to_hProp ip); clear ip; intros [p' [i' ip]].
+          change (M ⟦ B, A ⟧) in p'.
+          change (M ⟦ P, B ⟧) in i'.
+          change (hProptoType (isBinDirectSum M A P B i i' p' p)) in ip.
+          apply (squash_to_hProp t); clear t; intros [Q [q jq]];cbn in Q.
+          apply (squash_to_hProp jq); clear jq; intros [q' [j' jq]].
+          change (M ⟦ C, B ⟧) in q'.
+          change (M ⟦ Q, C ⟧) in j'.
+          change (hProptoType (isBinDirectSum M B Q C j j' q' q)) in jq.
+          apply (squash_to_hProp (to_BinDirectSums' P Q)); intros PQ.
+          apply hinhpr;unfold ECD_to_AC,pr1.
+          exists PQ.
+          exists (q' · p · ι₁ + q · ι₂).
+          apply hinhpr.
+          unfold Ob1,Ob2,Ob3,Mor1,Mor2,mk_MorphismPair,dirprod_pr1,dirprod_pr2,dirprodpair,pr1,pr2.
+          exists (q' · p').
+          exists (π₁ · i' · j + π₂ · j').
+          split; unfold eqset; cbn.
+          { rewrite assoc'. rewrite (assoc j). rewrite (to_IdIn1 jq). rewrite id_left.
+            rewrite (to_IdIn1 ip). reflexivity. }
+          { rewrite 3 rewrite_op.
+            split.
+            { rewrite rightDistribute, 2 leftDistribute.
+              rewrite (assoc' q'). rewrite (assoc' _ j).
+              rewrite (assoc j). rewrite (to_IdIn1 jq). rewrite id_left.
+              rewrite assoc'. rewrite (assoc i'). rewrite (to_IdIn2 ip). rewrite id_left.
+              rewrite (assoc _ q'). rewrite (assoc' _ j'). rewrite (to_Unel2 jq).
+              unfold to_unel. rewrite zeroRight, zeroLeft, runax.
+              rewrite (assoc' _ j). rewrite (assoc j). rewrite (to_Unel1 jq). unfold to_unel.
+              rewrite zeroLeft, zeroRight, lunax. rewrite assoc'.
+              rewrite (assoc j'). rewrite (to_IdIn2 jq). rewrite id_left.
+              apply (to_BinOpId PQ). }
+            split.
+            { rewrite rightDistribute. rewrite assoc'. rewrite (assoc' q').
+              rewrite (assoc j). rewrite (to_IdIn1 jq). rewrite id_left.
+              rewrite assoc. rewrite (to_Unel1 ip). unfold to_unel.
+              rewrite zeroLeft. rewrite lunax. rewrite assoc'.
+              rewrite (assoc j). rewrite (to_Unel1 jq). unfold to_unel.
+              rewrite zeroLeft, zeroRight. reflexivity. }
+            split.
+            { rewrite leftDistribute. rewrite assoc'. rewrite (assoc j).
+              rewrite (to_IdIn1 jq). rewrite id_left. rewrite (assoc' _ i').
+              rewrite (to_Unel2 ip). unfold to_unel.
+              rewrite zeroRight. rewrite lunax. rewrite assoc'.
+              rewrite (assoc j'). rewrite (to_Unel2 jq). unfold to_unel.
+              rewrite zeroLeft, zeroRight. reflexivity. }
+            { rewrite rightDistribute, 2 leftDistribute. rewrite assoc.
+              rewrite (assoc' _ i'). rewrite (assoc' _ ι₁). rewrite (assoc ι₁).
+              rewrite (to_IdIn1 PQ). rewrite id_left. rewrite assoc.
+              rewrite (assoc' q). rewrite (assoc _ _ (i' · j)).
+              rewrite (to_Unel2 PQ); unfold to_unel. rewrite zeroLeft, zeroRight, runax.
+              rewrite <- assocax. rewrite <- (leftDistribute _ _ j).
+              rewrite 2 (assoc' q'). rewrite <- (rightDistribute q').
+              rewrite (to_BinOpId' ip). rewrite id_right.
+              rewrite (assoc' _ ι₁). rewrite (assoc ι₁). rewrite (to_Unel1 PQ); unfold to_unel.
+              rewrite zeroLeft, zeroRight, lunax. rewrite (assoc' q).
+              rewrite (assoc ι₂). unfold ECD_to_AC,pr1. rewrite (to_IdIn2 PQ).
+              rewrite id_left. exact (to_BinOpId' jq). } } }
+        { admit. } }
+      split.
+      { admit. }
+      { admit. }
+  (* Admitted. *)
   Abort.
-
-
 End AdditiveToExact.
