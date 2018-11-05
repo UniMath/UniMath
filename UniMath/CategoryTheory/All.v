@@ -166,6 +166,7 @@ Require Export UniMath.CategoryTheory.Bicategories.WkCatEnrichment.whiskering.
 Require Export UniMath.CategoryTheory.Bicategories.WkCatEnrichment.Cat.
 Require Export UniMath.CategoryTheory.Bicategories.WkCatEnrichment.internal_equivalence.
 Require Export UniMath.CategoryTheory.Bicategories.WkCatEnrichment.bicategory.
-Require Export UniMath.CategoryTheory.Bicategories.BicategoryFromBicat.
-Require Export UniMath.CategoryTheory.Bicategories.BicatFromBicategory.
+Require Export UniMath.CategoryTheory.Bicategories.BicategoryOfBicat.
+Require Export UniMath.CategoryTheory.Bicategories.BicatOfBicategory.
 Require Export UniMath.CategoryTheory.Bicategories.Graph.
+Require Export UniMath.CategoryTheory.Bicategories.Extras.

@@ -5,8 +5,8 @@
  ********************************************************************************* *)
 
 (* =================================================================================== *)
-(* Every (pre)bicategory of UniMath.CategoryTheory.bicat  is a                         *)
-(* (pre)bicategory of UniMath.CategoryTheory.bicategories.                             *)
+(* Every (pre)bicategory of UniMath.CategoryTheory.Bicat is a                          *)
+(* (pre)bicategory of UniMath.CategoryTheory.WkCatEnrichment.                          *)
 (* =================================================================================== *)
 
 Require Import UniMath.Foundations.All.
@@ -153,7 +153,7 @@ Proof.
     + exact prebicat_prebicategory_coherence.
 Qed.
 
-Definition bicate : prebicategory.
+Definition prebicategory_of_prebicat : prebicategory.
 Proof.
   exists bicate_data. exact is_prebicategory_bicate.
 Defined.
