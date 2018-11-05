@@ -313,7 +313,9 @@ Section OppositeIsoArrows.
   Definition opposite_IsoArrowTo {M:precategory} {A A' B:M} {g : A --> B} {g' : A' --> B} :
     IsoArrowTo g g' -> IsoArrowFrom (M:=M^op) g' g.
   Proof.
-    intros i. use tpair.
+    intros i.
+    Fail exact i.
+    use tpair.
     - exact (opp_z_iso (pr1 i)).
     - cbn. exact (pr2 i).
   Defined.
@@ -546,15 +548,15 @@ Section AdditiveCategories.     (* move upstream *)
   Local Open Scope addmonoid.
   Local Open Scope abgr.
   Local Open Scope abgrcat.
-  Lemma ThroughZeroIsZero {M:Additive'} (a b:M) (Z : Zero M) (f : a --> Z) (g : Z --> b) : f · g = 0.
+  Lemma ThroughZeroIsZero {M:PreAdditive} (a b:M) (Z : Zero M) (f : a --> Z) (g : Z --> b) : f · g = 0.
   Proof.
     intermediate_path ((0:a-->Z) · g).
     - apply (maponpaths (postcomp_with g)). apply ArrowsToZero.
     - apply to_postmor_unel'.
   Qed.
-  Definition elem21 {M:Additive'} {A B:M} (AB : BinDirectSum A B) (f:A-->B) : AB-->AB := 1 + π₁·f·ι₂.
+  Definition elem21 {M:PreAdditive} {A B:M} (AB : BinDirectSum A B) (f:A-->B) : AB-->AB := 1 + π₁·f·ι₂.
   Section Foo.
-    Definition elem21_isiso {M:Additive'} {A B:M} (AB : BinDirectSum A B) (f:A-->B) : is_z_isomorphism (elem21 AB f).
+    Definition elem21_isiso {M:PreAdditive} {A B:M} (AB : BinDirectSum A B) (f:A-->B) : is_z_isomorphism (elem21 AB f).
     Proof.
       exists (1 - π₁·f·ι₂).
       (* Why are these needed to make the goals look nice?  Compare to the dual proof below. *)
@@ -571,8 +573,8 @@ Section AdditiveCategories.     (* move upstream *)
         rewrite (assoc ι₂). rewrite DirectSumIn2Pr1. rewrite zeroLeft. rewrite zeroRight. use grinvunel.
     Defined.
   End Foo.
-  Definition elem12 {M:Additive'} {A B:M} (AB : BinDirectSum A B) (f:B-->A) : AB-->AB := 1 + π₂·f·ι₁.
-  Definition elem12_isiso {M:Additive'} {A B:M} (AB : BinDirectSum A B) (f:B-->A) : is_z_isomorphism (elem12 AB f).
+  Definition elem12 {M:PreAdditive} {A B:M} (AB : BinDirectSum A B) (f:B-->A) : AB-->AB := 1 + π₂·f·ι₁.
+  Definition elem12_isiso {M:PreAdditive} {A B:M} (AB : BinDirectSum A B) (f:B-->A) : is_z_isomorphism (elem12 AB f).
   Proof.
     exists (1 - π₂·f·ι₁). unfold elem12. split.
     - rewrite leftDistribute, 2 rightDistribute. rewrite id_left. refine (_ @ runax (_-->_) _).
@@ -587,21 +589,21 @@ Section AdditiveCategories.     (* move upstream *)
       rewrite (assoc ι₁). rewrite (assoc ι₁). rewrite DirectSumIn1Pr2. rewrite 2 zeroLeft.
       rewrite 2 zeroRight. use grinvunel.
   Defined.
-  Definition isKernel' {M:Additive'} {x y z : M} (f : x --> y) (g : y --> z) : hProp :=
+  Definition isKernel' {M:PreAdditive} {x y z : M} (f : x --> y) (g : y --> z) : hProp :=
     f · g = 0 ∧ ∀ (w : M) (h : w --> y), h · g = 0 ⇒ ∃! φ : w --> x, φ · f = h.
-  Definition hasKernel {M:Additive'} {y z : M} (g : y --> z) : hProp :=
+  Definition hasKernel {M:PreAdditive} {y z : M} (g : y --> z) : hProp :=
     ∃ x (f:x-->y), isKernel' f g.
-  Definition isCokernel' {M:Additive'} {x y z : M} (f : x --> y) (g : y --> z) : hProp :=
+  Definition isCokernel' {M:PreAdditive} {x y z : M} (f : x --> y) (g : y --> z) : hProp :=
     f · g = 0 ∧ ∀ (w : M) (h : y --> w), f · h = 0 ⇒ ∃! φ : z --> w, g · φ = h.
-  Definition hasCokernel {M:Additive'} {x y : M} (f : x --> y) : hProp :=
+  Definition hasCokernel {M:PreAdditive} {x y : M} (f : x --> y) : hProp :=
     ∃ z (g:y-->z), isCokernel' f g.
-  Goal ∏ (M:Additive') (x y z : M) (f : x --> y) (g : y --> z), isKernel' (M:=M) f g = isCokernel' (M:=M^op) g f.
+  Goal ∏ (M:PreAdditive) (x y z : M) (f : x --> y) (g : y --> z), isKernel' (M:=M) f g = isCokernel' (M:=oppositePreAdditive M) g f.
     reflexivity.
   Defined.
-  Goal ∏ (M:Additive') (x y z : M) (f : x --> y) (g : y --> z), isCokernel' (M:=M) f g = isKernel' (M:=M^op) g f.
+  Goal ∏ (M:PreAdditive) (x y z : M) (f : x --> y) (g : y --> z), isCokernel' (M:=M) f g = isKernel' (M:=oppositePreAdditive M) g f.
     reflexivity.
   Defined.
-  Lemma KernelIsMonic {M:Additive'} {x y z:M} (f : x --> y) (g : y --> z) : isKernel' f g -> isMonic f.
+  Lemma KernelIsMonic {M:PreAdditive} {x y z:M} (f : x --> y) (g : y --> z) : isKernel' f g -> isMonic f.
   Proof.
     intros [t i] w p q e.
     set (T := ∑ r : w --> x, r · f = q · f). assert (ic : isProofIrrelevant T).
@@ -610,11 +612,11 @@ Section AdditiveCategories.     (* move upstream *)
     set (t1 := (p,,e) : T). set (t2 := (q,,idpath _) : T).
     assert (Q := ic t1 t2). exact (maponpaths pr1 Q).
   Qed.
-  Lemma CokernelIsEpi {M:Additive'} {x y z:M} (f : x --> y) (g : y --> z) : isCokernel' f g -> isEpi g.
+  Lemma CokernelIsEpi {M:PreAdditive} {x y z:M} (f : x --> y) (g : y --> z) : isCokernel' f g -> isEpi g.
   Proof.
-    exact (KernelIsMonic (M:=M^op) g f).
+    exact (KernelIsMonic (M:=oppositePreAdditive M) g f).
   Qed.
-  Definition makeMonicKernel {M:Additive'} {x y z : M} (f : x --> y) (g : y --> z) :
+  Definition makeMonicKernel {M:PreAdditive} {x y z : M} (f : x --> y) (g : y --> z) :
     isMonic f -> f · g = 0 ->
     (∏ (w : M) (h : w --> y), h · g = 0 -> ∑ φ : w --> x, φ · f = h) ->
     isKernel' f g.
@@ -625,14 +627,14 @@ Section AdditiveCategories.     (* move upstream *)
       apply subtypeEquality_prop; simpl. apply im. exact (R@!S).
     - apply ex. exact e.
   Qed.
-  Definition makeEpiCokernel {M:Additive'} {x y z : M} (f : x --> y) (g : y --> z) :
+  Definition makeEpiCokernel {M:PreAdditive} {x y z : M} (f : x --> y) (g : y --> z) :
     isEpi g -> f · g = 0 ->
     (∏ (w : M) (h : y --> w), f · h = 0 -> ∑ φ : z --> w, g · φ = h) ->
     isCokernel' f g.
   Proof.
-    exact (makeMonicKernel (M:=M^op) g f).
+    exact (makeMonicKernel (M:=oppositePreAdditive M) g f).
   Qed.
-  Lemma IsoWithKernel {M:Additive'} {x y z z':M} (f : x --> y) (g : y --> z) (h : z --> z') :
+  Lemma IsoWithKernel {M:PreAdditive} {x y z z':M} (f : x --> y) (g : y --> z) (h : z --> z') :
     isKernel' f g -> is_z_isomorphism h -> isKernel' f (g·h).
   Proof.
     intros i j.
@@ -643,22 +645,22 @@ Section AdditiveCategories.     (* move upstream *)
       refine (post_comp_with_iso_is_inj _ _ _ h (is_iso_from_is_z_iso h j) _ _ _ _).
       refine (! assoc _ _ _ @ e @ ! zeroLeft _).
   Qed.
-  Lemma IsoWithCokernel {M:Additive'} {x x' y z:M} (f : x --> y) (g : y --> z) (h : x' --> x) :
+  Lemma IsoWithCokernel {M:PreAdditive} {x x' y z:M} (f : x --> y) (g : y --> z) (h : x' --> x) :
     isCokernel' f g -> is_z_isomorphism h -> isCokernel' (h·f) g.
   Proof.
-    exact (λ c i, IsoWithKernel (M:=M^op) g f h c (opp_is_z_isomorphism h i)).
+    exact (λ c i, IsoWithKernel (M:=oppositePreAdditive M) g f h c (opp_is_z_isomorphism h i)).
   Qed.
-  Lemma KernelOfZeroMapIsIso {M:Additive'} {x y z:M} (g : x --> y) : isKernel' g (0 : y --> z) -> is_z_isomorphism g.
+  Lemma KernelOfZeroMapIsIso {M:PreAdditive} {x y z:M} (g : x --> y) : isKernel' g (0 : y --> z) -> is_z_isomorphism g.
   (* compare with KernelofZeroArrow_is_iso *)
   Proof.
     intros [_ ke]. use (is_z_iso_from_is_iso' M). intros T h. exact (ke _ _ (zeroRight _)).
   Defined.
-  Lemma CokernelOfZeroMapIsIso {M:Additive'} {x y z:M} (g : y --> z) : isCokernel' (0 : x --> y) g -> is_z_isomorphism g.
+  Lemma CokernelOfZeroMapIsIso {M:PreAdditive} {x y z:M} (g : y --> z) : isCokernel' (0 : x --> y) g -> is_z_isomorphism g.
   (* compare with CokernelofZeroArrow_is_iso *)
   Proof.
     intros [_ co]. use is_z_iso_from_is_iso. intros T h. exact (co _ _ (zeroLeft _)).
   Defined.
-  Lemma KernelUniqueness {M:Additive'} {x x' y z : M} {f : x --> y} {f' : x' --> y} {g : y --> z} :
+  Lemma KernelUniqueness {M:PreAdditive} {x x' y z : M} {f : x --> y} {f' : x' --> y} {g : y --> z} :
     isKernel' f g -> isKernel' f' g -> iscontr (IsoArrowTo f f').
   Proof.
     intros i j. apply iscontraprop1.
@@ -671,10 +673,17 @@ Section AdditiveCategories.     (* move upstream *)
         * apply (KernelIsMonic _ _ j). rewrite assoc'. rewrite P. rewrite Q. rewrite id_left. reflexivity.
       + cbn. exact P.
   Defined.
-  Lemma CokernelUniqueness {M:Additive'} {x y z z' : M} {f : x --> y} {g : y --> z} {g' : y --> z'} :
+  Lemma CokernelUniqueness {M:PreAdditive} {x y z z' : M} {f : x --> y} {g : y --> z} {g' : y --> z'} :
     isCokernel' f g -> isCokernel' f g' -> iscontr (IsoArrowFrom g g').
   Proof.
-    intros i j. apply iscontraprop1.
+    intros i j.
+    (*
+      The dual proof would go like this:
+      assert (Q := KernelUniqueness (M:=oppositePreAdditive M) i j).
+      generalize Q.
+      Now we would need this: weq (IsoArrowTo g g') (IsoArrowFrom g g')
+     *)
+    apply iscontraprop1.
     - exact (IsoArrowFrom_isaprop M g g' (CokernelIsEpi f g i)).
     - induction (iscontrpr1 (pr2 j _ g (pr1 i))) as [p P].
       induction (iscontrpr1 (pr2 i _ g' (pr1 j))) as [q Q].
@@ -684,7 +693,7 @@ Section AdditiveCategories.     (* move upstream *)
         * apply (CokernelIsEpi _ _ j). rewrite assoc. rewrite P. rewrite Q. rewrite id_right. reflexivity.
       + cbn. exact Q.
   Defined.
-  Lemma DirectSumToPullback {M:Additive'} {A B:M} (S : BinDirectSum A B) (Z : Zero M) :
+  Lemma DirectSumToPullback {M:PreAdditive} {A B:M} (S : BinDirectSum A B) (Z : Zero M) :
     Pullback (0 : A --> Z) (0 : B --> Z).
   Proof.
     use tpair.
@@ -693,7 +702,7 @@ Section AdditiveCategories.     (* move upstream *)
       + apply ArrowsToZero.
       + cbn. intros T f g e. exact (to_isBinProduct M S T f g).
   Defined.
-  Lemma DirectSumToPushout {M:Additive'} {A B:M} (S : BinDirectSum A B) (Z : Zero M) :
+  Lemma DirectSumToPushout {M:PreAdditive} {A B:M} (S : BinDirectSum A B) (Z : Zero M) :
     Pushout (0 : Z --> A) (0 : Z --> B).
   Proof.
     use tpair.
@@ -702,24 +711,24 @@ Section AdditiveCategories.     (* move upstream *)
       + apply ArrowsFromZero.
       + cbn. intros T f g e. exact (to_isBinCoproduct M S T f g).
   Defined.
-  Definition directSumMap {M:Additive'} {a b c d:M} (ac : BinDirectSum a c) (bd : BinDirectSum b d) (f : a --> b) (g : c --> d) : ac --> bd
+  Definition directSumMap {M:PreAdditive} {a b c d:M} (ac : BinDirectSum a c) (bd : BinDirectSum b d) (f : a --> b) (g : c --> d) : ac --> bd
     := BinDirectSumIndAr M f g _ _.
-  Lemma directSumMapEqPr1 {M:Additive'} {a b c d:M} {ac : BinDirectSum a c} {bd : BinDirectSum b d} {f : a --> b} {g : c --> d} :
+  Lemma directSumMapEqPr1 {M:PreAdditive} {a b c d:M} {ac : BinDirectSum a c} {bd : BinDirectSum b d} {f : a --> b} {g : c --> d} :
     directSumMap ac bd f g · π₁ = π₁ · f.
   Proof.
     apply BinDirectSumPr1Commutes.
   Qed.
-  Lemma directSumMapEqPr2 {M:Additive'} {a b c d:M} {ac : BinDirectSum a c} {bd : BinDirectSum b d} {f : a --> b} {g : c --> d} :
+  Lemma directSumMapEqPr2 {M:PreAdditive} {a b c d:M} {ac : BinDirectSum a c} {bd : BinDirectSum b d} {f : a --> b} {g : c --> d} :
     directSumMap ac bd f g · π₂ = π₂ · g.
   Proof.
     apply BinDirectSumPr2Commutes.
   Qed.
-  Lemma directSumMapEqIn1 {M:Additive'} {a b c d:M} {ac : BinDirectSum a c} {bd : BinDirectSum b d} {f : a --> b} {g : c --> d} :
+  Lemma directSumMapEqIn1 {M:PreAdditive} {a b c d:M} {ac : BinDirectSum a c} {bd : BinDirectSum b d} {f : a --> b} {g : c --> d} :
     ι₁ · directSumMap ac bd f g = f · ι₁.
   Proof.
     unfold directSumMap. rewrite BinDirectSumIndArEq. apply BinDirectSumIn1Commutes.
   Qed.
-  Lemma directSumMapEqIn2 {M:Additive'} {a b c d:M} {ac : BinDirectSum a c} {bd : BinDirectSum b d} {f : a --> b} {g : c --> d} :
+  Lemma directSumMapEqIn2 {M:PreAdditive} {a b c d:M} {ac : BinDirectSum a c} {bd : BinDirectSum b d} {f : a --> b} {g : c --> d} :
     ι₂ · directSumMap ac bd f g = g · ι₂.
   Proof.
     unfold directSumMap. rewrite BinDirectSumIndArEq. apply BinDirectSumIn2Commutes.
@@ -729,8 +738,8 @@ Section AdditiveCategories.     (* move upstream *)
              (B : isBinDirectSum _ a b co i1 i2 p1 p2) :
     p1 · i1 + p2 · i2 = identity co := to_BinOpId B.
   Definition to_BinOpId'' {M:PreAdditive} {a b : M} (ab : BinDirectSum a b) := to_BinOpId ab.
-  Definition SwitchMap {M:Additive'} (a b:M) (ab : BinDirectSum a b) (ba : BinDirectSum b a) : ab --> ba := π₁ · ι₂ + π₂ · ι₁.
-  Lemma SwitchMapEqn {M:Additive'} {a b:M} (ab : BinDirectSum a b) (ba : BinDirectSum b a) : SwitchMap a b ab ba · SwitchMap b a ba ab = 1.
+  Definition SwitchMap {M:PreAdditive} (a b:M) (ab : BinDirectSum a b) (ba : BinDirectSum b a) : ab --> ba := π₁ · ι₂ + π₂ · ι₁.
+  Lemma SwitchMapEqn {M:PreAdditive} {a b:M} (ab : BinDirectSum a b) (ba : BinDirectSum b a) : SwitchMap a b ab ba · SwitchMap b a ba ab = 1.
   Proof.
     unfold SwitchMap.
     rewrite <- to_BinOpId''.
@@ -744,11 +753,11 @@ Section AdditiveCategories.     (* move upstream *)
     rewrite zeroLeft, zeroRight, runax.
     reflexivity.
   Defined.
-  Definition SwitchIso {M:Additive'} (a b:M) (ab : BinDirectSum a b) (ba : BinDirectSum b a) : z_iso ab ba.
+  Definition SwitchIso {M:PreAdditive} (a b:M) (ab : BinDirectSum a b) (ba : BinDirectSum b a) : z_iso ab ba.
   Proof.
     exists (SwitchMap _ _ _ _). exists (SwitchMap _ _ _ _). split; apply SwitchMapEqn.
   Defined.
-  Lemma SwitchMapEqnTo {M:Additive'} {a b c:M} (bc : BinDirectSum b c) (cb : BinDirectSum c b) (f:a-->b) (g:a-->c) :
+  Lemma SwitchMapEqnTo {M:PreAdditive} {a b c:M} (bc : BinDirectSum b c) (cb : BinDirectSum c b) (f:a-->b) (g:a-->c) :
     ToBinDirectSum bc f g · SwitchMap b c bc cb = ToBinDirectSum cb g f.
   Proof.
     unfold SwitchMap. apply ToBinDirectSumsEq.
@@ -764,7 +773,7 @@ Section AdditiveCategories.     (* move upstream *)
       rewrite 2 assoc. rewrite BinDirectSumPr1Commutes, BinDirectSumPr2Commutes.
       rewrite assoc'. rewrite (to_IdIn2 cb). rewrite id_right. reflexivity.
   Qed.
-  Lemma SwitchMapMapEqn {M:Additive'} {a b c d:M}
+  Lemma SwitchMapMapEqn {M:PreAdditive} {a b c d:M}
         (ac : BinDirectSum a c) (ca : BinDirectSum c a)
         (bd : BinDirectSum b d) (db : BinDirectSum d b)
         (f : a --> b) (g : c --> d) :
@@ -779,7 +788,7 @@ Section AdditiveCategories.     (* move upstream *)
     rewrite assoc. rewrite directSumMapEqPr2.
     reflexivity.
   Qed.
-  Definition directSumMapSwitch {M:Additive'} {a b c d:M}
+  Definition directSumMapSwitch {M:PreAdditive} {a b c d:M}
         (ac : BinDirectSum a c) (ca : BinDirectSum c a)
         (bd : BinDirectSum b d) (db : BinDirectSum d b)
         (f : a --> b) (g : c --> d) :
@@ -787,25 +796,25 @@ Section AdditiveCategories.     (* move upstream *)
   Proof.
     exists (SwitchIso _ _ _ _). exists (SwitchIso _ _ _ _). apply SwitchMapMapEqn.
   Defined.
-  Lemma opposite_directSumMap {M:Additive'} {a b c d:M}
+  Lemma opposite_directSumMap {M:PreAdditive} {a b c d:M}
         (ac : BinDirectSum a c) (bd : BinDirectSum b d)
         (f : a --> b) (g : c --> d) :
-    directSumMap (M:=M^op) (oppositeBinDirectSum bd) (oppositeBinDirectSum ac) (opp_mor f) (opp_mor g)
+    directSumMap (M:=oppositePreAdditive M) (oppositeBinDirectSum bd) (oppositeBinDirectSum ac) (opp_mor f) (opp_mor g)
     =
     opp_mor (directSumMap ac bd f g).
   Proof.
     apply BinDirectSumIndArEq.
   Qed.
-  Lemma opposite_directSumMap' {M:Additive'} {a b c d:M}
+  Lemma opposite_directSumMap' {M:PreAdditive} {a b c d:M}
         (ac : BinDirectSum a c) (bd : BinDirectSum b d)
         (f : a --> b) (g : c --> d) :
-    opp_mor (directSumMap (M:=M^op) (oppositeBinDirectSum bd) (oppositeBinDirectSum ac) (opp_mor f) (opp_mor g))
+    opp_mor (directSumMap (M:=oppositePreAdditive M) (oppositeBinDirectSum bd) (oppositeBinDirectSum ac) (opp_mor f) (opp_mor g))
     =
     directSumMap ac bd f g.
   Proof.
     apply (maponpaths opp_mor). apply opposite_directSumMap.
   Qed.
-  Lemma SumOfKernels {M:Additive'} {x y z X Y Z : M}
+  Lemma SumOfKernels {M:PreAdditive} {x y z X Y Z : M}
         (xX : BinDirectSum x X) (yY : BinDirectSum y Y) (zZ : BinDirectSum z Z)
         (f : x --> y) (g : y --> z) (f' : X --> Y) (g' : Y --> Z) :
     isKernel' f g -> isKernel' f' g' -> isKernel' (directSumMap xX yY f f') (directSumMap yY zZ g g').
@@ -864,7 +873,7 @@ Section AdditiveCategories.     (* move upstream *)
                @ maponpaths (precomp_with k') directSumMapEqPr2
                @ assoc _ _ _).
   Qed.
-  Lemma SumOfCokernels {M:Additive'} {x y z X Y Z : M}
+  Lemma SumOfCokernels {M:PreAdditive} {x y z X Y Z : M}
         (xX : BinDirectSum x X) (yY : BinDirectSum y Y) (zZ : BinDirectSum z Z)
         (f : x --> y) (g : y --> z) (f' : X --> Y) (g' : Y --> Z) :
     isCokernel' f g -> isCokernel' f' g' -> isCokernel' (directSumMap xX yY f f') (directSumMap yY zZ g g').
@@ -872,36 +881,36 @@ Section AdditiveCategories.     (* move upstream *)
     intros i i'.
     rewrite <- (opposite_directSumMap' xX yY f f').
     rewrite <- (opposite_directSumMap' yY zZ g g').
-    exact (SumOfKernels (M:=M^op) (oppositeBinDirectSum zZ) (oppositeBinDirectSum yY) (oppositeBinDirectSum xX) g f g' f' i i').
+    exact (SumOfKernels (M:=oppositePreAdditive M) (oppositeBinDirectSum zZ) (oppositeBinDirectSum yY) (oppositeBinDirectSum xX) g f g' f' i i').
   Qed.
 End AdditiveCategories.
 Local Notation "f ++ g" := (directSumMap _ _ f g) : addcat.
 Section KernelCokernelPairs.
-  Definition isKernelCokernelPair {M : Additive'} {A B C:M} (i : A --> B) (p: B --> C) : hProp
+  Definition isKernelCokernelPair {M :PreAdditive} {A B C:M} (i : A --> B) (p: B --> C) : hProp
     := isKernel' i p ∧ isCokernel' i p.
-  Definition PairToKernel {M : Additive'} {A B C:M} {i : A --> B} {p: B --> C} :
+  Definition PairToKernel {M :PreAdditive} {A B C:M} {i : A --> B} {p: B --> C} :
     isKernelCokernelPair i p -> isKernel' i p := pr1.
-  Definition PairToCokernel {M : Additive'} {A B C:M} {i : A --> B} {p: B --> C} :
+  Definition PairToCokernel {M :PreAdditive} {A B C:M} {i : A --> B} {p: B --> C} :
     isKernelCokernelPair i p -> isCokernel' i p := pr2.
-  Definition opposite_isKernelCokernelPair {M:Additive'} {A B C:M} {i : A --> B} {p: B --> C} :
-    isKernelCokernelPair i p -> isKernelCokernelPair (M:=M^op) p i.
+  Definition opposite_isKernelCokernelPair {M:PreAdditive} {A B C:M} {i : A --> B} {p: B --> C} :
+    isKernelCokernelPair i p -> isKernelCokernelPair (M:=oppositePreAdditive M) p i.
   Proof.
     intros s.
     split.
     - exact (PairToCokernel s).
     - exact (PairToKernel s).
   Defined.
-  Lemma PairUniqueness1 {M : Additive'} {A A' B C:M} (i : A --> B) (i' : A' --> B) (p: B --> C) :
+  Lemma PairUniqueness1 {M :PreAdditive} {A A' B C:M} (i : A --> B) (i' : A' --> B) (p: B --> C) :
     isKernelCokernelPair i p -> isKernelCokernelPair i' p -> iscontr (IsoArrowTo i i').
   Proof.
     intros [k _] [k' _]. exact (KernelUniqueness k k').
   Defined.
-  Lemma PairUniqueness2 {M : Additive'} {A B C C':M} (i : A --> B) (p: B --> C) (p': B --> C') :
+  Lemma PairUniqueness2 {M :PreAdditive} {A B C C':M} (i : A --> B) (p: B --> C) (p': B --> C') :
     isKernelCokernelPair i p -> isKernelCokernelPair i p' -> iscontr (IsoArrowFrom p p').
   Proof.
     intros [_ c] [_ c']. exact (CokernelUniqueness c c').
   Defined.
-  Lemma kerCokerDirectSum {M : Additive'} {A B:M} (S:BinDirectSum A B) : isKernelCokernelPair (to_In1 S) (to_Pr2 S).
+  Lemma kerCokerDirectSum {M :PreAdditive} {A B:M} (S:BinDirectSum A B) : isKernelCokernelPair (to_In1 S) (to_Pr2 S).
   Proof.
     assert (E := BinDirectSum_isBinDirectSum M S).
     split.
@@ -923,15 +932,15 @@ Section KernelCokernelPairs.
       + clear H. intros k e. induction e. rewrite assoc. rewrite (to_IdIn2 S).
         exact (! id_left _).
   Qed.
-  Lemma kerCoker10 {M : Additive'} (Z:Zero M) (A:M) : isKernelCokernelPair (identity A) (0 : A --> Z).
+  Lemma kerCoker10 {M :PreAdditive} (Z:Zero M) (A:M) : isKernelCokernelPair (identity A) (0 : A --> Z).
   Proof.
     exact (kerCokerDirectSum (TrivialDirectSum Z A)).
   Qed.
-  Lemma kerCoker01 {M : Additive'} (Z:Zero M) (A:M) : isKernelCokernelPair (0 : Z --> A) (identity A).
+  Lemma kerCoker01 {M :PreAdditive} (Z:Zero M) (A:M) : isKernelCokernelPair (0 : Z --> A) (identity A).
   Proof.
     exact (kerCokerDirectSum (TrivialDirectSum' Z A)).
   Qed.
-  Lemma PairPushoutMap {M : Additive'} {A B C A':M} {i : A --> B} {p : B --> C}
+  Lemma PairPushoutMap {M :PreAdditive} {A B C A':M} {i : A --> B} {p : B --> C}
         (pr : isKernelCokernelPair i p)
         (r : A --> A') (po : Pushout i r) :
     ∑ (q : po --> C), PushoutIn1 po · q = p × PushoutIn2 po · q = 0.
@@ -939,33 +948,33 @@ Section KernelCokernelPairs.
     refine (iscontrpr1 (isPushout_Pushout po C p 0 _)).
     refine (pr1 (PairToCokernel pr) @ ! _). apply zeroRight.
   Qed.
-  Lemma PairPullbackMap {M : Additive'} {A B C A':M} {i : A <-- B} {p : B <-- C}
+  Lemma PairPullbackMap {M :PreAdditive} {A B C A':M} {i : A <-- B} {p : B <-- C}
         (pr : isKernelCokernelPair p i)
         (r : A <-- A') (pb : Pullback i r) :
     ∑ (q : pb <-- C), PullbackPr1 pb ∘ q = p × PullbackPr2 pb ∘ q = 0.
   Proof.
     (* giving the dual proof here helps later! *)
-    exact (PairPushoutMap (M:=M^op) (opposite_isKernelCokernelPair pr) r pb).
+    exact (PairPushoutMap (M:=oppositePreAdditive M) (opposite_isKernelCokernelPair pr) r pb).
   Defined.
-  Goal ∏ (M : Additive') (A B C A':M) (i : A <-- B) (p : B <-- C)
+  Goal ∏ (M :PreAdditive) (A B C A':M) (i : A <-- B) (p : B <-- C)
         (pr : isKernelCokernelPair p i)
         (r : A <-- A') (pb : Pullback i r),
     PairPullbackMap pr r pb
     =
-    PairPushoutMap (M:=M^op) (opposite_isKernelCokernelPair pr) r pb.
+    PairPushoutMap (M:=oppositePreAdditive M) (opposite_isKernelCokernelPair pr) r pb.
   Proof.
     reflexivity.
   Defined.
-  Goal ∏ (M : Additive') (A B C A':M) (i : A --> B) (p : B --> C)
+  Goal ∏ (M :PreAdditive) (A B C A':M) (i : A --> B) (p : B --> C)
         (pr : isKernelCokernelPair i p)
         (r : A --> A') (po : Pushout i r),
     PairPushoutMap pr r po
     =
-    PairPullbackMap (M:=M^op) (opposite_isKernelCokernelPair pr) r po.
+    PairPullbackMap (M:=oppositePreAdditive M) (opposite_isKernelCokernelPair pr) r po.
   Proof.
     reflexivity.
   Defined.
-  Lemma PairPushoutCokernel {M : Additive'} {A B C A':M} (i : A --> B) (p : B --> C)
+  Lemma PairPushoutCokernel {M :PreAdditive} {A B C A':M} (i : A --> B) (p : B --> C)
         (pr : isKernelCokernelPair i p)
         (r : A --> A') (po : Pushout i r)
         (j := PushoutIn2 po)
@@ -1749,12 +1758,19 @@ End ShortExactSequences.
 Section SplitSequences.
   Local Open Scope addmonoid.
   Local Open Scope abgr.
-  Open Scope abgrcat.
-  Context {M:PreAdditive}.
-  Definition isSplit2 {A B C:M} (i:A-->B) (p:B-->C) : hProp :=
+  Local Open Scope abgrcat.
+  Definition isSplit2 {M:PreAdditive} {A B C:M} (i:A-->B) (p:B-->C) : hProp :=
     ∃ (q:A<--B) (j:B<--C), isBinDirectSum M A C B i j q p.
-  Definition isSplit (P : MorphismPair M) : hProp := isSplit2 (Mor1 P) (Mor2 P).
-  Lemma IsomorphicToSplit (P Q : MorphismPair M) :
+  Definition isSplit {M:PreAdditive} (P : MorphismPair M) : hProp := isSplit2 (Mor1 P) (Mor2 P).
+  Lemma DirectSumToSplit {M:PreAdditive} {A B:M} (AB : BinDirectSum A B) : isSplit2 (to_In1 AB) (to_Pr2 AB).
+  Proof.
+    exact (hinhpr (π₁,, ι₂,, BinDirectSum_isBinDirectSum M AB)).
+  Qed.
+  Lemma DirectSumToSplit' {M:PreAdditive} {A B:M} (AB : BinDirectSum A B) : isSplit2 (to_In2 AB) (to_Pr1 AB).
+  Proof.
+    exact (hinhpr(π₂,,ι₁,,BinDirectSum_isBinDirectSum M (reverseBinDirectSum AB))).
+  Qed.
+  Lemma IsomorphicToSplit {M:PreAdditive} (P Q : MorphismPair M) :
     MorphismPairIsomorphism P Q ⇒ isSplit P ⇒ isSplit Q.
   Proof.
     intros [f' [f [f'' [[e _] [e' _]]]]] ex.
@@ -1792,6 +1808,34 @@ Section SplitSequences.
       rewrite 2 (assoc f''). rewrite z_iso_inv_after_z_iso, id_left. rewrite assoc.
       rewrite <- leftDistribute. rewrite (to_BinOpId' su). rewrite id_left. reflexivity. }
   Qed.
+  Local Open Scope addmonoid.
+  Local Open Scope abgr.
+  Lemma DirectSumToKernel {M:PreAdditive} {A B:M} (AB : BinDirectSum A B) : isKernel' (to_In1 AB) (to_Pr2 AB).
+  Proof.
+    apply makeMonicKernel.
+    - apply to_In1_isMonic.
+    - exact (to_Unel1 AB).
+    - intros T h e. exists (h · π₁). unfold eqset; cbn. refine (_ @ id_right _).
+      rewrite <- (to_BinOpId AB). rewrite rewrite_op. rewrite rightDistribute.
+      rewrite assoc'. rewrite (assoc _ π₂ _). rewrite e. rewrite zeroLeft. rewrite runax. reflexivity.
+  Defined.
+  Lemma DirectSumToCokernel {M:PreAdditive} {A B:M} (AB : BinDirectSum A B) : isCokernel' (to_In1 AB) (to_Pr2 AB).
+  Proof.
+    apply makeEpiCokernel.
+    - apply to_Pr2_isEpi.
+    - exact (to_Unel1 AB).
+    - intros T h e. exists (ι₂ · h). unfold eqset; cbn. refine (_ @ id_left _).
+      rewrite <- (to_BinOpId AB). rewrite rewrite_op. rewrite leftDistribute.
+      rewrite assoc. rewrite (assoc' _ ι₁ _). rewrite e. rewrite zeroRight. rewrite lunax. reflexivity.
+  Defined.
+  Lemma isSplitToKernelCokernelPair {M:PreAdditive} {A B C:M} (i:A-->B) (p:B-->C) :
+    isSplit2 i p -> isKernelCokernelPair i p.
+  Proof.
+    intros sp.
+    apply (squash_to_hProp sp); clear sp; intros [j [q issum]].
+    set (S := mk_BinDirectSum _ _ _ _ _ _ _ _ issum).
+    exact (DirectSumToKernel S,,DirectSumToCokernel S).
+  Qed.
 End SplitSequences.
 
 Section AdditiveToExact.
@@ -1806,7 +1850,22 @@ Section AdditiveToExact.
         exact e. }
     - split.
       { split.
+        { intros A. apply (squash_to_hProp (to_Zero' M)); intros Z.
+          apply hinhpr. exists Z. set (Q := TrivialDirectSum Z A).
+          exact (to_Pr2 Q,, DirectSumToSplit Q). }
+        { intros A. apply (squash_to_hProp (to_Zero' M)); intros Z.
+          apply hinhpr. exists Z. set (Q := TrivialDirectSum' Z A).
+          exact (to_In1 Q,, DirectSumToSplit Q). } }
+      split.
+      { intros P e. exact (isSplitToKernelCokernelPair _ _ e). }
+      split.
+      { split.
         {
 
+
+
+
   Abort.
+
+
 End AdditiveToExact.
