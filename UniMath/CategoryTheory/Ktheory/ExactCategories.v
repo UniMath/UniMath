@@ -1134,6 +1134,11 @@ Section theDefinition.
     : MorphismPair M
     := pr1 P.
   Definition ShortExactSequenceMap {M:ExactCategory} (P Q:ShortExactSequence M) := MorphismPairMap P Q.
+  Definition applyFunctorToShortExactSequence {M N:ExactCategory} (F : ExactFunctor M N) :
+    ShortExactSequence M -> ShortExactSequence N.
+  Proof.
+    intros E. exists (applyFunctorToPair F E). exact (pr2 F E (pr2 E)).
+  Defined.
 End theDefinition.
 
 Delimit Scope excat with excat.

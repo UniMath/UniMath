@@ -98,6 +98,7 @@ Require Export UniMath.CategoryTheory.category_binops.
 Require Export UniMath.CategoryTheory.AbelianToAdditive.
 Require Export UniMath.CategoryTheory.Morphisms.
 Require Export UniMath.CategoryTheory.Ktheory.ExactCategories.
+Require Export UniMath.CategoryTheory.Ktheory.GrothendieckGroup.
 Require Export UniMath.CategoryTheory.ShortExactSequences.
 Require Export UniMath.CategoryTheory.AdditiveFunctors.
 Require Export UniMath.CategoryTheory.LocalizingClass.

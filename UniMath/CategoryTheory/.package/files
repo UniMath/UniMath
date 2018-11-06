@@ -97,6 +97,7 @@ category_binops.v
 AbelianToAdditive.v
 Morphisms.v
 Ktheory/ExactCategories.v
+Ktheory/GrothendieckGroup.v
 ShortExactSequences.v
 AdditiveFunctors.v
 LocalizingClass.v
