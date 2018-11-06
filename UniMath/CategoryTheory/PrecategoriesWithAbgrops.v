@@ -4,10 +4,6 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.Algebra.Monoids_and_Groups.
-Import AddNotation.
-Import AddGroupNotation.
-Local Open Scope addmonoid.
-Local Open Scope abgr.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Categories.
@@ -75,7 +71,7 @@ Section def_precategory_with_abgrops.
     apply to_lunax.
   Qed.
 
-  Definition to_runax (x y : PA) : isrunit op 0 := runax (to_abgr x y).
+  Definition to_runax (x y : PA) : isrunit op 1%multmonoid := runax (to_abgr x y).
 
   Definition to_runax' (x y : PA) (f : x --> y) : to_binop x y f (to_unel x y) = f.
   Proof.
@@ -204,49 +200,10 @@ Arguments cancel_inv [PA] [x] [y] _ _ _.
 
 Delimit Scope abgrcat with abgrcat.
 Notation "a --> b" := (to_abgr a b) : abgrcat.
-Notation "0" := (unel (to_abgr _ _)) : abgrcat.
-Notation "1" := (identity _) : abgrcat.
-Notation "f = g" := (@eqset (to_abgr _ _) f g) : abgrcat.
-
-Local Open Scope set.
-Local Open Scope addmonoid.
-Local Open Scope abgr.
-Local Open Scope abgrcat.
-
-(* This duplicates notation in addoperation_scope and abgr: *)
-   Notation "f + g" := (@op (to_abgr _ _) f g) : abgrcat.
-   Notation "f - g" := (@op (to_abgr _ _) f (grinv (abgrtogr (to_abgr _ _)) g)) : abgrcat.
-   Notation "- g" := (grinv (to_abgr _ _) g) : abgrcat.
-(* But the duplication is needed, because we want the resulting type to be of the form
-           pr1hSet
-             (pr1setwithbinop
-                (pr1monoid
-                   (grtomonoid
-                      (abgrtogr
-                         (@to_abgr A co co)))))
-   instead of the form
-          @precategory_morphisms
-             (precategory_ob_mor_from_precategory_data
-                (precategory_data_from_precategory
-                   (precategoryWithBinOps_precategory
-                      (categoryWithAbgrops_precategoryWithBinOps A)))) co co
-   so additive operations can be performed on the result.  The sanity section below
-   can be used to experiment with this assertion.
- *)
-
-Section Sanity.
-  Context (M:categoryWithAbgrops) (c:M) (f g:c-->c).
-  Set Printing All.
-  Goal -g=0. Abort.
-  Goal f+g=0. Abort.
-  Goal f+f·f=0. Abort.
-  Goal f·f+f=0. Abort.
-  Goal f·f+f·f=0. Abort.
-  Goal f-g=0. Abort.
-  Goal f-f·f=0. Abort.
-  Goal f·f-f=0. Abort.
-  Goal f·f-f·f=0. Abort.
-End Sanity.
+Notation "f · g" := (compose f g : to_abgr _ _) : abgrcat.
+Notation "1" := (identity _ : to_abgr _ _) : abgrcat.
+Notation "0" := (unel _ : to_abgr _ _) : abgrcat.
+Notation "f = g" := (eqset f g) : abgrcat.
 
 Section transport_morphisms.
 

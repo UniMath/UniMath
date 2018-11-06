@@ -29,9 +29,6 @@ Reserved Notation "x :: y" (at level 60, right associativity). (* originally in 
 
 Reserved Notation "x ++ y" (at level 60, right associativity). (* originally in Coq.Init.Datatypes *)
 
-Reserved Notation "A ⊕ B" (at level 50, left associativity).
-(* to input: type "\o+" or "\oplus" with Agda input method *)
-
 Reserved Notation "g ∘ f"  (at level 50, left associativity).
 (* to input: type "\circ" with Agda input method *)
 
@@ -85,12 +82,6 @@ Reserved Notation "p #' x" (right associativity, at level 65, only parsing).
 Reserved Notation "C '^op'" (at level 3, format "C ^op").
 
 Reserved Notation "a <-- b" (at level 55).
-
-Reserved Notation "A ↣ B" (at level 50).
-(* to input: type "\r->" or "\rightarrowtail" or "\r" with Agda input method *)
-
-Reserved Notation "B ↠ C" (at level 50).
-(* to input: type "\rr-" or "\r" or "\twoheadrightarrow" with Agda input method *)
 
 Reserved Notation "[ C , D ]" .
 

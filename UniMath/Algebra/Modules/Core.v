@@ -14,10 +14,8 @@ Require Import UniMath.Algebra.Monoids_and_Groups.
   - Isomorphisms ([moduleiso])
 *)
 
-Local Open Scope addmonoid.
-Import UniMath.Algebra.Monoids_and_Groups.MultNotation.
+Local Open Scope addmonoid_scope.
 Import UniMath.Algebra.Monoids_and_Groups.AddNotation.
-Import UniMath.Algebra.Monoids_and_Groups.AddGroupNotation.
 
 (** ** The ring of endomorphisms of an abelian group *)
 

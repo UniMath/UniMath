@@ -19,8 +19,6 @@ Unset Kernel Term Sharing.
 
 Require Export UniMath.Foundations.NaturalNumbers .
 Require Export UniMath.Algebra.RigsAndRings.
-Require Import UniMath.Algebra.Monoids_and_Groups.
-Import MultNotation.
 Require Export UniMath.NumberSystems.NaturalNumbersAlgebra.
 
 

@@ -1323,8 +1323,8 @@ Proof.
 Defined.
 Opaque isasetbinoponhSet.
 
-Local Notation "x + y" := (op x y) : addoperation_scope.
-Local Notation "x * y" := (op x y) : multoperation_scope.
+Notation "x + y" := (op x y) : addoperation_scope.
+Notation "x * y" := (op x y) : multoperation_scope.
 
 (* The reverse/opposite binary operation where the arguments are flipped. *)
 Definition setwithbinop_rev (X : setwithbinop) : setwithbinop :=

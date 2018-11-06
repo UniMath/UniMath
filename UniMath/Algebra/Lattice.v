@@ -30,7 +30,6 @@ Truncated minus is a lattice:
 - a function minus such that: ∏ (x y : X), (minus x y) + y = max x y *)
 
 Require Export UniMath.Algebra.Monoids_and_Groups.
-Import MultNotation.
 
 Require Import UniMath.MoreFoundations.All.
 

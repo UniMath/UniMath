@@ -490,11 +490,9 @@ Section abgr_kernels_and_cokernels.
 
   (** *** KernelIn morphism *)
 
-  Import MultNotation.
-
   Lemma abgr_KernelArrowIn_map_property {A B C : abgr_category} (h : C --> A) (f : A --> B)
              (H : h · f = ZeroArrow abgr_Zero C B) (c : (C : abgr)) :
-    (pr1 f (pr1 h c) = 1).
+    (pr1 f (pr1 h c) = 1%multmonoid).
   Proof.
     use (pathscomp0 (toforallpaths _ _ _ (base_paths _ _ H) c)). use idpath.
   Qed.
@@ -785,12 +783,10 @@ Section abgr_monics_and_epis.
 
   (** ** Epis *)
 
-  Import MultNotation.
-
   Definition abgr_epi_hfiber_inhabited
              {A B : abgr} (f : abgr_category⟦A, B⟧) (isE : isEpi f) (b : B)
              (H : setquotpr (abgr_Cokernel_eqrel f) b =
-                  setquotpr (abgr_Cokernel_eqrel f) 1) : ∥ hfiber (pr1 f) b ∥.
+                  setquotpr (abgr_Cokernel_eqrel f) 1%multmonoid) : ∥ hfiber (pr1 f) b ∥.
   Proof.
     set (tmp := weqpathsinsetquot (abgr_Cokernel_eqrel f) b (unel _)).
     use (hinhuniv _ ((invweq tmp) H)). intros Y. use hinhpr. induction Y as [t p].
@@ -916,7 +912,6 @@ End abgr_monics_and_epis.
 (** * Monics are kernels of their cokernels and epis are cokernels of their kernels *)
 Section abgr_monic_kernels_epi_cokernels.
 
-  Import MultNotation.
 
   (** ** Monics are kernels of their cokernels *)
 
@@ -1326,8 +1321,6 @@ End abgr_abelian.
      of abelian groups, [abgr_isKernel_Criteria].
 *)
 Section abgr_corollaries.
-
-  Import MultNotation.
 
   (** ** Isomorphism criteria *)
 

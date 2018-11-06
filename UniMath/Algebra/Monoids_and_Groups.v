@@ -95,16 +95,16 @@ Definition unax (X : monoid) : isunit (@op X) (unel X) := dirprodpair (lunax X) 
 
 Definition isasetmonoid (X : monoid) : isaset X := pr2 (pr1 (pr1 X)).
 
-Delimit Scope addmonoid with addmonoid.
-Delimit Scope multmonoid with multmonoid.
+Delimit Scope addmonoid_scope with addmonoid.
+Delimit Scope multmonoid_scope with multmonoid.
 
-Module MultNotation.
-  Notation "x * y" := (op x y) : multmonoid.
-  Notation "1" := (unel _) : multmonoid.
-  Open Scope multmonoid.
-End MultNotation.
+Notation "x * y" := (op x y) : multmonoid_scope.
+Notation "1" := (unel _) : multmonoid_scope.
 
-Import MultNotation.
+Module AddNotation.
+  Notation "x + y" := (op x y) : addmonoid_scope.
+  Notation "0" := (unel _) : addmonoid_scope.
+End AddNotation.
 
 (* To get additive notation in a file that uses this one, insert the following command:
    Import UniMath.Algebra.Monoids_and_Groups.AddNotation.
@@ -915,13 +915,8 @@ Proof. split with (setwithbinopdirprod X Y). apply isabmonoiddirprod. Defined.
 Note : the following construction uses onbly associativity and commutativity
 of the [abmonoid] operations but does not use the unit element. *)
 
-Open Scope addmonoid.
+Open Scope addmonoid_scope.
 
-Module AddNotation.
-  Notation "x + y" := (op x y) : addmonoid.
-  Notation "0" := (unel _) : addmonoid.
-  Open Scope addmonoid.
-End AddNotation.
 Import AddNotation.
 
 Definition abmonoidfracopint (X : abmonoid) (A : submonoid X) :
@@ -1729,7 +1724,7 @@ Proof.
 Defined.
 Opaque iscomptoabmonoidfrac.
 
-Close Scope addmonoid.
+Close Scope addmonoid_scope.
 
 
 (** *** Groups *)
@@ -2580,7 +2575,7 @@ Defined.
 
 (** **** Abelian group of fractions of an abelian unitary monoid *)
 
-Open Scope addmonoid.
+Open Scope addmonoid_scope.
 
 Definition hrelabgrdiff (X : abmonoid) : hrel (X × X) :=
   λ xa1 xa2,
@@ -3046,14 +3041,4 @@ Proof.
 Defined.
 Opaque iscomptoabgrdiff.
 
-Close Scope addmonoid.
-
-Module AddGroupNotation.
-  Export AddNotation.
-  (* Notation "x + y" := (op x y) : abgr. *)
-  Notation "x - y" := (op x (grinv _ y)) : abgr.
-  Notation   "- y" := (grinv _ y) : abgr.
-  Delimit Scope abgr with abgr.
-  Open Scope abgr.
-  Open Scope addmonoid.
-End AddGroupNotation.
+Close Scope addmonoid_scope.

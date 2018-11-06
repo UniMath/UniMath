@@ -145,8 +145,6 @@ Section Monoids.
 
   Context {M:monoid}.
 
-  Import MultNotation.
-
   Let oo := @op M.
 
   Let uu := unel M.
@@ -246,8 +244,6 @@ Section Monoids2.
 End Monoids2.
 
 (** The general associativity theorem. *)
-
-Import MultNotation.
 
 Lemma iterop_list_mon_concatenate {M : monoid} (l s : list M) :
   iterop_list_mon (Lists.concatenate l s) = iterop_list_mon l * iterop_list_mon s.

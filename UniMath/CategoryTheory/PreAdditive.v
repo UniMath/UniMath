@@ -13,8 +13,6 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids_and_Groups.
-Import AddNotation.
-Local Open Scope addmonoid.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Categories.
@@ -123,10 +121,10 @@ Section def_preadditive.
 
   (** The following says that composing with zero object yields a zero object. *)
   Definition to_premor_unel {x y : A} (z : A) (f : x --> y) :
-    to_premor z f 0 = 0 := dirprod_pr2 (to_premor_monoid A x y z f).
+    to_premor z f 1%multmonoid = 1%multmonoid := dirprod_pr2 (to_premor_monoid A x y z f).
 
   Definition to_postmor_unel (x : A) {y z : A} (f : y --> z) :
-    to_postmor x f 0 = 0 := dirprod_pr2 (to_postmor_monoid A x y z f).
+    to_postmor x f 1%multmonoid = 1%multmonoid := dirprod_pr2 (to_postmor_monoid A x y z f).
 
   (** Following versions are useful when one wants to rewrite equations *)
   Lemma to_premor_unel' {x y : A} (z : A) (f : x --> y) : f · (to_unel y z) = to_unel x z.
@@ -354,12 +352,9 @@ Section preadditive_quotient.
   (** ** Here are some random results copied from category_abgr.v.
      Theses should be deleted, removed, renamed, generalized, or ...*)
 
-  Import MultNotation.
-  Open Scope multmonoid.
-
   (** The hProp which tells if two elements of A belong to the same equivalence class in A/B *)
   Definition subgrhrel_hprop {A : gr} (B : @subgr A) (a1 a2 : A) : hProp :=
-    hexists (λ b : B, pr1 b = (a1 * grinv A a2)).
+    hexists (λ b : B, pr1 b = (a1 * grinv A a2)%multmonoid).
 
   (** Construct a relation using the above hProp *)
   Definition subgrhrel {A : gr} (B : @subgr A) : @hrel A :=
