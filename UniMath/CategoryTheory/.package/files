@@ -177,3 +177,5 @@ Monoidal/MonoidalFunctors.v
 Monoidal/CategoriesOfMonoids.v
 Monoidal/Actions.v
 Monoidal/Strengths.v
+
+Enriched/Enriched.v
