@@ -19,6 +19,7 @@ Require Export UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Export UniMath.CategoryTheory.PreAdditive.
 Require Export UniMath.CategoryTheory.Morphisms.
 Require Export UniMath.CategoryTheory.Additive.
+Require Export UniMath.CategoryTheory.functor_categories.
 Require Export UniMath.MoreFoundations.Notations.
 Require Export UniMath.MoreFoundations.Propositions.
 Require Export UniMath.Algebra.BinaryOperations.
@@ -166,14 +167,13 @@ Section Precategories.             (* move upstream *)
 End Precategories.
 
 Section MorphismPairs.          (* move upstream *)
-  Context {M : precategory}.
-  Definition rewrite_Ob1 {A B C:M} (i:A-->B) (p:B-->C) : Ob1 (mk_MorphismPair i p) = A
+  Definition rewrite_Ob1 {M : precategory} {A B C:M} (i:A-->B) (p:B-->C) : Ob1 (mk_MorphismPair i p) = A
     := idpath _.
-  Definition rewrite_Ob2 {A B C:M} (i:A-->B) (p:B-->C) : Ob2 (mk_MorphismPair i p) = B
+  Definition rewrite_Ob2 {M : precategory} {A B C:M} (i:A-->B) (p:B-->C) : Ob2 (mk_MorphismPair i p) = B
     := idpath _.
-  Definition rewrite_Ob3 {A B C:M} (i:A-->B) (p:B-->C) : Ob3 (mk_MorphismPair i p) = C
+  Definition rewrite_Ob3 {M : precategory} {A B C:M} (i:A-->B) (p:B-->C) : Ob3 (mk_MorphismPair i p) = C
     := idpath _.
-  Lemma reverseCommIsoSquare {P Q P' Q':M} (f:P'-->P) (g:Q'-->Q) (i:z_iso P' Q') (j:z_iso P Q) :
+  Lemma reverseCommIsoSquare {M : precategory} {P Q P' Q':M} (f:P'-->P) (g:Q'-->Q) (i:z_iso P' Q') (j:z_iso P Q) :
     i · g = f · j -> z_iso_inv i · f = g · z_iso_inv j.
   Proof.
     intros l.
@@ -189,18 +189,18 @@ Section MorphismPairs.          (* move upstream *)
       unfold postcomp_with.
     exact (id_left _).
   Qed.
-  Lemma reverseCommIsoSquare' {P Q P' Q':M} (f:P'-->P) (g:Q'-->Q) (i:z_iso P' Q') (j:z_iso P Q) :
+  Lemma reverseCommIsoSquare' {M : precategory} {P Q P' Q':M} (f:P'-->P) (g:Q'-->Q) (i:z_iso P' Q') (j:z_iso P Q) :
     f · j = i · g -> g · z_iso_inv j = z_iso_inv i · f.
   Proof.
     intros l. refine (! _). apply reverseCommIsoSquare. refine (! _). exact l.
   Qed.
-  Definition MorphismPairMap (P Q : MorphismPair M) :=
+  Definition MorphismPairMap {M : precategory} (P Q : MorphismPair M) :=
     ∑ (f : Ob1 P --> Ob1 Q) (g : Ob2 P --> Ob2 Q) (h : Ob3 P --> Ob3 Q),
     f · Mor1 Q = Mor1 P · g  ×  g · Mor2 Q = Mor2 P · h.
-  Definition Map1 {P Q : MorphismPair M} (f : MorphismPairMap P Q) : Ob1 P --> Ob1 Q := pr1 f.
-  Definition Map2 {P Q : MorphismPair M} (f : MorphismPairMap P Q) : Ob2 P --> Ob2 Q := pr12 f.
-  Definition Map3 {P Q : MorphismPair M} (f : MorphismPairMap P Q) : Ob3 P --> Ob3 Q := pr122 f.
-  Definition MorphismPairIsomorphism (P Q : MorphismPair M) :=
+  Definition Map1 {M : precategory} {P Q : MorphismPair M} (f : MorphismPairMap P Q) : Ob1 P --> Ob1 Q := pr1 f.
+  Definition Map2 {M : precategory} {P Q : MorphismPair M} (f : MorphismPairMap P Q) : Ob2 P --> Ob2 Q := pr12 f.
+  Definition Map3 {M : precategory} {P Q : MorphismPair M} (f : MorphismPairMap P Q) : Ob3 P --> Ob3 Q := pr122 f.
+  Definition MorphismPairIsomorphism {M : precategory} (P Q : MorphismPair M) :=
     ∑ (f : z_iso (Ob1 P) (Ob1 Q)) (g : z_iso (Ob2 P) (Ob2 Q)) (h : z_iso (Ob3 P) (Ob3 Q)),
     ( f · Mor1 Q = Mor1 P · g
       ×
@@ -209,7 +209,7 @@ Section MorphismPairs.          (* move upstream *)
     ( g · Mor2 Q = Mor2 P · h
       ×
       Mor2 P · h = g · Mor2 Q ).
-  Definition InverseMorphismPairIsomorphism {P Q : MorphismPair M} :
+  Definition InverseMorphismPairIsomorphism {M : precategory} {P Q : MorphismPair M} :
     MorphismPairIsomorphism P Q -> MorphismPairIsomorphism Q P.
   Proof.
     intros f.
@@ -222,7 +222,7 @@ Section MorphismPairs.          (* move upstream *)
       + apply reverseCommIsoSquare. exact (pr12 (pr222 f)).
       + apply reverseCommIsoSquare'. exact (pr22 (pr222 f)).
   Defined.
-  Definition mk_MorphismPairIsomorphism
+  Definition mk_MorphismPairIsomorphism {M : precategory}
              (P Q : MorphismPair M)
              (f : z_iso (Ob1 P) (Ob1 Q))
              (g : z_iso (Ob2 P) (Ob2 Q))
@@ -230,13 +230,16 @@ Section MorphismPairs.          (* move upstream *)
     f · Mor1 Q = Mor1 P · g ->
     g · Mor2 Q = Mor2 P · h -> MorphismPairIsomorphism P Q
     := λ r s, (f,,g,,h,,(r,,!r),,(s,,!s)).
-  Goal ∏ (P Q : MorphismPair M) (f:MorphismPairIsomorphism P Q),
+  Goal ∏ (M : precategory) (P Q : MorphismPair M) (f:MorphismPairIsomorphism P Q),
        InverseMorphismPairIsomorphism (InverseMorphismPairIsomorphism f) = f.
   Proof.
     (* Because this fails, we will have two (dual) properties in the definition
        of exact category, so we can get duality to work better. *)
     Fail reflexivity.
   Abort.
+  Definition applyFunctorToPair {M N:precategory} :
+    (M⟶N) -> MorphismPair M -> MorphismPair N
+    := λ F P, mk_MorphismPair (# F (Mor1 P)) (# F (Mor2 P)).
 End MorphismPairs.
 
 Section OppositeMorphismPairs.
@@ -517,28 +520,27 @@ End DirectSums.
 
 Section AdditiveBasics.         (* move upstream *)
   (* first fix the definition of additive category to follow traditional mathematical practice *)
-  Definition isAdditive' (PA : PreAdditive) : UU := hasZero PA × hasBinDirectSums PA.
-  Definition mk_isAdditive' (PA : PreAdditive) (H1 : hasZero PA) (H2 : hasBinDirectSums PA) : isAdditive' PA := H1,,H2.
-  Definition Additive' : UU := ∑ PA : PreAdditive, isAdditive' PA.
-  Coercion Additive'_to_PreAdditive (A : Additive') : PreAdditive := pr1 A.
-  Definition mk_Additive' (PA : PreAdditive) (H : isAdditive' PA) : Additive' := PA,,H.
-  Definition to_Zero' (A : Additive') : hasZero A := pr12 A.
-  Definition to_BinDirectSums' {A : Additive'} : hasBinDirectSums A := pr22 A.
-
-  Context {M : Additive'}.
+  Definition isAdditive (PA : PreAdditive) : UU := hasZero PA × hasBinDirectSums PA.
+  Definition mk_isAdditive (PA : PreAdditive) (H1 : hasZero PA) (H2 : hasBinDirectSums PA) : isAdditive PA := H1,,H2.
+  Definition Additive : UU := ∑ PA : PreAdditive, isAdditive PA.
+  Coercion Additive_to_PreAdditive (A : Additive) : PreAdditive := pr1 A.
+  Definition mk_Additive (PA : PreAdditive) (H : isAdditive PA) : Additive := PA,,H.
+  Definition to_Zero' (A : Additive) : hasZero A := pr12 A.
+  Definition to_BinDirectSums' {A : Additive} : hasBinDirectSums A := pr22 A.
 End AdditiveBasics.
 
 Local Notation "A ⊕ B" := (to_BinDirectSums' A B) : addcat.
 
 Section OppositeAdditiveCategory.     (* move upstream *)
   Open Scope addcat.
-  Definition oppositeAdditiveCategory (M:Additive') : Additive'.
+  Definition oppositeAdditiveCategory : Additive -> Additive.
   Proof.
+    intros M.
     exists (oppositePreAdditive M). split.
     - use (hinhfun _ (to_Zero' M)). exact (λ Z, pr1 Z,, pr22 Z,, pr12 Z).
     - intros A B. exact (hinhfun oppositeBinDirectSum (A ⊕ B)).
   Defined.
-  Goal ∏ (M : Additive'), oppositeAdditiveCategory (oppositeAdditiveCategory M) = M.
+  Goal ∏ (M : Additive), oppositeAdditiveCategory (oppositeAdditiveCategory M) = M.
   Proof.
     reflexivity.
   Defined.
@@ -1013,7 +1015,7 @@ Section KernelCokernelPairs.
     { refine (assoc _ _ _ @ _ @ e3). apply (maponpaths (λ s, s · k)). exact e1. }
     { refine (assoc _ _ _ @ _ @ ! e). rewrite e2. apply zeroLeft. }
   Qed.
-  Lemma PairPullbackKernel {M : Additive'} {A B C A':M} (i : A <-- B) (p : B <-- C)
+  Lemma PairPullbackKernel {M : PreAdditive} {A B C A':M} (i : A <-- B) (p : B <-- C)
         (pr : isKernelCokernelPair p i)
         (r : A <-- A') (pb : Pullback i r)
         (j := PullbackPr2 pb)
@@ -1021,9 +1023,9 @@ Section KernelCokernelPairs.
     isKernel' (pr1 pp) j.
   Proof.
     (* Here's where giving the right proof of PairPullbackMap above helped us give this dual proof here. *)
-    exact (PairPushoutCokernel (M:=M^op) i p (opposite_isKernelCokernelPair pr) r pb).
+    exact (PairPushoutCokernel (M:=oppositePreAdditive M) i p (opposite_isKernelCokernelPair pr) r pb).
   Defined.
-  Lemma SumOfKernelCokernelPairs {M : Additive'} {x y z X Y Z : M}
+  Lemma SumOfKernelCokernelPairs {M : PreAdditive} {x y z X Y Z : M}
         (xX : BinDirectSum x X) (yY : BinDirectSum y Y) (zZ : BinDirectSum z Z)
         {f : x --> y} {g : y --> z} {f' : X --> Y} {g' : Y --> Z}
     : isKernelCokernelPair f g -> isKernelCokernelPair f' g' -> isKernelCokernelPair (directSumMap xX yY f f') (directSumMap yY zZ g g').
@@ -1035,82 +1037,84 @@ Section KernelCokernelPairs.
 End KernelCokernelPairs.
 
 Section theDefinition.
-  Definition ExactCategoryData := ∑ M:Additive', MorphismPair M -> hProp. (* properties added below *)
-  Coercion ECD_to_AC (ME : ExactCategoryData) : Additive' := pr1 ME.
-  Context (M : ExactCategoryData).
-  Definition isExact (E : MorphismPair M) : hProp := pr2 M E.
-  Definition isExact2 {A B C:M} (f:A-->B) (g:B-->C) := isExact (mk_MorphismPair f g).
-  Definition isAdmissibleMonomorphism {A B:M} (i : A --> B) : hProp :=
+  Definition ExactCategoryData := ∑ M:Additive, MorphismPair M -> hProp. (* properties added below *)
+  Coercion ECD_to_AC (ME : ExactCategoryData) : Additive := pr1 ME.
+  Definition isExact {M : ExactCategoryData} (E : MorphismPair M) : hProp := pr2 M E.
+  Definition isExact2 {M : ExactCategoryData} {A B C:M} (f:A-->B) (g:B-->C) := isExact (mk_MorphismPair f g).
+  Definition isAdmissibleMonomorphism {M : ExactCategoryData} {A B:M} (i : A --> B) : hProp :=
     ∃ C (p : B --> C), isExact2 i p.
-  Definition AdmissibleMonomorphism (A B:M) : Type :=
+  Definition AdmissibleMonomorphism {M : ExactCategoryData} (A B:M) : Type :=
     ∑ (i : A --> B), isAdmissibleMonomorphism i.
-  Coercion AdmMonoToMap {A B:M} : AdmissibleMonomorphism A B -> A --> B := pr1.
-  Coercion AdmMonoToMap' {A B:M} : AdmissibleMonomorphism A B -> (A --> B)%cat := pr1.
-  Definition isAdmissibleEpimorphism {B C:M} (p : B --> C) : hProp :=
+  Coercion AdmMonoToMap  {M : ExactCategoryData} {A B:M} : AdmissibleMonomorphism A B ->  A --> B := pr1.
+  Coercion AdmMonoToMap' {M : ExactCategoryData} {A B:M} : AdmissibleMonomorphism A B -> (A --> B)%cat := pr1.
+  Definition isAdmissibleEpimorphism {M : ExactCategoryData} {B C:M} (p : B --> C) : hProp :=
     ∃ A (i : A --> B), isExact2 i p.
-  Definition AdmissibleEpimorphism (B C:M) : Type :=
+  Definition AdmissibleEpimorphism {M : ExactCategoryData} (B C:M) : Type :=
     ∑ (p : B --> C), isAdmissibleEpimorphism p.
-  Coercion AdmEpiToMap {B C:M} : AdmissibleEpimorphism B C -> B --> C := pr1.
-  Coercion AdmEpiToMap' {B C:M} : AdmissibleEpimorphism B C -> (B --> C)%cat := pr1.
+  Coercion AdmEpiToMap  {M : ExactCategoryData} {B C:M} : AdmissibleEpimorphism B C ->  B --> C := pr1.
+  Coercion AdmEpiToMap' {M : ExactCategoryData} {B C:M} : AdmissibleEpimorphism B C -> (B --> C)%cat := pr1.
   (** The following definition is definition 2.1 from the paper of Bühler. *)
-  Local Definition ExactCategoryProperties : hProp :=
-      ((∀ P Q, MorphismPairIsomorphism P Q ⇒ isExact P ⇒ isExact Q) ∧
-       (∀ P Q, MorphismPairIsomorphism Q P ⇒ isExact P ⇒ isExact Q)) ∧
-      ((∀ A, isAdmissibleMonomorphism (identity A)) ∧
-       (∀ A, isAdmissibleEpimorphism (identity A))) ∧
-      (∀ P, isExact P ⇒ isKernelCokernelPair (Mor1 P) (Mor2 P)) ∧
-      ((∀ A B C (f : A --> B) (g : B --> C),
+  Local Definition ExactCategoryProperties (M : ExactCategoryData) : hProp :=
+      ((∀ (P Q : MorphismPair M), MorphismPairIsomorphism P Q ⇒ isExact P ⇒ isExact Q) ∧
+       (∀ (P Q : MorphismPair M), MorphismPairIsomorphism Q P ⇒ isExact P ⇒ isExact Q)) ∧
+      ((∀ A:M, isAdmissibleMonomorphism (identity A)) ∧
+       (∀ A:M, isAdmissibleEpimorphism (identity A))) ∧
+      (∀ P : MorphismPair M, isExact P ⇒ isKernelCokernelPair (Mor1 P) (Mor2 P)) ∧
+      ((∀ (A B C:M) (f : A --> B) (g : B --> C),
           isAdmissibleMonomorphism f ⇒ isAdmissibleMonomorphism g ⇒
           isAdmissibleMonomorphism (f · g)) ∧
-       (∀ A B C (f : A --> B) (g : B --> C),
+       (∀ (A B C:M) (f : A --> B) (g : B --> C),
           isAdmissibleEpimorphism f ⇒ isAdmissibleEpimorphism g ⇒
           isAdmissibleEpimorphism (f · g))) ∧
-      ((∀ A B C (f : A --> B) (g : C --> B),
+      ((∀ (A B C:M) (f : A --> B) (g : C --> B),
           isAdmissibleEpimorphism f ⇒
           ∃ (PB : Pullback f g), isAdmissibleEpimorphism (PullbackPr2 PB)) ∧
-       (∀ A B C (f : B --> A) (g : B --> C),
+       (∀ (A B C:M) (f : B --> A) (g : B --> C),
           isAdmissibleMonomorphism f ⇒
           ∃ (PO : Pushout f g), isAdmissibleMonomorphism (PushoutIn2 PO))).
-  (** The following definition is from Higher Algebraic K-theory I, by Quillen. *)
-  Local Definition ExactCategoryProperties_Quillen : hProp :=
-      (∀ P Q, MorphismPairIsomorphism P Q ⇒ isExact P ⇒ isExact Q) ∧
-      (∀ A B (AB:BinDirectSum A B), isExact2 (to_In1 AB) (to_Pr2 AB)) ∧
-      (∀ P, isExact P ⇒ isKernel' (Mor1 P) (Mor2 P) ∧ isCokernel' (Mor1 P) (Mor2 P)) ∧
-      ((∀ A B C (f : A --> B) (g : B --> C),
+  (** The following definition is from Higher Algebraic K-theory I, by Quillen.
+      We prove below that the two definitions are equivalent. *)
+  Local Definition ExactCategoryProperties_Quillen (M : ExactCategoryData) : hProp :=
+      (∀ (P Q:MorphismPair M), MorphismPairIsomorphism P Q ⇒ isExact P ⇒ isExact Q) ∧
+      (∀ (A B:M) (AB:BinDirectSum A B), isExact2 (to_In1 AB) (to_Pr2 AB)) ∧
+      (∀ P : MorphismPair M, isExact P ⇒ isKernel' (Mor1 P) (Mor2 P) ∧ isCokernel' (Mor1 P) (Mor2 P)) ∧
+      ((∀ (A B C:M) (f : A --> B) (g : B --> C),
           isAdmissibleMonomorphism f ⇒ isAdmissibleMonomorphism g ⇒
           isAdmissibleMonomorphism (f · g)) ∧
-       (∀ A B C (f : A --> B) (g : B --> C),
+       (∀ (A B C:M) (f : A --> B) (g : B --> C),
           isAdmissibleEpimorphism f ⇒ isAdmissibleEpimorphism g ⇒
           isAdmissibleEpimorphism (f · g))) ∧
-      ((∀ A B C (f : A --> B) (g : C --> B),
+      ((∀ (A B C:M) (f : A --> B) (g : C --> B),
           isAdmissibleEpimorphism f ⇒
           ∃ (PB : Pullback f g), isAdmissibleEpimorphism (PullbackPr2 PB)) ∧
-       (∀ A B C (f : B --> A) (g : B --> C),
+       (∀ (A B C:M) (f : B --> A) (g : B --> C),
           isAdmissibleMonomorphism f ⇒
           ∃ (PO : Pushout f g), isAdmissibleMonomorphism (PushoutIn2 PO))) ∧
-       ((∀ A B C (i:A-->B) (j:B-->C),
+       ((∀ (A B C:M) (i:A-->B) (j:B-->C),
           hasCokernel i ⇒ isAdmissibleMonomorphism (i·j) ⇒ isAdmissibleMonomorphism i) ∧
-        (∀ A B C (i:A-->B) (j:B-->C),
+        (∀ (A B C:M) (i:A-->B) (j:B-->C),
           hasKernel j ⇒ isAdmissibleEpimorphism (i·j) ⇒ isAdmissibleEpimorphism j)).
-  (** We prove below that the two definitions are equivalent. *)
+  Definition ExactCategory := ∑ (ME:ExactCategoryData), ExactCategoryProperties ME.
+  Coercion ExactCategoryToData (M:ExactCategory) : ExactCategoryData := pr1 M.
+  Definition mk_ExactCategory (ME:ExactCategoryData) (p : ExactCategoryProperties ME) : ExactCategory := ME,,p.
+  Definition isExactFunctor {M N:ExactCategory} (F : M ⟶ N) : hProp
+    := ∀ (P : MorphismPair M), isExact P ⇒ isExact (applyFunctorToPair F P).
+  Definition ExactFunctor (M N:ExactCategory)
+    := ∑ F : M ⟶ N, isExactFunctor F.
+  Coercion ExactFunctorToFunctor {M N:ExactCategory}
+    : ExactFunctor M N -> (M ⟶ N)
+    := pr1.
+  Definition ShortExactSequence (M:ExactCategory) := ∑ (P : MorphismPair M), isExact P.
+  Coercion ShortExactSequenceToMorphismPair {M:ExactCategory} (P : ShortExactSequence M)
+    : MorphismPair M
+    := pr1 P.
+  Definition ShortExactSequenceMap {M:ExactCategory} (P Q:ShortExactSequence M) := MorphismPairMap P Q.
 End theDefinition.
-
-Arguments isExact {_}.
-Arguments isExact2 {_ _ _ _}.
-
-Definition ExactCategory := ∑ (ME:ExactCategoryData), ExactCategoryProperties ME.
-Coercion ExCatToExactCategoryData (E:ExactCategory) : ExactCategoryData := pr1 E.
-Definition mk_ExactCategory (ME:ExactCategoryData) (p : ExactCategoryProperties ME) : ExactCategory := ME,,p.
 
 Delimit Scope excat with excat.
 Local Open Scope excat.
-Notation "A ↣ B" := (AdmissibleMonomorphism _ A B) : excat.
-Notation "B ↠ C" := (AdmissibleEpimorphism _ B C) : excat.
-
-Arguments isAdmissibleMonomorphism {_ _ _}.
-Arguments isAdmissibleEpimorphism {_ _ _}.
-Arguments AdmissibleMonomorphism {_}.
-Arguments AdmissibleEpimorphism {_}.
+Notation "A ↣ B" := (AdmissibleMonomorphism A B) : excat.
+Notation "B ↠ C" := (AdmissibleEpimorphism  B C) : excat.
 
 Section ExactCategoryAccessFunctions.
   Context {M:ExactCategory}.
@@ -1749,17 +1753,6 @@ Section EquivalenceOfTwoDefinitions.
   Defined.
 End EquivalenceOfTwoDefinitions.
 
-Section ShortExactSequences.
-  (* I'm not sure this type will be useful. *)
-  Definition ShortExactSequence (M:ExactCategory) := ∑ (P : MorphismPair M), isExact P.
-  Coercion ShortExactSequenceToMorphismPair {M:ExactCategory} (P : ShortExactSequence M) : MorphismPair M := pr1 P.
-  Definition ES_ExactToKernelCokernel {M:ExactCategory} (P : ShortExactSequence M)
-    : isKernelCokernelPair (Mor1 P) (Mor2 P)
-    := EC_ExactToKernelCokernel (pr2 P).
-  Context {M:ExactCategory}.
-  Definition ShortExactSequenceMap (P Q:ShortExactSequence M) := MorphismPairMap P Q.
-End ShortExactSequences.
-
 Section SplitSequences.
   Local Open Scope addmonoid.
   Local Open Scope abgr.
@@ -1874,7 +1867,7 @@ Section SplitSequences.
     set (S := mk_BinDirectSum _ _ _ _ _ _ _ _ issum).
     exact (DirectSumToKernel S,,DirectSumToCokernel S).
   Qed.
-  Lemma ComposeSplitMono {M:Additive'} {A B C : M} (i : A --> B) (j : B --> C) :
+  Lemma ComposeSplitMono {M:Additive} {A B C : M} (i : A --> B) (j : B --> C) :
     isSplitMonomorphism i ⇒ isSplitMonomorphism j ⇒ isSplitMonomorphism (i · j).
   Proof.
     intros s t.
@@ -1939,7 +1932,7 @@ Section SplitSequences.
         rewrite (assoc ι₂). unfold ECD_to_AC,pr1. rewrite (to_IdIn2 PQ).
         rewrite id_left. exact (to_BinOpId' jq). } }
   Qed.
-  Lemma ComposeSplitEpi {M:Additive'} {A B C : M} (p : A --> B) (q : B --> C) :
+  Lemma ComposeSplitEpi {M:Additive} {A B C : M} (p : A --> B) (q : B --> C) :
     isSplitEpimorphism p ⇒ isSplitEpimorphism q ⇒ isSplitEpimorphism (p · q).
   Proof.
     intros r s.
@@ -1947,7 +1940,7 @@ Section SplitSequences.
              (ComposeSplitMono (M:=oppositeAdditiveCategory M)
                                _ _ (opposite_isSplitEpimorphism _ s) (opposite_isSplitEpimorphism _ r))).
   Qed.
-  Lemma PullbackSplitEpi {M:Additive'} {A A'' C : M} (q : A --> A'') (g : C --> A'') :
+  Lemma PullbackSplitEpi {M:Additive} {A A'' C : M} (q : A --> A'') (g : C --> A'') :
     isSplitEpimorphism q -> ∃ PB : Pullback q g, isSplitEpimorphism (PullbackPr2 PB).
   Proof.
     intros s.
@@ -1993,7 +1986,7 @@ Section SplitSequences.
     - cbn. exact (hinhpr(A',,ι₁,, hinhpr (π₁,,ι₂,,BinDirectSum_isBinDirectSum _ A'C))).
   Qed.
   Open Scope abgrcat.
-  Lemma PushoutSplitMono {M:Additive'} {A A' C : M} (i : A' --> A) (g : A' --> C) :
+  Lemma PushoutSplitMono {M:Additive} {A A' C : M} (i : A' --> A) (g : A' --> C) :
     isSplitMonomorphism i ⇒ ∃ PO : Pushout i g, isSplitMonomorphism (PushoutIn2 PO).
   Proof.
     intros s.
@@ -2005,7 +1998,7 @@ Section SplitSequences.
 End SplitSequences.
 
 Section AdditiveToExact.
-  Lemma AdditiveExactnessProperties (M:Additive') : ExactCategoryProperties (M,,isSplit).
+  Lemma AdditiveExactnessProperties (M:Additive) : ExactCategoryProperties (M,,isSplit).
   Proof.
     split;unfold ECD_to_AC,pr1.
     - split.
@@ -2031,6 +2024,6 @@ Section AdditiveToExact.
         { exact (@PullbackSplitEpi M). }
         { exact (@PushoutSplitMono M). } }
   Qed.
-  Definition AdditiveToExact : Additive' -> ExactCategory
-    :=  λ M, mk_ExactCategory (M,,isSplit) (AdditiveExactnessProperties M).
+  Definition AdditiveToExact : Additive -> ExactCategory
+    := λ M, mk_ExactCategory (M,,isSplit) (AdditiveExactnessProperties M).
 End AdditiveToExact.
