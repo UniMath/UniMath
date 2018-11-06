@@ -24,7 +24,36 @@ Require Export UniMath.MoreFoundations.Notations.
 Require Export UniMath.MoreFoundations.Propositions.
 Require Export UniMath.Algebra.BinaryOperations.
 Require Export UniMath.Algebra.Monoids_and_Groups.
-Import AddGroupNotation.
+Import AddNotation.
+Local Open Scope addmonoid.
+
+(* move upstream to Init.v *)
+  Reserved Notation "A ⊕ B" (at level 50, left associativity).
+  (* to input: type "\o+" or "\oplus" with Agda input method *)
+  Reserved Notation "A ↣ B" (at level 50).
+  (* to input: type "\r->" or "\rightarrowtail" or "\r" with Agda input method *)
+  Reserved Notation "B ↠ C" (at level 50).
+  (* to input: type "\rr-" or "\r" or "\twoheadrightarrow" with Agda input method *)
+
+(* category notation, move upstream *)
+Local Notation "b <-- a" := (precategory_morphisms a b) (only parsing) : cat.
+Notation "1" := (identity _) : cat.
+
+(* abelian group notation, move upstream *)
+Delimit Scope abgr with abgr.
+Local Open Scope abgr.
+Notation "x - y" := (op x (grinv _ y)) : abgr.
+Notation   "- y" := (grinv _ y) : abgr.
+
+(* move upstream to PrecategoriesWithAbgrops.v *)
+Notation "0" := (unel (to_abgr _ _)) : abgrcat.
+Notation "f = g" := (@eqset (to_abgr _ _) f g) : abgrcat.
+Notation "g ∘ f" := (compose f g : to_abgr _ _) : abgrcat.
+Local Notation "b <-- a" := (to_abgr a b) (only parsing) : abgrcat.
+Local Notation "'π₁'" := (to_Pr1 _ _) : abgrcat.
+Local Notation "'π₂'" := (to_Pr2 _ _) : abgrcat.
+Local Notation "'ι₁'" := (to_In1 _ _) : abgrcat.
+Local Notation "'ι₂'" := (to_In2 _ _) : abgrcat.
 
 Local Arguments to_binop {_ _ _}.
 Local Arguments grinv {_}.
@@ -76,13 +105,6 @@ Section Sanity2.
   Abort.
 
 End Sanity2.
-
-Local Notation "b <-- a" := (to_abgr a b) (only parsing) : abgrcat.
-Local Notation "b <-- a" := (precategory_morphisms a b) (only parsing) : cat.
-Local Notation "'π₁'" := (to_Pr1 _) : abgrcat.
-Local Notation "'π₂'" := (to_Pr2 _) : abgrcat.
-Local Notation "'ι₁'" := (to_In1 _) : abgrcat.
-Local Notation "'ι₂'" := (to_In2 _) : abgrcat.
 
 Section Precategories.             (* move upstream *)
   Definition iso_to_z_iso {C : precategory} {b c : C} (f : iso b c) : z_iso b c
@@ -475,7 +497,8 @@ Section DirectSums.
   Definition reverseBinDirectSum {M:PreAdditive} {A B:M} : BinDirectSum A B -> BinDirectSum B A.
   Proof.
     intros AB.
-    exists (BinDirectSumOb M AB ,, ι₂ ,, ι₁ ,, π₂ ,, π₁).
+    refine (mk_BinDirectSum M B A (BinDirectSumOb M AB) ι₂ ι₁ π₂ π₁ _).
+    unfold isBinDirectSum.
     exists (to_IdIn2 (pr2 AB)).
     exists (to_IdIn1 (pr2 AB)).
     exists (to_Unel2 (pr2 AB)).
@@ -562,35 +585,37 @@ Section AdditiveCategories.     (* move upstream *)
     - apply to_postmor_unel'.
   Qed.
   Definition elem21 {M:PreAdditive} {A B:M} (AB : BinDirectSum A B) (f:A-->B) : AB-->AB := 1 + π₁·f·ι₂.
-  Section Foo.
+  Section Foo.                  (* because we open scopes *)
     Definition elem21_isiso {M:PreAdditive} {A B:M} (AB : BinDirectSum A B) (f:A-->B) : is_z_isomorphism (elem21 AB f).
     Proof.
       exists (1 - π₁·f·ι₂).
       (* Why are these needed to make the goals look nice?  Compare to the dual proof below. *)
+      Local Open Scope cat.
       Local Open Scope addmonoid.
-      Local Open Scope abgr.
       unfold elem21. split.
-      - rewrite leftDistribute, 2 rightDistribute. rewrite id_left. refine (_ @ runax (_-->_) _).
+      - rewrite leftDistribute, 2 rightDistribute. rewrite id_left. refine (_ @ runax (Hom_add _ _ _) _).
         rewrite assocax. apply maponpaths. rewrite id_right, id_left. rewrite rightMinus.
         rewrite <- assocax. rewrite grlinvax. rewrite lunax. rewrite assoc'. rewrite <- (assoc π₁ f ι₂).
-        rewrite (assoc ι₂). rewrite DirectSumIn2Pr1. rewrite zeroLeft. rewrite zeroRight. use grinvunel.
-      - rewrite leftDistribute, 2 rightDistribute. rewrite id_left. refine (_ @ runax (_-->_) _).
+        rewrite (assoc ι₂). rewrite DirectSumIn2Pr1. rewrite zeroLeft. rewrite zeroRight.
+        rewrite grinvunel. reflexivity.
+      - rewrite leftDistribute, 2 rightDistribute. rewrite id_left. refine (_ @ runax (Hom_add _ _ _) _).
         rewrite assocax. apply maponpaths. rewrite id_right, id_left. rewrite leftMinus.
         rewrite <- assocax. rewrite grrinvax. rewrite lunax. rewrite assoc'. rewrite <- (assoc π₁ f ι₂).
-        rewrite (assoc ι₂). rewrite DirectSumIn2Pr1. rewrite zeroLeft. rewrite zeroRight. use grinvunel.
+        rewrite (assoc ι₂). rewrite DirectSumIn2Pr1. rewrite zeroLeft. rewrite zeroRight.
+        rewrite grinvunel. reflexivity.
     Defined.
   End Foo.
   Definition elem12 {M:PreAdditive} {A B:M} (AB : BinDirectSum A B) (f:B-->A) : AB-->AB := 1 + π₂·f·ι₁.
   Definition elem12_isiso {M:PreAdditive} {A B:M} (AB : BinDirectSum A B) (f:B-->A) : is_z_isomorphism (elem12 AB f).
   Proof.
     exists (1 - π₂·f·ι₁). unfold elem12. split.
-    - rewrite leftDistribute, 2 rightDistribute. rewrite id_left. refine (_ @ runax (_-->_) _).
+    - rewrite leftDistribute, 2 rightDistribute. rewrite id_left. refine (_ @ runax (Hom_add _ _ _) _).
       rewrite assocax. apply maponpaths. rewrite id_right, id_left. rewrite rightMinus.
       rewrite <- assocax. rewrite grlinvax. rewrite lunax. rewrite assoc'. rewrite <- (assoc _ f _).
       rewrite 2 (assoc ι₁). rewrite DirectSumIn1Pr2. rewrite zeroLeft. rewrite zeroLeft.
       rewrite 2 zeroRight.
       use grinvunel.
-    - rewrite leftDistribute, 2 rightDistribute. rewrite id_left. refine (_ @ runax (_-->_) _).
+    - rewrite leftDistribute, 2 rightDistribute. rewrite id_left. refine (_ @ runax (Hom_add _ _ _) _).
       rewrite assocax. apply maponpaths. rewrite id_right, id_left. rewrite leftMinus.
       rewrite <- assocax. rewrite grrinvax. rewrite lunax. rewrite assoc'. rewrite <- (assoc _ f _).
       rewrite (assoc ι₁). rewrite (assoc ι₁). rewrite DirectSumIn1Pr2. rewrite 2 zeroLeft.
@@ -1640,7 +1665,7 @@ Section ExactCategoryFacts.
         unfold directSumMap. unfold BinDirectSumIndAr. rewrite BinDirectSumPr1Commutes.
         rewrite assoc. reflexivity.
       + refine (_ @ id_right _). rewrite <- (to_BinOpId' AC).
-        rewrite rightDistribute. rewrite assoc. refine (! runax (_-->_) _ @ _).
+        rewrite rightDistribute. rewrite assoc. refine (! runax (Hom_add _ _ _) _ @ _).
         apply maponpaths. rewrite assoc. apply pathsinv0.
         assert (K : h · π₂ = 0).
         { refine ( _ @ maponpaths (λ w, w · π₂) (!e) @ _ ).
@@ -1667,7 +1692,7 @@ Section ExactCategoryFacts.
         rewrite id_right. rewrite (assoc' π₂). rewrite (assoc q). rewrite (assoc (q · π₂)).
         rewrite (assoc' _ _ π₁). rewrite (to_IdIn1 CB). rewrite id_right.
         rewrite rightMinus. unfold q. rewrite BinDirectSumPr1Commutes, BinDirectSumPr2Commutes.
-        apply (grrinvax (_-->_)).
+        apply (grrinvax (Hom_add _ _ _)).
       - rewrite BinDirectSumPr2Commutes. unfold elem12. rewrite rightDistribute, leftDistribute.
         rewrite id_right. rewrite assoc. rewrite (assoc' _ _ π₂).
         rewrite (to_Unel1 CB); unfold to_unel. rewrite zeroRight. rewrite runax.
