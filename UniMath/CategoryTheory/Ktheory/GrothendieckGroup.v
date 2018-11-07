@@ -24,16 +24,17 @@ Section WeakEquivalences.
 End WeakEquivalences.
 
 Section setquot.
-  Lemma setquot_map_recovery {X : Type} (R : eqrel X) (Y : hSet) (h : setquot R → Y) :
-    ∏ w : setquot R,
-          setquotuniv R Y (h ∘ setquotpr R)
-                      (λ (x x' : X) (r : R x x'), maponpaths h (iscompsetquotpr R x x' r)) w =
-          h w.
+  Lemma setquot_map_epi {X : Type} {R : eqrel X} {Y : hSet} {h h' : setquot R → Y} :
+    h ∘ setquotpr R ~ h' ∘ setquotpr R -> h ~ h'.
   Proof.
-    apply (surjectionisepitosets (setquotpr R)).
-    - apply issurjsetquotpr.
-    - apply setproperty.
-    - intros x. refine (@setquotunivcomm X R Y (h ∘ setquotpr R) _ _).
+    use (surjectionisepitosets _ _ _ (issurjsetquotpr R) (setproperty Y)).
+  Defined.
+  Lemma setquot_map_recovery {X : Type} (R : eqrel X) (Y : hSet) (h : setquot R → Y) :
+    ∏ w, setquotuniv R Y (h ∘ setquotpr R)
+                     (λ x x' (r : R x x'), maponpaths h (iscompsetquotpr R x x' r)) w =
+         h w.
+  Proof.
+    exact (setquot_map_epi (λ x, idpath (h (setquotpr R x)))).
   Qed.
   Definition setquot_universal_property (X:Type) (R:eqrel X) (Y:hSet) :
     (setquot R -> Y) ≃ (∑ f : X -> Y, iscomprelfun R f).
