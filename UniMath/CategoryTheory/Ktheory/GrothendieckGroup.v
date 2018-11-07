@@ -102,22 +102,33 @@ Proof.
   apply iscompsetquotpr. apply generated_binopeqrel_intro. apply hinhpr.
   exists E. split; reflexivity.
 Defined.
+Goal ∏ (X Y Z:Type) (f:X≃Y) (g:Y≃Z), pr1weq (weqcomp f g) = pr1weq g ∘ pr1weq f.
+Proof.
+  reflexivity.
+Qed.
+Goal ∏ (X Y Z:Type) (f:X≃Y) (g:Y≃Z), invmap (weqcomp f g) = invmap f ∘ invmap g.
+Proof.
+  reflexivity.
+Qed.
+Lemma weqtotal2 {X Y:Type} {P:X->Type} {Q:Y->Type} (f : X ≃ Y) :
+  (∏ x, P x ≃ Q (f x)) -> (∑ x:X, P x) ≃ (∑ y:Y, Q y).
+Proof.                          (* move upstream *)
+  intros e. exists (λ xp, (f(pr1 xp),,e (pr1 xp) (pr2 xp))).
+  exact (twooutof3c _ _ (isweqfibtototal P (Q ∘ f) e) (pr2 (weqfp f Q))).
+Defined.
 Lemma K_0_map_universal_property {M:ExactCategory} {G:abgr} :
   monoidfun (K_0 M) G
   ≃
   ∑ f : ob M -> G, ∏ E:ShortExactSequence M, f(Ob2 E) = f(Ob1 E) + f(Ob3 E).
 Proof.
   apply (weqcomp (presented_abgr_universal_property (K_0_hrel M) G)).
-  intermediate_weq (∑ f : π₀ M → G, ∏ E : ShortExactSequence M, f (component (Ob2 E)) = f (component (Ob1 E)) + f (component (Ob3 E))).
-  - apply weqfibtototal. intros h. apply weqiff.
-    + split.
-      * intros i E. exact (i _ _ (K_0_related E)).
-      * intros k w w' r. apply (squash_to_prop r).
-        { apply setproperty. }
-        clear r; intros [E [e e']]. induction (!e), (!e'); clear e e'. exact (k E).
-    + apply isapropiscomprelfun.
-    + apply impred_isaprop; intros E. apply setproperty.
-  - exact (weqfp (π₀_universal_property (ob M) G) _).
+  apply (weqtotal2 (π₀_universal_property _ _)). intros h. apply weqiff.
+  + split.
+    * intros i E. exact (i _ _ (K_0_related E)).
+    * intros k w w' r. apply (squash_to_prop r (setproperty _ _ _)).
+      clear r; intros [E [e e']]. induction (!e), (!e'); clear e e'. exact (k E).
+  + apply isapropiscomprelfun.
+  + apply impred_isaprop; intros E. apply setproperty.
 Defined.
 Definition K_0_universal_map {M:ExactCategory} {G:abgr} (f : ob M -> G) :
   (∏ E:ShortExactSequence M, f(Ob2 E) = f(Ob1 E) + f(Ob3 E)) -> monoidfun (K_0 M) G.
