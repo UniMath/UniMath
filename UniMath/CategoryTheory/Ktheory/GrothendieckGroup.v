@@ -102,7 +102,7 @@ Proof.
   apply iscompsetquotpr. apply generated_binopeqrel_intro. apply hinhpr.
   exists E. split; reflexivity.
 Defined.
-Lemma K_0_map_univ {M:ExactCategory} {G:abgr} :
+Lemma K_0_map_universal_property {M:ExactCategory} {G:abgr} :
   monoidfun (K_0 M) G
   ≃
   ∑ f : ob M -> G, ∏ E:ShortExactSequence M, f(Ob2 E) = f(Ob1 E) + f(Ob3 E).
@@ -122,46 +122,58 @@ Defined.
 Definition K_0_universal_map {M:ExactCategory} {G:abgr} (f : ob M -> G) :
   (∏ E:ShortExactSequence M, f(Ob2 E) = f(Ob1 E) + f(Ob3 E)) -> monoidfun (K_0 M) G.
 Proof.
-  intros c. exact (invmap K_0_map_univ (f,,c)).
+  intros c. exact (invmap K_0_map_universal_property (f,,c)).
 Defined.
-
-Definition K_0_universal_map' {M:ExactCategory} {G:abgr} (f : ob M -> G) :
-  (∏ E:ShortExactSequence M, f(Ob2 E) = f(Ob1 E) + f(Ob3 E)) -> monoidfun (K_0 M) G.
-Proof.
-  intros c. use presented_abgr_extend.
-  - exact (π₀_universal_map f).
-  - intros x y Rxy. apply (squash_to_prop Rxy).
-    + apply setproperty.
-    + clear Rxy; intros [E [r s]]. induction (!r), (!s); clear r s. exact (c E).
-Defined.
-Lemma K_0_universal_map_eqn {M:ExactCategory} {G:abgr} (f : ob M -> G)
-      (add : ∏ E:ShortExactSequence M, f(Ob2 E) = f(Ob1 E) + f(Ob3 E)) (A:M) :
-  K_0_universal_map' f add (K_0_class A) = f A.
+Goal ∏ (M:ExactCategory) (G:abgr) (f : ob M -> G)
+      (add : ∏ E:ShortExactSequence M, f(Ob2 E) = f(Ob1 E) + f(Ob3 E)) (A:M),
+  K_0_universal_map f add (K_0_class A) = f A.
 Proof.
   reflexivity.
-Defined.
-Lemma K_0_map_univ' {M:ExactCategory} {G:abgr} :
-  monoidfun (K_0 M) G
-  ≃
-  ∑ f : ob M -> G, ∏ E:ShortExactSequence M, f(Ob2 E) = f(Ob1 E) + f(Ob3 E).
-Proof.
-  use weq_iso.
-  - intros h. exists (h ∘ K_0_class). intros E. unfold funcomp.
-    intermediate_path (h (K_0_class (Ob1 E) + K_0_class (Ob3 E))).
-    + apply (maponpaths h). apply K_0_eqn.
-    + apply h.
-  - intros [f add]. exact (K_0_universal_map f add).
-  - cbn beta. intros h. admit.
-  - cbn beta.
-Abort.
+Qed.
 Goal ∏ (M:ExactCategory) (G:abgr) (h : monoidfun (K_0 M) G),
-  pr1 (K_0_map_univ h) = h ∘ K_0_class.
+  pr1 (K_0_map_universal_property h) = h ∘ K_0_class.
 Proof.
   reflexivity.
 Qed.
 Goal ∏ (M:ExactCategory) (G:abgr)
      (f : ob M -> G) (add : ∏ E:ShortExactSequence M, f(Ob2 E) = f(Ob1 E) + f(Ob3 E)),
-  invmap K_0_map_univ (f,,add) = K_0_universal_map f add.
+  invmap K_0_map_universal_property (f,,add) = K_0_universal_map f add.
 Proof.
-  reflexivity.                  (* too slow *)
+  intros.
+  apply pathsinv0.              (* omit this and it is slow! *)
+  reflexivity.
 Qed.
+
+Section Try.
+  (* maybe try a different way to speed it up: *)
+  Definition K_0_universal_map' {M:ExactCategory} {G:abgr} (f : ob M -> G) :
+    (∏ E:ShortExactSequence M, f(Ob2 E) = f(Ob1 E) + f(Ob3 E)) -> monoidfun (K_0 M) G.
+  Proof.
+    intros c. use presented_abgr_extend.
+    - exact (π₀_universal_map f).
+    - intros x y Rxy. apply (squash_to_prop Rxy).
+      + apply setproperty.
+      + clear Rxy; intros [E [r s]]. induction (!r), (!s); clear r s.
+        change (f (Ob2 E) = f (Ob1 E) + f (Ob3 E)). exact (c E).
+  Defined.
+  Goal ∏ (M:ExactCategory) (G:abgr) (f : ob M -> G)
+        (add : ∏ E:ShortExactSequence M, f(Ob2 E) = f(Ob1 E) + f(Ob3 E)) (A:M),
+    K_0_universal_map' f add (K_0_class A) = f A.
+  Proof.
+    reflexivity.
+  Qed.
+  Lemma K_0_map_universal_property' {M:ExactCategory} {G:abgr} :
+    monoidfun (K_0 M) G
+    ≃
+    ∑ f : ob M -> G, ∏ E:ShortExactSequence M, f(Ob2 E) = f(Ob1 E) + f(Ob3 E).
+  Proof.
+    use weq_iso.
+    - intros h. exists (h ∘ K_0_class). intros E. unfold funcomp.
+      intermediate_path (h (K_0_class (Ob1 E) + K_0_class (Ob3 E))).
+      + apply (maponpaths h). apply K_0_eqn.
+      + apply h.
+    - intros [f add]. exact (K_0_universal_map' f add).
+    - cbn beta. intros h. admit.
+    - cbn beta.
+  Abort.
+End Try.
