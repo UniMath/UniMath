@@ -6,56 +6,76 @@ Require Import UniMath.Algebra.Free_Monoids_and_Groups.
 Import AddNotation.
 Local Open Scope addmonoid.
 
-(* move upstream *)
-Local Notation "'π₀' X" := (pi0 X) (at level 40).
-Definition component {X:Type} : X -> π₀ X := setquotpr (pathseqrel X).
-Definition π₀_map {X Y:Type} : (X -> Y) -> (π₀ X -> π₀ Y)
-  := λ f, setquotfun (pathseqrel X) (pathseqrel Y) f (λ x x', hinhfun (maponpaths f)).
-Definition π₀_universal_map {X:Type} {Y:hSet} : (X -> Y) -> (π₀ X -> Y)
-  := λ f, setquotuniv _ _ f (λ x y e, squash_to_prop e (setproperty Y (f x) (f y)) (maponpaths f)).
-Lemma π₀_universal_map_eqn {X:Type} {Y:hSet} (f : X -> Y) :
-  ∏ (x:X), π₀_universal_map f (component x) = f x.
-Proof.
-  reflexivity.
-Defined.
-Lemma π₀_universal_map_uniq {X:Type} {Y:hSet} (h h' : π₀ X -> Y) :
-  (∏ x, h (component x) = h' (component x)) -> h ~ h'.
-Proof.
-  intros e x. apply (surjectionisepitosets component).
-  - apply issurjsetquotpr.
-  - apply setproperty.
-  - exact e.
-Defined.
-Definition π₀_universal_map_isweq {X:Type} {Y:hSet} (f : X -> Y) : ∃! (h : π₀ X -> Y), h ∘ component = f.
-Proof.
-  apply iscontraprop1.
-  - apply isaproptotal2.
-    + intros h. use (_ : isaset _). apply impred_isaset. intros x. apply setproperty.
-    + intros h h' e e'. apply funextsec. intro w. apply π₀_universal_map_uniq.
-      intros x.
-      exact (maponpaths (λ k, k x) (e @ ! e')).
-  - use tpair.
-    + exact (π₀_universal_map f).
-    + cbn beta. reflexivity.
-Qed.
-Definition π₀_universal_map_weq (X:Type) (Y:hSet) : (π₀ X -> Y) ≃ (X -> Y).
-Proof.
-  exists (λ h, h ∘ component). intros h. apply π₀_universal_map_isweq.
-Defined.
-Lemma free_monoid_univ {X : hSet} {Y : monoid} :
-  isweq (λ g : monoidfun (free_monoid X) Y, g ∘ free_monoid_unit).
-(* not needed, use free_monoid_universal_property instead *)
-Proof.
-  intros h. apply iscontraprop1.
-  - apply isaproptotal2.
-    + intros f. use (_ : isaset _). apply impred_isaset. intros x. apply setproperty.
-    + intros g g' e e'. assert (E := e@!e'); clear e e'. apply subtypeEquality.
-      * intro k. apply isapropismonoidfun.
-      * apply funextsec. change (g ~ g'). intros w.
-        refine (!free_monoid_extend_comp g w @ _ @ free_monoid_extend_comp g' w).
-        now induction E.
-  - now exists (free_monoid_extend h).
-Defined.
+Section setquot.
+  Definition setquot_universal_property (X:Type) (R:eqrel X) (Y:hSet) :
+    (setquot R -> Y) ≃ (∑ f : X -> Y, iscomprelfun R f).
+  Proof.
+    use weqpair.
+    - intros h. exists (h ∘ setquotpr R).
+      intros x x' r. unfold funcomp. apply maponpaths. apply iscompsetquotpr. exact r.
+    - intros f. apply iscontraprop1.
+      + apply isaproptotal2.
+        * intros h. apply isaset_total2.
+          { apply impred_isaset. intros x. apply setproperty. }
+          intros f'. apply isasetaprop. apply isapropiscomprelfun.
+        * intros h h' e e'. apply funextsec; intros w.
+          apply (surjectionisepitosets _ _ _ (issurjsetquotpr R)).
+          { apply setproperty. }
+          exact (λ x, maponpaths (adjev x) (maponpaths pr1 e @ ! maponpaths pr1 e')).
+      + exists (setquotuniv R Y (pr1 f) (pr2 f)). apply subtypeEquality.
+        * intros f'. apply isapropiscomprelfun.
+        * reflexivity.
+  Defined.
+  Goal ∏ (X:Type) (R:eqrel X) (Y:hSet) (h : setquot R -> Y),
+    pr1 (setquot_universal_property X R Y h) = h ∘ setquotpr R.
+  Proof.
+    reflexivity.
+  Defined.
+  Goal ∏ (X:Type) (R:eqrel X) (Y:hSet) (q : ∑ f : X -> Y, iscomprelfun R f),
+    invmap (setquot_universal_property X R Y) q = setquotuniv R Y (pr1 q) (pr2 q).
+  Proof.
+    reflexivity.
+  Defined.
+End setquot.
+
+Section Pi0.
+  (* move upstream *)
+  Definition π₀ := pi0.
+  Definition component {X:Type} : X -> π₀ X := setquotpr (pathseqrel X).
+  Definition π₀_map {X Y:Type} : (X -> Y) -> (π₀ X -> π₀ Y)
+    := λ f, setquotfun (pathseqrel X) (pathseqrel Y) f (λ x x', hinhfun (maponpaths f)).
+  Definition π₀_universal_property (X:Type) (Y:hSet) : (π₀ X -> Y) ≃ (X -> Y).
+  Proof.
+    exists (λ h, h ∘ component). intros f.
+    apply iscontraprop1.
+    - apply isaproptotal2.
+      + intros h. use (_ : isaset _). apply impred_isaset. intros x. apply setproperty.
+      + intros h h' e e'. apply funextsec. intro w.
+        { apply (surjectionisepitosets component).
+          - apply issurjsetquotpr.
+          - apply setproperty.
+          - intros x.
+            exact (maponpaths (λ k, k x) (e @ ! e')). }
+    - use tpair.
+      + exact (setquotuniv _ _ f (λ x y e, squash_to_prop e (setproperty Y (f x) (f y)) (maponpaths f))).
+      + cbn beta. reflexivity.
+  Defined.
+  Definition π₀_universal_map {X:Type} {Y:hSet} : (X -> Y) -> (π₀ X -> Y)
+    := invmap (π₀_universal_property X Y).
+  Lemma π₀_universal_map_eqn {X:Type} {Y:hSet} (f : X -> Y) :
+    ∏ (x:X), π₀_universal_map f (component x) = f x.
+  Proof.
+    reflexivity.
+  Defined.
+  Lemma π₀_universal_map_uniq {X:Type} {Y:hSet} (h h' : π₀ X -> Y) :
+    (∏ x, h (component x) = h' (component x)) -> h ~ h'.
+  Proof.
+    intros e x. apply (surjectionisepitosets component).
+    - apply issurjsetquotpr.
+    - apply setproperty.
+    - exact e.
+  Defined.
+End Pi0.
 
 (* new stuff *)
 Definition K_0_hrel (M:ExactCategory) : hrel (free_abgr (π₀ (ob M)))
@@ -97,7 +117,7 @@ Proof.
         clear r; intros [E [e e']]. induction (!e), (!e'); clear e e'. exact (k E).
     + apply isapropiscomprelfun.
     + apply impred_isaprop; intros E. apply setproperty.
-  - exact (weqfp (π₀_universal_map_weq (ob M) G) _).
+  - exact (weqfp (π₀_universal_property (ob M) G) _).
 Defined.
 Definition K_0_universal_map {M:ExactCategory} {G:abgr} (f : ob M -> G) :
   (∏ E:ShortExactSequence M, f(Ob2 E) = f(Ob1 E) + f(Ob3 E)) -> monoidfun (K_0 M) G.
@@ -134,7 +154,6 @@ Proof.
   - cbn beta. intros h. admit.
   - cbn beta.
 Abort.
-
 Goal ∏ (M:ExactCategory) (G:abgr) (h : monoidfun (K_0 M) G),
   pr1 (K_0_map_univ h) = h ∘ K_0_class.
 Proof.
@@ -144,6 +163,5 @@ Goal ∏ (M:ExactCategory) (G:abgr)
      (f : ob M -> G) (add : ∏ E:ShortExactSequence M, f(Ob2 E) = f(Ob1 E) + f(Ob3 E)),
   invmap K_0_map_univ (f,,add) = K_0_universal_map f add.
 Proof.
-  reflexivity.
+  reflexivity.                  (* too slow *)
 Qed.
-
