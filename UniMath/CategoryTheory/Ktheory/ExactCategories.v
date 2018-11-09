@@ -1052,9 +1052,17 @@ Section PreAdditive.
     ->
     isKernel' i p.
   Proof.
-
-
-
+    exact (λ k, pr1 k,,λ T h e, pr2 k (j T) h e).
+  Qed.
+  Lemma inducedMapReflectsCokernels (M : PreAdditive) {X:Type} (j : X -> ob M)
+        {A B C:induced_PreAdditive M j} (i:A-->B) (p:B-->C) :
+    isCokernel' (# (induced_PreAdditive_incl M j) i)
+              (# (induced_PreAdditive_incl M j) p)
+    ->
+    isCokernel' i p.
+  Proof.
+    exact (λ k, pr1 k,,λ T h e, pr2 k (j T) h e).
+  Qed.
 End PreAdditive.
 Section KernelCokernelPairs.
   Definition isKernelCokernelPair {M :PreAdditive} {A B C:M} (i : A --> B) (p: B --> C) : hProp
@@ -1063,6 +1071,18 @@ Section KernelCokernelPairs.
     isKernelCokernelPair i p -> isKernel' i p := pr1.
   Definition PairToCokernel {M :PreAdditive} {A B C:M} {i : A --> B} {p: B --> C} :
     isKernelCokernelPair i p -> isCokernel' i p := pr2.
+  Lemma inducedMapReflectsKernelCokernelPairs (M : PreAdditive) {X:Type} (j : X -> ob M)
+        {A B C:induced_PreAdditive M j} (i:A-->B) (p:B-->C) :
+    isKernelCokernelPair
+      (# (induced_PreAdditive_incl M j) i)
+      (# (induced_PreAdditive_incl M j) p)
+    ->
+    isKernelCokernelPair i p.
+  Proof.
+    intros [k c]. split.
+    - now apply inducedMapReflectsKernels.
+    - now apply inducedMapReflectsCokernels.
+  Qed.
   Definition opposite_isKernelCokernelPair {M:PreAdditive} {A B C:M} {i : A --> B} {p: B --> C} :
     isKernelCokernelPair i p -> isKernelCokernelPair (M:=oppositePreAdditive M) p i.
   Proof.
@@ -1224,15 +1244,15 @@ Section AdditiveBasics.         (* move upstream *)
   Defined.
   Definition induced_Additive (M : Additive) {X:Type}
              (j : X -> ob M)
-             (z : X) (iz : isZero M (j z))
+             (hz : ∃ z, isZero (j z))
              (sum : ∏ a b (S : BinDirectSum (j a) (j b)), ∃ x, z_iso (j x) (BinDirectSumOb S)) :
     Additive.
   Proof.
     exists (induced_PreAdditive M j). split.
-    - apply hinhpr. exists z. split.
+    - use (hinhfun _ hz). intros [z iz]. exists z. split.
       + intros a. apply iz.
       + intros b. apply iz.
-    - clear z iz. intros a b. apply (squash_to_hProp (to_BinDirectSums' (j a) (j b))); intros S.
+    - clear hz. intros a b. apply (squash_to_hProp (to_BinDirectSums' (j a) (j b))); intros S.
       use (hinhfun _ (sum a b S)); intros [c t]; clear sum. set (S' := replaceSum S t).
       use tpair.
       + exists c. exact (pr21 S').
@@ -2297,15 +2317,18 @@ End AdditiveToExact.
 Section InducedExactCategory.
   Definition induced_ExactCategory {M:ExactCategory} {X:Type}
              (j : X -> ob M)
-             (z : X) (iz : isZero M (j z)) (* could change this to mere existence *)
-             (ce : ∀ a c B (i : j a --> B) (p : B --> j c), isExact2 i p ⇒ ∃ b, z_iso (j b) B) :
+             (hz : ∃ z, isZero (j z))
+             (ce : ∀ a B c (i : j a --> B) (p : B --> j c),
+                 isExact2 i p ⇒ ∃ b, z_iso (j b) B) :
     ExactCategory.
   Proof.
     use mk_ExactCategory.
     - use tpair.
-      + apply (induced_Additive M j z iz). exact (λ a c S, ce a c S ι₁ π₂ (DirectSumToExact S)).
+      + apply (induced_Additive M j hz). exact (λ a c S, ce a S c ι₁ π₂ (DirectSumToExact S)).
       + cbn beta. intros P. exact (isExact2 (Mor1 P) (Mor2 P)).
-    - match goal with |- hProptoType (ExactCategoryProperties (?K,,?H)) => set (N := K); set (isexact := H) end; fold N in isexact; fold isexact.
+    - apply (squash_to_hProp hz). intros [z iz].
+      match goal with |- hProptoType (ExactCategoryProperties (?K,,?H)) => set (N := K); set (isexact := H) end; fold N in isexact; fold isexact.
+      set (Npre := induced_precategory_incl j).
       set (J := induced_PreAdditive_incl M j).
       set (zM := mk_Zero (j z) iz).
       assert (izz : @isZero N z).
@@ -2314,13 +2337,9 @@ Section InducedExactCategory.
       split.
       + split.
         * intros P Q t ie.
-          exact (EC_IsomorphicToExact
-                   (applyFunctorToPairIsomorphism
-                      J _ _ t) ie).
+          exact (EC_IsomorphicToExact  (applyFunctorToPairIsomorphism J _ _ t) ie).
         * intros P Q t ie.
-          exact (EC_IsomorphicToExact'
-                   (applyFunctorToPairIsomorphism
-                      (induced_precategory_incl M j) _ _ t) ie).
+          exact (EC_IsomorphicToExact' (applyFunctorToPairIsomorphism Npre _ _ t) ie).
       + split.
         * split;unfold ExactCategoryDataToAdditiveCategory,pr1.
           -- intros A. apply hinhpr. exists zN. exists 0.
@@ -2328,12 +2347,13 @@ Section InducedExactCategory.
           -- intros A. apply hinhpr. exists zN. exists 0.
              exact (pr2 (TrivialExactSequence' zM (J A))).
         * split;unfold ExactCategoryDataToAdditiveCategory,pr1.
-          -- intros P iP.
-             assert (Q := @EC_ExactToKernelCokernel
-                            M
-                            (applyFunctorToPair J P) iP).
-             generalize Q; clear Q.
-             unfold isKernelCokernelPair.
+          { intros P iP. apply inducedMapReflectsKernelCokernelPairs.
+            exact (EC_ExactToKernelCokernel iP). }
+          split.
+          { split.
+            { intros A B C f g mf mg.
+              assert (Q := @EC_ComposeMono M (j A) (j B) (j C) (# J f) (# J g)).
+
 
 
   Abort.
