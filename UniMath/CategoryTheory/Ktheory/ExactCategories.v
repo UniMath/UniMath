@@ -56,6 +56,7 @@ Local Notation "'π₂'" := (to_Pr2 _ _) : abgrcat.
 Local Notation "'ι₁'" := (to_In1 _ _) : abgrcat.
 Local Notation "'ι₂'" := (to_In2 _ _) : abgrcat.
 
+Local Arguments isZero {_} _.
 Local Arguments BinDirectSumOb {_ _ _}.
 Local Arguments to_binop {_ _ _}.
 Local Arguments grinv {_}.
@@ -613,13 +614,6 @@ Section PreAdditive.
   Proof.
     exact (mk_BinDirectSum _ _ _ _ _ _ _ _ (isTrivialDirectSum' _ _)).
   Defined.
-  Definition induced_PreAdditive (M : PreAdditive) {X:Type} (j : X -> ob M) : PreAdditive.
-  Proof.
-    exists (induced_categoryWithAbgrops M j).
-    split.
-    - exact (λ a b c, @to_premor_monoid M M (j a) (j b) (j c)).
-    - exact (λ a b c, @to_postmor_monoid M M (j a) (j b) (j c)).
-  Defined.
   Definition replaceSum {M:PreAdditive} {A B C:M} (S:BinDirectSum A B) :
     z_iso C S -> BinDirectSum A B (* with C judgmentally equal to the sum object *).
   Proof.
@@ -860,6 +854,23 @@ Section PreAdditive.
   Proof.
     exact (grinvandmonoidfun _ _ (pr2 F A B) g).
   Qed.
+  Lemma zeroCriterion {M:PreAdditive} {Z:M} : identity Z = 0 <-> isZero Z.
+  Proof.
+    split.
+    { intros e. split.
+      - intros T. exists 0. intros h. refine (! id_left h @ _). induction (!e); clear e. apply zeroLeft.
+      - intros T. exists 0. intros h. refine (! id_right h @ _). induction (!e); clear e. apply zeroRight. }
+    { intros i. apply (isapropifcontr (pr1 i Z)). }
+  Qed.
+  Lemma applyFunctorToIsZero {M N:PreAdditive} (F : PreAdditive_functor M N) (Z : M) :
+    isZero Z -> isZero (F Z).
+  Proof.
+    exact (λ i, pr1 zeroCriterion (! functor_id F Z @ maponpaths (#F) (pr2 zeroCriterion i) @ add_functor_zero F Z Z)).
+  Qed.
+  Definition applyFunctorToZero {M N:PreAdditive} (F : PreAdditive_functor M N) : Zero M -> Zero N.
+  Proof.
+    intros Z. exact (F Z,, applyFunctorToIsZero F Z (pr2 Z)).
+  Defined.
   Definition applyFunctorToIsBinDirectSum {M N:PreAdditive} (F : PreAdditive_functor M N)
              (A B S : M) (i1 : A --> S) (i2 : B --> S) (p1 : S --> A) (p2 : S --> B) :
     isBinDirectSum i1 i2 p1 p2 -> isBinDirectSum (# F i1) (# F i2) (# F p1) (# F p2).
@@ -870,14 +881,24 @@ Section PreAdditive.
     - rewrite <- add_functor_comp. rewrite (to_IdIn2 ds). apply functor_id.
     - rewrite <- add_functor_comp. rewrite (to_Unel1 ds); unfold to_unel. use ismonoidfununel. use (pr2 F).
     - rewrite <- add_functor_comp. rewrite (to_Unel2 ds); unfold to_unel. use ismonoidfununel. use (pr2 F).
-    - rewrite <- 2 add_functor_comp. rewrite <- add_functor_add. rewrite (to_BinOpId' ds).
-      apply functor_id.
+    - rewrite <- 2 add_functor_comp. rewrite <- add_functor_add. rewrite (to_BinOpId' ds). apply functor_id.
   Qed.
-  Definition applyFunctorToBinDirectSum {M N:PreAdditive} (F : PreAdditive_functor M N)
-             {A B:M} (S : BinDirectSum A B) : BinDirectSum (F A) (F B).
+  Definition applyFunctorToBinDirectSum {M N:PreAdditive} (F : PreAdditive_functor M N) {A B:M} :
+    BinDirectSum A B -> BinDirectSum (F A) (F B)
+    := λ S, mk_BinDirectSum _ _ _ _ _ _ _ _ (applyFunctorToIsBinDirectSum F A B S ι₁ ι₂ π₁ π₂ (pr2 S)).
+  Definition induced_PreAdditive (M : PreAdditive) {X:Type} (j : X -> ob M) : PreAdditive.
   Proof.
-    apply (mk_BinDirectSum N (F A) (F B) (F S) (# F ι₁) (# F ι₂) (# F π₁) (# F π₂)).
-    apply applyFunctorToIsBinDirectSum. exact (pr2 S).
+    exists (induced_categoryWithAbgrops M j).
+    split.
+    - exact (λ a b c, @to_premor_monoid M M (j a) (j b) (j c)).
+    - exact (λ a b c, @to_postmor_monoid M M (j a) (j b) (j c)).
+  Defined.
+  Definition induced_PreAdditive_incl (M : PreAdditive) {X:Type} (j : X -> ob M) :
+    PreAdditive_functor (induced_PreAdditive M j) M.
+  Proof.
+    exists (induced_precategory_incl j). intros A B. split.
+    + intros f g. reflexivity.
+    + reflexivity.
   Defined.
   Definition SwitchMap {M:PreAdditive} (a b:M) (ab : BinDirectSum a b) (ba : BinDirectSum b a) : ab --> ba := π₁ · ι₂ + π₂ · ι₁.
   Lemma SwitchMapEqn {M:PreAdditive} {a b:M} (ab : BinDirectSum a b) (ba : BinDirectSum b a) : SwitchMap a b ab ba · SwitchMap b a ba ab = 1.
@@ -1024,14 +1045,16 @@ Section PreAdditive.
     rewrite <- (opposite_directSumMap' yY zZ g g').
     exact (SumOfKernels (M:=oppositePreAdditive M) (oppositeBinDirectSum zZ) (oppositeBinDirectSum yY) (oppositeBinDirectSum xX) g f g' f' i i').
   Qed.
-  (* TO DO *)
-  (* Lemma inducedMapReflectsKernels (M : PreAdditive) {X:Type} (j : X -> ob M) *)
-  (*       {A B C:induced_PreAdditive M j} (i:A-->B) (p:B-->C) : *)
-  (*   isKernel' (# (induced_PreAdditive_incl M j) i) *)
-  (*             (# (induced_PreAdditive_incl M j) p) *)
-  (*   -> *)
-  (*   isKernel' i p. *)
-  (* Proof. *)
+  Lemma inducedMapReflectsKernels (M : PreAdditive) {X:Type} (j : X -> ob M)
+        {A B C:induced_PreAdditive M j} (i:A-->B) (p:B-->C) :
+    isKernel' (# (induced_PreAdditive_incl M j) i)
+              (# (induced_PreAdditive_incl M j) p)
+    ->
+    isKernel' i p.
+  Proof.
+
+
+
 End PreAdditive.
 Section KernelCokernelPairs.
   Definition isKernelCokernelPair {M :PreAdditive} {A B C:M} (i : A --> B) (p: B --> C) : hProp
@@ -1997,6 +2020,7 @@ Section SplitSequences.
       intros M A B C k r.
       Open Scope cat. Open Scope addmonoid. Open Scope type.
       unfold isSplit2, isBinDirectSum; cbn; rewrite rewrite_op.
+      (* do we need this? *)
     Abort.
   End Foo.
   Lemma opposite_isSplit2 {M:PreAdditive} {A B C:M} (i:A-->B) (p:B-->C) :
@@ -2282,34 +2306,34 @@ Section InducedExactCategory.
       + apply (induced_Additive M j z iz). exact (λ a c S, ce a c S ι₁ π₂ (DirectSumToExact S)).
       + cbn beta. intros P. exact (isExact2 (Mor1 P) (Mor2 P)).
     - match goal with |- hProptoType (ExactCategoryProperties (?K,,?H)) => set (N := K); set (isexact := H) end; fold N in isexact; fold isexact.
-      (* set (J := induced_Additive_incl M j). *)
-      (* set (zM := mk_Zero (j z) iz). *)
-      (* assert (izz : @isZero N z). *)
-      (* { split; intros a; apply iz. } *)
-      (* set (zN := @mk_Zero N z izz). (* J zN = zM judgmentally *) *)
-      (* split. *)
-      (* + split. *)
-      (*   * intros P Q t ie. *)
-      (*     exact (EC_IsomorphicToExact *)
-      (*              (applyFunctorToPairIsomorphism *)
-      (*                 J _ _ t) ie). *)
-      (*   * intros P Q t ie. *)
-      (*     exact (EC_IsomorphicToExact' *)
-      (*              (applyFunctorToPairIsomorphism *)
-      (*                 (induced_precategory_incl M j) _ _ t) ie). *)
-      (* + split. *)
-      (*   * split;unfold ExactCategoryDataToAdditiveCategory,pr1. *)
-      (*     -- intros A. apply hinhpr. exists zN. exists 0. *)
-      (*        exact (pr2 (TrivialExactSequence (J A) zM)). *)
-      (*     -- intros A. apply hinhpr. exists zN. exists 0. *)
-      (*        exact (pr2 (TrivialExactSequence' zM (J A))). *)
-      (*   * split;unfold ExactCategoryDataToAdditiveCategory,pr1. *)
-      (*     -- intros P iP. *)
-      (*        assert (Q := @EC_ExactToKernelCokernel *)
-      (*                       M *)
-      (*                       (applyFunctorToPair J P) iP). *)
-      (*        generalize Q; clear Q. *)
-      (*        unfold isKernelCokernelPair. *)
+      set (J := induced_PreAdditive_incl M j).
+      set (zM := mk_Zero (j z) iz).
+      assert (izz : @isZero N z).
+      { split; intros a; apply iz. }
+      set (zN := @mk_Zero N z izz). (* J zN = zM judgmentally *)
+      split.
+      + split.
+        * intros P Q t ie.
+          exact (EC_IsomorphicToExact
+                   (applyFunctorToPairIsomorphism
+                      J _ _ t) ie).
+        * intros P Q t ie.
+          exact (EC_IsomorphicToExact'
+                   (applyFunctorToPairIsomorphism
+                      (induced_precategory_incl M j) _ _ t) ie).
+      + split.
+        * split;unfold ExactCategoryDataToAdditiveCategory,pr1.
+          -- intros A. apply hinhpr. exists zN. exists 0.
+             exact (pr2 (TrivialExactSequence (J A) zM)).
+          -- intros A. apply hinhpr. exists zN. exists 0.
+             exact (pr2 (TrivialExactSequence' zM (J A))).
+        * split;unfold ExactCategoryDataToAdditiveCategory,pr1.
+          -- intros P iP.
+             assert (Q := @EC_ExactToKernelCokernel
+                            M
+                            (applyFunctorToPair J P) iP).
+             generalize Q; clear Q.
+             unfold isKernelCokernelPair.
 
 
   Abort.
