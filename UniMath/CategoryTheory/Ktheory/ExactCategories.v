@@ -210,8 +210,17 @@ Section Precategories.             (* move upstream *)
       + exact (λ a b c d, @assoc M (j a) (j b) (j c) (j d)).
       + exact (λ a b c d, @assoc' M (j a) (j b) (j c) (j d)).
   Defined.
+  Definition induced_precategory_incl {M : precategory} {X:Type} (j : X -> ob M) :
+    induced_precategory M j ⟶ M.
+  Proof.
+    use mk_functor.
+    - use mk_functor_data.
+      + exact j.
+      + intros a b f. exact f.
+    - repeat split.
+  Defined.
   Goal ∏ (M : precategory) {X:Type} (j : X -> ob M),
-    induced_precategory (M^op) j = (induced_precategory M j)^op.
+    induced_precategory M^op j = (induced_precategory M j)^op.
   Proof.
     reflexivity.
   Defined.
@@ -291,6 +300,21 @@ Section MorphismPairs.          (* move upstream *)
   Definition applyFunctorToPair {M N:precategory} :
     (M⟶N) -> MorphismPair M -> MorphismPair N
     := λ F P, mk_MorphismPair (# F (Mor1 P)) (# F (Mor2 P)).
+  Definition applyFunctorToPairIsomorphism {M N:precategory}
+             (F : M⟶N) (P Q : MorphismPair M) :
+    MorphismPairIsomorphism P Q ->
+    MorphismPairIsomorphism (applyFunctorToPair F P) (applyFunctorToPair F Q).
+  Proof.
+    intros [i1 [i2 [i3 [[d d'][e e']]]]].
+    exists (functor_on_z_iso F i1).
+    exists (functor_on_z_iso F i2).
+    exists (functor_on_z_iso F i3).
+    repeat split.
+    - refine (! _ @ (maponpaths (# F) d ) @ _);apply functor_comp.
+    - refine (! _ @ (maponpaths (# F) d') @ _);apply functor_comp.
+    - refine (! _ @ (maponpaths (# F) e ) @ _);apply functor_comp.
+    - refine (! _ @ (maponpaths (# F) e') @ _);apply functor_comp.
+  Defined.
 End MorphismPairs.
 
 Section OppositeMorphismPairs.
@@ -439,7 +463,7 @@ End Pullbacks2.
 
 Local Open Scope abgrcat.
 
-Section precategoryWithBinOps.
+Section precategoryWithBinOps.  (* move upstream *)
   Definition oppositePrecategoryWithBinOps (M : precategoryWithBinOps) : precategoryWithBinOps
     := mk_precategoryWithBinOps
          (opp_precat M)
@@ -455,7 +479,7 @@ Section precategoryWithBinOps.
     intros a b. exact (@to_binop M (j a) (j b)).
   Defined.
 End precategoryWithBinOps.
-Section categoryWithAbgrops.
+Section categoryWithAbgrops.    (* move upstream *)
   Definition oppositeCategoryWithAbgrops (M : categoryWithAbgrops) : categoryWithAbgrops
     := mk_categoryWithAbgrops
          (oppositePrecategoryWithBinOps M)
@@ -808,6 +832,53 @@ Section PreAdditive.
              (B : isBinDirectSum i1 i2 p1 p2) :
     p1 · i1 + p2 · i2 = identity co := to_BinOpId B.
   Definition to_BinOpId'' {M:PreAdditive} {a b : M} (ab : BinDirectSum a b) := to_BinOpId ab.
+  Definition ismonoidfun_prop {G H:abgr} (f:G->H) : hProp := hProppair (ismonoidfun f) (isapropismonoidfun f).
+  Definition PreAdditive_functor (M N:PreAdditive) :=
+    ∑ F : M ⟶ N, ∀ A B:M, ismonoidfun_prop (@functor_on_morphisms M N F A B : A --> B -> F A --> F B).
+  Coercion PreAdditive_functor_to_functor {M N:PreAdditive} : PreAdditive_functor M N -> functor M N := pr1.
+  Definition functor_on_morphisms_add {C C' : PreAdditive} (F : PreAdditive_functor C C') { a b : C}
+    : monoidfun (a --> b) (F a --> F b)
+    := monoidfunconstr (pr2 F a b).
+  Local Notation "# F" := (functor_on_morphisms_add F) : abgrcat.
+  Lemma add_functor_comp {M N:PreAdditive} (F : PreAdditive_functor M N) {A B C:M} (f:A --> B) (g:B --> C) :
+    # F (f · g) = # F f · # F g.
+  Proof.
+    exact (functor_comp F f g).
+  Qed.
+  Lemma add_functor_add {M N:PreAdditive} (F : PreAdditive_functor M N) {A B:M} (f g:A --> B) :
+    # F (f+g) = # F f + # F g.
+  Proof.
+    exact (ismonoidfunisbinopfun (pr2 F A B) f g).
+  Qed.
+  Lemma add_functor_zero {M N:PreAdditive} (F : PreAdditive_functor M N) (A B:M) :
+    functor_on_morphisms_add (a:=A) (b:=B) F 0 = 0.
+  Proof.
+    exact (ismonoidfununel (pr2 F A B)).
+  Qed.
+  Lemma add_functor_sub {M N:PreAdditive} (F : PreAdditive_functor M N) {A B:M} (g:A --> B) :
+    # F (-g) = - # F g.
+  Proof.
+    exact (grinvandmonoidfun _ _ (pr2 F A B) g).
+  Qed.
+  Definition applyFunctorToIsBinDirectSum {M N:PreAdditive} (F : PreAdditive_functor M N)
+             (A B S : M) (i1 : A --> S) (i2 : B --> S) (p1 : S --> A) (p2 : S --> B) :
+    isBinDirectSum i1 i2 p1 p2 -> isBinDirectSum (# F i1) (# F i2) (# F p1) (# F p2).
+  Proof.
+    intros ds.
+    repeat split.
+    - rewrite <- add_functor_comp. rewrite (to_IdIn1 ds). apply functor_id.
+    - rewrite <- add_functor_comp. rewrite (to_IdIn2 ds). apply functor_id.
+    - rewrite <- add_functor_comp. rewrite (to_Unel1 ds); unfold to_unel. use ismonoidfununel. use (pr2 F).
+    - rewrite <- add_functor_comp. rewrite (to_Unel2 ds); unfold to_unel. use ismonoidfununel. use (pr2 F).
+    - rewrite <- 2 add_functor_comp. rewrite <- add_functor_add. rewrite (to_BinOpId' ds).
+      apply functor_id.
+  Qed.
+  Definition applyFunctorToBinDirectSum {M N:PreAdditive} (F : PreAdditive_functor M N)
+             {A B:M} (S : BinDirectSum A B) : BinDirectSum (F A) (F B).
+  Proof.
+    apply (mk_BinDirectSum N (F A) (F B) (F S) (# F ι₁) (# F ι₂) (# F π₁) (# F π₂)).
+    apply applyFunctorToIsBinDirectSum. exact (pr2 S).
+  Defined.
   Definition SwitchMap {M:PreAdditive} (a b:M) (ab : BinDirectSum a b) (ba : BinDirectSum b a) : ab --> ba := π₁ · ι₂ + π₂ · ι₁.
   Lemma SwitchMapEqn {M:PreAdditive} {a b:M} (ab : BinDirectSum a b) (ba : BinDirectSum b a) : SwitchMap a b ab ba · SwitchMap b a ba ab = 1.
   Proof.
@@ -953,6 +1024,14 @@ Section PreAdditive.
     rewrite <- (opposite_directSumMap' yY zZ g g').
     exact (SumOfKernels (M:=oppositePreAdditive M) (oppositeBinDirectSum zZ) (oppositeBinDirectSum yY) (oppositeBinDirectSum xX) g f g' f' i i').
   Qed.
+  (* TO DO *)
+  (* Lemma inducedMapReflectsKernels (M : PreAdditive) {X:Type} (j : X -> ob M) *)
+  (*       {A B C:induced_PreAdditive M j} (i:A-->B) (p:B-->C) : *)
+  (*   isKernel' (# (induced_PreAdditive_incl M j) i) *)
+  (*             (# (induced_PreAdditive_incl M j) p) *)
+  (*   -> *)
+  (*   isKernel' i p. *)
+  (* Proof. *)
 End PreAdditive.
 Section KernelCokernelPairs.
   Definition isKernelCokernelPair {M :PreAdditive} {A B C:M} (i : A --> B) (p: B --> C) : hProp
@@ -1207,6 +1286,9 @@ Section theDefinition.
     := ∀ (P : MorphismPair M), isExact P ⇒ isExact (applyFunctorToPair F P).
   Definition ExactFunctor (M N:ExactCategory)
     := ∑ F : M ⟶ N, isExactFunctor F.
+  (* TO DO : show an exact functor is additive, or else include that as a condition.
+     That includes showing it induces monoid functions on Hom groups.
+     Start by defining preadditive functors and additive functors. *)
   Coercion ExactFunctorToFunctor {M N:ExactCategory}
     : ExactFunctor M N -> (M ⟶ N)
     := pr1.
@@ -1218,7 +1300,9 @@ Section theDefinition.
   Definition applyFunctorToShortExactSequence {M N:ExactCategory} (F : ExactFunctor M N) :
     ShortExactSequence M -> ShortExactSequence N.
   Proof.
-    intros E. exists (applyFunctorToPair F E). exact (pr2 F E (pr2 E)).
+    intros E. exists (applyFunctorToPair F E).
+    induction E as [E iE]. unfold ShortExactSequenceToMorphismPair,pr1.
+    exact (pr2 F E iE).
   Defined.
   Definition composeExactFunctors {L M N:ExactCategory} : ExactFunctor L M -> ExactFunctor M N -> ExactFunctor L N.
   Proof.
@@ -1510,6 +1594,28 @@ Section ExactCategoryFacts.
   Definition In2AdmMono {M : ExactCategory} {A B:M} (S:BinDirectSum A B) : AdmissibleMonomorphism B S := ι₂ ,, In2IsAdmMono S.
   Definition Pr1AdmEpi {M : ExactCategory} {A B:M} (S:BinDirectSum A B) : AdmissibleEpimorphism S A := π₁ ,, Pr1IsAdmEpi S.
   Definition Pr2AdmEpi {M : ExactCategory} {A B:M} (S:BinDirectSum A B) : AdmissibleEpimorphism S B := π₂ ,, Pr2IsAdmEpi S.
+  Definition TrivialExactSequence {M : ExactCategory} (A:M) (Z:Zero M) : ShortExactSequence M.
+  Proof.
+    assert (Q := DirectSumToExact (TrivialDirectSum Z A)).
+    exact (mk_MorphismPair ι₁ π₂,, Q).
+  Defined.
+  Goal ∏ {M : ExactCategory} {A:M} (Z:Zero M), Mor1 (TrivialExactSequence A Z) = identity A.
+    reflexivity.
+  Qed.
+  Goal ∏ {M : ExactCategory} {A:M} (Z:Zero M), Ob3 (TrivialExactSequence A Z) = Z.
+    reflexivity.
+  Qed.
+  Definition TrivialExactSequence' {M : ExactCategory} (Z:Zero M) (A:M) : ShortExactSequence M.
+  Proof.
+    assert (Q := DirectSumToExact (TrivialDirectSum' Z A)).
+    exact (mk_MorphismPair ι₁ π₂,, Q).
+  Defined.
+  Goal ∏ {M : ExactCategory} {A:M} (Z:Zero M), Mor2 (TrivialExactSequence' Z A) = identity A.
+    reflexivity.
+  Qed.
+  Goal ∏ {M : ExactCategory} {A:M} (Z:Zero M), Ob1 (TrivialExactSequence' Z A) = Z.
+    reflexivity.
+  Qed.
   Lemma ExactPushout {M : ExactCategory} {A B C A':M} (i : A --> B) (p : B --> C)
         (pr : isExact2 i p) (r : A --> A') :
     ∃ (po : Pushout i r),
@@ -2167,7 +2273,7 @@ End AdditiveToExact.
 Section InducedExactCategory.
   Definition induced_ExactCategory {M:ExactCategory} {X:Type}
              (j : X -> ob M)
-             (z : X) (iz : isZero M (j z))
+             (z : X) (iz : isZero M (j z)) (* could change this to mere existence *)
              (ce : ∀ a c B (i : j a --> B) (p : B --> j c), isExact2 i p ⇒ ∃ b, z_iso (j b) B) :
     ExactCategory.
   Proof.
@@ -2176,7 +2282,35 @@ Section InducedExactCategory.
       + apply (induced_Additive M j z iz). exact (λ a c S, ce a c S ι₁ π₂ (DirectSumToExact S)).
       + cbn beta. intros P. exact (isExact2 (Mor1 P) (Mor2 P)).
     - match goal with |- hProptoType (ExactCategoryProperties (?K,,?H)) => set (N := K); set (isexact := H) end; fold N in isexact; fold isexact.
-      split.
-      +
+      (* set (J := induced_Additive_incl M j). *)
+      (* set (zM := mk_Zero (j z) iz). *)
+      (* assert (izz : @isZero N z). *)
+      (* { split; intros a; apply iz. } *)
+      (* set (zN := @mk_Zero N z izz). (* J zN = zM judgmentally *) *)
+      (* split. *)
+      (* + split. *)
+      (*   * intros P Q t ie. *)
+      (*     exact (EC_IsomorphicToExact *)
+      (*              (applyFunctorToPairIsomorphism *)
+      (*                 J _ _ t) ie). *)
+      (*   * intros P Q t ie. *)
+      (*     exact (EC_IsomorphicToExact' *)
+      (*              (applyFunctorToPairIsomorphism *)
+      (*                 (induced_precategory_incl M j) _ _ t) ie). *)
+      (* + split. *)
+      (*   * split;unfold ExactCategoryDataToAdditiveCategory,pr1. *)
+      (*     -- intros A. apply hinhpr. exists zN. exists 0. *)
+      (*        exact (pr2 (TrivialExactSequence (J A) zM)). *)
+      (*     -- intros A. apply hinhpr. exists zN. exists 0. *)
+      (*        exact (pr2 (TrivialExactSequence' zM (J A))). *)
+      (*   * split;unfold ExactCategoryDataToAdditiveCategory,pr1. *)
+      (*     -- intros P iP. *)
+      (*        assert (Q := @EC_ExactToKernelCokernel *)
+      (*                       M *)
+      (*                       (applyFunctorToPair J P) iP). *)
+      (*        generalize Q; clear Q. *)
+      (*        unfold isKernelCokernelPair. *)
+
+
   Abort.
 End InducedExactCategory.
