@@ -1971,6 +1971,28 @@ Section ExactCategoryFacts.
   Proof.
     exact (AdmMonoFromComposite (M:=M^op) j i).
   Qed.
+  Lemma CokernelSequence {M:ExactCategory} {A B C P R:M}
+        (i : A --> B) (j : B --> C) (p : B --> P) (q : C --> R) :
+    isExact2 i p -> isExact2 j q ->
+    ∃ Q (s : C --> Q) (k : P --> Q) (r : Q --> R), isExact2 (i·j) s ∧ isExact2 k r.
+  Proof.
+  Admitted.
+  Lemma KernelSequence {M:ExactCategory} {A B C P R:M}
+        (i : B --> A) (j : C --> B) (p : P --> B) (q : R --> C) :
+    isExact2 p i -> isExact2 q j ->
+    ∃ Q (s : Q --> C) (k : Q --> P) (r : R --> Q), isExact2 s (j·i) ∧ isExact2 r k.
+  Proof.
+    exact (CokernelSequence (M := oppositeExactCategory M) i j p q).
+  Defined.
+  Lemma ExactIso3 {M:ExactCategory} {A B C C':M} (i:A-->B) (p:B-->C) (t:z_iso C C') :
+    isExact2 i p -> isExact2 i (p·t).
+  Proof.
+  Admitted.
+  Lemma ExactIso1 {M:ExactCategory} {A' A B C:M} (t:z_iso A' A) (i:A-->B) (p:B-->C) :
+    isExact2 i p -> isExact2 (t·i) p.
+  Proof.
+    exact (ExactIso3 (M:=oppositeExactCategory M) p i (opp_z_iso t)).
+  Defined.
 End ExactCategoryFacts.
 
 Section EquivalenceOfTwoDefinitions.
@@ -2328,6 +2350,7 @@ Section InducedExactCategory.
       + cbn beta. intros P. exact (isExact2 (Mor1 P) (Mor2 P)).
     - apply (squash_to_hProp hz). intros [z iz].
       match goal with |- hProptoType (ExactCategoryProperties (?K,,?H)) => set (N := K); set (isexact := H) end; fold N in isexact; fold isexact.
+      set (Nexdat := N,,isexact).
       set (Npre := induced_precategory_incl j).
       set (J := induced_PreAdditive_incl M j).
       set (zM := mk_Zero (j z) iz).
@@ -2340,7 +2363,11 @@ Section InducedExactCategory.
           exact (EC_IsomorphicToExact  (applyFunctorToPairIsomorphism J _ _ t) ie).
         * intros P Q t ie.
           exact (EC_IsomorphicToExact' (applyFunctorToPairIsomorphism Npre _ _ t) ie).
-      + split.
+      + assert (mo : ∏ (A B:N) (i:A-->B),
+                     isAdmissibleMonomorphism (M:=Nexdat) i ->
+                     isAdmissibleMonomorphism (M:=M)      (# J i)).
+        { intros A B i im. admit. }
+        split.
         * split;unfold ExactCategoryDataToAdditiveCategory,pr1.
           -- intros A. apply hinhpr. exists zN. exists 0.
              exact (pr2 (TrivialExactSequence (J A) zM)).
@@ -2352,7 +2379,21 @@ Section InducedExactCategory.
           split.
           { split.
             { intros A B C f g mf mg.
-              assert (Q := @EC_ComposeMono M (j A) (j B) (j C) (# J f) (# J g)).
+              apply (squash_to_hProp mf); clear mf; intros [P [p fp]].
+              apply (squash_to_hProp mg); clear mg; intros [R [q gq]].
+              assert (cs := CokernelSequence _ _ _ _ fp gq).
+              apply (squash_to_hProp cs); clear cs; intros [T [s [k [r [fgs kr]]]]].
+              apply (squash_to_hProp (ce P T R k r kr)); intros [U α].
+              apply hinhpr. exists U. exists (s · z_iso_inv α).
+              exact (ExactIso3 (f·g) s (z_iso_inv α) fgs). }
+            { intros A B C f g mf mg.
+              apply (squash_to_hProp mf); clear mf; intros [P [p fp]].
+              apply (squash_to_hProp mg); clear mg; intros [R [q gq]].
+              assert (cs := KernelSequence _ _ _ _ gq fp).
+              apply (squash_to_hProp cs); clear cs; intros [T [s [k [r [fgs kr]]]]].
+              apply (squash_to_hProp (ce P T R r k kr)); intros [U α].
+              apply hinhpr. exists U. exists (α · s).
+              exact (ExactIso1 α s (f·g) fgs). }
 
 
 
