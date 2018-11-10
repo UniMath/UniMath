@@ -28,6 +28,25 @@ Require Export UniMath.Algebra.Monoids_and_Groups.
 Import AddNotation.
 Local Open Scope addmonoid.
 
+
+Section WeakEquivalences.
+  Goal ∏ (X Y Z:Type) (f:X≃Y) (g:Y≃Z), pr1weq (weqcomp f g) = pr1weq g ∘ pr1weq f.
+  Proof.
+    reflexivity.
+  Qed.
+  Goal ∏ (X Y Z:Type) (f:X≃Y) (g:Y≃Z), invmap (weqcomp f g) = invmap f ∘ invmap g.
+  Proof.
+    reflexivity.
+  Qed.
+  Lemma weqtotal2 {X Y:Type} {P:X->Type} {Q:Y->Type} (f : X ≃ Y) :
+    (∏ x, P x ≃ Q (f x)) -> (∑ x:X, P x) ≃ (∑ y:Y, Q y).
+  Proof.                          (* move upstream *)
+    intros e. exists (λ xp, (f(pr1 xp),,e (pr1 xp) (pr2 xp))).
+    exact (twooutof3c _ _ (isweqfibtototal P (Q ∘ f) e) (pr2 (weqfp f Q))).
+  Defined.
+End WeakEquivalences.
+
+
 (* move upstream to Init.v *)
   Reserved Notation "A ⊕ B" (at level 50, left associativity).
   (* to input: type "\o+" or "\oplus" with Agda input method *)
@@ -108,6 +127,7 @@ Section Sanity2.
   Abort.
 
 End Sanity2.
+
 Section Precategories.             (* move upstream *)
   Definition iso_to_z_iso {C : precategory} {b c : C} (f : iso b c) : z_iso b c
     := pr1 f ,, is_z_iso_from_is_iso (pr1 f) (pr2 f).
@@ -691,6 +711,50 @@ Section PreAdditive.
   Goal ∏ (M:PreAdditive) (x y z : M) (f : x --> y) (g : y --> z), isCokernel' (M:=M) f g = isKernel' (M:=oppositePreAdditive M) g f.
     reflexivity.
   Defined.
+  Section Tmp.
+    Open Scope cat.
+    Open Scope type.
+    Lemma PushoutCokernel {M:PreAdditive} {A B C D E:M} (i:A-->B) (p:B-->C)
+          (j:B-->D) (p':D-->E) (j':C-->E) :
+      isCokernel' i p -> (∑ (e : p · j' = j · p'), isPushout p j j' p' e) ->
+      isCokernel' (i·j) p'.
+    Proof.
+      intros [b co] [e po].
+      (* We show the universal property of the cokernel by showing uniqueness
+         and existence simultaneously, i.e., by working with equivalences to show
+         a type is contractible. *)
+      split.
+      - rewrite assoc'. rewrite <- e. rewrite assoc. rewrite b. apply zeroLeft.
+      - intros T h v. rewrite assoc' in v.
+        assert (Q := co T (j·h) v); cbn in Q. generalize Q; clear Q.
+        apply iscontrweqb. use weqpair.
+        + intros [k w]; exists (j'·k); abstract (rewrite assoc; rewrite e; rewrite assoc';
+          rewrite w; reflexivity) using _L_.
+        + cbn beta. intros [l w]; unfold hfiber. assert (PO := po T l h w); clear po.
+          generalize PO; clear PO. apply iscontrweqb.
+          refine (weqcomp (weqtotal2asstor _ _) _). apply weqfibtototal; intros m. cbn.
+          apply weqiff.
+          { split.
+            - intros [x y]. split.
+              + exact (maponpaths pr1 y).
+              + exact x.
+            - intros [x y]. exists y. induction x. apply maponpaths, to_has_homsets.
+            }
+          { apply isofhleveltotal2.
+              - apply to_has_homsets.
+              - intros u. refine ((_:isofhlevel 2 _) _ _). apply isofhleveltotal2.
+                + apply to_has_homsets.
+                + intros n. apply hlevelntosn. apply to_has_homsets. }
+          { apply isapropdirprod; apply to_has_homsets. }
+    Qed.
+    Lemma PullbackKernel {M:PreAdditive} {A B C D E:M} (i:A<--B) (p:B<--C)
+          (j:B<--D) (p':D<--E) (j':C<--E) :
+      isKernel' p i -> (∑ (e : p ∘ j' = j ∘ p'), isPullback p j j' p' e) ->
+      isKernel' p' (i∘j).
+    Proof.
+      apply (@PushoutCokernel (oppositePreAdditive M)).
+    Defined.
+  End Tmp.
   Lemma KernelIsMonic {M:PreAdditive} {x y z:M} (f : x --> y) (g : y --> z) : isKernel' f g -> isMonic f.
   Proof.
     intros [t i] w p q e.

@@ -6,23 +6,6 @@ Require Import UniMath.Algebra.Free_Monoids_and_Groups.
 Import AddNotation.
 Local Open Scope addmonoid.
 
-Section WeakEquivalences.
-  Goal ∏ (X Y Z:Type) (f:X≃Y) (g:Y≃Z), pr1weq (weqcomp f g) = pr1weq g ∘ pr1weq f.
-  Proof.
-    reflexivity.
-  Qed.
-  Goal ∏ (X Y Z:Type) (f:X≃Y) (g:Y≃Z), invmap (weqcomp f g) = invmap f ∘ invmap g.
-  Proof.
-    reflexivity.
-  Qed.
-  Lemma weqtotal2 {X Y:Type} {P:X->Type} {Q:Y->Type} (f : X ≃ Y) :
-    (∏ x, P x ≃ Q (f x)) -> (∑ x:X, P x) ≃ (∑ y:Y, Q y).
-  Proof.                          (* move upstream *)
-    intros e. exists (λ xp, (f(pr1 xp),,e (pr1 xp) (pr2 xp))).
-    exact (twooutof3c _ _ (isweqfibtototal P (Q ∘ f) e) (pr2 (weqfp f Q))).
-  Defined.
-End WeakEquivalences.
-
 Section setquot.
   Lemma setquot_map_epi {X : Type} {R : eqrel X} {Y : hSet} {h h' : setquot R → Y} :
     h ∘ setquotpr R ~ h' ∘ setquotpr R -> h ~ h'.
