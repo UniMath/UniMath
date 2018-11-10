@@ -13,17 +13,20 @@ Author: Langston Barrett (@siddharthist), Feb 2018
   - The precategory of 𝒰-small categories ([cat_precat])
   - The precategory of 𝒰-small univalent categories ([univalent_cat_precat])
   - The category of 𝒰-small set categories ([setcat_cat])
-- (Co)limits
-  - Colimits
-  - Limits
-    - Terminal objects
-      - Terminal precategory ([TerminalPrecat])
-      - Terminal category ([TerminalCat])
-      - Terminal univalent category ([TerminalUniCat])
-      - Terminal setcategory ([TerminalSetCat])
-    - Products
-      - Product category ([ProductsCat])
-      - Product univalent category ([ProductsUniCat])
+- Colimits
+  - Initial objects
+    - Initial precategory ([InitialPrecat])
+    - Initial category ([InitialCat])
+    - Initial univalent category ([InitialUniCat])
+- Limits
+  - Terminal objects
+    - Terminal precategory ([TerminalPrecat])
+    - Terminal category ([TerminalCat])
+    - Terminal univalent category ([TerminalUniCat])
+    - Terminal setcategory ([TerminalSetCat])
+  - Products
+    - Product category ([ProductsCat])
+    - Product univalent category ([ProductsUniCat])
 *)
 
 Require Import UniMath.Foundations.PartA.
@@ -167,11 +170,44 @@ Defined.
 
 Definition setcat_cat : category := category_pair _ has_homsets_setcat_precat.
 
-(** ** (Co)limits *)
+(** ** Colimits *)
 
-(** *** Colimits *)
+(** *** Initial objects *)
+
+(** **** Initial precategory ([InitialPrecat]) *)
+
+Definition InitialPrecat : Initial precat_precat.
+Proof.
+  use mk_Initial.
+  - cbn; exact empty_category.
+  - intros ?; apply iscontr_functor_from_empty.
+Defined.
 
 (** **** Initial category ([InitialCat]) *)
+
+Definition InitialCat : Initial cat_precat.
+Proof.
+  use (initial_in_full_subcategory _ InitialPrecat).
+  apply homset_property.
+Defined.
+
+(** **** Initial univalent category ([InitialUniCat]) *)
+
+Definition InitialUniCat : Initial univalent_cat_precat.
+Proof.
+  use (initial_in_full_subcategory _ InitialPrecat).
+  apply univalent_category_is_univalent.
+Defined.
+
+(** **** Initial set category ([InitialSetCat]) *)
+
+Definition InitialSetCat : Initial setcat_cat.
+Proof.
+  use (initial_in_full_subcategory _ InitialPrecat).
+  split.
+  - apply hlevelntosn, isapropempty.
+  - intros a; induction a.
+Defined.
 
 (** ** Limits *)
 
