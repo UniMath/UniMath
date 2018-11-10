@@ -145,6 +145,7 @@ DisplayedCats/Examples.v
 DisplayedCats/Adjunctions.v
 
 Bicategories/Bicat.v
+Bicategories/Examples/one_types.v
 Bicategories/StandardBicategories.v
 Bicategories/OpCellBicat.v
 Bicategories/OpMorBicat.v

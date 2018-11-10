@@ -354,6 +354,137 @@ Definition isaset_cells (C : prebicat) : UU
 Definition bicat : UU
   := ∑ C : prebicat, isaset_cells C.
 
+Definition build_bicategory
+           (ob : UU)
+           (mor : ob -> ob -> UU)
+           (cell : ∏ {X Y : ob}, mor X Y -> mor X Y -> UU)
+           (id₁ : ∏ (X : ob), mor X X)
+           (comp : ∏ {X Y Z : ob}, mor X Y -> mor Y Z -> mor X Z)
+           (id₂ : ∏ {X Y : ob} (f : mor X Y), cell f f)
+           (vcomp : ∏ {X Y : ob} {f g h : mor X Y}, cell f g -> cell g h -> cell f h)
+           (lwhisk : ∏ {X Y Z : ob} (f : mor X Y) {g h : mor Y Z},
+                     cell g h -> cell (comp f g) (comp f h))
+           (rwhisk : ∏ {X Y Z : ob} {g h : mor X Y} (f : mor Y Z),
+                     cell g h -> cell (comp g f) (comp h f))
+           (lunitor : ∏ {X Y : ob} (f : mor X Y),
+                      cell (comp (id₁ X) f) f)
+           (lunitor_inv : ∏ {X Y : ob} (f : mor X Y),
+                          cell f (comp (id₁ X) f))
+           (runitor : ∏ {X Y : ob} (f : mor X Y),
+                      cell (comp f (id₁ Y)) f)
+           (runitor_inv : ∏ {X Y : ob} (f : mor X Y),
+                          cell f (comp f (id₁ Y)))
+           (lassocor : ∏ {W X Y Z : ob} (f : mor W X) (g : mor X Y) (h : mor Y Z),
+                       cell (comp f (comp g h)) (comp (comp f g) h))
+           (rassocor : ∏ {W X Y Z : ob} (f : mor W X) (g : mor X Y) (h : mor Y Z),
+                       cell (comp (comp f g) h) (comp f (comp g h)))
+           (vcomp_left : ∏ (X Y : ob) (f g : mor X Y) (α : cell f g),
+                          vcomp (id₂ f) α = α)
+           (vcomp_right : ∏ (X Y : ob) (f g : mor X Y) (α : cell f g),
+                         vcomp α (id₂ g) = α)
+           (vcomp_assoc : ∏ (X Y : ob)
+                            (f g h k : mor X Y)
+                            (α₁ : cell f g) (α₂ : cell g h) (α₃ : cell h k),
+                          vcomp α₁ (vcomp α₂ α₃) = vcomp (vcomp α₁ α₂) α₃)
+           (lwhisk_id : ∏ (X Y Z : ob) (f : mor X Y) (g : mor Y Z),
+                        lwhisk f (id₂ g) = id₂ _)
+           (rwhisk_id : ∏ (X Y Z : ob) (f : mor X Y) (g : mor Y Z),
+                        rwhisk g (id₂ f) = id₂ _)
+           (lwhisk_comp : ∏ (X Y Z : ob)
+                            (f : mor X Y) (g h i : mor Y Z)
+                            (α : cell g h) (β : cell h i),
+                          vcomp (lwhisk f α) (lwhisk f β) = lwhisk f (vcomp α β))
+           (rwhisk_comp : ∏ (X Y Z : ob)
+                            (f g h : mor X Y) (i : mor Y Z)
+                            (α : cell f g) (β : cell g h),
+                          vcomp (rwhisk i α) (rwhisk i β) = rwhisk i (vcomp α β))
+           (lunitor_natural : ∏ (X Y : ob) (f g : mor X Y) (α : cell f g),
+                             vcomp (lwhisk (id₁ _) α) (lunitor g) = vcomp (lunitor f) α)
+           (runitor_natural : ∏ (X Y : ob) (f g : mor X Y) (α : cell f g),
+                              vcomp (rwhisk (id₁ _) α) (runitor g) = vcomp (runitor f) α)
+           (lwhisk_lwhisk : ∏ (W X Y Z : ob)
+                              (f : mor W X) (g : mor X Y) (h i : mor Y Z)
+                              (α : cell h i),
+                            vcomp (lwhisk f (lwhisk g α)) (lassocor f g i)
+                            =
+                            vcomp (lassocor f g h) (lwhisk _ α))
+           (rwhisk_lwhisk : ∏ (W X Y Z : ob)
+                              (f : mor W X) (g h : mor X Y) (i : mor Y Z)
+                              (α : cell g h),
+                            vcomp (lwhisk f (rwhisk i α)) (lassocor f h i)
+                            =
+                            vcomp (lassocor f g i) (rwhisk i (lwhisk f α)))
+           (rwhisk_rwhisk : ∏ (W X Y Z : ob)
+                              (f g : mor W X) (h : mor X Y) (i : mor Y Z)
+                              (α : cell f g),
+                            vcomp (lassocor f h i) (rwhisk i (rwhisk h α))
+                            =
+                            vcomp (rwhisk _ α) (lassocor _ _ _))
+           (vcomp_whisker : ∏ (X Y Z : ob)
+                              (f g : mor X Y) (h i : mor Y Z)
+                              (α : cell f g) (β : cell h i),
+                            vcomp (rwhisk h α) (lwhisk g β)
+                            =
+                            vcomp (lwhisk f β) (rwhisk i α))
+           (lunitor_left : ∏ (X Y : ob) (f : mor X Y),
+                           vcomp (lunitor f) (lunitor_inv f) = id₂ _)
+           (lunitor_right : ∏ (X Y : ob) (f : mor X Y),
+                            vcomp (lunitor_inv f) (lunitor f) = id₂ _)
+           (runitor_left : ∏ (X Y : ob) (f : mor X Y),
+                           vcomp (runitor f) (runitor_inv f) = id₂ _)
+           (runitor_right : ∏ (X Y : ob) (f : mor X Y),
+                            vcomp (runitor_inv f) (runitor f) = id₂ _)
+           (lassocor_left : ∏ (W X Y Z : ob)
+                              (f : mor W X) (g : mor X Y) (h : mor Y Z),
+                            vcomp (lassocor f g h) (rassocor f g h) = id₂ _)
+           (lassocor_right : ∏ (W X Y Z : ob)
+                               (f : mor W X) (g : mor X Y) (h : mor Y Z),
+                             vcomp (rassocor f g h) (lassocor f g h) = id₂ _)
+           (triangle : ∏ (X Y Z : ob) (f : mor X Y) (g : mor Y Z),
+                       vcomp (lassocor f (id₁ Y) g) (rwhisk g (runitor f))
+                       =
+                       lwhisk f (lunitor g))
+           (pentagon : ∏ (V W X Y Z : ob)
+                         (f : mor V W) (g : mor W X) (h : mor X Y) (k : mor Y Z),
+                       vcomp (vcomp (lwhisk f (lassocor g h k)) (lassocor _ _ _))
+                             (rwhisk k (lassocor _ _ _))
+                       =
+                       vcomp (lassocor f g (comp h k)) (lassocor (comp f g) h k)
+           )
+           (cell_is_set : ∏ (X Y : ob) (f g : mor X Y), isaset (cell f g))
+  : bicat.
+Proof.
+  use tpair.
+  - use tpair.
+    + use tpair.
+      * use tpair.
+        ** use tpair.
+           *** use tpair.
+               **** exact ob.
+               **** exact mor.
+           *** use tpair.
+               **** exact id₁.
+               **** exact comp.
+        ** exact cell.
+      * use tpair.
+        ** exact id₂.
+        ** repeat (use tpair) ; simpl.
+           *** exact lunitor.
+           *** exact runitor.
+           *** exact lunitor_inv.
+           *** exact runitor_inv.
+           *** exact rassocor.
+           *** exact lassocor.
+           *** exact vcomp.
+           *** exact lwhisk.
+           *** exact rwhisk.
+    + cbn.
+      repeat (use tpair ; try abstract assumption).
+  - cbn.
+    unfold isaset_cells.
+    apply cell_is_set.
+Defined.
+
 Coercion prebicat_of_bicat (C : bicat)
   : prebicat
   := pr1 C.
@@ -1290,6 +1421,9 @@ Notation "f '<==' g" := (prebicat_cells _ g f) (at level 60, only parsing).
 Notation "x • y" := (vcomp2 x y) (at level 60).
 Notation "f ◃ x" := (lwhisker f x) (at level 60). (* \tw *)
 Notation "y ▹ g" := (rwhisker g y) (at level 60). (* \tw nr 2 *)
+Notation "f ◅ x" := (rwhisker f x) (at level 60, only parsing). (* \tw nr 5*)
+Notation "y ▻ g" := (lwhisker g y) (at level 60, only parsing). (* \tw nr 6 *)
 Notation "x ⋆ y" := (hcomp x y) (at level 50, left associativity).
+Notation "x 'o' y" := (y • x) (at level 60, only parsing).
 
 End Notations.
