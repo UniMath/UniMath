@@ -716,29 +716,28 @@ Section PreAdditive.
     Open Scope type.
     Lemma PushoutCokernel {M:PreAdditive} {A B C D E:M} (i:A-->B) (p:B-->C)
           (j:B-->D) (p':D-->E) (j':C-->E) :
-      isCokernel' i p -> (∑ (e : p · j' = j · p'), isPushout p j j' p' e) ->
-      isCokernel' (i·j) p'.
+      isCokernel' i p -> (∑ e, isPushout j p p' j' e) -> isCokernel' (i·j) p'.
     Proof.
       intros [b co] [e po].
       (* We show the universal property of the cokernel by showing uniqueness
          and existence simultaneously, i.e., by working with equivalences to show
          a type is contractible. *)
       split.
-      - rewrite assoc'. rewrite <- e. rewrite assoc. rewrite b. apply zeroLeft.
+      - rewrite assoc'. rewrite e. rewrite assoc. rewrite b. apply zeroLeft.
       - intros T h v. rewrite assoc' in v.
         assert (Q := co T (j·h) v); cbn in Q. generalize Q; clear Q.
         apply iscontrweqb. use weqpair.
-        + intros [k w]; exists (j'·k); abstract (rewrite assoc; rewrite e; rewrite assoc';
+        + intros [k w]; exists (j'·k); abstract (rewrite assoc; rewrite <- e; rewrite assoc';
           rewrite w; reflexivity) using _L_.
-        + cbn beta. intros [l w]; unfold hfiber. assert (PO := po T l h w); clear po.
+        + cbn beta. intros [l w]; unfold hfiber. assert (PO := po T h l (!w)); clear po.
           generalize PO; clear PO. apply iscontrweqb.
           refine (weqcomp (weqtotal2asstor _ _) _). apply weqfibtototal; intros m. cbn.
           apply weqiff.
           { split.
             - intros [x y]. split.
-              + exact (maponpaths pr1 y).
               + exact x.
-            - intros [x y]. exists y. induction x. apply maponpaths, to_has_homsets.
+              + exact (maponpaths pr1 y).
+            - intros [x y]. exists x. induction y. apply maponpaths, to_has_homsets.
             }
           { apply isofhleveltotal2.
               - apply to_has_homsets.
@@ -749,8 +748,7 @@ Section PreAdditive.
     Qed.
     Lemma PullbackKernel {M:PreAdditive} {A B C D E:M} (i:A<--B) (p:B<--C)
           (j:B<--D) (p':D<--E) (j':C<--E) :
-      isKernel' p i -> (∑ (e : p ∘ j' = j ∘ p'), isPullback p j j' p' e) ->
-      isKernel' p' (i∘j).
+      isKernel' p i -> (∑ e, isPullback j p p' j' e) -> isKernel' p' (i∘j).
     Proof.
       apply (@PushoutCokernel (oppositePreAdditive M)).
     Defined.
@@ -2035,12 +2033,50 @@ Section ExactCategoryFacts.
   Proof.
     exact (AdmMonoFromComposite (M:=M^op) j i).
   Qed.
-  Lemma CokernelSequence {M:ExactCategory} {A B C P R:M}
-        (i : A --> B) (j : B --> C) (p : B --> P) (q : C --> R) :
-    isExact2 i p -> isExact2 j q ->
-    ∃ Q (s : C --> Q) (k : P --> Q) (r : Q --> R), isExact2 (i·j) s ∧ isExact2 k r.
-  Proof.
-  Admitted.
+  Section Tmp.
+    Lemma CokernelSequence {M:ExactCategory} {A B C P R:M}
+          (i : A --> B) (j : B --> C) (p : B --> P) (q : C --> R) :
+      isExact2 i p -> isExact2 j q ->
+      ∃ Q (s : C --> Q) (k : P --> Q) (r : Q --> R), isExact2 (i·j) s ∧ isExact2 k r.
+    Proof.
+      intros ip jq.
+      assert (co := EC_ExactToCokernel ip : isCokernel' i p).
+      assert (b := EC_ExactToCokernel jq : isCokernel' j q).
+      assert (I := ExactToAdmMono ip).
+      assert (J := ExactToAdmMono jq).
+      assert (IJ := EC_ComposeMono _ _ I J).
+      induction b as [a co'].
+      assert (ijq : i · (j · q) = 0).
+      { rewrite a. apply zeroRight. }
+      assert (po := EC_PushoutMono j p (ExactToAdmMono jq)).
+      use (hinhfun _ po); clear po; intros [[[Q [s k]] [e1 po]] K].
+      change (isPushout j p s k e1) in po;
+        change (hProptoType (isAdmissibleMonomorphism k)) in K;
+        change (hProptoType (j · s = p · k)) in e1.
+      assert (L := PushoutCokernel _ _ _ _ _ co (_,,po)).
+      exists Q. exists s. exists k.
+      assert (e2 : j · q = p · 0).
+      { rewrite a. now rewrite zeroRight. }
+      assert (PO := iscontrpr1 (po R q 0 e2)).
+      induction PO as [u [e3 e4]].
+      exists u.
+      assert (ijs := ExactSequenceFromMono (i·j) s L IJ).
+      exists ijs.
+      use (ExactSequenceFromMono k u _ K).
+      exists e4.
+      intros T h e0.
+      assert (e5 : j · (s · h) = 0).
+      { rewrite assoc. rewrite e1. rewrite assoc'. rewrite e0. now rewrite zeroRight. }
+      assert (W := co' T (s·h) e5); cbn in W.
+      use (iscontrweqf _ W). apply weqfibtototal; intros l. apply weqiff.
+      rewrite <- e3. rewrite assoc'.
+      split.
+      { intros e. now apply (CokernelIsEpi (i·j) s (EC_ExactToCokernel ijs)). }
+      { intros e. now apply maponpaths. }
+      - apply to_has_homsets.
+      - apply to_has_homsets.
+    Defined.
+  End Tmp.
   Lemma KernelSequence {M:ExactCategory} {A B C P R:M}
         (i : B --> A) (j : C --> B) (p : P --> B) (q : R --> C) :
     isExact2 p i -> isExact2 q j ->
