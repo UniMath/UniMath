@@ -701,10 +701,48 @@ Section PreAdditive.
     f · g = 0 ∧ ∀ (w : M) (h : w --> y), h · g = 0 ⇒ ∃! φ : w --> x, φ · f = h.
   Definition hasKernel {M:PreAdditive} {y z : M} (g : y --> z) : hProp :=
     ∃ x (f:x-->y), isKernel' f g.
+  Lemma isKernel_iff {M:PreAdditive} {x y z : M} (Z:Zero M) (f : x --> y) (g : y --> z) :
+    isKernel' f g <-> ∑ e : f · g = ZeroArrow Z x z, isKernel Z f g e.
+  Proof.
+    split.
+    { intros [e' ik].
+      use tpair.
+      { refine (e' @ _). apply PreAdditive_unel_zero. }
+      intros T h e.
+      exact (ik T h (e @ ! PreAdditive_unel_zero _ _ _ _)). }
+    { intros [e ik]. use tpair.
+      { refine (e @ ! _). apply PreAdditive_unel_zero. }
+      cbn beta. intros T h e'.
+      exact (ik T h (e' @ PreAdditive_unel_zero _ _ _ _)). }
+  Qed.
+  Definition isKernel'_to_Kernel {M:PreAdditive} (Z:Zero M) {x y z : M} (f : x --> y) (g : y --> z) :
+    isKernel' f g -> Kernel Z g.
+  Proof.
+    intros co. exists (x,,f). now apply isKernel_iff.
+  Defined.
   Definition isCokernel' {M:PreAdditive} {x y z : M} (f : x --> y) (g : y --> z) : hProp :=
     f · g = 0 ∧ ∀ (w : M) (h : y --> w), f · h = 0 ⇒ ∃! φ : z --> w, g · φ = h.
   Definition hasCokernel {M:PreAdditive} {x y : M} (f : x --> y) : hProp :=
     ∃ z (g:y-->z), isCokernel' f g.
+  Lemma isCokernel_iff {M:PreAdditive} {x y z : M} (Z:Zero M) (f : x <-- y) (g : y <-- z) :
+    isCokernel' g f <-> ∑ e : f ∘ g = ZeroArrow Z z x, isCokernel Z g f e.
+  Proof.
+    split.
+    { intros [e' ik].
+      use tpair.
+      { refine (e' @ _). apply PreAdditive_unel_zero. }
+      intros T h e.
+      exact (ik T h (e @ ! PreAdditive_unel_zero _ _ _ _)). }
+    { intros [e ik]. use tpair.
+      { refine (e @ ! _). apply PreAdditive_unel_zero. }
+      cbn beta. intros T h e'.
+      exact (ik T h (e' @ PreAdditive_unel_zero _ _ _ _)). }
+  Qed.
+  Definition isCokernel'_to_Cokernel {M:PreAdditive} (Z:Zero M) {x y z : M} (f : x --> y) (g : y --> z) :
+    isCokernel' f g -> Cokernel Z f.
+  Proof.
+    intros co. exists (z,,g). now apply isCokernel_iff.
+  Defined.
   Goal ∏ (M:PreAdditive) (x y z : M) (f : x --> y) (g : y --> z), isKernel' (M:=M) f g = isCokernel' (M:=oppositePreAdditive M) g f.
     reflexivity.
   Defined.
@@ -2087,7 +2125,18 @@ Section ExactCategoryFacts.
   Lemma ExactIso3 {M:ExactCategory} {A B C C':M} (i:A-->B) (p:B-->C) (t:z_iso C C') :
     isExact2 i p -> isExact2 i (p·t).
   Proof.
-  Admitted.
+    intros E.
+    apply ExactSequenceFromMono.
+    { assert (Z := to_Zero' M).
+      apply (squash_to_hProp Z); clear Z; intros Z.
+      assert (Q := @Cokernel_up_to_iso_isCokernel M (@to_has_homsets M) Z A B C' i (p·t) (isCokernel'_to_Cokernel Z _ _ (EC_ExactToCokernel E)) t (idpath _)); cbn in Q.
+      assert (K : i · (p · t) = ZeroArrow Z A C'). (* the lemma we used insists on a redundant hypothesis, so we have to prove it *)
+      { rewrite assoc. rewrite (pr1 (EC_ExactToCokernel E) : i · p = 0).
+        rewrite zeroLeft. apply PreAdditive_unel_zero. }
+      assert (R := Q K). refine (pr2 (isCokernel_iff Z _ _) _).
+      exists K. exact R. }
+    { exact (ExactToAdmMono E). }
+  Qed.
   Lemma ExactIso1 {M:ExactCategory} {A' A B C:M} (t:z_iso A' A) (i:A-->B) (p:B-->C) :
     isExact2 i p -> isExact2 (t·i) p.
   Proof.
@@ -2463,16 +2512,12 @@ Section InducedExactCategory.
           exact (EC_IsomorphicToExact  (applyFunctorToPairIsomorphism J _ _ t) ie).
         * intros P Q t ie.
           exact (EC_IsomorphicToExact' (applyFunctorToPairIsomorphism Npre _ _ t) ie).
-      + assert (mo : ∏ (A B:N) (i:A-->B),
-                     isAdmissibleMonomorphism (M:=Nexdat) i ->
-                     isAdmissibleMonomorphism (M:=M)      (# J i)).
-        { intros A B i im. admit. }
-        split.
+      + split.
         * split;unfold ExactCategoryDataToAdditiveCategory,pr1.
-          -- intros A. apply hinhpr. exists zN. exists 0.
-             exact (pr2 (TrivialExactSequence (J A) zM)).
-          -- intros A. apply hinhpr. exists zN. exists 0.
-             exact (pr2 (TrivialExactSequence' zM (J A))).
+          { intros A. apply hinhpr. exists zN. exists 0.
+            exact (pr2 (TrivialExactSequence (J A) zM)). }
+          { intros A. apply hinhpr. exists zN. exists 0.
+            exact (pr2 (TrivialExactSequence' zM (J A))). }
         * split;unfold ExactCategoryDataToAdditiveCategory,pr1.
           { intros P iP. apply inducedMapReflectsKernelCokernelPairs.
             exact (EC_ExactToKernelCokernel iP). }
@@ -2493,8 +2538,16 @@ Section InducedExactCategory.
               apply (squash_to_hProp cs); clear cs; intros [T [s [k [r [fgs kr]]]]].
               apply (squash_to_hProp (ce P T R r k kr)); intros [U α].
               apply hinhpr. exists U. exists (α · s).
-              exact (ExactIso1 α s (f·g) fgs). }
-
+              exact (ExactIso1 α s (f·g) fgs). } }
+          split.
+          { intros A B C f g ep.
+(*
+ExactPullback:
+  ∏ (M : ExactCategory) (A B C A' : M) (i : B --> A) (p : C --> B)
+  (pr : isExact2 p i) (r : A' --> A),
+  ∃ pb : Pullback i r,
+  isExact2 (pr1 (PairPullbackMap (EC_ExactToKernelCokernel pr) r pb)) (PullbackPr2 pb)
+*)
 
 
   Abort.
