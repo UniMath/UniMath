@@ -41,6 +41,7 @@ Require Import UniMath.CategoryTheory.Subcategory.Full.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 
 Local Open Scope cat.
 
@@ -134,6 +135,52 @@ Proof.
       apply InitialArrow.
     + intro; apply eq_in_sub_precategory; cbn.
       apply InitialArrowUnique.
+Defined.
+
+(** *** Binary coproducts *)
+
+Lemma bin_coproducts_in_full_subcategory {C : category} (C' : hsubtype (ob C))
+      (BPC : BinCoproducts C)
+      (all : ∏ c1 c2 : ob C, C' c1 -> C' c2 -> C' (BinCoproductObject _ (BPC c1 c2))) :
+  BinCoproducts (full_sub_precategory C').
+Proof.
+  intros c1' c2'.
+  pose (c1'_in_C := (precategory_object_from_sub_precategory_object _ _ c1')).
+  pose (c2'_in_C := (precategory_object_from_sub_precategory_object _ _ c2')).
+  use tpair; [use tpair|]; [|use dirprodpair|].
+  - use precategory_object_in_subcat.
+    + apply (BinCoproductObject _ (BPC c1'_in_C c2'_in_C)).
+    + apply all.
+      * exact (pr2 c1').
+      * exact (pr2 c2').
+  - use morphism_in_full_subcat; apply BinCoproductIn1.
+  - use morphism_in_full_subcat; apply BinCoproductIn2.
+  - cbn.
+    unfold isBinCoproduct.
+    intros bp' f g.
+    use tpair.
+    + use tpair.
+      * use precategory_morphisms_in_subcat;
+          [apply BinCoproductArrow|exact tt];
+          apply (precategory_morphism_from_sub_precategory_morphism _ (full_sub_precategory C'));
+          assumption.
+      * cbn.
+        use dirprodpair; apply eq_in_sub_precategory.
+        { apply BinCoproductIn1Commutes. }
+        { apply BinCoproductIn2Commutes. }
+    + intros otherarrow.
+      (** This is where we use the condition that C has homsets. *)
+      apply subtypeEquality'.
+      {
+        apply eq_in_sub_precategory.
+        cbn.
+        apply BinCoproductArrowUnique.
+        - exact (maponpaths pr1 (dirprod_pr1 (pr2 otherarrow))).
+        - exact (maponpaths pr1 (dirprod_pr2 (pr2 otherarrow))).
+      }
+      { apply isapropdirprod;
+          apply is_set_sub_precategory_morphisms, homset_property.
+      }
 Defined.
 
 End Limits.
