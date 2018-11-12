@@ -247,6 +247,64 @@ Section Precategories.             (* move upstream *)
   Defined.
 End Precategories.
 
+Section Categories.
+  Definition oppositeCategory : category -> category.
+  Proof.
+    intros M.
+    exists (opp_precat M).
+    exact (λ A B, @homset_property M B A).
+  Defined.
+  Goal ∏ (M:category), oppositeCategory (oppositeCategory M) = M.
+    reflexivity.
+  Qed.
+  Definition isPushout' {M:category} {a b c d : M} (f : a --> b) (g : a --> c)
+             (in1 : b --> d) (in2 : c --> d) : hProp.
+  Proof.
+    exists (∑ (H : f · in1 = g · in2), isPushout f g in1 in2 H).
+    abstract (                  (* this abstraction is important! *)
+        apply isaproptotal2 ;
+        [ intros H; apply isaprop_isPushout
+        | intros H H' po po'; apply homset_property ]).
+  Defined.
+  Definition isPullback' {M:category} {a b c d : M} (f : b --> a) (g : c --> a)
+             (p1 : d --> b) (p2 : d --> c) : hProp.
+  Proof.
+    exists (∑ (H : p1 · f = p2· g), isPullback f g p1 p2 H).
+    abstract (                  (* this abstraction is important! *)
+        apply isaproptotal2 ;
+        [ intros H; apply isaprop_isPullback
+        | intros H H' po po'; apply homset_property ]).
+  Defined.
+  Section bottleneck0.
+    Context {M:precategory} {a b c d : M} (f : b --> a) (g : c --> a)
+            (p1 : d --> b) (p2 : d --> c) (H : p1 · f = p2· g)
+            (pb : isPullback f g p1 p2 H).
+    Check (pb : @isPushout (opp_precat M) a b c d f g p1 p2 H). (* quick! *)
+  End bottleneck0.
+  Section bottleneck.
+    Context {M:category} {a b c d : M} (f : b --> a) (g : c --> a)
+             (p1 : d --> b) (p2 : d --> c) (pb : isPullback' f g p1 p2).
+    Time Check (pb : @isPushout' (oppositeCategory M) a b c d f g p1 p2).
+    (* without the abstraction above, this would be too slow, 13.5 seconds *)
+  End bottleneck.
+  Lemma Pushout_to_isPushout' {M:category} {a b c : M} (f : a --> b) (g : a --> c)
+        (po : Pushout f g) :
+    isPushout' f g (PushoutIn1 po) (PushoutIn2 po).
+  Proof.
+    use tpair.
+    - apply PushoutSqrCommutes.
+    - cbn beta. apply isPushout_Pushout.
+  Qed.
+  Lemma Pullback_to_isPullback' {M:category} {a b c : M} (f : b --> a) (g : c --> a)
+        (pb : Pullback f g) :
+    isPullback' f g (PullbackPr1 pb) (PullbackPr2 pb).
+  Proof.
+    use tpair.
+    - apply PullbackSqrCommutes.
+    - cbn beta. apply isPullback_Pullback.
+  Qed.
+End Categories.
+
 Section MorphismPairs.          (* move upstream *)
   Definition rewrite_Ob1 {M : precategory} {A B C:M} (i:A-->B) (p:B-->C) : Ob1 (mk_MorphismPair i p) = A
     := idpath _.
@@ -750,22 +808,37 @@ Section PreAdditive.
     reflexivity.
   Defined.
   Section Tmp.
-    Open Scope cat.
-    Open Scope type.
     Lemma PushoutCokernel {M:PreAdditive} {A B C D E:M} (i:A-->B) (p:B-->C)
           (j:B-->D) (p':D-->E) (j':C-->E) :
-      isCokernel' i p -> (∑ e, isPushout j p p' j' e) -> isCokernel' (i·j) p'.
+      isCokernel' i p -> isPushout' (M:=M) j p p' j' -> isCokernel' (i·j) p'.
     Proof.
       intros [b co] [e po].
       (* We show the universal property of the cokernel by showing uniqueness
          and existence simultaneously, i.e., by working with equivalences to show
          a type is contractible. *)
       split.
-      - rewrite assoc'. rewrite e. rewrite assoc. rewrite b. apply zeroLeft.
+      - rewrite assoc'.
+(* ambiguous coercions!
+
+         (precategory_data_from_precategory
+-            (category_to_precategory
+-               (categoryWithAbgrops_category
+                  (PreAdditive_categoryWithAbgrops M))))
+
+         (precategory_data_from_precategory
+-            (precategoryWithBinOps_precategory
+-               (categoryWithAbgrops_precategoryWithBinOps
+                  (PreAdditive_categoryWithAbgrops M))))
+
+*)
+        Fail rewrite e.
+        unfold categoryWithAbgrops_category, category_to_precategory, pr1 in e.
+        rewrite e.
+        rewrite assoc. rewrite b. apply zeroLeft.
       - intros T h v. rewrite assoc' in v.
         assert (Q := co T (j·h) v); cbn in Q. generalize Q; clear Q.
         apply iscontrweqb. use weqpair.
-        + intros [k w]; exists (j'·k); abstract (rewrite assoc; rewrite <- e; rewrite assoc';
+        + intros [k w]; exists (j'·k); abstract (rewrite assoc; unfold categoryWithAbgrops_category, category_to_precategory, pr1 in e; rewrite <- e; rewrite assoc';
           rewrite w; reflexivity) using _L_.
         + cbn beta. intros [l w]; unfold hfiber. assert (PO := po T h l (!w)); clear po.
           generalize PO; clear PO. apply iscontrweqb.
@@ -784,13 +857,13 @@ Section PreAdditive.
                 + intros n. apply hlevelntosn. apply to_has_homsets. }
           { apply isapropdirprod; apply to_has_homsets. }
     Qed.
-    Lemma PullbackKernel {M:PreAdditive} {A B C D E:M} (i:A<--B) (p:B<--C)
-          (j:B<--D) (p':D<--E) (j':C<--E) :
-      isKernel' p i -> (∑ e, isPullback j p p' j' e) -> isKernel' p' (i∘j).
-    Proof.
-      apply (@PushoutCokernel (oppositePreAdditive M)).
-    Defined.
   End Tmp.
+  Lemma PullbackKernel {M:PreAdditive} {A B C D E:M} (i:A<--B) (p:B<--C)
+        (j:B<--D) (p':D<--E) (j':C<--E) :
+    isKernel' p i -> isPullback' (M:=M) j p p' j' -> isKernel' p' (i∘j).
+  Proof.
+    exact (@PushoutCokernel (oppositePreAdditive M) A B C D E i p j p' j').
+  Defined.
   Lemma KernelIsMonic {M:PreAdditive} {x y z:M} (f : x --> y) (g : y --> z) : isKernel' f g -> isMonic f.
   Proof.
     intros [t i] w p q e.
@@ -1674,11 +1747,11 @@ Section ExactCategoryFacts.
     apply (IsomEpi1 _ _ I). exact epi2.
   Qed.
   Lemma IsPullbackEpiIsEpi {M : ExactCategory} {P A B C:M} {f : A --> B} {g : C --> B}
-        {h : P --> A} {k : P --> C} {e : h·f=k·g} :
-    isPullback f g h k e -> isAdmissibleEpimorphism f -> isAdmissibleEpimorphism k.
+        {h : P --> A} {k : P --> C} :
+    isPullback' (M:=M) f g h k -> isAdmissibleEpimorphism f -> isAdmissibleEpimorphism k.
   (* dual needed *)
   Proof.
-    intros pb. exact (PullbackEpiIsEpi f g (mk_Pullback _ _ _ _ _ _ pb)).
+    intros pb. exact (PullbackEpiIsEpi f g (mk_Pullback _ _ _ _ _ _ (pr2 pb))).
   Qed.
   Lemma IsIsoIsMono {M : ExactCategory} {A B:M} (f:A-->B) :
     is_z_isomorphism f -> isAdmissibleMonomorphism f.
@@ -1764,12 +1837,30 @@ Section ExactCategoryFacts.
     ∃ (po : Pushout i r),
       isExact2 (PushoutIn2 po) (pr1 (PairPushoutMap (EC_ExactToKernelCokernel pr) r po)).
   Proof.
-    assert (I := hinhpr (C ,, p ,, pr) : isAdmissibleMonomorphism i).
+    assert (I := ExactToAdmMono pr).
     assert (R := EC_PushoutMono i r I).
     apply (squash_to_hProp R); clear R; intros [po J]; apply hinhpr.
     exists po. use ExactSequenceFromMono.
     { exact (PairPushoutCokernel i p (EC_ExactToKernelCokernel pr) r po). }
     exact J.
+  Qed.
+  Lemma ExactPushout' {M : ExactCategory} {A B C A':M} (i : A --> B) (p : B --> C)
+        (pr : isExact2 i p) (r : A --> A') :
+    ∃ (B':M) (i':A'-->B') (s:B-->B') (p':B'-->C) (e2 : s·p' = p),
+      isPushout' (M:=M) i r s i' ∧ isExact2 i' p'.
+  Proof.
+    assert (I := ExactToAdmMono pr). assert (R := EC_PushoutMono i r I).
+    use (hinhfun _ R); clear R; intros [po J].
+    set (pomap := PairPushoutMap (EC_ExactToKernelCokernel pr) r po).
+    set (p' := pr1 pomap).
+    exists po. exists (PushoutIn2 po). exists (PushoutIn1 po). exists p'.
+    split.
+    { exact (pr12 pomap). }
+    split.
+    { apply Pushout_to_isPushout'. }
+    { use ExactSequenceFromMono.
+      { exact (PairPushoutCokernel i p (EC_ExactToKernelCokernel pr) r po). }
+      exact J. }
   Qed.
   Lemma ExactPullback {M : ExactCategory} {A B C A':M} (i : A <-- B) (p : B <-- C)
         (pr : isExact2 p i)
@@ -1783,6 +1874,24 @@ Section ExactCategoryFacts.
     exists pb. use ExactSequenceFromEpi.
     { exact (PairPullbackKernel i p (EC_ExactToKernelCokernel pr) r pb). }
     exact J.
+  Qed.
+  Lemma ExactPullback' {M : ExactCategory} {A B C A':M} (i : A <-- B) (p : B <-- C)
+        (pr : isExact2 p i) (r : A <-- A') :
+    ∃ (B':M) (i':A'<--B') (s:B<--B') (p':B'<--C) (e2 : s∘p' = p),
+      isPullback' (M:=M) i r s i' ∧ isExact2 p' i'.
+  Proof.
+    assert (I := ExactToAdmEpi pr). assert (R := EC_PullbackEpi i r I).
+    use (hinhfun _ R); clear R; intros [pb J].
+    set (pbmap := PairPullbackMap (EC_ExactToKernelCokernel pr) r pb).
+    set (p' := pr1 pbmap).
+    exists pb. exists (PullbackPr2 pb). exists (PullbackPr1 pb). exists p'.
+    split.
+    { exact (pr12 pbmap). }
+    split.
+    { apply Pullback_to_isPullback'. }
+    { use ExactSequenceFromEpi.
+      { exact (PairPullbackKernel i p (EC_ExactToKernelCokernel pr) r pb). }
+      exact J. }
   Qed.
   Lemma MonicAdmEpiIsIso {M : ExactCategory} {A B:M} (p : A ↠ B) : isMonic p -> is_z_isomorphism p.
   Proof.
@@ -2064,7 +2173,7 @@ Section ExactCategoryFacts.
     assert (ee := es l'); clear es l'.
     use (ExactToAdmMono (p:=k)). use (ExactSequenceFromEpi i k).
     - use KernelPlusIdentity. 4: exact (EC_ExactToKernel ee).
-    - use (IsPullbackEpiIsEpi PB). exact (ExactToAdmEpi ee).
+    - use (IsPullbackEpiIsEpi (_,,PB)). exact (ExactToAdmEpi ee).
   Qed.
   Lemma AdmEpiFromComposite {M:ExactCategory} {A B C:M} (i:A-->B) (j:B-->C) :
     hasKernel j -> isAdmissibleEpimorphism (i·j) -> isAdmissibleEpimorphism j.
@@ -2540,14 +2649,15 @@ Section InducedExactCategory.
               apply hinhpr. exists U. exists (α · s).
               exact (ExactIso1 α s (f·g) fgs). } }
           split.
-          { intros A B C f g ep.
-(*
-ExactPullback:
-  ∏ (M : ExactCategory) (A B C A' : M) (i : B --> A) (p : C --> B)
-  (pr : isExact2 p i) (r : A' --> A),
-  ∃ pb : Pullback i r,
-  isExact2 (pr1 (PairPullbackMap (EC_ExactToKernelCokernel pr) r pb)) (PullbackPr2 pb)
-*)
+          { intros A A'' B'' p f'' ep.
+            Local Arguments Pullback _ {_ _ _}. (* to see which category it's in *)
+            apply (squash_to_hProp ep); clear ep; intros [A' [i ex]].
+            assert (Q := ExactPullback p i ex f'').
+            use (hinhfun _ Q); clear Q; intros [pb ex'].
+            induction pb as [[B [f p']] [e pb]].
+            cbn in e,pb,ex'.
+            set (i' := pr1 (PairPullbackMap (EC_ExactToKernelCokernel ex) f'' ((B,, f,, p'),, e,, pb))).
+            cbn in i'.
 
 
   Abort.
