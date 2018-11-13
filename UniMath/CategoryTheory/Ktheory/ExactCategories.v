@@ -248,12 +248,8 @@ Section Precategories.             (* move upstream *)
 End Precategories.
 
 Section Categories.
-  Definition oppositeCategory : category -> category.
-  Proof.
-    intros M.
-    exists (opp_precat M).
-    exact (λ A B, @homset_property M B A).
-  Defined.
+  Definition oppositeCategory : category -> category
+    := λ M, @tpair precategory has_homsets (opp_precat M) (λ A B, homset_property M B A).
   Goal ∏ (M:category), oppositeCategory (oppositeCategory M) = M.
     reflexivity.
   Qed.
@@ -264,29 +260,45 @@ Section Categories.
     abstract (                  (* this abstraction is important! *)
         apply isaproptotal2 ;
         [ intros H; apply isaprop_isPushout
-        | intros H H' po po'; apply homset_property ]).
+        | intros H H' po po'; apply homset_property ]) using _P_.
   Defined.
   Definition isPullback' {M:category} {a b c d : M} (f : b --> a) (g : c --> a)
              (p1 : d --> b) (p2 : d --> c) : hProp.
   Proof.
     exists (∑ (H : p1 · f = p2· g), isPullback f g p1 p2 H).
-    abstract (                  (* this abstraction is important! *)
-        apply isaproptotal2 ;
-        [ intros H; apply isaprop_isPullback
-        | intros H H' po po'; apply homset_property ]).
+    exact (_P_ (oppositeCategory M) a b c d f g p1 p2).
   Defined.
-  Section bottleneck0.
-    Context {M:precategory} {a b c d : M} (f : b --> a) (g : c --> a)
-            (p1 : d --> b) (p2 : d --> c) (H : p1 · f = p2· g)
-            (pb : isPullback f g p1 p2 H).
-    Check (pb : @isPushout (opp_precat M) a b c d f g p1 p2 H). (* quick! *)
-  End bottleneck0.
-  Section bottleneck.
-    Context {M:category} {a b c d : M} (f : b --> a) (g : c --> a)
-             (p1 : d --> b) (p2 : d --> c) (pb : isPullback' f g p1 p2).
-    Time Check (pb : @isPushout' (oppositeCategory M) a b c d f g p1 p2).
-    (* without the abstraction above, this would be too slow, 13.5 seconds *)
-  End bottleneck.
+  Goal ∏ {M:category} {a b c d : M} (f : b --> a) (g : c --> a)
+       (p1 : d --> b) (p2 : d --> c),
+    isPullback' f g p1 p2 = isPushout' (M := oppositeCategory M) f g p1 p2.
+  Proof.
+    reflexivity.
+  Defined.
+  Lemma isPullback'_up_to_z_iso {M:category} {a b c d d' : M}
+        (f : b --> a) (g : c --> a) (p1 : d --> b) (p2 : d --> c)
+        (i : z_iso d' d) :
+    isPullback' f g p1 p2 -> isPullback' f g (i·p1) (i·p2).
+  Proof.
+  Admitted.
+  Lemma isPushout'_up_to_z_iso {M:category} {a b c d d' : M}
+        (f : a --> b) (g : a --> c) (in1 : b --> d) (in2 : c --> d)
+        (i : z_iso d d') :
+    isPushout' f g in1 in2 -> isPushout' f g (i∘in1) (i∘in2).
+  Proof.
+    exact (isPullback'_up_to_z_iso (M:=oppositeCategory M) f g in1 in2 (opp_z_iso i)).
+  Qed.
+  Goal ∏ {M:category} {a b c d : M} (f : a --> b) (g : a --> c)
+       (in1 : b --> d) (in2 : c --> d),
+    isPushout' f g in1 in2 = isPullback' (M := oppositeCategory M) f g in1 in2.
+  Proof.
+    reflexivity.
+  Defined.
+  (* Section bottleneck. *)
+  (*   Context {M:category} {a b c d : M} (f : b --> a) (g : c --> a) *)
+  (*            (p1 : d --> b) (p2 : d --> c) (pb : isPullback' f g p1 p2). *)
+  (*   Time Check (pb : @isPushout' (oppositeCategory M) a b c d f g p1 p2). *)
+  (*   (* without the abstraction above, this would be too slow, 13.5 seconds *) *)
+  (* End bottleneck. *)
   Lemma Pushout_to_isPushout' {M:category} {a b c : M} (f : a --> b) (g : a --> c)
         (po : Pushout f g) :
     isPushout' f g (PushoutIn1 po) (PushoutIn2 po).
@@ -1846,8 +1858,8 @@ Section ExactCategoryFacts.
   Qed.
   Lemma ExactPushout' {M : ExactCategory} {A B C A':M} (i : A --> B) (p : B --> C)
         (pr : isExact2 i p) (r : A --> A') :
-    ∃ (B':M) (i':A'-->B') (s:B-->B') (p':B'-->C) (e2 : s·p' = p),
-      isPushout' (M:=M) i r s i' ∧ isExact2 i' p'.
+    ∃ (B':M) (i':A'-->B') (s:B-->B') (p':B'-->C),
+       s·p' = p ∧ isPushout' (M:=M) i r s i' ∧ isExact2 i' p'.
   Proof.
     assert (I := ExactToAdmMono pr). assert (R := EC_PushoutMono i r I).
     use (hinhfun _ R); clear R; intros [po J].
@@ -1877,8 +1889,8 @@ Section ExactCategoryFacts.
   Qed.
   Lemma ExactPullback' {M : ExactCategory} {A B C A':M} (i : A <-- B) (p : B <-- C)
         (pr : isExact2 p i) (r : A <-- A') :
-    ∃ (B':M) (i':A'<--B') (s:B<--B') (p':B'<--C) (e2 : s∘p' = p),
-      isPullback' (M:=M) i r s i' ∧ isExact2 p' i'.
+    ∃ (B':M) (i':A'<--B') (s:B<--B') (p':B'<--C),
+      s∘p' = p ∧ isPullback' (M:=M) i r s i' ∧ isExact2 p' i'.
   Proof.
     assert (I := ExactToAdmEpi pr). assert (R := EC_PullbackEpi i r I).
     use (hinhfun _ R); clear R; intros [pb J].
@@ -2184,7 +2196,8 @@ Section ExactCategoryFacts.
     Lemma CokernelSequence {M:ExactCategory} {A B C P R:M}
           (i : A --> B) (j : B --> C) (p : B --> P) (q : C --> R) :
       isExact2 i p -> isExact2 j q ->
-      ∃ Q (s : C --> Q) (k : P --> Q) (r : Q --> R), isExact2 (i·j) s ∧ isExact2 k r.
+      ∃ Q (s : C --> Q) (k : P --> Q) (r : Q --> R),
+        isExact2 (i·j) s ∧ isExact2 k r ∧ isPushout' (M:=M) j p s k ∧ s · r = q.
     Proof.
       intros ip jq.
       assert (co := EC_ExactToCokernel ip : isCokernel' i p).
@@ -2209,42 +2222,50 @@ Section ExactCategoryFacts.
       exists u.
       assert (ijs := ExactSequenceFromMono (i·j) s L IJ).
       exists ijs.
-      use (ExactSequenceFromMono k u _ K).
-      exists e4.
-      intros T h e0.
-      assert (e5 : j · (s · h) = 0).
-      { rewrite assoc. rewrite e1. rewrite assoc'. rewrite e0. now rewrite zeroRight. }
-      assert (W := co' T (s·h) e5); cbn in W.
-      use (iscontrweqf _ W). apply weqfibtototal; intros l. apply weqiff.
-      rewrite <- e3. rewrite assoc'.
       split.
-      { intros e. now apply (CokernelIsEpi (i·j) s (EC_ExactToCokernel ijs)). }
-      { intros e. now apply maponpaths. }
-      - apply to_has_homsets.
-      - apply to_has_homsets.
+      { use (ExactSequenceFromMono k u _ K). exists e4. intros T h e0.
+        assert (e5 : j · (s · h) = 0).
+        { rewrite assoc. rewrite e1. rewrite assoc'. rewrite e0. now rewrite zeroRight. }
+        assert (W := co' T (s·h) e5); cbn in W.
+        use (iscontrweqf _ W). apply weqfibtototal; intros l. apply weqiff.
+        rewrite <- e3. rewrite assoc'.
+        split.
+        { intros e. now apply (CokernelIsEpi (i·j) s (EC_ExactToCokernel ijs)). }
+        { intros e. now apply maponpaths. }
+        + apply to_has_homsets.
+        + apply to_has_homsets. }
+      split.
+      - exists e1. exact po.
+      - exact e3.
     Defined.
   End Tmp.
   Lemma KernelSequence {M:ExactCategory} {A B C P R:M}
         (i : B --> A) (j : C --> B) (p : P --> B) (q : R --> C) :
     isExact2 p i -> isExact2 q j ->
-    ∃ Q (s : Q --> C) (k : Q --> P) (r : R --> Q), isExact2 s (j·i) ∧ isExact2 r k.
+    ∃ Q (s : Q --> C) (k : Q --> P) (r : R --> Q),
+      isExact2 s (j·i) ∧ isExact2 r k ∧ isPullback' (M:=M) j p s k ∧ r · s = q.
   Proof.
     exact (CokernelSequence (M := oppositeExactCategory M) i j p q).
   Defined.
   Lemma ExactIso3 {M:ExactCategory} {A B C C':M} (i:A-->B) (p:B-->C) (t:z_iso C C') :
     isExact2 i p -> isExact2 i (p·t).
   Proof.
-    intros E.
-    apply ExactSequenceFromMono.
-    { assert (Z := to_Zero' M).
-      apply (squash_to_hProp Z); clear Z; intros Z.
-      assert (Q := @Cokernel_up_to_iso_isCokernel M (@to_has_homsets M) Z A B C' i (p·t) (isCokernel'_to_Cokernel Z _ _ (EC_ExactToCokernel E)) t (idpath _)); cbn in Q.
-      assert (K : i · (p · t) = ZeroArrow Z A C'). (* the lemma we used insists on a redundant hypothesis, so we have to prove it *)
-      { rewrite assoc. rewrite (pr1 (EC_ExactToCokernel E) : i · p = 0).
-        rewrite zeroLeft. apply PreAdditive_unel_zero. }
-      assert (R := Q K). refine (pr2 (isCokernel_iff Z _ _) _).
-      exists K. exact R. }
-    { exact (ExactToAdmMono E). }
+    intros ex. use (EC_IsomorphicToExact _ ex).
+    exists (identity_z_iso A). exists (identity_z_iso B). exists t. repeat split;cbn.
+    - now rewrite id_left, id_right.
+    - now rewrite id_left, id_right.
+    - apply id_left.
+    - apply pathsinv0, id_left.
+  Qed.
+  Lemma ExactIso2 {M:ExactCategory} {A B C B':M} (i:A-->B) (p:B-->C) (t:z_iso B B') :
+    isExact2 i p -> isExact2 (i · t) (z_iso_inv t · p).
+  Proof.
+    intros ex. use (EC_IsomorphicToExact _ ex).
+    exists (identity_z_iso A). exists t. exists (identity_z_iso C). repeat split;cbn.
+    - exact (id_left _).
+    - exact (! id_left _).
+    - rewrite assoc. rewrite z_iso_inv_after_z_iso. rewrite id_left, id_right. reflexivity.
+    - rewrite assoc. rewrite z_iso_inv_after_z_iso. rewrite id_left, id_right. reflexivity.
   Qed.
   Lemma ExactIso1 {M:ExactCategory} {A' A B C:M} (t:z_iso A' A) (i:A-->B) (p:B-->C) :
     isExact2 i p -> isExact2 (t·i) p.
@@ -2606,15 +2627,15 @@ Section InducedExactCategory.
     - use tpair.
       + apply (induced_Additive M j hz). exact (λ a c S, ce a S c ι₁ π₂ (DirectSumToExact S)).
       + cbn beta. intros P. exact (isExact2 (Mor1 P) (Mor2 P)).
-    - apply (squash_to_hProp hz). intros [z iz].
+    - apply (squash_to_hProp hz). intros [_Z iz].
       match goal with |- hProptoType (ExactCategoryProperties (?K,,?H)) => set (N := K); set (isexact := H) end; fold N in isexact; fold isexact.
       set (Nexdat := N,,isexact).
       set (Npre := induced_precategory_incl j).
       set (J := induced_PreAdditive_incl M j).
-      set (zM := mk_Zero (j z) iz).
-      assert (izz : @isZero N z).
+      set (zM := mk_Zero (j _Z) iz).
+      assert (izz : @isZero N _Z).
       { split; intros a; apply iz. }
-      set (zN := @mk_Zero N z izz). (* J zN = zM judgmentally *)
+      set (zN := @mk_Zero N _Z izz). (* J zN = zM judgmentally *)
       split.
       + split.
         * intros P Q t ie.
@@ -2636,7 +2657,7 @@ Section InducedExactCategory.
               apply (squash_to_hProp mf); clear mf; intros [P [p fp]].
               apply (squash_to_hProp mg); clear mg; intros [R [q gq]].
               assert (cs := CokernelSequence _ _ _ _ fp gq).
-              apply (squash_to_hProp cs); clear cs; intros [T [s [k [r [fgs kr]]]]].
+              apply (squash_to_hProp cs); clear cs; intros [T [s [k [r [fgs [kr _]]]]]].
               apply (squash_to_hProp (ce P T R k r kr)); intros [U α].
               apply hinhpr. exists U. exists (s · z_iso_inv α).
               exact (ExactIso3 (f·g) s (z_iso_inv α) fgs). }
@@ -2644,20 +2665,25 @@ Section InducedExactCategory.
               apply (squash_to_hProp mf); clear mf; intros [P [p fp]].
               apply (squash_to_hProp mg); clear mg; intros [R [q gq]].
               assert (cs := KernelSequence _ _ _ _ gq fp).
-              apply (squash_to_hProp cs); clear cs; intros [T [s [k [r [fgs kr]]]]].
+              apply (squash_to_hProp cs); clear cs; intros [T [s [k [r [fgs [kr _]]]]]].
               apply (squash_to_hProp (ce P T R r k kr)); intros [U α].
               apply hinhpr. exists U. exists (α · s).
               exact (ExactIso1 α s (f·g) fgs). } }
           split.
-          { intros A A'' B'' p f'' ep.
-            Local Arguments Pullback _ {_ _ _}. (* to see which category it's in *)
+          { clear zN izz zM iz _Z. intros A A'' B'' p f'' ep.
+            Local Arguments Pullback _ {_ _ _}.
+            Local Arguments isExact2 _ {_ _ _}.
             apply (squash_to_hProp ep); clear ep; intros [A' [i ex]].
-            assert (Q := ExactPullback p i ex f'').
-            use (hinhfun _ Q); clear Q; intros [pb ex'].
-            induction pb as [[B [f p']] [e pb]].
-            cbn in e,pb,ex'.
-            set (i' := pr1 (PairPullbackMap (EC_ExactToKernelCokernel ex) f'' ((B,, f,, p'),, e,, pb))).
-            cbn in i'.
+            assert (Q := ExactPullback' p i ex f'').
+            use (squash_to_hProp Q); clear Q; intros [B [p' [f [i' [eq [pb ex']]]]]].
+            assert (Q := ce A' B B'' i' p' ex').
+            apply (squash_to_hProp Q); clear Q; intros [_B t].
+            assert (t' := z_iso_inv t); clear t.
+            set (i'' := i' · t').
+            set (p'' := z_iso_inv t' · p').
+            assert (ex'' := ExactIso2 (M:=M) _ _ t' ex' : isExact2 M i'' p'').
+            assert (pb' : isPullback' (M:=M) p f'' (z_iso_inv t'·f) p'').
+            { exact (isPullback'_up_to_z_iso (M:=M) _ _ _ _ (z_iso_inv t') pb). }
 
 
   Abort.
