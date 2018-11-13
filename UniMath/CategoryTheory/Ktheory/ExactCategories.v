@@ -251,6 +251,17 @@ Section Precategories.             (* move upstream *)
   Proof.
     reflexivity.
   Defined.
+  Definition zero_lifts (M:precategory) {X:Type} (j : X -> ob M) := ∃ z, isZero (j z).
+  Definition opp_lift_zero {M:precategory} {X:Type} (j : X -> ob M) :
+    zero_lifts M j -> zero_lifts (opp_precat M) j.
+  Proof.
+    apply hinhfun; intros [z iz]. exists z. exact (isZero_opp M iz).
+  Defined.
+  Goal ∏ {M:precategory} {X:Type} (j : X -> ob M) (hz : zero_lifts M j),
+    opp_lift_zero (M:=opp_precat M) j (opp_lift_zero (M:=M) j hz) = hz.
+  Proof.
+    reflexivity.
+  Defined.
   Lemma induced_precategory_reflects_pullbacks {M : precategory} {X:Type} (j : X -> ob M)
         {a b c d : induced_precategory M j}
         (f : b --> a) (g : c --> a) (p1 : d --> b) (p2 : d --> c)
@@ -614,6 +625,12 @@ Section precategoryWithBinOps.  (* move upstream *)
     exists (induced_precategory M j).
     intros a b. exact (@to_binop M (j a) (j b)).
   Defined.
+  Goal ∏ {M:precategoryWithBinOps} {X:Type} (j : X -> ob M),
+    oppositePrecategoryWithBinOps (induced_precategoryWithBinOps M j) =
+    induced_precategoryWithBinOps (oppositePrecategoryWithBinOps M) j.
+  Proof.
+    Time reflexivity.           (* 0.038 secs *)
+  Qed.
 End precategoryWithBinOps.
 Section categoryWithAbgrops.    (* move upstream *)
   Definition oppositeCategoryWithAbgrops (M : categoryWithAbgrops) : categoryWithAbgrops
@@ -632,6 +649,12 @@ Section categoryWithAbgrops.    (* move upstream *)
     - exists (induced_precategoryWithBinOps M j). exact (λ a b, @to_has_homsets M (j a) (j b)).
     - cbn beta; unfold pr1, pr2. exact (λ a b, @to_isabgrop M (j a) (j b)).
   Defined.
+  Goal ∏ {M:categoryWithAbgrops} {X:Type} (j : X -> ob M),
+    oppositeCategoryWithAbgrops (induced_categoryWithAbgrops M j) =
+    induced_categoryWithAbgrops (oppositeCategoryWithAbgrops M) j.
+  Proof.
+    Time reflexivity.           (* 0.183 secs *)
+  Qed.
 End categoryWithAbgrops.
 
 Section PreAdditive.
@@ -664,6 +687,28 @@ Section PreAdditive.
   Proof.
     reflexivity.
   Defined.
+  Definition induced_PreAdditive (M : PreAdditive) {X:Type} (j : X -> ob M) : PreAdditive.
+  Proof.
+    exists (induced_categoryWithAbgrops M j).
+    split.
+    - exact (λ a b c, @to_premor_monoid M M (j a) (j b) (j c)).
+    - exact (λ a b c, @to_postmor_monoid M M (j a) (j b) (j c)).
+  Defined.
+  Goal ∏ {M:PreAdditive} {X:Type} (j : X -> ob M),
+    oppositePreAdditive (induced_PreAdditive M j) =
+    induced_PreAdditive (oppositePreAdditive M) j.
+  Proof.
+
+  (*   Time reflexivity.           (* 5.174 secs ! This needs to be explained. *) *)
+  (* Time Qed.                     (* 5.162 secs ! *) *)
+
+  (*   intros. *)
+  (*   Time apply pair_path_in2.   (* 0.359 secs *) *)
+  (*   Time apply pair_path_in2.   (* 6.919 secs *) *)
+  (*   Time reflexivity.           (* 1.251 secs *) *)
+  (* Time Qed.                     (* 7.248 secs *) *)
+
+  Abort.
   Lemma zeroLeft {M:PreAdditive} {a b c : M} (f : b --> c) : ((0 : a --> b) · f = 0)%abgrcat.
   Proof.
     apply to_postmor_unel'.
@@ -1116,13 +1161,6 @@ Section PreAdditive.
   Definition applyFunctorToBinDirectSum {M N:PreAdditive} (F : PreAdditive_functor M N) {A B:M} :
     BinDirectSum A B -> BinDirectSum (F A) (F B)
     := λ S, mk_BinDirectSum _ _ _ _ _ _ _ _ (applyFunctorToIsBinDirectSum F A B S ι₁ ι₂ π₁ π₂ (pr2 S)).
-  Definition induced_PreAdditive (M : PreAdditive) {X:Type} (j : X -> ob M) : PreAdditive.
-  Proof.
-    exists (induced_categoryWithAbgrops M j).
-    split.
-    - exact (λ a b c, @to_premor_monoid M M (j a) (j b) (j c)).
-    - exact (λ a b c, @to_postmor_monoid M M (j a) (j b) (j c)).
-  Defined.
   Definition induced_PreAdditive_incl (M : PreAdditive) {X:Type} (j : X -> ob M) :
     PreAdditive_functor (induced_PreAdditive M j) M.
   Proof.
@@ -1472,11 +1510,21 @@ Section AdditiveBasics.         (* move upstream *)
   Proof.
     reflexivity.
   Defined.
-  Definition induced_Additive (M : Additive) {X:Type}
-             (j : X -> ob M)
-             (hz : ∃ z, isZero (j z))
-             (sum : ∏ a b (S : BinDirectSum (j a) (j b)), ∃ x, z_iso (j x) (BinDirectSumOb S)) :
-    Additive.
+  Definition sums_lift (M:Additive) {X:Type} (j : X -> ob M) :=
+    ∏ a b (S : BinDirectSum (j a) (j b)), ∃ x, z_iso (j x) (BinDirectSumOb S).
+  Definition opp_sums_lift {M:Additive} {X:Type} (j : X -> ob M) :
+    sums_lift M j -> sums_lift (oppositeAdditiveCategory M) j.
+  Proof.
+    intros su a b S. generalize (su a b (oppositeBinDirectSum S)). apply hinhfun.
+    intros [s t]. exists s. exact (z_iso_inv (opp_z_iso t)).
+  Defined.
+  Goal ∏ {M:Additive} {X:Type} (j : X -> ob M) (su : sums_lift M j),
+    opp_sums_lift (M:=oppositeAdditiveCategory M) j (opp_sums_lift (M:=M) j su) = su.
+  Proof.
+    reflexivity.
+  Qed.
+  Definition induced_Additive (M : Additive) {X:Type} (j : X -> ob M)
+             (hz : zero_lifts M j) (sum : sums_lift M j) : Additive.
   Proof.
     exists (induced_PreAdditive M j). split.
     - use (hinhfun _ hz). intros [z iz]. exists z. split.
@@ -1488,6 +1536,19 @@ Section AdditiveBasics.         (* move upstream *)
       + exists c. exact (pr21 S').
       + cbn. exact (pr2 S').
   Defined.
+  Goal ∏ {M:Additive} {X:Type} (j : X -> ob M) (hz : zero_lifts M j) (su : sums_lift M j),
+    oppositeAdditiveCategory (induced_Additive M j hz su) =
+    induced_Additive (oppositeAdditiveCategory M) j (opp_lift_zero j hz) (opp_sums_lift j su).
+  Proof.
+    intros.
+    (* Fail reflexivity. *)
+    (* use total2_paths2_f. *)
+    (* - Time reflexivity.         (* 5.398 secs *) *)
+    (* - Time use total2_paths2_f. (* 36.769 secs *) *)
+    (*   + Time reflexivity.       (* 37.778 secs *) *)
+    (*   + cbn. *)
+    (*     (* Fail reflexivity. *) *)
+  Abort.
 End AdditiveBasics.
 
 Local Notation "A ⊕ B" := (to_BinDirectSums' A B) : addcat.
@@ -2661,7 +2722,6 @@ Section AdditiveToExact.
 End AdditiveToExact.
 
 Section InducedExactCategory.
-  Definition zero_lifts (M:precategory) {X:Type} (j : X -> ob M) := ∃ z, isZero (j z).
   Definition exts_lift (M:ExactCategory) {X:Type} (j : X -> ob M) :=
     ∀ a B c (i : j a --> B) (p : B --> j c), isExact2 i p ⇒ ∃ b, z_iso (j b) B.
   Definition induced_ExactCategoryData {M:ExactCategory} {X:Type}
@@ -2670,16 +2730,6 @@ Section InducedExactCategory.
     intros hz ce. use tpair.
     + apply (induced_Additive M j hz). exact (λ a c S, ce a S c ι₁ π₂ (DirectSumToExact S)).
     + cbn beta. intros P. exact (isExact2 (Mor1 P) (Mor2 P)).
-  Defined.
-  Definition opp_lift_zero {M:precategory} {X:Type} (j : X -> ob M) :
-    zero_lifts M j -> zero_lifts (opp_precat M) j.
-  Proof.
-    apply hinhfun; intros [z iz]. exists z. exact (isZero_opp M iz).
-  Defined.
-  Goal ∏ {M:precategory} {X:Type} (j : X -> ob M) (hz : zero_lifts M j),
-    opp_lift_zero (M:=opp_precat M) j (opp_lift_zero (M:=M) j hz) = hz.
-  Proof.
-    reflexivity.
   Defined.
   Definition opp_exts_lift {M:ExactCategory} {X:Type} (j : X -> ob M) :
     exts_lift M j -> exts_lift (oppositeExactCategory M) j.
@@ -2699,6 +2749,9 @@ Section InducedExactCategory.
     (* This fails very slowly, but getting it to work would be good, because then some proofs below
        could be shortened by using duality. *)
     (* reflexivity. *)
+    (* intros. *)
+    (* apply total2_paths2. *)
+
   Abort.
   Definition induced_ExactCategoryProperties {M:ExactCategory} {X:Type}
              (j : X -> ob M)
