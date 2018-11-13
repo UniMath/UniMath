@@ -129,6 +129,12 @@ Section Sanity2.
 End Sanity2.
 
 Section Precategories.             (* move upstream *)
+  Lemma isZero_opp (C : precategory) {x : C} (H : @isZero C x) : @isZero (C^op) x.
+  Proof.
+    use mk_isZero.
+    - intros a. apply (pr2 H a).
+    - intros a. apply (pr1 H a).
+  Defined.                      (* upstream has Qed here *)
   Definition iso_to_z_iso {C : precategory} {b c : C} (f : iso b c) : z_iso b c
     := pr1 f ,, is_z_iso_from_is_iso (pr1 f) (pr2 f).
   Section foo.
@@ -2655,89 +2661,129 @@ Section AdditiveToExact.
 End AdditiveToExact.
 
 Section InducedExactCategory.
+  Definition zero_lifts (M:precategory) {X:Type} (j : X -> ob M) := ∃ z, isZero (j z).
+  Definition exts_lift (M:ExactCategory) {X:Type} (j : X -> ob M) :=
+    ∀ a B c (i : j a --> B) (p : B --> j c), isExact2 i p ⇒ ∃ b, z_iso (j b) B.
+  Definition induced_ExactCategoryData {M:ExactCategory} {X:Type}
+             (j : X -> ob M) : zero_lifts M j -> exts_lift M j -> ExactCategoryData.
+  Proof.
+    intros hz ce. use tpair.
+    + apply (induced_Additive M j hz). exact (λ a c S, ce a S c ι₁ π₂ (DirectSumToExact S)).
+    + cbn beta. intros P. exact (isExact2 (Mor1 P) (Mor2 P)).
+  Defined.
+  Definition opp_lift_zero {M:precategory} {X:Type} (j : X -> ob M) :
+    zero_lifts M j -> zero_lifts (opp_precat M) j.
+  Proof.
+    apply hinhfun; intros [z iz]. exists z. exact (isZero_opp M iz).
+  Defined.
+  Goal ∏ {M:precategory} {X:Type} (j : X -> ob M) (hz : zero_lifts M j),
+    opp_lift_zero (M:=opp_precat M) j (opp_lift_zero (M:=M) j hz) = hz.
+  Proof.
+    reflexivity.
+  Defined.
+  Definition opp_exts_lift {M:ExactCategory} {X:Type} (j : X -> ob M) :
+    exts_lift M j -> exts_lift (oppositeExactCategory M) j.
+  Proof.
+    intros el a B c i p ex. generalize (el c B a p i ex). apply hinhfun.
+    intros [b t]. exists b. exact (z_iso_inv (opp_z_iso t)).
+  Defined.
+  Goal ∏ {M:ExactCategory} {X:Type} (j : X -> ob M) (ce : exts_lift M j),
+    opp_exts_lift (M:=oppositeExactCategory M) j (opp_exts_lift (M:=M) j ce) = ce.
+  Proof.
+    reflexivity.
+  Defined.
+  Goal ∏ {M:ExactCategory} {X:Type} (j : X -> ob M) (hz : zero_lifts M j) (ce : exts_lift M j),
+    oppositeExactCategoryData (induced_ExactCategoryData j hz ce) =
+    induced_ExactCategoryData (M:=oppositeExactCategory M) j (opp_lift_zero j hz) (opp_exts_lift j ce).
+  Proof.
+    (* This fails very slowly, but getting it to work would be good, because then some proofs below
+       could be shortened by using duality. *)
+    (* reflexivity. *)
+  Abort.
+  Definition induced_ExactCategoryProperties {M:ExactCategory} {X:Type}
+             (j : X -> ob M)
+             (hz : ∃ z, isZero (j z))
+             (ce : ∀ a B c (i : j a --> B) (p : B --> j c),
+                 isExact2 i p ⇒ ∃ b, z_iso (j b) B) :
+    ExactCategoryProperties (induced_ExactCategoryData j hz ce).
+  Proof.
+    set (N := induced_ExactCategoryData j hz ce).
+    transparent assert (J : (PreAdditive_functor N M)).
+    { exact (induced_PreAdditive_incl M j). }
+    split.
+    + split;intros P Q t.
+      * exact (EC_IsomorphicToExact  (applyFunctorToPairIsomorphism J _ _ t)).
+      * exact (EC_IsomorphicToExact' (applyFunctorToPairIsomorphism J _ _ t)).
+    + split.
+      * apply (squash_to_hProp hz). intros [_Z iz]. set (zM := mk_Zero (j _Z) iz).
+        assert (izz : @isZero N _Z).
+        { split; intros a; apply iz. }
+        set (zN := @mk_Zero N _Z izz). (* J zN = zM judgmentally *)
+        split.
+        { intros A. use ExactToAdmMono.
+          3 : { exact (pr2 (TrivialExactSequence (J A) zM)). } }
+        { intros A. use ExactToAdmEpi.
+          3 : { exact (pr2 (TrivialExactSequence' zM (J A))). } }
+      * split;unfold ExactCategoryDataToAdditiveCategory,pr1.
+        { intros P iP. apply inducedMapReflectsKernelCokernelPairs.
+          exact (EC_ExactToKernelCokernel iP). }
+        split.
+        { split.
+          { intros A B C f g mf mg.
+            apply (squash_to_hProp mf); clear mf; intros [P [p fp]].
+            apply (squash_to_hProp mg); clear mg; intros [R [q gq]].
+            assert (cs := CokernelSequence _ _ _ _ fp gq).
+            apply (squash_to_hProp cs); clear cs; intros [T [s [k [r [fgs [kr _]]]]]].
+            apply (squash_to_hProp (ce P T R k r kr)); intros [U α].
+            apply hinhpr. exists U. exists (s · z_iso_inv α).
+            exact (ExactIso3 (f·g) s (z_iso_inv α) fgs). }
+          { intros A B C f g mf mg.
+            apply (squash_to_hProp mf); clear mf; intros [P [p fp]].
+            apply (squash_to_hProp mg); clear mg; intros [R [q gq]].
+            assert (cs := KernelSequence _ _ _ _ gq fp).
+            apply (squash_to_hProp cs); clear cs; intros [T [s [k [r [fgs [kr _]]]]]].
+            apply (squash_to_hProp (ce P T R r k kr)); intros [U α].
+            apply hinhpr. exists U. exists (α · s).
+            exact (ExactIso1 α s (f·g) fgs). } }
+        split.
+        { intros A A'' B'' p f'' ep.
+          apply (squash_to_hProp ep); clear ep; intros [A' [i ex]].
+          assert (Q := ExactPullback' p i ex f'').
+          use (squash_to_hProp Q); clear Q; intros [B [p' [f [i' [eq [pb ex']]]]]].
+          assert (Q := ce A' B B'' i' p' ex').
+          apply (squash_to_hProp Q); clear Q; intros [_B t].
+          assert (t' := z_iso_inv t); clear t.
+          set (i'' := i' · t'). set (p'' := z_iso_inv t' · p').
+          assert (ex'' := ExactIso2 (M:=M) _ _ t' ex' : isExact2 i'' p'').
+          assert (pb' : isPullback' (M:=M) p f'' (z_iso_inv t'·f) p'').
+          { exact (isPullback'_up_to_z_iso (M:=M) _ _ _ _ (z_iso_inv t') pb). }
+          induction pb' as [eq2 pb']. apply hinhpr. use tpair.
+          - use tpair.
+            + exists _B. exists (z_iso_inv t'·f). exact p''.
+            + cbn. exists eq2. now apply induced_precategory_reflects_pullbacks.
+          - cbn beta. exact (ExactToAdmEpi (M:=N) ex''). }
+        { intros A A'' B'' p f'' ep.
+          apply (squash_to_hProp ep); clear ep; intros [A' [i ex]].
+          assert (Q := ExactPushout' p i ex f'').
+          use (squash_to_hProp Q); clear Q; intros [B [p' [f [i' [eq [pb ex']]]]]].
+          assert (Q := ce B'' B A' p' i' ex').
+          apply (squash_to_hProp Q); clear Q; intros [_B t].
+          set (i'' := i' ∘ t). set (p'' := z_iso_inv t ∘ p').
+          assert (ex'' := ExactIso2 (M:=M) _ _ _ ex' : isExact2 p'' i'').
+          assert (pb' : isPushout' (M:=M) p f'' (z_iso_inv t∘f) p'').
+          { exact (isPushout'_up_to_z_iso (M:=M) _ _ _ _ _ pb). }
+          induction pb' as [eq2 pb']. apply hinhpr. use tpair.
+          - use tpair.
+            + exists _B. exists (z_iso_inv t∘f). exact p''.
+            + cbn. exists eq2. now apply induced_precategory_reflects_pushouts.
+          - cbn beta. exact (ExactToAdmMono (M:=N) ex''). }
+  Qed.
   Definition induced_ExactCategory {M:ExactCategory} {X:Type}
              (j : X -> ob M)
              (hz : ∃ z, isZero (j z))
              (ce : ∀ a B c (i : j a --> B) (p : B --> j c),
                  isExact2 i p ⇒ ∃ b, z_iso (j b) B) :
-    ExactCategory.
-  Proof.
-    use mk_ExactCategory.
-    - use tpair.
-      + apply (induced_Additive M j hz). exact (λ a c S, ce a S c ι₁ π₂ (DirectSumToExact S)).
-      + cbn beta. intros P. exact (isExact2 (Mor1 P) (Mor2 P)).
-    - match goal with |- hProptoType (ExactCategoryProperties (?K,,?H)) => set (N := K); set (isexact := H) end; fold N in isexact; fold isexact.
-      set (Nexdat := N,,isexact).
-      set (Npre := induced_precategory_incl j).
-      set (J := induced_PreAdditive_incl M j).
-      split.
-      + split.
-        * intros P Q t ie.
-          exact (EC_IsomorphicToExact  (applyFunctorToPairIsomorphism J _ _ t) ie).
-        * intros P Q t ie.
-          exact (EC_IsomorphicToExact' (applyFunctorToPairIsomorphism Npre _ _ t) ie).
-      + split.
-        * apply (squash_to_hProp hz). intros [_Z iz]. set (zM := mk_Zero (j _Z) iz).
-          assert (izz : @isZero N _Z).
-          { split; intros a; apply iz. }
-          set (zN := @mk_Zero N _Z izz). (* J zN = zM judgmentally *)
-          split.
-          { intros A. use ExactToAdmMono.
-            3 : { exact (pr2 (TrivialExactSequence (J A) zM)). } }
-          { intros A. use ExactToAdmEpi.
-            3 : { exact (pr2 (TrivialExactSequence' zM (J A))). } }
-        * split;unfold ExactCategoryDataToAdditiveCategory,pr1.
-          { intros P iP. apply inducedMapReflectsKernelCokernelPairs.
-            exact (EC_ExactToKernelCokernel iP). }
-          split.
-          { split.
-            { intros A B C f g mf mg.
-              apply (squash_to_hProp mf); clear mf; intros [P [p fp]].
-              apply (squash_to_hProp mg); clear mg; intros [R [q gq]].
-              assert (cs := CokernelSequence _ _ _ _ fp gq).
-              apply (squash_to_hProp cs); clear cs; intros [T [s [k [r [fgs [kr _]]]]]].
-              apply (squash_to_hProp (ce P T R k r kr)); intros [U α].
-              apply hinhpr. exists U. exists (s · z_iso_inv α).
-              exact (ExactIso3 (f·g) s (z_iso_inv α) fgs). }
-            { intros A B C f g mf mg.
-              apply (squash_to_hProp mf); clear mf; intros [P [p fp]].
-              apply (squash_to_hProp mg); clear mg; intros [R [q gq]].
-              assert (cs := KernelSequence _ _ _ _ gq fp).
-              apply (squash_to_hProp cs); clear cs; intros [T [s [k [r [fgs [kr _]]]]]].
-              apply (squash_to_hProp (ce P T R r k kr)); intros [U α].
-              apply hinhpr. exists U. exists (α · s).
-              exact (ExactIso1 α s (f·g) fgs). } }
-          split.
-          { intros A A'' B'' p f'' ep.
-            apply (squash_to_hProp ep); clear ep; intros [A' [i ex]].
-            assert (Q := ExactPullback' p i ex f'').
-            use (squash_to_hProp Q); clear Q; intros [B [p' [f [i' [eq [pb ex']]]]]].
-            assert (Q := ce A' B B'' i' p' ex').
-            apply (squash_to_hProp Q); clear Q; intros [_B t].
-            assert (t' := z_iso_inv t); clear t.
-            set (i'' := i' · t'). set (p'' := z_iso_inv t' · p').
-            assert (ex'' := ExactIso2 (M:=M) _ _ t' ex' : isExact2 i'' p'').
-            assert (pb' : isPullback' (M:=M) p f'' (z_iso_inv t'·f) p'').
-            { exact (isPullback'_up_to_z_iso (M:=M) _ _ _ _ (z_iso_inv t') pb). }
-            induction pb' as [eq2 pb']. apply hinhpr. use tpair.
-            - use tpair.
-              + exists _B. exists (z_iso_inv t'·f). exact p''.
-              + cbn. exists eq2. now apply induced_precategory_reflects_pullbacks.
-            - cbn beta. exact (ExactToAdmEpi (M:=Nexdat) ex''). }
-          { intros A A'' B'' p f'' ep.
-            apply (squash_to_hProp ep); clear ep; intros [A' [i ex]].
-            assert (Q := ExactPushout' p i ex f'').
-            use (squash_to_hProp Q); clear Q; intros [B [p' [f [i' [eq [pb ex']]]]]].
-            assert (Q := ce B'' B A' p' i' ex').
-            apply (squash_to_hProp Q); clear Q; intros [_B t].
-            set (i'' := i' ∘ t). set (p'' := z_iso_inv t ∘ p').
-            assert (ex'' := ExactIso2 (M:=M) _ _ _ ex' : isExact2 p'' i'').
-            assert (pb' : isPushout' (M:=M) p f'' (z_iso_inv t∘f) p'').
-            { exact (isPushout'_up_to_z_iso (M:=M) _ _ _ _ _ pb). }
-            induction pb' as [eq2 pb']. apply hinhpr. use tpair.
-            - use tpair.
-              + exists _B. exists (z_iso_inv t∘f). exact p''.
-              + cbn. exists eq2. now apply induced_precategory_reflects_pushouts.
-            - cbn beta. exact (ExactToAdmMono (M:=Nexdat) ex''). }
-  Defined.
+    ExactCategory
+    := mk_ExactCategory (induced_ExactCategoryData j hz ce)
+                        (induced_ExactCategoryProperties j hz ce).
 End InducedExactCategory.
