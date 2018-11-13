@@ -245,6 +245,30 @@ Section Precategories.             (* move upstream *)
   Proof.
     reflexivity.
   Defined.
+  Lemma induced_precategory_reflects_pullbacks {M : precategory} {X:Type} (j : X -> ob M)
+        {a b c d : induced_precategory M j}
+        (f : b --> a) (g : c --> a) (p1 : d --> b) (p2 : d --> c)
+        (H : p1 · f = p2 · g) :
+    isPullback (# (induced_precategory_incl j) f)
+               (# (induced_precategory_incl j) g)
+               (# (induced_precategory_incl j) p1)
+               (# (induced_precategory_incl j) p2) H ->
+    isPullback f g p1 p2 H.
+  Proof.
+    exact (λ pb T, pb (j T)).
+  Qed.
+  Lemma induced_precategory_reflects_pushouts {M : precategory} {X:Type} (j : X -> ob M)
+        {a b c d : induced_precategory M j}
+        (f : b <-- a) (g : c <-- a) (p1 : d <-- b) (p2 : d <-- c)
+        (H : p1 ∘ f = p2 ∘ g) :
+    isPushout (# (induced_precategory_incl j) f)
+               (# (induced_precategory_incl j) g)
+               (# (induced_precategory_incl j) p1)
+               (# (induced_precategory_incl j) p2) H ->
+    isPushout f g p1 p2 H.
+  Proof.
+    exact (λ pb T, pb (j T)).
+  Qed.
 End Precategories.
 
 Section Categories.
@@ -279,7 +303,22 @@ Section Categories.
         (i : z_iso d' d) :
     isPullback' f g p1 p2 -> isPullback' f g (i·p1) (i·p2).
   Proof.
-  Admitted.
+    intros [e pb]. use tpair.
+    - abstract (rewrite 2 assoc'; apply maponpaths; exact e) using _P_.
+    - cbn beta. intros T r s eq.
+      assert (Q := pb T r s eq).
+      use (iscontrweqf _ Q); clear Q.
+      use weqtotal2.
+      { apply z_iso_comp_left_weq. exact (z_iso_inv i). }
+      { intros h. cbn beta. apply weqiff.
+        { cbn.
+          rewrite 2 (assoc' h). rewrite 2 (assoc _ i).
+          rewrite z_iso_after_z_iso_inv. rewrite 2 id_left.
+          apply isrefl_logeq. }
+        { apply isapropdirprod; apply homset_property. }
+        { apply isapropdirprod; apply homset_property. }
+        }
+  Defined.
   Lemma isPushout'_up_to_z_iso {M:category} {a b c d d' : M}
         (f : a --> b) (g : a --> c) (in1 : b --> d) (in2 : c --> d)
         (i : z_iso d d') :
@@ -1466,6 +1505,14 @@ Section theDefinition.
     ∑ (p : B --> C), isAdmissibleEpimorphism p.
   Coercion AdmEpiToMap  {M : ExactCategoryData} {B C:M} : AdmissibleEpimorphism B C ->  B --> C := pr1.
   Coercion AdmEpiToMap' {M : ExactCategoryData} {B C:M} : AdmissibleEpimorphism B C -> (B --> C)%cat := pr1.
+  Lemma ExactToAdmMono {M : ExactCategoryData} {A B C:M} {i : A --> B} {p : B --> C} : isExact2 i p -> isAdmissibleMonomorphism i.
+  Proof.
+    intros e. exact (hinhpr(C,,p,,e)).
+  Qed.
+  Lemma ExactToAdmEpi {M : ExactCategoryData} {A B C:M} {i : A --> B} {p : B --> C} : isExact2 i p -> isAdmissibleEpimorphism p.
+  Proof.
+    intros e. exact (hinhpr(A,,i,,e)).
+  Qed.
   (** The following definition is definition 2.1 from the paper of Bühler. *)
   Local Definition ExactCategoryProperties (M : ExactCategoryData) : hProp :=
       ((∀ (P Q : MorphismPair M), MorphismPairIsomorphism P Q ⇒ isExact P ⇒ isExact Q) ∧
@@ -1649,14 +1696,6 @@ End OppositeExactCategory.
 Notation "C '^op'" := (oppositeExactCategory C) (at level 3, format "C ^op") : excat.
 
 Section ExactCategoryFacts.
-  Lemma ExactToAdmMono {M : ExactCategory} {A B C:M} {i : A --> B} {p : B --> C} : isExact2 i p -> isAdmissibleMonomorphism i.
-  Proof.
-    intros e. exact (hinhpr(C,,p,,e)).
-  Qed.
-  Lemma ExactToAdmEpi {M : ExactCategory} {A B C:M} {i : A --> B} {p : B --> C} : isExact2 i p -> isAdmissibleEpimorphism p.
-  Proof.
-    intros e. exact (hinhpr(A,,i,,e)).
-  Qed.
   Lemma ExactToMono {M : ExactCategory} {A B C:M} {i : A --> B} {p : B --> C} : isExact2 i p -> isMonic i.
   Proof.
     intros e. exact (KernelIsMonic i p (EC_ExactToKernel e)).
@@ -2671,20 +2710,37 @@ Section InducedExactCategory.
               exact (ExactIso1 α s (f·g) fgs). } }
           split.
           { clear zN izz zM iz _Z. intros A A'' B'' p f'' ep.
-            Local Arguments Pullback _ {_ _ _}.
-            Local Arguments isExact2 _ {_ _ _}.
             apply (squash_to_hProp ep); clear ep; intros [A' [i ex]].
             assert (Q := ExactPullback' p i ex f'').
             use (squash_to_hProp Q); clear Q; intros [B [p' [f [i' [eq [pb ex']]]]]].
             assert (Q := ce A' B B'' i' p' ex').
             apply (squash_to_hProp Q); clear Q; intros [_B t].
             assert (t' := z_iso_inv t); clear t.
-            set (i'' := i' · t').
-            set (p'' := z_iso_inv t' · p').
-            assert (ex'' := ExactIso2 (M:=M) _ _ t' ex' : isExact2 M i'' p'').
+            set (i'' := i' · t'). set (p'' := z_iso_inv t' · p').
+            assert (ex'' := ExactIso2 (M:=M) _ _ t' ex' : isExact2 i'' p'').
             assert (pb' : isPullback' (M:=M) p f'' (z_iso_inv t'·f) p'').
             { exact (isPullback'_up_to_z_iso (M:=M) _ _ _ _ (z_iso_inv t') pb). }
-
-
-  Abort.
+            induction pb' as [eq2 pb']. apply hinhpr. use tpair.
+            - use tpair.
+              + exists _B. exists (z_iso_inv t'·f). exact p''.
+              + cbn. exists eq2.
+                now apply induced_precategory_reflects_pullbacks.
+            - cbn beta. exact (ExactToAdmEpi (M:=Nexdat) ex''). }
+          { clear zN izz zM iz _Z. intros A A'' B'' p f'' ep.
+            apply (squash_to_hProp ep); clear ep; intros [A' [i ex]].
+            assert (Q := ExactPushout' p i ex f'').
+            use (squash_to_hProp Q); clear Q; intros [B [p' [f [i' [eq [pb ex']]]]]].
+            assert (Q := ce B'' B A' p' i' ex').
+            apply (squash_to_hProp Q); clear Q; intros [_B t].
+            set (i'' := i' ∘ t). set (p'' := z_iso_inv t ∘ p').
+            assert (ex'' := ExactIso2 (M:=M) _ _ _ ex' : isExact2 p'' i'').
+            assert (pb' : isPushout' (M:=M) p f'' (z_iso_inv t∘f) p'').
+            { exact (isPushout'_up_to_z_iso (M:=M) _ _ _ _ _ pb). }
+            induction pb' as [eq2 pb']. apply hinhpr. use tpair.
+            - use tpair.
+              + exists _B. exists (z_iso_inv t∘f). exact p''.
+              + cbn. exists eq2.
+                now apply induced_precategory_reflects_pushouts.
+            - cbn beta. exact (ExactToAdmMono (M:=Nexdat) ex''). }
+  Defined.
 End InducedExactCategory.
