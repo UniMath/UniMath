@@ -129,6 +129,13 @@ Section Sanity2.
 End Sanity2.
 
 Section Precategories.             (* move upstream *)
+  Definition hasBinDirectSums (M:PreAdditive) : hProp.
+  Proof.
+    exists (hasBinDirectSums M).
+    apply impred; intro p.
+    apply impred; intro q.
+    apply isapropishinh.
+  Defined.
   Lemma isZero_opp (C : precategory) {x : C} (H : @isZero C x) : @isZero (C^op) x.
   Proof.
     use mk_isZero.
@@ -290,7 +297,7 @@ End Precategories.
 
 Section Categories.
   Definition oppositeCategory : category -> category
-    := λ M, @tpair precategory has_homsets (opp_precat M) (λ A B, homset_property M B A).
+    := λ M, @tpair precategory has_homsets (opp_precat M) (λ A B, homset_property M (rm_opp_ob B) (rm_opp_ob A)).
   Goal ∏ (M:category), oppositeCategory (oppositeCategory M) = M.
     reflexivity.
   Qed.
@@ -614,7 +621,7 @@ Section precategoryWithBinOps.  (* move upstream *)
   Definition oppositePrecategoryWithBinOps (M : precategoryWithBinOps) : precategoryWithBinOps
     := mk_precategoryWithBinOps
          (opp_precat M)
-         (λ A B f g, to_binop f g).
+         (λ A B f g, @to_binop M (rm_opp_ob B) (rm_opp_ob A) (rm_opp_mor f) (rm_opp_mor g)).
   Goal ∏ (M : precategoryWithBinOps), oppositePrecategoryWithBinOps (oppositePrecategoryWithBinOps M) = M.
   Proof.
     reflexivity.
@@ -629,15 +636,17 @@ Section precategoryWithBinOps.  (* move upstream *)
     oppositePrecategoryWithBinOps (induced_precategoryWithBinOps M j) =
     induced_precategoryWithBinOps (oppositePrecategoryWithBinOps M) j.
   Proof.
-    Time reflexivity.           (* 0.038 secs *)
+    reflexivity.           (* 0.038 secs *)
   Qed.
 End precategoryWithBinOps.
 Section categoryWithAbgrops.    (* move upstream *)
-  Definition oppositeCategoryWithAbgrops (M : categoryWithAbgrops) : categoryWithAbgrops
-    := mk_categoryWithAbgrops
-         (oppositePrecategoryWithBinOps M)
-         (λ A B, to_has_homsets B A)
-         (λ A B, to_isabgrop B A).
+  Definition oppositeCategoryWithAbgrops (M : categoryWithAbgrops) : categoryWithAbgrops.
+  Proof.
+    use tpair.
+    - exists (oppositePrecategoryWithBinOps M).
+      exact (λ a b, @to_has_homsets M (rm_opp_ob b) (rm_opp_ob a)).
+    - exact (λ a b, @to_isabgrop M (rm_opp_ob b) (rm_opp_ob a)).
+  Defined.
   Goal ∏ (M : categoryWithAbgrops), oppositeCategoryWithAbgrops (oppositeCategoryWithAbgrops M) = M.
   Proof.
     reflexivity.
@@ -646,27 +655,44 @@ Section categoryWithAbgrops.    (* move upstream *)
     : categoryWithAbgrops.
   Proof.
     use tpair.
-    - exists (induced_precategoryWithBinOps M j). exact (λ a b, @to_has_homsets M (j a) (j b)).
-    - cbn beta; unfold pr1, pr2. exact (λ a b, @to_isabgrop M (j a) (j b)).
+    - exists (induced_precategoryWithBinOps M j).
+      exact (λ a b, @to_has_homsets M (j a) (j b)).
+    - exact (λ a b, @to_isabgrop M (j a) (j b)).
   Defined.
   Goal ∏ {M:categoryWithAbgrops} {X:Type} (j : X -> ob M),
     oppositeCategoryWithAbgrops (induced_categoryWithAbgrops M j) =
     induced_categoryWithAbgrops (oppositeCategoryWithAbgrops M) j.
   Proof.
-    Time reflexivity.           (* 0.183 secs *)
+    reflexivity.           (* 0.183 secs *)
   Qed.
 End categoryWithAbgrops.
 
 Section PreAdditive.
-  Definition oppositePreAdditive (M : PreAdditive) : PreAdditive
-    := mk_PreAdditive
-             (oppositeCategoryWithAbgrops M)
-             (mk_isPreAdditive (oppositeCategoryWithAbgrops M)
-                               (λ x y z f, @to_postmor_monoid M M z y x f)
-                               (λ x y z f, @to_premor_monoid M M z y x f)).
+  Definition oppositePreAdditive (M : PreAdditive) : PreAdditive.
+  Proof.
+    exists (oppositeCategoryWithAbgrops M).
+    split.
+    - exact (λ a b c f, @to_postmor_monoid (pr1 M) (pr2 M) (rm_opp_ob c) (rm_opp_ob b) (rm_opp_ob a) (rm_opp_mor f)).
+    - exact (λ a b c f, @to_premor_monoid (pr1 M) (pr2 M) (rm_opp_ob c) (rm_opp_ob b) (rm_opp_ob a) (rm_opp_mor f)).
+  Defined.
   Goal ∏ (M : PreAdditive), oppositePreAdditive (oppositePreAdditive M) = M.
   Proof.
     reflexivity.
+  Defined.
+  Definition induced_PreAdditive (M : PreAdditive) {X:Type} (j : X -> ob M) : PreAdditive.
+  Proof.
+    exists (induced_categoryWithAbgrops M j).
+    split.
+    - exact (λ a b c, @to_premor_monoid (pr1 M) (pr2 M) (j a) (j b) (j c)).
+    - exact (λ a b c, @to_postmor_monoid (pr1 M) (pr2 M) (j a) (j b) (j c)).
+  Defined.
+  Lemma induced_opposite_PreAdditive {M:PreAdditive} {X:Type} (j : X -> ob M) :
+    oppositePreAdditive (induced_PreAdditive M j) =
+    induced_PreAdditive (oppositePreAdditive M) (λ a, opp_ob (j a)).
+  Proof.
+    intros.
+    compute.                    (* the following line bogs down without this one *)
+    reflexivity.                (* but the computation may make this proof fragile *)
   Defined.
   Definition oppositeBinDirectSum {M:PreAdditive} {x y:M} :
     BinDirectSum (A:=M) x y -> BinDirectSum (A:=oppositePreAdditive M) x y.
@@ -687,28 +713,6 @@ Section PreAdditive.
   Proof.
     reflexivity.
   Defined.
-  Definition induced_PreAdditive (M : PreAdditive) {X:Type} (j : X -> ob M) : PreAdditive.
-  Proof.
-    exists (induced_categoryWithAbgrops M j).
-    split.
-    - exact (λ a b c, @to_premor_monoid M M (j a) (j b) (j c)).
-    - exact (λ a b c, @to_postmor_monoid M M (j a) (j b) (j c)).
-  Defined.
-  Goal ∏ {M:PreAdditive} {X:Type} (j : X -> ob M),
-    oppositePreAdditive (induced_PreAdditive M j) =
-    induced_PreAdditive (oppositePreAdditive M) j.
-  Proof.
-
-  (*   Time reflexivity.           (* 5.174 secs ! This needs to be explained. *) *)
-  (* Time Qed.                     (* 5.162 secs ! *) *)
-
-  (*   intros. *)
-  (*   Time apply pair_path_in2.   (* 0.359 secs *) *)
-  (*   Time apply pair_path_in2.   (* 6.919 secs *) *)
-  (*   Time reflexivity.           (* 1.251 secs *) *)
-  (* Time Qed.                     (* 7.248 secs *) *)
-
-  Abort.
   Lemma zeroLeft {M:PreAdditive} {a b c : M} (f : b --> c) : ((0 : a --> b) · f = 0)%abgrcat.
   Proof.
     apply to_postmor_unel'.
@@ -1492,7 +1496,7 @@ Local Open Scope addcat.
 
 Section AdditiveBasics.         (* move upstream *)
   (* first fix the definition of additive category to follow traditional mathematical practice *)
-  Definition isAdditive (PA : PreAdditive) : UU := hasZero PA × hasBinDirectSums PA.
+  Definition isAdditive (PA : PreAdditive) : hProp := hasZero PA ∧ hasBinDirectSums PA.
   Definition mk_isAdditive (PA : PreAdditive) (H1 : hasZero PA) (H2 : hasBinDirectSums PA) : isAdditive PA := H1,,H2.
   Definition Additive : UU := ∑ PA : PreAdditive, isAdditive PA.
   Coercion Additive_to_PreAdditive (A : Additive) : PreAdditive := pr1 A.
@@ -1536,19 +1540,15 @@ Section AdditiveBasics.         (* move upstream *)
       + exists c. exact (pr21 S').
       + cbn. exact (pr2 S').
   Defined.
-  Goal ∏ {M:Additive} {X:Type} (j : X -> ob M) (hz : zero_lifts M j) (su : sums_lift M j),
+  Lemma induced_opposite_Additive {M:Additive} {X:Type} (j : X -> ob M)
+        (hz : zero_lifts M j) (su : sums_lift M j) :
     oppositeAdditiveCategory (induced_Additive M j hz su) =
     induced_Additive (oppositeAdditiveCategory M) j (opp_lift_zero j hz) (opp_sums_lift j su).
   Proof.
     intros.
-    (* Fail reflexivity. *)
-    (* use total2_paths2_f. *)
-    (* - Time reflexivity.         (* 5.398 secs *) *)
-    (* - Time use total2_paths2_f. (* 36.769 secs *) *)
-    (*   + Time reflexivity.       (* 37.778 secs *) *)
-    (*   + cbn. *)
-    (*     (* Fail reflexivity. *) *)
-  Abort.
+    apply (total2_paths2_f (induced_opposite_PreAdditive j)).
+    apply propproperty.
+  Defined.
 End AdditiveBasics.
 
 Local Notation "A ⊕ B" := (to_BinDirectSums' A B) : addcat.
@@ -2715,10 +2715,17 @@ Section AdditiveToExact.
   Defined.
   Definition AdditiveToExact : Additive -> ExactCategory
     := λ M, mk_ExactCategory (M,,isSplit) (AdditiveExactnessProperties M).
-  Goal ∏ M:Additive, AdditiveToExact (oppositeAdditiveCategory M) = oppositeExactCategory (AdditiveToExact M).
+  Lemma additive_exact_opposite {M:Additive} :
+    AdditiveToExact (oppositeAdditiveCategory M) = oppositeExactCategory (AdditiveToExact M).
   Proof.
-    Fail reflexivity.
-  Abort.
+    intros. simple refine (total2_paths2_f _ _).
+    - simple refine (total2_paths2_f (idpath _) _).
+      + apply funextsec; intros P. rewrite idpath_transportf. apply weqtopathshProp, weqiff.
+        * exact (opposite_isSplit P,,opposite_isSplit (oppositeMorphismPair P)).
+        * apply propproperty.
+        * apply propproperty.
+    - apply propproperty.
+  Qed.
 End AdditiveToExact.
 
 Section InducedExactCategory.
@@ -2746,12 +2753,10 @@ Section InducedExactCategory.
     oppositeExactCategoryData (induced_ExactCategoryData j hz ce) =
     induced_ExactCategoryData (M:=oppositeExactCategory M) j (opp_lift_zero j hz) (opp_exts_lift j ce).
   Proof.
-    (* This fails very slowly, but getting it to work would be good, because then some proofs below
+    intros.
+    assert (Q := induced_opposite_Additive j hz).
+    (* Getting this to work would be good, because then some proofs below
        could be shortened by using duality. *)
-    (* reflexivity. *)
-    (* intros. *)
-    (* apply total2_paths2. *)
-
   Abort.
   Definition induced_ExactCategoryProperties {M:ExactCategory} {X:Type}
              (j : X -> ob M)
