@@ -1514,23 +1514,25 @@ Section AdditiveBasics.         (* move upstream *)
   Proof.
     reflexivity.
   Defined.
-  Definition sums_lift (M:Additive) {X:Type} (j : X -> ob M) :=
-    ∏ a b (S : BinDirectSum (j a) (j b)), ∃ x, z_iso (j x) (BinDirectSumOb S).
-  Definition opp_sums_lift {M:Additive} {X:Type} (j : X -> ob M) :
+  Definition sums_lift (M:Additive) {X:Type} (j : X -> ob M) : hProp :=
+    zero_lifts M j ∧
+    ∀ a b (S : BinDirectSum (j a) (j b)), ∃ x, z_iso (j x) (BinDirectSumOb S).
+  Definition opp_sums_lift (M:Additive) {X:Type} (j : X -> ob M) :
     sums_lift M j -> sums_lift (oppositeAdditiveCategory M) j.
   Proof.
-    intros su a b S. generalize (su a b (oppositeBinDirectSum S)). apply hinhfun.
+    intros [hz su]. exists (opp_lift_zero j hz).
+    intros a b S. generalize (su a b (oppositeBinDirectSum S)). apply hinhfun.
     intros [s t]. exists s. exact (z_iso_inv (opp_z_iso t)).
   Defined.
   Goal ∏ {M:Additive} {X:Type} (j : X -> ob M) (su : sums_lift M j),
-    opp_sums_lift (M:=oppositeAdditiveCategory M) j (opp_sums_lift (M:=M) j su) = su.
+    opp_sums_lift (oppositeAdditiveCategory M) j (opp_sums_lift M j su) = su.
   Proof.
     reflexivity.
   Qed.
-  Definition induced_Additive (M : Additive) {X:Type} (j : X -> ob M)
-             (hz : zero_lifts M j) (sum : sums_lift M j) : Additive.
+  Definition induced_Additive (M : Additive)
+             {X:Type} (j : X -> ob M) (sum : sums_lift M j) : Additive.
   Proof.
-    exists (induced_PreAdditive M j). split.
+    exists (induced_PreAdditive M j). induction sum as [hz sum]. split.
     - use (hinhfun _ hz). intros [z iz]. exists z. split.
       + intros a. apply iz.
       + intros b. apply iz.
@@ -1540,10 +1542,10 @@ Section AdditiveBasics.         (* move upstream *)
       + exists c. exact (pr21 S').
       + cbn. exact (pr2 S').
   Defined.
-  Lemma induced_opposite_Additive {M:Additive} {X:Type} (j : X -> ob M)
-        (hz : zero_lifts M j) (su : sums_lift M j) :
-    oppositeAdditiveCategory (induced_Additive M j hz su) =
-    induced_Additive (oppositeAdditiveCategory M) j (opp_lift_zero j hz) (opp_sums_lift j su).
+  Lemma induced_opposite_Additive {M:Additive}
+        {X:Type} (j : X -> ob M) (su : sums_lift M j) :
+    oppositeAdditiveCategory (induced_Additive M j su) =
+    induced_Additive (oppositeAdditiveCategory M) j (opp_sums_lift M j su).
   Proof.
     intros.
     apply (total2_paths2_f (induced_opposite_PreAdditive j)).
@@ -2718,54 +2720,69 @@ Section AdditiveToExact.
   Lemma additive_exact_opposite {M:Additive} :
     AdditiveToExact (oppositeAdditiveCategory M) = oppositeExactCategory (AdditiveToExact M).
   Proof.
-    intros. simple refine (total2_paths2_f _ _).
-    - simple refine (total2_paths2_f (idpath _) _).
-      + apply funextsec; intros P. rewrite idpath_transportf. apply weqtopathshProp, weqiff.
-        * exact (opposite_isSplit P,,opposite_isSplit (oppositeMorphismPair P)).
-        * apply propproperty.
-        * apply propproperty.
-    - apply propproperty.
+    intros. apply subtypeEquality_prop. apply pair_path_in2.
+    apply funextsec; intros P. apply hPropUnivalence.
+    * exact (opposite_isSplit P).
+    * exact (opposite_isSplit (oppositeMorphismPair P)).
   Qed.
 End AdditiveToExact.
 
 Section InducedExactCategory.
   Definition exts_lift (M:ExactCategory) {X:Type} (j : X -> ob M) :=
-    ∀ a B c (i : j a --> B) (p : B --> j c), isExact2 i p ⇒ ∃ b, z_iso (j b) B.
-  Definition induced_ExactCategoryData {M:ExactCategory} {X:Type}
-             (j : X -> ob M) : zero_lifts M j -> exts_lift M j -> ExactCategoryData.
+    zero_lifts M j ∧ ∀ a B c (i : j a --> B) (p : B --> j c), isExact2 i p ⇒ ∃ b, z_iso (j b) B.
+  Definition exts_lift_sums (M:ExactCategory) {X:Type} (j : X -> ob M) :
+    exts_lift M j -> sums_lift M j.
   Proof.
-    intros hz ce. use tpair.
-    + apply (induced_Additive M j hz). exact (λ a c S, ce a S c ι₁ π₂ (DirectSumToExact S)).
-    + cbn beta. intros P. exact (isExact2 (Mor1 P) (Mor2 P)).
+    intros el. exists (pr1 el). exact (λ a c S, pr2 el a S c ι₁ π₂ (DirectSumToExact S)).
+  Defined.
+  Definition induced_ExactCategoryData {M:ExactCategory} {X:Type}
+             (j : X -> ob M) : exts_lift M j -> ExactCategoryData.
+  Proof.
+    intros el. exists (induced_Additive M j (exts_lift_sums M j el)).
+    exact (λ P, isExact2 (Mor1 P) (Mor2 P)).
   Defined.
   Definition opp_exts_lift {M:ExactCategory} {X:Type} (j : X -> ob M) :
     exts_lift M j -> exts_lift (oppositeExactCategory M) j.
   Proof.
-    intros el a B c i p ex. generalize (el c B a p i ex). apply hinhfun.
+    intros [hz ce]. exists (opp_lift_zero j hz).
+    intros a B c i p ex. generalize (ce c B a p i ex). apply hinhfun.
     intros [b t]. exists b. exact (z_iso_inv (opp_z_iso t)).
   Defined.
+  Lemma opp_sums_exts_lift (M:ExactCategory) {X:Type} (j : X -> ob M) (ce : exts_lift M j ):
+    opp_sums_lift M j (exts_lift_sums M j ce) =
+    exts_lift_sums M^op j (opp_exts_lift j ce).
+  Proof.
+    apply pair_path_in2.
+    apply funextsec; intro a.
+    apply funextsec; intro b.
+    apply funextsec; intro S.
+    apply isapropishinh.
+  Qed.
   Goal ∏ {M:ExactCategory} {X:Type} (j : X -> ob M) (ce : exts_lift M j),
     opp_exts_lift (M:=oppositeExactCategory M) j (opp_exts_lift (M:=M) j ce) = ce.
   Proof.
     reflexivity.
   Defined.
-  Goal ∏ {M:ExactCategory} {X:Type} (j : X -> ob M) (hz : zero_lifts M j) (ce : exts_lift M j),
-    oppositeExactCategoryData (induced_ExactCategoryData j hz ce) =
-    induced_ExactCategoryData (M:=oppositeExactCategory M) j (opp_lift_zero j hz) (opp_exts_lift j ce).
+  Goal ∏ {M:ExactCategory} {X:Type} (j : X -> ob M) (ce : exts_lift M j),
+    oppositeExactCategoryData (induced_ExactCategoryData j ce) =
+    induced_ExactCategoryData (M:=oppositeExactCategory M) j (opp_exts_lift j ce).
   Proof.
     intros.
-    assert (Q := induced_opposite_Additive j hz).
-    (* Getting this to work would be good, because then some proofs below
-       could be shortened by using duality. *)
+    simple refine (total2_paths2_f _ _).
+    - refine (induced_opposite_Additive j (exts_lift_sums M j ce) @ _).
+      apply maponpaths. apply opp_sums_exts_lift.
+    - apply funextsec; intros P. apply hPropUnivalence.
+      (* Getting this to work would be good, because then some proofs below
+         could be shortened by using duality. *)
+      + intros ex. admit.
+      + intros ex. admit.
   Abort.
   Definition induced_ExactCategoryProperties {M:ExactCategory} {X:Type}
-             (j : X -> ob M)
-             (hz : ∃ z, isZero (j z))
-             (ce : ∀ a B c (i : j a --> B) (p : B --> j c),
-                 isExact2 i p ⇒ ∃ b, z_iso (j b) B) :
-    ExactCategoryProperties (induced_ExactCategoryData j hz ce).
+             (j : X -> ob M) (ce : exts_lift M j) :
+    ExactCategoryProperties (induced_ExactCategoryData j ce).
   Proof.
-    set (N := induced_ExactCategoryData j hz ce).
+    set (N := induced_ExactCategoryData j ce).
+    induction ce as [hz ce].
     transparent assert (J : (PreAdditive_functor N M)).
     { exact (induced_PreAdditive_incl M j). }
     split.
@@ -2837,11 +2854,7 @@ Section InducedExactCategory.
           - cbn beta. exact (ExactToAdmMono (M:=N) ex''). }
   Qed.
   Definition induced_ExactCategory {M:ExactCategory} {X:Type}
-             (j : X -> ob M)
-             (hz : ∃ z, isZero (j z))
-             (ce : ∀ a B c (i : j a --> B) (p : B --> j c),
-                 isExact2 i p ⇒ ∃ b, z_iso (j b) B) :
-    ExactCategory
-    := mk_ExactCategory (induced_ExactCategoryData j hz ce)
-                        (induced_ExactCategoryProperties j hz ce).
+             (j : X -> ob M) (ce : exts_lift M j) : ExactCategory
+    := mk_ExactCategory (induced_ExactCategoryData j ce)
+                        (induced_ExactCategoryProperties j ce).
 End InducedExactCategory.
