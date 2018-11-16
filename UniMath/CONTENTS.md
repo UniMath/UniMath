@@ -102,6 +102,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Epis.v](CategoryTheory/Epis.v)
    - [CategoriesWithBinOps.v](CategoryTheory/CategoriesWithBinOps.v)
    - [PrecategoriesWithAbgrops.v](CategoryTheory/PrecategoriesWithAbgrops.v)
+   - [ArrowCategory.v](CategoryTheory/ArrowCategory.v)
    - [limits/cones.v](CategoryTheory/limits/cones.v)
    - [limits/equalizers.v](CategoryTheory/limits/equalizers.v)
    - [limits/graphs/colimits.v](CategoryTheory/limits/graphs/colimits.v)
