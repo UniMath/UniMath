@@ -529,6 +529,43 @@ Defined.
 
 End map.
 
+Section Reflects.
+  Context {C D : precategory} (F : functor C D).
+
+  Definition reflects_limits_of_shape (g : graph) : UU :=
+    ∏ (d : diagram g C) (L : ob C) cc,
+      isLimCone (mapdiagram F d) (F L) (mapcone F d cc) ->
+        isLimCone d L cc.
+
+  Definition reflects_all_limits : UU :=
+    ∏ (g : graph), reflects_limits_of_shape g.
+
+  (** Fully faithful functors reflect limits of any given shape. *)
+  Lemma fully_faithful_reflects_all_limits (fff : fully_faithful F) :
+    reflects_all_limits.
+  Proof.
+    intros g d L cc isLimConeImL.
+    unfold isLimCone in *.
+    intros L' cc'.
+    unfold fully_faithful in fff.
+    apply (@iscontrweqf
+             (∑ x : D ⟦ F L', F L ⟧,
+              ∏ v : vertex g,
+                x · coneOut (mapcone F d cc) v = coneOut (mapcone F d cc') v)).
+    - apply (@weqcomp _ (∑ x : C ⟦ L', L ⟧, ∏ v : vertex g, # F x · coneOut (mapcone F d cc) v = coneOut (mapcone F d cc') v)).
+      + apply invweq.
+        apply (weqfp (weq_from_fully_faithful fff _ _)
+                     (λ f, ∏ v, f · coneOut (mapcone F d cc) v = coneOut (mapcone F d cc') v)).
+      + apply weqfibtototal; intro f.
+        apply weqonsecfibers; intro v.
+        unfold mapcone; cbn.
+        apply invweq.
+        apply fully_faithful_commutative_triangle_weq.
+        assumption.
+    - apply isLimConeImL.
+  Qed.
+End Reflects.
+
 
 (** * Definition of limits via colimits *)
 
