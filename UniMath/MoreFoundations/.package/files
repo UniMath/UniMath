@@ -12,6 +12,5 @@ Subtypes.v
 AxiomOfChoice.v
 StructureIdentity.v
 PartA.v
-GirardsParadox.v
 Univalence.v
 All.v
