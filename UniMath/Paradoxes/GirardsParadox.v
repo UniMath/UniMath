@@ -1,6 +1,6 @@
-(* This file provides a direct formalizatoin of Girard's paradox, as explained in Martin-Lof's 1972
+(** This file provides a direct formalizatoin of Girard's paradox, as explained in Martin-Lof's 1972
 "An intuitionistic theory of types". It can serve as a test as to whether the version of Coq being
-used is (in the most obvious way) inconsistent. *)
+used is (in the most obvious way) inconsistent. **)
 
 Require Import UniMath.Foundations.All.
 
@@ -10,38 +10,47 @@ Section girard.
 Variable Flse : Type.
 
 (* an "ordering without infinite descending chains" (wf is for "well-founded") *)
-Definition wf (T : Type) := total2 (fun (lt : T -> T -> Type) =>
-                                      (forall x y z: T, lt x y -> lt y z -> lt x z) ×
-                                         (forall h : (nat -> T),
-                                             (forall n : nat, lt (h (S n)) (h n)) -> Flse)).
+Definition wf (T : Type) : Type
+  := ∑ lt : T -> T -> Type,
+            (∏ x y z: T, lt x y -> lt y z -> lt x z) ×
+            (∏ h : (nat -> T), (∏ n : nat, lt (h (S n)) (h n)) -> Flse).
 
 (* the type of such orderings *)
-Definition wfs := total2 wf.
+Definition wfs : Type := total2 wf.
 
 (* the underyling set *)
 Definition uset (w : wfs) : Type := pr1 w.
 (* the underlying order *)
 Definition uord (w : wfs) : uset w -> uset w -> Type := pr1 (pr2 w).
 (* the transitivity property *)
-Definition trans (w : wfs) {x y z : uset w} := pr1 (pr2 (pr2 w)) x y z.
+Definition trans (w : wfs) {x y z : uset w}
+  : pr1 (pr2 w) x y → pr1 (pr2 w) y z → pr1 (pr2 w) x z
+  := pr1 (pr2 (pr2 w)) x y z.
 (* the well-foundedness property *)
-Definition wfp (w : wfs) := pr2 (pr2 (pr2 w)).
+Definition wfp (w : wfs) :
+  (λ _ : ∏ x y z : pr1 w, pr1 (pr2 w) x y → pr1 (pr2 w) y z → pr1 (pr2 w) x z,
+                   ∏ h : nat → pr1 w, (∏ n : nat, pr1 (pr2 w) (h (S n)) (h n)) → Flse) (pr1 (pr2 (pr2 w)))
+  := pr2 (pr2 (pr2 w)).
 
 (* the order on wfs: an order-preserving function on underlying sets and an
    element of the second set which dominates the image *)
-Definition wfs_wf_uord (v : wfs) (w : wfs) : Type :=
-  total2 (fun (f : uset v -> uset w) =>
-            (forall x y : uset v, (uord v) x y -> (uord w) (f x) (f y)) ×
-               (total2 (fun (y : uset w) => forall (x: uset v), (uord w) (f x) y))).
+Definition wfs_wf_uord (v : wfs) (w : wfs) : Type
+  := ∑ f : uset v -> uset w,
+           (∏ x y : uset v, (uord v) x y -> (uord w) (f x) (f y)) ×
+           (∑ y : uset w, ∏ (x: uset v), (uord w) (f x) y).
 
 (* the underlying function *)
-Definition ufun {v : wfs} {w : wfs} (a : wfs_wf_uord v w) := pr1 a.
+Definition ufun {v : wfs} {w : wfs} (a : wfs_wf_uord v w) : uset v → uset w := pr1 a.
 (* the homomorpshim property *)
-Definition homo {v : wfs} {w : wfs} (a : wfs_wf_uord v w) := pr1 (pr2 a).
+Definition homo {v : wfs} {w : wfs} (a : wfs_wf_uord v w)
+  : ∏ (x y : uset v), uord v x y → uord w (pr1 a x) (pr1 a y)
+  := pr1 (pr2 a).
 (* the dominating element *)
-Definition domi {v : wfs} {w : wfs} (a : wfs_wf_uord v w) := pr1 (pr2 (pr2 a)).
+Definition domi {v : wfs} {w : wfs} (a : wfs_wf_uord v w) : uset w := pr1 (pr2 (pr2 a)).
 (* the relation comparing the dominating element to the various images *)
-Definition domicom {v : wfs} {w : wfs} (a : wfs_wf_uord v w) := pr2 (pr2 (pr2 a)).
+Definition domicom {v : wfs} {w : wfs} (a : wfs_wf_uord v w)
+  : (λ y : uset w, ∏ x : uset v, uord w (pr1 a x) y) (pr1 (pr2 (pr2 a)))
+  := pr2 (pr2 (pr2 a)).
 
 (* transitivty of the ordering on wfs *)
 Definition wfs_wf_trans : forall x y z : wfs, wfs_wf_uord x y -> wfs_wf_uord y z -> wfs_wf_uord x z.
@@ -65,8 +74,8 @@ Defined.
 
 (* given a descending sequence f : nat -> wfs, map each f(n) to f(0) by composing all the maps *)
 
-Definition wfs_wf_wfp_shift (f : nat -> wfs) (b : forall n : nat, wfs_wf_uord (f (S n)) (f n)) :
-  forall (n : nat), (uset (f n) -> uset (f 0)).
+Definition wfs_wf_wfp_shift (f : nat -> wfs) (b : ∏ n : nat, wfs_wf_uord (f (S n)) (f n)) :
+  ∏ (n : nat), (uset (f n) -> uset (f 0)).
 Proof.
   intro n.
   induction n.
@@ -76,7 +85,7 @@ Proof.
 Defined.
 
 (* thus obtain a sequence in (f 0) *)
-Definition wfs_wf_wfp_seq (f : nat -> wfs) (b : forall n : nat, wfs_wf_uord (f (S n)) (f n)) :
+Definition wfs_wf_wfp_seq (f : nat -> wfs) (b : ∏ n : nat, wfs_wf_uord (f (S n)) (f n)) :
   nat -> uset (f 0).
 Proof.
   intro n.
@@ -84,8 +93,8 @@ Proof.
 Defined.
 
 (* obtain comparisons between the shifted elements *)
-Definition wfs_wf_wfp_compshift (f : nat -> wfs) (b : forall n : nat, wfs_wf_uord (f (S n)) (f n)) :
-  forall (n : nat) {x y : uset (f n)},
+Definition wfs_wf_wfp_compshift (f : nat -> wfs) (b : ∏ n : nat, wfs_wf_uord (f (S n)) (f n)) :
+  ∏ (n : nat) {x y : uset (f n)},
     uord (f n) x y -> uord (f 0) (wfs_wf_wfp_shift f b n x) (wfs_wf_wfp_shift f b n y).
 Proof.
   intros n.
@@ -98,7 +107,7 @@ Qed.
 
 (* show that the resulting sequence on (f 0) is descending *)
 Lemma wfs_wf_wfp_desc (f : nat -> wfs) (b : forall n : nat, wfs_wf_uord (f (S n)) (f n)) :
-  forall n : nat, uord (f 0) (wfs_wf_wfp_seq f b (S n)) (wfs_wf_wfp_seq f b n).
+  ∏ n : nat, uord (f 0) (wfs_wf_wfp_seq f b (S n)) (wfs_wf_wfp_seq f b n).
 Proof.
   intro n.
   exact (wfs_wf_wfp_compshift f b n (domicom (b n) (domi (b (S n))))).
@@ -124,7 +133,7 @@ Definition wfs_wf_t : wfs := tpair (fun T => wf T) wfs (wfs_wf).
 Definition maxi_fun (w : wfs) : uset w -> wfs.
 Proof.
   intro x.
-  exists (total2 (fun y : uset w => uord w y x)).
+  exists (∑ y : uset w, uord w y x).
   exists (fun a b => uord w (pr1 a) (pr1 b)).
   split.
   - intros x0 y z p q.
@@ -135,7 +144,7 @@ Proof.
 Defined.
 
 (* maxi_fun preserves the order *)
-Lemma maxi_homo (w : wfs) : forall (x y : uset w),
+Lemma maxi_homo (w : wfs) : ∏ (x y : uset w),
     uord w x y -> wfs_wf_uord (maxi_fun w x) (maxi_fun w y).
 Proof.
   intros x y p.
@@ -149,7 +158,7 @@ Proof.
 Defined.
 
 (* w itself dominates the image of w under maxi_fun *)
-Lemma maxidom (w : wfs) : forall (x : uset w), wfs_wf_uord (maxi_fun w x) w.
+Lemma maxidom (w : wfs) : ∏ (x : uset w), wfs_wf_uord (maxi_fun w x) w.
 Proof.
   intro x.
   exists (fun (z : uset (maxi_fun w x)) => pr1 z).
@@ -177,7 +186,7 @@ Proof.
 Defined.
 
 (* but wfs are irreflexive *)
-Proposition irref (w : wfs) : forall (x : uset w), (uord w) x x -> Flse.
+Proposition irref (w : wfs) : ∏ (x : uset w), (uord w) x x -> Flse.
 Proof.
   intro x.
   intro p.
@@ -193,6 +202,6 @@ Defined.
 End girard.
 
 (* especially if Flse=False *)
-Proposition but_seriously_the_world_explodes : False.
-  exact (the_world_explodes False).
+Proposition but_seriously_the_world_explodes : empty.
+  exact (the_world_explodes empty).
 Defined.
