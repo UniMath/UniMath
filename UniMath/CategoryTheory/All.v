@@ -18,6 +18,7 @@ Require Export UniMath.CategoryTheory.Monics.
 Require Export UniMath.CategoryTheory.Epis.
 Require Export UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Export UniMath.CategoryTheory.PrecategoriesWithAbgrops.
+Require Export UniMath.CategoryTheory.ArrowCategory.
 Require Export UniMath.CategoryTheory.limits.cones.
 Require Export UniMath.CategoryTheory.limits.equalizers.
 Require Export UniMath.CategoryTheory.limits.graphs.colimits.
