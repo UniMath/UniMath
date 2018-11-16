@@ -74,6 +74,7 @@ PointedFunctors.v
 HorizontalComposition.v
 PointedFunctorsComposition.v
 CommaCategories.v
+ArrowCategory.v
 RightKanExtension.v
 slicecat.v
 coslicecat.v
