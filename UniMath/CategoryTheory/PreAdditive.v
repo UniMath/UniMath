@@ -1058,7 +1058,6 @@ Defined.
 
 Section RewritingAids.
   Local Open Scope abgrcat.
-  Local Open Scope abgr.
   Lemma zeroLeft {M:PreAdditive} {a b c : M} (f : b --> c) : ((0 : a --> b) · f = 0)%abgrcat.
   Proof.
     apply to_postmor_unel'.

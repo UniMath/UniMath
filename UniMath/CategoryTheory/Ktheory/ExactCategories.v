@@ -1,4 +1,16 @@
-(** Exact categories *)
+(** * Exact categories *)
+
+(** ** Contents
+
+  - Preliminaries
+    - Diagram chasing lemmas
+
+  - The definition of exact category
+    - Equivalence with Quillen's definition
+    - The exact category structure induced on X by
+      a function X -> ob M, where M is an exact category.
+
+ *)
 
 Require Export UniMath.Foundations.All.
 Require Export UniMath.CategoryTheory.Monics.
@@ -26,10 +38,6 @@ Require Export UniMath.MoreFoundations.PartA.
 Require Export UniMath.MoreFoundations.Propositions.
 Require Export UniMath.Algebra.BinaryOperations.
 Require Export UniMath.Algebra.Monoids_and_Groups.
-Import AddNotation.
-Local Open Scope addmonoid.
-Local Open Scope abgr.
-Local Open Scope logic.
 
 (* some of these might be appropriate upstream: *)
 Local Arguments isZero {_} _.
@@ -51,35 +59,30 @@ Local Arguments morphism_from_iso {_ _ _}.
 Local Arguments ToBinDirectSum {_ _ _} _ {_}.
 Local Arguments isBinDirectSum {_ _ _ _}.
 
+Local Open Scope logic.
+Local Open Scope cat.
+
 Local Definition hom (C:precategory_data) : ob C -> ob C -> UU := λ c c', precategory_morphisms c c'.
 Local Definition Hom (C : category) : ob C -> ob C -> hSet := λ c c', hSetpair _ (homset_property C c c').
 Local Definition Hom_add (C : PreAdditive) : ob C -> ob C -> abgr := λ c c', (@to_abgr C c c').
 
-Section Sanity.
-  Context (M : category) (x y:M) (f : hom M x y) (g : Hom M x y).
-  Goal Hom M x y. exact f. Defined.
-  Goal hom M x y. exact g. Defined.
-End Sanity.
+(* move upstream, when ready *)
 
-Local Open Scope cat.
-
-Section Sanity2.
-  Context (M : PreAdditive) (x y:M) (f : hom M x y) (g : Hom M x y) (h : Hom_add M x y).
-  Goal Hom_add M x y. exact f. Defined.
-  Goal Hom_add M x y. exact g. Defined.
-  Goal Hom M x y. exact f. Defined.
-  Goal Hom M x y. exact h. Defined.
-  Goal hom M x y. exact g. Defined.
-  Goal hom M x y. exact h. Defined.
-
-  Local Open Scope addmonoid.
+Section InvestigateNotations.
+  Context (M : PreAdditive) (x y z:M) (f g : hom M x y) (h k : Hom_add M y z).
   Local Open Scope abgrcat.
-  Definition A : (h + h) · 1 = h ∧ htrue.
-    (* A slight problem with printing, due to notation capture; the goal
-       appears here as "((h + h) · 1 = h)%set ∧ htrue" *)
+  Goal empty.
+    set (Q := h+k).
+    set (r := -g).
+    set (t := f-g).
+    set (p := f·h + (h∘f) · 1).
+    set (o := (h + h) · 1 = h).
+    set (s := f+g).
+    set (u := f·1).
+    set (v := f·0·h).
+    (* Set Printing All. *)
   Abort.
-
-End Sanity2.
+End InvestigateNotations.
 
 Section Precategories.
   Definition zero_lifts (M:precategory) {X:Type} (j : X -> ob M) := ∃ z, isZero (j z).
@@ -88,19 +91,9 @@ Section Precategories.
   Proof.
     apply hinhfun; intros [z iz]. exists z. exact (isZero_opp M iz).
   Defined.
-  Goal ∏ {M:precategory} {X:Type} (j : X -> ob M) (hz : zero_lifts M j),
-    opp_lift_zero (M:=opp_precat M) j (opp_lift_zero (M:=M) j hz) = hz.
-  Proof.
-    reflexivity.
-  Defined.
 End Precategories.
 
 Section Categories.
-  Definition oppositeCategory : category -> category
-    := λ M, @tpair precategory has_homsets (opp_precat M) (λ A B, homset_property M (rm_opp_ob B) (rm_opp_ob A)).
-  Goal ∏ (M:category), oppositeCategory (oppositeCategory M) = M.
-    reflexivity.
-  Qed.
   Definition isPushout' {M:category} {a b c d : M} (f : a --> b) (g : a --> c)
              (in1 : b --> d) (in2 : c --> d) : hProp.
   Proof.
@@ -115,12 +108,6 @@ Section Categories.
   Proof.
     exists (∑ (H : p1 · f = p2· g), isPullback f g p1 p2 H).
     exact (_P_ (oppositeCategory M) a b c d f g p1 p2).
-  Defined.
-  Goal ∏ {M:category} {a b c d : M} (f : b --> a) (g : c --> a)
-       (p1 : d --> b) (p2 : d --> c),
-    isPullback' f g p1 p2 = isPushout' (M := oppositeCategory M) f g p1 p2.
-  Proof.
-    reflexivity.
   Defined.
   Lemma isPullback'_up_to_z_iso {M:category} {a b c d d' : M}
         (f : b --> a) (g : c --> a) (p1 : d --> b) (p2 : d --> c)
@@ -150,12 +137,6 @@ Section Categories.
   Proof.
     exact (isPullback'_up_to_z_iso (M:=oppositeCategory M) f g in1 in2 (opp_z_iso i)).
   Qed.
-  Goal ∏ {M:category} {a b c d : M} (f : a --> b) (g : a --> c)
-       (in1 : b --> d) (in2 : c --> d),
-    isPushout' f g in1 in2 = isPullback' (M := oppositeCategory M) f g in1 in2.
-  Proof.
-    reflexivity.
-  Defined.
   (* Section bottleneck. *)
   (*   Context {M:category} {a b c d : M} (f : b --> a) (g : c --> a) *)
   (*            (p1 : d --> b) (p2 : d --> c) (pb : isPullback' f g p1 p2). *)
@@ -190,27 +171,6 @@ Section MorphismPairs.
   Abort.
 End MorphismPairs.
 
-Section OppositeMorphismPairs.
-  Goal ∏ (M:precategory) (P:MorphismPair M), MorphismPair_opp (MorphismPair_opp P) = P.
-  Proof.
-    reflexivity.
-  Qed.
-  Goal ∏ (M:precategory) (p:MorphismPair (M^op)), MorphismPair M.
-    intros. exact (MorphismPair_opp p).
-  Qed.
-  Goal ∏ (M:precategory) (P Q : MorphismPair M^op) (f:MorphismPairIsomorphism P Q),
-    opp_MorphismPairIsomorphism (opp_MorphismPairIsomorphism f) = f.
-  Proof.
-    reflexivity.
-  Qed.
-  Goal ∏ (M:precategory) (P Q : MorphismPair M^op),
-   MorphismPairIsomorphism (C:=M^op) P Q ->
-   MorphismPairIsomorphism (C:=M) (MorphismPair_opp Q) (MorphismPair_opp P).
-  Proof.
-    intros M P Q. exact (opp_MorphismPairIsomorphism (M:=M^op) ).
-  Qed.
-End OppositeMorphismPairs.
-
 Section Pullbacks.              (* move upstream *)
   Definition IsoArrowTo {M : precategory}     {A A' B:M} (g : A --> B) (g' : A' --> B) := ∑ i : z_iso A A', i · g' = g .
   Coercion IsoArrowTo_pr1 {M : precategory}   {A A' B:M} (g : A --> B) (g' : A' --> B) : IsoArrowTo g g' -> z_iso A A' := pr1.
@@ -242,16 +202,6 @@ Section Pullbacks.              (* move upstream *)
       intros i. use tpair.
       - exact (opp_z_iso (pr1 i)).
       - cbn. exact (pr2 i).
-    Defined.
-    Goal ∏ (M:precategory) (A A' B:M) (g : A --> B) (g' : A' --> B) (i:IsoArrowTo g g'),
-      opposite_IsoArrowFrom (opposite_IsoArrowTo i) = i.
-    Proof.
-      reflexivity.
-    Defined.
-    Goal ∏ (M:precategory) (A B B':M) (g : A --> B) (g' : A --> B') (i:IsoArrowFrom g g'),
-      opposite_IsoArrowTo (opposite_IsoArrowFrom i) = i.
-    Proof.
-      reflexivity.
     Defined.
     Definition opposite_IsoArrow {M:precategory} {A A' B B':M} (g : A --> B) (g' : A' --> B') :
       IsoArrow g g' -> IsoArrow (M:=M^op) (opp_mor g') (opp_mor g).
@@ -285,12 +235,20 @@ End Pullbacks.
 
 Local Open Scope abgrcat.
 
+(* This exactly duplicates definitions upstream, but Import doesn't get the ones overridden,
+   which are useful (mysteriously) for printing: *)
+Local Notation "0"     := (unel (grtomonoid (abgrtogr _))) : abgrcat.
+Local Notation "0"     := (unel (grtomonoid (abgrtogr (to_abgr _ _)))) : abgrcat.
+Local Notation "f + g" := (@op (pr1monoid (grtomonoid (abgrtogr _))) f g) : abgrcat.
+Local Notation "f + g" := (@op (pr1monoid (grtomonoid (abgrtogr (to_abgr _ _)))) f g) : abgrcat.
+Local Notation "  - g" := (@grinv (abgrtogr _) g) : abgrcat.
+Local Notation "  - g" := (@grinv (abgrtogr (to_abgr _ _)) g) : abgrcat.
+Local Notation "f - g" := (@op (pr1monoid (grtomonoid (abgrtogr _))) f (@grinv (abgrtogr (to_abgr _ _)) g)) : abgrcat.
+Local Notation "f - g" := (@op (pr1monoid (grtomonoid (abgrtogr (to_abgr _ _)))) f (@grinv (abgrtogr (to_abgr _ _)) g)) : abgrcat.
+
 Section PreAdditive.
   (** Reprove some standard facts in additive categories with the 0 map (the zero element of the
       group) replacing the zero map (defined by composing maps to and from the zero object). *)
-  Local Open Scope addmonoid.
-  Local Open Scope abgr.
-  Local Open Scope abgrcat.
   Lemma ThroughZeroIsZero {M:PreAdditive} (a b:M) (Z : Zero M) (f : a --> Z) (g : Z --> b) : f · g = 0.
   Proof.
     intermediate_path ((0:a-->Z) · g).
@@ -302,9 +260,6 @@ Section PreAdditive.
     Definition elem21_isiso {M:PreAdditive} {A B:M} (AB : BinDirectSum A B) (f:A-->B) : is_z_isomorphism (elem21 AB f).
     Proof.
       exists (1 - π₁·f·ι₂).
-      (* Why are these needed to make the goals look nice?  Compare to the dual proof below. *)
-      Local Open Scope cat.
-      Local Open Scope addmonoid.
       unfold elem21. split.
       - rewrite leftDistribute, 2 rightDistribute. rewrite id_left. refine (_ @ runax (Hom_add _ _ _) _).
         rewrite assocax. apply maponpaths. rewrite id_right, id_left. rewrite rightMinus.
@@ -380,12 +335,6 @@ Section PreAdditive.
   Proof.
     intros co. exists (z,,g). now apply isCokernel_iff.
   Defined.
-  Goal ∏ (M:PreAdditive) (x y z : M) (f : x --> y) (g : y --> z), isKernel' (M:=M) f g = isCokernel' (M:=oppositePreAdditive M) g f.
-    reflexivity.
-  Defined.
-  Goal ∏ (M:PreAdditive) (x y z : M) (f : x --> y) (g : y --> z), isCokernel' (M:=M) f g = isKernel' (M:=oppositePreAdditive M) g f.
-    reflexivity.
-  Defined.
   Section Tmp.
     Lemma PushoutCokernel {M:PreAdditive} {A B C D E:M} (i:A-->B) (p:B-->C)
           (j:B-->D) (p':D-->E) (j':C-->E) :
@@ -397,19 +346,10 @@ Section PreAdditive.
          a type is contractible. *)
       split.
       - rewrite assoc'.
-(* ambiguous coercions!
-
-         (precategory_data_from_precategory
--            (category_to_precategory
--               (categoryWithAbgrops_category
-                  (PreAdditive_categoryWithAbgrops M))))
-
-         (precategory_data_from_precategory
--            (precategoryWithBinOps_precategory
--               (categoryWithAbgrops_precategoryWithBinOps
-                  (PreAdditive_categoryWithAbgrops M))))
-
-*)
+        (* ambiguous coercions!
+           (category_to_precategory (categoryWithAbgrops_category _))
+           (precategoryWithBinOps_precategory (categoryWithAbgrops_precategoryWithBinOps _))
+         *)
         Fail rewrite e.
         unfold categoryWithAbgrops_category, category_to_precategory, pr1 in e.
         rewrite e.
@@ -577,10 +517,13 @@ Section PreAdditive.
   Definition to_BinOpId' {M:PreAdditive} {a b co : M} {i1 : a --> co} {i2 : b --> co} {p1 : co --> a} {p2 : co --> b}
              (B : isBinDirectSum i1 i2 p1 p2) :
     p1 · i1 + p2 · i2 = identity co := to_BinOpId B.
-  Definition to_BinOpId'' {M:PreAdditive} {a b : M} (ab : BinDirectSum a b) := to_BinOpId ab.
+  Definition to_BinOpId'' {M:PreAdditive} {a b : M} (ab : BinDirectSum a b)
+             : (to_Pr1 ab · to_In1 ab) + (to_Pr2 ab · to_In2 ab) = 1
+    := to_BinOpId ab.
   Definition ismonoidfun_prop {G H:abgr} (f:G->H) : hProp := hProppair (ismonoidfun f) (isapropismonoidfun f).
   Definition PreAdditive_functor (M N:PreAdditive) :=
     ∑ F : M ⟶ N, ∀ A B:M, ismonoidfun_prop (@functor_on_morphisms M N F A B : A --> B -> F A --> F B).
+  Set Printing All.
   Coercion PreAdditive_functor_to_functor {M N:PreAdditive} : PreAdditive_functor M N -> functor M N := pr1.
   Definition functor_on_morphisms_add {C C' : PreAdditive} (F : PreAdditive_functor C C') { a b : C}
     : monoidfun (a --> b) (F a --> F b)
@@ -892,24 +835,6 @@ Section KernelCokernelPairs.
     (* giving the dual proof here helps later! *)
     exact (PairPushoutMap (M:=oppositePreAdditive M) (opposite_isKernelCokernelPair pr) r pb).
   Defined.
-  Goal ∏ (M :PreAdditive) (A B C A':M) (i : A <-- B) (p : B <-- C)
-        (pr : isKernelCokernelPair p i)
-        (r : A <-- A') (pb : Pullback i r),
-    PairPullbackMap pr r pb
-    =
-    PairPushoutMap (M:=oppositePreAdditive M) (opposite_isKernelCokernelPair pr) r pb.
-  Proof.
-    reflexivity.
-  Defined.
-  Goal ∏ (M :PreAdditive) (A B C A':M) (i : A --> B) (p : B --> C)
-        (pr : isKernelCokernelPair i p)
-        (r : A --> A') (po : Pushout i r),
-    PairPushoutMap pr r po
-    =
-    PairPullbackMap (M:=oppositePreAdditive M) (opposite_isKernelCokernelPair pr) r po.
-  Proof.
-    reflexivity.
-  Defined.
   Lemma PairPushoutCokernel {M :PreAdditive} {A B C A':M} (i : A --> B) (p : B --> C)
         (pr : isKernelCokernelPair i p)
         (r : A --> A') (po : Pushout i r)
@@ -965,7 +890,7 @@ Section KernelCokernelPairs.
   Qed.
 End KernelCokernelPairs.
 
-Section AdditiveBasics.         (* move upstream *)
+Section AdditiveBasics.         (* move upstream later *)
   (* first fix the definition of additive category to follow traditional mathematical practice *)
   Definition isAdditive (PA : PreAdditive) : hProp := hasZero PA ∧ hasBinDirectSums PA.
   Definition mk_isAdditive (PA : PreAdditive) (H1 : hasZero PA) (H2 : hasBinDirectSums PA) : isAdditive PA := H1,,H2.
@@ -981,10 +906,6 @@ Section AdditiveBasics.         (* move upstream *)
     - use (hinhfun _ (to_Zero' M)). exact (λ Z, pr1 Z,, pr22 Z,, pr12 Z).
     - intros A B. exact (hinhfun oppositeBinDirectSum (to_BinDirectSums' A B)).
   Defined.
-  Goal ∏ (M : Additive), oppositeAdditiveCategory (oppositeAdditiveCategory M) = M.
-  Proof.
-    reflexivity.
-  Defined.
   Definition sums_lift (M:Additive) {X:Type} (j : X -> ob M) : hProp :=
     zero_lifts M j ∧
     ∀ a b (S : BinDirectSum (j a) (j b)), ∃ x, z_iso (j x) (BinDirectSumOb S).
@@ -995,11 +916,6 @@ Section AdditiveBasics.         (* move upstream *)
     intros a b S. generalize (su a b (oppositeBinDirectSum S)). apply hinhfun.
     intros [s t]. exists s. exact (z_iso_inv (opp_z_iso t)).
   Defined.
-  Goal ∏ {M:Additive} {X:Type} (j : X -> ob M) (su : sums_lift M j),
-    opp_sums_lift (oppositeAdditiveCategory M) j (opp_sums_lift M j su) = su.
-  Proof.
-    reflexivity.
-  Qed.
   Definition induced_Additive (M : Additive)
              {X:Type} (j : X -> ob M) (sum : sums_lift M j) : Additive.
   Proof.
@@ -1023,11 +939,6 @@ Section AdditiveBasics.         (* move upstream *)
     apply propproperty.
   Defined.
 End AdditiveBasics.
-
-Delimit Scope addcat with addcat.
-Local Open Scope addcat.
-Local Notation "A ⊕ B" := (to_BinDirectSums' A B) : addcat.
-Local Notation "C '^op'" := (oppositeAdditiveCategory C) (at level 3, format "C ^op") : addcat.
 
 Section theDefinition.
   Definition ExactCategoryData := ∑ M:Additive, MorphismPair M -> hProp. (* properties added below *)
@@ -1130,6 +1041,8 @@ Delimit Scope excat with excat.
 Local Open Scope excat.
 Notation "A ↣ B" := (AdmissibleMonomorphism A B) : excat.
 Notation "B ↠ C" := (AdmissibleEpimorphism  B C) : excat.
+Notation "F ∙ G" := (composeExactFunctors F G) : excat.
+Notation "M ⟶ N" := (ExactFunctor M N) : excat.
 
 Section ExactCategoryAccessFunctions.
   Context {M:ExactCategory}.
@@ -1177,12 +1090,8 @@ End ExactCategoryAccessFunctions.
 Section OppositeExactCategory.
   Definition oppositeExactCategoryData (M:ExactCategoryData) : ExactCategoryData.
   Proof.
-    exists (M^op).
-    exact (λ p, @isExact M (MorphismPair_opp (C:=M^op) p)).
+    exists (oppositeAdditiveCategory M). exact (λ p, @isExact M (opp_MorphismPair p)).
   Defined.
-  Goal ∏ (M:ExactCategoryData), oppositeExactCategoryData (oppositeExactCategoryData M) = M.
-    reflexivity.
-  Qed.
   Definition oppositeExactCategory (M:ExactCategory) : ExactCategory.
   Proof.
     use (mk_ExactCategory (oppositeExactCategoryData M)).
@@ -1203,34 +1112,6 @@ Section OppositeExactCategory.
     { split.
       { exact (@EC_PushoutMono M). }
       { exact (@EC_PullbackEpi M). } }
-  Defined.
-  Goal ∏ (M:ExactCategory), ExactCategoryDataToAdditiveCategory (ExactCategoryToData (oppositeExactCategory M))
-                            = oppositeAdditiveCategory (ExactCategoryDataToAdditiveCategory (ExactCategoryToData M)).
-  Proof.
-    reflexivity.
-  Defined.
-  Goal ∏ (M:ExactCategory), oppositeExactCategory (oppositeExactCategory M) = M.
-  Proof.
-    reflexivity.
-  Defined.
-  Goal ∏ (M:ExactCategory) (A B:M) (f : A --> B),
-    isAdmissibleMonomorphism f = isAdmissibleEpimorphism (M:=oppositeExactCategory M) (opp_mor f).
-  Proof.
-    reflexivity.
-  Defined.
-  Goal ∏ (M:ExactCategory) (A B:M) (f : A --> B), isAdmissibleEpimorphism f = isAdmissibleMonomorphism (M:=oppositeExactCategory M) (opp_mor f).
-  Proof.
-    reflexivity.
-  Defined.
-  Goal ∏ (M:ExactCategory) (A B:M),
-    AdmissibleMonomorphism A B = @AdmissibleEpimorphism (oppositeExactCategory M) B A.
-  Proof.
-    reflexivity.
-  Defined.
-  Goal ∏ (M:ExactCategory) (A B:M),
-    AdmissibleEpimorphism A B = @AdmissibleMonomorphism (oppositeExactCategory M) B A.
-  Proof.
-    reflexivity.
   Defined.
 End OppositeExactCategory.
 
@@ -1407,23 +1288,11 @@ Section ExactCategoryFacts.
     assert (Q := DirectSumToExact (TrivialDirectSum Z A)).
     exact (mk_MorphismPair ι₁ π₂,, Q).
   Defined.
-  Goal ∏ {M : ExactCategory} {A:M} (Z:Zero M), Mor1 (TrivialExactSequence A Z) = identity A.
-    reflexivity.
-  Qed.
-  Goal ∏ {M : ExactCategory} {A:M} (Z:Zero M), Ob3 (TrivialExactSequence A Z) = Z.
-    reflexivity.
-  Qed.
   Definition TrivialExactSequence' {M : ExactCategory} (Z:Zero M) (A:M) : ShortExactSequence M.
   Proof.
     assert (Q := DirectSumToExact (TrivialDirectSum' Z A)).
     exact (mk_MorphismPair ι₁ π₂,, Q).
   Defined.
-  Goal ∏ {M : ExactCategory} {A:M} (Z:Zero M), Mor2 (TrivialExactSequence' Z A) = identity A.
-    reflexivity.
-  Qed.
-  Goal ∏ {M : ExactCategory} {A:M} (Z:Zero M), Ob1 (TrivialExactSequence' Z A) = Z.
-    reflexivity.
-  Qed.
   Lemma ExactPushout {M : ExactCategory} {A B C A':M} (i : A --> B) (p : B --> C)
         (pr : isExact2 i p) (r : A --> A') :
     ∃ (po : Pushout i r),
@@ -1514,7 +1383,7 @@ Section ExactCategoryFacts.
         - apply Pr1IsAdmEpi.
         - exact (hinhpr(A,,f,,j)). }
     apply (squash_to_hProp (to_Zero' M)); intros Z.
-    apply (squash_to_hProp (D ⊕ Z)); intros DZ.
+    apply (squash_to_hProp (to_BinDirectSums' D Z)); intros DZ.
     assert (m := pr1 (SumOfKernelCokernelPairs AC BC DZ
                    (EC_ExactToKernelCokernel j : isKernelCokernelPair f p)
                    (kerCoker10 Z C : isKernelCokernelPair (identity C) 0))).
@@ -1558,7 +1427,7 @@ Section ExactCategoryFacts.
     { use SumOfCokernels.
       - exact (EC_ExactToCokernel i).
       - exact (EC_ExactToCokernel i'). }
-    apply (squash_to_hProp (A ⊕ B')); intros AB'.
+    apply (squash_to_hProp (to_BinDirectSums' A B')); intros AB'.
     set (j := directSumMap AB' BB' f (identity B')).
     set (k := directSumMap AA' AB' (identity A) f').
     assert (kj : k · j = directSumMap AA' BB' f f').
@@ -1581,7 +1450,7 @@ Section ExactCategoryFacts.
     (* see Bühler's 2.12 *)
     intros I.
     (* write the map as a composite of three maps *)
-    apply (squash_to_hProp (A ⊕ C)); intros AC.
+    apply (squash_to_hProp (to_BinDirectSums' A C)); intros AC.
     assert (e : ToBinDirectSum BC i f  = ι₁ · (1 + π₁·f·ι₂) · (directSumMap AC _ i 1)).
     { apply ToBinDirectSumsEq.
       - rewrite BinDirectSumPr1Commutes. rewrite assoc'. unfold directSumMap.
@@ -1613,7 +1482,7 @@ Section ExactCategoryFacts.
     intros e e'.
     apply (squash_to_hProp e); clear e; intros [C [g e]].
     apply (squash_to_hProp e'); clear e'; intros [C' [g' e']].
-    apply (squash_to_hProp (C ⊕ C')); intros CC'.
+    apply (squash_to_hProp (to_BinDirectSums' C C')); intros CC'.
     exact (ExactToAdmEpi (SumOfExactSequences CC' _ _ e e')).
   Qed.
   Lemma SumOfAdmissibleMonos {M:ExactCategory} {A B A' B':M}
@@ -1624,7 +1493,7 @@ Section ExactCategoryFacts.
     intros e e'.
     apply (squash_to_hProp e); clear e; intros [C [g e]].
     apply (squash_to_hProp e'); clear e'; intros [C' [g' e']].
-    apply (squash_to_hProp (C ⊕ C')); intros CC'.
+    apply (squash_to_hProp (to_BinDirectSums' C C')); intros CC'.
     exact (ExactToAdmMono (SumOfExactSequences _ _ CC' e e')).
   Qed.
   Lemma MapPlusIdentityToCommSq {M:ExactCategory} {A B:M}
@@ -1727,8 +1596,8 @@ Section ExactCategoryFacts.
   Proof.
     (* see Bühler's 2.16 *)
     intros hc im.
-    apply (squash_to_hProp (C ⊕ B)); intros CB.
-    apply (squash_to_hProp (B ⊕ C)); intros BC.
+    apply (squash_to_hProp (to_BinDirectSums' C B)); intros CB.
+    apply (squash_to_hProp (to_BinDirectSums' B C)); intros BC.
     set (q := ToBinDirectSum CB (i · j) i).
     assert (s := AdmMonoEnlargement _ (i·j) i im : isAdmissibleMonomorphism q); clear im.
     assert (e : q · elem12 _ (grinv j) = ToBinDirectSum CB 0 i).
@@ -1752,7 +1621,7 @@ Section ExactCategoryFacts.
       - apply IsIsoIsMono. apply (SwitchIso C B). }
     clear e' e s q.
     apply (squash_to_hProp hc); clear hc; intros [D [k ic]].
-    apply (squash_to_hProp (D ⊕ C)); intros DC.
+    apply (squash_to_hProp (to_BinDirectSums' D C)); intros DC.
     assert (PB := is_symmetric_isPullback (homset_property M) _ (MapPlusIdentityToPullback k C BC DC)).
     assert (co := CokernelPlusIdentity i k C BC DC ic).
     assert (es := ExactSequenceFromMono _ _ co); clear co.
@@ -1904,9 +1773,6 @@ Section EquivalenceOfTwoDefinitions.
 End EquivalenceOfTwoDefinitions.
 
 Section SplitSequences.
-  Local Open Scope addmonoid.
-  Local Open Scope abgr.
-  Local Open Scope abgrcat.
   Definition isSplit2 {M:PreAdditive} {A B C:M} (i:A-->B) (q:B-->C) : hProp :=
     ∃ (p:A<--B) (j:B<--C), isBinDirectSum i j p q.
   Lemma commax_hom {M:PreAdditive} {A B:M} (f g:A-->B) : f+g = g+f.
@@ -1919,7 +1785,6 @@ Section SplitSequences.
     Proof.
       Fail reflexivity.
       intros M A B C k r.
-      Open Scope cat. Open Scope addmonoid. Open Scope type.
       unfold isSplit2, isBinDirectSum; cbn; rewrite rewrite_op.
       (* do we need this? *)
     Abort.
@@ -2002,8 +1867,6 @@ Section SplitSequences.
       rewrite 2 (assoc f''). rewrite z_iso_inv_after_z_iso, id_left. rewrite assoc.
       rewrite <- leftDistribute. rewrite (to_BinOpId' su). rewrite id_left. reflexivity. }
   Qed.
-  Local Open Scope addmonoid.
-  Local Open Scope abgr.
   Lemma DirectSumToKernel {M:PreAdditive} {A B:M} (AB : BinDirectSum A B) : isKernel' (to_In1 AB) (to_Pr2 AB).
   Proof.
     apply makeMonicKernel.
@@ -2036,64 +1899,53 @@ Section SplitSequences.
     intros s t.
     apply (squash_to_hProp s); clear s; intros [P [p ip]];cbn in P.
     apply (squash_to_hProp ip); clear ip; intros [p' [i' ip]].
-    change (M ⟦ B, A ⟧) in p'.
-    change (M ⟦ P, B ⟧) in i'.
     change (hProptoType (isBinDirectSum i i' p' p)) in ip.
     apply (squash_to_hProp t); clear t; intros [Q [q jq]];cbn in Q.
     apply (squash_to_hProp jq); clear jq; intros [q' [j' jq]].
-    change (M ⟦ C, B ⟧) in q'.
-    change (M ⟦ Q, C ⟧) in j'.
     change (hProptoType (isBinDirectSum j j' q' q)) in jq.
     apply (squash_to_hProp (to_BinDirectSums' P Q)); intros PQ.
     apply hinhpr;unfold ExactCategoryDataToAdditiveCategory,pr1.
     exists PQ.
-    Open Scope abgrcat.
     exists (q' · p · ι₁ + q · ι₂).
     apply hinhpr.
-    unfold Ob1,Ob2,Ob3,Mor1,Mor2,mk_MorphismPair,dirprod_pr1,dirprod_pr2,dirprodpair,pr1,pr2.
     exists (q' · p').
     exists (π₁ · i' · j + π₂ · j').
-    split; unfold eqset; cbn.
+    repeat split; unfold eqset; cbn; rewrite ? rewrite_op.
     { rewrite assoc'. rewrite (assoc j). rewrite (to_IdIn1 jq). rewrite id_left.
       rewrite (to_IdIn1 ip). reflexivity. }
-    { rewrite 3 rewrite_op.
-      split.
-      { rewrite rightDistribute, 2 leftDistribute.
-        rewrite (assoc' q'). rewrite (assoc' _ j).
-        rewrite (assoc j). rewrite (to_IdIn1 jq). rewrite id_left.
-        rewrite assoc'. rewrite (assoc i'). rewrite (to_IdIn2 ip). rewrite id_left.
-        rewrite (assoc _ q'). rewrite (assoc' _ j'). rewrite (to_Unel2 jq).
-        unfold to_unel. rewrite zeroRight, zeroLeft, runax.
-        rewrite (assoc' _ j). rewrite (assoc j). rewrite (to_Unel1 jq). unfold to_unel.
-        rewrite zeroLeft, zeroRight, lunax. rewrite assoc'.
-        rewrite (assoc j'). rewrite (to_IdIn2 jq). rewrite id_left.
-        apply (to_BinOpId PQ). }
-      split.
-      { rewrite rightDistribute. rewrite assoc'. rewrite (assoc' q').
-        rewrite (assoc j). rewrite (to_IdIn1 jq). rewrite id_left.
-        rewrite assoc. rewrite (to_Unel1 ip). unfold to_unel.
-        rewrite zeroLeft. rewrite lunax. rewrite assoc'.
-        rewrite (assoc j). rewrite (to_Unel1 jq). unfold to_unel.
-        rewrite zeroLeft, zeroRight. reflexivity. }
-      split.
-      { rewrite leftDistribute. rewrite assoc'. rewrite (assoc j).
-        rewrite (to_IdIn1 jq). rewrite id_left. rewrite (assoc' _ i').
-        rewrite (to_Unel2 ip). unfold to_unel.
-        rewrite zeroRight. rewrite lunax. rewrite assoc'.
-        rewrite (assoc j'). rewrite (to_Unel2 jq). unfold to_unel.
-        rewrite zeroLeft, zeroRight. reflexivity. }
-      { rewrite rightDistribute, 2 leftDistribute. rewrite assoc.
-        rewrite (assoc' _ i'). rewrite (assoc' _ ι₁). rewrite (assoc ι₁).
-        rewrite (to_IdIn1 PQ). rewrite id_left. rewrite assoc.
-        rewrite (assoc' q). rewrite (assoc _ _ (i' · j)).
-        rewrite (to_Unel2 PQ); unfold to_unel. rewrite zeroLeft, zeroRight, runax.
-        rewrite <- assocax. rewrite <- (leftDistribute _ _ j).
-        rewrite 2 (assoc' q'). rewrite <- (rightDistribute q').
-        rewrite (to_BinOpId' ip). rewrite id_right.
-        rewrite (assoc' _ ι₁). rewrite (assoc ι₁). rewrite (to_Unel1 PQ); unfold to_unel.
-        rewrite zeroLeft, zeroRight, lunax. rewrite (assoc' q).
-        rewrite (assoc ι₂). unfold ExactCategoryDataToAdditiveCategory,pr1. rewrite (to_IdIn2 PQ).
-        rewrite id_left. exact (to_BinOpId' jq). } }
+    { rewrite rightDistribute, 2 leftDistribute.
+      rewrite (assoc' q'). rewrite (assoc' _ j).
+      rewrite (assoc j). rewrite (to_IdIn1 jq). rewrite id_left.
+      rewrite assoc'. rewrite (assoc i'). rewrite (to_IdIn2 ip). rewrite id_left.
+      rewrite (assoc _ q'). rewrite (assoc' _ j'). rewrite (to_Unel2 jq); unfold to_unel.
+      rewrite zeroRight, zeroLeft, runax.
+      rewrite (assoc' _ j). rewrite (assoc j). rewrite (to_Unel1 jq). unfold to_unel.
+      rewrite zeroLeft, zeroRight, lunax. rewrite assoc'.
+      rewrite (assoc j'). rewrite (to_IdIn2 jq). rewrite id_left. apply (to_BinOpId PQ). }
+    { rewrite rightDistribute. rewrite assoc'. rewrite (assoc' q').
+      rewrite (assoc j). rewrite (to_IdIn1 jq). rewrite id_left.
+      rewrite assoc. rewrite (to_Unel1 ip); unfold to_unel.
+      rewrite zeroLeft. rewrite lunax. rewrite assoc'.
+      rewrite (assoc j). rewrite (to_Unel1 jq); unfold to_unel.
+      rewrite zeroLeft, zeroRight. reflexivity. }
+    { rewrite leftDistribute. rewrite assoc'. rewrite (assoc j).
+      rewrite (to_IdIn1 jq). rewrite id_left. rewrite (assoc' _ i').
+      rewrite (to_Unel2 ip); unfold to_unel.
+      rewrite zeroRight. rewrite lunax. rewrite assoc'.
+      rewrite (assoc j'). rewrite (to_Unel2 jq);unfold to_unel.
+      rewrite zeroLeft, zeroRight. reflexivity. }
+    { rewrite rightDistribute, 2 leftDistribute. rewrite assoc.
+      rewrite (assoc' _ i'). rewrite (assoc' _ ι₁). rewrite (assoc ι₁).
+      rewrite (to_IdIn1 PQ). rewrite id_left. rewrite assoc.
+      rewrite (assoc' q). rewrite (assoc _ _ (i' · j)).
+      rewrite (to_Unel2 PQ); unfold to_unel. rewrite zeroLeft, zeroRight, runax.
+      rewrite <- assocax. rewrite <- (leftDistribute _ _ j).
+      rewrite 2 (assoc' q'). rewrite <- (rightDistribute q').
+      rewrite (to_BinOpId' ip). rewrite id_right.
+      rewrite (assoc' _ ι₁). rewrite (assoc ι₁). rewrite (to_Unel1 PQ); unfold to_unel.
+      rewrite zeroLeft, zeroRight, lunax. rewrite (assoc' q).
+      rewrite (assoc ι₂). rewrite (to_IdIn2 PQ).
+      rewrite id_left. exact (to_BinOpId' jq). }
   Qed.
   Lemma ComposeSplitEpi {M:Additive} {A B C : M} (p : A --> B) (q : B --> C) :
     isSplitEpimorphism p ⇒ isSplitEpimorphism q ⇒ isSplitEpimorphism (p · q).
@@ -2148,7 +2000,6 @@ Section SplitSequences.
             apply id_right. }
     - cbn. exact (hinhpr(A',,ι₁,, hinhpr (π₁,,ι₂,,BinDirectSum_isBinDirectSum _ A'C))).
   Qed.
-  Open Scope abgrcat.
   Lemma PushoutSplitMono {M:Additive} {A A' C : M} (i : A' --> A) (g : A' --> C) :
     isSplitMonomorphism i ⇒ ∃ PO : Pushout i g, isSplitMonomorphism (PushoutIn2 PO).
   Proof.
@@ -2230,11 +2081,6 @@ Section InducedExactCategory.
     apply funextsec; intro S.
     apply isapropishinh.
   Qed.
-  Goal ∏ {M:ExactCategory} {X:Type} (j : X -> ob M) (ce : exts_lift M j),
-    opp_exts_lift (M:=oppositeExactCategory M) j (opp_exts_lift (M:=M) j ce) = ce.
-  Proof.
-    reflexivity.
-  Defined.
   Goal ∏ {M:ExactCategory} {X:Type} (j : X -> ob M) (ce : exts_lift M j),
     oppositeExactCategoryData (induced_ExactCategoryData j ce) =
     induced_ExactCategoryData (M:=oppositeExactCategory M) j (opp_exts_lift j ce).

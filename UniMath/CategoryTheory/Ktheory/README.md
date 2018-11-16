@@ -15,3 +15,8 @@ We also follow the careful and efficient exposition presented here:
 
 * Bühler, Theo, Exact categories, Expo. Math. 28 (2010), no. 1, 1–69.
 
+Acknowledgments
+===============
+
+I thank the Center for Advanced Study of the Norwegian Academy of Science and
+Letters, where much of this work was done, in October-November, 2018.

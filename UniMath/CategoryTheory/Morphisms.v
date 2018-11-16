@@ -184,12 +184,7 @@ Section MorphismPair_opp.
   Definition opp_MorphismPair {C : precategory} (MP : @MorphismPair (opp_precat C)) :
     @MorphismPair C.
   Proof.
-    use mk_MorphismPair.
-    - exact (Ob3 MP).
-    - exact (Ob2 MP).
-    - exact (Ob1 MP).
-    - exact (Mor2 MP).
-    - exact (Mor1 MP).
+    exact (MorphismPair_opp MP).
   Defined.
 
   Definition applyFunctorToPair {M N:precategory} :

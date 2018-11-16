@@ -98,6 +98,7 @@ AbelianToAdditive.v
 Morphisms.v
 Ktheory/ExactCategories.v
 Ktheory/GrothendieckGroup.v
+Ktheory/Tests.v
 ShortExactSequences.v
 AdditiveFunctors.v
 LocalizingClass.v

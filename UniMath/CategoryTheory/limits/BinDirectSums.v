@@ -50,10 +50,7 @@ Section def_bindirectsums.
   Variable A : PreAdditive.
   Context (hs := @to_has_homsets A : has_homsets A).
 
-  Open Scope addmonoid.
-  Open Scope multmonoid.
   Open Scope abgrcat.
-  Import AddNotation.
 
   (** Definition of binary direct sum. *)
   Definition isBinDirectSum (a b co : A) (i1 : a --> co) (i2 : b --> co)
