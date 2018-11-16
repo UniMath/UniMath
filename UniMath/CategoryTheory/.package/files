@@ -17,6 +17,7 @@ Monics.v
 Epis.v
 CategoriesWithBinOps.v
 PrecategoriesWithAbgrops.v
+ArrowCategory.v
 limits/cones.v
 limits/equalizers.v
 limits/graphs/colimits.v
