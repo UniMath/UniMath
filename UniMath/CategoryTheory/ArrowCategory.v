@@ -1,12 +1,19 @@
-(** * Arrow categories
+(** * Arrow categories *)
 
-- Definition
+(** ** Contents
+
+  - Definition
+  - As a comma category
 *)
 
 Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.PartB.
+Require Import UniMath.Foundations.PartD.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.CommaCategories.
+Require Import UniMath.CategoryTheory.Adjunctions.
 
 Local Open Scope cat.
 
@@ -29,10 +36,10 @@ Section Defn.
          *)
         exact (∑ fg : dirprod_pr1 (pr1 x) --> dirprod_pr1 (pr1 y) ×
                       dirprod_pr2 (pr1 x) --> dirprod_pr2 (pr1 y),
-              dirprod_pr1 fg · pr2 y = pr2 x · dirprod_pr2 fg).
+              pr2 x · dirprod_pr2 fg = dirprod_pr1 fg · pr2 y).
     - intros x; cbn.
       exists (dirprodpair (identity _) (identity _)).
-      exact (id_left _ @ !id_right _).
+      exact (id_right _ @ !id_left _).
     - intros x y z f g; cbn in *.
       exists (dirprodpair (dirprod_pr1 (pr1 f) · dirprod_pr1 (pr1 g))
                      (dirprod_pr2 (pr1 f) · dirprod_pr2 (pr1 g))).
@@ -46,10 +53,11 @@ Section Defn.
           >>
         *)
       cbn.
-      refine (!assoc _ _ _ @ _).
-      refine (maponpaths _ (pr2 g) @ _).
-      refine (_ @ !assoc _ _ _).
-      refine (_ @ maponpaths (fun x => x · _) (pr2 f)).
+      refine (assoc _ _ _ @ _).
+      refine (maponpaths (fun x => x · _) (pr2 f) @ _).
+      refine (_ @ assoc _ _ _).
+      refine (_ @ maponpaths _ (pr2 g)).
+      apply pathsinv0.
       apply assoc.
   Defined.
 
@@ -80,3 +88,29 @@ Section Defn.
         apply homset_property.
   Defined.
 End Defn.
+
+(** ** As a comma category *)
+
+Definition arrow_category_eq_comma_category (C : category) :
+  comma_category (functor_identity C) (functor_identity C)
+  = arrow_category C.
+Proof.
+  apply subtypeEquality.
+  - intro.
+    do 2 (apply impred; intro).
+    apply isapropisaset.
+  - use total2_paths_f.
+    + cbn.
+      use total2_paths_f.
+      * reflexivity.
+      * apply pathsdirprod.
+        -- apply funextsec; intro.
+           use total2_paths_f; [reflexivity|].
+           apply proofirrelevance, homset_property.
+        -- do 5 (apply funextsec; intro).
+           use total2_paths_f; [reflexivity|].
+           apply proofirrelevance, homset_property.
+    + apply proofirrelevance.
+      apply isaprop_is_precategory.
+      apply (pr2 (arrow_category C)).
+Qed.
