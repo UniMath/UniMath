@@ -479,7 +479,7 @@ Proof.
            *** exact lwhisk.
            *** exact rwhisk.
     + cbn.
-      repeat (use tpair ; try abstract assumption).
+      repeat (use tpair) ; abstract assumption.
   - cbn.
     unfold isaset_cells.
     apply cell_is_set.
