@@ -6,7 +6,7 @@ Require Import UniMath.Algebra.Monoids_and_Groups
 Require UniMath.Ktheory.Monoid.
 Unset Automatic Introduction.
 Local Notation Hom := monoidfun.
-Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, left associativity, only parsing).
+Local Notation "g ∘ f" := (monoidfuncomp f g) (only parsing).
 Local Notation "x * y" := ( op x y ).
 Definition zero : gr.
   exists Monoid.zero. exists (pr2 Monoid.zero). exists (idfun unit).
