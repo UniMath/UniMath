@@ -107,9 +107,9 @@ Definition bracket_property (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_
            (h : `T • (U Z)  --> `T) : UU
   :=
     alg_map _ T •• (U Z) · h =
-          identity (U Z) ⊕ θ (`T ⊗ Z) ·
-          identity (U Z) ⊕ #H h ·
-          BinCoproductArrow _ (CPEndC _ _ ) (#U f) (tau_from_alg T).
+          (identity (U Z) ⊕ θ (`T ⊗ Z)) ·
+          (identity (U Z) ⊕ #H h) ·
+          (BinCoproductArrow _ (CPEndC _ _ ) (#U f) (tau_from_alg T)).
 
 Definition bracket_at (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_alg T): UU :=
   ∃! h : `T • (U Z)  --> `T, bracket_property T f h.
@@ -330,8 +330,9 @@ Proof.
   - intro c; simpl.
     assert (H':=nat_trans_ax (tau_from_alg T)).
     simpl in H'.
-    eapply pathscomp0. Focus 2. apply (!assoc _ _ _ ).
-    eapply pathscomp0. Focus 2.  apply  cancel_postcomposition. apply H'.
+    eapply pathscomp0. 2: apply (!assoc _ _ _ ).
+    eapply pathscomp0.
+    2: { apply cancel_postcomposition. apply H'. }
     clear H'.
     set (H':=fbracket_τ T g).
     simpl in H'.
@@ -341,12 +342,12 @@ Proof.
     rewrite  <- assoc.
     transitivity (  # (pr1 (H ((`T)))) (pr1 (pr1 f) c) ·
                      (pr1 (θ ((`T) ⊗ Z')) c)· pr1 (# H (fbracket T g)) c· pr1 (tau_from_alg T) c).
-    Focus 2.
-      rewrite <- assoc.
-      rewrite <- assoc.
-      apply maponpaths.
-      repeat rewrite assoc.
-      apply X.
+    2: { rewrite <- assoc.
+         rewrite <- assoc.
+         apply maponpaths.
+         repeat rewrite assoc.
+         apply X.
+    }
     clear X.
     set (A:=θ_nat_2_pointwise).
     simpl in *.
@@ -413,9 +414,8 @@ Proof.
   simpl in β_is_alg_mor_inst'.
   rewrite assoc in β_is_alg_mor_inst'.
   eapply pathscomp0.
-Focus 2.
-  eapply pathsinv0.
-  exact β_is_alg_mor_inst'.
+  2: { eapply pathsinv0.
+       exact β_is_alg_mor_inst'. }
   clear β_is_alg_mor_inst'.
   apply BinCoproductIn2Commutes_right_in_ctx_dir.
   simpl.
@@ -627,6 +627,8 @@ Proof.
     apply (@id_right EndC).
   - apply (invmap (hssMor_eq _ _ _ _ )).
     apply (@assoc EndC).
+  - apply (invmap (hssMor_eq _ _ _ _ )).
+    apply (@assoc' EndC).
 Qed.
 
 Definition hss_precategory : precategory := tpair _ _ is_precategory_hss.

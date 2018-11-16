@@ -1,5 +1,6 @@
 (* -*- coding: utf-8 -*- *)
 
+Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.Algebra.Monoids_and_Groups
                UniMath.Combinatorics.FiniteSets
                UniMath.NumberSystems.NaturalNumbersAlgebra
@@ -8,6 +9,7 @@ Require UniMath.Ktheory.QuotientSet UniMath.Ktheory.Monoid.
 Unset Automatic Introduction.
 Close Scope multmonoid_scope.
 Open Scope addmonoid_scope.
+Import UniMath.Algebra.Monoids_and_Groups.AddNotation.
 Local Notation Hom := monoidfun.
 Definition dni_first n : stn n -> stn (S n) := @dni n firstelement.
 Definition dni_last  n : stn n -> stn (S n) := @dni n lastelement.
@@ -147,7 +149,7 @@ Defined.
 Definition transposition_weq {X} (dec: isdeceq X) (i j:X) : isweq (transposition0 dec i j).
 Proof.
   intros.
-  apply (gradth _ (transposition0 dec i j)).
+  apply (isweq_iso _ (transposition0 dec i j)).
   { apply transposition_squared. }
   { apply transposition_squared. }
 Defined.
@@ -674,7 +676,7 @@ Module NN_agreement.
     set (markednat :=
            make_MarkedAbelianMonoid R nataddabmonoid (λ _, 1) fromemptysec).
     exists (map_base (thePoint (iscontrMarkedAbelianMonoidMap markednat))).
-    simple refine (gradth _ _ _ _).
+    simple refine (isweq_iso _ _ _ _).
     { intros m. { exact (m * one). } }
     { intros w.
       apply (squash_to_prop (lift R w)).

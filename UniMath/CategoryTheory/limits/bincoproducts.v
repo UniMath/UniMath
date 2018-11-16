@@ -9,9 +9,11 @@ Direct implementation of binary coproducts togther with:
   target category ([BinCoproducts_functor_precat])
 - Definition of the option functor ([option_functor])
 - Binary coproducts from colimits ([BinCoproducts_from_Colims])
+- Equivalent universal property: (A --> C) × (B --> C) ≃ (A + B --> C)
 
 Written by Benedikt Ahrens, March 2015
 Extended by Anders Mörtberg and Tomi Pannila, 2016
+Extended by Langston Barrett (@siddharthist), 2018
 
 *********************************************)
 
@@ -19,7 +21,9 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.WeakEquivalences.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Categories.
@@ -737,7 +741,7 @@ Section BinCoproduct_of_functors.
 
 Variables F G : functor C D.
 
-Local Notation "c ⊗ d" := (BinCoproductObject _ (HD c d))(at level 45).
+Local Notation "c ⊗ d" := (BinCoproductObject _ (HD c d)).
 
 Definition BinCoproduct_of_functors_ob (c : C) : D := F c ⊗ G c.
 
@@ -1071,3 +1075,51 @@ Section BinCoproduct_from_iso.
                                   (iso_to_isBinCoproduct BP i).
 
 End BinCoproduct_from_iso.
+
+(** Equivalent universal property: (A --> C) × (B --> C) ≃ (A + B --> C)
+
+ Compare to [weqfunfromcoprodtoprod].
+ *)
+
+Section EquivalentDefinition.
+  Context {C : precategory} {a b co : ob C} (i1 : a --> co) (i2 : b --> co) .
+
+  Definition precomp_with_injections (c : ob C) (f : co --> c) : (a --> c) × (b --> c) :=
+    dirprodpair (i1 · f)  (i2 · f).
+
+  Definition isBinCoproduct' : UU :=
+    ∏ c : ob C, isweq (precomp_with_injections c).
+
+  Definition isBinCoproduct'_weq (is : isBinCoproduct') :
+    ∏ c, (co --> c) ≃ (a --> c) × (b --> c) :=
+    λ a, weqpair (precomp_with_injections a) (is a).
+
+  Lemma isBinCoproduct'_to_isBinCoproduct :
+    isBinCoproduct' -> isBinCoproduct _ _ _ co i1 i2.
+  Proof.
+    intros isBCP' ? f g.
+    apply (@iscontrweqf (hfiber (isBinCoproduct'_weq isBCP' _)
+                                (dirprodpair f g))).
+    - use weqfibtototal; intro; cbn.
+      unfold precomp_with_injections.
+      apply pathsdirprodweq.
+    - apply weqproperty.
+  Defined.
+
+  Lemma isBinCoproduct_to_isBinCoproduct' :
+    isBinCoproduct _ _ _ co i1 i2 -> isBinCoproduct'.
+  Proof.
+    intros isBCP ? fg.
+    unfold hfiber, precomp_with_injections.
+    apply (@iscontrweqf (∑ u : C ⟦ co, c ⟧, i1 · u = pr1 fg × i2 · u = pr2 fg)).
+    - use weqfibtototal; intros to_prod; cbn.
+      apply invweq, pathsdirprodweq.
+    - exact (isBCP c (pr1 fg) (pr2 fg)). (* apply universal property *)
+  Defined.
+
+  (* TODO: prove that [isBinCoproduct'_to_isBinCoproduct] is an equivalence *)
+
+End EquivalentDefinition.
+
+(** Match non-implicit arguments of [isBinCoproduct] *)
+Arguments isBinCoproduct' _ _ _ _ _ : clear implicits.

@@ -13,6 +13,7 @@ Require Import UniMath.Foundations.NaturalNumbers.
 
 Require Import UniMath.Combinatorics.Lists.
 
+Require Import UniMath.MoreFoundations.PartA. (* flip *)
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.total2_paths.
@@ -25,7 +26,7 @@ Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.CocontFunctors.
+Require Import UniMath.CategoryTheory.Chains.All.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
@@ -240,13 +241,11 @@ Definition sum : List natHSET -> nat :=
 (* Eval vm_compute in sum testlistS. *)
 
 (* All of these compute *)
-Eval lazy in length _ (nil natHSET).
-Eval lazy in length _ testlist.
-Eval lazy in length _ testlistS.
-Eval lazy in sum testlist.
-Eval lazy in sum testlistS.
-Eval lazy in length _ (concatenate _ testlist testlistS).
-Eval lazy in sum (concatenate _ testlist testlistS).
+Goal length _ (nil natHSET) = 0. reflexivity. Qed.
+Goal length _ testlist = length _ testlistS. reflexivity. Qed.
+Goal sum testlistS = sum testlist + length _ testlist. lazy. reflexivity. Qed.
+Goal length _ (concatenate _ testlist testlistS) = length _ testlist + length _ testlistS. reflexivity. Qed.
+Goal sum (concatenate _ testlist testlistS) = sum testlistS + sum testlist. reflexivity. Qed.
 
 Goal (∏ l, length _ (2 :: l) = S (length _ l)).
 simpl.
@@ -326,7 +325,7 @@ Lemma weq_list (A : HSET) : list (pr1 A) ≃ List A.
 Proof.
 use tpair.
 - apply to_List.
-- use gradth.
+- use isweq_iso.
   + apply to_list.
   + apply to_listK.
   + apply to_ListK.
@@ -336,8 +335,7 @@ Defined.
 (* Eval compute in (to_list _ testlist). *)
 
 (* This does compute: *)
-Eval lazy in (to_list _ testlist).
-
+Goal to_list _ testlist = 2,,5,,2,,tt. reflexivity. Qed.
 
 End list.
 
@@ -355,15 +353,13 @@ Definition constprod_functor : functor HSET HSET :=
   BinProduct_of_functors HSET HSET BinProductsHSET (constant_functor HSET HSET x)
                                          (functor_identity HSET).
 
-Definition flip {A B C : UU} (f : A -> B -> C) : B -> A -> C := λ x y, f y x.
-
 Lemma omega_cocontConstProdFunctor : is_omega_cocont constprod_functor.
 Proof.
 intros hF c L ccL HcL cc.
 use tpair.
 - transparent assert (HX : (cocone hF (hset_fun_space x HcL))).
   {  use mk_cocone.
-    * simpl; intro n; apply flip, curry, (pr1 cc).
+    * simpl; intro n; apply flip, (curry (Z := λ _,_)), (pr1 cc).
     * abstract (destruct cc as [f hf]; simpl; intros m n e;
                 rewrite <- (hf m n e); destruct e; simpl;
                 repeat (apply funextfun; intro); apply idpath).
@@ -389,7 +385,7 @@ use tpair.
     apply funextfun; intro xc; destruct xc as [x' c']; simpl;
     use (let g : HSET⟦colim (mk_ColimCocone hF c L ccL),
                                 hset_fun_space x HcL⟧ := _ in _);
-    [ simpl; apply flip, curry, t
+    [ simpl; apply flip, (curry (Z := λ _,_)), t
     | rewrite <- (colimArrowUnique _ _ _ g); [apply idpath | ];
       destruct cc as [f hf]; simpl in *;
       now intro n; simpl; rewrite <- (p n) ]
@@ -465,7 +461,7 @@ Proof.
 apply (is_omega_cocont_functor_composite has_homsets_HSET).
 - apply omega_cocontConstProdFunctor.
 (* If I use this length doesn't compute with vm_compute... *)
-(* - apply (omega_cocont_constprod_functor1 _ _ has_homsets_HSET has_exponentials_HSET). *)
+(* - apply (omega_cocont_constprod_functor1 _ _ has_homsets_HSET Exponentials_HSET). *)
 - apply (omega_cocontConstCoprodFunctor _ has_homsets_HSET).
 Defined.
 

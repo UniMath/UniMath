@@ -11,7 +11,7 @@ Require Import UniMath.Foundations.UnivalenceAxiom.
 
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids_and_Groups.
-Require Import UniMath.Algebra.Rigs_and_Rings.
+Require Import UniMath.Algebra.RigsAndRings.
 
 Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
@@ -53,7 +53,7 @@ Section def_rig_precategory.
 
   Lemma is_precategory_rig_precategory_data : is_precategory rig_precategory_data.
   Proof.
-    use mk_is_precategory.
+    use mk_is_precategory_one_assoc.
     - intros a b f. use rig_id_left.
     - intros a b f. use rig_id_right.
     - intros a b c d f g h. use rig_assoc.
@@ -77,7 +77,7 @@ Section def_rig_category.
 
   Lemma rig_iso_is_equiv (A B : ob rig_precategory) (f : iso A B) : isweq (pr1 (pr1 f)).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (pr1rigfun _ _ (inv_from_iso f)).
     - intros x.
       use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_inv_after_iso f)) x).
@@ -115,7 +115,7 @@ Section def_rig_category.
 
   Lemma rig_iso_equiv_is_equiv (X Y : rig_precategory) : isweq (rig_iso_equiv X Y).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (rig_equiv_iso X Y).
     - intros x. use eq_iso. use rigfun_paths. use idpath.
     - intros y. use rigiso_paths. use subtypeEquality.
@@ -134,7 +134,7 @@ Section def_rig_category.
 
   Lemma rig_equiv_iso_is_equiv (X Y : ob rig_precategory) : isweq (rig_equiv_iso X Y).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (rig_iso_equiv X Y).
     - intros y. use rigiso_paths. use subtypeEquality.
       + intros x0. use isapropisweq.
@@ -143,7 +143,7 @@ Section def_rig_category.
   Defined.
   Opaque rig_equiv_iso_is_equiv.
 
-  Definition rig_equiv_iso_weq (X Y : ob rig_precategory) :
+  Definition rig_equiv_weq_iso (X Y : ob rig_precategory) :
     (rigiso (X : rig) (Y : rig)) ≃ (iso X Y).
   Proof.
     use weqpair.
@@ -158,9 +158,9 @@ Section def_rig_category.
   Proof.
     use (@isweqhomot
            (X = Y) (iso X Y)
-           (pr1weq (weqcomp (rig_univalence X Y) (rig_equiv_iso_weq X Y)))
+           (pr1weq (weqcomp (rig_univalence X Y) (rig_equiv_weq_iso X Y)))
            _ _ (weqproperty (weqcomp (rig_univalence X Y)
-                                     (rig_equiv_iso_weq X Y)))).
+                                     (rig_equiv_weq_iso X Y)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.

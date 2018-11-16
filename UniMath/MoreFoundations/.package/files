@@ -1,8 +1,10 @@
 Foundations.v
+WeakEquivalences.v
 Tactics.v
 Notations.v
 AlternativeProofs.v
 Subposets.v
+DoubleNegation.v
 DecidablePropositions.v
 Propositions.v
 Sets.v
@@ -10,5 +12,6 @@ Subtypes.v
 AxiomOfChoice.v
 StructureIdentity.v
 PartA.v
-All.v
 GirardsParadox.v
+Univalence.v
+All.v

@@ -36,7 +36,7 @@ Require Import UniMath.Folds.aux_lemmas.
 Require Import UniMath.Folds.folds_precat.
 Require Import UniMath.Folds.from_precats_to_folds_and_back.
 
-Local Notation "a ⇒ b" := (folds_morphisms a b)(at level 50).
+Local Notation "a ⇒ b" := (folds_morphisms a b).
 
 
 (** * Definition of FOLDS precat isomorphisms **)
@@ -222,8 +222,8 @@ Qed.
 Lemma folds_iso_equal : i = i'.
 Proof.
   apply folds_iso_eq.
-  apply dirprodpath.
-  - apply dirprodpath.
+  apply dirprodeq.
+  - apply dirprodeq.
     + apply funextsec; intro.
       apply subtypeEquality.
       * intro. apply isapropisweq.

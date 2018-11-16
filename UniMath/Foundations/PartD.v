@@ -94,7 +94,7 @@ Theorem isweqforalltototal {X : UU} (P : X -> UU) (PP : ∏ x : X, P x -> UU) :
   isweq (foralltototal P PP).
 Proof.
   intros.
-  simple refine (gradth (foralltototal P PP) (totaltoforall P PP) _ _).
+  simple refine (isweq_iso (foralltototal P PP) (totaltoforall P PP) _ _).
   - apply idpath.
   - apply idpath.
 Defined.
@@ -103,7 +103,7 @@ Theorem isweqtotaltoforall {X : UU} (P : X -> UU) (PP : ∏ x : X, P x -> UU) :
   isweq (totaltoforall P PP).
 Proof.
   intros.
-  simple refine (gradth (totaltoforall P PP) (foralltototal P PP) _ _).
+  simple refine (isweq_iso (totaltoforall P PP) (foralltototal P PP) _ _).
   - apply idpath.
   - apply idpath.
 Defined.
@@ -140,7 +140,7 @@ Theorem weqfuntoprodtoprod (X Y Z : UU) :
   weq (X -> dirprod Y Z) ((X -> Y) × (X -> Z)).
 Proof.
   intros.
-  simple refine (weqpair _ (gradth (@funtoprodtoprod X Y Z)
+  simple refine (weqpair _ (isweq_iso (@funtoprodtoprod X Y Z)
                                    (@prodtofuntoprod X Y Z) _ _)).
   - intro a. apply funextfun. intro x. apply idpath.
   - intro a. induction a as [ fy fz ]. apply idpath.
@@ -390,7 +390,7 @@ Proof.
   assert (egf : ∏ sy : (∏ y : Y, P y), paths (invmapp (map sy)) sy)
     by (intro; apply (funextsec _ _ _ (egf0 sy))).
 
-  apply (gradth map invmapp egf efg).
+  apply (isweq_iso map invmapp egf efg).
 Defined.
 
 Definition weqonsecbase {X Y : UU} (P : Y -> UU) (f : X ≃ Y)
@@ -475,7 +475,7 @@ Proof.
     intro x. apply idpath. apply funextsec.
     intro y. apply idpath.
   }
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 
@@ -511,7 +511,7 @@ Theorem weqfunfromcoprodtoprod (X Y Z : UU) :
 Proof.
   intros.
   simple refine (
-           weqpair _ (gradth (@funfromcoprodtoprod X Y Z)
+           weqpair _ (isweq_iso (@funfromcoprodtoprod X Y Z)
                              (@prodtofunfromcoprod X Y Z) _ _)).
   - intro a. apply funextfun; intro xy. induction xy as [ x | y ]; apply idpath.
   - intro a. induction a as [fx fy]. apply idpath.
@@ -540,7 +540,7 @@ Proof.
     intro t. induction t. apply idpath.
   }
   assert (efg : ∏ a : _, paths (f (g a)) a) by (intros; apply idpath).
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 
@@ -558,7 +558,7 @@ Proof.
   intros. induction xp as [ x p ]. apply (a x p).
 Defined.
 
-
+(** General equivalence between curried and uncurried function types *)
 Definition weqsecovertotal2 {X : UU} (P : X -> UU) (Q : total2 P -> UU) :
   weq (∏ xp : total2 P, Q xp) (∏ x : X, ∏ p : P x, Q (tpair _ x p)).
 Proof.
@@ -577,7 +577,7 @@ Proof.
     intro x. apply funextsec.
     intro p. apply idpath.
   }
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 
@@ -930,7 +930,7 @@ Proof.
     intro b. apply (invmaponpathsincl _ (isinclpr1weq _ _)). apply funextfun.
     intro x. apply (homotweqinvweq w (b x)).
   }
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 Theorem weqbweq {X Y : UU} (Z : UU) (w : X ≃ Y) : (Y ≃ Z) ≃ (X ≃ Z).
@@ -949,7 +949,7 @@ Proof.
     intro b. apply (invmaponpathsincl _ (isinclpr1weq _ _)). apply funextfun.
     intro x. apply (maponpaths b (homotinvweqweq w x)).
   }
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 Theorem weqweq {X Y : UU} (w: X ≃ Y) : (X ≃ X) ≃ (Y ≃ Y).
@@ -981,7 +981,7 @@ Proof.
     intro. apply (invmaponpathsincl _ (isinclpr1weq _ _)). apply funextfun.
     intro x. apply idpath.
   }
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 
@@ -1126,7 +1126,7 @@ Definition weqcutonweq (T : UU) (t : T) (is : isisolated T t) :
 Proof.
   intros.
   set (f := cutonweq t is). set (g := invcutonweq t is).
-  apply (weqgradth f g).
+  apply (weq_iso f g).
   - intro w. Set Printing Coercions. idtac.
     apply (invmaponpathsincl _ (isinclpr1weq _ _)).
     apply funextfun; intro t'. simpl.
@@ -1292,7 +1292,7 @@ Defined.
 Definition weqcompweql {X Y Z} (f:X ≃ Y) :
   isweq (fun g:Y ≃ Z => weqcomp f g).
 Proof.
-  intros. simple refine (gradth _ _ _ _).
+  intros. simple refine (isweq_iso _ _ _ _).
   { intro h. exact (weqcomp (invweq f) h). }
   { intro g. simpl. rewrite <- weqcompassoc. rewrite weqcompinvl. apply weqcompidl. }
   { intro h. simpl. rewrite <- weqcompassoc. rewrite weqcompinvr. apply weqcompidl. }
@@ -1301,7 +1301,7 @@ Defined.
 Definition weqcompweqr {X Y Z} (g:Y ≃ Z) :
   isweq (fun f:X ≃ Y => weqcomp f g).
 Proof.
-  intros. simple refine (gradth _ _ _ _).
+  intros. simple refine (isweq_iso _ _ _ _).
   { intro h. exact (weqcomp h (invweq g)). }
   { intro f. simpl. rewrite weqcompassoc. rewrite weqcompinvr. apply weqcompidr. }
   { intro h. simpl. rewrite weqcompassoc. rewrite weqcompinvl. apply weqcompidr. }

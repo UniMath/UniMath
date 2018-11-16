@@ -61,7 +61,8 @@ Section def_setwith2binop_precategory.
     - intros a b f. use setwith2binop_id_left.
     - intros a b f. use setwith2binop_id_right.
     - intros a b c d f g h. use setwith2binop_assoc.
-  Qed.
+    - intros a b c d f g h. apply pathsinv0, setwith2binop_assoc.
+  Defined.
 
   Definition setwith2binop_precategory : precategory :=
     mk_precategory setwith2binop_precategory_data is_precategory_setwith2binop_precategory_data.
@@ -82,7 +83,7 @@ Section def_setwith2binop_category.
   Lemma setwith2binop_iso_is_equiv (A B : ob setwith2binop_precategory) (f : iso A B) :
     isweq (pr1 (pr1 f)).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (pr1twobinopfun _ _ (inv_from_iso f)).
     - intros x.
       use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_inv_after_iso f)) x).
@@ -121,7 +122,7 @@ Section def_setwith2binop_category.
   Lemma setwith2binop_iso_equiv_is_equiv (X Y : setwith2binop_precategory) :
     isweq (setwith2binop_iso_equiv X Y).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (setwith2binop_equiv_iso X Y).
     - intros x. use eq_iso. use twobinopfun_paths. use idpath.
     - intros y. use twobinopiso_paths. use subtypeEquality.
@@ -141,7 +142,7 @@ Section def_setwith2binop_category.
   Lemma setwith2binop_equiv_iso_is_equiv (X Y : ob setwith2binop_precategory) :
     isweq (setwith2binop_equiv_iso X Y).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (setwith2binop_iso_equiv X Y).
     - intros y. use twobinopiso_paths. use subtypeEquality.
       + intros x0. use isapropisweq.
@@ -150,7 +151,7 @@ Section def_setwith2binop_category.
   Defined.
   Opaque setwith2binop_equiv_iso_is_equiv.
 
-  Definition setwith2binop_equiv_iso_weq (X Y : ob setwith2binop_precategory) :
+  Definition setwith2binop_equiv_weq_iso (X Y : ob setwith2binop_precategory) :
     (twobinopiso X Y) ≃ (iso X Y).
   Proof.
     use weqpair.
@@ -166,9 +167,9 @@ Section def_setwith2binop_category.
   Proof.
     use (@isweqhomot
            (X = Y) (iso X Y)
-           (pr1weq (weqcomp (setwith2binop_univalence X Y) (setwith2binop_equiv_iso_weq X Y)))
+           (pr1weq (weqcomp (setwith2binop_univalence X Y) (setwith2binop_equiv_weq_iso X Y)))
            _ _ (weqproperty (weqcomp (setwith2binop_univalence X Y)
-                                     (setwith2binop_equiv_iso_weq X Y)))).
+                                     (setwith2binop_equiv_weq_iso X Y)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.

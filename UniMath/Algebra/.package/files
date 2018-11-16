@@ -1,6 +1,7 @@
 BinaryOperations.v
 Monoids_and_Groups.v
-Rigs_and_Rings.v
+RigsAndRings.v
+RigsAndRings/Ideals.v
 Domains_and_Fields.v
 DivisionRig.v
 Apartness.v
@@ -8,8 +9,12 @@ ConstructiveStructures.v
 Archimedean.v
 Lattice.v
 IteratedBinaryOperations.v
+Free_Monoids_and_Groups.v
 Tests.v
 Modules/Core.v
+Modules/Submodule.v
 Modules/Multimodules.v
 Modules/Examples.v
+Modules/Quotient.v
 Modules.v
+Matrix.v

@@ -23,6 +23,7 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.Univalence.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -802,6 +803,7 @@ Proof.
   apply funextsec; intro f.
   rewrite transport_of_functor_map_is_pointwise.
   unfold extphi.
+  unfold double_transport.
   rewrite toforallpaths_funextsec.
   rewrite <- idtoiso_postcompose.
   rewrite <- idtoiso_precompose.

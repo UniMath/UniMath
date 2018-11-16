@@ -576,7 +576,7 @@ Defined.
 Definition weqhfiberunit {X Z : UU} (i : X -> Z) (z : Z) :
   (∑ x, hfiber (λ _ : unit, z) (i x)) ≃ hfiber i z.
 Proof.
-  intros. use weqgradth.
+  intros. use weq_iso.
   + intros [x [t e]]. exact (x,,!e).
   + intros [x e]. exact (x,,tt,,!e).
   + intros [x [t e]]. apply maponpaths. simple refine (two_arg_paths_f _ _).
@@ -591,6 +591,7 @@ Proof.
   intros x x'. apply isofhlevelcontr. apply (X0 x x').
 Defined.
 
+(** A proposition that is inhabited is contractible. *)
 Lemma iscontraprop1 {X : UU} (is : isaprop X) (x : X) : iscontr X.
 Proof.
   intros. unfold iscontr. split with x. intro t.
@@ -643,7 +644,7 @@ Proof.
          by (intro; apply proofirrelevance; apply isx).
   assert (isy0 : ∏ y : Y, paths (f (g y)) y)
          by (intro; apply proofirrelevance; apply isy).
-  apply (gradth f g isx0 isy0).
+  apply (isweq_iso f g isx0 isy0).
 Defined.
 
 Definition weqimplimpl {X Y : UU} (f : X -> Y) (g : Y -> X) (isx : isaprop X)
@@ -995,7 +996,7 @@ Defined.
 Corollary set_bijection_to_weq {X Y : UU} (f : X -> Y) :
   UniqueConstruction f -> isaset Y -> isweq f.
 Proof.
-  (* compare with bijection_to_weq: this one doesn't use gradth *)
+  (* compare with bijection_to_weq: this one doesn't use isweq_iso *)
   intros ? ? ? bij i y. set (sur := pr1 bij); set (inj := pr2 bij).
   use tpair.
   - exists (pr1 (sur y)). exact (pr2 (sur y)).
@@ -1486,7 +1487,7 @@ Proof.
       + apply (maponpaths (@ii2 _ _ )). apply (maponpaths (hfiberpair f x)).
         apply uip. apply isasetbool.
   }
-  apply (gradth _ _ egf efg).
+  apply (isweq_iso _ _ egf efg).
 Defined.
 
 (* End of file *)

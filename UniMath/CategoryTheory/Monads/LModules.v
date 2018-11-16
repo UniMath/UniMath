@@ -32,7 +32,7 @@ Local Notation "F ;;; G" := (nat_trans_comp _ _ _ F G) (at level 35).
 (** * Definition of module *)
 Section LModule_over_monad.
 
- Context {B:precategory} (M:Monad B) .
+ Context {B:precategory_data} (M:Monad B) .
   (** Definition of modules over M of codomain D **)
 
 Section LModule_def.
@@ -40,37 +40,37 @@ Section LModule_def.
 
 
 
-Definition LModule_data (D:precategory) : UU
+Definition LModule_data (D:precategory_data) : UU
   := ∑ F : functor B D, F □ M ⟹ F.
 
-Coercion functor_from_LModule_data (C : precategory) (F : LModule_data C)
+Coercion functor_from_LModule_data (C : precategory_data) (F : LModule_data C)
   : functor B C := pr1 F.
 
-Definition lm_mult {C : precategory} (F : LModule_data C) : F□M ⟹ F := pr2 F.
+Definition lm_mult {C : precategory_data} (F : LModule_data C) : F□M ⟹ F := pr2 F.
 Local Notation σ := lm_mult.
 
-Definition LModule_laws  {C:precategory} (T : LModule_data C) : UU :=
+Definition LModule_laws  {C:precategory_data} (T : LModule_data C) : UU :=
       (∏ c : B, #T (η M c) · σ T c = identity (T c))
         × (∏ c : B, #T ((μ M) c) · σ T c = σ T (M c) · σ T c).
 
-Lemma isaprop_LModule_laws (C : precategory) (hs : has_homsets C) (T : LModule_data C) :
+Lemma isaprop_LModule_laws (C : precategory_data) (hs : has_homsets C) (T : LModule_data C) :
    isaprop (LModule_laws T).
 Proof.
   repeat apply isapropdirprod;
   apply impred; intro c; apply hs.
 Qed.
 
-Definition LModule (C : precategory) : UU := ∑ T : LModule_data C, LModule_laws T.
+Definition LModule (C : precategory_data) : UU := ∑ T : LModule_data C, LModule_laws T.
 
-Coercion LModule_data_from_LModule (C : precategory) (T : LModule C) : LModule_data C := pr1 T.
+Coercion LModule_data_from_LModule (C : precategory_data) (T : LModule C) : LModule_data C := pr1 T.
 
 
-Lemma LModule_law1 {C : precategory} {T : LModule C} : ∏ c : B, #T (η M c) · σ T c = identity (T c).
+Lemma LModule_law1 {C : precategory_data} {T : LModule C} : ∏ c : B, #T (η M c) · σ T c = identity (T c).
 Proof.
 exact ( (pr1 (pr2 T))).
 Qed.
 
-Lemma LModule_law2 {C : precategory} {T : LModule C} :
+Lemma LModule_law2 {C : precategory_data} {T : LModule C} :
   ∏ c : B, #T ((μ M) c) · σ T c = σ T (M c) · σ T c.
 Proof.
 exact (pr2 ( (pr2 T))).
@@ -82,26 +82,26 @@ End LModule_def.
 Section LModule_precategory.
 
 Local Notation σ := lm_mult.
-Definition LModule_Mor_laws {C : precategory} {T T' : LModule_data C} (α : T ⟹ T')
+Definition LModule_Mor_laws {C : precategory_data} {T T' : LModule_data C} (α : T ⟹ T')
   : UU :=
   ∏ a : B, α (M a) · σ T' a = σ T a · α a.
 
 
-Lemma isaprop_LModule_Mor_laws (C : precategory) (hs : has_homsets C)
+Lemma isaprop_LModule_Mor_laws (C : precategory_data) (hs : has_homsets C)
   (T T' : LModule_data C) (α : T ⟹ T')
   : isaprop (LModule_Mor_laws α).
 Proof.
   apply impred; intro c; apply hs.
 Qed.
 
-Definition LModule_Mor {C : precategory} (T T' : LModule C) : UU
+Definition LModule_Mor {C : precategory_data} (T T' : LModule C) : UU
   := ∑ α : T ⟹ T', LModule_Mor_laws α.
 
 
-Coercion nat_trans_from_module_mor (C : precategory) (T T' : LModule C) (s : LModule_Mor T T')
+Coercion nat_trans_from_module_mor (C : precategory_data) (T T' : LModule C) (s : LModule_Mor T T')
    : T ⟹ T' := pr1 s.
 
-Definition LModule_Mor_σ {C : precategory} {T T' : LModule C} (α : LModule_Mor T T')
+Definition LModule_Mor_σ {C : precategory_data} {T T' : LModule C} (α : LModule_Mor T T')
            : ∏ a : B, α (M a) · σ T' a = σ T a · α a
   := pr2 α.
 
@@ -133,7 +133,7 @@ Definition LModule_composition {C : precategory} {T T' T'' : LModule C}
   (α : LModule_Mor T T') (α' : LModule_Mor T' T'')
   : LModule_Mor T T'' := tpair _ _ (LModule_composition_laws α α').
 
-Definition LModule_Mor_equiv {C : precategory} (hs : has_homsets C)
+Definition LModule_Mor_equiv {C : precategory_data} (hs : has_homsets C)
   {T T' : LModule C} (α β : LModule_Mor T T')
   : α = β ≃ (pr1 α = pr1 β).
 Proof.
@@ -141,7 +141,7 @@ Proof.
   apply isaprop_LModule_Mor_laws, hs.
 Defined.
 
-Definition precategory_LModule_ob_mor (C : precategory) : precategory_ob_mor.
+Definition precategory_LModule_ob_mor (C : precategory_data) : precategory_ob_mor.
 Proof.
   exists (LModule C).
   exact (λ T T' : LModule C, LModule_Mor T T').
@@ -165,6 +165,8 @@ Proof.
     apply (@id_right (functor_precategory B C hs)).
   - apply (invmap (LModule_Mor_equiv hs _ _ )).
     apply (@assoc (functor_precategory B C hs)).
+  - apply (invmap (LModule_Mor_equiv hs _ _ )).
+    apply (@assoc' (functor_precategory B C hs)).
 Qed.
 
 Definition precategory_LModule (C : category) : precategory
@@ -215,8 +217,8 @@ If T is a module over M', we call m* T the pullback module of T along m
 Section Pullback_module.
 
 
-  Context {B:precategory} {M M':Monad B} (m: Monad_Mor M M').
-  Context {C:precategory}.
+  Context {B: precategory_data} {M M': Monad B} (m: Monad_Mor M M').
+  Context {C: precategory}.
 
   Variable (T:LModule M' C).
   Notation "Z ∘ α" := (post_whisker α Z) (at level 50, left associativity).
@@ -272,8 +274,8 @@ between the pullback modules along m.
 *)
 Section Pullback_Module_Morphism.
 
-  Context {B} {M M':Monad B} (m:Monad_Mor M M') {C:precategory} {T T' :LModule M' C}
-          (n : LModule_Mor _ T T').
+  Context {B: precategory_data} {M M': Monad B} (m: Monad_Mor M M') {C: precategory} {T T': LModule M' C}
+          (n: LModule_Mor _ T T').
 
   Local Notation pbmT := (pb_LModule m T).
   Local Notation pbmT' := (pb_LModule m T').
@@ -282,14 +284,14 @@ Section Pullback_Module_Morphism.
   Proof.
     intros b.
     cbn.
-    eapply pathscomp0;revgoals.
-    rewrite <-assoc.
-    apply cancel_precomposition.
-    apply LModule_Mor_σ.
-    repeat rewrite assoc.
-    apply cancel_postcomposition.
-    apply pathsinv0.
-    apply nat_trans_ax.
+    eapply pathscomp0; revgoals.
+    - rewrite <-assoc.
+      apply cancel_precomposition.
+      apply LModule_Mor_σ.
+    - repeat rewrite assoc.
+      apply cancel_postcomposition.
+      apply pathsinv0.
+      apply nat_trans_ax.
   Qed.
 
   Definition pb_LModule_Mor  : LModule_Mor _  pbmT pbmT'  := ( _ ,, pb_LModule_Mor_law).

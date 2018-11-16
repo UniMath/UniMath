@@ -380,7 +380,7 @@ Proof.
   - apply isfinitestn.
 Defined.
 
-Notation "⟦ n ⟧" := (standardFiniteOrderedSet n) (at level 50) : foset.
+Notation "⟦ n ⟧" := (standardFiniteOrderedSet n) : foset.
 (* in agda-mode \[[ n \]] *)
 
 Lemma inducedPartialOrder {X Y} (f:X->Y) (incl:isInjective f) (R:hrel Y) (po:isPartialOrder R) :

@@ -7,6 +7,7 @@ Local Open Scope subtype.
 
 Local Open Scope logic.
 
+(** The powerset, or set of all subsets, of a set. *)
 Definition subtype_set X : hSet := hSetpair (hsubtype X) (isasethsubtype X).
 
 Definition subtype_isIn {X:UU} {S:hsubtype X} (s:S) (T:hsubtype X) : hProp := T (pr1 s).
@@ -136,7 +137,8 @@ Proof.
   repeat split.
   - intros S T U i j x. exact (j x ∘ i x).
   - intros S x s. exact s.
-  - intros S T i j. apply (invmap (hsubtype_univalence S T)). now apply subtype_equal_cond.
+  - intros S T i j. apply (invmap (hsubtype_univalence S T)). apply subtype_equal_cond.
+    split; assumption.
 Defined.
 
 Lemma subtype_inc_comp {X:UU} {S T U : hsubtype X} (i:S⊆T) (j:T⊆U) (s:S) :

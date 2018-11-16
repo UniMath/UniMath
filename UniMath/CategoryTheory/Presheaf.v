@@ -13,7 +13,7 @@ Contents:
 - Initial object ([Initial_PreShv])
 - Terminal object ([Terminal_PreShv])
 - Pullbacks ([Pullbacks_PreShv])
-- Exponentials ([has_exponentials_PreShv])
+- Exponentials ([Exponentials_PreShv])
 - Constant presheaf ([constant_PreShv])
 - Definition of the subobject classifier (without proof) ([Ω_PreShv], [Ω_mor])
 - Proof that [Ω_PreShv] is a bounded lattice object ([Ω_PreShv_lattice],
@@ -124,10 +124,10 @@ Proof.
 now apply FunctorcategoryPullbacks, PullbacksHSET.
 Defined.
 
-Lemma has_exponentials_PreShv (hsC : has_homsets C) :
-  has_exponentials BinProducts_PreShv.
+Lemma Exponentials_PreShv (hsC : has_homsets C) :
+  Exponentials BinProducts_PreShv.
 Proof.
-now apply has_exponentials_functor_HSET, has_homsets_opp, hsC.
+now apply Exponentials_functor_HSET, has_homsets_opp, hsC.
 Defined.
 
 End limits.
@@ -281,7 +281,7 @@ Definition Ω_PreShv : PreShv C := (Ω_PreShv_data,,is_functor_Ω_PreShv_data).
 Definition Ω_mor : (PreShv C)⟦Terminal_PreShv,Ω_PreShv⟧.
 Proof.
 use mk_nat_trans.
-- simpl; apply (λ c _, maximal_sieve c).
+- red; simpl; apply (λ c _, maximal_sieve c).
 - intros x y f; simpl in *; apply funextfun; cbn; intros _.
   apply sieve_eq; simpl.
   now repeat (apply funextsec; intros).
@@ -292,7 +292,7 @@ Proof.
 now apply from_terminal_isMonic.
 Qed.
 
-Local Notation "c '⊗' d" := (BinProductObject _ (BinProducts_PreShv c d)) (at level 75) : cat.
+Local Notation "c ⊗ d" := (BinProductObject _ (BinProducts_PreShv c d)) : cat.
 
 Definition Ω_PreShv_meet : PreShv(C)⟦Ω_PreShv ⊗ Ω_PreShv,Ω_PreShv⟧.
 Proof.

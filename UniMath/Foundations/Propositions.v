@@ -434,7 +434,7 @@ Proof.
   intros. split with (P -> Q). apply impred. intro. apply (pr2 Q).
 Defined.
 
-Local Notation "A ⇒ B" := (himpl A B) (at level 95, no associativity) : logic.
+Local Notation "A ⇒ B" := (himpl A B) : logic.
   (* precedence same as <-> *)
   (* in agda-input method, type \r= or \Rightarrow or \=> *)
   (* can't make it global, because it's defined differently in
@@ -483,7 +483,7 @@ Defined.
 (** *** Proof of the only non-trivial axiom of intuitionistic logic for our constructions. For the full list of axioms see e.g.  http://plato.stanford.edu/entries/logic-intuitionistic/ *)
 
 
-Lemma hconjtohdisj (P Q : UU) (R : hProp) : (P ⇒ R) ∧ (Q ⇒ R) -> P ∨ Q ⇒ R.
+Lemma hconjtohdisj (P Q : UU) (R : hProp) : (P ⇒ R) ∧ (Q ⇒ R) -> (P ∨ Q) ⇒ R.
 Proof.
   intros P Q R X0.
   assert (s1: hdisj P Q -> R).
@@ -727,7 +727,7 @@ Proof.
     apply (invmaponpathsweq (weqpair h is) _ _ X').
   }
   set (egf := λ a1, (egf1 _ _ (egf0 a1))).
-  set (is2 := gradth _ _ egf efg).
+  set (is2 := isweq_iso _ _ egf efg).
   apply (isweqtotaltofib P1 P2 (λ XY : hProp × hProp,
                                   @eqweqmaphProp (pr1 XY) (pr2 XY)) is2
                          (dirprodpair P P')).

@@ -1,20 +1,17 @@
-(** **********************************************************
+(** ** Equivalence of categories
 
-Benedikt Ahrens, Chris Kapulkin, Mike Shulman
-january 2013
+Authors: Benedikt Ahrens, Chris Kapulkin, Mike Shulman (January 2013)
 
-************************************************************)
+*)
 
 
-(** **********************************************************
+(** ** Contents:
 
-Contents:
-
-- Definition of equivalence of precategories
+- Definition of (adjoint) equivalence of precategories
 - Equivalence of categories yields weak equivalence of object types
 - A fully faithful and ess. surjective functor induces equivalence of precategories, if the source is a univalent_category.
 
-************************************************************)
+*)
 
 
 Require Import UniMath.Foundations.PartD.
@@ -207,7 +204,7 @@ Proof.
     set (XR := functor_on_iso GG (functor_on_iso FF εntiso)).
     set (XR':= iso_inv_from_iso XR). apply XR'.
   eapply iso_comp.
-     Focus 2. apply εntiso.
+     2: apply εntiso.
   set (XR := functor_on_iso (pre_composition_functor _ _ _ (homset_property _) (homset_property _ ) G) (iso_inv_from_iso ηntiso)).
   set (XR':= functor_on_iso (post_composition_functor _ _ _ (homset_property _ )(homset_property _ ) F) XR).
   apply XR'.
@@ -293,7 +290,7 @@ Proof.
   set (BBcat := is_univalent_functor_category B _ HB).
   set (Et := isotoid _ AAcat et).
   set (Ep := isotoid _ BBcat ep).
-  apply (gradth _ (λ b, pr1 (right_adjoint (pr1 HF)) b)); intro a.
+  apply (isweq_iso _ (λ b, pr1 (right_adjoint (pr1 HF)) b)); intro a.
   apply (!toforallpaths _ _ _ (base_paths _ _ (base_paths _ _ Et)) a).
   now apply (toforallpaths _ _ _ (base_paths _ _ (base_paths _ _ Ep))).
 Defined.
@@ -308,26 +305,22 @@ Proof.
 Defined.
 
 
-(** If the source precategory is a univalent_category, then being split essentially surjective
-     is a proposition *)
+(** If the source precategory is a univalent_category, then being split
+    essentially surjective is a proposition *)
 
-
-Lemma isaprop_sigma_iso (A B : precategory) (HA : is_univalent A) (*hsB: has_homsets B*)
+Lemma isaprop_sigma_iso (A B : precategory) (HA : is_univalent A)
      (F : functor A B) (HF : fully_faithful F) :
-      ∏ b : ob B,
-  isaprop (total2 (λ a : ob A, iso (pr1 F a) b)).
+     ∏ b : ob B, isaprop (∑ a : ob A, iso (F a) b).
 Proof.
   intro b.
   apply invproofirrelevance.
-  intros x x'.
-  destruct x as [a f].
-  destruct x' as [a' f'].
+  intros x x'; destruct x as [a f]; destruct x' as [a' f'].
   set (fminusf := iso_comp f (iso_inv_from_iso f')).
   set (g := iso_from_fully_faithful_reflection HF fminusf).
   apply (two_arg_paths_f (B:=λ a', iso ((pr1 F) a') b) (isotoid _ HA g)).
   intermediate_path (iso_comp (iso_inv_from_iso
     (functor_on_iso F (idtoiso (isotoid _ HA g)))) f).
-    generalize (isotoid _ HA g).
+  - generalize (isotoid _ HA g).
     intro p0; destruct p0.
     rewrite <- functor_on_iso_inv.
     rewrite iso_inv_of_iso_id.
@@ -335,40 +328,50 @@ Proof.
     simpl; rewrite functor_id.
     rewrite id_left.
     apply idpath.
-  rewrite idtoiso_isotoid.
-  unfold g; clear g.
-  unfold fminusf; clear fminusf.
-  assert (HFg : functor_on_iso F
-        (iso_from_fully_faithful_reflection HF
-           (iso_comp f (iso_inv_from_iso f'))) =
-           iso_comp f (iso_inv_from_iso f')).
-    generalize (iso_comp f (iso_inv_from_iso f')).
-    intro h.
-    apply eq_iso; simpl.
-    set (H3:= homotweqinvweq (weq_from_fully_faithful HF a a')).
-    simpl in H3. unfold fully_faithful_inv_hom.
-    unfold invweq; simpl.
-    rewrite H3; apply idpath.
-  rewrite HFg.
-  rewrite iso_inv_of_iso_comp.
-  apply eq_iso; simpl.
-  repeat rewrite <- assoc.
-  rewrite iso_after_iso_inv.
-  rewrite id_right.
-  set (H := iso_inv_iso_inv _ _ _ f').
-  now apply (base_paths _ _ H).
+  - rewrite idtoiso_isotoid.
+    unfold g; clear g.
+    unfold fminusf; clear fminusf.
+    assert (HFg : functor_on_iso F
+          (iso_from_fully_faithful_reflection HF
+            (iso_comp f (iso_inv_from_iso f'))) =
+            iso_comp f (iso_inv_from_iso f')).
+    + generalize (iso_comp f (iso_inv_from_iso f')).
+      intro h.
+      apply eq_iso; simpl.
+      set (H3:= homotweqinvweq (weq_from_fully_faithful HF a a')).
+      simpl in H3. unfold fully_faithful_inv_hom.
+      unfold invweq; simpl.
+      rewrite H3; apply idpath.
+    + rewrite HFg.
+      rewrite iso_inv_of_iso_comp.
+      apply eq_iso; simpl.
+      repeat rewrite <- assoc.
+      rewrite iso_after_iso_inv.
+      rewrite id_right.
+      set (H := iso_inv_iso_inv _ _ _ f').
+      now apply (base_paths _ _ H).
 Qed.
 
-
-Lemma isaprop_pi_sigma_iso (A B : precategory) (HA : is_univalent A) (hsB: has_homsets B)
-     (F : ob [A, B, hsB]) (HF : fully_faithful F) :
-  isaprop (∏ b : ob B,
-             total2 (λ a : ob A, iso (pr1 F a) b)).
+Lemma isaprop_split_essentially_surjective (A B : precategory) (HA : is_univalent A)
+      (F : functor A B) (HF : fully_faithful F) :
+  isaprop (split_essentially_surjective F).
 Proof.
-  apply impred; intro b.
+  apply impred; intro.
   now apply isaprop_sigma_iso.
 Qed.
 
+(** If the source precategory is a univalent_category, then essential
+    surjectivity of a fully faithful functor implies split essential
+    surjectivity. *)
+Lemma ff_essentially_surjective_to_split (A B : precategory) (HA : is_univalent A)
+      (F : functor A B) (HF : fully_faithful F) (HF' : essentially_surjective F) :
+  split_essentially_surjective F.
+Proof.
+  intro b.
+  apply (squash_to_prop (HF' b)).
+  - apply isaprop_sigma_iso; assumption.
+  - exact (idfun _).
+Defined.
 
 (** * From full faithfullness and ess surj to equivalence *)
 
@@ -389,9 +392,9 @@ Hypothesis HS : essentially_surjective F.
 
 Definition rad_ob : ob B -> ob A.
 Proof.
-  intro b.
-  apply (pr1 (HS b (tpair (λ x, isaprop x) _
-               (isaprop_sigma_iso A B HA F HF b)) (λ x, x))).
+  use split_essentially_surjective_inv_on_obj.
+  - exact F.
+  - apply ff_essentially_surjective_to_split; assumption.
 Defined.
 
 (** Definition of the epsilon transformation *)

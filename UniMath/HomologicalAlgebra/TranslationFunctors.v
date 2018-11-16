@@ -52,7 +52,7 @@ Require Import UniMath.HomologicalAlgebra.KA.
 Unset Kernel Term Sharing.
 
 Open Scope hz_scope.
-Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommrngops ZeroArrow.
+Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommringops ZeroArrow.
 
 (** * Translation funtor for C(A) and for K(A) *)
 (** ** Introduction
@@ -1076,7 +1076,7 @@ Section translation_functor.
     - use functor_data_eq.
       + intros C. cbn. apply idpath.
       + intros C1 C2 f.
-        cbn beta.
+        unfold double_transport.
         rewrite idpath_transportf. rewrite idpath_transportf.
         assert (e1 : pr2 (pr1 (functor_composite (ComplexHomotFunctor A) TranslationFunctorH))
                          C1 C2 f =
@@ -1295,7 +1295,7 @@ Section translation_functor.
     - use functor_data_eq.
       + intros C. cbn. apply idpath.
       + intros C1 C2 f.
-        cbn beta.
+        unfold double_transport.
         rewrite idpath_transportf. rewrite idpath_transportf.
         assert (e1 : pr2 (pr1 (functor_composite (ComplexHomotFunctor A) InvTranslationFunctorH))
                          C1 C2 f =
@@ -1392,7 +1392,7 @@ Section translation_functor.
       + intros C. cbn. use ComplexEq.
         * intros i. cbn. apply maponpaths. apply (hzrminusplus i 1).
         * intros i. cbn. exact (TranslationInvTranslation_eq1 C i).
-      + intros C1 C2 f. cbn beta.
+      + intros C1 C2 f. unfold double_transport.
         use (squash_to_prop (ComplexHomotFunctor_issurj A f)).
         use to_has_homsets. intros f'. cbn.
         rewrite (TranslationFunctorH_Mor_unique _ f').
@@ -1431,7 +1431,7 @@ Section translation_functor.
       + intros C. cbn. use ComplexEq.
         * intros i. cbn. apply maponpaths. apply (hzrplusminus i 1).
         * intros i. cbn. exact (InvTranslationTranslation_eq1 C i).
-      + intros C1 C2 f. cbn beta.
+      + intros C1 C2 f. unfold double_transport.
         use (squash_to_prop (ComplexHomotFunctor_issurj A f)).
         use to_has_homsets.  intros f'. cbn.
         rewrite (InvTranslationFunctorH_Mor_unique _ f').

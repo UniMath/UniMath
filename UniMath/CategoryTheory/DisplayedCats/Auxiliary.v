@@ -1,14 +1,17 @@
 
-(** Auxiliary material needed for the development of bicategories, displayed categories, etc, not specific to these but not available in the main library.
+(** Auxiliary material needed for the development of bicategories, displayed categories, etc, but not specific to these.
 
-Much of this material could probably be moved upstream to the [CategoryTheory] library and elsewhere.
+Much of this material could probably be moved upstream to the [CategoryTheory] library and elsewhere
+(some of it is already present there).
+
+* Direct products of precategories should instead be imported from [CategoryTheory.PrecategoryBinProduct].
+* The unit precategory should be imported from [CategoryTheory.categories.StandardCategories].
 
 Contents:
 
   - Notations and tactics
   - Direct products of types
   - Direct products of precategories
-  - Pregroupoids
   - Discrete precategories
 
 *)
@@ -125,7 +128,8 @@ Proof.
   (* id_left *) apply dirprod_paths; simpl; apply id_left.
   (* id_right *) apply dirprod_paths; simpl; apply id_right.
   (* assoc *) apply dirprod_paths; simpl; apply assoc.
-Qed.
+  (* assoc' *) apply dirprod_paths; simpl; apply assoc'.
+Defined.
 
 Definition prod_precategory (C D : precategory) : precategory
   := (_ ,, prod_precategory_is_precategory C D).
@@ -201,74 +205,6 @@ End category_products.
 (** Redeclare section notations to be available globally. *)
 Local Notation "C × D" := (prod_category C D)
   (at level 75, right associativity) : cat.
-
-(** * Groupoids *)
-Section Groupoids.
-(* TODO: search library more thoroughly for any of these! *)
-
-Definition is_groupoid (C : category)
-  := forall (x y : C) (f : x --> y), is_iso f.
-
-Lemma is_groupoid_functor_cat {C D : category}
-  (gr_D : is_groupoid D)
-  : is_groupoid (functor_category C D).
-Proof.
-  intros F G α; apply functor_iso_if_pointwise_iso.
-  intros c; apply gr_D.
-Defined.
-
-End Groupoids.
-
-(** * Discrete categories on hSets.
-
-In order to construct locally discrete bicategories below, we need some infrastructure on discrete categories. *)
-Section Discrete_cats.
-
-Definition discrete_cat (X : hSet) : category.
-Proof.
-  use (path_groupoid X).
-    apply hlevelntosn, setproperty.
-Defined.
-
-Lemma is_groupoid_path_groupoid {X} {H}
-  : is_groupoid (path_groupoid X H).
-Proof.
-  intros x y f. apply is_iso_qinv with (!f).
-  split. apply pathsinv0r. apply pathsinv0l.
-Defined.
-
-(* TODO: check naming conventions; what should this be called? *)
-Definition fmap_discrete_cat {X Y : hSet} (f : X -> Y)
-  : functor (discrete_cat X) (discrete_cat Y).
-Proof.
-  use tpair.
-  + (* functor_on_objects *) exists f.
-    (* functor_on_morphisms *) intros c d. apply maponpaths.
-  + split.
-    - (* functor_id *) intros x; apply setproperty.
-    - (* functor_comp *) intros x y z w v; apply setproperty.
-Defined.
-
-Definition prod_discrete_cat (X Y : hSet)
-  : functor (discrete_cat X × discrete_cat Y)
-            (discrete_cat (X × Y)%set).
-Proof.
-  use tpair. use tpair.
-  + (* functor_on_objects *) apply id.
-  + (* functor_on_morphisms *)
-    intros a b; simpl. apply uncurry, dirprod_paths.
-  + (* functor_id, functor_comp *) split; intro; intros; apply setproperty.
-Defined.
-
-Definition discrete_cat_nat_trans {C : precategory} {X : hSet}
-  {F G : functor C (discrete_cat X)}
-  : (forall c:C, F c = G c) -> nat_trans F G.
-Proof.
-  intros h. exists h.
-  (* naturality *) intros c d f; apply setproperty.
-Defined.
-
-End Discrete_cats.
 
 (** * Miscellaneous lemmas *)
 Section Miscellaneous.

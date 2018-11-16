@@ -1,5 +1,6 @@
 Unset Automatic Introduction.
 
+Require Import UniMath.Foundations.Preamble.
 Require UniMath.Combinatorics.Lists.
 Require UniMath.Combinatorics.StandardFiniteSets.
 Require UniMath.Combinatorics.FiniteSets.
@@ -37,8 +38,8 @@ Module Test_stn.
   Goal stn 6. exact (stnpr 3). Qed.
 
 
-  Goal (stnel(6,3) ≠ stnel(6,4)). easy. Defined.
-  Goal ¬(stnel(6,3) ≠ stnel(6,3)). easy. Defined.
+  Goal (stnel(6,3) ≠ stnel(6,4)). exact tt. Defined.
+  Goal ¬(stnel(6,3) ≠ stnel(6,3)). intro n. apply n. Defined.
 
   Goal ∏ m n (i:m≤n) (j:stn m), pr1 (stnmtostnn m n i j) = pr1 j.
     intros. induction j as [j J]. reflexivity.
@@ -93,7 +94,7 @@ Module Test_stn.
 
     (* here's an example that shows complications need not impede that sort of computability: *)
     Local Definition w : unit ≃ stn 1.
-      simple refine (weqgradth _ _ _ _).
+      simple refine (weq_iso _ _ _ _).
       { intro. exact firstelement. }
       { intro. exact tt. }
       { intro u. simpl. induction u. reflexivity. }
@@ -126,7 +127,7 @@ Module Test_stn.
     Definition i := ●1 : stn 4.
     Definition j := ●0 : stn 4.
     Lemma ne : ¬ (i = j).
-    Proof. apply stnneq_to_nopath. easy. Defined.
+    Proof. apply stnneq_to_nopath. exact tt. Defined.
     Definition re := weqrecompl (stn 4) i (isisolatedinstn _).
     Definition re' := weqrecompl_ne (stn 4) i (isisolatedinstn i) (stnneq i).
     Definition c := complpair (stn 4) i j ne : compl _ i.
@@ -534,7 +535,7 @@ Module Test_search.
 
   Goal 1 = pr1 (minimal_n P P_dec P_inhab). reflexivity. Defined.
 
-  Axiom P_inhab' : ∃ n, P n.
+  Variable P_inhab' : ∃ n, P n.
 
   Definition new_n' :  ∑ n : nat, P n := minimal_n P P_dec P_inhab'.
 

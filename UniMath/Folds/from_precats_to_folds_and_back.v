@@ -28,7 +28,7 @@ Require Import UniMath.Folds.folds_precat.
 
 Local Open Scope cat.
 
-Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
+Local Notation "a ⇒ b" := (precategory_morphisms a b).
 
 (** * From precategories to FOLDS precategories *)
 
@@ -77,11 +77,11 @@ Proof.
     apply hinhpr.
     exists (identity a).
     apply idpath.
-  - intros; unfold id, T; simpl.
+  - intros; unfold T; simpl.
     intermediate_path (compose f (identity _ )).
     + apply maponpaths; assumption.
     + apply id_right.
- - intros; unfold id, T; simpl.
+ - intros; unfold T; simpl.
    intermediate_path (compose (identity _ ) f).
    +  rewrite X. apply idpath.
    +  apply id_left.
@@ -116,6 +116,7 @@ Definition precat_from_folds_data : precategory_data :=
 Lemma is_precategory_precat_from_folds_data :
    is_precategory precat_from_folds_data.
 Proof.
+  apply is_precategory_one_assoc_to_two.
   repeat split.
   - apply T_I_r.
   - apply T_I_l.
@@ -134,50 +135,50 @@ Lemma folds_precat_from_precat_precat_from_folds_precat
     folds_precat_from_precat (precat_from_folds_precat C) hs = C.
 Proof.
   apply subtypeEquality'.
-  Focus 2.
-  - intro a; apply isapropdirprod.
+  2: { intro a; apply isapropdirprod.
     + apply isaprop_folds_ax_id.
-    Focus 2. apply isaprop_folds_ax_T. apply hs.
-  - set (Hid := I_contr C).
-    set (Hcomp := T_contr C).
-    destruct C as [Cd CC]; simpl in *.
-    destruct Cd as [Ca Cb]; simpl in *.
-    unfold folds_id_comp_from_precat_data.
-    apply maponpaths.
-    destruct CC as [C1 C2]. simpl in *.
-    destruct Cb as [Cid Ccomp]. simpl in *.
-    apply pathsdirprod.
-    +  apply funextsec.  intro a.
-       apply funextsec. intro f. unfold id_pred.  simpl.
-       apply subtypeEquality.
-       { intro. apply isapropisaprop. }
-       simpl.
-       apply weqtopaths.
-       apply weqimplimpl.
-       * intro H. rewrite H.
-         set (Hid' := pr1 (Hid a)).
-         apply (pr2 (Hid')).
-       * intro H. unfold precategory_morphisms in f.
-         set (H2 := pr2 (Hid a)). simpl in H2.
-         apply (path_to_ctr). assumption.
-       * apply hs. (* apply (pr2 (precategory_morphisms _ _ )). *)
-       * apply (pr2 (Cid a f)).
-   + apply funextsec; intro a.
-     apply funextsec; intro b.
-     apply funextsec; intro c.
-     apply funextsec; intro f.
-     apply funextsec; intro g.
-     apply funextsec; intro fg.
-     clear Hid.
+    + apply isaprop_folds_ax_T. apply hs.
+  }
+  set (Hid := I_contr C).
+  set (Hcomp := T_contr C).
+  destruct C as [Cd CC]; simpl in *.
+  destruct Cd as [Ca Cb]; simpl in *.
+  unfold folds_id_comp_from_precat_data.
+  apply maponpaths.
+  destruct CC as [C1 C2]. simpl in *.
+  destruct Cb as [Cid Ccomp]. simpl in *.
+  apply pathsdirprod.
+  +  apply funextsec.  intro a.
+     apply funextsec. intro f. unfold id_pred. simpl.
      apply subtypeEquality.
-     { intro; apply isapropisaprop. }
-     apply weqtopaths. apply weqimplimpl.
-       * intro H. simpl in *. rewrite <- H.
-         apply (pr2 (pr1 (Hcomp a b c f g))).
-       * simpl. intro H. apply pathsinv0. apply path_to_ctr.
-           assumption.
-       * simpl in *. apply hs. (* apply (pr2 (precategory_morphisms _ _ )). *)
-       * apply (pr2 (Ccomp _ _ _ _ _ _ )).
+     { intro. apply isapropisaprop. }
+     simpl.
+     apply weqtopaths.
+     apply weqimplimpl.
+     * intro H. rewrite H.
+       set (Hid' := pr1 (Hid a)).
+       apply (pr2 (Hid')).
+     * intro H. unfold precategory_morphisms in f.
+       set (H2 := pr2 (Hid a)). simpl in H2.
+       apply (path_to_ctr). assumption.
+     * apply hs. (* apply (pr2 (precategory_morphisms _ _ )). *)
+     * apply (pr2 (Cid a f)).
+  + apply funextsec; intro a.
+    apply funextsec; intro b.
+    apply funextsec; intro c.
+    apply funextsec; intro f.
+    apply funextsec; intro g.
+    apply funextsec; intro fg.
+    clear Hid.
+    apply subtypeEquality.
+    { intro; apply isapropisaprop. }
+    apply weqtopaths. apply weqimplimpl.
+    * intro H. simpl in *. rewrite <- H.
+      apply (pr2 (pr1 (Hcomp a b c f g))).
+    * simpl. intro H. apply pathsinv0. apply path_to_ctr.
+      assumption.
+    * simpl in *. apply hs. (* apply (pr2 (precategory_morphisms _ _ )). *)
+    * apply (pr2 (Ccomp _ _ _ _ _ _ )).
 Qed.
 
 (** * From precats to FOLDS precats to precats *)
@@ -186,8 +187,7 @@ Lemma precat_from_folds_precat_folds_precat_from_precat (C : precategory)(hs: ha
      precat_from_folds_precat (folds_precat_from_precat C hs) = C.
 Proof.
   apply subtypeEquality'.
-  Focus 2. intro; apply isaprop_is_precategory. assumption.
-
+  2: { intro; apply isaprop_is_precategory. assumption. }
   destruct C as [Cdata Cax]; simpl in *.
   destruct Cdata as [Cobmor Cidcomp]; simpl in *.
   unfold precat_from_folds_data.

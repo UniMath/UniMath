@@ -1,5 +1,13 @@
 (** This file contain various results that could be upstreamed to Foundations/PartA.v *)
 Require Import UniMath.MoreFoundations.Foundations.
+Require Import UniMath.MoreFoundations.Tactics.
+
+Lemma maponpaths_for_constant_function {T1 T2 : UU} (x : T2) {t1 t2 : T1}
+      (e: t1 = t2): maponpaths (fun _: T1 => x) e = idpath x.
+Proof.
+  induction e.
+  apply idpath.
+Qed.
 
 Lemma base_paths_pair_path_in2 {X : UU} (P : X → UU) {x : X} {p q : P x} (e : p = q) :
   base_paths _ _ (pair_path_in2 P e) = idpath x.
@@ -13,7 +21,10 @@ Qed.
 Note: similar to [transportf_pathsinv0_var], [transportf_pathsinv0'],
 but not quite a special case of them, or (as far as I can find) any other
 library lemma.
-*)
+ *)
+
+
+
 Lemma transportf_transpose {X : UU} {P : X → UU} {x x' : X}
       (e : x = x') (y : P x) (y' : P x') :
       transportb P e y' = y -> y' = transportf P e y.
@@ -35,10 +46,10 @@ Lemma transportf_comp_lemma (X : UU) (B : X -> UU) {A A' A'': X} (e : A = A'') (
   -> transportf _ e x = transportf _ e' x'.
 Proof.
   intro H.
-  eapply pathscomp0. Focus 2.
-    apply maponpaths. exact H.
-  eapply pathscomp0. Focus 2.
-    symmetry. apply transport_f_f.
+  eapply pathscomp0.
+  2: { apply maponpaths. exact H. }
+  eapply pathscomp0.
+  2: { symmetry. apply transport_f_f. }
   apply (maponpaths (λ p, transportf _ p x)).
   apply pathsinv0.
   eapply pathscomp0.
@@ -60,6 +71,18 @@ Proof.
     apply hs.
   - exact ex.
 Qed.
+
+
+Lemma transportf_set {A : UU} (B : A → UU)
+      {a : A} (e : a = a) (b : B a)
+      (X : isaset A)
+  : transportf B e b = b.
+Proof.
+  apply transportf_comp_lemma_hset.
+  - apply X.
+  - apply idpath.
+Defined.
+
 
 Lemma transportf_pair {A B} (P : A × B -> UU) {a a' : A} {b b' : B}
       (eA : a = a') (eB : b = b') (p : P (a,,b))
@@ -90,9 +113,71 @@ Proof.
   destruct e; apply idpath.
 Defined.
 
-Lemma transportf_const (A B : UU) (a a' : A) (e : a = a') (b : B) :
-   transportf (λ _, B) e b = b.
+Lemma coprodcomm_coprodcomm {X Y : UU} (v : X ⨿ Y) : coprodcomm Y X (coprodcomm X Y v) = v.
 Proof.
-  induction e.
+  induction v as [x|y]; reflexivity.
+Defined.
+
+Definition sumofmaps_funcomp {X1 X2 Y1 Y2 Z : UU} (f1 : X1 → X2) (f2 : X2 → Z) (g1 : Y1 → Y2)
+  (g2 : Y2 → Z) : sumofmaps (f2 ∘ f1) (g2 ∘ g1) ~ sumofmaps f2 g2 ∘ coprodf f1 g1.
+Proof.
+  intro x. induction x as [x|y]; reflexivity.
+Defined.
+
+Definition sumofmaps_homot {X Y Z : UU} {f f' : X → Z} {g g' : Y → Z} (h : f ~ f') (h2 : g ~ g')
+  : sumofmaps f g ~ sumofmaps f' g'.
+Proof.
+  intro x. induction x as [x|y].
+  - exact (h x).
+  - exact (h2 y).
+Defined.
+
+(** coprod computation helper lemmas  *)
+
+Definition coprod_rect_compute_1
+           (A B : UU) (P : A ⨿ B -> UU)
+           (f : ∏ (a : A), P (ii1 a))
+           (g : ∏ (b : B), P (ii2 b)) (a:A) :
+  coprod_rect P f g (ii1 a) = f a.
+Proof.
+  intros.
   apply idpath.
+Defined.
+
+Definition coprod_rect_compute_2
+           (A B : UU) (P : A ⨿ B -> UU)
+           (f : ∏ a : A, P (ii1 a))
+           (g : ∏ b : B, P (ii2 b)) (b:B) :
+  coprod_rect P f g (ii2 b) = g b.
+Proof.
+  intros.
+  apply idpath.
+Defined.
+
+(** Flip the arguments of a function *)
+Definition flipsec {A B : UU} {C : A -> B -> UU} (f : ∏ a b, C a b) : ∏ b a, C a b :=
+  λ x y, f y x.
+Notation flip := flipsec.
+
+(** Flip is a weak equivalence (in fact, it is an involution) *)
+Lemma isweq_flipsec {A B : UU} {C : A -> B -> UU} : isweq (@flipsec A B C).
+Proof.
+  apply (isweq_iso _ flipsec); reflexivity.
+Defined.
+
+Definition flipsec_weq {A B : UU} {C : A -> B -> UU} :
+  (∏ a b, C a b) ≃ (∏ b a, C a b) := weqpair flipsec isweq_flipsec.
+
+(** The subtypes of a type of hlevel S n are also of hlevel S n.
+    This doesn't work for types of hlevel 0: a subtype of a contractible
+    type might be empty, not contractible! *)
+Lemma isofhlevel_hsubtype {X : UU} {n : nat} (isof : isofhlevel (S n) X) :
+  ∏ subt : hsubtype X, isofhlevel (S n) subt.
+Proof.
+  intros subt.
+  apply isofhleveltotal2.
+  - assumption.
+  - intro.
+    apply isofhlevelsnprop.
+    apply propproperty.
 Defined.

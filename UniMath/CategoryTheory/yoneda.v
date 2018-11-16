@@ -268,7 +268,7 @@ Proof.
   clear XH2 XH'.
   assert (XH' := XH _ _ f).
   assert (XH2 := toforallpaths _ _ _ XH').
-  eapply pathscomp0. Focus 2. apply XH2.
+  eapply pathscomp0. 2: apply XH2.
   rewrite id_right.
   apply idpath.
 Qed.
@@ -312,7 +312,7 @@ Lemma isweq_yoneda_map_1 (C : precategory) (hs: has_homsets C) (c : C)
      (yoneda_map_1 C hs c F).
 Proof.
   set (T:=yoneda_map_2 C hs c F). simpl in T.
-  use gradth.
+  use isweq_iso.
   - apply T.
   - apply yoneda_map_1_2.
   - apply yoneda_map_2_1.
@@ -329,7 +329,7 @@ Definition yoneda_weq (C : precategory) (hs: has_homsets C) (c : C)
 Lemma yoneda_fully_faithful (C : precategory) (hs: has_homsets C) : fully_faithful (yoneda C hs).
 Proof.
   intros a b; simpl.
-  apply (gradth _
+  apply (isweq_iso _
       (yoneda_map_1 C hs a (pr1 (yoneda C hs) b))).
   - intro; simpl in *.
     apply id_left.

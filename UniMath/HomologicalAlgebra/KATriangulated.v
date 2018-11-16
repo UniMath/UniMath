@@ -55,7 +55,7 @@ Require Import UniMath.HomologicalAlgebra.MappingCone.
 Require Import UniMath.HomologicalAlgebra.KAPreTriangulated.
 
 Unset Kernel Term Sharing.
-Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommrngops ZeroArrow.
+Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommringops ZeroArrow.
 
 (** * K(A) as a triangulated category *)
 Section KATriangulated.
@@ -64,7 +64,7 @@ Section KATriangulated.
 
   Local Opaque ComplexHomotFunctor ComplexHomotSubset Quotcategory identity
         MappingConePr1 MappingConeIn2 RotMorphism RotMorphismInv InvRotMorphism InvRotMorphismInv
-        to_inv compose to_abgrop pathsinv0 pathscomp0 ishinh.
+        to_inv compose to_abgr pathsinv0 pathscomp0 ishinh.
 
   Definition KATriangOcta_TriIso {x y z : ob (@KAPreTriang A)} {f1 : x --> y} {g1 : y --> z}
              (f1' : hfiber # (ComplexHomotFunctor A) f1)

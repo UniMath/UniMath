@@ -54,7 +54,7 @@ Section def_monoid_precategory.
 
   Lemma is_precategory_monoid_precategory_data : is_precategory monoid_precategory_data.
   Proof.
-    use mk_is_precategory.
+   use mk_is_precategory_one_assoc.
     - intros a b f. use monoid_id_left.
     - intros a b f. use monoid_id_right.
     - intros a b c d f g h. use monoid_assoc.
@@ -78,7 +78,7 @@ Section def_monoid_category.
 
   Lemma monoid_iso_is_equiv (A B : ob monoid_precategory) (f : iso A B) : isweq (pr1 (pr1 f)).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (pr1monoidfun _ _ (inv_from_iso f)).
     - intros x.
       use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_inv_after_iso f)) x).
@@ -116,7 +116,7 @@ Section def_monoid_category.
 
   Lemma monoid_iso_equiv_is_equiv (X Y : monoid_precategory) : isweq (monoid_iso_equiv X Y).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (monoid_equiv_iso X Y).
     - intros x. use eq_iso. use monoidfun_paths. use idpath.
     - intros y. use monoidiso_paths. use subtypeEquality.
@@ -134,7 +134,7 @@ Section def_monoid_category.
 
   Lemma monoid_equiv_iso_is_equiv (X Y : ob monoid_precategory) : isweq (monoid_equiv_iso X Y).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (monoid_iso_equiv X Y).
     - intros y. use monoidiso_paths. use subtypeEquality.
       + intros x0. use isapropisweq.
@@ -143,7 +143,7 @@ Section def_monoid_category.
   Defined.
   Opaque monoid_equiv_iso_is_equiv.
 
-  Definition monoid_equiv_iso_weq (X Y : ob monoid_precategory) : (monoidiso X Y) ≃ (iso X Y).
+  Definition monoid_equiv_weq_iso (X Y : ob monoid_precategory) : (monoidiso X Y) ≃ (iso X Y).
   Proof.
     use weqpair.
     - exact (monoid_equiv_iso X Y).
@@ -158,8 +158,8 @@ Section def_monoid_category.
   Proof.
     use (@isweqhomot
            (X = Y) (iso X Y)
-           (pr1weq (weqcomp (monoid_univalence X Y) (monoid_equiv_iso_weq X Y)))
-           _ _ (weqproperty (weqcomp (monoid_univalence X Y) (monoid_equiv_iso_weq X Y)))).
+           (pr1weq (weqcomp (monoid_univalence X Y) (monoid_equiv_weq_iso X Y)))
+           _ _ (weqproperty (weqcomp (monoid_univalence X Y) (monoid_equiv_weq_iso X Y)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.

@@ -27,7 +27,8 @@ Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.categories.category_hset.
 Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.CocontFunctors.
+Require Import UniMath.CategoryTheory.Chains.Chains.
+Require Import UniMath.CategoryTheory.Chains.Adamek.
 Require Import UniMath.CategoryTheory.yoneda.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.whiskering.

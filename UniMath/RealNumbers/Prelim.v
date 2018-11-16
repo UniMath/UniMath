@@ -1,5 +1,6 @@
 (** * Additionals theorems and definitions *)
 
+Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Export UniMath.Topology.Prelim.
@@ -66,7 +67,7 @@ Lemma hqldistr :
   ∏ x y z, x * (y + z) = x * y + x * z.
 Proof.
   intros x y z.
-  now apply rngldistr.
+  now apply ringldistr.
 Qed.
 
 Lemma hqmult2r :

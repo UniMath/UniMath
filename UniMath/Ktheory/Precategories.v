@@ -13,7 +13,7 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Local Open Scope cat.
 
-Notation "a <-- b" := (@precategory_morphisms (opp_precat _) a b) (at level 50) : cat.
+Notation "a <-- b" := (@precategory_morphisms (opp_precat _) a b) : cat.
 
 Definition src {C:precategory} {a b:C} (f:a-->b) : C := a.
 Definition tar {C:precategory} {a b:C} (f:a-->b) : C := b.
@@ -150,10 +150,10 @@ Definition functor_mor_application {B C:category} {b b':B} (F:[B,C]) :
 Notation "F ▭ f" := (functor_mor_application F f) (at level 40, left associativity) : cat. (* \rew1 *)
 
 Definition arrow {C:category} (c : C) (X : [C^op,SET]) : hSet := X ◾ c.
-Notation "c ⇒ X" := (arrow c X)  (at level 50) : cat. (* \r= *)
+Notation "c ⇒ X" := (arrow c X) : cat. (* \r= *)
 
 Definition arrow' {C:category} (c : C) (X : [C^op^op,SET]) : hSet := X ◾ c.
-Notation "X ⇐ c" := (arrow' c X)  (at level 50) : cat. (* \l= *)
+Notation "X ⇐ c" := (arrow' c X) : cat. (* \l= *)
 
 Definition arrow_morphism_composition {C:category} {c' c:C} {X:[C^op,SET]} :
   c'-->c -> c⇒X -> c'⇒X
@@ -270,7 +270,7 @@ Lemma weq_iff_iso_SET {X Y:SET} (f:X-->Y) : is_iso f <-> isweq f.
 Proof.
   split.
   - intro i. set (F := isopair f i).
-    refine (gradth f (inv_from_iso F)
+    refine (isweq_iso f (inv_from_iso F)
                    (λ x, eqtohomot (iso_inv_after_iso F) x)
                    (λ y, eqtohomot (iso_after_iso_inv F) y)).
   - exact (λ i Z, weqproperty (weqbfun (Z:hSet) (weqpair f i))).
@@ -372,7 +372,7 @@ Proof.
   unshelve refine (_,,_).
   { unshelve refine (_,,_).
     { exact functorOp. }
-    { intros H H'. unshelve refine (gradth _ _ _ _).
+    { intros H H'. unshelve refine (isweq_iso _ _ _ _).
       { simpl. intros p. unshelve refine (makeNattrans _ _).
         { intros b. exact (pr1 p b). }
         { abstract (intros b b' f; simpl; exact (!nat_trans_ax p _ _ f)) using _L_. } }
@@ -382,7 +382,7 @@ Proof.
       { abstract (intro p; apply nat_trans_eq;
                   [ apply homset_property
                   | intro b; reflexivity ]) using _L_. }}}
-  { simpl. unshelve refine (gradth _ _ _ _).
+  { simpl. unshelve refine (isweq_iso _ _ _ _).
     { exact (functor_opp : B^op ⟶ C^op -> B ⟶ C). }
     { abstract (intros H; simpl; apply (functor_eq _ _ (homset_property C));
                 unshelve refine (total2_paths_f _ _); reflexivity) using _L_. }
@@ -434,18 +434,19 @@ Goal ∏ X Y (f:X->Y), f = λ x, f x.
 
 Definition categoryWithStructure (C:category) (P:ob C -> UU) : category.
 Proof.
-  unshelve refine (makecategory _ _ _ _ _ _ _ _).
+  use makecategory.
   (* add a new component to each object: *)
   - exact (∑ c:C, P c).
   (* the homsets ignore the extra structure: *)
   - intros x y. exact (pr1 x --> pr1 y).
   (* the rest is the same: *)
+  - intros. apply homset_property.
   - intros x. apply identity.
   - intros x y z f g. exact (g ∘ f).
-  - intros. simpl. refine (homset_property C _ _).
   - intros. apply id_left.
   - intros. apply id_right.
   - intros. apply assoc.
+  - intros. apply assoc'.
 Defined.
 
 Definition functorWithStructures {C:category} {P Q:ob C -> UU}

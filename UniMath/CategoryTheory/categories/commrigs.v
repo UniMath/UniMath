@@ -11,7 +11,7 @@ Require Import UniMath.Foundations.UnivalenceAxiom.
 
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids_and_Groups.
-Require Import UniMath.Algebra.Rigs_and_Rings.
+Require Import UniMath.Algebra.RigsAndRings.
 
 Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
@@ -53,7 +53,7 @@ Section def_commrig_precategory.
 
   Lemma is_precategory_commrig_precategory_data : is_precategory commrig_precategory_data.
   Proof.
-    use mk_is_precategory.
+    use mk_is_precategory_one_assoc.
     - intros a b f. use commrig_id_left.
     - intros a b f. use commrig_id_commright.
     - intros a b c d f g h. use commrig_assoc.
@@ -77,7 +77,7 @@ Section def_commrig_category.
 
   Lemma commrig_iso_is_equiv (A B : ob commrig_precategory) (f : iso A B) : isweq (pr1 (pr1 f)).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (pr1rigfun _ _ (inv_from_iso f)).
     - intros x.
       use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (iso_inv_after_iso f)) x).
@@ -118,7 +118,7 @@ Section def_commrig_category.
 
   Lemma commrig_iso_equiv_is_equiv (X Y : commrig_precategory) : isweq (commrig_iso_equiv X Y).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (commrig_equiv_iso X Y).
     - intros x. use eq_iso. use rigfun_paths. use idpath.
     - intros y. use rigiso_paths. use subtypeEquality.
@@ -137,7 +137,7 @@ Section def_commrig_category.
 
   Lemma commrig_equiv_iso_is_equiv (X Y : ob commrig_precategory) : isweq (commrig_equiv_iso X Y).
   Proof.
-    use gradth.
+    use isweq_iso.
     - exact (commrig_iso_equiv X Y).
     - intros y. use rigiso_paths. use subtypeEquality.
       + intros x0. use isapropisweq.
@@ -146,7 +146,7 @@ Section def_commrig_category.
   Defined.
   Opaque commrig_equiv_iso_is_equiv.
 
-  Definition commrig_equiv_iso_weq (X Y : ob commrig_precategory) :
+  Definition commrig_equiv_weq_iso (X Y : ob commrig_precategory) :
     (rigiso (X : commrig) (Y : commrig)) ≃ (iso X Y).
   Proof.
     use weqpair.
@@ -161,8 +161,8 @@ Section def_commrig_category.
   Proof.
     use (@isweqhomot
            (X = Y) (iso X Y)
-           (pr1weq (weqcomp (commrig_univalence X Y) (commrig_equiv_iso_weq X Y)))
-           _ _ (weqproperty (weqcomp (commrig_univalence X Y) (commrig_equiv_iso_weq X Y)))).
+           (pr1weq (weqcomp (commrig_univalence X Y) (commrig_equiv_weq_iso X Y)))
+           _ _ (weqproperty (weqcomp (commrig_univalence X Y) (commrig_equiv_weq_iso X Y)))).
     intros e. induction e.
     use (pathscomp0 weqcomp_to_funcomp_app).
     use total2_paths_f.

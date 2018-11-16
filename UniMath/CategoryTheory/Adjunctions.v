@@ -72,6 +72,16 @@ Definition form_adjunction {A B : precategory} (F : functor A B) (G : functor B 
              (eps : nat_trans (functor_composite G F) (functor_identity B)) : UU :=
   form_adjunction' (F,,G,,eta,,eps).
 
+Lemma isaprop_form_adjunction {A B : category} (F : functor A B) (G : functor B A)
+             (eta : nat_trans (functor_identity A) (functor_composite F G))
+             (eps : nat_trans (functor_composite G F) (functor_identity B))
+      : isaprop (form_adjunction F G eta eps).
+Proof.
+  apply isapropdirprod; apply impred_isaprop; intro.
+  - apply B.
+  - apply A.
+Defined.
+
 Definition mk_form_adjunction {A B : precategory} {F : functor A B} {G : functor B A}
            {eta : nat_trans (functor_identity A) (functor_composite F G)}
            {eps : nat_trans (functor_composite G F) (functor_identity B)}
@@ -341,7 +351,7 @@ Defined.
 Local Definition counit :  nat_trans (functor_composite G F) (functor_identity A).
 Proof.
   use tpair.
-  * apply eps.
+  * red. apply eps.
   * abstract (intros a b f; simpl; apply (pathsinv0 (pr2 (pr1 (Huniv b (G0 a) (eps a · f)))))).
 Defined.
 
@@ -444,7 +454,7 @@ Defined.
 Local Definition unit_left_from_partial : functor_identity X ⟹ functor_composite F G.
 Proof.
   use tpair.
-  * apply eta.
+  * red. apply eta.
   * abstract (intros a b f; simpl; apply (pathsinv0 (pr2 (pr1 (Huniv _ _  (f · eta _ )))))).
 Defined.
 
@@ -502,7 +512,7 @@ Proof.
   use tpair.
   - split.
     + use mk_nat_trans.
-      * simpl; intros F'.
+      * simpl; intros F'. simpl in F'.
         apply (nat_trans_comp _ _ _
                               (nat_trans_comp _ _ _ (nat_trans_functor_id_right_inv F')
                                               (pre_whisker F' η))
@@ -510,7 +520,7 @@ Proof.
       * abstract (intros F1 F2 α; apply (nat_trans_eq hsD); intro c; simpl in *;
                     now rewrite !id_right, !id_left; apply (nat_trans_ax η (F1 c) _ (α c))).
     + use mk_nat_trans.
-      * simpl; intros F'.
+      * simpl; intros F'. simpl in F'.
         apply (nat_trans_comp _ _ _
                               (nat_trans_functor_assoc _ _ _)
                               (nat_trans_comp _ _ _ (pre_whisker F' ε)
@@ -581,7 +591,7 @@ Section HomSetIso_from_Adjunction.
   Definition adjunction_hom_weq (A : C) (B : D) : F A --> B ≃ A --> G B.
   Proof.
     exists φ_adj.
-    apply (gradth _ φ_adj_inv).
+    apply (isweq_iso _ φ_adj_inv).
     - apply φ_adj_inv_after_φ_adj.
     - apply φ_adj_after_φ_adj_inv.
   Defined.
@@ -608,6 +618,18 @@ Section HomSetIso_from_Adjunction.
     apply (functor_comp G).
   Qed.
 
+  Corollary φ_adj_natural_prepostcomp (A X : C) (B Y : D) (f : F A --> B) (h : X --> A) (k : B --> Y)
+    : φ_adj (#F h · f · k) = h · φ_adj f · #G k.
+  Proof.
+    etrans.
+    rewrite <- assoc.
+    apply φ_adj_natural_precomp.
+    rewrite <- assoc.
+    apply maponpaths.
+    apply φ_adj_natural_postcomp.
+  Qed.
+
+
   Lemma φ_adj_inv_natural_precomp (A : C) (B : D) (g : A --> G B) (X : C) (h : X --> A)
     : φ_adj_inv (h · g) = #F h · φ_adj_inv g.
   Proof.
@@ -627,4 +649,185 @@ Section HomSetIso_from_Adjunction.
     apply assoc.
   Qed.
 
+  Corollary φ_adj_inv_natural_prepostcomp (A X : C) (B Y : D) (g : A --> G B) (h : X --> A) (k : B --> Y)
+    : φ_adj_inv (h · g · #G k) = #F h · φ_adj_inv g · k.
+  Proof.
+    etrans.
+    apply φ_adj_inv_natural_postcomp.
+    apply cancel_postcomposition.
+    apply φ_adj_inv_natural_precomp.
+  Qed.
+
+
 End HomSetIso_from_Adjunction.
+
+(** * Adjunction defined from a natural isomorphism on homsets (F A --> B) ≃ (A --> G B) *)
+
+Definition natural_hom_weq {C D : precategory} (F : functor C D) (G : functor D C) : UU
+  := ∑ (hom_weq :  ∏ {A : C} {B : D}, F A --> B ≃ A --> G B),
+       (∏ (A : C) (B : D) (f : F A --> B) (X : C) (h : X --> A),
+        hom_weq (#F h · f) = h · hom_weq f) ×
+       (∏ (A : C) (B : D) (f : F A --> B) (Y : D) (k : B --> Y),
+        hom_weq (f · k) = hom_weq f · #G k).
+
+Definition hom_weq {C D : precategory} {F : functor C D} {G : functor D C}
+           (H : natural_hom_weq F G) : ∏ {A : C} {B : D}, F A --> B ≃ A --> G B := pr1 H.
+
+Definition hom_natural_precomp {C D : precategory} {F : functor C D} {G : functor D C}
+           (H : natural_hom_weq F G) : ∏ (A : C) (B : D) (f : F A --> B) (X : C) (h : X --> A),
+                       hom_weq H (#F h · f) = h · hom_weq H f := pr1 (pr2 H).
+
+Definition hom_natural_postcomp {C D : precategory} {F : functor C D} { G : functor D C}
+           (H : natural_hom_weq F G) : ∏ (A : C) (B : D) (f : F A --> B) (Y : D) (k : B --> Y),
+                       hom_weq H (f · k) = hom_weq H f · #G k := pr2 (pr2 H).
+
+Section Adjunction_from_HomSetIso.
+
+  Context {C D : precategory} {F : functor C D} {G : functor D C}
+          (H : natural_hom_weq F G).
+
+  Local Definition hom_inv : ∏ {A : C} {B : D}, A --> G B → F A --> B
+    := λ A B, invmap (hom_weq H).
+
+  Definition inv_natural_precomp {A : C} {B : D} (g : A --> G B) {X : C} (h : X --> A)
+    : hom_inv (h · g) = #F h · hom_inv g.
+  Proof.
+    apply pathsinv0, pathsweq1.
+    rewrite hom_natural_precomp.
+    apply cancel_precomposition.
+    apply homotweqinvweq.
+  Defined.
+
+  Definition inv_natural_postcomp {A : C} {B : D} (g : A --> G B) {Y : D} (k : B --> Y)
+    : hom_inv (g · #G k) = hom_inv g · k.
+  Proof.
+    apply pathsinv0, pathsweq1.
+    rewrite hom_natural_postcomp.
+    apply cancel_postcomposition.
+    apply homotweqinvweq.
+  Defined.
+
+  Definition unit_from_hom : nat_trans (functor_identity C) (F ∙ G).
+  Proof.
+    use mk_nat_trans.
+    - exact (λ A, (hom_weq H (identity (F A)))).
+    - intros A A' h. cbn.
+      rewrite <- hom_natural_precomp.
+      rewrite <- hom_natural_postcomp.
+      apply maponpaths.
+      rewrite id_left.
+      apply id_right.
+  Defined.
+
+  Definition counit_from_hom : nat_trans (G ∙ F) (functor_identity D).
+  Proof.
+    use mk_nat_trans.
+    - exact (λ B, hom_inv (identity (G B))).
+    - intros B B' k. cbn.
+      rewrite <- inv_natural_postcomp.
+      rewrite <- inv_natural_precomp.
+      apply maponpaths.
+      rewrite id_left.
+      apply id_right.
+  Defined.
+
+  Definition adj_from_nathomweq : are_adjoints F G.
+  Proof.
+    apply (mk_are_adjoints F G unit_from_hom counit_from_hom).
+    apply dirprodpair.
+    - intro a. cbn.
+      rewrite <- inv_natural_precomp.
+      rewrite id_right.
+      apply homotinvweqweq.
+    - intro b. cbn.
+      rewrite <- hom_natural_postcomp.
+      rewrite id_left.
+      apply homotweqinvweq.
+  Defined.
+
+End Adjunction_from_HomSetIso.
+
+
+(** * Weak equivalence between adjunctions F -| G and natural weqs of homsets (F A --> B) ≃ (A --> G B) *)
+
+Section Adjunction_HomSetIso_weq.
+
+  Context {C D : category} {F : functor C D} {G : functor D C}.
+
+  Definition nathomweq_from_adj : (are_adjoints F G) → (natural_hom_weq F G)
+    := λ H, (adjunction_hom_weq H,, (φ_adj_natural_precomp H,, φ_adj_natural_postcomp H)).
+
+  Lemma adj_after_nathomweq (H : are_adjoints F G)
+    : adj_from_nathomweq (nathomweq_from_adj H) = H.
+  Proof.
+    apply subtypeEquality'.
+    - apply dirprod_paths; cbn.
+      + apply (nat_trans_eq (homset_property C)).
+        intro c. cbn.
+        unfold φ_adj, unit_from_are_adjoints.
+        rewrite functor_id.
+        apply id_right.
+      + apply (nat_trans_eq (homset_property D)).
+        intro d. cbn.
+        unfold φ_adj_inv, counit_from_are_adjoints.
+        rewrite functor_id.
+        apply id_left.
+    - apply isaprop_form_adjunction.
+  Defined.
+
+  Lemma nathomweq_after_adj (H : natural_hom_weq F G)
+    : nathomweq_from_adj (adj_from_nathomweq H) = H.
+  Proof.
+    apply subtypeEquality'.
+    - cbn.
+      unfold adjunction_hom_weq.
+      do 2 (apply funextsec; intro).
+      apply subtypeEquality'.
+      + cbn.
+        unfold φ_adj, adj_from_nathomweq. cbn.
+        apply funextsec.
+        intro f.
+        rewrite <- hom_natural_postcomp.
+        apply maponpaths.
+        apply id_left.
+      + apply isapropisweq.
+    - apply isapropdirprod.
+      + do 5 (apply impred_isaprop; intro).
+        apply C.
+      + do 5 (apply impred_isaprop; intro).
+        apply C.
+  Defined.
+
+  Lemma adjunction_homsetiso_weq : (are_adjoints F G) ≃ (natural_hom_weq F G).
+  Proof.
+    exists nathomweq_from_adj.
+    apply (isweq_iso _ adj_from_nathomweq).
+    - apply adj_after_nathomweq.
+    - apply nathomweq_after_adj.
+  Defined.
+
+End Adjunction_HomSetIso_weq.
+
+Section RelativeAdjunction_by_natural_hom_weq.
+
+(** this definition is according to Altenkirch, Chapman and Uustalu
+Reference: % \cite{DBLP:journals/corr/AltenkirchCU14} \par %
+*)
+
+Definition are_relative_adjoints {I: precategory_data} {C D: precategory_data}
+  (J: functor_data I C) (L: functor_data I D) (R: functor_data D C) : UU
+  :=  ∑ (hom_weq :  ∏ {X : I} {Y : D}, L X --> Y ≃ J X --> R Y),
+       (∏ (Y : I) (Z : D) (f : L Y --> Z) (X : I) (h : X --> Y),
+        hom_weq (#L h · f) = #J h · hom_weq f) ×
+       (∏ (X : I) (Y : D) (f : L X --> Y) (Z : D) (k : Y --> Z),
+        hom_weq (f · k) = hom_weq f · #R k).
+
+(** the notion is a proper generalization of one of the criteria for being an adjunction *)
+Lemma natural_hom_weq_is_are_relative_adjoints {C D: precategory}
+      (L: functor C D) (R: functor  D C):
+   are_relative_adjoints (functor_identity C) L R = natural_hom_weq L R.
+Proof.
+  apply idpath.
+Qed.
+
+End RelativeAdjunction_by_natural_hom_weq.

@@ -1,3 +1,4 @@
+Require Import UniMath.Foundations.Preamble.
 Require Import
         UniMath.CategoryTheory.Categories
         UniMath.CategoryTheory.opp_precat
@@ -91,7 +92,7 @@ Definition universalElement {C:category} {X:[C^op,SET]} (r:Representation X) :
 Coercion universalElement : Representation >-> pr1hSet.
 
 Definition universalProperty {C:category} {X:[C^op,SET]} (r:Representation X) (c:C) :
-  c --> universalObject r ≃ c ⇒ X
+  c --> universalObject r ≃ (c ⇒ X)
   := weqpair (λ f : c --> universalObject r, r ⟲ f)
              (pr2 (pr2 r) c).
 
@@ -863,7 +864,7 @@ Proof.
   { unshelve refine (makeNatiso _ _).
     { intros F. apply hset_equiv_iso.
       unfold bifunctor_assoc; simpl.
-      unshelve refine (weqgradth _ _ _ _).
+      unshelve refine (weq_iso _ _ _ _).
       - intros _. exact tt.
       - intros x. unshelve refine (_,,_).
         + unfold θ_1; simpl. intro b. exact tt.
@@ -910,7 +911,7 @@ Proof.
   set (ISO := @iso).
   unshelve refine (makeNatiso (C := [B, C]^op) _ _).
   { intro H. apply hset_equiv_iso.
-    unshelve refine (weqgradth _ _ _ _).
+    unshelve refine (weq_iso _ _ _ _).
     { intros w.
       unshelve refine (_,,_).
       { unshelve refine (makeNattrans _ _).

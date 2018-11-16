@@ -37,7 +37,7 @@ Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-Require Import UniMath.CategoryTheory.CocontFunctors.
+Require Import UniMath.CategoryTheory.Chains.All.
 Require Import UniMath.CategoryTheory.Presheaf.
 Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration_alt.
@@ -329,7 +329,7 @@ Proof.
 Defined.
 
 
-Let is_omega_cocont_Id_H' := LiftingInitial_alt .is_omega_cocont_Id_H C hs CP H HH.
+Let is_omega_cocont_Id_H' := LiftingInitial_alt.is_omega_cocont_Id_H C hs CP H HH.
 
 Local Notation j_mor := ((mor_from_algebra_mor _ _ _ j):nat_trans _ _).
 
@@ -368,7 +368,7 @@ Let X := (M:functor _ _).
 (* inspired by LiftingInitial_alt *)
 Local Lemma HL : is_omega_cocont L.
 Proof.
-  apply CocontFunctors.is_omega_cocont_pre_composition_functor, CC.
+  apply OmegaCocontFunctors.is_omega_cocont_pre_composition_functor, CC.
 Defined.
 
 Let isInitial_precomp' : isInitial [C, C, hs] (L InitialEndC) :=

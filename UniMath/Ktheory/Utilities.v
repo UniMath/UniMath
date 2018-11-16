@@ -116,9 +116,6 @@ Proof. intros ? [Q i] f h. refine (h _ _). assumption. Defined.
 Lemma funspace_isaset {X Y} : isaset Y -> isaset (X -> Y).
 Proof. intros ? ? is. apply (impredfun 2). assumption. Defined.
 
-Lemma iscontr_if_inhab_prop {P} : isaprop P -> P -> iscontr P.
-Proof. intros ? i p. exists p. intros p'. apply i. Defined.
-
 Lemma squash_map_uniqueness {X S} (ip : isaset S) (g g' : ∥ X ∥ -> S) :
   g ∘ squash_element ~ g' ∘ squash_element -> g ~ g'.
 Proof.
@@ -324,7 +321,7 @@ Definition transportf_pathsinv0' {X} (P:X->UU) {x y:X} (p:x = y) (u:P x) (v:P y)
 Proof. intros ? ? ? ? ? ? ? e. induction p, e. reflexivity. Defined.
 
 Lemma transport_idfun {X} (P:X->UU) {x y:X} (p:x = y) (u:P x) :
-  transportf P p u = transportf (idfun _) (ap P p) u.
+  transportf P p u = transportf (idfun UU) (ap P p) u.
 (* same as HoTT.PathGroupoids.transport_idmap_ap *)
 Proof. intros. induction p. reflexivity. Defined.
 
@@ -471,11 +468,11 @@ Definition eqweqmap_ap' {T} (P:T->Type) {t t':T} (e:t = t') (f:∏ t:T, P t) :
   invmap (eqweqmap (ap P e)) (f t') = f t. (* move near eqweqmap *)
 Proof. intros. induction e. reflexivity. Defined.
 
-Definition weqpath_transport {X Y} (w:X ≃ Y) (x:X) :
-  transportf (λ T, T) (weqtopaths w) = pr1 w.
+Definition weqpath_transport {X Y} (w : X ≃ Y) :
+  transportf (idfun UU) (weqtopaths w) = pr1 w.
 Proof. intros. exact (!pr1_eqweqmap2 _ @ ap pr1 (weqpathsweq w)). Defined.
 
-Definition weqpath_cast {X Y} (w:X ≃ Y) (x:X) : cast (weqtopaths w) = w.
+Definition weqpath_cast {X Y} (w : X ≃ Y) : cast (weqtopaths w) = w.
 Proof. intros. exact (pr1_eqweqmap _ @ ap pr1 (weqpathsweq w)). Defined.
 
 Definition switch_weq {X Y} (f:X ≃ Y) {x y} : y = f x -> invweq f y = x.
@@ -512,7 +509,7 @@ Proof. intros. simple refine (weqbandf _ _ _ _).
 
 Definition weq_total2_prod {X Y} (Z:Y->Type) : (∑ y, X × Z y) ≃ (X × ∑ y, Z y).
 Proof.                          (* move upstream *)
-       intros. simple refine (weqpair _ (gradth _ _ _ _)).
+       intros. simple refine (weqpair _ (isweq_iso _ _ _ _)).
        { intros [y [x z]]. exact (x,,y,,z). }
        { intros [x [y z]]. exact (y,,x,,z). }
        { intros [y [x z]]. reflexivity. }
@@ -521,7 +518,7 @@ Proof.                          (* move upstream *)
 (* associativity of ∑ *)
 Definition totalAssociativity {X:UU} {Y: ∏ (x:X), UU} (Z: ∏ (x:X) (y:Y x), UU) : (∑ (x:X) (y:Y x), Z x y) ≃ (∑ (p:∑ (x:X), Y x), Z (pr1 p) (pr2 p)).
 Proof.                          (* move upstream *)
-  intros. simple refine (_,,gradth _ _ _ _).
+  intros. simple refine (_,,isweq_iso _ _ _ _).
   { intros [x [y z]]. exact ((x,,y),,z). }
   { intros [[x y] z]. exact (x,,(y,,z)). }
   { intros [x [y z]]. reflexivity. }
@@ -535,7 +532,7 @@ Definition pointedType X x := X,,x : PointedType.
 
 Definition underlyingType (X:PointedType) := pr1 X.
 
-Coercion underlyingType : PointedType >-> Sortclass.
+Coercion underlyingType : PointedType >-> UU.
 
 Definition basepoint (X:PointedType) := pr2 X.
 

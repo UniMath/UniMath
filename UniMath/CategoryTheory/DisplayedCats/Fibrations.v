@@ -170,6 +170,23 @@ Definition cartesian_lift_is_cartesian {C : category} {D : disp_cat C}
 := pr2 (pr2 fd).
 Coercion cartesian_lift_is_cartesian : cartesian_lift >-> is_cartesian.
 
+Definition is_cartesian_disp_functor
+  {C C' : category} {F : functor C C'}
+  {D : disp_cat C} {D' : disp_cat C'} (FF : disp_functor F D D') : UU
+:= ∏  (c c' : C) (f : c' --> c)
+      (d : D c) (d' : D c') (ff : d' -->[f] d),
+   is_cartesian ff -> is_cartesian (#FF ff).
+
+Lemma isaprop_is_cartesian
+    {C : category} {D : disp_cat C}
+    {c c' : C} {f : c' --> c}
+    {d : D c} {d' : D c'} (ff : d' -->[f] d)
+  : isaprop (is_cartesian ff).
+Proof.
+  repeat (apply impred_isaprop; intro).
+  apply isapropiscontr.
+Defined.
+
 (* TODO: should the arguments be re-ordered as in [cartesian_lift]? If so, reorder in [isofibration] etc as well, for consistency. *)
 (* TODO: consider renaming to e.g. [cleaving] to follow convention that [is_] is reserved for hprops. *)
 Definition cleaving {C : category} (D : disp_cat C) : UU
@@ -636,7 +653,7 @@ Proof.
   use tpair.
   - intro F.
     cbn. use tpair.
-    + cbn. intro c; apply idfun.
+    + red. cbn. intro c; apply idfun.
     + intros c c' f. cbn in *. apply idpath.
   - abstract (
         intros F G a;

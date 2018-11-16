@@ -2,7 +2,9 @@
 (** Author: Catherine LELAY. Jan 2016 - *)
 (** Based on Bourbaky *)
 
+Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.PartA.
 Require Export UniMath.Topology.Filters.
 Require Import UniMath.Algebra.DivisionRig.
 Require Import UniMath.Algebra.ConstructiveStructures.
@@ -245,9 +247,9 @@ Proof.
   apply hinhpr.
   exists ((λ _ : T, htrue),,isOpen_htrue).
   split.
-  easy.
-  intros y _.
-  now apply H.
+  - reflexivity.
+  - intros y _.
+    now apply H.
 Qed.
 Lemma neighborhood_and :
   ∏ (x : T) (A B : T → hProp),
@@ -347,7 +349,7 @@ Proof.
   apply hinhpr.
   exists (P,,(pr1 Hp)) ; split.
   exact (pr2 Hp).
-  easy.
+  intros. assumption.
 Qed.
 Lemma base_default_2 :
   ∏ P : T → hProp, neighborhood x P → ∃ Q : T → hProp, base_default Q × (∏ t : T, Q t → P t).
@@ -624,7 +626,7 @@ Proof.
     repeat split.
     exact (pr1 (pr2 L)).
     exact (pr1 (pr2 (pr2 L))).
-    easy.
+    intros. assumption.
   - intros y Hy.
     apply hinhpr.
     exists (pr1 L).
@@ -928,7 +930,8 @@ Proof.
     exists (pr1 B).
     split.
     exact (pr1 (pr2 B)).
-    easy.
+    intros.
+    assumption.
   - intros y By.
     apply hinhpr.
     exists (pr1 B).
@@ -1198,10 +1201,11 @@ Proof.
       exact Oxy.
       exact (pr2 (pr1 O)).
       exact isOpen_htrue.
-      easy.
+      intros.
+      assumption.
     + repeat split.
       * exact (pr1 (pr2 O)).
-      * easy.
+      * intros. assumption.
 Qed.
 Lemma continuous_pr2 {U V : TopologicalSet} :
   continuous (U := TopologyDirprod U V) (λ (xy : U × V), pr2 xy).
@@ -1223,10 +1227,10 @@ Proof.
       exact isOpen_htrue.
       exact Oxy.
       exact (pr2 (pr1 O)).
-      easy.
+      intros. assumption.
     + repeat split.
       * exact (pr1 (pr2 O)).
-      * easy.
+      * intros. assumption.
 Qed.
 
 (** ** Topology in algebraic structures *)
@@ -1250,11 +1254,11 @@ Definition isTopological_rig (X : rig) (is : isTopologicalSet X) :=
 Definition Topological_rig :=
   ∑ (X : rig) is, isTopological_rig X is.
 
-Definition isTopological_rng (X : rng) (is : isTopologicalSet X) :=
-  isTopological_gr (rngaddabgr X) is
+Definition isTopological_ring (X : ring) (is : isTopologicalSet X) :=
+  isTopological_gr (ringaddabgr X) is
   × isTopological_monoid (rigmultmonoid X) is.
-Definition Topological_rng :=
-  ∑ (X : rng) is, isTopological_rng X is.
+Definition Topological_ring :=
+  ∑ (X : ring) is, isTopological_ring X is.
 
 Definition isTopological_DivRig (X : DivRig) (is : isTopologicalSet X) :=
   isTopological_rig (pr1 X) is
@@ -1265,10 +1269,10 @@ Definition Topological_DivRig :=
   ∑ (X : DivRig) is, isTopological_DivRig X is.
 
 Definition isTopological_fld (X : fld) (is : isTopologicalSet X) :=
-  isTopological_rng (pr1 X) is
+  isTopological_ring (pr1 X) is
   × continuous_on (U := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is))
                   (V := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is))
-                  (λ x : X, hProppair (x != 0%rng) (isapropneg _))
+                  (λ x : X, hProppair (x != 0%ring) (isapropneg _))
                   fldmultinv.
 Definition Topological_fld :=
   ∑ (X : fld) is, isTopological_fld X is.
@@ -1282,7 +1286,7 @@ Definition Topological_ConstructiveDivisionRig :=
   ∑ (X : ConstructiveDivisionRig) is, isTopological_ConstructiveDivisionRig X is.
 
 Definition isTopological_ConstructiveField (X : ConstructiveField) (is : isTopologicalSet X) :=
-  isTopological_rng (pr1 X) is
+  isTopological_ring (pr1 X) is
   × continuous_on (U := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is))
                   (V := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is))
                   (λ x : X, (x ≠ 0)%CF) CFinv.

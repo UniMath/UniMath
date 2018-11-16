@@ -19,6 +19,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.Notations.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -34,19 +35,16 @@ Definition opp_precat_data (C : precategory_data) : precategory_data :=
   tpair _ _ (tpair _ (λ c : opp_precat_ob_mor C, identity c)
                      (λ (a b c : opp_precat_ob_mor C) f g, g · f)).
 
-Lemma is_precat_opp_precat_data (C : precategory) : is_precategory (opp_precat_data C).
-Proof.
-repeat split; intros; unfold compose; simpl.
-- apply id_right.
-- apply id_left.
-- apply pathsinv0.              (* this prevents C^op^op and C being the same, judgmentally *)
-  apply assoc.
-Qed.
+Definition is_precat_opp_precat_data (C : precategory) : is_precategory (opp_precat_data C)
+  := ((λ a b, pr212 C b a),,(λ a b, pr112 C b a)),,
+     ((λ a b c d f g h, pr222 C d c b a h g f),,(λ a b c d f g h, pr122 C d c b a h g f)).
 
 Definition opp_precat (C : precategory) : precategory :=
   tpair _ (opp_precat_data C) (is_precat_opp_precat_data C).
 
 Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op") : cat.
+
+Goal ∏ C:precategory, C^op^op = C. reflexivity. Qed.
 
 Definition opp_ob {C : precategory} (c : ob C) : ob C^op := c.
 
@@ -77,8 +75,6 @@ Defined.
 
 Lemma opp_opp_precat (C : precategory) (hs : has_homsets C) : C = C^op^op.
 Proof.
-
-
   use total2_paths_f.
   - apply opp_opp_precat_data.
   - apply (isaprop_is_precategory _ hs).
@@ -119,7 +115,7 @@ Proof.
   - exact (opp_is_inverse_in_precat (is_inverse_in_precat_inv H)).
 Defined.
 
-Definition opp_z_iso {C : precategory} {a b : C} (f : a --> b) : @z_iso C a b -> @z_iso C^op b a.
+Definition opp_z_iso {C : precategory} {a b : C} : @z_iso C a b -> @z_iso C^op b a.
 Proof.
   intros H.
   use mk_z_iso.
@@ -131,6 +127,7 @@ Defined.
 Lemma has_homsets_opp {C : precategory} (hsC : has_homsets C) : has_homsets C^op.
 Proof. intros a b; apply hsC. Qed.
 
+Definition op_cat (c : category) : category := (opp_precat c,, has_homsets_opp (homset_property c) ).
 
 (** * The opposite functor *)
 
@@ -242,3 +239,14 @@ Qed.
 Definition functor_from_opp_opp_to_opp (A C : precategory) (hsC : has_homsets C) :
   functor [A^op, C^op, has_homsets_opp hsC] [A, C, hsC]^op :=
     tpair _ _ (is_functor_from_opp_opp_to_opp A C hsC).
+
+
+Definition op_nt {c d : category} {f g : functor c d} (a : nat_trans f g)
+  : nat_trans (functor_opp g) (functor_opp f).
+Proof.
+  use tpair.
+  - exact (λ c, a c).
+  - abstract
+      (intros x y h;
+       apply (! (nat_trans_ax a _ _ _ ))).
+Defined.

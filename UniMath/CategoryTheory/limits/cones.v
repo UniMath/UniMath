@@ -164,7 +164,11 @@ Proof.
   intros;
   apply Cone_Mor_eq;
   simpl; apply assoc.
-Qed.
+
+  intros;
+  apply Cone_Mor_eq;
+  simpl; apply assoc'.
+Defined.
 
 Definition CONE : precategory := tpair _ _ is_precategory_Cone.
 
@@ -320,7 +324,7 @@ Lemma is_univalent_CONE : is_univalent CONE.
 Proof.
   split.
   - intros a b.
-    apply (gradth _  (@isotoid_CONE a b)).
+    apply (isweq_iso _  (@isotoid_CONE a b)).
     apply isotoid_CONE_idtoiso.
     apply idtoiso_isotoid_CONE.
   - intros x y. apply isaset_Cone_Mor.

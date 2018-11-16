@@ -22,7 +22,7 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.slicecat.
 Require Import UniMath.CategoryTheory.Monics.
-Require Import UniMath.CategoryTheory.sub_precategories.
+Require Import UniMath.CategoryTheory.Subcategory.Core.
 Require Import UniMath.CategoryTheory.categories.category_hset.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 
@@ -162,7 +162,7 @@ simpl in *. (* This is slow *)
 apply (iscompsetquotpr (iso_eqrel (Subobjectscategory hsC c))).
 generalize h1; clear h1; apply hinhuniv; intros [h1 Hh1].
 generalize h2; clear h2; apply hinhuniv; intros [h2 Hh2].
-apply hinhpr, (invmap (iso_weq _ (subprecategory_of_monics_ob C hsC c) _ _)).
+apply hinhpr, (invmap (weq_iso _ (subprecategory_of_monics_ob C hsC c) _ _)).
 induction x as [[x []] [fx Hfx]].
 induction y as [[y []] [fy Hfy]].
 simpl in *.

@@ -17,7 +17,7 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.categories.category_hset.
 Require Import UniMath.CategoryTheory.categories.category_hset_structures.
-Require Import UniMath.CategoryTheory.CocontFunctors.
+Require Import UniMath.CategoryTheory.Chains.All.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.initial.
@@ -65,7 +65,7 @@ Proof.
 apply (BinProducts_functor_precat _ _ BinProductsHSET).
 Defined.
 
-Local Notation "x ⊗ y" := (BinProductObject _ (BinProductsHSET2 x y)) (at level 10).
+Local Notation "x ⊗ y" := (BinProductObject _ (BinProductsHSET2 x y)).
 Let precomp_option X := (pre_composition_functor _ _ HSET has_homsets_HSET has_homsets_HSET
                           (option_functor BinCoproductsHSET TerminalHSET) X).
 Local Notation "X + 1" := (precomp_option X) (at level 50).

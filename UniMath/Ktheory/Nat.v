@@ -20,7 +20,7 @@ Module Uniqueness.
         (f:∏ n, P n) :
     weq (∏ n, f n = nat_rect P p0 IH n)
         (f 0=p0 × ∏ n, f(S n)=IH n (f n)).
-  Proof. intros. simple refine (_,,gradth _ _ _ _).
+  Proof. intros. simple refine (_,,isweq_iso _ _ _ _).
          { intros h. split.
            { exact (h 0). } { intros. exact (h (S n) @ ap (IH n) (! h n)). } }
          { intros [h0 h'] ?. induction n as [|n' IHn'].
@@ -60,7 +60,7 @@ Module Uniqueness.
            (P 0)
            (λ fh, pr1 fh 0)
            p0).
-  Proof. intros. simple refine (weqpair _ (gradth _ _ _ _)).
+  Proof. intros. simple refine (weqpair _ (isweq_iso _ _ _ _)).
          { intros [f [h0 h']]. exact ((f,,h'),,h0). }
          { intros [[f h'] h0]. exact (f,,(h0,,h')). }
          { intros [f [h0 h']]. reflexivity. }
@@ -112,7 +112,7 @@ Module Discern.
   Proof. intros m. induction m as [|m IHm]. { reflexivity. } { simpl. apply IHm. } Defined.
 
   Lemma nat_discern_iscontr m : iscontr (nat_discern m m).
-  Proof. intros m. apply iscontr_if_inhab_prop.
+  Proof. intros m. apply iscontraprop1.
          { apply nat_discern_isaprop. }
          { induction m as [|m IHm]. { exact tt. } { simpl. exact IHm. } } Defined.
 
@@ -147,7 +147,7 @@ Module Discern.
   Proof. intros. apply proofirrelevance. apply nat_discern_isaprop. Defined.
 
   Definition helper_D m n : isweq (helper_B m n).
-  Proof. intros. simple refine (gradth _ (helper_C _ _) _ _).
+  Proof. intros. simple refine (isweq_iso _ (helper_C _ _) _ _).
          { intro e. assert(p := ! helper_B _ _ e). destruct p.
            apply proofirrelevancecontr. apply nat_discern_iscontr. }
          { intro e. destruct e. induction m as [|m IHm].
