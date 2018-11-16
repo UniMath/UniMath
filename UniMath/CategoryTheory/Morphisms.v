@@ -7,6 +7,8 @@
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
+Require Import UniMath.MoreFoundations.Notations.
+Require Import UniMath.CategoryTheory.functor_categories.
 
 Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
@@ -106,8 +108,64 @@ Section def_morphismpair.
     MPMorComms MPM := pr2 MPM.
   Coercion MPMor_MPMorComms : MPMor >-> MPMorComms.
 
+  Lemma reverseCommIsoSquare {M : precategory} {P Q P' Q':M} (f:P'-->P) (g:Q'-->Q) (i:z_iso P' Q') (j:z_iso P Q) :
+    i · g = f · j -> z_iso_inv i · f = g · z_iso_inv j.
+  Proof.
+    intros l.
+    refine (! id_right _ @ _).
+    refine (maponpaths _ (! is_inverse_in_precat1 (z_iso_is_inverse_in_precat j)) @ _).
+    refine (! assoc (z_iso_inv i) _ _ @ _).
+    refine (maponpaths _ (assoc f _ _) @ _).
+    refine (maponpaths (precomp_with (z_iso_inv i)) (maponpaths (postcomp_with (z_iso_inv_mor j)) (!l)) @ _);
+      unfold precomp_with, postcomp_with.
+    refine (maponpaths _ (! assoc _ _ _) @ _).
+    refine (assoc _ _ _ @ _).
+    refine (maponpaths (postcomp_with (g · z_iso_inv_mor j)) (is_inverse_in_precat2 (z_iso_is_inverse_in_precat i)) @ _);
+      unfold postcomp_with.
+    exact (id_left _).
+  Qed.
+  Lemma reverseCommIsoSquare' {M : precategory} {P Q P' Q':M} (f:P'-->P) (g:Q'-->Q) (i:z_iso P' Q') (j:z_iso P Q) :
+    f · j = i · g -> g · z_iso_inv j = z_iso_inv i · f.
+  Proof.
+    intros l. refine (! _). apply reverseCommIsoSquare. refine (! _). exact l.
+  Qed.
+  Definition MorphismPairMap (P Q : MorphismPair) :=
+    ∑ (f : Ob1 P --> Ob1 Q) (g : Ob2 P --> Ob2 Q) (h : Ob3 P --> Ob3 Q),
+    f · Mor1 Q = Mor1 P · g  ×  g · Mor2 Q = Mor2 P · h.
+  Definition Map1 {P Q : MorphismPair} (f : MorphismPairMap P Q) : Ob1 P --> Ob1 Q := pr1 f.
+  Definition Map2 {P Q : MorphismPair} (f : MorphismPairMap P Q) : Ob2 P --> Ob2 Q := pr1 (pr2 f).
+  Definition Map3 {P Q : MorphismPair} (f : MorphismPairMap P Q) : Ob3 P --> Ob3 Q := pr1 (pr2 (pr2 f)).
+  Definition MorphismPairIsomorphism (P Q : MorphismPair) :=
+    ∑ (f : z_iso (Ob1 P) (Ob1 Q)) (g : z_iso (Ob2 P) (Ob2 Q)) (h : z_iso (Ob3 P) (Ob3 Q)),
+    ( f · Mor1 Q = Mor1 P · g
+      ×
+      Mor1 P · g = f · Mor1 Q )
+    ×
+    ( g · Mor2 Q = Mor2 P · h
+      ×
+      Mor2 P · h = g · Mor2 Q ).
+  Definition InverseMorphismPairIsomorphism {P Q : MorphismPair} :
+    MorphismPairIsomorphism P Q -> MorphismPairIsomorphism Q P.
+  Proof.
+    intros f.
+    exists (z_iso_inv (pr1 f)). exists (z_iso_inv (pr12 f)). exists (z_iso_inv (pr122 f)).
+    split.
+    - split.
+      + apply reverseCommIsoSquare. exact (pr11 (pr222 f)).
+      + apply reverseCommIsoSquare'. exact (pr21 (pr222 f)).
+    - split.
+      + apply reverseCommIsoSquare. exact (pr12 (pr222 f)).
+      + apply reverseCommIsoSquare'. exact (pr22 (pr222 f)).
+  Defined.
+  Definition mk_MorphismPairIsomorphism
+             (P Q : MorphismPair)
+             (f : z_iso (Ob1 P) (Ob1 Q))
+             (g : z_iso (Ob2 P) (Ob2 Q))
+             (h : z_iso (Ob3 P) (Ob3 Q)) :
+    f · Mor1 Q = Mor1 P · g ->
+    g · Mor2 Q = Mor2 P · h -> MorphismPairIsomorphism P Q
+    := λ r s, (f,,g,,h,,(r,,!r),,(s,,!s)).
 End def_morphismpair.
-
 
 (** * MorphismPair and opposite categories *)
 Section MorphismPair_opp.
@@ -133,6 +191,32 @@ Section MorphismPair_opp.
     - exact (Mor2 MP).
     - exact (Mor1 MP).
   Defined.
+
+  Definition applyFunctorToPair {M N:precategory} :
+    (M⟶N) -> @MorphismPair M -> @MorphismPair N
+    := λ F P, mk_MorphismPair (# F (Mor1 P)) (# F (Mor2 P)).
+  Definition applyFunctorToPairIsomorphism {M N:precategory}
+             (F : M⟶N) (P Q : @MorphismPair M) :
+    MorphismPairIsomorphism P Q ->
+    MorphismPairIsomorphism (applyFunctorToPair F P) (applyFunctorToPair F Q).
+  Proof.
+    intros [i1 [i2 [i3 [[d d'][e e']]]]].
+    exists (functor_on_z_iso F i1).
+    exists (functor_on_z_iso F i2).
+    exists (functor_on_z_iso F i3).
+    repeat split.
+    - refine (! _ @ (maponpaths (# F) d ) @ _);apply functor_comp.
+    - refine (! _ @ (maponpaths (# F) d') @ _);apply functor_comp.
+    - refine (! _ @ (maponpaths (# F) e ) @ _);apply functor_comp.
+    - refine (! _ @ (maponpaths (# F) e') @ _);apply functor_comp.
+  Defined.
+  Definition opp_MorphismPairIsomorphism {M:precategory} {P Q: @MorphismPair M} :
+    MorphismPairIsomorphism P Q -> MorphismPairIsomorphism (MorphismPair_opp Q) (MorphismPair_opp P)
+    := λ f, opp_z_iso (pr122 f),,
+            opp_z_iso (pr12 f),,
+            opp_z_iso (pr1 f),,
+            (pr22 (pr222 f),,pr12 (pr222 f)),,
+            (pr21 (pr222 f),,pr11 (pr222 f)).
 
 End MorphismPair_opp.
 

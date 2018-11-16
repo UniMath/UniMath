@@ -1687,3 +1687,13 @@ Defined.
 
 Definition is_nat_iso_id {C D : precategory} {F G : C ⟶ D} (eq : F = G) (ν : nat_iso F G) : UU :=
   ∏ (c : C), nat_comp_to_endo eq (nat_iso_to_trans ν c) = identity (F c).
+
+Definition induced_precategory_incl {M : precategory} {X:Type} (j : X -> ob M) :
+  induced_precategory M j ⟶ M.
+Proof.
+  use mk_functor.
+  - use mk_functor_data.
+    + exact j.
+    + intros a b f. exact f.
+  - repeat split.
+Defined.

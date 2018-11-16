@@ -22,59 +22,16 @@ Require Export UniMath.CategoryTheory.Additive.
 Require Export UniMath.CategoryTheory.functor_categories.
 Require Export UniMath.CategoryTheory.Subcategory.Full.
 Require Export UniMath.MoreFoundations.Notations.
+Require Export UniMath.MoreFoundations.PartA.
 Require Export UniMath.MoreFoundations.Propositions.
 Require Export UniMath.Algebra.BinaryOperations.
 Require Export UniMath.Algebra.Monoids_and_Groups.
 Import AddNotation.
 Local Open Scope addmonoid.
-
-
-Section WeakEquivalences.
-  Goal ∏ (X Y Z:Type) (f:X≃Y) (g:Y≃Z), pr1weq (weqcomp f g) = pr1weq g ∘ pr1weq f.
-  Proof.
-    reflexivity.
-  Qed.
-  Goal ∏ (X Y Z:Type) (f:X≃Y) (g:Y≃Z), invmap (weqcomp f g) = invmap f ∘ invmap g.
-  Proof.
-    reflexivity.
-  Qed.
-  Lemma weqtotal2 {X Y:Type} {P:X->Type} {Q:Y->Type} (f : X ≃ Y) :
-    (∏ x, P x ≃ Q (f x)) -> (∑ x:X, P x) ≃ (∑ y:Y, Q y).
-  Proof.                          (* move upstream *)
-    intros e. exists (λ xp, (f(pr1 xp),,e (pr1 xp) (pr2 xp))).
-    exact (twooutof3c _ _ (isweqfibtototal P (Q ∘ f) e) (pr2 (weqfp f Q))).
-  Defined.
-End WeakEquivalences.
-
-
-(* move upstream to Init.v *)
-  Reserved Notation "A ⊕ B" (at level 50, left associativity).
-  (* to input: type "\o+" or "\oplus" with Agda input method *)
-  Reserved Notation "A ↣ B" (at level 50).
-  (* to input: type "\r->" or "\rightarrowtail" or "\r" with Agda input method *)
-  Reserved Notation "B ↠ C" (at level 50).
-  (* to input: type "\rr-" or "\r" or "\twoheadrightarrow" with Agda input method *)
-
-(* category notation, move upstream *)
-Local Notation "b <-- a" := (precategory_morphisms a b) (only parsing) : cat.
-Notation "1" := (identity _) : cat.
-
-(* abelian group notation, move upstream *)
-Delimit Scope abgr with abgr.
 Local Open Scope abgr.
-Notation "x - y" := (op x (grinv _ y)) : abgr.
-Notation   "- y" := (grinv _ y) : abgr.
+Local Open Scope logic.
 
-(* move upstream to PrecategoriesWithAbgrops.v *)
-Notation "0" := (unel (to_abgr _ _)) : abgrcat.
-Notation "f = g" := (@eqset (to_abgr _ _) f g) : abgrcat.
-Notation "g ∘ f" := (compose f g : to_abgr _ _) : abgrcat.
-Local Notation "b <-- a" := (to_abgr a b) (only parsing) : abgrcat.
-Local Notation "'π₁'" := (to_Pr1 _ _) : abgrcat.
-Local Notation "'π₂'" := (to_Pr2 _ _) : abgrcat.
-Local Notation "'ι₁'" := (to_In1 _ _) : abgrcat.
-Local Notation "'ι₂'" := (to_In2 _ _) : abgrcat.
-
+(* some of these might be appropriate upstream: *)
 Local Arguments isZero {_} _.
 Local Arguments BinDirectSumOb {_ _ _}.
 Local Arguments to_binop {_ _ _}.
@@ -93,10 +50,6 @@ Local Arguments MorphismPair : clear implicits.
 Local Arguments morphism_from_iso {_ _ _}.
 Local Arguments ToBinDirectSum {_ _ _} _ {_}.
 Local Arguments isBinDirectSum {_ _ _ _}.
-
-Local Open Scope logic.
-
-Delimit Scope addcat with addcat. (* move upstream *)
 
 Local Definition hom (C:precategory_data) : ob C -> ob C -> UU := λ c c', precategory_morphisms c c'.
 Local Definition Hom (C : category) : ob C -> ob C -> hSet := λ c c', hSetpair _ (homset_property C c c').
@@ -128,136 +81,7 @@ Section Sanity2.
 
 End Sanity2.
 
-Section Precategories.             (* move upstream *)
-  Definition hasBinDirectSums (M:PreAdditive) : hProp.
-  Proof.
-    exists (hasBinDirectSums M).
-    apply impred; intro p.
-    apply impred; intro q.
-    apply isapropishinh.
-  Defined.
-  Lemma isZero_opp (C : precategory) {x : C} (H : @isZero C x) : @isZero (C^op) x.
-  Proof.
-    use mk_isZero.
-    - intros a. apply (pr2 H a).
-    - intros a. apply (pr1 H a).
-  Defined.                      (* upstream has Qed here *)
-  Definition iso_to_z_iso {C : precategory} {b c : C} (f : iso b c) : z_iso b c
-    := pr1 f ,, is_z_iso_from_is_iso (pr1 f) (pr2 f).
-  Section foo.
-    Context (M:precategory) (a b : M).
-    Goal empty.
-      set (T := @z_iso M a b).
-      set (V := @z_iso (M^op) b a).
-      unfold z_iso,is_z_isomorphism,is_inverse_in_precat in T,V; cbn in T,V.
-      (* These equations get switched: f · g = 1 × g · f = 1 *)
-    Abort.
-  End foo.
-  Definition z_iso_to_iso {C : precategory} {b c : C} (f : z_iso b c) : iso b c
-    := pr1 f ,, is_iso_from_is_z_iso (pr1 f) (pr2 f).
-  Definition is_iso' {C : precategory} {b c : C} (f : b --> c) :=
-    ∏ a, isweq (postcomp_with f (a:=a)).
-  Lemma is_z_iso_from_is_iso' (C : precategory) {b c : C} (f : b --> c) :
-    is_iso' f -> is_z_isomorphism f.
-  Proof.
-    intros i.
-    assert (Q := i c (identity c)). induction Q as [[g E] _]. unfold postcomp_with in E.
-    exists g. split.
-    2 : { exact E. }
-    assert (X := id_left _ : postcomp_with f (identity _) = f).
-    assert (Y := ! assoc _ _ _ @ maponpaths (precomp_with f) E @ id_right _
-                 : postcomp_with f (f · g) = f).
-    clear E.
-    set (x := (_,,X) : hfiber (postcomp_with f) f).
-    set (y := (_,,Y) : hfiber (postcomp_with f) f).
-    exact (maponpaths pr1 ((proofirrelevance _ (isapropifcontr (i b f))) y x)).
-  Defined.
-  Goal ∏ (C : precategory) (a b : C), @iso C^op b a -> @iso C a b.
-  Proof.
-    intros C a b f.
-    exact (opp_iso f).
-  Defined.
-  Goal ∏ (C : precategory) (a b : C), @z_iso C^op b a -> @z_iso C a b.
-  Proof.
-    intros C a b f.
-    exact (opp_z_iso f).
-  Defined.
-  Goal ∏ (C:precategory) (a b:C) (f: a --> b), isMonic (C:=C) f = isEpi (C:=C^op) f.
-    reflexivity.
-  Defined.
-  Goal ∏ (C:precategory) (a b:C) (f: a --> b), isEpi (C:=C) f = isMonic (C:=C^op) f.
-    reflexivity.
-  Defined.
-  (** Here's why we prefer to use z_iso instead of iso : *)
-  Goal ∏ (C:precategory) (a b:C) (f:z_iso a b), z_iso_inv (z_iso_inv f) = f.
-    reflexivity.
-  Defined.
-  Goal ∏ (C:precategory) (a b:C) (f:z_iso (C:=C) a b), opp_z_iso (opp_z_iso f) = f.
-    reflexivity.
-  Defined.
-  Goal ∏ (C:precategory) (a b:C) (f:z_iso (C:=C^op) b a), opp_z_iso (opp_z_iso f) = f.
-    reflexivity.
-  Defined.
-  Goal ∏ (C:precategory) (a b:C) (f:iso a b), iso_inv_from_iso (iso_inv_from_iso f) = f.
-    Fail reflexivity.
-  Abort.
-  Goal ∏ (C:precategory) (a b:C) (f:iso a b), opp_iso (opp_iso f) = f.
-    Fail reflexivity.
-  Abort.
-  Lemma cancel_z_iso {M:precategory} {x y z : M} (f f' : x --> y) (g : z_iso y z) :
-    f · g = f' · g -> f = f'.
-  Proof.
-    intros e.
-    refine (_ @ maponpaths (λ k, k · z_iso_inv g) e @ _).
-    - rewrite assoc'. rewrite z_iso_inv_after_z_iso. rewrite id_right. reflexivity.
-    - rewrite assoc'. rewrite z_iso_inv_after_z_iso. rewrite id_right. reflexivity.
-  Qed.
-  Lemma cancel_z_iso' {M:precategory} {w x y : M} (g : z_iso w x) (f f' : x --> y) :
-    g · f = g · f' -> f = f'.
-  Proof.
-    intros e.
-    refine (_ @ maponpaths (λ k, z_iso_inv g · k) e @ _).
-    - rewrite assoc. rewrite z_iso_inv_after_z_iso. rewrite id_left. reflexivity.
-    - rewrite assoc. rewrite z_iso_inv_after_z_iso. rewrite id_left. reflexivity.
-  Qed.
-  Lemma wrap_inverse {M:precategory} {x y : M} (g : hom M x x) (f : z_iso x y) :
-    g = identity x -> z_iso_inv f · g · f = identity y.
-  Proof.
-    intros e. rewrite e. rewrite id_right. apply z_iso_after_z_iso_inv.
-  Defined.
-  Lemma wrap_inverse' {M:precategory} {x y : M} (g : hom M x x) (f : z_iso y x) :
-    g = identity x -> f · g · z_iso_inv f = identity y.
-  Proof.
-    intros e. rewrite e. rewrite id_right. apply z_iso_inv_after_z_iso.
-  Defined.
-  Definition induced_precategory (M : precategory) {X:Type} (j : X -> ob M) : precategory.
-  Proof.
-    use tpair.
-    - use tpair.
-      + exact (X,, λ a b, precategory_morphisms (j a) (j b)).
-      + split;cbn.
-        * exact (λ c, identity (j c)).
-        * exact (λ a b c, @compose M (j a) (j b) (j c)).
-    - repeat split; cbn.
-      + exact (λ a b, @id_left M (j a) (j b)).
-      + exact (λ a b, @id_right M (j a) (j b)).
-      + exact (λ a b c d, @assoc M (j a) (j b) (j c) (j d)).
-      + exact (λ a b c d, @assoc' M (j a) (j b) (j c) (j d)).
-  Defined.
-  Definition induced_precategory_incl {M : precategory} {X:Type} (j : X -> ob M) :
-    induced_precategory M j ⟶ M.
-  Proof.
-    use mk_functor.
-    - use mk_functor_data.
-      + exact j.
-      + intros a b f. exact f.
-    - repeat split.
-  Defined.
-  Goal ∏ (M : precategory) {X:Type} (j : X -> ob M),
-    induced_precategory M^op j = (induced_precategory M j)^op.
-  Proof.
-    reflexivity.
-  Defined.
+Section Precategories.
   Definition zero_lifts (M:precategory) {X:Type} (j : X -> ob M) := ∃ z, isZero (j z).
   Definition opp_lift_zero {M:precategory} {X:Type} (j : X -> ob M) :
     zero_lifts M j -> zero_lifts (opp_precat M) j.
@@ -269,30 +93,6 @@ Section Precategories.             (* move upstream *)
   Proof.
     reflexivity.
   Defined.
-  Lemma induced_precategory_reflects_pullbacks {M : precategory} {X:Type} (j : X -> ob M)
-        {a b c d : induced_precategory M j}
-        (f : b --> a) (g : c --> a) (p1 : d --> b) (p2 : d --> c)
-        (H : p1 · f = p2 · g) :
-    isPullback (# (induced_precategory_incl j) f)
-               (# (induced_precategory_incl j) g)
-               (# (induced_precategory_incl j) p1)
-               (# (induced_precategory_incl j) p2) H ->
-    isPullback f g p1 p2 H.
-  Proof.
-    exact (λ pb T, pb (j T)).
-  Qed.
-  Lemma induced_precategory_reflects_pushouts {M : precategory} {X:Type} (j : X -> ob M)
-        {a b c d : induced_precategory M j}
-        (f : b <-- a) (g : c <-- a) (p1 : d <-- b) (p2 : d <-- c)
-        (H : p1 ∘ f = p2 ∘ g) :
-    isPushout (# (induced_precategory_incl j) f)
-               (# (induced_precategory_incl j) g)
-               (# (induced_precategory_incl j) p1)
-               (# (induced_precategory_incl j) p2) H ->
-    isPushout f g p1 p2 H.
-  Proof.
-    exact (λ pb T, pb (j T)).
-  Qed.
 End Precategories.
 
 Section Categories.
@@ -380,70 +180,7 @@ Section Categories.
   Qed.
 End Categories.
 
-Section MorphismPairs.          (* move upstream *)
-  Definition rewrite_Ob1 {M : precategory} {A B C:M} (i:A-->B) (p:B-->C) : Ob1 (mk_MorphismPair i p) = A
-    := idpath _.
-  Definition rewrite_Ob2 {M : precategory} {A B C:M} (i:A-->B) (p:B-->C) : Ob2 (mk_MorphismPair i p) = B
-    := idpath _.
-  Definition rewrite_Ob3 {M : precategory} {A B C:M} (i:A-->B) (p:B-->C) : Ob3 (mk_MorphismPair i p) = C
-    := idpath _.
-  Lemma reverseCommIsoSquare {M : precategory} {P Q P' Q':M} (f:P'-->P) (g:Q'-->Q) (i:z_iso P' Q') (j:z_iso P Q) :
-    i · g = f · j -> z_iso_inv i · f = g · z_iso_inv j.
-  Proof.
-    intros l.
-    refine (! id_right _ @ _).
-    refine (maponpaths _ (! is_inverse_in_precat1 (z_iso_is_inverse_in_precat j)) @ _).
-    refine (! assoc (z_iso_inv i) _ _ @ _).
-    refine (maponpaths _ (assoc f _ _) @ _).
-    refine (maponpaths (precomp_with (z_iso_inv i)) (maponpaths (postcomp_with (z_iso_inv_mor j)) (!l)) @ _);
-      unfold precomp_with, postcomp_with.
-    refine (maponpaths _ (! assoc _ _ _) @ _).
-    refine (assoc _ _ _ @ _).
-    refine (maponpaths (postcomp_with (g · z_iso_inv_mor j)) (is_inverse_in_precat2 (z_iso_is_inverse_in_precat i)) @ _);
-      unfold postcomp_with.
-    exact (id_left _).
-  Qed.
-  Lemma reverseCommIsoSquare' {M : precategory} {P Q P' Q':M} (f:P'-->P) (g:Q'-->Q) (i:z_iso P' Q') (j:z_iso P Q) :
-    f · j = i · g -> g · z_iso_inv j = z_iso_inv i · f.
-  Proof.
-    intros l. refine (! _). apply reverseCommIsoSquare. refine (! _). exact l.
-  Qed.
-  Definition MorphismPairMap {M : precategory} (P Q : MorphismPair M) :=
-    ∑ (f : Ob1 P --> Ob1 Q) (g : Ob2 P --> Ob2 Q) (h : Ob3 P --> Ob3 Q),
-    f · Mor1 Q = Mor1 P · g  ×  g · Mor2 Q = Mor2 P · h.
-  Definition Map1 {M : precategory} {P Q : MorphismPair M} (f : MorphismPairMap P Q) : Ob1 P --> Ob1 Q := pr1 f.
-  Definition Map2 {M : precategory} {P Q : MorphismPair M} (f : MorphismPairMap P Q) : Ob2 P --> Ob2 Q := pr12 f.
-  Definition Map3 {M : precategory} {P Q : MorphismPair M} (f : MorphismPairMap P Q) : Ob3 P --> Ob3 Q := pr122 f.
-  Definition MorphismPairIsomorphism {M : precategory} (P Q : MorphismPair M) :=
-    ∑ (f : z_iso (Ob1 P) (Ob1 Q)) (g : z_iso (Ob2 P) (Ob2 Q)) (h : z_iso (Ob3 P) (Ob3 Q)),
-    ( f · Mor1 Q = Mor1 P · g
-      ×
-      Mor1 P · g = f · Mor1 Q )
-    ×
-    ( g · Mor2 Q = Mor2 P · h
-      ×
-      Mor2 P · h = g · Mor2 Q ).
-  Definition InverseMorphismPairIsomorphism {M : precategory} {P Q : MorphismPair M} :
-    MorphismPairIsomorphism P Q -> MorphismPairIsomorphism Q P.
-  Proof.
-    intros f.
-    exists (z_iso_inv (pr1 f)). exists (z_iso_inv (pr12 f)). exists (z_iso_inv (pr122 f)).
-    split.
-    - split.
-      + apply reverseCommIsoSquare. exact (pr11 (pr222 f)).
-      + apply reverseCommIsoSquare'. exact (pr21 (pr222 f)).
-    - split.
-      + apply reverseCommIsoSquare. exact (pr12 (pr222 f)).
-      + apply reverseCommIsoSquare'. exact (pr22 (pr222 f)).
-  Defined.
-  Definition mk_MorphismPairIsomorphism {M : precategory}
-             (P Q : MorphismPair M)
-             (f : z_iso (Ob1 P) (Ob1 Q))
-             (g : z_iso (Ob2 P) (Ob2 Q))
-             (h : z_iso (Ob3 P) (Ob3 Q)) :
-    f · Mor1 Q = Mor1 P · g ->
-    g · Mor2 Q = Mor2 P · h -> MorphismPairIsomorphism P Q
-    := λ r s, (f,,g,,h,,(r,,!r),,(s,,!s)).
+Section MorphismPairs.
   Goal ∏ (M : precategory) (P Q : MorphismPair M) (f:MorphismPairIsomorphism P Q),
        InverseMorphismPairIsomorphism (InverseMorphismPairIsomorphism f) = f.
   Proof.
@@ -451,80 +188,30 @@ Section MorphismPairs.          (* move upstream *)
        of exact category, so we can get duality to work better. *)
     Fail reflexivity.
   Abort.
-  Definition applyFunctorToPair {M N:precategory} :
-    (M⟶N) -> MorphismPair M -> MorphismPair N
-    := λ F P, mk_MorphismPair (# F (Mor1 P)) (# F (Mor2 P)).
-  Definition applyFunctorToPairIsomorphism {M N:precategory}
-             (F : M⟶N) (P Q : MorphismPair M) :
-    MorphismPairIsomorphism P Q ->
-    MorphismPairIsomorphism (applyFunctorToPair F P) (applyFunctorToPair F Q).
-  Proof.
-    intros [i1 [i2 [i3 [[d d'][e e']]]]].
-    exists (functor_on_z_iso F i1).
-    exists (functor_on_z_iso F i2).
-    exists (functor_on_z_iso F i3).
-    repeat split.
-    - refine (! _ @ (maponpaths (# F) d ) @ _);apply functor_comp.
-    - refine (! _ @ (maponpaths (# F) d') @ _);apply functor_comp.
-    - refine (! _ @ (maponpaths (# F) e ) @ _);apply functor_comp.
-    - refine (! _ @ (maponpaths (# F) e') @ _);apply functor_comp.
-  Defined.
 End MorphismPairs.
 
 Section OppositeMorphismPairs.
-  Definition oppositeMorphismPair {M:precategory} (p:MorphismPair M) : MorphismPair (M^op)
-    := pr122 p,,pr12 p,,pr1 p,,pr2 (pr222 p),,pr1 (pr222 p).
-  Goal ∏ (M:precategory) (P:MorphismPair M), oppositeMorphismPair (oppositeMorphismPair P) = P.
+  Goal ∏ (M:precategory) (P:MorphismPair M), MorphismPair_opp (MorphismPair_opp P) = P.
   Proof.
     reflexivity.
   Qed.
   Goal ∏ (M:precategory) (p:MorphismPair (M^op)), MorphismPair M.
-    intros. exact (oppositeMorphismPair p).
+    intros. exact (MorphismPair_opp p).
   Qed.
-  Definition oppositeMorphismPairIsomorphism {M:precategory} {P Q: MorphismPair M} :
-    MorphismPairIsomorphism P Q -> MorphismPairIsomorphism (oppositeMorphismPair Q) (oppositeMorphismPair P)
-    := λ f, opp_z_iso (pr122 f),,
-            opp_z_iso (pr12 f),,
-            opp_z_iso (pr1 f),,
-            (pr22 (pr222 f),,pr12 (pr222 f)),,
-            (pr21 (pr222 f),,pr11 (pr222 f)).
   Goal ∏ (M:precategory) (P Q : MorphismPair M^op) (f:MorphismPairIsomorphism P Q),
-    oppositeMorphismPairIsomorphism (oppositeMorphismPairIsomorphism f) = f.
+    opp_MorphismPairIsomorphism (opp_MorphismPairIsomorphism f) = f.
   Proof.
     reflexivity.
   Qed.
   Goal ∏ (M:precategory) (P Q : MorphismPair M^op),
-   MorphismPairIsomorphism (M:=M^op) P Q ->
-   MorphismPairIsomorphism (M:=M) (oppositeMorphismPair Q) (oppositeMorphismPair P).
+   MorphismPairIsomorphism (C:=M^op) P Q ->
+   MorphismPairIsomorphism (C:=M) (MorphismPair_opp Q) (MorphismPair_opp P).
   Proof.
-    intros M P Q. exact (oppositeMorphismPairIsomorphism (M:=M^op)).
+    intros M P Q. exact (opp_MorphismPairIsomorphism (M:=M^op) ).
   Qed.
 End OppositeMorphismPairs.
 
-Section Pushouts.              (* move upstream *)
-  Definition hasPushout {M : precategory} {A B C:M} (f:A-->B) (g:A-->C) := ∥ Pushout f g ∥.
-End Pushouts.
-
 Section Pullbacks.              (* move upstream *)
-  Definition hasPullback {M : precategory} {A B C:M} (f:A-->C) (g:B-->C) := ∥ Pullback f g ∥.
-  Goal ∏ {M : precategory} (A B C:M) (f : A --> C) (g : B --> C), Pullback f g = Pushout (C:=M^op) f g.
-    reflexivity.
-  Defined.
-  Goal ∏ {M : precategory} (A B C:M) (f : A --> C) (g : A --> C), Pushout f g = Pullback (C:=M^op) f g.
-    reflexivity.
-  Defined.
-  Lemma pullbackiso {M : precategory} {A B C:M} {f : A --> C} {g : B --> C}
-        (pb : Pullback f g) (pb' : Pullback f g)
-    : ∑ (t : z_iso (PullbackObject pb) (PullbackObject pb')),
-      t · PullbackPr1 pb' = PullbackPr1 pb ×
-      t · PullbackPr2 pb' = PullbackPr2 pb.
-  Proof.
-    use tpair.
-    - apply iso_to_z_iso. use iso_from_Pullback_to_Pullback.
-    - cbn beta. split.
-      + use PullbackArrow_PullbackPr1.
-      + use PullbackArrow_PullbackPr2.
-  Defined.
   Definition IsoArrowTo {M : precategory}     {A A' B:M} (g : A --> B) (g' : A' --> B) := ∑ i : z_iso A A', i · g' = g .
   Coercion IsoArrowTo_pr1 {M : precategory}   {A A' B:M} (g : A --> B) (g' : A' --> B) : IsoArrowTo g g' -> z_iso A A' := pr1.
   Definition IsoArrowFrom {M : precategory}   {A B B':M} (g : A --> B) (g' : A --> B') := ∑ i : z_iso B B', g · i  = g'.
@@ -539,62 +226,43 @@ Section Pullbacks.              (* move upstream *)
         (pb : Pullback f g) (pb' : Pullback f g)
     : IsoArrowTo (PullbackPr2 pb) (PullbackPr2 pb')
     := pr1 (pullbackiso pb pb'),,pr22 (pullbackiso pb pb').
-  Goal ∏ {M : precategory} {A A' B:M} (h : A --> B) (h' : A' --> B),
-    IsoArrowTo h h' = IsoArrowFrom (M:=M^op) h' h.
-  Proof.
-    intros.
-    Fail reflexivity.
-    unfold IsoArrowFrom, IsoArrowTo, z_iso,is_z_isomorphism,is_inverse_in_precat,opp_precat,opp_precat_data; cbn.
-    (* These equations get switched: f · g = 1 × g · f = 1 *)
-  Abort.
-End Pullbacks.
-
-Definition switchPullback {M:category} {A B C:M} {f : A --> C} {g : B --> C} (pb : Pullback f g) : Pullback g f.
-Proof.
-  induction pb as [[P [r s]] [e ip]]; simpl in e.
-  use (mk_Pullback _ _ _ _ _ (!e) (is_symmetric_isPullback (homset_property M) _ ip)).
-Defined.
-
-Section OppositeIsoArrows.
-  Definition opposite_IsoArrowTo {M:precategory} {A A' B:M} {g : A --> B} {g' : A' --> B} :
-    IsoArrowTo g g' -> IsoArrowFrom (M:=M^op) g' g.
-  Proof.
-    intros i.
-    Fail exact i.
-    use tpair.
-    - exact (opp_z_iso (pr1 i)).
-    - cbn. exact (pr2 i).
-  Defined.
-  Definition opposite_IsoArrowFrom {M:precategory} {A B B':M} {g : A --> B} {g' : A --> B'} :
-    IsoArrowFrom g g' -> IsoArrowTo (M:=M^op) g' g.
-  Proof.
-    intros i. use tpair.
-    - exact (opp_z_iso (pr1 i)).
-    - cbn. exact (pr2 i).
-  Defined.
-  Goal ∏ (M:precategory) (A A' B:M) (g : A --> B) (g' : A' --> B) (i:IsoArrowTo g g'),
-    opposite_IsoArrowFrom (opposite_IsoArrowTo i) = i.
-  Proof.
-    reflexivity.
-  Defined.
-  Goal ∏ (M:precategory) (A B B':M) (g : A --> B) (g' : A --> B') (i:IsoArrowFrom g g'),
-    opposite_IsoArrowTo (opposite_IsoArrowFrom i) = i.
-  Proof.
-    reflexivity.
-  Defined.
-  Definition opposite_IsoArrow {M:precategory} {A A' B B':M} (g : A --> B) (g' : A' --> B') :
-    IsoArrow g g' -> IsoArrow (M:=M^op) (opp_mor g') (opp_mor g).
-  Proof.
-    intros i.
-    exists (opp_z_iso (pr12 i)).
-    exists (opp_z_iso (pr1 i)).
-    exact (! pr22 i).
-  Defined.
-End OppositeIsoArrows.
-
-Section Pullbacks2.              (* move upstream *)
-  Context (M : category).        (* giving this argument explicitly makes it work better (?) *)
-  Lemma IsoArrowTo_isaprop {A A' B:M} (g : A --> B) (g' : A' --> B) :
+  Section OppositeIsoArrows.
+    Definition opposite_IsoArrowTo {M:precategory} {A A' B:M} {g : A --> B} {g' : A' --> B} :
+      IsoArrowTo g g' -> IsoArrowFrom (M:=M^op) g' g.
+    Proof.
+      intros i.
+      Fail exact i.
+      use tpair.
+      - exact (opp_z_iso (pr1 i)).
+      - cbn. exact (pr2 i).
+    Defined.
+    Definition opposite_IsoArrowFrom {M:precategory} {A B B':M} {g : A --> B} {g' : A --> B'} :
+      IsoArrowFrom g g' -> IsoArrowTo (M:=M^op) g' g.
+    Proof.
+      intros i. use tpair.
+      - exact (opp_z_iso (pr1 i)).
+      - cbn. exact (pr2 i).
+    Defined.
+    Goal ∏ (M:precategory) (A A' B:M) (g : A --> B) (g' : A' --> B) (i:IsoArrowTo g g'),
+      opposite_IsoArrowFrom (opposite_IsoArrowTo i) = i.
+    Proof.
+      reflexivity.
+    Defined.
+    Goal ∏ (M:precategory) (A B B':M) (g : A --> B) (g' : A --> B') (i:IsoArrowFrom g g'),
+      opposite_IsoArrowTo (opposite_IsoArrowFrom i) = i.
+    Proof.
+      reflexivity.
+    Defined.
+    Definition opposite_IsoArrow {M:precategory} {A A' B B':M} (g : A --> B) (g' : A' --> B') :
+      IsoArrow g g' -> IsoArrow (M:=M^op) (opp_mor g') (opp_mor g).
+    Proof.
+      intros i.
+      exists (opp_z_iso (pr12 i)).
+      exists (opp_z_iso (pr1 i)).
+      exact (! pr22 i).
+    Defined.
+  End OppositeIsoArrows.
+  Lemma IsoArrowTo_isaprop (M : category) {A A' B:M} (g : A --> B) (g' : A' --> B) :
     isMonic g' -> isaprop (IsoArrowTo g g').
   Proof.
     intros i. apply invproofirrelevance; intros k k'. apply subtypeEquality'.
@@ -603,7 +271,7 @@ Section Pullbacks2.              (* move upstream *)
       apply homset_property.
     - apply homset_property.
   Qed.
-  Lemma IsoArrowFrom_isaprop {A B B':M} (g : A --> B) (g' : A --> B') :
+  Lemma IsoArrowFrom_isaprop (M : category) {A B B':M} (g : A --> B) (g' : A --> B') :
      isEpi g -> isaprop (IsoArrowFrom g g').
   Proof.
     intros i. apply invproofirrelevance; intros k k'. apply subtypeEquality.
@@ -613,206 +281,11 @@ Section Pullbacks2.              (* move upstream *)
     { intros f. apply isaprop_is_z_isomorphism. apply homset_property. }
     use i. exact (e @ !e').
   Qed.
-End Pullbacks2.
+End Pullbacks.
 
 Local Open Scope abgrcat.
 
-Section precategoryWithBinOps.  (* move upstream *)
-  Definition oppositePrecategoryWithBinOps (M : precategoryWithBinOps) : precategoryWithBinOps
-    := mk_precategoryWithBinOps
-         (opp_precat M)
-         (λ A B f g, @to_binop M (rm_opp_ob B) (rm_opp_ob A) (rm_opp_mor f) (rm_opp_mor g)).
-  Goal ∏ (M : precategoryWithBinOps), oppositePrecategoryWithBinOps (oppositePrecategoryWithBinOps M) = M.
-  Proof.
-    reflexivity.
-  Defined.
-  Definition induced_precategoryWithBinOps (M : precategoryWithBinOps) {X:Type} (j : X -> ob M)
-    : precategoryWithBinOps.
-  Proof.
-    exists (induced_precategory M j).
-    intros a b. exact (@to_binop M (j a) (j b)).
-  Defined.
-  Goal ∏ {M:precategoryWithBinOps} {X:Type} (j : X -> ob M),
-    oppositePrecategoryWithBinOps (induced_precategoryWithBinOps M j) =
-    induced_precategoryWithBinOps (oppositePrecategoryWithBinOps M) j.
-  Proof.
-    reflexivity.           (* 0.038 secs *)
-  Qed.
-End precategoryWithBinOps.
-Section categoryWithAbgrops.    (* move upstream *)
-  Definition oppositeCategoryWithAbgrops (M : categoryWithAbgrops) : categoryWithAbgrops.
-  Proof.
-    use tpair.
-    - exists (oppositePrecategoryWithBinOps M).
-      exact (λ a b, @to_has_homsets M (rm_opp_ob b) (rm_opp_ob a)).
-    - exact (λ a b, @to_isabgrop M (rm_opp_ob b) (rm_opp_ob a)).
-  Defined.
-  Goal ∏ (M : categoryWithAbgrops), oppositeCategoryWithAbgrops (oppositeCategoryWithAbgrops M) = M.
-  Proof.
-    reflexivity.
-  Defined.
-  Definition induced_categoryWithAbgrops (M : categoryWithAbgrops) {X:Type} (j : X -> ob M)
-    : categoryWithAbgrops.
-  Proof.
-    use tpair.
-    - exists (induced_precategoryWithBinOps M j).
-      exact (λ a b, @to_has_homsets M (j a) (j b)).
-    - exact (λ a b, @to_isabgrop M (j a) (j b)).
-  Defined.
-  Goal ∏ {M:categoryWithAbgrops} {X:Type} (j : X -> ob M),
-    oppositeCategoryWithAbgrops (induced_categoryWithAbgrops M j) =
-    induced_categoryWithAbgrops (oppositeCategoryWithAbgrops M) j.
-  Proof.
-    reflexivity.           (* 0.183 secs *)
-  Qed.
-End categoryWithAbgrops.
-
 Section PreAdditive.
-  Definition oppositePreAdditive (M : PreAdditive) : PreAdditive.
-  Proof.
-    exists (oppositeCategoryWithAbgrops M).
-    split.
-    - exact (λ a b c f, @to_postmor_monoid (pr1 M) (pr2 M) (rm_opp_ob c) (rm_opp_ob b) (rm_opp_ob a) (rm_opp_mor f)).
-    - exact (λ a b c f, @to_premor_monoid (pr1 M) (pr2 M) (rm_opp_ob c) (rm_opp_ob b) (rm_opp_ob a) (rm_opp_mor f)).
-  Defined.
-  Goal ∏ (M : PreAdditive), oppositePreAdditive (oppositePreAdditive M) = M.
-  Proof.
-    reflexivity.
-  Defined.
-  Definition induced_PreAdditive (M : PreAdditive) {X:Type} (j : X -> ob M) : PreAdditive.
-  Proof.
-    exists (induced_categoryWithAbgrops M j).
-    split.
-    - exact (λ a b c, @to_premor_monoid (pr1 M) (pr2 M) (j a) (j b) (j c)).
-    - exact (λ a b c, @to_postmor_monoid (pr1 M) (pr2 M) (j a) (j b) (j c)).
-  Defined.
-  Lemma induced_opposite_PreAdditive {M:PreAdditive} {X:Type} (j : X -> ob M) :
-    oppositePreAdditive (induced_PreAdditive M j) =
-    induced_PreAdditive (oppositePreAdditive M) (λ a, opp_ob (j a)).
-  Proof.
-    intros.
-    compute.                    (* the following line bogs down without this one *)
-    reflexivity.                (* but the computation may make this proof fragile *)
-  Defined.
-  Definition oppositeBinDirectSum {M:PreAdditive} {x y:M} :
-    BinDirectSum (A:=M) x y -> BinDirectSum (A:=oppositePreAdditive M) x y.
-  Proof.
-    intros Q.
-    use mk_BinDirectSum.
-    + exact (BinDirectSumOb Q).
-    + exact (to_Pr1 Q).
-    + exact (to_Pr2 Q).
-    + exact (to_In1 Q).
-    + exact (to_In2 Q).
-    + exact (mk_isBinDirectSum (oppositePreAdditive M) _ _ _ _ _ _ _
-         (to_IdIn1 Q) (to_IdIn2 Q) (to_Unel2 Q) (to_Unel1 Q)
-         (to_BinOpId Q)).
-  Defined.
-  Goal ∏ (M:PreAdditive) (x y:M) (xy : BinDirectSum x y),
-    oppositeBinDirectSum (M:=oppositePreAdditive M) (oppositeBinDirectSum xy) = xy.
-  Proof.
-    reflexivity.
-  Defined.
-  Lemma zeroLeft {M:PreAdditive} {a b c : M} (f : b --> c) : ((0 : a --> b) · f = 0)%abgrcat.
-  Proof.
-    apply to_postmor_unel'.
-  Defined.
-  Lemma zeroRight {M:PreAdditive} {a b c : M} (f : a --> b) : f · (0 : b --> c) = 0.
-  Proof.
-    apply to_premor_unel'.
-  Defined.
-  Definition leftCompIsHomo {M:PreAdditive} {a b : M} (f : a --> b) (c:M) : ismonoidfun (to_premor c f)
-    := @to_premor_monoid _ M _ _ _ _.
-  Definition rightCompIsHomo {M:PreAdditive} {b c : M} (a:M) (f : b --> c) : ismonoidfun (to_postmor a f)
-    := @to_postmor_monoid _ M _ _ _ _.
-  Definition leftCompHomo {M:PreAdditive} {a b : M} (f : a --> b) (c:M) : monoidfun (b-->c) (a-->c)
-    := to_premor c f,, to_premor_monoid M _ _ _ f.
-  Definition rightCompHomo {M:PreAdditive} {b c : M} (a:M) (f : b --> c) : monoidfun (a-->b) (a-->c)
-    := to_postmor a f,, to_postmor_monoid M _ _ _ f.
-  Lemma DirectSumIn1Pr2 {M:PreAdditive} {a b:M} (S:BinDirectSum a b) : to_In1 S · to_Pr2 S = 0.
-  Proof.
-    exact (to_Unel1 S).
-  Defined.
-  Lemma DirectSumIn2Pr1 {M:PreAdditive} {a b:M} (S:BinDirectSum a b) : to_In2 S · to_Pr1 S = 0.
-  Proof.
-    exact (to_Unel2 S).
-  Defined.
-  Lemma rightDistribute {M:PreAdditive} {a b c : M} (f : a --> b) (g h : b --> c) : f · (g + h) = f · g + f · h.
-  Proof.
-    apply leftCompIsHomo.
-  Qed.
-  Lemma leftDistribute {M:PreAdditive} {a b c : M} (f g : a --> b) (h : b --> c) : (f + g) · h = f · h + g · h.
-  Proof.
-    apply rightCompIsHomo.
-  Qed.
-  Lemma rightMinus {M:PreAdditive} {a b c : M} (f : a --> b) (g : b --> c) : f · (- g) = - (f·g).
-  Proof.
-    exact (monoidfuninvtoinv (leftCompHomo f c) g).
-  Qed.
-  Lemma leftMinus {M:PreAdditive} {a b c : M} (f : a --> b) (g : b --> c) : (- f) · g = - (f·g).
-  Proof.
-    exact (monoidfuninvtoinv (rightCompHomo a g) f).
-  Qed.
-  Definition reverseBinDirectSum {M:PreAdditive} {A B:M} : BinDirectSum A B -> BinDirectSum B A.
-  Proof.
-    intros AB.
-    refine (mk_BinDirectSum M B A (BinDirectSumOb AB) ι₂ ι₁ π₂ π₁ _).
-    unfold isBinDirectSum.
-    exists (to_IdIn2 (pr2 AB)).
-    exists (to_IdIn1 (pr2 AB)).
-    exists (to_Unel2 (pr2 AB)).
-    exists (to_Unel1 (pr2 AB)).
-    cbn. rewrite rewrite_op.
-    (* goal is now π₂ · ι₂ + π₁ · ι₁ = 1 *)
-    exact (commax (to_abgr _ _) _ _ @ to_BinOpId (pr2 AB)).
-  Defined.
-  Goal ∏ (M:PreAdditive) (A B:M) (AB : BinDirectSum A B), reverseBinDirectSum (oppositeBinDirectSum AB) = oppositeBinDirectSum (reverseBinDirectSum AB).
-    reflexivity.
-  Defined.
-  Goal ∏ (M:PreAdditive) (A B:M) (AB : BinDirectSum A B), reverseBinDirectSum (reverseBinDirectSum AB) = AB.
-    Fail reflexivity.
-  Abort.
-  Definition isTrivialDirectSum {M : PreAdditive} (Z:Zero M) (A:M) : @isBinDirectSum M A Z A 1 0 1 0.
-  Proof.
-    repeat split; cbn.
-    - apply id_right.
-    - apply ArrowsToZero.
-    - apply ArrowsToZero.
-    - apply ArrowsFromZero.
-    - rewrite id_right. rewrite zeroRight. rewrite rewrite_op. rewrite runax. reflexivity.
-  Qed.
-  Definition TrivialDirectSum {M : PreAdditive} (Z:Zero M) (A:M) : BinDirectSum A Z.
-  Proof.
-    exact (mk_BinDirectSum _ _ _ _ _ _ _ _ (isTrivialDirectSum _ _)).
-  Defined.
-  Definition isTrivialDirectSum' {M : PreAdditive} (Z:Zero M) (A:M) : @isBinDirectSum M Z A A 0 1 0 1.
-  Proof.
-    repeat split; cbn.
-    - apply ArrowsToZero.
-    - apply id_right.
-    - apply ArrowsFromZero.
-    - apply ArrowsToZero.
-    - rewrite id_right. rewrite zeroRight. rewrite rewrite_op. rewrite lunax. reflexivity.
-  Qed.
-  Definition TrivialDirectSum' {M : PreAdditive} (Z:Zero M) (A:M) : BinDirectSum Z A.
-  Proof.
-    exact (mk_BinDirectSum _ _ _ _ _ _ _ _ (isTrivialDirectSum' _ _)).
-  Defined.
-  Definition replaceSum {M:PreAdditive} {A B C:M} (S:BinDirectSum A B) :
-    z_iso C S -> BinDirectSum A B (* with C judgmentally equal to the sum object *).
-  Proof.
-    intros r.
-    exists (C,, ι₁ · z_iso_inv r,, ι₂ · z_iso_inv r,, r · π₁,, r · π₂).
-    repeat split; cbn.
-    + rewrite assoc'. rewrite (assoc _ r). rewrite z_iso_after_z_iso_inv, id_left. exact (to_IdIn1 S).
-    + rewrite assoc'. rewrite (assoc _ r). rewrite z_iso_after_z_iso_inv, id_left. exact (to_IdIn2 S).
-    + rewrite assoc'. rewrite (assoc _ r). rewrite z_iso_after_z_iso_inv, id_left. exact (to_Unel1 S).
-    + rewrite assoc'. rewrite (assoc _ r). rewrite z_iso_after_z_iso_inv, id_left. exact (to_Unel2 S).
-    + rewrite rewrite_op. rewrite 2 (assoc' r). rewrite 4 (assoc _ _ (z_iso_inv_mor r)).
-      rewrite <- leftDistribute. rewrite <- rightDistribute. rewrite wrap_inverse'.
-      * reflexivity.
-      * exact (to_BinOpId S).
-  Defined.
   (** Reprove some standard facts in additive categories with the 0 map (the zero element of the
       group) replacing the zero map (defined by composing maps to and from the zero object). *)
   Local Open Scope addmonoid.
@@ -1492,8 +965,6 @@ Section KernelCokernelPairs.
   Qed.
 End KernelCokernelPairs.
 
-Local Open Scope addcat.
-
 Section AdditiveBasics.         (* move upstream *)
   (* first fix the definition of additive category to follow traditional mathematical practice *)
   Definition isAdditive (PA : PreAdditive) : hProp := hasZero PA ∧ hasBinDirectSums PA.
@@ -1553,8 +1024,9 @@ Section AdditiveBasics.         (* move upstream *)
   Defined.
 End AdditiveBasics.
 
+Delimit Scope addcat with addcat.
+Local Open Scope addcat.
 Local Notation "A ⊕ B" := (to_BinDirectSums' A B) : addcat.
-
 Local Notation "C '^op'" := (oppositeAdditiveCategory C) (at level 3, format "C ^op") : addcat.
 
 Section theDefinition.
@@ -1706,7 +1178,7 @@ Section OppositeExactCategory.
   Definition oppositeExactCategoryData (M:ExactCategoryData) : ExactCategoryData.
   Proof.
     exists (M^op).
-    exact (λ p, @isExact M (oppositeMorphismPair (M:=M^op) p)).
+    exact (λ p, @isExact M (MorphismPair_opp (C:=M^op) p)).
   Defined.
   Goal ∏ (M:ExactCategoryData), oppositeExactCategoryData (oppositeExactCategoryData M) = M.
     reflexivity.
@@ -1716,8 +1188,8 @@ Section OppositeExactCategory.
     use (mk_ExactCategory (oppositeExactCategoryData M)).
     split.
     { split;intros P Q f.
-      - exact (EC_IsomorphicToExact' (oppositeMorphismPairIsomorphism f)).
-      - exact (EC_IsomorphicToExact (oppositeMorphismPairIsomorphism f)). }
+      - exact (EC_IsomorphicToExact' (opp_MorphismPairIsomorphism f)).
+      - exact (EC_IsomorphicToExact (opp_MorphismPairIsomorphism f)). }
     split.
     { split.
       - exact EC_IdentityIsEpi.
@@ -2464,7 +1936,7 @@ Section SplitSequences.
   Qed.
   Definition isSplit {M:PreAdditive} (P : MorphismPair M) : hProp := isSplit2 (Mor1 P) (Mor2 P).
   Lemma opposite_isSplit {M:PreAdditive} (P : MorphismPair M) :
-    isSplit P -> isSplit (M:=oppositePreAdditive M) (oppositeMorphismPair P).
+    isSplit P -> isSplit (M:=oppositePreAdditive M) (MorphismPair_opp P).
   Proof.
     exact (opposite_isSplit2 _ _).
   Qed.
@@ -2723,7 +2195,7 @@ Section AdditiveToExact.
     intros. apply subtypeEquality_prop. apply pair_path_in2.
     apply funextsec; intros P. apply hPropUnivalence.
     * exact (opposite_isSplit P).
-    * exact (opposite_isSplit (oppositeMorphismPair P)).
+    * exact (opposite_isSplit (MorphismPair_opp P)).
   Qed.
 End AdditiveToExact.
 

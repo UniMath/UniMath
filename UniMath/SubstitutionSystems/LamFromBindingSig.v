@@ -220,7 +220,7 @@ Defined.
 
 
 Local Notation "'1'" := (TerminalHSET).
-Local Notation "a ⊕ b" := (BinCoproductObject _ (BinCoproductsHSET a b)) (at level 50).
+Local Notation "a ⊕ b" := (BinCoproductObject _ (BinCoproductsHSET a b)).
 Local Notation "x ⊛ y" := (BinProductObject _ (BinProductsHSET x y)) (at level 60).
 
 (** This makes cbn not unfold things too much below *)
