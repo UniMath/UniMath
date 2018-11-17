@@ -5,21 +5,19 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Export UniMath.Combinatorics.FiniteSequences.
 Require Export UniMath.Foundations.NaturalNumbers.
 
-Unset Automatic Introduction. (* This line has to be removed for the file to compile with Coq8.2 *)
-
 (** ** hProp *)
 
 Lemma hinhuniv' {P X : UU} :
   isaprop P → (X → P) → (∥ X ∥ → P).
 Proof.
-  intros P X HP Hx.
+  intros HP Hx.
   apply (hinhuniv (P := hProppair _ HP)).
   exact Hx.
 Qed.
 Lemma hinhuniv2' {P X Y : UU} :
   isaprop P → (X → Y → P) → (∥ X ∥ → ∥ Y ∥ → P).
 Proof.
-  intros P X Y HP Hxy.
+  intros HP Hxy.
   apply (hinhuniv2 (P := hProppair _ HP)).
   exact Hxy.
 Qed.
@@ -72,7 +70,6 @@ Qed.
 Definition singletonSequence {X} (A : X) : Sequence X := (1 ,, λ _, A).
 Definition pairSequence {X} (A B : X) : Sequence X.
 Proof.
-  intros X A B.
   exists 2.
   intros m.
   induction m as [m _].
@@ -90,7 +87,6 @@ Definition union {X : UU} (P : (X → hProp) → hProp) : X → hProp :=
 Lemma union_hfalse {X : UU} :
   union (λ _ : X → hProp, hfalse) = (λ _ : X, hfalse).
 Proof.
-  intros X.
   apply funextfun ; intros x.
   apply hPropUnivalence.
   - apply hinhuniv.
@@ -104,7 +100,7 @@ Lemma union_or {X : UU} :
     union (λ C : X → hProp, C = A ∨ C = B)
     = (λ x : X, A x ∨ B x).
 Proof.
-  intros X A B.
+  intros A B.
   apply funextfun ; intro x.
   apply hPropUnivalence.
   - apply hinhuniv.
@@ -138,7 +134,6 @@ Lemma union_hProp {X : UU} :
     (∏ (L : (X → hProp) → hProp), (∏ A, L A → P A) → P (union L))
     → (∏ A B, P A → P B → P (λ x : X, A x ∨ B x)).
 Proof.
-  intros X.
   intros P Hp A B Pa Pb.
   rewrite <- union_or.
   apply Hp.
@@ -151,7 +146,6 @@ Qed.
 
 Definition finite_intersection {X : UU} (P : Sequence (X → hProp)) : X → hProp.
 Proof.
-  intros X P.
   intros x.
   simple refine (hProppair _ _).
   apply (∏ n, P n x).
@@ -161,7 +155,6 @@ Defined.
 Lemma finite_intersection_htrue {X : UU} :
   finite_intersection nil = (λ _ : X, htrue).
 Proof.
-  intros X.
   apply funextfun ; intros x.
   apply hPropUnivalence.
   - intros _.
@@ -178,7 +171,6 @@ Lemma finite_intersection_1 {X : UU} :
   ∏ (A : X → hProp),
     finite_intersection (singletonSequence A) = A.
 Proof.
-  intros X.
   intros A.
   apply funextfun ; intros x.
   apply hPropUnivalence.
@@ -194,7 +186,6 @@ Lemma finite_intersection_and {X : UU} :
     finite_intersection (pairSequence A B)
     = (λ x : X, A x ∧ B x).
 Proof.
-  intros X.
   intros A B.
   apply funextfun ; intro x.
   apply hPropUnivalence.
@@ -221,7 +212,6 @@ Lemma finite_intersection_case {X : UU} :
             (λ (AB : (X → hProp) × Sequence (X → hProp)) (x : X), pr1 AB x ∧ finite_intersection (pr2 AB) x)
             (disassembleSequence L).
 Proof.
-  intros X.
   intros L.
   apply funextfun ; intros x.
   apply hPropUnivalence.
@@ -258,7 +248,7 @@ Lemma finite_intersection_append {X : UU} :
   ∏ (A : X → hProp) (L : Sequence (X → hProp)),
     finite_intersection (append L A) = (λ x : X, A x ∧ finite_intersection L x).
 Proof.
-  intros X A L.
+  intros A L.
   rewrite finite_intersection_case.
   simpl.
   rewrite append_vec_compute_2.
@@ -279,7 +269,7 @@ Lemma finite_intersection_hProp {X : UU} :
     (∏ (L : Sequence (X → hProp)), (∏ n, P (L n)) → P (finite_intersection L))
     <-> (P (λ _, htrue) × (∏ A B, P A → P B → P (λ x : X, A x ∧ B x))).
 Proof.
-  intros X P.
+  intros P.
   split.
   - split.
     + rewrite <- finite_intersection_htrue.

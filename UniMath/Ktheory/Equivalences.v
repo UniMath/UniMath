@@ -1,7 +1,5 @@
 (** * Equivalences *)
 
-Unset Automatic Introduction.
-
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.MoreFoundations.Tactics.
@@ -20,7 +18,7 @@ Definition Equivalence_toFunction {X Y} : X≅Y -> X->Y := pr1.
 Coercion Equivalence_toFunction : Equivalence >-> Funclass.
 
 Definition Equivalence_toInverseFunction {X Y} : X≅Y -> Y->X.
-Proof. intros ? ? f. exact (pr1 (pr2 f)). Defined.
+Proof. intros f. exact (pr1 (pr2 f)). Defined.
 
 Definition Equivalence_toTargetHomotopy {X Y} (f:Equivalence X Y) : ∏ y, f (Equivalence_toInverseFunction f y) = y
   := pr1 (pr2 (pr2 f)).
@@ -34,10 +32,10 @@ Definition Equivalence_toAdjointness {X Y} (f:Equivalence X Y)
 
 Lemma transportf_fun_idpath {X Y} {f:X->Y} x x' (w:x = x') (t:f x = f x) :
               transportf (λ x', f x' = f x) w (idpath (f x)) = maponpaths f (!w).
-Proof. intros ? ? k. induction w. reflexivity. Qed.
+Proof. induction w. reflexivity. Qed.
 
 Definition Equivalence_to_weq {X Y} : X ≅ Y -> X ≃ Y.
-Proof. intros ? ? w.
+Proof. intros w.
        set (f := Equivalence_toFunction w).
        set (g := Equivalence_toInverseFunction w).
        set (p := Equivalence_toTargetHomotopy w).
@@ -56,7 +54,7 @@ Proof. intros ? ? w.
 Defined.
 
 Definition weq_to_Equivalence {X Y} : X ≃ Y -> X ≅ Y.
-  intros ? ? f.
+  intros f.
   exact (makeEquivalence X Y f (invmap f)
                          (homotweqinvweq f) (homotinvweqweq f)
                          (homotweqinvweqweq f)).
@@ -78,7 +76,8 @@ Lemma check4 X Y (w:X≅Y) :
   Equivalence_toSourceHomotopy (weq_to_Equivalence (Equivalence_to_weq w)) = Equivalence_toSourceHomotopy w.
 Proof.
   try reflexivity.
-  intros ? ? [f [g [p [q h]]]].
+  revert w.
+  intros [f [g [p [q h]]]].
   unfold Equivalence_toSourceHomotopy; simpl.
   apply funextsec; intros x.
   try reflexivity.
@@ -87,7 +86,7 @@ Abort.
 
 (* another proof *)
 Definition weq_to_Equivalence' X Y : X ≃ Y -> Equivalence X Y.
-  intros ? ? [f r].
+  intros [f r].
   unfold isweq in r.
   set (g := λ y, hfiberpr1 f y (pr1 (r y))).
   set (p := λ y, pr2 (pr1 (r y))).
@@ -103,27 +102,27 @@ Defined.
 
 Definition path_inv_rotate_lr {X} {a b c:X} (r:a = b) (p:b = c) (q:a = c) :
   q = r @ p -> q @ !p = r.
-Proof. intros ? ? ? ? ? ? ? e. destruct p. destruct q. rewrite pathscomp0rid in e.
+Proof. intros e. destruct p. destruct q. rewrite pathscomp0rid in e.
        exact e. Defined.
 
 Definition path_inv_rotate_rr {X} {a b c:X} (r:a = b) (p:b = c) (q:a = c) :
   r @ p = q -> r = q @ !p.
-Proof. intros ? ? ? ? ? ? ? e. destruct p. destruct q. rewrite pathscomp0rid in e.
+Proof. intros e. destruct p. destruct q. rewrite pathscomp0rid in e.
        exact e. Defined.
 
 Definition path_inv_rotate_ll {X} {a b c:X} (p:a = b) (r:b = c) (q:a = c) :
   q = p @ r -> !p @ q = r.
-Proof. intros ? ? ? ? ? ? ? e. destruct p. destruct q. exact e. Defined.
+Proof. intros e. destruct p. destruct q. exact e. Defined.
 
 Definition path_inv_rotate_rl {X} {a b c:X} (p:a = b) (r:b = c) (q:a = c) :
   p @ r = q -> r = !p @ q.
-Proof. intros ? ? ? ? ? ? ? e. destruct p. destruct q. exact e. Defined.
+Proof. intros e. destruct p. destruct q. exact e. Defined.
 
 Definition path_inverse_from_right {X} {x y:X} (p q:x = y) : !q@p = idpath _ -> p = q.
-Proof. intros ? ? ? ? ? e. destruct q. exact e. Defined.
+Proof. intros e. destruct q. exact e. Defined.
 
 Definition path_inverse_from_right' {X} {x y:X} (p q:x = y) : p@!q = idpath _ -> p = q.
-Proof. intros ? ? ? ? ? e. destruct q.
+Proof. intros e. destruct q.
        intermediate_path (p @ idpath x).
        { apply pathsinv0. apply pathscomp0rid. } exact e. Defined.
 
@@ -342,5 +341,5 @@ Proof. intros. apply pathsinv0.
        rewrite pathsinv0l. simpl. rewrite pathsinv0l. reflexivity. Qed.
 
 Definition inverseEquivalence {X Y} : Equivalence X Y -> Equivalence Y X.
-Proof. intros ? ? [f [g [p [q h]]]]. simple refine (makeEquivalence Y X g f q p _).
+Proof. intros [f [g [p [q h]]]]. simple refine (makeEquivalence Y X g f q p _).
        intro y. apply other_adjoint. assumption. Defined.

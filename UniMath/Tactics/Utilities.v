@@ -1,7 +1,6 @@
 (** Author: Michael A. Warren (maw@mawarren.net).*)
 (** Date: Spring 2015.*)
 (** Description: Some helper tactics.*)
-Unset Automatic Introduction.
 
 (** Imports *)
 
