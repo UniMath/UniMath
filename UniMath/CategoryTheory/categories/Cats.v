@@ -300,18 +300,4 @@ Proof.
   + apply weqproperty.
 Defined.
 
-(** *** Notes on equalizers *)
-
-(** From Emily Riehl's Category Theory In Context:
-    "The equalizer of a pair of functors [(F G : C --> D)] is the subcategory
-    of [C] consisting of those objets [c : ob C] so that [F c = G c]
-    and those morphisms [f] such that [# F f = # G f]."
-
-    Unfortunately, it is nontrivial to construct equalizers for categories
-    with object types that aren't sets. The first difficulty is that we can't
-    directly form the above [subcategory]: [F c = G c] is not, in general, a
-    proposition. Secondly, the conditions on morphisms must be expressed
-    using [transportf] over the equality condition on objects.
- *)
-
 (** *)
