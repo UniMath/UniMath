@@ -15,10 +15,6 @@ numbers from the univalent perspecive. *)
 
 (** Settings *)
 
-(* The following line has to be removed for the file to compile with Coq8.2 *)
-Unset Automatic Introduction.
-
-
 (** Imports. *)
 
 Require Export UniMath.Foundations.NaturalNumbers.
@@ -130,14 +126,14 @@ Defined.
 
 Lemma letoleh (n m : nat) : le n m -> n ≤ m.
 Proof.
-  intros n m H. induction H as [ | m H0 IHH0 ].
+  intros H. induction H as [ | m H0 IHH0 ].
   - apply isreflnatleh.
   - apply natlehtolehs. assumption.
 Defined.
 
 Lemma natlehtole (n m : nat) : n ≤ m ->  le n m.
 Proof.
-  intros n m H. induction m as [|m IHm].
+  intros H. induction m as [|m IHm].
   - assert (int := natleh0tois0 H). clear H. destruct int. apply le_n.
   - set (int2 := natlehchoice2 n (S m) H).
     destruct int2 as [ isnatleh | iseq ].

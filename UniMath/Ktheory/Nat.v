@@ -8,7 +8,6 @@ Require Import UniMath.Algebra.Monoids_and_Groups
                UniMath.Foundations.UnivalenceAxiom
                UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.Utilities.
-Unset Automatic Introduction.
 
 Local Open Scope nat.
 
@@ -94,13 +93,13 @@ Module Discern.
   Proof. intros ? ? e. exact e. Defined.
 
   Lemma nat_discern_inj m n : nat_discern (S m) (S n) -> nat_discern m n.
-  Proof. intros ? ? e. induction m.
+  Proof. intros e. induction m.
          { induction n. { exact tt. } { simpl in e. exact (fromempty e). } }
          { induction n. { simpl in e. exact (fromempty e). } { simpl in e. exact e. } }
   Defined.
 
   Lemma nat_discern_isaprop m n : isaprop (nat_discern m n).
-  Proof. intros m. induction m as [|m IHm].
+  Proof. revert n; induction m as [|m IHm].
          { intros n. induction n as [|n IHn].
            { apply isapropifcontr. apply iscontrunit. }
            { simpl. apply isapropempty. } }
@@ -109,22 +108,22 @@ Module Discern.
            { simpl. apply IHm. } } Defined.
 
   Lemma nat_discern_unit m : nat_discern m m = unit.
-  Proof. intros m. induction m as [|m IHm]. { reflexivity. } { simpl. apply IHm. } Defined.
+  Proof. induction m as [|m IHm]. { reflexivity. } { simpl. apply IHm. } Defined.
 
   Lemma nat_discern_iscontr m : iscontr (nat_discern m m).
-  Proof. intros m. apply iscontraprop1.
+  Proof. apply iscontraprop1.
          { apply nat_discern_isaprop. }
          { induction m as [|m IHm]. { exact tt. } { simpl. exact IHm. } } Defined.
 
   Fixpoint helper_A m n : nat_dist m n = 0 -> nat_discern m n.
-  Proof. intros ? ?. destruct m as [|m'].
+  Proof. destruct m as [|m'].
          { destruct n as [|n'].
            { intros _. exact tt. } { simpl. exact (negpathssx0 n'). } }
          { destruct n as [|n'].
            { simpl. exact (negpathssx0 m'). } { simpl. exact (helper_A m' n'). } } Defined.
 
   Fixpoint helper_B m n : nat_discern m n -> m = n.
-  Proof. intros ? ?. destruct m as [|m'].
+  Proof. destruct m as [|m'].
          { destruct n as [|n'].
            { intros _. reflexivity. } { simpl. exact fromempty. } }
          { destruct n as [|n'].
@@ -136,7 +135,7 @@ Module Discern.
   Proof. reflexivity. Defined.
 
   Fixpoint helper_C m n : m = n -> nat_discern m n.
-  Proof. intros ? ? e. destruct e.
+  Proof. intros e. destruct e.
          (* alternatively:
           destruct m. { exact tt. } { simpl. exact (the (nat_discern_iscontr _)). }
           *)
@@ -159,19 +158,19 @@ Module Discern.
   Proof. intros. exact (weqpair (helper_B _ _) (helper_D _ _)). Defined.
 
   Definition nat_dist_anti m n : nat_dist m n = 0 -> m = n.
-  Proof. intros ? ? i. exact (helper_B _ _ (helper_A _ _ i)). Defined.
+  Proof. intros i. exact (helper_B _ _ (helper_A _ _ i)). Defined.
 
 End Discern.
 
 Fixpoint nat_dist_symm m n : nat_dist m n = nat_dist n m.
-Proof. intros ? ?. destruct m as [|m'].
+Proof. destruct m as [|m'].
        { destruct n as [|n']. { reflexivity. } { simpl. reflexivity. } }
        { destruct n as [|n'].
          { simpl. reflexivity. }
          { simpl. apply nat_dist_symm. } } Defined.
 
 Fixpoint nat_dist_ge m n : m ≥ n -> nat_dist m n = m-n.
-Proof. intros ? ?. induction m as [|m'].
+Proof. induction m as [|m'].
        { induction n as [|n']. { reflexivity. } { intro f. now induction (!natleh0tois0 f). } }
        { induction n as [|n']. { reflexivity. } { exact (nat_dist_ge m' n'). } }
 Defined.
@@ -180,15 +179,15 @@ Definition nat_dist_0m m : nat_dist 0 m = m.
 Proof. reflexivity. Defined.
 
 Definition nat_dist_m0 m : nat_dist m 0 = m.
-Proof. intro m. destruct m. { reflexivity. } { reflexivity. } Defined.
+Proof. destruct m. { reflexivity. } { reflexivity. } Defined.
 
 Fixpoint nat_dist_plus m n : nat_dist (m + n) m = n.
-Proof. intros [|m'] ?.
+Proof. revert m n; intros [|m'] ?.
        { simpl. apply nat_dist_m0. }
        { simpl. apply nat_dist_plus. } Defined.
 
 Fixpoint nat_dist_le m n : m ≤ n -> nat_dist m n = n-m.
-Proof. intros ? ?. destruct m as [|m'].
+Proof. destruct m as [|m'].
        { destruct n as [|n']. { reflexivity. } { simpl. intros _. reflexivity. } }
        { destruct n as [|n'].
          { intro f. now induction (!natleh0tois0 f). }
@@ -196,12 +195,12 @@ Proof. intros ? ?. destruct m as [|m'].
 Defined.
 
 Definition nat_dist_minus m n : m ≤ n -> nat_dist (n - m) n = m.
-Proof. intros ? ? e. set (k := n-m). assert(b := ! minusplusnmm n m e).
+Proof. intros e. set (k := n-m). assert(b := ! minusplusnmm n m e).
        rewrite (idpath _ : n-m = k) in b. rewrite b.
        rewrite nat_dist_symm. apply nat_dist_plus. Qed.
 
 Fixpoint nat_dist_gt m n : m > n -> S (nat_dist m (S n)) = nat_dist m n.
-Proof. intros ? ?. destruct m as [|m'].
+Proof. destruct m as [|m'].
        { unfold natgth; simpl. intro x.
          apply fromempty. apply nopathsfalsetotrue. exact x. }
        { intro i. simpl.
@@ -213,12 +212,12 @@ Definition nat_dist_S m n : nat_dist (S m) (S n) = nat_dist m n.
 Proof. reflexivity. Defined.
 
 Definition natminuseqlr m n x : m≤n -> n-m = x -> n = x+m.
-Proof. intros ? ? ? i j.
+Proof. intros i j.
        rewrite <- (minusplusnmm _ _ i). rewrite j. reflexivity. Defined.
 
 Definition nat_dist_between_le m n a b : m ≤ n -> nat_dist m n = a + b ->
   ∑ x, nat_dist x m = a × nat_dist x n = b.
-Proof. intros ? ? ? ? i j. exists (m+a). split.
+Proof. intros i j. exists (m+a). split.
        { apply nat_dist_plus. }
        { rewrite (nat_dist_le m n i) in j.
          assert (k := natminuseqlr _ _ _ i j); clear j.
@@ -228,7 +227,7 @@ Proof. intros ? ? ? ? i j. exists (m+a). split.
 
 Definition nat_dist_between_ge m n a b :
   n ≤ m -> nat_dist m n = a + b -> ∑ x:nat, nat_dist x m = a × nat_dist x n = b.
-Proof. intros ? ? ? ? i j.
+Proof. intros i j.
        rewrite nat_dist_symm in j.
        rewrite natpluscomm in j.
        exists (pr1 (nat_dist_between_le n m b a i j)).
@@ -238,7 +237,7 @@ Defined.
 
 Definition nat_dist_between m n a b :
   nat_dist m n = a + b -> ∑ x:nat, nat_dist x m = a × nat_dist x n = b.
-Proof. intros ? ? ? ? j.
+Proof. intros j.
        induction (natgthorleh m n) as [r|s].
        { apply nat_dist_between_ge. apply natlthtoleh. exact r. exact j. }
        { apply nat_dist_between_le. exact s. exact j. }
@@ -312,35 +311,35 @@ Proof. intros. induction (natleorle x y) as [r|s].
              { apply natlehandplusl. assumption. } } } } Defined.
 
 Lemma plusmn0n0 m n : m + n = 0 -> n = 0.
-Proof. intros ? ? i. assert (a := natlehmplusnm m n). rewrite i in a.
+Proof. intros i. assert (a := natlehmplusnm m n). rewrite i in a.
        apply natleh0tois0. assumption. Defined.
 
 Lemma plusmn0m0 m n : m + n = 0 -> m = 0.
-Proof. intros ? ? i. assert (a := natlehnplusnm m n). rewrite i in a.
+Proof. intros i. assert (a := natlehnplusnm m n). rewrite i in a.
        apply natleh0tois0. assumption. Defined.
 
 Lemma natminus0le {m n} : m-n = 0 -> n ≥ m.
-Proof. intros ? ? i. apply negnatgthtoleh. intro k.
+Proof. intros i. apply negnatgthtoleh. intro k.
        assert (r := minusgth0 _ _ k); clear k.
        induction (!i); clear i. exact (negnatgth0n 0 r).
 Defined.
 
 Lemma minusxx m : m - m = 0.
-Proof. intro. induction m as [|m IHm]. reflexivity. simpl. assumption. Defined.
+Proof. induction m as [|m IHm]. reflexivity. simpl. assumption. Defined.
 
 Lemma minusSxx m : S m - m = 1.
-Proof. intro. induction m as [|m IHm]. reflexivity. assumption. Defined.
+Proof. induction m as [|m IHm]. reflexivity. assumption. Defined.
 
 Lemma natminusminus n m : m ≤ n -> n - (n - m) = m.
-Proof. intros ? ? i. assert (b := plusminusnmm m (n-m)).
+Proof. intros i. assert (b := plusminusnmm m (n-m)).
        rewrite natpluscomm in b. rewrite (minusplusnmm _ _ i) in b.
        exact b. Defined.
 
 Lemma natplusminus m n k : k=m+n -> k-n=m.
-Proof. intros ? ? ? i. rewrite i. apply plusminusnmm. Defined.
+Proof. intros i. rewrite i. apply plusminusnmm. Defined.
 
 Lemma natleplusminus k m n : k + m ≤ n -> k ≤ n - m.
-Proof. intros ? ? ? i.
+Proof. intros i.
        apply (natlehandplusrinv _ _ m).
        rewrite minusplusnmm.
        { exact i. }
@@ -350,7 +349,7 @@ Proof. intros ? ? ? i.
 Defined.
 
 Lemma natltminus1 m n : m < n -> m ≤ n - 1.
-Proof. intros ? ? i. assert (a := natlthp1toleh m (n - 1)).
+Proof. intros i. assert (a := natlthp1toleh m (n - 1)).
        assert (b := natleh0n m). assert (c := natlehlthtrans _ _ _ b i).
        assert (d := natlthtolehsn _ _ c). assert (e := minusplusnmm _ _ d).
        rewrite e in a. exact (a i). Defined.
@@ -361,7 +360,7 @@ Proof. intros. destruct m. { reflexivity. }
          { simpl. apply natminusminusassoc. } } Defined.
 
 Definition natminusplusltcomm m n k : k ≤ n -> m ≤ n - k -> k ≤ n - m.
-Proof. intros ? ? ? i p.
+Proof. intros i p.
        assert (a := natlehandplusr m (n-k) k p); clear p.
        assert (b := minusplusnmm n k i); clear i.
        rewrite b in a; clear b. apply natleplusminus.

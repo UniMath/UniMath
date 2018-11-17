@@ -68,6 +68,7 @@ Defined.
 Lemma Kleisli_precat_monad_is_precat {C : precategory} (T : Monad C) :
   is_precategory (Kleisli_precat_data_monad T).
 Proof.
+  apply is_precategory_one_assoc_to_two.
   split.
   - split.
     + intros a b f.
@@ -188,13 +189,13 @@ Defined.
 
 Definition Kleisli_functors_are_adjoints {C : precategory} (T : Monad C) : are_adjoints (Left_Kleisli_functor T) (Right_Kleisli_functor T) := adj_from_nathomweq (Kleisli_homset_iso T).
 
-Definition Left_Kleisli_is_left_adjoint {C : precategory} (T : Monad C) 
-  : is_left_adjoint (Left_Kleisli_functor T) 
+Definition Left_Kleisli_is_left_adjoint {C : precategory} (T : Monad C)
+  : is_left_adjoint (Left_Kleisli_functor T)
     := are_adjoints_to_is_left_adjoint (Left_Kleisli_functor T)
     (Right_Kleisli_functor T) (Kleisli_functors_are_adjoints T).
 
-Definition Right_Kleisli_is_right_adjoint {C : precategory} (T : Monad C) 
-  : is_right_adjoint (Right_Kleisli_functor T) 
+Definition Right_Kleisli_is_right_adjoint {C : precategory} (T : Monad C)
+  : is_right_adjoint (Right_Kleisli_functor T)
     := are_adjoints_to_is_right_adjoint (Left_Kleisli_functor T)
     (Right_Kleisli_functor T) (Kleisli_functors_are_adjoints T).
 

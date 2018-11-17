@@ -60,9 +60,6 @@
 
 (** Settings *)
 
-(** The following line has to be removed for the file to compile with Coq8.2 *)
-Unset Automatic Introduction.
-
 Unset Kernel Term Sharing.
 
 (** Imports *)
@@ -167,7 +164,6 @@ Definition isrigfunismultmonoidfun {X Y : rig} {f : X -> Y} (H : isrigfun f) :
 
 Lemma isapropisrigfun {X Y : rig} (f : X -> Y) : isaprop (isrigfun f).
 Proof.
-  intros X Y f.
   use isapropdirprod.
   - use isapropismonoidfun.
   - use isapropismonoidfun.
@@ -178,7 +174,6 @@ Definition rigfun (X Y : rig) : UU := total2 (fun f : X -> Y => isrigfun f).
 
 Definition isasetrigfun (X Y : rig) : isaset (rigfun X Y).
 Proof.
-  intros X Y.
   use isaset_total2.
   - use isaset_set_fun_space.
   - intros x. use isasetaprop. use isapropisrigfun.
@@ -201,7 +196,6 @@ Definition rigfun_to_unel_rigaddmonoid {X Y : rig} (f : rigfun X Y) : f (0%rig) 
 
 Definition rigfuncomp {X Y Z : rig} (f : rigfun X Y) (g : rigfun Y Z) : rigfun X Z.
 Proof.
-  intros X Y Z f g.
   use rigfunconstr.
   - exact (g ∘ f).
   - use mk_isrigfun.
@@ -211,7 +205,6 @@ Defined.
 
 Lemma rigfun_paths {X Y : rig} (f g : rigfun X Y) (e : pr1 f = pr1 g) : f = g.
 Proof.
-  intros X Y f g e.
   use total2_paths_f.
   - exact e.
   - use proofirrelevance. use isapropisrigfun.
@@ -237,7 +230,6 @@ Definition rigmultiso {X Y : rig} (f : rigiso X Y) :
 
 Definition rigiso_paths {X Y : rig} (f g : rigiso X Y) (e : pr1 f = pr1 g) : f = g.
 Proof.
-  intros X Y f g e.
   use total2_paths_f.
   - exact e.
   - use proofirrelevance. use isapropisrigfun.
@@ -258,7 +250,6 @@ Definition invrigiso {X Y : rig} (f : rigiso X Y) : rigiso Y X :=
 
 Definition idrigiso (X : rig) : rigiso X X.
 Proof.
-  intros X.
   use rigisopair.
   - exact (idweq X).
   - use mk_isrigfun.
@@ -298,7 +289,6 @@ Definition rig_univalence_weq1 (X Y : rig) : (X = Y) ≃ (X ╝ Y) :=
 
 Definition rig_univalence_weq2 (X Y : rig) : (X ╝ Y) ≃ (rigiso' X Y).
 Proof.
-  intros X Y.
   use weqbandf.
   - exact (setwith2binop_univalence X Y).
   - intros e. cbn. use invweq. induction X as [X Xop]. induction Y as [Y Yop]. cbn in e.
@@ -316,7 +306,6 @@ Opaque rig_univalence_weq2.
 
 Definition rig_univalence_weq3 (X Y : rig) : (rigiso' X Y) ≃ (rigiso X Y).
 Proof.
-  intros X Y.
   use weqpair.
   - intros i'.
     use rigisopair.
@@ -345,12 +334,11 @@ Opaque rig_univalence_weq3.
 
 Definition rig_univlalence_map (X Y : rig) : X = Y → rigiso X Y.
 Proof.
-  intros X Y e. induction e. exact (idrigiso X).
+  intros e. induction e. exact (idrigiso X).
 Defined.
 
 Lemma rig_univalence_isweq (X Y : rig) : isweq (rig_univlalence_map X Y).
 Proof.
-  intros X Y.
   use isweqhomot.
   - exact (weqcomp (rig_univalence_weq1 X Y)
                    (weqcomp (rig_univalence_weq2 X Y) (rig_univalence_weq3 X Y))).
@@ -363,7 +351,6 @@ Opaque rig_univalence_isweq.
 
 Definition rig_univalence (X Y : rig) : (X = Y) ≃ (rigiso X Y).
 Proof.
-  intros X Y.
   use weqpair.
   - exact (rig_univlalence_map X Y).
   - exact (rig_univalence_isweq X Y).
@@ -513,7 +500,6 @@ Local Open Scope rig.
 (** Following Bourbaki's Algebra, I, §8.3, Example V *)
 Definition opposite_rig (X : rig) : rig.
 Proof.
-  intros X.
 
   (* Use the same underlying set and addition, flip the multiplication *)
   refine (setwith2binoppair (pr1 (pr1rig X))
@@ -538,7 +524,6 @@ Notation "X ⁰" := (opposite_rig X) (at level 12) : rig_scope.
 
 Definition opposite_opposite_rig (X : rig) : rigiso X ((X⁰)⁰).
 Proof.
-  intros X.
   refine ((idfun X,, idisweq X),, _).
   repeat split.
 Defined.
@@ -619,7 +604,6 @@ Definition commrig_univalence_weq1' (X Y : commrig) : (X = Y) ≃ (mk_commrig' X
 Definition commrig_univalence_weq2 (X Y : commrig) :
   ((mk_commrig' X) = (mk_commrig' Y)) ≃ ((pr1 (mk_commrig' X)) = (pr1 (mk_commrig' Y))).
 Proof.
-  intros X Y.
   use subtypeInjectivity.
   intros w. use isapropiscomm.
 Defined.
@@ -631,12 +615,11 @@ Definition commrig_univalence_weq3 (X Y : commrig) :
 
 Definition commrig_univalence_map (X Y : commrig) : (X = Y) -> (rigiso X Y).
 Proof.
-  intros X Y e. induction e. exact (idrigiso X).
+  intros e. induction e. exact (idrigiso X).
 Defined.
 
 Lemma commrig_univalence_isweq (X Y : commrig) : isweq (commrig_univalence_map X Y).
 Proof.
-  intros X Y.
   use isweqhomot.
   - exact (weqcomp (commrig_univalence_weq1' X Y)
                    (weqcomp (commrig_univalence_weq2 X Y) (commrig_univalence_weq3 X Y))).
@@ -649,7 +632,6 @@ Opaque commrig_univalence_isweq.
 
 Definition commrig_univalence (X Y : commrig) : (X = Y) ≃ (rigiso X Y).
 Proof.
-  intros X Y.
   use weqpair.
   - exact (commrig_univalence_map X Y).
   - exact (commrig_univalence_isweq X Y).
@@ -726,7 +708,6 @@ Definition opposite_commrig (X : commrig) : commrig :=
 (** Commutativity makes taking the opposite trivial *)
 Definition iso_commrig_opposite (X : commrig) : rigiso X (opposite_commrig X).
 Proof.
-  intros X.
   refine ((idfun X,, idisweq X),, _).
   repeat split.
   unfold isbinopfun.
@@ -830,7 +811,7 @@ Definition ringfun (X Y : ring) := rigfun X Y.
 
 Lemma isaset_ringfun (X Y : ring) : isaset (ringfun X Y).
 Proof.
-   intros X Y. apply (isofhleveltotal2 2).
+   apply (isofhleveltotal2 2).
    - use impred_isaset. intro x.
      apply setproperty.
    - intro f. apply isasetaprop.
@@ -870,7 +851,6 @@ Local Definition ring' : UU :=
 
 Local Definition mk_ring' (R : ring) : ring'.
 Proof.
-  intros R.
   use tpair.
   - use tpair.
     + exact (pr1 R).
@@ -891,17 +871,16 @@ Defined.
 
 Local Definition mk_ring_from_ring' (R : ring') : ring.
 Proof.
-  intros R'.
   use ringpair.
-  - exact (pr1 (pr1 R')).
+  - exact (pr1 (pr1 R)).
   - use mk_isringops.
     + use mk_isabgrop.
       * use mk_isgrop.
-        -- exact (dirprod_pr1 (dirprod_pr1 (pr1 (dirprod_pr1 (pr2 (pr1 R')))))).
-        -- exact (pr2 R').
-      * exact (dirprod_pr2 (dirprod_pr1 (pr1 (dirprod_pr1 (pr2 (pr1 R')))))).
-    + exact (dirprod_pr2 (pr1 (dirprod_pr1 (pr2 (pr1 R'))))).
-    + exact (dirprod_pr2 (pr2 (pr1 R'))).
+        -- exact (dirprod_pr1 (dirprod_pr1 (pr1 (dirprod_pr1 (pr2 (pr1 R)))))).
+        -- exact (pr2 R).
+      * exact (dirprod_pr2 (dirprod_pr1 (pr1 (dirprod_pr1 (pr2 (pr1 R)))))).
+    + exact (dirprod_pr2 (pr1 (dirprod_pr1 (pr2 (pr1 R))))).
+    + exact (dirprod_pr2 (pr2 (pr1 R))).
 Defined.
 
 Definition ring_univalence_weq1 : ring ≃ ring'.
@@ -925,7 +904,6 @@ Definition ring_univalence_weq1' (X Y : ring) : (X = Y) ≃ (mk_ring' X = mk_rin
 Definition ring_univalence_weq2 (X Y : ring) :
   ((mk_ring' X) = (mk_ring' Y)) ≃ ((pr1 (mk_ring' X)) = (pr1 (mk_ring' Y))).
 Proof.
-  intros X Y.
   use subtypeInjectivity.
   intros w. use isapropinvstruct.
 Defined.
@@ -937,12 +915,11 @@ Definition ring_univalence_weq3 (X Y : ring) :
 
 Definition ring_univalence_map (X Y : ring) : (X = Y) -> (ringiso X Y).
 Proof.
-  intros X Y e. induction e. exact (idrigiso X).
+  intros e. induction e. exact (idrigiso X).
 Defined.
 
 Lemma ring_univalence_isweq (X Y : ring) : isweq (ring_univalence_map X Y).
 Proof.
-  intros X Y.
   use isweqhomot.
   - exact (weqcomp (ring_univalence_weq1' X Y)
                    (weqcomp (ring_univalence_weq2 X Y) (ring_univalence_weq3 X Y))).
@@ -955,7 +932,6 @@ Opaque ring_univalence_isweq.
 
 Definition ring_univalence (X Y : ring) : (X = Y) ≃ (ringiso X Y).
 Proof.
-  intros X Y.
   use weqpair.
   - exact (ring_univalence_map X Y).
   - exact (ring_univalence_isweq X Y).
@@ -1122,7 +1098,7 @@ Opaque ringmultlt0lt0.
 Lemma isringmultgttoislringmultgt (X : ring) {R : hrel X} (is0 : @isbinophrel X R)
       (is : isringmultgt X R) : ∏ a b c : X, R c 0 -> R a b -> R (c * a) (c * b).
 Proof.
-  intros X R is0 is a b c rc0 rab.
+  intros a b c rc0 rab.
   set (rab':= (pr2 is0) _ _ (- b) rab). clearbody rab'.
   change (pr1 (R (a - b) (b - b))) in rab'.
   rewrite (ringrinvax1 X b) in rab'.
@@ -1150,7 +1126,7 @@ Opaque islringmultgttoisringmultgt.
 Lemma isringmultgttoisrringmultgt (X : ring) {R : hrel X} (is0 : @isbinophrel X R)
       (is : isringmultgt X R) : ∏ a b c : X, R c 0 -> R a b -> R (a * c) (b * c).
 Proof.
-  intros X R is0 is a b c rc0 rab.
+  intros a b c rc0 rab.
   set (rab' := (pr2 is0) _ _ (- b) rab). clearbody rab'.
   change (pr1 (R (a - b) (b - b))) in rab'.
   rewrite (ringrinvax1 X b) in rab'.
@@ -1241,7 +1217,7 @@ Definition isinvringmultgt (X : ring) (R : hrel X) : UU :=
 Lemma isinvringmultgttoislinvringmultgt (X : ring) {R : hrel X} (is0 : @isbinophrel X R)
       (is : isinvringmultgt X R) : ∏ a b c : X, R c 0 -> R (c * a) (c * b) -> R a b.
 Proof.
-  intros X R is0 is a b c rc0 r.
+  intros a b c rc0 r.
   set (rab':= (pr2 is0) _ _ (c * - b) r).
   clearbody rab'.
   change (pr1 (R (c * a + c * - b) (c * b + c * - b))) in rab'.
@@ -1260,7 +1236,7 @@ Opaque isinvringmultgttoislinvringmultgt.
 Lemma isinvringmultgttoisrinvringmultgt (X : ring) {R : hrel X} (is0 : @isbinophrel X R)
       (is : isinvringmultgt X R) : ∏ a b c : X, R c 0 -> R (a * c) (b * c) -> R a b.
 Proof.
-  intros X R is0 is a b c rc0 r.
+  intros a b c rc0 r.
   set (rab':= (pr2 is0) _ _ (- b * c) r). clearbody rab'.
   change (pr1 (R (a * c + - b * c) (b * c + - b * c))) in rab'.
   rewrite (pathsinv0 (ringrdistr X _ _ c)) in rab'.
@@ -1516,7 +1492,6 @@ Local Open Scope rig.
 (** We just need to reuse and rearrange the opposite rig *)
 Definition opposite_ring (X : ring) : ring.
 Proof.
-  intros X.
   refine (pr1 (X⁰),, _).
   split.
   - split.
@@ -1616,7 +1591,7 @@ Definition rigtoringop2 (X : rig) : binop (rigtoringcarrier X) :=
 
 Lemma rigtoringassoc2 (X : rig) : isassoc (rigtoringop2 X).
 Proof.
-  intro. unfold isassoc.
+  unfold isassoc.
   apply (setquotuniv3prop (eqrelrigtoring X)
                           (λ x x' x'' : rigtoringcarrier X,
                              eqset (rigtoringop2 X (rigtoringop2 X x x') x'')
@@ -1658,7 +1633,7 @@ Definition rigtoringunel2 (X : rig) : rigtoringcarrier X :=
 
 Lemma rigtoringlunit2 (X : rig) : islunit (rigtoringop2 X) (rigtoringunel2 X).
 Proof.
-  intro. unfold islunit.
+  unfold islunit.
   apply (setquotunivprop
            (eqrelrigtoring X) (λ x : rigtoringcarrier X,
                                 eqset (rigtoringop2 X (rigtoringunel2 X) x) x)).
@@ -1676,7 +1651,7 @@ Opaque rigtoringlunit2.
 
 Lemma rigtoringrunit2 (X : rig) : isrunit (rigtoringop2 X) (rigtoringunel2 X).
 Proof.
-  intro. unfold isrunit.
+  unfold isrunit.
   apply (setquotunivprop
            (eqrelrigtoring X) (λ x : rigtoringcarrier X,
                                 eqset (rigtoringop2 X x (rigtoringunel2 X)) x)).
@@ -1704,7 +1679,7 @@ Definition rigtoringismonoidop2 (X : rig) : ismonoidop (rigtoringop2 X) :=
 
 Lemma rigtoringldistr (X : rig) : isldistr (rigtoringop1 X) (rigtoringop2 X).
 Proof.
-  intro. unfold isldistr.
+  unfold isldistr.
   apply (setquotuniv3prop
            (eqrelrigtoring X) (λ x x' x'' : rigtoringcarrier X,
                                 eqset (rigtoringop2 X x'' (rigtoringop1 X x x'))
@@ -1728,7 +1703,7 @@ Opaque rigtoringldistr.
 
 Lemma rigtoringrdistr (X : rig) : isrdistr (rigtoringop1 X) (rigtoringop2 X).
 Proof.
-  intro. unfold isrdistr.
+  unfold isrdistr.
   apply (setquotuniv3prop
            (eqrelrigtoring X) (λ x x' x'' : rigtoringcarrier X,
                                 eqset (rigtoringop2 X (rigtoringop1 X x x') x'')
@@ -1755,7 +1730,6 @@ Definition rigtoringdistr (X : rig) : isdistr (rigtoringop1 X) (rigtoringop2 X) 
 
 Definition rigtoring (X : rig) : ring.
 Proof.
-  intro.
   split with (@setwith2binoppair (rigtoringcarrier X) (dirprodpair (rigtoringop1 X) (rigtoringop2 X))).
   split.
   - apply (dirprodpair (rigtoringop1axs X) (rigtoringismonoidop2 X)).
@@ -1775,7 +1749,7 @@ Defined.
 Opaque isbinop1funtoringdiff.
 
 Lemma isunital1funtoringdiff (X : rig) : (toringdiff X 0) = 0%ring.
-Proof. intro. apply idpath. Defined.
+Proof. apply idpath. Defined.
 Opaque isunital1funtoringdiff.
 
 Definition isaddmonoidfuntoringdiff (X : rig) :
@@ -1797,7 +1771,7 @@ Proof.
 Defined.
 
 Lemma isunital2funtoringdiff  (X : rig) : (toringdiff X 1) = 1%ring.
-Proof. intro. apply idpath. Defined.
+Proof. apply idpath. Defined.
 Opaque isunital2funtoringdiff.
 
 Definition ismultmonoidfuntoringdiff (X : rig) :
@@ -2022,7 +1996,6 @@ Definition commring_univalence_weq1' (X Y : commring) : (X = Y) ≃ (mk_commring
 Definition commring_univalence_weq2 (X Y : commring) :
   ((mk_commring' X) = (mk_commring' Y)) ≃ ((pr1 (mk_commring' X)) = (pr1 (mk_commring' Y))).
 Proof.
-  intros X Y.
   use subtypeInjectivity.
   intros w. use isapropiscomm.
 Defined.
@@ -2034,12 +2007,11 @@ Definition commring_univalence_weq3 (X Y : commring) :
 
 Definition commring_univalence_map (X Y : commring) : (X = Y) -> (ringiso X Y).
 Proof.
-  intros X Y e. induction e. exact (idrigiso X).
+  intros e. induction e. exact (idrigiso X).
 Defined.
 
 Lemma commring_univalence_isweq (X Y : commring) : isweq (commring_univalence_map X Y).
 Proof.
-  intros X Y.
   use isweqhomot.
   - exact (weqcomp (commring_univalence_weq1' X Y)
                    (weqcomp (commring_univalence_weq2 X Y) (commring_univalence_weq3 X Y))).
@@ -2052,7 +2024,6 @@ Opaque commring_univalence_isweq.
 
 Definition commring_univalence (X Y : commring) : (X = Y) ≃ (ringiso X Y).
 Proof.
-  intros X Y.
   use weqpair.
   - exact (commring_univalence_map X Y).
   - exact (commring_univalence_isweq X Y).
@@ -2135,7 +2106,7 @@ Open Scope rig_scope.
 
 Lemma commrigtocommringcomm2 (X : commrig) : iscomm (rigtoringop2 X).
 Proof.
-  intro. unfold iscomm.
+  unfold iscomm.
   apply (setquotuniv2prop
            (eqrelrigtoring X)
            (λ x x' : rigtoringcarrier X,  eqset (rigtoringop2 X x x') (rigtoringop2 X x' x))).
@@ -2155,7 +2126,7 @@ Opaque commrigtocommringcomm2.
 
 Definition commrigtocommring (X : commrig) : commring.
 Proof.
-  intro. split with (rigtoring X). split.
+  split with (rigtoring X). split.
   - apply (pr2 (rigtoring X)).
   - apply (commrigtocommringcomm2 X).
 Defined.

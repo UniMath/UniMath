@@ -13,7 +13,6 @@ Require Import UniMath.Algebra.Monoids_and_Groups
                UniMath.Ktheory.GroupAction
                UniMath.NumberSystems.Integers
                UniMath.Ktheory.Nat.
-Unset Automatic Introduction.
 
 Definition ℤ := hzaddabgr.
 Definition toℤ (n:nat) : ℤ := nattohz n.
@@ -61,7 +60,7 @@ Proof. intros. destruct (hzlthorgeh i 0) as [r|s].
        { apply inl. exists (hzabsval i). exact (hzabsvalgeh0 s). } Defined.
 
 Lemma nattohz_inj {m n} : nattohz m = nattohz n -> m = n.
-Proof. exact (an_inclusion_is_injective _ isinclnattohz). Defined.
+Proof. revert m n; exact (an_inclusion_is_injective _ isinclnattohz). Defined.
 
 Lemma hzdichot {m n} : neg (nattohz m = - nattohz (S n)).
 Proof. intros. intro e. assert (d := ap hzsign e); clear e.

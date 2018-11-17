@@ -312,6 +312,7 @@ Section RelModule_Category.
   Lemma is_precategory_relmodule (hs : has_homsets D)
     : is_precategory relmodule_precategory_data.
   Proof.
+    apply is_precategory_one_assoc_to_two.
     repeat split.
     - intros x y f.
       apply (invmap (RelModule_Mor_equiv hs _ _ )).

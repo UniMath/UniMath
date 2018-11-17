@@ -127,10 +127,6 @@ Tomi Pannila 2016.
 
 (** ** Preamble *)
 
-(** *** Settings *)
-
-Unset Automatic Introduction.
-
 (** *** Imports *)
 
 Require Export UniMath.Foundations.Preamble.
@@ -189,7 +185,6 @@ Definition binop (X : UU) : UU := X -> X -> X.
 
 Definition iteration {T : UU} (f : T -> T) (n : nat) : T -> T.
 Proof.
-  intros T f n.
   induction n as [ | n IHn ].
   + exact (idfun T).
   + exact (f ∘ IHn).
@@ -223,7 +218,7 @@ Definition dirprodf {X Y X' Y' : UU}
 Definition ddualand {X Y P : UU}
            (xp : (X -> P) -> P) (yp : (Y -> P) -> P) : (X × Y -> P) -> P.
 Proof.
-  intros X Y P xp yp X0.
+  intros X0.
   apply xp. intro x.
   apply yp. intro y.
   apply (X0 (dirprodpair x y)).
@@ -276,7 +271,7 @@ Defined.
 
 Lemma issymm_logeq (X Y : UU) : (X <-> Y) -> (Y <-> X).
 Proof.
-  intros ? ? e.
+  intros e.
   exact (pr2 e,,pr1 e).
 Defined.
 
@@ -285,7 +280,7 @@ Definition logeqnegs {X Y : UU} (l : X <-> Y) : (¬ X) <-> (¬ Y) :=
 
 Definition logeq_both_true {X Y : UU} : X -> Y -> (X <-> Y).
 Proof.
-  intros ? ? x y.
+  intros x y.
   split.
   - intros x'. exact y.
   - intros y'. exact x.
@@ -293,7 +288,7 @@ Defined.
 
 Definition logeq_both_false {X Y : UU} : ¬X -> ¬Y -> (X <-> Y).
 Proof.
-  intros ? ? nx ny.
+  intros nx ny.
   split.
   - intros x. induction (nx x).
   - intros y. induction (ny y).
@@ -301,7 +296,7 @@ Defined.
 
 Definition logeq_trans {X Y Z : UU} : (X <-> Y) -> (Y <-> Z) -> (X <-> Z).
 Proof.
-  intros ? ? ? i j. exact (pr1 j ∘ pr1 i,, pr2 i ∘ pr2 j).
+  intros i j. exact (pr1 j ∘ pr1 i,, pr2 i ∘ pr2 j).
 Defined.
 
 (* end of "Some standard constructions not using identity types (paths)". *)
@@ -399,13 +394,13 @@ Defined.
 Lemma pathscomp_cancel_left {X : UU} {x y z : X} (p : x = y) (r s : y = z) :
   p @ r= p @ s -> r = s.
 Proof.
-  intros ? ? ? ? ? ? ? e. induction p. exact e.
+  intros e. induction p. exact e.
 Defined.
 
 Lemma pathscomp_cancel_right {X : UU} {x y z : X} (p q : x = y) (s : y = z) :
   p @ s = q @ s -> p = q.
 Proof.
-  intros ? ? ? ? ? ? ? e. induction s. refine (_ @ e @ _).
+  intros e. induction s. refine (_ @ e @ _).
   - apply pathsinv0, pathscomp0rid.
   - apply pathscomp0rid.
 Defined.
@@ -413,7 +408,7 @@ Defined.
 Lemma pathscomp_inv {X : UU} {x y z : X} (p : x = y) (q : y = z)
   : !(p @ q) = !q @ !p.
 Proof.
-  intros ? ? ? ? p q. induction p. induction q.
+  induction p. induction q.
   apply idpath.
 Defined.
 
@@ -430,7 +425,7 @@ Defined.
 Lemma dirprodeq (A B : UU) (ab ab' : A × B) :
   pr1 ab = pr1 ab' -> pr2 ab = pr2 ab' -> ab = ab'.
 Proof.
-  intros A B ab ab' H H'.
+  intros H H'.
   induction ab as [a b].
   induction ab' as [a' b']; simpl in *.
   induction H.
@@ -493,7 +488,7 @@ Notation "f ~ g" := (homot f g).
 
 Definition homotrefl {X : UU} {P : X -> UU} (f: ∏ x : X, P x) : f ~ f.
 Proof.
-  intros ? ? ? x. apply idpath.
+  intros x. apply idpath.
 Defined.
 
 Definition homotcomp {X:UU} {Y:X->UU} {f f' f'' : ∏ x : X, Y x}
@@ -515,13 +510,13 @@ Definition homotfun {X Y Z : UU} {f f' : X -> Y} (h : f ~ f')
 
 Definition toforallpaths {T:UU} (P:T->UU) (f g:∏ t:T, P t) : f = g -> f ~ g.
 Proof.
-  intros ? ? ? ? h t. induction h.  apply (idpath _).
+  intros h t. induction h.  apply (idpath _).
 Defined.
 
 Definition eqtohomot     {T:UU} {P:T->UU} {f g:∏ t:T, P t} : f = g -> f ~ g.
 (* the same as toforallpaths, but with different implicit arguments *)
 Proof.
-  intros ? ? ? ? e t. induction e. apply idpath.
+  intros e t. induction e. apply idpath.
 Defined.
 
 (** *** [ maponpaths ] for a function homotopic to the identity
@@ -726,7 +721,7 @@ Defined.
 Lemma transportf_paths {X : UU} (P : X -> UU) {x1 x2 : X} {e1 e2 : x1 = x2} (e : e1 = e2)
       (p : P x1) : transportf P e1 p = transportf P e2 p.
 Proof.
-  intros X P x1 x2 e1 e2 e p. induction e. apply idpath.
+  induction e. apply idpath.
 Defined.
 Opaque transportf_paths.
 
@@ -880,14 +875,14 @@ Defined.
 
 Definition total2_base_map {S T:UU} {P: T -> UU} (f : S->T) : (∑ i, P(f i)) -> (∑ j, P j).
 Proof.
-  intros ? ? ? ? x.
+  intros x.
   exact (f(pr1 x),,pr2 x).
 Defined.
 
 Lemma total2_section_path {X:UU} {Y:X->UU} (a:X) (b:Y a) (e:∏ x, Y x) : (a,,e a) = (a,,b) -> e a = b.
 (* this is called "Voldemort's theorem" by David McAllester, https://arxiv.org/pdf/1407.7274.pdf *)
 Proof.
-  intros ? ? ? ? ? p. simple refine (_ @ fiber_paths p). unfold base_paths. simpl.
+  intros p. simple refine (_ @ fiber_paths p). unfold base_paths. simpl.
   apply pathsinv0, transport_section.
 Defined.
 
@@ -1018,7 +1013,6 @@ Defined.
 Lemma path_to_ctr (A : UU) (B : A -> UU) (isc : ∃! a, B a)
       (a : A) (p : B a) : a = pr1 (pr1 isc).
 Proof.
-  intros A B isc a p.
   set (Hi := tpair _ a p).
   apply (maponpaths pr1 (pr2 isc Hi)).
 Defined.
@@ -1042,7 +1036,7 @@ Definition hfiberpr2 {X Y : UU} (f : X -> Y) (y : Y) (y' : hfiber f y) : f (hfib
 Lemma hfibershomotftog {X Y : UU} (f g : X -> Y)
       (h : f ~ g) (y : Y) : hfiber f y -> hfiber g y.
 Proof.
-  intros X Y f g h y xe.
+  intros xe.
   induction xe as [x e].
   split with x.
   apply (!(h x) @ e).
@@ -1051,7 +1045,7 @@ Defined.
 Lemma hfibershomotgtof {X Y : UU} (f g : X -> Y)
       (h : f ~ g) (y : Y) : hfiber g y -> hfiber f y.
 Proof.
-  intros X Y f g h y xe.
+  intros xe.
   induction xe as [x e].
   split with x.
   apply (h x @ e).
@@ -1279,7 +1273,7 @@ Definition weqtoempty2 {X Y : UU} (f : X -> Y) (is : ¬ Y) : X ≃ Y
 
 Definition weqempty {X Y : UU} : ¬X → ¬Y → X≃Y.
 Proof.
-  intros ? ? nx ny.
+  intros nx ny.
   use weqpair.
   - intro x. apply fromempty, nx. exact x.
   - intro y. apply fromempty, ny. exact y.
@@ -1383,21 +1377,21 @@ Defined.
 
 Lemma homotweqinv  {X Y Z} (f:X->Z) (w:X≃Y) (g:Y->Z) : f ~ g ∘ w -> f ∘ invmap w ~ g.
 Proof.
-  intros ? ? ? ? ? ? p y.
+  intros p y.
   simple refine (p (invmap w y) @ _); clear p.
   unfold funcomp. apply maponpaths. apply homotweqinvweq.
 Defined.
 
 Lemma homotweqinv' {X Y Z} (f:X->Z) (w:X≃Y) (g:Y->Z) : f ~ g ∘ w <- f ∘ invmap w ~ g.
 Proof.
-  intros ? ? ? ? ? ? q x.
+  intros q x.
   simple refine (_ @ q (w x)).
   unfold funcomp. apply maponpaths, pathsinv0. apply homotinvweqweq.
 Defined.
 
 Definition isinjinvmap {X Y} (v w:X≃Y) : invmap v ~ invmap w -> v ~ w.
 Proof.
-  intros ? ? ? ? h x.
+  intros h x.
   intermediate_path (w ((invmap w) (v x))).
   { apply pathsinv0. apply homotweqinvweq. }
   rewrite <- h. rewrite homotinvweqweq. apply idpath.
@@ -1405,7 +1399,7 @@ Defined.
 
 Definition isinjinvmap' {X Y} (v w:X->Y) (v' w':Y->X) : w ∘ w' ~ idfun Y -> v' ∘ v ~ idfun X -> v' ~ w' -> v ~ w.
 Proof.
-  intros ? ? ? ? ? ? p q h x .
+  intros p q h x .
   intermediate_path (w (w' (v x))).
   { apply pathsinv0. apply p. }
   apply maponpaths. rewrite <- h. apply q.
@@ -1653,7 +1647,7 @@ Defined.
 Corollary isweqhomot {X Y : UU} (f1 f2 : X -> Y)
           (h : f1 ~ f2) : isweq f1 -> isweq f2.
 Proof.
-  intros X Y f1 f2 h x0.
+  intros x0.
   unfold isweq.
   intro y.
   apply (iscontrhfiberl2 f1 f2 h).
@@ -1664,7 +1658,7 @@ Corollary remakeweq {X Y : UU} {f:X≃Y} {g:X->Y} : f ~ g -> X≃Y.
 (* this lemma may be used to replace an equivalence by one whose forward map has a simpler definition,
    keeping the same inverse map, judgmentally *)
 Proof.
-  intros ? ? ? ? e.
+  intros e.
   exact (g ,, isweqhomot f g e (weqproperty f)).
 Defined.
 
@@ -1682,7 +1676,7 @@ Defined.
 
 Lemma iscontr_move_point {X} : X -> iscontr X -> iscontr X.
 Proof.
-  intros ? x i.
+  intros x i.
   exists x.
   intro y.
   apply proofirrelevancecontr.
@@ -1698,7 +1692,7 @@ Corollary remakeweqinv {X Y : UU} {f:X≃Y} {h:Y->X} : invmap f ~ h -> X≃Y.
 (* this lemma may be used to replace an equivalence by one whose inverse map is simpler,
    leaving the forward map the same, judgmentally *)
 Proof.
-  intros ? ? ? ? e. exists f. intro y.
+  intros e. exists f. intro y.
   assert (p : hfiber f y).
   { exists (h y). apply pathsweq1', pathsinv0. apply e. }
   exact (iscontr_move_point p (weqproperty f y)).
@@ -1719,7 +1713,7 @@ Defined.
 Corollary remakeweqboth {X Y : UU} {f:X≃Y} {g:X->Y} {h:Y->X} : f ~ g -> invmap f ~ h -> X≃Y.
 (* this lemma may be used to replace an equivalence by one whose two maps are simpler *)
 Proof.
-  intros ? ? ? ? ? r s.
+  intros r s.
   use (remakeweqinv (f := remakeweq r) s).
 Defined.
 
@@ -1745,7 +1739,7 @@ Defined.
 
 Lemma isweq_to_isweq_unit {X:UU} (f g:X->unit) : isweq f -> isweq g.
 Proof.
-  intros ? ? ? i.
+  intros i.
   assert (h : f ~ g).
   { intros t. apply isProofIrrelevantUnit. }
   exact (isweqhomot f g h i).
@@ -1785,7 +1779,7 @@ Definition UniqueConstruction {X Y:UU} (f:X->Y) :=
 Corollary UniqueConstruction_to_weq {X Y:UU} (f:X->Y) : UniqueConstruction f -> isweq f.
 
 Proof.
-  intros ? ? ? bij. assert (sur := pr1 bij). assert (inj := pr2 bij).
+  intros bij. assert (sur := pr1 bij). assert (inj := pr2 bij).
   use (isweq_iso f).
   - intros y. exact (pr1 (sur y)).
   - intros. simpl. simpl in inj. apply inj. exact (pr2 (sur (f x))).
@@ -2087,7 +2081,7 @@ Defined.
 Lemma isweql3 {X Y : UU} (f : X -> Y) (g : Y -> X)
       (egf : ∏ x : X, g (f x) = x) : isweq f -> isweq g.
 Proof.
-  intros ? ? ? ? ? w.
+  intros w.
   assert (int1 : isweq (g ∘ f)).
   {
     apply (isweqhomot (idfun X) (g ∘ f) (λ (x : X), ! (egf x))).
@@ -2139,7 +2133,7 @@ Defined.
 Corollary twooutof3c_iff_2 {X Y Z : UU} (f : X -> Y) (g : Y -> Z) :
   isweq f -> (isweq g <-> isweq (g ∘ f)).
 Proof.
-  intros ? ? ? ? ? i. split.
+  intros i. split.
   - intro j. exact (twooutof3c f g i j).
   - intro j. exact (twooutof3b f g i j).
 Defined.
@@ -2147,7 +2141,7 @@ Defined.
 Corollary twooutof3c_iff_1 {X Y Z : UU} (f : X -> Y) (g : Y -> Z) :
   isweq g -> (isweq f <-> isweq (g ∘ f)).
 Proof.
-  intros ? ? ? ? ? i. split.
+  intros i. split.
   - intro j. exact (twooutof3c f g j i).
   - intro j. exact (twooutof3a f g j i).
 Defined.
@@ -2156,7 +2150,7 @@ Corollary twooutof3c_iff_1_homot {X Y Z : UU}
           (f : X -> Y) (g : Y -> Z) (h : X -> Z) :
   g ∘ f ~ h  -> isweq g -> (isweq f <-> isweq h).
 Proof.
-  intros ? ? ? ? ? ? r i.
+  intros r i.
   apply (logeq_trans (Y := isweq (g ∘ f))).
   - apply twooutof3c_iff_1; assumption.
   - apply isweqhomot_iff; assumption.
@@ -2166,7 +2160,7 @@ Corollary twooutof3c_iff_2_homot {X Y Z : UU}
           (f : X -> Y) (g : Y -> Z) (h : X -> Z) :
   g ∘ f ~ h  -> isweq f -> (isweq g <-> isweq h).
 Proof.
-  intros ? ? ? ? ? ? r i.
+  intros r i.
   apply (logeq_trans (Y := isweq (g ∘ f))).
   - apply twooutof3c_iff_2; assumption.
   - apply isweqhomot_iff; assumption.
@@ -2291,7 +2285,7 @@ Defined.
 Lemma total2asstor {X : UU} (P : X -> UU) (Q : total2 P -> UU) :
   total2 Q ->  ∑ x:X, ∑ p : P x, Q (tpair P x p).
 Proof.
-  intros X P Q xpq.
+  intros xpq.
   exists (pr1 (pr1 xpq)).
   exists (pr2 (pr1 xpq)).
   induction xpq as [ xp q ].
@@ -2302,7 +2296,7 @@ Defined.
 Lemma total2asstol {X : UU} (P : X -> UU) (Q : total2 P -> UU) :
   (∑ x : X, ∑ p : P x, Q (tpair P x p)) -> total2 Q.
 Proof.
-  intros X P Q xpq.
+  intros xpq.
   use tpair.
   - use tpair.
     + apply (pr1 xpq).
@@ -2418,7 +2412,7 @@ the inductive type family [ sum ] that is defined in Coq.Init. *)
 Definition rdistrtocoprod (X Y Z : UU) :
   X × (Y ⨿ Z) -> (X × Y) ⨿ (X × Z).
 Proof.
-  intros X Y Z X0.
+  intros X0.
   induction X0 as [ t x ]. induction x as [ y | z ].
   apply (ii1 (dirprodpair t y)).
   apply (ii2 (dirprodpair t z)).
@@ -2427,7 +2421,7 @@ Defined.
 
 Definition rdistrtoprod (X Y Z : UU) : (X × Y) ⨿ (X × Z) -> X × (Y ⨿ Z).
 Proof.
-  intros X Y Z X0.
+  intros X0.
   induction X0 as [ d | d ]. induction d as [ t x ].
   apply (dirprodpair t (ii1 x)).
   induction d as [ t x ]. apply (dirprodpair t (ii2 x)).
@@ -2512,14 +2506,14 @@ Definition sumofmaps {X Y Z : UU} (fx : X -> Z)(fy : Y -> Z) :
 
 Definition coprodasstor (X Y Z : UU) : (X ⨿ Y) ⨿ Z -> X ⨿ (Y ⨿ Z).
 Proof.
-  intros X Y Z X0.
+  intros X0.
   induction X0 as [ c | z ]. induction c as [ x | y ].
   apply (ii1 x). apply (ii2 (ii1 y)). apply (ii2 (ii2 z)).
 Defined.
 
 Definition coprodasstol (X Y Z : UU): X ⨿ (Y ⨿ Z) -> (X ⨿ Y) ⨿ Z.
 Proof.
-  intros X Y Z X0.
+  intros X0.
   induction X0 as [ x | c ]. apply (ii1 (ii1 x)). induction c as [ y | z ].
   apply (ii1 (ii2 y)). apply (ii2 z).
 Defined.
@@ -2622,12 +2616,12 @@ Definition coprodf {X Y X' Y' : UU} (f : X -> X') (g : Y-> Y') : X ⨿ Y -> X' �
 
 Definition coprodf1 {X Y X' : UU} : (X -> X') -> X ⨿ Y -> X' ⨿ Y.
 Proof.
-  intros ? ? ? f. exact (coprodf f (idfun Y)).
+  intros f. exact (coprodf f (idfun Y)).
 Defined.
 
 Definition coprodf2 {X Y Y' : UU} : (Y -> Y') -> X ⨿ Y -> X ⨿ Y'.
 Proof.
-  intros ? ? ? g. exact (coprodf (idfun X) g).
+  intros g. exact (coprodf (idfun X) g).
 Defined.
 
 Definition homotcoprodfcomp {X X' Y Y' Z Z' : UU} (f : X -> Y)
@@ -2668,17 +2662,17 @@ Defined.
 
 Definition weqcoprodf {X Y X' Y' : UU} : X ≃ X' -> Y ≃ Y' -> X ⨿ Y ≃ X' ⨿ Y'.
 Proof.
-  intros ? ? ? ? w1 w2. exact (weqpair _ (isweqcoprodf w1 w2)).
+  intros w1 w2. exact (weqpair _ (isweqcoprodf w1 w2)).
 Defined.
 
 Definition weqcoprodf1 {X Y X' : UU} : X ≃ X' -> X ⨿ Y ≃ X' ⨿ Y.
 Proof.
-  intros ? ? ? w. exact (weqcoprodf w (idweq Y)).
+  intros w. exact (weqcoprodf w (idweq Y)).
 Defined.
 
 Definition weqcoprodf2 {X Y Y' : UU} : Y ≃ Y' -> X ⨿ Y ≃ X ⨿ Y'.
 Proof.
-  intros ? ? ? w. exact (weqcoprodf (idweq X) w).
+  intros w. exact (weqcoprodf (idweq X) w).
 Defined.
 
 (** *** The [ equality_cases ] construction and four applications to [ ii1 ] and [ ii2 ] *)
@@ -2700,7 +2694,7 @@ Defined.
 Definition equality_by_case {P Q : UU} {x x' : P ⨿ Q} :
   x = x'-> equality_cases x x'.
 Proof.
-  intros ? ? ? ? e. induction x as [p|q].
+  intros e. induction x as [p|q].
   - induction x' as [p'|q'].
     + simpl.
       exact (maponpaths (@coprod_rect P Q (λ _, P) (λ p, p) (λ _, p)) e).
@@ -2718,7 +2712,7 @@ Defined.
 Definition inv_equality_by_case {P Q : UU} {x x' : P ⨿ Q} :
   equality_cases x x' -> x = x'.
 Proof.
-  intros ? ? ? ? e.
+  intros e.
   induction x as [p|q].
   - induction x' as [p'|q'].
     + exact (maponpaths (@ii1 P Q) e).
@@ -2733,23 +2727,23 @@ Defined.
 Lemma ii1_injectivity {P Q : UU} (p p' : P) :
   ii1 (B := Q) p = ii1 (B := Q) p' -> p = p'.
 Proof.
-  intros ? ? ? ?. exact equality_by_case.
+  exact equality_by_case.
 Defined.
 
 Lemma ii2_injectivity {P Q : UU} (q q' : Q) :
   ii2 (A := P) q = ii2 (A := P) q' -> q = q'.
 Proof.
-  intros ? ? ? ?. exact equality_by_case.
+  exact equality_by_case.
 Defined.
 
 Lemma negpathsii1ii2 {X Y : UU} (x : X) (y : Y) : ii1 x != ii2 y.
 Proof.
-  intros ? ? ? ?. exact equality_by_case.
+  exact equality_by_case.
 Defined.
 
 Lemma negpathsii2ii1 {X Y : UU} (x : X) (y : Y) : ii2 y != ii1 x.
 Proof.
-  intros ? ? ? ?. exact equality_by_case.
+  exact equality_by_case.
 Defined.
 
 
@@ -2836,7 +2830,7 @@ Defined.
 
 Definition boolchoice (x : bool) : (x = true) ⨿ (x = false).
 Proof.
-  intro. induction x. apply (ii1 (idpath _)). apply (ii2 (idpath _)).
+  induction x. apply (ii1 (idpath _)). apply (ii2 (idpath _)).
 Defined.
 
 Definition bool_to_type : bool -> UU.
@@ -2856,22 +2850,22 @@ Defined.
 
 Definition truetonegfalse (x : bool) : x = true -> x != false.
 Proof.
-  intros x e. rewrite e. unfold neg. apply nopathstruetofalse.
+  intros e. rewrite e. unfold neg. apply nopathstruetofalse.
 Defined.
 
 Definition falsetonegtrue (x : bool) : x = false -> x != true.
 Proof.
-  intros x e. rewrite e. unfold neg. apply nopathsfalsetotrue.
+  intros e. rewrite e. unfold neg. apply nopathsfalsetotrue.
 Defined.
 
 Definition negtruetofalse (x : bool) : x != true -> x = false.
 Proof.
-  intros x ne. induction (boolchoice x) as [t | f]. induction (ne t). apply f.
+  intros ne. induction (boolchoice x) as [t | f]. induction (ne t). apply f.
 Defined.
 
 Definition negfalsetotrue (x : bool) : x != false -> x = true.
 Proof.
-  intros x ne. induction (boolchoice x) as [t | f]. apply t. induction (ne f).
+  intros ne. induction (boolchoice x) as [t | f]. apply t. induction (ne f).
 Defined.
 
 
@@ -3379,7 +3373,7 @@ Definition totalfun {X : UU} (P Q : X -> UU) (f : ∏ x : X, P x -> Q x)
 Theorem isweqtotaltofib {X : UU} (P Q : X -> UU) (f : ∏ x : X, P x -> Q x):
   isweq (totalfun _ _ f) -> ∏ x : X, isweq (f x).
 Proof.
-  intros X P Q f X0 x.
+  intros X0 x.
   set (totp := total2 P). set (totq := total2 Q).
   set (totf := (totalfun _ _ f)).
   set (pip := λ z: totp, pr1  z). set (piq:= λ z: totq, pr1  z).
@@ -3410,7 +3404,6 @@ Definition weqtotaltofib {X : UU} (P Q : X -> UU) (f : ∏ x : X , P x -> Q x)
 Theorem isweqfibtototal {X : UU} (P Q : X -> UU) (f : ∏ x : X, P x ≃ Q x) :
   isweq (totalfun _ _ f).
 Proof.
-  intros X P Q f.
   set (fpq := totalfun P Q f). set (pr1p := λ z : total2 P, pr1 z).
   set (pr1q := λ z : total2 Q, pr1  z).
   unfold isweq. intro xq.
@@ -3449,7 +3442,7 @@ Definition fpmap {X Y : UU} (f : X -> Y) (P : Y -> UU) :
 Definition hffpmap2 {X Y : UU} (f : X -> Y) (P : Y -> UU) :
   (∑ x, P (f x)) -> ∑ u : total2 P, hfiber f (pr1 u).
 Proof.
-  intros X Y f P X0.
+  intros X0.
   set (u:= fpmap f P X0).
   split with u.
   set (x:= pr1  X0).
@@ -3531,7 +3524,7 @@ Defined.
 Definition hfiberfpmap {X Y : UU} (f : X -> Y) (P : Y -> UU) (yp : total2 P) :
   hfiber (fpmap f P) yp -> hfiber f (pr1 yp).
 Proof.
-  intros X Y f P yp X0.
+  intros X0.
   set (int1:= hfibersgftog (hffpmap2 f P)
                            (λ u : (∑ u : total2 P, hfiber f (pr1  u)),
                                   (pr1 u)) yp).
@@ -3575,13 +3568,13 @@ Defined.
 Definition weqfp_map {X Y : UU} (w : X ≃ Y) (P : Y -> UU) :
   (∑ x, P(w x)) -> (∑ y, P y).
 Proof.
-  intros ? ? ? ? xp. exact (w (pr1 xp),,pr2 xp).
+  intros xp. exact (w (pr1 xp),,pr2 xp).
 Defined.
 
 Definition weqfp_invmap {X Y : UU} (w : X ≃ Y) (P : Y -> UU) :
   (∑ y, P y) -> (∑ x, P(w x)).
 Proof.
-  intros ? ? ? ? yp.
+  intros yp.
   exact (invmap w (pr1 yp),,
                 transportf P (! homotweqinvweq w (pr1 yp)) (pr2 yp)).
 Defined.
@@ -3633,7 +3626,6 @@ Definition tototal2overunit (P : unit -> UU) (p : P tt) : total2 P
 
 Theorem weqtotal2overunit (P : unit -> UU) : (∑ u, P u) ≃ P tt.
 Proof.
-  intro.
   set (f := fromtotal2overunit P). set (g := tototal2overunit P).
   split with f.
   assert (egf : ∏ a : _ , (g (f a)) = a).

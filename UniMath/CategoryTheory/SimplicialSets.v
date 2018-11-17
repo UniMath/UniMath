@@ -6,8 +6,6 @@ started on Nov. 22, 2014 (with Alexander Vishik)
 
 *)
 
-Unset Automatic Introduction.
-
 (* Preamble *)
 
 Require Import UniMath.MoreFoundations.Tactics.
@@ -33,7 +31,7 @@ Definition monfunstnpr1 {n m : nat} : monfunstn n m  -> ⟦ n ⟧ -> ⟦ m ⟧ :
 
 Lemma monfunstnpr1_isInjective {m n} (f g : monfunstn m n) : monfunstnpr1 f = monfunstnpr1 g -> f = g.
 Proof.
-  intros ? ? ? ? e.
+  intros e.
   apply subtypeEquality.
   { intros h. apply impred; intro i. apply impred; intro j. apply impred; intro l.
     apply propproperty. }
@@ -67,6 +65,7 @@ Proof.
     { split.
       { intros m. apply monfunstnid. }
       { intros l m n f g. exact (monfunstncomp f g). } } }
+  apply is_precategory_one_assoc_to_two.
   simpl. split.
   { simpl. split.
     { intros m n f. now apply monfunstnpr1_isInjective. }
