@@ -148,7 +148,7 @@ Defined.
 Definition T_func {a b c : C} (f : a ⇒ b) (g : b ⇒ c) : a ⇒ c :=
      pr1 (pr1 (T_contr a b c f g)).
 
-Local Notation "f ∘ g" := (T_func f g).  (*at level 30*)
+Local Notation "f ∘ g" := (T_func f g).
 
 Lemma T_func_T {a b c : C} (f : a ⇒ b) (g : b ⇒ c) : T f g (f ∘ g).
 Proof.

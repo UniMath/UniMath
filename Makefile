@@ -78,7 +78,7 @@ clean:: build/CoqMakefile.make; $(MAKE) -f build/CoqMakefile.make $@
 distclean:: build/CoqMakefile.make; $(MAKE) -f build/CoqMakefile.make cleanall archclean
 
 OTHERFLAGS += $(MOREFLAGS)
-OTHERFLAGS += -noinit -indices-matter -type-in-type -w '-notation-overridden,-local-declaration,+uniform-inheritance,-deprecated-option'
+OTHERFLAGS += -noinit -indices-matter -type-in-type -w '-notation-overridden,-local-declaration,+uniform-inheritance'
 ifeq ($(VERBOSE),yes)
 OTHERFLAGS += -verbose
 endif
@@ -361,7 +361,7 @@ DEPFILES := $(VFILES:.v=.v.d)
 endif
 
 # DEPFILES is defined above
-$(DEPFILES): | build/CoqMakefile.make
+$(DEPFILES): make-summary-files | build/CoqMakefile.make
 	$(MAKE) -f build/CoqMakefile.make $@
 
 # here we ensure that the travis script checks every package

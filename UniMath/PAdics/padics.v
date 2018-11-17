@@ -6,10 +6,6 @@
 
 (** made compatible with the current UniMath library by Ralph Matthes in October 2017 *)
 
-(** Settings *)
-
-Unset Automatic Introduction.
-
 (** Imports *)
 
 Require Import UniMath.PAdics.lemmas.
@@ -928,7 +924,7 @@ Lemma hzfpstimesnonzero ( a : fpscommring hz ) ( k : nat )
               forall m : nat, natlth m k' -> b m = 0%hz,
         ( a * b ) ( k + k' )%nat = a k * b k'.
 Proof.
-  intros a k is k'.
+  intros k'.
   induction k'.
   - intros.
     destruct k.
@@ -1000,7 +996,7 @@ Lemma hzfpstimeswhenzero ( a : fpscommring hz ) ( m k : nat )
       forall is' : ( forall m : nat, natlth m k' -> b m = 0%hz ) ,
         natlth m ( k + k' )%nat -> ( a * b ) m = 0%hz.
 Proof.
-  intros a m.
+  revert k is.
   induction m.
   - intros k.
     intros is b k' is' j.
@@ -1811,7 +1807,7 @@ Lemma precarryandzeromultl ( a b : fpscommring hz ) ( n : nat )
                               ( carry p ( isaprimetoneq0 is ) b ) ) m =
        0%hz.
 Proof.
-  intros a b n x m y.
+  intros m y.
   induction m.
   - simpl.
     unfold fpstimes.
@@ -1862,7 +1858,7 @@ Lemma precarryandzeromultr ( a b : fpscommring hz ) ( n : nat )
                                ( carry p ( isaprimetoneq0 is ) b ) ) m =
            0%hz.
 Proof.
-  intros a b n x m y.
+  intros m y.
   change (fpstimes hz (carry p (isaprimetoneq0 is) a)
                    (carry p (isaprimetoneq0 is) b)) with
   ( (carry p (isaprimetoneq0 is) a) *
@@ -1887,7 +1883,7 @@ Lemma precarryandzeromult ( a b : fpscommring hz ) ( k k' : nat )
                                   ( carry p ( isaprimetoneq0 is ) b ) ) m =
   0%hz.
 Proof.
-  intros a b k k' x x' m i.
+  intros m i.
   induction m.
   - apply ( hzfpstimeswhenzero ( carry p ( isaprimetoneq0 is ) a ) 0%nat k x
                                ( carry p ( isaprimetoneq0 is ) b ) k' x' i ).
@@ -1914,7 +1910,7 @@ Defined.
 Lemma primedivorcoprime ( a : hz ) :
   hzdiv p a ∨ gcd p a ( isaprimetoneq0 is ) = 1.
 Proof.
-  intro a. intros P i.
+  intros P i.
   use (hinhuniv _ ( pr2 is
                         ( gcd p a ( isaprimetoneq0 is ) )
                         ( pr1 ( gcdiscommondiv p a ( isaprimetoneq0 is ) ) ) )).
@@ -2088,6 +2084,7 @@ Proof.
     intros.
     apply ( pr1 padicapart ).
   }
+  revert a b.
   apply ( setquotuniv2prop _ ( fun x y =>
                                  hProppair _ ( int x y ) ) ).
   intros a b.

@@ -6,10 +6,6 @@
 
 (** made compatible with the current UniMath library by Ralph Matthes in October 2017 *)
 
-(** Settings *)
-
-Unset Automatic Introduction.
-
 (** Imports *)
 
 Require Import UniMath.PAdics.lemmas.
