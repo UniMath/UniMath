@@ -7,12 +7,6 @@ This file contains main constructions related to the standard finite sets define
 
 (** ** Preamble *)
 
-(** Settings *)
-
-Unset Automatic Introduction. (* This line has to be removed for the file to compile with Coq8.2 *)
-
-
-
 (** Imports. *)
 
 Require Export UniMath.Foundations.NaturalNumbers.
@@ -96,7 +90,7 @@ Defined.
 
 Lemma stnneq {n : nat} : neqReln (⟦n⟧).
 Proof. (* here we use no axioms *)
-  intros n i j. exists (i ≠ j)%nat. split.
+  intros i j. exists (i ≠ j)%nat. split.
   - apply propproperty.
   - apply stn_ne_iff_neq.
 Defined.
@@ -123,7 +117,6 @@ Definition stnneq_to_nopath {n : nat} (i j: ⟦n⟧ ) : ¬ (i = j) <- i ≠ j
 
 Corollary isdeceqstn ( n : nat ) : isdeceq (⟦n⟧).
 Proof.
-  intro.
   unfold isdeceq.
   intros x x'.
   apply (isisolatedinstn x x' ).
@@ -138,7 +131,6 @@ Defined.
 
 Definition weqisolatedstntostn ( n : nat ) : ( isolated (⟦n⟧) ) ≃ ⟦n⟧.
 Proof.
-  intro.
   apply weqpr1.
   intro x.
   apply iscontraprop1.
@@ -159,7 +151,6 @@ Definition stn_to_nat n : stnset n -> natset := pr1.
 
 Definition stnposet ( n : nat ) : Poset.
 Proof.
-  intro.
   unfold Poset.
   exists (_,,isasetstn n).
   unfold PartialOrder.
@@ -176,7 +167,6 @@ Defined.
 
 Definition lastelement {n : nat} : ⟦S n⟧.
 Proof.
-  intro.
   split with n.
   apply ( natgthsnn n ).
 Defined.
@@ -191,7 +181,6 @@ Defined.
 
 Definition firstelement {n : nat} : ⟦S n⟧.
 Proof.
-  intro.
   exists 0.
   apply natgthsn0.
 Defined.
@@ -211,14 +200,12 @@ Definition lastValue {X:UU} {n:nat} : (⟦S n⟧ -> X) -> X
 (** Dual of i in stn n, is n - 1 - i *)
 Local Lemma dualelement_0_empty {n : nat} (i : ⟦n⟧ ) (e : 0 = n) : empty.
 Proof.
-  intros n i e.
   induction e.
   apply (negnatlthn0 _ (stnlt i)).
 Qed.
 
 Local Lemma dualelement_lt (i n : nat) (H : n > 0) : n - 1 - i < n.
 Proof.
-  intros i n H.
   rewrite natminusminus.
   apply (natminuslthn _ _ H).
   apply idpath.
@@ -226,7 +213,6 @@ Qed.
 
 Definition dualelement {n : nat} (i : ⟦n⟧ ) : ⟦n⟧.
 Proof.
-  intros n i.
   induction (natchoice0 n) as [H | H].
   - exact (stnpair n (n - 1 - i) (fromempty (dualelement_0_empty i H))).
   - exact (stnpair n (n - 1 - i) (dualelement_lt i n H)).
@@ -238,7 +224,7 @@ Definition stnmtostnn ( m n : nat ) (isnatleh: natleh m n ) : ⟦m⟧ -> ⟦n⟧
 
 Definition stn_left (m n : nat) : ⟦m⟧ -> ⟦m+n⟧.
 Proof.
-  intros ? ? i.
+  intros i.
   exists (pr1 i).
   apply (natlthlehtrans (pr1 i) m (m+n) (pr2 i)).
   apply natlehnplusnm.
@@ -246,7 +232,7 @@ Defined.
 
 Definition stn_right (m n : nat) : ⟦n⟧ -> ⟦m+n⟧.
 Proof.
-  intros ? ? i.
+  intros i.
   exists (m+pr1 i).
   apply natlthandplusl.
   exact (pr2 i).
@@ -274,13 +260,13 @@ Defined.
 
 Definition stn_left' (m n : nat) : m ≤ n -> ⟦m⟧ -> ⟦n⟧.
 Proof.
-  intros ? ? le i.
+  intros le i.
   exact (stnpair _ _ (natlthlehtrans _ _ _ (stnlt i) le)).
 Defined.
 
 Definition stn_left'' {m n : nat} : m < n -> ⟦m⟧ -> ⟦n⟧.
 Proof.
-  intros ? ? le i.
+  intros le i.
   exact (stnpair _ _ (istransnatlth _ _ _ (stnlt i) le)).
 Defined.
 
@@ -295,7 +281,7 @@ Defined.
 (** ** "Boundary" maps [ dni : stn n -> stn ( S n ) ] and their properties. *)
 
 Definition dni {n : nat} ( i : ⟦S n⟧ ) : ⟦n⟧ -> ⟦S n⟧.
-Proof. intros n i x. exists (di i x). unfold di.
+Proof. intros x. exists (di i x). unfold di.
        induction (natlthorgeh x i) as [lt|ge].
        - apply natgthtogths. exact (pr2 x).
        - exact (pr2 x).
@@ -334,7 +320,7 @@ Defined.
 Definition dni_firstelement {n : nat} : ⟦n⟧ -> ⟦S n⟧.
 (* this definition is simpler than that of [dni n (firstelement n)], since no choice is involved, so it's useful in special situations *)
 Proof.
-  intros ? h.
+  intros h.
   exact (S (pr1 h),, pr2 h).
 Defined.
 
@@ -349,7 +335,7 @@ Defined.
 Definition dni_lastelement {n : nat} : ⟦n⟧ -> ⟦S n⟧.
 (* this definition is simpler than that of [dni lastelement], since no choice is involved, so it's useful in special situations *)
 Proof.
-  intros ? h.
+  intros h.
   exists (pr1 h).
   exact (natlthtolths _ _ (pr2 h)).
 Defined.
@@ -364,7 +350,7 @@ Defined.
 
 Lemma dni_lastelement_ord {n : nat} : ∏ i j: ⟦n⟧, i≤j -> dni_lastelement i ≤ dni_lastelement j.
 Proof.
-  intros ? ? ? e.
+  intros ? ? e.
   exact e.
 Defined.
 
@@ -449,7 +435,7 @@ Defined.
 
 Lemma iscontrhfiberdni ( n : nat ) ( i j : ⟦S n⟧ ) : i ≠ j -> iscontr ( hfiber ( dni i ) j ).
 Proof.
-  intros ? ? ? ne.
+  intros ne.
   exact ( iscontrweqb ( weqhfiberdnihfiberdi n i j ) ( iscontrhfiberdi i j ne ) ).
 Defined.
 
@@ -469,7 +455,7 @@ Defined.
 
 Definition sni {n : nat} ( i : ⟦n⟧ ) : ⟦n⟧ <- ⟦S n⟧.
 Proof.
-  intros ? ? j. exists (si i j). unfold si. induction (natlthorgeh i j) as [lt|ge].
+  intros j. exists (si i j). unfold si. induction (natlthorgeh i j) as [lt|ge].
   - induction j as [j J]. induction i as [i I]. simpl.
     induction j as [|j _].
     + contradicts (negnatlthn0 i) lt.
@@ -492,14 +478,14 @@ Definition stn_compl {n : nat} (i: ⟦n⟧ ) := compl_ne _ i (stnneq i).
 
 Definition dnitocompl ( n : nat ) ( i : ⟦S n⟧ ) : ⟦n⟧ -> stn_compl i.
 Proof.
-  intros ? ? j.
+  intros j.
   exists ( dni i j ).
   apply dni_neq_i.
 Defined.
 
 Lemma isweqdnitocompl  ( n : nat ) ( i : ⟦S n⟧ ) : isweq ( dnitocompl n i ).
 Proof.
-  intros ? ? jni.
+  intros jni.
   assert ( w := samehfibers ( dnitocompl n i )  _ ( isinclpr1compl_ne _ i _ ) jni ) ;
     simpl in w.
   apply (iscontrweqb w).
@@ -545,7 +531,7 @@ Opaque weqdnicoprod_provisional.
 
 Definition weqdnicoprod_map {n : nat} (j : ⟦S n⟧ ) : ⟦n⟧ ⨿ unit -> ⟦S n⟧.
 Proof.
-  intros n j x. induction x as [i|t].
+  intros x. induction x as [i|t].
   - exact (dni j i).
   - exact j.
 Defined.
@@ -604,7 +590,7 @@ Defined.
 Definition weqdnicoprod_invmap {n : nat} (j : ⟦S n⟧ ) : ⟦n⟧ ⨿ unit <- ⟦S n⟧.
   (* perhaps use this to improve weqdnicoprod *)
 Proof.
-  intros n j i.
+  intros i.
   induction (isdeceqstn (S n) i j) as [eq|ne].
   - exact (ii2 tt).
   - apply ii1. induction i as [i I]. induction j as [j J].
@@ -712,7 +698,7 @@ Defined.
 
 Lemma isinjstntonat (n : nat) : isInjectiveFunction (pr1 : stnset n -> natset).
 Proof.
-  intros ? i j.
+  intros i j.
   apply subtypeEquality_prop.
 Defined.
 
@@ -720,7 +706,7 @@ Defined.
 
 Definition weqfromcoprodofstn_invmap (n m : nat) : ⟦n + m⟧ -> (⟦n⟧ ⨿ ⟦m⟧).
 Proof.
-  intros n m i.
+  intros i.
   induction (natlthorgeh i n) as [i1 | i2].
   - exact (ii1 (stnpair n i i1)).
   - exact (ii2 (stnpair m (i - n) (nat_split (pr2 i) i2))).
@@ -741,7 +727,7 @@ Defined.
 
 Definition weqfromcoprodofstn_map (n m : nat) : (⟦n⟧ ⨿ ⟦m⟧) -> ⟦n+m⟧.
 Proof.
-  intros n m i.
+  intros i.
   induction i as [i | i].
   - apply stn_left. assumption.
   - apply stn_right. assumption.
@@ -750,7 +736,7 @@ Defined.
 Lemma weqfromcoprodofstn_eq1 (n m : nat) :
   ∏ x : ⟦n⟧ ⨿ ⟦m⟧, weqfromcoprodofstn_invmap n m (weqfromcoprodofstn_map n m x) = x.
 Proof.
-  intros n m x.
+  intros x.
   unfold weqfromcoprodofstn_map, weqfromcoprodofstn_invmap. unfold coprod_rect.
   induction x as [x | x].
   - induction (natlthorgeh (stn_left n m x) n) as [H | H].
@@ -767,7 +753,7 @@ Qed.
 Lemma weqfromcoprodofstn_eq2 (n m : nat) :
   ∏ y : ⟦n+m⟧, weqfromcoprodofstn_map n m (weqfromcoprodofstn_invmap n m y) = y.
 Proof.
-  intros n m x.
+  intros x.
   unfold weqfromcoprodofstn_map, weqfromcoprodofstn_invmap. unfold coprod_rect.
   induction (natlthorgeh x n) as [H | H].
   - apply isinjstntonat. apply idpath.
@@ -780,7 +766,6 @@ Qed.
 (** A proof of weqfromcoprodofstn using isweq_iso *)
 Theorem weqfromcoprodofstn (n m : nat) : (⟦n⟧ ⨿ ⟦m⟧) ≃ ⟦n+m⟧.
 Proof.
-  intros n m.
   use (tpair _ (weqfromcoprodofstn_map n m)).
   use (isweq_iso _ (weqfromcoprodofstn_invmap n m)).
   - exact (weqfromcoprodofstn_eq1 n m).
@@ -822,7 +807,8 @@ Defined.
 
 Definition stnsum {n : nat} (f : ⟦n⟧ -> nat) : nat.
 Proof.
-  intro n. induction n as [ | n IHn].
+  revert f.
+  induction n as [ | n IHn].
   - intro. exact 0.
   - intro f. exact (IHn (λ i, f (dni lastelement i)) + f lastelement).
 Defined.
@@ -836,7 +822,7 @@ Defined.
 
 Lemma stnsum_eq {n : nat} (f g: ⟦n⟧ -> nat) : f ~ g -> stnsum f = stnsum g.
 Proof.
-  intros ? ? ? h.
+  intros h.
   induction n as [|n IH].
   - apply idpath.
   - rewrite 2? stnsum_step.
@@ -857,7 +843,7 @@ Defined.
 
 Lemma stnsum_le {n : nat} (f g: ⟦n⟧ -> nat) : (∏ i, f i ≤ g i) -> stnsum f ≤ stnsum g.
 Proof.
-  intros ? ? ? le.
+  intros le.
   induction n as [|n IH].
   - simpl. apply idpath.
   - apply natlehandplus.
@@ -969,7 +955,6 @@ Defined.
 
 Lemma stnsum_pos {n : nat} (f: ⟦n⟧ -> nat) (j: ⟦n⟧ ) : f j ≤ stnsum f.
 Proof.
-  intros ? ? j.
   assert (m : 0 < n).
   { apply (natlehlthtrans _ j).
     - apply natleh0n.
@@ -1060,14 +1045,14 @@ Defined.
 Local Definition weqstnsum_map { n : nat } (m : ⟦n⟧ -> nat) :
   (∑ i, ⟦m i⟧) -> ⟦stnsum m⟧.
 Proof.
-  intros ? ? ij.
+  intros ij.
   exact (stnpair _ (stnsum (m ∘ stn_left'' (stnlt (pr1 ij))) + pr2 ij) (_c_ ij)).
 Defined.
 
 Local Definition weqstnsum_invmap {n : nat} (m : ⟦n⟧ -> nat) :
   ⟦stnsum m⟧ -> (∑ i, ⟦m i⟧).
 Proof.
-  intros ?.
+  revert m.
   induction n as [|n IH].
   { intros ? l. apply fromempty, negstn0. assumption. }
   intros ? l.
@@ -1106,7 +1091,7 @@ Lemma partial_sum_prop_aux {n : nat} {m : ⟦n⟧ → nat} :
   i < i' → stnsum (m ∘ stn_left'' (stnlt i)) + j <
            stnsum (m ∘ stn_left'' (stnlt i')) + j'.
 Proof.
-  intros ? ? ? ? ? ? lt.
+  intros ? ? ? ? lt.
   apply natlthtolehsn in lt.
   pose (ltS := (natlehlthtrans _ _ _ lt (stnlt i'))).
   refine (natlthlehtrans _ _ _ _ (natlehnplusnm _ _)).
@@ -1171,7 +1156,7 @@ Defined.
 Lemma partial_sum_slot {n : nat} {m : ⟦n⟧ → nat} {l : nat} : l < stnsum m ->
   ∃! (i : ⟦n⟧ ) (j : ⟦m i⟧ ), stnsum (m ∘ stn_left'' (stnlt i)) + j = l.
 Proof.
-  intros ? ? ? lt.
+  intros lt.
   set (len := stnsum m).
   induction n as [|n IH].
   { apply fromempty. change (hProptoType(l < 0)) in lt. exact (negnatlthn0 _ lt). }
@@ -1224,7 +1209,7 @@ Defined.
 Definition weqstnsum1_prelim {n : nat} (f : ⟦n⟧ -> nat) :
   (∑ i, ⟦f i⟧) ≃ ⟦stnsum f⟧.
 Proof.
-  intros n.
+  revert f.
   induction n as [ | n' IHn ].
   { intros f. apply weqempty.
     - exact (negstn0 ∘ pr1).
@@ -1252,7 +1237,7 @@ Defined.
 Lemma weqstnsum1_prelim_eq { n : nat } (f : ⟦n⟧ -> nat) :
   weqstnsum1_prelim f ~ weqstnsum_map f.
 Proof.
-  intros n.
+  revert f.
   induction n as [|n I].
   - intros f ij. apply fromempty, negstn0. exact (pr1 ij).
   - intros f.
@@ -1318,7 +1303,7 @@ Defined.
 Lemma weqstnsum1_prelim_eq' { n : nat } (f : ⟦n⟧ -> nat) :
   invweq (weqstnsum1_prelim f) ~ weqstnsum_invmap f.
 Proof.
-  intros n.
+  revert f.
   induction n as [|n I].
   - intros f k. apply fromempty, negstn0. exact k.
   - intros f. rewrite weqstnsum1_step.
@@ -1387,7 +1372,7 @@ Defined.
 Theorem weqstnsum { n : nat } (P : ⟦n⟧ -> UU) (f : ⟦n⟧ -> nat) :
   (∏ i, ⟦f i⟧ ≃ P i) -> total2 P ≃ ⟦stnsum f⟧.
 Proof.
-  intros ? ? ? w.
+  intros w.
   intermediate_weq (∑ i, ⟦f i⟧).
   - apply invweq. apply weqfibtototal. assumption.
   - apply weqstnsum1.
@@ -1396,7 +1381,7 @@ Defined.
 Corollary weqstnsum2 { X : UU } {n : nat} (f : ⟦n⟧ -> nat) (g : X -> ⟦n⟧ ) :
   (∏ i, ⟦f i⟧ ≃ hfiber g i) -> X ≃ ⟦stnsum f⟧.
 Proof.
-  intros ? ? ? ? w.
+  intros w.
   use (weqcomp _ (weqstnsum _ _ w)).
   apply weqtococonusf.
 Defined.
@@ -1481,7 +1466,7 @@ Defined.
 Theorem weqfromdecsubsetofstn { n : nat } ( f : ⟦n⟧ -> bool ) :
   total2 ( λ x : nat, hfiber f true ≃ (⟦x⟧) ).
 Proof.
-  intro.
+  revert f.
   induction n as [ | n IHn ].
   - intros.
     split with 0.
@@ -1553,7 +1538,7 @@ Defined.
 
 Theorem weqfromfunstntostn ( n m : nat ) : (⟦n⟧ -> ⟦m⟧) ≃ ⟦natpower m n⟧.
 Proof.
-  intro n.
+  revert m.
   induction n as [ | n IHn ].
   - intro m.
     apply weqcontrcontr.
@@ -1576,7 +1561,7 @@ Defined.
 
 Definition stnprod { n : nat } ( f : ⟦n⟧ -> nat ) : nat.
 Proof.
-  intro n.
+  revert f.
   induction n as [ | n IHn ].
   - intro.
     apply 1.
@@ -1593,7 +1578,7 @@ Defined.
 
 Lemma stnprod_eq {n : nat} (f g: ⟦n⟧ -> nat) : f ~ g -> stnprod f = stnprod g.
 Proof.
-  intros ? ? ? h. induction n as [|n IH].
+  intros h. induction n as [|n IH].
   { apply idpath. }
   rewrite 2? stnprod_step. induction (h lastelement).
   apply (maponpaths (λ i, i * f lastelement)). apply IH. intro x. apply h.
@@ -1603,7 +1588,7 @@ Theorem weqstnprod { n : nat } ( P : ⟦n⟧ -> UU ) ( f : ⟦n⟧ -> nat )
   ( ww : ∏ i : ⟦n⟧ , ( stn ( f i ) ) ≃ ( P i ) ) :
   ( ∏ x : ⟦n⟧ , P x  ) ≃ stn ( stnprod f ).
 Proof.
-  intro n.
+  revert P f ww.
   induction n as [ | n IHn ].
   - intros. simpl. apply ( weqcontrcontr ).
     + apply ( iscontrsecoverempty2 _ ( negstn0 ) ).
@@ -1626,7 +1611,7 @@ Defined.
 
 Theorem weqweqstnsn ( n : nat ) : (⟦S n⟧ ≃ ⟦S n⟧)  ≃  ⟦S n⟧ × ( ⟦n⟧ ≃ ⟦n⟧ ).
 Proof.
-  intro. assert ( l := @lastelement n ).
+  assert ( l := @lastelement n ).
   intermediate_weq ( isolated (⟦S n⟧) × (compl _ l ≃ compl _ l) ).
   { apply weqcutonweq. intro i. apply isdeceqstn. }
   apply weqdirprodf.
@@ -1639,7 +1624,6 @@ Defined.
 
 Theorem weqfromweqstntostn ( n : nat ) : ( (⟦n⟧) ≃ (⟦n⟧) ) ≃ ⟦factorial n⟧.
 Proof.
-  intro.
   induction n as [ | n IHn ].
   - simpl.
     apply ( weqcontrcontr ).
@@ -1665,7 +1649,6 @@ Defined.
 
 Theorem ischoicebasestn ( n : nat ) : ischoicebase (⟦n⟧).
 Proof.
-  intro.
   induction n as [ | n IHn ].
   - apply ( ischoicebaseempty2 negstn0 ).
   - apply ( ischoicebaseweqf ( weqdnicoprod n lastelement )
@@ -1684,7 +1667,6 @@ Defined.
 Lemma negweqstnsn0 (n : nat) : ¬ (⟦S n⟧ ≃ stn O).
 Proof.
   unfold neg.
-  intro.
   assert (lp: ⟦S n⟧) by apply lastelement.
   intro X.
   apply weqstn0toempty.
@@ -1694,7 +1676,6 @@ Defined.
 Lemma negweqstn0sn (n : nat) : ¬ (stn O ≃ ⟦S n⟧).
 Proof.
   unfold neg.
-  intro.
   assert (lp: ⟦S n⟧) by apply lastelement.
   intro X.
   apply weqstn0toempty.
@@ -1703,7 +1684,7 @@ Defined.
 
 Lemma weqcutforstn ( n n' : nat ) : ⟦S n⟧ ≃ ⟦S n'⟧ -> ⟦n⟧ ≃ ⟦n'⟧.
 Proof.
-  intros ? ? w. assert ( k := @lastelement n  ).
+  intros w. assert ( k := @lastelement n  ).
   intermediate_weq (stn_compl k).
   - apply weqdnicompl.
   - intermediate_weq (stn_compl (w k)).
@@ -1712,7 +1693,7 @@ Proof.
 Defined.
 
 Theorem weqtoeqstn { n n' : nat } : ⟦n⟧ ≃ ⟦n'⟧ -> n = n'.
-Proof. intro.
+Proof. revert n'.
        induction n as [ | n IHn ].
        - intro. destruct n' as [ | n' ].
          + intros; apply idpath.
@@ -1725,8 +1706,7 @@ Defined.
 
 Corollary stnsdnegweqtoeq ( n n' : nat ) ( dw : dneg (⟦n⟧ ≃ ⟦n'⟧) ) : n = n'.
 Proof.
-  intros n n' X.
-  apply (eqfromdnegeq nat isdeceqnat _ _  (dnegf (@weqtoeqstn n n') X)).
+  apply (eqfromdnegeq nat isdeceqnat _ _  (dnegf (@weqtoeqstn n n') dw)).
 Defined.
 
 (** ** Some results on bounded quantification *)
@@ -1797,7 +1777,6 @@ Defined.
 Lemma weqexistsnatlehn0 ( P : nat -> hProp  ) :
   ( hexists ( λ n : nat, ( natleh n 0 ) × ( P n ) ) ) ≃ P 0.
 Proof.
-  intro.
   assert ( lg : hexists ( λ n : nat, ( natleh n 0 ) × ( P n ) ) <-> P 0  ).
   { split.
     - simpl.
@@ -1898,7 +1877,6 @@ Lemma negbforalldectototal2neg ( n : nat ) ( P : nat -> UU )
   ¬ ( ∏ n' : nat , natleh n' n -> P n' ) ->
   total2 ( λ n', ( natleh n' n ) × ¬ ( P n' ) ).
 Proof.
-  intros n P is.
   set ( P' := λ n' : nat, hProppair _ ( is n' ) ).
   induction n as [ | n IHn ].
   - intro nf.
@@ -1956,7 +1934,7 @@ Defined.
 Theorem accth ( F : nat -> UU ) ( is : ∏ n , isdecprop ( F n ) )
         ( is' : hexists F ) : natdecleast F is.
 Proof.
-  intros F is.
+  revert is'.
   simpl.
   apply (@hinhuniv _ ( hProppair _ ( isapropnatdecleast F is ) ) ).
   intro t2.
@@ -2007,7 +1985,6 @@ Corollary dni_lastelement_is_inj {n : nat} {i j : ⟦n⟧ }
   (e : dni_lastelement i = dni_lastelement j) :
   i = j.
 Proof.
-  intros n i j e.
   apply isinjstntonat.
   unfold dni_lastelement in e.
   apply (maponpaths pr1) in e.
@@ -2043,7 +2020,7 @@ Ltac inductive_reflexivity i b :=
 
 Definition concatenate' {X:UU} {m n:nat} (f : ⟦m⟧ -> X) (g : ⟦n⟧ -> X) : ⟦m+n⟧ -> X.
 Proof.
-  intros ? ? ? ? ? i.
+  intros i.
   (* we are careful to use weqfromcoprodofstn_invmap both here and in weqstnsum_invmap *)
   induction (weqfromcoprodofstn_invmap _ _ i) as [j | k].
   + exact (f j).
@@ -2070,7 +2047,7 @@ Defined.
 Definition flatten' {X:UU} {n:nat} {m: ⟦n⟧ -> nat} :
   (∏ (i: ⟦n⟧ ), ⟦m i⟧ -> X) -> ( ⟦stnsum m⟧ -> X).
 Proof.
-  intros ? ? ? g.
+  intros g.
   exact (uncurry g ∘ invmap (weqstnsum1 m)).
 Defined.
 
@@ -2078,7 +2055,7 @@ Definition stn_predicate {n : nat} (P : ⟦n⟧ -> UU)
            (k : nat) (h h' : k < n) :
            P (k,,h) -> P (k,,h').
 Proof.
-  intros n P k h h' H.
+  intros H.
   transparent assert (X : (h = h')).
   - apply propproperty.
   - exact (transportf (λ x, P (k,,x)) X H).
@@ -2088,7 +2065,6 @@ Definition two := ⟦2⟧.
 
 Definition two_rec {A : UU} (a b : A) : ⟦2⟧ -> A.
 Proof.
-  intros A a b.
   induction 1 as [n p].
   induction n as [|n _]; [apply a|].
   induction n as [|n _]; [apply b|].
@@ -2098,7 +2074,7 @@ Defined.
 Definition two_rec_dep (P : two -> UU):
   P (● 0) -> P (● 1) -> ∏ n, P n.
 Proof.
-  intros P a b n.
+  intros a b n.
   induction n as [n p].
   induction n as [|n _]. eapply stn_predicate. apply a.
   induction n as [|n _]. eapply stn_predicate. apply b.
@@ -2109,7 +2085,6 @@ Definition three := stn 3.
 
 Definition three_rec {A : UU} (a b c : A) : stn 3 -> A.
 Proof.
-  intros A a b c.
   induction 1 as [n p].
   induction n as [|n _]; [apply a|].
   induction n as [|n _]; [apply b|].
@@ -2120,7 +2095,7 @@ Defined.
 Definition three_rec_dep (P : three -> UU):
   P (● 0) -> P (● 1) -> P (● 2) -> ∏ n, P n.
 Proof.
-  intros P a b c n.
+  intros a b c n.
   induction n as [n p].
   induction n as [|n _]. eapply stn_predicate. apply a.
   induction n as [|n _]. eapply stn_predicate. apply b.
@@ -2139,7 +2114,7 @@ Definition is_stn_strictly_increasing {m : nat} (f : ⟦m⟧ → nat) :=
 Lemma is_strincr_impl_incr {m : nat} (f : ⟦m⟧ → nat) :
   is_stn_strictly_increasing f -> is_stn_increasing f.
 Proof.
-  intros ? ? inc ? ? e. induction (natlehchoice _ _ e) as [I|J]; clear e.
+  intros inc ? ? e. induction (natlehchoice _ _ e) as [I|J]; clear e.
   + apply natlthtoleh. apply inc. exact I.
   + assert (J' : i = j).
     { apply subtypeEquality_prop. exact J. }
@@ -2149,7 +2124,7 @@ Defined.
 Lemma is_incr_impl_strincr {m : nat} (f : ⟦m⟧ → nat) :
   isincl f -> is_stn_increasing f -> is_stn_strictly_increasing f.
 Proof.
-  intros ? ? incl incr i j e.
+  intros incl incr i j e.
   assert (d : i ≤ j).
   { apply natlthtoleh. assumption. }
   assert (c := incr _ _ d); clear d.
@@ -2166,7 +2141,7 @@ Defined.
 
 Lemma stnsum_ge1 {m : nat} (f : ⟦m⟧ → nat) : ( ∏ i, f i ≥ 1 ) → stnsum f ≥ m.
 Proof.
-  intros ? ? G.
+  intros G.
   set (g := λ i:⟦m⟧, 1).
   assert (E : stnsum g = m).
   { apply stnsum_1. }
@@ -2205,7 +2180,7 @@ Lemma stnsum_diffs {m : nat} (f : ⟦S m⟧ → nat) : is_stn_increasing f ->
   stnsum (λ i, f (dni_firstelement i) - f (dni_lastelement i)) =
   f lastelement - f firstelement.
 Proof.
-  intros ? ? e.
+  intros e.
   induction m as [|m I].
   - change (0 = f firstelement - f firstelement).
     apply pathsinv0.
@@ -2230,7 +2205,7 @@ Defined.
 Lemma stn_ord_incl {m : nat} (f : ⟦S m⟧ → nat) :
   is_stn_strictly_increasing f  →  f lastelement ≥ f firstelement + m.
 Proof.
-  intros ? ? strinc.
+  intros strinc.
   assert (inc := is_strincr_impl_incr _ strinc).
   set (d := λ i : ⟦ m ⟧, f (dni_firstelement i) - f (dni_lastelement i)).
   assert (E := stnsum_diffs f inc).
@@ -2254,7 +2229,7 @@ Defined.
 Lemma stn_ord_inj {n : nat} (f : incl (⟦n⟧) (⟦n⟧)) :
   (∏ (i j: ⟦n⟧ ), i ≤ j → f i ≤ f j) -> ∏ i, f i = i.
 Proof.
-  intros ? ? inc ?.
+  intros inc ?.
   induction n as [|n I].
   - apply fromempty. apply negstn0. assumption.
   - assert (strincr : is_stn_strictly_increasing (pr1incl _ _ f)).
@@ -2306,6 +2281,5 @@ Defined.
 Lemma stn_ord_bij {n : nat} (f : ⟦ n ⟧ ≃ ⟦ n ⟧) :
   (∏ (i j: ⟦n⟧ ), i ≤ j → f i ≤ f j) -> ∏ i, f i = i.
 Proof.
-  intros ? ?.
   apply (stn_ord_inj (weqtoincl _ _ f)).
 Defined.

@@ -1,5 +1,3 @@
-Unset Automatic Introduction.
-
 Require UniMath.Algebra.IteratedBinaryOperations.
 Require UniMath.Foundations.NaturalNumbers.
 Require UniMath.Algebra.IteratedBinaryOperations.
