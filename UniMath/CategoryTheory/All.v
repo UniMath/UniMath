@@ -18,7 +18,6 @@ Require Export UniMath.CategoryTheory.Monics.
 Require Export UniMath.CategoryTheory.Epis.
 Require Export UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Export UniMath.CategoryTheory.PrecategoriesWithAbgrops.
-Require Export UniMath.CategoryTheory.ArrowCategory.
 Require Export UniMath.CategoryTheory.limits.cones.
 Require Export UniMath.CategoryTheory.limits.equalizers.
 Require Export UniMath.CategoryTheory.limits.graphs.colimits.
@@ -76,6 +75,7 @@ Require Export UniMath.CategoryTheory.PointedFunctors.
 Require Export UniMath.CategoryTheory.HorizontalComposition.
 Require Export UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Export UniMath.CategoryTheory.CommaCategories.
+Require Export UniMath.CategoryTheory.ArrowCategory.
 Require Export UniMath.CategoryTheory.RightKanExtension.
 Require Export UniMath.CategoryTheory.slicecat.
 Require Export UniMath.CategoryTheory.coslicecat.
@@ -146,6 +146,9 @@ Require Export UniMath.CategoryTheory.DisplayedCats.Limits.
 Require Export UniMath.CategoryTheory.DisplayedCats.Examples.
 Require Export UniMath.CategoryTheory.DisplayedCats.Adjunctions.
 Require Export UniMath.CategoryTheory.Bicategories.Bicat.
+Require Export UniMath.CategoryTheory.Bicategories.BicatAliases.
+Require Export UniMath.CategoryTheory.Bicategories.bicategory_laws.
+Require Export UniMath.CategoryTheory.Bicategories.Examples.one_types.
 Require Export UniMath.CategoryTheory.Bicategories.StandardBicategories.
 Require Export UniMath.CategoryTheory.Bicategories.OpCellBicat.
 Require Export UniMath.CategoryTheory.Bicategories.OpMorBicat.
