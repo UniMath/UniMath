@@ -13,7 +13,7 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Local Open Scope cat.
 
-Notation "a <-- b" := (@precategory_morphisms (opp_precat _) a b) (at level 50, left associativity) : cat.
+Notation "a <-- b" := (@precategory_morphisms (opp_precat _) a b) : cat.
 
 Definition src {C:precategory} {a b:C} (f:a-->b) : C := a.
 Definition tar {C:precategory} {a b:C} (f:a-->b) : C := b.
@@ -131,13 +131,13 @@ Definition makeFunctor {C D:category}
 
 Definition functor_object_application {B C:category} (F : [B,C]) (b:B) : C
   := (F:_⟶_) b.
-Notation "F ◾ b" := (functor_object_application F b) (at level 40, left associativity) : cat.
+Notation "F ◾ b" := (functor_object_application F b) : cat.
 (* \sqb3 *)
 
 Definition functor_mor_application {B C:category} {b b':B} (F:[B,C]) :
   b --> b'  ->  F ◾ b --> F ◾ b'
   := λ f, # (F:_⟶_) f.
-Notation "F ▭ f" := (functor_mor_application F f) (at level 40, left associativity) : cat. (* \rew1 *)
+Notation "F ▭ f" := (functor_mor_application F f) : cat.
 
 Definition arrow {C:category} (c : C) (X : [C^op,SET]) : hSet := X ◾ c.
 Notation "c ⇒ X" := (arrow c X) : cat. (* \r= *)
@@ -165,7 +165,7 @@ Notation "q ⟳ x" := (nattrans_arrow_composition x q) (at level 50, left associ
 Definition nattrans_object_application {B C:category} {F F' : [B,C]} (b:B) :
   F --> F'  ->  F ◾ b --> F' ◾ b
   := λ p, (p:_ ⟹ _) b.
-Notation "p ◽ b" := (nattrans_object_application b p) (at level 40) : cat.
+Notation "p ◽ b" := (nattrans_object_application b p) : cat.
 (* agda input : \sqw3 *)
 
 Definition arrow_mor_id {C:category} {c:C} {X:[C^op,SET]} (x:c⇒X) :
@@ -424,18 +424,19 @@ Goal ∏ X Y (f:X->Y), f = λ x, f x.
 
 Definition categoryWithStructure (C:category) (P:ob C -> UU) : category.
 Proof.
-  unshelve refine (makecategory _ _ _ _ _ _ _ _).
+  use makecategory.
   (* add a new component to each object: *)
   - exact (∑ c:C, P c).
   (* the homsets ignore the extra structure: *)
   - intros x y. exact (pr1 x --> pr1 y).
   (* the rest is the same: *)
+  - intros. apply homset_property.
   - intros x. apply identity.
   - intros x y z f g. exact (g ∘ f).
-  - intros. simpl. refine (homset_property C _ _).
   - intros. apply id_left.
   - intros. apply id_right.
   - intros. apply assoc.
+  - intros. apply assoc'.
 Defined.
 
 Definition functorWithStructures {C:category} {P Q:ob C -> UU}
@@ -524,3 +525,4 @@ Proof.
 Defined.
 
       (*  *)
+

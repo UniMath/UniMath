@@ -147,6 +147,9 @@ Proof.
   - apply algebra_mor_eq.
     + apply hs.
     + apply assoc.
+  - apply algebra_mor_eq.
+    + apply hs.
+    + apply assoc'.
 Qed.
 
 Definition precategory_FunctorAlg (hs : has_homsets C)

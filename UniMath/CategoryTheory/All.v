@@ -1,10 +1,9 @@
 (* This file has been auto-generated, do not edit it. *)
 Require Export UniMath.CategoryTheory.total2_paths.
 Require Export UniMath.CategoryTheory.Categories.
-Require Export UniMath.CategoryTheory.NNO.
 Require Export UniMath.CategoryTheory.functor_categories.
-Require Export UniMath.CategoryTheory.Groupoids.
 Require Export UniMath.CategoryTheory.opp_precat.
+Require Export UniMath.CategoryTheory.Groupoids.
 Require Export UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Export UniMath.CategoryTheory.ProductCategory.
 Require Export UniMath.CategoryTheory.whiskering.
@@ -19,6 +18,7 @@ Require Export UniMath.CategoryTheory.Monics.
 Require Export UniMath.CategoryTheory.Epis.
 Require Export UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Export UniMath.CategoryTheory.PrecategoriesWithAbgrops.
+Require Export UniMath.CategoryTheory.ArrowCategory.
 Require Export UniMath.CategoryTheory.limits.cones.
 Require Export UniMath.CategoryTheory.limits.equalizers.
 Require Export UniMath.CategoryTheory.limits.graphs.colimits.
@@ -53,6 +53,7 @@ Require Export UniMath.CategoryTheory.limits.FinOrdProducts.
 Require Export UniMath.CategoryTheory.limits.FinOrdCoproducts.
 Require Export UniMath.CategoryTheory.limits.Opp.
 Require Export UniMath.CategoryTheory.limits.graphs.eqdiag.
+Require Export UniMath.CategoryTheory.NNO.
 Require Export UniMath.CategoryTheory.Subcategory.Limits.
 Require Export UniMath.CategoryTheory.EpiFacts.
 Require Export UniMath.CategoryTheory.exponentials.
@@ -175,3 +176,4 @@ Require Export UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
 Require Export UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
 Require Export UniMath.CategoryTheory.Monoidal.Actions.
 Require Export UniMath.CategoryTheory.Monoidal.Strengths.
+Require Export UniMath.CategoryTheory.Enriched.Enriched.

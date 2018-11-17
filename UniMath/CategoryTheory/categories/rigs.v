@@ -53,7 +53,7 @@ Section def_rig_precategory.
 
   Lemma is_precategory_rig_precategory_data : is_precategory rig_precategory_data.
   Proof.
-    use mk_is_precategory.
+    use mk_is_precategory_one_assoc.
     - intros a b f. use rig_id_left.
     - intros a b f. use rig_id_right.
     - intros a b c d f g h. use rig_assoc.

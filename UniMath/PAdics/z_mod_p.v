@@ -6,10 +6,6 @@
 
 (** made compatible with the current UniMath library by Ralph Matthes in October 2017 *)
 
-(** Settings *)
-
-Unset Automatic Introduction.
-
 (** Imports *)
 
 Require Import UniMath.PAdics.lemmas.
@@ -59,7 +55,7 @@ Defined.
 Lemma hzdivlinearcombleft ( a b c d : hz ) ( f : a = b + c )
   ( x : hzdiv d a ) ( y : hzdiv d b ) : hzdiv d c.
 Proof.
-  intros a b c d f x y P s.
+  intros P s.
   use (hinhuniv _ x).
   intro x'.
   use (hinhuniv _ y).
@@ -85,7 +81,7 @@ Defined.
 Lemma hzdivlinearcombright ( a b c d : hz ) ( f : a = b + c )
   ( x: hzdiv d b ) ( y : hzdiv d c ) : hzdiv d a.
 Proof.
-  intros a b c d f x y P s.
+  intros P s.
   use (hinhuniv _ x).
   intro x'.
   use (hinhuniv _ y).
@@ -106,7 +102,7 @@ Lemma divalgorithmnonneg ( n : nat ) ( m : nat ) ( p : hzlth 0 ( nattohz m ) ) :
     nattohz n = ( ( nattohz m ) * ( pr1 qr ) ) + ( pr2 qr )  ×
         ( hzleh 0 ( pr2 qr ) × hzlth ( pr2 qr ) ( nattohz m ) ).
 Proof.
-  intros ? ?.
+  revert p.
   induction n.
   - intros.
     split with ( dirprodpair 0 0 ).
@@ -522,7 +518,7 @@ Defined.
 Lemma hzdivhzabsval ( a b : hz ) ( p : hzdiv a b ) :
   natleh ( hzabsval a ) ( hzabsval b ) ∨ hzabsval b = 0%nat.
 Proof.
-  intros a b p P q.
+  intros P q.
   apply ( p P ).
   intro t.
   destruct t as [ k f ].
@@ -754,7 +750,7 @@ Lemma hzqrtest ( m : hz ) ( x : hzneq 0 m ) ( a q r : hz ) :
   ( hzleh 0 r × hzlth r ( nattohz (hzabsval m ) ) ) ->
   q = hzquotientmod m x a × r = hzremaindermod m x a.
 Proof.
-  intros m x a q r d.
+  intros d.
   set ( k := tpair ( P := ( fun qr : hz × hz =>
     a = m * ( pr1 qr ) + pr2 qr ×
     ( hzleh 0 ( pr2 qr ) × hzlth ( pr2 qr ) ( nattohz ( hzabsval m ) ) ) ) )
@@ -1222,6 +1218,7 @@ Definition natgcd ( m n : nat ) : ( natneq 0%nat n ) ->
                                   ( natleh m n ) ->
                                   ( hzgcd ( nattohz n ) ( nattohz m ) ).
 Proof.
+  revert m n.
   set ( E := ( fun m : nat => forall n : nat,
                    ( natneq 0%nat n ) ->
                    ( natleh m n ) ->
@@ -1711,6 +1708,7 @@ Lemma natbezoutstrong ( m n : nat ) ( i : hzneq 0 ( nattohz n ) ) :
        gcd ( nattohz n ) ( nattohz m ) i =
        pr1 ab * nattohz n + pr2 ab * nattohz m.
 Proof.
+  revert m n i.
   set ( E := ( fun m : nat => forall n : nat, forall i : hzneq 0 ( nattohz n ),
           ∑ ab : hz × hz,
             gcd ( nattohz n ) ( nattohz m ) i =
@@ -2042,7 +2040,7 @@ Defined.
 
 Definition hzmod ( p : hz ) ( x : hzneq 0 p ) : hrel hz.
 Proof.
-  intros p x n m.
+  intros n m.
   exact ( hProppair ( hzremaindermod p x n = hzremaindermod p x m )
                     ( hzmodisaprop p x n m ) ).
 Defined.
@@ -2095,7 +2093,7 @@ Defined.
 Lemma hzmodcompatmultl ( p : hz ) ( x : hzneq 0 p ) :
   forall a b c : hz, hzmod p x a b -> hzmod p x ( c * a ) ( c * b ).
 Proof.
-  intros p x a b c v.
+  intros a b c v.
   unfold hzmod.
   change (hzremaindermod p x (c * a) = hzremaindermod p x (c * b)).
   rewrite hzremaindermodandtimes.
@@ -2107,7 +2105,7 @@ Defined.
 Lemma hzmodcompatmultr ( p : hz ) ( x : hzneq 0 p ) :
 forall a b c : hz, hzmod p x a b -> hzmod p x ( a * c ) ( b * c ).
 Proof.
-  intros p x a b c v.
+  intros a b c v.
   rewrite hzmultcomm.
   rewrite ( hzmultcomm b ).
   apply hzmodcompatmultl.
@@ -2117,7 +2115,7 @@ Defined.
 Lemma hzmodcompatplusl ( p : hz ) ( x : hzneq 0 p ) :
   forall a b c : hz, hzmod p x a b -> hzmod p x ( c + a ) ( c + b ).
 Proof.
-  intros p x a b c v.
+  intros a b c v.
   unfold hzmod.
   change ( hzremaindermod p x ( c + a ) = hzremaindermod p x ( c + b ) ).
   rewrite hzremaindermodandplus.
@@ -2129,7 +2127,7 @@ Defined.
 Lemma hzmodcompatplusr ( p : hz ) ( x : hzneq 0 p ) :
   forall a b c : hz, hzmod p x a b -> hzmod p x ( a + c ) ( b + c ).
 Proof.
-  intros p x a b c v.
+  intros a b c v.
   rewrite hzpluscomm.
   rewrite ( hzpluscomm b ).
   apply hzmodcompatplusl.

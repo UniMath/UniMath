@@ -54,7 +54,7 @@ Section def_abmonoid_precategory.
 
   Lemma is_precategory_abmonoid_precategory_data : is_precategory abmonoid_precategory_data.
   Proof.
-    use mk_is_precategory.
+    use mk_is_precategory_one_assoc.
     - intros a b f. use abmonoid_id_left.
     - intros a b f. use abmonoid_id_right.
     - intros a b c d f g h. use abmonoid_assoc.

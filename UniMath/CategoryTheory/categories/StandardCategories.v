@@ -34,7 +34,7 @@ Proof. intros. exact (compose f g). Defined.
 (** The pregroupoid with points in X as objects and paths as morphisms *)
 Definition path_pregroupoid (X:UU) : pregroupoid.
   use mk_pregroupoid.
-  - use mk_precategory; use tpair.
+  - use mk_precategory_one_assoc; use tpair.
     + exact (X,, λ x y, x = y).
     + use dirprodpair.
       * exact (λ _, idpath _).

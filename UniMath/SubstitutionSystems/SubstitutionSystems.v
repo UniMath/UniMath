@@ -627,6 +627,8 @@ Proof.
     apply (@id_right EndC).
   - apply (invmap (hssMor_eq _ _ _ _ )).
     apply (@assoc EndC).
+  - apply (invmap (hssMor_eq _ _ _ _ )).
+    apply (@assoc' EndC).
 Qed.
 
 Definition hss_precategory : precategory := tpair _ _ is_precategory_hss.

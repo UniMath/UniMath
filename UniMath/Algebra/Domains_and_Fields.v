@@ -22,9 +22,6 @@
 
 (** Settings *)
 
-(** The following line has to be removed for the file to compile with Coq8.2 *)
-Unset Automatic Introduction.
-
 Unset Kernel Term Sharing.
 
 (** Imports *)
@@ -315,7 +312,6 @@ Definition isintdom (X : commring) : UU :=
 
 Lemma isapropisintdom (X : commring) : isaprop (isintdom X).
 Proof.
-  intros X.
   use isapropdirprod.
   - apply propproperty.
   - use impred. intros x1. use impred. intros x2. use impred. intros H.
@@ -345,7 +341,6 @@ Definition intdomax (X : intdom) :
 
 Definition intdom_univalence_weq1 (X Y : intdom) : (X = Y) ≃ (pr1 X = pr1 Y).
 Proof.
-  intros X Y.
   use subtypeInjectivity.
   intros w. use isapropisintdom.
 Defined.
@@ -356,12 +351,11 @@ Definition intdom_univalence_weq2 (X Y : intdom) : (pr1 X = pr1 Y) ≃ (ringiso 
 
 Definition intdom_univalence_map (X Y : intdom) : (X = Y) -> (ringiso X Y).
 Proof.
-  intros X Y e. induction e. exact (idrigiso X).
+  intros e. induction e. exact (idrigiso X).
 Defined.
 
 Lemma intdom_univalence_isweq (X Y : intdom) : isweq (intdom_univalence_map X Y).
 Proof.
-  intros X Y.
   use isweqhomot.
   - exact (weqcomp (intdom_univalence_weq1 X Y) (intdom_univalence_weq2 X Y)).
   - intros e. induction e. use weqcomp_to_funcomp_app.
@@ -371,7 +365,6 @@ Opaque intdom_univalence_isweq.
 
 Definition intdom_univalence (X Y : intdom) : (X = Y) ≃ (ringiso X Y).
 Proof.
-  intros X Y.
   use weqpair.
   - exact (intdom_univalence_map X Y).
   - exact (intdom_univalence_isweq X Y).
@@ -420,7 +413,7 @@ Defined.
 
 Lemma intdomlcan (X : intdom) : ∏ (a b c : X), c != 0 -> paths (c * a) (c * b) -> a = b.
 Proof.
-  intros X a b c ne e.
+  intros a b c ne e.
   apply (@grtopathsxy X a b). change (paths (a - b) 0).
   assert (e' := grfrompathsxy X e). change (paths ((c * a) - (c * b)) 0) in e'.
   rewrite (pathsinv0 (ringrmultminus X _ _)) in e'.
@@ -440,7 +433,7 @@ Opaque intdomlcan.
 
 Lemma intdomrcan (X : intdom) : ∏ (a b c : X), c != 0 -> paths (a * c) (b * c) -> a = b.
 Proof.
-  intros X a b c ne e. apply (@grtopathsxy X a b). change (paths (a - b) 0).
+  intros a b c ne e. apply (@grtopathsxy X a b). change (paths (a - b) 0).
   assert (e' := grfrompathsxy X e). change (paths ((a * c) - (b * c)) 0) in e'.
   rewrite (pathsinv0 (ringlmultminus X _ _)) in e'.
   rewrite (pathsinv0 (ringrdistr X _ _ c)) in e'.
@@ -505,7 +498,6 @@ Definition isafield (X : commring) : UU :=
 
 Lemma isapropisafield (X : commring) : isaprop (isafield X).
 Proof.
-  intros X.
   use isofhleveltotal2.
   - apply propproperty.
   - intros H.
@@ -529,7 +521,7 @@ Definition pr1fld : fld -> commring := @pr1 _ _.
 
 Definition fldtointdom (X : fld) : intdom.
 Proof.
-  intro. split with (pr1 X). split with (pr1 (pr2 X)).
+  split with (pr1 X). split with (pr1 (pr2 X)).
   intros a1 a2. destruct (pr2 (pr2 X) a1) as [ a1' | e0 ].
   - intro e12. rewrite (pathsinv0 (ringmultx0 (pr1 X) a1)) in e12.
     set (e2 := lcanfromlinv _ _ _ _ (invtolinv _ _ a1') e12).
@@ -561,7 +553,6 @@ Definition fldmultinv {X : fld} (x : X) (ne : x != 0) : X := pr1 (fldmultinvpair
 
 Definition fld_univalence_weq1 (X Y : fld) : (X = Y) ≃ (pr1 X = pr1 Y).
 Proof.
-  intros X Y.
   use subtypeInjectivity.
   intros w. use isapropisafield.
 Defined.
@@ -572,12 +563,11 @@ Definition fld_univalence_weq2 (X Y : fld) : (pr1 X = pr1 Y) ≃ (ringiso X Y) :
 
 Definition fld_univalence_map (X Y : fld) : (X = Y) -> (ringiso X Y).
 Proof.
-  intros X Y e. induction e. exact (idrigiso X).
+  intros e. induction e. exact (idrigiso X).
 Defined.
 
 Lemma fld_univalence_isweq (X Y : fld) : isweq (fld_univalence_map X Y).
 Proof.
-  intros X Y.
   use isweqhomot.
   - exact (weqcomp (fld_univalence_weq1 X Y) (fld_univalence_weq2 X Y)).
   - intros e. induction e. use weqcomp_to_funcomp_app.
@@ -587,7 +577,6 @@ Opaque fld_univalence_isweq.
 
 Definition fld_univalence (X Y : fld) : (X = Y) ≃ (ringiso X Y).
 Proof.
-  intros X Y.
   use weqpair.
   - exact (fld_univalence_map X Y).
   - exact (fld_univalence_isweq X Y).
@@ -698,7 +687,7 @@ Defined.
 Lemma islinvinfldfrac (X : intdom) (is : isdeceq X) (x : commringfrac X (intdomnonzerosubmonoid X))
       (ne : x != 0) : paths ((fldfracmultinv0 X is x) * x) 1.
 Proof.
-  intros X is.
+  revert x ne.
   assert (int : ∏ x0, isaprop (x0 != 0 -> paths ((fldfracmultinv0 X is x0) * x0) 1)).
   {
     intro x0.

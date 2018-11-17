@@ -4,7 +4,7 @@ Require Import UniMath.Foundations.UnivalenceAxiom
                UniMath.Ktheory.Utilities.
 Require UniMath.CategoryTheory.Categories.
 Require UniMath.Ktheory.Nat.
-Unset Automatic Introduction.
+
 Notation ℕ := nat.
 
 Definition target_paths {Y} (f:ℕ->Y) := ∏ n, f n=f(S n).
@@ -32,7 +32,7 @@ Proof. intros. intro n. induction n as [|n IHn]. { exact (h0). } { exact (IHn @ 
 
 Definition map {Y} {f:ℕ->Y} (s:target_paths f) :
   halfline -> GuidedHomotopy f s.
-Proof. intros ? ? ? r. apply (squash_to_prop r).
+Proof. intros r. apply (squash_to_prop r).
        { apply isapropifcontr. apply iscontrGuidedHomotopy. }
        { intro n. exists (f n). induction n as [|n IHn].
          { exists (makeNullHomotopy s (idpath _)). intro n. reflexivity. }
@@ -55,7 +55,7 @@ Proof. intros. set (q := map_path s n).
 
 Definition halfline_map {Y} {target_points:ℕ->Y} (s:target_paths target_points) :
   halfline -> Y.
-Proof. intros ? ? ? r. exact (pr1 (map s r)). Defined.
+Proof. intros r. exact (pr1 (map s r)). Defined.
 
 Definition check_values {Y} {target_points:ℕ->Y}
            (s:target_paths target_points) (n:ℕ) :

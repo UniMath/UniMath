@@ -1,8 +1,8 @@
 total2_paths.v
 Categories.v
 functor_categories.v
-Groupoids.v
 opp_precat.v
+Groupoids.v
 PrecategoryBinProduct.v
 ProductCategory.v
 whiskering.v
@@ -74,6 +74,7 @@ PointedFunctors.v
 HorizontalComposition.v
 PointedFunctorsComposition.v
 CommaCategories.v
+ArrowCategory.v
 RightKanExtension.v
 slicecat.v
 coslicecat.v
@@ -177,3 +178,5 @@ Monoidal/MonoidalFunctors.v
 Monoidal/CategoriesOfMonoids.v
 Monoidal/Actions.v
 Monoidal/Strengths.v
+
+Enriched/Enriched.v
