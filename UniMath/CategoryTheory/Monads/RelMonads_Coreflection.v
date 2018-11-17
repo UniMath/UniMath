@@ -5,6 +5,7 @@ Contents:
 - Given a coreflection F -| G : C -> D, and a monad
   relative to J : A -> C, construct a monad
   relative to FJ : A -> D
+- The postcomposition map extends to monad morphisms
 
 Benedikt Ahrens, October 2018
 
@@ -23,6 +24,9 @@ Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.Monads.RelativeMonads.
 
 Local Open Scope cat.
+
+
+(** * Postcomposition of a relative monad with a coreflection *)
 
 Section RMonad_transfer.
 
@@ -50,6 +54,10 @@ Section RelMonad_transfer_object.
 
 Variable (T : RelMonad_data J).
 
+(** The new relative monad is given, on objects, by applying
+   the coreflection
+*)
+
 Definition RelMonad_composed_data : RelMonad_data (F □ J).
 Proof.
   repeat use tpair.
@@ -63,6 +71,8 @@ Notation "'σ'" := (r_bind T).
 Notation "'v'" := (r_eta T).
 Notation "'φ'" := (φ_adj R).
 Notation "'φ-1'" := (φ_adj_inv R).
+
+(** ** Proof of the monad axioms of the composed data *)
 
 Variable (TH : RelMonad_axioms T).
 
@@ -157,6 +167,8 @@ End RelMonad_transfer_object.
 Definition RelMonad_composed (T : RelMonad J) : RelMonad (F □ J)
     := RelMonad_composed_data T,, RelMonad_composed_axioms _ T.
 
+(** ** Postcomposition of a monad morphism with a coreflection *)
+
 Section RelMonad_transfer_morphism.
 
 Context {T T' : RelMonad J}
@@ -214,6 +226,7 @@ Definition RelMonadMor_composed : RelMonadMor (RelMonad_composed T) (RelMonad_co
 
 End RelMonad_transfer_morphism.
 
+(** ** Postcomposing a monad with the right adjoint of a coreflection *)
 
 Section RelMonad_transfer_radj_object.
 
@@ -257,6 +270,8 @@ End RelMonad_transfer_radj_object.
 
 Definition RelMonad_composed_radj (T : RelMonad (F □ J)) : RelMonad J
     := RelMonad_composed_radj_data T,, RelMonad_composed_radj_axioms _ T.
+
+(** ** Postcomposing a monad morphism with the right adjoint of a coreflection *)
 
 Section RelMonad_transfer_radj_morphism.
 
