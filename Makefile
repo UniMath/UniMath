@@ -361,7 +361,7 @@ DEPFILES := $(VFILES:.v=.v.d)
 endif
 
 # DEPFILES is defined above
-$(DEPFILES): | build/CoqMakefile.make
+$(DEPFILES): make-summary-files | build/CoqMakefile.make
 	$(MAKE) -f build/CoqMakefile.make $@
 
 # here we ensure that the travis script checks every package
