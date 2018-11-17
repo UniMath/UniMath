@@ -19,7 +19,7 @@ Local Open Scope abgr.
 Notation Hom_abgr := monoidfun.
 Notation "0" := (unel _) : abgr.
 Notation "x + y" := ( op x y ) : abgr.
-Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, left associativity, only parsing) : abgr.
+Notation "g ∘ f" := (monoidfuncomp f g) (only parsing) : abgr.
 
 Definition zeroAbgr : abgr.
   exists Group.zero. split. exact (pr2 Group.zero). intros x y. reflexivity.
