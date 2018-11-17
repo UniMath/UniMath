@@ -10,6 +10,7 @@ Author: Langston Barrett (@siddharthist)
 - The univalent category [FinSet] of finite sets/types
 - (Co)limits
   - Colimits
+    - Binary coproducts
   - Limits
     - Binary products
 
@@ -33,6 +34,7 @@ Require Import UniMath.CategoryTheory.Subcategory.Full.
 (* Limits *)
 Require Import UniMath.CategoryTheory.Subcategory.Limits.
 Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 
 Local Open Scope cat.
 Local Open Scope functions.
@@ -54,7 +56,20 @@ Definition FinSet : univalent_category :=
 
 (** *** Colimits *)
 
+(** **** Binary coproducts *)
+
+(** The coproduct of finite sets is finite, so the predicate "is finite" is closed
+    under the formation of coproducts. Therefore, FinSet inherits coproducts from HSET. *)
+Definition BinCoproductsFinSet : BinCoproducts FinSet.
+Proof.
+  apply (@bin_coproducts_in_full_subcategory HSET_univalent_category
+                                             finite_subtype BinCoproductsHSET).
+  intros; apply isfinitecoprod; assumption.
+Defined.
+
 (** *** Limits *)
+
+(** **** Binary products *)
 
 (** The product of finite sets is finite, so the predicate "is finite" is closed
     under the formation of products. Therefore, FinSet inherits products from HSET. *)

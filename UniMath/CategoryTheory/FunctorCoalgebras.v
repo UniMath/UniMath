@@ -115,10 +115,15 @@ Proof.
     + intros. apply coalgebra_homo_eq.
       * apply hasHom.
       * apply id_right.
-  - intros.
-    apply coalgebra_homo_eq.
-    + apply hasHom.
-    + apply assoc.
+  - { split.
+      - intros.
+        apply coalgebra_homo_eq.
+        + apply hasHom.
+        + apply assoc.
+      - intros.
+        apply coalgebra_homo_eq.
+        + apply hasHom.
+        + apply assoc'. }
 Defined.
 
 Definition CoAlg_precategory (hasHom : has_homsets C) : precategory

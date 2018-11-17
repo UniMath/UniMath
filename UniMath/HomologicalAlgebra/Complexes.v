@@ -1041,11 +1041,24 @@ Section complexes_precat.
         use MorphismEq.
         intros i. cbn.
         apply id_right.
-    - intros a b c d f g h.
-      use MorphismEq.
-      intros i. cbn.
-      apply assoc.
+    - split.
+      + intros a b c d f g h.
+        use MorphismEq.
+        intros i. cbn.
+        apply assoc.
+      + intros a b c d f g h.
+        use MorphismEq.
+        intros i. cbn.
+        apply assoc'.
   Qed.
+  (* With Defined instead of Qed just above, we get a substantial increase in compile time:
+        HomologicalAlgebra/KA                  (real: 334.56) >> (real:  57.64)
+        HomologicalAlgebra/TranslationFunctors (real: 587.48) >> (real: 106.44)
+        HomologicalAlgebra/MappingCylinder     (real:  31.59) >> (real:  13.79)
+        HomologicalAlgebra/KAPreTriangulated   (real: 295.70) >> (real:  63.97)
+        HomologicalAlgebra/KATriangulated      (real: 281.79) >> (real:  51.55)
+        HomologicalAlgebra/CohomologyComplex   (real: 138.27) >> (real:  51.45)
+   *)
 
   Definition ComplexPreCat : precategory := tpair _ _ is_precategory_ComplexPreCat_data.
 
