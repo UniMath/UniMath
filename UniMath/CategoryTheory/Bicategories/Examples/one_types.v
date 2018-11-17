@@ -35,7 +35,7 @@ Defined.
 Definition one_type_bicat_laws
   : prebicat_laws one_type_bicat_data.
 Proof.
-  build_prebicat_laws.
+  repeat (use tpair).
   - intros X Y f g p ; cbn in *.
     reflexivity.
   - intros X Y f g p ; cbn in *.
