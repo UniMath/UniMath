@@ -6,14 +6,10 @@
 
 (** made compatible with the current UniMath library by Ralph Matthes in October 2017 *)
 
-(** Settings *)
-
-Unset Automatic Introduction.
-
 (** Imports *)
 
 Require Import UniMath.PAdics.lemmas.
-Require Import UniMath.Algebra.Rigs_and_Rings.
+Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.Domains_and_Fields.
 
 (** * I. The field of fractions for an integrable domain with an apartness relation *)
@@ -64,15 +60,15 @@ Ltac permute := solve
   | idtac "The tactic permute does not apply to the current goal!"
   ].
 
-Lemma azerorelcomp ( cd : dirprod A ( aintdomazerosubmonoid A ) )
-  ( ef : dirprod A ( aintdomazerosubmonoid A ) )
-  ( p : ( pr1 cd ) * ( pr1 ( pr2 ef ) ) =
-      ( ( pr1 ef ) * ( pr1 ( pr2 cd ) ) ) )
-  ( q : ( pr1 cd ) # 0 ) : ( pr1 ef ) # 0.
+Lemma azerorelcomp ( cd : A × aintdomazerosubmonoid A )
+  ( ef : A × aintdomazerosubmonoid A )
+  ( p : pr1 cd * pr1 ( pr2 ef ) =
+        pr1 ef * pr1 ( pr2 cd ) )
+  ( q : pr1 cd # 0 ) : pr1 ef # 0.
 Proof.
   intros.
-  change ( ( @op2 A ( pr1 cd ) ( pr1 ( pr2 ef ) ) ) =
-           ( @op2 A ( pr1 ef ) ( pr1 ( pr2 cd ) ) ) ) in p.
+  change ( @op2 A ( pr1 cd ) ( pr1 ( pr2 ef ) ) =
+           @op2 A ( pr1 ef ) ( pr1 ( pr2 cd ) ) ) in p.
   assert ( ( @op2 A ( pr1 cd ) ( pr1 ( pr2 ef ) ) ) # 0 ) as v.
   { apply A.
     assumption.
@@ -101,9 +97,8 @@ Proof.
   apply ( azerolmultcomp p q ).
 Defined.
 
-Definition afldfracapartrelpre : hrel ( dirprod A ( aintdomazerosubmonoid A ) ) :=
-  fun ab cd : _ => ( ( pr1 ab ) * ( pr1 ( pr2 cd ) ) ) #
-                   ( ( pr1 cd ) * ( pr1 ( pr2 ab ) ) ).
+Definition afldfracapartrelpre : hrel ( A × aintdomazerosubmonoid A ) :=
+  fun ab cd => ( pr1 ab  * pr1 ( pr2 cd ) ) # ( pr1 cd * pr1 ( pr2 ab ) ).
 
 Lemma afldfracapartiscomprel :
   iscomprelrel ( eqrelcommringfrac A ( aintdomazerosubmonoid A ) )
@@ -256,7 +251,7 @@ Proof.
   assert ( a * f * d # e * b * d ) as v.
   { apply azerormultcomp; assumption. }
   use (hinhuniv _
-    ( ( acommring_acotrans A ( a * f * d ) ( c * b * f ) ( e * b * d ) ) v ) ).
+    ( acommring_acotrans A ( a * f * d ) ( c * b * f ) ( e * b * d ) v )).
   intro u. intros P k.
   apply k.
   unfold afldfracapartrelpre in *.
@@ -468,7 +463,6 @@ Defined.
 
 Definition afldfrac0 : acommring.
 Proof.
-  intros.
   split with ( commringfrac A ( aintdomazerosubmonoid A ) ).
   split with afldfracapart.
   split.
@@ -480,10 +474,10 @@ Proof.
     + apply isbinapartrafldfracop2.
 Defined.
 
-Definition afldfracmultinvint ( ab : dirprod A ( aintdomazerosubmonoid A ) )
+Definition afldfracmultinvint ( ab : A × aintdomazerosubmonoid A )
            ( is : afldfracapartrelpre ab ( dirprodpair ( @ringunel1 A )
                               ( unel ( aintdomazerosubmonoid A ) ) ) ) :
-  dirprod A ( aintdomazerosubmonoid A ).
+  A × aintdomazerosubmonoid A.
 Proof.
   intros.
   destruct ab as [ a b ].
@@ -557,12 +551,12 @@ Theorem afldfracisafld : isaafield afldfrac0.
 Proof.
   intros.
   split.
-  - change ( ( afldfracapartrel )
+  - change ( afldfracapartrel
                ( @ringunel2 ( commringfrac A (aintdomazerosubmonoid A ) ) )
                ( @ringunel1 ( commringfrac A ( aintdomazerosubmonoid A ) ) ) ).
     unfold afldfracapartrel.
-    set ( aux := ( @op2 A ( @ringunel2 A ) ( @ringunel2 A ) ) #
-                 ( @op2 A ( @ringunel1 A ) ( @ringunel2 A ) ) ).
+    set ( aux := @op2 A ( @ringunel2 A ) ( @ringunel2 A ) #
+                 @op2 A ( @ringunel1 A ) ( @ringunel2 A ) ).
     cut (pr1 aux). (* [pr1] is needed here *)
     + intro v.
       apply v.

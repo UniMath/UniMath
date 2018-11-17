@@ -103,6 +103,8 @@ Proof.
     apply (@id_right (functor_precategory _ _ hs )).
   - apply (invmap (eq_ptd_mor _ _ )).
     apply (@assoc (functor_precategory _ _ hs)).
+  - apply (invmap (eq_ptd_mor _ _ )).
+    apply (@assoc' (functor_precategory _ _ hs)).
 Qed.
 
 Definition precategory_Ptd : precategory := tpair _ _ is_precategory_ptd.

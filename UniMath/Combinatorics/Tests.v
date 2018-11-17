@@ -1,5 +1,3 @@
-Unset Automatic Introduction.
-
 Require Import UniMath.Foundations.Preamble.
 Require UniMath.Combinatorics.Lists.
 Require UniMath.Combinatorics.StandardFiniteSets.
@@ -425,7 +423,7 @@ Module Test_ord.
 
     Definition which {X} : X ⨿ ¬X -> bool.
     Proof.
-      intros X c.
+      intros c.
       induction c.
       - exact true.
       - exact false.
@@ -500,7 +498,7 @@ Module Test_search.
 
   Local Definition someseq (n : nat) : bool.
   Proof.
-    intros n. destruct n.
+    destruct n.
     - exact false.
     - destruct n.
       + exact true.
@@ -535,7 +533,7 @@ Module Test_search.
 
   Goal 1 = pr1 (minimal_n P P_dec P_inhab). reflexivity. Defined.
 
-  Axiom P_inhab' : ∃ n, P n.
+  Variable P_inhab' : ∃ n, P n.
 
   Definition new_n' :  ∑ n : nat, P n := minimal_n P P_dec P_inhab'.
 

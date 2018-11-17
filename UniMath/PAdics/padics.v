@@ -6,10 +6,6 @@
 
 (** made compatible with the current UniMath library by Ralph Matthes in October 2017 *)
 
-(** Settings *)
-
-Unset Automatic Introduction.
-
 (** Imports *)
 
 Require Import UniMath.PAdics.lemmas.
@@ -26,14 +22,14 @@ Section Upstream.
      integrating into upstream *)
 Open Scope hz_scope.
 
-Lemma hzmultrmul (a b c : hz) (is : a = b) : (a * c) = (b * c).
+Lemma hzmultrmul (a b c : hz) (is : a = b) : a * c = b * c.
 Proof.
   intros.
   induction is.
   apply idpath.
 Defined.
 
-Lemma hzmultlmul (a b c : hz) (is : a = b) : (c * a) = (c * b).
+Lemma hzmultlmul (a b c : hz) (is : a = b) : c * a = c * b.
 Proof.
   intros.
   apply maponpaths.
@@ -115,9 +111,9 @@ Defined.
 
 Lemma hzquotientandtimesl ( m : hz ) ( x : hzneq 0 m ) ( a b : hz ) :
   hzquotientmod m x ( a * b ) =
-  ( ( hzquotientmod m x a ) * b +
-    ( hzremaindermod m x a ) * ( hzquotientmod m x b ) +
-      hzquotientmod m x ( ( hzremaindermod m x a ) * ( hzremaindermod m x b ) ) ).
+  ( hzquotientmod m x a ) * b +
+    hzremaindermod m x a * hzquotientmod m x b +
+      hzquotientmod m x ( hzremaindermod m x a * hzremaindermod m x b ).
 Proof.
   intros.
   rewrite hzquotientmodandtimes.
@@ -133,10 +129,10 @@ Defined.
 Lemma hzquotientandfpstimesl ( m : hz ) ( x : hzneq 0 m )
    ( a b : nat -> hz ) ( upper : nat ) :
   hzquotientmod m x ( fpstimes hz a b upper ) =
-  ( natsummation0 upper ( fun i : nat =>
-      ( hzquotientmod m x ( a i ) ) * b ( sub upper i ) ) +
+  natsummation0 upper ( fun i : nat =>
+      hzquotientmod m x ( a i ) * b ( sub upper i ) ) +
     hzquotientmod m x ( natsummation0 upper ( fun i : nat =>
-      ( hzremaindermod m x ( a i ) ) * b ( sub upper i ) ) ) ).
+      hzremaindermod m x ( a i ) * b ( sub upper i ) ) ).
 Proof.
   intros.
   destruct upper as [ | upper].
@@ -158,10 +154,10 @@ Proof.
   - unfold fpstimes.
     rewrite hzqrandnatsummation0q.
     assert ( forall n : nat, hzquotientmod m x (a n * b ( sub ( S upper ) n)%nat) =
-      ( ( hzquotientmod m x ( a n ) ) * b ( sub ( S upper ) n ) +
-        ( hzremaindermod m x ( a n ) ) * ( hzquotientmod m x ( b ( sub ( S upper ) n ) ) ) +
-        hzquotientmod m x ( ( hzremaindermod m x ( a n ) ) *
-                            ( hzremaindermod m x ( b ( sub ( S upper ) n ) ) ) ) ) ) as f.
+      ( hzquotientmod m x ( a n ) * b ( sub ( S upper ) n ) +
+        hzremaindermod m x ( a n ) * hzquotientmod m x ( b ( sub ( S upper ) n ) ) +
+        hzquotientmod m x ( hzremaindermod m x ( a n ) *
+                            hzremaindermod m x ( b ( sub ( S upper ) n ) ) ) ) ) as f.
     { intro k.
       rewrite hzquotientandtimesl.
       apply idpath.
@@ -173,14 +169,14 @@ Proof.
     rewrite ( natsummationplusdistr ( S upper ) ( fun x0 : nat =>
                            hzquotientmod m x (a x0) * b (S upper - x0)%nat ) ).
     rewrite 2! hzplusassoc.
-    apply ( maponpaths ( fun v : _ => natsummation0 ( S upper ) ( fun i : nat =>
+    apply ( maponpaths ( fun v => natsummation0 ( S upper ) ( fun i : nat =>
                hzquotientmod m x ( a i ) * b ( sub ( S upper ) i ) ) + v ) ).
     rewrite ( hzqrandnatsummation0q m x ( fun i : nat =>
                     hzremaindermod m x ( a i ) * b ( sub ( S upper ) i ) ) ).
-    assert ( (natsummation0 (S upper) (fun n : nat =>
-      hzremaindermod m x (hzremaindermod m x (a n) * b (S upper - n)%nat))) =
-      ( natsummation0 ( S upper ) ( fun n : nat =>
-             hzremaindermod m x ( a n * b ( sub ( S upper ) n ) ) ) ) ) as g.
+    assert (natsummation0 (S upper) (fun n : nat =>
+      hzremaindermod m x (hzremaindermod m x (a n) * b (S upper - n)%nat))=
+      natsummation0 ( S upper ) ( fun n : nat =>
+             hzremaindermod m x ( a n * b ( sub ( S upper ) n ) ) ) ) as g.
     { apply natsummationpathsupperfixed.
       intros j p.
       rewrite hzremaindermodandtimes.
@@ -203,7 +199,7 @@ Proof.
       apply natsummationpathsupperfixed.
       intros j p.
       rewrite ( hzquotientmodandtimes m x ( hzremaindermod m x ( a j ) )
-                                      ( ( b ( sub ( S upper ) j ) ) ) ).
+                                      ( b ( sub ( S upper ) j ) ) ).
       rewrite <- hzqrandremainderq.
       rewrite 2! hzmult0x.
       rewrite hzmultx0.
@@ -234,8 +230,8 @@ Open Scope ring_scope.
 
 Lemma natsummationplusshift { R : commring } ( upper : nat )
   ( f g : nat -> R ) :
-  ( natsummation0 ( S upper ) f ) + ( natsummation0 upper g ) =
-  ( f 0%nat + ( natsummation0 upper ( fun x : nat => f ( S x ) + g x ) ) ).
+  natsummation0 ( S upper ) f + natsummation0 upper g =
+  f 0%nat + natsummation0 upper ( fun x : nat => f ( S x ) + g x ).
 Proof.
   intros.
   destruct upper.
@@ -261,7 +257,7 @@ Variable is : hzneq 0 m.
 Fixpoint precarry ( a : fpscommring hz ) ( n : nat ) : hz :=
   match n with
   | 0%nat => a 0%nat
-  | S n => a ( S n ) + ( hzquotientmod m is ( precarry a n ) )
+  | S n => a ( S n ) + hzquotientmod m is ( precarry a n )
   end.
 
 Definition carry : fpscommring hz -> fpscommring hz :=
@@ -332,7 +328,7 @@ Definition carryequiv : eqrel ( fpscommring hz ) :=
 
 Lemma precarryandcarry_pointwise ( a : fpscommring hz ) :
   forall n : nat,
-    ( precarry ( carry a ) ) n = ( ( carry a ) n ).
+    precarry ( carry a ) n = ( carry a ) n.
 Proof.
   intros.
   induction n.
@@ -355,7 +351,7 @@ Proof.
 Defined.
 
 Lemma hzqrandcarryeq ( a : fpscommring hz ) ( n : nat ) :
-  carry a n = ( ( m * 0 ) + carry a n ).
+  carry a n = m * 0 + carry a n.
 Proof.
   intros.
   rewrite hzmultx0.
@@ -364,8 +360,8 @@ Proof.
 Defined.
 
 Lemma hzqrandcarryineq ( a : fpscommring hz ) ( n : nat ) :
-  dirprod ( hzleh 0 ( carry a n ) )
-          ( hzlth ( carry a n ) ( nattohz ( hzabsval m ) ) ).
+  hzleh 0 ( carry a n ) ×
+  hzlth ( carry a n ) ( nattohz ( hzabsval m ) ).
 Proof.
   intros.
   split.
@@ -399,8 +395,8 @@ Lemma doublecarry ( a : fpscommring hz ):
   carry ( carry a ) = carry a.
 Proof.
   intros.
-  assert ( forall n : nat, ( carry ( carry a ) ) n =
-                           ( ( carry a ) n ) ) as f.
+  assert ( forall n : nat, carry ( carry a ) n =
+                    carry a n ) as f.
   { intros.
     induction n.
     - unfold carry.
@@ -410,7 +406,7 @@ Proof.
       simpl.
       change (precarry (fun n0 : nat =>
         hzremaindermod m is (precarry a n0)) n) with
-      ( ( precarry ( carry a ) ) n ).
+      ( precarry ( carry a ) n ).
       rewrite precarryandcarry.
       rewrite <- hzqrandcarryq.
       rewrite hzplusr0.
@@ -431,28 +427,28 @@ Defined.
 
 Lemma quotientprecarryplus ( a b : fpscommring hz ) ( n : nat ) :
   hzquotientmod m is ( precarry ( a + b ) n ) =
-  ( hzquotientmod m is ( precarry a n ) +
-    hzquotientmod m is ( precarry b n ) +
-    hzquotientmod m is ( precarry ( carry a + carry b ) n ) ).
+  hzquotientmod m is ( precarry a n ) +
+  hzquotientmod m is ( precarry b n ) +
+  hzquotientmod m is ( precarry ( carry a + carry b ) n ).
 Proof.
   intros.
   induction n.
   - simpl.
     change ( hzquotientmod m is ( a 0%nat + b 0%nat ) =
-            (hzquotientmod m is (a 0%nat) +
-             hzquotientmod m is (b 0%nat) +
+            hzquotientmod m is (a 0%nat) +
+            hzquotientmod m is (b 0%nat) +
             hzquotientmod m is ( hzremaindermod m is ( a 0%nat ) +
-                                 hzremaindermod m is ( b 0%nat ) ) ) ).
+                                 hzremaindermod m is ( b 0%nat ) ) ).
     rewrite hzquotientmodandplus.
     apply idpath.
   - change ( hzquotientmod m is ( a ( S n ) + b ( S n ) +
              hzquotientmod m is ( precarry (a + b) n ) ) =
-            (hzquotientmod m is (precarry a (S n)) +
+             hzquotientmod m is (precarry a (S n)) +
              hzquotientmod m is (precarry b (S n)) +
              hzquotientmod m is (carry a ( S n ) +
                                  carry b ( S n ) +
                     hzquotientmod m is ( precarry (carry a +
-                                                   carry b) n)) ) ).
+                                                   carry b) n)) ).
     rewrite IHn.
     rewrite ( ringassoc1 hz ( a ( S n ) ) ( b ( S n ) ) _ ).
     rewrite <- ( ringassoc1 hz ( b ( S n ) ) ).
@@ -490,9 +486,9 @@ Proof.
                                 hzquotientmod m is pb +
                       hzquotientmod m is (hzquotientmod m is (ab n)) ) _ _ ).
     apply ( maponpaths ( fun x : hz =>
-                           ( hzquotientmod m is pa +
+                             hzquotientmod m is pa +
                              hzquotientmod m is pb +
-                             hzquotientmod m is (hzquotientmod m is (ab n)) ) +
+                             hzquotientmod m is (hzquotientmod m is (ab n)) +
                            x ) ).
     unfold carry at 1 2.
     rewrite 2! hzremaindermoditerated.
@@ -580,8 +576,8 @@ Definition quotientprecarry ( a : fpscommring hz ) : fpscommring hz :=
 
 Lemma quotientandtimesrearrangel ( x y : hz ) :
   hzquotientmod m is ( x * y ) =
-  ( ( hzquotientmod m is x ) * y +
-    hzquotientmod m is ( ( hzremaindermod m is x ) * y ) ).
+  ( hzquotientmod m is x ) * y +
+    hzquotientmod m is ( ( hzremaindermod m is x ) * y ).
 Proof.
   intros.
   rewrite hzquotientmodandtimes.
@@ -624,9 +620,9 @@ Defined.
 (** here used to be shown the lemma [natsummationplusshift] *)
 
 Lemma precarryandtimesl ( a b : fpscommring hz ) ( n : nat ) :
-  hzquotientmod m is ( precarry (a * b ) n ) =
-  ( ( quotientprecarry a * b ) n +
-        hzquotientmod m is ( precarry ( ( carry a ) * b ) n ) ).
+  hzquotientmod m is ( precarry ( a * b ) n ) =
+  ( quotientprecarry a * b ) n +
+        hzquotientmod m is ( precarry ( carry a  * b ) n ).
 Proof.
   intros.
   induction n.
@@ -684,7 +680,7 @@ Proof.
     ( natsummation0 ( S n ) ( fun i : nat =>
         hzquotientmod m is ( precarry a i ) * b ( S n - i )%nat ) ).
     rewrite 2! hzplusassoc.
-    apply ( maponpaths ( fun v : _ => natsummation0 ( S n ) ( fun i : nat =>
+    apply ( maponpaths ( fun v => natsummation0 ( S n ) ( fun i : nat =>
       hzquotientmod m is ( precarry a i ) * b ( S n - i )%nat ) + v ) ).
     change ( precarry ( carry a * b ) ( S n ) ) with
     ( ( carry a * b ) ( S n ) +
@@ -700,16 +696,16 @@ Proof.
     ( natsummation0 ( S n ) ( fun i : nat =>
         hzremaindermod m is ( precarry a i ) * b ( S n  - i )%nat ) ).
     rewrite hzplusassoc.
-    apply ( maponpaths ( fun v : _ =>
+    apply ( maponpaths ( fun v =>
        ( hzquotientmod m is ( natsummation0 ( S n ) ( fun i : nat =>
             hzremaindermod m is
                    ( precarry a i ) * b ( S n - i )%nat ) ) ) + v ) ).
-    apply ( maponpaths ( fun v : _ =>
+    apply ( maponpaths ( fun v =>
         hzquotientmod m is
            ( hzquotientmod m is
               ( precarry ( carry a * b )%ring n ) ) + v ) ).
     apply maponpaths.
-    apply ( maponpaths ( fun v : _ =>
+    apply ( maponpaths ( fun v =>
                            v + hzremaindermod m is
     ( hzquotientmod m is ( precarry ( carry a * b )%ring n ) ) ) ).
     unfold fpstimes.
@@ -891,8 +887,8 @@ End carry.
 (** Those used to appear where needed below, those points have been marked by comments. *)
 
 Lemma commringquotprandop1 { A : commring } ( R : @ringeqrel A ) ( a b : A ) :
-  ( @op1 ( commringquot R ) ) ( setquotpr ( pr1 R ) a )
-                             ( setquotpr ( pr1 R ) b ) =
+  @op1 ( commringquot R ) ( setquotpr ( pr1 R ) a )
+                          ( setquotpr ( pr1 R ) b ) =
   setquotpr ( pr1 R ) ( a + b ).
 Proof.
   intros.
@@ -906,8 +902,8 @@ Proof.
 Defined.
 
 Lemma commringquotprandop2 { A : commring } ( R : @ringeqrel A ) ( a b : A ) :
-  ( @op2 ( commringquot R ) ) ( setquotpr ( pr1 R ) a )
-                             ( setquotpr ( pr1 R ) b ) =
+  @op2 ( commringquot R ) ( setquotpr ( pr1 R ) a )
+                          ( setquotpr ( pr1 R ) b ) =
   setquotpr ( pr1 R ) ( a * b ).
 Proof.
   intros.
@@ -921,14 +917,14 @@ Proof.
 Defined.
 
 Lemma hzfpstimesnonzero ( a : fpscommring hz ) ( k : nat )
-      ( is : dirprod ( neq hz ( a k ) 0%hz )
-                     ( forall m : nat, natlth m k -> ( a m ) = 0%hz ) ) :
+      ( is : neq hz ( a k ) 0%hz ×
+             forall m : nat, natlth m k -> a m = 0%hz ) :
   forall k' : nat, forall b : fpscommring hz ,
-      forall is' : dirprod ( neq hz ( b k' ) 0%hz )
-                      ( forall m : nat, natlth m k' -> ( b m ) = 0%hz ),
-        ( a * b ) ( k + k' )%nat = ( a k ) * ( b k' ).
+      forall is' : neq hz ( b k' ) 0%hz ×
+              forall m : nat, natlth m k' -> b m = 0%hz,
+        ( a * b ) ( k + k' )%nat = a k * b k'.
 Proof.
-  intros a k is k'.
+  intros k'.
   induction k'.
   - intros.
     destruct k.
@@ -948,7 +944,7 @@ Proof.
         * apply ( natlehlthtrans _ k _ ).
           -- assumption.
           -- apply natlthnsn.
-        * rewrite ( ( pr2 is ) m i0 ).
+        * rewrite ( pr2 is m i0 ).
           rewrite hzmult0x.
           apply idpath.
       }
@@ -967,7 +963,7 @@ Proof.
              a k * b ( S k' ) ).
     set ( b' := fpsshift b ).
     rewrite minusnn0.
-    rewrite ( ( pr2 is' ) 0%nat ( natlehlthtrans 0 k' ( S k' )
+    rewrite ( pr2 is' 0%nat ( natlehlthtrans 0 k' ( S k' )
                                ( natleh0n k' ) ( natlthnsn k' ) ) ).
     rewrite hzmultx0.
     rewrite hzplusr0.
@@ -995,12 +991,12 @@ Proof.
 Defined.
 
 Lemma hzfpstimeswhenzero ( a : fpscommring hz ) ( m k : nat )
-      ( is : ( forall m : nat, natlth m k -> ( a m ) = 0%hz ) ) :
+      ( is : ( forall m : nat, natlth m k -> a m = 0%hz ) ) :
   forall b : fpscommring hz, forall k' : nat,
-      forall is' : ( forall m : nat, natlth m k' -> ( b m ) = 0%hz ) ,
+      forall is' : ( forall m : nat, natlth m k' -> b m = 0%hz ) ,
         natlth m ( k + k' )%nat -> ( a * b ) m = 0%hz.
 Proof.
-  intros a m.
+  revert k is.
   induction m.
   - intros k.
     intros is b k' is' j.
@@ -1109,11 +1105,9 @@ Definition padictimes := @op2 commringofpadicints.
 (** * III. The apartness relation on p-adic integers *)
 
 Definition padicapart0 :
-  hrel ( fpscommring hz ) :=
-  fun a b : _ =>
-    ( hexists ( fun n : nat =>
-                  ( neq _ ( carry p ( isaprimetoneq0 is) a n )
-                        ( carry p ( isaprimetoneq0 is ) b n ) ) ) ).
+  hrel ( fpscommring hz ) := fun a b =>
+    ∃ n : nat, neq _ ( carry p ( isaprimetoneq0 is) a n )
+                   ( carry p ( isaprimetoneq0 is) b n ).
 
 Lemma padicapartiscomprel :
   iscomprelrel ( carryequiv p ( isaprimetoneq0 is ) ) padicapart0.
@@ -1215,23 +1209,23 @@ Proof.
 Defined.
 
 Lemma precarryandzero :
-  precarry p ( isaprimetoneq0 is ) 0 = ( @ringunel1 ( fpscommring hz ) ).
+  precarry p ( isaprimetoneq0 is ) 0 = @ringunel1 ( fpscommring hz ).
 Proof.
   intros.
   assert ( forall n : nat, precarry p ( isaprimetoneq0 is ) 0 n =
-                    ( @ringunel1 (fpscommring hz ) ) n ) as f.
+                    @ringunel1 (fpscommring hz ) n ) as f.
   { intros n.
     induction n.
     - unfold precarry.
-      change ( ( @ringunel1 ( fpscommring hz ) ) 0%nat ) with 0%hz.
+      change ( @ringunel1 ( fpscommring hz ) 0%nat ) with 0%hz.
       apply idpath.
     - change ( ( ( @ringunel1 ( fpscommring hz ) ( S n ) +
         hzquotientmod p ( isaprimetoneq0 is )
            ( precarry p ( isaprimetoneq0 is )
                ( @ringunel1 ( fpscommring hz ) ) n ) ) ) = 0%hz ).
       rewrite IHn.
-      change ( ( @ringunel1 ( fpscommring hz ) ) n ) with 0%hz.
-      change ( ( @ringunel1 ( fpscommring hz ) ) ( S n ) ) with 0%hz.
+      change ( @ringunel1 ( fpscommring hz ) n ) with 0%hz.
+      change ( @ringunel1 ( fpscommring hz ) ( S n ) ) with 0%hz.
       rewrite hzqrand0q.
       rewrite hzplusl0.
       apply idpath.
@@ -1246,12 +1240,12 @@ Proof.
   rewrite precarryandzero.
   assert ( forall n : nat, (fun n : nat =>
     hzremaindermod p (isaprimetoneq0 is)
-                     ( ( @ringunel1 ( fpscommring hz ) ) n)) n =
-    ( @ringunel1 ( fpscommring hz ) ) n ) as f.
+                     ( @ringunel1 ( fpscommring hz ) n)) n =
+    @ringunel1 ( fpscommring hz ) n ) as f.
   { intros n.
     rewrite hzqrand0r.
     unfold carry.
-    change ( ( @ringunel1 ( fpscommring hz ) n ) ) with 0%hz.
+    change ( @ringunel1 ( fpscommring hz)  n ) with 0%hz.
     apply idpath.
   }
   apply ( funextfun _ _ f ).
@@ -1259,11 +1253,11 @@ Defined.
 
 Lemma precarryandone :
   precarry p ( isaprimetoneq0 is ) 1 =
-  ( @ringunel2 ( fpscommring hz ) ).
+  @ringunel2 ( fpscommring hz ).
 Proof.
   intros.
   assert ( forall n : nat, precarry p ( isaprimetoneq0 is ) 1 n =
-                    ( @ringunel2 (fpscommring hz ) ) n ) as f.
+                    @ringunel2 (fpscommring hz ) n ) as f.
   { intros n.
     induction n.
     - unfold precarry.
@@ -1271,11 +1265,11 @@ Proof.
     - simpl.
       rewrite IHn.
       destruct n.
-      + change ( ( @ringunel2 ( fpscommring hz ) ) 0%nat ) with 1%hz.
+      + change ( @ringunel2 ( fpscommring hz ) 0%nat ) with 1%hz.
         rewrite hzqrand1q.
         rewrite hzplusr0.
         apply idpath.
-      + change ( ( @ringunel2 ( fpscommring hz ) ) ( S n ) ) with 0%hz.
+      + change ( @ringunel2 ( fpscommring hz ) ( S n ) ) with 0%hz.
         rewrite hzqrand0q.
         rewrite hzplusr0.
         apply idpath.
@@ -1290,14 +1284,14 @@ Proof.
   rewrite precarryandone.
   assert ( forall n : nat, (fun n : nat =>
     hzremaindermod p (isaprimetoneq0 is)
-           ( ( @ringunel2 ( fpscommring hz ) ) n)) n =
-    ( @ringunel2 ( fpscommring hz ) ) n ) as f.
+           ( @ringunel2 ( fpscommring hz ) n)) n =
+    @ringunel2 ( fpscommring hz ) n ) as f.
   { intros n.
     destruct n.
-    - change ( ( @ringunel2 ( fpscommring hz ) ) 0%nat ) with 1%hz.
+    - change ( @ringunel2 ( fpscommring hz ) 0%nat ) with 1%hz.
       rewrite hzqrand1r.
       apply idpath.
-    - change ( ( @ringunel2 ( fpscommring hz ) ) ( S n ) ) with 0%hz.
+    - change ( @ringunel2 ( fpscommring hz ) ( S n ) ) with 0%hz.
       rewrite hzqrand0r.
       apply idpath.
   }
@@ -1306,7 +1300,7 @@ Defined.
 
 Lemma padicapartcomputation ( a b : fpscommring hz ) :
     ( pr1 padicapart )
-    ( setquotpr (carryequiv p ( isaprimetoneq0 is ) ) a )
+    ( setquotpr ( carryequiv p ( isaprimetoneq0 is ) ) a )
     ( setquotpr ( carryequiv p ( isaprimetoneq0 is ) ) b ) =
                               padicapart0 a b.
 Proof.
@@ -1411,7 +1405,7 @@ Defined.
     [commringquotprandop2] *)
 
 Lemma setquotprandpadicplus ( a b : fpscommring hz ) :
-  ( @op1 commringofpadicints )
+  @op1 commringofpadicints
     ( setquotpr ( carryequiv p ( isaprimetoneq0 is ) ) a )
     ( setquotpr ( carryequiv p ( isaprimetoneq0 is ) ) b ) =
   setquotpr ( carryequiv p ( isaprimetoneq0 is ) ) ( a + b ).
@@ -1421,7 +1415,7 @@ Proof.
 Defined.
 
 Lemma setquotprandpadictimes ( a b : fpscommring hz ) :
-  ( @op2 commringofpadicints )
+  @op2 commringofpadicints
     ( setquotpr ( carryequiv p ( isaprimetoneq0 is ) ) a )
     ( setquotpr ( carryequiv p ( isaprimetoneq0 is ) ) b ) =
  setquotpr ( carryequiv p ( isaprimetoneq0 is ) ) ( a * b ).
@@ -1515,10 +1509,10 @@ Proof.
   intros.
   unfold isbinopapartl.
   assert ( forall x x' x'' : commringofpadicints,
-             isaprop ( ( pr1 padicapart )
+             isaprop ( pr1 padicapart
                          ( padicplus x x' )
                          ( padicplus x x'' ) ->
-                       ( ( pr1 padicapart) x' x'' ) ) ) as int.
+                       ( pr1 padicapart x' x'' ) ) ) as int.
   { intros.
     apply impred.
     intros.
@@ -1599,8 +1593,8 @@ Proof.
     apply k'.
     change (carry p (isaprimetoneq0 is) a 0%nat *
             carry p(isaprimetoneq0 is) b 0%nat =
-           (carry p (isaprimetoneq0 is) a 0%nat *
-            carry p (isaprimetoneq0 is) c 0%nat) ).
+            carry p (isaprimetoneq0 is) a 0%nat *
+            carry p (isaprimetoneq0 is) c 0%nat ).
     rewrite i.
     apply idpath.
   - set ( Q := ( fun o : nat =>
@@ -1729,7 +1723,7 @@ Proof.
                    carry p (isaprimetoneq0 is) b ( sub ( S n ) x0)) =
                  natsummation0 ( S n ) (fun x0 : nat =>
                    carry p (isaprimetoneq0 is) a x0 *
-                  carry p (isaprimetoneq0 is) c ( sub ( S n ) x0)) ) as f.
+                   carry p (isaprimetoneq0 is) c ( sub ( S n ) x0)) ) as f.
       { apply natsummationpathsupperfixed.
         intros m y.
         rewrite ( l ( sub ( S n ) m ) ).
@@ -1751,10 +1745,10 @@ Proof.
   intros.
   unfold isbinopapartl.
   assert ( forall x x' x'' : commringofpadicints,
-             isaprop ( ( pr1 padicapart )
-                         (padictimes x x' )
+             isaprop ( pr1 padicapart
+                         ( padictimes x x' )
                          ( padictimes x x'' ) ->
-          ( ( pr1 padicapart ) x' x'' ) ) ) as int.
+          ( pr1 padicapart x' x'' ) ) ) as int.
   {  intros.
      apply impred.
      intros.
@@ -1806,14 +1800,14 @@ Defined.
 
 Lemma precarryandzeromultl ( a b : fpscommring hz ) ( n : nat )
   ( x : forall m : nat, natlth m n ->
-                 ( carry p ( isaprimetoneq0 is ) a m = 0%hz ) ) :
+                 carry p ( isaprimetoneq0 is ) a m = 0%hz ) :
   forall m : nat, natlth m n ->
        precarry p ( isaprimetoneq0 is )
                 ( fpstimes hz ( carry p ( isaprimetoneq0 is ) a )
                               ( carry p ( isaprimetoneq0 is ) b ) ) m =
        0%hz.
 Proof.
-  intros a b n x m y.
+  intros m y.
   induction m.
   - simpl.
     unfold fpstimes.
@@ -1839,7 +1833,7 @@ Proof.
       assert ( natsummation0 (S m) (fun z : nat =>
                  carry p (isaprimetoneq0 is) a z *
                  carry p (isaprimetoneq0 is) b ( sub ( S m ) z)) =
-             ( natsummation0 ( S m ) ( fun z : nat => 0%hz ) ) ) as f.
+               natsummation0 ( S m ) ( fun z : nat => 0%hz ) ) as f.
       { apply natsummationpathsupperfixed.
         intros k v.
         assert ( natlth k n ) as uu.
@@ -1857,19 +1851,19 @@ Defined.
 
 Lemma precarryandzeromultr ( a b : fpscommring hz ) ( n : nat )
   ( x : forall m : nat, natlth m n ->
-                 ( carry p ( isaprimetoneq0 is ) b m = 0%hz ) ) :
+                 carry p ( isaprimetoneq0 is ) b m = 0%hz ) :
   forall m : nat, natlth m n ->
            precarry p ( isaprimetoneq0 is )
                     ( fpstimes hz ( carry p ( isaprimetoneq0 is ) a )
                                ( carry p ( isaprimetoneq0 is ) b ) ) m =
            0%hz.
 Proof.
-  intros a b n x m y.
+  intros m y.
   change (fpstimes hz (carry p (isaprimetoneq0 is) a)
                    (carry p (isaprimetoneq0 is) b)) with
   ( (carry p (isaprimetoneq0 is) a) *
     (carry p (isaprimetoneq0 is) b)).
-  rewrite ( ( @ringcomm2 ( fpscommring hz ) )
+  rewrite ( @ringcomm2 ( fpscommring hz )
               ( carry p ( isaprimetoneq0 is ) a )
               ( carry p ( isaprimetoneq0 is ) b ) ).
   apply ( precarryandzeromultl b a n x m y ).
@@ -1889,7 +1883,7 @@ Lemma precarryandzeromult ( a b : fpscommring hz ) ( k k' : nat )
                                   ( carry p ( isaprimetoneq0 is ) b ) ) m =
   0%hz.
 Proof.
-  intros a b k k' x x' m i.
+  intros m i.
   induction m.
   - apply ( hzfpstimeswhenzero ( carry p ( isaprimetoneq0 is ) a ) 0%nat k x
                                ( carry p ( isaprimetoneq0 is ) b ) k' x' i ).
@@ -1914,9 +1908,9 @@ Proof.
 Defined.
 
 Lemma primedivorcoprime ( a : hz ) :
-  hdisj ( hzdiv p a ) ( gcd p a ( isaprimetoneq0 is ) = 1 ).
+  hzdiv p a ∨ gcd p a ( isaprimetoneq0 is ) = 1.
 Proof.
-  intro a. intros P i.
+  intros P i.
   use (hinhuniv _ ( pr2 is
                         ( gcd p a ( isaprimetoneq0 is ) )
                         ( pr1 ( gcdiscommondiv p a ( isaprimetoneq0 is ) ) ) )).
@@ -1931,7 +1925,7 @@ Proof.
 Defined.
 
 Lemma primeandtimes ( a b : hz ) ( x : hzdiv p ( a * b ) ) :
-  hdisj ( hzdiv p a ) ( hzdiv p b ).
+  hzdiv p a ∨ hzdiv p b.
 Proof.
   intros.
   use (hinhuniv _ ( primedivorcoprime a )).
@@ -1950,14 +1944,14 @@ Proof.
     destruct cd as [ c d ].
     rewrite j1 in f.
     simpl in f.
-    assert ( b = ( ( b * c + d * k ) * p ) ) as g.
+    assert ( b = ( b * c + d * k ) * p ) as g.
     { assert ( b = b * 1 ) as g0.
       { rewrite hzmultr1.
         apply idpath. }
       rewrite g0.
       rewrite ( ringrdistr hz ( b * 1 * c ) ( d * k ) p ).
       assert ( b * ( c * p + d * a ) =
-               ( b * 1 * c * p + d * k * p ) ) as h.
+               b * 1 * c * p + d * k * p ) as h.
       { rewrite ( ringldistr hz ( c * p ) ( d * a ) b ).
         rewrite hzmultr1.
         rewrite 2! ( @ringassoc2 hz ).
@@ -1983,8 +1977,8 @@ Defined.
 
 Lemma hzremaindermodprimeandtimes ( a b : hz )
   ( x : hzremaindermod p ( isaprimetoneq0 is ) ( a * b ) = 0 ) :
-  hdisj ( hzremaindermod p ( isaprimetoneq0 is ) a = 0)
-        ( hzremaindermod p ( isaprimetoneq0 is ) b = 0).
+  hzremaindermod p ( isaprimetoneq0 is ) a = 0 ∨
+  hzremaindermod p ( isaprimetoneq0 is ) b = 0.
 Proof.
   intros.
   assert ( hzdiv p ( a * b ) ) as i.
@@ -2079,9 +2073,9 @@ Lemma padicintsareintdom ( a b : acommringofpadicints ) :
   a # 0 -> b # 0 -> a * b # 0.
 Proof.
   assert ( forall a b : commringofpadicints,
-     isaprop ( ( pr1 padicapart ) a padiczero ->
-               ( pr1 padicapart ) b padiczero ->
-               ( pr1 padicapart ) ( padictimes a b )
+     isaprop ( pr1 padicapart a padiczero ->
+               pr1 padicapart b padiczero ->
+               pr1 padicapart ( padictimes a b )
                                            padiczero ) ) as int.
   { intros.
     apply impred.
@@ -2090,6 +2084,7 @@ Proof.
     intros.
     apply ( pr1 padicapart ).
   }
+  revert a b.
   apply ( setquotuniv2prop _ ( fun x y =>
                                  hProppair _ ( int x y ) ) ).
   intros a b.
@@ -2176,18 +2171,16 @@ Proof.
       apply ( ( pr2 o' ) m m0 ).
       assumption.
   }
-  assert ( dirprod
-             ( neq hz ( carry p ( isaprimetoneq0 is ) a k ) 0%hz )
-             ( forall m : nat, natlth m k ->
-                 ( carry p ( isaprimetoneq0 is ) a m ) = 0%hz ) ) as three.
+  assert ( neq hz ( carry p ( isaprimetoneq0 is ) a k ) 0%hz ×
+           forall m : nat, natlth m k ->
+                 ( carry p ( isaprimetoneq0 is ) a m ) = 0%hz ) as three.
   { split.
     - apply k'.
     - assumption.
   }
-  assert ( dirprod
-             ( neq hz ( carry p ( isaprimetoneq0 is ) b o ) 0%hz )
-             ( forall m : nat, natlth m o ->
-                 ( carry p ( isaprimetoneq0 is ) b m ) = 0%hz ) ) as four.
+  assert ( neq hz ( carry p ( isaprimetoneq0 is ) b o ) 0%hz ×
+           forall m : nat, natlth m o ->
+                 ( carry p ( isaprimetoneq0 is ) b m ) = 0%hz ) as four.
   { split.
     - apply o'.
     - assumption.
@@ -2303,7 +2296,7 @@ Proof.
   intros.
   split with acommringofpadicints.
   split.
-  - change ( ( pr1 padicapart ) padicone padiczero ).
+  - change ( pr1 padicapart padicone padiczero ).
     rewrite padiczerocomputation.
     rewrite padiconecomputation.
     rewrite padicapartcomputation.
@@ -2313,7 +2306,7 @@ Proof.
     unfold precarry.
     rewrite hzqrand1r.
     rewrite hzqrand0r.
-    apply isnonzeroringhz.
+    apply isnonzerorighz.
   - apply padicintsareintdom.
 Defined.
 

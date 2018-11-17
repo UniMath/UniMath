@@ -6,18 +6,18 @@
 
 (** Settings *)
 
-Unset Automatic Introduction. (** This line has to be removed for the file to compile with Coq8.2 *)
-
 Unset Kernel Term Sharing.
 
 (** Imports *)
 
-Require Import UniMath.Algebra.Rigs_and_Rings .
-Require Import UniMath.Algebra.DivisionRig .
-Require Import UniMath.Algebra.Domains_and_Fields .
+Require Import UniMath.Foundations.NaturalNumbers.
+Require Import UniMath.Algebra.RigsAndRings.
+Require Import UniMath.Algebra.DivisionRig.
+Require Import UniMath.Algebra.Domains_and_Fields.
 Require Import UniMath.Algebra.ConstructiveStructures.
 
 Require Import UniMath.MoreFoundations.Tactics.
+Import UniMath.Algebra.Monoids_and_Groups.AddNotation.
 
 (** ** The standard function from the natural numbers to a monoid *)
 
@@ -126,7 +126,7 @@ Lemma natmult_binophrel {X : monoid} (R : hrel X) :
   istrans R -> isbinophrel R ->
   ∏ (n : nat) (x y : X), R x y -> R (natmult (S n) x) (natmult (S n) y).
 Proof.
-  intros X R Hr Hop n x y H.
+  intros Hr Hop n x y H.
   induction n as [|n IHn].
   exact H.
   rewrite !(natmultS (S _)).
@@ -145,7 +145,7 @@ Definition setquot_aux {X : monoid} (R : hrel X) : hrel X :=
 Lemma istrans_setquot_aux {X : abmonoid} (R : hrel X) :
   istrans R -> isbinophrel R -> istrans (setquot_aux R).
 Proof.
-  intros X R Hr Hop.
+  intros Hr Hop.
   intros x y z.
   apply hinhfun2.
   intros (c1,Hc1) (c2,Hc2).
@@ -162,7 +162,7 @@ Qed.
 Lemma isbinophrel_setquot_aux {X : abmonoid} (R : hrel X) :
   isbinophrel R -> isbinophrel (setquot_aux R).
 Proof.
-  intros X R Hop.
+  intros Hop.
   split.
   - intros x y z.
     apply hinhfun.
@@ -184,7 +184,7 @@ Lemma isequiv_setquot_aux {X : abmonoid} (R : hrel X) :
   isinvbinophrel R ->
   ∏ x y : X, (setquot_aux R) x y <-> R x y.
 Proof.
-  intros X R H x y.
+  intros H x y.
   split.
   apply hinhuniv.
   intros (c,H').
@@ -230,7 +230,7 @@ Local Lemma isarchgr_isarchmonoid_aux {X : abgr} (R : hrel X) :
   ∏ (n : nat) (x y1 y2 : X),
     R (natmult n y1 * grinv X x)%multmonoid (natmult n y2) -> R (natmult n y1) (natmult n y2 * x)%multmonoid.
 Proof.
-  intros X R Hop.
+  intros Hop.
   intros n x y1 y2 Hy.
   apply (pr2 (isinvbinophrelgr _ Hop) _ _ (grinv X x)).
   rewrite assocax, (grrinvax X), runax.
@@ -241,7 +241,7 @@ Lemma isarchgr_isarchmonoid {X : abgr} (R : hrel X) :
   isarchgr R ->
   isarchmonoid (X := abgrtoabmonoid X) R.
 Proof.
-  intros X R Hop H x y1 y2 Hy.
+  intros Hop H x y1 y2 Hy.
   split.
   - now apply H.
   - generalize (H (grinv X x) _ _ Hy).
@@ -257,7 +257,7 @@ Lemma isarchmonoid_isarchgr {X : abgr} (R : hrel X) :
   isarchmonoid (X := abgrtoabmonoid X) R ->
   isarchgr R.
 Proof.
-  intros X R H x y1 y2 Hy.
+  intros H x y1 y2 Hy.
   apply (isarchmonoid_1 _ H x y1 y2 Hy).
 Defined.
 
@@ -333,7 +333,7 @@ Lemma isarchabgrdiff {X : abmonoid} (R : hrel X)  (Hr : isbinophrel R) :
   isarchmonoid (setquot_aux R) ->
   isarchgr (X := abgrdiff X) (abgrdiffrel X (L := R) Hr).
 Proof.
-  intros X R Hr Hr' H.
+  intros Hr' H.
   simple refine (setquotuniv3prop _ (λ x y1 y2, (abgrdiffrel X Hr y1 y2 ->
     ∃ n : nat, abgrdiffrel X Hr (natmult (X := abgrdiff X) n y1 * x)%multmonoid (natmult (X := abgrdiff X) n y2)) ,, _) _).
   abstract apply isapropimpl, propproperty.
@@ -375,7 +375,7 @@ Lemma isarchrig_setquot_aux {X : rig} (R : hrel X) :
   → isarchrig R
   → isarchrig (setquot_aux (X := rigaddabmonoid X) R).
 Proof.
-  intros X R Hr H.
+  intros Hr H.
   split ; [ | split].
   - intros y1 y2.
     apply hinhuniv.
@@ -491,7 +491,7 @@ Lemma isarchrig_isarchmonoid {X : rig} (R : hrel X) :
   istrans R -> isbinophrel (X := rigaddabmonoid X) R ->
   isarchrig R -> isarchmonoid (X := rigaddabmonoid X) R.
 Proof.
-  intros X R Hr1 Hr Hop1 H x y1 y2 Hy.
+  intros Hr1 Hr Hop1 H x y1 y2 Hy.
   split.
   - generalize (isarchrig_diff _ H _ _ Hy) (isarchrig_pos _ H x).
     apply hinhfun2.
@@ -520,7 +520,7 @@ Lemma isarchmonoid_isarchrig {X : rig} (R : hrel X) :
   -> isarchmonoid (X := rigaddabmonoid X) R
   -> isarchrig R.
 Proof.
-  intros X R H01 H.
+  intros H01 H.
   repeat split.
   - intros y1 y2 Hy.
     generalize (isarchmonoid_2 _ H 1%rig y1 y2 Hy).
@@ -569,7 +569,7 @@ Lemma isarchring_isarchrig {X : ring} (R : hrel X) :
   isbinophrel (X := rigaddabmonoid X) R ->
   isarchring R -> isarchrig (X := ringtorig X) R.
 Proof.
-  intros X R Hop1 H.
+  intros Hop1 H.
   repeat split.
   - intros y1 y2 Hy.
     assert (X0 : R (y1 - y2)%ring 0%ring).
@@ -603,7 +603,7 @@ Lemma isarchrig_isarchring {X : ring} (R : hrel X) :
   isbinophrel (X := rigaddabmonoid X) R ->
   isarchrig (X := ringtorig X) R -> isarchring R.
 Proof.
-  intros X R Hr H.
+  intros Hr H.
   split.
   - intros x Hx.
     generalize (isarchrig_diff _ H _ _ Hx).
@@ -622,7 +622,7 @@ Lemma isarchring_isarchgr {X : ring} (R : hrel X) :
   isbinophrel (X := X) R ->
   isarchring R -> isarchgr (X := X) R.
 Proof.
-  intros X R Hr0 Hr Hop1 H.
+  intros Hr0 Hr Hop1 H.
   apply isarchmonoid_isarchgr.
   apply (isarchrig_isarchmonoid (X := X)).
   exact Hr0.
@@ -637,7 +637,7 @@ Lemma isarchgr_isarchring {X : ring} (R : hrel X) :
   isbinophrel (X := X) R ->
   isarchgr (X := X) R -> isarchring R.
 Proof.
-  intros X R Hr0 Hr Hop1 H.
+  intros Hr0 Hr Hop1 H.
   apply isarchrig_isarchring.
   exact Hop1.
   apply isarchmonoid_isarchrig.
@@ -752,7 +752,7 @@ Defined.
 Lemma natmult_commringfrac {X : commring} {S : subabmonoid _} :
   ∏ n (x : X × S), natmult (X := commringfrac X S) n (setquotpr (eqrelcommringfrac X S) x) = setquotpr (eqrelcommringfrac X S) (natmult (X := X) n (pr1 x) ,, (pr2 x)).
 Proof.
-  simpl ; intros X S n x.
+  simpl ; intros n x.
   induction n as [|n IHn].
   - apply (iscompsetquotpr (eqrelcommringfrac X S)).
     apply hinhpr ; simpl.
@@ -774,7 +774,7 @@ Lemma isarchcommringfrac {X : commring} {S : subabmonoid _} (R : hrel X) Hop1 Ho
   istrans R ->
   isarchring R -> isarchring (X := commringfrac X S) (commringfracgt X S (R := R) Hop1 Hop2 Hs).
 Proof.
-  intros X S R Hop1 Hop2 Hs H0 Htra Hr.
+  intros H0 Htra Hr.
   split.
   - simple refine (setquotunivprop _ (λ _, (_,,_)) _).
     apply isapropimpl, propproperty.
@@ -876,7 +876,7 @@ Lemma isarchfld_isarchring {X : fld} (R : hrel X) :
     (Hirr : isirrefl R),
     isarchfld R -> isarchring R.
 Proof.
-  intros X R Hadd Hmult Hirr H.
+  intros Hadd Hmult Hirr H.
   split.
   - intros x Hx.
     case (fldchoice x) ; intros x'.
@@ -898,7 +898,7 @@ Defined.
 Lemma isarchring_isarchfld {X : fld} (R : hrel X) :
     isarchring R -> isarchfld R.
 Proof.
-  intros X R H.
+  intros H.
   intros x.
   apply (isarchring_2 R H x).
 Defined.
@@ -958,7 +958,7 @@ Lemma isarchCF_isarchring {X : ConstructiveField} (R : hrel X) :
     (∏ x : X, R x 0%CF -> (x ≠ 0)%CF) ->
     isarchCF R -> isarchring R.
 Proof.
-  intros X R Hadd Hmult Hirr H0 H.
+  intros Hadd Hmult Hirr H0 H.
   split.
   - intros x Hx.
     generalize (H (CFinv x (H0 _ Hx))).
@@ -977,7 +977,7 @@ Defined.
 Lemma isarchring_isarchCF {X : ConstructiveField} (R : hrel X) :
     isarchring R -> isarchCF R.
 Proof.
-  intros X R H.
+  intros H.
   intros x.
   apply (isarchring_2 R H x).
 Defined.

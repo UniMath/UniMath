@@ -1,7 +1,6 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import UniMath.Combinatorics.FiniteSets.
-Unset Automatic Introduction.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.DecidablePropositions.
@@ -19,7 +18,7 @@ Section A.
 
   Lemma tot_nge_to_le {X:hSet} (R:hrel X) : istotal R -> ∏ x y, ¬ (R x y) ->  R y x.
   Proof.
-    intros ? ? tot ? ? nle.
+    intros tot ? ? nle.
     now apply (hdisjtoimpl (tot x y)).
   Defined.
 
@@ -27,7 +26,7 @@ Section A.
     isTotalOrder R -> ∏ x y, ¬ (R x y)  <->  R y x ∧ ¬ (y = x).
   (** if [R x y] is [x ≤ y], then this shows the equivalence of two definitions for [y < x] *)
   Proof.
-    intros X R i.
+    intros i.
     assert (tot := pr2 i); simpl in tot.
     assert (refl := pr2 (pr1 (pr1 i))); simpl in refl.
     assert (anti := pr2 (pr1 i)); simpl in anti.
@@ -63,7 +62,7 @@ Proof.
 Defined.
 
 Definition Poset_univalence_map {X Y:Poset} : X=Y -> PosetEquivalence X Y.
-Proof. intros ? ? e. induction e. apply identityPosetEquivalence.
+Proof. intros e. induction e. apply identityPosetEquivalence.
 Defined.
 
 Local Arguments isPosetEquivalence : clear implicits.
@@ -137,7 +136,7 @@ Proof. reflexivity. Defined.
 Theorem PosetEquivalence_rect (X Y : Poset) (P : X ≅ Y -> UU) :
   (∏ e : X = Y, P (Poset_univalence_map e)) -> ∏ f, P f.
 Proof.
-  intros ? ? ? ih ?.
+  intros ih ?.
   set (p := ih (invmap (Poset_univalence _ _) f)).
   set (h := homotweqinvweq (Poset_univalence _ _) f).
   exact (transportf P h p).
@@ -202,14 +201,14 @@ Definition OrderedSet_isrefl {X:OrderedSet} (x:X) : x ≤ x.
 Proof. intros. unwrap_OrderedSet X; simpl in x. apply refl. Defined.
 
 Definition OrderedSet_isantisymm {X:OrderedSet} (x y:X) : x ≤ y -> y ≤ x -> x = y.
-Proof. intros ? ? ? r s. unwrap_OrderedSet X; simpl in x, y. now apply antisymm. Defined.
+Proof. intros r s. unwrap_OrderedSet X; simpl in x, y. now apply antisymm. Defined.
 
 Definition OrderedSet_istotal {X:OrderedSet} (x y:X): x ≤ y ∨ y ≤ x :=
   pr2 X x y.
 
 Lemma isdeceq_isdec_ordering (X:OrderedSet) : isdeceq X -> isdec_ordering X.
 Proof.
-  intros ? deceq ? ?.
+  intros deceq ? ?.
   assert (tot := OrderedSet_istotal x y).
   induction (deceq x y) as [j|j].
   - apply ii1. induction j. unwrap_OrderedSet X. apply refl.
@@ -229,13 +228,13 @@ Proof.
 Defined.
 
 Corollary isfinite_isdec_ordering (X:OrderedSet) : isfinite X -> isdec_ordering X.
-Proof. intros ? i ? ?. apply isdeceq_isdec_ordering. now apply isfinite_isdeceq.
+Proof. intros i ? ?. apply isdeceq_isdec_ordering. now apply isfinite_isdeceq.
 Defined.
 
 Corollary isdeceq_isdec_lessthan (X:OrderedSet) :
   isdeceq X -> ∏ (x y:X), decidable (x < y).
 Proof.
-  intros ? i ? ?. unfold Poset_lessthan. apply decidable_ishinh. apply decidable_dirprod.
+  intros i ? ?. unfold Poset_lessthan. apply decidable_ishinh. apply decidable_dirprod.
   - now apply isdeceq_isdec_ordering.
   - apply neg_isdecprop.
     apply isdecpropif.
@@ -244,7 +243,7 @@ Proof.
 Defined.
 
 Corollary isfinite_isdec_lessthan (X:OrderedSet) : isfinite X -> ∏ (x y:X), decidable (x < y).
-Proof. intros ? i ? ?. apply isdeceq_isdec_lessthan. now apply isfinite_isdeceq.
+Proof. intros i ? ?. apply isdeceq_isdec_lessthan. now apply isfinite_isdeceq.
 Defined.
 
 Lemma isincl_underlyingPoset : isincl underlyingPoset.
@@ -262,7 +261,7 @@ Defined.
 
 Lemma smallestUniqueness (X:OrderedSet) (x y:X) : isSmallest x -> isSmallest y -> x = y.
 Proof.
-  intros ? ? ? i j. assert (q := OrderedSet_istotal x y). apply (squash_to_prop q).
+  intros i j. assert (q := OrderedSet_istotal x y). apply (squash_to_prop q).
   { apply setproperty. }
   intro c. induction c as [xley|ylex].
   - apply OrderedSet_isantisymm.
@@ -275,7 +274,7 @@ Defined.
 
 Lemma biggestUniqueness (X:OrderedSet) (x y:X) : isBiggest x -> isBiggest y -> x = y.
 Proof.
-  intros ? ? ? i j. assert (q := OrderedSet_istotal x y). apply (squash_to_prop q).
+  intros i j. assert (q := OrderedSet_istotal x y). apply (squash_to_prop q).
   { apply setproperty. }
   intro c. induction c as [xley|ylex].
   - apply OrderedSet_isantisymm.
@@ -293,7 +292,7 @@ Defined.
 Theorem OrderedSetEquivalence_rect (X Y : OrderedSet) (P : X ≅ Y -> UU) :
   (∏ e : X = Y, P (OrderedSet_univalence _ _ e)) -> ∏ f, P f.
 Proof.
-  intros ? ? ? ih ?.
+  intros ih ?.
   set (p := ih (invmap (OrderedSet_univalence _ _) f)).
   set (h := homotweqinvweq (OrderedSet_univalence _ _) f).
   exact (transportf P h p).
@@ -327,7 +326,7 @@ Definition FiniteOrderedSetDecidableEquality (X:FiniteOrderedSet) : DecidableRel
   λ (x y:X), @decidable_to_DecidableProposition (eqset x y) (FiniteOrderedSet_isdeceq x y).
 
 Definition FiniteOrderedSetDecidableInequality (X:FiniteOrderedSet) : DecidableRelation X.
-  intros ? x y.
+  intros x y.
   apply (@decidable_to_DecidableProposition (¬ (x = y)))%logic.
   unfold decidable; simpl.
   apply neg_isdecprop.
@@ -337,7 +336,7 @@ Definition FiniteOrderedSetDecidableInequality (X:FiniteOrderedSet) : DecidableR
 Defined.
 
 Definition FiniteOrderedSetDecidableLessThan (X:FiniteOrderedSet) : DecidableRelation X.
-  intros ? x y. simple refine (decidable_to_DecidableProposition _).
+  intros x y. simple refine (decidable_to_DecidableProposition _).
   - exact (x < y).
   - apply isfinite_isdec_lessthan. apply finitenessProperty.
 Defined.
@@ -358,12 +357,12 @@ Definition FiniteOrderedSet_segment {X:FiniteOrderedSet} (x:X) : FiniteSet.
 Defined.
 
 Definition height {X:FiniteOrderedSet} : X -> nat.
-  intros ? x. exact (cardinalityFiniteSet (FiniteOrderedSet_segment x)).
+  intros x. exact (cardinalityFiniteSet (FiniteOrderedSet_segment x)).
 Defined.
 
 Definition height_stn {X:FiniteOrderedSet} : X -> stn (cardinalityFiniteSet X).
 Proof.
-  intros ? x.
+  intros x.
   exists (height x).
 
 
@@ -380,7 +379,7 @@ Proof.
   - apply isfinitestn.
 Defined.
 
-Notation "⟦ n ⟧" := (standardFiniteOrderedSet n) (at level 50) : foset.
+Notation "⟦ n ⟧" := (standardFiniteOrderedSet n) : foset.
 (* in agda-mode \[[ n \]] *)
 
 Lemma inducedPartialOrder {X Y} (f:X->Y) (incl:isInjective f) (R:hrel Y) (po:isPartialOrder R) :
@@ -402,7 +401,7 @@ Local Open Scope foset.
 Definition transportFiniteOrdering {n} {X:UU} : X ≃ ⟦ n ⟧ -> FiniteOrderedSet.
 (* The new finite ordered set has X as its underlying set. *)
 Proof.
-  intros ? ? w.
+  intros w.
   simple refine (_,,_).
   - simple refine (_,,_).
     * simple refine (_,,_).
@@ -423,7 +422,7 @@ Close Scope foset.
 Definition lexicographicOrder
            (X:hSet) (Y:X->hSet)
            (R:hrel X) (S : ∏ x, hrel (Y x)) : hrel (∑ x, Y x)%set.
-  intros ? ? ? ? u u'.
+  intros u u'.
   set (x := pr1 u). set (y := pr2 u). set (x' := pr1 u'). set (y' := pr2 u').
   exact ((x != x' × R x x') ∨ (∑ e : x = x', S x' (transportf Y e y) y')).
 Defined.
@@ -431,14 +430,14 @@ Defined.
 Lemma lex_isrefl (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∏ x, hrel (Y x)) :
   (∏ x, isrefl(S x)) -> isrefl (lexicographicOrder X Y R S).
 Proof.
-  intros ? ? ? ? Srefl u. induction u as [x y]. apply hdisj_in2; simpl.
+  intros Srefl u. induction u as [x y]. apply hdisj_in2; simpl.
   exists (idpath x). apply Srefl.
 Defined.
 
 Lemma lex_istrans (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∏ x, hrel (Y x)) :
   isantisymm R -> istrans R -> (∏ x, istrans(S x)) -> istrans (lexicographicOrder X Y R S).
 Proof.
-  intros ? ? ? ? Ranti Rtrans Strans u u' u'' p q.
+  intros Ranti Rtrans Strans u u' u'' p q.
   induction u as [x y]. induction u' as [x' y']. induction u'' as [x'' y''].
   refine (p _ _); clear p; intro p; simpl in p.
   induction p as [p|p].
@@ -476,7 +475,7 @@ Local Ltac unwrap a := apply (squash_to_prop a);
 Lemma lex_isantisymm (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∏ x, hrel (Y x)) :
   isantisymm R -> (∏ x, isantisymm(S x)) -> isantisymm (lexicographicOrder X Y R S).
 Proof.
-  intros ? ? ? ? Ranti Santi u u' a b.
+  intros Ranti Santi u u' a b.
   induction u as [x y]; induction u' as [x' y'].
   unwrap a. unwrap b. induction a as [[m r]|a].
   - induction b as [[n s]|b].
@@ -494,7 +493,7 @@ Defined.
 Lemma lex_istotal (X:hSet) (Y:X->hSet) (R:hrel X) (S : ∏ x, hrel (Y x)) :
   isdeceq X -> istotal R -> (∏ x, istotal(S x)) -> istotal (lexicographicOrder X Y R S).
 Proof.
-  intros ? ? ? ? Xdec Rtot Stot u u'. induction u as [x y]. induction u' as [x' y'].
+  intros Xdec Rtot Stot u u'. induction u as [x y]. induction u' as [x' y'].
   induction (Xdec x x') as [eq|ne].
   { refine (Stot x' (transportf Y eq y) y' _ _); intro P. induction P as [P|P].
     { apply hdisj_in1. unfold lexicographicOrder; simpl. apply hdisj_in2. exact (eq,,P). }
@@ -656,7 +655,7 @@ Section OtherProperties.
 
   Local Lemma lt_implies_le x y : lt x y -> le x y.
   Proof.
-    intros ? ? l.
+    intros l.
     intro m.
     expand ic.
     assert (n := translt _ _ _ l m).
@@ -666,7 +665,7 @@ Section OtherProperties.
   Local Lemma apart_implies_ne x y : apart x y -> ne x y.
   Proof.
     expand ic.
-    intros ? ? a e.
+    intros a e.
     induction e.
     apply (apart_isirrefl _ a).
   Defined.
@@ -682,7 +681,7 @@ Section OtherProperties.
 
   Local Lemma ne_implies_dnegapart x y : ne x y -> ¬¬ apart x y.
   Proof.
-    intros ? ? n m.
+    intros n m.
     refine (n _); clear n.
     now apply tightness.
   Defined.
@@ -693,7 +692,7 @@ Section OtherProperties.
 
     Local Lemma ne_implies_apart x y : ne x y -> apart x y.
     Proof.
-      intros ? ? a.
+      intros a.
       apply (dneg_LEM _ lem).
       now apply ne_implies_dnegapart.
     Defined.

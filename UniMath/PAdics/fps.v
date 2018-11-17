@@ -7,14 +7,10 @@
 (** made compatible with the current UniMath library again by Benedikt Ahrens in 2014
     and by Ralph Matthes in 2017 *)
 
-(** Settings *)
-
-Unset Automatic Introduction.
-
 (** Imports *)
 
 Require Import UniMath.PAdics.lemmas.
-Require Import UniMath.Algebra.Rigs_and_Rings.
+Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.NumberSystems.Integers.
 
 (** ** I. Summation in a commutative ring *)
@@ -23,9 +19,10 @@ Open Scope ring_scope.
 
 Definition natsummation0 { R : commring } ( upper : nat ) ( f : nat -> R ) : R.
 Proof.
-  intro R. intro upper. induction upper.
+  revert f.
+  induction upper.
   - intros. exact ( f 0%nat ).
-  - intros. exact ( ( IHupper f + ( f ( S upper ) ) ) ).
+  - intros. exact ( IHupper f + f ( S upper ) ).
 Defined.
 
 Lemma natsummationpaths { R : commring } { upper upper' : nat }
@@ -39,7 +36,7 @@ Lemma natsummationpathsupperfixed { R : commring } { upper : nat }
   ( f f' : nat -> R ) ( p : forall x : nat, natleh x upper -> f x = f' x ):
   natsummation0 upper f = natsummation0 upper f'.
 Proof.
-  intros R upper. induction upper.
+  revert f f' p. induction upper.
   - intros f f' p. simpl. apply p. apply isreflnatleh.
   - intros. simpl.
     rewrite ( IHupper f f' ).
@@ -57,12 +54,12 @@ interval, 0 for all but either the first or last value. *)
 
 Lemma natsummationae0bottom { R : commring } { f : nat -> R }
   ( upper : nat ) ( p : forall x : nat, natlth 0 x -> f x = 0 ) :
-  natsummation0 upper f = ( f 0%nat ).
+  natsummation0 upper f = f 0%nat.
 Proof.
-  intros R f upper. induction upper.
+  revert p. induction upper.
   - auto.
   - intro p.  simpl.
-    rewrite ( IHupper ).
+    rewrite IHupper.
     + rewrite ( p ( S upper ) ).
       * rewrite ( ringrunax1 R ).
         apply idpath.
@@ -74,12 +71,12 @@ Defined.
 
 Lemma natsummationae0top { R : commring } { f : nat -> R } ( upper : nat )
   ( p : forall x : nat, natlth x upper -> f x = 0 ) :
-  natsummation0 upper f = ( f upper ).
+  natsummation0 upper f = f upper.
 Proof.
-  intros R f upper. induction upper.
+  revert p. induction upper.
   - auto.
   - intro p.
-    assert ( natsummation0 upper f = ( natsummation0 ( R := R ) upper ( fun x : nat => 0 ) ) ) as g.
+    assert ( natsummation0 upper f = natsummation0 ( R := R ) upper ( fun x : nat => 0 ) ) as g.
     { apply natsummationpathsupperfixed.
       intros m q.
       apply p.
@@ -89,7 +86,7 @@ Proof.
     assert ( natsummation0 ( R := R ) upper ( fun _ : nat => 0 ) = 0 ) as g'.
     { set ( g'' := fun x : nat => ringunel1 ( X := R ) ).
       assert ( forall x : nat, natlth 0 x -> g'' x = 0 ) as q0.
-      { intros k pp. auto. }
+      { intros k pp. apply idpath. }
       exact ( natsummationae0bottom upper q0 ).
     }
     rewrite g'. rewrite ( ringlunax1 R ).
@@ -100,7 +97,7 @@ Lemma natsummationshift0 { R : commring } ( upper : nat ) ( f : nat -> R ) :
   natsummation0 ( S upper ) f =
   ( natsummation0 upper ( fun x : nat => f ( S x ) ) + f 0%nat ).
 Proof.
-  intros R upper. induction upper.
+  revert f. induction upper.
   - intros f. simpl.
     set (H:=pr2 R). simpl in H.
     set (H1:=pr1 H).
@@ -121,9 +118,9 @@ Defined.
 Lemma natsummationshift { R : commring } ( upper : nat ) ( f : nat -> R )
   { i : nat } ( p : natleh i upper ) :
   natsummation0 ( S upper ) f =
-  ( natsummation0 upper ( funcomp ( natcoface i ) f ) + f i ).
+  natsummation0 upper ( funcomp ( natcoface i ) f ) + f i.
 Proof.
-  intros R upper. induction upper.
+  revert f i p. induction upper.
   - intros f i p.
     destruct i.
     + unfold funcomp. simpl.
@@ -141,7 +138,7 @@ Proof.
     + apply natsummationshift0.
     + destruct ( natlehchoice ( S i ) ( S upper ) p ) as [ h | k ].
       * change ( natsummation0 ( S upper ) f + f ( S ( S upper ) ) =
-                 ( natsummation0 ( S upper ) ( funcomp ( natcoface ( S i ) ) f ) + f ( S i ) ) ).
+                 natsummation0 ( S upper ) ( funcomp ( natcoface ( S i ) ) f ) + f ( S i ) ).
         rewrite ( IHupper f ( S i ) ).
         -- simpl. unfold funcomp at 3. unfold natcoface at 3.
            rewrite 2! ( ringassoc1 R ).
@@ -174,9 +171,9 @@ Defined.
 
 Lemma natsummationplusdistr { R : commring } ( upper : nat ) ( f g : nat -> R ) :
   natsummation0 upper ( fun x : nat => f x + g x ) =
-  ( ( natsummation0 upper f ) + ( natsummation0 upper g ) ).
+  natsummation0 upper f + natsummation0 upper g.
 Proof.
-  intros R upper. induction upper.
+  revert f g. induction upper.
   - auto.
   - intros f g. simpl.
     rewrite <- ( ringassoc1 R _ ( natsummation0 upper g ) _ ).
@@ -189,20 +186,20 @@ Proof.
 Defined.
 
 Lemma natsummationtimesdistr { R : commring } ( upper : nat ) ( f : nat -> R ) ( k : R ) :
-  k * ( natsummation0 upper f ) = ( natsummation0 upper ( fun x : nat => k * f x ) ).
+  k * ( natsummation0 upper f ) = natsummation0 upper ( fun x : nat => k * f x ).
 Proof.
-  intros R upper. induction upper.
+  revert f k. induction upper.
   - auto.
   - intros f k. simpl.
-    rewrite <- ( IHupper ).
+    rewrite <- IHupper.
     rewrite <- ( ringldistr R ).
     apply idpath.
 Defined.
 
 Lemma natsummationtimesdistl { R : commring } ( upper : nat ) ( f : nat -> R ) ( k : R ) :
-  ( natsummation0 upper f ) * k = ( natsummation0 upper ( fun x : nat => f x * k ) ).
+  natsummation0 upper f * k = natsummation0 upper ( fun x : nat => f x * k ).
 Proof.
-  intros R upper. induction upper.
+  revert f k. induction upper.
   - auto.
   - intros f k. simpl.
     rewrite <- IHupper.
@@ -215,7 +212,7 @@ Lemma natsummationsswapminus { R : commring } { upper n : nat } ( f : nat -> R )
   natsummation0 ( S ( sub upper n ) ) f =
   natsummation0 ( sub ( S upper ) n ) f.
 Proof.
-  intros R upper. induction upper.
+  revert n f q. induction upper.
   - intros n f q. destruct n.
     + auto.
     + apply fromempty.
@@ -234,28 +231,28 @@ $\sum^{n}_{k=0}\sum^{k}_{l=0}f(l,k-l)=\sum^{n}_{k=0}\sum^{n-k}_{l=0}f(k,l)$
 
 Lemma natsummationswap { R : commring } ( upper : nat ) ( f : nat -> nat -> R ) :
   natsummation0 upper ( fun i : nat => natsummation0 i (fun j : nat => f j ( sub i j ) ) ) =
-  ( natsummation0 upper ( fun k : nat => natsummation0 ( sub upper k ) ( fun l : nat => f k l ) ) ).
+  natsummation0 upper ( fun k : nat => natsummation0 ( sub upper k ) ( fun l : nat => f k l ) ).
 Proof.
-  intros R upper. induction upper.
+  revert f. induction upper.
   - auto.
   - intros f.
     change ( natsummation0 upper (fun i : nat => natsummation0
-  i (fun j : nat => f j ( sub i j))) + natsummation0 ( S upper ) (
-  fun j : nat => f j ( sub ( S upper ) j ) ) = ( natsummation0
+  i (fun j : nat => f j ( sub i j ))) + natsummation0 ( S upper ) (
+  fun j : nat => f j ( sub ( S upper ) j ) ) = natsummation0
   upper (fun k : nat => natsummation0 (S upper - k) (fun l : nat => f
   k l)) + natsummation0 ( sub ( S upper ) ( S upper ) ) ( fun l :
-  nat => f ( S upper ) l ) ) ).
+  nat => f ( S upper ) l ) ).
     change ( natsummation0 upper (fun i :
   nat => natsummation0 i (fun j : nat => f j ( sub i j))) + (
   natsummation0 upper ( fun j : nat => f j ( sub ( S upper ) j ) ) +
-  f ( S upper ) ( sub ( S upper ) ( S upper ) ) ) = ( natsummation0
+  f ( S upper ) ( sub ( S upper ) ( S upper ) ) ) = natsummation0
   upper (fun k : nat => natsummation0 (S upper - k) (fun l : nat => f
   k l)) + natsummation0 ( sub ( S upper ) ( S upper ) ) ( fun l :
-  nat => f ( S upper ) l ) ) ).
-  assert ( (natsummation0 upper (fun k : nat => natsummation0 ( S (
-  sub upper k ) ) (fun l : nat => f k l)) ) = (natsummation0 upper
+  nat => f ( S upper ) l ) ).
+  assert ( natsummation0 upper (fun k : nat => natsummation0 ( S (
+  sub upper k ) ) (fun l : nat => f k l)) = natsummation0 upper
   (fun k : nat => natsummation0 (sub ( S upper ) k) (fun l : nat =>
-  f k l)) ) ) as A.
+  f k l)) ) as A.
   { apply natsummationpathsupperfixed.
     intros n q.
     apply natsummationsswapminus.
@@ -288,17 +285,17 @@ Defined.
 automorphisms of the interval of summation.*)
 
 Definition isnattruncauto ( upper : nat ) ( i : nat -> nat ) :=
-  dirprod ( forall x : nat, natleh x upper -> total2 ( fun y : nat =>
-    dirprod ( natleh y upper )
-      ( dirprod ( i y = x ) ( forall z : nat, natleh z upper -> i z = x -> y = z ) ) ) )
-          ( forall x : nat, natleh x upper -> natleh ( i x ) upper ).
+  ( forall x : nat, natleh x upper ->
+    ∑ (y : nat), natleh y upper ×
+      ( i y = x  × forall z : nat, natleh z upper -> i z = x -> y = z ) ) ×
+  forall x : nat, natleh x upper -> natleh ( i x ) upper.
 
 Lemma nattruncautoisinj { upper : nat } { i : nat -> nat }
   ( p : isnattruncauto upper i ) { n m : nat } ( n' : natleh n upper )
   ( m' : natleh m upper ) :
   i n = i m -> n = m.
 Proof.
-  intros upper i p n m n' m' h.
+  intros h.
   assert ( natleh ( i m ) upper ) as q.
   { apply (pr2 p). assumption. }
   set ( x := pr1 p ( i m ) q ).
@@ -324,22 +321,22 @@ Definition nattruncautopreimage { upper : nat } { i : nat -> nat }
 
 Definition nattruncautopreimagepath { upper : nat } { i : nat -> nat }
   ( p : isnattruncauto upper i ) { n : nat } ( n' : natleh n upper ) :
-  i ( nattruncautopreimage p n' ) = n := ( pr1 ( pr2 ( pr2 ( pr1 p n n' ) ) ) ).
+  i ( nattruncautopreimage p n' ) = n := pr1 ( pr2 ( pr2 ( pr1 p n n' ) ) ).
 
 Definition nattruncautopreimageineq { upper : nat } { i : nat -> nat }
   ( p : isnattruncauto upper i ) { n : nat } ( n' : natleh n upper ) :
   natleh ( nattruncautopreimage p n' ) upper :=
-  ( ( pr1 ( pr2 ( pr1 p n n' ) ) ) ).
+  pr1 ( pr2 ( pr1 p n n' ) ).
 
 Definition nattruncautopreimagecanon { upper : nat } { i : nat -> nat }
   ( p : isnattruncauto upper i ) { n : nat } ( n' : natleh n upper )
   { m : nat } ( m' : natleh m upper ) ( q : i m = n ) :
-  nattruncautopreimage p n' = m := ( pr2 ( pr2 ( pr2 ( pr1 p n n' ) ) ) ) m m' q.
+  nattruncautopreimage p n' = m := pr2 ( pr2 ( pr2 ( pr1 p n n' ) ) ) m m' q.
 
 Definition nattruncautoinv { upper : nat } { i : nat -> nat }
   ( p : isnattruncauto upper i ) : nat -> nat.
 Proof.
-  intros upper i p n.
+  intros n.
   destruct ( natgthorleh n upper ) as [ l | r ].
   - exact n.
   - exact ( nattruncautopreimage p r ).
@@ -379,7 +376,7 @@ Defined.
 Definition truncnattruncauto { upper : nat } { i : nat -> nat }
   ( p : isnattruncauto ( S upper ) i ) : nat -> nat.
 Proof.
-  intros upper i p n.
+  intros n.
   destruct ( natlthorgeh ( i n ) ( S upper ) ) as [ l | r ].
   - exact ( i n ).
   - destruct ( natgehchoice _ _ r ) as [ a | b ].
@@ -430,10 +427,10 @@ Defined.
 
 Lemma truncnattruncautoisinj { upper : nat } { i : nat -> nat }
   ( p : isnattruncauto ( S upper ) i ) { n m : nat }
-  ( n' : natleh n upper ) ( m' : natleh m upper ) :
+  ( q : natleh n upper ) ( r : natleh m upper ) :
   truncnattruncauto p n = truncnattruncauto p m -> n = m.
 Proof.
-  intros upper i p n m q r s.
+  intros s.
   apply ( nattruncautoisinj p ).
   - apply natlthtoleh.
     apply ( natlehlthtrans _ upper ).
@@ -925,7 +922,7 @@ Defined.
 
 Definition nattruncreverse ( upper : nat ) : nat -> nat.
 Proof.
-  intros upper n.
+  intros n.
   destruct ( natgthorleh n upper ) as [ h | k ].
   - exact n.
   - exact ( sub upper n ).
@@ -933,7 +930,7 @@ Defined.
 
 Definition nattruncbottomtopswap ( upper : nat ) : nat -> nat.
 Proof.
-  intros upper n.
+  intros n.
   destruct ( isdeceqnat 0%nat n ) as [ h | k ].
   - exact upper.
   - destruct ( isdeceqnat upper n ) as [ l | r ].
@@ -1141,7 +1138,7 @@ Lemma natsummationreindexing { R : commring } { upper : nat }
   ( i : nat -> nat ) ( p : isnattruncauto upper i ) ( f : nat -> R ) :
   natsummation0 upper f = natsummation0 upper (funcomp i f ).
 Proof.
-  intros R upper.
+  revert i p f.
   induction upper.
   - intros. simpl. unfold funcomp.
     assert ( 0%nat = i 0%nat ) as f0.
@@ -1189,7 +1186,7 @@ Proof.
               apply idpath.
             }
             rewrite f0.
-            assert ( f ( S upper ) = ( funcomp i f ) ( S upper ) ) as f1.
+            assert ( f ( S upper ) = funcomp i f ( S upper ) ) as f1.
             { unfold funcomp.
               rewrite <- r.
               rewrite j.
@@ -1234,7 +1231,7 @@ Definition fpsplus ( R : commring ) : binop ( fps R ) :=
   fun v w n => ( ( v n ) + ( w n ) ).
 
 Definition fpstimes ( R : commring ) : binop ( fps R ) :=
-  fun s t n => natsummation0 n ( fun x : nat => ( s x ) * ( t ( sub n x ) ) ).
+  fun s t n => natsummation0 n ( fun x : nat => s x * t ( sub n x ) ).
 
 (* SOME TESTS OF THE SUMMATION AND FPSTIMES DEFINITIONS: *)
 
@@ -1423,8 +1420,8 @@ Proof.
     set ( f := fun x : nat => ( fun x0 : nat => s x * t x0 * u ( sub ( sub n x ) x0 ) ) ).
     assert ( natsummation0 n ( fun x : nat =>
               natsummation0 x ( fun x0 : nat => f x0 ( sub x x0 ) ) ) =
-           ( natsummation0 n ( fun x : nat =>
-              natsummation0 ( sub n x ) ( fun x0 : nat => f x x0 ) ) ) ) as D
+             natsummation0 n ( fun x : nat =>
+              natsummation0 ( sub n x ) ( fun x0 : nat => f x x0 ) ) ) as D
     by apply natsummationswap.
     unfold f in D.
     assert ( natsummation0 n ( fun x : nat =>
@@ -1463,9 +1460,9 @@ Proof.
 Defined.
 
 Lemma natsummationandfpszero ( R : commring ) :
-  forall m : nat, natsummation0 m ( fun x : nat => fpszero R x ) = ( @ringunel1 R ).
+  forall m : nat, natsummation0 m ( fun x : nat => fpszero R x ) = @ringunel1 R.
 Proof.
-  intros R m.
+  intros m.
   induction m.
   - apply idpath.
   - simpl.
@@ -1497,15 +1494,15 @@ Proof.
         rewrite minus0r.
         assert ( natsummation0 n ( fun x : nat =>
                    fpsone R ( S x ) * s ( sub n x ) ) =
-             ( ( natsummation0 n ( fun x : nat =>
-                   fpszero R x ) ) ) ) as f.
+                 natsummation0 n ( fun x : nat =>
+                   fpszero R x ) ) as f.
         { apply natsummationpathsupperfixed.
           intros m m'.
           rewrite ( ringmult0x R ).
           apply idpath.
         }
         change ( natsummation0 n ( fun x : nat => fpsone R
-                   ( S x ) * s ( sub n x ) ) + s ( S n ) = ( s ( S n ) ) ).
+                   ( S x ) * s ( sub n x ) ) + s ( S n ) = s ( S n ) ).
         rewrite f.
         rewrite natsummationandfpszero.
         apply ( ringlunax1 R ).
@@ -1525,7 +1522,7 @@ Proof.
         rewrite minusnn0.
         rewrite ( ringrunax2 R ).
         assert ( natsummation0 n ( fun x : nat => s x * fpsone R ( sub ( S n ) x )) =
-             ( ( natsummation0 n ( fun x : nat => fpszero R x ) ) ) ) as f.
+             ( natsummation0 n ( fun x : nat => fpszero R x ) ) ) as f.
         { apply natsummationpathsupperfixed.
           intros m m'.
           rewrite <- pathssminus.
@@ -1550,15 +1547,15 @@ Proof.
   apply funextfun.
   intro n.
   assert ( natsummation0 n ( fun x : nat => s x * t ( sub n x ) ) =
-         ( natsummation0 n ( fun x : nat => t ( sub n x ) * s x ) ) ) as a0.
+           natsummation0 n ( fun x : nat => t ( sub n x ) * s x ) ) as a0.
   { apply maponpaths.
     apply funextfun.
     intro m.
     apply R.
   }
   assert ( ( natsummation0 n ( fun x : nat => t ( sub n x ) * s x ) ) =
-           ( natsummation0 n ( funcomp ( nattruncreverse n )
-                         ( fun x : nat => t x * s ( sub n x ) ) ) ) ) as a1.
+             natsummation0 n ( funcomp ( nattruncreverse n )
+                         ( fun x : nat => t x * s ( sub n x ) ) ) ) as a1.
   { apply natsummationpathsupperfixed.
     intros m q.
     unfold funcomp.
@@ -1575,9 +1572,9 @@ Proof.
       apply doubleminuslehpaths.
       assumption.
   }
-  assert ( ( natsummation0 n ( funcomp ( nattruncreverse n )
-                                 ( fun x : nat => t x * s ( sub n x ) ) ) ) =
-             natsummation0 n ( fun x : nat => t x * s ( sub n x ) ) ) as a2.
+  assert ( natsummation0 n ( funcomp ( nattruncreverse n )
+                                 ( fun x : nat => t x * s ( sub n x ) ) ) =
+           natsummation0 n ( fun x : nat => t x * s ( sub n x ) ) ) as a2.
   { apply pathsinv0.
     apply natsummationreindexing.
     apply nattruncreverseisnattruncauto.
@@ -1587,7 +1584,7 @@ Defined.
 
 Lemma isldistrfps ( R : commring ) ( s t u : fps R ) :
   fpstimes R s ( fpsplus R t u ) =
-  ( fpsplus R ( fpstimes R s t ) ( fpstimes R s u ) ).
+  fpsplus R ( fpstimes R s t ) ( fpstimes R s u ).
 Proof.
   intros.
   unfold fpstimes.
@@ -1600,26 +1597,26 @@ Proof.
   intro upper.
   assert ( natsummation0 upper ( fun x : nat =>
              s x * ( t ( sub upper x ) + u ( sub upper x ) ) ) =
-         ( natsummation0 upper ( fun x : nat =>
+           natsummation0 upper ( fun x : nat =>
              ( ( s x * t ( sub upper x ) ) +
-               ( s x * u ( sub upper x ) ) ) ) ) ) as a0.
+               ( s x * u ( sub upper x ) ) ) ) ) as a0.
   { apply maponpaths.
     apply funextfun.
     intro n.
     apply R.
   }
-  assert ( ( natsummation0 upper ( fun x : nat =>
+  assert ( natsummation0 upper ( fun x : nat =>
                ( ( s x * t ( sub upper x ) ) +
-                 ( s x * u ( sub upper x ) ) ) ) ) =
-        ( ( natsummation0 upper ( fun x : nat => s x * t ( sub upper x ) ) ) +
-          ( natsummation0 upper ( fun x : nat => s x * u ( sub upper x ) ) ) ) ) as a1
+                 ( s x * u ( sub upper x ) ) ) ) =
+            natsummation0 upper ( fun x : nat => s x * t ( sub upper x ) ) +
+            natsummation0 upper ( fun x : nat => s x * u ( sub upper x ) ) ) as a1
   by apply natsummationplusdistr.
   exact ( pathscomp0 a0 a1 ).
 Defined.
 
 Lemma isrdistrfps ( R : commring ) ( s t u : fps R ) :
   fpstimes R ( fpsplus R t u ) s =
-  ( fpsplus R ( fpstimes R t s ) ( fpstimes R u s ) ).
+  fpsplus R ( fpstimes R t s ) ( fpstimes R u s ).
 Proof.
   intros.
   unfold fpstimes.
@@ -1631,19 +1628,19 @@ Proof.
   intro upper.
   assert ( natsummation0 upper ( fun x : nat =>
              ( t x + u x ) * s ( sub upper x ) ) =
-         ( natsummation0 upper ( fun x : nat =>
-             ( ( t x * s ( sub upper x ) ) +
-               ( u x * s ( sub upper x ) ) ) ) ) ) as a0.
+           natsummation0 upper ( fun x : nat =>
+               ( t x * s ( sub upper x ) ) +
+               ( u x * s ( sub upper x ) ) ) ) as a0.
   { apply maponpaths.
     apply funextfun.
     intro n.
     apply R.
   }
-  assert ( ( natsummation0 upper ( fun x : nat =>
+  assert ( natsummation0 upper ( fun x : nat =>
                ( ( t x * s ( sub upper x ) ) +
-                 ( u x * s ( sub upper x ) ) ) ) ) =
-         ( ( natsummation0 upper ( fun x : nat => t x * s ( sub upper x ) ) ) +
-           ( natsummation0 upper ( fun x : nat => u x * s ( sub upper x ) ) ) ) ) as a1
+                 ( u x * s ( sub upper x ) ) ) ) =
+           natsummation0 upper ( fun x : nat => t x * s ( sub upper x ) ) +
+           natsummation0 upper ( fun x : nat => u x * s ( sub upper x ) ) ) as a1
   by apply natsummationplusdistr.
   exact ( pathscomp0 a0 a1 ).
 Defined.
@@ -1654,7 +1651,6 @@ Definition fpsring ( R : commring ) :=
 
 Theorem fpsiscommring ( R : commring ) : iscommring ( fpsring R ).
 Proof.
-  intro.
   unfold iscommring.
   unfold iscommringops.
   split.
@@ -1687,7 +1683,7 @@ Definition fpsshift { R : commring } ( a : fpscommring R ) : fpscommring R :=
 
 Lemma fpsshiftandmult { R : commring } ( a b : fpscommring R )
   ( p : b 0%nat = 0 ) :
-  forall n : nat, ( a * b ) ( S n ) = ( ( a * ( fpsshift b ) ) n ).
+  forall n : nat, ( a * b ) ( S n ) = ( a * ( fpsshift b ) ) n.
 Proof.
   intros.
   induction n.
@@ -1705,8 +1701,8 @@ Proof.
     unfold fpsshift.
     unfold fpstimes.
     change ( natsummation0 (S (S n)) (fun x : nat => a x * b (sub ( S (S n) ) x)) ) with
-    ( ( natsummation0 ( S n ) ( fun x : nat =>
-          a x * b ( sub ( S ( S n ) ) x ) ) ) +
+    ( natsummation0 ( S n ) ( fun x : nat =>
+          a x * b ( sub ( S ( S n ) ) x ) ) +
           a ( S ( S n ) ) * b ( sub ( S ( S n ) ) ( S ( S n ) ) ) ).
     rewrite minusnn0.
     rewrite p.
@@ -1726,7 +1722,7 @@ Defined.
 (** * IV. Apartness relation on formal power series *)
 
 Lemma apartbinarysum0 ( R : acommring ) ( a b : R ) ( p : a + b # 0 ) :
-  hdisj ( a # 0 ) ( b # 0 ).
+  a # 0 ∨ b # 0.
 Proof.
   intros. intros P s.
   use ( hinhuniv _ ( acommring_acotrans R ( a + b ) a 0 p ) ).
@@ -1738,7 +1734,7 @@ Proof.
     assert ( ( a + b ) # ( a + 0 ) ) as l''.
     { rewrite ringrunax1.
       assumption. }
-    apply ( ( pr1 ( acommring_aadd R ) ) a b 0 ).
+    apply ( pr1 ( acommring_aadd R ) a b 0 ).
     assumption.
   - apply s.
     apply ii1.
@@ -1747,10 +1743,9 @@ Defined.
 
 Lemma apartnatsummation0 ( R : acommring ) ( upper : nat )
   ( f : nat -> R ) ( p : ( natsummation0 upper f ) # 0 ) :
-  hexists ( fun n : nat => dirprod ( natleh n upper ) ( f n # 0 ) ).
+  ∃ n : nat, natleh n upper × f n # 0.
 Proof.
-  intros R upper.
-  induction upper.
+  revert f p. induction upper.
   - simpl.
     intros. intros P s.
     apply s.
@@ -1783,7 +1778,7 @@ Proof.
 Defined.
 
 Definition fpsapart0 ( R : acommring ) : hrel ( fpscommring R ) :=
-  fun s t : fpscommring R => ( hexists ( fun n : nat => ( s n # t n ) ) ).
+  fun s t : fpscommring R => ∃ n : nat, s n # t n.
 
 Definition fpsapart ( R : acommring ) : apart ( fpscommring R ).
 Proof.
@@ -1838,7 +1833,7 @@ Proof.
   change ( ( a + b ) n ) with ( ( a n ) + ( b n ) ) in q.
   change ( ( a + c ) n ) with ( ( a n ) + ( c n ) ) in q.
   split with n.
-  apply ( ( pr1 ( acommring_aadd R ) ) ( a n ) ( b n ) ( c n ) q ).
+  apply ( pr1 ( acommring_aadd R ) ( a n ) ( b n ) ( c n ) q ).
 Defined.
 
 Lemma fpsapartisbinopapartplusr ( R : acommring ) :
@@ -1859,9 +1854,9 @@ Proof.
   intro k.
   destruct k as [ n q ].
   change ( ( a * b ) n ) with
-    ( natsummation0 n ( fun x : nat => ( a x ) * ( b ( sub n x ) ) ) ) in q.
+    ( natsummation0 n ( fun x : nat => a x * b ( sub n x ) ) ) in q.
   change ( ( a * c ) n ) with
-    ( natsummation0 n ( fun x : nat => ( a x ) * ( c ( sub n x ) ) ) ) in q.
+    ( natsummation0 n ( fun x : nat => a x * c ( sub n x ) ) ) in q.
   assert ( natsummation0 n ( fun x : nat => ( a x * b ( sub n x ) -
                                          ( a x * c ( sub n x ) ) ) ) # 0 ) as q'.
   { assert ( natsummation0 n ( fun x : nat => ( a x * b ( sub n x ) ) ) -
@@ -1889,7 +1884,7 @@ Proof.
   destruct g as [ g g' ].
   apply s.
   split with ( sub n m ).
-  apply ( ( pr1 ( acommring_amult R ) ) ( a m )
+  apply ( pr1 ( acommring_amult R ) ( a m )
               ( b ( sub n m ) ) ( c ( sub n m ) ) ).
   apply aminuszeroa.
   assumption.
@@ -1920,14 +1915,14 @@ Proof.
 Defined.
 
 Definition isacommringapartdec ( R : acommring ) :=
-  isapartdec ( ( pr1 ( pr2 R ) ) ).
+  isapartdec ( pr1 ( pr2 R ) ).
 
 Lemma leadingcoefficientapartdec ( R : aintdom ) ( a : fpscommring R )
   ( is : isacommringapartdec R ) ( p : a 0%nat # 0 ) :
   forall n : nat, forall b : fpscommring R, ( b n # 0 ) ->
-      ( ( acommringapartrel ( acommringfps R ) ) ( a * b ) 0 ).
+      acommringapartrel ( acommringfps R ) ( a * b ) 0.
 Proof.
-  intros R a is p n.
+  intros n.
   induction n.
   - intros b q. intros P s.
     apply s.
@@ -1941,7 +1936,7 @@ Proof.
       split with 0%nat.
       change ( ( a * b ) 0%nat ) with ( ( a 0%nat ) * ( b 0%nat ) ).
       apply R; assumption.
-    + assert ( ( acommringapartrel ( acommringfps R ) )
+    + assert ( acommringapartrel ( acommringfps R )
                                   ( a * ( fpsshift b ) ) 0 ) as j.
       { apply IHn.
         unfold fpsshift.
@@ -1958,10 +1953,10 @@ Defined.
 
 Lemma apartdecintdom0 ( R : aintdom ) ( is : isacommringapartdec R ) :
   forall n : nat, forall a b : fpscommring R, ( a n # 0 ) ->
-      ( acommringapartrel ( acommringfps R ) b 0 ) ->
-        ( acommringapartrel ( acommringfps R ) ( a * b ) 0 ).
+      acommringapartrel ( acommringfps R ) b 0 ->
+      acommringapartrel ( acommringfps R ) ( a * b ) 0.
 Proof.
-  intros R is n.
+  intros n.
   induction n.
   - intros a b p q.
     use (hinhuniv _ q).
@@ -1998,13 +1993,13 @@ Defined.
 Theorem apartdectoisaintdomfps ( R : aintdom )
   ( is : isacommringapartdec R ) : aintdom.
 Proof.
-  intros R.
+  revert is.
   split with ( acommringfps R ).
   split.
   - intros P s.
     apply s.
     split with 0%nat.
-    change ( ( @ringunel1 ( fpscommring R ) ) 0%nat ) with ( @ringunel1 R ).
+    change ( @ringunel1 ( fpscommring R ) 0%nat ) with ( @ringunel1 R ).
     change ( @ringunel2 R # ( @ringunel1 R ) ).
     apply R.
   - intros a b p q.

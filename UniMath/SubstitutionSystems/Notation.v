@@ -43,11 +43,11 @@ Notation "G • F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35).
 Notation "α ∙∙ β" := (horcomp β α) (at level 20).
 
 Notation "α 'ø' Z" := (pre_whisker Z α)  (at level 25).
-Notation "Z ∘ α" := (post_whisker α Z) (at level 50, left associativity).
+Notation "Z ∘ α" := (post_whisker α Z).
 
 Notation "` T" := (alg_carrier _ T) (at level 3, format "` T").
 Notation "α •• Z" :=  (# (pre_composition_functor_data _ _ _ _ _ Z) α) (at level 25).
-Notation "A ⊗ B" := (precatbinprodpair A B) (at level 10).
+Notation "A ⊗ B" := (precatbinprodpair A B).
 Notation "A 'XX' B" := (precategory_binproduct A B) (at level 2).
 Notation "'ℓ'" := (pre_composition_functor(*_data*) _ _ _ _ _ ).
 Notation "Z 'p•' Z'" := (ptd_composite _ _ Z Z') (at level 25).

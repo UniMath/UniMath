@@ -1,11 +1,9 @@
 Require Export UniMath.Combinatorics.Lists.
 Require Export UniMath.Combinatorics.FiniteSequences.
-Require Export UniMath.Algebra.Rigs_and_Rings.
+Require Export UniMath.Algebra.RigsAndRings.
 Require Export UniMath.Foundations.UnivalenceAxiom.
 
 Require Import UniMath.MoreFoundations.Tactics.
-
-Unset Automatic Introduction.
 
 (* move upstream *)
 
@@ -52,7 +50,7 @@ Section BinaryOperations.
 
   Definition iterop_fun_fun {n} {m:stn n -> nat} : (∏ i (j:stn (m i)), X) -> X.
   Proof.
-    intros ? ? x.
+    intros x.
     exact (iterop_fun (λ i, iterop_fun (x i))).
   Defined.
 
@@ -90,7 +88,6 @@ Section BinaryOperations.
   Definition iterop_list_step (runax : isrunit op unel) (x:X) (xs:list X) :
     iterop_list (x::xs) = op x (iterop_list xs).
   Proof.
-    intros runax x xs.
     generalize x; clear x.
     apply (list_ind (λ xs, ∏ x : X, iterop_list (x :: xs) = op x (iterop_list xs))).
     { intro x. simpl. apply pathsinv0,runax. }
@@ -99,14 +96,13 @@ Section BinaryOperations.
   Defined.
 
   Definition iterop_fun_step' (lunax : islunit op unel) {m} (xs:stn m -> X) (x:X) :
-    iterop_fun (append_fun xs x) = op (iterop_fun xs) x.
+    iterop_fun (append_vec xs x) = op (iterop_fun xs) x.
   Proof.
-    intros lunax ? ? ?.
     unfold iterop_fun at 1.
     simpl.
     induction m as [|m _].
-    - simpl. rewrite append_fun_compute_2. apply pathsinv0. apply lunax.
-    - simpl. rewrite append_fun_compute_2.
+    - simpl. rewrite append_vec_compute_2. apply pathsinv0. apply lunax.
+    - simpl. rewrite append_vec_compute_2.
       apply (maponpaths (λ y, op y x)). apply maponpaths.
       apply append_and_drop_fun.
   Defined.
@@ -123,15 +119,14 @@ Section BinaryOperations.
   Defined.
 
   Definition iterop_fun_append (lunax : islunit op unel) {m} (x:stn m -> X) (y:X) :
-    iterop_fun (append_fun x y) = op (iterop_fun x) y.
+    iterop_fun (append_vec x y) = op (iterop_fun x) y.
   Proof.
-    intros lunax. intros.
     rewrite (iterop_fun_step lunax).
-    rewrite append_fun_compute_2.
+    rewrite append_vec_compute_2.
     apply (maponpaths (λ x, op (iterop_fun x) y)).
     apply funextfun; intro i.
     unfold funcomp.
-    rewrite append_fun_compute_1.
+    rewrite append_vec_compute_1.
     reflexivity.
   Defined.
 
@@ -183,24 +178,25 @@ Section Monoids.
   Lemma iterop_list_mon_step (x:M) (xs:list M) :
     iterop_list_mon (x::xs) = x * iterop_list_mon xs.
   Proof.
-    intros x xs. apply iterop_list_step. apply runax.
+    apply iterop_list_step. apply runax.
   Defined.
 
   Lemma iterop_list_mon_singleton (x : M) : iterop_list_mon (x::[]) = x.
   Proof.
-    intro x. reflexivity.
+    reflexivity.
   Defined.
 
   Local Lemma iterop_seq_mon_append (x:Sequence M) (m:M) :
     iterop_seq_mon (append x m) = iterop_seq_mon x * m.
   Proof.
+     revert x m.
      intros [n x] ?. unfold append. rewrite iterop_seq_mon_step.
-     rewrite append_fun_compute_2.
+     rewrite append_vec_compute_2.
      apply (maponpaths (λ a, a * m)).
      apply (maponpaths (λ x, iterop_seq_mon (n,,x))).
      apply funextfun; intros [i b]; simpl.
      unfold funcomp.
-     now rewrite append_fun_compute_1.
+     now rewrite append_vec_compute_1.
   Defined.
 
   Local Lemma iterop_seq_seq_mon_step {n} (x:stn (S n) -> Sequence M) :
@@ -215,7 +211,7 @@ Section Monoids.
   Lemma iterop_seq_mon_homot {n} (x y : stn n -> M) :
     x ~ y -> iterop_seq_mon(n,,x) = iterop_seq_mon(n,,y).
   Proof.
-    intros n. induction n as [|n N].
+    revert x y. induction n as [|n N].
     - reflexivity.
     - intros x y h. rewrite 2 iterop_seq_mon_step.
       apply two_arg_paths.
@@ -248,7 +244,7 @@ End Monoids2.
 Lemma iterop_list_mon_concatenate {M : monoid} (l s : list M) :
   iterop_list_mon (Lists.concatenate l s) = iterop_list_mon l * iterop_list_mon s.
 Proof.
-  intros M l s. revert l. apply list_ind.
+  revert l. apply list_ind.
   - apply pathsinv0, lunax.
   - intros x xs J. rewrite Lists.concatenateStep.
     unfold iterop_list_mon.
@@ -260,7 +256,7 @@ Theorem associativityOfProducts_list (M:monoid) : isAssociative_list (unel M) (@
 Proof.
   (** This proof comes from the Associativity theorem, % \cite[section 1.3, Theorem 1, page 4]{BourbakiAlgebraI}. \par % *)
   (* this proof comes from the Associativity theorem, Bourbaki, Algebra, § 1.3, Theorem 1, page 4. *)
-  intros M. unfold isAssociative_list.
+  unfold isAssociative_list.
   apply list_ind.
   - simpl. reflexivity.
   - intros x xs I. simpl in I.
@@ -274,7 +270,7 @@ Theorem associativityOfProducts_seq (M:monoid) : isAssociative_seq (unel M) (@op
 Proof.
   (** This proof comes from the Associativity theorem, % \cite[section 1.3, Theorem 1, page 4]{BourbakiAlgebraI}. \par % *)
   (* this proof comes from the Associativity theorem, Bourbaki, Algebra, § 1.3, Theorem 1, page 4. *)
-  intros M. unfold isAssociative_seq; intros. induction x as [n x].
+  unfold isAssociative_seq; intros. induction x as [n x].
   induction n as [|n IHn].
   { reflexivity. }
   change (flatten _) with (flatten ((n,,x): NonemptySequence _)).
@@ -326,7 +322,7 @@ Proof.
   Local Open Scope transport.
   set (f := nil □ j □ S O □ n-j : stn 3 -> nat).
   assert (B : stnsum f = S n).
-  { unfold stnsum, f; simpl. repeat unfold append_fun; simpl. rewrite natplusassoc.
+  { unfold stnsum, f; simpl. repeat unfold append_vec; simpl. rewrite natplusassoc.
     rewrite (natpluscomm 1). rewrite <- natplusassoc.
     rewrite natpluscomm. apply (maponpaths S). rewrite natpluscomm. now apply minusplusnmm. }
   set (r := weqfibtototal _ _ (λ k, eqweqmap (maponpaths (λ n, k < n : UU) B) ) :
@@ -351,7 +347,7 @@ Proof.
   change (f s0) with j; change (f s1) with (S O); change (f s2) with (n-j).
   set (f' := nil □ j □ n-j : stn 2 -> nat).
   assert (B' : stnsum f' = n).
-  { unfold stnsum, f'; simpl. repeat unfold append_fun; simpl.
+  { unfold stnsum, f'; simpl. repeat unfold append_vec; simpl.
     rewrite natpluscomm. now apply minusplusnmm. }
   set (r' := weqfibtototal _ _ (λ k, eqweqmap (maponpaths (λ n, k < n : UU) B') ) :
               stn (stnsum f') ≃ stn n).
@@ -480,38 +476,6 @@ Section NatCard.
     - now apply nat_plus_associativity'.
   Defined.
 
-  Theorem nat_plus_commutativity : isCommutative_fun_mon nat_add_abmonoid.
-  Proof.
-    intros ? ? ?. apply weqtoeqstn.
-    intermediate_weq (∑ i, stn (x i)).
-    - intermediate_weq (∑ i, stn (x(f i))).
-      + apply invweq. rewrite iterop_fun_nat. apply weqstnsum1.
-      + apply (weqfp _ (stn∘x)).
-    - rewrite iterop_fun_nat. apply weqstnsum1.
-  Defined.
-
-  Arguments nat_plus_commutativity {_} _ _.
-
-  Definition finsum {X} (fin : isfinite X) (f : X -> nat) : nat.
-  Proof.
-    intros.
-    unfold isfinite,finstruct,nelstruct in fin.
-    simple refine (squash_to_set
-                     isasetnat
-                     (λ (x : ∑ n, stn n ≃ X), iterop_fun_mon (M := nat_add_abmonoid) (f ∘ pr2 x))
-                     _ fin).
-    intros.
-    induction x as [n x].
-    induction x' as [n' x'].
-    assert (p := weqtoeqstn (invweq x' ∘ x)%weq).
-    induction p.
-    assert (w := nat_plus_commutativity (f ∘ x') (invweq x' ∘ x)%weq).
-    simple refine (_ @ w).
-    unfold iterop_fun_mon.
-    apply maponpaths. rewrite weqcomp_to_funcomp. apply funextfun; intro i.
-    unfold funcomp. apply maponpaths. exact (! homotweqinvweq x' (x i)).
-  Defined.
-
   (* A shorter definition: *)
   Definition finsum' {X} (fin : isfinite X) (f : X -> nat) : nat.
   Proof.
@@ -542,7 +506,7 @@ Definition AssociativeMultipleOperation {X} := ∑ op:MultipleOperation X, isAss
 Definition iterop_unoseq_mon {M:abmonoid} : MultipleOperation M.
 (* iterate the monoid operation over an unordered finite sequence of elements of M *)
 Proof.
-  intros ? m.
+  intros m.
   induction m as [J m].
   induction J as [I fin].
   simpl in m.
@@ -563,22 +527,22 @@ Defined.
 
 Definition iterop_unoseq_abgr {G:abgr} : MultipleOperation G.
 Proof.
-  intros G. exact (iterop_unoseq_mon (M:=G)).
+  exact (iterop_unoseq_mon (M:=G)).
 Defined.
 
 Definition sum_unoseq_ring {R:ring} : MultipleOperation R.
 Proof.
-  intros R. exact (iterop_unoseq_mon (M:=R)).
+  exact (iterop_unoseq_mon (M:=R)).
 Defined.
 
 Definition product_unoseq_ring {R:commring} : MultipleOperation R.
 Proof.
-  intros R. exact (iterop_unoseq_mon (M:=ringmultabmonoid R)).
+  exact (iterop_unoseq_mon (M:=ringmultabmonoid R)).
 Defined.
 
 Definition iterop_unoseq_unoseq_mon {M:abmonoid} : UnorderedSequence (UnorderedSequence M) -> M.
 Proof.
-  intros M s. exact (composeMultipleOperation iterop_unoseq_mon s).
+  intros s. exact (composeMultipleOperation iterop_unoseq_mon s).
 Defined.
 
 Definition abmonoidMultipleOperation {M:abmonoid} (op := @iterop_unoseq_mon M) : MultipleOperation M

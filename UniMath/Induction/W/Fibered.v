@@ -20,7 +20,7 @@ Local Open Scope Cat.
 Section Fibered.
   Context {A : UU} {B : A -> UU}.
 
-  Local Notation "X ⇒ Y" := (algebra_mor (polynomial_functor _ _) X Y) (at level 20).
+  Local Notation "X ⇒ Y" := (algebra_mor (polynomial_functor _ _) X Y).
   Local Notation F := (polynomial_functor A B).
 
   (** A fibered P-algebra.

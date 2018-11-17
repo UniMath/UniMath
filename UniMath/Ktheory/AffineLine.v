@@ -26,8 +26,6 @@ Require Import UniMath.Ktheory.Utilities
                UniMath.Ktheory.Tactics
                UniMath.Ktheory.MoreEquivalences.
 
-Unset Automatic Introduction.
-
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
 Open Scope hz_scope.
 
@@ -311,7 +309,7 @@ Definition GuidedHomotopy {Y} {T:Torsor ℤ} (f:T->Y) (s:target_paths f) :=
 Definition GH_to_cone {Y} {T:Torsor ℤ}
            {f:T->Y} {s:target_paths f} (t:T)  :
   GuidedHomotopy f s -> coconustot Y (f t).
-Proof. intros ? ? ? ? ? [y hp]. exact (y,,pr1 hp t). Defined.
+Proof. intros [y hp]. exact (y,,pr1 hp t). Defined.
 
 Definition GH_point {Y} {T:Torsor ℤ} {f:T->Y} {s:target_paths f}
            (yhp : GuidedHomotopy f s) := pr1 yhp : Y.
@@ -491,7 +489,7 @@ Defined.
 
 Definition map {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) :
   ∥ T ∥ -> GuidedHomotopy f s.
-Proof. intros ? ? ? ? t'.
+Proof. intros t'.
        (* try to use transport as in Halfline.map *)
        apply (squash_to_prop t').
        { apply isapropifcontr. apply iscontrGuidedHomotopy. }
@@ -533,7 +531,7 @@ Proof. intros. apply proofirrelevance, isapropifcontr, iscontr_affine_line. Defi
 
 Definition affine_line_map {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) :
   affine_line T -> Y.
-Proof. intros ? ? ? ? t'. exact (pr1 (map f s t')). Defined.
+Proof. intros t'. exact (pr1 (map f s t')). Defined.
 
 Definition check_values {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) t :
   affine_line_map f s (squash_element t) = f t.
@@ -554,7 +552,7 @@ Proof. intros. set (p' := squash_path t (one + t)).
        destruct e. apply check_paths. Defined.
 
 Definition add_one {T:Torsor ℤ} : affine_line T -> affine_line T.
-Proof. intros ?. exact (squash_fun (λ t, one + t)). Defined.
+Proof. exact (squash_fun (λ t, one + t)). Defined.
 
 (** ** The image of the mere point in an affine line
 
@@ -562,7 +560,7 @@ Proof. intros ?. exact (squash_fun (λ t, one + t)). Defined.
  corresponding affine line.  Here we name its image in Y. *)
 
 Definition affine_line_value {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) : Y.
-Proof. intros. exact (affine_line_map f s (affine_line_point T)). Defined.
+Proof. exact (affine_line_map f s (affine_line_point T)). Defined.
 
 (*
 Local Variables:

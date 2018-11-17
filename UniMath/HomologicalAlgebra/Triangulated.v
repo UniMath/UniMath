@@ -1252,9 +1252,9 @@ Section short_short_exact_sequences.
     @MorphismPair abgr_Abelian.
   Proof.
     use mk_MorphismPair.
-    - exact (@to_abgrop PT X (Ob1 D)).
-    - exact (@to_abgrop PT X (Ob2 D)).
-    - exact (@to_abgrop PT X (Ob3 D)).
+    - exact (@to_abgr PT X (Ob1 D)).
+    - exact (@to_abgr PT X (Ob2 D)).
+    - exact (@to_abgr PT X (Ob3 D)).
     - exact (to_postmor_monoidfun PT X (Ob1 D) (Ob2 D) (Mor1 D)).
     - exact (to_postmor_monoidfun PT X (Ob2 D) (Ob3 D) (Mor2 D)).
   Defined.
@@ -1262,7 +1262,7 @@ Section short_short_exact_sequences.
   Local Lemma ShortShortExactData_Eq_from_object (D : @DTri PT) (X : ob PT):
     monoidfuncomp (to_postmor_monoidfun PT X (Ob1 D) (Ob2 D) (Mor1 D))
                   (to_postmor_monoidfun PT X (Ob2 D) (Ob3 D) (Mor2 D)) =
-    ZeroArrow abgr_Zero (to_abgrop X (Ob1 D)) (to_abgrop X (Ob3 D)).
+    ZeroArrow abgr_Zero (to_abgr X (Ob1 D)) (to_abgr X (Ob3 D)).
   Proof.
     cbn. rewrite <- (@AdditiveZeroArrow_postmor_Abelian PT).
     use monoidfun_paths. use funextfun. intros x. cbn. unfold to_postmor.
@@ -1325,9 +1325,9 @@ Section short_short_exact_sequences.
   Definition MorphismPair_to_object (D : @DTri PT) (X : ob PT) : @MorphismPair abgr_Abelian.
   Proof.
     use mk_MorphismPair.
-    - exact (@to_abgrop PT (Ob3 D) X).
-    - exact (@to_abgrop PT (Ob2 D) X).
-    - exact (@to_abgrop PT (Ob1 D) X).
+    - exact (@to_abgr PT (Ob3 D) X).
+    - exact (@to_abgr PT (Ob2 D) X).
+    - exact (@to_abgr PT (Ob1 D) X).
     - exact (to_premor_monoidfun PT (Ob2 D) (Ob3 D) X (Mor2 D)).
     - exact (to_premor_monoidfun PT (Ob1 D) (Ob2 D) X (Mor1 D)).
   Defined.
@@ -1335,7 +1335,7 @@ Section short_short_exact_sequences.
   Local Lemma ShortShortExactData_Eq_to_object (D : @DTri PT) (X : ob PT) :
     monoidfuncomp (to_premor_monoidfun PT (Ob2 D) (Ob3 D) X (Mor2 D))
                   (to_premor_monoidfun PT (Ob1 D) (Ob2 D) X (Mor1 D)) =
-    ZeroArrow (Abelian.to_Zero abgr_Abelian) (to_abgrop (Ob3 D) X) (to_abgrop (Ob1 D) X).
+    ZeroArrow (Abelian.to_Zero abgr_Abelian) (to_abgr (Ob3 D) X) (to_abgr (Ob1 D) X).
   Proof.
     rewrite <- (@AdditiveZeroArrow_premor_Abelian PT).
     use monoidfun_paths. use funextfun. intros x. cbn. unfold to_premor. rewrite assoc.
@@ -1416,11 +1416,11 @@ Section triangulated_five_lemma.
     @FiveRowObs abgr_Abelian.
   Proof.
     use mk_FiveRowObs.
-    - exact (to_abgrop X (Ob1 D)).
-    - exact (to_abgrop X (Ob2 D)).
-    - exact (to_abgrop X (Ob3 D)).
-    - exact (to_abgrop X (AddEquiv1 Trans (Ob1 D))).
-    - exact (to_abgrop X (AddEquiv1 Trans (Ob2 D))).
+    - exact (to_abgr X (Ob1 D)).
+    - exact (to_abgr X (Ob2 D)).
+    - exact (to_abgr X (Ob3 D)).
+    - exact (to_abgr X (AddEquiv1 Trans (Ob1 D))).
+    - exact (to_abgr X (AddEquiv1 Trans (Ob2 D))).
   Defined.
 
   Definition TriangulatedRowDiffs_from_object (D : @DTri PT) (X : ob PT) :
@@ -1512,11 +1512,11 @@ Section triangulated_five_lemma.
   Definition TriangulatedRowObs_to_object (D : @DTri PT) (X : ob PT) : @FiveRowObs abgr_Abelian.
   Proof.
     use mk_FiveRowObs.
-    - exact (to_abgrop (AddEquiv1 Trans (Ob2 D)) X).
-    - exact (to_abgrop (AddEquiv1 Trans (Ob1 D)) X).
-    - exact (to_abgrop (Ob3 D) X).
-    - exact (to_abgrop (Ob2 D) X).
-    - exact (to_abgrop (Ob1 D) X).
+    - exact (to_abgr (AddEquiv1 Trans (Ob2 D)) X).
+    - exact (to_abgr (AddEquiv1 Trans (Ob1 D)) X).
+    - exact (to_abgr (Ob3 D) X).
+    - exact (to_abgr (Ob2 D) X).
+    - exact (to_abgr (Ob1 D) X).
   Defined.
 
   Definition TriangulatedRowDiffs_to_object (D : @DTri PT) (X : ob PT) :

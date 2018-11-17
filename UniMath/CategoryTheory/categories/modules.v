@@ -2,7 +2,7 @@
  - Anthony Bordg, March-April 2017
  - Langston Barrett (@siddharthist), November-December 2017 *)
 
-Require Import UniMath.Algebra.Rigs_and_Rings.
+Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.Algebra.Modules.
 Require Import UniMath.Algebra.Modules.Examples.
@@ -37,6 +37,7 @@ Definition mod_precategory_data : precategory_data :=
 Lemma is_precategory_mod_precategory_data :
   is_precategory (mod_precategory_data).
 Proof.
+  apply is_precategory_one_assoc_to_two.
   apply dirprodpair.
   - apply dirprodpair.
     + intros M N f.

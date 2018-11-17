@@ -106,7 +106,9 @@ Proof.
     simpl. apply id_right.
   - intros. apply cComma_mor_eq.
     simpl. apply assoc.
-Qed.
+  - intros. apply cComma_mor_eq.
+    simpl. apply assoc'.
+Defined.
 
 Definition cComma : precategory.
 Proof.
@@ -273,10 +275,37 @@ Proof.
   - apply (homset_property C).
 Qed.
 
+Definition comma_cat_data_assoc' :
+  ∏ (stf uvg xyh zwi : comma_cat_data) (jkp : stf --> uvg) (lmq : uvg --> xyh) (nor : xyh --> zwi), (jkp · lmq) · nor = jkp · (lmq · nor).
+Proof.
+  intros stf uvg xyh zwi jkp lmq nor.
+  use total2_paths2_f.
+  - use total2_paths2.
+    + cbn. apply assoc'.
+    + cbn. apply assoc'.
+  - apply (homset_property C).
+Qed.
+
 Definition is_precategory_comma_cat_data : is_precategory comma_cat_data :=
-  mk_is_precategory comma_cat_data_id_left comma_cat_data_id_right comma_cat_data_assoc.
+  mk_is_precategory comma_cat_data_id_left comma_cat_data_id_right comma_cat_data_assoc comma_cat_data_assoc'.
 
 Definition comma_precategory : precategory := mk_precategory comma_cat_data is_precategory_comma_cat_data.
+
+(** When all the precategories involved have homsets, so does the comma category. *)
+Lemma has_homsets_comma_precat {hsE : has_homsets E} {hsD : has_homsets D} :
+  has_homsets comma_precategory.
+Proof.
+  unfold has_homsets, comma_precategory.
+  cbn; unfold comma_cat_ob, comma_cat_mor; cbn.
+  intros ? ?.
+  apply isaset_total2.
+  - apply isaset_dirprod.
+    + apply hsE.
+    + apply hsD.
+  - intro.
+    apply hlevelntosn.
+    apply homset_property.
+Qed.
 
 (** ** Projection functors *)
 
@@ -303,3 +332,11 @@ Proof.
 Defined.
 
 End general_comma_precategories.
+
+Lemma comma_category {C D E : category} (S : functor D C) (T : functor E C) :
+  category.
+Proof.
+  use category_pair.
+  - exact (comma_precategory S T).
+  - apply has_homsets_comma_precat; apply homset_property.
+Defined.

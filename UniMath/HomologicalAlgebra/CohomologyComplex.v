@@ -1106,7 +1106,7 @@ Section def_cohomology_homotopy.
   Proof.
     set (inv := @to_inv (ComplexPreCat_Additive (AbelianToAdditive A hs)) _ _
                         (# (CohomologyFunctor_Additive A hs) g)).
-    set (tmp := @grrcan (@to_abgrop (ComplexPreCat_Additive (AbelianToAdditive A hs)) _ _)
+    set (tmp := @grrcan (@to_abgr (ComplexPreCat_Additive (AbelianToAdditive A hs)) _ _)
                         (# (CohomologyFunctor_Additive A hs) f)
                         (# (CohomologyFunctor_Additive A hs) g) inv).
     apply tmp. clear tmp. unfold inv. clear inv.
