@@ -232,6 +232,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Bicategories/Bicat.v](CategoryTheory/Bicategories/Bicat.v)
    - [Bicategories/BicatAliases.v](CategoryTheory/Bicategories/BicatAliases.v)
    - [Bicategories/bicategory_laws.v](CategoryTheory/Bicategories/bicategory_laws.v)
+   - [Bicategories/bicategory_laws_2.v](CategoryTheory/Bicategories/bicategory_laws_2.v)
    - [Bicategories/Examples/one_types.v](CategoryTheory/Bicategories/Examples/one_types.v)
    - [Bicategories/StandardBicategories.v](CategoryTheory/Bicategories/StandardBicategories.v)
    - [Bicategories/OpCellBicat.v](CategoryTheory/Bicategories/OpCellBicat.v)
