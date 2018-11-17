@@ -1,5 +1,3 @@
-Unset Automatic Introduction.
-
 Require UniMath.Foundations.NaturalNumbers.
 Require UniMath.MoreFoundations.DecidablePropositions.
 

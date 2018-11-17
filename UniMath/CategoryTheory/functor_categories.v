@@ -863,6 +863,31 @@ Proof.
   intros ? ?; apply (pr2 (weqcomp (_,, ffF _ _) (_,, ffG _ _))).
 Qed.
 
+(** Fully faithful functors induce equivalences on commutative triangles
+
+    Compare to [faithful_reflects_commutative_triangle]. *)
+Lemma fully_faithful_commutative_triangle_weq
+      {C D : precategory} (F : functor C D) (fff : fully_faithful F)
+      {X Y Z : ob C} (f : X --> Y) (g : Y --> Z) (h : X --> Z) :
+  (f · g = h) ≃ (#F f · #F g = #F h).
+Proof.
+  apply (@weqcomp _ (# F (f · g) = # F h)).
+  - eapply weqpair.
+    apply (isweqmaponpaths (weq_from_fully_faithful fff _ _) (f · g) h).
+  - use weq_iso; intros p.
+    + refine (_ @ p).
+      apply (!functor_comp _ _ _).
+    + refine (_ @ p).
+      apply (functor_comp _ _ _).
+    + refine (path_assoc _ _ _ @ _).
+      refine (maponpaths (λ pp, pp @ _) (pathsinv0r _) @ _).
+      reflexivity.
+    + cbn.
+      refine (path_assoc _ _ _ @ _).
+      refine (maponpaths (λ pp, pp @ _) (pathsinv0l _) @ _).
+      reflexivity.
+Qed.
+
 (** ** Image on objects of a functor  *)
 (** is used later to define the full image subcategory of a category [D]
        defined by a functor [F : C -> D] *)

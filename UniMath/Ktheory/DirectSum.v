@@ -14,7 +14,6 @@ Require Import
         UniMath.Ktheory.Representation
         UniMath.Ktheory.Precategories.
 Require UniMath.Ktheory.RawMatrix.
-Unset Automatic Introduction.
 Local Open Scope cat.
 
 Definition identity_matrix {C:category} (h:ZeroMaps C)
