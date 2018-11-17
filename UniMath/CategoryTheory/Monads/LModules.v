@@ -221,7 +221,7 @@ Section Pullback_module.
   Context {C: precategory}.
 
   Variable (T:LModule M' C).
-  Notation "Z ∘ α" := (post_whisker α Z) (at level 50, left associativity).
+  Notation "Z ∘ α" := (post_whisker α Z).
   Local Notation σ := lm_mult.
 
   Definition pb_LModule_σ : T □ M ⟹ T :=  nat_trans_comp _ _ _ (T ∘ m)  (σ _ T).

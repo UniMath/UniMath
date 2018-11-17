@@ -4,10 +4,9 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Ktheory.Utilities.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.Ktheory.Equivalences.
-Unset Automatic Introduction.
 
 Definition weq_to_InverseEquivalence X Y : X ≃ Y -> Equivalence Y X.
-  intros ? ? [f r].
+  intros [f r].
   unfold isweq in r.
   set (g := λ y, hfiberpr1 f y (thePoint (r y))).
   set (p := λ y, pr2 (pr1 (r y))).
@@ -21,7 +20,7 @@ Definition weq_to_InverseEquivalence X Y : X ≃ Y -> Equivalence Y X.
 Abort.
 
 Definition Equivalence_to_invweq X Y : Equivalence X Y -> Y ≃ X.
-Proof. intros ? ? [f [g [p [q h]]]]. exists g. unfold isweq. intro x.
+Proof. intros [f [g [p [q h]]]]. exists g. unfold isweq. intro x.
        exists (f x,,q x). intros [y []]. apply (two_arg_paths_f (!p y)).
        admit.
 Abort.
@@ -72,7 +71,7 @@ Proof. reflexivity. Defined.
 
 Definition funfibtototal {X} (P Q:X->Type) (f:∏ x:X, P x -> Q x) :
   total2 P -> total2 Q.
-Proof. intros ? ? ? ? [x p]. exact (x,,f x p). Defined.
+Proof. intros [x p]. exact (x,,f x p). Defined.
 
 Definition weqfibtototal_comp {X} (P Q:X->Type) (f:∏ x:X, (P x) ≃ (Q x)) :
   invmap (weqfibtototal P Q f) = funfibtototal Q P (λ x, invmap (f x)).
@@ -113,7 +112,7 @@ Proof. intros.
 Definition homotinvweqweq' {X} {P:X->Type}
            (irr:∏ x (p q:P x), p = q) (s:∏ x, P x) (w:total2 P) :
   invmap (weqpr1_irr_sec irr s) (weqpr1_irr_sec irr s w) = w.
-Proof. intros ? ? ? ? [x p]. apply pair_path_in2. apply irr. Defined.
+Proof. revert w; intros [x p]. apply pair_path_in2. apply irr. Defined.
 
 Definition homotinvweqweq'_comp {X} {P:X->Type}
            (irr:∏ x (p q:P x), p = q) (sec:∏ x, P x)

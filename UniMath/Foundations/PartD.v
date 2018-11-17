@@ -56,11 +56,6 @@ Only one universe is used and never as a type.
 
 (** ** Preamble *)
 
-(** Settings *)
-
-(* The following line has to be removed for the file to compile with Coq8.2 *)
-Unset Automatic Introduction.
-
 (** Imports *)
 
 Require Export UniMath.Foundations.PartC.
@@ -75,7 +70,7 @@ Definition totaltoforall {X : UU} (P : X -> UU) (PP : ∏ x : X, P x -> UU) :
   total2 (fun s0 : ∏ x : X, P x
           => ∏ x : X, PP x (s0 x)) -> ∏ x : X, total2 (PP x).
 Proof.
-  intros X P PP X0 x.
+  intros X0 x.
   exists (pr1 X0 x).
   apply (pr2 X0 x).
 Defined.
@@ -85,7 +80,7 @@ Definition foralltototal {X : UU} (P : X -> UU) (PP : ∏ x : X, P x -> UU) :
   (∏ x : X, total2 (PP x))
   -> total2 (fun s0 : ∏ x : X, P x => ∏ x : X, PP x (s0 x)).
 Proof.
-  intros X P PP X0.
+  intros X0.
   exists (λ x : X, pr1 (X0 x)).
   apply (λ x : X, pr2 (X0 x)).
 Defined.
@@ -164,7 +159,7 @@ Definition hfibertoforall {X : UU} (P Q : X -> UU) (f : ∏ x : X, P x -> Q x)
            (s : ∏ x : X, Q x) :
   hfiber  (@maponsec _ _ _ f) s -> ∏ x : X, hfiber  (f x) (s x).
 Proof.
-  intro. intro. intro. intro. intro. unfold hfiber.
+  unfold hfiber.
   set (map1 := totalfun (fun pointover : ∏ x : X, P x =>
                            paths (λ x : X, f x (pointover x)) s)
                         (fun pointover : ∏ x : X, P x =>
@@ -183,7 +178,7 @@ Definition foralltohfiber {X : UU} (P Q : X -> UU) (f : ∏ x : X, P x -> Q x)
            (s : ∏ x : X, Q x) :
   (∏ x : X, hfiber (f x) (s x)) -> hfiber (maponsec _ _ f) s.
 Proof.
-  intro. intro. intro. intro. intro. unfold hfiber.
+  unfold hfiber.
   set (map2inv := foralltototal P (λ x : X, (λ pointover : P x,
                                                 paths (f x pointover) (s x)))).
   set (map1inv :=  totalfun (fun pointover : ∏ x : X, P x =>
@@ -199,7 +194,6 @@ Defined.
 Theorem isweqhfibertoforall {X : UU} (P Q : X -> UU) (f : ∏ x : X, P x -> Q x)
         (s : ∏ x : X, Q x) : isweq (hfibertoforall _ _ f s).
 Proof.
-  intro. intro. intro. intro. intro.
   set (map1 := totalfun (fun pointover : ∏ x : X, P x =>
                            paths  (λ x : X, f x (pointover x)) s)
                         (fun pointover : ∏ x : X, P x =>
@@ -226,7 +220,6 @@ Definition weqhfibertoforall {X : UU} (P Q : X -> UU) (f : ∏ x : X, P x -> Q x
 Theorem isweqforalltohfiber {X : UU} (P Q : X -> UU) (f : ∏ x : X, P x -> Q x)
         (s : ∏ x : X, Q x) : isweq (foralltohfiber  _ _ f s).
 Proof.
-  intro. intro. intro. intro. intro.
   set (map2inv := foralltototal P (λ x : X, (λ pointover : P x,
                                                 paths (f x pointover) (s x)))).
 
@@ -428,7 +421,7 @@ Definition weqbfun {X Y : UU} (Z : UU) (w : X ≃ Y) : (Y -> Z) ≃ (X -> Z)
 
 Definition iscontrsecoverempty (P : empty -> UU) : iscontr (∏ x : empty, P x).
 Proof.
-  intro. split with (λ x : empty, fromempty x).
+  split with (λ x : empty, fromempty x).
   intro t. apply funextsec.
   intro t0. induction t0.
 Defined.
@@ -484,7 +477,7 @@ Defined.
 
 Theorem iscontrfunfromempty (X : UU) : iscontr (empty -> X).
 Proof.
-  intro. split with fromempty.
+  split with fromempty.
   intro t. apply funextfun.
   intro x. induction x.
 Defined.
@@ -531,7 +524,6 @@ Defined.
 
 Definition weqsecoverunit (P : unit -> UU) : (∏ t : unit, P t) ≃ (P tt).
 Proof.
-  intro.
   set (f := fun a : ∏ t : unit, P t => a tt). set (g := tosecoverunit P).
   split with f.
   assert (egf : ∏ a : _, paths (g (f a)) a).
@@ -622,7 +614,7 @@ Definition weqfunfromdirprod (X X' Y : UU) :
 Theorem impred (n : nat) {T : UU} (P : T -> UU) :
   (∏ t : T, isofhlevel n (P t)) -> (isofhlevel n (∏ t : T, P t)).
 Proof.
-  intro. induction n as [ | n IHn ].
+  revert T P. induction n as [ | n IHn ].
   - intros T P X. apply (funcontr P X).
   - intros T P X. unfold isofhlevel in X. unfold isofhlevel. intros x x'.
     assert (is : ∏ t : T, isofhlevel n (paths (x t) (x' t)))
@@ -659,7 +651,7 @@ Corollary impredtwice  (n : nat) {T T' : UU} (P : T -> T' -> UU) :
   (∏ (t : T) (t': T'), isofhlevel n (P t t'))
   -> (isofhlevel n (∏ (t : T) (t': T'), P t t')).
 Proof.
-  intros n T T' P X.
+  intros X.
   assert (is1 : ∏ t : T, isofhlevel n (∏ t': T', P t t'))
     by (intro; apply (impred n _ (X t))).
   apply (impred n _ is1).
@@ -676,7 +668,7 @@ Defined.
 Theorem impredtech1 (n : nat) (X Y : UU) :
   (X -> isofhlevel n Y) -> isofhlevel n (X -> Y).
 Proof.
-  intro. induction n as [ | n IHn ]. intros X Y X0. simpl.
+  revert X Y. induction n as [ | n IHn ]. intros X Y X0. simpl.
   split with (λ x : X, pr1 (X0 x)).
   - intro t.
     assert (s1 : ∏ x : X, paths (t x) (pr1 (X0 x)))
@@ -699,14 +691,13 @@ Defined.
 
 Theorem iscontrfuntounit (X : UU) : iscontr (X -> unit).
 Proof.
-  intro. split with (λ x : X, tt).
+  split with (λ x : X, tt).
   intro f. apply funextfun.
   intro x. induction (f x). apply idpath.
 Defined.
 
 Theorem iscontrfuntocontr (X : UU) {Y : UU} (is : iscontr Y) : iscontr (X -> Y).
 Proof.
-  intros.
   set (w := weqcontrtounit is). set (w' := weqffun X w).
   apply (iscontrweqb w' (iscontrfuntounit X)).
 Defined.
@@ -716,7 +707,7 @@ Defined.
 
 Lemma isapropimpl (X Y : UU) (isy : isaprop Y) : isaprop (X -> Y).
 Proof.
-  intros. apply impred. intro. assumption.
+  apply impred. intro. assumption.
 Defined.
 
 
@@ -739,7 +730,6 @@ Defined.
 
 Theorem iscontriscontr {X : UU} (is : iscontr X) : iscontr (iscontr X).
 Proof.
-  intros X X0.
   assert (is0 : ∏ (x x' : X), x = x')
          by (apply proofirrelevancecontr; assumption).
   assert (is1 : ∏ cntr : X, iscontr (∏ x : X, x = cntr)).
@@ -791,13 +781,13 @@ Defined.
 Theorem isapropisdeceq (X : UU) : isaprop (isdeceq X).
 (* uses funextemptyAxiom *)
 Proof.
-  intro. apply (isofhlevelsn 0). intro is. unfold isdeceq. apply impred.
+  apply (isofhlevelsn 0). intro is. unfold isdeceq. apply impred.
   intro x. apply (isapropisisolated X x).
 Defined.
 
 Theorem isapropisofhlevel (n : nat) (X : UU) : isaprop (isofhlevel n X).
 Proof.
-  intro. induction n as [ | n IHn ].
+  revert X. induction n as [ | n IHn ].
   - apply isapropiscontr.
   - intro X.
     apply impred. intros t.
@@ -896,7 +886,6 @@ Defined.
 Lemma inv_idweq_is_idweq {A : UU} :
   idweq A = invweq (idweq A).
 Proof.
-  intros A.
   eapply total2_paths_f.
   apply isapropisweq.
   Unshelve.
@@ -1310,14 +1299,12 @@ Defined.
 Definition weqcompinjr {X Y Z} {f f':X ≃ Y} (g:Y ≃ Z) :
   weqcomp f g = weqcomp f' g -> f = f'.
 Proof.
-  intros ? ? ? ? ? ?.
   apply (invmaponpathsincl _ (isinclweq _ _ _ (weqcompweqr g))).
 Defined.
 
 Definition weqcompinjl {X Y Z} (f:X ≃ Y) {g g':Y ≃ Z} :
   weqcomp f g = weqcomp f g' -> g = g'.
 Proof.
-  intros ? ? ? ? ? ?.
   apply (invmaponpathsincl _ (isinclweq _ _ _ (weqcompweql f))).
 Defined.
 

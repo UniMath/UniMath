@@ -3,7 +3,6 @@
 Require Import
         UniMath.Foundations.Sets
         UniMath.Ktheory.Utilities.
-Unset Automatic Introduction.
 Definition iscomprelfun2 {X Y Z} (RX:hrel X) (RY:hrel Y)
            (f:X->Y->Z) : Type
   := (∏ x x', RX x x' -> ∏ y, f x y = f x' y) ×
@@ -25,7 +24,7 @@ Proof. intros. destruct p. apply funextsec; intro c.
 Definition setquotuniv2 {X Y} (RX:hrel X) (RY:hrel Y)
            {Z:hSet} (f:X->Y->Z) (is:iscomprelfun2 RX RY f) :
   setquot RX -> setquot RY -> Z.
-Proof. intros ? ? ? ? ? ? ? x''.
+Proof. intros x''.
        simple refine (setquotuniv RX (funset (setquot RY) Z) _ _ _).
        { simpl. intro x. apply (setquotuniv RY Z (f x)).
          intros y y' e. unfold iscomprelfun2 in is.
@@ -37,8 +36,7 @@ Proof. intros ? ? ? ? ? ? ? x''.
 Definition setquotfun2 {X Y Z} {RX:hrel X} {RY:hrel Y} {RZ:eqrel Z}
            (f:X->Y->Z) (is:iscomprelrelfun2 RX RY RZ f) :
   setquot RX -> setquot RY -> setquot RZ.
-Proof. intros ? ? ? ? ? ? ? ?.
-       set (f' := λ x y, setquotpr RZ (f x y) : setquotinset RZ).
+Proof. set (f' := λ x y, setquotpr RZ (f x y) : setquotinset RZ).
        apply (setquotuniv2 RX RY f'). split.
        { intros ? ? p ?. apply iscompsetquotpr. exact (pr1 is x x' y p). }
        { intros ? ? p ?. apply iscompsetquotpr. exact (pr2 is x y y' p). }

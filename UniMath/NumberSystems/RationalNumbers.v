@@ -11,8 +11,6 @@ In this file we introduce the type [ hq ] of rationals defined as the quotient s
 
 (** Settings *)
 
-Unset Automatic Introduction. (** This line has to be removed for the file to compile with Coq8.2 *)
-
 Unset Kernel Term Sharing.
 
 (** Imports *)
@@ -86,10 +84,10 @@ Local Open Scope hz_scope .
 Local Open Scope hq_scope .
 
 Lemma hqplusr0 ( x : hq ) : paths ( x + 0 ) x .
-Proof . intro . apply ( ringrunax1 _ x ) .  Defined .
+Proof . apply ( ringrunax1 _ x ) .  Defined .
 
 Lemma hqplusl0 ( x : hq ) : paths ( 0 + x ) x .
-Proof . intro . apply ( ringlunax1 _ x ) . Defined .
+Proof . apply ( ringlunax1 _ x ) . Defined .
 
 Lemma hqplusassoc ( x y z : hq ) : paths ( ( x + y ) + z ) ( x + ( y + z ) ) .
 Proof . intros . apply ( ringassoc1 hq x y z ) . Defined .
@@ -98,13 +96,13 @@ Lemma hqpluscomm ( x y : hq ) : paths ( x + y ) ( y + x ) .
 Proof . intros .  apply ( ringcomm1 hq x y ) . Defined .
 
 Lemma hqlminus ( x : hq ) : paths ( -x + x ) 0 .
-Proof . intro. apply ( ringlinvax1 hq x ) . Defined .
+Proof . apply ( ringlinvax1 hq x ) . Defined .
 
 Lemma hqrminus  ( x : hq ) : paths ( x - x ) 0 .
-Proof . intro. apply ( ringrinvax1 hq x ) . Defined .
+Proof . apply ( ringrinvax1 hq x ) . Defined .
 
 Lemma isinclhqplusr ( n : hq ) : isincl ( λ m : hq, m + n ) .
-Proof. intro . apply ( pr2 ( weqtoincl _ _ ( weqrmultingr hqaddabgr n ) ) ) . Defined.
+Proof. apply ( pr2 ( weqtoincl _ _ ( weqrmultingr hqaddabgr n ) ) ) . Defined.
 
 Lemma isinclhqplusl ( n : hq ) : isincl ( λ m : hq, n + m ) .
 Proof.  intro.  apply ( pr2 ( weqtoincl _ _ ( weqlmultingr hqaddabgr n ) ) ) . Defined .
@@ -124,16 +122,16 @@ Definition hqinvmaponpathsminus { a b : hq } ( e :  paths ( - a ) ( - b ) ) : a 
 
 
 Lemma hqmultr1 ( x : hq ) : paths ( x * 1 ) x .
-Proof . intro . apply ( ringrunax2 _ x ) .  Defined .
+Proof . apply ( ringrunax2 _ x ) .  Defined .
 
 Lemma hqmultl1 ( x : hq ) : paths ( 1 * x ) x .
-Proof . intro . apply ( ringlunax2 _ x ) . Defined .
+Proof . apply ( ringlunax2 _ x ) . Defined .
 
 Lemma hqmult0x ( x : hq ) : paths ( 0 * x ) 0 .
-Proof . intro . apply ( ringmult0x _ x ) .  Defined .
+Proof . apply ( ringmult0x _ x ) .  Defined .
 
 Lemma hqmultx0 ( x : hq ) : paths ( x * 0 ) 0 .
-Proof . intro . apply ( ringmultx0 _ x ) . Defined .
+Proof . apply ( ringmultx0 _ x ) . Defined .
 
 Lemma hqmultassoc ( x y z : hq ) : paths ( ( x * y ) * z ) ( x * ( y * z ) ) .
 Proof . intros . apply ( ringassoc2 hq x y z ) . Defined .
@@ -226,10 +224,10 @@ Lemma isnegrelhqgth : isnegrel hqgth .
 Proof . apply isdecreltoisnegrel . apply isdecrelhqgth . Defined .
 
 Lemma iscoantisymmhqgth ( n m : hq ) : neg ( hqgth n m ) -> ( hqgth m n ) ⨿ ( n = m ) .
-Proof . apply isantisymmnegtoiscoantisymm . apply isdecrelhqgth .  intros n m . apply isantisymmneghqgth . Defined .
+Proof . revert n m. apply isantisymmnegtoiscoantisymm . apply isdecrelhqgth .  intros n m . apply isantisymmneghqgth . Defined .
 
 Lemma iscotranshqgth ( n m k : hq ) : hqgth n k -> hdisj ( hqgth n m ) ( hqgth m k ) .
-Proof . intros x y z gxz .  destruct ( isdecrelhqgth x y ) as [ gxy | ngxy ] . apply ( hinhpr ( ii1 gxy ) ) . apply hinhpr .   apply ii2 .  destruct ( isdecrelhqgth y x ) as [ gyx | ngyx ] . apply ( istranshqgth _ _ _ gyx gxz ) .  set ( e := isantisymmneghqgth _ _ ngxy ngyx ) . rewrite e in gxz .  apply gxz .  Defined .
+Proof . intros gnk .  destruct ( isdecrelhqgth n m ) as [ gxy | ngxy ] . apply ( hinhpr ( ii1 gxy ) ) . apply hinhpr .   apply ii2 .  destruct ( isdecrelhqgth m n ) as [ gyx | ngyx ] . apply ( istranshqgth _ _ _ gyx gnk ) .  set ( e := isantisymmneghqgth _ _ ngxy ngyx ) . rewrite e in gnk .  apply gnk .  Defined .
 
 
 
@@ -248,10 +246,10 @@ Definition isantisymmneghqtth  ( n m : hq ) : neg ( hqlth n m ) -> neg ( hqlth m
 Definition isnegrelhqlth : isnegrel hqlth := λ n m, isnegrelhqgth m n .
 
 Definition iscoantisymmhqlth ( n m : hq ) : neg ( hqlth n m ) -> ( hqlth m n ) ⨿ ( n = m ) .
-Proof . intros n m nlnm . destruct ( iscoantisymmhqgth m n nlnm ) as [ l | e ] . apply ( ii1 l ) . apply ( ii2 ( pathsinv0 e ) ) . Defined .
+Proof . intros nlnm . destruct ( iscoantisymmhqgth m n nlnm ) as [ l | e ] . apply ( ii1 l ) . apply ( ii2 ( pathsinv0 e ) ) . Defined .
 
 Definition iscotranshqlth ( n m k : hq ) : hqlth n k -> hdisj ( hqlth n m ) ( hqlth m k ) .
-Proof . intros n m k lnk . apply ( ( pr1 islogeqcommhdisj ) ( iscotranshqgth _ _ _ lnk ) )  .  Defined .
+Proof . intros lnk . apply ( ( pr1 islogeqcommhdisj ) ( iscotranshqgth _ _ _ lnk ) )  .  Defined .
 
 
 
@@ -306,12 +304,12 @@ Qed.
 (** *** Simple implications between comparisons *)
 
 Definition hqgthtogeh ( n m : hq ) : hqgth n m -> hqgeh n m .
-Proof. intros n m g . apply iscoasymmhqgeh . apply ( todneg _ g ) . Defined .
+Proof. intros g . apply iscoasymmhqgeh . apply ( todneg _ g ) . Defined .
 
 Definition hqlthtoleh ( n m : hq ) : hqlth n m -> hqleh n m := hqgthtogeh _ _ .
 
 Definition hqlehtoneghqgth ( n m : hq ) : hqleh n m -> neg ( hqgth n m )  .
-Proof. intros n m is is' . apply ( is is' ) .  Defined .
+Proof. intros is is' . apply ( is is' ) .  Defined .
 
 Definition  hqgthtoneghqleh ( n m : hq ) : hqgth n m -> neg ( hqleh n m ) := λ g l , hqlehtoneghqgth _ _ l g .
 
@@ -324,7 +322,7 @@ Definition neghqlehtogth ( n m : hq ) : neg ( hqleh n m ) -> hqgth n m := isnegr
 Definition neghqgehtolth ( n m : hq ) : neg ( hqgeh n m ) -> hqlth n m := isnegrelhqlth n m .
 
 Definition neghqgthtoleh ( n m : hq ) : neg ( hqgth n m ) -> hqleh n m .
-Proof . intros n m ng . destruct ( isdecrelhqleh n m ) as [ l | nl ] . apply l . destruct ( nl ng ) .  Defined .
+Proof . intros ng . destruct ( isdecrelhqleh n m ) as [ l | nl ] . apply l . destruct ( nl ng ) .  Defined .
 
 Definition neghqlthtogeh ( n m : hq ) : neg ( hqlth n m ) -> hqgeh n m := λ nl, neghqgthtoleh _ _ nl .
 
@@ -356,16 +354,16 @@ Proof .  intros . destruct ( hqgthorleh n m ) as [ g' | l ] .  apply ( ii1 g' ) 
 
 
 Lemma hqgthgehtrans ( n m k : hq ) : hqgth n m -> hqgeh m k -> hqgth n k .
-Proof. intros n m k gnm gmk . destruct ( hqgehchoice m k gmk ) as [ g' | e ] . apply ( istranshqgth _ _ _ gnm g' ) .  rewrite e in gnm  .  apply gnm . Defined.
+Proof. intros gnm gmk . destruct ( hqgehchoice m k gmk ) as [ g' | e ] . apply ( istranshqgth _ _ _ gnm g' ) .  rewrite e in gnm  .  apply gnm . Defined.
 
 Lemma hqgehgthtrans ( n m k : hq ) : hqgeh n m -> hqgth m k -> hqgth n k .
-Proof. intros n m k gnm gmk . destruct ( hqgehchoice n m gnm ) as [ g' | e ] . apply ( istranshqgth _ _ _ g' gmk ) .  rewrite e .  apply gmk . Defined.
+Proof. intros gnm gmk . destruct ( hqgehchoice n m gnm ) as [ g' | e ] . apply ( istranshqgth _ _ _ g' gmk ) .  rewrite e .  apply gmk . Defined.
 
 Lemma hqlthlehtrans ( n m k : hq ) : hqlth n m -> hqleh m k -> hqlth n k .
-Proof . intros n m k l1 l2 . apply ( hqgehgthtrans k m n l2 l1 ) . Defined .
+Proof . intros l1 l2 . apply ( hqgehgthtrans k m n l2 l1 ) . Defined .
 
 Lemma hqlehlthtrans ( n m k : hq ) : hqleh n m -> hqlth m k -> hqlth n k .
-Proof . intros n m k l1 l2 . apply ( hqgthgehtrans k m n l2 l1 ) . Defined .
+Proof . intros l1 l2 . apply ( hqgthgehtrans k m n l2 l1 ) . Defined .
 
 
 
@@ -385,13 +383,13 @@ Definition hqgthandplusl ( n m k : hq ) : hqgth n m -> hqgth ( k + n ) ( k + m )
 Definition hqgthandplusr ( n m k : hq ) : hqgth n m -> hqgth ( n + k ) ( m + k ) := λ g, ( pr2 isringaddhzgth ) n m k g .
 
 Definition hqgthandpluslinv  ( n m k : hq ) : hqgth ( k + n ) ( k + m ) -> hqgth n m  .
-Proof. intros n m k g . set ( g' := hqgthandplusl _ _ ( - k ) g ) . clearbody g' . rewrite ( pathsinv0 ( hqplusassoc _ _ n ) ) in g' . rewrite ( pathsinv0 ( hqplusassoc _ _ m ) ) in g' .  rewrite ( hqlminus k ) in g' . rewrite ( hqplusl0 _ ) in g' .   rewrite ( hqplusl0 _ ) in g' . apply g' .  Defined .
+Proof. intros g . set ( g' := hqgthandplusl _ _ ( - k ) g ) . clearbody g' . rewrite ( pathsinv0 ( hqplusassoc _ _ n ) ) in g' . rewrite ( pathsinv0 ( hqplusassoc _ _ m ) ) in g' .  rewrite ( hqlminus k ) in g' . rewrite ( hqplusl0 _ ) in g' .   rewrite ( hqplusl0 _ ) in g' . apply g' .  Defined .
 
 Definition hqgthandplusrinv ( n m k : hq ) :  hqgth ( n + k ) ( m + k ) -> hqgth n m  .
-Proof. intros n m k l . rewrite ( hqpluscomm n k ) in l . rewrite ( hqpluscomm m k ) in l . apply ( hqgthandpluslinv _ _ _ l )  . Defined .
+Proof. intros l . rewrite ( hqpluscomm n k ) in l . rewrite ( hqpluscomm m k ) in l . apply ( hqgthandpluslinv _ _ _ l )  . Defined .
 
 Lemma hqgthsnn ( n : hq ) : hqgth ( n + 1 ) n .
-Proof . intro . set ( int := hqgthandplusl _ _ n ( ct ( hqgth , isdecrelhqgth , 1 , 0 ) ) ) . clearbody int . rewrite ( hqplusr0 n ) in int .   apply int . Defined .
+Proof . set ( int := hqgthandplusl _ _ n ( ct ( hqgth , isdecrelhqgth , 1 , 0 ) ) ) . clearbody int . rewrite ( hqplusr0 n ) in int .   apply int . Defined .
 
 
 (** [ lth ] *)
@@ -475,20 +473,20 @@ Proof . intros . unfold hqlth . apply ( ringtogt0 hq isplushrelhqgth is ) .  Def
 (** [ hqleh ] *)
 
 Lemma hqleh0andminus { n : hq } ( is : hqleh n 0 ) : hqgeh ( - n ) 0 .
-Proof . intro n . apply ( negf ( @hqminusandlth0 n ) ) . Defined .
+Proof . revert is. apply ( negf ( @hqminusandlth0 n ) ) . Defined .
 
 Lemma hqminusandleh0 { n : hq } ( is : hqleh ( - n ) 0 ) : hqgeh n 0 .
-Proof . intro n . apply ( negf ( @hqlth0andminus n ) ) . Defined .
+Proof . revert is. apply ( negf ( @hqlth0andminus n ) ) . Defined .
 
 
 
 (** [ hqgeh ] *)
 
 Lemma hqgeh0andminus { n : hq } ( is : hqgeh n 0 ) : hqleh ( - n ) 0 .
-Proof . intro n . apply ( negf ( @hqminusandgth0 n ) ) . Defined .
+Proof . revert is. apply ( negf ( @hqminusandgth0 n ) ) . Defined .
 
 Lemma hqminusandgeh0 { n : hq } ( is : hqgeh ( - n ) 0 ) : hqleh n 0 .
-Proof . intro n . apply ( negf ( @hqgth0andminus n ) ) . Defined .
+Proof . revert is. apply ( negf ( @hqgth0andminus n ) ) . Defined .
 
 
 (** *** Multiplication and comparisons  *)
@@ -498,16 +496,16 @@ Proof . intro n . apply ( negf ( @hqgth0andminus n ) ) . Defined .
 
 
 Definition hqgthandmultl ( n m k : hq ) ( is : hqgth k hqzero ) : hqgth n m -> hqgth ( k * n ) ( k * m ) .
-Proof. apply ( isringmultgttoislringmultgt _ isplushrelhqgth isringmulthqgth ) .   Defined .
+Proof. revert n m k is. apply ( isringmultgttoislringmultgt _ isplushrelhqgth isringmulthqgth ) .   Defined .
 
 Definition hqgthandmultr ( n m k : hq ) ( is : hqgth k hqzero ) : hqgth n m -> hqgth ( n * k ) ( m * k )  .
-Proof . apply ( isringmultgttoisrringmultgt _ isplushrelhqgth isringmulthqgth ) . Defined .
+Proof . revert n m k is. apply ( isringmultgttoisrringmultgt _ isplushrelhqgth isringmulthqgth ) . Defined .
 
 Definition  hqgthandmultlinv ( n m k : hq ) ( is : hqgth k hqzero ) : hqgth ( k * n ) ( k * m ) -> hqgth n m .
-Proof . intros n m k is is' .  apply ( isinvringmultgttoislinvringmultgt hq isplushrelhqgth isinvringmulthqgth n m k is is' ) .  Defined .
+Proof . intros is' .  apply ( isinvringmultgttoislinvringmultgt hq isplushrelhqgth isinvringmulthqgth n m k is is' ) .  Defined .
 
 Definition hqgthandmultrinv ( n m k : hq ) ( is : hqgth k hqzero ) : hqgth ( n * k ) ( m * k ) -> hqgth n m .
-Proof.   intros n m k is is' .  apply ( isinvringmultgttoisrinvringmultgt hq isplushrelhqgth isinvringmulthqgth n m k is is' ) .  Defined .
+Proof.   intros is' .  apply ( isinvringmultgttoisrinvringmultgt hq isplushrelhqgth isinvringmulthqgth n m k is is' ) .  Defined .
 
 
 
@@ -714,7 +712,7 @@ Definition intpart0 : hq -> nat := setquotuniv ( eqrelabmonoidfrac hzmultabmonoi
      ( iscompintpartint0 ) .
 
 Definition intpart ( x : hq ) : hz .
-Proof . intro . destruct ( hqlthorgeh x 0 ) as [ l | ge ] .  destruct ( isdeceqhq ( x + ( hztohq ( nattohz ( intpart0 x ) ) ) ) 0 ) as [ e | ne ] .
+Proof . destruct ( hqlthorgeh x 0 ) as [ l | ge ] .  destruct ( isdeceqhq ( x + ( hztohq ( nattohz ( intpart0 x ) ) ) ) 0 ) as [ e | ne ] .
 
 apply ( - (nattohz (intpart0 x)))%hz .
 

@@ -19,8 +19,6 @@ Require Export UniMath.Combinatorics.Lists.
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
-Unset Automatic Introduction.
-
 Local Open Scope transport.
 
 (** ** Vectors *)
@@ -33,7 +31,7 @@ Definition Vector (X : UU) (n : nat) : UU := stn n -> X.
 Lemma vector_hlevel (X : UU) (n : nat) {m : nat} (ism : isofhlevel m X) :
   isofhlevel m (Vector X n).
 Proof.
-  intros ? ? ? ?; apply impred; auto.
+  apply impred; auto.
 Defined.
 
 (** Constant vector *)
@@ -51,7 +49,6 @@ Definition empty_vec {X : UU} : Vector X 0 := iscontrpr1 (iscontr_vector_0 X).
 
 (** Every type is equivalent to vectors of length 1 on that type. *)
 Lemma weq_vector_1 {X : UU} : X ≃ Vector X 1.
-  intros X.
   intermediate_weq (unit → X).
   - apply invweq, weqfunfromunit.
   - apply weqbfun.
@@ -139,7 +136,7 @@ Section Lemmas.
     (∏ i, f i = g (transportf stn p i))
     -> transportf (Vector X) p f = g.
   Proof.
-    intros ? ? ? p ?.
+    intros ?.
     induction p.
     apply funextfun.
     assumption.
@@ -152,7 +149,7 @@ Section Lemmas.
   Definition vector_stn_proofirrelevance {vec : Vector X n}
             {i j : stn n} : (stntonat _ i = stntonat _ j) -> vec i = vec j.
   Proof.
-    intros ? ? ? ?.
+    intros ?.
     apply maponpaths, isinjstntonat; assumption.
   Defined.
 End Lemmas.
@@ -191,7 +188,7 @@ Definition col_vec {X : UU} {n : nat} (vec : Vector X n) : Matrix X n 1 :=
 Lemma matrix_hlevel (X : UU) (n m : nat) {o : nat} (ism : isofhlevel o X) :
   isofhlevel o (Matrix X n m).
 Proof.
-  intros ? ? ? ? ?; do 2 apply vector_hlevel; assumption.
+  do 2 apply vector_hlevel; assumption.
 Defined.
 
 (** Constant matrix *)
@@ -200,7 +197,7 @@ Definition const_matrix {X : UU} {n m : nat} (x : X) : Matrix X n m :=
 
 (** Every type is equivalent to 1 × 1 matrices on that type. *)
 Lemma weq_matrix_1_1 {X : UU} : X ≃ Matrix X 1 1.
-  intros X; intermediate_weq (Vector X 1); apply weq_vector_1.
+  intermediate_weq (Vector X 1); apply weq_vector_1.
 Defined.
 
 (** ** Sequences *)
@@ -226,7 +223,7 @@ Coercion unorderedSequenceToFunction : UnorderedSequence >-> Funclass.
 
 Definition sequenceToUnorderedSequence {X} : Sequence X -> UnorderedSequence X.
 Proof.
-  intros X x.
+  intros x.
   exists (standardFiniteSet (length x)).
   exact x.
 Defined.
@@ -272,7 +269,7 @@ Proof. intros. induction p. reflexivity. Defined.
 Definition sequenceEquality2 {X} (f g:Sequence X) (p:length f=length g) :
   (∏ i, f i = g (transportf stn p i)) -> f = g.
 Proof.
-  intros ? ? ? ? e. induction f as [m f]. induction g as [n g]. simpl in p.
+  intros e. induction f as [m f]. induction g as [n g]. simpl in p.
   apply (total2_paths2_f p). now apply vectorEquality.
 Defined.
 
@@ -309,7 +306,7 @@ Definition seq_key_eq_lemma' {X :UU} (g g' : Sequence X) :
                                         g (i ,, ltg) = g' (i ,, ltg')) ->
   g=g'.
 Proof.
-  intros ? ? ? k r.
+  intros k r.
   apply seq_key_eq_lemma.
   * assumption.
   * intros.
@@ -325,7 +322,7 @@ Definition nil {X} : Sequence X.
 Proof. intros. exact (0,, empty_vec). Defined.
 
 Definition append {X} : Sequence X -> X -> Sequence X.
-Proof. intros ? x y. exact (S (length x),, append_vec (pr2 x) y).
+Proof. intros x y. exact (S (length x),, append_vec (pr2 x) y).
 Defined.
 
 Definition drop_and_append {X n} (x : stn (S n) -> X) :
@@ -344,8 +341,7 @@ Defined.
 Definition isaset_transportf {X : hSet} (P : X ->UU) {x : X} (e : x = x) (p : P x) :
   transportf P e p = p.
 (* move upstream *)
-Proof. intros ? ? ? ? ?.
-       induction (pr1 ((setproperty _) _ _ (idpath _) e)).
+Proof. induction (pr1 ((setproperty _) _ _ (idpath _) e)).
        reflexivity.
 Defined.
 
@@ -419,14 +415,14 @@ Defined.
 
 Definition drop {X} (x:Sequence X) : length x != 0 -> Sequence X.
 Proof.
-  intros ? [n x] h.
+  revert x. intros [n x] h.
   induction n as [|n].
   - simpl in h. contradicts h (idpath 0).
   - exact (n,,x ∘ dni_lastelement).
 Defined.
 
 Definition drop' {X} (x:Sequence X) : x != nil -> Sequence X.
-Proof. intros ? ? h. exact (drop x (pr2 (logeqnegs (nil_length x)) h)). Defined.
+Proof. intros h. exact (drop x (pr2 (logeqnegs (nil_length x)) h)). Defined.
 
 Lemma append_and_drop_fun {X n} (x : stn n -> X) y :
   append_vec x y ∘ dni lastelement = x.
@@ -453,7 +449,7 @@ Defined.
 
 Definition disassembleSequence {X} : Sequence X -> coprod unit (X × Sequence X).
 Proof.
-  intros ? x.
+  intros x.
   induction x as [n x].
   induction n as [|n].
   - exact (ii1 tt).
@@ -462,7 +458,7 @@ Defined.
 
 Definition assembleSequence {X} : coprod unit (X × Sequence X) -> Sequence X.
 Proof.
-  intros ? co.
+  intros co.
   induction co as [t|p].
   - exact nil.
   - exact (append (pr2 p) (pr1 p)).
@@ -558,7 +554,7 @@ Defined.
 Definition concatenateStep {X : UU} (x : Sequence X) {n : nat} (y : stn (S n) -> X) :
   concatenate x (S n,,y) = append (concatenate x (n,,y ∘ dni lastelement)) (y lastelement).
 Proof.
-  intros X m. induction m as [m l]. intros n y.
+  revert x n y. induction x as [m l]. intros n y.
   use seq_key_eq_lemma.
   - cbn. apply natplusnsm.
   - intros i r s.
@@ -579,12 +575,12 @@ Qed.
 
 Definition flatten {X : UU} : Sequence (Sequence X) -> Sequence X.
 Proof.
-  intros ? x. exists (stnsum (length ∘ x)). exact (flatten' (sequenceToFunction ∘ x)).
+  intros x. exists (stnsum (length ∘ x)). exact (flatten' (sequenceToFunction ∘ x)).
 Defined.
 
 Definition flattenUnorderedSequence {X : UU} : UnorderedSequence (UnorderedSequence X) -> UnorderedSequence X.
 Proof.
-  intros ? x.
+  intros x.
   use tpair.
   - exact ((∑ i, pr1 (x i))%finset).
   - intros ij. exact (x (pr1 ij) (pr2 ij)). (* could also have used (uncurry (unorderedSequenceToFunction x)) here *)
@@ -625,7 +621,7 @@ Defined.
 (* partitions *)
 
 Definition partition' {X n} (f:stn n -> nat) (x:stn (stnsum f) -> X) : stn n -> Sequence X.
-Proof. intros ? ? ? ? i. exists (f i). intro j. exact (x(inverse_lexicalEnumeration f (i,,j))).
+Proof. intros i. exists (f i). intro j. exact (x(inverse_lexicalEnumeration f (i,,j))).
 Defined.
 
 Definition partition {X n} (f:stn n -> nat) (x:stn (stnsum f) -> X) : Sequence (Sequence X).
@@ -645,7 +641,6 @@ Defined.
 Definition isassoc_concatenate {X : UU} (x y z : Sequence X) :
   concatenate (concatenate x y) z = concatenate x (concatenate y z).
 Proof.
-  intros X x y z.
   use seq_key_eq_lemma.
   - cbn. apply natplusassoc.
   - intros i ltg ltg'. cbn. unfold concatenate'. unfold weqfromcoprodofstn_invmap. unfold coprod_rect. cbn.
@@ -702,7 +697,7 @@ Definition reverse {X : UU} (x : Sequence X) : Sequence X :=
 
 Lemma reversereverse {X : UU} (x : Sequence X) : reverse (reverse x) = x.
 Proof.
-  intros X x. induction x as [n x].
+  induction x as [n x].
   apply pair_path_in2.
   apply funextfun; intro i.
   unfold reverse, dualelement, coprod_rect. cbn.
@@ -714,7 +709,7 @@ Qed.
 Lemma reverse_index {X : UU} (x : Sequence X) (i : stn (length x)) :
   (reverse x) (dualelement i) = x i.
 Proof.
-  intros X x i. cbn. unfold dualelement, coprod_rect.
+  cbn. unfold dualelement, coprod_rect.
   set (e := natgthtogehm1 (length x) i (stnlt i)).
   induction (natchoice0 (length x)) as [H' | H'].
   - apply maponpaths. apply isinjstntonat. cbn. apply (minusminusmmn _ _ e).
@@ -724,7 +719,7 @@ Qed.
 Lemma reverse_index' {X : UU} (x : Sequence X) (i : stn (length x)) :
   (reverse x) i = x (dualelement i).
 Proof.
-  intros X x i. cbn. unfold dualelement, coprod_rect.
+  cbn. unfold dualelement, coprod_rect.
   induction (natchoice0 (length x)) as [H' | H'].
   - apply maponpaths. apply isinjstntonat. cbn. apply idpath.
   - apply maponpaths. apply isinjstntonat. cbn. apply idpath.

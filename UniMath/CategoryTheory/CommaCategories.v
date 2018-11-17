@@ -291,6 +291,22 @@ Definition is_precategory_comma_cat_data : is_precategory comma_cat_data :=
 
 Definition comma_precategory : precategory := mk_precategory comma_cat_data is_precategory_comma_cat_data.
 
+(** When all the precategories involved have homsets, so does the comma category. *)
+Lemma has_homsets_comma_precat {hsE : has_homsets E} {hsD : has_homsets D} :
+  has_homsets comma_precategory.
+Proof.
+  unfold has_homsets, comma_precategory.
+  cbn; unfold comma_cat_ob, comma_cat_mor; cbn.
+  intros ? ?.
+  apply isaset_total2.
+  - apply isaset_dirprod.
+    + apply hsE.
+    + apply hsD.
+  - intro.
+    apply hlevelntosn.
+    apply homset_property.
+Qed.
+
 (** ** Projection functors *)
 
 Definition comma_domain : functor comma_precategory E.
@@ -316,3 +332,11 @@ Proof.
 Defined.
 
 End general_comma_precategories.
+
+Lemma comma_category {C D E : category} (S : functor D C) (T : functor E C) :
+  category.
+Proof.
+  use category_pair.
+  - exact (comma_precategory S T).
+  - apply has_homsets_comma_precat; apply homset_property.
+Defined.
