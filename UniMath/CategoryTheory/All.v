@@ -18,7 +18,6 @@ Require Export UniMath.CategoryTheory.Monics.
 Require Export UniMath.CategoryTheory.Epis.
 Require Export UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Export UniMath.CategoryTheory.PrecategoriesWithAbgrops.
-Require Export UniMath.CategoryTheory.ArrowCategory.
 Require Export UniMath.CategoryTheory.limits.cones.
 Require Export UniMath.CategoryTheory.limits.equalizers.
 Require Export UniMath.CategoryTheory.limits.graphs.colimits.
@@ -76,6 +75,7 @@ Require Export UniMath.CategoryTheory.PointedFunctors.
 Require Export UniMath.CategoryTheory.HorizontalComposition.
 Require Export UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Export UniMath.CategoryTheory.CommaCategories.
+Require Export UniMath.CategoryTheory.ArrowCategory.
 Require Export UniMath.CategoryTheory.RightKanExtension.
 Require Export UniMath.CategoryTheory.slicecat.
 Require Export UniMath.CategoryTheory.coslicecat.
@@ -98,9 +98,8 @@ Require Export UniMath.CategoryTheory.Abelian.
 Require Export UniMath.CategoryTheory.category_binops.
 Require Export UniMath.CategoryTheory.AbelianToAdditive.
 Require Export UniMath.CategoryTheory.Morphisms.
-Require Export UniMath.CategoryTheory.Ktheory.ExactCategories.
-Require Export UniMath.CategoryTheory.Ktheory.GrothendieckGroup.
-Require Export UniMath.CategoryTheory.Ktheory.Tests.
+Require Export UniMath.CategoryTheory.ExactCategories.ExactCategories.
+Require Export UniMath.CategoryTheory.ExactCategories.Tests.
 Require Export UniMath.CategoryTheory.ShortExactSequences.
 Require Export UniMath.CategoryTheory.AdditiveFunctors.
 Require Export UniMath.CategoryTheory.LocalizingClass.

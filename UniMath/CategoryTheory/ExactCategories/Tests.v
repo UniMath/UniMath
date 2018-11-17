@@ -50,10 +50,7 @@ Local Arguments morphism_from_iso {_ _ _}.
 Local Arguments ToBinDirectSum {_ _ _} _ {_}.
 Local Arguments isBinDirectSum {_ _ _ _}.
 
-
-Require Import UniMath.CategoryTheory.Ktheory.ExactCategories.
-Require Import UniMath.CategoryTheory.Ktheory.GrothendieckGroup.
-
+Require Import UniMath.CategoryTheory.ExactCategories.ExactCategories.
 
 Goal ∏ (C:precategory) (a b:C) (f: a --> b), isMonic (C:=C) f = isEpi (C:=C^op) f.
   reflexivity.
