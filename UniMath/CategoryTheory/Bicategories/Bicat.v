@@ -355,6 +355,66 @@ Definition bicat : UU
   := ∑ C : prebicat, isaset_cells C.
 
 Definition build_bicategory
+           (C : prebicat_data)
+           (HC1 : prebicat_laws C)
+           (HC2 : isaset_cells (tpair _ C HC1))
+  : bicat
+  := tpair _ (tpair _ C HC1) HC2.
+
+Definition build_prebicat_data
+           (ob : UU)
+           (mor : ob -> ob -> UU)
+           (cell : ∏ {X Y : ob}, mor X Y -> mor X Y -> UU)
+           (id₁ : ∏ (X : ob), mor X X)
+           (comp : ∏ {X Y Z : ob}, mor X Y -> mor Y Z -> mor X Z)
+           (id₂ : ∏ {X Y : ob} (f : mor X Y), cell f f)
+           (vcomp : ∏ {X Y : ob} {f g h : mor X Y}, cell f g -> cell g h -> cell f h)
+           (lwhisk : ∏ {X Y Z : ob} (f : mor X Y) {g h : mor Y Z},
+                     cell g h -> cell (comp f g) (comp f h))
+           (rwhisk : ∏ {X Y Z : ob} {g h : mor X Y} (f : mor Y Z),
+                     cell g h -> cell (comp g f) (comp h f))
+           (lunitor : ∏ {X Y : ob} (f : mor X Y),
+                      cell (comp (id₁ X) f) f)
+           (lunitor_inv : ∏ {X Y : ob} (f : mor X Y),
+                          cell f (comp (id₁ X) f))
+           (runitor : ∏ {X Y : ob} (f : mor X Y),
+                      cell (comp f (id₁ Y)) f)
+           (runitor_inv : ∏ {X Y : ob} (f : mor X Y),
+                          cell f (comp f (id₁ Y)))
+           (lassocor : ∏ {W X Y Z : ob} (f : mor W X) (g : mor X Y) (h : mor Y Z),
+                       cell (comp f (comp g h)) (comp (comp f g) h))
+           (rassocor : ∏ {W X Y Z : ob} (f : mor W X) (g : mor X Y) (h : mor Y Z),
+                       cell (comp (comp f g) h) (comp f (comp g h)))
+  : prebicat_data.
+Proof.
+  use tpair.
+  - use tpair.
+    + use tpair.
+      * use tpair.
+        ** exact ob.
+        ** exact mor.
+      * use tpair.
+        ** exact id₁.
+        ** exact comp.
+    + exact cell.
+  - use tpair.
+    + exact id₂.
+    + repeat (use tpair) ; simpl.
+      * exact lunitor.
+      * exact runitor.
+      * exact lunitor_inv.
+      * exact runitor_inv.
+      * exact rassocor.
+      * exact lassocor.
+      * exact vcomp.
+      * exact lwhisk.
+      * exact rwhisk.
+Defined.
+
+Ltac build_prebicat_laws := repeat (use tpair).
+
+(*
+Definition build_bicategory
            (ob : UU)
            (mor : ob -> ob -> UU)
            (cell : ∏ {X Y : ob}, mor X Y -> mor X Y -> UU)
@@ -484,6 +544,7 @@ Proof.
     unfold isaset_cells.
     apply cell_is_set.
 Defined.
+*)
 
 Coercion prebicat_of_bicat (C : bicat)
   : prebicat
