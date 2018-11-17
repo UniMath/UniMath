@@ -440,8 +440,10 @@ Definition twoinverse
   : g ==> f
   := inv_cell (η,,H).
 
-(* TODO: does not work - why? *)
 Notation "H ^-1" := (twoinverse _ H) (at level 70) : bicategory_scope.
+Delimit Scope bicategory_scope with bicategory.
+Bind Scope bicategory_scope with bicat.
+Open Scope bicategory_scope.
 
 Definition vcomp_left_inverse
            {C : BiCategory}
@@ -449,7 +451,7 @@ Definition vcomp_left_inverse
            {f g : C⟦X,Y⟧}
            (η : f ==> g)
            (H : is_invertible_2cell η)
-  :  twoinverse _ H o η = id₂ f.
+  : H ^-1 o η = id₂ f.
 Proof.
   apply (invertible_2cell_after_inv_cell ( _ ,, H)).
 Defined.
