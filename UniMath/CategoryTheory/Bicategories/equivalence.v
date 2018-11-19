@@ -83,7 +83,7 @@ Section Equivalence.
              (f : C⟦X,Y⟧)
              (Hf : is_equivalence f)
     : equivalence X Y
-    := tpair _ f Hf.
+    := f ,, Hf.
 
   Coercion equiv_morph
            {X Y : C}
