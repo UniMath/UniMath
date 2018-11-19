@@ -184,7 +184,6 @@ Section laws.
       =
       assoc_inv g (id₁ Y) f o id₂ g ⋆⋆ left_unit_inv f.
   Proof.
-    (*
     rewrite <- inverse_of_right_unit, <- inverse_of_left_unit.
     rewrite <- inverse_of_assoc.
     rewrite <- (id₂_inverse f).
@@ -194,15 +193,12 @@ Section laws.
     apply path_inverse_2cell.
     apply triangle_r.
   Qed.
-     *)
-    Admitted.
 
   Definition triangle_l
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
     : right_unit g ⋆⋆ id₂ f o assoc_inv g (id₁ Y) f = id₂ g ⋆⋆ left_unit f.
   Proof.
-    (*
     rewrite triangle_r.
     rewrite vcomp_assoc.
     rewrite <- inverse_of_assoc.
@@ -210,8 +206,6 @@ Section laws.
     rewrite vcomp_right_identity.
     reflexivity.
   Qed.
-     *)
-      Admitted.
 
   Definition bc_whisker_r_compose
              {X Y Z : C}
@@ -220,13 +214,9 @@ Section laws.
              (p₁ : g₁ ==> g₂) (p₂ : g₂ ==> g₃)
     : (p₂ o p₁) ▻ f = (p₂ ▻ f) o (p₁ ▻ f).
   Proof.
-    (*
-    rewrite <- interchange.
-    rewrite vcomp_left_identity.
-    reflexivity.
+    symmetry.
+    apply lwhisker_vcomp.
   Qed.
-     *)
-      Admitted.
 
   Definition bc_whisker_l_compose
              {X Y Z : C}
@@ -235,13 +225,9 @@ Section laws.
              (p₁ : f₁ ==> f₂) (p₂ : f₂ ==> f₃)
     : g ◅ (p₂ o p₁) = (g ◅ p₂) o (g ◅ p₁).
   Proof.
-    (*
-    rewrite <- interchange.
-    rewrite vcomp_left_identity.
-    reflexivity.
+    symmetry.
+    apply rwhisker_vcomp.
   Qed.
-     *)
-      Admitted.
 
   Definition whisker_l_cancel_id
              {X Y : C}
