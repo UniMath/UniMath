@@ -1350,6 +1350,6 @@ Notation "y ▹ g" := (rwhisker g y) (at level 60). (* \tw nr 2 *)
 Notation "f ◅ x" := (rwhisker f x) (at level 60, only parsing). (* \tw nr 5*)
 Notation "y ▻ g" := (lwhisker g y) (at level 60, only parsing). (* \tw nr 6 *)
 Notation "x ⋆ y" := (hcomp x y) (at level 50, left associativity).
-Notation "x 'o' y" := (y • x) (at level 60, only parsing).
+Notation "x 'o' y" := (y • x) (at level 67, only parsing, left associativity).
 
 End Notations.
