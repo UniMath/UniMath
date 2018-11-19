@@ -5,6 +5,29 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Notations.
 Require Import UniMath.CategoryTheory.Bicategories.BicatAliases.
 Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws_2.
 
+Ltac is_iso :=
+  match goal with
+  | [ |- is_invertible_2cell (left_unit _) ] => apply is_invertible_2cell_runitor
+  | [ |- is_invertible_2cell (left_unit_inv _) ] => apply is_invertible_2cell_rinvunitor
+  | [ |- is_invertible_2cell (right_unit _) ] => apply is_invertible_2cell_lunitor
+  | [ |- is_invertible_2cell (right_unit_inv _) ] => apply is_invertible_2cell_linvunitor
+  | [ |- is_invertible_2cell (runitor _) ] => apply is_invertible_2cell_runitor
+  | [ |- is_invertible_2cell (rinvunitor _) ] => apply is_invertible_2cell_rinvunitor
+  | [ |- is_invertible_2cell (lunitor _) ] => apply is_invertible_2cell_lunitor
+  | [ |- is_invertible_2cell (linvunitor _) ] => apply is_invertible_2cell_linvunitor
+  | [ |- is_invertible_2cell (assoc _ _ _)] => apply assoc_iso
+  | [ |- is_invertible_2cell (assoc_inv _ _ _)] => apply assoc_inv_iso
+  | [ |- is_invertible_2cell (rassociator _ _ _)] => apply is_invertible_2cell_rassociator
+  | [ |- is_invertible_2cell (lassociator _ _ _)] => apply is_invertible_2cell_lassociator
+  | [ |- is_invertible_2cell (_ ^-1)] => apply iso_inverse ; is_iso
+  | [ |- is_invertible_2cell (_ • _)] => apply iso_vcomp ; is_iso
+  | [ |- is_invertible_2cell (_ ◃ _)] => apply is_invertible_2cell_lwhisker ; is_iso
+  | [ |- is_invertible_2cell (_ ▹ _)] => apply is_invertible_2cell_rwhisker ; is_iso
+  | [ |- is_invertible_2cell (_ ⋆⋆ _)] => apply hcomp_iso ; is_iso
+  | [ |- is_invertible_2cell (_ ⋆ _)] => apply hcomp_iso ; is_iso
+  | [ |- is_invertible_2cell (id₂ _)] => apply iso_id₂
+  end.
+
 Section laws.
   Context {C : bicat}.
 
@@ -37,20 +60,17 @@ Section laws.
     rewrite <- !inverse_of_assoc.
     simple refine (vcomp_move_R_Mp _ _ _ _ _) ; simpl.
     {
-      cbn.
-      apply assoc_inv_iso.
+      is_iso.
     }
     rewrite <- vcomp_assoc.
     simple refine (vcomp_move_L_pM _ _ _ _ _).
     {
-      cbn.
-      apply assoc_inv_iso.
+      is_iso.
     }
     rewrite <- vcomp_assoc.
     simple refine (vcomp_move_L_pM _ _ _ _ _).
-    { cbn.
-      apply is_invertible_2cell_lwhisker.
-      apply assoc_inv_iso.
+    {
+      is_iso.
     }
     symmetry.
     pose (pentagon k h g f) as p.
@@ -70,9 +90,8 @@ Section laws.
       assoc_inv k h g ⋆⋆ id₂ f o assoc_inv k (h ∘ g) f.
   Proof.
     simple refine (vcomp_move_R_pM _ _ _ _ _).
-    { apply hcomp_iso.
-      - apply iso_id₂.
-      - apply assoc_iso.
+    {
+      is_iso.
     }
     cbn.
     apply inverse_pentagon.
@@ -89,21 +108,16 @@ Section laws.
     rewrite <- !inverse_of_assoc.
     simple refine (vcomp_move_R_pM _ _ _ _ _).
     {
-      cbn.
-      apply assoc_inv_iso.
+      is_iso.
     }
     rewrite !vcomp_assoc.
     simple refine (vcomp_move_L_Mp _ _ _ _ _).
     {
-      cbn.
-      apply assoc_inv_iso.
+      is_iso.
     }
     simple refine (vcomp_move_L_Mp _ _ _ _ _).
     {
-      cbn.
-      apply hcomp_iso.
-      - apply iso_id₂.
-      - apply assoc_inv_iso.
+      is_iso.
     }
     rewrite <- !vcomp_assoc.
     symmetry ; apply pentagon.
@@ -120,16 +134,12 @@ Section laws.
     rewrite <- !inverse_of_assoc.
     simple refine (vcomp_move_R_pM _ _ _ _ _).
     {
-      cbn.
-      apply hcomp_iso.
-      - apply assoc_inv_iso.
-      - apply iso_id₂.
+      is_iso.
     }
     rewrite !vcomp_assoc.
     simple refine (vcomp_move_L_Mp _ _ _ _ _).
     {
-      cbn.
-      apply assoc_inv_iso.
+      is_iso.
     }
     rewrite <- !vcomp_assoc.
     apply pentagon.
@@ -146,9 +156,7 @@ Section laws.
     rewrite !vcomp_assoc.
     simple refine (vcomp_move_L_Mp _ _ _ _ _).
     {
-      apply hcomp_iso.
-      - apply assoc_iso.
-      - apply iso_id₂.
+      is_iso.
     }
     cbn.
     symmetry.
@@ -168,10 +176,7 @@ Section laws.
     rewrite !vcomp_assoc.
     simple refine (vcomp_move_L_Mp _ _ _ _ _).
     {
-      cbn.
-      apply hcomp_iso.
-      - apply iso_id₂.
-      - apply assoc_inv_iso.
+      is_iso.
     }
     rewrite <- !vcomp_assoc.
     symmetry ; apply pentagon.
