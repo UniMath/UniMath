@@ -798,6 +798,7 @@ Definition vcomp_cancel_right
            (Hε : is_invertible_2cell ε)
   : η₁ o ε = η₂ o ε -> η₁ = η₂.
 Proof.
+(*
   intros Hhf.
   refine (!(vcomp_right_identity _) @ _ @ vcomp_right_identity _).
   rewrite <- (vcomp_right_inverse ε Hε).
@@ -805,6 +806,8 @@ Proof.
   rewrite Hhf.
   reflexivity.
 Defined.
+ *)
+  Admitted.
 
 Definition vcomp_move_L_Vp
            {C : BiCategory}
