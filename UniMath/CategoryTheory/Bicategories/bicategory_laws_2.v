@@ -112,7 +112,7 @@ Definition left_unit_natural
            {X Y : C}
            {f g : C⟦X, Y⟧}
            (η : f ==> g)
-  : left_unit g o (id₂ (id₁ Y) ⋆⋆ η) = η o left_unit f.
+  : runitor g o (id₂ (id₁ Y) ⋆⋆ η) = η o runitor f.
 Proof.
   apply runitor_natural.
 Qed.
@@ -143,7 +143,7 @@ Definition left_unit_inv_natural
            {X Y : C}
            {f g : C⟦X, Y⟧}
            (η : f ==> g)
-  : left_unit_inv g o η = (id₂ (id₁ Y) ⋆⋆ η) o left_unit_inv f.
+  : rinvunitor g o η = (id₂ (id₁ Y) ⋆⋆ η) o rinvunitor f.
 Proof.
 Admitted.
 
@@ -163,7 +163,7 @@ Definition left_unit_left
            {C : BiCategory}
            {X Y : C}
            (f : C⟦X, Y⟧)
-  : left_unit f o left_unit_inv f = id₂ f.
+  : runitor f o rinvunitor f = id₂ f.
 Proof.
   apply rinvunitor_runitor.
 Qed.
@@ -182,7 +182,7 @@ Definition left_unit_right
            {C : BiCategory}
            {X Y : C}
            (f : C⟦X, Y⟧)
-  : left_unit_inv f o left_unit f = id₂ (id₁ Y ∘ f).
+  : rinvunitor f o runitor f = id₂ (id₁ Y ∘ f).
 Proof.
   apply runitor_rinvunitor.
 Qed.
@@ -197,102 +197,102 @@ Proof.
 Defined.
  *)
 (*
-Definition right_unit
+Definition lunitor
            {C : BiCategory}
            {X Y : C}
            (f : C⟦X, Y⟧)
   : f ∘ id₁ X ==> f
-  := right_unit_d C.1 f.
+  := lunitor_d C.1 f.
  *)
 
-Definition right_unit_natural
+Definition lunitor_natural
            {C : BiCategory}
            {X Y : C}
            {f g : C⟦X, Y⟧}
            (η : f ==> g)
-  : right_unit g o (η ⋆⋆ id₂ (id₁ X)) = η o right_unit f.
+  : lunitor g o (η ⋆⋆ id₂ (id₁ X)) = η o lunitor f.
 Proof.
   apply lunitor_natural.
 Qed.
 
 (*
-Definition right_unitor {C : BiCategory} (X Y : C)
+Definition lunitoror {C : BiCategory} (X Y : C)
   : NaturalTransformation
       (hcomp X X Y o (1 ⋆⋆ const_functor (id₁ X)))
       1.
 Proof.
   simple refine (Build_NaturalTransformation _ _ _ _).
-  - exact right_unit.
-  - intros ; apply right_unit_natural.
+  - exact lunitor.
+  - intros ; apply lunitor_natural.
 Defined.
  *)
 
 (*
-Definition right_unit_inv
+Definition lunitor_inv
            {C : BiCategory}
            {X Y : C}
            (f : C⟦X, Y⟧)
   : f ==> f ∘ id₁ X
-  := right_unit_inv_d C.1 f.
+  := lunitor_inv_d C.1 f.
  *)
 
-Definition right_unit_inv_natural
+Definition linvunitor_natural
            {C : BiCategory}
            {X Y : C}
            {f g : C⟦X, Y⟧}
            (η : f ==> g)
-  : right_unit_inv g o η = (η ⋆⋆ id₂ (id₁ X)) o right_unit_inv f.
+  : linvunitor g o η = (η ⋆⋆ id₂ (id₁ X)) o linvunitor f.
 Proof.
 Admitted.
 
 (*
-Definition right_unitor_inv {C : BiCategory} (X Y : C)
+Definition lunitoror_inv {C : BiCategory} (X Y : C)
   : NaturalTransformation
       1
       (hcomp X X Y o (1 ⋆⋆ const_functor (id₁ X))).
 Proof.
   simple refine (Build_NaturalTransformation _ _ _ _).
-  - exact right_unit_inv.
-  - intros ; apply right_unit_inv_natural.
+  - exact lunitor_inv.
+  - intros ; apply lunitor_inv_natural.
 Defined.
 *)
 
-Definition right_unit_left
+Definition lunitor_left
            {C : BiCategory}
            {X Y : C}
            (f : C⟦X, Y⟧)
-  : right_unit f o right_unit_inv f = id₂ f.
+  : lunitor f o linvunitor f = id₂ f.
 Proof.
   apply linvunitor_lunitor.
 Qed.
 
 (*
-Definition right_unitor_left `{Univalence} {C : BiCategory} (X Y : C)
-  : (right_unitor X Y o right_unitor_inv X Y = 1)%natural_transformation.
+Definition lunitoror_left `{Univalence} {C : BiCategory} (X Y : C)
+  : (lunitoror X Y o lunitoror_inv X Y = 1)%natural_transformation.
 Proof.
   apply path_natural_transformation.
   intros f ; cbn in ⋆⋆.
-  apply right_unit_left.
+  apply lunitor_left.
 Qed.
 *)
 
-Definition right_unit_right
+Definition lunitor_right
            {C : BiCategory}
            {X Y : C}
            (f : C⟦X, Y⟧)
-  : right_unit_inv f o right_unit f = id₂ (f ∘ id₁ X).
+  : linvunitor f o lunitor f = id₂ (f ∘ id₁ X).
 Proof.
   apply lunitor_linvunitor.
 Qed.
 
 
 (*
-Definition right_unitor_right `{Univalence} {C : BiCategory} (X Y : C)
-  : (right_unitor_inv X Y o right_unitor X Y = 1)%natural_transformation.
+Definition lunitoror_right `{Univalence} {C : BiCategory} (X Y : C)
+  : (lunitoror_inv X Y o lunitoror X Y = 1)%natural_transformation.
 Proof.
   apply path_natural_transformation.
   intros f ; cbn in ⋆⋆.
-  apply right_unit_right.
+  apply lunitor_right.
 Qed.
 *)
 
@@ -506,7 +506,7 @@ Definition left_unit_iso
          {C : BiCategory}
          {X Y : C}
          (f : C⟦X,Y⟧)
-  : is_invertible_2cell (left_unit f).
+  : is_invertible_2cell (runitor f).
 Proof.
   apply is_invertible_2cell_runitor.
 Defined.
@@ -515,7 +515,7 @@ Definition left_unit_inv_iso
          {C : BiCategory}
          {X Y : C}
          (f : C⟦X,Y⟧)
-  : is_invertible_2cell (left_unit_inv f).
+  : is_invertible_2cell (rinvunitor f).
 Proof.
   apply is_invertible_2cell_rinvunitor.
 Defined.
@@ -540,41 +540,41 @@ Definition inverse_of_left_unitor
   := idpath.
 *)
 
-Definition right_unit_iso
+Definition lunitor_iso
          {C : BiCategory}
          {X Y : C}
          (f : C⟦X,Y⟧)
-  : is_invertible_2cell (right_unit f).
+  : is_invertible_2cell (lunitor f).
 Proof.
   apply is_invertible_2cell_lunitor.
 Defined.
 
-Definition right_unit_inv_iso
+Definition lunitor_inv_iso
          {C : BiCategory}
          {X Y : C}
          (f : C⟦X,Y⟧)
-  : is_invertible_2cell (right_unit_inv f).
+  : is_invertible_2cell (linvunitor f).
 Proof.
   apply is_invertible_2cell_linvunitor.
 Defined.
 
 (*
-Definition right_unitor_iso `{Univalence} {C : BiCategory} (X Y : C)
-  : @is_invertible_2cell (_ -> _) _ _ (right_unitor X Y).
+Definition lunitoror_iso `{Univalence} {C : BiCategory} (X Y : C)
+  : @is_invertible_2cell (_ -> _) _ _ (lunitoror X Y).
 Proof.
   simple refine (Build_is_invertible_2cell _ _ _ _ _ _ _).
-  - exact (right_unitor_inv X Y).
-  - apply right_unitor_right.
-  - apply right_unitor_left.
+  - exact (lunitoror_inv X Y).
+  - apply lunitoror_right.
+  - apply lunitoror_left.
 Defined.
 *)
 
 (*
-Definition inverse_of_right_unitor
+Definition inverse_of_lunitoror
            `{Univalence}
            {C : BiCategory}
            (X Y : C)
-  : @morphism_inverse (_ -> _) _ _ (right_unitor X Y) _ = right_unitor_inv X Y
+  : @morphism_inverse (_ -> _) _ _ (lunitoror X Y) _ = lunitoror_inv X Y
   := idpath.
 *)
 
@@ -624,7 +624,7 @@ Definition triangle_r
            {X Y Z : C}
            (g : C⟦Y,Z⟧)
            (f : C⟦X,Y⟧)
-  : right_unit g ⋆⋆ id₂ f = (id₂ g ⋆⋆ left_unit f) o assoc g (id₁ Y) f.
+  : lunitor g ⋆⋆ id₂ f = (id₂ g ⋆⋆ runitor f) o assoc g (id₁ Y) f.
 Proof.
   cbn. unfold assoc.
   apply pathsinv0.
@@ -734,14 +734,14 @@ Definition inverse_of_left_unit
            {C : BiCategory}
            {X Y : C}
            (f : C⟦X,Y⟧)
-  : (left_unit_iso f)^-1 = left_unit_inv f
+  : (left_unit_iso f)^-1 = rinvunitor f
   := idpath _ .
 
-Definition inverse_of_right_unit
+Definition inverse_of_lunitor
            {C : BiCategory}
            {X Y : C}
            (f : C⟦X,Y⟧)
-  : (right_unit_iso f)^-1 = right_unit_inv f
+  : (lunitor_iso f)^-1 = linvunitor f
   := idpath _.
 
 (**** Properties of isomorphisms ***)

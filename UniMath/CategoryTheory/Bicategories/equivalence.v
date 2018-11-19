@@ -121,8 +121,8 @@ Section Equivalence.
     - exact (identity X).
     - use build_equiv.
       + exact (identity X).
-      + exact (left_unit (identity X)).
-      + exact (left_unit_inv (identity X)).
+      + exact (runitor (identity X)).
+      + exact (rinvunitor (identity X)).
       + is_iso.
       + is_iso.
   Defined.
@@ -135,7 +135,7 @@ Section Equivalence.
     refine (assoc_inv _ _ (g ∘ f) o _).
     refine ((_ ◅ _) o (equiv_counit f)).
     refine (assoc _ g f o _).
-    exact (((equiv_counit g) ▻ f) o left_unit_inv f).
+    exact (((equiv_counit g) ▻ f) o rinvunitor f).
   Defined.
 
   Definition comp_counit_isiso
@@ -157,7 +157,7 @@ Section Equivalence.
     refine (_ o assoc g f _).
     refine (equiv_unit g o (g ◅ _)).
     refine (_ o assoc_inv f _ _).
-    refine (left_unit _ o _).
+    refine (runitor _ o _).
     exact (equiv_unit f ▻ _).
   Defined.
 
