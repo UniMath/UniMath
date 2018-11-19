@@ -440,9 +440,9 @@ Definition twoinverse
   : g ==> f
   := inv_cell (η,,H).
 
-(* TODO: does not work - why? *)
-Notation "H ^-1" := (twoinverse _ H) (at level 4) : bicategory_scope.
-
+Notation "H ^-1" := (twoinverse _ H) (at level 20) : bicategory_scope.
+Delimit Scope bicategory_scope with bicategory.
+Bind Scope bicategory_scope with bicat.
 Open Scope bicategory_scope.
 
 Definition vcomp_left_inverse
@@ -462,7 +462,7 @@ Definition vcomp_right_inverse
            {f g : C⟦X,Y⟧}
            (η : f ==> g)
            (H : is_invertible_2cell η)
-  : η o H^-1 = id₂ g.
+  : η o H ^-1 = id₂ g.
 Proof.
   apply (inv_cell_after_invertible_2cell ( _ ,, H)).
 Defined.
@@ -483,7 +483,7 @@ Definition iso_inverse
          {f g : C⟦X,Y⟧}
          (α : f ==> g)
          (H : is_invertible_2cell α)
-  : is_invertible_2cell H^-1.
+  : is_invertible_2cell (H^-1).
 Proof.
   apply inv_invertible_2cell.
 Defined.
@@ -783,15 +783,12 @@ Definition vcomp_cancel_left
   : ε o η₁ = ε o η₂ -> η₁ = η₂.
 Proof.
   intros Hhf.
-  (*
-  simple refine ((vcomp_left_identity _)^ @ _ @ vcomp_left_identity _).
-  rewrite <- (vcomp_left_inverse ε).
+  simple refine (!(vcomp_left_identity _) @ _ @ vcomp_left_identity _).
+  rewrite <- (vcomp_left_inverse ε Hε).
   rewrite !vcomp_assoc.
   rewrite Hhf.
   reflexivity.
 Defined.
-*)
-Admitted.
 
 Definition vcomp_cancel_right
            {C : BiCategory}
@@ -803,8 +800,8 @@ Definition vcomp_cancel_right
 Proof.
 (*
   intros Hhf.
-  refine ((vcomp_right_identity _)^ @ _ @ vcomp_right_identity _).
-  rewrite <- (vcomp_right_inverse ε).
+  refine (!(vcomp_right_identity _) @ _ @ vcomp_right_identity _).
+  rewrite <- (vcomp_right_inverse ε Hε).
   rewrite <- !vcomp_assoc.
   rewrite Hhf.
   reflexivity.
