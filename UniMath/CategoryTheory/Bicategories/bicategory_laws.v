@@ -4,6 +4,7 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Notations.
 Require Import UniMath.CategoryTheory.Bicategories.BicatAliases.
 Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws_2.
+Require Import UniMath.CategoryTheory.Bicategories.Unitors.
 
 Ltac is_iso :=
   match goal with
@@ -234,76 +235,6 @@ Section laws.
     apply rwhisker_vcomp.
   Qed.
 
-  Definition whisker_l_cancel_id
-             {X Y : C}
-             {f g : C⟦X,Y⟧}
-             (η₁ η₂ : f ==> g)
-             (Hη : (id₁ Y) ◅ η₁ = (id₁ Y) ◅ η₂)
-    : η₁ = η₂.
-  Proof.
-    (*
-    refine ((vcomp_left_identity η₁)^ @ _ @ vcomp_left_identity η₂).
-    rewrite <- !left_unit_left.
-    rewrite !vcomp_assoc.
-    rewrite (left_unit_inv_natural η₁), (left_unit_inv_natural η₂).
-    unfold bc_whisker_l in Hη.
-    rewrite Hη.
-    reflexivity.
-  Qed.
-*)
-  Admitted.
-
-  Definition whisker_r_cancel_id
-             {X Y : C}
-             {f g : C⟦X,Y⟧}
-             (η₁ η₂ : f ==> g)
-             (Hη : η₁ ▻ (id₁ X) = η₂ ▻ (id₁ X))
-    : η₁ = η₂.
-  Proof.
-    (*
-    refine ((vcomp_right_identity η₁)^ @ _ @ vcomp_right_identity η₂).
-    rewrite <- !right_unit_left.
-    rewrite <- !vcomp_assoc.
-    rewrite <- (right_unit_natural η₁), <- (right_unit_natural η₂).
-    unfold bc_whisker_r in Hη.
-    rewrite Hη.
-    reflexivity.
-  Qed.
-     *)
-  Admitted.
-
-  Definition whisker_l_id₁
-             {X Y : C}
-             (f g : C⟦X,Y⟧)
-             (α : f ==> g)
-    : α = left_unit g o (id₁ Y ◅ α) o left_unit_inv f.
-  Proof.
-    (*
-    rewrite left_unit_natural.
-    rewrite !vcomp_assoc.
-    rewrite !left_unit_left.
-    rewrite vcomp_right_identity.
-    reflexivity.
-  Defined.
-     *)
-  Admitted.
-
-  Definition whisker_r_id₁
-             {X Y : C}
-             (f g : C⟦X,Y⟧)
-             (α : f ==> g)
-    : α = right_unit g o (α ▻ id₁ X) o right_unit_inv f.
-  Proof.
-    (*
-    rewrite right_unit_natural.
-    rewrite !vcomp_assoc.
-    rewrite !right_unit_left.
-    rewrite vcomp_right_identity.
-    reflexivity.
-  Defined.
-     *)
-  Admitted.
-
   Definition whisker_l_hcomp
              {W X Y Z : C}
              {f : C⟦X,Y⟧} {g : C⟦Y,Z⟧}
@@ -458,6 +389,7 @@ Section laws.
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
     : (left_unit g) ▻ f = left_unit (g ∘ f) o assoc (id₁ Z) g f.
   Proof.
+    pose rinvunitor_triangle.
     (*
     apply whisker_l_cancel_id.
     unfold bc_whisker_l, bc_whisker_r.
