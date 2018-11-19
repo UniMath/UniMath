@@ -277,12 +277,18 @@ Section Equalizers'.
     ∏ a, (a --> E) ≃ (∑ k : a --> c, (k · f = k · g)) :=
     λ a, weqpair (postcomp_with_equalizer_mor a) (is a).
 
-  (** Can [isEqualizer'_to_isEqualizer] be strengthened to a weak equivalence?
-      Can [isEqualizer'_to_isEqualizer] be generalized to arbitrary precategories?
+  Lemma isaprop_isEqualizer' : isaprop isEqualizer'.
+  Proof.
+    unfold isEqualizer'.
+    apply impred; intro.
+    apply isapropisweq.
+  Qed.
+
+  (** Can [isEqualizer'_to_isEqualizer] be generalized to arbitrary precategories?
 
       Compare to [isBinProduct'_to_isBinProduct].
    *)
-  Lemma isEqualizer'_to_isEqualizer {hsC : has_homsets C} :
+  Lemma isEqualizer'_to_isEqualizer (hsC : has_homsets C) :
     isEqualizer' -> isEqualizer f g h H.
   Proof.
     intros isEq' E' h' H'.
@@ -295,7 +301,7 @@ Section Equalizers'.
     - apply weqproperty.
   Defined.
 
-  Lemma isEqualizer_to_isEqualizer' {hsC : has_homsets C} :
+  Lemma isEqualizer_to_isEqualizer' (hsC : has_homsets C) :
     isEqualizer f g h H -> isEqualizer'.
   Proof.
     intros isEq E'.
@@ -309,5 +315,15 @@ Section Equalizers'.
       intro; apply hsC.
     - exact (isEq E' (pr1 hH') (pr2 hH')).
   Defined.
+
+  Lemma isEqualizer'_weq_isEqualizer (hsC : has_homsets C) :
+    isEqualizer f g h H ≃ isEqualizer'.
+  Proof.
+    apply weqimplimpl.
+    - apply isEqualizer_to_isEqualizer'; assumption.
+    - apply isEqualizer'_to_isEqualizer; assumption.
+    - apply isaprop_isEqualizer.
+    - apply isaprop_isEqualizer'.
+  Qed.
 
 End Equalizers'.
