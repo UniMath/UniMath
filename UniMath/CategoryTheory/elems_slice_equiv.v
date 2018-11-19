@@ -13,7 +13,8 @@ Require Import UniMath.MoreFoundations.Tactics
         UniMath.CategoryTheory.Categories
         UniMath.CategoryTheory.functor_categories
         UniMath.CategoryTheory.equivalences
-        UniMath.CategoryTheory.categories.category_hset
+        UniMath.CategoryTheory.categories.HSET.Core
+        UniMath.CategoryTheory.categories.HSET.MonoEpiIso
         UniMath.CategoryTheory.slicecat
         UniMath.CategoryTheory.opp_precat
         UniMath.CategoryTheory.Presheaf

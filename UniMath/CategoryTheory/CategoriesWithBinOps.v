@@ -9,7 +9,7 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-
+Require Import UniMath.CategoryTheory.opp_precat.
 
 Section def_precategory_with_binops.
 
@@ -34,3 +34,14 @@ Section def_precategory_with_binops.
   Qed.
 
 End def_precategory_with_binops.
+
+Definition oppositePrecategoryWithBinOps (M : precategoryWithBinOps) : precategoryWithBinOps
+  := mk_precategoryWithBinOps
+       (opp_precat M)
+       (λ A B f g, @to_binop M (rm_opp_ob B) (rm_opp_ob A) (rm_opp_mor f) (rm_opp_mor g)).
+
+Definition induced_precategoryWithBinOps (M : precategoryWithBinOps) {X:Type} (j : X -> ob M)
+  : precategoryWithBinOps.
+Proof.
+  exists (induced_precategory M j). intros a b. exact (@to_binop M (j a) (j b)).
+Defined.

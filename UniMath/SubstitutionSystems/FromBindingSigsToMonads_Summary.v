@@ -19,8 +19,10 @@ Require Import UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.categories.category_hset.
-Require Import UniMath.CategoryTheory.categories.category_hset_structures.
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
+Require Import UniMath.CategoryTheory.categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.categories.HSET.Structures.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -158,7 +160,7 @@ Defined.
 (** Problem 27: Colimits in Set *)
 Lemma ColimsHSET_of_shape : ∏ (g : graph), Colims_of_shape g HSET.
 Proof.
-exact @UniMath.CategoryTheory.categories.category_hset_structures.ColimsHSET_of_shape.
+exact @UniMath.CategoryTheory.categories.HSET.Colimits.ColimsHSET_of_shape.
 Defined.
 
 (** Lemma 31: Left adjoints preserve colimits *)
@@ -280,7 +282,7 @@ Defined.
 
 (** Example 35: Exponentials in Set *)
 Definition Exponentials_HSET : Exponentials BinProductsHSET :=
-  @UniMath.CategoryTheory.categories.category_hset_structures.Exponentials_HSET.
+  @UniMath.CategoryTheory.categories.HSET.Structures.Exponentials_HSET.
 
 (** Lemma 36: Left and right product functors preserves colimits *)
 Lemma is_cocont_constprod_functor1 :

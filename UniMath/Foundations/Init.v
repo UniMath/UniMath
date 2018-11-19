@@ -140,6 +140,15 @@ Reserved Notation "X ⨿ Y" (at level 50, left associativity).
 
 Reserved Notation "x ,, y" (at level 60, right associativity).
 
+Reserved Notation "A ⊕ B" (at level 50, left associativity).
+(* to input: type "\o+" or "\oplus" with Agda input method *)
+
+Reserved Notation "A ↣ B" (at level 50).
+(* to input: type "\r->" or "\rightarrowtail" or "\r" with Agda input method *)
+
+Reserved Notation "B ↠ C" (at level 50).
+(* to input: type "\rr-" or "\r" or "\twoheadrightarrow" with Agda input method *)
+
 (** Tactics *)
 
 (* Apply this tactic to a proof of ([X] and [X -> ∅]), in either order: *)
