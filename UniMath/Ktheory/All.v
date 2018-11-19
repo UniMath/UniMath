@@ -1,4 +1,5 @@
 (* This file has been auto-generated, do not edit it. *)
+Require Export UniMath.Ktheory.GrothendieckGroup.
 Require Export UniMath.Ktheory.Tactics.
 Require Export UniMath.Ktheory.Equivalences.
 Require Export UniMath.Ktheory.Utilities.
