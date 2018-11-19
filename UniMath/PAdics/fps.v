@@ -7,10 +7,6 @@
 (** made compatible with the current UniMath library again by Benedikt Ahrens in 2014
     and by Ralph Matthes in 2017 *)
 
-(** Settings *)
-
-Unset Automatic Introduction.
-
 (** Imports *)
 
 Require Import UniMath.PAdics.lemmas.
@@ -23,7 +19,8 @@ Open Scope ring_scope.
 
 Definition natsummation0 { R : commring } ( upper : nat ) ( f : nat -> R ) : R.
 Proof.
-  intro R. intro upper. induction upper.
+  revert f.
+  induction upper.
   - intros. exact ( f 0%nat ).
   - intros. exact ( IHupper f + f ( S upper ) ).
 Defined.
@@ -39,7 +36,7 @@ Lemma natsummationpathsupperfixed { R : commring } { upper : nat }
   ( f f' : nat -> R ) ( p : forall x : nat, natleh x upper -> f x = f' x ):
   natsummation0 upper f = natsummation0 upper f'.
 Proof.
-  intros R upper. induction upper.
+  revert f f' p. induction upper.
   - intros f f' p. simpl. apply p. apply isreflnatleh.
   - intros. simpl.
     rewrite ( IHupper f f' ).
@@ -59,7 +56,7 @@ Lemma natsummationae0bottom { R : commring } { f : nat -> R }
   ( upper : nat ) ( p : forall x : nat, natlth 0 x -> f x = 0 ) :
   natsummation0 upper f = f 0%nat.
 Proof.
-  intros R f upper. induction upper.
+  revert p. induction upper.
   - auto.
   - intro p.  simpl.
     rewrite IHupper.
@@ -76,7 +73,7 @@ Lemma natsummationae0top { R : commring } { f : nat -> R } ( upper : nat )
   ( p : forall x : nat, natlth x upper -> f x = 0 ) :
   natsummation0 upper f = f upper.
 Proof.
-  intros R f upper. induction upper.
+  revert p. induction upper.
   - auto.
   - intro p.
     assert ( natsummation0 upper f = natsummation0 ( R := R ) upper ( fun x : nat => 0 ) ) as g.
@@ -100,7 +97,7 @@ Lemma natsummationshift0 { R : commring } ( upper : nat ) ( f : nat -> R ) :
   natsummation0 ( S upper ) f =
   ( natsummation0 upper ( fun x : nat => f ( S x ) ) + f 0%nat ).
 Proof.
-  intros R upper. induction upper.
+  revert f. induction upper.
   - intros f. simpl.
     set (H:=pr2 R). simpl in H.
     set (H1:=pr1 H).
@@ -123,7 +120,7 @@ Lemma natsummationshift { R : commring } ( upper : nat ) ( f : nat -> R )
   natsummation0 ( S upper ) f =
   natsummation0 upper ( funcomp ( natcoface i ) f ) + f i.
 Proof.
-  intros R upper. induction upper.
+  revert f i p. induction upper.
   - intros f i p.
     destruct i.
     + unfold funcomp. simpl.
@@ -176,7 +173,7 @@ Lemma natsummationplusdistr { R : commring } ( upper : nat ) ( f g : nat -> R ) 
   natsummation0 upper ( fun x : nat => f x + g x ) =
   natsummation0 upper f + natsummation0 upper g.
 Proof.
-  intros R upper. induction upper.
+  revert f g. induction upper.
   - auto.
   - intros f g. simpl.
     rewrite <- ( ringassoc1 R _ ( natsummation0 upper g ) _ ).
@@ -191,7 +188,7 @@ Defined.
 Lemma natsummationtimesdistr { R : commring } ( upper : nat ) ( f : nat -> R ) ( k : R ) :
   k * ( natsummation0 upper f ) = natsummation0 upper ( fun x : nat => k * f x ).
 Proof.
-  intros R upper. induction upper.
+  revert f k. induction upper.
   - auto.
   - intros f k. simpl.
     rewrite <- IHupper.
@@ -202,7 +199,7 @@ Defined.
 Lemma natsummationtimesdistl { R : commring } ( upper : nat ) ( f : nat -> R ) ( k : R ) :
   natsummation0 upper f * k = natsummation0 upper ( fun x : nat => f x * k ).
 Proof.
-  intros R upper. induction upper.
+  revert f k. induction upper.
   - auto.
   - intros f k. simpl.
     rewrite <- IHupper.
@@ -215,7 +212,7 @@ Lemma natsummationsswapminus { R : commring } { upper n : nat } ( f : nat -> R )
   natsummation0 ( S ( sub upper n ) ) f =
   natsummation0 ( sub ( S upper ) n ) f.
 Proof.
-  intros R upper. induction upper.
+  revert n f q. induction upper.
   - intros n f q. destruct n.
     + auto.
     + apply fromempty.
@@ -236,7 +233,7 @@ Lemma natsummationswap { R : commring } ( upper : nat ) ( f : nat -> nat -> R ) 
   natsummation0 upper ( fun i : nat => natsummation0 i (fun j : nat => f j ( sub i j ) ) ) =
   natsummation0 upper ( fun k : nat => natsummation0 ( sub upper k ) ( fun l : nat => f k l ) ).
 Proof.
-  intros R upper. induction upper.
+  revert f. induction upper.
   - auto.
   - intros f.
     change ( natsummation0 upper (fun i : nat => natsummation0
@@ -298,7 +295,7 @@ Lemma nattruncautoisinj { upper : nat } { i : nat -> nat }
   ( m' : natleh m upper ) :
   i n = i m -> n = m.
 Proof.
-  intros upper i p n m n' m' h.
+  intros h.
   assert ( natleh ( i m ) upper ) as q.
   { apply (pr2 p). assumption. }
   set ( x := pr1 p ( i m ) q ).
@@ -339,7 +336,7 @@ Definition nattruncautopreimagecanon { upper : nat } { i : nat -> nat }
 Definition nattruncautoinv { upper : nat } { i : nat -> nat }
   ( p : isnattruncauto upper i ) : nat -> nat.
 Proof.
-  intros upper i p n.
+  intros n.
   destruct ( natgthorleh n upper ) as [ l | r ].
   - exact n.
   - exact ( nattruncautopreimage p r ).
@@ -379,7 +376,7 @@ Defined.
 Definition truncnattruncauto { upper : nat } { i : nat -> nat }
   ( p : isnattruncauto ( S upper ) i ) : nat -> nat.
 Proof.
-  intros upper i p n.
+  intros n.
   destruct ( natlthorgeh ( i n ) ( S upper ) ) as [ l | r ].
   - exact ( i n ).
   - destruct ( natgehchoice _ _ r ) as [ a | b ].
@@ -430,10 +427,10 @@ Defined.
 
 Lemma truncnattruncautoisinj { upper : nat } { i : nat -> nat }
   ( p : isnattruncauto ( S upper ) i ) { n m : nat }
-  ( n' : natleh n upper ) ( m' : natleh m upper ) :
+  ( q : natleh n upper ) ( r : natleh m upper ) :
   truncnattruncauto p n = truncnattruncauto p m -> n = m.
 Proof.
-  intros upper i p n m q r s.
+  intros s.
   apply ( nattruncautoisinj p ).
   - apply natlthtoleh.
     apply ( natlehlthtrans _ upper ).
@@ -925,7 +922,7 @@ Defined.
 
 Definition nattruncreverse ( upper : nat ) : nat -> nat.
 Proof.
-  intros upper n.
+  intros n.
   destruct ( natgthorleh n upper ) as [ h | k ].
   - exact n.
   - exact ( sub upper n ).
@@ -933,7 +930,7 @@ Defined.
 
 Definition nattruncbottomtopswap ( upper : nat ) : nat -> nat.
 Proof.
-  intros upper n.
+  intros n.
   destruct ( isdeceqnat 0%nat n ) as [ h | k ].
   - exact upper.
   - destruct ( isdeceqnat upper n ) as [ l | r ].
@@ -1141,7 +1138,7 @@ Lemma natsummationreindexing { R : commring } { upper : nat }
   ( i : nat -> nat ) ( p : isnattruncauto upper i ) ( f : nat -> R ) :
   natsummation0 upper f = natsummation0 upper (funcomp i f ).
 Proof.
-  intros R upper.
+  revert i p f.
   induction upper.
   - intros. simpl. unfold funcomp.
     assert ( 0%nat = i 0%nat ) as f0.
@@ -1465,7 +1462,7 @@ Defined.
 Lemma natsummationandfpszero ( R : commring ) :
   forall m : nat, natsummation0 m ( fun x : nat => fpszero R x ) = @ringunel1 R.
 Proof.
-  intros R m.
+  intros m.
   induction m.
   - apply idpath.
   - simpl.
@@ -1654,7 +1651,6 @@ Definition fpsring ( R : commring ) :=
 
 Theorem fpsiscommring ( R : commring ) : iscommring ( fpsring R ).
 Proof.
-  intro.
   unfold iscommring.
   unfold iscommringops.
   split.
@@ -1749,8 +1745,7 @@ Lemma apartnatsummation0 ( R : acommring ) ( upper : nat )
   ( f : nat -> R ) ( p : ( natsummation0 upper f ) # 0 ) :
   ∃ n : nat, natleh n upper × f n # 0.
 Proof.
-  intros R upper.
-  induction upper.
+  revert f p. induction upper.
   - simpl.
     intros. intros P s.
     apply s.
@@ -1927,7 +1922,7 @@ Lemma leadingcoefficientapartdec ( R : aintdom ) ( a : fpscommring R )
   forall n : nat, forall b : fpscommring R, ( b n # 0 ) ->
       acommringapartrel ( acommringfps R ) ( a * b ) 0.
 Proof.
-  intros R a is p n.
+  intros n.
   induction n.
   - intros b q. intros P s.
     apply s.
@@ -1961,7 +1956,7 @@ Lemma apartdecintdom0 ( R : aintdom ) ( is : isacommringapartdec R ) :
       acommringapartrel ( acommringfps R ) b 0 ->
       acommringapartrel ( acommringfps R ) ( a * b ) 0.
 Proof.
-  intros R is n.
+  intros n.
   induction n.
   - intros a b p q.
     use (hinhuniv _ q).
@@ -1998,7 +1993,7 @@ Defined.
 Theorem apartdectoisaintdomfps ( R : aintdom )
   ( is : isacommringapartdec R ) : aintdom.
 Proof.
-  intros R.
+  revert is.
   split with ( acommringfps R ).
   split.
   - intros P s.

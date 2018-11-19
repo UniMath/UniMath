@@ -10,12 +10,6 @@ This file contains the definition and main properties of finite sets. At the end
 
 (** ** Preamble *)
 
-(** Settings *)
-
-Unset Automatic Introduction. (* This line has to be removed for the file to compile with Coq8.2 *)
-
-
-
 (** Imports. *)
 
 Require Import UniMath.MoreFoundations.Tactics.
@@ -55,7 +49,7 @@ Definition nelstructoncoprodwithunit { X : UU } { n : nat } ( sx : nelstruct n X
 
 Definition nelstructoncompl {X} {n} (x:X) : nelstruct (S n) X -> nelstruct n (compl X x).
 Proof.
-  intros ? ? ? sx.
+  intros sx.
   refine (invweq ( weqoncompl ( invweq sx ) x) ∘ _ ∘ weqdnicompl (invweq sx x))%weq.
   apply compl_weq_compl_ne.
 Defined.
@@ -182,7 +176,7 @@ Definition isfinite_to_FiniteSet {X:UU} (f:isfinite X) : FiniteSet := X,,f.
 
 Lemma isfinite_isdeceq X : isfinite X -> isdeceq X.
 (* uses funextemptyAxiom *)
-Proof. intros ? isfin.
+Proof. intros isfin.
        apply (isfin (hProppair _ (isapropisdeceq X))); intro f; clear isfin; simpl.
        apply (isdeceqweqf (pr2 f)).
        apply isdeceqstn.
@@ -190,7 +184,7 @@ Defined.
 
 Lemma isfinite_isaset X : isfinite X -> isaset X.
 Proof.
-  intros ? isfin. apply (isfin (hProppair _ (isapropisaset X))); intro f; clear isfin; simpl.
+  intros isfin. apply (isfin (hProppair _ (isapropisaset X))); intro f; clear isfin; simpl.
   apply (isofhlevelweqf 2 (pr2 f)). apply isasetstn.
 Defined.
 
@@ -295,7 +289,7 @@ Proof. intros. *)
 (* The cardinality of finite sets defined using the "impredicative" ishinh *)
 
 Definition isfinite_to_DecidableEquality {X} : isfinite X -> DecidableRelation X.
-  intros ? fin x y.
+  intros fin x y.
   exact (@isdecprop_to_DecidableProposition
                   (x=y)
                   (isdecpropif (x=y)
@@ -314,10 +308,10 @@ Proof.
 Defined.
 
 Definition subsetFiniteSet {X:FiniteSet} (P:DecidableSubtype X) : FiniteSet.
-Proof. intros X P. exact (isfinite_to_FiniteSet (subsetFiniteness (pr2 X) P)). Defined.
+Proof. exact (isfinite_to_FiniteSet (subsetFiniteness (pr2 X) P)). Defined.
 
 Definition fincard_subset {X} (is : isfinite X) (P : DecidableSubtype X) : nat.
-Proof. intros ? fin ?. exact (fincard (subsetFiniteness fin P)). Defined.
+Proof. exact (fincard (subsetFiniteness is P)). Defined.
 
 Definition fincard_standardSubset {n} (P : DecidableSubtype (stn n)) : nat.
 Proof. intros. exact (fincard (subsetFiniteness (isfinitestn n) P)). Defined.

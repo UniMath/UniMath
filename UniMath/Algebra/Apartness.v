@@ -1,8 +1,6 @@
 (** * Definition of appartness relation *)
 (** Catherine Lelay. Sep. 2015 *)
 
-Unset Automatic Introduction. (** This line has to be removed for the file to compile with Coq8.2 *)
-
 Unset Kernel Term Sharing.
 
 Require Export UniMath.Algebra.BinaryOperations.
@@ -16,14 +14,12 @@ Require Import UniMath.MoreFoundations.DecidablePropositions.
 Lemma isapropisirrefl {X : UU} (rel : hrel X) :
   isaprop (isirrefl rel).
 Proof.
-  intros ? rel.
   apply impred_isaprop ; intro.
   now apply isapropneg.
 Qed.
 Lemma isapropissymm {X : UU} (rel : hrel X) :
   isaprop (issymm rel).
 Proof.
-  intros ? rel.
   apply impred_isaprop ; intro x.
   apply impred_isaprop ; intro y.
   apply isapropimpl.
@@ -32,7 +28,6 @@ Qed.
 Lemma isapropiscotrans {X : UU} (rel : hrel X) :
   isaprop (iscotrans rel).
 Proof.
-  intros ? rel.
   apply impred_isaprop ; intro x.
   apply impred_isaprop ; intro y.
   apply impred_isaprop ; intro z.
@@ -48,7 +43,6 @@ Definition isaprel {X : UU} (ap : hrel X) :=
 Lemma isaprop_isaprel {X : UU} (ap : hrel X) :
   isaprop (isaprel ap).
 Proof.
-  intros ? ap.
   apply isapropdirprod.
   apply isapropisirrefl.
   apply isapropdirprod.
@@ -75,21 +69,18 @@ Open Scope ap_scope.
 Lemma isirreflapSet {X : apSet} :
   ∏ x : X, ¬ (x # x).
 Proof.
-  intros ?.
   exact (pr1 (pr2 (pr2 X))).
 Qed.
 
 Lemma issymmapSet {X : apSet} :
   ∏ x y : X, x # y -> y # x.
 Proof.
-  intros ?.
   exact (pr1 (pr2 (pr2 (pr2 X)))).
 Qed.
 
 Lemma iscotransapSet {X : apSet} :
   ∏ x y z : X, x # z -> x # y ∨ y # z.
 Proof.
-  intros ?.
   exact (pr2 (pr2 (pr2 (pr2 X)))).
 Qed.
 Close Scope ap_scope.
@@ -120,42 +111,39 @@ Open Scope tap_scope.
 Lemma isirrefltightapSet {X : tightapSet} :
   ∏ x : X, ¬ (x ≠ x).
 Proof.
-  intros ?.
   exact isirreflapSet.
 Qed.
 
 Lemma issymmtightapSet {X : tightapSet} :
   ∏ x y : X, x ≠ y -> y ≠ x.
 Proof.
-  intros ?.
   exact issymmapSet.
 Qed.
 
 Lemma iscotranstightapSet {X : tightapSet} :
   ∏ x y z : X, x ≠ z -> x ≠ y ∨ y ≠ z.
 Proof.
-  intros ?.
+
   exact iscotransapSet.
 Qed.
 
 Lemma istighttightapSet {X : tightapSet} :
   ∏ x y : X, ¬ (x ≠ y) -> x = y.
 Proof.
-  intros ?.
   exact (pr2 (pr2 (pr2 X))).
 Qed.
 
 Lemma istighttightapSet_rev {X : tightapSet} :
   ∏ x y : X, x = y -> ¬ (x ≠ y).
 Proof.
-  intros ? x _ <-.
+  intros x _ <-.
   now apply isirrefltightapSet.
 Qed.
 
 Lemma tightapSet_dec {X : tightapSet} :
   LEM -> ∏ x y : X, (x != y <-> x ≠ y).
 Proof.
-  intros ? Hdec x y.
+  intros Hdec x y.
   destruct (Hdec (x ≠ y)) as [ Hneq | Heq ].
   - split.
     + intros _ ; apply Hneq.
@@ -178,7 +166,7 @@ Definition isapunop {X : tightapSet} (op :unop X) :=
 Lemma isaprop_isapunop {X : tightapSet} (op :unop X) :
   isaprop (isapunop op).
 Proof.
-  intros ? ap op.
+  intros ap.
   apply impred_isaprop ; intro x.
   apply impred_isaprop ; intro y.
   apply isapropimpl.
@@ -194,21 +182,19 @@ Definition isapbinop {X : tightapSet} (op : binop X) :=
 Lemma isaprop_islapbinop {X : tightapSet} (op : binop X) :
   isaprop (islapbinop op).
 Proof.
-  intros ? op.
   apply impred_isaprop ; intro x.
   now apply isaprop_isapunop.
 Qed.
 Lemma isaprop_israpbinop {X : tightapSet} (op : binop X) :
   isaprop (israpbinop op).
 Proof.
-  intros ? op.
   apply impred_isaprop ; intro x.
   now apply isaprop_isapunop.
 Qed.
 Lemma isaprop_isapbinop {X : tightapSet} (op :binop X) :
   isaprop (isapbinop op).
 Proof.
-  intros ? ap op.
+  intros ap.
   apply isapropdirprod.
   now apply isaprop_islapbinop.
   now apply isaprop_israpbinop.

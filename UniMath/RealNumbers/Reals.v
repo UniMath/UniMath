@@ -9,8 +9,6 @@ Require Import UniMath.RealNumbers.Sets.
 Require Import UniMath.RealNumbers.NonnegativeRationals.
 Require Export UniMath.RealNumbers.NonnegativeReals.
 
-Unset Automatic Introduction.
-
 Open Scope NR_scope.
 
 (** ** Definition *)
@@ -70,6 +68,7 @@ Qed.
 
 Definition hr_to_NR (x : hr_commring) : NonnegativeReals × NonnegativeReals.
 Proof.
+  revert x.
   simple refine (setquotuniv _ (_,,_) _ _).
   - apply isasetdirprod ;
     apply (pr2 (pr1 (pr1 (pr1 NonnegativeReals)))).
@@ -1209,7 +1208,6 @@ Qed.
 
 Definition Cauchy_seq (u : nat → hr_ConstructiveField) : hProp.
 Proof.
-  intro u.
   apply (hProppair (∏ c : NonnegativeReals, 0 < c -> ∃ N : nat, ∏ n m : nat, N ≤ n -> N ≤ m -> hr_abs (u m - u n)%ring < c)).
   apply impred_isaprop ; intro.
   apply isapropimpl.
@@ -1220,7 +1218,7 @@ Lemma Cauchy_seq_pr1 (u : nat → hr_ConstructiveField) :
   let x := λ n : nat, hr_to_NRpos (u n) in
   Cauchy_seq u → NonnegativeReals.Cauchy_seq x.
 Proof.
-  intros u x.
+  intros x.
   set (y := λ n : nat, hr_to_NRneg (u n)).
   assert (Hxy : ∏ n, NR_to_hr (x n ,, y n) = u n).
   { intros n.
@@ -1256,7 +1254,7 @@ Lemma Cauchy_seq_pr2 (u : nat → hr_ConstructiveField) :
   let y := λ n : nat, hr_to_NRneg (u n) in
   Cauchy_seq u → NonnegativeReals.Cauchy_seq y.
 Proof.
-  intros u y.
+  intros y.
   set (x := λ n : nat, hr_to_NRpos (u n)).
   assert (Hxy : ∏ n, NR_to_hr (x n ,, y n) = u n).
   { intros n.
@@ -1291,7 +1289,6 @@ Qed.
 
 Definition is_lim_seq (u : nat → hr_ConstructiveField) (l : hr_ConstructiveField) : hProp.
 Proof.
-  intros u l.
   apply (hProppair (∏ c : NonnegativeReals, 0 < c -> ∃ N : nat, ∏ n : nat, N ≤ n -> hr_abs (u n - l)%ring < c)).
   apply impred_isaprop ; intro.
   apply isapropimpl.
@@ -1302,7 +1299,7 @@ Definition ex_lim_seq (u : nat → hr_ConstructiveField) := ∑ l, is_lim_seq u 
 Lemma Cauchy_seq_impl_ex_lim_seq (u : nat → hr_ConstructiveField) :
   Cauchy_seq u → ex_lim_seq u.
 Proof.
-  intros u Cu.
+  intros Cu.
   set (x := λ n, hr_to_NRpos (u n)).
   set (y := λ n, hr_to_NRneg (u n)).
   assert (Hxy : ∏ n, NR_to_hr (x n ,, y n) = u n).

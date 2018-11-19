@@ -17,7 +17,7 @@ Require Import UniMath.Ktheory.Utilities.
 Delimit Scope paths_scope with paths.
 Open Scope paths_scope.
 Open Scope action_scope.
-Unset Automatic Introduction.
+
 Local Notation "g + x" := (ac_mult _ g x) : action_scope.
 
 Definition circle := B ℤ.
@@ -230,7 +230,7 @@ Defined.
 (** *** The recursion principle (non-dependent functions) *)
 
 Definition circle_map {Y} {y:Y} (l:y = y) : circle -> Y.
-Proof. intros ? ? ?. exact (funcomp (invmap (@pr1_GH_weq _ _ l)) pr12_GH). Defined.
+Proof. exact (funcomp (invmap (@pr1_GH_weq _ _ l)) pr12_GH). Defined.
 
 Definition circle_map_check_values {Y} {y:Y} (l:y = y) :
   circle_map l (basepoint circle) = y.

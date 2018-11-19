@@ -204,7 +204,7 @@ Proof.
   unfold functor_compax . intros.  apply (idpath _ ).
 Qed.
 
-Definition sub_precategory_inclusion (C : precategory)(C': sub_precategories C) :
+Definition sub_precategory_inclusion (C : precategory) (C' : sub_precategories C) :
     functor C' C := tpair _ _ (is_functor_sub_precategory_inclusion C C').
 
 (** ** Subcategories *)
