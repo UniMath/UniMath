@@ -28,7 +28,7 @@ Ltac is_iso :=
   | [ |- is_invertible_2cell (_ ⋆⋆ _)] => apply hcomp_iso ; is_iso
   | [ |- is_invertible_2cell (_ ⋆ _)] => apply hcomp_iso ; is_iso
   | [ |- is_invertible_2cell (id₂ _)] => apply iso_id₂
-  | _ => idtac
+  | _ => try assumption
   end.
 
 Section laws.
