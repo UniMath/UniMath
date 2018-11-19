@@ -160,7 +160,7 @@ Defined.
 (** ** Isomorphisms and weak equivalences *)
 
 (** The following are mostly copied verbatim from
-    [CategoryTheory.categories.category_hset]. *)
+    [CategoryTheory.categories.HSET.MonoEpiIso]. *)
 
 Lemma type_iso_is_equiv (A B : ob type_precat) (f : iso A B) : isweq (pr1 f).
 Proof.
