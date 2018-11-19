@@ -3,6 +3,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Notations.
 Require Import UniMath.CategoryTheory.Bicategories.BicatAliases.
+Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws_2.
 
 Section laws.
   Context {C : bicat}.
@@ -15,7 +16,6 @@ Section laws.
       =
       (id₂ f ⋆ assoc_inv k h g) o (assoc_inv k (h ∘ g) f) o (assoc_inv h g f ⋆ id₂ k).
   Proof.
-    (*
     rewrite <- !inverse_of_assoc.
     rewrite <- (id₂_inverse f).
     rewrite <- (id₂_inverse k).
@@ -25,8 +25,6 @@ Section laws.
     rewrite <- !vcomp_assoc.
     apply pentagon.
   Qed.
-     *)
-Admitted.
 
   Definition inverse_pentagon_2
              {V W X Y Z : C}
@@ -36,17 +34,32 @@ Admitted.
       =
       assoc (k ∘ h) g f o (f ◃ assoc_inv k h g) o assoc_inv k (h ∘ g) f.
   Proof.
-    (*
     rewrite <- !inverse_of_assoc.
-    refine (vcomp_move_R_Mp _ _ _ _) ; simpl.
+    simple refine (vcomp_move_R_Mp _ _ _ _ _) ; simpl.
+    {
+      cbn.
+      apply assoc_inv_iso.
+    }
     rewrite <- vcomp_assoc.
-    refine (vcomp_move_L_pM _ _ _ _) ; simpl.
+    simple refine (vcomp_move_L_pM _ _ _ _ _).
+    {
+      cbn.
+      apply assoc_inv_iso.
+    }
     rewrite <- vcomp_assoc.
-    refine (vcomp_move_L_pM _ _ _ _) ; simpl.
-    symmetry ; apply pentagon.
+    simple refine (vcomp_move_L_pM _ _ _ _ _).
+    { cbn.
+      apply is_invertible_2cell_lwhisker.
+      apply assoc_inv_iso.
+    }
+    symmetry.
+    pose (pentagon k h g f) as p.
+    unfold assoc in * ; cbn.
+    unfold hcomp in p.
+    rewrite id2_rwhisker in p.
+    rewrite vcomp_right_identity in p.
+    exact p.
   Qed.
-     *)
-    Admitted.
 
   Definition inverse_pentagon_3
              {V W X Y Z : C}
@@ -56,12 +69,14 @@ Admitted.
       =
       assoc_inv k h g ⋆⋆ id₂ f o assoc_inv k (h ∘ g) f.
   Proof.
-    (*
-    refine (vcomp_move_R_pM _ _ _ _) ; simpl.
+    simple refine (vcomp_move_R_pM _ _ _ _ _).
+    { apply hcomp_iso.
+      - apply iso_id₂.
+      - apply assoc_iso.
+    }
+    cbn.
     apply inverse_pentagon.
   Qed.
-     *)
-    Admitted.
 
   Definition inverse_pentagon_4
              {V W X Y Z : C}
@@ -71,18 +86,28 @@ Admitted.
       =
       assoc_inv k (h ∘ g) f o id₂ k ⋆⋆ assoc_inv h g f o assoc k h (g ∘ f).
   Proof.
-    (*
     rewrite <- !inverse_of_assoc.
-    refine (vcomp_move_R_pM _ _ _ _).
+    simple refine (vcomp_move_R_pM _ _ _ _ _).
+    {
+      cbn.
+      apply assoc_inv_iso.
+    }
     rewrite !vcomp_assoc.
-    refine (vcomp_move_L_Mp _ _ _ _).
-    refine (vcomp_move_L_Mp _ _ _ _).
-    simpl.
+    simple refine (vcomp_move_L_Mp _ _ _ _ _).
+    {
+      cbn.
+      apply assoc_inv_iso.
+    }
+    simple refine (vcomp_move_L_Mp _ _ _ _ _).
+    {
+      cbn.
+      apply hcomp_iso.
+      - apply iso_id₂.
+      - apply assoc_inv_iso.
+    }
     rewrite <- !vcomp_assoc.
     symmetry ; apply pentagon.
   Qed.
-     *)
-    Admitted.
 
   Definition inverse_pentagon_5
              {V W X Y Z : C}
@@ -92,16 +117,23 @@ Admitted.
       =
       assoc_inv k h (g ∘ f) o (id₂ k ⋆⋆ assoc h g f) o assoc k (h ∘ g) f.
   Proof.
-    (*
     rewrite <- !inverse_of_assoc.
-    refine (vcomp_move_R_pM _ _ _ _).
+    simple refine (vcomp_move_R_pM _ _ _ _ _).
+    {
+      cbn.
+      apply hcomp_iso.
+      - apply assoc_inv_iso.
+      - apply iso_id₂.
+    }
     rewrite !vcomp_assoc.
-    refine (vcomp_move_L_Mp _ _ _ _) ; simpl.
+    simple refine (vcomp_move_L_Mp _ _ _ _ _).
+    {
+      cbn.
+      apply assoc_inv_iso.
+    }
     rewrite <- !vcomp_assoc.
     apply pentagon.
   Qed.
-     *)
-    Admitted.
 
   Definition inverse_pentagon_6
              {V W X Y Z : C}
@@ -111,16 +143,18 @@ Admitted.
       =
       assoc k h g ⋆⋆ id₂ f o assoc_inv (k ∘ h) g f o assoc_inv k h (g ∘ f).
   Proof.
-    (*
-    unfold vcomp, id₂.
-    rewrite !associativity.
-    refine (Morphisms.iso_moveL_Mp _ _ _) ; simpl.
+    rewrite !vcomp_assoc.
+    simple refine (vcomp_move_L_Mp _ _ _ _ _).
+    {
+      apply hcomp_iso.
+      - apply assoc_iso.
+      - apply iso_id₂.
+    }
+    cbn.
     symmetry.
-    rewrite <- !associativity.
+    rewrite <- !vcomp_assoc.
     apply inverse_pentagon.
   Qed.
-     *)
-    Admitted.
 
   Definition pentagon_2
              {V W X Y Z : C}
@@ -130,15 +164,18 @@ Admitted.
       =
       id₂ k ⋆⋆ assoc_inv h g f o assoc k h (g ∘ f) o assoc (k ∘ h) g f.
   Proof.
-    (*
     rewrite <- !inverse_of_assoc.
     rewrite !vcomp_assoc.
-    refine (vcomp_move_L_Mp _ _ _ _) ; simpl.
+    simple refine (vcomp_move_L_Mp _ _ _ _ _).
+    {
+      cbn.
+      apply hcomp_iso.
+      - apply iso_id₂.
+      - apply assoc_inv_iso.
+    }
     rewrite <- !vcomp_assoc.
     symmetry ; apply pentagon.
   Qed.
-     *)
-    Admitted.
 
   Definition triangle_r_inv
              {X Y Z : C}
