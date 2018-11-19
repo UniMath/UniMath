@@ -8,10 +8,6 @@ Require Import UniMath.CategoryTheory.Bicategories.Unitors.
 
 Ltac is_iso :=
   match goal with
-  | [ |- is_invertible_2cell (left_unit _) ] => apply is_invertible_2cell_runitor
-  | [ |- is_invertible_2cell (left_unit_inv _) ] => apply is_invertible_2cell_rinvunitor
-  | [ |- is_invertible_2cell (right_unit _) ] => apply is_invertible_2cell_lunitor
-  | [ |- is_invertible_2cell (right_unit_inv _) ] => apply is_invertible_2cell_linvunitor
   | [ |- is_invertible_2cell (runitor _) ] => apply is_invertible_2cell_runitor
   | [ |- is_invertible_2cell (rinvunitor _) ] => apply is_invertible_2cell_rinvunitor
   | [ |- is_invertible_2cell (lunitor _) ] => apply is_invertible_2cell_lunitor
@@ -28,7 +24,7 @@ Ltac is_iso :=
   | [ |- is_invertible_2cell (_ ⋆⋆ _)] => apply hcomp_iso ; is_iso
   | [ |- is_invertible_2cell (_ ⋆ _)] => apply hcomp_iso ; is_iso
   | [ |- is_invertible_2cell (id₂ _)] => apply iso_id₂
-  | _ => idtac
+  | _ => try assumption
   end.
 
 Section laws.
@@ -214,11 +210,11 @@ Section laws.
   Definition triangle_r_inv
              {X Y Z : C}
              (g : C ⟦ Y, Z ⟧) (f : C ⟦ X, Y ⟧)
-    : right_unit_inv g ⋆⋆ id₂ f
+    : linvunitor g ⋆⋆ id₂ f
       =
-      assoc_inv g (id₁ Y) f o id₂ g ⋆⋆ left_unit_inv f.
+      assoc_inv g (id₁ Y) f o id₂ g ⋆⋆ rinvunitor f.
   Proof.
-    rewrite <- inverse_of_right_unit, <- inverse_of_left_unit.
+    rewrite <- inverse_of_lunitor, <- inverse_of_left_unit.
     rewrite <- inverse_of_assoc.
     rewrite <- (id₂_inverse f).
     rewrite <- (id₂_inverse g).
@@ -231,7 +227,7 @@ Section laws.
   Definition triangle_l
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
-    : right_unit g ⋆⋆ id₂ f o assoc_inv g (id₁ Y) f = id₂ g ⋆⋆ left_unit f.
+    : lunitor g ⋆⋆ id₂ f o assoc_inv g (id₁ Y) f = id₂ g ⋆⋆ runitor f.
   Proof.
     rewrite triangle_r.
     rewrite vcomp_assoc.
@@ -302,11 +298,11 @@ Section laws.
              (η : id₁ X ==> f)
              (k₁ k₂ : C⟦X,Y⟧)
              (α : k₁ ==> k₂)
-    : k₂ ◅ η o right_unit_inv k₂ o α = α ▻ f o (k₁ ◅ η) o right_unit_inv k₁.
+    : k₂ ◅ η o linvunitor k₂ o α = α ▻ f o (k₁ ◅ η) o linvunitor k₁.
   Proof.
     rewrite lwhisker_hcomp, rwhisker_hcomp.
     rewrite !vcomp_assoc.
-    rewrite right_unit_inv_natural.
+    rewrite linvunitor_natural.
     rewrite <- !vcomp_assoc.
     apply maponpaths.
     rewrite rwhisker_hcomp.
@@ -321,7 +317,7 @@ Section laws.
              (η : id₁ X ==> f)
              (k₁ k₂ : C⟦Y,X⟧)
              (α : k₁ ==> k₂)
-    : η ▻ k₂ o left_unit_inv k₂ o α = (f ◅ α) o (η ▻ k₁) o left_unit_inv k₁.
+    : η ▻ k₂ o rinvunitor k₂ o α = (f ◅ α) o (η ▻ k₁) o rinvunitor k₁.
   Proof.
     rewrite lwhisker_hcomp, rwhisker_hcomp.
     rewrite !vcomp_assoc.
@@ -341,7 +337,7 @@ Section laws.
              (k₁ k₂ : C⟦Y,X⟧)
              (α : k₁ ==> k₂)
              (H : is_invertible_2cell η)
-    : α = left_unit k₂ o (inv_cell (η,,H) ▻ k₂) o (f ◅ α) o (η ▻ k₁) o left_unit_inv k₁.
+    : α = runitor k₂ o (inv_cell (η,,H) ▻ k₂) o (f ◅ α) o (η ▻ k₁) o rinvunitor k₁.
   Proof.
     rewrite !vcomp_assoc.
     use vcomp_move_L_Mp.
@@ -363,7 +359,7 @@ Section laws.
              (k₁ k₂ : C⟦X,Y⟧)
              (α : k₁ ==> k₂)
              (H : is_invertible_2cell η)
-    : α = right_unit k₂ o (k₂ ◅ inv_cell (η,,H)) o (α ▻ f) o (k₁ ◅ η) o right_unit_inv k₁.
+    : α = lunitor k₂ o (k₂ ◅ inv_cell (η,,H)) o (α ▻ f) o (k₁ ◅ η) o linvunitor k₁.
   Proof.
     rewrite !vcomp_assoc.
     use vcomp_move_L_Mp.
@@ -421,7 +417,7 @@ Section laws.
   Definition left_unit_assoc
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
-    : (left_unit g) ▻ f = left_unit (g ∘ f) o assoc (id₁ Z) g f.
+    : (runitor g) ▻ f = runitor (g ∘ f) o assoc (id₁ Z) g f.
   Proof.
     rewrite <- runitor_triangle.
     unfold assoc.
@@ -434,7 +430,7 @@ Section laws.
   Definition left_unit_inv_assoc
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
-    : (left_unit_inv g) ▻ f = assoc_inv (id₁ Z) g f o left_unit_inv (g ∘ f).
+    : (rinvunitor g) ▻ f = assoc_inv (id₁ Z) g f o rinvunitor (g ∘ f).
   Proof.
     rewrite <- rinvunitor_triangle.
     unfold assoc_inv.
@@ -444,20 +440,20 @@ Section laws.
     reflexivity.
   Qed.
 
-  Definition right_unit_assoc
+  Definition lunitor_assoc
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
-    : right_unit (g ∘ f) = g ◅ (right_unit f) o assoc g f (id₁ X).
+    : lunitor (g ∘ f) = g ◅ (lunitor f) o assoc g f (id₁ X).
   Proof.
     symmetry.
     apply lunitor_triangle.
   Qed.
 
 
-  Definition right_unit_inv_assoc
+  Definition linvunitor_assoc
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
-    : right_unit_inv (g ∘ f) = assoc_inv g f (id₁ X) o (g ◅ (right_unit_inv f)).
+    : linvunitor (g ∘ f) = assoc_inv g f (id₁ X) o (g ◅ (linvunitor f)).
   Proof.
     use vcomp_move_L_pM.
     {
@@ -476,19 +472,19 @@ Section laws.
     reflexivity.
   Qed.
 
-  Definition right_unit_id_is_left_unit_id
+  Definition lunitor_id_is_left_unit_id
              (X : C)
-    : right_unit (id₁ X) = left_unit (id₁ X).
+    : lunitor (id₁ X) = runitor (id₁ X).
   Proof.
     apply lunitor_runitor_identity.
   Qed.
 
 
-  Definition right_unit_V_id_is_left_unit_V_id
+  Definition lunitor_V_id_is_left_unit_V_id
              (X : C)
-    : right_unit_inv (id₁ X) = left_unit_inv (id₁ X).
+    : linvunitor (id₁ X) = rinvunitor (id₁ X).
   Proof.
-    rewrite <- inverse_of_right_unit, <- inverse_of_left_unit.
+    rewrite <- inverse_of_lunitor, <- inverse_of_left_unit.
     apply path_inverse_2cell.
     apply lunitor_runitor_identity.
   Qed.
@@ -496,7 +492,7 @@ Section laws.
   Definition left_unit_inv_assoc₂
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
-    : left_unit_inv (g ∘ f) = assoc (id₁ Z) g f o (left_unit_inv g ▻ f).
+    : rinvunitor (g ∘ f) = assoc (id₁ Z) g f o (rinvunitor g ▻ f).
   Proof.
     rewrite left_unit_inv_assoc.
     rewrite <- !vcomp_assoc.
@@ -508,13 +504,13 @@ Section laws.
   Definition triangle_l_inv
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
-    : assoc g (id₁ Y) f o right_unit_inv g ⋆⋆ id₂ f = id₂ g ⋆⋆ left_unit_inv f.
+    : assoc g (id₁ Y) f o linvunitor g ⋆⋆ id₂ f = id₂ g ⋆⋆ rinvunitor f.
   Proof.
     use vcomp_move_R_Mp.
     {
       is_iso.
     }
-    rewrite <- inverse_of_right_unit, <- inverse_of_left_unit.
+    rewrite <- inverse_of_lunitor, <- inverse_of_left_unit.
     rewrite <- (id₂_inverse f).
     rewrite <- (id₂_inverse g).
     rewrite <- !hcomp_inverse.
