@@ -32,10 +32,6 @@ Definition assoc
   : (h ∘ g) ∘ f ==> h ∘ (g ∘ f)
   := lassociator f g h .
 
-Notation "'right_unit'" := lunitor.
-Notation "'left_unit'" := runitor.
-Notation "'right_unit_inv'" := linvunitor.
-Notation "'left_unit_inv'" := rinvunitor.
 Notation "'id₁'" := identity.
 Notation "'id₂'" := id2.
 Notation " b ⋆⋆ a" := (a ⋆ b) (at level 30).
