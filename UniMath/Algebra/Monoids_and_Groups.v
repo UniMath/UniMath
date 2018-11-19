@@ -2300,6 +2300,10 @@ Coercion abgrtoabmonoid : abgr >-> abmonoid.
 Definition abgr_of_gr (X : gr) (H : iscomm (@op X)) : abgr :=
   abgrpair X (mk_isabgrop (pr2 X) H).
 
+Delimit Scope abgr with abgr.
+Notation "x - y" := (op x (grinv _ y)) : abgr.
+Notation   "- y" := (grinv _ y) : abgr.
+
 (** **** Construction of the trivial abgr consisting of one element given by unit. *)
 
 Definition unitabgr_isabgrop : isabgrop (@op unitabmonoid).

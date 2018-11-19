@@ -88,6 +88,8 @@ Abelian.v
 category_binops.v
 AbelianToAdditive.v
 Morphisms.v
+ExactCategories/ExactCategories.v
+ExactCategories/Tests.v
 ShortExactSequences.v
 AdditiveFunctors.v
 LocalizingClass.v

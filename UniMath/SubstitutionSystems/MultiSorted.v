@@ -615,7 +615,7 @@ Definition args (M : MultiSortedSig) (s : sort) : indices M s → list (list sor
   pr2 (M s).
 
 Local Notation "'1'" := (TerminalObject TC).
-Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)) (at level 50).
+Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)).
 
 (* Code for option as a function, below is the definition as a functor *)
 Local Definition option_fun : sort -> sortToC -> sortToC.

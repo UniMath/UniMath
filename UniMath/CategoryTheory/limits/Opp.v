@@ -376,7 +376,7 @@ Section def_opposites'.
     use mk_isZero.
     - intros a. apply (pr2 H a).
     - intros a. apply (pr1 H a).
-  Qed.
+  Defined.
 
   Definition Zero_opp (T : @Zero C) : @Zero (C^op) := @mk_Zero (C^op) _ (isZero_opp (pr2 T)).
 

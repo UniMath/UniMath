@@ -64,6 +64,7 @@ Delimit Scope cat_deprecated with cat_deprecated.
 Local Open Scope cat.
 
 Notation "a --> b" := (precategory_morphisms a b) : cat.
+Notation "b <-- a" := (precategory_morphisms a b) (only parsing) : cat.
 
 Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) : cat.
 (* ⟦   to input: type "\[[" or "\(" with Agda input method
@@ -99,6 +100,8 @@ Coercion precategory_ob_mor_from_precategory_data :
 Definition identity {C : precategory_data}
   : ∏ c : C, c --> c
   := pr1 (pr2 C).
+
+Local Notation "1" := (identity _) : cat.
 
 Definition compose {C : precategory_data} { a b c : C }
   : a --> b -> b --> c -> a --> c
@@ -651,6 +654,9 @@ Defined.
 Definition postcomp_with {C : precategory_data}{b c : C}(h : b --> c) {a : C}
   (f : a --> b) : a --> c := f · h.
 
+Definition is_iso' {C : precategory} {b c : C} (f : b --> c) :=
+  ∏ a, isweq (postcomp_with f (a:=a)).
+
 Definition is_inverse_in_precat {C : precategory_data} {a b : C}
   (f : a --> b) (g : b --> a) :=
   dirprod (f · g = identity a)
@@ -1054,6 +1060,36 @@ Proof.
   - rewrite <- assoc, z_iso_after_z_iso_inv, id_right. apply idpath.
 Qed.
 
+Lemma wrap_inverse {M:precategory} {x y : M} (g : x --> x) (f : z_iso x y) :
+  g = identity x -> z_iso_inv f · g · f = identity y.
+Proof.
+  intros e. rewrite e. rewrite id_right. apply z_iso_after_z_iso_inv.
+Defined.
+
+Lemma wrap_inverse' {M:precategory} {x y : M} (g : x --> x) (f : z_iso y x) :
+  g = identity x -> f · g · z_iso_inv f = identity y.
+Proof.
+  intros e. rewrite e. rewrite id_right. apply z_iso_inv_after_z_iso.
+Defined.
+
+Lemma cancel_z_iso {M:precategory} {x y z : M} (f f' : x --> y) (g : z_iso y z) :
+  f · g = f' · g -> f = f'.
+Proof.
+  intros e.
+  refine (_ @ maponpaths (λ k, k · z_iso_inv g) e @ _).
+  - rewrite assoc'. rewrite z_iso_inv_after_z_iso. rewrite id_right. reflexivity.
+  - rewrite assoc'. rewrite z_iso_inv_after_z_iso. rewrite id_right. reflexivity.
+Qed.
+
+Lemma cancel_z_iso' {M:precategory} {w x y : M} (g : z_iso w x) (f f' : x --> y) :
+  g · f = g · f' -> f = f'.
+Proof.
+  intros e.
+  refine (_ @ maponpaths (λ k, z_iso_inv g · k) e @ _).
+  - rewrite assoc. rewrite z_iso_inv_after_z_iso. rewrite id_left. reflexivity.
+  - rewrite assoc. rewrite z_iso_inv_after_z_iso. rewrite id_left. reflexivity.
+Qed.
+
 
 (** ** Properties of isomorphisms *)
 (** Stability under composition, inverses etc *)
@@ -1161,6 +1197,9 @@ Proof.
   apply (pr2 H).
 Defined.
 
+Definition z_iso_to_iso {C : precategory} {b c : C} (f : z_iso b c) : iso b c
+  := pr1 f ,, is_iso_from_is_z_iso (pr1 f) (pr2 f).
+
 Lemma is_z_iso_from_is_iso {C: precategory}{a b : C} (f: a --> b):
      is_iso f -> is_z_isomorphism f.
 Proof.
@@ -1173,6 +1212,25 @@ Proof.
   - set (H2:=iso_after_iso_inv fiso).
     simpl in H2. apply H2.
 Defined.
+
+Lemma is_z_iso_from_is_iso' (C : precategory) {b c : C} (f : b --> c) :
+  is_iso' f -> is_z_isomorphism f.
+Proof.
+  intros i.
+  assert (Q := i c (identity c)). induction Q as [[g E] _]. unfold postcomp_with in E.
+  exists g. split.
+  2 : { exact E. }
+  assert (X := id_left _ : postcomp_with f (identity _) = f).
+  assert (Y := ! assoc _ _ _ @ maponpaths (precomp_with f) E @ id_right _
+               : postcomp_with f (f · g) = f).
+  clear E.
+  set (x := (_,,X) : hfiber (postcomp_with f) f).
+  set (y := (_,,Y) : hfiber (postcomp_with f) f).
+  exact (maponpaths pr1 ((proofirrelevance _ (isapropifcontr (i b f))) y x)).
+Defined.
+
+Definition iso_to_z_iso {C : precategory} {b c : C} : iso b c -> z_iso b c
+  := λ f, pr1 f ,, is_z_iso_from_is_iso (pr1 f) (pr2 f).
 
 (** * Categories (aka saturated precategories) *)
 
@@ -1615,3 +1673,20 @@ Lemma transport_source_is_iso {C : precategory} {x y z : ob C} (f : x --> y) (H 
 Proof.
   induction e. apply H.
 Qed.
+
+(** *** Induced precategories *)
+
+Definition induced_precategory (M : precategory) {X:Type} (j : X -> ob M) : precategory.
+Proof.
+  use tpair.
+  - use tpair.
+    + exact (X,, λ a b, precategory_morphisms (j a) (j b)).
+    + split;cbn.
+      * exact (λ c, identity (j c)).
+      * exact (λ a b c, @compose M (j a) (j b) (j c)).
+  - repeat split; cbn.
+    + exact (λ a b, @id_left M (j a) (j b)).
+    + exact (λ a b, @id_right M (j a) (j b)).
+    + exact (λ a b c d, @assoc M (j a) (j b) (j c) (j d)).
+    + exact (λ a b c d, @assoc' M (j a) (j b) (j c) (j d)).
+Defined.

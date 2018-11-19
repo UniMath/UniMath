@@ -101,7 +101,7 @@ Qed.
 Definition functor (C C' : precategory_data) : UU :=
   total2 ( λ F : functor_data C C', is_functor F ).
 
-Notation "a ⟶ b" := (functor a b) (at level 39) : cat.
+Notation "a ⟶ b" := (functor a b) : cat.
 (* to input: type "\-->" with Agda input method *)
 
 (** Note that this makes the second component opaque for efficiency reasons *)
@@ -405,7 +405,7 @@ Defined.
 End functors.
 
 (** Notations do not survive the end of sections, so we redeclare them here. *)
-Notation "a ⟶ b" := (functor a b) (at level 39) : cat.
+Notation "a ⟶ b" := (functor a b) : cat.
 Notation "# F" := (functor_on_morphisms F) (at level 3) : cat.
 
 (** ** Fully faithful functors *)
@@ -1612,7 +1612,7 @@ Notation "[ C , D ]" := (functor_category C D) : cat.
 Notation "F ⟹ G" := (nat_trans F G) (at level 39) : cat.
 (* to input: type "\==>" with Agda input method *)
 
-Notation "F ∙ G" := (functor_composite F G) (at level 35) : cat.
+Notation "F ∙ G" := (functor_composite F G) : cat.
 (* to input: type "\." with Agda input method *)
 (* the old notation had the arguments in the opposite order *)
 
@@ -1712,3 +1712,13 @@ Defined.
 
 Definition is_nat_iso_id {C D : precategory} {F G : C ⟶ D} (eq : F = G) (ν : nat_iso F G) : UU :=
   ∏ (c : C), nat_comp_to_endo eq (nat_iso_to_trans ν c) = identity (F c).
+
+Definition induced_precategory_incl {M : precategory} {X:Type} (j : X -> ob M) :
+  induced_precategory M j ⟶ M.
+Proof.
+  use mk_functor.
+  - use mk_functor_data.
+    + exact j.
+    + intros a b f. exact f.
+  - repeat split.
+Defined.
