@@ -1,4 +1,4 @@
-(*
+(**
 Some laws on transporting along families of 2-cells.
 
 Authors: Dan Frumin, Niels van der Weide

@@ -1,4 +1,4 @@
-(*
+(**
 Right adjoints, units, counits are unique.
 
 Authors: Dan Frumin, Niels van der Weide
@@ -15,6 +15,7 @@ Require Import UniMath.CategoryTheory.Bicategories.BicatAliases.
 Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws_2.
 Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws.
 Require Import UniMath.CategoryTheory.Bicategories.Univalence.
+Require Import UniMath.CategoryTheory.Bicategories.transport_laws.
 
 Definition adjoint_unique_map
            {C : bicat}
@@ -522,72 +523,72 @@ Section UniquenessAdjoint.
     apply maponpaths.
     apply assoc_inv_natural.
   Qed.
-
-  (*
-  Definition unique_adjoint
-             `{LocallyUnivalent C}
-    : A₁ = A₂.
-  Proof.
-    simple refine (path_sigma_hprop _ _ _).
-    simple refine (path_sigma _ _ _ _ _) ; simpl.
-    - refine (isotoid _ _ _ _).
-      refine (@Build_Isomorphic _ _ _ r₁_to_r₂ _).
-    - rewrite transport_prod ; simpl.
-      apply path_prod'.
-      + rewrite transport_two_cell_FlFr.
-        rewrite ap_const ; simpl.
-        rewrite <- transport_vcomp₁_r ; simpl.
-        rewrite !vcomp_right_identity.
-        rewrite eisretr ; cbn.
-        apply transport_unit.
-      + rewrite transport_two_cell_FlFr.
-        rewrite ap_const.
-        rewrite !vcomp_left_identity.
-        refine (vcomp_move_R_pM _ _ _ _) ; simpl.
-        rewrite <- transport_vcomp₁_l.
-        rewrite eisretr ; cbn.
-        symmetry.
-        apply transport_counit.
-  Defined.
-  *)
 End UniquenessAdjoint.
 
-(*
-Global Instance ishprop_is_left_adjoint
-       `{Funext}
-       {C : BiCategory}
-       `{LocallyUnivalent C}
-       {X Y : C}
-       (l : C⟦X,Y⟧)
-  : IsHProp (is_left_adjoint l).
-Proof.
-  apply hprop_allpath.
-  intros.
-  apply unique_adjoint.
-  assumption.
-Defined.
-
-Global Instance ishprop_is_adjoint_equivalence
-       `{Funext}
-       {C : BiCategory}
-       `{LocallyUnivalent C}
-       {X Y : C}
-       (l : C⟦X,Y⟧)
-  : IsHProp (is_adjoint_equivalence l).
-Proof.
-  apply hprop_allpath.
-  intros.
-  apply path_sigma_hprop.
-  apply ishprop_is_left_adjoint.
-Defined.
-
-Definition path_adjoint_equivalence
-           `{Funext}
-           {C : BiCategory}
-           `{LocallyUnivalent C}
+Definition unique_internal_adjoint_equivalence
+           {C : bicat}
            {X Y : C}
-           {l₁ l₂ : X ≃ Y}
-           (Hp : adjoint_equivalence_map l₁ = adjoint_equivalence_map l₂)
-  : l₁ = l₂
-  := path_sigma_hprop _ _ Hp.
-*)
+           (l : C⟦X,Y⟧)
+           (HC : is_univalent_2_1 C)
+           (A₁ : is_internal_left_adjoint_internal_equivalence l)
+           (A₂ : is_internal_left_adjoint_internal_equivalence l)
+  : A₁ = A₂.
+Proof.
+  use total2_paths_f.
+  - cbn.
+    apply (isotoid_2_1 HC).
+    refine (adjoint_unique_map l (pr1 A₁) (pr1 A₂) A₁ A₂ ,, _).
+    apply adjoint_unique_map_iso.
+    + exact A₁.
+    + exact A₂.
+  - rewrite transportf_total2.
+    use subtypeEquality'.
+    + unfold internal_adjunction_over ; cbn.
+      rewrite (transportf_dirprod _ _ _ (pr1 A₁ ,, pr12 A₁) (pr1 A₂ ,, pr12 A₂)) ; cbn.
+      use pathsdirprod.
+      * rewrite transport_two_cell_FlFr.
+        rewrite !maponpaths_for_constant_function ; cbn.
+        rewrite vcomp_right_identity.
+        rewrite <- idtoiso_2_1_lwhisker.
+        unfold isotoid_2_1.
+        pose (homotweqinvweq (idtoiso_2_1 (pr1 A₁) (pr1 A₂),, HC Y X (pr1 A₁) (pr1 A₂))) as p.
+        cbn in p.
+        rewrite p ; clear p.
+        cbn.
+        apply transport_unit.
+        exact A₁.
+      * rewrite transport_two_cell_FlFr.
+        rewrite !maponpaths_for_constant_function ; cbn.
+        rewrite vcomp_left_identity.
+        use vcomp_move_R_pM.
+        { is_iso. }
+        cbn.
+        rewrite <- idtoiso_2_1_rwhisker.
+        unfold isotoid_2_1.
+        pose (homotweqinvweq (idtoiso_2_1 (pr1 A₁) (pr1 A₂),, HC Y X (pr1 A₁) (pr1 A₂))) as p.
+        cbn in p.
+        rewrite p ; clear p.
+        cbn.
+        symmetry.
+        apply transport_counit.
+        exact A₂.
+    + cbn.
+      intros x y.
+      apply isapropdirprod.
+      * apply isapropdirprod ; apply isaprop_is_invertible_2cell.
+      * apply isapropdirprod ; apply C.
+Defined.
+
+Definition path_internal_adjoint_equivalence
+           {C : bicat}
+           {X Y : C}
+           (HC : is_univalent_2_1 C)
+           (A₁ A₂ : internal_adjoint_equivalence X Y)
+           (H : internal_left_adjoint A₁ = internal_left_adjoint A₂)
+  : A₁ = A₂.
+Proof.
+  use total2_paths_f.
+  - exact H.
+  - apply unique_internal_adjoint_equivalence.
+    apply HC.
+Defined.

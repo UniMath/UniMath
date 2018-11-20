@@ -389,6 +389,23 @@ Definition is_univalent_2_0 (C : bicat) : UU
 Definition is_univalent_2 (C : bicat) : UU
   := is_univalent_2_0 C × is_univalent_2_1 C.
 
+Definition isotoid_2_1
+           {C : bicat}
+           (HC : is_univalent_2_1 C)
+           {a b : C}
+           {f g : C⟦a,b⟧}
+           (α : invertible_2cell f g)
+  : f = g
+  := invmap (idtoiso_2_1 f g ,, HC a b f g) α.
+
+Definition isotoid_2_0
+           {C : bicat}
+           (HC : is_univalent_2_0 C)
+           {a b : C}
+           (f : internal_adjoint_equivalence a b)
+  : a = b
+  := invmap (idtoiso_2_0 a b ,, HC a b) f.
+
 
 
 (*

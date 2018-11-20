@@ -1,4 +1,4 @@
-(*
+(**
 Internal equivalences in bicategories can be refined to adjoint equivalences.
 
 Authors: Dan Frumin, Niels van der Weide
