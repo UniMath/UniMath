@@ -157,11 +157,11 @@ Goal ∏ (M:precategory) (P Q : MorphismPair M^op),
 Proof.
   intros M P Q. exact (opp_MorphismPairIsomorphism (M:=M^op) ).
 Qed.
-Goal ∏ (M : Additive), oppositeAdditiveCategory (oppositeAdditiveCategory M) = M.
+Goal ∏ (M : AdditiveCategory), oppositeAdditiveCategory (oppositeAdditiveCategory M) = M.
 Proof.
   reflexivity.
 Defined.
-Goal ∏ {M:Additive} {X:Type} (j : X -> ob M) (su : sums_lift M j),
+Goal ∏ {M:AdditiveCategory} {X:Type} (j : X -> ob M) (su : sums_lift M j),
   opp_sums_lift (oppositeAdditiveCategory M) j (opp_sums_lift M j su) = su.
 Proof.
   reflexivity.
@@ -229,7 +229,7 @@ Proof.
 Defined.
 
 Goal ∏ {M:precategory} {X:Type} (j : X -> ob M) (hz : zero_lifts M j),
-  opp_lift_zero (M:=opp_precat M) j (opp_lift_zero (M:=M) j hz) = hz.
+  opp_zero_lifts (C:=opp_precat M) j (opp_zero_lifts (C:=M) j hz) = hz.
 Proof.
   reflexivity.
 Defined.

@@ -81,7 +81,7 @@ homotopies, that is if f is homotopic to g, then T(f) is homotopic to T(g). In
 *)
 Section translation_functor.
 
-  Variable A : Additive.
+  Variable A : CategoryWithAdditiveStructure.
 
 
   (** ** Translation functor for C(A) *)

@@ -39,6 +39,7 @@ Require Export UniMath.MoreFoundations.Propositions.
 Require Export UniMath.Algebra.BinaryOperations.
 Require Export UniMath.Algebra.Monoids_and_Groups.
 
+
 (* some of these might be appropriate upstream: *)
 Local Arguments isZero {_} _.
 Local Arguments BinDirectSumOb {_ _ _}.
@@ -83,15 +84,6 @@ Section InvestigateNotations.
     (* Set Printing All. *)
   Abort.
 End InvestigateNotations.
-
-Section Precategories.
-  Definition zero_lifts (M:precategory) {X:Type} (j : X -> ob M) := ∃ z, isZero (j z).
-  Definition opp_lift_zero {M:precategory} {X:Type} (j : X -> ob M) :
-    zero_lifts M j -> zero_lifts (opp_precat M) j.
-  Proof.
-    apply hinhfun; intros [z iz]. exists z. exact (isZero_opp M iz).
-  Defined.
-End Precategories.
 
 Section Categories.
   Definition isPushout' {M:category} {a b c d : M} (f : a --> b) (g : a --> c)
@@ -523,7 +515,6 @@ Section PreAdditive.
   Definition ismonoidfun_prop {G H:abgr} (f:G->H) : hProp := hProppair (ismonoidfun f) (isapropismonoidfun f).
   Definition PreAdditive_functor (M N:PreAdditive) :=
     ∑ F : M ⟶ N, ∀ A B:M, ismonoidfun_prop (@functor_on_morphisms M N F A B : A --> B -> F A --> F B).
-  Set Printing All.
   Coercion PreAdditive_functor_to_functor {M N:PreAdditive} : PreAdditive_functor M N -> functor M N := pr1.
   Definition functor_on_morphisms_add {C C' : PreAdditive} (F : PreAdditive_functor C C') { a b : C}
     : monoidfun (a --> b) (F a --> F b)
@@ -890,59 +881,9 @@ Section KernelCokernelPairs.
   Qed.
 End KernelCokernelPairs.
 
-Section AdditiveBasics.         (* move upstream later *)
-  (* first fix the definition of additive category to follow traditional mathematical practice *)
-  Definition isAdditive (PA : PreAdditive) : hProp := hasZero PA ∧ hasBinDirectSums PA.
-  Definition mk_isAdditive (PA : PreAdditive) (H1 : hasZero PA) (H2 : hasBinDirectSums PA) : isAdditive PA := H1,,H2.
-  Definition Additive : UU := ∑ PA : PreAdditive, isAdditive PA.
-  Coercion Additive_to_PreAdditive (A : Additive) : PreAdditive := pr1 A.
-  Definition mk_Additive (PA : PreAdditive) (H : isAdditive PA) : Additive := PA,,H.
-  Definition to_Zero' (A : Additive) : hasZero A := pr12 A.
-  Definition to_BinDirectSums' {A : Additive} : hasBinDirectSums A := pr22 A.
-  Definition oppositeAdditiveCategory : Additive -> Additive.
-  Proof.
-    intros M.
-    exists (oppositePreAdditive M). split.
-    - use (hinhfun _ (to_Zero' M)). exact (λ Z, pr1 Z,, pr22 Z,, pr12 Z).
-    - intros A B. exact (hinhfun oppositeBinDirectSum (to_BinDirectSums' A B)).
-  Defined.
-  Definition sums_lift (M:Additive) {X:Type} (j : X -> ob M) : hProp :=
-    zero_lifts M j ∧
-    ∀ a b (S : BinDirectSum (j a) (j b)), ∃ x, z_iso (j x) (BinDirectSumOb S).
-  Definition opp_sums_lift (M:Additive) {X:Type} (j : X -> ob M) :
-    sums_lift M j -> sums_lift (oppositeAdditiveCategory M) j.
-  Proof.
-    intros [hz su]. exists (opp_lift_zero j hz).
-    intros a b S. generalize (su a b (oppositeBinDirectSum S)). apply hinhfun.
-    intros [s t]. exists s. exact (z_iso_inv (opp_z_iso t)).
-  Defined.
-  Definition induced_Additive (M : Additive)
-             {X:Type} (j : X -> ob M) (sum : sums_lift M j) : Additive.
-  Proof.
-    exists (induced_PreAdditive M j). induction sum as [hz sum]. split.
-    - use (hinhfun _ hz). intros [z iz]. exists z. split.
-      + intros a. apply iz.
-      + intros b. apply iz.
-    - clear hz. intros a b. apply (squash_to_hProp (to_BinDirectSums' (j a) (j b))); intros S.
-      use (hinhfun _ (sum a b S)); intros [c t]; clear sum. set (S' := replaceSum S t).
-      use tpair.
-      + exists c. exact (pr21 S').
-      + cbn. exact (pr2 S').
-  Defined.
-  Lemma induced_opposite_Additive {M:Additive}
-        {X:Type} (j : X -> ob M) (su : sums_lift M j) :
-    oppositeAdditiveCategory (induced_Additive M j su) =
-    induced_Additive (oppositeAdditiveCategory M) j (opp_sums_lift M j su).
-  Proof.
-    intros.
-    apply (total2_paths2_f (induced_opposite_PreAdditive j)).
-    apply propproperty.
-  Defined.
-End AdditiveBasics.
-
 Section theDefinition.
-  Definition ExactCategoryData := ∑ M:Additive, MorphismPair M -> hProp. (* properties added below *)
-  Coercion ExactCategoryDataToAdditiveCategory (ME : ExactCategoryData) : Additive := pr1 ME.
+  Definition ExactCategoryData := ∑ M:AdditiveCategory, MorphismPair M -> hProp. (* properties added below *)
+  Coercion ExactCategoryDataToAdditiveCategory (ME : ExactCategoryData) : AdditiveCategory := pr1 ME.
   Definition isExact {M : ExactCategoryData} (E : MorphismPair M) : hProp := pr2 M E.
   Definition isExact2 {M : ExactCategoryData} {A B C:M} (f:A-->B) (g:B-->C) := isExact (mk_MorphismPair f g).
   Definition isAdmissibleMonomorphism {M : ExactCategoryData} {A B:M} (i : A --> B) : hProp :=
@@ -1252,7 +1193,7 @@ Section ExactCategoryFacts.
   Proof.
     use ExactSequenceFromEpi.
     { exact (PairToKernel (kerCokerDirectSum S)). }
-    apply (squash_to_hProp (to_Zero' M)); intros Z.
+    apply (squash_to_hProp (to_hasZero M)); intros Z.
     set (pb := DirectSumToPullback S Z).
     change (isAdmissibleEpimorphism (PullbackPr2 pb)).
     assert (Q := EC_PullbackEpi (0 : A --> Z) (0 : B --> Z) (ToZeroIsEpi A Z)).
@@ -1382,8 +1323,8 @@ Section ExactCategoryFacts.
     2:{ apply EC_ComposeEpi.
         - apply Pr1IsAdmEpi.
         - exact (hinhpr(A,,f,,j)). }
-    apply (squash_to_hProp (to_Zero' M)); intros Z.
-    apply (squash_to_hProp (to_BinDirectSums' D Z)); intros DZ.
+    apply (squash_to_hProp (to_hasZero M)); intros Z.
+    apply (squash_to_hProp (to_hasBinDirectSums D Z)); intros DZ.
     assert (m := pr1 (SumOfKernelCokernelPairs AC BC DZ
                    (EC_ExactToKernelCokernel j : isKernelCokernelPair f p)
                    (kerCoker10 Z C : isKernelCokernelPair (identity C) 0))).
@@ -1427,7 +1368,7 @@ Section ExactCategoryFacts.
     { use SumOfCokernels.
       - exact (EC_ExactToCokernel i).
       - exact (EC_ExactToCokernel i'). }
-    apply (squash_to_hProp (to_BinDirectSums' A B')); intros AB'.
+    apply (squash_to_hProp (to_hasBinDirectSums A B')); intros AB'.
     set (j := directSumMap AB' BB' f (identity B')).
     set (k := directSumMap AA' AB' (identity A) f').
     assert (kj : k · j = directSumMap AA' BB' f f').
@@ -1450,7 +1391,7 @@ Section ExactCategoryFacts.
     (* see Bühler's 2.12 *)
     intros I.
     (* write the map as a composite of three maps *)
-    apply (squash_to_hProp (to_BinDirectSums' A C)); intros AC.
+    apply (squash_to_hProp (to_hasBinDirectSums A C)); intros AC.
     assert (e : ToBinDirectSum BC i f  = ι₁ · (1 + π₁·f·ι₂) · (directSumMap AC _ i 1)).
     { apply ToBinDirectSumsEq.
       - rewrite BinDirectSumPr1Commutes. rewrite assoc'. unfold directSumMap.
@@ -1482,7 +1423,7 @@ Section ExactCategoryFacts.
     intros e e'.
     apply (squash_to_hProp e); clear e; intros [C [g e]].
     apply (squash_to_hProp e'); clear e'; intros [C' [g' e']].
-    apply (squash_to_hProp (to_BinDirectSums' C C')); intros CC'.
+    apply (squash_to_hProp (to_hasBinDirectSums C C')); intros CC'.
     exact (ExactToAdmEpi (SumOfExactSequences CC' _ _ e e')).
   Qed.
   Lemma SumOfAdmissibleMonos {M:ExactCategory} {A B A' B':M}
@@ -1493,7 +1434,7 @@ Section ExactCategoryFacts.
     intros e e'.
     apply (squash_to_hProp e); clear e; intros [C [g e]].
     apply (squash_to_hProp e'); clear e'; intros [C' [g' e']].
-    apply (squash_to_hProp (to_BinDirectSums' C C')); intros CC'.
+    apply (squash_to_hProp (to_hasBinDirectSums C C')); intros CC'.
     exact (ExactToAdmMono (SumOfExactSequences _ _ CC' e e')).
   Qed.
   Lemma MapPlusIdentityToCommSq {M:ExactCategory} {A B:M}
@@ -1596,8 +1537,8 @@ Section ExactCategoryFacts.
   Proof.
     (* see Bühler's 2.16 *)
     intros hc im.
-    apply (squash_to_hProp (to_BinDirectSums' C B)); intros CB.
-    apply (squash_to_hProp (to_BinDirectSums' B C)); intros BC.
+    apply (squash_to_hProp (to_hasBinDirectSums C B)); intros CB.
+    apply (squash_to_hProp (to_hasBinDirectSums B C)); intros BC.
     set (q := ToBinDirectSum CB (i · j) i).
     assert (s := AdmMonoEnlargement _ (i·j) i im : isAdmissibleMonomorphism q); clear im.
     assert (e : q · elem12 _ (grinv j) = ToBinDirectSum CB 0 i).
@@ -1621,7 +1562,7 @@ Section ExactCategoryFacts.
       - apply IsIsoIsMono. apply (SwitchIso C B). }
     clear e' e s q.
     apply (squash_to_hProp hc); clear hc; intros [D [k ic]].
-    apply (squash_to_hProp (to_BinDirectSums' D C)); intros DC.
+    apply (squash_to_hProp (to_hasBinDirectSums D C)); intros DC.
     assert (PB := is_symmetric_isPullback (homset_property M) _ (MapPlusIdentityToPullback k C BC DC)).
     assert (co := CokernelPlusIdentity i k C BC DC ic).
     assert (es := ExactSequenceFromMono _ _ co); clear co.
@@ -1754,10 +1695,10 @@ Section EquivalenceOfTwoDefinitions.
         { intros P Q i. exact (P1 P Q (InverseMorphismPairIsomorphism i)). } }
       { split.
         { split.
-          { intros A. apply (squash_to_hProp (to_Zero' D)); intros Z. apply hinhpr.
+          { intros A. apply (squash_to_hProp (to_hasZero D)); intros Z. apply hinhpr.
             exists Z. set (Q := TrivialDirectSum Z A). exists (to_Pr2 Q).
             exact (P2 A Z Q). }
-          { intros A. apply (squash_to_hProp (to_Zero' D)); intros Z. apply hinhpr.
+          { intros A. apply (squash_to_hProp (to_hasZero D)); intros Z. apply hinhpr.
             exists Z. set (Q := TrivialDirectSum' Z A). exists (to_In1 Q).
             exact (P2 Z A Q). } }
         split.
@@ -1893,7 +1834,7 @@ Section SplitSequences.
     set (S := mk_BinDirectSum _ _ _ _ _ _ _ _ issum).
     exact (DirectSumToKernel S,,DirectSumToCokernel S).
   Qed.
-  Lemma ComposeSplitMono {M:Additive} {A B C : M} (i : A --> B) (j : B --> C) :
+  Lemma ComposeSplitMono {M:AdditiveCategory} {A B C : M} (i : A --> B) (j : B --> C) :
     isSplitMonomorphism i ⇒ isSplitMonomorphism j ⇒ isSplitMonomorphism (i · j).
   Proof.
     intros s t.
@@ -1903,7 +1844,7 @@ Section SplitSequences.
     apply (squash_to_hProp t); clear t; intros [Q [q jq]];cbn in Q.
     apply (squash_to_hProp jq); clear jq; intros [q' [j' jq]].
     change (hProptoType (isBinDirectSum j j' q' q)) in jq.
-    apply (squash_to_hProp (to_BinDirectSums' P Q)); intros PQ.
+    apply (squash_to_hProp (to_hasBinDirectSums P Q)); intros PQ.
     apply hinhpr;unfold ExactCategoryDataToAdditiveCategory,pr1.
     exists PQ.
     exists (q' · p · ι₁ + q · ι₂).
@@ -1947,7 +1888,7 @@ Section SplitSequences.
       rewrite (assoc ι₂). rewrite (to_IdIn2 PQ).
       rewrite id_left. exact (to_BinOpId' jq). }
   Qed.
-  Lemma ComposeSplitEpi {M:Additive} {A B C : M} (p : A --> B) (q : B --> C) :
+  Lemma ComposeSplitEpi {M:AdditiveCategory} {A B C : M} (p : A --> B) (q : B --> C) :
     isSplitEpimorphism p ⇒ isSplitEpimorphism q ⇒ isSplitEpimorphism (p · q).
   Proof.
     intros r s.
@@ -1955,13 +1896,13 @@ Section SplitSequences.
              (ComposeSplitMono (M:=oppositeAdditiveCategory M)
                                _ _ (opposite_isSplitEpimorphism _ s) (opposite_isSplitEpimorphism _ r))).
   Qed.
-  Lemma PullbackSplitEpi {M:Additive} {A A'' C : M} (q : A --> A'') (g : C --> A'') :
+  Lemma PullbackSplitEpi {M:AdditiveCategory} {A A'' C : M} (q : A --> A'') (g : C --> A'') :
     isSplitEpimorphism q -> ∃ PB : Pullback q g, isSplitEpimorphism (PullbackPr2 PB).
   Proof.
     intros s.
     apply (squash_to_hProp s); clear s; intros [A' [i e]].
     apply (squash_to_hProp e); clear e; intros [p [j e]].
-    apply (squash_to_hProp (to_BinDirectSums' A' C)); intros A'C.
+    apply (squash_to_hProp (to_hasBinDirectSums A' C)); intros A'C.
     apply hinhpr.
     use tpair.
     - use tpair.
@@ -2000,7 +1941,7 @@ Section SplitSequences.
             apply id_right. }
     - cbn. exact (hinhpr(A',,ι₁,, hinhpr (π₁,,ι₂,,BinDirectSum_isBinDirectSum _ A'C))).
   Qed.
-  Lemma PushoutSplitMono {M:Additive} {A A' C : M} (i : A' --> A) (g : A' --> C) :
+  Lemma PushoutSplitMono {M:AdditiveCategory} {A A' C : M} (i : A' --> A) (g : A' --> C) :
     isSplitMonomorphism i ⇒ ∃ PO : Pushout i g, isSplitMonomorphism (PushoutIn2 PO).
   Proof.
     intros s.
@@ -2012,7 +1953,7 @@ Section SplitSequences.
 End SplitSequences.
 
 Section AdditiveToExact.
-  Lemma AdditiveExactnessProperties (M:Additive) : ExactCategoryProperties (M,,isSplit).
+  Lemma AdditiveExactnessProperties (M:AdditiveCategory) : ExactCategoryProperties (M,,isSplit).
   Proof.
     split;unfold ExactCategoryDataToAdditiveCategory,pr1.
     - split.
@@ -2022,10 +1963,10 @@ Section AdditiveToExact.
         exact e. }
     - split.
       { split.
-        { intros A. apply (squash_to_hProp (to_Zero' M)); intros Z.
+        { intros A. apply (squash_to_hProp (to_hasZero M)); intros Z.
           apply hinhpr. exists Z. set (Q := TrivialDirectSum Z A).
           exact (to_Pr2 Q,, DirectSumToSplit Q). }
-        { intros A. apply (squash_to_hProp (to_Zero' M)); intros Z.
+        { intros A. apply (squash_to_hProp (to_hasZero M)); intros Z.
           apply hinhpr. exists Z. set (Q := TrivialDirectSum' Z A).
           exact (to_In1 Q,, DirectSumToSplit Q). } }
       split.
@@ -2038,9 +1979,9 @@ Section AdditiveToExact.
         { exact (@PullbackSplitEpi M). }
         { exact (@PushoutSplitMono M). } }
   Defined.
-  Definition AdditiveToExact : Additive -> ExactCategory
+  Definition AdditiveToExact : AdditiveCategory -> ExactCategory
     := λ M, mk_ExactCategory (M,,isSplit) (AdditiveExactnessProperties M).
-  Lemma additive_exact_opposite {M:Additive} :
+  Lemma additive_exact_opposite {M:AdditiveCategory} :
     AdditiveToExact (oppositeAdditiveCategory M) = oppositeExactCategory (AdditiveToExact M).
   Proof.
     intros. apply subtypeEquality_prop. apply pair_path_in2.
@@ -2067,7 +2008,7 @@ Section InducedExactCategory.
   Definition opp_exts_lift {M:ExactCategory} {X:Type} (j : X -> ob M) :
     exts_lift M j -> exts_lift (oppositeExactCategory M) j.
   Proof.
-    intros [hz ce]. exists (opp_lift_zero j hz).
+    intros [hz ce]. exists (opp_zero_lifts j hz).
     intros a B c i p ex. generalize (ce c B a p i ex). apply hinhfun.
     intros [b t]. exists b. exact (z_iso_inv (opp_z_iso t)).
   Defined.

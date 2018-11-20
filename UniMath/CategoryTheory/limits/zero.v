@@ -5,6 +5,7 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.opp_precat.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.terminal.
@@ -184,10 +185,11 @@ Section def_zero.
 
 End def_zero.
 
-
 Arguments ZeroObject [C] _.
 Arguments ZeroArrowTo [C]{Z} b.
 Arguments ZeroArrowFrom [C]{Z} b.
 Arguments ZeroArrow [C] _ _ _.
 Arguments mk_isZero {_} _ _ _ .
 Arguments mk_Zero {_} _ _ .
+
+Definition zero_lifts (M:precategory) {X:Type} (j : X -> ob M) := ∃ z, isZero M (j z).

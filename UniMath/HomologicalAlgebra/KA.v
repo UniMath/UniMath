@@ -76,7 +76,7 @@ Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommringops ZeroArrow ishin
 *)
 Section complexes_homotopies.
 
-  Variable A : Additive.
+  Variable A : CategoryWithAdditiveStructure.
 
   Definition ComplexHomot (C1 C2 : Complex A) : UU := ∏ (i : hz), A⟦C1 i, C2 (i - 1)⟧.
 
@@ -332,7 +332,7 @@ Section complexes_homotopies.
   Qed.
 
   (** Here we construct K(A). *)
-  Definition ComplexHomot_Additive : Additive :=
+  Definition ComplexHomot_Additive : CategoryWithAdditiveStructure :=
     Quotcategory_Additive
       (ComplexPreCat_Additive A) ComplexHomotSubgrp ComplexHomot_Additive_Comp.
 
