@@ -1,3 +1,7 @@
+(*
+Internal equivalences in bicategories can be refined to adjoint equivalences.
+*)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
@@ -275,7 +279,6 @@ Section EquivToAdjEquiv.
       =
       f ◅ η o linvunitor f.
   Proof.
-    Check representable_faithful.
     use (representable_faithful _ _ _ _ _ _ help2).
     - exact f.
     - exact (εiso^-1).
