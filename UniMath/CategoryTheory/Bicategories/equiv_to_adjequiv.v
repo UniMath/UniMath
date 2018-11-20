@@ -1,5 +1,9 @@
 (*
 Internal equivalences in bicategories can be refined to adjoint equivalences.
+
+Authors: Dan Frumin, Niels van der Weide
+
+Ported from: https://github.com/nmvdw/groupoids
 *)
 
 Require Import UniMath.Foundations.All.
