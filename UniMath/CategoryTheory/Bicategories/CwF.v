@@ -5,7 +5,7 @@
  ********************************************************************************* *)
 
 (* ============================================================================================= *)
-(* Categories with Familise (CwF).                                                               *)
+(* Categories with Families (CwF).                                                               *)
 (*                                                                                               *)
 (* The bicategory of CwF implemented as iterated displayed bicategories on Cat (the              *)
 (* bicategory of categories).                                                                    *)
@@ -20,7 +20,7 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.categories.category_hset.
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Export UniMath.CategoryTheory.yoneda.
 Require Export UniMath.CategoryTheory.limits.pullbacks.

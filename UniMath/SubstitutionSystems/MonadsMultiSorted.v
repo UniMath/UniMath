@@ -19,8 +19,10 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.Monads.Monads.
-Require Import UniMath.CategoryTheory.categories.category_hset.
-Require Import UniMath.CategoryTheory.categories.category_hset_structures.
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
+Require Import UniMath.CategoryTheory.categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.categories.HSET.Slice.
 Require Import UniMath.CategoryTheory.slicecat.
 
 Local Open Scope cat.
@@ -227,7 +229,7 @@ Proof.
 Defined.
  *)
 
-Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)) (at level 50).
+Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)).
 
 Local Definition monadSubstGen_instantiated {T:Monad (SET / sort)}{Γ2 : SET_over_sort}(Γ1: SET_over_sort) (e : SET_over_sort⟦Γ2,T Γ1⟧) :
   SET_over_sort⟦T (Γ2 ⊕ Γ1),T Γ1⟧ := monadSubstGen T BC Γ1 e.

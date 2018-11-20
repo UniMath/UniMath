@@ -40,7 +40,7 @@ Section Internal_Adjunction.
     : internal_adjunction_over (internal_left_adjoint j) (internal_right_adjoint j)
     := pr2 (pr2 j).
 
-  Coercion interna_adjunction_data_from_over {a b : C}
+  Coercion internal_adjunction_data_from_over {a b : C}
            {f : C⟦a, b⟧} {g : C⟦b, a⟧} (H : internal_adjunction_over f g)
     : internal_adjunction_data a b
     := (f ,, g ,, H).
@@ -166,7 +166,7 @@ Section Internal_Adjunction.
   Definition internal_adjoint_equivalence (a b : C) : UU
     := ∑ f : C⟦a,b⟧, is_internal_left_adjoint_internal_equivalence f.
 
-  Definition internal_adjunction_data_from_internal_adjoint_equivalence
+  Coercion internal_adjunction_data_from_internal_adjoint_equivalence
              {a b : C}
              (f : internal_adjoint_equivalence a b)
     : internal_adjunction_data a b

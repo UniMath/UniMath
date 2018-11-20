@@ -54,6 +54,9 @@ Definition opp_mor {C : precategory} {b c : C} (f : C⟦b, c⟧) : C^op⟦c, b�
 
 Definition rm_opp_mor {C : precategory} {b c : C} (f : C^op⟦c, b⟧) : C⟦b, c⟧ := f.
 
+Definition oppositeCategory : category -> category
+  := λ M, @tpair precategory has_homsets (opp_precat M) (λ A B, homset_property M (rm_opp_ob B) (rm_opp_ob A)).
+
 Definition opp_mor_eq {C : precategory} {a b : C} {f g : a --> b} (e : opp_mor f = opp_mor g) :
   f = g := e.
 

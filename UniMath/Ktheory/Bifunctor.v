@@ -11,9 +11,8 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Export UniMath.CategoryTheory.Categories.
 Require Export UniMath.CategoryTheory.opp_precat
                UniMath.CategoryTheory.yoneda
-               UniMath.CategoryTheory.categories.category_hset.
+               UniMath.CategoryTheory.categories.HSET.Core.
 Require Export UniMath.CategoryTheory.functor_categories.
-Require Export UniMath.CategoryTheory.categories.category_hset.
 
 
 Local Open Scope cat.
