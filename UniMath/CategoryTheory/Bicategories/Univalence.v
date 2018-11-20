@@ -9,6 +9,9 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Unitors.
+Require Import UniMath.CategoryTheory.Bicategories.BicatAliases.
+Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws_2.
+Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws.
 
 Open Scope cat.
 
@@ -37,7 +40,7 @@ Section Internal_Adjunction.
     : internal_adjunction_over (internal_left_adjoint j) (internal_right_adjoint j)
     := pr2 (pr2 j).
 
-  Coercion interna_adjunction_data_from_over {a b : C}
+  Coercion internal_adjunction_data_from_over {a b : C}
            {f : C⟦a, b⟧} {g : C⟦b, a⟧} (H : internal_adjunction_over f g)
     : internal_adjunction_data a b
     := (f ,, g ,, H).
@@ -99,6 +102,28 @@ Section Internal_Adjunction.
     : UU
     := ∑ (j : internal_adjunction_data a b), is_internal_equivalence j.
 
+  Definition build_equiv
+             {X Y : C}
+             (f : C⟦X,Y⟧)
+             (g : C⟦Y,X⟧)
+             (η : f ∘ g ==> identity Y)
+             (ε : identity X ==> g ∘ f)
+             (η_iso : is_invertible_2cell η)
+             (ε_iso : is_invertible_2cell ε)
+    : internal_equivalence X Y.
+  Proof.
+    use tpair.
+    - refine (f ,, _).
+      refine (g ,, _).
+      split.
+      + exact ε.
+      + exact η.
+    - cbn.
+      split.
+      + exact ε_iso.
+      + exact η_iso.
+  Defined.
+
   Coercion internal_adjunction_data_from_internal_equivalence {a b : C}
            (j : internal_equivalence a b)
     : internal_adjunction_data a b
@@ -138,27 +163,39 @@ Section Internal_Adjunction.
     : internal_adjunction_over _ _
     := pr1 (pr2 H).
 
-
   Definition internal_adjoint_equivalence (a b : C) : UU
-    := ∑ j : internal_adjunction_data a b,
-             is_internal_equivalence j
-           × is_internal_adjunction j.
+    := ∑ f : C⟦a,b⟧, is_internal_left_adjoint_internal_equivalence f.
 
   Coercion internal_adjunction_data_from_internal_adjoint_equivalence
-           {a b : C}
-           (f : internal_adjoint_equivalence a b)
+             {a b : C}
+             (f : internal_adjoint_equivalence a b)
     : internal_adjunction_data a b
-    := pr1 f.
+    := pr2 f.
 
-  Coercion internal_equivalence_from_internal_adjoint_equivalence
-           {a b : C}
-           (f : internal_adjoint_equivalence a b)
-    : internal_equivalence a b := pr1 f ,, pr1 (pr2 f).
+  Definition internal_equivalence_from_internal_adjoint_equivalence
+             {a b : C}
+             (f : internal_adjoint_equivalence a b)
+    : internal_equivalence a b.
+  Proof.
+    use tpair.
+    - apply internal_adjunction_data_from_internal_adjoint_equivalence.
+      apply f.
+    - split.
+      * apply (pr2 (pr2 (pr2 f))).
+      * apply (pr2 (pr2 (pr2 f))).
+  Defined.
 
-  Coercion internal_adjunction_from_internal_adjoint_equivalence
-           {a b : C}
-           (f : internal_adjoint_equivalence a b)
-    : internal_adjunction a b := pr1 f ,, pr2 (pr2 f).
+  Definition internal_adjunction_from_internal_adjoint_equivalence
+             {a b : C}
+             (f : internal_adjoint_equivalence a b)
+    : internal_adjunction a b.
+  Proof.
+    use tpair.
+    - apply internal_adjunction_data_from_internal_adjoint_equivalence.
+      apply f.
+    - cbn.
+      exact (pr2 (pr2 (pr2 (pr2 f)))).
+  Defined.
 
   Definition internal_adjunction_data_identity (a : C)
     : internal_adjunction_data a a.
@@ -250,10 +287,8 @@ Section Internal_Adjunction.
   Definition internal_adjoint_equivalence_identity (a : C)
     : internal_adjoint_equivalence a a.
   Proof.
-    exists (internal_adjunction_data_identity a).
-    split.
-    - apply is_internal_equivalence_identity.
-    - apply is_internal_adjunction_identity.
+    exists (identity a).
+    exact (is_internal_left_adjoint_internal_equivalence_identity a).
   Defined.
 
   Definition idtoiso_2_0 (a b : C)
@@ -269,6 +304,79 @@ Section Internal_Adjunction.
     induction 1. apply id2_invertible_2cell.
   Defined.
 
+  Definition equivalence_inv
+             {X Y : C}
+             (f : internal_equivalence X Y)
+    : internal_equivalence Y X.
+  Proof.
+    use build_equiv.
+    - exact (internal_right_adjoint f).
+    - exact (internal_left_adjoint f).
+    - exact ((internal_unit_iso f)^-1).
+    - exact ((internal_counit_iso f)^-1).
+    - is_iso.
+    - is_iso.
+  Defined.
+
+  Section CompositionEquivalence.
+    Context {X Y Z : C}.
+    Variable (A₁ : internal_equivalence Y Z)
+             (A₂ : internal_equivalence X Y).
+
+    Local Notation f := (internal_left_adjoint A₂).
+    Local Notation g := (internal_left_adjoint A₁).
+    Local Notation finv := (internal_right_adjoint A₂).
+    Local Notation ginv := (internal_right_adjoint A₁).
+
+    Local Definition comp_unit
+      : id₁ X ==> (finv ∘ ginv) ∘ (g ∘ f).
+    Proof.
+      refine (rassociator (g ∘ f) _ _ o _).
+      refine ((_ ◅ _) o (internal_unit A₂)).
+      refine (lassociator f g _ o _).
+      exact (((internal_unit A₁) ▻ f) o rinvunitor f).
+    Defined.
+
+    Local Definition comp_unit_isiso
+      : is_invertible_2cell comp_unit.
+    Proof.
+      unfold comp_unit.
+      is_iso.
+      - exact (internal_unit_iso A₂).
+      - exact (internal_unit_iso A₁).
+    Defined.
+
+    Local Definition comp_counit
+      : (g ∘ f) ∘ (finv ∘ ginv) ==> (id₁ Z).
+    Proof.
+      refine (_ o lassociator _ f g).
+      refine (internal_counit A₁ o (g ◅ _)).
+      refine (_ o rassociator _ _ _).
+      refine (runitor _ o _).
+      exact (internal_counit A₂ ▻ _).
+    Defined.
+
+    Local Definition comp_counit_isiso
+      : is_invertible_2cell comp_counit.
+    Proof.
+      unfold comp_counit.
+      is_iso.
+      - exact (internal_counit_iso A₂).
+      - exact (internal_counit_iso A₁).
+    Defined.
+
+    Local Definition comp_equiv
+      : internal_equivalence X Z.
+    Proof.
+      use build_equiv.
+      - exact (g ∘ f).
+      - exact (finv ∘ ginv).
+      - exact comp_counit.
+      - exact comp_unit.
+      - exact comp_counit_isiso.
+      - exact comp_unit_isiso.
+    Defined.
+  End CompositionEquivalence.
 End Internal_Adjunction.
 
 Definition is_univalent_2_1 (C : bicat) : UU
