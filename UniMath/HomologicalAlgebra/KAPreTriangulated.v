@@ -102,7 +102,7 @@ Extension of triangles is given by the following morphism of triangles
 *)
 Section KAPreTriangulated.
 
-  Context {A : Additive}.
+  Context {A : CategoryWithAdditiveStructure}.
 
   Local Opaque ComplexHomotFunctor ComplexHomotSubset Quotcategory identity
         MappingConePr1 MappingConeIn2 RotMorphism RotMorphismInv InvRotMorphism InvRotMorphismInv
