@@ -160,7 +160,6 @@ DisplayedCats/Adjunctions.v
 
 Bicategories/Bicat.v
 Bicategories/BicatAliases.v
-Bicategories/Examples/one_types.v
 Bicategories/StandardBicategories.v
 Bicategories/OpCellBicat.v
 Bicategories/OpMorBicat.v
@@ -172,6 +171,7 @@ Bicategories/Univalence.v
 Bicategories/transport_laws.v
 Bicategories/equiv_to_adjequiv.v
 Bicategories/adjoint_unique.v
+Bicategories/Examples/one_types.v
 Bicategories/DispBicat.v
 Bicategories/BicatOfCats.v
 Bicategories/DispBicatOfDispCats.v
