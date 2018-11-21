@@ -307,9 +307,8 @@ Section EquivToAdjEquiv.
       exact first_triangle_law.
   Defined.
 
-  Definition equiv_to_adjequiv : internal_adjoint_equivalence X Y.
+  Definition equiv_to_isadjequiv : is_internal_left_adjoint_internal_equivalence f.
   Proof.
-    refine (f ,, _).
     use tpair.
     - exact (internal_right_adjoint Hf).
     - cbn.
@@ -320,6 +319,9 @@ Section EquivToAdjEquiv.
         * exact εiso.
       + exact equiv_to_adjequiv_isadj.
   Defined.
+
+  Definition equiv_to_adjequiv : internal_adjoint_equivalence X Y
+    := (f ,, equiv_to_isadjequiv).
 End EquivToAdjEquiv.
 
 Definition comp_adjequiv

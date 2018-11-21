@@ -11,6 +11,7 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.BicatAliases.
 Require Import UniMath.CategoryTheory.Bicategories.Univalence.
+Require Import UniMath.CategoryTheory.Bicategories.equiv_to_adjequiv.
 Require Import UniMath.CategoryTheory.Bicategories.adjoint_unique.
 
 Definition one_type
@@ -229,29 +230,30 @@ Proof.
     exact (eqtohomot (internal_counit Hf) x).
 Defined.
 
+Definition weq_is_adjoint_equivalence_help
+           {X Y : one_types}
+           (f : one_types⟦X,Y⟧)
+           (Hf : isweq f)
+  : internal_equivalence X Y.
+Proof.
+  use tpair.
+  - refine (f ,, invmap (f ,, Hf) ,, _).
+    split.
+    + apply funextsec.
+      intros x.
+      exact (!(homotinvweqweq (f ,, Hf) x)).
+    + apply funextsec.
+      intros x.
+      exact (homotweqinvweq (f ,, Hf) x).
+  - split ; apply one_type_2cell_iso.
+Defined.
+
 Definition weq_is_adjoint_equivalence
            {X Y : one_types}
            (f : one_types⟦X,Y⟧)
            (Hf : isweq f)
-  : is_internal_left_adjoint_internal_equivalence f.
-Proof.
-  refine (invmap (f ,, Hf) ,, _).
-  use tpair ; split ; cbn.
-  - apply isweqtoforallpathsAxiom.
-    intros x.
-    exact (!(homotinvweqweq (f ,, Hf) x)).
-  - apply isweqtoforallpathsAxiom.
-    intros x.
-    exact (homotweqinvweq (f ,, Hf) x).
-  - split ; apply one_type_2cell_iso.
-  - (* split ; cbn.
-    + rewrite !pathscomp0rid.
-      rewrite <- maponpathscomp0.
-      Search maponpaths.
-      cbn.
-     *)
-    admit.
-Admitted.
+  : is_internal_left_adjoint_internal_equivalence f
+  := equiv_to_isadjequiv (weq_is_adjoint_equivalence_help f Hf).
 
 Definition adjoint_equivalence_to_weq
            (X Y : one_types)
