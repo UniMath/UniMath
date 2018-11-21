@@ -167,9 +167,11 @@ Bicategories/OpMorBicat.v
 Bicategories/Unitors.v
 Bicategories/bicategory_laws_2.v
 Bicategories/bicategory_laws.v
-Bicategories/equivalence.v
 Bicategories/PseudoFunctor.v
 Bicategories/Univalence.v
+Bicategories/transport_laws.v
+Bicategories/equiv_to_adjequiv.v
+Bicategories/adjoint_unique.v
 Bicategories/DispBicat.v
 Bicategories/BicatOfCats.v
 Bicategories/DispBicatOfDispCats.v

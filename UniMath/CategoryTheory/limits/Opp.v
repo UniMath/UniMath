@@ -380,7 +380,6 @@ Section def_opposites'.
 
   Definition Zero_opp (T : @Zero C) : @Zero (C^op) := @mk_Zero (C^op) _ (isZero_opp (pr2 T)).
 
-
   (** ** Equality on ZeroArrows *)
 
   Lemma ZeroArrowTo_opp {x : C} (Z : @Zero C) :
@@ -603,3 +602,9 @@ Section def_opposites'.
   Definition BinCoproducts_opp (BC : @BinCoproducts C) : @BinProducts (C^op) := BC.
 
 End def_opposites'.
+
+Definition opp_zero_lifts {C:precategory} {X:Type} (j : X -> ob C) :
+  zero_lifts C j -> zero_lifts (opp_precat C) j.
+Proof.
+  apply hinhfun; intros [z iz]. exists z. exact (isZero_opp C iz).
+Defined.
