@@ -23,7 +23,7 @@ Mitchell Riley (see https://github.com/UniMath/UniMath/pull/409).
 * *BicatOfCats.v* --- bicategory of 1-category and pseudofunctor op.
 * *Graph.v* --- Experiments with graphs (incomplete).
 
-### Equivalence with with the presentation based on weakly enrighed 1-categories
+### Equivalence with with the presentation based on weakly enriched 1-categories
 
 * *WkCatEnrichment* --- Subdirectory with the definition of bicategory as enriched in 1-categories.
 * *BicategoryOfBicat.v* --- Translation to bicategories as defined in WkCatEnrichment.
