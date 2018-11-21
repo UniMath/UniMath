@@ -84,18 +84,14 @@ Section AdjointUniqueMapCompose.
     rewrite !vcomp_assoc.
     rewrite !(maponpaths (fun z => _ o z) (!(vcomp_assoc _ _ _))).
     rewrite <- hcomp_id₂.
-    pose @assoc_natural as p.
-    unfold assoc in p.
-    rewrite p.
+    rewrite hcomp_lassoc.
     rewrite !vcomp_assoc.
-    rewrite p.
+    rewrite hcomp_lassoc.
     rewrite <- !vcomp_assoc.
     apply maponpaths.
     rewrite <- !interchange.
     rewrite !vcomp_right_identity.
-    pose @assoc_inv_natural as q.
-    unfold assoc_inv in q.
-    rewrite q.
+    rewrite hcomp_rassoc.
     rewrite !vcomp_assoc.
     rewrite <- (vcomp_left_identity (id₂ g)).
     rewrite !interchange.
@@ -149,10 +145,8 @@ Section AdjointUniqueMapCompose.
     rewrite <- rwhisker_vcomp.
     rewrite !vcomp_assoc.
     rewrite !(maponpaths (fun z => _ o (_ o z)) (!(vcomp_assoc _ _ _))).
-    pose @assoc_natural as p.
-    unfold assoc in p.
     rewrite !rwhisker_hcomp.
-    rewrite <- p.
+    rewrite <- hcomp_lassoc.
     rewrite !vcomp_assoc.
     rewrite !(maponpaths (fun z => _ o z) (!(vcomp_assoc _ _ _))).
     rewrite <- !rwhisker_hcomp.
@@ -173,7 +167,7 @@ Section AdjointUniqueMapCompose.
     rewrite !vcomp_runitor.
     rewrite !vcomp_assoc.
     rewrite <- hcomp_id₂.
-    rewrite <- p.
+    rewrite <- hcomp_lassoc.
     rewrite <- !lwhisker_hcomp.
     rewrite <- lwhisker_vcomp.
     rewrite <- !vcomp_assoc.
@@ -197,23 +191,21 @@ Section AdjointUniqueMapCompose.
     rewrite <- !lwhisker_vcomp.
     rewrite <- !vcomp_assoc.
     rewrite !lwhisker_hcomp, !rwhisker_hcomp.
-    pose @assoc_natural as p.
-    unfold assoc in p.
     rewrite !vcomp_assoc.
     rewrite !(maponpaths (fun z => z • _) (!(vcomp_assoc _ _ _))).
-    rewrite p.
+    rewrite hcomp_lassoc.
     rewrite !vcomp_assoc.
     rewrite !(maponpaths (fun z => (z • _) • _) (!(vcomp_assoc _ _ _))).
-    rewrite p.
+    rewrite hcomp_lassoc.
     rewrite !vcomp_assoc.
     rewrite !(maponpaths (fun z => ((z • _) • _) • _) (!(vcomp_assoc _ _ _))).
-    rewrite p.
+    rewrite hcomp_lassoc.
     rewrite !vcomp_assoc.
     rewrite !(maponpaths (fun z => (((z • _) • _) • _) • _) (!(vcomp_assoc _ _ _))).
-    rewrite p.
+    rewrite hcomp_lassoc.
     rewrite !vcomp_assoc.
     rewrite !(maponpaths (fun z => ((((z • _) • _) • _) • _) • _) (!(vcomp_assoc _ _ _))).
-    rewrite p.
+    rewrite hcomp_lassoc.
     rewrite !vcomp_assoc.
     rewrite <- !lwhisker_hcomp, <- !rwhisker_hcomp.
     rewrite help₂.
@@ -222,15 +214,13 @@ Section AdjointUniqueMapCompose.
     rewrite !lwhisker_hcomp, !rwhisker_hcomp.
     rewrite <- !interchange.
     rewrite !vcomp_assoc.
-    pose @inverse_pentagon_3 as q.
-    unfold assoc, assoc_inv in q.
-    rewrite <- q ; clear q.
+    rewrite <- inverse_pentagon_3.
     rewrite <- !vcomp_assoc.
     do 3 rewrite interchange.
     rewrite !vcomp_right_identity.
     rewrite !vcomp_assoc.
     rewrite !(maponpaths (λ z, ((z • _) • _) • _) (!(vcomp_assoc _ _ _))).
-    rewrite <- p.
+    rewrite <- hcomp_lassoc.
     rewrite <- interchange.
     rewrite !hcomp_id₂.
     rewrite !vcomp_assoc, vcomp_right_identity.
@@ -251,9 +241,9 @@ Section AdjointUniqueMapCompose.
     rewrite !vcomp_assoc.
     rewrite !(maponpaths (λ z, z • _) (!(vcomp_assoc _ _ _))).
     rewrite !rwhisker_hcomp.
-    rewrite <- p.
+    rewrite <- hcomp_lassoc.
     rewrite <- !vcomp_assoc.
-    rewrite <- p.
+    rewrite <- hcomp_lassoc.
     rewrite !vcomp_assoc.
     apply (maponpaths (λ z, z • _)).
     rewrite !hcomp_id₂.
@@ -317,11 +307,9 @@ Section UniquenessAdjoint.
     apply maponpaths.
     rewrite <- hcomp_id₂.
     rewrite <- (internal_triangle1 HA₁).
-    unfold assoc.
     rewrite <- rwhisker_hcomp.
     rewrite <- !rwhisker_vcomp.
     rewrite linvunitor_assoc.
-    unfold assoc_inv.
     rewrite <- !vcomp_assoc.
     apply maponpaths.
     rewrite !vcomp_assoc.
@@ -341,9 +329,7 @@ Section UniquenessAdjoint.
     rewrite !vcomp_assoc.
     rewrite !(maponpaths (λ z, (z • _) • _) (!(vcomp_assoc _ _ _))).
     rewrite !lwhisker_hcomp, !rwhisker_hcomp.
-    pose @assoc_natural as p.
-    unfold assoc in p.
-    rewrite <- p.
+    rewrite <- hcomp_lassoc.
     rewrite !vcomp_assoc.
     rewrite !(maponpaths (λ z, z • _) (!(vcomp_assoc _ _ _))).
     rewrite lassociator_rassociator, vcomp_left_identity.
@@ -354,14 +340,12 @@ Section UniquenessAdjoint.
     rewrite linvunitor_natural.
     rewrite <- !vcomp_assoc.
     rewrite <- interchange, vcomp_right_identity, hcomp_id₂, vcomp_left_identity.
-    rewrite p, hcomp_id₂.
+    rewrite hcomp_lassoc, hcomp_id₂.
     rewrite lunitor_V_id_is_left_unit_V_id.
     rewrite !vcomp_assoc.
     rewrite !(maponpaths (λ z, z • _) (!(vcomp_assoc _ _ _))).
-    pose @left_unit_inv_assoc₂ as q.
-    unfold assoc in q.
     rewrite <- lwhisker_hcomp.
-    rewrite <- q.
+    rewrite <- left_unit_inv_assoc₂.
     rewrite left_unit_inv_natural.
     rewrite <- !vcomp_assoc.
     apply maponpaths.
@@ -379,7 +363,6 @@ Section UniquenessAdjoint.
     rewrite !vcomp_assoc.
     rewrite help_triangle_η.
     rewrite linvunitor_assoc.
-    unfold assoc_inv.
     rewrite !vcomp_assoc.
     rewrite !(maponpaths (λ z, ((((((z • _) • _) • _) • _) • _) • _)) (!(vcomp_assoc _ _ _))).
     rewrite rassociator_lassociator, vcomp_left_identity.
@@ -395,9 +378,7 @@ Section UniquenessAdjoint.
     rewrite <- !vcomp_assoc.
     apply maponpaths.
     rewrite !vcomp_assoc.
-    pose @inverse_pentagon as p.
-    unfold assoc_inv in p.
-    rewrite p.
+    rewrite inverse_pentagon.
     rewrite <- !vcomp_assoc.
     rewrite !rwhisker_hcomp.
     apply maponpaths.
@@ -407,10 +388,8 @@ Section UniquenessAdjoint.
     rewrite !lwhisker_vcomp.
     rewrite rassociator_lassociator.
     rewrite lwhisker_id2, vcomp_left_identity.
-    pose @assoc_inv_natural as q.
-    unfold assoc_inv in q.
     rewrite !lwhisker_hcomp.
-    rewrite <- q.
+    rewrite <- hcomp_rassoc.
     rewrite <- !vcomp_assoc.
     apply maponpaths.
     apply triangle_l.
@@ -426,10 +405,8 @@ Section UniquenessAdjoint.
   Proof.
     rewrite !vcomp_assoc.
     rewrite !(maponpaths (λ z, (z • _) • _) (!(vcomp_assoc _ _ _))).
-    pose @assoc_natural as p.
-    unfold assoc in p.
     rewrite !lwhisker_hcomp, !rwhisker_hcomp.
-    rewrite p.
+    rewrite hcomp_lassoc.
     rewrite !vcomp_assoc.
     rewrite !(maponpaths (λ z, ((z • _) • _) • _) (!(vcomp_assoc _ _ _))).
     rewrite rassociator_lassociator, vcomp_left_identity.
@@ -446,7 +423,7 @@ Section UniquenessAdjoint.
     rewrite <- rwhisker_vcomp.
     rewrite !vcomp_assoc.
     rewrite !rwhisker_hcomp.
-    rewrite <- p.
+    rewrite <- hcomp_lassoc.
     rewrite !(maponpaths (λ z, z • _) (!(vcomp_assoc _ _ _))).
     rewrite <- !rwhisker_hcomp.
     rewrite lunitor_triangle.
@@ -500,9 +477,7 @@ Section UniquenessAdjoint.
     { is_iso. }
     cbn.
     rewrite (maponpaths (λ z, z • _) (!(vcomp_assoc _ _ _))).
-    pose @inverse_pentagon as p.
-    unfold assoc_inv in p.
-    rewrite p ; clear p.
+    rewrite inverse_pentagon.
     rewrite !vcomp_assoc.
     rewrite !lwhisker_vcomp.
     rewrite !lwhisker_hcomp, !rwhisker_hcomp.
@@ -518,10 +493,9 @@ Section UniquenessAdjoint.
     rewrite <- lwhisker_vcomp.
     rewrite !lwhisker_hcomp, !rwhisker_hcomp.
     rewrite triangle_r_inv.
-    unfold assoc_inv.
     rewrite <- !vcomp_assoc.
     apply maponpaths.
-    apply assoc_inv_natural.
+    apply hcomp_rassoc.
   Qed.
 End UniquenessAdjoint.
 
