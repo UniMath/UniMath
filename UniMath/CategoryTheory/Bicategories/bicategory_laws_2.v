@@ -304,18 +304,17 @@ Definition assoc
   : (h ∘ g) ∘ f ==> h ∘ (g ∘ f)
   := assoc_d C.1 h g f.
 *)
-
-Definition assoc_natural
-           {C : BiCategory}
-           {W X Y Z : C}
-           {h₁ h₂ : C⟦Y,Z⟧} {g₁ g₂ : C⟦X,Y⟧} {f₁ f₂ : C⟦W,X⟧}
-           (ηh : h₁ ==> h₂)
-           (ηg : g₁ ==> g₂)
-           (ηf : f₁ ==> f₂)
-  : assoc h₂ g₂ f₂ o ((ηh ⋆⋆ ηg) ⋆⋆ ηf) = (ηh ⋆⋆ (ηg ⋆⋆ ηf)) o assoc h₁ g₁ f₁.
-Proof.
-  apply hcomp_lassoc.
-Qed.
+(* Definition assoc_natural *)
+(*            {C : BiCategory} *)
+(*            {W X Y Z : C} *)
+(*            {h₁ h₂ : C⟦Y,Z⟧} {g₁ g₂ : C⟦X,Y⟧} {f₁ f₂ : C⟦W,X⟧} *)
+(*            (ηh : h₁ ==> h₂) *)
+(*            (ηg : g₁ ==> g₂) *)
+(*            (ηf : f₁ ==> f₂) *)
+(*   : lassociator f₂ g₂ h₂  o ((ηh ⋆⋆ ηg) ⋆⋆ ηf) = (ηh ⋆⋆ (ηg ⋆⋆ ηf)) o lassociator f₁ g₁ h₁. *)
+(* Proof. *)
+(*   apply hcomp_lassoc. *)
+(* Qed. *)
 
 (*
 Definition associator {C : BiCategory} (W X Y Z : C)
@@ -346,17 +345,17 @@ Defined.
 *)
 
 
-Definition assoc_inv_natural
-           {C : BiCategory}
-           {W X Y Z : C}
-           {h₁ h₂ : C⟦Y,Z⟧} {g₁ g₂ : C⟦X,Y⟧} {f₁ f₂ : C⟦W,X⟧}
-           (ηh : h₁ ==> h₂)
-           (ηg : g₁ ==> g₂)
-           (ηf : f₁ ==> f₂)
-  : assoc_inv h₂ g₂ f₂ o (ηh ⋆⋆ (ηg ⋆⋆ ηf)) = ((ηh ⋆⋆ ηg) ⋆⋆ ηf) o assoc_inv h₁ g₁ f₁.
-Proof.
-  apply hcomp_rassoc.
-Qed.
+(* Definition assoc_inv_natural *)
+(*            {C : BiCategory} *)
+(*            {W X Y Z : C} *)
+(*            {h₁ h₂ : C⟦Y,Z⟧} {g₁ g₂ : C⟦X,Y⟧} {f₁ f₂ : C⟦W,X⟧} *)
+(*            (ηh : h₁ ==> h₂) *)
+(*            (ηg : g₁ ==> g₂) *)
+(*            (ηf : f₁ ==> f₂) *)
+(*   : assoc_inv h₂ g₂ f₂ o (ηh ⋆⋆ (ηg ⋆⋆ ηf)) = ((ηh ⋆⋆ ηg) ⋆⋆ ηf) o assoc_inv h₁ g₁ f₁. *)
+(* Proof. *)
+(*   apply hcomp_rassoc. *)
+(* Qed. *)
 
 
 (*
@@ -375,14 +374,14 @@ Proof.
 Defined.
 *)
 
-Definition assoc_left
-           {C : BiCategory}
-           {W X Y Z : C}
-           (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
-  : assoc h g f o assoc_inv h g f = id₂ (h ∘ (g ∘ f)).
-Proof.
-  apply rassociator_lassociator.
-Qed.
+(* Definition assoc_left *)
+(*            {C : BiCategory} *)
+(*            {W X Y Z : C} *)
+(*            (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧) *)
+(*   : assoc h g f o assoc_inv h g f = id₂ (h ∘ (g ∘ f)). *)
+(* Proof. *)
+(*   apply rassociator_lassociator. *)
+(* Qed. *)
 
 (*
 Definition associator_left `{Univalence} {C : BiCategory} (W X Y Z : C)
@@ -394,14 +393,14 @@ Proof.
 Qed.
 *)
 
-Definition assoc_right
-           {C : BiCategory}
-           {W X Y Z : C}
-           (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
-  : assoc_inv h g f o assoc h g f = id₂ ((h ∘ g) ∘ f).
-Proof.
-  apply lassociator_rassociator.
-Qed.
+(* Definition assoc_right *)
+(*            {C : BiCategory} *)
+(*            {W X Y Z : C} *)
+(*            (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧) *)
+(*   : assoc_inv h g f o assoc h g f = id₂ ((h ∘ g) ∘ f). *)
+(* Proof. *)
+(*   apply lassociator_rassociator. *)
+(* Qed. *)
 
 (*
 Definition associator_right `{Univalence} {C : BiCategory} (W X Y Z : C)
@@ -578,23 +577,23 @@ Definition inverse_of_lunitoror
   := idpath.
 *)
 
-Definition assoc_iso
-         {C : BiCategory}
-         {W X Y Z : C}
-         (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
-  : is_invertible_2cell (assoc h g f).
-Proof.
-  apply is_invertible_2cell_lassociator.
-Defined.
+(* Definition assoc_iso *)
+(*          {C : BiCategory} *)
+(*          {W X Y Z : C} *)
+(*          (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧) *)
+(*   : is_invertible_2cell (assoc h g f). *)
+(* Proof. *)
+(*   apply is_invertible_2cell_lassociator. *)
+(* Defined. *)
 
-Definition assoc_inv_iso
-         {C : BiCategory}
-         {W X Y Z : C}
-         (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
-  : is_invertible_2cell (assoc_inv h g f).
-Proof.
-    apply is_invertible_2cell_rassociator.
-Defined.
+(* Definition assoc_inv_iso *)
+(*          {C : BiCategory} *)
+(*          {W X Y Z : C} *)
+(*          (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧) *)
+(*   : is_invertible_2cell (assoc_inv h g f). *)
+(* Proof. *)
+(*     apply is_invertible_2cell_rassociator. *)
+(* Defined. *)
 
 (* available in UniMath, but do we care?
 Definition associator_iso
@@ -624,9 +623,9 @@ Definition triangle_r
            {X Y Z : C}
            (g : C⟦Y,Z⟧)
            (f : C⟦X,Y⟧)
-  : lunitor g ⋆⋆ id₂ f = (id₂ g ⋆⋆ runitor f) o assoc g (id₁ Y) f.
+  : lunitor g ⋆⋆ id₂ f = (id₂ g ⋆⋆ runitor f) o lassociator f (id₁ Y) g.
 Proof.
-  cbn. unfold assoc.
+  cbn.
   apply pathsinv0.
   unfold hcomp.
   etrans.
@@ -644,9 +643,10 @@ Definition pentagon
            {C : BiCategory}
            {V W X Y Z : C}
            (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧) (g : C⟦W,X⟧) (f : C⟦V,W⟧)
-  : (assoc k h (g ∘ f) o assoc (k ∘ h) g f)
+  : (lassociator (g ∘ f) h k o lassociator f g (k ∘ h))
     =
-    (id₂ k ⋆⋆ assoc h g f) o assoc k (h ∘ g) f o (assoc k h g ⋆⋆ id₂ f).
+    (id₂ k ⋆⋆ lassociator f g h) o lassociator f (h ∘ g) k o
+                                 (lassociator g h k ⋆⋆ id₂ f).
 Proof.
   unfold assoc.
   unfold hcomp.
@@ -725,7 +725,7 @@ Definition inverse_of_assoc
            {C : BiCategory}
            {W X Y Z : C}
            (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
-  : (assoc_iso h g f)^-1 = assoc_inv h g f.
+  : (is_invertible_2cell_lassociator f g h)^-1 = rassociator f g h.
 Proof.
   apply idpath.
 Qed.

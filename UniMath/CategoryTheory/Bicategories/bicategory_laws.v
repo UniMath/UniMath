@@ -12,8 +12,6 @@ Ltac is_iso :=
   | [ |- is_invertible_2cell (rinvunitor _) ] => apply is_invertible_2cell_rinvunitor
   | [ |- is_invertible_2cell (lunitor _) ] => apply is_invertible_2cell_lunitor
   | [ |- is_invertible_2cell (linvunitor _) ] => apply is_invertible_2cell_linvunitor
-  | [ |- is_invertible_2cell (assoc _ _ _)] => apply assoc_iso
-  | [ |- is_invertible_2cell (assoc_inv _ _ _)] => apply assoc_inv_iso
   | [ |- is_invertible_2cell (rassociator _ _ _)] => apply is_invertible_2cell_rassociator
   | [ |- is_invertible_2cell (lassociator _ _ _)] => apply is_invertible_2cell_lassociator
   | [ |- is_invertible_2cell (inv_cell _)] => apply iso_inverse ; is_iso
@@ -60,9 +58,10 @@ Section laws.
              {V W X Y Z : C}
              (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)
              (g : C⟦W,X⟧) (f : C⟦V,W⟧)
-    : assoc_inv (k ∘ h) g f o assoc_inv k h (g ∘ f)
+    : rassociator f g (k ∘ h) o rassociator (g ∘ f) h k
       =
-      (id₂ f ⋆ assoc_inv k h g) o (assoc_inv k (h ∘ g) f) o (assoc_inv h g f ⋆ id₂ k).
+      (id₂ f ⋆ rassociator g h k) o (rassociator f (h ∘ g) k)
+                                  o (rassociator f g h ⋆ id₂ k).
   Proof.
     rewrite <- !inverse_of_assoc.
     rewrite <- (id₂_inverse f).
@@ -78,9 +77,10 @@ Section laws.
              {V W X Y Z : C}
              (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)
              (g : C⟦W,X⟧) (f : C⟦V,W⟧)
-    : assoc_inv k h (g ∘ f) o   (assoc h g f ⋆ id2 k)
+    : rassociator (g ∘ f) h k o (lassociator f g h ⋆ id2 k)
       =
-      assoc (k ∘ h) g f o (f ◃ assoc_inv k h g) o assoc_inv k (h ∘ g) f.
+      lassociator f g (k ∘ h) o (f ◃ rassociator g h k)
+                  o rassociator f (h ∘ g) k.
   Proof.
     rewrite <- !inverse_of_assoc.
     use vcomp_move_R_Mp.
@@ -99,7 +99,6 @@ Section laws.
     }
     symmetry.
     pose (pentagon k h g f) as p.
-    unfold assoc in * ; cbn.
     unfold hcomp in p.
     rewrite id2_rwhisker in p.
     rewrite vcomp_right_identity in p.
@@ -110,9 +109,9 @@ Section laws.
              {V W X Y Z : C}
              (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)
              (g : C⟦W,X⟧) (f : C⟦V,W⟧)
-    : assoc_inv (k ∘ h) g f o assoc_inv k h (g ∘ f) o (id₂ k ⋆⋆ assoc h g f)
+    : rassociator f g (k ∘ h) o rassociator (g ∘ f) h k o (id₂ k ⋆⋆ lassociator f g h)
       =
-      assoc_inv k h g ⋆⋆ id₂ f o assoc_inv k (h ∘ g) f.
+      rassociator g h k ⋆⋆ id₂ f o rassociator f (h ∘ g) k.
   Proof.
     use vcomp_move_R_pM.
     {
@@ -126,9 +125,9 @@ Section laws.
              {V W X Y Z : C}
              (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)
              (g : C⟦W,X⟧) (f : C⟦V,W⟧)
-    : (assoc k h g ⋆⋆ id₂ f) o assoc_inv (k ∘ h) g f
+    : (lassociator g h k ⋆⋆ id₂ f) o rassociator f g (k ∘ h)
       =
-      assoc_inv k (h ∘ g) f o id₂ k ⋆⋆ assoc_inv h g f o assoc k h (g ∘ f).
+      rassociator f (h ∘ g) k o id₂ k ⋆⋆ rassociator f g h o lassociator (g ∘ f) h k.
   Proof.
     rewrite <- !inverse_of_assoc.
     use vcomp_move_R_pM.
@@ -152,9 +151,9 @@ Section laws.
              {V W X Y Z : C}
              (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)
              (g : C⟦W,X⟧) (f : C⟦V,W⟧)
-    : assoc (k ∘ h) g f o (assoc_inv k h g ⋆⋆ id₂ f)
+    : lassociator f g (k ∘ h) o (rassociator g h k ⋆⋆ id₂ f)
       =
-      assoc_inv k h (g ∘ f) o (id₂ k ⋆⋆ assoc h g f) o assoc k (h ∘ g) f.
+      rassociator (g ∘ f) h k o (id₂ k ⋆⋆ lassociator f g h) o lassociator f (h ∘ g) k.
   Proof.
     rewrite <- !inverse_of_assoc.
     use vcomp_move_R_pM.
@@ -174,9 +173,9 @@ Section laws.
              {V W X Y Z : C}
              (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)
              (g : C⟦W,X⟧) (f : C⟦V,W⟧)
-    : assoc_inv k (h ∘ g) f o id₂ k ⋆⋆ assoc_inv h g f
+    : rassociator f (h ∘ g) k o id₂ k ⋆⋆ rassociator f g h
       =
-      assoc k h g ⋆⋆ id₂ f o assoc_inv (k ∘ h) g f o assoc_inv k h (g ∘ f).
+      lassociator g h k ⋆⋆ id₂ f o rassociator f g (k ∘ h) o rassociator (g ∘ f) h k.
   Proof.
     rewrite !vcomp_assoc.
     use vcomp_move_L_Mp.
@@ -193,9 +192,9 @@ Section laws.
              {V W X Y Z : C}
              (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)
              (g : C⟦W,X⟧) (f : C⟦V,W⟧)
-    : assoc k (h ∘ g) f o assoc k h g ⋆⋆ id₂ f
+    : lassociator f (h ∘ g) k o lassociator g h k ⋆⋆ id₂ f
       =
-      id₂ k ⋆⋆ assoc_inv h g f o assoc k h (g ∘ f) o assoc (k ∘ h) g f.
+      id₂ k ⋆⋆ rassociator f g h o lassociator (g ∘ f) h k o lassociator f g (k ∘ h).
   Proof.
     rewrite <- !inverse_of_assoc.
     rewrite !vcomp_assoc.
@@ -212,7 +211,7 @@ Section laws.
              (g : C ⟦ Y, Z ⟧) (f : C ⟦ X, Y ⟧)
     : linvunitor g ⋆⋆ id₂ f
       =
-      assoc_inv g (id₁ Y) f o id₂ g ⋆⋆ rinvunitor f.
+      rassociator _ _ _ o id₂ g ⋆⋆ rinvunitor f.
   Proof.
     rewrite <- inverse_of_lunitor, <- inverse_of_left_unit.
     rewrite <- inverse_of_assoc.
@@ -227,7 +226,7 @@ Section laws.
   Definition triangle_l
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
-    : lunitor g ⋆⋆ id₂ f o assoc_inv g (id₁ Y) f = id₂ g ⋆⋆ runitor f.
+    : lunitor g ⋆⋆ id₂ f o rassociator _ _ _ = id₂ g ⋆⋆ runitor f.
   Proof.
     rewrite triangle_r.
     rewrite vcomp_assoc.
@@ -264,7 +263,7 @@ Section laws.
              {f : C⟦X,Y⟧} {g : C⟦Y,Z⟧}
              (k₁ k₂ : C⟦W,X⟧)
              (α : k₁ ==> k₂)
-    : assoc _ _ _ o (g ∘ f ◅ α) = g ◅ (f ◅ α) o assoc _ _ _.
+    : lassociator _ _ _ o (g ∘ f ◅ α) = g ◅ (f ◅ α) o lassociator _ _ _.
   Proof.
     symmetry.
     apply rwhisker_rwhisker.
@@ -275,7 +274,7 @@ Section laws.
              {f : C⟦X,Y⟧} {g : C⟦Y,Z⟧}
              (k₁ k₂ : C⟦Z,W⟧)
              (α : k₁ ==> k₂)
-    : assoc_inv _ _ _ o (α ▻ g ∘ f) = (α ▻ g) ▻ f o assoc_inv _ _ _.
+    : rassociator _ _ _ o (α ▻ g ∘ f) = (α ▻ g) ▻ f o rassociator _ _ _.
   Proof.
     use vcomp_move_R_Mp.
     {
@@ -385,11 +384,11 @@ Section laws.
     rewrite !rwhisker_hcomp.
     rewrite !rwhisker_hcomp in Hαβ.
     rewrite <- !hcomp_id₂.
-    apply (vcomp_cancel_left (assoc _ _ _) _ _).
+    apply (vcomp_cancel_left (lassociator _ _ _) _ _).
     {
       is_iso.
     }
-    rewrite !assoc_natural.
+    rewrite !hcomp_lassoc.
     rewrite Hαβ.
     reflexivity.
   Qed.
@@ -405,11 +404,11 @@ Section laws.
     rewrite !lwhisker_hcomp.
     rewrite !lwhisker_hcomp in Hαβ.
     rewrite <- !hcomp_id₂.
-    apply (vcomp_cancel_right (assoc _ _ _) _ _).
+    apply (vcomp_cancel_right (lassociator _ _ _) _ _).
     {
       is_iso.
     }
-    rewrite <- !assoc_natural.
+    rewrite <- !hcomp_lassoc.
     rewrite Hαβ.
     reflexivity.
   Qed.
@@ -417,7 +416,7 @@ Section laws.
   Definition left_unit_assoc
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
-    : (runitor g) ▻ f = runitor (g ∘ f) o assoc (id₁ Z) g f.
+    : (runitor g) ▻ f = runitor (g ∘ f) o lassociator f g (id₁ Z).
   Proof.
     rewrite <- runitor_triangle.
     unfold assoc.
@@ -430,10 +429,9 @@ Section laws.
   Definition left_unit_inv_assoc
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
-    : (rinvunitor g) ▻ f = assoc_inv (id₁ Z) g f o rinvunitor (g ∘ f).
+    : (rinvunitor g) ▻ f = rassociator _ _ _ o rinvunitor (g ∘ f).
   Proof.
     rewrite <- rinvunitor_triangle.
-    unfold assoc_inv.
     rewrite <- vcomp_assoc.
     rewrite lassociator_rassociator.
     rewrite vcomp_left_identity.
@@ -443,7 +441,7 @@ Section laws.
   Definition lunitor_assoc
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
-    : lunitor (g ∘ f) = g ◅ (lunitor f) o assoc g f (id₁ X).
+    : lunitor (g ∘ f) = g ◅ (lunitor f) o lassociator (id₁ X) f g.
   Proof.
     symmetry.
     apply lunitor_triangle.
@@ -453,7 +451,7 @@ Section laws.
   Definition linvunitor_assoc
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
-    : linvunitor (g ∘ f) = assoc_inv g f (id₁ X) o (g ◅ (linvunitor f)).
+    : linvunitor (g ∘ f) = rassociator (id₁ X) f g o (g ◅ (linvunitor f)).
   Proof.
     use vcomp_move_L_pM.
     {
@@ -464,8 +462,7 @@ Section laws.
     {
       is_iso.
     }
-    cbn ; unfold assoc_inv.
-    rewrite <- lunitor_triangle.
+    cbn. rewrite <- lunitor_triangle.
     rewrite vcomp_assoc.
     rewrite rassociator_lassociator.
     rewrite vcomp_right_identity.
@@ -492,11 +489,11 @@ Section laws.
   Definition left_unit_inv_assoc₂
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
-    : rinvunitor (g ∘ f) = assoc (id₁ Z) g f o (rinvunitor g ▻ f).
+    : rinvunitor (g ∘ f) = lassociator f g (id₁ Z) o (rinvunitor g ▻ f).
   Proof.
     rewrite left_unit_inv_assoc.
     rewrite <- !vcomp_assoc.
-    rewrite assoc_left.
+    rewrite rassociator_lassociator.
     rewrite vcomp_left_identity.
     reflexivity.
   Qed.
@@ -504,7 +501,7 @@ Section laws.
   Definition triangle_l_inv
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
-    : assoc g (id₁ Y) f o linvunitor g ⋆⋆ id₂ f = id₂ g ⋆⋆ rinvunitor f.
+    : lassociator f (id₁ Y) g o linvunitor g ⋆⋆ id₂ f = id₂ g ⋆⋆ rinvunitor f.
   Proof.
     use vcomp_move_R_Mp.
     {
@@ -518,7 +515,7 @@ Section laws.
     apply path_inverse_2cell.
     rewrite <- triangle_l.
     rewrite !vcomp_assoc.
-    rewrite assoc_right.
+    rewrite lassociator_rassociator.
     rewrite vcomp_right_identity.
     reflexivity.
   Qed.
