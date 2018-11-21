@@ -18,8 +18,10 @@ Require Import UniMath.Combinatorics.Lists.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.categories.category_hset.
-Require Import UniMath.CategoryTheory.categories.category_hset_structures.
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
+Require Import UniMath.CategoryTheory.categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.categories.HSET.Slice.
 Require Import UniMath.CategoryTheory.Chains.Chains.
 Require Import UniMath.CategoryTheory.Chains.OmegaCocontFunctors.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
@@ -180,7 +182,7 @@ apply BinProducts_functor_precat, BinProductsHSET.
 Defined.
 
 Local Notation "'Id'" := (functor_identity SET_over_sort).
-Local Notation "x ⊗ y" := (BinProductObject _ (BP x y)) (at level 10).
+Local Notation "x ⊗ y" := (BinProductObject _ (BP x y)).
 
 (** The variables *)
 Definition var_map : SET_over_sort2⟦Id,CCS⟧ :=

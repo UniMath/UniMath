@@ -9,6 +9,10 @@ Reorganized: Langston Barrett (@siddharthist) (March 2018)
 
     Image of a functor, full subcat specified by a functor
 
+    The inclusion of a full subcategory is fully faithful
+      Fullness
+      Faithfulness
+
     Subcategories, back to
       Inclusion functor
       Full image of a functor
@@ -54,6 +58,44 @@ Definition full_sub_precategory {C : precategory}
 Definition morphism_in_full_subcat {C : precategory} {C' : hsubtype (ob C)}
    {a b : ob (full_sub_precategory C')} (f : pr1 a --> pr1 b) :
     precategory_morphisms a b := precategory_morphisms_in_subcat f tt.
+
+(** ** The inclusion of a full subcategory is fully faithful *)
+
+Section FullyFaithful.
+  Context (C : precategory) (C' : hsubtype (ob C)).
+
+  (** *** Fullness *)
+
+  Lemma full_sub_precategory_inclusion :
+    full (sub_precategory_inclusion C (full_sub_precategory C')).
+  Proof.
+    intros a b f.
+    apply hinhpr.
+    unfold hfiber.
+    exists (f,, tt).
+    reflexivity.
+  Qed.
+
+  (** *** Faithfulness *)
+
+  Lemma faithful_sub_precategory_inclusion :
+    faithful (sub_precategory_inclusion C (full_sub_precategory C')).
+  Proof.
+    intros a b; cbn.
+    apply isinclpr1.
+    intro; apply isapropunit.
+  Qed.
+
+  Lemma fully_faithful_sub_precategory_inclusion :
+    fully_faithful (sub_precategory_inclusion C (full_sub_precategory C')).
+  Proof.
+    apply full_and_faithful_implies_fully_faithful.
+    split.
+    - apply full_sub_precategory_inclusion.
+    - apply faithful_sub_precategory_inclusion.
+  Qed.
+
+End FullyFaithful.
 
 (** ** The (full) image of a functor *)
 

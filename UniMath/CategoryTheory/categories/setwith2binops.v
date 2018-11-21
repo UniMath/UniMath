@@ -61,7 +61,8 @@ Section def_setwith2binop_precategory.
     - intros a b f. use setwith2binop_id_left.
     - intros a b f. use setwith2binop_id_right.
     - intros a b c d f g h. use setwith2binop_assoc.
-  Qed.
+    - intros a b c d f g h. apply pathsinv0, setwith2binop_assoc.
+  Defined.
 
   Definition setwith2binop_precategory : precategory :=
     mk_precategory setwith2binop_precategory_data is_precategory_setwith2binop_precategory_data.

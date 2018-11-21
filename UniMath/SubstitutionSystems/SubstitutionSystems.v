@@ -100,16 +100,16 @@ Local Notation "'p' T" := (ptd_from_alg T) (at level 3).
 Coercion functor_from_algebra_ob (X : algebra_ob _ Id_H) : functor C C  := pr1 X.
 *)
 
-Local Notation "f ⊕ g" := (BinCoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g) (at level 40).
+Local Notation "f ⊕ g" := (BinCoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g).
 
 
 Definition bracket_property (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_alg T)
            (h : `T • (U Z)  --> `T) : UU
   :=
     alg_map _ T •• (U Z) · h =
-          identity (U Z) ⊕ θ (`T ⊗ Z) ·
-          identity (U Z) ⊕ #H h ·
-          BinCoproductArrow _ (CPEndC _ _ ) (#U f) (tau_from_alg T).
+          (identity (U Z) ⊕ θ (`T ⊗ Z)) ·
+          (identity (U Z) ⊕ #H h) ·
+          (BinCoproductArrow _ (CPEndC _ _ ) (#U f) (tau_from_alg T)).
 
 Definition bracket_at (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_alg T): UU :=
   ∃! h : `T • (U Z)  --> `T, bracket_property T f h.
@@ -627,6 +627,8 @@ Proof.
     apply (@id_right EndC).
   - apply (invmap (hssMor_eq _ _ _ _ )).
     apply (@assoc EndC).
+  - apply (invmap (hssMor_eq _ _ _ _ )).
+    apply (@assoc' EndC).
 Qed.
 
 Definition hss_precategory : precategory := tpair _ _ is_precategory_hss.

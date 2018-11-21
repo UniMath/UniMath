@@ -10,7 +10,6 @@ Require Import UniMath.Algebra.Monoids_and_Groups
                UniMath.Ktheory.Representation
                UniMath.Ktheory.Precategories.
 Require UniMath.Ktheory.Group.
-Unset Automatic Introduction.
 Local Open Scope cat.
 
 Delimit Scope abgr with abgr.
@@ -19,7 +18,7 @@ Local Open Scope abgr.
 Notation Hom_abgr := monoidfun.
 Notation "0" := (unel _) : abgr.
 Notation "x + y" := ( op x y ) : abgr.
-Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, left associativity, only parsing) : abgr.
+Notation "g ∘ f" := (monoidfuncomp f g) (only parsing) : abgr.
 
 Definition zeroAbgr : abgr.
   exists Group.zero. split. exact (pr2 Group.zero). intros x y. reflexivity.
@@ -68,7 +67,7 @@ Module Presentation.
   Arguments op2 {X M} v w : rename.
   Definition wordop X := make_preAbelianGroup X (word X) word_unit word_gen word_inv word_op.
   Fixpoint evalword {X} (Y:MarkedPreAbelianGroup X) (w:word X) : elem Y.
-    intros ? Y [|x|w|v w]. { exact op0. } { exact (op1 x). }
+    revert w; intros [|x|w|v w]. { exact op0. } { exact (op1 x). }
     { exact (op_inv (evalword X Y w)). }
     { exact (op2 (evalword X Y v) (evalword X Y w)). } Defined.
   Definition MarkedPreAbelianGroup_to_hrel {X}
@@ -79,7 +78,7 @@ Module Presentation.
   (** eta expansion principle for words *)
 
   Fixpoint reassemble {X I} (R:I->reln X) (v:wordop X) : evalword (wordop X) v = v.
-  Proof. intros ? ? ? [|x|w|v w]. { reflexivity. } { reflexivity. }
+  Proof. revert v; intros [|x|w|v w]. { reflexivity. } { reflexivity. }
          { exact (ap word_inv (reassemble _ _ R w)). }
          { exact (aptwice word_op (reassemble _ _ R v) (reassemble _ _ R w)). } Qed.
 
@@ -105,7 +104,7 @@ Module Presentation.
   Arguments base {X I R r} _ _.
   Definition adequacy_to_eqrel {X I} (R:I->reln X) (r : hrel (word X)) :
     AdequateRelation R r -> eqrel (word X).
-  Proof. intros ? ? ? ? ra. exists r.
+  Proof. intros ra. exists r.
          abstract ( split; [ split; [ exact (trans R r ra) | exact (reflex R r ra) ] |
                              exact (symm R r ra)]). Defined.
 
@@ -115,7 +114,7 @@ Module Presentation.
          withe universes. *)
 
   Definition smallestAdequateRelation0 {X I} (R:I->reln X) : hrel (word X).
-    intros ? ? ? v w.
+    intros v w.
     exists (∏ r: hrel (word X), AdequateRelation R r -> r v w).
     abstract (apply impred; intro r; apply impred_prop).
   Defined.
@@ -158,7 +157,7 @@ Module Presentation.
 
   Definition univ_inverse {X I} (R:I->reln X) :
       universalMarkedPreAbelianGroup0 R -> universalMarkedPreAbelianGroup0 R.
-    intros ? ? ?.  refine (setquotfun _ _ word_inv _). apply op_inv_compatibility. Defined.
+    refine (setquotfun _ _ word_inv _). apply op_inv_compatibility. Defined.
   Definition univ_binop {X I} (R:I->reln X) : binop (universalMarkedPreAbelianGroup0 R).
     intros. refine (QuotientSet.setquotfun2 word_op _). apply op2_compatibility. Defined.
   Definition univ_setwithbinop {X I} (R:I->reln X) : setwithbinop
@@ -179,16 +178,16 @@ Module Presentation.
   Proof. intros. exact (issurjsetquotpr (smallestAdequateRelation R)). Qed.
   Lemma is_left_unit_univ_binop {X I} (R:I->reln X) (w:universalMarkedPreAbelianGroup0 R) :
     ((univ_binop _) (setquotpr _ word_unit) w) = w.
-  Proof. intros ? ? ? w'. apply isaprop_goal; intro ig. (* was: isaprop_goal ig. *) { apply setproperty. }
-    apply (squash_to_prop (lift R w') ig); intros [w []].
+  Proof. apply isaprop_goal; intro ig. (* was: isaprop_goal ig. *) { apply setproperty. }
+    apply (squash_to_prop (lift R w) ig); intros [w' []].
     exact (iscompsetquotpr (smallestAdequateRelation R) _ _
-                           (λ r ra, left_unit R r ra w)). Qed.
+                           (λ r ra, left_unit R r ra w')). Qed.
   Lemma is_right_unit_univ_binop {X I} (R:I->reln X) (w:universalMarkedPreAbelianGroup0 R) :
     ((univ_binop _) w (setquotpr _ word_unit)) = w.
-  Proof. intros ? ? ? w'. isaprop_goal ig. { apply setproperty. }
-    apply (squash_to_prop (lift R w') ig); intros [w []].
+  Proof. isaprop_goal ig. { apply setproperty. }
+    apply (squash_to_prop (lift R w) ig); intros [w' []].
     exact (iscompsetquotpr (smallestAdequateRelation R) _ _
-                           (λ r ra, right_unit R r ra w)). Qed.
+                           (λ r ra, right_unit R r ra w')). Qed.
   Lemma isassoc_univ_binop {X I} (R:I->reln X) : isassoc(univ_binop R).
   Proof. intros. set (e := smallestAdequateRelation R). intros u' v' w'.
          isaprop_goal ig. { apply setproperty. }
@@ -220,7 +219,7 @@ Module Presentation.
          exact (iscompsetquotpr e _ _ (λ r ra, comm R r ra v w)). Qed.
   Fixpoint reassemble_pr {X I} (R:I->reln X) (v:word X) :
     evalword (universalMarkedPreAbelianGroup R) v = setquotpr _ v.
-  Proof. intros ? ? ? [|x|w|v w]. { reflexivity. } { reflexivity. }
+  Proof. revert v; intros [|x|w|v w]. { reflexivity. } { reflexivity. }
          { simpl. assert (q := ! reassemble_pr _ _ R w). destruct q. reflexivity. }
          { simpl. assert (p := ! reassemble_pr _ _ R v). destruct p.
                   assert (q := ! reassemble_pr _ _ R w). destruct q.
@@ -277,7 +276,7 @@ Module Presentation.
   Arguments map_mark {X I R M N} m x.
   Lemma MarkedAbelianGroupMapEquality {X I} {R:I->reln X} {M N:MarkedAbelianGroup R}
         (f g:MarkedAbelianGroupMap M N) : map_base f = map_base g -> f = g.
-  Proof. intros ? ? ? ? ? ? ? j.
+  Proof. intros j.
          destruct f as [f ft], g as [g gt]; simpl in j. destruct j.
          assert(k : ft = gt). { apply funextsec; intro x. apply setproperty. } destruct k.
          reflexivity. Qed.
@@ -365,13 +364,13 @@ Module Presentation.
         (∏ i, f (setquotpr (smallestAdequateRelation R) (word_gen i)) =
                    g (setquotpr (smallestAdequateRelation R) (word_gen i)))
           -> f = g.
-    intros ? ? ? ? ? ? p. apply Monoid.funEquality.
+    intros p. apply Monoid.funEquality.
     apply funextsec; intro t; simpl in t.
     apply (surjectionisepitosets _ _ _ (issurjsetquotpr _)).
     { apply setproperty. } { apply agreement_on_gens0. assumption. } Qed.
   Definition universality0 {X I} {R:I->reln X} (M:MarkedAbelianGroup R) :
     universalMarkedAbelianGroup0 R -> M.
-  Proof. intros ? ? ? ?.
+  Proof.
     apply (setquotuniv _ _ (evalwordMM M)).
     exact (λ _ _ r, r (MarkedAbelianGroup_to_hrel M) (abelian_group_adequacy R M)).
   Defined.
@@ -415,16 +414,19 @@ Module Product.
     split. exact (pr2 (Group.Product.make G)).
     intros a b. apply funextsec; intro i. apply commax. Defined.
   Definition Proj {I} (G:I->abgr) (i:I) : Hom_abgr (make G) (G i).
+    revert I G i.
     exact @Group.Product.Proj. Defined.
   Definition Map {I} (G:I->abgr) (T:abgr) (g: ∏ i, Hom_abgr T (G i)) :
     Hom_abgr T (make G).
+    revert I G T g.
     exact @Group.Product.Fun. Defined.
   Lemma Eqn {I} (G:I->abgr) (T:abgr) (g: ∏ i, Hom_abgr T (G i))
            : ∏ i, Proj G i ∘ Map G T g = g i.
+    revert I G T g.
     exact @Group.Product.Eqn. Qed.
   Definition UniqueMap {I} (G:I->abgr) (T:abgr) (h h' : Hom_abgr T (make G)) :
        (∏ i, Proj G i ∘ h = Proj G i ∘ h') -> h = h'.
-    intros ? ? ? ? ? e. apply Monoid.funEquality.
+    intros e. apply Monoid.funEquality.
     apply funextsec; intro t. apply funextsec; intro i.
     exact (eqtohomot (ap pr1 (e i)) t). Qed.
 End Product.
@@ -435,7 +437,7 @@ Module Sum.                   (* coproducts *)
     | J_zero : I -> J G                 (* (i,0) ~  ; redundant relation *)
     | J_sum : (∑ i, G i × G i) -> J G.  (* (i,g)+(i,h) ~ (i,g+h) *)
   Definition R {I} (G:I->abgr) : J G -> reln (X G).
-    intros ? ? [i|[i [g h]]].
+    intros [i|[i [g h]]].
     { exact (make_reln (word_gen (i,,0)) (word_unit)). }
     { exact (make_reln (word_gen (i,,g+h))
                        (word_op (word_gen (i,,g)) (word_gen (i,,h)))). } Defined.
@@ -461,7 +463,7 @@ Module Sum.                   (* coproducts *)
     intros. apply Monoid.funEquality. reflexivity. Qed.
   Definition UniqueMap {I} (G:I->abgr) (T:abgr) (h h' : Hom_abgr (make G) T) :
        (∏ i, h ∘ Incl G i = h' ∘ Incl G i) -> h = h'.
-    intros ? ? ? ? ? e. apply (agreement_on_gens h h').
+    intros e. apply (agreement_on_gens h h').
     { intros [i g]. exact (ap (evalat g) (ap pr1 (e i))). }
   Qed.
 End Sum.
@@ -500,7 +502,10 @@ Module Category.
       { simpl. split.
         { simpl. intros. apply MorEquality. reflexivity. }
         { intros. apply MorEquality. reflexivity. } }
-      { intros. apply MorEquality. reflexivity. } }
+      { split.
+        { intros. apply MorEquality. reflexivity. }
+        { intros. apply MorEquality. reflexivity. }
+      } }
     { simpl. intros F G. exact (setproperty (Mor F G)). }
   Defined.
 

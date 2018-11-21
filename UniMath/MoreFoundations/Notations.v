@@ -2,10 +2,6 @@
 
 Require Export UniMath.MoreFoundations.Foundations.
 
-Reserved Notation "A ⇒ B" (at level 95, no associativity).
-(* to input: type "\Rightarrow" or "\r=" or "\r" or "\Longrightarrow" or "\=>" with
-             Agda input method *)
-
 Notation "A ⇒ B" := (himpl A B) : logic.
 
 Local Open Scope logic.

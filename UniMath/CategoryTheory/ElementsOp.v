@@ -19,7 +19,7 @@ Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.categories.category_hset.
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Presheaf.
 
@@ -62,11 +62,12 @@ Qed.
 
 Lemma is_precategory_cat_of_elems_data : is_precategory cat_of_elems_data.
 Proof.
-split; [split|]; intros; apply cat_of_elems_mor_eq.
+split; [split|split]; intros; apply cat_of_elems_mor_eq.
 + apply id_left.
 + apply id_right.
 + apply assoc.
-Qed.
++ apply assoc'.
+Defined.
 
 Definition cat_of_elems : precategory :=
   (cat_of_elems_data,,is_precategory_cat_of_elems_data).

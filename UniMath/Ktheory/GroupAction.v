@@ -6,7 +6,6 @@ Require Import UniMath.Algebra.Monoids_and_Groups
                UniMath.Foundations.UnivalenceAxiom
                UniMath.Combinatorics.OrderedSets
                UniMath.Ktheory.Utilities.
-Unset Automatic Introduction.
 
 (** ** Definitions *)
 
@@ -84,7 +83,7 @@ Proof. intros. apply impred; intro g. apply impred; intro x.
 Definition is_equivariant_identity {G:gr} {X Y:Action G}
            (p:ac_set X = ac_set Y) :
   weq (p # ac_str X = ac_str Y) (is_equivariant (cast (ap pr1hSet p))).
-Proof. intros ? [X [Xm Xu Xa]] [Y [Ym Yu Ya]] ? .
+Proof. revert X Y p; intros [X [Xm Xu Xa]] [Y [Ym Yu Ya]] ? .
        (* should just apply hPropUnivalence at this point, as in Poset_univalence_prelim! *)
        simpl in p. destruct p; simpl. unfold transportf; simpl. unfold idfun; simpl.
        simple refine (weqpair _ _).
@@ -120,7 +119,7 @@ Coercion underlyingFunction : ActionMap >-> Funclass.
 
 Definition composeActionMap {G:gr} (X Y Z:Action G)
            (p:ActionMap X Y) (q:ActionMap Y Z) : ActionMap X Z.
-Proof. intros ? ? ? ? [p i] [q j]. exists (funcomp p q).
+Proof. revert p q; intros [p i] [q j]. exists (funcomp p q).
        apply is_equivariant_comp. assumption. assumption. Defined.
 
 Definition ActionIso {G:gr} (X Y:Action G) :=
@@ -147,7 +146,7 @@ Proof. intros. exists (idweq _). intros g x. reflexivity. Defined.
 
 Definition composeActionIso {G:gr} {X Y Z:Action G}
            (e:ActionIso X Y) (f:ActionIso Y Z) : ActionIso X Z.
-Proof. intros ? ? ? ? [e i] [f j]. exists (weqcomp e f).
+Proof. revert e f; intros [e i] [f j]. exists (weqcomp e f).
        destruct e as [e e'], f as [f f']; simpl.
        apply is_equivariant_comp. exact i. exact j. Defined.
 
@@ -155,7 +154,7 @@ Definition path_to_ActionIso {G:gr} {X Y:Action G} (e:X = Y) : ActionIso X Y.
 Proof. intros. destruct e. exact (idActionIso X). Defined.
 
 Definition castAction {G:gr} {X Y:Action G} (e:X = Y) : X -> Y.
-Proof. intros ? ? ? ? x. exact (path_to_ActionIso e x). Defined.
+Proof. intros x. exact (path_to_ActionIso e x). Defined.
 
 (** ** Applications of univalence *)
 
@@ -225,10 +224,9 @@ Definition torsor_splitting {G} (X:Torsor G) := pr2 (is_torsor_prop X).
 Definition torsor_mult_weq {G} (X:Torsor G) (x:X) :=
   weqpair (right_mult x) (torsor_splitting X x) : G ≃ X.
 Definition torsor_update_nonempty {G} (X:Torsor G) (x:nonempty X) : Torsor G.
-Proof. intros ? X new.
-       exact (underlyingAction X,,(new,,pr2(is_torsor_prop X))). Defined.
+Proof. exact (underlyingAction X,,(x,,pr2(is_torsor_prop X))). Defined.
 Definition castTorsor {G} {T T':Torsor G} (q:T = T') : T -> T'.
-Proof. intros ? ? ? ?. exact (castAction (ap underlyingAction q)). Defined.
+Proof. exact (castAction (ap underlyingAction q)). Defined.
 
 Lemma underlyingAction_incl {G:gr} :
   isincl (underlyingAction : Torsor G -> Action G).
@@ -267,7 +265,7 @@ Lemma quotient_times {G} (X:Torsor G) (y x:X) : (y/x)*x = y.
 Proof. intros. exact (pr2 (thePoint (is_quotient _ y x))). Defined.
 
 Lemma quotient_uniqueness {G} (X:Torsor G) (y x:X) (g:G) : g*x = y -> g = y/x.
-Proof. intros ? ? ? ? ? e.
+Proof. intros e.
        exact (ap pr1 (uniqueness (is_quotient _ y x) (g,,e))). Defined.
 
 Lemma quotient_mult {G} (X:Torsor G) (g:G) (x:X) : (g*x)/x = g.
@@ -298,7 +296,7 @@ Definition pointedTrivialTorsor (G:gr) : PointedTorsor G.
 Proof. intros. exists (trivialTorsor G). exact (unel G). Defined.
 
 Definition univ_function {G:gr} (X:Torsor G) (x:X) : trivialTorsor G -> X.
-Proof. intros ? ? ?. apply right_mult. assumption. Defined.
+Proof. apply right_mult. assumption. Defined.
 
 Definition univ_function_pointed {G:gr} (X:Torsor G) (x:X) :
   univ_function X x (unel _) = x.
@@ -383,14 +381,14 @@ Proof. intros. unfold Torsor_univalence.
        apply Action_univalence_inv_comp_eval. Defined.
 
 Definition torsor_eqweq_to_path {G:gr} {X Y:Torsor G} : ActionIso X Y -> X = Y.
-Proof. intros ? ? ? f. exact ((invweq Torsor_univalence) f). Defined.
+Proof. intros f. exact ((invweq Torsor_univalence) f). Defined.
 
 Definition PointedActionIso {G:gr} (X Y:PointedTorsor G)
     := ∑ f:ActionIso X Y, f (underlyingPoint X) = underlyingPoint Y.
 
 Definition pointed_triviality_isomorphism {G:gr} (X:PointedTorsor G) :
   PointedActionIso (pointedTrivialTorsor G) X.
-Proof. intros ? [X x]. exists (triviality_isomorphism X x).
+Proof. revert X; intros [X x]. exists (triviality_isomorphism X x).
        simpl. apply univ_function_pointed. Defined.
 
 Definition PointedTorsor_univalence {G:gr} {X Y:PointedTorsor G} :

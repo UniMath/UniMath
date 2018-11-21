@@ -162,9 +162,12 @@ Proof.
   apply eq_in_sub_precategory. simpl.
   apply id_right.
   apply eq_in_sub_precategory.
-  simpl.
+  cbn.
   apply assoc.
-Qed.
+  apply eq_in_sub_precategory.
+  cbn.
+  apply assoc'.
+Defined.
 
 Definition carrier_of_sub_precategory (C : precategory)(C':sub_precategories C) :
    precategory := tpair _ _ (is_precategory_sub_precategory C C').
@@ -201,7 +204,7 @@ Proof.
   unfold functor_compax . intros.  apply (idpath _ ).
 Qed.
 
-Definition sub_precategory_inclusion (C : precategory)(C': sub_precategories C) :
+Definition sub_precategory_inclusion (C : precategory) (C' : sub_precategories C) :
     functor C' C := tpair _ _ (is_functor_sub_precategory_inclusion C C').
 
 (** ** Subcategories *)

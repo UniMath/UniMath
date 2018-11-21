@@ -22,11 +22,13 @@ PACKAGES += Tactics
 PACKAGES += SubstitutionSystems
 PACKAGES += Folds
 PACKAGES += HomologicalAlgebra
+PACKAGES += Paradoxes
 PACKAGES += Induction
 ############################################
 # other user options; see also build/Makefile-configuration-template
 BUILD_COQ ?= yes
 BUILD_COQIDE ?= no
+DEBUG_COQ ?= no
 COQBIN ?=
 ############################################
 SHOW := $(if $(VERBOSE),@true "",@echo "")
@@ -34,6 +36,7 @@ HIDE := $(if $(VERBOSE),,@)
 ############################################
 
 .PHONY: all everything install lc lcp wc describe clean distclean build-coq doc build-coqide html
+all: make-first
 all: check-first
 all: check-for-change-to-Foundations
 all: make-summary-files
@@ -48,7 +51,6 @@ all: build-coq
 build-coq: sub/coq/bin/coqc
 ifeq "$(BUILD_COQIDE)" "yes"
 all: build-coqide
-build-coqide: sub/coq/bin/coqide
 COQIDE_OPTION := opt
 endif
 endif
@@ -77,7 +79,7 @@ clean:: build/CoqMakefile.make; $(MAKE) -f build/CoqMakefile.make $@
 distclean:: build/CoqMakefile.make; $(MAKE) -f build/CoqMakefile.make cleanall archclean
 
 OTHERFLAGS += $(MOREFLAGS)
-OTHERFLAGS += -noinit -indices-matter -type-in-type -w '-notation-overridden,-local-declaration,+uniform-inheritance,-deprecated-option'
+OTHERFLAGS += -noinit -indices-matter -type-in-type -w '-notation-overridden,-local-declaration,+uniform-inheritance'
 ifeq ($(VERBOSE),yes)
 OTHERFLAGS += -verbose
 endif
@@ -134,7 +136,7 @@ TAGS : Makefile $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
 FILES_FILTER := grep -vE '^[[:space:]]*(\#.*)?$$'
 FILES_FILTER_2 := grep -vE '^[[:space:]]*(\#.*)?$$$$'
 $(foreach P,$(PACKAGES),												\
-	$(eval $P: check-first build/CoqMakefile.make;									\
+	$(eval $P: make-first check-first build/CoqMakefile.make;									\
 		+$(MAKE) -f build/CoqMakefile.make									\
 			$(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\).v=UniMath/$P/\1.vo=" )	\
 			UniMath/$P/All.vo))
@@ -164,6 +166,7 @@ describe:; git describe --dirty --long --always --abbrev=40 --all
 	do <UniMath/$$i/.package/files $(FILES_FILTER) |sed "s=^=UniMath/$$i/="  ;\
 	   echo UniMath/$$i/All.v ;\
 	done ;\
+	echo UniMath/All.v ;\
 	echo ;\
 	echo '# Local ''Variables:' ;\
 	echo '# compile-command: "$(COQBIN)coq_makefile -f .coq_makefile_input -o CoqMakefile.make.tmp && mv CoqMakefile.make.tmp build/CoqMakefile.make"' ;\
@@ -193,21 +196,34 @@ distclean::          ; - $(MAKE) -C sub/coq distclean
 distclean::          ; rm -f build/Makefile-configuration
 distclean::          ; - $(MAKE) -C sub/lablgtk arch-clean
 
+#############################################################################
 # building coq:
 export PATH:=$(shell pwd)/sub/coq/bin:$(PATH)
+CONFIGURE_OPTIONS := -coqide "$(COQIDE_OPTION)" -with-doc no -local -no-custom
+BUILD_TARGETS := coqbinaries tools states
+ifeq ($(DEBUG_COQ),yes)
+CONFIGURE_OPTIONS += -annot
+BUILD_TARGETS += byte
+BUILD_OPTIONS += VERBOSE=true
+BUILD_OPTIONS += READABLE_ML4=yes
+endif
+ifeq ($(BUILD_COQIDE),yes)
+BUILD_TARGETS += coqide-files bin/coqide
+endif
 sub/coq/configure.ml:
 	git submodule update --init sub/coq
 sub/coq/config/coq_config.ml: sub/coq/configure.ml
 	: making $@ because of $?
-	cd sub/coq && ./configure -coqide "$(COQIDE_OPTION)" -with-doc no -local
-# instead of "coqlight" below, we could use simply "theories/Init/Prelude.vo"
+	cd sub/coq && ./configure $(CONFIGURE_OPTIONS)
 sub/coq/bin/coq_makefile sub/coq/bin/coqc: sub/coq/config/coq_config.ml
 .PHONY: rebuild-coq
 rebuild-coq sub/coq/bin/coq_makefile sub/coq/bin/coqc:
-	$(MAKE) -w -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqbinaries tools states
-sub/coq/bin/coqide: sub/coq/config/coq_config.ml
-	$(MAKE) -w -C sub/coq KEEP_ML4_PREPROCESSED=true VERBOSE=true READABLE_ML4=yes coqide-files bin/coqide
-configure-coq: sub/coq/config/coq_config.ml
+	$(MAKE) -w -C sub/coq $(BUILD_OPTIONS) $(BUILD_TARGETS)
+ifeq ($(DEBUG_COQ),yes)
+	$(MAKE) -w -C sub/coq tags
+endif
+#############################################################################
+
 git-describe:
 	git describe --dirty --long --always --abbrev=40
 	git submodule foreach git describe --dirty --long --always --abbrev=40 --tags
@@ -270,7 +286,7 @@ clean::; rm -f .enforce-prescribed-ordering.okay
 
 # We arrange for the *.d files to be made, because we need to read them to enforce the prescribed ordering, by listing them as dependencies here.
 # Up to coq version 8.7, each *.v file had a corresponding *.v.d file.
-# After that, there is just one *.d file, it's name is .coqdeps.d, and it sits in this top-level directory.
+# After that, there is just one *.d file, its name is .coqdeps.d, and it sits in this top-level directory.
 # So we have to distinguish the versions somehow; here we do that.
 # We expect the file build/CoqMakefile.make to exist now, because we have an include command above for the file .coq_makefile_output.conf,
 # and the same rule that make it makes build/CoqMakefile.make.
@@ -346,7 +362,7 @@ DEPFILES := $(VFILES:.v=.v.d)
 endif
 
 # DEPFILES is defined above
-$(DEPFILES): | build/CoqMakefile.make
+$(DEPFILES): make-summary-files | build/CoqMakefile.make
 	$(MAKE) -f build/CoqMakefile.make $@
 
 # here we ensure that the travis script checks every package
@@ -433,6 +449,17 @@ UniMath/$1/All.v: UniMath/$1/.package/files
 	<UniMath/$1/.package/files $(FILES_FILTER_2) | grep -v '^All.v$$$$' |sed -e "s=^=Require Export UniMath.$1.=" -e "s=/=.=g" -e s/\.v$$$$/./
 endef
 $(foreach P, $(PACKAGES), $(eval $(call make-summary-file,$P)) $(eval make-summary-files: UniMath/$P/All.v))
+
+# Here we create the file UniMath/All.v.  It will "Require Export" all of the All.v files for the various packages.
+make-first: UniMath/All.v
+UniMath/All.v: Makefile
+	$(SHOW)'making $@'
+	$(HIDE)									\
+	exec > $@ ;								\
+	echo "(* This file has been auto-generated, do not edit it. *)" ;	\
+	for P in $(PACKAGES);							\
+	do echo "Require Export UniMath.$$P.All.";				\
+	done
 
 #################################
 # targets best used with INCLUDE=no

@@ -190,6 +190,8 @@ Proof.
     apply (@id_right (functor_precategory C C hs)).
   - apply (invmap (Monad_Mor_equiv hs _ _ )).
     apply (@assoc (functor_precategory C C hs)).
+  - apply (invmap (Monad_Mor_equiv hs _ _ )).
+    apply (@assoc' (functor_precategory C C hs)).
 Qed.
 
 Definition precategory_Monad (C : precategory) (hs : has_homsets C) : precategory
@@ -280,7 +282,7 @@ Section MonadsUsingCoproducts.
 
 Context {C : precategory} (T : Monad C) (BC : BinCoproducts C).
 
-Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)) (at level 50).
+Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)).
 
 (** operation of weakening in a monad *)
 Definition mweak (a b: C): C⟦T b, T (a ⊕ b)⟧ := bind (BinCoproductIn2 _ (BC _ _) · (η T _)).
@@ -475,7 +477,7 @@ End Monad_eq_helper.
 
 Section Monads_from_adjunctions.
 
-Definition functor_with_μ_from_adjunction {C D : precategory} 
+Definition functor_with_μ_from_adjunction {C D : precategory}
   {L : functor C D} {R : functor D C} (H : are_adjoints L R) :
   functor_with_μ C.
 Proof.

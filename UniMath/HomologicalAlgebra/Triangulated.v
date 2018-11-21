@@ -147,7 +147,7 @@ In this section we define
 *)
 Section def_triangles.
 
-  Context {A : Additive}.
+  Context {A : CategoryWithAdditiveStructure}.
   Context {T : AddEquiv A A}.
 
 
@@ -539,20 +539,20 @@ Section def_triangles.
 
   (** ** Cone data *)
 
-  Definition ConeData {A : Additive} (T : AddEquiv A A) (x y : ob A) : UU :=
+  Definition ConeData {A : CategoryWithAdditiveStructure} (T : AddEquiv A A) (x y : ob A) : UU :=
     ∑ (z : ob A), A⟦y, z⟧ × A⟦z, (AddEquiv1 T x)⟧.
 
-  Definition mk_ConeData {A : Additive} (T : AddEquiv A A) {x y z : ob A} (g : y --> z)
+  Definition mk_ConeData {A : CategoryWithAdditiveStructure} (T : AddEquiv A A) {x y z : ob A} (g : y --> z)
              (h : z --> (AddEquiv1 T x)) : ConeData T x y := (z,,(g,,h)).
 
-  Definition ConeDataOb {A : Additive} {T : AddEquiv A A} {x y : ob A} (C : ConeData T x y) :
+  Definition ConeDataOb {A : CategoryWithAdditiveStructure} {T : AddEquiv A A} {x y : ob A} (C : ConeData T x y) :
     ob A := pr1 C.
   Coercion ConeDataOb : ConeData >-> ob.
 
-  Definition ConeData1 {A : Additive} {T : AddEquiv A A} {x y : ob A} (C : ConeData T x y) :
+  Definition ConeData1 {A : CategoryWithAdditiveStructure} {T : AddEquiv A A} {x y : ob A} (C : ConeData T x y) :
     A⟦y, C⟧ := dirprod_pr1 (pr2 C).
 
-  Definition ConeData2 {A : Additive} {T : AddEquiv A A} {x y : ob A} (C : ConeData T x y) :
+  Definition ConeData2 {A : CategoryWithAdditiveStructure} {T : AddEquiv A A} {x y : ob A} (C : ConeData T x y) :
     A⟦C, (AddEquiv1 T x)⟧ := dirprod_pr2 (pr2 C).
 
 End def_triangles.
@@ -569,9 +569,9 @@ Section def_pretriang_data.
    - A subtype for triangles in (A, T), called the distinguished triangles.
    *)
   Definition PreTriangData : UU :=
-    ∑ D : (∑ A : (Additive), (AddEquiv A A)), hsubtype (@Tri (pr1 D) (pr2 D)).
+    ∑ D : (∑ A : (CategoryWithAdditiveStructure), (AddEquiv A A)), hsubtype (@Tri (pr1 D) (pr2 D)).
 
-  Definition mk_PreTriangData (A : Additive) (T : AddEquiv A A) (H : hsubtype (@Tri A T)) :
+  Definition mk_PreTriangData (A : CategoryWithAdditiveStructure) (T : AddEquiv A A) (H : hsubtype (@Tri A T)) :
     PreTriangData.
   Proof.
     use tpair.
@@ -581,8 +581,8 @@ Section def_pretriang_data.
     - exact H.
   Defined.
 
-  Definition PreTriangData_Additive (PTD : PreTriangData) : Additive := pr1 (pr1 PTD).
-  Coercion PreTriangData_Additive : PreTriangData >-> Additive.
+  Definition PreTriangData_Additive (PTD : PreTriangData) : CategoryWithAdditiveStructure := pr1 (pr1 PTD).
+  Coercion PreTriangData_Additive : PreTriangData >-> CategoryWithAdditiveStructure.
 
   Definition Trans {PTD : PreTriangData} : AddEquiv PTD PTD := pr2 (pr1 PTD).
 
@@ -1252,9 +1252,9 @@ Section short_short_exact_sequences.
     @MorphismPair abgr_Abelian.
   Proof.
     use mk_MorphismPair.
-    - exact (@to_abgrop PT X (Ob1 D)).
-    - exact (@to_abgrop PT X (Ob2 D)).
-    - exact (@to_abgrop PT X (Ob3 D)).
+    - exact (@to_abgr PT X (Ob1 D)).
+    - exact (@to_abgr PT X (Ob2 D)).
+    - exact (@to_abgr PT X (Ob3 D)).
     - exact (to_postmor_monoidfun PT X (Ob1 D) (Ob2 D) (Mor1 D)).
     - exact (to_postmor_monoidfun PT X (Ob2 D) (Ob3 D) (Mor2 D)).
   Defined.
@@ -1262,7 +1262,7 @@ Section short_short_exact_sequences.
   Local Lemma ShortShortExactData_Eq_from_object (D : @DTri PT) (X : ob PT):
     monoidfuncomp (to_postmor_monoidfun PT X (Ob1 D) (Ob2 D) (Mor1 D))
                   (to_postmor_monoidfun PT X (Ob2 D) (Ob3 D) (Mor2 D)) =
-    ZeroArrow abgr_Zero (to_abgrop X (Ob1 D)) (to_abgrop X (Ob3 D)).
+    ZeroArrow abgr_Zero (to_abgr X (Ob1 D)) (to_abgr X (Ob3 D)).
   Proof.
     cbn. rewrite <- (@AdditiveZeroArrow_postmor_Abelian PT).
     use monoidfun_paths. use funextfun. intros x. cbn. unfold to_postmor.
@@ -1325,9 +1325,9 @@ Section short_short_exact_sequences.
   Definition MorphismPair_to_object (D : @DTri PT) (X : ob PT) : @MorphismPair abgr_Abelian.
   Proof.
     use mk_MorphismPair.
-    - exact (@to_abgrop PT (Ob3 D) X).
-    - exact (@to_abgrop PT (Ob2 D) X).
-    - exact (@to_abgrop PT (Ob1 D) X).
+    - exact (@to_abgr PT (Ob3 D) X).
+    - exact (@to_abgr PT (Ob2 D) X).
+    - exact (@to_abgr PT (Ob1 D) X).
     - exact (to_premor_monoidfun PT (Ob2 D) (Ob3 D) X (Mor2 D)).
     - exact (to_premor_monoidfun PT (Ob1 D) (Ob2 D) X (Mor1 D)).
   Defined.
@@ -1335,7 +1335,7 @@ Section short_short_exact_sequences.
   Local Lemma ShortShortExactData_Eq_to_object (D : @DTri PT) (X : ob PT) :
     monoidfuncomp (to_premor_monoidfun PT (Ob2 D) (Ob3 D) X (Mor2 D))
                   (to_premor_monoidfun PT (Ob1 D) (Ob2 D) X (Mor1 D)) =
-    ZeroArrow (Abelian.to_Zero abgr_Abelian) (to_abgrop (Ob3 D) X) (to_abgrop (Ob1 D) X).
+    ZeroArrow (Abelian.to_Zero abgr_Abelian) (to_abgr (Ob3 D) X) (to_abgr (Ob1 D) X).
   Proof.
     rewrite <- (@AdditiveZeroArrow_premor_Abelian PT).
     use monoidfun_paths. use funextfun. intros x. cbn. unfold to_premor. rewrite assoc.
@@ -1416,11 +1416,11 @@ Section triangulated_five_lemma.
     @FiveRowObs abgr_Abelian.
   Proof.
     use mk_FiveRowObs.
-    - exact (to_abgrop X (Ob1 D)).
-    - exact (to_abgrop X (Ob2 D)).
-    - exact (to_abgrop X (Ob3 D)).
-    - exact (to_abgrop X (AddEquiv1 Trans (Ob1 D))).
-    - exact (to_abgrop X (AddEquiv1 Trans (Ob2 D))).
+    - exact (to_abgr X (Ob1 D)).
+    - exact (to_abgr X (Ob2 D)).
+    - exact (to_abgr X (Ob3 D)).
+    - exact (to_abgr X (AddEquiv1 Trans (Ob1 D))).
+    - exact (to_abgr X (AddEquiv1 Trans (Ob2 D))).
   Defined.
 
   Definition TriangulatedRowDiffs_from_object (D : @DTri PT) (X : ob PT) :
@@ -1512,11 +1512,11 @@ Section triangulated_five_lemma.
   Definition TriangulatedRowObs_to_object (D : @DTri PT) (X : ob PT) : @FiveRowObs abgr_Abelian.
   Proof.
     use mk_FiveRowObs.
-    - exact (to_abgrop (AddEquiv1 Trans (Ob2 D)) X).
-    - exact (to_abgrop (AddEquiv1 Trans (Ob1 D)) X).
-    - exact (to_abgrop (Ob3 D) X).
-    - exact (to_abgrop (Ob2 D) X).
-    - exact (to_abgrop (Ob1 D) X).
+    - exact (to_abgr (AddEquiv1 Trans (Ob2 D)) X).
+    - exact (to_abgr (AddEquiv1 Trans (Ob1 D)) X).
+    - exact (to_abgr (Ob3 D) X).
+    - exact (to_abgr (Ob2 D) X).
+    - exact (to_abgr (Ob1 D) X).
   Defined.
 
   Definition TriangulatedRowDiffs_to_object (D : @DTri PT) (X : ob PT) :
