@@ -5,7 +5,6 @@ Authors: Dan Frumin, Niels van der Weide
 
 Ported from: https://github.com/nmvdw/groupoids
  *)
-Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
