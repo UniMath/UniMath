@@ -86,7 +86,7 @@ Section TwoTypeBiGroupoid.
       reflexivity.
   Qed.
 
-  Definition fundamental_groupoid
+  Definition fundamental_bigroupoid
     : bicat.
   Proof.
     use build_bicategory.
@@ -98,8 +98,8 @@ Section TwoTypeBiGroupoid.
 
   (** Each 2-cell is an iso *)
   Definition fundamental_groupoid_2cell_iso
-             {x y : fundamental_groupoid}
-             {p₁ p₂ : fundamental_groupoid⟦x,y⟧}
+             {x y : fundamental_bigroupoid}
+             {p₁ p₂ : fundamental_bigroupoid⟦x,y⟧}
              (s : p₁ ==> p₂)
     : is_invertible_2cell s.
   Proof.
@@ -110,9 +110,9 @@ Section TwoTypeBiGroupoid.
   Defined.
 
   (** Each 1-cell is an adjoint equivalence *)
-  Definition fundamental_groupoid_1cell_equivalence
-             {x y : fundamental_groupoid}
-             (p : fundamental_groupoid⟦x,y⟧)
+  Definition fundamental_bigroupoid_1cell_equivalence
+             {x y : fundamental_bigroupoid}
+             (p : fundamental_bigroupoid⟦x,y⟧)
     : internal_equivalence x y.
   Proof.
     use tpair.
@@ -125,15 +125,15 @@ Section TwoTypeBiGroupoid.
       + apply fundamental_groupoid_2cell_iso.
   Defined.
 
-  Definition fundamental_groupoid_1cell_adj_equiv
-             {x y : fundamental_groupoid}
-             (p : fundamental_groupoid⟦x,y⟧)
+  Definition fundamental_bigroupoid_1cell_adj_equiv
+             {x y : fundamental_bigroupoid}
+             (p : fundamental_bigroupoid⟦x,y⟧)
     : is_internal_left_adjoint_internal_equivalence p
-    := equiv_to_isadjequiv (fundamental_groupoid_1cell_equivalence p).
+    := equiv_to_isadjequiv (fundamental_bigroupoid_1cell_equivalence p).
 
   (** It is univalent *)
-  Definition fundamental_groupoid_is_univalent_2_1
-    : is_univalent_2_1 fundamental_groupoid.
+  Definition fundamental_bigroupoid_is_univalent_2_1
+    : is_univalent_2_1 fundamental_bigroupoid.
   Proof.
     intros x y p₁ p₂.
     use isweq_iso ; cbn in *.
@@ -147,11 +147,11 @@ Section TwoTypeBiGroupoid.
       induction q ; cbn.
       use subtypeEquality' ; cbn.
       + reflexivity.
-      + exact (@isaprop_is_invertible_2cell fundamental_groupoid x y p₁ p₁ (idpath p₁)).
+      + exact (@isaprop_is_invertible_2cell fundamental_bigroupoid x y p₁ p₁ (idpath p₁)).
   Defined.
 
-  Definition fundamental_groupoid_is_univalent_2_0
-    : is_univalent_2_0 fundamental_groupoid.
+  Definition fundamental_bigroupoid_is_univalent_2_0
+    : is_univalent_2_0 fundamental_bigroupoid.
   Proof.
     intros x y.
     use isweq_iso.
@@ -162,7 +162,7 @@ Section TwoTypeBiGroupoid.
       reflexivity.
     - intros p ; cbn in *.
       apply path_internal_adjoint_equivalence.
-      + apply fundamental_groupoid_is_univalent_2_1.
+      + apply fundamental_bigroupoid_is_univalent_2_1.
       + cbn in *.
         induction (pr1 p) ; cbn.
         reflexivity.
