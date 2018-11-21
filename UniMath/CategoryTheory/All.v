@@ -155,7 +155,6 @@ Require Export UniMath.CategoryTheory.DisplayedCats.Examples.
 Require Export UniMath.CategoryTheory.DisplayedCats.Adjunctions.
 Require Export UniMath.CategoryTheory.Bicategories.Bicat.
 Require Export UniMath.CategoryTheory.Bicategories.BicatAliases.
-Require Export UniMath.CategoryTheory.Bicategories.Examples.one_types.
 Require Export UniMath.CategoryTheory.Bicategories.StandardBicategories.
 Require Export UniMath.CategoryTheory.Bicategories.OpCellBicat.
 Require Export UniMath.CategoryTheory.Bicategories.OpMorBicat.
@@ -164,7 +163,11 @@ Require Export UniMath.CategoryTheory.Bicategories.bicategory_laws_2.
 Require Export UniMath.CategoryTheory.Bicategories.bicategory_laws.
 Require Export UniMath.CategoryTheory.Bicategories.PseudoFunctor.
 Require Export UniMath.CategoryTheory.Bicategories.Univalence.
+Require Export UniMath.CategoryTheory.Bicategories.transport_laws.
 Require Export UniMath.CategoryTheory.Bicategories.equiv_to_adjequiv.
+Require Export UniMath.CategoryTheory.Bicategories.adjoint_unique.
+Require Export UniMath.CategoryTheory.Bicategories.Examples.one_types.
+Require Export UniMath.CategoryTheory.Bicategories.Examples.two_type.
 Require Export UniMath.CategoryTheory.Bicategories.DispBicat.
 Require Export UniMath.CategoryTheory.Bicategories.BicatOfCats.
 Require Export UniMath.CategoryTheory.Bicategories.DispBicatOfDispCats.
@@ -181,8 +184,8 @@ Require Export UniMath.CategoryTheory.Bicategories.WkCatEnrichment.whiskering.
 Require Export UniMath.CategoryTheory.Bicategories.WkCatEnrichment.Cat.
 Require Export UniMath.CategoryTheory.Bicategories.WkCatEnrichment.internal_equivalence.
 Require Export UniMath.CategoryTheory.Bicategories.WkCatEnrichment.bicategory.
-Require Export UniMath.CategoryTheory.Bicategories.BicategoryFromBicat.
-Require Export UniMath.CategoryTheory.Bicategories.BicatFromBicategory.
+Require Export UniMath.CategoryTheory.Bicategories.BicategoryOfBicat.
+Require Export UniMath.CategoryTheory.Bicategories.BicatOfBicategory.
 Require Export UniMath.CategoryTheory.Bicategories.Graph.
 Require Export UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Export UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
