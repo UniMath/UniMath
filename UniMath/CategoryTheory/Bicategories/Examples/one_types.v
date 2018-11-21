@@ -20,87 +20,6 @@ Definition one_type
 Definition one_type_to_type : one_type -> UU := pr1.
 Coercion one_type_to_type : one_type >-> UU.
 
-(** Some lemma's *)
-Definition eqweqmap1
-           (X Y : one_type)
-  : X = Y → X ≃ Y
-  := λ p, eqweqmap(maponpaths pr1 p).
-
-Definition maponpaths_pr1_subtypeEquality'
-           {X : UU}
-           {Y : X → UU}
-           (Yprop : ∏ (x : X), isaprop (Y x))
-           {x₁ x₂ : X}
-           {y₁ : Y x₁} {y₂ : Y x₂}
-           (p : x₁ = x₂)
-  : maponpaths pr1 (subtypeEquality' (p : pr1 (x₁ ,, y₁) = pr1 (x₂ ,, y₂)) (Yprop x₂)) = p.
-Proof.
-  induction p.
-  cbn.
-  induction (Yprop x₁ y₁ y₂) as [q Hq].
-  induction q.
-  reflexivity.
-Defined.
-
-Definition subtypeEquality'_maponpaths_pr1
-           {X : UU}
-           {Y : X → UU}
-           (Yprop : ∏ (x : X), isaprop (Y x))
-           {a b : ∑ (x : X), Y x}
-           (p : a = b)
-  : subtypeEquality' (maponpaths pr1 p) (Yprop (pr1 b)) = p.
-Proof.
-  induction p.
-  cbn.
-  unfold idfun.
-  assert ((pr1 (Yprop (pr1 a) (pr2 a) (pr2 a))) = idpath _) as ->.
-  {
-    apply (isasetaprop (Yprop (pr1 a))).
-  }
-  reflexivity.
-Defined.
-
-Definition subtypeEquality'_eq
-           {X : UU}
-           {Y : X → UU}
-           (Yprop : ∏ (x : X), isaprop (Y x))
-           {a b : ∑ (x : X), Y x}
-           {p q : pr1 a = pr1 b}
-           (r : p = q)
-           (z₁ z₂ : isaprop (Y (pr1 b)))
-  : subtypeEquality' p z₁ = subtypeEquality' q z₂.
-Proof.
-  induction r.
-  apply maponpaths.
-  apply isapropisaprop.
-Defined.
-
-Definition isweq_eqweqmap1
-           (X Y : one_type)
-  : isweq (eqweqmap1 X Y).
-Proof.
-  use isweq_iso.
-  - intros e.
-    use subtypeEquality'.
-    + exact (invmap (univalence X Y) e).
-    + apply isapropisofhlevel.
-  - intros p.
-    unfold eqweqmap1.
-    refine (_ @ subtypeEquality'_maponpaths_pr1 (λ Z, isapropisofhlevel 3 Z) _).
-    use subtypeEquality'_eq.
-    + intros.
-      apply isapropisofhlevel.
-    + exact (homotinvweqweq (univalence X Y) (maponpaths pr1 p)).
-  - intros e.
-    use subtypeEquality'.
-    + unfold eqweqmap1.
-      refine (maponpaths (λ z, pr1(eqweqmap z)) _ @ _).
-      * apply maponpaths_pr1_subtypeEquality'.
-      * apply maponpaths.
-        exact (homotweqinvweq (univalence X Y) e).
-    + apply isapropisweq.
-Defined.
-
 (** The bicategory *)
 Definition one_type_bicat_data
   : prebicat_data.
@@ -296,7 +215,7 @@ Definition one_types_is_univalent_2_0
 Proof.
   intros X Y.
   apply (isweqhomot
-           (weq_to_adjoint_equivalence X Y ∘ eqweqmap1 X Y)%functions
+           (weq_to_adjoint_equivalence X Y ∘ pr1 (UA_for_HLevels 3 X Y))%functions
            (idtoiso_2_0 X Y)).
   - intros p.
     induction p ; cbn.
@@ -304,7 +223,7 @@ Proof.
     + apply one_types_is_univalent_2_1.
     + reflexivity.
   - apply twooutof3c.
-    + exact (isweq_eqweqmap1 X Y).
+    + apply UA_for_HLevels.
     + exact (weq_to_adjoint_equivalence_is_weq X Y).
 Defined.
 
