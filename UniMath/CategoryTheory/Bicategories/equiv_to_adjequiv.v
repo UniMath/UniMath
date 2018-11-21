@@ -67,13 +67,13 @@ Definition full_spec
 Proof.
   refine (representable_faithful (Hθ^-1) (f ∘ k₁) (f ∘ k₂) _ α _ _).
   { is_iso. }
-  apply (vcomp_cancel_right (assoc _ _ _) _ _).
+  apply (vcomp_cancel_right (lassociator _ _ _) _ _).
   { is_iso. }
   rewrite <- whisker_l_hcomp.
-  apply (vcomp_cancel_left (assoc_inv _ _ _) _ _).
+  apply (vcomp_cancel_left (rassociator _ _ _) _ _).
   { is_iso. }
   rewrite <- !vcomp_assoc.
-  rewrite assoc_right, vcomp_left_identity.
+  rewrite lassociator_rassociator, vcomp_left_identity.
   apply (vcomp_cancel_left (Hη^-1 ▻ k₂) _ _).
   { is_iso. }
   apply (vcomp_cancel_left (runitor k₂) _ _).
@@ -107,7 +107,7 @@ Section EquivToAdjEquiv.
     exact ((linvunitor g)
              o runitor g
              o ηiso^-1 ▻ g
-             o assoc_inv _ _ _).
+             o rassociator _ _ _).
   Defined.
 
   Definition εiso : is_invertible_2cell ε.
@@ -126,7 +126,7 @@ Section EquivToAdjEquiv.
   Local Definition first_triangle_law
     : (lunitor g)
         o g ◅ ε
-        o assoc g f g
+        o lassociator g f g
         o η ▻ g
         o rinvunitor _
       = id₂ g.
@@ -138,7 +138,7 @@ Section EquivToAdjEquiv.
     rewrite linvunitor_lunitor, vcomp_left_identity.
     rewrite !vcomp_assoc.
     rewrite !(maponpaths (fun z => _ o (_ o z)) (!(vcomp_assoc _ _ _))).
-    rewrite assoc_right, vcomp_left_identity.
+    rewrite lassociator_rassociator, vcomp_left_identity.
     rewrite !(maponpaths (fun z => _ o z) (!(vcomp_assoc _ _ _))).
     rewrite lwhisker_vcomp.
     rewrite vcomp_left_inverse.
@@ -155,7 +155,6 @@ Section EquivToAdjEquiv.
     unfold ε, representable_full.
     is_iso.
   Defined.
-
 
   Local Definition whisker_ηg
     : whisker_ηg_type.
@@ -228,7 +227,6 @@ Section EquivToAdjEquiv.
     rewrite <- η_whisker_l_hcomp.
     rewrite <- lwhisker_vcomp.
     rewrite left_unit_inv_assoc.
-    unfold assoc_inv.
     rewrite <- !vcomp_assoc.
     rewrite lwhisker_lwhisker.
     rewrite !vcomp_assoc.
@@ -257,7 +255,6 @@ Section EquivToAdjEquiv.
     rewrite rinvunitor_runitor, vcomp_right_identity in p.
     rewrite <- !lwhisker_vcomp in p.
     rewrite linvunitor_assoc in p.
-    unfold assoc_inv in p.
     rewrite <- !vcomp_assoc in p.
     rewrite !vcomp_assoc in p.
     rewrite !(maponpaths (fun z => _ o (_ o z)) (!(vcomp_assoc _ _ _))) in p.
@@ -265,7 +262,6 @@ Section EquivToAdjEquiv.
     rewrite <- bc_whisker_l_compose in p.
     rewrite <- !vcomp_assoc in p.
     pose @inverse_pentagon_5 as q.
-    unfold assoc_inv, assoc in q.
     rewrite !lwhisker_hcomp in p.
     rewrite q in p ; clear q.
     rewrite !vcomp_assoc in p.
