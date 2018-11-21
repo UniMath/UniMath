@@ -4,7 +4,8 @@ Require Import
         UniMath.CategoryTheory.opp_precat
         UniMath.CategoryTheory.yoneda
         UniMath.CategoryTheory.functor_categories
-        UniMath.CategoryTheory.categories.category_hset.
+        UniMath.CategoryTheory.categories.HSET.Core
+        UniMath.CategoryTheory.categories.HSET.MonoEpiIso.
 Require Import
         UniMath.Ktheory.Tactics
         UniMath.Ktheory.Precategories
@@ -92,7 +93,7 @@ Definition universalElement {C:category} {X:[C^op,SET]} (r:Representation X) :
 Coercion universalElement : Representation >-> pr1hSet.
 
 Definition universalProperty {C:category} {X:[C^op,SET]} (r:Representation X) (c:C) :
-  c --> universalObject r ≃ c ⇒ X
+  c --> universalObject r ≃ (c ⇒ X)
   := weqpair (λ f : c --> universalObject r, r ⟲ f)
              (pr2 (pr2 r) c).
 

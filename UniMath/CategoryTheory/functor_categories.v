@@ -101,7 +101,7 @@ Qed.
 Definition functor (C C' : precategory_data) : UU :=
   total2 ( λ F : functor_data C C', is_functor F ).
 
-Notation "a ⟶ b" := (functor a b) (at level 39) : cat.
+Notation "a ⟶ b" := (functor a b) : cat.
 (* to input: type "\-->" with Agda input method *)
 
 (** Note that this makes the second component opaque for efficiency reasons *)
@@ -405,7 +405,7 @@ Defined.
 End functors.
 
 (** Notations do not survive the end of sections, so we redeclare them here. *)
-Notation "a ⟶ b" := (functor a b) (at level 39) : cat.
+Notation "a ⟶ b" := (functor a b) : cat.
 Notation "# F" := (functor_on_morphisms F) (at level 3) : cat.
 
 (** ** Fully faithful functors *)
@@ -863,6 +863,31 @@ Proof.
   intros ? ?; apply (pr2 (weqcomp (_,, ffF _ _) (_,, ffG _ _))).
 Qed.
 
+(** Fully faithful functors induce equivalences on commutative triangles
+
+    Compare to [faithful_reflects_commutative_triangle]. *)
+Lemma fully_faithful_commutative_triangle_weq
+      {C D : precategory} (F : functor C D) (fff : fully_faithful F)
+      {X Y Z : ob C} (f : X --> Y) (g : Y --> Z) (h : X --> Z) :
+  (f · g = h) ≃ (#F f · #F g = #F h).
+Proof.
+  apply (@weqcomp _ (# F (f · g) = # F h)).
+  - eapply weqpair.
+    apply (isweqmaponpaths (weq_from_fully_faithful fff _ _) (f · g) h).
+  - use weq_iso; intros p.
+    + refine (_ @ p).
+      apply (!functor_comp _ _ _).
+    + refine (_ @ p).
+      apply (functor_comp _ _ _).
+    + refine (path_assoc _ _ _ @ _).
+      refine (maponpaths (λ pp, pp @ _) (pathsinv0r _) @ _).
+      reflexivity.
+    + cbn.
+      refine (path_assoc _ _ _ @ _).
+      refine (maponpaths (λ pp, pp @ _) (pathsinv0l _) @ _).
+      reflexivity.
+Qed.
+
 (** ** Image on objects of a functor  *)
 (** is used later to define the full image subcategory of a category [D]
        defined by a functor [F : C -> D] *)
@@ -1029,6 +1054,7 @@ Lemma is_precategory_functor_precategory_data
   (C:precategory_data)(C' : precategory) (hs: has_homsets C'):
    is_precategory (functor_precategory_data C C').
 Proof.
+  apply is_precategory_one_assoc_to_two.
   repeat split; simpl; intros.
   unfold identity.
   simpl.
@@ -1586,7 +1612,7 @@ Notation "[ C , D ]" := (functor_category C D) : cat.
 Notation "F ⟹ G" := (nat_trans F G) (at level 39) : cat.
 (* to input: type "\==>" with Agda input method *)
 
-Notation "F ∙ G" := (functor_composite F G) (at level 35) : cat.
+Notation "F ∙ G" := (functor_composite F G) : cat.
 (* to input: type "\." with Agda input method *)
 (* the old notation had the arguments in the opposite order *)
 
@@ -1612,3 +1638,87 @@ Proof.
   intro e.
   now induction e.
 Qed.
+
+(* Natural isomorphisms *)
+Definition is_nat_iso {C D : precategory} {F G : C ⟶ D} (μ : F ⟹ G) : UU :=
+∏ (c : C), is_iso (μ c).
+
+Definition is_nat_id {C D : precategory} {F : C ⟶ D} (μ : F ⟹ F) : UU :=
+∏ (c : C), μ c = identity (F c).
+
+Definition nat_iso {C D : precategory} (F G : C ⟶ D) : UU
+:= ∑ (μ : F ⟹ G), is_nat_iso μ.
+
+Definition mk_nat_iso {C D : precategory} (F G : C ⟶ D) (μ : F ⟹ G) (is_iso : is_nat_iso μ) : nat_iso F G.
+Proof.
+  exists μ.
+  abstract (exact is_iso).
+Defined.
+
+Definition iso_inv_after_iso' {C : precategory} {a b : C} (f : a --> b) (f' : iso a b) (deref : pr1 f' = f) : f · inv_from_iso f' = identity _.
+Proof.
+  rewrite <- deref.
+  exact (iso_inv_after_iso f').
+Defined.
+
+Definition iso_after_iso_inv' {C : precategory} {a b : C} (f : a --> b) (f' : iso a b) (deref : pr1 f' = f) : inv_from_iso f' · f = identity _.
+Proof.
+  rewrite <- deref.
+  exact (iso_after_iso_inv f').
+Defined.
+
+Definition nat_iso_inv {C D : precategory} {F G : C ⟶ D} (μ : nat_iso F G) : nat_iso G F.
+Proof.
+  pose (iso := (λ c, mk_iso (pr2 μ c))).
+  pose (inv := (λ c, inv_from_iso (iso c))).
+  use tpair.
+  - exists inv.
+    intros c c' f.
+    pose (coher := pr2 (pr1 μ) c c' f).
+    pose (coher_inv := maponpaths (λ p, inv c · p · inv c') coher).
+    simpl in coher_inv.
+    repeat rewrite <- assoc in coher_inv.
+    unfold inv in coher_inv.
+    assert (coher_inv' : (inv_from_iso (iso c) · (# F f · ((pr1 μ) c' · inv_from_iso (iso c'))) = inv_from_iso (iso c) · (pr1 (pr1 μ) c · (# G f · inv_from_iso (iso c'))))) by assumption.
+    clear coher_inv; rename coher_inv' into coher_inv.
+    assert (deref' : pr1 (iso c') = (pr1 μ) c') by reflexivity.
+    rewrite (iso_inv_after_iso' ((pr1 μ) c') (iso c') deref') in coher_inv.
+    rewrite id_right in coher_inv.
+    repeat rewrite assoc in coher_inv.
+    assert (deref : pr1 (iso c) = (pr1 μ) c) by reflexivity.
+    assert (coher_inv' : (inv_from_iso (iso c) · # F f = inv_from_iso (iso c) · (pr1 μ) c · # G f · inv_from_iso (iso c'))) by assumption.
+    clear coher_inv; rename coher_inv' into coher_inv.
+    rewrite (iso_after_iso_inv' ((pr1 μ) c) (iso c) deref) in coher_inv.
+    rewrite id_left in coher_inv.
+    unfold inv.
+    symmetry.
+    assumption.
+  - intro c.
+    exact (is_iso_inv_from_iso (iso c)).
+Defined.
+
+Definition nat_iso_to_trans {C D : precategory} {F G : C ⟶ D} (ν : nat_iso F G) : F ⟹ G :=
+  pr1 ν.
+
+(* ⁻¹ *)
+Definition nat_iso_to_trans_inv {C D : precategory} {F G : C ⟶ D} (ν : nat_iso F G) : G ⟹ F :=
+  pr1 (nat_iso_inv ν).
+
+Definition nat_comp_to_endo {C D : precategory} {F G : C ⟶ D} (eq : F = G) {c : C} (f : F c --> G c) : F c --> F c.
+Proof.
+  rewrite <- eq in f.
+  assumption.
+Defined.
+
+Definition is_nat_iso_id {C D : precategory} {F G : C ⟶ D} (eq : F = G) (ν : nat_iso F G) : UU :=
+  ∏ (c : C), nat_comp_to_endo eq (nat_iso_to_trans ν c) = identity (F c).
+
+Definition induced_precategory_incl {M : precategory} {X:Type} (j : X -> ob M) :
+  induced_precategory M j ⟶ M.
+Proof.
+  use mk_functor.
+  - use mk_functor_data.
+    + exact j.
+    + intros a b f. exact f.
+  - repeat split.
+Defined.

@@ -11,9 +11,8 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Export UniMath.CategoryTheory.Categories.
 Require Export UniMath.CategoryTheory.opp_precat
                UniMath.CategoryTheory.yoneda
-               UniMath.CategoryTheory.categories.category_hset.
+               UniMath.CategoryTheory.categories.HSET.Core.
 Require Export UniMath.CategoryTheory.functor_categories.
-Require Export UniMath.CategoryTheory.categories.category_hset.
 
 
 Local Open Scope cat.
@@ -99,7 +98,7 @@ Proof.
 Defined.
 
 Lemma comm_comm_iso_id (A B C:category) :
-  nat_iso (bifunctor_comm B A C □ bifunctor_comm A B C) (functor_identity _).
+  Precategories.nat_iso (bifunctor_comm B A C □ bifunctor_comm A B C) (functor_identity _).
 Proof.
   intros. unshelve refine (makeNatiso _ _).
   { intro F.

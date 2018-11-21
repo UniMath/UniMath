@@ -37,6 +37,7 @@ Definition mod_precategory_data : precategory_data :=
 Lemma is_precategory_mod_precategory_data :
   is_precategory (mod_precategory_data).
 Proof.
+  apply is_precategory_one_assoc_to_two.
   apply dirprodpair.
   - apply dirprodpair.
     + intros M N f.

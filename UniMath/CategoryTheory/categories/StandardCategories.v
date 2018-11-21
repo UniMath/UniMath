@@ -34,7 +34,7 @@ Proof. intros. exact (compose f g). Defined.
 (** The pregroupoid with points in X as objects and paths as morphisms *)
 Definition path_pregroupoid (X:UU) : pregroupoid.
   use mk_pregroupoid.
-  - use mk_precategory; use tpair.
+  - use mk_precategory_one_assoc; use tpair.
     + exact (X,, λ x y, x = y).
     + use dirprodpair.
       * exact (λ _, idpath _).
@@ -272,16 +272,28 @@ Section FunctorFromEmpty.
   Definition functor_from_empty : functor empty_category A :=
     mk_functor _ is_functor_from_empty.
 
-  Lemma iscontr_functor_from_empty {hs : has_homsets A} :
-    iscontr (functor empty_category A).
+  (** Compare to [isaprop_is_functor]. For a functor from the empty_category,
+      it's not necessary that the codomain has homsets. *)
+  Lemma isaprop_is_functor_from_empty
+        (F : functor_data empty_category A) : isaprop (is_functor F).
+  Proof.
+    apply isapropdirprod.
+    - unfold functor_idax.
+      apply impred; intro e; induction e.
+    - unfold functor_compax.
+      apply impred; intro e; induction e.
+  Defined.
+
+  Lemma iscontr_functor_from_empty : iscontr (functor empty_category A).
   Proof.
     use iscontrpair.
     - exact functor_from_empty.
     - intro F.
-      apply functor_eq; [assumption|].
-      use total2_paths_f;
-        apply funextsec; intro empt; induction empt.
-  Qed.
+      use total2_paths_f.
+      + use total2_paths_f;
+          apply funextsec; intro empt; induction empt.
+      + apply proofirrelevance, isaprop_is_functor_from_empty.
+  Defined.
 End FunctorFromEmpty.
 
 (* *)

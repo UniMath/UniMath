@@ -181,3 +181,14 @@ Proof.
     apply isofhlevelsnprop.
     apply propproperty.
 Defined.
+
+(** Homotopy equivalence on total spaces.
+
+  This result combines weqfp and weqfibtototal conveniently.
+  *)
+Lemma weqtotal2 {X Y:Type} {P:X->Type} {Q:Y->Type} (f : X ≃ Y) :
+  (∏ x, P x ≃ Q (f x)) -> (∑ x:X, P x) ≃ (∑ y:Y, Q y).
+Proof.
+  intros e. exists (λ xp, (f(pr1 xp),,e (pr1 xp) (pr2 xp))).
+  exact (twooutof3c _ _ (isweqfibtototal P (Q ∘ f) e) (pr2 (weqfp f Q))).
+Defined.

@@ -7,7 +7,6 @@ Require Import UniMath.Algebra.Monoids_and_Groups
                UniMath.Foundations.UnivalenceAxiom
                UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.Utilities.
-Unset Automatic Introduction.
 
 (** ** Definitions *)
 
@@ -24,7 +23,7 @@ Record Tree :=
     }.
 
 Lemma mt_path_refl (T:Tree) (x y:T) : x = y -> mt_dist _ x y = 0.
-Proof. intros ? ? ? e. destruct e. apply mt_refl. Qed.
+Proof. intros e. destruct e. apply mt_refl. Qed.
 
 Lemma tree_deceq (T:Tree) : isdeceq T.
 Proof. intros. intros t u. induction (isdeceqnat (mt_dist T t u) 0) as [a|b].
@@ -40,8 +39,7 @@ Definition tree_induction (T:Tree) (x:T) (P:T->Type)
            (p0 : P x)
            (pn : ∏ z (ne:x != z), P (step T ne) -> P z) :
   ∏ z, P z.
-Proof. intros ? ? ? ? ?.
-       assert(d_ind : ∏ n z, mt_dist _ x z = n -> P z).
+Proof. assert(d_ind : ∏ n z, mt_dist _ x z = n -> P z).
        { intros ?.
          induction n as [|n IH].
          { intros. assert (k:x=z).

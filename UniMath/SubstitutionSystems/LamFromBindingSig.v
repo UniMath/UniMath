@@ -15,8 +15,10 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.categories.category_hset.
-Require Import UniMath.CategoryTheory.categories.category_hset_structures.
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.categories.HSET.Limits.
+Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
+Require Import UniMath.CategoryTheory.categories.HSET.Structures.
 Require Import UniMath.CategoryTheory.Chains.All.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
@@ -65,7 +67,7 @@ Proof.
 apply (BinProducts_functor_precat _ _ BinProductsHSET).
 Defined.
 
-Local Notation "x ⊗ y" := (BinProductObject _ (BinProductsHSET2 x y)) (at level 10).
+Local Notation "x ⊗ y" := (BinProductObject _ (BinProductsHSET2 x y)).
 Let precomp_option X := (pre_composition_functor _ _ HSET has_homsets_HSET has_homsets_HSET
                           (option_functor BinCoproductsHSET TerminalHSET) X).
 Local Notation "X + 1" := (precomp_option X) (at level 50).
@@ -220,7 +222,7 @@ Defined.
 
 
 Local Notation "'1'" := (TerminalHSET).
-Local Notation "a ⊕ b" := (BinCoproductObject _ (BinCoproductsHSET a b)) (at level 50).
+Local Notation "a ⊕ b" := (BinCoproductObject _ (BinCoproductsHSET a b)).
 Local Notation "x ⊛ y" := (BinProductObject _ (BinProductsHSET x y)) (at level 60).
 
 (** This makes cbn not unfold things too much below *)

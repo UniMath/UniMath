@@ -5,10 +5,6 @@
 (** made compatible with the current UniMath library again by Benedikt Ahrens in 2014
     and by Ralph Matthes in 2017 *)
 
-(** Settings *)
-
-Unset Automatic Introduction.
-
 (** Imports *)
 
 Require Import UniMath.Foundations.PartA.
@@ -41,13 +37,13 @@ Definition pathintotalpr1 { B : UU } { E : B -> UU } { v w : total2 E} ( p : v =
   ( pr1 v ) = ( pr1 w ) := maponpaths ( fun x => pr1 x ) p.
 
 Lemma isinclisinj { A B : UU } { f : A -> B } ( p : isincl f ) { a b : A }
-      ( p : f a = f b ) : a = b.
+      ( f_eq : f a = f b ) : a = b.
 Proof.
   intros.
   set ( q := p ( f a )).
   set ( a' := hfiberpair f a ( idpath ( f a ) ) ).
-  set ( b' := hfiberpair f b ( pathsinv0 p0 ) ).
-  assert ( a' = b' ) as p1 by apply (p ( f a ) ).
+  set ( b' := hfiberpair f b ( pathsinv0 f_eq ) ).
+  assert ( a' = b' ) as p1. apply (p ( f a ) ).
   apply ( pathintotalpr1 p1 ).
 Defined.
 
@@ -55,31 +51,31 @@ Defined.
 
 Lemma minus0r ( n : nat ) : sub n 0 = n.
 Proof.
-  intros n. destruct n; apply idpath.
+  destruct n; apply idpath.
 Defined.
 
 Lemma minusnn0 ( n : nat ) : sub n n = 0%nat.
 Proof.
-  intro. induction n.
+  induction n.
   - apply idpath.
   - assumption.
 Defined.
 
 Lemma minussn1 ( n : nat ) : sub ( S n ) 1 = n.
 Proof.
-  intro. destruct n; apply idpath.
+  destruct n; apply idpath.
 Defined.
 
 Lemma minussn1non0 ( n : nat ) ( p : natlth 0 n ) : S ( sub n 1 ) = n.
 Proof.
-  intro. destruct n.
+  revert p. destruct n.
   - intro p. apply fromempty. exact (isirreflnatlth 0%nat p ).
   - intro. apply maponpaths. apply minus0r.
 Defined.
 
 Lemma minusleh ( n m : nat ) : natleh ( sub n m ) n.
 Proof.
-  intros n. induction n.
+  revert m. induction n.
   - intros m. apply isreflnatleh.
   - intros m. destruct m.
     + apply isreflnatleh.
@@ -90,12 +86,12 @@ Defined.
 
 Lemma minus1leh { n m : nat } ( p : natlth 0 n ) ( q : natlth 0 m ) ( r : natleh n m ) : natleh ( sub n 1 ) ( sub m 1 ).
 Proof.
-  intro n. destruct n.
+  revert m p q r. destruct n.
   - auto.
   - intros m p q r. destruct m.
     + apply fromempty. exact (isirreflnatlth 0%nat q ).
-    + assert ( natleh n m ) as a by apply r.
-      assert ( natleh ( sub n 0%nat ) m ) as a0 by
+    + assert ( natleh n m ) as a. apply r.
+      assert ( natleh ( sub n 0%nat ) m ) as a0.
         exact (transportf ( fun x : nat => natleh x m ) ( pathsinv0 ( minus0r n ) ) a).
       exact ( transportf ( fun x : nat => natleh ( sub n 0 ) x ) (pathsinv0 ( minus0r m ) ) a0 ).
 Defined.
@@ -103,7 +99,7 @@ Defined.
 Lemma minuslth ( n m : nat ) ( p : natlth 0 n ) ( q : natlth 0 m ) :
   natlth ( sub n m ) n.
 Proof.
-  intro n. destruct n.
+  revert m p q. destruct n.
   - auto.
   - intros m p q. destruct m.
     + apply fromempty. exact ( isirreflnatlth 0%nat q).
@@ -114,7 +110,7 @@ Defined.
 
 Lemma natlthsntoleh ( n m : nat ) : natlth m ( S n ) -> natleh m n.
 Proof.
-  intro. induction n.
+  revert m. induction n.
   - intros m p. destruct m.
     + apply isreflnatleh.
     + assert ( natlth m 0 ) as q by apply p.
@@ -127,7 +123,7 @@ Defined.
 Lemma natlthminus0 { n m : nat } ( p : natlth m n ) :
   natlth 0 ( sub n m ).
 Proof.
-  intro n. induction n.
+  revert m p. induction n.
   - intros m p. apply fromempty. exact ( negnatlthn0 m p ).
   - intros m p. destruct m.
     + auto.
@@ -137,7 +133,7 @@ Defined.
 Lemma natlthsnminussmsn ( n m : nat ) ( p : natlth m n ) :
   natlth ( sub ( S n ) ( S m ) ) ( S n ).
 Proof.
-  intro. induction n.
+  revert m p. induction n.
   - intros m p. apply fromempty. apply (negnatlthn0 m p).
   - intros m p. destruct m.
     + assert ( sub ( S ( S n ) ) 1 = S n ) as f.
@@ -153,7 +149,7 @@ Defined.
 Lemma natlehsnminussmsn ( n m : nat ) ( p : natleh m n ) :
   natleh (sub ( S n ) ( S m ) ) ( S n ).
 Proof.
-  intro n. induction n.
+  revert m p. induction n.
   - intros m p. apply negnatgthtoleh. intro X. apply nopathsfalsetotrue. assumption.
   - intros m p. destruct m.
     + apply natlthtoleh. apply natlthnsn.
@@ -165,7 +161,7 @@ Defined.
 Lemma pathssminus ( n m : nat ) ( p : natlth m ( S n ) ) :
   S ( sub n m ) = sub ( S n ) m.
 Proof.
-  intro n. induction n.
+  revert m p. induction n.
   - intros m p. destruct m.
     + auto.
     + apply fromempty.
@@ -178,7 +174,7 @@ Defined.
 Lemma natlehsminus ( n m : nat ) :
   natleh ( sub ( S n ) m ) ( S (sub n m ) ).
 Proof.
-  intro n. induction n.
+  revert m. induction n.
   - intros m. apply negnatgthtoleh. intro X. apply nopathstruetofalse.
     apply pathsinv0. destruct m.
     + assumption.
@@ -191,7 +187,6 @@ Defined.
 Lemma natlthssminus { n m l : nat } ( p : natlth m ( S n ) )
       ( q : natlth l ( S ( sub ( S n ) m ) ) ) : natlth l ( S ( S n ) ).
 Proof.
-  intro n. intros m l p q.
   apply ( natlthlehtrans _ ( S ( sub ( S n ) m ) ) ).
   - assumption.
   - destruct m.
@@ -202,7 +197,7 @@ Defined.
 Lemma natdoubleminus { n k l : nat } ( p : natleh k n ) ( q : natleh l k ) :
   sub n k = sub ( sub n l ) ( sub k l ).
 Proof.
-  intro n. induction n.
+  revert k l p q. induction n.
   - auto.
   - intros k l p q. destruct k.
     + destruct l.
@@ -215,7 +210,7 @@ Defined.
 
 Lemma minusnleh1 ( n m : nat ) ( p : natlth m n ) : natleh m ( sub n 1 ).
 Proof.
-  intro n. destruct n.
+  revert m p. destruct n.
   - intros m p. apply fromempty. exact (negnatlthn0 m p ).
   - intros m p. destruct m.
     + apply natleh0n.
@@ -227,7 +222,7 @@ Defined.
 Lemma doubleminuslehpaths ( n m : nat ) ( p : natleh m n ) :
   sub n (sub n m ) = m.
 Proof.
-  intro n. induction n.
+  revert m p. induction n.
   - intros m p. destruct ( natlehchoice m 0 p ) as [ h | k ].
     + apply fromempty. apply negnatlthn0 with ( n := m ). assumption.
     + simpl. apply pathsinv0. assumption.
@@ -252,7 +247,7 @@ Defined.
 
 Definition natcoface ( i : nat ) : nat -> nat.
 Proof.
-  intros i n. destruct ( natgtb i n ).
+  intros n. destruct ( natgtb i n ).
   - exact n.
   - exact ( S n ).
 Defined.
@@ -279,7 +274,7 @@ Defined.
 
 Definition natcofaceretract ( i : nat ) : nat -> nat.
 Proof.
-  intros i n. destruct ( natgtb i n ).
+  intros n. destruct ( natgtb i n ).
   - exact n.
   - exact ( sub n 1 ).
 Defined.
@@ -287,7 +282,6 @@ Defined.
 Lemma natcofaceretractisretract ( i : nat ) :
   funcomp ( natcoface i ) ( natcofaceretract i ) = idfun nat.
 Proof.
-  intro i.
   simpl. apply funextfun.
   intro n. unfold funcomp.
   set ( c := natlthorgeh n i ). destruct c as [ h | k ].
@@ -304,7 +298,7 @@ Defined.
 
 Lemma isinjnatcoface ( i x y : nat ) : natcoface i x = natcoface i y -> x = y.
 Proof.
-  intros i x y p.
+  intros p.
   change x with ( idfun _ x).
   rewrite <- ( natcofaceretractisretract i ).
   change y with ( idfun _ y ).
@@ -315,7 +309,7 @@ Defined.
 Lemma natlehdecomp ( b a : nat ) :
   ( ∃ c : nat, ( a + c )%nat = b ) -> natleh a b.
 Proof.
-  intro b. induction b.
+  revert a. induction b.
   - intros a p. use (hinhuniv _ p).
     intro t. destruct t as [ c f ]. destruct a.
     + apply isreflnatleh.
@@ -786,7 +780,7 @@ Definition isapartdec { X : hSet } ( R : apart X ) :=
 Lemma isapartdectodeceq { X : hSet } ( R : apart X ) ( is : isapartdec R ) :
   isdeceq X.
 Proof.
-  intros X R is y z. destruct ( is y z ) as [ l | r ].
+  intros y z. destruct ( is y z ) as [ l | r ].
   - apply ii2. intros f. apply ( pr1 ( pr2 R ) z).
     rewrite f in l. assumption.
   - apply ii1. assumption.
@@ -795,7 +789,7 @@ Defined.
 Lemma isdeceqtoisapartdec ( X : hSet ) ( is : isdeceq X ) :
   isapartdec ( tpair _ ( deceqtoneqapart is ) ).
 Proof.
-  intros X is a b. destruct ( is a b ) as [ l | r ].
+  intros a b. destruct ( is a b ) as [ l | r ].
   - apply ii2. assumption.
   - apply ii1. intros f. apply r. assumption.
 Defined.
@@ -887,7 +881,7 @@ Defined.
 
 Definition afldtoaintdom ( A : afld ) : aintdom .
 Proof.
-  intro. split with ( pr1 A ). split.
+  split with ( pr1 A ). split.
   - apply (pr2 A).
   - intros a b p q.
     apply afldinvertibletoazero.
@@ -941,7 +935,7 @@ Close Scope ring_scope.
 Lemma horelim ( A B : UU ) ( P : hProp ) :
   ( ishinh_UU A -> P ) × ( ishinh_UU B -> P ) -> A ∨ B -> P.
 Proof.
-  intros A B P p q. simpl in q. apply q.
+  intros p q. simpl in q. apply q.
   intro u. destruct u as [ u | v ].
   - apply ( pr1 p ). intro Q. intro H. apply H. assumption.
   - apply ( pr2 p ). intro Q. intro H. apply H. assumption.
@@ -986,7 +980,7 @@ Definition isdecnatprop ( P : nat -> hProp ) :=
 Lemma negisdecnatprop ( P : nat -> hProp ) ( is : isdecnatprop P ) :
   isdecnatprop ( fun n : nat => hneg ( P n ) ).
 Proof.
-  intros P is n. destruct ( is n ) as [ l | r ].
+  intros n. destruct ( is n ) as [ l | r ].
   - apply ii2. intro j.
     assert hfalse as x.
     { simpl in j. apply j. assumption. }
@@ -997,7 +991,7 @@ Defined.
 Lemma bndexistsisdecnatprop ( P : nat -> hProp ) ( is : isdecnatprop P ) :
   isdecnatprop ( fun n : nat => ∃ m : nat, natleh m n × P m ).
 Proof.
-  intros P is n. induction n.
+  intros n. induction n.
   - destruct ( is 0%nat ) as [ l | r ].
     + apply ii1. apply total2tohexists.
       split with 0%nat. split.
@@ -1049,7 +1043,6 @@ Defined.
 Lemma isdecisbndqdec ( P : nat -> hProp ) ( is : isdecnatprop P ) ( n : nat ) :
   ( forall m : nat, natleh m n -> P m ) ⨿ ∃ m : nat, natleh m n × neg ( P m ).
 Proof.
-  intros P is n.
   destruct ( bndexistsisdecnatprop _ ( negisdecnatprop P is ) n ) as [ l | r ].
   - apply ii2. assumption.
   - apply ii1. intros m j.
@@ -1065,7 +1058,7 @@ Lemma leastelementprinciple ( n : nat ) ( P : nat -> hProp )
       ( is : isdecnatprop P ) : P n ->
       ∃ k : nat, P k × forall m : nat, natlth m k -> neg ( P m ).
 Proof.
-  intro n. induction n.
+  revert P is. induction n.
   - intros P is u.
     apply total2tohexists.
     split with 0%nat. split.

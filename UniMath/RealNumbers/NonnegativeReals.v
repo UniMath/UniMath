@@ -13,8 +13,6 @@ Local Open Scope NRat_scope.
 Local Open Scope Dcuts_scope.
 Local Open Scope tap_scope.
 
-Unset Automatic Introduction.
-
 (** ** Definition of Dedekind cuts *)
 
 Definition Dcuts_def_bot (X : hsubtype NonnegativeRationals) : UU :=
@@ -31,7 +29,7 @@ Definition Dcuts_def_corr (X : hsubtype NonnegativeRationals) : UU :=
 Lemma Dcuts_def_corr_finite (X : hsubtype NonnegativeRationals) :
   Dcuts_def_corr X → Dcuts_def_finite X.
 Proof.
-  intros X Hx.
+  intros Hx.
   specialize (Hx _ ispositive_oneNonnegativeRationals).
   revert Hx ; apply hinhuniv ; apply sumofmaps ; [intros Hx |  intros x].
   - apply hinhpr.
@@ -44,7 +42,7 @@ Lemma Dcuts_def_corr_not_empty (X : hsubtype NonnegativeRationals) :
   ∏ c : NonnegativeRationals,
     (0 < c)%NRat -> ∃ x : NonnegativeRationals, X x × ¬ X (x + c).
 Proof.
-  intros X X0 Hx c Hc.
+  intros X0 Hx c Hc.
   generalize (Hx c Hc).
   apply hinhuniv ; apply sumofmaps ; [intros nXc | intros Hx' ].
   - apply hinhpr ; exists 0%NRat ; split.
@@ -56,19 +54,16 @@ Qed.
 
 Lemma isaprop_Dcuts_def_bot (X : hsubtype NonnegativeRationals) : isaprop (Dcuts_def_bot X).
 Proof.
-  intros X.
   repeat (apply impred_isaprop ; intro).
   now apply pr2.
 Qed.
 Lemma isaprop_Dcuts_def_open (X : hsubtype NonnegativeRationals) : isaprop (Dcuts_def_open X).
 Proof.
-  intros X.
   repeat (apply impred_isaprop ; intro).
   now apply pr2.
 Qed.
 Lemma isaprop_Dcuts_def_corr (X : hsubtype NonnegativeRationals) : isaprop (Dcuts_def_corr X).
 Proof.
-  intros X.
   repeat (apply impred_isaprop ; intro).
   now apply pr2.
 Qed.
@@ -76,7 +71,6 @@ Qed.
 Lemma isaprop_Dcuts_hsubtype (X : hsubtype NonnegativeRationals) :
   isaprop (Dcuts_def_bot X × Dcuts_def_open X × Dcuts_def_corr X).
 Proof.
-  intro X.
   apply isofhleveldirprod, isofhleveldirprod.
   - exact (isaprop_Dcuts_def_bot X).
   - exact (isaprop_Dcuts_def_open X).
@@ -101,17 +95,14 @@ Open Scope DC_scope.
 
 Lemma is_Dcuts_bot (X : Dcuts_set) : Dcuts_def_bot (pr1 X).
 Proof.
-  intros X.
   exact (pr1 (pr2 X)).
 Qed.
 Lemma is_Dcuts_open (X : Dcuts_set) : Dcuts_def_open (pr1 X).
 Proof.
-  intros X.
   exact (pr1 (pr2 (pr2 X))).
 Qed.
 Lemma is_Dcuts_corr (X : Dcuts_set) : Dcuts_def_corr (pr1 X).
 Proof.
-  intros X.
   exact (pr2 (pr2 (pr2 X))).
 Qed.
 
@@ -120,7 +111,6 @@ Definition mk_Dcuts (X : NonnegativeRationals → hProp)
                     (Hopen : Dcuts_def_open X)
                     (Herror : Dcuts_def_corr X) : Dcuts_set.
 Proof.
-  intros X Hbot Hopen Herror.
   exists X ; repeat split.
   now apply Hbot.
   now apply Hopen.
@@ -417,7 +407,6 @@ Qed.
 Lemma isaprop_Dcuts_ap_rel (X Y : Dcuts_set) :
   isaprop ((X < Y) ⨿ (Y < X)).
 Proof.
-  intros X Y.
   apply (isapropcoprod (X < Y) (Y < X)
                        (propproperty (X < Y))
                        (propproperty (Y < X))
@@ -556,13 +545,13 @@ Qed.
 Lemma NonnegativeRationals_to_Dcuts_bot (q : NonnegativeRationals) :
   Dcuts_def_bot (λ r : NonnegativeRationals, (r < q)%NRat).
 Proof.
-  intros q r Hr n Hnr.
+  intros r Hr n Hnr.
   now apply istrans_le_lt_ltNonnegativeRationals with r.
 Qed.
 Lemma NonnegativeRationals_to_Dcuts_open (q : NonnegativeRationals) :
   Dcuts_def_open (λ r : NonnegativeRationals, (r < q)%NRat).
 Proof.
-  intros q r Hr.
+  intros r Hr.
   apply hinhpr.
   generalize (between_ltNonnegativeRationals r q Hr) ; intros n.
   exists (pr1 n).
@@ -573,7 +562,6 @@ Qed.
 Lemma NonnegativeRationals_to_Dcuts_corr (q : NonnegativeRationals) :
   Dcuts_def_corr (λ r : NonnegativeRationals, (r < q)%NRat).
 Proof.
-  intros q.
   intros r Hr0.
   apply hinhpr.
   generalize (isdecrel_ltNonnegativeRationals r q) ; apply sumofmaps ; intros Hqr.
@@ -3928,9 +3916,8 @@ Definition is_Dcuts_lim_seq (u : nat -> Dcuts) (l : Dcuts) : hProp
                             ∏ n : nat, N ≤ n -> u n < Dcuts_plus l eps × l < Dcuts_plus (u n) eps))
                (impred_isaprop _ (λ _, isapropimpl _ _ (pr2 _))).
 
-Definition Dcuts_lim_cauchy_seq (u : nat → Dcuts) (Hu : Dcuts_Cauchy_seq u) : Dcuts.
+Definition Dcuts_lim_cauchy_seq (U : nat → Dcuts) (HU : Dcuts_Cauchy_seq U) : Dcuts.
 Proof.
-  intros U HU.
   exists (Dcuts_lim_cauchy_val (λ n, pr1 (U n))).
   repeat split.
   - apply Dcuts_lim_cauchy_bot.
@@ -3951,10 +3938,10 @@ Proof.
       * now refine (Dcuts_lt_le_rel _ _ (pr2 HU)).
 Defined.
 
-Lemma Dcuts_Cauchy_seq_impl_ex_lim_seq (u : nat → Dcuts) (Hu : Dcuts_Cauchy_seq u) :
-  is_Dcuts_lim_seq u (Dcuts_lim_cauchy_seq u Hu).
+Lemma Dcuts_Cauchy_seq_impl_ex_lim_seq (U : nat → Dcuts) (HU : Dcuts_Cauchy_seq U) :
+  is_Dcuts_lim_seq U (Dcuts_lim_cauchy_seq U HU).
 Proof.
-  intros U HU eps.
+  intros eps.
   apply hinhuniv ; intros c'.
   generalize (is_Dcuts_open _ _ (pr2 (pr2 c'))).
   apply hinhuniv ; intros c.
@@ -5328,7 +5315,7 @@ Definition Cauchy_seq_impl_ex_lim_seq (u : nat → NonnegativeReals) (Cu : Cauch
 Lemma is_lim_seq_unique_aux (u : nat → NonnegativeReals) (l l' : NonnegativeReals) :
   is_lim_seq u l → is_lim_seq u l' → l < l' → empty.
 Proof.
-  intros u l l' Hl Hl' Hlt.
+  intros Hl Hl' Hlt.
   assert (Hlt0 : 0 < l' - l).
   { now apply ispositive_minusNonnegativeReals. }
   assert (Hlt0' : 0 < (l' - l) / 2).
@@ -5356,7 +5343,7 @@ Qed.
 Lemma is_lim_seq_unique (u : nat → NonnegativeReals) (l l' : NonnegativeReals) :
   is_lim_seq u l → is_lim_seq u l' → l = l'.
 Proof.
-  intros u l l' Hl Hl'.
+  intros Hl Hl'.
   apply istight_apNonnegativeReals.
   unfold neg ;
   apply sumofmaps.

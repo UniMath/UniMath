@@ -1,7 +1,7 @@
 Univalent Mathematics
 =====================
 
-This Coq library aims to formalize a substantial body of mathematics using the
+This [Coq](https://coq.inria.fr/) library aims to formalize a substantial body of mathematics using the
 [univalent point of view](https://en.wikipedia.org/wiki/Univalent_foundations).
 
 Installation
@@ -66,3 +66,11 @@ The current members of the UniMath Development Team are:
 
 - Benedikt Ahrens
 - Daniel Grayson
+
+
+Acknowledgments
+---------------
+
+The UniMath development team gratefully acknowledges the great work by
+the Coq development team in providing the [Coq proof assistant](https://coq.inria.fr/), as well
+as their support in keeping UniMath compatible with Coq.

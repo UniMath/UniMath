@@ -1,4 +1,3 @@
-Unset Automatic Introduction.
 Require Export UniMath.Foundations.PartD.
 
 Goal ∑ (_:nat) (_:nat) (_:nat) (_:nat), nat. exact (2,,3,,4,,5,,6). Defined.

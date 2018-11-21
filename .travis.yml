@@ -8,7 +8,7 @@ env:
   global:
     - THIS_REPO=UniMath
   matrix:
-    - PACKAGES="Foundations Combinatorics Algebra NumberSystems PAdics"
+    - PACKAGES="Foundations Combinatorics Algebra NumberSystems PAdics Paradoxes"
     - PACKAGES=CategoryTheory
     - PACKAGES="MoreFoundations Ktheory"
     - PACKAGES=HomologicalAlgebra

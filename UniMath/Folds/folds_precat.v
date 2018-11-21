@@ -31,7 +31,7 @@ Definition ob (C : folds_ob_mor) : UU := @pr1 _ _ C.
 Coercion ob : folds_ob_mor >-> UU.
 
 Definition folds_morphisms {C : folds_ob_mor} : C → C → UU := pr2 C.
-Local Notation "a ⇒ b" := (folds_morphisms a b)(at level 50).
+Local Notation "a ⇒ b" := (folds_morphisms a b).
 
 Definition has_folds_homsets (C : folds_ob_mor) : UU := ∏ a b: C, isaset (a ⇒ b).
 
@@ -148,7 +148,7 @@ Defined.
 Definition T_func {a b c : C} (f : a ⇒ b) (g : b ⇒ c) : a ⇒ c :=
      pr1 (pr1 (T_contr a b c f g)).
 
-Local Notation "f ∘ g" := (T_func f g).  (*at level 30*)
+Local Notation "f ∘ g" := (T_func f g).
 
 Lemma T_func_T {a b c : C} (f : a ⇒ b) (g : b ⇒ c) : T f g (f ∘ g).
 Proof.

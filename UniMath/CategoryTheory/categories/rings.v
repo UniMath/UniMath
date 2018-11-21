@@ -53,7 +53,7 @@ Section def_ring_precategory.
 
   Lemma is_precategory_ring_precategory_data : is_precategory ring_precategory_data.
   Proof.
-    use mk_is_precategory.
+    use mk_is_precategory_one_assoc.
     - intros a b f. use ring_id_left.
     - intros a b f. use ring_id_right.
     - intros a b c d f g h. use ring_assoc.
