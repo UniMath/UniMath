@@ -24,37 +24,33 @@ Local Open Scope cat.
 
 (** ** Points as global elements *)
 
-Definition global_element_HSET {A : hSet} (a : A) : HSET⟦unitset, A⟧ := fun _ => a.
+(** See https://ncatlab.org/nlab/show/global+element *)
+
+Local Definition global_element_HSET {A : hSet} (a : A) : HSET⟦unitset, A⟧ :=
+  invweq (weqfunfromunit A) a.
+
 (** TODO: I think there is a name in UniMath for the constant function at [a],
     what is it? *)
 
-Definition global_element_HSET_paths_weq {A : hSet} (x y : A) :
+Local Definition global_element_HSET_paths_weq {A : hSet} (x y : A) :
   (x = y) ≃ (global_element_HSET x = global_element_HSET y).
 Proof.
-  apply weqimplimpl.
-  - intro.
-    apply funextfun; intro; cbn.
-    assumption.
-  - intros eq.
-    apply eqtohomot in eq.
-    specialize (eq tt); cbn in eq.
-    assumption.
-  - apply setproperty.
-  - apply setproperty.
+  apply weqonpaths.
 Qed.
 
-Definition global_element_HSET_comp {A B : hSet} (f : HSET⟦A, B⟧) (x : A) :
+Local Definition global_element_HSET_comp {A B : hSet} (f : HSET⟦A, B⟧) (x : A) :
   global_element_HSET x · f = global_element_HSET (f x).
 Proof.
-  reflexivity.
+  abstract (apply funextfun; intro z; induction z; reflexivity).
 Qed.
 
 (** This goes through without any further reasoning because of the computational
     behavior of [global_element_HSET] (i.e. [global_element_HSET_comp]). *)
-Definition global_element_HSET_fun_weq {A B : hSet} (f : HSET⟦A, B⟧) (x y : A) :
+Local Definition global_element_HSET_fun_weq {A B : hSet} (f : HSET⟦A, B⟧) (x y : A) :
   (f x = f y) ≃ (global_element_HSET x · f = global_element_HSET y · f).
 Proof.
-  apply global_element_HSET_paths_weq.
+  abstract (do 2 rewrite global_element_HSET_comp;
+            apply global_element_HSET_paths_weq).
 Qed.
 
 (** ** Monomorphisms are exactly injective functions [MonosAreInjective_HSET] *)
@@ -66,30 +62,21 @@ Proof.
   - intro isM.
     apply incl_injectivity; intros b.
     apply invproofirrelevance; intros a1 a2.
-    unfold hfiber in *.
     apply subtypeEquality; [intro; apply setproperty|].
-    unfold isMonic in *.
-    specialize (isM _ (global_element_HSET (pr1 a1)) (global_element_HSET (pr1 a2))).
     apply global_element_HSET_paths_weq.
     apply isM.
-    eapply pathscomp0.
-    + refine (global_element_HSET_comp _ _ @ _).
-      apply global_element_HSET_paths_weq.
-      exact (pr2 a1).
-    + refine (_ @ !global_element_HSET_comp _ _).
-      apply global_element_HSET_paths_weq.
-      exact (!pr2 a2).
+    apply funextsec; intro t.
+    abstract (induction t; exact (pr2 a1 @ ! pr2 a2)).
   - intro isI.
     unfold isMonic.
     intros ? ? ? eq.
     apply funextfun; intro.
-    apply (invweq (weqpair _ (isI _ _))).
+    apply (invweq (Injectivity _ isI _ _)).
     apply toforallpaths in eq.
     apply eq.
   - apply isapropisMonic, has_homsets_HSET.
   - apply isaprop_isInjective.
 Qed.
-
 
 (** ** Epimorphisms are exactly surjective functions [EpisAreSurjective_HSET] *)
 
