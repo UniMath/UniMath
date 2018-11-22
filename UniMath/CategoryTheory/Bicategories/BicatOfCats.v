@@ -128,9 +128,6 @@ Proof.
       etrans. { apply id_left. } apply (! id_right _ ).
 Defined.
 
-Definition koe {A : UU} : A.
-Admitted.
-
 Definition op_laxfunctor_laws : laxfunctor_laws op_laxfunctor_data.
 Proof.
   repeat (use tpair).
