@@ -1,4 +1,15 @@
+(** ** More results on sets *)
+
 Require Export UniMath.MoreFoundations.Propositions.
+Require Export UniMath.Foundations.Sets.
+
+(** ** Contents
+
+  - (More entries need to be added here...)
+  - Other universal properties for [setquot]
+  - The equivalence relation of being in the same fiber
+  - Subsets
+ *)
 
 Local Open Scope set.
 
@@ -61,6 +72,8 @@ Proof.
   intros x x' r. exact (Hg _ _ (Hf x x' r)).
 Defined.
 
+(** ** Other universal properties for [setquot] *)
+
 Theorem setquotunivprop' {X : UU} {R : eqrel X} (P : setquot (pr1 R) -> UU)
         (H : ∏ x, isaprop (P x)) (ps : ∏ x : X, P (setquotpr R x)) : ∏ c : setquot (pr1 R), P c.
 Proof.
@@ -108,3 +121,11 @@ Proof.
     + intro; reflexivity.
     + intros ? ? eq; exact (!eq).
 Defined.
+
+(** ** Subsets *)
+
+Definition subset {X : hSet} (Hsub : hsubtype X) : hSet :=
+  hSetpair (carrier Hsub) (isaset_carrier_subset _ Hsub).
+
+Definition makeSubset {X : hSet} {Hsub : hsubtype X} (x : X) (Hx : Hsub x) : subset Hsub :=
+  x,, Hx.

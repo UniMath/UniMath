@@ -4,6 +4,7 @@ Unset Kernel Term Sharing.
 
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.MoreFoundations.Sets.
 
 Require Import UniMath.RealNumbers.Sets.
 Require Import UniMath.RealNumbers.Fields.
