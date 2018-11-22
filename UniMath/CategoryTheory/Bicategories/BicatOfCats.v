@@ -99,24 +99,12 @@ Definition bicat_of_cats : bicat
 
 Local Notation "∁" := bicat_of_cats.
 
-Definition op_functor_data : functor_data (op2_prebicat ∁) ∁.
+Definition op_laxfunctor_data : laxfunctor_data (op2_prebicat ∁) ∁.
 Proof.
-  use tpair.
+  use build_laxfunctor_data.
   - exact (λ c, op_cat c).
-  - intros c d f. exact (functor_opp f).
-Defined.
-
-Definition op_laxfunctor_ob_mor_cell : laxfunctor_ob_mor_cell (op2_prebicat ∁) ∁.
-Proof.
-  exists op_functor_data.
-  intros a b f g x.
-  cbn in *.
-  apply (op_nt x).
-Defined.
-
-Definition op_laxfunctor_cell_data : laxfunctor_cell_data op_laxfunctor_ob_mor_cell.
-Proof.
-  split; cbn.
+  - exact (λ _ _ f, functor_opp f).
+  - exact (λ _ _ _ _ x, op_nt x).
   - intro C.
     use tpair.
     + cbn.
@@ -136,8 +124,8 @@ Proof.
       etrans. { apply id_left. } apply (! id_right _ ).
 Defined.
 
-Definition op_laxfunctor_data : laxfunctor_data (op2_prebicat ∁) ∁
-  := _ ,, op_laxfunctor_cell_data.
+Definition koe {A : UU} : A.
+Admitted.
 
 Definition op_laxfunctor_laws : laxfunctor_laws op_laxfunctor_data.
 Proof.
@@ -168,13 +156,12 @@ Proof.
     intro. cbn. apply pathsinv0.
     rewrite id_left. rewrite id_right.
     apply idpath.
-  - cbn.
-    intros C1 C2 C3 F1 F2 F3 α ; cbn in *.
+  - intros C1 C2 C3 F1 F2 F3 α ; cbn in *.
     apply nat_trans_eq; [apply (homset_property (op_cat C3) )|].
     intros x ; cbn.
     rewrite id_left, id_right.
     reflexivity.
-Admitted. (* TODO: QED is slow :( *)
+Qed.
 
 Definition op_laxfunctor : laxfunctor (op2_prebicat ∁) ∁ := _ ,, op_laxfunctor_laws.
 
