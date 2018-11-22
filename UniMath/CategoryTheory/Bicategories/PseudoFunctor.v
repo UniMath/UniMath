@@ -356,6 +356,23 @@ Section PseudoFunctorDerivedLaws.
     symmetry.
     apply laxfunctor_lassociator.
   Qed.
+
+  Definition laxfunctor_comp_natural
+            {a b c : C}
+           {g₁ g₂ : C⟦b,c⟧} {f₁ f₂ : C⟦a,b⟧}
+           (ηg : g₁ ==> g₂) (ηf : f₁ ==> f₂)
+    : laxfunctor_comp F f₂ g₂ o ##F (ηf ⋆ ηg)
+      =
+      (##F ηf) ⋆ (##F ηg) o laxfunctor_comp F f₁ g₁.
+  Proof.
+    unfold hcomp.
+    rewrite !laxfunctor_vcomp.
+    rewrite !vassocl.
+    rewrite laxfunctor_lwhisker.
+    rewrite !vassocr.
+    rewrite laxfunctor_rwhisker.
+    reflexivity.
+  Defined.
 End PseudoFunctorDerivedLaws.
 
 Module Notations.
