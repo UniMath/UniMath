@@ -1259,10 +1259,23 @@ Proof.
   cbn in TT.
   apply cell_transportf_to_b.
   etrans.
-  2: apply TT.
+  2: now apply TT.
   unfold cell_transportf.
   apply maponpaths_2.
   apply cellset_property.
+Qed.
+
+Theorem disp_runitor_lunitor_identity {C : bicat} {D : disp_bicat C} {a : C} (aa : D a)
+  : disp_runitor (id_disp aa) =
+    transportb (λ x, disp_2cells x _ _) (runitor_lunitor_identity a)
+               (disp_lunitor (id_disp aa)).
+Proof.
+  apply (transportf_transpose (P := (λ x, disp_2cells x _ _))).
+  apply pathsinv0.
+  etrans.
+  1: now apply disp_lunitor_runitor_identity.
+  unfold cell_transportb.
+  apply maponpaths_2, cellset_property.
 Qed.
 
 (* -----------------------------------------------------------------------------------*)
