@@ -1,3 +1,10 @@
+(**
+Composition of lax functors and pseudo functors.
+
+Authors: Dan Frumin, Niels van der Weide
+
+Ported from: https://github.com/nmvdw/groupoids
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
