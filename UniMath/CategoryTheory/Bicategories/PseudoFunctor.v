@@ -12,6 +12,8 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws.
+Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws_2.
 
 Open Scope cat.
 
@@ -182,6 +184,25 @@ Section Projection.
     := pr2(pr2(pr2(pr2(pr2(pr2(pr2 F)))))).
 End Projection.
 
+Section LaxFunctorDerivedLaws.
+  Context {C C' : prebicat_data}.
+  Variable (F : laxfunctor C C').
+
+  Definition laxfunctor_is_iso
+             {a b : C}
+             {f g : C⟦a,b⟧}
+             (α : invertible_2cell f g)
+    : is_invertible_2cell (##F α).
+  Proof.
+    use tpair.
+    - exact (##F (inv_cell α)).
+    - split ; cbn
+      ; rewrite <- laxfunctor_vcomp, <- laxfunctor_id2 ; apply maponpaths.
+      + apply invertible_2cell_after_inv_cell.
+      + apply inv_cell_after_invertible_2cell.
+  Defined.
+End LaxFunctorDerivedLaws.
+
 Definition is_pseudofunctor
            {C C' : prebicat_data}
            (F : laxfunctor C C')
@@ -198,6 +219,122 @@ Coercion pseudofunctor_to_laxfunctor
          {C C' : prebicat_data}
          (F : psfunctor C C')
   := pr1 F.
+
+Definition psfunctor_id
+           {C C' : prebicat_data}
+           (F : psfunctor C C')
+           (a : C)
+  : invertible_2cell (#F (identity a)) (identity _)
+  := (_ ,, pr1 (pr2 F) a).
+
+Definition psfunctor_comp
+           {C C' : prebicat_data}
+           (F : psfunctor C C')
+           {a b c : C}
+           (f : a --> b) (g : b --> c)
+  : invertible_2cell (#F (f · g)) (#F f · #F g)
+  := (_ ,, pr2(pr2 F) a b c f g).
+
+Section PseudoFunctorDerivedLaws.
+  Context {C C' : bicat}.
+  Variable (F : psfunctor C C').
+
+  Definition psfunctor_linvunitor
+             {a b : C}
+             (f : C⟦a, b⟧)
+    : ##F (linvunitor f)
+      =   linvunitor (#F f)
+        • (inv_cell (psfunctor_id F a) ▹ #F f)
+        • inv_cell (psfunctor_comp F _ _).
+  Proof.
+    rewrite <- !vcomp_assoc.
+    cbn.
+    use vcomp_move_L_pM.
+    { is_iso. }
+    cbn.
+    use vcomp_move_R_Mp.
+    {
+      refine (laxfunctor_is_iso F (linvunitor f ,, _)).
+      is_iso.
+    }
+    cbn.
+    rewrite laxfunctor_lunitor ; cbn.
+    rewrite <- !vcomp_assoc.
+    rewrite !(maponpaths (λ z, _ • z) (vcomp_assoc _ _ _)).
+    rewrite inv_cell_after_invertible_2cell.
+    rewrite vcomp_right_identity.
+    rewrite !vcomp_assoc.
+    rewrite rwhisker_vcomp.
+    rewrite inv_cell_after_invertible_2cell.
+    rewrite id2_rwhisker.
+    rewrite vcomp_right_identity.
+    reflexivity.
+  Qed.
+
+  Definition psfunctor_rinvunitor
+             (a b : C)
+             (f : C⟦a, b⟧)
+    : ##F (rinvunitor f)
+      =   rinvunitor (#F f)
+        • (#F f ◃ inv_cell (psfunctor_id F b))
+        • inv_cell (psfunctor_comp F _ _).
+  Proof.
+    rewrite <- !vcomp_assoc.
+    use vcomp_move_L_pM.
+    { is_iso. }
+    cbn.
+    use vcomp_move_R_Mp.
+    {
+      refine (laxfunctor_is_iso F (rinvunitor f ,, _)).
+      is_iso.
+    }
+    cbn.
+    rewrite laxfunctor_runitor ; cbn.
+    rewrite <- !vcomp_assoc.
+    rewrite !(maponpaths (λ z, _ • z) (vcomp_assoc _ _ _)).
+    rewrite inv_cell_after_invertible_2cell.
+    rewrite vcomp_right_identity.
+    rewrite !vcomp_assoc.
+    rewrite lwhisker_vcomp.
+    rewrite inv_cell_after_invertible_2cell.
+    rewrite lwhisker_id2.
+    rewrite vcomp_right_identity.
+    reflexivity.
+  Qed.
+
+  Definition psfunctor_rassociator
+             {a b c d : C}
+             (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : C⟦c, d⟧)
+    : ##F (rassociator f g h)
+      =   psfunctor_comp F _ _
+        • (psfunctor_comp F _ _ ▹ #F h)
+        • rassociator (#F f) (#F g) (#F h)
+        • (#F f ◃ inv_cell (psfunctor_comp F _ _))
+        • inv_cell (psfunctor_comp F _ _).
+  Proof.
+    use vcomp_move_L_Mp.
+    { is_iso. }
+    cbn.
+    use vcomp_move_L_Mp.
+    { is_iso. }
+    cbn.
+    rewrite <- !vcomp_assoc.
+    use vcomp_move_R_pM.
+    {
+      refine (laxfunctor_is_iso F (rassociator f g h ,, _)).
+      is_iso.
+    }
+    cbn.
+    rewrite !vcomp_assoc.
+    use vcomp_move_L_Mp.
+    {
+      is_iso.
+    }
+    cbn.
+    symmetry.
+    apply laxfunctor_lassociator.
+  Qed.
+End PseudoFunctorDerivedLaws.
 
 Module Notations.
   Notation "'##'" := (laxfunctor_on_cells).
