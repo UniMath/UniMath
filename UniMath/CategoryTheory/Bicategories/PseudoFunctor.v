@@ -2,6 +2,9 @@
 (** * Bicategories
     Benedikt Ahrens, Marco Maggesi
     February 2018
+
+    Modified by: Dan Frumin, Niels van der Weide
+    Based on https://github.com/nmvdw/groupoids
  ********************************************************************************* *)
 
 (** * Pseudo functors. *)
@@ -60,6 +63,27 @@ Definition laxfunctor_comp {C C' : prebicat_data} (F : laxfunctor_data C C')
   : #F (f · g) ==> #F f · #F g
   := pr2 (pr2 F) a b c f g.
 
+(** A builder function for lax functor data. *)
+Definition build_laxfunctor_data
+           {C C' : prebicat_data}
+           (F₀ : C → C')
+           (F₁ : ∏ {a b : C}, C⟦a,b⟧ → C'⟦F₀ a, F₀ b⟧)
+           (F₂ : ∏ {a b : C} {f g : C⟦a,b⟧}, f ==> g → F₁ f ==> F₁ g)
+           (Fid : ∏ (a : C), F₁ (identity a) ==> identity _)
+           (Fcomp : (∏ (a b c : C) (f : a --> b) (g : b --> c),
+                     F₁ (f · g) ==> F₁ f · F₁ g))
+  : laxfunctor_data C C'.
+Proof.
+  use tpair.
+  - use tpair.
+    + use tpair.
+      * exact F₀.
+      * exact F₁.
+    + exact F₂.
+  - split.
+    + exact Fid.
+    + exact Fcomp.
+Defined.
 
 Section laxfunctor_laws.
 
@@ -184,24 +208,22 @@ Section Projection.
     := pr2(pr2(pr2(pr2(pr2(pr2(pr2 F)))))).
 End Projection.
 
-Section LaxFunctorDerivedLaws.
-  Context {C C' : prebicat_data}.
-  Variable (F : laxfunctor C C').
-
-  Definition laxfunctor_is_iso
-             {a b : C}
-             {f g : C⟦a,b⟧}
-             (α : invertible_2cell f g)
-    : is_invertible_2cell (##F α).
-  Proof.
-    use tpair.
-    - exact (##F (inv_cell α)).
-    - split ; cbn
-      ; rewrite <- laxfunctor_vcomp, <- laxfunctor_id2 ; apply maponpaths.
-      + apply invertible_2cell_after_inv_cell.
-      + apply inv_cell_after_invertible_2cell.
-  Defined.
-End LaxFunctorDerivedLaws.
+(** Isos are preserved *)
+Definition laxfunctor_is_iso
+           {C C' : prebicat_data}
+           (F : laxfunctor C C')
+           {a b : C}
+           {f g : C⟦a,b⟧}
+           (α : invertible_2cell f g)
+  : is_invertible_2cell (##F α).
+Proof.
+  use tpair.
+  - exact (##F (inv_cell α)).
+  - split ; cbn
+    ; rewrite <- laxfunctor_vcomp, <- laxfunctor_id2 ; apply maponpaths.
+    + apply invertible_2cell_after_inv_cell.
+    + apply inv_cell_after_invertible_2cell.
+Defined.
 
 Definition is_pseudofunctor
            {C C' : prebicat_data}
