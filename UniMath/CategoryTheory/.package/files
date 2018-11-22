@@ -175,6 +175,7 @@ Bicategories/Examples/one_types.v
 Bicategories/Examples/two_type.v
 Bicategories/identity.v
 Bicategories/composition.v
+Bicategories/ap_functor.v
 Bicategories/DispBicat.v
 Bicategories/BicatOfCats.v
 Bicategories/DispBicatOfDispCats.v
