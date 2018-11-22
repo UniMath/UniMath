@@ -72,8 +72,8 @@ Proof.
   rewrite <- whisker_l_hcomp.
   apply (vcomp_cancel_left (rassociator _ _ _) _ _).
   { is_iso. }
-  rewrite <- !vcomp_assoc.
-  rewrite lassociator_rassociator, vcomp_left_identity.
+  rewrite <- !vassocr.
+  rewrite lassociator_rassociator, id2_right.
   apply (vcomp_cancel_left (Hη^-1 ▻ k₂) _ _).
   { is_iso. }
   apply (vcomp_cancel_left (runitor k₂) _ _).
@@ -82,7 +82,7 @@ Proof.
   { is_iso. }
   apply (vcomp_cancel_right (rinvunitor k₁) _ _).
   { is_iso. }
-  rewrite <- !vcomp_assoc.
+  rewrite <- !vassocr.
   unfold twoinverse.
   rewrite <- (whisker_l_iso_id₁ η k₁ k₂ (representable_full η θ Hη k₁ k₂ α) Hη).
   reflexivity.
@@ -131,19 +131,19 @@ Section EquivToAdjEquiv.
         o rinvunitor _
       = id₂ g.
   Proof.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     unfold ε.
     rewrite (full_spec (θiso^-1) (ηiso^-1) _ (iso_inverse _ _) (f ∘ g) (id₁ Y) _).
-    rewrite <- !vcomp_assoc.
-    rewrite linvunitor_lunitor, vcomp_left_identity.
-    rewrite !vcomp_assoc.
-    rewrite !(maponpaths (fun z => _ o (_ o z)) (!(vcomp_assoc _ _ _))).
-    rewrite lassociator_rassociator, vcomp_left_identity.
-    rewrite !(maponpaths (fun z => _ o z) (!(vcomp_assoc _ _ _))).
+    rewrite <- !vassocr.
+    rewrite linvunitor_lunitor, id2_right.
+    rewrite !vassocr.
+    rewrite !(maponpaths (fun z => _ o (_ o z)) (!(vassocr _ _ _))).
+    rewrite lassociator_rassociator, id2_right.
+    rewrite !(maponpaths (fun z => _ o z) (!(vassocr _ _ _))).
     rewrite lwhisker_vcomp.
     rewrite vcomp_left_inverse.
     rewrite lwhisker_id2.
-    rewrite vcomp_left_identity.
+    rewrite id2_right.
     rewrite rinvunitor_runitor.
     reflexivity.
   Qed.
@@ -166,7 +166,7 @@ Section EquivToAdjEquiv.
       - apply Hf.
     }
     cbn.
-    refine (_ @ vcomp_left_identity _).
+    refine (_ @ id2_right _).
     use vcomp_move_L_pM.
     { is_iso. }
     cbn.
@@ -178,13 +178,13 @@ Section EquivToAdjEquiv.
       =
       (g ∘ f) ◅ η o linvunitor (g ∘ f) o η.
   Proof.
-    rewrite !vcomp_assoc.
-    rewrite left_unit_inv_natural.
+    rewrite !vassocr.
+    rewrite rinvunitor_natural.
     rewrite linvunitor_natural.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     rewrite lwhisker_hcomp, rwhisker_hcomp.
     rewrite <- !interchange.
-    rewrite !vcomp_right_identity, !vcomp_left_identity.
+    rewrite !id2_left, !id2_right.
     rewrite lunitor_V_id_is_left_unit_V_id.
     reflexivity.
   Qed.
@@ -198,7 +198,7 @@ Section EquivToAdjEquiv.
   Local Definition η_whisker_l_hcomp
     : (g ∘ f) ◅ η = rassociator (g ∘ f) f g o g ◅ (f ◅ η) o lassociator (id₁ X) f g.
   Proof.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     use vcomp_move_L_Mp.
     { is_iso. }
     cbn.
@@ -227,11 +227,11 @@ Section EquivToAdjEquiv.
     rewrite <- η_whisker_l_hcomp.
     rewrite <- lwhisker_vcomp.
     rewrite left_unit_inv_assoc.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     rewrite lwhisker_lwhisker.
-    rewrite !vcomp_assoc.
-    rewrite !(maponpaths (fun z => _ o z) (!(vcomp_assoc _ _ _))).
-    rewrite rassociator_lassociator, vcomp_left_identity.
+    rewrite !vassocr.
+    rewrite !(maponpaths (fun z => _ o z) (!(vassocr _ _ _))).
+    rewrite rassociator_lassociator, id2_right.
     exact η_natural_help.
   Qed.
 
@@ -241,36 +241,36 @@ Section EquivToAdjEquiv.
       g ◅ (f ◅ η o linvunitor f).
   Proof.
     rewrite <- !rwhisker_vcomp.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     rewrite lwhisker_hcomp, rwhisker_hcomp.
     rewrite <- triangle_l_inv.
-    rewrite !(maponpaths (fun z => _ o z) (!(vcomp_assoc _ _ _))).
+    rewrite !(maponpaths (fun z => _ o z) (!(vassocr _ _ _))).
     unfold assoc.
     rewrite <- !lwhisker_hcomp.
     rewrite <- rwhisker_lwhisker.
     pose help1 as p.
     rewrite whisker_ηg in p.
     cbn in p.
-    rewrite !vcomp_assoc in p.
-    rewrite rinvunitor_runitor, vcomp_right_identity in p.
+    rewrite !vassocr in p.
+    rewrite rinvunitor_runitor, id2_left in p.
     rewrite <- !lwhisker_vcomp in p.
     rewrite linvunitor_assoc in p.
-    rewrite <- !vcomp_assoc in p.
-    rewrite !vcomp_assoc in p.
-    rewrite !(maponpaths (fun z => _ o (_ o z)) (!(vcomp_assoc _ _ _))) in p.
-    rewrite rassociator_lassociator, vcomp_left_identity in p.
+    rewrite <- !vassocr in p.
+    rewrite !vassocr in p.
+    rewrite !(maponpaths (fun z => _ o (_ o z)) (!(vassocr _ _ _))) in p.
+    rewrite rassociator_lassociator, id2_right in p.
     rewrite <- bc_whisker_l_compose in p.
-    rewrite <- !vcomp_assoc in p.
+    rewrite <- !vassocr in p.
     pose @inverse_pentagon_5 as q.
     rewrite !lwhisker_hcomp in p.
     rewrite q in p ; clear q.
-    rewrite !vcomp_assoc in p.
+    rewrite !vassocr in p.
     use (inv_2cell_right_cancellable (rassociator (f · g) f g)).
     { is_iso. }
     rewrite rwhisker_vcomp.
     refine (_ @ p) ; clear p.
     cbn.
-    rewrite !vcomp_assoc, !lwhisker_hcomp, !rwhisker_hcomp.
+    rewrite !vassocr, !lwhisker_hcomp, !rwhisker_hcomp.
     reflexivity.
   Qed.
 
@@ -289,17 +289,17 @@ Section EquivToAdjEquiv.
   Proof.
     split ; cbn.
     - refine (maponpaths (fun z => ((z • _) • _) • _) (!help3) @ _).
-      rewrite !vcomp_assoc.
-      rewrite !(maponpaths (fun z => _ o (_ o z)) (!(vcomp_assoc _ _ _))).
-      rewrite lassociator_rassociator, vcomp_left_identity.
-      rewrite !(maponpaths (fun z => _ o z) (!(vcomp_assoc _ _ _))).
+      rewrite !vassocr.
+      rewrite !(maponpaths (fun z => _ o (_ o z)) (!(vassocr _ _ _))).
+      rewrite lassociator_rassociator, id2_right.
+      rewrite !(maponpaths (fun z => _ o z) (!(vassocr _ _ _))).
       rewrite lwhisker_vcomp.
       rewrite vcomp_right_inverse.
       rewrite lwhisker_id2.
-      rewrite vcomp_left_identity.
+      rewrite id2_right.
       rewrite rinvunitor_runitor.
       reflexivity.
-    - rewrite <- !vcomp_assoc.
+    - rewrite <- !vassocr.
       exact first_triangle_law.
   Defined.
 

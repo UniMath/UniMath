@@ -65,15 +65,15 @@ Proof.
   split ; cbn.
   - induction p ; cbn.
     unfold idfun.
-    rewrite <- !vcomp_assoc.
-    rewrite !(maponpaths (λ z, _ • z) (vcomp_assoc _ _ _)).
-    rewrite linvunitor_lunitor, vcomp_right_identity.
+    rewrite <- !vassocr.
+    rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)).
+    rewrite linvunitor_lunitor, id2_left.
     apply rinvunitor_runitor.
   - induction p ; cbn.
     unfold idfun.
-    rewrite <- !vcomp_assoc.
-    rewrite !(maponpaths (λ z, _ • z) (vcomp_assoc _ _ _)).
-    rewrite runitor_rinvunitor, vcomp_right_identity.
+    rewrite <- !vassocr.
+    rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)).
+    rewrite runitor_rinvunitor, id2_left.
     apply lunitor_linvunitor.
 Defined.
 
@@ -114,6 +114,6 @@ Definition transport_two_cell_FlFr
     idtoiso_2_1 _ _ (maponpaths G p) o α o (idtoiso_2_1 _ _ (maponpaths F p))^-1.
 Proof.
   induction p ; cbn.
-  rewrite vcomp_left_identity, vcomp_right_identity.
+  rewrite id2_right, id2_left.
   reflexivity.
 Qed.
