@@ -1,5 +1,5 @@
 (* *********************************************************************************** *)
-(** * Internal adjunciton in displayed bicategories
+(** * Internal adjunction in displayed bicategories
 
     Benedikt Ahrens, Marco Maggesi
     April 2018                                                                         *)
@@ -149,37 +149,6 @@ Proof.
   apply (disp_lunitor _ ).
 Defined.
 
-
-Definition disp_lunitor_runitor_identity_type {a : C} (aa : D a)
-  : UU
-  := disp_lunitor (id_disp aa) =
-     transportb (λ x, _ ==>[x] _) (lunitor_runitor_identity a)
-                (disp_runitor (id_disp aa)).
-
-Theorem disp_lunitor_runitor_identity {a : C} (aa : D a)
-  : disp_lunitor_runitor_identity_type aa.
-Proof.
-Abort.
-
-(** Once the theorem above is proved, remove this section and its assumption. *)
-
-Section assume_disp_lunitor_runitor_identity.
-
-Variable disp_lunitor_runitor_identity :
-  ∏ {a : C} (aa : D a), disp_lunitor_runitor_identity_type aa.
-
-Theorem disp_runitor_lunitor_identity {a : C} (aa : D a)
-  : disp_runitor (id_disp aa) =
-    transportb (λ x, _ ==>[x] _) (runitor_lunitor_identity a)
-               (disp_lunitor (id_disp aa)).
-Proof.
-  apply (transportf_transpose (P := λ x, _ ==>[x] _)).
-  apply pathsinv0.
-  etrans. apply disp_lunitor_runitor_identity.
-  apply maponpaths_2.
-  apply cellset_property.
-Qed.
-
 Lemma disp_rwhisker_transport_left {a b c : C}
       {f1 f2 : C⟦a,b⟧} {g : C⟦b,c⟧}
       {x x' : f1 ==> f2} (p : x = x')
@@ -222,7 +191,13 @@ Proof.
   induction p. apply idpath.
 Defined.
 
-Definition is_disp_internal_adjunction_identity {a : C} (aa : D a)
+End Displayed_Internal_Adjunction.
+
+(** From now on, we need the [has_disp_cellset property]. *)
+
+Definition is_disp_internal_adjunction_identity
+           {C : bicat} {D : disp_bicat C}
+           {a : C} (aa : D a)
   : is_disp_internal_adjunction (disp_internal_adjunction_data_identity aa).
 Proof.
   split.
@@ -344,7 +319,3 @@ Proof.
     apply maponpaths_2.
     apply cellset_property.
 Qed.
-
-End assume_disp_lunitor_runitor_identity.
-
-End Displayed_Internal_Adjunction.

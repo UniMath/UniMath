@@ -16,6 +16,7 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctor.
+Require Import UniMath.CategoryTheory.Bicategories.Unitors.
 
 Open Scope cat.
 Open Scope mor_disp_scope.
@@ -32,6 +33,15 @@ Definition transportf_transpose_alt {X : UU} {P : X → UU}
            {x x' : X} {e : x = x'} {y : P x} {y' : P x'} {p : y = transportb P e y'}
   : transportf P e y = y'
   := !transportf_transpose _ _ _ (!p).
+
+(* ----------------------------------------------------------------------------------- *)
+(** ** Transport of displayed cells.
+
+    Transport of displayed cells is used pervasively, to make the code more terse
+    and ease certain proofs we define some ad hoc functions and theorems.
+
+    TODO: These definitions are not used yet.                                          *)
+(* ----------------------------------------------------------------------------------- *)
 
 (* ----------------------------------------------------------------------------------- *)
 (** ** Definition of displayed bicategories.                                           *)
@@ -55,6 +65,94 @@ Definition disp_2cells {C : prebicat_1_id_comp_cells}
            {d : D c} {d' : D c'} (f' : d -->[f] d') (g' : d -->[g] d')
   : UU
   := pr2 D c c' f g x d d' f' g'.
+
+Section Cell_Transport.
+
+Context {C : bicat} {D : disp_prebicat_1_id_comp_cells C}.
+
+Notation "f' ==>[ x ] g'" := (disp_2cells x f' g') (at level 60).
+
+Definition cell_transportf
+           {a b : C} {f g : C⟦a,b⟧}
+           {α β : f ==> g}
+           (e : α = β)
+           {aa : D a} {bb : D b}
+           {ff : aa -->[f] bb}
+           {gg : aa -->[g] bb}
+           (αα : ff ==>[α] gg)
+  : ff ==>[β] gg
+  := transportf (λ x : f ==> g, ff ==>[x] gg) e αα.
+
+Definition cell_transportb
+           {a b : C} {f g : C⟦a,b⟧}
+           {α β : f ==> g}
+           (e : α = β)
+           {aa : D a} {bb : D b}
+           {ff : aa -->[f] bb}
+           {gg : aa -->[g] bb}
+           (ββ : ff ==>[β] gg)
+  : ff ==>[α] gg
+  := transportb (λ x : f ==> g, ff ==>[x] gg) e ββ.
+
+Lemma cell_transportf_pathsinv0
+      {a b : C} {f g : C⟦a,b⟧}
+      {α β : f ==> g}
+      (e : α = β)
+      {aa : D a} {bb : D b}
+      {ff : aa -->[f] bb}
+      {gg : aa -->[g] bb}
+      {αα : ff ==>[α] gg}
+      {ββ : ff ==>[β] gg}
+      (ee : cell_transportf (!e) ββ = αα)
+  : cell_transportf e αα = ββ.
+Proof.
+  unfold cell_transportf.
+  apply (transportf_pathsinv0 (λ x : f ==> g, ff ==>[x] gg)).
+  exact ee.
+Defined.
+
+Lemma cell_transportb_to_f
+      {a b : C} {f g : C⟦a,b⟧}
+      {α β : f ==> g}
+      {e : α = β}
+      {aa : D a} {bb : D b}
+      {ff : aa -->[f] bb}
+      {gg : aa -->[g] bb}
+      {αα : ff ==>[α] gg}
+      {ββ : ff ==>[β] gg}
+      (ee : αα = cell_transportb e ββ)
+  : cell_transportf e αα = ββ.
+Proof.
+  apply cell_transportf_pathsinv0.
+  apply pathsinv0.
+  exact ee.
+Defined.
+
+Lemma cell_transportf_to_b
+      {a b : C} {f g : C⟦a,b⟧}
+      {α β : f ==> g}
+      {e : α = β}
+      {aa : D a} {bb : D b}
+      {ff : aa -->[f] bb}
+      {gg : aa -->[g] bb}
+      {αα : ff ==>[α] gg}
+      {ββ : ff ==>[β] gg}
+      (ee : cell_transportf e αα = ββ)
+  :  αα = cell_transportb e ββ.
+Proof.
+  apply pathsinv0.
+  apply (transportf_pathsinv0 (λ x : f ==> g, ff ==>[ x] gg)).
+  etrans.
+  { apply maponpaths_2.
+    apply pathsinv0inv0. }
+  exact ee.
+Defined.
+
+End Cell_Transport.
+
+(* ----------------------------------------------------------------------------------- *)
+(** ** Operations on bicategories                                                      *)
+(* ----------------------------------------------------------------------------------- *)
 
 Section disp_prebicat.
 
@@ -1154,6 +1252,37 @@ Arguments disp_prebicat_1_id_comp_cells _ : clear implicits.
 Arguments disp_prebicat_data _ : clear implicits.
 Arguments disp_prebicat _ : clear implicits.
 Arguments disp_bicat _ : clear implicits.
+
+(* ----------------------------------------------------------------------------------- *)
+(** ** Displayed left and right unitors coincide on the identity                       *)
+(* ----------------------------------------------------------------------------------- *)
+
+Theorem disp_lunitor_runitor_identity {C : bicat} {D : disp_bicat C} (a : C) (aa : D a)
+  : disp_lunitor (id_disp aa) =
+    cell_transportb (lunitor_runitor_identity a) (disp_runitor (id_disp aa)).
+Proof.
+  set (TT := fiber_paths (lunitor_runitor_identity (C := total_bicat D) (a ,, aa))).
+  cbn in TT.
+  apply cell_transportf_to_b.
+  etrans.
+  2: now apply TT.
+  unfold cell_transportf.
+  apply maponpaths_2.
+  apply cellset_property.
+Qed.
+
+Theorem disp_runitor_lunitor_identity {C : bicat} {D : disp_bicat C} {a : C} (aa : D a)
+  : disp_runitor (id_disp aa) =
+    transportb (λ x, disp_2cells x _ _) (runitor_lunitor_identity a)
+               (disp_lunitor (id_disp aa)).
+Proof.
+  apply (transportf_transpose (P := (λ x, disp_2cells x _ _))).
+  apply pathsinv0.
+  etrans.
+  1: now apply disp_lunitor_runitor_identity.
+  unfold cell_transportb.
+  apply maponpaths_2, cellset_property.
+Qed.
 
 (* -----------------------------------------------------------------------------------*)
 (** ** Notations.                                                                      *)

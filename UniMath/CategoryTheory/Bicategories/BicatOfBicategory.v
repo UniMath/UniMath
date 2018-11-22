@@ -5,8 +5,8 @@
  ********************************************************************************* *)
 
 (* ========================================================================= *)
-(* Every (pre)bicategory of UniMath.CategoryTheory.bicategories is a         *)
-(* (pre)bicategory of UniMath.CategoryTheory.Bicategories.                     *)
+(* Every (pre)bicategory of UniMath.CategoryTheory.WkCatEnrichment is a      *)
+(* (pre)bicategory of UniMath.CategoryTheory.Bicategories.Bicat.             *)
 (* ========================================================================= *)
 
 Require Import UniMath.Foundations.All.

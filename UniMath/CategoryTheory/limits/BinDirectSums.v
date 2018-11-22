@@ -598,8 +598,8 @@ End bindirectsums_criteria.
 
 (** * BinDirectSums in quotient of PreAdditive category
    In this section we show that, if a PreAdditive A has BinDirectSums, then the quotient of the
-   preadditive category has BinDirectSums. This is used to show that quotient of an Additive is
-   Additive. *)
+   preadditive category has BinDirectSums. This is used to show that quotient of an CategoryWithAdditiveStructure is
+   CategoryWithAdditiveStructure. *)
 Section bindirectsums_in_quot.
 
   Variable A : PreAdditive.

@@ -7,19 +7,6 @@ Require Import UniMath.CategoryTheory.Bicategories.BicatAliases.
 
 
 Notation "'BiCategory'" := bicat.
-(*
-Definition vcomp
-           {C : BiCategory}
-           {X Y : C}
-           {f g h : C⟦X,Y⟧}
-           (η₂ : g ==> h)
-           (η₁ : f ==> g)
-  : f ==> h
-  := (η₂ o η₁)%morphism.
-
-Arguments vcomp {C X Y f g h} η₂%bicategory η₁%bicategory.
-Notation "η₂ '∘' η₁" := (vcomp η₂ η₁) (at level 41, left associativity) : bicategory_scope.
- *)
 
 Definition vcomp_assoc
            {C : BiCategory}
@@ -50,28 +37,6 @@ Definition vcomp_right_identity
   : η o id₂ f = η
   := id2_left _ .
 
-
-
-(*
-Definition hcomp2
-           {C : BiCategory}
-           {X Y Z : C}
-           {f₁ g₁ : C⟦X,Y⟧}
-           {f₂ g₂ : C⟦Y,Z⟧}
-           (η₂ : f₂ ==> g₂)
-           (η₁ : f₁ ==> g₁)
-  : f₂ ∘ f₁ ==> g₂ ∘ g₁.
-Proof.
-  exact
-  apply (hcomp_hom C.1) ; simpl.
-  exact (η₂,η₁).
-Defined.
-
-Arguments hcomp2 {C X Y Z f₁ g₁ f₂ g₂} η₂%bicategory η₁%bicategory.
-Notation "η₁ '*' η₂" := (hcomp2 η₁ η₂) (at level 40, left associativity) : bicategory_scope.
- *)
-
-
 Definition interchange
            {C : BiCategory}
            {X Y Z : C}
@@ -92,18 +57,6 @@ Definition hcomp_id₂
 Proof.
   apply hcomp_identity.
 Defined.
-(*
-Definition hcomp {C : BiCategory} (X Y Z : C)
-  : functor _ _ := @hcomp_functor _ X Y X.
- *)
-(*
-Definition left_unit
-           {C : BiCategory}
-           {X Y : C}
-           (f : C⟦X, Y⟧)
-  : id₁ Y ∘ f ==> f
-  := left_unit_d C.1 f.
- *)
 
 (* see lunitor_natural *)
 
@@ -118,26 +71,6 @@ Proof.
 Qed.
 
 
-(*
-Definition left_unitor {C : BiCategory} (X Y : C)
-  : NaturalTransformation
-      (hcomp X Y Y o (const_functor (id₁ Y) ⋆⋆ 1))
-      1.
-Proof.
-  simple refine (Build_NaturalTransformation _ _ _ _).
-  - exact left_unit.
-  - intros ; apply left_unit_natural.
-Defined.
- *)
-(*
-Definition left_unit_inv
-           {C : BiCategory}
-           {X Y : C}
-           (f : C⟦X, Y⟧)
-  : f ==> id₁ Y ∘ f
-  := left_unit_inv_d C.1 f.
- *)
-
 Definition left_unit_inv_natural
            {C : BiCategory}
            {X Y : C}
@@ -146,18 +79,6 @@ Definition left_unit_inv_natural
   : rinvunitor g o η = (id₂ (id₁ Y) ⋆⋆ η) o rinvunitor f.
 Proof.
 Admitted.
-
-(*
-Definition left_unitor_inv {C : BiCategory} (X Y : C)
-  : NaturalTransformation
-      1
-      (hcomp X Y Y o (const_functor (id₁ Y) ⋆⋆ 1)).
-Proof.
-  simple refine (Build_NaturalTransformation _ _ _ _).
-  - exact left_unit_inv.
-  - intros ; apply left_unit_inv_natural.
-Defined.
-*)
 
 Definition left_unit_left
            {C : BiCategory}
@@ -168,16 +89,6 @@ Proof.
   apply rinvunitor_runitor.
 Qed.
 
-(*
-Definition left_unitor_left `{Univalence} {C : BiCategory} (X Y : C)
-  : (left_unitor X Y o left_unitor_inv X Y = 1)%natural_transformation.
-Proof.
-  apply path_natural_transformation.
-  intros f ; cbn in ⋆⋆.
-  exact (left_unit_left f).
-Defined.
- *)
-
 Definition left_unit_right
            {C : BiCategory}
            {X Y : C}
@@ -186,24 +97,6 @@ Definition left_unit_right
 Proof.
   apply runitor_rinvunitor.
 Qed.
-
-(*
-Definition left_unitor_right `{Univalence} {C : BiCategory} (X Y : C)
-  : (left_unitor_inv X Y o left_unitor X Y = 1)%natural_transformation.
-Proof.
-  apply path_natural_transformation.
-  intros f ; cbn in ⋆⋆.
-  exact (left_unit_right f).
-Defined.
- *)
-(*
-Definition lunitor
-           {C : BiCategory}
-           {X Y : C}
-           (f : C⟦X, Y⟧)
-  : f ∘ id₁ X ==> f
-  := lunitor_d C.1 f.
- *)
 
 Definition lunitor_natural
            {C : BiCategory}
@@ -215,27 +108,6 @@ Proof.
   apply lunitor_natural.
 Qed.
 
-(*
-Definition lunitoror {C : BiCategory} (X Y : C)
-  : NaturalTransformation
-      (hcomp X X Y o (1 ⋆⋆ const_functor (id₁ X)))
-      1.
-Proof.
-  simple refine (Build_NaturalTransformation _ _ _ _).
-  - exact lunitor.
-  - intros ; apply lunitor_natural.
-Defined.
- *)
-
-(*
-Definition lunitor_inv
-           {C : BiCategory}
-           {X Y : C}
-           (f : C⟦X, Y⟧)
-  : f ==> f ∘ id₁ X
-  := lunitor_inv_d C.1 f.
- *)
-
 Definition linvunitor_natural
            {C : BiCategory}
            {X Y : C}
@@ -244,18 +116,6 @@ Definition linvunitor_natural
   : linvunitor g o η = (η ⋆⋆ id₂ (id₁ X)) o linvunitor f.
 Proof.
 Admitted.
-
-(*
-Definition lunitoror_inv {C : BiCategory} (X Y : C)
-  : NaturalTransformation
-      1
-      (hcomp X X Y o (1 ⋆⋆ const_functor (id₁ X))).
-Proof.
-  simple refine (Build_NaturalTransformation _ _ _ _).
-  - exact lunitor_inv.
-  - intros ; apply lunitor_inv_natural.
-Defined.
-*)
 
 Definition lunitor_left
            {C : BiCategory}
@@ -266,16 +126,6 @@ Proof.
   apply linvunitor_lunitor.
 Qed.
 
-(*
-Definition lunitoror_left `{Univalence} {C : BiCategory} (X Y : C)
-  : (lunitoror X Y o lunitoror_inv X Y = 1)%natural_transformation.
-Proof.
-  apply path_natural_transformation.
-  intros f ; cbn in ⋆⋆.
-  apply lunitor_left.
-Qed.
-*)
-
 Definition lunitor_right
            {C : BiCategory}
            {X Y : C}
@@ -284,134 +134,6 @@ Definition lunitor_right
 Proof.
   apply lunitor_linvunitor.
 Qed.
-
-
-(*
-Definition lunitoror_right `{Univalence} {C : BiCategory} (X Y : C)
-  : (lunitoror_inv X Y o lunitoror X Y = 1)%natural_transformation.
-Proof.
-  apply path_natural_transformation.
-  intros f ; cbn in ⋆⋆.
-  apply lunitor_right.
-Qed.
-*)
-
-(*
-Definition assoc
-           {C : BiCategory}
-           {W X Y Z : C}
-           (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
-  : (h ∘ g) ∘ f ==> h ∘ (g ∘ f)
-  := assoc_d C.1 h g f.
-*)
-
-Definition assoc_natural
-           {C : BiCategory}
-           {W X Y Z : C}
-           {h₁ h₂ : C⟦Y,Z⟧} {g₁ g₂ : C⟦X,Y⟧} {f₁ f₂ : C⟦W,X⟧}
-           (ηh : h₁ ==> h₂)
-           (ηg : g₁ ==> g₂)
-           (ηf : f₁ ==> f₂)
-  : assoc h₂ g₂ f₂ o ((ηh ⋆⋆ ηg) ⋆⋆ ηf) = (ηh ⋆⋆ (ηg ⋆⋆ ηf)) o assoc h₁ g₁ f₁.
-Proof.
-  apply hcomp_lassoc.
-Qed.
-
-(*
-Definition associator {C : BiCategory} (W X Y Z : C)
-  : NaturalTransformation
-      (hcomp W X Z o (hcomp X Y Z,1))
-      ((hcomp W Y Z)
-         o (1,hcomp W X Y)
-         o assoc_prod (Hom C Y Z) (Hom C X Y) (Hom C W X)).
-Proof.
-  simple refine (Build_NaturalTransformation _ _ _ _).
-  - intros [[h g] f] ; simpl in ⋆⋆.
-    apply assoc.
-  - intros [[h₁ g₁] f₁] [[h₂ g₂] f₂] [[ηh ηg] ηf] ; simpl in ⋆⋆.
-    apply assoc_natural.
-Defined.
-*)
-
-(* already in BicatAliases
-
-Definition assoc_inv
-           {C : BiCategory}
-           {W X Y Z : C}
-           (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
-  : h ∘ (g ∘ f) ==> (h ∘ g) ∘ f.
-Proof.
-  apply rassociator.
-Defined.
-*)
-
-
-Definition assoc_inv_natural
-           {C : BiCategory}
-           {W X Y Z : C}
-           {h₁ h₂ : C⟦Y,Z⟧} {g₁ g₂ : C⟦X,Y⟧} {f₁ f₂ : C⟦W,X⟧}
-           (ηh : h₁ ==> h₂)
-           (ηg : g₁ ==> g₂)
-           (ηf : f₁ ==> f₂)
-  : assoc_inv h₂ g₂ f₂ o (ηh ⋆⋆ (ηg ⋆⋆ ηf)) = ((ηh ⋆⋆ ηg) ⋆⋆ ηf) o assoc_inv h₁ g₁ f₁.
-Proof.
-  apply hcomp_rassoc.
-Qed.
-
-
-(*
-Definition associator_inv {C : BiCategory} (W X Y Z : C)
-  : NaturalTransformation
-      ((hcomp W Y Z)
-         o (1,hcomp W X Y)
-         o assoc_prod (Hom C Y Z) (Hom C X Y) (Hom C W X))
-      (hcomp W X Z o (hcomp X Y Z,1)).
-Proof.
-  simple refine (Build_NaturalTransformation _ _ _ _).
-  - intros [[h g] f] ; simpl in ⋆⋆.
-    apply assoc_inv.
-  - intros [[h₁ g₁] f₁] [[h₂ g₂] f₂] [[ηh ηg] ηf] ; simpl in ⋆⋆.
-    apply assoc_inv_natural.
-Defined.
-*)
-
-Definition assoc_left
-           {C : BiCategory}
-           {W X Y Z : C}
-           (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
-  : assoc h g f o assoc_inv h g f = id₂ (h ∘ (g ∘ f)).
-Proof.
-  apply rassociator_lassociator.
-Qed.
-
-(*
-Definition associator_left `{Univalence} {C : BiCategory} (W X Y Z : C)
-  : (associator W X Y Z o associator_inv W X Y Z = 1)%natural_transformation.
-Proof.
-  apply path_natural_transformation.
-  intros f.
-  apply assoc_left.
-Qed.
-*)
-
-Definition assoc_right
-           {C : BiCategory}
-           {W X Y Z : C}
-           (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
-  : assoc_inv h g f o assoc h g f = id₂ ((h ∘ g) ∘ f).
-Proof.
-  apply lassociator_rassociator.
-Qed.
-
-(*
-Definition associator_right `{Univalence} {C : BiCategory} (W X Y Z : C)
-  : (associator_inv W X Y Z o associator W X Y Z = 1)%natural_transformation.
-Proof.
-  apply path_natural_transformation.
-  intros f.
-  apply assoc_right.
-Qed.
-*)
 
 Definition Build_is_invertible_2cell
            {C : BiCategory}
@@ -520,26 +242,6 @@ Proof.
   apply is_invertible_2cell_rinvunitor.
 Defined.
 
-(*
-Instance left_unitor_iso `{Univalence} {C : BiCategory} (X Y : C)
-  : @is_invertible_2cell (_ -> _) _ _ (left_unitor X Y).
-Proof.
-  simple refine (Build_is_invertible_2cell _ _ _ _ _ _ _).
-  - exact (left_unitor_inv X Y).
-  - apply left_unitor_right.
-  - apply left_unitor_left.
-Defined.
-*)
-
-(*
-Definition inverse_of_left_unitor
-           `{Univalence}
-           {C : BiCategory}
-           (X Y : C)
-  : @morphism_inverse (_ -> _) _ _ (left_unitor X Y) _ = left_unitor_inv X Y
-  := idpath.
-*)
-
 Definition lunitor_iso
          {C : BiCategory}
          {X Y : C}
@@ -558,75 +260,14 @@ Proof.
   apply is_invertible_2cell_linvunitor.
 Defined.
 
-(*
-Definition lunitoror_iso `{Univalence} {C : BiCategory} (X Y : C)
-  : @is_invertible_2cell (_ -> _) _ _ (lunitoror X Y).
-Proof.
-  simple refine (Build_is_invertible_2cell _ _ _ _ _ _ _).
-  - exact (lunitoror_inv X Y).
-  - apply lunitoror_right.
-  - apply lunitoror_left.
-Defined.
-*)
-
-(*
-Definition inverse_of_lunitoror
-           `{Univalence}
-           {C : BiCategory}
-           (X Y : C)
-  : @morphism_inverse (_ -> _) _ _ (lunitoror X Y) _ = lunitoror_inv X Y
-  := idpath.
-*)
-
-Definition assoc_iso
-         {C : BiCategory}
-         {W X Y Z : C}
-         (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
-  : is_invertible_2cell (assoc h g f).
-Proof.
-  apply is_invertible_2cell_lassociator.
-Defined.
-
-Definition assoc_inv_iso
-         {C : BiCategory}
-         {W X Y Z : C}
-         (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
-  : is_invertible_2cell (assoc_inv h g f).
-Proof.
-    apply is_invertible_2cell_rassociator.
-Defined.
-
-(* available in UniMath, but do we care?
-Definition associator_iso
-         `{Univalence}
-         {C : BiCategory}
-         (W X Y Z : C)
-  : @is_invertible_2cell (_ -> _) _ _ (associator W X Y Z).
-Proof.
-  simple refine (Build_is_invertible_2cell _ _ _ _ _ _ _).
-  - exact (associator_inv W X Y Z).
-  - apply associator_right.
-  - apply associator_left.
-Defined.
-*)
-
-(*
-Definition inverse_of_associator
-           `{Univalence}
-           {C : BiCategory}
-           (W X Y Z : C)
-  : @morphism_inverse (_ -> _) _ _ (associator W X Y Z) _ = associator_inv W X Y Z
-  := idpath.
- *)
-
 Definition triangle_r
            {C : BiCategory}
            {X Y Z : C}
            (g : C⟦Y,Z⟧)
            (f : C⟦X,Y⟧)
-  : lunitor g ⋆⋆ id₂ f = (id₂ g ⋆⋆ runitor f) o assoc g (id₁ Y) f.
+  : lunitor g ⋆⋆ id₂ f = (id₂ g ⋆⋆ runitor f) o lassociator f (id₁ Y) g.
 Proof.
-  cbn. unfold assoc.
+  cbn.
   apply pathsinv0.
   unfold hcomp.
   etrans.
@@ -644,9 +285,10 @@ Definition pentagon
            {C : BiCategory}
            {V W X Y Z : C}
            (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧) (g : C⟦W,X⟧) (f : C⟦V,W⟧)
-  : (assoc k h (g ∘ f) o assoc (k ∘ h) g f)
+  : (lassociator (g ∘ f) h k o lassociator f g (k ∘ h))
     =
-    (id₂ k ⋆⋆ assoc h g f) o assoc k (h ∘ g) f o (assoc k h g ⋆⋆ id₂ f).
+    (id₂ k ⋆⋆ lassociator f g h) o lassociator f (h ∘ g) k o
+                                 (lassociator g h k ⋆⋆ id₂ f).
 Proof.
   unfold assoc.
   unfold hcomp.
@@ -725,7 +367,7 @@ Definition inverse_of_assoc
            {C : BiCategory}
            {W X Y Z : C}
            (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
-  : (assoc_iso h g f)^-1 = assoc_inv h g f.
+  : (is_invertible_2cell_lassociator f g h)^-1 = rassociator f g h.
 Proof.
   apply idpath.
 Qed.

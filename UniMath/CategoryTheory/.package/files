@@ -160,16 +160,19 @@ DisplayedCats/Adjunctions.v
 
 Bicategories/Bicat.v
 Bicategories/BicatAliases.v
-Bicategories/Examples/one_types.v
 Bicategories/StandardBicategories.v
 Bicategories/OpCellBicat.v
 Bicategories/OpMorBicat.v
 Bicategories/Unitors.v
 Bicategories/bicategory_laws_2.v
 Bicategories/bicategory_laws.v
-Bicategories/equivalence.v
 Bicategories/PseudoFunctor.v
 Bicategories/Univalence.v
+Bicategories/transport_laws.v
+Bicategories/equiv_to_adjequiv.v
+Bicategories/adjoint_unique.v
+Bicategories/Examples/one_types.v
+Bicategories/Examples/two_type.v
 Bicategories/DispBicat.v
 Bicategories/BicatOfCats.v
 Bicategories/DispBicatOfDispCats.v
@@ -186,8 +189,8 @@ Bicategories/WkCatEnrichment/whiskering.v
 Bicategories/WkCatEnrichment/Cat.v
 Bicategories/WkCatEnrichment/internal_equivalence.v
 Bicategories/WkCatEnrichment/bicategory.v
-Bicategories/BicategoryFromBicat.v
-Bicategories/BicatFromBicategory.v
+Bicategories/BicategoryOfBicat.v
+Bicategories/BicatOfBicategory.v
 Bicategories/Graph.v
 
 Monoidal/MonoidalCategories.v
