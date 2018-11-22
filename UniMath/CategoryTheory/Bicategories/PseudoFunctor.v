@@ -269,7 +269,7 @@ Section PseudoFunctorDerivedLaws.
         • (inv_cell (psfunctor_id F a) ▹ #F f)
         • inv_cell (psfunctor_comp F _ _).
   Proof.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     cbn.
     use vcomp_move_L_pM.
     { is_iso. }
@@ -281,15 +281,15 @@ Section PseudoFunctorDerivedLaws.
     }
     cbn.
     rewrite laxfunctor_lunitor ; cbn.
-    rewrite <- !vcomp_assoc.
-    rewrite !(maponpaths (λ z, _ • z) (vcomp_assoc _ _ _)).
+    rewrite <- !vassocr.
+    rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)).
     rewrite inv_cell_after_invertible_2cell.
-    rewrite vcomp_right_identity.
-    rewrite !vcomp_assoc.
+    rewrite id2_left.
+    rewrite !vassocr.
     rewrite rwhisker_vcomp.
     rewrite inv_cell_after_invertible_2cell.
     rewrite id2_rwhisker.
-    rewrite vcomp_right_identity.
+    rewrite id2_left.
     reflexivity.
   Qed.
 
@@ -301,7 +301,7 @@ Section PseudoFunctorDerivedLaws.
         • (#F f ◃ inv_cell (psfunctor_id F b))
         • inv_cell (psfunctor_comp F _ _).
   Proof.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     use vcomp_move_L_pM.
     { is_iso. }
     cbn.
@@ -312,15 +312,15 @@ Section PseudoFunctorDerivedLaws.
     }
     cbn.
     rewrite laxfunctor_runitor ; cbn.
-    rewrite <- !vcomp_assoc.
-    rewrite !(maponpaths (λ z, _ • z) (vcomp_assoc _ _ _)).
+    rewrite <- !vassocr.
+    rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)).
     rewrite inv_cell_after_invertible_2cell.
-    rewrite vcomp_right_identity.
-    rewrite !vcomp_assoc.
+    rewrite id2_left.
+    rewrite !vassocr.
     rewrite lwhisker_vcomp.
     rewrite inv_cell_after_invertible_2cell.
     rewrite lwhisker_id2.
-    rewrite vcomp_right_identity.
+    rewrite id2_left.
     reflexivity.
   Qed.
 
@@ -340,14 +340,14 @@ Section PseudoFunctorDerivedLaws.
     use vcomp_move_L_Mp.
     { is_iso. }
     cbn.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     use vcomp_move_R_pM.
     {
       refine (laxfunctor_is_iso F (rassociator f g h ,, _)).
       is_iso.
     }
     cbn.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     use vcomp_move_L_Mp.
     {
       is_iso.
