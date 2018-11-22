@@ -2,6 +2,11 @@
 (** * Bicategories
     Benedikt Ahrens, Marco Maggesi
     February 2018
+
+ Various basic constructions of displayed and non displayed bicategories:
+ - Unit displayed bicategory of a displayed 1-category.
+ - Full subbicategory of a bicategory.
+ - Direct product of bicategories.
  ********************************************************************************* *)
 
 Require Import UniMath.Foundations.All.
@@ -16,6 +21,12 @@ Require Import UniMath.CategoryTheory.Bicategories.DispBicat. Import DispBicat.N
 
 Open Scope cat.
 Open Scope mor_disp_scope.
+
+(* ----------------------------------------------------------------------------------- *)
+(** ** Trivial displayed bicategory of a 1-displayed structure over a bicategory
+
+    Cell spaces are singletons containing only the unit 2-cell.                        *)
+(* ----------------------------------------------------------------------------------- *)
 
 Section Disp_Prebicat_Cells_Unit.
 
@@ -47,6 +58,10 @@ Section Disp_Prebicat_Cells_Unit.
 
 End Disp_Prebicat_Cells_Unit.
 
+(* ----------------------------------------------------------------------------------- *)
+(** Full sub-bicategory associated to a bicategory and a predicate on objects          *)
+(* ----------------------------------------------------------------------------------- *)
+
 Section FullSubBicat.
 
   Variable C : bicat.
@@ -65,7 +80,11 @@ Section FullSubBicat.
 
 End FullSubBicat.
 
-Section dirprod.
+(* ----------------------------------------------------------------------------------- *)
+(** ** Direct product of two displayed structures over a bicategory.                   *)
+(* ----------------------------------------------------------------------------------- *)
+
+Section Disp_Dirprod.
 
 Context {C : bicat} (D1 D2 : disp_prebicat C).
 
@@ -195,7 +214,7 @@ Qed.
 
 Definition disp_dirprod_prebicat : disp_prebicat C := _ ,, disp_dirprod_brebicat_laws.
 
-End dirprod.
+End Disp_Dirprod.
 
 Definition disp_dirprod_bicat {C : bicat} (D1 D2 : disp_bicat C) : disp_bicat C.
 Proof.
@@ -214,7 +233,8 @@ Defined.
 (* ----------------------------------------------------------------------------------- *)
 
 (* ----------------------------------------------------------------------------------- *)
-(* NB: This is similar to [transportf_const], but eta-expanded.                        *)
+(* Handy lemma about transport over a constant fibration.
+   NB: This is similar to [transportf_const], but eta-expanded.                        *)
 (* ----------------------------------------------------------------------------------- *)
 
 Definition transportf_trivial (A B : UU) (a b : A) (p : a = b) (x : B) :

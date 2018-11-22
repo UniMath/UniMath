@@ -189,8 +189,8 @@ Bicategories/WkCatEnrichment/whiskering.v
 Bicategories/WkCatEnrichment/Cat.v
 Bicategories/WkCatEnrichment/internal_equivalence.v
 Bicategories/WkCatEnrichment/bicategory.v
-Bicategories/BicategoryFromBicat.v
-Bicategories/BicatFromBicategory.v
+Bicategories/BicategoryOfBicat.v
+Bicategories/BicatOfBicategory.v
 Bicategories/Graph.v
 
 Monoidal/MonoidalCategories.v
