@@ -173,6 +173,8 @@ Bicategories/equiv_to_adjequiv.v
 Bicategories/adjoint_unique.v
 Bicategories/Examples/one_types.v
 Bicategories/Examples/two_type.v
+Bicategories/identity.v
+Bicategories/composition.v
 Bicategories/DispBicat.v
 Bicategories/BicatOfCats.v
 Bicategories/DispBicatOfDispCats.v
