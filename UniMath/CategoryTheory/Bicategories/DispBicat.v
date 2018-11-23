@@ -1179,12 +1179,8 @@ Proof.
     rewrite id2_left.
     rewrite id2_left.
     apply idpath.
-  - rewrite id2_right.
-    rewrite id2_left.
-    rewrite id2_rwhisker.
-    rewrite lwhisker_id2.
-    rewrite id2_left.
-    rewrite id2_right.
+  - rewrite !lwhisker_id2, !id2_rwhisker.
+    rewrite !id2_left, !id2_right.
     apply idpath.
   - rewrite id2_right.
     rewrite id2_left.

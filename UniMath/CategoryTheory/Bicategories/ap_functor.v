@@ -30,7 +30,7 @@ Section ApFunctor.
     - exact (λ _ _, maponpaths f).
     - exact (λ _ _ _ _ s, maponpaths (maponpaths f) s).
     - exact (λ x, idpath (idpath (f x))).
-    - exact (λ _ _ _ p q, maponpathscomp0 f p q).
+    - exact (λ _ _ _ p q, !(maponpathscomp0 f p q)).
   Defined.
 
   Definition ap_functor_laws
@@ -50,10 +50,10 @@ Section ApFunctor.
       reflexivity.
     - intros x y z p q₁ q₂ s ; cbn in *.
       induction s ; cbn.
-      exact (!(pathscomp0rid _)).
+      exact (pathscomp0rid _).
     - intros x y z p₁ p₂ q s ; cbn in *.
       induction s ; cbn.
-      exact (!(pathscomp0rid _)).
+      exact (pathscomp0rid _).
   Qed.
 
   Definition lax_ap_functor
@@ -68,6 +68,6 @@ Section ApFunctor.
     - intros a.
       exact (fundamental_groupoid_2cell_iso Y HY (idpath(idpath (f a)))).
     - intros a b c p q.
-      exact (fundamental_groupoid_2cell_iso Y HY (maponpathscomp0 f p q)).
+      exact (fundamental_groupoid_2cell_iso Y HY (!(maponpathscomp0 f p q))).
   Defined.
 End ApFunctor.
