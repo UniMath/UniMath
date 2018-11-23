@@ -33,7 +33,7 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.Notation.
-Open Scope subsys.
+Local Open Scope subsys.
 
 (** Goal: define signatures as pairs of a rank-2 functor and a "strength" *)
 
