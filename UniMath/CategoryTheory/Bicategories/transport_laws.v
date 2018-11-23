@@ -12,8 +12,7 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Unitors.
 Require Import UniMath.CategoryTheory.Bicategories.BicatAliases.
-Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws_2.
-Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws.
+Require Import UniMath.CategoryTheory.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.Univalence.
 
 Definition transport_one_cell_FlFr

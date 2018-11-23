@@ -243,7 +243,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Bicategories/OpCellBicat.v](CategoryTheory/Bicategories/OpCellBicat.v)
    - [Bicategories/OpMorBicat.v](CategoryTheory/Bicategories/OpMorBicat.v)
    - [Bicategories/Unitors.v](CategoryTheory/Bicategories/Unitors.v)
-   - [Bicategories/bicategory_laws_2.v](CategoryTheory/Bicategories/bicategory_laws_2.v)
+   - [Bicategories/Invertible_2cells.v](CategoryTheory/Bicategories/Invertible_2cells.v)
    - [Bicategories/bicategory_laws.v](CategoryTheory/Bicategories/bicategory_laws.v)
    - [Bicategories/PseudoFunctor.v](CategoryTheory/Bicategories/PseudoFunctor.v)
    - [Bicategories/Univalence.v](CategoryTheory/Bicategories/Univalence.v)
