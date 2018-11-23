@@ -9,7 +9,7 @@ Require Import UniMath.CategoryTheory.Bicategories.BicatAliases.
 Notation "'BiCategory'" := bicat.
 
 (* ----------------------------------------------------------------------------------- *)
-(** ** Inverse 2cell of a composition                                                  *)
+(** * Inverse 2cell of a composition                                                  *)
 (* ----------------------------------------------------------------------------------- *)
 
 Lemma is_invertible_2cell_composite {C : prebicat} {a b : C} {f g h: C ⟦a, b⟧}
@@ -83,36 +83,6 @@ Proof.
         apply id2_rwhisker).
 Defined.
 
-
-Definition interchange
-           {C : BiCategory}
-           {X Y Z : C}
-           {f₁ g₁ h₁ : C⟦Y,Z⟧}
-           {f₂ g₂ h₂ : C⟦X,Y⟧}
-           (η₁ : f₁ ==> g₁) (η₂ : f₂ ==> g₂)
-           (ε₁ : g₁ ==> h₁) (ε₂ : g₂ ==> h₂)
-  : (ε₁ o η₁) ⋆⋆ (ε₂ o η₂) = (ε₁ ⋆⋆ ε₂) o (η₁ ⋆⋆ η₂).
-Proof.
-  apply hcomp_vcomp.
-Qed.
-
-Definition rinvunitor_natural
-           {C : BiCategory}
-           {X Y : C}
-           {f g : C⟦X, Y⟧}
-           (η : f ==> g)
-  : rinvunitor g o η = (id₂ (id₁ Y) ⋆⋆ η) o rinvunitor f.
-Proof.
-Admitted.
-
-Definition linvunitor_natural
-           {C : BiCategory}
-           {X Y : C}
-           {f g : C⟦X, Y⟧}
-           (η : f ==> g)
-  : linvunitor g o η = (η ⋆⋆ id₂ (id₁ X)) o linvunitor f.
-Proof.
-Admitted.
 
 Definition Build_is_invertible_2cell
            {C : BiCategory}
@@ -239,26 +209,6 @@ Proof.
   apply is_invertible_2cell_linvunitor.
 Defined.
 
-Definition triangle_r
-           {C : BiCategory}
-           {X Y Z : C}
-           (g : C⟦Y,Z⟧)
-           (f : C⟦X,Y⟧)
-  : lunitor g ⋆⋆ id₂ f = (id₂ g ⋆⋆ runitor f) o lassociator f (id₁ Y) g.
-Proof.
-  cbn.
-  apply pathsinv0.
-  unfold hcomp.
-  etrans.
-  { apply maponpaths.
-    etrans. { apply maponpaths.
-              apply lwhisker_id2. }
-            apply id2_right. }
-  etrans. apply runitor_rwhisker.
-  apply pathsinv0.
-  etrans. { apply maponpaths_2. apply id2_rwhisker. }
-          apply id2_left.
-Qed.
 
 Definition pentagon
            {C : BiCategory}
@@ -292,10 +242,10 @@ Definition hcomp_iso
 Proof.
   use Build_is_invertible_2cell.
   - exact (Hη₁^-1 ⋆⋆ Hη₂^-1).
-  - rewrite <- interchange.
+  - rewrite <- hcomp_vcomp.
     rewrite !vcomp_left_inverse.
     apply hcomp_identity.
-  - rewrite <- interchange.
+  - rewrite <- hcomp_vcomp.
     rewrite !vcomp_right_inverse.
     apply hcomp_identity.
 Defined.
@@ -409,7 +359,7 @@ Proof.
   rewrite !vassocr.
   rewrite Hhf.
   reflexivity.
-Defined.
+Qed.
 
 Definition vcomp_cancel_right
            {C : BiCategory}
@@ -419,16 +369,13 @@ Definition vcomp_cancel_right
            (Hε : is_invertible_2cell ε)
   : η₁ o ε = η₂ o ε -> η₁ = η₂.
 Proof.
-(*
   intros Hhf.
   refine (!(id2_left _) @ _ @ id2_left _).
   rewrite <- (vcomp_right_inverse ε Hε).
   rewrite <- !vassocr.
   rewrite Hhf.
   reflexivity.
-Defined.
- *)
-  Admitted.
+Qed.
 
 Definition vcomp_move_L_Vp
            {C : BiCategory}
@@ -544,3 +491,23 @@ Proof.
   rewrite <- p.
   apply vcomp_left_inverse.
 Defined.
+
+
+Ltac is_iso :=
+  match goal with
+  | [ |- is_invertible_2cell (runitor _) ] => apply is_invertible_2cell_runitor
+  | [ |- is_invertible_2cell (rinvunitor _) ] => apply is_invertible_2cell_rinvunitor
+  | [ |- is_invertible_2cell (lunitor _) ] => apply is_invertible_2cell_lunitor
+  | [ |- is_invertible_2cell (linvunitor _) ] => apply is_invertible_2cell_linvunitor
+  | [ |- is_invertible_2cell (rassociator _ _ _)] => apply is_invertible_2cell_rassociator
+  | [ |- is_invertible_2cell (lassociator _ _ _)] => apply is_invertible_2cell_lassociator
+  | [ |- is_invertible_2cell (inv_cell _)] => apply iso_inverse ; is_iso
+  | [ |- is_invertible_2cell (_ ^-1)] => apply iso_inverse ; is_iso
+  | [ |- is_invertible_2cell (_ • _)] => apply iso_vcomp ; is_iso
+  | [ |- is_invertible_2cell (_ ◃ _)] => apply is_invertible_2cell_lwhisker ; is_iso
+  | [ |- is_invertible_2cell (_ ▹ _)] => apply is_invertible_2cell_rwhisker ; is_iso
+  | [ |- is_invertible_2cell (_ ⋆⋆ _)] => apply hcomp_iso ; is_iso
+  | [ |- is_invertible_2cell (_ ⋆ _)] => apply hcomp_iso ; is_iso
+  | [ |- is_invertible_2cell (id₂ _)] => apply iso_id₂
+  | _ => try assumption
+  end.
