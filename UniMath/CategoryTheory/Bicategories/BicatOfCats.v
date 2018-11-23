@@ -20,8 +20,8 @@ Require Import UniMath.CategoryTheory.Bicategories.OpCellBicat.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctor.
 
 
-Open Scope cat.
-Open Scope mor_disp_scope.
+Local Open Scope cat.
+Local Open Scope mor_disp_scope.
 
 Definition cat_prebicat_data
   : prebicat_data.

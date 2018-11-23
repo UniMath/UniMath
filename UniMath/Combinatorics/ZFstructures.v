@@ -30,6 +30,7 @@ Require Export UniMath.Combinatorics.OrderedSets.
 
 Require Export UniMath.MoreFoundations.DecidablePropositions.
 Require Export UniMath.MoreFoundations.Propositions.
+Local Open Scope logic.
 
 
 (*** Auxilliary Lemmas ***)

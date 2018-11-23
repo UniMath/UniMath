@@ -15,7 +15,7 @@ Require Import UniMath.NumberSystems.Integers.
 
 (** ** I. Summation in a commutative ring *)
 
-Open Scope ring_scope.
+Local Open Scope ring_scope.
 
 Definition natsummation0 { R : commring } ( upper : nat ) ( f : nat -> R ) : R.
 Proof.

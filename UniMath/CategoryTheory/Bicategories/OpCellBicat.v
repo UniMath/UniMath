@@ -19,7 +19,7 @@ Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 
-Open Scope cat.
+Local Open Scope cat.
 
 Definition op2_2cell_struct (C : prebicat_1_id_comp_cells)
   : prebicat_2cell_struct C

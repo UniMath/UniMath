@@ -59,7 +59,7 @@ Definition ac_str {G:gr} (X:Action G) := pr2 X : ActionStructure G (ac_set X).
 Definition ac_mult {G:gr} (X:Action G) := act_mult (pr2 X).
 Delimit Scope action_scope with action.
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
-Open Scope action_scope.
+Local Open Scope action_scope.
 Definition ac_assoc {G:gr} (X:Action G) := act_assoc _ _ (pr2 X) : ∏ g h x, (op g h)*x = g*(h*x).
 
 Definition right_mult {G:gr} {X:Action G} (x:X) := λ g, g*x.
@@ -79,6 +79,7 @@ Proof. intros. apply impred; intro g. apply impred; intro x.
     equivariant, then the two actions are equal.  A similar fact will hold in
     other cases: groups, rings, monoids, etc.  Refer to section 9.8 of the HoTT
     book, on the "structure identity principle", a term coined by Peter Aczel. *)
+Local Open Scope transport.
 
 Definition is_equivariant_identity {G:gr} {X Y:Action G}
            (p:ac_set X = ac_set Y) :

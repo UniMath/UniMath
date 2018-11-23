@@ -18,7 +18,7 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations
 Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws.
 Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws_2.
 
-Open Scope cat.
+Local Open Scope cat.
 
 (* ----------------------------------------------------------------------------------- *)
 (** ** Pseudo-functors                                                                 *)

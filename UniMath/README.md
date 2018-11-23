@@ -114,6 +114,8 @@ less fragile and to make the files have a more uniform and pleasing appearance.
 * Use Unicode notation freely, but make the parsing conventions uniform across files.
   All notations, except for certain notations in the Foundations package used everywhere,
   should be local or in a scope.  All scopes, if opened, should be opened only locally.
+  Consider also putting them into a submodule, for then they won't be activated even
+  for printing.
 * Each line should be limited to at most 100 (unicode) characters.  The
   makefile target `enforce-max-line-length` can be used to detect nonconforming
   files, and the target `show-long-lines` can be used to display the

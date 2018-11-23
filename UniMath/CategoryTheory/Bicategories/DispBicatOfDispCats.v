@@ -19,8 +19,8 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations
 Require Import UniMath.CategoryTheory.Bicategories.DispBicat.
 Require Import UniMath.CategoryTheory.Bicategories.BicatOfCats.
 
-Open Scope cat.
-Open Scope mor_disp_scope.
+Local Open Scope cat.
+Local Open Scope mor_disp_scope.
 
 Definition disp_prebicat_of_disp_cats_cat_data : disp_cat_data bicat_of_cats.
 Proof.

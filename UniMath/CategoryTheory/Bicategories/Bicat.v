@@ -10,7 +10,7 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
-Open Scope cat.
+Local Open Scope cat.
 
 (* ----------------------------------------------------------------------------------- *)
 (** ** Definition of prebicategory                                                     *)

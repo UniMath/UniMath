@@ -9,12 +9,14 @@ Ported from: https://github.com/nmvdw/groupoids
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
+Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Unitors.
 Require Import UniMath.CategoryTheory.Bicategories.BicatAliases.
 Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws_2.
 Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws.
 Require Import UniMath.CategoryTheory.Bicategories.Univalence.
+Local Open Scope bicategory_scope.
 
 Definition representable_faithful
            {C : bicat}

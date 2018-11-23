@@ -27,7 +27,8 @@ Require Import UniMath.Ktheory.Utilities
                UniMath.Ktheory.MoreEquivalences.
 
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
-Open Scope hz_scope.
+Local Open Scope hz_scope.
+Local Open Scope transport.
 
 (** ** Recursion for ℤ *)
 
@@ -203,7 +204,7 @@ Defined.
 
 Notation "n + x" := (ac_mult _ n x) : action_scope.
 Notation "n - m" := (quotient _ n m) : action_scope.
-Open Scope action_scope.
+Local Open Scope action_scope.
 
 (** ** Bidirectional recursion for ℤ-torsors *)
 

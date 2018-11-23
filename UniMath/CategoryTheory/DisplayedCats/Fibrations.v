@@ -12,6 +12,7 @@ Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.equivalences.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Presheaf.
+Local Open Scope cat.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
