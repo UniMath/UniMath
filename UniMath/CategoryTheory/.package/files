@@ -159,7 +159,6 @@ DisplayedCats/Examples.v
 DisplayedCats/Adjunctions.v
 
 Bicategories/Bicat.v
-Bicategories/BicatAliases.v
 Bicategories/Invertible_2cells.v
 Bicategories/StandardBicategories.v
 Bicategories/OpCellBicat.v

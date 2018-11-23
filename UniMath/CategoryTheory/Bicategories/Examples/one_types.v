@@ -8,7 +8,6 @@ Ported from: https://github.com/nmvdw/groupoids
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
-Require Import UniMath.CategoryTheory.Bicategories.BicatAliases.
 Require Import UniMath.CategoryTheory.Bicategories.Univalence.
 Require Import UniMath.CategoryTheory.Bicategories.equiv_to_adjequiv.
 Require Import UniMath.CategoryTheory.Bicategories.adjoint_unique.
