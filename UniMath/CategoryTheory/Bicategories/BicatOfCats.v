@@ -141,7 +141,8 @@ Proof.
   - intros C D F. cbn in *.
     apply nat_trans_eq; [apply (homset_property (op_cat D) )|].
     intro. cbn. apply pathsinv0.
-    rewrite id_left. rewrite id_right. apply functor_id.
+    rewrite !id_left.
+    apply functor_id.
   - intros C D F. cbn in *.
     apply nat_trans_eq; [apply (homset_property (op_cat D) )|].
     intro. cbn. apply pathsinv0.
