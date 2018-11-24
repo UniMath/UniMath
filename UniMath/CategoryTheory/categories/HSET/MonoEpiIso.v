@@ -44,8 +44,6 @@ Proof.
   abstract (apply funextfun; intro z; induction z; reflexivity).
 Qed.
 
-(** This goes through without any further reasoning because of the computational
-    behavior of [global_element_HSET] (i.e. [global_element_HSET_comp]). *)
 Local Definition global_element_HSET_fun_weq {A B : hSet} (f : HSET⟦A, B⟧) (x y : A) :
   (f x = f y) ≃ (global_element_HSET x · f = global_element_HSET y · f).
 Proof.
