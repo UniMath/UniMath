@@ -28,6 +28,17 @@ Proof.
     reflexivity.
 Defined.
 
+Definition transitive_paths_weq_reverse {X : UU} {x y z : X} :
+  x = y -> (z = x ≃ z = y).
+Proof.
+  intros xeqy.
+  use (@weqcomp _ (x = z)).
+  - apply weqpathsinv0.
+  - use (@weqcomp _ (y = z)).
+    + apply transitive_paths_weq; assumption.
+    + apply weqpathsinv0.
+Qed.
+
 (** TODO: can this be derived from [weqtotal2comm12] or similar? *)
 Definition weqtotal2comm {A B : UU} {C : A → B → UU} :
   (∑ (a : A) (b : B), C a b) ≃ (∑ (b : B) (a : A), C a b).
