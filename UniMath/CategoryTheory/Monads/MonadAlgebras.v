@@ -25,7 +25,6 @@ Section Algebras.
 Context {C : precategory} (T : Monad C).
 
 
-
 (** Definition of an algebra of a monad T *)
 
 Section Algebra_def.
@@ -109,22 +108,25 @@ Definition precategory_Alg_data : precategory_data
 
 End Algebra_precategory_data.
 
+End Algebras.
+
 
 (** Definition of the category MonadAlg of algebras for T. Requires that C is a category. *)
 
 Section Algebra_category.
 
-Context {hs : has_homsets C}.
+Context {C : category} (T : Monad C).
 
-Definition Algebra_mor_eq {X Y : Algebra} {f g : Algebra_mor X Y}
+Definition Algebra_mor_eq {X Y : Algebra T} {f g : Algebra_mor T X Y}
   : (f : X --> Y) = g ≃ f = g.
 Proof.
   apply invweq.
   apply subtypeInjectivity.
-  intro h. apply hs.
+  intro h.
+  apply homset_property.
 Defined.
 
-Lemma is_precategory_precategory_Alg_data : is_precategory precategory_Alg_data.
+Lemma is_precategory_precategory_Alg_data : is_precategory (precategory_Alg_data T).
 Proof.
   apply mk_is_precategory; intros;
   apply Algebra_mor_eq.
@@ -140,36 +142,40 @@ Lemma has_homsets_MonadAlg : has_homsets MonadAlg.
 Proof.
   intros X Y.
   apply (isofhleveltotal2 2).
-  - apply hs.
+  - apply homset_property.
   - intro f.
     apply isasetaprop.
-    apply hs.
+    apply homset_property.
 Defined.
 
+End Algebra_category.
 
-(** Adjunction between MonadAlg and C, with right adjoint the forgetful functor
+
+(** Adjunction between MonadAlg T and C, with right adjoint the forgetful functor
    and left adjoint the free algebra functor. *)
 
 Section Algebra_adjunction.
 
-Definition forget_Alg_data : functor_data MonadAlg C.
+Context {C : category} (T : Monad C).
+
+Definition forget_Alg_data : functor_data (MonadAlg T) C.
 Proof.
-  exists (fun X => (X : Algebra)).
+  exists (fun X => (X : Algebra T)).
   intros X Y f.
   apply f.
 Defined.
 
-(* forgetful functor from MonadAlg to its underlying category *)
+(* forgetful functor from MonadAlg T to its underlying category *)
 
-Definition forget_Alg : functor MonadAlg C.
+Definition forget_Alg : functor (MonadAlg T) C.
 Proof.
   exists forget_Alg_data.
   split; red; intros; apply idpath.
 Defined.
 
-Definition free_Alg_data : functor_data C MonadAlg.
+Definition free_Alg_data : functor_data C (MonadAlg T).
 Proof.
-  exists free_Algebra.
+  exists (free_Algebra T).
   intros X Y f.
   exists (#T f).
   intermediate_path (#(T □ T) f · (μ T) Y).
@@ -180,16 +186,16 @@ Defined.
 
 (* free T-algebra functor on C *)
 
-Definition free_Alg : functor C MonadAlg.
+Definition free_Alg : functor C (MonadAlg T).
 Proof.
   exists free_Alg_data.
   split; red; intros.
   - apply subtypePairEquality'.
     + apply functor_id.
-    + apply hs.
+    + apply homset_property.
   - apply subtypePairEquality'.
     + apply functor_comp.
-    + apply hs.
+    + apply homset_property.
 Defined.
 
 Lemma free_forgetful_are_adjoints : are_adjoints free_Alg forget_Alg.
@@ -200,7 +206,7 @@ Proof.
     apply η.
   - use mk_nat_trans.
     + intro X.
-      exact (Alg_map (X : Algebra),, Algebra_multlaw X).
+      exact (Alg_map T (X : Algebra T),, Algebra_multlaw T X).
     + intros X Y f.
       apply Algebra_mor_eq; cbn.
       apply pathsinv0.
@@ -214,19 +220,15 @@ Defined.
 Lemma forget_free_is_T : forget_Alg □ free_Alg = T.
 Proof.
   apply functor_eq.
-  - exact hs.
+  - apply homset_property.
   - apply idpath.
 Defined.
 
 Lemma Alg_adjunction_monad_eq : Monad_from_adjunction free_forgetful_are_adjoints = T.
 Proof.
   apply Monad_eq_raw_data.
-  - exact hs.
+  - apply homset_property.
   - apply idpath.
 Defined.
 
 End Algebra_adjunction.
-
-End Algebra_category.
-
-End Algebras.
