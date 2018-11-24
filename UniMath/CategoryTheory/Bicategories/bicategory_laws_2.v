@@ -8,35 +8,6 @@ Require Import UniMath.CategoryTheory.Bicategories.BicatAliases.
 
 Notation "'BiCategory'" := bicat.
 
-Definition vcomp_assoc
-           {C : BiCategory}
-           {X Y : C}
-           {f g h k : C⟦X,Y⟧}
-           (η₃ : h ==> k)
-           (η₂ : g ==> h)
-           (η₁ : f ==> g)
-  : (η₃ o η₂) o η₁ = η₃ o (η₂ o η₁).
-Proof.
-  apply vassocr.
-Defined.
-
-
-Definition vcomp_left_identity
-           {C : BiCategory}
-           {X Y : C}
-           {f g : C⟦X,Y⟧}
-           (η : f ==> g)
-  : id₂ g o η = η
-  := id2_right _ .
-
-Definition vcomp_right_identity
-           {C : BiCategory}
-           {X Y : C}
-           {f g : C⟦X,Y⟧}
-           (η : f ==> g)
-  : η o id₂ f = η
-  := id2_left _ .
-
 Definition interchange
            {C : BiCategory}
            {X Y Z : C}
@@ -49,29 +20,7 @@ Proof.
   apply hcomp_vcomp.
 Qed.
 
-Definition hcomp_id₂
-           {C : BiCategory}
-           {X Y Z : C}
-           (f₂ : C⟦Y, Z⟧) (f₁ : C⟦X,Y⟧)
-  : id₂ f₂ ⋆⋆ id₂ f₁ = id₂ (f₂ ∘ f₁).
-Proof.
-  apply hcomp_identity.
-Defined.
-
-(* see lunitor_natural *)
-
-Definition left_unit_natural
-           {C : BiCategory}
-           {X Y : C}
-           {f g : C⟦X, Y⟧}
-           (η : f ==> g)
-  : runitor g o (id₂ (id₁ Y) ⋆⋆ η) = η o runitor f.
-Proof.
-  apply runitor_natural.
-Qed.
-
-
-Definition left_unit_inv_natural
+Definition rinvunitor_natural
            {C : BiCategory}
            {X Y : C}
            {f g : C⟦X, Y⟧}
@@ -79,34 +28,6 @@ Definition left_unit_inv_natural
   : rinvunitor g o η = (id₂ (id₁ Y) ⋆⋆ η) o rinvunitor f.
 Proof.
 Admitted.
-
-Definition left_unit_left
-           {C : BiCategory}
-           {X Y : C}
-           (f : C⟦X, Y⟧)
-  : runitor f o rinvunitor f = id₂ f.
-Proof.
-  apply rinvunitor_runitor.
-Qed.
-
-Definition left_unit_right
-           {C : BiCategory}
-           {X Y : C}
-           (f : C⟦X, Y⟧)
-  : rinvunitor f o runitor f = id₂ (id₁ Y ∘ f).
-Proof.
-  apply runitor_rinvunitor.
-Qed.
-
-Definition lunitor_natural
-           {C : BiCategory}
-           {X Y : C}
-           {f g : C⟦X, Y⟧}
-           (η : f ==> g)
-  : lunitor g o (η ⋆⋆ id₂ (id₁ X)) = η o lunitor f.
-Proof.
-  apply lunitor_natural.
-Qed.
 
 Definition linvunitor_natural
            {C : BiCategory}
@@ -116,24 +37,6 @@ Definition linvunitor_natural
   : linvunitor g o η = (η ⋆⋆ id₂ (id₁ X)) o linvunitor f.
 Proof.
 Admitted.
-
-Definition lunitor_left
-           {C : BiCategory}
-           {X Y : C}
-           (f : C⟦X, Y⟧)
-  : lunitor f o linvunitor f = id₂ f.
-Proof.
-  apply linvunitor_lunitor.
-Qed.
-
-Definition lunitor_right
-           {C : BiCategory}
-           {X Y : C}
-           (f : C⟦X, Y⟧)
-  : linvunitor f o lunitor f = id₂ (f ∘ id₁ X).
-Proof.
-  apply lunitor_linvunitor.
-Qed.
 
 Definition Build_is_invertible_2cell
            {C : BiCategory}
@@ -315,10 +218,10 @@ Proof.
   - exact (Hη₁^-1 ⋆⋆ Hη₂^-1).
   - rewrite <- interchange.
     rewrite !vcomp_left_inverse.
-    apply hcomp_id₂.
+    apply hcomp_identity.
   - rewrite <- interchange.
     rewrite !vcomp_right_inverse.
-    apply hcomp_id₂.
+    apply hcomp_identity.
 Defined.
 
 Definition bc_whisker_l
@@ -425,9 +328,9 @@ Definition vcomp_cancel_left
   : ε o η₁ = ε o η₂ -> η₁ = η₂.
 Proof.
   intros Hhf.
-  simple refine (!(vcomp_left_identity _) @ _ @ vcomp_left_identity _).
+  simple refine (!(id2_right _) @ _ @ id2_right _).
   rewrite <- (vcomp_left_inverse ε Hε).
-  rewrite !vcomp_assoc.
+  rewrite !vassocr.
   rewrite Hhf.
   reflexivity.
 Defined.
@@ -442,9 +345,9 @@ Definition vcomp_cancel_right
 Proof.
 (*
   intros Hhf.
-  refine (!(vcomp_right_identity _) @ _ @ vcomp_right_identity _).
+  refine (!(id2_left _) @ _ @ id2_left _).
   rewrite <- (vcomp_right_inverse ε Hε).
-  rewrite <- !vcomp_assoc.
+  rewrite <- !vassocr.
   rewrite Hhf.
   reflexivity.
 Defined.
@@ -460,9 +363,9 @@ Definition vcomp_move_L_Vp
   : ε o η₁ = η₂ -> η₁ = Hε^-1 o η₂.
 Proof.
   intros ?.
-  rewrite <- (vcomp_left_identity η₁).
+  rewrite <- (id2_right η₁).
   rewrite <- (vcomp_left_inverse ε Hε).
-  rewrite vcomp_assoc.
+  rewrite vassocr.
   apply maponpaths_2.
   assumption.
 Qed.
@@ -476,9 +379,9 @@ Definition vcomp_move_L_pV
   : η₁ o ε = η₂ -> η₁ = η₂ o Hε^-1.
 Proof.
   intros Hη.
-  rewrite <- (vcomp_right_identity η₁).
+  rewrite <- (id2_left η₁).
   rewrite <- (vcomp_right_inverse ε Hε).
-  rewrite <- vcomp_assoc.
+  rewrite <- vassocr.
   rewrite Hη.
   reflexivity.
 Qed.
@@ -492,9 +395,9 @@ Definition vcomp_move_R_Mp
   : η₁ = Hε^-1 o η₂ -> ε o η₁ = η₂.
 Proof.
   intros ?.
-  rewrite <- (vcomp_left_identity η₂).
+  rewrite <- (id2_right η₂).
   rewrite <- (vcomp_right_inverse ε Hε).
-  rewrite vcomp_assoc.
+  rewrite vassocr.
   apply maponpaths_2.
   assumption.
 Qed.
@@ -508,9 +411,9 @@ Definition vcomp_move_R_pM
   : η₁ = η₂ o Hε^-1 -> η₁ o ε = η₂.
 Proof.
   intros Hη.
-  rewrite <- (vcomp_right_identity η₂).
+  rewrite <- (id2_left η₂).
   rewrite <- (vcomp_left_inverse ε Hε).
-  rewrite <- vcomp_assoc.
+  rewrite <- vassocr.
   rewrite Hη.
   reflexivity.
 Qed.
@@ -524,9 +427,9 @@ Definition vcomp_move_L_Mp
   : Hε^-1 o η₁ = η₂ -> η₁ = ε o η₂.
 Proof.
   intros ?.
-  rewrite <- (vcomp_left_identity η₁).
+  rewrite <- (id2_right η₁).
   rewrite <- (vcomp_right_inverse ε Hε).
-  rewrite vcomp_assoc.
+  rewrite vassocr.
   apply maponpaths_2.
   assumption.
 Qed.
@@ -540,9 +443,9 @@ Definition vcomp_move_L_pM
   : η₁ o Hε^-1 = η₂ -> η₁ = η₂ o ε.
 Proof.
   intros Hη.
-  rewrite <- (vcomp_right_identity η₁).
+  rewrite <- (id2_left η₁).
   rewrite <- (vcomp_left_inverse ε Hε).
-  rewrite <- vcomp_assoc.
+  rewrite <- vassocr.
   rewrite Hη.
   reflexivity.
 Qed.
@@ -557,10 +460,10 @@ Definition path_inverse_2cell
   : η₁ = η₂ -> Hη₁^-1 = Hη₂^-1.
 Proof.
   intros p.
-  rewrite <- (vcomp_right_identity (Hη₁^-1)).
-  rewrite <- (vcomp_left_identity (Hη₂^-1)).
+  rewrite <- (id2_left (Hη₁^-1)).
+  rewrite <- (id2_right (Hη₂^-1)).
   rewrite <- (vcomp_right_inverse η₂ Hη₂).
-  rewrite <- vcomp_assoc.
+  rewrite <- vassocr.
   apply maponpaths.
   rewrite <- p.
   apply vcomp_left_inverse.

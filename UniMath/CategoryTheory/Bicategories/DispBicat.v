@@ -16,6 +16,7 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctor.
+Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws.
 Require Import UniMath.CategoryTheory.Bicategories.Unitors.
 
 Open Scope cat.
@@ -1146,7 +1147,7 @@ Defined.
 
 Definition total_prebicat : prebicat := _ ,, total_prebicat_laws.
 
-Definition pr1_psfunctor_ob_mor_cell : psfunctor_ob_mor_cell total_prebicat_data C.
+Definition pr1_psfunctor_ob_mor_cell : laxfunctor_ob_mor_cell total_prebicat_data C.
 Proof.
   use tpair.
   - use tpair.
@@ -1155,7 +1156,7 @@ Proof.
   - intros a b f g. exact pr1.
 Defined.
 
-Definition pr1_psfunctor_cell_data : psfunctor_cell_data pr1_psfunctor_ob_mor_cell.
+Definition pr1_psfunctor_cell_data : laxfunctor_cell_data pr1_psfunctor_ob_mor_cell.
 Proof.
   use tpair.
   - intro a. cbn.
@@ -1164,10 +1165,10 @@ Proof.
     apply id2_invertible_2cell.
 Defined.
 
-Definition pr1_psfunctor_data : psfunctor_data total_prebicat_data C
+Definition pr1_psfunctor_data : laxfunctor_data total_prebicat_data C
   := pr1_psfunctor_ob_mor_cell ,, pr1_psfunctor_cell_data.
 
-Definition pr1_psfunctor_laws : psfunctor_laws pr1_psfunctor_data.
+Definition pr1_psfunctor_laws : laxfunctor_laws pr1_psfunctor_data.
 Proof.
   repeat split; intro a; intros; cbn.
   - rewrite id2_rwhisker.
@@ -1178,27 +1179,8 @@ Proof.
     rewrite id2_left.
     rewrite id2_left.
     apply idpath.
-  - rewrite id2_rwhisker.
-    rewrite id2_right.
-    rewrite id2_right.
-    apply idpath.
-  - rewrite lwhisker_id2.
-    rewrite id2_right.
-    rewrite id2_right.
-    apply idpath.
-  - rewrite id2_right.
-    rewrite id2_left.
-    rewrite id2_rwhisker.
-    rewrite id2_left.
-    rewrite lwhisker_id2.
-    rewrite id2_right.
-    apply idpath.
-  - rewrite id2_right.
-    rewrite id2_left.
-    rewrite id2_rwhisker.
-    rewrite lwhisker_id2.
-    rewrite id2_left.
-    rewrite id2_right.
+  - rewrite !lwhisker_id2, !id2_rwhisker.
+    rewrite !id2_left, !id2_right.
     apply idpath.
   - rewrite id2_right.
     rewrite id2_left.
@@ -1208,7 +1190,15 @@ Proof.
     apply idpath.
 Qed.
 
-Definition pr1_psfunctor : psfunctor total_prebicat_data C := _ ,, pr1_psfunctor_laws.
+Definition pr1_laxfunctor : laxfunctor total_prebicat_data C := _ ,, pr1_psfunctor_laws.
+
+Definition pr1_is_pseudofunctor : is_pseudofunctor pr1_laxfunctor.
+Proof.
+  split ; cbn ; intros ; is_iso.
+Defined.
+
+Definition pr1_psfunctor : psfunctor total_prebicat_data C
+  := _ ,, pr1_is_pseudofunctor.
 
 End total_prebicat.
 

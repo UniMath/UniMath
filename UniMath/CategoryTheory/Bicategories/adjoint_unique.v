@@ -44,15 +44,15 @@ Section AdjointUniqueMapCompose.
           o η' ▻ g.
   Proof.
     rewrite <- rwhisker_vcomp.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     rewrite !lwhisker_hcomp, !rwhisker_hcomp.
-    rewrite left_unit_inv_natural.
-    rewrite <- !vcomp_assoc.
+    rewrite rinvunitor_natural.
+    rewrite <- !vassocr.
     rewrite <- !interchange.
-    rewrite !vcomp_right_identity, !vcomp_left_identity.
-    rewrite <- (vcomp_right_identity η).
+    rewrite !id2_left, !id2_right.
+    rewrite <- (id2_left η).
     rewrite interchange.
-    rewrite vcomp_right_identity.
+    rewrite id2_left.
     apply (maponpaths (λ z, z • _)).
     rewrite left_unit_inv_assoc₂.
     rewrite <- triangle_l_inv.
@@ -74,29 +74,29 @@ Section AdjointUniqueMapCompose.
           o rinvunitor _
           o η' ▻ g.
   Proof.
-    rewrite !vcomp_assoc.
-    rewrite !(maponpaths (λ z, _ o (_ o z)) (!(vcomp_assoc _ _ _))).
+    rewrite !vassocr.
+    rewrite !(maponpaths (λ z, _ o (_ o z)) (!(vassocr _ _ _))).
     rewrite <- help₁.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     apply maponpaths.
     rewrite <- !rwhisker_vcomp.
     rewrite !lwhisker_hcomp, !rwhisker_hcomp.
-    rewrite !vcomp_assoc.
-    rewrite !(maponpaths (fun z => _ o z) (!(vcomp_assoc _ _ _))).
-    rewrite <- hcomp_id₂.
+    rewrite !vassocr.
+    rewrite !(maponpaths (fun z => _ o z) (!(vassocr _ _ _))).
+    rewrite <- hcomp_identity.
     rewrite hcomp_lassoc.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     rewrite hcomp_lassoc.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     apply maponpaths.
     rewrite <- !interchange.
-    rewrite !vcomp_right_identity.
+    rewrite !id2_left.
     rewrite hcomp_rassoc.
-    rewrite !vcomp_assoc.
-    rewrite <- (vcomp_left_identity (id₂ g)).
+    rewrite !vassocr.
+    rewrite <- (id2_right (id₂ g)).
     rewrite !interchange.
     rewrite triangle_r_inv.
-    rewrite vcomp_left_identity.
+    rewrite id2_right.
     reflexivity.
   Qed.
 
@@ -131,9 +131,9 @@ Section AdjointUniqueMapCompose.
     : composition_of_triangles = id₂ r₁.
   Proof.
     unfold composition_of_triangles.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     rewrite (internal_triangle1 HA₂).
-    rewrite id2_rwhisker, vcomp_left_identity.
+    rewrite id2_rwhisker, id2_right.
     exact (internal_triangle2 HA₁).
   Qed.
 
@@ -143,121 +143,121 @@ Section AdjointUniqueMapCompose.
       ε₂ o l ◅ (lunitor r₂ o r₂ ◅ ε₁) o lassociator (l ∘ r₁) r₂ l o lassociator r₁ l (l ∘ r₂).
   Proof.
     rewrite <- rwhisker_vcomp.
-    rewrite !vcomp_assoc.
-    rewrite !(maponpaths (fun z => _ o (_ o z)) (!(vcomp_assoc _ _ _))).
+    rewrite !vassocr.
+    rewrite !(maponpaths (fun z => _ o (_ o z)) (!(vassocr _ _ _))).
     rewrite !rwhisker_hcomp.
     rewrite <- hcomp_lassoc.
-    rewrite !vcomp_assoc.
-    rewrite !(maponpaths (fun z => _ o z) (!(vcomp_assoc _ _ _))).
+    rewrite !vassocr.
+    rewrite !(maponpaths (fun z => _ o z) (!(vassocr _ _ _))).
     rewrite <- !rwhisker_hcomp.
     rewrite lunitor_triangle.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     rewrite <- vcomp_lunitor.
-    rewrite !vcomp_assoc.
-    rewrite !(maponpaths (fun z => _ o z) (!(vcomp_assoc _ _ _))).
+    rewrite !vassocr.
+    rewrite !(maponpaths (fun z => _ o z) (!(vassocr _ _ _))).
     rewrite !lwhisker_hcomp, !rwhisker_hcomp.
     rewrite <- !interchange.
-    rewrite !hcomp_id₂, vcomp_left_identity, vcomp_right_identity.
-    rewrite <- (vcomp_right_identity ε₁).
-    rewrite <- (vcomp_left_identity ε₂).
+    rewrite !hcomp_identity, id2_right, id2_left.
+    rewrite <- (id2_left ε₁).
+    rewrite <- (id2_right ε₂).
     rewrite interchange.
-    rewrite <- !vcomp_assoc, !vcomp_left_identity, !vcomp_right_identity.
+    rewrite <- !vassocr, !id2_right, !id2_left.
     rewrite <- runitor_lunitor_identity.
     rewrite <- !rwhisker_hcomp.
     rewrite !vcomp_runitor.
-    rewrite !vcomp_assoc.
-    rewrite <- hcomp_id₂.
+    rewrite !vassocr.
+    rewrite <- hcomp_identity.
     rewrite <- hcomp_lassoc.
     rewrite <- !lwhisker_hcomp.
     rewrite <- lwhisker_vcomp.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     apply maponpaths.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     apply (maponpaths (λ z, z • ε₁)).
     rewrite <- runitor_triangle.
-    rewrite !vcomp_assoc.
-    rewrite lassociator_rassociator, vcomp_right_identity.
+    rewrite !vassocr.
+    rewrite lassociator_rassociator, id2_left.
     reflexivity.
   Qed.
 
   Definition composition_of_maps : r₂_to_r₁ o r₁_to_r₂ = composition_of_triangles.
   Proof.
     unfold r₁_to_r₂, r₂_to_r₁, composition_of_triangles.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     apply (maponpaths (λ z, z • lunitor r₁)).
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     apply (maponpaths (λ z, rinvunitor r₁ • z)).
     rewrite <- !lwhisker_vcomp, <- !rwhisker_vcomp.
     rewrite <- !lwhisker_vcomp.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     rewrite !lwhisker_hcomp, !rwhisker_hcomp.
-    rewrite !vcomp_assoc.
-    rewrite !(maponpaths (fun z => z • _) (!(vcomp_assoc _ _ _))).
+    rewrite !vassocr.
+    rewrite !(maponpaths (fun z => z • _) (!(vassocr _ _ _))).
     rewrite hcomp_lassoc.
-    rewrite !vcomp_assoc.
-    rewrite !(maponpaths (fun z => (z • _) • _) (!(vcomp_assoc _ _ _))).
+    rewrite !vassocr.
+    rewrite !(maponpaths (fun z => (z • _) • _) (!(vassocr _ _ _))).
     rewrite hcomp_lassoc.
-    rewrite !vcomp_assoc.
-    rewrite !(maponpaths (fun z => ((z • _) • _) • _) (!(vcomp_assoc _ _ _))).
+    rewrite !vassocr.
+    rewrite !(maponpaths (fun z => ((z • _) • _) • _) (!(vassocr _ _ _))).
     rewrite hcomp_lassoc.
-    rewrite !vcomp_assoc.
-    rewrite !(maponpaths (fun z => (((z • _) • _) • _) • _) (!(vcomp_assoc _ _ _))).
+    rewrite !vassocr.
+    rewrite !(maponpaths (fun z => (((z • _) • _) • _) • _) (!(vassocr _ _ _))).
     rewrite hcomp_lassoc.
-    rewrite !vcomp_assoc.
-    rewrite !(maponpaths (fun z => ((((z • _) • _) • _) • _) • _) (!(vcomp_assoc _ _ _))).
+    rewrite !vassocr.
+    rewrite !(maponpaths (fun z => ((((z • _) • _) • _) • _) • _) (!(vassocr _ _ _))).
     rewrite hcomp_lassoc.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     rewrite <- !lwhisker_hcomp, <- !rwhisker_hcomp.
     rewrite help₂.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     apply maponpaths.
     rewrite !lwhisker_hcomp, !rwhisker_hcomp.
     rewrite <- !interchange.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     rewrite <- inverse_pentagon_3.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     do 3 rewrite interchange.
-    rewrite !vcomp_right_identity.
-    rewrite !vcomp_assoc.
-    rewrite !(maponpaths (λ z, ((z • _) • _) • _) (!(vcomp_assoc _ _ _))).
+    rewrite !id2_left.
+    rewrite !vassocr.
+    rewrite !(maponpaths (λ z, ((z • _) • _) • _) (!(vassocr _ _ _))).
     rewrite <- hcomp_lassoc.
     rewrite <- interchange.
-    rewrite !hcomp_id₂.
-    rewrite !vcomp_assoc, vcomp_right_identity.
+    rewrite !hcomp_identity.
+    rewrite !vassocr, id2_left.
     rewrite ε₁_natural.
     rewrite <- rwhisker_vcomp.
-    repeat (rewrite <- (vcomp_left_identity (id₂ r₁)) ; rewrite interchange).
-    rewrite !vcomp_left_identity.
-    rewrite !vcomp_assoc.
+    repeat (rewrite <- (id2_right (id₂ r₁)) ; rewrite interchange).
+    rewrite !id2_right.
+    rewrite !vassocr.
     apply (maponpaths (λ z, z • _)).
-    rewrite !(maponpaths (λ z, ((z • _) • _) • _) (!(vcomp_assoc _ _ _))).
+    rewrite !(maponpaths (λ z, ((z • _) • _) • _) (!(vassocr _ _ _))).
     rewrite <- !rwhisker_hcomp.
     rewrite rwhisker_vcomp.
-    rewrite rassociator_lassociator, id2_rwhisker, vcomp_left_identity.
-    rewrite !vcomp_assoc.
-    rewrite !(maponpaths (λ z, (z • _) • _) (!(vcomp_assoc _ _ _))).
+    rewrite rassociator_lassociator, id2_rwhisker, id2_right.
+    rewrite !vassocr.
+    rewrite !(maponpaths (λ z, (z • _) • _) (!(vassocr _ _ _))).
     rewrite rwhisker_vcomp.
-    rewrite rassociator_lassociator, id2_rwhisker, vcomp_left_identity.
-    rewrite !vcomp_assoc.
-    rewrite !(maponpaths (λ z, z • _) (!(vcomp_assoc _ _ _))).
+    rewrite rassociator_lassociator, id2_rwhisker, id2_right.
+    rewrite !vassocr.
+    rewrite !(maponpaths (λ z, z • _) (!(vassocr _ _ _))).
     rewrite !rwhisker_hcomp.
     rewrite <- hcomp_lassoc.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     rewrite <- hcomp_lassoc.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     apply (maponpaths (λ z, z • _)).
-    rewrite !hcomp_id₂.
-    rewrite <- !vcomp_assoc.
+    rewrite !hcomp_identity.
+    rewrite <- !vassocr.
     rewrite <- !interchange.
-    rewrite !vcomp_assoc, !vcomp_right_identity, !vcomp_left_identity.
-    rewrite <- (vcomp_left_identity (lunitor r₂)).
-    rewrite !vcomp_assoc.
-    rewrite <- (vcomp_right_identity η₁).
+    rewrite !vassocr, !id2_left, !id2_right.
+    rewrite <- (id2_right (lunitor r₂)).
+    rewrite !vassocr.
+    rewrite <- (id2_left η₁).
     rewrite interchange.
-    rewrite !vcomp_assoc.
-    rewrite !vcomp_left_identity, !vcomp_right_identity.
+    rewrite !vassocr.
+    rewrite !id2_right, !id2_left.
     apply (maponpaths (λ z, z • _)).
-    rewrite left_unit_inv_natural.
+    rewrite rinvunitor_natural.
     reflexivity.
   Qed.
 End AdjointUniqueMapCompose.
@@ -303,17 +303,17 @@ Section UniquenessAdjoint.
          o η₂
       = η₂.
   Proof.
-    refine (_ @ vcomp_left_identity _).
+    refine (_ @ id2_right _).
     apply maponpaths.
-    rewrite <- hcomp_id₂.
+    rewrite <- hcomp_identity.
     rewrite <- (internal_triangle1 HA₁).
     rewrite <- rwhisker_hcomp.
     rewrite <- !rwhisker_vcomp.
     rewrite linvunitor_assoc.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     apply maponpaths.
-    rewrite !vcomp_assoc.
-    rewrite rassociator_lassociator, vcomp_right_identity.
+    rewrite !vassocr.
+    rewrite rassociator_lassociator, id2_left.
     reflexivity.
   Qed.
 
@@ -326,31 +326,31 @@ Section UniquenessAdjoint.
         o lassociator (id₁ X) l r₂
         o linvunitor (r₂ ∘ l) o η₂.
   Proof.
-    rewrite !vcomp_assoc.
-    rewrite !(maponpaths (λ z, (z • _) • _) (!(vcomp_assoc _ _ _))).
+    rewrite !vassocr.
+    rewrite !(maponpaths (λ z, (z • _) • _) (!(vassocr _ _ _))).
     rewrite !lwhisker_hcomp, !rwhisker_hcomp.
     rewrite <- hcomp_lassoc.
-    rewrite !vcomp_assoc.
-    rewrite !(maponpaths (λ z, z • _) (!(vcomp_assoc _ _ _))).
-    rewrite lassociator_rassociator, vcomp_left_identity.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
+    rewrite !(maponpaths (λ z, z • _) (!(vassocr _ _ _))).
+    rewrite lassociator_rassociator, id2_right.
+    rewrite !vassocr.
     use vcomp_move_L_Mp.
     { is_iso. }
     cbn.
     rewrite linvunitor_natural.
-    rewrite <- !vcomp_assoc.
-    rewrite <- interchange, vcomp_right_identity, hcomp_id₂, vcomp_left_identity.
-    rewrite hcomp_lassoc, hcomp_id₂.
+    rewrite <- !vassocr.
+    rewrite <- interchange, id2_left, hcomp_identity, id2_right.
+    rewrite hcomp_lassoc, hcomp_identity.
     rewrite lunitor_V_id_is_left_unit_V_id.
-    rewrite !vcomp_assoc.
-    rewrite !(maponpaths (λ z, z • _) (!(vcomp_assoc _ _ _))).
+    rewrite !vassocr.
+    rewrite !(maponpaths (λ z, z • _) (!(vassocr _ _ _))).
     rewrite <- lwhisker_hcomp.
     rewrite <- left_unit_inv_assoc₂.
-    rewrite left_unit_inv_natural.
-    rewrite <- !vcomp_assoc.
+    rewrite rinvunitor_natural.
+    rewrite <- !vassocr.
     apply maponpaths.
     rewrite <- interchange.
-    rewrite !vcomp_left_identity, vcomp_right_identity.
+    rewrite !id2_right, id2_left.
     reflexivity.
   Qed.
 
@@ -360,37 +360,37 @@ Section UniquenessAdjoint.
     rewrite <- remove_η₂.
     unfold r₁_to_r₂.
     rewrite <- !lwhisker_vcomp.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     rewrite help_triangle_η.
     rewrite linvunitor_assoc.
-    rewrite !vcomp_assoc.
-    rewrite !(maponpaths (λ z, ((((((z • _) • _) • _) • _) • _) • _)) (!(vcomp_assoc _ _ _))).
-    rewrite rassociator_lassociator, vcomp_left_identity.
-    rewrite !(maponpaths (λ z, (((((z • _) • _) • _) • _) • _)) (!(vcomp_assoc _ _ _))).
+    rewrite !vassocr.
+    rewrite !(maponpaths (λ z, ((((((z • _) • _) • _) • _) • _) • _)) (!(vassocr _ _ _))).
+    rewrite rassociator_lassociator, id2_right.
+    rewrite !(maponpaths (λ z, (((((z • _) • _) • _) • _) • _)) (!(vassocr _ _ _))).
     rewrite rwhisker_vcomp.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     rewrite <- !rwhisker_vcomp.
     repeat (apply maponpaths).
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     apply maponpaths.
-    rewrite !vcomp_assoc.
-    rewrite rassociator_lassociator, vcomp_right_identity.
-    rewrite <- !vcomp_assoc.
+    rewrite !vassocr.
+    rewrite rassociator_lassociator, id2_left.
+    rewrite <- !vassocr.
     apply maponpaths.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     rewrite inverse_pentagon.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     rewrite !rwhisker_hcomp.
     apply maponpaths.
-    rewrite !vcomp_assoc.
-    rewrite !(maponpaths (λ z, (z • _) • _) (!(vcomp_assoc _ _ _))).
+    rewrite !vassocr.
+    rewrite !(maponpaths (λ z, (z • _) • _) (!(vassocr _ _ _))).
     rewrite <- !lwhisker_hcomp.
     rewrite !lwhisker_vcomp.
     rewrite rassociator_lassociator.
-    rewrite lwhisker_id2, vcomp_left_identity.
+    rewrite lwhisker_id2, id2_right.
     rewrite !lwhisker_hcomp.
     rewrite <- hcomp_rassoc.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     apply maponpaths.
     apply triangle_l.
   Qed.
@@ -403,39 +403,39 @@ Section UniquenessAdjoint.
            o rassociator _ _ _
            o rassociator _ _ _.
   Proof.
-    rewrite !vcomp_assoc.
-    rewrite !(maponpaths (λ z, (z • _) • _) (!(vcomp_assoc _ _ _))).
+    rewrite !vassocr.
+    rewrite !(maponpaths (λ z, (z • _) • _) (!(vassocr _ _ _))).
     rewrite !lwhisker_hcomp, !rwhisker_hcomp.
     rewrite hcomp_lassoc.
-    rewrite !vcomp_assoc.
-    rewrite !(maponpaths (λ z, ((z • _) • _) • _) (!(vcomp_assoc _ _ _))).
-    rewrite rassociator_lassociator, vcomp_left_identity.
-    rewrite <- !vcomp_assoc.
+    rewrite !vassocr.
+    rewrite !(maponpaths (λ z, ((z • _) • _) • _) (!(vassocr _ _ _))).
+    rewrite rassociator_lassociator, id2_right.
+    rewrite <- !vassocr.
     use vcomp_move_L_pM.
     { is_iso. }
     cbn.
-    rewrite <- left_unit_natural.
-    rewrite !vcomp_assoc.
-    rewrite hcomp_id₂.
+    rewrite <- runitor_natural.
+    rewrite !vassocr.
+    rewrite hcomp_identity.
     rewrite <- interchange.
-    rewrite !vcomp_left_identity, vcomp_right_identity.
+    rewrite !id2_right, id2_left.
     rewrite <- !rwhisker_hcomp.
     rewrite <- rwhisker_vcomp.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     rewrite !rwhisker_hcomp.
     rewrite <- hcomp_lassoc.
-    rewrite !(maponpaths (λ z, z • _) (!(vcomp_assoc _ _ _))).
+    rewrite !(maponpaths (λ z, z • _) (!(vassocr _ _ _))).
     rewrite <- !rwhisker_hcomp.
     rewrite lunitor_triangle.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     rewrite <- vcomp_lunitor.
     rewrite lunitor_runitor_identity.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     apply (maponpaths (λ z, z • _)).
     rewrite lwhisker_hcomp, rwhisker_hcomp.
-    rewrite hcomp_id₂.
+    rewrite hcomp_identity.
     rewrite <- interchange.
-    rewrite !vcomp_left_identity, !vcomp_right_identity.
+    rewrite !id2_right, !id2_left.
     reflexivity.
   Qed.
 
@@ -445,21 +445,21 @@ Section UniquenessAdjoint.
          o (ε₂ ▻ l o rassociator l r₂ l o l ◅ η₂ o linvunitor l) ▻ r₁
       = ε₁.
   Proof.
-    rewrite !vcomp_assoc.
-    rewrite !(maponpaths (λ z, z • _) (!(vcomp_assoc _ _ _))).
+    rewrite !vassocr.
+    rewrite !(maponpaths (λ z, z • _) (!(vassocr _ _ _))).
     rewrite <- runitor_triangle.
-    rewrite !vcomp_assoc.
-    refine (_ @ vcomp_right_identity _).
+    rewrite !vassocr.
+    refine (_ @ id2_left _).
     apply (maponpaths (λ z, z • _)).
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     rewrite <- lwhisker_id2.
     rewrite <- (internal_triangle1 HA₂).
     rewrite <- !lwhisker_vcomp.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     repeat (apply maponpaths).
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     rewrite lassociator_rassociator.
-    apply vcomp_right_identity.
+    apply id2_left.
   Qed.
 
   Definition transport_counit
@@ -468,32 +468,32 @@ Section UniquenessAdjoint.
     rewrite <- remove_ε₁.
     unfold r₁_to_r₂.
     do 3 rewrite <- rwhisker_vcomp.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     rewrite help_triangle_ε.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     rewrite <- !lwhisker_vcomp.
     repeat (apply (maponpaths (λ z, z • _))).
     use vcomp_move_L_Mp.
     { is_iso. }
     cbn.
-    rewrite (maponpaths (λ z, z • _) (!(vcomp_assoc _ _ _))).
+    rewrite (maponpaths (λ z, z • _) (!(vassocr _ _ _))).
     rewrite inverse_pentagon.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     rewrite !lwhisker_vcomp.
     rewrite !lwhisker_hcomp, !rwhisker_hcomp.
-    rewrite <- !vcomp_assoc.
-    rewrite (maponpaths (λ z, _ • (_ • z)) (vcomp_assoc _ _ _)).
+    rewrite <- !vassocr.
+    rewrite (maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)).
     rewrite <- interchange.
-    rewrite lassociator_rassociator, !vcomp_left_identity, hcomp_id₂.
-    rewrite vcomp_right_identity.
+    rewrite lassociator_rassociator, !id2_right, hcomp_identity.
+    rewrite id2_left.
     rewrite <- interchange.
-    rewrite rassociator_lassociator, !vcomp_left_identity, hcomp_id₂.
-    rewrite vcomp_left_identity.
+    rewrite rassociator_lassociator, !id2_right, hcomp_identity.
+    rewrite id2_right.
     rewrite <- !lwhisker_hcomp, <- !rwhisker_hcomp.
     rewrite <- lwhisker_vcomp.
     rewrite !lwhisker_hcomp, !rwhisker_hcomp.
     rewrite triangle_r_inv.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     apply maponpaths.
     apply hcomp_rassoc.
   Qed.
@@ -522,7 +522,7 @@ Proof.
       use pathsdirprod.
       * rewrite transport_two_cell_FlFr.
         rewrite !maponpaths_for_constant_function ; cbn.
-        rewrite vcomp_right_identity.
+        rewrite id2_left.
         rewrite <- idtoiso_2_1_lwhisker.
         unfold isotoid_2_1.
         pose (homotweqinvweq (idtoiso_2_1 (pr1 A₁) (pr1 A₂),, HC Y X (pr1 A₁) (pr1 A₂))) as p.
@@ -533,7 +533,7 @@ Proof.
         exact A₁.
       * rewrite transport_two_cell_FlFr.
         rewrite !maponpaths_for_constant_function ; cbn.
-        rewrite vcomp_left_identity.
+        rewrite id2_right.
         use vcomp_move_R_pM.
         { is_iso. }
         cbn.

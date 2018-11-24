@@ -37,7 +37,7 @@ Section laws.
   Proof.
     unfold hcomp.
     rewrite id2_rwhisker.
-    rewrite vcomp_right_identity.
+    rewrite id2_left.
     reflexivity.
   Qed.
 
@@ -50,7 +50,7 @@ Section laws.
   Proof.
     unfold hcomp.
     rewrite lwhisker_id2.
-    rewrite vcomp_left_identity.
+    rewrite id2_right.
     reflexivity.
   Qed.
 
@@ -69,7 +69,7 @@ Section laws.
     rewrite <- !hcomp_inverse.
     rewrite <- !vcomp_inverse.
     apply path_inverse_2cell.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     apply pentagon.
   Qed.
 
@@ -87,12 +87,12 @@ Section laws.
     {
       is_iso.
     }
-    rewrite <- vcomp_assoc.
+    rewrite <- vassocr.
     use vcomp_move_L_pM.
     {
       is_iso.
     }
-    rewrite <- vcomp_assoc.
+    rewrite <- vassocr.
     use vcomp_move_L_pM.
     {
       is_iso.
@@ -101,7 +101,7 @@ Section laws.
     pose (pentagon k h g f) as p.
     unfold hcomp in p.
     rewrite id2_rwhisker in p.
-    rewrite vcomp_right_identity in p.
+    rewrite id2_left in p.
     exact p.
   Qed.
 
@@ -134,7 +134,7 @@ Section laws.
     {
       is_iso.
     }
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     use vcomp_move_L_Mp.
     {
       is_iso.
@@ -143,7 +143,7 @@ Section laws.
     {
       is_iso.
     }
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     symmetry ; apply pentagon.
   Qed.
 
@@ -160,12 +160,12 @@ Section laws.
     {
       is_iso.
     }
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     use vcomp_move_L_Mp.
     {
       is_iso.
     }
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     apply pentagon.
   Qed.
 
@@ -177,14 +177,14 @@ Section laws.
       =
       lassociator g h k ⋆⋆ id₂ f o rassociator f g (k ∘ h) o rassociator (g ∘ f) h k.
   Proof.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     use vcomp_move_L_Mp.
     {
       is_iso.
     }
     cbn.
     symmetry.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     apply inverse_pentagon.
   Qed.
 
@@ -197,12 +197,12 @@ Section laws.
       id₂ k ⋆⋆ rassociator f g h o lassociator (g ∘ f) h k o lassociator f g (k ∘ h).
   Proof.
     rewrite <- !inverse_of_assoc.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     use vcomp_move_L_Mp.
     {
       is_iso.
     }
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     symmetry ; apply pentagon.
   Qed.
 
@@ -229,10 +229,10 @@ Section laws.
     : lunitor g ⋆⋆ id₂ f o rassociator _ _ _ = id₂ g ⋆⋆ runitor f.
   Proof.
     rewrite triangle_r.
-    rewrite vcomp_assoc.
+    rewrite vassocr.
     rewrite <- inverse_of_assoc.
     rewrite vcomp_right_inverse.
-    rewrite vcomp_right_identity.
+    rewrite id2_left.
     reflexivity.
   Qed.
 
@@ -281,7 +281,7 @@ Section laws.
       is_iso.
     }
     cbn.
-    rewrite <- vcomp_assoc.
+    rewrite <- vassocr.
     use vcomp_move_L_pM.
     {
       is_iso.
@@ -300,13 +300,13 @@ Section laws.
     : k₂ ◅ η o linvunitor k₂ o α = α ▻ f o (k₁ ◅ η) o linvunitor k₁.
   Proof.
     rewrite lwhisker_hcomp, rwhisker_hcomp.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     rewrite linvunitor_natural.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     apply maponpaths.
     rewrite rwhisker_hcomp.
     rewrite <- !interchange.
-    rewrite !vcomp_left_identity, !vcomp_right_identity.
+    rewrite !id2_right, !id2_left.
     reflexivity.
   Qed.
 
@@ -319,13 +319,13 @@ Section laws.
     : η ▻ k₂ o rinvunitor k₂ o α = (f ◅ α) o (η ▻ k₁) o rinvunitor k₁.
   Proof.
     rewrite lwhisker_hcomp, rwhisker_hcomp.
-    rewrite !vcomp_assoc.
-    rewrite left_unit_inv_natural.
-    rewrite <- !vcomp_assoc.
+    rewrite !vassocr.
+    rewrite rinvunitor_natural.
+    rewrite <- !vassocr.
     apply maponpaths.
     rewrite lwhisker_hcomp.
     rewrite <- !interchange.
-    rewrite !vcomp_left_identity, !vcomp_right_identity.
+    rewrite !id2_right, !id2_left.
     reflexivity.
   Qed.
 
@@ -338,7 +338,7 @@ Section laws.
              (H : is_invertible_2cell η)
     : α = runitor k₂ o (inv_cell (η,,H) ▻ k₂) o (f ◅ α) o (η ▻ k₁) o rinvunitor k₁.
   Proof.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     use vcomp_move_L_Mp.
     {
       is_iso.
@@ -347,7 +347,7 @@ Section laws.
     {
       is_iso.
     }
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     exact (whisker_r_natural η k₁ k₂ α).
   Qed.
 
@@ -360,7 +360,7 @@ Section laws.
              (H : is_invertible_2cell η)
     : α = lunitor k₂ o (k₂ ◅ inv_cell (η,,H)) o (α ▻ f) o (k₁ ◅ η) o linvunitor k₁.
   Proof.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     use vcomp_move_L_Mp.
     {
       is_iso.
@@ -369,7 +369,7 @@ Section laws.
     {
       is_iso.
     }
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     exact (whisker_l_natural η k₁ k₂ α).
   Qed.
 
@@ -383,7 +383,7 @@ Section laws.
     intros Hαβ.
     rewrite !rwhisker_hcomp.
     rewrite !rwhisker_hcomp in Hαβ.
-    rewrite <- !hcomp_id₂.
+    rewrite <- !hcomp_identity.
     apply (vcomp_cancel_left (lassociator _ _ _) _ _).
     {
       is_iso.
@@ -403,7 +403,7 @@ Section laws.
     intros Hαβ.
     rewrite !lwhisker_hcomp.
     rewrite !lwhisker_hcomp in Hαβ.
-    rewrite <- !hcomp_id₂.
+    rewrite <- !hcomp_identity.
     apply (vcomp_cancel_right (lassociator _ _ _) _ _).
     {
       is_iso.
@@ -420,9 +420,9 @@ Section laws.
   Proof.
     rewrite <- runitor_triangle.
     unfold assoc.
-    rewrite vcomp_assoc.
+    rewrite vassocr.
     rewrite lassociator_rassociator.
-    rewrite vcomp_right_identity.
+    rewrite id2_left.
     reflexivity.
   Qed.
 
@@ -432,9 +432,9 @@ Section laws.
     : (rinvunitor g) ▻ f = rassociator _ _ _ o rinvunitor (g ∘ f).
   Proof.
     rewrite <- rinvunitor_triangle.
-    rewrite <- vcomp_assoc.
+    rewrite <- vassocr.
     rewrite lassociator_rassociator.
-    rewrite vcomp_left_identity.
+    rewrite id2_right.
     reflexivity.
   Qed.
 
@@ -463,9 +463,9 @@ Section laws.
       is_iso.
     }
     cbn. rewrite <- lunitor_triangle.
-    rewrite vcomp_assoc.
+    rewrite vassocr.
     rewrite rassociator_lassociator.
-    rewrite vcomp_right_identity.
+    rewrite id2_left.
     reflexivity.
   Qed.
 
@@ -492,9 +492,9 @@ Section laws.
     : rinvunitor (g ∘ f) = lassociator f g (id₁ Z) o (rinvunitor g ▻ f).
   Proof.
     rewrite left_unit_inv_assoc.
-    rewrite <- !vcomp_assoc.
+    rewrite <- !vassocr.
     rewrite rassociator_lassociator.
-    rewrite vcomp_left_identity.
+    rewrite id2_right.
     reflexivity.
   Qed.
 
@@ -514,9 +514,9 @@ Section laws.
     rewrite <- vcomp_inverse.
     apply path_inverse_2cell.
     rewrite <- triangle_l.
-    rewrite !vcomp_assoc.
+    rewrite !vassocr.
     rewrite lassociator_rassociator.
-    rewrite vcomp_right_identity.
+    rewrite id2_left.
     reflexivity.
   Qed.
 End laws.
