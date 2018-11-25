@@ -15,8 +15,8 @@ Require Import UniMath.Ktheory.AffineLine
                UniMath.Ktheory.MoreEquivalences.
 Require Import UniMath.Ktheory.Utilities.
 Delimit Scope paths_scope with paths.
-Open Scope paths_scope.
-Open Scope action_scope.
+Local Open Scope paths_scope.
+Local Open Scope action_scope.
 
 Local Notation "g + x" := (ac_mult _ g x) : action_scope.
 
@@ -24,6 +24,8 @@ Definition circle := B ℤ.
 
 Theorem loops_circle : weq (Ω circle) ℤ.
 Proof. apply loopsBG. Defined.
+
+Local Open Scope hz.
 
 Definition circle_loop := ! invmap loops_circle 1 : Ω circle.
 
@@ -174,6 +176,8 @@ Definition makeGH_horizontalPath_comp2 {Y} {y:Y} (l:y = y) {T T':Torsor ℤ} (q:
   : ap pr12_GH (makeGH_horizontalPath l q t h) = idpath y'.
 Proof. intros. destruct q. reflexivity. Defined.
 
+Local Open Scope action_scope.
+
 Definition makeGH_transPath {Y} {y:Y} (l:y = y) {T:Torsor ℤ} (t:T) {y'} (h:y' = y)
   : makeGH l T t h = makeGH l T (one+t) (h@l).
 Proof. intros. apply GH_path3.
@@ -253,6 +257,7 @@ Proof. intros. assert (p := pr1_GH_weq_compute l).
 
 (** *** The induction principle (dependent functions) *)
 
+Local Open Scope transport.
 
 Definition circle_map' {Y:circle->Type} {y:Y(basepoint circle)}
            (l:circle_loop#y = y) : ∏ c:circle, Y c.

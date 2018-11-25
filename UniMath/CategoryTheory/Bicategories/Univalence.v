@@ -9,11 +9,10 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Unitors.
-Require Import UniMath.CategoryTheory.Bicategories.BicatAliases.
-Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws_2.
+Require Import UniMath.CategoryTheory.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws.
-
-Open Scope cat.
+Local Open Scope bicategory_scope.
+Local Open Scope cat.
 
 Section Internal_Adjunction.
 

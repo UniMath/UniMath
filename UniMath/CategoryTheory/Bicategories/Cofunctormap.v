@@ -24,8 +24,8 @@ Require Import UniMath.CategoryTheory.Bicategories.BicatOfCats.
 Require Import UniMath.CategoryTheory.Bicategories.ContravariantFunctor.
 Require Import UniMath.CategoryTheory.Bicategories.Sigma.
 
-Open Scope cat.
-Open Scope mor_disp_scope.
+Local Open Scope cat.
+Local Open Scope mor_disp_scope.
 
 Arguments nat_trans_comp {C C' F G H} a b.
 

@@ -20,7 +20,7 @@ Unset Kernel Term Sharing. (** crucial for timely proof-checking, otherwise unbe
 Section Upstream.
   (* these lemmas are only used for pointing to a problem but could be worth
      integrating into upstream *)
-Open Scope hz_scope.
+Local Open Scope hz_scope.
 
 Lemma hzmultrmul (a b c : hz) (is : a = b) : a * c = b * c.
 Proof.
@@ -41,7 +41,7 @@ End Upstream.
 
 (** * I. Several basic lemmas *)
 
-Open Scope hz_scope.
+Local Open Scope hz_scope.
 
 Lemma hzqrandnatsummation0r ( m : hz ) ( x : hzneq 0 m )
   ( a : nat -> hz ) ( upper : nat ) :
@@ -226,7 +226,7 @@ formal power series *)
 (** A lemma that does not depend on a non-zero integer and that used to
     appear where needed below - the point has been marked by a comment. *)
 
-Open Scope ring_scope.
+Local Open Scope ring_scope.
 
 Lemma natsummationplusshift { R : commring } ( upper : nat )
   ( f g : nat -> R ) :
@@ -249,7 +249,7 @@ Close Scope hz_scope.
 
 Section carry.
 
-Open Scope ring_scope.
+Local Open Scope ring_scope.
 
 Variable m : hz.
 Variable is : hzneq 0 m.

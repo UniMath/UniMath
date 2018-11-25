@@ -38,8 +38,8 @@ Require Import UniMath.CategoryTheory.Bicategories.Sigma.
 Require Import UniMath.CategoryTheory.Bicategories.BicatOfCats.
 Require Import UniMath.CategoryTheory.Bicategories.Cofunctormap.
 
-Open Scope cat.
-Open Scope mor_disp_scope.
+Local Open Scope cat.
+Local Open Scope mor_disp_scope.
 
 Local Notation "'SET'" := hset_category.
 Local Notation "'PreShv' C" := [C^op,SET] (at level 4) : cat.

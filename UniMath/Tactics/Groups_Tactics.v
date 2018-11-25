@@ -6,7 +6,7 @@ Require Import UniMath.Algebra.Monoids_and_Groups
                UniMath.Tactics.Utilities
                UniMath.Tactics.Monoids_Tactics.
 
-Open Scope multmonoid.
+Local Open Scope multmonoid.
 
 Ltac gr_preclean G := monoid_clean (grtomonoid G).
 

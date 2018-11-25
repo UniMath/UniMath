@@ -10,7 +10,7 @@ Require Export UniMath.Topology.Prelim.
 Require Export UniMath.NumberSystems.RationalNumbers.
 Require Export UniMath.Algebra.Archimedean.
 
-Open Scope hq_scope.
+Local Open Scope hq_scope.
 
 Notation "x <= y" := (hqleh x y) : hq_scope.
 Notation "x >= y" := (hqgeh x y) : hq_scope.

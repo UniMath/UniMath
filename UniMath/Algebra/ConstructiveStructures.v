@@ -41,7 +41,7 @@ Definition CDRplus {X : ConstructiveDivisionRig} : binop X := λ x y : X, op1 (X
 Definition CDRmult {X : ConstructiveDivisionRig} : binop X := λ x y : X, op2 (X := ConstructiveDivisionRig_apsetwith2binop X) x y.
 
 Delimit Scope CDR_scope with CDR.
-Open Scope CDR_scope.
+Local Open Scope CDR_scope.
 
 Notation "x ≠ y" := (CDRap x y) (at level 70, no associativity) : CDR_scope.
 Notation "0" := CDRzero : CDR_scope.
@@ -246,7 +246,7 @@ Definition CCDRplus {X : ConstructiveCommutativeDivisionRig} : binop X := λ x y
 Definition CCDRmult {X : ConstructiveCommutativeDivisionRig} : binop X := λ x y : X, CDRmult (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X) x y.
 
 Delimit Scope CCDR_scope with CCDR.
-Open Scope CCDR_scope.
+Local Open Scope CCDR_scope.
 
 Notation "x ≠ y" := (CCDRap x y) (at level 70, no associativity) : CCDR_scope.
 Notation "0" := CCDRzero : CCDR_scope.
@@ -447,7 +447,7 @@ Definition CFminus {X : ConstructiveField} : binop X := λ x y : X, CFplus x (CF
 Definition CFmult {X : ConstructiveField} : binop X := λ x y : X, CCDRmult (X := ConstructiveField_ConstructiveCommutativeDivisionRig X) x y.
 
 Delimit Scope CF_scope with CF.
-Open Scope CF_scope.
+Local Open Scope CF_scope.
 
 Notation "x ≠ y" := (CFap x y) (at level 70, no associativity) : CF_scope.
 Notation "0" := CFzero : CF_scope.

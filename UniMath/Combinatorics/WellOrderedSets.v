@@ -1271,7 +1271,7 @@ Coercion WellOrderedSet_to_hSet : WellOrderedSet >-> hSet.
 
 Delimit Scope woset with woset.
 
-Open Scope woset.
+Local Open Scope woset.
 
 Definition WOrel (X:WellOrderedSet) : hrel X := pr12 X.
 

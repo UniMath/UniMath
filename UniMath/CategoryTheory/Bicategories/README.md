@@ -4,7 +4,8 @@ Bicategories
 Bicategories, displayed bicategories and some applications, including
 Categories with Families (CwF).
 
-Contributed by Benedikt Ahrens, Marco Maggesi, February 2018.
+Started by Benedikt Ahrens, Marco Maggesi in February 2018.
+Extended by Dan Frumin and Niels van der Weide from November 2018 on.
 
 Directory WkCatEnrichment contains an alternative definition of
 bicategory in the style of enrichment in 1-categories contributed by
@@ -15,15 +16,14 @@ Mitchell Riley (see https://github.com/UniMath/UniMath/pull/409).
 ### Basics about bicategories
 * *Bicat.v*
   * Definition of (pre)bicategories and builder functions
-  * Invertible 2cells and some lemmas about them
   * Derived equations in bicategories (e.g., interchange law)
   * To weakly enriched definition of bicategories
   * Discrete and chaotic bicategories
-* *BicatAliases.v*
+* *Invertible_2cells.v*
+  * Definition of invertibility of 2cells
+  * Lemmas involving invertible 2cells
 * *bicategory_laws.v*
   * Derived equations in bicategories, imported from Dan Frumin and Niels van der Weide's library
-* *bicategory_laws_2.v*
-  * Derived equations about invertible 2cells, imported from Dan Frumin and Niels van der Weide's library
 * *composition.v*
   * Composition of lax functors and pseudo functors
 * *equiv_to_adjequiv.v*
