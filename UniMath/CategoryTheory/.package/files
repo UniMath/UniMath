@@ -17,6 +17,7 @@ Subcategory/Core.v
 Subcategory/Full.v
 Monics.v
 Epis.v
+SubobjectClassifier.v
 categories/HSET/MonoEpiIso.v
 categories/HSET/Univalence.v
 CategoriesWithBinOps.v

@@ -32,12 +32,15 @@ Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.slicecat.
 Require Import UniMath.CategoryTheory.NNO.
+Require Import UniMath.CategoryTheory.SubobjectClassifier.
 Require Import UniMath.CategoryTheory.categories.Types.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.covyoneda.
 Require Import UniMath.CategoryTheory.EpiFacts.
+Require Import UniMath.CategoryTheory.Monics.
 
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Limits.
@@ -383,3 +386,259 @@ Proof.
   refine (hset_equiv_is_iso a b (weqpair f _)).
   apply (type_iso_is_equiv _ _ (isopair _ is_iso_forget_f)).
 Defined.
+
+(** ** Subobject classifier *)
+
+(* Lemma standard_pullback_inverse_image_of_point {X Y : hSet} (f : HSET⟦X, Y⟧) *)
+(*       (y : Y) (y' := invweq (weqfunfromunit_HSET _) y) : *)
+(*   pr1hSet (PullbackObject (PullbacksHSET _ _ _ f y')) ≃ hfiber f y. *)
+(* Proof. *)
+(*   unfold PullbacksHSET; cbn. *)
+(*   unfold hfiber; cbn. *)
+(*   apply (@weqcomp _ (∑ xy : X × unit, f (pr1 xy) = invmap (weqfunfromunit_HSET Y) y tt) _). *)
+(*   - apply weqfibtototal; intro. *)
+(*     apply transitive_paths_weq_reverse. *)
+(*     apply maponpaths. *)
+(*     apply isProofIrrelevantUnit. *)
+(*   - apply (@weqcomp _ (∑ xy : X × unit, f (pr1 xy) = y)). *)
+(*     + apply weqfibtototal; intro. *)
+(*       apply transitive_paths_weq_reverse. *)
+(*       reflexivity. *)
+(*     + apply invweq. *)
+(*       apply (weqfp (weqtodirprodwithunit X) (fun z => f (pr1 z) = y)). *)
+(* Defined. *)
+
+
+Local Lemma switchPullbackPr1 {C : category} {A B D : C} {f : A --> D} {g : B --> D}
+           (pb : Pullback f g) : PullbackPr1 pb = PullbackPr2 (switchPullback pb).
+Proof.
+  reflexivity.
+Qed.
+
+Local Lemma switchPullbackPr2 {C : category} {A B D : C} {f : A --> D} {g : B --> D}
+           (pb : Pullback f g) : PullbackPr2 pb = PullbackPr1 (switchPullback pb).
+Proof.
+  reflexivity.
+Qed.
+
+Definition hProp_set : hSet := (_,, isasethProp).
+
+Lemma isaprop_hfiber_monic {A B : hSet} (f : HSET⟦A, B⟧) (isM : isMonic f) :
+  isPredicate (hfiber f).
+Proof.
+  intro.
+  apply incl_injectivity.
+  apply MonosAreInjective_HSET.
+  assumption.
+Qed.
+
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
+
+Local Definition const_unit {X : hSet} : HSET⟦X, hProp_set⟧ :=
+  (fun _ => (unit,, isapropunit) : hProp_set).
+
+(** Existence of the pullback square
+    <<
+      X -------> TerminalHSET
+      V              V
+    m |              | true
+      V     ∃!       V
+      Y - - - - -> hProp
+    >>
+  *)
+Local Definition subobject_classifier_HSET_pullback {X Y : HSET}
+  (m : Monic HSET X Y) :
+    ∑ (chi : HSET ⟦ Y, hProp_set ⟧)
+    (H : m · chi = TerminalArrow TerminalHSET X · const_unit),
+      isPullback chi const_unit m (TerminalArrow TerminalHSET X) H.
+Proof.
+  exists (fun z => (hfiber (pr1 m) z,, isaprop_hfiber_monic (pr1 m) (pr2 m) z)).
+  use tpair.
+  + apply funextfun; intro.
+    apply weqtopathshProp, weqimplimpl.
+    * intro; exact tt.
+    * intro; cbn.
+      use tpair.
+      -- assumption.
+      -- reflexivity.
+    * apply propproperty.
+    * apply propproperty.
+  + (** The aforementioned square is a pullback *)
+    cbn beta.
+    unfold isPullback; cbn.
+    intros Z f g H.
+    use iscontrpair.
+    * use tpair.
+      -- (** The hypothesis H states that that each [f x] is in the image of [m],
+              and since [m] is monic (injective), this assignment extends to a map
+              [Z -> X] defined by [z ↦ m^-1 (f z)]. *)
+          intro z.
+          eapply hfiberpr1.
+          eapply eqweqmap.
+          ++ apply pathsinv0.
+            apply (maponpaths pr1 (toforallpaths _ _ _ H z)).
+          ++ exact tt.
+      -- split.
+          ++ (** The first triangle commutes by definition of the above map:
+                [m] sends the preimage [m^-1 (f z)] to [f z]. *)
+            apply funextfun; intro z; cbn.
+            apply hfiberpr2.
+          ++ (** All maps to the terminal object are equal *)
+            apply proofirrelevance, impred.
+            intro; apply isapropunit.
+    * intro.
+      apply subtypeEquality.
+      -- intro.
+          apply isapropdirprod.
+          ++ apply (setproperty (hset_fun_space _ _)).
+          ++ apply (setproperty (hset_fun_space _ unitset)).
+      -- cbn.
+          apply funextsec; intro; cbn.
+          (** Precompose with [m] and use the commutative square *)
+          apply (invweq (weqpair _ (MonosAreInjective_HSET (pr1 m) (pr2 m) _ _))).
+          eapply pathscomp0.
+          ++ apply (toforallpaths _ _ _ (pr1 (pr2 t))).
+          ++ apply pathsinv0.
+             apply hfiberpr2.
+Defined.
+
+(* Lemma hfiber_of_incl_weq : *)
+(*   ∏ (X Y : UU) (f : X → Y), isincl f → X ≃ ∑ y : Y, hfiber f y. *)
+(* Proof. *)
+(*  iscontrhfiberofincl: *)
+Lemma sum_of_fibers {A B:Type} (f: A -> B) :
+  (∑ b:B, hfiber f b) ≃ A.
+Proof.
+  use weqpair.
+  - intro bap. exact (pr1 (pr2 bap)).
+  - intro a. use iscontrpair.
+    + use hfiberpair.
+      * exists (f a).
+        use hfiberpair.
+        { exact a. }
+        { reflexivity. }
+      * cbn. reflexivity.
+    + intro b1a1p1p. induction b1a1p1p as [b1a1p1 p]. induction p.
+      induction b1a1p1 as [b1 [a1 p1]]. induction p1. reflexivity.
+Defined.
+
+(** In the above diagram, [m] must pick out the same subset of [Y]
+    that the induced arrow does. *)
+Local Definition subobject_classifier_HSET_subset {X Y : HSET}
+      {m : Monic HSET X Y} :
+  pr1hSet X ≃ carrier (pr1 (subobject_classifier_HSET_pullback m)).
+Proof.
+  pose (H := pr2 (subobject_classifier_HSET_pullback m)).
+  unfold subobject_classifier_HSET_pullback; cbn.
+  eapply weqcomp.
+  - apply invweq.
+    apply (sum_of_fibers (pr1 m)).
+  - apply eqweqmap.
+    reflexivity.
+Defined.
+
+(** More generally, any subset that commutes with the arrow "true"
+    must pick out that same subset. *)
+Local Definition subobject_classifier_HSET_pullback0 {X Y : HSET}
+  (m : Monic HSET X Y) (chi : HSET ⟦ Y, hProp_set ⟧)
+  (H : m · chi = TerminalArrow TerminalHSET X · const_unit)
+  (isPB : isPullback chi const_unit m (TerminalArrow TerminalHSET X) H) :
+  (pr1hSet X) ≃ carrier chi.
+Proof.
+  eapply weqcomp.
+  - apply invweq.
+    apply (sum_of_fibers (pr1 m)).
+  - apply weqfibtototal.
+    intros y.
+    apply weqimplimpl.
+    + (** If we have something in the fiber above [y], then we know we can get
+          something in [chi], because [chi] after [m] is trivially true by [H]. *)
+      intros hfib.
+      pose (HH := H). (* Can't change H directly, it's used in isPB *)
+      apply toforallpaths in HH.
+      specialize (HH (hfiberpr1 _ _ hfib)).
+      cbn in HH.
+      apply (fun p => (!maponpaths _ (hfiberpr2 _ _ hfib)) @ p) in HH.
+      abstract (rewrite HH; exact tt).
+    + (** Conversely, if we have something in [chi], we can get something in
+          the fiber above [y] because ... *)
+      intros chii.
+      admit.
+Admitted.
+
+Definition subobject_classifier_HSET : subobject_classifier TerminalHSET.
+Proof.
+  unfold subobject_classifier.
+  exists hProp_set.
+  exists (fun _ => ((unit,, isapropunit) : hProp_set)).
+  intros ? ? m.
+
+  use iscontrpair.
+
+  - (** The image of m *)
+    apply subobject_classifier_HSET_pullback.
+  - intro O'.
+    apply subtypeEquality.
+    + intro.
+      apply Propositions.isaproptotal2.
+      * intro; apply isaprop_isPullback.
+      * intros; apply proofirrelevance.
+        apply setproperty.
+    + cbn.
+      Check subobject_classifier_HSET_pullback0 m.
+      apply funextfun; intro y.
+      (* apply subtypeEquality; [intro; apply isapropisaprop|]. *)
+      apply weqtopathshProp.
+      apply weqimplimpl.
+      * (** [O'] and [∥hfiber ...∥] are both subtypes of Y.
+            Why must they contain the same elements?
+            The equality (pr1 (pr2 O')) tells us they must agree on
+            things in the image of m. *)
+        pose (pb := tpair _ (tpair _ X (dirprodpair (pr1 m) (TerminalArrow TerminalHSET X))) (pr2 O') : Pullback _ _).
+        refine (PullbackArrow pb X m (TerminalArrow _ _) _).
+        assert (Pullback (pr1 O') (global_element_HSET ((unit,, isapropunit) : hProp_set))).
+        {
+          use tpair.
+          - eapply tpair.
+            use dirprodpair.
+            + exact m.
+            + exact (TerminalArrow TerminalHSET X).
+          - exact (pr2 O').
+        }
+        Print X0.
+        eapply PullbackArrow.
+        Check PullbackArrow (pr1 O' ,, _).
+        intro; unfold hProptoType; cbn.
+  H : (λ x : Z, hfiber (pr1 m) (f x),, isaprop_hfiber_monic (pr1 m) (pr2 m) (f x)) =
+      (λ x : Z, global_element_HSET (unit,, isapropunit) (g x))
+        assert (m · pr1 O' = m · (fun z => (hfiber (pr1 m) z,, isaprop_hfiber_monic (pr1 m) (pr2 m) z : pr1hSet hProp_set))).
+        {
+          refine (pr1 (pr2 O') @ _).
+          admit. (** Proven in first part *)
+        }
+        pose (xx := toforallpaths _ _ _ (pr1 (pr2 O'))).
+        pose (xxx := toforallpaths _ _ _ X0).
+        cbn in xx.
+        cbn in xxx.
+        Check pr1 (pr2 ).
+        Check PullbackArrowUnique _ _ _ _ _ (pr2 (pr2 O')) .
+        Check PullbackArrowUnique (pr1 O' : HSET ⟦Y, hProp_set⟧)
+              _ m _
+              (pr1 (pr2 O')) (pr2 (pr2 O'))
+              _ _ _ (X0 @ HH).
+
+        intro.
+        cbn in O'.
+        Check (eqtohomot (pr1 (pr2 O'))).
+        Check PullbackArrowUnique (pr1 O' : HSET ⟦Y, hProp_set⟧)
+              (global_element_HSET _) m (λ _ : _, tt)
+              (pr1 (pr2 O')) (pr2 (pr2 O'))
+              _ _ _ HH.
+        SearchAbout isPullback.
+      apply
+      Check (MonicisMonic _ m _ ).
+      Print isMonic HSET.
+      SearchAbout Monic.
+
+      SearchAbout isaprop total2.
