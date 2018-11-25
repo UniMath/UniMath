@@ -54,10 +54,10 @@ Proof.
   use tpair.
   - exists (T X).
     exact (μ T X).
-  - split.
-    + apply Monad_law1.
-    + apply pathsinv0.
-      apply Monad_law3.
+  - abstract (split;
+              [apply Monad_law1 |
+               apply pathsinv0;
+               apply Monad_law3]).
 Defined.
 
 End Algebra_def.
@@ -82,22 +82,22 @@ Definition Algebra_mor_commutes (X Y : Algebra) (f : Algebra_mor X Y)
 Definition Algebra_mor_id (X : Algebra) : Algebra_mor X X.
 Proof.
   exists (identity X).
-  unfold is_Algebra_mor.
-  rewrite functor_id, id_right, id_left.
-  apply idpath.
+  abstract (unfold is_Algebra_mor;
+            rewrite functor_id, id_right, id_left;
+            apply idpath).
 Defined.
 
 Definition Algebra_mor_comp (X Y Z : Algebra) (f : Algebra_mor X Y) (g : Algebra_mor Y Z)
   : Algebra_mor X Z.
 Proof.
   exists (f · g).
-  unfold is_Algebra_mor.
-  rewrite assoc.
-  rewrite Algebra_mor_commutes.
-  rewrite <- assoc.
-  rewrite Algebra_mor_commutes.
-  rewrite functor_comp, assoc.
-  apply idpath.
+  abstract (unfold is_Algebra_mor;
+            rewrite assoc;
+            rewrite Algebra_mor_commutes;
+            rewrite <- assoc;
+            rewrite Algebra_mor_commutes;
+            rewrite functor_comp, assoc;
+            apply idpath).
 Defined.
 
 Definition precategory_Alg_ob_mor : precategory_ob_mor
@@ -134,7 +134,7 @@ Proof.
   - apply id_right.
   - apply assoc.
   - apply assoc'.
-Defined.
+Qed.
 
 Definition MonadAlg : precategory := ( _,, is_precategory_precategory_Alg_data).
 
@@ -146,7 +146,7 @@ Proof.
   - intro f.
     apply isasetaprop.
     apply homset_property.
-Defined.
+Qed.
 
 End Algebra_category.
 
@@ -170,7 +170,7 @@ Defined.
 Definition forget_Alg : functor (MonadAlg T) C.
 Proof.
   exists forget_Alg_data.
-  split; red; intros; apply idpath.
+  abstract (split; red; intros; apply idpath).
 Defined.
 
 Definition free_Alg_data : functor_data C (MonadAlg T).
@@ -189,16 +189,15 @@ Defined.
 Definition free_Alg : functor C (MonadAlg T).
 Proof.
   exists free_Alg_data.
-  split; red; intros.
-  - apply subtypePairEquality'.
-    + apply functor_id.
-    + apply homset_property.
-  - apply subtypePairEquality'.
-    + apply functor_comp.
-    + apply homset_property.
+  abstract (split; red; intros;
+            apply subtypePairEquality';
+            [ apply functor_id |
+              apply homset_property |
+              apply functor_comp |
+              apply homset_property]).
 Defined.
 
-Lemma free_forgetful_are_adjoints : are_adjoints free_Alg forget_Alg.
+Definition free_forgetful_are_adjoints : are_adjoints free_Alg forget_Alg.
 Proof.
   use mk_are_adjoints.
   - apply (mk_nat_trans _ _ (η T)).
@@ -211,20 +210,20 @@ Proof.
       apply Algebra_mor_eq; cbn.
       apply pathsinv0.
       apply f.
-  - split; intro X.
-    + apply Algebra_mor_eq; cbn.
-      apply Monad_law2.
-    + apply Algebra_idlaw.
+  - abstract (split; intro X;
+              [apply Algebra_mor_eq; cbn;
+               apply Monad_law2 |
+               apply Algebra_idlaw]).
 Defined.
 
-Lemma forget_free_is_T : forget_Alg □ free_Alg = T.
+Definition forget_free_is_T : forget_Alg □ free_Alg = T.
 Proof.
   apply functor_eq.
   - apply homset_property.
   - apply idpath.
 Defined.
 
-Lemma Alg_adjunction_monad_eq : Monad_from_adjunction free_forgetful_are_adjoints = T.
+Definition Alg_adjunction_monad_eq : Monad_from_adjunction free_forgetful_are_adjoints = T.
 Proof.
   apply Monad_eq_raw_data.
   - apply homset_property.
