@@ -4,7 +4,7 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Notations.
 Require Import UniMath.CategoryTheory.Bicategories.BicatAliases.
-
+Local Open Scope cat.
 
 Notation "'BiCategory'" := bicat.
 
@@ -68,7 +68,7 @@ Definition twoinverse
 Notation "H ^-1" := (twoinverse _ H) (at level 20) : bicategory_scope.
 Delimit Scope bicategory_scope with bicategory.
 Bind Scope bicategory_scope with bicat.
-Open Scope bicategory_scope.
+Local Open Scope bicategory_scope.
 
 Definition vcomp_left_inverse
            {C : BiCategory}

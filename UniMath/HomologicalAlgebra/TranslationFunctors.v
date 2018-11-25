@@ -51,7 +51,7 @@ Require Import UniMath.HomologicalAlgebra.KA.
 
 Unset Kernel Term Sharing.
 
-Open Scope hz_scope.
+Local Open Scope hz_scope.
 Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommringops ZeroArrow.
 
 (** * Translation funtor for C(A) and for K(A) *)

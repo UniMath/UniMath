@@ -5,6 +5,8 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Notations.
 Require Import UniMath.CategoryTheory.Bicategories.BicatAliases.
 Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws_2.
 Require Import UniMath.CategoryTheory.Bicategories.Unitors.
+Local Open Scope bicategory_scope.
+Local Open Scope cat.
 
 Ltac is_iso :=
   match goal with

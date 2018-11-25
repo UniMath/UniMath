@@ -602,7 +602,7 @@ Abort.
 (* Here we abstract from Chapter 11 of the HoTT book just the order
    properties of the real numbers, as constructed there. *)
 
-Open Scope logic.
+Local Open Scope logic.
 
 Definition isLattice {X:hSet} (le:hrel X) (min max:binop X) :=
   ∑ po : isPartialOrder le,

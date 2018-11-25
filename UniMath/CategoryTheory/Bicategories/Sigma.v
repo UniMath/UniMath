@@ -14,8 +14,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.DispBicat. Import DispBicat.Notations.
 
-Open Scope cat.
-Open Scope mor_disp_scope.
+Local Open Scope cat.
+Local Open Scope mor_disp_scope.
 
 Definition mk_total_ob {C : bicat} {D : disp_bicat C} {a : C} (aa : D a)
   : total_bicat D

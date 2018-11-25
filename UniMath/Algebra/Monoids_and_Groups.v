@@ -915,7 +915,7 @@ Proof. split with (setwithbinopdirprod X Y). apply isabmonoiddirprod. Defined.
 Note : the following construction uses onbly associativity and commutativity
 of the [abmonoid] operations but does not use the unit element. *)
 
-Open Scope addmonoid_scope.
+Local Open Scope addmonoid_scope.
 
 Import AddNotation.
 
@@ -2579,7 +2579,7 @@ Defined.
 
 (** **** Abelian group of fractions of an abelian unitary monoid *)
 
-Open Scope addmonoid_scope.
+Local Open Scope addmonoid_scope.
 
 Definition hrelabgrdiff (X : abmonoid) : hrel (X × X) :=
   λ xa1 xa2,

@@ -7,6 +7,7 @@ A short proof of the SIP (HoTT book, chapter 9.8)
 
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Categories.
+Local Open Scope cat.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.

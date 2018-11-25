@@ -238,7 +238,7 @@ Section eo_pty.
 
 Context {X : EffectivelyOrderedSet}.
 
-Open Scope eo_scope.
+Local Open Scope eo_scope.
 
 Lemma not_EOlt_le :
   ∏ x y : X, (¬ (x < y)) <-> (y <= x).

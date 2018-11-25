@@ -17,7 +17,7 @@ Require Import UniMath.CategoryTheory.categories.StandardCategories. (* unit *)
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.equivalences.
 
-Open Scope cat.
+Local Open Scope cat.
 
 (******************************************************************************)
 (* Definition of a prebicategory *)

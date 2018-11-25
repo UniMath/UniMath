@@ -121,7 +121,7 @@ Ltac absemigr_ternary_perm X opp is s t u :=
 Ltac abmonoid_ternary_perm M :=
   absemigr_ternary_perm M (@op M) (abmonoid_to_absemigr M).
 
-Open Scope addmonoid.
+Local Open Scope addmonoid.
 
 Ltac abmonoid_not_word M s :=
   match s with
