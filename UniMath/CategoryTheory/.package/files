@@ -105,6 +105,7 @@ Monads/Kleisli.v
 Monads/KTriples.v
 Monads/KTriplesEquiv.v
 Monads/Derivative.v
+Monads/MonadAlgebras.v
 
 categories/setwith2binops.v
 categories/monoids.v

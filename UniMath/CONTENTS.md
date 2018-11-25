@@ -190,6 +190,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monads/KTriples.v](CategoryTheory/Monads/KTriples.v)
    - [Monads/KTriplesEquiv.v](CategoryTheory/Monads/KTriplesEquiv.v)
    - [Monads/Derivative.v](CategoryTheory/Monads/Derivative.v)
+   - [Monads/MonadAlgebras.v](CategoryTheory/Monads/MonadAlgebras.v)
    - [categories/setwith2binops.v](CategoryTheory/categories/setwith2binops.v)
    - [categories/monoids.v](CategoryTheory/categories/monoids.v)
    - [categories/abmonoids.v](CategoryTheory/categories/abmonoids.v)

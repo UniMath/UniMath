@@ -15,6 +15,8 @@ Require Import UniMath.CategoryTheory.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws.
 Require Import UniMath.CategoryTheory.Bicategories.Univalence.
 Require Import UniMath.CategoryTheory.Bicategories.transport_laws.
+Local Open Scope cat.
+Local Open Scope bicategory_scope.
 
 Definition adjoint_unique_map
            {C : bicat}

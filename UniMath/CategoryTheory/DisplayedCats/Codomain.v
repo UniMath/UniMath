@@ -17,7 +17,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
-Open Scope cat.
+Local Open Scope cat.
 
 (** ** The displayed codomain
 

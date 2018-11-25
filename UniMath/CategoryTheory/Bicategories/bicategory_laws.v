@@ -4,6 +4,8 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.Unitors.
+Local Open Scope bicategory_scope.
+Local Open Scope cat.
 
 
 Section laws.

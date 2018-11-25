@@ -11,8 +11,8 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations
 Require Import UniMath.CategoryTheory.Bicategories.Unitors.
 Require Import UniMath.CategoryTheory.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws.
-
-Open Scope cat.
+Local Open Scope bicategory_scope.
+Local Open Scope cat.
 
 Section Internal_Adjunction.
 

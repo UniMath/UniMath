@@ -21,7 +21,7 @@ Require Import UniMath.CategoryTheory.functor_categories.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Open Scope cat.
+Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
 Section Auxiliary.

@@ -2,6 +2,8 @@
 
 (** ** Contents
 
+  - Points as global elements
+  - Monomorphisms are exactly injective functions [MonosAreInjective_HSET]
   - Epimorphisms are exactly surjective functions [EpisAreSurjective_HSET]
   - Equivalence between isomorphisms and weak equivalences
  *)
@@ -13,22 +15,97 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 
 Local Open Scope cat.
 
+(** ** Points as global elements *)
+
+(** See https://ncatlab.org/nlab/show/global+element *)
+
+Local Definition global_element_HSET {A : hSet} (a : A) : HSET⟦unitset, A⟧ :=
+  invweq (weqfunfromunit A) a.
+
+(** TODO: I think there is a name in UniMath for the constant function at [a],
+    what is it? *)
+
+Local Definition global_element_HSET_paths_weq {A : hSet} (x y : A) :
+  (x = y) ≃ (global_element_HSET x = global_element_HSET y).
+Proof.
+  apply weqonpaths.
+Qed.
+
+Local Definition global_element_HSET_comp {A B : hSet} (f : HSET⟦A, B⟧) (x : A) :
+  global_element_HSET x · f = global_element_HSET (f x).
+Proof.
+  abstract (apply funextfun; intro z; induction z; reflexivity).
+Qed.
+
+Local Definition global_element_HSET_fun_weq {A B : hSet} (f : HSET⟦A, B⟧) (x y : A) :
+  (f x = f y) ≃ (global_element_HSET x · f = global_element_HSET y · f).
+Proof.
+  abstract (do 2 rewrite global_element_HSET_comp;
+            apply global_element_HSET_paths_weq).
+Qed.
+
+(** ** Monomorphisms are exactly injective functions [MonosAreInjective_HSET] *)
+
+Lemma MonosAreInjective_HSET {A B : HSET} (f: HSET ⟦ A, B ⟧) :
+      isMonic f ≃ isInjective f.
+Proof.
+  apply weqimplimpl.
+  - intro isM.
+    apply incl_injectivity; intros b.
+    apply invproofirrelevance; intros a1 a2.
+    apply subtypeEquality; [intro; apply setproperty|].
+    apply global_element_HSET_paths_weq.
+    apply isM.
+    apply funextsec; intro t.
+    abstract (induction t; exact (pr2 a1 @ ! pr2 a2)).
+  - intro isI.
+    unfold isMonic.
+    intros ? ? ? eq.
+    apply funextfun; intro.
+    apply (invweq (Injectivity _ isI _ _)).
+    apply toforallpaths in eq.
+    apply eq.
+  - apply isapropisMonic, has_homsets_HSET.
+  - apply isaprop_isInjective.
+Qed.
+
 (** ** Epimorphisms are exactly surjective functions [EpisAreSurjective_HSET] *)
 
-Lemma EpisAreSurjective_HSET {A B : HSET} (f: HSET ⟦ A, B ⟧) (epif : isEpi f)
-  : issurjective f.
+Lemma EpisAreSurjective_HSET {A B : HSET} (f: HSET ⟦ A, B ⟧) :
+      isEpi f ≃ issurjective f.
 Proof.
-  apply epiissurjectiontosets; [apply setproperty|].
-  intros C g1 g2 h .
-  apply toforallpaths.
-  apply (epif C g1 g2).
-  now apply funextfun.
+  apply weqimplimpl.
+  - intro epif.
+    apply epiissurjectiontosets; [apply setproperty|].
+    intros ? ? ? ?.
+    apply toforallpaths.
+    apply epif.
+    now apply funextfun.
+  - intros is_surj_f.
+    intros C g h H.
+    apply funextfun; intro.
+
+    (** Get the point [x'] in the fiber above [x] *)
+    specialize (is_surj_f x).
+    apply (squash_to_prop is_surj_f); [apply setproperty|].
+    intro x'.
+
+    (** Replace [x] with [f x'] *)
+    refine (!maponpaths _ (hfiberpr2 _ _ x') @ _).
+    refine (_ @ maponpaths _ (hfiberpr2 _ _ x')).
+
+    apply toforallpaths in H.
+    apply H.
+  - apply isapropisEpi.
+    apply has_homsets_HSET.
+  - apply isapropissurjective.
 Qed.
 
 (** ** Equivalence between isomorphisms and weak equivalences of two [hSet]s. *)

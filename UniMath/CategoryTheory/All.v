@@ -106,6 +106,7 @@ Require Export UniMath.CategoryTheory.Monads.Kleisli.
 Require Export UniMath.CategoryTheory.Monads.KTriples.
 Require Export UniMath.CategoryTheory.Monads.KTriplesEquiv.
 Require Export UniMath.CategoryTheory.Monads.Derivative.
+Require Export UniMath.CategoryTheory.Monads.MonadAlgebras.
 Require Export UniMath.CategoryTheory.categories.setwith2binops.
 Require Export UniMath.CategoryTheory.categories.monoids.
 Require Export UniMath.CategoryTheory.categories.abmonoids.

@@ -24,7 +24,7 @@ Require Import UniMath.CategoryTheory.categories.StandardCategories.
 
 Local Open Scope cat.
 
-Open Scope type_scope. (* so that it has priority over [cat], for [×] later *)
+Local Open Scope type_scope. (* so that it has priority over [cat], for [×] later *)
 
 Bind Scope cat with precategory_ob_mor.
 Bind Scope cat with precategory_data.

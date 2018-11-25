@@ -13,8 +13,8 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations
 Require Import UniMath.CategoryTheory.Bicategories.Unitors.
 Require Import UniMath.CategoryTheory.Bicategories.DispBicat. Import DispBicat.Notations.
 
-Open Scope cat.
-Open Scope mor_disp_scope.
+Local Open Scope cat.
+Local Open Scope mor_disp_scope.
 
 Section LocalIsoFibration.
 

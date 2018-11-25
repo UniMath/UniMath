@@ -14,6 +14,8 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations
 Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws.
 Require Import UniMath.CategoryTheory.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctor. Import PseudoFunctor.Notations.
+Local Open Scope cat.
+Local Open Scope bicategory_scope.
 
 Section FunctorComposition.
   Context {C D E : bicat}.

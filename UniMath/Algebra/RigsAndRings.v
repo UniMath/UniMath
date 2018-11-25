@@ -941,7 +941,7 @@ Opaque ring_univalence.
 
 (** **** Computation lemmas for rings *)
 
-Open Scope ring_scope.
+Local Open Scope ring_scope.
 
 Definition ringinvunel1 (X : ring) : -0 = 0 := grinvunel X.
 
@@ -1508,7 +1508,7 @@ Local Close Scope rig.
 
 (** **** Ring of differences associated with a rig *)
 
-Open Scope rig_scope.
+Local Open Scope rig_scope.
 
 Definition rigtoringaddabgr (X : rig) : abgr := abgrdiff (rigaddabmonoid X).
 
@@ -2033,7 +2033,7 @@ Opaque commring_univalence.
 
 (** **** Computational lemmas for commutative rings *)
 
-Open Scope ring_scope.
+Local Open Scope ring_scope.
 
 Lemma commringismultcancelableif (X : commring) (x : X) (isl : ∏ y, paths (x * y) 0 -> y = 0) :
   iscancelable op2 x.
@@ -2102,7 +2102,7 @@ Local Close Scope rig.
 
 (** **** Commutative rigs to commutative rings *)
 
-Open Scope rig_scope.
+Local Open Scope rig_scope.
 
 Lemma commrigtocommringcomm2 (X : commrig) : iscomm (rigtoringop2 X).
 Proof.
@@ -2136,7 +2136,7 @@ Close Scope rig_scope.
 
 (** **** Rings of fractions *)
 
-Open Scope ring_scope.
+Local Open Scope ring_scope.
 
 Definition commringfracop1int (X : commring) (S : @subabmonoid (ringmultabmonoid X)) :
   binop (X × S) := λ x1s1 x2s2 : dirprod X S,

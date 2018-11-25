@@ -20,8 +20,8 @@ Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctor.
 Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws.
 Require Import UniMath.CategoryTheory.Bicategories.Unitors.
 
-Open Scope cat.
-Open Scope mor_disp_scope.
+Local Open Scope cat.
+Local Open Scope mor_disp_scope.
 
 (* =================================================================================== *)
 (** ** Displayed bicategories.                                                         *)
