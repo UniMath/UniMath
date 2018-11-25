@@ -160,12 +160,11 @@ DisplayedCats/Examples.v
 DisplayedCats/Adjunctions.v
 
 Bicategories/Bicat.v
-Bicategories/BicatAliases.v
+Bicategories/Invertible_2cells.v
 Bicategories/StandardBicategories.v
 Bicategories/OpCellBicat.v
 Bicategories/OpMorBicat.v
 Bicategories/Unitors.v
-Bicategories/bicategory_laws_2.v
 Bicategories/bicategory_laws.v
 Bicategories/PseudoFunctor.v
 Bicategories/Univalence.v

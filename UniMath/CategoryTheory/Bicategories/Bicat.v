@@ -779,43 +779,6 @@ Proof.
   apply lwhisker_id2.
 Defined.
 
-(* ----------------------------------------------------------------------------------- *)
-(** ** Inverse 2cell of a composition                                                  *)
-(* ----------------------------------------------------------------------------------- *)
-
-Lemma is_invertible_2cell_composite {a b : C} {f g h: C ⟦a, b⟧}
-      (x : f ==> g) (y : g ==> h)
-      (hx : is_invertible_2cell x) (hy : is_invertible_2cell y)
-  : is_invertible_2cell (x • y).
-Proof.
-  exists (inv_invertible_2cell (y,,hy) • inv_invertible_2cell (x,,hx)).
-  split.
-  - abstract (
-        repeat rewrite vassocl;
-        etrans; [apply vassoc4|];
-        etrans; [ apply maponpaths_2, maponpaths;
-                  apply (invertible_2cell_after_inv_cell (y,,hy)) |];
-        rewrite id2_right;
-        apply  (invertible_2cell_after_inv_cell (x,,hx))
-      ).
-  - abstract (
-        repeat rewrite vassocl;
-        etrans; [apply vassoc4|];
-        etrans; [ apply maponpaths_2, maponpaths;
-                  apply (inv_cell_after_invertible_2cell (x,,hx)) |];
-        rewrite id2_right;
-        apply  (inv_cell_after_invertible_2cell (y,,hy))
-      ).
-Defined.
-
-Lemma inv_cell_of_composite {a b : C} {f g h: C ⟦a, b⟧}
-      (x : f ==> g) (y : g ==> h)
-      (hx : is_invertible_2cell x) (hy : is_invertible_2cell y)
-  : inv_cell ((x • y),,is_invertible_2cell_composite _ _ hx hy)  =
-    inv_invertible_2cell (y,,hy) • inv_invertible_2cell (x,,hx).
-Proof.
-  cbn. apply idpath.
-Defined.
 
 (* ----------------------------------------------------------------------------------- *)
 (** ** Interchange law                                                                 *)
@@ -843,41 +806,6 @@ Proof.
   reflexivity.
 Defined.
 
-Lemma is_invertible_2cell_lwhisker {a b c : C} (f : a --> b) {g1 g2 : b --> c}
-      (x : g1 ==> g2)
-  : is_invertible_2cell x -> is_invertible_2cell (f ◃ x).
-Proof.
-  intro H.
-  set (xH := (x,,H) : invertible_2cell _ _).
-  exists (f ◃ (inv_cell xH)).
-  split.
-  - abstract (
-        etrans; [ apply lwhisker_vcomp |];
-        etrans; [ apply maponpaths; apply (invertible_2cell_after_inv_cell xH) |];
-        apply lwhisker_id2).
-  - abstract (
-        etrans; [ apply lwhisker_vcomp |];
-        etrans; [ apply maponpaths; apply (inv_cell_after_invertible_2cell xH) |];
-        apply lwhisker_id2).
-Defined.
-
-Lemma is_invertible_2cell_rwhisker {a b c : C} {f1 f2 : a --> b} (g : b --> c)
-      (x : f1 ==> f2)
-  : is_invertible_2cell x -> is_invertible_2cell (x ▹ g).
-Proof.
-  intro H.
-  set (xH := (x,,H) : invertible_2cell _ _).
-  exists ((inv_cell xH) ▹ g).
-  split.
-  - abstract (
-        etrans; [ apply rwhisker_vcomp |];
-        etrans; [ apply maponpaths; apply (invertible_2cell_after_inv_cell xH) |];
-        apply id2_rwhisker).
-  - abstract (
-        etrans; [ apply rwhisker_vcomp |];
-        etrans; [ apply maponpaths; apply (inv_cell_after_invertible_2cell xH) |];
-        apply id2_rwhisker).
-Defined.
 
 Lemma rwhisker_lwhisker_rassociator
       (a b c d : C) (f : C⟦a, b⟧) (g h : C⟦b, c⟧) (i : c --> d) (x : g ==> h)
@@ -1351,5 +1279,8 @@ Notation "f ◅ x" := (rwhisker f x) (at level 60, only parsing). (* \tw nr 5*)
 Notation "y ▻ g" := (lwhisker g y) (at level 60, only parsing). (* \tw nr 6 *)
 Notation "x ⋆ y" := (hcomp x y) (at level 50, left associativity).
 Notation "x 'o' y" := (y • x) (at level 67, only parsing, left associativity).
+Notation "'id₁'" := identity.
+Notation "'id₂'" := id2.
+Notation " b ⋆⋆ a" := (a ⋆ b) (at level 30).
 
 End Notations.
