@@ -12,75 +12,69 @@ Local Open Scope cat.
 
 Lemma is_invertible_2cell_composite {C : prebicat} {a b : C} {f g h: C ⟦a, b⟧}
       (x : f ==> g) (y : g ==> h)
-      (hx : is_invertible_2cell x) (hy : is_invertible_2cell y)
+      (inv_x : is_invertible_2cell x) (inv_y : is_invertible_2cell y)
   : is_invertible_2cell (x • y).
 Proof.
-  exists (inv_invertible_2cell (y,,hy) • inv_invertible_2cell (x,,hx)).
+  exists (inv_cell inv_y • inv_cell inv_x).
   split.
   - abstract (
         repeat rewrite vassocl;
         etrans; [apply vassoc4|];
         etrans; [ apply maponpaths_2, maponpaths;
-                  apply (invertible_2cell_after_inv_cell (y,,hy)) |];
+                  apply (invertible_2cell_after_inv_cell inv_y) |];
         rewrite id2_right;
-        apply  (invertible_2cell_after_inv_cell (x,,hx))
+        apply  (invertible_2cell_after_inv_cell inv_x)
       ).
   - abstract (
         repeat rewrite vassocl;
         etrans; [apply vassoc4|];
         etrans; [ apply maponpaths_2, maponpaths;
-                  apply (inv_cell_after_invertible_2cell (x,,hx)) |];
+                  apply (inv_cell_after_invertible_2cell inv_x) |];
         rewrite id2_right;
-        apply  (inv_cell_after_invertible_2cell (y,,hy))
+        apply  (inv_cell_after_invertible_2cell inv_y)
       ).
 Defined.
 
 Lemma inv_cell_of_composite {C : prebicat} {a b : C} {f g h: C ⟦a, b⟧}
       (x : f ==> g) (y : g ==> h)
-      (hx : is_invertible_2cell x) (hy : is_invertible_2cell y)
-  : inv_cell ((x • y),,is_invertible_2cell_composite _ _ hx hy)  =
-    inv_invertible_2cell (y,,hy) • inv_invertible_2cell (x,,hx).
+      (inv_x : is_invertible_2cell x) (inv_y : is_invertible_2cell y)
+  : inv_cell (is_invertible_2cell_composite _ _ inv_x inv_y)  =
+    inv_cell inv_y • inv_cell inv_x.
 Proof.
   cbn. apply idpath.
 Defined.
 
-
 Lemma is_invertible_2cell_lwhisker {C : prebicat} {a b c : C} (f : a --> b) {g1 g2 : b --> c}
-      (x : g1 ==> g2)
-  : is_invertible_2cell x -> is_invertible_2cell (f ◃ x).
+      {x : g1 ==> g2} (inv_x : is_invertible_2cell x)
+  : is_invertible_2cell (f ◃ x).
 Proof.
-  intro H.
-  set (xH := (x,,H) : invertible_2cell _ _).
-  exists (f ◃ (inv_cell xH)).
+  exists (f ◃ (inv_cell inv_x)).
   split.
   - abstract (
         etrans; [ apply lwhisker_vcomp |];
-        etrans; [ apply maponpaths; apply (invertible_2cell_after_inv_cell xH) |];
+        etrans; [ apply maponpaths; apply (invertible_2cell_after_inv_cell inv_x) |];
         apply lwhisker_id2).
   - abstract (
         etrans; [ apply lwhisker_vcomp |];
-        etrans; [ apply maponpaths; apply (inv_cell_after_invertible_2cell xH) |];
+        etrans; [ apply maponpaths; apply (inv_cell_after_invertible_2cell inv_x) |];
         apply lwhisker_id2).
 Defined.
 
 Lemma is_invertible_2cell_rwhisker {C : prebicat} {a b c : C} {f1 f2 : a --> b} (g : b --> c)
-      (x : f1 ==> f2)
-  : is_invertible_2cell x -> is_invertible_2cell (x ▹ g).
+      {x : f1 ==> f2} (inv_x : is_invertible_2cell x)
+  : is_invertible_2cell (x ▹ g).
 Proof.
-  intro H.
-  set (xH := (x,,H) : invertible_2cell _ _).
-  exists ((inv_cell xH) ▹ g).
+  exists ((inv_cell inv_x) ▹ g).
   split.
   - abstract (
         etrans; [ apply rwhisker_vcomp |];
-        etrans; [ apply maponpaths; apply (invertible_2cell_after_inv_cell xH) |];
+        etrans; [ apply maponpaths; apply (invertible_2cell_after_inv_cell inv_x) |];
         apply id2_rwhisker).
   - abstract (
         etrans; [ apply rwhisker_vcomp |];
-        etrans; [ apply maponpaths; apply (inv_cell_after_invertible_2cell xH) |];
+        etrans; [ apply maponpaths; apply (inv_cell_after_invertible_2cell inv_x) |];
         apply id2_rwhisker).
 Defined.
-
 
 Definition Build_is_invertible_2cell
            {C : bicat}
@@ -105,9 +99,9 @@ Definition twoinverse
            {X Y : C}
            {f g : C⟦X,Y⟧}
            (η : f ==> g)
-           (H : is_invertible_2cell η)
+           (inv_η : is_invertible_2cell η)
   : g ==> f
-  := inv_cell (η,,H).
+  := inv_cell inv_η.
 
 Notation "H ^-1" := (twoinverse _ H) (at level 20) : bicategory_scope.
 Delimit Scope bicategory_scope with bicategory.
@@ -119,10 +113,10 @@ Definition vcomp_left_inverse
            {X Y : C}
            {f g : C⟦X,Y⟧}
            (η : f ==> g)
-           (H : is_invertible_2cell η)
-  :  H ^-1 o η = id₂ f.
+           (inv_η : is_invertible_2cell η)
+  : inv_η ^-1 o η = id₂ f.
 Proof.
-  apply (invertible_2cell_after_inv_cell ( _ ,, H)).
+  apply (invertible_2cell_after_inv_cell inv_η).
 Defined.
 
 Definition vcomp_right_inverse
@@ -130,10 +124,10 @@ Definition vcomp_right_inverse
            {X Y : C}
            {f g : C⟦X,Y⟧}
            (η : f ==> g)
-           (H : is_invertible_2cell η)
-  : η o H ^-1 = id₂ g.
+           (inv_η : is_invertible_2cell η)
+  : η o inv_η ^-1 = id₂ g.
 Proof.
-  apply (inv_cell_after_invertible_2cell ( _ ,, H)).
+  apply (inv_cell_after_invertible_2cell inv_η).
 Defined.
 
 Definition iso_id₂
@@ -151,10 +145,10 @@ Definition iso_inverse
          {X Y : C}
          {f g : C⟦X,Y⟧}
          (α : f ==> g)
-         (H : is_invertible_2cell α)
-  : is_invertible_2cell (H^-1).
+         (inv_α : is_invertible_2cell α)
+  : is_invertible_2cell (inv_α^-1).
 Proof.
-  apply inv_invertible_2cell.
+  apply inv_is_invertible_2cell.
 Defined.
 
 Definition iso_vcomp
@@ -163,8 +157,8 @@ Definition iso_vcomp
          {f g h : C⟦X,Y⟧}
          (α : f ==> g)
          (β : g ==> h)
-         (Hα : is_invertible_2cell α)
-         (Hβ : is_invertible_2cell β)
+         (inv_α : is_invertible_2cell α)
+         (inv_β : is_invertible_2cell β)
   : is_invertible_2cell (β o α).
 Proof.
   apply is_invertible_2cell_composite;

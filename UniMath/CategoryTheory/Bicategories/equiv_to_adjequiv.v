@@ -152,7 +152,7 @@ Section EquivToAdjEquiv.
   Local Definition whisker_ηg_type
     : Type.
   Proof.
-    refine (η ▻ g = inv_cell ((lunitor g o g ◅ ε o lassociator g f g) ,, _) o runitor g).
+    refine (η ▻ g = inv_cell (η := (lunitor g o g ◅ ε o lassociator g f g)) _ o runitor g).
     unfold ε, representable_full.
     is_iso.
   Defined.
@@ -266,7 +266,7 @@ Section EquivToAdjEquiv.
     rewrite !lwhisker_hcomp in p.
     rewrite q in p ; clear q.
     rewrite !vassocr in p.
-    use (inv_2cell_right_cancellable (rassociator (f · g) f g)).
+    use inv_2cell_right_cancellable. 2: exact (rassociator (f · g) f g).
     { is_iso. }
     rewrite rwhisker_vcomp.
     refine (_ @ p) ; clear p.
