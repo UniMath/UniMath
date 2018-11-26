@@ -37,7 +37,7 @@ Proof.
   { apply pathsinv0. apply lunitor_lwhisker. }
 
   (** attach rassociator on both sides *)
-  use (inv_2cell_right_cancellable (rassociator _ _ _ )).
+  use inv_2cell_right_cancellable. 2: exact (rassociator _ _ _ ).
   { apply is_invertible_2cell_rassociator. }
 
   (** rewrite upper right square *)
@@ -78,7 +78,7 @@ Proof.
   apply maponpaths_2.
 
   (** turn the rassociators into lassociators *)
-  use cell_id_if_inv_cell_id.
+  use inv_cell_eq.
   - use is_invertible_2cell_composite.
     + apply is_invertible_2cell_rassociator.
     + apply is_invertible_2cell_rassociator.
@@ -139,7 +139,7 @@ Qed.
 Lemma runitor_is_runitor_rwhisker (a : C)
   : runitor (identity a · identity a) = runitor (identity a) ▹ (identity a).
 Proof.
-  use (inv_2cell_right_cancellable (runitor _ )).
+  use inv_2cell_right_cancellable. 2: exact (runitor _ ).
   - apply is_invertible_2cell_runitor.
   - apply pathsinv0. apply vcomp_runitor .
 Qed.
@@ -148,7 +148,7 @@ Qed.
 Lemma lunitor_is_lunitor_lwhisker (a : C)
   : lunitor (identity a · identity a) = identity a ◃ lunitor (identity a).
 Proof.
-  use (inv_2cell_right_cancellable (lunitor _ )).
+  use inv_2cell_right_cancellable. 2: exact (lunitor _ ).
   - apply is_invertible_2cell_lunitor.
   - apply pathsinv0. apply vcomp_lunitor .
 Qed.
@@ -157,7 +157,7 @@ Qed.
 Lemma lwhisker_runitor_lunitor (a : C)
   : identity a  ◃ runitor (identity a) = identity a ◃ lunitor (identity a).
 Proof.
-  use (inv_2cell_left_cancellable (rassociator _ _ _ )).
+  use inv_2cell_left_cancellable. 2: exact (rassociator _ _ _ ).
   - apply is_invertible_2cell_rassociator.
   - rewrite runitor_triangle.
     rewrite lunitor_lwhisker.
@@ -167,7 +167,7 @@ Qed.
 Lemma runitor_lunitor_identity (a : C)
   : runitor (identity a) = lunitor (identity a).
 Proof.
-  apply (inv_2cell_left_cancellable (lunitor _ )).
+  use inv_2cell_left_cancellable. 2: exact (lunitor _ ).
   { apply is_invertible_2cell_lunitor. }
   etrans. { apply pathsinv0. apply vcomp_lunitor. }
   etrans. { apply maponpaths_2. apply lwhisker_runitor_lunitor. }
