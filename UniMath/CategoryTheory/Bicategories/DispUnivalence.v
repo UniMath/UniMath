@@ -91,9 +91,7 @@ Definition transportf_subtypeEquality'
 Proof.
   cbn.
   induction (Bprop a b₁ b₂) as [p q].
-  cbn.
   induction p.
-  cbn.
   reflexivity.
 Defined.
 
