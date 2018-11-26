@@ -79,11 +79,11 @@ Proof.
 
   (** turn the rassociators into lassociators *)
   use inv_cell_eq.
-  - use is_invertible_2cell_composite.
+  - use is_invertible_2cell_vcomp.
     + apply is_invertible_2cell_rassociator.
     + apply is_invertible_2cell_rassociator.
-  - use is_invertible_2cell_composite.
-    + use is_invertible_2cell_composite.
+  - use is_invertible_2cell_vcomp.
+    + use is_invertible_2cell_vcomp.
       * apply is_invertible_2cell_rwhisker.
         apply is_invertible_2cell_rassociator.
       * apply is_invertible_2cell_rassociator.

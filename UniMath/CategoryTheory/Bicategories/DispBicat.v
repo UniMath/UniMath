@@ -715,10 +715,10 @@ Section Display_Invertible_2cell.
     : UU
     := ∑ (y : ff' ==>[α^-1] ff),
          (x •• y =
-          transportb (λ α, _ ==>[α] _) (invertible_2cell_after_inv_cell α)
+          transportb (λ α, _ ==>[α] _) (vcomp_rinv α)
                      (disp_id2 ff))
        × (y •• x =
-          transportb (λ α, _ ==>[α] _) (inv_cell_after_invertible_2cell α)
+          transportb (λ α, _ ==>[α] _) (vcomp_lid α)
                      (disp_id2 ff')).
 
   Definition is_disp_invertible_2cell {α : f ==> f'} (inv_α : is_invertible_2cell α)
@@ -726,10 +726,10 @@ Section Display_Invertible_2cell.
     : UU
     := ∑ (y : ff' ==>[inv_α^-1] ff),
          (x •• y =
-          transportb (λ α, _ ==>[α] _) (invertible_2cell_after_inv_cell inv_α)
+          transportb (λ α, _ ==>[α] _) (vcomp_rinv inv_α)
                      (disp_id2 ff))
        × (y •• x =
-          transportb (λ α, _ ==>[α] _) (inv_cell_after_invertible_2cell inv_α)
+          transportb (λ α, _ ==>[α] _) (vcomp_lid inv_α)
                      (disp_id2 ff')).
 
   Definition disp_invertible_2cell (α : invertible_2cell f f')
@@ -749,18 +749,18 @@ Section Display_Invertible_2cell.
     : ff' ==>[α^-1] ff
     := pr1 (pr2 e).
 
-  Definition disp_inv_cell_after_invertible_2cell {α : invertible_2cell f f'}
+  Definition disp_vcomp_lid {α : invertible_2cell f f'}
              {ff : d -->[f] d'} {ff' : d -->[f'] d'}
              (e : disp_invertible_2cell α ff ff')
     : e •• disp_inv_cell e =
-      transportb (λ α, _ ==>[α] _) (invertible_2cell_after_inv_cell α) (disp_id2 ff)
+      transportb (λ α, _ ==>[α] _) (vcomp_rinv α) (disp_id2 ff)
     := pr1 (pr2 (pr2 e)).
 
-  Definition disp_invertible_2cell_after_inv_cell {α : invertible_2cell f f'}
+  Definition disp_vcomp_rinv {α : invertible_2cell f f'}
              {ff : d -->[f] d'} {ff' : d -->[f'] d'}
              (e : disp_invertible_2cell α ff ff')
     : disp_inv_cell e •• e =
-      transportb (λ α, _ ==>[α] _) (inv_cell_after_invertible_2cell α) (disp_id2 ff')
+      transportb (λ α, _ ==>[α] _) (vcomp_lid α) (disp_id2 ff')
     := pr2 (pr2 (pr2 e)).
 
   End Def_inv_2cell.
@@ -815,7 +815,7 @@ Section Display_Invertible_2cell.
     etrans. apply maponpaths. apply disp_vassocl.
     etrans. unfold transportb. apply (transport_f_f (λ x' : f ==> h, ff ==>[x'] hh)).
     etrans. apply maponpaths. apply maponpaths.
-    apply disp_invertible_2cell_after_inv_cell.
+    apply disp_vcomp_rinv.
     etrans. apply maponpaths.
     apply disp_mor_transportf_prewhisker.
     etrans. unfold transportb. apply (transport_f_f (λ x' : f ==> h, ff ==>[x'] hh)).
@@ -878,7 +878,7 @@ Section Display_Invertible_2cell.
     etrans. apply (transport_f_f (λ x, _ ==>[x] _)).
     etrans. apply maponpaths.
     apply maponpaths_2.
-    apply (disp_inv_cell_after_invertible_2cell
+    apply (disp_vcomp_lid
              ((xx,,inv_xx):disp_invertible_2cell (x,,inv_x) _ _)).
     etrans. apply maponpaths. apply disp_mor_transportf_postwhisker.
     etrans. unfold transportb. apply (transport_f_f (λ x, _ ==>[x] _)).

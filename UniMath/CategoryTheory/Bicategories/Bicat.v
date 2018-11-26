@@ -447,21 +447,20 @@ Delimit Scope bicategory_scope with bicategory.
 Bind Scope bicategory_scope with bicat.
 Open Scope bicategory_scope.
 
-Definition invertible_2cell_after_inv_cell {C : prebicat_data} {a b : C} {f g : a --> b}
+Definition vcomp_rinv {C : prebicat_data} {a b : C} {f g : a --> b}
            {η : f ==> g} (inv_η : is_invertible_2cell η)
   : η • inv_η^-1 = id2 f
   := pr1 (pr2 inv_η).
 
-Definition inv_cell_after_invertible_2cell {C : prebicat_data} {a b : C} {f g : a --> b}
+Definition vcomp_lid {C : prebicat_data} {a b : C} {f g : a --> b}
            {η : f ==> g} (inv_η : is_invertible_2cell η)
   : inv_η^-1 • η = id2 g
   := pr2 (pr2 inv_η).
 
-Definition inv_is_invertible_2cell {C : prebicat_data} {a b : C} {f g : a --> b}
+Definition is_invertible_2cell_inv {C : prebicat_data} {a b : C} {f g : a --> b}
            {η : f ==> g} (inv_η : is_invertible_2cell η)
   : is_invertible_2cell (inv_η^-1)
-  := mk_is_invertible_2cell (inv_cell_after_invertible_2cell inv_η)
-                            (invertible_2cell_after_inv_cell inv_η).
+  := mk_is_invertible_2cell (vcomp_lid inv_η) (vcomp_rinv inv_η).
 
 Definition id2_is_invertible_2cell {C : prebicat} {a b : C} (f : a --> b)
   : is_invertible_2cell (id2 f)
@@ -503,8 +502,8 @@ Lemma inv_2cell_right_cancellable {C : prebicat} {a b : C} {f g : C⟦a, b⟧}
 Proof.
   intro R.
   transitivity ((y • x) • inv_x^-1).
-  - rewrite <- vassocr, invertible_2cell_after_inv_cell. apply (!id2_right _).
-  - rewrite R, <- vassocr, invertible_2cell_after_inv_cell. apply id2_right.
+  - rewrite <- vassocr, vcomp_rinv. apply (!id2_right _).
+  - rewrite R, <- vassocr, vcomp_rinv. apply id2_right.
 Qed.
 
 Lemma inv_2cell_left_cancellable  {C : prebicat} {a b : C} {f g : C⟦a, b⟧}
@@ -514,8 +513,8 @@ Lemma inv_2cell_left_cancellable  {C : prebicat} {a b : C} {f g : C⟦a, b⟧}
 Proof.
   intro R.
   transitivity (inv_x^-1 • (x • y)).
-  - rewrite vassocr, inv_cell_after_invertible_2cell. apply (!id2_left _).
-  - rewrite R, vassocr, inv_cell_after_invertible_2cell. apply id2_left.
+  - rewrite vassocr, vcomp_lid. apply (!id2_left _).
+  - rewrite R, vassocr, vcomp_lid. apply id2_left.
 Qed.
 
 Lemma inv_cell_eq {C : bicat} {a b : C} {f g : C ⟦a, b⟧} (x y : f ==> g)
@@ -523,9 +522,9 @@ Lemma inv_cell_eq {C : bicat} {a b : C} {f g : C ⟦a, b⟧} (x y : f ==> g)
       (p : inv_x^-1 = inv_y^-1)
   : x = y.
 Proof.
-  apply (inv_2cell_right_cancellable (inv_is_invertible_2cell inv_x)).
-  rewrite invertible_2cell_after_inv_cell, p.
-  apply (!invertible_2cell_after_inv_cell _).
+  apply (inv_2cell_right_cancellable (is_invertible_2cell_inv inv_x)).
+  rewrite vcomp_rinv, p.
+  apply (!vcomp_rinv _).
 Qed.
 
 (* ------------------------------------------------------------------------- *)
@@ -612,7 +611,7 @@ Proof.
   intro H1.
   etrans. apply maponpaths_2. apply H1.
   etrans. apply vassocl.
-  etrans. apply maponpaths. apply (inv_cell_after_invertible_2cell inv_y).
+  etrans. apply maponpaths. apply (vcomp_lid inv_y).
   apply id2_right.
 Qed.
 
@@ -623,7 +622,7 @@ Proof.
   intro H1.
   etrans. apply maponpaths. apply H1.
   etrans. apply vassocr.
-  etrans. apply maponpaths_2. apply (invertible_2cell_after_inv_cell inv_x).
+  etrans. apply maponpaths_2. apply (vcomp_rinv inv_x).
   apply id2_left.
 Qed.
 
@@ -637,7 +636,7 @@ Proof.
   etrans. 2: apply vassocr.
   apply pathsinv0.
   etrans. apply maponpaths.
-  apply inv_cell_after_invertible_2cell.
+  apply vcomp_lid.
   apply id2_right.
 Qed.
 
@@ -651,7 +650,7 @@ Proof.
   etrans. 2: apply vassocl.
   apply pathsinv0.
   etrans. apply maponpaths_2.
-  apply (invertible_2cell_after_inv_cell inv_y).
+  apply (vcomp_rinv inv_y).
   apply id2_left.
 Qed.
 

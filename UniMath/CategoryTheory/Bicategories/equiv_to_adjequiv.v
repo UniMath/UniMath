@@ -133,7 +133,7 @@ Section EquivToAdjEquiv.
   Proof.
     rewrite !vassocr.
     unfold ε.
-    rewrite (full_spec (θiso^-1) (ηiso^-1) _ (iso_inverse _ _) (f ∘ g) (id₁ Y) _).
+    rewrite (full_spec (θiso^-1) (ηiso^-1) _ (is_invertible_2cell_inv _) (f ∘ g) (id₁ Y) _).
     rewrite <- !vassocr.
     rewrite linvunitor_lunitor, id2_right.
     rewrite !vassocr.
@@ -141,7 +141,7 @@ Section EquivToAdjEquiv.
     rewrite lassociator_rassociator, id2_right.
     rewrite !(maponpaths (fun z => _ o z) (!(vassocr _ _ _))).
     rewrite lwhisker_vcomp.
-    rewrite vcomp_left_inverse.
+    rewrite vcomp_rinv.
     rewrite lwhisker_id2.
     rewrite id2_right.
     rewrite rinvunitor_runitor.
@@ -294,7 +294,7 @@ Section EquivToAdjEquiv.
       rewrite lassociator_rassociator, id2_right.
       rewrite !(maponpaths (fun z => _ o z) (!(vassocr _ _ _))).
       rewrite lwhisker_vcomp.
-      rewrite vcomp_right_inverse.
+      rewrite vcomp_lid.
       rewrite lwhisker_id2.
       rewrite id2_right.
       rewrite rinvunitor_runitor.

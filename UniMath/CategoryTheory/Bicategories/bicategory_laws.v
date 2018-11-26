@@ -262,7 +262,7 @@ Section laws.
     rewrite triangle_r.
     rewrite vassocr.
     rewrite <- inverse_of_assoc.
-    rewrite vcomp_right_inverse.
+    rewrite vcomp_lid.
     rewrite id2_left.
     reflexivity.
   Qed.
