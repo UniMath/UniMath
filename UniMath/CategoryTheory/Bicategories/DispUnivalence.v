@@ -17,6 +17,49 @@ Require Import UniMath.CategoryTheory.Bicategories.Univalence.
 Open Scope cat.
 Open Scope mor_disp_scope.
 
+Section Displayed_Local_Univalence.
+  Context {C : bicat} {D : disp_prebicat C}.
+
+  Definition disp_id2_invertible_2cell
+             {a b : C}
+             {f : C⟦a, b⟧}
+             {aa : D a} {bb : D b}
+             (ff : aa -->[ f ] bb)
+    : disp_invertible_2cell (id2_invertible_2cell f) ff ff.
+  Proof.
+    use tpair.
+    - exact (disp_id2 ff).
+    - use tpair.
+      + cbn.
+        exact (disp_id2 ff).
+      + split ; cbn.
+        * exact (disp_id2_left _).
+        * exact (disp_id2_left _).
+  Defined.
+
+  Definition disp_idtoiso_2_1
+             {a b : C}
+             {f g : C⟦a, b⟧}
+             (p : f = g)
+             {aa : D a} {bb : D b}
+             (ff : aa -->[ f ] bb)
+             (gg : aa -->[ g ] bb)
+             (pp : transportf (λ z, _ -->[ z ] _) p ff = gg)
+    : disp_invertible_2cell (idtoiso_2_1 f g p) ff gg.
+  Proof.
+    induction p ; cbn in *.
+    induction pp.
+    exact (disp_id2_invertible_2cell ff).
+  Defined.
+
+  Definition disp_locally_univalent
+    : UU
+    := ∏ (a b : C) (f g : C⟦a,b⟧) (p : f = g) (aa : D a) (bb : D b)
+         (ff : aa -->[ f ] bb) (gg : aa -->[ g ] bb),
+       isweq (disp_idtoiso_2_1 p ff gg).
+End Displayed_Local_Univalence.
+
+
 Section Displayed_Internal_Adjunction.
 
 Context {C : bicat} {D : disp_prebicat C}.

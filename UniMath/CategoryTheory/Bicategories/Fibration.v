@@ -203,9 +203,7 @@ Section LocalIsoFibration.
 
     Definition discrete_fiber_data_laws : prebicat_laws discrete_fiber_data.
     Proof.
-      repeat split.
-      - intros a b f g x.
-        cbn.
+    Abort.
 
     Definition discrete_fiber : prebicat.
     Proof.
