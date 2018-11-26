@@ -38,7 +38,7 @@ Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.Notation.
-
+Local Open Scope subsys.
 
 Section def_hss.
 

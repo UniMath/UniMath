@@ -25,6 +25,7 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Local Open Scope cat.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.Notation.
+Local Open Scope subsys.
 Require Import UniMath.CategoryTheory.Monads.LModules.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.CategoryTheory.Monads.Monads.

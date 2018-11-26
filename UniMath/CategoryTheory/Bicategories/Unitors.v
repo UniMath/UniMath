@@ -14,10 +14,11 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.OpMorBicat.
 Require Import UniMath.CategoryTheory.Bicategories.OpCellBicat.
 
-Open Scope cat.
+Local Open Scope cat.
 
 Section unitors.
 

@@ -23,7 +23,7 @@ Require Import UniMath.CategoryTheory.Bicategories.WkCatEnrichment.whiskering.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.WkCatEnrichment.Notations.
 
-Open Scope cat.
+Local Open Scope cat.
 
 (* ------------------------------------------------------------------------- *)
 (* Missing lemmas.                                                           *)

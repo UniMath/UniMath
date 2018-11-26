@@ -8,6 +8,7 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.equivalences.
+Local Open Scope cat.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.

@@ -45,6 +45,7 @@ Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LiftingInitial_alt.
 Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.Notation.
+Local Open Scope subsys.
 
 Local Open Scope cat.
 

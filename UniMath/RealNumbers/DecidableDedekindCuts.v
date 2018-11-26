@@ -11,7 +11,8 @@ Require Import UniMath.RealNumbers.Sets.
 Require Import UniMath.RealNumbers.NonnegativeRationals.
 Require Export UniMath.RealNumbers.NonnegativeReals.
 
-Open Scope Dcuts_scope.
+Local Open Scope Dcuts_scope.
+Local Open Scope DC_scope.
 
 (** ** Definition *)
 

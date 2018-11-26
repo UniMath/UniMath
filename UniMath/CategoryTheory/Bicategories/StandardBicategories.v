@@ -13,7 +13,7 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 
-Open Scope cat.
+Local Open Scope cat.
 
 (* ----------------------------------------------------------------------------------- *)
 (** ** Initial bicategory.

@@ -22,7 +22,7 @@ Require Import UniMath.CategoryTheory.Bicategories.WkCatEnrichment.Notations.
 
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 
-Open Scope cat.
+Local Open Scope cat.
 
 Local Notation "C  'c×'  D" := (precategory_binproduct C D)
  (at level 75, right associativity).
