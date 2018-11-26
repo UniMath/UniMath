@@ -12,6 +12,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Unitors.
 Require Import UniMath.CategoryTheory.Bicategories.DispBicat. Import DispBicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws.
 
 Open Scope cat.
 Open Scope mor_disp_scope.
@@ -54,7 +55,7 @@ Section LocalIsoFibration.
     Proof.
       use tpair.
       - exact (D c).
-      - cbn. exact (λ (d : D c) (d' : D c), d -->[identity _] d').
+      - cbn. exact (λ (d : D c) (d' : D c), d -->[identity c] d').
     Defined.
 
     Definition idempunitor : invertible_2cell (identity c) (identity c · identity c).
@@ -116,16 +117,95 @@ Section LocalIsoFibration.
         }
         exact (transportf (λ x, _ ==>[x] _) Heq (disp_rinvunitor ff •• PP)).
       - intros d0 d1 d2 d3 ff gg hh.
-        set (Hfg := disp_local_iso_cleaving_invertible_2cell h (ff;; gg) idempunitor).
-        set (Hgh := disp_local_iso_cleaving_invertible_2cell h (gg;; hh) idempunitor).
-        set (Hfg_h := disp_local_iso_cleaving_invertible_2cell
-                        h (local_iso_cleaving_1cell h (ff;; gg) idempunitor;; hh) idempunitor).
-        set (Hf_gh := disp_local_iso_cleaving_invertible_2cell
-                        h (ff;; local_iso_cleaving_1cell h (gg;; hh) idempunitor) idempunitor).
-        set (h1 := Hfg_h •• (Hfg ▹▹ hh)).
-        set (h2 := Hf_gh •• (ff ◃◃ Hgh)).
-        admit.
-    Abort.
+        assert ((idempunitor • (idempunitor ▹ identity c)) • rassociator _ _ _ • ((identity c ◃ lunitor _) • lunitor _) = id2 _) as Heq.
+        {
+          cbn.
+          rewrite !lwhisker_hcomp, !rwhisker_hcomp.
+          rewrite lunitor_V_id_is_left_unit_V_id.
+          rewrite !vassocl.
+          rewrite !(maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)).
+          rewrite <- triangle_l_inv.
+          rewrite !vassocl.
+          rewrite !(maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)).
+          rewrite lassociator_rassociator, id2_left.
+          rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)).
+          rewrite <- hcomp_vcomp.
+          rewrite id2_left, linvunitor_lunitor.
+          rewrite hcomp_identity, id2_left.
+          rewrite <- lunitor_V_id_is_left_unit_V_id.
+          rewrite linvunitor_lunitor.
+          reflexivity.
+        }
+        refine (transportf (λ z, _ ==>[ z ] _) Heq _).
+        cbn.
+        refine (_ •• disp_rassociator ff gg hh •• _).
+        + refine (disp_local_iso_cleaving_invertible_2cell h (local_iso_cleaving_1cell h (ff;; gg) idempunitor;; hh) idempunitor •• _).
+          refine (disp_rwhisker _ _).
+          exact (disp_local_iso_cleaving_invertible_2cell h (ff ;; gg) idempunitor).
+        + refine (_ •• _).
+          * refine (disp_lwhisker _ _).
+            exact (disp_inv_cell (disp_local_iso_cleaving_invertible_2cell h (gg ;; hh) idempunitor)).
+          * exact (disp_inv_cell ((disp_local_iso_cleaving_invertible_2cell h (ff;;local_iso_cleaving_1cell h (gg;; hh) idempunitor) idempunitor))).
+      - intros d0 d1 d2 d3 ff gg hh.
+        assert ((idempunitor • (identity c ◃ idempunitor)) • lassociator _ _ _ • ((lunitor _ ▹ identity c) • lunitor _) = id2 _) as Heq.
+        {
+          cbn.
+          rewrite !lwhisker_hcomp, !rwhisker_hcomp.
+          rewrite !vassocl.
+          rewrite !(maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)).
+          rewrite triangle_r_inv.
+          rewrite !vassocl.
+          rewrite !(maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)).
+          rewrite rassociator_lassociator, id2_left.
+          rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)).
+          rewrite <- hcomp_vcomp.
+          rewrite <- lunitor_V_id_is_left_unit_V_id.
+          rewrite id2_left, linvunitor_lunitor.
+          rewrite hcomp_identity, id2_left.
+          apply linvunitor_lunitor.
+        }
+        refine (transportf (λ z, _ ==>[ z ] _) Heq _).
+        cbn.
+        refine (_ •• disp_lassociator ff gg hh •• _).
+        + refine (_ •• _).
+          * exact (disp_local_iso_cleaving_invertible_2cell h (ff;;local_iso_cleaving_1cell h (gg;; hh) idempunitor) idempunitor).
+          * refine (disp_lwhisker _ _).
+            exact (disp_local_iso_cleaving_invertible_2cell h (gg ;; hh) idempunitor).
+        + refine (_ •• _).
+          * refine (disp_rwhisker _ _).
+            exact (disp_inv_cell (disp_local_iso_cleaving_invertible_2cell h (ff ;; gg) idempunitor)).
+          * exact (disp_inv_cell (disp_local_iso_cleaving_invertible_2cell h (local_iso_cleaving_1cell h (ff;; gg) idempunitor;; hh) idempunitor)).
+      - intros a b f1 f2 f3 x y.
+        exact (transportf (λ z, _ ==>[ z ] _) (id2_left _) (x •• y)).
+      - intros a1 a2 a3 f g1 g2 x.
+        assert (linvunitor _ • (identity c ◃ id2 _) • lunitor _ = id2 (identity c)) as Heq.
+        {
+          rewrite lwhisker_id2.
+          rewrite id2_right.
+          apply linvunitor_lunitor.
+        }
+        refine (transportf (λ z, _ ==>[ z ] _) Heq _).
+        refine (_ •• (f ◃◃ x) •• _).
+        + exact (disp_local_iso_cleaving_invertible_2cell h (f ;; g1) idempunitor).
+        + exact (disp_inv_cell (disp_local_iso_cleaving_invertible_2cell h (f ;; g2) idempunitor)).
+      - intros a1 a2 a3 f1 f2 g x.
+        assert (linvunitor _ • (id2 _ ▹ identity _) • lunitor _ = id2 (identity c)) as Heq.
+        {
+          rewrite id2_rwhisker.
+          rewrite id2_right.
+          apply linvunitor_lunitor.
+        }
+        refine (transportf (λ z, _ ==>[ z ] _) Heq _).
+        refine (_ •• (x ▹▹ g) •• _).
+        + exact (disp_local_iso_cleaving_invertible_2cell h (f1 ;; g) idempunitor).
+        + exact (disp_inv_cell (disp_local_iso_cleaving_invertible_2cell h (f2 ;; g) idempunitor)).
+    Defined.
+
+    Definition discrete_fiber_data_laws : prebicat_laws discrete_fiber_data.
+    Proof.
+      repeat split.
+      - intros a b f g x.
+        cbn.
 
     Definition discrete_fiber : prebicat.
     Proof.

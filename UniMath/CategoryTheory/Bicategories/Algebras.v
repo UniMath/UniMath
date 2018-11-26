@@ -229,7 +229,105 @@ Section Algebra.
       symmetry.
       exact (disp_alg_runitor f hX hY hf).
     - intros W X Y Z f g h hW hX hY hZ hf hg hh.
-      admit.
+      assert ((hW ◃ rassociator f g h) • lassociator hW f (g · h) = lassociator hW (f · g) h • (lassociator _ _ _ ▹ h) • rassociator _ _ _) as X0.
+      {
+        use vcomp_move_L_Mp.
+        { is_iso. }
+        cbn.
+        rewrite !vassocl.
+        rewrite pentagon.
+        rewrite <- !lwhisker_hcomp, <- !rwhisker_hcomp.
+        rewrite !vassocr.
+        rewrite lwhisker_vcomp.
+        rewrite rassociator_lassociator.
+        rewrite lwhisker_id2.
+        rewrite id2_left.
+        reflexivity.
+      }
+      rewrite <- !rwhisker_vcomp.
+      rewrite !vassocr.
+      rewrite X0.
+      rewrite !vassocl.
+      apply maponpaths.
+      apply maponpaths.
+      rewrite !vassocr.
+      rewrite <- rwhisker_rwhisker_alt.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite !vassocr.
+      use vcomp_move_L_Mp.
+      { is_iso. refine (laxfunctor_is_iso F (rassociator f g h ,, _)). is_iso. }
+      cbn.
+      pose (laxfunctor_lassociator F f g h).
+      rewrite <- lwhisker_vcomp.
+      rewrite !vassocl.
+      rewrite (maponpaths (λ z, _ • (_ • (_ • z))) (vassocr _ _ _)).
+      rewrite rwhisker_lwhisker.
+      rewrite !vassocl.
+      rewrite !rwhisker_vcomp.
+      rewrite vassocl in p.
+      rewrite p.
+      rewrite <- !rwhisker_vcomp.
+      rewrite !vassocr.
+      apply (maponpaths (λ z, z • _)).
+      rewrite <- lwhisker_vcomp.
+      rewrite !vassocl.
+      rewrite !(maponpaths (λ z, _ • (_ • (_ • z))) (vassocr _ _ _)).
+      pose (pentagon hZ (#F h) (#F g) (#F f)).
+      rewrite <- !lwhisker_hcomp, <- !rwhisker_hcomp in p0.
+      rewrite vassocr in p0.
+      rewrite <- p0.
+      rewrite <- lwhisker_vcomp.
+      use vcomp_move_R_pM.
+      { is_iso. }
+      use vcomp_move_R_pM.
+      { is_iso. }
+      rewrite !vassocl.
+      use vcomp_move_R_pM.
+      { is_iso. }
+      cbn.
+      assert ((#F f ◃ rassociator hX g h)
+                  • lassociator (#F f) hX (g · h)
+                  • lassociator (#F f · hX) g h
+                  • (rassociator (#F f) hX g ▹ h) = lassociator _ _ _) as X1.
+      {
+        admit.
+      }
+      rewrite !vassocr.
+      rewrite X1.
+      rewrite <- rwhisker_lwhisker.
+      rewrite <- !lwhisker_vcomp.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)).
+      rewrite lwhisker_lwhisker.
+      rewrite !vassocl.
+      use vcomp_move_R_pM.
+      { is_iso. }
+      use vcomp_move_R_pM.
+      { is_iso. }
+      cbn.
+      assert ((rassociator (#F f) (#F g) (hY · h))
+                  • (#F f ◃ lassociator (#F g) hY h)
+                  • lassociator (#F f) (#F g · hY) h
+                  • (lassociator (#F f) (#F g) hY ▹ h)
+                =
+               lassociator _ _ _).
+      {
+        admit.
+      }
+      rewrite !vassocr.
+      rewrite X2.
+      rewrite rwhisker_rwhisker.
+      rewrite !vassocl.
+      rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)).
+      rewrite lassociator_rassociator.
+      rewrite id2_left.
+      rewrite rwhisker_rwhisker.
+      rewrite !vassocr.
+      apply (maponpaths (λ z, z • _)).
+      rewrite vcomp_whisker.
+      reflexivity.
     - admit.
     - intros X Y f g h α β hX hY hf hg hh hα hβ.
       rewrite <- !lwhisker_vcomp.
