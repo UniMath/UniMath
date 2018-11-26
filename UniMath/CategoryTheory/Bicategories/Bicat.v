@@ -443,6 +443,12 @@ Coercion property_from_invertible_2cell {a b : C} {f g : a --> b}
   : is_invertible_2cell η
   := pr2 η.
 
+Definition invertible_2cell_from_property
+         {a b : C} {f g : C⟦a,b⟧}
+         {η : f ==> g} (H : is_invertible_2cell η)
+  : invertible_2cell f g
+  := η,, pr1 H,, pr12 H,, pr22 H.
+
 Definition inv_cell {a b : C} {f g : a --> b} (η : invertible_2cell f g)
   : g ==> f
   := pr1 (pr2 η).
@@ -495,6 +501,24 @@ Proof.
     apply id2_left.
 Qed.
 
+Lemma isPredicate_is_invertible_2cell {C : bicat}
+      {a b : C} {f g: C⟦a,b⟧}
+  : isPredicate (is_invertible_2cell (f := f) (g := g)).
+Proof.
+  intro x. apply isaprop_is_invertible_2cell.
+Qed.
+
+Lemma cell_from_invertible_2cell_eq {C : bicat}
+      {a b : C} {f g : C⟦a,b⟧} {x y : invertible_2cell f g}
+      (p : cell_from_invertible_2cell x = cell_from_invertible_2cell y)
+  : x = y.
+Proof.
+  unfold cell_from_invertible_2cell.
+  apply subtypeEquality.
+  2: apply p.
+  apply isPredicate_is_invertible_2cell.
+Qed.
+
 Lemma cell_id_if_inv_cell_id {C : bicat} {a b : C} {f g : C ⟦a, b⟧} (x y : f ==> g)
       (hx : is_invertible_2cell x) (hy : is_invertible_2cell y)
   : inv_cell (x,,hx) = inv_cell (y,,hy) → x = y.
@@ -504,9 +528,8 @@ Proof.
           =
           pr1 (inv_invertible_2cell (inv_invertible_2cell (y,,hy)))).
   apply maponpaths, maponpaths.
-  apply subtypeEquality.
-  { intro. apply isaprop_is_invertible_2cell. }
-  apply H.
+  apply subtypeEquality. 2: now apply H.
+  apply isPredicate_is_invertible_2cell.
 Qed.
 
 (* ----------------------------------------------------------------------------------- *)
