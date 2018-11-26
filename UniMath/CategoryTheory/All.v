@@ -153,6 +153,7 @@ Require Export UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Export UniMath.CategoryTheory.DisplayedCats.SIP.
 Require Export UniMath.CategoryTheory.DisplayedCats.Limits.
 Require Export UniMath.CategoryTheory.DisplayedCats.Examples.
+Require Export UniMath.CategoryTheory.DisplayedCats.FunctorCategory.
 Require Export UniMath.CategoryTheory.DisplayedCats.Adjunctions.
 Require Export UniMath.CategoryTheory.Bicategories.Bicat.
 Require Export UniMath.CategoryTheory.Bicategories.Invertible_2cells.

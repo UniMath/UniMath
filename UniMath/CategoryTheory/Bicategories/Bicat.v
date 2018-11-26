@@ -423,61 +423,48 @@ Definition cellset_property {C : bicat} {a b : C} (f g : a --> b)
 (** ** Invertible 2-cells                                                              *)
 (* ----------------------------------------------------------------------------------- *)
 
-Section invertible_2cells.
-
-Context {C : prebicat_data}.
-
-Definition is_invertible_2cell {a b : C} {f g : a --> b} (η : f ==> g)
+Definition is_invertible_2cell {C : prebicat_data}
+           {a b : C} {f g : a --> b} (η : f ==> g)
   : UU
-  := ∑ φ : g ==> f, η • φ = id2 _ × φ • η = id2 _ .
+  := ∑ φ : g ==> f, η • φ = id2 f × φ • η = id2 g.
 
-Definition invertible_2cell {a b : C} (f g : a --> b) : UU
-  := ∑ η : f ==> g, is_invertible_2cell η.
-
-Coercion cell_from_invertible_2cell {a b : C} {f g : a --> b} (η : invertible_2cell f g)
-  : f ==> g
-  := pr1 η.
-
-Coercion property_from_invertible_2cell {a b : C} {f g : a --> b}
-         (η : invertible_2cell f g)
+Definition mk_is_invertible_2cell {C : prebicat_data}
+           {a b : C} {f g : a --> b}
+           {η : f ==> g}
+           {φ : g ==> f}
+           (ηφ : η • φ = id2 f)
+           (φη : φ • η = id2 g)
   : is_invertible_2cell η
-  := pr2 η.
+  := φ,, dirprodpair ηφ φη.
 
-Definition invertible_2cell_from_property
-         {a b : C} {f g : C⟦a,b⟧}
-         {η : f ==> g} (H : is_invertible_2cell η)
-  : invertible_2cell f g
-  := η,, pr1 H,, pr12 H,, pr22 H.
+Definition inv_cell {C : prebicat_data} {a b : C} {f g : a --> b} {η : f ==> g}
+  : is_invertible_2cell η → g ==> f
+  := pr1.
 
-Definition inv_cell {a b : C} {f g : a --> b} (η : invertible_2cell f g)
-  : g ==> f
-  := pr1 (pr2 η).
+(* TODO: Reorganize notations. *)
+Notation "inv_η ^-1" := (inv_cell inv_η) (at level 20) : bicategory_scope.
+Delimit Scope bicategory_scope with bicategory.
+Bind Scope bicategory_scope with bicat.
+Open Scope bicategory_scope.
 
-Definition invertible_2cell_after_inv_cell {a b : C} {f g : a --> b}
-           (η : invertible_2cell f g)
-  : η • inv_cell η = id2 _
-  := pr1 (pr2 (pr2 η)).
+Definition vcomp_rinv {C : prebicat_data} {a b : C} {f g : a --> b}
+           {η : f ==> g} (inv_η : is_invertible_2cell η)
+  : η • inv_η^-1 = id2 f
+  := pr1 (pr2 inv_η).
 
-Definition inv_cell_after_invertible_2cell {a b : C} {f g : a --> b}
-           (η : invertible_2cell f g)
-  : inv_cell η • η = id2 _
-  := pr2 (pr2 (pr2 η)).
+Definition vcomp_lid {C : prebicat_data} {a b : C} {f g : a --> b}
+           {η : f ==> g} (inv_η : is_invertible_2cell η)
+  : inv_η^-1 • η = id2 g
+  := pr2 (pr2 inv_η).
 
-Definition inv_invertible_2cell {a b : C} {f g : a --> b} (η : invertible_2cell f g)
-  : invertible_2cell g f
-  := ( inv_cell η ,, cell_from_invertible_2cell η ,,
-       inv_cell_after_invertible_2cell η ,, invertible_2cell_after_inv_cell η).
+Definition is_invertible_2cell_inv {C : prebicat_data} {a b : C} {f g : a --> b}
+           {η : f ==> g} (inv_η : is_invertible_2cell η)
+  : is_invertible_2cell (inv_η^-1)
+  := mk_is_invertible_2cell (vcomp_lid inv_η) (vcomp_rinv inv_η).
 
-End invertible_2cells.
-
-
-Definition id2_invertible_2cell {C : prebicat} {a b : C} (f : a --> b)
-  : invertible_2cell f f.
-Proof.
-  exists (id2 _).
-  exists (id2 _).
-  split; apply id2_left.
-Defined.
+Definition id2_is_invertible_2cell {C : prebicat} {a b : C} (f : a --> b)
+  : is_invertible_2cell (id2 f)
+  := mk_is_invertible_2cell (id2_left (id2 f)) (id2_left (id2 f)).
 
 Lemma isaprop_is_invertible_2cell {C : bicat}
       {a b : C} {f g : C ⟦a, b⟧} (x : f ==> g)
@@ -508,6 +495,67 @@ Proof.
   intro x. apply isaprop_is_invertible_2cell.
 Qed.
 
+Lemma inv_2cell_right_cancellable {C : prebicat} {a b : C} {f g : C⟦a, b⟧}
+      {x : f ==> g} (inv_x : is_invertible_2cell x)
+      {e : C⟦a, b⟧} {y z : e ==> f}
+  : y • x = z • x -> y = z.
+Proof.
+  intro R.
+  transitivity ((y • x) • inv_x^-1).
+  - rewrite <- vassocr, vcomp_rinv. apply (!id2_right _).
+  - rewrite R, <- vassocr, vcomp_rinv. apply id2_right.
+Qed.
+
+Lemma inv_2cell_left_cancellable  {C : prebicat} {a b : C} {f g : C⟦a, b⟧}
+      {x : f ==> g} (inv_x : is_invertible_2cell x)
+      {h : C⟦a, b⟧} {y z : g ==> h}
+  : x • y = x • z -> y = z.
+Proof.
+  intro R.
+  transitivity (inv_x^-1 • (x • y)).
+  - rewrite vassocr, vcomp_lid. apply (!id2_left _).
+  - rewrite R, vassocr, vcomp_lid. apply id2_left.
+Qed.
+
+Lemma inv_cell_eq {C : bicat} {a b : C} {f g : C ⟦a, b⟧} (x y : f ==> g)
+      (inv_x : is_invertible_2cell x) (inv_y : is_invertible_2cell y)
+      (p : inv_x^-1 = inv_y^-1)
+  : x = y.
+Proof.
+  apply (inv_2cell_right_cancellable (is_invertible_2cell_inv inv_x)).
+  rewrite vcomp_rinv, p.
+  apply (!vcomp_rinv _).
+Qed.
+
+(* ------------------------------------------------------------------------- *)
+(* invertible_2cell                                                          *)
+(* ------------------------------------------------------------------------- *)
+
+Definition invertible_2cell {C : prebicat_data}
+           {a b : C} (f g : a --> b) : UU
+  := ∑ η : f ==> g, is_invertible_2cell η.
+
+Definition mk_invertible_2cell {C : prebicat_data}
+         {a b : C} {f g : C⟦a,b⟧}
+         {η : f ==> g} (inv_η : is_invertible_2cell η)
+  : invertible_2cell f g
+  := η,, inv_η.
+
+Coercion cell_from_invertible_2cell {C : prebicat_data}
+         {a b : C} {f g : a --> b} (η : invertible_2cell f g)
+  : f ==> g
+  := pr1 η.
+
+Coercion property_from_invertible_2cell {C : prebicat_data}
+         {a b : C} {f g : a --> b}
+         (η : invertible_2cell f g)
+  : is_invertible_2cell η
+  := pr2 η.
+
+Definition id2_invertible_2cell {C : prebicat} {a b : C} (f : a --> b)
+  : invertible_2cell f f
+  := mk_invertible_2cell (id2_is_invertible_2cell f).
+
 Lemma cell_from_invertible_2cell_eq {C : bicat}
       {a b : C} {f g : C⟦a,b⟧} {x y : invertible_2cell f g}
       (p : cell_from_invertible_2cell x = cell_from_invertible_2cell y)
@@ -516,19 +564,6 @@ Proof.
   unfold cell_from_invertible_2cell.
   apply subtypeEquality.
   2: apply p.
-  apply isPredicate_is_invertible_2cell.
-Qed.
-
-Lemma cell_id_if_inv_cell_id {C : bicat} {a b : C} {f g : C ⟦a, b⟧} (x y : f ==> g)
-      (hx : is_invertible_2cell x) (hy : is_invertible_2cell y)
-  : inv_cell (x,,hx) = inv_cell (y,,hy) → x = y.
-Proof.
-  intro H.
-  change (pr1 (inv_invertible_2cell (inv_invertible_2cell (x,,hx)))
-          =
-          pr1 (inv_invertible_2cell (inv_invertible_2cell (y,,hy)))).
-  apply maponpaths, maponpaths.
-  apply subtypeEquality. 2: now apply H.
   apply isPredicate_is_invertible_2cell.
 Qed.
 
@@ -553,49 +588,6 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma inv_2cell_right_cancellable {a b : C} {f g : C⟦a, b⟧}
-      (x : f ==> g) (H : is_invertible_2cell x)
-      {e : C⟦a, b⟧} (y z : e ==> f)
-  : y • x = z • x -> y = z.
-Proof.
-  intro R.
-  set (xiso := x,, H : invertible_2cell f g).
-  etrans.
-  { etrans. { apply (! id2_right _). }
-    apply maponpaths. apply (! invertible_2cell_after_inv_cell xiso). }
-  etrans. apply vassocr.
-  apply pathsinv0.
-  etrans.
-  { etrans. { apply (! id2_right _). }
-    apply maponpaths. apply (! invertible_2cell_after_inv_cell xiso). }
-  etrans. apply vassocr.
-
-  apply pathsinv0.
-  apply maponpaths_2.
-  apply R.
-Qed.
-
-Lemma inv_2cell_left_cancellable {a b : C} {f g : C⟦a, b⟧}
-      (x : f ==> g) (H : is_invertible_2cell x)
-      {h : C⟦a, b⟧} (y z : g ==> h)
-  : x • y = x • z -> y = z.
-Proof.
-  intro R.
-  set (xiso := x,, H : invertible_2cell f g).
-  etrans.
-  { etrans. { apply (! id2_left _). }
-    apply maponpaths_2. apply (! inv_cell_after_invertible_2cell xiso). }
-  etrans. apply vassocl.
-  apply pathsinv0.
-  etrans.
-  { etrans. { apply (! id2_left _). }
-    apply maponpaths_2. apply (! inv_cell_after_invertible_2cell xiso). }
-  etrans. apply vassocl.
-  apply pathsinv0.
-  apply maponpaths.
-  apply R.
-Qed.
-
 Lemma is_invertible_2cell_rassociator {a b c d : C}
       (f : C⟦a,b⟧) (g : C⟦b,c⟧) (h : C⟦c,d⟧)
   : is_invertible_2cell (rassociator f g h).
@@ -613,52 +605,52 @@ Proof.
 Defined.
 
 Lemma lhs_right_invert_cell {a b : C} {f g h : a --> b}
-      (x : f ==> g) (y : g ==> h) (z : f ==> h) (H : is_invertible_2cell y)
-  : x = z • inv_cell (y,,H) -> x • y = z.
+      (x : f ==> g) (y : g ==> h) (z : f ==> h) (inv_y : is_invertible_2cell y)
+  : x = z • inv_y^-1 -> x • y = z.
 Proof.
   intro H1.
   etrans. apply maponpaths_2. apply H1.
   etrans. apply vassocl.
-  etrans. apply maponpaths. apply (inv_cell_after_invertible_2cell (y,,H)).
+  etrans. apply maponpaths. apply (vcomp_lid inv_y).
   apply id2_right.
 Qed.
 
 Lemma lhs_left_invert_cell {a b : C} {f g h : a --> b}
-      (x : f ==> g) (y : g ==> h) (z : f ==> h) (H : is_invertible_2cell x)
-  : y = inv_cell (x,,H) • z -> x • y = z.
+      (x : f ==> g) (y : g ==> h) (z : f ==> h) (inv_x : is_invertible_2cell x)
+  : y = inv_x^-1 • z -> x • y = z.
 Proof.
   intro H1.
   etrans. apply maponpaths. apply H1.
   etrans. apply vassocr.
-  etrans. apply maponpaths_2. apply (invertible_2cell_after_inv_cell (x,,H)).
+  etrans. apply maponpaths_2. apply (vcomp_rinv inv_x).
   apply id2_left.
 Qed.
 
 Lemma rhs_right_inv_cell {a b : C} {f g h : a --> b}
-      (x : f ==> g) (y : g ==> h) (z : f ==> h) (H : is_invertible_2cell y)
-  : x • y = z -> x = z • inv_cell (y,,H).
+      (x : f ==> g) (y : g ==> h) (z : f ==> h) (inv_y : is_invertible_2cell y)
+  : x • y = z -> x = z • inv_y^-1.
 Proof.
   intro H1.
-  use (inv_2cell_right_cancellable y H).
+  use (inv_2cell_right_cancellable inv_y).
   etrans. { apply H1. }
   etrans. 2: apply vassocr.
   apply pathsinv0.
   etrans. apply maponpaths.
-  apply inv_cell_after_invertible_2cell.
+  apply vcomp_lid.
   apply id2_right.
 Qed.
 
 Lemma rhs_left_inv_cell {a b : C} {f g h : a --> b}
-      (x : g ==> h) (y : f ==> g) (z : f ==> h) (H : is_invertible_2cell y)
-  : y • x = z -> x = inv_cell (y,,H) • z.
+      (x : g ==> h) (y : f ==> g) (z : f ==> h) (inv_y : is_invertible_2cell y)
+  : y • x = z -> x = inv_y^-1 • z.
 Proof.
   intro H1.
-  use (inv_2cell_left_cancellable y H).
+  use (inv_2cell_left_cancellable inv_y).
   etrans. { apply H1. }
   etrans. 2: apply vassocl.
   apply pathsinv0.
   etrans. apply maponpaths_2.
-  apply (invertible_2cell_after_inv_cell (y,,H)).
+  apply (vcomp_rinv inv_y).
   apply id2_left.
 Qed.
 
@@ -834,12 +826,14 @@ Lemma rwhisker_lwhisker_rassociator
       (a b c d : C) (f : C⟦a, b⟧) (g h : C⟦b, c⟧) (i : c --> d) (x : g ==> h)
   : rassociator _ _ _ • (f ◃ (x ▹ i)) = ((f ◃ x) ▹ i) • rassociator _ _ _ .
 Proof.
-  use (inv_2cell_left_cancellable (lassociator f g i)).
+  use inv_2cell_left_cancellable.
+  2: exact (lassociator f g i).
   { apply  is_invertible_2cell_lassociator. }
   etrans. etrans. apply vassocr. apply maponpaths_2. apply lassociator_rassociator.
   etrans. apply id2_left.
 
-  use (inv_2cell_right_cancellable (lassociator f h i)).
+  use inv_2cell_right_cancellable.
+  2: exact (lassociator f h i).
   { apply  is_invertible_2cell_lassociator. }
   apply pathsinv0.
   etrans. apply vassocl.
@@ -854,12 +848,14 @@ Lemma lwhisker_lwhisker_rassociator (a b c d : C) (f : C⟦a, b⟧)
       (g : C⟦b, c⟧) (h i : c --> d) (x : h ==> i)
   : rassociator f g h  • (f ◃ (g ◃ x)) = (f · g ◃ x) • rassociator _ _ _ .
 Proof.
-  use (inv_2cell_left_cancellable (lassociator f g h)).
+  use inv_2cell_left_cancellable.
+  2: exact (lassociator f g h).
   { apply  is_invertible_2cell_lassociator. }
   etrans. etrans. apply vassocr. apply maponpaths_2. apply lassociator_rassociator.
   etrans. apply id2_left.
 
-  use (inv_2cell_right_cancellable (lassociator f g i)).
+  use inv_2cell_right_cancellable.
+  2: exact (lassociator f g i).
   { apply  is_invertible_2cell_lassociator. }
   apply pathsinv0.
   etrans. apply vassocl.
@@ -874,7 +870,8 @@ Lemma rwhisker_rwhisker_alt {a b c d : C}
       (f : C ⟦ b, a ⟧) (g : C ⟦ c, b ⟧) {h i : C ⟦ d, c ⟧} (x : h ==> i)
   : ((x ▹ g) ▹ f) • rassociator i g f = rassociator h g f • (x ▹ g · f).
 Proof.
-  apply inv_2cell_left_cancellable with (lassociator h g f).
+  use inv_2cell_left_cancellable.
+  2: exact (lassociator h g f).
   { apply is_invertible_2cell_lassociator. }
   etrans. { apply vassocr. }
   etrans. { apply maponpaths_2, rwhisker_rwhisker. }
@@ -893,9 +890,10 @@ Lemma rassociator_rassociator {a b c d e : C}
   : ((rassociator f g h ▹ i) • rassociator f (g · h) i) • (f ◃ rassociator g h i) =
     rassociator (f · g) h i • rassociator f g (h · i).
 Proof.
-  apply inv_2cell_left_cancellable with (lassociator (f · g) h i).
+  use inv_2cell_left_cancellable.
+  2: exact (lassociator (f · g) h i).
   { apply is_invertible_2cell_lassociator. }
-  apply inv_2cell_left_cancellable with (lassociator f g (h · i)).
+  use inv_2cell_left_cancellable. 2: exact (lassociator f g (h · i)).
   { apply is_invertible_2cell_lassociator. }
   etrans. { apply vassocr. }
   etrans.

@@ -84,7 +84,6 @@ Proof.
   apply (vcomp_cancel_right (rinvunitor k₁) _ _).
   { is_iso. }
   rewrite <- !vassocr.
-  unfold twoinverse.
   rewrite <- (whisker_l_iso_id₁ η k₁ k₂ (representable_full η θ Hη k₁ k₂ α) Hη).
   reflexivity.
 Qed.
@@ -134,7 +133,7 @@ Section EquivToAdjEquiv.
   Proof.
     rewrite !vassocr.
     unfold ε.
-    rewrite (full_spec (θiso^-1) (ηiso^-1) _ (iso_inverse _ _) (f ∘ g) (id₁ Y) _).
+    rewrite (full_spec (θiso^-1) (ηiso^-1) _ (is_invertible_2cell_inv _) (f ∘ g) (id₁ Y) _).
     rewrite <- !vassocr.
     rewrite linvunitor_lunitor, id2_right.
     rewrite !vassocr.
@@ -142,7 +141,7 @@ Section EquivToAdjEquiv.
     rewrite lassociator_rassociator, id2_right.
     rewrite !(maponpaths (fun z => _ o z) (!(vassocr _ _ _))).
     rewrite lwhisker_vcomp.
-    rewrite vcomp_left_inverse.
+    rewrite vcomp_rinv.
     rewrite lwhisker_id2.
     rewrite id2_right.
     rewrite rinvunitor_runitor.
@@ -152,7 +151,7 @@ Section EquivToAdjEquiv.
   Local Definition whisker_ηg_type
     : Type.
   Proof.
-    refine (η ▻ g = inv_cell ((lunitor g o g ◅ ε o lassociator g f g) ,, _) o runitor g).
+    refine (η ▻ g = inv_cell (η := (lunitor g o g ◅ ε o lassociator g f g)) _ o runitor g).
     unfold ε, representable_full.
     is_iso.
   Defined.
@@ -266,7 +265,7 @@ Section EquivToAdjEquiv.
     rewrite !lwhisker_hcomp in p.
     rewrite q in p ; clear q.
     rewrite !vassocr in p.
-    use (inv_2cell_right_cancellable (rassociator (f · g) f g)).
+    use inv_2cell_right_cancellable. 2: exact (rassociator (f · g) f g).
     { is_iso. }
     rewrite rwhisker_vcomp.
     refine (_ @ p) ; clear p.
@@ -295,7 +294,7 @@ Section EquivToAdjEquiv.
       rewrite lassociator_rassociator, id2_right.
       rewrite !(maponpaths (fun z => _ o z) (!(vassocr _ _ _))).
       rewrite lwhisker_vcomp.
-      rewrite vcomp_right_inverse.
+      rewrite vcomp_lid.
       rewrite lwhisker_id2.
       rewrite id2_right.
       rewrite rinvunitor_runitor.

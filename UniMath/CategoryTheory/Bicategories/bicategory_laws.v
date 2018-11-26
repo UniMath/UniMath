@@ -281,7 +281,7 @@ Section laws.
     rewrite triangle_r.
     rewrite vassocr.
     rewrite <- inverse_of_assoc.
-    rewrite vcomp_right_inverse.
+    rewrite vcomp_lid.
     rewrite id2_left.
     reflexivity.
   Qed.
@@ -385,8 +385,8 @@ Section laws.
              (η : id₁ X ==> f)
              (k₁ k₂ : C⟦Y,X⟧)
              (α : k₁ ==> k₂)
-             (H : is_invertible_2cell η)
-    : α = runitor k₂ o (inv_cell (η,,H) ▻ k₂) o (f ◅ α) o (η ▻ k₁) o rinvunitor k₁.
+             (inv_η : is_invertible_2cell η)
+    : α = runitor k₂ o (inv_η^-1 ▻ k₂) o (f ◅ α) o (η ▻ k₁) o rinvunitor k₁.
   Proof.
     rewrite !vassocr.
     use vcomp_move_L_Mp.
@@ -407,8 +407,8 @@ Section laws.
              (η : id₁ X ==> f)
              (k₁ k₂ : C⟦X,Y⟧)
              (α : k₁ ==> k₂)
-             (H : is_invertible_2cell η)
-    : α = lunitor k₂ o (k₂ ◅ inv_cell (η,,H)) o (α ▻ f) o (k₁ ◅ η) o linvunitor k₁.
+             (inv_η : is_invertible_2cell η)
+    : α = lunitor k₂ o (k₂ ◅ inv_η^-1) o (α ▻ f) o (k₁ ◅ η) o linvunitor k₁.
   Proof.
     rewrite !vassocr.
     use vcomp_move_L_Mp.
