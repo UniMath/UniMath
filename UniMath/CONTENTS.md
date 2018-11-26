@@ -237,6 +237,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/SIP.v](CategoryTheory/DisplayedCats/SIP.v)
    - [DisplayedCats/Limits.v](CategoryTheory/DisplayedCats/Limits.v)
    - [DisplayedCats/Examples.v](CategoryTheory/DisplayedCats/Examples.v)
+   - [DisplayedCats/FunctorCategory.v](CategoryTheory/DisplayedCats/FunctorCategory.v)
    - [DisplayedCats/Adjunctions.v](CategoryTheory/DisplayedCats/Adjunctions.v)
    - [Bicategories/Bicat.v](CategoryTheory/Bicategories/Bicat.v)
    - [Bicategories/Invertible_2cells.v](CategoryTheory/Bicategories/Invertible_2cells.v)
