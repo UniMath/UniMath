@@ -186,6 +186,7 @@ Bicategories/Constructions.v
 Bicategories/Sigma.v
 Bicategories/Fibration.v
 Bicategories/Cofunctormap.v
+Bicategories/Algebras.v
 Bicategories/CwF.v
 Bicategories/WkCatEnrichment/prebicategory.v
 Bicategories/WkCatEnrichment/Notations.v
