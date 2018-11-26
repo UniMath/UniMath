@@ -6,86 +6,78 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Notations.
 
 Local Open Scope cat.
 
-Notation "'BiCategory'" := bicat.
-
 (* ----------------------------------------------------------------------------------- *)
 (** * Inverse 2cell of a composition                                                  *)
 (* ----------------------------------------------------------------------------------- *)
 
 Lemma is_invertible_2cell_composite {C : prebicat} {a b : C} {f g h: C ⟦a, b⟧}
       (x : f ==> g) (y : g ==> h)
-      (hx : is_invertible_2cell x) (hy : is_invertible_2cell y)
+      (inv_x : is_invertible_2cell x) (inv_y : is_invertible_2cell y)
   : is_invertible_2cell (x • y).
 Proof.
-  exists (inv_invertible_2cell (y,,hy) • inv_invertible_2cell (x,,hx)).
+  exists (inv_cell inv_y • inv_cell inv_x).
   split.
   - abstract (
         repeat rewrite vassocl;
         etrans; [apply vassoc4|];
         etrans; [ apply maponpaths_2, maponpaths;
-                  apply (invertible_2cell_after_inv_cell (y,,hy)) |];
+                  apply (invertible_2cell_after_inv_cell inv_y) |];
         rewrite id2_right;
-        apply  (invertible_2cell_after_inv_cell (x,,hx))
+        apply  (invertible_2cell_after_inv_cell inv_x)
       ).
   - abstract (
         repeat rewrite vassocl;
         etrans; [apply vassoc4|];
         etrans; [ apply maponpaths_2, maponpaths;
-                  apply (inv_cell_after_invertible_2cell (x,,hx)) |];
+                  apply (inv_cell_after_invertible_2cell inv_x) |];
         rewrite id2_right;
-        apply  (inv_cell_after_invertible_2cell (y,,hy))
+        apply  (inv_cell_after_invertible_2cell inv_y)
       ).
 Defined.
 
 Lemma inv_cell_of_composite {C : prebicat} {a b : C} {f g h: C ⟦a, b⟧}
       (x : f ==> g) (y : g ==> h)
-      (hx : is_invertible_2cell x) (hy : is_invertible_2cell y)
-  : inv_cell ((x • y),,is_invertible_2cell_composite _ _ hx hy)  =
-    inv_invertible_2cell (y,,hy) • inv_invertible_2cell (x,,hx).
+      (inv_x : is_invertible_2cell x) (inv_y : is_invertible_2cell y)
+  : inv_cell (is_invertible_2cell_composite _ _ inv_x inv_y)  =
+    inv_cell inv_y • inv_cell inv_x.
 Proof.
   cbn. apply idpath.
 Defined.
 
-
 Lemma is_invertible_2cell_lwhisker {C : prebicat} {a b c : C} (f : a --> b) {g1 g2 : b --> c}
-      (x : g1 ==> g2)
-  : is_invertible_2cell x -> is_invertible_2cell (f ◃ x).
+      {x : g1 ==> g2} (inv_x : is_invertible_2cell x)
+  : is_invertible_2cell (f ◃ x).
 Proof.
-  intro H.
-  set (xH := (x,,H) : invertible_2cell _ _).
-  exists (f ◃ (inv_cell xH)).
+  exists (f ◃ (inv_cell inv_x)).
   split.
   - abstract (
         etrans; [ apply lwhisker_vcomp |];
-        etrans; [ apply maponpaths; apply (invertible_2cell_after_inv_cell xH) |];
+        etrans; [ apply maponpaths; apply (invertible_2cell_after_inv_cell inv_x) |];
         apply lwhisker_id2).
   - abstract (
         etrans; [ apply lwhisker_vcomp |];
-        etrans; [ apply maponpaths; apply (inv_cell_after_invertible_2cell xH) |];
+        etrans; [ apply maponpaths; apply (inv_cell_after_invertible_2cell inv_x) |];
         apply lwhisker_id2).
 Defined.
 
 Lemma is_invertible_2cell_rwhisker {C : prebicat} {a b c : C} {f1 f2 : a --> b} (g : b --> c)
-      (x : f1 ==> f2)
-  : is_invertible_2cell x -> is_invertible_2cell (x ▹ g).
+      {x : f1 ==> f2} (inv_x : is_invertible_2cell x)
+  : is_invertible_2cell (x ▹ g).
 Proof.
-  intro H.
-  set (xH := (x,,H) : invertible_2cell _ _).
-  exists ((inv_cell xH) ▹ g).
+  exists ((inv_cell inv_x) ▹ g).
   split.
   - abstract (
         etrans; [ apply rwhisker_vcomp |];
-        etrans; [ apply maponpaths; apply (invertible_2cell_after_inv_cell xH) |];
+        etrans; [ apply maponpaths; apply (invertible_2cell_after_inv_cell inv_x) |];
         apply id2_rwhisker).
   - abstract (
         etrans; [ apply rwhisker_vcomp |];
-        etrans; [ apply maponpaths; apply (inv_cell_after_invertible_2cell xH) |];
+        etrans; [ apply maponpaths; apply (inv_cell_after_invertible_2cell inv_x) |];
         apply id2_rwhisker).
 Defined.
 
-
 Definition Build_is_invertible_2cell
-           {C : BiCategory}
+           {C : bicat}
            {X Y : C}
            {f g : C⟦X,Y⟧}
            {α : f ==> g}
@@ -100,16 +92,16 @@ Proof.
   - exact retr.
 Defined.
 
-(**** Two-cells that are isomorphisms **)
-(*** Inverse of a two-cell **)
+(** ** Two-cells that are isomorphisms **)
+(** Inverse of a two-cell **)
 Definition twoinverse
-           {C : BiCategory}
+           {C : bicat}
            {X Y : C}
            {f g : C⟦X,Y⟧}
            (η : f ==> g)
-           (H : is_invertible_2cell η)
+           (inv_η : is_invertible_2cell η)
   : g ==> f
-  := inv_cell (η,,H).
+  := inv_cell inv_η.
 
 Notation "H ^-1" := (twoinverse _ H) (at level 20) : bicategory_scope.
 Delimit Scope bicategory_scope with bicategory.
@@ -117,29 +109,29 @@ Bind Scope bicategory_scope with bicat.
 Open Scope bicategory_scope.
 
 Definition vcomp_left_inverse
-           {C : BiCategory}
+           {C : bicat}
            {X Y : C}
            {f g : C⟦X,Y⟧}
            (η : f ==> g)
-           (H : is_invertible_2cell η)
-  :  H ^-1 o η = id₂ f.
+           (inv_η : is_invertible_2cell η)
+  : inv_η ^-1 o η = id₂ f.
 Proof.
-  apply (invertible_2cell_after_inv_cell ( _ ,, H)).
+  apply (invertible_2cell_after_inv_cell inv_η).
 Defined.
 
 Definition vcomp_right_inverse
-           {C : BiCategory}
+           {C : bicat}
            {X Y : C}
            {f g : C⟦X,Y⟧}
            (η : f ==> g)
-           (H : is_invertible_2cell η)
-  : η o H ^-1 = id₂ g.
+           (inv_η : is_invertible_2cell η)
+  : η o inv_η ^-1 = id₂ g.
 Proof.
-  apply (inv_cell_after_invertible_2cell ( _ ,, H)).
+  apply (inv_cell_after_invertible_2cell inv_η).
 Defined.
 
 Definition iso_id₂
-         {C : BiCategory}
+         {C : bicat}
          {X Y : C}
          (f : C⟦X,Y⟧)
   : is_invertible_2cell (id₂ f).
@@ -149,24 +141,24 @@ Proof.
 Defined.
 
 Definition iso_inverse
-         {C : BiCategory}
+         {C : bicat}
          {X Y : C}
          {f g : C⟦X,Y⟧}
          (α : f ==> g)
-         (H : is_invertible_2cell α)
-  : is_invertible_2cell (H^-1).
+         (inv_α : is_invertible_2cell α)
+  : is_invertible_2cell (inv_α^-1).
 Proof.
-  apply inv_invertible_2cell.
+  apply inv_is_invertible_2cell.
 Defined.
 
 Definition iso_vcomp
-         {C : BiCategory}
+         {C : bicat}
          {X Y : C}
          {f g h : C⟦X,Y⟧}
          (α : f ==> g)
          (β : g ==> h)
-         (Hα : is_invertible_2cell α)
-         (Hβ : is_invertible_2cell β)
+         (inv_α : is_invertible_2cell α)
+         (inv_β : is_invertible_2cell β)
   : is_invertible_2cell (β o α).
 Proof.
   apply is_invertible_2cell_composite;
@@ -174,7 +166,7 @@ Proof.
 Defined.
 
 Definition left_unit_iso
-         {C : BiCategory}
+         {C : bicat}
          {X Y : C}
          (f : C⟦X,Y⟧)
   : is_invertible_2cell (runitor f).
@@ -183,7 +175,7 @@ Proof.
 Defined.
 
 Definition left_unit_inv_iso
-         {C : BiCategory}
+         {C : bicat}
          {X Y : C}
          (f : C⟦X,Y⟧)
   : is_invertible_2cell (rinvunitor f).
@@ -192,7 +184,7 @@ Proof.
 Defined.
 
 Definition lunitor_iso
-         {C : BiCategory}
+         {C : bicat}
          {X Y : C}
          (f : C⟦X,Y⟧)
   : is_invertible_2cell (lunitor f).
@@ -201,7 +193,7 @@ Proof.
 Defined.
 
 Definition lunitor_inv_iso
-         {C : BiCategory}
+         {C : bicat}
          {X Y : C}
          (f : C⟦X,Y⟧)
   : is_invertible_2cell (linvunitor f).
@@ -211,7 +203,7 @@ Defined.
 
 
 Definition pentagon
-           {C : BiCategory}
+           {C : bicat}
            {V W X Y Z : C}
            (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧) (g : C⟦W,X⟧) (f : C⟦V,W⟧)
   : (lassociator (g ∘ f) h k o lassociator f g (k ∘ h))
@@ -232,7 +224,7 @@ Qed.
 
 
 Definition hcomp_iso
-       {C : BiCategory}
+       {C : bicat}
        {X Y Z : C}
        {f₁ g₁ : C⟦Y,Z⟧} {f₂ g₂ : C⟦X,Y⟧}
        (η₁ : f₁ ==> g₁) (η₂ : f₂ ==> g₂)
@@ -251,7 +243,7 @@ Proof.
 Defined.
 
 Definition bc_whisker_l
-           {C : BiCategory}
+           {C : bicat}
            {X Y Z : C}
            {f₁ : C⟦X,Y⟧} {f₂ : C⟦X,Y⟧}
            (g : C⟦Y,Z⟧)
@@ -262,7 +254,7 @@ Definition bc_whisker_l
 (* Notation "g '◅' α" := (bc_whisker_l g α) (at level 40) : bicategory_scope. *)
 
 Definition bc_whisker_l_id₂
-           {C : BiCategory}
+           {C : bicat}
            {X Y Z : C}
            (f : C⟦X,Y⟧)
            (g : C⟦Y,Z⟧)
@@ -272,7 +264,7 @@ Proof.
 Qed.
 
 Definition bc_whisker_r
-           {C : BiCategory}
+           {C : bicat}
            {X Y Z : C}
            {g₁ : C⟦Y,Z⟧} {g₂ : C⟦Y,Z⟧}
            (β : g₁ ==> g₂)
@@ -283,7 +275,7 @@ Definition bc_whisker_r
 (* Notation "β '▻' f" := (bc_whisker_r β f) (at level 40) : bicategory_scope. *)
 
 Definition bc_whisker_r_id₂
-           {C : BiCategory}
+           {C : bicat}
            {X Y Z : C}
            (f : C⟦X,Y⟧)
            (g : C⟦Y,Z⟧)
@@ -293,7 +285,7 @@ Proof.
 Qed.
 
 Definition inverse_of_assoc
-           {C : BiCategory}
+           {C : bicat}
            {W X Y Z : C}
            (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
   : (is_invertible_2cell_lassociator f g h)^-1 = rassociator f g h.
@@ -302,14 +294,14 @@ Proof.
 Qed.
 
 Definition inverse_of_left_unit
-           {C : BiCategory}
+           {C : bicat}
            {X Y : C}
            (f : C⟦X,Y⟧)
   : (left_unit_iso f)^-1 = rinvunitor f
   := idpath _ .
 
 Definition inverse_of_lunitor
-           {C : BiCategory}
+           {C : bicat}
            {X Y : C}
            (f : C⟦X,Y⟧)
   : (lunitor_iso f)^-1 = linvunitor f
@@ -318,14 +310,14 @@ Definition inverse_of_lunitor
 (**** Properties of isomorphisms ***)
 
 Definition id₂_inverse
-           {C : BiCategory}
+           {C : bicat}
            {X Y : C}
            (f : C⟦X,Y⟧)
   : (iso_id₂ f)^-1 = id₂ f
   := idpath _.
 
 Definition vcomp_inverse
-           {C : BiCategory}
+           {C : bicat}
            {X Y : C}
            {f g h : C⟦X,Y⟧}
            (η₁ : f ==> g) (η₂ : g ==> h)
@@ -335,7 +327,7 @@ Definition vcomp_inverse
   := idpath _ .
 
 Definition hcomp_inverse
-           {C : BiCategory}
+           {C : bicat}
            {X Y Z : C}
            {f₁ g₁ : C⟦Y,Z⟧} {f₂ g₂ : C⟦X,Y⟧}
            (η₁ : f₁ ==> g₁) (η₂ : f₂ ==> g₂)
@@ -345,7 +337,7 @@ Definition hcomp_inverse
   := idpath _ .
 
 Definition vcomp_cancel_left
-           {C : BiCategory}
+           {C : bicat}
            {X Y : C}
            {f g h : C⟦X,Y⟧}
            (ε : g ==> h)
@@ -362,7 +354,7 @@ Proof.
 Qed.
 
 Definition vcomp_cancel_right
-           {C : BiCategory}
+           {C : bicat}
            {X Y : C}
            {f g h : C⟦X,Y⟧}
            (ε : f ==> g) (η₁ η₂ : g ==> h)
@@ -378,7 +370,7 @@ Proof.
 Qed.
 
 Definition vcomp_move_L_Vp
-           {C : BiCategory}
+           {C : bicat}
            {X Y : C}
            {f g h : C⟦X,Y⟧}
            (η₁ : f ==> g) (η₂ : f ==> h) (ε : g ==> h)
@@ -394,7 +386,7 @@ Proof.
 Qed.
 
 Definition vcomp_move_L_pV
-           {C : BiCategory}
+           {C : bicat}
            {X Y : C}
            {f g h : C⟦X,Y⟧}
            (η₁ : g ==> h) (η₂ : f ==> h) (ε : f ==> g)
@@ -410,7 +402,7 @@ Proof.
 Qed.
 
 Definition vcomp_move_R_Mp
-           {C : BiCategory}
+           {C : bicat}
            {X Y : C}
            {f g h : C⟦X,Y⟧}
            (η₁ : f ==> g) (η₂ : f ==> h) (ε : g ==> h)
@@ -426,7 +418,7 @@ Proof.
 Qed.
 
 Definition vcomp_move_R_pM
-           {C : BiCategory}
+           {C : bicat}
            {X Y : C}
            {f g h : C⟦X,Y⟧}
            (η₁ : g ==> h) (η₂ : f ==> h) (ε : f ==> g)
@@ -442,7 +434,7 @@ Proof.
 Qed.
 
 Definition vcomp_move_L_Mp
-           {C : BiCategory}
+           {C : bicat}
            {X Y : C}
            {f g h : C⟦X,Y⟧}
            (η₁ : f ==> h) (η₂ : f ==> g) (ε : g ==> h)
@@ -458,7 +450,7 @@ Proof.
 Qed.
 
 Definition vcomp_move_L_pM
-           {C : BiCategory}
+           {C : bicat}
            {X Y : C}
            {f g h : C⟦X,Y⟧}
            (η₁ : f ==> h) (η₂ : g ==> h) (ε : f ==> g)
@@ -474,7 +466,7 @@ Proof.
 Qed.
 
 Definition path_inverse_2cell
-           {C : BiCategory}
+           {C : bicat}
            {X Y : C}
            {f g : C⟦X,Y⟧}
            (η₁ η₂ : f ==> g)

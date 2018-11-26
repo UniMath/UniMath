@@ -713,7 +713,7 @@ Section Display_Invertible_2cell.
   Definition is_disp_invertible_2cell' {α : invertible_2cell f f'}
              {ff : d -->[f] d'} {ff' : d -->[f'] d'} (x : ff ==>[α] ff')
     : UU
-    := ∑ (y : ff' ==>[inv_invertible_2cell α] ff),
+    := ∑ (y : ff' ==>[inv_cell α] ff),
          (x •• y =
           transportb (λ α, _ ==>[α] _) (invertible_2cell_after_inv_cell α)
                      (disp_id2 ff))
@@ -724,12 +724,12 @@ Section Display_Invertible_2cell.
   Definition is_disp_invertible_2cell {α : f ==> f'} (Hα : is_invertible_2cell α)
              {ff : d -->[f] d'} {ff' : d -->[f'] d'} (x : ff ==>[α] ff')
     : UU
-    := ∑ (y : ff' ==>[inv_invertible_2cell (α,,Hα)] ff),
+    := ∑ (y : ff' ==>[inv_cell Hα] ff),
          (x •• y =
-          transportb (λ α, _ ==>[α] _) (invertible_2cell_after_inv_cell (α,,Hα))
+          transportb (λ α, _ ==>[α] _) (invertible_2cell_after_inv_cell Hα)
                      (disp_id2 ff))
        × (y •• x =
-          transportb (λ α, _ ==>[α] _) (inv_cell_after_invertible_2cell (α,,Hα))
+          transportb (λ α, _ ==>[α] _) (inv_cell_after_invertible_2cell Hα)
                      (disp_id2 ff')).
 
   Definition disp_invertible_2cell (α : invertible_2cell f f')
@@ -839,7 +839,7 @@ Section Display_Invertible_2cell.
         (zz : ff ==>[z] hh)
         (H : is_disp_invertible_2cell Hy yy)
         (q : x • y = z)
-        (p  := rhs_right_inv_cell _ _ _ Hy q : x = z • inv_cell (y,,Hy))
+        (p  := rhs_right_inv_cell _ _ _ Hy q : x = z • inv_cell Hy)
         (pp : xx =
               transportb
                 (λ x, _ ==>[x] _) p
@@ -863,7 +863,7 @@ Section Display_Invertible_2cell.
         (zz : ff ==>[z] hh)
         (HH : is_disp_invertible_2cell H xx)
         (q :  x • y = z)
-        (p := rhs_left_inv_cell _ _ _ H q : y = inv_cell (x,,H) • z)
+        (p := rhs_left_inv_cell _ _ _ H q : y = inv_cell H • z)
         (pp : yy =
               transportb
                 (λ x, _ ==>[x] _) p
@@ -1275,9 +1275,9 @@ Proof.
   apply maponpaths_2, cellset_property.
 Qed.
 
-(* -----------------------------------------------------------------------------------*)
+(* ----------------------------------------------------------------------------------- *)
 (** ** Notations.                                                                      *)
-(* -----------------------------------------------------------------------------------*)
+(* ----------------------------------------------------------------------------------- *)
 
 Module Notations.
 
