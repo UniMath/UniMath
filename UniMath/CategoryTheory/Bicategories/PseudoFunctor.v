@@ -224,8 +224,8 @@ Proof.
   - exact (##F (α^-1)).
   - split ; cbn
     ; rewrite <- laxfunctor_vcomp, <- laxfunctor_id2 ; apply maponpaths.
-    + apply invertible_2cell_after_inv_cell.
-    + apply inv_cell_after_invertible_2cell.
+    + apply vcomp_rinv.
+    + apply vcomp_lid.
 Defined.
 
 Section LaxFunctorDerivedLaws.
