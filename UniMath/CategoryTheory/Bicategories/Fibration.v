@@ -103,13 +103,13 @@ Section LocalIsoFibration.
       - intros d d' ff.
         set (PP := disp_inv_cell
                      (disp_local_iso_cleaving_invertible_2cell h (id_disp d;; ff) idempunitor)).
-        assert (Heq : linvunitor (identity c) • inv_cell idempunitor = id2 (identity c)).
+        assert (Heq : linvunitor (identity c) • idempunitor^-1 = id2 (identity c)).
         { unfold idempunitor. cbn. apply linvunitor_lunitor. }
         exact (transportf (λ x, _ ==>[x] _) Heq (disp_linvunitor ff •• PP)).
       - cbn. intros d d' ff.
         set (PP := disp_inv_cell
                      (disp_local_iso_cleaving_invertible_2cell h (ff;; id_disp d') idempunitor)).
-        assert (Heq : rinvunitor (identity c) • inv_cell idempunitor = id2 (identity c)).
+        assert (Heq : rinvunitor (identity c) • idempunitor^-1 = id2 (identity c)).
         { unfold idempunitor. cbn.
           etrans; [ apply maponpaths, lunitor_runitor_identity | ].
           apply rinvunitor_runitor.

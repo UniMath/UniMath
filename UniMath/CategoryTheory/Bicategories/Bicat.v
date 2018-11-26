@@ -441,19 +441,25 @@ Definition inv_cell {C : prebicat_data} {a b : C} {f g : a --> b} {η : f ==> g}
   : is_invertible_2cell η → g ==> f
   := pr1.
 
+(* TODO: Reorganize notations. *)
+Notation "inv_η ^-1" := (inv_cell inv_η) (at level 20) : bicategory_scope.
+Delimit Scope bicategory_scope with bicategory.
+Bind Scope bicategory_scope with bicat.
+Open Scope bicategory_scope.
+
 Definition invertible_2cell_after_inv_cell {C : prebicat_data} {a b : C} {f g : a --> b}
            {η : f ==> g} (inv_η : is_invertible_2cell η)
-  : η • inv_cell inv_η = id2 f
+  : η • inv_η^-1 = id2 f
   := pr1 (pr2 inv_η).
 
 Definition inv_cell_after_invertible_2cell {C : prebicat_data} {a b : C} {f g : a --> b}
            {η : f ==> g} (inv_η : is_invertible_2cell η)
-  : inv_cell inv_η • η = id2 g
+  : inv_η^-1 • η = id2 g
   := pr2 (pr2 inv_η).
 
 Definition inv_is_invertible_2cell {C : prebicat_data} {a b : C} {f g : a --> b}
            {η : f ==> g} (inv_η : is_invertible_2cell η)
-  : is_invertible_2cell (inv_cell inv_η)
+  : is_invertible_2cell (inv_η^-1)
   := mk_is_invertible_2cell (inv_cell_after_invertible_2cell inv_η)
                             (invertible_2cell_after_inv_cell inv_η).
 
@@ -496,7 +502,7 @@ Lemma inv_2cell_right_cancellable {C : prebicat} {a b : C} {f g : C⟦a, b⟧}
   : y • x = z • x -> y = z.
 Proof.
   intro R.
-  transitivity ((y • x) • inv_cell inv_x).
+  transitivity ((y • x) • inv_x^-1).
   - rewrite <- vassocr, invertible_2cell_after_inv_cell. apply (!id2_right _).
   - rewrite R, <- vassocr, invertible_2cell_after_inv_cell. apply id2_right.
 Qed.
@@ -507,14 +513,14 @@ Lemma inv_2cell_left_cancellable  {C : prebicat} {a b : C} {f g : C⟦a, b⟧}
   : x • y = x • z -> y = z.
 Proof.
   intro R.
-  transitivity (inv_cell inv_x • (x • y)).
+  transitivity (inv_x^-1 • (x • y)).
   - rewrite vassocr, inv_cell_after_invertible_2cell. apply (!id2_left _).
   - rewrite R, vassocr, inv_cell_after_invertible_2cell. apply id2_left.
 Qed.
 
 Lemma inv_cell_eq {C : bicat} {a b : C} {f g : C ⟦a, b⟧} (x y : f ==> g)
       (inv_x : is_invertible_2cell x) (inv_y : is_invertible_2cell y)
-      (p : inv_cell inv_x = inv_cell inv_y)
+      (p : inv_x^-1 = inv_y^-1)
   : x = y.
 Proof.
   apply (inv_2cell_right_cancellable (inv_is_invertible_2cell inv_x)).
@@ -601,7 +607,7 @@ Defined.
 
 Lemma lhs_right_invert_cell {a b : C} {f g h : a --> b}
       (x : f ==> g) (y : g ==> h) (z : f ==> h) (inv_y : is_invertible_2cell y)
-  : x = z • inv_cell inv_y -> x • y = z.
+  : x = z • inv_y^-1 -> x • y = z.
 Proof.
   intro H1.
   etrans. apply maponpaths_2. apply H1.
@@ -612,7 +618,7 @@ Qed.
 
 Lemma lhs_left_invert_cell {a b : C} {f g h : a --> b}
       (x : f ==> g) (y : g ==> h) (z : f ==> h) (inv_x : is_invertible_2cell x)
-  : y = inv_cell inv_x • z -> x • y = z.
+  : y = inv_x^-1 • z -> x • y = z.
 Proof.
   intro H1.
   etrans. apply maponpaths. apply H1.
@@ -623,7 +629,7 @@ Qed.
 
 Lemma rhs_right_inv_cell {a b : C} {f g h : a --> b}
       (x : f ==> g) (y : g ==> h) (z : f ==> h) (inv_y : is_invertible_2cell y)
-  : x • y = z -> x = z • inv_cell inv_y.
+  : x • y = z -> x = z • inv_y^-1.
 Proof.
   intro H1.
   use (inv_2cell_right_cancellable inv_y).
@@ -637,7 +643,7 @@ Qed.
 
 Lemma rhs_left_inv_cell {a b : C} {f g h : a --> b}
       (x : g ==> h) (y : f ==> g) (z : f ==> h) (inv_y : is_invertible_2cell y)
-  : y • x = z -> x = inv_cell inv_y • z.
+  : y • x = z -> x = inv_y^-1 • z.
 Proof.
   intro H1.
   use (inv_2cell_left_cancellable inv_y).

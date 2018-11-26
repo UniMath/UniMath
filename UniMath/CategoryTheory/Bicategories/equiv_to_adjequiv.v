@@ -84,7 +84,6 @@ Proof.
   apply (vcomp_cancel_right (rinvunitor k₁) _ _).
   { is_iso. }
   rewrite <- !vassocr.
-  unfold twoinverse.
   rewrite <- (whisker_l_iso_id₁ η k₁ k₂ (representable_full η θ Hη k₁ k₂ α) Hη).
   reflexivity.
 Qed.
