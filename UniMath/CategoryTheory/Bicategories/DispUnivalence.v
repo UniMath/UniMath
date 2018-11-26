@@ -159,15 +159,15 @@ Section Total_Category_Locally_Univalent.
           ** cbn.
              use total2_paths_b.
              *** cbn.
-                 apply invertible_2cell_after_inv_cell.
+                 apply vcomp_rinv. (* invertible_2cell_after_inv_cell. *)
              *** cbn.
-                 apply disp_inv_cell_after_invertible_2cell.
+                 apply  disp_vcomp_lid.
           ** cbn.
              use total2_paths_b.
              *** cbn.
-                 apply inv_cell_after_invertible_2cell.
+                 apply vcomp_lid. 
              *** cbn.
-                 apply disp_invertible_2cell_after_inv_cell.
+                 apply disp_vcomp_rinv.
     - use isweq_iso.
       * intros z.
         destruct z as [z Hz].
