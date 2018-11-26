@@ -14,8 +14,8 @@ Require Import UniMath.CategoryTheory.Bicategories.DispBicat. Import DispBicat.N
 Require Import UniMath.CategoryTheory.Bicategories.Unitors.
 Require Import UniMath.CategoryTheory.Bicategories.Univalence.
 
-Open Scope cat.
-Open Scope mor_disp_scope.
+Local Open Scope cat.
+Local Open Scope mor_disp_scope.
 
 Section Displayed_Local_Univalence.
   Context {C : bicat} {D : disp_prebicat C}.

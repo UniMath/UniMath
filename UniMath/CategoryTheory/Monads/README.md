@@ -14,3 +14,4 @@ A wild mix of material from multiple authors.
 * *LModules.v* --- left modules over a monad, with pullback constructions
 * *Derivative.v* --- "maybe" monad, distributive laws for pairs of monads, composition of monads, derivative of a monad and a left module of a monad
 * *RelativeModules.v* --- modules over relative monads (generalizing material from LModules.v)
+* *MonadAlgebras.v* --- category of algebras of a monad, free-forgetful adjunction between algebras and base category

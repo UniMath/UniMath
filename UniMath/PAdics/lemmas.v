@@ -344,7 +344,7 @@ Defined.
 
 (** * II. Lemmas on rings *)
 
-Open Scope ring_scope.
+Local Open Scope ring_scope.
 
 Lemma ringminusdistr { X : commring } ( a b c : X ) :
   a * (b - c) = a * b - a * c.
@@ -441,7 +441,7 @@ Close Scope ring_scope.
 
 (** * III. Lemmas on hz *)
 
-Open Scope hz_scope.
+Local Open Scope hz_scope.
 
 Lemma hzaddinvplus ( n m : hz ) : - ( n + m ) = ( - n ) + ( - m ).
 Proof.
@@ -796,7 +796,7 @@ Defined.
 
 (** * V. Apartness relations on rings *)
 
-Open Scope ring_scope.
+Local Open Scope ring_scope.
 
 Definition acommring := ∑ (X : commring) (R : apart X),
   isbinopapart R ( @op1 X ) × isbinopapart R ( @op2 X ).

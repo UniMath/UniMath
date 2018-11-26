@@ -91,7 +91,7 @@ Definition Dcuts_set : hSet := hSetpair _ isaset_Dcuts.
 Definition pr1Dcuts (x : Dcuts_set) : hsubtype NonnegativeRationals := pr1 x.
 Notation "x ∈ X" := (pr1Dcuts X x) (at level 70, no associativity) : DC_scope.
 
-Open Scope DC_scope.
+Local Open Scope DC_scope.
 
 Lemma is_Dcuts_bot (X : Dcuts_set) : Dcuts_def_bot (pr1 X).
 Proof.
@@ -4447,7 +4447,7 @@ Global Opaque Dcuts_zero
 Global Opaque Dcuts_lim_cauchy_seq.
 
 Delimit Scope NR_scope with NR.
-Open Scope NR_scope.
+Local Open Scope NR_scope.
 
 Definition NonnegativeReals : ConstructiveCommutativeDivisionRig
   := Dcuts_ConstructiveCommutativeDivisionRig.
