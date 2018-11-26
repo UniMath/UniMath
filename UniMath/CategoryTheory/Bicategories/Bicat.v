@@ -462,7 +462,7 @@ Definition is_invertible_2cell_inv {C : prebicat_data} {a b : C} {f g : a --> b}
   : is_invertible_2cell (inv_η^-1)
   := mk_is_invertible_2cell (vcomp_lid inv_η) (vcomp_rinv inv_η).
 
-Definition id2_is_invertible_2cell {C : prebicat} {a b : C} (f : a --> b)
+Definition is_invertible_2cell_id₂ {C : prebicat} {a b : C} (f : a --> b)
   : is_invertible_2cell (id2 f)
   := mk_is_invertible_2cell (id2_left (id2 f)) (id2_left (id2 f)).
 
@@ -495,8 +495,8 @@ Proof.
   intro x. apply isaprop_is_invertible_2cell.
 Qed.
 
-Lemma inv_2cell_right_cancellable {C : prebicat} {a b : C} {f g : C⟦a, b⟧}
-      {x : f ==> g} (inv_x : is_invertible_2cell x)
+Lemma vcomp_rcancel {C : prebicat} {a b : C} {f g : C⟦a, b⟧}
+      (x : f ==> g) (inv_x : is_invertible_2cell x)
       {e : C⟦a, b⟧} {y z : e ==> f}
   : y • x = z • x -> y = z.
 Proof.
@@ -506,8 +506,8 @@ Proof.
   - rewrite R, <- vassocr, vcomp_rinv. apply id2_right.
 Qed.
 
-Lemma inv_2cell_left_cancellable  {C : prebicat} {a b : C} {f g : C⟦a, b⟧}
-      {x : f ==> g} (inv_x : is_invertible_2cell x)
+Lemma vcomp_lcancel  {C : prebicat} {a b : C} {f g : C⟦a, b⟧}
+      (x : f ==> g) (inv_x : is_invertible_2cell x)
       {h : C⟦a, b⟧} {y z : g ==> h}
   : x • y = x • z -> y = z.
 Proof.
@@ -522,7 +522,7 @@ Lemma inv_cell_eq {C : bicat} {a b : C} {f g : C ⟦a, b⟧} (x y : f ==> g)
       (p : inv_x^-1 = inv_y^-1)
   : x = y.
 Proof.
-  apply (inv_2cell_right_cancellable (is_invertible_2cell_inv inv_x)).
+  apply (vcomp_rcancel _ (is_invertible_2cell_inv inv_x)).
   rewrite vcomp_rinv, p.
   apply (!vcomp_rinv _).
 Qed.
@@ -554,7 +554,7 @@ Coercion property_from_invertible_2cell {C : prebicat_data}
 
 Definition id2_invertible_2cell {C : prebicat} {a b : C} (f : a --> b)
   : invertible_2cell f f
-  := mk_invertible_2cell (id2_is_invertible_2cell f).
+  := mk_invertible_2cell (is_invertible_2cell_id₂ f).
 
 Lemma cell_from_invertible_2cell_eq {C : bicat}
       {a b : C} {f g : C⟦a,b⟧} {x y : invertible_2cell f g}
@@ -631,7 +631,7 @@ Lemma rhs_right_inv_cell {a b : C} {f g h : a --> b}
   : x • y = z -> x = z • inv_y^-1.
 Proof.
   intro H1.
-  use (inv_2cell_right_cancellable inv_y).
+  apply (vcomp_rcancel _ inv_y).
   etrans. { apply H1. }
   etrans. 2: apply vassocr.
   apply pathsinv0.
@@ -645,7 +645,7 @@ Lemma rhs_left_inv_cell {a b : C} {f g h : a --> b}
   : y • x = z -> x = inv_y^-1 • z.
 Proof.
   intro H1.
-  use (inv_2cell_left_cancellable inv_y).
+  apply (vcomp_lcancel _ inv_y).
   etrans. { apply H1. }
   etrans. 2: apply vassocl.
   apply pathsinv0.
@@ -826,14 +826,12 @@ Lemma rwhisker_lwhisker_rassociator
       (a b c d : C) (f : C⟦a, b⟧) (g h : C⟦b, c⟧) (i : c --> d) (x : g ==> h)
   : rassociator _ _ _ • (f ◃ (x ▹ i)) = ((f ◃ x) ▹ i) • rassociator _ _ _ .
 Proof.
-  use inv_2cell_left_cancellable.
-  2: exact (lassociator f g i).
+  apply (vcomp_lcancel (lassociator f g i)).
   { apply  is_invertible_2cell_lassociator. }
   etrans. etrans. apply vassocr. apply maponpaths_2. apply lassociator_rassociator.
   etrans. apply id2_left.
 
-  use inv_2cell_right_cancellable.
-  2: exact (lassociator f h i).
+  apply (vcomp_rcancel (lassociator f h i)).
   { apply  is_invertible_2cell_lassociator. }
   apply pathsinv0.
   etrans. apply vassocl.
@@ -848,14 +846,12 @@ Lemma lwhisker_lwhisker_rassociator (a b c d : C) (f : C⟦a, b⟧)
       (g : C⟦b, c⟧) (h i : c --> d) (x : h ==> i)
   : rassociator f g h  • (f ◃ (g ◃ x)) = (f · g ◃ x) • rassociator _ _ _ .
 Proof.
-  use inv_2cell_left_cancellable.
-  2: exact (lassociator f g h).
+  apply (vcomp_lcancel (lassociator f g h)).
   { apply  is_invertible_2cell_lassociator. }
   etrans. etrans. apply vassocr. apply maponpaths_2. apply lassociator_rassociator.
   etrans. apply id2_left.
 
-  use inv_2cell_right_cancellable.
-  2: exact (lassociator f g i).
+  apply (vcomp_rcancel (lassociator f g i)).
   { apply  is_invertible_2cell_lassociator. }
   apply pathsinv0.
   etrans. apply vassocl.
@@ -870,8 +866,7 @@ Lemma rwhisker_rwhisker_alt {a b c d : C}
       (f : C ⟦ b, a ⟧) (g : C ⟦ c, b ⟧) {h i : C ⟦ d, c ⟧} (x : h ==> i)
   : ((x ▹ g) ▹ f) • rassociator i g f = rassociator h g f • (x ▹ g · f).
 Proof.
-  use inv_2cell_left_cancellable.
-  2: exact (lassociator h g f).
+  apply (vcomp_lcancel (lassociator h g f)).
   { apply is_invertible_2cell_lassociator. }
   etrans. { apply vassocr. }
   etrans. { apply maponpaths_2, rwhisker_rwhisker. }
@@ -890,10 +885,9 @@ Lemma rassociator_rassociator {a b c d e : C}
   : ((rassociator f g h ▹ i) • rassociator f (g · h) i) • (f ◃ rassociator g h i) =
     rassociator (f · g) h i • rassociator f g (h · i).
 Proof.
-  use inv_2cell_left_cancellable.
-  2: exact (lassociator (f · g) h i).
+  apply (vcomp_lcancel (lassociator (f · g) h i)).
   { apply is_invertible_2cell_lassociator. }
-  use inv_2cell_left_cancellable. 2: exact (lassociator f g (h · i)).
+  apply (vcomp_lcancel (lassociator f g (h · i))).
   { apply is_invertible_2cell_lassociator. }
   etrans. { apply vassocr. }
   etrans.
@@ -1128,7 +1122,7 @@ Section Associators_Unitors_Iso.
 
 Context {C : prebicat}.
 
-Lemma lassociator_iso {a b c d : C} (f : hom a b) (g : hom b c) (h : hom c d)
+Lemma is_iso_lassociator {a b c d : C} (f : hom a b) (g : hom b c) (h : hom c d)
   : is_iso (lassociator f g h : (hom a d) ⟦ f · (g · h), (f · g) · h ⟧).
 Proof.
   apply is_iso_from_is_z_iso.
@@ -1138,7 +1132,7 @@ Proof.
   - apply rassociator_lassociator.
 Defined.
 
-Lemma lunitor_iso {a b : C} (f : hom a b)
+Lemma is_iso_lunitor {a b : C} (f : hom a b)
   : is_iso (lunitor f : (hom a b) ⟦ identity a · f, f ⟧).
 Proof.
   apply is_iso_from_is_z_iso.
@@ -1148,7 +1142,7 @@ Proof.
   - apply linvunitor_lunitor.
 Defined.
 
-Lemma runitor_iso {a b : C} (f : hom a b)
+Lemma is_iso_runitor {a b : C} (f : hom a b)
   : is_iso (runitor f : (hom a b) ⟦ f · identity b, f ⟧).
 Proof.
   apply is_iso_from_is_z_iso.
