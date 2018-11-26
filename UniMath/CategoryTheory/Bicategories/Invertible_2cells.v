@@ -7,7 +7,7 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Notations.
 Local Open Scope cat.
 
 (* ----------------------------------------------------------------------------------- *)
-(** * Inverse 2cell of a composition                                                  *)
+(** * Inverse 2cell of a composition                                                   *)
 (* ----------------------------------------------------------------------------------- *)
 
 Lemma is_invertible_2cell_composite {C : prebicat} {a b : C} {f g h: C ⟦a, b⟧}
@@ -15,7 +15,7 @@ Lemma is_invertible_2cell_composite {C : prebicat} {a b : C} {f g h: C ⟦a, b�
       (inv_x : is_invertible_2cell x) (inv_y : is_invertible_2cell y)
   : is_invertible_2cell (x • y).
 Proof.
-  exists (inv_cell inv_y • inv_cell inv_x).
+  exists (inv_y^-1 • inv_x^-1).
   split.
   - abstract (
         repeat rewrite vassocl;
@@ -38,8 +38,8 @@ Defined.
 Lemma inv_cell_of_composite {C : prebicat} {a b : C} {f g h: C ⟦a, b⟧}
       (x : f ==> g) (y : g ==> h)
       (inv_x : is_invertible_2cell x) (inv_y : is_invertible_2cell y)
-  : inv_cell (is_invertible_2cell_composite _ _ inv_x inv_y)  =
-    inv_cell inv_y • inv_cell inv_x.
+  : is_invertible_2cell_composite _ _ inv_x inv_y ^-1 =
+    inv_y^-1 • inv_x^-1.
 Proof.
   cbn. apply idpath.
 Defined.
@@ -48,7 +48,7 @@ Lemma is_invertible_2cell_lwhisker {C : prebicat} {a b c : C} (f : a --> b) {g1 
       {x : g1 ==> g2} (inv_x : is_invertible_2cell x)
   : is_invertible_2cell (f ◃ x).
 Proof.
-  exists (f ◃ (inv_cell inv_x)).
+  exists (f ◃ inv_x^-1).
   split.
   - abstract (
         etrans; [ apply lwhisker_vcomp |];
@@ -64,7 +64,7 @@ Lemma is_invertible_2cell_rwhisker {C : prebicat} {a b c : C} {f1 f2 : a --> b} 
       {x : f1 ==> f2} (inv_x : is_invertible_2cell x)
   : is_invertible_2cell (x ▹ g).
 Proof.
-  exists ((inv_cell inv_x) ▹ g).
+  exists (inv_x^-1 ▹ g).
   split.
   - abstract (
         etrans; [ apply rwhisker_vcomp |];
@@ -94,19 +94,6 @@ Defined.
 
 (** ** Two-cells that are isomorphisms **)
 (** Inverse of a two-cell **)
-Definition twoinverse
-           {C : bicat}
-           {X Y : C}
-           {f g : C⟦X,Y⟧}
-           (η : f ==> g)
-           (inv_η : is_invertible_2cell η)
-  : g ==> f
-  := inv_cell inv_η.
-
-Notation "H ^-1" := (twoinverse _ H) (at level 20) : bicategory_scope.
-Delimit Scope bicategory_scope with bicategory.
-Bind Scope bicategory_scope with bicat.
-Open Scope bicategory_scope.
 
 Definition vcomp_left_inverse
            {C : bicat}
@@ -125,7 +112,7 @@ Definition vcomp_right_inverse
            {f g : C⟦X,Y⟧}
            (η : f ==> g)
            (inv_η : is_invertible_2cell η)
-  : η o inv_η ^-1 = id₂ g.
+  : η o inv_η^-1 = id₂ g.
 Proof.
   apply (inv_cell_after_invertible_2cell inv_η).
 Defined.
@@ -493,7 +480,6 @@ Ltac is_iso :=
   | [ |- is_invertible_2cell (linvunitor _) ] => apply is_invertible_2cell_linvunitor
   | [ |- is_invertible_2cell (rassociator _ _ _)] => apply is_invertible_2cell_rassociator
   | [ |- is_invertible_2cell (lassociator _ _ _)] => apply is_invertible_2cell_lassociator
-  | [ |- is_invertible_2cell (inv_cell _)] => apply iso_inverse ; is_iso
   | [ |- is_invertible_2cell (_ ^-1)] => apply iso_inverse ; is_iso
   | [ |- is_invertible_2cell (_ • _)] => apply iso_vcomp ; is_iso
   | [ |- is_invertible_2cell (_ ◃ _)] => apply is_invertible_2cell_lwhisker ; is_iso

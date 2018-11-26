@@ -221,7 +221,7 @@ Definition laxfunctor_is_iso
   : is_invertible_2cell (##F α).
 Proof.
   use tpair.
-  - exact (##F (inv_cell α)).
+  - exact (##F (α^-1)).
   - split ; cbn
     ; rewrite <- laxfunctor_vcomp, <- laxfunctor_id2 ; apply maponpaths.
     + apply invertible_2cell_after_inv_cell.

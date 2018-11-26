@@ -367,7 +367,7 @@ Section laws.
              (k₁ k₂ : C⟦Y,X⟧)
              (α : k₁ ==> k₂)
              (inv_η : is_invertible_2cell η)
-    : α = runitor k₂ o (inv_cell inv_η ▻ k₂) o (f ◅ α) o (η ▻ k₁) o rinvunitor k₁.
+    : α = runitor k₂ o (inv_η^-1 ▻ k₂) o (f ◅ α) o (η ▻ k₁) o rinvunitor k₁.
   Proof.
     rewrite !vassocr.
     use vcomp_move_L_Mp.
@@ -377,7 +377,6 @@ Section laws.
     use vcomp_move_L_Mp.
     {
       is_iso.
-      apply inv_is_invertible_2cell.
     }
     rewrite <- !vassocr.
     exact (whisker_r_natural η k₁ k₂ α).
@@ -390,7 +389,7 @@ Section laws.
              (k₁ k₂ : C⟦X,Y⟧)
              (α : k₁ ==> k₂)
              (inv_η : is_invertible_2cell η)
-    : α = lunitor k₂ o (k₂ ◅ inv_cell inv_η) o (α ▻ f) o (k₁ ◅ η) o linvunitor k₁.
+    : α = lunitor k₂ o (k₂ ◅ inv_η^-1) o (α ▻ f) o (k₁ ◅ η) o linvunitor k₁.
   Proof.
     rewrite !vassocr.
     use vcomp_move_L_Mp.
@@ -400,7 +399,6 @@ Section laws.
     use vcomp_move_L_Mp.
     {
       is_iso.
-      apply inv_is_invertible_2cell.
     }
     rewrite <- !vassocr.
     exact (whisker_l_natural η k₁ k₂ α).
