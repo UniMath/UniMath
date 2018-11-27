@@ -328,6 +328,18 @@ Definition is_disp_internal_adjunction {a b : C}
          (εε ▹▹ gg) •• disp_lunitor gg =
          transportb (λ x, _ ==>[x] _) (internal_triangle2 j) (disp_id2 gg) ).
 
+Definition disp_internal_adjunction {a b : C}
+           (j : internal_adjunction a b)
+           (aa : D a) (bb : D b) : UU
+  := ∑ (jj : disp_internal_adjunction_data j aa bb),
+     is_disp_internal_adjunction j jj.
+
+Coercion disp_internal_adjunction_data_from_internal_adjunction {a b : C}
+           {j : internal_adjunction a b}
+           {aa : D a} {bb : D b}
+           (jj : disp_internal_adjunction j aa bb)
+ : disp_internal_adjunction_data j aa bb := pr1 jj.
+
 Definition form_disp_internal_equivalence {a b : C}
            {j : internal_equivalence a b}
            (f := internal_left_adjoint j)
