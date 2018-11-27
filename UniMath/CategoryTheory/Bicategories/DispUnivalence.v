@@ -102,8 +102,9 @@ Proof.
 Qed.
 
 Section Total_Category_Locally_Univalent.
-  Context {C : bicat} {D : disp_bicat C}.
-  Variable (HC : is_univalent_2_1 C)
+  Context {C : bicat}.
+  Variable (D : disp_bicat C)
+           (HC : is_univalent_2_1 C)
            (HD : disp_locally_univalent D).
   Local Definition E := (total_bicat D).
 
@@ -265,6 +266,24 @@ Section Total_Category_Locally_Univalent.
   Defined.
 End Total_Category_Locally_Univalent.
 
+Definition fiberwise_local_univalent
+           {C : bicat}
+           (D : disp_bicat C)
+  : UU
+  := ∏ {a b : C} {f : C ⟦ a, b ⟧} {aa : D a} {bb : D b}
+       (ff : aa -->[ f] bb) (gg : aa -->[ f ] bb),
+     isweq (disp_idtoiso_2_1 D (idpath f) ff gg).
+
+Definition fiberwise_local_univalent_is_locally_univalent
+           {C : bicat}
+           (D : disp_bicat C)
+           (HD : fiberwise_local_univalent D)
+  : disp_locally_univalent D.
+Proof.
+  intros x y f g p xx yy ff gg.
+  induction p.
+  apply HD.
+Defined.
 
 
 Section Displayed_Internal_Adjunction.
