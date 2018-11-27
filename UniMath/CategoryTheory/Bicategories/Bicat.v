@@ -495,6 +495,7 @@ Proof.
   intro x. apply isaprop_is_invertible_2cell.
 Qed.
 
+
 Lemma vcomp_rcancel {C : prebicat} {a b : C} {f g : C⟦a, b⟧}
       (x : f ==> g) (inv_x : is_invertible_2cell x)
       {e : C⟦a, b⟧} {y z : e ==> f}

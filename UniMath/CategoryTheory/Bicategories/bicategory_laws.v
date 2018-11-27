@@ -48,7 +48,17 @@ Section laws.
              (η : f ==> g)
     : rinvunitor g o η = (id₂ (id₁ Y) ⋆⋆ η) o rinvunitor f.
   Proof.
-  Admitted.
+    use (inv_2cell_right_cancellable (runitor _ )).
+    { apply is_invertible_2cell_runitor. }
+    rewrite vassocl.
+    rewrite rinvunitor_runitor.
+    use (inv_2cell_left_cancellable (runitor _ )).
+    { apply is_invertible_2cell_runitor. }
+    repeat rewrite vassocr.
+    rewrite runitor_rinvunitor.
+    rewrite id2_left, id2_right.
+    apply (! runitor_natural _ _ _ _ _ ).
+  Qed.
 
   Definition linvunitor_natural
              {X Y : C}
@@ -56,8 +66,17 @@ Section laws.
              (η : f ==> g)
     : linvunitor g o η = (η ⋆⋆ id₂ (id₁ X)) o linvunitor f.
   Proof.
-  Admitted.
-
+    use (inv_2cell_right_cancellable (lunitor _ )).
+    { apply is_invertible_2cell_lunitor. }
+    rewrite vassocl.
+    rewrite linvunitor_lunitor.
+    use (inv_2cell_left_cancellable (lunitor _ )).
+    { apply is_invertible_2cell_lunitor. }
+    repeat rewrite vassocr.
+    rewrite lunitor_linvunitor.
+    rewrite id2_left, id2_right.
+    apply (! lunitor_natural _ _ _ _ _ ).
+  Qed.
 
   Definition lwhisker_hcomp
              {X Y Z : C}
