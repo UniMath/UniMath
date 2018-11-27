@@ -181,6 +181,7 @@ Require Export UniMath.CategoryTheory.Bicategories.Constructions.
 Require Export UniMath.CategoryTheory.Bicategories.Sigma.
 Require Export UniMath.CategoryTheory.Bicategories.Fibration.
 Require Export UniMath.CategoryTheory.Bicategories.Cofunctormap.
+Require Export UniMath.CategoryTheory.Bicategories.Algebras.
 Require Export UniMath.CategoryTheory.Bicategories.CwF.
 Require Export UniMath.CategoryTheory.Bicategories.WkCatEnrichment.prebicategory.
 Require Export UniMath.CategoryTheory.Bicategories.WkCatEnrichment.Notations.

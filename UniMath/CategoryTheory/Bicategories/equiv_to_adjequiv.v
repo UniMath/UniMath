@@ -68,20 +68,20 @@ Definition full_spec
 Proof.
   refine (representable_faithful (Hθ^-1) (f ∘ k₁) (f ∘ k₂) _ α _ _).
   { is_iso. }
-  apply (vcomp_cancel_right (lassociator _ _ _) _ _).
+  apply (vcomp_lcancel (lassociator _ _ _)).
   { is_iso. }
   rewrite <- whisker_l_hcomp.
-  apply (vcomp_cancel_left (rassociator _ _ _) _ _).
+  apply (vcomp_rcancel (rassociator _ _ _)).
   { is_iso. }
   rewrite <- !vassocr.
   rewrite lassociator_rassociator, id2_right.
-  apply (vcomp_cancel_left (Hη^-1 ▻ k₂) _ _).
+  apply (vcomp_rcancel (Hη^-1 ▻ k₂)).
   { is_iso. }
-  apply (vcomp_cancel_left (runitor k₂) _ _).
+  apply (vcomp_rcancel (runitor k₂)).
   { is_iso. }
-  apply (vcomp_cancel_right (η ▻ k₁) _ _).
+  apply (vcomp_lcancel (η ▻ k₁)).
   { is_iso. }
-  apply (vcomp_cancel_right (rinvunitor k₁) _ _).
+  apply (vcomp_lcancel (rinvunitor k₁)).
   { is_iso. }
   rewrite <- !vassocr.
   rewrite <- (whisker_l_iso_id₁ η k₁ k₂ (representable_full η θ Hη k₁ k₂ α) Hη).
@@ -193,7 +193,7 @@ Section EquivToAdjEquiv.
     : η ▻ (g ∘ f) o rinvunitor (g ∘ f)
       =
       (g ∘ f) ◅ η o linvunitor (g ∘ f)
-    := vcomp_cancel_right η _ _ ηiso η_natural.
+    := vcomp_lcancel η ηiso η_natural.
 
   Local Definition η_whisker_l_hcomp
     : (g ∘ f) ◅ η = rassociator (g ∘ f) f g o g ◅ (f ◅ η) o lassociator (id₁ X) f g.
@@ -265,7 +265,7 @@ Section EquivToAdjEquiv.
     rewrite !lwhisker_hcomp in p.
     rewrite q in p ; clear q.
     rewrite !vassocr in p.
-    use inv_2cell_right_cancellable. 2: exact (rassociator (f · g) f g).
+    use vcomp_rcancel. 2: exact (rassociator (f · g) f g).
     { is_iso. }
     rewrite rwhisker_vcomp.
     refine (_ @ p) ; clear p.

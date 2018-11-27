@@ -37,7 +37,7 @@ Proof.
   { apply pathsinv0. apply lunitor_lwhisker. }
 
   (** attach rassociator on both sides *)
-  use inv_2cell_right_cancellable. 2: exact (rassociator _ _ _ ).
+  apply (vcomp_rcancel (rassociator _ _ _ )).
   { apply is_invertible_2cell_rassociator. }
 
   (** rewrite upper right square *)
@@ -100,9 +100,7 @@ Lemma rwhisker_id_inj {a b : C} (f g : C⟦a, b⟧)
   : x ▹ identity b = y ▹ identity b → x = y.
 Proof.
   intro H.
-  use inv_2cell_left_cancellable.
-  - apply (f · identity _ ).
-  - apply runitor.
+  apply (vcomp_lcancel (runitor _)).
   - apply is_invertible_2cell_runitor.
   - etrans. apply pathsinv0, vcomp_runitor.
     etrans. 2: apply vcomp_runitor.
@@ -114,9 +112,7 @@ Lemma lwhisker_id_inj {a b : C} (f g : C⟦a, b⟧)
   : identity a ◃ x = identity a ◃ y → x = y.
 Proof.
   intro H.
-  use inv_2cell_left_cancellable.
-  - apply (identity _ · f).
-  - apply lunitor.
+  apply (vcomp_lcancel (lunitor _)).
   - apply is_invertible_2cell_lunitor.
   - etrans. apply pathsinv0, vcomp_lunitor.
     etrans. 2: apply vcomp_lunitor.
@@ -139,7 +135,7 @@ Qed.
 Lemma runitor_is_runitor_rwhisker (a : C)
   : runitor (identity a · identity a) = runitor (identity a) ▹ (identity a).
 Proof.
-  use inv_2cell_right_cancellable. 2: exact (runitor _ ).
+  apply (vcomp_rcancel (runitor _ )).
   - apply is_invertible_2cell_runitor.
   - apply pathsinv0. apply vcomp_runitor .
 Qed.
@@ -148,7 +144,7 @@ Qed.
 Lemma lunitor_is_lunitor_lwhisker (a : C)
   : lunitor (identity a · identity a) = identity a ◃ lunitor (identity a).
 Proof.
-  use inv_2cell_right_cancellable. 2: exact (lunitor _ ).
+  apply (vcomp_rcancel (lunitor _ )).
   - apply is_invertible_2cell_lunitor.
   - apply pathsinv0. apply vcomp_lunitor .
 Qed.
@@ -157,7 +153,7 @@ Qed.
 Lemma lwhisker_runitor_lunitor (a : C)
   : identity a  ◃ runitor (identity a) = identity a ◃ lunitor (identity a).
 Proof.
-  use inv_2cell_left_cancellable. 2: exact (rassociator _ _ _ ).
+  apply (vcomp_lcancel (rassociator _ _ _ )).
   - apply is_invertible_2cell_rassociator.
   - rewrite runitor_triangle.
     rewrite lunitor_lwhisker.
@@ -167,7 +163,7 @@ Qed.
 Lemma runitor_lunitor_identity (a : C)
   : runitor (identity a) = lunitor (identity a).
 Proof.
-  use inv_2cell_left_cancellable. 2: exact (lunitor _ ).
+  apply (vcomp_lcancel (lunitor _ )).
   { apply is_invertible_2cell_lunitor. }
   etrans. { apply pathsinv0. apply vcomp_lunitor. }
   etrans. { apply maponpaths_2. apply lwhisker_runitor_lunitor. }
