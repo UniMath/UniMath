@@ -270,7 +270,7 @@ Definition fiberwise_local_univalent
            {C : bicat}
            (D : disp_bicat C)
   : UU
-  := ∏ {a b : C} {f : C ⟦ a, b ⟧} {aa : D a} {bb : D b}
+  := ∏ (a b : C) (f : C ⟦ a, b ⟧) (aa : D a) (bb : D b)
        (ff : aa -->[ f] bb) (gg : aa -->[ f ] bb),
      isweq (disp_idtoiso_2_1 D (idpath f) ff gg).
 
