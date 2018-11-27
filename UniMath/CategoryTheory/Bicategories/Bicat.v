@@ -496,7 +496,7 @@ Proof.
 Qed.
 
 Lemma inv_2cell_right_cancellable {C : prebicat} {a b : C} {f g : C⟦a, b⟧}
-      {x : f ==> g} (inv_x : is_invertible_2cell x)
+      (x : f ==> g) (inv_x : is_invertible_2cell x)
       {e : C⟦a, b⟧} {y z : e ==> f}
   : y • x = z • x -> y = z.
 Proof.
@@ -507,7 +507,7 @@ Proof.
 Qed.
 
 Lemma inv_2cell_left_cancellable  {C : prebicat} {a b : C} {f g : C⟦a, b⟧}
-      {x : f ==> g} (inv_x : is_invertible_2cell x)
+      (x : f ==> g) (inv_x : is_invertible_2cell x)
       {h : C⟦a, b⟧} {y z : g ==> h}
   : x • y = x • z -> y = z.
 Proof.
@@ -522,7 +522,7 @@ Lemma inv_cell_eq {C : bicat} {a b : C} {f g : C ⟦a, b⟧} (x y : f ==> g)
       (p : inv_x^-1 = inv_y^-1)
   : x = y.
 Proof.
-  apply (inv_2cell_right_cancellable (is_invertible_2cell_inv inv_x)).
+  apply (inv_2cell_right_cancellable _ (is_invertible_2cell_inv inv_x)).
   rewrite vcomp_rinv, p.
   apply (!vcomp_rinv _).
 Qed.
@@ -631,7 +631,7 @@ Lemma rhs_right_inv_cell {a b : C} {f g h : a --> b}
   : x • y = z -> x = z • inv_y^-1.
 Proof.
   intro H1.
-  use (inv_2cell_right_cancellable inv_y).
+  use (inv_2cell_right_cancellable _ inv_y).
   etrans. { apply H1. }
   etrans. 2: apply vassocr.
   apply pathsinv0.
@@ -645,7 +645,7 @@ Lemma rhs_left_inv_cell {a b : C} {f g h : a --> b}
   : y • x = z -> x = inv_y^-1 • z.
 Proof.
   intro H1.
-  use (inv_2cell_left_cancellable inv_y).
+  use (inv_2cell_left_cancellable _ inv_y).
   etrans. { apply H1. }
   etrans. 2: apply vassocl.
   apply pathsinv0.
