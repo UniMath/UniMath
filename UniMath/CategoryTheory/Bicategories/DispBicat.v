@@ -749,7 +749,7 @@ Section Display_Invertible_2cell.
     : ff' ==>[α^-1] ff
     := pr1 (pr2 e).
 
-  Definition disp_vcomp_lid {α : invertible_2cell f f'}
+  Definition disp_vcomp_linv {α : invertible_2cell f f'}
              {ff : d -->[f] d'} {ff' : d -->[f'] d'}
              (e : disp_invertible_2cell α ff ff')
     : e •• disp_inv_cell e =
@@ -878,7 +878,7 @@ Section Display_Invertible_2cell.
     etrans. apply (transport_f_f (λ x, _ ==>[x] _)).
     etrans. apply maponpaths.
     apply maponpaths_2.
-    apply (disp_vcomp_lid
+    apply (disp_vcomp_linv
              ((xx,,inv_xx):disp_invertible_2cell (x,,inv_x) _ _)).
     etrans. apply maponpaths. apply disp_mor_transportf_postwhisker.
     etrans. unfold transportb. apply (transport_f_f (λ x, _ ==>[x] _)).

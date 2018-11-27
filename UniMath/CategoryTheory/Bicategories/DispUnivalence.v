@@ -161,11 +161,11 @@ Section Total_Category_Locally_Univalent.
              *** cbn.
                  apply vcomp_rinv. (* invertible_2cell_after_inv_cell. *)
              *** cbn.
-                 apply  disp_vcomp_lid.
+                 apply  disp_vcomp_linv.
           ** cbn.
              use total2_paths_b.
              *** cbn.
-                 apply vcomp_lid. 
+                 apply vcomp_lid.
              *** cbn.
                  apply disp_vcomp_rinv.
     - use isweq_iso.
