@@ -158,5 +158,91 @@ Proof.
   - abstract (simpl; split; use total2_paths_b; (apply j || apply jj)).
 Defined.
 
+Lemma left_adjoint_disp_total_eq
+      {a b : B}
+      (aa : D a) (bb : D b)
+      (f : a --> b)
+      (ff : aa -->[f] bb)
+      (jj : @is_internal_left_adjoint E (a,,aa) (b,,bb) (f,,ff)) :
+  left_adjoint_disp_to_total ff (left_adjoint_total_to_disp ff jj) = jj.
+Proof.
+  use total2_paths_f.
+  - reflexivity.
+  - use total2_paths_f; apply cellset_property.
+Defined.
+
+(* TODO MOVE TO A SANER PLACE *)
+Lemma is_internal_adjunction_isaprop {C : bicat} {a b : C}
+      {f : C ⟦ a, b ⟧}
+      (j : internal_left_adjoint_data f) :
+  isaprop (is_internal_adjunction j).
+Proof.
+  apply isofhleveltotal2; try intro; apply cellset_property.
+Qed.
+Definition transportf_subtypeEquality'_QUALITY
+           {A : UU}
+           {P : A → UU}
+           (Pprop : ∏ (a : A), isaprop (P a))
+           {C : total2 P → UU}
+           (x : A) (P₁ P₂ : P x)
+           (y : C (x,,P₁)) :
+  transportf (λ (z : total2 P), C z)
+             (@subtypeEquality' _ _ (x,,P₁) (x,,P₂) (idpath x) (Pprop x))
+             y
+  = transportf (λ (p : P x), C (x,, p)) (pr1 (Pprop x P₁ P₂)) y.
+Proof.
+  cbn.
+  induction (Pprop x P₁ P₂) as [p q].
+  induction p.
+  reflexivity.
+Defined.
+
+Lemma left_adjoint_total_disp_eq
+      {a b : B}
+      (aa : D a) (bb : D b)
+      (f : a --> b)
+      (ff : aa -->[f] bb)
+      (jj : ∑ α : is_internal_left_adjoint f,
+           is_disp_internal_left_adjoint α ff) :
+  left_adjoint_total_to_disp ff (left_adjoint_disp_to_total ff jj) = jj.
+Proof.
+  use total2_paths_f.
+  - apply subtypeEquality'.
+    + reflexivity.
+    + apply is_internal_adjunction_isaprop.
+  - use total2_paths_f.
+    + etrans. apply (pr1_transportf
+                       (is_internal_left_adjoint f)
+                       (λ x, disp_internal_left_adjoint_data x ff)).
+      destruct jj as [j jj].
+      destruct jj as [jjd jjl].
+      destruct j as [jd jl].
+      etrans. {
+        pose (QQ := @transportf_subtypeEquality'_QUALITY).
+        specialize (QQ (internal_left_adjoint_data f)).
+        specialize (QQ (λ j, is_internal_adjunction j)).
+        specialize (QQ is_internal_adjunction_isaprop).
+        specialize (QQ (λ x, disp_internal_left_adjoint_data
+                               (is_internal_left_adjoint_internal_left_adjoint_data x) ff)).
+        apply QQ. }
+      cbn.
+      rewrite transportf_const. reflexivity.
+    + use total2_paths_f; apply disp_cellset_property.
+Time Defined.
+
+Lemma left_adjoint_total_disp_left_adjoint
+      {a b : B}
+      (aa : D a) (bb : D b)
+      (f : a --> b)
+      (ff : aa -->[f] bb) :
+  @is_internal_left_adjoint E (a,,aa) (b,,bb) (f,,ff)
+≃ ∑ (α : is_internal_left_adjoint f), is_disp_internal_left_adjoint α ff.
+Proof.
+  exists (left_adjoint_total_to_disp ff).
+  use gradth.
+  - exact (left_adjoint_disp_to_total ff).
+  - intros ?. apply left_adjoint_disp_total_eq.
+  - intros ?. apply left_adjoint_total_disp_eq.
+Defined.
 
 End internal_adjoint_equivalences.
