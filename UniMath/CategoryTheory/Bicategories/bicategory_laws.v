@@ -48,11 +48,11 @@ Section laws.
              (η : f ==> g)
     : rinvunitor g o η = (id₂ (id₁ Y) ⋆⋆ η) o rinvunitor f.
   Proof.
-    use (inv_2cell_right_cancellable (runitor _ )).
+    use (vcomp_rcancel (runitor _ )).
     { apply is_invertible_2cell_runitor. }
     rewrite vassocl.
     rewrite rinvunitor_runitor.
-    use (inv_2cell_left_cancellable (runitor _ )).
+    use (vcomp_lcancel (runitor _ )).
     { apply is_invertible_2cell_runitor. }
     repeat rewrite vassocr.
     rewrite runitor_rinvunitor.
@@ -66,11 +66,11 @@ Section laws.
              (η : f ==> g)
     : linvunitor g o η = (η ⋆⋆ id₂ (id₁ X)) o linvunitor f.
   Proof.
-    use (inv_2cell_right_cancellable (lunitor _ )).
+    use (vcomp_rcancel (lunitor _ )).
     { apply is_invertible_2cell_lunitor. }
     rewrite vassocl.
     rewrite linvunitor_lunitor.
-    use (inv_2cell_left_cancellable (lunitor _ )).
+    use (vcomp_lcancel (lunitor _ )).
     { apply is_invertible_2cell_lunitor. }
     repeat rewrite vassocr.
     rewrite lunitor_linvunitor.
