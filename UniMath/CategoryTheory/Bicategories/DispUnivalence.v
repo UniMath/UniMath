@@ -49,7 +49,7 @@ Section Displayed_Local_Univalence.
              (pp : transportf (λ z, _ -->[ z ] _) p ff = gg)
     : disp_invertible_2cell (idtoiso_2_1 f g p) ff gg.
   Proof.
-    induction p ; cbn in *.
+    induction p.
     induction pp.
     exact (disp_id2_invertible_2cell ff).
   Defined.
@@ -61,19 +61,6 @@ Section Displayed_Local_Univalence.
        isweq (disp_idtoiso_2_1 p ff gg).
 End Displayed_Local_Univalence.
 
-
-
-
-Definition sigma_weq
-           {A₁ A₂ : UU}
-           (B₁ : A₁ → UU)
-           (B₂ : A₂ → UU)
-           (f : weq A₁ A₂)
-           (g : ∏ (x : A₁), weq (B₁ x) (B₂ (f x)))
-  : weq (∑ (x : A₁), B₁ x) (∑ (x : A₂), B₂ x).
-Proof.
-  exact (weqbandf f B₁ B₂ g).
-Defined.
 
 Definition transportf_subtypeEquality'
            {A : UU}
@@ -101,154 +88,179 @@ Section Total_Category_Locally_Univalent.
            (HD : disp_locally_univalent D).
   Local Definition E := (total_bicat D).
 
-  Definition lemma1
+  Local Definition path_E
              {x y : C}
              {xx : D x}
              {yy : D y}
              {f g : C⟦x,y⟧}
              (ff : xx -->[ f ] yy)
              (gg : xx -->[ g ] yy)
-    : weq
-        (f,, ff = g,, gg)
-        (∑ (p : f = g), transportf _ p ff = gg)
+    : (f,, ff = g,, gg) ≃ ∑ (p : f = g), transportf _ p ff = gg
     := total2_paths_equiv _ (f ,, ff) (g ,, gg).
 
-  Definition lemma2
+  Local Definition path_to_iso_E
              {x y : C}
              {xx : D x}
              {yy : D y}
              {f g : C⟦x,y⟧}
              (ff : xx -->[ f ] yy)
              (gg : xx -->[ g ] yy)
-    : weq
-        (∑ (p : f = g), transportf _ p ff = gg)
-        (∑ (i : invertible_2cell f g), disp_invertible_2cell i ff gg).
+    : (∑ (p : f = g), transportf _ p ff = gg)
+        ≃
+        ∑ (i : invertible_2cell f g), disp_invertible_2cell i ff gg.
   Proof.
-    use sigma_weq.
+    use weqbandf.
     - exact (idtoiso_2_1 f g ,, HC x y f g).
     - cbn.
       intros p.
       exact (disp_idtoiso_2_1 D p ff gg ,, HD x y f g p xx yy ff gg).
   Defined.
 
-  Definition lemma3
+  Local Definition iso_in_E
              {x y : C}
              {xx : D x}
              {yy : D y}
              {f g : C⟦x,y⟧}
              (ff : xx -->[ f ] yy)
              (gg : xx -->[ g ] yy)
-    : weq
-        (∑ (i : invertible_2cell f g), disp_invertible_2cell i ff gg)
+    : (∑ (i : invertible_2cell f g), disp_invertible_2cell i ff gg)
+      → (@invertible_2cell E (x ,, xx) (y ,, yy) (f,, ff) (g,, gg)).
+  Proof.
+    intros z.
+    use tpair.
+    - use tpair.
+      + exact (pr1 z). (* coerced to a function *)
+      + exact (pr2 z).
+   - use tpair.
+      + use tpair.
+        * exact (inv_cell (pr1 z)).
+        * exact (disp_inv_cell (pr2 z)).
+      + split.
+        * cbn.
+          use total2_paths_b.
+          ** apply invertible_2cell_after_inv_cell.
+          ** apply disp_inv_cell_after_invertible_2cell.
+        * cbn.
+          use total2_paths_b.
+          ** apply inv_cell_after_invertible_2cell.
+          ** apply disp_invertible_2cell_after_inv_cell.
+  Defined.
+
+  Local Definition iso_in_E_inv
+        {x y : C}
+        {xx : D x}
+        {yy : D y}
+        {f g : C⟦x,y⟧}
+        (ff : xx -->[ f ] yy)
+        (gg : xx -->[ g ] yy)
+    : @invertible_2cell E (x ,, xx) (y ,, yy) (f,, ff) (g,, gg)
+      → ∑ (i : invertible_2cell f g), disp_invertible_2cell i ff gg.
+  Proof.
+    intros z.
+    induction z as [z Hz].
+    induction z as [z zz].
+    induction Hz as [inv Hz].
+    induction inv as [i ii].
+    induction Hz as [Hz1 Hz2].
+    cbn in *.
+    use tpair.
+    - exists z.
+      use tpair.
+      + exact i.
+      + cbn.
+        split.
+        * exact (base_paths _ _ Hz1).
+        * exact (base_paths _ _ Hz2).
+    - cbn.
+      exists zz.
+      use tpair.
+      + exact ii.
+      + cbn.
+        split.
+        * apply (@transportf_transpose _ (λ α : f ==> f, ff ==>[ α] ff)).
+          refine (_ @ fiber_paths Hz1).
+          apply (@transportf_paths _ (λ α : f ==> f, ff ==>[ α] ff)).
+          apply pathsinv0inv0.
+        * apply (@transportf_transpose _ (λ α : g ==> g, gg ==>[ α] gg)).
+          refine (_ @ fiber_paths Hz2).
+          apply (@transportf_paths _ (λ α : g ==> g, gg ==>[ α] gg)).
+          apply pathsinv0inv0.
+  Defined.
+
+  Definition TODO {A : UU} : A.
+  Admitted.
+
+  Local Definition iso_in_E_weq
+        {x y : C}
+        {xx : D x}
+        {yy : D y}
+        {f g : C⟦x,y⟧}
+        (ff : xx -->[ f ] yy)
+        (gg : xx -->[ g ] yy)
+    : (∑ (i : invertible_2cell f g), disp_invertible_2cell i ff gg)
+        ≃
         (@invertible_2cell E (x ,, xx) (y ,, yy) (f,, ff) (g,, gg)).
   Proof.
-    use tpair.
+    refine (iso_in_E ff gg ,, _).
+    use isweq_iso.
+    - exact (iso_in_E_inv ff gg).
     - intros z.
-      induction z as [i ii].
-      use tpair.
-      + use tpair.
-        * cbn.
-          exact i.
-        * cbn.
-          exact ii.
-      + use tpair.
-        * use tpair.
-          ** exact (inv_cell i).
-          ** exact (disp_inv_cell ii).
-        * split.
-          ** cbn.
-             use total2_paths_b.
-             *** cbn.
-                 apply vcomp_rinv. (* invertible_2cell_after_inv_cell. *)
-             *** cbn.
-                 apply  disp_vcomp_lid.
-          ** cbn.
-             use total2_paths_b.
-             *** cbn.
-                 apply vcomp_lid. 
-             *** cbn.
-                 apply disp_vcomp_rinv.
-    - use isweq_iso.
-      * intros z.
-        destruct z as [z Hz].
-        destruct z as [z zz].
-        destruct Hz as [inv Hz].
-        destruct inv as [i ii].
-        destruct Hz as [Hz1 Hz2].
-        cbn in *.
-        use tpair.
-        ** exists z.
-           use tpair.
-           *** exact i.
-           *** cbn.
-               split.
-               **** exact (base_paths _ _ Hz1).
-               **** exact (base_paths _ _ Hz2).
-        ** cbn.
-           exists zz.
-           use tpair.
-           *** exact ii.
-           *** cbn.
-               split.
-               **** unfold transportb.
-                    apply (@transportf_transpose _ (λ α : f ==> f, ff ==>[ α] ff)).
-                    unfold transportb.
-                    refine (_ @ fiber_paths Hz1).
-                    apply (@transportf_paths _ (λ α : f ==> f, ff ==>[ α] ff)).
-                    apply pathsinv0inv0.
-               **** unfold transportb.
-                    apply (@transportf_transpose _ (λ α : g ==> g, gg ==>[ α] gg)).
-                    unfold transportb.
-                    refine (_ @ fiber_paths Hz2).
-                    apply (@transportf_paths _ (λ α : g ==> g, gg ==>[ α] gg)).
-                    apply pathsinv0inv0.
-      * intros z.
-        induction z as [z zz].
-        use total2_paths2_f.
-        ** use subtypeEquality'.
-           *** reflexivity.
-           *** apply isaprop_is_invertible_2cell.
-        ** use subtypeEquality'.
-           *** unfold disp_invertible_2cell.
-               rewrite pr1_transportf.
-               unfold pr1.
-               induction zz as [zz Hzz].
-               unfold invertible_2cell.
-               exact (@transportf_subtypeEquality' (f ==> g)
-                                                     (λ η, is_invertible_2cell η)
-                                                     (λ _, isaprop_is_invertible_2cell _)
-                                                     (λ z, ff ==>[ z ] gg)
-                                                     (pr1 z)
-                                                     _
-                                                     _
-                                                     zz).
-           *** admit.
-      * intros z.
-        destruct z as [z Hz].
-        destruct z as [z zz].
-        destruct Hz as [inv Hz].
-        destruct inv as [i ii].
-        destruct Hz as [Hz1 Hz2].
-        cbn.
-        use subtypeEquality'.
-        ** reflexivity.
-        ** apply (@isaprop_is_invertible_2cell E).
-  Admitted.
-End Total_Category_Locally_Univalent.
-(*
-  Definition test : is_univalent_2_1 E.
-  Proof.
-    intros x y f g ; cbn in *.
-    induction x as  [x xx].
-    induction y as [y yy].
-    induction f as [f ff].
-    induction g as [g gg].
-    cbn in *.
-    pose (HC x y f g) as Hf1.
-    pose (@idtoiso_2_1 E (x ,, xx) (y ,, yy) (f,, ff) (g,, gg)) as f1.
-    pose (λ p, HD x y f g p xx yy ff gg) as Hf2.
-*)
+      induction z as [z zz].
+      use total2_paths2_f.
+      + use subtypeEquality'.
+        * reflexivity.
+        * apply isaprop_is_invertible_2cell.
+      + use subtypeEquality'.
+        * unfold disp_invertible_2cell.
+          rewrite pr1_transportf.
+          unfold pr1.
+          induction zz as [zz Hzz].
+          unfold invertible_2cell.
+          exact (@transportf_subtypeEquality' (f ==> g)
+                                              (λ η, is_invertible_2cell η)
+                                              (λ _, isaprop_is_invertible_2cell _)
+                                              (λ z, ff ==>[ z ] gg)
+                                              (pr1 z)
+                                              _
+                                              _
+                                              zz).
+          * apply TODO.
+    - intros z.
+      destruct z as [z Hz].
+      destruct z as [z zz].
+      destruct Hz as [inv Hz].
+      destruct inv as [i ii].
+      destruct Hz as [Hz1 Hz2].
+      cbn.
+      use subtypeEquality'.
+      + reflexivity.
+      + apply (@isaprop_is_invertible_2cell E).
+  Defined.
 
+  Local Definition idtoiso_alt
+             {x y : E}
+             (f g : E⟦x,y⟧)
+    : (idtoiso_2_1 f g
+       ~
+       (iso_in_E_weq (pr2 f) (pr2 g))
+         ∘ (path_to_iso_E (pr2 f) (pr2 g))
+         ∘ (path_E (pr2 f) (pr2 g)))%weq.
+  Proof.
+    intros p.
+    induction p.
+    cbn.
+    use subtypeEquality'.
+    - cbn.
+      reflexivity.
+    - admit.
+  Admitted.
+
+  Definition total_is_locally_univalent : is_univalent_2_1 E.
+  Proof.
+    intros x y f g.
+    exact (weqhomot (idtoiso_2_1 f g) _ (invhomot (idtoiso_alt f g))).
+  Defined.
+End Total_Category_Locally_Univalent.
 
 
 
