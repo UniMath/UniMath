@@ -206,9 +206,6 @@ Section Total_Category_Locally_Univalent.
           apply pathsinv0inv0.
   Defined.
 
-  Definition TODO {A : UU} : A.
-  Admitted.
-
   Local Definition iso_in_E_weq
         {x y : C}
         {xx : D x}
@@ -235,7 +232,7 @@ Section Total_Category_Locally_Univalent.
           induction zz as [zz Hzz].
           unfold invertible_2cell.
           apply (transportf_cell_from_invertible_2cell_eq (λ z, ff ==>[ z ] gg)).
-        * apply TODO.
+        * apply isaprop_is_disp_invertible_2cell.
     - intros z.
       destruct z as [z Hz].
       destruct z as [z zz].
