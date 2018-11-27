@@ -61,7 +61,6 @@ Section Displayed_Local_Univalence.
        isweq (disp_idtoiso_2_1 p ff gg).
 End Displayed_Local_Univalence.
 
-
 Definition transportf_subtypeEquality'
            {A : UU}
            {B : A → UU}
@@ -79,8 +78,28 @@ Proof.
   cbn.
   induction (Bprop a b₁ b₂) as [p q].
   induction p.
+  cbn.
   reflexivity.
 Defined.
+
+Definition transportf_cell_from_invertible_2cell_eq
+           {C : bicat}
+           {a b : C}
+           {f g : C⟦a,b⟧}
+           (Y : f ==> g → UU)
+           {α : f ==> g}
+           (H₁ : is_invertible_2cell α) (H₂ : is_invertible_2cell α)
+           (y : Y α)
+  : transportf (λ (z : invertible_2cell f g), Y (pr1 z))
+               (@cell_from_invertible_2cell_eq C _ _ _ _
+                                               (α ,, H₁) (α ,, H₂)
+                                               (idpath α))
+               y
+    =
+    y.
+Proof.
+  apply transportf_subtypeEquality'.
+Qed.
 
 Section Total_Category_Locally_Univalent.
   Context {C : bicat} {D : disp_bicat C}.
@@ -138,12 +157,12 @@ Section Total_Category_Locally_Univalent.
       + split.
         * cbn.
           use total2_paths_b.
-          ** apply invertible_2cell_after_inv_cell.
-          ** apply disp_inv_cell_after_invertible_2cell.
+          ** apply vcomp_rinv.
+          ** apply disp_vcomp_lid.
         * cbn.
           use total2_paths_b.
-          ** apply inv_cell_after_invertible_2cell.
-          ** apply disp_invertible_2cell_after_inv_cell.
+          ** apply vcomp_lid.
+          ** apply disp_vcomp_rinv.
   Defined.
 
   Local Definition iso_in_E_inv
@@ -207,34 +226,24 @@ Section Total_Category_Locally_Univalent.
     - intros z.
       induction z as [z zz].
       use total2_paths2_f.
-      + use subtypeEquality'.
-        * reflexivity.
-        * apply isaprop_is_invertible_2cell.
+      + apply cell_from_invertible_2cell_eq.
+        reflexivity.
       + use subtypeEquality'.
         * unfold disp_invertible_2cell.
           rewrite pr1_transportf.
           unfold pr1.
           induction zz as [zz Hzz].
           unfold invertible_2cell.
-          exact (@transportf_subtypeEquality' (f ==> g)
-                                              (λ η, is_invertible_2cell η)
-                                              (λ _, isaprop_is_invertible_2cell _)
-                                              (λ z, ff ==>[ z ] gg)
-                                              (pr1 z)
-                                              _
-                                              _
-                                              zz).
-          * apply TODO.
+          apply (transportf_cell_from_invertible_2cell_eq (λ z, ff ==>[ z ] gg)).
+        * apply TODO.
     - intros z.
       destruct z as [z Hz].
       destruct z as [z zz].
       destruct Hz as [inv Hz].
       destruct inv as [i ii].
       destruct Hz as [Hz1 Hz2].
-      cbn.
-      use subtypeEquality'.
-      + reflexivity.
-      + apply (@isaprop_is_invertible_2cell E).
+      apply (@cell_from_invertible_2cell_eq E).
+      reflexivity.
   Defined.
 
   Local Definition idtoiso_alt
@@ -248,12 +257,9 @@ Section Total_Category_Locally_Univalent.
   Proof.
     intros p.
     induction p.
-    cbn.
-    use subtypeEquality'.
-    - cbn.
-      reflexivity.
-    - admit.
-  Admitted.
+    apply (@cell_from_invertible_2cell_eq E).
+    reflexivity.
+  Defined.
 
   Definition total_is_locally_univalent : is_univalent_2_1 E.
   Proof.
