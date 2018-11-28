@@ -1,7 +1,7 @@
 (** * Functor category as a displayed category
 *)
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -15,6 +15,20 @@ Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 
 Local Open Scope mor_disp_scope.
 
+Definition base_precategory_ob_mor (C D:precategory_data)
+  : precategory_ob_mor
+  := precategory_ob_mor_pair (C → D)
+                             (λ F₀ G₀ : C → D, ∏ x : C, D ⟦ F₀ x, G₀ x ⟧).
+
+Definition base_precategory_data (C D:precategory_data) : precategory_data
+  := precategory_data_pair
+       (base_precategory_ob_mor C D)
+       (λ (F₀ : C → D) (x : C), identity (F₀ x))
+       (λ (F₀ G₀ H₀ : C → D)
+          (FG : ∏ x : C, D ⟦ F₀ x, G₀ x ⟧)
+          (GH : ∏ x : C, D ⟦ G₀ x, H₀ x ⟧)
+          (x : C),
+        FG x · GH x).
 
 Section FunctorsDisplayed.
 
@@ -25,20 +39,12 @@ Context (C D:category).
 The base category contains:
 - Objects: functions F₀ : C₀ → D₀
 - Morphisms: transformations γₓ : D₀ ⟦F₀ x, G₀ x⟧
-*)
-Definition base_cat : category.
+ *)
+
+Lemma is_precategory_base_precategory_data
+  : is_precategory (base_precategory_data C D).
 Proof.
-  use makecategory.
-  - exact (C → D).
-  - intros F₀ G₀.
-    exact (∏ (x : C), F₀ x --> G₀ x).
-  - intros F₀ G₀. cbn. apply (impred 2).
-    intros ?. apply D.
-  - intros F₀ x. apply identity.
-  - intros F₀ G₀ H₀ FG GH x.
-    refine (_ · _).
-    + apply FG.
-    + apply GH.
+  apply mk_is_precategory.
   - intros F₀ G₀. cbn. intros γ.
     apply funextsec. intros x.
     apply id_left.
@@ -51,48 +57,99 @@ Proof.
   - intros F₀ G₀ H₀ K₀. cbn. intros γ θ μ.
     apply funextsec. intros x.
     apply assoc'.
-Defined.
+Qed.
+
+Definition base_precategory
+  : precategory
+  := precategory_pair (base_precategory_data C D)
+                      is_precategory_base_precategory_data.
+
+Lemma has_homsets_base_precategory_ob_mor
+  : has_homsets (base_precategory_ob_mor C D).
+Proof.
+  intros F₀ G₀. cbn. apply (impred 2). intro. apply D.
+Qed.
+
+Definition base_category
+  : category
+  := category_pair base_precategory
+                   has_homsets_base_precategory_ob_mor.
 
 (** ** Step 1
 
 - Objects: actions of functors on maps
 - Morphisms: naturality of transformations
-  The univalence of this displayed category can be expressed as a concrete case of the Structure Identity Principle.
+
+  The univalence of this displayed category can be expressed as a
+  concrete case of the Structure Identity Principle.
 *)
 
-Definition step1_disp : disp_cat base_cat.
+Definition disp_morph : disp_cat_data (base_precategory_data C D).
 Proof.
-  use disp_struct.
-  - intros F₀. exact (∏ {a b : C}, C ⟦a, b⟧ → D ⟦F₀ a, F₀ b⟧).
-  - cbn. intros F₀ G₀ F₁ G₁ γ.
-    exact (∏ (a b : C) (f : C ⟦a, b⟧),
-           F₁ _ _ f · γ b = γ a · G₁ _ _ f).
-  - intros F₀ G₀ F₁ G₁ γ. simpl.
-    repeat (apply impred; intro).
-    apply homset_property.
-  - cbn; intros.
-    etrans. apply id_right.
-    apply pathsinv0. apply id_left.
-  - cbn. intros ???????? S1 S2 a b f.
-    etrans. apply assoc.
-    etrans. apply cancel_postcomposition, S1.
-    etrans. apply assoc'.
-    etrans. apply cancel_precomposition, S2.
-    apply assoc.
+  use tpair.
+  - exists (λ F₀, ∏ {a b : C}, C ⟦a, b⟧ → D ⟦F₀ a, F₀ b⟧).
+    cbn. intros F₀ G₀ F₁ G₁ γ.
+    exact (∏ (a b : C) (f : C ⟦a, b⟧), F₁ _ _ f · γ b = γ a · G₁ _ _ f).
+  - repeat use tpair; cbn.
+    + cbn; intros.
+      etrans. apply id_right.
+      apply pathsinv0. apply id_left.
+    + cbn. intros ???????? S1 S2 a b f.
+      etrans. apply assoc.
+      etrans. apply cancel_postcomposition, S1.
+      etrans. apply assoc'.
+      etrans. apply cancel_precomposition, S2.
+      apply assoc.
+Defined.
+
+Lemma step1_disp_axioms
+  : disp_cat_axioms base_category disp_morph.
+Proof.
+  repeat split; intros; repeat (apply impred; intro);
+    repeat (apply funextsec; intro); try apply homset_property.
+  cbn.
+  repeat (apply (impred 2); intro).
+  apply hlevelntosn.
+  apply homset_property.
+Qed.
+
+Definition step1_disp : disp_cat base_category.
+Proof.
+  exists disp_morph.
+  exact step1_disp_axioms.
 Defined.
 
 Lemma step1_disp_univalent : is_univalent_disp step1_disp.
 Proof.
-  apply is_univalent_disp_from_SIP_data.
-  - intros F₀. repeat (apply (impred 2); intro).
-    apply homset_property.
-  - intros F₀ F₁ F'₁ γ γ'.
-    apply funextsec. intros a.
-    apply funextsec. intros b.
-    apply funextsec. intros f.
-    etrans. apply pathsinv0. apply id_right.
-    etrans. apply γ.
+  apply is_univalent_disp_from_fibers.
+  hnf; cbn; intros x f g.
+  apply isweqimplimpl.
+  - intro i.
+    unfold iso_disp in i.
+    cbn in i.
+    apply funextsec. intro.
+    destruct i as (ff, Hff).
+    apply funextsec. intro.
+    apply funextsec. intro.
+    etrans.
+    { apply pathsinv0. apply id_right. }
+    etrans.
+    { apply ff. }
     apply id_left.
+  - assert (KK : isaset (∏ a b : C, C ⟦ a, b ⟧ → D ⟦ x a, x b ⟧)).
+    + repeat (apply (impred 2); intro).
+      apply homset_property.
+    + apply KK.
+  - apply isaproptotal2.
+    + unfold isPredicate.
+      intro u.
+      apply (isaprop_is_iso_disp (D := step1_disp)).
+    + cbn.
+      intros u v Hu Hv.
+      apply funextsec. intro a.
+      apply funextsec. intro b.
+      apply funextsec. intro t.
+      apply homset_property.
 Defined.
 
 Definition step1_total : category
@@ -155,7 +212,7 @@ Proof.
     apply homset_property.
 Defined.
 
-Definition base_cat_iso_to_iso_fam (F₀ G₀ : base_cat) :
+Definition base_category_iso_to_iso_fam (F₀ G₀ : base_category) :
   iso F₀ G₀ → (∏ (x : C), iso (F₀ x) (G₀ x)).
 Proof.
   intros [γ Hγ].
@@ -167,7 +224,7 @@ Proof.
   - apply (toforallpaths _ _ _ Hθγ).
 Defined.
 
-Definition base_cat_iso_fam_to_iso (F₀ G₀ : base_cat) :
+Definition base_category_iso_fam_to_iso (F₀ G₀ : base_category) :
   (∏ (x : C), iso (F₀ x) (G₀ x)) → iso F₀ G₀.
 Proof.
   intros γ.
@@ -180,18 +237,18 @@ Proof.
     apply iso_after_iso_inv.
 Defined.
 
-Lemma base_cat_iso_weq (F₀ G₀ : base_cat) :
+Lemma base_category_iso_weq (F₀ G₀ : base_category) :
   iso F₀ G₀ ≃ (∏ (x : C), iso (F₀ x) (G₀ x)).
 Proof.
-  exists (base_cat_iso_to_iso_fam F₀ G₀).
+  exists (base_category_iso_to_iso_fam F₀ G₀).
   use gradth.
-  - apply base_cat_iso_fam_to_iso.
+  - apply base_category_iso_fam_to_iso.
   - intros x. apply eq_iso. reflexivity.
   - intros x. apply funextsec. intros y.
     apply eq_iso. reflexivity.
 Defined.
 
-Definition base_cat_iso_fam_weq (F₀ G₀ : base_cat) :
+Definition base_category_iso_fam_weq (F₀ G₀ : base_category) :
   is_univalent D →
   F₀ ~ G₀ ≃ (∏ (x : C), iso (F₀ x) (G₀ x)).
 Proof.
@@ -200,40 +257,38 @@ Proof.
   exists idtoiso. apply HD.
 Defined.
 
-Definition base_cat_iso_weq_aux
-      (F₀ G₀ : base_cat) :
+Definition base_category_iso_weq_aux
+      (F₀ G₀ : base_category) :
   is_univalent D →
   F₀ = G₀ ≃ iso F₀ G₀.
 Proof.
   intros HD.
   eapply weqcomp. apply weqtoforallpaths.
-  eapply weqcomp. apply base_cat_iso_fam_weq, HD.
-  apply invweq. apply base_cat_iso_weq.
+  eapply weqcomp. apply base_category_iso_fam_weq, HD.
+  apply invweq. apply base_category_iso_weq.
 Defined.
 
-Lemma base_cat_univalent :
-  is_univalent D →
-  is_univalent base_cat.
+Lemma base_category_univalent
+  : is_univalent D → is_univalent base_category.
 Proof.
   intros HD.
-  unfold is_univalent. split; [ | apply base_cat ].
-  unfold base_cat. simpl.
+  unfold is_univalent. split; [ | apply base_category ].
+  unfold base_category. simpl.
   intros F₀ G₀.
   use isweqhomot.
-  - apply base_cat_iso_weq_aux, HD.
+  - apply base_category_iso_weq_aux, HD.
   - intros p. induction p. simpl.
     apply eq_iso. reflexivity.
-  - apply base_cat_iso_weq_aux.
+  - apply base_category_iso_weq_aux.
 Defined.
 
-Lemma functor_total_cat_univalent :
-  is_univalent D →
-  is_univalent functor_total_cat.
+Lemma functor_total_cat_univalent
+  : is_univalent D → is_univalent functor_total_cat.
 Proof.
   intros HD.
   apply is_univalent_total_category.
   - apply is_univalent_total_category.
-    + apply base_cat_univalent, HD.
+    + apply base_category_univalent, HD.
     + apply step1_disp_univalent.
   - apply functor_disp_cat_univalent.
 Defined.
