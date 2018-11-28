@@ -1,7 +1,7 @@
 (* *********************************************************************************** *)
 (** * Internal adjunction in displayed bicategories
 
-    Benedikt Ahrens, Marco Maggesi
+    Benedikt Ahrens, Marco Maggesi, Niels van der Weide, Dan Frumin
     April 2018                                                                         *)
 (* *********************************************************************************** *)
 
@@ -523,6 +523,72 @@ Proof.
   - exact (left_adjoint_disp_to_total ff).
   - intros ?. apply left_adjoint_disp_total_eq.
   - intros ?. apply left_adjoint_total_disp_eq.
+Defined.
+
+(** Inverse of [internal_adjunction_from_left_adjoint]
+   This has nothing to do with displayed categories and should be
+   moved to the file with internal adjunctions.
+TODO!
+*)
+Definition left_adjoint_from_internal_adjunction {C : bicat}
+    {x y : C} :
+  internal_adjunction x y →
+  ∑ (f : C⟦x,y⟧), is_internal_left_adjoint f.
+Proof.
+  unfold internal_adjunction. cbn.
+  induction 1 as [j Hj].
+  induction j as [f Hf].
+  induction Hf as [g Hfg].
+  exists f.
+  unfold is_internal_left_adjoint.
+  use tpair.
+  - exists g. apply Hfg.
+  - apply Hj.
+Defined.
+
+Lemma left_adjoint_from_internal_adjunction_weq {C : bicat}
+    {x y : C} :
+  internal_adjunction x y ≃
+  ∑ (f : C⟦x,y⟧), is_internal_left_adjoint f.
+Proof.
+  exists left_adjoint_from_internal_adjunction.
+  use gradth.
+  - exact (λ x, internal_adjunction_from_left_adjoint (pr2 x)).
+  - reflexivity.
+  - reflexivity.
+Defined.
+
+(** Conversion between displayed left adjoints and displayed adjunctions
+TODO!
+*)
+Definition disp_left_adjoint_from_internal_adjunction
+         {a b : B}
+         {f : a --> b}
+         (j : is_internal_left_adjoint f)
+         {aa : D a} {bb : D b}
+  : disp_internal_adjunction j aa bb →
+    ∑ (ff : aa -->[f] bb), is_disp_internal_left_adjoint j ff.
+Proof.
+  induction 1 as [jj Hjj].
+  induction jj as [ff Hff].
+  exists ff.
+  use tpair. apply Hff.
+  apply Hjj.
+Defined.
+
+Definition disp_left_adjoint_from_internal_adjunction_weq
+         {a b : B}
+         {f : a --> b}
+         (j : is_internal_left_adjoint f)
+         {aa : D a} {bb : D b}
+  : disp_internal_adjunction j aa bb ≃
+    ∑ (ff : aa -->[f] bb), is_disp_internal_left_adjoint j ff.
+Proof.
+  exists (disp_left_adjoint_from_internal_adjunction j).
+  use gradth.
+  - refine (λ x,disp_internal_adjunction_from_left_adjoint j (pr1 x) (pr2 x)).
+  - reflexivity.
+  - reflexivity.
 Defined.
 
 End Total_Internal_Adjunction.
