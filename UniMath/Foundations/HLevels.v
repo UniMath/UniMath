@@ -102,31 +102,17 @@ Defined.
 
 (** *** The case [n = 0] *)
 
-Lemma isofhlevel0weq (X Y : UU) :
-    iscontr X -> iscontr Y -> X ≃ Y.
-Proof.
-  intros pX pY.
-  set (wX := wequnittocontr pX).
-  set (wY := wequnittocontr pY).
-  exact (weqcomp (invweq wX) wY).
-Defined.
-
-
 Lemma isofhlevel0pathspace (X Y : UU) :
     iscontr X -> iscontr Y -> iscontr (X = Y).
 Proof.
   intros pX pY.
-  set (H := isofhlevelweqb 0 (tpair _ _ (univalenceAxiom X Y))).
-  apply H.
-  exists (isofhlevel0weq _ _ pX pY ).
+  set (H := isofhlevelweqb 0 (eqweqmap ,, univalenceAxiom X Y)).
+  apply H; clear H.
+  exists (weqcontrcontr pX pY ).
   intro f.
-  assert (H' : pr1 f = pr1 (isofhlevel0weq X Y pX pY)).
-  { apply funextfun.
-    simpl. intro x.
-    apply (pr2 pY). }
-  apply (total2_paths_f H').
-  apply proofirrelevance.
-  apply isapropisweq.
+  apply subtypeEquality.
+  { exact isapropisweq. }
+  { apply funextfun. simpl. intro x. apply (pr2 pY). }
 Defined.
 
 
