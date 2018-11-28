@@ -4,7 +4,6 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Bicategories.DispBicat. Import DispBicat.Notations.
-Require Import UniMath.CategoryTheory.Bicategories.Unitors.
 Require Import UniMath.CategoryTheory.Bicategories.Univalence.
 Require Import UniMath.CategoryTheory.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.DispUnivalence.
@@ -172,13 +171,6 @@ Proof.
 Defined.
 
 (* TODO MOVE TO A SANER PLACE *)
-Lemma is_internal_adjunction_isaprop {C : bicat} {a b : C}
-      {f : C ⟦ a, b ⟧}
-      (j : internal_left_adjoint_data f) :
-  isaprop (is_internal_adjunction j).
-Proof.
-  apply isofhleveltotal2; try intro; apply cellset_property.
-Qed.
 Definition transportf_subtypeEquality'_QUALITY
            {A : UU}
            {P : A → UU}
@@ -209,7 +201,12 @@ Proof.
   use total2_paths_f.
   - apply subtypeEquality'.
     + reflexivity.
-    + apply is_internal_adjunction_isaprop.
+    + induction jj as [j jj]. cbn-[isaprop].
+      induction j as [jd jl]. cbn[pr1].
+      (* The reason we are destructing `j` here is because we want to obtain an abstract subproof
+        that only depends on the `jd : internal_left_adjoint_data f`.
+        This sublemma will later be used for transportf_subtypeEquality' *)
+      abstract (apply isofhleveltotal2; try intro; apply cellset_property).
   - use total2_paths_f.
     + etrans. apply (pr1_transportf
                        (is_internal_left_adjoint f)
@@ -221,14 +218,14 @@ Proof.
         pose (QQ := @transportf_subtypeEquality'_QUALITY).
         specialize (QQ (internal_left_adjoint_data f)).
         specialize (QQ (λ j, is_internal_adjunction j)).
-        specialize (QQ is_internal_adjunction_isaprop).
+        specialize (QQ (left_adjoint_total_disp_eq_subproof _ _ f)).
         specialize (QQ (λ x, disp_internal_left_adjoint_data
                                (is_internal_left_adjoint_internal_left_adjoint_data x) ff)).
         apply QQ. }
       cbn.
-      rewrite transportf_const. reflexivity.
+      apply (toforallpaths _ _ _ (transportf_const _ _)).
     + use total2_paths_f; apply disp_cellset_property.
-Time Defined.
+Qed.
 
 Lemma left_adjoint_total_disp_left_adjoint
       {a b : B}
