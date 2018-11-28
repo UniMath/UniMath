@@ -180,8 +180,8 @@ Bicategories/ap_functor.v
 Bicategories/DispBicat.v
 Bicategories/BicatOfCats.v
 Bicategories/DispBicatOfDispCats.v
+Bicategories/DispAdjunctions.v
 Bicategories/DispUnivalence.v
-Bicategories/DispGlobalUnivalence.v
 Bicategories/ContravariantFunctor.v
 Bicategories/Constructions.v
 Bicategories/Sigma.v

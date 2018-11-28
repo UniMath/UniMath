@@ -1036,6 +1036,49 @@ Proof.
   - apply maponpaths_2, cellset_property.
 Qed.
 
+
+Lemma disp_rwhisker_transport_left {a b c : C}
+      {f1 f2 : C⟦a,b⟧} {g : C⟦b,c⟧}
+      {x x' : f1 ==> f2} (p : x = x')
+      {aa : D a} {bb : D b} {cc : D c}
+      {ff1 : aa -->[f1] bb}
+      {ff2 : aa -->[f2] bb}
+      (xx : ff1 ==>[x] ff2)
+      (gg : bb -->[g] cc)
+  : (transportf (λ x, _ ==>[x] _) p xx) ▹▹ gg =
+    transportf (λ x, _ ==>[x ▹ g] _) p (xx ▹▹ gg).
+Proof.
+  induction p. apply idpath.
+Defined.
+
+Lemma disp_rwhisker_transport_left_new {a b c : C}
+      {f1 f2 : C⟦a,b⟧} {g : C⟦b,c⟧}
+      {x x' : f1 ==> f2} (p : x = x')
+      {aa : D a} {bb : D b} {cc : D c}
+      {ff1 : aa -->[f1] bb}
+      {ff2 : aa -->[f2] bb}
+      (xx : ff1 ==>[x] ff2)
+      (gg : bb -->[g] cc)
+  : (transportf (λ x, _ ==>[x] _) p xx) ▹▹ gg =
+    transportf (λ x, _ ==>[x] _) (maponpaths (λ x, x ▹ g) p) (xx ▹▹ gg).
+Proof.
+  induction p. apply idpath.
+Defined.
+
+Lemma disp_rwhisker_transport_right {a b c : C}
+      {f : C⟦a,b⟧} {g1 g2 : C⟦b,c⟧}
+      {x x' : g1 ==> g2} (p : x = x')
+      {aa : D a} {bb : D b} {cc : D c}
+      {ff : aa -->[f] bb}
+      (gg1 : bb -->[g1] cc)
+      (gg2 : bb -->[g2] cc)
+      (xx : gg1 ==>[x] gg2)
+  : ff ◃◃ (transportf (λ x, _ ==>[x] _) p xx) =
+    transportf (λ x, _ ==>[x] _) (maponpaths (λ x, f ◃ x) p) (ff ◃◃ xx).
+Proof.
+  induction p. apply idpath.
+Defined.
+
 End Derived_Laws.
 
 (* ----------------------------------------------------------------------------------- *)
