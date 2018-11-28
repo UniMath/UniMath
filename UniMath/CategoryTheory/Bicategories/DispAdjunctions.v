@@ -12,8 +12,7 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Bicategories.DispBicat. Import DispBicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Unitors.
-(* Internal adjunctions are definied in this file:  *)
-Require Import UniMath.CategoryTheory.Bicategories.Univalence.
+Require Import UniMath.CategoryTheory.Bicategories.Adjunctions.
 Require Import UniMath.CategoryTheory.Bicategories.Invertible_2cells.
 
 Local Open Scope cat.
@@ -24,192 +23,213 @@ Section Displayed_Internal_Adjunction.
 
 Context {C : bicat} {D : disp_prebicat C}.
 
-Definition disp_internal_adjunction_over {a b : C} {f : C⟦a,b⟧} {g : C⟦b,a⟧}
-           (j : internal_adjunction_over f g)
+(** ** Displayed left adjoints *)
+(** *** Data & laws for left adjoints *)
+Definition disp_left_adjoint_data
+           {a b : C}
+           {f : a --> b}
+           (αd : left_adjoint_data f)
            {aa : D a} {bb : D b}
-           (ff : aa -->[f] bb) (gg : bb -->[g] aa)
-  : UU
-  := let (η,ε) := j in
-       (id_disp aa ==>[η] ff ;; gg)
-     × (gg ;; ff ==>[ε] id_disp bb).
+           (ff : aa -->[f] bb)
+ : UU
+  := ∑ (gg : bb -->[left_adjoint_right_adjoint αd] aa),
+         (id_disp aa ==>[left_adjoint_unit αd] ff ;; gg)
+       × (gg ;; ff ==>[left_adjoint_counit αd] id_disp bb).
 
-Definition disp_internal_adjunction_data {a b : C} (j : internal_adjunction_data a b)
-           (aa : D a) (bb : D b)
-           (f := internal_left_adjoint j)
-           (g := internal_right_adjoint j)
-  : UU
-  := ∑ (ff : aa -->[f] bb) (gg : bb -->[g] aa), disp_internal_adjunction_over j ff gg.
-
-Definition disp_internal_left_adjoint {a b : C} {j : internal_adjunction_data a b}
-           {aa : D a} {bb : D b}
-           (jj : disp_internal_adjunction_data j aa bb)
-  : aa -->[internal_left_adjoint j] bb
-  := pr1 jj.
-
-Definition disp_internal_right_adjoint {a b : C} {j : internal_adjunction_data a b}
-           {aa : D a} {bb : D b}
-           (jj : disp_internal_adjunction_data j aa bb)
-  : bb -->[internal_right_adjoint j] aa
-  := pr1 (pr2 jj).
-
-Coercion disp_internal_adjunction_over_from_data
-         {a b : C} {j : internal_adjunction_data a b}
-         {aa : D a} {bb : D b}
-         (jj : disp_internal_adjunction_data j aa bb)
-  : disp_internal_adjunction_over
-      j (disp_internal_left_adjoint jj) (disp_internal_right_adjoint jj)
-  := pr2 (pr2 jj).
-
-Definition disp_internal_unit
-           {a b : C} {f : C⟦a,b⟧} {g : C⟦b,a⟧}
-           {j : internal_adjunction_over f g}
-           {aa : D a} {bb : D b}
-           {ff : aa -->[f] bb} {gg : bb -->[g] aa}
-           (jj : disp_internal_adjunction_over j ff gg)
-  : id_disp aa ==>[internal_unit j] (ff ;; gg)
-  := pr1 jj.
-
-Definition disp_internal_counit
-           {a b : C} {f : C⟦a,b⟧} {g : C⟦b,a⟧}
-           {j : internal_adjunction_over f g}
-           {aa : D a} {bb : D b}
-           {ff : aa -->[f] bb} {gg : bb -->[g] aa}
-           (jj : disp_internal_adjunction_over j ff gg)
-  : (gg ;; ff) ==>[internal_counit j] id_disp bb
-  := pr2 jj.
-
-Definition is_disp_internal_adjunction {a b : C}
-           (j : internal_adjunction a b)
-           (f := internal_left_adjoint j)
-           (g := internal_right_adjoint j)
+Definition disp_left_adjoint_right_adjoint
+           {a b : C}
+           {f : a --> b}
+           (αd : left_adjoint_data f)
            {aa : D a} {bb : D b}
            {ff : aa -->[f] bb}
-           {gg : bb -->[g] aa}
-           (jj : disp_internal_adjunction_over j ff gg)
-           (ηη := disp_internal_unit jj)
-           (εε := disp_internal_counit jj)
-  : UU
-  :=   ( disp_linvunitor ff •• (ηη ▹▹ ff) •• disp_rassociator _ _ _ ••
+           (ααd : disp_left_adjoint_data αd ff) :
+  bb -->[left_adjoint_right_adjoint αd] aa := pr1 ααd.
+
+Definition disp_left_adjoint_unit
+           {a b : C}
+           {f : a --> b}
+           (αd : left_adjoint_data f)
+           {aa : D a} {bb : D b}
+           {ff : aa -->[f] bb}
+           (ααd : disp_left_adjoint_data αd ff) :
+  id_disp aa ==>[left_adjoint_unit αd] ff ;; disp_left_adjoint_right_adjoint αd ααd
+  := pr12 ααd.
+
+Definition disp_left_adjoint_counit
+           {a b : C}
+           {f : a --> b}
+           (αd : left_adjoint_data f)
+           {aa : D a} {bb : D b}
+           {ff : aa -->[f] bb}
+           (ααd : disp_left_adjoint_data αd ff) :
+  disp_left_adjoint_right_adjoint αd ααd ;; ff ==>[left_adjoint_counit αd] id_disp bb
+  := pr22 ααd.
+
+Definition disp_left_adjoint_axioms
+           {a b : C}
+           {f : a --> b}
+           (j : left_adjoint f)
+           {aa : D a} {bb : D b}
+           {ff : aa -->[f] bb}
+           (ααd : disp_left_adjoint_data j ff) : UU
+  := let gg := disp_left_adjoint_right_adjoint j ααd in
+     let ηη := disp_left_adjoint_unit j ααd in
+     let εε := disp_left_adjoint_counit j ααd in
+( disp_linvunitor ff •• (ηη ▹▹ ff) •• disp_rassociator _ _ _ ••
          (ff ◃◃ εε) •• disp_runitor ff =
          transportb (λ x, _ ==>[x] _) (internal_triangle1 j) (disp_id2 ff) )
      × ( disp_rinvunitor gg •• (gg ◃◃ ηη) •• disp_lassociator _ _ _ ••
          (εε ▹▹ gg) •• disp_lunitor gg =
          transportb (λ x, _ ==>[x] _) (internal_triangle2 j) (disp_id2 gg) ).
 
-Definition disp_internal_adjunction {a b : C}
-           (j : internal_adjunction a b)
-           (aa : D a) (bb : D b) : UU
-  := ∑ (jj : disp_internal_adjunction_data j aa bb),
-     is_disp_internal_adjunction j jj.
-
-Coercion disp_internal_adjunction_data_from_internal_adjunction {a b : C}
-           {j : internal_adjunction a b}
-           {aa : D a} {bb : D b}
-           (jj : disp_internal_adjunction j aa bb)
- : disp_internal_adjunction_data j aa bb := pr1 jj.
-
-(** ** Displayed left adjoints *)
-Definition disp_internal_left_adjoint_data {a b : C}
+Definition disp_left_adjoint
+           {a b : C}
            {f : a --> b}
-           (j : internal_left_adjoint_data f)
+           (α : left_adjoint f)
            {aa : D a} {bb : D b}
-           (g := internal_right_adjoint j)
            (ff : aa -->[f] bb)
-  : UU
-  := ∑ (gg : bb -->[g] aa), disp_internal_adjunction_over j ff gg.
+  := ∑ (ααd : disp_left_adjoint_data α ff),
+       disp_left_adjoint_axioms α ααd.
 
-
-Coercion disp_internal_adjunction_over_from_left_adjoint
+Coercion disp_data_of_left_adjoint
          {a b : C}
          {f : a --> b}
-         {j : internal_left_adjoint_data f}
+         (α : left_adjoint f)
          {aa : D a} {bb : D b}
          {ff : aa -->[f] bb}
-         (jj : disp_internal_left_adjoint_data j ff) :
-  disp_internal_adjunction_over j ff (pr1 jj) := pr2 jj.
+         (αα : disp_left_adjoint α ff)
+  : disp_left_adjoint_data α ff
+  := pr1 αα.
 
-Definition is_disp_internal_left_adjoint
+Coercion disp_axioms_of_left_adjoint
          {a b : C}
          {f : a --> b}
-         (j : is_internal_left_adjoint f)
+         (α : left_adjoint f)
          {aa : D a} {bb : D b}
-         (ff : aa -->[f] bb)
-  : UU
-  := ∑ (jj : disp_internal_left_adjoint_data j ff),
-     is_disp_internal_adjunction j jj.
+         {ff : aa -->[f] bb}
+         (αα : disp_left_adjoint α ff)
+  : disp_left_adjoint_axioms α αα
+  := pr2 αα.
 
-Coercion disp_internal_adjunction_from_left_adjoint
+(** *** Laws for equivalences *)
+Definition disp_left_equivalence_axioms
          {a b : C}
          {f : a --> b}
-         (j : is_internal_left_adjoint f)
+         (αe : left_adjoint_equivalence f)
+         {aa : D a} {bb : D b}
+         {ff : aa -->[f] bb}
+         (ααd : disp_left_adjoint_data αe ff)
+  : UU
+  := is_disp_invertible_2cell (left_adjoint_equivalence_unit_iso _)
+       (disp_left_adjoint_unit αe ααd)
+   × is_disp_invertible_2cell (left_adjoint_equivalence_counit_iso _)
+       (disp_left_adjoint_counit αe ααd).
+
+Definition disp_left_adjoint_equivalence
+         {a b : C}
+         {f : a --> b}
+         (αe : left_adjoint_equivalence f)
          {aa : D a} {bb : D b}
          (ff : aa -->[f] bb)
-         (jj : is_disp_internal_left_adjoint j ff)
-  : disp_internal_adjunction j aa bb.
+  := ∑ (ααd : disp_left_adjoint_data αe ff),
+       disp_left_adjoint_axioms αe ααd
+     × disp_left_equivalence_axioms αe ααd.
+
+(* the coercion to the adjoint axioms will be induced *)
+Coercion disp_left_adjoint_of_left_adjoint_equivalence
+         {a b : C}
+         {f : a --> b}
+         {αe : left_adjoint_equivalence f}
+         {aa : D a} {bb : D b}
+         {ff : aa -->[f] bb}
+         (ααe : disp_left_adjoint_equivalence αe ff)
+  : disp_left_adjoint αe ff := (pr1 ααe,, pr12 ααe).
+
+Coercion axioms_of_left_adjoint_equivalence
+         {a b : C}
+         {f : a --> b}
+         {αe : left_adjoint_equivalence f}
+         {aa : D a} {bb : D b}
+         {ff : aa -->[f] bb}
+         (ααe : disp_left_adjoint_equivalence αe ff)
+  : disp_left_equivalence_axioms αe ααe := pr22 ααe.
+
+(** *** Packaged *)
+Definition disp_adjunction
+           {a b : C}
+           (f : adjunction a b)
+           (aa : D a) (bb : D b) : UU
+  := ∑ ff : aa -->[f] bb, disp_left_adjoint f ff.
+
+Coercion disp_arrow_of_adjunction
+         {a b : C}
+         {f : adjunction a b}
+         {aa : D a} {bb : D b}
+         (ff : disp_adjunction f aa bb)
+  : aa -->[f] bb
+  := pr1 ff.
+
+Coercion disp_left_adjoint_of_adjunction
+         {a b : C}
+         {f : adjunction a b}
+         {aa : D a} {bb : D b}
+         (ff : disp_adjunction f aa bb)
+  : disp_left_adjoint f ff
+  := pr2 ff.
+
+Definition disp_adjoint_equivalence
+           {a b : C}
+           (f : adjoint_equivalence a b)
+           (aa : D a) (bb : D b) : UU
+  := ∑ ff : aa -->[f] bb, disp_left_adjoint_equivalence f ff.
+
+Coercion disp_adjunction_of_adjoint_equivalence
+         {a b : C}
+         {f : adjoint_equivalence a b}
+         {aa : D a} {bb : D b}
+         (ff : disp_adjoint_equivalence f aa bb)
+  : disp_adjunction f aa bb.
 Proof.
-  simple refine (_ ,, _).
-  - simple refine (ff,, _,, _); apply (pr1 jj).
-  - apply jj.
+  refine (pr1 ff,, _).
+  apply (disp_left_adjoint_of_left_adjoint_equivalence (pr2 ff)).
 Defined.
 
-(** ** Displayed internal equivalences *)
-Definition form_disp_internal_equivalence {a b : C}
-           {j : internal_equivalence a b}
-           (f := internal_left_adjoint j)
-           (g := internal_right_adjoint j)
-           {aa: D a} {bb : D b}
-           {ff : aa -->[f] bb}
-           {gg : bb -->[g] aa}
-           (η := internal_unit_iso j)
-           (ε := internal_counit_iso j)
-           (ηη : id_disp aa ==>[η] (ff ;; gg))
-           (εε : (gg ;; ff) ==>[ε] id_disp bb)
-  : UU
-  := is_disp_invertible_2cell η ηη × is_disp_invertible_2cell ε εε.
+Coercion disp_left_adjoint_equivalence_of_adjoint_equivalence
+         {a b : C}
+         {f : adjoint_equivalence a b}
+         {aa : D a} {bb : D b}
+         (ff : disp_adjoint_equivalence f aa bb)
+  : disp_left_adjoint_equivalence f ff
+  := pr2 ff.
 
-Definition is_disp_internal_equivalence
-           {a b : C}
-           (j : internal_equivalence a b)
-           {aa: D a} {bb : D b}
-           (jj: disp_internal_adjunction_data j aa bb)
-  : UU
-  := form_disp_internal_equivalence (disp_internal_unit jj) (disp_internal_counit jj).
-
-Definition disp_internal_equivalence
-           {a b : C}
-           (j : internal_equivalence a b)
-           (aa: D a) (bb : D b)
-  : UU
-  := ∑ jj : disp_internal_adjunction_data j aa bb, is_disp_internal_equivalence j jj.
-
-Definition disp_internal_adjoint_equivalence
-           {a b : C}
-           (j : internal_adjoint_equivalence a b)
-           (aa: D a) (bb : D b)
-  : UU
-  := ∑ jj : disp_internal_adjunction_data j aa bb,
-            is_disp_internal_equivalence j jj
-         ×  is_disp_internal_adjunction j jj.
-
-(** ** Identity is a displayed adjoint *)
-Definition disp_internal_adjunction_data_identity {a : C} (aa : D a)
-  : disp_internal_adjunction_data (internal_adjoint_equivalence_identity a) aa aa.
-Proof.
-  exists (id_disp _ ).
-  exists (id_disp _ ).
-  exists (disp_linvunitor _ ).
-  apply (disp_lunitor _ ).
-Defined.
-
+(* Definition internal_right_adjoint {a b : C} *)
+(*            (f : adjunction a b) : C⟦b,a⟧ := *)
+(*   left_adjoint_right_adjoint f. *)
 
 End Displayed_Internal_Adjunction.
 
 (** From now on, we need the [has_disp_cellset property]. *)
 
+(** ** Identity is a displayed adjoint *)
+(* TODO LOL MOVE THIS TO DISPLAYED UNIVALNCE  *)
+Require Import UniMath.CategoryTheory.Bicategories.Univalence.
+Definition disp_internal_adjunction_data_identity
+           {C : bicat} {D : disp_bicat C}
+           {a : C}
+           (aa : D a)
+  : disp_left_adjoint_data (internal_adjoint_equivalence_identity a)
+                           (id_disp aa).
+Proof.
+  exists (id_disp _ ).
+  split.
+  - exact (disp_linvunitor _ ).
+  - exact (disp_lunitor _ ).
+Defined.
+
 Definition is_disp_internal_adjunction_identity
            {C : bicat} {D : disp_bicat C}
            {a : C} (aa : D a)
-  : is_disp_internal_adjunction
+  : disp_left_adjoint_axioms
       (internal_adjoint_equivalence_identity a)
       (disp_internal_adjunction_data_identity aa).
 Proof.
@@ -333,49 +353,43 @@ Proof.
     apply cellset_property.
 Qed.
 
-Definition disp_identity_equivalence
-           {C : bicat} {D : disp_bicat C}
-           {a : C} (aa : D a)
-  : is_disp_internal_equivalence
-      (internal_adjoint_equivalence_identity a)
-      (disp_internal_adjunction_data_identity aa).
-Proof.
-  split.
-  - use tpair.
-    + apply disp_lunitor.
-    + split.
-      * cbn.
-        refine (disp_linvunitor_lunitor (id_disp aa) @ _).
-        apply (@transportf_paths _ (λ z, _ ==>[ z ] _)).
-        apply C.
-      * cbn.
-        refine (disp_lunitor_linvunitor (id_disp aa) @ _).
-        apply (@transportf_paths _ (λ z, _ ==>[ z ] _)).
-        apply C.
-  - use tpair.
-    + apply disp_linvunitor.
-    + split.
-      * cbn.
-        refine (disp_lunitor_linvunitor (id_disp aa) @ _).
-        apply (@transportf_paths _ (λ z, _ ==>[ z ] _)).
-        apply C.
-      * cbn.
-        refine (disp_linvunitor_lunitor (id_disp aa) @ _).
-        apply (@transportf_paths _ (λ z, _ ==>[ z ] _)).
-        apply C.
-Defined.
-
 Definition disp_identity_adjoint_equivalence
            {C : bicat} {D : disp_bicat C}
            {a : C} (aa : D a)
-  : disp_internal_adjoint_equivalence (internal_adjoint_equivalence_identity a) aa aa.
+  : disp_adjoint_equivalence (internal_adjoint_equivalence_identity a) aa aa.
 Proof.
   use tpair.
   - apply disp_internal_adjunction_data_identity.
-  - split.
-    + apply disp_identity_equivalence.
-    + apply is_disp_internal_adjunction_identity.
+  - cbn. use tpair.
+    + apply disp_internal_adjunction_data_identity.
+    + cbn. split.
+      { apply is_disp_internal_adjunction_identity. }
+      {
+        split.
+        - use tpair.
+          + apply disp_lunitor.
+          + split.
+            * cbn.
+              refine (disp_linvunitor_lunitor (id_disp aa) @ _).
+              apply (@transportf_paths _ (λ z, _ ==>[ z ] _)).
+              apply C.
+            * cbn.
+              refine (disp_lunitor_linvunitor (id_disp aa) @ _).
+              apply (@transportf_paths _ (λ z, _ ==>[ z ] _)).
+              apply C.
+        - use tpair.
+          + apply disp_linvunitor.
+          + split.
+            * cbn.
+              refine (disp_lunitor_linvunitor (id_disp aa) @ _).
+              apply (@transportf_paths _ (λ z, _ ==>[ z ] _)).
+              apply C.
+            * cbn.
+              refine (disp_linvunitor_lunitor (id_disp aa) @ _).
+              apply (@transportf_paths _ (λ z, _ ==>[ z ] _)).
+              apply C. }
 Defined.
+
 
 (** * Classification of internal adjunctions in the total category *)
 Section Total_Internal_Adjunction.
@@ -389,8 +403,8 @@ Local Definition left_adjoint_total_to_base
       {aa : D a} {bb : D b}
       {f : a --> b}
       {ff : aa -->[f] bb} :
-  @is_internal_left_adjoint E (a,,aa) (b,,bb) (f,,ff) →
-  is_internal_left_adjoint f.
+  @left_adjoint E (a,,aa) (b,,bb) (f,,ff) →
+  left_adjoint f.
 Proof.
   intros f_d.
   set (Hlaw := pr2 f_d).
@@ -415,8 +429,8 @@ Local Definition left_adjoint_total_to_fiber
       {aa : D a} {bb : D b}
       {f : a --> b}
       {ff : aa -->[f] bb} :
-  forall (j : @is_internal_left_adjoint E (a,,aa) (b,,bb) (f,,ff)),
-  is_disp_internal_left_adjoint (left_adjoint_total_to_base j) ff.
+  forall (j : @left_adjoint E (a,,aa) (b,,bb) (f,,ff)),
+  disp_left_adjoint (left_adjoint_total_to_base j) ff.
 Proof.
   intros f_d.
   set (Hlaw := pr2 f_d).
@@ -445,8 +459,8 @@ Definition left_adjoint_total_to_disp
       {aa : D a} {bb : D b}
       {f : a --> b}
       (ff : aa -->[f] bb) :
-  @is_internal_left_adjoint E (a,,aa) (b,,bb) (f,,ff) →
-  ∑ (α : is_internal_left_adjoint f), is_disp_internal_left_adjoint α ff.
+  @left_adjoint E (a,,aa) (b,,bb) (f,,ff) →
+  ∑ (α : left_adjoint f), disp_left_adjoint α ff.
 Proof.
   intros j.
   exists (left_adjoint_total_to_base j).
@@ -459,14 +473,14 @@ Definition left_adjoint_disp_to_total
       {aa : D a} {bb : D b}
       {f : a --> b}
       (ff : aa -->[f] bb) :
-  (∑ (α : is_internal_left_adjoint f), is_disp_internal_left_adjoint α ff) →
-  @is_internal_left_adjoint E (a,,aa) (b,,bb) (f,,ff).
+  (∑ (α : left_adjoint f), disp_left_adjoint α ff) →
+  @left_adjoint E (a,,aa) (b,,bb) (f,,ff).
 Proof.
   intros j'.
   pose (j := pr1 j').
   pose (jj := pr2 j').
-  pose (g := internal_right_adjoint j).
-  pose (gg := (disp_internal_right_adjoint jj : bb -->[g] aa)).
+  pose (g := left_adjoint_right_adjoint j).
+  pose (gg := (disp_left_adjoint_right_adjoint _ jj : bb -->[g] aa)).
   use tpair.
   - (* Data for the total adjunction *)
     use tpair.
@@ -475,12 +489,12 @@ Proof.
       use tpair.
       * (* Units *)
         use tpair; simpl.
-        apply (internal_unit j).
-        apply (disp_internal_unit jj).
+        apply (left_adjoint_unit j).
+        apply (disp_left_adjoint_unit _ jj).
       * (* Counits *)
         use tpair; simpl.
-        apply (internal_counit j).
-        apply (disp_internal_counit jj).
+        apply (left_adjoint_counit j).
+        apply (disp_left_adjoint_counit _ jj).
   - abstract (simpl; split; use total2_paths_b; (apply j || apply jj)).
 Defined.
 
@@ -489,7 +503,7 @@ Lemma left_adjoint_disp_total_eq
       (aa : D a) (bb : D b)
       (f : a --> b)
       (ff : aa -->[f] bb)
-      (jj : @is_internal_left_adjoint E (a,,aa) (b,,bb) (f,,ff)) :
+      (jj : @left_adjoint E (a,,aa) (b,,bb) (f,,ff)) :
   left_adjoint_disp_to_total ff (left_adjoint_total_to_disp ff jj) = jj.
 Proof.
   use total2_paths_f.
@@ -497,7 +511,7 @@ Proof.
   - use total2_paths_f; apply cellset_property.
 Defined.
 
-(* TODO MOVE TO A SANER PLACE, merge with transportf_subtypeEquality' *)
+(* TODO. DF: MOVE TO A SANER PLACE, merge with transportf_subtypeEquality' *)
 Definition transportf_subtypeEquality'_QUALITY
            {A : UU}
            {P : A → UU}
@@ -521,8 +535,8 @@ Lemma left_adjoint_total_disp_eq
       (aa : D a) (bb : D b)
       (f : a --> b)
       (ff : aa -->[f] bb)
-      (jj : ∑ α : is_internal_left_adjoint f,
-           is_disp_internal_left_adjoint α ff) :
+      (jj : ∑ α : left_adjoint f,
+           disp_left_adjoint α ff) :
   left_adjoint_total_to_disp ff (left_adjoint_disp_to_total ff jj) = jj.
 Proof.
   use total2_paths_f.
@@ -536,18 +550,18 @@ Proof.
       abstract (apply isofhleveltotal2; try intro; apply cellset_property).
   - use total2_paths_f.
     + etrans. apply (pr1_transportf
-                       (is_internal_left_adjoint f)
-                       (λ x, disp_internal_left_adjoint_data x ff)).
+                       (left_adjoint f)
+                       (λ x, disp_left_adjoint_data x ff)).
       destruct jj as [j jj].
       destruct jj as [jjd jjl].
       destruct j as [jd jl].
       etrans. {
         pose (QQ := @transportf_subtypeEquality'_QUALITY).
-        specialize (QQ (internal_left_adjoint_data f)).
-        specialize (QQ (λ j, is_internal_adjunction j)).
+        specialize (QQ (left_adjoint_data f)).
+        specialize (QQ left_adjoint_axioms).
         specialize (QQ (left_adjoint_total_disp_eq_subproof _ _ f)).
-        specialize (QQ (λ x, disp_internal_left_adjoint_data
-                               (is_internal_left_adjoint_internal_left_adjoint_data x) ff)).
+        specialize (QQ (λ x, disp_left_adjoint_data
+                               (data_of_left_adjoint x) ff)).
         apply QQ. }
       cbn.
       apply (toforallpaths _ _ _ (transportf_const _ _)).
@@ -559,8 +573,8 @@ Lemma left_adjoint_total_disp_left_adjoint
       (aa : D a) (bb : D b)
       (f : a --> b)
       (ff : aa -->[f] bb) :
-  @is_internal_left_adjoint E (a,,aa) (b,,bb) (f,,ff)
-≃ ∑ (α : is_internal_left_adjoint f), is_disp_internal_left_adjoint α ff.
+  @left_adjoint E (a,,aa) (b,,bb) (f,,ff)
+≃ ∑ (α : left_adjoint f), disp_left_adjoint α ff.
 Proof.
   exists (left_adjoint_total_to_disp ff).
   use gradth.
@@ -569,70 +583,70 @@ Proof.
   - intros ?. apply left_adjoint_total_disp_eq.
 Defined.
 
-(** Inverse of [internal_adjunction_from_left_adjoint]
-   This has nothing to do with displayed categories and should be
-   moved to the file with internal adjunctions.
-TODO!
-*)
-Definition left_adjoint_from_internal_adjunction {C : bicat}
-    {x y : C} :
-  internal_adjunction x y →
-  ∑ (f : C⟦x,y⟧), is_internal_left_adjoint f.
-Proof.
-  unfold internal_adjunction. cbn.
-  induction 1 as [j Hj].
-  induction j as [f Hf].
-  induction Hf as [g Hfg].
-  exists f.
-  unfold is_internal_left_adjoint.
-  use tpair.
-  - exists g. apply Hfg.
-  - apply Hj.
-Defined.
+(* (** Inverse of [internal_adjunction_from_left_adjoint] *)
+(*    This has nothing to do with displayed categories and should be *)
+(*    moved to the file with internal adjunctions. *)
+(* TODO! *)
+(* *) *)
+(* Definition left_adjoint_from_internal_adjunction {C : bicat} *)
+(*     {x y : C} : *)
+(*   internal_adjunction x y → *)
+(*   ∑ (f : C⟦x,y⟧), is_internal_left_adjoint f. *)
+(* Proof. *)
+(*   unfold internal_adjunction. cbn. *)
+(*   induction 1 as [j Hj]. *)
+(*   induction j as [f Hf]. *)
+(*   induction Hf as [g Hfg]. *)
+(*   exists f. *)
+(*   unfold is_internal_left_adjoint. *)
+(*   use tpair. *)
+(*   - exists g. apply Hfg. *)
+(*   - apply Hj. *)
+(* Defined. *)
 
-Lemma left_adjoint_from_internal_adjunction_weq {C : bicat}
-    {x y : C} :
-  internal_adjunction x y ≃
-  ∑ (f : C⟦x,y⟧), is_internal_left_adjoint f.
-Proof.
-  exists left_adjoint_from_internal_adjunction.
-  use gradth.
-  - exact (λ x, internal_adjunction_from_left_adjoint (pr2 x)).
-  - reflexivity.
-  - reflexivity.
-Defined.
+(* Lemma left_adjoint_from_internal_adjunction_weq {C : bicat} *)
+(*     {x y : C} : *)
+(*   internal_adjunction x y ≃ *)
+(*   ∑ (f : C⟦x,y⟧), is_internal_left_adjoint f. *)
+(* Proof. *)
+(*   exists left_adjoint_from_internal_adjunction. *)
+(*   use gradth. *)
+(*   - exact (λ x, internal_adjunction_from_left_adjoint (pr2 x)). *)
+(*   - reflexivity. *)
+(*   - reflexivity. *)
+(* Defined. *)
 
-(** Conversion between displayed left adjoints and displayed adjunctions
-TODO!
-*)
-Definition disp_left_adjoint_from_internal_adjunction
-         {a b : B}
-         {f : a --> b}
-         (j : is_internal_left_adjoint f)
-         {aa : D a} {bb : D b}
-  : disp_internal_adjunction j aa bb →
-    ∑ (ff : aa -->[f] bb), is_disp_internal_left_adjoint j ff.
-Proof.
-  induction 1 as [jj Hjj].
-  induction jj as [ff Hff].
-  exists ff.
-  use tpair. apply Hff.
-  apply Hjj.
-Defined.
+(* (** Conversion between displayed left adjoints and displayed adjunctions *)
+(* TODO! *)
+(* *) *)
+(* Definition disp_left_adjoint_from_internal_adjunction *)
+(*          {a b : B} *)
+(*          {f : a --> b} *)
+(*          (j : is_internal_left_adjoint f) *)
+(*          {aa : D a} {bb : D b} *)
+(*   : disp_internal_adjunction j aa bb → *)
+(*     ∑ (ff : aa -->[f] bb), is_disp_internal_left_adjoint j ff. *)
+(* Proof. *)
+(*   induction 1 as [jj Hjj]. *)
+(*   induction jj as [ff Hff]. *)
+(*   exists ff. *)
+(*   use tpair. apply Hff. *)
+(*   apply Hjj. *)
+(* Defined. *)
 
-Definition disp_left_adjoint_from_internal_adjunction_weq
-         {a b : B}
-         {f : a --> b}
-         (j : is_internal_left_adjoint f)
-         {aa : D a} {bb : D b}
-  : disp_internal_adjunction j aa bb ≃
-    ∑ (ff : aa -->[f] bb), is_disp_internal_left_adjoint j ff.
-Proof.
-  exists (disp_left_adjoint_from_internal_adjunction j).
-  use gradth.
-  - refine (λ x,disp_internal_adjunction_from_left_adjoint j (pr1 x) (pr2 x)).
-  - reflexivity.
-  - reflexivity.
-Defined.
+(* Definition disp_left_adjoint_from_internal_adjunction_weq *)
+(*          {a b : B} *)
+(*          {f : a --> b} *)
+(*          (j : is_internal_left_adjoint f) *)
+(*          {aa : D a} {bb : D b} *)
+(*   : disp_internal_adjunction j aa bb ≃ *)
+(*     ∑ (ff : aa -->[f] bb), is_disp_internal_left_adjoint j ff. *)
+(* Proof. *)
+(*   exists (disp_left_adjoint_from_internal_adjunction j). *)
+(*   use gradth. *)
+(*   - refine (λ x,disp_internal_adjunction_from_left_adjoint j (pr1 x) (pr2 x)). *)
+(*   - reflexivity. *)
+(*   - reflexivity. *)
+(* Defined. *)
 
 End Total_Internal_Adjunction.
