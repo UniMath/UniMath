@@ -326,3 +326,179 @@ Proof.
   induction p.
   exact (HD a a aa bb).
 Defined.
+
+Definition is_internal_left_adjoint_equivalence'
+           {C : bicat}
+           {x y : C}
+           (f : x --> y)
+  : UU
+  := ∑ (A : is_internal_left_adjoint f), is_internal_equivalence A.
+
+Definition internal_adjoint_equivalent'
+           {C : bicat}
+           (x y : C)
+  : UU
+  := ∑ (f : x --> y), is_internal_left_adjoint_equivalence' f.
+
+Definition help_adj
+           {C : bicat}
+           {x y : C}
+           (f : x --> y)
+  : is_internal_left_adjoint_internal_equivalence f
+    →
+    is_internal_left_adjoint_equivalence' f.
+Proof.
+  intros i.
+  use tpair.
+  - use tpair.
+    + use tpair.
+      * apply i.
+      * apply i.
+    + split.
+      * exact (pr1 (pr222 i)).
+      * exact (pr2 (pr222 i)).
+  - exact (pr122 i).
+Defined.
+
+Definition help_adj_inv
+           {C : bicat}
+           {x y : C}
+           (f : x --> y)
+  : is_internal_left_adjoint_equivalence' f
+    →
+    is_internal_left_adjoint_internal_equivalence f.
+Proof.
+  intros i.
+  use tpair.
+  - apply i.
+  - use tpair.
+    + use tpair.
+      * exact (internal_unit (pr1 i)).
+      * exact (internal_counit (pr1 i)).
+    + split.
+      * apply i.
+      * use tpair.
+        ** exact (pr121 i).
+        ** exact (pr221 i).
+Defined.
+
+Definition help_adj_weq
+           {C : bicat}
+           {x y : C}
+           (f : x --> y)
+  : is_internal_left_adjoint_equivalence' f
+    ≃
+    is_internal_left_adjoint_internal_equivalence f.
+Proof.
+  refine (help_adj_inv f ,, _).
+  use isweq_iso.
+  - exact (help_adj f).
+  - reflexivity.
+  - reflexivity.
+Defined.
+
+Definition adj_weq
+           {C : bicat}
+           (x y : C)
+  : (internal_adjoint_equivalent' x y)
+    →
+    internal_adjoint_equivalence x y.
+Proof.
+  use weqfibtototal.
+  intros.
+  apply help_adj_weq.
+Defined.
+
+Section Total_Category_Globally_Univalent.
+  Context {C : bicat}.
+  Variable (D : disp_bicat C)
+           (HC : is_univalent_2_0 C)
+           (HD : disp_univalent_2_0 D).
+  Local Notation E := (total_bicat D).
+
+  Local Definition path_E_obj
+             (x y : C)
+             (xx : D x)
+             (yy : D y)
+    : ((x ,, xx) = (y ,,yy)) ≃ ∑ (p : x = y), transportf _ p xx = yy
+    := total2_paths_equiv _ (x ,, xx) (y ,, yy).
+
+  Local Definition path_to_adj_equiv_E
+        (x y : C)
+        (xx : D x)
+        (yy : D y)
+    : (∑ (p : x = y), transportf _ p xx = yy)
+        ≃
+        ∑ (i : internal_adjoint_equivalence x y),
+      disp_internal_adjoint_equivalence i xx yy.
+  Proof.
+    use weqbandf.
+    - exact (idtoiso_2_0 x y ,, HC x y).
+    - cbn.
+      intros p.
+      exact (disp_idtoiso_2_0 D p xx yy ,, HD x y p xx yy).
+  Defined.
+
+  Definition TODO {A : UU} : A.
+  Admitted.
+
+  Definition adj_equiv_E
+             (x y : C)
+             (xx : D x)
+             (yy : D y)
+    : (∑ (i : internal_adjoint_equivalence x y),
+      disp_internal_adjoint_equivalence i xx yy)
+        →
+        @internal_adjoint_equivalent' E (x ,, xx) (y ,, yy).
+  Proof.
+    intros i.
+    use tpair.
+    - use tpair.
+      + apply i.
+      + apply i.
+    - use tpair.
+      + apply left_adjoint_total_disp_left_adjoint.
+        use tpair.
+        * cbn.
+          apply help_adj.
+          apply (pr1 i).
+        * cbn.
+          use tpair.
+          ** use tpair.
+             *** apply i.
+             *** use tpair.
+                 **** exact ( (pr12 (pr212 i))).
+                 **** exact ( (pr22 (pr212 i))).
+          ** apply TODO.
+      + apply TODO.
+  Defined.
+
+  Definition idtoiso_2_0_alt
+             {a b : C}
+             (aa : D a) (bb : D b)
+    : a,, aa = b,, bb → @internal_adjoint_equivalence E (a,, aa) (b,, bb).
+  Proof.
+    intros p.
+    apply adj_weq.
+    apply adj_equiv_E.
+    apply path_to_adj_equiv_E.
+    apply path_E_obj.
+    exact p.
+  Defined.
+
+  Definition test
+             (x y : E)
+    : @idtoiso_2_0 E x y ~ idtoiso_2_0_alt (pr2 x) (pr2 y).
+  Proof.
+    intros p.
+    induction p.
+    use total2_paths_b.
+    - cbn.
+      reflexivity.
+    - use total2_paths_b.
+      + reflexivity.
+      + use subtypeEquality.
+        * reflexivity.
+        * apply isapropdirprod ; apply isapropdirprod
+          ; try (apply isaprop_is_invertible_2cell) ; try apply E.
+  Defined.
