@@ -48,7 +48,17 @@ Section laws.
              (η : f ==> g)
     : rinvunitor g o η = (id₂ (id₁ Y) ⋆⋆ η) o rinvunitor f.
   Proof.
-  Admitted.
+    use (vcomp_rcancel (runitor _ )).
+    { apply is_invertible_2cell_runitor. }
+    rewrite vassocl.
+    rewrite rinvunitor_runitor.
+    use (vcomp_lcancel (runitor _ )).
+    { apply is_invertible_2cell_runitor. }
+    repeat rewrite vassocr.
+    rewrite runitor_rinvunitor.
+    rewrite id2_left, id2_right.
+    apply (! runitor_natural _ _ _ _ _ ).
+  Qed.
 
   Definition linvunitor_natural
              {X Y : C}
@@ -56,8 +66,17 @@ Section laws.
              (η : f ==> g)
     : linvunitor g o η = (η ⋆⋆ id₂ (id₁ X)) o linvunitor f.
   Proof.
-  Admitted.
-
+    use (vcomp_rcancel (lunitor _ )).
+    { apply is_invertible_2cell_lunitor. }
+    rewrite vassocl.
+    rewrite linvunitor_lunitor.
+    use (vcomp_lcancel (lunitor _ )).
+    { apply is_invertible_2cell_lunitor. }
+    repeat rewrite vassocr.
+    rewrite lunitor_linvunitor.
+    rewrite id2_left, id2_right.
+    apply (! lunitor_natural _ _ _ _ _ ).
+  Qed.
 
   Definition lwhisker_hcomp
              {X Y Z : C}
@@ -94,14 +113,10 @@ Section laws.
       (id₂ f ⋆ rassociator g h k) o (rassociator f (h ∘ g) k)
                                   o (rassociator f g h ⋆ id₂ k).
   Proof.
-    rewrite <- !inverse_of_assoc.
-    rewrite <- (id₂_inverse f).
-    rewrite <- (id₂_inverse k).
-    rewrite <- !hcomp_inverse.
-    rewrite <- !vcomp_inverse.
-    apply path_inverse_2cell.
-    rewrite <- !vassocr.
-    apply pentagon.
+    use inv_cell_eq.
+    - is_iso.
+    - is_iso.
+    - cbn. rewrite <- !vassocr. apply pentagon.
   Qed.
 
   Definition inverse_pentagon_2
@@ -244,14 +259,10 @@ Section laws.
       =
       rassociator _ _ _ o id₂ g ⋆⋆ rinvunitor f.
   Proof.
-    rewrite <- inverse_of_lunitor, <- inverse_of_left_unit.
-    rewrite <- inverse_of_assoc.
-    rewrite <- (id₂_inverse f).
-    rewrite <- (id₂_inverse g).
-    rewrite <- !hcomp_inverse.
-    rewrite <- vcomp_inverse.
-    apply path_inverse_2cell.
-    apply triangle_r.
+    use inv_cell_eq.
+    - is_iso.
+    - is_iso.
+    - cbn. apply triangle_r.
   Qed.
 
   Definition triangle_l
@@ -415,7 +426,7 @@ Section laws.
     rewrite !rwhisker_hcomp.
     rewrite !rwhisker_hcomp in Hαβ.
     rewrite <- !hcomp_identity.
-    apply (vcomp_cancel_left (lassociator _ _ _) _ _).
+    apply (vcomp_rcancel (lassociator _ _ _)).
     {
       is_iso.
     }
@@ -435,7 +446,7 @@ Section laws.
     rewrite !lwhisker_hcomp.
     rewrite !lwhisker_hcomp in Hαβ.
     rewrite <- !hcomp_identity.
-    apply (vcomp_cancel_right (lassociator _ _ _) _ _).
+    apply (vcomp_lcancel (lassociator _ _ _)).
     {
       is_iso.
     }
@@ -512,9 +523,10 @@ Section laws.
              (X : C)
     : linvunitor (id₁ X) = rinvunitor (id₁ X).
   Proof.
-    rewrite <- inverse_of_lunitor, <- inverse_of_left_unit.
-    apply path_inverse_2cell.
-    apply lunitor_runitor_identity.
+    use inv_cell_eq.
+    - is_iso.
+    - is_iso.
+    - cbn. apply lunitor_runitor_identity.
   Qed.
 
   Definition left_unit_inv_assoc₂
@@ -534,20 +546,10 @@ Section laws.
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
     : lassociator f (id₁ Y) g o linvunitor g ⋆⋆ id₂ f = id₂ g ⋆⋆ rinvunitor f.
   Proof.
-    use vcomp_move_R_Mp.
-    {
-      is_iso.
-    }
-    rewrite <- inverse_of_lunitor, <- inverse_of_left_unit.
-    rewrite <- (id₂_inverse f).
-    rewrite <- (id₂_inverse g).
-    rewrite <- !hcomp_inverse.
-    rewrite <- vcomp_inverse.
-    apply path_inverse_2cell.
-    rewrite <- triangle_l.
-    rewrite !vassocr.
-    rewrite lassociator_rassociator.
-    rewrite id2_left.
-    reflexivity.
+    use inv_cell_eq.
+    - is_iso.
+    - is_iso.
+    - cbn. apply triangle_l.
   Qed.
+
 End laws.

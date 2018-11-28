@@ -1,3 +1,7 @@
+(* *********************************************************************************** *)
+(** * More on invertible 2cells                                                        *)
+(* *********************************************************************************** *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
@@ -7,16 +11,16 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Notations.
 Local Open Scope cat.
 
 (* ----------------------------------------------------------------------------------- *)
-(** * Inverse 2cell of a composition                                                   *)
+(** ** Inverse 2cell of a composition                                                  *)
 (* ----------------------------------------------------------------------------------- *)
 
 Lemma is_invertible_2cell_vcomp {C : prebicat} {a b : C} {f g h: C ⟦a, b⟧}
-      (x : f ==> g) (y : g ==> h)
-      (inv_x : is_invertible_2cell x) (inv_y : is_invertible_2cell y)
+      {x : f ==> g} (inv_x : is_invertible_2cell x)
+      {y : g ==> h} (inv_y : is_invertible_2cell y)
   : is_invertible_2cell (x • y).
 Proof.
-  exists (inv_y^-1 • inv_x^-1).
-  split.
+  use mk_is_invertible_2cell.
+  - exact (inv_y^-1 • inv_x^-1).
   - abstract (
         repeat rewrite vassocl;
         etrans; [apply vassoc4|];
@@ -35,21 +39,13 @@ Proof.
       ).
 Defined.
 
-Lemma inv_cell_of_composite {C : prebicat} {a b : C} {f g h: C ⟦a, b⟧}
-      (x : f ==> g) (y : g ==> h)
-      (inv_x : is_invertible_2cell x) (inv_y : is_invertible_2cell y)
-  : is_invertible_2cell_vcomp _ _ inv_x inv_y ^-1 =
-    inv_y^-1 • inv_x^-1.
-Proof.
-  cbn. apply idpath.
-Defined.
-
-Lemma is_invertible_2cell_lwhisker {C : prebicat} {a b c : C} (f : a --> b) {g1 g2 : b --> c}
+Lemma is_invertible_2cell_lwhisker {C : prebicat} {a b c : C}
+      (f : a --> b) {g1 g2 : b --> c}
       {x : g1 ==> g2} (inv_x : is_invertible_2cell x)
   : is_invertible_2cell (f ◃ x).
 Proof.
-  exists (f ◃ inv_x^-1).
-  split.
+  use mk_is_invertible_2cell.
+  - exact (f ◃ inv_x^-1).
   - abstract (
         etrans; [ apply lwhisker_vcomp |];
         etrans; [ apply maponpaths; apply (vcomp_rinv inv_x) |];
@@ -64,8 +60,8 @@ Lemma is_invertible_2cell_rwhisker {C : prebicat} {a b c : C} {f1 f2 : a --> b} 
       {x : f1 ==> f2} (inv_x : is_invertible_2cell x)
   : is_invertible_2cell (x ▹ g).
 Proof.
-  exists (inv_x^-1 ▹ g).
-  split.
+  use mk_is_invertible_2cell.
+  - exact (inv_x^-1 ▹ g).
   - abstract (
         etrans; [ apply rwhisker_vcomp |];
         etrans; [ apply maponpaths; apply (vcomp_rinv inv_x) |];
@@ -77,53 +73,6 @@ Proof.
 Defined.
 
 (** ** Two-cells that are isomorphisms **)
-
-Definition iso_id₂
-         {C : bicat}
-         {X Y : C}
-         (f : C⟦X,Y⟧)
-  : is_invertible_2cell (id₂ f).
-Proof.
-  exists (id2 _).
-  split; apply id2_left.
-Defined.
-
-Definition left_unit_iso
-         {C : bicat}
-         {X Y : C}
-         (f : C⟦X,Y⟧)
-  : is_invertible_2cell (runitor f).
-Proof.
-  apply is_invertible_2cell_runitor.
-Defined.
-
-Definition left_unit_inv_iso
-         {C : bicat}
-         {X Y : C}
-         (f : C⟦X,Y⟧)
-  : is_invertible_2cell (rinvunitor f).
-Proof.
-  apply is_invertible_2cell_rinvunitor.
-Defined.
-
-Definition lunitor_iso
-         {C : bicat}
-         {X Y : C}
-         (f : C⟦X,Y⟧)
-  : is_invertible_2cell (lunitor f).
-Proof.
-  apply is_invertible_2cell_lunitor.
-Defined.
-
-Definition lunitor_inv_iso
-         {C : bicat}
-         {X Y : C}
-         (f : C⟦X,Y⟧)
-  : is_invertible_2cell (linvunitor f).
-Proof.
-  apply is_invertible_2cell_linvunitor.
-Defined.
-
 
 Definition pentagon
            {C : bicat}
@@ -145,24 +94,19 @@ Proof.
   apply lassociator_lassociator.
 Qed.
 
-
-Definition hcomp_iso
+Definition is_invertible_2cell_hcomp
        {C : bicat}
        {X Y Z : C}
        {f₁ g₁ : C⟦Y,Z⟧} {f₂ g₂ : C⟦X,Y⟧}
        (η₁ : f₁ ==> g₁) (η₂ : f₂ ==> g₂)
-       (Hη₁ : is_invertible_2cell η₁)
-       (Hη₂ : is_invertible_2cell η₂)
+       (inv_η₁ : is_invertible_2cell η₁)
+       (inv_η₂ : is_invertible_2cell η₂)
   : is_invertible_2cell (η₁ ⋆⋆ η₂).
 Proof.
   use mk_is_invertible_2cell.
-  - exact (Hη₁^-1 ⋆⋆ Hη₂^-1).
-  - rewrite <- hcomp_vcomp.
-    rewrite !vcomp_rinv.
-    apply hcomp_identity.
-  - rewrite <- hcomp_vcomp.
-    rewrite !vcomp_lid.
-    apply hcomp_identity.
+  - exact (inv_η₁^-1 ⋆⋆ inv_η₂^-1).
+  - abstract (rewrite <- hcomp_vcomp, !vcomp_rinv; apply hcomp_identity).
+  - abstract (rewrite <- hcomp_vcomp, !vcomp_lid; apply hcomp_identity).
 Defined.
 
 Definition bc_whisker_l
@@ -216,81 +160,7 @@ Proof.
   apply idpath.
 Qed.
 
-Definition inverse_of_left_unit
-           {C : bicat}
-           {X Y : C}
-           (f : C⟦X,Y⟧)
-  : (left_unit_iso f)^-1 = rinvunitor f
-  := idpath _ .
-
-Definition inverse_of_lunitor
-           {C : bicat}
-           {X Y : C}
-           (f : C⟦X,Y⟧)
-  : (lunitor_iso f)^-1 = linvunitor f
-  := idpath _.
-
 (**** Properties of isomorphisms ***)
-
-Definition id₂_inverse
-           {C : bicat}
-           {X Y : C}
-           (f : C⟦X,Y⟧)
-  : (iso_id₂ f)^-1 = id₂ f
-  := idpath _.
-
-Definition vcomp_inverse
-           {C : bicat}
-           {X Y : C}
-           {f g h : C⟦X,Y⟧}
-           (η₁ : f ==> g) (η₂ : g ==> h)
-           (Hη₁ : is_invertible_2cell η₁)
-           (Hη₂ : is_invertible_2cell η₂)
-  : (is_invertible_2cell_vcomp _ _ Hη₁ Hη₂)^-1 = Hη₁^-1 o Hη₂^-1
-  := idpath _ .
-
-Definition hcomp_inverse
-           {C : bicat}
-           {X Y Z : C}
-           {f₁ g₁ : C⟦Y,Z⟧} {f₂ g₂ : C⟦X,Y⟧}
-           (η₁ : f₁ ==> g₁) (η₂ : f₂ ==> g₂)
-           (Hη₁ : is_invertible_2cell η₁)
-           (Hη₂ : is_invertible_2cell η₂)
-  : (hcomp_iso _ _ Hη₁ Hη₂)^-1 = Hη₁^-1 ⋆⋆ Hη₂^-1
-  := idpath _ .
-
-Definition vcomp_cancel_left
-           {C : bicat}
-           {X Y : C}
-           {f g h : C⟦X,Y⟧}
-           (ε : g ==> h)
-           (η₁ η₂ : f ==> g)
-           (Hε : is_invertible_2cell ε)
-  : ε o η₁ = ε o η₂ -> η₁ = η₂.
-Proof.
-  intros Hhf.
-  simple refine (!(id2_right _) @ _ @ id2_right _).
-  rewrite <- (vcomp_rinv Hε).
-  rewrite !vassocr.
-  rewrite Hhf.
-  reflexivity.
-Qed.
-
-Definition vcomp_cancel_right
-           {C : bicat}
-           {X Y : C}
-           {f g h : C⟦X,Y⟧}
-           (ε : f ==> g) (η₁ η₂ : g ==> h)
-           (Hε : is_invertible_2cell ε)
-  : η₁ o ε = η₂ o ε -> η₁ = η₂.
-Proof.
-  intros Hhf.
-  refine (!(id2_left _) @ _ @ id2_left _).
-  rewrite <- (vcomp_lid Hε).
-  rewrite <- !vassocr.
-  rewrite Hhf.
-  reflexivity.
-Qed.
 
 Definition vcomp_move_L_Vp
            {C : bicat}
@@ -393,14 +263,14 @@ Definition path_inverse_2cell
            {X Y : C}
            {f g : C⟦X,Y⟧}
            (η₁ η₂ : f ==> g)
-           {Hη₁ : is_invertible_2cell η₁}
-           {Hη₂ : is_invertible_2cell η₂}
-  : η₁ = η₂ -> Hη₁^-1 = Hη₂^-1.
+           {inv_η₁ : is_invertible_2cell η₁}
+           {inv_η₂ : is_invertible_2cell η₂}
+  : η₁ = η₂ -> inv_η₁^-1 = inv_η₂^-1.
 Proof.
   intros p.
-  rewrite <- (id2_left (Hη₁^-1)).
-  rewrite <- (id2_right (Hη₂^-1)).
-  rewrite <- (vcomp_lid Hη₂).
+  rewrite <- (id2_left (inv_η₁^-1)).
+  rewrite <- (id2_right (inv_η₂^-1)).
+  rewrite <- (vcomp_lid inv_η₂).
   rewrite <- vassocr.
   apply maponpaths.
   rewrite <- p.
@@ -420,8 +290,8 @@ Ltac is_iso :=
   | [ |- is_invertible_2cell (_ • _)] => apply is_invertible_2cell_vcomp ; is_iso
   | [ |- is_invertible_2cell (_ ◃ _)] => apply is_invertible_2cell_lwhisker ; is_iso
   | [ |- is_invertible_2cell (_ ▹ _)] => apply is_invertible_2cell_rwhisker ; is_iso
-  | [ |- is_invertible_2cell (_ ⋆⋆ _)] => apply hcomp_iso ; is_iso
-  | [ |- is_invertible_2cell (_ ⋆ _)] => apply hcomp_iso ; is_iso
-  | [ |- is_invertible_2cell (id₂ _)] => apply iso_id₂
+  | [ |- is_invertible_2cell (_ ⋆⋆ _)] => apply is_invertible_2cell_hcomp ; is_iso
+  | [ |- is_invertible_2cell (_ ⋆ _)] => apply is_invertible_2cell_hcomp ; is_iso
+  | [ |- is_invertible_2cell (id₂ _)] => apply is_invertible_2cell_id₂
   | _ => try assumption
   end.
