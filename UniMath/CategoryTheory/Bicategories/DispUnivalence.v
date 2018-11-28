@@ -498,7 +498,9 @@ Section Total_Category_Globally_Univalent.
     - use total2_paths_b.
       + reflexivity.
       + use subtypeEquality.
-        * reflexivity.
-        * apply isapropdirprod ; apply isapropdirprod
+        * intro.
+          apply isapropdirprod ; apply isapropdirprod
           ; try (apply isaprop_is_invertible_2cell) ; try apply E.
+        * reflexivity.
   Defined.
+End Total_Category_Globally_Univalent.
