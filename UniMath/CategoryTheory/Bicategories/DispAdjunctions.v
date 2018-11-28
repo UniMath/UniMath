@@ -1,7 +1,7 @@
 (* *********************************************************************************** *)
 (** * Internal adjunction in displayed bicategories
 
-    Benedikt Ahrens, Marco Maggesi
+    Benedikt Ahrens, Marco Maggesi, Niels van der Weide, Dan Frumin
     April 2018                                                                         *)
 (* *********************************************************************************** *)
 
@@ -169,7 +169,7 @@ Definition form_disp_internal_equivalence {a b : C}
 
 Definition is_disp_internal_equivalence
            {a b : C}
-           {j : internal_equivalence a b}
+           (j : internal_equivalence a b)
            {aa: D a} {bb : D b}
            (jj: disp_internal_adjunction_data j aa bb)
   : UU
@@ -180,7 +180,7 @@ Definition disp_internal_equivalence
            (j : internal_equivalence a b)
            (aa: D a) (bb : D b)
   : UU
-  := ∑ jj : disp_internal_adjunction_data j aa bb, is_disp_internal_equivalence jj.
+  := ∑ jj : disp_internal_adjunction_data j aa bb, is_disp_internal_equivalence j jj.
 
 Definition disp_internal_adjoint_equivalence
            {a b : C}
@@ -188,14 +188,12 @@ Definition disp_internal_adjoint_equivalence
            (aa: D a) (bb : D b)
   : UU
   := ∑ jj : disp_internal_adjunction_data j aa bb,
-            is_disp_internal_equivalence
-               (j := internal_equivalence_from_internal_adjoint_equivalence j) jj
-         ×  is_disp_internal_adjunction
-               (internal_adjunction_from_internal_adjoint_equivalence j) jj.
+            is_disp_internal_equivalence j jj
+         ×  is_disp_internal_adjunction j jj.
 
 (** ** Identity is a displayed adjoint *)
 Definition disp_internal_adjunction_data_identity {a : C} (aa : D a)
-  : disp_internal_adjunction_data (internal_adjunction_identity a) aa aa.
+  : disp_internal_adjunction_data (internal_adjoint_equivalence_identity a) aa aa.
 Proof.
   exists (id_disp _ ).
   exists (id_disp _ ).
@@ -211,7 +209,9 @@ End Displayed_Internal_Adjunction.
 Definition is_disp_internal_adjunction_identity
            {C : bicat} {D : disp_bicat C}
            {a : C} (aa : D a)
-  : is_disp_internal_adjunction _ (disp_internal_adjunction_data_identity aa).
+  : is_disp_internal_adjunction
+      (internal_adjoint_equivalence_identity a)
+      (disp_internal_adjunction_data_identity aa).
 Proof.
   split.
   - etrans.
@@ -332,6 +332,50 @@ Proof.
     apply maponpaths_2.
     apply cellset_property.
 Qed.
+
+Definition disp_identity_equivalence
+           {C : bicat} {D : disp_bicat C}
+           {a : C} (aa : D a)
+  : is_disp_internal_equivalence
+      (internal_adjoint_equivalence_identity a)
+      (disp_internal_adjunction_data_identity aa).
+Proof.
+  split.
+  - use tpair.
+    + apply disp_lunitor.
+    + split.
+      * cbn.
+        refine (disp_linvunitor_lunitor (id_disp aa) @ _).
+        apply (@transportf_paths _ (λ z, _ ==>[ z ] _)).
+        apply C.
+      * cbn.
+        refine (disp_lunitor_linvunitor (id_disp aa) @ _).
+        apply (@transportf_paths _ (λ z, _ ==>[ z ] _)).
+        apply C.
+  - use tpair.
+    + apply disp_linvunitor.
+    + split.
+      * cbn.
+        refine (disp_lunitor_linvunitor (id_disp aa) @ _).
+        apply (@transportf_paths _ (λ z, _ ==>[ z ] _)).
+        apply C.
+      * cbn.
+        refine (disp_linvunitor_lunitor (id_disp aa) @ _).
+        apply (@transportf_paths _ (λ z, _ ==>[ z ] _)).
+        apply C.
+Defined.
+
+Definition disp_identity_adjoint_equivalence
+           {C : bicat} {D : disp_bicat C}
+           {a : C} (aa : D a)
+  : disp_internal_adjoint_equivalence (internal_adjoint_equivalence_identity a) aa aa.
+Proof.
+  use tpair.
+  - apply disp_internal_adjunction_data_identity.
+  - split.
+    + apply disp_identity_equivalence.
+    + apply is_disp_internal_adjunction_identity.
+Defined.
 
 (** * Classification of internal adjunctions in the total category *)
 Section Total_Internal_Adjunction.
@@ -523,6 +567,72 @@ Proof.
   - exact (left_adjoint_disp_to_total ff).
   - intros ?. apply left_adjoint_disp_total_eq.
   - intros ?. apply left_adjoint_total_disp_eq.
+Defined.
+
+(** Inverse of [internal_adjunction_from_left_adjoint]
+   This has nothing to do with displayed categories and should be
+   moved to the file with internal adjunctions.
+TODO!
+*)
+Definition left_adjoint_from_internal_adjunction {C : bicat}
+    {x y : C} :
+  internal_adjunction x y →
+  ∑ (f : C⟦x,y⟧), is_internal_left_adjoint f.
+Proof.
+  unfold internal_adjunction. cbn.
+  induction 1 as [j Hj].
+  induction j as [f Hf].
+  induction Hf as [g Hfg].
+  exists f.
+  unfold is_internal_left_adjoint.
+  use tpair.
+  - exists g. apply Hfg.
+  - apply Hj.
+Defined.
+
+Lemma left_adjoint_from_internal_adjunction_weq {C : bicat}
+    {x y : C} :
+  internal_adjunction x y ≃
+  ∑ (f : C⟦x,y⟧), is_internal_left_adjoint f.
+Proof.
+  exists left_adjoint_from_internal_adjunction.
+  use gradth.
+  - exact (λ x, internal_adjunction_from_left_adjoint (pr2 x)).
+  - reflexivity.
+  - reflexivity.
+Defined.
+
+(** Conversion between displayed left adjoints and displayed adjunctions
+TODO!
+*)
+Definition disp_left_adjoint_from_internal_adjunction
+         {a b : B}
+         {f : a --> b}
+         (j : is_internal_left_adjoint f)
+         {aa : D a} {bb : D b}
+  : disp_internal_adjunction j aa bb →
+    ∑ (ff : aa -->[f] bb), is_disp_internal_left_adjoint j ff.
+Proof.
+  induction 1 as [jj Hjj].
+  induction jj as [ff Hff].
+  exists ff.
+  use tpair. apply Hff.
+  apply Hjj.
+Defined.
+
+Definition disp_left_adjoint_from_internal_adjunction_weq
+         {a b : B}
+         {f : a --> b}
+         (j : is_internal_left_adjoint f)
+         {aa : D a} {bb : D b}
+  : disp_internal_adjunction j aa bb ≃
+    ∑ (ff : aa -->[f] bb), is_disp_internal_left_adjoint j ff.
+Proof.
+  exists (disp_left_adjoint_from_internal_adjunction j).
+  use gradth.
+  - refine (λ x,disp_internal_adjunction_from_left_adjoint j (pr1 x) (pr2 x)).
+  - reflexivity.
+  - reflexivity.
 Defined.
 
 End Total_Internal_Adjunction.

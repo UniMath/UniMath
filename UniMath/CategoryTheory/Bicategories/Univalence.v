@@ -201,9 +201,9 @@ Section Internal_Adjunction.
     : internal_adjunction_data a b
     := pr2 f.
 
-  Definition internal_equivalence_from_internal_adjoint_equivalence
-             {a b : C}
-             (f : internal_adjoint_equivalence a b)
+  Coercion internal_equivalence_from_internal_adjoint_equivalence
+           {a b : C}
+           (f : internal_adjoint_equivalence a b)
     : internal_equivalence a b.
   Proof.
     use tpair.
@@ -214,9 +214,9 @@ Section Internal_Adjunction.
       * apply (pr2 (pr2 (pr2 f))).
   Defined.
 
-  Definition internal_adjunction_from_internal_adjoint_equivalence
-             {a b : C}
-             (f : internal_adjoint_equivalence a b)
+  Coercion internal_adjunction_from_internal_adjoint_equivalence
+           {a b : C}
+           (f : internal_adjoint_equivalence a b)
     : internal_adjunction a b.
   Proof.
     use tpair.
