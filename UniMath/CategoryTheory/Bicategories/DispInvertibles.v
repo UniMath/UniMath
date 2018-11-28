@@ -348,80 +348,190 @@ Section Total_invertible_2cells.
   Context {D : disp_bicat C}.
   Local Definition E := (total_bicat D).
 
-
-  (** Convert a displayed isomorphism to an isomorphism in the total category *)
-  Definition iso_in_E
+  (** *** If a 2-cell is invertible in the total category, then it is invertible in the base category *)
+  Definition is_invertible_total_to_base
              {x y : C}
              {xx : D x}
              {yy : D y}
              {f g : C⟦x,y⟧}
-             (ff : xx -->[ f ] yy)
-             (gg : xx -->[ g ] yy)
-    : (∑ (i : invertible_2cell f g), disp_invertible_2cell i ff gg)
-      → (@invertible_2cell E (x ,, xx) (y ,, yy) (f,, ff) (g,, gg)).
+             {ff : xx -->[ f ] yy}
+             {gg : xx -->[ g ] yy}
+             (α : f ==> g)
+             (αα : ff ==>[α] gg)
+    : @is_invertible_2cell E (x ,, xx) (y ,, yy) (f,, ff) (g,, gg) (α,,αα)
+      → is_invertible_2cell α.
   Proof.
-    intros z.
-    use tpair.
-    - use tpair.
-      + exact (pr1 z). (* coerced to a function *)
-      + exact (pr2 z).
-   - use tpair.
-      + use tpair.
-        * exact (inv_cell (pr1 z)).
-        * exact (disp_inv_cell (pr2 z)).
-      + split.
-        * cbn.
-          use total2_paths_b.
-          ** apply vcomp_rinv.
-          ** apply disp_vcomp_rinv.
-        * cbn.
-          use total2_paths_b.
-          ** apply vcomp_lid.
-          ** apply disp_vcomp_linv.
-  Defined.
-
-  (** and the other direction *)
-  Definition iso_in_E_inv
-             {x y : C}
-             {xx : D x}
-             {yy : D y}
-             {f g : C⟦x,y⟧}
-             (ff : xx -->[ f ] yy)
-             (gg : xx -->[ g ] yy)
-    : @invertible_2cell E (x ,, xx) (y ,, yy) (f,, ff) (g,, gg)
-      → ∑ (i : invertible_2cell f g), disp_invertible_2cell i ff gg.
-  Proof.
-    intros z.
-    induction z as [z Hz].
-    induction z as [z zz].
+    intros Hz.
     induction Hz as [inv Hz].
     induction inv as [i ii].
     induction Hz as [Hz1 Hz2].
     cbn in *.
     use tpair.
-    - exists z.
-      use tpair.
-      + exact i.
-      + cbn.
-        split.
-        * exact (base_paths _ _ Hz1).
-        * exact (base_paths _ _ Hz2).
-    - cbn.
-      exists zz.
-      use tpair.
-      + exact ii.
-      + cbn.
-        split.
-        * apply (@transportf_transpose _ (λ α : f ==> f, ff ==>[ α] ff)).
-          refine (_ @ fiber_paths Hz1).
-          apply (@transportf_paths _ (λ α : f ==> f, ff ==>[ α] ff)).
-          apply pathsinv0inv0.
-        * apply (@transportf_transpose _ (λ α : g ==> g, gg ==>[ α] gg)).
-          refine (_ @ fiber_paths Hz2).
-          apply (@transportf_paths _ (λ α : g ==> g, gg ==>[ α] gg)).
-          apply pathsinv0inv0.
+    - exact i.
+    -  cbn.
+       split.
+       + exact (base_paths _ _ Hz1).
+       + exact (base_paths _ _ Hz2).
   Defined.
 
+  (** *** If a 2-cell is invertible in the total category, then it is invertible in the fiber *)
+  Definition is_invertible_total_to_fiber
+             {x y : C}
+             {xx : D x}
+             {yy : D y}
+             {f g : C⟦x,y⟧}
+             {ff : xx -->[ f ] yy}
+             {gg : xx -->[ g ] yy}
+             (α : f ==> g)
+             (αα : ff ==>[α] gg) :
+    forall (Hαα:
+      @is_invertible_2cell E (x ,, xx) (y ,, yy) (f,, ff) (g,, gg) (α,,αα)),
+      is_disp_invertible_2cell
+        (is_invertible_total_to_base _ _ Hαα)
+        αα.
+  Proof.
+    intros Hz.
+    induction Hz as [inv Hz].
+    induction inv as [i ii].
+    induction Hz as [Hz1 Hz2].
+    cbn in *.
+    use tpair.
+    - exact ii.
+    - cbn.
+      split.
+      * apply (@transportf_transpose _ (λ α : f ==> f, ff ==>[ α] ff)).
+        refine (_ @ fiber_paths Hz1).
+        apply (@transportf_paths _ (λ α : f ==> f, ff ==>[ α] ff)).
+        apply pathsinv0inv0.
+      * apply (@transportf_transpose _ (λ α : g ==> g, gg ==>[ α] gg)).
+        refine (_ @ fiber_paths Hz2).
+        apply (@transportf_paths _ (λ α : g ==> g, gg ==>[ α] gg)).
+        apply pathsinv0inv0.
+  Defined.
+
+  Definition is_invertible_total_to_disp
+             {x y : C}
+             {xx : D x}
+             {yy : D y}
+             {f g : C⟦x,y⟧}
+             {ff : xx -->[ f ] yy}
+             {gg : xx -->[ g ] yy}
+             (α : f ==> g)
+             (αα : ff ==>[α] gg)
+    : @is_invertible_2cell E (x ,, xx) (y ,, yy) (f,, ff) (g,, gg) (α,,αα)
+      → ∑ (Hα : is_invertible_2cell α),
+           is_disp_invertible_2cell Hα αα.
+  Proof.
+    intros Hαα.
+    refine (is_invertible_total_to_base _ _ Hαα,,
+            is_invertible_total_to_fiber _ _ Hαα).
+  Defined.
+
+  (** *** If the displayed 2-cell is invertible, then the corresponding 2-cell in the total bicategory is also invertible. *)
+  Definition is_invertible_disp_to_total
+             {x y : C}
+             {xx : D x}
+             {yy : D y}
+             {f g : C⟦x,y⟧}
+             {ff : xx -->[ f ] yy}
+             {gg : xx -->[ g ] yy}
+             (α : f ==> g)
+             (αα : ff ==>[α] gg)
+    : (∑ (Hα : is_invertible_2cell α),
+         is_disp_invertible_2cell Hα αα)
+      → (@is_invertible_2cell E (x ,, xx) (y ,, yy) (f,, ff) (g,, gg) (α,,αα)).
+  Proof.
+    intros H.
+    pose (Hα := pr1 H).
+    pose (Hαα := pr2 H). cbn in Hαα.
+    pose (αα' := (αα,,Hαα) : disp_invertible_2cell (α,,Hα) _ _).
+    use tpair.
+    - use tpair.
+      + exact (inv_cell Hα).
+      + exact (disp_inv_cell αα').
+    - split.
+      + cbn.
+        use total2_paths_b.
+        ** apply vcomp_rinv.
+        ** apply (disp_vcomp_rinv αα').
+      + cbn.
+        use total2_paths_b.
+        ** apply vcomp_lid.
+        ** apply (disp_vcomp_linv αα').
+  Defined.
+
+  (** those maps form a weak equivalence *)
+  Definition is_invertible_total_to_disp_weq
+             {x y : C}
+             {xx : D x}
+             {yy : D y}
+             {f g : C⟦x,y⟧}
+             {ff : xx -->[ f ] yy}
+             {gg : xx -->[ g ] yy}
+             (α : f ==> g)
+             (αα : ff ==>[α] gg)
+    : @is_invertible_2cell E (x ,, xx) (y ,, yy) (f,, ff) (g,, gg) (α,,αα)
+      ≃ ∑ (Hα : is_invertible_2cell α),
+           is_disp_invertible_2cell Hα αα.
+  Proof.
+    apply weqimplimpl.
+    3: apply isaprop_is_invertible_2cell.
+    3: { apply isofhleveltotal2.
+         apply isaprop_is_invertible_2cell.
+         intro Hα.
+         pose (α' := (α,,Hα) : invertible_2cell _ _).
+         apply (isaprop_is_disp_invertible_2cell (x:=α') αα). }
+    apply is_invertible_total_to_disp.
+    apply is_invertible_disp_to_total.
+  Defined.
+
+
+  (** Now we add some data in front of the [is_(disp)_invertible_2cell], and massage it a bit to get
+    an equivalence between [(disp)_invertible_2cell]. *)
+  Lemma step1
+        {x y : C}
+        {xx : D x}
+        {yy : D y}
+        {f g : C⟦x,y⟧}
+        {ff : xx -->[ f ] yy}
+        {gg : xx -->[ g ] yy} :
+    @invertible_2cell E (x ,, xx) (y ,, yy) (f,, ff) (g,, gg)
+≃
+    (∑ (α : f ==> g) (αα : ff ==>[α] gg),
+       ∑ (Hα : is_invertible_2cell α),
+            is_disp_invertible_2cell Hα αα).
+  Proof.
+    eapply weqcomp. {
+      apply weqfibtototal.
+      intros ?. apply is_invertible_total_to_disp_weq. }
+    eapply weqcomp. {
+      apply weqinvweq.
+      apply weqtotal2asstol. }
+    apply idweq.
+  Defined.
+
+  Lemma step2
+        {x y : C}
+        {xx : D x}
+        {yy : D y}
+        {f g : C⟦x,y⟧}
+        {ff : xx -->[ f ] yy}
+        {gg : xx -->[ g ] yy} :
+    (∑ (α : f ==> g) (αα : ff ==>[α] gg),
+       ∑ (Hα : is_invertible_2cell α),
+            is_disp_invertible_2cell Hα αα)
+  ≃
+    (∑ (i : invertible_2cell f g), disp_invertible_2cell i ff gg).
+  Proof.
+    eapply weqcomp. 2: {
+      apply weqtotal2asstol. }
+    unfold disp_invertible_2cell.
+    eapply weqfibtototal. intros α.
+    cbn.
+    apply weqtotal2comm.
+  Defined.
+
+  (** Finally we combine all of the above into a single theorem *)
   Definition iso_in_E_weq
              {x y : C}
              {xx : D x}
@@ -433,29 +543,10 @@ Section Total_invertible_2cells.
         ≃
         (@invertible_2cell E (x ,, xx) (y ,, yy) (f,, ff) (g,, gg)).
   Proof.
-    refine (iso_in_E ff gg ,, _).
-    use isweq_iso.
-    - exact (iso_in_E_inv ff gg).
-    - intros z.
-      induction z as [z zz].
-      use total2_paths2_f.
-      + apply cell_from_invertible_2cell_eq.
-        reflexivity.
-      + use subtypeEquality'.
-        * unfold disp_invertible_2cell.
-          rewrite pr1_transportf.
-          unfold pr1.
-          induction zz as [zz Hzz].
-          unfold invertible_2cell.
-          apply (transportf_cell_from_invertible_2cell_eq (λ z, ff ==>[ z ] gg)).
-        * apply isaprop_is_disp_invertible_2cell.
-    - intros z.
-      destruct z as [z Hz].
-      destruct z as [z zz].
-      destruct Hz as [inv Hz].
-      destruct inv as [i ii].
-      destruct Hz as [Hz1 Hz2].
-      apply (@cell_from_invertible_2cell_eq E).
-      reflexivity.
+    apply weqinvweq.
+    eapply weqcomp.
+    - apply step1.
+    - apply step2.
   Defined.
+
 End Total_invertible_2cells.
