@@ -35,7 +35,7 @@ Section Internal_Adjunction.
     : C⟦b,a⟧
     := pr1 (pr2 j).
 
-  Coercion interna_adjunction_over_from_data {a b : C} (j : internal_adjunction_data a b)
+  Coercion internal_adjunction_over_from_data {a b : C} (j : internal_adjunction_data a b)
     : internal_adjunction_over (internal_left_adjoint j) (internal_right_adjoint j)
     := pr2 (pr2 j).
 
@@ -86,6 +86,36 @@ Section Internal_Adjunction.
     : is_internal_adjunction j
     := pr2 j.
 
+  (** Left adjoints *)
+  Definition internal_left_adjoint_data {a b : C} (f : C⟦a,b⟧) : UU
+    := ∑ (g : C⟦b,a⟧), internal_adjunction_over f g.
+
+  Coercion internal_adjunction_over_from_left_adjoint
+      {a b : C} {f : C⟦a,b⟧}
+      (f_d : internal_left_adjoint_data f) :
+      internal_adjunction_over f (pr1 f_d)
+    := pr2 f_d.
+
+  Definition is_internal_left_adjoint {a b : C} (f : C⟦a,b⟧)
+    : UU
+    := ∑ (f_d : internal_left_adjoint_data f),
+          is_internal_adjunction f_d.
+
+  Coercion internal_adjunction_from_left_adjoint
+      {a b : C} {f : C⟦a,b⟧}
+      (L : is_internal_left_adjoint f)
+    : internal_adjunction a b.
+  Proof.
+    refine (internal_adjunction_data_from_over _,, _).
+    apply L.
+  Defined.
+
+  Coercion is_internal_left_adjoint_internal_left_adjoint_data
+           {a b : C} {f : C⟦a,b⟧}
+           (j : is_internal_left_adjoint f)
+    : internal_left_adjoint_data f := pr1 j.
+
+  (** Internal adjoint equivalences *)
   Definition is_internal_equivalence_over {a b : C} {f : C⟦a,b⟧} {g : C⟦b,a⟧}
              (j : internal_adjunction_over f g)
              (η := internal_unit j)

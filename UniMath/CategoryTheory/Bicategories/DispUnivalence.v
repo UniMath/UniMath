@@ -345,13 +345,13 @@ Definition disp_internal_counit
   := pr2 jj.
 
 Definition is_disp_internal_adjunction {a b : C}
-           {j : internal_adjunction a b}
+           (j : internal_adjunction a b)
            (f := internal_left_adjoint j)
            (g := internal_right_adjoint j)
            {aa : D a} {bb : D b}
-           (jj : disp_internal_adjunction_data j aa bb)
-           (ff := disp_internal_left_adjoint jj)
-           (gg := disp_internal_right_adjoint jj)
+           {ff : aa -->[f] bb}
+           {gg : bb -->[g] aa}
+           (jj : disp_internal_adjunction_over j ff gg)
            (ηη := disp_internal_unit jj)
            (εε := disp_internal_counit jj)
   : UU
@@ -364,9 +364,15 @@ Definition is_disp_internal_adjunction {a b : C}
 
 Definition disp_internal_adjunction {a b : C}
            (j : internal_adjunction a b)
-  : UU
-  := ∑ (aa : D a) (bb : D b) (jj : disp_internal_adjunction_data j aa bb),
-     is_disp_internal_adjunction jj.
+           (aa : D a) (bb : D b) : UU
+  := ∑ (jj : disp_internal_adjunction_data j aa bb),
+     is_disp_internal_adjunction j jj.
+
+Coercion disp_internal_adjunction_data_from_internal_adjunction {a b : C}
+           {j : internal_adjunction a b}
+           {aa : D a} {bb : D b}
+           (jj : disp_internal_adjunction j aa bb)
+ : disp_internal_adjunction_data j aa bb := pr1 jj.
 
 Definition form_disp_internal_equivalence {a b : C}
            {j : internal_equivalence a b}
@@ -406,7 +412,7 @@ Definition disp_internal_adjoint_equivalence
             is_disp_internal_equivalence
                (j := internal_equivalence_from_internal_adjoint_equivalence j) jj
          ×  is_disp_internal_adjunction
-               (j := internal_adjunction_from_internal_adjoint_equivalence j) jj.
+               (internal_adjunction_from_internal_adjoint_equivalence j) jj.
 
 
 Definition disp_internal_adjunction_data_identity {a : C} (aa : D a)
@@ -467,7 +473,7 @@ End Displayed_Internal_Adjunction.
 Definition is_disp_internal_adjunction_identity
            {C : bicat} {D : disp_bicat C}
            {a : C} (aa : D a)
-  : is_disp_internal_adjunction (disp_internal_adjunction_data_identity aa).
+  : is_disp_internal_adjunction _ (disp_internal_adjunction_data_identity aa).
 Proof.
   split.
   - etrans.
