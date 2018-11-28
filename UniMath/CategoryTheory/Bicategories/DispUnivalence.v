@@ -138,7 +138,7 @@ Section Total_Category_Locally_Univalent.
       exact (disp_idtoiso_2_1 D p ff gg ,, HD x y f g p xx yy ff gg).
   Defined.
 
-  Local Definition iso_in_E
+  Definition iso_in_E
              {x y : C}
              {xx : D x}
              {yy : D y}
@@ -168,13 +168,13 @@ Section Total_Category_Locally_Univalent.
           ** apply disp_vcomp_linv.
   Defined.
 
-  Local Definition iso_in_E_inv
-        {x y : C}
-        {xx : D x}
-        {yy : D y}
-        {f g : C⟦x,y⟧}
-        (ff : xx -->[ f ] yy)
-        (gg : xx -->[ g ] yy)
+  Definition iso_in_E_inv
+             {x y : C}
+             {xx : D x}
+             {yy : D y}
+             {f g : C⟦x,y⟧}
+             (ff : xx -->[ f ] yy)
+             (gg : xx -->[ g ] yy)
     : @invertible_2cell E (x ,, xx) (y ,, yy) (f,, ff) (g,, gg)
       → ∑ (i : invertible_2cell f g), disp_invertible_2cell i ff gg.
   Proof.
@@ -209,13 +209,13 @@ Section Total_Category_Locally_Univalent.
           apply pathsinv0inv0.
   Defined.
 
-  Local Definition iso_in_E_weq
-        {x y : C}
-        {xx : D x}
-        {yy : D y}
-        {f g : C⟦x,y⟧}
-        (ff : xx -->[ f ] yy)
-        (gg : xx -->[ g ] yy)
+  Definition iso_in_E_weq
+             {x y : C}
+             {xx : D x}
+             {yy : D y}
+             {f g : C⟦x,y⟧}
+             (ff : xx -->[ f ] yy)
+             (gg : xx -->[ g ] yy)
     : (∑ (i : invertible_2cell f g), disp_invertible_2cell i ff gg)
         ≃
         (@invertible_2cell E (x ,, xx) (y ,, yy) (f,, ff) (g,, gg)).
@@ -285,4 +285,44 @@ Proof.
   intros x y f g p xx yy ff gg.
   induction p.
   apply HD.
+Defined.
+
+Section Displayed_Global_Univalence.
+  Context {C : bicat}.
+  Variable (D : disp_bicat C).
+
+  Definition disp_idtoiso_2_0
+             {a b : C}
+             (p : a = b)
+             (aa : D a) (bb : D b)
+             (pp : transportf (λ z, D z) p aa = bb)
+    : disp_internal_adjoint_equivalence (idtoiso_2_0 a b p) aa bb.
+  Proof.
+    induction p.
+    induction pp.
+    exact (disp_identity_adjoint_equivalence aa).
+  Defined.
+
+  Definition disp_univalent_2_0
+    : UU
+    := ∏ (a b : C) (p : a = b) (aa : D a) (bb : D b),
+       isweq (disp_idtoiso_2_0 p aa bb).
+End Displayed_Global_Univalence.
+
+Definition fiberwise_univalent_2_0
+           {C : bicat}
+           (D : disp_bicat C)
+  : UU
+  := ∏ (a b : C) (aa bb : D a),
+     isweq (disp_idtoiso_2_0 D (idpath a) aa bb).
+
+Definition fiberwise_univalent_2_0_to_disp_univalent_2_0
+           {C : bicat}
+           (D : disp_bicat C)
+  : fiberwise_univalent_2_0 D → disp_univalent_2_0 D.
+Proof.
+  intros HD.
+  intros a b p aa bb.
+  induction p.
+  exact (HD a a aa bb).
 Defined.
