@@ -814,12 +814,11 @@ Defined.
 Corollary subtypeEquality {A : UU} {B : A -> UU} (is : isPredicate B)
    {s s' : total2 (λ x, B x)} : pr1 s = pr1 s' -> s = s'.
 Proof.
-  apply invmap. apply subtypeInjectivity. exact is.
+  intros e. apply (total2_paths_f e). apply is.
 Defined.
 
 Corollary subtypeEquality' {A : UU} {B : A -> UU}
    {s s' : total2 (λ x, B x)} : pr1 s = pr1 s' -> isaprop (B (pr1 s')) -> s = s'.
-(* This variant of subtypeEquality is not often needed. *)
 Proof.
   intros e is. apply (total2_paths_f e). apply is.
 Defined.
@@ -830,11 +829,10 @@ Corollary unique_exists {A : UU} {B : A -> UU} (x : A) (b : B x)
   iscontr (total2 (λ t : A, B t)).
 Proof.
   use iscontrpair.
-  exact (x,,b).
-  intros t.
-  apply subtypeEquality'.
-  apply (H (pr1 t)). apply (pr2 t).
-  apply (h (pr1 (x,,b))).
+  - exact (x,,b).
+  - intros t. apply subtypeEquality.
+    + exact h.
+    + apply (H (pr1 t)). exact (pr2 t).
 Defined.
 
 Definition subtypePairEquality {X : UU} {P : X -> UU} (is : isPredicate P)
