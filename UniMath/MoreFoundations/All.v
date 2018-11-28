@@ -8,6 +8,7 @@ Require Export UniMath.MoreFoundations.Subposets.
 Require Export UniMath.MoreFoundations.DoubleNegation.
 Require Export UniMath.MoreFoundations.DecidablePropositions.
 Require Export UniMath.MoreFoundations.Propositions.
+Require Export UniMath.MoreFoundations.NegativePropositions.
 Require Export UniMath.MoreFoundations.Sets.
 Require Export UniMath.MoreFoundations.Subtypes.
 Require Export UniMath.MoreFoundations.AxiomOfChoice.

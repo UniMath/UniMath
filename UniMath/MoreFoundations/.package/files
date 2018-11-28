@@ -7,6 +7,7 @@ Subposets.v
 DoubleNegation.v
 DecidablePropositions.v
 Propositions.v
+NegativePropositions.v
 Sets.v
 Subtypes.v
 AxiomOfChoice.v
