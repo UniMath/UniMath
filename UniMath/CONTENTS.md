@@ -265,6 +265,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Bicategories/Sigma.v](CategoryTheory/Bicategories/Sigma.v)
    - [Bicategories/Fibration.v](CategoryTheory/Bicategories/Fibration.v)
    - [Bicategories/Cofunctormap.v](CategoryTheory/Bicategories/Cofunctormap.v)
+   - [Bicategories/Algebras.v](CategoryTheory/Bicategories/Algebras.v)
    - [Bicategories/CwF.v](CategoryTheory/Bicategories/CwF.v)
    - [Bicategories/WkCatEnrichment/prebicategory.v](CategoryTheory/Bicategories/WkCatEnrichment/prebicategory.v)
    - [Bicategories/WkCatEnrichment/Notations.v](CategoryTheory/Bicategories/WkCatEnrichment/Notations.v)
