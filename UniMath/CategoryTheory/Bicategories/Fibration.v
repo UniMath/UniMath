@@ -243,7 +243,7 @@ Section LocalIsoFibration.
         rewrite disp_mor_transportf_postwhisker.
         rewrite transport_f_f.
         apply (@transportf_transpose_alt _ (λ α : id₁ c ==> id₁ c, _ ==>[ α] _)).
-        refine (disp_vcomp_lid (disp_local_iso_cleaving_invertible_2cell h (f;; g) idempunitor)
+        refine (disp_vcomp_rinv (disp_local_iso_cleaving_invertible_2cell h (f;; g) idempunitor)
                                @ _).
         unfold transportb.
         apply (@transportf_paths _ (λ α : id₁ c ==> id₁ c, _ ==>[ α] _)).
@@ -259,7 +259,7 @@ Section LocalIsoFibration.
         rewrite disp_mor_transportf_postwhisker.
         rewrite transport_f_f.
         apply (@transportf_transpose_alt _ (λ α : id₁ c ==> id₁ c, _ ==>[ α] _)).
-        refine (disp_vcomp_lid (disp_local_iso_cleaving_invertible_2cell h (f;; g) idempunitor)
+        refine (disp_vcomp_rinv (disp_local_iso_cleaving_invertible_2cell h (f;; g) idempunitor)
                                @ _).
         unfold transportb.
         apply (@transportf_paths _ (λ α : id₁ c ==> id₁ c, _ ==>[ α] _)).
@@ -283,7 +283,7 @@ Section LocalIsoFibration.
         {
           apply maponpaths.
           refine (maponpaths (λ z, (_ •• _) •• ((z •• _) •• _)) _).
-          apply (disp_vcomp_rinv (disp_local_iso_cleaving_invertible_2cell h (f;; g₂) idempunitor)).
+          apply (disp_vcomp_linv (disp_local_iso_cleaving_invertible_2cell h (f;; g₂) idempunitor)).
         }
         unfold transportb.
         rewrite disp_mor_transportf_postwhisker.

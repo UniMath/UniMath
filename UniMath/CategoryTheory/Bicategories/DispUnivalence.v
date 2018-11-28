@@ -159,11 +159,11 @@ Section Total_Category_Locally_Univalent.
         * cbn.
           use total2_paths_b.
           ** apply vcomp_rinv.
-          ** apply disp_vcomp_lid.
+          ** apply disp_vcomp_rinv.
         * cbn.
           use total2_paths_b.
           ** apply vcomp_lid.
-          ** apply disp_vcomp_rinv.
+          ** apply disp_vcomp_linv.
   Defined.
 
   Local Definition iso_in_E_inv
