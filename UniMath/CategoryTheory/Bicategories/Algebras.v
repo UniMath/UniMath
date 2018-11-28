@@ -60,14 +60,9 @@ Section Algebra.
              (hX : C⟦F X,X⟧)
              (hY : C⟦F Y,Y⟧)
              (hf : hX · f ==> # F f · hY)
-    : (hX ◃ lunitor f) • hf
-      =
-      (((((lassociator hX (identity X) f
-                       • (((runitor hX • linvunitor hX) • (laxfunctor_id F X ▹ hX)) ▹ f))
-            • rassociator (# F (identity X)) hX f) • (# F (identity X) ◃ hf))
-          • lassociator (# F (identity X)) (# F f) hY) • (laxfunctor_comp F (identity X) f ▹ hY))
-        • (## F (lunitor f) ▹ hY).
+    : disp_2cells (lunitor f) (@id_disp C disp_alg_prebicat_1 X hX;; hf) hf.
   Proof.
+    cbn. red.
     rewrite <- !rwhisker_vcomp.
     rewrite !vassocr.
     rewrite rwhisker_hcomp.
@@ -195,8 +190,8 @@ Section Algebra.
 
   Definition disp_alg_ops : disp_prebicat_ops disp_alg_prebicat_1.
   Proof.
-    repeat split ; cbn ; unfold alg_disp_cat_2cell.
-    - intros X Y f hX hY α.
+    repeat split.
+    - intros X Y f hX hY α ; cbn ; unfold alg_disp_cat_2cell.
       rewrite lwhisker_id2, id2_left.
       rewrite laxfunctor_id2, id2_rwhisker, id2_right.
       reflexivity.
@@ -204,7 +199,7 @@ Section Algebra.
       exact (disp_alg_lunitor f hX hY hf).
     - intros X Y f hX hY hf.
       exact (disp_alg_runitor f hX hY hf).
-    - intros X Y f hX hY hf.
+    - intros X Y f hX hY hf ; cbn ; red.
       use vcomp_move_R_pM.
       { is_iso. }
       rewrite vassocr.
@@ -213,10 +208,9 @@ Section Algebra.
         refine (laxfunctor_is_iso F (linvunitor f ,, _)).
         is_iso.
       }
-      cbn.
       symmetry.
       exact (disp_alg_lunitor f hX hY hf).
-    - intros X Y f hX hY hf.
+    - intros X Y f hX hY hf ; cbn ; red.
       use vcomp_move_R_pM.
       { is_iso. }
       rewrite vassocr.
@@ -228,7 +222,7 @@ Section Algebra.
       cbn.
       symmetry.
       exact (disp_alg_runitor f hX hY hf).
-    - intros W X Y Z f g h hW hX hY hZ hf hg hh.
+    - intros W X Y Z f g h hW hX hY hZ hf hg hh ; cbn ; red.
       assert ((hW ◃ rassociator f g h) • lassociator hW f (g · h) = lassociator hW (f · g) h • (lassociator _ _ _ ▹ h) • rassociator _ _ _) as X0.
       {
         use vcomp_move_L_Mp.
@@ -329,7 +323,7 @@ Section Algebra.
       rewrite vcomp_whisker.
       reflexivity.
     - admit.
-    - intros X Y f g h α β hX hY hf hg hh hα hβ.
+    - intros X Y f g h α β hX hY hf hg hh hα hβ ; cbn ; red.
       rewrite <- !lwhisker_vcomp.
       rewrite !vassocl.
       rewrite hβ.
@@ -339,7 +333,7 @@ Section Algebra.
       rewrite !rwhisker_vcomp.
       rewrite <- !laxfunctor_vcomp.
       reflexivity.
-    - intros X Y Z f g₁ g₂ α hX hY hZ hf hg₁ hg₂ hα.
+    - intros X Y Z f g₁ g₂ α hX hY hZ hf hg₁ hg₂ hα ; cbn ; red.
       rewrite !vassocr.
       rewrite lwhisker_lwhisker.
       rewrite !vassocl.
@@ -363,7 +357,7 @@ Section Algebra.
       apply (maponpaths (λ z, (z • _) • _)).
       rewrite vcomp_whisker.
       reflexivity.
-    - intros X Y Z f g₁ g₂ α hX hY hZ hf hg₁ hg₂ hα.
+    - intros X Y Z f g₁ g₂ α hX hY hZ hf hg₁ hg₂ hα ; cbn ; red.
       rewrite !vassocr.
       rewrite rwhisker_lwhisker.
       rewrite !vassocl.
