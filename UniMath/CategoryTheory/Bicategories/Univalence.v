@@ -102,68 +102,6 @@ Section Idtoiso.
   Defined.
 End Idtoiso.
 
-(* TODO: THIS IS FUBAR'd *)
-(* Section CompositionEquivalence. *)
-(*   Context {C : bicat} *)
-(*           {X Y Z : C}. *)
-(*   Variable (A₁ : internal_equivalence Y Z) *)
-(*            (A₂ : internal_equivalence X Y). *)
-
-(*   Local Notation f := (internal_left_adjoint A₂). *)
-(*   Local Notation g := (internal_left_adjoint A₁). *)
-(*   Local Notation finv := (internal_right_adjoint A₂). *)
-(*   Local Notation ginv := (internal_right_adjoint A₁). *)
-
-(*   Local Definition comp_unit *)
-(*     : id₁ X ==> (finv ∘ ginv) ∘ (g ∘ f). *)
-(*   Proof. *)
-(*     refine (rassociator (g ∘ f) _ _ o _). *)
-(*     refine ((_ ◅ _) o (internal_unit A₂)). *)
-(*     refine (lassociator f g _ o _). *)
-(*     exact (((internal_unit A₁) ▻ f) o rinvunitor f). *)
-(*   Defined. *)
-
-(*   Local Definition comp_unit_isiso *)
-(*     : is_invertible_2cell comp_unit. *)
-(*   Proof. *)
-(*     unfold comp_unit. *)
-(*     is_iso. *)
-(*     - exact (internal_unit_iso A₂). *)
-(*     - exact (internal_unit_iso A₁). *)
-(*   Defined. *)
-
-(*   Local Definition comp_counit *)
-(*     : (g ∘ f) ∘ (finv ∘ ginv) ==> (id₁ Z). *)
-(*   Proof. *)
-(*     refine (_ o lassociator _ f g). *)
-(*     refine (internal_counit A₁ o (g ◅ _)). *)
-(*     refine (_ o rassociator _ _ _). *)
-(*     refine (runitor _ o _). *)
-(*     exact (internal_counit A₂ ▻ _). *)
-(*   Defined. *)
-
-(*   Local Definition comp_counit_isiso *)
-(*     : is_invertible_2cell comp_counit. *)
-(*   Proof. *)
-(*     unfold comp_counit. *)
-(*     is_iso. *)
-(*     - exact (internal_counit_iso A₂). *)
-(*     - exact (internal_counit_iso A₁). *)
-(*   Defined. *)
-
-(*   Definition comp_equiv *)
-(*     : internal_equivalence X Z. *)
-(*   Proof. *)
-(*     use build_equiv. *)
-(*     - exact (g ∘ f). *)
-(*     - exact (finv ∘ ginv). *)
-(*     - exact comp_counit. *)
-(*     - exact comp_unit. *)
-(*     - exact comp_counit_isiso. *)
-(*     - exact comp_unit_isiso. *)
-(*   Defined. *)
-(* End CompositionEquivalence. *)
-
 Definition is_univalent_2_1 (C : bicat) : UU
   := ∏ (a b : C) (f g : C⟦a,b⟧), isweq (idtoiso_2_1 f g).
 

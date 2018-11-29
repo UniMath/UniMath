@@ -10,6 +10,7 @@ Require Import UniMath.CategoryTheory.Categories.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Univalence.
+Require Import UniMath.CategoryTheory.Bicategories.Adjunctions.
 Require Import UniMath.CategoryTheory.Bicategories.equiv_to_adjequiv.
 Require Import UniMath.CategoryTheory.Bicategories.adjoint_unique.
 Local Open Scope bicategory_scope.
@@ -38,6 +39,7 @@ Section TwoTypeBiGroupoid.
     - exact (λ _ _ _ _ p q r, path_assoc p q r).
     - exact (λ _ _ _ _ p q r, !(path_assoc p q r)).
   Defined.
+
 
   Definition two_type_bicat_laws
     : prebicat_laws two_type_bicat_data.
@@ -114,10 +116,10 @@ Section TwoTypeBiGroupoid.
   Definition fundamental_bigroupoid_1cell_equivalence
              {x y : fundamental_bigroupoid}
              (p : fundamental_bigroupoid⟦x,y⟧)
-    : internal_equivalence x y.
+    : left_equivalence p.
   Proof.
     use tpair.
-    - refine (p ,, !p ,, _).
+    - refine (!p ,, _).
       split ; cbn.
       + exact (! (pathsinv0r p)).
       + exact (pathsinv0l p).
@@ -129,8 +131,8 @@ Section TwoTypeBiGroupoid.
   Definition fundamental_bigroupoid_1cell_adj_equiv
              {x y : fundamental_bigroupoid}
              (p : fundamental_bigroupoid⟦x,y⟧)
-    : is_internal_left_adjoint_internal_equivalence p
-    := equiv_to_isadjequiv (fundamental_bigroupoid_1cell_equivalence p).
+    : left_adjoint_equivalence p
+    := equiv_to_isadjequiv p (fundamental_bigroupoid_1cell_equivalence p).
 
   (** It is univalent *)
   Definition fundamental_bigroupoid_is_univalent_2_1
@@ -157,7 +159,7 @@ Section TwoTypeBiGroupoid.
     intros x y.
     use isweq_iso.
     - intros p.
-      exact (internal_left_adjoint p).
+      apply p.
     - intros p ; cbn in *.
       induction p ; cbn.
       reflexivity.
