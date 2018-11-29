@@ -14,6 +14,7 @@ Require Import UniMath.CategoryTheory.Bicategories.DispBicat. Import DispBicat.N
 Require Import UniMath.CategoryTheory.Bicategories.Unitors.
 Require Import UniMath.CategoryTheory.Bicategories.Adjunctions.
 Require Import UniMath.CategoryTheory.Bicategories.Invertible_2cells.
+Require Import UniMath.CategoryTheory.Bicategories.DispInvertibles.
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
@@ -115,14 +116,14 @@ Coercion disp_axioms_of_left_adjoint
 Definition disp_left_equivalence_axioms
          {a b : C}
          {f : a --> b}
-         (αe : left_adjoint_equivalence f)
+         (αe : left_equivalence f)
          {aa : D a} {bb : D b}
          {ff : aa -->[f] bb}
          (ααd : disp_left_adjoint_data αe ff)
   : UU
-  := is_disp_invertible_2cell (left_adjoint_equivalence_unit_iso _)
+  := is_disp_invertible_2cell (left_equivalence_unit_iso _)
        (disp_left_adjoint_unit αe ααd)
-   × is_disp_invertible_2cell (left_adjoint_equivalence_counit_iso _)
+   × is_disp_invertible_2cell (left_equivalence_counit_iso _)
        (disp_left_adjoint_counit αe ααd).
 
 Definition disp_left_adjoint_equivalence
@@ -397,84 +398,62 @@ Section Total_Internal_Adjunction.
 Context {B : bicat} {D : disp_bicat B}.
 Local Definition E := total_bicat D.
 
-(** A left adjoint in the total category gives a left adjoint in the base .. *)
-Local Definition left_adjoint_total_to_base
+(** Equivalences for data *)
+Local Definition left_adjoint_data_total_to_base
       {a b : B}
       {aa : D a} {bb : D b}
       {f : a --> b}
       {ff : aa -->[f] bb} :
-  @left_adjoint E (a,,aa) (b,,bb) (f,,ff) →
-  left_adjoint f.
+  @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff) →
+  left_adjoint_data f.
 Proof.
   intros f_d.
-  set (Hlaw := pr2 f_d).
-  set (g' := pr1 (pr1 f_d)).
-  set (Hdat := pr2 (pr1 f_d)).
+  set (g' := pr1 f_d).
+  set (Hdat := pr2 f_d).
   set (g := pr1 g').
   set (η := pr1 (pr1 Hdat)).
   set (ε := pr1 (pr2 Hdat)).
-  use tpair.
-  - (* Data for the adjunction in the base *)
-    exists g.
-    exact (η,,ε).
-  - (* Laws for the adjunction in the base *)
-    use tpair.
-    + apply (base_paths _ _ (pr1 Hlaw)).
-    + apply (base_paths _ _ (pr2 Hlaw)).
+  exists g.
+  exact (η,,ε).
 Defined.
 
-(** .. and a displayed left adjoint over that. *)
-Local Definition left_adjoint_total_to_fiber
+Local Definition left_adjoint_data_total_to_fiber
       {a b : B}
       {aa : D a} {bb : D b}
       {f : a --> b}
       {ff : aa -->[f] bb} :
-  forall (j : @left_adjoint E (a,,aa) (b,,bb) (f,,ff)),
-  disp_left_adjoint (left_adjoint_total_to_base j) ff.
+  forall (j : @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff)),
+  disp_left_adjoint_data (left_adjoint_data_total_to_base j) ff.
 Proof.
   intros f_d.
-  set (Hlaw := pr2 f_d).
-  set (g' := pr1 (pr1 f_d)).
-  set (Hdat := pr2 (pr1 f_d)).
+  set (g' := pr1 f_d).
+  set (Hdat := pr2 f_d).
   set (gg := pr2 g').
   set (ηη := pr2 (pr1 Hdat)).
   set (εε := pr2 (pr2 Hdat)).
-  use tpair.
-  - (* Data for the displayed adjunction *)
-    exists gg. exact (ηη,,εε).
-  - (* Laws for the displayed adjunction *)
-    abstract (use tpair;
-    [ apply (transportf_transpose (P:=λ x, _ ==>[x] _));
-      etrans; [| apply (fiber_paths (pr1 Hlaw)) ];
-      apply (transportf_transpose (P:=λ x, _ ==>[x] _));
-      apply (transportfbinv (λ x, _ ==>[x] _))
-    | apply (transportf_transpose (P:=λ x, _ ==>[x] _));
-      etrans; [| apply (fiber_paths (pr2 Hlaw)) ];
-      apply (transportf_transpose (P:=λ x, _ ==>[x] _));
-      apply (transportfbinv (λ x, _ ==>[x] _)) ]).
+  exists gg. exact (ηη,,εε).
 Defined.
 
-Definition left_adjoint_total_to_disp
+Definition left_adjoint_data_total_to_disp
       {a b : B}
       {aa : D a} {bb : D b}
       {f : a --> b}
       (ff : aa -->[f] bb) :
-  @left_adjoint E (a,,aa) (b,,bb) (f,,ff) →
-  ∑ (α : left_adjoint f), disp_left_adjoint α ff.
+  @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff) →
+  ∑ (α : left_adjoint_data f), disp_left_adjoint_data α ff.
 Proof.
   intros j.
-  exists (left_adjoint_total_to_base j).
-  apply left_adjoint_total_to_fiber.
+  exists (left_adjoint_data_total_to_base j).
+  apply left_adjoint_data_total_to_fiber.
 Defined.
 
-(** Given a displayed left adjoint we construct a left adjoint in the total category *)
-Definition left_adjoint_disp_to_total
+Definition left_adjoint_data_disp_to_total
       {a b : B}
       {aa : D a} {bb : D b}
       {f : a --> b}
       (ff : aa -->[f] bb) :
-  (∑ (α : left_adjoint f), disp_left_adjoint α ff) →
-  @left_adjoint E (a,,aa) (b,,bb) (f,,ff).
+  (∑ (α : left_adjoint_data f), disp_left_adjoint_data α ff) →
+  @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff).
 Proof.
   intros j'.
   pose (j := pr1 j').
@@ -482,171 +461,376 @@ Proof.
   pose (g := left_adjoint_right_adjoint j).
   pose (gg := (disp_left_adjoint_right_adjoint _ jj : bb -->[g] aa)).
   use tpair.
-  - (* Data for the total adjunction *)
+  - exact (g,, gg).
+  - simpl. (* Units/counits *)
     use tpair.
-    + exact (g,, gg).
-    + simpl. (* Units/counits *)
-      use tpair.
-      * (* Units *)
-        use tpair; simpl.
-        apply (left_adjoint_unit j).
-        apply (disp_left_adjoint_unit _ jj).
-      * (* Counits *)
-        use tpair; simpl.
-        apply (left_adjoint_counit j).
-        apply (disp_left_adjoint_counit _ jj).
-  - abstract (simpl; split; use total2_paths_b; (apply j || apply jj)).
+    + (* Units *)
+      use tpair; simpl.
+      apply (left_adjoint_unit j).
+      apply (disp_left_adjoint_unit _ jj).
+    + (* Counits *)
+      use tpair; simpl.
+      apply (left_adjoint_counit j).
+      apply (disp_left_adjoint_counit _ jj).
 Defined.
 
-Lemma left_adjoint_disp_total_eq
+Definition left_adjoint_data_total_weq
       {a b : B}
-      (aa : D a) (bb : D b)
-      (f : a --> b)
-      (ff : aa -->[f] bb)
-      (jj : @left_adjoint E (a,,aa) (b,,bb) (f,,ff)) :
-  left_adjoint_disp_to_total ff (left_adjoint_total_to_disp ff jj) = jj.
+      {aa : D a} {bb : D b}
+      {f : a --> b}
+      (ff : aa -->[f] bb) :
+  @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff) ≃
+  ∑ (α : left_adjoint_data f), disp_left_adjoint_data α ff.
 Proof.
-  use total2_paths_f.
-  - reflexivity.
-  - use total2_paths_f; apply cellset_property.
+  exists (left_adjoint_data_total_to_disp ff).
+  use gradth.
+  - exact (left_adjoint_data_disp_to_total ff).
+  - intros ?. reflexivity.
+  - intros ?. reflexivity.
 Defined.
 
-(* TODO. DF: MOVE TO A SANER PLACE, merge with transportf_subtypeEquality' *)
-Definition transportf_subtypeEquality'_QUALITY
-           {A : UU}
-           {P : A → UU}
-           (Pprop : ∏ (a : A), isaprop (P a))
-           {C : total2 P → UU}
-           (x : A) (P₁ P₂ : P x)
-           (y : C (x,,P₁)) :
-  transportf (λ (z : total2 P), C z)
-             (@subtypeEquality' _ _ (x,,P₁) (x,,P₂) (idpath x) (Pprop x))
-             y
-  = transportf (λ (p : P x), C (x,, p)) (pr1 (Pprop x P₁ P₂)) y.
-Proof.
-  cbn.
-  induction (Pprop x P₁ P₂) as [p q].
-  induction p.
-  reflexivity.
-Defined.
-
-Lemma left_adjoint_total_disp_eq
+(** The equivalence for adjunction laws *)
+Definition left_adjoint_axioms_total_to_base
       {a b : B}
-      (aa : D a) (bb : D b)
-      (f : a --> b)
-      (ff : aa -->[f] bb)
-      (jj : ∑ α : left_adjoint f,
-           disp_left_adjoint α ff) :
-  left_adjoint_total_to_disp ff (left_adjoint_disp_to_total ff jj) = jj.
+      {aa : D a} {bb : D b}
+      {f : a --> b}
+      {ff : aa -->[f] bb}
+      {td : @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff)} :
+  left_adjoint_axioms td →
+  left_adjoint_axioms (left_adjoint_data_total_to_base td).
 Proof.
-  use total2_paths_f.
-  - apply subtypeEquality'.
-    + reflexivity.
-    + induction jj as [j jj]. cbn-[isaprop].
-      induction j as [jd jl]. cbn[pr1].
-      (** The reason we are destructing `j` here is because we want to obtain an abstract subproof
-        that only depends on the `jd : internal_left_adjoint_data f`.
-        This sublemma will later be used for transportf_subtypeEquality' *)
-      abstract (apply isofhleveltotal2; try intro; apply cellset_property).
-  - use total2_paths_f.
-    + etrans. apply (pr1_transportf
-                       (left_adjoint f)
-                       (λ x, disp_left_adjoint_data x ff)).
-      destruct jj as [j jj].
-      destruct jj as [jjd jjl].
-      destruct j as [jd jl].
-      etrans. {
-        pose (QQ := @transportf_subtypeEquality'_QUALITY).
-        specialize (QQ (left_adjoint_data f)).
-        specialize (QQ left_adjoint_axioms).
-        specialize (QQ (left_adjoint_total_disp_eq_subproof _ _ f)).
-        specialize (QQ (λ x, disp_left_adjoint_data
-                               (data_of_left_adjoint x) ff)).
-        apply QQ. }
-      cbn.
-      apply (toforallpaths _ _ _ (transportf_const _ _)).
-    + use total2_paths_f; apply disp_cellset_property.
+  intros Hlaw.
+  use tpair.
+  + apply (base_paths _ _ (pr1 Hlaw)).
+  + apply (base_paths _ _ (pr2 Hlaw)).
+Defined.
+
+Definition left_adjoint_axioms_total_to_fiber
+      {a b : B}
+      {aa : D a} {bb : D b}
+      {f : a --> b}
+      {ff : aa -->[f] bb}
+      (td : @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff))
+      (ta : left_adjoint_axioms td) :
+  disp_left_adjoint_axioms
+    (_,, left_adjoint_axioms_total_to_base ta)
+    (left_adjoint_data_total_to_fiber td).
+Proof.
+  use tpair.
+  - apply (transportf_transpose (P:=λ x, _ ==>[x] _)).
+    etrans; [| apply (fiber_paths (pr1 ta)) ].
+    apply (transportf_transpose (P:=λ x, _ ==>[x] _)).
+    apply (transportfbinv (λ x, _ ==>[x] _)).
+  - apply (transportf_transpose (P:=λ x, _ ==>[x] _)).
+    etrans; [| apply (fiber_paths (pr2 ta)) ].
+    apply (transportf_transpose (P:=λ x, _ ==>[x] _)).
+    apply (transportfbinv (λ x, _ ==>[x] _)).
 Qed.
 
-Lemma left_adjoint_total_disp_left_adjoint
+Definition left_adjoint_axioms_total_to_disp
       {a b : B}
-      (aa : D a) (bb : D b)
-      (f : a --> b)
-      (ff : aa -->[f] bb) :
-  @left_adjoint E (a,,aa) (b,,bb) (f,,ff)
-≃ ∑ (α : left_adjoint f), disp_left_adjoint α ff.
+      {aa : D a} {bb : D b}
+      {f : a --> b}
+      {ff : aa -->[f] bb}
+      (td : @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff))
+      (ta : left_adjoint_axioms td) :
+  ∑ (ba : left_adjoint_axioms _),
+    disp_left_adjoint_axioms
+      (_,, ba)
+      (left_adjoint_data_total_to_fiber td).
 Proof.
-  exists (left_adjoint_total_to_disp ff).
-  use gradth.
-  - exact (left_adjoint_disp_to_total ff).
-  - intros ?. apply left_adjoint_disp_total_eq.
-  - intros ?. apply left_adjoint_total_disp_eq.
+  exists (left_adjoint_axioms_total_to_base ta).
+  apply left_adjoint_axioms_total_to_fiber.
 Defined.
 
-(* (** Inverse of [internal_adjunction_from_left_adjoint] *)
-(*    This has nothing to do with displayed categories and should be *)
-(*    moved to the file with internal adjunctions. *)
-(* TODO! *)
-(* *) *)
-(* Definition left_adjoint_from_internal_adjunction {C : bicat} *)
-(*     {x y : C} : *)
-(*   internal_adjunction x y → *)
-(*   ∑ (f : C⟦x,y⟧), is_internal_left_adjoint f. *)
-(* Proof. *)
-(*   unfold internal_adjunction. cbn. *)
-(*   induction 1 as [j Hj]. *)
-(*   induction j as [f Hf]. *)
-(*   induction Hf as [g Hfg]. *)
-(*   exists f. *)
-(*   unfold is_internal_left_adjoint. *)
-(*   use tpair. *)
-(*   - exists g. apply Hfg. *)
-(*   - apply Hj. *)
-(* Defined. *)
+Definition left_adjoint_axioms_disp_to_total
+      {a b : B}
+      {aa : D a} {bb : D b}
+      {f : a --> b}
+      {ff : aa -->[f] bb}
+      (td : @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff)) :
+  (∑ (ba : left_adjoint_axioms _),
+     disp_left_adjoint_axioms
+       (_,, ba)
+       (left_adjoint_data_total_to_fiber td))
+ → left_adjoint_axioms td.
+Proof.
+  intros j'.
+  pose (j := pr1 j').
+  pose (jj := pr2 j').
+  simpl; split; use total2_paths_b; (apply j || apply jj).
+Qed.
 
-(* Lemma left_adjoint_from_internal_adjunction_weq {C : bicat} *)
-(*     {x y : C} : *)
-(*   internal_adjunction x y ≃ *)
-(*   ∑ (f : C⟦x,y⟧), is_internal_left_adjoint f. *)
-(* Proof. *)
-(*   exists left_adjoint_from_internal_adjunction. *)
-(*   use gradth. *)
-(*   - exact (λ x, internal_adjunction_from_left_adjoint (pr2 x)). *)
-(*   - reflexivity. *)
-(*   - reflexivity. *)
-(* Defined. *)
+Definition left_adjoint_axioms_total_weq
+      {a b : B}
+      {aa : D a} {bb : D b}
+      {f : a --> b}
+      {ff : aa -->[f] bb}
+      (td : @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff)):
+  left_adjoint_axioms td
+ ≃
+ ∑ (ba : left_adjoint_axioms _),
+  disp_left_adjoint_axioms
+    (_,, ba)
+    (left_adjoint_data_total_to_fiber td).
+Proof.
+  apply weqimplimpl.
+  - exact (left_adjoint_axioms_total_to_disp td).
+  - exact (left_adjoint_axioms_disp_to_total td).
+  - apply isofhleveltotal2; try intro; apply cellset_property.
+  - apply isofhleveltotal2.
+    { apply isofhleveltotal2; try intro; apply cellset_property. }
+    intros ?.
+    apply isofhleveltotal2; try intro; apply disp_cellset_property.
+Defined.
 
-(* (** Conversion between displayed left adjoints and displayed adjunctions *)
-(* TODO! *)
-(* *) *)
-(* Definition disp_left_adjoint_from_internal_adjunction *)
-(*          {a b : B} *)
-(*          {f : a --> b} *)
-(*          (j : is_internal_left_adjoint f) *)
-(*          {aa : D a} {bb : D b} *)
-(*   : disp_internal_adjunction j aa bb → *)
-(*     ∑ (ff : aa -->[f] bb), is_disp_internal_left_adjoint j ff. *)
-(* Proof. *)
-(*   induction 1 as [jj Hjj]. *)
-(*   induction jj as [ff Hff]. *)
-(*   exists ff. *)
-(*   use tpair. apply Hff. *)
-(*   apply Hjj. *)
-(* Defined. *)
+(** The equivalence for equivalence laws *)
+Definition left_equivalence_axioms_total_to_base
+      {a b : B}
+      {aa : D a} {bb : D b}
+      {f : a --> b}
+      {ff : aa -->[f] bb}
+      {td : @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff)} :
+  left_equivalence_axioms td →
+  left_equivalence_axioms (left_adjoint_data_total_to_base td).
+Proof.
+  intros Hlaw.
+  pose (Hη := pr1 Hlaw).
+  pose (Hε := pr2 Hlaw).
+  use tpair.
+  + apply (is_invertible_total_to_base _ _ Hη).
+  + apply (is_invertible_total_to_base _ _ Hε).
+Defined.
 
-(* Definition disp_left_adjoint_from_internal_adjunction_weq *)
-(*          {a b : B} *)
-(*          {f : a --> b} *)
-(*          (j : is_internal_left_adjoint f) *)
-(*          {aa : D a} {bb : D b} *)
-(*   : disp_internal_adjunction j aa bb ≃ *)
-(*     ∑ (ff : aa -->[f] bb), is_disp_internal_left_adjoint j ff. *)
+Definition left_equivalence_axioms_total_to_fiber
+      {a b : B}
+      {aa : D a} {bb : D b}
+      {f : a --> b}
+      {ff : aa -->[f] bb}
+      (td : @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff))
+      (ta : left_equivalence_axioms td) :
+  disp_left_equivalence_axioms
+    (left_adjoint_data_total_to_base td,,
+     left_equivalence_axioms_total_to_base ta)
+    (left_adjoint_data_total_to_fiber td).
+Proof.
+  pose (Hη := pr1 ta).
+  pose (Hε := pr2 ta).
+  cbn in Hη,Hε.
+  use tpair.
+  - apply (is_invertible_total_to_fiber _ _ Hη).
+  - apply (is_invertible_total_to_fiber _ _ Hε).
+Qed.
+
+Definition left_equivalence_axioms_total_to_disp
+      {a b : B}
+      {aa : D a} {bb : D b}
+      {f : a --> b}
+      {ff : aa -->[f] bb}
+      (td : @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff))
+      (ta : left_equivalence_axioms td) :
+  ∑ (ba : left_equivalence_axioms _),
+    disp_left_equivalence_axioms
+      (_,, ba)
+      (left_adjoint_data_total_to_fiber td).
+Proof.
+  exists (left_equivalence_axioms_total_to_base ta).
+  apply left_equivalence_axioms_total_to_fiber.
+Defined.
+
+Definition left_equivalence_axioms_disp_to_total
+      {a b : B}
+      {aa : D a} {bb : D b}
+      {f : a --> b}
+      {ff : aa -->[f] bb}
+      (td : @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff)) :
+  (∑ (ba : left_equivalence_axioms _),
+     disp_left_equivalence_axioms
+       (_,, ba)
+       (left_adjoint_data_total_to_fiber td))
+ → left_equivalence_axioms td.
+Proof.
+  intros αe.
+  pose (ba := pr1 αe).
+  pose (ta := pr2 αe).
+  cbn in ba, ta.
+  split.
+  - apply is_invertible_disp_to_total.
+    use tpair.
+    + apply ba.
+    + apply ta.
+  - apply is_invertible_disp_to_total.
+    use tpair.
+    + apply ba.
+    + apply ta.
+Qed.
+
+Definition left_equivalence_axioms_total_weq
+      {a b : B}
+      {aa : D a} {bb : D b}
+      {f : a --> b}
+      {ff : aa -->[f] bb}
+      (td : @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff)):
+  left_equivalence_axioms td
+ ≃
+ ∑ (ba : left_equivalence_axioms _),
+  disp_left_equivalence_axioms
+    (_,, ba)
+    (left_adjoint_data_total_to_fiber td).
+Proof.
+  apply weqimplimpl.
+  - exact (left_equivalence_axioms_total_to_disp td).
+  - exact (left_equivalence_axioms_disp_to_total td).
+  - apply isapropdirprod; apply isaprop_is_invertible_2cell.
+  - apply isofhleveltotal2.
+    { apply isapropdirprod; apply isaprop_is_invertible_2cell. }
+    intros ?.
+    apply isapropdirprod; apply isaprop_is_disp_invertible_2cell.
+Defined.
+
+(***************************************************)
+(***************************************************)
+(***************************************************)
+
+Lemma adjunction_total_disp_weq
+      {a b : B}
+      (aa : D a) (bb : D b) :
+  @adjunction E (a,,aa) (b,,bb)
+≃ ∑ (f : adjunction a b), disp_adjunction f aa bb.
+Proof.
+  unfold adjunction. cbn.
+  (* First we get out the base left adjoint f *)
+  eapply weqcomp. {
+    apply weqinvweq.
+    apply weqtotal2asstol. }
+  eapply weqcomp. 2: {
+    apply weqtotal2asstol. }
+  eapply weqfibtototal. intros f.
+
+  (* Getting rid of the displayed arrow ff *)
+  unfold disp_adjunction. cbn.
+  eapply weqcomp. 2: {
+    apply weqtotal2comm. }
+  eapply weqfibtototal. intros ff.
+
+  unfold left_adjoint.
+
+  (* Apply the equivalence for data & laws *)
+  eapply weqcomp. {
+    pose (Q:=λ (w : (∑ αd, disp_left_adjoint_data αd ff)),
+                    (∑ l, disp_left_adjoint_axioms (pr1 w,,l) (pr2 w))).
+    eapply (weqbandf (left_adjoint_data_total_weq ff) _ Q).
+    intros td. unfold Q; cbn.
+    apply left_adjoint_axioms_total_weq. }
+  cbn.
+
+  (* Move the quantifiers around *)
+  eapply weqcomp. {
+    apply weqinvweq.
+    apply weqtotal2asstol. }
+  cbn.
+  eapply weqcomp. 2: {
+    apply weqtotal2asstol. }
+  cbn.
+  eapply weqfibtototal. intros αd.
+  eapply weqcomp. {
+    apply weqtotal2comm. }
+  cbn.
+  apply idweq.
+Defined.
+
+Lemma adjoint_equivalence_total_disp_weq
+      {a b : B}
+      (aa : D a) (bb : D b) :
+  @adjoint_equivalence E (a,,aa) (b,,bb)
+≃ ∑ (f : adjoint_equivalence a b), disp_adjoint_equivalence f aa bb.
+Proof.
+  unfold adjoint_equivalence, disp_adjoint_equivalence. cbn.
+  (* First we get out the base left adjoint f *)
+  eapply weqcomp. {
+    apply weqinvweq.
+    apply weqtotal2asstol. }
+  eapply weqcomp. 2: {
+    apply weqtotal2asstol. }
+  eapply weqfibtototal. intros f.
+
+  (* Getting rid of the displayed arrow ff *)
+  cbn.
+  eapply weqcomp. 2: {
+    apply weqtotal2comm. }
+  eapply weqfibtototal. intros ff.
+
+  (* Factor this out *)
+  (* left adjoint equivalences part *)
+  unfold left_adjoint_equivalence.
+  cbn.
+  (* Apply the equivalence for data & laws *)
+  eapply weqcomp. {
+    pose (Q:=
+      λ (w : (∑ αd, disp_left_adjoint_data αd ff)),
+        (∑ l, disp_left_adjoint_axioms (pr1 w,,l) (pr2 w))
+      × (∑ l, disp_left_equivalence_axioms (pr1 w,,l) (pr2 w))).
+    eapply (weqbandf (left_adjoint_data_total_weq ff) _ Q).
+    intros td. unfold Q; cbn.
+    apply weqdirprodf.
+    - apply left_adjoint_axioms_total_weq.
+    - apply left_equivalence_axioms_total_weq. }
+  cbn.
+
+  (* TIME TO REARANGE THE QUANTIFIERS OwO *)
+  cbn.
+  (* Getting rid of the left adjoint data for the base *)
+  eapply weqcomp. {
+    apply weqinvweq.
+    apply weqtotal2asstol. }
+  cbn.
+  eapply weqcomp. 2: {
+    apply weqtotal2asstol. }
+  cbn.
+  eapply weqfibtototal. intros αd.
+
+  (* Getting rid of the displayed left adjoint data *)
+  unfold disp_left_adjoint_equivalence.
+  cbn.
+  eapply weqcomp. 2: {
+    apply weqtotal2comm. }
+  cbn.
+  eapply weqfibtototal. intros ααd.
+  cbn.
+
+  (* now to distribute the ∑s *)
+  eapply weqcomp. 2: {
+    apply weqtotal2asstol. }
+  cbn.
+  eapply weqcomp. {
+    apply weqinvweq.
+    apply weqtotal2asstol. }
+  cbn.
+  eapply weqfibtototal. intros αa.
+  cbn.
+  eapply weqcomp. {
+    apply weqtotal2comm. }
+  apply idweq.
+Defined.
+
+
+(* TODO. DF: MOVE TO A SANER PLACE, merge with transportf_subtypeEquality' *)
+(* Definition transportf_subtypeEquality'_QUALITY *)
+(*            {A : UU} *)
+(*            {P : A → UU} *)
+(*            (Pprop : ∏ (a : A), isaprop (P a)) *)
+(*            {C : total2 P → UU} *)
+(*            (x : A) (P₁ P₂ : P x) *)
+(*            (y : C (x,,P₁)) : *)
+(*   transportf (λ (z : total2 P), C z) *)
+(*              (@subtypeEquality' _ _ (x,,P₁) (x,,P₂) (idpath x) (Pprop x)) *)
+(*              y *)
+(*   = transportf (λ (p : P x), C (x,, p)) (pr1 (Pprop x P₁ P₂)) y. *)
 (* Proof. *)
-(*   exists (disp_left_adjoint_from_internal_adjunction j). *)
-(*   use gradth. *)
-(*   - refine (λ x,disp_internal_adjunction_from_left_adjoint j (pr1 x) (pr2 x)). *)
-(*   - reflexivity. *)
-(*   - reflexivity. *)
+(*   cbn. *)
+(*   induction (Pprop x P₁ P₂) as [p q]. *)
+(*   induction p. *)
+(*   reflexivity. *)
 (* Defined. *)
 
 End Total_Internal_Adjunction.

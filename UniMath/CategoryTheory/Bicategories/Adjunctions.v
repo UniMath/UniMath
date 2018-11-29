@@ -71,6 +71,24 @@ Section Internal_Adjunction.
     :=   is_invertible_2cell (left_adjoint_unit αd)
        × is_invertible_2cell (left_adjoint_counit αd).
 
+  Definition left_equivalence
+           {a b : C}
+           (f : C⟦a,b⟧) : UU
+    := ∑ (αd : left_adjoint_data f),
+       left_equivalence_axioms αd.
+
+  Coercion data_of_left_equivalence
+           {a b : C}
+           {f : C⟦a,b⟧}
+           (αe : left_equivalence f)
+    : left_adjoint_data f := pr1 αe.
+
+  Coercion axioms_of_left_equivalence
+           {a b : C}
+           {f : C⟦a,b⟧}
+           (αe : left_equivalence f)
+    : left_equivalence_axioms αe := pr2 αe.
+
   Definition left_adjoint_equivalence
            {a b : C}
            (f : C⟦a,b⟧) : UU
@@ -78,33 +96,33 @@ Section Internal_Adjunction.
             left_adjoint_axioms αd
          ×  left_equivalence_axioms αd.
 
-  (* the coercion to the adjoint axioms will be induced *)
+  (* the coercion to the axioms will be induced *)
   Coercion left_adjoint_of_left_adjoint_equivalence
            {a b : C}
            {f : C⟦a,b⟧}
            (αe : left_adjoint_equivalence f)
     : left_adjoint f := (pr1 αe,, pr12 αe).
 
-  Coercion axioms_of_left_adjoint_equivalence
+  Coercion left_equivalence_of_left_adjoint_equivalence
            {a b : C}
            {f : C⟦a,b⟧}
            (αe : left_adjoint_equivalence f)
-    : left_equivalence_axioms αe := pr22 αe.
+    : left_equivalence f := (pr1 αe,, pr22 αe).
 
-  Definition left_adjoint_equivalence_unit_iso
+  Definition left_equivalence_unit_iso
              {a b : C}
              {f : a --> b}
-             (αe : left_adjoint_equivalence f)
+             (αe : left_equivalence f)
     : invertible_2cell (identity a) (f · left_adjoint_right_adjoint αe).
   Proof.
     refine (left_adjoint_unit αe,, _).
     apply αe.
   Defined.
 
-  Definition left_adjoint_equivalence_counit_iso
+  Definition left_equivalence_counit_iso
              {a b : C}
              {f : a --> b}
-             (αe : left_adjoint_equivalence f)
+             (αe : left_equivalence f)
     : invertible_2cell (left_adjoint_right_adjoint αe · f) (identity b).
   Proof.
     refine (left_adjoint_counit αe,, _).
