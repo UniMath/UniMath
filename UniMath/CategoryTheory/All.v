@@ -163,6 +163,7 @@ Require Export UniMath.CategoryTheory.Bicategories.OpMorBicat.
 Require Export UniMath.CategoryTheory.Bicategories.Unitors.
 Require Export UniMath.CategoryTheory.Bicategories.bicategory_laws.
 Require Export UniMath.CategoryTheory.Bicategories.PseudoFunctor.
+Require Export UniMath.CategoryTheory.Bicategories.Adjunctions.
 Require Export UniMath.CategoryTheory.Bicategories.Univalence.
 Require Export UniMath.CategoryTheory.Bicategories.transport_laws.
 Require Export UniMath.CategoryTheory.Bicategories.equiv_to_adjequiv.
@@ -175,6 +176,7 @@ Require Export UniMath.CategoryTheory.Bicategories.ap_functor.
 Require Export UniMath.CategoryTheory.Bicategories.DispBicat.
 Require Export UniMath.CategoryTheory.Bicategories.BicatOfCats.
 Require Export UniMath.CategoryTheory.Bicategories.DispBicatOfDispCats.
+Require Export UniMath.CategoryTheory.Bicategories.DispInvertibles.
 Require Export UniMath.CategoryTheory.Bicategories.DispAdjunctions.
 Require Export UniMath.CategoryTheory.Bicategories.DispUnivalence.
 Require Export UniMath.CategoryTheory.Bicategories.ContravariantFunctor.
