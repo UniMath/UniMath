@@ -132,7 +132,7 @@ Section Displayed_Global_Univalence.
              (p : a = b)
              (aa : D a) (bb : D b)
              (pp : transportf (λ z, D z) p aa = bb)
-    : disp_internal_adjoint_equivalence (idtoiso_2_0 a b p) aa bb.
+    : disp_adjoint_equivalence (idtoiso_2_0 a b p) aa bb.
   Proof.
     induction p.
     induction pp.

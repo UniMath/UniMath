@@ -247,6 +247,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Bicategories/Unitors.v](CategoryTheory/Bicategories/Unitors.v)
    - [Bicategories/bicategory_laws.v](CategoryTheory/Bicategories/bicategory_laws.v)
    - [Bicategories/PseudoFunctor.v](CategoryTheory/Bicategories/PseudoFunctor.v)
+   - [Bicategories/Adjunctions.v](CategoryTheory/Bicategories/Adjunctions.v)
    - [Bicategories/Univalence.v](CategoryTheory/Bicategories/Univalence.v)
    - [Bicategories/transport_laws.v](CategoryTheory/Bicategories/transport_laws.v)
    - [Bicategories/equiv_to_adjequiv.v](CategoryTheory/Bicategories/equiv_to_adjequiv.v)

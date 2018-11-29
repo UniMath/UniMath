@@ -13,7 +13,9 @@ Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Unitors.
 Require Import UniMath.CategoryTheory.Bicategories.Invertible_2cells.
+Require Import UniMath.CategoryTheory.Bicategories.Adjunctions.
 Require Import UniMath.CategoryTheory.Bicategories.Univalence.
+
 Local Open Scope bicategory_scope.
 
 Definition transport_one_cell_FlFr
@@ -25,9 +27,9 @@ Definition transport_one_cell_FlFr
            (h : C⟦f a₁,g a₁⟧)
   : (transportf (λ (z : A), C⟦f z,g z⟧) p h)
       ==>
-      internal_left_adjoint (idtoiso_2_0 _ _ (maponpaths g p))
+      (idtoiso_2_0 _ _ (maponpaths g p))
       ∘ h
-      ∘ internal_left_adjoint (idtoiso_2_0 _ _ (maponpaths f (!p))).
+      ∘ (idtoiso_2_0 _ _ (maponpaths f (!p))).
 Proof.
   induction p ; cbn.
   unfold idfun.
@@ -41,9 +43,9 @@ Definition transport_one_cell_FlFr_inv
            {a₁ a₂ : A}
            (p : a₁ = a₂)
            (h : C⟦f a₁,g a₁⟧)
-  : (internal_left_adjoint (idtoiso_2_0 _ _ (maponpaths g p)))
+  : ((idtoiso_2_0 _ _ (maponpaths g p)))
       ∘ h
-      ∘ internal_left_adjoint (idtoiso_2_0 _ _ (maponpaths f (!p)))
+      ∘ (idtoiso_2_0 _ _ (maponpaths f (!p)))
       ==>
       (transportf (λ (z : A), C⟦f z,g z⟧) p h).
 Proof.
