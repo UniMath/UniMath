@@ -12,6 +12,8 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Bicategories.DispBicat. Import DispBicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Unitors.
+Require Import UniMath.CategoryTheory.Bicategories.Adjunctions.
+Require Import UniMath.CategoryTheory.Bicategories.DispAdjunctions.
 Require Import UniMath.CategoryTheory.Bicategories.Univalence.
 Require Import UniMath.CategoryTheory.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.DispInvertibles.
@@ -162,3 +164,64 @@ Proof.
   induction p.
   exact (HD a a aa bb).
 Defined.
+
+Section Total_Category_Globally_Univalent.
+  Context {C : bicat}.
+  Variable (D : disp_bicat C)
+           (HC : is_univalent_2_0 C)
+           (HD : disp_univalent_2_0 D).
+  Local Notation E := (total_bicat D).
+
+  Local Definition path_E_obj
+             (x y : C)
+             (xx : D x)
+             (yy : D y)
+    : ((x ,, xx) = (y ,,yy)) ≃ ∑ (p : x = y), transportf _ p xx = yy
+    := total2_paths_equiv _ (x ,, xx) (y ,, yy).
+
+  Local Definition path_to_adj_equiv_E
+        (x y : C)
+        (xx : D x)
+        (yy : D y)
+    : (∑ (p : x = y), transportf _ p xx = yy)
+        ≃
+        ∑ (i : adjoint_equivalence x y),
+      disp_adjoint_equivalence i xx yy.
+  Proof.
+    use weqbandf.
+    - exact (idtoiso_2_0 x y ,, HC x y).
+    - cbn.
+      intros p.
+      exact (disp_idtoiso_2_0 D p xx yy ,, HD x y p xx yy).
+  Defined.
+
+  Definition idtoiso_2_0_alt
+             {a b : C}
+             (aa : D a) (bb : D b)
+    : a,, aa = b,, bb ≃ @adjoint_equivalence E (a,, aa) (b,, bb)
+    := ((invweq (adjoint_equivalence_total_disp_weq aa bb))
+          ∘ path_to_adj_equiv_E a b aa bb
+          ∘ path_E_obj a b aa bb)%weq.
+
+  Definition idtoiso_2_0_is_idtoiso_id_2_0_alt
+             (x y : E)
+    : @idtoiso_2_0 E x y ~ idtoiso_2_0_alt (pr2 x) (pr2 y).
+  Proof.
+    intros p.
+    induction p.
+    use total2_paths_b.
+    - reflexivity.
+    - use subtypeEquality.
+      + intro.
+        apply isapropdirprod.
+        * apply isapropdirprod ; apply E.
+        * apply isapropdirprod ; apply isaprop_is_invertible_2cell.
+      + reflexivity.
+  Defined.
+
+  Definition total_is_univalent_2_0 : is_univalent_2_0 E.
+  Proof.
+    intros x y.
+    exact (weqhomot (idtoiso_2_0 x y) _ (invhomot (idtoiso_2_0_is_idtoiso_id_2_0_alt x y))).
+  Defined.
+End Total_Category_Globally_Univalent.
