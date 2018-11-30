@@ -7,12 +7,13 @@ Ported from: https://github.com/nmvdw/groupoids
 *)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Univalence.
 Require Import UniMath.CategoryTheory.Bicategories.Adjunctions.
 Require Import UniMath.CategoryTheory.Bicategories.equiv_to_adjequiv.
 Require Import UniMath.CategoryTheory.Bicategories.adjoint_unique.
+
+Local Open Scope cat.
 Local Open Scope bicategory_scope.
 
 Definition one_type

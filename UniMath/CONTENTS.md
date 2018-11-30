@@ -263,6 +263,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Bicategories/DispInvertibles.v](CategoryTheory/Bicategories/DispInvertibles.v)
    - [Bicategories/DispAdjunctions.v](CategoryTheory/Bicategories/DispAdjunctions.v)
    - [Bicategories/DispUnivalence.v](CategoryTheory/Bicategories/DispUnivalence.v)
+   - [Bicategories/Examples/pointed_one_types.v](CategoryTheory/Bicategories/Examples/pointed_one_types.v)
    - [Bicategories/ContravariantFunctor.v](CategoryTheory/Bicategories/ContravariantFunctor.v)
    - [Bicategories/Constructions.v](CategoryTheory/Bicategories/Constructions.v)
    - [Bicategories/Sigma.v](CategoryTheory/Bicategories/Sigma.v)

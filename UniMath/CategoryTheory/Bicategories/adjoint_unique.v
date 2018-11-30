@@ -562,3 +562,17 @@ Proof.
   - apply unique_internal_adjoint_equivalence.
     apply HC.
 Defined.
+
+Lemma isaprop_left_adjoint_equivalence
+      {C : bicat}
+      {X Y : C}
+      (f : X --> Y) :
+  is_univalent_2_1 C →
+  isaprop (left_adjoint_equivalence f).
+Proof.
+  intros HU.
+  apply invproofirrelevance.
+  intros A1 A2.
+  apply unique_internal_adjoint_equivalence.
+  assumption.
+Defined.

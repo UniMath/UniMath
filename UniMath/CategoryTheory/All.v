@@ -179,6 +179,7 @@ Require Export UniMath.CategoryTheory.Bicategories.DispBicatOfDispCats.
 Require Export UniMath.CategoryTheory.Bicategories.DispInvertibles.
 Require Export UniMath.CategoryTheory.Bicategories.DispAdjunctions.
 Require Export UniMath.CategoryTheory.Bicategories.DispUnivalence.
+Require Export UniMath.CategoryTheory.Bicategories.Examples.pointed_one_types.
 Require Export UniMath.CategoryTheory.Bicategories.ContravariantFunctor.
 Require Export UniMath.CategoryTheory.Bicategories.Constructions.
 Require Export UniMath.CategoryTheory.Bicategories.Sigma.

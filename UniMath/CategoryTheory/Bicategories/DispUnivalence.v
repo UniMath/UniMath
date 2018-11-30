@@ -13,7 +13,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Bicategories.DispBicat. Import DispBicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Unitors.
 Require Import UniMath.CategoryTheory.Bicategories.Adjunctions.
-Require Import UniMath.CategoryTheory.Bicategories.DispAdjunctions.
+(* For showing that the being a displayed adjoint equivalence is a proposition *)
+Require Import UniMath.CategoryTheory.Bicategories.adjoint_unique.
 Require Import UniMath.CategoryTheory.Bicategories.Univalence.
 Require Import UniMath.CategoryTheory.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.DispInvertibles.
@@ -125,6 +126,29 @@ Proof.
   apply HD.
 Defined.
 
+Lemma isaprop_disp_left_adjoint_equivalence
+      {C : bicat}
+      {D : disp_bicat C}
+      {a b : C}
+      {aa : D a} {bb : D b}
+      {f : a --> b}
+      (Hf : left_adjoint_equivalence f)
+      (ff : aa -->[f] bb) :
+  is_univalent_2_1 C →
+  disp_locally_univalent D →
+  isaprop (disp_left_adjoint_equivalence Hf ff).
+Proof.
+  intros HUC HUD.
+  revert Hf. apply isaprop_total2_isaprop_fiber.
+  2: { apply hlevelntosn.
+       apply isaprop_left_adjoint_equivalence.
+       assumption. }
+  eapply isofhlevelweqf.
+  { apply left_adjoint_equivalence_total_disp_weq. }
+  apply isaprop_left_adjoint_equivalence.
+  apply total_is_locally_univalent; assumption.
+Defined.
+
 Section Displayed_Global_Univalence.
   Context {C : bicat}.
   Variable (D : disp_bicat C).
@@ -151,7 +175,7 @@ Definition fiberwise_univalent_2_0
            {C : bicat}
            (D : disp_bicat C)
   : UU
-  := ∏ (a b : C) (aa bb : D a),
+  := ∏ (a : C) (aa bb : D a),
      isweq (disp_idtoiso_2_0 D (idpath a) aa bb).
 
 Definition fiberwise_univalent_2_0_to_disp_univalent_2_0
@@ -162,7 +186,7 @@ Proof.
   intros HD.
   intros a b p aa bb.
   induction p.
-  exact (HD a a aa bb).
+  exact (HD a aa bb).
 Defined.
 
 Section Total_Category_Globally_Univalent.
@@ -225,3 +249,18 @@ Section Total_Category_Globally_Univalent.
     exact (weqhomot (idtoiso_2_0 x y) _ (invhomot (idtoiso_2_0_is_idtoiso_id_2_0_alt x y))).
   Defined.
 End Total_Category_Globally_Univalent.
+
+Lemma total_is_univalent
+      {C : bicat} {D: disp_bicat C} :
+  disp_univalent_2_0 D →
+  disp_locally_univalent D →
+  is_univalent_2 C →
+  is_univalent_2 (total_bicat D).
+Proof.
+  intros ?? UC.
+  split.
+  - apply total_is_univalent_2_0. apply UC.
+    assumption.
+  - apply total_is_locally_univalent. apply UC.
+    assumption.
+Defined.
