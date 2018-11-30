@@ -739,27 +739,15 @@ Proof.
   apply idweq.
 Defined.
 
-Lemma adjoint_equivalence_total_disp_weq
+Lemma left_adjoint_equivalence_total_disp_weq
       {a b : B}
-      (aa : D a) (bb : D b) :
-  @adjoint_equivalence E (a,,aa) (b,,bb)
-≃ ∑ (f : adjoint_equivalence a b), disp_adjoint_equivalence f aa bb.
+      {aa : D a} {bb : D b}
+      (f : a --> b)
+      (ff : aa -->[f] bb) :
+  @left_adjoint_equivalence E (a,,aa) (b,,bb) (f,,ff)
+≃ ∑ (αe : left_adjoint_equivalence f),
+  disp_left_adjoint_equivalence αe ff.
 Proof.
-  unfold adjoint_equivalence, disp_adjoint_equivalence. cbn.
-  (* First we get out the base left adjoint f *)
-  eapply weqcomp. {
-    apply weqinvweq.
-    apply weqtotal2asstol. }
-  eapply weqcomp. 2: {
-    apply weqtotal2asstol. }
-  eapply weqfibtototal. intros f.
-
-  (* Getting rid of the displayed arrow ff *)
-  cbn.
-  eapply weqcomp. 2: {
-    apply weqtotal2comm. }
-  eapply weqfibtototal. intros ff.
-
   (* Factor this out *)
   (* left adjoint equivalences part *)
   unfold left_adjoint_equivalence.
@@ -776,7 +764,6 @@ Proof.
     - apply left_adjoint_axioms_total_weq.
     - apply left_equivalence_axioms_total_weq. }
   cbn.
-
   (* TIME TO REARANGE THE QUANTIFIERS OwO *)
   cbn.
   (* Getting rid of the left adjoint data for the base *)
@@ -811,6 +798,30 @@ Proof.
   eapply weqcomp. {
     apply weqtotal2comm. }
   apply idweq.
+Defined.
+
+Lemma adjoint_equivalence_total_disp_weq
+      {a b : B}
+      (aa : D a) (bb : D b) :
+  @adjoint_equivalence E (a,,aa) (b,,bb)
+≃ ∑ (f : adjoint_equivalence a b), disp_adjoint_equivalence f aa bb.
+Proof.
+  unfold adjoint_equivalence, disp_adjoint_equivalence. cbn.
+  (* First we get out the base left adjoint f *)
+  eapply weqcomp. {
+    apply weqinvweq.
+    apply weqtotal2asstol. }
+  eapply weqcomp. 2: {
+    apply weqtotal2asstol. }
+  eapply weqfibtototal. intros f.
+
+  (* Getting rid of the displayed arrow ff *)
+  cbn.
+  eapply weqcomp. 2: {
+    apply weqtotal2comm. }
+  eapply weqfibtototal. intros ff.
+
+  apply left_adjoint_equivalence_total_disp_weq.
 Defined.
 
 
