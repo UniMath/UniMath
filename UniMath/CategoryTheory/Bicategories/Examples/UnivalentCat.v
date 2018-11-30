@@ -347,17 +347,197 @@ Proof.
   - exact (pr2 (univalent_cat_idtoiso_2_1 f g)).
 Defined.
 
-Definition is_catiso_to_left_adjoint_equivalence
-           {C D : univalent_cat}
-           (F : pr1(pr1 C) ⟶ pr1(pr1 D))
-  : is_catiso F → @left_adjoint_equivalence univalent_cat _ _ (F ,, tt).
+Definition inv_catiso
+           {C D : category}
+           (F : catiso C D)
+  : D ⟶ C.
 Proof.
-  intros HF.
-  use tpair.
+  use mk_functor.
   - use tpair.
-    + refine (_ ,, tt).
-      Search catiso.
-Admitted.
+    + exact (invweq (catiso_ob_weq F)).
+    + intros X Y f ; cbn.
+      refine (invmap
+                (catiso_fully_faithful_weq F
+                                           (invmap (catiso_ob_weq F) X)
+                                           (invmap (catiso_ob_weq F) Y))
+                _).
+      exact ((idtoiso (homotweqinvweq (catiso_ob_weq F) X))
+               · f
+               · idtoiso (!(homotweqinvweq (catiso_ob_weq F) Y))).
+  - split.
+    + intro X ; cbn.
+      rewrite id_right.
+      etrans.
+      {
+        apply maponpaths.
+        exact (!(maponpaths pr1
+                            (idtoiso_concat D _ _ _
+                                            (homotweqinvweq (catiso_ob_weq F) X)
+                                            (! homotweqinvweq (catiso_ob_weq F) X)))).
+      }
+      rewrite pathsinv0r ; cbn.
+      apply invmap_eq ; cbn.
+      rewrite functor_id.
+      reflexivity.
+    + intros X Y Z f g ; cbn.
+      apply invmap_eq ; cbn.
+      rewrite functor_comp.
+      pose (homotweqinvweq
+              (catiso_fully_faithful_weq F
+                                         (invmap (catiso_ob_weq F) X)
+                                         (invmap (catiso_ob_weq F) Y))) as p.
+      cbn in p.
+      rewrite p ; clear p.
+      pose (homotweqinvweq
+              (catiso_fully_faithful_weq F
+                                         (invmap (catiso_ob_weq F) Y)
+                                         (invmap (catiso_ob_weq F) Z))) as p.
+      cbn in p.
+      rewrite p ; clear p.
+      rewrite <- !assoc.
+      repeat (apply (maponpaths (λ z, _ · (f · z)))).
+      refine (!(id_left _) @ _).
+      rewrite !assoc.
+      repeat (apply (maponpaths (λ z, z · _))).
+      rewrite idtoiso_inv.
+      cbn.
+      rewrite iso_after_iso_inv.
+      reflexivity.
+Defined.
+
+Section CatIso_To_LeftAdjEquiv.
+  Context {C D : univalent_cat}.
+  Variable (F : pr1(pr1 C) ⟶ pr1(pr1 D))
+           (HF : is_catiso F).
+
+  Local Definition cat_iso_unit
+    : nat_iso
+        (functor_identity (pr1 (pr1 C)))
+        (functor_composite F (inv_catiso (F ,, HF))).
+  Proof.
+    use tpair.
+    - use mk_nat_trans.
+      + intros X ; cbn.
+        exact (pr1 (idtoiso (! homotinvweqweq (catiso_ob_weq (F ,, HF)) X))).
+      + intros X Y f ; cbn.
+        use (invmaponpathsweq (#F ,, _)).
+        { apply HF. }
+        cbn.
+        refine (functor_comp _ _ _ @ !_).
+        refine (functor_comp _ _ _ @ _).
+        etrans.
+        {
+          apply maponpaths.
+          match goal with [ |- _ (invmap ?FFF ?fff) = _ ] => apply (homotweqinvweq FFF fff) end.
+        }
+        rewrite !assoc.
+        etrans.
+        {
+          refine (maponpaths (λ z, ((z · _) · _) · _) _).
+          apply (!(base_paths _ _ (maponpaths_idtoiso _ _ F _ _ _))).
+        }
+        etrans.
+        {
+          refine (maponpaths (λ z, (z · _) · _) (!_)).
+          apply (base_paths _ _ (idtoiso_concat _ _ _ _ _ _)).
+        }
+        rewrite maponpathsinv0.
+        etrans.
+        {
+          refine (maponpaths (λ z, (pr1 (idtoiso (! z @ _)) · _) · _) _).
+          match goal with [ |- _ (homotinvweqweq ?w _) = _] => apply (homotweqinvweqweq w) end.
+        }
+        rewrite pathsinv0l ; cbn.
+        rewrite id_left.
+        apply maponpaths.
+        etrans.
+        {
+          repeat apply maponpaths.
+          match goal with [ |- (homotweqinvweq ?w _) = _] => apply (! homotweqinvweqweq w Y) end.
+        }
+        rewrite <- maponpathsinv0.
+        apply (base_paths _ _ (maponpaths_idtoiso _ _ F _ _ _)).
+    - intros X.
+      apply (idtoiso (! homotinvweqweq (catiso_ob_weq (F ,, HF)) X)).
+  Defined.
+
+  Local Definition cat_iso_counit
+    : nat_iso
+        (functor_composite (inv_catiso (F ,, HF)) F)
+        (functor_identity (pr1 (pr1 D))).
+  Proof.
+    use tpair.
+    - use mk_nat_trans.
+      + intros X ; cbn.
+        exact (pr1 (idtoiso (homotweqinvweq (catiso_ob_weq (F ,, HF)) X))).
+      + intros X Y f ; cbn.
+        etrans.
+        {
+          apply maponpaths_2.
+          match goal with [ |- _ (invmap ?FFF ?fff) = _ ] => apply (homotweqinvweq FFF fff) end.
+        }
+        rewrite <- !assoc.
+        etrans.
+        {
+          refine (maponpaths (λ z, _ · (_ · z)) _).
+          apply (base_paths _ _ (!(idtoiso_concat _ _ _ _ _ _))).
+        }
+        rewrite pathsinv0l ; cbn.
+        rewrite id_right.
+        reflexivity.
+    - intros X.
+      apply (idtoiso (homotweqinvweq (catiso_ob_weq (F ,, HF)) X)).
+  Defined.
+
+  Definition is_catiso_to_left_adjoint_equivalence
+    : @left_adjoint_equivalence univalent_cat _ _ (F ,, tt).
+  Proof.
+    use equiv_to_adjequiv.
+    use tpair.
+    - use tpair.
+      + exact (inv_catiso (F ,, HF) ,, tt).
+      + split.
+        * refine (_ ,, tt).
+          apply cat_iso_unit.
+        * refine (_ ,, tt).
+          apply cat_iso_counit.
+    - split.
+      + use tpair ; try split.
+        * refine (_ ,, tt).
+          apply (nat_iso_inv cat_iso_unit).
+        * apply subtypeEquality.
+          { intro ; apply isapropunit. }
+          apply nat_trans_eq.
+          { apply C. }
+          intro X ; cbn.
+          rewrite idtoiso_inv ; cbn ; unfold precomp_with.
+          rewrite id_right.
+          apply iso_after_iso_inv.
+        * apply subtypeEquality.
+          { intro ; apply isapropunit. }
+          apply nat_trans_eq.
+          { apply C. }
+          intro X ; cbn.
+          rewrite idtoiso_inv ; cbn ; unfold precomp_with.
+          rewrite id_right.
+          apply iso_inv_after_iso.
+      + use tpair ; try split.
+        * refine (_ ,, tt).
+          apply (nat_iso_inv cat_iso_counit).
+        * apply subtypeEquality.
+          { intro ; apply isapropunit. }
+          apply nat_trans_eq.
+          { apply D. }
+          intro X ; cbn.
+          apply iso_inv_after_iso.
+        * apply subtypeEquality.
+          { intro ; apply isapropunit. }
+          apply nat_trans_eq.
+          { apply D. }
+          intro X ; cbn.
+          apply iso_after_iso_inv.
+  Qed.
+End CatIso_To_LeftAdjEquiv.
 
 Definition left_adjoint_equivalence_to_is_catiso
            {C D : univalent_cat}

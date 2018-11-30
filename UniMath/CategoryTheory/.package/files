@@ -186,6 +186,7 @@ Bicategories/DispAdjunctions.v
 Bicategories/DispUnivalence.v
 Bicategories/ContravariantFunctor.v
 Bicategories/Constructions.v
+Bicategories/Examples/UnivalentCat.v
 Bicategories/Sigma.v
 Bicategories/Fibration.v
 Bicategories/Cofunctormap.v
