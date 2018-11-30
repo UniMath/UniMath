@@ -13,7 +13,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Bicategories.DispBicat. Import DispBicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Unitors.
 Require Import UniMath.CategoryTheory.Bicategories.Adjunctions.
-Require Import UniMath.CategoryTheory.Bicategories.DispAdjunctions.
+(* For showing that the being a displayed adjoint equivalence is a proposition *)
+Require Import UniMath.CategoryTheory.Bicategories.adjoint_unique.
 Require Import UniMath.CategoryTheory.Bicategories.Univalence.
 Require Import UniMath.CategoryTheory.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.DispInvertibles.
@@ -123,6 +124,29 @@ Proof.
   intros x y f g p xx yy ff gg.
   induction p.
   apply HD.
+Defined.
+
+Lemma isaprop_disp_left_adjoint_equivalence
+      {C : bicat}
+      {D : disp_bicat C}
+      {a b : C}
+      {aa : D a} {bb : D b}
+      {f : a --> b}
+      (Hf : left_adjoint_equivalence f)
+      (ff : aa -->[f] bb) :
+  is_univalent_2_1 C →
+  disp_locally_univalent D →
+  isaprop (disp_left_adjoint_equivalence Hf ff).
+Proof.
+  intros HUC HUD.
+  revert Hf. apply isaprop_total2_isaprop_fiber.
+  2: { apply hlevelntosn.
+       apply isaprop_left_adjoint_equivalence.
+       assumption. }
+  eapply isofhlevelweqf.
+  { apply left_adjoint_equivalence_total_disp_weq. }
+  apply isaprop_left_adjoint_equivalence.
+  apply total_is_locally_univalent; assumption.
 Defined.
 
 Section Displayed_Global_Univalence.

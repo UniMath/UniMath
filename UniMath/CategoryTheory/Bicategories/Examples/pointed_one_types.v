@@ -104,56 +104,6 @@ Proof.
     apply Y.
 Defined.
 
-(* For showing that being a displayed left adjoint is unique *)
-Require Import UniMath.CategoryTheory.Bicategories.adjoint_unique.
-Require Import UniMath.CategoryTheory.Bicategories.DispUnivalence.
-
-(* TODO: MOVE this some place *)
-(** // *******************************)
-Lemma isaprop_total2_isaprop_fiber
-      {A : UU} {B : A → UU} :
-  isaprop (∑ (x :A), B x) →
-  isofhlevel 2 A →
-  ∏ (x : A), isaprop (B x).
-Proof.
-  intros Ht Hb x.
-  apply invproofirrelevance.
-  intros b1 b2.
-  apply proofirrelevance in Ht.
-  specialize (Ht (x,,b1) (x,,b2)).
-  set (p := fiber_paths Ht). cbn in p.
-  etrans. 2: apply p.
-  etrans. {
-    apply pathsinv0.
-    apply idpath_transportf. }
-  apply map_on_two_paths; try reflexivity.
-  apply Hb.
-Defined.
-
-Lemma isaprop_disp_left_adjoint_equivalence
-      {C : bicat}
-      {D : disp_bicat C}
-      {a b : C}
-      {aa : D a} {bb : D b}
-      {f : a --> b}
-      (Hf : left_adjoint_equivalence f)
-      (ff : aa -->[f] bb) :
-  is_univalent_2_1 C →
-  disp_locally_univalent D →
-  isaprop (disp_left_adjoint_equivalence Hf ff).
-Proof.
-  intros HUC HUD.
-  revert Hf. apply isaprop_total2_isaprop_fiber.
-  2: { apply hlevelntosn.
-       apply isaprop_left_adjoint_equivalence.
-       assumption. }
-  eapply isofhlevelweqf.
-  { apply left_adjoint_equivalence_total_disp_weq. }
-  apply isaprop_left_adjoint_equivalence.
-  apply total_is_locally_univalent; assumption.
-Defined.
-(******************************** // *)
-
 Lemma p1types_disp_global_univalent : disp_univalent_2_0 p1types_disp.
 Proof.
   apply fiberwise_univalent_2_0_to_disp_univalent_2_0.
