@@ -184,6 +184,7 @@ Bicategories/DispBicatOfDispCats.v
 Bicategories/DispInvertibles.v
 Bicategories/DispAdjunctions.v
 Bicategories/DispUnivalence.v
+Bicategories/Examples/pointed_one_types.v
 Bicategories/ContravariantFunctor.v
 Bicategories/Constructions.v
 Bicategories/Sigma.v
