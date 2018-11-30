@@ -1,4 +1,5 @@
 Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
@@ -13,8 +14,7 @@ Require Import UniMath.CategoryTheory.Bicategories.BicatOfCats.
 Require Import UniMath.CategoryTheory.Bicategories.Adjunctions.
 Require Import UniMath.CategoryTheory.Bicategories.Univalence.
 Require Import UniMath.CategoryTheory.catiso.
-Require Import UniMath.CategoryTheory.Adjunctions.
-Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.Bicategories.adjoint_unique.
 Require Import UniMath.CategoryTheory.Bicategories.equiv_to_adjequiv.
 
 Open Scope cat.
@@ -255,6 +255,37 @@ Defined.
 Definition univalent_cat : bicat
   := fullsubprebicat bicat_of_cats (λ C, is_univalent (pr1 C)).
 
+Definition functor_univalent_cat
+           (C D : univalent_cat)
+  : pr1 (pr1 C) ⟶ pr1 (pr1 D) ≃ univalent_cat ⟦C,D⟧.
+Proof.
+  use tpair.
+  - exact (λ F, F ,, tt).
+  - use isweq_iso.
+    + exact pr1.
+    + reflexivity.
+    + intros F.
+      use subtypeEquality.
+      * intro ; apply isapropunit.
+      * reflexivity.
+Defined.
+
+Definition nat_trans_univalent_cat
+           {C D : univalent_cat}
+           (F G : univalent_cat ⟦C,D⟧)
+  : nat_trans (pr1(pr1 F)) (pr1(pr1 G)) ≃ F ==> G.
+Proof.
+  use tpair.
+  - exact (λ F, F ,, tt).
+  - use isweq_iso.
+    + exact pr1.
+    + reflexivity.
+    + intros η.
+      use subtypeEquality.
+      * intro ; apply isapropunit.
+      * reflexivity.
+Defined.
+
 Definition path_univalent_cat
            (C D : univalent_cat)
   : C = D ≃ pr1 C = pr1 D.
@@ -278,15 +309,7 @@ Proof.
     destruct HD as [DU DS].
     exact (pr1 (is_univalent_functor_category (pr1 C) D (DU,,HD2)) (pr1 f) (pr1 g)).
   - use weqbandf.
-    + use tpair.
-      * exact (λ F, F ,, tt).
-      * use isweq_iso.
-        ** exact pr1.
-        ** reflexivity.
-        ** intros F.
-           use subtypeEquality.
-           *** intro ; apply isapropunit.
-           *** reflexivity.
+    + exact (nat_trans_univalent_cat f g).
     + intros F.
       use weqimplimpl.
       * intros η.
@@ -324,70 +347,157 @@ Proof.
   - exact (pr2 (univalent_cat_idtoiso_2_1 f g)).
 Defined.
 
-Definition test
+Definition is_catiso_to_left_adjoint_equivalence
            {C D : univalent_cat}
            (F : pr1(pr1 C) ⟶ pr1(pr1 D))
-  : adj_equivalence_of_precats F → @left_adjoint_equivalence univalent_cat _ _ (F ,, tt).
+  : is_catiso F → @left_adjoint_equivalence univalent_cat _ _ (F ,, tt).
 Proof.
-  intros A.
+  intros HF.
   use tpair.
   - use tpair.
-    + exact (right_adjoint A ,, tt).
-    + split.
-      * exact (unit_from_left_adjoint A ,, tt).
-      * exact (counit_from_left_adjoint A ,, tt).
-  - split ; split.
-    * use subtypeEquality.
-      ** intro.
-         apply isapropunit.
-      ** apply nat_trans_eq.
-         *** apply D.
-         *** intros x ; cbn.
-             rewrite !id_left, !id_right.
-             exact (pr1(pr2(pr2(pr1 A))) x).
-    * use subtypeEquality.
-      ** intro.
-         apply isapropunit.
-      ** apply nat_trans_eq.
-         *** apply C.
-         *** intros x ; cbn.
-             rewrite !id_left, !id_right.
-             exact (pr2(pr2(pr2(pr1 A))) x).
-    * use tpair.
-      ** refine (_ ,, tt).
-         cbn.
-         apply (pr2 (pr2 A)).
-         Check (adjcounit (pr1 A)).
+    + refine (_ ,, tt).
+      Search catiso.
+Admitted.
+
+Definition left_adjoint_equivalence_to_is_catiso
+           {C D : univalent_cat}
+           (L : pr1(pr1 C) ⟶ pr1(pr1 D))
+  : @left_adjoint_equivalence univalent_cat _ _ (L ,, tt) → is_catiso L.
+Proof.
+  intros HF.
+  pose (R := pr1 (left_adjoint_right_adjoint HF)).
+  pose (η := pr1 (left_adjoint_unit HF)).
+  pose (ηinv := pr1 ((left_equivalence_unit_iso HF)^-1)).
+  pose (ε := pr1 (left_adjoint_counit HF)).
+  pose (εinv := pr1 ((left_equivalence_counit_iso HF)^-1)).
+  assert (ηηinv := nat_trans_eq_pointwise
+                     (base_paths _ _
+                                 (pr1(pr2(pr2 (left_equivalence_unit_iso HF)))))).
+  assert (ηinvη := nat_trans_eq_pointwise
+                     (base_paths _ _
+                                 (pr2(pr2(pr2 (left_equivalence_unit_iso HF)))))).
+  assert (εεinv := nat_trans_eq_pointwise
+                     (base_paths _ _
+                                 (pr1(pr2(pr2 (left_equivalence_counit_iso HF)))))).
+  assert (εinvε := nat_trans_eq_pointwise
+                     (base_paths _ _
+                                 (pr2(pr2(pr2 (left_equivalence_counit_iso HF)))))).
+  assert (LηεL := nat_trans_eq_pointwise (base_paths _ _ (internal_triangle1 HF))).
+  assert (ηRRε := nat_trans_eq_pointwise (base_paths _ _ (internal_triangle2 HF))).
+  cbn in *.
+  use tpair.
+  - intros X Y.
+    use isweq_iso.
+    + intros f.
+      exact (η X · #R f · ηinv Y).
+    + intros f ; cbn.
+      etrans.
+      {
+        apply maponpaths_2.
+        exact (!(pr2 η X Y f)).
+      }
+      rewrite <- assoc.
+      refine (maponpaths (λ z, _ · z) (ηηinv Y) @ _).
+      apply id_right.
+    + intros f ; cbn.
+      rewrite !functor_comp.
+      assert (#L (ηinv Y) = ε (L Y)) as X0.
+      {
+        specialize (LηεL Y).
+        rewrite !id_left, !id_right in LηεL.
+        refine (!(id_right _) @ _).
+        refine (maponpaths (λ z, _ · z) (!LηεL) @ _).
+        rewrite assoc.
+        rewrite <- functor_comp.
+        refine (maponpaths (λ z, # L z · _) (ηinvη Y) @ _).
+        rewrite functor_id, id_left.
+        reflexivity.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        exact X0.
+      }
+      rewrite <- assoc.
+      refine (maponpaths _ (nat_trans_ax ε (L X) (L Y) f) @ _).
+      rewrite assoc.
+      specialize (LηεL X).
+      rewrite !id_left, !id_right in LηεL.
+      etrans.
+      {
+        apply maponpaths_2.
+        exact LηεL.
+      }
+      apply id_left.
+  - cbn.
+    use isweq_iso.
+    + apply R.
+    + intros X ; cbn.
+      apply isotoid.
+      * apply C.
+      * use tpair.
+        ** exact (ηinv X).
+        ** use is_iso_qinv ; try split.
+           *** exact (η X).
+           *** exact (ηinvη X).
+           *** exact (ηηinv X).
+    + intros Y ; cbn.
+      apply isotoid.
+      * apply D.
+      * use tpair.
+        ** exact (ε Y).
+        ** use is_iso_qinv ; try split.
+           *** exact (εinv Y).
+           *** exact (εεinv Y).
+           *** exact (εinvε Y).
+Qed.
+
+Definition is_catiso_left_adjoint_equivalence
+           {C D : univalent_cat}
+           (F : pr1(pr1 C) ⟶ pr1(pr1 D))
+  : is_catiso F ≃ @left_adjoint_equivalence univalent_cat _ _ (F ,, tt).
+Proof.
+  use weqimplimpl.
+  - exact (is_catiso_to_left_adjoint_equivalence F).
+  - exact (left_adjoint_equivalence_to_is_catiso F).
+  - apply isaprop_is_catiso.
+  - apply invproofirrelevance.
+    intros A₁ A₂.
+    apply unique_internal_adjoint_equivalence.
+    apply univalent_cat_is_univalent_2_1.
+Defined.
 
 Definition cat_iso_to_adjequiv
-           {C D : univalent_cat}
-           (F :  ⟶ D)
-  : is_catiso F.
-  : catiso (pr1(pr1 C)) (pr1(pr1 D)) → adjoint_equivalence C D.
+           (C D : univalent_cat)
+  : catiso (pr1(pr1 C)) (pr1(pr1 D)) ≃ adjoint_equivalence C D.
 Proof.
-  intros F.
-  Check (rad_equivalence_of_precats (pr1(pr1 C)) (pr1(pr1 D)) (pr2 C) (pr1 F)).
-  use equiv_to_adjequiv.
-  - use tpair.
-    + exact (pr1 F).
-    + exact tt.
-  - use tpair.
-    + use tpair.
-      * use tpair.
-        ** exact (inv_catiso F).
-        ** exact tt.
-      * split.
-        ** use tpair.
-           *** use tpair.
-               **** intros X ; cbn.
-           *** exact tt.
-        ** use tpair.
-           *** admit.
-           *** exact tt.
-    + split.
-      ** cbn.
+  use weqbandf.
+  - exact (functor_univalent_cat C D).
+  - intros.
+    apply is_catiso_left_adjoint_equivalence.
+Defined.
+
+Definition idtoiso_2_0_univalent_cat
+           (C D : univalent_cat)
+  : C = D ≃ adjoint_equivalence C D
+  := ((cat_iso_to_adjequiv C D)
+        ∘ cat_equiv_to_catiso_weq _ _
+        ∘ weq_cat_eq_cat_equiv _ _
+        ∘ cat_eq_1_to_cat_eq_2 _ _ (pr2 (pr2 D))
+        ∘ cat_path_to_cat_eq_1 _ _
+        ∘ path_precat _ _
+        ∘ path_univalent_cat _ _)%weq.
 
 Definition univalent_cat_is_univalent_2_0
   : is_univalent_2_0 univalent_cat.
 Proof.
   intros C D.
+  use isweqhomot.
+  - exact (idtoiso_2_0_univalent_cat C D).
+  - intro p.
+    induction p.
+    apply path_internal_adjoint_equivalence.
+    + apply univalent_cat_is_univalent_2_1.
+    + reflexivity.
+  - apply (idtoiso_2_0_univalent_cat C D).
+Defined.
