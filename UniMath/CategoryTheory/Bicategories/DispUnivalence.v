@@ -151,7 +151,7 @@ Definition fiberwise_univalent_2_0
            {C : bicat}
            (D : disp_bicat C)
   : UU
-  := ∏ (a b : C) (aa bb : D a),
+  := ∏ (a : C) (aa bb : D a),
      isweq (disp_idtoiso_2_0 D (idpath a) aa bb).
 
 Definition fiberwise_univalent_2_0_to_disp_univalent_2_0
@@ -162,7 +162,7 @@ Proof.
   intros HD.
   intros a b p aa bb.
   induction p.
-  exact (HD a a aa bb).
+  exact (HD a aa bb).
 Defined.
 
 Section Total_Category_Globally_Univalent.
@@ -225,3 +225,18 @@ Section Total_Category_Globally_Univalent.
     exact (weqhomot (idtoiso_2_0 x y) _ (invhomot (idtoiso_2_0_is_idtoiso_id_2_0_alt x y))).
   Defined.
 End Total_Category_Globally_Univalent.
+
+Lemma total_is_univalent
+      {C : bicat} {D: disp_bicat C} :
+  disp_univalent_2_0 D →
+  disp_locally_univalent D →
+  is_univalent_2 C →
+  is_univalent_2 (total_bicat D).
+Proof.
+  intros ?? UC.
+  split.
+  - apply total_is_univalent_2_0. apply UC.
+    assumption.
+  - apply total_is_locally_univalent. apply UC.
+    assumption.
+Defined.
