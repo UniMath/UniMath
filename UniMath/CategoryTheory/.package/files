@@ -169,6 +169,7 @@ Bicategories/Unitors.v
 Bicategories/bicategory_laws.v
 Bicategories/PseudoFunctor.v
 Bicategories/Adjunctions.v
+Bicategories/Discreteness.v
 Bicategories/Univalence.v
 Bicategories/transport_laws.v
 Bicategories/equiv_to_adjequiv.v
