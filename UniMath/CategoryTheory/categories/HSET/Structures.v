@@ -539,7 +539,7 @@ Proof.
 Defined.
 
 (** More generally, any subset that commutes with the arrow "true"
-    must pick out that same subset. *)
+    must pick out that same subset that [m] does. *)
 Local Definition subobject_classifier_HSET_pullback0 {X Y : HSET}
   (m : Monic HSET X Y) (chi : HSET ⟦ Y, hProp_set ⟧)
   (H : m · chi = TerminalArrow TerminalHSET X · const_unit)
@@ -588,6 +588,19 @@ Proof.
     + cbn.
       Check subobject_classifier_HSET_pullback0 m.
       apply funextfun; intro y.
+      (** If the following is a pullback square,
+          <<
+            X ------- ! ---> unit
+            |                 |
+            |                 |
+            V                 V
+            Y -- pr1 O' --> hProp
+          >>
+          then [pr1 O' = m].
+       *)
+
+
+      (****************************************************)
       (* apply subtypeEquality; [intro; apply isapropisaprop|]. *)
       apply weqtopathshProp.
       apply weqimplimpl.
@@ -621,24 +634,3 @@ Proof.
         pose (xxx := toforallpaths _ _ _ X0).
         cbn in xx.
         cbn in xxx.
-        Check pr1 (pr2 ).
-        Check PullbackArrowUnique _ _ _ _ _ (pr2 (pr2 O')) .
-        Check PullbackArrowUnique (pr1 O' : HSET ⟦Y, hProp_set⟧)
-              _ m _
-              (pr1 (pr2 O')) (pr2 (pr2 O'))
-              _ _ _ (X0 @ HH).
-
-        intro.
-        cbn in O'.
-        Check (eqtohomot (pr1 (pr2 O'))).
-        Check PullbackArrowUnique (pr1 O' : HSET ⟦Y, hProp_set⟧)
-              (global_element_HSET _) m (λ _ : _, tt)
-              (pr1 (pr2 O')) (pr2 (pr2 O'))
-              _ _ _ HH.
-        SearchAbout isPullback.
-      apply
-      Check (MonicisMonic _ m _ ).
-      Print isMonic HSET.
-      SearchAbout Monic.
-
-      SearchAbout isaprop total2.
