@@ -2,6 +2,8 @@
 (** ** Contents
 - Precategory of monoids
 - Category of monoids
+- Forgetful functor to [HSET]
+- Free functor from [HSET]
  *)
 
 Require Import UniMath.Foundations.PartD.
@@ -12,11 +14,16 @@ Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids_and_Groups.
 
+Require Import UniMath.Algebra.Free_Monoids_and_Groups.
+Require Import UniMath.Combinatorics.Lists.
+
 Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Local Open Scope cat.
 
+(** ** Precategory of monoids *)
 
-(** * Precategory of monoids *)
 Section def_monoid_precategory.
 
   Definition monoid_fun_space (A B : monoid) : hSet :=
@@ -71,7 +78,7 @@ Section def_monoid_precategory.
 End def_monoid_precategory.
 
 
-(** * Category of monoids *)
+(** ** Category of monoids *)
 Section def_monoid_category.
 
   (** ** (monoidiso X Y) ≃ (iso X Y) *)
@@ -179,3 +186,43 @@ Section def_monoid_category.
     mk_category monoid_precategory monoid_precategory_is_univalent.
 
 End def_monoid_category.
+
+(** ** Forgetful functor to [HSET] *)
+
+Definition monoid_forgetful_functor : functor monoid_precategory HSET.
+Proof.
+  use mk_functor.
+  - use mk_functor_data.
+    + intro; exact (pr1setwithbinop (pr1monoid ltac:(assumption))).
+    + intros ? ? f; exact (pr1monoidfun _ _ f).
+  - split.
+    + (** Identity axiom *)
+      intro; reflexivity.
+    + (** Composition axiom *)
+      intros ? ? ? ? ?; reflexivity.
+Defined.
+
+Lemma monoid_forgetful_functor_is_faithful : faithful monoid_forgetful_functor.
+Proof.
+  unfold faithful.
+  intros ? ?.
+  apply isinclpr1.
+  apply isapropismonoidfun.
+Defined.
+
+(** ** Free functor from [HSET] *)
+
+Definition monoid_free_functor : functor HSET monoid_precategory.
+Proof.
+  use mk_functor.
+  - use mk_functor_data.
+    + intros s; exact (free_monoid s).
+    + intros ? ? f; exact (free_monoidfun f).
+  - split.
+    + (** Identity axiom *)
+      intros ?.
+      abstract (apply monoidfun_paths, funextfun; intro; apply map_idfun).
+    + (** Composition axiom *)
+      intros ? ? ? ? ?.
+      abstract (apply monoidfun_paths, funextfun, (free_monoidfun_comp_homot f g)).
+Defined.
