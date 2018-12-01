@@ -233,13 +233,15 @@ Defined.
 
 (** ** Free/forgetful adjunction *)
 
+Local Definition singleton {A : UU} (x : A) := cons x Lists.nil.
+
 (** The unit of this adjunction is the singleton function [x ↦ x::nil] *)
 Definition monoid_free_forgetful_unit :
   nat_trans (functor_identity _)
             (functor_composite monoid_free_functor monoid_forgetful_functor).
 Proof.
   use mk_nat_trans.
-  - intros ? x; exact (cons x Lists.nil).
+  - intros ?; exact singleton.
   - intros ? ? ?.
     abstract (apply funextfun; intro; reflexivity).
 Defined.
@@ -305,7 +307,7 @@ Proof.
     rewrite map_cons.
     (* For some reason, the unifier needs a lot of help here... *)
     refine (iterop_list_mon_step ((cons _ _) : pr1hSet (free_monoid _))
-                                  (map (λ z, cons z Lists.nil) xs) @ _).
+                                  (map singleton xs) @ _).
     apply maponpaths; assumption.
   - reflexivity.
 Qed.
