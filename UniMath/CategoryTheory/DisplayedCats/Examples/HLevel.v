@@ -20,6 +20,7 @@ Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
 Require Import UniMath.CategoryTheory.catiso.
 Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.equivalences_lemmas.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
@@ -83,4 +84,25 @@ Proof.
   split.
   - intros ?; apply identity_is_iso.
   - intros ?; apply identity_is_iso.
+Qed.
+
+Lemma disp_HSET_adj_equivalence_of_precats_left :
+  adj_equivalence_of_precats (left_functor disp_HSET_equiv_HSET_adjunction_data).
+Proof.
+  use mk_adj_equivalence_of_precats.
+  - exact (right_functor disp_HSET_equiv_HSET_adjunction_data).
+  - exact (adjunit disp_HSET_equiv_HSET_adjunction_data).
+  - exact (adjcounit disp_HSET_equiv_HSET_adjunction_data).
+  - use mk_form_adjunction.
+    + intro; reflexivity.
+    + intro; reflexivity.
+  - apply disp_HSET_equiv_HSET.
+Defined.
+
+Local Definition isaset' (X : UU) : hProp := (isaset X,, isapropisaset _).
+
+Lemma has_homsets_disp_HSET : has_homsets (total_precategory disp_HSET).
+Proof.
+  Check (equivalence_homtype_property _ disp_HSET_adj_equivalence_of_precats isaset').
+  apply equivalence_homtype_property.
 Qed.
