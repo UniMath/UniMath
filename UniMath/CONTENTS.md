@@ -261,6 +261,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Bicategories/BicatOfCats.v](CategoryTheory/Bicategories/BicatOfCats.v)
    - [Bicategories/DispBicatOfDispCats.v](CategoryTheory/Bicategories/DispBicatOfDispCats.v)
    - [Bicategories/DispUnivalence.v](CategoryTheory/Bicategories/DispUnivalence.v)
+   - [Bicategories/DispGlobalUnivalence.v](CategoryTheory/Bicategories/DispGlobalUnivalence.v)
    - [Bicategories/ContravariantFunctor.v](CategoryTheory/Bicategories/ContravariantFunctor.v)
    - [Bicategories/Constructions.v](CategoryTheory/Bicategories/Constructions.v)
    - [Bicategories/Sigma.v](CategoryTheory/Bicategories/Sigma.v)

@@ -563,10 +563,10 @@ Lemma cell_from_invertible_2cell_eq {C : bicat}
   : x = y.
 Proof.
   unfold cell_from_invertible_2cell.
-  apply subtypeEquality.
-  2: apply p.
-  apply isPredicate_is_invertible_2cell.
-Qed.
+  apply subtypeEquality'.
+  - apply p.
+  - apply isPredicate_is_invertible_2cell.
+Defined.
 
 (* ----------------------------------------------------------------------------------- *)
 (** ** Derived laws                                                                    *)
