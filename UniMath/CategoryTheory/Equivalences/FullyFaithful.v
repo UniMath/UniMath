@@ -1,7 +1,6 @@
-(** ** Lemmas about equivalences of categories
+(** * Fully faithful functors and equivalences
 
 Authors: Benedikt Ahrens, Chris Kapulkin, Mike Shulman (January 2013)
-
 Revised by: Marco Maggesi (November 2017), Langston Barrett (April 2018)
 
 *)
@@ -11,7 +10,6 @@ Revised by: Marco Maggesi (November 2017), Langston Barrett (April 2018)
 
  - Fully faithful functor from an equivalence
  - Functor from an equivalence is essentially surjective
- - Composition of equivalences
  - Fully faithful essentially surjective functors preserve all [hProp]s on
    hom-types
 *)
@@ -22,7 +20,8 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.Adjunctions.
-Require Import UniMath.CategoryTheory.equivalences.
+
+Require Import UniMath.CategoryTheory.Equivalences.Core.
 
 Local Open Scope cat.
 
@@ -114,25 +113,6 @@ Proof.
 Defined.
 
 End from_equiv_to_fully_faithful.
-
-(** ** Composition of equivalences *)
-
-(** There is probably a more general way to do this. We assume
-    that C is univalent, and use the fact that a fully faithful, essentially
-    surjective functor out of a univalent category is an equivalence. *)
-
-Lemma compose_equivalences_univalent {C : univalent_category} (D E : precategory)
-      (F : functor C D) (FE : adj_equivalence_of_precats F)
-      (G : functor D E) (GE : adj_equivalence_of_precats G) :
-  adj_equivalence_of_precats (functor_composite F G).
-Proof.
-  use rad_equivalence_of_precats.
-  - apply univalent_category_is_univalent.
-  - apply comp_ff_is_ff; apply fully_faithful_from_equivalence; assumption.
-  - apply comp_essentially_surjective;
-      apply functor_from_equivalence_is_essentially_surjective;
-      assumption.
-Defined.
 
 (** ** Fully faithful essentially surjective functors preserve all [hProp]s on hom-types *)
 

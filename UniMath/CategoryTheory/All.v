@@ -11,8 +11,9 @@ Require Export UniMath.CategoryTheory.whiskering.
 Require Export UniMath.CategoryTheory.Adjunctions.
 Require Export UniMath.CategoryTheory.Monads.RelativeMonads.
 Require Export UniMath.CategoryTheory.Monads.RelativeModules.
-Require Export UniMath.CategoryTheory.equivalences.
-Require Export UniMath.CategoryTheory.equivalences_lemmas.
+Require Export UniMath.CategoryTheory.Equivalences.Core.
+Require Export UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
+Require Export UniMath.CategoryTheory.Equivalences.FullyFaithful.
 Require Export UniMath.CategoryTheory.Subcategory.Core.
 Require Export UniMath.CategoryTheory.Subcategory.Full.
 Require Export UniMath.CategoryTheory.Monics.
@@ -185,6 +186,9 @@ Require Export UniMath.CategoryTheory.Bicategories.DisplayedBicats.Sigma.
 Require Export UniMath.CategoryTheory.Bicategories.Examples.pointed_one_types.
 Require Export UniMath.CategoryTheory.Bicategories.ContravariantFunctor.
 Require Export UniMath.CategoryTheory.Bicategories.Examples.UnivalentCat.
+Require Export UniMath.CategoryTheory.Bicategories.Constructions.
+Require Export UniMath.CategoryTheory.Bicategories.Examples.UnivalentCat.
+Require Export UniMath.CategoryTheory.Bicategories.Sigma.
 Require Export UniMath.CategoryTheory.Bicategories.Fibration.
 Require Export UniMath.CategoryTheory.Bicategories.Cofunctormap.
 Require Export UniMath.CategoryTheory.Bicategories.Algebras.
