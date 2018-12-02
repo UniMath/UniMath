@@ -202,21 +202,9 @@ Proof.
   exact (twooutof3c _ _ (isweqfibtototal P (Q ∘ f) e) (pr2 (weqfp f Q))).
 Defined.
 
-Lemma isaprop_total2_isaprop_fiber
-      {A : UU} {B : A → UU} :
-  isaprop (∑ (x :A), B x) →
-  isofhlevel 2 A →
-  ∏ (x : A), isaprop (B x).
+Lemma hlevel_total2 n {A : UU} {B : A → UU} :
+  isofhlevel n (∑ (x :A), B x) → isofhlevel (S n) A → ∏ (x : A), isofhlevel n (B x).
 Proof.
-  intros Ht Hb x.
-  apply invproofirrelevance.
-  intros b1 b2.
-  apply proofirrelevance in Ht.
-  specialize (Ht (x,,b1) (x,,b2)).
-  etrans. 2: apply (fiber_paths Ht).
-  etrans. {
-    apply pathsinv0.
-    apply idpath_transportf. }
-  apply map_on_two_paths; try reflexivity.
-  apply Hb.
+  intros ic ia x.
+  exact (isofhlevelweqf _ (invweq (ezweqpr1 _ _)) (isofhlevelffromXY _ _ ic ia _)).
 Defined.
