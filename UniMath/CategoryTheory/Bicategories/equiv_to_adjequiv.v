@@ -14,6 +14,7 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations
 Require Import UniMath.CategoryTheory.Bicategories.Unitors.
 Require Import UniMath.CategoryTheory.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws.
+Require Import UniMath.CategoryTheory.Bicategories.Adjunctions.
 Require Import UniMath.CategoryTheory.Bicategories.Univalence.
 Local Open Scope bicategory_scope.
 
@@ -91,14 +92,14 @@ Qed.
 Section EquivToAdjEquiv.
   Context {C : bicat}
           {X Y : C}.
-  Variable (Hf : internal_equivalence X Y).
+  Variable (f : C⟦X,Y⟧)
+           (Hf : left_equivalence f).
 
-  Local Definition f : C⟦X,Y⟧ := internal_left_adjoint Hf.
-  Local Definition g : C⟦Y,X⟧ := internal_right_adjoint Hf.
-  Local Definition η : id₁ X ==> g ∘ f := internal_unit Hf.
-  Local Definition θ : f ∘ g ==> id₁ Y := internal_counit Hf.
-  Local Definition ηiso := internal_unit_iso Hf.
-  Local Definition θiso := internal_counit_iso Hf.
+  Local Definition g : C⟦Y,X⟧ := left_adjoint_right_adjoint Hf.
+  Local Definition η : id₁ X ==> g ∘ f := left_adjoint_unit Hf.
+  Local Definition θ : f ∘ g ==> id₁ Y := left_adjoint_counit Hf.
+  Local Definition ηiso := left_equivalence_unit_iso Hf.
+  Local Definition θiso := left_equivalence_counit_iso Hf.
 
   Local Definition ε : f ∘ g ==> id₁ Y.
   Proof.
@@ -116,8 +117,9 @@ Section EquivToAdjEquiv.
     is_iso.
   Defined.
 
-  Definition equiv_to_adjequiv_d : internal_adjunction_over f (internal_right_adjoint Hf).
+  Definition equiv_to_adjequiv_d : left_adjoint_data f.
   Proof.
+    refine (g ,, _).
     split.
     - exact η.
     - exact ε.
@@ -285,7 +287,7 @@ Section EquivToAdjEquiv.
     - is_iso.
   Qed.
 
-  Definition equiv_to_adjequiv_isadj : is_internal_adjunction equiv_to_adjequiv_d.
+  Definition equiv_to_adjequiv_isadj : left_adjoint_axioms equiv_to_adjequiv_d.
   Proof.
     split ; cbn.
     - refine (maponpaths (fun z => ((z • _) • _) • _) (!help3) @ _).
@@ -303,35 +305,93 @@ Section EquivToAdjEquiv.
       exact first_triangle_law.
   Defined.
 
-  Definition equiv_to_isadjequiv : is_internal_left_adjoint_internal_equivalence f.
+  Definition equiv_to_isadjequiv : left_adjoint_equivalence f.
   Proof.
     use tpair.
-    - exact (internal_right_adjoint Hf).
+    - exact equiv_to_adjequiv_d.
     - cbn.
-      refine (equiv_to_adjequiv_d ,, _).
       split.
+      + exact equiv_to_adjequiv_isadj.
       + split.
         * exact ηiso.
         * exact εiso.
-      + exact equiv_to_adjequiv_isadj.
   Defined.
 
-  Definition equiv_to_adjequiv : internal_adjoint_equivalence X Y
+  Definition equiv_to_adjequiv : adjoint_equivalence X Y
     := (f ,, equiv_to_isadjequiv).
 End EquivToAdjEquiv.
+
+Section CompositionEquivalence.
+  Context {C : bicat}
+          {X Y Z : C}.
+  Variable (f : C⟦X,Y⟧)
+           (g : C⟦Y,Z⟧)
+           (A₁ : left_equivalence f)
+           (A₂ : left_equivalence g).
+
+  Local Notation finv := (left_adjoint_right_adjoint A₁).
+  Local Notation ginv := (left_adjoint_right_adjoint A₂).
+
+  Local Definition comp_unit
+    : id₁ X ==> (finv ∘ ginv) ∘ (g ∘ f).
+  Proof.
+    refine (rassociator (g ∘ f) _ _ o _).
+    refine ((_ ◅ _) o (left_adjoint_unit A₁)).
+    refine (lassociator f g _ o _).
+    exact (((left_adjoint_unit A₂) ▻ f) o rinvunitor f).
+  Defined.
+
+  Local Definition comp_unit_isiso
+    : is_invertible_2cell comp_unit.
+  Proof.
+    unfold comp_unit.
+    is_iso.
+    - exact (left_equivalence_unit_iso A₁).
+    - exact (left_equivalence_unit_iso A₂).
+  Defined.
+
+  Local Definition comp_counit
+    : (g ∘ f) ∘ (finv ∘ ginv) ==> (id₁ Z).
+  Proof.
+    refine (_ o lassociator _ f g).
+    refine (left_adjoint_counit A₂ o (g ◅ _)).
+    refine (_ o rassociator _ _ _).
+    refine (runitor _ o _).
+    exact (left_adjoint_counit A₁ ▻ _).
+  Defined.
+
+  Local Definition comp_counit_isiso
+    : is_invertible_2cell comp_counit.
+  Proof.
+    unfold comp_counit.
+    is_iso.
+    - exact (left_equivalence_counit_iso A₁).
+    - exact (left_equivalence_counit_iso A₂).
+  Defined.
+
+  Definition comp_equiv
+    : left_equivalence (f · g).
+  Proof.
+    use tpair.
+    - repeat (use tpair).
+      * exact (finv ∘ ginv).
+      * exact comp_unit.
+      * exact comp_counit.
+    - split.
+      * exact comp_unit_isiso.
+      * exact comp_counit_isiso.
+  Defined.
+End CompositionEquivalence.
 
 Definition comp_adjequiv
            {C : bicat}
            {X Y Z : C}
-           (f : internal_adjoint_equivalence X Y)
-           (g : internal_adjoint_equivalence Y Z)
-  : internal_adjoint_equivalence X Z.
+           (f : adjoint_equivalence X Y)
+           (g : adjoint_equivalence Y Z)
+  : adjoint_equivalence X Z.
 Proof.
-  use equiv_to_adjequiv.
+  use (equiv_to_adjequiv (f · g)).
   use comp_equiv.
-  - exact Y.
-  - apply internal_equivalence_from_internal_adjoint_equivalence.
-    apply g.
-  - apply internal_equivalence_from_internal_adjoint_equivalence.
-    apply f.
+  - exact f.
+  - exact g.
 Defined.

@@ -168,6 +168,8 @@ Bicategories/OpMorBicat.v
 Bicategories/Unitors.v
 Bicategories/bicategory_laws.v
 Bicategories/PseudoFunctor.v
+Bicategories/Adjunctions.v
+Bicategories/Discreteness.v
 Bicategories/Univalence.v
 Bicategories/transport_laws.v
 Bicategories/equiv_to_adjequiv.v
@@ -180,10 +182,13 @@ Bicategories/ap_functor.v
 Bicategories/DispBicat.v
 Bicategories/BicatOfCats.v
 Bicategories/DispBicatOfDispCats.v
+Bicategories/DispInvertibles.v
+Bicategories/DispAdjunctions.v
 Bicategories/DispUnivalence.v
-Bicategories/DispGlobalUnivalence.v
+Bicategories/Examples/pointed_one_types.v
 Bicategories/ContravariantFunctor.v
 Bicategories/Constructions.v
+Bicategories/Examples/UnivalentCat.v
 Bicategories/Sigma.v
 Bicategories/Fibration.v
 Bicategories/Cofunctormap.v

@@ -192,3 +192,22 @@ Proof.
   intros e. exists (λ xp, (f(pr1 xp),,e (pr1 xp) (pr2 xp))).
   exact (twooutof3c _ _ (isweqfibtototal P (Q ∘ f) e) (pr2 (weqfp f Q))).
 Defined.
+
+Lemma isaprop_total2_isaprop_fiber
+      {A : UU} {B : A → UU} :
+  isaprop (∑ (x :A), B x) →
+  isofhlevel 2 A →
+  ∏ (x : A), isaprop (B x).
+Proof.
+  intros Ht Hb x.
+  apply invproofirrelevance.
+  intros b1 b2.
+  apply proofirrelevance in Ht.
+  specialize (Ht (x,,b1) (x,,b2)).
+  etrans. 2: apply (fiber_paths Ht).
+  etrans. {
+    apply pathsinv0.
+    apply idpath_transportf. }
+  apply map_on_two_paths; try reflexivity.
+  apply Hb.
+Defined.

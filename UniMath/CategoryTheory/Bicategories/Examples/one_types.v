@@ -7,11 +7,13 @@ Ported from: https://github.com/nmvdw/groupoids
 *)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
-Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Univalence.
+Require Import UniMath.CategoryTheory.Bicategories.Adjunctions.
 Require Import UniMath.CategoryTheory.Bicategories.equiv_to_adjequiv.
 Require Import UniMath.CategoryTheory.Bicategories.adjoint_unique.
+
+Local Open Scope cat.
 Local Open Scope bicategory_scope.
 
 Definition one_type
@@ -138,25 +140,25 @@ Defined.
 Definition adjoint_equivalence_is_weq
            {X Y : one_types}
            (f : one_types⟦X,Y⟧)
-           (Hf : is_internal_left_adjoint_internal_equivalence f)
+           (Hf : left_adjoint_equivalence f)
   : isweq f.
 Proof.
   use isweq_iso.
-  - exact (internal_right_adjoint Hf).
+  - exact (left_adjoint_right_adjoint Hf).
   - intros x.
-    exact (eqtohomot (!(internal_unit Hf)) x).
+    exact (eqtohomot (!(left_adjoint_unit Hf)) x).
   - intros x.
-    exact (eqtohomot (internal_counit Hf) x).
+    exact (eqtohomot (left_adjoint_counit Hf) x).
 Defined.
 
 Definition weq_is_adjoint_equivalence_help
            {X Y : one_types}
            (f : one_types⟦X,Y⟧)
            (Hf : isweq f)
-  : internal_equivalence X Y.
+  : left_equivalence f.
 Proof.
   use tpair.
-  - refine (f ,, invmap (f ,, Hf) ,, _).
+  - refine (invmap (f ,, Hf) ,, _).
     split.
     + apply funextsec.
       intros x.
@@ -171,22 +173,22 @@ Definition weq_is_adjoint_equivalence
            {X Y : one_types}
            (f : one_types⟦X,Y⟧)
            (Hf : isweq f)
-  : is_internal_left_adjoint_internal_equivalence f
-  := equiv_to_isadjequiv (weq_is_adjoint_equivalence_help f Hf).
+  : left_adjoint_equivalence f
+  := equiv_to_isadjequiv f (weq_is_adjoint_equivalence_help f Hf).
 
 Definition adjoint_equivalence_to_weq
            (X Y : one_types)
-  : internal_adjoint_equivalence X Y → weq (pr1 X) (pr1 Y).
+  : adjoint_equivalence X Y → weq (pr1 X) (pr1 Y).
 Proof.
   intros Hf.
-  refine (internal_left_adjoint Hf ,, _).
+  refine (pr1 Hf ,, _).
   apply adjoint_equivalence_is_weq.
   apply Hf.
 Defined.
 
 Definition weq_to_adjoint_equivalence
            (X Y : one_types)
-  : weq (pr1 X) (pr1 Y) → internal_adjoint_equivalence X Y.
+  : weq (pr1 X) (pr1 Y) → adjoint_equivalence X Y.
 Proof.
   intros Hf.
   refine (pr1weq Hf ,, _).
@@ -201,9 +203,10 @@ Proof.
   use isweq_iso.
   - exact (adjoint_equivalence_to_weq X Y).
   - intros f.
-    use subtypeEquality'.
+    use subtypeEquality.
+    + intro.
+      apply isapropisweq.
     + reflexivity.
-    + apply isapropisweq.
   - intros f.
     apply path_internal_adjoint_equivalence.
     + apply one_types_is_univalent_2_1.
