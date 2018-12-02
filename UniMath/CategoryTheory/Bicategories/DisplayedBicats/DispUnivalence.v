@@ -139,7 +139,7 @@ Lemma isaprop_disp_left_adjoint_equivalence
   isaprop (disp_left_adjoint_equivalence Hf ff).
 Proof.
   intros HUC HUD.
-  revert Hf. apply isaprop_total2_isaprop_fiber.
+  revert Hf. apply hlevel_total2.
   2: { apply hlevelntosn.
        apply isaprop_left_adjoint_equivalence.
        assumption. }
