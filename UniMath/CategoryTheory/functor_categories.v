@@ -1700,6 +1700,8 @@ Defined.
 Definition nat_iso_to_trans {C D : precategory} {F G : C ⟶ D} (ν : nat_iso F G) : F ⟹ G :=
   pr1 ν.
 
+Coercion nat_iso_to_trans : nat_iso >-> nat_trans.
+
 (* ⁻¹ *)
 Definition nat_iso_to_trans_inv {C D : precategory} {F G : C ⟶ D} (ν : nat_iso F G) : G ⟹ F :=
   pr1 (nat_iso_inv ν).
