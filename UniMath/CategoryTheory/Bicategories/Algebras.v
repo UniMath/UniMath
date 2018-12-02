@@ -8,7 +8,7 @@ Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws.
 Require Import UniMath.CategoryTheory.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctor. Import PseudoFunctor.Notations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.Bicategories.DispBicat.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.CategoryTheory.Bicategories.Unitors.
 
 Open Scope cat.

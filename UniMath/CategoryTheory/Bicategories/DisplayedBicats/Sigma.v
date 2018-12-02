@@ -2,6 +2,8 @@
 (** * Bicategories
     Benedikt Ahrens, Marco Maggesi
     February 2018
+
+   Dependent product of displayed bicategories
  ********************************************************************************* *)
 
 Require Import UniMath.Foundations.All.
@@ -12,7 +14,7 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
-Require Import UniMath.CategoryTheory.Bicategories.DispBicat. Import DispBicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.

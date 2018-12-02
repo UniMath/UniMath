@@ -10,15 +10,15 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.Bicategories.DispBicat. Import DispBicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Unitors.
 Require Import UniMath.CategoryTheory.Bicategories.Adjunctions.
 (* For showing that the being a displayed adjoint equivalence is a proposition *)
 Require Import UniMath.CategoryTheory.Bicategories.adjoint_unique.
-Require Import UniMath.CategoryTheory.Bicategories.Univalence.
+Require Export UniMath.CategoryTheory.Bicategories.Univalence.
 Require Import UniMath.CategoryTheory.Bicategories.Invertible_2cells.
-Require Import UniMath.CategoryTheory.Bicategories.DispInvertibles.
-Require Import UniMath.CategoryTheory.Bicategories.DispAdjunctions.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
+Require Export UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispInvertibles.
+Require Export UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispAdjunctions.
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.

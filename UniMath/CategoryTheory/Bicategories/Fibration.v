@@ -11,8 +11,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Unitors.
-Require Import UniMath.CategoryTheory.Bicategories.DispBicat. Import DispBicat.Notations.
-Require Import UniMath.CategoryTheory.Bicategories.DispUnivalence.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws.
 
 Local Open Scope cat.

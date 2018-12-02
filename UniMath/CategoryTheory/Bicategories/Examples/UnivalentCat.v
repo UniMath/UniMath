@@ -4,18 +4,16 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
-Require Import UniMath.CategoryTheory.Bicategories.DispBicat.
 Require Import UniMath.CategoryTheory.Bicategories.OpCellBicat.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctor.
-Require Import UniMath.CategoryTheory.Bicategories.Constructions.
 Require Import UniMath.CategoryTheory.Bicategories.BicatOfCats.
 Require Import UniMath.CategoryTheory.Bicategories.Adjunctions.
 Require Import UniMath.CategoryTheory.Bicategories.Univalence.
 Require Import UniMath.CategoryTheory.catiso.
 Require Import UniMath.CategoryTheory.Bicategories.adjoint_unique.
 Require Import UniMath.CategoryTheory.Bicategories.equiv_to_adjequiv.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Constructions.
 
 Open Scope cat.
 
