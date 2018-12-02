@@ -90,12 +90,6 @@ Definition propproperty (P : hProp) := pr2 P : isaprop (pr1 P).
 Definition tildehProp := total2 (λ P : hProp, P).
 Definition tildehProppair {P : hProp} (p : P) : tildehProp := tpair _ P p.
 
-Definition negProp_to_hProp {P : UU} (Q : negProp P) : hProp.
-Proof.
-  intros. exists (negProp_to_type Q). apply negProp_to_isaprop.
-Defined.
-Coercion negProp_to_hProp : negProp >-> hProp.
-
 (* convenient corollaries of some theorems that take separate isaprop
    arguments: *)
 

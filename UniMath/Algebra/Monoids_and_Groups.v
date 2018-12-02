@@ -261,7 +261,7 @@ Definition pr1monoidiso (X Y : monoid) : monoidiso X Y -> X ≃ Y := @pr1 _ _.
 Coercion pr1monoidiso : monoidiso >-> weq.
 
 Definition monoidisotomonoidmono (X Y : monoid) : monoidiso X Y -> monoidmono X Y :=
-  λ f, monoidmonopair (pr1 f) (pr2 f).
+  λ f, monoidmonopair (weqtoincl (pr1 f)) (pr2 f).
 Coercion monoidisotomonoidmono : monoidiso >-> monoidmono.
 
 Definition monoidisotobinopiso (X Y : monoid) : monoidiso X Y -> binopiso X Y :=
@@ -2740,7 +2740,7 @@ Proof.
   intros.
   set (int := isinclprabmonoidfrac X (totalsubmonoid X) (λ a : totalsubmonoid X, iscanc (pr1 a))
                                    (carrierpair (λ x : X, htrue) x' tt)).
-  set (int1 := isinclcomp (inclpair _ int) (invweq (weqabgrdiff X))).
+  set (int1 := isinclcomp (inclpair _ int) (weqtoincl (invweq (weqabgrdiff X)))).
   apply int1.
 Defined.
 

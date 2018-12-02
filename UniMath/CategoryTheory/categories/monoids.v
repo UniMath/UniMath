@@ -2,6 +2,9 @@
 (** ** Contents
 - Precategory of monoids
 - Category of monoids
+- Forgetful functor to [HSET]
+- Free functor from [HSET]
+- Free/forgetful adjunction
  *)
 
 Require Import UniMath.Foundations.PartD.
@@ -12,11 +15,19 @@ Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids_and_Groups.
 
+Require Import UniMath.Algebra.Free_Monoids_and_Groups.
+Require Import UniMath.Combinatorics.Lists.
+Require Import UniMath.Algebra.IteratedBinaryOperations.
+
 Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.
+
 Local Open Scope cat.
 
+(** ** Precategory of monoids *)
 
-(** * Precategory of monoids *)
 Section def_monoid_precategory.
 
   Definition monoid_fun_space (A B : monoid) : hSet :=
@@ -71,7 +82,7 @@ Section def_monoid_precategory.
 End def_monoid_precategory.
 
 
-(** * Category of monoids *)
+(** ** Category of monoids *)
 Section def_monoid_category.
 
   (** ** (monoidiso X Y) ≃ (iso X Y) *)
@@ -179,3 +190,124 @@ Section def_monoid_category.
     mk_category monoid_precategory monoid_precategory_is_univalent.
 
 End def_monoid_category.
+
+(** ** Forgetful functor to [HSET] *)
+
+Definition monoid_forgetful_functor : functor monoid_precategory HSET.
+Proof.
+  use mk_functor.
+  - use mk_functor_data.
+    + intro; exact (pr1setwithbinop (pr1monoid ltac:(assumption))).
+    + intros ? ? f; exact (pr1monoidfun _ _ f).
+  - split.
+    + (** Identity axiom *)
+      intro; reflexivity.
+    + (** Composition axiom *)
+      intros ? ? ? ? ?; reflexivity.
+Defined.
+
+Lemma monoid_forgetful_functor_is_faithful : faithful monoid_forgetful_functor.
+Proof.
+  unfold faithful.
+  intros ? ?.
+  apply isinclpr1.
+  apply isapropismonoidfun.
+Defined.
+
+(** ** Free functor from [HSET] *)
+
+Definition monoid_free_functor : functor HSET monoid_precategory.
+Proof.
+  use mk_functor.
+  - use mk_functor_data.
+    + intros s; exact (free_monoid s).
+    + intros ? ? f; exact (free_monoidfun f).
+  - split.
+    + (** Identity axiom *)
+      intros ?.
+      abstract (apply monoidfun_paths, funextfun; intro; apply map_idfun).
+    + (** Composition axiom *)
+      intros ? ? ? ? ?.
+      abstract (apply monoidfun_paths, funextfun, (free_monoidfun_comp_homot f g)).
+Defined.
+
+(** ** Free/forgetful adjunction *)
+
+Local Definition singleton {A : UU} (x : A) := cons x Lists.nil.
+
+(** The unit of this adjunction is the singleton function [x ↦ x::nil] *)
+Definition monoid_free_forgetful_unit :
+  nat_trans (functor_identity _)
+            (functor_composite monoid_free_functor monoid_forgetful_functor).
+Proof.
+  use mk_nat_trans.
+  - intros ?; exact singleton.
+  - intros ? ? ?.
+    abstract (apply funextfun; intro; reflexivity).
+Defined.
+
+(** This amounts to naturality of the counit: mapping commutes with folding *)
+Lemma iterop_list_mon_map {m n : monoid} (f : monoidfun m n) :
+  ∏ l, ((iterop_list_mon ∘ map (pr1monoidfun m n f)) l =
+        (pr1monoidfun _ _ f ∘ iterop_list_mon) l)%functions.
+Proof.
+  apply list_ind.
+  - apply pathsinv0, monoidfununel.
+  - intros x xs H.
+    unfold funcomp in *.
+    refine (maponpaths iterop_list_mon (map_cons _ _ _) @ _).
+    refine (iterop_list_mon_step _ _ @ _).
+    refine (_ @ !maponpaths _ (iterop_list_mon_step _ _)).
+    refine (_ @ !binopfunisbinopfun f _ _).
+    apply maponpaths.
+    assumption.
+Qed.
+
+(** The counit of this adjunction is the "folding" function
+    [[a, b, …, z] ↦ a · b · ⋯ · z]
+
+    (This is known to Haskell programmers as [mconcat].) *)
+Definition monoid_free_forgetful_counit :
+  nat_trans (functor_composite monoid_forgetful_functor monoid_free_functor )
+            (functor_identity _).
+Proof.
+  use mk_nat_trans.
+  - intros ?.
+    use tpair.
+    + intro; apply iterop_list_mon; assumption.
+    + split.
+      * intros ? ?; apply iterop_list_mon_concatenate.
+      * reflexivity.
+  - intros ? ? f; apply monoidfun_paths.
+    apply funextfun; intro; simpl in *.
+    apply (iterop_list_mon_map f).
+Defined.
+
+Definition monoid_free_forgetful_adjunction_data :
+  adjunction_data HSET monoid_precategory .
+Proof.
+  use tpair; [|use tpair]. (* TODO: there should be a constructor for this *)
+  - exact monoid_free_functor.
+  - exact monoid_forgetful_functor.
+  - split.
+    + exact monoid_free_forgetful_unit.
+    + exact monoid_free_forgetful_counit.
+Defined.
+
+Lemma monoid_free_forgetful_adjunction :
+  form_adjunction' monoid_free_forgetful_adjunction_data.
+Proof.
+  split; intro.
+  - apply monoidfun_paths.
+    apply funextfun.
+    simpl; unfold funcomp.
+    unfold homot; apply list_ind; [reflexivity|].
+    intros x xs ?.
+    unfold funcomp.
+    rewrite map_cons.
+    (* For some reason, the unifier needs a lot of help here... *)
+    refine (iterop_list_mon_step ((cons _ _) : pr1hSet (free_monoid _))
+                                  (map singleton xs) @ _).
+    apply maponpaths; assumption.
+  - reflexivity.
+Qed.

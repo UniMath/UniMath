@@ -1,10 +1,12 @@
 Require UniMath.Foundations.NaturalNumbers.
 Require UniMath.MoreFoundations.DecidablePropositions.
+Require UniMath.MoreFoundations.NegativePropositions.
 
 Module Test_nat.
 
   Import UniMath.Foundations.NaturalNumbers.
   Import UniMath.MoreFoundations.DecidablePropositions.
+  Import UniMath.MoreFoundations.NegativePropositions.
 
   Local Open Scope nat_scope.
 

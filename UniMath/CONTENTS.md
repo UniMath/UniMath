@@ -25,6 +25,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DoubleNegation.v](MoreFoundations/DoubleNegation.v)
    - [DecidablePropositions.v](MoreFoundations/DecidablePropositions.v)
    - [Propositions.v](MoreFoundations/Propositions.v)
+   - [NegativePropositions.v](MoreFoundations/NegativePropositions.v)
    - [Sets.v](MoreFoundations/Sets.v)
    - [Subtypes.v](MoreFoundations/Subtypes.v)
    - [AxiomOfChoice.v](MoreFoundations/AxiomOfChoice.v)

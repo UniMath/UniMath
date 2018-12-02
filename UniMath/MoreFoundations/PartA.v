@@ -105,12 +105,21 @@ Proof.
   etrans. apply homotweqinvweq. apply H.
 Defined.
 
-Lemma pr1_transportf (A : UU) (B : A -> UU) (P : ∏ a, B a -> UU)
-   (a a' : A) (e : a = a') (xs : ∑ b : B a, P _ b):
+Lemma pr1_transportf {A : UU} {B : A -> UU} {P : ∏ a, B a -> UU}
+   {a a' : A} (e : a = a') (xs : ∑ b : B a, P _ b):
    pr1 (transportf (λ x, ∑ b : B x, P _ b) e xs) =
      transportf (λ x, B x) e (pr1 xs).
 Proof.
-  destruct e; apply idpath.
+  apply pathsinv0.
+  apply (transport_map (λ a, pr1 (P := P a))).
+Defined.
+
+Lemma pr2_transportf {A} {B1 B2 : A → UU}
+    {a a' : A} (e : a = a') (xs : B1 a × B2 a)
+  : pr2 (transportf (λ a, B1 a × B2 a) e xs) = transportf _ e (pr2 xs).
+Proof.
+  apply pathsinv0.
+  apply (transport_map (λ a, pr2 (P := λ _, B2 a))).
 Defined.
 
 Lemma coprodcomm_coprodcomm {X Y : UU} (v : X ⨿ Y) : coprodcomm Y X (coprodcomm X Y v) = v.
