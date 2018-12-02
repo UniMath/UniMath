@@ -11,6 +11,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Unitors.
+Require Import UniMath.CategoryTheory.Bicategories.Adjunctions.
 Require Import UniMath.CategoryTheory.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws.
 Require Import UniMath.CategoryTheory.Bicategories.Univalence.
@@ -22,13 +23,12 @@ Definition adjoint_unique_map
            {C : bicat}
            {X Y : C}
            (l : C⟦X,Y⟧)
-           (r₁ r₂ : C⟦Y,X⟧)
-           (A₁ : internal_adjunction_over l r₁)
-           (A₂ : internal_adjunction_over l r₂)
-  : r₁ ==> r₂
-  := (lunitor _) o _ ◅ internal_counit A₁
+           (A₁ : left_adjoint l)
+           (A₂ : left_adjoint l)
+  : left_adjoint_right_adjoint A₁ ==> left_adjoint_right_adjoint A₂
+  := (lunitor _) o _ ◅ left_adjoint_counit A₁
                  o lassociator _ _ _
-                 o internal_unit A₂ ▻ _
+                 o left_adjoint_unit A₂ ▻ _
                  o rinvunitor _.
 
 Section AdjointUniqueMapCompose.
@@ -102,20 +102,19 @@ Section AdjointUniqueMapCompose.
   Qed.
 
   Variable (l : C⟦X,Y⟧)
-           (r₁ r₂ : C⟦Y,X⟧)
-           (A₁ : internal_adjunction_over l r₁)
-           (A₂ : internal_adjunction_over l r₂)
-           (HA₁ : is_internal_adjunction A₁)
-           (HA₂ : is_internal_adjunction A₂).
+           (A₁ : left_adjoint l)
+           (A₂ : left_adjoint l).
 
-  Local Notation η₁ := (internal_unit A₁).
-  Local Notation η₂ := (internal_unit A₂).
-  Local Notation ε₁ := (internal_counit A₁).
-  Local Notation ε₂ := (internal_counit A₂).
+  Local Notation r₁ := (left_adjoint_right_adjoint A₁).
+  Local Notation r₂ := (left_adjoint_right_adjoint A₂).
+  Local Notation η₁ := (left_adjoint_unit A₁).
+  Local Notation η₂ := (left_adjoint_unit A₂).
+  Local Notation ε₁ := (left_adjoint_counit A₁).
+  Local Notation ε₂ := (left_adjoint_counit A₂).
 
-  Local Notation r₁_to_r₂ := (adjoint_unique_map l r₁ r₂ A₁ A₂).
+  Local Notation r₁_to_r₂ := (adjoint_unique_map l A₁ A₂).
 
-  Local Notation r₂_to_r₁ := (adjoint_unique_map l r₂ r₁ A₂ A₁).
+  Local Notation r₂_to_r₁ := (adjoint_unique_map l A₂ A₁).
 
   Local Definition composition_of_triangles : r₁ ==> r₁
     := (lunitor r₁)
@@ -133,9 +132,9 @@ Section AdjointUniqueMapCompose.
   Proof.
     unfold composition_of_triangles.
     rewrite !vassocr.
-    rewrite (internal_triangle1 HA₂).
+    rewrite (internal_triangle1 A₂).
     rewrite id2_rwhisker, id2_right.
-    exact (internal_triangle2 HA₁).
+    exact (internal_triangle2 A₁).
   Qed.
 
   Local Definition ε₁_natural
@@ -267,20 +266,19 @@ Section UniquenessAdjoint.
   Context {C : bicat}
           {X Y : C}.
   Variable (l : C⟦X,Y⟧)
-           (r₁ r₂ : C⟦Y,X⟧)
-           (A₁ : internal_adjunction_over l r₁)
-           (A₂ : internal_adjunction_over l r₂)
-           (HA₁ : is_internal_adjunction A₁)
-           (HA₂ : is_internal_adjunction A₂).
+           (A₁ : left_adjoint l)
+           (A₂ : left_adjoint l).
 
-  Local Notation η₁ := (internal_unit A₁).
-  Local Notation η₂ := (internal_unit A₂).
-  Local Notation ε₁ := (internal_counit A₁).
-  Local Notation ε₂ := (internal_counit A₂).
+  Local Notation r₁ := (left_adjoint_right_adjoint A₁).
+  Local Notation r₂ := (left_adjoint_right_adjoint A₂).
+  Local Notation η₁ := (left_adjoint_unit A₁).
+  Local Notation η₂ := (left_adjoint_unit A₂).
+  Local Notation ε₁ := (left_adjoint_counit A₁).
+  Local Notation ε₂ := (left_adjoint_counit A₂).
 
-  Local Notation r₁_to_r₂ := (adjoint_unique_map l r₁ r₂ A₁ A₂).
+  Local Notation r₁_to_r₂ := (adjoint_unique_map l A₁ A₂).
 
-  Local Notation r₂_to_r₁ := (adjoint_unique_map l r₂ r₁ A₂ A₁).
+  Local Notation r₂_to_r₁ := (adjoint_unique_map l A₂ A₁).
 
   Definition adjoint_unique_map_iso
     : is_invertible_2cell r₁_to_r₂.
@@ -289,11 +287,11 @@ Section UniquenessAdjoint.
     - exact r₂_to_r₁.
     - cbn.
       split.
-      + rewrite (composition_of_maps l r₁ r₂ A₁ A₂).
-        rewrite (composition_of_triangles_is_identity _ _ _ _ _ HA₁ HA₂).
+      + rewrite (composition_of_maps l A₁ A₂).
+        rewrite composition_of_triangles_is_identity.
         reflexivity.
-      + rewrite (composition_of_maps l r₂ r₁ A₂ A₁).
-        rewrite (composition_of_triangles_is_identity _ _ _ _ _ HA₂ HA₁).
+      + rewrite (composition_of_maps l A₂ A₁).
+        rewrite composition_of_triangles_is_identity.
         reflexivity.
   Defined.
 
@@ -307,7 +305,7 @@ Section UniquenessAdjoint.
     refine (_ @ id2_right _).
     apply maponpaths.
     rewrite <- hcomp_identity.
-    rewrite <- (internal_triangle1 HA₁).
+    rewrite <- (internal_triangle1 A₁).
     rewrite <- rwhisker_hcomp.
     rewrite <- !rwhisker_vcomp.
     rewrite linvunitor_assoc.
@@ -454,7 +452,7 @@ Section UniquenessAdjoint.
     apply (maponpaths (λ z, z • _)).
     rewrite <- !vassocr.
     rewrite <- lwhisker_id2.
-    rewrite <- (internal_triangle1 HA₂).
+    rewrite <- (internal_triangle1 A₂).
     rewrite <- !lwhisker_vcomp.
     rewrite <- !vassocr.
     repeat (apply maponpaths).
@@ -505,34 +503,36 @@ Definition unique_internal_adjoint_equivalence
            {X Y : C}
            (l : C⟦X,Y⟧)
            (HC : is_univalent_2_1 C)
-           (A₁ : is_internal_left_adjoint_internal_equivalence l)
-           (A₂ : is_internal_left_adjoint_internal_equivalence l)
+           (A₁ : left_adjoint_equivalence l)
+           (A₂ : left_adjoint_equivalence l)
   : A₁ = A₂.
 Proof.
-  use total2_paths_f.
+  use subtypeEquality.
+  - intro x.
+    apply isapropdirprod.
+    + apply isapropdirprod ; apply C.
+    + apply isapropdirprod ; apply isaprop_is_invertible_2cell.
   - cbn.
-    apply (isotoid_2_1 HC).
-    refine (adjoint_unique_map l (pr1 A₁) (pr1 A₂) A₁ A₂ ,, _).
-    apply adjoint_unique_map_iso.
-    + exact A₁.
-    + exact A₂.
-  - rewrite transportf_total2.
-    use subtypeEquality'.
-    + unfold internal_adjunction_over ; cbn.
-      rewrite (transportf_dirprod _ _ _ (pr1 A₁ ,, pr12 A₁) (pr1 A₂ ,, pr12 A₂)) ; cbn.
-      use pathsdirprod.
+    use total2_paths_f.
+    + apply (isotoid_2_1 HC).
+      refine (adjoint_unique_map l A₁ A₂ ,, _).
+      exact (adjoint_unique_map_iso l A₁ A₂).
+    + rewrite transportf_dirprod.
+      apply dirprod_paths.
       * rewrite transport_two_cell_FlFr.
         rewrite !maponpaths_for_constant_function ; cbn.
         rewrite id2_left.
         rewrite <- idtoiso_2_1_lwhisker.
         unfold isotoid_2_1.
-        pose (homotweqinvweq (idtoiso_2_1 (pr1 A₁) (pr1 A₂),, HC Y X (pr1 A₁) (pr1 A₂))) as p.
+        pose (homotweqinvweq (idtoiso_2_1 _ _,,
+                                          HC Y X (left_adjoint_right_adjoint A₁)
+                                          (left_adjoint_right_adjoint A₂))) as p.
         cbn in p.
         rewrite p ; clear p.
         cbn.
-        apply transport_unit.
-        exact A₁.
-      * rewrite transport_two_cell_FlFr.
+        exact (transport_unit l A₁ A₂).
+      * cbn.
+        rewrite transport_two_cell_FlFr.
         rewrite !maponpaths_for_constant_function ; cbn.
         rewrite id2_right.
         use vcomp_move_R_pM.
@@ -540,30 +540,39 @@ Proof.
         cbn.
         rewrite <- idtoiso_2_1_rwhisker.
         unfold isotoid_2_1.
-        pose (homotweqinvweq (idtoiso_2_1 (pr1 A₁) (pr1 A₂),, HC Y X (pr1 A₁) (pr1 A₂))) as p.
+        pose (homotweqinvweq (idtoiso_2_1 _ _,, HC Y X (left_adjoint_right_adjoint A₁)
+                                          (left_adjoint_right_adjoint A₂))) as p.
         cbn in p.
         rewrite p ; clear p.
         cbn.
         symmetry.
-        apply transport_counit.
-        exact A₂.
-    + cbn.
-      intros x y.
-      apply isapropdirprod.
-      * apply isapropdirprod ; apply isaprop_is_invertible_2cell.
-      * apply isapropdirprod ; apply C.
+        exact (transport_counit l A₁ A₂).
 Defined.
 
 Definition path_internal_adjoint_equivalence
            {C : bicat}
            {X Y : C}
            (HC : is_univalent_2_1 C)
-           (A₁ A₂ : internal_adjoint_equivalence X Y)
-           (H : internal_left_adjoint A₁ = internal_left_adjoint A₂)
+           (A₁ A₂ : adjoint_equivalence X Y)
+           (H : arrow_of_adjunction A₁ = A₂)
   : A₁ = A₂.
 Proof.
   use total2_paths_f.
   - exact H.
   - apply unique_internal_adjoint_equivalence.
     apply HC.
+Defined.
+
+Lemma isaprop_left_adjoint_equivalence
+      {C : bicat}
+      {X Y : C}
+      (f : X --> Y) :
+  is_univalent_2_1 C →
+  isaprop (left_adjoint_equivalence f).
+Proof.
+  intros HU.
+  apply invproofirrelevance.
+  intros A1 A2.
+  apply unique_internal_adjoint_equivalence.
+  assumption.
 Defined.
