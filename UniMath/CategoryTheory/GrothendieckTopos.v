@@ -27,7 +27,7 @@ Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
 Require Import UniMath.CategoryTheory.limits.graphs.equalizers.
 Require Import UniMath.CategoryTheory.Subcategory.Core.
 Require Import UniMath.CategoryTheory.Subcategory.Full.
-Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
 
 (** * Definiton of Grothendieck topology
     The following definition is a formalization of the definition in Sheaves in Geometry and Logic,
