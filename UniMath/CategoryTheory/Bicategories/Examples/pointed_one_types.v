@@ -4,13 +4,9 @@ The univalent bicategory of pointed 1-types.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
-Require Import UniMath.CategoryTheory.Bicategories.Univalence.
-Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.Bicategories.DispBicat.
-Require Import UniMath.CategoryTheory.Bicategories.DispUnivalence.
-Require Import UniMath.CategoryTheory.Bicategories.DispInvertibles.
-Require Import UniMath.CategoryTheory.Bicategories.DispAdjunctions.
 Require Import UniMath.CategoryTheory.Bicategories.Examples.one_types.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispUnivalence.
 
 Local Open Scope cat.
 Local Open Scope bicategory_scope.
