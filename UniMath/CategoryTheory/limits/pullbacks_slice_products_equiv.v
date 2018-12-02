@@ -17,7 +17,7 @@ Require Import UniMath.MoreFoundations.Tactics
         UniMath.CategoryTheory.Categories
         UniMath.CategoryTheory.functor_categories
         UniMath.CategoryTheory.slicecat
-        UniMath.CategoryTheory.equivalences
+        UniMath.CategoryTheory.Equivalences.Core
         UniMath.CategoryTheory.limits.binproducts
         UniMath.CategoryTheory.limits.pullbacks.
 
