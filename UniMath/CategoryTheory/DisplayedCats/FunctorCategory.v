@@ -1,18 +1,19 @@
 (** * Functor category as a displayed category
 *)
-Require Import UniMath.Foundations.All.
-Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.UnivalenceAxiom.
+Require Import UniMath.MoreFoundations.Propositions.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.Monads.Monads.
-Local Open Scope cat.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 
+Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
 Definition base_precategory_ob_mor (C D:precategory_data)
@@ -190,13 +191,7 @@ Definition functor_disp_cat : disp_cat step1_total
 Definition functor_total_cat : category
   := total_category functor_disp_cat.
 
-(* TODO: This is equivalent to the direct construction. *)
-(* Lemma functor_total_cat_correct : *)
-(*   functor_total_cat = functor_category C D. *)
-(* Proof. *)
-(*   apply subtypeEquality. *)
-(*   { intro. apply isaprop_has_homsets. } *)
-
+(** This construction is univalent *)
 Lemma functor_disp_cat_univalent :
   is_univalent_disp functor_disp_cat.
 Proof.
