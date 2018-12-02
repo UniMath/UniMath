@@ -7,7 +7,6 @@
     - [disp_prop]: The displayed category of propositions
     - [disp_HSET]: The displayed category of sets
   - Equivalence of the total category of [disp_HSET] with [HSET_univalent_category]
-
  *)
 
 Require Import UniMath.Foundations.Sets.
@@ -39,6 +38,8 @@ Definition disp_prop : disp_precat type_precat := disp_hlevel 1.
 (** *** [disp_HSET]: The displayed category of sets *)
 
 Definition disp_HSET : disp_precat type_precat := disp_hlevel 2.
+
+(** ** Equivalence of the total category of [disp_HSET] with [HSET_univalent_category] *)
 
 Definition disp_HSET_equiv_HSET_adjunction_data :
   adjunction_data (total_precategory disp_HSET) HSET_univalent_category.
