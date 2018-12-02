@@ -186,9 +186,6 @@ Require Export UniMath.CategoryTheory.Bicategories.DisplayedBicats.Sigma.
 Require Export UniMath.CategoryTheory.Bicategories.Examples.pointed_one_types.
 Require Export UniMath.CategoryTheory.Bicategories.ContravariantFunctor.
 Require Export UniMath.CategoryTheory.Bicategories.Examples.UnivalentCat.
-Require Export UniMath.CategoryTheory.Bicategories.Constructions.
-Require Export UniMath.CategoryTheory.Bicategories.Examples.UnivalentCat.
-Require Export UniMath.CategoryTheory.Bicategories.Sigma.
 Require Export UniMath.CategoryTheory.Bicategories.Fibration.
 Require Export UniMath.CategoryTheory.Bicategories.Cofunctormap.
 Require Export UniMath.CategoryTheory.Bicategories.Algebras.
