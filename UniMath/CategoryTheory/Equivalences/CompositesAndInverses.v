@@ -218,13 +218,10 @@ Section eqv_inv.
     : adj_equivalence_of_precats G.
   Proof.
     exists is_left_adjoint_inv.
-    split.
-    - intro b.
-      apply (is_functor_iso_pointwise_if_iso _ _ hsB _ _
-                          (iso_inv_from_iso εiso) (pr2 (iso_inv_from_iso εiso))).
-    - intro a.
-      apply (is_functor_iso_pointwise_if_iso _ _ hsA _ _
-                          (iso_inv_from_iso ηiso) (pr2 (iso_inv_from_iso ηiso))).
+    split;
+      intro;
+      use (transportb is_iso (id_right _));
+      apply is_iso_inv_from_iso.
   Defined.
 
 End eqv_inv.
