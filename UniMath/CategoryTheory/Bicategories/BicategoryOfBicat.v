@@ -20,7 +20,7 @@ Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.Bicategories.WkCatEnrichment.prebicategory.
 Require Import UniMath.CategoryTheory.Bicategories.WkCatEnrichment.Notations.
 
-Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 
 Local Open Scope cat.
 

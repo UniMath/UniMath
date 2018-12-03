@@ -174,7 +174,9 @@ Bicategories/Bicategories/EquivToAdjequiv.v
 Bicategories/Bicategories/AdjointUnique.v
 Bicategories/Bicategories/Examples/OneTypes.v
 Bicategories/Bicategories/Examples/TwoType.v
+
 Bicategories/PseudoFunctor.v
+
 Bicategories/Bicategories/Examples/BicatOfCats.v
 Bicategories/Bicategories/Examples/Initial.v
 Bicategories/Bicategories/Examples/Final.v
@@ -183,7 +185,10 @@ Bicategories/DisplayedBicats/DispBicatOfDispCats.v
 Bicategories/DisplayedBicats/DispInvertibles.v
 Bicategories/DisplayedBicats/DispAdjunctions.v
 Bicategories/DisplayedBicats/DispUnivalence.v
+Bicategories/DisplayedBicats/Fibration.v
 Bicategories/DisplayedBicats/Sigma.v
+Bicategories/DisplayedBicats/Examples/DisplayedCatToBicat.v
+Bicategories/DisplayedBicats/Examples/Trivial.v
 Bicategories/DisplayedBicats/Examples/FullSub.v
 Bicategories/DisplayedBicats/Examples/Prod.v
 Bicategories/DisplayedBicats/Examples/PointedOneTypes.v
@@ -191,6 +196,21 @@ Bicategories/DisplayedBicats/Examples/Algebras.v
 Bicategories/DisplayedBicats/Examples/ContravariantFunctor.v
 Bicategories/DisplayedBicats/Examples/Cofunctormap.v
 Bicategories/DisplayedBicats/Examples/CwF.v
+
+Bicategories/WkCatEnrichment/prebicategory.v
+Bicategories/WkCatEnrichment/Notations.v
+Bicategories/WkCatEnrichment/whiskering.v
+Bicategories/WkCatEnrichment/Cat.v
+Bicategories/WkCatEnrichment/internal_equivalence.v
+Bicategories/WkCatEnrichment/bicategory.v
+
+Bicategories/BicategoryOfBicat.v
+Bicategories/BicatOfBicategory.v
+Bicategories/Graph.v
+Bicategories/Discreteness.v
+Bicategories/ap_functor.v
+Bicategories/composition.v
+Bicategories/identity.v
 
 Monoidal/MonoidalCategories.v
 Monoidal/MonoidalFunctors.v

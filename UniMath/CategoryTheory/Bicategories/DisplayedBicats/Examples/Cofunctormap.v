@@ -21,6 +21,7 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bi
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.BicatOfCats.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.ContravariantFunctor.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Prod.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Sigma.
 
