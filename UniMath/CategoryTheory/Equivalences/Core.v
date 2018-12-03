@@ -65,46 +65,57 @@ Definition adj_equivalence_inv {A B : precategory}
 
 Local Notation "HF ^^-1" := (adj_equivalence_inv  HF)(at level 3).
 
-Definition unit_pointwise_iso_from_adj_equivalence {A B : precategory}
-   {F : functor A B} (HF : adj_equivalence_of_precats F) :
-    ∏ a, iso a (HF^^-1 (F a)).
-Proof.
-intro a.
-exists (unit_from_left_adjoint (pr1 HF) a).
-exact (pr1 (pr2 HF) a).
-Defined.
+Section Accessors.
+  Context {A B : precategory} {F : functor A B} (HF : adj_equivalence_of_precats F).
 
-Definition counit_pointwise_iso_from_adj_equivalence {A B : precategory}
-  {F : functor A B} (HF : adj_equivalence_of_precats F) :
-    ∏ b, iso (F (HF^^-1 b)) b.
-Proof.
-  intro b.
-  exists (counit_from_left_adjoint (pr1 HF) b).
-  exact (pr2 (pr2 HF) b).
-Defined.
+  Definition unit_pointwise_iso_from_adj_equivalence :
+      ∏ a, iso a (HF^^-1 (F a)).
+  Proof.
+  intro a.
+  exists (unit_from_left_adjoint (pr1 HF) a).
+  exact (pr1 (pr2 HF) a).
+  Defined.
 
-Definition unit_iso_from_adj_equivalence_of_precats {A B : precategory}
-  (hsA: has_homsets A)
-  {F : functor A B} (HF : adj_equivalence_of_precats F) :
-       iso (C:=[A, A, hsA]) (functor_identity A)
+  Definition counit_pointwise_iso_from_adj_equivalence :
+      ∏ b, iso (F (HF^^-1 b)) b.
+  Proof.
+    intro b.
+    exists (counit_from_left_adjoint (pr1 HF) b).
+    exact (pr2 (pr2 HF) b).
+  Defined.
+
+  Definition unit_nat_iso_from_adj_equivalence_of_precats  :
+    nat_iso (functor_identity A) (functor_composite F (right_adjoint  (pr1 HF))).
+  Proof.
+    exists (unit_from_left_adjoint (pr1 HF)).
+    exact (dirprod_pr1 (pr2 HF)).
+  Defined.
+
+  Definition counit_nat_iso_from_adj_equivalence_of_precats :
+    nat_iso (functor_composite  (right_adjoint (pr1 HF)) F) (functor_identity B).
+  Proof.
+    exists (counit_from_left_adjoint (pr1 HF)).
+    exact (dirprod_pr2 (pr2 HF)).
+  Defined.
+
+  Definition unit_iso_from_adj_equivalence_of_precats (hsA: has_homsets A) :
+    iso (C:=[A, A, hsA]) (functor_identity A)
         (functor_composite F (right_adjoint  (pr1 HF))).
-Proof.
-  exists (unit_from_left_adjoint (pr1 HF)).
-  apply functor_iso_if_pointwise_iso.
-  apply (pr1 (pr2 HF)).
-Defined.
+  Proof.
+    exists (unit_from_left_adjoint (pr1 HF)).
+    apply functor_iso_if_pointwise_iso.
+    apply (pr1 (pr2 HF)).
+  Defined.
 
-Definition counit_iso_from_adj_equivalence_of_precats {A B : precategory}
-  (hsB: has_homsets B)
-  {F : ob [A, B, hsB]} (HF : adj_equivalence_of_precats F) :
-       iso (C:=[B, B, hsB])
-   (functor_composite  (right_adjoint (pr1 HF)) F)
-                (functor_identity B).
-Proof.
-  exists (counit_from_left_adjoint (pr1 HF)).
-  apply functor_iso_if_pointwise_iso.
-  apply (pr2 (pr2 HF)).
-Defined.
+  Definition counit_iso_from_adj_equivalence_of_precats (hsB: has_homsets B) :
+    iso (C:=[B, B, hsB]) (functor_composite  (right_adjoint (pr1 HF)) F)
+        (functor_identity B).
+  Proof.
+    exists (counit_from_left_adjoint (pr1 HF)).
+    apply functor_iso_if_pointwise_iso.
+    apply (pr2 (pr2 HF)).
+  Defined.
+End Accessors.
 
 (** * Adjointification of a sloppy equivalence *)
 
@@ -152,8 +163,11 @@ Proof.
   unfold XR', XR; clear XR' XR.
 
   repeat rewrite assoc.
-  match goal with |[ |- ?i1 · ?i2 · _ · _ · _ · _ = _ ] =>
-                   set (i := i1); set (i':= i2) end.
+  set (i := inv_from_iso
+    (isopair (# G (ε x))
+       (functor_on_iso_is_iso D C G (F (G x)) x (isopair (ε x) (Hε x))))).
+
+  set (i' := inv_from_iso (isopair (η (G x)) (Hη (G x)))).
 
   etrans. apply cancel_postcomposition. repeat rewrite <- assoc.
           rewrite etaH. apply idpath.
@@ -284,8 +298,8 @@ Lemma adj_equiv_of_cats_is_weq_of_objects (A B : precategory)
    (HF : adj_equivalence_of_precats F) : isweq (pr1 (pr1 F)).
 Proof.
   set (G := right_adjoint (pr1 HF)).
-  set (et := unit_iso_from_adj_equivalence_of_precats (pr2 HA)  HF).
-  set (ep := counit_iso_from_adj_equivalence_of_precats _ HF).
+  set (et := unit_iso_from_adj_equivalence_of_precats HF (pr2 HA)).
+  set (ep := counit_iso_from_adj_equivalence_of_precats HF (pr2 HB)).
   set (AAcat := is_univalent_functor_category A _ HA).
   set (BBcat := is_univalent_functor_category B _ HB).
   set (Et := isotoid _ AAcat et).

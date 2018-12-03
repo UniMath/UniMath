@@ -148,60 +148,88 @@ End eqv_comp.
 
 Section eqv_inv.
 
-  Context {A B : precategory}
-          {hsA : has_homsets A}
-          {hsB : has_homsets B}
-          {F : functor A B}.
+  Local Definition nat_iso_to_pointwise_iso {A B : precategory} {F G : functor A B}
+    (n : nat_iso F G) (x : ob A) : iso (F x) (G x) := mk_iso (pr2 n x).
 
-  Hypothesis adEquivF : adj_equivalence_of_precats F.
+  Local Lemma nat_iso_inv_after_nat_iso {A B : precategory} {F G : functor A B}
+    (n : nat_iso F G) : ∏ x, (nat_iso_to_pointwise_iso n) x · (nat_iso_inv n) x = identity _.
+  Proof.
+    intro; apply iso_inv_after_iso.
+  Qed.
 
-  Let η : functor_precategory _ _ hsA ⟦ _ , _ ⟧ := unit_from_left_adjoint adEquivF.
-  Let ε : functor_precategory _ _ hsB ⟦ _ , _ ⟧ := counit_from_left_adjoint adEquivF.
-  Let G := right_adjoint adEquivF.
+  Context {A B : precategory} {F : functor A B}
+          (adEquivF : adj_equivalence_of_precats F).
 
-  Let ηiso := unit_iso_from_adj_equivalence_of_precats hsA adEquivF.
-  Let εiso := counit_iso_from_adj_equivalence_of_precats hsB adEquivF.
+  Local Notation η := (unit_from_left_adjoint adEquivF).
+  Local Notation ε := (counit_from_left_adjoint adEquivF).
+  Local Notation G := (right_adjoint (pr1 adEquivF)).
 
+  Local Notation ηiso := (unit_nat_iso_from_adj_equivalence_of_precats adEquivF).
+  Local Notation εiso := (counit_nat_iso_from_adj_equivalence_of_precats adEquivF).
 
   Lemma form_adjunction_inv :
-  form_adjunction G F (inv_from_iso εiso) (inv_from_iso ηiso).
+    form_adjunction _ F (nat_iso_inv εiso) (nat_iso_inv ηiso).
   Proof.
     split.
     - intro b.
-      apply (pre_comp_with_iso_is_inj _ _ _ _ (#G ((pr1 εiso : nat_trans _ _ )  b))).
-      + apply (functor_is_iso_is_iso G).
-        apply is_functor_iso_pointwise_if_iso. apply pr2.
-      + etrans. apply assoc.
-        etrans. apply maponpaths_2. eapply pathsinv0. apply functor_comp.
-        etrans. apply maponpaths_2. apply maponpaths.
-                apply (nat_trans_eq_pointwise (iso_inv_after_iso εiso)).
-        etrans. apply maponpaths_2. apply functor_id.
-        etrans. apply id_left.
-        apply (pre_comp_with_iso_is_inj _ _ _ _ (((pr1 ηiso : nat_trans _ _ ) (G b)))).
-        * apply is_functor_iso_pointwise_if_iso. apply pr2.
-        * etrans. apply (nat_trans_eq_pointwise (iso_inv_after_iso ηiso)).
-          apply pathsinv0.
-          etrans. apply assoc.
-          etrans. apply id_right.
-          assert (XR := triangle_id_right_ad (pr2 (pr1 adEquivF))).
-          apply XR.
-    - intro a.
-      apply (pre_comp_with_iso_is_inj _ _ _ _ (((pr1 εiso : nat_trans _ _ ) _))).
-      * apply is_functor_iso_pointwise_if_iso. apply pr2.
-      * etrans. apply assoc.
-        etrans. apply maponpaths_2.
-          apply (nat_trans_eq_pointwise (iso_inv_after_iso εiso)).
-        etrans. apply id_left.
-        apply (pre_comp_with_iso_is_inj _ _ _ _ (#F ((pr1 ηiso : nat_trans _ _ ) a))).
-        { apply (functor_is_iso_is_iso F).
-          apply is_functor_iso_pointwise_if_iso. apply pr2.
-        }
-        etrans. eapply pathsinv0. apply functor_comp.
-        etrans. apply maponpaths. apply (nat_trans_eq_pointwise (iso_inv_after_iso ηiso )).
-        etrans. apply functor_id.
-        apply pathsinv0.
-        rewrite id_right.
-        apply triangle_id_left_ad.
+      (** Use the right triangle identity that we already know *)
+      refine (_ @ triangle_id_right_ad (pr2 (pr1 adEquivF)) b).
+
+      (** Transform it by precomposing with the inverse isos *)
+      apply (pre_comp_with_iso_is_inj _ _ _ _
+                                      (#G (nat_iso_to_pointwise_iso εiso b)));
+        [apply (functor_is_iso_is_iso G), iso_is_iso |].
+
+      (** Cancel the isos *)
+      unfold adjunit; unfold adjcounit.
+      unfold pr2, pr1.
+      rewrite assoc.
+      rewrite <- functor_comp.
+      unfold left_functor; unfold pr1.
+      rewrite nat_iso_inv_after_nat_iso.
+      rewrite functor_id.
+      rewrite id_left.
+      rewrite assoc.
+
+      (** Again, precompose with the inverse iso *)
+      apply (pre_comp_with_iso_is_inj _ _ _ _
+                                      ((nat_iso_to_pointwise_iso ηiso (G b))));
+        [apply iso_is_iso; rewrite iso_inv_after_iso|].
+      rewrite (nat_iso_inv_after_nat_iso ηiso).
+
+      refine (!triangle_id_right_ad (pr2 (pr1 adEquivF)) _ @ _).
+      refine (!id_left _ @ _).
+      repeat rewrite assoc.
+      do 2 rewrite <- assoc. (* This is inelegant... *)
+      apply (maponpaths (fun f => f · _)).
+      apply (!triangle_id_right_ad (pr2 (pr1 adEquivF)) _).
+    - (** Same proof, just backwards *)
+      intro a.
+      refine (_ @ triangle_id_left_ad (pr2 (pr1 adEquivF)) a).
+
+      apply (pre_comp_with_iso_is_inj _ _ _ _
+                                      ((nat_iso_to_pointwise_iso εiso (F a))));
+        [apply iso_is_iso; rewrite iso_inv_after_iso|].
+      rewrite assoc.
+      rewrite (nat_iso_inv_after_nat_iso εiso).
+      rewrite id_left.
+
+      apply (pre_comp_with_iso_is_inj _ _ _ _ (#F (nat_iso_to_pointwise_iso ηiso a)));
+        [apply (functor_is_iso_is_iso F), iso_is_iso |].
+      unfold adjunit; unfold adjcounit.
+      unfold right_functor.
+      unfold pr2, pr1.
+      refine (_ @ !assoc _ _ _).
+      refine (!functor_comp F _ _ @ _).
+      rewrite (nat_iso_inv_after_nat_iso ηiso).
+      rewrite functor_id.
+
+      refine (!triangle_id_left_ad (pr2 (pr1 adEquivF)) _ @ _).
+      refine (!id_left _ @ _).
+      repeat rewrite assoc.
+      do 2 rewrite <- assoc. (* This is inelegant... *)
+      apply (maponpaths (fun f => f · _)).
+      apply (!triangle_id_left_ad (pr2 (pr1 adEquivF)) _).
   Qed.
 
   Definition is_left_adjoint_inv : is_left_adjoint G.
@@ -209,8 +237,8 @@ Section eqv_inv.
     use tpair.
     - apply F.
     - use tpair.
-      exists (pr1 (iso_inv_from_iso εiso)).
-      exact (pr1 (iso_inv_from_iso ηiso)).
+      exists (pr1 (nat_iso_inv εiso)).
+      exact (pr1 (nat_iso_inv ηiso)).
       apply form_adjunction_inv.
   Defined.
 
@@ -218,13 +246,7 @@ Section eqv_inv.
     : adj_equivalence_of_precats G.
   Proof.
     exists is_left_adjoint_inv.
-    split.
-    - intro b.
-      apply (is_functor_iso_pointwise_if_iso _ _ hsB _ _
-                          (iso_inv_from_iso εiso) (pr2 (iso_inv_from_iso εiso))).
-    - intro a.
-      apply (is_functor_iso_pointwise_if_iso _ _ hsA _ _
-                          (iso_inv_from_iso ηiso) (pr2 (iso_inv_from_iso ηiso))).
+    split; intro; apply is_iso_inv_from_iso.
   Defined.
 
 End eqv_inv.
