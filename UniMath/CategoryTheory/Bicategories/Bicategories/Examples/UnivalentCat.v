@@ -4,16 +4,15 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
-Require Import UniMath.CategoryTheory.Bicategories.OpCellBicat.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctor.
-Require Import UniMath.CategoryTheory.Bicategories.BicatOfCats.
-Require Import UniMath.CategoryTheory.Bicategories.Adjunctions.
-Require Import UniMath.CategoryTheory.Bicategories.Univalence.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.BicatOfCats.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Adjunctions.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Univalence.
 Require Import UniMath.CategoryTheory.catiso.
-Require Import UniMath.CategoryTheory.Bicategories.adjoint_unique.
-Require Import UniMath.CategoryTheory.Bicategories.equiv_to_adjequiv.
-Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Constructions.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.AdjointUnique.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.EquivToAdjequiv.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.FullSub.
 
 Open Scope cat.
 
@@ -251,7 +250,7 @@ Proof.
 Defined.
 
 Definition univalent_cat : bicat
-  := fullsubprebicat bicat_of_cats (λ C, is_univalent (pr1 C)).
+  := fullsubbicat bicat_of_cats (λ C, is_univalent (pr1 C)).
 
 Definition functor_univalent_cat
            (C D : univalent_cat)
