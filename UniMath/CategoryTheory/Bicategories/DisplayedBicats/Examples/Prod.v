@@ -177,17 +177,314 @@ Section Disp_Dirprod.
     - apply D2.
   Defined.
 
+  Definition pair_is_disp_invertible_2cell
+             {a b : C}
+             {f : a --> b} {g : a --> b}
+             (x : invertible_2cell f g)
+             {aa : disp_dirprod_bicat a}
+             {bb : disp_dirprod_bicat b}
+             {ff : aa -->[ f ] bb}
+             {gg : aa -->[ g ] bb}
+             (xx : ff ==>[ x ] gg)
+    : is_disp_invertible_2cell x (pr1 xx) × is_disp_invertible_2cell x (pr2 xx)
+      →
+      is_disp_invertible_2cell x xx.
+  Proof.
+    intros H.
+    induction H as [H1 H2].
+    use tpair.
+    - split.
+      + exact (disp_inv_cell (_ ,, H1)).
+      + exact (disp_inv_cell (_ ,, H2)).
+    - split.
+      + cbn.
+        pose (disp_vcomp_rinv (_ ,, H1)) as p.
+        cbn in p.
+        rewrite p ; clear p.
+        pose (disp_vcomp_rinv (_ ,, H2)) as p.
+        cbn in p.
+        rewrite p ; clear p.
+        refine (!(transportb_dirprod (f ==> f)
+                                     (λ α, _ ==>[α] _)
+                                     (λ α, _ ==>[α] _)
+                                     (_ ,, (_ ,, _))
+                                     (_ ,, (_ ,, _))
+                                     (vcomp_rinv x)
+               )).
+        * exact (transportb (λ z, _ ==>[z] _) (vcomp_rinv _) (disp_id2 _)).
+        * exact (transportb (λ z, _ ==>[z] _) (vcomp_rinv _) (disp_id2 _)).
+      + cbn.
+        pose (disp_vcomp_linv (_ ,, H1)) as p.
+        cbn in p.
+        rewrite p ; clear p.
+        pose (disp_vcomp_linv (_ ,, H2)) as p.
+        cbn in p.
+        rewrite p ; clear p.
+        refine (!(transportb_dirprod (g ==> g)
+                                     (λ α, _ ==>[α] _)
+                                     (λ α, _ ==>[α] _)
+                                     (_ ,, (_ ,, _))
+                                     (_ ,, (_ ,, _))
+                                     (vcomp_lid x)
+               )).
+        * exact (transportb (λ z, _ ==>[z] _) (vcomp_lid _) (disp_id2 _)).
+        * exact (transportb (λ z, _ ==>[z] _) (vcomp_lid _) (disp_id2 _)).
+  Defined.
+
+  Definition pair_disp_invertible_2cell
+             {a b : C}
+             {f : a --> b} {g : a --> b}
+             (x : invertible_2cell f g)
+             {aa : disp_dirprod_bicat a}
+             {bb : disp_dirprod_bicat b}
+             {ff : aa -->[ f ] bb}
+             {gg : aa -->[ g ] bb}
+    : disp_invertible_2cell x (pr1 ff) (pr1 gg) × disp_invertible_2cell x (pr2 ff) (pr2 gg)
+      →
+      disp_invertible_2cell x ff gg.
+  Proof.
+    intros H.
+    use tpair.
+    - split.
+      + apply H.
+      + apply H.
+    - apply pair_is_disp_invertible_2cell.
+      split.
+      + exact (pr2 (pr1 H)).
+      + exact (pr2 (pr2 H)).
+  Defined.
+
+  Definition pr1_is_disp_invertible_2cell
+             {a b : C}
+             {f : a --> b} {g : a --> b}
+             (x : invertible_2cell f g)
+             {aa : disp_dirprod_bicat a}
+             {bb : disp_dirprod_bicat b}
+             {ff : aa -->[ f ] bb}
+             {gg : aa -->[ g ] bb}
+             (xx : ff ==>[ x ] gg)
+    : is_disp_invertible_2cell x xx
+      →
+      is_disp_invertible_2cell x (pr1 xx).
+  Proof.
+    intros H.
+    use tpair.
+    - exact (pr1 (pr1 H)).
+    - split.
+      + refine (maponpaths pr1
+                           (@disp_vcomp_rinv C disp_dirprod_bicat
+                                             a b f g
+                                             aa bb
+                                             x
+                                             ff gg
+                                             (_ ,, H))
+                           @ _).
+        cbn.
+        refine (maponpaths pr1 ((transportb_dirprod
+                                   (f ==> f)
+                                   (λ α, _ ==>[α] _)
+                                   (λ α, _ ==>[α] _)
+                                   (_ ,, (_ ,, _))
+                                   (_ ,, (_ ,, _))
+                                   (vcomp_rinv x)
+               ))).
+        * exact (transportb (λ z, _ ==>[z] _) (vcomp_rinv _) (disp_id2 _)).
+        * exact (transportb (λ z, _ ==>[z] _) (vcomp_rinv _) (disp_id2 _)).
+      + refine (maponpaths pr1
+                           (@disp_vcomp_linv C disp_dirprod_bicat
+                                             a b f g
+                                             aa bb
+                                             x
+                                             ff gg
+                                             (_ ,, H))
+                           @ _).
+        cbn.
+        refine (maponpaths pr1
+                           ((transportb_dirprod
+                               (g ==> g)
+                               (λ α, _ ==>[α] _)
+                               (λ α, _ ==>[α] _)
+                               (_ ,, (_ ,, _))
+                               (_ ,, (_ ,, _))
+                               (vcomp_lid x)
+               ))).
+        * exact (transportb (λ z, _ ==>[z] _) (vcomp_lid _) (disp_id2 _)).
+        * exact (transportb (λ z, _ ==>[z] _) (vcomp_lid _) (disp_id2 _)).
+  Defined.
+
+  Definition pr1_disp_invertible_2cell
+             {a b : C}
+             {f : a --> b} {g : a --> b}
+             (x : invertible_2cell f g)
+             {aa : disp_dirprod_bicat a}
+             {bb : disp_dirprod_bicat b}
+             (ff : aa -->[ f ] bb)
+             (gg : aa -->[ g ] bb)
+    : disp_invertible_2cell x ff gg
+      →
+      disp_invertible_2cell x (pr1 ff) (pr1 gg).
+  Proof.
+    intros H.
+    use tpair.
+    - apply H.
+    - refine (pr1_is_disp_invertible_2cell _ _ _).
+      apply H.
+  Defined.
+
+  Definition pr2_is_disp_invertible_2cell
+             {a b : C}
+             {f : a --> b} {g : a --> b}
+             (x : invertible_2cell f g)
+             {aa : disp_dirprod_bicat a}
+             {bb : disp_dirprod_bicat b}
+             {ff : aa -->[ f ] bb}
+             {gg : aa -->[ g ] bb}
+             (xx : ff ==>[ x ] gg)
+    : is_disp_invertible_2cell x xx → is_disp_invertible_2cell x (pr2 xx).
+  Proof.
+    intros H.
+    use tpair.
+    - exact (pr2 (pr1 H)).
+    - split.
+      + refine (maponpaths dirprod_pr2
+                           (@disp_vcomp_rinv C disp_dirprod_bicat
+                                             a b f g
+                                             aa bb
+                                             x
+                                             ff gg
+                                             (_ ,, H))
+                           @ _).
+        cbn.
+        refine (maponpaths dirprod_pr2
+                           ((transportb_dirprod
+                               (f ==> f)
+                               (λ α, _ ==>[α] _)
+                               (λ α, _ ==>[α] _)
+                               (_ ,, (_ ,, _))
+                               (_ ,, (_ ,, _))
+                               (vcomp_rinv x)
+               ))).
+        * exact (transportb (λ z, _ ==>[z] _) (vcomp_rinv _) (disp_id2 _)).
+        * exact (transportb (λ z, _ ==>[z] _) (vcomp_rinv _) (disp_id2 _)).
+      + refine (maponpaths dirprod_pr2
+                           (@disp_vcomp_linv C disp_dirprod_bicat
+                                             a b f g
+                                             aa bb
+                                             x
+                                             ff gg
+                                             (_ ,, H))
+                           @ _).
+        cbn.
+        refine (maponpaths dirprod_pr2
+                           ((transportb_dirprod
+                               (g ==> g)
+                               (λ α, _ ==>[α] _)
+                               (λ α, _ ==>[α] _)
+                               (_ ,, (_ ,, _))
+                               (_ ,, (_ ,, _))
+                               (vcomp_lid x)
+               ))).
+        * exact (transportb (λ z, _ ==>[z] _) (vcomp_lid _) (disp_id2 _)).
+        * exact (transportb (λ z, _ ==>[z] _) (vcomp_lid _) (disp_id2 _)).
+  Defined.
+
+  Definition pr2_disp_invertible_2cell
+             {a b : C}
+             {f : a --> b} {g : a --> b}
+             (x : invertible_2cell f g)
+             {aa : disp_dirprod_bicat a}
+             {bb : disp_dirprod_bicat b}
+             (ff : aa -->[ f ] bb)
+             (gg : aa -->[ g ] bb)
+    : disp_invertible_2cell x ff gg → disp_invertible_2cell x (pr2 ff) (pr2 gg).
+  Proof.
+    intros H.
+    use tpair.
+    - apply H.
+    - refine (pr2_is_disp_invertible_2cell _ _ _).
+      apply H.
+  Defined.
+
+  Definition pair_disp_invertible_2cell_weq
+             {a b : C}
+             {f : a --> b} {g : a --> b}
+             (x : invertible_2cell f g)
+             {aa : disp_dirprod_bicat a}
+             {bb : disp_dirprod_bicat b}
+             (ff : aa -->[ f ] bb)
+             (gg : aa -->[ g ] bb)
+    : (disp_invertible_2cell x (pr1 ff) (pr1 gg) × disp_invertible_2cell x (pr2 ff) (pr2 gg))
+        ≃
+        disp_invertible_2cell x ff gg.
+  Proof.
+    use weqpair.
+    - exact (pair_disp_invertible_2cell x).
+    - use isweq_iso.
+      + intros H.
+        split.
+        * apply pr1_disp_invertible_2cell.
+          exact H.
+        * apply pr2_disp_invertible_2cell.
+          exact H.
+      + intros H ; cbn.
+        use total2_paths2.
+        * use subtypeEquality.
+          ** intro ; simpl.
+             apply isaprop_is_disp_invertible_2cell.
+          ** reflexivity.
+        * use subtypeEquality.
+          ** intro ; simpl.
+             apply isaprop_is_disp_invertible_2cell.
+          ** reflexivity.
+      + intros H ; cbn.
+        use subtypeEquality.
+        * intro xx ; simpl.
+          apply (@isaprop_is_disp_invertible_2cell C disp_dirprod_bicat).
+        * reflexivity.
+  Defined.
+
+  Definition prod_idtoiso_2_1
+             {a b : C}
+             {f : a --> b} {g : a --> b}
+             (p : f = g)
+             {aa : disp_dirprod_bicat a}
+             {bb : disp_dirprod_bicat b}
+             (ff : aa -->[f] bb)
+             (gg : aa -->[g] bb)
+             (HD1 : disp_locally_univalent D1)
+             (HD2 : disp_locally_univalent D2)
+    : (transportf (λ z : C ⟦ a, b ⟧, aa -->[ z] bb) p ff = gg)
+        ≃
+        disp_invertible_2cell (idtoiso_2_1 f g p) ff gg.
+  Proof.
+    refine (pair_disp_invertible_2cell_weq (idtoiso_2_1 _ _ p) ff gg ∘ _)%weq.
+    refine (weqdirprod
+              (_ ,, HD1 a b f g p (pr1 aa) (pr1 bb) (pr1 ff) (pr1 gg))
+              (_ ,, HD2 a b f g p (pr2 aa) (pr2 bb) (pr2 ff) (pr2 gg))
+              ∘ _)%weq.
+    induction p ; cbn ; unfold idfun.
+    apply WeakEquivalences.pathsdirprodweq.
+  Defined.
+
   Definition is_univalent_2_1_dirprod_bicat
-             (UA_2_1_D1 : disp_locally_univalent D1)
-             (UA_2_1_D2 : disp_locally_univalent D2)
+             (HD1 : disp_locally_univalent D1)
+             (HD2 : disp_locally_univalent D2)
     : disp_locally_univalent disp_dirprod_bicat.
   Proof.
     intros a b f g p aa bb ff gg.
-  Admitted.
+    use weqhomot.
+    - exact (prod_idtoiso_2_1 p ff gg HD1 HD2).
+    - intros q.
+      induction p, q.
+      use subtypeEquality.
+      + intro.
+        apply (@isaprop_is_disp_invertible_2cell C disp_dirprod_bicat).
+      + reflexivity.
+  Defined.
 
   Definition is_univalent_2_0_dirprod_bicat
-             (UA_2_1_D1 : disp_univalent_2_0 D1)
-             (UA_2_1_D2 : disp_univalent_2_0 D2)
+             (HD1 : disp_univalent_2_0 D1)
+             (HD2 : disp_univalent_2_0 D2)
     : disp_univalent_2_0 disp_dirprod_bicat.
   Proof.
     intros a b p f g.
