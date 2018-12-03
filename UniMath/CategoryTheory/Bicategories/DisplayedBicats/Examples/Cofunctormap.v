@@ -17,11 +17,11 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
-Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
-Require Import UniMath.CategoryTheory.Bicategories.BicatOfCats.
-Require Import UniMath.CategoryTheory.Bicategories.ContravariantFunctor.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.BicatOfCats.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.ContravariantFunctor.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat.
-Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Constructions.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Prod.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Sigma.
 
 Local Open Scope cat.

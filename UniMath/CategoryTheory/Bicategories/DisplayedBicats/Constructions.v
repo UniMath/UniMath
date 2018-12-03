@@ -15,8 +15,9 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
-Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
-Require Import UniMath.CategoryTheory.Bicategories.StandardBicategories.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.Initial.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.Final.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
 
 Local Open Scope cat.
@@ -64,8 +65,8 @@ End Disp_Prebicat_Cells_Unit.
 
 Section FullSubBicat.
 
-  Variable C : bicat.
-  Variable P : C → UU.
+  Variable (C : bicat)
+           (P : C → UU).
 
   Definition disp_fullsubprebicat : disp_prebicat C
     := disp_cell_unit_prebicat (disp_full_sub_data C P).
@@ -76,8 +77,20 @@ Section FullSubBicat.
     red. cbn. intros. exact isasetunit.
   Defined.
 
-  Definition fullsubprebicat : bicat := total_bicat disp_fullsubbicat.
+  Definition fullsubbicat : bicat := total_bicat disp_fullsubbicat.
 
+  Definition mor_of_fullsub
+             {X Y : fullsubbicat}
+             (f : C⟦pr1 X, pr1 Y⟧)
+    : X --> Y
+    := (f ,, tt).
+
+  Definition cell_of_fullsub
+             {X Y : fullsubbicat}
+             {f g : X --> Y}
+             (α : pr1 f ==> pr1 g)
+    : f ==> g
+    := (α ,, tt).
 End FullSubBicat.
 
 (* ----------------------------------------------------------------------------------- *)

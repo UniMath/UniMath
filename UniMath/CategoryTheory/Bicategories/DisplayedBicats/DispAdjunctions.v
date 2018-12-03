@@ -8,12 +8,12 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
-Require Import UniMath.CategoryTheory.Bicategories.Unitors.
-Require Export UniMath.CategoryTheory.Bicategories.Adjunctions.
-Require Import UniMath.CategoryTheory.Bicategories.Invertible_2cells.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Unitors.
+Require Export UniMath.CategoryTheory.Bicategories.Bicategories.Adjunctions.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispInvertibles.
 
 Local Open Scope cat.
@@ -213,7 +213,7 @@ End Displayed_Internal_Adjunction.
 
 (** ** Identity is a displayed adjoint *)
 (* TODO LOL MOVE THIS TO DISPLAYED UNIVALNCE  *)
-Require Import UniMath.CategoryTheory.Bicategories.Univalence.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Univalence.
 Definition disp_internal_adjunction_data_identity
            {C : bicat} {D : disp_bicat C}
            {a : C}
