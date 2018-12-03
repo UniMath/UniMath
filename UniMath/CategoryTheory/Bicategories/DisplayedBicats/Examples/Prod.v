@@ -32,7 +32,6 @@ Local Open Scope mor_disp_scope.
 (* ----------------------------------------------------------------------------------- *)
 
 Section Disp_PreDirprod.
-
   Context {C : bicat}.
   Variable (D1 D2 : disp_prebicat C).
 
@@ -177,6 +176,7 @@ Section Disp_Dirprod.
     - apply D2.
   Defined.
 
+  (** Local Univalence of the poduct *)
   Definition pair_is_disp_invertible_2cell
              {a b : C}
              {f : a --> b} {g : a --> b}
@@ -197,13 +197,7 @@ Section Disp_Dirprod.
       + exact (disp_inv_cell (_ ,, H1)).
       + exact (disp_inv_cell (_ ,, H2)).
     - split.
-      + cbn.
-        pose (disp_vcomp_rinv (_ ,, H1)) as p.
-        cbn in p.
-        rewrite p ; clear p.
-        pose (disp_vcomp_rinv (_ ,, H2)) as p.
-        cbn in p.
-        rewrite p ; clear p.
+      + refine (total2_paths2 (disp_vcomp_rinv (_ ,, H1)) (disp_vcomp_rinv (_ ,, H2)) @ _).
         refine (!(transportb_dirprod (f ==> f)
                                      (λ α, _ ==>[α] _)
                                      (λ α, _ ==>[α] _)
@@ -213,13 +207,7 @@ Section Disp_Dirprod.
                )).
         * exact (transportb (λ z, _ ==>[z] _) (vcomp_rinv _) (disp_id2 _)).
         * exact (transportb (λ z, _ ==>[z] _) (vcomp_rinv _) (disp_id2 _)).
-      + cbn.
-        pose (disp_vcomp_linv (_ ,, H1)) as p.
-        cbn in p.
-        rewrite p ; clear p.
-        pose (disp_vcomp_linv (_ ,, H2)) as p.
-        cbn in p.
-        rewrite p ; clear p.
+      + refine (total2_paths2 (disp_vcomp_linv (_ ,, H1)) (disp_vcomp_linv (_ ,, H2)) @ _).
         refine (!(transportb_dirprod (g ==> g)
                                      (λ α, _ ==>[α] _)
                                      (λ α, _ ==>[α] _)
@@ -482,11 +470,300 @@ Section Disp_Dirprod.
       + reflexivity.
   Defined.
 
+  (** Global Univalence of the product *)
+  Definition pair_left_adjoint_equivalence
+             {a b : C}
+             (f : adjoint_equivalence a b)
+             {aa : disp_dirprod_bicat a}
+             {bb : disp_dirprod_bicat b}
+             (ff : aa -->[ f] bb)
+    : disp_left_adjoint_equivalence f (pr1 ff) × disp_left_adjoint_equivalence f (pr2 ff)
+      →
+      disp_left_adjoint_equivalence f ff.
+  Proof.
+    intros H.
+    use tpair.
+    - use tpair ; repeat split.
+      + exact (disp_left_adjoint_right_adjoint f (pr1 H)).
+      + exact (disp_left_adjoint_right_adjoint f (pr2 H)).
+      + exact (disp_left_adjoint_unit f (pr1 H)).
+      + exact (disp_left_adjoint_unit f (pr2 H)).
+      + exact (disp_left_adjoint_counit f (pr1 H)).
+      + exact (disp_left_adjoint_counit f (pr2 H)).
+    - refine ((_ ,, _) ,, (_ ,, _)) ; cbn.
+      + refine (total2_paths2 (disp_internal_triangle1 _ (pr1 H))
+                              (disp_internal_triangle1 _ (pr2 H)) @ _).
+        refine (!(transportb_dirprod (f ==> f)
+                                     (λ α, _ ==>[α] _)
+                                     (λ α, _ ==>[α] _)
+                                     (_ ,, (_ ,, _))
+                                     (_ ,, (_ ,, _))
+                                     _
+               )).
+        * exact (transportb (λ z, _ ==>[z] _) (internal_triangle1 f) (disp_id2 _)).
+        * exact (transportb (λ z, _ ==>[z] _) (internal_triangle1 f) (disp_id2 _)).
+      + refine (total2_paths2 (disp_internal_triangle2 _ (pr1 H))
+                              (disp_internal_triangle2 _ (pr2 H)) @ _).
+        refine (!(transportb_dirprod (_ ==> _)
+                                     (λ α, _ ==>[α] _)
+                                     (λ α, _ ==>[α] _)
+                                     (_ ,, (_ ,, _))
+                                     (_ ,, (_ ,, _))
+                                     _
+               )).
+        * exact (transportb (λ z, _ ==>[z] _) (internal_triangle2 f) (disp_id2 _)).
+        * exact (transportb (λ z, _ ==>[z] _) (internal_triangle2 f) (disp_id2 _)).
+      + apply (pair_is_disp_invertible_2cell (_ ,, pr1 (pr2 (pr2 (pr2 f))))).
+        split.
+        * apply (pr1 H).
+        * apply (pr2 H).
+      + cbn.
+        apply (pair_is_disp_invertible_2cell
+                 (left_adjoint_counit (pr1 (pr2 f))
+                                      ,, pr2 (pr2 (pr2 (pr2 f))))).
+        split.
+        * apply (pr1 H).
+        * apply (pr2 H).
+  Defined.
+
+  Definition pair_adjoint_equivalence
+             {a b : C}
+             (f : adjoint_equivalence a b)
+             (aa : disp_dirprod_bicat a)
+             (bb : disp_dirprod_bicat b)
+    : disp_adjoint_equivalence f (pr1 aa) (pr1 bb) × disp_adjoint_equivalence f (pr2 aa) (pr2 bb)
+      →
+      disp_adjoint_equivalence f aa bb.
+  Proof.
+    intros H.
+    use tpair.
+    - split.
+      + apply (pr1 H).
+      + apply (pr2 H).
+    - apply pair_left_adjoint_equivalence.
+      cbn.
+      split.
+      + apply (pr1 H).
+      + apply (pr2 H).
+  Defined.
+
+  Definition pr1_left_adjoint_equivalence
+             {a b : C}
+             (f : adjoint_equivalence a b)
+             {aa : disp_dirprod_bicat a}
+             {bb : disp_dirprod_bicat b}
+             (ff : aa -->[ f] bb)
+    : disp_left_adjoint_equivalence f ff
+      →
+      disp_left_adjoint_equivalence f (pr1 ff).
+  Proof.
+    intros H.
+    use tpair.
+    - use tpair ; repeat split.
+      + exact (pr1 (disp_left_adjoint_right_adjoint f H)).
+      + exact (pr1 (disp_left_adjoint_unit f H)).
+      + exact (pr1 (disp_left_adjoint_counit f H)).
+    - refine ((_ ,, _) ,, (_ ,, _)) ; cbn.
+      + refine (maponpaths pr1 (pr1(pr1(pr2 H))) @ _).
+        refine (maponpaths pr1 ((transportb_dirprod
+                                   (f ==> f)
+                                   (λ α, _ ==>[α] _)
+                                   (λ α, _ ==>[α] _)
+                                   (_ ,, (_ ,, _))
+                                   (_ ,, (_ ,, _))
+                                   (internal_triangle1 f)
+               ))).
+        * exact (transportb (λ z, _ ==>[z] _) (internal_triangle1 f) (disp_id2 _)).
+        * exact (transportb (λ z, _ ==>[z] _) (internal_triangle1 f) (disp_id2 _)).
+      + refine (maponpaths pr1 (pr2(pr1(pr2 H))) @ _).
+        refine (maponpaths pr1 ((transportb_dirprod
+                                   (_ ==> _)
+                                   (λ α, _ ==>[α] _)
+                                   (λ α, _ ==>[α] _)
+                                   (_ ,, (_ ,, _))
+                                   (_ ,, (_ ,, _))
+                                   _
+               ))).
+        * exact (transportb (λ z, _ ==>[z] _) (internal_triangle2 f) (disp_id2 _)).
+        * exact (transportb (λ z, _ ==>[z] _) (internal_triangle2 f) (disp_id2 _)).
+      + apply (pr1_is_disp_invertible_2cell
+                 (left_adjoint_unit f ,, pr1 (pr2 (pr2 (pr2 f))))
+                 (disp_left_adjoint_unit (pr1 (pr2 f)) (pr1 H))
+              ).
+        apply H.
+      + apply (pr1_is_disp_invertible_2cell
+                 (left_adjoint_counit f ,, pr2 (pr2 (pr2 (pr2 f))))
+                 (disp_left_adjoint_counit (pr1 (pr2 f)) (pr1 H))
+              ).
+        apply H.
+  Defined.
+
+  Definition pr1_adjoint_equivalence
+             {a b : C}
+             (f : adjoint_equivalence a b)
+             (aa : disp_dirprod_bicat a)
+             (bb : disp_dirprod_bicat b)
+    : disp_adjoint_equivalence f aa bb
+      →
+      disp_adjoint_equivalence f (pr1 aa) (pr1 bb).
+  Proof.
+    intros H.
+    use tpair.
+    - apply H.
+    - apply pr1_left_adjoint_equivalence.
+      apply H.
+  Defined.
+
+  Definition pr2_left_adjoint_equivalence
+             {a b : C}
+             (f : adjoint_equivalence a b)
+             {aa : disp_dirprod_bicat a}
+             {bb : disp_dirprod_bicat b}
+             (ff : aa -->[ f] bb)
+    : disp_left_adjoint_equivalence f ff
+      →
+      disp_left_adjoint_equivalence f (pr2 ff).
+  Proof.
+    intros H.
+    use tpair.
+    - use tpair ; repeat split.
+      + exact (pr2 (disp_left_adjoint_right_adjoint f H)).
+      + exact (pr2 (disp_left_adjoint_unit f H)).
+      + exact (pr2 (disp_left_adjoint_counit f H)).
+    - refine ((_ ,, _) ,, (_ ,, _)) ; cbn.
+      + refine (maponpaths dirprod_pr2 (pr1(pr1(pr2 H))) @ _).
+        refine (maponpaths dirprod_pr2 ((transportb_dirprod
+                                   (f ==> f)
+                                   (λ α, _ ==>[α] _)
+                                   (λ α, _ ==>[α] _)
+                                   (_ ,, (_ ,, _))
+                                   (_ ,, (_ ,, _))
+                                   (internal_triangle1 f)
+               ))).
+        * exact (transportb (λ z, _ ==>[z] _) (internal_triangle1 f) (disp_id2 _)).
+        * exact (transportb (λ z, _ ==>[z] _) (internal_triangle1 f) (disp_id2 _)).
+      + refine (maponpaths dirprod_pr2 (pr2(pr1(pr2 H))) @ _).
+        refine (maponpaths dirprod_pr2 ((transportb_dirprod
+                                   (_ ==> _)
+                                   (λ α, _ ==>[α] _)
+                                   (λ α, _ ==>[α] _)
+                                   (_ ,, (_ ,, _))
+                                   (_ ,, (_ ,, _))
+                                   _
+               ))).
+        * exact (transportb (λ z, _ ==>[z] _) (internal_triangle2 f) (disp_id2 _)).
+        * exact (transportb (λ z, _ ==>[z] _) (internal_triangle2 f) (disp_id2 _)).
+      + apply (pr2_is_disp_invertible_2cell
+                 (left_adjoint_unit f ,, pr1 (pr2 (pr2 (pr2 f))))
+                 (disp_left_adjoint_unit (pr1 (pr2 f)) (pr1 H))
+              ).
+        apply H.
+      + apply (pr2_is_disp_invertible_2cell
+                 (left_adjoint_counit f ,, pr2 (pr2 (pr2 (pr2 f))))
+                 (disp_left_adjoint_counit (pr1 (pr2 f)) (pr1 H))
+              ).
+        apply H.
+  Defined.
+
+  Definition pr2_adjoint_equivalence
+             {a b : C}
+             (f : adjoint_equivalence a b)
+             (aa : disp_dirprod_bicat a)
+             (bb : disp_dirprod_bicat b)
+    : disp_adjoint_equivalence f aa bb
+      →
+      disp_adjoint_equivalence f (pr2 aa) (pr2 bb).
+  Proof.
+    intros H.
+    use tpair.
+    - apply H.
+    - apply pr2_left_adjoint_equivalence.
+      apply H.
+  Defined.
+
+  Definition pair_adjoint_equivalence_weq
+             {a b : C}
+             (HC : is_univalent_2_1 C)
+             (HD1 : disp_locally_univalent D1)
+             (HD2 : disp_locally_univalent D2)
+             (f : adjoint_equivalence a b)
+             (aa : disp_dirprod_bicat a)
+             (bb : disp_dirprod_bicat b)
+    : (disp_adjoint_equivalence f (pr1 aa) (pr1 bb) × disp_adjoint_equivalence f (pr2 aa) (pr2 bb))
+        ≃
+        (disp_adjoint_equivalence f aa bb).
+  Proof.
+    use tpair.
+    - exact (pair_adjoint_equivalence f aa bb).
+    - use isweq_iso.
+      + intros H.
+        split.
+        * exact (pr1_adjoint_equivalence f aa bb H).
+        * exact (pr2_adjoint_equivalence f aa bb H).
+      + intros A.
+        use total2_paths2.
+        * use subtypeEquality.
+          ** intro ; simpl.
+             apply isaprop_disp_left_adjoint_equivalence.
+             *** exact HC.
+             *** exact HD1.
+          ** reflexivity.
+        * use subtypeEquality.
+          ** intro ; simpl.
+             apply isaprop_disp_left_adjoint_equivalence.
+             *** exact HC.
+             *** exact HD2.
+          ** reflexivity.
+      + intros H ; cbn.
+        use subtypeEquality.
+        * intro xx ; simpl.
+          apply (@isaprop_disp_left_adjoint_equivalence C disp_dirprod_bicat).
+          ** exact HC.
+          ** exact (is_univalent_2_1_dirprod_bicat HD1 HD2).
+        * reflexivity.
+  Defined.
+
+  Definition prod_idtoiso_2_0
+             (HC : is_univalent_2_1 C)
+             (HD1_0 : disp_univalent_2_0 D1)
+             (HD2_0 : disp_univalent_2_0 D2)
+             (HD1_1 : disp_locally_univalent D1)
+             (HD2_1 : disp_locally_univalent D2)
+             {a b : C}
+             (p : a = b)
+             (aa : disp_dirprod_bicat a)
+             (bb : disp_dirprod_bicat b)
+    : (transportf (λ z : C, disp_dirprod_bicat z) p aa = bb)
+        ≃
+        disp_adjoint_equivalence (idtoiso_2_0 a b p) aa bb.
+  Proof.
+    refine (pair_adjoint_equivalence_weq HC HD1_1 HD2_1 (idtoiso_2_0 _ _ p) aa bb ∘ _)%weq.
+    refine (weqdirprod
+              (_ ,, HD1_0 a b p (pr1 aa) (pr1 bb))
+              (_ ,, HD2_0 a b p (pr2 aa) (pr2 bb))
+              ∘ _)%weq.
+    induction p ; cbn ; unfold idfun.
+    apply WeakEquivalences.pathsdirprodweq.
+  Defined.
+
   Definition is_univalent_2_0_dirprod_bicat
-             (HD1 : disp_univalent_2_0 D1)
-             (HD2 : disp_univalent_2_0 D2)
+             (HC : is_univalent_2_1 C)
+             (HD1_0 : disp_univalent_2_0 D1)
+             (HD2_0 : disp_univalent_2_0 D2)
+             (HD1_1 : disp_locally_univalent D1)
+             (HD2_1 : disp_locally_univalent D2)
     : disp_univalent_2_0 disp_dirprod_bicat.
   Proof.
-    intros a b p f g.
-  Admitted.
+    intros a b p aa bb.
+    use weqhomot.
+    - exact (prod_idtoiso_2_0 HC HD1_0 HD2_0 HD1_1 HD2_1 p aa bb).
+    - intros q.
+      induction p, q.
+      use subtypeEquality.
+      + intro.
+        apply (@isaprop_disp_left_adjoint_equivalence C disp_dirprod_bicat).
+        * exact HC.
+        * exact (is_univalent_2_1_dirprod_bicat HD1_1 HD2_1).
+      + reflexivity.
+  Defined.
 End Disp_Dirprod.
