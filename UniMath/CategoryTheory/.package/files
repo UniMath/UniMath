@@ -196,6 +196,7 @@ Bicategories/DisplayedBicats/Examples/Algebras.v
 Bicategories/DisplayedBicats/Examples/ContravariantFunctor.v
 Bicategories/DisplayedBicats/Examples/Cofunctormap.v
 Bicategories/DisplayedBicats/Examples/CwF.v
+Bicategories/Bicategories/Examples/UnivalentCat.v
 
 Bicategories/WkCatEnrichment/prebicategory.v
 Bicategories/WkCatEnrichment/Notations.v
