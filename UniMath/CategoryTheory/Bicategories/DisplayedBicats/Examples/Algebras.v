@@ -760,7 +760,7 @@ Section Algebra.
            • lassociator (# F (id₁ a)) (# F (id₁ a)) bb
            • (laxfunctor_comp F (id₁ a) (id₁ a) ▹ bb)
            • (## F (lunitor (id₁ a)) ▹ bb)
-           • (inv_cell (psfunctor_id F a) ▹ bb)
+           • ((psfunctor_id F a)^-1 ▹ bb)
            • lunitor bb.
 
     Local Definition invertible_2cell_inv_alg'
@@ -771,8 +771,12 @@ Section Algebra.
            • (disp_left_adjoint_right_adjoint _ pr12 x ▹ id₁ a)
            • rassociator _ _ _
            • (# F (id₁ a) ◃ runitor aa)
-           • (inv_cell (psfunctor_id F a) ▹ aa)
+           • ((psfunctor_id F a)^-1 ▹ aa)
            • lunitor aa.
+
+    Definition invertible_2cell_map_alg''
+      : aa ==> bb
+      := rinvunitor aa • pr1 x • ((psfunctor_id F a)^-1 ▹ bb) • lunitor bb.
 
     Local Definition invertible_2cell_map_alg_eq
       : invertible_2cell_map_alg = invertible_2cell_map_alg'.
@@ -828,6 +832,31 @@ Section Algebra.
       rewrite rinvunitor_triangle.
       rewrite rinvunitor_runitor.
       apply id2_left.
+    Qed.
+
+    Local Definition invertible_2cell_map_alg_eq2
+      : invertible_2cell_map_alg = invertible_2cell_map_alg''.
+    Proof.
+      unfold invertible_2cell_map_alg, invertible_2cell_map_alg'' ; cbn.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite !vassocr.
+      rewrite lwhisker_hcomp.
+      rewrite triangle_l_inv.
+      rewrite <- rwhisker_hcomp.
+      rewrite !vassocl.
+      rewrite !(maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)).
+      rewrite <- rwhisker_rwhisker_alt.
+      rewrite <- lunitor_triangle.
+      rewrite !vassocl.
+      rewrite !(maponpaths (λ z, _ • (_ • (_ • z))) (vassocr _ _ _)).
+      rewrite rassociator_lassociator, id2_left.
+      rewrite !vassocr.
+      rewrite !rwhisker_vcomp.
+      rewrite vcomp_runitor.
+      rewrite !vassocr.
+      rewrite runitor_rinvunitor, id2_left.
+      reflexivity.
     Qed.
 
     Local Definition invertible_2cell_inv_alg_eq
@@ -964,9 +993,6 @@ Section Algebra.
     Defined.
   End DispAdjointEquivalenceToInvertible2cell.
 
-  Definition TODO {A : UU} : A.
-  Admitted.
-
   Definition disp_alg_bicat_adjoint_equivalence_weq
              (HC : is_univalent_2_1 C)
              {a : C}
@@ -983,17 +1009,36 @@ Section Algebra.
         use subtypeEquality.
         * intro.
           apply isaprop_is_invertible_2cell.
-        * cbn ; unfold invertible_2cell_map_alg; cbn ; unfold left_adjoint_2cell.
-          apply TODO.
+        * cbn.
+          abstract (rewrite invertible_2cell_map_alg_eq2 ;
+                    unfold invertible_2cell_map_alg'' ; cbn ; unfold left_adjoint_2cell ;
+                    rewrite !vassocr ;
+                    rewrite rinvunitor_runitor, id2_left ;
+                    rewrite !vassocl ;
+                    rewrite !(maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)) ;
+                    rewrite rwhisker_vcomp, vcomp_rinv ;
+                    rewrite id2_rwhisker, id2_left ;
+                    rewrite linvunitor_lunitor, id2_right ;
+                    reflexivity).
       + intros x.
         use subtypeEquality.
         * intro.
           apply isaprop_disp_left_adjoint_equivalence.
           ** exact HC.
           ** exact disp_alg_bicat_locally_univalent.
-        * cbn ; unfold left_adjoint_2cell ; cbn.
-          unfold invertible_2cell_map_alg ; cbn.
-          apply TODO.
+        * cbn.
+          unfold left_adjoint_2cell.
+          unfold disp_alg_bicat_adjoint_equivalence_inv ; cbn.
+          abstract (rewrite invertible_2cell_map_alg_eq2 ;
+                    unfold invertible_2cell_map_alg'' ; cbn ; unfold left_adjoint_2cell ;
+                    rewrite !vassocr ;
+                    rewrite runitor_rinvunitor, id2_left ;
+                    rewrite !vassocl ;
+                    rewrite !(maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)) ;
+                    rewrite lunitor_linvunitor, id2_left ;
+                    rewrite rwhisker_vcomp, vcomp_lid ;
+                    rewrite id2_rwhisker, id2_right ;
+                    reflexivity).
   Defined.
 
   Definition disp_alg_bicat_univalent_2_0
