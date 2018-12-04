@@ -7,11 +7,11 @@ Ported from: https://github.com/nmvdw/groupoids
 *)
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
-Require Import UniMath.CategoryTheory.Bicategories.Univalence.
-Require Import UniMath.CategoryTheory.Bicategories.Adjunctions.
-Require Import UniMath.CategoryTheory.Bicategories.equiv_to_adjequiv.
-Require Import UniMath.CategoryTheory.Bicategories.adjoint_unique.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Univalence.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Adjunctions.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.EquivToAdjequiv.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.AdjointUnique.
 
 Local Open Scope cat.
 Local Open Scope bicategory_scope.

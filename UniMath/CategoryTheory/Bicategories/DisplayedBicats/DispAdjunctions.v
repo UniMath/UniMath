@@ -8,12 +8,12 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
-Require Import UniMath.CategoryTheory.Bicategories.Unitors.
-Require Export UniMath.CategoryTheory.Bicategories.Adjunctions.
-Require Import UniMath.CategoryTheory.Bicategories.Invertible_2cells.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Unitors.
+Require Export UniMath.CategoryTheory.Bicategories.Bicategories.Adjunctions.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispInvertibles.
 
 Local Open Scope cat.
@@ -72,7 +72,8 @@ Definition disp_left_adjoint_axioms
            (j : left_adjoint f)
            {aa : D a} {bb : D b}
            {ff : aa -->[f] bb}
-           (ααd : disp_left_adjoint_data j ff) : UU
+           (ααd : disp_left_adjoint_data j ff)
+  : UU
   := let gg := disp_left_adjoint_right_adjoint j ααd in
      let ηη := disp_left_adjoint_unit j ααd in
      let εε := disp_left_adjoint_counit j ααd in
@@ -82,6 +83,34 @@ Definition disp_left_adjoint_axioms
      × ( disp_rinvunitor gg •• (gg ◃◃ ηη) •• disp_lassociator _ _ _ ••
          (εε ▹▹ gg) •• disp_lunitor gg =
          transportb (λ x, _ ==>[x] _) (internal_triangle2 j) (disp_id2 gg) ).
+
+Definition disp_internal_triangle1
+           {a b : C}
+           {f : a --> b}
+           (j : left_adjoint f)
+           {aa : D a} {bb : D b}
+           {ff : aa -->[f] bb}
+           {ααd : disp_left_adjoint_data j ff}
+           (H : disp_left_adjoint_axioms j ααd)
+  := pr1 H.
+
+Definition disp_internal_triangle2
+           {a b : C}
+           {f : a --> b}
+           (j : left_adjoint f)
+           {aa : D a} {bb : D b}
+           {ff : aa -->[f] bb}
+           {ααd : disp_left_adjoint_data j ff}
+           (H : disp_left_adjoint_axioms j ααd)
+  := pr2 H.
+
+Definition internal_triangle2
+           {a b : C} {f : C⟦a,b⟧}
+           {adj : left_adjoint_data f}
+           (L : left_adjoint_axioms adj)
+           (g := left_adjoint_right_adjoint adj)
+  : rinvunitor g • (g ◃ left_adjoint_unit adj) • lassociator _ _ _ • (left_adjoint_counit adj ▹ g) • lunitor g = id2 g
+  := pr2 L.
 
 Definition disp_left_adjoint
            {a b : C}
@@ -213,7 +242,7 @@ End Displayed_Internal_Adjunction.
 
 (** ** Identity is a displayed adjoint *)
 (* TODO LOL MOVE THIS TO DISPLAYED UNIVALNCE  *)
-Require Import UniMath.CategoryTheory.Bicategories.Univalence.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Univalence.
 Definition disp_internal_adjunction_data_identity
            {C : bicat} {D : disp_bicat C}
            {a : C}

@@ -8,14 +8,14 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.Bicategories.Unitors.
-Require Import UniMath.CategoryTheory.Bicategories.Adjunctions.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Unitors.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Adjunctions.
 (* For showing that the being a displayed adjoint equivalence is a proposition *)
-Require Import UniMath.CategoryTheory.Bicategories.adjoint_unique.
-Require Export UniMath.CategoryTheory.Bicategories.Univalence.
-Require Import UniMath.CategoryTheory.Bicategories.Invertible_2cells.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.AdjointUnique.
+Require Export UniMath.CategoryTheory.Bicategories.Bicategories.Univalence.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
 Require Export UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispInvertibles.
 Require Export UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispAdjunctions.
@@ -133,10 +133,10 @@ Lemma isaprop_disp_left_adjoint_equivalence
       {aa : D a} {bb : D b}
       {f : a --> b}
       (Hf : left_adjoint_equivalence f)
-      (ff : aa -->[f] bb) :
-  is_univalent_2_1 C →
-  disp_locally_univalent D →
-  isaprop (disp_left_adjoint_equivalence Hf ff).
+      (ff : aa -->[f] bb)
+  : is_univalent_2_1 C →
+    disp_locally_univalent D →
+    isaprop (disp_left_adjoint_equivalence Hf ff).
 Proof.
   intros HUC HUD.
   revert Hf. apply hlevel_total2.
@@ -251,11 +251,12 @@ Section Total_Category_Globally_Univalent.
 End Total_Category_Globally_Univalent.
 
 Lemma total_is_univalent
-      {C : bicat} {D: disp_bicat C} :
-  disp_univalent_2_0 D →
-  disp_locally_univalent D →
-  is_univalent_2 C →
-  is_univalent_2 (total_bicat D).
+      {C : bicat}
+      {D: disp_bicat C}
+  : disp_univalent_2_0 D →
+    disp_locally_univalent D →
+    is_univalent_2 C →
+    is_univalent_2 (total_bicat D).
 Proof.
   intros ?? UC.
   split.

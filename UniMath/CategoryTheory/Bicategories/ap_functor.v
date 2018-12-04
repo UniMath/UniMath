@@ -10,11 +10,11 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
-Require Import UniMath.CategoryTheory.Bicategories.Invertible_2cells.
-Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.BicategoryLaws.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctor. Import PseudoFunctor.Notations.
-Require Import UniMath.CategoryTheory.Bicategories.Examples.two_type.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.TwoType.
 
 Section ApFunctor.
   Context {X Y : UU}

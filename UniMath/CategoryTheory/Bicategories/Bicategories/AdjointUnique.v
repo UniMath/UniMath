@@ -9,13 +9,13 @@ Ported from: https://github.com/nmvdw/groupoids
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
-Require Import UniMath.CategoryTheory.Bicategories.Unitors.
-Require Import UniMath.CategoryTheory.Bicategories.Adjunctions.
-Require Import UniMath.CategoryTheory.Bicategories.Invertible_2cells.
-Require Import UniMath.CategoryTheory.Bicategories.bicategory_laws.
-Require Import UniMath.CategoryTheory.Bicategories.Univalence.
-Require Import UniMath.CategoryTheory.Bicategories.transport_laws.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Unitors.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Adjunctions.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.BicategoryLaws.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Univalence.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.TransportLaws.
 Local Open Scope cat.
 Local Open Scope bicategory_scope.
 
@@ -566,9 +566,8 @@ Defined.
 Lemma isaprop_left_adjoint_equivalence
       {C : bicat}
       {X Y : C}
-      (f : X --> Y) :
-  is_univalent_2_1 C →
-  isaprop (left_adjoint_equivalence f).
+      (f : X --> Y)
+  : is_univalent_2_1 C → isaprop (left_adjoint_equivalence f).
 Proof.
   intros HU.
   apply invproofirrelevance.
