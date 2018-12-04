@@ -445,4 +445,43 @@ Section Algebra.
     cbn in * ; unfold alg_disp_cat_2cell in *.
     exact (pr2 C _ _ _ _ ((hX ◃ α) • hg) (hf • (## F α ▹ hY))).
   Defined.
+
+  Definition disp_alg_bicat_disp_invertible_2cell
+             {a b : C}
+             {f : a --> b} {g : a --> b}
+             (x : invertible_2cell f g)
+             {aa : disp_alg_bicat a}
+             {bb : disp_alg_bicat b}
+             (ff : aa -->[ f ] bb)
+             (gg : aa -->[ g ] bb)
+    : isaprop ((disp_invertible_2cell x) ff gg).
+  Proof.
+    apply invproofirrelevance.
+    intro ; intro.
+    use subtypeEquality.
+    - intro.
+      apply isaprop_is_disp_invertible_2cell.
+    - apply C.
+  Defined.
+
+  Definition disp_alg_bicat_locally_univalent
+    : disp_locally_univalent disp_alg_bicat.
+  Proof.
+    intros a b f g p aa bb ff gg.
+    induction p.
+    apply isweqimplimpl.
+    - cbn ; unfold idfun.
+      intros x.
+      pose (pr1 x) as d.
+      cbn in *.
+      unfold alg_disp_cat_2cell in *.
+      rewrite lwhisker_id2 in d.
+      rewrite id2_left in d.
+      rewrite laxfunctor_id2 in d.
+      rewrite id2_rwhisker in d.
+      rewrite id2_right in d.
+      exact (!d).
+    - apply C.
+    - apply disp_alg_bicat_disp_invertible_2cell.
+  Defined.
 End Algebra.
