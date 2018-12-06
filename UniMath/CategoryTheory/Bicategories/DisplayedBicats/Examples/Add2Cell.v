@@ -37,8 +37,9 @@ Section Add2Cell.
   Local Notation E := (total_bicat D).
   Local Notation F := (pr1_psfunctor D).
 
-  Variable (S : psfunctor E E)
-           (l r : laxtrans (@ps_comp E E C F S) F).
+  Variable (S : psfunctor C C)
+           (l r : laxtrans (@ps_comp E C C S F)
+                           (@ps_comp E C C (ps_id_functor C) F)).
 
   Definition add_cell_disp_cat_data : disp_cat_ob_mor E.
   Proof.
@@ -49,7 +50,7 @@ Section Add2Cell.
                • laxnaturality_of r f
              =
              (laxnaturality_of l f)
-               • (#F(#S f) ◃ β)).
+               • (#S(#F f) ◃ β)).
   Defined.
 
   Definition add_cell_disp_cat_laws : disp_cat_id_comp E add_cell_disp_cat_data.
@@ -62,7 +63,7 @@ Section Add2Cell.
       pose (laxtrans_id_alt r x) as p.
       cbn in p.
       rewrite p ; clear p.
-      rewrite !lwhisker_id2, !id2_left.
+      rewrite !id2_right, !lwhisker_id2, !id2_left.
       rewrite !vassocr.
       rewrite vcomp_runitor.
       rewrite !vassocl.
@@ -155,6 +156,7 @@ Section Add2Cell.
         cbn in p, q.
         rewrite (laxtrans_id_alt l), (laxtrans_id_alt r) in p.
         cbn in p.
+        rewrite !id2_right in p.
         rewrite !lwhisker_id2 in p.
         rewrite !id2_left in p.
         rewrite !vassocr in p.
@@ -163,15 +165,16 @@ Section Add2Cell.
         pose (vcomp_lcancel _ (is_invertible_2cell_runitor _) p) as p'.
         use (vcomp_rcancel (linvunitor (r x))).
         { is_iso. }
-        use (vcomp_rcancel (pr1 (laxfunctor_id S x) ▹ r x)).
+        use (vcomp_rcancel  (laxfunctor_id S (pr1 x) ▹ r x)).
         { is_iso.
           use tpair.
-          - apply (pr1(pr2 S) x).
+          - apply (pr1(pr2 S) (pr1 x)).
           - split.
-            + exact (base_paths _ _ (pr1(pr2(pr1(pr2 S) x)))).
-            + exact (base_paths _ _ (pr2(pr2(pr1(pr2 S) x)))).
+            + exact (pr1(pr2(pr1(pr2 S) (pr1 x)))).
+            + exact (pr2(pr2(pr1(pr2 S) (pr1 x)))).
         }
         rewrite !vassocl.
+        rewrite laxfunctor_id2, id2_right in p'.
         refine (p' @ _).
         rewrite vcomp_whisker.
         rewrite !vassocr.
