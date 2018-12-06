@@ -3,8 +3,16 @@ Contents:
         - Definition of left modules ([LModule R]) over a monad [R] on [C]
         - category of left modules [category_LModule R D] of range [D] over a monad [R] on [C]
         - Tautological left module [tautological_LModule] : a monad is a module over itself
-        - Pullback of a module along a monad morphism [pb_LModule]
+        - Forgetful functor to the category of endofunctors [LModule_forget_functor]
+        - Pullback f* M of a module M along a monad morphism f [pb_LModule]
         - Pullback of a module morphism along a monad morphism [pb_LModule_Mor]
+        - The pullback functor [pb_LModule_functor]
+        - Isomorphisms between modules sharing the same underlying
+          functor and have pointwise equal multiplication [LModule_same_func_iso]
+        - Isomorphism between a module and its pullback along the identity morphism [pb_LModule_id_iso]
+        - Isomorphism between f*(g*(M)) and (fog)* M, where f and g are monad morphisms and M
+          is a module [pb_LModule_comp_iso]
+
 
 Following the scheme of Monads.v
 
@@ -207,6 +215,25 @@ Definition tautological_LModule : LModule B :=
 
 End LModule_over_monad.
 
+(** The forgetful functor from the category of left modules to the category of
+  endofunctors *)
+Section ForgetLModFunctor.
+  Context {B : precategory} (R : Monad B) (C : category).
+  Local Notation MOD := (precategory_LModule R C).
+
+  Definition LModule_forget_functor_data : functor_data MOD [B,C] :=
+    mk_functor_data (C := MOD) (C' := [B,C])
+                    (fun X => ((X : LModule _ _): functor _ _))
+                    (fun a b f => ((f : LModule_Mor _ _ _) : nat_trans _ _)).
+
+  Definition LModule_forget_is_functor : is_functor LModule_forget_functor_data :=
+    (( fun x => idpath _) : functor_idax LModule_forget_functor_data)
+      ,, ((fun a b c f g => idpath _) : functor_compax LModule_forget_functor_data).
+
+  Definition LModule_forget_functor: functor MOD [B,C] :=
+    mk_functor LModule_forget_functor_data LModule_forget_is_functor.
+End ForgetLModFunctor.
+
 (** Let m : M -> M' a monad morphism.
 
 m induces a functor m* between the category of left modules over M' and the category of
@@ -294,6 +321,166 @@ Section Pullback_Module_Morphism.
       apply nat_trans_ax.
   Qed.
 
-  Definition pb_LModule_Mor  : LModule_Mor _  pbmT pbmT'  := ( _ ,, pb_LModule_Mor_law).
+  Definition pb_LModule_Mor : LModule_Mor _  pbmT pbmT'  := (_ ,, pb_LModule_Mor_law).
 
 End Pullback_Module_Morphism.
+
+(**  The pullback functor
+A monad morphism  f : R -> S induces a functor between the category of modules over S
+and the category of modules over R.
+ *)
+Section PbmFunctor.
+  Context {B : precategory} {C : category} {R S : Monad B} (f : Monad_Mor R S).
+  Let MOD (R : Monad B) := (precategory_LModule R C).
+  Definition pb_LModule_functor_data : functor_data (MOD S) (MOD R) :=
+    mk_functor_data (C := MOD S) (C' := MOD R) (pb_LModule f )
+                    (@pb_LModule_Mor _ _ _ f _).
+  Lemma pb_LModule_is_functor : is_functor pb_LModule_functor_data.
+  Proof.
+    split.
+    - intro M.
+      apply LModule_Mor_equiv;[apply homset_property|]; apply idpath.
+    - intros X Y Z u v.
+      apply LModule_Mor_equiv;[apply homset_property|]; apply idpath.
+  Qed.
+
+  Definition pb_LModule_functor : functor (MOD S) (MOD R) :=
+                              mk_functor _ pb_LModule_is_functor.
+End PbmFunctor.
+(**
+Construction of an isomorphism between modules sharing the same underlying
+      functor and have pointwise equal multiplication [LModule_M1_M2_iso]
+*)
+Section IsoLModPb.
+  Context {B} {R:Monad B}  {C:precategory}
+          {F : functor B C}.
+
+  (**  Module morphism between two modules sharing the same functor F
+    and having pointwise equal multiplication *)
+  Lemma LModule_same_func_Mor_laws
+    {m1 m2 : R ∙ F ⟹ F }
+      (hm : ∏ c, m1 c = m2 c)
+    :
+      LModule_Mor_laws R (T := (F ,, m1)) (T' := (F ,, m2)) (nat_trans_id _).
+  Proof.
+    intro c.
+    etrans;[apply id_left|].
+    apply pathsinv0.
+    etrans;[apply ( (id_right _))|].
+    apply hm.
+  Qed.
+
+  Definition LModule_same_func_Mor
+    {m1 m2 : R ∙ F ⟹ F }
+      (hm : ∏ c, m1 c = m2 c)
+    (m1_law : LModule_laws _ (F ,, m1))
+    (m2_law : LModule_laws _ (F ,, m2))
+    (M1 : LModule _ _ := _ ,, m1_law)
+    (M2 : LModule _ _ := _ ,, m2_law)
+    :
+      LModule_Mor R M1 M2 :=
+      _ ,, LModule_same_func_Mor_laws hm .
+
+
+  Context {m1 m2 : R ∙ F ⟹ F }.
+
+  Let F_data1 : LModule_data _ _ := F ,, m1.
+  Let F_data2 : LModule_data _ _ := F ,, m2.
+
+  Context (m1_law : LModule_laws _ F_data1).
+  Context (m2_law : LModule_laws _ F_data2).
+
+  (** The multiplication are pointwise equal *)
+  Context (hm : ∏ c, m1 c = m2 c).
+
+  Let M1 : LModule _ _ := _ ,, m1_law.
+  Let M2 : LModule _ _ := _ ,, m2_law.
+
+
+
+  (** Isomorphism between M1 and M2 *)
+  Lemma LModule_same_func_Mor_is_inverse hsC :
+    is_inverse_in_precat (C := precategory_LModule R (category_pair C hsC) )
+                         (LModule_same_func_Mor hm m1_law m2_law)
+                         (LModule_same_func_Mor (fun c => ! (hm c)) m2_law m1_law).
+  Proof.
+    use mk_is_inverse_in_precat.
+    - apply LModule_Mor_equiv;[ apply homset_property|].
+      apply  (id_left (C := [B ,C , hsC])).
+    - apply LModule_Mor_equiv;[ apply homset_property|].
+      apply  (id_right (C := [B ,C , hsC])).
+  Qed.
+
+  Definition LModule_same_func_iso hsC : iso (C := precategory_LModule R (category_pair C hsC) )
+                                         M1 M2.
+  Proof.
+    eapply isopair.
+    eapply is_iso_from_is_z_iso.
+    eapply mk_is_z_isomorphism.
+    apply LModule_same_func_Mor_is_inverse.
+  Defined.
+
+End IsoLModPb.
+
+(**
+Let T be a module on M'.
+
+In this section, we construct the module morphism T -> id* T (which is
+actully an iso) where id* T is the pullback module of T along
+the identity morphism in M'.
+
+and also the morphism id* T -> T
+
+*)
+Section Pullback_Identity_Module.
+
+Context {B : precategory} {M' : Monad B}  {C : precategory} {T : LModule M' C}.
+
+Local Notation pbmid := (pb_LModule (Monad_identity M') T).
+
+Lemma pbm_id_law :
+  ∏ c : B, (lm_mult _ T) c = (pb_LModule_σ (Monad_identity M') T) c.
+Proof.
+  intro c.
+  cbn.
+  apply pathsinv0.
+  etrans;[|apply id_left].
+  apply cancel_postcomposition.
+  apply functor_id.
+Qed.
+
+Definition pb_LModule_id_iso hsC : iso (C := precategory_LModule _ (C ,, hsC)) T pbmid :=
+  LModule_same_func_iso _ _ pbm_id_law hsC.
+
+
+
+End Pullback_Identity_Module.
+
+(**
+In this section, we construct the isomorphism between
+m*(m'*(T'')) and (m o m')*(T'') where m and m' are monad
+ morphisms, and T'' is a left module.
+*)
+
+Section Pullback_Composition.
+
+Context {B : precategory} {M M' : Monad B} (m : Monad_Mor M M') {C : precategory}
+        {M'' : Monad B} (m' : Monad_Mor M' M'') (T'' : LModule M'' C).
+
+Local Notation comp_pbm := (pb_LModule m (pb_LModule m' T'')).
+Local Notation pbm_comp := (pb_LModule (Monad_composition m  m') T'').
+
+  Lemma pb_LModule_comp_law  (c : B) :
+    (pb_LModule_σ m (pb_LModule m' T'')) c = (pb_LModule_σ (Monad_composition m m') T'') c.
+  Proof.
+    cbn.
+    etrans; [apply assoc|].
+    apply cancel_postcomposition.
+    apply pathsinv0.
+    apply functor_comp.
+  Qed.
+  Definition pb_LModule_comp_iso hsC : iso  (C := category_LModule _ (category_pair C hsC)) comp_pbm pbm_comp  :=
+    LModule_same_func_iso _ _ pb_LModule_comp_law hsC.
+
+
+End Pullback_Composition.
