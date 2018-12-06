@@ -20,6 +20,7 @@ Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispAdjunctio
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Identity.
+Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Projection.
 
 Local Open Scope cat.
 
