@@ -241,6 +241,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/Examples.v](CategoryTheory/DisplayedCats/Examples.v)
    - [DisplayedCats/FunctorCategory.v](CategoryTheory/DisplayedCats/FunctorCategory.v)
    - [DisplayedCats/Adjunctions.v](CategoryTheory/DisplayedCats/Adjunctions.v)
+   - [DisplayedCats/ComprehensionC.v](CategoryTheory/DisplayedCats/ComprehensionC.v)
    - [Bicategories/Bicat.v](CategoryTheory/Bicategories/Bicat.v)
    - [Bicategories/Invertible_2cells.v](CategoryTheory/Bicategories/Invertible_2cells.v)
    - [Bicategories/StandardBicategories.v](CategoryTheory/Bicategories/StandardBicategories.v)

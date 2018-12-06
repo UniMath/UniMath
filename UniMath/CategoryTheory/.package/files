@@ -160,6 +160,7 @@ DisplayedCats/Limits.v
 DisplayedCats/Examples.v
 DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
+DisplayedCats/ComprehensionC.v
 
 Bicategories/Bicategories/Bicat.v
 Bicategories/Bicategories/Invertible_2cells.v
