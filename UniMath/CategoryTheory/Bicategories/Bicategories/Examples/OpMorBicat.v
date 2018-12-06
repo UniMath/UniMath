@@ -1,5 +1,7 @@
 (* *********************************************************************************** *)
-(** * Bicategories
+(** op1 bicategory.
+
+    Bicategory obtained by formally reversing 1-arrows.
 
     Benedikt Ahrens, Marco Maggesi
     June 2018                                                                          *)
@@ -14,12 +16,6 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 
 Local Open Scope cat.
-
-(* ----------------------------------------------------------------------------------- *)
-(** ** op1 bicategory.
-
-    Bicategory obtained by formally reversing 1-arrows.                                *)
-(* ----------------------------------------------------------------------------------- *)
 
 Definition op1_2cell_struct (C : prebicat_1_id_comp_cells)
   : prebicat_2cell_struct (opp_precat_data C)

@@ -1,3 +1,6 @@
+(* ******************************************************************************* *)
+(** The opposite of a category as a pseudofunctor
+ ********************************************************************************* *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -9,8 +12,6 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.OpCellB
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.PseudoFunctor.
 
 Local Open Scope cat.
-
-(** * The pseudofunctor op on the bicategory of categories *)
 
 Local Notation "∁" := bicat_of_cats.
 

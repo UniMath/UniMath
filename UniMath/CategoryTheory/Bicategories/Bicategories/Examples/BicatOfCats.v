@@ -1,11 +1,9 @@
 (* ******************************************************************************* *)
-(** * Bicategories
+(** * Bicategory of 1-categories
 
     Benedikt Ahrens, Marco Maggesi
 
     February 2018
-
-    Bicategory of 1-category and pseudofunctor "op".
  ********************************************************************************* *)
 
 Require Import UniMath.Foundations.All.

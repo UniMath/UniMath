@@ -1,5 +1,6 @@
 (**
-Right adjoints, units, counits are unique.
+Right adjoints, units, counits are unique up to isomorphism.
+In addition, if the bicategory is locally univalent, then being an adjoint equivalence is a proposition.
 
 Authors: Dan Frumin, Niels van der Weide
 

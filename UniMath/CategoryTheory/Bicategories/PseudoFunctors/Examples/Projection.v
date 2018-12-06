@@ -1,3 +1,6 @@
+(* ******************************************************************************* *)
+(** The projection of the total bicategory of some displayed category to the base
+ ********************************************************************************* *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.

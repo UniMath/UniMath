@@ -1,5 +1,5 @@
 (* ******************************************************************************* *)
-(** * Bicategories
+(** * Pseudofunctors on bicategories
     Benedikt Ahrens, Marco Maggesi
     February 2018
 

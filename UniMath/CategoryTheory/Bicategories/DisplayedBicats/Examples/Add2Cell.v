@@ -1,3 +1,8 @@
+(**
+Given is a displayed bicategory on C. Then we have a total category E of which the objects are objects in C with some additional structure.
+In this file, we give a method for adding 2-cells to the structure, which represents an equation on the structure in the total category.
+The equation has two endpoints, l and r. These are given as natural maps in the underlying bicategory.
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.

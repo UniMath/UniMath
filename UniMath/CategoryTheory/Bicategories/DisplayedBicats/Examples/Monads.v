@@ -1,3 +1,9 @@
+(**
+Monads as a bicategory. The construction has 3 layers.
+In the first layer: we take algebras on the identity functor.
+In the second layer: we add η an μ. This is done by adding 2-cells (as in Add2Cell)
+In the third layer: we take the full subcategory and we add the monad laws.
+*)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.

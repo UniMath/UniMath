@@ -1,14 +1,10 @@
-(* *********************************************************************************** *)
-(** * Bicategories
-
-    Benedikt Ahrens, Marco Maggesi
-    February 2018                                                                      *)
-(* *********************************************************************************** *)
-
 (* ----------------------------------------------------------------------------------- *)
 (** ** op2 bicategory.
 
-    Bicategory obtained by formally reversing 2-cells.                                 *)
+    Bicategory obtained by formally reversing 2-cells.
+
+    Benedikt Ahrens, Marco Maggesi
+    February 2018                                                                      *)
 (* ----------------------------------------------------------------------------------- *)
 
 Require Import UniMath.Foundations.All.

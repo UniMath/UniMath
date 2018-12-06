@@ -1,3 +1,8 @@
+(* ******************************************************************************* *)
+(** * Bicategory of univalent 1-categories and proof that it's univalent.
+
+ ********************************************************************************* *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.

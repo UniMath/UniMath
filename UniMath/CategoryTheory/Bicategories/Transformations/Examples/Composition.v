@@ -1,3 +1,7 @@
+(**
+Composition of lax transformations gives another transformation.
+In addition, if both are pseudo transformations, then the composition is a pseudotransformation as well.
+*)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.

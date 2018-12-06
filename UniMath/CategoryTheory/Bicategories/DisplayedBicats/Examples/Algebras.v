@@ -1,3 +1,8 @@
+(**
+Lax algebras on a pseudofunctor.
+Morphisms are 2-cells which witness a certain diagram commutes. Since this 2-cell is not necessarily invertible, these are lax algebras.
+We define it as a displayed bicategory. We also prove that the total category is univalent if the base is univalent.
+*)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
