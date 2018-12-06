@@ -6,9 +6,14 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.BicategoryLaws.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
-Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctor. Import PseudoFunctor.Notations.
-Require Import UniMath.CategoryTheory.Bicategories.identity.
-Require Import UniMath.CategoryTheory.Bicategories.LaxTransformation.
+Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.PseudoFunctor.
+Import PseudoFunctor.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Identity.
+Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Composition.
+Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Projection.
+Require Import UniMath.CategoryTheory.Bicategories.Transformations.LaxTransformation.
+Require Import UniMath.CategoryTheory.Bicategories.Transformations.Examples.Identity.
+Require Import UniMath.CategoryTheory.Bicategories.Transformations.Examples.Composition.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Unitors.
@@ -21,9 +26,6 @@ Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Alge
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Add2Cell.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Prod.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.FullSub.
-
-Definition TODO {A : UU} : A.
-Admitted.
 
 Section MonadBicategory.
   Variable (C : bicat).
@@ -51,65 +53,114 @@ Section MonadBicategory.
   Defined.
 
   Definition unit_left_data
-    : laxtrans_data (ps_id_functor plain_monad) (ps_id_functor plain_monad).
+    : laxtrans_data
+        (@ps_comp _ (total_bicat (disp_alg_bicat (ps_id_functor C))) _
+                  (pr1_psfunctor (disp_alg_bicat (ps_id_functor C)))
+                  (ps_id_functor (total_bicat (disp_alg_bicat (ps_id_functor C)))))
+        (pr1_psfunctor (disp_alg_bicat (ps_id_functor C))).
   Proof.
     use mk_laxtrans_data.
-    - intros X.
-      exact (id₁ _).
-    - intros X Y f
-      ; cbn in * ; unfold total_prebicat_cell_struct in * ; cbn in *
-      ; unfold alg_disp_cat_2cell in * ; cbn in *.
-      exists (lunitor _ • rinvunitor _).
-      apply TODO.
+    - exact (λ X, id₁ (pr1 X)).
+    - exact (λ X Y f, lunitor (pr1 f) • rinvunitor (pr1 f)).
   Defined.
 
-  Definition unit_left_laws
+  Definition unit_left_is_laxtrans
     : is_laxtrans unit_left_data.
   Proof.
-    apply TODO.
+    repeat split.
+    - intros X Y f g α ; cbn.
+      rewrite !vassocr.
+      rewrite vcomp_lunitor.
+      rewrite !vassocl.
+      rewrite rinvunitor_natural.
+      rewrite <- rwhisker_hcomp.
+      reflexivity.
+    - intros X ; cbn in *.
+      rewrite !vassocr.
+      rewrite runitor_lunitor_identity.
+      rewrite lunitor_linvunitor, id2_left.
+      rewrite vcomp_lunitor.
+      rewrite !vassocl.
+      rewrite rinvunitor_natural.
+      rewrite !vassocr.
+      rewrite lunitor_runitor_identity.
+      rewrite runitor_rinvunitor, id2_left.
+      rewrite rwhisker_hcomp.
+      rewrite id2_right.
+      reflexivity.
+    - intros X Y Z f g ; cbn in *.
+      rewrite !id2_left.
+      rewrite <- rwhisker_vcomp.
+      rewrite !vassocr.
+      rewrite vcomp_lunitor.
+      rewrite lunitor_triangle.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite <- lwhisker_vcomp.
+      rewrite !vassocl.
+      rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)).
+      rewrite lwhisker_hcomp.
+      rewrite triangle_l.
+      rewrite <- rwhisker_hcomp.
+      rewrite !vassocr.
+      rewrite rwhisker_vcomp.
+      rewrite rinvunitor_runitor, id2_rwhisker, id2_left.
+      rewrite !id2_left, id2_rwhisker, id2_right.
+      rewrite rinvunitor_triangle.
+      reflexivity.
   Qed.
 
-  (* identity *)
   Definition unit_left
-    : pstrans (ps_id_functor plain_monad) (ps_id_functor plain_monad).
+    : pstrans
+        (@ps_comp _ (total_bicat (disp_alg_bicat (ps_id_functor C))) _
+                  (pr1_psfunctor (disp_alg_bicat (ps_id_functor C)))
+                  (ps_id_functor (total_bicat (disp_alg_bicat (ps_id_functor C)))))
+        (pr1_psfunctor (disp_alg_bicat (ps_id_functor C))).
   Proof.
-    use tpair.
-    - use tpair.
+    use mk_pstrans.
+    - use mk_laxtrans.
       + exact unit_left_data.
-      + exact unit_left_laws.
-    - apply TODO.
+      + exact unit_left_is_laxtrans.
+    - intros X Y f ; cbn.
+      is_iso.
   Defined.
 
   Definition unit_right_data
-    : laxtrans_data (ps_id_functor plain_monad) (ps_id_functor plain_monad).
+    : laxtrans_data
+        (@ps_comp _ (total_bicat (disp_alg_bicat (ps_id_functor C))) _
+                  (pr1_psfunctor (disp_alg_bicat (ps_id_functor C)))
+                  (ps_id_functor (total_bicat (disp_alg_bicat (ps_id_functor C)))))
+        (pr1_psfunctor (disp_alg_bicat (ps_id_functor C))).
   Proof.
     use mk_laxtrans_data.
-    - intros X.
-      cbn in * ; unfold total_prebicat_cell_struct in * ; cbn in *
-      ; unfold alg_disp_cat_2cell in * ; cbn in *.
-      exists (pr2 X).
-      exact (id₂ _).
-    - intros X Y f
-      ; cbn in * ; unfold total_prebicat_cell_struct in * ; cbn in *
-      ; unfold alg_disp_cat_2cell in * ; cbn in *.
-      apply TODO.
+    - exact (λ X, pr2 X).
+    - exact (λ X Y f, pr2 f).
   Defined.
 
   Definition unit_right_laws
     : is_laxtrans unit_right_data.
   Proof.
-    apply TODO.
+    repeat split.
+    - exact (λ X Y f g α, !(pr2 α)).
+    - intros X ; cbn in *.
+      rewrite lwhisker_id2, id2_left, !id2_right.
+      reflexivity.
+    - intros ; cbn in *.
+      rewrite !lwhisker_id2, !id2_rwhisker, !id2_left, !id2_right.
+      rewrite !id2_rwhisker, !id2_right.
+      reflexivity.
   Qed.
 
-  (* algebra map *)
   Definition unit_right
-    : pstrans (ps_id_functor plain_monad) (ps_id_functor plain_monad).
+    : laxtrans
+        (@ps_comp _ (total_bicat (disp_alg_bicat (ps_id_functor C))) _
+                  (pr1_psfunctor (disp_alg_bicat (ps_id_functor C)))
+                  (ps_id_functor (total_bicat (disp_alg_bicat (ps_id_functor C)))))
+        (pr1_psfunctor (disp_alg_bicat (ps_id_functor C))).
   Proof.
     use tpair.
-    - use tpair.
-      + exact unit_right_data.
-      + exact unit_right_laws.
-    - apply TODO.
+    - exact unit_right_data.
+    - exact unit_right_laws.
   Defined.
 
   Definition add_unit
@@ -121,35 +172,172 @@ Section MonadBicategory.
     - exact unit_right.
   Defined.
 
-  (* composition of the algebra map *)
-  Definition bind_left_data
-    : laxtrans_data (ps_id_functor plain_monad) (ps_id_functor plain_monad).
+  Definition bind_right_data
+    : laxtrans_data
+        (@ps_comp _ (total_bicat (disp_alg_bicat (ps_id_functor C))) _
+                  (pr1_psfunctor (disp_alg_bicat (ps_id_functor C)))
+                  (ps_id_functor (total_bicat (disp_alg_bicat (ps_id_functor C)))))
+        (pr1_psfunctor (disp_alg_bicat (ps_id_functor C))).
   Proof.
     use mk_laxtrans_data.
-    - intros X.
-      cbn in *.
-      exists (pr2 X · pr2 X).
-      exact (lassociator _ _ _).
-    - intros X Y f
-      ; cbn in * ; unfold total_prebicat_cell_struct in * ; cbn in *
-      ; unfold alg_disp_cat_2cell in * ; cbn in *.
-      apply TODO.
+    - exact (λ X, pr2 X · pr2 X).
+    - exact (λ X Y f,
+             (rassociator (pr2 X) (pr2 X) (pr1 f))
+               • (pr2 X ◃ pr2 f)
+               • lassociator (pr2 X) (pr1 f) (pr2 Y)
+               • (pr2 f ▹ pr2 Y)
+               • rassociator (pr1 f) (pr2 Y) (pr2 Y)).
   Defined.
 
-  Definition bind_left_laws
-    : is_laxtrans bind_left_data.
+  Definition bind_right_laws
+    : is_laxtrans bind_right_data.
   Proof.
-    apply TODO.
+    repeat split.
+    - intros X Y f g α ; cbn in *.
+      unfold total_prebicat_cell_struct in * ; cbn in *.
+      unfold alg_disp_cat_2cell in * ; cbn in *.
+      rewrite !vassocr.
+      rewrite <- lwhisker_lwhisker_rassociator.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite <- rwhisker_rwhisker_alt.
+      rewrite !vassocr.
+      apply maponpaths_2.
+      rewrite lwhisker_vcomp.
+      refine (_ @ !(maponpaths (λ z, ((_ ◃ z) • _) • _) (pr2 α))).
+      rewrite <- lwhisker_vcomp.
+      rewrite !vassocl.
+      rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)).
+      rewrite rwhisker_lwhisker.
+      rewrite !vassocl.
+      repeat (apply maponpaths).
+      rewrite !rwhisker_vcomp.
+      apply maponpaths.
+      exact (!(pr2 α)).
+    - intros X ; cbn in *.
+      rewrite !lwhisker_id2, !id2_rwhisker, !id2_left, !id2_right.
+      rewrite id2_rwhisker, id2_right.
+      rewrite <- !lwhisker_vcomp.
+      rewrite !vassocr.
+      rewrite runitor_triangle.
+      rewrite !vassocl.
+      repeat apply maponpaths.
+      rewrite <- !rwhisker_vcomp.
+      rewrite !vassocr.
+      rewrite lwhisker_hcomp.
+      rewrite triangle_l_inv.
+      rewrite <- rwhisker_hcomp.
+      rewrite rwhisker_vcomp.
+      rewrite rinvunitor_runitor, id2_rwhisker, id2_left.
+      rewrite linvunitor_assoc.
+      reflexivity.
+    - intros ; cbn in *.
+      rewrite !lwhisker_id2, !id2_rwhisker, !id2_left, !id2_right.
+      rewrite !id2_rwhisker, !id2_right.
+      rewrite <- !lwhisker_vcomp, <- !rwhisker_vcomp.
+      rewrite !vassocl.
+      use vcomp_move_R_pM.
+      { is_iso. }
+      cbn.
+      rewrite !vassocr.
+      rewrite pentagon.
+      rewrite <- lwhisker_hcomp, <- rwhisker_hcomp.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)).
+      rewrite rwhisker_vcomp.
+      rewrite lassociator_rassociator, id2_rwhisker, id2_left.
+      rewrite !vassocr.
+      rewrite <- rwhisker_lwhisker.
+      rewrite !vassocl.
+      apply maponpaths.
+      pose (pentagon (pr2 Z) (pr1 g) (pr1 f) (pr2 X)) as pent.
+      rewrite <- lwhisker_hcomp, <- rwhisker_hcomp, !vassocr in pent.
+      rewrite !(maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)).
+      rewrite <- pent ; clear pent.
+      rewrite !vassocl.
+      use vcomp_move_R_pM.
+      { is_iso. }
+      cbn.
+      rewrite !vassocr.
+      pose (pentagon (pr1 g) (pr2 Y) (pr1 f) (pr2 X)) as pent.
+      rewrite <- lwhisker_hcomp, <- rwhisker_hcomp, !vassocr in pent.
+      refine (!(_ @ _)).
+      {
+        do 9 apply maponpaths_2.
+        exact (!pent).
+      }
+      clear pent.
+      rewrite !vassocl.
+      rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)).
+      rewrite rwhisker_rwhisker.
+      rewrite !vassocl.
+      pose (inverse_pentagon (pr1 g) (pr2 Y) (pr2 Y) (pr1 f)) as pent.
+      rewrite <- lwhisker_hcomp, <- rwhisker_hcomp, !vassocr in pent.
+      rewrite !(maponpaths (λ z, _ • (_ • (_ • z))) (vassocr _ _ _)).
+      etrans.
+      {
+        do 3 apply maponpaths.
+        do 5 apply maponpaths_2.
+        exact (!pent).
+      }
+      clear pent.
+      rewrite !vassocl.
+      rewrite !(maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)).
+      rewrite lassociator_rassociator, id2_left.
+      rewrite !vassocr.
+      rewrite lwhisker_lwhisker.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite !vassocr.
+      use vcomp_move_R_Mp.
+      { is_iso. }
+      cbn.
+      rewrite !vassocl.
+      rewrite inverse_pentagon.
+      rewrite <- lwhisker_hcomp, <- rwhisker_hcomp.
+      rewrite !(maponpaths (λ z, _ • (_ • (_ • (_ • (_ • z))))) (vassocr _ _ _)).
+      rewrite rwhisker_vcomp.
+      rewrite lassociator_rassociator, id2_rwhisker, id2_left.
+      rewrite !vassocr.
+      apply maponpaths_2.
+      rewrite !vassocl.
+      rewrite <- rwhisker_lwhisker_rassociator.
+      rewrite !vassocr.
+      apply maponpaths_2.
+      use vcomp_move_R_Mp.
+      { is_iso. }
+      cbn.
+      rewrite !vassocl.
+      pose (inverse_pentagon (pr2 Z) (pr1 g) (pr2 Y) (pr1 f)) as pent.
+      rewrite <- lwhisker_hcomp, <- rwhisker_hcomp in pent.
+      refine (!(_ @ _)).
+      {
+        do 3 apply maponpaths.
+        exact (!pent).
+      }
+      clear pent.
+      rewrite !(maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)).
+      rewrite rwhisker_rwhisker_alt.
+      rewrite !vassocl.
+      rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)).
+      rewrite lassociator_rassociator, id2_left.
+      rewrite lwhisker_lwhisker_rassociator.
+      rewrite !vassocr.
+      rewrite vcomp_whisker.
+      reflexivity.
   Qed.
 
-  Definition bind_left
-    : pstrans (ps_id_functor plain_monad) (ps_id_functor plain_monad).
+  Definition bind_right
+    : laxtrans
+        (@ps_comp _ (total_bicat (disp_alg_bicat (ps_id_functor C))) _
+                  (pr1_psfunctor (disp_alg_bicat (ps_id_functor C)))
+                  (ps_id_functor (total_bicat (disp_alg_bicat (ps_id_functor C)))))
+        (pr1_psfunctor (disp_alg_bicat (ps_id_functor C))).
   Proof.
     use tpair.
-    - use tpair.
-      + exact bind_left_data.
-      + exact bind_left_laws.
-    - apply TODO.
+    - exact bind_right_data.
+    - exact bind_right_laws.
   Defined.
 
   Definition add_bind
@@ -157,7 +345,7 @@ Section MonadBicategory.
   Proof.
     use add_cell_disp_cat.
     - exact (ps_id_functor _).
-    - exact bind_left.
+    - exact bind_right.
     - exact unit_right.
   Defined.
 

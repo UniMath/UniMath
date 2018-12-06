@@ -20,6 +20,7 @@ Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispAdjunctio
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Identity.
+Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Composition.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Projection.
 
 Local Open Scope cat.
@@ -32,33 +33,28 @@ Section Add2Cell.
   Local Notation F := (pr1_psfunctor D).
 
   Variable (S : psfunctor E E)
-           (l r : pstrans S (ps_id_functor E)).
+           (l r : laxtrans (@ps_comp E E C F S) F).
 
   Definition add_cell_disp_cat_data : disp_cat_ob_mor E.
   Proof.
     use tpair.
-    - exact (λ X, #F (l X) ==> #F (r X)).
+    - exact (λ X, l X ==> r X).
     - exact (λ X Y α β f,
-             ((psfunctor_comp F (l X) f)^-1)
-               • (α ▹ #F f)
-               • psfunctor_comp F (r X) f
-               • ##F (laxnaturality_of r f)
+             (α ▹ #F f)
+               • laxnaturality_of r f
              =
-             (##F (laxnaturality_of l f))
-               • (psfunctor_comp F (#S f) (l Y))^-1
-               • (#F(#S f) ◃ β)
-               • psfunctor_comp F (#S f) (r Y)).
+             (laxnaturality_of l f)
+               • (#F(#S f) ◃ β)).
   Defined.
 
   Definition add_cell_disp_cat_laws : disp_cat_id_comp E add_cell_disp_cat_data.
   Proof.
     split.
     - intros x xx ; cbn.
-      rewrite !id2_left, !id2_right.
-      pose (maponpaths pr1 (laxtrans_id_alt l x)) as p.
+      pose (laxtrans_id_alt l x) as p.
       cbn in p.
       rewrite p ; clear p.
-      pose (maponpaths pr1 (laxtrans_id_alt r x)) as p.
+      pose (laxtrans_id_alt r x) as p.
       cbn in p.
       rewrite p ; clear p.
       rewrite !lwhisker_id2, !id2_left.
@@ -74,13 +70,10 @@ Section Add2Cell.
       rewrite vcomp_whisker.
       reflexivity.
     - intros x y z f g xx yy zz Hf Hg.
-      pose (maponpaths pr1 (laxtrans_comp_alt l f g)) as pl.
-      pose (maponpaths pr1 (laxtrans_comp_alt r f g)) as pr.
+      pose (laxtrans_comp_alt l f g) as pl.
+      pose (laxtrans_comp_alt r f g) as pr.
       cbn in *.
       rewrite pl, pr ; clear pl pr.
-      rewrite !id2_left, !id2_right in Hf.
-      rewrite !id2_left, !id2_right in Hg.
-      rewrite !id2_left, !id2_right.
       rewrite !vassocr.
       rewrite vcomp_whisker.
       rewrite !vassocl.
@@ -132,7 +125,6 @@ Section Add2Cell.
   Proof.
     apply disp_cell_unit_bicat_locally_univalent.
     intros.
-    simpl.
     apply C.
   Defined.
 
@@ -156,18 +148,17 @@ Section Add2Cell.
         induction p as [p q].
         cbn ; unfold idfun.
         cbn in p, q.
-        rewrite !id2_left, id2_right in p.
         rewrite (laxtrans_id_alt l), (laxtrans_id_alt r) in p.
         cbn in p.
         rewrite !lwhisker_id2 in p.
-        rewrite !id2_left, !id2_right in p.
+        rewrite !id2_left in p.
         rewrite !vassocr in p.
         rewrite vcomp_runitor in p.
         rewrite !vassocl in p.
         pose (vcomp_lcancel _ (is_invertible_2cell_runitor _) p) as p'.
-        use (vcomp_rcancel (linvunitor (pr1 (r x)))).
+        use (vcomp_rcancel (linvunitor (r x))).
         { is_iso. }
-        use (vcomp_rcancel (pr1 (laxfunctor_id S x) ▹ pr1 (r x))).
+        use (vcomp_rcancel (pr1 (laxfunctor_id S x) ▹ r x)).
         { is_iso.
           use tpair.
           - apply (pr1(pr2 S) x).
