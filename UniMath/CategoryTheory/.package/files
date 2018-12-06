@@ -175,10 +175,11 @@ Bicategories/Bicategories/AdjointUnique.v
 Bicategories/Bicategories/Examples/OneTypes.v
 Bicategories/Bicategories/Examples/TwoType.v
 
-Bicategories/PseudoFunctor.v
-Bicategories/composition.v
-Bicategories/identity.v
-Bicategories/LaxTransformation.v
+Bicategories/PseudoFunctors/PseudoFunctor.v
+Bicategories/PseudoFunctors/Examples/Identity.v
+Bicategories/PseudoFunctors/Examples/Composition.v
+Bicategories/PseudoFunctors/Examples/ApFunctor.v
+Bicategories/Transformations/LaxTransformation.v
 
 Bicategories/Bicategories/Examples/BicatOfCats.v
 Bicategories/Bicategories/Examples/Initial.v
@@ -213,7 +214,6 @@ Bicategories/BicategoryOfBicat.v
 Bicategories/BicatOfBicategory.v
 Bicategories/Graph.v
 Bicategories/Discreteness.v
-Bicategories/ap_functor.v
 
 Monoidal/MonoidalCategories.v
 Monoidal/MonoidalFunctors.v

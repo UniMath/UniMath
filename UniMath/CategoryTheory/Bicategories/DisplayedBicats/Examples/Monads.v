@@ -55,9 +55,7 @@ Section MonadBicategory.
   Proof.
     use mk_laxtrans_data.
     - intros X.
-      cbn in *.
-      exists (id₁ _).
-      exact (runitor _ • linvunitor _).
+      exact (id₁ _).
     - intros X Y f
       ; cbn in * ; unfold total_prebicat_cell_struct in * ; cbn in *
       ; unfold alg_disp_cat_2cell in * ; cbn in *.
@@ -71,6 +69,7 @@ Section MonadBicategory.
     apply TODO.
   Qed.
 
+  (* identity *)
   Definition unit_left
     : pstrans (ps_id_functor plain_monad) (ps_id_functor plain_monad).
   Proof.
@@ -102,6 +101,7 @@ Section MonadBicategory.
     apply TODO.
   Qed.
 
+  (* algebra map *)
   Definition unit_right
     : pstrans (ps_id_functor plain_monad) (ps_id_functor plain_monad).
   Proof.
@@ -121,6 +121,7 @@ Section MonadBicategory.
     - exact unit_right.
   Defined.
 
+  (* composition of the algebra map *)
   Definition bind_left_data
     : laxtrans_data (ps_id_functor plain_monad) (ps_id_functor plain_monad).
   Proof.
