@@ -164,11 +164,11 @@ DisplayedCats/ComprehensionC.v
 
 Bicategories/Bicategories/Bicat.v
 Bicategories/Bicategories/Invertible_2cells.v
+Bicategories/Bicategories/Adjunctions.v
 Bicategories/Bicategories/Examples/OpMorBicat.v
 Bicategories/Bicategories/Examples/OpCellBicat.v
 Bicategories/Bicategories/Unitors.v
 Bicategories/Bicategories/BicategoryLaws.v
-Bicategories/Bicategories/Adjunctions.v
 Bicategories/Bicategories/Univalence.v
 Bicategories/Bicategories/TransportLaws.v
 Bicategories/Bicategories/EquivToAdjequiv.v
@@ -185,7 +185,7 @@ Bicategories/DisplayedBicats/DispInvertibles.v
 Bicategories/DisplayedBicats/DispAdjunctions.v
 Bicategories/DisplayedBicats/DispUnivalence.v
 Bicategories/DisplayedBicats/Fibration.v
-Bicategories/DisplayedBicats/Sigma.v
+Bicategories/DisplayedBicats/Examples/Sigma.v
 
 Bicategories/PseudoFunctors/PseudoFunctor.v
 Bicategories/PseudoFunctors/Examples/Identity.v
