@@ -27,7 +27,6 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Adjunctions.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Univalence.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispAdjunctions.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispUnivalence.
-Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Sigma.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Algebras.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Add2Cell.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Prod.
