@@ -1643,6 +1643,17 @@ Qed.
 Definition is_nat_iso {C D : precategory} {F G : C ⟶ D} (μ : F ⟹ G) : UU :=
 ∏ (c : C), is_iso (μ c).
 
+Definition isaprop_is_nat_iso
+           {C D : category}
+           {F G : C ⟶ D}
+           (α : F ⟹ G)
+  : isaprop (is_nat_iso α).
+Proof.
+  apply impred.
+  intro.
+  apply isaprop_is_iso.
+Defined.
+
 Definition is_nat_id {C D : precategory} {F : C ⟶ D} (μ : F ⟹ F) : UU :=
 ∏ (c : C), μ c = identity (F c).
 
@@ -1723,4 +1734,47 @@ Proof.
     + exact j.
     + intros a b f. exact f.
   - repeat split.
+Defined.
+
+Definition iso_to_nat_iso
+           {C D : category}
+           (F G : C ⟶ D)
+  : @iso (functor_category C D) F G → nat_iso F G.
+Proof.
+  intros α.
+  use mk_nat_iso.
+  - exact (pr1 α).
+  - use is_functor_iso_pointwise_if_iso.
+    apply α.
+Defined.
+
+Definition nat_iso_to_iso
+           {C D : category}
+           (F G : C ⟶ D)
+  : nat_iso F G → @iso (functor_category C D) F G.
+Proof.
+  intros α.
+  use functor_iso_from_pointwise_iso ; apply α.
+Defined.
+
+Definition iso_is_nat_iso
+           {C D : category}
+           (F G : C ⟶ D)
+  : @iso (functor_category C D) F G ≃ nat_iso F G.
+Proof.
+  refine (weqpair (iso_to_nat_iso F G) _).
+  use isweq_iso.
+  - exact (nat_iso_to_iso F G).
+  - intros X.
+    use subtypeEquality.
+    + intro.
+      apply isaprop_is_iso.
+    + apply nat_trans_eq.
+      { apply D. }
+      reflexivity.
+  - intros X.
+    use subtypeEquality.
+    + intro.
+      apply isaprop_is_nat_iso.
+    + reflexivity.
 Defined.
