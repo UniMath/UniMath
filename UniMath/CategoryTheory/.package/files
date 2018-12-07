@@ -181,7 +181,6 @@ Bicategories/Bicategories/Examples/Initial.v
 Bicategories/Bicategories/Examples/Final.v
 
 Bicategories/DisplayedBicats/DispBicat.v
-Bicategories/DisplayedBicats/DispBicatOfDispCats.v
 Bicategories/DisplayedBicats/DispInvertibles.v
 Bicategories/DisplayedBicats/DispAdjunctions.v
 Bicategories/DisplayedBicats/DispUnivalence.v
@@ -198,6 +197,7 @@ Bicategories/Transformations/LaxTransformation.v
 Bicategories/Transformations/Examples/Identity.v
 Bicategories/Transformations/Examples/Composition.v
 
+Bicategories/DisplayedBicats/Examples/DispBicatOfDispCats.v
 Bicategories/DisplayedBicats/Examples/DisplayedCatToBicat.v
 Bicategories/DisplayedBicats/Examples/Trivial.v
 Bicategories/DisplayedBicats/Examples/FullSub.v
@@ -216,6 +216,7 @@ Bicategories/WkCatEnrichment/whiskering.v
 Bicategories/WkCatEnrichment/Cat.v
 Bicategories/WkCatEnrichment/internal_equivalence.v
 Bicategories/WkCatEnrichment/bicategory.v
+
 
 Bicategories/BicategoryOfBicat.v
 Bicategories/BicatOfBicategory.v

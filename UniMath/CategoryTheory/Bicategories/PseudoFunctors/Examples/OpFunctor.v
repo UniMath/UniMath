@@ -15,15 +15,10 @@ Local Open Scope cat.
 
 Local Notation "∁" := bicat_of_cats.
 
-(*
 Definition op_laxfunctor_data : laxfunctor_data (op2_prebicat ∁) ∁.
 Proof.
   use build_laxfunctor_data.
-  - intros C.
-    Check op_cat.
-    Search op_cat.
-    apply op_cat.
-    exact (λ , op_cat c).
+  - exact (λ C, op_unicat C).
   - exact (λ _ _ f, functor_opp f).
   - exact (λ _ _ _ _ x, op_nt x).
   - intro C.
@@ -118,4 +113,3 @@ Defined.
 
 Definition op_pspseudo : psfunctor (op2_prebicat ∁) ∁
   := _ ,, op_is_pseudofunctor.
-*)

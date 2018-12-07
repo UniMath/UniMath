@@ -19,7 +19,6 @@ Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat.
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
-
 Section fix_a_category.
 
 Variable K : category.
@@ -34,7 +33,6 @@ Proof.
       exact (nat_trans ty (functor_composite (functor_opp f) ty')).
 Defined.
 
-(*
 Definition disp_presheaf_cat_data : disp_cat_data ∁.
 Proof.
   exists disp_presheaf_cat_ob_mor.
@@ -46,9 +44,9 @@ Proof.
     intros x y.
     set (T1 := x).
     set (T2 := @pre_whisker
-                 (op_cat c) (op_cat d) K
+                 (op_unicat c) (op_unicat d) K
                  (functor_opp f) _ _ (y : nat_trans (ty': functor _ _ )  _  )).
-    exact (@nat_trans_comp (op_cat c) K _ _ _ T1 T2 ).
+    exact (@nat_trans_comp (op_unicat c) K _ _ _ T1 T2 ).
 Defined.
 
 Definition disp_presheaf_prebicat_1_id_comp_cells : disp_prebicat_1_id_comp_cells bicat_of_cats.
@@ -57,8 +55,7 @@ Proof.
   intros c d f g a.
   intros p p'.
   intros x y.
-  cbn in *.
-  exact (x = @nat_trans_comp (op_cat c) K _  _ _ y (post_whisker (op_nt a)  p')).
+  exact (x = @nat_trans_comp (op_unicat c) K _  _ _ y (post_whisker (op_nt a) p')).
 Defined.
 
 Definition disp_presheaf_prebicat_ops : disp_prebicat_ops disp_presheaf_prebicat_1_id_comp_cells.
@@ -127,4 +124,3 @@ Definition disp_presheaf_bicat : disp_bicat ∁ :=
   (disp_presheaf_prebicat,, has_disp_cellset_disp_presheaf_prebicat).
 
 End fix_a_category.
-*)

@@ -104,18 +104,20 @@ Proof.
         apply maponpaths_2. apply uip. apply C₃.
 Defined.
 
-
-
 Lemma DispBicatOfDispCats_laws : disp_prebicat_laws disp_prebicat_of_disp_cats_data.
 Proof.
   repeat split ; red
-  ; try (intros C₁ C₂ ; intros ; apply (@disp_nat_trans_eq (pr1 C₁ ,, _) (pr1 C₂ ,, _))
+  ; try (intros C₁ C₂ ; cbn in C₁, C₂ ; intros
+         ; apply (@disp_nat_trans_eq (pr1 C₁ ,, _) (pr1 C₂ ,, _))
          ; intros ; apply pathsinv0; unfold transportb)
-  ; try (intros C₁ C₂ C₃ ; intros ; apply (@disp_nat_trans_eq (pr1 C₁ ,, _) (pr1 C₃ ,, _))
+  ; try (intros C₁ C₂ C₃ ; cbn in C₁, C₂, C₃ ; intros
+         ; apply (@disp_nat_trans_eq (pr1 C₁ ,, _) (pr1 C₃ ,, _))
          ; intros ; apply pathsinv0; unfold transportb)
-  ; try (intros C₁ C₂ C₃ C₄ ; intros ; apply (@disp_nat_trans_eq (pr1 C₁ ,, _) (pr1 C₄ ,, _))
+  ; try (intros C₁ C₂ C₃ C₄ ; cbn in C₁, C₂, C₃, C₄ ; intros
+         ; apply (@disp_nat_trans_eq (pr1 C₁ ,, _) (pr1 C₄ ,, _))
          ; intros ; apply pathsinv0; unfold transportb)
-  ; try (intros C₁ C₂ C₃ C₄ C₅ ; intros ; apply (@disp_nat_trans_eq (pr1 C₁ ,, _) (pr1 C₅ ,, _))
+  ; try (intros C₁ C₂ C₃ C₄ C₅ ; cbn in C₁, C₂, C₃, C₄, C₅ ; intros
+         ; apply (@disp_nat_trans_eq (pr1 C₁ ,, _) (pr1 C₅ ,, _))
          ; intros ; apply pathsinv0; unfold transportb).
   - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
     etrans; [
@@ -142,13 +144,14 @@ Proof.
       etrans; [
         apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
     apply transportf_set. apply homset_property.
-  - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
+  - cbn in C₁, C₂, C₃.
+    match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
       etrans; [
         apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
     cbn.
     apply pathsinv0.
     etrans.
-    { apply (@disp_functor_id (pr1 C₂ ,, _)). }
+    { apply (@disp_functor_id C₂). }
     unfold transportb.
     apply maponpaths_2. apply homset_property.
   - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
@@ -162,7 +165,7 @@ Proof.
     etrans.
     {
       apply maponpaths.
-      apply (@disp_functor_comp (pr1 C₂ ,, _) (pr1 C₃ ,, _)).
+      apply (@disp_functor_comp C₂ C₃).
     }
     etrans. apply transport_f_f.
     apply transportf_set. apply C₃.
@@ -173,20 +176,20 @@ Proof.
     etrans.
     {
       apply maponpaths.
-      apply (@id_left_disp (pr1 C₂ ,, _)).
+      apply (@id_left_disp C₂).
     }
     etrans. apply transport_f_f.
     apply pathsinv0.
-    etrans. apply (@id_right_disp (pr1 C₂ ,, _)).
+    etrans. apply (@id_right_disp C₂).
     unfold transportb. apply maponpaths_2. apply homset_property.
       - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
       etrans; [
         apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
     cbn.
-    etrans. apply maponpaths. apply (@id_left_disp (pr1 C₂ ,, _)).
+    etrans. apply maponpaths. apply (@id_left_disp C₂).
     etrans. apply transport_f_f.
     apply pathsinv0.
-    etrans. apply (@id_right_disp (pr1 C₂ ,, _)).
+    etrans. apply (@id_right_disp C₂).
     unfold transportb. apply maponpaths_2. apply homset_property.
   - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
       etrans; [
@@ -195,29 +198,29 @@ Proof.
     etrans.
     {
       apply maponpaths.
-      apply (@id_left_disp (pr1 C₄ ,, _)).
+      apply (@id_left_disp C₄).
     }
     etrans. apply transport_f_f.
     apply pathsinv0.
-    etrans. apply (@id_right_disp (pr1 C₄ ,, _)).
+    etrans. apply (@id_right_disp C₄).
     unfold transportb. apply maponpaths_2. apply homset_property.
   - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
       etrans; [
         apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
     cbn.
-    etrans. apply maponpaths. apply (@id_left_disp (pr1 C₄ ,, _)).
+    etrans. apply maponpaths. apply (@id_left_disp C₄).
     etrans. apply transport_f_f.
     apply pathsinv0.
-    etrans. apply (@id_right_disp (pr1 C₄ ,, _)).
+    etrans. apply (@id_right_disp C₄).
     unfold transportb. apply maponpaths_2. apply homset_property.
   - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
       etrans; [
         apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
     cbn.
-    etrans. apply maponpaths. apply (@id_right_disp (pr1 C₄ ,, _)).
+    etrans. apply maponpaths. apply (@id_right_disp C₄).
     etrans. apply transport_f_f.
     apply pathsinv0.
-    etrans. apply (@id_left_disp (pr1 C₄ ,, _)).
+    etrans. apply (@id_left_disp C₄).
     unfold transportb. apply maponpaths_2. apply homset_property.
   - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
       etrans; [
@@ -232,50 +235,50 @@ Proof.
         apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
     cbn.
     apply pathsinv0.
-    etrans. apply (@id_right_disp (pr1 C₂ ,, _)).
+    etrans. apply (@id_right_disp C₂).
     unfold transportb. apply maponpaths_2. apply homset_property.
   - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
       etrans; [
         apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
     cbn.
     apply pathsinv0.
-    etrans. apply (@id_right_disp (pr1 C₂ ,, _)).
+    etrans. apply (@id_right_disp C₂).
     unfold transportb. apply maponpaths_2. apply homset_property.
   - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
       etrans; [
         apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
     cbn.
     apply pathsinv0.
-    etrans. apply (@id_right_disp (pr1 C₂ ,, _)).
+    etrans. apply (@id_right_disp C₂).
     unfold transportb. apply maponpaths_2. apply homset_property.
   - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
       etrans; [
         apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
     cbn.
     apply pathsinv0.
-    etrans. apply (@id_right_disp (pr1 C₂ ,, _)).
+    etrans. apply (@id_right_disp C₂).
     unfold transportb. apply maponpaths_2. apply homset_property.
   - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
       etrans; [
         apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
     cbn.
     apply pathsinv0.
-    etrans. apply (@id_right_disp (pr1 C₄ ,, _)).
+    etrans. apply (@id_right_disp C₄).
     unfold transportb. apply maponpaths_2. apply homset_property.
   - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
       etrans; [
         apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
     cbn.
     apply pathsinv0.
-    etrans. apply (@id_right_disp (pr1 C₄ ,, _)).
+    etrans. apply (@id_right_disp C₄).
     unfold transportb. apply maponpaths_2. apply homset_property.
   - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
       etrans; [
         apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
     cbn.
     apply pathsinv0.
-    etrans. apply (@id_left_disp (pr1 C₃ ,, _)).
-    etrans. apply maponpaths. apply (@disp_functor_id (pr1 C₂ ,, _)).
+    etrans. apply (@id_left_disp C₃).
+    etrans. apply maponpaths. apply (@disp_functor_id C₂).
     etrans. apply transport_f_f.
     apply maponpaths_2. apply homset_property.
   - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
@@ -283,16 +286,16 @@ Proof.
         apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
     cbn.
     apply pathsinv0.
-    etrans. apply (@assoc_disp_var (pr1 C₅ ,, _)).
-    etrans. apply maponpaths. apply (@id_left_disp (pr1 C₅ ,, _)).
+    etrans. apply (@assoc_disp_var C₅).
+    etrans. apply maponpaths. apply (@id_left_disp C₅).
     etrans. apply transport_f_f.
-    etrans. apply maponpaths. apply (@id_left_disp (pr1 C₅ ,, _)).
+    etrans. apply maponpaths. apply (@id_left_disp C₅).
     etrans. apply transport_f_f.
-    etrans. apply maponpaths. apply (@disp_functor_id (pr1 C₄ ,, _)).
+    etrans. apply maponpaths. apply (@disp_functor_id C₄).
     etrans. apply transport_f_f.
 
     apply pathsinv0.
-    etrans. apply maponpaths. apply (@id_left_disp (pr1 C₅ ,, _)).
+    etrans. apply maponpaths. apply (@id_left_disp C₅).
     etrans. apply transport_f_f.
     apply maponpaths_2. apply C₅.
 Qed.
