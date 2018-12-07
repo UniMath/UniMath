@@ -127,11 +127,10 @@ Section MonadBicategory.
              (HC_1 : is_univalent_2_1 C)
     : is_univalent_2_1 lawless_monad.
   Proof.
-    apply total_is_locally_univalent.
+    apply is_univalent_2_1_total_dirprod.
     - exact (plain_monad_is_univalent_2_1 HC_1).
-    - apply is_univalent_2_1_dirprod_bicat.
-      * apply add_cell_disp_cat_locally_univalent.
-      * apply add_cell_disp_cat_locally_univalent.
+    - apply add_cell_disp_cat_locally_univalent.
+    - apply add_cell_disp_cat_locally_univalent.
   Defined.
 
   Definition lawless_monad_is_univalent_2_0
@@ -139,18 +138,18 @@ Section MonadBicategory.
              (HC_1 : is_univalent_2_1 C)
     : is_univalent_2_0 lawless_monad.
   Proof.
-    apply total_is_univalent_2_0.
+    apply is_univalent_2_0_total_dirprod.
     - exact (plain_monad_is_univalent_2_0 HC_0 HC_1).
-    - apply is_univalent_2_0_dirprod_bicat.
-      + exact (plain_monad_is_univalent_2_1 HC_1).
-      + apply add_cell_disp_cat_univalent_2_0.
-        * exact HC_1.
-        * apply disp_alg_bicat_locally_univalent.
-      + apply add_cell_disp_cat_univalent_2_0.
-        * exact HC_1.
-        * apply disp_alg_bicat_locally_univalent.
-      + apply add_cell_disp_cat_locally_univalent.
-      + apply add_cell_disp_cat_locally_univalent.
+    - apply plain_monad_is_univalent_2_1.
+      exact HC_1.
+    - apply add_cell_disp_cat_univalent_2_0.
+      + exact HC_1.
+      + apply disp_alg_bicat_locally_univalent.
+    - apply add_cell_disp_cat_univalent_2_0.
+      + exact HC_1.
+      + apply disp_alg_bicat_locally_univalent.
+    - apply add_cell_disp_cat_locally_univalent.
+    - apply add_cell_disp_cat_locally_univalent.
   Defined.
 
   Definition monad_obj : lawless_monad → C
