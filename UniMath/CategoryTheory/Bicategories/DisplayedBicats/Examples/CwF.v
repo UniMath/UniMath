@@ -186,9 +186,10 @@ Section CwF.
   Definition disp_cwf_cat_ob_mor
     : disp_cat_ob_mor (total_bicat (morphisms_of_preshaves SET)).
   Proof.
-    use tpair; cbn.
+    use tpair.
     - intros (C, ((Ty, Tm), pp)).
-      exact (cwf_representation pp).
+      cbn in *.
+      exact (@cwf_representation C _ _ pp).
     - intros (C, ((Ty, Tm), pp)).
       intros (C', ((Ty', Tm'), pp')).
       intros R R'. cbn in *.
@@ -312,8 +313,10 @@ Section CwF.
         set (gφ := pr1 gcomp).
         unfold isoext_type in gφ.
         exact (iso_comp (functor_on_iso g fφ) gφ).
-      + pose (rmk := @disp_cwf_cat_id_comp_internal). cbn in rmk.
-        apply rmk; [exact feq | exact geq].
+      + apply (@disp_cwf_cat_id_comp_internal
+                 C1 Ty1 Tm1 pp1
+                 C2 Ty2 Tm2 pp2
+                 C3 Ty3 Tm3 pp3); [exact feq | exact geq].
   Defined.
 
   Definition disp_cwf_cat_data
