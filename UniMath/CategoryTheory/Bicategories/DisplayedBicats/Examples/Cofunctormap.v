@@ -23,7 +23,7 @@ Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Cont
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Prod.
-Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Sigma.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Sigma.
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.

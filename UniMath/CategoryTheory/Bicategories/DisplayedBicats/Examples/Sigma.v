@@ -196,5 +196,4 @@ Qed.
 Definition sigma_bicat
   : disp_bicat C
   := sigma_prebicat,, has_disp_cellset_sigma_prebicat.
-
 End Sigma.

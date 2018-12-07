@@ -1,3 +1,8 @@
+(* ******************************************************************************* *)
+(** * Bicategory of univalent 1-categories and proof that it's univalent.
+
+ ********************************************************************************* *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
@@ -5,7 +10,6 @@ Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
-Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctor.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.BicatOfCats.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Adjunctions.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Univalence.

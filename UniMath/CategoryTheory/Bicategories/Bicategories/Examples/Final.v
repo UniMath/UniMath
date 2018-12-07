@@ -1,3 +1,10 @@
+(* ----------------------------------------------------------------------------------- *)
+(** ** Final bicategory and proof that it's univalent.
+
+   Note: UniMath.CategoryTheory.categories.StandardCategories has the definition of
+   final 1-category ([unit_category]).                                                *)
+(* ----------------------------------------------------------------------------------- *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
@@ -12,13 +19,6 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicategories.AdjointUnique.
 
 Local Open Scope cat.
 Local Open Scope bicategory_scope.
-
-(* ----------------------------------------------------------------------------------- *)
-(** ** Final bicategory.
-
-   Note: UniMath.CategoryTheory.categories.StandardCategories has the definition of
-   final 1-category ([unit_category]).                                                *)
-(* ----------------------------------------------------------------------------------- *)
 
 Section Final_Bicategory.
   Definition final_1_id_comp_cells : prebicat_1_id_comp_cells

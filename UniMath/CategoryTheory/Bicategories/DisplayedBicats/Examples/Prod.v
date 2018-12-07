@@ -766,4 +766,36 @@ Section Disp_Dirprod.
         * exact (is_univalent_2_1_dirprod_bicat HD1_1 HD2_1).
       + reflexivity.
   Defined.
+
+  Definition is_univalent_2_1_total_dirprod
+             (HC : is_univalent_2_1 C)
+             (HD1 : disp_locally_univalent D1)
+             (HD2 : disp_locally_univalent D2)
+    : is_univalent_2_1 (total_bicat disp_dirprod_bicat).
+  Proof.
+    apply total_is_locally_univalent.
+    - exact HC.
+    - apply is_univalent_2_1_dirprod_bicat.
+      * exact HD1.
+      * exact HD2.
+  Defined.
+
+  Definition is_univalent_2_0_total_dirprod
+             (HC_0 : is_univalent_2_0 C)
+             (HC_1 : is_univalent_2_1 C)
+             (HD1_0 : disp_univalent_2_0 D1)
+             (HD2_0 : disp_univalent_2_0 D2)
+             (HD1_1 : disp_locally_univalent D1)
+             (HD2_1 : disp_locally_univalent D2)
+    : is_univalent_2_0 (total_bicat disp_dirprod_bicat).
+  Proof.
+    apply total_is_univalent_2_0.
+    - exact HC_0.
+    - apply is_univalent_2_0_dirprod_bicat.
+      + exact HC_1.
+      + exact HD1_0.
+      + exact HD2_0.
+      + exact HD1_1.
+      + exact HD2_1.
+  Defined.
 End Disp_Dirprod.

@@ -1,3 +1,10 @@
+(* ----------------------------------------------------------------------------------- *)
+(** ** Initial bicategory and proof that it's univalent.
+
+   Note: UniMath.CategoryTheory.categories.StandardCategories has the definition of
+   initial 1-category ([empty_category]).                                              *)
+(* ----------------------------------------------------------------------------------- *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
@@ -11,13 +18,6 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicategories.EquivToAdjequiv.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.AdjointUnique.
 
 Local Open Scope cat.
-
-(* ----------------------------------------------------------------------------------- *)
-(** ** Initial bicategory.
-
-   Note: UniMath.CategoryTheory.categories.StandardCategories has the definition of
-   initial 1-category ([empty_category]).                                              *)
-(* ----------------------------------------------------------------------------------- *)
 
 Section Initial_Bicategory.
   Definition initial_1_id_comp_cells : prebicat_1_id_comp_cells
