@@ -15,6 +15,7 @@ Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Adjunctions.
 
 Local Open Scope cat.
 
@@ -140,3 +141,158 @@ Definition op2_isaset_cells (C : bicat) : isaset_cells (op2_prebicat C)
 
 Definition op2_bicat (C : bicat) : bicat
   := op2_prebicat C,, op2_isaset_cells C.
+
+Definition op2_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell
+           {C : bicat}
+           {X Y : op2_bicat C}
+           {f g : X --> Y}
+           (α : f ==> g)
+  : is_invertible_2cell α → @is_invertible_2cell C X Y g f α.
+Proof.
+  intros Hα.
+  use tpair.
+  - apply Hα.
+  - split ; apply Hα.
+Defined.
+
+Definition bicat_is_invertible_2cell_to_op2_bicat_is_invertible_2cell
+           {C : bicat}
+           {X Y : op2_bicat C}
+           {f g : X --> Y}
+           (α : f ==> g)
+  : @is_invertible_2cell C X Y g f α → is_invertible_2cell α.
+Proof.
+  intros Hα.
+  use tpair.
+  - apply Hα.
+  - split ; apply Hα.
+Defined.
+
+Definition op2_bicat_is_invertible_2cell_is_bicat_is_invertible_2cell
+           {C : bicat}
+           {X Y : op2_bicat C}
+           {f g : X --> Y}
+           (α : f ==> g)
+  : @is_invertible_2cell C X Y g f α ≃ is_invertible_2cell α.
+Proof.
+  use weqimplimpl.
+  - exact (bicat_is_invertible_2cell_to_op2_bicat_is_invertible_2cell α).
+  - exact (op2_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell α).
+  - apply isaprop_is_invertible_2cell.
+  - apply isaprop_is_invertible_2cell.
+Defined.
+
+Definition bicat_invertible_2cell_is_op2_bicat_invertible_2cell
+           {C : bicat}
+           {X Y : op2_bicat C}
+           (f g : X --> Y)
+  : @invertible_2cell C X Y g f ≃ invertible_2cell f g.
+Proof.
+  use weqfibtototal.
+  intro α.
+  apply op2_bicat_is_invertible_2cell_is_bicat_is_invertible_2cell.
+Defined.
+
+Definition op2_bicat_left_adjoint_equivalence_to_bicat_left_adjoint_equivalence
+           {C : bicat}
+           {X Y : op2_bicat C}
+           (f : X --> Y)
+  : left_adjoint_equivalence f → @left_adjoint_equivalence C X Y f.
+Proof.
+  intros Hf.
+  use tpair.
+  - use tpair.
+    + exact (left_adjoint_right_adjoint Hf).
+    + split.
+      * exact ((left_equivalence_unit_iso Hf)^-1).
+      * exact ((left_equivalence_counit_iso Hf)^-1).
+  - split ; split.
+    + use inv_cell_eq ; cbn.
+      * is_iso.
+        ** apply op2_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell.
+           is_iso.
+        ** apply op2_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell.
+           is_iso.
+      * is_iso.
+      * exact (internal_triangle1 Hf).
+    + use inv_cell_eq ; cbn.
+      * is_iso.
+        ** apply op2_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell.
+           is_iso.
+        ** apply op2_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell.
+           is_iso.
+      * is_iso.
+      * exact (internal_triangle2 Hf).
+    + cbn.
+      apply op2_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell.
+      is_iso.
+    + cbn.
+      apply op2_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell.
+      is_iso.
+Defined.
+
+Definition bicat_left_adjoint_equivalence_to_op2_bicat_left_adjoint_equivalence
+           {C : bicat}
+           {X Y : op2_bicat C}
+           (f : X --> Y)
+  : @left_adjoint_equivalence C X Y f → left_adjoint_equivalence f.
+Proof.
+  intros Hf.
+  use tpair.
+  - use tpair.
+    + exact (left_adjoint_right_adjoint Hf).
+    + split.
+      * exact ((left_equivalence_unit_iso Hf)^-1).
+      * exact ((left_equivalence_counit_iso Hf)^-1).
+  - split ; split.
+    + use inv_cell_eq ; cbn.
+      * apply op2_bicat_is_invertible_2cell_is_bicat_is_invertible_2cell.
+        is_iso.
+      * apply op2_bicat_is_invertible_2cell_is_bicat_is_invertible_2cell.
+        is_iso.
+      * exact (internal_triangle1 Hf).
+    + use inv_cell_eq ; cbn.
+      * apply op2_bicat_is_invertible_2cell_is_bicat_is_invertible_2cell.
+        is_iso.
+      * apply op2_bicat_is_invertible_2cell_is_bicat_is_invertible_2cell.
+        is_iso.
+      * exact (internal_triangle2 Hf).
+    + cbn.
+      apply op2_bicat_is_invertible_2cell_is_bicat_is_invertible_2cell.
+      is_iso.
+    + cbn.
+      apply op2_bicat_is_invertible_2cell_is_bicat_is_invertible_2cell.
+      is_iso.
+Defined.
+
+Definition op2_bicat_left_adjoint_equivalence_is_bicat_left_adjoint_equivalence
+           {C : bicat}
+           {X Y : op2_bicat C}
+           (f : X --> Y)
+  : @left_adjoint_equivalence C X Y f ≃ left_adjoint_equivalence f.
+Proof.
+  use weqpair.
+  - exact (bicat_left_adjoint_equivalence_to_op2_bicat_left_adjoint_equivalence f).
+  - use isweq_iso.
+    + exact (op2_bicat_left_adjoint_equivalence_to_bicat_left_adjoint_equivalence f).
+    + intros x.
+      use subtypeEquality.
+      * intro.
+        do 2 apply isapropdirprod ; try (apply C) ; apply isaprop_is_invertible_2cell.
+      * reflexivity.
+    + intros x.
+      use subtypeEquality.
+      * intro.
+        do 2 apply isapropdirprod ; try (apply C) ; apply isaprop_is_invertible_2cell.
+      * reflexivity.
+Defined.
+
+Definition bicat_adjoint_equivalence_is_op2_bicat_adjoint_equivalence
+           {C : bicat}
+           (X Y : op2_bicat C)
+  : @adjoint_equivalence C X Y ≃ adjoint_equivalence X Y.
+Proof.
+  use weqfibtototal.
+  intro α.
+  apply op2_bicat_left_adjoint_equivalence_is_bicat_left_adjoint_equivalence.
+Defined.
