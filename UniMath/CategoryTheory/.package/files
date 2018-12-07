@@ -84,6 +84,7 @@ coslicecat.v
 limits/pullbacks_slice_products_equiv.v
 covyoneda.v
 catiso.v
+CategoryEquality.v
 Additive.v
 Abelian.v
 category_binops.v
@@ -208,7 +209,6 @@ Bicategories/DisplayedBicats/Examples/Monads.v
 Bicategories/DisplayedBicats/Examples/ContravariantFunctor.v
 Bicategories/DisplayedBicats/Examples/Cofunctormap.v
 Bicategories/DisplayedBicats/Examples/CwF.v
-Bicategories/Bicategories/Examples/UnivalentCat.v
 
 Bicategories/WkCatEnrichment/prebicategory.v
 Bicategories/WkCatEnrichment/Notations.v

@@ -22,11 +22,12 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.BicatOf
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
+(*
 Definition disp_prebicat_of_disp_cats_cat_data : disp_cat_data bicat_of_cats.
 Proof.
   use tpair.
   - use tpair.
-    + exact (λ C : category, disp_cat C).
+    + exact (λ C : univalent_category, disp_cat C).
     + cbn. intros C C' D D' F. exact (disp_functor F D D').
   - use tpair; cbn.
     + intros C D.
@@ -264,3 +265,4 @@ Qed.
 
 
 Definition DispBicatOfDispCats : disp_prebicat bicat_of_cats := _ ,, DispBicatOfDispCats_laws.
+*)

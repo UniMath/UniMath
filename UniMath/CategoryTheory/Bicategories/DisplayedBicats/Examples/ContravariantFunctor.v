@@ -29,11 +29,12 @@ Local Notation "∁" := bicat_of_cats.
 Definition disp_presheaf_cat_ob_mor : disp_cat_ob_mor ∁.
 Proof.
   use tpair.
-    + exact (λ c : category, functor c^op K).
+    + exact (λ c : univalent_category, functor c^op K).
     + cbn. intros c d ty ty' f.
       exact (nat_trans ty (functor_composite (functor_opp f) ty')).
 Defined.
 
+(*
 Definition disp_presheaf_cat_data : disp_cat_data ∁.
 Proof.
   exists disp_presheaf_cat_ob_mor.
@@ -126,3 +127,4 @@ Definition disp_presheaf_bicat : disp_bicat ∁ :=
   (disp_presheaf_prebicat,, has_disp_cellset_disp_presheaf_prebicat).
 
 End fix_a_category.
+*)
