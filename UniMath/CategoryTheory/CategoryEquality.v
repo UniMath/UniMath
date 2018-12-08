@@ -1,3 +1,9 @@
+(* ----------------------------------------------------------------------------------- *)
+(** ** Equality of precategories
+
+   Goal: two precategories are equal iff we have an isomorphism between them.
+   We use a chain of equivalences. Each step refines the data a bit.                   *)
+(* ----------------------------------------------------------------------------------- *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
@@ -7,7 +13,7 @@ Require Import UniMath.CategoryTheory.catiso.
 
 Open Scope cat.
 
-(* MOVE SOMEWHERE ELSE *)
+(* MOVE SOMEWHERE ELSE? *)
 Definition path_sigma_hprop
            {A : UU}
            (B : A → UU)
@@ -20,6 +26,18 @@ Proof.
   apply HB.
 Defined.
 
+(** Step 1 *)
+Definition path_precat
+           (C D : precategory)
+           (HD : has_homsets D)
+  : C = D ≃ precategory_data_from_precategory C = D.
+Proof.
+  refine (path_sigma_hprop _ _ _ _).
+  apply isaprop_is_precategory.
+  apply HD.
+Defined.
+
+(** Step 2 *)
 Definition data_cat_eq_1
            (C D : precategory_data)
            (Fo : (ob C) = ob D)
@@ -27,31 +45,6 @@ Definition data_cat_eq_1
   := transportf (λ z, z → z → UU) Fo (@precategory_morphisms C)
      =
      @precategory_morphisms D.
-
-Definition data_cat_eq_2
-           (C D : precategory_data)
-           (Fo : (ob C) = ob D)
-  : UU
-  := ∏ (a b : ob C), C⟦a,b⟧ = D⟦eqweqmap Fo a,eqweqmap Fo b⟧.
-
-Definition data_cat_eq_1_to_2
-           (C D : precategory_data)
-           (Fo : (ob C) = ob D)
-  : data_cat_eq_1 C D Fo ≃ data_cat_eq_2 C D Fo.
-Proof.
-  induction C as [C HC].
-  induction C as [CO CM].
-  induction D as [D HD].
-  induction D as [DO DM].
-  cbn in *.
-  induction Fo.
-  unfold data_cat_eq_1, data_cat_eq_2.
-  cbn.
-  refine (_ ∘ weqtoforallpaths _ _ _)%weq.
-  use weqonsecfibers.
-  intros x.
-  exact (weqtoforallpaths _ _ _)%weq.
-Defined.
 
 Definition cat_eq_1
            (C D : precategory_data)
@@ -67,25 +60,6 @@ Definition cat_eq_1
                        (pr2 C))
        =
        pr2(pr2 D).
-
-Definition cat_eq_2
-           (C D : precategory_data)
-  : UU
-  := ∑ (F : ∑ (Fo : ob C = ob D), data_cat_eq_2 C D Fo),
-       (∏ (a : C), eqweqmap (pr2 F a a) (identity a) = identity (eqweqmap (pr1 F) a))
-     ×
-       (∏ (a b c : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧),
-         eqweqmap (pr2 F a c) (f · g)
-         =
-         eqweqmap (pr2 F a b) f · eqweqmap (pr2 F b c) g).
-
-Definition cat_equiv
-           (C D : precategory_data)
-  : UU
-  := ∑ (F : ∑ (Fo : ob C ≃ D), ∏ (a b : ob C), C⟦a,b⟧ ≃ D⟦Fo a,Fo b⟧),
-       (∏ (a : C), (pr2 F) a a (identity a) = identity (pr1 F a))
-     ×
-       (∏ (a b c : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧), pr2 F a c (f · g) = pr2 F a b f · pr2 F b c g).
 
 Definition cat_path_to_cat_eq_1
            (C D : precategory_data)
@@ -105,6 +79,43 @@ Proof.
     cbn.
     rewrite transportf_const.
     exact (idweq _).
+Defined.
+
+(** Step 3 *)
+Definition data_cat_eq_2
+           (C D : precategory_data)
+           (Fo : (ob C) = ob D)
+  : UU
+  := ∏ (a b : ob C), C⟦a,b⟧ = D⟦eqweqmap Fo a,eqweqmap Fo b⟧.
+
+Definition cat_eq_2
+           (C D : precategory_data)
+  : UU
+  := ∑ (F : ∑ (Fo : ob C = ob D), data_cat_eq_2 C D Fo),
+       (∏ (a : C), eqweqmap (pr2 F a a) (identity a) = identity (eqweqmap (pr1 F) a))
+     ×
+       (∏ (a b c : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧),
+         eqweqmap (pr2 F a c) (f · g)
+         =
+         eqweqmap (pr2 F a b) f · eqweqmap (pr2 F b c) g).
+
+Definition data_cat_eq_1_to_2
+           (C D : precategory_data)
+           (Fo : (ob C) = ob D)
+  : data_cat_eq_1 C D Fo ≃ data_cat_eq_2 C D Fo.
+Proof.
+  induction C as [C HC].
+  induction C as [CO CM].
+  induction D as [D HD].
+  induction D as [DO DM].
+  cbn in *.
+  induction Fo.
+  unfold data_cat_eq_1, data_cat_eq_2.
+  cbn.
+  refine (_ ∘ weqtoforallpaths _ _ _)%weq.
+  use weqonsecfibers.
+  intros x.
+  exact (weqtoforallpaths _ _ _)%weq.
 Defined.
 
 Definition cat_eq_1_to_cat_eq_2
@@ -162,6 +173,15 @@ Proof.
         apply DS.
 Defined.
 
+(** Step 4 *)
+Definition cat_equiv
+           (C D : precategory_data)
+  : UU
+  := ∑ (F : ∑ (Fo : ob C ≃ D), ∏ (a b : ob C), C⟦a,b⟧ ≃ D⟦Fo a,Fo b⟧),
+       (∏ (a : C), (pr2 F) a a (identity a) = identity (pr1 F a))
+     ×
+       (∏ (a b c : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧), pr2 F a c (f · g) = pr2 F a b f · pr2 F b c g).
+
 Definition weq_cat_eq_cat_equiv
            (C D : precategory_data)
   : cat_eq_2 C D ≃ cat_equiv C D.
@@ -180,6 +200,7 @@ Proof.
     apply idweq.
 Defined.
 
+(** Step 5 *)
 Definition cat_equiv_to_catiso
            (C D : precategory_data)
   : cat_equiv C D → catiso C D.
@@ -229,16 +250,7 @@ Proof.
   - reflexivity.
 Defined.
 
-Definition path_precat
-           (C D : precategory)
-           (HD : has_homsets D)
-  : C = D ≃ precategory_data_from_precategory C = D.
-Proof.
-  refine (path_sigma_hprop _ _ _ _)%weq.
-  apply isaprop_is_precategory.
-  apply HD.
-Defined.
-
+(** All in all, we get *)
 Definition catiso_is_path_precat
            (C D : precategory)
            (HD : has_homsets D)

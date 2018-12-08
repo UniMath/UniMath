@@ -1,3 +1,9 @@
+(* ----------------------------------------------------------------------------------- *)
+(** ** Trivial display.
+
+   Every bicategory is, in a trivial way, a displayed bicategory over any other
+   bicategory.                                                                         *)
+(* ----------------------------------------------------------------------------------- *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.CategoryTheory.Categories.
@@ -11,14 +17,6 @@ Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat. Im
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
-
-
-(* ----------------------------------------------------------------------------------- *)
-(** ** Trivial display.
-
-   Every bicategory is, in a trivial way, a displayed bicategory over any other
-   bicategory.                                                                         *)
-(* ----------------------------------------------------------------------------------- *)
 
 (* ----------------------------------------------------------------------------------- *)
 (* Handy lemma about transport over a constant fibration.

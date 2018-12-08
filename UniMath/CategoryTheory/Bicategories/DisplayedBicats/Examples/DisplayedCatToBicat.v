@@ -1,3 +1,9 @@
+(* ----------------------------------------------------------------------------------- *)
+(** Discrete displayed bicategories
+
+    Given a displayed category on some bicategory, we construct a displayed bicategory
+    from it. The 2-cells are from the unit type.                                       *)
+(* ----------------------------------------------------------------------------------- *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.CategoryTheory.Categories.
