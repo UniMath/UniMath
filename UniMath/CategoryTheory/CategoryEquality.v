@@ -13,19 +13,6 @@ Require Import UniMath.CategoryTheory.catiso.
 
 Open Scope cat.
 
-(* MOVE SOMEWHERE ELSE? *)
-Definition path_sigma_hprop
-           {A : UU}
-           (B : A → UU)
-           (x y : ∑ (z : A), B z)
-           (HB : isaprop (B (pr1 y)))
-  : x = y ≃ pr1 x = pr1 y.
-Proof.
-  refine (weqpr1 _ _ ∘ total2_paths_equiv _ _ _)%weq.
-  intros.
-  apply HB.
-Defined.
-
 (** Step 1 *)
 Definition path_precat
            (C D : precategory)
