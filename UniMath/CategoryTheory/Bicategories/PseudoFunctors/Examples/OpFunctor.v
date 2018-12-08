@@ -18,7 +18,7 @@ Local Notation "∁" := bicat_of_cats.
 Definition op_laxfunctor_data : laxfunctor_data (op2_prebicat ∁) ∁.
 Proof.
   use build_laxfunctor_data.
-  - exact (λ c, op_cat c).
+  - exact (λ C, op_unicat C).
   - exact (λ _ _ f, functor_opp f).
   - exact (λ _ _ _ _ x, op_nt x).
   - intro C.

@@ -208,3 +208,15 @@ Proof.
   intros ic ia x.
   exact (isofhlevelweqf _ (invweq (ezweqpr1 _ _)) (isofhlevelffromXY _ _ ic ia _)).
 Defined.
+
+Definition path_sigma_hprop
+           {A : UU}
+           (B : A → UU)
+           (x y : ∑ (z : A), B z)
+           (HB : isaprop (B (pr1 y)))
+  : x = y ≃ pr1 x = pr1 y.
+Proof.
+  refine (weqpr1 _ _ ∘ total2_paths_equiv _ _ _)%weq.
+  intros.
+  apply HB.
+Defined.
