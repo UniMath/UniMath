@@ -1,3 +1,6 @@
+(** We construct the bicategory of pseudofunctors as a displayed bicategory.
+    This is the first layer and it just consists of plain functions mapping objects to objects.
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.

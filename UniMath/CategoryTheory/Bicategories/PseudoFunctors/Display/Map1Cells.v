@@ -1,3 +1,6 @@
+(** This is the first layer of the construction of the bicategory of pseudofunctors.
+    To a function of objects, we add an action of 1-cells.
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.

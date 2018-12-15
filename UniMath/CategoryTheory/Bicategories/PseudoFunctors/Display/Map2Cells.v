@@ -1,3 +1,6 @@
+(** The second layer of the construction of the bicategory of pseudofunctors consists of three parts.
+    First part: we add an action of 1-cells.
+ *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
