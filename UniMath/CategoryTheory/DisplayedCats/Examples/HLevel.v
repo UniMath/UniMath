@@ -19,8 +19,9 @@ Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
 
 Require Import UniMath.CategoryTheory.catiso.
 Require Import UniMath.CategoryTheory.Adjunctions.
-Require Import UniMath.CategoryTheory.equivalences.
-Require Import UniMath.CategoryTheory.equivalences_lemmas.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
+Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful.
+Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
@@ -103,6 +104,6 @@ Local Definition isaset' (X : UU) : hProp := (isaset X,, isapropisaset _).
 
 Lemma has_homsets_disp_HSET : has_homsets (total_precategory disp_HSET).
 Proof.
-  Check (equivalence_homtype_property _ disp_HSET_adj_equivalence_of_precats isaset').
-  apply equivalence_homtype_property.
+  intros ? ?.
+  apply (equivalence_homtype_property (right_functor disp_HSET_equiv_HSET_adjunction_data) (adj_equivalence_of_precats_inv disp_HSET_adj_equivalence_of_precats_left) isaset' has_homsets_HSET).
 Qed.
