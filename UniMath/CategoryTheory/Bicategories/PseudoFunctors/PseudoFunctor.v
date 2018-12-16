@@ -53,8 +53,9 @@ Definition mk_psfunctor
            {C D : bicat}
            (F : psfunctor_data C D)
            (HF : psfunctor_laws F)
+           (Fcells : invertible_cells F)
   : psfunctor C D
-  := (F ,, HF).
+  := (F ,, (HF ,, Fcells)).
 
 Coercion psfunctor_to_psfunctor_data
          {C D : bicat}
@@ -101,12 +102,12 @@ Section Projection.
 
   Definition psfunctor_id2
     : ∏ {a b : C} (f : a --> b), ##F (id2 f) = id2 (#F f)
-    := pr12 F.
+    := pr1(pr12 F).
 
   Definition psfunctor_vcomp
     : ∏ {a b : C} {f g h : C⟦a, b⟧} (η : f ==> g) (φ : g ==> h),
       ##F (η • φ) = ##F η • ##F φ
-    := pr122 F.
+    := pr12(pr12 F).
 
   Definition psfunctor_lunitor
     : ∏ {a b : C} (f : C⟦a, b⟧),
@@ -115,7 +116,7 @@ Section Projection.
       (psfunctor_id F a ▹ #F f)
         • psfunctor_comp F (identity a) f
         • ##F (lunitor f)
-    := pr1(pr222 F).
+    := pr122(pr12 F).
 
   Definition psfunctor_runitor
     : ∏ {a b : C} (f : C⟦a, b⟧),
@@ -124,7 +125,7 @@ Section Projection.
       (#F f ◃ psfunctor_id F b)
         • psfunctor_comp F f (identity b)
         • ##F (runitor f)
-    := pr12(pr222 F).
+    := pr1(pr222(pr12 F)).
 
   Definition psfunctor_lassociator
     : ∏ {a b c d : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : C⟦c, d⟧) ,
@@ -135,21 +136,21 @@ Section Projection.
       (lassociator (#F f) (#F g) (#F h))
         • (psfunctor_comp F f g ▹ #F h)
         • psfunctor_comp F (f · g) h
-    := pr122(pr222 F).
+    := pr12(pr222(pr12 F)).
 
   Definition psfunctor_lwhisker
     : ∏ {a b c : C} (f : C⟦a, b⟧) {g₁ g₂ : C⟦b, c⟧} (η : g₁ ==> g₂),
       psfunctor_comp F f g₁ • ##F (f ◃ η)
       =
       #F f ◃ ##F η • psfunctor_comp F f g₂
-    := pr1(pr222(pr222 F)).
+    := pr122(pr222(pr12 F)).
 
   Definition psfunctor_rwhisker
     : ∏ {a b c : C} {f₁ f₂ : C⟦a, b⟧} (g : C⟦b, c⟧) (η : f₁ ==> f₂),
       psfunctor_comp F f₁ g • ##F (η ▹ g)
       =
       ##F η ▹ #F g • psfunctor_comp F f₂ g
-    := pr12(pr222(pr222 F)).
+    := pr222(pr222(pr12 F)).
 End Projection.
 
 (** Isos are preserved *)

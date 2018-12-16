@@ -56,13 +56,18 @@ Section ApFunctor.
     - intros x y z p₁ p₂ q s ; cbn in *.
       induction s ; cbn.
       exact (pathscomp0rid _).
-    - intros a.
-      exact (fundamental_groupoid_2cell_iso Y HY (idpath(idpath (f a)))).
-    - intros a b c p q.
-      exact (fundamental_groupoid_2cell_iso Y HY (!(maponpathscomp0 f p q))).
   Qed.
 
   Definition ps_ap_functor
-    : psfunctor (fundamental_bigroupoid X HX) (fundamental_bigroupoid Y HY)
-    := (_ ,, ap_functor_laws).
+    : psfunctor (fundamental_bigroupoid X HX) (fundamental_bigroupoid Y HY).
+  Proof.
+    use mk_psfunctor.
+    - exact ap_functor_data.
+    - exact ap_functor_laws.
+    - split.
+      + intros a.
+        exact (fundamental_groupoid_2cell_iso Y HY (idpath(idpath (f a)))).
+      + intros a b c p q.
+        exact (fundamental_groupoid_2cell_iso Y HY (!(maponpathscomp0 f p q))).
+  Defined.
 End ApFunctor.

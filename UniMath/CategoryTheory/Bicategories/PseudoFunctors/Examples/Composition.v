@@ -104,16 +104,21 @@ Section FunctorComposition.
       rewrite psfunctor_vcomp.
       rewrite !vassocr.
       reflexivity.
-    - intros a ; cbn.
-      is_iso.
-      + exact (psfunctor_id G (F a)).
-      + exact (psfunctor_is_iso G (psfunctor_id F a)).
-    - intros a b c f g ; cbn.
-      is_iso.
-      + exact (psfunctor_comp G (#F f) (#F g)).
-      + exact (psfunctor_is_iso G (psfunctor_comp F f g)).
   Qed.
 
-  Definition ps_comp : psfunctor C E
-    := (_ ,, comp_is_ps).
+  Definition ps_comp : psfunctor C E.
+  Proof.
+    use mk_psfunctor.
+    - exact ps_comp_d.
+    - exact comp_is_ps.
+    - split.
+      + intros a ; cbn.
+        is_iso.
+        * exact (psfunctor_id G (F a)).
+        * exact (psfunctor_is_iso G (psfunctor_id F a)).
+      + intros a b c f g ; cbn.
+        is_iso.
+        * exact (psfunctor_comp G (#F f) (#F g)).
+        * exact (psfunctor_is_iso G (psfunctor_comp F f g)).
+  Defined.
 End FunctorComposition.

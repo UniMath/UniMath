@@ -51,10 +51,13 @@ Section IdentityFunctor.
     - intros a b c f g h α ; cbn in *.
       rewrite !id2_left, !id2_right.
       reflexivity.
-    - intros ; cbn ; is_iso.
-    - intros ; cbn ; is_iso.
   Qed.
 
-  Definition ps_id_functor : psfunctor C C
-    := (_ ,, id_functor_laws).
+  Definition ps_id_functor : psfunctor C C.
+  Proof.
+    use mk_psfunctor.
+    - exact id_functor_d.
+    - exact id_functor_laws.
+    - split ; cbn ; intros ; is_iso.
+  Defined.
 End IdentityFunctor.

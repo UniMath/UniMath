@@ -50,10 +50,13 @@ Section Projection.
     - rewrite id2_left.
       rewrite id2_right.
       apply idpath.
-    - is_iso.
-    - is_iso.
   Qed.
 
-  Definition pr1_laxfunctor : psfunctor (total_bicat D) C
-    := _ ,, pr1_psfunctor_laws.
+  Definition pr1_psfunctor : psfunctor (total_bicat D) C.
+  Proof.
+    use mk_psfunctor.
+    - exact pr1_psfunctor_data.
+    - exact pr1_psfunctor_laws.
+    - split ; cbn ; intros ; is_iso.
+  Defined.
 End Projection.

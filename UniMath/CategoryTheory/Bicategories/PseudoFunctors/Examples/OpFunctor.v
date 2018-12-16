@@ -16,7 +16,7 @@ Local Open Scope cat.
 
 Local Notation "∁" := bicat_of_cats.
 
-Definition op_laxfunctor_data : psfunctor_data (op2_bicat ∁) ∁.
+Definition op_psfunctor_data : psfunctor_data (op2_bicat ∁) ∁.
 Proof.
   use mk_psfunctor_data.
   - exact (λ C, op_unicat C).
@@ -41,7 +41,7 @@ Proof.
       etrans. { apply id_left. } apply (! id_right _ ).
 Defined.
 
-Definition op_psfunctor_laws : psfunctor_laws op_laxfunctor_data.
+Definition op_psfunctor_laws : psfunctor_laws op_psfunctor_data.
 Proof.
   repeat (use tpair).
   - intros C D F. cbn in *.
@@ -76,30 +76,36 @@ Proof.
     intros x ; cbn.
     rewrite id_left, id_right.
     reflexivity.
-  - intro C.
-    use tpair.
-    + use tpair.
-      * cbn. intro. apply identity.
-      * intros a b f.
-        cbn in *.
-        etrans. { apply id_left. } apply (! id_right _ ).
-    + split.
-      * apply nat_trans_eq. apply homset_property.
-        cbn. intro. apply id_left.
-      * apply nat_trans_eq. apply homset_property.
-        cbn. intro. apply id_left.
-  - cbn ; intros.
-    use tpair.
-    + use tpair.
-      * cbn. intro. apply identity.
-      * intro ; intros.
-        cbn in *.
-        etrans. { apply id_left. } apply (! id_right _ ).
-    + split.
-      * apply nat_trans_eq. apply homset_property.
-        cbn. intro. apply id_left.
-      * apply nat_trans_eq. apply homset_property.
-        cbn. intro. apply id_left.
 Qed.
 
-Definition op_psfunctor : psfunctor (op2_bicat ∁) ∁ := _ ,, op_psfunctor_laws.
+Definition op_psfunctor : psfunctor (op2_bicat ∁) ∁.
+Proof.
+  use mk_psfunctor.
+  - exact op_psfunctor_data.
+  - exact op_psfunctor_laws.
+  - split.
+    + cbn ; intros.
+      use tpair.
+      * use tpair.
+        ** cbn. intro. apply identity.
+        ** intro ; intros.
+           cbn in *.
+           etrans. { apply id_left. } apply (! id_right _ ).
+      * split.
+        ** apply nat_trans_eq. apply homset_property.
+           cbn. intro. apply id_left.
+        ** apply nat_trans_eq. apply homset_property.
+           cbn. intro. apply id_left.
+    + intro ; intros.
+      use tpair.
+      * use tpair.
+        ** cbn. intro. apply identity.
+        ** intro ; intros.
+           cbn in *.
+           etrans. { apply id_left. } apply (! id_right _ ).
+      * split.
+        ** apply nat_trans_eq. apply homset_property.
+           cbn. intro. apply id_left.
+        ** apply nat_trans_eq. apply homset_property.
+           cbn. intro. apply id_left.
+Defined.
