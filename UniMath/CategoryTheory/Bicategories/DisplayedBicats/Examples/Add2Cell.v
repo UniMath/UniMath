@@ -140,48 +140,45 @@ Section Add2Cell.
     : disp_univalent_2_0 add_cell_disp_cat.
   Proof.
     use disp_cell_unit_bicat_univalent_2_0.
-    - intro ; intros.
-      apply isasetaprop.
-      apply isapropunit.
     - apply total_is_locally_univalent.
       + exact HC.
       + exact HD.
     - intros.
       apply C.
     - intros x xx yy.
-      use isweqimplimpl.
-      + intros p.
-        induction p as [p q].
-        cbn ; unfold idfun.
-        cbn in p, q.
-        rewrite (laxtrans_id_alt l), (laxtrans_id_alt r) in p.
-        cbn in p.
-        rewrite !id2_right in p.
-        rewrite !lwhisker_id2 in p.
-        rewrite !id2_left in p.
-        rewrite !vassocr in p.
-        rewrite vcomp_runitor in p.
-        rewrite !vassocl in p.
-        pose (vcomp_lcancel _ (is_invertible_2cell_runitor _) p) as p'.
-        use (vcomp_rcancel (linvunitor (r x))).
-        { is_iso. }
-        use (vcomp_rcancel  (laxfunctor_id S (pr1 x) ▹ r x)).
-        { is_iso.
-          use tpair.
-          - apply (pr1(pr2 S) (pr1 x)).
-          - split.
-            + exact (pr1(pr2(pr1(pr2 S) (pr1 x)))).
-            + exact (pr2(pr2(pr1(pr2 S) (pr1 x)))).
-        }
-        rewrite !vassocl.
-        rewrite laxfunctor_id2, id2_right in p'.
-        refine (p' @ _).
-        rewrite vcomp_whisker.
-        rewrite !vassocr.
-        apply maponpaths_2.
-        rewrite lwhisker_hcomp.
-        refine (!(linvunitor_natural _)).
-      + apply C.
-      + apply isapropdirprod ; apply C.
+      simpl in *.
+      apply C.
+    - intros x xx yy.
+      intros p.
+      induction p as [p q].
+      cbn ; unfold idfun.
+      cbn in p, q.
+      rewrite (laxtrans_id_alt l), (laxtrans_id_alt r) in p.
+      cbn in p.
+      rewrite !id2_right in p.
+      rewrite !lwhisker_id2 in p.
+      rewrite !id2_left in p.
+      rewrite !vassocr in p.
+      rewrite vcomp_runitor in p.
+      rewrite !vassocl in p.
+      pose (vcomp_lcancel _ (is_invertible_2cell_runitor _) p) as p'.
+      use (vcomp_rcancel (linvunitor (r x))).
+      { is_iso. }
+      use (vcomp_rcancel  (laxfunctor_id S (pr1 x) ▹ r x)).
+      { is_iso.
+        use tpair.
+        - apply (pr1(pr2 S) (pr1 x)).
+        - split.
+          + exact (pr1(pr2(pr1(pr2 S) (pr1 x)))).
+          + exact (pr2(pr2(pr1(pr2 S) (pr1 x)))).
+      }
+      rewrite !vassocl.
+      rewrite laxfunctor_id2, id2_right in p'.
+      refine (p' @ _).
+      rewrite vcomp_whisker.
+      rewrite !vassocr.
+      apply maponpaths_2.
+      rewrite lwhisker_hcomp.
+      exact (!(linvunitor_natural _)).
   Defined.
 End Add2Cell.

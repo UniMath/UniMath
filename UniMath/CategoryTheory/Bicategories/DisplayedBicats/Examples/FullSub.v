@@ -43,10 +43,41 @@ Section FullSubBicat.
 
   Definition fullsubbicat : bicat := total_bicat disp_fullsubbicat.
 
+  Definition fullsub : UU := fullsubbicat.
+
+  Definition morfullsub
+             (X Y : fullsub)
+    : UU
+    := fullsubbicat⟦X,Y⟧.
+
+  Definition cellfullsub
+             {X Y : fullsub}
+             (f g : morfullsub X Y)
+    : UU
+    := f ==> g.
+
+  Coercion ob_of_fullsub
+           (X : fullsub)
+    : ob C
+    := pr1 X.
+
+  Coercion fullsub_to_mor
+           {X Y : fullsub}
+           (f : morfullsub X Y)
+    : C⟦pr1 X,pr1 Y⟧
+    := pr1 f.
+
+  Coercion fullsub_to_cell
+           {X Y : fullsub}
+           {f g : morfullsub X Y}
+           (α : cellfullsub f g)
+    : prebicat_cells C f g
+    := pr1 α.
+
   Definition mor_of_fullsub
-             {X Y : fullsubbicat}
-             (f : C⟦pr1 X, pr1 Y⟧)
-    : X --> Y
+             {X Y : fullsub}
+             (f : @precategory_morphisms C X Y)
+    : morfullsub X Y
     := (f ,, tt).
 
   Definition cell_of_fullsub

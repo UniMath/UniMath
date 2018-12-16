@@ -134,7 +134,11 @@ Section Disp_Prebicat_Cells_Unit.
     apply H.
   Defined.
 
-  Variable (HD : has_disp_cellset disp_cell_unit_bicat).
+  Definition disp_cell_unit_bicat_disp_cellset : has_disp_cellset disp_cell_unit_bicat.
+  Proof.
+    intro ; intros.
+    apply isasetunit.
+  Defined.
 
   Definition disp_cell_unit_bicat_left_adjoint_equivalence_weq
              {a b : C}
@@ -154,8 +158,8 @@ Section Disp_Prebicat_Cells_Unit.
       use subtypeEquality.
       + intro.
         do 2 apply isapropdirprod.
-        * apply HD.
-        * apply HD.
+        * apply disp_cell_unit_bicat_disp_cellset.
+        * apply disp_cell_unit_bicat_disp_cellset.
         * apply isaprop_is_disp_invertible_2cell.
         * apply isaprop_is_disp_invertible_2cell.
       + cbn.
@@ -202,22 +206,23 @@ Section Disp_Prebicat_Cells_Unit.
                      (f : a --> b)
                      (aa : D a) (bb : D b),
                    isaprop (aa -->[ f] bb))
-             (H : ∏ (a : C) (aa bb : disp_cell_unit_bicat a),
-                  isweq (disp_cell_unit_bicat_idtoiso (idpath a) aa bb))
+             (Dset : ∏ (a : C), isaset (D a))
+             (inv : ∏ (a : C) (aa bb : disp_cell_unit_bicat a),
+                    (aa -->[ id₁ a ] bb × bb -->[ id₁ a ] aa)
+                    →
+                    aa = bb)
     : disp_univalent_2_0 disp_cell_unit_bicat.
   Proof.
-    intros a b p aa bb.
-    induction p ; cbn.
-    use weqhomot.
-    - exact (disp_cell_unit_bicat_adjoint_equivalent _ aa bb ∘ (_ ,, H a aa bb))%weq.
-    - intros p.
-      induction p ; cbn.
-      use subtypeEquality.
-      + intro.
-        apply (@isaprop_disp_left_adjoint_equivalence C disp_cell_unit_bicat).
-        * exact HC.
-        * apply disp_cell_unit_bicat_locally_univalent.
-          apply HDP.
-      + reflexivity.
+    apply fiberwise_univalent_2_0_to_disp_univalent_2_0.
+    intros a aa bb.
+    use isweqimplimpl.
+    - intro η ; cbn ; unfold idfun.
+      apply inv.
+      exact (invmap (disp_cell_unit_bicat_adjoint_equivalent
+                       (idtoiso_2_0 a a (idpath a))
+                       aa bb) η).
+    - apply (Dset a).
+    - apply (isofhlevelweqf 1 (disp_cell_unit_bicat_adjoint_equivalent _ _ _)).
+      apply isapropdirprod ; apply HDP.
   Defined.
 End Disp_Prebicat_Cells_Unit.
