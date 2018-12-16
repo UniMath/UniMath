@@ -17,6 +17,12 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.BicategoryLaws.
+Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.Base.
+Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.Map1Cells.
+Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.Map2Cells.
+Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.Identitor.
+Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.Compositor.
+Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 
 Local Open Scope bicategory_scope.
 Local Open Scope cat.
@@ -25,196 +31,132 @@ Local Open Scope cat.
 (** ** Pseudo-functors                                                                 *)
 (* ----------------------------------------------------------------------------------- *)
 
-Definition laxfunctor_ob_mor_cell (C C' : prebicat_data) : UU
-  := ∑ F : functor_data C C',
-     ∏ a b (f g : a --> b), f ==> g → #F f ==> #F g.
-
-Coercion functor_data_from_bifunctor_ob_mor_cell {C C' : prebicat_data}
-         (F : laxfunctor_ob_mor_cell C C')
-  : functor_data C C' := pr1 F.
-
-Definition laxfunctor_on_cells {C C' : prebicat_data}
-           (F : laxfunctor_ob_mor_cell C C')
-           {a b : C} {f g : a --> b} (x : f ==> g)
-  : #F f ==> #F g
-  := pr2 F a b f g x.
-
-Local Notation "'##'" := (laxfunctor_on_cells).
-
-Definition laxfunctor_cell_data {C C' : prebicat_data} (F : laxfunctor_ob_mor_cell C C')
+Definition psfunctor
+           (C D : bicat)
   : UU
-  :=   (∏ (a : C), identity (F a) ==> #F (identity a))
-     × (∏ (a b c : C) (f : a --> b) (g : b --> c),
-        #F f · #F g ==> #F (f · g)).
+  := psfunctor_bicat C D.
 
-Definition laxfunctor_data (C C' : prebicat_data) : UU
-  := ∑ F : laxfunctor_ob_mor_cell C C', laxfunctor_cell_data F.
-
-Coercion laxfunctor_ob_mor_cell_from_bifunctor_data {C C' : prebicat_data}
-         (F : laxfunctor_data C C')
-  : laxfunctor_ob_mor_cell _ _
-  := pr1 F.
-
-Definition laxfunctor_id {C C' : prebicat_data} (F : laxfunctor_data C C') (a : C)
-  : identity (F a) ==> #F (identity a)
-  := pr1 (pr2 F) a.
-
-Definition laxfunctor_comp {C C' : prebicat_data} (F : laxfunctor_data C C')
-           {a b c : C} (f : a --> b) (g : b --> c)
-  : #F f · #F g ==> #F (f · g)
-  := pr2 (pr2 F) a b c f g.
-
-(** A builder function for lax functor data. *)
-Definition build_laxfunctor_data
-           {C C' : prebicat_data}
-           (F₀ : C → C')
-           (F₁ : ∏ {a b : C}, C⟦a,b⟧ → C'⟦F₀ a, F₀ b⟧)
+Definition mk_psfunctor_data
+           {C D : bicat}
+           (F₀ : C → D)
+           (F₁ : ∏ {a b : C}, C⟦a,b⟧ → D⟦F₀ a, F₀ b⟧)
            (F₂ : ∏ {a b : C} {f g : C⟦a,b⟧}, f ==> g → F₁ f ==> F₁ g)
            (Fid : ∏ (a : C), identity (F₀ a) ==> F₁ (identity a))
            (Fcomp : (∏ (a b c : C) (f : a --> b) (g : b --> c),
                      F₁ f · F₁ g ==> F₁ (f · g)))
-  : laxfunctor_data C C'.
+  : psfunctor_data C D.
 Proof.
-  use tpair.
-  - use tpair.
-    + use tpair.
-      * exact F₀.
-      * exact F₁.
-    + exact F₂.
-  - split.
-    + exact Fid.
-    + exact Fcomp.
+  exact ((F₀ ,, F₁) ,, (F₂ ,, Fid ,, Fcomp)).
 Defined.
 
-Section laxfunctor_laws.
+Definition mk_psfunctor
+           {C D : bicat}
+           (F : psfunctor_data C D)
+           (HF : psfunctor_laws F)
+           (Fcells : invertible_cells F)
+  : psfunctor C D
+  := (F ,, (HF ,, Fcells)).
 
-Context {C C' : prebicat_data} (F : laxfunctor_data C C').
-
-Definition laxfunctor_id2_law : UU
-  := ∏ (a b : C) (f : a --> b), ##F (id2 f) = id2 _.
-
-Definition laxfunctor_vcomp2_law : UU
-  := ∏ (a b : C) (f g h: C⟦a, b⟧) (η : f ==> g) (φ : g ==> h),
-     ##F (η • φ) = ##F η • ##F φ.
-
-Definition laxfunctor_lunitor_law : UU
-  := ∏ (a b : C) (f : C⟦a, b⟧),
-     lunitor (#F f)
-     =
-     (laxfunctor_id F a ▹ #F f)
-       • laxfunctor_comp F (identity a) f
-       • ##F (lunitor f).
-
-Definition laxfunctor_runitor_law : UU
-  := ∏ (a b : C) (f : C⟦a, b⟧),
-     runitor (#F f)
-     =
-     (#F f ◃ laxfunctor_id F b)
-       • laxfunctor_comp F f (identity b)
-       • ##F (runitor f).
-
-Definition laxfunctor_lassociator_law : UU
-  := ∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : C⟦c, d⟧),
-     (#F f ◃ laxfunctor_comp F g h)
-       • laxfunctor_comp F f (g · h)
-       • ##F (lassociator f g h)
-     =
-     (lassociator (#F f) (#F g) (#F h))
-       • (laxfunctor_comp F f g ▹ #F h)
-       • laxfunctor_comp F (f · g) h.
-
-Definition laxfunctor_lwhisker_law : UU
-  := ∏ (a b c : C) (f : C⟦a, b⟧) (g₁ g₂ : C⟦b, c⟧) (η : g₁ ==> g₂),
-     laxfunctor_comp F f g₁ • ##F (f ◃ η)
-     =
-     #F f ◃ ##F η • laxfunctor_comp F f g₂.
-
-Definition laxfunctor_rwhisker_law : UU
-  := ∏ (a b c : C) (f₁ f₂ : C⟦a, b⟧) (g : C⟦b, c⟧) (η : f₁ ==> f₂),
-     laxfunctor_comp F f₁ g • ##F (η ▹ g)
-     =
-     ##F η ▹ #F g • laxfunctor_comp F f₂ g.
-
-Definition laxfunctor_laws : UU
-  :=   laxfunctor_id2_law
-     × laxfunctor_vcomp2_law
-     × laxfunctor_lunitor_law
-     × laxfunctor_runitor_law
-     × laxfunctor_lassociator_law
-     × laxfunctor_lwhisker_law
-     × laxfunctor_rwhisker_law.
-End laxfunctor_laws.
-
-Definition laxfunctor (C C' : prebicat_data)
-  : UU
-  := ∑ F : laxfunctor_data C C', laxfunctor_laws F.
-
-Coercion laxfunctor_to_laxfunctor_data
-         {C C' : prebicat_data}
-         (F : laxfunctor C C')
+Coercion psfunctor_to_psfunctor_data
+         {C D : bicat}
+         (F : psfunctor C D)
+  : psfunctor_data C D
   := pr1 F.
 
+Definition psfunctor_on_cells
+           {C D : bicat}
+           (F : psfunctor C D)
+           {a b : C}
+           {f g : a --> b}
+           (x : f ==> g)
+  : #F f ==> #F g
+  := pr12 (pr1 F) a b f g x.
+
+Definition psfunctor_id
+           {C D : bicat}
+           (F : psfunctor C D)
+           (a : C)
+  : invertible_2cell (identity (F a)) (#F (identity a)).
+Proof.
+  refine (pr122 (pr1 F) a ,, _).
+  apply F.
+Defined.
+
+Definition psfunctor_comp
+           {C D : bicat}
+           (F : psfunctor C D)
+           {a b c : C}
+           (f : a --> b)
+           (g : b --> c)
+  : invertible_2cell (#F f · #F g) (#F (f · g)).
+Proof.
+  refine (pr222 (pr1 F) a b c f g ,, _).
+  apply F.
+Defined.
+
+Local Notation "'##'" := (psfunctor_on_cells).
+
 Section Projection.
-  Context {C C' : prebicat_data}.
-  Variable (F : laxfunctor C C').
+  Context {C D : bicat}.
+  Variable (F : psfunctor C D).
 
-  Definition laxfunctor_id2
+  Definition psfunctor_id2
     : ∏ {a b : C} (f : a --> b), ##F (id2 f) = id2 (#F f)
-    := pr1(pr2 F).
+    := pr1(pr12 F).
 
-  Definition laxfunctor_vcomp
+  Definition psfunctor_vcomp
     : ∏ {a b : C} {f g h : C⟦a, b⟧} (η : f ==> g) (φ : g ==> h),
       ##F (η • φ) = ##F η • ##F φ
-    := pr1(pr2(pr2 F)).
+    := pr12(pr12 F).
 
-  Definition laxfunctor_lunitor
+  Definition psfunctor_lunitor
     : ∏ {a b : C} (f : C⟦a, b⟧),
       lunitor (#F f)
       =
-      (laxfunctor_id F a ▹ #F f)
-        • laxfunctor_comp F (identity a) f
+      (psfunctor_id F a ▹ #F f)
+        • psfunctor_comp F (identity a) f
         • ##F (lunitor f)
-    := pr1(pr2(pr2(pr2 F))).
+    := pr122(pr12 F).
 
-  Definition laxfunctor_runitor
+  Definition psfunctor_runitor
     : ∏ {a b : C} (f : C⟦a, b⟧),
       runitor (#F f)
       =
-      (#F f ◃ laxfunctor_id F b)
-        • laxfunctor_comp F f (identity b)
+      (#F f ◃ psfunctor_id F b)
+        • psfunctor_comp F f (identity b)
         • ##F (runitor f)
-    := pr1(pr2(pr2(pr2(pr2 F)))).
+    := pr1(pr222(pr12 F)).
 
-  Definition laxfunctor_lassociator
+  Definition psfunctor_lassociator
     : ∏ {a b c d : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : C⟦c, d⟧) ,
-      (#F f ◃ laxfunctor_comp F g h)
-        • laxfunctor_comp F f (g · h)
+      (#F f ◃ psfunctor_comp F g h)
+        • psfunctor_comp F f (g · h)
         • ##F (lassociator f g h)
       =
       (lassociator (#F f) (#F g) (#F h))
-        • (laxfunctor_comp F f g ▹ #F h)
-        • laxfunctor_comp F (f · g) h
-    := pr1(pr2(pr2(pr2(pr2(pr2 F))))).
+        • (psfunctor_comp F f g ▹ #F h)
+        • psfunctor_comp F (f · g) h
+    := pr12(pr222(pr12 F)).
 
-  Definition laxfunctor_lwhisker
+  Definition psfunctor_lwhisker
     : ∏ {a b c : C} (f : C⟦a, b⟧) {g₁ g₂ : C⟦b, c⟧} (η : g₁ ==> g₂),
-      laxfunctor_comp F f g₁ • ##F (f ◃ η)
+      psfunctor_comp F f g₁ • ##F (f ◃ η)
       =
-      #F f ◃ ##F η • laxfunctor_comp F f g₂
-    := pr1(pr2(pr2(pr2(pr2(pr2(pr2 F)))))).
+      #F f ◃ ##F η • psfunctor_comp F f g₂
+    := pr122(pr222(pr12 F)).
 
-  Definition laxfunctor_rwhisker
+  Definition psfunctor_rwhisker
     : ∏ {a b c : C} {f₁ f₂ : C⟦a, b⟧} (g : C⟦b, c⟧) (η : f₁ ==> f₂),
-      laxfunctor_comp F f₁ g • ##F (η ▹ g)
+      psfunctor_comp F f₁ g • ##F (η ▹ g)
       =
-      ##F η ▹ #F g • laxfunctor_comp F f₂ g
-    := pr2(pr2(pr2(pr2(pr2(pr2(pr2 F)))))).
+      ##F η ▹ #F g • psfunctor_comp F f₂ g
+    := pr222(pr222(pr12 F)).
 End Projection.
 
 (** Isos are preserved *)
-Definition laxfunctor_is_iso
-           {C C' : prebicat_data}
-           (F : laxfunctor C C')
+Definition psfunctor_is_iso
+           {C D : bicat}
+           (F : psfunctor C D)
            {a b : C}
            {f g : C⟦a,b⟧}
            (α : invertible_2cell f g)
@@ -223,23 +165,23 @@ Proof.
   use tpair.
   - exact (##F (α^-1)).
   - split ; cbn
-    ; rewrite <- laxfunctor_vcomp, <- laxfunctor_id2 ; apply maponpaths.
+    ; rewrite <- psfunctor_vcomp, <- psfunctor_id2 ; apply maponpaths.
     + apply vcomp_rinv.
     + apply vcomp_lid.
 Defined.
 
-Section LaxFunctorDerivedLaws.
-  Context {C C' : bicat}.
-  Variable (F : laxfunctor C C').
+Section PseudoFunctorDerivedLaws.
+  Context {C D : bicat}.
+  Variable (F : psfunctor C D).
 
-  Definition laxfunctor_linvunitor
+  Definition psfunctor_linvunitor
              {a b : C}
              (f : C⟦a, b⟧)
   : ##F (linvunitor f)
     =
     (linvunitor (#F f))
-      • ((laxfunctor_id F a) ▹ #F f)
-      • (laxfunctor_comp F _ _).
+      • ((psfunctor_id F a) ▹ #F f)
+      • (psfunctor_comp F _ _).
   Proof.
     rewrite !vassocl.
     cbn.
@@ -248,11 +190,11 @@ Section LaxFunctorDerivedLaws.
     cbn.
     use vcomp_move_R_Mp.
     {
-      refine (laxfunctor_is_iso F (linvunitor f ,, _)).
+      refine (psfunctor_is_iso F (linvunitor f ,, _)).
       is_iso.
     }
     cbn.
-    rewrite laxfunctor_lunitor ; cbn.
+    rewrite psfunctor_lunitor ; cbn.
     rewrite <- !vassocr.
     reflexivity.
   Qed.
@@ -263,8 +205,8 @@ Section LaxFunctorDerivedLaws.
     : ##F (rinvunitor f)
       =
       (rinvunitor (#F f))
-        • (#F f ◃ laxfunctor_id F b)
-        • laxfunctor_comp F _ _.
+        • (#F f ◃ psfunctor_id F b)
+        • psfunctor_comp F _ _.
   Proof.
     rewrite !vassocl.
     use vcomp_move_L_pM.
@@ -272,25 +214,25 @@ Section LaxFunctorDerivedLaws.
     cbn.
     use vcomp_move_R_Mp.
     {
-      refine (laxfunctor_is_iso F (rinvunitor f ,, _)).
+      refine (psfunctor_is_iso F (rinvunitor f ,, _)).
       is_iso.
     }
     cbn.
-    rewrite laxfunctor_runitor ; cbn.
+    rewrite psfunctor_runitor ; cbn.
     rewrite <- !vassocr.
     reflexivity.
   Qed.
 
-  Definition laxfunctor_rassociator
+  Definition psfunctor_rassociator
              {a b c d : C}
              (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : C⟦c, d⟧)
-    : (laxfunctor_comp F f g ▹ #F h)
-        • laxfunctor_comp F (f · g) h
+    : (psfunctor_comp F f g ▹ #F h)
+        • psfunctor_comp F (f · g) h
         • ##F (rassociator f g h)
       =
       (rassociator (#F f) (#F g) (#F h))
-        • (#F f ◃ laxfunctor_comp F g h)
-        • laxfunctor_comp F f (g · h).
+        • (#F f ◃ psfunctor_comp F g h)
+        • psfunctor_comp F f (g · h).
   Proof.
     rewrite !vassocl.
     use vcomp_move_L_pM.
@@ -298,67 +240,30 @@ Section LaxFunctorDerivedLaws.
     cbn.
     rewrite !vassocr.
     use vcomp_move_R_Mp.
-    { refine (laxfunctor_is_iso F (rassociator f g h ,, _)).
+    { refine (psfunctor_is_iso F (rassociator f g h ,, _)).
       is_iso.
     }
     cbn.
     symmetry.
-    exact (laxfunctor_lassociator F f g h).
+    exact (psfunctor_lassociator F f g h).
   Qed.
 
-  Definition laxfunctor_comp_natural
+  Definition psfunctor_comp_natural
              {a b c : C}
              {g₁ g₂ : C⟦b,c⟧} {f₁ f₂ : C⟦a,b⟧}
              (ηg : g₁ ==> g₂) (ηf : f₁ ==> f₂)
-    : laxfunctor_comp F f₁ g₁ • ##F (ηf ⋆ ηg)
+    : psfunctor_comp F f₁ g₁ • ##F (ηf ⋆ ηg)
       =
-      (##F ηf) ⋆ (##F ηg) • laxfunctor_comp F f₂ g₂.
+      (##F ηf) ⋆ (##F ηg) • psfunctor_comp F f₂ g₂.
   Proof.
     unfold hcomp.
-    rewrite !laxfunctor_vcomp.
+    rewrite !psfunctor_vcomp.
     rewrite !vassocr.
-    rewrite laxfunctor_rwhisker.
+    rewrite !psfunctor_rwhisker.
     rewrite !vassocl.
-    rewrite laxfunctor_lwhisker.
+    rewrite psfunctor_lwhisker.
     reflexivity.
   Qed.
-End LaxFunctorDerivedLaws.
-
-Definition is_pseudofunctor
-           {C C' : prebicat_data}
-           (F : laxfunctor C C')
-  : UU
-  := (∏ (a : C), is_invertible_2cell (laxfunctor_id F a))
-     ×
-     (∏ {a b c : C} (f : a --> b) (g : b --> c), is_invertible_2cell (laxfunctor_comp F f g)).
-
-Definition psfunctor
-           (C C' : prebicat_data)
-  := ∑ (F : laxfunctor C C'), is_pseudofunctor F.
-
-Coercion pseudofunctor_to_laxfunctor
-         {C C' : prebicat_data}
-         (F : psfunctor C C')
-  := pr1 F.
-
-Definition psfunctor_id
-           {C C' : prebicat_data}
-           (F : psfunctor C C')
-           (a : C)
-  : invertible_2cell (identity (F a)) (#F (identity a))
-  := (_ ,, pr1 (pr2 F) a).
-
-Definition psfunctor_comp
-           {C C' : prebicat_data}
-           (F : psfunctor C C')
-           {a b c : C}
-           (f : a --> b) (g : b --> c)
-  : invertible_2cell (#F f · #F g) (#F (f · g))
-  := (_ ,, pr2(pr2 F) a b c f g).
-
-Section PseudoFunctorDerivedLaws.
-  Context {C C' : bicat}.
-  Variable (F : psfunctor C C').
 
   Definition psfunctor_F_lunitor
              {a b : C}
@@ -376,7 +281,7 @@ Section PseudoFunctorDerivedLaws.
     { is_iso. }
     cbn.
     rewrite !vassocr.
-    exact (!(laxfunctor_lunitor F f)).
+    exact (!(psfunctor_lunitor F f)).
   Qed.
 
   Definition psfunctor_F_runitor
@@ -395,10 +300,10 @@ Section PseudoFunctorDerivedLaws.
     { is_iso. }
     cbn.
     rewrite !vassocr.
-    exact (!(laxfunctor_runitor F f)).
+    exact (!(psfunctor_runitor F f)).
   Qed.
 End PseudoFunctorDerivedLaws.
 
 Module Notations.
-  Notation "'##'" := (laxfunctor_on_cells).
+  Notation "'##'" := (psfunctor_on_cells).
 End Notations.

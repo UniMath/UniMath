@@ -12,14 +12,13 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.BicategoryLaws.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
+Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.PseudoFunctor.
 Import PseudoFunctor.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Identity.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Composition.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Projection.
-Require Import UniMath.CategoryTheory.Bicategories.Transformations.LaxTransformation.
-Require Import UniMath.CategoryTheory.Bicategories.Transformations.Examples.Identity.
-Require Import UniMath.CategoryTheory.Bicategories.Transformations.Examples.Composition.
+Require Import UniMath.CategoryTheory.Bicategories.Transformations.PseudoTransformation.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Unitors.
@@ -35,19 +34,19 @@ Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Full
 Definition var
            {C : bicat}
            (F S : psfunctor C C)
-  : laxtrans
+  : pstrans
       (@ps_comp
          (total_bicat (disp_alg_bicat F)) C C
          S (pr1_psfunctor (disp_alg_bicat F)))
       (@ps_comp
          (total_bicat (disp_alg_bicat F)) C C
          S (pr1_psfunctor (disp_alg_bicat F)))
-  := id_trans _.
+  := id₁ _.
 
 Definition alg_map
            {C : bicat}
            (F : psfunctor C C)
-  : laxtrans
+  : pstrans
       (@ps_comp
          (total_bicat (disp_alg_bicat F)) C C
          F (pr1_psfunctor (disp_alg_bicat F)))
@@ -55,21 +54,21 @@ Definition alg_map
          (total_bicat (disp_alg_bicat F)) C C
          (ps_id_functor C) (pr1_psfunctor (disp_alg_bicat F))).
 Proof.
-  use mk_laxtrans.
-  - use mk_laxtrans_data.
+  use mk_pstrans.
+  - use mk_pstrans_data.
     + intros X ; cbn in *.
       exact (pr2 X).
     + intros X Y f ; cbn in *.
       exact (pr2 f).
   - repeat split ; cbn.
     + intros X Y f g α.
-      exact (!(pr2 α)).
+      apply α.
     + intros.
-      rewrite !id2_left, lwhisker_id2, laxfunctor_id2.
+      rewrite !id2_left, lwhisker_id2, psfunctor_id2.
       rewrite !id2_left, !id2_right.
       reflexivity.
     + intros.
-      rewrite !id2_left, lwhisker_id2, laxfunctor_id2.
+      rewrite !id2_left, lwhisker_id2, psfunctor_id2.
       rewrite !id2_left, !id2_right.
       reflexivity.
 Defined.
@@ -113,7 +112,7 @@ Section MonadBicategory.
   Proof.
     use add_cell_disp_cat.
     - exact (ps_id_functor _).
-    - exact (comp_laxtrans (alg_map _) (alg_map _)).
+    - exact ((alg_map _) · (alg_map _)).
     - exact (alg_map _).
   Defined.
 

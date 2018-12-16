@@ -9,15 +9,16 @@ Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.BicatOfCats.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.OpCellBicat.
+Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.PseudoFunctor.
 
 Local Open Scope cat.
 
 Local Notation "∁" := bicat_of_cats.
 
-Definition op_laxfunctor_data : laxfunctor_data (op2_prebicat ∁) ∁.
+Definition op_psfunctor_data : psfunctor_data (op2_bicat ∁) ∁.
 Proof.
-  use build_laxfunctor_data.
+  use mk_psfunctor_data.
   - exact (λ C, op_unicat C).
   - exact (λ _ _ f, functor_opp f).
   - exact (λ _ _ _ _ x, op_nt x).
@@ -40,7 +41,7 @@ Proof.
       etrans. { apply id_left. } apply (! id_right _ ).
 Defined.
 
-Definition op_laxfunctor_laws : laxfunctor_laws op_laxfunctor_data.
+Definition op_psfunctor_laws : psfunctor_laws op_psfunctor_data.
 Proof.
   repeat (use tpair).
   - intros C D F. cbn in *.
@@ -77,31 +78,29 @@ Proof.
     reflexivity.
 Qed.
 
-Definition op_laxfunctor : laxfunctor (op2_prebicat ∁) ∁ := _ ,, op_laxfunctor_laws.
-
-Definition op_is_pseudofunctor
-  : is_pseudofunctor op_laxfunctor.
+Definition op_psfunctor : psfunctor (op2_bicat ∁) ∁.
 Proof.
-  split.
-  - intro C.
-    use tpair.
-    + use tpair.
-      * cbn. intro. apply identity.
-      * intros a b f.
-        cbn in *.
-        etrans. { apply id_left. } apply (! id_right _ ).
-    + split.
-      * apply nat_trans_eq. apply homset_property.
-        cbn. intro. apply id_left.
-      * apply nat_trans_eq. apply homset_property.
-        cbn. intro. apply id_left.
-  - intros.
-    + use tpair.
-      * cbn.
-        use tpair.
-        ** intros x ; cbn.
-           apply identity.
-        ** intros x y z.
+  use mk_psfunctor.
+  - exact op_psfunctor_data.
+  - exact op_psfunctor_laws.
+  - split.
+    + cbn ; intros.
+      use tpair.
+      * use tpair.
+        ** cbn. intro. apply identity.
+        ** intro ; intros.
+           cbn in *.
+           etrans. { apply id_left. } apply (! id_right _ ).
+      * split.
+        ** apply nat_trans_eq. apply homset_property.
+           cbn. intro. apply id_left.
+        ** apply nat_trans_eq. apply homset_property.
+           cbn. intro. apply id_left.
+    + intro ; intros.
+      use tpair.
+      * use tpair.
+        ** cbn. intro. apply identity.
+        ** intro ; intros.
            cbn in *.
            etrans. { apply id_left. } apply (! id_right _ ).
       * split.
@@ -110,6 +109,3 @@ Proof.
         ** apply nat_trans_eq. apply homset_property.
            cbn. intro. apply id_left.
 Defined.
-
-Definition op_pspseudo : psfunctor (op2_prebicat ∁) ∁
-  := _ ,, op_is_pseudofunctor.

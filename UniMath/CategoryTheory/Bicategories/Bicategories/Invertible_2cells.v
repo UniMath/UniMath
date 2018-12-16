@@ -277,6 +277,18 @@ Proof.
   apply vcomp_rinv.
 Defined.
 
+Definition isaset_invertible_2cell
+           {C : bicat}
+           {X Y : C}
+           (f g : X --> Y)
+  : isaset (invertible_2cell f g).
+Proof.
+  use isaset_total2.
+  - apply C.
+  - intro.
+    apply isasetaprop.
+    apply isaprop_is_invertible_2cell.
+Defined.
 
 Ltac is_iso :=
   match goal with

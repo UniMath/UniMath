@@ -90,7 +90,7 @@ Coercion functor_data_from_bifunctor_ob_mor_cell
   : functor_data C D
   := pr1 F.
 
-Definition laxfunctor_on_cells
+Definition psfunctor_on_cells
            {C D : bicat}
            (F : psfunctor_data C D)
            {a b : C}
@@ -99,7 +99,7 @@ Definition laxfunctor_on_cells
   : #F f ==> #F g
   := pr12 F a b f g x.
 
-Local Notation "'##'" := (laxfunctor_on_cells).
+Local Notation "'##'" := (psfunctor_on_cells).
 
 Definition psfunctor_id
            {C D : bicat}
@@ -167,15 +167,6 @@ Section FunctorLaws.
        =
        ##F η ▹ #F g • psfunctor_comp F f₂ g.
 
-
-  Definition is_psfunctor
-    : UU
-    := (∏ (a : C),
-        is_invertible_2cell (psfunctor_id F a))
-     ×
-       (∏ {a b c : C} (f : a --> b) (g : b --> c),
-        is_invertible_2cell (psfunctor_comp F f g)).
-
   Definition psfunctor_laws : UU
     := psfunctor_id2_law
          × psfunctor_vcomp2_law
@@ -183,11 +174,21 @@ Section FunctorLaws.
          × psfunctor_runitor_law
          × psfunctor_lassociator_law
          × psfunctor_lwhisker_law
-         × psfunctor_rwhisker_law
-         × is_psfunctor.
+         × psfunctor_rwhisker_law.
 
-  Definition psfunctor_laws_isaprop
-    : isaprop psfunctor_laws.
+  Definition invertible_cells
+    : UU
+    := (∏ (a : C),
+        is_invertible_2cell (psfunctor_id F a))
+     ×
+       (∏ {a b c : C} (f : a --> b) (g : b --> c),
+        is_invertible_2cell (psfunctor_comp F f g)).
+
+  Definition is_psfunctor : UU
+    := psfunctor_laws × invertible_cells.
+
+  Definition is_psfunctor_isaprop
+    : isaprop is_psfunctor.
   Proof.
     repeat (apply isapropdirprod) ; repeat (apply impred ; intro)
     ; try (apply D) ; try (apply isaprop_is_invertible_2cell).
@@ -199,7 +200,7 @@ Section PseudoFunctorBicat.
 
   Definition psfunctor_bicat
     : bicat
-    := fullsubbicat (psfunctor_data_bicat C D) psfunctor_laws.
+    := fullsubbicat (psfunctor_data_bicat C D) is_psfunctor.
 
   Definition psfunctor_bicat_is_univalent_2_1
              (HD_2_1 : is_univalent_2_1 D)
@@ -222,6 +223,6 @@ Section PseudoFunctorBicat.
     - apply psfunctor_data_is_univalent_2_1.
       exact HD_2_1.
     - intro.
-      apply psfunctor_laws_isaprop.
+      apply is_psfunctor_isaprop.
   Defined.
 End PseudoFunctorBicat.
