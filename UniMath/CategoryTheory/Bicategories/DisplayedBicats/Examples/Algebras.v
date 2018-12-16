@@ -11,6 +11,7 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.BicategoryLaws.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
+Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.PseudoFunctor.
 Import PseudoFunctor.Notations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
@@ -42,7 +43,7 @@ Section Algebra.
       refine (runitor f • linvunitor f • (psfunctor_id F X ▹ f) ,, _).
       is_iso.
       exact (psfunctor_id F X).
-    - intros X Y Z f g hX hY hZ α β ; cbn in *.
+    - intros X Y Z f g hX hY hZ α β.
       refine ((lassociator hX f g)
                • (α ▹ g)
                • rassociator (#F f) hY g
@@ -89,11 +90,11 @@ Section Algebra.
     rewrite !vassocr.
     use vcomp_move_L_Mp.
     { is_iso.
-      refine (laxfunctor_is_iso _ (lunitor f,,_)).
+      refine (psfunctor_is_iso _ (lunitor f,,_)).
       is_iso.
     }
     cbn.
-    rewrite laxfunctor_linvunitor.
+    rewrite psfunctor_linvunitor.
     rewrite !vassocl.
     rewrite <- !rwhisker_vcomp.
     rewrite !vassocr.
@@ -182,7 +183,7 @@ Section Algebra.
     use vcomp_move_L_Mp.
     {
       is_iso.
-      refine (laxfunctor_is_iso F (runitor f ,, _)).
+      refine (psfunctor_is_iso F (runitor f ,, _)).
       is_iso.
     }
     cbn.
@@ -245,9 +246,9 @@ Section Algebra.
     apply maponpaths.
     rewrite !vassocr.
     use vcomp_move_L_Mp.
-    { is_iso. refine (laxfunctor_is_iso F (rassociator f g h ,, _)). is_iso. }
+    { is_iso. refine (psfunctor_is_iso F (rassociator f g h ,, _)). is_iso. }
     cbn.
-    pose (laxfunctor_lassociator F f g h).
+    pose (psfunctor_lassociator F f g h).
     rewrite <- lwhisker_vcomp.
     rewrite !vassocl.
     rewrite (maponpaths (λ z, _ • (_ • (_ • z))) (vassocr _ _ _)).
@@ -347,7 +348,7 @@ Section Algebra.
     repeat split.
     - intros X Y f hX hY α ; cbn ; unfold alg_disp_cat_2cell.
       rewrite lwhisker_id2, id2_left.
-      rewrite laxfunctor_id2, id2_rwhisker, id2_right.
+      rewrite psfunctor_id2, id2_rwhisker, id2_right.
       reflexivity.
     - intros X Y f hX hY hf.
       exact (disp_alg_lunitor f hX hY hf).
@@ -359,7 +360,7 @@ Section Algebra.
       rewrite vassocr.
       use vcomp_move_L_Mp.
       { is_iso.
-        refine (laxfunctor_is_iso F (linvunitor f ,, _)).
+        refine (psfunctor_is_iso F (linvunitor f ,, _)).
         is_iso.
       }
       symmetry.
@@ -370,7 +371,7 @@ Section Algebra.
       rewrite vassocr.
       use vcomp_move_L_Mp.
       { is_iso.
-        refine (laxfunctor_is_iso F (rinvunitor f ,, _)).
+        refine (psfunctor_is_iso F (rinvunitor f ,, _)).
         is_iso.
       }
       cbn.
@@ -385,7 +386,7 @@ Section Algebra.
       rewrite vassocr.
       use vcomp_move_L_Mp.
       { is_iso.
-        refine (laxfunctor_is_iso F (lassociator f g h ,, _)).
+        refine (psfunctor_is_iso F (lassociator f g h ,, _)).
         is_iso.
       }
       cbn.
@@ -399,7 +400,7 @@ Section Algebra.
       rewrite hα.
       rewrite !vassocl.
       rewrite !rwhisker_vcomp.
-      rewrite <- !laxfunctor_vcomp.
+      rewrite <- !psfunctor_vcomp.
       reflexivity.
     - intros X Y Z f g₁ g₂ α hX hY hZ hf hg₁ hg₂ hα ; cbn ; red ; cbn.
       rewrite !vassocr.
@@ -407,7 +408,7 @@ Section Algebra.
       rewrite !vassocl.
       apply maponpaths.
       rewrite rwhisker_vcomp.
-      rewrite laxfunctor_lwhisker.
+      rewrite psfunctor_lwhisker.
       rewrite <- rwhisker_vcomp.
       rewrite !vassocr.
       apply (maponpaths (λ z, z • _)).
@@ -431,7 +432,7 @@ Section Algebra.
       rewrite !vassocl.
       apply maponpaths.
       rewrite rwhisker_vcomp.
-      rewrite laxfunctor_rwhisker.
+      rewrite psfunctor_rwhisker.
       rewrite <- rwhisker_vcomp.
       rewrite !vassocr.
       apply (maponpaths (λ z, z • _)).
@@ -489,7 +490,7 @@ Section Algebra.
       use vcomp_move_L_Mp.
       {
         is_iso.
-        refine (laxfunctor_is_iso F (x ^-1 ,, _)).
+        refine (psfunctor_is_iso F (x ^-1 ,, _)).
         is_iso.
       }
       cbn.
@@ -528,7 +529,7 @@ Section Algebra.
       unfold alg_disp_cat_2cell in *.
       rewrite lwhisker_id2 in d.
       rewrite id2_left in d.
-      rewrite laxfunctor_id2 in d.
+      rewrite psfunctor_id2 in d.
       rewrite id2_rwhisker in d.
       rewrite id2_right in d.
       use subtypeEquality.
@@ -546,7 +547,7 @@ Section Algebra.
     Local Definition left_adjoint_2cell
       : aa -->[ internal_adjoint_equivalence_identity a] bb.
     Proof.
-      refine (runitor aa • x • linvunitor bb • (laxfunctor_id F a ▹ bb) ,, _).
+      refine (runitor aa • x • linvunitor bb • (psfunctor_id F a ▹ bb) ,, _).
       is_iso.
       - exact x.
       - exact (psfunctor_id F a).
@@ -555,7 +556,7 @@ Section Algebra.
     Local Definition right_adjoint_2cell
       : bb -->[ left_adjoint_right_adjoint (internal_adjoint_equivalence_identity a)] aa.
     Proof.
-      refine (runitor bb • inv_cell x • linvunitor aa • (laxfunctor_id F a ▹ aa) ,, _).
+      refine (runitor bb • inv_cell x • linvunitor aa • (psfunctor_id F a ▹ aa) ,, _).
       is_iso.
       exact (psfunctor_id F a).
     Defined.
@@ -582,7 +583,7 @@ Section Algebra.
       rewrite !(maponpaths (λ z, _ • (_ • (_ • (_ • (_ • (_ • z)))))) (vassocr _ _ _)).
       rewrite lwhisker_vcomp, rwhisker_vcomp.
       rewrite vcomp_rinv, id2_rwhisker, lwhisker_id2, id2_left.
-      rewrite laxfunctor_linvunitor.
+      rewrite psfunctor_linvunitor.
       rewrite <- !rwhisker_vcomp.
       rewrite !vassocr.
       apply maponpaths_2.
@@ -775,7 +776,7 @@ Section Algebra.
            • (psfunctor_id F a ▹ (bb · id₁ a))
            • (# F (id₁ a) ◃ cell_from_invertible_2cell (disp_left_adjoint_right_adjoint _ pr12 x))
            • lassociator (# F (id₁ a)) (# F (id₁ a)) aa
-           • (laxfunctor_comp F (id₁ a) (id₁ a) ▹ aa)
+           • (psfunctor_comp F (id₁ a) (id₁ a) ▹ aa)
            • (##F (lunitor (id₁ a)) ▹ aa)
            • (inv_cell (psfunctor_id F a) ▹ aa)
            • lunitor aa.
@@ -783,11 +784,11 @@ Section Algebra.
     Definition invertible_2cell_map_alg'
       : aa ==> bb
       := (linvunitor aa)
-           • (laxfunctor_id F a ▹ aa)
+           • (psfunctor_id F a ▹ aa)
            • (# F (id₁ a) ◃ rinvunitor aa)
            • (# F (id₁ a) ◃ cell_from_invertible_2cell (pr1 x))
            • lassociator (# F (id₁ a)) (# F (id₁ a)) bb
-           • (laxfunctor_comp F (id₁ a) (id₁ a) ▹ bb)
+           • (psfunctor_comp F (id₁ a) (id₁ a) ▹ bb)
            • (## F (lunitor (id₁ a)) ▹ bb)
            • ((psfunctor_id F a)^-1 ▹ bb)
            • lunitor bb.
@@ -822,7 +823,7 @@ Section Algebra.
       rewrite lwhisker_hcomp.
       rewrite triangle_l_inv.
       rewrite <- rwhisker_hcomp.
-      rewrite (vcomp_whisker (laxfunctor_id F a)).
+      rewrite (vcomp_whisker (psfunctor_id F a)).
       rewrite rwhisker_vcomp.
       rewrite !vassocr.
       rewrite rwhisker_hcomp, lwhisker_hcomp.
@@ -966,9 +967,9 @@ Section Algebra.
       rewrite !vassocl.
       rewrite !(maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)).
       rewrite rwhisker_vcomp.
-      rewrite <- laxfunctor_vcomp.
+      rewrite <- psfunctor_vcomp.
       rewrite linvunitor_lunitor.
-      rewrite laxfunctor_id2.
+      rewrite psfunctor_id2.
       rewrite id2_rwhisker, id2_left.
       rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)).
       rewrite rwhisker_vcomp.

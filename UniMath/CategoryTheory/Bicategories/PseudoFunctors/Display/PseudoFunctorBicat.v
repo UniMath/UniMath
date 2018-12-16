@@ -90,7 +90,7 @@ Coercion functor_data_from_bifunctor_ob_mor_cell
   : functor_data C D
   := pr1 F.
 
-Definition laxfunctor_on_cells
+Definition psfunctor_on_cells
            {C D : bicat}
            (F : psfunctor_data C D)
            {a b : C}
@@ -99,7 +99,7 @@ Definition laxfunctor_on_cells
   : #F f ==> #F g
   := pr12 F a b f g x.
 
-Local Notation "'##'" := (laxfunctor_on_cells).
+Local Notation "'##'" := (psfunctor_on_cells).
 
 Definition psfunctor_id
            {C D : bicat}
