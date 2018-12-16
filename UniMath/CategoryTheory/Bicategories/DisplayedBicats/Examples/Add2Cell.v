@@ -12,9 +12,10 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat.
 Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.BicategoryLaws.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
+Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.PseudoFunctor.
 Import PseudoFunctor.Notations.
-Require Import UniMath.CategoryTheory.Bicategories.Transformations.LaxTransformation.
+Require Import UniMath.CategoryTheory.Bicategories.Transformations.PseudoTransformation.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat.
 Import DispBicat.Notations.
@@ -38,8 +39,8 @@ Section Add2Cell.
   Local Notation F := (pr1_psfunctor D).
 
   Variable (S : psfunctor C C)
-           (l r : laxtrans (@ps_comp E C C S F)
-                           (@ps_comp E C C (ps_id_functor C) F)).
+           (l r : pstrans (@ps_comp E C C S F)
+                          (@ps_comp E C C (ps_id_functor C) F)).
 
   Definition add_cell_disp_cat_data : disp_cat_ob_mor E.
   Proof.
@@ -47,9 +48,9 @@ Section Add2Cell.
     - exact (λ X, l X ==> r X).
     - exact (λ X Y α β f,
              (α ▹ #F f)
-               • laxnaturality_of r f
+               • psnaturality_of r f
              =
-             (laxnaturality_of l f)
+             (psnaturality_of l f)
                • (#S(#F f) ◃ β)).
   Defined.
 
@@ -57,12 +58,10 @@ Section Add2Cell.
   Proof.
     split.
     - intros x xx ; cbn.
-      pose (laxtrans_id_alt l x) as p.
-      cbn in p.
-      rewrite p ; clear p.
-      pose (laxtrans_id_alt r x) as p.
-      cbn in p.
-      rewrite p ; clear p.
+      pose (pstrans_id_alt l x) as p.
+      cbn in p ; rewrite p ; clear p.
+      pose (pstrans_id_alt r x) as p.
+      cbn in p ; rewrite p ; clear p.
       rewrite !id2_right, !lwhisker_id2, !id2_left.
       rewrite !vassocr.
       rewrite vcomp_runitor.
@@ -75,11 +74,10 @@ Section Add2Cell.
       rewrite <- lwhisker_hcomp.
       rewrite vcomp_whisker.
       reflexivity.
-    - intros x y z f g xx yy zz Hf Hg.
-      pose (laxtrans_comp_alt l f g) as pl.
-      pose (laxtrans_comp_alt r f g) as pr.
-      cbn in *.
-      rewrite pl, pr ; clear pl pr.
+    - intros x y z f g xx yy zz Hf Hg ; cbn.
+      pose (pstrans_comp_alt l f g) as pl.
+      pose (pstrans_comp_alt r f g) as pr.
+      cbn in pl, pr ; rewrite pl, pr ; clear pl pr.
       rewrite !vassocr.
       rewrite vcomp_whisker.
       rewrite !vassocl.
@@ -153,7 +151,10 @@ Section Add2Cell.
       induction p as [p q].
       cbn ; unfold idfun.
       cbn in p, q.
-      rewrite (laxtrans_id_alt l), (laxtrans_id_alt r) in p.
+      pose (pstrans_id_alt l) as pl.
+      cbn in pl ; rewrite pl in p ; clear pl.
+      pose (pstrans_id_alt r) as pr.
+      cbn in pr ; rewrite pr in p ; clear pr.
       cbn in p.
       rewrite !id2_right in p.
       rewrite !lwhisker_id2 in p.
@@ -164,16 +165,12 @@ Section Add2Cell.
       pose (vcomp_lcancel _ (is_invertible_2cell_runitor _) p) as p'.
       use (vcomp_rcancel (linvunitor (r x))).
       { is_iso. }
-      use (vcomp_rcancel  (laxfunctor_id S (pr1 x) ▹ r x)).
+      use (vcomp_rcancel  (psfunctor_id S (pr1 x) ▹ r x)).
       { is_iso.
-        use tpair.
-        - apply (pr1(pr2 S) (pr1 x)).
-        - split.
-          + exact (pr1(pr2(pr1(pr2 S) (pr1 x)))).
-          + exact (pr2(pr2(pr1(pr2 S) (pr1 x)))).
+        exact (psfunctor_id S (pr1 x)).
       }
       rewrite !vassocl.
-      rewrite laxfunctor_id2, id2_right in p'.
+      rewrite psfunctor_id2, id2_right in p'.
       refine (p' @ _).
       rewrite vcomp_whisker.
       rewrite !vassocr.
