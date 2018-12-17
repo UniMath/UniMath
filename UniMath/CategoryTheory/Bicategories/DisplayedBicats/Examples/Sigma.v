@@ -15,6 +15,8 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.EquivToAdjequiv.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.AdjointUnique.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispInvertibles.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispAdjunctions.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispUnivalence.
@@ -204,21 +206,34 @@ Section SigmaUnivalent.
   Variable (C : bicat)
            (D₁ : disp_bicat C)
            (D₂ : disp_bicat (total_bicat D₁))
-           (HC : is_univalent_2_1 C)
-           (HD₁ : disp_locally_univalent D₁)
-           (HD₂ : disp_locally_univalent D₂).
+           (HC_2_0 : is_univalent_2_0 C)
+           (HC_2_1 : is_univalent_2_1 C)
+           (HD₁_2_0 : disp_univalent_2_0 D₁)
+           (HD₁_2_1 : disp_locally_univalent D₁)
+           (HD₂_2_0 : disp_univalent_2_0 D₂)
+           (HD₂_2_1 : disp_locally_univalent D₂).
 
   Local Notation E₁ := (total_bicat D₂).
   Local Notation E₂ := (total_bicat (sigma_bicat C D₁ D₂)).
+
+  Definition E₁_univalent_2_0
+    : is_univalent_2_0 E₁.
+  Proof.
+    apply total_is_univalent_2_0.
+    - apply total_is_univalent_2_0.
+      + exact HC_2_0.
+      + exact HD₁_2_0.
+    - exact HD₂_2_0.
+  Defined.
 
   Definition E₁_univalent_2_1
     : is_univalent_2_1 E₁.
   Proof.
     apply total_is_locally_univalent.
     - apply total_is_locally_univalent.
-      + exact HC.
-      + exact HD₁.
-    - exact HD₂.
+      + exact HC_2_1.
+      + exact HD₁_2_1.
+    - exact HD₂_2_1.
   Defined.
 
   Definition E₁_to_E₂ : E₁ → E₂
@@ -316,6 +331,42 @@ Section SigmaUnivalent.
     : cell_E₂_to_E₁ α • cell_E₂_to_E₁ β = cell_E₂_to_E₁ (α • β)
     := idpath _.
 
+  Definition cell_E₁_to_E₂_is_invertible
+             {x y : E₁}
+             {f g : x --> y}
+             (α : f ==> g)
+    : is_invertible_2cell α → is_invertible_2cell (cell_E₁_to_E₂ α).
+  Proof.
+    intros Hα.
+    use tpair.
+    - exact (cell_E₁_to_E₂ (Hα^-1)).
+    - split.
+      + exact ((cell_E₁_to_E₂_vcomp α (Hα^-1))
+                  @ maponpaths cell_E₁_to_E₂ (pr12 Hα)
+                  @ cell_E₁_to_E₂_id₂ _).
+      + exact ((cell_E₁_to_E₂_vcomp (Hα^-1) α)
+                 @ maponpaths cell_E₁_to_E₂ (pr22 Hα)
+                 @ cell_E₁_to_E₂_id₂ _).
+  Defined.
+
+  Definition cell_E₂_to_E₁_is_invertible
+             {x y : E₂}
+             {f g : x --> y}
+             (α : f ==> g)
+    : is_invertible_2cell α → is_invertible_2cell (cell_E₂_to_E₁ α).
+  Proof.
+    intros Hα.
+    use tpair.
+    - exact (cell_E₂_to_E₁ (Hα^-1)).
+    - split.
+      + exact ((cell_E₂_to_E₁_vcomp α (Hα^-1))
+                 @ maponpaths cell_E₂_to_E₁ (pr12 Hα)
+                 @ cell_E₂_to_E₁_id₂ _).
+      + exact ((cell_E₂_to_E₁_vcomp (Hα^-1) α)
+                 @ maponpaths cell_E₂_to_E₁ (pr22 Hα)
+                 @ cell_E₂_to_E₁_id₂ _).
+  Defined.
+
   Definition iso_in_E₂
              {x y : E₂}
              (f g : x --> y)
@@ -399,3 +450,93 @@ Section SigmaUnivalent.
       }
       reflexivity.
   Defined.
+
+  Definition adjequiv_in_E₂
+             (x y : E₂)
+    : adjoint_equivalence (E₂_to_E₁ x) (E₂_to_E₁ y) → adjoint_equivalence x y.
+  Proof.
+    intros l.
+    use equiv_to_adjequiv.
+    - exact (mor_E₁_to_E₂ l).
+    - use tpair.
+      + use tpair.
+        * exact (mor_E₁_to_E₂ (left_adjoint_right_adjoint l)).
+        * split.
+          ** exact (cell_E₁_to_E₂ (left_adjoint_unit l)).
+          ** exact (cell_E₁_to_E₂ (left_adjoint_counit l)).
+      + split.
+        * exact (cell_E₁_to_E₂_is_invertible _ (left_equivalence_unit_iso l)).
+        * exact (cell_E₁_to_E₂_is_invertible _ (left_equivalence_counit_iso l)).
+  Defined.
+
+  Definition adjequiv_in_E₂_inv
+             (x y : E₂)
+    : adjoint_equivalence x y → adjoint_equivalence (E₂_to_E₁ x) (E₂_to_E₁ y).
+  Proof.
+    intros l.
+    use equiv_to_adjequiv.
+    - exact (mor_E₂_to_E₁ l).
+    - use tpair.
+      + use tpair.
+        * exact (mor_E₂_to_E₁ (left_adjoint_right_adjoint l)).
+        * split.
+          ** exact (cell_E₂_to_E₁ (left_adjoint_unit l)).
+          ** exact (cell_E₂_to_E₁ (left_adjoint_counit l)).
+      + split.
+        * exact (cell_E₂_to_E₁_is_invertible _ (left_equivalence_unit_iso l)).
+        * exact (cell_E₂_to_E₁_is_invertible _ (left_equivalence_counit_iso l)).
+  Defined.
+
+  Definition adjequiv_in_E₂_weq
+             (x y : E₂)
+    : adjoint_equivalence (E₂_to_E₁ x) (E₂_to_E₁ y) ≃ adjoint_equivalence x y.
+  Proof.
+    use weqpair.
+    - exact (adjequiv_in_E₂ x y).
+    - use isweq_iso.
+      + exact (adjequiv_in_E₂_inv x y).
+      + intros l.
+        use subtypeEquality.
+        {
+          intro.
+          apply isaprop_left_adjoint_equivalence.
+          apply E₁_univalent_2_1.
+        }
+        reflexivity.
+      + intros l.
+        use subtypeEquality.
+        {
+          intro.
+          apply isaprop_left_adjoint_equivalence.
+          apply sigma_is_univalent_2_1.
+        }
+        reflexivity.
+  Defined.
+
+  Definition idtoiso_2_0_alt_E₂
+             (x y : E₂)
+    : x = y ≃ adjoint_equivalence x y.
+  Proof.
+    refine ((adjequiv_in_E₂_weq x y)
+              ∘ (idtoiso_2_0 _ _ ,, _)
+              ∘ path_E₂_to_path_E₁_weq x y)%weq.
+    apply E₁_univalent_2_0.
+  Defined.
+
+  Definition sigma_is_univalent_2_0
+    : is_univalent_2_0 E₂.
+  Proof.
+    intros x y.
+    use weqhomot.
+    - exact (idtoiso_2_0_alt_E₂ x y).
+    - intros p.
+      induction p.
+      use subtypeEquality.
+      {
+        intro.
+        apply isaprop_left_adjoint_equivalence.
+        apply sigma_is_univalent_2_1.
+      }
+      reflexivity.
+  Defined.
+End SigmaUnivalent.
