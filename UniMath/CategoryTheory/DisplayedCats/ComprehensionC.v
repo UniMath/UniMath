@@ -19,7 +19,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Codomain.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 
-Open Scope cat.
+Local Open Scope cat.
 
 (** * Definition of a cartesian displayed functor *)
 
