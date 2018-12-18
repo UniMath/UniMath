@@ -22,7 +22,7 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Univalence.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispAdjunctions.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispUnivalence.
 
-Open Scope cat.
+Local Open Scope cat.
 
 Section Algebra.
   Context `{C : bicat}.

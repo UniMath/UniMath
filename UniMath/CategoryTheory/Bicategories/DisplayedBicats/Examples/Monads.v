@@ -30,6 +30,7 @@ Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Alge
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Add2Cell.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Prod.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.FullSub.
+Local Open Scope cat.
 
 Definition var
            {C : bicat}
