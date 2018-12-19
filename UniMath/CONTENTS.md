@@ -105,6 +105,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Epis.v](CategoryTheory/Epis.v)
    - [categories/HSET/MonoEpiIso.v](CategoryTheory/categories/HSET/MonoEpiIso.v)
    - [categories/HSET/Univalence.v](CategoryTheory/categories/HSET/Univalence.v)
+   - [Profunctors/Core.v](CategoryTheory/Profunctors/Core.v)
    - [CategoriesWithBinOps.v](CategoryTheory/CategoriesWithBinOps.v)
    - [PrecategoriesWithAbgrops.v](CategoryTheory/PrecategoriesWithAbgrops.v)
    - [limits/cones.v](CategoryTheory/limits/cones.v)
