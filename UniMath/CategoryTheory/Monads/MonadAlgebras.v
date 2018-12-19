@@ -245,16 +245,16 @@ Context {C : category} (S T : Monad C).
 
 (** A lifting of (T, η, μ) is a monad (T', η', μ') on (MonadAlg S) which commutes with the
 forgetful functor:
-
-                  T'
-(MonadAlg S) ----------> (MonadAlg S)
-     |                        |
-     | forget_Alg             | forget_Alg
-     |                        |
-     V                        V
-     C ---------------------> C
-                  T
-
+<<
+                    T'
+  (MonadAlg S) ----------> (MonadAlg S)
+       |                        |
+       | forget_Alg             | forget_Alg
+       |                        |
+       V                        V
+       C ---------------------> C
+                    T
+>>
 and forget_Alg ∙ η = η' ∙ forget_Alg,
     forget_Alg ∙ μ = μ' ∙ forget_Alg.
  *)
