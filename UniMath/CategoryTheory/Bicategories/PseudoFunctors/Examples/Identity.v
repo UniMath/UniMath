@@ -13,15 +13,16 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.BicategoryLaws.
+Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.PseudoFunctor.
 Import PseudoFunctor.Notations.
 
 Section IdentityFunctor.
   Variable (C : bicat).
 
-  Definition id_functor_d : laxfunctor_data C C.
+  Definition id_functor_d : psfunctor_data C C.
   Proof.
-    use build_laxfunctor_data.
+    use mk_psfunctor_data.
     - exact (λ x, x).
     - exact (λ _ _ x, x).
     - exact (λ _ _ _ _ x, x).
@@ -29,7 +30,7 @@ Section IdentityFunctor.
     - exact (λ _ _ _ _ _, id2 _).
   Defined.
 
-  Definition id_functor_laws : laxfunctor_laws id_functor_d.
+  Definition id_functor_laws : psfunctor_laws id_functor_d.
   Proof.
     repeat split.
     - intros a b f ; cbn in *.
@@ -52,15 +53,11 @@ Section IdentityFunctor.
       reflexivity.
   Qed.
 
-  Definition lax_id_functor : laxfunctor C C
-    := (_ ,, id_functor_laws).
-
-  Definition lax_id_functor_is_pseudo
-    : is_pseudofunctor lax_id_functor.
+  Definition ps_id_functor : psfunctor C C.
   Proof.
-    split ; intros ; cbn ; is_iso.
+    use mk_psfunctor.
+    - exact id_functor_d.
+    - exact id_functor_laws.
+    - split ; cbn ; intros ; is_iso.
   Defined.
-
-  Definition ps_id_functor : psfunctor C C
-    := (_ ,, lax_id_functor_is_pseudo).
 End IdentityFunctor.

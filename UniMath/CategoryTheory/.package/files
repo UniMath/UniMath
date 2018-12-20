@@ -207,9 +207,7 @@ Bicategories/PseudoFunctors/Examples/Composition.v
 Bicategories/PseudoFunctors/Examples/ApFunctor.v
 Bicategories/PseudoFunctors/Examples/OpFunctor.v
 Bicategories/PseudoFunctors/Examples/Projection.v
-Bicategories/Transformations/LaxTransformation.v
-Bicategories/Transformations/Examples/Identity.v
-Bicategories/Transformations/Examples/Composition.v
+Bicategories/Transformations/PseudoTransformation.v
 
 Bicategories/DisplayedBicats/Examples/PointedOneTypes.v
 Bicategories/DisplayedBicats/Examples/Algebras.v

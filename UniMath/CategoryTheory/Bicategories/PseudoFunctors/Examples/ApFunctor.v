@@ -13,6 +13,7 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.BicategoryLaws.
+Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.PseudoFunctor.
 Import PseudoFunctor.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.TwoType.
@@ -24,9 +25,9 @@ Section ApFunctor.
   Variable (f : X → Y).
 
   Definition ap_functor_data
-    : laxfunctor_data (fundamental_bigroupoid X HX) (fundamental_bigroupoid Y HY).
+    : psfunctor_data (fundamental_bigroupoid X HX) (fundamental_bigroupoid Y HY).
   Proof.
-    use build_laxfunctor_data.
+    use mk_psfunctor_data.
     - exact f.
     - exact (λ _ _, maponpaths f).
     - exact (λ _ _ _ _ s, maponpaths (maponpaths f) s).
@@ -35,7 +36,7 @@ Section ApFunctor.
   Defined.
 
   Definition ap_functor_laws
-    : laxfunctor_laws ap_functor_data.
+    : psfunctor_laws ap_functor_data.
   Proof.
     repeat split.
     - intros x y p₁ p₂ p₃ s₁ s₂ ; cbn in *.
@@ -57,18 +58,16 @@ Section ApFunctor.
       exact (pathscomp0rid _).
   Qed.
 
-  Definition lax_ap_functor
-    : laxfunctor (fundamental_bigroupoid X HX) (fundamental_bigroupoid Y HY)
-    := (_ ,, ap_functor_laws).
-
   Definition ps_ap_functor
     : psfunctor (fundamental_bigroupoid X HX) (fundamental_bigroupoid Y HY).
   Proof.
-    refine (lax_ap_functor ,, _).
-    split ; cbn.
-    - intros a.
-      exact (fundamental_groupoid_2cell_iso Y HY (idpath(idpath (f a)))).
-    - intros a b c p q.
-      exact (fundamental_groupoid_2cell_iso Y HY (!(maponpathscomp0 f p q))).
+    use mk_psfunctor.
+    - exact ap_functor_data.
+    - exact ap_functor_laws.
+    - split.
+      + intros a.
+        exact (fundamental_groupoid_2cell_iso Y HY (idpath(idpath (f a)))).
+      + intros a b c p q.
+        exact (fundamental_groupoid_2cell_iso Y HY (!(maponpathscomp0 f p q))).
   Defined.
 End ApFunctor.
