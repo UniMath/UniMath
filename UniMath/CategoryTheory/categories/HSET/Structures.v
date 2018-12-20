@@ -570,10 +570,9 @@ Proof.
         use hfiberpair.
         -- exact (morphism_from_z_iso _ _ _ (pr1 pbiso) (y,, isO)).
         -- replace (pr1 m (morphism_from_z_iso _ _ _ (pr1 pbiso) (y,, isO))) with (((pr1 pbiso) · pr1 m) (y,, isO)); [|reflexivity].
-          Check (pr1 (pr2 pbiso)).
-          replace (pr1 m) with (PullbackPr1 PBO'); [|reflexivity].
-          rewrite (pr1 (pr2 pbiso)).
-          reflexivity.
+           replace (pr1 m) with (PullbackPr1 PBO'); [|reflexivity].
+           rewrite (pr1 (pr2 pbiso)).
+           reflexivity.
       * intros fib.
         apply (eqweqmap (maponpaths pr1 (maponpaths (pr1 O') (pr2 fib)))).
         apply (eqweqmap (maponpaths pr1 (eq (hfiberpr1 _ _ fib)))).
