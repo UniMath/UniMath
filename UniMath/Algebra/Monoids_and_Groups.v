@@ -261,7 +261,7 @@ Definition pr1monoidiso (X Y : monoid) : monoidiso X Y -> X ≃ Y := @pr1 _ _.
 Coercion pr1monoidiso : monoidiso >-> weq.
 
 Definition monoidisotomonoidmono (X Y : monoid) : monoidiso X Y -> monoidmono X Y :=
-  λ f, monoidmonopair (pr1 f) (pr2 f).
+  λ f, monoidmonopair (weqtoincl (pr1 f)) (pr2 f).
 Coercion monoidisotomonoidmono : monoidiso >-> monoidmono.
 
 Definition monoidisotobinopiso (X Y : monoid) : monoidiso X Y -> binopiso X Y :=
@@ -2150,7 +2150,8 @@ Section GrCosets.
   Local Lemma isaprop_mult_eq_r (x y : X) : isaprop (∑ z : X, x * z = y).
   Proof.
     apply invproofirrelevance; intros z1 z2.
-    apply subtypeEquality'; [|apply setproperty].
+    apply subtypeEquality.
+    { intros x'. apply setproperty. }
     refine (!lunax _ _ @ _ @ lunax _ _).
     refine (maponpaths (λ z, z * _) (!grlinvax X x) @ _ @
             maponpaths (λ z, z * _) (grlinvax X x)).
@@ -2162,7 +2163,8 @@ Section GrCosets.
   Local Lemma isaprop_mult_eq_l (x y : X) : isaprop (∑ z : X, z * x = y).
   Proof.
     apply invproofirrelevance; intros z1 z2.
-    apply subtypeEquality'; [|apply setproperty].
+    apply subtypeEquality.
+    { intros x'. apply setproperty. }
     refine (!runax _ _ @ _ @ runax _ _).
     refine (maponpaths (λ z, _ * z) (!grrinvax X x) @ _ @
             maponpaths (λ z, _ * z) (grrinvax X x)).
@@ -2178,8 +2180,10 @@ Section GrCosets.
   Proof.
     unfold in_same_left_coset.
     apply invproofirrelevance; intros p q.
-    apply subtypeEquality'; [|apply setproperty].
-    apply subtypeEquality'; [|apply propproperty].
+    apply subtypeEquality.
+    { intros x'. apply setproperty. }
+    apply subtypeEquality.
+    { intros x'. apply propproperty. }
     pose (p' := (pr11 p,, pr2 p) : ∑ y : X, x1 * y = x2).
     pose (q' := (pr11 q,, pr2 q) : ∑ y : X, x1 * y = x2).
     apply (maponpaths pr1 (iscontrpr1 (isaprop_mult_eq_r _ _ p' q'))).
@@ -2736,7 +2740,7 @@ Proof.
   intros.
   set (int := isinclprabmonoidfrac X (totalsubmonoid X) (λ a : totalsubmonoid X, iscanc (pr1 a))
                                    (carrierpair (λ x : X, htrue) x' tt)).
-  set (int1 := isinclcomp (inclpair _ int) (invweq (weqabgrdiff X))).
+  set (int1 := isinclcomp (inclpair _ int) (weqtoincl (invweq (weqabgrdiff X)))).
   apply int1.
 Defined.
 

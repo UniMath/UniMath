@@ -22,8 +22,8 @@ Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.Monads.KTriples.
 Require Import UniMath.CategoryTheory.catiso.
 Require Import UniMath.CategoryTheory.Adjunctions.
-Require Import UniMath.CategoryTheory.equivalences.
-Require Import UniMath.CategoryTheory.equivalences_lemmas.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
+Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful.
 
 Local Open Scope cat.
 

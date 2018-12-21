@@ -7,15 +7,15 @@ Partial contents:
 - Displayed category given by a structure on objects and a proposition
    on morphisms of the base category
 - Direct products of displayed categories (and their projections)
-  - [dirprod_cat D1 D2]
-  - [dirprodpr1_functor], [dirprodpr2_functor]
+  - [dirprod_disp_cat D1 D2]
+  - [dirprodpr1_disp_functor], [dirprodpr2_disp_functor]
 - Sigmas of displayed categories
 - Displayed functor cat
 - Fiber cats
 *)
 
 Require Import UniMath.Foundations.Sets.
-Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 
@@ -25,6 +25,26 @@ Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
 Section Auxiliary.
+
+(* TODO: Move this to another file *)
+Lemma isweqcontrprop (X Y : UU) (f : X → Y) :
+  iscontr X → isaprop Y → isweq f.
+Proof.
+  intros HX HY.
+  apply isweqimplimpl.
+  - intros. apply HX.
+  - apply isapropifcontr. apply HX.
+  - apply HY.
+Defined.
+
+(** TODO: move this somewhere else *)
+Lemma weqdirprod {X X' Y Y' : UU}:
+  X ≃ X' → Y ≃ Y' → X × Y ≃ X' × Y'.
+Proof.
+  intros f g.
+  exists (dirprodf f g).
+  apply isweqdirprodf.
+Defined.
 
 (* TODO: perhaps upstream; consider name *)
 Lemma total2_reassoc_paths {A} {B : A → UU} {C : (∑ a, B a) -> UU}
@@ -76,21 +96,34 @@ Definition disp_full_sub_id_comp (C : precategory_data) (P : C → UU)
   : disp_cat_id_comp C (disp_full_sub_ob_mor C P).
 Proof.
   split; intros; apply tt.
-Qed.
+Defined.
 
 Definition disp_full_sub_data (C : precategory_data) (P : C → UU)
   : disp_cat_data C
   :=  disp_full_sub_ob_mor C P,, disp_full_sub_id_comp C P.
 
-Definition disp_full_sub_axioms (C : category) (P : C → UU)
+Definition disp_full_sub_axioms (C : precategory) (P : C → UU)
   : disp_cat_axioms _ (disp_full_sub_data C P).
 Proof.
   repeat split; intros; try (apply proofirrelevance; apply isapropunit).
   apply isasetaprop; apply isapropunit.
 Qed.
 
-Definition disp_full_sub (C : category) (P : C → UU)
-  : disp_cat C := _ ,, disp_full_sub_axioms C P.
+Definition disp_full_sub (C : precategory) (P : C → UU)
+  : disp_precat C := _ ,, disp_full_sub_axioms C P.
+
+Lemma disp_full_sub_univalent (C : category) (P : C → UU) :
+  (∏ x : C, isaprop (P x)) →
+  is_univalent_disp (disp_full_sub C P).
+Proof.
+  intro HP.
+  apply is_univalent_disp_from_fibers.
+  intros x xx xx'. cbn in *.
+  apply isweqcontrprop. apply HP.
+  apply isofhleveltotal2.
+  - apply isapropunit.
+  - intros ?. apply (@isaprop_is_iso_disp _ (disp_full_sub C P)).
+Defined.
 
 End full_subcat.
 
@@ -99,7 +132,7 @@ End full_subcat.
 Section struct_hom.
 
 Variable C : category.
-Variable univC : is_univalent C.
+(* Variable univC : is_univalent C. *)
 Variable P : ob C -> UU.
 (* Variable Pisset : ∏ x, isaset (P x). *)
 Variable H : ∏ (x y : C), P x → P y → C⟦x,y⟧ → UU.
@@ -189,6 +222,135 @@ Qed.
 
 Definition dirprod_disp_cat : disp_cat C
   := (_ ,, dirprod_disp_cat_axioms).
+
+(** ** Characterization of the isomorphisms of the direct product of displayed categories *)
+(** TODO: generalize over an aritrary base isomorphism *)
+Definition iso_disp_prod1
+      {x : C}
+      (xx1 xx1' : D1 x)
+      (xx2 xx2' : D2 x) :
+  @iso_disp _ dirprod_disp_cat _ _ (identity_iso x) (xx1,, xx2) (xx1',, xx2') →
+  (iso_disp (identity_iso x) xx1 xx1') × (iso_disp (identity_iso x) xx2 xx2').
+Proof.
+  unfold iso_disp. cbn.
+  intros [[f1 f2] Hff].
+  destruct Hff as [[g1 g2] Hfg].
+  cbn in Hfg. destruct Hfg as [Hgf Hfg].
+  use tpair.
+  - exists f1, g1.
+    split.
+    + etrans. apply (maponpaths dirprod_pr1 Hgf).
+      apply pr1_transportf.
+    + etrans. apply (maponpaths dirprod_pr1 Hfg).
+      apply pr1_transportf.
+  - exists f2, g2.
+    split.
+    + etrans. apply (maponpaths dirprod_pr2 Hgf).
+      apply pr2_transportf.
+    + etrans. apply (maponpaths dirprod_pr2 Hfg).
+      apply pr2_transportf.
+Defined.
+
+Definition iso_disp_prod2
+      {x : C}
+      (xx1 xx1' : D1 x)
+      (xx2 xx2' : D2 x) :
+  (iso_disp (identity_iso x) xx1 xx1') × (iso_disp (identity_iso x) xx2 xx2') →
+  @iso_disp _ dirprod_disp_cat _ _ (identity_iso x) (xx1,, xx2) (xx1',, xx2').
+Proof.
+  unfold iso_disp. cbn.
+  intros [[f1 Hf1] [f2 Hf2]].
+  destruct Hf1 as [g1 [Hgf1 Hfg1]].
+  destruct Hf2 as [g2 [Hgf2 Hfg2]].
+  exists (f1,,f2), (g1,,g2).
+  split.
+  - apply dirprod_paths.
+    + etrans. apply Hgf1.
+      apply pathsinv0. apply pr1_transportf.
+    + etrans. apply Hgf2.
+      apply pathsinv0. apply pr2_transportf.
+  - apply dirprod_paths.
+    + etrans. apply Hfg1.
+      apply pathsinv0. apply pr1_transportf.
+    + etrans. apply Hfg2.
+      apply pathsinv0. apply pr2_transportf.
+Defined.
+
+Lemma iso_disp_prod21
+      {x : C}
+      (xx1 xx1' : D1 x)
+      (xx2 xx2' : D2 x)
+      i
+:
+  iso_disp_prod2 xx1 xx1' xx2 xx2' (iso_disp_prod1 xx1 xx1' xx2 xx2' i) = i.
+Proof.
+  apply eq_iso_disp. cbn. reflexivity.
+Qed.
+
+Lemma iso_disp_prod12
+      {x : C}
+      (xx1 xx1' : D1 x)
+      (xx2 xx2' : D2 x)
+      (t : iso_disp (identity_iso x) xx1 xx1' × iso_disp (identity_iso x) xx2 xx2')
+:
+  iso_disp_prod1 xx1 xx1' xx2 xx2' (iso_disp_prod2 xx1 xx1' xx2 xx2' t) = t.
+Proof.
+  apply dirprod_paths.
+  - apply eq_iso_disp. cbn. reflexivity.
+  - apply eq_iso_disp. cbn. reflexivity.
+Qed.
+
+Lemma iso_disp_prod_weq
+      (x : C)
+      (xx1 xx1' : D1 x)
+      (xx2 xx2' : D2 x) :
+  @iso_disp _ dirprod_disp_cat _ _ (identity_iso x) (xx1,, xx2) (xx1',, xx2') ≃
+  (iso_disp (identity_iso x) xx1 xx1') × (iso_disp (identity_iso x) xx2 xx2').
+Proof.
+  exists (iso_disp_prod1 xx1 xx1' xx2 xx2').
+  use gradth.
+  - apply iso_disp_prod2.
+  - apply iso_disp_prod21.
+  - apply iso_disp_prod12.
+Defined.
+
+Lemma iso_disp_aux_weq
+      (U1 : is_univalent_in_fibers D1)
+      (U2 : is_univalent_in_fibers D2)
+      (x : C)
+      (xx xx' : D1 x × D2 x)
+
+:
+  xx = xx'
+    ≃ @iso_disp _ dirprod_disp_cat _ _ (identity_iso x) xx xx'.
+Proof.
+  eapply weqcomp. apply pathsdirprodweq.
+  apply invweq. eapply weqcomp. apply iso_disp_prod_weq.
+  apply invweq.
+  apply weqdirprod.
+  - exists idtoiso_fiber_disp. apply U1.
+  - exists idtoiso_fiber_disp. apply U2.
+Defined.
+
+Lemma dirprod_disp_cat_is_univalent :
+  is_univalent_disp D1 →
+  is_univalent_disp D2 →
+  is_univalent_disp dirprod_disp_cat.
+Proof.
+  intros HD1 HD2.
+  apply is_univalent_disp_from_fibers.
+  intros x xx xx'.
+  use isweqhomot.
+  - apply iso_disp_aux_weq.
+    + apply is_univalent_in_fibers_from_univalent_disp.
+      apply HD1.
+    + apply is_univalent_in_fibers_from_univalent_disp.
+      apply HD2.
+  - intros p. induction p. cbn.
+    apply (@eq_iso_disp _ dirprod_disp_cat).
+    reflexivity.
+  - apply iso_disp_aux_weq.
+Defined.
 
 Definition dirprodpr1_disp_functor_data
   : disp_functor_data (functor_identity C) dirprod_disp_cat (D1).
@@ -349,7 +511,7 @@ Definition is_iso_sigma_disp_aux1
 Proof.
   exists (inv_mor_disp_from_iso ii).
   set (ggg := inv_mor_disp_from_iso iii).
-  exact (transportf _ (inv_mor_total_iso _ _ _) ggg).
+  exact (transportf _ (inv_mor_total_iso _ _) ggg).
 Defined.
 
 Lemma is_iso_sigma_disp_aux2
@@ -391,7 +553,7 @@ Proof.
       etrans. eapply transportf_bind.
         apply (inv_mor_after_iso_disp iii).
       apply maponpaths_2, (@homset_property (total_category D)).
-Time Qed. (* TODO: try to speed this up? *)
+Qed.
 
 Lemma is_iso_sigma_disp
     {x y} {xxx : sigma_disp_cat x} {yyy : sigma_disp_cat y}

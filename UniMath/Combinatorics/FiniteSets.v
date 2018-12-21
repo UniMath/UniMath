@@ -14,6 +14,7 @@ This file contains the definition and main properties of finite sets. At the end
 
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.DecidablePropositions.
+Require Import UniMath.MoreFoundations.NegativePropositions.
 Require Export UniMath.Combinatorics.StandardFiniteSets .
 
 

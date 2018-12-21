@@ -2,6 +2,7 @@
 
 Require Export UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.NegativePropositions.
 
 Require Export UniMath.Algebra.Archimedean.
 Require Export UniMath.Algebra.Domains_and_Fields.
