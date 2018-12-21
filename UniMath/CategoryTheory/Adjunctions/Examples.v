@@ -1,6 +1,4 @@
-(**
-
-This file contains some adjunctions:
+(** * Examples of adjunctions
 
 - The binary delta_functor is left adjoint to binproduct_functor
 
@@ -27,11 +25,12 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
+
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
 
 Local Open Scope cat.
 
