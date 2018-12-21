@@ -19,6 +19,7 @@ Monics.v
 Epis.v
 categories/HSET/MonoEpiIso.v
 categories/HSET/Univalence.v
+Profunctors/Core.v
 CategoriesWithBinOps.v
 PrecategoriesWithAbgrops.v
 limits/cones.v
@@ -160,6 +161,7 @@ DisplayedCats/Codomain.v
 DisplayedCats/SIP.v
 DisplayedCats/Limits.v
 DisplayedCats/Examples.v
+DisplayedCats/Examples/HLevel.v
 DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
