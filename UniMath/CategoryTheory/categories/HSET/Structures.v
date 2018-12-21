@@ -23,6 +23,7 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.PartA. (* flip *)
+Require Import UniMath.MoreFoundations.Sets. (* hProp_set *)
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.AxiomOfChoice.
 
@@ -389,16 +390,11 @@ Defined.
 
 (** ** Subobject classifier *)
 
-Definition hProp_set : hSet := (_,, isasethProp).
-
 Lemma isaprop_hfiber_monic {A B : hSet} (f : HSET⟦A, B⟧) (isM : isMonic f) :
   isPredicate (hfiber f).
 Proof.
   intro; apply incl_injectivity, MonosAreInjective_HSET; assumption.
 Qed.
-
-(* Require Import UniMath.Foundations.All. *)
-(* Require Import UniMath.MoreFoundations.All. *)
 
 Local Definition const_htrue {X : hSet} : HSET⟦X, hProp_set⟧ :=
   (fun _ => htrue : hProp_set).
@@ -459,7 +455,7 @@ Proof.
           ++ (** All maps to the terminal object are equal *)
             apply proofirrelevance, impred.
             intro; apply isapropunit.
-    * intro.
+    * intro t.
       apply subtypeEquality.
       -- intro.
           apply isapropdirprod.
@@ -477,7 +473,7 @@ Defined.
 
 (** For any subset [s : Y -> hProp], the carrier [∑ y : Y, s y] is a pullback
     of [s] with the constantly-true arrow. *)
-Lemma HSET_carrier_is_pullback {Y : HSET} (chi : HSET ⟦ Y, hProp_set ⟧) :
+Lemma carrier_Pullback {Y : HSET} (chi : HSET ⟦ Y, hProp_set ⟧) :
   Pullback chi (@const_htrue unitHSET).
 Proof.
   use mk_Pullback.
@@ -499,7 +495,7 @@ Proof.
            abstract (rewrite H; exact tt).
       * split; [reflexivity|].
         apply proofirrelevance, hlevelntosn, iscontrfuntounit.
-    + intro.
+    + intro t.
       apply subtypeEquality'; [|apply isapropdirprod; apply setproperty].
       apply funextfun; intro.
       apply subtypeEquality'; [|apply propproperty].
@@ -514,11 +510,10 @@ Proof.
   use hfiberpair.
   - exact (hfiberpr1 _ _ z).
   - reflexivity.
-Qed.
+Defined.
 
 Definition subobject_classifier_HSET : subobject_classifier TerminalHSET.
 Proof.
-  unfold subobject_classifier.
   exists hProp_set.
   exists const_htrue.
   intros ? ? m.
@@ -544,7 +539,9 @@ Proof.
           then [pr1 O' = hfiber m].
        *)
 
-      assert (eq : m · pr1 O' ~ m · (fun z => (hfiber (pr1 m) z,, isaprop_hfiber_monic (pr1 m) (pr2 m) z : pr1hSet hProp_set))).
+      assert (eq : m · pr1 O' ~
+                     m · (fun z => (hfiber (pr1 m) z,, isaprop_hfiber_monic (pr1 m) (pr2 m) z :
+                                   pr1hSet hProp_set))).
       {
         apply toforallpaths.
         refine (pr1 (pr2 O') @ _).
@@ -558,19 +555,27 @@ Proof.
         (** We know that [carrier (pr1 O')] is a pullback of [pr1 O'] and [const_htrue].
             By hypothesis, X is as well. Thus, we have a canonical isomorphism
             [carrier (pr1 O') -> X], which commutes with the pullback projections.
-            In particular, the following triangle commutes:
+            In particular, the following triangle commutes (where [m] is, by hypothesis,
+            the first pullback projection of X):
             <<
+                                ∃!
+              carrier (pr1 O') ---> X
+                            \       |
+                   pr1carrier \     | m
+                                \   V
+                                    Y
             >>
          *)
 
         pose (PBO' := mk_Pullback (pr1 O') (@const_htrue unitHSET) X m (TerminalArrow TerminalHSET X) (pr1 (pr2 O')) (pr2 (pr2 O'))).
-        pose (PBC := HSET_carrier_is_pullback (pr1 O')).
+        pose (PBC := carrier_Pullback (pr1 O')).
         pose (pbiso := pullbackiso PBC PBO').
 
         use hfiberpair.
         -- exact (morphism_from_z_iso _ _ _ (pr1 pbiso) (y,, isO)).
-        -- replace (pr1 m (morphism_from_z_iso _ _ _ (pr1 pbiso) (y,, isO))) with (((pr1 pbiso) · pr1 m) (y,, isO)); [|reflexivity].
-           replace (pr1 m) with (PullbackPr1 PBO'); [|reflexivity].
+        -- change (pr1 m (morphism_from_z_iso _ _ _ (pr1 pbiso) (y,, isO))) with
+                  (((pr1 pbiso) · pr1 m) (y,, isO)).
+           change (pr1 m) with (PullbackPr1 PBO').
            rewrite (pr1 (pr2 pbiso)).
            reflexivity.
       * intros fib.
@@ -579,4 +584,4 @@ Proof.
         apply hfiber_in_hfiber.
       * apply propproperty.
       * apply propproperty.
-Qed.
+Defined.

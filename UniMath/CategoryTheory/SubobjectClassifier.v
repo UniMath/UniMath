@@ -22,9 +22,8 @@ Local Open Scope cat.
 
 Definition subobject_classifier {C : precategory} (T : Terminal C) : UU :=
   ∑ (O : ob C) (true : C⟦T, O⟧), ∏ (X Y : ob C) (m : Monic _ X Y),
-    iscontr (∑ (chi : C⟦Y, O⟧)
-               (H : m · chi = TerminalArrow _ _ · true),
-               isPullback _ _ _ _ H).
+    ∃! chi : C⟦Y, O⟧,
+      ∑ (H : m · chi = TerminalArrow _ _ · true), isPullback _ _ _ _ H.
 
 Definition make_subobject_classifier {C : precategory} {T : Terminal C}
            (O : ob C) (true : C⟦T, O⟧) :
