@@ -10,7 +10,7 @@
 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.MoreFoundations.Univalence.
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.categories.Types.
 

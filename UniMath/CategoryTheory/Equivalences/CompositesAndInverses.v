@@ -14,7 +14,8 @@ Require Import UniMath.Foundations.Propositions.
 
 Require Import UniMath.MoreFoundations.PartA.
 
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.Adjunctions.
 

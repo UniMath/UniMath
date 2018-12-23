@@ -12,8 +12,10 @@ Contents:
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Sets
-        UniMath.CategoryTheory.Categories
+Require Import UniMath.Foundations.Sets.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import
+        UniMath.CategoryTheory.Core.Categories
         UniMath.CategoryTheory.functor_categories
         UniMath.CategoryTheory.categories.HSET.Core
         UniMath.CategoryTheory.categories.HSET.MonoEpiIso

@@ -5,7 +5,7 @@ Cochains are diagrams of the form X₀ ← X₁ ← ⋯.
 Author: Langston Barrett (@siddharthist), Febuary 2018
  *)
 Require Import UniMath.Foundations.PartA.
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.

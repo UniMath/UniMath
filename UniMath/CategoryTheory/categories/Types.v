@@ -1,3 +1,4 @@
+Require Import UniMath.CategoryTheory.Core.Isos.
 (** * The precategory of types
 
 This file defines the precategory of types in a fixed universe ([type_precat])
@@ -31,7 +32,7 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.PartA.
 
 (* Basic category theory *)
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 
 (* (Co)limits *)

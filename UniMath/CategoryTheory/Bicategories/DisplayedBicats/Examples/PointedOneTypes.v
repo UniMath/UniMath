@@ -2,7 +2,7 @@
 The univalent bicategory of pointed 1-types.
 *)
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.OneTypes.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat.

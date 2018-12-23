@@ -1,33 +1,30 @@
-(** **********************************************************
+(** * Whiskering
 
-Benedikt Ahrens, Chris Kapulkin, Mike Shulman
+  Benedikt Ahrens, Chris Kapulkin, Mike Shulman
 
-january 2013
-
-
-************************************************************)
+  January 2013
+*)
 
 
-(** **********************************************************
+(** ** Contents :
 
-Contents :
+  - Precomposition with a functor for
+    - functors and
+    - natural transformations (whiskering)
 
-- Precomposition with a functor for
-   - functors and
-   - natural transformations (whiskering)
+  - Functoriality of precomposition
 
-- Functoriality of precomposition
+  - Precomposition with an essentially surjective
+        functor yields a faithful functor
 
-- Precomposition with an essentially surjective
-	   functor yields a faithful functor
-
-************************************************************)
+*)
 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.functor_categories.
 Local Open Scope cat.
 

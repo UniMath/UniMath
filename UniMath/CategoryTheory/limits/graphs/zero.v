@@ -11,14 +11,15 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.Categories.
-Local Open Scope cat.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.initial.
 Require Import UniMath.CategoryTheory.limits.graphs.terminal.
 Require Import UniMath.CategoryTheory.limits.zero.
 
+Local Open Scope cat.
 
 (** * Definition of zero using limits and colimits *)
 Section def_zero.

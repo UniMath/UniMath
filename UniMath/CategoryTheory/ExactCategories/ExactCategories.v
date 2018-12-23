@@ -1,4 +1,5 @@
 (** * Exact categories *)
+Require Import UniMath.CategoryTheory.Core.Isos.
 
 (** ** Contents
 
@@ -25,7 +26,7 @@ Require Export UniMath.CategoryTheory.limits.pushouts.
 Require Export UniMath.CategoryTheory.limits.BinDirectSums.
 Require Export UniMath.CategoryTheory.limits.Opp.
 Require Export UniMath.CategoryTheory.CategoriesWithBinOps.
-Require Export UniMath.CategoryTheory.Categories.
+Require Export UniMath.CategoryTheory.Core.Categories.
 Require Export UniMath.CategoryTheory.opp_precat.
 Require Export UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Export UniMath.CategoryTheory.PreAdditive.

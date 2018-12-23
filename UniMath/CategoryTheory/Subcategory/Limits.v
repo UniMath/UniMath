@@ -32,7 +32,7 @@ Author: Langston Barrett (@siddharthist) (March 2018)
 Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 
 Require Import UniMath.CategoryTheory.Subcategory.Core.

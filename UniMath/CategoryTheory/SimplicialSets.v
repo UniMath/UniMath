@@ -12,7 +12,7 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Require Export UniMath.Combinatorics.FiniteSets.
 (* Require Export UniMath.Combinatorics.OrderedSets. *)
-Require Export UniMath.CategoryTheory.Categories.
+Require Export UniMath.CategoryTheory.Core.Categories.
 Require Export UniMath.CategoryTheory.categories.HSET.Core.
 Require Export UniMath.CategoryTheory.categories.HSET.Univalence.
 Require Export UniMath.CategoryTheory.functor_categories.

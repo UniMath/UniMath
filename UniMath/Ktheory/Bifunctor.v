@@ -1,14 +1,15 @@
 Require Import
         UniMath.Foundations.Preamble.
 Require Import
-        UniMath.CategoryTheory.Categories
+        UniMath.CategoryTheory.Core.Categories
+        UniMath.CategoryTheory.Core.Isos
         UniMath.CategoryTheory.functor_categories
         UniMath.Ktheory.Utilities
         UniMath.Ktheory.Precategories.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Export UniMath.CategoryTheory.Categories.
+Require Export UniMath.CategoryTheory.Core.Categories.
 Require Export UniMath.CategoryTheory.opp_precat
                UniMath.CategoryTheory.yoneda
                UniMath.CategoryTheory.categories.HSET.Core.

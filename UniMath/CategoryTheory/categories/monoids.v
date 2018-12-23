@@ -19,7 +19,9 @@ Require Import UniMath.Algebra.Free_Monoids_and_Groups.
 Require Import UniMath.Combinatorics.Lists.
 Require Import UniMath.Algebra.IteratedBinaryOperations.
 
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.Adjunctions.

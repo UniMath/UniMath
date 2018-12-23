@@ -14,7 +14,7 @@ Contents : Equivalence of binary products in C/Z to
 
 Require Import UniMath.MoreFoundations.Tactics
         UniMath.Foundations.Sets
-        UniMath.CategoryTheory.Categories
+        UniMath.CategoryTheory.Core.Categories
         UniMath.CategoryTheory.functor_categories
         UniMath.CategoryTheory.slicecat
         UniMath.CategoryTheory.Equivalences.Core

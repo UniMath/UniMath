@@ -7,7 +7,8 @@
 
 Require Import
         UniMath.Foundations.Sets
-        UniMath.CategoryTheory.Categories
+        UniMath.CategoryTheory.Core.Categories
+        UniMath.CategoryTheory.Core.Isos
         UniMath.CategoryTheory.functor_categories
         UniMath.Ktheory.Representation
         UniMath.Ktheory.Utilities
