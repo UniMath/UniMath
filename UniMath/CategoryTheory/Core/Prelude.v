@@ -6,5 +6,7 @@
 *)
 
 Require Export UniMath.CategoryTheory.Core.Categories.
+Require Export UniMath.CategoryTheory.Core.Functors.
 Require Export UniMath.CategoryTheory.Core.Isos.
+Require Export UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Export UniMath.CategoryTheory.Core.Univalence.

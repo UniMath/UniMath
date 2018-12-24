@@ -22,7 +22,7 @@ Require Import UniMath.Combinatorics.FiniteSets.
 (* Basics *)
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
 
 (* HSET *)
 Require Import UniMath.CategoryTheory.categories.HSET.Core.

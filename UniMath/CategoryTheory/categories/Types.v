@@ -33,7 +33,7 @@ Require Import UniMath.MoreFoundations.PartA.
 
 (* Basic category theory *)
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
 
 (* (Co)limits *)
 Require Import UniMath.CategoryTheory.limits.initial.

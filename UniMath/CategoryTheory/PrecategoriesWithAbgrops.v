@@ -12,7 +12,7 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
 Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
 
 Section def_precategory_with_abgrops.
 

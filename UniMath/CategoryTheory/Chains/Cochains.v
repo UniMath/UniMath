@@ -7,7 +7,7 @@ Author: Langston Barrett (@siddharthist), Febuary 2018
 Require Import UniMath.Foundations.PartA.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.Foundations.NaturalNumbers.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.terminal.
