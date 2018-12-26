@@ -36,6 +36,8 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.opp_precat.
 Local Open Scope cat.
 
@@ -253,9 +255,9 @@ End functor_fix_fst_arg.
 Section nat_trans_fix_fst_arg.
 
 Variable C D E : precategory.
-Variable F F': functor (precategory_binproduct C D) E.
-Variable α: F ⟹ F'.
-Variable c: C.
+Variable F F' : functor (precategory_binproduct C D) E.
+Variable α : F ⟹ F'.
+Variable c : C.
 
 Definition nat_trans_fix_fst_arg_data (d:D): functor_fix_fst_arg C D E F c d --> functor_fix_fst_arg C D E F' c d := α (tpair _ c d).
 

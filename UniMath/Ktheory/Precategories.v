@@ -6,7 +6,7 @@ Require Export UniMath.CategoryTheory.Core.Isos. (* export its coercions, especi
 Require Export UniMath.CategoryTheory.opp_precat
                UniMath.CategoryTheory.yoneda
                UniMath.CategoryTheory.categories.HSET.Core.
-Require Export UniMath.CategoryTheory.functor_categories.
+Require Export UniMath.CategoryTheory.Core.Functors.
 Require Export UniMath.Foundations.Preamble.
 Require Export UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.

@@ -17,6 +17,7 @@ Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 
 Require Import UniMath.CategoryTheory.Monads.RelativeMonads.
 

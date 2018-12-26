@@ -21,7 +21,7 @@ Require Export UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Export UniMath.CategoryTheory.PreAdditive.
 Require Export UniMath.CategoryTheory.Morphisms.
 Require Export UniMath.CategoryTheory.Additive.
-Require Export UniMath.CategoryTheory.functor_categories.
+Require Export UniMath.CategoryTheory.Core.Functors.
 Require Export UniMath.CategoryTheory.Subcategory.Full.
 Require Export UniMath.MoreFoundations.Notations.
 Require Export UniMath.MoreFoundations.PartA.

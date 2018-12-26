@@ -13,7 +13,7 @@ Require Export UniMath.CategoryTheory.Core.Categories.
 Require Export UniMath.CategoryTheory.opp_precat
                UniMath.CategoryTheory.yoneda
                UniMath.CategoryTheory.categories.HSET.Core.
-Require Export UniMath.CategoryTheory.functor_categories.
+Require Export UniMath.CategoryTheory.Core.Functors.
 
 
 Local Open Scope cat.

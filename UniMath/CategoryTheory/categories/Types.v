@@ -1,4 +1,5 @@
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 (** * The precategory of types
 
 This file defines the precategory of types in a fixed universe ([type_precat])

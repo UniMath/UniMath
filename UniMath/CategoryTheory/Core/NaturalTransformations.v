@@ -203,9 +203,6 @@ Definition nat_trans_functor_assoc_inv (F1 : functor A B) (F2 : functor B C) (F3
 
 End nat_trans_functor.
 
-Notation "F ⟹ G" := (nat_trans F G) (at level 39) : cat.
-(* to input: type "\==>" with Agda input method *)
-
 (** ** Natural isomorphisms *)
 
 Definition is_nat_iso {C D : precategory} {F G : C ⟶ D} (μ : F ⟹ G) : UU :=
@@ -305,3 +302,6 @@ Proof.
 Defined.
 
 End nat_trans.
+
+Notation "F ⟹ G" := (nat_trans F G) (at level 39) : cat.
+(* to input: type "\==>" with Agda input method *)

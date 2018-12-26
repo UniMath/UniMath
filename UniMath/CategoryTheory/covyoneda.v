@@ -20,7 +20,10 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Export UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Export UniMath.CategoryTheory.FunctorCategory.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
