@@ -13,6 +13,8 @@ Require Export UniMath.Foundations.Sets.
 
 Local Open Scope set.
 
+Definition hProp_set : hSet := hSetpair _ isasethProp.
+
 Definition isconst {X:UU} {Y:hSet} (f : X -> Y) : hProp := ∀ x x', f x = f x'.
 
 Definition squash_to_hSet {X : UU} {Y : hSet} (f : X -> Y) : isconst f -> ∥ X ∥ -> Y.
