@@ -11,7 +11,9 @@ This method has some advantages:
    any difference.
 2. Does not require to install OCaml or Git or other dependencies
    separately (only Nix itself).
-3. It makes possible to uninstall cleanly all the software.
+3. Does not interfere with or modify other software already present on
+   the same system (other versions of OCaml, camlp5, etc).
+4. It makes possible to uninstall cleanly all the software.
 
 The main disadvantage of this method is that it is not the most used
 (see [INSTALL.md](https://github.com/UniMath/UniMath/blob/master/INSTALL.md))
@@ -20,14 +22,15 @@ and it is not very well tested at the moment.
 ## Installation step-by-step
 
 1. If you already have the Nix Package Manager installed, skip this step.
-   Otherwise, type the following command to install Nix:
+   Otherwise, type the following command to install Nix
+   (as a user other than root):
    ```bash
    $ curl https://nixos.org/nix/install | sh
    ```
-
-  (Or go to the [NixOS website](https://nixos.org) to get
-  [more detailed instructions](https://nixos.org/nix/download.html).)
-
+   Follow the instructions output by the script.
+   The installation script requires that you have sudo access to `root`.
+   (Go to the [NixOS website](https://nixos.org) to get
+   [more detailed instructions](https://nixos.org/nix/download.html).)
 2. Start a "nix-shell" with the following command:
    ```bash
    $ nix-shell -p ocaml ocamlPackages.findlib ocamlPackages.camlp4 ocamlPackages.camlp5 ocamlPackages.num gnumake git
@@ -60,3 +63,6 @@ If you want to uninstall UniMath and OCaml to reclaim disk space:
    ```
    $ nix-collect-garbage
    ```
+
+If you want to uninstall the Nix Package Manager directly, consult the
+[Nix Manual](https://nixos.org/nix/manual/#chap-installation).
