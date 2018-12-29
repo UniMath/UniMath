@@ -1,6 +1,9 @@
 Installation of UniMath
 =======================
 
+NB: This file describes the default method for installing UniMath.  An
+alternative method using the [Nix Package Manager](https://nixos.org/nix/) is available in the file [INSTALL\_NIX.md](https://github.com/UniMath/UniMath/blob/master/INSTALL_NIX.md).
+
 Prepare for installation by installing the OCAML compiler and a more modern
 version of `bash` on your system.
 

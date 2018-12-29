@@ -150,6 +150,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [limits/FinOrdCoproducts.v](CategoryTheory/limits/FinOrdCoproducts.v)
    - [limits/Opp.v](CategoryTheory/limits/Opp.v)
    - [limits/graphs/eqdiag.v](CategoryTheory/limits/graphs/eqdiag.v)
+   - [SubobjectClassifier.v](CategoryTheory/SubobjectClassifier.v)
    - [NNO.v](CategoryTheory/NNO.v)
    - [Subcategory/Limits.v](CategoryTheory/Subcategory/Limits.v)
    - [EpiFacts.v](CategoryTheory/EpiFacts.v)
