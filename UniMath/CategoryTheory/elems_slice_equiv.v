@@ -8,12 +8,14 @@ Contents : Equivalence of the categories PreShv ∫P and
            PreShv C / P for any P in PreShv C
 ************************************************************)
 
+Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import
-        UniMath.Foundations.Sets
-        UniMath.CategoryTheory.functor_categories
         UniMath.CategoryTheory.Equivalences.Core
         UniMath.CategoryTheory.categories.HSET.Core
         UniMath.CategoryTheory.categories.HSET.MonoEpiIso

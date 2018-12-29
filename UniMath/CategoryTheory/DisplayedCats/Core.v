@@ -35,6 +35,7 @@ Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.AxiomOfChoice.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Local Open Scope cat.

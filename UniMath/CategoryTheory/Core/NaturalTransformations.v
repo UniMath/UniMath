@@ -92,11 +92,13 @@ Proof.
   apply (total2_paths_f H'), proofirrelevance, isaprop_is_nat_trans, hs.
 Qed.
 
+
 Section nat_trans_eq.
 
-  Context {C D : precategory} {hsD : has_homsets D}.
+  Context {C D : precategory}.
+  Variable hsD : has_homsets D.
   Context {F G : functor C D}.
-  Context (alpha beta : nat_trans F G).
+  Variables alpha beta : nat_trans F G.
 
   Definition nat_trans_eq_weq : (alpha = beta) ≃ (∏ c, alpha c = beta c).
   Proof.
