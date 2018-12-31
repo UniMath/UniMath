@@ -1,14 +1,15 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import UniMath.Foundations.Preamble.
-Require Import UniMath.Algebra.Monoids_and_Groups
-               UniMath.Combinatorics.FiniteSets
+Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.Groups.
+Require Import UniMath.Combinatorics.FiniteSets
                UniMath.NumberSystems.NaturalNumbersAlgebra
                UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.QuotientSet UniMath.Ktheory.Monoid.
 Close Scope multmonoid_scope.
 Local Open Scope addmonoid_scope.
-Import UniMath.Algebra.Monoids_and_Groups.AddNotation.
+Import UniMath.Algebra.Monoids.AddNotation.
 Local Notation Hom := monoidfun.
 Definition dni_first n : stn n -> stn (S n) := @dni n firstelement.
 Definition dni_last  n : stn n -> stn (S n) := @dni n lastelement.

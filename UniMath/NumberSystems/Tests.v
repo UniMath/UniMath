@@ -1,4 +1,5 @@
 Require UniMath.Foundations.NaturalNumbers.
+Require Import UniMath.Algebra.Groups.
 Require UniMath.MoreFoundations.DecidablePropositions.
 Require UniMath.MoreFoundations.NegativePropositions.
 

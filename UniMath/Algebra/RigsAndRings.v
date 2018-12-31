@@ -1,4 +1,5 @@
-(** * Algebra I. Part C.  Rigs and rings. Vladimir Voevodsky. Aug. 2011 - . *)
+(** * Algebra I. Part D.  Rigs and rings. Vladimir Voevodsky. Aug. 2011 - . *)
+Require Import UniMath.Algebra.Groups.
 (** Contents
 - Standard Algebraic Structures
  - Rigs - semirings with 1, 0, and x * 0 = 0 * x = 0
@@ -64,7 +65,7 @@ Unset Kernel Term Sharing.
 
 (** Imports *)
 
-Require Export UniMath.Algebra.Monoids_and_Groups.
+Require Export UniMath.Algebra.Monoids.
 
 (** To upstream files *)
 
