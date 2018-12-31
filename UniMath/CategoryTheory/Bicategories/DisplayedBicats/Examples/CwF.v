@@ -31,11 +31,17 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
 (* (Displayed) Bicategories. *)
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Adjunctions.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Univalence.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.ContravariantFunctor.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.BicatOfCats.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Cofunctormap.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Sigma.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispAdjunctions.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispUnivalence.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispInvertibles.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Prod.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat.
 
@@ -93,7 +99,10 @@ Section Representation.
           {Ty Tm : opp_precat_data C ⟶ SET}
           (pp : Tm ⟹ Ty).
 
+  (*
   Definition map_into (Γ : C) : UU := ∑ (ΓA : C), C ⟦ΓA, Γ⟧.
+   *)
+  Definition map_into (Γ : C) : UU := ∑ (ΓA : C), iso ΓA Γ.
 
   Definition cwf_tm_of_ty {Γ : C} (A : Ty Γ : hSet) : UU
     := ∑ (t : (Tm Γ : hSet)),
@@ -130,7 +139,10 @@ Section Projections.
 
   Definition ext : C := pr1 (pr1 (R Γ A)).
 
+  (*
   Definition π : C⟦ext,Γ⟧ := pr2 (pr1 (R Γ A)).
+   *)
+  Definition π : iso ext Γ := pr2 (pr1 (R Γ A)).
 
   Definition var : (Tm ext:hSet) := pr1 (pr1 (pr2 (R Γ A))).
 
@@ -173,12 +185,27 @@ Section Representation_Morphisms.
     := functor_on_morphisms f (π R Γ A) =
        (i:iso _ _ _) · π R' (f Γ) (fty Γ A).
 
+  Definition isaprop_π_compatibility_type
+             (Γ : C) (A : (Ty Γ : hSet))
+             (i : isoext_type Γ A)
+    : isaprop (π_compatibility_type Γ A i).
+  Proof.
+    apply C'.
+  Defined.
+
   Definition var_compatibility_type (Γ : C) (A : (Ty Γ : hSet))
              (i : iso C' (f (ext R Γ A)) (ext R' (f Γ) (fty Γ A)))
     : UU
     := functor_on_morphisms Tm' (opp_iso i) (var R' (f Γ) (fty Γ A)) =
        ftm _ (var R Γ A).
 
+  Definition isaprop_var_compatibility_type
+             (Γ : C) (A : (Ty Γ : hSet))
+             (i : iso C' (f (ext R Γ A)) (ext R' (f Γ) (fty Γ A)))
+    : isaprop (var_compatibility_type Γ A i).
+  Proof.
+    apply (Tm' (f (ext R Γ A))).
+  Defined.
 End Representation_Morphisms.
 
 Section CwF.
@@ -323,8 +350,43 @@ Section CwF.
     : disp_cat_data (total_bicat (morphisms_of_preshaves SET))
     := (_ ,, disp_cwf_cat_id_comp).
 
-  Definition disp_cwf : disp_prebicat _
-    := disp_cell_unit_prebicat disp_cwf_cat_data.
+  Definition disp_cwf : disp_bicat _
+    := disp_cell_unit_bicat disp_cwf_cat_data.
+
+  Definition cwf : bicat
+    := total_bicat disp_cwf.
+
+  Definition cwf_is_univalent_2_1
+    : is_univalent_2_1 cwf.
+  Proof.
+    apply total_is_locally_univalent.
+    - apply sigma_is_univalent_2_1.
+      + exact univalent_cat_is_univalent_2_1.
+      + apply is_univalent_2_1_dirprod_bicat.
+        * admit.
+        * admit.
+      + apply disp_cell_unit_bicat_locally_univalent.
+        intros ; simpl.
+        admit.
+    - apply disp_cell_unit_bicat_locally_univalent.
+      intros C D ; intros ; simpl.
+      repeat (apply impred ; intro).
+      apply isaproptotal2.
+      + intro.
+        apply isapropdirprod.
+        * apply isaprop_π_compatibility_type.
+        * apply isaprop_var_compatibility_type.
+      + unfold isoext_type.
+        intros g₁ g₂ Hg₁ Hg₂.
+        use subtypeEquality.
+        { intro ; apply isaprop_is_iso. }
+        unfold π_compatibility_type, var_compatibility_type in *.
+        pose (s1 := pr1 Hg₁).
+        pose (s2 := pr1 Hg₂).
+        pose (s3 := !s1 @ s2).
+        refine (post_comp_with_iso_is_inj _ _ _ _ _ _ _ _ s3).
+        apply π.
+  Admitted.
 
 (*
   Definition disp_cwf_prebicat_1_id_comp_cells
