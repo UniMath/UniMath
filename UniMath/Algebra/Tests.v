@@ -42,7 +42,7 @@ Module Test_assoc.
 
   (* demonstrate that the Coq parser is left-associative with "+" *)
   Local Open Scope addmonoid.
-  Import UniMath.Algebra.Monoids_and_Groups.AddNotation.
+  Import UniMath.Algebra.Monoids.AddNotation.
   Goal ∏ (M:monoid) (x y z:M), x+y+z = (x+y)+z. Proof. reflexivity. Defined.
   Goal ∏ (M:monoid) (x y z:M), x+y+z = x+(y+z). Proof. apply assocax. Defined.
 

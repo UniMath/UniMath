@@ -37,7 +37,8 @@ Require Export UniMath.MoreFoundations.Notations.
 Require Export UniMath.MoreFoundations.PartA.
 Require Export UniMath.MoreFoundations.Propositions.
 Require Export UniMath.Algebra.BinaryOperations.
-Require Export UniMath.Algebra.Monoids_and_Groups.
+Require Export UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.Groups.
 
 
 (* some of these might be appropriate upstream: *)

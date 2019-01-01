@@ -2,6 +2,7 @@
  - Anthony Bordg, March-April 2017
  - Langston Barrett (@siddharthist), November-December 2017 *)
 
+Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.Algebra.Modules.
