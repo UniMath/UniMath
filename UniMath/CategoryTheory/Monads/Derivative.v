@@ -10,6 +10,7 @@ Contents:
         - left module over a monad T obtained by composing a monad having a distributive
           law with T [LModule_comp_laws]
           - in particular: the derivative of a left module over a monad [LModule_deriv]
+        - Commutation of module derivation with pullback [pb_LModule_deriv_iso]
 
 Written by: Joseph Helfer (May 2017)
 
@@ -563,3 +564,60 @@ Definition LModule_deriv {D : precategory} {T : Monad C} (L : LModule T D) : LMo
 End deriv_def.
 
 End maybe_def.
+
+(**
+Derivation on modules commutes with the pullback: if m is a monad morphism, then m*(M')
+ is isomorphic to m*(M)'
+ *)
+Section pullback_deriv.
+  Context {C : precategory}
+          (o : C) (* derivation X ↦ X + o *)
+          (bcpC : limits.bincoproducts.BinCoproducts C )
+          {D : category}.
+
+
+
+  Let MOD (R : Monad C) := (precategory_LModule R D).
+  Context {R S : Monad C} (f : Monad_Mor R S) (M : LModule S D).
+  Local Notation "M '" := (LModule_deriv o bcpC M) (at level 30).
+
+
+  Local Notation pb_d := (pb_LModule f (M ')).
+  Local Notation d_pb := ((pb_LModule f M ) ').
+
+  (** Pointwise equality of the involved multiplication *)
+  Lemma pb_LModule_deriv_eq_mult c :
+    # M (BinCoproductOfArrows C (bcpC o (R c)) (bcpC o (S c)) (identity o) (pr1 f c)) ·
+      (# (pr1 M)
+         (BinCoproductArrow C (bcpC o (S c)) (BinCoproductIn1 C (bcpC o c) · pr1 (η S) (bcpC o c))
+                            (# (pr1 S) (BinCoproductIn2 C (bcpC o c)))) · pr1 (lm_mult S M) (bcpC o c)) =
+    # (pr1 M)
+      (BinCoproductArrow C (bcpC o (R c)) (BinCoproductIn1 C (bcpC o c) · pr1 (η R) (bcpC o c))
+                         (# (pr1 R) (BinCoproductIn2 C (bcpC o c)))) · (# (pr1 M) (pr1 f (bcpC o c)) ·
+                                                                          (lm_mult S M) (bcpC o c)).
+  Proof.
+    repeat rewrite assoc.
+    apply cancel_postcomposition.
+    do 2 rewrite <- functor_comp.
+    apply maponpaths.
+    etrans;[ apply precompWithBinCoproductArrow|].
+    rewrite id_left.
+    rewrite postcompWithBinCoproductArrow.
+    apply map_on_two_paths.
+    - rewrite <- assoc.
+      apply cancel_precomposition.
+      apply pathsinv0.
+      apply Monad_Mor_η.
+    - apply pathsinv0.
+      apply nat_trans_ax.
+  Qed.
+  Definition pb_LModule_deriv_iso :
+    iso (C := MOD R) pb_d d_pb :=
+    LModule_same_func_iso
+      (pb_LModule_laws f (M '))
+                      (LModule_comp_laws (deriv_dist_is_monad_dist o bcpC R) (pb_LModule f M))
+                      pb_LModule_deriv_eq_mult
+                      (homset_property D) .
+
+
+End pullback_deriv.

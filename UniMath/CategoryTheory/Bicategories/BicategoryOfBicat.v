@@ -20,9 +20,9 @@ Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.Bicategories.WkCatEnrichment.prebicategory.
 Require Import UniMath.CategoryTheory.Bicategories.WkCatEnrichment.Notations.
 
-Require Import UniMath.CategoryTheory.Bicategories.Bicat. Import Bicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 
-Open Scope cat.
+Local Open Scope cat.
 
 Local Notation "C  'c×'  D" := (precategory_binproduct C D)
  (at level 75, right associativity).
@@ -98,9 +98,9 @@ Lemma prebicat_associator_and_unitors_are_iso
   : associator_and_unitors_are_iso bicate_data.
 Proof.
   repeat split; cbn; intros.
-  - apply lassociator_iso.
-  - apply lunitor_iso.
-  - apply runitor_iso.
+  - apply is_iso_lassociator.
+  - apply is_iso_lunitor.
+  - apply is_iso_runitor.
 Defined.
 
 Lemma triangle_identity {a b c : C} (f : C ⟦ a, b ⟧) (g : C ⟦ b, c ⟧)

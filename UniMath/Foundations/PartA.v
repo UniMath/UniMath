@@ -2176,8 +2176,8 @@ Proof.
   apply (twooutof3a f py (isweqcontrtounit isx) (isweqcontrtounit isy)).
 Defined.
 
-Definition weqcontrcontr {X Y : UU} (isx : iscontr X) (isy : iscontr Y) :=
-  weqpair _ (isweqcontrcontr (λ (_ : X), pr1 isy) isx isy).
+Definition weqcontrcontr {X Y : UU} (isx : iscontr X) (isy : iscontr Y) : X ≃ Y
+  := weqpair (λ _, pr1 isy) (isweqcontrcontr _ isx isy).
 
 (** *** Composition of weak equivalences *)
 

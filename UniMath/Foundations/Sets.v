@@ -156,8 +156,6 @@ Definition hPropset : hSet := tpair _ hProp isasethProp.
 Definition hProp_to_hSet (P : hProp) : hSet
   := hSetpair P (isasetaprop (propproperty P)).
 
-Coercion hProp_to_hSet : hProp >-> hSet.
-
 (** *** Booleans as a set *)
 
 Definition boolset : hSet := hSetpair bool isasetbool.
@@ -987,16 +985,6 @@ Proof.
   apply (toneghdisj (dirprodpair r12 r23)).
 Defined.
 
-Lemma iscotrans_to_istrans_negReln {X : UU} {R : hrel X} (NR : negReln R) :
-  isdeccotrans R -> istrans NR.
-(* uses no axioms; compare to istransnegrel *)
-Proof.
-  intros i ? ? ? nxy nyz. apply neg_to_negProp.
-  apply (negf (i x1 x2 x3)). intro c. induction c as [c|c].
-  - exact (negProp_to_neg nxy c).
-  - exact (negProp_to_neg nyz c).
-Defined.
-
 Lemma isasymmnegrel {X : UU} (R : hrel X) (isr : iscoasymm R) :
   isasymm (negrel R).
 Proof.
@@ -1601,10 +1589,6 @@ Lemma isinclpr1setquot {X : UU} (R : hrel X) : isincl (pr1setquot R).
 Proof.
   apply isinclpr1. intro x0. apply isapropiseqclass.
 Defined.
-
-Definition setquottouu0 {X : UU} (R : hrel X) (a : setquot R)
-  := carrier (pr1 a).
-Coercion setquottouu0 : setquot >-> Sortclass.
 
 Theorem isasetsetquot {X : UU} (R : hrel X) : isaset (setquot R).
 Proof.

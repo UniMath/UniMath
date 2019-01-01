@@ -8,6 +8,7 @@ Require UniMath.Combinatorics.OrderedSets.
 Require UniMath.Combinatorics.StandardFiniteSets.
 Require UniMath.Combinatorics.BoundedSearch.
 Require UniMath.MoreFoundations.DecidablePropositions.
+Require UniMath.MoreFoundations.NegativePropositions.
 
 Module Test_list.
 
@@ -29,6 +30,7 @@ End Test_list.
 Module Test_stn.
 
   Import UniMath.Combinatorics.StandardFiniteSets.
+  Import UniMath.MoreFoundations.NegativePropositions.
 
   Local Open Scope stn.
 

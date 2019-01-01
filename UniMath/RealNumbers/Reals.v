@@ -9,7 +9,7 @@ Require Import UniMath.RealNumbers.Sets.
 Require Import UniMath.RealNumbers.NonnegativeRationals.
 Require Export UniMath.RealNumbers.NonnegativeReals.
 
-Open Scope NR_scope.
+Local Open Scope NR_scope.
 
 (** ** Definition *)
 
@@ -1379,7 +1379,7 @@ Definition NRNRtoR : NonnegativeReals → NonnegativeReals → Reals := λ (x y 
 Definition RtoNRNR : Reals → NonnegativeReals × NonnegativeReals := λ x : Reals, (hr_to_NR x).
 
 Delimit Scope R_scope with R.
-Open Scope R_scope.
+Local Open Scope R_scope.
 
 Infix "≠" := Rap : R_scope.
 Infix "<" := Rlt : R_scope.

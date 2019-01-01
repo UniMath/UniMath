@@ -54,7 +54,7 @@ Require Import UniMath.CategoryTheory.AdditiveFunctors.
 Require Import UniMath.HomologicalAlgebra.Complexes.
 Require Import UniMath.HomologicalAlgebra.KA.
 
-Open Scope hz_scope.
+Local Open Scope hz_scope.
 Local Opaque hz isdecrelhzeq hzplus iscommringops ishinh.
 
 (** * Cohomology functor *)

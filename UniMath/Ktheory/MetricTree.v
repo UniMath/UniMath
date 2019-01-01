@@ -5,6 +5,7 @@
 Require Import UniMath.Algebra.Monoids_and_Groups
                UniMath.Foundations.NaturalNumbers
                UniMath.Foundations.UnivalenceAxiom
+               UniMath.MoreFoundations.NegativePropositions
                UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.Utilities.
 
@@ -63,7 +64,9 @@ Proof. refine (make nat nat_dist _ _ _ _ _).
        { intro m. induction m as [|m IHm]. { reflexivity. } { rewrite nat_dist_S. assumption. } }
        { apply nat_dist_anti. } { apply nat_dist_symm. }
        { apply nat_dist_trans. }
-       { intros m n e. assert (d := natneqchoice _ _ (neg_to_negProp e)). clear e.
+       { intros m n e.
+         Set Printing All.
+         assert (d := natneqchoice _ _ (nat_nopath_to_neq e)); clear e.
          destruct d as [h|h].
          { exists (S n).
            { split.

@@ -8,7 +8,7 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 (** ** Null homotopies, an aid for proving things about propositional truncation *)
 
-Open Scope transport.
+Local Open Scope transport.
 
 Definition nullHomotopyTo {X Y} (f:X->Y) (y:Y) := ∏ x:X, f x = y.
 Definition NullHomotopyTo {X Y} (f:X->Y) := total2 (nullHomotopyTo f).
@@ -136,7 +136,7 @@ Notation ap := maponpaths.
 (* see table 3.1 in the coq manual for parsing levels *)
 (* funcomp' is like funcomp, but with the arguments in the other order *)
 Definition funcomp' { X Y Z : UU } ( g : Y -> Z ) ( f : X -> Y ) := λ x : X, g ( f x ) .
-Open Scope transport.
+Local Open Scope transport.
 
 (* some jargon reminders: *)
 Goal ∏ X (i:isaprop X) (x x':X), x = x'.

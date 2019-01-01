@@ -21,7 +21,7 @@ Require Import UniMath.Foundations.Sets
         UniMath.CategoryTheory.categories.HSET.Slice
         UniMath.CategoryTheory.slicecat
         UniMath.CategoryTheory.Adjunctions
-        UniMath.CategoryTheory.equivalences
+        UniMath.CategoryTheory.Equivalences.Core
         UniMath.CategoryTheory.Groupoids
         UniMath.CategoryTheory.categories.StandardCategories.
 Local Open Scope cat.

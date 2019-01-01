@@ -24,7 +24,7 @@ Require Import UniMath.CategoryTheory.categories.StandardCategories.
 
 Local Open Scope cat.
 
-Open Scope type_scope. (* so that it has priority over [cat], for [×] later *)
+Local Open Scope type_scope. (* so that it has priority over [cat], for [×] later *)
 
 Bind Scope cat with precategory_ob_mor.
 Bind Scope cat with precategory_data.
@@ -208,37 +208,6 @@ Local Notation "C × D" := (prod_category C D)
 
 (** * Miscellaneous lemmas *)
 Section Miscellaneous.
-
-(* TODO: _surely_ this is in the library!? *)
-(** Note: generalises [pr1_transportf]. *)
-Definition functtransportf_2
-  {X : UU} {P P' : X → UU} (f : forall x, P x -> P' x)
-  {x x' : X} (e : x = x') (p : P x)
-  : f _ (transportf _ e p) = transportf _ e (f _ p).
-Proof.
-  destruct e; apply idpath.
-Defined.
-
-(* TODO: upstream; also perhaps reconsider implicit args of pr1_transportf to match this? *)
-Lemma pr2_transportf {A} {B1 B2 : A → UU}
-    {a a' : A} (e : a = a') (xs : B1 a × B2 a)
-  : pr2 (transportf (λ a, B1 a × B2 a) e xs) = transportf _ e (pr2 xs).
-Proof.
-  destruct e. apply idpath.
-Defined.
-
-
-(** Very handy for reasoning with “dependent paths” — e.g. for algebra in displayed categories.  TODO: perhaps upstream to UniMath?
-
-Note: similar to [transportf_pathsinv0_var], [transportf_pathsinv0'], but not quite a special case of them, or (as far as I can find) any other library lemma.
-*)
-Lemma transportf_transpose {X : UU} {P : X → UU}
-  {x x' : X} (e : x = x') (y : P x) (y' : P x')
-: transportb P e y' = y -> y' = transportf P e y.
-Proof.
-  intro H; destruct e; exact H.
-Defined.
-
 
 (** For use when proving a goal of the form [transportf _ e' y = ?], where [?] is an existential variable, and we want to “compute” in [y], but expect the result of that computing to itself end with a transported term.
 

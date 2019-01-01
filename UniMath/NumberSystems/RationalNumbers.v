@@ -102,10 +102,10 @@ Lemma hqrminus  ( x : hq ) : paths ( x - x ) 0 .
 Proof . apply ( ringrinvax1 hq x ) . Defined .
 
 Lemma isinclhqplusr ( n : hq ) : isincl ( λ m : hq, m + n ) .
-Proof. apply ( pr2 ( weqtoincl _ _ ( weqrmultingr hqaddabgr n ) ) ) . Defined.
+Proof. apply ( pr2 ( weqtoincl ( weqrmultingr hqaddabgr n ) ) ) . Defined.
 
 Lemma isinclhqplusl ( n : hq ) : isincl ( λ m : hq, n + m ) .
-Proof.  intro.  apply ( pr2 ( weqtoincl _ _ ( weqlmultingr hqaddabgr n ) ) ) . Defined .
+Proof.  intro.  apply ( pr2 ( weqtoincl ( weqlmultingr hqaddabgr n ) ) ) . Defined .
 
 
 Lemma hqpluslcan ( a b c : hq ) ( is : paths ( c + a ) ( c + b ) ) : a = b .

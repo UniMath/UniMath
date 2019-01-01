@@ -2,6 +2,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.UnivalenceAxiom.
+Require Import UniMath.MoreFoundations.All.
 
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -469,4 +470,62 @@ Proof.
   apply proofirrelevance.
   apply isaprop_is_precategory.
   apply hs.
+Defined.
+
+Definition inv_catiso
+           {C D : category}
+           (F : catiso C D)
+  : D ⟶ C.
+Proof.
+  use mk_functor.
+  - use tpair.
+    + exact (invweq (catiso_ob_weq F)).
+    + intros X Y f ; cbn.
+      refine (invmap
+                (catiso_fully_faithful_weq F
+                                           (invmap (catiso_ob_weq F) X)
+                                           (invmap (catiso_ob_weq F) Y))
+                _).
+      exact ((idtoiso (homotweqinvweq (catiso_ob_weq F) X))
+               · f
+               · idtoiso (!(homotweqinvweq (catiso_ob_weq F) Y))).
+  - split.
+    + intro X ; cbn.
+      rewrite id_right.
+      etrans.
+      {
+        apply maponpaths.
+        exact (!(maponpaths pr1
+                            (idtoiso_concat D _ _ _
+                                            (homotweqinvweq (catiso_ob_weq F) X)
+                                            (! homotweqinvweq (catiso_ob_weq F) X)))).
+      }
+      rewrite pathsinv0r ; cbn.
+      apply invmap_eq ; cbn.
+      rewrite functor_id.
+      reflexivity.
+    + intros X Y Z f g ; cbn.
+      apply invmap_eq ; cbn.
+      rewrite functor_comp.
+      pose (homotweqinvweq
+              (catiso_fully_faithful_weq F
+                                         (invmap (catiso_ob_weq F) X)
+                                         (invmap (catiso_ob_weq F) Y))) as p.
+      cbn in p.
+      rewrite p ; clear p.
+      pose (homotweqinvweq
+              (catiso_fully_faithful_weq F
+                                         (invmap (catiso_ob_weq F) Y)
+                                         (invmap (catiso_ob_weq F) Z))) as p.
+      cbn in p.
+      rewrite p ; clear p.
+      rewrite <- !assoc.
+      repeat (apply (maponpaths (λ z, _ · (f · z)))).
+      refine (!(id_left _) @ _).
+      rewrite !assoc.
+      repeat (apply (maponpaths (λ z, z · _))).
+      rewrite idtoiso_inv.
+      cbn.
+      rewrite iso_after_iso_inv.
+      reflexivity.
 Defined.

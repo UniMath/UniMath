@@ -105,12 +105,21 @@ Proof.
   etrans. apply homotweqinvweq. apply H.
 Defined.
 
-Lemma pr1_transportf (A : UU) (B : A -> UU) (P : ∏ a, B a -> UU)
-   (a a' : A) (e : a = a') (xs : ∑ b : B a, P _ b):
+Lemma pr1_transportf {A : UU} {B : A -> UU} {P : ∏ a, B a -> UU}
+   {a a' : A} (e : a = a') (xs : ∑ b : B a, P _ b):
    pr1 (transportf (λ x, ∑ b : B x, P _ b) e xs) =
      transportf (λ x, B x) e (pr1 xs).
 Proof.
-  destruct e; apply idpath.
+  apply pathsinv0.
+  apply (transport_map (λ a, pr1 (P := P a))).
+Defined.
+
+Lemma pr2_transportf {A} {B1 B2 : A → UU}
+    {a a' : A} (e : a = a') (xs : B1 a × B2 a)
+  : pr2 (transportf (λ a, B1 a × B2 a) e xs) = transportf _ e (pr2 xs).
+Proof.
+  apply pathsinv0.
+  apply (transport_map (λ a, pr2 (P := λ _, B2 a))).
 Defined.
 
 Lemma coprodcomm_coprodcomm {X Y : UU} (v : X ⨿ Y) : coprodcomm Y X (coprodcomm X Y v) = v.
@@ -191,4 +200,23 @@ Lemma weqtotal2 {X Y:Type} {P:X->Type} {Q:Y->Type} (f : X ≃ Y) :
 Proof.
   intros e. exists (λ xp, (f(pr1 xp),,e (pr1 xp) (pr2 xp))).
   exact (twooutof3c _ _ (isweqfibtototal P (Q ∘ f) e) (pr2 (weqfp f Q))).
+Defined.
+
+Lemma hlevel_total2 n {A : UU} {B : A → UU} :
+  isofhlevel n (∑ (x :A), B x) → isofhlevel (S n) A → ∏ (x : A), isofhlevel n (B x).
+Proof.
+  intros ic ia x.
+  exact (isofhlevelweqf _ (invweq (ezweqpr1 _ _)) (isofhlevelffromXY _ _ ic ia _)).
+Defined.
+
+Definition path_sigma_hprop
+           {A : UU}
+           (B : A → UU)
+           (x y : ∑ (z : A), B z)
+           (HB : isaprop (B (pr1 y)))
+  : x = y ≃ pr1 x = pr1 y.
+Proof.
+  refine (weqpr1 _ _ ∘ total2_paths_equiv _ _ _)%weq.
+  intros.
+  apply HB.
 Defined.

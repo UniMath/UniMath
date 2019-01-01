@@ -71,8 +71,6 @@ Fixpoint natneq_hProp (n m : nat) : hProp :=
 (* Provisional notation, to be replaced below: *)
 Notation " x ≠ y " := (natneq_hProp x y) (at level 70, no associativity) : nat_scope.
 
-Local Open Scope nat_scope. (* it's already open, but we want it first in line *)
-
 Lemma negpaths0sx (x : nat) : ¬ (0 = S x).
 Proof.
   set (f := λ n : nat, match n with O => true | S m => false end).
@@ -127,18 +125,6 @@ Lemma nat_nopath_to_neq {n m : nat} : ¬ (n = m) -> n ≠ m.
 Proof.
   exact (pr1 (natneq_iff_neq n m)).
 Defined.
-
-Definition natneq (m n : nat) : negProp (m = n).
-Proof.
-  intros. exists (m ≠ n). split.
-  - apply propproperty.
-  - apply natneq_iff_neq.
-Defined.
-
-(* this replaces the provisional notation above: *)
-Notation " x ≠ y " := (natneq x y) (at level 70, no associativity) : nat_scope.
-
-Local Open Scope nat_scope. (* it's already open, but we want it first in line *)
 
 Lemma natneq0sx (x : nat) : 0 ≠ S x.
 Proof.
@@ -207,7 +193,7 @@ Proof.
       * apply ii2. assumption.
 Defined.
 
-Definition isdecrel_natneq : isdecrel (λ m n, negProp_to_hProp (natneq m n)).
+Definition isdecrel_natneq : isdecrel (λ m n, m ≠ n).
 Proof.
   intros n. induction n as [|n N].
   - intro m. induction m as [|m _].
@@ -2103,8 +2089,6 @@ Definition si (i : nat) (x : nat) : nat :=
     | ii2 _ => x
   end.
 
-Definition nat_compl (i : nat) := compl_ne _ i (λ j, i ≠ j).
-
 Lemma natleh_neq {i j : nat} : i ≤ j -> i ≠ j -> i < j.
 Proof.
   intros le ne.
@@ -2112,45 +2096,6 @@ Proof.
   - exact lt.
   - induction eq. apply fromempty. exact (isirrefl_natneq _ ne).
 Defined.
-
-Theorem weqdicompl (i : nat) : nat ≃ nat_compl i.
-Proof.
-  use weq_iso.
-  - intro j. exists (di i j). apply di_neq_i.
-  - intro j. exact (si i (pr1 j)).
-  - simpl. intro j. unfold di. induction (natlthorgeh j i) as [lt|ge].
-    + unfold si. induction (natlthorgeh i j) as [lt'|ge'].
-      * contradicts (isasymmnatlth _ _ lt') lt.
-      * apply idpath.
-    + unfold si. induction (natlthorgeh i (S j)) as [lt'|ge'].
-      * change (S j) with (1 + j). rewrite natpluscomm. apply plusminusnmm.
-      * unfold natgeh,natleh in ge. contradicts (natlehneggth ge') ge.
-  - simpl. intro j. induction j as [j ne]; simpl.
-    apply subtypeEquality.
-    + intro k. apply negProp_to_isaprop.
-    + simpl. unfold si. induction (natlthorgeh j i) as [lt|ge].
-      * clear ne.
-        induction (natlthorgeh i j) as [lt'|_].
-        { contradicts (isasymmnatlth _ _ lt') lt. }
-        { unfold di. induction (natlthorgeh j i) as [lt'|ge'].
-          - apply idpath.
-          - contradicts (natgehtonegnatlth _ _ ge') lt. }
-      * assert (lt := natleh_neq ge ne); clear ne ge.
-        induction (natlthorgeh i j) as [_|ge'].
-        { unfold di. induction (natlthorgeh (j - 1) i) as [lt'|ge'].
-          - apply fromempty. induction j as [|j _].
-            + exact (negnatlthn0 _ lt).
-            + change (S j) with (1 + j) in lt'.
-                 rewrite natpluscomm in lt'.
-                 rewrite plusminusnmm in lt'.
-                 change (i < S j) with (i ≤ j) in lt.
-                 exact (natlehneggth lt lt').
-          - induction j as [|j _].
-            + contradicts (negnatlthn0 i) lt.
-            + simpl. apply maponpaths. apply natminuseqn. }
-        contradicts (natgehtonegnatlth _ _ ge') lt.
-Defined.
-
 
 (* more lemmas about natural numbers *)
 
