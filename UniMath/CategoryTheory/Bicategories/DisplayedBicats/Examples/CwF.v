@@ -211,7 +211,7 @@ End Representation_Morphisms.
 Section CwF.
 
   Definition disp_cwf_cat_ob_mor
-    : disp_cat_ob_mor (total_bicat (morphisms_of_preshaves SET)).
+    : disp_cat_ob_mor (morphisms_of_presheaves SET).
   Proof.
     use tpair.
     - intros (C, ((Ty, Tm), pp)).
@@ -347,7 +347,7 @@ Section CwF.
   Defined.
 
   Definition disp_cwf_cat_data
-    : disp_cat_data (total_bicat (morphisms_of_preshaves SET))
+    : disp_cat_data (morphisms_of_presheaves SET)
     := (_ ,, disp_cwf_cat_id_comp).
 
   Definition disp_cwf : disp_bicat _

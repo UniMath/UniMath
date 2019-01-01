@@ -14,113 +14,130 @@ Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.BicatOfCats.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Adjunctions.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Univalence.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispAdjunctions.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispInvertibles.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispUnivalence.
+
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
 Section fix_a_category.
 
-Variable K : category.
+  Variable K : category.
 
-Local Notation "∁" := bicat_of_cats.
+  Local Notation "∁" := bicat_of_cats.
 
-Definition disp_presheaf_cat_ob_mor : disp_cat_ob_mor ∁.
-Proof.
-  use tpair.
+  Definition disp_presheaf_cat_ob_mor : disp_cat_ob_mor ∁.
+  Proof.
+    use tpair.
     + exact (λ c : univalent_category, functor c^op K).
     + cbn. intros c d ty ty' f.
       exact (nat_trans ty (functor_composite (functor_opp f) ty')).
-Defined.
+  Defined.
 
-Definition disp_presheaf_cat_data : disp_cat_data ∁.
-Proof.
-  exists disp_presheaf_cat_ob_mor.
-  use tpair.
-  + intros c f.
-    set (T:= nat_trans_id (pr1 f) ).
-    exact T.
-  + intros c d e f g ty ty' ty''.
+  Definition disp_presheaf_cat_data : disp_cat_data ∁.
+  Proof.
+    exists disp_presheaf_cat_ob_mor.
+    use tpair.
+    + intros c f.
+      set (T:= nat_trans_id (pr1 f) ).
+      exact T.
+    + intros c d e f g ty ty' ty''.
+      intros x y.
+      set (T1 := x).
+      set (T2 := @pre_whisker
+                   (op_unicat c) (op_unicat d) K
+                   (functor_opp f) _ _ (y : nat_trans (ty': functor _ _ )  _  )).
+      exact (@nat_trans_comp (op_unicat c) K _ _ _ T1 T2 ).
+  Defined.
+
+  Definition disp_presheaf_prebicat_1_id_comp_cells : disp_prebicat_1_id_comp_cells bicat_of_cats.
+  Proof.
+    exists disp_presheaf_cat_data.
+    intros c d f g a.
+    intros p p'.
     intros x y.
-    set (T1 := x).
-    set (T2 := @pre_whisker
-                 (op_unicat c) (op_unicat d) K
-                 (functor_opp f) _ _ (y : nat_trans (ty': functor _ _ )  _  )).
-    exact (@nat_trans_comp (op_unicat c) K _ _ _ T1 T2 ).
-Defined.
+    exact (x = @nat_trans_comp (op_unicat c) K _  _ _ y (post_whisker (op_nt a) p')).
+  Defined.
 
-Definition disp_presheaf_prebicat_1_id_comp_cells : disp_prebicat_1_id_comp_cells bicat_of_cats.
-Proof.
-  exists disp_presheaf_cat_data.
-  intros c d f g a.
-  intros p p'.
-  intros x y.
-  exact (x = @nat_trans_comp (op_unicat c) K _  _ _ y (post_whisker (op_nt a) p')).
-Defined.
+  Definition disp_presheaf_prebicat_ops : disp_prebicat_ops disp_presheaf_prebicat_1_id_comp_cells.
+  Proof.
+    repeat split; cbn.
+    - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
+      intro. rewrite (functor_id y). apply pathsinv0, id_right.
+    - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
+      intro.  rewrite (functor_id y). rewrite id_left, id_right. apply idpath.
+    - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
+      intro. rewrite (functor_id y). apply idpath.
+    - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
+      intro. rewrite (functor_id y). rewrite id_left, id_right. apply idpath.
+    - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
+      intro. rewrite (functor_id y). repeat rewrite id_right. apply idpath.
+    - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
+      intro. rewrite (functor_id z). rewrite id_right. apply pathsinv0, assoc.
+    - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
+      intro. rewrite (functor_id z). rewrite id_right. apply assoc.
+    - intros. apply nat_trans_eq; try apply (homset_property K).
+      intro.
+      rewrite X. rewrite X0.
+      cbn.
+      pose (T:= @functor_comp (op_cat b) _ y).
+      rewrite <- assoc.
+      rewrite <- T.
+      apply idpath.
+    - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
+      rewrite X.
+      intro. apply assoc.
+    - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
+      rewrite X.
+      intros. cbn.
+      pose (T:= nat_trans_ax gg).
+      cbn in T.
+      rewrite <- assoc.
+      rewrite T.
+      apply assoc.
+  Qed.
 
-Definition disp_presheaf_prebicat_ops : disp_prebicat_ops disp_presheaf_prebicat_1_id_comp_cells.
-Proof.
-  repeat split; cbn.
-  - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
-    intro. rewrite (functor_id y). apply pathsinv0, id_right.
-  - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
-    intro.  rewrite (functor_id y). rewrite id_left, id_right. apply idpath.
-  - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
-    intro. rewrite (functor_id y). apply idpath.
-  - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
-    intro. rewrite (functor_id y). rewrite id_left, id_right. apply idpath.
-  - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
-    intro. rewrite (functor_id y). repeat rewrite id_right. apply idpath.
-  - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
-    intro. rewrite (functor_id z). rewrite id_right. apply pathsinv0, assoc.
-  - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
-    intro. rewrite (functor_id z). rewrite id_right. apply assoc.
-  - intros. apply nat_trans_eq; try apply (homset_property K).
-    intro.
-    rewrite X. rewrite X0.
+  Definition disp_presheaf_prebicat_data : disp_prebicat_data ∁ := _ ,,  disp_presheaf_prebicat_ops.
+
+  Lemma disp_presheaf_prebicat_laws : disp_prebicat_laws disp_presheaf_prebicat_data.
+  Proof.
+    repeat split; intro;
+      intros;
+      apply isaset_nat_trans; apply homset_property.
+  Qed.
+
+  Definition disp_presheaf_prebicat : disp_prebicat ∁ :=
+    (disp_presheaf_prebicat_data,, disp_presheaf_prebicat_laws).
+
+  Lemma has_disp_cellset_disp_presheaf_prebicat
+    : has_disp_cellset disp_presheaf_prebicat.
+  Proof.
+    red. intros.
+    unfold disp_2cells.
     cbn.
-    pose (T:= @functor_comp (op_cat b) _ y).
-    rewrite <- assoc.
-    rewrite <- T.
-    apply idpath.
-  - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
-    rewrite X.
-    intro. apply assoc.
-  - intros. apply nat_trans_eq; try apply (homset_property K); cbn.
-    rewrite X.
-    intros. cbn.
-    pose (T:= nat_trans_ax gg).
-    cbn in T.
-    rewrite <- assoc.
-    rewrite T.
-    apply assoc.
-Qed.
+    apply isasetaprop.
+    cbn in *.
+    apply isaset_nat_trans.
+    apply homset_property.
+  Qed.
 
-Definition disp_presheaf_prebicat_data : disp_prebicat_data ∁ := _ ,,  disp_presheaf_prebicat_ops.
+  Definition disp_presheaf_bicat : disp_bicat ∁ :=
+    (disp_presheaf_prebicat,, has_disp_cellset_disp_presheaf_prebicat).
 
-Lemma disp_presheaf_prebicat_laws : disp_prebicat_laws disp_presheaf_prebicat_data.
-Proof.
-  repeat split; intro;
-    intros;
-    apply isaset_nat_trans; apply homset_property.
-Qed.
+  Definition disp_presheaves_is_univalent_2_1
+    : disp_locally_univalent disp_presheaf_bicat.
+  Proof.
+  Admitted.
 
-Definition disp_presheaf_prebicat : disp_prebicat ∁ :=
-  (disp_presheaf_prebicat_data,, disp_presheaf_prebicat_laws).
-
-Lemma has_disp_cellset_disp_presheaf_prebicat
-  : has_disp_cellset disp_presheaf_prebicat.
-Proof.
-  red. intros.
-  unfold disp_2cells.
-  cbn.
-  apply isasetaprop.
-  cbn in *.
-  apply isaset_nat_trans.
-  apply homset_property.
-Qed.
-
-Definition disp_presheaf_bicat : disp_bicat ∁ :=
-  (disp_presheaf_prebicat,, has_disp_cellset_disp_presheaf_prebicat).
-
+  Definition disp_presheaves_is_univalent_2_0
+    : disp_univalent_2_0 disp_presheaf_bicat.
+  Proof.
+  Admitted.
 End fix_a_category.
