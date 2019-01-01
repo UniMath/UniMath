@@ -591,6 +591,17 @@ Section HomSetIso_from_Adjunction.
     - apply id_left.
   Qed.
 
+  Lemma φ_adj_identity (A : C) : φ_adj (identity (F A)) = η _ .
+  Proof.
+    unfold φ_adj. rewrite functor_id.
+    apply id_right.
+  Qed.
+
+  Lemma φ_adj_inv_unit (A : C) : φ_adj_inv (η A) = identity _ .
+  Proof.
+    apply triangle_id_left_ad.
+  Qed.
+
   Definition adjunction_hom_weq (A : C) (B : D) : F A --> B ≃ A --> G B.
   Proof.
     exists φ_adj.
