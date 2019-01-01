@@ -1,5 +1,4 @@
 Require Export UniMath.Foundations.All.
-Require Export UniMath.MoreFoundations.All.
 
 Lemma eqweqmap_transportb {T U: Type} (p: T = U) :
  (λ u:U, eqweqmap (! p) u) = transportb (λ X:Type, X) p.
