@@ -38,7 +38,7 @@ Arguments nat_trans_comp {C C' F G H} a b.
 
 Section Cofunctormaps.
 
-  Variable (K : category).
+  Variable (K : univalent_category).
 
   Definition disp_presheaf : disp_bicat bicat_of_cats
     := disp_presheaf_bicat K.
@@ -83,7 +83,7 @@ Section Cofunctormaps.
     apply tpair.
     - intros (C, (ty, tm)) p.
       apply nat_trans_eq.
-      + apply homset_property.
+      + apply K.
       + cbn. intros. etrans.
         * apply id_right.
         * apply pathsinv0. apply id_left.
@@ -98,7 +98,7 @@ Section Cofunctormaps.
       cbn in *.
       intros eq1 eq2.
       apply nat_trans_eq.
-      + apply homset_property.
+      + apply K.
       + cbn. intros x.
         set (h1 := nat_trans_eq_pointwise eq1 x).
         set (h2 := nat_trans_eq_pointwise eq2 (f x)).
