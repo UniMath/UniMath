@@ -9,6 +9,7 @@ ProductCategory.v
 whiskering.v
 Adjunctions.v
 Monads/RelativeMonads.v
+Monads/RelMonads_Coreflection.v
 Monads/RelativeModules.v
 Equivalences/Core.v
 Equivalences/CompositesAndInverses.v
