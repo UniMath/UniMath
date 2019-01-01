@@ -7,6 +7,7 @@
  ********************************************************************************* *)
 
 Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.whiskering.
@@ -15,6 +16,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.BicatOfCats.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Adjunctions.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.AdjointUnique.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Univalence.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat.
@@ -23,20 +25,18 @@ Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispAdjunctio
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispInvertibles.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispUnivalence.
 
-
 Local Open Scope cat.
-Local Open Scope mor_disp_scope.
+Local Open Scope bicategory_scope.
 
 Section fix_a_category.
-
-  Variable K : category.
-
   Local Notation "∁" := bicat_of_cats.
+
+  Variable (K : univalent_category).
 
   Definition disp_presheaf_cat_ob_mor : disp_cat_ob_mor ∁.
   Proof.
     use tpair.
-    + exact (λ c : univalent_category, functor c^op K).
+    + exact (λ c : univalent_category, functor (op_unicat c) K).
     + cbn. intros c d ty ty' f.
       exact (nat_trans ty (functor_composite (functor_opp f) ty')).
   Defined.
@@ -104,13 +104,14 @@ Section fix_a_category.
       apply assoc.
   Qed.
 
-  Definition disp_presheaf_prebicat_data : disp_prebicat_data ∁ := _ ,,  disp_presheaf_prebicat_ops.
+  Definition disp_presheaf_prebicat_data : disp_prebicat_data ∁
+    := _ ,,  disp_presheaf_prebicat_ops.
 
   Lemma disp_presheaf_prebicat_laws : disp_prebicat_laws disp_presheaf_prebicat_data.
   Proof.
     repeat split; intro;
       intros;
-      apply isaset_nat_trans; apply homset_property.
+      apply isaset_nat_trans; apply K.
   Qed.
 
   Definition disp_presheaf_prebicat : disp_prebicat ∁ :=
@@ -125,19 +126,183 @@ Section fix_a_category.
     apply isasetaprop.
     cbn in *.
     apply isaset_nat_trans.
-    apply homset_property.
+    apply K.
   Qed.
 
-  Definition disp_presheaf_bicat : disp_bicat ∁ :=
-    (disp_presheaf_prebicat,, has_disp_cellset_disp_presheaf_prebicat).
+  Definition disp_presheaf_bicat : disp_bicat ∁
+    := (disp_presheaf_prebicat,, has_disp_cellset_disp_presheaf_prebicat).
+
+  Definition disp_presheaves_all_invertible
+             {C D : ∁}
+             {F G : ∁⟦C, D⟧}
+             (α : invertible_2cell F G)
+             {CD : disp_presheaf_bicat C}
+             {FC : disp_presheaf_bicat D}
+             {γF : CD -->[ F] FC}
+             {γG : CD -->[ G ] FC}
+             (p : disp_2cells α γF γG)
+    : is_disp_invertible_2cell α p.
+  Proof.
+    use tpair.
+    - apply nat_trans_eq.
+      { apply K. }
+      intro x.
+      symmetry.
+      etrans.
+      {
+        simpl.
+        apply maponpaths_2.
+        exact (nat_trans_eq_pointwise p x).
+      }
+      refine (!(assoc _ _ _) @ _).
+      etrans.
+      {
+        apply maponpaths.
+        apply (!(functor_comp FC _ _)).
+      }
+      etrans.
+      {
+        do 2 apply maponpaths.
+        exact (nat_trans_eq_pointwise (pr222 α) x).
+      }
+      etrans.
+      {
+        apply maponpaths.
+        apply (functor_id FC).
+      }
+      apply id_right.
+    - split ; apply isaset_nat_trans ; apply K.
+  Admitted.
 
   Definition disp_presheaves_is_univalent_2_1
     : disp_locally_univalent disp_presheaf_bicat.
   Proof.
+    apply fiberwise_local_univalent_is_locally_univalent.
+    intros C D F CD FC α β.
+    use isweqimplimpl.
+    - intro p ; cbn in * ; unfold idfun in *.
+      apply nat_trans_eq.
+      { apply K. }
+      intro x.
+      pose (nat_trans_eq_pointwise (pr1 p) x) as q.
+      cbn in q.
+      rewrite q.
+      rewrite (functor_id FC), id_right.
+      reflexivity.
+    - apply isaset_nat_trans.
+      apply K.
+    - apply isofhleveltotal2.
+      + apply isaset_nat_trans.
+        apply K.
+      + intro.
+        apply isaprop_is_disp_invertible_2cell.
+  Qed.
+
+  Definition TODO {A : UU} : A.
   Admitted.
+
+  Definition disp_presheaves_adjequiv
+             {C : ∁}
+             (FC FC' : disp_presheaf_bicat C)
+    : @invertible_2cell bicat_of_cats _ _ FC FC'
+      -> disp_adjoint_equivalence (internal_adjoint_equivalence_identity C) FC FC'.
+  Proof.
+    intros α.
+    use tpair.
+    - apply α.
+    - use tpair.
+      + use tpair.
+        * apply α.
+        * split ; apply nat_trans_eq ; try (apply K) ; intro x ; cbn.
+          ** rewrite (functor_id FC), id_right.
+             exact (!(nat_trans_eq_pointwise (pr122 α) x)).
+          ** rewrite (functor_id FC'), id_left.
+             exact (nat_trans_eq_pointwise (pr222 α) x).
+      + split ; split.
+        * apply isaset_nat_trans.
+          apply K.
+        * apply isaset_nat_trans.
+          apply K.
+        * apply disp_presheaves_all_invertible.
+        * apply disp_presheaves_all_invertible.
+  Defined.
+
+  Definition disp_presheaves_adjequiv_inv
+             {C : ∁}
+             (FC FC' : disp_presheaf_bicat C)
+    : disp_adjoint_equivalence (internal_adjoint_equivalence_identity C) FC FC'
+      → @invertible_2cell bicat_of_cats _ _ FC FC'.
+  Proof.
+    intros α.
+    use tpair.
+    - apply α.
+    - use tpair.
+      + apply α.
+      + split.
+        * apply nat_trans_eq.
+          { apply K. }
+          intro x ; cbn.
+          pose (nat_trans_eq_pointwise (pr1(pr212 α)) x) as p.
+          cbn in p.
+          rewrite (functor_id FC), id_right in p.
+          exact (!p).
+        * apply nat_trans_eq.
+          { apply K. }
+          intro x ; cbn.
+          pose (nat_trans_eq_pointwise (pr2(pr212 α)) x) as p.
+          cbn in p.
+          rewrite (functor_id FC'), id_right in p.
+          exact p.
+  Defined.
+
+  Definition disp_presheaves_adjequiv_weq
+             {C : ∁}
+             (FC FC' : disp_presheaf_bicat C)
+    : @invertible_2cell bicat_of_cats _ _ FC FC'
+      ≃ disp_adjoint_equivalence (internal_adjoint_equivalence_identity C) FC FC'.
+  Proof.
+    exists (disp_presheaves_adjequiv FC FC').
+    use isweq_iso.
+    - exact (disp_presheaves_adjequiv_inv FC FC').
+    - intro x.
+      apply subtypeEquality.
+      { intro ; apply isaprop_is_invertible_2cell. }
+      reflexivity.
+    - intro x.
+      apply subtypeEquality.
+      {
+        intro.
+        apply isaprop_disp_left_adjoint_equivalence.
+        + apply univalent_cat_is_univalent_2_1.
+        + apply disp_presheaves_is_univalent_2_1.
+      }
+      reflexivity.
+  Defined.
+
+  Definition disp_presheaves_idtoiso_2_0
+             {C : ∁}
+             (FC FC' : disp_presheaf_bicat C)
+    : FC = FC' ≃ disp_adjoint_equivalence (internal_adjoint_equivalence_identity C) FC FC'
+    := ((disp_presheaves_adjequiv_weq FC FC')
+          ∘ (weqpair (@idtoiso_2_1 bicat_of_cats _ _ FC FC')
+                     (univalent_cat_is_univalent_2_1 _ _ _ _)))%weq.
 
   Definition disp_presheaves_is_univalent_2_0
     : disp_univalent_2_0 disp_presheaf_bicat.
   Proof.
-  Admitted.
+    apply fiberwise_univalent_2_0_to_disp_univalent_2_0.
+    intros C FC FC'.
+    use weqhomot.
+    - exact (disp_presheaves_idtoiso_2_0 FC FC').
+    - intro p.
+      apply subtypeEquality.
+      {
+        intro.
+        apply isaprop_disp_left_adjoint_equivalence.
+        + apply univalent_cat_is_univalent_2_1.
+        + apply disp_presheaves_is_univalent_2_1.
+      }
+      induction p ; cbn.
+      reflexivity.
+  Defined.
 End fix_a_category.
