@@ -95,6 +95,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [whiskering.v](CategoryTheory/whiskering.v)
    - [Adjunctions.v](CategoryTheory/Adjunctions.v)
    - [Monads/RelativeMonads.v](CategoryTheory/Monads/RelativeMonads.v)
+   - [Monads/RelMonads_Coreflection.v](CategoryTheory/Monads/RelMonads_Coreflection.v)
    - [Monads/RelativeModules.v](CategoryTheory/Monads/RelativeModules.v)
    - [Equivalences/Core.v](CategoryTheory/Equivalences/Core.v)
    - [Equivalences/CompositesAndInverses.v](CategoryTheory/Equivalences/CompositesAndInverses.v)
