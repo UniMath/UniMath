@@ -36,7 +36,7 @@ Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.Adjunctions.
-Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
 
 Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
@@ -73,7 +73,7 @@ Cone(f) is constructed in [MappingCone].
 *)
 Section mapping_cone.
 
-  Variable A : Additive.
+  Variable A : CategoryWithAdditiveStructure.
 
   (**  # - (p_1 · d^{i+1}_{C_1} · i_1) # *)
   Definition MappingConeDiff1 {C1 C2 : Complex A} (f : Morphism C1 C2) (i : hz) :
@@ -331,7 +331,7 @@ We show that for all objects X in K(A) we have the following isomorphism of tria
 *)
 Section mapping_cone_of_id.
 
-  Variable A : Additive.
+  Variable A : CategoryWithAdditiveStructure.
 
   Local Opaque precategory_morphisms InvTranslationFunctorHIm TranslationFunctorHIm
         ComplexHomotFunctor compose InvTranslationFunctorH TranslationFunctorH
@@ -754,7 +754,7 @@ and that the above diagram is commutative in K(A).
 *)
 Section rotation_mapping_cone.
 
-  Variable A : Additive.
+  Variable A : CategoryWithAdditiveStructure.
 
   Local Lemma RotMorphismComm {C1 C2 : Complex A} (f : Morphism C1 C2) (i : hz) :
     to_binop (C1 (i + 1)) (to_BinDirectSums A (C2 (i + 1)) (to_BinDirectSums A (C1 (i + 1)) (C2 i)))
@@ -1578,7 +1578,7 @@ and that the above diagram is commutative in K(A).
 *)
 Section inv_rotation_mapping_cone.
 
-  Variable A : Additive.
+  Variable A : CategoryWithAdditiveStructure.
 
   Definition InvRotMorphismMor {C1 C2 : Complex A} (f : Morphism C1 C2) (i : hz) :
     A ⟦ (MappingCone
@@ -3089,7 +3089,7 @@ End inv_rotation_mapping_cone.
 (** Different fibers of the same morphism give isomorphic mapping cones *)
 Section fiber_ext.
 
-  Variable A : Additive.
+  Variable A : CategoryWithAdditiveStructure.
 
   Definition FiberExtMor {C1 C2 : Complex A} (f g : Morphism C1 C2) (H : ComplexHomot A C1 C2)
              (i : hz) : A ⟦ (MappingCone A f) i, (MappingCone A g) i ⟧.
@@ -3401,7 +3401,7 @@ following squares are commutative in K(A)
 *)
 Section mapping_cone_ext.
 
-  Variable A : Additive.
+  Variable A : CategoryWithAdditiveStructure.
 
   Definition MappingConeMorExtMor {C1 C1' C2 C2' : Complex A} (f : Morphism C1 C2)
              (f' : Morphism C1' C2') (g1 : Morphism C1 C1') (g2 : Morphism C2 C2')
@@ -3587,7 +3587,7 @@ End mapping_cone_ext.
 (** * Octahedral axiom for K(A) *)
 Section mapping_cone_octa.
 
-  Context {A : Additive}.
+  Context {A : CategoryWithAdditiveStructure}.
 
   Local Lemma KAOctaMor1_comm {x y z : Complex A} (f1 : Morphism x y) (f2 : Morphism y z) (i : hz) :
     to_binop (to_BinDirectSums A (x (i + 1)) (y i)) (to_BinDirectSums A (x (i + 1)) (z i))

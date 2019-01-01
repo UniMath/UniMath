@@ -715,9 +715,8 @@ Proof.
   apply (is y).
 Defined.
 
-Definition weqtoincl (X Y : UU) : X ≃ Y -> incl X Y
+Definition weqtoincl {X Y : UU} : X ≃ Y -> incl X Y
   := λ w, inclpair (pr1weq w) (pr2 w).
-Coercion weqtoincl : weq >-> incl.
 
 Lemma isinclcomp {X Y Z : UU} (f : incl X Y) (g : incl Y Z) :
   isincl (funcomp (pr1 f) (pr1 g)).
@@ -815,12 +814,11 @@ Defined.
 Corollary subtypeEquality {A : UU} {B : A -> UU} (is : isPredicate B)
    {s s' : total2 (λ x, B x)} : pr1 s = pr1 s' -> s = s'.
 Proof.
-  apply invmap. apply subtypeInjectivity. exact is.
+  intros e. apply (total2_paths_f e). apply is.
 Defined.
 
 Corollary subtypeEquality' {A : UU} {B : A -> UU}
    {s s' : total2 (λ x, B x)} : pr1 s = pr1 s' -> isaprop (B (pr1 s')) -> s = s'.
-(* This variant of subtypeEquality is not often needed. *)
 Proof.
   intros e is. apply (total2_paths_f e). apply is.
 Defined.
@@ -831,11 +829,10 @@ Corollary unique_exists {A : UU} {B : A -> UU} (x : A) (b : B x)
   iscontr (total2 (λ t : A, B t)).
 Proof.
   use iscontrpair.
-  exact (x,,b).
-  intros t.
-  apply subtypeEquality'.
-  apply (H (pr1 t)). apply (pr2 t).
-  apply (h (pr1 (x,,b))).
+  - exact (x,,b).
+  - intros t. apply subtypeEquality.
+    + exact h.
+    + apply (H (pr1 t)). exact (pr2 t).
 Defined.
 
 Definition subtypePairEquality {X : UU} {P : X -> UU} (is : isPredicate P)
@@ -1006,42 +1003,6 @@ Proof.
       apply i.
 Defined.
 
-(** *** Propositions equivalent to negations of propositions *)
-
-Definition negProp P := ∑ Q, isaprop Q × (¬P <-> Q).
-
-Definition negProp_to_type {P} (negP : negProp P) := pr1 negP.
-
-Coercion negProp_to_type : negProp >-> UU.
-
-Definition negProp_to_isaprop {P} (nP : negProp P) : isaprop nP
-  := pr1 (pr2 nP).
-
-Definition negProp_to_iff {P} (nP : negProp P) : ¬P <-> nP
-  := pr2 (pr2 nP).
-
-Definition negProp_to_neg {P} {nP : negProp P} : nP -> ¬P.
-Proof.
-  intros np. exact (pr2 (negProp_to_iff nP) np).
-Defined.
-
-Coercion negProp_to_neg : negProp >-> Funclass.
-
-Definition neg_to_negProp {P} {nP : negProp P} : ¬P -> nP.
-Proof.
-  intros np. exact (pr1 (negProp_to_iff nP) np).
-Defined.
-
-Definition negPred {X:UU} (x  :X) (P:∏ y:X, UU)      := ∏ y  , negProp (P y).
-
-Definition negReln {X:UU}         (P:∏ (x y:X), UU)  := ∏ x y, negProp (P x y).
-
-Definition neqProp {X:UU} (x y:X) :=            negProp (x=y).
-
-Definition neqPred {X:UU} (x  :X) := ∏ y,       negProp (x=y).
-
-Definition neqReln (X:UU)         := ∏ (x y:X), negProp (x=y).
-
 (** Complementary types *)
 
 Definition complementary P Q := (P -> Q -> ∅) × (P ⨿ Q).
@@ -1076,39 +1037,6 @@ Proof.
     + apply ii1. exact (b,,c).
     + apply ii2. clear b. intro k. apply c'. exact (pr2 k).
   - clear c. apply ii2. intro k. apply b'. exact (pr1 k).
-Defined.
-
-Lemma negProp_to_complementary P : ∏ (Q : negProp P), P ⨿ Q <-> complementary P Q.
-Proof.
-  intros [Q [i [r s]]]; simpl in *.
-  split.
-  * intros pq. split.
-    - intros p q. apply s.
-      + assumption.
-      + assumption.
-    - assumption.
-      * intros [j c].
-        assumption.
-Defined.
-
-Lemma negProp_to_uniqueChoice P : ∏ (Q:negProp P), (isaprop P × (P ⨿ Q)) <-> iscontr (P ⨿ Q).
-Proof.
-  intros [Q [j [r s]]]; simpl in *. split.
-  * intros [i v]. exists v. intro w.
-    induction v as [v|v].
-    - induction w as [w|w].
-      + apply maponpaths, i.
-      + contradicts (s w) v.
-    - induction w as [w|w].
-      + contradicts (s v) w.
-      + apply maponpaths, j.
-  * intros [c e]. split.
-    - induction c as [c|c].
-      + apply invproofirrelevance; intros p p'.
-        exact (equality_by_case (e (ii1 p) @ !e (ii1 p'))).
-      + apply invproofirrelevance; intros p p'.
-        contradicts (s c) p.
-    - exact c.
 Defined.
 
 (** *** Decidable propositions [ isdecprop ] *)
@@ -1266,37 +1194,13 @@ Defined.
 (** *** Isolated points *)
 
 Definition isisolated (X:UU) (x:X) := ∏ x':X, (x = x') ⨿ (x != x').
-Definition isisolated_ne (X:UU) (x:X) (neq_x:neqPred x) := ∏ y:X, (x=y) ⨿ neq_x y.
-
-Definition isisolated_to_isisolated_ne {X x neq_x} :
-  isisolated X x -> isisolated_ne X x neq_x.
-Proof.
-  intros i y. induction (i y) as [eq|ne].
-  - exact (ii1 eq).
-  - apply ii2. apply neg_to_negProp. assumption.
-Defined.
-
-Definition isisolated_ne_to_isisolated {X x neq_x} :
-  isisolated_ne X x neq_x -> isisolated X x.
-Proof.
-  intros i y. induction (i y) as [eq|ne].
-  - exact (ii1 eq).
-  - apply ii2. use negProp_to_neg.
-    + exact (neq_x y).
-    + exact ne.
-Defined.
 
 Definition isolated ( T : UU ) := ∑ t:T, isisolated _ t.
-Definition isolated_ne ( T : UU ) (neq:neqReln T) := ∑ t:T, isisolated_ne _ t (neq t).
 
 Definition isolatedpair ( T : UU ) (t:T) (i:isisolated _ t) : isolated T
   := (t,,i).
-Definition isolatedpair_ne (T : UU) (t:T) (neq:neqReln T) (i:isisolated_ne _ t (neq t)) :
-  isolated_ne T neq
-  := (t,,i).
 
 Definition pr1isolated ( T : UU ) (x:isolated T) : T := pr1 x.
-Definition pr1isolated_ne ( T : UU ) (neq:neqReln T) (x:isolated_ne T neq) : T := pr1 x.
 
 Theorem isaproppathsfromisolated (X : UU) (x : X) (is : isisolated X x) :
   ∏ x', isaprop(x = x').
@@ -1312,23 +1216,6 @@ Proof.
 Defined.
 
 Local Open Scope transport.
-
-Theorem isaproppathsfromisolated_ne (X : UU) (x : X) (neq_x : neqPred x)
-        (is : isisolated_ne X x neq_x) (y : X)
-  : isaprop (x = y).
-Proof.
-  (* we could follow the proof of isaproppathsfromisolated here, but we try a
-     different way *)
-  intros. unfold isisolated_ne in is. apply invproofirrelevance; intros m n.
-  set (Q y := (x = y) ⨿ (neq_x y)).
-  assert (a := (transport_section is m) @ !(transport_section is n)).
-  induction (is x) as [j|k].
-  - assert (b := transport_map (λ y p, ii1 p : Q y) m j); simpl in b;
-      assert (c := transport_map (λ y p, ii1 p : Q y) n j); simpl in c.
-    assert (d := equality_by_case (!b @ a @ c)); simpl in d.
-    rewrite 2? transportf_id1 in d. apply (pathscomp_cancel_left j). assumption.
-  - contradicts (neq_x x k) (idpath x).
-Defined.
 
 Theorem isaproppathstoisolated (X : UU) (x : X) (is : isisolated X x) :
   ∏ x' : X, isaprop (x' = x).

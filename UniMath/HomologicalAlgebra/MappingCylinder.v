@@ -31,7 +31,7 @@ Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.Adjunctions.
-Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
 
 Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
@@ -69,7 +69,7 @@ is 0. The complex Cyl(f) is constructed in [MappingCylinder].
 *)
 Section mapping_cylinder.
 
-  Variable A : Additive.
+  Variable A : CategoryWithAdditiveStructure.
 
   (**  # p_1 · d^i_X · i_1 # *)
   Definition MappingCylinderDiff1 {C1 C2 : Complex A} (f : Morphism C1 C2) (i : hz) :
@@ -298,7 +298,7 @@ The fact that Y and Cyl(f) are isomorphic in K(A) is proved in [MappingCylinderI
 *)
 Section mapping_cylinder_KA_iso.
 
-  Variable A : Additive.
+  Variable A : CategoryWithAdditiveStructure.
 
 
   Definition MappingCylinderMor1_mor {C1 C2 : Complex A} (f : (ComplexPreCat_Additive A)⟦C1, C2⟧)

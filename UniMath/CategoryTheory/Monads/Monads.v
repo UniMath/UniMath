@@ -282,7 +282,7 @@ Section MonadsUsingCoproducts.
 
 Context {C : precategory} (T : Monad C) (BC : BinCoproducts C).
 
-Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)) (at level 50).
+Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)).
 
 (** operation of weakening in a monad *)
 Definition mweak (a b: C): C⟦T b, T (a ⊕ b)⟧ := bind (BinCoproductIn2 _ (BC _ _) · (η T _)).

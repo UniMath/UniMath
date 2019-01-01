@@ -7,7 +7,7 @@ Require Import UniMath.Algebra.Monoids_and_Groups
                UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.QuotientSet UniMath.Ktheory.Monoid.
 Close Scope multmonoid_scope.
-Open Scope addmonoid_scope.
+Local Open Scope addmonoid_scope.
 Import UniMath.Algebra.Monoids_and_Groups.AddNotation.
 Local Notation Hom := monoidfun.
 Definition dni_first n : stn n -> stn (S n) := @dni n firstelement.
@@ -258,7 +258,7 @@ Proof.
   { apply lthnatrem. assumption. }
 Abort.
 
-Open Scope addmonoid_scope.
+Local Open Scope addmonoid_scope.
 
 Lemma rotate_left_stn_1 n : rotate_left_stn_0 n n ~ idfun (stn n).
 Proof.

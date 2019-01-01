@@ -11,7 +11,8 @@ Local Open Scope cat.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
 Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
-
+Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.functor_categories.
 
 Section def_precategory_with_abgrops.
 
@@ -199,11 +200,20 @@ Arguments inv_inv_eq [PA] [x] [y] _.
 Arguments cancel_inv [PA] [x] [y] _ _ _.
 
 Delimit Scope abgrcat with abgrcat.
+Notation "b <-- a" := (to_abgr a b) : abgrcat.
 Notation "a --> b" := (to_abgr a b) : abgrcat.
-Notation "f · g" := (compose f g : to_abgr _ _) : abgrcat.
-Notation "1" := (identity _ : to_abgr _ _) : abgrcat.
-Notation "0" := (unel _ : to_abgr _ _) : abgrcat.
-Notation "f = g" := (eqset f g) : abgrcat.
+Notation "1"     := (@identity (precategory_data_from_precategory (precategoryWithBinOps_precategory (categoryWithAbgrops_precategoryWithBinOps _))) _) : abgrcat.
+Notation "0"     := (unel (grtomonoid (abgrtogr _))) : abgrcat.
+Notation "0"     := (unel (grtomonoid (abgrtogr (to_abgr _ _)))) : abgrcat.
+Notation "f + g" := (@op (pr1monoid (grtomonoid (abgrtogr _))) f g) : abgrcat.
+Notation "f + g" := (@op (pr1monoid (grtomonoid (abgrtogr (to_abgr _ _)))) f g) : abgrcat.
+Notation "  - g" := (@grinv (abgrtogr _) g) : abgrcat.
+Notation "  - g" := (@grinv (abgrtogr (to_abgr _ _)) g) : abgrcat.
+Notation "f - g" := (@op (pr1monoid (grtomonoid (abgrtogr _))) f (@grinv (abgrtogr (to_abgr _ _)) g)) : abgrcat.
+Notation "f - g" := (@op (pr1monoid (grtomonoid (abgrtogr (to_abgr _ _)))) f (@grinv (abgrtogr (to_abgr _ _)) g)) : abgrcat.
+Notation "g ∘ f" := (@compose (precategory_data_from_precategory (precategoryWithBinOps_precategory (categoryWithAbgrops_precategoryWithBinOps _))) _ _ _ f g) : abgrcat.
+Notation "f · g" := (@compose (precategory_data_from_precategory (precategoryWithBinOps_precategory (categoryWithAbgrops_precategoryWithBinOps _))) _ _ _ f g) : abgrcat.
+Notation "f = g" := (@eqset (pr1setwithbinop (pr1monoid (grtomonoid (abgrtogr (to_abgr _ _))))) f g) : abgrcat.
 
 Section transport_morphisms.
 
@@ -240,3 +250,20 @@ Section transport_morphisms.
   Qed.
 
 End transport_morphisms.
+
+Definition oppositeCategoryWithAbgrops (M : categoryWithAbgrops) : categoryWithAbgrops.
+Proof.
+  use tpair.
+  - exists (oppositePrecategoryWithBinOps M).
+    exact (λ a b, @to_has_homsets M (rm_opp_ob b) (rm_opp_ob a)).
+  - exact (λ a b, @to_isabgrop M (rm_opp_ob b) (rm_opp_ob a)).
+Defined.
+
+Definition induced_categoryWithAbgrops (M : categoryWithAbgrops) {X:Type} (j : X -> ob M)
+  : categoryWithAbgrops.
+Proof.
+  use tpair.
+  - exists (induced_precategoryWithBinOps M j).
+    exact (λ a b, @to_has_homsets M (j a) (j b)).
+  - exact (λ a b, @to_isabgrop M (j a) (j b)).
+Defined.

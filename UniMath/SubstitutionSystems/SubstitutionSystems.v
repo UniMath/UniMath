@@ -38,7 +38,7 @@ Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.Notation.
-
+Local Open Scope subsys.
 
 Section def_hss.
 
@@ -100,7 +100,7 @@ Local Notation "'p' T" := (ptd_from_alg T) (at level 3).
 Coercion functor_from_algebra_ob (X : algebra_ob _ Id_H) : functor C C  := pr1 X.
 *)
 
-Local Notation "f ⊕ g" := (BinCoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g) (at level 40).
+Local Notation "f ⊕ g" := (BinCoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g).
 
 
 Definition bracket_property (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_alg T)

@@ -156,7 +156,7 @@ End Lemmas.
 
 (** ** Matrices *)
 
-Open Scope stn.
+Local Open Scope stn.
 
 (** An m × n matrix is an m-length vector of n-length vectors (rows).
     <<

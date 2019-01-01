@@ -20,7 +20,7 @@ Definition toℤneg (n:nat) : ℤ := natnattohz O n.
 Definition zero := toℤ 0.
 Definition one := toℤ 1.
 
-Open Scope hz_scope.
+Local Open Scope hz_scope.
 
 Definition hzabsvalnat n : hzabsval (natnattohz n 0) = n. (* move to hz.v *)
 Proof. intros. unfold hzabsval. unfold setquotuniv. simpl.

@@ -146,7 +146,7 @@ Coercion CommDivRig_DivRig : CommDivRig >-> DivRig.
 
 Section CommDivRig_pty.
 
-Open Scope dr_scope.
+Local Open Scope dr_scope.
 
 Context {F : CommDivRig}.
 

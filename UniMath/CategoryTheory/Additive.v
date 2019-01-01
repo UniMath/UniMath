@@ -5,6 +5,7 @@
 *)
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
+Require Import UniMath.MoreFoundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.Algebra.Monoids_and_Groups.
@@ -17,8 +18,10 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
 Require Import UniMath.CategoryTheory.PreAdditive.
+Require Import UniMath.CategoryTheory.opp_precat.
 
 Require Import UniMath.CategoryTheory.limits.zero.
+Require Import UniMath.CategoryTheory.limits.Opp.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.equalizers.
@@ -32,60 +35,119 @@ Local Open Scope cat.
 (** * Definition of additive categories *)
 Section def_additive.
 
-  (** A preadditive category is additive if it has a zero object and binary direct sums. *)
-  Definition isAdditive (PA : PreAdditive) : UU := (Zero PA) × (BinDirectSums PA).
+  (** A preadditive category has an additive structure if it is given a zero object and a binary direct sum operation. *)
+  Definition AdditiveStructure (PA : PreAdditive) : UU := (Zero PA) × (BinDirectSums PA).
 
-  Definition mk_isAdditive (PA : PreAdditive) (H1 : Zero PA) (H2 : BinDirectSums PA) :
-    isAdditive PA.
+  Definition mk_AdditiveStructure (PA : PreAdditive) (H1 : Zero PA) (H2 : BinDirectSums PA) :
+    AdditiveStructure PA.
   Proof.
     exact (H1,,H2).
   Defined.
 
-  (** Definition of additive categories *)
-  Definition Additive : UU := ∑ PA : PreAdditive, isAdditive PA.
+  (** Definition of categories with an additive structure *)
+  Definition CategoryWithAdditiveStructure : UU := ∑ PA : PreAdditive, AdditiveStructure PA.
 
-  Definition Additive_PreAdditive (A : Additive) : PreAdditive := pr1 A.
-  Coercion Additive_PreAdditive : Additive >-> PreAdditive.
+  Definition Additive_PreAdditive (A : CategoryWithAdditiveStructure) : PreAdditive := pr1 A.
+  Coercion Additive_PreAdditive : CategoryWithAdditiveStructure >-> PreAdditive.
 
-  Definition mk_Additive (PA : PreAdditive) (H : isAdditive PA) : Additive.
+  Definition mk_Additive (PA : PreAdditive) (H : AdditiveStructure PA) : CategoryWithAdditiveStructure.
   Proof.
     exact (tpair _ PA H).
   Defined.
 
+  (** A preadditive category is additive if it has a zero object and binary direct sums. *)
+  Definition isAdditive (PA : PreAdditive) : hProp := hasZero PA ∧ hasBinDirectSums PA.
+
+  Definition mk_isAdditive (PA : PreAdditive) (H1 : hasZero PA) (H2 : hasBinDirectSums PA) : isAdditive PA := H1,,H2.
+
+  (** Definition of additive categories *)
+
+  Definition AdditiveCategory : UU := ∑ PA : PreAdditive, isAdditive PA.
+
+  Coercion Additive_to_PreAdditive (A : AdditiveCategory) : PreAdditive := pr1 A.
+
   (** Accessor functions. *)
-  Definition to_isAdditive (A : Additive) : isAdditive A := pr2 A.
+  Definition to_AdditiveStructure (A : CategoryWithAdditiveStructure) : AdditiveStructure A := pr2 A.
 
-  Definition to_Zero (A : Additive) : Zero A := dirprod_pr1 (to_isAdditive A).
+  Definition to_Zero (A : CategoryWithAdditiveStructure) : Zero A := dirprod_pr1 (to_AdditiveStructure A).
 
-  Definition to_BinDirectSums (A : Additive) : BinDirectSums A := dirprod_pr2 (to_isAdditive A).
+  Definition to_BinDirectSums (A : CategoryWithAdditiveStructure) : BinDirectSums A := dirprod_pr2 (to_AdditiveStructure A).
 
-  Definition to_BinCoproducts (A : Additive) : BinCoproducts A.
+  Definition to_BinCoproducts (A : CategoryWithAdditiveStructure) : BinCoproducts A.
   Proof.
     intros X Y.
     exact (BinDirectSum_BinCoproduct A (to_BinDirectSums A X Y)).
   Defined.
 
-  Definition to_BinProducts (A : Additive) : BinProducts A.
+  Definition to_BinProducts (A : CategoryWithAdditiveStructure) : BinProducts A.
   Proof.
     intros X Y.
     exact (BinDirectSum_BinProduct A (to_BinDirectSums A X Y)).
   Defined.
 
 
-  Lemma to_Unel1' {A : Additive} {a b : A} (BS : BinDirectSum A a b) :
+  Lemma to_Unel1' {A : CategoryWithAdditiveStructure} {a b : A} (BS : BinDirectSum A a b) :
     to_In1 A BS · to_Pr2 A BS = ZeroArrow (to_Zero A) _ _.
   Proof.
     rewrite (to_Unel1 A BS). apply PreAdditive_unel_zero.
   Qed.
 
-  Lemma to_Unel2' {A : Additive} {a b : A} (BS : BinDirectSum A a b) :
+  Lemma to_Unel2' {A : CategoryWithAdditiveStructure} {a b : A} (BS : BinDirectSum A a b) :
     to_In2 A BS · to_Pr1 A BS = ZeroArrow (to_Zero A) _ _.
   Proof.
     rewrite (to_Unel2 A BS). apply PreAdditive_unel_zero.
   Qed.
 
-  Definition AdditiveZeroArrow {A : Additive} (x y : ob A) : A⟦x, y⟧ :=
+  Definition to_hasZero (A : AdditiveCategory) : hasZero A := pr1 (pr2 A).
+
+  Definition to_hasBinDirectSums {A : AdditiveCategory} : hasBinDirectSums A := pr2 (pr2 A).
+
+  Definition AdditiveZeroArrow {A : CategoryWithAdditiveStructure} (x y : ob A) : A⟦x, y⟧ :=
     ZeroArrow (to_Zero A) x y.
+
+  Definition oppositeAdditiveCategory : AdditiveCategory -> AdditiveCategory.
+  Proof.
+    intros M.
+    exists (oppositePreAdditive M). split.
+    - use (hinhfun _ (to_hasZero M)). exact (λ Z, pr1 Z,, pr2 (pr2 Z),, pr1 (pr2 Z)).
+    - intros A B. exact (hinhfun oppositeBinDirectSum (to_hasBinDirectSums A B)).
+  Defined.
+
+  Definition sums_lift (M:AdditiveCategory) {X:Type} (j : X -> ob M) : hProp :=
+    zero_lifts M j ∧
+    ∀ a b (S : BinDirectSum M (j a) (j b)), ∃ x, z_iso (j x) (BinDirectSumOb M S).
+
+  Definition opp_sums_lift (M:AdditiveCategory) {X:Type} (j : X -> ob M) :
+    sums_lift M j -> sums_lift (oppositeAdditiveCategory M) j.
+  Proof.
+    intros [hz su]. exists (opp_zero_lifts j hz).
+    intros a b S. generalize (su a b (oppositeBinDirectSum S)). apply hinhfun.
+    intros [s t]. exists s. exact (z_iso_inv (opp_z_iso t)).
+  Defined.
+
+  Definition induced_Additive (M : AdditiveCategory)
+             {X:Type} (j : X -> ob M) (sum : sums_lift M j) : AdditiveCategory.
+  Proof.
+    exists (induced_PreAdditive M j). induction sum as [hz sum]. split.
+    - use (hinhfun _ hz). intros [z iz]. exists z. split.
+      + intros a. apply iz.
+      + intros b. apply iz.
+    - clear hz. intros a b. apply (squash_to_hProp (to_hasBinDirectSums (j a) (j b))); intros S.
+      use (hinhfun _ (sum a b S)); intros [c t]; clear sum. set (S' := replaceSum S t).
+      use tpair.
+      + exists c. exact (pr21 S').
+      + cbn. exact (pr2 S').
+  Defined.
+
+  Lemma induced_opposite_Additive {M:AdditiveCategory}
+        {X:Type} (j : X -> ob M) (su : sums_lift M j) :
+    oppositeAdditiveCategory (induced_Additive M j su) =
+    induced_Additive (oppositeAdditiveCategory M) j (opp_sums_lift M j su).
+  Proof.
+    intros.
+    apply (total2_paths2_f (induced_opposite_PreAdditive j)).
+    apply propproperty.
+  Defined.
 
 End def_additive.
 
@@ -93,18 +155,18 @@ End def_additive.
 (** * Quotient is additive
     We show that quotient of an additive category by certain subgroups is additive. In particular,
     this is used to show that the naive homotopy category of the category of chain complexes is an
-    Additive precategory. *)
+    CategoryWithAdditiveStructure precategory. *)
 Section additive_quot_additive.
 
-  Variable A : Additive.
+  Variable A : CategoryWithAdditiveStructure.
   Hypothesis PAS : PreAdditiveSubabgrs A.
   Hypothesis PAC : PreAdditiveComps A PAS.
 
-  Definition Quotcategory_Additive : Additive.
+  Definition Quotcategory_Additive : CategoryWithAdditiveStructure.
   Proof.
     use mk_Additive.
     - exact (Quotcategory_PreAdditive A PAS PAC).
-    - use mk_isAdditive.
+    - use mk_AdditiveStructure.
       + exact (Quotcategory_Zero A PAS PAC (to_Zero A)).
       + exact (Quotcategory_BinDirectSums A (to_BinDirectSums A) PAS PAC).
   Defined.
@@ -112,7 +174,7 @@ Section additive_quot_additive.
 End additive_quot_additive.
 
 
-(** * Kernels, Equalizers, Cokernels, and Coequalizers in Additive categories *)
+(** * Kernels, Equalizers, Cokernels, and Coequalizers in CategoryWithAdditiveStructure categories *)
 (** ** Introduction
 Let f g : X --> Y be morphisms in an additive category. In this section we show that a
 Cokernel of f - g is the Coequalizer of f and g, and vice versa. Similarly for Kernels
@@ -120,7 +182,7 @@ and equalizers.
  *)
 Section additive_kernel_equalizers.
 
-  Variable A : Additive.
+  Variable A : CategoryWithAdditiveStructure.
 
   Lemma AdditiveKernelToEqualizer_eq1 {x y : ob A} (f g : x --> y)
         (K : Kernel (to_Zero A) (to_binop _ _ f (to_inv g))) :
@@ -289,7 +351,7 @@ End additive_kernel_equalizers.
 (** * Sum and in to BinDirectSum is Monic *)
 Section additive_minus_monic.
 
-  Variable A : Additive.
+  Variable A : CategoryWithAdditiveStructure.
 
   Lemma isMonic_to_binop_BinDirectSum1 {x y z : A} (f : Monic A x y) (g : x --> z)
         (DS : BinDirectSum A y z) :
@@ -383,7 +445,7 @@ End additive_minus_monic.
 (** Kernels and cokernels in PreAdditive *)
 Section monics_and_epis_in_additive.
 
-  Variable A : Additive.
+  Variable A : CategoryWithAdditiveStructure.
 
   Lemma to_isMonic {x y : ob A} (f : x --> y)
         (H : ∏ (z : ob A) (g : z --> x) (H : g · f = ZeroArrow (to_Zero A) _ _),

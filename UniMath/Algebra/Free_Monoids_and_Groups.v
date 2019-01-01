@@ -96,6 +96,13 @@ Proof.
     + intros x xs IH. unfold funcomp in *. now rewrite !map_cons, !iterop_list_mon_step, IH.
 Defined.
 
+(** Functoriality of the [free_monoidfun] *)
+Lemma free_monoidfun_comp_homot {X Y Z : hSet} (f : X -> Y) (g : Y -> Z) :
+  (free_monoidfun (g ∘ f)) ~ free_monoidfun g ∘ free_monoidfun f.
+Proof.
+  intro; apply map_compose.
+Qed.
+
 Definition reverse_binopfun (X : hSet) :
   binopfun (free_monoid X) (setwithbinop_rev (free_monoid X)).
 Proof.

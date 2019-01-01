@@ -15,7 +15,8 @@ Unset Kernel Term Sharing.
 
 (** Imports *)
 
-Require Export UniMath.Foundations.NaturalNumbers .
+Require Export UniMath.Foundations.NaturalNumbers.
+Require Export UniMath.MoreFoundations.NegativePropositions.
 Require Export UniMath.Algebra.RigsAndRings.
 Require Export UniMath.NumberSystems.NaturalNumbersAlgebra.
 
@@ -114,10 +115,10 @@ Lemma hzrminus  ( x : hz ) : ( x - x ) = 0 .
 Proof . apply ( ringrinvax1 hz x ) . Defined .
 
 Lemma isinclhzplusr ( n : hz ) : isincl ( λ m : hz, m + n ) .
-Proof. apply ( pr2 ( weqtoincl _ _ ( weqrmultingr hzaddabgr n ) ) ) . Defined.
+Proof. apply ( pr2 ( weqtoincl ( weqrmultingr hzaddabgr n ) ) ) . Defined.
 
 Lemma isinclhzplusl ( n : hz ) : isincl ( λ m : hz, n + m ) .
-Proof. apply ( pr2 ( weqtoincl _ _ ( weqlmultingr hzaddabgr n ) ) ) . Defined .
+Proof. apply ( pr2 ( weqtoincl ( weqlmultingr hzaddabgr n ) ) ) . Defined .
 
 Lemma hzpluslcan ( a b c : hz ) ( is : ( c + a ) = ( c + b ) ) : a = b .
 Proof . intros . apply ( @grlcan hzaddabgr a b c is ) .  Defined .

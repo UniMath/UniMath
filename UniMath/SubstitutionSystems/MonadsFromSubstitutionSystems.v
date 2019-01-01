@@ -45,6 +45,7 @@ Local Open Scope cat.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.Notation.
+Local Open Scope subsys.
 
 Section monad_from_hss.
 
@@ -94,7 +95,7 @@ Section mu_from_fbracket.
 Variable T : hss CP H.
 
 Local Notation "'p' T" := (ptd_from_alg T) (at level 3).
-Local Notation "f ⊕ g" := (BinCoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g) (at level 40).
+Local Notation "f ⊕ g" := (BinCoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g).
 
 
 Definition μ_0 : functor_identity C ⟹ functor_data_from_functor _ _ `T := η T. (*ptd_pt _ (pr1 (pr1 T)).*)

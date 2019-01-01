@@ -43,6 +43,7 @@ Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LamSignature.
 Require Import UniMath.SubstitutionSystems.Lam.
 Require Import UniMath.SubstitutionSystems.Notation.
+Local Open Scope subsys.
 
 Notation "⦃ f ⦄" := (fbracket _ f)(at level 0).
 Notation "G • F" := (functor_composite F G).

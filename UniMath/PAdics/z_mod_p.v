@@ -14,7 +14,7 @@ Require Import UniMath.Foundations.Preamble.
 
 Unset Kernel Term Sharing. (** for quicker proof-checking, approx. by factor 10 *)
 
-Open Scope hz_scope.
+Local Open Scope hz_scope.
 
 (** * I. Divisibility and the division algorithm *)
 

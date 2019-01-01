@@ -1,3 +1,6 @@
+# K-theory based more directly on the material in CategoryTheory
+GrothendieckGroup.v
+
 Tactics.v
 
 # move upstream?:

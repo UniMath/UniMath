@@ -17,7 +17,7 @@ Unset Kernel Term Sharing.
 
 (** ** Usual definitions *)
 
-Open Scope hq_scope.
+Local Open Scope hq_scope.
 
 Definition isTwoSided (L U : hq → hProp) : UU :=
   ((∏ q : hq, L q <-> ∃ r : hq, L r ∧ hqlth q r)

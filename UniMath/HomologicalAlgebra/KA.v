@@ -30,7 +30,7 @@ Require Import UniMath.CategoryTheory.limits.BinDirectSums.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.equivalences.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
 
 Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
@@ -47,7 +47,7 @@ Local Open Scope cat.
 Unset Kernel Term Sharing.
 Global Opaque hz.
 
-Open Scope hz_scope.
+Local Open Scope hz_scope.
 Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommringops ZeroArrow ishinh.
 
 (** * Homotopies of complexes and K(A), the naive homotopy category of A. *)
@@ -76,7 +76,7 @@ Opaque hz isdecrelhzeq hzplus hzminus hzone hzzero iscommringops ZeroArrow ishin
 *)
 Section complexes_homotopies.
 
-  Variable A : Additive.
+  Variable A : CategoryWithAdditiveStructure.
 
   Definition ComplexHomot (C1 C2 : Complex A) : UU := ∏ (i : hz), A⟦C1 i, C2 (i - 1)⟧.
 
@@ -332,7 +332,7 @@ Section complexes_homotopies.
   Qed.
 
   (** Here we construct K(A). *)
-  Definition ComplexHomot_Additive : Additive :=
+  Definition ComplexHomot_Additive : CategoryWithAdditiveStructure :=
     Quotcategory_Additive
       (ComplexPreCat_Additive A) ComplexHomotSubgrp ComplexHomot_Additive_Comp.
 

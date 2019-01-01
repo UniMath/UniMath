@@ -23,11 +23,13 @@ Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.CategoriesWithBinOps.
 Require Import UniMath.CategoryTheory.PrecategoriesWithAbgrops.
+Require Import UniMath.CategoryTheory.opp_precat.
 
 Require Import UniMath.CategoryTheory.limits.zero.
 Require Import UniMath.CategoryTheory.limits.kernels.
 Require Import UniMath.CategoryTheory.limits.cokernels.
-
+Import AddNotation.
+Local Open Scope addmonoid_scope.
 
 (** * Definition of a PreAdditive precategory
    A preadditive precategory is a precategory such that the sets of morphisms are abelian groups and
@@ -1028,3 +1030,64 @@ Section preadditive_quotient.
   Defined.
 
 End preadditive_quotient.
+
+Definition oppositePreAdditive (M : PreAdditive) : PreAdditive.
+Proof.
+  exists (oppositeCategoryWithAbgrops M).
+  split.
+  - exact (λ a b c f, @to_postmor_monoid (pr1 M) (pr2 M) (rm_opp_ob c) (rm_opp_ob b) (rm_opp_ob a) (rm_opp_mor f)).
+  - exact (λ a b c f, @to_premor_monoid (pr1 M) (pr2 M) (rm_opp_ob c) (rm_opp_ob b) (rm_opp_ob a) (rm_opp_mor f)).
+Defined.
+
+Definition induced_PreAdditive (M : PreAdditive) {X:Type} (j : X -> ob M) : PreAdditive.
+Proof.
+  exists (induced_categoryWithAbgrops M j).
+  split.
+  - exact (λ a b c, @to_premor_monoid (pr1 M) (pr2 M) (j a) (j b) (j c)).
+  - exact (λ a b c, @to_postmor_monoid (pr1 M) (pr2 M) (j a) (j b) (j c)).
+Defined.
+
+Lemma induced_opposite_PreAdditive {M:PreAdditive} {X:Type} (j : X -> ob M) :
+  oppositePreAdditive (induced_PreAdditive M j) =
+  induced_PreAdditive (oppositePreAdditive M) (λ a, opp_ob (j a)).
+Proof.
+  intros.
+  compute.                    (* the following line bogs down without this one *)
+  reflexivity.                (* but the computation may make this proof fragile *)
+Defined.
+
+Section RewritingAids.
+  Local Open Scope abgrcat.
+  Lemma zeroLeft {M:PreAdditive} {a b c : M} (f : b --> c) : ((0 : a --> b) · f = 0)%abgrcat.
+  Proof.
+    apply to_postmor_unel'.
+  Defined.
+  Lemma zeroRight {M:PreAdditive} {a b c : M} (f : a --> b) : f · (0 : b --> c) = 0.
+  Proof.
+    apply to_premor_unel'.
+  Defined.
+  Definition leftCompIsHomo {M:PreAdditive} {a b : M} (f : a --> b) (c:M) : ismonoidfun (to_premor c f)
+    := @to_premor_monoid _ M _ _ _ _.
+  Definition rightCompIsHomo {M:PreAdditive} {b c : M} (a:M) (f : b --> c) : ismonoidfun (to_postmor a f)
+    := @to_postmor_monoid _ M _ _ _ _.
+  Definition leftCompHomo {M:PreAdditive} {a b : M} (f : a --> b) (c:M) : monoidfun (b-->c) (a-->c)
+    := to_premor c f,, to_premor_monoid M _ _ _ f.
+  Definition rightCompHomo {M:PreAdditive} {b c : M} (a:M) (f : b --> c) : monoidfun (a-->b) (a-->c)
+    := to_postmor a f,, to_postmor_monoid M _ _ _ f.
+  Lemma rightDistribute {M:PreAdditive} {a b c : M} (f : a --> b) (g h : b --> c) : f · (g + h) = f · g + f · h.
+  Proof.
+    apply leftCompIsHomo.
+  Qed.
+  Lemma leftDistribute {M:PreAdditive} {a b c : M} (f g : a --> b) (h : b --> c) : (f + g) · h = f · h + g · h.
+  Proof.
+    apply rightCompIsHomo.
+  Qed.
+  Lemma rightMinus {M:PreAdditive} {a b c : M} (f : a --> b) (g : b --> c) : f · (- g) = - (f·g).
+  Proof.
+    exact (monoidfuninvtoinv (leftCompHomo f c) g).
+  Qed.
+  Lemma leftMinus {M:PreAdditive} {a b c : M} (f : a --> b) (g : b --> c) : (- f) · g = - (f·g).
+  Proof.
+    exact (monoidfuninvtoinv (rightCompHomo a g) f).
+  Qed.
+End RewritingAids.

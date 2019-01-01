@@ -50,10 +50,7 @@ Section def_bindirectsums.
   Variable A : PreAdditive.
   Context (hs := @to_has_homsets A : has_homsets A).
 
-  Open Scope addmonoid.
-  Open Scope multmonoid.
   Open Scope abgrcat.
-  Import AddNotation.
 
   (** Definition of binary direct sum. *)
   Definition isBinDirectSum (a b co : A) (i1 : a --> co) (i2 : b --> co)
@@ -161,7 +158,13 @@ Section def_bindirectsums.
 
   Definition mk_BinDirectSums (H : ∏ (a b : A), BinDirectSum a b) : BinDirectSums := H.
 
-  Definition hasBinDirectSums : UU := ∏ (a b : A), ∥ BinDirectSum a b ∥.
+  Definition hasBinDirectSums : hProp.
+  Proof.
+    exists (∏ (a b : A), ∥ BinDirectSum a b ∥).
+    apply impred; intro p.
+    apply impred; intro q.
+    apply isapropishinh.
+  Defined.
 
   (** The direct sum object. *)
   Definition BinDirectSumOb {a b : A} (B : BinDirectSum a b) : A := pr1 (pr1 B).
@@ -595,8 +598,8 @@ End bindirectsums_criteria.
 
 (** * BinDirectSums in quotient of PreAdditive category
    In this section we show that, if a PreAdditive A has BinDirectSums, then the quotient of the
-   preadditive category has BinDirectSums. This is used to show that quotient of an Additive is
-   Additive. *)
+   preadditive category has BinDirectSums. This is used to show that quotient of an CategoryWithAdditiveStructure is
+   CategoryWithAdditiveStructure. *)
 Section bindirectsums_in_quot.
 
   Variable A : PreAdditive.
@@ -779,3 +782,88 @@ Section bindirectsums_in_quot.
   Defined.
 
 End bindirectsums_in_quot.
+
+Notation "'π₁'" := (to_Pr1 _ _) : abgrcat.
+Notation "'π₂'" := (to_Pr2 _ _) : abgrcat.
+Notation "'ι₁'" := (to_In1 _ _) : abgrcat.
+Notation "'ι₂'" := (to_In2 _ _) : abgrcat.
+Local Open Scope abgrcat.
+
+Definition reverseBinDirectSum {M:PreAdditive} {A B:M} : BinDirectSum M A B -> BinDirectSum M B A.
+Proof.
+  intros AB.
+  refine (mk_BinDirectSum M B A (BinDirectSumOb M AB) ι₂ ι₁ π₂ π₁ _).
+  unfold isBinDirectSum.
+  exists (to_IdIn2 _ (pr2 AB)).
+  exists (to_IdIn1 _ (pr2 AB)).
+  exists (to_Unel2 _ (pr2 AB)).
+  exists (to_Unel1 _ (pr2 AB)).
+  cbn. rewrite rewrite_op.
+  (* goal is now π₂ · ι₂ + π₁ · ι₁ = 1 *)
+  exact (commax (to_abgr _ _) _ _ @ to_BinOpId _ (pr2 AB)).
+Defined.
+
+Definition oppositeBinDirectSum {M:PreAdditive} {x y:M} :
+  BinDirectSum M x y -> BinDirectSum (oppositePreAdditive M) x y.
+Proof.
+  intros Q.
+  use mk_BinDirectSum.
+  + exact (BinDirectSumOb _ Q).
+  + exact (to_Pr1 _ Q).
+  + exact (to_Pr2 _ Q).
+  + exact (to_In1 _ Q).
+  + exact (to_In2 _ Q).
+  + exact (mk_isBinDirectSum (oppositePreAdditive M) _ _ _ _ _ _ _
+       (to_IdIn1 _ Q) (to_IdIn2 _ Q) (to_Unel2 _ Q) (to_Unel1 _ Q)
+       (to_BinOpId _ Q)).
+Defined.
+
+Definition isTrivialDirectSum {M : PreAdditive} (Z:Zero M) (A:M) : @isBinDirectSum M A Z A 1 0 1 0.
+Proof.
+  repeat split; cbn.
+  - apply id_right.
+  - apply ArrowsToZero.
+  - apply ArrowsToZero.
+  - apply ArrowsFromZero.
+  - rewrite id_right. rewrite to_premor_unel'. rewrite rewrite_op. rewrite runax. reflexivity.
+Qed.
+Definition TrivialDirectSum {M : PreAdditive} (Z:Zero M) (A:M) : BinDirectSum M A Z.
+Proof.
+  exact (mk_BinDirectSum _ _ _ _ _ _ _ _ (isTrivialDirectSum _ _)).
+Defined.
+Definition isTrivialDirectSum' {M : PreAdditive} (Z:Zero M) (A:M) : @isBinDirectSum M Z A A 0 1 0 1.
+Proof.
+  repeat split; cbn.
+  - apply ArrowsToZero.
+  - apply id_right.
+  - apply ArrowsFromZero.
+  - apply ArrowsToZero.
+  - rewrite id_right. rewrite to_premor_unel'. rewrite rewrite_op. rewrite lunax. reflexivity.
+Qed.
+Definition TrivialDirectSum' {M : PreAdditive} (Z:Zero M) (A:M) : BinDirectSum M Z A.
+Proof.
+  exact (mk_BinDirectSum _ _ _ _ _ _ _ _ (isTrivialDirectSum' _ _)).
+Defined.
+Definition replaceSum {M:PreAdditive} {A B C:M} (S:BinDirectSum M A B) :
+  z_iso C S -> BinDirectSum M A B (* with C judgmentally equal to the sum object *).
+Proof.
+  intros r.
+  exists (C,, ι₁ · z_iso_inv r,, ι₂ · z_iso_inv r,, r · π₁,, r · π₂).
+  repeat split; cbn.
+  + rewrite assoc'. rewrite (assoc _ r). rewrite z_iso_after_z_iso_inv, id_left. exact (to_IdIn1 _ S).
+  + rewrite assoc'. rewrite (assoc _ r). rewrite z_iso_after_z_iso_inv, id_left. exact (to_IdIn2 _ S).
+  + rewrite assoc'. rewrite (assoc _ r). rewrite z_iso_after_z_iso_inv, id_left. exact (to_Unel1 _ S).
+  + rewrite assoc'. rewrite (assoc _ r). rewrite z_iso_after_z_iso_inv, id_left. exact (to_Unel2 _ S).
+  + rewrite rewrite_op. rewrite 2 (assoc' r). rewrite 4 (assoc _ _ (z_iso_inv_mor r)).
+    rewrite <- leftDistribute. rewrite <- rightDistribute. rewrite wrap_inverse'.
+    * reflexivity.
+    * exact (to_BinOpId _ S).
+Defined.
+Lemma DirectSumIn1Pr2 {M:PreAdditive} {a b:M} (S:BinDirectSum M a b) : to_In1 _ S · to_Pr2 _ S = 0.
+Proof.
+  exact (to_Unel1 _ S).
+Defined.
+Lemma DirectSumIn2Pr1 {M:PreAdditive} {a b:M} (S:BinDirectSum M a b) : to_In2 _ S · to_Pr1 _ S = 0.
+Proof.
+  exact (to_Unel2 _ S).
+Defined.

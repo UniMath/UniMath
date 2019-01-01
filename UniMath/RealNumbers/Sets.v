@@ -3,22 +3,12 @@
 (** Previous theorems about hSet and order *)
 
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.Sets.
 
 Require Export UniMath.Foundations.Sets
                UniMath.Ktheory.QuotientSet.
 Require Import UniMath.Algebra.BinaryOperations
                UniMath.Algebra.Apartness.
-
-(** ** Subsets *)
-
-Lemma isaset_hsubtype {X : hSet} (Hsub : hsubtype X) : isaset (carrier Hsub).
-Proof.
-  apply (isasetsubset pr1 (pr2 X) (isinclpr1 (λ x : X, Hsub x) (λ x : X, pr2 (Hsub x)))).
-Qed.
-Definition subset {X : hSet} (Hsub : hsubtype X) : hSet :=
-  hSetpair (carrier Hsub) (isaset_hsubtype Hsub).
-Definition makeSubset {X : hSet} {Hsub : hsubtype X} (x : X) (Hx : Hsub x) : subset Hsub :=
-  x,, Hx.
 
 (** ** Additional definitions *)
 
@@ -248,7 +238,7 @@ Section eo_pty.
 
 Context {X : EffectivelyOrderedSet}.
 
-Open Scope eo_scope.
+Local Open Scope eo_scope.
 
 Lemma not_EOlt_le :
   ∏ x y : X, (¬ (x < y)) <-> (y <= x).

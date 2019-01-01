@@ -20,25 +20,14 @@ Require Import UniMath.CategoryTheory.slicecat.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Subobjects.
 Require Import UniMath.CategoryTheory.yoneda.
-Require Import UniMath.CategoryTheory.categories.category_hset.
 Require Import UniMath.CategoryTheory.opp_precat.
-Require Import UniMath.CategoryTheory.categories.category_hset_structures.
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
 Require Import UniMath.CategoryTheory.limits.graphs.equalizers.
 Require Import UniMath.CategoryTheory.Subcategory.Core.
 Require Import UniMath.CategoryTheory.Subcategory.Full.
-Require Import UniMath.CategoryTheory.equivalences.
-
-(** HSET Pullbacks and Equalizers from limits to direct definition *)
-Section HSET_Structures.
-
-  Definition HSET_Pullbacks : @limits.pullbacks.Pullbacks HSET :=
-    equiv_Pullbacks_2 HSET has_homsets_HSET PullbacksHSET_from_Lims.
-
-  Definition HSET_Equalizers: @limits.equalizers.Equalizers HSET :=
-    equiv_Equalizers2 HSET has_homsets_HSET EqualizersHSET_from_Lims.
-
-End HSET_Structures.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
 
 (** * Definiton of Grothendieck topology
     The following definition is a formalization of the definition in Sheaves in Geometry and Logic,
