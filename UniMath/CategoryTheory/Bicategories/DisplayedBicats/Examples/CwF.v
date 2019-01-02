@@ -99,10 +99,7 @@ Section Representation.
           {Ty Tm : opp_precat_data C ⟶ SET}
           (pp : Tm ⟹ Ty).
 
-  (*
   Definition map_into (Γ : C) : UU := ∑ (ΓA : C), C ⟦ΓA, Γ⟧.
-   *)
-  Definition map_into (Γ : C) : UU := ∑ (ΓA : C), iso ΓA Γ.
 
   Definition cwf_tm_of_ty {Γ : C} (A : Ty Γ : hSet) : UU
     := ∑ (t : (Tm Γ : hSet)),
@@ -139,10 +136,7 @@ Section Projections.
 
   Definition ext : C := pr1 (pr1 (R Γ A)).
 
-  (*
   Definition π : C⟦ext,Γ⟧ := pr2 (pr1 (R Γ A)).
-   *)
-  Definition π : iso ext Γ := pr2 (pr1 (R Γ A)).
 
   Definition var : (Tm ext:hSet) := pr1 (pr1 (pr2 (R Γ A))).
 
@@ -350,11 +344,69 @@ Section CwF.
     : disp_cat_data (morphisms_of_presheaves SET)
     := (_ ,, disp_cwf_cat_id_comp).
 
-  Definition disp_cwf : disp_bicat _
+  Definition disp_cwf : disp_bicat (morphisms_of_presheaves SET)
     := disp_cell_unit_bicat disp_cwf_cat_data.
 
   Definition cwf : bicat
     := total_bicat disp_cwf.
+
+  Definition test
+    : ∏ (a b : morphisms_of_presheaves SET)
+        (f : a --> b)
+        (aa : disp_cwf a) (bb : disp_cwf b),
+      isaset (aa -->[ f] bb).
+  Proof.
+    intros a b f aa bb ; simpl.
+    rewrite Unnamed_thm28.
+    apply impred ; intro Γ.
+    apply impred ; intro A.
+    apply isofhleveltotal2.
+    - apply isofhleveltotal2.
+      + apply (pr1 b).
+      + intro.
+        apply hlevelntosn.
+        apply isaprop_is_iso.
+    - intro.
+      apply hlevelntosn.
+      apply isapropdirprod.
+      + apply isaprop_π_compatibility_type.
+      + apply isaprop_var_compatibility_type.
+  Defined.
+
+  Definition test2
+             (a : morphisms_of_presheaves SET)
+    : isofhlevel 3 (disp_cwf a).
+  Proof.
+    apply impred ; intro x.
+    apply impred ; intro y.
+    apply isofhleveltotal2.
+    - apply isofhleveltotal2.
+      + apply univalent_category_has_groupoid_ob.
+      + intro f.
+        apply hlevelntosn.
+        apply (pr1 a).
+    - intro f.
+      apply isofhleveltotal2.
+      + apply isofhleveltotal2.
+        * cbn in a.
+          apply hlevelntosn.
+          apply (pr212 a (pr1 f)).
+        * intro z.
+          do 2 apply hlevelntosn.
+          cbn in a.
+          apply (pr112 a (pr1 f)).
+      + intro z.
+        apply impred ; intro g.
+        apply impred ; intro h.
+        apply impred ; intro k.
+        apply impred ; intro p.
+        do 2 apply hlevelntosn.
+        apply iscontr_hProp.
+  Defined.
+
+
+  Definition TODO {A : UU} : A.
+  Admitted.
 
   Definition cwf_is_univalent_2_1
     : is_univalent_2_1 cwf.
@@ -367,24 +419,7 @@ Section CwF.
         intros ; simpl.
         apply isaset_nat_trans.
         apply hset_category.
-    - apply disp_cell_unit_bicat_locally_univalent.
-      intros C D ; intros ; simpl.
-      repeat (apply impred ; intro).
-      apply isaproptotal2.
-      + intro.
-        apply isapropdirprod.
-        * apply isaprop_π_compatibility_type.
-        * apply isaprop_var_compatibility_type.
-      + unfold isoext_type.
-        intros g₁ g₂ Hg₁ Hg₂.
-        use subtypeEquality.
-        { intro ; apply isaprop_is_iso. }
-        unfold π_compatibility_type, var_compatibility_type in *.
-        pose (s1 := pr1 Hg₁).
-        pose (s2 := pr1 Hg₂).
-        pose (s3 := !s1 @ s2).
-        refine (post_comp_with_iso_is_inj _ _ _ _ _ _ _ _ s3). (* need: π is an iso *)
-        apply π.
+    - apply TODO.
   Defined.
 
   Definition cwf_is_univalent_2_0
@@ -403,62 +438,8 @@ Section CwF.
       + apply is_univalent_2_1_dirprod_bicat ; apply disp_presheaves_is_univalent_2_1.
       + apply disp_cofunctormaps_bicat_univalent_2_0.
       + apply disp_cofunctormaps_bicat_univalent_2_1.
-    - apply disp_cell_unit_bicat_univalent_2_0.
-      + apply morphisms_of_presheaves_univalent_2_1.
-      + intros C D ; intros ; simpl.
-      repeat (apply impred ; intro).
-      apply isaproptotal2.
-      * intro.
-        apply isapropdirprod.
-        ** apply isaprop_π_compatibility_type.
-        ** apply isaprop_var_compatibility_type.
-      * unfold isoext_type.
-        intros g₁ g₂ Hg₁ Hg₂.
-        use subtypeEquality.
-        { intro ; apply isaprop_is_iso. }
-        unfold π_compatibility_type, var_compatibility_type in *.
-        pose (s1 := pr1 Hg₁).
-        pose (s2 := pr1 Hg₂).
-        pose (s3 := !s1 @ s2).
-        refine (post_comp_with_iso_is_inj _ _ _ _ _ _ _ _ s3).
-        apply π.
-      + intros P ; cbn.
-        unfold cwf_representation.
-        unfold cwf_fiber_representation.
-        unfold isPullback.
-        repeat (apply impred_isaset ; intro).
-        apply isaset_total2.
-        * unfold map_into.
-          apply isaset_total2.
-          ** cbn.
-             (* the objects of pr11 P need to form a set *)
-             admit.
-          ** intro.
-             apply isaset_total2.
-             *** cbn.
-                 apply (pr1 P).
-             *** intro.
-                 apply isasetaprop.
-                 apply isaprop_is_iso.
-        * intro x.
-          apply isaset_total2.
-          ** unfold cwf_tm_of_ty.
-             apply isaset_total2 ; simpl in *.
-             *** apply (pr212 P (pr1 x)).
-             *** intro y. (* If X and Y are sets, then X = Y is a set *)
-                 pose (pr22 P (pr1 x) y) as p.
-                 cbn in p.
-                 admit.
-          ** intro.
-             repeat (apply impred_isaset ; intro).
-             apply isasetaprop.
-             apply iscontr_hProp.
-      + intros P f g p.
-        apply funextsec ; intro x.
-        apply funextsec ; intro y.
-        admit.
-  Admitted.
-
+    - apply TODO.
+  Defined.
 
 (*
   Definition disp_cwf_prebicat_1_id_comp_cells
