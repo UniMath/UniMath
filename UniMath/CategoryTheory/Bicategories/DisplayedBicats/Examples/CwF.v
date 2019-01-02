@@ -431,6 +431,7 @@ Section CwF.
         * unfold map_into.
           apply isaset_total2.
           ** cbn.
+             (* the objects of pr11 P need to form a set *)
              admit.
           ** intro.
              apply isaset_total2.
