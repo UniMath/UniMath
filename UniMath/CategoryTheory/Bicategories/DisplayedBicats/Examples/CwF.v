@@ -383,7 +383,7 @@ Section CwF.
         pose (s1 := pr1 Hg₁).
         pose (s2 := pr1 Hg₂).
         pose (s3 := !s1 @ s2).
-        refine (post_comp_with_iso_is_inj _ _ _ _ _ _ _ _ s3).
+        refine (post_comp_with_iso_is_inj _ _ _ _ _ _ _ _ s3). (* need: π is an iso *)
         apply π.
   Defined.
 
