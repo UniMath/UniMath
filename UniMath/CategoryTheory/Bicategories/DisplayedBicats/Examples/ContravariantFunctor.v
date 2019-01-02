@@ -132,9 +132,6 @@ Section fix_a_category.
   Definition disp_presheaf_bicat : disp_bicat ∁
     := (disp_presheaf_prebicat,, has_disp_cellset_disp_presheaf_prebicat).
 
-  Definition TODO {A : UU} : A.
-  Admitted.
-
   Definition disp_presheaves_all_invertible
              {C D : ∁}
              {F G : ∁⟦C, D⟧}

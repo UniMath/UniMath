@@ -128,17 +128,47 @@ Section Cofunctormaps.
   Definition morphisms_of_presheaves : bicat
     := total_bicat morphisms_of_presheaves_display.
 
+  Definition disp_cofunctormaps_bicat_univalent_2_1
+    : disp_locally_univalent disp_cofunctormaps_bicat.
+  Proof.
+    apply disp_cell_unit_bicat_locally_univalent.
+    intros F G η x y ; simpl in *.
+    apply isaset_nat_trans.
+    apply K.
+  Qed.
+
   Definition morphisms_of_presheaves_univalent_2_1
     : is_univalent_2_1 morphisms_of_presheaves.
   Proof.
     apply sigma_is_univalent_2_1.
     - exact univalent_cat_is_univalent_2_1.
     - exact disp_two_presheaves_is_univalent_2_1.
-    - apply disp_cell_unit_bicat_locally_univalent.
-      intros F G η x y ; simpl in *.
+    - exact disp_cofunctormaps_bicat_univalent_2_1.
+  Defined.
+
+  Definition disp_cofunctormaps_bicat_univalent_2_0
+    : disp_univalent_2_0 disp_cofunctormaps_bicat.
+  Proof.
+    apply disp_cell_unit_bicat_univalent_2_0.
+    + apply total_is_locally_univalent.
+      * exact univalent_cat_is_univalent_2_1.
+      * exact disp_two_presheaves_is_univalent_2_1.
+    + intros F G η x y ; simpl in *.
       apply isaset_nat_trans.
       apply K.
-  Defined.
+    + intros a ; simpl.
+      apply isaset_nat_trans.
+      apply K.
+    + intros F α₁ α₂ X ; cbn in *.
+      induction X as [X1 X2] ; cbn in *.
+      apply nat_trans_eq.
+      { apply K. }
+      intros x ; cbn in *.
+      pose (nat_trans_eq_pointwise X1 x) as p1.
+      cbn in *.
+      rewrite id_left, id_right in p1.
+      exact p1.
+  Qed.
 
   Definition morphisms_of_presheaves_univalent_2_0
     : is_univalent_2_0 morphisms_of_presheaves.
@@ -148,28 +178,7 @@ Section Cofunctormaps.
     - exact univalent_cat_is_univalent_2_1.
     - exact disp_two_presheaves_is_univalent_2_0.
     - exact disp_two_presheaves_is_univalent_2_1.
-    - apply disp_cell_unit_bicat_univalent_2_0.
-      + apply total_is_locally_univalent.
-        * exact univalent_cat_is_univalent_2_1.
-        * exact disp_two_presheaves_is_univalent_2_1.
-      + intros F G η x y ; simpl in *.
-        apply isaset_nat_trans.
-        apply K.
-      + intros a ; simpl.
-        apply isaset_nat_trans.
-        apply K.
-      + intros F α₁ α₂ X ; cbn in *.
-        induction X as [X1 X2] ; cbn in *.
-        apply nat_trans_eq.
-        { apply K. }
-        intros x ; cbn in *.
-        pose (nat_trans_eq_pointwise X1 x) as p1.
-        cbn in *.
-        rewrite id_left, id_right in p1.
-        exact p1.
-    - apply disp_cell_unit_bicat_locally_univalent.
-      intros F G η x y ; simpl in *.
-      apply isaset_nat_trans.
-      apply K.
+    - exact disp_cofunctormaps_bicat_univalent_2_0.
+    - exact disp_cofunctormaps_bicat_univalent_2_1.
   Defined.
 End Cofunctormaps.

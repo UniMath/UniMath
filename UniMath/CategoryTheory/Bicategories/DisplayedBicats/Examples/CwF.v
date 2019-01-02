@@ -20,7 +20,7 @@ Require Import UniMath.CategoryTheory.Categories.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.categories.HSET.All.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Export UniMath.CategoryTheory.yoneda.
 Require Export UniMath.CategoryTheory.limits.pullbacks.
@@ -48,7 +48,7 @@ Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Disp
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
-Local Notation "'SET'" := hset_category.
+Local Notation "'SET'" := HSET_univalent_category.
 Local Notation "'PreShv' C" := [C^op,SET] (at level 4) : cat.
 Local Notation "'Yo'" := (yoneda _ (homset_property _) : functor _ (PreShv _)).
 
@@ -362,12 +362,11 @@ Section CwF.
     apply total_is_locally_univalent.
     - apply sigma_is_univalent_2_1.
       + exact univalent_cat_is_univalent_2_1.
-      + apply is_univalent_2_1_dirprod_bicat.
-        * admit.
-        * admit.
+      + apply is_univalent_2_1_dirprod_bicat ; apply disp_presheaves_is_univalent_2_1.
       + apply disp_cell_unit_bicat_locally_univalent.
         intros ; simpl.
-        admit.
+        apply isaset_nat_trans.
+        apply hset_category.
     - apply disp_cell_unit_bicat_locally_univalent.
       intros C D ; intros ; simpl.
       repeat (apply impred ; intro).
@@ -386,7 +385,79 @@ Section CwF.
         pose (s3 := !s1 @ s2).
         refine (post_comp_with_iso_is_inj _ _ _ _ _ _ _ _ s3).
         apply π.
+  Defined.
+
+  Definition cwf_is_univalent_2_0
+    : is_univalent_2_0 cwf.
+  Proof.
+    apply total_is_univalent_2_0.
+    - apply sigma_is_univalent_2_0.
+      + exact univalent_cat_is_univalent_2_0.
+      + exact univalent_cat_is_univalent_2_1.
+      + apply is_univalent_2_0_dirprod_bicat.
+        * exact univalent_cat_is_univalent_2_1.
+        * apply disp_presheaves_is_univalent_2_0.
+        * apply disp_presheaves_is_univalent_2_0.
+        * apply disp_presheaves_is_univalent_2_1.
+        * apply disp_presheaves_is_univalent_2_1.
+      + apply is_univalent_2_1_dirprod_bicat ; apply disp_presheaves_is_univalent_2_1.
+      + apply disp_cofunctormaps_bicat_univalent_2_0.
+      + apply disp_cofunctormaps_bicat_univalent_2_1.
+    - apply disp_cell_unit_bicat_univalent_2_0.
+      + apply morphisms_of_presheaves_univalent_2_1.
+      + intros C D ; intros ; simpl.
+      repeat (apply impred ; intro).
+      apply isaproptotal2.
+      * intro.
+        apply isapropdirprod.
+        ** apply isaprop_π_compatibility_type.
+        ** apply isaprop_var_compatibility_type.
+      * unfold isoext_type.
+        intros g₁ g₂ Hg₁ Hg₂.
+        use subtypeEquality.
+        { intro ; apply isaprop_is_iso. }
+        unfold π_compatibility_type, var_compatibility_type in *.
+        pose (s1 := pr1 Hg₁).
+        pose (s2 := pr1 Hg₂).
+        pose (s3 := !s1 @ s2).
+        refine (post_comp_with_iso_is_inj _ _ _ _ _ _ _ _ s3).
+        apply π.
+      + intros P ; cbn.
+        unfold cwf_representation.
+        unfold cwf_fiber_representation.
+        unfold isPullback.
+        repeat (apply impred_isaset ; intro).
+        apply isaset_total2.
+        * unfold map_into.
+          apply isaset_total2.
+          ** cbn.
+             admit.
+          ** intro.
+             apply isaset_total2.
+             *** cbn.
+                 apply (pr1 P).
+             *** intro.
+                 apply isasetaprop.
+                 apply isaprop_is_iso.
+        * intro x.
+          apply isaset_total2.
+          ** unfold cwf_tm_of_ty.
+             apply isaset_total2 ; simpl in *.
+             *** apply (pr212 P (pr1 x)).
+             *** intro y. (* If X and Y are sets, then X = Y is a set *)
+                 pose (pr22 P (pr1 x) y) as p.
+                 cbn in p.
+                 admit.
+          ** intro.
+             repeat (apply impred_isaset ; intro).
+             apply isasetaprop.
+             apply iscontr_hProp.
+      + intros P f g p.
+        apply funextsec ; intro x.
+        apply funextsec ; intro y.
+        admit.
   Admitted.
+
 
 (*
   Definition disp_cwf_prebicat_1_id_comp_cells
