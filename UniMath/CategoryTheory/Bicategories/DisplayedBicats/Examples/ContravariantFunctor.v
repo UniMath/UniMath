@@ -132,6 +132,9 @@ Section fix_a_category.
   Definition disp_presheaf_bicat : disp_bicat ∁
     := (disp_presheaf_prebicat,, has_disp_cellset_disp_presheaf_prebicat).
 
+  Definition TODO {A : UU} : A.
+  Admitted.
+
   Definition disp_presheaves_all_invertible
              {C D : ∁}
              {F G : ∁⟦C, D⟧}
@@ -147,19 +150,10 @@ Section fix_a_category.
     - apply nat_trans_eq.
       { apply K. }
       intro x.
-      symmetry.
-      etrans.
-      {
-        simpl.
-        apply maponpaths_2.
-        exact (nat_trans_eq_pointwise p x).
-      }
+      refine (!_).
+      refine (maponpaths (λ z, z · _) (nat_trans_eq_pointwise p x) @ _).
       refine (!(assoc _ _ _) @ _).
-      etrans.
-      {
-        apply maponpaths.
-        apply (!(functor_comp FC _ _)).
-      }
+      refine (maponpaths (λ z, _ · z) (!(functor_comp FC _ _)) @ _).
       etrans.
       {
         do 2 apply maponpaths.
@@ -172,7 +166,7 @@ Section fix_a_category.
       }
       apply id_right.
     - split ; apply isaset_nat_trans ; apply K.
-  Admitted.
+  Qed.
 
   Definition disp_presheaves_is_univalent_2_1
     : disp_locally_univalent disp_presheaf_bicat.
@@ -197,9 +191,6 @@ Section fix_a_category.
       + intro.
         apply isaprop_is_disp_invertible_2cell.
   Qed.
-
-  Definition TODO {A : UU} : A.
-  Admitted.
 
   Definition disp_presheaves_adjequiv
              {C : ∁}
