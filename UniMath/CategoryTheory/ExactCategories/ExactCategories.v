@@ -1,5 +1,4 @@
 (** * Exact categories *)
-Require Import UniMath.CategoryTheory.Core.Isos.
 
 (** ** Contents
 
@@ -17,11 +16,12 @@ Require Export UniMath.Foundations.All.
 Require Export UniMath.MoreFoundations.Notations.
 Require Export UniMath.MoreFoundations.PartA.
 Require Export UniMath.MoreFoundations.Propositions.
-
 Require Export UniMath.Algebra.BinaryOperations.
-Require Export UniMath.Algebra.Monoids_and_Groups.
+Require Export UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.Groups.
 
 Require Export UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Export UniMath.CategoryTheory.Core.Functors.
 Require Export UniMath.CategoryTheory.Core.NaturalTransformations.
 

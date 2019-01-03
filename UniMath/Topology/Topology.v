@@ -6,6 +6,7 @@ Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.PartA.
 Require Export UniMath.Topology.Filters.
+Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.DivisionRig.
 Require Import UniMath.Algebra.ConstructiveStructures.
 

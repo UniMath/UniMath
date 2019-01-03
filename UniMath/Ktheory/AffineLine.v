@@ -16,8 +16,9 @@ Require Export UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
+Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Ktheory.Utilities
-               UniMath.Algebra.Monoids_and_Groups
                UniMath.Foundations.UnivalenceAxiom
                UniMath.Ktheory.GroupAction
                UniMath.NumberSystems.Integers

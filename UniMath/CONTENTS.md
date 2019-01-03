@@ -49,7 +49,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [All.v](Combinatorics/All.v)
 ## Package Algebra
    - [BinaryOperations.v](Algebra/BinaryOperations.v)
-   - [Monoids_and_Groups.v](Algebra/Monoids_and_Groups.v)
+   - [Monoids.v](Algebra/Monoids.v)
+   - [Groups.v](Algebra/Groups.v)
    - [RigsAndRings.v](Algebra/RigsAndRings.v)
    - [RigsAndRings/Ideals.v](Algebra/RigsAndRings/Ideals.v)
    - [Domains_and_Fields.v](Algebra/Domains_and_Fields.v)
