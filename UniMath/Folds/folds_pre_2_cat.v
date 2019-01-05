@@ -69,7 +69,7 @@ Coercion ob : folds_3_ob_mor >-> UU.
 Definition folds_3_morphisms {C : folds_3_ob_mor} : C → C → UU := pr2 C.
 Local Notation "a ⇒ b" := (folds_3_morphisms a b).
 
-Definition double_transport {C : folds_3_ob_mor} {a a' b b' : ob C}
+Definition folds_double_transport {C : folds_3_ob_mor} {a a' b b' : ob C}
    (p : a = a') (q : b = b') (f : a ⇒ b) : a' ⇒ b' :=
   transportf (λ c, a' ⇒ c) q (transportf (λ c, c ⇒ b) p f).
 
@@ -166,12 +166,12 @@ Definition folds_iso {C: folds_pre_3_cat} {a b : C} (f g : a ⇒ b) : UU :=
                                    T (transportf (λ a, a ⇒ b) p g) u g))
     × ((∏ (u : a ⇒ a) (p : b = b), T u p ## f f ≃ T u p ## g g)
        × (∏ (p : a = a) (q : b = a) (r : b = b),
-          T (double_transport p q f) r ## f f
-          ≃ T (double_transport p q g) r ## g g)))
+          T (folds_double_transport p q f) r ## f f
+          ≃ T (folds_double_transport p q g) r ## g g)))
    × (((∏ p : b = a, I p ## f ≃ I p ## g) × (∏ u : a ⇒ b, E f u ≃ E g u))
       × ((∏ u : a ⇒ b, E u f ≃ E u g)
          × (∏ (p : a = a) (q : b = b),
-            E (double_transport p q f) f ≃ E (double_transport p q g) g)))).
+            E (folds_double_transport p q f) f ≃ E (folds_double_transport p q g) g)))).
 
 Lemma isaprop_folds_2_iso (C : folds_pre_2_cat) (a b : C) (f g : a ⇒ b) :
   isaprop (folds_iso f g).
@@ -230,10 +230,10 @@ Proof.
     try apply E_transport_target; auto.
   - apply (ET _ _ _ u u (transportf (λ c, a ⇒ c) p g) (p ## f) g f);
     try apply E_transport_target; auto.
-  - apply (ET _ _ _ (double_transport p q f) (double_transport p q g)
+  - apply (ET _ _ _ (folds_double_transport p q f) (folds_double_transport p q g)
                           (transportf (λ c, a ⇒ c) r f) (r ## g) f g);
     try apply E_transport_target; try apply E_transport_source; auto.
-  - apply (ET _ _ _ (double_transport p q g) (double_transport p q f)
+  - apply (ET _ _ _ (folds_double_transport p q g) (folds_double_transport p q f)
                           (transportf (λ c, a ⇒ c) r g) (r ## f) g f);
     try apply E_transport_target; try apply E_transport_source; auto.
   - destruct p. apply (EI _ f); auto.
@@ -246,12 +246,12 @@ Proof.
   - apply (Etrans _ _ u g f).
     + auto.
     + apply Esym; auto.
-  - apply (Etrans _ _ (double_transport p q g) (double_transport p q f) g).
+  - apply (Etrans _ _ (folds_double_transport p q g) (folds_double_transport p q f) g).
     + apply E_transport_target. apply E_transport_source. apply Esym; auto.
-    + apply (Etrans _ _ (double_transport p q f) f g); auto.
-  - apply (Etrans _ _ (double_transport p q f) (double_transport p q g) f).
+    + apply (Etrans _ _ (folds_double_transport p q f) f g); auto.
+  - apply (Etrans _ _ (folds_double_transport p q f) (folds_double_transport p q g) f).
     + apply E_transport_target. apply E_transport_source. auto.
-    + apply (Etrans _ _ (double_transport p q g) g f); auto.
+    + apply (Etrans _ _ (folds_double_transport p q g) g f); auto.
 Qed.
 
 Lemma folds_iso_implies_E (C : folds_pre_2_cat) (a b : C) (f g : a ⇒ b) : folds_iso f g → E f g.

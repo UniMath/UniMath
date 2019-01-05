@@ -1,44 +1,43 @@
+(** * Binary product of (pre)categories
 
-(** **********************************************************
+  Benedikt Ahrens, Ralph Matthes, Peter LeFanu Lumsdaine
 
-Benedikt Ahrens, Ralph Matthes, Peter LeFanu Lumsdaine
+  SubstitutionSystems
 
-SubstitutionSystems
+  2015
 
-2015
+  For the general case, see [product_precategory].
 
-For the general case, see [product_precategory].
+  See [unit_category] for the unit category, which is the unit
+  under cartesian product up to isomorphism.
 
-See [unit_category] for the unit category, which is the unit
-under cartesian product up to isomorphism.
-************************************************************)
+*)
 
 
-(** **********************************************************
+(** ** Contents :
 
-Contents :
+  - Definition of the cartesian product of two precategories
 
-- Definition of the cartesian product of two precategories
+  - From a functor on a product of precategories to a functor on one of
+    the categories by fixing the argument in the other component
 
-- From a functor on a product of precategories to a functor on one of
-  the categories by fixing the argument in the other component
+  - Definition of the associator functors
 
-By PLL:
+  - Definition of the pair of two functors: A × C → B × D
+    given A → B and C → D
 
-- Definition of the associator functors
+  - Definition of the diagonal functor [bindelta_functor].
 
-- Definition of the pair of two functors: A × C → B × D
-  given A → B and C → D
-
-- Definition of the diagonal functor [bindelta_functor].
-
-************************************************************)
+*)
 
 
 Require Import UniMath.Foundations.PartD.
 
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.opp_precat.
 Local Open Scope cat.
 
@@ -256,9 +255,9 @@ End functor_fix_fst_arg.
 Section nat_trans_fix_fst_arg.
 
 Variable C D E : precategory.
-Variable F F': functor (precategory_binproduct C D) E.
-Variable α: F ⟹ F'.
-Variable c: C.
+Variable F F' : functor (precategory_binproduct C D) E.
+Variable α : F ⟹ F'.
+Variable c : C.
 
 Definition nat_trans_fix_fst_arg_data (d:D): functor_fix_fst_arg C D E F c d --> functor_fix_fst_arg C D E F' c d := α (tpair _ c d).
 

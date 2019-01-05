@@ -14,7 +14,9 @@ Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.Domains_and_Fields.
 
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 Local Open Scope cat.
 
 

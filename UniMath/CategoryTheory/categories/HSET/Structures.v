@@ -27,8 +27,10 @@ Require Import UniMath.MoreFoundations.Sets. (* hProp_set *)
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.AxiomOfChoice.
 
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Adjunctions.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.slicecat.

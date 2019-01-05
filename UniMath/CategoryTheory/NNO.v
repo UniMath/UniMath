@@ -9,7 +9,7 @@ Written by: Anders Mörtberg, 2018
 *)
 Require Import UniMath.MoreFoundations.All.
 
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.limits.terminal.
 
 Local Open Scope cat.

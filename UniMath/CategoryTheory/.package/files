@@ -1,6 +1,15 @@
 total2_paths.v
-Categories.v
-functor_categories.v
+Core/Categories.v
+Core/Isos.v
+Core/Univalence.v
+Core/TransportMorphisms.v
+Core/Setcategories.v
+Core/EssentiallyAlgebraic.v
+Core/Functors.v
+Core/NaturalTransformations.v
+Core/Prelude.v
+
+FunctorCategory.v
 categories/HSET/Core.v
 opp_precat.v
 Groupoids.v
