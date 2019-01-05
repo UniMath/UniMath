@@ -894,3 +894,31 @@ Defined.
 
 Definition iso_to_z_iso {C : precategory} {b c : C} : iso b c -> z_iso b c
   := λ f, pr1 f ,, is_z_iso_from_is_iso (pr1 f) (pr2 f).
+
+(** The right inverse of an invertible morphism must be equal to the known (two-sided) inverse. *)
+(** TODO: Did I switch up right and left here vis a vis the conventional use? *)
+Lemma right_inverse_of_iso_is_inverse {C : precategory} {c c' : C}
+      (f : c --> c')
+      (g : c' --> c) (H  : is_inverse_in_precat f g)
+      (h : c' --> c) (HH : f · h = identity _) :
+  h = g.
+Proof.
+  refine (!id_left _ @ _).
+  refine (maponpaths (fun z => z · h) (!is_inverse_in_precat2 H) @ _).
+  refine (!assoc _ _ _ @ _).
+  refine (maponpaths (fun z => g · z) HH @ _).
+  apply id_right.
+Qed.
+
+Lemma left_inverse_of_iso_is_inverse {C : precategory} {c c' : C}
+      (f : c --> c')
+      (g : c' --> c) (H  : is_inverse_in_precat f g)
+      (h : c' --> c) (HH : h · f = identity _) :
+  h = g.
+Proof.
+  refine (!id_right _ @ _).
+  refine (maponpaths (fun z => h · z) (!is_inverse_in_precat1 H) @ _).
+  refine (assoc _ _ _ @ _).
+  refine (maponpaths (fun z => z · g) HH @ _).
+  apply id_left.
+Qed.

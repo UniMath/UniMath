@@ -1,7 +1,6 @@
 (** * Restriction of an adjuction to an equivalence *)
 
 (** ** Contents
-  - Lemmas about inverses
   - Restriction of an adjunction to an equivalence
  *)
 
@@ -19,52 +18,6 @@ Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.whiskering.
 
 Local Open Scope cat.
-
-(** ** Lemmas about inverses *)
-
-(** The right inverse of an invertible morphism must be equal to the known (two-sided) inverse. *)
-(** TODO: Did I switch up right and left here vis a vis the conventional use? *)
-Lemma right_inverse_of_iso_is_inverse {C : precategory} {c c' : C}
-      (f : c --> c')
-      (g : c' --> c) (H  : is_inverse_in_precat f g)
-      (h : c' --> c) (HH : f · h = identity _) :
-  h = g.
-Proof.
-  refine (!id_left _ @ _).
-  refine (maponpaths (fun z => z · h) (!is_inverse_in_precat2 H) @ _).
-  refine (!assoc _ _ _ @ _).
-  refine (maponpaths (fun z => g · z) HH @ _).
-  apply id_right.
-Qed.
-
-Lemma left_inverse_of_iso_is_inverse {C : precategory} {c c' : C}
-      (f : c --> c')
-      (g : c' --> c) (H  : is_inverse_in_precat f g)
-      (h : c' --> c) (HH : h · f = identity _) :
-  h = g.
-Proof.
-  refine (!id_right _ @ _).
-  refine (maponpaths (fun z => h · z) (!is_inverse_in_precat1 H) @ _).
-  refine (assoc _ _ _ @ _).
-  refine (maponpaths (fun z => z · g) HH @ _).
-  apply id_left.
-Qed.
-
-Lemma functor_is_inverse_in_precat_inv_from_iso {C D : precategory} {c c' : ob C}
-      (F : functor C D) (f : iso c c') :
-  is_inverse_in_precat (# F f) (# F (inv_from_iso f)).
-Proof.
-  apply functor_on_is_inverse_in_precat.
-  split.
-  + apply is_inverse_in_precat1.
-    split.
-    * apply (iso_inv_after_iso f).
-    * apply (iso_after_iso_inv f).
-  + apply is_inverse_in_precat2.
-    split.
-    * apply (iso_inv_after_iso f).
-    * apply (iso_after_iso_inv f).
-Qed.
 
 (** ** Restriction of an adjunction to an equivalence *)
 
