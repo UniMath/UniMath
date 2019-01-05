@@ -29,9 +29,10 @@ Lattice in an abelian monoid:
 Truncated minus is a lattice:
 - a function minus such that: ∏ (x y : X), (minus x y) + y = max x y *)
 
-Require Export UniMath.Algebra.Monoids_and_Groups.
+Require Export UniMath.Algebra.Monoids.
 
 Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.Algebra.Groups.
 
 (** ** Strong Order *)
 (* todo : move it into UniMath.Foundations.Sets *)
@@ -639,7 +640,7 @@ End latticedec_gt.
 (** ** Lattice in an abmonoid *)
 
 Local Open Scope addmonoid.
-Import UniMath.Algebra.Monoids_and_Groups.AddNotation.
+Import UniMath.Algebra.Monoids.AddNotation.
 
 Section lattice_abmonoid.
 

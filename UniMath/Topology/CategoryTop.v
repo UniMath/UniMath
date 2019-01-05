@@ -9,7 +9,7 @@ Require Import UniMath.Algebra.DivisionRig.
 Require Import UniMath.Algebra.ConstructiveStructures.
 
 Require Import UniMath.Topology.Topology.
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 

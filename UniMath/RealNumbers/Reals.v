@@ -1,6 +1,7 @@
 (** * A library about decidable Real Numbers *)
 (** Author: Catherine LELAY. Oct 2015 - *)
 
+Require Export UniMath.Algebra.Groups.
 Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.MoreFoundations.Tactics.
 

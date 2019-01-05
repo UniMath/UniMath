@@ -2,8 +2,11 @@
  - Anthony Bordg, March-April 2017
  - Langston Barrett (@siddharthist), November-December 2017 *)
 
+Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.RigsAndRings.
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.Algebra.Modules.
 Require Import UniMath.Algebra.Modules.Examples.
 Require Import UniMath.CategoryTheory.limits.zero.

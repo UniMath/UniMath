@@ -34,8 +34,10 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.PartA.
 
 (* Basic category theory *)
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Setcategories.
+Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.catiso.
 

@@ -26,8 +26,11 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 
 Local Open Scope cat.
@@ -586,6 +589,17 @@ Section HomSetIso_from_Adjunction.
     - apply cancel_postcomposition.
       apply triangle_id_left_ad.
     - apply id_left.
+  Qed.
+
+  Lemma φ_adj_identity (A : C) : φ_adj (identity (F A)) = η _ .
+  Proof.
+    unfold φ_adj. rewrite functor_id.
+    apply id_right.
+  Qed.
+
+  Lemma φ_adj_inv_unit (A : C) : φ_adj_inv (η A) = identity _ .
+  Proof.
+    apply triangle_id_left_ad.
   Qed.
 
   Definition adjunction_hom_weq (A : C) (B : D) : F A --> B ≃ A --> G B.

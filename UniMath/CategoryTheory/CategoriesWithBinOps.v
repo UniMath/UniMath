@@ -6,10 +6,12 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Algebra.BinaryOperations.
 
 Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.CategoryTheory.Categories.
-Local Open Scope cat.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.TransportMorphisms.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.opp_precat.
+
+Local Open Scope cat.
 
 Section def_precategory_with_binops.
 

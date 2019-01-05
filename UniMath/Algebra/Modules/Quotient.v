@@ -6,7 +6,8 @@ Auke Booij, December 2017
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.RigsAndRings.
-Require Import UniMath.Algebra.Monoids_and_Groups.
+Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.Modules.Core.
 Require Import UniMath.Algebra.Modules.Submodule.
 

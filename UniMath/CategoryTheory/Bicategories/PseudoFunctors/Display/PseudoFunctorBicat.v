@@ -3,8 +3,8 @@
  *)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat.
 Import Bicat.Notations.
@@ -194,6 +194,39 @@ Section FunctorLaws.
     ; try (apply D) ; try (apply isaprop_is_invertible_2cell).
   Qed.
 End FunctorLaws.
+
+Section LaxFunctorBicat.
+  Variable (C D : bicat).
+
+  Definition laxfunctor_bicat
+    : bicat
+    := fullsubbicat (psfunctor_data_bicat C D) psfunctor_laws.
+
+  Definition laxfunctor_bicat_is_univalent_2_1
+             (HD_2_1 : is_univalent_2_1 D)
+    : is_univalent_2_1 laxfunctor_bicat.
+  Proof.
+    apply is_univalent_2_1_fullsubbicat.
+    apply psfunctor_data_is_univalent_2_1.
+    exact HD_2_1.
+  Defined.
+
+  Definition laxfunctor_bicat_is_univalent_2_0
+             (HD_2_0 : is_univalent_2_0 D)
+             (HD_2_1 : is_univalent_2_1 D)
+    : is_univalent_2_0 laxfunctor_bicat.
+  Proof.
+    apply is_univalent_2_0_fullsubbicat.
+    - apply psfunctor_data_is_univalent_2_0.
+      + exact HD_2_0.
+      + exact HD_2_1.
+    - apply psfunctor_data_is_univalent_2_1.
+      exact HD_2_1.
+    - intro.
+      repeat (apply isapropdirprod) ; repeat (apply impred ; intro)
+      ; try (apply D).
+  Defined.
+End LaxFunctorBicat.
 
 Section PseudoFunctorBicat.
   Variable (C D : bicat).

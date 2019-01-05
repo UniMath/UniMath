@@ -1,8 +1,9 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.Algebra.Monoids_and_Groups
-	       UniMath.CategoryTheory.total2_paths
-               UniMath.Ktheory.Utilities.
+Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.Groups.
+Require Import UniMath.CategoryTheory.total2_paths.
+Require Import UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Monoid.
 Local Notation Hom := monoidfun.
 Local Notation "g ∘ f" := (monoidfuncomp f g) (only parsing).

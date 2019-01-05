@@ -33,8 +33,11 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.Combinatorics.Lists.
 
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
@@ -541,7 +544,7 @@ End MBindingSig.
 (** Alternative version using [X,SET] instead of SET/X below. There is no proof that the
     functor we obtain using this approach is omega-cocontinuous yet. *)
 Require UniMath.CategoryTheory.categories.StandardCategories.
-Require UniMath.CategoryTheory.EquivalencesExamples.
+Require UniMath.CategoryTheory.Adjunctions.Examples.
 
 Module alt.
 
