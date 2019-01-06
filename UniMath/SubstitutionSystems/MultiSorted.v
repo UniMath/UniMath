@@ -550,7 +550,7 @@ Module alt.
 
 Import UniMath.CategoryTheory.Groupoids.
 Import UniMath.CategoryTheory.categories.StandardCategories.
-Import UniMath.CategoryTheory.EquivalencesExamples.
+Import UniMath.CategoryTheory.Adjunctions.Examples.
 
 (** * Definition of multisorted binding signatures *)
 Section MBindingSig.
