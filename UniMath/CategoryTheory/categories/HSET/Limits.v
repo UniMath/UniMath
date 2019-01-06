@@ -30,7 +30,6 @@ Require Import UniMath.MoreFoundations.WeakEquivalences.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.pullbacks.
@@ -332,7 +331,7 @@ Proof.
            apply subtypeEquality.
            ++ intro; apply setproperty.
            ++ apply (toforallpaths _ _ _ (pr2 t)).
-Qed.
+Defined.
 
 (** ** Equalizers from general limits [EqualizersHSET_from_Lims] *)
 
