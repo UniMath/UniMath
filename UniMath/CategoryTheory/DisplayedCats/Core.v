@@ -33,8 +33,11 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.AxiomOfChoice.
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Local Open Scope cat.
 Local Open Scope cat_deprecated.
 

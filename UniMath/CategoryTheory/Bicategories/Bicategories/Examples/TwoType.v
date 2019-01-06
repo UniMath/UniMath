@@ -6,7 +6,7 @@ Authors: Dan Frumin, Niels van der Weide
 Ported from: https://github.com/nmvdw/groupoids
  *)
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Univalence.
