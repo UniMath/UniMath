@@ -16,7 +16,7 @@ Groupoids.v
 PrecategoryBinProduct.v
 ProductCategory.v
 whiskering.v
-Adjunctions.v
+Adjunctions/Core.v
 Monads/RelativeMonads.v
 Monads/RelMonads_Coreflection.v
 Monads/RelativeModules.v
@@ -82,7 +82,6 @@ FunctorCoalgebras.v
 precomp_fully_faithful.v
 precomp_ess_surj.v
 rezk_completion.v
-EquivalencesExamples.v
 EndofunctorsMonoidal.v
 CategoricalRecursionSchemes.v
 PointedFunctors.v
@@ -120,6 +119,8 @@ Monads/KTriples.v
 Monads/KTriplesEquiv.v
 Monads/Derivative.v
 Monads/MonadAlgebras.v
+Adjunctions/Restriction.v
+Adjunctions/Examples.v
 
 categories/setwith2binops.v
 categories/monoids.v

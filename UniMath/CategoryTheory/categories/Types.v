@@ -44,7 +44,7 @@ Require Import UniMath.CategoryTheory.limits.binproducts.
 
 (* Exponentials *)
 Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.Adjunctions.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
 
 (* Hom functors *)
 Require Import UniMath.CategoryTheory.opp_precat.

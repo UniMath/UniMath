@@ -34,6 +34,7 @@ Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.Chains.All.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
@@ -168,7 +169,7 @@ Defined.
 
 (** Lemma 31: Left adjoints preserve colimits *)
 Lemma left_adjoint_cocont :
-  ∏ (C D : precategory) (F : functor C D), Adjunctions.is_left_adjoint F
+  ∏ (C D : precategory) (F : functor C D), is_left_adjoint F
   → has_homsets C → has_homsets D → is_cocont F.
 Proof.
 exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.left_adjoint_cocont.
