@@ -7,9 +7,9 @@ alternative method using the [Nix Package Manager](https://nixos.org/nix/) is av
 Prepare for installation by installing the OCAML compiler and a more modern
 version of `bash` on your system.
 
-## Preparing for the installation under Mac OS
+## Preparing for the installation under Mac OS X
 
-To prepare for the installation under Mac OS, there are two methods.
+To prepare for the installation under Mac OS X, there are two methods.
 
 ### First method (recommended for beginners)
 
@@ -18,11 +18,16 @@ do that is with "Homebrew", available from http://brew.sh/, with the following
 command:
 
 ```bash
-$ brew install objective-caml ocaml-num camlp5 camlp4 lablgtk bash
+$ brew install objective-caml ocaml-num camlp4 lablgtk bash
+$ brew install --build-bottle camlp5
 ```
 
 If installing `lablgtk` fails, you can omit it, but you won't be able to build
 the program `coqide` and will have to depend on ProofGeneral instead.
+
+The reason we install `camlp5` with the option `--build-bottle` is so it will
+be compiled from sources on your machine -- the precompiled version provided is
+too old.
 
 Also install "ocamlfind" using "homebrew" with the following commands.
 
@@ -31,7 +36,7 @@ $ brew tap mht208/formal
 $ brew install ocaml-findlib
 ```
 
-Now proceed with "Installing UniMath under Mac OS or Linux" below.
+Now proceed with "Installation of ProofGeneral" and "Installing UniMath" below.
 
 ### Second method (allows more flexibility, but is more involved than first method)
 
