@@ -7,9 +7,9 @@ alternative method using the [Nix Package Manager](https://nixos.org/nix/) is av
 Prepare for installation by installing the OCAML compiler and a more modern
 version of `bash` on your system.
 
-## Preparing for the installation under Mac OS
+## Preparing for the installation under Mac OS X
 
-To prepare for the installation under Mac OS, there are two methods.
+To prepare for the installation under Mac OS X, there are two methods.
 
 ### First method (recommended for beginners)
 
