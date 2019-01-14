@@ -18,23 +18,11 @@ do that is with "Homebrew", available from http://brew.sh/, with the following
 command:
 
 ```bash
-$ brew install objective-caml ocaml-num camlp4 lablgtk bash
-$ brew install --build-bottle camlp5
+$ brew install objective-caml ocaml-num camlp4 camlp5 lablgtk bash ocaml-findlib
 ```
 
 If installing `lablgtk` fails, you can omit it, but you won't be able to build
 the program `coqide` and will have to depend on ProofGeneral instead.
-
-The reason we install `camlp5` with the option `--build-bottle` is so it will
-be compiled from sources on your machine -- the precompiled version provided is
-too old.
-
-Also install "ocamlfind" using "homebrew" with the following commands.
-
-```bash
-$ brew tap mht208/formal
-$ brew install ocaml-findlib
-```
 
 Now proceed with "Installation of ProofGeneral" and "Installing UniMath" below.
 
@@ -102,7 +90,7 @@ shell commands.
 ```bash
  sudo pacman --sync --needed archlinux-keyring
  sudo pacman-key --populate archlinux
- sudo pacman --sync --needed ocaml camlp5 ocaml-findlib
+ sudo pacman --sync --needed ocaml camlp5 ocaml-findlib ocaml-num
 ```
 
 ## Installation of ProofGeneral
