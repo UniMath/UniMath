@@ -1,5 +1,5 @@
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.OneTypes.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Adjunctions.
