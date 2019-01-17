@@ -93,7 +93,7 @@ End Yoneda.
 (* Adapted from
    TypeTheory/TypeTheory/Auxiliary/Auxiliary.v
    TypeTheory/ALV1/CwF_def.v *)
-
+(*
 Section Representation.
 
   Context {C : category}
@@ -124,6 +124,7 @@ Section Representation.
   Definition cwf_representation : UU
     := ∏ Γ (A : Ty Γ : hSet), cwf_fiber_representation A.
 End Representation.
+*)
 
 Lemma transportf_yy
       {C : precategory} {hsC : has_homsets C}
@@ -175,7 +176,7 @@ Proof.
   apply id_right.
 Defined.
 
-Section CwFIsAProp.
+Section CwFRepresentation.
   Context {C : category}
           {Ty Tm : opp_precat_data C ⟶ SET}
           (pp : Tm ⟹ Ty)
@@ -184,17 +185,28 @@ Section CwFIsAProp.
   Definition cwf_fiber_rep_data {Γ:C} (A : Ty Γ : hSet) : UU
     := ∑ (ΓA : C), C ⟦ΓA, Γ⟧ × (Tm ΓA : hSet).
 
+  Lemma cwf_square_comm {Γ} {A}
+        {ΓA : C} {π : ΓA --> Γ}
+        {t : Tm ΓA : hSet} (e : (pp : nat_trans _ _) _ t = functor_on_morphisms Ty π A)
+    : functor_on_morphisms Yo π · yy A = yy t · pp.
+  Proof.
+    apply pathsinv0.
+    etrans. 2: apply yy_natural.
+    etrans. apply yy_comp_nat_trans.
+    apply maponpaths, e.
+  Qed.
+
   Definition cwf_fiber_rep_ax
              {Γ:C} {A : Ty Γ : hSet}
              (ΓAπt : cwf_fiber_rep_data A) : UU
     := ∑ (H : pp _ (pr2 (pr2 ΓAπt)) = (#Ty)%cat (pr1 (pr2 ΓAπt)) A),
-       isPullback _ _ _ _ (cwf_square_comm pp H).
+       isPullback _ _ _ _ (cwf_square_comm H).
 
-  Definition cwf_fiber_representation' {Γ:C} (A : Ty Γ : hSet) : UU
+  Definition cwf_fiber_representation {Γ:C} (A : Ty Γ : hSet) : UU
     := ∑ ΓAπt : cwf_fiber_rep_data A, cwf_fiber_rep_ax ΓAπt.
 
-  Lemma isaprop_cwf_fiber_representation' {Γ:C} (A : Ty Γ : hSet)
-    : is_univalent C -> isaprop (cwf_fiber_representation' A).
+  Lemma isaprop_cwf_fiber_representation {Γ:C} (A : Ty Γ : hSet)
+    : is_univalent C -> isaprop (cwf_fiber_representation A).
   Proof.
     intro isC.
     apply invproofirrelevance.
@@ -277,26 +289,17 @@ Section CwFIsAProp.
         apply (PullbackArrow_PullbackPr2 PT e1 e2 e3 e4).
   Qed.
 
-  Definition isaprop_cwf_fiber_representation {Γ : C} (A : Ty Γ : hSet)
-    : isaprop (cwf_fiber_representation pp A).
-  Proof.
-    simple refine (isofhlevelweqb _ _ _).
-    - exact (cwf_fiber_representation' A).
-    - unfold cwf_fiber_representation, cwf_fiber_representation'.
-      admit.
-    - apply isaprop_cwf_fiber_representation'.
-      exact HC.
-  Admitted.
+  Definition cwf_representation : UU
+    := ∏ Γ (A : Ty Γ : hSet), cwf_fiber_representation A.
 
   Definition isaprop_cwf_representation
     : isaprop cwf_representation.
   Proof.
     do 2 (apply impred ; intro).
     apply isaprop_cwf_fiber_representation.
+    exact HC.
   Defined.
-
-
-
+End CwFRepresentation.
 
 Section Projections.
 
@@ -309,20 +312,19 @@ Section Projections.
 
   Definition ext : C := pr1 (pr1 (R Γ A)).
 
-  Definition π : C⟦ext,Γ⟧ := pr2 (pr1 (R Γ A)).
+  Definition π : C⟦ext,Γ⟧ := pr121 (R Γ A).
 
-  Definition var : (Tm ext:hSet) := pr1 (pr1 (pr2 (R Γ A))).
+  Definition var : (Tm ext:hSet) := pr221 (R Γ A).
 
   Definition comm
     : pp ext var = functor_on_morphisms Ty π A
-    := pr2 (pr1 (pr2 (R Γ A))).
+    := pr12 (R Γ A).
 
   Definition pullback
     : isPullback (yy A) pp
                  (functor_on_morphisms (yoneda C (homset_property C)) π)
                  (yy var) (cwf_square_comm pp comm)
     := pr2 (pr2 (R Γ A)).
-
 End Projections.
 
 Arguments iso _ _ _ : clear implicits.
@@ -349,7 +351,8 @@ Section CwF.
     apply is_univalent_2_0_fullsubbicat.
     - apply morphisms_of_presheaves_univalent_2_0.
     - apply morphisms_of_presheaves_univalent_2_1.
-    - intros.
+    - intros C.
       apply isaprop_cwf_representation.
+      apply (pr1 C).
   Defined.
 End CwF.
