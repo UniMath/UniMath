@@ -4,6 +4,7 @@ Require Export UniMath.Algebra.RigsAndRings.
 Require Export UniMath.Foundations.UnivalenceAxiom.
 
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.Algebra.Groups.
 Require Import UniMath.MoreFoundations.NegativePropositions.
 
 (* move upstream *)

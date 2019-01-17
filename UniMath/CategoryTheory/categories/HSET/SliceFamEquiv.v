@@ -12,18 +12,21 @@ Contents:
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Sets
-        UniMath.CategoryTheory.Categories
-        UniMath.CategoryTheory.functor_categories
-        UniMath.CategoryTheory.categories.HSET.Core
-        UniMath.CategoryTheory.categories.HSET.MonoEpiIso
-        UniMath.CategoryTheory.categories.HSET.Univalence
-        UniMath.CategoryTheory.categories.HSET.Slice
-        UniMath.CategoryTheory.slicecat
-        UniMath.CategoryTheory.Adjunctions
-        UniMath.CategoryTheory.Equivalences.Core
-        UniMath.CategoryTheory.Groupoids
-        UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.Foundations.Sets.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.categories.HSET.MonoEpiIso.
+Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
+Require Import UniMath.CategoryTheory.categories.HSET.Slice.
+Require Import UniMath.CategoryTheory.slicecat.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
+Require Import UniMath.CategoryTheory.FunctorCategory.
+Require Import UniMath.CategoryTheory.Groupoids.
+Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Local Open Scope cat.
 
 Section set_slice_fam_equiv.

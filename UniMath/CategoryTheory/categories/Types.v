@@ -1,3 +1,5 @@
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 (** * The precategory of types
 
 This file defines the precategory of types in a fixed universe ([type_precat])
@@ -31,8 +33,8 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.PartA.
 
 (* Basic category theory *)
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
 
 (* (Co)limits *)
 Require Import UniMath.CategoryTheory.limits.initial.
@@ -42,7 +44,7 @@ Require Import UniMath.CategoryTheory.limits.binproducts.
 
 (* Exponentials *)
 Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.Adjunctions.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
 
 (* Hom functors *)
 Require Import UniMath.CategoryTheory.opp_precat.

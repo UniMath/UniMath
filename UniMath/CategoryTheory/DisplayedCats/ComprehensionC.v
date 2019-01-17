@@ -10,8 +10,9 @@ category over [C]. Objects over [c:C] are display maps into [c].
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.

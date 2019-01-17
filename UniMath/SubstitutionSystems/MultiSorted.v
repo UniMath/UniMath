@@ -33,8 +33,11 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.Combinatorics.Lists.
 
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
@@ -47,7 +50,7 @@ Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.Adjunctions.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Chains.All.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
@@ -541,13 +544,13 @@ End MBindingSig.
 (** Alternative version using [X,SET] instead of SET/X below. There is no proof that the
     functor we obtain using this approach is omega-cocontinuous yet. *)
 Require UniMath.CategoryTheory.categories.StandardCategories.
-Require UniMath.CategoryTheory.EquivalencesExamples.
+Require UniMath.CategoryTheory.Adjunctions.Examples.
 
 Module alt.
 
 Import UniMath.CategoryTheory.Groupoids.
 Import UniMath.CategoryTheory.categories.StandardCategories.
-Import UniMath.CategoryTheory.EquivalencesExamples.
+Import UniMath.CategoryTheory.Adjunctions.Examples.
 
 (** * Definition of multisorted binding signatures *)
 Section MBindingSig.

@@ -1,4 +1,5 @@
-(** * Algebra I. Part D. Integral domains and fields. Vladimir Voevodsky. Aug. 2011 - . *)
+(** * Algebra I. Part E. Integral domains and fields. Vladimir Voevodsky. Aug. 2011 - . *)
+Require Import UniMath.Algebra.Groups.
 (** ** Contents
 - Integral domains and fields
  - Integral domains

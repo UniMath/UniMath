@@ -3,8 +3,8 @@
 (** * Natural numbers *)
 
 Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.Algebra.Monoids_and_Groups
-               UniMath.Foundations.NaturalNumbers
+Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Foundations.NaturalNumbers
                UniMath.MoreFoundations.NegativePropositions
                UniMath.Foundations.UnivalenceAxiom
                UniMath.CategoryTheory.total2_paths

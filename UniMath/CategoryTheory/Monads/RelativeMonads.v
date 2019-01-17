@@ -22,9 +22,13 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.PartA.
 
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
-Require Import UniMath.CategoryTheory.Adjunctions.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.FunctorCategory.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
 
 Local Open Scope cat.
 
@@ -270,9 +274,15 @@ Definition RelMonadMor {C D : precategory_data} {J : functor_data C D}
   := ∑ α : RelMonadMor_data R R', RelMonadMor_axioms α.
 Coercion RelMonadMor_data_from_RelMonadMor  {C D : precategory_data} {J : functor_data C D}
            {R R' : RelMonad_data J} (α : RelMonadMor R R') : RelMonadMor_data R R' := pr1 α.
-Coercion RelMonadMor_axioms_from_RelMonadMor {C D : precategory_data} {J : functor_data C D}
+
+ Coercion RelMonadMor_axioms_from_RelMonadMor {C D : precategory_data} {J : functor_data C D}
          {R R' : RelMonad_data J} (α : RelMonadMor R R') :
   RelMonadMor_axioms α := pr2 α.
+
+Definition RelMonadMor_map {C D : precategory_data} {J : functor_data C D}
+           {R R' : RelMonad_data J} (f : RelMonadMor R R') (X : C)
+  : R X --> R' X
+  := (f : RelMonadMor_data _ _ ) X.
 
 Definition RelMonadMor_equiv  {C D : precategory_data} (hs : has_homsets D)
            {J : functor_data C D} {R R' : RelMonad_data J} (α β : RelMonadMor R R') :

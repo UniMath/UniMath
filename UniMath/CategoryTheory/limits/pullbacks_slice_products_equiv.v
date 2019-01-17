@@ -12,14 +12,14 @@ Contents : Equivalence of binary products in C/Z to
 
  ************************************************************)
 
-Require Import UniMath.MoreFoundations.Tactics
-        UniMath.Foundations.Sets
-        UniMath.CategoryTheory.Categories
-        UniMath.CategoryTheory.functor_categories
-        UniMath.CategoryTheory.slicecat
-        UniMath.CategoryTheory.Equivalences.Core
-        UniMath.CategoryTheory.limits.binproducts
-        UniMath.CategoryTheory.limits.pullbacks.
+Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.Foundations.Sets.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.slicecat.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
+Require Import UniMath.CategoryTheory.limits.binproducts.
+Require Import UniMath.CategoryTheory.limits.pullbacks.
 
 Local Open Scope cat.
 

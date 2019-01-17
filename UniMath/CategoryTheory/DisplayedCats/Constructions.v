@@ -16,11 +16,15 @@ Partial contents:
 
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Functors.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
@@ -102,15 +106,15 @@ Definition disp_full_sub_data (C : precategory_data) (P : C → UU)
   : disp_cat_data C
   :=  disp_full_sub_ob_mor C P,, disp_full_sub_id_comp C P.
 
-Definition disp_full_sub_axioms (C : category) (P : C → UU)
+Definition disp_full_sub_axioms (C : precategory) (P : C → UU)
   : disp_cat_axioms _ (disp_full_sub_data C P).
 Proof.
   repeat split; intros; try (apply proofirrelevance; apply isapropunit).
   apply isasetaprop; apply isapropunit.
 Qed.
 
-Definition disp_full_sub (C : category) (P : C → UU)
-  : disp_cat C := _ ,, disp_full_sub_axioms C P.
+Definition disp_full_sub (C : precategory) (P : C → UU)
+  : disp_precat C := _ ,, disp_full_sub_axioms C P.
 
 Lemma disp_full_sub_univalent (C : category) (P : C → UU) :
   (∏ x : C, isaprop (P x)) →
@@ -132,7 +136,7 @@ End full_subcat.
 Section struct_hom.
 
 Variable C : category.
-Variable univC : is_univalent C.
+(* Variable univC : is_univalent C. *)
 Variable P : ob C -> UU.
 (* Variable Pisset : ∏ x, isaset (P x). *)
 Variable H : ∏ (x y : C), P x → P y → C⟦x,y⟧ → UU.
@@ -511,7 +515,7 @@ Definition is_iso_sigma_disp_aux1
 Proof.
   exists (inv_mor_disp_from_iso ii).
   set (ggg := inv_mor_disp_from_iso iii).
-  exact (transportf _ (inv_mor_total_iso _ _ _) ggg).
+  exact (transportf _ (inv_mor_total_iso _ _) ggg).
 Defined.
 
 Lemma is_iso_sigma_disp_aux2

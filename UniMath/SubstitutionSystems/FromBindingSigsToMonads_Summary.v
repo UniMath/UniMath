@@ -16,9 +16,12 @@ about this formalization.
 
 Require Import UniMath.Foundations.NaturalNumbers.
 
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
 Require Import UniMath.CategoryTheory.categories.HSET.Limits.
@@ -31,6 +34,7 @@ Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.Chains.All.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.ProductCategory.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
@@ -165,7 +169,7 @@ Defined.
 
 (** Lemma 31: Left adjoints preserve colimits *)
 Lemma left_adjoint_cocont :
-  ∏ (C D : precategory) (F : functor C D), Adjunctions.is_left_adjoint F
+  ∏ (C D : precategory) (F : functor C D), is_left_adjoint F
   → has_homsets C → has_homsets D → is_cocont F.
 Proof.
 exact @UniMath.CategoryTheory.Chains.OmegaCocontFunctors.left_adjoint_cocont.

@@ -1,12 +1,15 @@
 Installation of UniMath
 =======================
 
+NB: This file describes the default method for installing UniMath.  An
+alternative method using the [Nix Package Manager](https://nixos.org/nix/) is available in the file [INSTALL\_NIX.md](https://github.com/UniMath/UniMath/blob/master/INSTALL_NIX.md).
+
 Prepare for installation by installing the OCAML compiler and a more modern
 version of `bash` on your system.
 
-## Preparing for the installation under Mac OS
+## Preparing for the installation under Mac OS X
 
-To prepare for the installation under Mac OS, there are two methods.
+To prepare for the installation under Mac OS X, there are two methods.
 
 ### First method (recommended for beginners)
 
@@ -15,20 +18,13 @@ do that is with "Homebrew", available from http://brew.sh/, with the following
 command:
 
 ```bash
-$ brew install objective-caml ocaml-num camlp5 camlp4 lablgtk bash
+$ brew install objective-caml ocaml-num camlp4 camlp5 lablgtk bash ocaml-findlib
 ```
 
 If installing `lablgtk` fails, you can omit it, but you won't be able to build
 the program `coqide` and will have to depend on ProofGeneral instead.
 
-Also install "ocamlfind" using "homebrew" with the following commands.
-
-```bash
-$ brew tap mht208/formal
-$ brew install ocaml-findlib
-```
-
-Now proceed with "Installing UniMath under Mac OS or Linux" below.
+Now proceed with "Installation of ProofGeneral" and "Installing UniMath" below.
 
 ### Second method (allows more flexibility, but is more involved than first method)
 
@@ -94,7 +90,7 @@ shell commands.
 ```bash
  sudo pacman --sync --needed archlinux-keyring
  sudo pacman-key --populate archlinux
- sudo pacman --sync --needed ocaml camlp5 ocaml-findlib
+ sudo pacman --sync --needed ocaml camlp5 ocaml-findlib ocaml-num
 ```
 
 ## Installation of ProofGeneral

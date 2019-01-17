@@ -15,9 +15,12 @@
 
 
 Require Import UniMath.Foundations.PartD.
-Require Import UniMath.CategoryTheory.Categories.
-Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Local Open Scope cat.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.limits.binproducts.
@@ -58,7 +61,7 @@ Definition GenMendlerIteration :
    ∏ (C : precategory) (hsC : has_homsets C) (F : functor C C)
    (μF_Initial : Initial (FunctorAlg F hsC)) (C' : precategory)
    (hsC' : has_homsets C') (X : C') (L : functor C C'),
-   Adjunctions.is_left_adjoint L
+   is_left_adjoint L
    → ∏ ψ : ψ_source C C' hsC' X L ⟹ ψ_target C F C' hsC' X L,
      ∃! h : C' ⟦ L ` (InitialObject μF_Initial), X ⟧,
      # L (alg_map F (InitialObject μF_Initial)) · h =
@@ -78,10 +81,10 @@ Theorem fusion_law
        (μF_Initial : Initial (precategory_FunctorAlg F hsC))
        (C' : precategory) (hsC' : has_homsets C')
        (X X' : C') (L : functor C C')
-       (is_left_adj_L : Adjunctions.is_left_adjoint L)
+       (is_left_adj_L : is_left_adjoint L)
        (ψ : ψ_source C C' hsC' X L ⟹ ψ_target C F C' hsC' X L)
        (L' : functor C C')
-       (is_left_adj_L' : Adjunctions.is_left_adjoint L')
+       (is_left_adj_L' : is_left_adjoint L')
        (ψ' : ψ_source C C' hsC' X' L' ⟹ ψ_target C F C' hsC' X' L')
        (Φ : yoneda_objects C' hsC' X • functor_opp L
               ⟹

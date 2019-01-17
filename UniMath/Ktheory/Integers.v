@@ -4,8 +4,9 @@
 
 Unset Kernel Term Sharing.
 
-Require Import UniMath.Algebra.Monoids_and_Groups
-               UniMath.Foundations.NaturalNumbers
+Require Import UniMath.Algebra.Monoids.
+Require Import UniMath.Algebra.Groups.
+Require Import UniMath.Foundations.NaturalNumbers
                UniMath.NumberSystems.Integers
                UniMath.Foundations.UnivalenceAxiom
                UniMath.Ktheory.Utilities
