@@ -269,6 +269,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Bicategories/Bicategories/EquivToAdjequiv.v](CategoryTheory/Bicategories/Bicategories/EquivToAdjequiv.v)
    - [Bicategories/Bicategories/AdjointUnique.v](CategoryTheory/Bicategories/Bicategories/AdjointUnique.v)
    - [Bicategories/Bicategories/Examples/OneTypes.v](CategoryTheory/Bicategories/Bicategories/Examples/OneTypes.v)
+   - [Bicategories/Bicategories/Examples/PointedOneTypesBicat.v](CategoryTheory/Bicategories/Bicategories/Examples/PointedOneTypesBicat.v)
    - [Bicategories/Bicategories/Examples/TwoType.v](CategoryTheory/Bicategories/Bicategories/Examples/TwoType.v)
    - [Bicategories/Bicategories/Examples/BicatOfCats.v](CategoryTheory/Bicategories/Bicategories/Examples/BicatOfCats.v)
    - [Bicategories/Bicategories/Examples/Initial.v](CategoryTheory/Bicategories/Bicategories/Examples/Initial.v)

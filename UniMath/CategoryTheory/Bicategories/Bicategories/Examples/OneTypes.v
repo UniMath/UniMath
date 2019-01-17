@@ -169,65 +169,36 @@ Proof.
   - split ; apply one_type_2cell_iso.
 Defined.
 
-Definition weq_is_adjoint_equivalence
-           {X Y : one_types}
-           (f : one_types⟦X,Y⟧)
-           (Hf : isweq f)
-  : left_adjoint_equivalence f
-  := equiv_to_isadjequiv f (weq_is_adjoint_equivalence_help f Hf).
-
-Definition adjoint_equivalence_to_weq
-           (X Y : one_types)
-  : adjoint_equivalence X Y → weq (pr1 X) (pr1 Y).
+Definition adjequiv_to_weq (X Y : one_types)
+  : (pr1 X ≃ pr1 Y) ≃ adjoint_equivalence X Y.
 Proof.
-  intros Hf.
-  refine (pr1 Hf ,, _).
-  apply adjoint_equivalence_is_weq.
-  apply Hf.
+  use weqfibtototal.
+  intro f.
+  apply weqimplimpl.
+  - intro Hf.
+    apply equiv_to_isadjequiv.
+    exact (weq_is_adjoint_equivalence_help f Hf).
+  - exact (adjoint_equivalence_is_weq f).
+  - apply isapropisweq.
+  - apply isaprop_left_adjoint_equivalence.
+    exact one_types_is_univalent_2_1.
 Defined.
 
-Definition weq_to_adjoint_equivalence
-           (X Y : one_types)
-  : weq (pr1 X) (pr1 Y) → adjoint_equivalence X Y.
-Proof.
-  intros Hf.
-  refine (pr1weq Hf ,, _).
-  apply weq_is_adjoint_equivalence.
-  apply Hf.
-Defined.
-
-Definition weq_to_adjoint_equivalence_is_weq
-           (X Y : one_types)
-  : isweq (weq_to_adjoint_equivalence X Y).
-Proof.
-  use isweq_iso.
-  - exact (adjoint_equivalence_to_weq X Y).
-  - intros f.
-    use subtypeEquality.
-    + intro.
-      apply isapropisweq.
-    + reflexivity.
-  - intros f.
-    apply path_internal_adjoint_equivalence.
-    + apply one_types_is_univalent_2_1.
-    + reflexivity.
-Defined.
+Definition idoiso_2_0_onetypes (X Y : one_types)
+  : X = Y ≃ adjoint_equivalence X Y
+  := (adjequiv_to_weq X Y ∘ UA_for_HLevels 3 X Y)%weq.
 
 Definition one_types_is_univalent_2_0
   : is_univalent_2_0 one_types.
 Proof.
   intros X Y.
-  apply (isweqhomot
-           (weq_to_adjoint_equivalence X Y ∘ pr1 (UA_for_HLevels 3 X Y))%functions
-           (idtoiso_2_0 X Y)).
+  use weqhomot.
+  - exact (idoiso_2_0_onetypes X Y).
   - intros p.
     induction p ; cbn.
     apply path_internal_adjoint_equivalence.
     + apply one_types_is_univalent_2_1.
     + reflexivity.
-  - apply twooutof3c.
-    + apply UA_for_HLevels.
-    + exact (weq_to_adjoint_equivalence_is_weq X Y).
 Defined.
 
 Definition one_types_is_univalent_2
