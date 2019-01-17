@@ -121,12 +121,172 @@ Section Representation.
     := ∑ (ΓAπ : map_into Γ) (te : cwf_tm_of_ty (functor_on_morphisms Ty (pr2 ΓAπ) A)),
        isPullback _ _ _ _ (cwf_square_comm (pr2 te)).
 
-  Definition isaprop_cwf_fiber_representation {Γ : C} (A : Ty Γ : hSet)
-    : isaprop (cwf_fiber_representation A).
-  Admitted.
-
   Definition cwf_representation : UU
     := ∏ Γ (A : Ty Γ : hSet), cwf_fiber_representation A.
+End Representation.
+
+Lemma transportf_yy
+      {C : precategory} {hsC : has_homsets C}
+      (F : opp_precat_data C ⟶ SET) (c c' : C) (A : (F : functor _ _ ) c : hSet)
+      (e : c = c')
+  : yy (transportf (fun d => (F : functor _ _ ) d : hSet) e A) =
+    transportf (fun d => nat_trans (yoneda _ hsC d : functor _ _) F) e (yy A).
+Proof.
+  induction e.
+  apply idpath.
+Defined.
+
+Lemma forall_isotid (A : precategory) (a_is : is_univalent A)
+      (a a' : A) (P : iso a a' -> UU)
+  : (∏ e, P (idtoiso e)) → ∏ i, P i.
+Proof.
+  intros H i.
+  rewrite <- (idtoiso_isotoid _ a_is).
+  apply H.
+Defined.
+
+Lemma transportf_isotoid_functor
+      (A X : precategory) (H : is_univalent A)
+      (K : functor A X)
+      (a a' : A) (p : iso a a') (b : X) (f : K a --> b)
+  : transportf (fun a0 => K a0 --> b) (isotoid _ H p) f = (#K)%cat (inv_from_iso p) · f.
+Proof.
+  rewrite functor_on_inv_from_iso. simpl. cbn.
+  unfold precomp_with. rewrite id_right.
+  generalize p.
+  apply forall_isotid.
+  - apply H.
+  - intro e. induction e.
+    cbn.
+    rewrite functor_id.
+    rewrite id_left.
+    rewrite isotoid_identity_iso.
+    apply idpath.
+Defined.
+
+Lemma inv_from_iso_iso_from_fully_faithful_reflection {C D : precategory}
+      (F : functor C D) (HF : fully_faithful F) (a b : C) (i : iso (F a) (F b))
+  : inv_from_iso
+      (iso_from_fully_faithful_reflection HF i) =
+    iso_from_fully_faithful_reflection HF (iso_inv_from_iso i).
+Proof.
+  cbn.
+  unfold precomp_with.
+  apply id_right.
+Defined.
+
+Section CwFIsAProp.
+  Context {C : category}
+          {Ty Tm : opp_precat_data C ⟶ SET}
+          (pp : Tm ⟹ Ty)
+          (HC : is_univalent C).
+
+  Definition cwf_fiber_rep_data {Γ:C} (A : Ty Γ : hSet) : UU
+    := ∑ (ΓA : C), C ⟦ΓA, Γ⟧ × (Tm ΓA : hSet).
+
+  Definition cwf_fiber_rep_ax
+             {Γ:C} {A : Ty Γ : hSet}
+             (ΓAπt : cwf_fiber_rep_data A) : UU
+    := ∑ (H : pp _ (pr2 (pr2 ΓAπt)) = (#Ty)%cat (pr1 (pr2 ΓAπt)) A),
+       isPullback _ _ _ _ (cwf_square_comm pp H).
+
+  Definition cwf_fiber_representation' {Γ:C} (A : Ty Γ : hSet) : UU
+    := ∑ ΓAπt : cwf_fiber_rep_data A, cwf_fiber_rep_ax ΓAπt.
+
+  Lemma isaprop_cwf_fiber_representation' {Γ:C} (A : Ty Γ : hSet)
+    : is_univalent C -> isaprop (cwf_fiber_representation' A).
+  Proof.
+    intro isC.
+    apply invproofirrelevance.
+    intros x x'. apply subtypeEquality.
+    { intro.
+      apply isofhleveltotal2.
+      - apply setproperty.
+      - intro. apply isaprop_isPullback.
+    }
+    destruct x as [x H].
+    destruct x' as [x' H']. cbn.
+    destruct x as [ΓA m].
+    destruct x' as [ΓA' m']. cbn in *.
+    destruct H as [H isP].
+    destruct H' as [H' isP'].
+    use (total2_paths_f).
+    - set (T1 := mk_Pullback _ _ _ _ _ _ isP).
+      set (T2 := mk_Pullback _ _ _ _ _ _ isP').
+      set (i := iso_from_Pullback_to_Pullback T1 T2). cbn in i.
+      set (i' := invmap (weq_ff_functor_on_iso (yoneda_fully_faithful _ _ ) _ _ ) i ).
+      set (TT := isotoid _ isC i').
+      apply TT.
+    - cbn.
+      set (XT := transportf_dirprod _ (fun a' => C⟦a', Γ⟧) (fun a' => Tm a' : hSet)).
+      cbn in XT.
+      set (XT' := XT (tpair _ ΓA m : ∑ R : C, C ⟦ R, Γ ⟧ × (Tm R : hSet) )
+                     (tpair _ ΓA' m' : ∑ R : C, C ⟦ R, Γ ⟧ × (Tm R : hSet) )).
+      cbn in *.
+      match goal with | [ |- transportf _ ?e _ = _ ] => set (TT := e) end.
+      rewrite XT'. clear XT' XT.
+      destruct m as [π te].
+      destruct m' as [π' te'].
+      cbn.
+      apply pathsdirprod.
+      + unfold TT; clear TT.
+        rewrite transportf_isotoid.
+        cbn. unfold precomp_with.
+        rewrite id_right.
+        unfold from_Pullback_to_Pullback.
+        cbn in *.
+        match goal with |[|- (_  ( _ ?PP _ _ _  _ ) )  _ _ · _ = _ ] =>
+                         set (P:=PP) end.
+        match goal with |[|- ( _ (PullbackArrow _ ?PP ?E2 ?E3 _ )) _ _ · _ = _ ]
+                         => set (E1 := PP);
+                              set (e1 := E1);
+                              set (e2 := E2);
+                              set (e3 := E3) end.
+        match goal with |[|- ( _ (PullbackArrow _ _ _ _ ?E4 )) _ _ · _ = _ ]
+                         => set (e4 := E4) end.
+        assert (XR := PullbackArrow_PullbackPr1 P e1 e2 e3 e4).
+        assert (XR':= nat_trans_eq_pointwise XR ΓA').
+        cbn in XR'.
+        assert (XR'':= toforallpaths _ _  _ XR').
+        cbn in XR''.
+        etrans. apply XR''.
+        apply id_left.
+      + unfold TT; clear TT.
+        match goal with |[|- transportf ?r  _ _ = _ ] => set (P:=r) end.
+        match goal with |[|- transportf _ (_ _ _ (_ _ ?ii)) _ = _ ] => set (i:=ii) end.
+        simpl in i.
+        apply (invmaponpathsweq (@yy _ (homset_property _ ) Tm ΓA')).
+        etrans. apply transportf_yy.
+        etrans. apply transportf_isotoid_functor.
+        rewrite inv_from_iso_iso_from_fully_faithful_reflection.
+        assert (XX:=homotweqinvweq (weq_from_fully_faithful
+                                      (yoneda_fully_faithful _ (homset_property C)) ΓA' ΓA )).
+        etrans. apply maponpaths_2. apply XX.
+        clear XX.
+        etrans. apply maponpaths_2. apply id_right.
+        etrans. apply maponpaths_2. unfold from_Pullback_to_Pullback. apply idpath.
+        match goal with |[|- ( _ ?PP _ _ _  _ ) · _ = _ ] =>
+                         set (PT:=PP) end.
+        match goal with |[|- PullbackArrow _ ?PP ?E2 ?E3 _ · _ = _ ]
+                         => set (E1 := PP);
+                              set (e1 := E1);
+                              set (e2 := E2);
+                              set (e3 := E3) end.
+        match goal with |[|- PullbackArrow _ _ _ _ ?E4 · _ = _ ]
+                         => set (e4 := E4) end.
+        apply (PullbackArrow_PullbackPr2 PT e1 e2 e3 e4).
+  Qed.
+
+  Definition isaprop_cwf_fiber_representation {Γ : C} (A : Ty Γ : hSet)
+    : isaprop (cwf_fiber_representation pp A).
+  Proof.
+    simple refine (isofhlevelweqb _ _ _).
+    - exact (cwf_fiber_representation' A).
+    - unfold cwf_fiber_representation, cwf_fiber_representation'.
+      admit.
+    - apply isaprop_cwf_fiber_representation'.
+      exact HC.
+  Admitted.
 
   Definition isaprop_cwf_representation
     : isaprop cwf_representation.
@@ -134,7 +294,9 @@ Section Representation.
     do 2 (apply impred ; intro).
     apply isaprop_cwf_fiber_representation.
   Defined.
-End Representation.
+
+
+
 
 Section Projections.
 
