@@ -19,15 +19,16 @@ Require Import
         UniMath.CategoryTheory.Equivalences.Core
         UniMath.CategoryTheory.categories.HSET.Core
         UniMath.CategoryTheory.categories.HSET.MonoEpiIso
-        UniMath.CategoryTheory.slicecat
         UniMath.CategoryTheory.opp_precat
         UniMath.CategoryTheory.Presheaf
         UniMath.CategoryTheory.ElementsOp.
 
+Require Import UniMath.CategoryTheory.Slice.Core.
+
+Local Open Scope cat.
+
 (** * Proof that PreShv ∫P ≃ PreShv C / P *)
 Section elems_slice_equiv.
-
-  Local Open Scope cat.
 
   Local Notation "C / X" := (slice_precat C X (pr2 C)).
   Local Definition ap_PreShv {X : precategory} := fun (P : PreShv X) (x : X) => pr1hSet ((pr1 P) x).

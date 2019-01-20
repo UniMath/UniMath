@@ -33,7 +33,7 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.slicecat.
+Require Import UniMath.CategoryTheory.Slice.Core.
 Require Import UniMath.CategoryTheory.NNO.
 Require Import UniMath.CategoryTheory.SubobjectClassifier.
 Require Import UniMath.CategoryTheory.categories.Types.

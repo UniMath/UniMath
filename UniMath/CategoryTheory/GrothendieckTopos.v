@@ -17,7 +17,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
-Require Import UniMath.CategoryTheory.slicecat.
+Require Import UniMath.CategoryTheory.Slice.Core.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Subobjects.
 Require Import UniMath.CategoryTheory.yoneda.

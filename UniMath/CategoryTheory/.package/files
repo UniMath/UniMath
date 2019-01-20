@@ -90,8 +90,14 @@ PointedFunctorsComposition.v
 CommaCategories.v
 ArrowCategory.v
 RightKanExtension.v
-slicecat.v
+
+Slice/Core.v
+Slice/Limits.v
+Slice/Colimits.v
+Slice/DependentProduct.v
+
 coslicecat.v
+
 limits/pullbacks_slice_products_equiv.v
 covyoneda.v
 catiso.v

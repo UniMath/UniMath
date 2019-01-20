@@ -24,7 +24,8 @@ Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
 Require Import UniMath.CategoryTheory.categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.categories.HSET.Slice.
-Require Import UniMath.CategoryTheory.slicecat.
+Require Import UniMath.CategoryTheory.Slice.Core.
+Require Import UniMath.CategoryTheory.Slice.Colimits.
 
 Local Open Scope cat.
 

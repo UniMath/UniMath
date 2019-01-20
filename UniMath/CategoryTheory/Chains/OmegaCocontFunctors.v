@@ -85,7 +85,7 @@ Require Import UniMath.CategoryTheory.Adjunctions.Examples.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.RightKanExtension.
-Require Import UniMath.CategoryTheory.slicecat.
+Require Import UniMath.CategoryTheory.Slice.Core.
 
 Require Import UniMath.CategoryTheory.Chains.Chains.
 

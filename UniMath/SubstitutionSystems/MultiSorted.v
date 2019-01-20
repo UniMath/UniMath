@@ -59,7 +59,9 @@ Require Import UniMath.CategoryTheory.categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.categories.HSET.Slice.
 Require Import UniMath.CategoryTheory.categories.HSET.Structures.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
-Require Import UniMath.CategoryTheory.slicecat.
+Require Import UniMath.CategoryTheory.Slice.Core.
+Require Import UniMath.CategoryTheory.Slice.Limits.
+Require Import UniMath.CategoryTheory.Slice.Colimits.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
