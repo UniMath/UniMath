@@ -32,6 +32,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [StructureIdentity.v](MoreFoundations/StructureIdentity.v)
    - [PartA.v](MoreFoundations/PartA.v)
    - [Univalence.v](MoreFoundations/Univalence.v)
+   - [PartD.v](MoreFoundations/PartD.v)
    - [All.v](MoreFoundations/All.v)
 ## Package Combinatorics
    - [StandardFiniteSets.v](Combinatorics/StandardFiniteSets.v)
