@@ -95,7 +95,7 @@ Section Sigma.
   Definition sigma_bicat_data : disp_prebicat_data C.
   Proof.
     exists sigma_prebicat_1_id_comp_cells.
-    repeat split; cbn; first [intros until 0 | intros].
+    repeat split; cbn; first [intros * | intros].
     - exists (disp_id2 _). exact (disp_id2 _).
     - exists (disp_lunitor (pr1 f')). exact (disp_lunitor (pr2 f')).
     - exists (disp_runitor (pr1 f')). exact (disp_runitor (pr2 f')).
@@ -136,7 +136,7 @@ Section Sigma.
 
   Lemma sigma_prebicat_laws : disp_prebicat_laws sigma_bicat_data.
   Proof.
-    repeat split; red; cbn; intros until 0;
+    repeat split; red; cbn; intros *;
       use (@total2_reassoc_paths'
              (_ ==> _) (fun x' => _ ==>[ x'] _)
              (fun x'xx => _ ==>[ mk_total_cell (pr1 x'xx) (pr2 x'xx)] _));
