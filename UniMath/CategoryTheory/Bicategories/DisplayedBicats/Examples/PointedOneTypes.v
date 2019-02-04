@@ -103,7 +103,7 @@ Proof.
     apply Y.
 Defined.
 
-Lemma p1types_disp_global_univalent : disp_univalent_2_0 p1types_disp.
+Lemma p1types_disp_univalent_2_0 : disp_univalent_2_0 p1types_disp.
 Proof.
   apply fiberwise_univalent_2_0_to_disp_univalent_2_0.
   intros X x x'. cbn in *.
@@ -119,10 +119,16 @@ Proof.
       apply p1types_disp_univalent_2_1. }
 Defined.
 
-Lemma p1types_univalent : is_univalent_2 p1types.
+Lemma p1types_disp_univalent_2 : disp_univalent_2 p1types_disp.
 Proof.
-  apply total_is_univalent.
-  - apply p1types_disp_global_univalent.
-  - apply p1types_disp_univalent_2_1.
+  apply mk_disp_univalent_2.
+  - exact p1types_disp_univalent_2_0.
+  - exact p1types_disp_univalent_2_1.
+Defined.
+
+Lemma p1types_univalent_2 : is_univalent_2 p1types.
+Proof.
+  apply total_is_univalent_2.
+  - apply p1types_disp_univalent_2.
   - apply one_types_is_univalent_2.
 Defined.

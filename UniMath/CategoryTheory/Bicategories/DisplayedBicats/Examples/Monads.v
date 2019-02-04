@@ -90,13 +90,11 @@ Section MonadBicategory.
   Defined.
 
   Definition plain_monad_is_univalent_2_0
-             (HC_0 : is_univalent_2_0 C)
-             (HC_1 : is_univalent_2_1 C)
+             (HC : is_univalent_2 C)
     : is_univalent_2_0 plain_monad.
   Proof.
     apply bicat_algebra_is_univalent_2_0.
-    - exact HC_0.
-    - exact HC_1.
+    exact HC.
   Defined.
 
   Definition add_unit
@@ -134,12 +132,12 @@ Section MonadBicategory.
   Defined.
 
   Definition lawless_monad_is_univalent_2_0
-             (HC_0 : is_univalent_2_0 C)
-             (HC_1 : is_univalent_2_1 C)
+             (HC : is_univalent_2 C)
     : is_univalent_2_0 lawless_monad.
   Proof.
+    pose (HC_1 := pr2 HC).
     apply is_univalent_2_0_total_dirprod.
-    - exact (plain_monad_is_univalent_2_0 HC_0 HC_1).
+    - exact (plain_monad_is_univalent_2_0 HC).
     - apply plain_monad_is_univalent_2_1.
       exact HC_1.
     - apply add_cell_disp_cat_univalent_2_0.
@@ -227,13 +225,12 @@ Section MonadBicategory.
   Defined.
 
   Definition monad_is_univalent_2_0
-             (HC_0 : is_univalent_2_0 C)
-             (HC_1 : is_univalent_2_1 C)
+             (HC : is_univalent_2 C)
     : is_univalent_2_0 monad.
   Proof.
     apply is_univalent_2_0_fullsubbicat.
-    - exact (lawless_monad_is_univalent_2_0 HC_0 HC_1).
-    - exact (lawless_monad_is_univalent_2_1 HC_1).
+    - exact (lawless_monad_is_univalent_2_0 HC).
+    - exact (lawless_monad_is_univalent_2_1 (pr2 HC)).
     - intro ; simpl.
       repeat (apply isapropdirprod) ; apply C.
   Defined.
