@@ -29,22 +29,20 @@ Proof.
   use build_prebicat_data.
   - exact one_type.
   - exact (λ X Y, X → Y).
-  - exact (λ _ _ f g, f = g).
+  - exact (λ _ _ f g, f ~ g).
   - exact (λ _ x, x).
   - exact (λ _ _ _ f g x, g(f x)).
-  - reflexivity.
+  - intros. exact (homotrefl _).
   - cbn ; intros X Y f g h p q.
-    exact (p @ q).
-  - cbn ; intros X Y Z f g h p.
-    exact (maponpaths (λ φ x, φ (f x)) p).
-  - cbn ; intros X Y Z f g h p.
-    exact (maponpaths (λ φ x, h(φ x)) p).
-  - reflexivity.
-  - reflexivity.
-  - reflexivity.
-  - reflexivity.
-  - reflexivity.
-  - reflexivity.
+    exact (homotcomp p q).
+  - cbn ; intros X Y Z f g h p. exact (funhomotsec f p).
+  - cbn ; intros X Y Z f g h p. exact (homotfun p h).
+  - intros. intro. reflexivity.
+  - intros. intro. reflexivity.
+  - intros. intro. reflexivity.
+  - intros. intro. reflexivity.
+  - intros. intro. reflexivity.
+  - intros. intro. reflexivity.
 Defined.
 
 Definition one_type_bicat_laws
@@ -54,35 +52,46 @@ Proof.
   - intros X Y f g p ; cbn in *.
     reflexivity.
   - intros X Y f g p ; cbn in *.
+    unfold homotcomp, homotrefl.
+    apply funextsec. intro x.
     apply pathscomp0rid.
   - intros X Y f g h k p q r.
+    apply funextsec. intro x.
     apply path_assoc.
   - reflexivity.
   - reflexivity.
   - intros X Y Z f g h i p q ; cbn in *.
-    induction p, q ; cbn.
+    apply funextsec. intro x.
     reflexivity.
   - intros X Y Z f g h i p q ; cbn in *.
-    induction p, q ; cbn.
-    reflexivity.
+    apply funextsec. intro x.
+    unfold homotcomp, homotfun. simpl.
+    apply (! maponpathscomp0 _ _ _).
   - intros X Y f g p ; cbn in *.
-    induction p ; cbn.
-    reflexivity.
+    apply funextsec. intro x.
+    unfold homotcomp, homotfun. simpl.
+    apply pathscomp0rid.
   - intros X Y f g p ; cbn in *.
-    induction p ; cbn.
-    reflexivity.
+    apply funextsec. intro x.
+    unfold homotcomp, homotfun. simpl.
+    etrans. apply pathscomp0rid.
+    apply maponpathsidfun.
   - intros W X Y Z f g h i p ; cbn in *.
-      induction p ; cbn.
-      reflexivity.
+    apply funextsec. intro x.
+    unfold homotcomp, funhomotsec. simpl.
+    apply pathscomp0rid.
   - intros W X Y Z f g h i p ; cbn in *.
-    induction p ; cbn.
-    reflexivity.
+    apply funextsec. intro x.
+    apply pathscomp0rid.
   - intros W X Y Z f g h i p ; cbn in *.
-    induction p ; cbn.
-    reflexivity.
+    apply funextsec. intro x.
+    unfold homotcomp, homotfun. simpl.
+    etrans. apply maponpathscomp.
+    apply (! pathscomp0rid _).
   - intros X Y Z f g h i p q ; cbn in *.
-    induction p, q ; cbn.
-    reflexivity.
+    apply funextsec. intro x.
+    unfold homotcomp, homotfun, funhomotsec.
+    induction (p x). apply (! pathscomp0rid _).
   - reflexivity.
   - reflexivity.
   - reflexivity.
@@ -101,7 +110,8 @@ Proof.
   - exact one_type_bicat_data.
   - exact one_type_bicat_laws.
   - intros X Y f g ; cbn in *.
-    exact (impredfun 3 X Y (pr2 Y) f g).
+    apply (impred 2 (λ x, f x = g x)).
+    exact (λ x, pr2 Y (f x) (g x)).
 Defined.
 
 (** Each 2-cell is an iso *)
@@ -111,10 +121,10 @@ Definition one_type_2cell_iso
            (α : f ==> g)
   : is_invertible_2cell α.
 Proof.
-  refine (!α ,, _).
+  refine (invhomot α ,, _).
   split ; cbn.
-  - apply pathsinv0r.
-  - apply pathsinv0l.
+  - apply funextsec. intro x. apply pathsinv0r.
+  - apply funextsec. intro x. apply pathsinv0l.
 Defined.
 
 (** It is univalent *)
@@ -123,18 +133,19 @@ Definition one_types_is_univalent_2_1
 Proof.
   intros X Y f g.
   use isweq_iso.
-  - intros α.
-    induction α as [p Hp].
-    exact p.
+  - intros α. apply funextsec. apply α.
   - intros p.
     induction p ; cbn.
-    reflexivity.
-  - intros p.
-    induction p as [p Hp].
-    induction p ; cbn in *.
+    change (homotrefl f) with (toforallpaths _ f f (idpath f)).
+    apply funextsec_toforallpaths.
+  - intros α. cbn.
     use subtypeEquality' ; cbn.
-    + reflexivity.
-    + exact (@isaprop_is_invertible_2cell one_types X Y f f (idpath f)).
+    + etrans. 2:{ apply toforallpaths_funextsec. }
+      unfold idtoiso_2_1, toforallpaths. cbn.
+      apply funextsec. intro x.
+      induction (funextsec _ f g (pr1 α)).
+      reflexivity.
+    + exact (@isaprop_is_invertible_2cell one_types X Y f g α).
 Defined.
 
 Definition adjoint_equivalence_is_weq
@@ -146,9 +157,9 @@ Proof.
   use isweq_iso.
   - exact (left_adjoint_right_adjoint Hf).
   - intros x.
-    exact (eqtohomot (!(left_adjoint_unit Hf)) x).
+    exact (!left_adjoint_unit Hf x).
   - intros x.
-    exact (eqtohomot (left_adjoint_counit Hf) x).
+    exact (left_adjoint_counit Hf x).
 Defined.
 
 Definition weq_is_adjoint_equivalence_help
@@ -160,11 +171,9 @@ Proof.
   use tpair.
   - refine (invmap (f ,, Hf) ,, _).
     split.
-    + apply funextsec.
-      intros x.
+    + intros x.
       exact (!(homotinvweqweq (f ,, Hf) x)).
-    + apply funextsec.
-      intros x.
+    + intros x.
       exact (homotweqinvweq (f ,, Hf) x).
   - split ; apply one_type_2cell_iso.
 Defined.
