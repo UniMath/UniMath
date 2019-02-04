@@ -170,9 +170,9 @@ Section fix_a_category.
   Qed.
 
   Definition disp_presheaves_is_univalent_2_1
-    : disp_locally_univalent disp_presheaf_bicat.
+    : disp_univalent_2_1 disp_presheaf_bicat.
   Proof.
-    apply fiberwise_local_univalent_is_locally_univalent.
+    apply fiberwise_local_univalent_is_univalent_2_1.
     intros C D F CD FC α β.
     use isweqimplimpl.
     - intro p ; cbn in * ; unfold idfun in *.

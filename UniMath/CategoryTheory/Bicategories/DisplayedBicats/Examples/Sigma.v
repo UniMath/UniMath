@@ -209,9 +209,9 @@ Section SigmaUnivalent.
            (HC_2_0 : is_univalent_2_0 C)
            (HC_2_1 : is_univalent_2_1 C)
            (HD₁_2_0 : disp_univalent_2_0 D₁)
-           (HD₁_2_1 : disp_locally_univalent D₁)
+           (HD₁_2_1 : disp_univalent_2_1 D₁)
            (HD₂_2_0 : disp_univalent_2_0 D₂)
-           (HD₂_2_1 : disp_locally_univalent D₂).
+           (HD₂_2_1 : disp_univalent_2_1 D₂).
 
   Local Notation E₁ := (total_bicat D₂).
   Local Notation E₂ := (total_bicat (sigma_bicat C D₁ D₂)).
@@ -229,8 +229,8 @@ Section SigmaUnivalent.
   Definition E₁_univalent_2_1
     : is_univalent_2_1 E₁.
   Proof.
-    apply total_is_locally_univalent.
-    - apply total_is_locally_univalent.
+    apply total_is_univalent_2_1.
+    - apply total_is_univalent_2_1.
       + exact HC_2_1.
       + exact HD₁_2_1.
     - exact HD₂_2_1.

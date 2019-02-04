@@ -57,12 +57,12 @@ Section Disp_Prebicat_Cells_Unit.
   Defined.
 
   (** Local Univalence *)
-  Definition disp_cell_unit_bicat_locally_univalent
+  Definition disp_cell_unit_bicat_univalent_2_1
              (H : ∏ (a b : C)
                     (f : a --> b)
                     (aa : D a) (bb : D b),
                   isaprop (aa -->[ f] bb))
-    : disp_locally_univalent disp_cell_unit_bicat.
+    : disp_univalent_2_1 disp_cell_unit_bicat.
   Proof.
     intros a b f g p aa bb ff gg.
     use isweqimplimpl.

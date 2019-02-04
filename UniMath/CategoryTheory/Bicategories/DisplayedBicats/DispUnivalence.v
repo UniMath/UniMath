@@ -42,7 +42,7 @@ Section Displayed_Local_Univalence.
     exact (disp_id2_invertible_2cell ff).
   Defined.
 
-  Definition disp_locally_univalent
+  Definition disp_univalent_2_1
     : UU
     := ∏ (a b : C) (f g : C⟦a,b⟧) (p : f = g) (aa : D a) (bb : D b)
          (ff : aa -->[ f ] bb) (gg : aa -->[ g ] bb),
@@ -50,11 +50,11 @@ Section Displayed_Local_Univalence.
 End Displayed_Local_Univalence.
 
 
-Section Total_Category_Locally_Univalent.
+Section Total_Category_Univalent_2_1.
   Context {C : bicat}.
   Variable (D : disp_bicat C)
            (HC : is_univalent_2_1 C)
-           (HD : disp_locally_univalent D).
+           (HD : disp_univalent_2_1 D).
   Local Definition E := (total_bicat D).
 
   Local Definition path_E
@@ -100,12 +100,12 @@ Section Total_Category_Locally_Univalent.
     reflexivity.
   Defined.
 
-  Definition total_is_locally_univalent : is_univalent_2_1 E.
+  Definition total_is_univalent_2_1 : is_univalent_2_1 E.
   Proof.
     intros x y f g.
     exact (weqhomot (idtoiso_2_1 f g) _ (invhomot (idtoiso_alt f g))).
   Defined.
-End Total_Category_Locally_Univalent.
+End Total_Category_Univalent_2_1.
 
 Definition fiberwise_local_univalent
            {C : bicat}
@@ -115,11 +115,11 @@ Definition fiberwise_local_univalent
        (ff : aa -->[ f] bb) (gg : aa -->[ f ] bb),
      isweq (disp_idtoiso_2_1 D (idpath f) ff gg).
 
-Definition fiberwise_local_univalent_is_locally_univalent
+Definition fiberwise_local_univalent_is_univalent_2_1
            {C : bicat}
            (D : disp_bicat C)
            (HD : fiberwise_local_univalent D)
-  : disp_locally_univalent D.
+  : disp_univalent_2_1 D.
 Proof.
   intros x y f g p xx yy ff gg.
   induction p.
@@ -135,7 +135,7 @@ Lemma isaprop_disp_left_adjoint_equivalence
       (Hf : left_adjoint_equivalence f)
       (ff : aa -->[f] bb)
   : is_univalent_2_1 C →
-    disp_locally_univalent D →
+    disp_univalent_2_1 D →
     isaprop (disp_left_adjoint_equivalence Hf ff).
 Proof.
   intros HUC HUD.
@@ -146,7 +146,7 @@ Proof.
   eapply isofhlevelweqf.
   { apply left_adjoint_equivalence_total_disp_weq. }
   apply isaprop_left_adjoint_equivalence.
-  apply total_is_locally_univalent; assumption.
+  apply total_is_univalent_2_1; assumption.
 Defined.
 
 Section Displayed_Global_Univalence.
@@ -254,7 +254,7 @@ Lemma total_is_univalent
       {C : bicat}
       {D: disp_bicat C}
   : disp_univalent_2_0 D →
-    disp_locally_univalent D →
+    disp_univalent_2_1 D →
     is_univalent_2 C →
     is_univalent_2 (total_bicat D).
 Proof.
@@ -262,6 +262,6 @@ Proof.
   split.
   - apply total_is_univalent_2_0. apply UC.
     assumption.
-  - apply total_is_locally_univalent. apply UC.
+  - apply total_is_univalent_2_1. apply UC.
     assumption.
 Defined.
