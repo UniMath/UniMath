@@ -341,9 +341,9 @@ Section Map1Cells.
   Defined.
 
   Definition map1cells_disp_univalent_2_1
-    : disp_locally_univalent map1cells_disp_bicat.
+    : disp_univalent_2_1 map1cells_disp_bicat.
   Proof.
-    apply fiberwise_local_univalent_is_locally_univalent.
+    apply fiberwise_local_univalent_is_univalent_2_1.
     intros F G η F₁ G₁ η₁ η₁'.
     use isweqimplimpl.
     - intro m ; cbn in * ; unfold idfun.
@@ -636,7 +636,7 @@ Section Map1Cells.
              (HD_2_1 : is_univalent_2_1 D)
     : is_univalent_2_1 map1cells.
   Proof.
-    apply total_is_locally_univalent.
+    apply total_is_univalent_2_1.
     - apply ps_base_is_univalent_2_1.
       exact HD_2_1.
     - exact map1cells_disp_univalent_2_1.

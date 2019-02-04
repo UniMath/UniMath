@@ -39,7 +39,7 @@ Section Identitor.
                • (Fid X ▹ ηobj η X)).
   Defined.
 
-  Definition identitor_disp_cat_laws
+  Definition identitor_disp_id_comp
     : disp_cat_id_comp (map1cells C D) identitor_disp_cat_data.
   Proof.
     split.
@@ -93,13 +93,13 @@ Section Identitor.
     use disp_cell_unit_bicat.
     use tpair.
     - exact identitor_disp_cat_data.
-    - exact identitor_disp_cat_laws.
+    - exact identitor_disp_id_comp.
   Defined.
 
   Definition identitor_is_disp_univalent_2_1
-    : disp_locally_univalent identitor_disp_cat.
+    : disp_univalent_2_1 identitor_disp_cat.
   Proof.
-    apply disp_cell_unit_bicat_locally_univalent.
+    apply disp_cell_unit_bicat_univalent_2_1.
     intros F G η Fid Gid ; simpl in *.
     apply impred ; intro.
     apply D.

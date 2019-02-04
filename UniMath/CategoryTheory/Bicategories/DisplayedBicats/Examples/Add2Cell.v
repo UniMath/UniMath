@@ -54,7 +54,7 @@ Section Add2Cell.
                • (#S(#F f) ◃ β)).
   Defined.
 
-  Definition add_cell_disp_cat_laws : disp_cat_id_comp E add_cell_disp_cat_data.
+  Definition add_cell_disp_cat_id_comp : disp_cat_id_comp E add_cell_disp_cat_data.
   Proof.
     split.
     - intros x xx ; cbn.
@@ -121,24 +121,24 @@ Section Add2Cell.
     use disp_cell_unit_bicat.
     use tpair.
     - exact add_cell_disp_cat_data.
-    - exact add_cell_disp_cat_laws.
+    - exact add_cell_disp_cat_id_comp.
   Defined.
 
-  Definition add_cell_disp_cat_locally_univalent
-    : disp_locally_univalent add_cell_disp_cat.
+  Definition add_cell_disp_cat_univalent_2_1
+    : disp_univalent_2_1 add_cell_disp_cat.
   Proof.
-    apply disp_cell_unit_bicat_locally_univalent.
+    apply disp_cell_unit_bicat_univalent_2_1.
     intros.
     apply C.
   Defined.
 
   Definition add_cell_disp_cat_univalent_2_0
              (HC : is_univalent_2_1 C)
-             (HD : disp_locally_univalent D)
+             (HD : disp_univalent_2_1 D)
     : disp_univalent_2_0 add_cell_disp_cat.
   Proof.
     use disp_cell_unit_bicat_univalent_2_0.
-    - apply total_is_locally_univalent.
+    - apply total_is_univalent_2_1.
       + exact HC.
       + exact HD.
     - intros.

@@ -516,8 +516,8 @@ Section Algebra.
     - apply C.
   Defined.
 
-  Definition disp_alg_bicat_locally_univalent
-    : disp_locally_univalent disp_alg_bicat.
+  Definition disp_alg_bicat_univalent_2_1
+    : disp_univalent_2_1 disp_alg_bicat.
   Proof.
     intros a b f g p aa bb ff gg.
     induction p.
@@ -1072,7 +1072,7 @@ Section Algebra.
         * intro.
           apply isaprop_disp_left_adjoint_equivalence.
           ** exact HC.
-          ** exact disp_alg_bicat_locally_univalent.
+          ** exact disp_alg_bicat_univalent_2_1.
         * cbn.
           unfold left_adjoint_2cell.
           unfold disp_alg_bicat_adjoint_equivalence_inv ; cbn.
@@ -1105,7 +1105,7 @@ Section Algebra.
       + intro ; simpl.
         apply (@isaprop_disp_left_adjoint_equivalence C disp_alg_bicat).
         * exact HC.
-        * exact disp_alg_bicat_locally_univalent.
+        * exact disp_alg_bicat_univalent_2_1.
       + cbn ; unfold left_adjoint_2cell ; cbn.
         use subtypeEquality.
         { intro ; apply isaprop_is_invertible_2cell. }
@@ -1120,9 +1120,9 @@ Section Algebra.
              (HC : is_univalent_2_1 C)
     : is_univalent_2_1 bicat_algebra.
   Proof.
-    apply total_is_locally_univalent.
+    apply total_is_univalent_2_1.
     - exact HC.
-    - exact disp_alg_bicat_locally_univalent.
+    - exact disp_alg_bicat_univalent_2_1.
   Defined.
 
   Definition bicat_algebra_is_univalent_2_0

@@ -48,7 +48,7 @@ Section Cofunctormaps.
     := disp_dirprod_bicat disp_presheaf disp_presheaf.
 
   Definition disp_two_presheaves_is_univalent_2_1
-    : disp_locally_univalent disp_two_presheaves.
+    : disp_univalent_2_1 disp_two_presheaves.
   Proof.
     apply is_univalent_2_1_dirprod_bicat.
     - exact (disp_presheaves_is_univalent_2_1 K).
@@ -130,9 +130,9 @@ Section Cofunctormaps.
     := total_bicat morphisms_of_presheaves_display.
 
   Definition disp_cofunctormaps_bicat_univalent_2_1
-    : disp_locally_univalent disp_cofunctormaps_bicat.
+    : disp_univalent_2_1 disp_cofunctormaps_bicat.
   Proof.
-    apply disp_cell_unit_bicat_locally_univalent.
+    apply disp_cell_unit_bicat_univalent_2_1.
     intros F G η x y ; simpl in *.
     apply isaset_nat_trans.
     apply K.
@@ -151,7 +151,7 @@ Section Cofunctormaps.
     : disp_univalent_2_0 disp_cofunctormaps_bicat.
   Proof.
     apply disp_cell_unit_bicat_univalent_2_0.
-    + apply total_is_locally_univalent.
+    + apply total_is_univalent_2_1.
       * exact univalent_cat_is_univalent_2_1.
       * exact disp_two_presheaves_is_univalent_2_1.
     + intros F G η x y ; simpl in *.

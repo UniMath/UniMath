@@ -439,8 +439,8 @@ Section Disp_Dirprod.
              {bb : disp_dirprod_bicat b}
              (ff : aa -->[f] bb)
              (gg : aa -->[g] bb)
-             (HD1 : disp_locally_univalent D1)
-             (HD2 : disp_locally_univalent D2)
+             (HD1 : disp_univalent_2_1 D1)
+             (HD2 : disp_univalent_2_1 D2)
     : (transportf (λ z : C ⟦ a, b ⟧, aa -->[ z] bb) p ff = gg)
         ≃
         disp_invertible_2cell (idtoiso_2_1 f g p) ff gg.
@@ -455,9 +455,9 @@ Section Disp_Dirprod.
   Defined.
 
   Definition is_univalent_2_1_dirprod_bicat
-             (HD1 : disp_locally_univalent D1)
-             (HD2 : disp_locally_univalent D2)
-    : disp_locally_univalent disp_dirprod_bicat.
+             (HD1 : disp_univalent_2_1 D1)
+             (HD2 : disp_univalent_2_1 D2)
+    : disp_univalent_2_1 disp_dirprod_bicat.
   Proof.
     intros a b f g p aa bb ff gg.
     use weqhomot.
@@ -684,8 +684,8 @@ Section Disp_Dirprod.
   Definition pair_adjoint_equivalence_weq
              {a b : C}
              (HC : is_univalent_2_1 C)
-             (HD1 : disp_locally_univalent D1)
-             (HD2 : disp_locally_univalent D2)
+             (HD1 : disp_univalent_2_1 D1)
+             (HD2 : disp_univalent_2_1 D2)
              (f : adjoint_equivalence a b)
              (aa : disp_dirprod_bicat a)
              (bb : disp_dirprod_bicat b)
@@ -727,8 +727,8 @@ Section Disp_Dirprod.
              (HC : is_univalent_2_1 C)
              (HD1_0 : disp_univalent_2_0 D1)
              (HD2_0 : disp_univalent_2_0 D2)
-             (HD1_1 : disp_locally_univalent D1)
-             (HD2_1 : disp_locally_univalent D2)
+             (HD1_1 : disp_univalent_2_1 D1)
+             (HD2_1 : disp_univalent_2_1 D2)
              {a b : C}
              (p : a = b)
              (aa : disp_dirprod_bicat a)
@@ -750,8 +750,8 @@ Section Disp_Dirprod.
              (HC : is_univalent_2_1 C)
              (HD1_0 : disp_univalent_2_0 D1)
              (HD2_0 : disp_univalent_2_0 D2)
-             (HD1_1 : disp_locally_univalent D1)
-             (HD2_1 : disp_locally_univalent D2)
+             (HD1_1 : disp_univalent_2_1 D1)
+             (HD2_1 : disp_univalent_2_1 D2)
     : disp_univalent_2_0 disp_dirprod_bicat.
   Proof.
     intros a b p aa bb.
@@ -769,11 +769,11 @@ Section Disp_Dirprod.
 
   Definition is_univalent_2_1_total_dirprod
              (HC : is_univalent_2_1 C)
-             (HD1 : disp_locally_univalent D1)
-             (HD2 : disp_locally_univalent D2)
+             (HD1 : disp_univalent_2_1 D1)
+             (HD2 : disp_univalent_2_1 D2)
     : is_univalent_2_1 (total_bicat disp_dirprod_bicat).
   Proof.
-    apply total_is_locally_univalent.
+    apply total_is_univalent_2_1.
     - exact HC.
     - apply is_univalent_2_1_dirprod_bicat.
       * exact HD1.
@@ -785,8 +785,8 @@ Section Disp_Dirprod.
              (HC_1 : is_univalent_2_1 C)
              (HD1_0 : disp_univalent_2_0 D1)
              (HD2_0 : disp_univalent_2_0 D2)
-             (HD1_1 : disp_locally_univalent D1)
-             (HD2_1 : disp_locally_univalent D2)
+             (HD1_1 : disp_univalent_2_1 D1)
+             (HD2_1 : disp_univalent_2_1 D2)
     : is_univalent_2_0 (total_bicat disp_dirprod_bicat).
   Proof.
     apply total_is_univalent_2_0.

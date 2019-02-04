@@ -131,10 +131,10 @@ Section FullSubBicat.
     - apply isaprop_is_invertible_2cell.
   Defined.
 
-  Definition disp_fullsubbicat_locally_univalent
-    : disp_locally_univalent disp_fullsubbicat.
+  Definition disp_fullsubbicat_univalent_2_1
+    : disp_univalent_2_1 disp_fullsubbicat.
   Proof.
-    apply fiberwise_local_univalent_is_locally_univalent.
+    apply fiberwise_local_univalent_is_univalent_2_1.
     intros x y f xx yy ff gg.
     use isweqimplimpl.
     - intros.
@@ -152,9 +152,9 @@ Section FullSubBicat.
              (HC : is_univalent_2_1 C)
     : is_univalent_2_1 fullsubbicat.
   Proof.
-    apply total_is_locally_univalent.
+    apply total_is_univalent_2_1.
     - exact HC.
-    - exact disp_fullsubbicat_locally_univalent.
+    - exact disp_fullsubbicat_univalent_2_1.
   Defined.
 
   Definition fullsub_left_adjoint_equivalence_to_bicat_left_adjoint_equivalence
@@ -273,6 +273,6 @@ Section FullSubBicat.
         * exact isapropunit.
         * apply isaprop_disp_left_adjoint_equivalence.
           ** apply HC1.
-          ** exact disp_fullsubbicat_locally_univalent.
+          ** exact disp_fullsubbicat_univalent_2_1.
   Defined.
 End FullSubBicat.
