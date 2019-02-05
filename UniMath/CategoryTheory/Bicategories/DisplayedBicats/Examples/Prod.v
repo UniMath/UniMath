@@ -725,10 +725,8 @@ Section Disp_Dirprod.
 
   Definition prod_idtoiso_2_0
              (HC : is_univalent_2_1 C)
-             (HD1_0 : disp_univalent_2_0 D1)
-             (HD2_0 : disp_univalent_2_0 D2)
-             (HD1_1 : disp_univalent_2_1 D1)
-             (HD2_1 : disp_univalent_2_1 D2)
+             (HD1 : disp_univalent_2 D1)
+             (HD2 : disp_univalent_2 D2)
              {a b : C}
              (p : a = b)
              (aa : disp_dirprod_bicat a)
@@ -737,10 +735,10 @@ Section Disp_Dirprod.
         ≃
         disp_adjoint_equivalence (idtoiso_2_0 a b p) aa bb.
   Proof.
-    refine (pair_adjoint_equivalence_weq HC HD1_1 HD2_1 (idtoiso_2_0 _ _ p) aa bb ∘ _)%weq.
+    refine (pair_adjoint_equivalence_weq HC (pr2 HD1) (pr2 HD2) (idtoiso_2_0 _ _ p) aa bb ∘ _)%weq.
     refine (weqdirprod
-              (_ ,, HD1_0 a b p (pr1 aa) (pr1 bb))
-              (_ ,, HD2_0 a b p (pr2 aa) (pr2 bb))
+              (_ ,, pr1 HD1 a b p (pr1 aa) (pr1 bb))
+              (_ ,, pr1 HD2 a b p (pr2 aa) (pr2 bb))
               ∘ _)%weq.
     induction p ; cbn ; unfold idfun.
     apply WeakEquivalences.pathsdirprodweq.
@@ -748,23 +746,34 @@ Section Disp_Dirprod.
 
   Definition is_univalent_2_0_dirprod_bicat
              (HC : is_univalent_2_1 C)
-             (HD1_0 : disp_univalent_2_0 D1)
-             (HD2_0 : disp_univalent_2_0 D2)
-             (HD1_1 : disp_univalent_2_1 D1)
-             (HD2_1 : disp_univalent_2_1 D2)
+             (HD1 : disp_univalent_2 D1)
+             (HD2 : disp_univalent_2 D2)
     : disp_univalent_2_0 disp_dirprod_bicat.
   Proof.
     intros a b p aa bb.
     use weqhomot.
-    - exact (prod_idtoiso_2_0 HC HD1_0 HD2_0 HD1_1 HD2_1 p aa bb).
+    - exact (prod_idtoiso_2_0 HC HD1 HD2 p aa bb).
     - intros q.
       induction p, q.
       use subtypeEquality.
       + intro.
         apply (@isaprop_disp_left_adjoint_equivalence C disp_dirprod_bicat).
         * exact HC.
-        * exact (is_univalent_2_1_dirprod_bicat HD1_1 HD2_1).
+        * exact (is_univalent_2_1_dirprod_bicat (pr2 HD1) (pr2 HD2)).
       + reflexivity.
+  Defined.
+
+  Definition is_univalent_2_dirprod_bicat
+             (HC : is_univalent_2_1 C)
+             (HD1 : disp_univalent_2 D1)
+             (HD2 : disp_univalent_2 D2)
+    : disp_univalent_2 disp_dirprod_bicat.
+  Proof.
+    split.
+    - apply is_univalent_2_0_dirprod_bicat; assumption.
+    - apply is_univalent_2_1_dirprod_bicat.
+      * exact (pr2 HD1).
+      * exact (pr2 HD2).
   Defined.
 
   Definition is_univalent_2_1_total_dirprod
@@ -781,21 +790,31 @@ Section Disp_Dirprod.
   Defined.
 
   Definition is_univalent_2_0_total_dirprod
-             (HC_0 : is_univalent_2_0 C)
-             (HC_1 : is_univalent_2_1 C)
-             (HD1_0 : disp_univalent_2_0 D1)
-             (HD2_0 : disp_univalent_2_0 D2)
-             (HD1_1 : disp_univalent_2_1 D1)
-             (HD2_1 : disp_univalent_2_1 D2)
+             (HC : is_univalent_2 C)
+             (HD1 : disp_univalent_2 D1)
+             (HD2 : disp_univalent_2 D2)
     : is_univalent_2_0 (total_bicat disp_dirprod_bicat).
   Proof.
     apply total_is_univalent_2_0.
-    - exact HC_0.
+    - exact (pr1 HC).
     - apply is_univalent_2_0_dirprod_bicat.
-      + exact HC_1.
-      + exact HD1_0.
-      + exact HD2_0.
-      + exact HD1_1.
-      + exact HD2_1.
+      + exact (pr2 HC).
+      + exact HD1.
+      + exact HD2.
   Defined.
+
+  Definition is_univalent_2_total_dirprod
+             (HC : is_univalent_2 C)
+             (HD1 : disp_univalent_2 D1)
+             (HD2 : disp_univalent_2 D2)
+    : is_univalent_2 (total_bicat disp_dirprod_bicat).
+  Proof.
+    split.
+    - apply is_univalent_2_0_total_dirprod; assumption.
+    - apply is_univalent_2_1_total_dirprod.
+      * exact (pr2 HC).
+      * exact (pr2 HD1).
+      * exact (pr2 HD2).
+  Defined.
+
 End Disp_Dirprod.

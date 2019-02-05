@@ -1126,12 +1126,20 @@ Section Algebra.
   Defined.
 
   Definition bicat_algebra_is_univalent_2_0
-             (HC0 : is_univalent_2_0 C)
-             (HC1 : is_univalent_2_1 C)
+             (HC : is_univalent_2 C)
     : is_univalent_2_0 bicat_algebra.
   Proof.
     apply total_is_univalent_2_0.
-    - exact HC0.
-    - exact (disp_alg_bicat_univalent_2_0 HC1).
+    - exact (pr1 HC).
+    - exact (disp_alg_bicat_univalent_2_0 (pr2 HC)).
+  Defined.
+
+  Definition bicat_algebra_is_univalent_2
+             (HC : is_univalent_2 C)
+    : is_univalent_2 bicat_algebra.
+  Proof.
+    split.
+    - apply bicat_algebra_is_univalent_2_0. assumption.
+    - apply bicat_algebra_is_univalent_2_1. exact (pr2 HC).
   Defined.
 End Algebra.

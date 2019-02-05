@@ -178,4 +178,15 @@ Section Add2Cell.
       rewrite lwhisker_hcomp.
       exact (!(linvunitor_natural _)).
   Defined.
+
+  Definition add_cell_disp_cat_univalent_2
+             (HC : is_univalent_2_1 C)
+             (HD : disp_univalent_2_1 D)
+    : disp_univalent_2 add_cell_disp_cat.
+  Proof.
+    apply mk_disp_univalent_2.
+    - apply add_cell_disp_cat_univalent_2_0; assumption.
+    - apply add_cell_disp_cat_univalent_2_1.
+  Defined.
+
 End Add2Cell.

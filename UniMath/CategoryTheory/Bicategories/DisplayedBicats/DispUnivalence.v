@@ -49,7 +49,6 @@ Section Displayed_Local_Univalence.
        isweq (disp_idtoiso_2_1 p ff gg).
 End Displayed_Local_Univalence.
 
-
 Section Total_Category_Univalent_2_1.
   Context {C : bicat}.
   Variable (D : disp_bicat C)
@@ -250,18 +249,43 @@ Section Total_Category_Globally_Univalent.
   Defined.
 End Total_Category_Globally_Univalent.
 
+Section Disp_Univalent_2.
+
+  Context {C : bicat}.
+
+  Definition disp_univalent_2 (D : disp_bicat C)
+    : UU
+    := disp_univalent_2_0 D × disp_univalent_2_1 D.
+
+  Definition mk_disp_univalent_2 {D : disp_bicat C}
+             (univ_2_0 : disp_univalent_2_0 D)
+             (univ_2_1 : disp_univalent_2_1 D)
+    : disp_univalent_2 D
+    := dirprodpair univ_2_0 univ_2_1.
+
+  Definition disp_univalent_2_0_of_2 {D : disp_bicat C}
+             (univ_2 : disp_univalent_2 D)
+    : disp_univalent_2_0 D
+    := pr1 univ_2.
+
+  Definition disp_univalent_2_1_of_2 {D : disp_bicat C}
+             (univ_2 : disp_univalent_2 D)
+    : disp_univalent_2_1 D
+    := pr2 univ_2.
+
+  End Disp_Univalent_2.
+
 Lemma total_is_univalent_2
       {C : bicat}
       {D: disp_bicat C}
-  : disp_univalent_2_0 D →
-    disp_univalent_2_1 D →
+  : disp_univalent_2 D →
     is_univalent_2 C →
     is_univalent_2 (total_bicat D).
 Proof.
-  intros ?? UC.
+  intros UD UC.
   split.
   - apply total_is_univalent_2_0. apply UC.
-    assumption.
+    apply disp_univalent_2_0_of_2. assumption.
   - apply total_is_univalent_2_1. apply UC.
-    assumption.
+    apply disp_univalent_2_1_of_2. assumption.
 Defined.

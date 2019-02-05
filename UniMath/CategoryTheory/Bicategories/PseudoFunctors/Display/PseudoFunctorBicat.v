@@ -56,32 +56,29 @@ Section PseudoFunctorData.
   Defined.
 
   Definition psfunctor_data_is_univalent_2_0
-             (HD_2_0 : is_univalent_2_0 D)
-             (HD_2_1 : is_univalent_2_1 D)
+             (HD : is_univalent_2 D)
     : is_univalent_2_0 psfunctor_data_bicat.
   Proof.
+    pose (HD_2_1 := pr2 HD).
     apply is_univalent_2_0_total_dirprod.
-    - apply map1cells_is_univalent_2_0.
-      + exact HD_2_0.
-      + exact HD_2_1.
-    - apply map1cells_is_univalent_2_1.
-      exact HD_2_1.
-    - apply map2cells_is_disp_univalent_2_0.
-      exact HD_2_1.
-    - apply is_univalent_2_0_dirprod_bicat.
-      + apply map1cells_is_univalent_2_1.
-        exact HD_2_1.
-      + apply identitor_is_disp_univalent_2_0.
-        exact HD_2_1.
-      + apply compositor_is_disp_univalent_2_0.
-        exact HD_2_1.
-      + apply identitor_is_disp_univalent_2_1.
-      + apply compositor_is_disp_univalent_2_1.
-    - apply map2cells_is_disp_univalent_2_1.
-    - apply is_univalent_2_1_dirprod_bicat.
-      + apply identitor_is_disp_univalent_2_1.
-      + apply compositor_is_disp_univalent_2_1.
+    - apply map1cells_is_univalent_2; assumption.
+    - apply map2cells_is_disp_univalent_2; assumption.
+    - apply is_univalent_2_dirprod_bicat.
+      + apply map1cells_is_univalent_2_1; assumption.
+      + apply identitor_is_disp_univalent_2; assumption.
+      + apply compositor_is_disp_univalent_2; assumption.
   Defined.
+
+  Definition psfunctor_data_is_univalent_2
+             (HD : is_univalent_2 D)
+    : is_univalent_2 psfunctor_data_bicat.
+  Proof.
+    split.
+    - apply psfunctor_data_is_univalent_2_0; assumption.
+    - apply psfunctor_data_is_univalent_2_1.
+      exact (pr2 HD).
+  Defined.
+
 End PseudoFunctorData.
 
 Coercion functor_data_from_bifunctor_ob_mor_cell
@@ -212,20 +209,26 @@ Section LaxFunctorBicat.
   Defined.
 
   Definition laxfunctor_bicat_is_univalent_2_0
-             (HD_2_0 : is_univalent_2_0 D)
-             (HD_2_1 : is_univalent_2_1 D)
+             (HD : is_univalent_2 D)
     : is_univalent_2_0 laxfunctor_bicat.
   Proof.
     apply is_univalent_2_0_fullsubbicat.
-    - apply psfunctor_data_is_univalent_2_0.
-      + exact HD_2_0.
-      + exact HD_2_1.
-    - apply psfunctor_data_is_univalent_2_1.
-      exact HD_2_1.
+    - apply psfunctor_data_is_univalent_2; assumption.
     - intro.
       repeat (apply isapropdirprod) ; repeat (apply impred ; intro)
       ; try (apply D).
   Defined.
+
+  Definition laxfunctor_bicat_is_univalent_2
+             (HD : is_univalent_2 D)
+    : is_univalent_2 laxfunctor_bicat.
+  Proof.
+    split.
+    - apply laxfunctor_bicat_is_univalent_2_0; assumption.
+    - apply laxfunctor_bicat_is_univalent_2_1.
+      exact (pr2 HD).
+  Defined.
+
 End LaxFunctorBicat.
 
 Section PseudoFunctorBicat.
@@ -245,26 +248,23 @@ Section PseudoFunctorBicat.
   Defined.
 
   Definition psfunctor_bicat_is_univalent_2_0
-             (HD_2_0 : is_univalent_2_0 D)
-             (HD_2_1 : is_univalent_2_1 D)
+             (HD : is_univalent_2 D)
     : is_univalent_2_0 psfunctor_bicat.
   Proof.
     apply is_univalent_2_0_fullsubbicat.
-    - apply psfunctor_data_is_univalent_2_0.
-      + exact HD_2_0.
-      + exact HD_2_1.
-    - apply psfunctor_data_is_univalent_2_1.
-      exact HD_2_1.
+    - apply psfunctor_data_is_univalent_2; assumption.
     - intro.
       apply is_psfunctor_isaprop.
   Defined.
 
-  Definition psfunctor_bicat_is_univalent_2 :
-    is_univalent_2 D -> is_univalent_2 psfunctor_bicat.
+  Definition psfunctor_bicat_is_univalent_2
+             (HD : is_univalent_2 D)
+    : is_univalent_2 psfunctor_bicat.
   Proof.
-    intros H. split.
-    - apply psfunctor_bicat_is_univalent_2_0; apply H.
-    - apply psfunctor_bicat_is_univalent_2_1; apply H.
+    split.
+    - apply psfunctor_bicat_is_univalent_2_0; assumption.
+    - apply psfunctor_bicat_is_univalent_2_1.
+      exact (pr2 HD).
   Defined.
 
 End PseudoFunctorBicat.

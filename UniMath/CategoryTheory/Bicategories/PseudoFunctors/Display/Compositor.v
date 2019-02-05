@@ -313,4 +313,14 @@ Section Compositor.
       rewrite linvunitor_lunitor, lwhisker_id2, id2_left.
       reflexivity.
   Defined.
+
+  Definition compositor_is_disp_univalent_2
+             (HD_2_1 : is_univalent_2_1 D)
+    : disp_univalent_2 compositor_disp_cat.
+  Proof.
+    split.
+    - apply compositor_is_disp_univalent_2_0; assumption.
+    - exact compositor_is_disp_univalent_2_1.
+  Defined.
+
 End Compositor.

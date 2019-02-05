@@ -60,10 +60,16 @@ Section Cofunctormaps.
   Proof.
     apply is_univalent_2_0_dirprod_bicat.
     - exact univalent_cat_is_univalent_2_1.
-    - exact (disp_presheaves_is_univalent_2_0 K).
-    - exact (disp_presheaves_is_univalent_2_0 K).
-    - exact (disp_presheaves_is_univalent_2_1 K).
-    - exact (disp_presheaves_is_univalent_2_1 K).
+    - exact (disp_presheaves_is_univalent_2 K).
+    - exact (disp_presheaves_is_univalent_2 K).
+  Defined.
+
+  Definition disp_two_presheaves_is_univalent_2
+    : disp_univalent_2 disp_two_presheaves.
+  Proof.
+    split.
+    - exact disp_two_presheaves_is_univalent_2_0.
+    - exact disp_two_presheaves_is_univalent_2_1.
   Defined.
 
   Definition disp_cofunctormaps_cat_ob_mor : disp_cat_ob_mor (total_bicat disp_two_presheaves).
@@ -171,15 +177,29 @@ Section Cofunctormaps.
       exact p1.
   Qed.
 
+  Definition disp_cofunctormaps_bicat_univalent_2
+    : disp_univalent_2 disp_cofunctormaps_bicat.
+  Proof.
+    split.
+    - exact disp_cofunctormaps_bicat_univalent_2_0.
+    - exact disp_cofunctormaps_bicat_univalent_2_1.
+  Defined.
+
   Definition morphisms_of_presheaves_univalent_2_0
     : is_univalent_2_0 morphisms_of_presheaves.
   Proof.
     apply sigma_is_univalent_2_0.
-    - exact univalent_cat_is_univalent_2_0.
-    - exact univalent_cat_is_univalent_2_1.
-    - exact disp_two_presheaves_is_univalent_2_0.
-    - exact disp_two_presheaves_is_univalent_2_1.
-    - exact disp_cofunctormaps_bicat_univalent_2_0.
-    - exact disp_cofunctormaps_bicat_univalent_2_1.
+    - exact univalent_cat_is_univalent_2.
+    - exact disp_two_presheaves_is_univalent_2.
+    - exact disp_cofunctormaps_bicat_univalent_2.
   Defined.
+
+  Definition morphisms_of_presheaves_univalent_2
+    : is_univalent_2 morphisms_of_presheaves.
+  Proof.
+    split.
+    - exact morphisms_of_presheaves_univalent_2_0.
+    - exact morphisms_of_presheaves_univalent_2_1.
+  Defined.
+
 End Cofunctormaps.

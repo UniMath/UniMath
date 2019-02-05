@@ -121,4 +121,14 @@ Section Map2Cells.
       { is_iso. }
       exact (!η₁).
   Defined.
+
+  Definition map2cells_is_disp_univalent_2
+             (HD_2_1 : is_univalent_2_1 D)
+    : disp_univalent_2 map2cells_disp_cat.
+  Proof.
+    split.
+    - apply map2cells_is_disp_univalent_2_0; assumption.
+    - exact map2cells_is_disp_univalent_2_1.
+  Defined.
+
 End Map2Cells.
