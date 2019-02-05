@@ -258,4 +258,13 @@ Section PseudoFunctorBicat.
     - intro.
       apply is_psfunctor_isaprop.
   Defined.
+
+  Definition psfunctor_bicat_is_univalent_2 :
+    is_univalent_2 D -> is_univalent_2 psfunctor_bicat.
+  Proof.
+    intros H. split.
+    - apply psfunctor_bicat_is_univalent_2_0; apply H.
+    - apply psfunctor_bicat_is_univalent_2_1; apply H.
+  Defined.
+
 End PseudoFunctorBicat.
