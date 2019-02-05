@@ -81,4 +81,13 @@ Section Initial_Bicategory.
     intros x.
     exact (fromempty x).
   Defined.
+
+  Definition initial_bicat_is_univalent_2
+    : is_univalent_2 initial_bicat.
+  Proof.
+    split.
+    - exact initial_bicat_is_univalent_2_0.
+    - exact initial_bicat_is_univalent_2_1.
+  Defined.
+
 End Initial_Bicategory.

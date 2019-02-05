@@ -352,10 +352,18 @@ Section CwF.
     : is_univalent_2_0 cwf.
   Proof.
     apply is_univalent_2_0_fullsubbicat.
-    - apply morphisms_of_presheaves_univalent_2_0.
-    - apply morphisms_of_presheaves_univalent_2_1.
+    - apply morphisms_of_presheaves_univalent_2.
     - intros C.
       apply isaprop_cwf_representation.
       apply (pr1 C).
   Defined.
+
+  Definition cwf_is_univalent_2
+    : is_univalent_2 cwf.
+  Proof.
+    split.
+    - exact cwf_is_univalent_2_0.
+    - exact cwf_is_univalent_2_1.
+  Defined.
+
 End CwF.

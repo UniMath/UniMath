@@ -297,4 +297,13 @@ Section fix_a_category.
       induction p ; cbn.
       reflexivity.
   Defined.
+
+  Definition disp_presheaves_is_univalent_2
+    : disp_univalent_2 disp_presheaf_bicat.
+  Proof.
+    split.
+    - exact disp_presheaves_is_univalent_2_0.
+    - exact disp_presheaves_is_univalent_2_1.
+  Defined.
+
 End fix_a_category.

@@ -205,18 +205,27 @@ End Sigma.
 Section SigmaUnivalent.
   Variable (C : bicat)
            (D₁ : disp_bicat C)
-           (D₂ : disp_bicat (total_bicat D₁))
+           (D₂ : disp_bicat (total_bicat D₁)).
+           (*
            (HC_2_0 : is_univalent_2_0 C)
            (HC_2_1 : is_univalent_2_1 C)
+            *)
+           (*
            (HD₁_2_0 : disp_univalent_2_0 D₁)
            (HD₁_2_1 : disp_univalent_2_1 D₁)
+            *)
+           (*
            (HD₂_2_0 : disp_univalent_2_0 D₂)
            (HD₂_2_1 : disp_univalent_2_1 D₂).
+            *)
 
   Local Notation E₁ := (total_bicat D₂).
   Local Notation E₂ := (total_bicat (sigma_bicat C D₁ D₂)).
 
   Definition E₁_univalent_2_0
+             (HC_2_0 : is_univalent_2_0 C)
+             (HD₁_2_0 : disp_univalent_2_0 D₁)
+             (HD₂_2_0 : disp_univalent_2_0 D₂)
     : is_univalent_2_0 E₁.
   Proof.
     apply total_is_univalent_2_0.
@@ -227,6 +236,9 @@ Section SigmaUnivalent.
   Defined.
 
   Definition E₁_univalent_2_1
+             (HC_2_1 : is_univalent_2_1 C)
+             (HD₁_2_1 : disp_univalent_2_1 D₁)
+             (HD₂_2_1 : disp_univalent_2_1 D₂)
     : is_univalent_2_1 E₁.
   Proof.
     apply total_is_univalent_2_1.
@@ -427,20 +439,26 @@ Section SigmaUnivalent.
   Definition idtoiso_2_1_alt_E₂
              {x y : E₂}
              (f g : x --> y)
+             (HC_2_1 : is_univalent_2_1 C)
+             (HD₁_2_1 : disp_univalent_2_1 D₁)
+             (HD₂_2_1 : disp_univalent_2_1 D₂)
     : f = g ≃ invertible_2cell f g.
   Proof.
     refine ((iso_in_E₂_weq f g)
               ∘ (idtoiso_2_1 _ _ ,, _)
               ∘ path_mor_E₂_to_path_mor_E₁_weq f g)%weq.
-    apply E₁_univalent_2_1.
+    apply E₁_univalent_2_1; assumption.
   Defined.
 
   Definition sigma_is_univalent_2_1
+             (HC_2_1 : is_univalent_2_1 C)
+             (HD₁_2_1 : disp_univalent_2_1 D₁)
+             (HD₂_2_1 : disp_univalent_2_1 D₂)
     : is_univalent_2_1 E₂.
   Proof.
     intros x y f g.
     use weqhomot.
-    - exact (idtoiso_2_1_alt_E₂ f g).
+    - exact (idtoiso_2_1_alt_E₂ f g HC_2_1 HD₁_2_1 HD₂_2_1).
     - intros p.
       induction p ; cbn.
       use subtypeEquality.
@@ -489,6 +507,9 @@ Section SigmaUnivalent.
 
   Definition adjequiv_in_E₂_weq
              (x y : E₂)
+             (HC_2_1 : is_univalent_2_1 C)
+             (HD₁_2_1 : disp_univalent_2_1 D₁)
+             (HD₂_2_1 : disp_univalent_2_1 D₂)
     : adjoint_equivalence (E₂_to_E₁ x) (E₂_to_E₁ y) ≃ adjoint_equivalence x y.
   Proof.
     use weqpair.
@@ -500,7 +521,7 @@ Section SigmaUnivalent.
         {
           intro.
           apply isaprop_left_adjoint_equivalence.
-          apply E₁_univalent_2_1.
+          apply E₁_univalent_2_1; assumption.
         }
         reflexivity.
       + intros l.
@@ -508,27 +529,36 @@ Section SigmaUnivalent.
         {
           intro.
           apply isaprop_left_adjoint_equivalence.
-          apply sigma_is_univalent_2_1.
+          apply sigma_is_univalent_2_1; assumption.
         }
         reflexivity.
   Defined.
 
   Definition idtoiso_2_0_alt_E₂
              (x y : E₂)
+             (HC : is_univalent_2 C)
+             (HD₁ : disp_univalent_2 D₁)
+             (HD₂ : disp_univalent_2 D₂)
     : x = y ≃ adjoint_equivalence x y.
   Proof.
-    refine ((adjequiv_in_E₂_weq x y)
+    refine ((adjequiv_in_E₂_weq x y (pr2 HC) (pr2 HD₁) (pr2 HD₂))
               ∘ (idtoiso_2_0 _ _ ,, _)
               ∘ path_E₂_to_path_E₁_weq x y)%weq.
     apply E₁_univalent_2_0.
+    - exact (pr1 HC).
+    - exact (pr1 HD₁).
+    - exact (pr1 HD₂).
   Defined.
 
   Definition sigma_is_univalent_2_0
+             (HC : is_univalent_2 C)
+             (HD₁ : disp_univalent_2 D₁)
+             (HD₂ : disp_univalent_2 D₂)
     : is_univalent_2_0 E₂.
   Proof.
     intros x y.
     use weqhomot.
-    - exact (idtoiso_2_0_alt_E₂ x y).
+    - exact (idtoiso_2_0_alt_E₂ x y HC HD₁ HD₂).
     - intros p.
       induction p.
       use subtypeEquality.
@@ -536,7 +566,25 @@ Section SigmaUnivalent.
         intro.
         apply isaprop_left_adjoint_equivalence.
         apply sigma_is_univalent_2_1.
+        - exact (pr2 HC).
+        - exact (pr2 HD₁).
+        - exact (pr2 HD₂).
       }
       reflexivity.
   Defined.
+
+  Definition sigma_is_univalent_2
+             (HC : is_univalent_2 C)
+             (HD₁ : disp_univalent_2 D₁)
+             (HD₂ : disp_univalent_2 D₂)
+    : is_univalent_2 E₂.
+  Proof.
+    split.
+    - apply sigma_is_univalent_2_0; assumption.
+    - apply sigma_is_univalent_2_1.
+      * exact (pr2 HC).
+      * exact (pr2 HD₁).
+      * exact (pr2 HD₂).
+  Defined.
+
 End SigmaUnivalent.

@@ -134,4 +134,14 @@ Section Identitor.
       apply rwhisker_id_inj.
       exact (!η₁).
   Defined.
+
+  Definition identitor_is_disp_univalent_2
+             (HD_2_1 : is_univalent_2_1 D)
+    : disp_univalent_2 identitor_disp_cat.
+  Proof.
+    split.
+    - apply identitor_is_disp_univalent_2_0; assumption.
+    - exact identitor_is_disp_univalent_2_1.
+  Defined.
+
 End Identitor.

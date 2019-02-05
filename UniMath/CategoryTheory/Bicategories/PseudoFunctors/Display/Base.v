@@ -318,8 +318,7 @@ Section BasePseudoFunctor.
   Defined.
 
   Definition ps_base_is_univalent_2_0
-             (HD_2_0 : is_univalent_2_0 D)
-             (HD_2_1 : is_univalent_2_1 D)
+             (HD : is_univalent_2 D)
     : is_univalent_2_0 ps_base.
   Proof.
     intros F G.
@@ -328,15 +327,26 @@ Section BasePseudoFunctor.
       simple refine (_ ∘ weqpair _ (isweqtoforallpaths _ _ _))%weq.
       simple refine (weqonsecfibers _ _ _).
       intro X ; cbn.
-      exact (weqpair (idtoiso_2_0 (F X) (G X)) (HD_2_0 _ _)).
+      exact (weqpair (idtoiso_2_0 (F X) (G X)) (pr1 HD _ _)).
     - intros p.
       induction p.
       use subtypeEquality.
       {
         intro.
         apply isaprop_left_adjoint_equivalence.
-        exact (ps_base_is_univalent_2_1 HD_2_1).
+        exact (ps_base_is_univalent_2_1 (pr2 HD)).
       }
       reflexivity.
   Defined.
+
+  Definition ps_base_is_univalent_2
+             (HD : is_univalent_2 D)
+    : is_univalent_2 ps_base.
+  Proof.
+    split.
+    - apply ps_base_is_univalent_2_0; assumption.
+    - apply ps_base_is_univalent_2_1.
+      exact (pr2 HD).
+  Defined.
+
 End BasePseudoFunctor.

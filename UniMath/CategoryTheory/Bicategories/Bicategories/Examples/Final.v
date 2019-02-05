@@ -112,4 +112,13 @@ Section Final_Bicategory.
       + apply isaprop_left_adjoint_equivalence.
         exact final_bicat_is_univalent_2_1.
   Defined.
+
+  Definition final_bicat_is_univalent_2
+    : is_univalent_2 final_bicat.
+  Proof.
+    split.
+    - exact final_bicat_is_univalent_2_0.
+    - exact final_bicat_is_univalent_2_1.
+  Defined.
+
 End Final_Bicategory.

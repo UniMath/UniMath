@@ -97,6 +97,16 @@ Section MonadBicategory.
     exact HC.
   Defined.
 
+  Definition plain_monad_is_univalent_2
+             (HC : is_univalent_2 C)
+    : is_univalent_2 plain_monad.
+  Proof.
+    split.
+    - apply plain_monad_is_univalent_2_0; assumption.
+    - apply plain_monad_is_univalent_2_1.
+      exact (pr2 HC).
+  Defined.
+
   Definition add_unit
     : disp_bicat plain_monad.
   Proof.
@@ -137,17 +147,23 @@ Section MonadBicategory.
   Proof.
     pose (HC_1 := pr2 HC).
     apply is_univalent_2_0_total_dirprod.
-    - exact (plain_monad_is_univalent_2_0 HC).
-    - apply plain_monad_is_univalent_2_1.
-      exact HC_1.
-    - apply add_cell_disp_cat_univalent_2_0.
-      + exact HC_1.
+    - exact (plain_monad_is_univalent_2 HC).
+    - apply add_cell_disp_cat_univalent_2.
+      + exact (pr2 HC).
       + apply disp_alg_bicat_univalent_2_1.
-    - apply add_cell_disp_cat_univalent_2_0.
-      + exact HC_1.
+    - apply add_cell_disp_cat_univalent_2.
+      + exact (pr2 HC).
       + apply disp_alg_bicat_univalent_2_1.
-    - apply add_cell_disp_cat_univalent_2_1.
-    - apply add_cell_disp_cat_univalent_2_1.
+  Defined.
+
+  Definition lawless_monad_is_univalent_2
+             (HC : is_univalent_2 C)
+    : is_univalent_2 lawless_monad.
+  Proof.
+    split.
+    - apply lawless_monad_is_univalent_2_0; assumption.
+    - apply lawless_monad_is_univalent_2_1.
+      exact (pr2 HC).
   Defined.
 
   Definition monad_obj : lawless_monad → C
@@ -229,9 +245,19 @@ Section MonadBicategory.
     : is_univalent_2_0 monad.
   Proof.
     apply is_univalent_2_0_fullsubbicat.
-    - exact (lawless_monad_is_univalent_2_0 HC).
-    - exact (lawless_monad_is_univalent_2_1 (pr2 HC)).
+    - exact (lawless_monad_is_univalent_2 HC).
     - intro ; simpl.
       repeat (apply isapropdirprod) ; apply C.
   Defined.
+
+  Definition monad_is_univalent_2
+             (HC : is_univalent_2 C)
+    : is_univalent_2 monad.
+  Proof.
+    split.
+    - apply monad_is_univalent_2_0; assumption.
+    - apply monad_is_univalent_2_1.
+      exact (pr2 HC).
+  Defined.
+
 End MonadBicategory.

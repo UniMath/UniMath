@@ -613,3 +613,11 @@ Proof.
     + apply univalent_cat_is_univalent_2_1.
     + reflexivity.
 Defined.
+
+Definition univalent_cat_is_univalent_2
+  : is_univalent_2 bicat_of_cats.
+Proof.
+  split.
+  - exact univalent_cat_is_univalent_2_0.
+  - exact univalent_cat_is_univalent_2_1.
+Defined.
