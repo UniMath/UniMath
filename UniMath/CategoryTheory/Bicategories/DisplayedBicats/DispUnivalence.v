@@ -250,7 +250,7 @@ Section Total_Category_Globally_Univalent.
   Defined.
 End Total_Category_Globally_Univalent.
 
-Lemma total_is_univalent
+Lemma total_is_univalent_2
       {C : bicat}
       {D: disp_bicat C}
   : disp_univalent_2_0 D →
