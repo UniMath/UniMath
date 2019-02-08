@@ -260,3 +260,46 @@ now apply hPropUnivalence; apply islogeqhhtrue_hconj.
 Qed.
 
 End hProp_logic.
+
+(** ** Factoring maps through squash *)
+
+Lemma squash_uniqueness {X} (x:X) (h:∥ X ∥) : squash_element x = h.
+Proof. intros. apply propproperty. Qed.
+
+Goal ∏ X Q (i:isaprop Q) (f:X -> Q) (x:X),
+   factor_through_squash i f (squash_element x) = f x.
+Proof. reflexivity. Defined.
+
+Lemma factor_dep_through_squash {X} {Q:∥ X ∥->UU} :
+  (∏ h, isaprop (Q h)) ->
+  (∏ x, Q(squash_element x)) ->
+  (∏ h, Q h).
+Proof.
+  intros i f ?.  apply (h (hProppair (Q h) (i h))).
+  intro x. simpl. induction (squash_uniqueness x h). exact (f x).
+Defined.
+
+Lemma factor_through_squash_hProp {X} : ∏ hQ:hProp, (X -> hQ) -> ∥ X ∥ -> hQ.
+Proof. intros [Q i] f h. refine (h _ _). assumption. Defined.
+
+Lemma funspace_isaset {X Y} : isaset Y -> isaset (X -> Y).
+Proof. intros is. apply (impredfun 2). assumption. Defined.
+
+Lemma squash_map_uniqueness {X S} (ip : isaset S) (g g' : ∥ X ∥ -> S) :
+  g ∘ squash_element ~ g' ∘ squash_element -> g ~ g'.
+Proof.
+  intros h.
+  set ( Q := λ y, g y = g' y ).
+  unfold homot.
+  apply (@factor_dep_through_squash X). intros y. apply ip.
+  intro x. apply h.
+Qed.
+
+Lemma squash_map_epi {X S} (ip : isaset S) (g g' : ∥ X ∥ -> S) :
+  g ∘ squash_element = g'∘ squash_element -> g = g'.
+Proof.
+  intros e.
+  apply funextsec.
+  apply squash_map_uniqueness. exact ip.
+  intro x. induction e. apply idpath.
+Qed.

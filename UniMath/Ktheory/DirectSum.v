@@ -21,17 +21,21 @@ Local Open Scope cat.
 
 Definition identity_matrix {C:category} (h:ZeroMaps C)
            {I} (d:I -> ob C) (dec : isdeceq I) : ∏ i j, Hom C (d j) (d i).
-Proof. intros. induction (dec i j) as [ eq | ne ].
-       { induction eq. apply identity. }
-       { apply h. }
+Proof.
+  intros. induction (dec i j) as [ eq | ne ].
+  { induction eq. apply identity. }
+  { apply h. }
 Defined.
 
 Definition identity_map {C:category} (h:ZeroMaps C)
            {I} {d:I -> ob C} (dec : isdeceq I)
            (B:Sum d) (D:Product d)
       : Hom C (universalObject B) (universalObject D).
-Proof. intros. apply RawMatrix.from_matrix. apply identity_matrix.
-       assumption. assumption. Defined.
+Proof.
+  intros. apply RawMatrix.from_matrix. apply identity_matrix.
+  - assumption.
+  - assumption.
+Defined.
 
 Record DirectSum {C:category} (h:ZeroMaps C) I (dec : isdeceq I) (c : I -> ob C) :=
   make_DirectSum {
@@ -44,7 +48,8 @@ Record DirectSum {C:category} (h:ZeroMaps C) I (dec : isdeceq I) (c : I -> ob C)
 Definition toDirectSum {C:category} (h:ZeroMaps C) {I} (dec : isdeceq I) (d:I -> ob C)
            (B:Sum d) (D:Product d)
            (is: is_iso (identity_map h dec B D)) : DirectSum h I dec d.
-Proof. intros. set (id := identity_map h dec B D).
+Proof.
+  intros. set (id := identity_map h dec B D).
   refine (make_DirectSum C h I dec d (universalObject D)
                          (λ i, pr_ D i)
                          (λ i, id ∘ in_ B i) _ _ _).
