@@ -1,5 +1,5 @@
 (** This file contain various results that could be upstreamed to Foundations/PartA.v *)
-Require Import UniMath.MoreFoundations.Foundations.
+Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Lemma maponpaths_for_constant_function {T1 T2 : UU} (x : T2) {t1 t2 : T1}

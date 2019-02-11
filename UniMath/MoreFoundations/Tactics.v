@@ -4,7 +4,7 @@ This file contains various useful tactics
 
 ************************************************************************)
 
-Require Import UniMath.MoreFoundations.Foundations.
+Require Import UniMath.Foundations.All.
 
 (** A version of "easy" specialized for the needs of UniMath.
 This tactic is supposed to be simple and predictable. The goal

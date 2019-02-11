@@ -17,10 +17,9 @@ Proof.
   { reflexivity. }
 Defined.
 
-(** ** An easy proof of functional extensionality for sections using the
-       interval, which is derived from formal properlties of propositional
-       truncation, but notice that propositional truncation uses functional
-       extensionality for functions, already. *)
+(** ** An easy proof of functional extensionality for sections using the interval, which is derived
+       from formal properlties of propositional truncation, but notice that propositional truncation
+       uses functional extensionality for functions, already. *)
 
 Definition funextsec2 X (Y:X->Type) (f g:∏ x,Y x) :
            (∏ x, f x = g x) -> f = g.

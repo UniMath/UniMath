@@ -1,6 +1,6 @@
 (** * Notations  *)
 
-Require Export UniMath.MoreFoundations.Foundations.
+Require Export UniMath.Foundations.All.
 
 Notation "A ⇒ B" := (himpl A B) : logic.
 

@@ -16,7 +16,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [HLevels.v](Foundations/HLevels.v)
    - [All.v](Foundations/All.v)
 ## Package [MoreFoundations](MoreFoundations/README.md)
-   - [Foundations.v](MoreFoundations/Foundations.v)
    - [WeakEquivalences.v](MoreFoundations/WeakEquivalences.v)
    - [Tactics.v](MoreFoundations/Tactics.v)
    - [PartA.v](MoreFoundations/PartA.v)
