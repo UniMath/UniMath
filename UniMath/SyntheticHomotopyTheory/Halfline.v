@@ -2,9 +2,8 @@
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Ktheory.NullHomotopies.
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require UniMath.Ktheory.Nat.
+Require UniMath.MoreFoundations.Nat.
 
 Notation ℕ := nat.
 
@@ -87,6 +86,6 @@ Defined.
 
 (*
 Local Variables:
-compile-command: "make -C ../.. UniMath/Ktheory/Halfline.vo"
+compile-command: "make -C ../.. UniMath/SyntheticHomotopyTheory/Halfline.vo"
 End:
 *)

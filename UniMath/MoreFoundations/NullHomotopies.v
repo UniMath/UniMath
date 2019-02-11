@@ -1,11 +1,9 @@
 (** ** Null homotopies, an aid for proving things about propositional truncation *)
 
 Require Export UniMath.Foundations.PartD.
-Require Export UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.Notations.
-Require Import UniMath.MoreFoundations.Sets.
 
 Local Open Scope transport.
 
@@ -66,6 +64,6 @@ Qed.
 
 (*
 Local Variables:
-compile-command: "make -C ../.. TAGS UniMath/Ktheory/NullHomotopies.vo"
+compile-command: "make -C ../.. TAGS UniMath/MoreFoundations/NullHomotopies.vo"
 End:
 *)

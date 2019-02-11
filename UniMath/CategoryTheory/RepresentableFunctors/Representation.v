@@ -9,8 +9,8 @@ Require Import
         UniMath.CategoryTheory.categories.HSET.Core
         UniMath.CategoryTheory.categories.HSET.MonoEpiIso.
 Require Import
-        UniMath.Ktheory.Precategories
-        UniMath.Ktheory.Bifunctor.
+        UniMath.CategoryTheory.RepresentableFunctors.Precategories
+        UniMath.CategoryTheory.RepresentableFunctors.Bifunctor.
 Require Import UniMath.MoreFoundations.Tactics.
 Local Open Scope cat.
 Local Open Scope Cat.

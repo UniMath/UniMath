@@ -1,11 +1,10 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.MoreFoundations.DecidablePropositions.
-Require Import UniMath.MoreFoundations.PartA.
-Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Algebra.Monoids.
-Require UniMath.Ktheory.Magma UniMath.Ktheory.QuotientSet.
+Require        UniMath.CategoryTheory.RepresentableFunctors.Magma.
 Local Notation Hom := monoidfun (only parsing).
 Local Notation "x * y" := ( op x y ).
 Local Notation "g ∘ f" := (monoidfuncomp f g) (only parsing).
@@ -300,7 +299,7 @@ Module Presentation.
   Definition universalMarkedPreMonoid0 {X I} (R:I->reln X) : hSet :=
     setquotinset (smallestAdequateRelation R).
   Lemma op2_compatibility {X I} (R:I->reln X) :
-    QuotientSet.iscomprelrelfun2
+    iscomprelrelfun2'
       (smallestAdequateRelation R) (smallestAdequateRelation R) (smallestAdequateRelation R)
       word_op.
   Proof.
@@ -312,7 +311,7 @@ Module Presentation.
   (** *** the multiplication on on it *)
 
   Definition univ_binop {X I} (R:I->reln X) : binop (universalMarkedPreMonoid0 R).
-    intros. simple refine (QuotientSet.setquotfun2 word_op _). apply op2_compatibility.
+    intros. simple refine (setquotfun2' word_op _). apply op2_compatibility.
   Defined.
   Definition univ_setwithbinop {X I} (R:I->reln X) : setwithbinop
              := setwithbinoppair (universalMarkedPreMonoid0 R) (univ_binop R).

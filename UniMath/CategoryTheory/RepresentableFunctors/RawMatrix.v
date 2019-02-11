@@ -11,8 +11,8 @@ Require Import
         UniMath.CategoryTheory.Core.Isos
         UniMath.CategoryTheory.Core.Functors
         UniMath.CategoryTheory.Core.NaturalTransformations
-        UniMath.Ktheory.Representation
-        UniMath.Ktheory.Precategories.
+        UniMath.CategoryTheory.RepresentableFunctors.Representation
+        UniMath.CategoryTheory.RepresentableFunctors.Precategories.
 Local Open Scope cat.
 
 Definition to_row {C:category} {I} {b:I -> ob C}

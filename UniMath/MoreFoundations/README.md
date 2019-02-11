@@ -13,3 +13,19 @@ for use by the files in this package.
 The file All.v loads and exports all the files of Foundations and all the files
 in this package, later packages can get everything by importing it.
 
+Overview of contents
+====================
+
+## QuotientSet.v
+
+Some lemmas about quotient sets.
+
+## Equivalences.v
+
+the proof that an equivalence, defined as a pair of maps with a pair of
+homotopies and an adjointness relation, is invertible.
+
+## Interval.v
+
+the (easy) proof that squashing a two-element set yields an interval, together
+with the resulting easy proof of function extensionality.

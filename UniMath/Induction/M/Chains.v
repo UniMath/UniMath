@@ -2,6 +2,7 @@
 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.NaturalNumbers.
+Require Import UniMath.MoreFoundations.Notations.
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Univalence.
 Require Import UniMath.MoreFoundations.WeakEquivalences.

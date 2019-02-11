@@ -13,15 +13,10 @@ Unset Kernel Term Sharing.
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require UniMath.Ktheory.Nat.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
-Require Import UniMath.Ktheory.GroupAction
-               UniMath.NumberSystems.Integers
-               UniMath.Ktheory.Integers
-               UniMath.Ktheory.NullHomotopies
-               UniMath.Ktheory.Nat
-               UniMath.Ktheory.MoreEquivalences.
+Require Import UniMath.CategoryTheory.RepresentableFunctors.GroupAction
+               UniMath.NumberSystems.Integers.
 
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
 Local Open Scope hz_scope.
@@ -633,6 +628,6 @@ Defined.
 
 (*
 Local Variables:
-compile-command: "make -C ../.. UniMath/Ktheory/AffineLine.vo"
+compile-command: "make -C ../.. UniMath/SyntheticHomotopyTheory/AffineLine.vo"
 End:
 *)

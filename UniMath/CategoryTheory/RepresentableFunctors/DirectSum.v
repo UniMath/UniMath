@@ -13,9 +13,9 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import
         UniMath.Foundations.Sets
         UniMath.Combinatorics.FiniteSets
-        UniMath.Ktheory.Representation
-        UniMath.Ktheory.Precategories.
-Require UniMath.Ktheory.RawMatrix.
+        UniMath.CategoryTheory.RepresentableFunctors.Representation
+        UniMath.CategoryTheory.RepresentableFunctors.Precategories.
+Require UniMath.CategoryTheory.RepresentableFunctors.RawMatrix.
 Local Open Scope cat.
 
 Definition identity_matrix {C:category} (h:ZeroMaps C)

@@ -2,8 +2,8 @@
 
 (** * abelian groups *)
 
-Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -12,9 +12,9 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.NumberSystems.Integers
-               UniMath.Ktheory.Representation
-               UniMath.Ktheory.Precategories.
-Require UniMath.Ktheory.Group.
+               UniMath.CategoryTheory.RepresentableFunctors.Representation
+               UniMath.CategoryTheory.RepresentableFunctors.Precategories.
+Require        UniMath.CategoryTheory.RepresentableFunctors.Group.
 Local Open Scope cat.
 
 Delimit Scope abgr with abgr.
@@ -162,7 +162,7 @@ Module Presentation.
     intros. intros v w p r ra. exact (inverse_compat R r ra v w (p r ra)).
   Qed.
   Lemma op2_compatibility {X I} (R:I->reln X) :
-    QuotientSet.iscomprelrelfun2
+    iscomprelrelfun2'
       (smallestAdequateRelation R) (smallestAdequateRelation R) (smallestAdequateRelation R)
       word_op.
   Proof.
@@ -178,7 +178,7 @@ Module Presentation.
     refine (setquotfun _ _ word_inv _). apply op_inv_compatibility.
   Defined.
   Definition univ_binop {X I} (R:I->reln X) : binop (universalMarkedPreAbelianGroup0 R).
-    intros. refine (QuotientSet.setquotfun2 word_op _). apply op2_compatibility.
+    intros. refine (setquotfun2' word_op _). apply op2_compatibility.
   Defined.
   Definition univ_setwithbinop {X I} (R:I->reln X) : setwithbinop
              := setwithbinoppair (universalMarkedPreAbelianGroup0 R) (univ_binop R).
@@ -629,6 +629,6 @@ End Category.
 
 (*
 Local Variables:
-compile-command: "make -C ../.. TAGS UniMath/Ktheory/AbelianGroup.vo"
+compile-command: "make -C ../.. TAGS UniMath/CategoryTheory/RepresentableFunctors/AbelianGroup.vo"
 End:
 *)

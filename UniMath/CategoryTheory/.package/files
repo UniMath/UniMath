@@ -250,3 +250,17 @@ Monoidal/Actions.v
 Monoidal/Strengths.v
 
 Enriched/Enriched.v
+
+# RepresentableFunctors
+RepresentableFunctors/Precategories.v
+RepresentableFunctors/Bifunctor.v
+RepresentableFunctors/Representation.v
+RepresentableFunctors/RawMatrix.v
+RepresentableFunctors/DirectSum.v
+RepresentableFunctors/Magma.v
+RepresentableFunctors/Monoid.v
+RepresentableFunctors/AbelianMonoid.v
+RepresentableFunctors/Group.v
+RepresentableFunctors/AbelianGroup.v
+RepresentableFunctors/GroupAction.v
+RepresentableFunctors/Test.v

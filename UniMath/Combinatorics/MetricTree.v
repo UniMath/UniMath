@@ -2,11 +2,12 @@
 
 (** * Metric trees *)
 
-Require Import UniMath.Algebra.Monoids.
-Require Import UniMath.Algebra.Groups.
-Require Import UniMath.Foundations.NaturalNumbers
-               UniMath.Foundations.UnivalenceAxiom
-               UniMath.MoreFoundations.NegativePropositions.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
+        Import UniMath.MoreFoundations.Nat.Discern.
+
+(* Require Import UniMath.Algebra.Monoids. *)
+(* Require Import UniMath.Algebra.Groups. *)
 
 (** ** Definitions *)
 
@@ -62,9 +63,6 @@ Proof.
         apply invmaponpathsS. exact (i@H). } } }
   intro. apply (d_ind (mt_dist _ x z)). reflexivity.
 Defined.
-
-Require Import UniMath.Ktheory.Nat.
-        Import UniMath.Ktheory.Nat.Discern.
 
 Definition nat_tree : Tree.
 Proof.

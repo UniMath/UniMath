@@ -15,8 +15,8 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 
-Require Import UniMath.Ktheory.Representation.
-Require UniMath.Ktheory.Precategories.
+Require Import UniMath.CategoryTheory.RepresentableFunctors.Representation.
+Require        UniMath.CategoryTheory.RepresentableFunctors.Precategories.
 
 
 Section interface.

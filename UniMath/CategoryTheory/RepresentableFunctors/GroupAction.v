@@ -552,6 +552,6 @@ Defined.
 
 (*
 Local Variables:
-compile-command: "make -C ../.. UniMath/Ktheory/GroupAction.vo"
+compile-command: "make -C ../.. UniMath/CategoryTheory/RepresentableFunctors/GroupAction.vo"
 End:
 *)

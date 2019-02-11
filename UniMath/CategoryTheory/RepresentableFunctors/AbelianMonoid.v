@@ -1,13 +1,12 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.Foundations.Preamble.
-Require Import UniMath.MoreFoundations.Tactics
-	       UniMath.MoreFoundations.PartA.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Combinatorics.FiniteSets
                UniMath.NumberSystems.NaturalNumbersAlgebra.
-Require UniMath.Ktheory.QuotientSet UniMath.Ktheory.Monoid.
+Require UniMath.CategoryTheory.RepresentableFunctors.Monoid.
 Close Scope multmonoid_scope.
 Local Open Scope addmonoid_scope.
 Import UniMath.Algebra.Monoids.AddNotation.
@@ -440,7 +439,7 @@ Module Presentation.
   Definition universalMarkedPreAbelianMonoid0 {X I} (R:I->reln X) : hSet :=
     setquotinset (smallestAdequateRelation R).
   Lemma op2_compatibility {X I} (R:I->reln X) :
-    QuotientSet.iscomprelrelfun2
+    iscomprelrelfun2'
       (smallestAdequateRelation R) (smallestAdequateRelation R) (smallestAdequateRelation R)
       word_op.
   Proof.
@@ -452,7 +451,7 @@ Module Presentation.
   (** *** the multiplication on on it *)
 
   Definition univ_binop {X I} (R:I->reln X) : binop (universalMarkedPreAbelianMonoid0 R).
-    intros. simple refine (QuotientSet.setquotfun2 word_op _). apply op2_compatibility.
+    intros. simple refine (setquotfun2' word_op _). apply op2_compatibility.
   Defined.
   Definition univ_setwithbinop {X I} (R:I->reln X) : setwithbinop
              := setwithbinoppair (universalMarkedPreAbelianMonoid0 R) (univ_binop R).
@@ -770,6 +769,6 @@ End NN_agreement.
 
 (*
 Local Variables:
-compile-command: "make -C ../.. TAGS UniMath/Ktheory/AbelianMonoid.vo"
+compile-command: "make -C ../.. TAGS UniMath/CategoryTheory/RepresentableFunctors/AbelianMonoid.vo"
 End:
 *)

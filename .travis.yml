@@ -10,7 +10,7 @@ env:
   matrix:
     - PACKAGES="Foundations Combinatorics Algebra NumberSystems PAdics Paradoxes"
     - PACKAGES=CategoryTheory
-    - PACKAGES="MoreFoundations Ktheory"
+    - PACKAGES="MoreFoundations Ktheory SyntheticHomotopyTheory"
     - PACKAGES=HomologicalAlgebra
     - PACKAGES=Topology
     - PACKAGES=RealNumbers

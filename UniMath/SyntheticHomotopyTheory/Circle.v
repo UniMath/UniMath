@@ -12,11 +12,9 @@ Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
 
 Require Import UniMath.NumberSystems.Integers
-               UniMath.Ktheory.AffineLine
-               UniMath.Ktheory.GroupAction
-               UniMath.Ktheory.Nat
-               UniMath.Ktheory.Integers
-               UniMath.Ktheory.MoreEquivalences.
+               UniMath.SyntheticHomotopyTheory.AffineLine
+               UniMath.CategoryTheory.RepresentableFunctors.GroupAction
+               UniMath.MoreFoundations.MoreEquivalences.
 Delimit Scope paths_scope with paths.
 Local Open Scope paths_scope.
 Local Open Scope action_scope.
@@ -336,6 +334,6 @@ Defined.
 
 (*
 Local Variables:
-compile-command: "make -C ../.. UniMath/Ktheory/Circle.vo"
+compile-command: "make -C ../.. UniMath/SyntheticHomotopyTheory/Circle.vo"
 End:
 *)

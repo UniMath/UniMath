@@ -9,4 +9,5 @@ WellOrderedSets.v
 ZFstructures.v
 FiniteSequences.v
 BoundedSearch.v
+MetricTree.v
 Tests.v
