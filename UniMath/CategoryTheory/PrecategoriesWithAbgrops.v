@@ -6,7 +6,6 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
 
-Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
