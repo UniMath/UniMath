@@ -12,7 +12,6 @@ Require Import
         UniMath.CategoryTheory.Core.Functors
         UniMath.CategoryTheory.Core.NaturalTransformations
         UniMath.Ktheory.Representation
-        UniMath.Ktheory.Utilities
         UniMath.Ktheory.Precategories.
 Local Open Scope cat.
 

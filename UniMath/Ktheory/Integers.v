@@ -4,13 +4,11 @@
 
 Unset Kernel Term Sharing.
 
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.Monoids.
-Require Import UniMath.Algebra.Groups.
-Require Import UniMath.Foundations.NaturalNumbers
+Require Import UniMath.Algebra.Groups
                UniMath.NumberSystems.Integers
-               UniMath.Foundations.UnivalenceAxiom
-               UniMath.Ktheory.Utilities
-               UniMath.CategoryTheory.total2_paths
                UniMath.Ktheory.GroupAction
                UniMath.NumberSystems.Integers
                UniMath.Ktheory.Nat.

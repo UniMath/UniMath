@@ -2,7 +2,7 @@
 
 Require Import
         UniMath.Foundations.Sets
-        UniMath.Ktheory.Utilities.
+        UniMath.MoreFoundations.PartA.
 Definition iscomprelfun2 {X Y Z} (RX:hrel X) (RY:hrel Y)
            (f:X->Y->Z) : Type
   := (∏ x x', RX x x' -> ∏ y, f x y = f x' y) ×

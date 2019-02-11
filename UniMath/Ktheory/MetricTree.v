@@ -6,9 +6,7 @@ Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Foundations.NaturalNumbers
                UniMath.Foundations.UnivalenceAxiom
-               UniMath.MoreFoundations.NegativePropositions
-               UniMath.CategoryTheory.total2_paths
-               UniMath.Ktheory.Utilities.
+               UniMath.MoreFoundations.NegativePropositions.
 
 (** ** Definitions *)
 

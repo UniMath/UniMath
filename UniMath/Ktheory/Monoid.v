@@ -1,11 +1,10 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import UniMath.MoreFoundations.DecidablePropositions.
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Algebra.Monoids.
-Require Import UniMath.CategoryTheory.total2_paths.
-Require Import UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Magma UniMath.Ktheory.QuotientSet.
 Local Notation Hom := monoidfun (only parsing).
 Local Notation "x * y" := ( op x y ).

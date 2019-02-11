@@ -1,12 +1,10 @@
 # K-theory based more directly on the material in CategoryTheory
 GrothendieckGroup.v
 
-Tactics.v
-
 # move upstream?:
 Equivalences.v
 
-Utilities.v
+NullHomotopies.v
 Interval.v
 Precategories.v
 Bifunctor.v

@@ -15,8 +15,6 @@ Require Import UniMath.CategoryTheory.Chains.Cochains.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 
-Require Import UniMath.Ktheory.Utilities.
-
 Require Import UniMath.Induction.PolynomialFunctors.
 Require Import UniMath.Induction.M.Limits.
 

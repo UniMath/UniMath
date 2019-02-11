@@ -2,7 +2,6 @@ Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.Ktheory.Utilities.
 Require Import UniMath.Ktheory.Precategories.
 
 Require Import UniMath.MoreFoundations.Tactics.

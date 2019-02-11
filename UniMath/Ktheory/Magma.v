@@ -1,7 +1,6 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Import UniMath.Algebra.BinaryOperations
-        UniMath.Ktheory.Utilities.
+Require Import UniMath.Algebra.BinaryOperations.
 Local Notation "x * y" := (op x y).
 Local Notation "g ∘ f" := (binopfuncomp f g) (only parsing).
 Local Notation magma := setwithbinop.

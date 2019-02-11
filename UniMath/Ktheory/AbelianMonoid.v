@@ -1,12 +1,12 @@
 (* -*- coding: utf-8 -*- *)
 
 Require Import UniMath.Foundations.Preamble.
-Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.Tactics
+	       UniMath.MoreFoundations.PartA.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Combinatorics.FiniteSets
-               UniMath.NumberSystems.NaturalNumbersAlgebra
-               UniMath.Ktheory.Utilities.
+               UniMath.NumberSystems.NaturalNumbersAlgebra.
 Require UniMath.Ktheory.QuotientSet UniMath.Ktheory.Monoid.
 Close Scope multmonoid_scope.
 Local Open Scope addmonoid_scope.

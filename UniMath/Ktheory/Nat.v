@@ -2,13 +2,9 @@
 
 (** * Natural numbers *)
 
-Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.Monoids.
-Require Import UniMath.Foundations.NaturalNumbers
-               UniMath.MoreFoundations.NegativePropositions
-               UniMath.Foundations.UnivalenceAxiom
-               UniMath.CategoryTheory.total2_paths
-               UniMath.Ktheory.Utilities.
 
 Local Open Scope nat.
 

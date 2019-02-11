@@ -5,17 +5,18 @@ Unset Kernel Term Sharing.
 
 (** We will show that [B ℤ] has the universal property of the circle. *)
 
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
+
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
 
-Require Import UniMath.Ktheory.AffineLine
-               UniMath.Foundations.UnivalenceAxiom
+Require Import UniMath.NumberSystems.Integers
+               UniMath.Ktheory.AffineLine
                UniMath.Ktheory.GroupAction
-               UniMath.NumberSystems.Integers
                UniMath.Ktheory.Nat
                UniMath.Ktheory.Integers
                UniMath.Ktheory.MoreEquivalences.
-Require Import UniMath.Ktheory.Utilities.
 Delimit Scope paths_scope with paths.
 Local Open Scope paths_scope.
 Local Open Scope action_scope.

@@ -1,8 +1,7 @@
 (** * Equivalences *)
 
-Require Import UniMath.Foundations.PartD.
-Require Import UniMath.Ktheory.Utilities.
-Require Import UniMath.Foundations.UnivalenceAxiom.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Ktheory.Equivalences.
 
 Definition weq_to_InverseEquivalence X Y : X ≃ Y -> Equivalence Y X.

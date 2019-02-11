@@ -1,8 +1,8 @@
 (** * The induction principle for the half line. *)
 
-Require Import UniMath.Foundations.UnivalenceAxiom
-               UniMath.Ktheory.Utilities.
-Require Import UniMath.MoreFoundations.Notations.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.Ktheory.NullHomotopies.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require UniMath.Ktheory.Nat.
 

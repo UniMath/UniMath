@@ -9,7 +9,6 @@ Require Import
         UniMath.CategoryTheory.categories.HSET.Core
         UniMath.CategoryTheory.categories.HSET.MonoEpiIso.
 Require Import
-        UniMath.Ktheory.Tactics
         UniMath.Ktheory.Precategories
         UniMath.Ktheory.Bifunctor.
 Require Import UniMath.MoreFoundations.Tactics.

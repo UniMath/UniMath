@@ -11,21 +11,16 @@ Unset Kernel Term Sharing.
 
 (** ** Preliminaries *)
 
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require UniMath.Ktheory.Nat.
-Require Export UniMath.Foundations.Sets.
-
-Require Import UniMath.MoreFoundations.Tactics.
-Require Import UniMath.MoreFoundations.Notations.
-
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
-Require Import UniMath.Ktheory.Utilities
-               UniMath.Foundations.UnivalenceAxiom
-               UniMath.Ktheory.GroupAction
+Require Import UniMath.Ktheory.GroupAction
                UniMath.NumberSystems.Integers
                UniMath.Ktheory.Integers
+               UniMath.Ktheory.NullHomotopies
                UniMath.Ktheory.Nat
-               UniMath.Ktheory.Tactics
                UniMath.Ktheory.MoreEquivalences.
 
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.

@@ -12,7 +12,6 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import
         UniMath.Foundations.Sets
-        UniMath.Ktheory.Utilities
         UniMath.Combinatorics.FiniteSets
         UniMath.Ktheory.Representation
         UniMath.Ktheory.Precategories.

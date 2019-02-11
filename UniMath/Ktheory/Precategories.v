@@ -1,6 +1,5 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Export UniMath.Ktheory.Utilities.
 Require Export UniMath.CategoryTheory.Core.Categories. (* export its coercions, especially *)
 Require Export UniMath.CategoryTheory.Core.Isos. (* export its coercions, especially *)
 Require Export UniMath.CategoryTheory.Core.Functors.

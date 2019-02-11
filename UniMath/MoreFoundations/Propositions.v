@@ -303,3 +303,15 @@ Proof.
   apply squash_map_uniqueness. exact ip.
   intro x. induction e. apply idpath.
 Qed.
+
+(** ** Connected types *)
+
+Definition isConnected X := ∏ (x y:X), nonempty (x = y).
+
+Lemma base_connected {X} (t:X) : (∏ y:X, nonempty (t = y)) -> isConnected X.
+Proof.
+  intros p x y. assert (a := p x). assert (b := p y). clear p.
+  apply (squash_to_prop a). apply propproperty. clear a. intros a.
+  apply (squash_to_prop b). apply propproperty. clear b. intros b.
+  apply hinhpr. exact (!a@b).
+Defined.

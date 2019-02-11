@@ -2,11 +2,12 @@
 
 (** * Group actions *)
 
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.MoreFoundations.Univalence.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
-Require Import UniMath.Foundations.UnivalenceAxiom
-               UniMath.Combinatorics.OrderedSets
-               UniMath.Ktheory.Utilities.
+Require Import UniMath.Combinatorics.OrderedSets.
 
 (** ** Definitions *)
 
@@ -507,7 +508,7 @@ Definition E := PointedTorsor.
 Definition B := ClassifyingSpace.
 Definition π {G:gr} := underlyingTorsor : E G -> B G.
 
-Lemma isconnBG (G:gr) : isconnected (B G).
+Lemma isconnBG (G:gr) : isConnected (B G).
 Proof.
   intros. apply (base_connected (trivialTorsor _)).
   intros X. apply (squash_to_prop (torsor_nonempty X)). { apply propproperty. }

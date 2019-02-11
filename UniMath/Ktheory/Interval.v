@@ -1,6 +1,6 @@
 (** * A construction of the interval using propositional truncation *)
 
-Require Import UniMath.Ktheory.Utilities.
+Require Import UniMath.Ktheory.NullHomotopies.
 Require Import UniMath.MoreFoundations.Notations.
 
 Definition interval := ∥ bool ∥.
