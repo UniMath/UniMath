@@ -187,6 +187,7 @@ Section def_zero.
 
 End def_zero.
 
+Arguments isZero {_} _.
 Arguments ZeroObject [C] _.
 Arguments ZeroArrowTo [C]{Z} b.
 Arguments ZeroArrowFrom [C]{Z} b.
@@ -194,4 +195,4 @@ Arguments ZeroArrow [C] _ _ _.
 Arguments mk_isZero {_} _ _ _ .
 Arguments mk_Zero {_} _ _ .
 
-Definition zero_lifts (M:precategory) {X:Type} (j : X -> ob M) := ∃ z, isZero M (j z).
+Definition zero_lifts (M:precategory) {X:Type} (j : X -> ob M) := ∃ z, isZero (j z).

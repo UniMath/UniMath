@@ -91,7 +91,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [padics.v](PAdics/padics.v)
    - [All.v](PAdics/All.v)
 ## Package [CategoryTheory](CategoryTheory/README.md)
-   - [total2_paths.v](CategoryTheory/total2_paths.v)
    - [Core/Categories.v](CategoryTheory/Core/Categories.v)
    - [Core/Isos.v](CategoryTheory/Core/Isos.v)
    - [Core/Univalence.v](CategoryTheory/Core/Univalence.v)

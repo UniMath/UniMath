@@ -611,3 +611,44 @@ Defined.
 
 Definition funset X (Y:hSet) : hSet
   := hSetpair (X->Y) (impredfun 2 _ _ (setproperty Y)).
+
+Lemma eq_equalities_between_pairs (A : UU) (B : A -> UU)(x y : total2 (λ x, B x))
+    (p q : x = y) (H : base_paths _ _ p = base_paths _ _ q)
+    (H2 : transportf (fun p : pr1 x = pr1 y =>  transportf _ p (pr2 x) = pr2 y )
+         H (fiber_paths p) = fiber_paths q) :  p = q.
+Proof.
+  apply (invmaponpathsweq (total2_paths_equiv _ _ _ )).
+  apply (total2_paths_f (B:=(fun p : pr1 x = pr1 y =>
+          transportf (λ x : A, B x) p (pr2 x) = pr2 y))
+          (s  := (total2_paths_equiv B x y) p)
+          (s' := (total2_paths_equiv B x y) q) H).
+  assumption.
+Defined.
+
+(* perhaps consider name *)
+Lemma total2_reassoc_paths {A} {B : A → UU} {C : (∑ a, B a) -> UU}
+    (BC : A -> UU := λ a, ∑ b, C (a,,b))
+    {a1 a2 : A} (bc1 : BC a1) (bc2 : BC a2)
+    (ea : a1 = a2)
+    (eb : transportf _ ea (pr1 bc1) = pr1 bc2)
+    (ec : transportf C (two_arg_paths_f (*was total2_paths2*) ea eb) (pr2 bc1) = pr2 bc2)
+  : transportf _ ea bc1 = bc2.
+Proof.
+  destruct ea, bc1 as [b1 c1], bc2 as [b2 c2].
+  cbn in *; destruct eb, ec.
+  apply idpath.
+Defined.
+
+(* perhaps consider name *)
+Lemma total2_reassoc_paths' {A} {B : A → UU} {C : (∑ a, B a) -> UU}
+    (BC : A -> UU := λ a, ∑ b, C (a,,b))
+    {a1 a2 : A} (bc1 : BC a1) (bc2 : BC a2)
+    (ea : a1 = a2)
+    (eb : pr1 bc1 = transportb _ ea (pr1 bc2))
+    (ec : pr2 bc1 = transportb C (total2_paths2_b ea eb) (pr2 bc2))
+  : bc1 = transportb _ ea bc2.
+Proof.
+  destruct ea, bc1 as [b1 c1], bc2 as [b2 c2].
+  cbn in eb; destruct eb; cbn in ec; destruct ec.
+  apply idpath.
+Defined.

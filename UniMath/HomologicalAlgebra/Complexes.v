@@ -168,8 +168,8 @@ Section def_complexes.
     let B1 := to_BinDirectSums A (C1 i) (C2 i) in
     let B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1)) in
     let B3 := to_BinDirectSums A (C1 (i + 1 + 1)) (C2 (i + 1 + 1)) in
-    (BinDirectSumIndAr A (Diff C1 i) (Diff C2 i) B1 B2)
-      · (BinDirectSumIndAr A (Diff C1 (i + 1)) (Diff C2 (i + 1)) B2 B3) =
+    (BinDirectSumIndAr (Diff C1 i) (Diff C2 i) B1 B2)
+      · (BinDirectSumIndAr (Diff C1 (i + 1)) (Diff C2 (i + 1)) B2 B3) =
     ZeroArrow (Additive.to_Zero A) B1 B3.
   Proof.
     intros.
@@ -187,7 +187,7 @@ Section def_complexes.
   Proof.
     use mk_Complex.
     - intros i. exact (to_BinDirectSums A (C1 i) (C2 i)).
-    - intros i. exact (BinDirectSumIndAr A (Diff C1 i) (Diff C2 i) _ _).
+    - intros i. exact (BinDirectSumIndAr (Diff C1 i) (Diff C2 i) _ _).
     - intros i. exact (DirectSumComplex_comm i).
   Defined.
 
@@ -332,15 +332,15 @@ Section def_complexes.
   Local Lemma DirectSumComplexIn1_comm (C1 C2 : Complex) (i : hz) :
     let B1 := to_BinDirectSums A (C1 i) (C2 i) in
     let B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1)) in
-    (to_In1 A B1) · (BinDirectSumIndAr A (Diff C1 i) (Diff C2 i) B1 B2) =
-    (Diff C1 i) · (to_In1 A B2).
+    (to_In1 B1) · (BinDirectSumIndAr (Diff C1 i) (Diff C2 i) B1 B2) =
+    (Diff C1 i) · (to_In1 B2).
   Proof.
     intros.
     rewrite BinDirectSumIndArEq1.
     unfold BinDirectSumIndArFormula.
     rewrite to_premor_linear'.
     rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
-    rewrite (to_IdIn1 A B1). rewrite (to_Unel1 A B1).
+    rewrite (to_IdIn1 B1). rewrite (to_Unel1 B1).
     rewrite id_left. rewrite to_postmor_unel'. rewrite to_postmor_unel'.
     rewrite to_runax'. apply idpath.
   Qed.
@@ -348,21 +348,21 @@ Section def_complexes.
   Definition DirectSumComplexIn1 (C1 C2 : Complex) : Morphism C1 (DirectSumComplex C1 C2).
   Proof.
     use mk_Morphism.
-    - intros i. exact (to_In1 A (to_BinDirectSums A (C1 i) (C2 i))).
+    - intros i. exact (to_In1 (to_BinDirectSums A (C1 i) (C2 i))).
     - intros i. exact (DirectSumComplexIn1_comm C1 C2 i).
   Defined.
 
   Local Lemma DirectSumComplexIn2_comm (C1 C2 : Complex) (i : hz) :
     let B1 := to_BinDirectSums A (C1 i) (C2 i) in
     let B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1)) in
-    (to_In2 A B1) · (BinDirectSumIndAr A (Diff C1 i) (Diff C2 i) B1 B2) =
-    (Diff C2 i) · (to_In2 A B2).
+    (to_In2 B1) · (BinDirectSumIndAr (Diff C1 i) (Diff C2 i) B1 B2) =
+    (Diff C2 i) · (to_In2 B2).
   Proof.
     intros.
     rewrite BinDirectSumIndArEq1.
     unfold BinDirectSumIndArFormula.
     rewrite to_premor_linear'. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
-    rewrite (to_IdIn2 A B1). rewrite (to_Unel2 A B1).
+    rewrite (to_IdIn2 B1). rewrite (to_Unel2 B1).
     rewrite id_left. rewrite to_postmor_unel'. rewrite to_postmor_unel'.
     rewrite to_lunax'. apply idpath.
   Qed.
@@ -370,22 +370,22 @@ Section def_complexes.
   Definition DirectSumComplexIn2 (C1 C2 : Complex) : Morphism C2 (DirectSumComplex C1 C2).
   Proof.
     use mk_Morphism.
-    - intros i. exact (to_In2 A (to_BinDirectSums A (C1 i) (C2 i))).
+    - intros i. exact (to_In2 (to_BinDirectSums A (C1 i) (C2 i))).
     - intros i. exact (DirectSumComplexIn2_comm C1 C2 i).
   Defined.
 
   Local Lemma DirectSumComplexPr1_comm (C1 C2 : Complex) (i : hz) :
     let B1 := to_BinDirectSums A (C1 i) (C2 i) in
     let B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1)) in
-    (to_Pr1 A B1) · (Diff C1 i) =
-    (BinDirectSumIndAr A (Diff C1 i) (Diff C2 i) B1 B2) · (to_Pr1 A B2).
+    (to_Pr1 B1) · (Diff C1 i) =
+    (BinDirectSumIndAr (Diff C1 i) (Diff C2 i) B1 B2) · (to_Pr1 B2).
   Proof.
     intros.
     rewrite BinDirectSumIndArEq1.
     unfold BinDirectSumIndArFormula.
     rewrite to_postmor_linear'.
     rewrite <- assoc. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
-    rewrite (to_IdIn1 A B2). rewrite (to_Unel2 A B2).
+    rewrite (to_IdIn1 B2). rewrite (to_Unel2 B2).
     rewrite id_right. rewrite to_premor_unel'. rewrite to_premor_unel'.
     rewrite to_runax'. apply idpath.
   Qed.
@@ -393,22 +393,22 @@ Section def_complexes.
   Definition DirectSumComplexPr1 (C1 C2 : Complex) : Morphism (DirectSumComplex C1 C2) C1.
   Proof.
     use mk_Morphism.
-    - intros i. exact (to_Pr1 A (to_BinDirectSums A (C1 i) (C2 i))).
+    - intros i. exact (to_Pr1 (to_BinDirectSums A (C1 i) (C2 i))).
     - intros i. exact (DirectSumComplexPr1_comm C1 C2 i).
   Defined.
 
   Local Lemma DirectSumComplexPr2_comm (C1 C2 : Complex) (i : hz) :
     let B1 := to_BinDirectSums A (C1 i) (C2 i) in
     let B2 := to_BinDirectSums A (C1 (i + 1)) (C2 (i + 1)) in
-    (to_Pr2 A B1) · (Diff C2 i) =
-    (BinDirectSumIndAr A (Diff C1 i) (Diff C2 i) B1 B2) · (to_Pr2 A B2).
+    (to_Pr2 B1) · (Diff C2 i) =
+    (BinDirectSumIndAr (Diff C1 i) (Diff C2 i) B1 B2) · (to_Pr2 B2).
   Proof.
     intros.
     rewrite BinDirectSumIndArEq1.
     unfold BinDirectSumIndArFormula.
     rewrite to_postmor_linear'.
     rewrite <- assoc. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
-    rewrite (to_IdIn2 A B2). rewrite (to_Unel1 A B2).
+    rewrite (to_IdIn2 B2). rewrite (to_Unel1 B2).
     rewrite id_right. rewrite to_premor_unel'. rewrite to_premor_unel'.
     rewrite to_lunax'. apply idpath.
   Qed.
@@ -416,7 +416,7 @@ Section def_complexes.
   Definition DirectSumComplexPr2 (C1 C2 : Complex) : Morphism (DirectSumComplex C1 C2) C2.
   Proof.
     use mk_Morphism.
-    - intros i. exact (to_Pr2 A (to_BinDirectSums A (C1 i) (C2 i))).
+    - intros i. exact (to_Pr2 (to_BinDirectSums A (C1 i) (C2 i))).
     - intros i. exact (DirectSumComplexPr2_comm C1 C2 i).
   Defined.
 
@@ -427,7 +427,7 @@ Section def_complexes.
     use MorphismEq.
     intros i. cbn.
     set (B := to_BinDirectSums A (C1 i) (C2 i)).
-    rewrite (to_IdIn1 A B).
+    rewrite (to_IdIn1 B).
     apply idpath.
   Qed.
 
@@ -437,7 +437,7 @@ Section def_complexes.
     use MorphismEq.
     intros i. cbn.
     set (B := to_BinDirectSums A (C1 i) (C2 i)).
-    rewrite (to_IdIn2 A B).
+    rewrite (to_IdIn2 B).
     apply idpath.
   Qed.
 
@@ -447,7 +447,7 @@ Section def_complexes.
     use MorphismEq.
     intros i. cbn.
     set (B := to_BinDirectSums A (C1 i) (C2 i)).
-    rewrite (to_Unel1 A B).
+    rewrite (to_Unel1 B).
     apply PreAdditive_unel_zero.
   Qed.
 
@@ -457,7 +457,7 @@ Section def_complexes.
     use MorphismEq.
     intros i. cbn.
     set (B := to_BinDirectSums A (C1 i) (C2 i)).
-    rewrite (to_Unel2 A B).
+    rewrite (to_Unel2 B).
     apply PreAdditive_unel_zero.
   Qed.
 
@@ -565,7 +565,7 @@ Section def_complexes.
     use MorphismEq.
     intros i. cbn.
     set (B := to_BinDirectSums A (C1 i) (C2 i)).
-    apply (to_BinOpId A B).
+    apply (to_BinOpId B).
   Qed.
 
 End def_complexes.
@@ -1290,7 +1290,7 @@ Section complexes_additive.
     - exact ComplexPreCat_isPreAdditive.
   Defined.
 
-  Lemma ComplexPreCat_isZero : isZero ComplexPreCat_PreAdditive ZeroComplex.
+  Lemma ComplexPreCat_isZero : @isZero ComplexPreCat_PreAdditive ZeroComplex.
   Proof.
     split.
     - intros C.
@@ -1312,7 +1312,7 @@ Section complexes_additive.
 
 
   Lemma ComplexPreCat_isBinDirectSum (C1 C2 : Complex A) :
-    isBinDirectSum
+    @isBinDirectSum
       ComplexPreCat_PreAdditive C1 C2 (DirectSumComplex A C1 C2) (DirectSumComplexIn1 A C1 C2)
       (DirectSumComplexIn2 A C1 C2) (DirectSumComplexPr1 A C1 C2) (DirectSumComplexPr2 A C1 C2).
   Proof.
@@ -1978,11 +1978,11 @@ Section transport_hz_toBinDirectSums.
   Qed.
 
   Lemma transport_hz_to_In1 (f f' : hz -> ob A) {i i' : hz} (e : i' = i) :
-    to_In1 A (to_BinDirectSums A (f i) (f' i)) =
+    to_In1 (to_BinDirectSums A (f i) (f' i)) =
     transportf (precategory_morphisms (f i))
                (@maponpaths hz A (λ i0 : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ e)
                (transportf (λ (x : ob A), A⟦x, to_BinDirectSums A (f i') (f' i')⟧)
-                           (maponpaths f e) (to_In1 A (to_BinDirectSums A (f i') (f' i')))).
+                           (maponpaths f e) (to_In1 (to_BinDirectSums A (f i') (f' i')))).
   Proof.
     induction e. apply idpath.
   Qed.
@@ -1990,19 +1990,19 @@ Section transport_hz_toBinDirectSums.
   Lemma transport_hz_to_In1' (f f' : hz -> ob A) {i i' : hz} (e : i' = i) :
     transportf (precategory_morphisms (f i))
                (@maponpaths hz A (λ i0 : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ (! e))
-               (to_In1 A (to_BinDirectSums A (f i) (f' i))) =
+               (to_In1 (to_BinDirectSums A (f i) (f' i))) =
     transportf (λ (x : ob A), A⟦x, to_BinDirectSums A (f i') (f' i')⟧) (maponpaths f e)
-               (to_In1 A (to_BinDirectSums A (f i') (f' i'))).
+               (to_In1 (to_BinDirectSums A (f i') (f' i'))).
   Proof.
     induction e. apply idpath.
   Qed.
 
   Lemma transport_hz_to_In2 (f f' : hz -> ob A) {i i' : hz} (e : i' = i) :
-    to_In2 A (to_BinDirectSums A (f i) (f' i)) =
+    to_In2 (to_BinDirectSums A (f i) (f' i)) =
     transportf (precategory_morphisms (f' i))
                (@maponpaths hz A (λ i0 : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ e)
                (transportf (λ (x : ob A), A⟦x, to_BinDirectSums A (f i') (f' i')⟧)
-                           (maponpaths f' e) (to_In2 A (to_BinDirectSums A (f i') (f' i')))).
+                           (maponpaths f' e) (to_In2 (to_BinDirectSums A (f i') (f' i')))).
   Proof.
     induction e. apply idpath.
   Qed.
@@ -2010,51 +2010,51 @@ Section transport_hz_toBinDirectSums.
   Lemma transport_hz_to_In2' (f f' : hz -> ob A) {i i' : hz} (e : i' = i) :
     transportf (precategory_morphisms (f' i))
                (@maponpaths hz A (λ i0 : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ (! e))
-               (to_In2 A (to_BinDirectSums A (f i) (f' i))) =
+               (to_In2 (to_BinDirectSums A (f i) (f' i))) =
     transportf (λ (x : ob A), A⟦x, to_BinDirectSums A (f i') (f' i')⟧) (maponpaths f' e)
-               (to_In2 A (to_BinDirectSums A (f i') (f' i'))).
+               (to_In2 (to_BinDirectSums A (f i') (f' i'))).
   Proof.
     induction e. apply idpath.
   Qed.
 
   Lemma transport_hz_to_Pr1 (f f' : hz -> ob A) {i i' : hz} (e : i' = i) :
-    to_Pr1 A (to_BinDirectSums A (f i) (f' i)) =
+    to_Pr1 (to_BinDirectSums A (f i) (f' i)) =
     transportf (precategory_morphisms (to_BinDirectSums A (f i) (f' i)))
                (maponpaths f e)
                (transportf (λ (x : ob A), A⟦x, (f i')⟧)
                            (@maponpaths hz A (λ i0 : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ e)
-                           (to_Pr1 A (to_BinDirectSums A (f i') (f' i')))).
+                           (to_Pr1 (to_BinDirectSums A (f i') (f' i')))).
   Proof.
     induction e. apply idpath.
   Qed.
 
   Lemma transport_hz_to_Pr1' (f f' : hz -> ob A) {i i' : hz} (e : i' = i) :
     transportf (precategory_morphisms (to_BinDirectSums A (f i) (f' i)))
-               (maponpaths f (! e)) (to_Pr1 A (to_BinDirectSums A (f i) (f' i))) =
+               (maponpaths f (! e)) (to_Pr1 (to_BinDirectSums A (f i) (f' i))) =
                (transportf (λ (x : ob A), A⟦x, (f i')⟧)
                            (@maponpaths hz A (λ i0 : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ e)
-                           (to_Pr1 A (to_BinDirectSums A (f i') (f' i')))).
+                           (to_Pr1 (to_BinDirectSums A (f i') (f' i')))).
   Proof.
     induction e. apply idpath.
   Qed.
 
   Lemma transport_hz_to_Pr2 (f f' : hz -> ob A) {i i' : hz} (e : i' = i) :
-    to_Pr2 A (to_BinDirectSums A (f i) (f' i)) =
+    to_Pr2 (to_BinDirectSums A (f i) (f' i)) =
     transportf (precategory_morphisms (to_BinDirectSums A (f i) (f' i)))
                (maponpaths f' e)
                (transportf (λ (x : ob A), A⟦x, (f' i')⟧)
                            (@maponpaths hz A (λ i0 : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ e)
-                           (to_Pr2 A (to_BinDirectSums A (f i') (f' i')))).
+                           (to_Pr2 (to_BinDirectSums A (f i') (f' i')))).
   Proof.
     induction e. apply idpath.
   Qed.
 
   Lemma transport_hz_to_Pr2' (f f' : hz -> ob A) {i i' : hz} (e : i' = i) :
     transportf (precategory_morphisms (to_BinDirectSums A (f i) (f' i)))
-               (maponpaths f' (! e)) (to_Pr2 A (to_BinDirectSums A (f i) (f' i))) =
+               (maponpaths f' (! e)) (to_Pr2 (to_BinDirectSums A (f i) (f' i))) =
                (transportf (λ (x : ob A), A⟦x, (f' i')⟧)
                            (@maponpaths hz A (λ i0 : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ e)
-                           (to_Pr2 A (to_BinDirectSums A (f i') (f' i')))).
+                           (to_Pr2 (to_BinDirectSums A (f i') (f' i')))).
   Proof.
     induction e. apply idpath.
   Qed.

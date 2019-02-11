@@ -1002,7 +1002,7 @@ Section preadditive_quotient.
 
   Variable Z : Zero PA.
 
-  Lemma Quotcategory_isZero : isZero Quotcategory Z.
+  Lemma Quotcategory_isZero : isZero (C:=Quotcategory) Z.
   Proof.
     use mk_isZero.
     - intros a.

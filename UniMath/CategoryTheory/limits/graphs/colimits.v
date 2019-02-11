@@ -18,6 +18,7 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.Propositions.
 
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -29,19 +30,6 @@ Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 
 Local Open Scope cat.
-
-Section move_upstream.
-
-Lemma uniqueExists (A : UU) (P : A -> UU)
-  (Hexists : iscontr (total2 (λ a, P a)))
-  (a b : A) (Ha : P a) (Hb : P b) : a = b.
-Proof.
-assert (H : tpair _ _ Ha = tpair _ _ Hb).
-  now apply proofirrelevance, isapropifcontr.
-exact (base_paths _ _ H).
-Defined.
-
-End move_upstream.
 
 (** Definition of graphs and diagrams *)
 Section diagram_def.
@@ -252,7 +240,7 @@ Lemma colim_endo_is_identity {g : graph} (D : diagram g C)
   (H : ∏ u, colimIn CC u · k = colimIn CC u) :
   identity _ = k.
 Proof.
-use (uniqueExists _ _ (colimUnivProp CC _ _)).
+use (uniqueExists (colimUnivProp CC _ _)).
 - now apply (colimCocone CC).
 - intros v; simpl.
   now apply id_right.

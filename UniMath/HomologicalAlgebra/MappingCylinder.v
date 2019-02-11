@@ -84,11 +84,11 @@ Section mapping_cylinder.
     intros DS1' DS1 DS2' DS2.
     use compose.
     - exact (C1 i).
-    - exact (to_Pr1 A DS1).
+    - exact (to_Pr1 DS1).
     - use compose.
       + exact (C1 (i + 1)).
       + exact (Diff C1 i).
-      + exact (to_In1 A DS2).
+      + exact (to_In1 DS2).
   Defined.
 
   (**  # p_2 · (- p1) · i_1 # *)
@@ -102,11 +102,11 @@ Section mapping_cylinder.
     intros DS1' DS1 DS2' DS2.
     use compose.
     - exact (DS1').
-    - exact (to_Pr2 A DS1).
+    - exact (to_Pr2 DS1).
     - use compose.
       + exact ((TranslationComplex A C1) i).
-      + exact (to_inv (to_Pr1 A DS1')).
-      + exact (to_In1 A DS2).
+      + exact (to_inv (to_Pr1 DS1')).
+      + exact (to_In1 DS2).
   Defined.
 
   (** p_2 · d^i_C(f) · i_2 *)
@@ -120,11 +120,11 @@ Section mapping_cylinder.
     intros DS1' DS1 DS2' DS2.
     use compose.
     - exact DS1'.
-    - exact (to_Pr2 A DS1).
+    - exact (to_Pr2 DS1).
     - use compose.
       + exact DS2'.
       + exact (MappingConeDiff A f i).
-      + exact (to_In2 A DS2).
+      + exact (to_In2 DS2).
   Defined.
 
   Definition MappingCylinderDiff {C1 C2 : Complex A} (f : Morphism C1 C2) (i : hz) :
@@ -149,9 +149,9 @@ Section mapping_cylinder.
     ZeroArrow (Additive.to_Zero A) _ _.
   Proof.
     intros DS1 DS2. unfold MappingCylinderDiff1. unfold MappingCylinderDiff2. cbn.
-    rewrite assoc. rewrite assoc. rewrite assoc. rewrite <- (assoc _ _ (to_Pr1 A _)).
+    rewrite assoc. rewrite assoc. rewrite assoc. rewrite <- (assoc _ _ (to_Pr1 _)).
     set (DS3 := to_BinDirectSums A (C1 (i + 1)) (to_BinDirectSums A (C1 (i + 1 + 1)) (C2 (i + 1)))).
-    rewrite (to_IdIn1 A DS3). rewrite id_right. rewrite <- (assoc _ _ (Diff C1 (i + 1))).
+    rewrite (to_IdIn1 DS3). rewrite id_right. rewrite <- (assoc _ _ (Diff C1 (i + 1))).
     rewrite (DSq A C1 i). rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_left.
     apply idpath.
   Qed.
@@ -161,7 +161,7 @@ Section mapping_cylinder.
     ZeroArrow (Additive.to_Zero A) _ _.
   Proof.
     unfold MappingCylinderDiff1. unfold MappingCylinderDiff2. cbn.
-    rewrite assoc. rewrite assoc. rewrite assoc. rewrite <- (assoc _ _ (to_Pr2 A _)).
+    rewrite assoc. rewrite assoc. rewrite assoc. rewrite <- (assoc _ _ (to_Pr2 _)).
     set (DS := to_BinDirectSums A (C1 (i + 1)) (to_BinDirectSums A (C1 (i + 1 + 1)) (C2 (i + 1)))).
     rewrite (to_Unel1' DS). rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_left.
     apply ZeroArrow_comp_left.
@@ -172,7 +172,7 @@ Section mapping_cylinder.
     ZeroArrow (Additive.to_Zero A) _ _.
   Proof.
     unfold MappingCylinderDiff1. unfold MappingCylinderDiff3. cbn.
-    rewrite assoc. rewrite assoc. rewrite assoc. rewrite <- (assoc _ _ (to_Pr2 A _)).
+    rewrite assoc. rewrite assoc. rewrite assoc. rewrite <- (assoc _ _ (to_Pr2 _)).
     set (DS := to_BinDirectSums A (C1 (i + 1)) (to_BinDirectSums A (C1 (i + 1 + 1)) (C2 (i + 1)))).
     rewrite (to_Unel1' DS). rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_left.
     apply ZeroArrow_comp_left.
@@ -183,7 +183,7 @@ Section mapping_cylinder.
     ZeroArrow (Additive.to_Zero A) _ _.
   Proof.
     unfold MappingCylinderDiff2. cbn.
-    rewrite assoc. rewrite assoc. rewrite assoc. rewrite <- (assoc _ _ (to_Pr2 A _)).
+    rewrite assoc. rewrite assoc. rewrite assoc. rewrite <- (assoc _ _ (to_Pr2 _)).
     set (DS := to_BinDirectSums A (C1 (i + 1)) (to_BinDirectSums A (C1 (i + 1 + 1)) (C2 (i + 1)))).
     rewrite (to_Unel1' DS). rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_left.
     apply ZeroArrow_comp_left.
@@ -194,7 +194,7 @@ Section mapping_cylinder.
     ZeroArrow (Additive.to_Zero A) _ _.
   Proof.
     unfold MappingCylinderDiff2. unfold MappingCylinderDiff3. cbn.
-    rewrite assoc. rewrite assoc. rewrite assoc. rewrite <- (assoc _ _ (to_Pr2 A _)).
+    rewrite assoc. rewrite assoc. rewrite assoc. rewrite <- (assoc _ _ (to_Pr2 _)).
     set (DS := to_BinDirectSums A (C1 (i + 1)) (to_BinDirectSums A (C1 (i + 1 + 1)) (C2 (i + 1)))).
     rewrite (to_Unel1' DS). rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_left.
     apply ZeroArrow_comp_left.
@@ -205,9 +205,9 @@ Section mapping_cylinder.
     ZeroArrow (Additive.to_Zero A) _ _.
   Proof.
     unfold MappingCylinderDiff3. cbn.
-    rewrite assoc. rewrite assoc. rewrite assoc. rewrite <- (assoc _ _ (to_Pr2 A _)).
+    rewrite assoc. rewrite assoc. rewrite assoc. rewrite <- (assoc _ _ (to_Pr2 _)).
     set (DS := to_BinDirectSums A (C1 (i + 1)) (to_BinDirectSums A (C1 (i + 1 + 1)) (C2 (i + 1)))).
-    rewrite (to_IdIn2 A DS). rewrite id_right. rewrite <- (assoc _ (MappingConeDiff A f i)).
+    rewrite (to_IdIn2 DS). rewrite id_right. rewrite <- (assoc _ (MappingConeDiff A f i)).
     set (tmp := DSq A (MappingCone A f) i). cbn in tmp. cbn. rewrite tmp. clear tmp.
     rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_left. apply idpath.
   Qed.
@@ -244,25 +244,25 @@ Section mapping_cylinder.
     rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invlcomp.
     rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invlcomp.
     rewrite <- PreAdditive_invlcomp.
-    rewrite <- (assoc _ _ (to_Pr1 A DS3')). rewrite (to_IdIn1 A DS3'). rewrite id_right.
-    rewrite <- (assoc _ _ (to_Pr1 A DS3')). rewrite (to_Unel2' DS3').
+    rewrite <- (assoc _ _ (to_Pr1 DS3')). rewrite (to_IdIn1 DS3'). rewrite id_right.
+    rewrite <- (assoc _ _ (to_Pr1 DS3')). rewrite (to_Unel2' DS3').
     rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_left.
     rewrite to_runax''.
-    rewrite <- (assoc _ _ (to_Pr2 A DS3')). rewrite (to_IdIn2 A DS3').
+    rewrite <- (assoc _ _ (to_Pr2 DS3')). rewrite (to_IdIn2 DS3').
     rewrite id_right. rewrite to_binop_inv_inv.
     apply cancel_inv. rewrite inv_inv_eq. rewrite to_inv_zero.
     rewrite <- to_postmor_linear'.
-    rewrite <- (ZeroArrow_comp_left _ _ _ _ _ (to_In1 A DS2')). apply cancel_postcomposition.
+    rewrite <- (ZeroArrow_comp_left _ _ _ _ _ (to_In1 DS2')). apply cancel_postcomposition.
     rewrite <- assoc. rewrite <- assoc. rewrite <- to_premor_linear'.
-    rewrite <- (ZeroArrow_comp_right _ _ _ _ _ (to_Pr2 A DS1')). apply cancel_precomposition.
+    rewrite <- (ZeroArrow_comp_right _ _ _ _ _ (to_Pr2 DS1')). apply cancel_precomposition.
     unfold MappingConeDiff.
     unfold MappingConeDiff1. unfold MappingConeDiff2. unfold MappingConeDiff3.
     cbn in *. fold DS1 DS1' DS2 DS2' DS3 DS3'. unfold DiffTranslationComplex.
     rewrite assoc. rewrite assoc. rewrite <- PreAdditive_invrcomp.
-    rewrite to_postmor_linear'. rewrite <- (assoc _ _ (to_Pr1 A DS3)).
-    rewrite (to_IdIn1 A DS3). rewrite id_right. cbn.
+    rewrite to_postmor_linear'. rewrite <- (assoc _ _ (to_Pr1 DS3)).
+    rewrite (to_IdIn1 DS3). rewrite id_right. cbn.
     rewrite to_postmor_linear'. rewrite assoc.
-    rewrite <- (assoc _ _ (to_Pr1 A DS3)). rewrite <- (assoc _ _ (to_Pr1 A DS3)).
+    rewrite <- (assoc _ _ (to_Pr1 DS3)). rewrite <- (assoc _ _ (to_Pr1 DS3)).
     rewrite (to_Unel2' DS3). rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_right.
     rewrite to_runax''. rewrite to_runax''. rewrite (@to_rinvax' A (Additive.to_Zero A)).
     apply idpath.
@@ -311,8 +311,8 @@ Section mapping_cylinder_KA_iso.
     set (DS2 := to_BinDirectSums A (C1 i) DS1).
     use compose.
     - exact DS1.
-    - use (to_In2 A DS1).
-    - use (to_In2 A DS2).
+    - use (to_In2 DS1).
+    - use (to_In2 DS2).
   Defined.
 
   Lemma MappingCylinderMor1_comm {C1 C2 : Complex A} (f : (ComplexPreCat_Additive A)⟦C1, C2⟧)
@@ -328,11 +328,11 @@ Section mapping_cylinder_KA_iso.
     unfold MappingCylinderDiff. unfold MappingCylinderDiff1.
     unfold MappingCylinderDiff2. unfold MappingCylinderDiff3.
     cbn. fold DS1 DS2 DS3 DS4. rewrite to_premor_linear'. rewrite assoc.
-    rewrite <- (assoc _ _ (to_Pr1 A DS2)). rewrite (to_Unel2' DS2).
+    rewrite <- (assoc _ _ (to_Pr1 DS2)). rewrite (to_Unel2' DS2).
     rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_left.
     rewrite to_lunax''. rewrite to_premor_linear'. rewrite assoc. rewrite assoc.
     rewrite assoc. rewrite assoc.
-    rewrite <- (assoc _ _ (to_Pr2 A DS2)). rewrite (to_IdIn2 A DS2).
+    rewrite <- (assoc _ _ (to_Pr2 DS2)). rewrite (to_IdIn2 DS2).
     rewrite id_right. rewrite <- PreAdditive_invrcomp.
     rewrite (to_Unel2' DS1). rewrite to_inv_zero. rewrite ZeroArrow_comp_left.
     rewrite to_lunax''. apply cancel_postcomposition.
@@ -342,7 +342,7 @@ Section mapping_cylinder_KA_iso.
     rewrite (to_Unel2' DS1). rewrite ZeroArrow_comp_left. rewrite to_lunax''.
     rewrite to_premor_linear'. rewrite assoc. rewrite (to_Unel2' DS1).
     rewrite ZeroArrow_comp_left. rewrite to_lunax''. rewrite assoc.
-    rewrite (to_IdIn2 A DS1). rewrite id_left. apply idpath.
+    rewrite (to_IdIn2 DS1). rewrite id_left. apply idpath.
   Qed.
 
   Definition MappingCylinderMor1 {C1 C2 : Complex A} (f : (ComplexPreCat_Additive A)⟦C1, C2⟧) :
@@ -363,12 +363,12 @@ Section mapping_cylinder_KA_iso.
     use to_binop.
     - use compose.
       + exact (C1 i).
-      + use (to_Pr1 A DS2).
+      + use (to_Pr1 DS2).
         + exact (MMor f i).
     - use compose.
       + exact DS1.
-      + use (to_Pr2 A DS2).
-      + use (to_Pr2 A DS1).
+      + use (to_Pr2 DS2).
+      + use (to_Pr2 DS1).
   Defined.
 
   Lemma MappingCylinderMor2_comm {C1 C2 : Complex A} (f : (ComplexPreCat_Additive A)⟦C1, C2⟧)
@@ -387,15 +387,15 @@ Section mapping_cylinder_KA_iso.
     rewrite to_postmor_linear'. rewrite to_premor_linear'. rewrite to_premor_linear'.
     rewrite to_premor_linear'. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
     rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
-    rewrite <- (assoc _ _ (to_Pr1 A DS4)). rewrite (to_IdIn1 A DS4). rewrite id_right.
-    rewrite <- (assoc _ _ (to_Pr2 A DS4)). rewrite (to_Unel1' DS4).
+    rewrite <- (assoc _ _ (to_Pr1 DS4)). rewrite (to_IdIn1 DS4). rewrite id_right.
+    rewrite <- (assoc _ _ (to_Pr2 DS4)). rewrite (to_Unel1' DS4).
     rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_left. rewrite to_runax''.
-    rewrite <- (assoc _ _ (to_Pr1 A DS4)). rewrite (to_IdIn1 A DS4). rewrite id_right.
-    rewrite <- (assoc _ _ (to_Pr2 A DS4)). rewrite (to_Unel1' DS4).
+    rewrite <- (assoc _ _ (to_Pr1 DS4)). rewrite (to_IdIn1 DS4). rewrite id_right.
+    rewrite <- (assoc _ _ (to_Pr2 DS4)). rewrite (to_Unel1' DS4).
     rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_left. rewrite to_runax''.
-    rewrite <- (assoc _ _ (to_Pr1 A DS4)). rewrite (to_Unel2' DS4).
+    rewrite <- (assoc _ _ (to_Pr1 DS4)). rewrite (to_Unel2' DS4).
     rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_left. rewrite to_lunax''.
-    rewrite <- (assoc _ _ (to_Pr2 A DS4)). rewrite (to_IdIn2 A DS4). rewrite id_right.
+    rewrite <- (assoc _ _ (to_Pr2 DS4)). rewrite (to_IdIn2 DS4). rewrite id_right.
     rewrite <- assoc. rewrite (MComm f i). rewrite assoc. use to_rrw.
     rewrite <- assoc. rewrite <- assoc. rewrite <- assoc. rewrite <- to_premor_linear'.
     apply cancel_precomposition.
@@ -403,10 +403,10 @@ Section mapping_cylinder_KA_iso.
     unfold MappingConeDiff2. unfold MappingConeDiff3.
     cbn. fold DS1 DS2 DS3 DS4. rewrite to_postmor_linear'. rewrite to_postmor_linear'.
     rewrite assoc. rewrite assoc. rewrite assoc.
-    rewrite <- (assoc _ _ (to_Pr2 A DS3)). rewrite (to_Unel1' DS3).
+    rewrite <- (assoc _ _ (to_Pr2 DS3)). rewrite (to_Unel1' DS3).
     rewrite ZeroArrow_comp_right. rewrite to_lunax''.
-    rewrite <- (assoc _ _ (to_Pr2 A DS3)). rewrite (to_IdIn2 A DS3). rewrite id_right.
-    rewrite <- (assoc _ _ (to_Pr2 A DS3)). rewrite (to_IdIn2 A DS3). rewrite id_right.
+    rewrite <- (assoc _ _ (to_Pr2 DS3)). rewrite (to_IdIn2 DS3). rewrite id_right.
+    rewrite <- (assoc _ _ (to_Pr2 DS3)). rewrite (to_IdIn2 DS3). rewrite id_right.
     rewrite <- PreAdditive_invlcomp. rewrite <- to_assoc.
     rewrite (@to_linvax' A (Additive.to_Zero A)). rewrite to_lunax''. apply idpath.
   Qed.
@@ -428,11 +428,11 @@ Section mapping_cylinder_KA_iso.
     set (DS1 := to_BinDirectSums A (C1 (i + 1)) (C2 i)).
     set (DS2 := to_BinDirectSums A (C1 i) DS1).
     rewrite to_premor_linear'. rewrite assoc.
-    rewrite <- (assoc _ _ (to_Pr1 A DS2)). rewrite (to_Unel2' DS2).
+    rewrite <- (assoc _ _ (to_Pr1 DS2)). rewrite (to_Unel2' DS2).
     rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_left. rewrite to_lunax''.
     rewrite assoc.
-    rewrite <- (assoc _ _ (to_Pr2 A DS2)). rewrite (to_IdIn2 A DS2). rewrite id_right.
-    rewrite (to_IdIn2 A DS1). apply idpath.
+    rewrite <- (assoc _ _ (to_Pr2 DS2)). rewrite (to_IdIn2 DS2). rewrite id_right.
+    rewrite (to_IdIn2 DS1). apply idpath.
   Qed.
 
   Lemma MappingCylinderIso_eq1 {C1 C2 : Complex A} (f : (ComplexPreCat_Additive A)⟦C1, C2⟧) :
@@ -453,12 +453,12 @@ Section mapping_cylinder_KA_iso.
     set (DS4 := to_BinDirectSums A (C1 (i - 1)) DS3).
     use compose.
     - exact (C1 i).
-    - exact (to_Pr1 A DS2).
+    - exact (to_Pr1 DS2).
     - use compose.
       + exact DS3.
       + exact (transportf (λ x' : ob A, precategory_morphisms x' DS3)
-                          (maponpaths C1 (hzrminusplus i 1)) (to_In1 A DS3)).
-      + exact (to_inv (to_In2 A DS4)).
+                          (maponpaths C1 (hzrminusplus i 1)) (to_In1 DS3)).
+      + exact (to_inv (to_In2 DS4)).
   Defined.
 
   Definition MappingCylinderIsoHomot_mor1 {C1 C2 : Complex A}
@@ -471,29 +471,29 @@ Section mapping_cylinder_KA_iso.
     use to_binop.
     - use compose.
       + exact (C1 i).
-      + exact (to_Pr1 A DS2).
-      + exact (to_In1 A DS2).
+      + exact (to_Pr1 DS2).
+      + exact (to_In1 DS2).
     - use to_binop.
       + use compose.
         * exact (C1 i).
-        * exact (to_Pr1 A DS2).
+        * exact (to_Pr1 DS2).
         * use compose.
           -- exact (C1 (i + 1)).
           -- exact (Diff C1 i).
           -- use compose.
              ++ exact DS1.
-             ++ exact (to_In1 A DS1).
-             ++ exact (to_In2 A DS2).
+             ++ exact (to_In1 DS1).
+             ++ exact (to_In2 DS2).
       + use compose.
         * exact (C1 i).
-        * exact (to_Pr1 A DS2).
+        * exact (to_Pr1 DS2).
         * use compose.
           -- exact (C2 i).
           -- exact (to_inv (MMor f i)).
           -- use compose.
              ++ exact DS1.
-             ++ exact (to_In2 A DS1).
-             ++ exact (to_In2 A DS2).
+             ++ exact (to_In2 DS1).
+             ++ exact (to_In2 DS2).
   Defined.
 
   Lemma MappingCylinderIsoHomot_eq1 {C1 C2 : Complex A} (f : (ComplexPreCat_Additive A)⟦C1, C2⟧)
@@ -502,7 +502,7 @@ Section mapping_cylinder_KA_iso.
                    (to_BinDirectSums A (C1 i) (to_BinDirectSums A (C1 (i + 1)) (C2 i))))
                 (maponpaths (λ (i0 : hz),
                              BinDirectSumOb
-                               A (to_BinDirectSums
+                                (to_BinDirectSums
                                     A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))))
                             (hzrminusplus i 1))
                 (MappingCylinderIsoHomot f i · MappingCylinderDiff A f (i - 1))) =
@@ -528,7 +528,7 @@ Section mapping_cylinder_KA_iso.
     (* simplify *)
     rewrite <- PreAdditive_invrcomp. rewrite <- PreAdditive_invrcomp.
     rewrite to_premor_linear'. rewrite assoc. rewrite assoc.
-    rewrite <- PreAdditive_invlcomp. rewrite <- (assoc _ _ (to_Pr1 A DS4)).
+    rewrite <- PreAdditive_invlcomp. rewrite <- (assoc _ _ (to_Pr1 DS4)).
     rewrite (to_Unel2' DS4). rewrite ZeroArrow_comp_right. rewrite to_inv_zero.
     rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_left. rewrite to_lunax''.
     rewrite to_premor_linear'. rewrite assoc. rewrite assoc. rewrite assoc.
@@ -536,7 +536,7 @@ Section mapping_cylinder_KA_iso.
     rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invlcomp.
     rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invlcomp.
     rewrite <- PreAdditive_invlcomp.
-    rewrite <- (assoc _ _ (to_Pr2 A DS4)). rewrite (to_IdIn2 A DS4). rewrite id_right.
+    rewrite <- (assoc _ _ (to_Pr2 DS4)). rewrite (to_IdIn2 DS4). rewrite id_right.
     rewrite inv_inv_eq.
     (* Unfold MappingConeDiff *)
     unfold MappingConeDiff. unfold MappingConeDiff1.
@@ -544,7 +544,7 @@ Section mapping_cylinder_KA_iso.
     fold DS1 DS2 DS3 DS4 DS5 DS6. cbn. rewrite to_premor_linear'.
     rewrite assoc. rewrite to_premor_linear'. rewrite assoc. rewrite assoc. rewrite assoc.
     rewrite assoc. rewrite assoc.
-    rewrite (to_IdIn1 A DS3). rewrite id_left. rewrite id_left.
+    rewrite (to_IdIn1 DS3). rewrite id_left. rewrite id_left.
     rewrite (to_Unel1' DS3). rewrite id_left. rewrite ZeroArrow_comp_left.
     rewrite ZeroArrow_comp_left. rewrite to_runax''.
     unfold DiffTranslationComplex. cbn.
@@ -559,19 +559,19 @@ Section mapping_cylinder_KA_iso.
                     (maponpaths
                        (λ (i0 : pr1 hz),
                         BinDirectSumOb
-                          A (to_BinDirectSums
+                          (to_BinDirectSums
                                A (C1 i0)
                                (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))))
                        (hzrminusplus i 1))
                     (transportf (λ x' : A, A ⟦ x', DS6 ⟧) (maponpaths C1 (hzrminusplus i 1))
-                                (to_In1 A DS6))) = (to_In1 A DS2)).
+                                (to_In1 DS6))) = (to_In1 DS2)).
     {
       cbn. unfold DS2, DS1, DS6, DS5.
       set (tmp := λ (i0 : hz),
                     BinDirectSumOb
-                      A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))).
+                      (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))).
       set (tmp'' := (λ (i0 : hz),
-                       to_In1 A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
+                       to_In1 (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                               (C2 i0))))).
       set (tmp' := @transport_hz_double_section_source_target
                      A C1 tmp tmp'' _ _ (hzrminusplus i 1)).
@@ -588,22 +588,22 @@ Section mapping_cylinder_KA_iso.
                              (maponpaths
                                 (λ (i0 : pr1 hz),
                                  BinDirectSumOb
-                                   A (to_BinDirectSums
+                                   (to_BinDirectSums
                                         A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))))
                                 (hzrminusplus i 1))
                              (transportf (λ x' : A, A ⟦ x', DS6 ⟧)
                                          (maponpaths C1 (hzrminusplus i 1))
-                                         (Diff C1 (i - 1 + 1) · to_In1 A DS5 · to_In2 A DS6))) =
-                 (Diff C1 i · to_In1 A DS1 · to_In2 A DS2)).
+                                         (Diff C1 (i - 1 + 1) · to_In1 DS5 · to_In2 DS6))) =
+                 (Diff C1 i · to_In1 DS1 · to_In2 DS2)).
     {
       cbn. unfold DS2, DS1, DS6, DS5.
       set (tmp := λ i0 : hz, BinDirectSumOb
-                                A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
+                                (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                                 (C2 i0)))).
       set (tmp'' := (λ (i0 : hz),
                        (Diff C1 i0)
-                         · (to_In1 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
-                         · (to_In2 A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
+                         · (to_In1 (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
+                         · (to_In2 (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                                     (C2 i0)))))).
       set (tmp' := @transport_hz_double_section_source_target
                      A C1 tmp tmp'' _ _ (hzrminusplus i 1)).
@@ -614,12 +614,12 @@ Section mapping_cylinder_KA_iso.
     (* Solve the rest *)
     cbn. unfold DS2, DS1, DS6, DS5.
     set (tmp := λ i0 : hz, BinDirectSumOb
-                              A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
+                               (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                               (C2 i0)))).
     set (tmp'' := (λ (i0 : hz),
                      (to_inv (MMor f i0))
-                       · (to_In2 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
-                       · (to_In2 A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
+                       · (to_In2 (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
+                       · (to_In2 (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                                   (C2 i0)))))).
     set (tmp' := @transport_hz_double_section_source_target A C1 tmp tmp'' _ _ (hzrminusplus i 1)).
     unfold tmp'' in tmp'.
@@ -636,24 +636,24 @@ Section mapping_cylinder_KA_iso.
     use to_binop.
     - use compose.
       + exact (C1 i).
-      + exact (to_Pr1 A DS2).
+      + exact (to_Pr1 DS2).
       + use compose.
         * exact (C1 (i + 1)).
         * exact (to_inv (Diff C1 i)).
         * use compose.
           -- exact DS1.
-          -- exact (to_In1 A DS1).
-          -- exact (to_In2 A DS2).
+          -- exact (to_In1 DS1).
+          -- exact (to_In2 DS2).
     - use compose.
       + exact DS1.
-      + exact (to_Pr2 A DS2).
+      + exact (to_Pr2 DS2).
       + use compose.
         * exact (C1 (i + 1)).
-        * exact (to_Pr1 A DS1).
+        * exact (to_Pr1 DS1).
         * use compose.
           -- exact DS1.
-          -- exact (to_In1 A DS1).
-          -- exact (to_In2 A DS2).
+          -- exact (to_In1 DS1).
+          -- exact (to_In2 DS2).
   Defined.
 
   Lemma MappyngCylinderIsoHomot_eq2 {C1 C2 : Complex A} (f : (ComplexPreCat_Additive A)⟦C1, C2⟧)
@@ -662,7 +662,7 @@ Section mapping_cylinder_KA_iso.
                    (to_BinDirectSums A (C1 i) (to_BinDirectSums A (C1 (i + 1)) (C2 i))))
                 (maponpaths (λ (i0 : pr1 hz),
                              BinDirectSumOb
-                               A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
+                                (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                                (C2 i0))))
                             (hzrplusminus i 1))
                 (MappingCylinderDiff A f i · MappingCylinderIsoHomot f (i + 1))) =
@@ -682,9 +682,9 @@ Section mapping_cylinder_KA_iso.
     rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
     rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
     rewrite assoc.
-    rewrite <- (assoc _ _ (to_Pr1 A DS4)). rewrite (to_IdIn1 A DS4). rewrite id_right.
-    rewrite <- (assoc _ _ (to_Pr1 A DS4)). rewrite (to_IdIn1 A DS4). rewrite id_right.
-    rewrite <- (assoc _ _ (to_Pr1 A DS4)). rewrite (to_Unel2' DS4).
+    rewrite <- (assoc _ _ (to_Pr1 DS4)). rewrite (to_IdIn1 DS4). rewrite id_right.
+    rewrite <- (assoc _ _ (to_Pr1 DS4)). rewrite (to_IdIn1 DS4). rewrite id_right.
+    rewrite <- (assoc _ _ (to_Pr1 DS4)). rewrite (to_Unel2' DS4).
     rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_left.
     rewrite to_runax''.
     (* The first terms of to_binop are equal, cancel them *)
@@ -692,13 +692,13 @@ Section mapping_cylinder_KA_iso.
                              (maponpaths
                                 (λ (i0 : pr1 hz),
                                  BinDirectSumOb
-                                   A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
+                                    (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                                    (C2 i0))))
                                 (hzrplusminus i 1))
-                             (to_Pr1 A DS2 · Diff C1 i · transportf (λ x' : A, A ⟦ x', DS5 ⟧)
+                             (to_Pr1 DS2 · Diff C1 i · transportf (λ x' : A, A ⟦ x', DS5 ⟧)
                                      (maponpaths C1 (hzrminusplus (i + 1) 1))
-                                     (to_In1 A DS5) · to_inv (to_In2 A DS6))) =
-                 ((to_Pr1 A DS2) · (to_inv (Diff C1 i)) · (to_In1 A DS1) · (to_In2 A DS2))).
+                                     (to_In1 DS5) · to_inv (to_In2 DS6))) =
+                 ((to_Pr1 DS2) · (to_inv (Diff C1 i)) · (to_In1 DS1) · (to_In2 DS2))).
     {
       rewrite transport_target_postcompose. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
       rewrite <- assoc. apply cancel_precomposition.
@@ -707,11 +707,11 @@ Section mapping_cylinder_KA_iso.
       rewrite <- PreAdditive_invrcomp.
       unfold DS2, DS1, DS6, DS5.
       set (tmp := λ i0 : hz, BinDirectSumOb
-                                A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
+                                 (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                                 (C2 i0)))).
       set (tmp'' := (λ i0 : hz,
-                       (to_inv ((to_In1 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
-                                  · (to_In2 A (to_BinDirectSums
+                       (to_inv ((to_In1 (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
+                                  · (to_In2 (to_BinDirectSums
                                                   A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                               (C2 i0)))))))).
       set (tmp' := @transport_hz_double_section_source_target
@@ -744,11 +744,11 @@ Section mapping_cylinder_KA_iso.
     rewrite transport_target_to_inv. rewrite transport_source_to_inv.
     rewrite inv_inv_eq.
     set (tmp := λ i0 : hz, BinDirectSumOb
-                              A (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
+                               (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1))
                                                                               (C2 i0)))).
     set (tmp'' := (λ i0 : hz,
-                     (to_In1 A (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
-                       · (to_In2 A (to_BinDirectSums
+                     (to_In1 (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
+                       · (to_In2 (to_BinDirectSums
                                        A (C1 i0) (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))))).
     set (tmp' := @transport_hz_double_section_source_target
                    A (λ i0 : hz, C1 (i0 + 1)) tmp tmp'' _ _ (hzrplusminus i 1)).
@@ -774,9 +774,9 @@ Section mapping_cylinder_KA_iso.
     let DS1 := to_BinDirectSums A (C1 (i + 1)) (C2 i) in
     let DS2 := to_BinDirectSums A (C1 i) DS1 in
     to_binop DS2 DS2
-             (to_binop DS2 DS2 (to_Pr1 A DS2 · to_In1 A DS2)
-                       (to_Pr2 A DS2 · to_Pr1 A DS1 · to_In1 A DS1 · to_In2 A DS2))
-             (to_inv (to_Pr1 A DS2 · MMor f i · to_In2 A DS1 · to_In2 A DS2)) =
+             (to_binop DS2 DS2 (to_Pr1 DS2 · to_In1 DS2)
+                       (to_Pr2 DS2 · to_Pr1 DS1 · to_In1 DS1 · to_In2 DS2))
+             (to_inv (to_Pr1 DS2 · MMor f i · to_In2 DS1 · to_In2 DS2)) =
     to_binop DS2 DS2 (MappingCylinderIsoHomot_mor1 f i) (MappingCylinderIsoHomot_mor2 f i).
   Proof.
     intros DS1 DS2.
@@ -785,7 +785,7 @@ Section mapping_cylinder_KA_iso.
     rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
     rewrite to_assoc. rewrite to_assoc. use to_rrw. rewrite to_commax'.
     rewrite (to_commax'
-               _ _ ((to_Pr1 A DS2) · (to_inv (MMor f i)) · (to_In2 A DS1) · (to_In2 A DS2))).
+               _ _ ((to_Pr1 DS2) · (to_inv (MMor f i)) · (to_In2 DS1) · (to_In2 DS2))).
     rewrite to_assoc. rewrite <- PreAdditive_invrcomp. rewrite <- PreAdditive_invlcomp.
     rewrite <- PreAdditive_invlcomp. use to_rrw. rewrite <- to_assoc.
     rewrite <- PreAdditive_invrcomp. rewrite <- PreAdditive_invlcomp.
@@ -802,18 +802,18 @@ Section mapping_cylinder_KA_iso.
     set (DS1 := to_BinDirectSums A (C1 (i + 1)) (C2 i)).
     set (DS2 := to_BinDirectSums A (C1 i) DS1).
     rewrite to_postmor_linear'. rewrite <- to_binop_inv_inv.
-    rewrite <- (to_BinOpId A DS2).
-    assert (e : to_Pr2 A DS2 · to_In2 A DS2 = to_Pr2 A DS2 · identity _ · to_In2 A DS2).
+    rewrite <- (to_BinOpId DS2).
+    assert (e : to_Pr2 DS2 · to_In2 DS2 = to_Pr2 DS2 · identity _ · to_In2 DS2).
     {
       rewrite id_right. apply idpath.
     }
-    rewrite e. clear e. rewrite <- (to_BinOpId A DS1). rewrite to_premor_linear'.
+    rewrite e. clear e. rewrite <- (to_BinOpId DS1). rewrite to_premor_linear'.
     rewrite to_postmor_linear'. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
     rewrite to_assoc. rewrite to_assoc.
     rewrite (to_commax'
-               _ (to_inv (to_Pr1 A DS2 · MMor f i · to_In2 A DS1 · to_In2 A DS2))).
+               _ (to_inv (to_Pr1 DS2 · MMor f i · to_In2 DS1 · to_In2 DS2))).
     rewrite <- (to_assoc
-                 _ _ _ (to_inv (to_Pr1 A DS2 · MMor f i · to_In2 A DS1 · to_In2 A DS2))).
+                 _ _ _ (to_inv (to_Pr1 DS2 · MMor f i · to_In2 DS1 · to_In2 DS2))).
     rewrite (@to_rinvax' A (Additive.to_Zero A)). rewrite to_lunax''. rewrite <- to_assoc.
     use (pathscomp0 (MappingCylinderisoHomot_eq3 f i)).
     rewrite <- (MappingCylinderIsoHomot_eq1 f i). rewrite <- (MappyngCylinderIsoHomot_eq2 f i).
@@ -845,4 +845,3 @@ Section mapping_cylinder_KA_iso.
 End mapping_cylinder_KA_iso.
 
 Local Transparent hz isdecrelhzeq hzplus iscommringops ZeroArrow.
-Close Scope hz_scope.

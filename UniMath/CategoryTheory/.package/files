@@ -1,4 +1,3 @@
-total2_paths.v
 Core/Categories.v
 Core/Isos.v
 Core/Univalence.v

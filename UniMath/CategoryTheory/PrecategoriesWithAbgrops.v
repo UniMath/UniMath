@@ -19,10 +19,10 @@ Section def_precategory_with_abgrops.
 
   (** Definition of precategories such that homsets are abgrops. *)
   Definition categoryWithAbgropsData (PB : precategoryWithBinOps) (hs : has_homsets PB) : UU :=
-    ∏ (x y : PB), @isabgrop (hSetpair (PB⟦x,y⟧) (hs x y)) (to_binop x y).
+    ∏ (x y : PB), @isabgrop (hSetpair (PB⟦x,y⟧) (hs x y)) (@to_binop _ x y).
 
   Definition mk_categoryWithAbgropsData {PB : precategoryWithBinOps} (hs : has_homsets PB)
-             (H : ∏ (x y : PB), @isabgrop (hSetpair (PB⟦x,y⟧) (hs x y)) (to_binop x y)) :
+             (H : ∏ (x y : PB), @isabgrop (hSetpair (PB⟦x,y⟧) (hs x y)) (@to_binop _ x y)) :
     categoryWithAbgropsData PB hs := H.
 
   Definition categoryWithAbgrops : UU :=
