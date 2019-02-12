@@ -50,7 +50,10 @@ Local Open Scope type_scope.
 
 (** * Displayed categories *)
 
-Module Record_Preview.
+(*
+
+  Here is a record definition that displays the logical structure of the
+  iterated ∑-type defined below.  (We don't use records in Unimath.)
 
   Record disp_cat (C : precategory) : UU :=
     { ob_disp : C -> UU
@@ -74,7 +77,7 @@ Module Record_Preview.
     ; homsets_disp {x y} {f : x --> y} {xx} {yy} : isaset (mor_disp f xx yy)
     }.
 
-End Record_Preview.
+*)
 
 (** ** Definition *)
 
