@@ -4,53 +4,36 @@
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.MoreFoundations.Univalence.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Combinatorics.OrderedSets.
 
 (** ** Definitions *)
 
-Definition action_op G X := G -> X -> X.
+Definition action_op G (X:hSet) : Type := ∏ (g:G) (x:X), X.
 
-Record ActionStructure (G:gr) (X:hSet) :=
-  make {
-      act_mult : action_op G X;
-      act_unit : ∏ x, act_mult (unel _) x = x;
-      act_assoc : ∏ g h x, act_mult (op g h) x = act_mult g (act_mult h x)
-    }.
-Arguments act_mult {G _} _ g x.
-
-Module Pack.
-  Definition ActionStructure' (G:gr) (X:hSet) :=
-         ∑ act_mult : action_op G X,
-         ∑ act_unit : ∏ x, act_mult (unel _) x = x,
-      (* act_assoc : *) ∏ g h x, act_mult (op g h) x = act_mult g (act_mult h x).
-  Definition pack {G:gr} {X:hSet} : ActionStructure' G X -> ActionStructure G X
-    := λ ac, make G X (pr1 ac) (pr1 (pr2 ac)) (pr2 (pr2 ac)).
-  Definition unpack {G:gr} {X:hSet} : ActionStructure G X -> ActionStructure' G X
-    := λ ac, (act_mult ac,,(act_unit _ _ ac,,act_assoc _ _ ac)).
-  Definition h {G:gr} {X:hSet} (ac:ActionStructure' G X) : unpack (pack ac) = ac
-    := match ac as t return (unpack (pack t) = t)
-       with (act_mult,,(act_unit,,act_assoc)) => idpath (act_mult,,(act_unit,,act_assoc)) end.
-  Definition k {G:gr} {X:hSet} (ac:ActionStructure G X) : pack (unpack ac) = ac
-    := match ac as i return (pack (unpack i) = i)
-       with make _ _ act_mult act_unit act_assoc => idpath _ end.
-  Lemma weq (G:gr) (X:hSet) : (ActionStructure' G X) ≃ (ActionStructure G X).
-  Proof.
-    intros. exists pack. intros ac. exists (unpack ac,,k ac). intros [ac' m].
-    destruct m. assert (H := h ac'). destruct H. reflexivity.
-  Qed.
-End Pack.
+Section A.
+  Context (G:gr) (X:hSet).
+  Definition ActionStructure : Type :=
+    ∑ (act_mult  :    action_op G X)
+      (act_unit  :    ∏ x, act_mult (unel G) x = x),
+   (*  act_assoc : *) ∏ g h x, act_mult (op g h) x = act_mult g (act_mult h x).
+  Definition make act_mult act_unit act_assoc : ActionStructure := act_mult,, act_unit,, act_assoc.
+  Definition act_mult (x:ActionStructure) := pr1 x.
+  Definition act_unit (x:ActionStructure) := pr12 x.
+  Definition act_assoc (x:ActionStructure) := pr22 x.
+End A.
+Arguments act_mult {_ _} _ _ _.
 
 Lemma isaset_ActionStructure (G:gr) (X:hSet) : isaset (ActionStructure G X).
 Proof.
-  intros. apply (isofhlevelweqf 2 (Pack.weq G X)).
-  apply isofhleveltotal2.
-  { apply impred; intro g. apply impred; intro x. apply setproperty. }
-  intro op. apply isofhleveltotal2.
-  { apply impred; intro x. apply hlevelntosn. apply setproperty. }
-  intro un. apply impred; intro g. apply impred; intro h. apply impred; intro x.
+  intros.
+  apply isaset_total2.
+  { apply (impred 2); intro g. apply impred; intro x. apply setproperty. }
+  intro op.
+  apply isaset_total2.
+  { apply (impred 2); intro x. apply hlevelntosn. apply setproperty. }
+  intro un. apply (impred 2); intro g. apply (impred 2); intro h. apply (impred 2); intro x.
   apply hlevelntosn. apply setproperty.
 Qed.
 
@@ -93,7 +76,7 @@ Definition is_equivariant_identity {G:gr} {X Y:Action G}
            (p:ac_set X = ac_set Y) :
   weq (p # ac_str X = ac_str Y) (is_equivariant (cast (maponpaths pr1hSet p))).
 Proof.
-  revert X Y p; intros [X [Xm Xu Xa]] [Y [Ym Yu Ya]] ? .
+  revert X Y p; intros [X [Xm [Xu Xa]]] [Y [Ym [Yu Ya]]] ? .
   (* should just apply hPropUnivalence at this point, as in Poset_univalence_prelim! *)
   simpl in p. destruct p; simpl. unfold transportf; simpl. unfold idfun; simpl.
   simple refine (weqpair _ _).
