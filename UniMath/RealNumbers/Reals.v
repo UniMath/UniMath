@@ -1379,7 +1379,7 @@ Definition Rabs : Reals → NonnegativeReals := hr_abs.
 Definition NRNRtoR : NonnegativeReals → NonnegativeReals → Reals := λ (x y : NonnegativeReals), NR_to_hr (x,,y).
 Definition RtoNRNR : Reals → NonnegativeReals × NonnegativeReals := λ x : Reals, (hr_to_NR x).
 
-Declare Scope R_scope.
+(* Declare Scope R_scope. *)
 Delimit Scope R_scope with R.
 Local Open Scope R_scope.
 

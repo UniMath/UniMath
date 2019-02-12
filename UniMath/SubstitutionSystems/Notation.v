@@ -42,7 +42,7 @@ Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Arguments functor_composite {_ _ _} _ _ .
 Arguments nat_trans_comp {_ _ _ _ _} _ _ .
 
-Declare Scope subsys.
+(* Declare Scope subsys. *)
 Delimit Scope subsys with subsys.
 Notation "G • F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35) : subsys.
 Notation "α ∙∙ β" := (horcomp β α) (at level 20) : subsys.

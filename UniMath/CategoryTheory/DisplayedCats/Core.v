@@ -144,7 +144,7 @@ Definition comp_disp {C} {D : disp_cat_data C}
   : xx -->[f;;g] zz
 := pr2 (pr2 D) _ _ _ _ _ _ _ _ ff gg.
 
-Declare Scope mor_disp_scope.
+(* Declare Scope mor_disp_scope. *)
 Local Notation "ff ;; gg" := (comp_disp ff gg)
   (at level 50, left associativity, format "ff  ;;  gg")
   : mor_disp_scope.
@@ -317,7 +317,7 @@ End Disp_Cat.
 (** Redeclare sectional notations globally. *)
 Notation "xx -->[ f ] yy" := (mor_disp xx yy f) (at level 50, left associativity, yy at next level).
 
-Declare Scope mor_disp_scope.
+(* Declare Scope mor_disp_scope. *)
 Notation "ff ;; gg" := (comp_disp ff gg)
   (at level 50, left associativity, format "ff  ;;  gg")
   : mor_disp_scope.
@@ -329,7 +329,7 @@ Local Open Scope mor_disp_scope.
 
 Level is chosen to bind *tighter* than categorical composition, for readability. *)
 (* TODO: consider symbol(s) used. *)
-Declare Scope hide_transport_scope.
+(* Declare Scope hide_transport_scope. *)
 Notation "#? x" := (transportf _ _ x) (at level 45) : hide_transport_scope.
 Notation "#?' x" := (transportb _ _ x) (at level 45) : hide_transport_scope.
 

@@ -610,7 +610,7 @@ Coercion abgrtoabmonoid : abgr >-> abmonoid.
 Definition abgr_of_gr (X : gr) (H : iscomm (@op X)) : abgr :=
   abgrpair X (mk_isabgrop (pr2 X) H).
 
-Declare Scope abgr.
+(* Declare Scope abgr. *)
 Delimit Scope abgr with abgr.
 Notation "x - y" := (op x (grinv _ y)) : abgr.
 Notation   "- y" := (grinv _ y) : abgr.

@@ -40,7 +40,7 @@ Definition CDRone {X : ConstructiveDivisionRig} : X := 1%rig.
 Definition CDRplus {X : ConstructiveDivisionRig} : binop X := λ x y : X, op1 (X := ConstructiveDivisionRig_apsetwith2binop X) x y.
 Definition CDRmult {X : ConstructiveDivisionRig} : binop X := λ x y : X, op2 (X := ConstructiveDivisionRig_apsetwith2binop X) x y.
 
-Declare Scope CDR_scope.
+(* Declare Scope CDR_scope. *)
 Delimit Scope CDR_scope with CDR.
 Local Open Scope CDR_scope.
 
@@ -246,7 +246,7 @@ Definition CCDRone {X : ConstructiveCommutativeDivisionRig} : X := 1%rig.
 Definition CCDRplus {X : ConstructiveCommutativeDivisionRig} : binop X := λ x y : X, CDRplus (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X) x y.
 Definition CCDRmult {X : ConstructiveCommutativeDivisionRig} : binop X := λ x y : X, CDRmult (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X) x y.
 
-Declare Scope CCDR_scope.
+(* Declare Scope CCDR_scope. *)
 Delimit Scope CCDR_scope with CCDR.
 Local Open Scope CCDR_scope.
 
@@ -448,7 +448,7 @@ Definition CFopp {X : ConstructiveField} : unop X := λ x : X, (- x)%ring.
 Definition CFminus {X : ConstructiveField} : binop X := λ x y : X, CFplus x (CFopp y).
 Definition CFmult {X : ConstructiveField} : binop X := λ x y : X, CCDRmult (X := ConstructiveField_ConstructiveCommutativeDivisionRig X) x y.
 
-Declare Scope CF_scope.
+(* Declare Scope CF_scope. *)
 Delimit Scope CF_scope with CF.
 Local Open Scope CF_scope.
 

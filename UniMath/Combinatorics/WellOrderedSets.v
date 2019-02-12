@@ -15,11 +15,11 @@ Local Open Scope set.
 Local Open Scope subtype.
 Local Open Scope poset.
 
-Declare Scope tosubset.
+(* Declare Scope tosubset. *)
 Delimit Scope tosubset with tosubset. (* subsets equipped with a well ordering *)
 Local Open Scope tosubset.
 
-Declare Scope wosubset.
+(* Declare Scope wosubset. *)
 Delimit Scope wosubset with wosubset. (* subsets equipped with a well ordering *)
 Local Open Scope wosubset.
 
@@ -1271,7 +1271,7 @@ Definition WellOrderedSet_to_hSet : WellOrderedSet -> hSet := pr1.
 
 Coercion WellOrderedSet_to_hSet : WellOrderedSet >-> hSet.
 
-Declare Scope woset.
+(* Declare Scope woset. *)
 Delimit Scope woset with woset.
 
 Local Open Scope woset.

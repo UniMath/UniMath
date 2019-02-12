@@ -84,7 +84,7 @@ Definition DivRig_isDivRig (F : DivRig) :
 Definition isDivRig_DivRig {X : rig} : isDivRig X -> DivRig :=
 λ is : isDivRig X, X ,, is.
 
-Declare Scope dr_scope.
+(* Declare Scope dr_scope. *)
 Delimit Scope dr_scope with dr.
 Local Open Scope dr_scope.
 

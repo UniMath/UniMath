@@ -33,7 +33,7 @@ Defined.
 Notation " 'stnpr' j " := (j,,idpath _) ( at level 70 ).
 Notation " 'stnel' ( i , j ) " := ( (j,,idpath _) : stn i ) ( at level 70 ).
 
-Declare Scope stn.
+(* Declare Scope stn. *)
 Delimit Scope stn with stn.
 
 Notation "⟦ n ⟧" := (stn n) : stn.

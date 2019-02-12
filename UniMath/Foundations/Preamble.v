@@ -62,7 +62,7 @@ Inductive nat : UU :=
 
 Definition succ := S.
 
-Declare Scope nat_scope.
+(* Declare Scope nat_scope. *)
 Delimit Scope nat_scope with nat.
 Bind Scope nat_scope with nat.
 Arguments S _%nat.

@@ -45,7 +45,7 @@ Proof.
   apply (monoidfuncomp g f).
 Defined.
 
-Declare Scope abgr_scope.
+(* Declare Scope abgr_scope. *)
 Notation "f + g" := (ringofendabgr_op1 f g) : abgr_scope.
 
 (** The underlying set of the ring of endomorphisms of an abelian group *)
@@ -300,7 +300,7 @@ Defined.
 Definition module_mult {R : ring} (M : module R) : R -> M -> M :=
   λ r : R, λ x : M, (pr1setofendabgr (pr2module M r) x).
 
-Declare Scope module_scope.
+(* Declare Scope module_scope. *)
 Notation "r * x" := (module_mult _ r x) : module_scope.
 
 Delimit Scope module_scope with module.

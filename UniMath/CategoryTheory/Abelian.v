@@ -169,9 +169,9 @@ Section def_abelian.
 End def_abelian.
 Arguments to_Zero [C].
 
-Declare Scope abelian_precat_scope.
+(* Declare Scope abelian_precat_scope. *)
 Bind Scope abelian_precat_scope with precategory.
-Declare Scope abelian_precat.
+(* Declare Scope abelian_precat. *)
 Notation "0" := Zero : abelian_precat.
 Delimit Scope abelian_precat_scope with precategory.
 
