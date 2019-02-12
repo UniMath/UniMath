@@ -222,6 +222,9 @@ rebuild-coq sub/coq/bin/coq_makefile sub/coq/bin/coqc:
 ifeq ($(DEBUG_COQ),yes)
 	$(MAKE) -w -C sub/coq tags
 endif
+# work around a bug in Coq 8.9.0 under Mac OS X by not building "coqchk", which we don't use anyway
+BUILD_TARGETS += -o bin/coqchk
+BUILD_OPTIONS += -f Makefile.build
 #############################################################################
 
 git-describe:
