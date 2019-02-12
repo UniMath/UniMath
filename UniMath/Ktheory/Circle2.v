@@ -4,7 +4,7 @@
   of Z-torsors has the induction principle that the circle should have.  In my older approach, (see
   the file Circle.v), I managed to show only the recursion principle for the circle (where the
   family of types is constant), and the computations were complicated and onerous.  Their approach
-  follows the same basic idea, but is simpler.  It is currently described in the file
+  follows the same basic idea, goes further, and is simpler.  It is described in the file
   https://github.com/UniMath/SymmetryBook/blob/master/ZTors.tex, commit
   1ba615fa7625516ad79fe3ad9ef68e1fc001d485.
 
@@ -12,8 +12,13 @@
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Ktheory.Equivalences.
+(* Require Import UniMath.Ktheory.Equivalences. *)
 Require Import UniMath.Ktheory.AffineLine. (* to get bidirectional recursion over the integers *)
+
+Set Implicit Arguments.
+Set Maximal Implicit Insertion.
+
+Module Upstream.
 
 Lemma iscontrcoconustot (T : UU) (t : T) : iscontr (coconustot T t).
 Proof.
@@ -53,7 +58,7 @@ Proof.
     + rewrite pathsinv0inv0. apply idweq.
 Defined.
 
-Corollary uniqueFiller {X:Type} {x y z : X} {p : x = z} {q : y = z} :
+Corollary uniqueFiller (X:Type) (x y z : X) (p : x = z) (q : y = z) :
   ∃! r, r @ q = p.
 Proof.
   refine (@iscontrweqf (∑ r, r = p @ !q) _ _ _).
@@ -72,7 +77,7 @@ Proof.
   apply uniqueFiller.
 Defined.
 
-Corollary isweqpathscomp0r {X : UU} (x : X) {x' x'' : X} (e' : x' = x'') :
+Corollary isweqpathscomp0r' {X : UU} (x : X) {x' x'' : X} (e' : x' = x'') :
   isweq (λ e : x = x', e @ e').
 Proof.
   (* make a direct proof of isweqpathscomp0r, without using isweq_iso *)
@@ -99,10 +104,12 @@ Definition inductionOnFiller {X:Type} {x y z:X} (p:x=z) (q:y=z)
   ∏ (r:x=y) (e : r @ q = p), T r e.
 Proof.
   intros.
-  use (transportPathTotal _ _ _ _ t).
+  use (transportPathTotal _ _ t).
   apply pathsinv0.
   apply fillerEquation.
 Defined.
+
+End Upstream.
 
 (** First some simple facts about paths over paths *)
 
@@ -120,7 +127,7 @@ Definition PathOverToTotalPath {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (y' :
 Proof.
   intros q.
   exact (invmap (total2_paths_equiv  Y (x,, y) (x',, y'))
-                (PathOverToPathPair y y' p q)).
+                (PathOverToPathPair q)).
 Defined.
 
 Definition stdPathOver {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (p:x=x')
@@ -164,6 +171,18 @@ Proof.
   induction p, p'. exact pathscomp0.
 Defined.
 
+Definition composePathOverLeftUnit {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (y' : Y x') (p:x=x') (q:PathOver y y' p) :
+  composePathOver (reflPathOver y) q = q.
+Proof.
+  now induction p.
+Defined.
+
+Definition composePathOverRightUnit {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (y' : Y x') (p:x=x') (q:PathOver y y' p) :
+  composePathOver q (reflPathOver y') = transportb (PathOver y y') (pathscomp0rid _) q.
+Proof.
+  now induction p, q.
+Defined.
+
 Definition assocPathOver {X:Type} {x x' x'' x''':X}
            {Y : X -> Type} {y : Y x} {y' : Y x'} {y'' : Y x''} {y''' : Y x'''}
            {p:x=x'} {p':x'=x''} {p'':x''=x'''}
@@ -187,3 +206,61 @@ Definition inverseInversePathOver {X:Type} {Y : X -> Type} {x:X} {y : Y x} :
 Proof.
   now use inductionPathOver.
 Defined.
+
+Lemma Lemma023 (A:Type) (B:A->Type) (a1 a2 a3:A)
+      (b1:B a1) (b2:B a2) (b3:B a3)
+      (p1:a1=a2) (p2:a2=a3)
+      (q:PathOver b1 b2 p1) :
+  isweq (composePathOver q : PathOver b2 b3 p2 -> PathOver b1 b3 (p1@p2)).
+Proof.
+  induction p1, p2, q. apply idisweq.
+Defined.
+
+Lemma Lemma024 (A:Type) (B:A->Type) (a1 a2:A)
+      (b1:B a1) (b2:B a2) (p p':a1=a2) (α : p=p') :
+  isweq ((transportf (PathOver b1 b2) α) : PathOver b1 b2 p -> PathOver b1 b2 p').
+Proof.
+  induction α. apply idisweq.
+Defined.
+
+Require Import UniMath.Algebra.Groups.
+Require Import UniMath.NumberSystems.Integers.
+Require Import UniMath.Ktheory.Integers.
+Require Import UniMath.Ktheory.AffineLine.
+
+Open Scope hz.
+
+Lemma Lemma031 (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) :
+  isweq ((λ hq, pr1 hq 0) : (∑ (h:∏ z, P z), ∏ z, h(1+z) = f z (h z)) -> P 0).
+Proof.
+  apply ℤBiRecursion_weq.
+Defined.
+
+Definition Lemma031_weq (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) :
+  (∑ (h:∏ z, P z), ∏ z, h(1+z) = f z (h z)) ≃ P 0
+  := weqpair _ (Lemma031 _ _).
+
+Definition Lemma031_inverse (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) :
+  P 0 -> ∑ (h:∏ z, P z), ∏ z, h(1+z) = f z (h z)
+  := invmap (Lemma031_weq P f).
+
+Definition Lemma031_compute_zero (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) (p:P 0) :
+  pr1 (Lemma031_inverse P f p) 0 = p.
+Proof.
+  (* compare with ℤTorsorRecursion_inv_compute *)
+  Fail reflexivity.
+Admitted.
+
+Definition Lemma031_compute_next (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) (p:P 0) (z:ℤ) :
+  pr1 (Lemma031_inverse P f p) (1+z) = f z (pr1 (Lemma031_inverse P f p) z).
+Proof.
+  (* compare with ℤTorsorRecursion_transition *)
+  Fail reflexivity.
+Admitted.
+
+Definition Lemma031_compute_prev (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) (p:P 0) (z:ℤ) :
+  pr1 (Lemma031_inverse P f p) z = invmap (f z) (pr1 (Lemma031_inverse P f p) (one+z)).
+Proof.
+  (* compare with ℤTorsorRecursion_transition_inv *)
+  Fail reflexivity.
+Admitted.
