@@ -221,7 +221,7 @@ Proof.
   intros. exists (λ fh, pr1 fh t0). intro q.
   set (w := triviality_isomorphism T t0).
   assert (k0 : ∏ i, one + w i = w (1+i)%hz).
-  { intros. simpl. unfold right_mult, ac_mult. rewrite act_assoc.
+  { intros. simpl. unfold right_mult, ac_mult. unfold act_mult. rewrite act_assoc.
     reflexivity. }
   set (l0 := (λ i, eqweqmap (maponpaths P (k0 i)))
              : ∏ i, weq (P(one + w i)) (P(w(1+i)%hz))).
