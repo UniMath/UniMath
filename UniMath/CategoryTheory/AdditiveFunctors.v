@@ -155,14 +155,14 @@ End def_additivefunctor.
 Section additivefunctor_preserves_bindirectsums.
 
   Definition PreservesBinDirectSums {A B : CategoryWithAdditiveStructure} (F : functor A B) : hProp :=
-    ∀ (a1 a2 : A) (DS : BinDirectSum A a1 a2),
-    isBinDirectSum B (F a1) (F a2) (F DS)
-                       (# F (to_In1 A DS)) (# F (to_In2 A DS))
-                       (# F (to_Pr1 A DS)) (# F (to_Pr2 A DS)).
+    ∀ (a1 a2 : A) (DS : BinDirectSum a1 a2),
+    isBinDirectSum
+                       (# F (to_In1 DS)) (# F (to_In2 DS))
+                       (# F (to_Pr1 DS)) (# F (to_Pr2 DS)).
 
   (** Additive functor preserves zeros. *)
   Lemma AdditiveFunctorPreservesBinDirectSums_zero {A B : CategoryWithAdditiveStructure} (F : AdditiveFunctor A B) :
-    isZero B (F (to_Zero A)).
+    isZero (F (to_Zero A)).
   Proof.
     set (isadd0 := AdditiveFunctor_isAdditiveFunctor F (to_Zero A) (to_Zero A)).
     set (unel := to_unel (to_Zero A) (to_Zero A)).
@@ -190,41 +190,41 @@ Section additivefunctor_preserves_bindirectsums.
   (** ** F preserves IdIn1, IdIn2, IdUnit1, IdUnit2, and Id of BinDirectSum *)
 
   Local Lemma AdditiveFunctorPreservesBinDirectSums_idin1 {A B : CategoryWithAdditiveStructure} (F : AdditiveFunctor A B)
-        {a1 a2 : A} (DS : BinDirectSum A a1 a2) :
-    (# F (to_In1 A DS)) · (# F (to_Pr1 A DS)) = identity _.
+        {a1 a2 : A} (DS : BinDirectSum a1 a2) :
+    (# F (to_In1 DS)) · (# F (to_Pr1 DS)) = identity _.
   Proof.
-    rewrite <- functor_comp. rewrite (to_IdIn1 A DS). apply functor_id.
+    rewrite <- functor_comp. rewrite (to_IdIn1 DS). apply functor_id.
   Qed.
 
   Local Lemma AdditiveFunctorPreservesBinDirectSums_idin2 {A B : CategoryWithAdditiveStructure} (F : AdditiveFunctor A B)
-        {a1 a2 : A} (DS : BinDirectSum A a1 a2) :
-    (# F (to_In2 A DS)) · (# F (to_Pr2 A DS)) = identity _.
+        {a1 a2 : A} (DS : BinDirectSum a1 a2) :
+    (# F (to_In2 DS)) · (# F (to_Pr2 DS)) = identity _.
   Proof.
-    rewrite <- functor_comp. rewrite (to_IdIn2 A DS). apply functor_id.
+    rewrite <- functor_comp. rewrite (to_IdIn2 DS). apply functor_id.
   Qed.
 
   Local Lemma AdditiveFunctorPreservesBinDirectSums_unit1 {A B : CategoryWithAdditiveStructure}
-        (F : AdditiveFunctor A B) {a1 a2 : A} (DS : BinDirectSum A a1 a2) :
-    (# F (to_In1 A DS)) · (# F (to_Pr2 A DS)) = to_unel (F a1) (F a2).
+        (F : AdditiveFunctor A B) {a1 a2 : A} (DS : BinDirectSum a1 a2) :
+    (# F (to_In1 DS)) · (# F (to_Pr2 DS)) = to_unel (F a1) (F a2).
   Proof.
-    rewrite <- functor_comp. rewrite (to_Unel1 A DS). apply AdditiveFunctorUnel.
+    rewrite <- functor_comp. rewrite (to_Unel1 DS). apply AdditiveFunctorUnel.
   Qed.
 
   Local Lemma AdditiveFunctorPreservesBinDirectSums_unit2 {A B : CategoryWithAdditiveStructure}
-        (F : AdditiveFunctor A B) {a1 a2 : A} (DS : BinDirectSum A a1 a2) :
-    (# F (to_In2 A DS)) · (# F (to_Pr1 A DS)) = to_unel (F a2) (F a1).
+        (F : AdditiveFunctor A B) {a1 a2 : A} (DS : BinDirectSum a1 a2) :
+    (# F (to_In2 DS)) · (# F (to_Pr1 DS)) = to_unel (F a2) (F a1).
   Proof.
-    rewrite <- functor_comp. rewrite (to_Unel2 A DS). apply AdditiveFunctorUnel.
+    rewrite <- functor_comp. rewrite (to_Unel2 DS). apply AdditiveFunctorUnel.
   Qed.
 
   Local Lemma AdditiveFunctorPreservesBinDirectSums_id {A B : CategoryWithAdditiveStructure}
-        (F : AdditiveFunctor A B) {a1 a2 : A} (DS : BinDirectSum A a1 a2) :
+        (F : AdditiveFunctor A B) {a1 a2 : A} (DS : BinDirectSum a1 a2) :
     to_binop _ _
-             ((# F (to_Pr1 A DS)) · (# F (to_In1 A DS)))
-             ((# F (to_Pr2 A DS)) · (# F (to_In2 A DS))) = identity _.
+             ((# F (to_Pr1 DS)) · (# F (to_In1 DS)))
+             ((# F (to_Pr2 DS)) · (# F (to_In2 DS))) = identity _.
   Proof.
     rewrite <- functor_comp. rewrite <- functor_comp.
-    rewrite <- AdditiveFunctorLinear. rewrite (to_BinOpId A DS). apply functor_id.
+    rewrite <- AdditiveFunctorLinear. rewrite (to_BinOpId DS). apply functor_id.
   Qed.
 
   (** An additive functor preserves BinDirectSums *)
@@ -253,16 +253,16 @@ Section additivefunctor_criteria.
 
   (** A functor which preserves binary direct sums preserves zero objects. *)
   Lemma isAdditiveCriteria_isZero {A B : CategoryWithAdditiveStructure} (F : functor A B)
-        (H : PreservesBinDirectSums F) : isZero B (F (to_Zero A)).
+        (H : PreservesBinDirectSums F) : isZero (F (to_Zero A)).
   Proof.
     set (DS := to_BinDirectSums A (to_Zero A) (to_Zero A)).
     set (isBDS := H (to_Zero A) (to_Zero A) DS).
-    assert (e1 : (# F (to_In1 A DS)) = (# F (to_In2 A DS))).
+    assert (e1 : (# F (to_In1 DS)) = (# F (to_In2 DS))).
     {
       apply maponpaths.
       apply ArrowsFromZero.
     }
-    assert (e2 : (# F (to_Pr1 A DS)) = (# F (to_Pr2 A DS))).
+    assert (e2 : (# F (to_Pr1 DS)) = (# F (to_Pr2 DS))).
     {
       apply maponpaths.
       apply ArrowsToZero.
@@ -312,28 +312,28 @@ Section additivefunctor_criteria.
 
   (** F commutes with addition of projections from a1 ⊕ a1 *)
   Local Lemma isAdditiveCriteria_isBinopFun_Pr {A B : CategoryWithAdditiveStructure} (F : functor A B)
-        (H : PreservesBinDirectSums F) {a1 a2 : A} (DS : BinDirectSum A a1 a1):
-    # F (to_binop DS a1 (to_Pr1 A DS) (to_Pr2 A DS)) =
-    to_binop (F DS) (F a1) (# F (to_Pr1 A DS)) (# F (to_Pr2 A DS)).
+        (H : PreservesBinDirectSums F) {a1 a2 : A} (DS : BinDirectSum a1 a1):
+    # F (to_binop DS a1 (to_Pr1 DS) (to_Pr2 DS)) =
+    to_binop (F DS) (F a1) (# F (to_Pr1 DS)) (# F (to_Pr2 DS)).
   Proof.
     set (isBDS := H a1 a1 DS).
     set (BDS := mk_BinDirectSum _ _ _ _ _ _ _ _ isBDS).
     use (FromBinDirectSumsEq B BDS); cbn.
     - rewrite <- functor_comp.
       rewrite to_premor_linear'.
-      rewrite (to_IdIn1 A DS). rewrite (to_Unel1 A DS).
+      rewrite (to_IdIn1 DS). rewrite (to_Unel1 DS).
       rewrite to_runax'. rewrite functor_id.
       rewrite to_premor_linear'.
       rewrite <- functor_comp. rewrite <- functor_comp.
-      rewrite (to_IdIn1 A DS). rewrite (to_Unel1 A DS).
+      rewrite (to_IdIn1 DS). rewrite (to_Unel1 DS).
       rewrite functor_id. rewrite (isAdditiveCriteria_preservesUnel _ H).
       rewrite to_runax'. apply idpath.
     - rewrite <- functor_comp.
       rewrite to_premor_linear'.
-      rewrite (to_Unel2 A DS). rewrite (to_IdIn2 A DS). rewrite to_lunax'. rewrite functor_id.
+      rewrite (to_Unel2 DS). rewrite (to_IdIn2 DS). rewrite to_lunax'. rewrite functor_id.
       rewrite to_premor_linear'.
       rewrite <- functor_comp. rewrite <- functor_comp.
-      rewrite (to_Unel2 A DS). rewrite (to_IdIn2 A DS).
+      rewrite (to_Unel2 DS). rewrite (to_IdIn2 DS).
       rewrite (isAdditiveCriteria_preservesUnel _ H). rewrite functor_id. rewrite to_lunax'.
       apply idpath.
   Qed.
@@ -341,19 +341,19 @@ Section additivefunctor_criteria.
   Local Lemma isAdditiveCriteria_BinOp_eq {A B : CategoryWithAdditiveStructure} (F : functor A B)
         (H : PreservesBinDirectSums F) {a1 a2 : A} (f g : A⟦a1, a2⟧)
         (DS := to_BinDirectSums A a2 a2) :
-    to_binop a1 a2 f g = (to_binop a1 DS (f · (to_In1 A DS)) (g · (to_In2 A DS)))
-                           · (to_binop DS a2 (to_Pr1 A DS) (to_Pr2 A DS)).
+    to_binop a1 a2 f g = (to_binop a1 DS (f · (to_In1 DS)) (g · (to_In2 DS)))
+                           · (to_binop DS a2 (to_Pr1 DS) (to_Pr2 DS)).
   Proof.
     set (isBDS := H a2 a2 DS).
     set (BDS := mk_BinDirectSum _ _ _ _ _ _ _ _ isBDS).
     (* First term of to_binop *)
     rewrite to_premor_linear'. rewrite to_postmor_linear'.
     rewrite <- assoc. rewrite <- assoc.
-    rewrite (to_IdIn1 A DS). rewrite (to_Unel2 A DS).
+    rewrite (to_IdIn1 DS). rewrite (to_Unel2 DS).
     rewrite id_right. rewrite to_premor_unel'. rewrite to_runax'.
     (* Second term of to_binop *)
     rewrite to_postmor_linear'. rewrite <- assoc. rewrite <- assoc.
-    rewrite (to_Unel1 A DS). rewrite (to_IdIn2 A DS).
+    rewrite (to_Unel1 DS). rewrite (to_IdIn2 DS).
     rewrite id_right. rewrite to_premor_unel'. rewrite to_lunax'.
     apply idpath.
   Qed.
@@ -372,12 +372,12 @@ Section additivefunctor_criteria.
     (* First term of the first to_binop *)
     rewrite <- functor_comp. rewrite to_postmor_linear'.
     rewrite <- assoc. rewrite <- assoc.
-    fold DS. rewrite (to_IdIn1 A DS). rewrite (to_Unel2 A DS).
+    fold DS. rewrite (to_IdIn1 DS). rewrite (to_Unel2 DS).
     rewrite id_right. rewrite to_premor_unel'. rewrite to_runax'.
     (* Second term of the first to_binop *)
     rewrite <- functor_comp. rewrite to_postmor_linear'.
     rewrite <- assoc. rewrite <- assoc.
-    rewrite (to_IdIn2 A DS). rewrite (to_Unel1 A DS).
+    rewrite (to_IdIn2 DS). rewrite (to_Unel1 DS).
     rewrite id_right. rewrite to_premor_unel'. rewrite to_lunax'.
     apply idpath.
   Qed.

@@ -31,7 +31,6 @@ Require Import UniMath.Algebra.Monoids.
 
 Require Import UniMath.NumberSystems.Integers.
 
-Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
@@ -234,7 +233,7 @@ Section def_abgr_zero.
     use monoidfun_paths. use funextfun. intros x. use isProofIrrelevantUnit.
   Qed.
 
-  Definition abgr_isZero : isZero abgr_category unitabgr.
+  Definition abgr_isZero : @isZero abgr_category unitabgr.
   Proof.
     use mk_isZero.
     - intros a. use iscontrpair.
@@ -436,7 +435,7 @@ Section abgr_additive.
   Qed.
 
   Lemma abgr_isBinDirectSum (X Y : abgr) :
-    isBinDirectSum
+    @isBinDirectSum
       abgr_PreAdditive X Y (abgrdirprod X Y) (abgr_DirectSumIn1 X Y) (abgr_DirectSumIn2 X Y)
       (abgr_DirectSumPr1 X Y) (abgr_DirectSumPr2 X Y).
   Proof.
