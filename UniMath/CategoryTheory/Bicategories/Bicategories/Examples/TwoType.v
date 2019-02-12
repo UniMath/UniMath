@@ -170,4 +170,13 @@ Section TwoTypeBiGroupoid.
         induction (pr1 p) ; cbn.
         reflexivity.
   Defined.
+
+  Definition fundamental_bigroupoid_is_univalent_2
+    : is_univalent_2 fundamental_bigroupoid.
+  Proof.
+    split.
+    - exact fundamental_bigroupoid_is_univalent_2_0.
+    - exact fundamental_bigroupoid_is_univalent_2_1.
+  Defined.
+
 End TwoTypeBiGroupoid.

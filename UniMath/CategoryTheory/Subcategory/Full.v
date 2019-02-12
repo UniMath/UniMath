@@ -76,7 +76,7 @@ Section FullyFaithful.
     unfold hfiber.
     exists (f,, tt).
     reflexivity.
-  Qed.
+  Defined.
 
   (** *** Faithfulness *)
 
@@ -86,7 +86,7 @@ Section FullyFaithful.
     intros a b; cbn.
     apply isinclpr1.
     intro; apply isapropunit.
-  Qed.
+  Defined.
 
   Lemma fully_faithful_sub_precategory_inclusion :
     fully_faithful (sub_precategory_inclusion C (full_sub_precategory C')).
@@ -95,7 +95,7 @@ Section FullyFaithful.
     split.
     - apply full_sub_precategory_inclusion.
     - apply faithful_sub_precategory_inclusion.
-  Qed.
+  Defined.
 
 End FullyFaithful.
 

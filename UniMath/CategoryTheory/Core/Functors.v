@@ -810,7 +810,7 @@ Proof.
   apply isweqinclandsurj.
   - apply Hfaith.
   - apply Hfull.
-Qed.
+Defined.
 
 Lemma isaprop_full_and_faithful (C D : precategory_data) (F : functor C D) :
    isaprop (full_and_faithful F).

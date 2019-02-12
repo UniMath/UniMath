@@ -96,6 +96,13 @@ Section Trivial_Displayed.
     - etrans. apply lassociator_lassociator. apply transportf_trivial.
   Qed.
 
-  Definition trivial_displayed : disp_prebicat B
+  Definition trivial_displayed_prebicat : disp_prebicat B
     := trivial_displayed_data,, trivial_disp_prebicat_laws.
+
+  Definition trivial_displayed_bicat : disp_bicat B.
+  Proof.
+    refine (trivial_displayed_prebicat ,, _).
+    repeat intro; apply C.
+  Defined.
+
 End Trivial_Displayed.

@@ -16,14 +16,14 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
 (* Categories. *)
-Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.categories.HSET.All.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Export UniMath.CategoryTheory.yoneda.
 Require Export UniMath.CategoryTheory.limits.pullbacks.
@@ -34,18 +34,25 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
 (* (Displayed) Bicategories. *)
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Adjunctions.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Univalence.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.ContravariantFunctor.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.BicatOfCats.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Cofunctormap.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.FullSub.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Sigma.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispAdjunctions.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispUnivalence.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispInvertibles.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Prod.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat.
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
-Local Notation "'SET'" := hset_category.
+Local Notation "'SET'" := HSET_univalent_category.
 Local Notation "'PreShv' C" := [C^op,SET] (at level 4) : cat.
 Local Notation "'Yo'" := (yoneda _ (homset_property _) : functor _ (PreShv _)).
 
@@ -89,7 +96,7 @@ End Yoneda.
 (* Adapted from
    TypeTheory/TypeTheory/Auxiliary/Auxiliary.v
    TypeTheory/ALV1/CwF_def.v *)
-
+(*
 Section Representation.
 
   Context {C : category}
@@ -119,8 +126,183 @@ Section Representation.
 
   Definition cwf_representation : UU
     := ∏ Γ (A : Ty Γ : hSet), cwf_fiber_representation A.
-
 End Representation.
+*)
+
+Lemma transportf_yy
+      {C : precategory} {hsC : has_homsets C}
+      (F : opp_precat_data C ⟶ SET) (c c' : C) (A : (F : functor _ _ ) c : hSet)
+      (e : c = c')
+  : yy (transportf (fun d => (F : functor _ _ ) d : hSet) e A) =
+    transportf (fun d => nat_trans (yoneda _ hsC d : functor _ _) F) e (yy A).
+Proof.
+  induction e.
+  apply idpath.
+Defined.
+
+Lemma forall_isotid (A : precategory) (a_is : is_univalent A)
+      (a a' : A) (P : iso a a' -> UU)
+  : (∏ e, P (idtoiso e)) → ∏ i, P i.
+Proof.
+  intros H i.
+  rewrite <- (idtoiso_isotoid _ a_is).
+  apply H.
+Defined.
+
+Lemma transportf_isotoid_functor
+      (A X : precategory) (H : is_univalent A)
+      (K : functor A X)
+      (a a' : A) (p : iso a a') (b : X) (f : K a --> b)
+  : transportf (fun a0 => K a0 --> b) (isotoid _ H p) f = (#K)%cat (inv_from_iso p) · f.
+Proof.
+  rewrite functor_on_inv_from_iso. simpl. cbn.
+  unfold precomp_with. rewrite id_right.
+  generalize p.
+  apply forall_isotid.
+  - apply H.
+  - intro e. induction e.
+    cbn.
+    rewrite functor_id.
+    rewrite id_left.
+    rewrite isotoid_identity_iso.
+    apply idpath.
+Defined.
+
+Lemma inv_from_iso_iso_from_fully_faithful_reflection {C D : precategory}
+      (F : functor C D) (HF : fully_faithful F) (a b : C) (i : iso (F a) (F b))
+  : inv_from_iso
+      (iso_from_fully_faithful_reflection HF i) =
+    iso_from_fully_faithful_reflection HF (iso_inv_from_iso i).
+Proof.
+  cbn.
+  unfold precomp_with.
+  apply id_right.
+Defined.
+
+Section CwFRepresentation.
+  Context {C : category}
+          {Ty Tm : opp_precat_data C ⟶ SET}
+          (pp : Tm ⟹ Ty)
+          (HC : is_univalent C).
+
+  Definition cwf_fiber_rep_data {Γ:C} (A : Ty Γ : hSet) : UU
+    := ∑ (ΓA : C), C ⟦ΓA, Γ⟧ × (Tm ΓA : hSet).
+
+  Lemma cwf_square_comm {Γ} {A}
+        {ΓA : C} {π : ΓA --> Γ}
+        {t : Tm ΓA : hSet} (e : (pp : nat_trans _ _) _ t = functor_on_morphisms Ty π A)
+    : functor_on_morphisms Yo π · yy A = yy t · pp.
+  Proof.
+    apply pathsinv0.
+    etrans. 2: apply yy_natural.
+    etrans. apply yy_comp_nat_trans.
+    apply maponpaths, e.
+  Qed.
+
+  Definition cwf_fiber_rep_ax
+             {Γ:C} {A : Ty Γ : hSet}
+             (ΓAπt : cwf_fiber_rep_data A) : UU
+    := ∑ (H : pp _ (pr2 (pr2 ΓAπt)) = (#Ty)%cat (pr1 (pr2 ΓAπt)) A),
+       isPullback _ _ _ _ (cwf_square_comm H).
+
+  Definition cwf_fiber_representation {Γ:C} (A : Ty Γ : hSet) : UU
+    := ∑ ΓAπt : cwf_fiber_rep_data A, cwf_fiber_rep_ax ΓAπt.
+
+  Lemma isaprop_cwf_fiber_representation {Γ:C} (A : Ty Γ : hSet)
+    : is_univalent C -> isaprop (cwf_fiber_representation A).
+  Proof.
+    intro isC.
+    apply invproofirrelevance.
+    intros x x'. apply subtypeEquality.
+    { intro.
+      apply isofhleveltotal2.
+      - apply setproperty.
+      - intro. apply isaprop_isPullback.
+    }
+    destruct x as [x H].
+    destruct x' as [x' H']. cbn.
+    destruct x as [ΓA m].
+    destruct x' as [ΓA' m']. cbn in *.
+    destruct H as [H isP].
+    destruct H' as [H' isP'].
+    use (total2_paths_f).
+    - set (T1 := mk_Pullback _ _ _ _ _ _ isP).
+      set (T2 := mk_Pullback _ _ _ _ _ _ isP').
+      set (i := iso_from_Pullback_to_Pullback T1 T2). cbn in i.
+      set (i' := invmap (weq_ff_functor_on_iso (yoneda_fully_faithful _ _ ) _ _ ) i ).
+      set (TT := isotoid _ isC i').
+      apply TT.
+    - cbn.
+      set (XT := transportf_dirprod _ (fun a' => C⟦a', Γ⟧) (fun a' => Tm a' : hSet)).
+      cbn in XT.
+      set (XT' := XT (tpair _ ΓA m : ∑ R : C, C ⟦ R, Γ ⟧ × (Tm R : hSet) )
+                     (tpair _ ΓA' m' : ∑ R : C, C ⟦ R, Γ ⟧ × (Tm R : hSet) )).
+      cbn in *.
+      match goal with | [ |- transportf _ ?e _ = _ ] => set (TT := e) end.
+      rewrite XT'. clear XT' XT.
+      destruct m as [π te].
+      destruct m' as [π' te'].
+      cbn.
+      apply pathsdirprod.
+      + unfold TT; clear TT.
+        rewrite transportf_isotoid.
+        cbn. unfold precomp_with.
+        rewrite id_right.
+        unfold from_Pullback_to_Pullback.
+        cbn in *.
+        match goal with |[|- (_  ( _ ?PP _ _ _  _ ) )  _ _ · _ = _ ] =>
+                         set (P:=PP) end.
+        match goal with |[|- ( _ (PullbackArrow _ ?PP ?E2 ?E3 _ )) _ _ · _ = _ ]
+                         => set (E1 := PP);
+                              set (e1 := E1);
+                              set (e2 := E2);
+                              set (e3 := E3) end.
+        match goal with |[|- ( _ (PullbackArrow _ _ _ _ ?E4 )) _ _ · _ = _ ]
+                         => set (e4 := E4) end.
+        assert (XR := PullbackArrow_PullbackPr1 P e1 e2 e3 e4).
+        assert (XR':= nat_trans_eq_pointwise XR ΓA').
+        cbn in XR'.
+        assert (XR'':= toforallpaths _ _  _ XR').
+        cbn in XR''.
+        etrans. apply XR''.
+        apply id_left.
+      + unfold TT; clear TT.
+        match goal with |[|- transportf ?r  _ _ = _ ] => set (P:=r) end.
+        match goal with |[|- transportf _ (_ _ _ (_ _ ?ii)) _ = _ ] => set (i:=ii) end.
+        simpl in i.
+        apply (invmaponpathsweq (@yy _ (homset_property _ ) Tm ΓA')).
+        etrans. apply transportf_yy.
+        etrans. apply transportf_isotoid_functor.
+        rewrite inv_from_iso_iso_from_fully_faithful_reflection.
+        assert (XX:=homotweqinvweq (weq_from_fully_faithful
+                                      (yoneda_fully_faithful _ (homset_property C)) ΓA' ΓA )).
+        etrans. apply maponpaths_2. apply XX.
+        clear XX.
+        etrans. apply maponpaths_2. apply id_right.
+        etrans. apply maponpaths_2. unfold from_Pullback_to_Pullback. apply idpath.
+        match goal with |[|- ( _ ?PP _ _ _  _ ) · _ = _ ] =>
+                         set (PT:=PP) end.
+        match goal with |[|- PullbackArrow _ ?PP ?E2 ?E3 _ · _ = _ ]
+                         => set (E1 := PP);
+                              set (e1 := E1);
+                              set (e2 := E2);
+                              set (e3 := E3) end.
+        match goal with |[|- PullbackArrow _ _ _ _ ?E4 · _ = _ ]
+                         => set (e4 := E4) end.
+        apply (PullbackArrow_PullbackPr2 PT e1 e2 e3 e4).
+  Qed.
+
+  Definition cwf_representation : UU
+    := ∏ Γ (A : Ty Γ : hSet), cwf_fiber_representation A.
+
+  Definition isaprop_cwf_representation
+    : isaprop cwf_representation.
+  Proof.
+    do 2 (apply impred ; intro).
+    apply isaprop_cwf_fiber_representation.
+    exact HC.
+  Defined.
+End CwFRepresentation.
 
 Section Projections.
 
@@ -133,224 +315,55 @@ Section Projections.
 
   Definition ext : C := pr1 (pr1 (R Γ A)).
 
-  Definition π : C⟦ext,Γ⟧ := pr2 (pr1 (R Γ A)).
+  Definition π : C⟦ext,Γ⟧ := pr121 (R Γ A).
 
-  Definition var : (Tm ext:hSet) := pr1 (pr1 (pr2 (R Γ A))).
+  Definition var : (Tm ext:hSet) := pr221 (R Γ A).
 
   Definition comm
     : pp ext var = functor_on_morphisms Ty π A
-    := pr2 (pr1 (pr2 (R Γ A))).
+    := pr12 (R Γ A).
 
   Definition pullback
     : isPullback (yy A) pp
                  (functor_on_morphisms (yoneda C (homset_property C)) π)
                  (yy var) (cwf_square_comm pp comm)
     := pr2 (pr2 (R Γ A)).
-
 End Projections.
 
 Arguments iso _ _ _ : clear implicits.
 
-Section Representation_Morphisms.
-
-  Context {C : category}
-          {Ty Tm : opp_precat_data C ⟶ SET}
-          {pp : Tm ⟹ Ty}
-          (R : cwf_representation pp).
-
-  Context {C' : category}
-          {Ty' Tm' : opp_precat_data C' ⟶ SET}
-          {pp' : Tm' ⟹ Ty'}
-          (R' : cwf_representation pp').
-
-  Context {f : functor C C'}
-          (fty : Ty ⟹ functor_composite (functor_opp f) Ty')
-          (ftm : Tm ⟹ functor_composite (functor_opp f) Tm').
-
-  Definition isoext_type (Γ : C) (A : (Ty Γ : hSet)) : UU
-    := iso C' (f (ext R Γ A)) (ext R' (f Γ) (fty Γ A)).
-
-  Definition π_compatibility_type (Γ : C) (A : (Ty Γ : hSet))
-             (i : isoext_type Γ A)
-    : UU
-    := functor_on_morphisms f (π R Γ A) =
-       (i:iso _ _ _) · π R' (f Γ) (fty Γ A).
-
-  Definition var_compatibility_type (Γ : C) (A : (Ty Γ : hSet))
-             (i : iso C' (f (ext R Γ A)) (ext R' (f Γ) (fty Γ A)))
-    : UU
-    := functor_on_morphisms Tm' (opp_iso i) (var R' (f Γ) (fty Γ A)) =
-       ftm _ (var R Γ A).
-
-End Representation_Morphisms.
-
 Section CwF.
-
-  Definition disp_cwf_cat_ob_mor
-    : disp_cat_ob_mor (total_bicat (morphisms_of_preshaves SET)).
+  Definition cwf : bicat.
   Proof.
-    use tpair.
-    - intros (C, ((Ty, Tm), pp)).
-      cbn in *.
-      exact (@cwf_representation C _ _ pp).
-    - intros (C, ((Ty, Tm), pp)).
-      intros (C', ((Ty', Tm'), pp')).
-      intros R R'. cbn in *.
-      intros (f, ((fty, ftm), eq)).
-      exact (∏ (Γ : C) (A : (Ty Γ:hSet)),
-             ∑ (φ : isoext_type R R' fty Γ A),
-             π_compatibility_type R R' fty Γ A φ ×
-             var_compatibility_type R R' fty ftm Γ A φ).
-  Defined.
-
-  Lemma disp_cwf_cat_id_comp_internal
-        {C1 : category}
-        {Ty1 Tm1 : opp_precat C1 ⟶ hset_precategory}
-        (pp1 : Tm1 ⟹ Ty1)
-        {C2 : category}
-        {Ty2 Tm2 : opp_precat C2 ⟶ hset_precategory}
-        (pp2 : Tm2 ⟹ Ty2)
-        {C3 : category}
-        {Ty3 Tm3 : opp_precat C3 ⟶ hset_precategory}
-        {pp3 : Tm3 ⟹ Ty3}
-        (f : C1 ⟶ C2)
-        (fty : Ty1 ⟹ functor_composite (functor_opp f) Ty2)
-        (ftm : Tm1 ⟹ functor_composite (functor_opp f) Tm2)
-        (feq : nat_trans_comp pp1 fty=
-               nat_trans_comp ftm (pre_whisker (functor_opp f) pp2))
-        (g : C2 ⟶ C3)
-        (gty : Ty2 ⟹ functor_composite (functor_opp g) Ty3)
-        (gtm : Tm2 ⟹ functor_composite (functor_opp g) Tm3)
-        (geq : nat_trans_comp pp2 gty =
-               nat_trans_comp gtm (pre_whisker (functor_opp g) pp3))
-        (r1 : cwf_representation pp1)
-        (r2 : cwf_representation pp2)
-        (r3 : cwf_representation pp3)
-        (fcomp : ∏ (Γ : C1) (A : (Ty1 Γ : hSet)),
-                 ∑ (φ : isoext_type r1 r2 fty Γ A),
-                 π_compatibility_type r1 r2 fty Γ A φ ×
-                 var_compatibility_type r1 r2 fty ftm Γ A φ)
-        (gcomp : ∏ (Γ : C2) (A : (Ty2 Γ : hSet)),
-                 ∑ (φ : isoext_type r2 r3 gty Γ A),
-                 π_compatibility_type r2 r3 gty Γ A φ ×
-                 var_compatibility_type r2 r3 gty gtm Γ A φ)
-        (Γ : C1) (A : (Ty1 Γ : hSet))
-    : π_compatibility_type
-        r1 r3
-        (@nat_trans_comp _ SET _ _ ((functor_opp (f ∙ g)) ∙ Ty3)
-                         fty (pre_whisker (functor_opp f) gty)) Γ A
-        (iso_comp (functor_on_iso g (pr1 (fcomp Γ A))) (pr1 (gcomp (f Γ) (fty Γ A)))) ×
-      var_compatibility_type
-        r1 r3
-        (@nat_trans_comp _ SET _ _ (functor_opp (f ∙ g) ∙ Ty3)
-                         fty (pre_whisker (functor_opp f) gty))
-        (nat_trans_comp ftm (pre_whisker (functor_opp f) gtm)) Γ A
-        (iso_comp (functor_on_iso g (pr1 (fcomp Γ A))) (pr1 (gcomp (f Γ) (fty Γ A)))).
-  Proof.
-    cbn in *. apply tpair.
-    - unfold π_compatibility_type. cbn.
-      set (fcomp' := fcomp Γ A).
-      set (gcomp' := gcomp (f Γ) (fty _ A)).
-      set (π_fcomp := pr12 fcomp').
-      set (π_gcomp := pr12 gcomp').
-      unfold π_compatibility_type in π_fcomp, π_gcomp.
-      etrans. { apply maponpaths. apply π_fcomp. }
-      rewrite functor_comp.
-      rewrite <- assoc. apply maponpaths.
-      apply π_gcomp.
-    - unfold var_compatibility_type. cbn.
-      set (fcomp' := fcomp Γ A).
-      set (gcomp' := gcomp (f Γ) (fty _ A)).
-      set (fφ := pr1 fcomp').
-      set (gφ := pr1 gcomp').
-      set (var_fcomp := pr22 fcomp').
-      set (var_gcomp := pr22 gcomp').
-      unfold var_compatibility_type in var_fcomp, var_gcomp.
-      cbn in *.
-      rewrite <- var_fcomp.
-      etrans.
-      apply (toforallpaths _ _ _ (functor_comp Tm3 _ _)).
-      cbn.
-      pose (gtmeq := (pr2 gtm) (ext r2 (f Γ) (fty _ A))
-                               (f (ext r1 Γ A))
-                               (pr1 fφ)).
-      apply toforallpaths in gtmeq.
-      cbn in gtmeq.
-      rewrite gtmeq.
-      apply maponpaths.
-      exact var_gcomp.
-  Qed.
-
-  Definition disp_cwf_cat_id_comp
-    : disp_cat_id_comp _ disp_cwf_cat_ob_mor.
-  Proof.
-    apply tpair. cbn.
-    - intros (C, ((Ty, Tm), p)).
-      intros r Γ A.
-      unfold isoext_type.
-      cbn.
-      use tpair.
-      + exact (identity_iso _).
-      + cbn. split.
-        * unfold π_compatibility_type.
-          cbn. apply pathsinv0. apply id_left.
-        * unfold var_compatibility_type. cbn.
-          pose (pp := functor_id Tm (ext r Γ A)).
-          apply (toforallpaths _ _ _ pp).
-    - intros (C1, ((Ty1, Tm1), pp1)).
-      intros (C2, ((Ty2, Tm2), pp2)).
-      intros (C3, ((Ty3, Tm3), pp3)).
-      cbn in *.
-      intros (f, ((fty, ftm), feq)).
-      cbn in *.
-      intros (g, ((gty, gtm), geq)).
-      cbn in *.
-      intros r1 r2 r3.
-      intros fcomp gcomp Γ A.
-      use tpair.
-      + unfold isoext_type. cbn.
-        specialize (fcomp Γ A).
-        set (fφ := pr1 fcomp).
-        unfold isoext_type in fφ.
-        specialize (gcomp (f Γ) (fty _ A)).
-        set (gφ := pr1 gcomp).
-        unfold isoext_type in gφ.
-        exact (iso_comp (functor_on_iso g fφ) gφ).
-      + apply (@disp_cwf_cat_id_comp_internal
-                 C1 Ty1 Tm1 pp1
-                 C2 Ty2 Tm2 pp2
-                 C3 Ty3 Tm3 pp3); [exact feq | exact geq].
-  Defined.
-
-  Definition disp_cwf_cat_data
-    : disp_cat_data (total_bicat (morphisms_of_preshaves SET))
-    := (_ ,, disp_cwf_cat_id_comp).
-
-  Definition disp_cwf : disp_prebicat _
-    := disp_cell_unit_prebicat disp_cwf_cat_data.
-
-(*
-  Definition disp_cwf_prebicat_1_id_comp_cells
-    : disp_prebicat_1_id_comp_cells (total_bicat (morphisms_of_preshaves SET)).
-  Proof.
-    exists disp_cwf_cat_data. red. cbn.
-    intros.
-      (*
+    refine (fullsubbicat (morphisms_of_presheaves SET) _).
     intros (C, ((Ty, Tm), pp)).
-    intros (C', ((Ty', Tm'), pp')).
     cbn in *.
-    intros (f, ((fty, ftm), feq)).
-    intros (g, ((gty, gtm), geq)).
-    cbn in *.
-    intros (x, ((xty, xtm), _)).
-    intros r r' Γ A.
-    cbn in *.
-    unfold cwf_representation in r.
-    unfold cwf_fiber_representation in r.
-    cbn in r.
-       *)
-    exact unit.
+    exact (@cwf_representation C _ _ pp).
   Defined.
-*)
+
+  Definition cwf_is_univalent_2_1
+    : is_univalent_2_1 cwf.
+  Proof.
+    apply is_univalent_2_1_fullsubbicat.
+    apply morphisms_of_presheaves_univalent_2_1.
+  Defined.
+
+  Definition cwf_is_univalent_2_0
+    : is_univalent_2_0 cwf.
+  Proof.
+    apply is_univalent_2_0_fullsubbicat.
+    - apply morphisms_of_presheaves_univalent_2.
+    - intros C.
+      apply isaprop_cwf_representation.
+      apply (pr1 C).
+  Defined.
+
+  Definition cwf_is_univalent_2
+    : is_univalent_2 cwf.
+  Proof.
+    split.
+    - exact cwf_is_univalent_2_0.
+    - exact cwf_is_univalent_2_1.
+  Defined.
 
 End CwF.

@@ -44,7 +44,7 @@ Section Compositor.
                • (Fcomp X Y Z f g ▹ ηobj η Z)).
   Defined.
 
-  Definition compositor_disp_cat_laws
+  Definition compositor_disp_cat_id_comp
     : disp_cat_id_comp (map1cells C D) compositor_disp_cat_data.
   Proof.
     split.
@@ -250,13 +250,13 @@ Section Compositor.
     use disp_cell_unit_bicat.
     use tpair.
     - exact compositor_disp_cat_data.
-    - exact compositor_disp_cat_laws.
+    - exact compositor_disp_cat_id_comp.
   Defined.
 
   Definition compositor_is_disp_univalent_2_1
-    : disp_locally_univalent compositor_disp_cat.
+    : disp_univalent_2_1 compositor_disp_cat.
   Proof.
-    apply disp_cell_unit_bicat_locally_univalent.
+    apply disp_cell_unit_bicat_univalent_2_1.
     intros F G η Fcomp Gcomp ; simpl in *.
     repeat (apply impred ; intro).
     apply D.
@@ -313,4 +313,14 @@ Section Compositor.
       rewrite linvunitor_lunitor, lwhisker_id2, id2_left.
       reflexivity.
   Defined.
+
+  Definition compositor_is_disp_univalent_2
+             (HD_2_1 : is_univalent_2_1 D)
+    : disp_univalent_2 compositor_disp_cat.
+  Proof.
+    split.
+    - apply compositor_is_disp_univalent_2_0; assumption.
+    - exact compositor_is_disp_univalent_2_1.
+  Defined.
+
 End Compositor.
