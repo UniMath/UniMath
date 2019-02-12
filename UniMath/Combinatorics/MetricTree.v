@@ -6,9 +6,6 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Import UniMath.MoreFoundations.Nat.Discern.
 
-(* Require Import UniMath.Algebra.Monoids. *)
-(* Require Import UniMath.Algebra.Groups. *)
-
 (** ** Definitions *)
 
 Definition Tree : Type :=
