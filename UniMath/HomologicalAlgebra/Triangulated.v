@@ -23,7 +23,6 @@ Require Import UniMath.Algebra.Monoids.
 
 Require Import UniMath.NumberSystems.Integers.
 
-Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Local Open Scope cat.
@@ -154,12 +153,12 @@ Section def_triangles.
 
   (** ** Triangles *)
 
-  Definition Tri : UU := ∑ MP : MorphismPair, A⟦Ob3 MP, (AddEquiv1 T) (Ob1 MP)⟧.
+  Definition Tri : UU := ∑ MP : MorphismPair A, A⟦Ob3 MP, (AddEquiv1 T) (Ob1 MP)⟧.
 
   Definition mk_Tri {x y z : ob A} (f : x --> y) (g : y --> z) (h : A⟦z, (AddEquiv1 T x)⟧) : Tri :=
     (mk_MorphismPair f g),,h.
 
-  Definition TriMP (D : Tri) : MorphismPair := pr1 D.
+  Definition TriMP (D : Tri) : MorphismPair A := pr1 D.
   Coercion TriMP : Tri >-> MorphismPair.
 
   (** Follows the naming convention Mor1, Mor2, for MorphismPair *)

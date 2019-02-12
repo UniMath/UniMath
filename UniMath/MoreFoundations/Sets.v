@@ -111,6 +111,7 @@ Defined.
 Definition setcoprod (X Y : hSet) : hSet :=
   hSetpair (X ⨿ Y) (isasetcoprod X Y (pr2 X) (pr2 Y)).
 
+
 (** ** The equivalence relation of being in the same fiber *)
 
 Definition same_fiber_eqrel {X Y : hSet} (f : X → Y) : eqrel X.
@@ -131,3 +132,80 @@ Definition subset {X : hSet} (Hsub : hsubtype X) : hSet :=
 
 Definition makeSubset {X : hSet} {Hsub : hsubtype X} (x : X) (Hx : Hsub x) : subset Hsub :=
   x,, Hx.
+
+Definition pi0 (X : UU) : hSet := setquotinset (pathseqrel X).
+
+Section Pi0.
+  Definition π₀ : Type -> hSet := pi0.
+  Definition component {X:Type} : X -> π₀ X := setquotpr (pathseqrel X).
+  Definition π₀_map {X Y:Type} : (X -> Y) -> (π₀ X -> π₀ Y)
+    := λ f, setquotfun (pathseqrel X) (pathseqrel Y) f (λ x x', hinhfun (maponpaths f)).
+  Definition π₀_universal_property {X:Type} {Y:hSet} : (π₀ X -> Y) ≃ (X -> Y).
+  Proof.
+    exists (λ h, h ∘ component). intros f. apply iscontraprop1.
+    - apply isaproptotal2.
+      + intros h. use (_ : isaset _). apply impred_isaset. intros x. apply setproperty.
+      + intros h h' e e'. apply funextsec. intro w.
+        { apply (surjectionisepitosets component).
+          - apply issurjsetquotpr.
+          - apply setproperty.
+          - intros x. exact (maponpaths (λ k, k x) (e @ ! e')). }
+    - now exists (setquotuniv _ _ f (λ x y e, squash_to_prop e (setproperty Y (f x) (f y)) (maponpaths f))).
+  Defined.
+  Definition π₀_universal_map {X:Type} {Y:hSet} : (X -> Y) -> (π₀ X -> Y) := invmap π₀_universal_property.
+  Lemma π₀_universal_map_eqn {X:Type} {Y:hSet} (f : X -> Y) :
+    ∏ (x:X), π₀_universal_map f (component x) = f x.
+  Proof.
+    reflexivity.
+  Defined.
+  Lemma π₀_universal_map_uniq {X:Type} {Y:hSet} (h h' : π₀ X -> Y) :
+    (∏ x, h (component x) = h' (component x)) -> h ~ h'.
+  Proof.
+    intros e x. apply (surjectionisepitosets component).
+    - apply issurjsetquotpr.
+    - apply setproperty.
+    - exact e.
+  Defined.
+End Pi0.
+
+
+(** ** Minimal equivalence relations *)
+
+(* This should be moved upstream. Constructs the smallest eqrel
+   containing a given relation *)
+Section extras.
+
+  Close Scope set.
+
+  Context {A : UU} (R0 : hrel A).
+
+  Lemma isaprop_eqrel_from_hrel a b :
+    isaprop (∏ R : eqrel A, (∏ x y, R0 x y -> R x y) -> R a b).
+  Proof.
+    apply impred; intro R; apply impred_prop.
+  Qed.
+
+  Definition eqrel_from_hrel : hrel A :=
+    λ a b, hProppair _ (isaprop_eqrel_from_hrel a b).
+
+  Lemma iseqrel_eqrel_from_hrel : iseqrel eqrel_from_hrel.
+  Proof.
+    repeat split.
+    - intros x y z H1 H2 R HR. exact (eqreltrans _ _ _ _ (H1 _ HR) (H2 _ HR)).
+    - now intros x R _; apply (eqrelrefl R).
+    - intros x y H R H'. exact (eqrelsymm _ _ _ (H _ H')).
+  Qed.
+
+  Lemma eqrel_impl a b : R0 a b -> eqrel_from_hrel a b.
+  Proof.
+    now intros H R HR; apply HR.
+  Qed.
+
+  (* eqrel_from_hrel is the *smallest* relation containing R0 *)
+  Lemma minimal_eqrel_from_hrel (R : eqrel A) (H : ∏ a b, R0 a b -> R a b) :
+    ∏ a b, eqrel_from_hrel a b -> R a b.
+  Proof.
+    now intros a b H'; apply (H' _ H).
+  Qed.
+
+End extras.

@@ -15,8 +15,8 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.Propositions.
 
-Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
@@ -25,25 +25,6 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 
 Local Open Scope cat.
-
-Section move_upstream.
-
-Lemma path_to_ctr (A : UU) (B : A -> UU) (isc : iscontr (total2 (λ a, B a)))
-           (a : A) (p : B a) : a = pr1 (pr1 isc).
-Proof.
-exact (maponpaths pr1 (pr2 isc (tpair _ a p))).
-Defined.
-
-Lemma uniqueExists (A : UU) (P : A -> UU)
-  (Hexists : iscontr (total2 (λ a, P a)))
-  (a b : A) (Ha : P a) (Hb : P b) : a = b.
-Proof.
-assert (H : tpair _ _ Ha = tpair _ _ Hb).
-  now apply proofirrelevance, isapropifcontr.
-exact (base_paths _ _ H).
-Defined.
-
-End move_upstream.
 
 Section lim_def.
 
@@ -206,7 +187,7 @@ Lemma lim_endo_is_identity {J C : precategory} {F : functor J C}
   (H : ∏ u, k · limOut CC u = limOut CC u) :
   identity _ = k.
 Proof.
-use (uniqueExists _ _ (limUnivProp CC _ _)).
+use (uniqueExists (limUnivProp CC _ _)).
 - now apply (limCone CC).
 - now intros v; apply id_left.
 - simpl; now apply H.
