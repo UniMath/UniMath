@@ -15,7 +15,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
-Require Import UniMath.CategoryTheory.RepresentableFunctors.GroupAction
+Require Import UniMath.Algebra.GroupAction
                UniMath.NumberSystems.Integers.
 
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.

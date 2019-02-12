@@ -13,7 +13,7 @@ Require Import UniMath.Algebra.Groups.
 
 Require Import UniMath.NumberSystems.Integers
                UniMath.SyntheticHomotopyTheory.AffineLine
-               UniMath.CategoryTheory.RepresentableFunctors.GroupAction
+               UniMath.Algebra.GroupAction
                UniMath.MoreFoundations.MoreEquivalences.
 Delimit Scope paths_scope with paths.
 Local Open Scope paths_scope.
