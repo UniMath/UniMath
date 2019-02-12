@@ -10,14 +10,16 @@ Require UniMath.Combinatorics.BoundedSearch.
 Require UniMath.MoreFoundations.DecidablePropositions.
 Require UniMath.MoreFoundations.NegativePropositions.
 
-Module Test_list.
+Require Import UniMath.Combinatorics.StandardFiniteSets.
+Require Import UniMath.MoreFoundations.NegativePropositions.
+Require Import UniMath.Combinatorics.Lists.
 
-  Import UniMath.Combinatorics.Lists.
+Section Test_list.
 
   Local Notation "[]" := nil (at level 0, format "[]").
   Local Infix "::" := cons.
 
-  Goal concatenate (1::2::[]) (3::4::5::[]) = (1::2::3::4::5::[]).
+  Local Goal concatenate (1::2::[]) (3::4::5::[]) = (1::2::3::4::5::[]).
     reflexivity.
   Defined.
 
@@ -27,10 +29,7 @@ Module Test_list.
 
 End Test_list.
 
-Module Test_stn.
-
-  Import UniMath.Combinatorics.StandardFiniteSets.
-  Import UniMath.MoreFoundations.NegativePropositions.
+Section Test_stn.
 
   Local Open Scope stn.
 
@@ -55,7 +54,7 @@ Module Test_stn.
   Goal @sni 6 (●3) (●4) = ●3. reflexivity. Defined.
   Goal @sni 6 (●3) (●5) = ●4. reflexivity. Defined.
 
-  Module Test_weqdnicompl.
+  Section Test_weqdnicompl.
 
     Let n := 5.
     Let X := stn n.
@@ -77,7 +76,7 @@ Module Test_stn.
 
   End Test_weqdnicompl.
 
-  Module Test2.
+  Section Test2.
     Goal weqdnicoprod 4 firstelement (ii1 (●0)) = ●1. reflexivity. Defined.
     Goal weqdnicoprod 4 firstelement (ii1 (●3)) = ●4. reflexivity. Defined.
     Goal invmap (weqdnicoprod 4 firstelement) (●1) = (ii1 (●0)). reflexivity. Defined.
@@ -112,26 +111,26 @@ Module Test_stn.
     Goal homotweqinvweq w' tt = idpath _. reflexivity. Defined.
     Goal homotinvweqweq w' firstelement = idpath _. reflexivity. Defined.
 
-    Definition ww' := weqcomp w w'.
+    Local Definition ww' := weqcomp w w'.
     Goal ww' tt = tt. reflexivity. Defined.
     Goal invmap ww' tt = tt. reflexivity. Defined.
     Goal homotweqinvweq ww' tt = idpath _. reflexivity. Defined.
     Goal homotinvweqweq ww' tt = idpath _. reflexivity. Defined.
 
-    Definition w_w := weqcoprodf w w.
+    Local Definition w_w := weqcoprodf w w.
     Goal w_w (ii1 tt) = ii1 firstelement. reflexivity. Defined.
     Goal invmap w_w (ii2 firstelement) = ii2 tt. reflexivity. Defined.
     Goal homotweqinvweq w_w (ii2 firstelement) = idpath _. reflexivity. Defined.
     Goal homotinvweqweq w_w (ii1 tt) = idpath _. reflexivity. Defined.
 
-    Definition i := ●1 : stn 4.
-    Definition j := ●0 : stn 4.
+    Local Definition i := ●1 : stn 4.
+    Local Definition j := ●0 : stn 4.
     Lemma ne : ¬ (i = j).
     Proof. apply stnneq_to_nopath. exact tt. Defined.
-    Definition re := weqrecompl (stn 4) i (isisolatedinstn _).
-    Definition re' := weqrecompl_ne (stn 4) i (isisolatedinstn i) (stnneq i).
-    Definition c := complpair (stn 4) i j ne : compl _ i.
-    Definition c' := compl_ne_pair (stn 4) i (stnneq i) j tt : stn_compl i.
+    Local Definition re := weqrecompl (stn 4) i (isisolatedinstn _).
+    Local Definition re' := weqrecompl_ne (stn 4) i (isisolatedinstn i) (stnneq i).
+    Local Definition c := complpair (stn 4) i j ne : compl _ i.
+    Local Definition c' := compl_ne_pair (stn 4) i (stnneq i) j tt : stn_compl i.
     Goal re (ii2 tt) = i. reflexivity. Defined.
     Goal re (ii1 c) = j. reflexivity. Defined.
     Goal invmap re i = (ii2 tt). reflexivity. Defined.
@@ -169,7 +168,7 @@ Module Test_stn.
   Goal ∏ (f : stn 3 -> nat), stnsum f =  f(●0) + f(●1)  +  f(●2). reflexivity. Defined.
   Goal ∏ (f : stn 3 -> nat), stnsum f = (f(●0) + f(●1)) +  f(●2). reflexivity. Defined.
 
-  Module Test_weqstnsum.
+  Section Test_weqstnsum.
     (* this module exports nothing *)
     Let X := stnset 7.
     Let Y (x:X) := stnset (pr1 x).
@@ -200,7 +199,7 @@ Module Test_stn.
 
   End Test_weqstnsum.
 
-  Module Test_weqfromprodofstn.
+  Section Test_weqfromprodofstn.
     (* verify computability in both directions *)
     (* this module exports nothing *)
     Let f : stn 5 × stn 4 ≃ stn 20 := weqfromprodofstn 5 4.
@@ -242,7 +241,7 @@ Module Test_stn.
 
 End Test_stn.
 
-Module Test_fin.
+Section Test_fin.
 
   Import UniMath.Combinatorics.FiniteSets.
 
@@ -274,7 +273,7 @@ Module Test_fin.
   (* Eval compute in (carddneg _  (isfinitedirprod _ _ (isfinitestn (S (S (S (S O)))))  (isfinitestn (S (S (S O)))))). *)
   (* Eval lazy in   (pr1 (finitestructcomplement _ (dirprodpair _ _ tt tt) (finitestructdirprod _ _ (finitestructunit) (finitestructunit)))). *)
 
-  Module Test_isfinite_isdeceq.
+  Section Test_isfinite_isdeceq.
 
     (* This module exports nothing. *)
 
@@ -344,7 +343,7 @@ Module Test_fin.
 
 End Test_fin.
 
-Module Test_seq.
+Section Test_seq.
 
   Import UniMath.Combinatorics.FiniteSequences.
 
@@ -352,7 +351,7 @@ Module Test_seq.
 
 End Test_seq.
 
-Module Test_finite_sets.
+Section Test_finite_sets.
   Import UniMath.Combinatorics.FiniteSets.
   Import UniMath.MoreFoundations.DecidablePropositions.
 
@@ -366,7 +365,7 @@ Module Test_finite_sets.
 
 End Test_finite_sets.
 
-Module Test_ord.
+Section Test_ord.
 
   Import UniMath.Combinatorics.OrderedSets.
   Import UniMath.Combinatorics.StandardFiniteSets.
@@ -376,7 +375,7 @@ Module Test_ord.
 
   Goal 3 = height ( ●3 : ⟦ 8 ⟧ %foset ). reflexivity. Defined.
 
-  Module TestLex.
+  Section TestLex.
     (* we want lex order to be computable if R and S both are *)
     Let X := stnset 5.
     Let R := λ (x x':X), (pr1 x ≤ pr1 x')%dnat.
@@ -399,7 +398,7 @@ Module Test_ord.
 
   End TestLex.
 
-  Module TestLex2.
+  Section TestLex2.
 
     Import UniMath.MoreFoundations.DecidablePropositions.
 
@@ -416,14 +415,14 @@ Module Test_ord.
     Let x := ( ●2 ,, ●1 ):X.
     Let y := ( ●3 ,, ●1 ):X.
 
-    Lemma d : isdeceq X.
+    Local Lemma d : isdeceq X.
     Proof.
       apply isdeceq_total2.
       - apply isdeceqstn.
-      - intro i. apply isdeceqstn.
+      - intro k. apply isdeceqstn.
     Defined.
 
-    Definition which {X} : X ⨿ ¬X -> bool.
+    Local Definition which {Y} : Y ⨿ ¬Y -> bool.
     Proof.
       intros c.
       induction c.
@@ -493,7 +492,7 @@ Module Test_ord.
 
 End Test_ord.
 
-Module Test_search.
+Section Test_search.
 
   Import UniMath.Combinatorics.BoundedSearch.
   Import UniMath.Foundations.Propositions.
@@ -509,7 +508,7 @@ Module Test_search.
         * exact false.
   Defined.
 
-  Definition P : nat → hProp.
+  Local Definition P : nat → hProp.
   Proof.
     intros n.
     refine (hProppair (someseq n = true) _).
@@ -537,6 +536,6 @@ Module Test_search.
 
   Variable P_inhab' : ∃ n, P n.
 
-  Definition new_n' :  ∑ n : nat, P n := minimal_n P P_dec P_inhab'.
+  Local Definition new_n' :  ∑ n : nat, P n := minimal_n P P_dec P_inhab'.
 
 End Test_search.

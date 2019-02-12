@@ -330,6 +330,4 @@ Section Weighting.
   Definition magnitude {n m : nat} (m : Matrix R m n) (has : has_magnitude m) : R :=
     Σ (pr1 (dirprod_pr1 has)).
 
-  Notation "| Mat |" := (magnitude Mat _) : magnitude.
-
 End Weighting.

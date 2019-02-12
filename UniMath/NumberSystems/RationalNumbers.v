@@ -42,6 +42,7 @@ Definition hqzero : hq := unel hqaddabgr .
 Definition hqmult : hq -> hq -> hq := @op2 hq .
 Definition hqone : hq := unel hqmultabmonoid .
 
+Declare Scope hq_scope.
 Bind Scope hq_scope with hq .
 Notation " x + y " := ( hqplus x y ) : hq_scope .
 Notation " 0 " := hqzero : hq_scope .

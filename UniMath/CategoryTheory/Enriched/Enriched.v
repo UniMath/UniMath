@@ -17,6 +17,8 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 
 Local Open Scope cat.
 
+Section A.
+
 (** For the whole file, fix a monoidal category. *)
 Context (Mon_V : monoidal_precat).
 Let V        := monoidal_precat_precat Mon_V.
@@ -236,3 +238,5 @@ Proof.
 
     apply enriched_functor_on_comp.
 Defined.
+
+End A.

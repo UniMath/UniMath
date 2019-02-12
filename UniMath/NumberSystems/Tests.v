@@ -14,7 +14,7 @@ Module Test_nat.
   Goal 3 ≠ 5. exact tt. Defined.
   Goal ¬ (3 ≠ 3). intro n. apply n. Defined.
 
-  Module Test_A.
+  Section Test_A.
     Let C  := compl nat 0.
     Let C' := compl_ne nat 0 (λ m, 0 ≠ m).
     Let w := compl_ne_weq_compl nat 0 (λ m, 0 ≠ m) : C ≃ C'.
@@ -51,7 +51,7 @@ Module Test_nat.
   Goal si 3 4 = 3. reflexivity. Defined.
   Goal si 3 5 = 4. reflexivity. Defined.
 
-  Module Test_weqdicompl.
+  Section Test_weqdicompl.
 
     Let w := weqdicompl 3 : nat ≃ nat_compl 3.
     Goal w 2 = (2,,tt). reflexivity. Defined.

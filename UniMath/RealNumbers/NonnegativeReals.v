@@ -8,6 +8,7 @@ Require Export UniMath.Algebra.ConstructiveStructures.
 Require Import UniMath.RealNumbers.Prelim.
 Require Import UniMath.RealNumbers.NonnegativeRationals.
 
+Declare Scope Dcuts_scope.
 Delimit Scope Dcuts_scope with Dcuts.
 Local Open Scope NRat_scope.
 Local Open Scope Dcuts_scope.
@@ -89,6 +90,7 @@ Proof.
 Qed.
 Definition Dcuts_set : hSet := hSetpair _ isaset_Dcuts.
 Definition pr1Dcuts (x : Dcuts_set) : hsubtype NonnegativeRationals := pr1 x.
+Declare Scope DC_scope.
 Notation "x ∈ X" := (pr1Dcuts X x) (at level 70, no associativity) : DC_scope.
 
 Local Open Scope DC_scope.
@@ -4446,6 +4448,7 @@ Global Opaque Dcuts_zero
               Dcuts_half.
 Global Opaque Dcuts_lim_cauchy_seq.
 
+Declare Scope NR_scope.
 Delimit Scope NR_scope with NR.
 Local Open Scope NR_scope.
 

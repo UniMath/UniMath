@@ -138,6 +138,7 @@ Definition rigaddabmonoid (X : rig) : abmonoid :=
 
 Definition rigmultmonoid (X : rig) : monoid := monoidpair (setwithbinoppair X op2) (rigop2axs X).
 
+Declare Scope rig_scope.
 Notation "x + y" := (op1 x y) : rig_scope.
 Notation "x * y" := (op2 x y) : rig_scope.
 Notation "0" := (rigunel1) : rig_scope.
@@ -791,6 +792,7 @@ Coercion ringaddabgr : ring >-> abgr.
 
 Definition ringmultmonoid (X : ring) : monoid := monoidpair (setwithbinoppair X op2) (ringop2axs X).
 
+Declare Scope ring_scope.
 Notation "x + y" := (op1 x y) : ring_scope.
 Notation "x - y" := (op1 x (ringinv1 y)) : ring_scope.
 Notation "x * y" := (op2 x y) : ring_scope.

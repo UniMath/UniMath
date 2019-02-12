@@ -273,6 +273,7 @@ Definition NonnegativeRationals_to_Rationals : NonnegativeRationals → hq :=
 Definition Rationals_to_NonnegativeRationals (r : hq) (Hr : hqleh 0%hq r) : NonnegativeRationals :=
   tpair _ r Hr.
 
+Declare Scope NRat_scope.
 Delimit Scope NRat_scope with NRat.
 
 (** ** Definitions *)

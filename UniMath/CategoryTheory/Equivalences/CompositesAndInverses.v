@@ -46,6 +46,8 @@ Coercion left_adj_from_adj_equiv (X Y : precategory) (K : functor X Y)
 
 (** ** Equivalences *)
 
+Section A.
+
 Variables D1 D2 : precategory.
 Variable F : functor D1 D2.
 Variable GG : adj_equivalence_of_precats F.
@@ -107,6 +109,8 @@ Proof.
   exists (F d).
   exact (ηinv d).
 Defined.
+
+End A.
 
 (** ** Composition *)
 

@@ -58,6 +58,7 @@ Coercion ac_set : Action >-> hSet.
 Definition ac_type {G:gr} (X:Action G) := pr1hSet (ac_set X).
 Definition ac_str {G:gr} (X:Action G) := pr2 X : ActionStructure G (ac_set X).
 Definition ac_mult {G:gr} (X:Action G) := act_mult (pr2 X).
+Declare Scope action_scope.
 Delimit Scope action_scope with action.
 Local Notation "g * x" := (ac_mult _ g x) : action_scope.
 Local Open Scope action_scope.

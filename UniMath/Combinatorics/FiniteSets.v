@@ -241,6 +241,7 @@ Proof.
   - intros i. exact (pr2 (X i)).
 Defined.
 
+Declare Scope finset.
 Delimit Scope finset with finset.
 
 Notation "'∑' x .. y , P" := (FiniteSetSum (λ x,.. (FiniteSetSum (λ y, P))..))

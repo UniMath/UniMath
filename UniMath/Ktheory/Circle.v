@@ -16,6 +16,7 @@ Require Import UniMath.Ktheory.AffineLine
                UniMath.Ktheory.Integers
                UniMath.Ktheory.MoreEquivalences.
 Require Import UniMath.Ktheory.Utilities.
+Declare Scope paths_scope.
 Delimit Scope paths_scope with paths.
 Local Open Scope paths_scope.
 Local Open Scope action_scope.

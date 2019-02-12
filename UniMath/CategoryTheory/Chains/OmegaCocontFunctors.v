@@ -1469,6 +1469,7 @@ End cocont_slicecat_to_cat_HSET.
 End cocont_functors.
 
 (** Specialized notations for HSET *)
+Declare Scope cocont_functor_hset_scope.
 Delimit Scope cocont_functor_hset_scope with CS.
 
 Notation "' x" := (omega_cocont_constant_functor has_homsets_HSET x)

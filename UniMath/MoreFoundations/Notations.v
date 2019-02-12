@@ -13,6 +13,7 @@ Notation "A ⇔ B" := (hequiv A B) (at level 95, no associativity) : logic.
 Definition total2_hProp {X : hProp} (Y : X -> hProp) : hProp
   := hProppair (∑ x, Y x) (isaprop_total2 X Y).
 
+Declare Scope prop.
 Delimit Scope prop with prop.
 
 Notation "'∑' x .. y , P" := (total2_hProp (λ x,.. (total2_hProp (λ y, P))..))
