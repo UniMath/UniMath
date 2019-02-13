@@ -39,10 +39,10 @@ HIDE := $(if $(VERBOSE),,@)
 .PHONY: all everything install lc lcp wc describe clean distclean build-coq doc build-coqide html
 all: make-summary-files
 everything: TAGS all html install
-sanity-checks:  check-for-change-to-Foundations	\
-		check-prescribed-ordering	\
-		check-travis			\
+sanity-checks:  check-prescribed-ordering	\
 		check-listing-of-proof-files	\
+		check-travis			\
+		check-for-change-to-Foundations	\
 		check-for-submodule-changes
 other-checks:   check-max-line-length
 
