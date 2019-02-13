@@ -51,33 +51,30 @@ Local Open Scope type_scope.
 (** * Displayed categories *)
 
 (*
-
-  Here is a record definition that displays the logical structure of the
-  iterated ∑-type defined below.  (We don't use records in Unimath.)
-
-  Record disp_cat (C : precategory) : UU :=
-    { ob_disp : C -> UU
-    ; mor_disp {x y : C} : (x --> y) -> ob_disp x -> ob_disp y -> UU
-    ; id_disp {x : C} (xx : ob_disp x) : mor_disp (identity x) xx xx
-    ; comp_disp {x y z : C} {f : x --> y} {g : y --> z}
-                   {xx : ob_disp x} {yy : ob_disp y} {zz : ob_disp z}
-        : mor_disp f xx yy -> mor_disp g yy zz -> mor_disp (f ;; g) xx zz
-    ; id_left_disp {x y} {f : x --> y} {xx} {yy} (ff : mor_disp f xx yy)
-        : comp_disp (id_disp xx) ff
-          = transportb (λ g, mor_disp g xx yy) (id_left _) ff
-    ; id_right_disp {x y} {f : x --> y} {xx} {yy} (ff : mor_disp f xx yy)
-        : comp_disp ff (id_disp yy)
-          = transportb (λ g, mor_disp g xx yy) (id_right _) ff
-    ; assoc_disp {x y z w} {f : x --> y} {g : y --> z} {h : z --> w}
-        {xx} {yy} {zz} {ww}
-        (ff : mor_disp f xx yy) (gg : mor_disp g yy zz) (hh : mor_disp h zz ww)
-        : comp_disp ff (comp_disp gg hh)
-          = transportb (λ k, mor_disp k _ _) (assoc _ _ _)
-            (comp_disp (comp_disp ff gg) hh)
-    ; homsets_disp {x y} {f : x --> y} {xx} {yy} : isaset (mor_disp f xx yy)
-    }.
-
+  Here is an iterated ∑-type that displays a logical structure equivalent to the
+  type called disp_cat defined below.
 *)
+
+Definition disp_cat' (C : precategory) : UU :=
+  ∑ (ob_disp : C -> UU)
+    (mor_disp : ∏ {x y : C}, (x --> y) -> ob_disp x -> ob_disp y -> UU)
+    (id_disp : ∏ {x : C} (xx : ob_disp x), mor_disp (identity x) xx xx)
+    (comp_disp : ∏ {x y z : C} {f : x --> y} {g : y --> z}
+                   {xx : ob_disp x} {yy : ob_disp y} {zz : ob_disp z},
+                 mor_disp f xx yy -> mor_disp g yy zz -> mor_disp (f ;; g) xx zz)
+    (id_left_disp : ∏ {x y} {f : x --> y} {xx} {yy} (ff : mor_disp f xx yy),
+                    comp_disp (id_disp xx) ff
+                    = transportb (λ g, mor_disp g xx yy) (id_left _) ff)
+    (id_right_disp : ∏ {x y} {f : x --> y} {xx} {yy} (ff : mor_disp f xx yy),
+                     comp_disp ff (id_disp yy)
+                     = transportb (λ g, mor_disp g xx yy) (id_right _) ff)
+    (assoc_disp : ∏ {x y z w} {f : x --> y} {g : y --> z} {h : z --> w}
+                    {xx} {yy} {zz} {ww}
+                    (ff : mor_disp f xx yy) (gg : mor_disp g yy zz) (hh : mor_disp h zz ww),
+                  comp_disp ff (comp_disp gg hh)
+                  = transportb (λ k, mor_disp k _ _) (assoc _ _ _)
+                               (comp_disp (comp_disp ff gg) hh)),
+  (* homsets_disp : *) ∏ {x y} {f : x --> y} {xx} {yy}, isaset (mor_disp f xx yy).
 
 (** ** Definition *)
 
