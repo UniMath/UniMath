@@ -1092,6 +1092,8 @@ Defined.
 
 (** ** Definition of p-adic integers *)
 
+Section A.
+
 Variable p : hz.
 Variable is : isaprime p.
 
@@ -2311,6 +2313,8 @@ Proof.
 Defined.
 
 Definition padics : afld := afldfrac padicintegers.
+
+End A.
 
 Close Scope ring_scope.
 (** END OF FILE*)

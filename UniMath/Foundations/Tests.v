@@ -12,9 +12,9 @@ Goal ∏ n, 1*n = n. intros. apply idpath. Defined.
 Goal ∏ n, 4*n = n+n+n+n. intros. apply idpath. Defined.
 Goal ∏ X x, idweq X x = x. intros. apply idpath. Defined.
 
-Module Test_isweq_iso.
+Section Test_isweq_iso.
   Let f := idfun nat.
-  Definition w : nat ≃ nat := weq_iso f f (λ _, idpath _) (λ _, idpath _).
+  Let w : nat ≃ nat := weq_iso f f (λ _, idpath _) (λ _, idpath _).
   Goal homotinvweqweq w 3 = idpath _. apply idpath. Defined.
   Goal homotweqinvweq w 3 = idpath _. apply idpath. Defined.
   Goal homotweqinvweqweq w 3 = idpath _. apply idpath. Defined.
@@ -28,7 +28,7 @@ End Test_isweq_iso.
 
 Goal ∏ X x, invweq (idweq X) x = x. intros. apply idpath. Defined.
 
-Module Test_weqtotal2overcoprod.
+Section Test_weqtotal2overcoprod.
   Let P (t : bool ⨿ bool) := nat.
   Goal weqtotal2overcoprod P (ii1 true,,3) = ii1 (true,,3). apply idpath. Defined.
   Goal weqtotal2overcoprod P (ii2 false,,3) = ii2 (false,,3). apply idpath. Defined.

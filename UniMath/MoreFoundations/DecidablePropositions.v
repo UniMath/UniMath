@@ -262,6 +262,7 @@ Proof.
   intros. exists (¬ P). apply neg_isdecprop; apply decidabilityProperty.
 Defined.
 
+(* Declare Scope decidable_logic. *)
 Notation "X ∨ Y" := (decidableOr X Y) (at level 85, right associativity) :
                       decidable_logic.
 Notation "A ∧ B" := (decidableAnd A B) (at level 80, right associativity) :
@@ -372,6 +373,7 @@ Definition nateq_DecidableProposition : DecidableRelation nat :=
 Definition natneq_DecidableProposition : DecidableRelation nat :=
   decrel_to_DecidableRelation natdecneq.
 
+(* Declare Scope decidable_nat. *)
 Notation " x < y " := (natlth_DecidableProposition x y) (at level 70, no associativity) :
                         decidable_nat.
 Notation " x <= y " := (natleh_DecidableProposition x y) (at level 70, no associativity) :

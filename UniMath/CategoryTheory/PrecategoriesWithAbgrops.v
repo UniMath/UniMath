@@ -199,6 +199,7 @@ Arguments to_inv [PA] [x] [y] _.
 Arguments inv_inv_eq [PA] [x] [y] _.
 Arguments cancel_inv [PA] [x] [y] _ _ _.
 
+(* Declare Scope abgrcat. *)
 Delimit Scope abgrcat with abgrcat.
 Notation "b <-- a" := (to_abgr a b) : abgrcat.
 Notation "a --> b" := (to_abgr a b) : abgrcat.
