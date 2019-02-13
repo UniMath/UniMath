@@ -2683,13 +2683,6 @@ Definition pi0 (X : UU) : UU := setquot (pathshrel X).
 Definition pi0pr (X : UU) : X -> setquot (pathseqrel X)
   := setquotpr (pathseqrel X).
 
-
-
-
-
-
-
-
 (** **  Set quotients. Construction 2.
 
 

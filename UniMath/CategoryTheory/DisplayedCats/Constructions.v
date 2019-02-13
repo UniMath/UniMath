@@ -50,34 +50,6 @@ Proof.
   apply isweqdirprodf.
 Defined.
 
-(* TODO: perhaps upstream; consider name *)
-Lemma total2_reassoc_paths {A} {B : A → UU} {C : (∑ a, B a) -> UU}
-    (BC : A -> UU := λ a, ∑ b, C (a,,b))
-    {a1 a2 : A} (bc1 : BC a1) (bc2 : BC a2)
-    (ea : a1 = a2)
-    (eb : transportf _ ea (pr1 bc1) = pr1 bc2)
-    (ec : transportf C (two_arg_paths_f (*was total2_paths2*) ea eb) (pr2 bc1) = pr2 bc2)
-  : transportf _ ea bc1 = bc2.
-Proof.
-  destruct ea, bc1 as [b1 c1], bc2 as [b2 c2].
-  cbn in *; destruct eb, ec.
-  apply idpath.
-Defined.
-
-(* TODO: as for non-primed version above *)
-Lemma total2_reassoc_paths' {A} {B : A → UU} {C : (∑ a, B a) -> UU}
-    (BC : A -> UU := λ a, ∑ b, C (a,,b))
-    {a1 a2 : A} (bc1 : BC a1) (bc2 : BC a2)
-    (ea : a1 = a2)
-    (eb : pr1 bc1 = transportb _ ea (pr1 bc2))
-    (ec : pr2 bc1 = transportb C (total2_paths2_b ea eb) (pr2 bc2))
-  : bc1 = transportb _ ea bc2.
-Proof.
-  destruct ea, bc1 as [b1 c1], bc2 as [b2 c2].
-  cbn in eb; destruct eb; cbn in ec; destruct ec.
-  apply idpath.
-Defined.
-
 Lemma transportf_pathsinv0_var :
 ∏ {X : UU} {P : X → UU} {x y : X} {p : x = y} {u : P x}
 {v : P y}, transportf P p u = v → transportf P (!p) v = u.

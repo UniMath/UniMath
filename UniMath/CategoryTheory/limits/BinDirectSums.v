@@ -16,7 +16,6 @@ Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.Monoids.
 
-Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
@@ -419,41 +418,55 @@ Section def_bindirectsums.
   Qed.
 
 End def_bindirectsums.
+Arguments BinDirectSumIndAr {_ _ _ _ _}.
+Arguments BinDirectSumOb {_ _ _}.
+Arguments BinDirectSum {_}.
+Arguments to_Pr1 {_ _ _} _.
+Arguments to_Pr2 {_ _ _} _.
+Arguments to_In1 {_ _ _} _.
+Arguments to_In2 {_ _ _} _.
+Arguments to_BinOpId {_ _ _ _ _ _ _ _}.
+Arguments to_IdIn1 {_ _ _ _ _ _ _ _}.
+Arguments to_IdIn2 {_ _ _ _ _ _ _ _}.
+Arguments to_Unel1 {_ _ _ _ _ _ _ _}.
+Arguments to_Unel2 {_ _ _ _ _ _ _ _}.
+Arguments ToBinDirectSum {_ _ _} _ {_}.
+Arguments isBinDirectSum {_ _ _ _}.
 
 (** In1 and In2 are monics, and Pr1 and Pr2 are epis. *)
 Section bindirectsums_monics_and_epis.
 
   Variable A : PreAdditive.
 
-  Lemma to_In1_isMonic {a b : A} (B : BinDirectSum A a b) : isMonic (to_In1 A B).
+  Lemma to_In1_isMonic {a b : A} (B : BinDirectSum a b) : isMonic (to_In1 B).
   Proof.
     intros z f g H.
-    apply (maponpaths (λ h : _, h · (to_Pr1 A B))) in H.
-    repeat rewrite <- assoc in H. rewrite (to_IdIn1 A B) in H.
+    apply (maponpaths (λ h : _, h · (to_Pr1 B))) in H.
+    repeat rewrite <- assoc in H. rewrite (to_IdIn1 B) in H.
     repeat rewrite id_right in H. apply H.
   Qed.
 
-  Lemma to_In2_isMonic {a b : A} (B : BinDirectSum A a b) : isMonic (to_In2 A B).
+  Lemma to_In2_isMonic {a b : A} (B : BinDirectSum a b) : isMonic (to_In2 B).
   Proof.
     intros z f g H.
-    apply (maponpaths (λ h : _, h · (to_Pr2 A B))) in H.
-    repeat rewrite <- assoc in H. rewrite (to_IdIn2 A B) in H.
+    apply (maponpaths (λ h : _, h · (to_Pr2 B))) in H.
+    repeat rewrite <- assoc in H. rewrite (to_IdIn2 B) in H.
     repeat rewrite id_right in H. apply H.
   Qed.
 
-  Lemma to_Pr1_isEpi {a b : A} (B : BinDirectSum A a b) : isEpi (to_Pr1 A B).
+  Lemma to_Pr1_isEpi {a b : A} (B : BinDirectSum a b) : isEpi (to_Pr1 B).
   Proof.
     intros z f g H.
-    apply (maponpaths (λ h : _, (to_In1 A B) · h)) in H.
-    repeat rewrite assoc in H. rewrite (to_IdIn1 A B) in H.
+    apply (maponpaths (λ h : _, (to_In1 B) · h)) in H.
+    repeat rewrite assoc in H. rewrite (to_IdIn1 B) in H.
     repeat rewrite id_left in H. apply H.
   Qed.
 
-  Lemma to_Pr2_isEpi {a b : A} (B : BinDirectSum A a b) : isEpi (to_Pr2 A B).
+  Lemma to_Pr2_isEpi {a b : A} (B : BinDirectSum a b) : isEpi (to_Pr2 B).
   Proof.
     intros z f g H.
-    apply (maponpaths (λ h : _, (to_In2 A B) · h)) in H.
-    repeat rewrite assoc in H. rewrite (to_IdIn2 A B) in H.
+    apply (maponpaths (λ h : _, (to_In2 B) · h)) in H.
+    repeat rewrite assoc in H. rewrite (to_IdIn2 B) in H.
     repeat rewrite id_left in H. apply H.
   Qed.
 
@@ -573,7 +586,7 @@ Section bindirectsums_criteria.
   Qed.
 
   Definition BinDirectSum_from_BinProduct {X Y : A} (P : BinProduct A X Y) :
-    BinDirectSum A X Y :=
+    BinDirectSum X Y :=
     mk_BinDirectSum
       A X Y
       (BinProductObject A P)
@@ -612,8 +625,8 @@ Section bindirectsums_in_quot.
 
   Lemma Quotcategory_isBinCoproduct (x y : A) :
     isBinCoproduct (Quotcategory_PreAdditive A PAS PAC) x y (BD x y)
-                         (to_quot_mor A PAS (to_In1 A (BD x y)))
-                         (to_quot_mor A PAS (to_In2 A (BD x y))).
+                         (to_quot_mor A PAS (to_In1 (BD x y)))
+                         (to_quot_mor A PAS (to_In2 (BD x y))).
   Proof.
     use mk_isBinCoproduct.
     - apply has_homsets_Quotcategory.
@@ -640,7 +653,7 @@ Section bindirectsums_in_quot.
           rewrite <- (@id_left (Quotcategory_PreAdditive A PAS PAC) _ _
                               (setquotpr (binopeqrel_subgr_eqrel (PAS (BD x y) c)) y1)).
           rewrite <- (@id_left A _ _ (FromBinDirectSum A (BD x y) f1 g1)).
-          rewrite <- (to_BinOpId A (BD x y)). rewrite to_postmor_linear'.
+          rewrite <- (to_BinOpId (BD x y)). rewrite to_postmor_linear'.
           repeat rewrite <- assoc.
           rewrite BinDirectSumIn1Commutes.
           rewrite BinDirectSumIn2Commutes.
@@ -663,15 +676,15 @@ Section bindirectsums_in_quot.
           set (tmp := @setquotpr_linear A PAS PAC (BD x y) (BD x y)). unfold to_quot_mor in tmp.
           rewrite <- tmp. clear tmp.
           rewrite comp_eq.
-          rewrite (to_BinOpId A (BD x y)).
+          rewrite (to_BinOpId (BD x y)).
           rewrite comp_eq. apply cancel_postcomposition.
           apply idpath.
   Qed.
 
   Lemma Quotcategory_isBinProduct (x y : A) :
     isBinProduct (Quotcategory_PreAdditive A PAS PAC) x y (BD x y)
-                     (to_quot_mor A PAS (to_Pr1 A (BD x y)))
-                     (to_quot_mor A PAS (to_Pr2 A (BD x y))).
+                     (to_quot_mor A PAS (to_Pr1 (BD x y)))
+                     (to_quot_mor A PAS (to_Pr2 (BD x y))).
   Proof.
     use mk_isBinProduct.
     - apply has_homsets_Quotcategory.
@@ -682,7 +695,7 @@ Section bindirectsums_in_quot.
       use (squash_to_prop g''). apply isapropiscontr. intros g'. clear g''.
       induction f' as [f1 f2]. induction g' as [g1 g2]. cbn in f1, g1.
       use unique_exists.
-      + exact (to_quot_mor A PAS (ToBinDirectSum A (BD x y) f1 g1)).
+      + exact (to_quot_mor A PAS (ToBinDirectSum (BD x y) f1 g1)).
       + cbn beta. split.
         * use (pathscomp0 (Quotcategory_comp_linear A PAS PAC _ _)).
           rewrite BinDirectSumPr1Commutes. exact f2.
@@ -697,8 +710,8 @@ Section bindirectsums_in_quot.
           cbn in y1.
           rewrite <- (@id_right (Quotcategory_PreAdditive A PAS PAC) _ _
                                (setquotpr (binopeqrel_subgr_eqrel (PAS c (BD x y))) y1)).
-          rewrite <- (@id_right A _ _ (ToBinDirectSum A (BD x y) f1 g1)).
-          rewrite <- (to_BinOpId A (BD x y)). rewrite to_premor_linear'.
+          rewrite <- (@id_right A _ _ (ToBinDirectSum (BD x y) f1 g1)).
+          rewrite <- (to_BinOpId (BD x y)). rewrite to_premor_linear'.
           repeat rewrite assoc.
           rewrite BinDirectSumPr1Commutes.
           rewrite BinDirectSumPr2Commutes.
@@ -721,7 +734,7 @@ Section bindirectsums_in_quot.
           set (tmp := @setquotpr_linear A PAS PAC (BD x y) (BD x y)). unfold to_quot_mor in tmp.
           rewrite <- tmp. clear tmp.
           rewrite comp_eq.
-          rewrite (to_BinOpId A (BD x y)).
+          rewrite (to_BinOpId (BD x y)).
           rewrite comp_eq. apply cancel_precomposition.
           apply idpath.
   Qed.
@@ -729,34 +742,34 @@ Section bindirectsums_in_quot.
   Opaque Quotcategory_PreAdditive. (* This speeds up the following proof significantly. *)
   Lemma Quotcategory_isBinDirectSum (x y : A) :
     isBinDirectSum
-      (Quotcategory_PreAdditive A PAS PAC) x y (BD x y)
-      (to_quot_mor A PAS (to_In1 A (BD x y))) (to_quot_mor A PAS (to_In2 A (BD x y)))
-      (to_quot_mor A PAS (to_Pr1 A (BD x y))) (to_quot_mor A PAS (to_Pr2 A (BD x y))).
+      (A := Quotcategory_PreAdditive A PAS PAC)
+      (to_quot_mor A PAS (to_In1 (BD x y))) (to_quot_mor A PAS (to_In2 (BD x y)))
+      (to_quot_mor A PAS (to_Pr1 (BD x y))) (to_quot_mor A PAS (to_Pr2 (BD x y))).
   Proof.
     use mk_isBinDirectSum.
     - unfold to_quot_mor.
       rewrite <- comp_eq.
       set (tmp := @Quotcategory_comp_linear A PAS PAC x (BD x y) x).
       unfold to_quot_mor in tmp. rewrite tmp. clear tmp.
-      rewrite (to_IdIn1 A (BD x y)).
+      rewrite (to_IdIn1 (BD x y)).
       apply idpath.
     - unfold to_quot_mor.
       rewrite <- comp_eq.
       set (tmp := @Quotcategory_comp_linear A PAS PAC y (BD x y) y).
       unfold to_quot_mor in tmp. rewrite tmp. clear tmp.
-      rewrite (to_IdIn2 A (BD x y)).
+      rewrite (to_IdIn2 (BD x y)).
       apply idpath.
     - unfold to_quot_mor.
       rewrite <- comp_eq.
       set (tmp := @Quotcategory_comp_linear A PAS PAC x (BD x y) y).
       unfold to_quot_mor in tmp. rewrite tmp. clear tmp.
-      rewrite (to_Unel1 A (BD x y)).
+      rewrite (to_Unel1 (BD x y)).
       apply idpath.
     - unfold to_quot_mor.
       rewrite <- comp_eq.
       set (tmp := @Quotcategory_comp_linear A PAS PAC y (BD x y) x).
       unfold to_quot_mor in tmp. rewrite tmp. clear tmp.
-      rewrite (to_Unel2 A (BD x y)).
+      rewrite (to_Unel2 (BD x y)).
       apply idpath.
     - unfold to_quot_mor.
       repeat rewrite <- comp_eq.
@@ -766,7 +779,7 @@ Section bindirectsums_in_quot.
       unfold to_quot_mor in tmp. rewrite tmp. clear tmp.
       set (tmp := @setquotpr_linear A PAS PAC (BD x y) (BD x y)). unfold to_quot_mor in tmp.
       rewrite <- tmp. clear tmp.
-      rewrite (to_BinOpId A (BD x y)).
+      rewrite (to_BinOpId (BD x y)).
       apply idpath.
   Qed.
   Transparent Quotcategory_PreAdditive. (* Transparent again *)
@@ -776,48 +789,48 @@ Section bindirectsums_in_quot.
     intros x y.
     use mk_BinDirectSum.
     - exact (BD x y).
-    - exact (to_quot_mor A PAS (to_In1 A (BD x y))).
-    - exact (to_quot_mor A PAS (to_In2 A (BD x y))).
-    - exact (to_quot_mor A PAS (to_Pr1 A (BD x y))).
-    - exact (to_quot_mor A PAS (to_Pr2 A (BD x y))).
+    - exact (to_quot_mor A PAS (to_In1 (BD x y))).
+    - exact (to_quot_mor A PAS (to_In2 (BD x y))).
+    - exact (to_quot_mor A PAS (to_Pr1 (BD x y))).
+    - exact (to_quot_mor A PAS (to_Pr2 (BD x y))).
     - exact (Quotcategory_isBinDirectSum x y).
   Defined.
 
 End bindirectsums_in_quot.
 
-Notation "'π₁'" := (to_Pr1 _ _) : abgrcat.
-Notation "'π₂'" := (to_Pr2 _ _) : abgrcat.
-Notation "'ι₁'" := (to_In1 _ _) : abgrcat.
-Notation "'ι₂'" := (to_In2 _ _) : abgrcat.
+Notation "'π₁'" := (to_Pr1 _) : abgrcat.
+Notation "'π₂'" := (to_Pr2 _) : abgrcat.
+Notation "'ι₁'" := (to_In1 _) : abgrcat.
+Notation "'ι₂'" := (to_In2 _) : abgrcat.
 Local Open Scope abgrcat.
 
-Definition reverseBinDirectSum {M:PreAdditive} {A B:M} : BinDirectSum M A B -> BinDirectSum M B A.
+Definition reverseBinDirectSum {M:PreAdditive} {A B:M} : BinDirectSum A B -> BinDirectSum B A.
 Proof.
   intros AB.
-  refine (mk_BinDirectSum M B A (BinDirectSumOb M AB) ι₂ ι₁ π₂ π₁ _).
+  refine (mk_BinDirectSum M B A (BinDirectSumOb AB) ι₂ ι₁ π₂ π₁ _).
   unfold isBinDirectSum.
-  exists (to_IdIn2 _ (pr2 AB)).
-  exists (to_IdIn1 _ (pr2 AB)).
-  exists (to_Unel2 _ (pr2 AB)).
-  exists (to_Unel1 _ (pr2 AB)).
+  exists (to_IdIn2 (pr2 AB)).
+  exists (to_IdIn1 (pr2 AB)).
+  exists (to_Unel2 (pr2 AB)).
+  exists (to_Unel1 (pr2 AB)).
   cbn. rewrite rewrite_op.
   (* goal is now π₂ · ι₂ + π₁ · ι₁ = 1 *)
-  exact (commax (to_abgr _ _) _ _ @ to_BinOpId _ (pr2 AB)).
+  exact (commax (to_abgr _ _) _ _ @ to_BinOpId (pr2 AB)).
 Defined.
 
 Definition oppositeBinDirectSum {M:PreAdditive} {x y:M} :
-  BinDirectSum M x y -> BinDirectSum (oppositePreAdditive M) x y.
+  BinDirectSum x y -> BinDirectSum (A:=oppositePreAdditive M) x y.
 Proof.
   intros Q.
   use mk_BinDirectSum.
-  + exact (BinDirectSumOb _ Q).
-  + exact (to_Pr1 _ Q).
-  + exact (to_Pr2 _ Q).
-  + exact (to_In1 _ Q).
-  + exact (to_In2 _ Q).
+  + exact (BinDirectSumOb Q).
+  + exact (to_Pr1 Q).
+  + exact (to_Pr2 Q).
+  + exact (to_In1 Q).
+  + exact (to_In2 Q).
   + exact (mk_isBinDirectSum (oppositePreAdditive M) _ _ _ _ _ _ _
-       (to_IdIn1 _ Q) (to_IdIn2 _ Q) (to_Unel2 _ Q) (to_Unel1 _ Q)
-       (to_BinOpId _ Q)).
+       (to_IdIn1 Q) (to_IdIn2 Q) (to_Unel2 Q) (to_Unel1 Q)
+       (to_BinOpId Q)).
 Defined.
 
 Definition isTrivialDirectSum {M : PreAdditive} (Z:Zero M) (A:M) : @isBinDirectSum M A Z A 1 0 1 0.
@@ -829,7 +842,7 @@ Proof.
   - apply ArrowsFromZero.
   - rewrite id_right. rewrite to_premor_unel'. rewrite rewrite_op. rewrite runax. reflexivity.
 Qed.
-Definition TrivialDirectSum {M : PreAdditive} (Z:Zero M) (A:M) : BinDirectSum M A Z.
+Definition TrivialDirectSum {M : PreAdditive} (Z:Zero M) (A:M) : BinDirectSum A Z.
 Proof.
   exact (mk_BinDirectSum _ _ _ _ _ _ _ _ (isTrivialDirectSum _ _)).
 Defined.
@@ -842,30 +855,30 @@ Proof.
   - apply ArrowsToZero.
   - rewrite id_right. rewrite to_premor_unel'. rewrite rewrite_op. rewrite lunax. reflexivity.
 Qed.
-Definition TrivialDirectSum' {M : PreAdditive} (Z:Zero M) (A:M) : BinDirectSum M Z A.
+Definition TrivialDirectSum' {M : PreAdditive} (Z:Zero M) (A:M) : BinDirectSum Z A.
 Proof.
   exact (mk_BinDirectSum _ _ _ _ _ _ _ _ (isTrivialDirectSum' _ _)).
 Defined.
-Definition replaceSum {M:PreAdditive} {A B C:M} (S:BinDirectSum M A B) :
-  z_iso C S -> BinDirectSum M A B (* with C judgmentally equal to the sum object *).
+Definition replaceSum {M:PreAdditive} {A B C:M} (S:BinDirectSum A B) :
+  z_iso C S -> BinDirectSum A B (* with C judgmentally equal to the sum object *).
 Proof.
   intros r.
   exists (C,, ι₁ · z_iso_inv r,, ι₂ · z_iso_inv r,, r · π₁,, r · π₂).
   repeat split; cbn.
-  + rewrite assoc'. rewrite (assoc _ r). rewrite z_iso_after_z_iso_inv, id_left. exact (to_IdIn1 _ S).
-  + rewrite assoc'. rewrite (assoc _ r). rewrite z_iso_after_z_iso_inv, id_left. exact (to_IdIn2 _ S).
-  + rewrite assoc'. rewrite (assoc _ r). rewrite z_iso_after_z_iso_inv, id_left. exact (to_Unel1 _ S).
-  + rewrite assoc'. rewrite (assoc _ r). rewrite z_iso_after_z_iso_inv, id_left. exact (to_Unel2 _ S).
+  + rewrite assoc'. rewrite (assoc _ r). rewrite z_iso_after_z_iso_inv, id_left. exact (to_IdIn1 S).
+  + rewrite assoc'. rewrite (assoc _ r). rewrite z_iso_after_z_iso_inv, id_left. exact (to_IdIn2 S).
+  + rewrite assoc'. rewrite (assoc _ r). rewrite z_iso_after_z_iso_inv, id_left. exact (to_Unel1 S).
+  + rewrite assoc'. rewrite (assoc _ r). rewrite z_iso_after_z_iso_inv, id_left. exact (to_Unel2 S).
   + rewrite rewrite_op. rewrite 2 (assoc' r). rewrite 4 (assoc _ _ (z_iso_inv_mor r)).
     rewrite <- leftDistribute. rewrite <- rightDistribute. rewrite wrap_inverse'.
     * reflexivity.
-    * exact (to_BinOpId _ S).
+    * exact (to_BinOpId S).
 Defined.
-Lemma DirectSumIn1Pr2 {M:PreAdditive} {a b:M} (S:BinDirectSum M a b) : to_In1 _ S · to_Pr2 _ S = 0.
+Lemma DirectSumIn1Pr2 {M:PreAdditive} {a b:M} (S:BinDirectSum a b) : to_In1 S · to_Pr2 S = 0.
 Proof.
-  exact (to_Unel1 _ S).
+  exact (to_Unel1 S).
 Defined.
-Lemma DirectSumIn2Pr1 {M:PreAdditive} {a b:M} (S:BinDirectSum M a b) : to_In2 _ S · to_Pr1 _ S = 0.
+Lemma DirectSumIn2Pr1 {M:PreAdditive} {a b:M} (S:BinDirectSum a b) : to_In2 S · to_Pr1 S = 0.
 Proof.
-  exact (to_Unel2 _ S).
+  exact (to_Unel2 S).
 Defined.

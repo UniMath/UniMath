@@ -13,6 +13,7 @@ PACKAGES += MoreFoundations
 PACKAGES += Combinatorics
 PACKAGES += Algebra
 PACKAGES += NumberSystems
+PACKAGES += SyntheticHomotopyTheory
 PACKAGES += PAdics
 PACKAGES += CategoryTheory
 PACKAGES += Ktheory
@@ -133,7 +134,9 @@ COQDEFS := --language=none																			\
 	-r '/^[[:space:]]*Delimit[[:space:]]+Scope[[:space:]]+[[:alnum:][:nonascii:]'\''_]+[[:space:]]+with[[:space:]]+\([[:alnum:][:nonascii:]'\''_]+\)[[:space:]]*\./\1/'
 
 $(foreach P,$(PACKAGES),$(eval TAGS-$P: Makefile $(filter UniMath/$P/%,$(VFILES)); etags $(COQDEFS) -o $$@ $$^))
-TAGS : Makefile $(PACKAGE_FILES) $(VFILES); etags $(COQDEFS) $(VFILES)
+TAGS : Makefile $(PACKAGE_FILES) $(VFILES)
+	$(SHOW)ETAGS
+	$(HIDE)etags $(COQDEFS) $(VFILES)
 FILES_FILTER := grep -vE '^[[:space:]]*(\#.*)?$$'
 FILES_FILTER_2 := grep -vE '^[[:space:]]*(\#.*)?$$$$'
 $(foreach P,$(PACKAGES),												\

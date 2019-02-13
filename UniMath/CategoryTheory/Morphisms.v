@@ -167,6 +167,7 @@ Section def_morphismpair.
     g · Mor2 Q = Mor2 P · h -> MorphismPairIsomorphism P Q
     := λ r s, (f,,g,,h,,(r,,!r),,(s,,!s)).
 End def_morphismpair.
+Arguments MorphismPair : clear implicits.
 
 (** * MorphismPair and opposite categories *)
 Section MorphismPair_opp.
@@ -229,14 +230,14 @@ Section def_shortshortexactdata.
     morphism. *)
 
   Definition ShortShortExactData : UU :=
-    ∑ MP : MorphismPair, Mor1 MP · Mor2 MP = ZeroArrow Z _ _.
+    ∑ MP : MorphismPair C, Mor1 MP · Mor2 MP = ZeroArrow Z _ _.
 
-  Definition mk_ShortShortExactData (MP : MorphismPair)
+  Definition mk_ShortShortExactData (MP : MorphismPair C)
              (H : Mor1 MP · Mor2 MP = ZeroArrow Z _ _) : ShortShortExactData := tpair _ MP H.
 
   (** Accessor functions *)
   Definition ShortShortExactData_MorphismPair (SSED : ShortShortExactData) :
-    MorphismPair := pr1 SSED.
+    MorphismPair C := pr1 SSED.
   Coercion ShortShortExactData_MorphismPair : ShortShortExactData >-> MorphismPair.
 
   Definition ShortShortExactData_Eq (SSED : ShortShortExactData) :

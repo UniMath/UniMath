@@ -59,7 +59,7 @@ Lemma antisymm_po_category_isoiseq (PO : po X) {A B : (po_category PO)}
   (poasymm : isantisymm PO) (isoAB : iso A B) : A = B.
 Proof.
   apply poasymm.
-  apply (morphism_from_iso (po_category PO) A B isoAB).
+  apply (morphism_from_iso isoAB).
   apply (inv_from_iso isoAB).
 Defined.
 

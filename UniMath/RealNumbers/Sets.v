@@ -6,7 +6,7 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.Sets.
 
 Require Export UniMath.Foundations.Sets
-               UniMath.Ktheory.QuotientSet.
+               UniMath.MoreFoundations.QuotientSet.
 Require Import UniMath.Algebra.BinaryOperations
                UniMath.Algebra.Apartness.
 

@@ -1,6 +1,7 @@
 (** * Axiom of choice *)
 
 Require Export UniMath.MoreFoundations.DecidablePropositions.
+Require Export UniMath.MoreFoundations.Sets.
 
 (** ** Preliminaries  *)
 
@@ -82,8 +83,6 @@ Defined.
 
 (** ** The Axiom of Choice implies a type receives a surjective map from a set *)
 
-Definition pi0 (X : UU) : hSet := setquotinset (pathseqrel X).
-
 Theorem SetCovering (X:Type) : AxiomOfChoice -> ∃ (S:hSet) (f:S->X), issurjective f.
 Proof.
   (** We use the axiom of choice to find a splitting f of the projection map g from X
@@ -92,7 +91,7 @@ Proof.
    *)
   intros ac.
   assert (ac' := pr1 AC_impl2 ac); clear ac; unfold AxiomOfChoice_surj in ac'.
-  set (S := pi0 X).
+  set (S := pi0 X : hSet).
   set (g := pi0pr X : X -> S).
   assert (f := ac' _ _ g (issurjsetquotpr _)); clear ac'.
   apply (squash_to_prop f).

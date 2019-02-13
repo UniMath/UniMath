@@ -16,6 +16,7 @@ as the one one already proved formally for the standard notion of heterogeneous 
 
 *)
 Require Import UniMath.Foundations.PartD.
+Require Import UniMath.MoreFoundations.Propositions.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 
@@ -630,7 +631,7 @@ Proof.
                                                         (c:=_∙_)
                                                         (j_mor ø T_mon ) (M ∘ j_mor) )
                                                (μ M))).
-    apply (uniqueExists _ _ uniq_iter).
+    apply (uniqueExists uniq_iter).
     + exact j_mon_square_eq1.
     + exact j_mon_square_eq2.
   - apply j_mon_η.

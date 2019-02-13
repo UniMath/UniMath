@@ -191,7 +191,6 @@ Section Restriction.
       apply (iso_in_precat_is_iso_in_subcat C _ _ _ isomor).
     - intro b.
       cbn.
-      Check (counit_from_are_adjoints are).
       pose (isomor := isopair _ (pr2 b) :
                         iso (pr1 (left_adjoint are_adjoints_restricted_adjunction
                                    (right_adjoint are_adjoints_restricted_adjunction b))) (pr1 b)).

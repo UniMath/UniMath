@@ -1,6 +1,5 @@
 (* -*- coding: utf-8 -*- *)
 
-Require Export UniMath.Ktheory.Utilities.
 Require Export UniMath.CategoryTheory.Core.Categories. (* export its coercions, especially *)
 Require Export UniMath.CategoryTheory.Core.Isos. (* export its coercions, especially *)
 Require Export UniMath.CategoryTheory.Core.Functors.
@@ -196,7 +195,9 @@ Definition nattrans_naturality {B C:category} {F F':[B, C]} {b b':B}
 
 Definition comp_func_on_mor {A B C:category} (F:[A,B]) (G:[B,C]) {a a':A} (f:a-->a') :
   G □ F ▭ f = G ▭ (F ▭ f).
-Proof. reflexivity. Defined.
+Proof.
+  reflexivity.
+Defined.
 
 Definition nattrans_arrow_mor_assoc {C:category} {c' c:C} {X X':[C^op,SET]}
            (g:c'-->c) (x:c⇒X) (p:X-->X') :
@@ -218,11 +219,15 @@ Definition nattrans_nattrans_object_assoc {A B C:category}
   := idpath _.
 
 Lemma functor_on_id {B C:category} (F:[B,C]) (b:B) : F ▭ identity b = identity (F ◾ b).
-Proof. exact (functor_id F b). Defined.
+Proof.
+  exact (functor_id F b).
+Defined.
 
 Lemma functor_on_comp {B C:category} (F:[B,C]) {b b' b'':B} (g:b'-->b'') (f:b-->b') :
   F ▭ (g ∘ f) = F ▭ g ∘ F ▭ f.
-Proof. exact (functor_comp F f g). Defined.
+Proof.
+  exact (functor_comp F f g).
+Defined.
 
 (*  *)
 
@@ -318,15 +323,21 @@ Definition opp_mor_eq {C:category} {a b:C} (f g:a --> b) :
   := idfun _.
 
 Lemma opp_opp_precat_ob_mor (C : precategory_ob_mor) : C = opp_precat_ob_mor (opp_precat_ob_mor C).
-Proof. induction C as [ob mor]. reflexivity. Defined.
+Proof.
+  induction C as [ob mor]. reflexivity.
+Defined.
 
 Lemma opp_opp_precat_ob_mor_compute (C : precategory_ob_mor) :
   idpath _ = maponpaths precategory_id_comp (opp_opp_precat_ob_mor C).
-Proof. induction C as [ob mor]. reflexivity. Defined.
+Proof.
+  induction C as [ob mor]. reflexivity.
+Defined.
 
 Lemma opp_opp_precat_data (C : precategory_data)
    : C = opp_precat_data (opp_precat_data C).
-Proof. induction C as [[ob mor] [id co]]. reflexivity. Defined.
+Proof.
+  induction C as [[ob mor] [id co]]. reflexivity.
+Defined.
 
 Lemma opp_opp_precat (C:category) : C = C^op^op.
 Proof.
@@ -424,13 +435,17 @@ Qed.
 
 Lemma total2_paths1 {A : UU} {B : A -> UU} (a:A) {b b':B a} :
   b=b' -> tpair B a b = tpair B a b'.
-Proof. intro e. induction e. reflexivity. Defined.
+Proof.
+  intro e. induction e. reflexivity.
+Defined.
 
 Goal ∏ A : UU, ∏ B : A -> UU, ∏ p : (∑ a, B a), p = tpair B (pr1 p) (pr2 p).
-  induction p as [a b]. reflexivity. Defined.
+  induction p as [a b]. reflexivity.
+Defined.
 
 Goal ∏ X Y (f:X->Y), f = λ x, f x.
-  reflexivity. Defined.
+  reflexivity.
+Defined.
 
 (* new categories from old *)
 
@@ -474,18 +489,26 @@ Proof.
 Defined.
 
 Lemma identityFunction : ∏ (T:SET) (f:T-->T) (t:T:hSet), f = identity T -> f t = t.
-Proof. intros ? ? ? e. exact (eqtohomot e t). Defined.
+Proof.
+  intros ? ? ? e. exact (eqtohomot e t).
+Defined.
 
 Lemma identityFunction' : ∏ (T:SET) (t:T:hSet), identity T t = t.
-Proof. reflexivity. Defined.
+Proof.
+  reflexivity.
+Defined.
 
 (*  *)
 
 Lemma functor_identity_object {C:category} (c:C) : functor_identity C ◾ c = c.
-Proof. reflexivity. Defined.
+Proof.
+  reflexivity.
+Defined.
 
 Lemma functor_identity_arrow {C:category} {c c':C} (f:c-->c') : functor_identity C ▭ f = f.
-Proof. reflexivity. Defined.
+Proof.
+  reflexivity.
+Defined.
 
 Definition constantFunctor (C:category) {D:category} (d:D) : [C,D].
 Proof.
