@@ -79,8 +79,9 @@ all html install uninstall $(VOFILES): build/CoqMakefile.make ; $(MAKE) -f build
 clean:: build/CoqMakefile.make; $(MAKE) -f build/CoqMakefile.make $@
 distclean:: build/CoqMakefile.make; $(MAKE) -f build/CoqMakefile.make cleanall archclean
 
+WARNING_FLAGS := -notation-overridden
 OTHERFLAGS += $(MOREFLAGS)
-OTHERFLAGS += -noinit -indices-matter -type-in-type -w '-notation-overridden,-local-declaration,+uniform-inheritance'
+OTHERFLAGS += -noinit -indices-matter -type-in-type -w '\'"$(WARNING_FLAGS)"\''
 ifeq ($(VERBOSE),yes)
 OTHERFLAGS += -verbose
 endif

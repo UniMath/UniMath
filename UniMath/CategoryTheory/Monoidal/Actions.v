@@ -15,6 +15,8 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
 
 Local Open Scope cat.
 
+Section A.
+
 Context (Mon_V : monoidal_precat).
 
 Let V := monoidal_precat_precat Mon_V.
@@ -320,3 +322,5 @@ Definition U_action : action.
 Defined.
 
 End Strong_Monoidal_Functor_Action.
+
+End A.
