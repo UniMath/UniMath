@@ -12,8 +12,6 @@
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-(* Require Import UniMath.Ktheory.Equivalences. *)
-Require Import UniMath.Ktheory.AffineLine. (* to get bidirectional recursion over the integers *)
 
 Set Implicit Arguments.
 Set Maximal Implicit Insertion.
@@ -223,44 +221,37 @@ Proof.
   induction α. apply idisweq.
 Defined.
 
-Require Import UniMath.Algebra.Groups.
+Require Import UniMath.SyntheticHomotopyTheory.AffineLine.
 Require Import UniMath.NumberSystems.Integers.
-Require Import UniMath.Ktheory.Integers.
-Require Import UniMath.Ktheory.AffineLine.
-
-Open Scope hz.
-
-Lemma Lemma031 (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) :
-  isweq ((λ hq, pr1 hq 0) : (∑ (h:∏ z, P z), ∏ z, h(1+z) = f z (h z)) -> P 0).
-Proof.
-  apply ℤBiRecursion_weq.
-Defined.
+Local Open Scope hz.
+Require Import UniMath.Algebra.Groups.
 
 Definition Lemma031_weq (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) :
   (∑ (h:∏ z, P z), ∏ z, h(1+z) = f z (h z)) ≃ P 0
-  := weqpair _ (Lemma031 _ _).
+  := ℤBiRecursion_weq P f.
+
+Definition Lemma031 (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) :
+  isweq ((λ hq, pr1 hq 0) : (∑ (h:∏ z, P z), ∏ z, h(1+z) = f z (h z)) -> P 0)
+  :=
+    pr2 (Lemma031_weq P f).
 
 Definition Lemma031_inverse (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) :
   P 0 -> ∑ (h:∏ z, P z), ∏ z, h(1+z) = f z (h z)
-  := invmap (Lemma031_weq P f).
+  :=
+    invmap (Lemma031_weq P f).
 
 Definition Lemma031_compute_zero (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) (p:P 0) :
-  pr1 (Lemma031_inverse P f p) 0 = p.
-Proof.
-  (* compare with ℤTorsorRecursion_inv_compute *)
-  Fail reflexivity.
-Admitted.
+  pr1 (Lemma031_inverse P f p) 0 = p
+  :=
+    ℤBiRecursion_inv_compute P f p.
 
 Definition Lemma031_compute_next (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) (p:P 0) (z:ℤ) :
-  pr1 (Lemma031_inverse P f p) (1+z) = f z (pr1 (Lemma031_inverse P f p) z).
-Proof.
-  (* compare with ℤTorsorRecursion_transition *)
-  Fail reflexivity.
-Admitted.
+  pr1 (Lemma031_inverse P f p) (1+z) = f z (pr1 (Lemma031_inverse P f p) z)
+  :=
+    ℤBiRecursion_transition_inv P f p z.
 
 Definition Lemma031_compute_prev (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) (p:P 0) (z:ℤ) :
-  pr1 (Lemma031_inverse P f p) z = invmap (f z) (pr1 (Lemma031_inverse P f p) (one+z)).
-Proof.
-  (* compare with ℤTorsorRecursion_transition_inv *)
-  Fail reflexivity.
-Admitted.
+  pr1 (Lemma031_inverse P f p) z = invmap (f z) (pr1 (Lemma031_inverse P f p) (1+z))
+  :=
+    ℤBiRecursion_transition_inv_reversed P f p z.
+

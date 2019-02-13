@@ -195,13 +195,39 @@ Proof.
       reflexivity. } }
 Defined.
 
-Definition ℤBiRecursion_weq_compute (P:ℤ->Type)
+Definition ℤBiRecursion_compute (P:ℤ->Type)
            (IH :∏ i, weq (P i) (P(1+i)))
       (fh : total2 (ℤBiRecursionData P IH)) :
   ℤBiRecursion_weq P IH fh = pr1 fh 0.
 Proof.
   reflexivity.             (* don't change the proof *)
 Defined.
+
+Definition ℤBiRecursion_inv_compute (P : ℤ → Type) (f : ∏ z : ℤ, P z ≃ P (1 + z)) (p : P 0) :
+  pr1 (invmap (ℤBiRecursion_weq P f) p) 0 = p
+  :=
+    ! ℤBiRecursion_compute P f
+      (invmap (ℤBiRecursion_weq P f) p)
+      @
+      homotweqinvweq (ℤBiRecursion_weq P f) p.
+
+Definition ℤBiRecursion_transition_inv (P : ℤ → Type) (f : ∏ z : ℤ, P z ≃ P (1 + z)) (p : P 0) (z : ℤ) :
+  pr1 (invmap (ℤBiRecursion_weq P f) p) (1 + z)
+  =
+  f z (pr1 (invmap (ℤBiRecursion_weq P f) p) z)
+  :=
+    pr2 (invmap (ℤBiRecursion_weq P f) p) z.
+
+Definition ℤBiRecursion_transition_inv_reversed (P : ℤ → Type) (f : ∏ z : ℤ, P z ≃ P (1 + z)) (p : P 0) (z : ℤ) :
+  pr1 (invmap (ℤBiRecursion_weq P f) p) z
+  =
+  invmap (f z) (pr1 (invmap (ℤBiRecursion_weq P f) p) (1 + z))
+  :=
+    !homotinvweqweq _ _ @
+     maponpaths (invmap (f z)) (! ℤBiRecursion_transition_inv P f p z).
+
+(* computations go here *)
+
 
 Notation "n + x" := (ac_mult _ n x) : action_scope.
 Notation "n - m" := (quotient _ n m) : action_scope.
