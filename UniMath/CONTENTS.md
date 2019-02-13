@@ -89,6 +89,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Halfline.v](SyntheticHomotopyTheory/Halfline.v)
    - [AffineLine.v](SyntheticHomotopyTheory/AffineLine.v)
    - [Circle.v](SyntheticHomotopyTheory/Circle.v)
+   - [Circle2.v](SyntheticHomotopyTheory/Circle2.v)
    - [All.v](SyntheticHomotopyTheory/All.v)
 ## Package [PAdics](PAdics/README.md)
    - [lemmas.v](PAdics/lemmas.v)

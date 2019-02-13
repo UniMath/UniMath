@@ -120,6 +120,13 @@ Proof.
   intros q. exact (p,,q).
 Defined.
 
+Definition applySectionToPath {X:Type} {Y : X -> Type} (s : ∏ x, Y x) {x x':X} (p : x = x') :
+  PathOver (s x) (s x') p.
+Proof.
+  induction p.
+  exact (idpath (s x)).
+Defined.
+
 Definition PathOverToTotalPath {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (y' : Y x') (p:x=x') :
   PathOver y y' p → (x,,y) = (x',,y').
 Proof.
@@ -258,3 +265,51 @@ Definition Lemma031_compute_prev (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) (p:
   (f^z) p = invmap (f z) ((f^(1+z)) p)
   :=
     ℤBiRecursion_transition_inv_reversed f p z.
+
+Require Import UniMath.Algebra.GroupAction.
+
+Definition circle := B ℤ.
+
+Theorem loops_circle : weq (Ω circle) ℤ.
+Proof.
+  apply loopsBG.
+Defined.
+
+Local Definition pt := basepoint circle.
+
+Definition Def_0_5_6 (Z : Torsor ℤ) (x : Z) : Z = pt.
+Proof.
+  refine (maponpaths π (_ : (Z,,x) = pointedTrivialTorsor ℤ)).
+  apply iscontrEG.
+Defined.
+
+Local Definition s := Def_0_5_6.
+
+Definition loop : pt = pt := @s (trivialTorsor ℤ) 1.
+
+Definition Def_0_5_7 (X : Torsor ℤ) (x : X) : s x = s x @ loop.
+Proof.
+  unfold loop.
+  unfold s.
+  unfold Def_0_5_6.
+
+
+
+
+  unfold circle,B,ClassifyingSpace,PointedType,pointedType,pr1.
+
+
+
+  set (PA := @paths).
+
+
+Abort.
+
+Section A.
+
+  Context (A : circle -> Type)
+          (a : A pt)
+          (p : PathOver a a loop).
+
+End A.
+
