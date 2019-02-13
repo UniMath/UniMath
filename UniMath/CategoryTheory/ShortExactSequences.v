@@ -992,7 +992,7 @@ Section left_right_shortexact_and_pullbacks_pushouts.
              (g : x2 --> y) : ShortShortExactData A (to_Zero A).
   Proof.
     set (DS := to_BinDirectSums (AbelianToAdditive A hs) x1 x2).
-    set (E := Abelian.Equalizer A hs (to_Pr1 _ DS · f) (to_Pr2 _ DS · g)).
+    set (E := Abelian.Equalizer A hs (to_Pr1 DS · f) (to_Pr2 DS · g)).
     set (PA := (AbelianToAdditive A hs) : PreAdditive).
     use mk_ShortShortExactData.
     - use mk_MorphismPair.
@@ -1001,8 +1001,8 @@ Section left_right_shortexact_and_pullbacks_pushouts.
       + exact y.
       + exact (EqualizerArrow E).
       + use (@to_binop PA).
-        * exact (to_Pr1 _ DS · f).
-        * exact (@to_inv PA _ _ (to_Pr2 _ DS · g)).
+        * exact (to_Pr1 DS · f).
+        * exact (@to_inv PA _ _ (to_Pr2 DS · g)).
     - cbn. exact (AdditiveEqualizerToKernel_eq1 (AbelianToAdditive A hs) _ _ E).
   Defined.
 
@@ -1010,7 +1010,7 @@ Section left_right_shortexact_and_pullbacks_pushouts.
              (g : x2 --> y) : ShortShortExact hs.
   Proof.
     set (DS := to_BinDirectSums (AbelianToAdditive A hs) x1 x2).
-    set (E := Abelian.Equalizer A hs (to_Pr1 _ DS · f) (to_Pr2 _ DS · g)).
+    set (E := Abelian.Equalizer A hs (to_Pr1 DS · f) (to_Pr2 DS · g)).
     use mk_ShortShortExact.
     - exact (LeftShortExact_Equalizer_ShortShortExactData f g).
     - cbn. cbn in E. fold DS. fold E.
@@ -1033,7 +1033,7 @@ Section left_right_shortexact_and_pullbacks_pushouts.
              (g : x --> y2) : ShortShortExactData A (to_Zero A).
   Proof.
     set (DS := to_BinDirectSums (AbelianToAdditive A hs) y1 y2).
-    set (CE := Abelian.Coequalizer A hs (f · to_In1 _ DS) (g · to_In2 _ DS)).
+    set (CE := Abelian.Coequalizer A hs (f · to_In1 DS) (g · to_In2 DS)).
     set (PA := (AbelianToAdditive A hs) : PreAdditive).
     use mk_ShortShortExactData.
     - use mk_MorphismPair.
@@ -1041,8 +1041,8 @@ Section left_right_shortexact_and_pullbacks_pushouts.
       + exact DS.
       + exact CE.
       + use (@to_binop PA).
-        * exact (f · to_In1 _ DS).
-        * exact (@to_inv PA _ _ (g · to_In2 _ DS)).
+        * exact (f · to_In1 DS).
+        * exact (@to_inv PA _ _ (g · to_In2 DS)).
       + exact (CoequalizerArrow CE).
     - cbn. exact (AdditiveCoequalizerToCokernel_eq1 (AbelianToAdditive A hs) _ _ CE).
   Defined.
@@ -1051,7 +1051,7 @@ Section left_right_shortexact_and_pullbacks_pushouts.
              (g : x --> y2) : ShortShortExact hs.
   Proof.
     set (DS := to_BinDirectSums (AbelianToAdditive A hs) y1 y2).
-    set (CE := Abelian.Coequalizer A hs (f · to_In1 _ DS) (g · to_In2 _ DS)).
+    set (CE := Abelian.Coequalizer A hs (f · to_In1 DS) (g · to_In2 DS)).
     use mk_ShortShortExact.
     - exact (RightShortExact_Coequalizer_ShortShortExactData f g).
     - cbn. cbn in CE. fold DS. fold CE.

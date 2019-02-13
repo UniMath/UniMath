@@ -9,9 +9,8 @@ Require Import
         UniMath.CategoryTheory.categories.HSET.Core
         UniMath.CategoryTheory.categories.HSET.MonoEpiIso.
 Require Import
-        UniMath.Ktheory.Tactics
-        UniMath.Ktheory.Precategories
-        UniMath.Ktheory.Bifunctor.
+        UniMath.CategoryTheory.RepresentableFunctors.Precategories
+        UniMath.CategoryTheory.RepresentableFunctors.Bifunctor.
 Require Import UniMath.MoreFoundations.Tactics.
 Local Open Scope cat.
 Local Open Scope Cat.
@@ -128,7 +127,9 @@ Definition universalMapUniqueness {C:category} {X:[C^op,SET]} {r:Representation 
 
 Definition universalMapIdentity {C:category} {X:[C^op,SET]} (r:Representation X) :
   r \\ r = identity _.
-Proof. apply pathsinv0. apply universalMapUniqueness. apply arrow_mor_id. Qed.
+Proof.
+  apply pathsinv0. apply universalMapUniqueness. apply arrow_mor_id.
+Qed.
 
 Definition universalMapUniqueness' {C:category} {X:[C^op,SET]} {r:Representation X}
       {c:C} (x : c ⇒ X) (f : c --> universalObject r) :
@@ -182,7 +183,9 @@ Defined.
 
 Definition universalObjectFunctor_on_map (C:category) {X Y:RepresentedFunctor C} (p:X-->Y) :
   universalObjectFunctor C ▭ p = pr2 Y \\ (p ⟳ pr2 X).
-Proof. reflexivity. Defined.
+Proof.
+  reflexivity.
+Defined.
 
 Lemma universalObjectFunctor_comm (C:category) {X Y:RepresentedFunctor C} (p:X-->Y) :
   p ⟳ universalElement (pr2 X) = universalElement (pr2 Y) ⟲ universalObjectFunctor C ▭ p.
@@ -251,7 +254,9 @@ Defined.
 (** maps from Hom1 to functors *)
 
 Lemma compose_SET {X Y Z:SET} (f:X-->Y) (g:Y-->Z) : g∘f = λ x, g(f x).
-Proof. reflexivity. Defined.
+Proof.
+  reflexivity.
+Defined.
 
 Definition element_to_nattrans {C:category} (X:[C^op,SET]) (c:C) :
   c ⇒ X -> Hom1 c --> X.
@@ -300,7 +305,9 @@ Definition init_to_opp {C:category} : InitialObject C -> TerminalObject C^op
   := λ i, i.
 
 Definition term_to_opp {C:category} : TerminalObject C -> InitialObject C^op.
-Proof. intros. unfold InitialObject. now induction (opp_opp_precat C). Defined.
+Proof.
+  intros. unfold InitialObject. now induction (opp_opp_precat C).
+Defined.
 
 (** zero objects, as an alternative to ZeroObject.v *)
 
@@ -392,8 +399,8 @@ Lemma binaryProductMapUniqueness {C:category} {a b:C} (prod : BinaryProduct a b)
       {c:C} (f g : Hom C c (universalObject prod)) :
   pr_1 prod ∘ f = pr_1 prod ∘ g ->
   pr_2 prod ∘ f = pr_2 prod ∘ g -> f = g.
-Proof. intros r s. apply mapUniqueness. apply dirprodeq.
-       exact r. exact s.
+Proof.
+  intros r s. apply mapUniqueness. apply dirprodeq. exact r. exact s.
 Defined.
 
 Definition binaryProductMap_2 {C:category} {a b a' b':C}
@@ -415,11 +422,15 @@ Definition BinarySums (C:category) := ∏ (a b:C), BinarySum a b.
 
 Lemma binarySumsToProducts {C:category} :
   BinarySums C -> BinaryProducts C^op.
-Proof. intros sum. exact sum. Defined.
+Proof.
+  intros sum. exact sum.
+Defined.
 
 Lemma binaryProductToSums {C:category} :
   BinaryProducts C -> BinarySums C^op.
-Proof. intro prod. exact prod. Defined.
+Proof.
+  intro prod. exact prod.
+Defined.
 
 Definition in_1 {C:category} {a b:C} (sum : BinarySum a b) :
   Hom C a (universalObject sum)
@@ -450,7 +461,9 @@ Lemma binarySumMapUniqueness {C:category} {a b:C} (sum : BinarySum a b)
       {c:C} (f g : Hom C (rm_opp_ob (universalObject sum)) c) :
   f ∘ in_1 sum = g ∘ in_1 sum ->
   f ∘ in_2 sum = g ∘ in_2 sum -> f = g.
-Proof. intros r s. apply opp_mor_eq, mapUniqueness, dirprodeq; assumption. Defined.
+Proof.
+  intros r s. apply opp_mor_eq, mapUniqueness, dirprodeq; assumption.
+Defined.
 
 Definition binarySumMap_2 {C:category} {a b a' b':C}
            (sum : BinarySum a b)
@@ -790,18 +803,26 @@ Definition Limit {C I:category} (D: I⟶C) := Representation (cone_functor D).
 Definition Colimit {C I:category} (D: I⟶C) := Representation (cocone_functor D).
 
 Definition proj_ {C I:category} {D: I⟶C} (lim:Limit D) (i:I) : universalObject lim --> D i.
-Proof. intros. exact ((pr1 (universalElement lim) i)). Defined.
+Proof.
+  intros. exact ((pr1 (universalElement lim) i)).
+Defined.
 
 Definition inj_ {C I:category} {D: I⟶C} (colim:Colimit D) (i:I) : D i --> universalObject colim.
-Proof. intros. exact ((pr1 (universalElement colim) i)). Defined.
+Proof.
+  intros. exact ((pr1 (universalElement colim) i)).
+Defined.
 
 Definition proj_comm {C I:category} {D: I⟶C} (lim:Limit D) {i j:I} (f:i-->j) :
   # D f ∘ proj_ lim i = proj_ lim j.
-Proof. intros. exact (pr2 (universalElement lim) _ _ f). Defined.
+Proof.
+  intros. exact (pr2 (universalElement lim) _ _ f).
+Defined.
 
 Definition inj_comm {C I:category} {D: I⟶C} (colim:Colimit D) {i j:I} (f:i-->j) :
   inj_ colim j ∘ # D f = inj_ colim i.
-Proof. intros. exact (pr2 (universalElement colim) _ _ f). Defined.
+Proof.
+  intros. exact (pr2 (universalElement colim) _ _ f).
+Defined.
 
 Definition Limits (C:category) := ∏ (I:category) (D: I⟶C), Limit D.
 
@@ -960,14 +981,18 @@ Lemma functorBinaryProduct_eqn {B C:category} (prod : BinaryProducts C)
   universalObject (functorBinaryProduct prod F G) ◾ b
   =
   universalObject (prod (F ◾ b) (G ◾ b)).
-Proof. reflexivity. Defined.
+Proof.
+  reflexivity.
+Defined.
 
 Lemma functorBinaryProduct_map_eqn {B C:category} (prod : BinaryProducts C)
       (F G F' G' : [B,C]) (p:F-->F') (q:G-->G') (b:B) :
   binaryProductMap_2 (functorBinaryProduct prod F G) (functorBinaryProduct prod F' G') p q ◽ b
   =
   binaryProductMap_2 (prod (F ◾ b) (G ◾ b)) (prod (F' ◾ b) (G' ◾ b)) (p ◽ b) (q ◽ b).
-Proof. reflexivity. Defined.
+Proof.
+  reflexivity.
+Defined.
 
 Lemma HomPairOp {B C : category} (F G : [B, C]) :
   iso (HomPair (functorOp F) (functorOp G) □ functorOp')
@@ -1001,7 +1026,9 @@ Lemma functorBinarySum_eqn {B C:category} (sum : BinarySums C)
   universalObject (functorBinarySum sum F G) ◾ b
   =
   universalObject (sum (F ◾ b) (G ◾ b)).
-Proof. reflexivity. Defined.
+Proof.
+  reflexivity.
+Defined.
 
 Lemma functorBinarySum_map_eqn {B C:category} (sum : BinarySums C)
       (F G F' G' : [B,C]) (p:F-->F') (q:G-->G') (b:B) :

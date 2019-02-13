@@ -336,19 +336,6 @@ Defined.
 
 End Fibrations.
 
-(** a proof principle for use with discrete fibrations *)
-(** TODO: upstream *)
-Lemma eq_exists_unique (A : UU) (B : A → UU) (H : iscontr (∑ a : A, B a))
-  : ∏ a, B a → a = pr1 (iscontrpr1 H).
-Proof.
-  intros a b.
-  assert (g : ((a,,b) : total2 B)
-                =
-              ( (pr1 (iscontrpr1 H),, pr2 (iscontrpr1 H)) : total2 B)).
-  { etrans. apply (pr2 H). reflexivity. }
-  apply (maponpaths pr1 g).
-Defined.
-
 Section Discrete_Fibrations.
 
 Definition is_discrete_fibration {C : category} (D : disp_cat C) : UU
@@ -539,12 +526,12 @@ Proof.
   split.
   + intro c; cbn.
     apply funextsec; intro x. simpl.
-    apply pathsinv0. apply eq_exists_unique.
+    apply pathsinv0. apply path_to_ctr.
       apply id_disp.
   + intros c c' c'' f g. cbn in *.
     apply funextsec; intro x.
     apply pathsinv0.
-    apply eq_exists_unique.
+    apply path_to_ctr.
     eapply comp_disp.
     * apply (pr2 (iscontrpr1 (unique_lift g _))).
     * apply (pr2 (iscontrpr1 (unique_lift f _ ))).
@@ -565,7 +552,7 @@ Proof.
   - abstract (
         intros x y f; cbn in *;
         apply funextsec; intro d;
-        apply eq_exists_unique;
+        apply path_to_ctr;
         apply #a;
         apply (pr2 (iscontrpr1 (unique_lift f _ )))
       ).

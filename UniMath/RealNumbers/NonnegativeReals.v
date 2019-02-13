@@ -2,6 +2,7 @@
 (** Catherine Lelay. Sep. 2015 *)
 
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.Notations.
 
 Require Import UniMath.RealNumbers.Sets.
 Require Export UniMath.Algebra.ConstructiveStructures.
@@ -194,8 +195,8 @@ Proof.
   { apply ispositive_minusNonnegativeRationals.
     exact (pr2 (pr2 r')). }
   generalize (is_Dcuts_corr y _ Hr0) ; apply hinhuniv ; apply sumofmaps ; [intros Yq | intros q].
-  - apply Utilities.squash_element ;
-    right ; apply Utilities.squash_element.
+  - apply squash_element ;
+    right ; apply squash_element.
     exists (pr1 r') ; split.
     + intro H0 ; apply Yq.
       apply is_Dcuts_bot with (pr1 r').
