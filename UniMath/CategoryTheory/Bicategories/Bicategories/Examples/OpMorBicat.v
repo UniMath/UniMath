@@ -32,7 +32,7 @@ Definition op1_prebicat_data (C : prebicat_data)
 Proof.
   exists (op1_prebicat_1_id_comp_cells C).
   red. cbn. unfold op1_2cell_struct.
-  repeat use dirprodpair; intros until 0.
+  repeat use dirprodpair; intros *.
   - apply id2.
   - apply runitor.
   - apply lunitor.
@@ -48,7 +48,7 @@ Defined.
 Definition op1_prebicat_laws (C : prebicat) : prebicat_laws (op1_prebicat_data C).
 Proof.
   red. cbn. unfold op1_2cell_struct. cbn.
-  repeat use tpair; cbn; intros until 0.
+  repeat use tpair; cbn; intros *.
   - apply id2_left.
   - apply id2_right.
   - apply vassocr.

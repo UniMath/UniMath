@@ -89,7 +89,7 @@ Definition is_univalent_pregroupoid (pgpd : pregroupoid) :=
 
 (** The morphism part of an isomorphism is an inclusion. *)
 Lemma morphism_from_iso_is_incl (C : category) (a b : ob C) :
-  isincl (morphism_from_iso C a b).
+  isincl (@morphism_from_iso C a b).
 Proof.
   intro g.
   apply (isofhlevelweqf _ (ezweqpr1 _ _)).
@@ -105,7 +105,7 @@ Proof.
   intros ig.
   split.
   - intros a b.
-    use (isofhlevelff 0 idtoiso (morphism_from_iso _ _ _)).
+    use (isofhlevelff 0 idtoiso morphism_from_iso).
     + use (isweqhomot (idtomor _ _)).
       * intro p; destruct p; reflexivity.
       * apply ig.

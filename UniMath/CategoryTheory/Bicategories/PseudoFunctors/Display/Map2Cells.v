@@ -35,7 +35,7 @@ Section Map2Cells.
              ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)) ; cbn in *.
   Defined.
 
-  Definition map2cells_disp_cat_laws
+  Definition map2cells_disp_cat_id_comp
     : disp_cat_id_comp (map1cells C D) map2cells_disp_cat_data.
   Proof.
     split.
@@ -76,13 +76,13 @@ Section Map2Cells.
     use disp_cell_unit_bicat.
     use tpair.
     - exact map2cells_disp_cat_data.
-    - exact map2cells_disp_cat_laws.
+    - exact map2cells_disp_cat_id_comp.
   Defined.
 
   Definition map2cells_is_disp_univalent_2_1
-    : disp_locally_univalent map2cells_disp_cat.
+    : disp_univalent_2_1 map2cells_disp_cat.
   Proof.
-    apply disp_cell_unit_bicat_locally_univalent.
+    apply disp_cell_unit_bicat_univalent_2_1.
     intros F G η F₂ G₂ ; simpl in *.
     repeat (apply impred ; intro).
     apply D.
@@ -121,4 +121,14 @@ Section Map2Cells.
       { is_iso. }
       exact (!η₁).
   Defined.
+
+  Definition map2cells_is_disp_univalent_2
+             (HD_2_1 : is_univalent_2_1 D)
+    : disp_univalent_2 map2cells_disp_cat.
+  Proof.
+    split.
+    - apply map2cells_is_disp_univalent_2_0; assumption.
+    - exact map2cells_is_disp_univalent_2_1.
+  Defined.
+
 End Map2Cells.

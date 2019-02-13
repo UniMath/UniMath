@@ -341,9 +341,9 @@ Section Map1Cells.
   Defined.
 
   Definition map1cells_disp_univalent_2_1
-    : disp_locally_univalent map1cells_disp_bicat.
+    : disp_univalent_2_1 map1cells_disp_bicat.
   Proof.
-    apply fiberwise_local_univalent_is_locally_univalent.
+    apply fiberwise_local_univalent_is_univalent_2_1.
     intros F G η F₁ G₁ η₁ η₁'.
     use isweqimplimpl.
     - intro m ; cbn in * ; unfold idfun.
@@ -636,23 +636,31 @@ Section Map1Cells.
              (HD_2_1 : is_univalent_2_1 D)
     : is_univalent_2_1 map1cells.
   Proof.
-    apply total_is_locally_univalent.
+    apply total_is_univalent_2_1.
     - apply ps_base_is_univalent_2_1.
       exact HD_2_1.
     - exact map1cells_disp_univalent_2_1.
   Defined.
 
   Definition map1cells_is_univalent_2_0
-             (HD_2_0 : is_univalent_2_0 D)
-             (HD_2_1 : is_univalent_2_1 D)
+             (HD : is_univalent_2 D)
     : is_univalent_2_0 map1cells.
   Proof.
     apply total_is_univalent_2_0.
-    - apply ps_base_is_univalent_2_0.
-      + exact HD_2_0.
-      + exact HD_2_1.
-    - exact (map1cells_disp_univalent_2_0 HD_2_1).
+    - apply ps_base_is_univalent_2. exact HD.
+    - exact (map1cells_disp_univalent_2_0 (pr2 HD)).
   Defined.
+
+  Definition map1cells_is_univalent_2
+             (HD : is_univalent_2 D)
+    : is_univalent_2 map1cells.
+  Proof.
+    split.
+    - apply map1cells_is_univalent_2_0; assumption.
+    - apply map1cells_is_univalent_2_1.
+      exact (pr2 HD).
+  Defined.
+
 End Map1Cells.
 
 Definition Fobj

@@ -877,8 +877,6 @@ Proof.
     apply id_left.
     eapply pathscomp0.
       apply maponpaths, id_left_disp.
-  (* Note: [transportbfi] is from [UniMath.Ktheory.Utilities].
-  We currently can’t import that, due to notation clashes. *)
     apply transportfbinv.
   - intros xx yy ff; cbn.
     use total2_paths_f; simpl.

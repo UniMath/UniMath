@@ -3,7 +3,6 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
@@ -187,6 +186,7 @@ Section def_zero.
 
 End def_zero.
 
+Arguments isZero {_} _.
 Arguments ZeroObject [C] _.
 Arguments ZeroArrowTo [C]{Z} b.
 Arguments ZeroArrowFrom [C]{Z} b.
@@ -194,4 +194,4 @@ Arguments ZeroArrow [C] _ _ _.
 Arguments mk_isZero {_} _ _ _ .
 Arguments mk_Zero {_} _ _ .
 
-Definition zero_lifts (M:precategory) {X:Type} (j : X -> ob M) := ∃ z, isZero M (j z).
+Definition zero_lifts (M:precategory) {X:Type} (j : X -> ob M) := ∃ z, isZero (j z).

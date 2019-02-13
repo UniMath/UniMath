@@ -44,26 +44,7 @@ Require Export UniMath.CategoryTheory.Morphisms.
 Require Export UniMath.CategoryTheory.Additive.
 Require Export UniMath.CategoryTheory.Subcategory.Full.
 
-
-(* some of these might be appropriate upstream: *)
-Local Arguments isZero {_} _.
-Local Arguments BinDirectSumOb {_ _ _}.
-Local Arguments to_binop {_ _ _}.
 Local Arguments grinv {_}.
-Local Arguments BinDirectSum {_}.
-Local Arguments to_Pr1 {_ _ _} _.
-Local Arguments to_Pr2 {_ _ _} _.
-Local Arguments to_In1 {_ _ _} _.
-Local Arguments to_In2 {_ _ _} _.
-Local Arguments to_BinOpId {_ _ _ _ _ _ _ _}.
-Local Arguments to_IdIn1 {_ _ _ _ _ _ _ _}.
-Local Arguments to_IdIn2 {_ _ _ _ _ _ _ _}.
-Local Arguments to_Unel1 {_ _ _ _ _ _ _ _}.
-Local Arguments to_Unel2 {_ _ _ _ _ _ _ _}.
-Local Arguments MorphismPair : clear implicits.
-Local Arguments morphism_from_iso {_ _ _}.
-Local Arguments ToBinDirectSum {_ _ _} _ {_}.
-Local Arguments isBinDirectSum {_ _ _ _}.
 
 Local Open Scope logic.
 Local Open Scope cat.
@@ -489,7 +470,7 @@ Section PreAdditive.
       + cbn. intros T f g e. exact (to_isBinCoproduct M S T f g).
   Defined.
   Definition directSumMap {M:PreAdditive} {a b c d:M} (ac : BinDirectSum a c) (bd : BinDirectSum b d) (f : a --> b) (g : c --> d) : ac --> bd
-    := BinDirectSumIndAr M f g _ _.
+    := BinDirectSumIndAr f g _ _.
   Lemma directSumMapEqPr1 {M:PreAdditive} {a b c d:M} {ac : BinDirectSum a c} {bd : BinDirectSum b d} {f : a --> b} {g : c --> d} :
     directSumMap ac bd f g · π₁ = π₁ · f.
   Proof.

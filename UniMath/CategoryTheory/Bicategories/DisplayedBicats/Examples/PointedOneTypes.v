@@ -33,7 +33,7 @@ Proof.
     (** Two cells over α : f = g *)
     intros x y ff gg. cbn in *.
     (* homotopies are stable w.r.t to point preservation *)
-    exact (transportf (λ h, h x = y) α ff = gg).
+    exact (transportf (λ h, h = y) (α x) ff = gg).
 Defined.
 
 Definition p1types_disp_prebicat_ops : disp_prebicat_ops p1types_disp_prebicat_1_id_comp_cells.
@@ -48,20 +48,23 @@ Proof.
   - intros X Y Z W f g h x y z w ff gg hh.
     induction ff. induction gg. reflexivity.
   - intros X Y f g h α β x y ff gg hh αα ββ.
-    induction α. cbn in *.
+    unfold homotcomp.
+    etrans. {
+      apply (!transport_f_f (λ h, h = y) _ _ _). }
     etrans. {
       apply maponpaths.
       apply αα. }
     apply ββ.
   - (* Whiskering *)
     intros X Y Z f g h α x y z ff gg hh αα.
-    induction α. cbn in *.
-    cbv[idfun]. apply maponpaths. assumption.
+    induction ff. cbn. apply αα.
   - (* Whiskering *)
     intros X Y Z f g h α x y z ff gg hh αα.
-    induction α. cbn in *.
-    cbv[idfun] in *.
-    apply map_on_two_paths. 2: reflexivity.
+    unfold homotfun.
+    etrans. {
+      apply transportf_id2. }
+    induction (α x). cbn in *. cbv[idfun] in *.
+    apply map_on_two_paths; [|reflexivity].
     apply maponpaths. apply αα.
 Defined.
 
@@ -86,9 +89,9 @@ Defined.
 
 Definition p1types : bicat := total_bicat p1types_disp.
 
-Lemma p1types_disp_locally_univalent : disp_locally_univalent p1types_disp.
+Lemma p1types_disp_univalent_2_1 : disp_univalent_2_1 p1types_disp.
 Proof.
-  apply fiberwise_local_univalent_is_locally_univalent.
+  apply fiberwise_local_univalent_is_univalent_2_1.
   intros X Y f x y. cbn. intros p q.
   use gradth.
   - intro α. apply α.
@@ -100,7 +103,7 @@ Proof.
     apply Y.
 Defined.
 
-Lemma p1types_disp_global_univalent : disp_univalent_2_0 p1types_disp.
+Lemma p1types_disp_univalent_2_0 : disp_univalent_2_0 p1types_disp.
 Proof.
   apply fiberwise_univalent_2_0_to_disp_univalent_2_0.
   intros X x x'. cbn in *.
@@ -113,13 +116,19 @@ Proof.
     { induction f. reflexivity. }
     { apply (isaprop_disp_left_adjoint_equivalence (D:=p1types_disp)).
       apply one_types_is_univalent_2.
-      apply p1types_disp_locally_univalent. }
+      apply p1types_disp_univalent_2_1. }
 Defined.
 
-Lemma p1types_univalent : is_univalent_2 p1types.
+Lemma p1types_disp_univalent_2 : disp_univalent_2 p1types_disp.
 Proof.
-  apply total_is_univalent.
-  - apply p1types_disp_global_univalent.
-  - apply p1types_disp_locally_univalent.
+  apply mk_disp_univalent_2.
+  - exact p1types_disp_univalent_2_0.
+  - exact p1types_disp_univalent_2_1.
+Defined.
+
+Lemma p1types_univalent_2 : is_univalent_2 p1types.
+Proof.
+  apply total_is_univalent_2.
+  - apply p1types_disp_univalent_2.
   - apply one_types_is_univalent_2.
 Defined.

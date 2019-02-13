@@ -8,7 +8,6 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Univalence.
@@ -16,8 +15,8 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 
-Require Import UniMath.Ktheory.Representation.
-Require UniMath.Ktheory.Precategories.
+Require Import UniMath.CategoryTheory.RepresentableFunctors.Representation.
+Require        UniMath.CategoryTheory.RepresentableFunctors.Precategories.
 
 
 Section interface.
