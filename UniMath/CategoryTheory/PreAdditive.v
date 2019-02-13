@@ -15,7 +15,6 @@ Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
 
-Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Local Open Scope cat.
@@ -1002,7 +1001,7 @@ Section preadditive_quotient.
 
   Variable Z : Zero PA.
 
-  Lemma Quotcategory_isZero : isZero Quotcategory Z.
+  Lemma Quotcategory_isZero : isZero (C:=Quotcategory) Z.
   Proof.
     use mk_isZero.
     - intros a.

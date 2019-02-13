@@ -473,7 +473,7 @@ Abort.
 Definition relmonadmor_eq_type  {C : precategory_data} {D : precategory} (hs: has_homsets D)
       (J : functor C D)(R R': RelMonad J) : UU
   := ∑ p : iso (C := [C, D, hs]) (R_functor R) (R_functor R'),
-           RelMonadMor_axioms (nat_trans_data_from_nat_trans (morphism_from_iso _ _ _ p)).
+           RelMonadMor_axioms (nat_trans_data_from_nat_trans (morphism_from_iso p)).
 
 Definition relmonadmor_ob_eq  {C : precategory_data} {D : precategory} (H: is_univalent D)
       (J : functor C D)(R R': RelMonad J) :

@@ -10,7 +10,6 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
-Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
@@ -166,7 +165,7 @@ Section def_zero.
       apply iscontrpair with (x := (InitialArrow I b)), InitialArrowUnique.
     - use (mk_isTerminal (InitialObject I)); intro a.
       apply (iscontrretract (postcomp_with (inv_from_iso e))
-                            (postcomp_with (morphism_from_iso _ _ _  e))).
+                            (postcomp_with (morphism_from_iso e))).
       intros y. unfold postcomp_with.
       rewrite <- assoc. rewrite (iso_inv_after_iso e).
       apply (remove_id_right _ _ _ y y _ (idpath _) (idpath _)).
@@ -196,7 +195,7 @@ Section zero_coincides.
   (** ** isZero *)
 
   Lemma equiv_isZero1 (c : C) :
-    limits.zero.isZero C c -> isZero c.
+    limits.zero.isZero c -> isZero c.
   Proof.
     intros X.
     use mk_isZero.
@@ -206,7 +205,7 @@ Section zero_coincides.
   Qed.
 
   Lemma equiv_isZero2 (c : C) :
-    limits.zero.isZero C c <- isZero c.
+    limits.zero.isZero c <- isZero c.
   Proof.
     intros X.
     set (XZ := mk_Zero c X).
