@@ -14,7 +14,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 
 Set Implicit Arguments.
-Set Maximal Implicit Insertion.
+Unset Strict Implicit.
 
 Module Upstream.
 
@@ -102,7 +102,7 @@ Definition inductionOnFiller {X:Type} {x y z:X} (p:x=z) (q:y=z)
   ∏ (r:x=y) (e : r @ q = p), T r e.
 Proof.
   intros.
-  use (transportPathTotal _ _ t).
+  use (transportPathTotal _ t).
   apply pathsinv0.
   apply fillerEquation.
 Defined.
@@ -228,30 +228,33 @@ Require Import UniMath.Algebra.Groups.
 
 Definition Lemma031_weq (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) :
   (∑ (h:∏ z, P z), ∏ z, h(1+z) = f z (h z)) ≃ P 0
-  := ℤBiRecursion_weq P f.
+  := ℤBiRecursion_weq f.
 
 Definition Lemma031 (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) :
   isweq ((λ hq, pr1 hq 0) : (∑ (h:∏ z, P z), ∏ z, h(1+z) = f z (h z)) -> P 0)
   :=
-    pr2 (Lemma031_weq P f).
+    pr2 (Lemma031_weq f).
 
 Definition Lemma031_inverse (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) :
   P 0 -> ∑ (h:∏ z, P z), ∏ z, h(1+z) = f z (h z)
   :=
-    invmap (Lemma031_weq P f).
+    invmap (Lemma031_weq f).
+
+Delimit Scope circle with circle.
+Local Open Scope circle.
+Notation "f ^ z" := (λ p, pr1 (Lemma031_inverse f p) z) : circle.
 
 Definition Lemma031_compute_zero (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) (p:P 0) :
-  pr1 (Lemma031_inverse P f p) 0 = p
+  (f^0) p = p
   :=
-    ℤBiRecursion_inv_compute P f p.
+    ℤBiRecursion_inv_compute f p.
 
 Definition Lemma031_compute_next (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) (p:P 0) (z:ℤ) :
-  pr1 (Lemma031_inverse P f p) (1+z) = f z (pr1 (Lemma031_inverse P f p) z)
+  (f^(1+z)) p = f z ((f^z) p)
   :=
-    ℤBiRecursion_transition_inv P f p z.
+    ℤBiRecursion_transition_inv f p z.
 
 Definition Lemma031_compute_prev (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) (p:P 0) (z:ℤ) :
-  pr1 (Lemma031_inverse P f p) z = invmap (f z) (pr1 (Lemma031_inverse P f p) (1+z))
+  (f^z) p = invmap (f z) ((f^(1+z)) p)
   :=
-    ℤBiRecursion_transition_inv_reversed P f p z.
-
+    ℤBiRecursion_transition_inv_reversed f p z.
