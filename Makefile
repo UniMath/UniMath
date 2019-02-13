@@ -42,6 +42,7 @@ everything: TAGS all html install
 sanity-checks:  check-for-change-to-Foundations	\
 		check-prescribed-ordering	\
 		check-travis			\
+		check-listing-of-proof-files	\
 		check-for-submodule-changes
 other-checks:   check-max-line-length
 
@@ -385,6 +386,7 @@ clean::; rm -f .check-travis.okay
 # except for those listed in $GRANDFATHER_UNLISTED (currently none)
 GRANDFATHER_UNLISTED = 
 check-listing-of-proof-files:
+	@ echo --- checking every proof file is listed in one of the packages ---
 	@ if declare -A islisted 2>/dev/null ;										\
 	  then for i in $(VFILES) $(GRANDFATHER_UNLISTED) ;								\
 	       do islisted[$$i]=yes ;											\

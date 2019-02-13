@@ -8,7 +8,7 @@ env:
   global:
     - THIS_REPO=UniMath
   matrix:
-    - PACKAGES="" BUILD_ALSO="sanity-checks check-listing-of-proof-files"
+    - PACKAGES= BUILD_ALSO=sanity-checks
     - PACKAGES="Foundations Combinatorics Algebra NumberSystems PAdics Paradoxes"
     - PACKAGES=CategoryTheory
     - PACKAGES="MoreFoundations Ktheory SyntheticHomotopyTheory"
