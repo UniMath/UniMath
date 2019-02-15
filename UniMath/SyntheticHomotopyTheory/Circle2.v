@@ -267,40 +267,38 @@ Definition Lemma031_compute_prev (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) (p:
     ℤBiRecursion_transition_inv_reversed f p z.
 
 Require Import UniMath.Algebra.GroupAction.
+Local Notation "n + x" := (ac_mult _ n x).
 
 Definition circle := B ℤ.
 
-Theorem loops_circle : ℤ ≃ (Ω circle).
+Theorem loops_circle : ℤ ≃ Ω circle.
 Proof.
   apply loopsBG.
 Defined.
 
-Local Definition pt := basepoint circle.
+Definition loop := loops_circle 1 : Ω circle.
 
-Definition Def_0_5_6 (Z : Torsor ℤ) (x : Z) : Z = pt.
+Definition pt := basepoint circle.
+
+Definition Def_0_5_6 {Z : Torsor ℤ} (x : Z) : pt = Z.
 Proof.
-  refine (maponpaths π (_ : (Z,,x) = pointedTrivialTorsor ℤ)).
-  apply iscontrEG.
+  change (trivialTorsor ℤ = Z).
+  apply (invmap torsor_univalence).
+  now apply triviality_isomorphism.
 Defined.
 
-Local Definition s := Def_0_5_6.
+Local Notation s := Def_0_5_6.
 
-Definition loop : pt = pt := @s (trivialTorsor ℤ) 1.
-
-Definition Def_0_5_7 (X : Torsor ℤ) (x : X) : s x = s x @ loop.
+Definition Def_0_5_7 (X : Torsor ℤ) (x : X) : loop @ s x = s (one + x).
 Proof.
-  unfold loop.
-  unfold s.
-  unfold Def_0_5_6.
+  unfold loop, loops_circle, loopsBG.
+  change ((invmap torsor_univalence (autos ℤ 1)) @ s x = s (one + x)).
+  unfold s, Def_0_5_6.
+  intermediate_path (invmap torsor_univalence (composeActionIso (autos ℤ 1) (triviality_isomorphism X x))).
+  - generalize (autos ℤ 1) as i; intros i.
+    generalize (triviality_isomorphism X x) as j; intros j.
 
 
-
-
-  unfold circle,B,ClassifyingSpace,PointedType,pointedType,pr1.
-
-
-
-  set (PA := @paths).
 
 
 Abort.
