@@ -23,19 +23,19 @@ Local Notation "g + x" := (ac_mult _ g x) : action_scope.
 
 Definition circle := B ℤ.
 
-Theorem loops_circle : weq (Ω circle) ℤ.
+Theorem loops_circle : ℤ ≃ Ω circle.
 Proof.
   apply loopsBG.
 Defined.
 
 Local Open Scope hz.
 
-Definition circle_loop := ! invmap loops_circle 1 : Ω circle.
+Definition circle_loop := ! loops_circle 1 : Ω circle.
 
 Lemma loop_compute t : castTorsor (!circle_loop) t = one + t.
 Proof.
   intros. unfold circle_loop. rewrite pathsinv0inv0.
-  exact (loopsBG_comp _ one t @ commax _ t one).
+  exact (loopsBG_comp_2 _ one t @ commax _ t one).
 Defined.
 
 (** ** The total space of guided homotopies over BZ *)

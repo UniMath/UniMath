@@ -270,7 +270,7 @@ Require Import UniMath.Algebra.GroupAction.
 
 Definition circle := B ℤ.
 
-Theorem loops_circle : weq (Ω circle) ℤ.
+Theorem loops_circle : ℤ ≃ (Ω circle).
 Proof.
   apply loopsBG.
 Defined.

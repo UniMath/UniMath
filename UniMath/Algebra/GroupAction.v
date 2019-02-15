@@ -553,19 +553,29 @@ Proof.
   apply pointed_triviality_isomorphism.
 Defined.
 
-Theorem loopsBG (G:gr) : weq (Ω (B G)) G.
+Theorem loopsBG (G:gr) : G ≃ Ω (B G).
 Proof.
-  intros. apply invweq.
+  intros.
   simple refine (weqcomp _ (invweq Torsor_univalence)).
   apply autos.
 Defined.
 
-Definition loopsBG_comp (G:gr) (g h:G)
-  : castTorsor (invmap (loopsBG G) g) h = (h*g)%multmonoid.
+Definition loopsBG_comp (G:gr) (g:G) :
+  loopsBG G g = invweq Torsor_univalence (trivialTorsorAuto G g).
 Proof.
-  intros. unfold loopsBG. rewrite invinv. unfold weqcomp; simpl.
-  rewrite (Torsor_univalence_inv_comp_eval (trivialTorsorAuto G g)).
   reflexivity.
+Defined.
+
+Definition loopsBG_comp' {G:gr} (p : Ω (B G)) :
+  invmap (loopsBG G) p = path_to_ActionIso (maponpaths underlyingAction p) (unel G).
+Proof.
+  reflexivity.
+Defined.
+
+Definition loopsBG_comp_2 (G:gr) (g h:G)
+  : castTorsor (loopsBG G g) h = (h*g)%multmonoid.
+Proof.
+  exact (Torsor_univalence_inv_comp_eval (trivialTorsorAuto G g) h).
 Defined.
 
 (** Theorem [loopsBG] also follows from the Rezk Completion theorem of the CategoryTheory
