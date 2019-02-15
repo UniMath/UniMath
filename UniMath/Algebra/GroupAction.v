@@ -109,9 +109,10 @@ Definition ActionMap {G:gr} (X Y:Action G) := total2 (@is_equivariant _ X Y).
 
 Definition underlyingFunction {G:gr} {X Y:Action G} (f:ActionMap X Y) := pr1 f.
 
-Definition equivariance {G:gr} {X Y:Action G} (f:ActionMap X Y) := pr2 f.
-
 Coercion underlyingFunction : ActionMap >-> Funclass.
+
+Definition equivariance {G:gr} {X Y:Action G} (f:ActionMap X Y) : is_equivariant f
+  := pr2 f.
 
 Definition composeActionMap {G:gr} (X Y Z:Action G)
            (p:ActionMap X Y) (q:ActionMap Y Z) : ActionMap X Z.
@@ -303,12 +304,12 @@ Defined.
 Definition quotient {G} (X:Torsor G) (y x:X) := pr1 (iscontrpr1 (is_quotient X y x)) : G.
 Local Notation "y / x" := (quotient _ y x) : action_scope.
 
-Lemma quotient_times {G} (X:Torsor G) (y x:X) : (y/x)*x = y.
+Lemma quotient_times {G} {X:Torsor G} (y x:X) : (y/x)*x = y.
 Proof.
   intros. exact (pr2 (iscontrpr1 (is_quotient _ y x))).
 Defined.
 
-Lemma quotient_uniqueness {G} (X:Torsor G) (y x:X) (g:G) : g*x = y -> g = y/x.
+Lemma quotient_uniqueness {G} {X:Torsor G} (y x:X) (g:G) : g*x = y -> g = y/x.
 Proof.
   intros e.
   exact (maponpaths pr1 (uniqueness (is_quotient _ y x) (g,,e))).
@@ -328,8 +329,46 @@ Lemma quotient_product {G} (X:Torsor G) (z y x:X) : op (z/y) (y/x) = z/x.
 Proof.
   intros. apply quotient_uniqueness.
   exact (ac_assoc _ _ _ _
-                  @ maponpaths (left_mult (z/y)) (quotient_times _ y x)
-                  @ quotient_times _ z y).
+                  @ maponpaths (left_mult (z/y)) (quotient_times y x)
+                  @ quotient_times z y).
+Defined.
+
+Lemma quotient_map {G} {X Y:Torsor G} (f : ActionMap X Y) (x x':X) : f x' / f x = x' / x.
+Proof.
+  refine (! (quotient_uniqueness (f x') (f x) (x' / x) _)).
+  assert (p := equivariance f (x'/x) x).
+  refine (!p @ _); clear p.
+  apply maponpaths.
+  apply quotient_times.
+Qed.
+
+Lemma torsorMapIsIso {G} {X Y : Torsor G} (f : ActionMap X Y) : isweq f.
+Proof.
+  apply (squash_to_prop (torsor_nonempty X)).
+  - apply isapropisweq.
+  - intros x.
+    set (y := f x).
+    set (f' := λ y', y' / y * x).
+    apply (isweq_iso f f').
+    + intros x'.
+      unfold f', y.
+      assert (p := quotient_times x' x).
+      refine (_ @ p); clear p.
+      apply (maponpaths (λ g, g * x)).
+      apply quotient_map.
+    + intros y'.
+      unfold f'.
+      assert (p := equivariance f (y'/y) x).
+      refine (p @ _); clear p.
+      fold y.
+      apply quotient_times.
+Defined.
+
+Definition torsorMap_to_torsorIso {G} {X Y : Torsor G} (f : ActionMap X Y) : ActionIso X Y.
+Proof.
+  use tpair.
+  - exists f. apply torsorMapIsIso.
+  - simpl. apply equivariance.
 Defined.
 
 Definition trivialTorsor (G:gr) : Torsor G.
@@ -453,7 +492,8 @@ Definition Torsor_univalence_inv_comp_eval {G:gr} {X Y:Torsor G}
   castTorsor (invmap Torsor_univalence f) x = f x.
 Proof.
   intros. unfold Torsor_univalence.
-  unfold castTorsor. rewrite invmapweqcomp. unfold weqcomp; simpl.
+  unfold castTorsor. rewrite invmapweqcomp.
+  unfold weqcomp; simpl.
   rewrite underlyingAction_injectivity_inv_comp.
   apply Action_univalence_inv_comp_eval.
 Defined.
@@ -461,6 +501,14 @@ Defined.
 Definition torsor_eqweq_to_path {G:gr} {X Y:Torsor G} : ActionIso X Y -> X = Y.
 Proof.
   intros f. exact ((invweq Torsor_univalence) f).
+Defined.
+
+Definition torsorMap_to_path {G:gr} {X Y:Torsor G} : ActionMap X Y -> X = Y.
+Proof.
+  intros f.
+  apply (invweq Torsor_univalence).
+  apply torsorMap_to_torsorIso.
+  exact f.
 Defined.
 
 Definition PointedActionIso {G:gr} (X Y:PointedTorsor G)
