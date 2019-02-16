@@ -231,6 +231,7 @@ Defined.
 Require Import UniMath.SyntheticHomotopyTheory.AffineLine.
 Require Import UniMath.NumberSystems.Integers.
 Local Open Scope hz.
+Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Groups.
 
 Definition Lemma031_weq (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) :
@@ -267,7 +268,8 @@ Definition Lemma031_compute_prev (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) (p:
     ℤBiRecursion_transition_inv_reversed f p z.
 
 Require Import UniMath.Algebra.GroupAction.
-Local Notation "n + x" := (ac_mult _ n x).
+Local Open Scope abgr.
+Local Open Scope action_scope.
 
 Definition circle := B ℤ.
 
@@ -289,19 +291,19 @@ Defined.
 
 Local Notation s := Def_0_5_6.
 
+Local Delimit Scope addoperation_scope with abgr.
+
 Definition Def_0_5_7 (X : Torsor ℤ) (x : X) : loop @ s x = s (one + x).
 Proof.
-  unfold loop, loops_circle, loopsBG.
-  change ((invmap torsor_univalence (autos ℤ 1)) @ s x = s (one + x)).
-  unfold s, Def_0_5_6.
-  intermediate_path (invmap torsor_univalence (composeActionIso (autos ℤ 1) (triviality_isomorphism X x))).
-  - generalize (autos ℤ 1) as i; intros i.
-    generalize (triviality_isomorphism X x) as j; intros j.
-
-
-
-
-Abort.
+  change ((invmap torsor_univalence (autos ℤ one)) @ s x = s (one + x)).
+  refine (invUnivalenceCompose _ _ @ _). unfold s, Def_0_5_6. apply maponpaths.
+  apply subtypeEquality.
+  { intros w. apply propproperty. }
+  apply subtypeEquality.
+  { intros w. apply isapropisweq. }
+  apply funextsec. intros n.
+  change (((n + one)%abgr + x) = (n + (one + x))). apply ac_assoc.
+Defined.
 
 Section A.
 

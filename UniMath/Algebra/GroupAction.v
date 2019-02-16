@@ -402,6 +402,11 @@ Proof.
            (λ g, assocax _ g (grinv _ x) x @ maponpaths (op g) (grlinvax G x) @ runax _ g)).
 Defined.
 
+Definition toTrivialTorsor {G:gr} (g:G) : trivialTorsor G.
+Proof.
+  exact g.
+Defined.
+
 Definition pointedTrivialTorsor (G:gr) : PointedTorsor G.
 Proof.
   intros. exists (trivialTorsor G). exact (unel G).
@@ -543,6 +548,15 @@ Defined.
 Ltac torsor_induction f e :=
   generalize f; apply TorsorIso_rect; intro e; clear f.
 
+Theorem TorsorIso_rect' {G:gr} {X : Torsor G} (P : ∏ Y : Torsor G, ActionIso X Y -> Type) :
+  P X (idActionIso X) -> ∏ (Y : Torsor G) (f:ActionIso X Y), P Y f.
+Proof.
+  intros p ? ?. torsor_induction f q. induction q. exact p.
+Defined.
+
+Ltac torsor_induction' f X :=
+  generalize f; generalize X; apply TorsorIso_rect'; clear f X.
+
 Lemma torsor_univalence_id {G:gr} (X:Torsor G) : invmap torsor_univalence (idActionIso X) = idpath X.
 (* upstream *)
 Proof.
@@ -550,15 +564,10 @@ Proof.
   apply homotinvweqweq.
 Defined.
 
-Definition invUnivalenceCompose {G:gr} {X Y Z : Torsor G}
-           (f : ActionIso X Y) (g : ActionIso Y Z) :
-  invmap torsor_univalence f @ invmap torsor_univalence g
-  =
-  invmap torsor_univalence (composeActionIso f g).
+Definition invUnivalenceCompose {G:gr} {X Y Z : Torsor G} (f : ActionIso X Y) (g : ActionIso Y Z) :
+  invmap torsor_univalence f @ invmap torsor_univalence g = invmap torsor_univalence (composeActionIso f g).
 Proof.
-  torsor_induction f p; induction p.
-  change (torsor_univalence (idpath X)) with (idActionIso X).
-  now rewrite composeActionIsoId, torsor_univalence_id.
+  torsor_induction' g Z. rewrite composeActionIsoId'. rewrite torsor_univalence_id. apply pathscomp0rid.
 Defined.
 
 Definition PointedActionIso {G:gr} (X Y:PointedTorsor G)
