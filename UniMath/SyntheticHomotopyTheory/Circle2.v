@@ -221,6 +221,13 @@ Proof.
   induction p1, p2, q. apply idisweq.
 Defined.
 
+Definition composePathOver_weq (A:Type) (a1 a2 a3:A) (B:A->Type)
+      (b1:B a1) (b2:B a2) (b3:B a3)
+      (p1:a1=a2) (p2:a2=a3)
+      (q:PathOver b1 b2 p1)
+  : PathOver b2 b3 p2 ≃ PathOver b1 b3 (p1@p2)
+  := weqpair (composePathOver q) (Lemma023 _).
+
 Lemma Lemma0_2_4 (A:Type) (B:A->Type) (a1 a2:A)
       (b1:B a1) (b2:B a2) (p q:a1=a2) (α : p=q) :
   isweq ((transportf (PathOver b1 b2) α) : PathOver b1 b2 p -> PathOver b1 b2 q).
@@ -230,13 +237,15 @@ Defined.
 
 Definition cp                   (* "change path" *)
            (A:Type) (B:A->Type) (a1 a2:A) (b1:B a1) (b2:B a2) (p q:a1=a2) (α : p=q) :
-  PathOver b1 b2 p -> PathOver b1 b2 q
-  := transportf _ α.
+  PathOver b1 b2 p ≃ PathOver b1 b2 q
+  := weqpair (transportf _ α) (Lemma0_2_4 α).
+
+Arguments cp {_ _ _ _ _ _ _ _} _.
 
 Lemma Lemma_0_2_5
       (A:Type) (B:A->Type) (a1 a2:A)
       (b1:B a1) (b2:B a2) (p q r:a1=a2) (α : p=q) (β : q=r) :
-  cp (b1:=b1) (b2:=b2) (α @ β) = cp β ∘ cp α.
+  cp (b1:=b1) (b2:=b2) (α @ β) ~ cp β ∘ cp α.
 Proof.
   now induction α.
 Defined.
@@ -361,27 +370,34 @@ Section A.
   Lemma iscontr_Q (p : PathOver a a loop) (X: Torsor ℤ) (* 0.5.9 *) :
     iscontr_hProp (Q p X).
   Proof.
-    use (predicateOnConnectedType (Torsor ℤ) _ (λ X, iscontr_hProp (Q p X))).
-    - apply isconnBG.
-    - exact pt.
-    - change (iscontr (Q p pt)); clear X.
-      set (R := λ (a' : A pt),
-                ∑ (h : ∏ (x:trivialTorsor ℤ), PathOver a a' (s x)),
-                ∏ (x:trivialTorsor ℤ),
-                  h (1 + x) = (cp (ε x) (composePathOver p (h x)))).
-      assert (ic : iscontr (∑ a', PathOver a a' (idpath pt))).
-      { unfold PathOver. change (transportf A (idpath pt) a) with a.
-        apply iscontrcoconusfromt. }
-      use (iscontrweqb _ ic).
-      change (Q p pt) with (∑ a', R a').
-      apply weqfibtototal; intros a'.
-      unfold R.
-
-
-      (* use ℤBiRecursion_weq. *)
-
-
-  Abort.
+    use (predicateOnConnectedType (Torsor ℤ) (isconnBG ℤ) (λ X, iscontr_hProp (Q p X)) pt);
+      clear X.
+    cbn beta.
+    use (iscontrweqb (Y := ∑ a', PathOver a a' (idpath pt))).
+    2 : { apply iscontrcoconusfromt. }
+    apply weqfibtototal; intros a'.
+    intermediate_weq (PathOver a a' (@s pt 0)).
+    2 : { apply eqweqmap. apply maponpaths. apply s_compute. }
+    set (P := λ x : ℤ, PathOver a a' (@s pt x)).
+    (* this change saves 1 second in the Qed below: *)
+    change ((∑ h : ∏ x : trivialTorsor ℤ, P x,
+               ∏ x : trivialTorsor ℤ,
+                 h (1 + x) =
+                 cp (ε x) (composePathOver_weq (B:=A) (b1:=a) (b2:=a) a' (p1:=loop) (s x) p (h x)))
+             ≃ P 0).
+    intermediate_weq (
+        ∑ h : ∏ x : trivialTorsor ℤ, P x,
+                      ∏ x : trivialTorsor ℤ,
+                            h (1 + x)
+                            =
+                            weqcomp
+                              (composePathOver_weq (B:=A) (b1:=a) (b2:=a) a' (p1:=loop) (s x) p)
+                              (cp (ε x))
+                              (h x)).
+    * now apply eqweqmap.
+    * change (ac_set (underlyingAction (trivialTorsor ℤ)))
+        with (pr1setwithbinop (pr1monoid (grtomonoid (abgrtogr ℤ)))).
+      Time apply ℤBiRecursion_weq. (* 6.7 seconds *)
+  Time Qed.                          (* 14 seconds *)
 
 End A.
-
