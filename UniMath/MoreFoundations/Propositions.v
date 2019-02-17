@@ -316,6 +316,7 @@ Defined.
 
 (** ** Connected types *)
 
+(* maybe we should add that X is nonempty to this definition: *)
 Definition isConnected X := ∏ (x y:X), nonempty (x = y).
 
 Lemma base_connected {X} (t:X) : (∏ y:X, nonempty (t = y)) -> isConnected X.
@@ -324,4 +325,10 @@ Proof.
   apply (squash_to_prop a). apply propproperty. clear a. intros a.
   apply (squash_to_prop b). apply propproperty. clear b. intros b.
   apply hinhpr. exact (!a@b).
+Defined.
+
+Lemma predicateOnConnectedType (X:Type) (i : isConnected X) (P:X->hProp) (x0:X) (p:P x0) :
+   ∏ x, P x.
+Proof.
+  intros x. apply (squash_to_hProp (i x x0)); intros e. now induction e.
 Defined.

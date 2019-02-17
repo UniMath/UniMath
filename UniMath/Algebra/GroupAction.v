@@ -436,6 +436,17 @@ Proof.
   exact (torsor_mult_weq X x,, univ_function_is_equivariant X x).
 Defined.
 
+Lemma triviality_isomorphism_compute (G:gr) :
+  triviality_isomorphism (trivialTorsor G) (unel G) = idActionIso (trivialTorsor G).
+Proof.
+  apply subtypeEquality_prop.
+  apply subtypeEquality.
+  { intros X. apply isapropisweq. }
+  apply funextsec; intros g.
+  change (op g (unel _) = g).
+  apply runax.
+Defined.
+
 Definition trivialTorsor_weq (G:gr) (g:G) : (trivialTorsor G) ≃ (trivialTorsor G).
 Proof.
   intros. exists (λ h, op h g). apply (isweq_iso _ (λ h, op h (grinv G g))).

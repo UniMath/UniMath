@@ -221,11 +221,42 @@ Proof.
   induction p1, p2, q. apply idisweq.
 Defined.
 
-Lemma Lemma024 (A:Type) (B:A->Type) (a1 a2:A)
-      (b1:B a1) (b2:B a2) (p p':a1=a2) (α : p=p') :
-  isweq ((transportf (PathOver b1 b2) α) : PathOver b1 b2 p -> PathOver b1 b2 p').
+Lemma Lemma0_2_4 (A:Type) (B:A->Type) (a1 a2:A)
+      (b1:B a1) (b2:B a2) (p q:a1=a2) (α : p=q) :
+  isweq ((transportf (PathOver b1 b2) α) : PathOver b1 b2 p -> PathOver b1 b2 q).
 Proof.
   induction α. apply idisweq.
+Defined.
+
+Definition cp                   (* "change path" *)
+           (A:Type) (B:A->Type) (a1 a2:A) (b1:B a1) (b2:B a2) (p q:a1=a2) (α : p=q) :
+  PathOver b1 b2 p -> PathOver b1 b2 q
+  := transportf _ α.
+
+Lemma Lemma_0_2_5
+      (A:Type) (B:A->Type) (a1 a2:A)
+      (b1:B a1) (b2:B a2) (p q r:a1=a2) (α : p=q) (β : q=r) :
+  cp (b1:=b1) (b2:=b2) (α @ β) = cp β ∘ cp α.
+Proof.
+  now induction α.
+Defined.
+
+Definition apstar               (* 0.2.7 *)
+      (A:Type) (a1 a2 a3:A) (p p':a1=a2) (q q':a2=a3) (α : p=p') (β : q=q') :
+  p @ q = p' @ q'.
+Proof.
+  induction α, p. exact β.
+Defined.
+
+Definition Lemma_0_2_8
+      (A:Type) (B:A->Type) (a1 a2 a3:A)
+      (p p':a1=a2) (q q':a2=a3) (α : p=p') (β : q=q')
+      (b1:B a1) (b2:B a2) (b3:B a3)
+      (pp : PathOver b1 b2 p) (qq : PathOver b2 b3 q) :
+  cp (apstar α β) (composePathOver pp qq) =
+  composePathOver (cp α pp) (cp β qq).
+Proof.
+  now induction p, α, β.
 Defined.
 
 Require Import UniMath.SyntheticHomotopyTheory.AffineLine.
@@ -271,6 +302,10 @@ Require Import UniMath.Algebra.GroupAction.
 Local Open Scope abgr.
 Local Open Scope action_scope.
 
+Local Notation "0" := (toℤ 0).
+Local Notation "1" := (toℤ 1).
+Local Notation "-1" := (- (toℤ 1)).
+
 Definition circle := B ℤ.
 
 Theorem loops_circle : ℤ ≃ Ω circle.
@@ -282,34 +317,71 @@ Definition loop := loops_circle 1 : Ω circle.
 
 Definition pt := basepoint circle.
 
-Definition Def_0_5_6 {Z : Torsor ℤ} (x : Z) : pt = Z.
+Definition s {Z : Torsor ℤ} (x : Z) : pt = Z.
+(* Def 0.5.6 *)
 Proof.
   change (trivialTorsor ℤ = Z).
   apply (invmap torsor_univalence).
   now apply triviality_isomorphism.
 Defined.
 
-Local Notation s := Def_0_5_6.
+Lemma s_compute : @s (trivialTorsor ℤ) 0 = idpath _.
+Proof.
+  intermediate_path (invmap torsor_univalence (idActionIso (trivialTorsor ℤ))).
+  - change (@s (trivialTorsor ℤ) 0) with (invmap torsor_univalence (triviality_isomorphism (trivialTorsor ℤ) 0)).
+    apply maponpaths.
+    exact (triviality_isomorphism_compute ℤ). (* too slow *)
+  - apply torsor_univalence_id.
+Defined.
 
 Local Delimit Scope addoperation_scope with abgr.
 
-Definition Def_0_5_7 (X : Torsor ℤ) (x : X) : loop @ s x = s (one + x).
+Definition ε (* 0.5.7 *) {X : Torsor ℤ} (x : X) : loop @ s x = s (1 + x).
 Proof.
-  change ((invmap torsor_univalence (autos ℤ one)) @ s x = s (one + x)).
-  refine (invUnivalenceCompose _ _ @ _). unfold s, Def_0_5_6. apply maponpaths.
+  change ((invmap torsor_univalence (autos ℤ one)) @ s x = s (1 + x)).
+  refine (invUnivalenceCompose _ _ @ _). unfold s. apply maponpaths.
   apply subtypeEquality.
   { intros w. apply propproperty. }
   apply subtypeEquality.
   { intros w. apply isapropisweq. }
   apply funextsec. intros n.
-  change (((n + one)%abgr + x) = (n + (one + x))). apply ac_assoc.
+  change (((n + 1)%abgr + x) = (n + (1 + x))). apply ac_assoc.
 Defined.
 
 Section A.
 
-  Context (A : circle -> Type)
-          (a : A pt)
-          (p : PathOver a a loop).
+  Context (A : circle -> Type) (a : A pt).
+
+  Definition Q (p : PathOver a a loop) (X: Torsor ℤ) : Type                 (* 0.5.8 *)
+    := ∑ (a' : A X),
+       ∑ (h : ∏ (x:X), PathOver a a' (s x)),
+       ∏ (x:X),
+         h (1 + x) = (cp (ε x) (composePathOver p (h x))).
+
+  Lemma iscontr_Q (p : PathOver a a loop) (X: Torsor ℤ) (* 0.5.9 *) :
+    iscontr_hProp (Q p X).
+  Proof.
+    use (predicateOnConnectedType (Torsor ℤ) _ (λ X, iscontr_hProp (Q p X))).
+    - apply isconnBG.
+    - exact pt.
+    - change (iscontr (Q p pt)); clear X.
+      set (R := λ (a' : A pt),
+                ∑ (h : ∏ (x:trivialTorsor ℤ), PathOver a a' (s x)),
+                ∏ (x:trivialTorsor ℤ),
+                  h (1 + x) = (cp (ε x) (composePathOver p (h x)))).
+      assert (ic : iscontr (∑ a', PathOver a a' (idpath pt))).
+      { unfold PathOver. change (transportf A (idpath pt) a) with a.
+        apply iscontrcoconusfromt. }
+      use (iscontrweqb _ ic).
+      change (Q p pt) with (∑ a', R a').
+      apply weqfibtototal; intros a'.
+      unfold R.
+
+
+      (* use ℤBiRecursion_weq. *)
+
+
+  Abort.
 
 End A.
 
