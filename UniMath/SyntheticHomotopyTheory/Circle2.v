@@ -120,11 +120,10 @@ Proof.
   intros q. exact (p,,q).
 Defined.
 
-Definition applySectionToPath {X:Type} {Y : X -> Type} (s : ∏ x, Y x) {x x':X} (p : x = x') :
+Definition apd {X:Type} {Y : X -> Type} (s : ∏ x, Y x) {x x':X} (p : x = x') :
   PathOver (s x) (s x') p.
 Proof.
-  induction p.
-  exact (idpath (s x)).
+  now induction p.
 Defined.
 
 Definition PathOverToTotalPath {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (y' : Y x') (p:x=x') :
@@ -145,12 +144,12 @@ Proof.
   now induction p.
 Defined.
 
-Definition reflPathOver {X:Type} {x:X} {Y : X -> Type} (y : Y x) : PathOver y y (idpath x)
+Definition identityPathOver {X:Type} {x:X} {Y : X -> Type} (y : Y x) : PathOver y y (idpath x)
   := idpath y.
 
 Definition inductionPathOver {X:Type} {x:X} {Y : X -> Type} (y : Y x)
            (T : ∏ x' (y' : Y x') (p : x = x'), PathOver y y' p → Type)
-           (t : T x y (idpath x) (reflPathOver y)) :
+           (t : T x y (idpath x) (identityPathOver y)) :
   ∏ x' (y' : Y x') (p : x = x') (q : PathOver y y' p), T x' y' p q.
 Proof.
   intros. induction q, p. exact t.
@@ -177,13 +176,13 @@ Proof.
 Defined.
 
 Definition composePathOverLeftUnit {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (y' : Y x') (p:x=x') (q:PathOver y y' p) :
-  composePathOver (reflPathOver y) q = q.
+  composePathOver (identityPathOver y) q = q.
 Proof.
   now induction p.
 Defined.
 
 Definition composePathOverRightUnit {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (y' : Y x') (p:x=x') (q:PathOver y y' p) :
-  composePathOver q (reflPathOver y') = transportb (PathOver y y') (pathscomp0rid _) q.
+  composePathOver q (identityPathOver y') = transportb (PathOver y y') (pathscomp0rid _) q.
 Proof.
   now induction p, q.
 Defined.
@@ -241,6 +240,36 @@ Definition cp                   (* "change path" *)
   := weqpair (transportf _ α) (Lemma0_2_4 α).
 
 Arguments cp {_ _ _ _ _ _ _ _} _.
+
+Definition inverse_cp_p
+           (A:Type) (B:A->Type) (a1 a2:A) (b1:B a1) (b2:B a2)
+           (p q:a1=a2) (α : p=q) (t : PathOver b1 b2 p) :
+  cp (! α) (cp α t) = t.
+Proof.
+  now induction α.
+Defined.
+
+Definition cp_inverse_cp
+           (A:Type) (B:A->Type) (a1 a2:A) (b1:B a1) (b2:B a2)
+           (p q:a1=a2) (α : p=q) (t : PathOver b1 b2 q) :
+  cp α (cp (! α) t) = t.
+Proof.
+  now induction α.
+Defined.
+
+Definition composePathOverRightInverse {X:Type} {x x':X} {Y : X -> Type}
+           {y : Y x} {y' : Y x'} {p:x=x'} (q : PathOver y y' p) :
+  composePathOver q (inversePathOver q) = cp (!pathsinv0r p) (identityPathOver y).
+Proof.
+  now induction p, q.
+Defined.
+
+Definition composePathOverLeftInverse {X:Type} {x x':X} {Y : X -> Type}
+           {y : Y x} {y' : Y x'} {p:x=x'} (q : PathOver y y' p) :
+  composePathOver (inversePathOver q) q = cp (!pathsinv0l p) (identityPathOver y').
+Proof.
+  now induction p, q.
+Defined.
 
 Lemma Lemma_0_2_5
       (A:Type) (B:A->Type) (a1 a2:A)
@@ -383,21 +412,56 @@ Section A.
     change ((∑ h : ∏ x : trivialTorsor ℤ, P x,
                ∏ x : trivialTorsor ℤ,
                  h (1 + x) =
-                 cp (ε x) (composePathOver_weq (B:=A) (b1:=a) (b2:=a) a' (p1:=loop) (s x) p (h x)))
+                 cp (ε x) (composePathOver_weq a' (s x) p (h x)))
              ≃ P 0).
     intermediate_weq (
         ∑ h : ∏ x : trivialTorsor ℤ, P x,
-                      ∏ x : trivialTorsor ℤ,
-                            h (1 + x)
-                            =
-                            weqcomp
-                              (composePathOver_weq (B:=A) (b1:=a) (b2:=a) a' (p1:=loop) (s x) p)
-                              (cp (ε x))
-                              (h x)).
+          ∏ x : trivialTorsor ℤ,
+                h (1 + x) =
+                weqcomp (composePathOver_weq a' (s x) p) (cp (ε x)) (h x)).
     * now apply eqweqmap.
     * change (ac_set (underlyingAction (trivialTorsor ℤ)))
         with (pr1setwithbinop (pr1monoid (grtomonoid (abgrtogr ℤ)))).
-      Time apply ℤBiRecursion_weq. (* 6.7 seconds *)
-  Time Qed.                          (* 14 seconds *)
+      apply ℤBiRecursion_weq.
+  Qed.
+
+  Definition cQ (p : PathOver a a loop) (X:Torsor ℤ) := iscontrpr1 (iscontr_Q p X).
+  Definition c (p : PathOver a a loop) (X:Torsor ℤ)
+    : A X
+    := pr1 (cQ p X).
+  Definition c_tilde (p : PathOver a a loop) (X:Torsor ℤ) (x : X)
+    : PathOver a (c p X) (s x)
+    := pr12 (cQ p X) x.
+  Arguments c_tilde : clear implicits.
+  Definition c_hat (p : PathOver a a loop) (X:Torsor ℤ) (x : X)
+    : c_tilde p X (1 + x) = cp (ε x) (composePathOver p (c_tilde p X x))
+    := pr22 (cQ p X) x.
+
+  Definition elem (X:Torsor ℤ) : Type := X.
+
+  Definition ε' (X Y : Torsor ℤ) (e : X = Y) (x : X) :
+    ! s x @ s (transportf elem e x) = e.
+  Proof.                        (* 0.5.10 *)
+    induction e. apply pathsinv0l.
+  Defined.
+
+  Definition Lemma_0_5_11 (p : PathOver a a loop) (X Y : Torsor ℤ) (e : X = Y) (x : X) :
+    apd (c p) e = cp (ε' e x) (composePathOver
+                                 (inversePathOver (c_tilde p X x))
+                                 (c_tilde p Y (transportf elem e x))).
+  Proof.
+    induction e.
+    change (transportf elem (idpath X) x) with x.
+    rewrite composePathOverLeftInverse.
+    change (apd (c p) (idpath X)) with (identityPathOver (c p X)).
+    change (ε' (idpath X) x) with (pathsinv0l (s x)).
+    rewrite cp_inverse_cp.
+    reflexivity.
+  Defined.
+
+  Lemma c_compute (p : PathOver a a loop) : c p pt = a.
+  Proof.
+    Fail reflexivity.
+  Abort.
 
 End A.
