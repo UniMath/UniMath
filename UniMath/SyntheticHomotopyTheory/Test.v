@@ -59,16 +59,11 @@ Section A.
   Goal ∏ (X Y:Type) (p:X=Y) (x:X), eqweqmap p x = transportf (λ T, T) p x.
     Fail reflexivity. Abort.
 
-  Goal ∏ {X:Type} (bc : BaseConnected X) (t := pr1 bc : X), pr2 (baseConnectedness X bc) t t = hinhpr (idpath t).
+  Goal ∏ {X:PointedType} (bc : BaseConnected X) (t := basepoint X), pr2 (baseConnectedness X bc) t t = hinhpr (idpath t).
     Fail reflexivity.
   Abort.
 
-  Goal ∏ (G:gr), pr1 (BaseConnected_BG G) = trivialTorsor G.
-    reflexivity.
-  Qed.
-
-  Goal ∏ (G:gr), pr2 (BaseConnected_BG G) (trivialTorsor G)
-                 = hinhpr (idpath (trivialTorsor G)).
+  Goal ∏ (G:gr), BaseConnected_BG G (trivialTorsor G) = hinhpr (idpath (trivialTorsor G)).
     Fail reflexivity.
   Abort.
 

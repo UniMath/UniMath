@@ -1,4 +1,5 @@
 Require Export UniMath.MoreFoundations.Notations.
+Require Export UniMath.MoreFoundations.PartA.
 Require Export UniMath.MoreFoundations.Tactics.
 Require Export UniMath.MoreFoundations.DecidablePropositions.
 
@@ -324,20 +325,27 @@ Proof.
   intros x. apply (squash_to_hProp (pr2 i x x0)); intros e. now induction e.
 Defined.
 
-Definition BaseConnected X := ∑ (x:X), ∏ (y:X), nonempty (x = y).
+Definition BaseConnected (X:PointedType) := ∏ (y:X), nonempty (basepoint X = y).
+
+Definition BaseConnectedType := ∑ (X:PointedType), BaseConnected X.
+
+Coercion BaseConnectedType_to_PointedType (X : BaseConnectedType) : PointedType := pr1 X.
+
+Definition addBaseConnection (X:PointedType) (i:BaseConnected X) : BaseConnectedType
+  := X,,i.
 
 Lemma baseConnectedness X : BaseConnected X -> isConnected X.
 Proof.
-  intros [x0 p]. split.
-  - exact (hinhpr x0).
+  intros p. split.
+  - exact (hinhpr (basepoint X)).
   - intros x y. assert (a := p x); assert (b := p y); clear p.
     apply (squash_to_prop a); [apply propproperty|]; clear a; intros a.
     apply (squash_to_prop b); [apply propproperty|]; clear b; intros b.
     apply hinhpr. exact (!a@b).
 Defined.
 
-Lemma predicateOnBaseConnectedType (X:Type) (i : BaseConnected X) (P:X->hProp) (p:P (pr1 i)) :
+Lemma predicateOnBaseConnectedType (X:BaseConnectedType) (P:X->hProp) (p:P (basepoint X)) :
    ∏ x, P x.
 Proof.
-  intros x. apply (squash_to_hProp (pr2 i x)); intros e. now induction e.
+  intros x. apply (squash_to_hProp (pr2 X x)); intros e. now induction e.
 Defined.

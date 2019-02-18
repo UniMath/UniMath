@@ -611,20 +611,15 @@ Definition π {G:gr} := underlyingTorsor : E G -> B G.
 
 Lemma BaseConnected_BG (G:gr) : BaseConnected (B G).
 Proof.
-  exists (trivialTorsor G).
   intros X. use (hinhfun _ (torsor_nonempty X)); intros x.
   exact (torsor_eqweq_to_path (triviality_isomorphism X x)).
 Defined.
-
-Goal ∏ (G:gr), pr1 (BaseConnected_BG G) = trivialTorsor G.
-  reflexivity.
-Qed.
 
 Goal ∏ (G:gr), triviality_isomorphism (trivialTorsor G) (unel G) = idActionIso (trivialTorsor G).
   Fail reflexivity.
 Abort.
 
-Goal ∏ (G:gr), pr2 (BaseConnected_BG G) (trivialTorsor G) = hinhpr (idpath (trivialTorsor G)).
+Goal ∏ (G:gr), BaseConnected_BG G (trivialTorsor G) = hinhpr (idpath (trivialTorsor G)).
   intros.
   unfold BaseConnected_BG, pr2.
   change (pr1 (trivialTorsor G) : Type) with (G : Type).
