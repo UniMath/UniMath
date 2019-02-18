@@ -12,38 +12,12 @@
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.Algebra.Monoids. Import AddNotation.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
 
 Module Upstream.
-
-Lemma iscontrcoconustot (T : UU) (t : T) : iscontr (coconustot T t).
-Proof.
-  (* move upstream, much simpler *)
-  (* rename connectedcoconustot *)
-  use (tpair _ (t,, idpath t)).
-  now intros [u []].
-Defined.
-
-Lemma iscontrcoconusfromt (T : UU) (t : T) : iscontr (coconusfromt T t).
-Proof.
-  (* move upstream, much simpler *)
-  (* rename connectedcoconusfromt *)
-  use (tpair _ (t,, idpath t)).
-  now intros [u []].
-Defined.
-
-Corollary isweqpathsinv0 {X : Type} (x y : X) : isweq (@pathsinv0 X x y).
-  (* move upstream, much simpler *)
-  (* make a direct proof of isweqpathsinv0, without using isweq_iso *)
-Proof.
-  intros.
-  intros p.
-  use tpair.
-  - exists (!p). apply pathsinv0inv0.
-  - cbn. intros [q k]. now induction q,k.
-Defined.
 
 Definition hornRotation {X:Type} {x y z : X} {p : x = z} {q : y = z} {r : x = y} :
   r = p @ !q ≃ r @ q = p.
@@ -132,6 +106,18 @@ Proof.
   intros q.
   exact (invmap (total2_paths_equiv  Y (x,, y) (x',, y'))
                 (PathOverToPathPair q)).
+Defined.
+
+Lemma PathOverUniqueness  {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (p:x=x') :
+  ∃! (y' : Y x'), PathOver y y' p.
+Proof.
+  apply iscontrcoconusfromt.
+Defined.
+
+Goal ∏ {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (p:x=x'),
+       pr1 (PathOverUniqueness y p) = (transportf Y p y,, idpath _).
+Proof.
+  reflexivity.
 Defined.
 
 Definition stdPathOver {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (p:x=x')
@@ -240,6 +226,13 @@ Definition cp                   (* "change path" *)
   := weqpair (transportf _ α) (Lemma0_2_4 α).
 
 Arguments cp {_ _ _ _ _ _ _ _} _.
+
+Lemma cp_to_path_over_path_over (A:Type) (B:A->Type) (a1 a2:A) (b1:B a1) (b2:B a2) (p q:a1=a2) (α : p=q)
+      (r : PathOver b1 b2 p) (s : PathOver b1 b2 q) :
+  cp α r = s ≃ PathOver r s α.
+Proof.
+  apply idweq.
+Defined.
 
 Definition inverse_cp_p
            (A:Type) (B:A->Type) (a1 a2:A) (b1:B a1) (b2:B a2)
@@ -392,37 +385,19 @@ Section A.
 
   Definition Q (p : PathOver a a loop) (X: Torsor ℤ) : Type                 (* 0.5.8 *)
     := ∑ (a' : A X),
-       ∑ (h : ∏ (x:X), PathOver a a' (s x)),
-       ∏ (x:X),
-         h (1 + x) = (cp (ε x) (composePathOver p (h x))).
+        ∑ (h : ∏ (x:X), PathOver a a' (s x)),
+         ∏ (x:X), h (1 + x) = cp (ε x) (composePathOver p (h x)).
 
   Lemma iscontr_Q (p : PathOver a a loop) (X: Torsor ℤ) (* 0.5.9 *) :
     iscontr_hProp (Q p X).
   Proof.
-    use (predicateOnConnectedType (Torsor ℤ) (isConnected_BG ℤ) (λ X, iscontr_hProp (Q p X)) pt);
-      clear X.
-    cbn beta.
-    use (iscontrweqb (Y := ∑ a', PathOver a a' (idpath pt))).
-    2 : { apply iscontrcoconusfromt. }
+    use (hinhuniv _ (torsor_nonempty X)); intros x.
+    use (iscontrweqb (Y := ∑ a', PathOver a a' (s x))).
+    2 : { apply PathOverUniqueness. }
     apply weqfibtototal; intros a'.
-    intermediate_weq (PathOver a a' (@s pt 0)).
-    2 : { apply eqweqmap. apply maponpaths. apply s_compute. }
-    set (P := λ x : ℤ, PathOver a a' (@s pt x)).
-    (* this change saves 1 second in the Qed below: *)
-    change ((∑ h : ∏ x : trivialTorsor ℤ, P x,
-               ∏ x : trivialTorsor ℤ,
-                 h (1 + x) =
-                 cp (ε x) (composePathOver_weq a' (s x) p (h x)))
-             ≃ P 0).
-    intermediate_weq (
-        ∑ h : ∏ x : trivialTorsor ℤ, P x,
-          ∏ x : trivialTorsor ℤ,
-                h (1 + x) =
-                weqcomp (composePathOver_weq a' (s x) p) (cp (ε x)) (h x)).
-    * now apply eqweqmap.
-    * change (ac_set (underlyingAction (trivialTorsor ℤ)))
-        with (pr1setwithbinop (pr1monoid (grtomonoid (abgrtogr ℤ)))).
-      apply ℤBiRecursion_weq.
+    exact (ℤTorsorRecursion_weq
+             (λ x, weqcomp (composePathOver_weq a' (s x) p) (cp (ε x)))
+             x).
   Defined.
 
   Definition cQ (p : PathOver a a loop) (X:Torsor ℤ) := iscontrpr1 (iscontr_Q p X).
@@ -451,7 +426,6 @@ Section A.
                                  (c_tilde p Y (transportf elem e x))).
   Proof.
     induction e.
-    Fail reflexivity.
     change (transportf elem (idpath X) x) with x.
     rewrite composePathOverLeftInverse.
     change (apd (c p) (idpath X)) with (identityPathOver (c p X)).
@@ -462,70 +436,7 @@ Section A.
 
   Lemma c_compute (p : PathOver a a loop) : c p pt = a.
   Proof.
-    Fail reflexivity.
+    Fail reflexivity.           (* we need this to work *)
   Abort.
+
 End A.
-
-Goal ∏ (X:Type) (f := eqweqmap (idpath X)), f = idweq X.
-  reflexivity. Qed.
-
-Goal ∏ (X:Type), invmap (idweq X) = idfun X.
-  reflexivity. Qed.
-
-Goal ∏ (X:Type) (x:X), iscontrpr1 (iscontrcoconusfromt X x) = (x,,idpath x).
-  reflexivity. Qed.
-
-Goal ∏ (X:Type) (x:X), iscontrpr1 (iscontrcoconustot X x) = (x,,idpath x).
-  reflexivity. Qed.
-
-Goal ∏ (X Y:Type) (f:X≃Y), invmap (invweq f) = f.
-  reflexivity. Qed.
-
-Goal ∏ (X Y Z:Type) (f:X≃Y) (g:Y≃Z), pr1weq (weqcomp f g) = funcomp f g.
-  reflexivity. Qed.
-
-Goal ∏ (X Y Z:Type) (f:X≃Y) (g:Y≃Z), invmap (weqcomp f g) = funcomp (invmap g) (invmap f).
-  reflexivity. Qed.
-
-Goal ∏ {X : UU} (P Q : X -> Type) (f : ∏ x, P x ≃ Q x) (x:X) (p:P x),
-    weqfibtototal _ _ f (x,,p) = (x,,f x p).
-  reflexivity. Qed.
-
-Goal ∏ {X : UU} (P Q : X -> Type) (f : ∏ x, P x ≃ Q x) (x:X) (q:Q x),
-    invmap (weqfibtototal _ _ f) (x,,q) = (x,,invmap (f x) q).
-  reflexivity. Qed.
-
-Goal ∏ {X Y : Type} (w : X ≃ Y) (is : iscontr Y),
-    iscontrpr1 (iscontrweqb w is) = invmap w (iscontrpr1 is).
-  reflexivity. Qed.
-
-Goal ∏ {X Y : Type} (w : X ≃ Y) (is : iscontr X),
-    iscontrpr1 (iscontrweqf w is) = w (iscontrpr1 is).
-  reflexivity. Qed.
-
-Goal ∏ (X:Type) (i : isConnected X) (P:X->hProp) (x0:X) (p:P x0),
-    predicateOnConnectedType X i P x0 p x0 = p.
-  Fail reflexivity. Abort.
-
-Goal ∏ (X:Type) (i : iscontr X) (x0 := pr1 i : X), pr2 i x0 = idpath x0.
-  Fail reflexivity. Abort.
-
-Goal ∏ (X Y:Type) (p:X=Y) (x:X), eqweqmap p x = cast p x.
-  Fail reflexivity. Abort.
-
-Goal ∏ (X Y:Type) (p:X=Y) (x:X), eqweqmap p x = transportf (λ T, T) p x.
-  Fail reflexivity. Abort.
-
-Goal ∏ {X:Type} (bc : BaseConnected X) (t := pr1 bc : X),
-    pr2 (baseConnectedness X bc) t t = hinhpr (idpath t).
-  Fail reflexivity.
-Abort.
-
-Goal ∏ (G:gr), pr1 (BaseConnected_BG G) = trivialTorsor G.
-  reflexivity.
-Qed.
-
-Goal ∏ (G:gr), pr2 (BaseConnected_BG G) (trivialTorsor G)
-               = hinhpr (idpath (trivialTorsor G)).
-  Fail reflexivity.
-Abort.
