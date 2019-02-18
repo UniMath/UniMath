@@ -609,14 +609,38 @@ Definition E := PointedTorsor.
 Definition B := ClassifyingSpace.
 Definition π {G:gr} := underlyingTorsor : E G -> B G.
 
-Lemma isconnBG (G:gr) : isConnected (B G).
+Lemma BaseConnected_BG (G:gr) : BaseConnected (B G).
 Proof.
-  intros. apply (base_connected (trivialTorsor _)).
-  intros X. apply (squash_to_prop (torsor_nonempty X)). { apply propproperty. }
-  intros x. apply hinhpr. exact (torsor_eqweq_to_path (triviality_isomorphism X x)).
+  exists (trivialTorsor G).
+  intros X. use (hinhfun _ (torsor_nonempty X)); intros x.
+  exact (torsor_eqweq_to_path (triviality_isomorphism X x)).
 Defined.
 
-Lemma iscontrEG (G:gr) : iscontr (E G).
+Goal ∏ (G:gr), pr1 (BaseConnected_BG G) = trivialTorsor G.
+  reflexivity.
+Qed.
+
+Goal ∏ (G:gr), triviality_isomorphism (trivialTorsor G) (unel G) = idActionIso (trivialTorsor G).
+  Fail reflexivity.
+Abort.
+
+Goal ∏ (G:gr), pr2 (BaseConnected_BG G) (trivialTorsor G) = hinhpr (idpath (trivialTorsor G)).
+  intros.
+  unfold BaseConnected_BG, pr2.
+  change (pr1 (trivialTorsor G) : Type) with (G : Type).
+  change (torsor_nonempty (trivialTorsor G)) with (hinhpr (unel G)).
+  change (hinhpr (torsor_eqweq_to_path (triviality_isomorphism (trivialTorsor G) (unel G)))
+          = hinhpr (idpath (trivialTorsor G))).
+  apply maponpaths.
+  Fail reflexivity.
+Abort.
+
+Lemma isConnected_BG (G:gr) : isConnected (B G).
+Proof.
+  apply baseConnectedness. apply BaseConnected_BG.
+Defined.
+
+Lemma iscontr_EG (G:gr) : iscontr (E G).
 Proof.
   intros. exists (pointedTrivialTorsor G). intros [X x].
   apply pathsinv0. apply (invweq Pointedtorsor_univalence).

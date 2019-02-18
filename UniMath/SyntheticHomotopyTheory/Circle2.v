@@ -399,7 +399,7 @@ Section A.
   Lemma iscontr_Q (p : PathOver a a loop) (X: Torsor ℤ) (* 0.5.9 *) :
     iscontr_hProp (Q p X).
   Proof.
-    use (predicateOnConnectedType (Torsor ℤ) (isconnBG ℤ) (λ X, iscontr_hProp (Q p X)) pt);
+    use (predicateOnConnectedType (Torsor ℤ) (isConnected_BG ℤ) (λ X, iscontr_hProp (Q p X)) pt);
       clear X.
     cbn beta.
     use (iscontrweqb (Y := ∑ a', PathOver a a' (idpath pt))).
@@ -423,7 +423,7 @@ Section A.
     * change (ac_set (underlyingAction (trivialTorsor ℤ)))
         with (pr1setwithbinop (pr1monoid (grtomonoid (abgrtogr ℤ)))).
       apply ℤBiRecursion_weq.
-  Qed.
+  Defined.
 
   Definition cQ (p : PathOver a a loop) (X:Torsor ℤ) := iscontrpr1 (iscontr_Q p X).
   Definition c (p : PathOver a a loop) (X:Torsor ℤ)
@@ -451,6 +451,7 @@ Section A.
                                  (c_tilde p Y (transportf elem e x))).
   Proof.
     induction e.
+    Fail reflexivity.
     change (transportf elem (idpath X) x) with x.
     rewrite composePathOverLeftInverse.
     change (apd (c p) (idpath X)) with (identityPathOver (c p X)).
@@ -463,5 +464,68 @@ Section A.
   Proof.
     Fail reflexivity.
   Abort.
-
 End A.
+
+Goal ∏ (X:Type) (f := eqweqmap (idpath X)), f = idweq X.
+  reflexivity. Qed.
+
+Goal ∏ (X:Type), invmap (idweq X) = idfun X.
+  reflexivity. Qed.
+
+Goal ∏ (X:Type) (x:X), iscontrpr1 (iscontrcoconusfromt X x) = (x,,idpath x).
+  reflexivity. Qed.
+
+Goal ∏ (X:Type) (x:X), iscontrpr1 (iscontrcoconustot X x) = (x,,idpath x).
+  reflexivity. Qed.
+
+Goal ∏ (X Y:Type) (f:X≃Y), invmap (invweq f) = f.
+  reflexivity. Qed.
+
+Goal ∏ (X Y Z:Type) (f:X≃Y) (g:Y≃Z), pr1weq (weqcomp f g) = funcomp f g.
+  reflexivity. Qed.
+
+Goal ∏ (X Y Z:Type) (f:X≃Y) (g:Y≃Z), invmap (weqcomp f g) = funcomp (invmap g) (invmap f).
+  reflexivity. Qed.
+
+Goal ∏ {X : UU} (P Q : X -> Type) (f : ∏ x, P x ≃ Q x) (x:X) (p:P x),
+    weqfibtototal _ _ f (x,,p) = (x,,f x p).
+  reflexivity. Qed.
+
+Goal ∏ {X : UU} (P Q : X -> Type) (f : ∏ x, P x ≃ Q x) (x:X) (q:Q x),
+    invmap (weqfibtototal _ _ f) (x,,q) = (x,,invmap (f x) q).
+  reflexivity. Qed.
+
+Goal ∏ {X Y : Type} (w : X ≃ Y) (is : iscontr Y),
+    iscontrpr1 (iscontrweqb w is) = invmap w (iscontrpr1 is).
+  reflexivity. Qed.
+
+Goal ∏ {X Y : Type} (w : X ≃ Y) (is : iscontr X),
+    iscontrpr1 (iscontrweqf w is) = w (iscontrpr1 is).
+  reflexivity. Qed.
+
+Goal ∏ (X:Type) (i : isConnected X) (P:X->hProp) (x0:X) (p:P x0),
+    predicateOnConnectedType X i P x0 p x0 = p.
+  Fail reflexivity. Abort.
+
+Goal ∏ (X:Type) (i : iscontr X) (x0 := pr1 i : X), pr2 i x0 = idpath x0.
+  Fail reflexivity. Abort.
+
+Goal ∏ (X Y:Type) (p:X=Y) (x:X), eqweqmap p x = cast p x.
+  Fail reflexivity. Abort.
+
+Goal ∏ (X Y:Type) (p:X=Y) (x:X), eqweqmap p x = transportf (λ T, T) p x.
+  Fail reflexivity. Abort.
+
+Goal ∏ {X:Type} (bc : BaseConnected X) (t := pr1 bc : X),
+    pr2 (baseConnectedness X bc) t t = hinhpr (idpath t).
+  Fail reflexivity.
+Abort.
+
+Goal ∏ (G:gr), pr1 (BaseConnected_BG G) = trivialTorsor G.
+  reflexivity.
+Qed.
+
+Goal ∏ (G:gr), pr2 (BaseConnected_BG G) (trivialTorsor G)
+               = hinhpr (idpath (trivialTorsor G)).
+  Fail reflexivity.
+Abort.

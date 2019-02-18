@@ -316,19 +316,28 @@ Defined.
 
 (** ** Connected types *)
 
-(* maybe we should add that X is nonempty to this definition: *)
-Definition isConnected X := ∏ (x y:X), nonempty (x = y).
-
-Lemma base_connected {X} (t:X) : (∏ y:X, nonempty (t = y)) -> isConnected X.
-Proof.
-  intros p x y. assert (a := p x). assert (b := p y). clear p.
-  apply (squash_to_prop a). apply propproperty. clear a. intros a.
-  apply (squash_to_prop b). apply propproperty. clear b. intros b.
-  apply hinhpr. exact (!a@b).
-Defined.
+Definition isConnected X : hProp := nonempty X ∧ ∀ (x y:X), nonempty (x = y).
 
 Lemma predicateOnConnectedType (X:Type) (i : isConnected X) (P:X->hProp) (x0:X) (p:P x0) :
    ∏ x, P x.
 Proof.
-  intros x. apply (squash_to_hProp (i x x0)); intros e. now induction e.
+  intros x. apply (squash_to_hProp (pr2 i x x0)); intros e. now induction e.
+Defined.
+
+Definition BaseConnected X := ∑ (x:X), ∏ (y:X), nonempty (x = y).
+
+Lemma baseConnectedness X : BaseConnected X -> isConnected X.
+Proof.
+  intros [x0 p]. split.
+  - exact (hinhpr x0).
+  - intros x y. assert (a := p x); assert (b := p y); clear p.
+    apply (squash_to_prop a); [apply propproperty|]; clear a; intros a.
+    apply (squash_to_prop b); [apply propproperty|]; clear b; intros b.
+    apply hinhpr. exact (!a@b).
+Defined.
+
+Lemma predicateOnBaseConnectedType (X:Type) (i : BaseConnected X) (P:X->hProp) (p:P (pr1 i)) :
+   ∏ x, P x.
+Proof.
+  intros x. apply (squash_to_hProp (pr2 i x)); intros e. now induction e.
 Defined.
