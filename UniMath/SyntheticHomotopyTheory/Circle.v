@@ -301,12 +301,24 @@ Proof.
   { exact (maponpaths (λ r, r @ l) p). }
 Defined.
 
+Definition circle_map_conjugation {Y} {y:Y} (l:y = y) {y':Y} (e:y=y') :
+  circle_map l = circle_map (!e @ l @ e).
+Proof.
+  induction e.
+  change (circle_map l = circle_map (l @ idpath y)).
+  rewrite pathscomp0rid.
+  reflexivity.
+Defined.
+
 (** *** The induction principle (dependent functions) *)
 
 Local Open Scope transport.
 
-Definition circle_map' {Y:circle->Type} {y:Y(basepoint circle)}
-           (l:circle_loop#y = y) : ∏ c:circle, Y c.
+Definition CircleInduction : Type
+  := ∏ (Y:circle->Type) (y:Y(basepoint circle)) (l:circle_loop#y = y),
+     ∏ c:circle, Y c.
+
+Definition circle_map' : CircleInduction.
 Proof.
   (** (not proved yet) *)
 Abort.
@@ -315,21 +327,35 @@ Abort.
  "Higher Inductive Types as Homotopy-Initial Algebras", by Kristina Sojakova,
  http://arxiv.org/abs/1402.0761 *)
 
-Lemma circle_map_check_paths'
-      (circle_map': ∏ (Y:circle->UU) (y:Y(basepoint circle))
-           (l:circle_loop#y = y) (c:circle), Y c)
-      {Y} (f:circle->Y) :
-  circle_map (maponpaths f circle_loop) = f .
-Proof.
-  intros. apply funextsec.
-  simple refine (circle_map' _ _ _).
-  { reflexivity. }
-  { set (y := f (basepoint circle)). set (l := maponpaths f circle_loop).
-    set (P := λ T : underlyingType circle, circle_map _ T = f T).
-    apply transport_fun_path. rewrite pathscomp0rid.
-    change (idpath y @ maponpaths f circle_loop) with (maponpaths f circle_loop).
-    exact (! circle_map_check_paths l). }
-Defined.
+Section A.
+
+  Context (circle_map': CircleInduction).
+
+  Lemma circle_map_check_paths' {Y} (f:circle->Y) : circle_map (maponpaths f circle_loop) = f .
+  Proof.
+    intros. apply funextsec.
+    simple refine (circle_map' _ _ _).
+    { reflexivity. }
+    { set (y := f (basepoint circle)). set (l := maponpaths f circle_loop).
+      set (P := λ T : underlyingType circle, circle_map _ T = f T).
+      apply transport_fun_path. rewrite pathscomp0rid.
+      change (idpath y @ maponpaths f circle_loop) with (maponpaths f circle_loop).
+      exact (! circle_map_check_paths l). }
+  Defined.
+
+  Lemma circle_map_uniqueness {Y} (f g:circle->Y)
+        (e : f (basepoint circle) = g (basepoint circle))
+        (q : maponpaths f circle_loop = e @ maponpaths g circle_loop @ !e):
+    f = g.
+  Proof.
+  Abort.
+
+  Definition circle_map'' : CircleInduction.
+  Proof.
+    (** (not proved yet) *)
+  Abort.
+
+End A.
 
 (*
 Local Variables:
