@@ -609,7 +609,7 @@ Definition E := PointedTorsor.
 Definition B := ClassifyingSpace.
 Definition π {G:gr} := underlyingTorsor : E G -> B G.
 
-Lemma BaseConnected_BG (G:gr) : BaseConnected (B G).
+Lemma isBaseConnected_BG (G:gr) : isBaseConnected (B G).
 Proof.
   intros X. use (hinhfun _ (torsor_nonempty X)); intros x.
   exact (torsor_eqweq_to_path (triviality_isomorphism X x)).
@@ -619,9 +619,9 @@ Goal ∏ (G:gr), triviality_isomorphism (trivialTorsor G) (unel G) = idActionIso
   Fail reflexivity.
 Abort.
 
-Goal ∏ (G:gr), BaseConnected_BG G (trivialTorsor G) = hinhpr (idpath (trivialTorsor G)).
+Goal ∏ (G:gr), isBaseConnected_BG G (trivialTorsor G) = hinhpr (idpath (trivialTorsor G)).
   intros.
-  unfold BaseConnected_BG, pr2.
+  unfold isBaseConnected_BG, pr2.
   change (pr1 (trivialTorsor G) : Type) with (G : Type).
   change (torsor_nonempty (trivialTorsor G)) with (hinhpr (unel G)).
   change (hinhpr (torsor_eqweq_to_path (triviality_isomorphism (trivialTorsor G) (unel G)))
@@ -632,7 +632,7 @@ Abort.
 
 Lemma isConnected_BG (G:gr) : isConnected (B G).
 Proof.
-  apply baseConnectedness. apply BaseConnected_BG.
+  apply baseConnectedness. apply isBaseConnected_BG.
 Defined.
 
 Lemma iscontr_EG (G:gr) : iscontr (E G).
