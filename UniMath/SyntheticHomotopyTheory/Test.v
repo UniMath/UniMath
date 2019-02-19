@@ -47,7 +47,7 @@ Section A.
   Goal ∏ {X Y : Type} (w : X ≃ Y) (is : iscontr X), iscontrpr1 (iscontrweqf w is) = w (iscontrpr1 is).
     reflexivity. Qed.
 
-  Goal ∏ (X:Type) (i : isConnected X) (P:X->hProp) (x0:X) (p:P x0), predicateOnConnectedType X i P x0 p x0 = p.
+  Goal ∏ (X:Type) (i : isConnected X) (P:X->hProp) (x0:X) (p:P x0), @predicateOnConnectedType X i P x0 p x0 = p.
     Fail reflexivity. Abort.
 
   Goal ∏ (X:Type) (i : iscontr X) (x0 := pr1 i : X), pr2 i x0 = idpath x0.
@@ -59,11 +59,11 @@ Section A.
   Goal ∏ (X Y:Type) (p:X=Y) (x:X), eqweqmap p x = transportf (λ T, T) p x.
     Fail reflexivity. Abort.
 
-  Goal ∏ {X:PointedType} (bc : BaseConnected X) (t := basepoint X), pr2 (baseConnectedness X bc) t t = hinhpr (idpath t).
+  Goal ∏ {X:PointedType} (bc : isBaseConnected X) (t := basepoint X), pr2 (baseConnectedness X bc) t t = hinhpr (idpath t).
     Fail reflexivity.
   Abort.
 
-  Goal ∏ (G:gr), BaseConnected_BG G (trivialTorsor G) = hinhpr (idpath (trivialTorsor G)).
+  Goal ∏ (G:gr), isBaseConnected_BG G (trivialTorsor G) = hinhpr (idpath (trivialTorsor G)).
     Fail reflexivity.
   Abort.
 

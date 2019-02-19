@@ -434,9 +434,14 @@ Section A.
     reflexivity.
   Defined.
 
-  Lemma c_compute (p : PathOver a a loop) : c p pt = a.
+  Lemma c_compute (p : PathOver a a loop) : c p pt = transportf _ (@s pt 0) a.
   Proof.
-    Fail reflexivity.           (* we need this to work *)
+    reflexivity.
+  Qed.
+
+  Lemma c_compute' (p : PathOver a a loop) : c p pt = a.
+  Proof.
+    Fail reflexivity.           (* but we need this to work *)
   Abort.
 
 End A.
