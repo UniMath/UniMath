@@ -305,6 +305,27 @@ Proof.
   intro x. induction e. apply idpath.
 Qed.
 
+Definition squash_section_to_hProp {X:UU} {P:∥X∥ -> hProp} :
+  (∏ x, P (hinhpr x)) -> (∏ x', P x').
+Proof.
+  intros f.
+  assert (i := isaprop_total2 _ P).
+  assert (h := λ x, tpair (λ x', P x') (hinhpr x) (f x)).
+  intros x'.
+  assert (q := squash_to_prop x' i h).
+  assert (e := iscontrpr1 (propproperty (∥X∥) (pr1 q) x')).
+  assert (w := hfiberpair pr1 q e).
+  assert (g := invweq (ezweqpr1 P x')).
+  exact (g w).
+Defined.
+
+Goal ∏ {X:UU} {P:∥X∥ -> hProp} (h : ∏ x, P (hinhpr x)) (x:X),
+  squash_section_to_hProp h (hinhpr x) = h x.
+Proof.
+  intros.
+  Fail reflexivity.             (* too bad! *)
+Abort.
+
 (**  *)
 
 Lemma uniqueExists {A : UU} {P : A -> UU} {a b : A}
@@ -341,26 +362,25 @@ Defined.
 Definition BasePointComponent (X:PointedType) : PointedType :=
   pointedType (∑ (y:X), ∥ basepoint X = y ∥) (basepoint X,, hinhpr (idpath (basepoint X))).
 
-Definition basePointComponent_inclusion (X:PointedType) : BasePointComponent X -> X
-  := λ x', pr1 x'.
+Coercion basePointComponent_inclusion {X:PointedType} (x : BasePointComponent X) : X
+  := pr1 x.
 
-Lemma BasePointComponent_isBaseConnected (X:PointedType) (b : isBaseConnected X) :
-  isBaseConnected (BasePointComponent X).
+Lemma BasePointComponent_isBaseConnected (X:PointedType) : isBaseConnected (BasePointComponent X).
 Proof.
   intros [x' c'].
   change (basepoint (BasePointComponent X))
     with (tpair (λ (y:X), ∥ basepoint X = y ∥) (basepoint X) (hinhpr (idpath (basepoint X)))).
-  use (hinhfun _ (b x')); intro q. induction q.
+  use (hinhfun _ c'); intro q. induction q.
   apply maponpaths. apply propproperty.
 Defined.
 
-Lemma BasePointComponent_isincl {X:PointedType} : isincl (basePointComponent_inclusion X).
+Lemma BasePointComponent_isincl {X:PointedType} : isincl (@basePointComponent_inclusion X).
 Proof.
   use isinclpr1. intros x. apply propproperty.
 Defined.
 
 Lemma BasePointComponent_isweq {X:PointedType} (bc : isBaseConnected X) :
-  isweq (basePointComponent_inclusion X).
+  isweq (@basePointComponent_inclusion X).
 Proof.
   use isweqpr1.
   intros x.
@@ -371,7 +391,7 @@ Defined.
 
 Definition BasePointComponent_weq {X:PointedType} (bc : isBaseConnected X) :
   BasePointComponent X ≃ X
-  := weqpair (basePointComponent_inclusion X) (BasePointComponent_isweq bc).
+  := weqpair (@basePointComponent_inclusion X) (BasePointComponent_isweq bc).
 
 Lemma baseConnectedness X : isBaseConnected X -> isConnected X.
 Proof.
@@ -389,3 +409,31 @@ Lemma predicateOnBaseConnectedType (X:PointedType) (b:isBaseConnected X)
 Proof.
   intros x. apply (squash_to_hProp (b x)); intros e. now induction e.
 Defined.
+
+Goal ∏ (X:PointedType) (b:isBaseConnected X) (P:X->hProp) (p:P (basepoint X)),
+       predicateOnBaseConnectedType X b P p (basepoint X) = p.
+Proof.
+  Fail reflexivity.
+  intros.
+  (* stuck *)
+Abort.
+
+Lemma predicateOnBasePointComponent
+      (X:PointedType) (X' := BasePointComponent X) (pt' := basepoint X')
+      (P:X'->hProp) (p:P pt') :
+   ∏ x, P x.
+Proof.
+  intros x.
+  apply (squash_to_hProp (BasePointComponent_isBaseConnected _ x)); intros e.
+  now induction e.
+Defined.
+
+Goal ∏ (X:PointedType)
+     (X' := BasePointComponent X) (pt' := basepoint X')
+     (P:X'->hProp) (p:P pt'),
+   predicateOnBasePointComponent X P p pt' = p.
+Proof.
+  Fail reflexivity.
+  intros.
+  unfold pt', basepoint, X', BasePointComponent, pointedType, pr2; cbn beta.
+Abort.
