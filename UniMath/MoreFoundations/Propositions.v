@@ -327,6 +327,17 @@ Defined.
 
 Definition isBaseConnected (X:PointedType) : hProp := ∀ (y:X), ∥ basepoint X = y ∥.
 
+Lemma isConnected_isBaseConnected (X:PointedType) : isConnected X <-> isBaseConnected X.
+Proof.
+  split.
+  - intros [_ ic] x. use ic.
+  - intros ibc. split.
+    + exact (hinhpr (basepoint X)).
+    + intros x y.
+      apply (squash_to_hProp (ibc x)); intros p; apply (squash_to_hProp (ibc y)); intros q.
+      exact (hinhpr (!p @ q)).
+Defined.
+
 Definition BasePointComponent (X:PointedType) : PointedType :=
   pointedType (∑ (y:X), ∥ basepoint X = y ∥) (basepoint X,, hinhpr (idpath (basepoint X))).
 
