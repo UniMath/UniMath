@@ -13,6 +13,11 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Algebra.Monoids. Import AddNotation.
+Require Import UniMath.SyntheticHomotopyTheory.AffineLine.
+Require Import UniMath.NumberSystems.Integers.
+Local Open Scope hz.
+Require Import UniMath.Algebra.BinaryOperations.
+Require Import UniMath.Algebra.Groups.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -114,7 +119,7 @@ Proof.
   apply iscontrcoconusfromt.
 Defined.
 
-Goal ∏ {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (p:x=x'),
+Local Goal ∏ {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (p:x=x'),
        pr1 (PathOverUniqueness y p) = (transportf Y p y,, idpath _).
 Proof.
   reflexivity.
@@ -290,12 +295,6 @@ Proof.
   now induction p, α, β.
 Defined.
 
-Require Import UniMath.SyntheticHomotopyTheory.AffineLine.
-Require Import UniMath.NumberSystems.Integers.
-Local Open Scope hz.
-Require Import UniMath.Algebra.BinaryOperations.
-Require Import UniMath.Algebra.Groups.
-
 Definition Lemma031_weq (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) :
   (∑ (h:∏ z, P z), ∏ z, h(1+z) = f z (h z)) ≃ P 0
   := ℤBiRecursion_weq f.
@@ -356,10 +355,10 @@ Proof.
   now apply triviality_isomorphism.
 Defined.
 
-Lemma s_compute : @s (trivialTorsor ℤ) 0 = idpath _.
+Lemma s_compute_0 : @s pt 0 = idpath pt.
 Proof.
   intermediate_path (invmap torsor_univalence (idActionIso (trivialTorsor ℤ))).
-  - change (@s (trivialTorsor ℤ) 0) with (invmap torsor_univalence (triviality_isomorphism (trivialTorsor ℤ) 0)).
+  - change (@s pt 0) with (invmap torsor_univalence (triviality_isomorphism (trivialTorsor ℤ) 0)).
     apply maponpaths.
     exact (triviality_isomorphism_compute ℤ). (* too slow *)
   - apply torsor_univalence_id.
@@ -434,14 +433,78 @@ Section A.
     reflexivity.
   Defined.
 
-  Lemma c_compute (p : PathOver a a loop) : c p pt = transportf _ (@s pt 0) a.
+  Lemma c_compute_1 (p : PathOver a a loop) : c p pt = transportf _ (@s pt 0) a.
   Proof.
+    (* the presence of the transport is unpleasant, but seems to be unavoidable *)
     reflexivity.
   Qed.
 
-  Lemma c_compute' (p : PathOver a a loop) : c p pt = a.
+  Lemma c_compute_1' (p : PathOver a a loop) : c p pt = a.
   Proof.
-    Fail reflexivity.           (* but we need this to work *)
-  Abort.
+    (* not judgemental *)
+    change (transportf _ (@s pt 0) a = transportf _ (idpath _) a).
+    apply (maponpaths (λ p, transportf A p a)).
+    apply s_compute_0.
+  Defined.
 
 End A.
+
+(** **
+
+   So we start again, but begin with a new type to play the role of the circle:
+   the connected component of the basepoint in B ℤ
+
+ *)
+
+Definition circle' := BasePointComponent (B ℤ).
+Definition pt' := basepoint circle'.
+
+Definition proj : circle' ≃ circle.
+Proof.
+  apply BasePointComponent_weq.
+  apply isConnected_isBaseConnected.
+  apply isConnected_BG.
+Defined.
+
+(* illustrate how to work around Coq not finding the right coercions:  *)
+
+Local Goal ∏ (Y : B ℤ), Type.
+Proof.
+  intros.
+  Fail exact Y.
+  exact (underlyingAction Y).
+Defined.
+
+Local Goal ∏ (X : circle'), Type.
+Proof.
+  intros.
+  exact (underlyingAction (basePointComponent_inclusion X)).
+Defined.
+
+Section A'.
+
+  Context (A : circle' -> Type) (a : A pt').
+
+  (*
+
+  Definition Q' (p : PathOver a a loop) (X: circle') : Type (* 0.5.8 *)
+    := ∑ (a' : A X),
+        ∑ (h : ∏ (x:underlyingAction (basePointComponent_inclusion X)), PathOver a a' (s x)),
+        ∏ (x:underlyingAction (basePointComponent_inclusion X)),
+        h (1 + x) = cp (ε x) (composePathOver p (h x)).
+
+  Lemma iscontr_Q' (p : PathOver a a loop) (X: Torsor ℤ) (* 0.5.9 *) :
+    iscontr_hProp (Q p X).
+  Proof.
+    use (hinhuniv _ (torsor_nonempty X)); intros x.
+    use (iscontrweqb (Y := ∑ a', PathOver a a' (s x))).
+    2 : { apply PathOverUniqueness. }
+    apply weqfibtototal; intros a'.
+    exact (ℤTorsorRecursion_weq
+             (λ x, weqcomp (composePathOver_weq a' (s x) p) (cp (ε x)))
+             x).
+  Defined.
+
+  *)
+
+End A'.
