@@ -317,24 +317,52 @@ Defined.
 
 (** ** Connected types *)
 
-Definition isConnected X : hProp := nonempty X ∧ ∀ (x y:X), nonempty (x = y).
+Definition isConnected X : hProp := ∥ X ∥ ∧ ∀ (x y:X), ∥ x = y ∥.
 
-Lemma predicateOnConnectedType (X:Type) (i : isConnected X) (P:X->hProp) (x0:X) (p:P x0) :
+Lemma predicateOnConnectedType {X:Type} (i : isConnected X) {P:X->hProp} (x0:X) (p:P x0) :
    ∏ x, P x.
 Proof.
   intros x. apply (squash_to_hProp (pr2 i x x0)); intros e. now induction e.
 Defined.
 
-Definition BaseConnected (X:PointedType) := ∏ (y:X), nonempty (basepoint X = y).
+Definition isBaseConnected (X:PointedType) : hProp := ∀ (y:X), ∥ basepoint X = y ∥.
 
-Definition BaseConnectedType := ∑ (X:PointedType), BaseConnected X.
+Definition BasePointComponent (X:PointedType) : PointedType :=
+  pointedType (∑ (y:X), ∥ basepoint X = y ∥) (basepoint X,, hinhpr (idpath (basepoint X))).
 
-Coercion BaseConnectedType_to_PointedType (X : BaseConnectedType) : PointedType := pr1 X.
+Definition basePointComponent_inclusion (X:PointedType) : BasePointComponent X -> X
+  := λ x', pr1 x'.
 
-Definition addBaseConnection (X:PointedType) (i:BaseConnected X) : BaseConnectedType
-  := X,,i.
+Lemma BasePointComponent_isBaseConnected (X:PointedType) (b : isBaseConnected X) :
+  isBaseConnected (BasePointComponent X).
+Proof.
+  intros [x' c'].
+  change (basepoint (BasePointComponent X))
+    with (tpair (λ (y:X), ∥ basepoint X = y ∥) (basepoint X) (hinhpr (idpath (basepoint X)))).
+  use (hinhfun _ (b x')); intro q. induction q.
+  apply maponpaths. apply propproperty.
+Defined.
 
-Lemma baseConnectedness X : BaseConnected X -> isConnected X.
+Lemma BasePointComponent_isincl {X:PointedType} : isincl (basePointComponent_inclusion X).
+Proof.
+  use isinclpr1. intros x. apply propproperty.
+Defined.
+
+Lemma BasePointComponent_isweq {X:PointedType} (bc : isBaseConnected X) :
+  isweq (basePointComponent_inclusion X).
+Proof.
+  use isweqpr1.
+  intros x.
+  apply iscontraprop1.
+  - apply propproperty.
+  - exact (bc x).
+Defined.
+
+Definition BasePointComponent_weq {X:PointedType} (bc : isBaseConnected X) :
+  BasePointComponent X ≃ X
+  := weqpair (basePointComponent_inclusion X) (BasePointComponent_isweq bc).
+
+Lemma baseConnectedness X : isBaseConnected X -> isConnected X.
 Proof.
   intros p. split.
   - exact (hinhpr (basepoint X)).
@@ -344,8 +372,9 @@ Proof.
     apply hinhpr. exact (!a@b).
 Defined.
 
-Lemma predicateOnBaseConnectedType (X:BaseConnectedType) (P:X->hProp) (p:P (basepoint X)) :
+Lemma predicateOnBaseConnectedType (X:PointedType) (b:isBaseConnected X)
+      (P:X->hProp) (p:P (basepoint X)) :
    ∏ x, P x.
 Proof.
-  intros x. apply (squash_to_hProp (pr2 X x)); intros e. now induction e.
+  intros x. apply (squash_to_hProp (b x)); intros e. now induction e.
 Defined.
