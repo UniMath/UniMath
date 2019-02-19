@@ -337,3 +337,18 @@ If you get the error message ```Error: cannot find 'ocamlc.opt' in your path!```
 $ sudo apt-get install ocaml-native-compilers
 ```
 This package is not among the build dependencies for older versions of Coq.
+
+### Hints for developers
+
+- To regularly update the TAGS file, you may build with the command `make TAGS all`.
+
+- Before submitting a pull request, developers should run the sanity checks that are specified
+  in the Makefile by adding `sanity-checks` to the "make" command line.
+  
+- One of the sanity checks checks that all proof files in the directory tree
+  are listed in the corresponding package, but it will complain even about
+  files you haven't checked in; to disable the test, add `-o
+  check-listing-of-proof-files` to the "make" command line.  Other sanity
+  checks can be skipped the same way.  For example, if you intend to make a
+  change to the Foundations package, then you can add `-o
+  check-for-change-to-Foundations` to the "make" command line.
