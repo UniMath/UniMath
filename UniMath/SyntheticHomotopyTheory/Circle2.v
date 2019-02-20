@@ -166,6 +166,8 @@ Proof.
   induction p, p'. exact pathscomp0.
 Defined.
 
+Local Notation "x * y" := (composePathOver x y).
+
 Definition composePathOverLeftUnit {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (y' : Y x') (p:x=x') (q:PathOver y y' p) :
   composePathOver (identityPathOver y) q = q.
 Proof.
@@ -194,6 +196,8 @@ Definition inversePathOver {X:Type} {x x':X} {Y : X -> Type} {y : Y x} {y' : Y x
 Proof.
   intros q. induction p, q. reflexivity.
 Defined.
+
+Local Notation "q '^-1'" := (inversePathOver q) (at level 10).
 
 Definition inverseInversePathOver {X:Type} {Y : X -> Type} {x:X} {y : Y x} :
   ∏ {x':X} {y' : Y x'} {p:x=x'} (q : PathOver y y' p),
@@ -347,6 +351,8 @@ Definition loop := loops_circle 1 : Ω circle.
 
 Definition pt := basepoint circle.
 
+Definition pt_0 : underlyingAction pt := 0.
+
 Definition s {Z : Torsor ℤ} (x : Z) : pt = Z.
 (* Def 0.5.6 *)
 Proof.
@@ -355,10 +361,10 @@ Proof.
   now apply triviality_isomorphism.
 Defined.
 
-Lemma s_compute_0 : @s pt 0 = idpath pt.
+Lemma s_compute_0 : s pt_0 = idpath pt.
 Proof.
   intermediate_path (invmap torsor_univalence (idActionIso (trivialTorsor ℤ))).
-  - change (@s pt 0) with (invmap torsor_univalence (triviality_isomorphism (trivialTorsor ℤ) 0)).
+  - change (s pt_0) with (invmap torsor_univalence (triviality_isomorphism (trivialTorsor ℤ) 0)).
     apply maponpaths.
     exact (triviality_isomorphism_compute ℤ). (* too slow *)
   - apply torsor_univalence_id.
@@ -376,6 +382,28 @@ Proof.
   { intros w. apply isapropisweq. }
   apply funextsec. intros n.
   change (((n + 1)%abgr + x) = (n + (1 + x))). apply ac_assoc.
+Defined.
+
+Definition ε'' (x : underlyingAction pt) : ! s x @ s (1 + x) = loop.
+Proof.
+  unfold s, loop, loops_circle, loopsBG.
+  change ((invweq torsor_univalence ∘ autos ℤ)%weq 1) with
+          (invmap torsor_univalence (autos ℤ 1)).
+  set (succ := autos ℤ 1).
+  set (succ' := pr1weq succ).
+  apply path_inv_rotate_ll.
+  apply pathsinv0.
+  refine (invUnivalenceCompose _ _ @ _).
+  apply maponpaths.
+  apply subtypeEquality.
+  { intros w. apply propproperty. }
+  apply subtypeEquality.
+  { intros w. apply isapropisweq. }
+  apply funextsec. intros n.
+  change (n+x+1 = n+(1+x))%addmonoid.
+  intermediate_path (n+(x+1))%addmonoid.
+  - apply assocax.
+  - apply maponpaths, commax.
 Defined.
 
 Section A.
@@ -410,6 +438,7 @@ Section A.
   Definition c_hat (p : PathOver a a loop) (X:Torsor ℤ) (x : X)
     : c_tilde p X (1 + x) = cp (ε x) (composePathOver p (c_tilde p X x))
     := pr22 (cQ p X) x.
+  Arguments c_hat : clear implicits.
 
   Definition elem (X:Torsor ℤ) : Type := X.
 
@@ -419,10 +448,12 @@ Section A.
     induction e. apply pathsinv0l.
   Defined.
 
-  Definition Lemma_0_5_11 (p : PathOver a a loop) (X Y : Torsor ℤ) (e : X = Y) (x : X) :
-    apd (c p) e = cp (ε' e x) (composePathOver
-                                 (inversePathOver (c_tilde p X x))
-                                 (c_tilde p Y (transportf elem e x))).
+  Context (p : PathOver a a loop).
+
+  Definition Lemma_0_5_11 (X Y : Torsor ℤ) (e : X = Y) (x : X) : (* 0.5.11 *)
+    apd (c p) e = cp (ε' e x) ( (c_tilde p X x) ^-1
+                                *
+                                c_tilde p Y (transportf elem e x)).
   Proof.
     induction e.
     change (transportf elem (idpath X) x) with x.
@@ -433,78 +464,90 @@ Section A.
     reflexivity.
   Defined.
 
-  Lemma c_compute_1 (p : PathOver a a loop) : c p pt = transportf _ (@s pt 0) a.
+  Lemma c_compute_1 : c p pt = transportf A (s pt_0) a.
   Proof.
     (* the presence of the transport is unpleasant, but seems to be unavoidable *)
     reflexivity.
   Qed.
 
-  Lemma c_compute_1' (p : PathOver a a loop) : c p pt = a.
+  Lemma c_compute_1' : c p pt = a.
   Proof.
     (* not judgemental *)
-    change (transportf _ (@s pt 0) a = transportf _ (idpath _) a).
+    change (transportf _ (s pt_0) a = transportf _ (idpath _) a).
     apply (maponpaths (λ p, transportf A p a)).
     apply s_compute_0.
   Defined.
 
-End A.
+  Check (apd (c p) loop : PathOver (c p pt) (c p pt) loop).
 
-(** **
+  Check (transportf (λ x : circle, x=x) (s pt_0) loop : pt = pt).
 
-   So we start again, but begin with a new type to play the role of the circle:
-   the connected component of the basepoint in B ℤ
-
- *)
-
-Definition circle' := BasePointComponent (B ℤ).
-Definition pt' := basepoint circle'.
-
-Definition proj : circle' ≃ circle.
-Proof.
-  apply BasePointComponent_weq.
-  apply isConnected_isBaseConnected.
-  apply isConnected_BG.
-Defined.
-
-(* illustrate how to work around Coq not finding the right coercions:  *)
-
-Local Goal ∏ (Y : B ℤ), Type.
-Proof.
-  intros.
-  Fail exact Y.
-  exact (underlyingAction Y).
-Defined.
-
-Local Goal ∏ (X : circle'), Type.
-Proof.
-  intros.
-  exact (underlyingAction (basePointComponent_inclusion X)).
-Defined.
-
-Section A'.
-
-  Context (A : circle' -> Type) (a : A pt').
-
-  (*
-
-  Definition Q' (p : PathOver a a loop) (X: circle') : Type (* 0.5.8 *)
-    := ∑ (a' : A X),
-        ∑ (h : ∏ (x:underlyingAction (basePointComponent_inclusion X)), PathOver a a' (s x)),
-        ∏ (x:underlyingAction (basePointComponent_inclusion X)),
-        h (1 + x) = cp (ε x) (composePathOver p (h x)).
-
-  Lemma iscontr_Q' (p : PathOver a a loop) (X: Torsor ℤ) (* 0.5.9 *) :
-    iscontr_hProp (Q p X).
+  Lemma b : transportf (λ x : circle, x=x) (s pt_0) loop = loop.
   Proof.
-    use (hinhuniv _ (torsor_nonempty X)); intros x.
-    use (iscontrweqb (Y := ∑ a', PathOver a a' (s x))).
-    2 : { apply PathOverUniqueness. }
-    apply weqfibtototal; intros a'.
-    exact (ℤTorsorRecursion_weq
-             (λ x, weqcomp (composePathOver_weq a' (s x) p) (cp (ε x)))
-             x).
+    change (transportf (λ x : circle, x = x) (s pt_0) loop = transportf (λ x : circle, x = x) (idpath _) loop).
+    apply (maponpaths (λ r, transportf (λ x : circle, x = x) r loop)).
+    apply s_compute_0.
   Defined.
 
-  *)
+  (* illustrate how to work around Coq not finding the right coercions:  *)
 
-End A'.
+  Local Goal ∏ (Y : B ℤ), Type.
+  Proof.
+    intros.
+    Fail exact Y.
+    exact (underlyingAction Y).
+  Defined.
+
+  Local Goal ∏ (X : circle), Type.
+  Proof.
+    intros.
+    Fail exact X.
+    exact (underlyingAction X).
+  Defined.
+
+  Local Goal ∏ (X : circle), Torsor ℤ.
+  Proof.
+    intros.
+    exact X.
+  Defined.
+
+  Local Goal ∏ (X : Torsor ℤ), circle.
+  Proof.
+    intros.
+    exact X.
+  Defined.
+
+  Goal unit.
+    set (cen := cQ p pt).
+    set (a' := c p pt).
+    set (a'' := transportf A (s pt_0) a).
+    set (e := c_compute_1).
+    fold a' a'' in e.
+    set (h := c_tilde p pt).
+    fold a' in h.
+    assert (q := c_hat p pt).
+    assert (q0 := q 0).
+    fold h in q, q0.
+    set (p' := apd (c p) loop).
+    fold pt a' in p'.
+
+    assert (ss : transportf elem loop pt_0 = 1 + pt_0). (* needed for r below *)
+    { unfold pt_0,loop,loops_circle,loopsBG.
+      change ((invweq torsor_univalence ∘ autos ℤ)%weq 1) with
+          (invmap torsor_univalence (autos ℤ 1)).
+      set (succ := autos ℤ 1).
+      now rewrite castTorsor_transportf, torsor_univalence_inv_comp_eval. }
+    assert (r := Lemma_0_5_11 loop 0).
+    change (apd (c p) loop) with p'.
+    fold pt in r.
+    fold h in r.
+    fold p' in r.
+    assert (b :
+              cp (ε' loop 0) ((h 0) ^-1 * h (transportf elem loop 0)) =
+              cp (ε'' 0) ((h 0) ^-1 * h 1)
+           ).
+
+    (* rewrite ss in r. *)
+  Abort.
+
+End A.
