@@ -322,7 +322,15 @@ Defined.
 Goal ∏ {X:UU} {P:∥X∥ -> hProp} (h : ∏ x, P (hinhpr x)) (x:X),
   squash_section_to_hProp h (hinhpr x) = h x.
 Proof.
-  intros.
+  Fail reflexivity.             (* too bad! *)
+Abort.
+
+Goal ∏ (X:Type)
+     (P := λ x':∥X∥, ∃ x, x' = hinhpr x)
+     (h := λ x, (hinhpr (x,,idpath _) : P (hinhpr x)))
+     (x:X),
+  squash_section_to_hProp h (hinhpr x) = h x.
+Proof.
   Fail reflexivity.             (* too bad! *)
 Abort.
 
