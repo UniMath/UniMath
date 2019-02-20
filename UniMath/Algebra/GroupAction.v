@@ -278,7 +278,11 @@ Definition castTorsor {G} {T T':Torsor G} (q:T = T') : T -> T'.
 Proof.
   exact (castAction (maponpaths underlyingAction q)).
 Defined.
-
+Lemma castTorsor_transportf {G} {T T':Torsor G} (q:T = T') (t:T) :
+  transportf (λ S, underlyingAction S) q t = castTorsor q t.
+Proof.
+  now induction q.
+Defined.
 Lemma underlyingAction_incl {G:gr} :
   isincl (underlyingAction : Torsor G -> Action G).
 Proof.
