@@ -270,6 +270,31 @@ Definition torsor_nonempty {G} (X:Torsor G) := pr1 (is_torsor_prop X).
 Definition torsor_splitting {G} (X:Torsor G) := pr2 (is_torsor_prop X).
 Definition torsor_mult_weq {G} (X:Torsor G) (x:X) :=
   weqpair (right_mult x) (torsor_splitting X x) : G ≃ X.
+Definition torsor_mult_weq' {G} (X:Torsor G) (g:G) : X ≃ X.
+Proof.
+  exists (left_mult g).
+  use isweq_iso.
+    - exact (left_mult (grinv G g)).
+    - intros x. unfold left_mult.
+      intermediate_path ((grinv G g * g)%multmonoid * x).
+      + apply pathsinv0,act_assoc.
+      + intermediate_path (unel G * x).
+        * apply (maponpaths (right_mult x)). apply grlinvax.
+        * apply act_unit.
+    - intros x. unfold left_mult.
+      intermediate_path ((g * grinv G g)%multmonoid * x).
+      + apply pathsinv0,act_assoc.
+      + intermediate_path (unel G * x).
+        * apply (maponpaths (right_mult x)). apply grrinvax.
+        * apply act_unit.
+Defined.
+Definition left_mult_Iso {G:abgr} (X:Torsor G) (g:G) : ActionIso X X.
+Proof.
+  exists (torsor_mult_weq' X g). intros h x.
+  change (g * (h * x) = h * (g * x)).
+  refine (! ac_assoc X g h x @ _ @ ac_assoc X h g x).
+  exact (maponpaths (right_mult x) (commax G g h)).
+Defined.
 Definition torsor_update_nonempty {G} (X:Torsor G) (x:nonempty X) : Torsor G.
 Proof.
   exact (underlyingAction X,,(x,,pr2(is_torsor_prop X))).
@@ -470,9 +495,9 @@ Proof.
   intros. apply weqonpathsincl. apply isinclpr1weq.
 Defined.
 
-Definition autos (G:gr) : G ≃ (ActionIso (trivialTorsor G) (trivialTorsor G)).
+Definition trivialTorsorRightMultiplication (G:gr) : G ≃ ActionIso (trivialTorsor G) (trivialTorsor G).
 Proof.
-  intros. exists (trivialTorsorAuto G). simple refine (isweq_iso _ _ _ _).
+  exists (trivialTorsorAuto G). simple refine (isweq_iso _ _ _ _).
   { intro f. exact (f (unel G)). }
   { intro g; simpl. exact (lunax _ g). }
   { intro f; simpl. apply (invweq (underlyingIso_injectivity _ _)); simpl.
@@ -481,13 +506,13 @@ Proof.
 Defined.
 
 Definition autos_comp (G:gr) (g:G) :
-  underlyingIso (autos G g) = trivialTorsor_weq G g.
+  underlyingIso (trivialTorsorRightMultiplication G g) = trivialTorsor_weq G g.
 Proof.
   reflexivity.             (* don't change the proof *)
 Defined.
 
 Definition autos_comp_apply (G:gr) (g h:G) :
-  (autos _ g) h = (h * g)%multmonoid.
+  (trivialTorsorRightMultiplication _ g) h = (h * g)%multmonoid.
 Proof.
   reflexivity.             (* don't change the proof *)
 Defined.
@@ -532,7 +557,7 @@ Definition torsor_univalence_inv_comp_eval {G:gr} {X Y:Torsor G}
   castTorsor (invmap torsor_univalence f) x = f x.
 Proof.
   intros. unfold torsor_univalence.
-  unfold castTorsor. rewrite invmapweqcomp.
+  unfold castTorsor. rewrite invmapweqcomp. (* too slow *)
   unfold weqcomp; simpl.
   rewrite underlyingAction_injectivity_inv_comp.
   apply Action_univalence_inv_comp_eval.
@@ -650,11 +675,11 @@ Theorem loopsBG (G:gr) : G ≃ Ω (B G).
 Proof.
   intros.
   simple refine (weqcomp _ (invweq torsor_univalence)).
-  apply autos.
+  apply trivialTorsorRightMultiplication.
 Defined.
 
 Definition loopsBG_comp (G:gr) (g:G) :
-  loopsBG G g = invweq torsor_univalence (trivialTorsorAuto G g).
+  loopsBG G g = invmap torsor_univalence (trivialTorsorAuto G g).
 Proof.
   reflexivity.
 Defined.
