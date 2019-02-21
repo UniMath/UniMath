@@ -456,15 +456,13 @@ Defined.
 
 (** ** Transport *)
 
-Definition cast {T U:Type} : T = U -> T -> U.
-Proof.
-  intros p t. induction p. exact t.
-Defined.
+Definition cast {T U:Type} : T = U -> T -> U
+  := transportf (λ T:Type, T).
 
 Definition transport_type_path {X Y:Type} (p:X = Y) (x:X) :
   transportf (λ T:Type, T) p x = cast p x.
 Proof.
-  intros. induction p. reflexivity.
+  reflexivity.
 Defined.
 
 Definition transport_fun_path {X Y} {f g:X->Y} {x x':X} {p:x = x'} {e:f x = g x} {e':f x' = g x'} :
