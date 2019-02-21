@@ -288,7 +288,7 @@ Proof.
   induction α, p. exact β.
 Defined.
 
-Definition Lemma_0_2_8
+Definition Lemma_0_2_8          (* 0.2.8 *)
       (A:Type) (B:A->Type) (a1 a2 a3:A)
       (p p':a1=a2) (q q':a2=a3) (α : p=p') (β : q=q')
       (b1:B a1) (b2:B a2) (b3:B a3)
@@ -349,9 +349,24 @@ Defined.
 
 Definition loop := loops_circle 1 : Ω circle.
 
+Definition loop' (X : Torsor ℤ) : X = X
+  := invmap torsor_univalence (left_mult_Iso X 1).
+
 Definition pt := basepoint circle.
 
 Definition pt_0 : underlyingAction pt := 0.
+Definition pt_1 : underlyingAction pt := 1.
+
+Definition loop_loop' : loop = loop' pt.
+Proof.
+  change (
+      invmap torsor_univalence (trivialTorsorAuto ℤ 1) =
+      invmap torsor_univalence (left_mult_Iso pt 1)).
+  apply maponpaths.
+  apply underlyingIso_injectivity, pr1weq_injectivity, funextsec; intros n.
+  change (n + 1 = 1 + n)%addmonoid.
+  apply commax.
+Defined.
 
 Definition s {Z : Torsor ℤ} (x : Z) : pt = Z.
 (* Def 0.5.6 *)
@@ -374,36 +389,26 @@ Local Delimit Scope addoperation_scope with abgr.
 
 Definition ε (* 0.5.7 *) {X : Torsor ℤ} (x : X) : loop @ s x = s (1 + x).
 Proof.
-  change ((invmap torsor_univalence (autos ℤ one)) @ s x = s (1 + x)).
+  change ((invmap torsor_univalence (trivialTorsorRightMultiplication ℤ one)) @ s x = s (1 + x)).
   refine (invUnivalenceCompose _ _ @ _). unfold s. apply maponpaths.
-  apply subtypeEquality.
-  { intros w. apply propproperty. }
-  apply subtypeEquality.
-  { intros w. apply isapropisweq. }
-  apply funextsec. intros n.
+  apply underlyingIso_injectivity, pr1weq_injectivity, funextsec; intros n.
   change (((n + 1)%abgr + x) = (n + (1 + x))). apply ac_assoc.
+Defined.
+
+Definition ε1 {X : Torsor ℤ} (x : X) : s x @ loop' X = s (1 + x).
+Proof.
+  unfold loop'.
+  refine (invUnivalenceCompose _ _ @ _). unfold s. apply maponpaths.
+  apply underlyingIso_injectivity, pr1weq_injectivity, funextsec; intros n.
+  change (1 + (n + x) = n + (1 + x)).
+  refine (! ac_assoc _ _ _ _ @ _ @ ac_assoc _ _ _ _).
+  apply (maponpaths (right_mult x)). apply commax.
 Defined.
 
 Definition ε'' (x : underlyingAction pt) : ! s x @ s (1 + x) = loop.
 Proof.
-  unfold s, loop, loops_circle, loopsBG.
-  change ((invweq torsor_univalence ∘ autos ℤ)%weq 1) with
-          (invmap torsor_univalence (autos ℤ 1)).
-  set (succ := autos ℤ 1).
-  set (succ' := pr1weq succ).
-  apply path_inv_rotate_ll.
-  apply pathsinv0.
-  refine (invUnivalenceCompose _ _ @ _).
-  apply maponpaths.
-  apply subtypeEquality.
-  { intros w. apply propproperty. }
-  apply subtypeEquality.
-  { intros w. apply isapropisweq. }
-  apply funextsec. intros n.
-  change (n+x+1 = n+(1+x))%addmonoid.
-  intermediate_path (n+(x+1))%addmonoid.
-  - apply assocax.
-  - apply maponpaths, commax.
+  apply path_inv_rotate_ll, pathsinv0. refine (_ @ ε1 x).
+  apply maponpaths; clear x. apply loop_loop'.
 Defined.
 
 Section A.
@@ -520,34 +525,31 @@ Section A.
   Goal unit.
     set (cen := cQ p pt).
     set (a' := c p pt).
-    set (a'' := transportf A (s pt_0) a).
-    set (e := c_compute_1).
-    fold a' a'' in e.
-    set (h := c_tilde p pt).
-    fold a' in h.
-    assert (q := c_hat p pt).
-    assert (q0 := q 0).
-    fold h in q, q0.
-    set (p' := apd (c p) loop).
-    fold pt a' in p'.
+    assert (a_a' := c_compute_1').
+    set (h := c_tilde p pt); fold a' in h.
+    assert (q := c_hat p pt); assert (q0 := q 0); fold h in q, q0.
+    set (p'' := apd (c p) loop); fold pt a' in p''.
 
     assert (ss : transportf elem loop pt_0 = 1 + pt_0). (* needed for r below *)
     { unfold pt_0,loop,loops_circle,loopsBG.
-      change ((invweq torsor_univalence ∘ autos ℤ)%weq 1) with
-          (invmap torsor_univalence (autos ℤ 1)).
-      set (succ := autos ℤ 1).
+      change ((invweq torsor_univalence ∘ trivialTorsorRightMultiplication ℤ)%weq 1) with
+          (invmap torsor_univalence (trivialTorsorRightMultiplication ℤ 1)).
+      set (succ := trivialTorsorRightMultiplication ℤ 1).
       now rewrite castTorsor_transportf, torsor_univalence_inv_comp_eval. }
-    assert (r := Lemma_0_5_11 loop 0).
-    change (apd (c p) loop) with p'.
-    fold pt in r.
-    fold h in r.
-    fold p' in r.
-    assert (b :
-              cp (ε' loop 0) ((h 0) ^-1 * h (transportf elem loop 0)) =
-              cp (ε'' 0) ((h 0) ^-1 * h 1)
-           ).
+    unfold pt_0 in ss.
+    set (rrfl := identityPathOver a). (* unused *)
+    assert (r := Lemma_0_5_11 loop 0); fold pt h p'' in r.
+    set (s0 := s pt_0).
+    set (s1 := s pt_1).
+    Check (ε' loop 0).
 
-    (* rewrite ss in r. *)
+
+    (* assert (b : *)
+    (*           cp (ε' loop 0) ((h 0)^-1 * h (transportf elem loop 0)) = *)
+    (*           cp (ε'' 0) ((h 0) ^-1 * h 1) *)
+    (*        ). *)
+
+
   Abort.
 
 End A.
