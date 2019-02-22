@@ -123,18 +123,31 @@ Proof.
   apply is_equivariant_comp. assumption. assumption.
 Defined.
 
-Definition ActionIso {G:gr} (X Y:Action G) :=
-  ∑ f:(ac_set X) ≃ (ac_set Y), is_equivariant f.
+Definition ActionIso {G:gr} (X Y:Action G) : Type.
+Proof.
+  exact  (∑ f:(ac_set X) ≃ (ac_set Y), is_equivariant f).
+Defined.
 
-Definition underlyingIso {G:gr} {X Y:Action G} (e:ActionIso X Y) := pr1 e : X ≃ Y.
+Lemma ActionIso_isaset {G:gr} (X Y:Action G) : isaset (ActionIso X Y).
+Proof.
+  apply (isofhlevelsninclb _ pr1).
+  { apply isinclpr1; intro f. apply propproperty. }
+  apply isofhlevelsnweqtohlevelsn.
+  apply setproperty.
+Defined.
 
-Coercion underlyingIso : ActionIso >-> weq.
+Coercion underlyingIso {G:gr} {X Y:Action G} (e:ActionIso X Y) : X ≃ Y := pr1 e.
 
 Lemma underlyingIso_incl {G:gr} {X Y:Action G} :
   isincl (underlyingIso : ActionIso X Y -> X ≃ Y).
 Proof.
   intros. apply isinclpr1; intro f. apply propproperty.
 Defined.
+
+Local Goal ∏ G (X Y:Action G) (i : ActionIso X Y) (x:X), Y.
+  intros.
+  exact (i x).
+Qed.
 
 Lemma underlyingIso_injectivity {G:gr} {X Y:Action G}
       (e f:ActionIso X Y) :
@@ -544,6 +557,13 @@ Definition torsor_univalence {G:gr} {X Y:Torsor G} : (X = Y) ≃ (ActionIso X Y)
 Proof.
   intros. simple refine (weqcomp underlyingAction_injectivity _).
   apply Action_univalence.
+Defined.
+
+Corollary torsor_hlevel {G:gr} : isofhlevel 3 (Torsor G).
+Proof.
+  intros X Y.
+  apply (isofhlevelweqb 2 torsor_univalence).
+  apply ActionIso_isaset.
 Defined.
 
 Definition torsor_univalence_comp {G:gr} {X Y:Torsor G} (p:X = Y) :
