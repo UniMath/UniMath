@@ -551,7 +551,7 @@ Section A.
   Context (p : PathOver a a loop).
 
   Definition Lemma_0_5_11 (X Y : Torsor ℤ) (e : X = Y) (x : X) : (* 0.5.11 *)
-    apd (c p) e = cp (ε' e x) ( (c_tilde p X x) ^-1
+    apd (c p) e = cp (ε' e x) ( (c_tilde p X x)^-1
                                 *
                                 c_tilde p Y (transportf elem e x)).
   Proof.
@@ -566,7 +566,6 @@ Section A.
 
   Lemma c_compute_1 : c p pt = transportf A (s pt_0) a.
   Proof.
-    (* the presence of the transport is unpleasant, but seems to be unavoidable *)
     reflexivity.
   Qed.
 
@@ -618,6 +617,8 @@ End A.
 Arguments c_tilde {_ _} _ _ _.
 Arguments c_hat {_ _} _ _ _.
 
+Axiom cheat : ∏ X, X.
+
 Theorem circle_induction : CircleInduction circle pt loop.
 Proof.
   unfold CircleInduction.
@@ -647,11 +648,12 @@ Proof.
             cp (ε' loop 0) ((h 0)^-1 * h one') =
             cp (ε'' 0) ((h 0)^-1 * h (1 + pt_0))
          ).
-  { intermediate_path (cp (ε'' 0) (cp (maponpaths s0sm ss) ((h 0) ^-1 * h one'))).
-    - intermediate_path (cp (maponpaths s0sm ss @ ε'' 0) ((h 0) ^-1 * h one')).
+  { intermediate_path (cp (ε'' 0) (cp (maponpaths s0sm ss) ((h 0)^-1 * h one'))).
+    - intermediate_path (cp (maponpaths s0sm ss @ ε'' 0) ((h 0)^-1 * h one')).
       + apply cp_irrelevance_circle_value.
       + apply cp_pathscomp0.
-    - apply maponpaths. apply (cp_in_family _ (λ m, (h 0)^-1 * h m)). }
+    - apply maponpaths.
+      exact (cp_in_family _ (λ m, (h 0) ^-1 * h m)). }
   refine (b @ _); clear b.
 
 Abort.
