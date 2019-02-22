@@ -24,6 +24,12 @@ Unset Strict Implicit.
 
 Module Upstream.
 
+Definition loop_transport (X:Type) (x y:X) (e : x = y) (p : x = x) :
+  transportf (λ z:X, z=z) e p = !e @ p @ e.
+Proof.
+  induction e. change (p = p @ idpath x). exact (!pathscomp0rid p).
+Defined.
+
 Definition hornRotation {X:Type} {x y z : X} {p : x = z} {q : y = z} {r : x = y} :
   r = p @ !q ≃ r @ q = p.
 Proof.
@@ -88,7 +94,13 @@ Defined.
 
 End Upstream.
 
-(** First some simple facts about paths over paths *)
+(** Statement of circle induction *)
+
+Definition CircleInduction (circle : Type) (pt : circle) (loop : pt = pt) :=
+  ∏ (X:Type) (x:X) (p:x=x),
+    ∑ (f:circle -> X) (r : f pt = x), !r @ maponpaths f loop @ r = p.
+
+(** Some simple facts about paths over paths *)
 
 Definition PathOver {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (y' : Y x') (p:x=x') :=
   transportf Y p y = y'.
@@ -168,6 +180,22 @@ Defined.
 
 Local Notation "x * y" := (composePathOver x y).
 
+Definition composePathOverPath {X:Type} {x x':X} {Y : X -> Type} {y : Y x} {y' y'' : Y x'}
+           {p:x=x'} : PathOver y y' p → y' = y'' → PathOver y y'' p.
+Proof.
+  intros q e. now induction e.
+Defined.
+
+Notation "q ⟥ e" := (composePathOverPath q e) (at level 40, left associativity).
+
+Definition composePathPathOver {X:Type} {x' x'':X} {Y : X -> Type} {y y': Y x'} {y'' : Y x''}
+           {p:x'=x''} : y = y' → PathOver y' y'' p → PathOver y y'' p.
+Proof.
+  intros e q. now induction e.
+Defined.
+
+Notation "e ⟤ q" := (composePathPathOver e q) (at level 40, left associativity).
+
 Definition composePathOverLeftUnit {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (y' : Y x') (p:x=x') (q:PathOver y y' p) :
   composePathOver (identityPathOver y) q = q.
 Proof.
@@ -235,6 +263,13 @@ Definition cp                   (* "change path" *)
   := weqpair (transportf _ α) (Lemma0_2_4 α).
 
 Arguments cp {_ _ _ _ _ _ _ _} _.
+
+Definition cp_irrelevance
+           (A:Type) (B:A->Type) (a1 a2:A) (b1:B a1) (b2:B a2) (p q:a1=a2) (α β: p=q) :
+  isofhlevel 3 A -> cp (b1:=b1) (b2:=b2) α = cp (b1:=b1) (b2:=b2) β.
+Proof.
+  intros ih. apply maponpaths. apply ih.
+Defined.
 
 Lemma cp_to_path_over_path_over (A:Type) (B:A->Type) (a1 a2:A) (b1:B a1) (b2:B a2) (p q:a1=a2) (α : p=q)
       (r : PathOver b1 b2 p) (s : PathOver b1 b2 q) :
@@ -411,6 +446,13 @@ Proof.
   apply maponpaths; clear x. apply loop_loop'.
 Defined.
 
+Definition cp_irrelevance_circle
+           (A:=circle) (B:circle->Type) (a1 a2:A) (b1:B a1) (b2:B a2) (p q:a1=a2) (α β: p=q) :
+  cp (b1:=b1) (b2:=b2) α = cp (b1:=b1) (b2:=b2) β.
+Proof.
+  apply cp_irrelevance. apply torsor_hlevel.
+Defined.
+
 Section A.
 
   Context (A : circle -> Type) (a : A pt).
@@ -522,15 +564,13 @@ Section A.
     exact X.
   Defined.
 
-  Goal unit.
-    set (cen := cQ p pt).
-    set (a' := c p pt).
-    assert (a_a' := c_compute_1').
+  Context (a' := c p pt).
+
+  Goal (!c_compute_1') ⟤ apd (c p) loop ⟥ c_compute_1' = p.
     set (h := c_tilde p pt); fold a' in h.
     assert (q := c_hat p pt); assert (q0 := q 0); fold h in q, q0.
-    set (p'' := apd (c p) loop); fold pt a' in p''.
 
-    assert (ss : transportf elem loop pt_0 = 1 + pt_0). (* needed for r below *)
+    assert (ss : transportf elem loop pt_0 = 1 + pt_0). (* needed for r below? *)
     { unfold pt_0,loop,loops_circle,loopsBG.
       change ((invweq torsor_univalence ∘ trivialTorsorRightMultiplication ℤ)%weq 1) with
           (invmap torsor_univalence (trivialTorsorRightMultiplication ℤ 1)).
@@ -538,16 +578,15 @@ Section A.
       now rewrite castTorsor_transportf, torsor_univalence_inv_comp_eval. }
     unfold pt_0 in ss.
     set (rrfl := identityPathOver a). (* unused *)
-    assert (r := Lemma_0_5_11 loop 0); fold pt h p'' in r.
+    assert (r := Lemma_0_5_11 loop 0); fold pt h in r.
     set (s0 := s pt_0).
     set (s1 := s pt_1).
     Check (ε' loop 0).
-
-
-    (* assert (b : *)
-    (*           cp (ε' loop 0) ((h 0)^-1 * h (transportf elem loop 0)) = *)
-    (*           cp (ε'' 0) ((h 0) ^-1 * h 1) *)
-    (*        ). *)
+    assert (b :
+              cp (ε' loop 0) ((h 0)^-1 * h (transportf elem loop 0)) =
+              cp (ε'' 0) ((h 0) ^-1 * h 1)
+           ).
+    { admit. }
 
 
   Abort.
