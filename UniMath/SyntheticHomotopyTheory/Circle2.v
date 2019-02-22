@@ -578,10 +578,6 @@ Section A.
     apply s_compute_0.
   Defined.
 
-  Check (apd (c p) loop : PathOver (c p pt) (c p pt) loop).
-
-  Check (transportf (λ x : circle, x=x) (s pt_0) loop : pt = pt).
-
   Lemma b : transportf (λ x : circle, x=x) (s pt_0) loop = loop.
   Proof.
     change (transportf (λ x : circle, x = x) (s pt_0) loop = transportf (λ x : circle, x = x) (idpath _) loop).
@@ -631,28 +627,31 @@ Proof.
   set (e := c_compute_1' p); fold f in e.
   exists e.
   set (h := c_tilde p pt); fold f in h.
-  assert (q := c_hat p pt); assert (q0 := q 0); fold h in q, q0.
-  assert (r := Lemma_0_5_11 p loop pt_0); fold pt h in r; unfold pt_0 in r.
+  assert (q := c_hat p pt); fold h in q.
   set (s0 := s pt_0). unfold pt_0 in s0.
   set (s1 := s pt_1). unfold pt_1 in s1.
+  set (one' := transportf elem loop pt_0). fold pt in one'.
+  assert (r := Lemma_0_5_11 p loop pt_0); fold pt h f one' in r; unfold pt_0 in r.
+  refine (r @ _); clear r.
 
-  assert (ss : transportf elem loop 0 = pt_1). (* needed for r? *)
+  assert (ss : one' = pt_1). (* needed for r? *)
   { change (
         transportf elem
                    (invmap torsor_univalence (trivialTorsorRightMultiplication ℤ 1))
                    pt_0
         = 1 + pt_0).
     now rewrite castTorsor_transportf, torsor_univalence_inv_comp_eval. }
-  unfold pt_0,pt_1 in ss.
+  unfold pt_1 in ss.
+  set (s0sm := λ m:trivialTorsor ℤ, ! s0 @ s m).
   assert (b :
-            cp (ε' loop 0) ((h 0)^-1 * h (transportf elem loop 0)) =
-            cp (ε'' 0) ((h 0)^-1 * h 1)
+            cp (ε' loop 0) ((h 0)^-1 * h one') =
+            cp (ε'' 0) ((h 0)^-1 * h (1 + pt_0))
          ).
-  { intermediate_path (cp (ε'' 0) (cp (maponpaths (λ m, ! s0 @ s m) ss) ((h 0) ^-1 * h (transportf elem loop 0)))).
-    - intermediate_path (cp (maponpaths (λ m, ! s0 @ s m) ss @ ε'' 0) ((h 0) ^-1 * h (transportf elem loop 0))).
+  { intermediate_path (cp (ε'' 0) (cp (maponpaths s0sm ss) ((h 0) ^-1 * h one'))).
+    - intermediate_path (cp (maponpaths s0sm ss @ ε'' 0) ((h 0) ^-1 * h one')).
       + apply cp_irrelevance_circle_value.
       + apply cp_pathscomp0.
     - apply maponpaths. apply (cp_in_family _ (λ m, (h 0)^-1 * h m)). }
-
+  refine (b @ _); clear b.
 
 Abort.
