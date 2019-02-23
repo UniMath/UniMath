@@ -8,6 +8,17 @@
   https://github.com/UniMath/SymmetryBook/blob/master/ZTors.tex, commit
   1ba615fa7625516ad79fe3ad9ef68e1fc001d485.
 
+  The main things proved are these:
+
+  Definition circle := B ℤ.
+  Theorem loops_circle : ℤ ≃ Ω circle.
+  Definition loop := loops_circle 1 : Ω circle.
+  Definition CircleInduction (circle : Type) (pt : circle) (loop : pt = pt) :=
+    ∏ (X:circle->Type) (x:X pt) (p:PathOver x x loop),
+      ∑ (f:∏ t:circle, X t) (r : f pt = x), apd f loop = r ⟤ p ⟥ !r.
+  Arguments CircleInduction : clear implicits.
+  Theorem circle_induction : CircleInduction circle pt loop.
+
   *)
 
 Require Import UniMath.Foundations.All.
@@ -328,6 +339,26 @@ Definition cp_idpath
   cp (idpath p) u = u.
 Proof.
   reflexivity.
+Defined.
+
+Definition cp_left
+           (A:Type) (a2 a3:A) (p p':a2=a3) (α:p=p')
+           (B:A->Type) (b1 b2:B a2) (b3:B a3)
+           (r:PathOver b1 b2 (idpath a2))
+           (q:PathOver b2 b3 p) :
+  r * cp α q = cp α (r*q).
+Proof.
+  now induction r, α.
+Defined.
+
+Definition cp_right
+           (A:Type) (a1 a2:A) (p p':a1=a2) (α:p=p')
+           (B:A->Type) (b1:B a1) (b2 b3:B a2)
+           (q:PathOver b1 b2 p)
+           (r:PathOver b2 b3 (idpath a2)) :
+  cp α q * r = cp (maponpaths (λ p, p @ idpath a2) α) (q*r).
+Proof.
+  now induction r, α.
 Defined.
 
 Definition cp_in_family
@@ -788,11 +819,8 @@ Proof.
   rewrite composePathOverPath_compute, composePathPathOver_compute.
   set (rid := pathscomp0rid).
   intermediate_path (cp (rid loop) (cp α0 (h0 ^-1) * p * cp s_compute_0 h0)).
-  {
-
-
-
-    admit. }
+  { rewrite cp_left. apply maponpaths.
+    exact (assocPathOver (cp α0 (h0 ^-1)) p (cp s_compute_0 h0)). }
   apply (maponpaths (cp (rid loop))).
   rewrite Lemma_0_2_8'; fold s0.
   unfold α0.
@@ -805,4 +833,4 @@ Proof.
     unfold h0.
     apply pathsinv0.
     apply pathsinv0inv0.
-Abort.
+Defined.
