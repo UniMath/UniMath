@@ -774,7 +774,7 @@ Section Algebra.
       := (rinvunitor bb)
            • linvunitor (bb · id₁ a)
            • (psfunctor_id F a ▹ (bb · id₁ a))
-           • (# F (id₁ a) ◃ cell_from_invertible_2cell (disp_left_adjoint_right_adjoint _ pr12 x))
+           • (# F (id₁ a) ◃ cell_from_invertible_2cell (disp_left_adjoint_right_adjoint _ (pr12 x)))
            • lassociator (# F (id₁ a)) (# F (id₁ a)) aa
            • (psfunctor_comp F (id₁ a) (id₁ a) ▹ aa)
            • (##F (lunitor (id₁ a)) ▹ aa)
@@ -798,7 +798,7 @@ Section Algebra.
       := (rinvunitor bb)
            • (bb ◃ linvunitor (id₁ a))
            • lassociator bb (id₁ a) (id₁ a)
-           • (cell_from_invertible_2cell (disp_left_adjoint_right_adjoint _ pr12 x) ▹ id₁ a)
+           • (cell_from_invertible_2cell (disp_left_adjoint_right_adjoint _ (pr12 x)) ▹ id₁ a)
            • rassociator _ _ _
            • (# F (id₁ a) ◃ runitor aa)
            • ((psfunctor_id F a)^-1 ▹ aa)
