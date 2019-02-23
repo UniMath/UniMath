@@ -22,12 +22,22 @@ Require Import UniMath.Algebra.Groups.
 Set Implicit Arguments.
 Unset Strict Implicit.
 
-Module Upstream.
+Section Upstream.
 
 Definition loop_transport (X:Type) (x y:X) (e : x = y) (p : x = x) :
   transportf (λ z:X, z=z) e p = !e @ p @ e.
 Proof.
   induction e. change (p = p @ idpath x). exact (!pathscomp0rid p).
+Defined.
+
+Definition invrot (X:Type) (x y:X) (p:x=y) (p':y=x) : !p = p' -> p = !p'.
+Proof.
+  intros e. induction p. exact (maponpaths pathsinv0 e).
+Defined.
+
+Definition invrot' (X:Type) (x y:X) (p:x=y) (p':y=x) : p = !p' -> !p = p'.
+Proof.
+  intros e. induction p'. exact (maponpaths pathsinv0 e).
 Defined.
 
 Definition hornRotation {X:Type} {x y z : X} {p : x = z} {q : y = z} {r : x = y} :
@@ -154,6 +164,9 @@ Defined.
 Definition identityPathOver {X:Type} {x:X} {Y : X -> Type} (y : Y x) : PathOver y y (idpath x)
   := idpath y.
 
+Definition pathOverIdpath {X:Type} {x:X} {Y : X -> Type} (y y' : Y x) (p : y = y') : PathOver y y' (idpath x)
+  := p.
+
 Definition inductionPathOver {X:Type} {x:X} {Y : X -> Type} (y : Y x)
            (T : ∏ x' (y' : Y x') (p : x = x'), PathOver y y' p → Type)
            (t : T x y (idpath x) (identityPathOver y)) :
@@ -229,6 +242,12 @@ Proof.
   intros q. induction p, q. reflexivity.
 Defined.
 
+Definition inversePathOver' {X:Type} {x x':X} {Y : X -> Type} {y : Y x} {y' : Y x'} {p:x'=x} :
+  PathOver y y' (!p) → PathOver y' y p.
+Proof.
+  intros q. induction p, q. reflexivity.
+Defined.
+
 Local Notation "q '^-1'" := (inversePathOver q) (at level 10).
 
 Definition inverseInversePathOver {X:Type} {Y : X -> Type} {x:X} {y : Y x} :
@@ -269,6 +288,14 @@ Definition cp                   (* "change path" *)
 
 Arguments cp {_ _ _ _ _} _ {_ _ _}.
 
+Definition cp_idpath
+           (A:Type) (a1 a2:A) (p:a1=a2)
+           (B:A->Type) (b1:B a1) (b2:B a2) (u:PathOver b1 b2 p) :
+  cp (idpath p) u = u.
+Proof.
+  reflexivity.
+Defined.
+
 Definition cp_in_family
            (A:Type) (a1 a2:A)
            (T:Type) (t0 t1:T) (v:t0=t1) (p:T->a1=a2)
@@ -285,11 +312,11 @@ Proof.
   intros ih. apply (maponpaths (λ α, cp α)). apply ih.
 Defined.
 
-Lemma cp_to_path_over_path_over (A:Type) (B:A->Type) (a1 a2:A) (b1:B a1) (b2:B a2) (p q:a1=a2) (α : p=q)
-      (r : PathOver b1 b2 p) (s : PathOver b1 b2 q) :
-  cp α r = s ≃ PathOver r s α.
+Local Goal ∏ (A:Type) (B:A->Type) (a1 a2:A) (b1:B a1) (b2:B a2) (p q:a1=a2) (α : p=q)
+      (r : PathOver b1 b2 p) (s : PathOver b1 b2 q),
+  (cp α r = s) = (PathOver r s α).
 Proof.
-  apply idweq.
+  reflexivity.
 Defined.
 
 Definition inverse_cp_p
@@ -298,6 +325,34 @@ Definition inverse_cp_p
   cp (! α) (cp α t) = t.
 Proof.
   now induction α.
+Defined.
+
+Definition inverse_cp_p'
+           (A:Type) (B:A->Type) (a1 a2:A) (b1:B a1) (b2:B a2)
+           (p q:a1=a2) (α : p=q)
+           (t : PathOver b1 b2 p) (u : PathOver b1 b2 q) :
+  PathOver t u α -> PathOver u t (!α).
+Proof.
+  exact inversePathOver.
+Defined.
+
+Definition inverse_cp_p''
+           (A:Type) (B:A->Type) (a1 a2:A) (b1:B a1) (b2:B a2)
+           (p q:a1=a2) (α : p=q)
+           (t : PathOver b1 b2 p) (u : PathOver b1 b2 q) :
+  PathOver t u α -> PathOver u t (!α).
+Proof.
+  intros k. induction k. exact (inverse_cp_p α t).
+Defined.
+
+Lemma inverse_cp_p_compare
+           (A:Type) (B:A->Type) (a1 a2:A) (b1:B a1) (b2:B a2)
+           (p q:a1=a2) (α : p=q)
+           (t : PathOver b1 b2 p) (u : PathOver b1 b2 q)
+           (k : PathOver t u α) :
+  inverse_cp_p' k = inverse_cp_p'' k.
+Proof.
+  induction α. reflexivity.
 Defined.
 
 Definition cp_inverse_cp
@@ -361,11 +416,17 @@ Proof.
 Defined.
 
 Definition apstar               (* 0.2.7 *)
-      (A:Type) (a1 a2 a3:A) (p p':a1=a2) (q q':a2=a3) (α : p=p') (β : q=q') :
-  p @ q = p' @ q'.
+           (A:Type) (a1 a2 a3:A) (p p':a1=a2) (q q':a2=a3) :
+  p=p' -> q=q' -> p @ q = p' @ q'.
 Proof.
-  induction α, p. exact β.
+  intros α β. induction α, p. exact β.
 Defined.
+
+(* ===
+Definition apstar_idpath
+           (A:Type) (a1 a2 a3:A) (p:a1=a2) (q q':a2=a3) (β:q=q') :
+  apstar (idpath p) β = β.
+*)
 
 Definition Lemma_0_2_8          (* 0.2.8 *)
       (A:Type) (B:A->Type) (a1 a2 a3:A)
@@ -375,6 +436,16 @@ Definition Lemma_0_2_8          (* 0.2.8 *)
   cp (apstar α β) (pp * qq) = cp α pp * cp β qq.
 Proof.
   now induction p, α, β.
+Defined.
+
+Definition Lemma_0_2_8'
+      (A:Type) (B:A->Type) (a1 a2:A)
+      (p:a2=a1) (p':a1=a2) (α : !p=p')
+      (b1:B a1) (b2:B a2)
+      (pp : PathOver (Y:=B) b2 b1 p) :
+  cp α (pp^-1) = inversePathOver' (cp (invrot α) pp).
+Proof.
+  now induction α, p.
 Defined.
 
 Definition Lemma031_weq (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) :
@@ -632,7 +703,7 @@ Proof.
   set (s0 := s pt_0). unfold pt_0 in s0.
   set (s1 := s pt_1). unfold pt_1 in s1.
   set (one' := transportf elem loop pt_0). fold pt in one'.
-  assert (r := Lemma_0_5_11 p loop pt_0); fold pt h f one' in r; unfold pt_0 in r.
+  assert (r := Lemma_0_5_11 p loop pt_0). fold pt h f one' in r; unfold pt_0 in r.
   refine (r @ _); clear r.
 
   assert (ss : one' = pt_1). (* needed for r? *)
@@ -655,5 +726,32 @@ Proof.
     - apply maponpaths.
       exact (cp_in_family _ (λ m, (h 0) ^-1 * h m)). }
   refine (b @ _); clear b.
+  unfold pt_0. rewrite (q 0). clear q.
+  set (h0 := h 0).
+
+  set (α0 := invrot' (s_compute_0 : s pt_0 = ! idpath _)).
+  set (ε0 := ε pt_0).
+  transparent assert (α : (!s0 @ s1 = idpath pt @ (loop @ s0))).
+  { exact (apstar α0 (!ε0)). }
+  transparent assert (β : (idpath pt @ (loop @ s0) = idpath pt @ (loop @ idpath pt))).
+  { exact (apstar (idpath _) (apstar (idpath loop) s_compute_0)). }
+  transparent assert (γ : (idpath pt @ (loop @ idpath pt) = idpath pt @ loop)).
+  { exact (apstar (idpath _) (pathscomp0rid _)). }
+  intermediate_path (cp (α@β@γ) ((h 0) ^-1 * cp ε0 (p * h 0))).
+  { apply cp_irrelevance_circle_value. }
+  rewrite cp_pathscomp0.
+  unfold α. rewrite Lemma_0_2_8.
+  rewrite inverse_cp_p.
+  rewrite Lemma_0_2_8'.
+  fold s0.
+  set (Q := invrot (p:=s0) α0); change (!idpath pt) with (idpath pt) in Q.
+  rewrite cp_pathscomp0.
+  unfold β. rewrite Lemma_0_2_8.
+  rewrite cp_idpath.
+  unfold γ. rewrite Lemma_0_2_8.
+  rewrite cp_idpath.
+  rewrite Lemma_0_2_8.
+
+
 
 Abort.
