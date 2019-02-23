@@ -32,12 +32,27 @@ Defined.
 
 Definition invrot (X:Type) (x y:X) (p:x=y) (p':y=x) : !p = p' -> p = !p'.
 Proof.
-  intros e. induction p. exact (maponpaths pathsinv0 e).
+  intros e. induction e. apply pathsinv0. apply pathsinv0inv0.
 Defined.
 
 Definition invrot' (X:Type) (x y:X) (p:x=y) (p':y=x) : p = !p' -> !p = p'.
 Proof.
-  intros e. induction p'. exact (maponpaths pathsinv0 e).
+  intros e. induction (!e); clear e. apply pathsinv0inv0.
+Defined.
+
+Definition invrot'rot (X:Type) (x y:X) (p:x=y) (p':y=x) (e : !p = p') :
+  invrot' (invrot e) = e.
+Proof.
+  now induction e,p.
+Defined.
+
+Definition invrotrot' (X:Type) (x y:X) (p:x=y) (p':y=x) (e : p = !p') :
+  invrot (invrot' e) = e.
+Proof.
+  rewrite <- (pathsinv0inv0 e).
+  generalize (!e); clear e.
+  intros e.
+  now induction e, p'.
 Defined.
 
 Definition hornRotation {X:Type} {x y z : X} {p : x = z} {q : y = z} {r : x = y} :
@@ -164,8 +179,13 @@ Defined.
 Definition identityPathOver {X:Type} {x:X} {Y : X -> Type} (y : Y x) : PathOver y y (idpath x)
   := idpath y.
 
-Definition pathOverIdpath {X:Type} {x:X} {Y : X -> Type} (y y' : Y x) (p : y = y') : PathOver y y' (idpath x)
-  := p.
+Definition pathOverIdpath {X:Type} {x:X} {Y : X -> Type} (y y' : Y x) : PathOver y y' (idpath x) = (y = y')
+  := idpath _.
+
+Definition toPathOverIdpath {X:Type} {x:X} {Y : X -> Type} (y y' : Y x) : y = y' -> PathOver y y' (idpath x)
+  := idfun _.
+
+Notation "'∇' q" := (toPathOverIdpath q) (at level 10).
 
 Definition inductionPathOver {X:Type} {x:X} {Y : X -> Type} (y : Y x)
            (T : ∏ x' (y' : Y x') (p : x = x'), PathOver y y' p → Type)
@@ -287,6 +307,20 @@ Definition cp                   (* "change path" *)
   := weqpair (transportf _ α) (Lemma0_2_4 α).
 
 Arguments cp {_ _ _ _ _} _ {_ _ _}.
+
+Definition composePathOverPath_compute {X:Type} {x x':X} {Y : X -> Type} {y : Y x} {y' y'' : Y x'}
+           {p:x=x'} (q : PathOver y y' p) (e : y' = y'') :
+  q ⟥ e = cp (pathscomp0rid p) (q * ∇ e).
+Proof.
+  now induction p, q, e.
+Defined.
+
+Definition composePathPathOver_compute {X:Type} {x' x'':X} {Y : X -> Type} {y y': Y x'} {y'' : Y x''}
+           {p:x'=x''} (e : y = y') (q : PathOver y' y'' p) :
+  e ⟤ q = ∇ e * q.
+Proof.
+  now induction p.
+Defined.
 
 Definition cp_idpath
            (A:Type) (a1 a2:A) (p:a1=a2)
@@ -696,9 +730,9 @@ Proof.
   intros A a p.
   set (f := c p).
   exists f.
-  set (e := c_compute_1' p); fold f in e.
-  exists e.
   set (h := c_tilde p pt); fold f in h.
+  set (e := ! cp s_compute_0 (h 0)).
+  exists e.
   assert (q := c_hat p pt); fold h in q.
   set (s0 := s pt_0). unfold pt_0 in s0.
   set (s1 := s pt_1). unfold pt_1 in s1.
@@ -739,11 +773,10 @@ Proof.
   { exact (apstar (idpath _) (pathscomp0rid _)). }
   intermediate_path (cp (α@β@γ) ((h 0) ^-1 * cp ε0 (p * h 0))).
   { apply cp_irrelevance_circle_value. }
+  fold h0.
   rewrite cp_pathscomp0.
   unfold α. rewrite Lemma_0_2_8.
   rewrite inverse_cp_p.
-  rewrite Lemma_0_2_8'.
-  fold s0.
   set (Q := invrot (p:=s0) α0); change (!idpath pt) with (idpath pt) in Q.
   rewrite cp_pathscomp0.
   unfold β. rewrite Lemma_0_2_8.
@@ -751,7 +784,25 @@ Proof.
   unfold γ. rewrite Lemma_0_2_8.
   rewrite cp_idpath.
   rewrite Lemma_0_2_8.
+  change (cp (idpath loop) p) with p.
+  rewrite composePathOverPath_compute, composePathPathOver_compute.
+  set (rid := pathscomp0rid).
+  intermediate_path (cp (rid loop) (cp α0 (h0 ^-1) * p * cp s_compute_0 h0)).
+  {
 
 
 
+    admit. }
+  apply (maponpaths (cp (rid loop))).
+  rewrite Lemma_0_2_8'; fold s0.
+  unfold α0.
+  intermediate_path (∇ e * p * cp s_compute_0 h0).
+  - apply (maponpaths (λ e, ∇ e * p * cp s_compute_0 h0)).
+    rewrite invrotrot'.
+    reflexivity.
+  - apply maponpaths.
+    unfold e.
+    unfold h0.
+    apply pathsinv0.
+    apply pathsinv0inv0.
 Abort.
