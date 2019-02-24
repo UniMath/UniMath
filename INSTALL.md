@@ -6,6 +6,11 @@ alternative method using the [Nix Package Manager](https://nixos.org/nix/) is av
 
 ## Preparing your computer
 
+In this section, we explain how to prepare your computer for the compilation of
+UniMath under [Mac OS X](#preparing-for-the-installation-under-mac-os-x),
+under [Ubuntu/Debian](#preparing-for-the-installation-under-ubuntu-or-debian-linux),
+and under [Arch/Manjaro Linux](#preparing-for-the-installation-under-arch-linux-or-manjaro-linux).
+
 ### Preparing for the installation under Mac OS X
 
 To prepare for the installation under Mac OS X, there are two methods.
@@ -74,7 +79,7 @@ Camlp5 version 7.03 (ocaml 4.02.3)
 
 ### Preparing for the installation under Ubuntu or Debian (Linux)
 
-Under Ubuntu or Debian, you may install ocaml (and ProofGeneral) with the
+Under Ubuntu or Debian, you may install ocaml with the
 following shell command.
 
 ```bash
