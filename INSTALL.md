@@ -7,11 +7,14 @@ alternative method using the [Nix Package Manager](https://nixos.org/nix/) is av
 Prepare for installation by installing the OCAML compiler and a more modern
 version of `bash` on your system.
 
-## Preparing for the installation under Mac OS X
+
+## Preparing your computer
+
+### Preparing for the installation under Mac OS X
 
 To prepare for the installation under Mac OS X, there are two methods.
 
-### First method (recommended for beginners)
+#### First method (recommended for beginners)
 
 Under Mac OS X, the most convenient way to
 do that is with "Homebrew", available from http://brew.sh/, with the following
@@ -26,7 +29,7 @@ the program `coqide` and will have to depend on ProofGeneral instead.
 
 Now proceed with "Installation of ProofGeneral" and "Installing UniMath" below.
 
-### Second method (allows more flexibility, but is more involved than first method)
+#### Second method (allows more flexibility, but is more involved than first method)
 
 Under Mac OS X, the most convenient way to do that is with "Homebrew",
 available from http://brew.sh/, with the following command:
@@ -73,7 +76,7 @@ $ camlp5 -v
 Camlp5 version 7.03 (ocaml 4.02.3)
 ```
 
-## Preparing for the installation under Ubuntu or Debian (Linux)
+### Preparing for the installation under Ubuntu or Debian (Linux)
 
 Under Ubuntu or Debian, you may install ocaml (and ProofGeneral) with the
 following shell command.
@@ -82,7 +85,7 @@ following shell command.
  sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp4-extra camlp5 proofgeneral proofgeneral-doc libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib
 ```
 
-## Preparing for the installation under Arch Linux or Manjaro Linux
+### Preparing for the installation under Arch Linux or Manjaro Linux
 
 Under Arch Linux or Manjaro Linux you may install ocaml with the following
 shell commands.
@@ -93,9 +96,8 @@ shell commands.
  sudo pacman --sync --needed ocaml camlp5 ocaml-findlib ocaml-num
 ```
 
-## Installation of ProofGeneral
+## Installation of ProofGeneral (all operating systems)
 
-Install ProofGeneral, if it hasn't been installed in one of the steps above.
 You may obtain ProofGeneral from by using the quick installation instructions
 at http://proofgeneral.inf.ed.ac.uk/ or at https://proofgeneral.github.io/.
 Your version of emacs determines which version of ProofGeneral you need,
