@@ -28,7 +28,7 @@ $ brew install objective-caml ocaml-num camlp4 camlp5 lablgtk bash ocaml-findlib
 If installing `lablgtk` fails, you can omit it, but you won't be able to build
 the program `coqide` and will have to depend on ProofGeneral instead.
 
-Now proceed with "Installation of ProofGeneral" and "Installing UniMath" below.
+Now proceed with [Installation of ProofGeneral](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
 
 #### Second method (allows more flexibility, but is more involved than first method)
 
