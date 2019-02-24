@@ -446,7 +446,7 @@ Section Disp_Dirprod.
         disp_invertible_2cell (idtoiso_2_1 f g p) ff gg.
   Proof.
     refine (pair_disp_invertible_2cell_weq (idtoiso_2_1 _ _ p) ff gg ∘ _)%weq.
-    refine (weqdirprod
+    refine (weqdirprodf
               (_ ,, HD1 a b f g p (pr1 aa) (pr1 bb) (pr1 ff) (pr1 gg))
               (_ ,, HD2 a b f g p (pr2 aa) (pr2 bb) (pr2 ff) (pr2 gg))
               ∘ _)%weq.
@@ -736,7 +736,7 @@ Section Disp_Dirprod.
         disp_adjoint_equivalence (idtoiso_2_0 a b p) aa bb.
   Proof.
     refine (pair_adjoint_equivalence_weq HC (pr2 HD1) (pr2 HD2) (idtoiso_2_0 _ _ p) aa bb ∘ _)%weq.
-    refine (weqdirprod
+    refine (weqdirprodf
               (_ ,, pr1 HD1 a b p (pr1 aa) (pr1 bb))
               (_ ,, pr1 HD2 a b p (pr2 aa) (pr2 bb))
               ∘ _)%weq.
