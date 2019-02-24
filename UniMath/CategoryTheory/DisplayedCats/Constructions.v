@@ -41,14 +41,6 @@ Proof.
   - apply HY.
 Defined.
 
-(** TODO: move this somewhere else *)
-Lemma weqdirprod {X X' Y Y' : UU}:
-  X ≃ X' → Y ≃ Y' → X × Y ≃ X' × Y'.
-Proof.
-  intros f g.
-  exists (dirprodf f g).
-  apply isweqdirprodf.
-Defined.
 
 Lemma transportf_pathsinv0_var :
 ∏ {X : UU} {P : X → UU} {x y : X} {p : x = y} {u : P x}
@@ -303,7 +295,7 @@ Proof.
   eapply weqcomp. apply pathsdirprodweq.
   apply invweq. eapply weqcomp. apply iso_disp_prod_weq.
   apply invweq.
-  apply weqdirprod.
+  apply weqdirprodf.
   - exists idtoiso_fiber_disp. apply U1.
   - exists idtoiso_fiber_disp. apply U2.
 Defined.
