@@ -4,10 +4,6 @@ Installation of UniMath
 NB: This file describes the default method for installing UniMath.  An
 alternative method using the [Nix Package Manager](https://nixos.org/nix/) is available in the file [INSTALL\_NIX.md](https://github.com/UniMath/UniMath/blob/master/INSTALL_NIX.md).
 
-Prepare for installation by installing the OCAML compiler and a more modern
-version of `bash` on your system.
-
-
 ## Preparing your computer
 
 ### Preparing for the installation under Mac OS X
@@ -82,7 +78,7 @@ Under Ubuntu or Debian, you may install ocaml (and ProofGeneral) with the
 following shell command.
 
 ```bash
- sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp4-extra camlp5 proofgeneral proofgeneral-doc libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib
+ sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp4-extra camlp5 libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib
 ```
 
 ### Preparing for the installation under Arch Linux or Manjaro Linux
