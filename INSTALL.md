@@ -100,7 +100,7 @@ Your version of emacs determines which version of ProofGeneral you need,
 roughly, so some experimentation may be required; you may even need the current
 development version if your emacs is recent.
 
-Some useful ProofGeneral add-ons are available for installation at
+Optional: some useful ProofGeneral add-ons are available for installation at
 https://github.com/cpitclaudel/company-coq/.
 
 ## Installing UniMath
