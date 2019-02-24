@@ -1,6 +1,7 @@
 WeakEquivalences.v
 Tactics.v
 PartA.v
+PathsOver.v
 Nat.v
 Notations.v
 AlternativeProofs.v

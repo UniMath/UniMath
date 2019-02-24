@@ -650,3 +650,108 @@ Proof.
   cbn in eb; destruct eb; cbn in ec; destruct ec.
   apply idpath.
 Defined.
+
+Section InvRot.
+
+  (** moving pathsinv0 to the other side in equations *)
+
+  Local Set Implicit Arguments.
+  Local Unset Strict Implicit.
+
+  Definition invrot (X:Type) (x y:X) (p:x=y) (p':y=x) : !p = p' -> p = !p'.
+  Proof.
+    intros e. induction e. apply pathsinv0. apply pathsinv0inv0.
+  Defined.
+
+  Definition invrot' (X:Type) (x y:X) (p:x=y) (p':y=x) : p = !p' -> !p = p'.
+  Proof.
+    intros e. induction (!e); clear e. apply pathsinv0inv0.
+  Defined.
+
+  Definition invrot'rot (X:Type) (x y:X) (p:x=y) (p':y=x) (e : !p = p') :
+    invrot' (invrot e) = e.
+  Proof.
+    now induction e,p.
+  Defined.
+
+  Definition invrotrot' (X:Type) (x y:X) (p:x=y) (p':y=x) (e : p = !p') :
+    invrot (invrot' e) = e.
+  Proof.
+    rewrite <- (pathsinv0inv0 e).
+    generalize (!e); clear e.
+    intros e.
+    now induction e, p'.
+  Defined.
+
+End InvRot.
+
+Section Weqpaths.
+
+  (** a more basic approach to proving isweqpathscomp0r *)
+
+  Local Set Implicit Arguments.
+  Local Unset Strict Implicit.
+
+  Definition hornRotation {X:Type} {x y z : X} {p : x = z} {q : y = z} {r : x = y} :
+    r = p @ !q ≃ r @ q = p.
+  Proof.
+    (* Thanks to Ulrik Buchholtz for this proof. *)
+    induction p, r. cbn. intermediate_weq (idpath x = !!q).
+    - exact (weqonpaths (weqpathsinv0 _ _) _ _).
+    - intermediate_weq ((!!q) = idpath x).
+      + apply weqpathsinv0.
+      + rewrite pathsinv0inv0. apply idweq.
+  Defined.
+
+  Corollary uniqueFiller (X:Type) (x y z : X) (p : x = z) (q : y = z) :
+    ∃! r, r @ q = p.
+  Proof.
+    refine (@iscontrweqf (∑ r, r = p @ !q) _ _ _).
+    { apply weqfibtototal; intro r. exact hornRotation. }
+    { apply iscontrcoconustot. }
+  Defined.
+
+  Lemma fillerEquation {X:Type} {x y z : X} {p : x = z} {q : y = z}
+        (r : x = y) (k : r @ q = p) :
+    @paths (∑ r, r@q=p)
+           (r ,, k)
+           ((p @ !q) ,, hornRotation (idpath _)).
+  Proof.
+    apply proofirrelevance.
+    apply isapropifcontr.
+    apply uniqueFiller.
+  Defined.
+
+  Corollary isweqpathscomp0r' {X : UU} (x : X) {x' x'' : X} (e' : x' = x'') :
+    isweq (λ e : x = x', e @ e').
+  Proof.
+    (* make a direct proof of isweqpathscomp0r, without using isweq_iso *)
+    intros p. use tpair. exists (p @ !e'). now apply hornRotation.
+    cbn. intros [q l]. apply fillerEquation.
+  Defined.
+
+  Definition transportPathTotal {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (y' : Y x')
+             (r : (x,,y) = (x',,y'))
+             (T : ∏ (a:X) (b:Y a), Type) : T x y → T x' y'.
+  Proof.
+    induction (total2_paths_equiv _ _ _ r) as [p q].
+    change (x=x') in p. change (transportf _ p y = y') in q.
+    induction p.
+    change (y=y') in q.
+    induction q.
+    trivial.
+  Defined.
+
+  Definition inductionOnFiller {X:Type} {x y z:X} (p:x=z) (q:y=z)
+             (S := λ r:x=y, r @ q = p)
+             (T : ∏ r (e : S r), Type)
+             (t : T (p @ !q) (hornRotation (idpath _))) :
+    ∏ (r:x=y) (e : r @ q = p), T r e.
+  Proof.
+    intros.
+    use (transportPathTotal _ t).
+    apply pathsinv0.
+    apply fillerEquation.
+  Defined.
+
+End Weqpaths.
