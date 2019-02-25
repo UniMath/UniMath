@@ -165,7 +165,7 @@ Proof.
     induction z as [η ε].
     apply (isofhleveldirprod 0); cbn;
       apply (is_discrete_bicategory_iscontr_is_invertible_2cell disc). }
-  apply weqdirprod.
+  apply weqdirprodf.
   { eapply weqcomp. 2: apply weqpathsinv0.
     apply invweq.
     apply (weqpair _ (is_discrete_bicategory_trivial_2cells disc _ _ _ _)). }
