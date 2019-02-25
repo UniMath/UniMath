@@ -27,11 +27,21 @@ Require Import UniMath.Algebra.Monoids. Import AddNotation.
 Require Import UniMath.SyntheticHomotopyTheory.AffineLine.
 Require Import UniMath.NumberSystems.Integers.
 Require Import UniMath.Algebra.BinaryOperations.
+Require Import UniMath.Algebra.GroupAction.
 Require Import UniMath.Algebra.Groups.
-Local Open Scope hz.
-Local Open Scope pathsover.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
+Delimit Scope circle with circle.
+Local Open Scope hz.
+Local Open Scope addoperation.
+Local Open Scope abgr.
+Local Open Scope action_scope.
+Local Open Scope pathsover.
+Local Open Scope circle.
+Local Notation "0" := (toℤ 0).
+Local Notation "1" := (toℤ 1).
+Local Definition elem (X:Torsor ℤ) : Type := X.
+Local Notation "ℤ¹" := (trivialTorsor ℤ) : circle.
 
 (** Statement of circle induction *)
 
@@ -47,98 +57,36 @@ Definition CircleInduction (circle : Type) (pt : circle) (loop : pt = pt) :=
 
 Arguments CircleInduction : clear implicits.
 
-Goal ∏ (C : Type) (pt : C) (loop : pt = pt),
+Lemma CircleInduction_isaprop (circle : Type) (pt : circle) (loop : pt = pt) :
+  isaprop (CircleInduction circle pt loop).
+Proof.
+  apply invproofirrelevance.
+  intros I J.
+  apply funextsec; intros A.
+  apply funextsec; intros a.
+  apply funextsec; intros p.
+Abort.
+
+Definition Circles := ∑ (circle : Type) (pt : circle) (loop : pt = pt), CircleInduction circle pt loop.
+
+Lemma Circles_isaprop : isaprop Circles.
+Proof.
+  apply invproofirrelevance.
+  intros [C [pt [loop I]]] [C' [pt' [loop' I']]].
+Abort.
+
+Lemma CircleInduction_to_Recursion (C : Type) (pt : C) (loop : pt = pt) :
      CircleInduction C pt loop -> CircleRecursion C pt loop.
 Proof.
-  intros ? ? ? ci ? ? ?.
+  intros ci ? ? ?.
   assert (q := ci (λ c, X) x (PathOver_inConstantFamily loop p)); cbn beta in q.
   induction q as [F [R E]].
   exists F.
   exists R.
+  unfold PathOver_inConstantFamily in E.
 Abort.
 
-(* In a well behaved circle, the witness r above to the equality [f pt = r] would be reflexivity,
-   but we can't state that. *)
-
 (** now start the formalization, following Marc and Ulrik *)
-
-Lemma cp_pathscomp0               (* 0.2.5 *)
-      (A:Type) (B:A->Type) (a1 a2:A)
-      (b1:B a1) (b2:B a2) (p q r:a1=a2) (α : p=q) (β : q=r)
-      (s : PathOver b1 b2 p) :
-  cp (b1:=b1) (b2:=b2) (α @ β) s = cp β (cp α s).
-Proof.
-  now induction α.
-Defined.
-
-Definition apstar               (* 0.2.7 *)
-           (A:Type) (a1 a2 a3:A) (p p':a1=a2) (q q':a2=a3) :
-  p=p' -> q=q' -> p @ q = p' @ q'.
-Proof.
-  intros α β. induction α, p. exact β.
-Defined.
-
-(* ===
-Definition apstar_idpath
-           (A:Type) (a1 a2 a3:A) (p:a1=a2) (q q':a2=a3) (β:q=q') :
-  apstar (idpath p) β = β.
-*)
-
-Definition Lemma_0_2_8          (* 0.2.8 *)
-      (A:Type) (B:A->Type) (a1 a2 a3:A)
-      (p p':a1=a2) (q q':a2=a3) (α : p=p') (β : q=q')
-      (b1:B a1) (b2:B a2) (b3:B a3)
-      (pp : PathOver b1 b2 p) (qq : PathOver b2 b3 q) :
-  cp (apstar α β) (pp * qq) = cp α pp * cp β qq.
-Proof.
-  now induction p, α, β.
-Defined.
-
-Definition Lemma_0_2_8'
-      (A:Type) (B:A->Type) (a1 a2:A)
-      (p:a2=a1) (p':a1=a2) (α : !p=p')
-      (b1:B a1) (b2:B a2)
-      (pp : PathOver (Y:=B) b2 b1 p) :
-  cp α (pp^-1) = inversePathOver' (cp (invrot α) pp).
-Proof.
-  now induction α, p.
-Defined.
-
-Definition Lemma031_weq (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) :
-  (∑ (h:∏ z, P z), ∏ z, h(1+z) = f z (h z)) ≃ P 0
-  := ℤBiRecursion_weq f.
-
-Definition Lemma031 (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) :
-  isweq ((λ hq, pr1 hq 0) : (∑ (h:∏ z, P z), ∏ z, h(1+z) = f z (h z)) -> P 0)
-  := pr2 (Lemma031_weq f).
-
-Definition Lemma031_inverse (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) :
-  P 0 -> ∑ (h:∏ z, P z), ∏ z, h(1+z) = f z (h z)
-  := invmap (Lemma031_weq f).
-
-Delimit Scope circle with circle.
-Local Open Scope circle.
-Notation "f ^ z" := (λ p, pr1 (Lemma031_inverse f p) z) : circle.
-
-Definition Lemma031_compute_zero (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) (p:P 0) :
-  (f^0) p = p
-  := ℤBiRecursion_inv_compute f p.
-
-Definition Lemma031_compute_next (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) (p:P 0) (z:ℤ) :
-  (f^(1+z)) p = f z ((f^z) p)
-  := ℤBiRecursion_transition_inv f p z.
-
-Definition Lemma031_compute_prev (P:ℤ→Type) (f : ∏ z, P z ≃ P (1+z)) (p:P 0) (z:ℤ) :
-  (f^z) p = invmap (f z) ((f^(1+z)) p)
-  := ℤBiRecursion_transition_inv_reversed f p z.
-
-Require Import UniMath.Algebra.GroupAction.
-Local Open Scope abgr.
-Local Open Scope action_scope.
-
-Local Notation "0" := (toℤ 0).
-Local Notation "1" := (toℤ 1).
-Local Notation "-1" := (- (toℤ 1)).
 
 Definition circle := B ℤ.
 
@@ -169,30 +117,26 @@ Proof.
 Defined.
 
 Definition s {Z : Torsor ℤ} (x : Z) : pt = Z.
-(* Def 0.5.6 *)
+(* 0.5.6 *)
 Proof.
-  change (trivialTorsor ℤ = Z).
-  apply (invmap torsor_univalence).
-  now apply triviality_isomorphism.
+  change pt with ℤ¹. apply (invmap torsor_univalence). now apply triviality_isomorphism.
 Defined.
 
 Lemma s_compute_0 : s pt_0 = idpath pt.
 Proof.
-  intermediate_path (invmap torsor_univalence (idActionIso (trivialTorsor ℤ))).
-  - change (s pt_0) with (invmap torsor_univalence (triviality_isomorphism (trivialTorsor ℤ) 0)).
+  intermediate_path (invmap torsor_univalence (idActionIso ℤ¹)).
+  - change (s pt_0) with (invmap torsor_univalence (triviality_isomorphism ℤ¹ 0)).
     apply maponpaths.
     exact (triviality_isomorphism_compute ℤ). (* too slow *)
   - apply torsor_univalence_id.
 Defined.
-
-Local Delimit Scope addoperation_scope with abgr.
 
 Definition ε (* 0.5.7 *) {X : Torsor ℤ} (x : X) : loop @ s x = s (1 + x).
 Proof.
   change ((invmap torsor_univalence (trivialTorsorRightMultiplication ℤ one)) @ s x = s (1 + x)).
   refine (invUnivalenceCompose _ _ @ _). unfold s. apply maponpaths.
   apply underlyingIso_injectivity, pr1weq_injectivity, funextsec; intros n.
-  change (((n + 1)%abgr + x) = (n + (1 + x))). apply ac_assoc.
+  change (((n + 1)%addoperation + x) = (n + (1 + x))). apply ac_assoc.
 Defined.
 
 Definition ε1 {X : Torsor ℤ} (x : X) : s x @ loop' X = s (1 + x).
@@ -267,8 +211,6 @@ Section A.
     := pr22 (cQ p X) x.
   Arguments c_hat : clear implicits.
 
-  Definition elem (X:Torsor ℤ) : Type := X.
-
   Definition ε' (X Y : Torsor ℤ) (e : X = Y) (x : X) :
     ! s x @ s (transportf elem e x) = e.
   Proof.                        (* 0.5.10 *)
@@ -277,7 +219,7 @@ Section A.
 
   Context (p : PathOver a a loop).
 
-  Definition Lemma_0_5_11 (X Y : Torsor ℤ) (e : X = Y) (x : X) : (* 0.5.11 *)
+  Definition apd_comparison (X Y : Torsor ℤ) (e : X = Y) (x : X) : (* 0.5.11 *)
     apd (c p) e = cp (ε' e x) ( (c_tilde p X x)^-1
                                 *
                                 c_tilde p Y (transportf elem e x)).
@@ -344,12 +286,9 @@ End A.
 Arguments c_tilde {_ _} _ _ _.
 Arguments c_hat {_ _} _ _ _.
 
-Axiom cheat : ∏ X, X.
-
 Theorem circle_induction : CircleInduction circle pt loop.
 Proof.
-  unfold CircleInduction.
-  intros A a p.
+  unfold CircleInduction. intros A a p.
   set (f := c p).
   exists f.
   set (h := c_tilde p pt); fold f in h.
@@ -359,9 +298,8 @@ Proof.
   set (s0 := s pt_0). unfold pt_0 in s0.
   set (s1 := s pt_1). unfold pt_1 in s1.
   set (one' := transportf elem loop pt_0). fold pt in one'.
-  assert (r := Lemma_0_5_11 p loop pt_0). fold pt h f one' in r; unfold pt_0 in r.
+  assert (r := apd_comparison p loop pt_0). fold pt h f one' in r; unfold pt_0 in r.
   refine (r @ _); clear r.
-
   assert (ss : one' = pt_1). (* needed for r? *)
   { change (
         transportf elem
@@ -370,21 +308,16 @@ Proof.
         = 1 + pt_0).
     now rewrite castTorsor_transportf, torsor_univalence_inv_comp_eval. }
   unfold pt_1 in ss.
-  set (s0sm := λ m:trivialTorsor ℤ, ! s0 @ s m).
-  assert (b :
-            cp (ε' loop 0) ((h 0)^-1 * h one') =
-            cp (ε'' 0) ((h 0)^-1 * h (1 + pt_0))
-         ).
+  set (s0sm := λ m:ℤ¹, ! s0 @ s m).
+  assert (b : cp (ε' loop 0) ((h 0)^-1 * h one') =
+              cp (ε'' 0) ((h 0)^-1 * h (1 + pt_0))).
   { intermediate_path (cp (ε'' 0) (cp (maponpaths s0sm ss) ((h 0)^-1 * h one'))).
     - intermediate_path (cp (maponpaths s0sm ss @ ε'' 0) ((h 0)^-1 * h one')).
       + apply cp_irrelevance_circle_value.
       + apply cp_pathscomp0.
-    - apply maponpaths.
-      exact (cp_in_family _ (λ m, (h 0) ^-1 * h m)). }
-  refine (b @ _); clear b.
-  unfold pt_0. rewrite (q 0). clear q.
+    - apply maponpaths. exact (cp_in_family _ (λ m, (h 0) ^-1 * h m)). }
+  refine (b @ _); clear b. unfold pt_0. rewrite (q 0). clear q.
   set (h0 := h 0).
-
   set (α0 := invrot' (s_compute_0 : s pt_0 = ! idpath _)).
   set (ε0 := ε pt_0).
   transparent assert (α : (!s0 @ s1 = idpath pt @ (loop @ s0))).
@@ -393,36 +326,26 @@ Proof.
   { exact (apstar (idpath _) (apstar (idpath loop) s_compute_0)). }
   transparent assert (γ : (idpath pt @ (loop @ idpath pt) = idpath pt @ loop)).
   { exact (apstar (idpath _) (pathscomp0rid _)). }
-  intermediate_path (cp (α@β@γ) ((h 0) ^-1 * cp ε0 (p * h 0))).
+  intermediate_path (cp (α@β@γ) ((h 0)^-1 * cp ε0 (p * h 0))).
   { apply cp_irrelevance_circle_value. }
-  fold h0.
-  rewrite cp_pathscomp0.
-  unfold α. rewrite Lemma_0_2_8.
-  rewrite inverse_cp_p.
+  fold h0. rewrite cp_pathscomp0. unfold α. rewrite cp_apstar. rewrite inverse_cp_p.
   set (Q := invrot (p:=s0) α0); change (!idpath pt) with (idpath pt) in Q.
-  rewrite cp_pathscomp0.
-  unfold β. rewrite Lemma_0_2_8.
-  rewrite cp_idpath.
-  unfold γ. rewrite Lemma_0_2_8.
-  rewrite cp_idpath.
-  rewrite Lemma_0_2_8.
+  rewrite cp_pathscomp0. unfold β. rewrite cp_apstar.
+  rewrite cp_idpath. unfold γ. rewrite cp_apstar.
+  rewrite cp_idpath. rewrite cp_apstar.
   change (cp (idpath loop) p) with p.
   rewrite composePathOverPath_compute, composePathPathOver_compute.
   set (rid := pathscomp0rid).
-  intermediate_path (cp (rid loop) (cp α0 (h0 ^-1) * p * cp s_compute_0 h0)).
+  intermediate_path (cp (rid loop) (cp α0 (h0^-1) * p * cp s_compute_0 h0)).
   { rewrite cp_left. apply maponpaths.
-    exact (assocPathOver (cp α0 (h0 ^-1)) p (cp s_compute_0 h0)). }
+    exact (assocPathOver (cp α0 (h0^-1)) p (cp s_compute_0 h0)). }
   apply (maponpaths (cp (rid loop))).
-  rewrite Lemma_0_2_8'; fold s0.
-  unfold α0.
+  rewrite cp_apstar'; fold s0.
   intermediate_path (∇ e * p * cp s_compute_0 h0).
   - apply (maponpaths (λ e, ∇ e * p * cp s_compute_0 h0)).
-    rewrite invrotrot'.
-    reflexivity.
-  - apply maponpaths.
-    unfold e.
-    unfold h0.
-    apply pathsinv0.
+    unfold α0. rewrite invrotrot'. reflexivity.
+  - apply maponpaths. apply pathsinv0. unfold e, h0.
+    change ((! !(cp s_compute_0 (h 0))) = cp s_compute_0 (h 0)).
     apply pathsinv0inv0.
 Defined.
 

@@ -1,5 +1,9 @@
+(** This file contains the definition of paths over a path, together with some
+    facts about them developed by Marc Bezem and Ulrik Buchholtz. *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.PartA.
 
 (** ** Paths over paths in families of types *)
 
@@ -317,4 +321,40 @@ Definition composePathOverLeftInverse {X:Type} {x x':X} {Y : X -> Type}
   q^-1 * q = cp (!pathsinv0l p) (identityPathOver y').
 Proof.
   now induction p, q.
+Defined.
+
+Lemma cp_pathscomp0
+      (A:Type) (B:A->Type) (a1 a2:A)
+      (b1:B a1) (b2:B a2) (p q r:a1=a2) (α : p=q) (β : q=r)
+      (s : PathOver b1 b2 p) :
+  cp (b1:=b1) (b2:=b2) (α @ β) s = cp β (cp α s).
+Proof.
+  now induction α.
+Defined.
+
+Definition apstar               (* 0.2.7 *)
+           (A:Type) (a1 a2 a3:A) (p p':a1=a2) (q q':a2=a3) :
+  p=p' -> q=q' -> p @ q = p' @ q'.
+Proof.
+  intros α β. induction α, p. exact β.
+Defined.
+
+Definition cp_apstar
+      (A:Type) (B:A->Type) (a1 a2 a3:A)
+      (p p':a1=a2) (q q':a2=a3) (α : p=p') (β : q=q')
+      (b1:B a1) (b2:B a2) (b3:B a3)
+      (pp : PathOver b1 b2 p) (qq : PathOver b2 b3 q) :
+  cp (apstar α β) (pp * qq) = cp α pp * cp β qq.
+Proof.
+  now induction p, α, β.
+Defined.
+
+Definition cp_apstar'
+      (A:Type) (B:A->Type) (a1 a2:A)
+      (p:a2=a1) (p':a1=a2) (α : !p=p')
+      (b1:B a1) (b2:B a2)
+      (pp : PathOver (Y:=B) b2 b1 p) :
+  cp α (pp^-1) = inversePathOver' (cp (invrot α) pp).
+Proof.
+  now induction α, p.
 Defined.
