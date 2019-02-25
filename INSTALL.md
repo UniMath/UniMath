@@ -37,13 +37,14 @@ Now proceed with [Installation of ProofGeneral](#installation-of-proofgeneral-al
 
 ### Preparing for the installation under Arch Linux or Manjaro Linux
 
-Under Arch Linux or Manjaro Linux you may install ocaml with the following
+Under Arch Linux or Manjaro Linux you may install ocaml and Emacs  with the following
 shell commands.
 
 ```bash
  sudo pacman --sync --needed archlinux-keyring
  sudo pacman-key --populate archlinux
  sudo pacman --sync --needed ocaml camlp5 ocaml-findlib ocaml-num
+ sudo pacman -S emacs
 ```
 Now proceed with [Installation of ProofGeneral](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
 ## Installation of ProofGeneral (all operating systems)
