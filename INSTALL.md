@@ -29,52 +29,6 @@ the program `coqide` and will have to depend on ProofGeneral instead.
 
 Now proceed with [Installation of ProofGeneral](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
 
-#### Second method (allows more flexibility, but is more involved than first method)
-
-Under Mac OS X, the most convenient way to do that is with "Homebrew",
-available from http://brew.sh/, with the following command:
-
-```bash
-$ brew install bash opam gtk+
-$ opam init --no-setup --compiler=4.02.3
-$ opam install --yes lablgtk camlp5 ocamlfind num
-```
-
-(We choose version 4.02.3 of ocamlc above, because it can successfully compile
-Coq 8.6.1.)
-
-Now arrange for the programs installed by opam to be available to the currently
-running shell:
-
-```bash
-$ eval `opam config env`
-```
-
-If you haven't done it previously in connection with installing opam, as you
-have just done, arrange for the programs (such as ocamlc) that opam will
-install for you to be found by your shell, the next time you log in, by adding
-the line
-
-```bash
-$ eval `opam config env`
-```
-
-to your file `~/.profile`, after any lines in the file that add
-`/usr/local/bin` to the `PATH` environment variable.  (Homebrew and opam both
-know how to install `ocamlc`, and we intend to use `opam` to get a version of
-`ocamlc` appropriate for compiling the version of Coq used by UniMath.)
-
-The next time you log in, or now, you may check that the progams installed by
-opam are accessible by you as follows.
-
-```bash
-$ type ocamlc
-ocamlc is hashed (/Users/XXXXXXXX/.opam/4.02.3/bin/ocamlc)
-$ ocamlc -version
-4.02.3
-$ camlp5 -v
-Camlp5 version 7.03 (ocaml 4.02.3)
-```
 
 ### Preparing for the installation under Ubuntu or Debian (Linux)
 
