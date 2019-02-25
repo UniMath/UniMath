@@ -36,8 +36,9 @@ Under Ubuntu or Debian, you may install ocaml with the
 following shell command.
 
 ```bash
- sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp4-extra camlp5 libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib
+ sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp4-extra camlp5 libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib emacs
 ```
+Now proceed with [Installation of ProofGeneral](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
 
 ### Preparing for the installation under Arch Linux or Manjaro Linux
 
@@ -49,7 +50,7 @@ shell commands.
  sudo pacman-key --populate archlinux
  sudo pacman --sync --needed ocaml camlp5 ocaml-findlib ocaml-num
 ```
-
+Now proceed with [Installation of ProofGeneral](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
 ## Installation of ProofGeneral (all operating systems)
 
 You may obtain ProofGeneral from by using the quick installation instructions
