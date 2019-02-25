@@ -13,13 +13,12 @@ and under [Arch/Manjaro Linux](#preparing-for-the-installation-under-arch-linux-
 
 ### Preparing for the installation under Mac OS X
 
-To prepare for the installation under Mac OS X, there are two methods.
+NB: The method explained below is recommended for beginners.
+A more flexible, but complex, installation method is given in [INSTALL\_MACOS.md](./INSTALL_MACOS.md).
 
-#### First method (recommended for beginners)
+Install "Homebrew", available from http://brew.sh/.
 
-Under Mac OS X, the most convenient way to
-do that is with "Homebrew", available from http://brew.sh/, with the following
-command:
+Using Homebrew, install ocaml with the following command:
 
 ```bash
 $ brew install objective-caml ocaml-num camlp4 camlp5 lablgtk bash ocaml-findlib
