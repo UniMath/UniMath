@@ -16,17 +16,12 @@ and under [Arch/Manjaro Linux](#preparing-for-the-installation-under-arch-linux-
 NB: The method explained below is recommended for beginners.
 A more flexible, but complex, installation method is given in [INSTALL\_MACOS.md](./INSTALL_MACOS.md).
 
-Install "Homebrew", available from http://brew.sh/.
-
-Using Homebrew, install ocaml with the following command:
-
+1. Install "Homebrew", available from http://brew.sh/.
+2. Using Homebrew, install ocaml with the following command:
 ```bash
-$ brew install objective-caml ocaml-num camlp4 camlp5 lablgtk bash ocaml-findlib
+$ brew install objective-caml ocaml-num camlp4 camlp5 bash ocaml-findlib
 ```
-
-If installing `lablgtk` fails, you can omit it, but you won't be able to build
-the program `coqide` and will have to depend on ProofGeneral instead.
-
+  
 Now proceed with [Installation of ProofGeneral](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
 
 
