@@ -21,6 +21,7 @@ A more flexible, but complex, installation method is given in [INSTALL\_MACOS.md
 ```bash
 $ brew install objective-caml ocaml-num camlp4 camlp5 bash ocaml-findlib
 ```
+3. Install Emacs from https://emacsformacosx.com/.
   
 Now proceed with [Installation of ProofGeneral](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
 
