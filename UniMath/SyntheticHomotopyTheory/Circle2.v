@@ -116,11 +116,9 @@ Proof.
   apply commax.
 Defined.
 
-Definition s {Z : Torsor ℤ} (x : Z) : pt = Z.
+Definition s {Z : Torsor ℤ} (x : Z) : pt = Z
 (* 0.5.6 *)
-Proof.
-  change pt with ℤ¹. apply (invmap torsor_univalence). now apply triviality_isomorphism.
-Defined.
+  := invmap torsor_univalence (triviality_isomorphism Z x).
 
 Lemma s_compute_0 : s pt_0 = idpath pt.
 Proof.
@@ -131,7 +129,8 @@ Proof.
   - apply torsor_univalence_id.
 Defined.
 
-Definition ε (* 0.5.7 *) {X : Torsor ℤ} (x : X) : loop @ s x = s (1 + x).
+Definition ε {X : Torsor ℤ} (x : X) : loop @ s x = s (1 + x).
+(* 0.5.7 *)
 Proof.
   change ((invmap torsor_univalence (trivialTorsorRightMultiplication ℤ one)) @ s x = s (1 + x)).
   refine (invUnivalenceCompose _ _ @ _). unfold s. apply maponpaths.
@@ -164,18 +163,14 @@ Defined.
 
 Definition cp_irrelevance_circle_value
            (A:=circle) (B:circle->Type) (a1 a2:A) (b1:B a1) (b2:B a2) (p q:a1=a2) (α β: p=q)
-  (v : PathOver b1 b2 p) :
-  cp α v = cp β v.
-Proof.
-  exact (maponpaths (λ f, pr1weq f v) (cp_irrelevance_circle b1 b2 α β)).
-Defined.
+           (v : PathOver b1 b2 p) :
+  cp α v = cp β v
+  := maponpaths (λ f, pr1weq f v) (cp_irrelevance_circle b1 b2 α β).
 
 Definition cp_irrelevance_circle_1
            (A:=circle) (B:circle->Type) (a1 a2:A) (b1:B a1) (b2:B a2) (p:a1=a2) (α: p=p) :
-  cp (b1:=b1) (b2:=b2) α = cp (b1:=b1) (b2:=b2) (idpath p).
-Proof.
-  apply cp_irrelevance_circle.
-Defined.
+  cp (b1:=b1) (b2:=b2) α = cp (b1:=b1) (b2:=b2) (idpath p)
+  := cp_irrelevance_circle (B:=B) b1 b2 α (idpath p).
 
 Section A.
 
@@ -199,13 +194,16 @@ Section A.
   Defined.
 
   Definition cQ (p : PathOver a a loop) (X:Torsor ℤ) := iscontrpr1 (iscontr_Q p X).
+
   Definition c (p : PathOver a a loop) (X:Torsor ℤ)
     : A X
     := pr1 (cQ p X).
+
   Definition c_tilde (p : PathOver a a loop) (X:Torsor ℤ) (x : X)
     : PathOver a (c p X) (s x)
     := pr12 (cQ p X) x.
   Arguments c_tilde : clear implicits.
+
   Definition c_hat (p : PathOver a a loop) (X:Torsor ℤ) (x : X)
     : c_tilde p X (1 + x) = cp (ε x) (p * c_tilde p X x)
     := pr22 (cQ p X) x.
@@ -233,54 +231,9 @@ Section A.
     reflexivity.
   Defined.
 
-  Lemma c_compute_1 : c p pt = transportf A (s pt_0) a.
-  Proof.
-    reflexivity.
-  Qed.
-
-  Lemma c_compute_1' : c p pt = a.
-  Proof.
-    (* not judgemental *)
-    change (transportf _ (s pt_0) a = transportf _ (idpath _) a).
-    apply (maponpaths (λ p, transportf A p a)).
-    apply s_compute_0.
-  Defined.
-
-  Lemma b : transportf (λ x : circle, x=x) (s pt_0) loop = loop.
-  Proof.
-    change (transportf (λ x : circle, x = x) (s pt_0) loop = transportf (λ x : circle, x = x) (idpath _) loop).
-    apply (maponpaths (λ r, transportf (λ x : circle, x = x) r loop)).
-    apply s_compute_0.
-  Defined.
-
   (* illustrate how to work around Coq not finding the right coercions:  *)
-
-  Local Goal ∏ (Y : B ℤ), Type.
-  Proof.
-    intros.
-    Fail exact Y.
-    exact (underlyingAction Y).
-  Defined.
-
-  Local Goal ∏ (X : circle), Type.
-  Proof.
-    intros.
-    Fail exact X.
-    exact (underlyingAction X).
-  Defined.
-
-  Local Goal ∏ (X : circle), Torsor ℤ.
-  Proof.
-    intros.
-    exact X.
-  Defined.
-
-  Local Goal ∏ (X : Torsor ℤ), circle.
-  Proof.
-    intros.
-    exact X.
-  Defined.
-
+  Local Goal ∏ (Y : B ℤ), Type.        Proof. intros. Fail exact Y. exact (underlyingAction Y). Defined.
+  Local Goal ∏ (X : circle), Type.     Proof. intros. Fail exact X. exact (underlyingAction X). Defined.
 End A.
 
 Arguments c_tilde {_ _} _ _ _.
@@ -289,11 +242,9 @@ Arguments c_hat {_ _} _ _ _.
 Theorem circle_induction : CircleInduction circle pt loop.
 Proof.
   unfold CircleInduction. intros A a p.
-  set (f := c p).
-  exists f.
+  set (f := c p). exists f.
   set (h := c_tilde p pt); fold f in h.
-  set (e := ! cp s_compute_0 (h 0)).
-  exists e.
+  set (e := ! cp s_compute_0 (h 0)). exists e.
   assert (q := c_hat p pt); fold h in q.
   set (s0 := s pt_0). unfold pt_0 in s0.
   set (s1 := s pt_1). unfold pt_1 in s1.
@@ -301,12 +252,11 @@ Proof.
   assert (r := apd_comparison p loop pt_0). fold pt h f one' in r; unfold pt_0 in r.
   refine (r @ _); clear r.
   assert (ss : one' = pt_1). (* needed for r? *)
-  { change (
-        transportf elem
-                   (invmap torsor_univalence (trivialTorsorRightMultiplication ℤ 1))
-                   pt_0
-        = 1 + pt_0).
-    now rewrite castTorsor_transportf, torsor_univalence_inv_comp_eval. }
+  { change ( transportf elem
+                        (invmap torsor_univalence (trivialTorsorRightMultiplication ℤ 1))
+                        pt_0
+             = 1 + pt_0).
+    rewrite castTorsor_transportf. rewrite torsor_univalence_inv_comp_eval. reflexivity. }
   unfold pt_1 in ss.
   set (s0sm := λ m:ℤ¹, ! s0 @ s m).
   assert (b : cp (ε' loop 0) ((h 0)^-1 * h one') =
