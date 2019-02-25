@@ -169,7 +169,7 @@ Definition cp_irrelevance_circle_value
 
 Definition cp_irrelevance_circle_1
            (A:=circle) (B:circle->Type) (a1 a2:A) (b1:B a1) (b2:B a2) (p:a1=a2) (α: p=p) :
-  cp (b1:=b1) (b2:=b2) α = cp (b1:=b1) (b2:=b2) (idpath p)
+  cp (b1:=b1) (b2:=b2) α = cp (b1:=b1) (b2:=b2) (idpath p) (* simplify *)
   := cp_irrelevance_circle (B:=B) b1 b2 α (idpath p).
 
 Section A.
@@ -211,7 +211,7 @@ Section A.
 
   Definition ε' (X Y : Torsor ℤ) (e : X = Y) (x : X) :
     ! s x @ s (transportf elem e x) = e.
-  Proof.                        (* 0.5.10 *)
+  Proof.                        (* 0.5.10 *) (* Put earlier in the file. *)
     induction e. apply pathsinv0l.
   Defined.
 
@@ -244,14 +244,15 @@ Proof.
   unfold CircleInduction. intros A a p.
   set (f := c p). exists f.
   set (h := c_tilde p pt); fold f in h.
-  set (e := ! cp s_compute_0 (h 0)). exists e.
+  set (e := ! cp s_compute_0 (h 0)). (* change (f pt = a) in e. fix this *)
+  exists e.
   assert (q := c_hat p pt); fold h in q.
   set (s0 := s pt_0). unfold pt_0 in s0.
   set (s1 := s pt_1). unfold pt_1 in s1.
   set (one' := transportf elem loop pt_0). fold pt in one'.
   assert (r := apd_comparison p loop pt_0). fold pt h f one' in r; unfold pt_0 in r.
   refine (r @ _); clear r.
-  assert (ss : one' = pt_1). (* needed for r? *)
+  assert (ss : one' = pt_1).
   { change ( transportf elem
                         (invmap torsor_univalence (trivialTorsorRightMultiplication ℤ 1))
                         pt_0
@@ -276,7 +277,7 @@ Proof.
   { exact (apstar (idpath _) (apstar (idpath loop) s_compute_0)). }
   transparent assert (γ : (idpath pt @ (loop @ idpath pt) = idpath pt @ loop)).
   { exact (apstar (idpath _) (pathscomp0rid _)). }
-  intermediate_path (cp (α@β@γ) ((h 0)^-1 * cp ε0 (p * h 0))).
+  intermediate_path (cp (α@β@γ) ((h 0)^-1 * cp ε0 (p * h 0))). (* try to make do with just two factors *)
   { apply cp_irrelevance_circle_value. }
   fold h0. rewrite cp_pathscomp0. unfold α. rewrite cp_apstar. rewrite inverse_cp_p.
   set (Q := invrot (p:=s0) α0); change (!idpath pt) with (idpath pt) in Q.

@@ -160,7 +160,7 @@ Proof.
   intros q. induction p, q. reflexivity.
 Defined.
 
-Notation "q '^-1'" := (inversePathOver q) (at level 10) : pathsover.
+Notation "q '^-1'" := (inversePathOver q) : pathsover.
 
 Definition inverseInversePathOver {X:Type} {Y : X -> Type} {x:X} {y : Y x} :
   ∏ {x':X} {y' : Y x'} {p:x=x'} (q : PathOver y y' p),
