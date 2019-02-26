@@ -79,6 +79,11 @@ Definition toPathOverIdpath {X:Type} {x:X} {Y : X -> Type} (y y' : Y x) : y = y'
 
 Notation "'∇' q" := (toPathOverIdpath q) (at level 10) : pathsover.
 
+Definition fromPathOverIdpath {X:Type} {x:X} {Y : X -> Type} (y y' : Y x) : PathOver y y' (idpath x) -> y = y'
+  := idfun _.
+
+Notation "'Δ' q" := (fromPathOverIdpath q) (at level 10) : pathsover.
+
 Definition inductionPathOver {X:Type} {x:X} {Y : X -> Type} (y : Y x)
            (T : ∏ x' (y' : Y x') (p : x = x'), PathOver y y' p → Type)
            (t : T x y (idpath x) (identityPathOver y)) :
@@ -161,6 +166,18 @@ Proof.
 Defined.
 
 Notation "q '^-1'" := (inversePathOver q) : pathsover.
+
+Definition inversePathOverIdpath {X:Type} {x:X} {Y : X -> Type} (y y' : Y x) (e : y = y') :
+  inversePathOver (∇ e) = ∇ (!e).
+Proof.
+  reflexivity.
+Defined.
+
+Definition inversePathOverIdpath' {X:Type} {x:X} {Y : X -> Type} (y y' : Y x) (e : y = y') :
+  inversePathOver' (∇ e : PathOver y y' (! idpath x)) = ∇ (!e).
+Proof.
+  reflexivity.
+Defined.
 
 Definition inverseInversePathOver {X:Type} {Y : X -> Type} {x:X} {y : Y x} :
   ∏ {x':X} {y' : Y x'} {p:x=x'} (q : PathOver y y' p),

@@ -233,13 +233,13 @@ Proof.
   set (f := c p). exists f.
   set (h := c_tilde p pt); fold f in h.
   set (h0 := h 0).
-  set (e := cp s_compute_0 h0 : a = f pt).
+  set (e := Δ (cp s_compute_0 h0)).
   exists e.
   assert (q := c_hat p pt); fold h in q.
-  set (s0 := s pt_0). unfold pt_0 in s0.
-  set (s1 := s pt_1). unfold pt_1 in s1.
-  set (one' := transportf elem loop pt_0). fold pt in one'.
-  assert (r := apd_comparison p loop pt_0). fold pt h f one' in r; unfold pt_0 in r.
+  set (s0 := s pt_0); unfold pt_0 in s0.
+  set (s1 := s pt_1); unfold pt_1 in s1.
+  set (one' := transportf elem loop pt_0); fold pt in one'.
+  assert (r := apd_comparison p loop pt_0); fold pt h f one' in r; unfold pt_0 in r.
   refine (r @ _); clear r.
   assert (ss : one' = pt_1).
   { change ( transportf elem
@@ -278,7 +278,9 @@ Proof.
   { rewrite cp_left. apply (maponpaths (cp (pathscomp0rid loop))).
     exact (assocPathOver (cp α0 (h0^-1)) p (cp s_compute_0 h0)). }
   rewrite cp_apstar'; fold s0.
-  unfold α0. rewrite invrotrot'. change (cp s_compute_0 h0) with (∇ e). reflexivity.
+  unfold α0. rewrite invrotrot'. change (cp s_compute_0 h0) with (∇ e).
+  rewrite inversePathOverIdpath'.
+  reflexivity.
 Defined.
 
 Arguments circle_induction : clear implicits.
