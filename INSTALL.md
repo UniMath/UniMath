@@ -116,6 +116,8 @@ create HTML documentation.
    ```
    The path to that directory from here, by default, is ./sub/coq/user-contrib/.
 
+- To install [CoqIDE](https://coq.inria.fr/refman/practical-tools/coqide.html), see [INSTALL\_COQIDE](./INSTALL_COQIDE.md).
+
 ## TAGS files
 
 Emacs (which every UniMath user should become expert with) includes a facility

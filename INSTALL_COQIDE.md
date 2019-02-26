@@ -16,5 +16,6 @@ Later on, after running the command `make install` as instructed below, in
 order to run the program ```coqide```, you may use the following command.
 
 ```bash
-$ sub/coq/bin/coqide -indices-matter -type-in-type -Q UniMath UniMath
+$ sub/coq/bin/coqide <flags>
 ```
+where `<flags>` are the options passed to `coq` as per the [Emacs configuration file](./UniMath/.dir-locals.el).
