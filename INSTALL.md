@@ -75,6 +75,10 @@ shell command (in this directory).
 $ make
 ```
 
+Once this is done, you can start [browsing and editing UniMath](./USAGE.md).
+Below, we explain how to compile individual packages of UniMath,and how to
+create HTML documentation.
+
 To compile an individual package and the files it depends on, e.g., the package `CategoryTheory`, issue
 ```bash
 $ make CategoryTheory
@@ -85,24 +89,6 @@ To compile an individual file and the files it depends on, e.g., the file `Categ
 $ make UniMath/CategoryTheory/Categories.vo
 ```
 Note the extension `*.vo` required in the command.
-
-If you wish also to build the program ```coqide```, then issue the following
-command instead of the one above.
-
-```bash
-$ make BUILD_COQIDE=yes
-```
-
-Alternatively, you can specify the value of the BUILD_COQIDE option more
-permanently by following the instructions in the file
-build/Makefile-configuration-template.
-
-Later on, after running the command `make install` as instructed below, in
-order to run the program ```coqide```, you may use the following command.
-
-```bash
-$ sub/coq/bin/coqide -indices-matter -type-in-type -Q UniMath UniMath
-```
 
 To create the standard HTML documentation provided by coqdoc:
 ```bash
