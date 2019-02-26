@@ -76,7 +76,7 @@ $ make
 ```
 
 Once this is done, you can start [browsing and editing UniMath](./USAGE.md).
-Below, we explain how to compile individual packages of UniMath,and how to
+Below, we explain how to compile individual packages of UniMath, and how to
 create HTML documentation.
 
 To compile an individual package and the files it depends on, e.g., the package `CategoryTheory`, issue
