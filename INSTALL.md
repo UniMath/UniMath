@@ -80,9 +80,9 @@ Below, we explain how to compile individual packages of UniMath, and how to
 create HTML documentation.
 
 - To compile an individual package and the files it depends on, e.g., the package `CategoryTheory`, issue
-```bash
-$ make CategoryTheory
-```
+   ```bash
+   $ make CategoryTheory
+   ```
 
 - To compile an individual file and the files it depends on, e.g., the file `CategoryTheory/Categories.v`, issue
 ```bash
