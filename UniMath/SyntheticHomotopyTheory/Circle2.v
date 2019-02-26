@@ -16,7 +16,7 @@
   Definition loop := loops_circle 1 : Ω circle.
   Definition CircleInduction (circle : Type) (pt : circle) (loop : pt = pt) :=
     ∏ (X:circle->Type) (x:X pt) (p:PathOver x x loop),
-      ∑ (f:∏ t:circle, X t) (r : f pt = x), apd f loop = r ⟤ p ⟥ !r.
+      ∑ (f:∏ t:circle, X t) (r : x = f pt), apd f loop = !r ⟤ p ⟥ r.
   Theorem circle_induction : CircleInduction circle pt loop.
 
   *)
@@ -47,13 +47,13 @@ Local Notation "ℤ¹" := (trivialTorsor ℤ) : circle.
 
 Definition CircleRecursion (circle : Type) (pt : circle) (loop : pt = pt) :=
   ∏ (X:Type) (x:X) (p:x=x),
-    ∑ (f:circle -> X) (r : f pt = x), maponpaths f loop = r @ p @ !r.
+    ∑ (f:circle -> X) (r : x = f pt), maponpaths f loop = !r @ p @ r.
 
 Arguments CircleRecursion : clear implicits.
 
 Definition CircleInduction (circle : Type) (pt : circle) (loop : pt = pt) :=
   ∏ (X:circle->Type) (x:X pt) (p:PathOver x x loop),
-    ∑ (f:∏ t:circle, X t) (r : f pt = x), apd f loop = r ⟤ p ⟥ !r.
+    ∑ (f:∏ t:circle, X t) (r : x = f pt), apd f loop = !r ⟤ p ⟥ r.
 
 Arguments CircleInduction : clear implicits.
 
@@ -120,6 +120,12 @@ Definition s {Z : Torsor ℤ} (x : Z) : pt = Z
 (* 0.5.6 *)
   := invmap torsor_univalence (triviality_isomorphism Z x).
 
+Definition ε' (X Y : Torsor ℤ) (e : X = Y) (x : X) :
+  ! s x @ s (transportf elem e x) = e.
+Proof.                          (* 0.5.10 *)
+  induction e. apply pathsinv0l.
+Defined.
+
 Lemma s_compute_0 : s pt_0 = idpath pt.
 Proof.
   intermediate_path (invmap torsor_univalence (idActionIso ℤ¹)).
@@ -155,34 +161,24 @@ Proof.
 Defined.
 
 Definition cp_irrelevance_circle
-           (A:=circle) (B:circle->Type) (a1 a2:A) (b1:B a1) (b2:B a2) (p q:a1=a2) (α β: p=q) :
-  cp (b1:=b1) (b2:=b2) α = cp (b1:=b1) (b2:=b2) β.
-Proof.
-  apply cp_irrelevance. apply torsor_hlevel.
-Defined.
-
-Definition cp_irrelevance_circle_value
            (A:=circle) (B:circle->Type) (a1 a2:A) (b1:B a1) (b2:B a2) (p q:a1=a2) (α β: p=q)
            (v : PathOver b1 b2 p) :
-  cp α v = cp β v
-  := maponpaths (λ f, pr1weq f v) (cp_irrelevance_circle b1 b2 α β).
-
-Definition cp_irrelevance_circle_1
-           (A:=circle) (B:circle->Type) (a1 a2:A) (b1:B a1) (b2:B a2) (p:a1=a2) (α: p=p) :
-  cp (b1:=b1) (b2:=b2) α = cp (b1:=b1) (b2:=b2) (idpath p) (* simplify *)
-  := cp_irrelevance_circle (B:=B) b1 b2 α (idpath p).
+  cp α v = cp β v.
+Proof.
+  apply (maponpaths (λ f, pr1weq f v)). apply cp_irrelevance. apply torsor_hlevel.
+Defined.
 
 Section A.
 
-  Context (A : circle -> Type) (a : A pt).
+  Context (A : circle -> Type) (a : A pt) (p : PathOver a a loop).
 
-  Definition Q (p : PathOver a a loop) (X: Torsor ℤ) : Type                 (* 0.5.8 *)
+  Definition Q (X: Torsor ℤ) : Type                 (* 0.5.8 *)
     := ∑ (a' : A X),
         ∑ (h : ∏ (x:X), PathOver a a' (s x)),
          ∏ (x:X), h (1 + x) = cp (ε x) (p * h x).
 
-  Lemma iscontr_Q (p : PathOver a a loop) (X: Torsor ℤ) (* 0.5.9 *) :
-    iscontr_hProp (Q p X).
+  Lemma iscontr_Q (X: Torsor ℤ) (* 0.5.9 *) :
+    iscontr_hProp (Q X).
   Proof.
     use (hinhuniv _ (torsor_nonempty X)); intros x.
     use (iscontrweqb (Y := ∑ a', PathOver a a' (s x))).
@@ -193,39 +189,31 @@ Section A.
              x).
   Defined.
 
-  Definition cQ (p : PathOver a a loop) (X:Torsor ℤ) := iscontrpr1 (iscontr_Q p X).
+  Definition cQ (X:Torsor ℤ) := iscontrpr1 (iscontr_Q X).
 
-  Definition c (p : PathOver a a loop) (X:Torsor ℤ)
+  Definition c (X:Torsor ℤ)
     : A X
-    := pr1 (cQ p X).
+    := pr1 (cQ X).
 
-  Definition c_tilde (p : PathOver a a loop) (X:Torsor ℤ) (x : X)
-    : PathOver a (c p X) (s x)
-    := pr12 (cQ p X) x.
+  Definition c_tilde (X:Torsor ℤ) (x : X)
+    : PathOver a (c X) (s x)
+    := pr12 (cQ X) x.
   Arguments c_tilde : clear implicits.
 
-  Definition c_hat (p : PathOver a a loop) (X:Torsor ℤ) (x : X)
-    : c_tilde p X (1 + x) = cp (ε x) (p * c_tilde p X x)
-    := pr22 (cQ p X) x.
+  Definition c_hat (X:Torsor ℤ) (x : X)
+    : c_tilde X (1 + x) = cp (ε x) (p * c_tilde X x)
+    := pr22 (cQ X) x.
   Arguments c_hat : clear implicits.
 
-  Definition ε' (X Y : Torsor ℤ) (e : X = Y) (x : X) :
-    ! s x @ s (transportf elem e x) = e.
-  Proof.                        (* 0.5.10 *) (* Put earlier in the file. *)
-    induction e. apply pathsinv0l.
-  Defined.
-
-  Context (p : PathOver a a loop).
-
   Definition apd_comparison (X Y : Torsor ℤ) (e : X = Y) (x : X) : (* 0.5.11 *)
-    apd (c p) e = cp (ε' e x) ( (c_tilde p X x)^-1
+    apd c e = cp (ε' e x) ( (c_tilde X x)^-1
                                 *
-                                c_tilde p Y (transportf elem e x)).
+                                c_tilde Y (transportf elem e x)).
   Proof.
     induction e.
     change (transportf elem (idpath X) x) with x.
     rewrite composePathOverLeftInverse.
-    change (apd (c p) (idpath X)) with (identityPathOver (c p X)).
+    change (apd c (idpath X)) with (identityPathOver (c X)).
     change (ε' (idpath X) x) with (pathsinv0l (s x)).
     rewrite cp_inverse_cp.
     reflexivity.
@@ -244,7 +232,7 @@ Proof.
   unfold CircleInduction. intros A a p.
   set (f := c p). exists f.
   set (h := c_tilde p pt); fold f in h.
-  set (e := ! cp s_compute_0 (h 0)). (* change (f pt = a) in e. fix this *)
+  set (e := cp s_compute_0 (h 0) : a = f pt).
   exists e.
   assert (q := c_hat p pt); fold h in q.
   set (s0 := s pt_0). unfold pt_0 in s0.
@@ -264,9 +252,9 @@ Proof.
               cp (ε'' 0) ((h 0)^-1 * h (1 + pt_0))).
   { intermediate_path (cp (ε'' 0) (cp (maponpaths s0sm ss) ((h 0)^-1 * h one'))).
     - intermediate_path (cp (maponpaths s0sm ss @ ε'' 0) ((h 0)^-1 * h one')).
-      + apply cp_irrelevance_circle_value.
+      + apply cp_irrelevance_circle.
       + apply cp_pathscomp0.
-    - apply maponpaths. exact (cp_in_family _ (λ m, (h 0) ^-1 * h m)). }
+    - apply maponpaths. exact (cp_in_family _ (λ m, (h 0)^-1 * h m)). }
   refine (b @ _); clear b. unfold pt_0. rewrite (q 0). clear q.
   set (h0 := h 0).
   set (α0 := invrot' (s_compute_0 : s pt_0 = ! idpath _)).
@@ -278,26 +266,20 @@ Proof.
   transparent assert (γ : (idpath pt @ (loop @ idpath pt) = idpath pt @ loop)).
   { exact (apstar (idpath _) (pathscomp0rid _)). }
   intermediate_path (cp (α@β@γ) ((h 0)^-1 * cp ε0 (p * h 0))). (* try to make do with just two factors *)
-  { apply cp_irrelevance_circle_value. }
+  { apply cp_irrelevance_circle. }
   fold h0. rewrite cp_pathscomp0. unfold α. rewrite cp_apstar. rewrite inverse_cp_p.
-  set (Q := invrot (p:=s0) α0); change (!idpath pt) with (idpath pt) in Q.
   rewrite cp_pathscomp0. unfold β. rewrite cp_apstar.
   rewrite cp_idpath. unfold γ. rewrite cp_apstar.
   rewrite cp_idpath. rewrite cp_apstar.
   change (cp (idpath loop) p) with p.
   rewrite composePathOverPath_compute, composePathPathOver_compute.
-  set (rid := pathscomp0rid).
-  intermediate_path (cp (rid loop) (cp α0 (h0^-1) * p * cp s_compute_0 h0)).
-  { rewrite cp_left. apply maponpaths.
+  intermediate_path (cp (pathscomp0rid loop) (cp α0 (h0^-1) * p * cp s_compute_0 h0)).
+  { rewrite cp_left. apply (maponpaths (cp (pathscomp0rid loop))).
     exact (assocPathOver (cp α0 (h0^-1)) p (cp s_compute_0 h0)). }
-  apply (maponpaths (cp (rid loop))).
+  apply (maponpaths (cp (pathscomp0rid loop))).
   rewrite cp_apstar'; fold s0.
-  intermediate_path (∇ e * p * cp s_compute_0 h0).
-  - apply (maponpaths (λ e, ∇ e * p * cp s_compute_0 h0)).
-    unfold α0. rewrite invrotrot'. reflexivity.
-  - apply maponpaths. apply pathsinv0. unfold e, h0.
-    change ((! !(cp s_compute_0 (h 0))) = cp s_compute_0 (h 0)).
-    apply pathsinv0inv0.
+  apply (maponpaths (λ e, ∇ e * p * cp s_compute_0 h0)).
+  unfold α0. rewrite invrotrot'. reflexivity.
 Defined.
 
 Arguments circle_induction : clear implicits.
