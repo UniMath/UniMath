@@ -79,24 +79,24 @@ Once this is done, you can start [browsing and editing UniMath](./USAGE.md).
 Below, we explain how to compile individual packages of UniMath, and how to
 create HTML documentation.
 
-To compile an individual package and the files it depends on, e.g., the package `CategoryTheory`, issue
+- To compile an individual package and the files it depends on, e.g., the package `CategoryTheory`, issue
 ```bash
 $ make CategoryTheory
 ```
 
-To compile an individual file and the files it depends on, e.g., the file `CategoryTheory/Categories.v`, issue
+- To compile an individual file and the files it depends on, e.g., the file `CategoryTheory/Categories.v`, issue
 ```bash
 $ make UniMath/CategoryTheory/Categories.vo
 ```
 Note the extension `*.vo` required in the command.
 
-To create the standard HTML documentation provided by coqdoc:
+- To create the standard HTML documentation provided by coqdoc:
 ```bash
 $ make html
 ```
 The documentation is created in the subdirectory ```html```.
 
-To create HTML documentation with "hidden" proofs:
+- To create HTML documentation with "hidden" proofs:
 ```bash
 $ make doc
 ```
@@ -108,7 +108,7 @@ the Coq vernacular language to indicate the beginning of the proof.  Toggling
 of proofs requires an internet connection for downloading the ```jquery```
 library.)
 
-To install UniMath in the ```user-contrib``` directory of Coq, for use by other developments:
+- To install UniMath in the ```user-contrib``` directory of Coq, for use by other developments:
 ```bash
 $ make install
 ```
