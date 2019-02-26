@@ -249,15 +249,15 @@ Proof.
     rewrite castTorsor_transportf. rewrite torsor_univalence_inv_comp_eval. reflexivity. }
   unfold pt_1 in ss.
   set (s0sm := λ m:ℤ¹, ! s0 @ s m).
-  assert (b : cp (ε' loop 0) ((h 0)^-1 * h one') =
-              cp (ε'' 0) ((h 0)^-1 * h (1 + pt_0))).
-  { intermediate_path (cp (ε'' 0) (cp (maponpaths s0sm ss) ((h 0)^-1 * h one'))).
-    - intermediate_path (cp (maponpaths s0sm ss @ ε'' 0) ((h 0)^-1 * h one')).
+  assert (b : cp (ε' loop 0) (h0^-1 * h one') =
+              cp (ε'' 0) (h0^-1 * h (1 + pt_0))).
+  { intermediate_path (cp (ε'' 0) (cp (maponpaths s0sm ss) (h0^-1 * h one'))).
+    - intermediate_path (cp (maponpaths s0sm ss @ ε'' 0) (h0^-1 * h one')).
       + apply cp_irrelevance_circle.
       + apply cp_pathscomp0.
-    - apply maponpaths. exact (cp_in_family _ (λ m, (h 0)^-1 * h m)). }
+    - apply maponpaths. exact (cp_in_family _ (λ m, h0^-1 * h m)). }
   refine (b @ _); clear b. unfold pt_0. rewrite (q 0). clear q.
-  set (α0 := invrot' (s_compute_0 : s pt_0 = ! idpath _)).
+  set (α0 := invrot' (s_compute_0 : s0 = ! idpath _)).
   set (ε0 := ε pt_0).
   transparent assert (α : (!s0 @ s1 = idpath pt @ (loop @ s0))).
   { exact (apstar α0 (!ε0)). }
@@ -265,7 +265,7 @@ Proof.
   { exact (apstar (idpath _) (apstar (idpath loop) s_compute_0)). }
   transparent assert (γ : (idpath pt @ (loop @ idpath pt) = idpath pt @ loop)).
   { exact (apstar (idpath _) (pathscomp0rid _)). }
-  intermediate_path (cp (α@β@γ) ((h 0)^-1 * cp ε0 (p * h 0))). (* try to make do with just two factors *)
+  intermediate_path (cp (α@β@γ) (h0^-1 * cp ε0 (p * h0))). (* try to make do with just two factors *)
   { apply cp_irrelevance_circle. }
   fold h0. rewrite cp_pathscomp0. unfold α. rewrite cp_apstar. rewrite inverse_cp_p.
   rewrite cp_pathscomp0. unfold β. rewrite cp_apstar.
