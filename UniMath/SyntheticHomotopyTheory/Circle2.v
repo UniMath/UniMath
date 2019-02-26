@@ -232,7 +232,8 @@ Proof.
   unfold CircleInduction. intros A a p.
   set (f := c p). exists f.
   set (h := c_tilde p pt); fold f in h.
-  set (e := cp s_compute_0 (h 0) : a = f pt).
+  set (h0 := h 0).
+  set (e := cp s_compute_0 h0 : a = f pt).
   exists e.
   assert (q := c_hat p pt); fold h in q.
   set (s0 := s pt_0). unfold pt_0 in s0.
@@ -256,7 +257,6 @@ Proof.
       + apply cp_pathscomp0.
     - apply maponpaths. exact (cp_in_family _ (λ m, (h 0)^-1 * h m)). }
   refine (b @ _); clear b. unfold pt_0. rewrite (q 0). clear q.
-  set (h0 := h 0).
   set (α0 := invrot' (s_compute_0 : s pt_0 = ! idpath _)).
   set (ε0 := ε pt_0).
   transparent assert (α : (!s0 @ s1 = idpath pt @ (loop @ s0))).
@@ -271,15 +271,14 @@ Proof.
   rewrite cp_pathscomp0. unfold β. rewrite cp_apstar.
   rewrite cp_idpath. unfold γ. rewrite cp_apstar.
   rewrite cp_idpath. rewrite cp_apstar.
+  change (cp s_compute_0 h0) with (∇ e).
   change (cp (idpath loop) p) with p.
   rewrite composePathOverPath_compute, composePathPathOver_compute.
-  intermediate_path (cp (pathscomp0rid loop) (cp α0 (h0^-1) * p * cp s_compute_0 h0)).
+  intermediate_path (cp (pathscomp0rid loop) (cp α0 (h0^-1) * p * ∇ e)).
   { rewrite cp_left. apply (maponpaths (cp (pathscomp0rid loop))).
     exact (assocPathOver (cp α0 (h0^-1)) p (cp s_compute_0 h0)). }
-  apply (maponpaths (cp (pathscomp0rid loop))).
   rewrite cp_apstar'; fold s0.
-  apply (maponpaths (λ e, ∇ e * p * cp s_compute_0 h0)).
-  unfold α0. rewrite invrotrot'. reflexivity.
+  unfold α0. rewrite invrotrot'. change (cp s_compute_0 h0) with (∇ e). reflexivity.
 Defined.
 
 Arguments circle_induction : clear implicits.
