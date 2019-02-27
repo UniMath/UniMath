@@ -40,7 +40,8 @@ Local Open Scope pathsover.
 Local Open Scope circle.
 Local Notation "0" := (toℤ 0).
 Local Notation "1" := (toℤ 1).
-Local Definition elem (X:Torsor ℤ) : Type := X.
+Local Definition elem (G:gr) (X:Torsor G) : Type := X.
+Arguments elem {_} _.
 Local Notation "ℤ¹" := (trivialTorsor ℤ) : circle.
 
 (** Statement of circle induction *)
@@ -120,6 +121,45 @@ Definition s {Z : Torsor ℤ} (x : Z) : pt = Z
 (* 0.5.6 *)
   := invmap torsor_univalence (triviality_isomorphism Z x).
 
+Section RelatedFacts.
+
+  Definition fact0 (X Y : Torsor ℤ) (e : X = Y) (x : X) :
+    s (transportf elem e x) = s x @ e.
+  Proof.
+    induction e. apply pathsinv0, pathscomp0rid.
+  Defined.
+
+  Lemma fact1 (X Y:Torsor ℤ) (e : X=Y) : loop' X @ e = e @ loop' Y.
+  Proof.
+    induction e.
+    apply pathscomp0rid.
+  Defined.
+
+  Lemma fact2 (X: Torsor ℤ) (x:X) : s (transportf elem (loop' X) x) = s x @ loop' X.
+  Proof.
+    exact (fact0 (loop' X) x).
+  Defined.
+
+  Lemma fact3 (X: Torsor ℤ) (x:X) : loop' pt @ s x = s x @ loop' X.
+  Proof.
+    apply fact1.
+  Defined.
+
+  Lemma fact4 (X: Torsor ℤ) (x:X) : loop @ s x = s x @ loop' X.
+  Proof.
+    refine (_ @ fact3 x).
+    apply (maponpaths (λ l, l @ s x)).
+    apply loop_loop'.
+  Defined.
+
+  Lemma fact5 (X: Torsor ℤ) (x:X) : loop @ s x = s (transportf elem (loop' X) x).
+  Proof.
+    refine (_ @ !fact2 x).
+    exact (fact4 x).
+  Defined.
+
+End RelatedFacts.
+
 Definition ε' (X Y : Torsor ℤ) (e : X = Y) (x : X) :
   ! s x @ s (transportf elem e x) = e.
 Proof.                          (* 0.5.10 *)
@@ -187,7 +227,7 @@ Section A.
     exact (ℤTorsorRecursion_weq
              (λ x, weqcomp (composePathOver_weq a' (s x) p) (cp (ε x)))
              x).
-  Defined.
+  Qed.
 
   Definition cQ (X:Torsor ℤ) := iscontrpr1 (iscontr_Q X).
 
@@ -206,14 +246,12 @@ Section A.
   Arguments c_hat : clear implicits.
 
   Definition apd_comparison (X Y : Torsor ℤ) (e : X = Y) (x : X) : (* 0.5.11 *)
-    apd c e = cp (ε' e x) ( (c_tilde X x)^-1
-                                *
-                                c_tilde Y (transportf elem e x)).
+    apd c e = cp (ε' e x) ((c_tilde X x)^-1 * c_tilde Y (transportf elem e x)).
   Proof.
     induction e.
     change (transportf elem (idpath X) x) with x.
-    rewrite composePathOverLeftInverse.
     change (apd c (idpath X)) with (identityPathOver (c X)).
+    rewrite composePathOverLeftInverse.
     change (ε' (idpath X) x) with (pathsinv0l (s x)).
     rewrite cp_inverse_cp.
     reflexivity.
@@ -232,21 +270,19 @@ Proof.
   unfold CircleInduction. intros A a p.
   set (f := c p). exists f.
   set (h := c_tilde p pt); fold f in h.
-  set (h0 := h 0).
+  set (h0 := h pt_0).
   set (e := Δ (cp s_compute_0 h0)).
   exists e.
   assert (q := c_hat p pt); fold h in q.
   set (s0 := s pt_0); unfold pt_0 in s0.
   set (s1 := s pt_1); unfold pt_1 in s1.
   set (one' := transportf elem loop pt_0); fold pt in one'.
-  assert (r := apd_comparison p loop pt_0); fold pt h f one' in r; unfold pt_0 in r.
+  assert (r := apd_comparison p loop pt_0). fold pt h h0 f one' in r; unfold pt_0 in r.
   refine (r @ _); clear r.
   assert (ss : one' = pt_1).
-  { change ( transportf elem
-                        (invmap torsor_univalence (trivialTorsorRightMultiplication ℤ 1))
-                        pt_0
-             = 1 + pt_0).
-    rewrite castTorsor_transportf. rewrite torsor_univalence_inv_comp_eval. reflexivity. }
+  { unfold one'.
+    refine (castTorsor_transportf (invmap torsor_univalence _) _ @ _).
+    apply torsor_univalence_inv_comp_eval. }
   unfold pt_1 in ss.
   set (s0sm := λ m:ℤ¹, ! s0 @ s m).
   assert (b : cp (ε' loop 0) (h0^-1 * h one') =
@@ -256,7 +292,7 @@ Proof.
       + apply cp_irrelevance_circle.
       + apply cp_pathscomp0.
     - apply maponpaths. exact (cp_in_family _ (λ m, h0^-1 * h m)). }
-  refine (b @ _); clear s0sm b. unfold pt_0. rewrite (q 0). fold h0. clear q ss one'; clearbody h0.
+  refine (b @ _); clear s0sm b. unfold pt_0. rewrite (q 0). fold h0. clear q ss one'.
   set (α0 := invrot' (s_compute_0 : s0 = ! idpath _)).
   transparent assert (α : (!s0 @ s1 = idpath pt @ (loop @ s0))).
   { exact (apstar α0 (!ε pt_0)). }

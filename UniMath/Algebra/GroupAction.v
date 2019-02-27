@@ -276,13 +276,17 @@ Qed.
 
 Definition Torsor (G:gr) := total2 (@is_torsor G).
 
-Definition underlyingAction {G} (X:Torsor G) := pr1 X : Action G.
-Coercion underlyingAction : Torsor >-> Action.
+Coercion underlyingAction {G} (X:Torsor G) := pr1 X : Action G.
+
 Definition is_torsor_prop {G} (X:Torsor G) := pr2 X.
+
 Definition torsor_nonempty {G} (X:Torsor G) := pr1 (is_torsor_prop X).
+
 Definition torsor_splitting {G} (X:Torsor G) := pr2 (is_torsor_prop X).
+
 Definition torsor_mult_weq {G} (X:Torsor G) (x:X) :=
   weqpair (right_mult x) (torsor_splitting X x) : G ≃ X.
+
 Definition torsor_mult_weq' {G} (X:Torsor G) (g:G) : X ≃ X.
 Proof.
   exists (left_mult g).
@@ -301,6 +305,7 @@ Proof.
         * apply (maponpaths (right_mult x)). apply grrinvax.
         * apply act_unit.
 Defined.
+
 Definition left_mult_Iso {G:abgr} (X:Torsor G) (g:G) : ActionIso X X.
 Proof.
   exists (torsor_mult_weq' X g). intros h x.
@@ -308,19 +313,23 @@ Proof.
   refine (! ac_assoc X g h x @ _ @ ac_assoc X h g x).
   exact (maponpaths (right_mult x) (commax G g h)).
 Defined.
+
 Definition torsor_update_nonempty {G} (X:Torsor G) (x:nonempty X) : Torsor G.
 Proof.
   exact (underlyingAction X,,(x,,pr2(is_torsor_prop X))).
 Defined.
+
 Definition castTorsor {G} {T T':Torsor G} (q:T = T') : T -> T'.
 Proof.
   exact (castAction (maponpaths underlyingAction q)).
 Defined.
+
 Lemma castTorsor_transportf {G} {T T':Torsor G} (q:T = T') (t:T) :
   transportf (λ S, underlyingAction S) q t = castTorsor q t.
 Proof.
   now induction q.
 Defined.
+
 Lemma underlyingAction_incl {G:gr} :
   isincl (underlyingAction : Torsor G -> Action G).
 Proof.
@@ -557,6 +566,13 @@ Definition torsor_univalence {G:gr} {X Y:Torsor G} : (X = Y) ≃ (ActionIso X Y)
 Proof.
   intros. simple refine (weqcomp underlyingAction_injectivity _).
   apply Action_univalence.
+Defined.
+
+Definition torsor_univalence_transport {G:gr} {X Y:Torsor G} (p:X=Y) (x:X) :
+  torsor_univalence p x = transportf (λ X:Torsor G, X:Type) p x.
+(* compare with castTorsor_transportf above *)
+Proof.
+  now induction p.
 Defined.
 
 Corollary torsor_hlevel {G:gr} : isofhlevel 3 (Torsor G).
