@@ -84,6 +84,8 @@ Reserved Notation "p #' x" (right associativity, at level 65, only parsing).
 
 Reserved Notation "C '^op'" (at level 3, format "C ^op").
 
+Reserved Notation "q '^-1'" (at level 10).
+
 Reserved Notation "a <-- b" (at level 55).
 
 Reserved Notation "[ C , D ]" .

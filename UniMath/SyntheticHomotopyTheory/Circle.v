@@ -23,25 +23,25 @@ Local Notation "g + x" := (ac_mult _ g x) : action_scope.
 
 Definition circle := B ℤ.
 
-Theorem loops_circle : weq (Ω circle) ℤ.
+Theorem loops_circle : ℤ ≃ Ω circle.
 Proof.
   apply loopsBG.
 Defined.
 
 Local Open Scope hz.
 
-Definition circle_loop := ! invmap loops_circle 1 : Ω circle.
+Definition circle_loop := ! loops_circle 1 : Ω circle.
 
 Lemma loop_compute t : castTorsor (!circle_loop) t = one + t.
 Proof.
   intros. unfold circle_loop. rewrite pathsinv0inv0.
-  exact (loopsBG_comp _ one t @ commax _ t one).
+  exact (loopsBG_comp_2 _ one t @ commax _ t one).
 Defined.
 
 (** ** The total space of guided homotopies over BZ *)
 
 Definition ZGuidedHomotopy {Y} {y:Y} (l:y = y) (T:Torsor ℤ) :=
-  GuidedHomotopy (confun T y) (confun T l).
+  GuidedHomotopy (confun T l).
 
 Definition GH {Y} {y:Y} (l:y = y) := ∑ T:Torsor ℤ, ZGuidedHomotopy l T.
 
@@ -54,7 +54,7 @@ Definition pr2_GH {Y} {y:Y} (l:y = y) (u:GH l)
   := pr2 u : ZGuidedHomotopy l (pr1_GH u).
 
 Definition GH_path3 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} {y':Y}
-           {g g':GHomotopy (confun T y) (confun T l) y'} (u:g = g') :
+           {g g':GHomotopy (confun T l) y'} (u:g = g') :
   GHpair l T (y',, g) = GHpair l T (y',,g').
 Proof.
   intros. destruct u. reflexivity.
@@ -64,25 +64,28 @@ Definition pr12_GH {Y} {y:Y} {l:y = y} (u:GH l) := pr1 (pr2_GH l u) : Y.
 
 Definition pr22_GH {Y} {y:Y} {l:y = y} (u:GH l)
      := pr2 (pr2_GH l u)
-     : GHomotopy (confun (pr1_GH u) y) (confun (pr1_GH u) l) (pr12_GH u).
+     : GHomotopy (confun (pr1_GH u) l) (pr12_GH u).
 
 Definition GH_path3_comp1 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} {y':Y}
-           {g g':GHomotopy (confun T y) (confun T l) y'} (u:g = g') :
+           {g g':GHomotopy (confun T l) y'} (u:g = g') :
   maponpaths pr1_GH (GH_path3 l u) = idpath T.
 Proof.
   intros. destruct u. reflexivity.
 Defined.
 
 Definition GH_path3_comp2 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} {y':Y}
-           {g g':GHomotopy (confun T y) (confun T l) y'} (u:g = g') :
+           {g g':GHomotopy (confun T l) y'} (u:g = g') :
   maponpaths pr12_GH (GH_path3 l u) = idpath y'.
 Proof.
   intros. destruct u. reflexivity.
 Defined.
 
-Local Definition irr {Y} {y:Y} (l:y = y) (T:Torsor ℤ) := proofirrGuidedHomotopy T (confun T y) (confun T l).
+Local Definition irr {Y} {y:Y} (l:y = y) (T:Torsor ℤ) :
+  ∏ (v w : GuidedHomotopy (confun T l)), v = w
+  :=
+    (λ v w, proofirrGuidedHomotopy v w).
 
-Local Definition sec {Y} {y:Y} (l:y = y) (T:Torsor ℤ) := makeGuidedHomotopy2 T (confun T y) (confun T l).
+Local Definition sec {Y} {y:Y} (l:y = y) (T:Torsor ℤ) := makeGuidedHomotopy2 (confun T l).
 
 Definition pr1_GH_weq {Y} {y:Y} {l:y = y} : (GH l) ≃ (Torsor ℤ) := weqpr1_irr_sec (irr l) (sec l).
 
@@ -99,7 +102,7 @@ Proof.
 Defined.
 
 Definition makeGH {Y} {y:Y} (l:y = y) (T:Torsor ℤ) (t:T) {y':Y} (h:y' = y) : GH l
-  := GHpair l T (makeGuidedHomotopy _ _ t h).
+  := GHpair l T (makeGuidedHomotopy (t0:=t) _ h).
 
 Definition makeGH1 {Y} {y:Y} (l:y = y) (T:Torsor ℤ) (t:T) : GH l
   := makeGH l T t (idpath y).
@@ -123,19 +126,16 @@ Proof.
   refine (maponpaths (maponpaths pr12_GH)
                      (homotinvweqweq_GH_comp
                         T0
-                        (makeGuidedHomotopy (λ _ : T0, y)
-                                            (confun T0 l) t0 (idpath y)))
+                        (makeGuidedHomotopy (confun T0 l) (idpath y)))
                      @ _).
   refine (pr12_pair_path_in2
             l T0
             (irr l T0 (sec l T0)
-                 (makeGuidedHomotopy (λ _ : T0, y) (confun T0 l) t0 (idpath y)))
+                 (makeGuidedHomotopy (confun T0 l) (idpath y)))
             @ _).
   unfold sec.
-  change (makeGuidedHomotopy (λ _ : T0, y) (confun T0 l) t0 (idpath y))
-                                                             with (sec l T0).
-  change (makeGuidedHomotopy2 T0 (confun T0 y) (confun T0 l))
-                                                             with (sec l T0).
+  change (makeGuidedHomotopy (confun T0 l) (idpath y)) with (sec l T0).
+  change (makeGuidedHomotopy2 (confun T0 l)) with (sec l T0).
   change (idpath y) with (maponpaths pr1 (idpath (sec l T0))).
   apply (maponpaths (maponpaths pr1)). apply irrel_paths. apply (irr l).
 Defined.
@@ -215,8 +215,7 @@ Definition makeGH_transPath {Y} {y:Y} (l:y = y) {T:Torsor ℤ} (t:T) {y'} (h:y' 
 Proof.
   intros. apply GH_path3.
   (* copied from the proof of [makeGuidedHomotopy_transPath] *)
-  exact (ℤTorsorRecursion_transition_inv
-           _ (λ t, weq_pathscomp0r y' l) _ _).
+  exact (ℤTorsorRecursion_transition_inv (λ _, weq_pathscomp0r _ l) (t:=t) h).
 Defined.
 
 Definition makeGH_transPath_comp1 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} (t:T) {y'} (h:y' = y)
@@ -302,12 +301,24 @@ Proof.
   { exact (maponpaths (λ r, r @ l) p). }
 Defined.
 
+Definition circle_map_conjugation {Y} {y:Y} (l:y = y) {y':Y} (e:y=y') :
+  circle_map l = circle_map (!e @ l @ e).
+Proof.
+  induction e.
+  change (circle_map l = circle_map (l @ idpath y)).
+  rewrite pathscomp0rid.
+  reflexivity.
+Defined.
+
 (** *** The induction principle (dependent functions) *)
 
 Local Open Scope transport.
 
-Definition circle_map' {Y:circle->Type} {y:Y(basepoint circle)}
-           (l:circle_loop#y = y) : ∏ c:circle, Y c.
+Definition CircleInduction : Type
+  := ∏ (Y:circle->Type) (y:Y(basepoint circle)) (l:circle_loop#y = y),
+     ∏ c:circle, Y c.
+
+Definition circle_map' : CircleInduction.
 Proof.
   (** (not proved yet) *)
 Abort.
@@ -316,21 +327,35 @@ Abort.
  "Higher Inductive Types as Homotopy-Initial Algebras", by Kristina Sojakova,
  http://arxiv.org/abs/1402.0761 *)
 
-Lemma circle_map_check_paths'
-      (circle_map': ∏ (Y:circle->UU) (y:Y(basepoint circle))
-           (l:circle_loop#y = y) (c:circle), Y c)
-      {Y} (f:circle->Y) :
-  circle_map (maponpaths f circle_loop) = f .
-Proof.
-  intros. apply funextsec.
-  simple refine (circle_map' _ _ _).
-  { reflexivity. }
-  { set (y := f (basepoint circle)). set (l := maponpaths f circle_loop).
-    set (P := λ T : underlyingType circle, circle_map _ T = f T).
-    apply transport_fun_path. rewrite pathscomp0rid.
-    change (idpath y @ maponpaths f circle_loop) with (maponpaths f circle_loop).
-    exact (! circle_map_check_paths l). }
-Defined.
+Section A.
+
+  Context (circle_map': CircleInduction).
+
+  Lemma circle_map_check_paths' {Y} (f:circle->Y) : circle_map (maponpaths f circle_loop) = f .
+  Proof.
+    intros. apply funextsec.
+    simple refine (circle_map' _ _ _).
+    { reflexivity. }
+    { set (y := f (basepoint circle)). set (l := maponpaths f circle_loop).
+      set (P := λ T : underlyingType circle, circle_map _ T = f T).
+      apply transport_fun_path. rewrite pathscomp0rid.
+      change (idpath y @ maponpaths f circle_loop) with (maponpaths f circle_loop).
+      exact (! circle_map_check_paths l). }
+  Defined.
+
+  Lemma circle_map_uniqueness {Y} (f g:circle->Y)
+        (e : f (basepoint circle) = g (basepoint circle))
+        (q : maponpaths f circle_loop = e @ maponpaths g circle_loop @ !e):
+    f = g.
+  Proof.
+  Abort.
+
+  Definition circle_map'' : CircleInduction.
+  Proof.
+    (** (not proved yet) *)
+  Abort.
+
+End A.
 
 (*
 Local Variables:

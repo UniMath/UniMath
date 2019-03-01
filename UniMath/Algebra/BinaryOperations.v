@@ -1324,8 +1324,10 @@ Defined.
 Opaque isasetbinoponhSet.
 
 (* Declare Scope addoperation_scope. *)
+Delimit Scope addoperation_scope with addoperation.
 Notation "x + y" := (op x y) : addoperation_scope.
 (* Declare Scope multoperation_scope. *)
+Delimit Scope multoperation_scope with multoperation.
 Notation "x * y" := (op x y) : multoperation_scope.
 
 (* The reverse/opposite binary operation where the arguments are flipped. *)

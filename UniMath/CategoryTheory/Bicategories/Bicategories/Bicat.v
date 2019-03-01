@@ -445,7 +445,7 @@ Definition inv_cell {C : prebicat_data} {a b : C} {f g : a --> b} {η : f ==> g}
 
 (* TODO: Reorganize notations. *)
 (* Declare Scope bicategory_scope. *)
-Notation "inv_η ^-1" := (inv_cell inv_η) (at level 20) : bicategory_scope.
+Notation "inv_η ^-1" := (inv_cell inv_η) : bicategory_scope.
 Delimit Scope bicategory_scope with bicategory.
 Bind Scope bicategory_scope with bicat.
 Local Open Scope bicategory_scope.

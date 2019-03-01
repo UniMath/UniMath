@@ -17,6 +17,14 @@ Proof.
   { reflexivity. }
 Defined.
 
+Goal ∏ Y {y y':Y} (e : y = y'), interval_map e left = y.
+   reflexivity.
+Qed.
+
+Goal ∏ Y {y y':Y} (e : y = y'), interval_map e right = y'.
+   reflexivity.
+Qed.
+
 (** ** An easy proof of functional extensionality for sections using the interval, which is derived
        from formal properlties of propositional truncation, but notice that propositional truncation
        uses functional extensionality for functions, already. *)

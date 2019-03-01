@@ -86,7 +86,7 @@ Section elems_slice_equiv.
       set (h := λ (x : T'), pr1 x ,, (pr2 x) q : pr1hSet (PreShv_to_slice_ob_funct_fun F X)).
 
       use (maponpaths (funcomp G h)
-                         (connectedcoconustot ((# (pr1 P) (identity X) p) ,, idpath _) (p ,, e (X ,, p))) @ _).
+                         (coconustot_isProofIrrelevant ((# (pr1 P) (identity X) p) ,, idpath _) (p ,, e (X ,, p))) @ _).
       use (@pair_path_in2 _ (λ x, pr1hSet ((pr1 F) (X ,, x))) p).
       use (eqtohomot _ q @ eqtohomot (functor_id F (X ,, p)) q).
       use (maponpaths (# (pr1 F))).
@@ -105,7 +105,7 @@ Section elems_slice_equiv.
       set (h := λ (x : T'), pr1 x ,, (pr2 x) q : pr1hSet (PreShv_to_slice_ob_funct_fun F Z)).
 
       use (maponpaths (funcomp G h)
-                         (connectedcoconustot (# (pr1 P) (g ∘ f) p ,, idpath _)
+                         (coconustot_isProofIrrelevant (# (pr1 P) (g ∘ f) p ,, idpath _)
                                               (# (pr1 P) g (# (pr1 P) f p) ,,
                                                  e (mk_ob Z (# (pr1 P) g (# (pr1 P) f p)))
                                                  (mk_ob Y (# (pr1 P) f p)) (mk_ob X p)

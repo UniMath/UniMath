@@ -1125,7 +1125,8 @@ Definition coconustotpr1 (T : UU) (t : T) : coconustot T t -> T := pr1.
 in a coconus, namely the one that is given by the pair of t and the path that
 starts at t and ends at t, the coconuses are contractible. *)
 
-Lemma connectedcoconustot {T : UU} {t : T} (c1 c2 : coconustot T t) : c1 = c2.
+Lemma coconustot_isProofIrrelevant {T : UU} {t : T} (c1 c2 : coconustot T t) : c1 = c2.
+(* should rename this, since the property is not connectedness *)
 Proof.
   intros.
   induction c1 as [x0 x].
@@ -1137,15 +1138,12 @@ Defined.
 
 Lemma iscontrcoconustot (T : UU) (t : T) : iscontr (coconustot T t).
 Proof.
-  intros.
-  unfold iscontr.
-  split with (coconustotpair T (idpath t)).
-  intros.
-  apply connectedcoconustot.
+  use (tpair _ (t,, idpath t)).
+  intros [u []].
+  reflexivity.
 Defined.
 
-Lemma connectedcoconusfromt {T : UU} {t : T} (c1 c2 : coconusfromt T t) :
-  c1 = c2.
+Lemma coconusfromt_isProofIrrelevant {T : UU} {t : T} (c1 c2 : coconusfromt T t) : c1 = c2.
 Proof.
   intros.
   induction c1 as [x0 x].
@@ -1157,10 +1155,9 @@ Defined.
 
 Lemma iscontrcoconusfromt (T : UU) (t : T) : iscontr (coconusfromt T t).
 Proof.
-  intros. unfold iscontr.
-  split with (coconusfromtpair T (idpath t)).
-  intros.
-  apply connectedcoconusfromt.
+  use (tpair _ (t,, idpath t)).
+  intros [u []].
+  reflexivity.
 Defined.
 
 (** *** The total paths space of a type - two definitions
@@ -1503,7 +1500,7 @@ Proof.
   intros.
 
   assert (e0 : unitl0 (idpath tt) = unitl0 e).
-  { apply connectedcoconustot. }
+  { apply coconustot_isProofIrrelevant. }
 
   set (e1 := maponpaths unitl1 e0).
 
@@ -1884,13 +1881,11 @@ Definition weqonpaths {X Y : UU} (w : X ≃ Y) (x x' : X) : x = x' ≃ w x = w x
 
 (** The inverse path and the composition with a path functions are weak equivalences *)
 
-Corollary isweqpathsinv0 {X : UU} (x x' : X) : isweq (@pathsinv0 _ x x').
+Lemma isweqpathsinv0 {X : Type} (x y : X) : isweq (@pathsinv0 X x y).
 Proof.
-  intros.
-  apply (isweq_iso (@pathsinv0 _ x x')
-                (@pathsinv0 _ x' x)
-                (@pathsinv0inv0 _ _ _)
-                (@pathsinv0inv0 _ _ _)).
+  intros. intros p. use tpair.
+  - exists (!p). apply pathsinv0inv0.
+  - cbn. intros [q k]. induction q,k. reflexivity.
 Defined.
 
 Definition weqpathsinv0 {X : UU} (x x' : X) : x = x' ≃ x' = x
