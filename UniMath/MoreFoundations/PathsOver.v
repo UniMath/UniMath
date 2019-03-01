@@ -13,13 +13,16 @@ Local Unset Strict Implicit.
 Delimit Scope pathsover with pathsover.
 Local Open Scope pathsover.
 
-Definition PathOver {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (y' : Y x') (p:x=x') :=
-  transportf Y p y = y'.
+Definition PathOver {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (y' : Y x') (p:x=x') : Type.
+Proof.
+  induction p.
+  exact (y=y').
+Defined.
 
 Definition PathOverToPathPair {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (y' : Y x') (p:x=x') :
   PathOver y y' p → PathPair (x,,y) (x',,y').
 Proof.
-  intros q. exact (p,,q).
+  intros q. induction p. exists (idpath x). cbn. exact q.
 Defined.
 
 Definition apd {X:Type} {Y : X -> Type} (s : ∏ x, Y x) {x x':X} (p : x = x') :
@@ -39,13 +42,7 @@ Defined.
 Lemma PathOverUniqueness  {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (p:x=x') :
   ∃! (y' : Y x'), PathOver y y' p.
 Proof.
-  apply iscontrcoconusfromt.
-Defined.
-
-Local Goal ∏ {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (p:x=x'),
-       pr1 (PathOverUniqueness y p) = (transportf Y p y,, idpath _).
-Proof.
-  reflexivity.
+  induction p. apply iscontrcoconusfromt.
 Defined.
 
 Definition PathOver_inConstantFamily (X Y:Type) (x x':X) (y y':Y) (p:x=x') :
@@ -59,8 +56,10 @@ Proof.
 Defined.
 
 Definition stdPathOver {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (p:x=x')
-  : PathOver y (transportf Y p y) p
-  := idpath (transportf Y p y).
+  : PathOver y (transportf Y p y) p.
+Proof.
+  induction p. reflexivity.
+Defined.
 
 Definition stdPathOver' {X:Type} {x x':X} {Y : X -> Type} (y' : Y x') (p:x=x')
   : PathOver (transportb Y p y') y' p.
@@ -89,21 +88,21 @@ Definition inductionPathOver {X:Type} {x:X} {Y : X -> Type} (y : Y x)
            (t : T x y (idpath x) (identityPathOver y)) :
   ∏ x' (y' : Y x') (p : x = x') (q : PathOver y y' p), T x' y' p q.
 Proof.
-  intros. induction q, p. exact t.
+  intros. induction p, q. exact t.
 Defined.
 
 Definition transportPathOver {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (y' : Y x') (p:x=x')
            (q : PathOver y y' p)
            (T : ∏ (a:X) (b:Y a), Type) : T x y → T x' y'.
 Proof.
-  now induction q, p.
+  now induction p, q.
 Defined.
 
 Definition transportPathOver' {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (y' : Y x') (p:x=x')
            (q : PathOver y y' p)
            (T : ∏ (a:X) (b:Y a), Type) : T x' y' → T x y.
 Proof.
-  now induction q, p.
+  now induction p, q.
 Defined.
 
 Definition composePathOver {X:Type} {x x' x'':X} {Y : X -> Type} {y : Y x} {y' : Y x'} {y'' : Y x''}
@@ -279,7 +278,7 @@ Local Goal ∏ (A:Type) (B:A->Type) (a1 a2:A) (b1:B a1) (b2:B a2) (p q:a1=a2) (�
       (r : PathOver b1 b2 p) (s : PathOver b1 b2 q),
   (cp α r = s) = (PathOver r s α).
 Proof.
-  reflexivity.
+  intros. induction α, p. reflexivity.
 Defined.
 
 Definition inverse_cp_p
@@ -305,7 +304,7 @@ Definition inverse_cp_p''
            (t : PathOver b1 b2 p) (u : PathOver b1 b2 q) :
   PathOver t u α -> PathOver u t (!α).
 Proof.
-  intros k. induction k. exact (inverse_cp_p α t).
+  intros k. induction α, p, k. reflexivity.
 Defined.
 
 Lemma inverse_cp_p_compare
@@ -315,7 +314,7 @@ Lemma inverse_cp_p_compare
            (k : PathOver t u α) :
   inverse_cp_p' k = inverse_cp_p'' k.
 Proof.
-  induction α. reflexivity.
+  induction α,p. reflexivity.
 Defined.
 
 Definition cp_inverse_cp
