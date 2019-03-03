@@ -63,7 +63,7 @@ Below is a partial list of Unicode symbols used in UniMath.
 | ∑ (x : A), B        | `\sum`         | `total2 (fun x => B)` |
 |  X × Y              | `\times`       | `dirprod X Y` |
 |  (a,b)              |                | `a,,b`|
-| X ⨿ Y               | `C-X 8 RET AMALGAMATION OR COPRODUCT`| `coprod`|
+| X ⨿ Y               | `C-X 8 RET AMALGAMATION OR COPRODUCT`| `coprod X Y`|
 | a = b               |             | `a = b`  |
 
 
