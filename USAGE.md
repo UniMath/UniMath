@@ -9,35 +9,44 @@ The UniMath library consists of Coq source files (file ending *.v) in the subdir
 
 Once you have [installed](./INSTALL.md) UniMath, you can start browsing and editing the source files.
 There are several programs to interactively edit and step through the files, among which
-are [CoqIDE](https://coq.inria.fr/refman/practical-tools/coqide.html) and [ProofGeneral](https://proofgeneral.github.io/).
-Here, we focus on ProofGeneral.
+are 
+1. [CoqIDE](https://coq.inria.fr/refman/practical-tools/coqide.html) and 
+2. Emacs with the [ProofGeneral](https://proofgeneral.github.io/) add-on.
 
+Here, we focus on Emacs/ProofGeneral.
 
-When opening a source file in the directlry `UniMath/UniMath` in Emacs, the following happens automatically:
+Automatic setup of work environment using Emacs
+-----------------------------------------------
+
+When opening a source file in the directory `UniMath/UniMath` in Emacs, the following happens **automatically**:
 1. *The ProofGeneral add-on to Emacs is loaded.*
    ProofGeneral is an add-on to the text editor Emacs, adding buttons, menus, and keyboard shortcuts
    to interact with Coq, the proof assistant that UniMath relies on.
    During the [installation procedure](./INSTALL.md) you have set up ProofGeneral on your computer.
-2. A Unicode input method is loaded.
-3. ProofGeneral is informed about the location of the Coq proof assistant installed during the installation of UniMath.
+2. *A Unicode input method is loaded.* 
+   It allows you to insert Unicode symbols using a LaTeX-like syntax.
+   See [Section on Unicode input below](USAGE.md/#unicode-input)
+3. ProofGeneral is informed about the location of the Coq proof assistant installed during the installation of UniMath,
+   and of the options that need to passed to Coq.
+
+Items 2 and 3 are achieved through the Emacs configuration file [`.dir-locals.el`](./UniMath/.dir-locals.el) located in 
+the subdirectory `UniMath/UniMath`.
+For this reason, we recommend you save your UniMath files in this subdirectory as well.
 
 
-To 2.: 
-
-
-Upon opening a Coq file (i.e., a file with ending *.v) in Emacs, the ProofGeneral add-on is automatically
-loaded by Emacs.
-Andrej Bauer has a [screencast](https://www.youtube.com/watch?v=l6zqLJQCnzo) on using ProofGeneral
-(more screencasts are listed on his [website](http://math.andrej.com/2011/02/22/video-tutorials-for-the-coq-proof-assistant/)).
+Stepping through a Coq file in Emacs/ProofGeneral
+-------------------------------------------------
+Andrej Bauer has a [screencast](https://www.youtube.com/watch?v=l6zqLJQCnzo) on using Emacs/ProofGeneral
+for writing and stepping through a Coq file.
+(More screencasts are listed on his [website](http://math.andrej.com/2011/02/22/video-tutorials-for-the-coq-proof-assistant/).)
+For following his instructions using his example, we recommend you save the Coq file in the subdirectory `UniMath/UniMath`
+to profit from the automatic setup mentioned above.
 Note that for Bauer's specific example to work in UniMath, you need to insert the line
 ```
 Require Import Coq.Init.Prelude.
 ```
-at the beginning of the file, since UniMath does not load this library by default when reading a file.
+at the beginning of the file, since the setup above does not load this library by default when reading a file.
 
-*NB:* Emacs loads special settings to handle UniMath files. These settings are only loaded when
-editing files in the subdirectory `UniMath/UniMath`.
-To edit your own files with the same comfort, place them in this subdirectory.
 
 Unicode input
 -------------
