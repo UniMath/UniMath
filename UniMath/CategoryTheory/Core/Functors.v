@@ -432,7 +432,7 @@ Definition fully_faithful_inv_hom {C D : precategory_data} {F : functor C D}
       F a --> F b -> a --> b :=
  invweq (weq_from_fully_faithful FF a b).
 
-Local Notation "FF ^-1" := (fully_faithful_inv_hom FF _ _ ) (at level 20).
+Local Notation "FF ^-1" := (fully_faithful_inv_hom FF _ _ ).
 
 (** FF^1 is indeed post-inverse to # F. *)
 Lemma fully_faithful_inv_hom_is_inv {C D : precategory} {F : functor C D}

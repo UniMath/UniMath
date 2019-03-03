@@ -57,7 +57,7 @@ Proof.
 Defined.
 
 Goal ∏ X Y (y:Y) (f:X->Y) (e:∏ m:X, f m = y),
-       f = funcomp squash_element (cone_squash_map f y e).
+       f = cone_squash_map f y e ∘ squash_element.
 Proof.
   reflexivity.
 Qed.

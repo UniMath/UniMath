@@ -95,6 +95,7 @@ COQDOCLATEXOPTIONS := -latex -utf8 --body-only
 DEFINERS := 
 DEFINERS := $(DEFINERS)Axiom\|
 DEFINERS := $(DEFINERS)Class\|
+DEFINERS := $(DEFINERS)Coercion\|
 DEFINERS := $(DEFINERS)CoFixpoint\|
 DEFINERS := $(DEFINERS)CoInductive\|
 DEFINERS := $(DEFINERS)Corollary\|
