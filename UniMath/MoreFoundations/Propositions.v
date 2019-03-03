@@ -370,7 +370,7 @@ Defined.
 Definition BasePointComponent (X:PointedType) : PointedType :=
   pointedType (∑ (y:X), ∥ basepoint X = y ∥) (basepoint X,, hinhpr (idpath (basepoint X))).
 
-Coercion basePointComponent_inclusion {X:PointedType} (x : BasePointComponent X) : X
+Definition basePointComponent_inclusion {X:PointedType} (x : BasePointComponent X) : X
   := pr1 x.
 
 Lemma BasePointComponent_isBaseConnected (X:PointedType) : isBaseConnected (BasePointComponent X).
