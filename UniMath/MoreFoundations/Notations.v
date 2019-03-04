@@ -20,19 +20,19 @@ Notation "'∑' x .. y , P" := (total2_hProp (λ x,.. (total2_hProp (λ y, P))..
   (at level 200, x binder, y binder, right associativity) : prop.
   (* type this in emacs in agda-input method with \sum *)
 
-Notation "'pr11' x" := (pr1 (pr1 x)) (at level 8).
-Notation "'pr12' x" := (pr1 (pr2 x)) (at level 8).
-Notation "'pr21' x" := (pr2 (pr1 x)) (at level 8).
-Notation "'pr22' x" := (pr2 (pr2 x)) (at level 8).
+Notation "'pr11' x" := (pr1 (pr1 x)) (at level 10, left associativity).
+Notation "'pr12' x" := (pr1 (pr2 x)) (at level 10, left associativity).
+Notation "'pr21' x" := (pr2 (pr1 x)) (at level 10, left associativity).
+Notation "'pr22' x" := (pr2 (pr2 x)) (at level 10, left associativity).
 
-Notation "'pr111' x" := (pr1 (pr1 (pr1 x))) (at level 8).
-Notation "'pr112' x" := (pr1 (pr1 (pr2 x))) (at level 8).
-Notation "'pr121' x" := (pr1 (pr2 (pr1 x))) (at level 8).
-Notation "'pr122' x" := (pr1 (pr2 (pr2 x))) (at level 8).
-Notation "'pr211' x" := (pr2 (pr1 (pr1 x))) (at level 8).
-Notation "'pr212' x" := (pr2 (pr1 (pr2 x))) (at level 8).
-Notation "'pr221' x" := (pr2 (pr2 (pr1 x))) (at level 8).
-Notation "'pr222' x" := (pr2 (pr2 (pr2 x))) (at level 8).
+Notation "'pr111' x" := (pr1 (pr1 (pr1 x))) (at level 10, left associativity).
+Notation "'pr112' x" := (pr1 (pr1 (pr2 x))) (at level 10, left associativity).
+Notation "'pr121' x" := (pr1 (pr2 (pr1 x))) (at level 10, left associativity).
+Notation "'pr122' x" := (pr1 (pr2 (pr2 x))) (at level 10, left associativity).
+Notation "'pr211' x" := (pr2 (pr1 (pr1 x))) (at level 10, left associativity).
+Notation "'pr212' x" := (pr2 (pr1 (pr2 x))) (at level 10, left associativity).
+Notation "'pr221' x" := (pr2 (pr2 (pr1 x))) (at level 10, left associativity).
+Notation "'pr222' x" := (pr2 (pr2 (pr2 x))) (at level 10, left associativity).
 
 (** ** Variants on paths and coconus *)
 
