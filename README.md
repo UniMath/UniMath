@@ -10,6 +10,11 @@ Installation
 See
 [INSTALL.md](https://github.com/UniMath/UniMath/blob/master/INSTALL.md).
 
+Usage
+-----
+
+See [USAGE.md](./USAGE.md)
+
 Contents
 --------
 

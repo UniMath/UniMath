@@ -75,58 +75,48 @@ shell command (in this directory).
 $ make
 ```
 
-To compile an individual package and the files it depends on, e.g., the package `CategoryTheory`, issue
-```bash
-$ make CategoryTheory
-```
+Once this is done, you can start [browsing and editing UniMath](./USAGE.md).
+Below, we explain how to compile individual packages of UniMath, and how to
+create HTML documentation.
 
-To compile an individual file and the files it depends on, e.g., the file `CategoryTheory/Categories.v`, issue
-```bash
-$ make UniMath/CategoryTheory/Categories.vo
-```
-Note the extension `*.vo` required in the command.
+### Building individual packages and HTML documentation
 
-If you wish also to build the program ```coqide```, then issue the following
-command instead of the one above.
+- To compile an individual package and the files it depends on, e.g., the package `CategoryTheory`, issue
+   ```bash
+   $ make CategoryTheory
+   ```
 
-```bash
-$ make BUILD_COQIDE=yes
-```
+- To compile an individual file and the files it depends on, e.g., the file `CategoryTheory/Categories.v`, issue
+   ```bash
+   $ make UniMath/CategoryTheory/Categories.vo
+   ```
+   Note the extension `*.vo` required in the command.
 
-Alternatively, you can specify the value of the BUILD_COQIDE option more
-permanently by following the instructions in the file
-build/Makefile-configuration-template.
+- To create the standard HTML documentation provided by coqdoc:
+   ```bash
+   $ make html
+   ```
+   The documentation is created in the subdirectory ```html```.
 
-Later on, after running the command `make install` as instructed below, in
-order to run the program ```coqide```, you may use the following command.
+- To create HTML documentation with "hidden" proofs:
+   ```bash
+   $ make doc
+   ```
+   In this version of the documentation, any proof enclosed within ```Proof.``` and ```Qed.```/```Defined.``` is replaced by a button ```Show proof.```.
+   Clicking on this button unveils (unfolds) the corresponding proof. A ```Hide proof``` button can be used to fold the proof again.
+   The documentation is created in the subdirectory ```enhanced-html```.
+   (This feature requires the use of the otherwise optional ```Proof``` command of
+   the Coq vernacular language to indicate the beginning of the proof.  Toggling
+   of proofs requires an internet connection for downloading the ```jquery```
+   library.)
 
-```bash
-$ sub/coq/bin/coqide -indices-matter -type-in-type -Q UniMath UniMath
-```
+- To install UniMath in the ```user-contrib``` directory of Coq, for use by other developments:
+   ```bash
+   $ make install
+   ```
+   The path to that directory from here, by default, is ./sub/coq/user-contrib/.
 
-To create the standard HTML documentation provided by coqdoc:
-```bash
-$ make html
-```
-The documentation is created in the subdirectory ```html```.
-
-To create HTML documentation with "hidden" proofs:
-```bash
-$ make doc
-```
-In this version of the documentation, any proof enclosed within ```Proof.``` and ```Qed.```/```Defined.``` is replaced by a button ```Show proof.```.
-Clicking on this button unveils (unfolds) the corresponding proof. A ```Hide proof``` button can be used to fold the proof again.
-The documentation is created in the subdirectory ```enhanced-html```.
-(This feature requires the use of the otherwise optional ```Proof``` command of
-the Coq vernacular language to indicate the beginning of the proof.  Toggling
-of proofs requires an internet connection for downloading the ```jquery```
-library.)
-
-To install UniMath in the ```user-contrib``` directory of Coq, for use by other developments:
-```bash
-$ make install
-```
-The path to that directory from here, by default, is ./sub/coq/user-contrib/.
+- To install [CoqIDE](https://coq.inria.fr/refman/practical-tools/coqide.html), see [INSTALL\_COQIDE](./INSTALL_COQIDE.md).
 
 ## TAGS files
 
