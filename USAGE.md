@@ -18,7 +18,10 @@ Here, we focus on Emacs/ProofGeneral.
 Automatic setup of work environment using Emacs
 -----------------------------------------------
 
-When opening a source file in the directory `UniMath/UniMath` in Emacs, the following happens **automatically**:
+When first opening a file in `UniMath/UniMath`, you will be asked to apply a list of local variables, similar to the screenshot below. To accept permanently and not be asked again, type "!". These variables are needed to achieve the automatic setup described below.
+![Screenshot Emacs](https://raw.githubusercontent.com/wiki/UniMath/UniMath/Screenshot_Emacs.png)
+
+When opening a source file in the directory `UniMath/UniMath` in Emacs, the following happens **automatically**.
 1. *The ProofGeneral add-on to Emacs is loaded.*
    ProofGeneral is an add-on to the text editor Emacs, adding buttons, menus, and keyboard shortcuts
    to interact with Coq, the proof assistant that UniMath relies on.
