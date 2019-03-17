@@ -51,22 +51,38 @@ Require Import Coq.Init.Prelude.
 at the beginning of the file, since the setup above does not load this library by default when reading a file.
 
 
-Unicode input
--------------
-Unicode symbols are used throughout UniMath. To see how to input a specific Unicode character, type
+Symbols used in UniMath
+-----------------------
+UniMath uses both ASCII and Unicode notation. Below we give an overview of the most important symbols.
+To see how to input a specific Unicode character, type
 `C-u C-x =` (meaning: hold CTRL, then press u and x; release CTRL, press =) while hovering over that character.
 
-Below is a partial list of Unicode symbols used in UniMath.
+Below is a partial list of Unicode symbols and identifiers used in UniMath.
 
-| Mathematical symbol | UniMath Unicode |UniMath ASCII |
-|---------------------|-----------------|-----------------|
-|  ∏ (x : A), B       | `\prod`          | `forall x : A, B`      |
-| A → B               | `\to`            | `A -> B`  |
-|  λ x, e             | `\lambda`          | `fun x => e`  |
-| ∑ (x : A), B        | `\sum`         | `total2 (fun x => B)` |
-|  X × Y              | `\times`       | `dirprod X Y` |
-|  (a,b)              |                | `a,,b`|
-| X ⨿ Y               | `C-X 8 RET AMALGAMATION OR COPRODUCT`| `coprod X Y`|
-| a = b               |             | `a = b`  |
+| Item | UniMath symbol | Unicode input |UniMath ASCII alternative |
+|--------------|---------------------|-----------------|-----------------|
+|     **Type and term constructors**                                                    |
+| Product type |  `∏ (x : A), B`       | `\prod`          | `forall x : A, B`      |
+| Function type | `A → B`               | `\to`            | `A -> B`  |
+| Lambda abstraction |  `λ x, e`             | `\lambda`          | `fun x => e`  |
+| Sigma type | `∑ (x : A), B`        | `\sum`         | `total2 (fun x => B)` |
+| Cartesian product type |  `X × Y`              | `\times`       | `dirprod X Y` |
+| Pair term |  `a,,b`              |                | `a,,b`|
+| Coproduct type | `X ⨿ Y`               | `C-X 8 RET AMALGAMATION OR COPRODUCT`| `coprod X Y`|
+| Identity type | `a = b`               |             | `a = b`  |
+|  **Univalent logic in `hProp`** |
+| Conjunction | `A ∧ B` | `\and` | `hconj A B`|
+| Disjunction | `A ∨ B` | `\or` | `hdisj A B` |
+| Implication | `A ⇒ B` | `\=>` | `himpl A B` |
+| Negation | `¬ X` | `\neg`| `hneg X`| 
+| Universal quantification | `∀  x , P x` | `\forall` | `forall_hProp A`|
+| Existential quantification | `∃ x, P x` | `\ex` | `hexists P` |
+| Propositional truncation | `∥ A ∥` | `\\|\|`| `ishinh A`|
+|   **Category theory**                                                          |
+| Object type of `C` | `ob C` or `C` (`ob` is a coercion) |        |  | 
+| Morphisms  | `C⟦a,b⟧` | `\[[` and `\]]` |  `a --> b` |
+| Functor `F` on objects | `F a` (coercion) | | | 
+| Functor `F` on morphisms | `#F f` | | | 
+
 
 
