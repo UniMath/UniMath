@@ -20,7 +20,7 @@ Require Import UniMath.Induction.W.Fibered.
 
 Local Notation ℕ := nat.
 
-(** The signature for the nat functor is (bool, [false ↦ empty; true ↦ unit])
+(** The signature for the nat functor is (bool, [true ↦ empty; false ↦ unit])
     since the naturals have two constructors: one for zero and one for successor.
  *)
 Definition nat_functor : functor type_precat type_precat :=

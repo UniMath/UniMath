@@ -145,7 +145,7 @@ Proof.
                 iscontr (∑ x0 : X 0, (π 0 (x 0)) = x0)).
   {
     intros x.
-    apply iscontrcoconusfromt.
+    apply iscontr_paths_from.
   }
 
   (** Step (2) *)
