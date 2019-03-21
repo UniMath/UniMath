@@ -9,6 +9,7 @@
 
 Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.UnivalenceAxiom.
+Require Import UniMath.MoreFoundations.Univalence.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
@@ -64,8 +65,8 @@ Section Fibered.
     intro E.
     pose (supx := pr2 X).
     pose (supe := pr2 E).
-    exact ((∑ (f : forall x : pr1 X, pr1 E x),
-            forall a, f (supx a) = supe a (f ∘ (pr2 a)))).
+    exact ((∑ (f : ∏ x : pr1 X, pr1 E x),
+            ∏ a, f (supx a) = supe a (f ∘ (pr2 a)))).
   Defined.
 
   (** A P-algebra section homotopy.
@@ -73,7 +74,7 @@ Section Fibered.
       (Definition 4.7 in Awodey, Gambino, and Sojakova)
   *)
   Definition algebra_sec_homot {X : algebra_ob F} :
-    forall {Y : fibered_alg X} (i j : algebra_section Y), UU.
+    ∏ {Y : fibered_alg X} (i j : algebra_section Y), UU.
   Proof.
     intros E.
     pose (supx := pr2 X).
@@ -97,14 +98,6 @@ Section Fibered.
    *)
   Definition algebra_mor_homot {X Y : algebra_ob F} (i j : X ⇒ Y) : UU :=
     algebra_sec_homot (algebra_mor_to_algsec i) (algebra_mor_to_algsec j).
-
-  (** TODO: this should live somewhere else *)
-  Lemma funextsec_toforallpaths : ∏ (T : UU) (P : T -> UU) (f g : ∏ t : T, P t)
-            (h : f = g), funextsec _  _ _ (toforallpaths _ _ _ h) = h.
-  Proof.
-    intros ? ? ? ? h.
-    exact (!homotinvweqweq0 (weqtoforallpaths _ _ _) h).
-  Qed.
 
   (** The identity homotopy on a P-algebra section. *)
   Definition algebra_sec_homot_id {X : algebra_ob F} {Y : fibered_alg X}
@@ -139,7 +132,7 @@ Section Fibered.
              {i : algebra_mor _ X Y} : algebra_mor_homot i i
     := @algebra_sec_homot_id _ (alg2fibered_alg Y) (algebra_mor_to_algsec i).
 
-  (** A "(homotopy) uniqueness principle" for a P-algebra X: there exists auto
+  (** A "(homotopy) uniqueness principle" for a P-algebra X: there exists a
       homotopy (and hence a path) between any two P-algebra morphisms into any
       other P-algebra Y.
 
@@ -155,7 +148,7 @@ Section Fibered.
        in Awodey, Gambino, and Sojakova)
    *)
   Definition homotopy_uniqueness_principle (X : algebra_ob F) : UU :=
-    forall (Y : algebra_ob F) (i j : algebra_mor F X Y), algebra_mor_homot  i j.
+    ∏ (Y : algebra_ob F) (i j : algebra_mor F X Y), algebra_mor_homot i j.
 
   (** The "induction principle" for a P-algebra X: any fibered P-algebra Y has a
       section.
