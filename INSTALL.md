@@ -56,6 +56,19 @@ Your version of emacs determines which version of ProofGeneral you need,
 roughly, so some experimentation may be required; you may even need the current
 development version if your emacs is recent.
 
+For those unfamiliar with Emacs, `M-x` means "hold Alt, press x".
+
+Similarly, `C-g` means "hold Ctrl, press g". This cancels any action you have
+started.
+
+Finally, `RET` means "press Enter".
+
+Hence, the first ProofGeneral installation instruction
+```
+M-x package-refresh-contents RET
+```
+reads "hold Alt, press x; type package-refresh-contents; press Enter".
+
 Optional: some useful ProofGeneral add-ons are available for installation at
 https://github.com/cpitclaudel/company-coq/.
 
