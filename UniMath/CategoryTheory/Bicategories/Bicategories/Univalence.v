@@ -125,6 +125,14 @@ Proof.
   apply isapropisweq.
 Defined.
 
+Definition isaprop_is_univalent_2 (C : bicat)
+  : isaprop (is_univalent_2 C).
+Proof.
+  apply isapropdirprod.
+  apply isaprop_is_univalent_2_0.
+  apply isaprop_is_univalent_2_1.
+Defined.
+
 Definition isotoid_2_1
            {C : bicat}
            (HC : is_univalent_2_1 C)
@@ -141,3 +149,15 @@ Definition isotoid_2_0
            (f : adjoint_equivalence a b)
   : a = b
   := invmap (idtoiso_2_0 a b ,, HC a b) f.
+
+
+(** In a univalent bicategory 0-cells are 1-types.
+For the proofs that 1-cells are 2-types see AdjointUnique.v *)
+Lemma univalent_bicategory_0_cell_hlevel_3
+      (C : bicat) (HC : is_univalent_2 C) (a b : C) :
+  isofhlevel 3 (C⟦a,b⟧).
+Proof.
+  intros f g.
+  apply (isofhlevelweqb _ (idtoiso_2_1 f g,, pr2 HC _ _ f g)).
+  apply isaset_invertible_2cell.
+Qed.
