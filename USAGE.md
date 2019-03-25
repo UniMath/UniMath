@@ -68,7 +68,7 @@ Below is a partial list of Unicode symbols and identifiers used in UniMath.
 | Sigma type | `∑ (x : A), B`        | `\sum`         | `total2 (fun x => B)` |
 | Cartesian product type |  `X × Y`              | `\times`       | `dirprod X Y` |
 | Pair term |  `a,,b`              |                | `a,,b`|
-| Coproduct type | `X ⨿ Y`               | `C-X 8 RET AMALGAMATION OR COPRODUCT`| `coprod X Y`|
+| Coproduct type | `X ⨿ Y`               | `\union`, then press down key | `coprod X Y`|
 | Identity type | `a = b`               |             | `a = b`  |
 |  **Univalent logic in `hProp`** |
 | Conjunction | `A ∧ B` | `\and` | `hconj A B`|
