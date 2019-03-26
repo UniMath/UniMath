@@ -188,3 +188,7 @@ Ltac exact_op x := (* from Jason Gross: same as "exact", but with unification th
   let T := type of x in
   let G := match goal with |- ?G => constr:(G) end in
   exact (((λ g:G, g) : T -> G) x).
+
+Create HintDb rewrite discriminated.
+Hint Variables Opaque : rewrite.
+Create HintDb typeclass_instances discriminated.
