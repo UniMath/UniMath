@@ -76,12 +76,12 @@ Definition pathOverIdpath {X:Type} {x:X} {Y : X -> Type} (y y' : Y x) : PathOver
 Definition toPathOverIdpath {X:Type} {x:X} {Y : X -> Type} (y y' : Y x) : y = y' -> PathOver y y' (idpath x)
   := idfun _.
 
-Notation "'∇' q" := (toPathOverIdpath q) (at level 10) : pathsover.
+Local Notation "'∇' q" := (toPathOverIdpath q) (at level 10) : pathsover.
 
 Definition fromPathOverIdpath {X:Type} {x:X} {Y : X -> Type} (y y' : Y x) : PathOver y y' (idpath x) -> y = y'
   := idfun _.
 
-Notation "'Δ' q" := (fromPathOverIdpath q) (at level 10) : pathsover.
+Local Notation "'Δ' q" := (fromPathOverIdpath q) (at level 10) : pathsover.
 
 Definition inductionPathOver {X:Type} {x:X} {Y : X -> Type} (y : Y x)
            (T : ∏ x' (y' : Y x') (p : x = x'), PathOver y y' p → Type)
@@ -111,7 +111,7 @@ Proof.
   induction p, p'. exact pathscomp0.
 Defined.
 
-Notation "x * y" := (composePathOver x y) : pathsover.
+Local Notation "x * y" := (composePathOver x y) : pathsover.
 
 Definition composePathOverPath {X:Type} {x x':X} {Y : X -> Type} {y : Y x} {y' y'' : Y x'}
            {p:x=x'} : PathOver y y' p → y' = y'' → PathOver y y'' p.
@@ -119,7 +119,7 @@ Proof.
   intros q e. now induction e.
 Defined.
 
-Notation "q ⟥ e" := (composePathOverPath q e) (at level 56, left associativity) : pathsover.
+Local Notation "q ⟥ e" := (composePathOverPath q e) (at level 56, left associativity) : pathsover.
 
 Definition composePathPathOver {X:Type} {x' x'':X} {Y : X -> Type} {y y': Y x'} {y'' : Y x''}
            {p:x'=x''} : y = y' → PathOver y' y'' p → PathOver y y'' p.
@@ -127,7 +127,7 @@ Proof.
   intros e q. now induction e.
 Defined.
 
-Notation "e ⟤ q" := (composePathPathOver e q) (at level 56, left associativity) : pathsover.
+Local Notation "e ⟤ q" := (composePathPathOver e q) (at level 56, left associativity) : pathsover.
 
 Definition composePathOverLeftUnit {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (y' : Y x') (p:x=x') (q:PathOver y y' p) :
   identityPathOver y * q = q.
@@ -164,7 +164,7 @@ Proof.
   intros q. induction p, q. reflexivity.
 Defined.
 
-Notation "q '^-1'" := (inversePathOver q) : pathsover.
+Local Notation "q '^-1'" := (inversePathOver q) : pathsover.
 
 Definition inversePathOverIdpath {X:Type} {x:X} {Y : X -> Type} (y y' : Y x) (e : y = y') :
   inversePathOver (∇ e) = ∇ (!e).
