@@ -374,3 +374,12 @@ Definition cp_apstar'
 Proof.
   now induction α, p.
 Defined.
+
+Module PathsOverNotations.
+Notation "'Δ' q" := (fromPathOverIdpath q) (at level 10) : pathsover.
+Notation "'∇' q" := (toPathOverIdpath q) (at level 10) : pathsover.
+Notation "x * y" := (composePathOver x y) : pathsover.
+Notation "q ⟥ e" := (composePathOverPath q e) (at level 56, left associativity) : pathsover.
+Notation "e ⟤ q" := (composePathPathOver e q) (at level 56, left associativity) : pathsover.
+Notation "q '^-1'" := (inversePathOver q) : pathsover.
+End PathsOverNotations.
