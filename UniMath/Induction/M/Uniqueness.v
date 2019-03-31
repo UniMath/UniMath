@@ -10,7 +10,7 @@ Require Import UniMath.MoreFoundations.Univalence.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorCoalgebras.
-Require Import UniMath.CategoryTheory.categories.Types.
+Require Import UniMath.CategoryTheory.categories.Type.Core.
 Require Import UniMath.Induction.PolynomialFunctors.
 Require Import UniMath.Induction.M.Core.
 
