@@ -111,7 +111,7 @@ Lemma weq_functor_sec_id (A : UU) (B C : A -> UU) :
   (∏ a, B a) ≃ (∏ a, C a).
 Proof.
   intros e.
-  use weqgradth.
+  use weq_iso.
   - exact (λ f a, e a (f a)).
   - exact (λ f a, invmap (e a) (f a)).
   - cbn.
@@ -129,7 +129,7 @@ Lemma sec_symmetry (A B : UU) (C : A -> B -> UU) :
   (∏ a b, C a b)
     ≃ (∏ b a, C a b).
 Proof.
-  use weqgradth.
+  use weq_iso.
   - exact (λ f b a, f a b).
   - exact (λ f a b, f b a).
   - reflexivity.
@@ -147,7 +147,7 @@ Lemma sec_total2_distributivity (A : UU) (B : A -> UU) (C : ∏ a, B a -> UU) :
   (∏ a : A, ∑ b : B a, C a b)
     ≃ (∑ b : ∏ a : A, B a, ∏ a, C a (b a)).
 Proof.
-  use weqgradth.
+  use weq_iso.
   - intros f.
     exists (λ a, pr1 (f a)).
     exact (λ a, pr2 (f a)).
@@ -181,7 +181,7 @@ Lemma total2_symmetry (A B : UU) (C : A -> B -> UU) :
   (∑ a b, C a b)
     ≃ (∑ b a, C a b).
 Proof.
-  use weqgradth.
+  use weq_iso.
   - intros abc; induction abc as [a [b c]].
     exact (b,, a,, c).
   - intros bac; induction bac as [b [a c]].
@@ -194,7 +194,7 @@ Lemma total2_associativity (A : UU) (B : A -> UU) (C : (∑ a, B a) -> UU) :
   (∑ ab : ∑ a : A, B a, C ab)
     ≃ (∑ a : A, ∑ b : B a, C (a,, b)).
 Proof.
-  use weqgradth.
+  use weq_iso.
   - induction 1 as [ab c].
     induction ab as [a b].
     exact (a,, b,, c).
@@ -214,7 +214,7 @@ Lemma weq_prod_contr_l (A B : UU) :
   A × B ≃ B.
 Proof.
   induction 1 as [a0 a0_unique].
-  use weqgradth.
+  use weq_iso.
   - exact pr2.
   - exact (λ b, a0,, b).
   - induction 0 as [a b]; cbn.
@@ -234,7 +234,7 @@ Lemma weq_total2_paths_f (A : UU) (B : A -> UU)
   (∑ p : a1 = a2, transportf B p b1 = b2)
     ≃ (a1,, b1 = a2,, b2).
 Proof.
-  use weqgradth.
+  use weq_iso.
   - induction 1 as [p q].
     use (total2_paths2_f p q).
   - intros p.
@@ -252,7 +252,7 @@ Defined.
 Lemma weq_sequence_cons (A : nat -> UU) :
   (A 0 × ∏ n, A (1 + n)) ≃ ∏ n, A n.
 Proof.
-  use weqgradth.
+  use weq_iso.
   - intros [xO xS] n; induction n.
     + exact xO.
     + exact (xS n).
@@ -262,14 +262,14 @@ Proof.
     apply funextsec; intros n; induction n; reflexivity.
 Defined.
 
-Lemma weq_comp_lⁱ {I : UU} (A B C : Fam I) :
-  B ≃ⁱ C ->
-  (A ->ⁱ B) ≃ (A ->ⁱ C).
+Lemma weq_comp_l__i {I : UU} (A B C : Fam I) :
+  B ≃__i C ->
+  (A ->__i B) ≃ (A ->__i C).
 Proof.
   intros f.
-  use weqgradth.
-  - exact (λ g, f ∘ⁱ g).
-  - exact (λ g, invweqⁱ f ∘ⁱ g).
+  use weq_iso.
+  - exact (λ g, f ∘__i g).
+  - exact (λ g, invweq__i f ∘__i g).
   - intros g. cbn.
     apply funextsec; intros i.
     apply funextfun; intros a.

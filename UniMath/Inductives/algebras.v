@@ -6,7 +6,7 @@ Require Export UniMath.Foundations.Propositions.
 Section Algebras.
 
   Definition algebra_structure {I} (F : prefunctor I I) (A : Fam I) :=
-    F A ->ⁱ A.
+    F A ->__i A.
 
   Definition algebra {I} (F : prefunctor I I) : UU :=
     ∑ carrier, algebra_structure F carrier.
@@ -22,7 +22,7 @@ Section Algebras.
 
   (* algebra morphisms *)
   Definition algebra_str_morphism
-             {I} (F : functor I I) (A B : algebra F) (h : A ->ⁱ B) : UU :=
+             {I} (F : functor I I) (A B : algebra F) (h : A ->__i B) : UU :=
     ∏ i x, h i (A.2 i x) = B.2 i (F.map h i x).
 
   Definition algebra_morphism {I} {F : functor I I} (A B : algebra F) : UU :=
@@ -45,10 +45,10 @@ Section Algebras.
              (f : algebra_morphism A B) (g : algebra_morphism B C) :
     algebra_morphism A C.
   Proof.
-    intros. exists (g ∘ⁱ f).
+    intros. exists (g ∘__i f).
     unfold algebra_str_morphism; intros.
     rewrite functor_comp_to_comp.
-    unfold compⁱ.
+    unfold comp__i.
     exact (maponpaths (g i) (pr2 f i x) @ g.2 i (F.map f i x)).
   Defined.
 
@@ -184,7 +184,7 @@ Section CoAlgebras.
   Context {I : UU}.
 
   Definition coalgebra_structure (F : prefunctor I I) (A : Fam I) :=
-    A ->ⁱ F A.
+    A ->__i F A.
 
   Definition coalgebra (F : prefunctor I I) : UU :=
     ∑ A, coalgebra_structure F A.
@@ -199,8 +199,8 @@ Section CoAlgebras.
 
 
   Definition coalgebra_morphism {F : prefunctor I I} (A B : coalgebra F) : UU :=
-    ∑ f : A ->ⁱ B,
-          B.2 ∘ⁱ f = F.map f ∘ⁱ A.2.
+    ∑ f : A ->__i B,
+          B.2 ∘__i f = F.map f ∘__i A.2.
 
   Definition coalgebra_morphism_to_function {F : prefunctor I I} {A B : coalgebra F}
              (f : coalgebra_morphism A B) : ∏ i, A i -> B i :=
@@ -220,18 +220,18 @@ Section CoAlgebras.
              (f : coalgebra_morphism A B) (g : coalgebra_morphism B C) :
     coalgebra_morphism A C.
   Proof.
-    intros. exists (g ∘ⁱ f).
-    change (C.2 ∘ⁱ g ∘ⁱ f = F.map (g ∘ⁱ f) ∘ⁱ A.2).
-    intermediate_path (F.map g ∘ⁱ B.2 ∘ⁱ f). {
-      apply (maponpaths (λ h, h ∘ⁱ f : A ->ⁱ F C)
+    intros. exists (g ∘__i f).
+    change (C.2 ∘__i g ∘__i f = F.map (g ∘__i f) ∘__i A.2).
+    intermediate_path (F.map g ∘__i B.2 ∘__i f). {
+      apply (maponpaths (λ h, h ∘__i f : A ->__i F C)
                         (pr2 g)).
     }
-    intermediate_path (F.map g ∘ⁱ F.map f ∘ⁱ A.2). {
-      apply (maponpaths (λ h, F.map g ∘ⁱ h : A ->ⁱ F C)
+    intermediate_path (F.map g ∘__i F.map f ∘__i A.2). {
+      apply (maponpaths (λ h, F.map g ∘__i h : A ->__i F C)
                         (pr2 f)).
     }
-    intermediate_path (F.map (g ∘ⁱ f) ∘ⁱ A.2). {
-      apply (maponpaths (λ h, h ∘ⁱ A.2) (!functor_comp_to_comp F _ _ _ _ _)).
+    intermediate_path (F.map (g ∘__i f) ∘__i A.2). {
+      apply (maponpaths (λ h, h ∘__i A.2) (!functor_comp_to_comp F _ _ _ _ _)).
     }
     reflexivity.
   Defined.
@@ -270,12 +270,12 @@ Section CoAlgebras.
   Defined.
 
 
-  Definition isweqⁱ {I} {A B : Fam I} (f : A ->ⁱ B) :=
+  Definition isweq__i {I} {A B : Fam I} (f : A ->__i B) :=
     ∏ i, isweq (f i).
 
-  Theorem gradthⁱ {J} {X Y : Fam J} (f : X ->ⁱ Y) (g : Y ->ⁱ X)
+  Theorem gradth__i {J} {X Y : Fam J} (f : X ->__i Y) (g : Y ->__i X)
           (egf: ∏ i x, g i (f i x) = x)
-          (efg: ∏ i y, f i (g i y) = y) : isweqⁱ f.
+          (efg: ∏ i y, f i (g i y) = y) : isweq__i f.
   Proof.
     intros i.
     use gradth.
@@ -285,34 +285,34 @@ Section CoAlgebras.
   Qed.
 
   Lemma isweq_final_coalgebra_struct (C : coalgebra F) :
-    is_final_coalgebra C -> isweqⁱ C.2.
+    is_final_coalgebra C -> isweq__i C.2.
   Proof.
     intros is_final.
     set (F_C := (F C,, F.map C.2) : coalgebra F).
-    set (h := (C.2,, idpath _) : coalgebra_morphism C F_C); change (isweqⁱ h).
+    set (h := (C.2,, idpath _) : coalgebra_morphism C F_C); change (isweq__i h).
     set (h_inv := finality_morphism_coalgebra C is_final F_C).
-    assert (H : h_inv ∘ⁱ h = idmapⁱ C). {
+    assert (H : h_inv ∘__i h = idmap__i C). {
       change ((coalgebra_morphism_composition h h_inv).1 =
               (coalgebra_morphism_identity C).1).
       apply maponpaths.
       apply uniqueness_morphism_coalgebra. exact is_final.
     }
-    use gradthⁱ.
+    use gradth__i.
     - exact h_inv.
     - intros i x.
-      change ((h_inv ∘ⁱ h) i x = idmapⁱ C i x).
-      apply (maponpaths (λ f : C ->ⁱ C, f i x)).
+      change ((h_inv ∘__i h) i x = idmap__i C i x).
+      apply (maponpaths (λ f : C ->__i C, f i x)).
       exact H.
     - intros i y.
-      change ((h ∘ⁱ h_inv) i y = idmapⁱ F_C i y).
-      apply (maponpaths (λ f : F_C ->ⁱ F_C, f i y)).
-      intermediate_path (F.map h_inv ∘ⁱ F.map h). {
+      change ((h ∘__i h_inv) i y = idmap__i F_C i y).
+      apply (maponpaths (λ f : F_C ->__i F_C, f i y)).
+      intermediate_path (F.map h_inv ∘__i F.map h). {
         exact h_inv.2.
       }
-      intermediate_path (F.map (h_inv ∘ⁱ h)). {
+      intermediate_path (F.map (h_inv ∘__i h)). {
         symmetry; apply functor_comp_to_comp.
       }
-      intermediate_path (F.map (idmapⁱ C)). {
+      intermediate_path (F.map (idmap__i C)). {
         apply maponpaths; exact H.
       }
       apply functor_id_to_id.

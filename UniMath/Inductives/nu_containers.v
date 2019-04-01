@@ -39,10 +39,10 @@ Proof. induction p. reflexivity. Defined.
 (*   invmap weq_m_out (label,, arg). *)
 
 Definition corec {I A B} (C : Fam I)
-           (c_label : C ->ⁱ A) (c_arg : ∏ i c, B i (c_label i c) ->ⁱ C) :
-  C ->ⁱ m_type A B :=
+           (c_label : C ->__i A) (c_arg : ∏ i c, B i (c_label i c) ->__i C) :
+  C ->__i m_type A B :=
   @m_corec _ _ _
-           (tpair (λ carrier, carrier ->ⁱ ⟦ A ◁ B ⟧ carrier)
+           (tpair (λ carrier, carrier ->__i ⟦ A ◁ B ⟧ carrier)
                   C
                   (fun i c => (c_label i c,, @c_arg i c))).
 
@@ -120,8 +120,8 @@ Definition destruct_m_path {A B} {m1 m2 : M A B} (p : m1 = m2) :
 Section Eta.
 
   Context {I A B C}
-          (f g : C ->ⁱ m_type A B)
-          (c_arg : ∏ i c, B i (m_label (f i c)) ->ⁱ C)
+          (f g : C ->__i m_type A B)
+          (c_arg : ∏ i c, B i (m_label (f i c)) ->__i C)
           (p : ∏ (i : I) (c : C i), m_label (f i c) = m_label (g i c))
           (q_f : ∏ i c j b, m_arg (f i c) b = f j (c_arg i c j b))
           (q_g : ∏ (i : I) (c : C i) (j : I) (b : B i (m_label (f i c)) j),
@@ -190,7 +190,7 @@ Section Eta.
   (*                      pr2_on_paths (toforallpaths _ _ _ *)
   (*                      (toforallpaths _ _ _ (pr2 g') i) c))). *)
 
-  (*   pr2 f' @ maponpaths (λ h, ⟦ A ◁ B ⟧.1 (h.f) ∘ⁱ pr2 c_coalg) p' @ !pr2 g'. *)
+  (*   pr2 f' @ maponpaths (λ h, ⟦ A ◁ B ⟧.1 (h.f) ∘__i pr2 c_coalg) p' @ !pr2 g'. *)
   (* Proof. *)
   (*   induction p'; cbn -[m_out]. *)
   (*   symmetry; apply pathsinv0r. *)
@@ -203,7 +203,7 @@ Section Eta.
   (*   unfold eta. *)
   (*   intermediate_path (toforallpaths _ _ _ (toforallpaths _ _ _ *)
   (*       (maponpaths (λ h : coalgebra_morphism c_coalg (m_coalgebra A' B'), *)
-  (*                           m_out A' B' ∘ⁱ h.f) *)
+  (*                           m_out A' B' ∘__i h.f) *)
   (*       (uniqueness_morphism_coalgebra _ (m_coalgebra_is_final _ _) _ f_hom g_hom)) tt) c). { *)
   (*     admit. *)
   (*   } *)
@@ -220,7 +220,7 @@ Section Eta.
   (* Proof. *)
   (*   unfold eta. *)
   (*   Check def. *)
-  (*   Check (maponpaths (λ h : coalgebra_morphism c_coalg (m_coalgebra A' B'), m_out A' B' ∘ⁱ h .f) *)
+  (*   Check (maponpaths (λ h : coalgebra_morphism c_coalg (m_coalgebra A' B'), m_out A' B' ∘__i h .f) *)
   (*        (uniqueness_morphism_coalgebra _ (m_coalgebra_is_final _ _) _ f_hom g_hom)). *)
   (* Admitted. *)
 
@@ -250,13 +250,13 @@ Proof.
   - cbn.
     assert (q : @m_arg _ _ _ tt tt (f.f tt c) b = m_arg (g.f tt c) b'). {
       transitivity (f.f tt (pr2 (pr2 C tt c) tt (uf # b))). {
-        change (pr2 ((@m_out _ _ _ ∘ⁱ f.f) tt c) tt b =
-                pr2 ((F.1 (f.f) ∘ⁱ pr2 C) tt c) tt (uf # b)).
+        change (pr2 ((@m_out _ _ _ ∘__i f.f) tt c) tt b =
+                pr2 ((F.1 (f.f) ∘__i pr2 C) tt c) tt (uf # b)).
         rewrite transportb_fun'; apply (maponpaths (λ f, f b)).
         set (P a := ∏ u, B a -> pr1 (m_coalgebra (λ _ : unit, A1) (λ _ a _, B a)) u).
         refine (_ @ transportb_sec_constant (λ a i, B a -> pr1 (m_coalgebra _ _) i)
                                        uf
-                                       (pr2 ((F.1 (f.f) ∘ⁱ pr2 C) tt c))
+                                       (pr2 ((F.1 (f.f) ∘__i pr2 C) tt c))
                                        tt).
         fold P.
         apply (maponpaths (λ f, f tt)).
@@ -269,10 +269,10 @@ Proof.
       transitivity (transportb (λ a, B a → M A1 B)
                                (uf @ ! ug)
                                (m_arg (g.f tt c)) b). {
-        change (pr2 ((F.1 (g.f) ∘ⁱ pr2 C) tt c) tt (uf # b) =
+        change (pr2 ((F.1 (g.f) ∘__i pr2 C) tt c) tt (uf # b) =
                 transportb (λ a, B a -> M A1 B)
                            (uf @ !ug)
-                           (pr2 ((@m_out _ _ _ ∘ⁱ g.f) tt c) tt) b).
+                           (pr2 ((@m_out _ _ _ ∘__i g.f) tt c) tt) b).
         rewrite transportb_fun'; apply (maponpaths (λ f, f b)).
         rewrite <- transport_b_b; apply maponpaths.
         unfold transportb; rewrite pathsinv0inv0.
@@ -564,7 +564,7 @@ Goal forall (A1 A2 : Type) (B : A1 -> Type),
 
 Goal ∏ I, ∏ c : Container I I,
       ∑ c_μ : Container I I,
-              ∏ X : Fam I, ⟦ c_μ ⟧.0 X ≃ⁱ M (c.S) (c.P).
+              ∏ X : Fam I, ⟦ c_μ ⟧.0 X ≃__i M (c.S) (c.P).
 Proof.
   intros I c.
 Defined.

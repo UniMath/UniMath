@@ -10,7 +10,6 @@ endif
 # The packages, listed in order by dependency:
 PACKAGES += Foundations
 PACKAGES += MoreFoundations
-PACKAGES += Inductives
 PACKAGES += Combinatorics
 PACKAGES += Algebra
 PACKAGES += NumberSystems
@@ -26,6 +25,7 @@ PACKAGES += Folds
 PACKAGES += HomologicalAlgebra
 PACKAGES += Paradoxes
 PACKAGES += Induction
+PACKAGES += Inductives
 ############################################
 # other user options; see also build/Makefile-configuration-template
 BUILD_COQ ?= yes

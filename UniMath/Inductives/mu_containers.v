@@ -4,7 +4,7 @@ Require Import UniMath.Inductives.auxiliary_lemmas.
 Open Scope transport.
 
 Inductive W {I} (A : Fam I) (B : ∏ i, A i -> Fam I) : I -> UU :=
-  sup : ∏ {i} (a : A i), (B i a ->ⁱ W A B) -> W A B i.
+  sup : ∏ {i} (a : A i), (B i a ->__i W A B) -> W A B i.
 Arguments sup {_ _ _ _} _ _.
 Definition label {I A B} {i : I} (w : W A B i) :=
   match w with sup a f => a end.
@@ -86,10 +86,10 @@ Variable (I : UU) (A1 : Fam I) (A2 : ∏ i, A1 i -> UU) (B : ∏ i, A1 i -> Fam 
 
 
 Definition dec i : (∑ w : W A1 B i, ∏ j (a : A1 j), Addr w a -> A2 j a) ->
-                   W (λ j, ∑ a, A2 j a) (B ∘ⁱ (λ _, pr1)) i :=
+                   W (λ j, ∑ a, A2 j a) (B ∘__i (λ _, pr1)) i :=
   λ '(w,, f),
   W_rect I A1 B (λ j w, (∏ k a, Addr w a -> A2 k a) ->
-                        W (λ k, ∑ a, A2 k a) (B ∘ⁱ (λ _, pr1)) j)
+                        W (λ k, ∑ a, A2 k a) (B ∘__i (λ _, pr1)) j)
          (λ j a f IH g, sup (a,, g j a (root_addr (sup a f)))
                             (λ k b, IH k b
                                        (λ l a' addr, g l a' (subtree_addr (sup a f) b addr))))
@@ -98,7 +98,7 @@ Definition dec i : (∑ w : W A1 B i, ∏ j (a : A1 j), Addr w a -> A2 j a) ->
          f.
 
 Fixpoint dec' i (w : W A1 B i) : (∏ j a, Addr w a -> A2 j a) ->
-                                 W (λ j, ∑ a, A2 j a) (B ∘ⁱ (λ _, pr1)) i :=
+                                 W (λ j, ∑ a, A2 j a) (B ∘__i (λ _, pr1)) i :=
   match w with
     sup a f =>
     λ g, sup (a,, g _ a (root_addr (sup a f)))
@@ -112,7 +112,7 @@ Proof. reflexivity. Qed.
 
 
 Fixpoint undec1 i (w : W (λ j, ∑ a, A2 j a) (λ j, B j ∘ pr1) i) : W A1 B i :=
-  match w with sup (a1,, _) f => sup a1 (undec1 ∘ⁱ f) end.
+  match w with sup (a1,, _) f => sup a1 (undec1 ∘__i f) end.
 
 Definition undec2 i (w : W (λ j, ∑ a, A2 j a) (λ j, B j ∘ pr1) i)
            j (a : A1 j) (addr : Addr (undec1 i w) a) :
@@ -167,7 +167,7 @@ Lemma toforallpaths_funextsec {X Y} {f1 f2 : ∏ x : X, Y x} (p : f1 ~ f2) :
   toforallpaths Y f1 f2 (funextsec Y f1 f2 p) = p.
 Proof. exact (homotweqinvweq (weqtoforallpaths _ _ _) p). Defined.
 
-Lemma transport_root_addr {i} (a : A1 i) (f1 f2 : B i a ->ⁱ W A1 B)
+Lemma transport_root_addr {i} (a : A1 i) (f1 f2 : B i a ->__i W A1 B)
       (p : f1 = f2) :
   transportb (λ w, Addr w a) (maponpaths (sup a) p) (root_addr (sup a f2)) =
   root_addr (sup a f1).
@@ -177,7 +177,7 @@ Proof. induction p; reflexivity. Defined.
   (*   (undec1_dec (sup a f) g) (root_addr (sup a f)) = *)
   (* root_addr (undec1 i (dec' i (sup a f) g)) *)
 
-Lemma transport_subtree_addr {i} {a : A1 i} {f1 f2 : B i a ->ⁱ W A1 B}
+Lemma transport_subtree_addr {i} {a : A1 i} {f1 f2 : B i a ->__i W A1 B}
       (p : ∏ j b, f1 j b = f2 j b) {j} {b : B i a j} {k} {a' : A1 k}
       (addr' : Addr (f2 j b) a') :
   transportb (λ w, Addr w a')

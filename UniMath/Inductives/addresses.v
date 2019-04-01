@@ -8,7 +8,7 @@ Section Addresses.
   (* T represents an abstract type of trees.
      A tree has nodes. Each node has a label and subtrees given by [arg]. *)
   Context {I} {T A : Fam I} {B : ∏ i, A i -> Fam I}
-          {label : T ->ⁱ A} {arg : ∏ i t, B i (label i t) ->ⁱ T}.
+          {label : T ->__i A} {arg : ∏ i t, B i (label i t) ->__i T}.
 
   Fixpoint Addr0 (n : nat) {i} (t : T i) : UU :=
     match n with

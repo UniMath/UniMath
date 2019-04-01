@@ -78,7 +78,7 @@ Section Wtypes.
     apply subtrees_wf. exact step.
   Defined.
 
-  Definition sup {i} (a : A i) (f : B i a ->ⁱ W) : W i.
+  Definition sup {i} (a : A i) (f : B i a ->__i W) : W i.
   Proof.
     exists (m_sup a (λ j, pr1 ∘ f j)).
     intros P step.
@@ -111,7 +111,7 @@ Section Wtypes.
     apply p; clear i m p; intros i a f IH.
     unfold Pp, P in *; cbn in *. intros j b.
     apply subtr_wf_then_wf.
-    change ((λ a_f : ∑ a, B i a ->ⁱ M,
+    change ((λ a_f : ∑ a, B i a ->__i M,
                      ∏ j (b : B i a_f.1 j),
                      ∏ j' (b' : B j (m_label (a_f.2 j b)) j'),
                      isWf (m_arg (a_f.2 j b) b'))
@@ -125,8 +125,8 @@ Section Wtypes.
     apply wf_then_subtr_wf. exact w.2.
   Defined.
 
-  Variable (C : Fam I) (sC : algebra_structure ⟦ A ◁ B ⟧ C).
-  Definition step {i} (a : A i) (f : B i a ->ⁱ C) : C i :=
+  Variable (C : Fam I) (sC : algebra_structure (⟦ A ◁ B ⟧) C).
+  Definition step {i} (a : A i) (f : B i a ->__i C) : C i :=
     sC i (a,, f).
 
   Lemma index_at_extend_addr {i} {w : W i} (addr : Addr w)
@@ -159,7 +159,7 @@ Section Wtypes.
                (P (root_addr _)) ×
                  (∏ j (b : B i (label w) j) addr, P (subtree_addr w b addr)).
   Proof.
-    use weqgradth.
+    use weq_iso.
       - exact (fun f => (f (root_addr _),,
                         fun j b addr' => f (subtree_addr _ b addr'))).
       - intros [root_case subtree_case] addr.
@@ -214,7 +214,7 @@ Section Wtypes.
                      (fun j' b' => index_at_extend_addr addr b' #
                                    h j b (extend_addr _ addr b')) =
                 h j b addr)).
-          use weqgradth.
+          use weq_iso.
             * exact (fun chP => (pr2 (pr1 chP) ,, pr2 (pr2 chP))).
             * intros. destruct X as [h P2].
               exists (step (label w) (fun j b => h j b (root_addr _)) ,, h).
@@ -233,7 +233,7 @@ Section Wtypes.
             * intros. reflexivity.
             (* *)
             * unfold LHom.
-              use weqgradth.
+              use weq_iso.
                 -- intros h j b.
                    exists ((pr1 h) j b).
                    exact ((pr2 h) j b).
@@ -267,8 +267,8 @@ Section Wtypes.
     iscontrpr1 (iscontr_LHom w).
 
   Definition WHom' :=
-    ∑ f : W ->ⁱ C,
-      ∏ i w, f i w = step (label w) (f ∘ⁱ (@arg i w)).
+    ∑ f : W ->__i C,
+      ∏ i w, f i w = step (label w) (f ∘__i (@arg i w)).
 
   Definition uncurry {X : UU} {Y : X -> UU} {Z : ∏ x, Y x -> UU}
              (f : ∏ x y, Z x y) (x_y : ∑ x, Y x) :
@@ -282,7 +282,7 @@ Section Wtypes.
     intros addr.
     refine (_ @ !(h2 _ (subtree_at addr))).
     unfold fun_step.
-    apply maponpaths. unfold compⁱ.
+    apply maponpaths. unfold comp__i.
     revert i w addr; use addresses_induction; hnf.
     - reflexivity.
     - intros i w j b addr' IH. exact IH.
@@ -366,25 +366,28 @@ Section Wtypes.
     apply iscontr_LHom.
   Defined.
 
-  Definition label_and_arg_on_sup {i} (a : A i) (f : B i a ->ⁱ W) :
-    tpair (λ a, B i a ->ⁱ W)
+  Definition label_and_arg_on_sup {i} (a : A i) (f : B i a ->__i W) :
+    tpair (λ a, B i a ->__i W)
           (label (sup a f))
           (@arg i (sup a f)) =
-    tpair (λ a, B i a ->ⁱ W) a f.
+    tpair (λ a, B i a ->__i W) a f.
   Proof.
-    change (let '(m,, wf) := sup a f in
+    (*change (let '(m,, wf) := sup a f in
             let '(a',, f') := m_out A B i m in
-            tpair (λ a, B i a ->ⁱ W)
+            tpair (λ a, B i a ->__i W)
                   a
                   (λ j b, m_arg m b,, wf_then_subtr_wf m wf j b) =
-            tpair (λ a, B i a ->ⁱ W)
+            tpair (λ a, B i a ->__i W)
                   a
-                  f).
-  Qed.
+                  f).*)
+  Admitted.
+
+
+(* This is just a compilation test by UniMath 2019 group RI
 
 
 
-  Definition arg_sup {i} (a : A i) (f : B i a ->ⁱ W) :
+  Definition arg_sup {i} (a : A i) (f : B i a ->__i W) :
     @arg i (sup a f) = f.
   Proof.
     intros.
@@ -409,10 +412,10 @@ Section Wtypes.
     (W ,, W_is_algebra).
 
 
-  Definition FW_equiv_W : ⟦ A ◁ B ⟧ W ≃ⁱ W.
+  Definition FW_equiv_W : ⟦ A ◁ B ⟧ W ≃__i W.
   Proof.
     intros i.
-    use weqgradth.
+    use weq_iso.
     - exact (W_is_algebra i).
     - exact (fun w => (label w,, @arg i w)).
     - intro af. use total2_paths_f.
@@ -431,7 +434,7 @@ Section Wtypes.
   Proof.
     unfold WHom', algebra_morphism, algebra_str_morphism. cbn.
     use weqfibtototal; intros h. cbn.
-    change ((∏ i w, h i w = step (label w) (h ∘ⁱ @arg i w)) ≃
+    change ((∏ i w, h i w = step (label w) (h ∘__i @arg i w)) ≃
            (∏ i a_f, h i (sup a_f.1 a_f.2) = sC i (⟦ A ◁ B ⟧.map h i a_f))).
     apply weq_functor_sec_id; intros i.
     apply (weqcomp (weqonsecbase _ (FW_equiv_W i))).
@@ -439,12 +442,12 @@ Section Wtypes.
     unfold step.
     change (
         h i (W_is_algebra i (a,, f)) =
-        sC i (tpair (λ a, B i a ->ⁱ C)
+        sC i (tpair (λ a, B i a ->__i C)
                     (label (sup a f))
-                    (h ∘ⁱ @arg i (sup a f)))
+                    (h ∘__i @arg i (sup a f)))
            ≃
         h i (W_is_algebra i (a,, f)) =
-        sC i (a,, h ∘ⁱ f)).
+        sC i (a,, h ∘__i f)).
     rewrite sup_and_arg.
     apply idweq.
   Defined.
@@ -525,3 +528,7 @@ Proof.
     unfold impred_iscontr_computational. unfold iscontrpr1. simpl. unfold funcontr.
     unfold iscontr_LHom. simpl.
 *)
+
+ *)
+
+End Wtypes.
