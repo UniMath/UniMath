@@ -10,7 +10,7 @@
 		   `("-emacs" "-noinit" "-indices-matter" "-type-in-type" "-w" "-notation-overridden" "-Q" ,(concat unimath-topdir "UniMath") "UniMath" )
 		   )
 	     (make-local-variable 'coq-prog-name)
-	     (setq coq-prog-name "/Users/dominik/.opam/default/bin/coqtop")
+	     (setq coq-prog-name (concat unimath-topdir "sub/coq/bin/coqtop"))
 	     (make-local-variable 'before-save-hook)
 	     (add-hook 'before-save-hook 'delete-trailing-whitespace)
 	     (modify-syntax-entry ?' "w")

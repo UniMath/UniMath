@@ -372,20 +372,15 @@ Section Wtypes.
           (@arg i (sup a f)) =
     tpair (λ a, B i a ->__i W) a f.
   Proof.
-    (*change (let '(m,, wf) := sup a f in
+    change (let '(m,, wf) := sup a f in
             let '(a',, f') := m_out A B i m in
             tpair (λ a, B i a ->__i W)
                   a
                   (λ j b, m_arg m b,, wf_then_subtr_wf m wf j b) =
             tpair (λ a, B i a ->__i W)
                   a
-                  f).*)
-  Admitted.
-
-
-(* This is just a compilation test by UniMath 2019 group RI
-
-
+                  f).
+  Qed.
 
   Definition arg_sup {i} (a : A i) (f : B i a ->__i W) :
     @arg i (sup a f) = f.
@@ -528,7 +523,3 @@ Proof.
     unfold impred_iscontr_computational. unfold iscontrpr1. simpl. unfold funcontr.
     unfold iscontr_LHom. simpl.
 *)
-
- *)
-
-End Wtypes.
