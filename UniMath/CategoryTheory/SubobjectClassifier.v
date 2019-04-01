@@ -62,16 +62,16 @@ Section Accessors.
                (H : m · chi = TerminalArrow _ _ · true'),
                isPullback _ _ _ _ H) := pr2 (pr2 O) X Y m.
 
-  Local Definition characteristic_morphism' {X Y} (m : Monic _ X Y) :
+  Definition characteristic_morphism {X Y} (m : Monic _ X Y) :
     C⟦Y, subobject_classifier_object⟧ :=
     pr1 (iscontrpr1 (subobject_classifier_universal_property m)).
 
   Definition subobject_classifier_square_commutes {X Y} (m : Monic _ X Y) :
-    m · characteristic_morphism' m = TerminalArrow _ _ · true :=
+    m · characteristic_morphism m = TerminalArrow _ _ · true :=
     pr1 (pr2 (iscontrpr1 (subobject_classifier_universal_property m))).
 
   Definition subobject_classifier_pullback {X Y} (m : Monic _ X Y) :
-    Pullback (characteristic_morphism' m) true.
+    Pullback (characteristic_morphism m) true.
   Proof.
     use mk_Pullback.
     - exact X.
@@ -82,7 +82,7 @@ Section Accessors.
   Defined.
 
   Definition subobject_classifier_pullback_sym {hsC : has_homsets C} {X Y} (m : Monic _ X Y) :
-    Pullback true (characteristic_morphism' m).
+    Pullback true (characteristic_morphism m).
   Proof.
     refine (@switchPullback (C,, _) _ _ _ _ _ (subobject_classifier_pullback m)).
     assumption.
@@ -92,3 +92,8 @@ End Accessors.
 
 Coercion subobject_classifier_object : subobject_classifier >-> ob.
 Coercion true : subobject_classifier >-> Monic.
+
+(** The arrow Goldblatt calls [true! := (! : X -> T) · true] *)
+Definition const_true {C : precategory} {T : Terminal C} {X : ob C}
+           (O : subobject_classifier T) : X --> subobject_classifier_object O :=
+  TerminalArrow T X · true O.
