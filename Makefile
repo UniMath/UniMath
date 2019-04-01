@@ -10,6 +10,7 @@ endif
 # The packages, listed in order by dependency:
 PACKAGES += Foundations
 PACKAGES += MoreFoundations
+PACKAGES += Inductives
 PACKAGES += Combinatorics
 PACKAGES += Algebra
 PACKAGES += NumberSystems
