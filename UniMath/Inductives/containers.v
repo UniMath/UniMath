@@ -25,7 +25,8 @@ Definition container_extension {I J} (c : Container I J) : functor I J.
 Proof.
   use build_functor.
   - exact (λ X j, ∑ s : c.S j, ∏ i, c.P j s i -> X i).
-  - exact (λ X Y f j x, tpair (λ s, ∏ i, c.P j s i -> Y i)
+  - cbn.
+    exact (λ X Y f j x, tpair (λ s, ∏ i, c.P j s i -> Y i)
                               (pr1 x)
                               (λ i p, f i (pr2 x i p))).
   - reflexivity.

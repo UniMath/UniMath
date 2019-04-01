@@ -1,14 +1,14 @@
 Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Inductives.algebras.
-Require Import UniMath.Inductives.containers.
+Require Export UniMath.Inductives.algebras.
+Require Export UniMath.Inductives.containers.
 Require Import UniMath.Inductives.auxiliary_lemmas.
 
 
 Lemma transportf_fun
-      (A : UU) (B C : A -> UU)
-      (a1 a2 : A) (p : a1 = a2)
+      {A : UU} (B C : A -> UU)
+      {a1 a2 : A} (p : a1 = a2)
       (f : B a1 -> C a1) (b : B a2) :
   transportf (λ a, B a -> C a) p f b = transportf C p (f (transportb B p b)).
 Proof.
@@ -137,7 +137,8 @@ Section M_From_Nat.
       set (q' := funextsec _ _ _ q).
       use total2_paths_f; cbn.
       + exact q'.
-      + rewrite transportf_sec_constant. apply funextsec; intros n.
+      + apply funextsec; intros n.
+        rewrite transportf_sec_constant.
         intermediate_path (!maponpaths (λ x, x (S n)) q' @
                             maponpaths (λ x, x n) q'). {
           use transportf_paths_FlFr.
@@ -185,7 +186,8 @@ Section M_From_Nat.
       set (q' := funextsec _ _ _ q).
       use total2_paths_f; cbn.
       + exact q'.
-      + rewrite transportf_sec_constant. apply funextsec; intros n.
+      + apply funextsec; intros n.
+        rewrite transportf_sec_constant.
         intermediate_path (!maponpaths (λ x, x (S n)) q' @
                             maponpaths (λ x, l n (x n)) q'). {
           use transportf_paths_FlFr.
@@ -257,13 +259,13 @@ Section M_From_Nat.
   Proof.
     induction chain as [X π].
     use build_chain.
-    - exact (λ n, F.0 (X n)).
-    - exact (λ n, F.1 (π n)).
+    - exact (λ n, F (X n)).
+    - exact (λ n, F.map (π n)).
   Defined.
 
   Lemma weq_polynomial_functor_on_limit
         (c : Container I I) (chain : Chain) :
-    ⟦c⟧.0 (limit chain) ≃ⁱ limit (apply_on_chain ⟦c⟧ chain).
+    ⟦c⟧ (limit chain) ≃ⁱ limit (apply_on_chain ⟦c⟧ chain).
   Proof.
     induction c as [A B].
     induction chain as [X π]; unfold apply_on_chain; cbn;
@@ -401,21 +403,21 @@ Section M_From_Nat.
   Proof.
     intros n; induction n.
     - exact (λ _, unit).
-    - exact (P.0 IHn).
+    - exact (P IHn).
   Defined.
 
   Definition π : ∏ n, W (1 + n) ->ⁱ W n.
   Proof.
     intros n; induction n.
     - exact (λ _ _, tt).
-    - exact (P.1 IHn).
+    - exact (P.map IHn).
   Defined.
 
   Definition chain := build_chain W π.
 
   Definition m0_type := limit chain.
 
-  Definition m0_in : P.0 m0_type ≃ⁱ m0_type :=
+  Definition m0_in : P m0_type ≃ⁱ m0_type :=
     weqcompⁱ (weq_polynomial_functor_on_limit _ chain)
              (weq_limit_shift chain).
   Opaque m0_in.
@@ -430,14 +432,14 @@ Section M_From_Nat.
     intros coalgebra; induction coalgebra as [C γ];
       unfold coalgebra_structure in γ.
     apply iscontrifweqtounit.
-    intermediate_weq (∑ f, m0_out ∘ⁱ f = P.1 f ∘ⁱ γ). {
+    intermediate_weq (∑ f, m0_out ∘ⁱ f = P.map f ∘ⁱ γ). {
       apply idweq.
     }
-    intermediate_weq (∑ f, m0_in ∘ⁱ m0_out ∘ⁱ f = m0_in ∘ⁱ P.1 f ∘ⁱ γ). {
+    intermediate_weq (∑ f, m0_in ∘ⁱ m0_out ∘ⁱ f = m0_in ∘ⁱ P.map f ∘ⁱ γ). {
       apply weq_functor_total2_id; intros f.
       apply (weqonpaths (weq_comp_lⁱ _ _ _ m0_in)).
     }
-    set (Ψ f := m0_in ∘ⁱ P.1 f ∘ⁱ γ :
+    set (Ψ f := m0_in ∘ⁱ P.map f ∘ⁱ γ :
                   C ->ⁱ m0_type).
     intermediate_weq (∑ f, f = Ψ f). {
       apply weq_functor_total2_id; intros f.
@@ -480,7 +482,7 @@ Section M_From_Nat.
       apply total2_associativity.
     }
     transparent assert (Φ0' : (∏ n, Cone0' n -> Cone0' (S n))). {
-      exact (λ (n : nat) (un : Cone0' n), P.1 un ∘ⁱ γ).
+      exact (λ (n : nat) (un : Cone0' n), P.map un ∘ⁱ γ).
     }
     transparent assert (Φ0 : (Cone0 -> Cone0)). {
       exact (λ u n i c,
@@ -495,8 +497,8 @@ Section M_From_Nat.
                                       Φ0 u (1 + n) i c)). {
       exact (λ (u : Cone0) (n : nat) (pn : Cone1' u n) (i : I) (c : C i),
              @total2_paths_f _ _
-               ((P.1 (π n ∘ⁱ u (S n)) ∘ⁱ γ) i c)
-               ((P.1 (u n) ∘ⁱ γ) i c)
+               ((P.map (π n ∘ⁱ u (S n)) ∘ⁱ γ) i c)
+               ((P.map (u n) ∘ⁱ γ) i c)
                (idpath _)
                (funextsec _ _ _
                   (λ j, funextfun _ _
@@ -593,7 +595,6 @@ Section M_From_Nat.
           apply weq_functor_total2_id; intros q.
           apply weq_functor_sec_id; intros n.
           apply weq_comp0_r.
-          revert n; apply weqtoforallpaths.
           apply transportb_sec_constant.
         }
         intermediate_weq (∑ q : Cone1 u,
@@ -643,10 +644,10 @@ Section M_From_Nat.
 
   Definition m0_corec_beta (C : coalgebra P) {i : I} (c : coalgebra_to_type C i) :
     m0_out i (m0_corec C c) =
-    P.1 (@m0_corec C) i (coalgebra_to_coalgebra_str C i c).
+    P.map (@m0_corec C) i (coalgebra_to_coalgebra_str C i c).
   Proof.
     change ((m0_out ∘ⁱ @m0_corec C) i c =
-            (P.1 (@m0_corec C) ∘ⁱ coalgebra_to_coalgebra_str C) i c).
+            (P.map (@m0_corec C) ∘ⁱ coalgebra_to_coalgebra_str C) i c).
     revert c; apply toforallpaths.
     revert i; apply toforallpaths.
     exact (pr2 (finality_morphism_coalgebra _ m0_coalgebra_is_final C)).
@@ -667,13 +668,13 @@ Section M_From_Nat.
   Defined.
 
   Lemma H : ∏ i (m : m_type i), isaprop
-    (∑ af : P.0 m_type i, m0_out i (pr1 m) = P.1 (λ _, pr1) i af).
+    (∑ af : P m_type i, m0_out i (pr1 m) = P.map (λ _, pr1) i af).
   Proof.
     intros.
     induction m as [m Ccp]; simpl.
-    change (isaprop (∑ af : P.0 m_type i,
+    change (isaprop (∑ af : P m_type i,
                             m0_out i m =
-                            P.1 (λ _, pr1) i af)).
+                            P.map (λ _, pr1) i af)).
     use (@isofhlevelweqb
            _
            _
@@ -690,7 +691,7 @@ Section M_From_Nat.
       apply weq_functor_total2_id; intros a.
       intermediate_weq (
           ∑ f : ∏ j, B i a j → m_type j,
-                m0_out i m = P.1 (λ _, pr1) i (a,, f)). {
+                m0_out i m = P.map (λ _, pr1) i (a,, f)). {
         apply idweq.
       }
       intermediate_weq (
@@ -715,7 +716,7 @@ Section M_From_Nat.
                        (λ _, pr1) ∘ⁱ f) ≃
                                         tpair (λ a, ∏ j, B i a j -> m0_type j)
                                         (pr1 (m0_out i m)) (pr2 (m0_out i m)) =
-                         P.1 (λ _, pr1) i (a,, f)).
+                         P.map (λ _, pr1) i (a,, f)).
         apply (weq_total2_paths_f (A i) (λ a, ∏ j, B i a j -> m0_type j)
                                   (pr1 (m0_out i m)) a (pr2 (m0_out i m))
                                   ((λ _, pr1) ∘ⁱ f)).
@@ -858,38 +859,38 @@ Section M_From_Nat.
           apply isapropishinh.
   Qed.
 
-  Definition m_out : m_type ->ⁱ P.0 m_type.
+  Definition m_out : m_type ->ⁱ P m_type.
   Proof.
-    cut (∑ m_out : m_type ->ⁱ (P.0 m_type),
+    cut (∑ m_out : m_type ->ⁱ (P m_type),
                    ∏ i m, m0_out i (pr1 m) =
-                          P.1 (λ _, pr1) i (m_out i m)). {
+                          P.map (λ _, pr1) i (m_out i m)). {
       exact pr1.
     }
     apply (sec_total2_distributivity
              I
-             (λ i, m_type i -> P.0 m_type i)
+             (λ i, m_type i -> P m_type i)
              (λ i m_out_i, ∏ m, m0_out i (pr1 m) =
-                                 P.1 (λ _, pr1) i (m_out_i m))).
+                                 P.map (λ _, pr1) i (m_out_i m))).
     intros i.
     apply (sec_total2_distributivity
              (m_type i)
-             (λ _, P.0 m_type i)
+             (λ _, P m_type i)
              (λ m m_out_i_m, m0_out i (pr1 m) =
-                              P.1 (λ _, pr1) i m_out_i_m)).
+                              P.map (λ _, pr1) i m_out_i_m)).
     intros m.
     apply (squash_to_prop (pr2 m)).
     - apply H.
     - induction 1 as [C [c p]].
-      exists (P.1 (@m_corec C) i (coalgebra_to_coalgebra_str C i c)).
+      exists (P.map (@m_corec C) i (coalgebra_to_coalgebra_str C i c)).
       rewrite <- p.
       change (m0_out i (m0_corec C c) =
-              P.1 (@m0_corec C) i (coalgebra_to_coalgebra_str C i c)).
+              P.map (@m0_corec C) i (coalgebra_to_coalgebra_str C i c)).
       apply m0_corec_beta.
   Defined.
 
   Goal ∏ (C : coalgebra P) (i : I) (c : coalgebra_to_type C i),
   m_out i (m_corec C c) =
-  P.1 (@m_corec C) i (coalgebra_to_coalgebra_str C i c).
+  P.map (@m_corec C) i (coalgebra_to_coalgebra_str C i c).
   Proof.
     reflexivity.
   Qed.
@@ -897,6 +898,12 @@ Section M_From_Nat.
   Definition m_coalgebra : coalgebra P :=
     m_type,,
     m_out.
+
+  Definition m_label {i} (m : m_type i) : A i :=
+    pr1 (m_out i m).
+
+  Definition m_arg {i} (m : m_type i) {j} (b : B i (m_label m) j) : m_type j :=
+    pr2 (m_out i m) j b.
 
 
   Definition weq_m_m0 : m_type ≃ⁱ m0_type.
@@ -945,7 +952,7 @@ Section M_From_Nat.
     - apply funextsec; intros i.
       apply funextfun; intros m.
       simpl.
-      rewrite (@transportf_sec_constant (Fam I) I (λ C i, C i -> P.0 C i)).
+      rewrite (@transportf_sec_constant (Fam I) I (λ C i, C i -> P C i)).
       rewrite transportf_fun.
       rewrite (functtransportb (λ f, f i) (idfun _)).
       rewrite (@maponpaths_funextsec I (λ _, UU)).
@@ -994,4 +1001,48 @@ Section M_From_Nat.
       apply m0_coalgebra_is_final.
   Defined.
 
+  Lemma isweq_m_out : isweqⁱ m_out.
+  Proof.
+    change (isweqⁱ m_coalgebra.2).
+    apply isweq_final_coalgebra_struct. apply m_coalgebra_is_final.
+  Defined.
+
+  Definition weq_m_out : m_type ≃ⁱ P m_type :=
+    λ i, weqpair (m_out i) (isweq_m_out i).
+
+  Definition m_sup {i} (label : A i) (arg : ∏ j, B i label j -> m_type j) :
+    m_type i :=
+    invmap (weq_m_out i) (label,, arg).
+
+  Lemma m_sup_m_out {i} (m : m_type i) :
+    m_sup (m_label m) (@m_arg i m) = m.
+  Proof.
+    Fail reflexivity.
+    change (invmap (weq_m_out i) (weq_m_out i m) = m).
+    apply homotinvweqweq.
+  Qed.
+
+  Lemma m_out_m_sup {i} (a : A i) (f : B i a ->ⁱ m_type) :
+    tpair (λ label, B i label ->ⁱ m_type)
+          (m_label (m_sup a f))
+          (@m_arg i (m_sup a f)) =
+    (a,, f).
+  Proof.
+    Fail reflexivity.
+    change (weq_m_out i (invmap (weq_m_out i) (a,, f)) = (a,, f)).
+    apply homotweqinvweq.
+  Qed.
+
+
+  Transparent P.
+
 End M_From_Nat.
+
+Opaque m0_out m0_in m0_coalgebra_is_final m0_corec m0_corec_beta.
+
+Arguments m_label {_ _ _ _} _.
+Arguments m_arg {_ _ _ _} _ {_} _.
+Arguments m_corec {_ _ _} _ {_} _.
+Arguments m_sup {_ _ _ _} _ _.
+Arguments m_sup_m_out {_ _ _ _} _.
+Arguments m_out_m_sup {_ _ _ _} _ _.

@@ -1,12 +1,12 @@
-(** The following line has to be removed for the file to compile with Coq8.2 *)
-Unset Automatic Introduction.
-
-Unset Kernel Term Sharing.
-
-(** Imports *)
-
 Require Export UniMath.Inductives.addresses.
 Require Export UniMath.MoreFoundations.All.
+Require Export UniMath.Inductives.containers.
+Require Import UniMath.Inductives.M_from_nat.
+Require Import UniMath.Inductives.auxiliary_lemmas.
+
+
+Open Scope transport.
+
 
 (* Lemmas that should be elsewhere *)
 
@@ -35,12 +35,12 @@ Proof.
 Defined.
 
 
-  Definition moveR_Mp {X : UU} {a b c : X} (p : a = b) (q : a = c) (r : b = c) :
-    q = p @ r -> !p @ q = r.
-  Proof.
-    intros.
-    induction p. induction q. exact X0.
-  Defined.
+Definition moveR_Mp {X : UU} {a b c : X} (p : a = b) (q : a = c) (r : b = c) :
+  q = p @ r -> !p @ q = r.
+Proof.
+  intros.
+  induction p. induction q. exact X0.
+Defined.
 
 
 
@@ -49,186 +49,175 @@ Section Wtypes.
 
   (* Assuming M-types construct W-types *)
 
-  Context {A : UU} {B : A -> UU}.
+  Context {I : UU} {A : Fam I} {B : ∏ i, A i -> Fam I}.
 
-  CoInductive M : Type :=
-    supM : total2 (fun a : A => B a -> M) -> M.
+  Definition M := m_type A B.
 
-  Definition labelM (m : M) : A.
+  Definition isWf {i} (m : M i) : UU :=
+    ∏ (P : ∏ i, M i -> hProp),
+    (∏ i a f, (∏ j b, P j (f j b)) -> P i (m_sup a f)) ->
+    P i m.
+
+  Definition isprop_isWf {i} (m : M i) : isaprop (isWf m).
   Proof.
-    intros.
-    destruct m.
-    exact (pr1 t).
+    apply impred; intros P.
+    apply impred; intro step.
+    apply propproperty.
   Defined.
 
-  Definition argM (m : M) : B (labelM m) -> M.
+  Definition W : Fam I :=
+    λ i, ∑ m : M i, isWf m.
+
+  Definition subtr_wf_then_wf {i} (m : M i) :
+    (∏ j (b : B i (m_label m) j), isWf (m_arg m b)) ->
+    isWf m.
   Proof.
-    intros m.
-    destruct m.
-    exact (pr2 t).
+    intros subtrees_wf P step.
+    rewrite <- (m_sup_m_out m).
+    apply step. intros j b.
+    apply subtrees_wf. exact step.
   Defined.
 
-  Definition isWf (m : M) : UU :=
-    ∏ P : M -> hProp,
-      (∏ a : A, ∏ f : B a -> M, (∏ b : B a, P (f b)) -> P (supM (a ,, f)))
-        -> P m.
-
-  Definition isprop_isWf (m : M) : isaprop (isWf m).
+  Definition sup {i} (a : A i) (f : B i a ->ⁱ W) : W i.
   Proof.
-    intros. apply impred.
-    intro. apply impred.
-    intro. exact (pr2 (t m)).
-  Defined.
-
-  Definition W : UU := total2 isWf.
-
-  Definition sup (a : A) (f : B a -> W) : W.
-  Proof.
-    intros.
-    exists (supM (a ,, pr1 ∘ f)).
+    exists (m_sup a (λ j, pr1 ∘ f j)).
     intros P step.
-    apply step.
-    intro b.
-    apply (pr2 (f b)).
-    exact step.
+    apply step. intros j b.
+    apply (f j b).2. exact step.
   Defined.
 
-  Definition W_is_algebra : algebra_structure (polynomial_functor A B) W :=
-    fun t => sup (pr1 t) (pr2 t).
+  Definition label {i} (w : W i) : A i :=
+    m_label w.1.
 
-  Definition W_as_algebra : algebra (polynomial_functor A B) :=
-    (W ,, W_is_algebra).
 
-  Definition label : W -> A.
+  Definition P {i} (m : M i) : UU :=
+    ∏ j (b : B i (m_label m) j), isWf (m_arg m b).
+
+  Definition ispropP {i} (m : M i) : isaprop (P m).
   Proof.
-    intro w. destruct w as [m p].
-    destruct m.
-    exact (pr1 t).
-  Defined.
-
-  Definition subtr_wf_then_wf (m : M) (stwf : ∏ b : B (labelM m), isWf (argM m b) ) : isWf m.
-  Proof.
-    intros.
-    intros P step.
-    destruct m.
-    destruct t as [a f].
-    simpl in *.
-    apply step.
-    intro b.
-    apply (stwf b).
-    exact step.
-  Defined.
-
-  Definition P (m : M) : UU := ∏ b : B (labelM m), isWf (argM m b).
-
-
-  Definition ispropP (m : M) : isaprop (P m).
-  Proof.
-    intros.
-    apply impred.
-    intro.
+    apply impred; intro.
+    apply impred; intro.
     apply isprop_isWf.
   Qed.
 
-  Definition Pp (m : M) : hProp.
+  Definition Pp {i} (m : M i) : hProp.
   Proof.
-    intros.
     exists (P m).
     apply ispropP.
   Defined.
 
-  Definition wf_then_subtr_wf (m : M) (p : isWf m) : Pp m.
+  Definition wf_then_subtr_wf {i} (m : M i) (p : isWf m) : Pp m.
   Proof.
-    intros.
-    apply p.
-    intros. clear p m.
-    simpl in *.
-    unfold P in *.
-    simpl.
-    intro b.
+    apply p; clear i m p; intros i a f IH.
+    unfold Pp, P in *; cbn in *. intros j b.
     apply subtr_wf_then_wf.
-    apply (X b).
+    change ((λ a_f : ∑ a, B i a ->ⁱ M,
+                     ∏ j (b : B i a_f.1 j),
+                     ∏ j' (b' : B j (m_label (a_f.2 j b)) j'),
+                     isWf (m_arg (a_f.2 j b) b'))
+              (a,, f)) in IH.
+    apply (transportb _ (m_out_m_sup a f) IH).
   Defined.
 
-  Definition arg (w : W) (b : B (label w)) : W.
+  Definition arg {i} (w : W i) {j} (b : B i (label w) j) : W j.
   Proof.
-    intros w. destruct w as [m p].
-    destruct m. destruct t as [a f].
-    intro b.
-    exists (f b).
-    simpl in b.
-    exact (wf_then_subtr_wf (supM (a,, f)) p b).
+    exists (m_arg w.1 b).
+    apply wf_then_subtr_wf. exact w.2.
   Defined.
 
-  Variable (C : Type) (sC : algebra_structure (polynomial_functor A B) C).
-  Definition step a f := sC (a ,, f).
+  Variable (C : Fam I) (sC : algebra_structure ⟦ A ◁ B ⟧ C).
+  Definition step {i} (a : A i) (f : B i a ->ⁱ C) : C i :=
+    sC i (a,, f).
 
-  Definition LHom (w : W) :=
-    ∑ h : Addr w -> C, ∏ addr : Addr w,
-      step (label_at w addr)
-        (h ∘ (extend_addr (label:=label) (arg:=arg) w addr)) =
-      h addr.
+  Lemma index_at_extend_addr {i} {w : W i} (addr : Addr w)
+        {j} (b : B (index_at addr) (label_at addr) j) :
+    index_at (arg := @arg) (extend_addr _ addr b) = j.
+  Proof.
+    revert i w addr j b; use addresses_induction; hnf.
+    - cbn. reflexivity.
+    - intros i w j b addr' IH j' b'.
+      change (index_at (subtree_addr w b (extend_addr (arg w b) addr' b')) = j').
+      change (index_at (extend_addr (arg w b) addr' b') = j').
+      apply IH.
+  Defined.
 
-  Definition equiv_addr_match (w : W) (P : Addr (arg:=arg) w -> UU) :
+  Definition fun_step {i} {w : W i}
+             (h : ∏ addr : Addr w, C (index_at addr))
+             (addr : Addr w) :
+    C (index_at addr) :=
+    step (label_at addr)
+         (λ j b, transportf C
+                            (index_at_extend_addr addr b)
+                            (h (extend_addr w addr b))).
+
+  Definition LHom {i} (w : W i) :=
+    ∑ h : ∏ addr : Addr w, C (index_at addr),
+          ∏ addr : Addr w, fun_step h addr = h addr.
+
+  Definition equiv_addr_match {i} (w : W i) (P : Addr (arg:=@arg) w -> UU) :
                (∏ addr : Addr w, P addr) ≃
                (P (root_addr _)) ×
-                 (∏ b : B (label w), ∏ addr , P (subtree_addr w b addr)).
+                 (∏ j (b : B i (label w) j) addr, P (subtree_addr w b addr)).
   Proof.
-    intros w P.
     use weqgradth.
-      - exact (fun f => (f (root_addr _) ,, fun b addr' => f (subtree_addr _ b addr'))).
-      - intros [root_case subtree_case] addr. revert w addr P root_case subtree_case.
-        use addresses_induction.
+      - exact (fun f => (f (root_addr _),,
+                        fun j b addr' => f (subtree_addr _ b addr'))).
+      - intros [root_case subtree_case] addr.
+        revert i w addr P root_case subtree_case. use addresses_induction.
           + intros. intros ? ? ?.
             exact root_case.
           + intros. intros ? ? ? .
             apply subtree_case.
       - intro f.
         apply funextsec.
-        intro addr. revert w addr P f.
-        use addresses_induction.
+        intro addr.
+        revert i w addr P f; use addresses_induction.
           + intros. intros ? ?. reflexivity.
           + intros. intros ? ?. reflexivity.
       - intros pair. destruct pair. simpl. reflexivity.
   Defined.
 
-  Definition equiv_arg_recursor (w : W) :
-               LHom w ≃ ∏ b : B (label w), LHom (arg w b).
+  Definition equiv_arg_recursor {i} (w : W i) :
+               LHom w ≃ ∏ j (b : B i (label w) j), LHom (arg w b).
   Proof.
-    intros.
-    (* *)
     intermediate_weq
       (∑ h,
-        (step (label_at w (root_addr _)) (h ∘ extend_addr w (root_addr _)) = h (root_addr _)) ×
-        (∏ b : B (label w), ∏ addr : Addr (arg w b),
-          step (label_at w (subtree_addr w b addr))
-               (h ∘ extend_addr w (subtree_addr w b addr)) =
-          h (subtree_addr w b addr))).
+        (fun_step h (root_addr w) = h (root_addr w)) ×
+        (∏ j (b : B i (label w) j) addr,
+          fun_step h (subtree_addr w b addr) = h (subtree_addr w b addr))).
       { use weqfibtototal.
         intro h.
-        apply (equiv_addr_match w (fun addr => step (label_at w addr) (h ∘ extend_addr w addr) = h addr)). }
+        apply (equiv_addr_match w (fun addr => fun_step h addr = h addr)). }
       (* *)
       - intermediate_weq
-       (∑ ch : C × (∏ b : B (label w), Addr (label:=label) (arg:=arg) (arg w b) -> C),
-         (step (label w) (fun b => (pr2 ch) b (root_addr _)) = pr1 ch) ×
-         (∏ b : B (label w), ∏ addr : Addr (arg w b),
-           step (label_at (arg w b) addr) (fun b' => (pr2 ch) b (extend_addr _ addr b')) = (pr2 ch) b addr)).
+       (∑ ch : C i × (∏ j (b : B i (label w) j)
+                      (addr : Addr (label:=@label) (arg:=@arg) (arg w b)),
+                      C (index_at addr)),
+         (step (label w) (fun j b => (pr2 ch) j b (root_addr _)) = pr1 ch) ×
+         (∏ j (b : B i (label w) j) (addr : Addr (arg w b)),
+           step (label_at addr)
+                (fun j' b' => index_at_extend_addr addr b' #
+                              (pr2 ch) j b (extend_addr _ addr b')) =
+           (pr2 ch) j b addr)).
         + use weqbandf.
-          use equiv_addr_match.
-          intro h.
-          apply weqdirprodf.
-            * simpl. apply idweq.
-            * simpl. apply idweq.
+          * apply equiv_addr_match.
+          * intro h. cbn.
+            apply weqdirprodf.
+            -- exact (idweq _).
+            -- exact (idweq _).
         (* *)
         + intermediate_weq
-            (∑ h : (∏ b : B (label w), Addr (label:=label) (arg:=arg) (arg w b) -> C),
-              (∏ b : B (label w), ∏ addr : Addr (arg w b),
-                step (label_at (arg w b) addr)
-                     (fun b' => h b (extend_addr _ addr b')) = h b addr)).
+            (∑ h : (∏ j (b : B i (label w) j) (addr : Addr (arg w b)),
+                    C (index_at addr)),
+              (∏ j (b : B i (label w) j) (addr : Addr (arg w b)),
+                step (label_at addr)
+                     (fun j' b' => index_at_extend_addr addr b' #
+                                   h j b (extend_addr _ addr b')) =
+                h j b addr)).
           use weqgradth.
             * exact (fun chP => (pr2 (pr1 chP) ,, pr2 (pr2 chP))).
             * intros. destruct X as [h P2].
-              exists (step (label w) (fun b => h b (root_addr _)) ,, h).
+              exists (step (label w) (fun j b => h j b (root_addr _)) ,, h).
               simpl.
               exact ((idpath _) ,, P2).
             * intros chP. destruct chP as [ch P]. destruct ch as [c h].
@@ -245,123 +234,158 @@ Section Wtypes.
             (* *)
             * unfold LHom.
               use weqgradth.
-                -- intros h b.
-                   exists ((pr1 h) b).
-                   exact ((pr2 h) b).
+                -- intros h j b.
+                   exists ((pr1 h) j b).
+                   exact ((pr2 h) j b).
                 -- intro h.
-                   exists (fun b => pr1 (h b)).
-                   exact (fun b => pr2 (h b)).
+                   exists (fun j b => pr1 (h j b)).
+                   exact (fun j b => pr2 (h j b)).
                 -- intros. reflexivity.
                 -- intros. reflexivity.
   Defined.
 
-  Definition iscontr_LHom (w : W) : iscontr (LHom w).
+  Definition iscontr_LHom {i} (w : W i) : iscontr (LHom w).
   Proof.
-    intros.
     destruct w as [m wf].
-    destruct m. destruct t as [a f].
-    transparent assert (iscontrforanywf : (M -> hProp)).
-      { intros m0. exists (∏ wf, iscontr (LHom (m0 ,, wf))).
+    transparent assert (iscontrforanywf : (∏ j, M j -> hProp)).
+      { intros j0 m0. exists (∏ wf, iscontr (LHom (m0,, wf))).
         apply impred. intro t. apply isapropiscontr. }
     apply (wf iscontrforanywf).
-    intros a0 f0 IH.
+    intros i0 a0 f0 IH.
     intro wf'.
-    apply (iscontrweqb (equiv_arg_recursor _)). apply impred_iscontr_computational.
-    intros b. apply IH.
+    apply (iscontrweqb (equiv_arg_recursor _)).
+    apply impred_iscontr_computational; intros j.
+    apply impred_iscontr_computational; intros b.
+    change ((λ a_f : ⟦ A ◁ B ⟧ M i0,
+                     ∏ j (b : B i0 a_f.1 j), iscontrforanywf j (a_f.2 j b))
+              (a0,, f0)) in IH.
+    apply (transportb _ (m_out_m_sup a0 f0) IH).
   Defined.
 
 
-  Definition local_recursor (w : W) :=
+  Definition local_recursor {i} (w : W i) :=
     iscontrpr1 (iscontr_LHom w).
 
   Definition WHom' :=
-    ∑ f : W -> C,
-      ∏ w, f w = step (label w) (f ∘ (arg w)).
+    ∑ f : W ->ⁱ C,
+      ∏ i w, f i w = step (label w) (f ∘ⁱ (@arg i w)).
 
+  Definition uncurry {X : UU} {Y : X -> UU} {Z : ∏ x, Y x -> UU}
+             (f : ∏ x y, Z x y) (x_y : ∑ x, Y x) :
+    Z x_y.1 x_y.2 :=
+    f x_y.1 x_y.2.
 
-  Definition WHom'_to_LHom (h : WHom') (w : W) : LHom w.
+  Definition WHom'_to_LHom (h : WHom') i (w : W i) : LHom w.
   Proof.
-    intros.
-    destruct h as [h1 h2].
-    exists (h1 ∘ (subtree_at w)).
+    induction h as [h1 h2].
+    exists (λ addr : Addr w, h1 _ (subtree_at addr)).
     intros addr.
-    refine (_ @ !(h2 ((subtree_at w) addr))).
-    apply (maponpaths (fun f => step ((label_at w) addr) (h1 ∘ f))).
-    use subtree_at_extend_addr.
+    refine (_ @ !(h2 _ (subtree_at addr))).
+    unfold fun_step.
+    apply maponpaths. unfold compⁱ.
+    revert i w addr; use addresses_induction; hnf.
+    - reflexivity.
+    - intros i w j b addr' IH. exact IH.
   Defined.
 
-  Definition arg_recursor {w : W}
-            (h : LHom w) (b : B (label w)) : LHom ((arg w) b) :=
-    ((pr1 h) ∘ subtree_addr w b ,, (pr2 h) ∘ subtree_addr w b).
+  Goal ∏ '(h,, β) i w, pr2 (WHom'_to_LHom (h,, β) i w) (root_addr w) = !β i w.
+  Proof. reflexivity. Qed.
+
+  Definition arg_recursor {i} {w : W i}
+             (h : LHom w) {j} (b : B i (label w) j) :
+    LHom (arg w b) :=
+    h.1 ∘ subtree_addr w b,,
+    h.2 ∘ subtree_addr w b.
 
 
-  Definition LHom_to_WHom' (h : forall w, LHom w) :
+  Definition κ (h : ∏ i (w : W i), LHom w) {i} (w : W i) :
+    (∏ j b, arg_recursor (h i w) b = h j (arg w b)) ->
+    step (label w) (λ j b, (pr1 (arg_recursor (h i w) b)) (root_addr _)) =
+    step (label w) (λ j b, (pr1 (h j (arg w b))) (root_addr _)).
+  Proof.
+    intros p.
+    apply maponpaths.
+    apply funextsec; intros j. apply funextsec; intros b.
+    apply (maponpaths (λ h : LHom (arg w b), h.1 (root_addr (arg w b)))).
+    apply p.
+  Defined.
+
+  Definition LHom_to_WHom' (h : ∏ i (w : W i), LHom w) :
     WHom'.
   Proof.
-    intro h.
-    exists (fun w => (pr1 (h w)) (root_addr w)).
-    intros w.
-    refine (!((pr2 (h w)) (root_addr _)) @ _).
-    apply (maponpaths (step (label w))).
-    apply funextfun. intros b.
-    change ((pr1 (arg_recursor (h w) b)) (root_addr _) =
-            (pr1 (h (arg w b))) (root_addr _)).
-    apply (maponpaths (fun h' : LHom _ => (pr1 h') (root_addr _))).
+    exists (fun i w => pr1 (h i w) (root_addr w)).
+    intros i w.
+    refine (!((pr2 (h i w)) (root_addr _)) @ _).
+    apply κ; intros j b.
     use proofirrelevancecontr.
     apply iscontr_LHom.
   Defined.
 
+  Lemma funextsec_idpath {X} {Y : X -> UU} (f : ∏ x, Y x) :
+    funextsec Y f f (λ x, idpath (f x)) = idpath f.
+  Proof.
+    change (invmap (weqtoforallpaths Y f f)
+                   (weqtoforallpaths Y f f (idpath f)) =
+            idpath f).
+    apply homotinvweqweq.
+  Qed.
+
   Definition WHom'_to_LHoml_is_sect (h : WHom') :
     LHom_to_WHom' (WHom'_to_LHom h) = h.
   Proof.
-    intros h.
     use total2_paths_f.
     - reflexivity.
-    - apply funextsec. intros w'.
+    - apply funextsec; intros i. apply funextsec; intros w.
       rewrite idpath_transportf.
       apply moveR_Mp.
-      simpl. rewrite pathsinv0l.
-      transitivity (maponpaths (step (label w'))
-                       (funextfun _ _
-                             (fun b =>
-                                maponpaths (fun h' => (pr1 h') (root_addr _))
-                                           (idpath (WHom'_to_LHom h (arg w' b)))))).
-        * repeat apply maponpaths.
-          apply funextsec. intro. repeat apply maponpaths.
-          destruct h.
-          assert (isset_LHom : isaset (LHom (arg w' x))).
+      transitivity (κ (WHom'_to_LHom h) w (λ j b, idpath _)). {
+        apply maponpaths. apply funextsec; intros j. apply funextsec; intros b.
+        assert (isset_LHom : isaset (LHom (arg w b))).
             + apply hlevelntosn. apply hlevelntosn. apply iscontr_LHom.
             + apply isset_LHom.
-        * destruct h. simpl.
-
-          set (test := (funextfun
-                (λ b : B (label w'),
-                  (pr1 ∘ subtree_at (arg w' b))
-                    (root_addr (arg w' b)))
-                 (λ b : B (label w'),
-                  (pr1 ∘ subtree_at (arg w' b))
-                    (root_addr (arg w' b)))
-                 (λ b : B (label w'),
-                  idpath
-                    ((pr1 ∘ subtree_at (arg w' b))
-                       (root_addr (arg w' b)))))).
-          assert (test = idpath _).
-            -- apply funextfun_id.
-            -- rewrite X. simpl. reflexivity.
+      }
+      transitivity (idpath (step (label w) (λ j b, h.1 j (arg w b)))). {
+        unfold κ.
+        change (idpath (step (label w) _)) with
+            (maponpaths (step (label w)) (idpath (λ j b, h.1 j (arg w b)))).
+        apply maponpaths.
+        rewrite <- funextsec_idpath. apply maponpaths. apply funextsec; intros j.
+        rewrite <- funextsec_idpath. apply maponpaths. apply funextsec; intros b.
+        reflexivity.
+      }
+      symmetry. apply pathsinv0l.
   Defined.
 
 
   Definition iscontr_WHom' : iscontr WHom'.
   Proof.
-    use (@iscontrretract (∏ w, LHom w)).
-    exact LHom_to_WHom'.
-    exact WHom'_to_LHom.
+    use (iscontrretract LHom_to_WHom' WHom'_to_LHom).
     exact WHom'_to_LHoml_is_sect.
-    use impred_iscontr_computational.
-    intro t. apply iscontr_LHom.
+    use impred_iscontr_computational. intro i.
+    use impred_iscontr_computational. intro w.
+    apply iscontr_LHom.
   Defined.
 
-  Definition sup_and_arg a f : arg (sup a f) = f.
+  Definition label_and_arg_on_sup {i} (a : A i) (f : B i a ->ⁱ W) :
+    tpair (λ a, B i a ->ⁱ W)
+          (label (sup a f))
+          (@arg i (sup a f)) =
+    tpair (λ a, B i a ->ⁱ W) a f.
+  Proof.
+    change (let '(m,, wf) := sup a f in
+            let '(a',, f') := m_out A B i m in
+            tpair (λ a, B i a ->ⁱ W)
+                  a
+                  (λ j b, m_arg m b,, wf_then_subtr_wf m wf j b) =
+            tpair (λ a, B i a ->ⁱ W)
+                  a
+                  f).
+  Qed.
+
+
+
+  Definition arg_sup {i} (a : A i) (f : B i a ->ⁱ W) :
+    @arg i (sup a f) = f.
   Proof.
     intros.
     apply funextsec.
@@ -372,43 +396,55 @@ Section Wtypes.
       - simpl. reflexivity.
   Defined.
 
-  Definition m_and_sup m : supM (labelM m ,, argM m) = m.
+  Definition m_and_sup i m : m_sup (m_label m) (@m_arg I A B i m) = m.
   Proof.
-    intro.
     destruct m.
     simpl. reflexivity.
   Defined.
 
-  Definition FW_equiv_W : (polynomial_functor A B).0 W ≃ W.
-  Proof.
-    use weqgradth.
-      - exact W_is_algebra.
-      - exact (fun w => (label w ,, arg w)).
-      - intro af. use total2_paths_f.
-          + reflexivity.
-          + rewrite idpath_transportf. apply sup_and_arg.
-      - simpl. intro w. unfold W_is_algebra. simpl.
-        apply subtypeEquality. intro. apply isprop_isWf.
-        destruct w. simpl. destruct pr1. reflexivity.
-  Defined.
+  Definition W_is_algebra : algebra_structure ⟦ A ◁ B ⟧ W :=
+    fun i a_f => sup a_f.1 a_f.2.
 
-  Definition WHom_equiv_to_WHom' : WHom' ≃ algebra_morphism W_as_algebra (C ,, sC).
+  Definition W_as_algebra : algebra ⟦ A ◁ B ⟧ :=
+    (W ,, W_is_algebra).
+
+
+  Definition FW_equiv_W : ⟦ A ◁ B ⟧ W ≃ⁱ W.
   Proof.
-    unfold WHom'.
-    use weqfibtototal.
-    simpl. unfold polynomial_functor_on_types.
-    intro.
-    eapply weqcomp.
-    exact (weqonsecbase _ FW_equiv_W).
-    apply weqonsecfibers.
-    intros af.
-    destruct af as [a f].
-    simpl.
-    unfold polynomial_functor_on_maps.
+    intros i.
+    use weqgradth.
+    - exact (W_is_algebra i).
+    - exact (fun w => (label w,, @arg i w)).
+    - intro af. use total2_paths_f.
+      + unfold W_is_algebra. cbn.
+  Admitted.
+  (*       reflexivity. *)
+  (*         + rewrite idpath_transportf. apply sup_and_arg. *)
+  (*     - simpl. intro w. unfold W_is_algebra. simpl. *)
+  (*       apply subtypeEquality. intro. apply isprop_isWf. *)
+  (*       destruct w. simpl. destruct pr1. reflexivity. *)
+  (* Defined. *)
+
+
+  Definition WHom_equiv_to_WHom' :
+    WHom' ≃ algebra_morphism W_as_algebra (C ,, sC).
+  Proof.
+    unfold WHom', algebra_morphism, algebra_str_morphism. cbn.
+    use weqfibtototal; intros h. cbn.
+    change ((∏ i w, h i w = step (label w) (h ∘ⁱ @arg i w)) ≃
+           (∏ i a_f, h i (sup a_f.1 a_f.2) = sC i (⟦ A ◁ B ⟧.map h i a_f))).
+    apply weq_functor_sec_id; intros i.
+    apply (weqcomp (weqonsecbase _ (FW_equiv_W i))).
+    apply weqonsecfibers; intros af; induction af as [a f]. simpl.
     unfold step.
     change (
-    x (W_is_algebra (a,, f)) = sC (a,, x ∘ arg (sup a f))
-  ≃ x (W_is_algebra (a,, f)) = sC (a,, x ∘ f)).
+        h i (W_is_algebra i (a,, f)) =
+        sC i (tpair (λ a, B i a ->ⁱ C)
+                    (label (sup a f))
+                    (h ∘ⁱ @arg i (sup a f)))
+           ≃
+        h i (W_is_algebra i (a,, f)) =
+        sC i (a,, h ∘ⁱ f)).
     rewrite sup_and_arg.
     apply idweq.
   Defined.

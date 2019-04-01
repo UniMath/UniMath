@@ -31,34 +31,24 @@ Proof.
 Defined.
 
 Definition transportf_sec_constant
-  {A B : UU} {C : A -> B -> UU}
-  {x1 x2 : A} (p : x1 = x2) (f : ∏ y : B, C x1 y)
-  : (transportf (λ x, ∏ y : B, C x y) p f)
-    = (λ y, transportf (λ x, C x y) p (f y)).
-Proof.
-  induction p; cbn; unfold idfun.
-  reflexivity.
-Defined.
+           {A B : UU} (C : A -> B -> UU) {x1 x2 : A}
+           (p : x1 = x2) (f : ∏ y : B, C x1 y) (y : B) :
+  transportf (λ x, ∏ y : B, C x y) p f y =
+  transportf (λ x, C x y) p (f y).
+Proof. induction p; reflexivity. Defined.
 
 Definition transportb_sec_constant
-  {A B : UU} (C : A -> B -> UU)
-  {x1 x2 : A} (p : x1 = x2) (f : ∏ y : B, C x2 y)
-  : (transportb (λ x, ∏ y : B, C x y) p f)
-    = (λ y, transportb (λ x, C x y) p (f y)).
-Proof.
-  induction p; cbn; unfold idfun.
-  reflexivity.
-Defined.
+           {A B : UU} (C : A -> B -> UU) {x1 x2 : A}
+           (p : x1 = x2) (f : ∏ y : B, C x2 y) (y : B) :
+  transportb (λ x, ∏ y : B, C x y) p f y =
+  transportb (λ x, C x y) p (f y).
+Proof. induction p; reflexivity. Defined.
 
-Definition transportf_total2_const :
-    ∏ (A B : UU) (C : A -> B -> UU) (a : A) (b1 b2 : B) (p : b1 = b2) (c : C a b1),
+Definition transportf_total2_const (A B : UU) (C : A -> B -> UU)
+           (a : A) (b1 b2 : B) (p : b1 = b2) (c : C a b1) :
     transportf (λ b, ∑ a : A, C a b) p (a,, c) =
     a,, transportf (C a) p c.
-  Proof.
-    intros.
-    induction p.
-    reflexivity.
-  Defined.
+Proof. induction p; reflexivity. Defined.
 
 Definition maponpaths_funextsec {A : UU} {B : A -> UU}
            (f g : ∏ x, B x) (x : A) (p : f ~ g) :
