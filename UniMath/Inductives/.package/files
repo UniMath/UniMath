@@ -5,5 +5,3 @@ algebras.v
 M_from_nat.v
 addresses.v
 W_from_M.v
-mu_containers.v
-nu_containers.v

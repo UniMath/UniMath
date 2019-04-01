@@ -439,6 +439,4 @@ The packages and files are listed here in logical order: each file depends only 
    - [M_from_nat.v](Inductives/M_from_nat.v)
    - [addresses.v](Inductives/addresses.v)
    - [W_from_M.v](Inductives/W_from_M.v)
-   - [mu_containers.v](Inductives/mu_containers.v)
-   - [nu_containers.v](Inductives/nu_containers.v)
    - [All.v](Inductives/All.v)
