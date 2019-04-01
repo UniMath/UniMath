@@ -431,3 +431,12 @@ The packages and files are listed here in logical order: each file depends only 
    - [W/Uniqueness.v](Induction/W/Uniqueness.v)
    - [M/Chains.v](Induction/M/Chains.v)
    - [All.v](Induction/All.v)
+## Package Inductives
+   - [functors.v](Inductives/functors.v)
+   - [auxiliary_lemmas.v](Inductives/auxiliary_lemmas.v)
+   - [containers.v](Inductives/containers.v)
+   - [algebras.v](Inductives/algebras.v)
+   - [M_from_nat.v](Inductives/M_from_nat.v)
+   - [addresses.v](Inductives/addresses.v)
+   - [W_from_M.v](Inductives/W_from_M.v)
+   - [All.v](Inductives/All.v)
