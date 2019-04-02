@@ -394,12 +394,6 @@ Proof.
   intros. induction p,q; compute in e. induction e. reflexivity.
 Defined.
 
-Lemma simple_pair_path {X Y} {x x':X} {y y':Y} (p : x = x') (q : y = y') :
-  x,,y = x',,y'.
-Proof.
-  intros. induction p. induction q. apply idpath.
-Defined.
-
 (** ** Projections from pair types *)
 
 Definition pair_path_in2_comp1 {X} (P:X->Type) {x:X} {p q:P x} (e:p = q) :
