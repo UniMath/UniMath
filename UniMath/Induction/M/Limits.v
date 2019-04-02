@@ -9,6 +9,7 @@
   [CategoryTheory.limits.graphs.limits]. *)
 
 Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Univalence.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -16,6 +17,7 @@ Require Import UniMath.CategoryTheory.categories.Types.
 
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Chains.Cochains.
 
 Local Open Scope cat.
 
@@ -151,3 +153,82 @@ Section StandardLimitUP.
     weqpair (into_cone_to_cone (type_cone d)) (limit_universal X).
 
 End StandardLimitUP.
+
+(** In the case of cochains, we can provide a somewhat simpler limit. *)
+Section CochainLimit.
+  Context (coch : cochain type_precat).
+  Let X := (pr1 coch).
+  Let π := (pr2 coch).
+  Let π' n := π (S n) n (idpath _).
+
+  Definition cochain_limit :=
+    ∑ (x : forall n : nat, X n),
+    forall n, π' n (x (S n)) = x n.
+
+  Lemma simplify_cochain_step
+        {u v : nat}
+        (x : forall n, X n)
+        (e : S v = u) :
+    dmor coch e (x u) = π' v (x (S v)).
+  Proof.
+    unfold π', π in *; unfold dmor.
+    (induction e; auto).
+  Defined.
+
+  Lemma simplify_cochain_step_idpath {u : nat} (x : forall n, X n) :
+    @simplify_cochain_step (S u) u x (idpath _) =
+    idpath _.
+  Proof.
+    reflexivity.
+  Qed.
+
+  Definition cochain_limit_cone :
+    cone coch cochain_limit.
+  Proof.
+    use mk_cone; cbn.
+    - intros v cochain_limit_element.
+      apply (pr1 cochain_limit_element).
+    - intros u v e.
+      apply funextsec; intro l; unfold funcomp; cbn.
+      refine (_ @ pr2 l _).
+      unfold dmor, π', π.
+      apply simplify_cochain_step.
+  Defined.
+
+  Lemma lim_equiv : cochain_limit ≃ (standard_limit coch).
+  Proof.
+    unfold cochain_limit, standard_limit; cbn.
+    apply weqfibtototal; intro.
+    use weq_iso.
+    - intros eq.
+      intros u v e.
+      specialize (eq v).
+      unfold π', π in *; unfold dmor.
+      refine (_ @ eq).
+      apply simplify_cochain_step.
+    - intros eq; intro; apply eq.
+    - intro; apply funextsec; intro; reflexivity.
+    - intro; cbn.
+      do 2 (apply funextsec; intro).
+      apply funextsec; intro p.
+      induction p.
+      reflexivity.
+  Qed.
+
+  Lemma cochain_limit_is_limit :
+    ∑ c : cone coch cochain_limit, is_limit_cone c.
+  Proof.
+    assert (H :
+      (∑ c : cone coch cochain_limit, is_limit_cone c)
+      ≃ ∑ c : cone coch (standard_limit coch), is_limit_cone c
+      ).
+    {
+      induction (weqtopaths lim_equiv).
+      apply idweq.
+    }
+    apply H.
+    eapply tpair.
+    apply limit_universal.
+  Qed.
+
+End CochainLimit.
