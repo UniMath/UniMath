@@ -170,10 +170,8 @@ End Pi0.
 
 
 (** ** Minimal equivalence relations *)
-
-(* This should be moved upstream. Constructs the smallest eqrel
-   containing a given relation *)
-Section extras.
+(* Constructs the smallest eqrel containing a given relation *)
+Section mineqrel.
 
   Close Scope set.
 
@@ -208,4 +206,11 @@ Section extras.
     now intros a b H'; apply (H' _ H).
   Qed.
 
-End extras.
+End mineqrel.
+
+Lemma eqreleq {A : UU} (R : eqrel A) (x y : A) : x = y → R x y.
+Proof.
+  intros e.
+  induction e.
+  apply eqrelrefl.
+Defined.

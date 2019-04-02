@@ -366,6 +366,7 @@ Section Wtypes.
     apply iscontr_LHom.
   Defined.
 
+  (* comment since it does not yet compile
   Definition label_and_arg_on_sup {i} (a : A i) (f : B i a ->__i W) :
     tpair (λ a, B i a ->__i W)
           (label (sup a f))
@@ -523,3 +524,6 @@ Proof.
     unfold impred_iscontr_computational. unfold iscontrpr1. simpl. unfold funcontr.
     unfold iscontr_LHom. simpl.
 *)
+
+   *)
+End Wtypes.
