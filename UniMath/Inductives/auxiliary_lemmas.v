@@ -1,17 +1,14 @@
 Require Export UniMath.Foundations.PartD.
 Require Export UniMath.Foundations.UnivalenceAxiom.
 Require Export UniMath.Inductives.functors.
-
+Require Import UniMath.Foundations.PartA.
 
 Definition iscontr_based_paths {A : UU} (x : A) :
   iscontr (∑ y, x = y).
 Proof.
-  use iscontrpair.
-  - exact (x,, idpath x).
-  - induction 0 as [y p].
-    induction p.
-    reflexivity.
+  apply iscontrcoconusfromt.
 Defined.
+(* no need to keep this lemma *)
 
 Definition isaprop_uniqueness {X} (is_prop : isaprop X) :
     ∏ x1 x2 : X, x1 = x2 :=
@@ -194,38 +191,25 @@ Lemma total2_associativity (A : UU) (B : A -> UU) (C : (∑ a, B a) -> UU) :
   (∑ ab : ∑ a : A, B a, C ab)
     ≃ (∑ a : A, ∑ b : B a, C (a,, b)).
 Proof.
-  use weq_iso.
-  - induction 1 as [ab c].
-    induction ab as [a b].
-    exact (a,, b,, c).
-  - induction 1 as [a bc].
-    induction bc as [b c].
-    exact ((a,, b),, c).
-  - induction 0 as [ab c].
-    induction ab as [a b].
-    reflexivity.
-  - induction 0 as [a bc].
-    induction bc as [b c].
-    reflexivity.
+  apply weqtotal2asstor.
 Defined.
+(* no need to keep this lemma *)
 
 Lemma weq_prod_contr_l (A B : UU) :
   iscontr A ->
   A × B ≃ B.
 Proof.
-  induction 1 as [a0 a0_unique].
-  use weq_iso.
-  - exact pr2.
-  - exact (λ b, a0,, b).
-  - induction 0 as [a b]; cbn.
-    apply pathsdirprod.
-    + symmetry.
-      apply a0_unique.
-    + reflexivity.
-  - intros b; cbn.
-    reflexivity.
+  intro H.
+  intermediate_weq (unit × B).
+  - apply weqdirprodf.
+    + exact (weqcontrtounit H).
+    + apply idweq.
+  - intermediate_weq (B × unit).
+    + apply weqdirprodcomm.
+    + apply invweq.
+      apply weqtodirprodwithunit.
 Defined.
-
+(* not shorter but exploits the library *)
 
 (*** Other equivalences ***)
 
@@ -234,20 +218,10 @@ Lemma weq_total2_paths_f (A : UU) (B : A -> UU)
   (∑ p : a1 = a2, transportf B p b1 = b2)
     ≃ (a1,, b1 = a2,, b2).
 Proof.
-  use weq_iso.
-  - induction 1 as [p q].
-    use (total2_paths2_f p q).
-  - intros p.
-    exists (base_paths _ _ p).
-    exact (fiber_paths p).
-  - induction 0 as [p q].
-    use total2_paths2_f.
-    + exact (@base_total2_paths _ _ (a1,, b1) (a2,, b2) p q).
-    + cbn.
-      exact (transportf_fiber_total2_paths B (a1,, b1) (a2,, b2) p q).
-  - intros p. cbn.
-    apply (total2_fiber_paths p).
+  apply invweq.
+  apply total2_paths_equiv.
 Defined.
+(* no need to keep this lemma *)
 
 Lemma weq_sequence_cons (A : nat -> UU) :
   (A 0 × ∏ n, A (1 + n)) ≃ ∏ n, A n.

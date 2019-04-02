@@ -382,3 +382,5 @@ Lemma m_coalgebra_is_final : is_final m_coalgebra.
 Proof.
   admit.
 Admitted.
+
+End theorem_7.
