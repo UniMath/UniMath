@@ -14,10 +14,13 @@ Require Import UniMath.CategoryTheory.categories.Types.
 Require Import UniMath.CategoryTheory.Chains.Chains.
 Require Import UniMath.CategoryTheory.Chains.Cochains.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
+Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.FunctorCoalgebras.
 
 Require Import UniMath.Induction.PolynomialFunctors.
 Require Import UniMath.Induction.M.Limits.
+Require Import UniMath.Induction.M.Core.
 
 (** The shifted chain (X', π') from (X, π) is one where Xₙ' = Xₙ₊₁ and πₙ' = πₙ₊₁. *)
 Definition shift_chain (cha : chain type_precat) : chain type_precat.
@@ -249,3 +252,58 @@ Proof.
       apply (@weqsecovercontr_uncurried
                nat (λ n, (S (S u)) = n) (λ _ _, _ = xs (S u)) (iscontr_paths_from _)).
 Defined.
+
+Section theorem_7.
+  Context (A : UU) (B : A → UU).
+
+Definition apply_on_chain (cha : cochain type_precat) : cochain type_precat :=
+  mapcochain (polynomial_functor A B) cha.
+
+Definition weq_polynomial_functor_on_limit (cha : cochain type_precat) :
+  (polynomial_functor A B)(standard_limit cha) ≃ standard_limit (apply_on_chain cha).
+Proof.
+  induction cha as [X π]; unfold apply_on_chain. simpl.
+  unfold mapcochain, mapdiagram, standard_limit; cbn.
+  unfold polynomial_functor_obj, polynomial_functor_arr.
+  admit.
+Admitted.
+
+Definition terminal_cochain  : cochain type_precat :=
+  termCochain (TerminalType) (polynomial_functor A B).
+
+Definition m_type  := standard_limit terminal_cochain.
+
+Definition terminal_cochain_shifted :
+  standard_limit (shift_cochain terminal_cochain) ≃
+                 standard_limit (apply_on_chain terminal_cochain).
+Proof.
+  admit.
+Admitted.
+(*
+  unfold standard_limit.
+  unfold polynomial_functor.
+  cbn.
+  unfold polynomial_functor_obj.
+  fold.
+  apply weqfibtototal.
+  unfold functor_data_from_functor.
+  unfold mk_functor.
+  unfold functor_on_objects.
+  unfold polynomial_functor_data.
+*)
+
+
+Definition m_in : (polynomial_functor A B) m_type ≃ m_type.
+  eapply weqcomp.
+  exact (weq_polynomial_functor_on_limit terminal_cochain).
+  eapply weqcomp.
+  exact (invweq terminal_cochain_shifted).
+  exact (shifted_limit terminal_cochain).
+Defined.
+
+Definition m_coalgebra : coalgebra (polynomial_functor A B) := m_type,, (invweq m_in :(type_precat ⟦ m_type, (polynomial_functor A B) m_type ⟧)%Cat).
+
+Lemma m_coalgebra_is_final : is_final m_coalgebra.
+Proof.
+  admit.
+Admitted.
