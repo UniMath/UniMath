@@ -245,6 +245,89 @@ Proof.
                nat (λ n, (S (S u)) = n) (λ _ _, _ = xs (S u)) (iscontr_paths_from _)).
 Defined.
 
+
+Local Lemma transportf_paths_FlFr {A B : UU} {f g : A -> B} {x1 x2 : A}
+ (p : x1 = x2) (q : f x1 = g x1)
+ : transportf (λ x, f x = g x) p q = !maponpaths f p @ q @ maponpaths g p.
+Proof.
+ induction p; cbn.
+ cbn.
+ symmetry.
+ apply pathscomp0rid.
+Defined.
+
+Definition maponpaths_funextsec {A : UU} {B : A -> UU}
+          (f g : ∏ x, B x) (x : A) (p : f ~ g) :
+ maponpaths (λ h, h x) (funextsec _ f g p) = p x.
+Proof.
+ intermediate_path (toforallpaths _ _ _ (funextsec _ f g p) x).
+ - generalize (funextsec _ f g p); intros q.
+   induction q.
+   reflexivity.
+ - apply (eqtohomot (eqtohomot (toforallpaths_funextsec_comp f g x) p) x).
+Qed.
+
+Local Lemma transportf_sec_constant
+ {A B : UU} {C : A -> B -> UU}
+ {x1 x2 : A} (p : x1 = x2) (f : ∏ y : B, C x1 y)
+ : (transportf (λ x, ∏ y : B, C x y) p f)
+   = (λ y, transportf (λ x, C x y) p (f y)).
+Proof.
+ induction p; cbn; unfold idfun.
+ reflexivity.
+Defined.
+
+(** Lemma 11 in Ahrens, Capriotti, and Spadotti *)
+Local Definition Z X l :=
+ ∑ (x : ∏ n, X n), ∏ n, x (S n) = l n (x n).
+Lemma lemma_11 (X : nat -> UU) (l : ∏ n, X n -> X (S n)) : Z X l ≃ X 0.
+Proof.
+ set (f (xp : Z X l) := pr1 xp 0).
+ transparent assert (g : (X 0 -> Z X l)). {
+   intros x.
+   exists (nat_rect _ x l).
+   exact (λ n, idpath _).
+ }
+ apply (weqpair f).
+ apply (isweq_iso f g).
+ - cbn.
+   intros xp; induction xp as [x p].
+   transparent assert ( q : (nat_rect X (x 0) l ~ x )). {
+     intros n; induction n; cbn.
+     * reflexivity.
+     * exact (maponpaths (l n) IHn @ !p n).
+   }
+   set (q' := funextsec _ _ _ q).
+   use total2_paths_f; cbn.
+   + exact q'.
+   + rewrite transportf_sec_constant. apply funextsec; intros n.
+     intermediate_path (!maponpaths (λ x, x (S n)) q' @
+                         maponpaths (λ x, l n (x n)) q'). {
+       use transportf_paths_FlFr.
+     }
+     intermediate_path (!maponpaths (λ x, x (S n)) q' @
+                         maponpaths (l n) (maponpaths (λ x, x n) q')). {
+       apply maponpaths. symmetry. use maponpathscomp.
+     }
+     intermediate_path (! q (S n) @ maponpaths (l n) (q n)). {
+       unfold q'.
+       repeat rewrite maponpaths_funextsec.
+       reflexivity.
+     }
+     intermediate_path (! (maponpaths (l n) (q n) @ ! p n) @
+                          maponpaths (l n) (q n)). {
+       reflexivity.
+     }
+     rewrite pathscomp_inv.
+     rewrite <- path_assoc.
+     rewrite pathsinv0l.
+     rewrite pathsinv0inv0.
+     rewrite pathscomp0rid.
+     reflexivity.
+ - cbn.
+   reflexivity.
+Qed.
+
 Section theorem_7.
   Context (A : UU) (B : A → UU).
 
