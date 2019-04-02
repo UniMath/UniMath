@@ -22,7 +22,7 @@
   *)
 
 Require Import UniMath.Foundations.All.
-Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.MoreFoundations.All. Import PathsOverNotations.
 Require Import UniMath.Algebra.Monoids. Import AddNotation.
 Require Import UniMath.SyntheticHomotopyTheory.AffineLine.
 Require Import UniMath.NumberSystems.Integers.

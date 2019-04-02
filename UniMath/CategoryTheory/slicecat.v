@@ -10,6 +10,12 @@ Contents:
 
 - Definition of slice precategories, C/x (assumes that C has homsets)
 
+- Isos in slice categories
+
+- Monics in slice categories
+
+- Epis in slice categories
+
 - Proof that the forgetful functor [slicecat_to_cat] : C/x → C is
   a left adjoint if C has binary products ([is_left_adjoint_slicecat_to_cat])
 
@@ -64,6 +70,8 @@ Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Monics.
+Require Import UniMath.CategoryTheory.Epis.
 
 Local Open Scope cat.
 
@@ -177,6 +185,9 @@ Qed.
 Definition  eq_mor_slicecat_weq (af bg : C / x) (f g : C/x⟦af,bg⟧) :
   (pr1 f = pr1 g ≃ f = g) := weqpair _ (eq_mor_slicecat_isweq af bg f g).
 
+
+(** ** Isos in slice categories *)
+
 Lemma eq_iso_slicecat (af bg : C / x) (f g : iso af bg) : pr1 f = pr1 g -> f = g.
 Proof.
 induction f as [f fP]; induction g as [g gP]; intro eq.
@@ -221,6 +232,37 @@ apply weqimplimpl; try apply isaprop_is_iso.
 - intro hp; apply iso_to_slice_precat_iso; assumption.
 - intro hp; apply (slice_precat_iso_to_iso _ _ _ hp).
 Defined.
+
+(** ** Monics in slice categories *)
+
+(** It suffices that the underlying morphism is an monic to get an monic in
+    the slice category *)
+Lemma monic_to_slice_precat_monic (a b : C / x) (h : a --> b)
+  (monich : isMonic (pr1 h)) : isMonic h.
+Proof.
+  intros y f g eq.
+  apply eq_mor_slicecat, monich.
+  change (pr1 f · pr1 h) with (pr1 (f · h));
+  change (pr1 g · pr1 h) with (pr1 (g · h)).
+  apply (maponpaths pr1).
+  assumption.
+Qed.
+
+(** ** Epis in slice categories *)
+
+(** It suffices that the underlying morphism is an epic to get an epic in
+    the slice category *)
+Lemma epic_to_slice_precat_epic (a b : C / x) (h : a --> b)
+  (epich : isEpi (pr1 h)) : isEpi h.
+Proof.
+  unfold isEpi in *.
+  intros y f g eq.
+  apply eq_mor_slicecat, epich.
+  change (pr1 h · pr1 f) with (pr1 (h · f));
+  change (pr1 h · pr1 g) with (pr1 (h · g)).
+  apply (maponpaths pr1).
+  assumption.
+Qed.
 
 (** The forgetful functor from C/x to C *)
 Definition slicecat_to_cat : functor (C / x) C.

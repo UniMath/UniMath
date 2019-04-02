@@ -12,6 +12,14 @@ Proof.
 Defined.
 
 (** Funextsec and toforallpaths are mutually inverses *)
+Definition toforallpaths_funextsec_comp {A : UU} {B : A -> UU}
+          (f g : ∏ x, B x) (x : A) :
+ toforallpaths B f g ∘ funextsec B f g = idfun _.
+Proof.
+ apply funextsec; intro; unfold funcomp.
+ exact ((homotweqinvweq (weqtoforallpaths _ _ _) _)).
+Qed.
+
 Lemma toforallpaths_funextsec {T : UU} {P : T -> UU} {f g : ∏ t : T, P t} :
       ∏ (h : ∏ t : T, f t = g t), toforallpaths _  _ _ (funextsec _ _ _ h) = h.
 Proof.
