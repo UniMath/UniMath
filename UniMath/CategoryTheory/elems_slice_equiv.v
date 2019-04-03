@@ -310,12 +310,6 @@ Section elems_slice_equiv.
     apply iso_to_slice_precat_iso.
     apply functor_iso_if_pointwise_iso.
     intros X; simpl.
-    match goal with
-    | |- is_iso ?t => assert (eq : t =
-                                   (λ X0, pr1 (pr2 X0)))
-    end.
-    { apply funextsec. intros [p q]. simpl. reflexivity. }
-    rewrite eq.
     change (λ X0, pr1 (pr2 X0)) with (fromcoconusf (Fnat X)).
     exact (hset_equiv_is_iso (hSetpair (coconusf (Fnat X))
                                          (isaset_total2_hSet _ (λ y, (hfiber_hSet (Fnat X) y)))) _
