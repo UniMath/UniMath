@@ -1,3 +1,5 @@
+(** * Lists *)
+
 (**
 
 This file contains a formalization of lists define as iterated products ([list]).
@@ -7,19 +9,8 @@ Written by: Anders Mörtberg, 2016 (inspired by a remark of Vladimir Voevodsky),
 *)
 
 Require Import UniMath.MoreFoundations.Tactics.
-
 Require Import UniMath.Combinatorics.StandardFiniteSets.
-
-Section preamble.
-
-Definition iterprod (n : nat) (A : UU) : UU.
-Proof.
-induction n as [|n IHn].
-- apply unit.
-- apply (A × IHn).
-Defined.
-
-End preamble.
+Require Import UniMath.Combinatorics.Vectors.
 
 (** * Lists over an arbitrary type *)
 Section lists.
@@ -27,14 +18,14 @@ Section lists.
 Context {A : UU}.
 
 (** The type of lists *)
-Definition list : UU := ∑ n, iterprod n A.
+Definition list : UU := ∑ n, Vector A n.
 
 (** The empty list *)
-Definition nil : list := (0,,tt).
+Definition nil : list := (0,, vnil).
 
 (** List cons *)
 Definition cons (x : A) (xs : list) : list :=
-  (S (pr1 xs),, (x,, pr2 xs)).
+  (S (pr1 xs),, vcons x (pr2 xs)).
 
 Local Notation "[]" := nil (at level 0, format "[]").
 Local Infix "::" := cons.
@@ -83,7 +74,7 @@ Defined.
 
 (** The n-th element of a list *)
 
-Fixpoint nth'' n i : i < n -> iterprod n A -> A
+Fixpoint nth'' n i : i < n -> Vector A n -> A
   (* eventually figure out how to use "induction" alone to define this *)
   := match n, i with
      |   0,   _ => λ r x, fromempty (nopathsfalsetotrue r)
@@ -91,13 +82,13 @@ Fixpoint nth'' n i : i < n -> iterprod n A -> A
      | S n, S i => λ r x, nth'' n i r (pr2 x)
      end.
 
-Definition nth' n : iterprod n A -> stn n -> A.
+Definition nth' n : Vector A n -> stn n -> A.
 Proof.
   intros x i.
   exact (nth'' n (pr1 i) (pr2 i) x).
 Defined.
 
-Lemma nth'_step n (x:iterprod (S n) A) i (I:i<n) :
+Lemma nth'_step n (x : Vector A (S n)) i (I:i<n) :
   nth' (S n) x (make_stn (S n) (S i) I) = nth' n (pr2 x) (make_stn n i I).
 Proof.
   reflexivity.
@@ -108,7 +99,7 @@ Proof.
   intros i. exact (nth' (length x) (pr2 x) i).
 Defined.
 
-Definition functionToList' n : (stn n -> A) -> iterprod n A.
+Definition functionToList' n : (stn n -> A) -> Vector A n.
 Proof.
   intros f.
   induction n as [|n I].
@@ -120,7 +111,7 @@ Defined.
 Definition functionToList n : (stn n -> A) -> list.
 Proof.
   intros f.
-  exact (n ,, functionToList' n f).
+  exact (n ,, mk_vector f).
 Defined.
 
 Section Test.
@@ -348,12 +339,12 @@ Proof.
         exact (nth'_step _ (functionToList' _ _) _ _ @ N _ _).
 Defined.
 
-Corollary weqlistfun {A} n : (iterprod n A) ≃ (stn n -> A).
+Corollary weqlistfun {A} n : (Vector A n) ≃ (stn n -> A).
 Proof.
   exact (make_weq _ (isweqlistfun _)).
 Defined.
 
-Lemma isofhleveliterprod (n : nat) (k : nat) {X : UU} (is1 : isofhlevel n X) : isofhlevel n (iterprod k X).
+Lemma isofhleveliterprod (n : nat) (k : nat) {X : UU} (is1 : isofhlevel n X) : isofhlevel n (Vector X k).
 Proof.
   induction k as [|k IH].
   - apply isofhlevelcontr, iscontrunit.
