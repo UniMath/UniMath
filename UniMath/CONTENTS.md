@@ -45,6 +45,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [All.v](MoreFoundations/All.v)
 ## Package [Combinatorics](Combinatorics/README.md)
    - [StandardFiniteSets.v](Combinatorics/StandardFiniteSets.v)
+   - [Vectors.v](Combinatorics/Vectors.v)
+   - [VectorsTests.v](Combinatorics/VectorsTests.v)
    - [Lists.v](Combinatorics/Lists.v)
    - [FiniteSets.v](Combinatorics/FiniteSets.v)
    - [Graph.v](Combinatorics/Graph.v)

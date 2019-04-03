@@ -1,5 +1,6 @@
 StandardFiniteSets.v
 Vectors.v
+VectorsTests.v
 Lists.v
 FiniteSets.v
 Graph.v
