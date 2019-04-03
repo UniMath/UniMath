@@ -1,6 +1,7 @@
 (** ** Impredicative Construction of Inductive Types that are Sets and Eliminate into Sets *)
 
 (** This is based on Sam Speight's bachelor thesis *)
+(** Sam was here *)
 
 Require Import UniMath.Foundations.Init.
 Require Import UniMath.Foundations.Preamble.
