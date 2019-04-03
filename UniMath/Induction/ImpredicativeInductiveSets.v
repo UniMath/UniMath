@@ -67,7 +67,7 @@ Definition Product_as_set: HSET := hSetpair _ Product_isaset.
 Definition Proj1: HSET ⟦Product_as_set, A⟧.
 Abort.
 
-(* copied from
+(* copied from https://github.com/jonas-frey/Impredicative/blob/master/encode.hlean :
 -- System F encoding
 definition  preProduct (A B : USet) : USet :=
   tΠ (X : USet), (A ⇒ B ⇒ X) ⇒ X
