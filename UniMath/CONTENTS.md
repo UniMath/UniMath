@@ -430,6 +430,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [W/Naturals.v](Induction/W/Naturals.v)
    - [W/Uniqueness.v](Induction/W/Uniqueness.v)
    - [M/Chains.v](Induction/M/Chains.v)
+   - [ImpredicativeInductiveSets.v](Induction/ImpredicativeInductiveSets.v)
    - [All.v](Induction/All.v)
 ## Package Inductives
    - [functors.v](Inductives/functors.v)
