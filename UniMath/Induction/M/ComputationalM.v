@@ -30,6 +30,7 @@ Section Refinement.
 
   Variable M0 : coalgebra F.
   Local Notation carrierM0 := (pr1 M0).
+  Local Notation destrM0 := (pr2 M0).
 
   Variable finalM0 : is_final M0.
   Local Notation corecM0 C := (pr11 (finalM0 C)).
@@ -49,7 +50,7 @@ Section Refinement.
   (* Definition of a proposition we factor the computation through *)
 
   Definition P (m : carrierM) :=
-    ∑ af : F carrierM, pr2 M0 (pr1 m) = # F pr1 af.
+    ∑ af : F carrierM, destrM0 (pr1 m) = # F pr1 af.
 
   Lemma P_isaprop m :
     isaprop (P m).
@@ -61,7 +62,7 @@ Section Refinement.
   Definition destrM' (m : carrierM) : P m.
   Proof.
     destruct m as [m0 H]. apply (squash_to_prop H); try apply P_isaprop.
-    intros [C[c <-]]. refine  ((# F (corecM C) ∘ (pr2 C)) c,,_). cbn [pr1]. clear H.
+    intros [C[c <-]]. refine ((# F (corecM C) ∘ (pr2 C)) c,,_). cbn [pr1]. clear H.
     assert (H : is_coalgebra_homo F (corecM0 C)).
     - destruct finalM0 as [[G H] H']. apply H.
     - apply toforallpaths in H. symmetry. apply H.
@@ -85,12 +86,19 @@ Section Refinement.
 
   (* The two carriers are equal *)
 
+  Lemma eq_corecM0 m0 :
+    corecM0 M0 m0 = m0.
+  Proof.
+    destruct finalM0 as [[G H1] H2]. cbn.
+    specialize (H2 (coalgebra_homo_id F M0)).
+    change (pr1 (G,,H1) m0 = m0).
+    pattern (G,,H1). rewrite <- H2. reflexivity.
+  Qed.
+
   Definition injectM0 m0 :
     ∃ C c, corecM0 C c = m0.
   Proof.
-    apply hinhpr. exists M0, m0. destruct finalM0 as [[G H1] H2]. cbn.
-    specialize (H2 (coalgebra_homo_id F M0)). change (pr1 (G,,H1) m0 = m0).
-    pattern (G,,H1). rewrite <- H2. reflexivity.
+    apply hinhpr. exists M0, m0. apply eq_corecM0.
   Defined.
 
   Lemma carriers_weq :
@@ -122,9 +130,9 @@ Section Refinement.
     intros [h H]. assert (h = corecM C) as ->.
     - apply funextsec. intros c. unfold corecM. admit.
     - apply maponpaths.
-  Qed.
+  Abort.
 
-  (* The two coalgebras are equial *)
+  (* The two coalgebras are equal *)
 
   Lemma eq1 (m0 : carrierM0) :
     transportf (λ X, X → F X) carriers_eq destrM m0
@@ -136,18 +144,16 @@ Section Refinement.
   Lemma eq2 (m0 : carrierM0) :
     transportf (λ X, X) (!carriers_eq) m0 = (m0,,injectM0 m0).
   Proof.
-  Admitted.
+    apply (transportf_pathsinv0' (idfun UU) carriers_eq).
+    unfold carriers_eq. rewrite (weqpath_transport carriers_weq).
+    reflexivity.
+  Qed.
 
-  Definition eq3 (a : A) (f : B a -> carrierM) :
+  Definition eq3' (a : A) (f : B a -> carrierM) :
     transportf (λ X, F X) carriers_eq (a,,f) = (a,,transportf (λ X, B a -> X) carriers_eq f).
   Proof.
     destruct carriers_eq. reflexivity.
   Qed.
-
-  Definition eq4 a f :
-    transportf (λ X, B a → X) carriers_eq f = fun b => pr1 (f b).
-  Proof.
-  Admitted.
 
   Lemma tpair_eta X (Y : X -> UU) :
     forall (p : ∑ x, Y x), p = (pr1 p,,pr2 p).
@@ -155,7 +161,22 @@ Section Refinement.
     intros []. reflexivity.
   Qed.
 
-  Lemma algebras_equal :
+  Definition eq3_right' (m0 : carrierM0) :=
+    @tpair _ (fun a => B a -> carrierM0) (pr1 (destrM0 m0))
+           (fun b => pr1 (corecM M0 (pr2 (destrM0 m0) b))).
+
+
+  Definition eq3 m0 :
+    destrM0 m0 = # F pr1 ((pr2 M0 · # F (corecM M0)) m0).
+  Proof.
+    cbn.
+    unfold eq3_right. pattern (destrM0 m0) at 1. rewrite tpair_eta. cbn.
+    assert (pr2 (destrM0 m0) = λ b : B (pr1 (destrM0 m0)), (corecM0 M0) (pr2 (destrM0 m0) b)).
+    - apply funextsec. intros b. rewrite eq_corecM0. reflexivity.
+    - rewrite X. cbn.
+  Abort.
+
+  Lemma coalgebras_eq :
     M = M0.
   Proof.
     use total2_paths_f.
@@ -163,11 +184,17 @@ Section Refinement.
     - apply funextfun. intros m0.
       rewrite eq1. rewrite eq2.
 
-      (*replace (destrM (m0,, injectM0 m0)) with
-          (pr1 (pr2 M0 m0),,fun b => (corecM M0) (pr2 (pr2 M0 m0) b)).*)
+      destruct (destrM (m0,, injectM0 m0)) as [a f] eqn : H.
+      replace (destrM0 m0) with (eq3_right m0).
+      + admit.
+      + unfold eq3_right. pattern (destrM0 m0) at 1. rewrite tpair_eta. cbn.
+    assert (pr2 (destrM0 m0) = λ b : B (pr1 (destrM0 m0)), (corecM0 M0) (pr2 (destrM0 m0) b)).
+    - apply funextsec. intros b. rewrite eq_corecM0. reflexivity.
+    - rewrite X. cbn.
 
-      pattern (destrM (m0,, injectM0 m0)). rewrite tpair_eta.
-      rewrite eq3. rewrite eq4. cbn.
+      rewrite eq3. rewrite eq4. rewrite tpair_eta.
+      assert (H' : pr1 (destrM (m0,, injectM0 m0)) = pr1 (pr2 M0 m0)).
+      + unfold destrM, destrM'. cbn. apply maponpaths.
   Admitted.
 
   Definition eq3 (a : A) (f : B a -> carrierM) :
@@ -179,7 +206,7 @@ Section Refinement.
   Lemma finalM :
     is_final M.
   Proof.
-    rewrite algebras_equal. apply finalM0.
+    rewrite coalgebras_eq. apply finalM0.
   Qed.
 
 End Refinement.
