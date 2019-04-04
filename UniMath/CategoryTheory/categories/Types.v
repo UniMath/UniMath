@@ -251,3 +251,67 @@ Section HomFunctors.
     functor_fix_snd_arg (C^op) _ _ hom_functor c.
 
 End HomFunctors.
+
+
+
+(** ** The precategory of types does not have homsets. *)
+
+Require Import UniMath.MoreFoundations.Univalence.
+
+(* We first give two distinct proofs that bool equals bool. *)
+
+Definition bool_eq1 :
+  bool = bool.
+Proof.
+  apply weqtopaths. exists (fun b => b).
+  intros b. use iscontrpair.
+  - exists b. reflexivity.
+  - intros [b' ->]. reflexivity.
+Defined.
+
+Definition bool_eq2 :
+  bool = bool.
+Proof.
+  apply weqtopaths. exists (fun b => negb b).
+  intros b. use iscontrpair.
+  - exists (negb b). destruct b; reflexivity.
+  - abstract (intros [b' <-]; destruct b'; reflexivity).
+Defined.
+
+Lemma bool_eq_distinct :
+  ~ (bool_eq1 = bool_eq2).
+Proof.
+  intros H. apply (maponpaths cast) in H.
+  unfold bool_eq1, bool_eq2 in H. rewrite !weqpath_cast in H. cbn in H.
+  change ((bool_rec (fun _ => UU) False unit) ((fun b => b) true)).
+  rewrite H. cbn. exact tt.
+Qed.
+
+(* These can be lifted to two distinct proofs for the constant bool function. *)
+
+Definition const_bool : unit -> UU :=
+  fun _ => bool.
+
+Definition const_bool_eq1 : const_bool = const_bool :=
+  invweq (weqtoforallpaths _ const_bool const_bool) (fun _ => bool_eq1).
+
+Definition const_bool_eq2 : const_bool = const_bool :=
+  invweq (weqtoforallpaths _ const_bool const_bool) (fun _ => bool_eq2).
+
+Definition const_bool_eq_distinct :
+  ~ (const_bool_eq1 = const_bool_eq2).
+Proof.
+  unfold const_bool_eq1, const_bool_eq2. intros H. cbn in H.
+  pose (f := weqtoforallpaths _ const_bool const_bool). fold f in H.
+  apply (maponpaths f) in H. rewrite !homotweqinvweq in H.
+  apply bool_eq_distinct. apply (eqtohomot H tt).
+Qed.
+
+(* Hence [UU] has no homsets. *)
+
+Lemma type_no_homsets :
+  ~ has_homsets type_precat.
+Proof.
+  intros H. specialize (H unit UU).
+  apply const_bool_eq_distinct. apply H.
+Qed.
