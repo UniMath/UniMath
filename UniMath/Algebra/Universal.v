@@ -42,7 +42,7 @@ Definition nat_signature := make_signature_from_vector (vcons 0 (vcons 1 vnil)).
 Definition nat_zero: names nat_signature := (●0).
 Definition nat_succ: names nat_signature := (●1).
 
-Definition bool_signature := make_signature_from_vector (vcons 0 (vcons 1 (vcons  1 (vcons 2 vnil)))).
+Definition bool_signature := make_signature_from_vector (vcons 0 (vcons 0 (vcons  1 (vcons 2 vnil)))).
 
 Definition bool_false: names bool_signature := (●0).
 Definition bool_true: names bool_signature := (●1).
@@ -56,12 +56,43 @@ Definition nat_algebra: Algebra nat_signature.
   cbn in nm.
   induction nm as [n proofn].
   induction n.
-  cbn.
-  exact (λ _, 0).
+  - cbn.
+    exact (λ _, 0).
+  - induction n.
+    + cbn.
+      exact (λ x, S(pr1 x)).
+    + exact (fromempty (nopathsfalsetotrue proofn)).
+Defined.
+
+(*Da sostituire in bool_algebra questo andb fatto a mano da mau con quello vero (che spero esista!!!)*)
+Definition andb := λ a b : bool, if a then (if b then true else false) else false.
+
+Definition bool_algebra: Algebra bool_signature.
+  unfold Algebra.
+  exists boolset.
+  intro.
+  cbn in nm.
+  induction nm as [n proofn].
   induction n.
-  cbn.
-  exact (λ x, S(pr1 x)).
+  { cbn.
+    exact (λ _, false). }
+  induction n.
+  { cbn.
+    exact (λ _, true). }
+  induction n.
+  { cbn.
+    exact (λ x, negb(pr1 x)). }
+  induction n.
+  { cbn.
+    exact (λ x, andb (pr1 x) (pr1 (pr2 x))). }
   exact (fromempty (nopathsfalsetotrue proofn)).
+Defined.
+
+Definition final_algebra (signature : Signature) : Algebra signature.
+  unfold Algebra.
+  exists unitset.
+  intro.
+  exact (λ _, tt).
 Defined.
 
 (** Algebra homomorphism **)
@@ -106,6 +137,15 @@ Definition hom_idfun {a: Algebra sigma}: a |-> a.
 Defined.
 
 End Homomorphisms.
+
+(*mau*)
+Definition final_hom {signature : Signature} (algebra : Algebra signature) : hom algebra (final_algebra signature).
+  unfold hom.
+  exists (λ _, tt).
+  unfold is_hom.
+  intros.
+  reflexivity.
+Defined.
 
 Section TermAlgebra.
 
