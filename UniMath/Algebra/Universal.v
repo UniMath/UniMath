@@ -68,78 +68,120 @@ Defined.
 
 Section Homomorphisms.
 
-  Context { sigma: Signature }.
+Context { sigma: Signature }.
 
-  Definition is_hom {a1 a2: Algebra sigma} (f: support a1 → support a2): UU :=
-     ∏ (nm: names sigma) (x: dom nm), (f (op nm x) = (op nm (vector_map f x))).
+Definition is_hom {a1 a2: Algebra sigma} (f: support a1 → support a2): UU :=
+   ∏ (nm: names sigma) (x: dom nm), (f (op nm x) = (op nm (vector_map f x))).
 
-  Definition hom (a1 a2: Algebra sigma) :=  ∑ (f: support a1 → support a2), is_hom f.
+Definition hom (a1 a2: Algebra sigma) :=  ∑ (f: support a1 → support a2), is_hom f.
 
-  Notation "m1 |-> m2" := (hom m1 m2) (at level 80, right associativity).
+Notation "m1 |-> m2" := (hom m1 m2) (at level 80, right associativity).
 
-  Definition hom_to_fun {a1 a2: Algebra sigma} (h: a1 |-> a2): (support a1) -> (support a2) := pr1 h.
+Definition hom_to_fun {a1 a2: Algebra sigma} (h: a1 |-> a2): (support a1) -> (support a2) := pr1 h.
 
-  Definition hom_comp {a1 a2 a3: Algebra sigma} (h1: a1 |-> a2) (h2: a2 |-> a3) : a1 |-> a3.
-    exists (funcomp (hom_to_fun h1) (hom_to_fun h2)).
-    unfold is_hom.
-    intros.
-    induction h1 as [f1 ishomf1].
-    induction h2 as [f2 ishomf2].
-    cbn.
-    rewrite vector_map_comp.
-    rewrite ishomf1.
-    rewrite ishomf2.
-    reflexivity.
-  Defined.
+Definition hom_comp {a1 a2 a3: Algebra sigma} (h1: a1 |-> a2) (h2: a2 |-> a3) : a1 |-> a3.
+  exists (funcomp (hom_to_fun h1) (hom_to_fun h2)).
+  unfold is_hom.
+  intros.
+  induction h1 as [f1 ishomf1].
+  induction h2 as [f2 ishomf2].
+  cbn.
+  rewrite vector_map_comp.
+  rewrite ishomf1.
+  rewrite ishomf2.
+  reflexivity.
+Defined.
 
-  Lemma is_hom_idfun {a: Algebra sigma}: is_hom (idfun (support a)).
-  Proof.
-    red.
-    intros.
-    rewrite vector_map_id.
-    reflexivity.
-  Defined.
+Lemma is_hom_idfun {a: Algebra sigma}: is_hom (idfun (support a)).
+Proof.
+  red.
+  intros.
+  rewrite vector_map_id.
+  reflexivity.
+Defined.
 
-  Definition hom_idfun {a: Algebra sigma}: a |-> a.
-    exists (idfun (support a)).
-    exact (is_hom_idfun).
-  Defined.
-
-  Definition term_length (l: list (names sigma)): nat.
-    induction l as [n v].
-    induction n as [  | m h].
-    - exact 0.
-    - set (rest := h (tl v)).
-      exact (S(rest - (arity sigma (hd v)))).
-  Defined.
-
-  Definition term_is_wf (l: list (names sigma)): UU := term_length l = 1.
-
-  Definition term_algebra_support := ∑ l: list (names sigma), term_is_wf l.
-
-  Definition isaset_term_algebra_support: isaset term_algebra_support.
-    apply isaset_total2.
-    apply isofhlevellist.
-    - exact (pr2 (names sigma)).
-    - intro nm.
-      unfold term_is_wf.
-      apply hlevelntosn.
-      apply isaproppathstoisolated.
-      apply isisolatedn.
-  Defined.
-
-  Definition term_algebra_support_hset: hSet := make_hSet term_algebra_support isaset_term_algebra_support.
-
-  Definition term_algebra: Algebra sigma.
-   exists term_algebra_support_hset.
-  Abort.
+Definition hom_idfun {a: Algebra sigma}: a |-> a.
+  exists (idfun (support a)).
+  exact (is_hom_idfun).
+Defined.
 
 End Homomorphisms.
+
+Section TermAlgebra.
+
+Context { sigma: Signature }.
+
+Definition NameStack: UU := list (names sigma).
+
+Definition ns (l: list(names sigma)): NameStack := l.
+
+Definition NameStackStatus: UU := coprod nat unit.
+
+Definition stackok n: NameStackStatus := ii1 n.
+
+Definition stackerror: NameStackStatus := ii2 tt.
+
+Definition nss (ns: NameStack): NameStackStatus.
+  induction ns as [n v].
+  induction n as [  | m h].
+  - exact (stackok 0).
+  - set (maybe_rest := h (tl v)).
+    induction maybe_rest as [rest| error].
+    + set (is_error := natgtb (arity sigma (hd v)) rest).
+      exact (if is_error then stackerror else stackok ( S(rest - (arity sigma (hd v))) )).
+    + exact stackerror.
+Defined.
+
+Definition ns_is_wf (ns: NameStack): UU := nss ns != stackerror.
+
+Definition nss_concatenate (s1 s2: NameStackStatus): NameStackStatus.
+  induction s2 as [len_s2 | error2].
+  - induction s1 as [len_s1 | error1].
+    + exact (stackok (len_s1 + len_s2)).
+    + exact stackerror.
+  - exact stackerror.
+Defined.
+
+Search ( _ = nil).
+Lemma nss_compositional (ns1 ns2: NameStack): nss_concatenate (nss ns1) (nss ns2) = nss (concatenate ns1 ns2).
+Proof.
+  induction ns1 as [len_ns1 vec_ns1].
+  induction len_ns1.
+  - cbn in vec_ns1.
+Abort.
+
+Definition ns_is_term (ns: NameStack): UU := nss ns = stackok 1.
+
+Definition term := ∑ ns: NameStack, ns_is_term ns.
+
+Definition term_isaset: isaset term.
+  apply isaset_total2.
+  apply isofhlevellist.
+  - exact (pr2 (names sigma)).
+  - intro nm.
+    unfold ns_is_term.
+    apply hlevelntosn.
+    apply isaproppathstoisolated.
+    apply isolatedtoisolatedii1.
+    apply isisolatedn.
+Defined.
+
+Definition term_hset: hSet := make_hSet term (term_isaset).
+
+Definition term_algebra: Algebra sigma.
+ exists term_hset.
+Abort.
+
+End TermAlgebra.
+
+Section Tests.
 
 Local Notation "[]" := nil (at level 0, format "[]").
 Local Infix "::" := cons.
 
-Eval compute in term_length (nat_succ :: nat_zero :: nil).
-Eval compute in term_length nil.
-Eval compute in term_length (nat_zero :: nat_zero :: nil).
+Definition test1: nss (ns (nat_succ :: nat_zero :: nil)) = stackok 1 := idpath _.
+Definition test2: nss(sigma := nat_signature) nil = stackok 0 := idpath _.
+Definition test3: nss (nat_zero :: nat_zero :: nil) = stackok 2 := idpath _.
+Definition test4: nss (nat_succ :: nil) = stackerror := idpath _.
 
+End Tests.
