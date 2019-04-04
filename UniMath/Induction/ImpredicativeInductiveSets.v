@@ -107,7 +107,7 @@ Proof.
     unfold pre_prod in P.
     apply funextsec.
     intro X.
-    use funextfun.
+    apply funextfun.
     intro f.
     cbn in H.
     red in H.
@@ -125,6 +125,7 @@ Proof.
     intro h.
     apply (setproperty Y).
 Defined.
+(* still missing: commuting conversion, strong η, classical η rule and universal property *)
 
 (* copied from https://github.com/jonas-frey/Impredicative/blob/master/encode.hlean#L173 :
 -- System F encoding
@@ -310,6 +311,19 @@ Proof.
     apply (setproperty Y).
 Defined.
 
+Lemma Sum_com_con {X Y: HSET} (f : pr1hSet A → pr1hSet X) (g : pr1hSet B → pr1hSet X) (h : pr1hSet X → pr1hSet Y): Sum_rec (funcomp f h) (funcomp g h) = funcomp (Sum_rec f g) h.
+Proof.
+  apply funextfun.
+  intro x.
+  induction x as [c H].
+  cbn in H. red in H.
+  cbn.
+  apply pathsinv0.
+  apply H.
+Defined.
+
+(* still missing: strong η and universal property *)
+
 (* copied from https://github.com/jonas-frey/Impredicative/blob/master/encode.hlean#L173:
 
 definition  preSum (A B : USet) : USet :=
@@ -369,6 +383,204 @@ definition Sum_univ_prop {A B X : USet}
 
 End BinaryCoproduct.
 
+Section NaturalNumbers.
+
+Definition pre_nat: UU := ∏ (X: HSET), (pr1hSet X -> pr1hSet X) -> pr1hSet X -> pr1hSet X.
+
+Lemma pre_nat_isaset: isaset pre_nat.
+Proof.
+  change (isofhlevel 2 pre_nat).
+  apply impred.
+  intro X.
+  apply impred.
+  intros _.
+  apply impred.
+  intros _.
+  apply setproperty.
+Defined.
+
+Definition pre_nat_as_set: HSET := hSetpair _ pre_nat_isaset.
+
+Definition nNat (α: pre_nat): UU :=
+  ∏(X Y : HSET) (x: pr1hSet X) (y: pr1hSet Y)(h: pr1hSet X → pr1hSet X)(k: pr1hSet Y → pr1hSet Y) (f : pr1hSet X -> pr1hSet Y), f x = y -> funcomp h f = funcomp f k -> f (α X h x) = α Y k y.
+
+Definition nNat_isaset (α: pre_nat): isaset (nNat α).
+Proof.
+  change (isofhlevel 2 (nNat α)).
+  apply impred.
+  intro X.
+  apply impred.
+  intro Y.
+  apply impred.
+  intro x.
+  apply impred.
+  intro y.
+  apply impred.
+  intro h.
+  apply impred.
+  intro k.
+  apply impred.
+  intro f.
+  apply impred.
+  intros _.
+  apply impred.
+  intros _.
+  apply hlevelntosn.
+  apply (setproperty Y).
+Defined.
+
+Definition nNat_as_set (α: pre_nat): HSET := hSetpair _ (nNat_isaset α).
+
+Definition Nat: UU := ∑ α: pre_nat, pr1hSet (nNat_as_set α).
+
+Definition Nat_isaset: isaset Nat.
+Proof.
+  apply (isaset_total2_hSet pre_nat_as_set).
+Defined.
+
+Definition Nat_as_set: HSET := hSetpair _ Nat_isaset.
+
+Definition Z: Nat.
+Proof.
+  use tpair.
+  - exact (λ X f x, x).
+  - cbn. red.
+    intros; assumption.
+Defined.
+
+Definition S: HSET ⟦Nat_as_set,Nat_as_set⟧.
+Proof.
+  cbn.
+  intro n.
+  use tpair.
+  - exact (λ X h x, h (pr1 n X h x)).
+  - cbn. red.
+    intros ? ? ? ? ? ? ? H1 H2.
+    induction n as [n1 n2].
+    cbn in n2. red in n2.
+    cbn.
+    eapply pathscomp0.
+    2: { apply maponpaths.
+         apply (n2 X Y x y h k f); assumption. }
+    apply (toforallpaths _ _ _ H2).
+Defined.
+
+Definition Nat_rec {C: HSET} (h: pr1hSet C -> pr1hSet C)
+  (x: pr1hSet C)(n: Nat) : pr1hSet C := pr1 n C h x.
+
+Lemma Nat_β {C: HSET} (h: pr1hSet C -> pr1hSet C)
+  (x: pr1hSet C): Nat_rec h x Z = x.
+Proof.
+  apply idpath.
+Defined.
+
+Lemma Nat_β' {C: HSET} (h: pr1hSet C -> pr1hSet C)
+  (x: pr1hSet C) (n: Nat): Nat_rec h x (S n) = h (Nat_rec h x n).
+Proof.
+  apply idpath.
+Defined.
+
+Lemma Nat_weak_eta (n: Nat) : Nat_rec (C := Nat_as_set) S Z n = n.
+Proof.
+  induction n as [n0 H].
+  use total2_paths_f.
+  - cbn.
+    unfold pre_nat in n0.
+    apply funextsec.
+    intro X.
+    apply funextfun.
+    intro h.
+    apply funextfun.
+    intro x.
+    cbn in H.
+    red in H.
+    apply (H Nat_as_set X Z x S h (fun n => pr1 n X h x)); apply idpath.
+  - cbn.
+    cbn in H.
+    red in H.
+    apply funextsec.
+    intro X.
+    apply funextsec.
+    intro Y.
+    apply funextsec.
+    intro x.
+    apply funextsec.
+    intro y.
+    apply funextsec.
+    intro h.
+    apply funextsec.
+    intro k.
+    apply funextsec.
+    intro f.
+    apply funextfun.
+    intro H1.
+    apply funextfun.
+    intro H2.
+    apply (setproperty Y).
+Defined.
+
+Lemma Nat_η {C: HSET} (h: pr1hSet C -> pr1hSet C)
+      (x: pr1hSet C) (f: Nat → pr1hSet C)
+      (p : f Z = x) (q: funcomp S f = funcomp f h):
+  f = Nat_rec h x.
+Proof.
+  apply funextfun.
+  intro n.
+  eapply pathscomp0.
+  - apply maponpaths.
+    apply pathsinv0.
+    apply Nat_weak_eta.
+  - unfold Nat_rec.
+    induction n as [n0 H].
+    cbn in H. red in H.
+    cbn.
+    apply H; assumption.
+Defined.
+
+(* copied from https://github.com/jonas-frey/Impredicative/blob/master/encode.hlean#L289:
+
+definition preNat : USet := tΠ X : USet, (X ⇒ X) ⇒ X ⇒ X
+
+-- naturality condition
+definition nNat (α : preNat) : UPrp
+  := tΠ (X Y : USet) (x : X) (y : Y) (h : X → X) (k : Y → Y) (f : X → Y),
+         f x = y ⇒ f ∘ h = k ∘ f ⇒ f (α X h x) == α Y k y
+
+-- refined encoding
+definition Nat : USet := σ(α : preNat), nNat α
+
+-- constructors
+definition Z : Nat := ⟨λ X f x, x, λ X Y x y h k f u v, u⟩
+
+definition S (n : Nat) : Nat
+  := begin fconstructor, λ X h x, h (n.1 X h x), intros X Y x y h k f u v,
+     refine (ap (λ f, f (n.1 X h x)) v) ⬝ _, apply ap k, apply n.2, exact u,
+     assumption end
+
+-- recursor
+definition Nat_rec {X : USet} (h : X → X) (x : X) (n : Nat) : X := n.1 X h x
+
+-- β rules
+definition Nat_β {X : USet} (h : X → X) (x : X) : Nat_rec h x Z = x := rfl
+definition Nat_β' {X : USet} (h : X → X) (x : X) (n : Nat)
+  :  Nat_rec h x (S n) = h (Nat_rec h x n) := rfl
+
+-- η rules
+definition Nat_weak_η (n : Nat) : Nat_rec S Z n = n
+  := begin
+     induction n with n p,
+     fapply sigma_eq, apply eq_of_homotopy3, intro X h x,
+     apply p Nat X Z x S h (Nat_rec h x), reflexivity, apply eq_of_homotopy,
+     intro, reflexivity, apply is_prop.elimo end
+
+definition Nat_η {X:USet} (h:X→X) (x:X) (f:Nat→X) (p : f Z = x) (q:f∘S=h∘ f)
+  :  f = Nat_rec h x
+  := begin fapply eq_of_homotopy, intro n, refine (ap f (Nat_weak_η n))⁻¹ ⬝ _,
+unfold Nat_rec, induction n with m k, apply k, assumption, assumption end
+
+*)
+
+End NaturalNumbers.
 
 (* preparation for the general case:
 Variable F: HSET ⟦A, A⟧.
