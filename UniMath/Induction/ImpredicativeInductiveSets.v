@@ -1,7 +1,6 @@
 (** ** Impredicative Construction of Inductive Types that are Sets and Eliminate into Sets *)
 
 (** This is based on Sam Speight's master's thesis *)
-(* test *)
 
 Require Import UniMath.Foundations.Init.
 Require Import UniMath.Foundations.Preamble.
@@ -13,9 +12,9 @@ Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.categories.Types.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 
-Section Specification.
-
 Local Open Scope cat.
+
+Section BinaryProduct.
 
 Variable A B: HSET.
 
@@ -104,7 +103,7 @@ Proof.
   induction x as [P H].
   use total2_paths_f.
   - cbn.
-    UniMath.MoreFoundations.Tactics.show_id_type.
+    (* UniMath.MoreFoundations.Tactics.show_id_type. *)
     unfold pre_prod in P.
     apply funextsec.
     intro X.
@@ -187,7 +186,190 @@ definition Product_univ_prop {A B C : USet} : is_equiv (@Product_rec A B C)
                 (λ g, eq_of_homotopy2 (Product_β g))
 *)
 
+End BinaryProduct.
+
+Section BinaryCoproduct.
+
+Variable A B: HSET.
+
+Definition pre_sum: UU := ∏ (X: HSET), (pr1hSet A -> pr1hSet X) -> (pr1hSet B -> pr1hSet X) -> pr1hSet X.
+
+Lemma pre_sum_isaset: isaset pre_sum.
+Proof.
+  change (isofhlevel 2 pre_sum).
+  apply impred.
+  intro X.
+  apply impred.
+  intros _.
+  apply impred.
+  intros _.
+  apply setproperty.
+Defined.
+
+Definition pre_sum_as_set: HSET := hSetpair pre_sum pre_sum_isaset.
+
+Definition nSum (α: pre_sum): UU :=
+  ∏(X Y : HSET) (f : pr1hSet X → pr1hSet Y) (h : pr1hSet A -> pr1hSet X) (k: pr1hSet B -> pr1hSet X), f (α X h k) = α Y (funcomp h f) (funcomp k f).
+
+Definition nSum_isaset (α: pre_sum): isaset (nSum α).
+Proof.
+  change (isofhlevel 2 (nSum α)).
+  apply impred.
+  intro X.
+  apply impred.
+  intro Y.
+  apply impred.
+  intro f.
+  apply impred.
+  intro h.
+  apply impred.
+  intro k.
+  apply hlevelntosn.
+  apply (setproperty Y).
+Defined.
+
+Definition nSum_as_set (α: pre_sum): HSET := hSetpair _ (nSum_isaset α).
+
+Definition Sum: UU := ∑ α: pre_sum, pr1hSet (nSum_as_set α).
+
+Definition Sum_isaset: isaset Sum.
+Proof.
+  apply (isaset_total2_hSet pre_sum_as_set).
+Defined.
+
+Definition Sum_as_set: HSET := hSetpair _ Sum_isaset.
+
+Definition Sum_inl: HSET ⟦A, Sum_as_set⟧.
+Proof.
+  cbn.
+  intro a.
+  use tpair.
+  - intros X f g.
+    exact (f a).
+  - cbn. red.
+    intros ? ? ? ? k.
+    apply idpath.
+Defined.
+
+Definition Sum_inr: HSET ⟦B, Sum_as_set⟧.
+Proof.
+  cbn.
+  intro a.
+  use tpair.
+  - intros X f g.
+    exact (g a).
+  - cbn. red.
+    intros ? ? ? ? k.
+    apply idpath.
+Defined.
+
+Definition Sum_rec {C: HSET} (f: pr1hSet A -> pr1hSet C)
+  (g: pr1hSet B -> pr1hSet C)(c: Sum) : pr1hSet C
+  := pr1 c C f g.
+
+Lemma Sum_β_l {C: HSET} (f: pr1hSet A -> pr1hSet C)
+      (g: pr1hSet B -> pr1hSet C): funcomp Sum_inl (Sum_rec f g) = f.
+Proof.
+  apply idpath.
+Defined.
+
+Lemma Sum_β_r {C: HSET} (f: pr1hSet A -> pr1hSet C)
+      (g: pr1hSet B -> pr1hSet C): funcomp Sum_inr (Sum_rec f g) = g.
+Proof.
+  apply idpath.
+Defined.
+
+Lemma Sum_weak_eta (x: Sum) : Sum_rec (C := Sum_as_set) Sum_inl Sum_inr x = x.
+Proof.
+  induction x as [c H].
+  use total2_paths_f.
+  - cbn.
+    unfold pre_sum in c.
+    apply funextsec.
+    intro X.
+    apply funextfun.
+    intro f.
+    apply funextfun.
+    intro g.
+    cbn in H.
+    red in H.
+    apply (H Sum_as_set X (fun x => pr1 x X f g)).
+  - cbn.
+    cbn in H.
+    red in H.
+    apply funextsec.
+    intro X.
+    apply funextsec.
+    intro Y.
+    apply funextsec.
+    intro f.
+    apply funextsec.
+    intro h.
+    apply funextsec.
+    intro k.
+    apply (setproperty Y).
+Defined.
+
+(* copied from https://github.com/jonas-frey/Impredicative/blob/master/encode.hlean#L173:
+
+definition  preSum (A B : USet) : USet :=
+  tΠ(X : USet), (A ⇒ X) ⇒ (B ⇒ X) ⇒ X
+
+-- naturality condition
+definition nSum {A B : USet} (a : preSum A B) : UPrp
+  := tΠ(X Y : USet) (f : X→Y) (h : A→X) (k : B→X), f(a X h k) == a Y (f∘h) (f∘k)
+
+-- refined encoding
+definition Sum (A B : USet) : USet := σ(α : preSum A B), nSum α
+
+-- constructors
+definition Sum_inl {A B : USet} (a : A) : Sum A B
+  := ⟨λ X f g, f a, λ X Y f h k, rfl⟩
+
+definition Sum_inr {A B : USet} (b : B) : Sum A B
+  := ⟨λ X f g, g b, λ X Y f h k, rfl⟩
+
+-- recursor
+definition Sum_rec {A B X : USet} (f : A → X) (g : B → X) (c : Sum A B) : X
+  := c.1 X f g
+
+-- β rules
+definition Sum_β_l {A B X : USet} (f : A → X) (g : B → X)
+  : Sum_rec f g ∘ Sum_inl = f := rfl
+
+definition Sum_β_r {A B X : USet} (f : A → X) (g : B → X)
+  : Sum_rec f g ∘ Sum_inr = g := rfl
+
+-- weak η
+definition Sum_weak_η {A B : USet} (x : Sum A B)
+  : Sum_rec Sum_inl Sum_inr x = x
+  := begin induction x with α p, fapply sigma_eq,
+     apply eq_of_homotopy3, intro X f g,  unfold Sum_rec, apply p,
+     apply is_prop.elimo end
+
+--commuting conversion
+definition Sum_com_con {A B X Y : USet} (f : A → X) (g : B → X) (h : X → Y)
+  :  Sum_rec (h ∘ f) (h ∘ g) = h ∘ Sum_rec f g
+  := begin apply eq_of_homotopy, intro α, induction α with α p, symmetry, apply p end
+
+-- strong η
+definition Sum_η {A B X : USet} (h : Sum A B → X)
+  :  Sum_rec (h∘Sum_inl) (h∘Sum_inr) = h
+  := !Sum_com_con ⬝ eq_of_homotopy (λ x, ap h (Sum_weak_η x))
+
+--universal property
+definition Sum_univ_prop {A B X : USet}
+  :  (Sum A B ⇒ X) ≃ (Product (A ⇒ X) (B ⇒ X))
+  := equiv.MK (λ h, Pair (h ∘ Sum_inl) (h ∘ Sum_inr))
+              (λ a, Sum_rec (Proj1 a) (Proj2 a))
+              Product_classical_η
+              Sum_η
+
+*)
+
+End BinaryCoproduct.
+
+
 (* preparation for the general case:
 Variable F: HSET ⟦A, A⟧.
 *)
-End Specification.
