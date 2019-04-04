@@ -5,7 +5,9 @@
 (* ========================================================================= *)
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
+Require Import UniMath.Foundations.NaturalNumbers.
 
+Local Open Scope nat.
 Local Open Scope stn.
 
 (** ** Lemmata about natural numbers and standard finite sets. *)
@@ -69,16 +71,7 @@ Proof.
     + exact (f (tl v) (make_stn _ k (nat_S_lt _ _ jlt))).
 Defined.
 
-(** *** Extensionality. *)
-
-Definition vector0_eq (u v : Vector A 0) : u = v
-  := proofirrelevancecontr iscontrunit u v.
-
-Definition vectorS_eq {n} {u v : Vector A (S n)} (p : hd u = hd v) (q : tl u = tl v)
-  : u = v
-  := dirprod_paths p q.
-
-(** *** Some identities. *)
+(** *** Some identities for computing [el]. *)
 
 Lemma el_mk_vector {n} (f : ⟦ n ⟧ → A) : el (mk_vector f) = f.
 Proof.
@@ -105,7 +98,9 @@ Proof.
   induction n as [|m meq].
   - apply fromstn0. exact i.
   - cbn. apply maponpaths.
-    abstract (apply proofirrelevance; exact (propproperty (pr1 i < S m))).
+    abstract
+      (apply proofirrelevance;
+       exact (propproperty (pr1 i < S m))).
 Defined.
 
 Lemma el_vcons_hd {n} (v : Vector A n) (x : A) (ilt : 0 < S n) :
@@ -122,16 +117,43 @@ Proof.
   apply el_vcons_tl.
 Defined.
 
-Lemma mk_el_vector {n} (v : Vector A n) : mk_vector (el v) = v.
+Lemma el_tl {n} (v : Vector A (S n)) (i : ⟦ n ⟧)
+  : el (tl v) i = drop (el v) i.
 Proof.
+  rewrite drop_el.
+  reflexivity.
+Defined.
+
+(** *** Extensionality. *)
+
+Definition vector0_eq (u v : Vector A 0) : u = v
+  := proofirrelevancecontr iscontrunit u v.
+
+Definition vectorS_eq {n} {u v : Vector A (S n)}
+           (p : hd u = hd v) (q : tl u = tl v)
+  : u = v
+  := dirprod_paths p q.
+
+Lemma vector_extens {n} {u v : Vector A n}
+  : (∏ i : ⟦ n ⟧, el u i = el v i) → u = v.
+Proof.
+  intros H.
   induction n as [|m meq].
   - apply vector0_eq.
-  - change (vcons (el v firstelement) (mk_vector (drop (el v))) = v).
-    apply vectorS_eq.
-    + reflexivity.
-    + change (mk_vector (drop (el v)) = tl v).
-      rewrite drop_el.
-      apply meq.
+  - apply vectorS_eq.
+    + exact (H firstelement).
+    + apply meq.
+      intros.
+      do 2 rewrite el_tl.
+      apply H.
+Defined.
+
+Lemma mk_el_vector {n} (v : Vector A n) : mk_vector (el v) = v.
+Proof.
+  apply vector_extens.
+  intros i.
+  rewrite el_mk_vector.
+  reflexivity.
 Defined.
 
 (** *** Weak equivalence with functions. *)
@@ -174,9 +196,42 @@ Proof.
     + exact (h (tl v)).
 Defined.
 
+Lemma hd_vector_map {A B : UU} (f : A → B) {n} (v : Vector A (S n))
+  : hd (vector_map f v) = f (hd v).
+Proof.
+  reflexivity.
+Defined.
+
+Lemma tl_vector_map {A B : UU} (f : A → B) {n} (v : Vector A (S n))
+  : tl (vector_map f v) = vector_map f (tl v).
+Proof.
+  reflexivity.
+Defined.
+
+Lemma el_vector_map {A B : UU} (f : A → B) {n} (v : Vector A n) (i : ⟦ n ⟧)
+  : el (vector_map f v) i = f (el v i).
+Proof.
+  induction n as [|m H].
+  - exact (fromstn0 i).
+  - induction i as (j, jlt).
+    induction j as [|k _].
+    + apply hd_vector_map.
+    + change (el (tl (vector_map f v)) (make_stn _ k (nat_S_lt _ _ jlt)) =
+              f (el (tl v) (make_stn _ k (nat_S_lt _ _ jlt)))).
+      etrans.
+      { apply el_tl. }
+      etrans.
+      { apply H. }
+      apply maponpaths.
+      apply maponpaths.
+      apply stn_extens.
+      reflexivity.
+Defined.
+
 (** *** Iteration. *)
 
-Definition vector_foldr {A B : UU} (f : A -> B -> B) (b : B) {n} : Vector A n -> B
+Definition vector_foldr {A B : UU} (f : A -> B -> B) (b : B) {n}
+  : Vector A n -> B
   := vector_ind (λ (n : nat) (_ : Vector A n), B) b
                 (λ (a : A) (m : nat) (_ : Vector A m) (acc : B), f a acc)
                 n.
@@ -187,6 +242,14 @@ Definition vector_foldr1 {A : UU} (f : A -> A -> A) {n} : Vector A (S n) → A
               (λ (m : nat) (h : Vector A (S m) → A),
                uncurry (λ (x : A) (u : Vector A (S m)), f x (h u)))
               n.
+
+Definition vector_append {A : UU} {m} (u : Vector A m) {n} (v : Vector A n)
+  : Vector A (m + n)
+  := vector_ind (λ (p : nat) (_ : Vector A p), Vector A (p + n))
+                v
+                (λ (x : A) (p : nat) (_ : Vector A p) (w : Vector A (p + n)),
+                 vcons x w)
+                m u.
 
 (** *** Fusion laws. *)
 
@@ -202,4 +265,11 @@ Proof.
     + reflexivity.
     + change (vector_map (idfun A) (tl v) = tl v).
       apply IHn.
+Defined.
+
+Lemma vector_append_lid {A : UU} (u : Vector A 0) {n} (v : Vector A n)
+  : vector_append u v = v.
+Proof.
+  induction u.
+  reflexivity.
 Defined.

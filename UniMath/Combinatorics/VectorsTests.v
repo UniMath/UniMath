@@ -51,3 +51,17 @@ Section Test_vector_foldr1.
   Goal vector_foldr1 f v = f p (f q (f r t)). reflexivity. Qed.
 
 End Test_vector_foldr1.
+
+Section Test_vector_append.
+
+  Context {A : UU} {a b c d e : A}.
+
+  Let u := vcons a (vcons b (vcons c vnil)).
+  Let v := vcons d (vcons e vnil).
+  Let w := vcons a (vcons b (vcons c (vcons d (vcons e vnil)))).
+
+  Eval compute in vector_append u v.
+
+  Goal vector_append u v = w. reflexivity. Qed.
+
+End Test_vector_append.
