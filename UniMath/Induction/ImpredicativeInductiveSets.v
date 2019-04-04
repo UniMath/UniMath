@@ -1,7 +1,6 @@
 (** ** Impredicative Construction of Inductive Types that are Sets and Eliminate into Sets *)
 
 (** This is based on Sam Speight's master's thesis *)
-(** test *)
 
 Require Import UniMath.Foundations.Init.
 Require Import UniMath.Foundations.Preamble.
@@ -18,7 +17,9 @@ Section Specification.
 Local Open Scope cat.
 
 Variable A B: HSET.
+
 Definition pre_prod: UU := ∏ (X: HSET), (pr1hSet A -> pr1hSet B -> pr1hSet X) -> pr1hSet X.
+
 Lemma pre_prod_isaset: isaset pre_prod.
 Proof.
   change (isofhlevel 2 pre_prod).
@@ -28,6 +29,7 @@ Proof.
   intros _.
   apply setproperty.
 Defined.
+
 Definition pre_prod_as_set: HSET := hSetpair pre_prod pre_prod_isaset.
 
 Definition nProduct (α: pre_prod): UU :=
@@ -44,11 +46,20 @@ Proof.
   intro f.
   apply impred.
   intro h.
-Admitted.
+  apply hlevelntosn.
+  apply (setproperty Y).
+Defined.
 
 Definition nProduct_as_set (α: pre_prod): HSET := hSetpair _ (nProduct_isaset α).
 
 Definition Product: UU := ∑ α: pre_prod, pr1hSet (nProduct_as_set α).
+
+Definition Product_isaset: isaset Product.
+Proof.
+  apply (isaset_total2_hSet pre_prod_as_set).
+Defined.
+
+Definition Product_as_set: HSET := hSetpair _ Product_isaset.
 
 Definition Pair (a : pr1hSet A) (b : pr1hSet B) : Product.
 Proof.
@@ -58,15 +69,34 @@ Proof.
     intros; apply idpath.
 Defined.
 
-Definition Product_isaset: isaset Product.
-Proof.
-  Fail (apply isaset_total2_hSet).
-Admitted.
-
-Definition Product_as_set: HSET := hSetpair _ Product_isaset.
-
 Definition Proj1: HSET ⟦Product_as_set, A⟧.
-Abort.
+Proof.
+  cbn.
+  intro p.
+  induction p as [α H].
+  apply α.
+  exact (fun x y => x).
+Defined.
+
+Definition Proj2: HSET ⟦Product_as_set, B⟧.
+Proof.
+  cbn.
+  intro p.
+  induction p as [α H].
+  apply α.
+  exact (fun x y => y).
+Defined.
+
+Definition Product_rec {C: HSET} (f: pr1hSet A -> pr1hSet B -> pr1hSet C) (p: Product) : pr1hSet C.
+Proof.
+  induction p.
+  apply (pr1 C f).
+Defined.
+
+Lemma Product_beta (C: HSET) (f: pr1hSet A -> pr1hSet B -> pr1hSet C) (a: pr1hSet A) (b: pr1hSet B) : Product_rec f (Pair a b) = f a b.
+Proof.
+  apply idpath.
+Defined.
 
 (* copied from
 -- System F encoding
