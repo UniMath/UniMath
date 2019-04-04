@@ -972,7 +972,7 @@ Section abelian_MonicToKernels.
     - induction e. apply (KernelisKernel (to_Zero A) K).
   Defined.
 
-  (** The morphism f is monic if its kernel is zero. *)
+  (** The morphism f is epic if its cokernel is zero. *)
   Lemma CokernelZeroisEpi {x y z : A} (f : x --> y)
              (H : f · ZeroArrow (to_Zero A) y z = ZeroArrow (to_Zero A) x z )
              (isCK : isCokernel (to_Zero A) f (ZeroArrow (to_Zero A) _ _) H) : isEpi f.
