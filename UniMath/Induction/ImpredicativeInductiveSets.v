@@ -99,6 +99,34 @@ Proof.
   apply idpath.
 Defined.
 
+Lemma Product_weak_eta (x: Product) : Product_rec (C := Product_as_set) Pair x = x.
+Proof.
+  induction x as [P H].
+  use total2_paths_f.
+  - cbn.
+    UniMath.MoreFoundations.Tactics.show_id_type.
+    unfold pre_prod in P.
+    apply funextsec.
+    intro X.
+    use funextfun.
+    intro f.
+    cbn in H.
+    red in H.
+    exact (H Product_as_set X (fun x => pr1 x X f) Pair).
+  - cbn.
+    cbn in H.
+    red in H.
+    apply funextsec.
+    intro X.
+    apply funextsec.
+    intro Y.
+    apply funextsec.
+    intro f.
+    apply funextsec.
+    intro h.
+    apply (setproperty Y).
+Defined.
+
 (* copied from https://github.com/jonas-frey/Impredicative/blob/master/encode.hlean#L173 :
 -- System F encoding
 definition  preProduct (A B : USet) : USet :=
@@ -134,7 +162,29 @@ definition Product_β {A B C : USet} (f : A → B → C) (a : A) (b : B)
 definition Product_weak_η {A B : USet} (x : Product A B)
   :  Product_rec Pair x = x
   := begin induction x with p n, fapply sigma_eq, apply eq_of_homotopy2,
-                            intros X f, exact (n _ _ (Product_rec f) Pair), apply is_prop.elimo e
+     intros X f, exact (n _ _ (Product_rec f) Pair), apply is_prop.elimo end
+
+-- commuting conversion
+definition Product_com_con {A B C D : USet} (f : A → B → C) (g : C → D)
+  :  Product_rec (λ a b, g (f a b)) = g ∘ Product_rec f
+  := (eq_of_homotopy (λ x, x.2 C D g f))⁻¹
+
+-- strong η rule
+definition Product_η {A B C : USet} (g : Product A B → C)
+  :  Product_rec (λ a b, g (Pair a b)) = g
+  := (Product_com_con Pair g) ⬝ eq_of_homotopy (λ x, ap g (Product_weak_η x))
+
+-- classical η rule
+definition Product_classical_η {A B : USet} (p : Product A B)
+  :   Pair (Proj1 p) (Proj2 p) = p
+  :=  ap (λ f, f p) (Product_η _)⁻¹ ⬝ (Product_weak_η p)
+
+-- universal property
+definition Product_univ_prop {A B C : USet} : is_equiv (@Product_rec A B C)
+  := adjointify Product_rec
+                (λ f a b, f (Pair a b))
+                Product_η
+                (λ g, eq_of_homotopy2 (Product_β g))
 *)
 
 (* preparation for the general case:
