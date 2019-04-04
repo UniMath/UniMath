@@ -6,19 +6,21 @@ Require Import UniMath.Combinatorics.FiniteSets.
 Require Import UniMath.Combinatorics.Vectors.
 Require Import UniMath.Combinatorics.Lists.
 
+Open Scope stn.
+
 (** Basic definitions *)
 
 Definition Arity: UU := nat.
 
-Definition Signature: UU := ∑ (names: UU), names → Arity.
+Definition Signature: UU := ∑ (names: hSet), names → Arity.
 
-Definition names: Signature -> UU := pr1.
+Definition names: Signature -> hSet := pr1.
 
 Definition arity: ∏ (sigma: Signature), names sigma → Arity := pr2.
 
 Definition make_signature_from_vector {n: nat} (v: Vector nat n): Signature.
   unfold Signature.
-  exists (stn n).
+  exists (make_hSet (⟦ n ⟧) (isasetstn n)).
   exact (el v).
 Defined.
 
@@ -33,22 +35,19 @@ Definition dom {sigma: Signature} {a: Algebra sigma} (nm: names sigma): UU :=
 Definition op {sigma: Signature} {m: Algebra sigma}:
   ∏ (nm: names sigma), (dom nm) → support m := pr2 m.
 
-(** Examples of signatures and models *)
-
-Local Open Scope stn.
+(** Examples of signatures and algebras *)
 
 Definition nat_signature := make_signature_from_vector (vcons 0 (vcons 1 vnil)).
 
 Definition nat_zero: names nat_signature := (●0).
-
 Definition nat_succ: names nat_signature := (●1).
 
 Definition bool_signature := make_signature_from_vector (vcons 0 (vcons 1 (vcons  1 (vcons 2 vnil)))).
 
-Definition bool_false: names bool_signature  := (●0).
-Definition bool_true: names bool_signature  := (●1).
-Definition bool_not: names bool_signature  := (●2).
-Definition bool_and: names bool_signature  := (●3).
+Definition bool_false: names bool_signature := (●0).
+Definition bool_true: names bool_signature := (●1).
+Definition bool_not: names bool_signature := (●2).
+Definition bool_and: names bool_signature := (●3).
 
 Definition nat_algebra: Algebra nat_signature.
   unfold Algebra.
@@ -65,7 +64,7 @@ Definition nat_algebra: Algebra nat_signature.
   exact (fromempty (nopathsfalsetotrue proofn)).
 Defined.
 
-(**** Algebra homomorphism *)
+(** Algebra homomorphism **)
 
 Section Homomorphisms.
 
@@ -118,23 +117,29 @@ Section Homomorphisms.
 
   Definition term_algebra_support := ∑ l: list (names sigma), term_is_wf l.
 
-(*
   Definition isaset_term_algebra_support: isaset term_algebra_support.
     apply isaset_total2.
     apply isofhlevellist.
+    - exact (pr2 (names sigma)).
+    - intro nm.
+      unfold term_is_wf.
+      apply hlevelntosn.
+      apply isaproppathstoisolated.
+      apply isisolatedn.
+  Defined.
+
+  Definition term_algebra_support_hset: hSet := make_hSet term_algebra_support isaset_term_algebra_support.
 
   Definition term_algebra: Algebra sigma.
-   use tpair
-   
-*)
+   exists term_algebra_support_hset.
+  Abort.
 
 End Homomorphisms.
 
+Local Notation "[]" := nil (at level 0, format "[]").
+Local Infix "::" := cons.
 
-  Local Notation "[]" := nil (at level 0, format "[]").
-  Local Infix "::" := cons.
-
-  Eval compute in term_length (nat_succ :: nat_zero :: nil).
-  Eval compute in term_length nil.
-  Eval compute in term_length (nat_zero :: nat_zero :: nil).
+Eval compute in term_length (nat_succ :: nat_zero :: nil).
+Eval compute in term_length nil.
+Eval compute in term_length (nat_zero :: nat_zero :: nil).
 
