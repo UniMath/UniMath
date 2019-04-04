@@ -1,6 +1,7 @@
 (** ** Impredicative Construction of Inductive Types that are Sets and Eliminate into Sets *)
 
 (** This is based on Sam Speight's master's thesis *)
+(* test *)
 
 Require Import UniMath.Foundations.Init.
 Require Import UniMath.Foundations.Preamble.
@@ -98,7 +99,7 @@ Proof.
   apply idpath.
 Defined.
 
-(* copied from https://github.com/jonas-frey/Impredicative/blob/master/encode.hlean :
+(* copied from https://github.com/jonas-frey/Impredicative/blob/master/encode.hlean#L173 :
 -- System F encoding
 definition  preProduct (A B : USet) : USet :=
   tΠ (X : USet), (A ⇒ B ⇒ X) ⇒ X
