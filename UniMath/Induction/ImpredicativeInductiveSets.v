@@ -127,7 +127,30 @@ Proof.
     intro h.
     apply (setproperty Y).
 Defined.
-(* still missing: commuting conversion, strong η, classical η rule and universal property *)
+
+Lemma Product_com_con {C D : HSET} (f : pr1hSet A → pr1hSet B → pr1hSet C) (g : pr1hSet C → pr1hSet D): Product_rec (λ a b, g (f a b)) = g ∘ Product_rec f.
+Proof.
+  apply funextfun.
+  intro x.
+  induction x as [p H].
+  cbn in H. red in H.
+  apply pathsinv0.
+  exact (H C D g f).
+Defined.
+
+Lemma Product_η {C : HSET} (g : Product → pr1hSet C): Product_rec (λ a b, g (Pair a b)) = g.
+Proof.
+  eapply pathscomp0.
+  - apply (Product_com_con (C := Product_as_set) Pair).
+  - apply funextfun.
+    intro x.
+    unfold funcomp.
+    apply maponpaths.
+    apply Product_weak_eta.
+Defined.
+
+
+(* still missing: classical η rule and universal property *)
 
 (* copied from https://github.com/jonas-frey/Impredicative/blob/master/encode.hlean#L173 :
 -- System F encoding
