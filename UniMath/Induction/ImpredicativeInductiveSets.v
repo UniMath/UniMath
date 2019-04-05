@@ -11,6 +11,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.categories.Types.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.categories.HSET.Structures.
 
 Local Open Scope cat.
 
@@ -321,6 +322,30 @@ Proof.
   apply pathsinv0.
   apply H.
 Defined.
+
+Lemma Sum_η {X : HSET} (h : Sum → pr1hSet X)
+  : Sum_rec (funcomp Sum_inl h) (funcomp Sum_inr h) = h.
+Proof.
+  eapply pathscomp0.
+  apply Sum_com_con.
+  apply funextfun.
+  intro x.
+  unfold funcomp.
+  apply maponpaths.
+  apply Sum_weak_eta.
+Defined.
+
+Lemma Sum_univ_prop {X: HSET} : (HSET ⟦Sum_as_set, X⟧) ≃ (Product (exponential_functor A X) (exponential_functor B X)).
+Proof.
+  use weq_iso.
+  - intro h.
+    apply Pair.
+    + cbn. exact (funcomp Sum_inl h).
+    + cbn. exact (funcomp Sum_inr h).
+  - intro a. cbn.
+    apply Sum_rec.
+    + (* cannot project out of a since it is not seen as object of HSET *)
+Abort.
 
 (* still missing: strong η and universal property *)
 
