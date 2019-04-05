@@ -14,6 +14,7 @@ Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Structures.
 
 Local Open Scope cat.
+Local Open Scope functions.
 
 Section BinaryProduct.
 
@@ -211,7 +212,7 @@ Defined.
 Definition pre_sum_as_set: HSET := hSetpair pre_sum pre_sum_isaset.
 
 Definition nSum (α: pre_sum): UU :=
-  ∏(X Y : HSET) (f : pr1hSet X → pr1hSet Y) (h : pr1hSet A -> pr1hSet X) (k: pr1hSet B -> pr1hSet X), f (α X h k) = α Y (funcomp h f) (funcomp k f).
+  ∏(X Y : HSET) (f : pr1hSet X → pr1hSet Y) (h : pr1hSet A -> pr1hSet X) (k: pr1hSet B -> pr1hSet X), f (α X h k) = α Y (f ∘ h) (f ∘ k).
 
 Definition nSum_isaset (α: pre_sum): isaset (nSum α).
 Proof.
@@ -270,13 +271,13 @@ Definition Sum_rec {C: HSET} (f: pr1hSet A -> pr1hSet C)
   := pr1 c C f g.
 
 Lemma Sum_β_l {C: HSET} (f: pr1hSet A -> pr1hSet C)
-      (g: pr1hSet B -> pr1hSet C): funcomp Sum_inl (Sum_rec f g) = f.
+      (g: pr1hSet B -> pr1hSet C): (Sum_rec f g) ∘ Sum_inl = f.
 Proof.
   apply idpath.
 Defined.
 
 Lemma Sum_β_r {C: HSET} (f: pr1hSet A -> pr1hSet C)
-      (g: pr1hSet B -> pr1hSet C): funcomp Sum_inr (Sum_rec f g) = g.
+      (g: pr1hSet B -> pr1hSet C): (Sum_rec f g) ∘ Sum_inr = g.
 Proof.
   apply idpath.
 Defined.
@@ -312,7 +313,7 @@ Proof.
     apply (setproperty Y).
 Defined.
 
-Lemma Sum_com_con {X Y: HSET} (f : pr1hSet A → pr1hSet X) (g : pr1hSet B → pr1hSet X) (h : pr1hSet X → pr1hSet Y): Sum_rec (funcomp f h) (funcomp g h) = funcomp (Sum_rec f g) h.
+Lemma Sum_com_con {X Y: HSET} (f : pr1hSet A → pr1hSet X) (g : pr1hSet B → pr1hSet X) (h : pr1hSet X → pr1hSet Y): Sum_rec (h ∘ f) (h ∘ g) = h ∘ (Sum_rec f g).
 Proof.
   apply funextfun.
   intro x.
@@ -324,7 +325,7 @@ Proof.
 Defined.
 
 Lemma Sum_η {X : HSET} (h : Sum → pr1hSet X)
-  : Sum_rec (funcomp Sum_inl h) (funcomp Sum_inr h) = h.
+  : Sum_rec (h ∘ Sum_inl) (h ∘ Sum_inr) = h.
 Proof.
   eapply pathscomp0.
   apply Sum_com_con.
@@ -340,8 +341,8 @@ Proof.
   use weq_iso.
   - intro h.
     apply Pair.
-    + cbn. exact (funcomp Sum_inl h).
-    + cbn. exact (funcomp Sum_inr h).
+    + cbn. exact (h ∘ Sum_inl).
+    + cbn. exact (h ∘ Sum_inr).
   - intro a. cbn.
     apply Sum_rec.
     + (* cannot project out of a since it is not seen as object of HSET *)
@@ -427,7 +428,7 @@ Defined.
 Definition pre_nat_as_set: HSET := hSetpair _ pre_nat_isaset.
 
 Definition nNat (α: pre_nat): UU :=
-  ∏(X Y : HSET) (x: pr1hSet X) (y: pr1hSet Y)(h: pr1hSet X → pr1hSet X)(k: pr1hSet Y → pr1hSet Y) (f : pr1hSet X -> pr1hSet Y), f x = y -> funcomp h f = funcomp f k -> f (α X h x) = α Y k y.
+  ∏(X Y : HSET) (x: pr1hSet X) (y: pr1hSet Y)(h: pr1hSet X → pr1hSet X)(k: pr1hSet Y → pr1hSet Y) (f : pr1hSet X -> pr1hSet Y), f x = y -> f ∘ h = k ∘ f -> f (α X h x) = α Y k y.
 
 Definition nNat_isaset (α: pre_nat): isaset (nNat α).
 Proof.
