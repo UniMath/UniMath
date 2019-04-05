@@ -138,7 +138,6 @@ Defined.
 
 End Homomorphisms.
 
-(*mau*)
 Definition final_hom {signature : Signature} (algebra : Algebra signature) : hom algebra (final_algebra signature).
   unfold hom.
   exists (λ _, tt).
@@ -173,7 +172,7 @@ Proof.
   reflexivity.
 Defined.
 
-Lemma nss_cons_nostakerror (nm: names sigma) (ss: NameStackStatus): 
+Lemma nss_cons_nostakerror (nm: names sigma) (ss: NameStackStatus):
   nss_cons nm ss != stackerror → ∑ n: nat, ss = stackok n × natgtb (arity nm) n = false.
 Proof.
   intro noerror.
@@ -189,7 +188,7 @@ Proof.
   - simpl in noerror.
     destruct noerror.
     apply idpath.
-Defined.  
+Defined.
 
 Definition nss: NameStack → NameStackStatus.
   apply (foldr(A := names sigma)).
@@ -214,7 +213,7 @@ Lemma natgtb_add (n1 n2 m:nat): natgtb n1 n2 = false → natgtb n1 (n2 + m) = fa
   - reflexivity.
   - intro.
     rewrite natpluscomm.
-    induction m. 
+    induction m.
     + apply X.
     + cbn.
 Abort.
@@ -223,9 +222,7 @@ Axiom natgtb_add: ∏( n1 n2 m: nat), natgtb n1 n2 = false → natgtb n1 (n2 + m
 
 Axiom natgtb_adddiff: ∏( n1 n2 n3: nat), natgtb n2 n1 = false → n1 - n2 + n3 = n1+ n3 -n2.
 
-Search (_ - _ + _).
-
-Lemma nss_concatenate_ind (nm: names sigma) (ss1 ss2: NameStackStatus): 
+Lemma nss_concatenate_ind (nm: names sigma) (ss1 ss2: NameStackStatus):
    (nss_cons nm ss1 != stackerror) → nss_concatenate (nss_cons nm ss1) ss2 = nss_cons nm (nss_concatenate ss1 ss2).
 Proof.
   induction ss1 as [a1 | error1].
@@ -284,9 +281,31 @@ Proof.
     assumption.
 Defined.
 
+Definition ns_vector_flatten {n} (v: Vector NameStack n): NameStack :=
+  vector_foldr (λ (t: NameStack) (s: NameStack), concatenate t s) nil v.
+
+Definition nss_vector_flatten {n} (v: Vector NameStackStatus n): NameStackStatus :=
+  vector_foldr (λ (t: NameStackStatus) (s: NameStackStatus), nss_concatenate t s) (stackok 0) v.
+  
+Lemma nss_fuctorial: ∏ {n:nat} (v: Vector NameStack n), (∏ m : ⟦ n ⟧, nss (el v m) != stackerror) → nss_vector_flatten(vector_map nss v) = nss(ns_vector_flatten v).
+  apply (vector_ind (λ (n: nat) (v: Vector NameStack n), (∏ m : ⟦ n ⟧, nss (el v m) != stackerror) → nss_vector_flatten(vector_map nss v) = nss(ns_vector_flatten v))).
+  - intro.
+    reflexivity.
+  - intros.
+    change (ns_vector_flatten (vcons x v)) with (concatenate x (ns_vector_flatten v)).
+    change (nss_vector_flatten (vector_map nss (vcons x v))) with (nss_concatenate (nss x) (nss_vector_flatten (vector_map nss v))).
+    rewrite X.
+    + rewrite nss_compositional.
+      apply idpath.
+    
+    
+Abort.
+  
 Definition ns_is_term (ns: NameStack): UU := nss ns = stackok 1.
 
 Definition term := ∑ ns: NameStack, ns_is_term ns.
+
+Coercion term_to_ns(t: term): NameStack := pr1 t.
 
 Definition term_isaset: isaset term.
   apply isaset_total2.
@@ -300,6 +319,31 @@ Definition term_isaset: isaset term.
     apply isisolatedn.
 Defined.
 
+Definition term_op (nm: names sigma)(v: Vector term (arity nm)): term.
+  exists (cons nm (ns_vector (vector_map term_to_ns v))).
+  unfold ns_is_term.
+  rewrite nss_ind.
+  unfold nss_cons.
+  induction (arity nm).
+  - rewrite (vector0_eq v vnil).
+    reflexivity.
+  - 
+
+Abort.
+
+Definition term_op2 (nm: names sigma)(v: Vector term (arity nm)): term.
+  exists (cons nm (vector_foldr (λ (t: term) (s: NameStack), concatenate (pr1 t) s) nil v)).
+  unfold ns_is_term.
+  rewrite nss_ind.
+  apply (nat_ind (λ n: nat, arity nm = n → nss_cons nm (nss (vector_foldr (λ (t : term) (s : NameStack), concatenate (pr1 t) s) nil v)) =
+stackok 1)) with (n:= arity nm).
+  - intro.
+
+    rewrite (vector0_eq v vnil).
+    cbn.
+Abort.
+
+ 
 Definition term_hset: hSet := make_hSet term (term_isaset).
 
 Definition term_algebra: Algebra sigma.
@@ -317,5 +361,6 @@ Definition test1: nss (nat_succ :: nat_zero :: nil) = stackok 1 := idpath _.
 Definition test2: nss(sigma := nat_signature) nil = stackok 0 := idpath _.
 Definition test3: nss (nat_zero :: nat_zero :: nil) = stackok 2 := idpath _.
 Definition test4: nss (nat_succ :: nil) = stackerror := idpath _.
+
 
 End Tests.
