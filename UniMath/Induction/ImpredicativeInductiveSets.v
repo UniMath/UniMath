@@ -127,6 +127,9 @@ Proof.
     intro h.
     apply (setproperty Y).
 Defined.
+
+Lemma Product_classical_η (p: Product) : Pair (Proj1 p) (Proj2 p) = p.
+
 (* still missing: commuting conversion, strong η, classical η rule and universal property *)
 
 (* copied from https://github.com/jonas-frey/Impredicative/blob/master/encode.hlean#L173 :
@@ -345,7 +348,15 @@ Proof.
     + cbn. exact (h ∘ Sum_inr).
   - intro a. cbn.
     apply Sum_rec.
-    + (* cannot project out of a since it is not seen as object of HSET *)
+    + exact (Proj1 _ _ a).
+    + exact (Proj2 _ _ a).
+  - cbn. intro x.
+    apply Sum_η.
+  - cbn.  intro y.
+    intermediate_path (Pair _ _ (Proj1 _ _ y) (Proj2 _ _ y)).
+    + apply idpath.
+    +
+    (* cannot project out of a since it is not seen as object of HSET *)
 Abort.
 
 (* still missing: strong η and universal property *)
