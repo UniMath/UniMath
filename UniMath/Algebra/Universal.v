@@ -64,7 +64,6 @@ Definition nat_algebra: Algebra nat_signature.
     + exact (fromempty (nopathsfalsetotrue proofn)).
 Defined.
 
-(*Da sostituire in bool_algebra questo andb fatto a mano da mau con quello vero (che spero esista!!!)*)
 Definition andb := λ a b : bool, if a then (if b then true else false) else false.
 
 Definition bool_algebra: Algebra bool_signature.
@@ -218,8 +217,10 @@ Lemma natgtb_add (n1 n2 m:nat): natgtb n1 n2 = false → natgtb n1 (n2 + m) = fa
     + cbn.
 Abort.
 
+(** to be proved later ***)
 Axiom natgtb_add: ∏( n1 n2 m: nat), natgtb n1 n2 = false → natgtb n1 (n2 + m) = false.
 
+(** to be provd later ***)
 Axiom natgtb_adddiff: ∏( n1 n2 n3: nat), natgtb n2 n1 = false → n1 - n2 + n3 = n1+ n3 -n2.
 
 Lemma nss_concatenate_ind (nm: names sigma) (ss1 ss2: NameStackStatus):
@@ -297,8 +298,6 @@ Lemma nss_fuctorial: ∏ {n:nat} (v: Vector NameStack n), (∏ m : ⟦ n ⟧, ns
     rewrite X.
     + rewrite nss_compositional.
       apply idpath.
-    
-    
 Abort.
   
 Definition ns_is_term (ns: NameStack): UU := nss ns = stackok 1.
@@ -320,15 +319,13 @@ Definition term_isaset: isaset term.
 Defined.
 
 Definition term_op (nm: names sigma)(v: Vector term (arity nm)): term.
-  exists (cons nm (ns_vector (vector_map term_to_ns v))).
+  exists (cons nm (ns_vector_flatten (vector_map term_to_ns v))).
   unfold ns_is_term.
   rewrite nss_ind.
   unfold nss_cons.
   induction (arity nm).
   - rewrite (vector0_eq v vnil).
     reflexivity.
-  - 
-
 Abort.
 
 Definition term_op2 (nm: names sigma)(v: Vector term (arity nm)): term.
@@ -338,11 +335,15 @@ Definition term_op2 (nm: names sigma)(v: Vector term (arity nm)): term.
   apply (nat_ind (λ n: nat, arity nm = n → nss_cons nm (nss (vector_foldr (λ (t : term) (s : NameStack), concatenate (pr1 t) s) nil v)) =
 stackok 1)) with (n:= arity nm).
   - intro.
-
+    generalize v.
+    clear v.
+    rewrite X.
+    intro.
     rewrite (vector0_eq v vnil).
     cbn.
+    rewrite X.
+    reflexivity.
 Abort.
-
  
 Definition term_hset: hSet := make_hSet term (term_isaset).
 
@@ -361,6 +362,5 @@ Definition test1: nss (nat_succ :: nat_zero :: nil) = stackok 1 := idpath _.
 Definition test2: nss(sigma := nat_signature) nil = stackok 0 := idpath _.
 Definition test3: nss (nat_zero :: nat_zero :: nil) = stackok 2 := idpath _.
 Definition test4: nss (nat_succ :: nil) = stackerror := idpath _.
-
 
 End Tests.
