@@ -16,7 +16,7 @@ Definition Signature: UU := ∑ (names: hSet), names → Arity.
 
 Definition names: Signature -> hSet := pr1.
 
-Definition arity: ∏ (sigma: Signature), names sigma → Arity := pr2.
+Definition arity {sigma: Signature}: names sigma → Arity := pr2 sigma.
 
 Definition make_signature_from_vector {n: nat} (v: Vector nat n): Signature.
   unfold Signature.
@@ -25,12 +25,12 @@ Definition make_signature_from_vector {n: nat} (v: Vector nat n): Signature.
 Defined.
 
 Definition Algebra (sigma: Signature): UU :=
-  ∑ (support: hSet), ∏ (nm: names sigma), Vector support (arity sigma nm) → support.
+  ∑ (support: hSet), ∏ (nm: names sigma), Vector support (arity nm) → support.
 
 Definition support {sigma: Signature}: Algebra sigma → hSet := pr1.
 
 Definition dom {sigma: Signature} {a: Algebra sigma} (nm: names sigma): UU :=
-  Vector (support a) (arity sigma nm).
+  Vector (support a) (arity nm).
 
 Definition op {sigma: Signature} {m: Algebra sigma}:
   ∏ (nm: names sigma), (dom nm) → support m := pr2 m.
@@ -153,42 +153,136 @@ Context { sigma: Signature }.
 
 Definition NameStack: UU := list (names sigma).
 
-Definition ns (l: list(names sigma)): NameStack := l.
-
 Definition NameStackStatus: UU := coprod nat unit.
 
 Definition stackok n: NameStackStatus := ii1 n.
 
 Definition stackerror: NameStackStatus := ii2 tt.
 
-Definition nss (ns: NameStack): NameStackStatus.
-  induction ns as [n v].
-  induction n as [  | m h].
-  - exact (stackok 0).
-  - set (maybe_rest := h (tl v)).
-    induction maybe_rest as [rest| error].
-    + set (is_error := natgtb (arity sigma (hd v)) rest).
-      exact (if is_error then stackerror else stackok ( S(rest - (arity sigma (hd v))) )).
-    + exact stackerror.
+Definition nss_cons (nm: names sigma) (s: NameStackStatus): NameStackStatus.
+  destruct s as [n | error].
+  - set (is_error := natgtb (arity nm) n).
+    exact (if is_error then stackerror else stackok ( S(n - (arity nm)) )).
+  - exact (stackerror).
 Defined.
 
-Definition ns_is_wf (ns: NameStack): UU := nss ns != stackerror.
+Lemma nss_cons_stackerror (nm: names sigma) (s: NameStackStatus): s = stackerror → nss_cons nm s = stackerror.
+Proof.
+  intro.
+  rewrite X.
+  reflexivity.
+Defined.
 
-Definition nss_concatenate (s1 s2: NameStackStatus): NameStackStatus.
-  induction s2 as [len_s2 | error2].
-  - induction s1 as [len_s1 | error1].
-    + exact (stackok (len_s1 + len_s2)).
+Lemma nss_cons_nostakerror (nm: names sigma) (ss: NameStackStatus): 
+  nss_cons nm ss != stackerror → ∑ n: nat, ss = stackok n × natgtb (arity nm) n = false.
+Proof.
+  intro noerror.
+  induction ss.
+  - exists a.
+    split.
+    + reflexivity.
+    + unfold nss_cons in noerror.
+      induction (natgtb (arity nm) a).
+      * destruct noerror.
+        apply idpath.
+      * apply idpath.
+  - simpl in noerror.
+    destruct noerror.
+    apply idpath.
+Defined.  
+
+Definition nss: NameStack → NameStackStatus.
+  apply (foldr(A := names sigma)).
+  - exact nss_cons.
+  - exact (stackok 0).
+Defined.
+
+Lemma nss_ind (nm: names sigma) (ns: NameStack): nss (cons nm ns) = nss_cons nm (nss ns).
+  reflexivity.
+Defined.
+
+Definition nss_concatenate (ns1 ns2: NameStackStatus): NameStackStatus.
+  induction ns2 as [len_ns2 | error2].
+  - induction ns1 as [len_ns1 | error1].
+    + exact (stackok (len_ns1 + len_ns2)).
     + exact stackerror.
   - exact stackerror.
 Defined.
 
-Search ( _ = nil).
-Lemma nss_compositional (ns1 ns2: NameStack): nss_concatenate (nss ns1) (nss ns2) = nss (concatenate ns1 ns2).
-Proof.
-  induction ns1 as [len_ns1 vec_ns1].
-  induction len_ns1.
-  - cbn in vec_ns1.
+Lemma natgtb_add (n1 n2 m:nat): natgtb n1 n2 = false → natgtb n1 (n2 + m) = false.
+  induction n1.
+  - reflexivity.
+  - intro.
+    rewrite natpluscomm.
+    induction m. 
+    + apply X.
+    + cbn.
 Abort.
+
+Axiom natgtb_add: ∏( n1 n2 m: nat), natgtb n1 n2 = false → natgtb n1 (n2 + m) = false.
+
+Axiom natgtb_adddiff: ∏( n1 n2 n3: nat), natgtb n2 n1 = false → n1 - n2 + n3 = n1+ n3 -n2.
+
+Search (_ - _ + _).
+
+Lemma nss_concatenate_ind (nm: names sigma) (ss1 ss2: NameStackStatus): 
+   (nss_cons nm ss1 != stackerror) → nss_concatenate (nss_cons nm ss1) ss2 = nss_cons nm (nss_concatenate ss1 ss2).
+Proof.
+  induction ss1 as [a1 | error1].
+  - induction ss2 as [a2 | error2].
+    + intro noerror.
+      assert (∑ n: nat, (stackok a1 = stackok n × natgtb (arity nm) n = false)).
+      * apply nss_cons_nostakerror.
+        assumption.
+      * destruct X as [ n [ sseq arityok ] ].
+        apply ii1_injectivity in sseq.
+        rewrite <- sseq in *.
+        etrans.
+        -- unfold nss_cons.
+           rewrite arityok.
+           cbn.
+           apply idpath.
+        -- unfold nss_cons.
+           cbn.
+           assert (arityok2 : natgtb (arity nm) (a1 + a2) = false).
+           { apply natgtb_add. assumption. }
+           rewrite arityok2.
+           rewrite natgtb_adddiff.
+           ++ reflexivity.
+           ++ assumption.
+    + reflexivity.
+  - cbn.
+    intro.
+    induction X.
+    apply idpath.
+Defined.
+
+Lemma nss_compositional (ns1 ns2: NameStack): nss ns1 != stackerror → nss_concatenate (nss ns1) (nss ns2) = nss (concatenate ns1 ns2).
+Proof.
+  apply (list_ind (λ s, nss s != stackerror → nss_concatenate (nss s) (nss ns2) = nss (concatenate s ns2))).
+  - change (nss (concatenate nil ns2)) with (nss ns2).
+    change (nss nil) with (stackok 0).
+    induction (nss ns2).
+    + reflexivity.
+    + induction b.
+      reflexivity.
+  - intros nm ns1tail IH wfnmrest.
+    rewrite nss_ind in wfnmrest.
+    assert (nss ns1tail != stackerror).
+    {
+       apply (negf (nss_cons_stackerror nm (nss ns1tail))).
+       assumption.
+    }
+    set (IH' := IH X).
+    cut (∏ u, u = nss ns2 → nss_concatenate (nss (cons nm ns1tail)) u = nss (cons nm (concatenate ns1tail ns2))).
+    { intro. apply X0. reflexivity. }
+    rewrite !nss_ind.
+    rewrite <- IH'.
+    intros.
+    rewrite X0.
+    apply nss_concatenate_ind.
+    assumption.
+Defined.
 
 Definition ns_is_term (ns: NameStack): UU := nss ns = stackok 1.
 
@@ -219,7 +313,7 @@ Section Tests.
 Local Notation "[]" := nil (at level 0, format "[]").
 Local Infix "::" := cons.
 
-Definition test1: nss (ns (nat_succ :: nat_zero :: nil)) = stackok 1 := idpath _.
+Definition test1: nss (nat_succ :: nat_zero :: nil) = stackok 1 := idpath _.
 Definition test2: nss(sigma := nat_signature) nil = stackok 0 := idpath _.
 Definition test3: nss (nat_zero :: nat_zero :: nil) = stackok 2 := idpath _.
 Definition test4: nss (nat_succ :: nil) = stackerror := idpath _.
