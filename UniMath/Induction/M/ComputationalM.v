@@ -62,7 +62,7 @@ Section Refinement.
   Definition destrM' (m : carrierM) : P m.
   Proof.
     destruct m as [m0 H]. apply (squash_to_prop H); try apply P_isaprop.
-    intros [C[c <-]]. refine ((# F (corecM C) ∘ (pr2 C)) c,,_). cbn [pr1]. clear H.
+    intros [C[c <-]]. refine ((# F (corecM C) ∘ (pr2 C)) c,, _). cbn [pr1]. clear H.
     assert (H : is_coalgebra_homo F (corecM0 C)).
     - destruct finalM0 as [[G H] H']. apply H.
     - apply toforallpaths in H. symmetry. apply H.
@@ -71,18 +71,16 @@ Section Refinement.
   Definition destrM (m : carrierM) : F carrierM :=
     pr1 (destrM' m).
 
-  (* The destructor satisfies the corecursion equation computationally *)
+  Definition M : coalgebra F :=
+    (carrierM,,destrM).
+
+  (* The destructor satisfies the corecursion equation definitionally *)
 
   Lemma corec_computation C c :
     destrM (corecM C c) = # F (corecM C) (pr2 C c).
   Proof.
     reflexivity.
   Qed.
-
-  (* We pack both components into a coalgebra *)
-
-  Definition M : coalgebra F :=
-    (carrierM,,destrM).
 
   (* The two carriers are equal *)
 
@@ -91,9 +89,9 @@ Section Refinement.
   Proof.
     destruct finalM0 as [[G H1] H2]. cbn.
     specialize (H2 (coalgebra_homo_id F M0)).
-    change (pr1 (G,,H1) m0 = m0).
-    pattern (G,,H1). rewrite <- H2. reflexivity.
-  Qed.
+    change (pr1 (G,, H1) m0 = m0).
+    pattern (G,, H1). rewrite <- H2. apply idpath.
+  Defined.
 
   Definition injectM0 m0 :
     ∃ C c, corecM0 C c = m0.
@@ -104,9 +102,9 @@ Section Refinement.
   Lemma carriers_weq :
     carrierM ≃ carrierM0.
   Proof.
-    apply (weq_iso pr1 (fun m0 => m0,,injectM0 m0)).
+    apply (weq_iso pr1 (λ m0, m0,, injectM0 m0)).
     - intros [m H]. cbn. apply maponpaths, ishinh_irrel.
-    - intros x. cbn. reflexivity.
+    - intros x. cbn. apply idpath.
   Defined.
 
   Lemma carriers_eq :
@@ -115,91 +113,61 @@ Section Refinement.
     apply weqtopaths, carriers_weq.
   Defined.
 
-  (* M is final *)
+  (* The two coalgebras are equal *)
 
-  Lemma help_eq1 (m : carrierM0) (H : ∃ C c, corecM0 C c = m) :
-    @paths carrierM (m,, injectM0 m) (m,, H).
+  Lemma tpair_eta X (Y : X -> UU) :
+    forall (p : ∑ x, Y x), p = (pr1 p,,pr2 p).
   Proof.
-    apply maponpaths, ishinh_irrel.
+    intros p. apply idpath.
   Qed.
 
-  Lemma finalM :
-    is_final M.
+  Definition transportf_sec_constant X Y (Z : X -> Y -> UU) x1 x2 (p : x1 = x2) f y :
+    transportf (λ x, forall y, Z x y) p f y = transportf (λ x, Z x y) p (f y).
   Proof.
-    intros C. unshelve refine ((corecM C,,idpath _),,_).
-    intros [h H]. assert (h = corecM C) as ->.
-    - apply funextsec. intros c. unfold corecM. admit.
-    - apply maponpaths.
-  Abort.
+    destruct p. apply idpath.
+  Defined.
 
-  (* The two coalgebras are equal *)
+  Definition transportf_total2_const X Y (Z : X -> Y -> UU) x y1 y2 (p : y1 = y2) z :
+    transportf (λ y, ∑ a, Z a y) p (x,, z) = x,, transportf (Z x) p z.
+  Proof.
+    destruct p. apply idpath.
+  Defined.
 
   Lemma eq1 (m0 : carrierM0) :
     transportf (λ X, X → F X) carriers_eq destrM m0
     = transportf (λ X, F X) carriers_eq (destrM (transportf (λ X, X) (!carriers_eq) m0)).
   Proof.
-    destruct carriers_eq. reflexivity.
+    destruct carriers_eq. apply idpath.
   Qed.
 
   Lemma eq2 (m0 : carrierM0) :
     transportf (λ X, X) (!carriers_eq) m0 = (m0,,injectM0 m0).
   Proof.
     apply (transportf_pathsinv0' (idfun UU) carriers_eq).
-    unfold carriers_eq. rewrite (weqpath_transport carriers_weq).
-    reflexivity.
+    unfold carriers_eq. rewrite weqpath_transport. apply idpath.
   Qed.
 
-  Definition eq3' (a : A) (f : B a -> carrierM) :
-    transportf (λ X, F X) carriers_eq (a,,f) = (a,,transportf (λ X, B a -> X) carriers_eq f).
+  (* this should hold (by computation) once P_isaprop was proven *)
+
+  Lemma eq3 m0 :
+    destrM (m0,, injectM0 m0) = pr1 (destrM0 m0),, (corecM M0 ∘ pr2 (destrM0 m0))%functions.
   Proof.
-    destruct carriers_eq. reflexivity.
-  Qed.
-
-  Lemma tpair_eta X (Y : X -> UU) :
-    forall (p : ∑ x, Y x), p = (pr1 p,,pr2 p).
-  Proof.
-    intros []. reflexivity.
-  Qed.
-
-  Definition eq3_right' (m0 : carrierM0) :=
-    @tpair _ (fun a => B a -> carrierM0) (pr1 (destrM0 m0))
-           (fun b => pr1 (corecM M0 (pr2 (destrM0 m0) b))).
-
-
-  Definition eq3 m0 :
-    destrM0 m0 = # F pr1 ((pr2 M0 · # F (corecM M0)) m0).
-  Proof.
-    cbn.
-    unfold eq3_right. pattern (destrM0 m0) at 1. rewrite tpair_eta. cbn.
-    assert (pr2 (destrM0 m0) = λ b : B (pr1 (destrM0 m0)), (corecM0 M0) (pr2 (destrM0 m0) b)).
-    - apply funextsec. intros b. rewrite eq_corecM0. reflexivity.
-    - rewrite X. cbn.
-  Abort.
+    cbn. unfold destrM, destrM'.
+  Admitted.
 
   Lemma coalgebras_eq :
     M = M0.
   Proof.
-    use total2_paths_f.
-    - apply weqtopaths, carriers_weq.
-    - apply funextfun. intros m0.
-      rewrite eq1. rewrite eq2.
-
-      destruct (destrM (m0,, injectM0 m0)) as [a f] eqn : H.
-      replace (destrM0 m0) with (eq3_right m0).
-      + admit.
-      + unfold eq3_right. pattern (destrM0 m0) at 1. rewrite tpair_eta. cbn.
-    assert (pr2 (destrM0 m0) = λ b : B (pr1 (destrM0 m0)), (corecM0 M0) (pr2 (destrM0 m0) b)).
-    - apply funextsec. intros b. rewrite eq_corecM0. reflexivity.
-    - rewrite X. cbn.
-
-      rewrite eq3. rewrite eq4. rewrite tpair_eta.
-      assert (H' : pr1 (destrM (m0,, injectM0 m0)) = pr1 (pr2 M0 m0)).
-      + unfold destrM, destrM'. cbn. apply maponpaths.
-  Admitted.
-
-  Definition eq3 (a : A) (f : B a -> carrierM) :
-    transportf (λ X, F X) carriers_eq (a,,f) = (a,,transportf (λ X, pr2 (F X)) carriers_eq f).
-  Proof. induction p; reflexivity. Defined.
+    use total2_paths_f; try apply carriers_eq.
+    apply funextfun. intros m0.
+    rewrite eq1. rewrite eq2. rewrite eq3.
+    cbn. unfold polynomial_functor_obj.
+    rewrite transportf_total2_const.
+    rewrite tpair_eta. use total2_paths_f; try apply idpath.
+    cbn. apply funextsec. intros b. rewrite transportf_sec_constant.
+    unfold carriers_eq. rewrite weqpath_transport.
+    cbn. rewrite eq_corecM0. apply idpath.
+  Qed.
 
   (* Thus M is final *)
 
