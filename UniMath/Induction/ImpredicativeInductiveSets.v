@@ -100,7 +100,7 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma Product_weak_eta (x: Product) : Product_rec (C := Product_as_set) Pair x = x.
+Lemma Product_weak_η (x: Product) : Product_rec (C := Product_as_set) Pair x = x.
 Proof.
   induction x as [P H].
   use total2_paths_f.
@@ -146,12 +146,22 @@ Proof.
     intro x.
     unfold funcomp.
     apply maponpaths.
-    apply Product_weak_eta.
+    apply Product_weak_η.
 Defined.
 
 Lemma Product_classical_η (p: Product) : Pair (Proj1 p) (Proj2 p) = p.
+Proof.
+  apply pathsinv0.
+  eapply pathscomp0.
+  - apply pathsinv0.
+    apply Product_weak_η.
+  - set (Product_η_inst := Product_η (C := Product_as_set) (fun x => Pair (Proj1 x) (Proj2 x))).
+    cbn in Product_η_inst.
+    apply toforallpaths in Product_η_inst.
+    apply Product_η_inst.
+Defined.
 
-(* still missing: classical η rule and universal property *)
+(* still missing: universal property *)
 
 (* copied from https://github.com/jonas-frey/Impredicative/blob/master/encode.hlean#L173 :
 -- System F encoding
@@ -376,11 +386,8 @@ Proof.
   - cbn.  intro y.
     intermediate_path (Pair _ _ (Proj1 _ _ y) (Proj2 _ _ y)).
     + apply idpath.
-    +
-    (* cannot project out of a since it is not seen as object of HSET *)
-Abort.
-
-(* still missing: strong η and universal property *)
+    + apply Product_classical_η.
+Defined.
 
 (* copied from https://github.com/jonas-frey/Impredicative/blob/master/encode.hlean#L173:
 
