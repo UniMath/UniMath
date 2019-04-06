@@ -248,6 +248,7 @@ Monoidal/MonoidalFunctors.v
 Monoidal/CategoriesOfMonoids.v
 Monoidal/Actions.v
 Monoidal/Strengths.v
+Monoidal/BicategoryFromMonoidal.v
 
 Enriched/Enriched.v
 
