@@ -5,7 +5,6 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.FiniteSets.
 Require Import UniMath.Combinatorics.Vectors.
 Require Import UniMath.Combinatorics.Lists.
-Require Import UniMath.Combinatorics.Bool.
 
 Open Scope stn.
 
@@ -40,6 +39,9 @@ Definition op {sigma: Signature} {m: Algebra sigma} (nm: names sigma): (dom nm) 
   pr2 m nm.
 
 (** Examples of signatures and algebras *)
+
+Definition andb (b1 b2: bool): bool := if b1 then b2 else false.
+Definition orb (b1 b2: bool): bool := if b1 then true else b2.
 
 Definition nat_signature := make_signature_from_vector (vcons 0 (vcons 1 vnil)).
 
@@ -103,7 +105,7 @@ Definition hom (a1 a2: Algebra sigma) :=  ∑ (f: support a1 → support a2), is
 
 Notation "m1 |-> m2" := (hom m1 m2) (at level 80, right associativity).
 
-Coercion hom_to_fun {a1 a2: Algebra sigma} (h: a1 |-> a2): (support a1) -> (support a2) := pr1 h.
+Definition hom_to_fun {a1 a2: Algebra sigma}: (a1 |-> a2) → support a1 → support a2 := pr1.
 
 Definition hom_id {a: Algebra sigma}: a |-> a.
   exists (idfun (support a)).
@@ -501,3 +503,4 @@ Definition test4: s2ss (nat_succ :: nil) = stackerror := idpath _.
 Definition test5: (pr1 (term_op nat_succ (vcons (term_op nat_zero vnil) vnil))) = nat_succ :: nat_zero :: nil := idpath _.
 
 End Tests.
+
