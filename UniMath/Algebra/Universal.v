@@ -1,7 +1,6 @@
 (***** Universal Algebra ******)
 
 Require Import UniMath.Foundations.All.
-Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.FiniteSets.
 Require Import UniMath.Combinatorics.Vectors.
 Require Import UniMath.Combinatorics.Lists.
@@ -35,55 +34,8 @@ Definition dom {sigma: Signature} {a: Algebra sigma} (nm: names sigma): UU :=
 Definition cod {sigma: Signature} {a: Algebra sigma} (nm: names sigma): UU := 
   support a.
 
-Definition op {sigma: Signature} {m: Algebra sigma} (nm: names sigma): (dom nm) → support m := 
-  pr2 m nm.
-
-(** Examples of signatures and algebras *)
-
-Definition andb (b1 b2: bool): bool := if b1 then b2 else false.
-Definition orb (b1 b2: bool): bool := if b1 then true else b2.
-
-Definition nat_signature := make_signature_from_vector (vcons 0 (vcons 1 vnil)).
-
-Definition nat_zero: names nat_signature := (●0).
-Definition nat_succ: names nat_signature := (●1).
-
-Definition bool_signature := make_signature_from_vector (vcons 0 (vcons 0 (vcons  1 (vcons 2 vnil)))).
-
-Definition bool_false: names bool_signature := (●0).
-Definition bool_true: names bool_signature := (●1).
-Definition bool_not: names bool_signature := (●2).
-Definition bool_and: names bool_signature := (●3).
-
-Definition nat_algebra: Algebra nat_signature.
-  red.
-  exists natset.
-  intro.
-  cbn in nm.
-  destruct nm as [n proofn].
-  induction n.
-  { cbn. exact (λ _, 0). }
-  induction n.
-  { cbn. exact (λ x, S(pr1 x)). }
-  { exact (fromempty (nopathsfalsetotrue proofn)). }
-Defined.
-
-Definition bool_algebra: Algebra bool_signature.
-  red.
-  exists boolset.
-  intro.
-  cbn in nm.
-  destruct nm as [n proofn].
-  induction n.
-  { cbn. exact (λ _, false). }
-  induction n.
-  { cbn. exact (λ _, true). }
-  induction n.
-  { cbn. exact (λ x, negb(pr1 x)). }
-  induction n.
-  { cbn. exact (λ x, andb (pr1 x) (pr1 (pr2 x))). }
-  { exact (fromempty (nopathsfalsetotrue proofn)). }
-Defined.
+Definition op {sigma: Signature} {a: Algebra sigma} (nm: names sigma): (dom nm) → (cod nm) := 
+  pr2 a nm.
 
 Definition final_algebra (signature : Signature) : Algebra signature.
   red.
@@ -490,17 +442,5 @@ Defined.
 
 End TermAlgebra.
 
-Section Tests.
 
-Local Notation "[]" := nil (at level 0, format "[]").
-Local Infix "::" := cons.
-
-Definition test1: s2ss (nat_succ :: nat_zero :: nil) = stackok 1 := idpath _.
-Definition test2: s2ss(sigma := nat_signature) nil = stackok 0 := idpath _.
-Definition test3: s2ss (nat_zero :: nat_zero :: nil) = stackok 2 := idpath _.
-Definition test4: s2ss (nat_succ :: nil) = stackerror := idpath _.
-
-Definition test5: (pr1 (term_op nat_succ (vcons (term_op nat_zero vnil) vnil))) = nat_succ :: nat_zero :: nil := idpath _.
-
-End Tests.
 

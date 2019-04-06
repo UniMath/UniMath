@@ -85,6 +85,10 @@ The packages and files are listed here in logical order: each file depends only 
    - [Modules/Quotient.v](Algebra/Modules/Quotient.v)
    - [Modules.v](Algebra/Modules.v)
    - [Matrix.v](Algebra/Matrix.v)
+   - [Universal.v](Algebra/Universal.v)
+   - [Universal/Nat.v](Algebra/Universal/Nat.v)
+   - [Universal/Bool.v](Algebra/Universal/Bool.v)
+   - [Universal/Tests.v](Algebra/Universal/Tests.v)
    - [All.v](Algebra/All.v)
 ## Package NumberSystems
    - [NaturalNumbersAlgebra.v](NumberSystems/NaturalNumbersAlgebra.v)
