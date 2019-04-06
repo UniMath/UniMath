@@ -44,7 +44,7 @@ Section Refinement.
   Definition corecM (C : coalgebra F) (c : pr1 C) :
     carrierM.
   Proof.
-    exists (corecM0 C c). apply hinhpr. exists C, c. reflexivity.
+    exists (corecM0 C c). apply hinhpr. exists C, c. apply idpath.
   Defined.
 
   (* Definition of a proposition we factor the computation through *)
@@ -79,7 +79,7 @@ Section Refinement.
   Lemma corec_computation C c :
     destrM (corecM C c) = # F (corecM C) (pr2 C c).
   Proof.
-    reflexivity.
+    apply idpath.
   Qed.
 
   (* The two carriers are equal *)
