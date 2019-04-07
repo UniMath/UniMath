@@ -20,7 +20,7 @@ Local Definition orb (b1 b2: bool): bool := if b1 then true else b2.
 Definition bool_ops (nm : names bool_signature)
   : Vector bool (arity nm) → bool.
 Proof.
-  destruct nm as [n proofn].
+  induction nm as [n proofn].
   induction n.
   { cbn. exact (λ _, false). }
   induction n.

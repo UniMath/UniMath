@@ -69,8 +69,8 @@ Definition hom_comp {a1 a2 a3: Algebra sigma} (h1: a1 |-> a2) (h2: a2 |-> a3) : 
   exists (funcomp (hom_to_fun h1) (hom_to_fun h2)).
   red.
   intros.
-  destruct h1 as [f1 ishomf1].
-  destruct h2 as [f2 ishomf2].
+  induction h1 as [f1 ishomf1].
+  induction h2 as [f2 ishomf2].
   cbn.
   rewrite vector_map_comp.
   rewrite ishomf1.
@@ -118,7 +118,7 @@ Proof.
   unfold nss_cons in noerror.
   induction (isdecrelnatleh (arity nm) n) as [okarity | badarity].
   * assumption.
-  * destruct noerror.
+  * induction noerror.
     reflexivity.
 Defined.
 
@@ -132,7 +132,7 @@ Proof.
     + apply idpath.
     + apply nss_cons_stackok.
       assumption.
-  - destruct noerror.
+  - induction noerror.
     apply idpath.
 Defined.
 
@@ -172,7 +172,7 @@ Proof.
       * unfold nss_cons.
         induction (isdecrelnatleh (arity nm) a1).
         -- cbn. apply idpath.
-        -- destruct b. trivial.
+        -- induction b. trivial.
       * simpl (nss_concatenate (inl a1) (inl a2)).
         unfold nss_cons.
         unfold stackok.
@@ -278,9 +278,9 @@ Proof.
       exact (X0 (dni_firstelement m)).
     }
     set (X2 := (X X1)).
-    destruct X2 as [c'  [ IH bound']].
+    induction X2 as [c'  [ IH bound']].
     set (xok := X0 (●0)).
-    destruct xok as [xval [xok xbounded]].
+    induction xok as [xval [xok xbounded]].
     simpl (el (vcons x v0) (stnpr 0)) in xok.
     rewrite xok.
     exists (xval + c').
@@ -307,7 +307,7 @@ Proof.
       exact (X0 (dni_firstelement m)).
     }
     set (X2 := (X X1)).
-    destruct X2 as [c'  IH].
+    induction X2 as [c'  IH].
     set (xok := X0 (●0)).
     simpl (el (vcons x v0) (stnpr 0)) in xok.
     rewrite xok.
@@ -356,7 +356,7 @@ Definition term_op (nm: names sigma)(v: Vector term (arity nm)): term.
       * cbn.
         rewrite minuseq0'.
         reflexivity.
-      * destruct badarity.
+      * induction badarity.
         apply isreflnatleh.
    + intro m.
      rewrite el_vector_map.

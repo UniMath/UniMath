@@ -15,7 +15,7 @@ Definition nat_succ: names nat_signature := (●1).
 Definition nat_ops (nm : names nat_signature)
   : Vector nat (arity nm) → nat.
 Proof.
-  destruct nm as [n proofn].
+  induction nm as [n proofn].
   induction n.
   { cbn. exact (λ _, 0). }
   induction n.
