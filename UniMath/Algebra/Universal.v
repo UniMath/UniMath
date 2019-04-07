@@ -17,32 +17,30 @@ Definition names (sigma: Signature): hSet := pr1 sigma.
 
 Definition arity {sigma: Signature}: names sigma → Arity := pr2 sigma.
 
-Definition make_signature_from_vector {n: nat} (v: Vector nat n): Signature.
-  red.
-  exists (make_hSet (⟦ n ⟧) (isasetstn n)).
-  exact (el v).
-Defined.
+Definition make_signature_from_vector {n: nat} (v: Vector nat n): Signature
+  := (stnset n,, el v).
 
 Definition Algebra (sigma: Signature): UU :=
   ∑ (support: hSet), ∏ (nm: names sigma), Vector support (arity nm) → support.
+
+Definition mk_algebra {sigma : Signature}
+           (support : hSet)
+           (ops : ∏ nm:names sigma, Vector support (arity nm) → support) : Algebra sigma
+  := (support,, ops).
 
 Definition support {sigma: Signature}: Algebra sigma → hSet := pr1.
 
 Definition dom {sigma: Signature} {a: Algebra sigma} (nm: names sigma): UU :=
   Vector (support a) (arity nm).
-  
-Definition cod {sigma: Signature} {a: Algebra sigma} (nm: names sigma): UU := 
+
+Definition cod {sigma: Signature} {a: Algebra sigma} (nm: names sigma): UU :=
   support a.
 
-Definition op {sigma: Signature} {a: Algebra sigma} (nm: names sigma): (dom nm) → (cod nm) := 
+Definition op {sigma: Signature} {a: Algebra sigma} (nm: names sigma): (dom nm) → (cod nm) :=
   pr2 a nm.
 
-Definition final_algebra (signature : Signature) : Algebra signature.
-  red.
-  exists unitset.
-  intro.
-  exact (λ _, tt).
-Defined.
+Definition final_algebra (signature : Signature) : Algebra signature
+  := mk_algebra unitset (λ nm:names signature, (λ u:Vector unit (arity nm), tt)).
 
 (** Algebra homomorphism **)
 
@@ -89,6 +87,8 @@ Defined.
 
 End Homomorphisms.
 
+(** ** Free term algebra. *)
+
 Section TermAlgebra.
 
 Context { sigma: Signature }.
@@ -100,7 +100,7 @@ Definition NameStackStatus: UU := coprod nat unit.
 Definition stackok n: NameStackStatus := ii1 n.
 
 Definition stackerror: NameStackStatus := ii2 tt.
- 
+
 Definition nss_cons (nm: names sigma) (s: NameStackStatus): NameStackStatus.
 Proof.
   destruct s as [n | error].
@@ -111,7 +111,7 @@ Proof.
 Defined.
 
 Lemma nss_cons_stackok (nm: names sigma) (n: nat):
-  nss_cons nm (stackok n) != stackerror →  arity nm ≤ n. 
+  nss_cons nm (stackok n) != stackerror →  arity nm ≤ n.
 Proof.
   intro noerror.
   unfold stackok in noerror.
@@ -136,7 +136,7 @@ Proof.
     apply idpath.
 Defined.
 
-Lemma nss_cons_noerror2 (nm: names sigma) (ss: NameStackStatus): 
+Lemma nss_cons_noerror2 (nm: names sigma) (ss: NameStackStatus):
   nss_cons nm ss != stackerror → ss != stackerror.
 Proof.
   assert ( negres: ss = stackerror → nss_cons nm ss = stackerror ).
@@ -161,7 +161,7 @@ Axiom natleh_add: ∏( n1 n2 m: nat), n1 ≤ n2 → n1 ≤ (n2 + m).
 Axiom natleh_adddiff: ∏( n1 n2 n3: nat), n3 ≤ n1 → n1 - n3 + n2 = n1+ n2 -n3.
 
 Lemma nss_concatenate_nsscons (nm: names sigma) (ss1 ss2: NameStackStatus):
-   (nss_cons nm ss1 != stackerror) → 
+   (nss_cons nm ss1 != stackerror) →
    nss_concatenate (nss_cons nm ss1) ss2 = nss_cons nm (nss_concatenate ss1 ss2).
 Proof.
   induction ss1 as [a1 | error1].
@@ -226,7 +226,7 @@ Definition nss_vector_flatten {n} (v: Vector NameStackStatus n): NameStackStatus
 Lemma nss_flatten_functorial {n} (v: Vector NameStack n):
   (∏ m : ⟦ n ⟧, s2ss (el v m) != stackerror) → nss_vector_flatten(vector_map s2ss v) = s2ss(ns_vector_flatten v).
 Proof.
-  apply (vector_ind (λ (n: nat) (v: Vector NameStack n), (∏ m : ⟦ n ⟧, s2ss (el v m) != stackerror) 
+  apply (vector_ind (λ (n: nat) (v: Vector NameStack n), (∏ m : ⟦ n ⟧, s2ss (el v m) != stackerror)
           → nss_vector_flatten(vector_map s2ss v) = s2ss(ns_vector_flatten v))).
   - intro.
     reflexivity.
@@ -263,7 +263,7 @@ Definition term_isaset: isaset term.
     apply isisolatedn.
 Defined.
 
-Lemma nss_flatten_bound1 {n} (v: Vector NameStackStatus n) (a: nat): 
+Lemma nss_flatten_bound1 {n} (v: Vector NameStackStatus n) (a: nat):
   (∏ m : ⟦ n ⟧, ∑ b: nat, el v m = stackok b × b ≤ a) → ∑ c: nat, nss_vector_flatten v  = stackok c × c ≤ n * a.
 Proof.
   apply (vector_ind (λ  (n: nat) (v: Vector NameStackStatus n), (∏ m : ⟦ n ⟧, ∑ b: nat, el v m = stackok b × b ≤ a) → ∑ c: nat, nss_vector_flatten v  = stackok c × c ≤ n * a)).
@@ -286,13 +286,13 @@ Proof.
     exists (xval + c').
     split.
     + change (nss_vector_flatten (vcons (stackok xval) v0)) with (nss_concatenate (stackok xval) (nss_vector_flatten v0)).
-      rewrite IH. 
+      rewrite IH.
       reflexivity.
     + rewrite multsnm.
       apply natlehandplus ; assumption.
 Defined.
 
-Lemma nss_flatten_eq {n} (v: Vector NameStackStatus n) (a: nat): 
+Lemma nss_flatten_eq {n} (v: Vector NameStackStatus n) (a: nat):
   (∏ m : ⟦ n ⟧, el v m = stackok a) → nss_vector_flatten v  = stackok (n * a).
 Proof.
   apply (vector_ind (λ  (n: nat) (v: Vector NameStackStatus n), (∏ m : ⟦ n ⟧, el v m = stackok a) → ∑ c: nat, nss_vector_flatten v  = stackok ( n * a))).
@@ -319,7 +319,7 @@ Proof.
       reflexivity.
 Defined.
 
-Lemma nss_flatten_eq1 {n} (v: Vector NameStackStatus n): 
+Lemma nss_flatten_eq1 {n} (v: Vector NameStackStatus n):
   (∏ m : ⟦ n ⟧, el v m = stackok 1) → nss_vector_flatten v  = stackok n.
 Proof.
   intro.
@@ -339,8 +339,8 @@ Definition term_op (nm: names sigma)(v: Vector term (arity nm)): term.
     + change (vector_map s2ss (vector_map term_to_s v)) with (((vector_map s2ss) ∘ (vector_map term_to_s)) v).
       rewrite <- vector_map_comp.
       assert (s2ss ∘ term_to_s = λ _ , stackok 1).
-      { 
-        apply funextfun. intro. exact (pr2 x). 
+      {
+        apply funextfun. intro. exact (pr2 x).
       }
       rewrite X0.
       assert (nss_vector_flatten (vector_map (λ _ : term, stackok 1) v) = stackok (arity nm)).
@@ -348,7 +348,7 @@ Definition term_op (nm: names sigma)(v: Vector term (arity nm)): term.
         assert (arity nm = (arity nm) * 1) by ( rewrite natmultr1; apply idpath).
         apply nss_flatten_eq1.
         intro.
-        apply el_vector_map. 
+        apply el_vector_map.
       }
       rewrite X1.
       simpl.
@@ -364,16 +364,10 @@ Definition term_op (nm: names sigma)(v: Vector term (arity nm)): term.
      rewrite X0.
      apply negpathsii1ii2.
 Defined.
- 
+
 Definition term_hset: hSet := make_hSet term (term_isaset).
 
-Definition term_algebra: Algebra sigma.
- exists term_hset.
- intro nm.
- exact (term_op nm).
-Defined.
+Definition term_algebra: Algebra sigma
+  := mk_algebra term_hset term_op.
 
 End TermAlgebra.
-
-
-

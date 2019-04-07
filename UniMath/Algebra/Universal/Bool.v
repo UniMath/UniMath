@@ -17,11 +17,9 @@ Definition bool_and: names bool_signature := (●3).
 Local Definition andb (b1 b2: bool): bool := if b1 then b2 else false.
 Local Definition orb (b1 b2: bool): bool := if b1 then true else b2.
 
-Definition bool_algebra: Algebra bool_signature.
-  red.
-  exists boolset.
-  intro.
-  cbn in nm.
+Definition bool_ops (nm : names bool_signature)
+  : Vector bool (arity nm) → bool.
+Proof.
   destruct nm as [n proofn].
   induction n.
   { cbn. exact (λ _, false). }
@@ -33,3 +31,6 @@ Definition bool_algebra: Algebra bool_signature.
   { cbn. exact (λ x, andb (pr1 x) (pr1 (pr2 x))). }
   { exact (fromempty (nopathsfalsetotrue proofn)). }
 Defined.
+
+Definition bool_algebra : Algebra bool_signature
+  := mk_algebra boolset bool_ops.

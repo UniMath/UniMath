@@ -26,9 +26,9 @@ Section Group_Algebra.
   Let arg1 {i} (p:Vector G (1 + i)) : G := el p (●0).
   Let arg2 {i} (p:Vector G (2 + i)) : G := el p (●1).
 
-  Definition group_algebra: Algebra group_signature.
+  Definition group_op (nm : names group_signature)
+    : Vector G (arity nm) → G.
   Proof.
-    exists G.
     induction nm as (i,ilt).
     induction i as [|i _].
     { exact (λ p, op (arg1 p) (arg2 p)). }
@@ -38,5 +38,8 @@ Section Group_Algebra.
     { exact (λ p, grinv G (arg1 p)). }
     exact (fromempty (nopathsfalsetotrue ilt)).
   Defined.
+
+  Definition group_algebra : Algebra group_signature
+    := mk_algebra G group_op.
 
 End Group_Algebra.
