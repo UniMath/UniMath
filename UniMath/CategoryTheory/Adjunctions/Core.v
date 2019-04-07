@@ -16,6 +16,7 @@ Contents :
 - Construction of an adjunction from some partial data (Theorem 2 (iv) of Chapter IV.1 of
       MacLane)
 - Post-composition with a left adjoint is a left adjoint ([is_left_adjoint_post_composition_functor])
+- Lemmas about adjunctions
 
 ************************************************************)
 
@@ -30,6 +31,9 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Epis.
+Require Import UniMath.CategoryTheory.EpiFacts.
+Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 
@@ -845,3 +849,130 @@ Proof.
 Qed.
 
 End RelativeAdjunction_by_natural_hom_weq.
+
+(** ** Lemmas about adjunctions *)
+
+Section AdjunctionLemmas.
+  Context {C D : category} {F : functor C D} {G : functor D C}.
+  Context (are : are_adjoints F G).
+
+  Let η : nat_trans (functor_identity C) (functor_composite F G) := unit_from_left_adjoint are.
+  Let ε : nat_trans (functor_composite G F) (functor_identity D) := counit_from_left_adjoint are.
+
+  (* Pre- and post- whiskering while treating functors/natural transformations as
+     elements of functor categories. *)
+  Let pre_whisker_functor_cat {a b c : category} {f g : functor b c}
+      (h : functor a b) (n : [b, c]⟦f, g⟧) :
+    [a, c]⟦functor_composite h f, functor_composite h g⟧ := pre_whisker h n.
+  Let post_whisker_functor_cat {a b c : category} {f g : functor a b}
+      (n : [a, b]⟦f, g⟧) (h : functor b c) :
+    [a, c]⟦functor_composite f h, functor_composite g h⟧ := post_whisker n h.
+
+  Let Fη := post_whisker_functor_cat η F.
+  Let εF := pre_whisker_functor_cat F ε.
+  Let ηG := pre_whisker_functor_cat G η.
+  Let Gε := post_whisker_functor_cat ε G.
+
+  (* Rephrase in terms of functor category objects/arrows *)
+  Local Lemma triangle_eq_l : Fη · εF = identity (F : ob [C, D]).
+  Proof.
+    apply nat_trans_eq; [apply homset_property|].
+    intro; apply triangle_id_left_ad.
+  Qed.
+
+  (* Rephrase in terms of functor category objects/arrows *)
+  Local Lemma triangle_eq_r : ηG · Gε = identity (G : ob [D, C]).
+  Proof.
+    apply nat_trans_eq; [apply homset_property|].
+    intro; apply triangle_id_right_ad.
+  Qed.
+
+  Lemma is_epi_post_whisker_right_adjoint_counit_pointwise :
+    ∏ x, isEpi (nat_trans_data_from_nat_trans Gε x).
+  Proof.
+    intro x.
+    assert (is0 : isEpi (nat_trans_data_from_nat_trans (ηG · Gε) x)).
+    {
+      rewrite (maponpaths nat_trans_data_from_nat_trans triangle_eq_r).
+      apply identity_isEpi.
+    }
+    apply (isEpi_precomp _ _ _ is0).
+  Qed.
+
+  Corollary is_epi_post_whisker_right_adjoint_counit : isEpi Gε.
+  Proof.
+    apply is_nat_trans_epi_from_pointwise_epis.
+    apply is_epi_post_whisker_right_adjoint_counit_pointwise.
+  Qed.
+
+  Lemma is_monic_pre_whisker_right_adjoint_unit_pointwise :
+    ∏ x, isMonic (nat_trans_data_from_nat_trans ηG x).
+  Proof.
+    intro x.
+    assert (is0 : isMonic (nat_trans_data_from_nat_trans (ηG · Gε) x)).
+    {
+      rewrite (maponpaths nat_trans_data_from_nat_trans triangle_eq_r).
+      apply identity_isMonic.
+    }
+    apply (isMonic_postcomp _ _ _ is0).
+  Qed.
+
+  Corollary is_monic_pre_whisker_right_adjoint_unit : isMonic ηG.
+  Proof.
+    apply is_nat_trans_monic_from_pointwise_monics.
+    apply is_monic_pre_whisker_right_adjoint_unit_pointwise.
+  Qed.
+
+  Lemma is_epi_pre_whisker_left_adjoint_counit_pointwise :
+    ∏ x, isEpi (nat_trans_data_from_nat_trans εF x).
+  Proof.
+    intro x.
+    assert (is0 : isEpi (nat_trans_data_from_nat_trans (Fη · εF) x)).
+    {
+      rewrite (maponpaths nat_trans_data_from_nat_trans triangle_eq_l).
+      apply identity_isEpi.
+    }
+    apply (isEpi_precomp _ _ _ is0).
+  Qed.
+
+  Corollary is_epi_pre_whisker_left_adjoint_counit : isEpi εF.
+  Proof.
+    apply is_nat_trans_epi_from_pointwise_epis.
+    apply is_epi_pre_whisker_left_adjoint_counit_pointwise.
+  Qed.
+
+  Lemma is_monic_post_whisker_left_adjoint_unit_pointwise :
+    ∏ x, isMonic (nat_trans_data_from_nat_trans Fη x).
+  Proof.
+    intro x.
+    assert (is0 : isMonic (nat_trans_data_from_nat_trans (Fη · εF) x)).
+    {
+      rewrite (maponpaths nat_trans_data_from_nat_trans triangle_eq_l).
+      apply identity_isMonic.
+    }
+    apply (isMonic_postcomp _ _ _ is0).
+  Qed.
+
+  Corollary is_monic_post_whisker_left_adjoint_unit : isMonic Fη.
+  Proof.
+    apply is_nat_trans_monic_from_pointwise_monics.
+    apply is_monic_post_whisker_left_adjoint_unit_pointwise.
+  Qed.
+
+  (** Rhiel, "Category Theory in Context", Lemma 4.5.13(i)/Exercise 4.5.vi *)
+  Lemma counit_is_epi_if_right_adjoint_is_faithful :
+    faithful G -> ∏ x, isEpi (ε x).
+  Proof.
+    intros faithfulG.
+    intros x y f g H.
+
+    apply (Injectivity (# G)).
+    apply incl_injectivity.
+    - apply faithfulG.
+    - apply (is_epi_post_whisker_right_adjoint_counit_pointwise x).
+      apply (maponpaths #G) in H.
+      do 2 rewrite functor_comp in H.
+      assumption.
+  Qed.
+
+End AdjunctionLemmas.
