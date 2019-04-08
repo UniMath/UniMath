@@ -15,6 +15,11 @@ Groupoids.v
 PrecategoryBinProduct.v
 ProductCategory.v
 whiskering.v
+Subcategory/Core.v
+Subcategory/Full.v
+Monics.v
+Epis.v
+SplitMonicsAndEpis.v
 Adjunctions/Core.v
 Monads/RelativeMonads.v
 Monads/RelMonads_Coreflection.v
@@ -22,10 +27,6 @@ Monads/RelativeModules.v
 Equivalences/Core.v
 Equivalences/CompositesAndInverses.v
 Equivalences/FullyFaithful.v
-Subcategory/Core.v
-Subcategory/Full.v
-Monics.v
-Epis.v
 categories/HSET/MonoEpiIso.v
 categories/HSET/Univalence.v
 Profunctors/Core.v
