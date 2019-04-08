@@ -3,7 +3,6 @@
 - Definitions of Monics
 - Construction of the subcategory of Monics
 - Construction of monics in functor categories
-- Split monomorphisms
 *)
 
 Require Import UniMath.Foundations.PartD.

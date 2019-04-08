@@ -190,13 +190,14 @@ Qed.
 
 (** An epic split monic is an iso. *)
 Lemma merely_split_monic_is_epi_to_is_iso
-      {C : category} {A B : ob C}
-      (m : merely_split_monic A B) : isEpi m -> is_iso m.
+      {C : category} {A B : ob C} (m : A --> B) :
+      is_merely_split_monic m -> isEpi m -> is_iso m.
 Proof.
-  intros is_epi c.
+  intros is_monic is_epi c.
   apply isweqinclandsurj.
   - apply precomp_with_epi_isincl; assumption.
-  - apply is_merely_split_monic_weq_precomp_is_surjection, (pr2 m).
+  - apply is_merely_split_monic_weq_precomp_is_surjection.
+    assumption.
 Qed.
 
 (** Definition of a split epimorphism.
