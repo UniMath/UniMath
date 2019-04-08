@@ -83,3 +83,39 @@ Proof.
   apply toforallpaths in contra.
   exact (nopathstruetofalse (contra true)).
 Defined.
+
+
+(** * Injective Pairing <-> Uniqueness of Identity Proofs *)
+
+(** Another way to see why injective pairing cannot hold: It is logically equivalent to uniqueness
+    of identity proofs, which is in turn equivalent to the K axiom and incompatible with univalence. *)
+
+Definition uip_statement :=
+  ∏ A (x y : A) (p q : x = y), p = q.
+
+(** Injective pairing implies uniqueness of identity proofs. *)
+Theorem injective_pairing_uip :
+  injective_pairing_statement → uip_statement.
+Proof.
+  intros injpair A x y p q.
+  assert (eqpair : @paths (∑ x, x = y) (x ,, p) (x ,, q)).
+    { induction p. induction q. use total2_paths_f; apply idpath. }
+  unfold injective_pairing_statement in injpair.
+  exact (injpair _ (λ x, x = y) x p q eqpair).
+Defined.
+
+(** Uniqueness of identity proofs implies injective pairing. *)
+Theorem uip_injective_pairing :
+  uip_statement → injective_pairing_statement.
+Proof.
+  intros uip A B a b b' eqpair.
+  set (eqa := base_paths _ _ eqpair).
+  assert (eqb : transportf _ eqa b = b').
+    { apply (fiber_paths eqpair). }
+  assert (eqa_idpath : eqa = idpath _).
+    { apply uip. }
+  symmetry.
+  etrans.
+  { exact (! eqb). }
+  exact (maponpaths (λ p, transportf B p b) eqa_idpath).
+Defined.
