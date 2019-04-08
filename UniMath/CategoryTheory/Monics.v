@@ -3,6 +3,7 @@
 - Definitions of Monics
 - Construction of the subcategory of Monics
 - Construction of monics in functor categories
+- Split monomorphisms
 *)
 
 Require Import UniMath.Foundations.PartD.
@@ -191,3 +192,131 @@ Proof.
     refine (_ @ functor_comp F h f).
     apply maponpaths; assumption.
 Defined.
+
+(** ** Split monomorphisms *)
+
+(** The naïve translation of the definition of split monomorphisms into type
+    theory is stronger than the classical definition. However, we can recover
+    the classical definition using truncation ([is_merely_split_monic]).
+    We explore both definitions below.
+  *)
+
+Section SplitMonic.
+  Context {C : precategory} {A B : ob C}.
+
+  (** A choice of a section for the given morphism *)
+  Definition is_split_monic (m : A --> B) : UU :=
+    ∑ r : B --> A, is_retraction m r.
+
+  Definition split_monic : UU :=
+    ∑ m : A --> B, is_split_monic m.
+
+  Lemma split_monic_is_monic (m : A --> B) :
+    is_split_monic m -> isMonic m.
+  Proof.
+    intros is_split.
+    apply (isMonic_postcomp _ m (pr1 is_split)).
+    apply (transportf _ (!pr2 is_split)).
+    apply identity_isMonic.
+  Qed.
+
+  (** We provide a coercion to [Monic C A B], rather than [A --> B], as it is
+      more generally useful ([Monic C A B] coerces to [A --> B]). *)
+  Definition split_monic_to_monic (m : split_monic) : Monic C A B.
+  Proof.
+    use mk_Monic.
+    - exact (pr1 m).
+    - abstract (apply split_monic_is_monic; exact (pr2 m)).
+  Defined.
+
+  Coercion split_monic_to_monic : split_monic >-> Monic.
+
+  (** The chosen section is not necessarily unique *)
+  Lemma isaset_is_split_monic (m : A --> B) :
+    has_homsets C -> isaset (is_split_monic m).
+  Proof.
+    intro; apply isaset_total2; [auto|].
+    intros.
+    apply hlevelntosn; apply isaprop_is_retraction.
+    assumption.
+  Qed.
+
+  (** Now, for the "more classical" definition *)
+
+  Definition is_merely_split_monic (m : A --> B) : hProp.
+  Proof.
+    use hProppair.
+    - exact (∥ ∑ r : B --> A, is_retraction m r ∥).
+    - apply isapropishinh.
+  Defined.
+
+  Definition merely_split_monic : UU :=
+    ∑ m : A --> B, is_merely_split_monic m.
+
+  Lemma isaset_merely_split_monic (m : A --> B) :
+    has_homsets C -> isaset merely_split_monic.
+  Proof.
+    intro.
+    apply isaset_total2; [auto|].
+    intro; apply hlevelntosn, propproperty.
+  Qed.
+
+  (** For the purposes of proving a proposition, we can assume a merely split
+      proposition has a chosen section. *)
+  Lemma merely_split_to_split {X : UU} (m : A --> B) :
+    isaprop X -> (is_split_monic m -> X) -> is_merely_split_monic m -> X.
+  Proof.
+    intros isx impl mere.
+    refine (factor_through_squash isx _ mere).
+    assumption.
+  Qed.
+
+  (** Note that this requires that [C] has homsets, in contrast
+      to the above statement for "non-mere" monics. *)
+  Lemma merely_split_monic_is_monic (m : A --> B) :
+    has_homsets C -> is_merely_split_monic m -> isMonic m.
+  Proof.
+    intros H.
+    apply merely_split_to_split.
+    - apply isapropisMonic; auto.
+    - apply split_monic_is_monic.
+  Qed.
+
+  (** Equivalent definitions *)
+
+  (** For the truncated version, this is an equivalence (see below). However,
+      in general, choosing a section is stronger. *)
+  Lemma is_split_monic_to_precomp_is_surjection (m : A --> B) :
+    is_split_monic m -> ∏ c : ob C, issurjective (@precomp_with _ _ _ m c).
+  Proof.
+    intros is_split c f.
+    apply hinhpr.
+    unfold hfiber, precomp_with.
+    exists (pr1 is_split · f).
+    refine (assoc _ _ _ @ _).
+    refine (maponpaths (fun z => z · _) (pr2 is_split) @ _).
+    apply id_left.
+  Qed.
+
+  Lemma is_merely_split_monic_weq_precomp_is_surjection (m : A --> B) :
+    is_merely_split_monic m <->
+    ∏ c : ob C, issurjective (@precomp_with _ _ _ m c).
+  Proof.
+    unfold is_split_monic.
+    split.
+    - intros is_split ?.
+      apply (merely_split_to_split m).
+      + apply isapropissurjective.
+      + intro; apply is_split_monic_to_precomp_is_surjection.
+        assumption.
+      + assumption.
+    - intros is_surjective.
+      specialize (is_surjective _ (identity _)).
+      refine (factor_through_squash _ _ is_surjective).
+      + apply propproperty.
+      + intro fib.
+        apply hinhpr.
+        exists (pr1 fib).
+        apply (pr2 fib).
+  Qed.
+End SplitMonic.
