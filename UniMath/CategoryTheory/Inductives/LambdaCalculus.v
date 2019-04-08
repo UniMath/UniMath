@@ -16,7 +16,6 @@ Require Import UniMath.Foundations.NaturalNumbers.
 
 Require Import UniMath.MoreFoundations.Tactics.
 
-Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorCategory.
@@ -33,7 +32,7 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
-Require Import UniMath.CategoryTheory.EquivalencesExamples.
+Require Import UniMath.CategoryTheory.Adjunctions.Examples.
 Require Import UniMath.CategoryTheory.Chains.All.
 Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.whiskering.

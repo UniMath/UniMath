@@ -10,7 +10,6 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.Algebra.Monoids.
 
-Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Monics.
@@ -87,16 +86,16 @@ Section def_additive.
   Defined.
 
 
-  Lemma to_Unel1' {A : CategoryWithAdditiveStructure} {a b : A} (BS : BinDirectSum A a b) :
-    to_In1 A BS · to_Pr2 A BS = ZeroArrow (to_Zero A) _ _.
+  Lemma to_Unel1' {A : CategoryWithAdditiveStructure} {a b : A} (BS : BinDirectSum a b) :
+    to_In1 BS · to_Pr2 BS = ZeroArrow (to_Zero A) _ _.
   Proof.
-    rewrite (to_Unel1 A BS). apply PreAdditive_unel_zero.
+    rewrite (to_Unel1 BS). apply PreAdditive_unel_zero.
   Qed.
 
-  Lemma to_Unel2' {A : CategoryWithAdditiveStructure} {a b : A} (BS : BinDirectSum A a b) :
-    to_In2 A BS · to_Pr1 A BS = ZeroArrow (to_Zero A) _ _.
+  Lemma to_Unel2' {A : CategoryWithAdditiveStructure} {a b : A} (BS : BinDirectSum a b) :
+    to_In2 BS · to_Pr1 BS = ZeroArrow (to_Zero A) _ _.
   Proof.
-    rewrite (to_Unel2 A BS). apply PreAdditive_unel_zero.
+    rewrite (to_Unel2 BS). apply PreAdditive_unel_zero.
   Qed.
 
   Definition to_hasZero (A : AdditiveCategory) : hasZero A := pr1 (pr2 A).
@@ -116,7 +115,7 @@ Section def_additive.
 
   Definition sums_lift (M:AdditiveCategory) {X:Type} (j : X -> ob M) : hProp :=
     zero_lifts M j ∧
-    ∀ a b (S : BinDirectSum M (j a) (j b)), ∃ x, z_iso (j x) (BinDirectSumOb M S).
+    ∀ a b (S : BinDirectSum (j a) (j b)), ∃ x, z_iso (j x) (BinDirectSumOb S).
 
   Definition opp_sums_lift (M:AdditiveCategory) {X:Type} (j : X -> ob M) :
     sums_lift M j -> sums_lift (oppositeAdditiveCategory M) j.
@@ -355,18 +354,18 @@ Section additive_minus_monic.
   Variable A : CategoryWithAdditiveStructure.
 
   Lemma isMonic_to_binop_BinDirectSum1 {x y z : A} (f : Monic A x y) (g : x --> z)
-        (DS : BinDirectSum A y z) :
-    isMonic (to_binop _ _ (f · to_In1 _ DS) (g · to_In2 _ DS)).
+        (DS : BinDirectSum y z) :
+    isMonic (to_binop _ _ (f · to_In1 DS) (g · to_In2 DS)).
   Proof.
     use mk_isMonic.
     intros x0 g0 h X.
-    assert (e : g0 · to_binop x DS (f · to_In1 A DS) (g · to_In2 A DS) · to_Pr1 A DS =
-                h · to_binop x DS (f · to_In1 A DS) (g · to_In2 A DS) · to_Pr1 A DS).
+    assert (e : g0 · to_binop x DS (f · to_In1 DS) (g · to_In2 DS) · to_Pr1 DS =
+                h · to_binop x DS (f · to_In1 DS) (g · to_In2 DS) · to_Pr1 DS).
     {
       rewrite X. apply idpath.
     }
     rewrite <- assoc in e. rewrite <- assoc in e. rewrite to_postmor_linear' in e.
-    rewrite <- assoc in e. rewrite <- assoc in e. rewrite (to_IdIn1 A DS) in e.
+    rewrite <- assoc in e. rewrite <- assoc in e. rewrite (to_IdIn1 DS) in e.
     rewrite (to_Unel2' DS) in e. rewrite ZeroArrow_comp_right in e.
     rewrite id_right in e. use (MonicisMonic A f).
     rewrite to_runax'' in e. exact e.
@@ -374,70 +373,70 @@ Section additive_minus_monic.
 
   (** This version is used in AbelianPushoutPullback *)
   Lemma isMonic_to_binop_BinDirectSum1' {x y z : A} (f : Monic A x y) (g : x --> z)
-        (DS : BinDirectSum A y z) :
-    isMonic (to_binop _ _ (f · to_In1 _ DS) (to_inv (g · to_In2 _ DS))).
+        (DS : BinDirectSum y z) :
+    isMonic (to_binop _ _ (f · to_In1 DS) (to_inv (g · to_In2 DS))).
   Proof.
     rewrite PreAdditive_invlcomp. use isMonic_to_binop_BinDirectSum1.
   Qed.
 
   Lemma isMonic_to_binop_BinDirectSum2 {x y z : A} (f : x --> y) (g : Monic A x z)
-        (DS : BinDirectSum A y z) :
-    isMonic (to_binop _ _ (f · to_In1 _ DS) (g · to_In2 _ DS)).
+        (DS : BinDirectSum y z) :
+    isMonic (to_binop _ _ (f · to_In1 DS) (g · to_In2 DS)).
   Proof.
     use mk_isMonic.
     intros x0 g0 h X.
-    assert (e : g0 · to_binop x DS (f · to_In1 A DS) (g · to_In2 A DS) · to_Pr2 A DS =
-                h · to_binop x DS (f · to_In1 A DS) (g · to_In2 A DS) · to_Pr2 A DS).
+    assert (e : g0 · to_binop x DS (f · to_In1 DS) (g · to_In2 DS) · to_Pr2 DS =
+                h · to_binop x DS (f · to_In1 DS) (g · to_In2 DS) · to_Pr2 DS).
     {
       rewrite X. apply idpath.
     }
     rewrite <- assoc in e. rewrite <- assoc in e. rewrite to_postmor_linear' in e.
-    rewrite <- assoc in e. rewrite <- assoc in e. rewrite (to_IdIn2 A DS) in e.
+    rewrite <- assoc in e. rewrite <- assoc in e. rewrite (to_IdIn2 DS) in e.
     rewrite (to_Unel1' DS) in e. rewrite ZeroArrow_comp_right in e.
     rewrite id_right in e. use (MonicisMonic A g).
     rewrite to_lunax'' in e. exact e.
   Qed.
 
   Lemma isEpi_to_binop_BinDirectSum1 {x y z : A} (f : Epi A y x) (g : z --> x)
-        (DS : BinDirectSum A y z) :
-    isEpi (to_binop _ _ (to_Pr1 _ DS · f) (to_Pr2 _ DS · g)).
+        (DS : BinDirectSum y z) :
+    isEpi (to_binop _ _ (to_Pr1 DS · f) (to_Pr2 DS · g)).
   Proof.
     use mk_isEpi.
     intros z0 g0 h X.
     use (EpiisEpi A f).
-    assert (e : to_In1 A DS · to_binop DS x (to_Pr1 A DS · f) (to_Pr2 A DS · g) · g0 =
-                to_In1 A DS · to_binop DS x (to_Pr1 A DS · f) (to_Pr2 A DS · g) · h).
+    assert (e : to_In1 DS · to_binop DS x (to_Pr1 DS · f) (to_Pr2 DS · g) · g0 =
+                to_In1 DS · to_binop DS x (to_Pr1 DS · f) (to_Pr2 DS · g) · h).
     {
       rewrite <- assoc. rewrite <- assoc. rewrite X. apply idpath.
     }
     rewrite to_premor_linear' in e. rewrite assoc in e. rewrite assoc in e.
     rewrite to_Unel1' in e. rewrite ZeroArrow_comp_left in e. rewrite to_runax'' in e.
-    rewrite (to_IdIn1 A DS) in e. rewrite id_left in e. apply e.
+    rewrite (to_IdIn1 DS) in e. rewrite id_left in e. apply e.
   Qed.
 
   (** This version is used in AbelianPushoutPullback *)
   Lemma isEpi_to_binop_BinDirectSum1' {x y z : A} (f : Epi A x z) (g : y --> z)
-        (DS : BinDirectSum A x y) :
-    isEpi (to_binop _ _ (to_Pr1 _ DS · f) (to_inv (to_Pr2 _ DS · g))).
+        (DS : BinDirectSum x y) :
+    isEpi (to_binop _ _ (to_Pr1 DS · f) (to_inv (to_Pr2 DS · g))).
   Proof.
     rewrite PreAdditive_invrcomp. use isEpi_to_binop_BinDirectSum1.
   Qed.
 
   Lemma isEpi_to_binop_BinDirectSum2 {x y z : A} (f : y --> x) (g : Epi A z x)
-        (DS : BinDirectSum A y z) :
-    isEpi (to_binop _ _ (to_Pr1 _ DS · f) (to_Pr2 _ DS · g)).
+        (DS : BinDirectSum y z) :
+    isEpi (to_binop _ _ (to_Pr1 DS · f) (to_Pr2 DS · g)).
   Proof.
     use mk_isEpi.
     intros z0 g0 h X.
     use (EpiisEpi A g).
-    assert (e : to_In2 A DS · to_binop DS x (to_Pr1 A DS · f) (to_Pr2 A DS · g) · g0 =
-                to_In2 A DS · to_binop DS x (to_Pr1 A DS · f) (to_Pr2 A DS · g) · h).
+    assert (e : to_In2 DS · to_binop DS x (to_Pr1 DS · f) (to_Pr2 DS · g) · g0 =
+                to_In2 DS · to_binop DS x (to_Pr1 DS · f) (to_Pr2 DS · g) · h).
     {
       rewrite <- assoc. rewrite <- assoc. rewrite X. apply idpath.
     }
     rewrite to_premor_linear' in e. rewrite assoc in e. rewrite assoc in e.
     rewrite to_Unel2' in e. rewrite ZeroArrow_comp_left in e. rewrite to_lunax'' in e.
-    rewrite (to_IdIn2 A DS) in e. rewrite id_left in e. apply e.
+    rewrite (to_IdIn2 DS) in e. rewrite id_left in e. apply e.
   Qed.
 
 End additive_minus_monic.

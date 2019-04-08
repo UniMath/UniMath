@@ -16,7 +16,6 @@ Require Import UniMath.Algebra.Monoids.
 
 Require Import UniMath.NumberSystems.Integers.
 
-Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Local Open Scope cat.
@@ -34,7 +33,7 @@ Require Import UniMath.CategoryTheory.limits.BinDirectSums.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.Epis.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Adjunctions.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 
 Require Import UniMath.CategoryTheory.Abelian.

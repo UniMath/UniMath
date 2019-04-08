@@ -444,10 +444,11 @@ Definition inv_cell {C : prebicat_data} {a b : C} {f g : a --> b} {η : f ==> g}
   := pr1.
 
 (* TODO: Reorganize notations. *)
-Notation "inv_η ^-1" := (inv_cell inv_η) (at level 20) : bicategory_scope.
+(* Declare Scope bicategory_scope. *)
+Notation "inv_η ^-1" := (inv_cell inv_η) : bicategory_scope.
 Delimit Scope bicategory_scope with bicategory.
 Bind Scope bicategory_scope with bicat.
-Open Scope bicategory_scope.
+Local Open Scope bicategory_scope.
 
 Definition vcomp_rinv {C : prebicat_data} {a b : C} {f g : a --> b}
            {η : f ==> g} (inv_η : is_invertible_2cell η)
@@ -1300,5 +1301,6 @@ Notation "x 'o' y" := (y • x) (at level 67, only parsing, left associativity).
 Notation "'id₁'" := identity.
 Notation "'id₂'" := id2.
 Notation " b ⋆⋆ a" := (a ⋆ b) (at level 30).
+Open Scope bicategory_scope.
 
 End Notations.

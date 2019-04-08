@@ -432,7 +432,7 @@ Definition fully_faithful_inv_hom {C D : precategory_data} {F : functor C D}
       F a --> F b -> a --> b :=
  invweq (weq_from_fully_faithful FF a b).
 
-Local Notation "FF ^-1" := (fully_faithful_inv_hom FF _ _ ) (at level 20).
+Local Notation "FF ^-1" := (fully_faithful_inv_hom FF _ _ ).
 
 (** FF^1 is indeed post-inverse to # F. *)
 Lemma fully_faithful_inv_hom_is_inv {C D : precategory} {F : functor C D}
@@ -810,7 +810,7 @@ Proof.
   apply isweqinclandsurj.
   - apply Hfaith.
   - apply Hfull.
-Qed.
+Defined.
 
 Lemma isaprop_full_and_faithful (C D : precategory_data) (F : functor C D) :
    isaprop (full_and_faithful F).
@@ -995,6 +995,22 @@ Section functors_on_iso_with_inv.
     - exact (# F (is_z_isomorphism_mor I)).
     - exact (functor_on_is_inverse_in_precat F I).
   Defined.
+
+  Lemma functor_is_inverse_in_precat_inv_from_iso {C D : precategory} {c c' : ob C}
+        (F : functor C D) (f : iso c c') :
+    is_inverse_in_precat (# F f) (# F (inv_from_iso f)).
+  Proof.
+    apply functor_on_is_inverse_in_precat.
+    split.
+    + apply is_inverse_in_precat1.
+      split.
+      * apply (iso_inv_after_iso f).
+      * apply (iso_after_iso_inv f).
+    + apply is_inverse_in_precat2.
+      split.
+      * apply (iso_inv_after_iso f).
+      * apply (iso_after_iso_inv f).
+  Qed.
 
   Definition functor_on_z_iso {C C' : precategory} (F : functor C C') {a b : ob C}
              (f : z_iso a b) : z_iso (F a) (F b).

@@ -18,7 +18,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Adjunctions.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
 
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 
@@ -45,6 +45,8 @@ Coercion left_adj_from_adj_equiv (X Y : precategory) (K : functor X Y)
          (HK : adj_equivalence_of_precats K) : is_left_adjoint K := pr1 HK.
 
 (** ** Equivalences *)
+
+Section A.
 
 Variables D1 D2 : precategory.
 Variable F : functor D1 D2.
@@ -107,6 +109,8 @@ Proof.
   exists (F d).
   exact (ηinv d).
 Defined.
+
+End A.
 
 (** ** Composition *)
 

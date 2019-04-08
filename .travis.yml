@@ -8,9 +8,10 @@ env:
   global:
     - THIS_REPO=UniMath
   matrix:
+    - PACKAGES= BUILD_ALSO=sanity-checks
     - PACKAGES="Foundations Combinatorics Algebra NumberSystems PAdics Paradoxes"
     - PACKAGES=CategoryTheory
-    - PACKAGES="MoreFoundations Ktheory"
+    - PACKAGES="MoreFoundations Ktheory SyntheticHomotopyTheory"
     - PACKAGES=HomologicalAlgebra
     - PACKAGES=Topology
     - PACKAGES=RealNumbers
@@ -18,7 +19,6 @@ env:
     - PACKAGES=Tactics BUILD_COQIDE=yes BUILD_ALSO=TAGS
     - PACKAGES=Folds
     - PACKAGES=Induction
-    - FOUNDATIONS_CHANGE_ERROR=yes BUILD_ALSO="check-for-change-to-Foundations enforce-listing-of-proof-files"
     - PACKAGES="Foundations Combinatorics Algebra NumberSystems" COQ_BRANCH=master
 
 # The "docker run" command will pull if needed.

@@ -76,7 +76,7 @@ Section FullyFaithful.
     unfold hfiber.
     exists (f,, tt).
     reflexivity.
-  Qed.
+  Defined.
 
   (** *** Faithfulness *)
 
@@ -86,7 +86,7 @@ Section FullyFaithful.
     intros a b; cbn.
     apply isinclpr1.
     intro; apply isapropunit.
-  Qed.
+  Defined.
 
   Lemma fully_faithful_sub_precategory_inclusion :
     fully_faithful (sub_precategory_inclusion C (full_sub_precategory C')).
@@ -95,7 +95,7 @@ Section FullyFaithful.
     split.
     - apply full_sub_precategory_inclusion.
     - apply faithful_sub_precategory_inclusion.
-  Qed.
+  Defined.
 
 End FullyFaithful.
 
@@ -298,7 +298,6 @@ Proof.
 Section full_sub_cat.
 
 Variable C : precategory.
-Hypothesis H : is_univalent C.
 
 Variable C' : hsubtype (ob C).
 
@@ -381,7 +380,7 @@ Proof.
   simpl; apply idpath.
 Qed.
 
-Lemma isweq_Id_in_sub_to_iso (a b : ob (full_sub_precategory C')):
+Lemma isweq_Id_in_sub_to_iso (a b : ob (full_sub_precategory C')) (H : is_univalent C) :
     isweq (Id_in_sub_to_iso a b).
 Proof.
   rewrite Id_in_sub_to_iso_equal_iso.
@@ -407,22 +406,22 @@ Qed.
 (** *** The aforementioned decomposed map is a weak equivalence  *)
 
 Lemma isweq_sub_precat_paths_to_iso
-  (a b : ob (full_sub_precategory C')) :
+  (a b : ob (full_sub_precategory C')) (H : is_univalent C) :
  isweq (@idtoiso _ a b).
 Proof.
   rewrite precat_paths_in_sub_as_3_maps.
   match goal with |- isweq (funcomp ?f ?g) => apply (twooutof3c f g) end.
-  apply isweq_Id_in_sub_to_iso.
-  apply isweq_iso_in_sub_from_iso.
+  - apply isweq_Id_in_sub_to_iso; assumption.
+  - apply isweq_iso_in_sub_from_iso.
 Defined.
 
 (** ** Proof of the targeted theorem: full subcats of cats are cats *)
 
-Lemma is_univalent_full_subcat: is_univalent (full_sub_precategory C').
+Lemma is_univalent_full_subcat (H : is_univalent C) : is_univalent (full_sub_precategory C').
 Proof.
   unfold is_univalent.
   split.
-  - apply isweq_sub_precat_paths_to_iso.
+  - intros; apply isweq_sub_precat_paths_to_iso; assumption.
   - intros x y. apply is_set_sub_precategory_morphisms. apply (pr2 H).
 Defined.
 

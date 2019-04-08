@@ -576,3 +576,17 @@ Proof.
   apply unique_internal_adjoint_equivalence.
   assumption.
 Defined.
+
+(** As a corollary, in a univalent bicategory 1-cells are 2-types. *)
+Lemma univalent_bicategory_1_cell_hlevel_4
+      (C : bicat) (HC : is_univalent_2 C) : isofhlevel 4 C.
+Proof.
+  change (isofhlevel 4 C) with
+        (∏ a b : C, isofhlevel 3 (a = b)).
+  intros a b.
+  apply (isofhlevelweqb _ (idtoiso_2_0 a b,, pr1 HC a b)).
+  apply (isofhleveltotal2 3).
+  - apply univalent_bicategory_0_cell_hlevel_3, HC.
+  - intros f. do 2 apply hlevelntosn.
+    apply isaprop_left_adjoint_equivalence, HC.
+Qed.

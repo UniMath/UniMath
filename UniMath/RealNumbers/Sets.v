@@ -6,7 +6,7 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.Sets.
 
 Require Export UniMath.Foundations.Sets
-               UniMath.Ktheory.QuotientSet.
+               UniMath.MoreFoundations.QuotientSet.
 Require Import UniMath.Algebra.BinaryOperations
                UniMath.Algebra.Apartness.
 
@@ -227,6 +227,7 @@ Arguments EOgt_rel {X} x y: simpl never.
 Definition PreorderedSetEffectiveOrder (X : EffectivelyOrderedSet) : PreorderedSet :=
   PreorderedSetPair _ (@EOle X).
 
+(* Declare Scope eo_scope. *)
 Delimit Scope eo_scope with eo.
 
 Notation "x <= y" := (EOle_rel x y) : eo_scope.

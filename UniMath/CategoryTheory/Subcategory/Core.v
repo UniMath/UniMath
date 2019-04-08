@@ -13,6 +13,7 @@ Reorganized and expanded: Langston Barrett (@siddharthist) (March 2018)
   - (Inclusion) functor from a sub-precategory to the ambient precategory
     ([sub_precategory_inclusion])
 - Subcategories ([subcategory])
+- Restriction of a functor to a subcategory
 *)
 
 
@@ -231,4 +232,19 @@ Proof.
   - intros ? ?.
     apply is_set_sub_precategory_morphisms.
     apply homset_property.
+Defined.
+
+(** ** Restriction of a functor to a subcategory *)
+
+Definition restrict_functor_to_sub_precategory {C D : precategory}
+           (C' : sub_precategories C) (F : functor C D) : functor C' D.
+Proof.
+  use mk_functor.
+  - use mk_functor_data.
+    + exact (F ∘ precategory_object_from_sub_precategory_object _ C')%functions.
+    + intros ? ?.
+      apply (# F ∘ precategory_morphism_from_sub_precategory_morphism _ C' _ _)%functions.
+  - use dirprodpair.
+    + intro; apply (functor_id F).
+    + intros ? ? ? ? ?; apply (functor_comp F).
 Defined.

@@ -21,7 +21,7 @@ Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
 
 Require Import UniMath.CategoryTheory.catiso.
-Require Import UniMath.CategoryTheory.Adjunctions.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.

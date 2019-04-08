@@ -71,7 +71,9 @@ Definition unax (X : monoid) : isunit (@op X) (unel X) := dirprodpair (lunax X) 
 
 Definition isasetmonoid (X : monoid) : isaset X := pr2 (pr1 (pr1 X)).
 
+(* Declare Scope addmonoid_scope. *)
 Delimit Scope addmonoid_scope with addmonoid.
+(* Declare Scope multmonoid_scope. *)
 Delimit Scope multmonoid_scope with multmonoid.
 
 Notation "x * y" := (op x y) : multmonoid_scope.

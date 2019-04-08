@@ -25,7 +25,7 @@ Require Import UniMath.Combinatorics.WellOrderedSets.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Setcategories.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Adjunctions.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.limits.binproducts.

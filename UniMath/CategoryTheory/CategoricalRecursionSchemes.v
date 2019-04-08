@@ -36,7 +36,7 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
 Require Import UniMath.CategoryTheory.limits.initial.
-Require Import UniMath.CategoryTheory.Adjunctions.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
 
 Local Open Scope cat.
 
@@ -424,8 +424,77 @@ Definition τ_data_from_σ {C C' D D' : precategory} {L : functor D C} {R : func
   DistrLaw_data K H R R' :=
   λ B : C, φ_adj h' (nat_trans_data_from_nat_trans σ (R B) · #H (counit_from_are_adjoints h B)).
 
-(* Proofs that τ_data_from_σ is a distributive law, and that τ_from_σ and σ are conjugates are left to the reader. *)
+Definition τ_from_σ {C C' D D' : precategory} {L : functor D C} {R : functor C D}
+           {L' : functor D' C'} {R' : functor C' D'} {H : functor C C'} {K : functor D D' }
+           (h : are_adjoints L R) (h' : are_adjoints L' R') (σ : DistrLaw L' L K H) :
+  DistrLaw K H R R'.
+Proof.
+  apply (mk_nat_trans _ _ (τ_data_from_σ h h' σ)).
+  red.
+  intros c c' f.
+  unfold τ_data_from_σ.
+  etrans.
+  { apply pathsinv0.
+    simpl.
+    apply φ_adj_natural_precomp.
+  }
+  apply pathsinv0.
+  etrans.
+  { apply pathsinv0.
+    simpl.
+    apply φ_adj_natural_postcomp.
+  }
+  apply maponpaths.
+  etrans.
+  2: {
+    set (Hσ := nat_trans_ax σ).
+    change  (# L' (# K (# R f))) with ( # (K ∙ L') (#R f)).
+    rewrite assoc.
+    apply cancel_postcomposition.
+    apply pathsinv0.
+    apply Hσ.
+  }
+  rewrite <- assoc.
+  rewrite <- functor_comp.
+  rewrite <- assoc.
+  apply cancel_precomposition.
+  change (# (L ∙ H) (# R f)) with (# H (# (R ∙ L) f)).
+  etrans.
+  2: { apply (functor_comp H). }
+  apply maponpaths.
+  set (Hη := nat_trans_ax (counit_from_are_adjoints h)).
+  apply pathsinv0.
+  apply Hη.
+Defined.
 
+Lemma τ_from_σ_is_conjugate {C C' D D' : precategory} {L : functor D C} {R : functor C D}
+           {L' : functor D' C'} {R' : functor C' D'} {H : functor C C'} {K : functor D D' }
+           (h : are_adjoints L R) (h' : are_adjoints L' R') (hs : has_homsets C') (σ : DistrLaw L' L K H) : are_conjugates h h' σ (τ_from_σ h h' σ).
+Proof.
+  red.
+  intros A B g.
+  unfold τ_from_σ; simpl.
+  unfold τ_data_from_σ.
+  set (ε := (counit_from_are_adjoints h)).
+  etrans.
+  2: { apply φ_adj_natural_precomp. }
+  apply maponpaths.
+  etrans.
+  2: { set (Hσ := nat_trans_ax σ).
+    rewrite assoc.
+    apply cancel_postcomposition.
+    apply pathsinv0.
+    apply Hσ.
+  }
+  rewrite <- assoc.
+  apply cancel_precomposition.
+  change (# (L ∙ H) (φ_adj h g)) with (# H (# L (φ_adj h g))).
+  etrans.
+  2: { apply (functor_comp H). }
+  apply maponpaths.
+  apply pathsinv0.
+  apply φ_adj_inv_after_φ_adj.
+Qed.
 
 End Conjugates.
 

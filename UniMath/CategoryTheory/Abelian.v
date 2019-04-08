@@ -27,7 +27,6 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.Algebra.Monoids.
 
-Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.opp_precat.
@@ -169,7 +168,9 @@ Section def_abelian.
 End def_abelian.
 Arguments to_Zero [C].
 
+(* Declare Scope abelian_precat_scope. *)
 Bind Scope abelian_precat_scope with precategory.
+(* Declare Scope abelian_precat. *)
 Notation "0" := Zero : abelian_precat.
 Delimit Scope abelian_precat_scope with precategory.
 
@@ -971,7 +972,7 @@ Section abelian_MonicToKernels.
     - induction e. apply (KernelisKernel (to_Zero A) K).
   Defined.
 
-  (** The morphism f is monic if its kernel is zero. *)
+  (** The morphism f is epic if its cokernel is zero. *)
   Lemma CokernelZeroisEpi {x y z : A} (f : x --> y)
              (H : f · ZeroArrow (to_Zero A) y z = ZeroArrow (to_Zero A) x z )
              (isCK : isCokernel (to_Zero A) f (ZeroArrow (to_Zero A) _ _) H) : isEpi f.

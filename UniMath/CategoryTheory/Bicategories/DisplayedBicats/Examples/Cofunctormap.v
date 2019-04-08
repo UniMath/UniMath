@@ -10,7 +10,7 @@
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Prelude.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
@@ -19,9 +19,15 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Adjunctions.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Univalence.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.BicatOfCats.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.ContravariantFunctor.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispAdjunctions.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispInvertibles.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Prod.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Sigma.
@@ -33,13 +39,38 @@ Arguments nat_trans_comp {C C' F G H} a b.
 
 Section Cofunctormaps.
 
-  Variable (K : category).
+  Variable (K : univalent_category).
 
   Definition disp_presheaf : disp_bicat bicat_of_cats
     := disp_presheaf_bicat K.
 
   Definition disp_two_presheaves : disp_bicat bicat_of_cats
     := disp_dirprod_bicat disp_presheaf disp_presheaf.
+
+  Definition disp_two_presheaves_is_univalent_2_1
+    : disp_univalent_2_1 disp_two_presheaves.
+  Proof.
+    apply is_univalent_2_1_dirprod_bicat.
+    - exact (disp_presheaves_is_univalent_2_1 K).
+    - exact (disp_presheaves_is_univalent_2_1 K).
+  Defined.
+
+  Definition disp_two_presheaves_is_univalent_2_0
+    : disp_univalent_2_0 disp_two_presheaves.
+  Proof.
+    apply is_univalent_2_0_dirprod_bicat.
+    - exact univalent_cat_is_univalent_2_1.
+    - exact (disp_presheaves_is_univalent_2 K).
+    - exact (disp_presheaves_is_univalent_2 K).
+  Defined.
+
+  Definition disp_two_presheaves_is_univalent_2
+    : disp_univalent_2 disp_two_presheaves.
+  Proof.
+    split.
+    - exact disp_two_presheaves_is_univalent_2_0.
+    - exact disp_two_presheaves_is_univalent_2_1.
+  Defined.
 
   Definition disp_cofunctormaps_cat_ob_mor : disp_cat_ob_mor (total_bicat disp_two_presheaves).
   Proof.
@@ -59,7 +90,7 @@ Section Cofunctormaps.
     apply tpair.
     - intros (C, (ty, tm)) p.
       apply nat_trans_eq.
-      + apply homset_property.
+      + apply K.
       + cbn. intros. etrans.
         * apply id_right.
         * apply pathsinv0. apply id_left.
@@ -74,7 +105,7 @@ Section Cofunctormaps.
       cbn in *.
       intros eq1 eq2.
       apply nat_trans_eq.
-      + apply homset_property.
+      + apply K.
       + cbn. intros x.
         set (h1 := nat_trans_eq_pointwise eq1 x).
         set (h2 := nat_trans_eq_pointwise eq2 (f x)).
@@ -90,26 +121,85 @@ Section Cofunctormaps.
   Definition disp_cofunctormaps_cat_data : disp_cat_data (total_bicat disp_two_presheaves)
     := (_ ,, disp_cofunctormaps_cat_id_comp).
 
-  Definition disp_cofunctormaps_prebicat
-    : disp_prebicat (total_bicat disp_two_presheaves)
-    := disp_cell_unit_prebicat disp_cofunctormaps_cat_data.
-
-  Lemma has_disp_cellset_disp_cofunctormaps_prebicat
-    : has_disp_cellset disp_cofunctormaps_prebicat.
-  Proof.
-    red; cbn; intros.
-    exact isasetunit.
-  Qed.
-
   Definition disp_cofunctormaps_bicat
     : disp_bicat (total_bicat disp_two_presheaves)
-    := disp_cofunctormaps_prebicat,, has_disp_cellset_disp_cofunctormaps_prebicat.
+    := disp_cell_unit_bicat disp_cofunctormaps_cat_data.
 
-  Definition morphisms_of_preshaves : disp_bicat bicat_of_cats.
+  Definition morphisms_of_presheaves_display : disp_bicat bicat_of_cats.
   Proof.
     use sigma_bicat.
     apply disp_two_presheaves.
     exact disp_cofunctormaps_bicat.
+  Defined.
+
+  Definition morphisms_of_presheaves : bicat
+    := total_bicat morphisms_of_presheaves_display.
+
+  Definition disp_cofunctormaps_bicat_univalent_2_1
+    : disp_univalent_2_1 disp_cofunctormaps_bicat.
+  Proof.
+    apply disp_cell_unit_bicat_univalent_2_1.
+    intros F G η x y ; simpl in *.
+    apply isaset_nat_trans.
+    apply K.
+  Qed.
+
+  Definition morphisms_of_presheaves_univalent_2_1
+    : is_univalent_2_1 morphisms_of_presheaves.
+  Proof.
+    apply sigma_is_univalent_2_1.
+    - exact univalent_cat_is_univalent_2_1.
+    - exact disp_two_presheaves_is_univalent_2_1.
+    - exact disp_cofunctormaps_bicat_univalent_2_1.
+  Defined.
+
+  Definition disp_cofunctormaps_bicat_univalent_2_0
+    : disp_univalent_2_0 disp_cofunctormaps_bicat.
+  Proof.
+    apply disp_cell_unit_bicat_univalent_2_0.
+    + apply total_is_univalent_2_1.
+      * exact univalent_cat_is_univalent_2_1.
+      * exact disp_two_presheaves_is_univalent_2_1.
+    + intros F G η x y ; simpl in *.
+      apply isaset_nat_trans.
+      apply K.
+    + intros a ; simpl.
+      apply isaset_nat_trans.
+      apply K.
+    + intros F α₁ α₂ X ; cbn in *.
+      induction X as [X1 X2] ; cbn in *.
+      apply nat_trans_eq.
+      { apply K. }
+      intros x ; cbn in *.
+      pose (nat_trans_eq_pointwise X1 x) as p1.
+      cbn in *.
+      rewrite id_left, id_right in p1.
+      exact p1.
+  Qed.
+
+  Definition disp_cofunctormaps_bicat_univalent_2
+    : disp_univalent_2 disp_cofunctormaps_bicat.
+  Proof.
+    split.
+    - exact disp_cofunctormaps_bicat_univalent_2_0.
+    - exact disp_cofunctormaps_bicat_univalent_2_1.
+  Defined.
+
+  Definition morphisms_of_presheaves_univalent_2_0
+    : is_univalent_2_0 morphisms_of_presheaves.
+  Proof.
+    apply sigma_is_univalent_2_0.
+    - exact univalent_cat_is_univalent_2.
+    - exact disp_two_presheaves_is_univalent_2.
+    - exact disp_cofunctormaps_bicat_univalent_2.
+  Defined.
+
+  Definition morphisms_of_presheaves_univalent_2
+    : is_univalent_2 morphisms_of_presheaves.
+  Proof.
+    split.
+    - exact morphisms_of_presheaves_univalent_2_0.
+    - exact morphisms_of_presheaves_univalent_2_1.
   Defined.
 
 End Cofunctormaps.

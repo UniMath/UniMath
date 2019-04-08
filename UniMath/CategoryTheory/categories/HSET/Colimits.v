@@ -23,6 +23,7 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.PartA. (* flip *)
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.Sets.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -38,48 +39,6 @@ Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 
 Local Open Scope cat.
-
-(** ** Minimal equivalence relations *)
-
-(* This should be moved upstream. Constructs the smallest eqrel
-   containing a given relation *)
-Section extras.
-
-Variable A : UU.
-Variable R0 : hrel A.
-
-Lemma isaprop_eqrel_from_hrel a b :
-  isaprop (∏ R : eqrel A, (∏ x y, R0 x y -> R x y) -> R a b).
-Proof.
-  apply impred; intro R; apply impred_prop.
-Qed.
-
-Definition eqrel_from_hrel : hrel A :=
-  λ a b, hProppair _ (isaprop_eqrel_from_hrel a b).
-
-Lemma iseqrel_eqrel_from_hrel : iseqrel eqrel_from_hrel.
-Proof.
-repeat split.
-- intros x y z H1 H2 R HR. exact (eqreltrans _ _ _ _ (H1 _ HR) (H2 _ HR)).
-- now intros x R _; apply (eqrelrefl R).
-- intros x y H R H'. exact (eqrelsymm _ _ _ (H _ H')).
-Qed.
-
-Lemma eqrel_impl a b : R0 a b -> eqrel_from_hrel a b.
-Proof.
-now intros H R HR; apply HR.
-Qed.
-
-(* eqrel_from_hrel is the *smallest* relation containing R0 *)
-Lemma minimal_eqrel_from_hrel (R : eqrel A) (H : ∏ a b, R0 a b -> R a b) :
-  ∏ a b, eqrel_from_hrel a b -> R a b.
-Proof.
-now intros a b H'; apply (H' _ H).
-Qed.
-
-End extras.
-
-Arguments eqrel_from_hrel {_} _ _ _.
 
 (** ** General colimits [ColimsHSET] *)
 

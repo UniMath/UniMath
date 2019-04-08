@@ -14,14 +14,13 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.categories.Types.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.Ktheory.Utilities.
 Require Import UniMath.Induction.PolynomialFunctors.
 Require Import UniMath.Induction.W.Core.
 Require Import UniMath.Induction.W.Fibered.
 
 Local Notation ℕ := nat.
 
-(** The signature for the nat functor is (bool, [false ↦ empty; true ↦ unit])
+(** The signature for the nat functor is (bool, [true ↦ empty; false ↦ unit])
     since the naturals have two constructors: one for zero and one for successor.
  *)
 Definition nat_functor : functor type_precat type_precat :=

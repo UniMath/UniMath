@@ -1323,7 +1323,11 @@ Proof.
 Defined.
 Opaque isasetbinoponhSet.
 
+(* Declare Scope addoperation_scope. *)
+Delimit Scope addoperation_scope with addoperation.
 Notation "x + y" := (op x y) : addoperation_scope.
+(* Declare Scope multoperation_scope. *)
+Delimit Scope multoperation_scope with multoperation.
 Notation "x * y" := (op x y) : multoperation_scope.
 
 (* The reverse/opposite binary operation where the arguments are flipped. *)
@@ -2214,6 +2218,7 @@ Definition setwithbinop1 (X : setwith2binop) : setwithbinop := setwithbinoppair 
 
 Definition setwithbinop2 (X : setwith2binop) : setwithbinop := setwithbinoppair (pr1 X) (@op2 X).
 
+(* Declare Scope twobinops_scope. *)
 Notation "x + y" := (op1 x y) : twobinops_scope.
 Notation "x * y" := (op2 x y) : twobinops_scope.
 

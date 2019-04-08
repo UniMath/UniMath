@@ -50,31 +50,31 @@ Local Open Scope type_scope.
 
 (** * Displayed categories *)
 
-Module Record_Preview.
+(*
+  Here is an iterated ∑-type that displays a logical structure equivalent to the
+  type called disp_cat defined below.
+*)
 
-  Record disp_cat (C : precategory) : UU :=
-    { ob_disp : C -> UU
-    ; mor_disp {x y : C} : (x --> y) -> ob_disp x -> ob_disp y -> UU
-    ; id_disp {x : C} (xx : ob_disp x) : mor_disp (identity x) xx xx
-    ; comp_disp {x y z : C} {f : x --> y} {g : y --> z}
-                   {xx : ob_disp x} {yy : ob_disp y} {zz : ob_disp z}
-        : mor_disp f xx yy -> mor_disp g yy zz -> mor_disp (f ;; g) xx zz
-    ; id_left_disp {x y} {f : x --> y} {xx} {yy} (ff : mor_disp f xx yy)
-        : comp_disp (id_disp xx) ff
-          = transportb (λ g, mor_disp g xx yy) (id_left _) ff
-    ; id_right_disp {x y} {f : x --> y} {xx} {yy} (ff : mor_disp f xx yy)
-        : comp_disp ff (id_disp yy)
-          = transportb (λ g, mor_disp g xx yy) (id_right _) ff
-    ; assoc_disp {x y z w} {f : x --> y} {g : y --> z} {h : z --> w}
-        {xx} {yy} {zz} {ww}
-        (ff : mor_disp f xx yy) (gg : mor_disp g yy zz) (hh : mor_disp h zz ww)
-        : comp_disp ff (comp_disp gg hh)
-          = transportb (λ k, mor_disp k _ _) (assoc _ _ _)
-            (comp_disp (comp_disp ff gg) hh)
-    ; homsets_disp {x y} {f : x --> y} {xx} {yy} : isaset (mor_disp f xx yy)
-    }.
-
-End Record_Preview.
+Definition disp_cat' (C : precategory) : UU :=
+  ∑ (ob_disp : C -> UU)
+    (mor_disp : ∏ {x y : C}, (x --> y) -> ob_disp x -> ob_disp y -> UU)
+    (id_disp : ∏ {x : C} (xx : ob_disp x), mor_disp (identity x) xx xx)
+    (comp_disp : ∏ {x y z : C} {f : x --> y} {g : y --> z}
+                   {xx : ob_disp x} {yy : ob_disp y} {zz : ob_disp z},
+                 mor_disp f xx yy -> mor_disp g yy zz -> mor_disp (f ;; g) xx zz)
+    (id_left_disp : ∏ {x y} {f : x --> y} {xx} {yy} (ff : mor_disp f xx yy),
+                    comp_disp (id_disp xx) ff
+                    = transportb (λ g, mor_disp g xx yy) (id_left _) ff)
+    (id_right_disp : ∏ {x y} {f : x --> y} {xx} {yy} (ff : mor_disp f xx yy),
+                     comp_disp ff (id_disp yy)
+                     = transportb (λ g, mor_disp g xx yy) (id_right _) ff)
+    (assoc_disp : ∏ {x y z w} {f : x --> y} {g : y --> z} {h : z --> w}
+                    {xx} {yy} {zz} {ww}
+                    (ff : mor_disp f xx yy) (gg : mor_disp g yy zz) (hh : mor_disp h zz ww),
+                  comp_disp ff (comp_disp gg hh)
+                  = transportb (λ k, mor_disp k _ _) (assoc _ _ _)
+                               (comp_disp (comp_disp ff gg) hh)),
+  (* homsets_disp : *) ∏ {x y} {f : x --> y} {xx} {yy}, isaset (mor_disp f xx yy).
 
 (** ** Definition *)
 
@@ -144,6 +144,7 @@ Definition comp_disp {C} {D : disp_cat_data C}
   : xx -->[f;;g] zz
 := pr2 (pr2 D) _ _ _ _ _ _ _ _ ff gg.
 
+(* Declare Scope mor_disp_scope. *)
 Local Notation "ff ;; gg" := (comp_disp ff gg)
   (at level 50, left associativity, format "ff  ;;  gg")
   : mor_disp_scope.
@@ -316,6 +317,7 @@ End Disp_Cat.
 (** Redeclare sectional notations globally. *)
 Notation "xx -->[ f ] yy" := (mor_disp xx yy f) (at level 50, left associativity, yy at next level).
 
+(* Declare Scope mor_disp_scope. *)
 Notation "ff ;; gg" := (comp_disp ff gg)
   (at level 50, left associativity, format "ff  ;;  gg")
   : mor_disp_scope.
@@ -327,6 +329,7 @@ Local Open Scope mor_disp_scope.
 
 Level is chosen to bind *tighter* than categorical composition, for readability. *)
 (* TODO: consider symbol(s) used. *)
+(* Declare Scope hide_transport_scope. *)
 Notation "#? x" := (transportf _ _ x) (at level 45) : hide_transport_scope.
 Notation "#?' x" := (transportb _ _ x) (at level 45) : hide_transport_scope.
 
@@ -877,8 +880,6 @@ Proof.
     apply id_left.
     eapply pathscomp0.
       apply maponpaths, id_left_disp.
-  (* Note: [transportbfi] is from [UniMath.Ktheory.Utilities].
-  We currently can’t import that, due to notation clashes. *)
     apply transportfbinv.
   - intros xx yy ff; cbn.
     use total2_paths_f; simpl.

@@ -2,6 +2,7 @@
 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.NaturalNumbers.
+Require Import UniMath.MoreFoundations.Notations.
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Univalence.
 Require Import UniMath.MoreFoundations.WeakEquivalences.
@@ -14,8 +15,6 @@ Require Import UniMath.CategoryTheory.Chains.Chains.
 Require Import UniMath.CategoryTheory.Chains.Cochains.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
-
-Require Import UniMath.Ktheory.Utilities.
 
 Require Import UniMath.Induction.PolynomialFunctors.
 Require Import UniMath.Induction.M.Limits.
@@ -86,17 +85,17 @@ Proof.
   - apply weqdirprodf; [apply x0z0|].
     apply weqonsecfibers, yszs.
   - use weq_iso.
-    + intros x0xs.
-      intros n; destruct n.
-      * exact (dirprod_pr1 x0xs).
-      * apply (dirprod_pr2 x0xs).
+    + intros z0zs.
+      intros n; induction n.
+      * exact (dirprod_pr1 z0zs).
+      * apply (dirprod_pr2 z0zs).
     + intros xs; use dirprodpair.
       * apply xs.
       * exact (xs ∘ S).
     + reflexivity.
     + intros xs.
       apply funextsec; intros n.
-      destruct n; reflexivity.
+      induction n; reflexivity.
 Defined.
 
 Local Lemma combine_over_nat {X : nat → UU} {P : (X 0 × (∏ n : nat, X (S n))) → UU} :
@@ -146,15 +145,7 @@ Proof.
                 iscontr (∑ x0 : X 0, (π 0 (x 0)) = x0)).
   {
     intros x.
-    use iscontrpair.
-    + exact (π 0 (x 0),, idpath _).
-    + intros other.
-      use total2_paths_f.
-      * exact (!(pr2 other)).
-      * abstract (induction other as [x0' x0'eq];
-                  induction x0'eq;
-                  reflexivity).
-
+    apply iscontr_paths_from.
   }
 
   (** Step (2) *)

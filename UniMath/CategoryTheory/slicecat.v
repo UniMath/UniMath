@@ -10,6 +10,12 @@ Contents:
 
 - Definition of slice precategories, C/x (assumes that C has homsets)
 
+- Isos in slice categories
+
+- Monics in slice categories
+
+- Epis in slice categories
+
 - Proof that the forgetful functor [slicecat_to_cat] : C/x → C is
   a left adjoint if C has binary products ([is_left_adjoint_slicecat_to_cat])
 
@@ -37,6 +43,8 @@ Contents:
 - Base change functor ([base_change_functor]) and proof that
   it is right adjoint to slicecat_functor
 
+- Pullbacks ([pullback_to_slice_pullback])
+
 ************************************************************)
 
 Require Import UniMath.Foundations.PartD.
@@ -60,8 +68,10 @@ Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.Adjunctions.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.exponentials.
+Require Import UniMath.CategoryTheory.Monics.
+Require Import UniMath.CategoryTheory.Epis.
 
 Local Open Scope cat.
 
@@ -163,6 +173,21 @@ Proof.
 intro heq; apply (total2_paths_f heq); apply hsC.
 Qed.
 
+Lemma eq_mor_slicecat_isweq (af bg : C / x) (f g : C/x⟦af,bg⟧) :
+  isweq (eq_mor_slicecat af bg f g).
+Proof.
+  apply isweqimplimpl.
+  - apply maponpaths.
+  - apply hsC.
+  - apply has_homsets_slice_precat.
+Qed.
+
+Definition  eq_mor_slicecat_weq (af bg : C / x) (f g : C/x⟦af,bg⟧) :
+  (pr1 f = pr1 g ≃ f = g) := weqpair _ (eq_mor_slicecat_isweq af bg f g).
+
+
+(** ** Isos in slice categories *)
+
 Lemma eq_iso_slicecat (af bg : C / x) (f g : iso af bg) : pr1 f = pr1 g -> f = g.
 Proof.
 induction f as [f fP]; induction g as [g gP]; intro eq.
@@ -207,6 +232,37 @@ apply weqimplimpl; try apply isaprop_is_iso.
 - intro hp; apply iso_to_slice_precat_iso; assumption.
 - intro hp; apply (slice_precat_iso_to_iso _ _ _ hp).
 Defined.
+
+(** ** Monics in slice categories *)
+
+(** It suffices that the underlying morphism is an monic to get an monic in
+    the slice category *)
+Lemma monic_to_slice_precat_monic (a b : C / x) (h : a --> b)
+  (monich : isMonic (pr1 h)) : isMonic h.
+Proof.
+  intros y f g eq.
+  apply eq_mor_slicecat, monich.
+  change (pr1 f · pr1 h) with (pr1 (f · h));
+  change (pr1 g · pr1 h) with (pr1 (g · h)).
+  apply (maponpaths pr1).
+  assumption.
+Qed.
+
+(** ** Epis in slice categories *)
+
+(** It suffices that the underlying morphism is an epic to get an epic in
+    the slice category *)
+Lemma epic_to_slice_precat_epic (a b : C / x) (h : a --> b)
+  (epich : isEpi (pr1 h)) : isEpi h.
+Proof.
+  unfold isEpi in *.
+  intros y f g eq.
+  apply eq_mor_slicecat, epich.
+  change (pr1 h · pr1 f) with (pr1 (h · f));
+  change (pr1 h · pr1 g) with (pr1 (h · g)).
+  apply (maponpaths pr1).
+  assumption.
+Qed.
 
 (** The forgetful functor from C/x to C *)
 Definition slicecat_to_cat : functor (C / x) C.
@@ -795,3 +851,138 @@ Defined.
 
 End dependent_product.
 End base_change.
+
+(** ** Pullbacks *)
+
+Section Pullbacks.
+  Context {E : category} {I : ob E}.
+
+  Local Notation "E / X" := (slice_precat E X (homset_property E)).
+  Local Notation "% A" := (slicecat_ob_object E I A) (at level 20).
+  Local Notation "$ A" := (slicecat_ob_morphism E I A) (at level 20).
+  Local Notation "$$ f" := (slicecat_mor_morphism E I f) (at level 21).
+
+  (** A complex lemma statement for a simpler proof later *)
+  Local Lemma iscontr_cond_dirprod_weq {X : UU} {P Q R : X -> UU}
+    (xx : ∃! x : X, P x × Q x) :
+    (∏ x, isaprop (R x)) ->
+    (∏ x, isaprop (P x)) ->
+    (∏ x, isaprop (Q x)) ->
+    (R (pr1 (iscontrpr1 xx))) ->
+    (∃! x : X, P x × Q x × R x).
+  Proof.
+    intros ispropR ispropP ispropQ rxx.
+    use iscontrpair.
+    - exists (pr1 (iscontrpr1 xx)).
+      split; [|split].
+      + exact (dirprod_pr1 (pr2 (iscontrpr1 xx))).
+      + exact (dirprod_pr2 (pr2 (iscontrpr1 xx))).
+      + assumption.
+    - intros t.
+      use total2_paths_f.
+      + pose (eq := proofirrelevancecontr xx (iscontrpr1 xx) (pr1 t,, dirprodpair (dirprod_pr1 (pr2 t)) (dirprod_pr1 (dirprod_pr2 (pr2 t))))).
+        apply pathsinv0.
+        eapply pathscomp0.
+        apply (maponpaths pr1 eq).
+        reflexivity.
+      + apply proofirrelevance.
+        do 2 (apply isapropdirprod; auto).
+  Qed.
+
+  (** Pullback diagram:
+    <<
+      PB -- PBPr1 -> A
+      |              |
+    PBPr2            k
+      V              V
+      B ---- l ----> C
+    >>
+  *)
+  Lemma pullback_to_slice_pullback
+    (A B C : ob (E / I)) (k : A --> C) (l : B --> C)
+    (PB : Pullback ($$ k) ($$ l)) :
+    Pullback k l.
+  Proof.
+    assert (eq : PullbackPr1 PB · $ A = PullbackPr2 PB · $ B).
+    {
+      (** Just because [k], [l] are slice category morphisms: *)
+      assert (eq1 : $ A = $$ k · $ C) by (apply slicecat_mor_comm).
+      assert (eq2 : $ B = $$ l · $ C) by (apply slicecat_mor_comm).
+      rewrite eq2, eq1.
+      do 2 rewrite assoc.
+      apply (maponpaths (fun x => x · _)).
+      apply PullbackSqrCommutes.
+    }
+
+    pose (PBtoI := PullbackPr1 PB · $ A).
+    use mk_Pullback.
+    - use tpair.
+      + exact (PullbackObject PB).
+      + exact PBtoI.
+    - (** The arrow [PB --> A] *)
+      use tpair.
+      + (** The arrow from [E] *)
+        exact (PullbackPr1 PB).
+      + (** The triangle commutes by definition *)
+        reflexivity.
+    - (** The arrow [PB --> B] *)
+      use tpair.
+      + exact (PullbackPr2 PB).
+      + exact eq.
+    - (** The square commutes *)
+      apply eq_mor_slicecat, PullbackSqrCommutes.
+    - (** [isPullback] *)
+      intros PB' prA' prB' commSq'.
+
+      (** In two steps, we reduce the problem of a pullback in [E/I] to that of
+          a pullback in [E] (which we already have).
+
+          1. Simplify the equalities involved in the sigma-type.
+          2. Note that what is required is simply a pullback in [E] with
+             an extra commutation condition.
+       *)
+      use iscontrweqb;
+        [exact (∑ kk : % PB' --> PullbackObject PB,
+                kk · PullbackPr1 PB = ($$ prA') ×
+                kk · PullbackPr2 PB = ($$ prB') ×
+                slicecat_ob_morphism _ _ PB' = kk · PBtoI)| | ].
+      use weqcomp.
+      + exact (∑ kk : PB' --> (PullbackObject PB,, PBtoI),
+                ($$ kk) · PullbackPr1 PB = ($$ prA') ×
+                ($$ kk) · PullbackPr2 PB = ($$ prB')).
+      + (** Step 1 *)
+        apply weqfibtototal; intro.
+        apply weqdirprodf;
+          (apply weqiff;
+           [|apply has_homsets_slice_precat|apply homset_property];
+           apply weq_to_iff).
+        * eapply weqcomp; [apply invweq, eq_mor_slicecat_weq|].
+          apply idweq.
+        * eapply weqcomp; [apply invweq, eq_mor_slicecat_weq|].
+          apply idweq.
+      + (** Step 2 *)
+        (** This is all just rearranging of direct products *)
+        cbn.
+        eapply weqcomp.
+        * apply (@weqtotal2asstor (E⟦% PB', PB⟧) (fun f => $ PB' = f · PBtoI) _).
+        * apply weqfibtototal; intro; cbn.
+          eapply weqcomp.
+          apply weqdirprodcomm.
+          apply weqdirprodasstor.
+      + apply (iscontr_cond_dirprod_weq
+                 (isPullback_Pullback PB _ _ _ (maponpaths pr1 commSq'))).
+        * intro; apply homset_property.
+        * intro; apply homset_property.
+        * intro; apply homset_property.
+        * (** The unique arrow between pullbacks is also an arrow in the slice cat *)
+          unfold PBtoI.
+          change (pr1 (iscontrpr1
+                   (isPullback_Pullback PB (pr1 PB') (pr1 prA') (pr1 prB')
+                      (maponpaths pr1 commSq')))) with
+            (PullbackArrow PB _ _ _ (maponpaths pr1 commSq')).
+          cbn.
+          rewrite assoc.
+          rewrite PullbackArrow_PullbackPr1.
+          apply slicecat_mor_comm.
+  Defined.
+End Pullbacks.
