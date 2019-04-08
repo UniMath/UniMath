@@ -48,6 +48,15 @@ other-checks:   check-max-line-length
 
 COQIDE_OPTION := no
 
+ifeq "$(BUILD_COQ)" "yes"
+COQBIN=sub/coq/bin/
+all: build-coq
+build-coq: sub/coq/bin/coqc
+ifeq "$(BUILD_COQIDE)" "yes"
+all: build-coqide
+COQIDE_OPTION := opt
+endif
+endif
 
 COQ_PATH := -Q UniMath UniMath
 
@@ -62,6 +71,10 @@ ifneq "$(INCLUDE)" "no"
 include .coq_makefile_output.conf
 VFILES := $(COQMF_VFILES)
 VOFILES := $(VFILES:.v=.vo)
+endif
+
+ifeq ($(BUILD_COQ),yes)
+$(VOFILES) : $(COQBIN)coqc
 endif
 
 all html install uninstall $(VOFILES): build/CoqMakefile.make ; $(MAKE) -f build/CoqMakefile.make $@
@@ -117,11 +130,11 @@ MODIFIERS := $(MODIFIERS)Local\|
 MODIFIERS := $(MODIFIERS)Private\|
 MODIFIERS := $(MODIFIERS)Program\|
 
-COQDEFS := --language=none																\
-	-r '/^[[:space:]]*\(\($(MODIFIERS)\)[[:space:]]+\)?\($(DEFINERS)\)[[:space:]]+\([[:alnum:]'\''_]+\)/\4/'					\
-	-r "/^[[:space:]]*Notation.* \"'\([[:alnum:]'\''_]+\)'/\1/"											\
-	-r '/^[[:space:]]*Tactic[[:space:]]+Notation.*[[:space:]]"\([[:alnum:]'\''_]+\)"[[:space:]]/\1/'						\
-	-r '/^[[:space:]]*Delimit[[:space:]]+Scope[[:space:]]+[[:alnum:]'\''_]+[[:space:]]+with[[:space:]]+\([[:alnum:]'\''_]+\)[[:space:]]*\./\1/'
+COQDEFS := --language=none																			\
+	-r '/^[[:space:]]*\(\($(MODIFIERS)\)[[:space:]]+\)?\($(DEFINERS)\)[[:space:]]+\([[:alnum:][:nonascii:]'\''_]+\)/\4/'							\
+	-r "/^[[:space:]]*Notation.* \"'\([[:alnum:][:nonascii:]'\''_]+\)'/\1/"													\
+	-r '/^[[:space:]]*Tactic[[:space:]]+Notation.*[[:space:]]"\([[:alnum:][:nonascii:]'\''_]+\)"[[:space:]]/\1/'								\
+	-r '/^[[:space:]]*Delimit[[:space:]]+Scope[[:space:]]+[[:alnum:][:nonascii:]'\''_]+[[:space:]]+with[[:space:]]+\([[:alnum:][:nonascii:]'\''_]+\)[[:space:]]*\./\1/'
 
 $(foreach P,$(PACKAGES),$(eval TAGS-$P: Makefile $(filter UniMath/$P/%,$(VFILES)); etags $(COQDEFS) -o $$@ $$^))
 TAGS : Makefile $(PACKAGE_FILES) $(VFILES)
