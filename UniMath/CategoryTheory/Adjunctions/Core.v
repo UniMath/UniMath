@@ -32,6 +32,8 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Epis.
+Require Import UniMath.CategoryTheory.Epis.
+Require Import UniMath.CategoryTheory.SplitMonicsAndEpis.
 Require Import UniMath.CategoryTheory.Monics.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
@@ -989,7 +991,7 @@ Section AdjunctionLemmas.
     apply is_monic_post_whisker_left_adjoint_unit_pointwise.
   Qed.
 
-  (** Rhiel, "Category Theory in Context", Lemma 4.5.13(i)/Exercise 4.5.vi *)
+  (** Riehl, "Category Theory in Context", Lemma 4.5.13(i)/Exercise 4.5.vi *)
   Lemma counit_is_epi_if_right_adjoint_is_faithful :
     faithful G -> ∏ x, isEpi (ε x).
   Proof.
@@ -1003,6 +1005,68 @@ Section AdjunctionLemmas.
       apply (maponpaths #G) in H.
       do 2 rewrite functor_comp in H.
       assumption.
+  Qed.
+
+  Local Lemma issurjective_postcomp_with_weq {A B E : UU}
+        (f : A -> B) (w : B ≃ E) : issurjective (w ∘ f)%functions -> issurjective f.
+  Proof.
+    intros iss b.
+    specialize (iss (w b)).
+    apply (squash_to_prop iss); [apply isapropishinh|].
+    intros a; apply hinhpr.
+    exists (hfiberpr1 _ _ a).
+    apply (weqpair _ (isweqmaponpaths w _ _)).
+    apply (hfiberpr2 _ _ a).
+  Qed.
+
+  (** Riehl, "Category Theory in Context", Lemma 4.5.13(ii)/Exercise 4.5.vi
+
+      Proof appears on the nLab (§ Basic properties):
+      http://ncatlab.org/nlab/revision/adjoint%20functor/87
+   *)
+  Lemma counit_is_split_monic_if_right_adjoint_is_full :
+    full G -> ∏ x, is_merely_split_monic (ε x).
+  Proof.
+    intros fullG x.
+
+    set (pcw c := (@precomp_with _ _ _ (ε x) c)).
+
+    cut (∏ c : D, issurjective (pcw c));
+      [apply is_merely_split_monic_weq_precomp_is_surjection|].
+    intros c.
+
+    cut (issurjective (hom_weq (nathomweq_from_adj are) ∘
+                               @precomp_with _ _ _ (ε x) c)%functions);
+      [apply issurjective_postcomp_with_weq|].
+
+    assert (E : (hom_weq (nathomweq_from_adj are) ∘ pcw c)%functions = # G).
+    {
+      apply funextfun; intro z; cbn.
+      unfold φ_adj, pcw, precomp_with.
+      rewrite functor_comp, assoc.
+      change ε with (counit_from_are_adjoints are).
+      refine (_ @ id_left _).
+      apply (maponpaths (fun f => f · _)).
+      apply (triangle_id_right_ad are x).
+    }
+
+    cut (issurjective (@functor_on_morphisms _ _ G x c)).
+    - intros; cbn.
+      unfold pcw in *; cbn in E.
+      rewrite E.
+      assumption.
+    - apply fullG.
+  Qed.
+
+  Lemma counit_is_iso_if_right_adjoint_is_fully_faithful :
+    fully_faithful G -> ∏ x, is_iso (ε x).
+  Proof.
+    intros ? ?.
+    apply merely_split_monic_is_epi_to_is_iso.
+    - apply counit_is_split_monic_if_right_adjoint_is_full.
+      apply fully_faithful_implies_full_and_faithful; assumption.
+    - apply counit_is_epi_if_right_adjoint_is_faithful.
+      apply fully_faithful_implies_full_and_faithful; assumption.
   Qed.
 
 End AdjunctionLemmas.
