@@ -1,0 +1,335 @@
+;; math-latex-backslashed.mim -- Mathematics input method using LaTeX command names
+;; Copyright (C) 2012 Urs Holzer <urs@andonyar.com>
+;; Copyright (C) 2012 Vishvas Vasuki <vishvas.vasuki@gmail.com>
+;; Copyright (C) 2012 Gianluca Amato <gianluca.amato.74@gmail.com>
+
+;; This file is part of the m17n contrib; a sub-part of the m17n
+;; library.
+
+;; The m17n library is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU Lesser General Public License
+;; as published by the Free Software Foundation; either version 2.1 of
+;; the License, or (at your option) any later version.
+
+;; The m17n library is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;; Lesser General Public License for more details.
+
+;; You should have received a copy of the GNU Lesser General Public
+;; License along with the m17n library; if not, write to the Free
+;; Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+;; Boston, MA 02110-1301, USA.
+
+;; This code is based on StateMath.mim included in methods.tar.gz
+;; which is distributed at:
+;;   <http://www.andonyar.com/rec/2008-03/mathinput/> 
+;; Urs Holzer wrote StateMath.mim, and Vishvas Vasuki
+;; modified it and wrote this file.
+
+(input-method t math-latex-backslashes)
+
+(description "Mathematics input method using LaTeX command names and backslash.")
+
+(title "Math: latex with backslash")
+
+(map
+  (math
+    ("\\int"         "∫")       ; integral
+    ("\\Int"         "∫")       ; integral
+    ("\\Sum"         "∑")       ; n-ary Sum
+    ("\\Prod"         "∏")
+
+    ("\\dsum"        "⊕")       ; direct Sum
+    ("\\oplus"       "⊕")
+    ("\\Dsum"        "⨁")       ; n-ary direct Sum
+    ("\\Oplus"       "⨁")       ; n-ary direct Sum
+    ("\\ominus"      "⊖")
+    ("\\otimes"      "⊗")
+    ("\\odiv"        "⊘")
+    ("\\odot"        "⊙")
+    ("\\exp"         "ℯ")       ; Equals script e; TODO: Correct?
+    ("\\setN"        "ℕ")
+    ("\\setZ"        "ℤ")
+    ("\\setQ"        "ℚ")
+    ("\\setR"        "ℝ")
+    ("\\setC"        "ℂ")
+    ("\\cross"       "×")
+    ("\\times"       "×")
+    ("\\infty"       "∞")
+    ("\\infinity"    "∞")
+    ("\\circ"        "∘") ; This is 0x2218, not 0x00b0
+    ("\\compl"       "∁") ; This is 0x2201, not c or C
+    ("\\partial"     "∂")
+    ("\\laplace"     "∆")
+    ("\\nabla"       "∇")
+    ("\\qed"         "∎")
+    ("\\ell"         "ℓ") ; This is not the mathematical script l
+    ("\\powerset"    "𝒫") ; This is script P
+    ("\\dagger"      "†")
+    ("\\bar"         "¯") ; This is U+00AF. What about U+203E?
+    ("\\curltop"     "⏞") ; Top curly bracket
+    ("\\curlbottom"  "⏟") ; Bottom curly bracket
+
+    ("\\division"    "÷")
+    ("\\plusminus"   "±")
+    ("\\minusplus"   "∓")
+
+    ("\\cdot"        "·")
+    ("\\cdots"       "⋯")
+    ("\\ldots"       "…")
+    ("\\vdots"       "⋮")
+    ("\\/dots"       "⋰")
+    ("\\\dots"       "⋱")
+
+    ("\\="           "=")
+    ("\\equals"      "=")
+    ("\\definedas"   "≔")
+    ("\\:="          "≔")
+    ("\\=:"          "≕")
+    ("\\neq"         "≠")
+    ("\\not="        "≠")
+    ("\\<="          "≤")
+    ("\\leq"          "≤")
+    ("\\>="          "≥")
+    ("\\geq"          "≥")
+    ("\\<<"          "≪")
+    ("\\>>"          "≫")
+    ("\\ident"       "≡")
+    ("\\apeq"        "≅")
+    ("\\almeq"       "≈")
+    ("\\approx"       "≈")
+    ("\\isom"        "≅") ; Or should it be ≈ ?
+    ("\\prec"       "≺")
+    ("\\preceq"       "≼")
+    ("\\succ"       "≻")
+    ("\\succeq"       "≽")
+
+
+
+
+
+    ("\\in"          "∈")
+    ("\\notin"       "∉")
+    ("\\has"         "∋")
+    ("\\cup"         "∪")
+    ("\\union"         "∪")
+    ("\\Cup"         "⋃") ; n-ary union
+    ("\\Union"         "⋃") ; n-ary union
+    ("\\cap"         "∩")
+    ("\\inters"         "∩")
+    ("\\Inters"         "⋂") ; n-ary intersection
+    ("\\setminus"    "∖")
+    ("\\subset"      "⊂")
+    ("\\supset"      "⊃")
+    ("\\superset"    "⊃")
+    ("\\subseteq"      "⊆")
+    ("\\supseteq"      "⊇")
+
+
+
+    ("\\strictsubset"     "⊊")  ; \
+    ("\\strictsupset"     "⊋")  ;  } seem to be too long
+    ("\\strictsuperset"   "⊋")  ; /
+    ("\\ssubset"     "⊊")
+    ("\\ssupset"     "⊋")
+    ("\\empty"       "∅")
+    ("\\divides"     "∣")
+    ("\\suchthat"    "∣")
+    ("\\|"    "∣")
+    ("\\||"    "⊦")
+
+    ("\\forall"      "∀")
+    ("\\exists"      "∃")
+
+    ("\\and"         "∧")
+    ("\\And"         "⋀") ; n-ary logical and
+    ("\\or"          "∨")
+    ("\\Or"          "⋁") ; n-ary logical or
+    ("\\not"         "¬") ; Crashes with the combining overly slash?
+    ("\\entails"          "⊨")
+    ("\\implies"       "⇒")
+
+    ("\\modulo"      "∕") ; Division slash, the right one?
+    ("\\dslash"      "∕") ; Division slash
+    ("\\fslash"      "⁄") ; Fraction slash, for composing arbitrary fractions
+
+    ("\\prime"       "′") ; not a combining mark. Should be used with msup in MathML
+    ("\\dprime"      "″") ; not a combining mark. Should be used with msup in MathML
+    ("\\tprime"      "‴") ; not a combining mark. Should be used with msup in MathML
+;; Latin alphabet
+    ("\\la" "a") ("\\lA" "A") 
+    ("\\lb" "b") ("\\lB" "B") 
+    ("\\lc" "c") ("\\lC" "C") 
+    ("\\ld" "d") ("\\lD" "D") 
+    ("\\le" "e") ("\\lE" "E") 
+    ("\\lf" "f") ("\\lF" "F") 
+    ("\\lg" "g") ("\\lG" "G") 
+    ("\\lh" "h") ("\\lH" "H") 
+    ("\\li" "i") ("\\lI" "I") 
+    ("\\lj" "j") ("\\lJ" "J") 
+    ("\\lk" "k") ("\\lK" "K") 
+    ("\\ll" "l") ("\\lL" "L")  
+    ("\\lm" "m") ("\\lM" "M") 
+    ("\\ln" "n") ("\\lN" "N") 
+    ("\\lo" "o") ("\\lO" "O") 
+    ("\\lp" "p") ("\\lP" "P") 
+    ("\\lq" "q") ("\\lQ" "Q") 
+    ("\\lr" "r") ("\\lR" "R") 
+    ("\\ls" "s") ("\\lS" "S") 
+    ("\\lt" "t") ("\\lT" "T") 
+    ("\\lu" "u") ("\\lU" "U") 
+    ("\\lv" "v") ("\\lV" "V") 
+    ("\\lw" "w") ("\\lW" "W") 
+    ("\\lx" "x") ("\\lX" "X") 
+    ("\\ly" "y") ("\\lY" "Y") 
+    ("\\lz" "z") ("\\lZ" "Z") 
+;; Access to mathematical distinct alphabets (generated by MathAlphanum.pl)
+    ("\\bA" "𝐀") ("\\iA" "𝐴") ("\\sA" "𝒜") ("\\fA" "𝔄") ("\\dA" "𝔸") 
+    ("\\bB" "𝐁") ("\\iB" "𝐵") ("\\sB" "ℬ") ("\\fB" "𝔅") ("\\dB" "𝔹") 
+    ("\\bC" "𝐂") ("\\iC" "𝐶") ("\\sC" "𝒞") ("\\fC" "ℭ") ("\\dC" "ℂ") 
+    ("\\bD" "𝐃") ("\\iD" "𝐷") ("\\sD" "𝒟") ("\\fD" "𝔇") ("\\dD" "𝔻") 
+    ("\\bE" "𝐄") ("\\iE" "𝐸") ("\\sE" "ℰ") ("\\fE" "𝔈") ("\\dE" "𝔼") 
+    ("\\bF" "𝐅") ("\\iF" "𝐹") ("\\sF" "ℱ") ("\\fF" "𝔉") ("\\dF" "𝔽") 
+    ("\\bG" "𝐆") ("\\iG" "𝐺") ("\\sG" "𝒢") ("\\fG" "𝔊") ("\\dG" "𝔾") 
+    ("\\bH" "𝐇") ("\\iH" "𝐻") ("\\sH" "ℋ") ("\\fH" "ℌ") ("\\dH" "ℍ") 
+    ("\\bI" "𝐈") ("\\iI" "𝐼") ("\\sI" "ℐ") ("\\fI" "ℑ") ("\\dI" "𝕀") 
+    ("\\bJ" "𝐉") ("\\iJ" "𝐽") ("\\sJ" "𝒥") ("\\fJ" "𝔍") ("\\dJ" "𝕁") 
+    ("\\bK" "𝐊") ("\\iK" "𝐾") ("\\sK" "𝒦") ("\\fK" "𝔎") ("\\dK" "𝕂") 
+    ("\\bL" "𝐋") ("\\iL" "𝐿") ("\\sL" "ℒ") ("\\fL" "𝔏") ("\\dL" "𝕃") 
+    ("\\bM" "𝐌") ("\\iM" "𝑀") ("\\sM" "ℳ") ("\\fM" "𝔐") ("\\dM" "𝕄") 
+    ("\\bN" "𝐍") ("\\iN" "𝑁") ("\\sN" "𝒩") ("\\fN" "𝔑") ("\\dN" "ℕ") 
+    ("\\bO" "𝐎") ("\\iO" "𝑂") ("\\sO" "𝒪") ("\\fO" "𝔒") ("\\dO" "𝕆") 
+    ("\\bP" "𝐏") ("\\iP" "𝑃") ("\\sP" "𝒫") ("\\fP" "𝔓") ("\\dP" "ℙ") 
+    ("\\bQ" "𝐐") ("\\iQ" "𝑄") ("\\sQ" "𝒬") ("\\fQ" "𝔔") ("\\dQ" "ℚ") 
+    ("\\bR" "𝐑") ("\\iR" "𝑅") ("\\sR" "ℛ") ("\\fR" "ℜ") ("\\dR" "ℝ") 
+    ("\\bS" "𝐒") ("\\iS" "𝑆") ("\\sS" "𝒮") ("\\fS" "𝔖") ("\\dS" "𝕊") 
+    ("\\bT" "𝐓") ("\\iT" "𝑇") ("\\sT" "𝒯") ("\\fT" "𝔗") ("\\dT" "𝕋") 
+    ("\\bU" "𝐔") ("\\iU" "𝑈") ("\\sU" "𝒰") ("\\fU" "𝔘") ("\\dU" "𝕌") 
+    ("\\bV" "𝐕") ("\\iV" "𝑉") ("\\sV" "𝒱") ("\\fV" "𝔙") ("\\dV" "𝕍") 
+    ("\\bW" "𝐖") ("\\iW" "𝑊") ("\\sW" "𝒲") ("\\fW" "𝔚") ("\\dW" "𝕎") 
+    ("\\bX" "𝐗") ("\\iX" "𝑋") ("\\sX" "𝒳") ("\\fX" "𝔛") ("\\dX" "𝕏") 
+    ("\\bY" "𝐘") ("\\iY" "𝑌") ("\\sY" "𝒴") ("\\fY" "𝔜") ("\\dY" "𝕐") 
+    ("\\bZ" "𝐙") ("\\iZ" "𝑍") ("\\sZ" "𝒵") ("\\fZ" "ℨ") ("\\dZ" "ℤ") 
+    ("\\ba" "𝐚") ("\\ia" "𝑎") ("\\sa" "𝒶") ("\\fa" "𝔞") ("\\da" "𝕒") 
+    ("\\bb" "𝐛") ("\\ib" "𝑏") ("\\sb" "𝒷") ("\\fb" "𝔟") ("\\db" "𝕓") 
+    ("\\bc" "𝐜") ("\\ic" "𝑐") ("\\sc" "𝒸") ("\\fc" "𝔠") ("\\dc" "𝕔") 
+    ("\\bd" "𝐝") ("\\id" "𝑑") ("\\sd" "𝒹") ("\\fd" "𝔡") ("\\dd" "𝕕") 
+    ("\\be" "𝐞") ("\\ie" "𝑒") ("\\se" "ℯ") ("\\fe" "𝔢") ("\\de" "𝕖") 
+    ("\\bf" "𝐟") ("\\if" "𝑓") ("\\sf" "𝒻") ("\\ff" "𝔣") ("\\df" "𝕗") 
+    ("\\bg" "𝐠") ("\\ig" "𝑔") ("\\sg" "ℊ") ("\\fg" "𝔤") ("\\dg" "𝕘") 
+    ("\\bh" "𝐡") ("\\ih" "ℎ") ("\\sh" "𝒽") ("\\fh" "𝔥") ("\\dh" "𝕙") 
+    ("\\bi" "𝐢") ("\\ii" "𝑖") ("\\si" "𝒾") ("\\fi" "𝔦") ("\\di" "𝕚") 
+    ("\\bj" "𝐣") ("\\ij" "𝑗") ("\\sj" "𝒿") ("\\fj" "𝔧") ("\\dj" "𝕛") 
+    ("\\bk" "𝐤") ("\\ik" "𝑘") ("\\sk" "𝓀") ("\\fk" "𝔨") ("\\dk" "𝕜") 
+    ("\\bl" "𝐥") ("\\il" "𝑙") ("\\sl" "𝓁") ("\\fl" "𝔩") ("\\dl" "𝕝") 
+    ("\\bm" "𝐦") ("\\im" "𝑚") ("\\sm" "𝓂") ("\\fm" "𝔪") ("\\dm" "𝕞") 
+    ("\\bn" "𝐧") ("\\in" "𝑛") ("\\sn" "𝓃") ("\\fn" "𝔫") ("\\dn" "𝕟") 
+    ("\\bo" "𝐨") ("\\io" "𝑜") ("\\so" "ℴ") ("\\fo" "𝔬") ("\\do" "𝕠") 
+    ("\\bp" "𝐩") ("\\ip" "𝑝") ("\\sp" "𝓅") ("\\fp" "𝔭") ("\\dp" "𝕡") 
+    ("\\bq" "𝐪") ("\\iq" "𝑞") ("\\sq" "𝓆") ("\\fq" "𝔮") ("\\dq" "𝕢") 
+    ("\\br" "𝐫") ("\\ir" "𝑟") ("\\sr" "𝓇") ("\\fr" "𝔯") ("\\dr" "𝕣") 
+    ("\\bs" "𝐬") ("\\is" "𝑠") ("\\ss" "𝓈") ("\\fs" "𝔰") ("\\ds" "𝕤") 
+    ("\\bt" "𝐭") ("\\it" "𝑡") ("\\st" "𝓉") ("\\ft" "𝔱") ("\\dt" "𝕥") 
+    ("\\bu" "𝐮") ("\\iu" "𝑢") ("\\su" "𝓊") ("\\fu" "𝔲") ("\\du" "𝕦") 
+    ("\\bv" "𝐯") ("\\iv" "𝑣") ("\\sv" "𝓋") ("\\fv" "𝔳") ("\\dv" "𝕧") 
+    ("\\bw" "𝐰") ("\\iw" "𝑤") ("\\sw" "𝓌") ("\\fw" "𝔴") ("\\dw" "𝕨") 
+    ("\\bx" "𝐱") ("\\ix" "𝑥") ("\\sx" "𝓍") ("\\fx" "𝔵") ("\\dx" "𝕩") 
+    ("\\by" "𝐲") ("\\iy" "𝑦") ("\\sy" "𝓎") ("\\fy" "𝔶") ("\\dy" "𝕪") 
+    ("\\bz" "𝐳") ("\\iz" "𝑧") ("\\sz" "𝓏") ("\\fz" "𝔷") ("\\dz" "𝕫") 
+    ("\\b0" "𝟎") ("\\d0" "𝟘") 
+    ("\\b1" "𝟏") ("\\d1" "𝟙") 
+    ("\\b2" "𝟐") ("\\d2" "𝟚") 
+    ("\\b3" "𝟑") ("\\d3" "𝟛") 
+    ("\\b4" "𝟒") ("\\d4" "𝟜") 
+    ("\\b5" "𝟓") ("\\d5" "𝟝") 
+    ("\\b6" "𝟔") ("\\d6" "𝟞") 
+    ("\\b7" "𝟕") ("\\d7" "𝟟") 
+    ("\\b8" "𝟖") ("\\d8" "𝟠") 
+    ("\\b9" "𝟗") ("\\d9" "𝟡") 
+;; Greek alphabet
+;;  Remark: The big greek letters that look like big ASCII letters are in effect encoded as
+;;  greek letters, not as ASCII as is done in LaTeX. Example: Α (0x0391) is not A (0x0041).
+;;  Remark: For the constant pi use the small greek letter pi
+    ("\\Alpha"    "Α")   ("\\alpha"    "α")
+    ("\\Beta"     "Β")   ("\\beta"     "β")
+    ("\\Gamma"    "Γ")   ("\\gamma"    "γ")
+    ("\\Delta"    "Δ")   ("\\delta"    "δ")
+    ("\\Epsilon"  "Ε")   ("\\epsilon"  "ε")
+    ("\\Zeta"     "Ζ")   ("\\zeta"     "ζ")
+    ("\\Eta"      "Η")   ("\\eta"      "η")
+    ("\\Theta"    "Θ")   ("\\theta"    "θ")
+    ("\\Iota"     "Ι")   ("\\iota"     "ι")
+    ("\\Kappa"    "Κ")   ("\\kappa"    "κ")
+    ("\\Lamda"    "Λ")   ("\\lamda"    "λ")
+    ("\\Lambda"   "Λ")   ("\\lambda"   "λ") ; the same als lamda
+    ("\\Mu"       "Μ")   ("\\mu"       "μ")
+    ("\\Nu"       "Ν")   ("\\nu"       "ν")
+    ("\\Xi"       "Ξ")   ("\\xi"       "ξ")
+    ("\\Omicron"  "Ο")   ("\\omicron"  "ο")
+    ("\\Pi"       "Π")   ("\\pi"       "π")
+    ("\\Rho"      "Ρ")   ("\\rho"      "ρ")
+    ("\\Sigma"    "Σ")   ("\\sigma"    "ς")
+    ("\\Tau"      "Τ")   ("\\tau"      "τ")
+    ("\\Upsilon"  "Υ")   ("\\upsilon"  "υ")
+    ("\\Phi"      "Φ")   ("\\phi"      "φ")
+    ("\\Chi"      "Χ")   ("\\chi"      "χ")
+    ("\\Psi"      "Ψ")   ("\\psi"      "ψ")
+    ("\\Omega"    "Ω")   ("\\omega"    "ω")
+; g* shortcuts for greek alphabets.
+    ("\\ga"    "α")
+    ("\\gb"     "β")
+    ("\\gG"    "Γ")   ("\\gg"    "γ")
+    ("\\gD"    "Δ")   ("\\gd"    "δ")
+    ("\\eps"  "ε")
+    ("\\gz"     "ζ")
+    ("\\gTh"    "Θ")   ("\\gth"    "θ")
+    ("\\gi"     "ι")
+    ("\\gk"    "κ")
+    ("\\gL"    "Λ")   ("\\gl"    "λ")
+    ("\\gm"       "μ")
+    ("\\gX"       "Ξ")   ("\\gx"       "ξ")
+    ("\\gR"      "Ρ")   ("\\gr"      "ρ")
+    ("\\gS"    "Σ")   ("\\gs"    "ς")
+    ("\\gt"      "τ")
+    ("\\gO"    "Ω")   ("\\go"    "ω")
+;; Accents
+;;  Those are combining Unicode characters.
+    ("\\vector"     0x20d7)
+    ("\\hat"        0x0302)
+    ("\\unhat"      0x030c) ; Is this the right one???
+    ("\\tilde"      0x0303)
+    ("\\circ"       0x030A)
+    ("\\ring"       0x030A)
+    ("\\bar"        0x0305) ; This is not the macron combining mark
+    ("\\dot"        0x0307) ; = derivative
+    ("\\doubledot"  0x0308) ; = double derivative
+    ("\\prime"      0x0315) ; ??? Perhaps one must use
+                          ; 2032, 2033 and 2034. They are not
+                          ; combining marks.
+    ("\\combiningnot" 0x0338) ; Puts a slash over the sign before
+;; Arrows
+; - preceeds s* codes to avoid conflict with letters like 𝓊.
+    ("\\-sl"       "→")
+    ("\\to"       "→")
+    ("\\-sh"       "←")
+    ("\\gets"       "←")
+    ("\\from"       "←")
+    ("\\-sk"         "↑")
+    ("\\-sj"         "↓")
+    ("\\-sd"         "↔")
+    ("\\-sD"         "↕")
+    ("\\dl"       "⇒")
+    ("\\dh"       "⇐")
+    ("\\dd"       "⇔")
+    ("\\barl"     "↦")
+    ("\\mapsto"   "↦")
+  )
+)
+
+(state
+  (init
+    (math)
+  )
+)
+    

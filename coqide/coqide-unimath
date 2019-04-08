@@ -1,0 +1,3 @@
+#!/bin/sh
+dir=${PWD%%coqide}.
+exec coqide -noinit -indices-matter -type-in-type -w -notation-overridden -Q "${dir}" UniMath
