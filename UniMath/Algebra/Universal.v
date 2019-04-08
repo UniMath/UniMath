@@ -115,7 +115,7 @@ Definition stackerror: Status := ii2 tt.
 
 Definition status_cons (nm: names sigma) (status: Status): Status.
 Proof.
-  destruct status as [n | error].
+  induction status as [n | error].
   induction (isdecrelnatleh (arity nm) n).
     - exact (stackok ( S(n - arity nm) )).
     - exact stackerror.
@@ -128,6 +128,7 @@ Proof.
   intro noerror.
   unfold stackok in noerror.
   unfold status_cons in noerror.
+  unfold coprod_rect at 1 in noerror.
   induction (isdecrelnatleh (arity nm) n).
   * assumption.
   * cbn in noerror.
@@ -140,6 +141,7 @@ Proof.
   intro scons.
   unfold stackok in scons.
   unfold status_cons in scons.
+  unfold coprod_rect at 1 in scons.
   induction (isdecrelnatleh (arity nm) n).
   * cbn in scons.
     apply ii1_injectivity in scons.
@@ -181,41 +183,42 @@ Proof.
 Defined.
 
 (** to be proved later ***)
-Axiom natleh_add: ∏( n1 n2 m: nat), n1 ≤ n2 → n1 ≤ (n2 + m).
+Axiom natleh_add: ∏( n1 n2 m: nat), n1 ≤ n2 → n1 ≤ n2 + m.
 
 (** to be proved later ***)
-Axiom natleh_adddiff: ∏( n1 n2 n3: nat), n3 ≤ n1 → n1 - n3 + n2 = n1 + n2 -n3.
+Axiom natleh_adddiff: ∏( n1 n2 n3: nat), n3 ≤ n1 → n1 - n3 + n2 = n1 + n2 - n3.
 
 Lemma status_concatenate_statuscons {nm: names sigma} {status1 status2: Status}:
-   (status_cons nm status1 != stackerror) → 
+   (status_cons nm status1 != stackerror) →
       status_concatenate (status_cons nm status1) status2
       = status_cons nm (status_concatenate status1 status2).
 Proof.
   induction status1 as [a1 | error1].
-  - induction status2 as [a2 | error2].
-    + intro noerror.
-      assert (nmarity: arity nm ≤ a1) by ( apply status_cons_stackok; assumption ) .
-      etrans.
-      * unfold status_cons.
-        induction (isdecrelnatleh (arity nm) a1).
-        -- cbn. apply idpath.
-        -- contradiction.
-      * simpl (status_concatenate (inl a1) (inl a2)).
-        unfold status_cons.
-        unfold stackok. (* conversion stackok -> inl *)
-        induction (isdecrelnatleh (arity nm) (a1 + a2)).
-        -- cbn.
-           rewrite (natleh_adddiff) by (assumption).
-           reflexivity.
-        -- apply (natleh_add _ _ a2) in nmarity.
-           contradiction.
-    + reflexivity.
-  - contradiction.
+  2: contradiction.
+  induction status2 as [a2 | error2].
+  2: reflexivity.
+  intro noerror.
+  cbn beta iota zeta delta
+      [status_concatenate status_cons stackok stackerror coprod_rect].
+  induction (isdecrelnatleh (arity nm) a1).
+  - unfold coprod_rect at 2.
+    unfold stackok.
+    unfold coprod_rect at 1.
+    induction (isdecrelnatleh (arity nm) (a1 + a2)) as [okarity | badarity].
+    + cbn beta iota zeta delta [stackok stackerror coprod_rect].
+      apply maponpaths.
+      apply (maponpaths S).
+      apply natleh_adddiff.
+      assumption.
+    + apply fromempty, badarity, natleh_add.
+      assumption.
+  - apply fromempty, b.
+    apply status_cons_stackok; assumption.
 Defined.
 
 Definition stack2status: Stack → Status := foldr status_cons (stackok 0).
 
-Lemma stack2status_length(s: Stack): 
+Lemma stack2status_length(s: Stack):
   ( ∑ n: nat, stack2status s = stackok n × n > 0 ) → length s > 0.
 Proof.
   apply (list_ind (λ s, (∑ n : nat, stack2status s = stackok n × n > 0) → length s > 0)).
@@ -230,16 +233,16 @@ Proof.
     reflexivity.
 Defined.
 
-Lemma stack2status_cons (nm: names sigma) (s: Stack): 
+Lemma stack2status_cons (nm: names sigma) (s: Stack):
   stack2status (cons nm s) = status_cons nm (stack2status s).
 Proof.
   reflexivity.
 Defined.
 
-Lemma stack2status_compositional (s1 s2: Stack): stack2status s1 != stackerror → 
+Lemma stack2status_compositional (s1 s2: Stack): stack2status s1 != stackerror →
   status_concatenate (stack2status s1) (stack2status s2) = stack2status (concatenate s1 s2).
 Proof.
-  apply (list_ind (λ s, stack2status s != stackerror → 
+  apply (list_ind (λ s, stack2status s != stackerror →
            status_concatenate (stack2status s) (stack2status s2)
            = stack2status (concatenate s s2))).
   - intros.
@@ -300,6 +303,7 @@ Proof.
   rewrite tail_status.
   unfold stackok.  (* replace stackok with inl *)
   unfold status_cons.
+  unfold coprod_rect at 1.
   induction (isdecrelnatleh (arity n) (arity n)).
   - cbn.
     rewrite minuseq0'.
@@ -351,7 +355,7 @@ Axiom natdiff0: ∏ a b: nat, 0 = a - b → b ≥ a.
 
 Axiom natdiffasymm: ∏ a b: nat, a ≤ b → a ≥ b → a=b.
 
-Axiom nat_ax: ∏ a b c: nat, a = S (b - c) → b = a + c -1. 
+Axiom nat_ax: ∏ a b c: nat, a = S (b - c) → b = a + c -1.
 
 Axiom nat_ax3: ∏ a b c : nat, a + b - 1 - (c + b - 1) = a-c.
 
@@ -378,14 +382,14 @@ Proof.
 Defined.
 
 Definition extract_substack (s: Stack):
-   ∏ n m: nat, stack2status s = stackok m → n ≤ m →  
-       ∑ first second: Stack, stack2status first = stackok n × 
+   ∏ n m: nat, stack2status s = stackok m → n ≤ m →
+       ∑ first second: Stack, stack2status first = stackok n ×
                               stack2status second = stackok (m - n) ×
                               concatenate first second = s.
 Proof.
-   apply (list_ind (λ s : Stack, ∏ n m: nat, stack2status s = stackok m → n ≤ m → 
-          ∑ first second: Stack, stack2status first = stackok n × 
-                                 stack2status second = stackok (m - n) × 
+   apply (list_ind (λ s : Stack, ∏ n m: nat, stack2status s = stackok m → n ≤ m →
+          ∑ first second: Stack, stack2status first = stackok n ×
+                                 stack2status second = stackok (m - n) ×
                                  concatenate first second = s)).
    - intros n m s_status.
      cbn in s_status.
@@ -407,7 +411,7 @@ Proof.
          assumption.
      + apply nat_notgeh1_inv in n_gt_0.
        rewrite stack2status_cons in s_status.
-       assert ( tail_ok: ∑ tail_ar: nat, stack2status tail = stackok tail_ar × 
+       assert ( tail_ok: ∑ tail_ar: nat, stack2status tail = stackok tail_ar ×
                                          arity nm ≤ tail_ar ).
        {
          apply status_cons_noerror.
@@ -427,7 +431,7 @@ Proof.
           - apply isreflnatleh.
        }
        set (IH1 := IH (n + arity nm - 1) tail_ar tail_status_prf tail_ar_newbound).
-       induction IH1 as [fst [snd [status_fst_prf [status_snd_prf conc]]]]. 
+       induction IH1 as [fst [snd [status_fst_prf [status_snd_prf conc]]]].
        rewrite s_status in status_snd_prf.
        rewrite nat_ax3 in status_snd_prf.
        set (realfirst := cons nm fst).
@@ -438,6 +442,7 @@ Proof.
          rewrite status_fst_prf.
          unfold stackok.
          unfold status_cons.
+         unfold coprod_rect at 1.
          induction (isdecrelnatleh (arity nm) (n + arity nm - 1)).
          - cbn.
            rewrite natminusminus.
@@ -455,7 +460,7 @@ Proof.
            rewrite <- natplusminusle.
            + apply natlehnplusnm.
            + assumption.
-       }   
+       }
        exists realfirst.
        exists snd.
        repeat split.
@@ -470,7 +475,7 @@ Defined.
 Definition subterm (s: Stack):
   ∏ s_is_term: stack_is_term s, ⟦ arity (princ_op (s ,, s_is_term)) ⟧ → term.
 Proof.
-  apply (list_ind (λ (s: Stack), 
+  apply (list_ind (λ (s: Stack),
            ∏ s_is_term : stack_is_term s, ⟦ arity (princ_op (s,, s_is_term)) ⟧ → term)).
   - intro.
     set (contr := nil_not_term s_is_term).
@@ -538,9 +543,9 @@ Proof.
 Defined.
 
 Definition term_ind: UU :=
-  ∏ (P: term → UU), 
-     ( ∏ (nm: names sigma) (vterm: Vector term (arity nm)), 
-        (∏ (i:  ⟦ arity nm ⟧), P (el vterm i)) → P (mkterm nm vterm) ) 
+  ∏ (P: term → UU),
+     ( ∏ (nm: names sigma) (vterm: Vector term (arity nm)),
+        (∏ (i:  ⟦ arity nm ⟧), P (el vterm i)) → P (mkterm nm vterm) )
      → (∏ t: term, P t).
 
 End TermAlgebra.
