@@ -888,37 +888,7 @@ Section AdjunctionLemmas.
     intro; apply triangle_id_right_ad.
   Qed.
 
-  Let η : nat_trans (functor_identity C) (functor_composite F G) := unit_from_left_adjoint are.
-  Let ε : nat_trans (functor_composite G F) (functor_identity D) := counit_from_left_adjoint are.
-
-  (* Pre- and post- whiskering while treating functors/natural transformations as
-     elements of functor categories. *)
-  Let pre_whisker_functor_cat {a b c : category} {f g : functor b c}
-      (h : functor a b) (n : [b, c]⟦f, g⟧) :
-    [a, c]⟦functor_composite h f, functor_composite h g⟧ := pre_whisker h n.
-  Let post_whisker_functor_cat {a b c : category} {f g : functor a b}
-      (n : [a, b]⟦f, g⟧) (h : functor b c) :
-    [a, c]⟦functor_composite f h, functor_composite g h⟧ := post_whisker n h.
-
-  Let Fη := post_whisker_functor_cat η F.
-  Let εF := pre_whisker_functor_cat F ε.
-  Let ηG := pre_whisker_functor_cat G η.
-  Let Gε := post_whisker_functor_cat ε G.
-
   (* Rephrase in terms of functor category objects/arrows *)
-  Local Lemma triangle_eq_l : Fη · εF = identity (F : ob [C, D]).
-  Proof.
-    apply nat_trans_eq; [apply homset_property|].
-    intro; apply triangle_id_left_ad.
-  Qed.
-
-  (* Rephrase in terms of functor category objects/arrows *)
-  Local Lemma triangle_eq_r : ηG · Gε = identity (G : ob [D, C]).
-  Proof.
-    apply nat_trans_eq; [apply homset_property|].
-    intro; apply triangle_id_right_ad.
-  Qed.
-
   Lemma is_epi_post_whisker_right_adjoint_counit_pointwise :
     ∏ x, isEpi (nat_trans_data_from_nat_trans Gε x).
   Proof.
