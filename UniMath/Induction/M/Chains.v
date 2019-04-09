@@ -327,3 +327,167 @@ Proof.
  - cbn.
    reflexivity.
 Defined.
+
+(* Maybe easier to apply in Lemma *)
+Definition lemma_11_unfolded (X : nat -> UU) (l : ∏ n, X n -> X (S n)) :
+  (∑ (x : ∏ n, X n), ∏ n, x (S n) = l n (x n)) ≃ X 0 := lemma_11 X l.
+
+Lemma total2_assoc_fun_left {A B : UU} (C : A -> B -> UU) (D : (∏ a : A, ∑ b : B, C a b) -> UU) :
+ (∑ (x : ∏ a : A, ∑ b : B, C a b), D x) ≃
+ ∑ (x : ∏ _ : A, B),
+   ∑ (y : ∏ a : A, C a (x a)),
+     D (fun a : A => (x a,, y a)).
+Proof.
+ use weq_iso.
+ - intros p.
+   exists (fun a => (pr1 (pr1 p a))).
+   exists (fun a => (pr2 (pr1 p a))).
+   exact (pr2 p).
+ - intros p.
+   use tpair.
+   + intros a.
+     use tpair.
+     * exact (pr1 p a).
+     * exact (pr1 (pr2 p) a).
+   + exact (pr2 (pr2 p)).
+ - reflexivity.
+ - reflexivity.
+Qed.
+
+Lemma sec_total2_distributivity {A : UU} {B : A -> UU} (C : ∏ a, B a -> UU) :
+  (∏ a : A, ∑ b : B a, C a b)
+    ≃ (∑ b : ∏ a : A, B a, ∏ a, C a (b a)).
+Proof.
+  use weq_iso.
+  - intro f.
+    use tpair.
+    + exact (fun a => pr1 (f a)).
+    + exact (fun a => pr2 (f a)).
+  - intro f.
+    intro a.
+    exists ((pr1 f) a).
+    apply (pr2 f).
+  - apply idpath.
+  - apply idpath.
+Defined.
+
+
+Lemma weq_functor_total2 {A B : UU} (C : A -> UU) (D : B -> UU) :
+  ∏ e : A ≃ B,
+        (∏ x, C x ≃ D (e x)) ->
+        (∑ x, C x) ≃ (∑ x, D x).
+Proof.
+  intros e f.
+  exact (weqbandf e C D f).
+Defined.
+
+Lemma weq_functor_total2_id {A : UU} (B C : A -> UU) :
+  (∏ x, B x ≃ C x) ->
+  (∑ x, B x) ≃ (∑ x, C x).
+Proof.
+  intros e.
+  apply (weqfibtototal B C e).
+Defined.
+
+Lemma cochain_limit_standard_limit_weq (cha cha' : cochain type_precat) :
+  cochain_limit cha ≃ cochain_limit cha' → standard_limit cha ≃ standard_limit cha'.
+Proof.
+  intro f.
+  apply (weqcomp (invweq (lim_equiv _))).
+  apply (weqcomp f).
+  apply (lim_equiv _).
+Defined.
+
+(* There is a simpler way to give cones over the terminal cochain. *)
+Local Open Scope cat.
+Section CochainCone.
+
+  Context (A C : UU) (B : A -> UU).
+
+  Definition terminal_cochain  : cochain type_precat :=
+    termCochain (TerminalType) (polynomial_functor A B).
+
+  Definition m_type  := standard_limit terminal_cochain.
+
+  Definition apply_on_chain (cha : cochain type_precat) : cochain type_precat :=
+    mapcochain (polynomial_functor A B) cha.
+
+  (* Shifting the terminal cochain is equivalent to applying
+    the polynomial functor once *)
+  Definition terminal_cochain_shifted_lim :
+    standard_limit (shift_cochain terminal_cochain) ≃
+                  standard_limit (apply_on_chain terminal_cochain).
+  Proof.
+    apply cochain_limit_standard_limit_weq.
+    unfold shift_cochain, apply_on_chain, cochain_limit.
+    apply weqfibtototal;intros.
+    apply weqonsecfibers; intro n.
+    apply idweq.
+  Defined.
+
+  Let W n := iter_functor (polynomial_functor A B) n unit.
+  Let Cone0' := λ n : nat, C → W n.
+  Let Cone0 := ∏ n : nat, Cone0' n.
+  Let π := λ n : nat, dmor terminal_cochain (idpath (S n)).
+
+  Definition simplified_cone : UU :=
+    (∑ (u : Cone0), ∏ n : nat, (π n ∘ u (S n))%functions = u n).
+
+  Lemma simplify_cochain_cone :
+    cone terminal_cochain C ≃ simplified_cone.
+  Proof.
+    unfold cone, Cone0.
+    apply weqfibtototal; intro f.
+    intermediate_weq (
+      (∏ (u v : vertex conat_graph) (e0 : edge u v),
+      f _ · dmor terminal_cochain e0 ~ f v)
+      ). {
+      do 3 (apply weqonsecfibers; intro).
+      apply invweq.
+      apply weqfunextsec.
+    }
+    apply invweq.
+    intermediate_weq (∏ u, (π u ∘ f (S u))%functions ~ f u). {
+      apply invweq.
+      apply weqonsecfibers; intro.
+      apply weqfunextsec.
+    }
+    unfold homotsec.
+    apply invweq.
+    intermediate_weq (
+      (∏ (u v : vertex conat_graph) (c : C) (e0 : edge u v),
+       (f u · dmor terminal_cochain e0) c = f v c)). {
+      do 2 (apply weqonsecfibers; intro).
+      apply flipsec_weq.
+    }
+    intermediate_weq (
+      (∏ (c : C) (u v : vertex conat_graph) (e0 : edge u v),
+       (f u · dmor terminal_cochain e0) c = f v c)). {
+      intermediate_weq (
+        (∏ (u : vertex conat_graph) (c : C) (v : vertex conat_graph) (e0 : edge u v),
+        (f u · dmor terminal_cochain e0) c = f v c)). {
+        apply weqonsecfibers; intro.
+        apply flipsec_weq.
+      }
+      apply flipsec_weq.
+    }
+    apply invweq.
+    intermediate_weq ((∏ (x : C) (u : nat), (π u ∘ f (S u))%functions x = f u x));
+      [apply flipsec_weq|].
+    apply weqonsecfibers; intro c.
+    apply invweq.
+    use weq_iso.
+    - intros eq; intro; apply eq.
+    - intros eq.
+      intros ? ? e.
+      induction e; apply eq.
+    - intro.
+      do 2 (apply funextsec; intro).
+      apply funextsec; intro e.
+      induction e.
+      reflexivity.
+    - intro; apply funextsec; intro.
+      reflexivity.
+  Qed.
+
+End CochainCone.
