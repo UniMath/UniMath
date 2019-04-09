@@ -51,43 +51,42 @@ Definition prebicat_data_from_monoidal : prebicat_data.
 Proof.
   use mk_prebicat_data.
   - apply (one_cells_data_from_monoidal ,, two_cells_from_monoidal).
-  - split. { intros a b f. apply (identity f). }
-    split. { intros a b f. apply l. }
-    split. { intros a b f. apply ρ. }
-    split. { intros a b f. apply (nat_iso_inv l). }
-    split. { intros a b f. apply (nat_iso_inv ρ). }
-    split. { intros a b c d f g h. apply (pr1 α ((f , g) , h)). }
-    split. { intros a b c d f g h. apply (pr1 (nat_iso_inv α) ((f , g) , h)). }
-    split. { intros a b f g h. apply compose. }
-    split. { intros a b c f g h. apply (λ u, (identity f #⊗ u)). }
-             intros a b c f g h. apply (λ u, (u #⊗ identity h)).
+  - split. { intros ? ? f. apply (id f). }
+    split. { intros ? ? f. apply l. }
+    split. { intros ? ? f. apply ρ. }
+    split. { intros ? ? f. apply (nat_iso_inv l). }
+    split. { intros ? ? f. apply (nat_iso_inv ρ). }
+    split. { intros ? ? ? ? f g h. apply (pr1 α ((f , g) , h)). }
+    split. { intros ? ? ? ? f g h. apply (pr1 (nat_iso_inv α) ((f , g) , h)). }
+    split. { intros ? ? f g h. apply compose. }
+    split. { intros ? ? ? f g h. apply (λ u, (id f #⊗ u)). }
+             intros ? ? ? f g h. apply (λ u, (u #⊗ id h)).
 Defined.
 
 Definition prebicat_laws_from_monoidal : prebicat_laws (prebicat_data_from_monoidal).
 Proof.
   (* 1. Identities. *)
-  split. { intros a b f g x. apply id_left. }
-  split. { intros a b f g x. apply id_right. }
+  split. { intros. apply id_left. }
+  split. { intros. apply id_right. }
 
   (* 2. Vertical right associativity. *)
-  split. { intros a b f g h k x y z. apply assoc. }
+  split. { intros. apply assoc. }
 
   (* 3. Whiskering and identities. *)
-  split. { intros a b c f g. apply (functor_id tensor (f , g)). }
-  split. { intros a b c f g. apply (functor_id tensor (f , g)). }
+  split. { intros ? ? ? f g. apply (functor_id tensor (f , g)). }
+  split. { intros ? ? ? f g. apply (functor_id tensor (f , g)). }
 
   (* 4. Left whiskering vertical copmosition. *)
   split. {
-    intros a b c f g h i x y. cbn.
+    intros ? ? ? f g h i x y.
     etrans.
-    apply (!(functor_comp tensor (identity f #, x) (identity f #, y))).
-    cbn.
+    apply (!(functor_comp tensor (id f #, x) (id f #, y))).
     apply (maponpaths (fun z => z #⊗ (x · y)) (id_left _)).
   }
 
   (* 5. Right whiskering vertical copmosition. *)
   split. {
-    intros a b c f g h i x y.
+    intros ? ? ? f g h i x y.
     etrans.
     apply (!(functor_comp tensor _ _)).
     apply (maponpaths (fun z => (x · y) #⊗ z) (id_left _)).
@@ -99,7 +98,7 @@ Proof.
 
   (* 8. Associator and left/left whiskering *)
   split. {
-    intros a b c d f g h i x. cbn.
+    intros ? ? ? ? f g h i x.
     etrans.
     apply (pr21 (nat_iso_inv α) _ _ ((id f #, id g) #, x)).
     apply (maponpaths (fun z => _ · (z #⊗ _)) (functor_id tensor (f , g))).
@@ -107,7 +106,7 @@ Proof.
 
   (* 9. Associator and right/left whiskering *)
   split. {
-    intros a b c d f g h i x. cbn.
+    intros ? ? ? ? f g h i x.
     etrans.
     apply (pr21 (nat_iso_inv α) _ _ ((id f #, x) #, id i)).
     apply idpath.
@@ -115,7 +114,7 @@ Proof.
 
   (* 10. Associator and right/right whiskering *)
   split. {
-    intros a b c d f g h i x. cbn.
+    intros ? ? ? ? f g h i x.
     etrans.
     apply (!(pr21 (nat_iso_inv α) _ _ ((x #, id h) #, id i))).
     apply (maponpaths (fun z => (_ #⊗ z) · _) (functor_id tensor (h , i))).
@@ -123,7 +122,7 @@ Proof.
 
   (* 11. Vertical composition and whiskering *)
   split. {
-    intros a b c f g h i x y. cbn.
+    intros.
     etrans. apply (!(functor_comp tensor _ _)).
     etrans. apply (maponpaths (fun z => (_ #⊗ z)) (id_left _)).
     etrans. apply (maponpaths (fun z => (z #⊗ _)) (id_right _)).
@@ -135,20 +134,20 @@ Proof.
   }
 
   (* 12. Left unitor invertible. *)
-  split. { intros a b f. apply (iso_inv_after_iso (pr1 l f,, pr2 l f)). }
-  split. { intros a b f. apply (iso_after_iso_inv (pr1 l f,, pr2 l f)). }
+  split. { intros ? ? f. apply (iso_inv_after_iso (pr1 l f,, pr2 l f)). }
+  split. { intros ? ? f. apply (iso_after_iso_inv (pr1 l f,, pr2 l f)). }
 
   (* 13. Right unitor invertible. *)
-  split. { intros a b f. apply (iso_inv_after_iso (pr1 ρ f,, pr2 ρ f)). }
-  split. { intros a b f. apply (iso_after_iso_inv (pr1 ρ f,, pr2 ρ f)). }
+  split. { intros ? ? f. apply (iso_inv_after_iso (pr1 ρ f,, pr2 ρ f)). }
+  split. { intros ? ? f. apply (iso_after_iso_inv (pr1 ρ f,, pr2 ρ f)). }
 
   (* 14. Associator invertible. *)
-  split. { intros a b c d f g h. apply (iso_after_iso_inv ( pr1 α ((f, g), h) ,, pr2 α ((f, g), h) )). }
-  split. { intros a b c d f g h. apply (iso_inv_after_iso ( pr1 α ((f, g), h) ,, pr2 α ((f, g), h) )). }
+  split. { intros ? ? ? ? f g h. apply (iso_after_iso_inv ( pr1 α ((f, g), h) ,, pr2 α ((f, g), h) )). }
+  split. { intros ? ? ? ? f g h. apply (iso_inv_after_iso ( pr1 α ((f, g), h) ,, pr2 α ((f, g), h) )). }
 
   (* 15. Right unitor whiskering. *)
   split. {
-    intros a b c f g.
+    intros ? ? ? f g.
     etrans. apply (maponpaths (fun z => _ · z) (triangle_equality _ _)).
     etrans. apply (assoc _ _ _).
     etrans. apply (maponpaths (fun z => z · _) (iso_after_iso_inv ( pr1 α ((f, I), g) ,, pr2 α ((f, I), g) ))).
@@ -158,7 +157,7 @@ Proof.
   (* 16. Pentagon equation *)
   (* The pentagon equation is backwards on the definition of bicategory and in the definition of
   monoidal category, we need to rewrite the equation in order to apply it. *)
-  intros a b c d e f g h i.
+  intros ? ? ? ? ? f g h i.
   cbn.
   apply (pre_comp_with_iso_is_inj _ _ _ _ (pr1 α ((f, g), h ⊗ i)) (pr2 α _) _ _).
   apply (pre_comp_with_iso_is_inj _ _ _ _ (pr1 α (((f ⊗ g), h) , i)) (pr2 α _) _ _).
@@ -175,7 +174,7 @@ Proof.
   etrans. apply (maponpaths (fun z => (_ · z · _)) (assoc _ _ _)).
   etrans. apply (maponpaths (fun z => (_ · (z · _) · _)) (!(functor_comp tensor _ _))). cbn.
   etrans. apply (maponpaths (fun z => (_ · ((z #⊗ _) · _) · _)) (id_left _)). cbn.
-  etrans. apply (maponpaths (fun z => (_ · ((_ #⊗ z) · _) · _)) (iso_inv_after_iso (pr1 α ((g, h), i) ,, pr2 α _ ))).
+  etrans. apply (maponpaths (fun z => (_ · ((_ #⊗ z) · _) · _)) (iso_inv_after_iso (pr1 α ((g, h), i) ,, pr2 α _))).
   assert (# tensor (id (f, (assoc_left (pr12 M)) ((g, h), i))) = id (f ⊗ (assoc_left (pr12 M)) ((g, h), i))).
   apply (functor_id tensor ( f , (assoc_left (pr12 M)) ((g, h), i))  ).
   etrans. apply (maponpaths (fun z => (_ · (z · _) · _)) X).
