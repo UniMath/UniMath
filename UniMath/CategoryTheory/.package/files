@@ -249,6 +249,7 @@ Monoidal/CategoriesOfMonoids.v
 Monoidal/Actions.v
 Monoidal/Strengths.v
 Monoidal/BicategoryFromMonoidal.v
+Monoidal/BraidedMonoidalCategories.v
 
 Enriched/Enriched.v
 
