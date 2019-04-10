@@ -8,7 +8,7 @@ Require Import UniMath.Combinatorics.Lists.
 Local Open Scope stn.
 Local Open Scope nat.
 
-(** Basic definitions *)
+(** Basic definitions **)
 
 Definition Arity: UU := nat.
 
@@ -102,70 +102,67 @@ Definition stackok n: Status := ii1 n.
 
 Definition stackerror: Status := ii2 tt.
 
-Definition nss_cons (nm: names sigma) (s: Status): Status.
+Definition status_cons (nm: names sigma) (status: Status): Status.
 Proof.
-  destruct s as [n | error].
+  destruct status as [n | error].
   induction (isdecrelnatleh (arity nm) n).
     - exact (stackok ( S(n - arity nm) )).
     - exact stackerror.
   - exact stackerror.
 Defined.
 
-Lemma nss_cons_stackok {nm: names sigma} {n: nat}:
-  nss_cons nm (stackok n) != stackerror →  arity nm ≤ n.
+Lemma status_cons_stackok {nm: names sigma} {n: nat}:
+  status_cons nm (stackok n) != stackerror →  arity nm ≤ n.
 Proof.
   intro noerror.
   unfold stackok in noerror.
-  unfold nss_cons in noerror.
+  unfold status_cons in noerror.
   induction (isdecrelnatleh (arity nm) n).
   * assumption.
   * cbn in noerror.
     contradiction.
 Defined.
 
-Lemma nss_cons_stackok2 {nm: names sigma} {n: nat} {m: nat}:
-  nss_cons nm (stackok n) = stackok m → m = S(n - arity nm).
+Lemma status_cons_stackok2 {nm: names sigma} {n: nat} {m: nat}:
+  status_cons nm (stackok n) = stackok m → m = S(n - arity nm).
 Proof.
-  intro comp.
-  unfold stackok in comp.
-  unfold nss_cons in comp.
+  intro scons.
+  unfold stackok in scons.
+  unfold status_cons in scons.
   induction (isdecrelnatleh (arity nm) n).
-  * cbn in comp.
-    apply ii1_injectivity in comp.
+  * cbn in scons.
+    apply ii1_injectivity in scons.
     apply pathsinv0.
     assumption.
-  * cbn in comp.
-    apply negpathsii2ii1 in comp.
+  * cbn in scons.
+    apply negpathsii2ii1 in scons.
     contradiction.
 Defined.
 
-Lemma nss_cons_noerror (nm: names sigma) (ss: Status):
-  nss_cons nm ss != stackerror → ∑ n: nat, ss = stackok n × arity nm ≤ n.
+Lemma status_cons_noerror {nm: names sigma} {status: Status}:
+  status_cons nm status != stackerror → ∑ n: nat, status = stackok n × arity nm ≤ n.
 Proof.
   intro noerror.
-  induction ss.
+  induction status.
   - exists a.
     split.
     + apply idpath.
-    + apply nss_cons_stackok.
-      assumption.
-  - induction noerror.
-    apply idpath.
+    + apply status_cons_stackok. assumption.
+  - contradiction.
 Defined.
 
-Lemma nss_cons_noerror2 (nm: names sigma) (ss: Status):
-  nss_cons nm ss != stackerror → ss != stackerror.
+Lemma status_cons_noerror2 {nm: names sigma} {status: Status}:
+  status_cons nm status != stackerror → status != stackerror.
 Proof.
-  assert ( negres: ss = stackerror → nss_cons nm ss = stackerror ).
-  - intro sserror.
-    rewrite sserror.
-    reflexivity.
-  - exact (negf negres).
+  apply negf.
+  intro status_err.
+  rewrite status_err.
+  reflexivity.
 Defined.
 
-Definition nss_concatenate (s1 s2: Status): Status.
-  induction s2 as [len_s2 | error2].
-  - induction s1 as [len_s1 | error1].
+Definition status_concatenate (status1 status2: Status): Status.
+  induction status2 as [len_s2 | error2].
+  - induction status1 as [len_s1 | error1].
     + exact (stackok (len_s1 + len_s2)).
     + exact stackerror.
   - exact stackerror.
@@ -174,152 +171,120 @@ Defined.
 (** to be proved later ***)
 Axiom natleh_add: ∏( n1 n2 m: nat), n1 ≤ n2 → n1 ≤ (n2 + m).
 
-(** to be provd later ***)
-Axiom natleh_adddiff: ∏( n1 n2 n3: nat), n3 ≤ n1 → n1 - n3 + n2 = n1+ n2 -n3.
+(** to be proved later ***)
+Axiom natleh_adddiff: ∏( n1 n2 n3: nat), n3 ≤ n1 → n1 - n3 + n2 = n1 + n2 -n3.
 
-Lemma nss_concatenate_nsscons (nm: names sigma) (ss1 ss2: Status):
-   (nss_cons nm ss1 != stackerror) →
-   nss_concatenate (nss_cons nm ss1) ss2 = nss_cons nm (nss_concatenate ss1 ss2).
+Lemma status_concatenate_nsscons {nm: names sigma} {status1 status2: Status}:
+   (status_cons nm status1 != stackerror) → 
+      status_concatenate (status_cons nm status1) status2 = status_cons nm (status_concatenate status1 status2).
 Proof.
-  induction ss1 as [a1 | error1].
-  - induction ss2 as [a2 | error2].
+  induction status1 as [a1 | error1].
+  - induction status2 as [a2 | error2].
     + intro noerror.
-      assert (arity nm ≤ a1) by ( apply nss_cons_stackok; assumption ).
+      assert (nmarity: arity nm ≤ a1) by ( apply status_cons_stackok; assumption ) .
       etrans.
-      * unfold nss_cons.
+      * unfold status_cons.
         induction (isdecrelnatleh (arity nm) a1).
         -- cbn. apply idpath.
-        -- induction b. trivial.
-      * simpl (nss_concatenate (inl a1) (inl a2)).
-        unfold nss_cons.
-        unfold stackok.
-        induction (isdecrelnatleh (arity nm) (a1 + a2)) as [okarity | badarity].
+        -- contradiction.
+      * simpl (status_concatenate (inl a1) (inl a2)).
+        unfold status_cons.
+        unfold stackok. (* conversion stackok -> inl *)
+        induction (isdecrelnatleh (arity nm) (a1 + a2)).
         -- cbn.
            rewrite (natleh_adddiff) by (assumption).
            reflexivity.
-        -- assert (arity nm ≤ a1 + a2) by ( apply natleh_add; assumption ).
+        -- apply (natleh_add _ _ a2) in nmarity.
            contradiction.
     + reflexivity.
   - contradiction.
 Defined.
 
-Definition s2ss: Stack → Status.
-  apply (foldr(A := names sigma)).
-  - exact nss_cons.
-  - exact (stackok 0).
-Defined.
+Definition stack2status: Stack → Status := foldr status_cons (stackok 0).
 
-Lemma s2ss_length(s: Stack): ( ∑ n: nat, s2ss s = stackok n × n > 0 ) → length s > 0.
+Lemma stack2status_length(s: Stack): ( ∑ n: nat, stack2status s = stackok n × n > 0 ) → length s > 0.
 Proof.
-  apply (list_ind (λ l, (∑ n : nat, s2ss l = stackok n × n > 0) → length l > 0)).
-  - intro X.
-    induction X as [n [ n_is_ss n_gt_0 ]].
-    cbn in n_is_ss.
-    apply ii1_injectivity in n_is_ss.
-    rewrite n_is_ss in n_gt_0.
-    set (contr := isirreflnatgth n n_gt_0).
+  apply (list_ind (λ s, (∑ n : nat, stack2status s = stackok n × n > 0) → length s > 0)).
+  - intro status.
+    induction status as [ n [ n_is_status n_gt_0 ]].
+    cbn in n_is_status.
+    apply ii1_injectivity in n_is_status.
+    rewrite n_is_status in n_gt_0.
+    set (contr := isirreflnatgth n).
     contradiction.
   - intros.
-    unfold cons.
-    cbn.
-    apply idpath.
+    reflexivity.
 Defined.
 
-Lemma s2nss_cons (nm: names sigma) (ns: Stack): s2ss (cons nm ns) = nss_cons nm (s2ss ns).
+Lemma stack2status_cons (nm: names sigma) (s: Stack): 
+  stack2status (cons nm s) = status_cons nm (stack2status s).
+Proof.
   reflexivity.
 Defined.
 
-Lemma s2nss_compositional (s1 s2: Stack):
-  s2ss s1 != stackerror → nss_concatenate (s2ss s1) (s2ss s2) = s2ss (concatenate s1 s2).
+Lemma stack2status_compositional (s1 s2: Stack): stack2status s1 != stackerror → 
+  status_concatenate (stack2status s1) (stack2status s2) = stack2status (concatenate s1 s2).
 Proof.
-  apply (list_ind (λ s, s2ss s != stackerror → nss_concatenate (s2ss s) (s2ss s2) = s2ss (concatenate s s2))).
-  - change (s2ss (concatenate nil s2)) with (s2ss s2).
-    change (s2ss nil) with (stackok 0).
-    induction (s2ss s2) as [oks2 | bads2].
+  apply (list_ind (λ s, stack2status s != stackerror → 
+           status_concatenate (stack2status s) (stack2status s2) = stack2status (concatenate s s2))).
+  - intros.
+    change (stack2status (concatenate nil s2)) with (stack2status s2).
+    induction (stack2status s2) as [oks2 | bads2].
     + reflexivity.
     + induction bads2.
       reflexivity.
-  - intros nm ns1tail IH wfnmrest.
-    rewrite s2nss_cons in wfnmrest.
-    assert (s2ss ns1tail != stackerror).
-    { apply nss_cons_noerror2 with (nm:=nm); assumption. }
-    rewrite s2nss_cons.
-    rewrite nss_concatenate_nsscons by (assumption).
-    rewrite (IH X).
-    rewrite <- s2nss_cons.
-    reflexivity.
-Defined.
-
-Definition ns_vector_flatten {n} (v: Vector Stack n): Stack :=
-  vector_foldr (λ (t: Stack) (s: Stack), concatenate t s) nil v.
-
-Definition nss_vector_flatten {n} (v: Vector Status n): Status :=
-  vector_foldr (λ (t: Status) (s: Status), nss_concatenate t s) (stackok 0) v.
-
-Lemma nss_flatten_functorial {n} (v: Vector Stack n):
-  (∏ m : ⟦ n ⟧, s2ss (el v m) != stackerror) → nss_vector_flatten(vector_map s2ss v) = s2ss(ns_vector_flatten v).
-Proof.
-  apply (vector_ind (λ (n: nat) (v: Vector Stack n), (∏ m : ⟦ n ⟧, s2ss (el v m) != stackerror)
-          → nss_vector_flatten(vector_map s2ss v) = s2ss(ns_vector_flatten v))).
-  - intro.
-    reflexivity.
-  - intros x n0 v0 IH okallm.
-    simpl.
+  - intros nm s1tail IH noerror.
+    rewrite stack2status_cons.
+    rewrite status_concatenate_nsscons by (assumption).
     rewrite IH.
-    + rewrite s2nss_compositional.
-      * apply idpath.
-      * set (ok0 := (okallm (●0))).
-        simpl in ok0.
-        assumption.
-    + intro m.
-      set (okm := (okallm (dni_firstelement m))).
-      generalize okm.
-      rewrite el_vcons_tl.
-      trivial.
+    + rewrite <- stack2status_cons.
+      reflexivity.
+    + apply (status_cons_noerror2(nm:=nm)).
+      assumption.
 Defined.
 
-Definition ns_is_term (ns: Stack): UU := s2ss ns = stackok 1.
+Definition stack_is_term (s: Stack): UU := stack2status s = stackok 1.
 
-Lemma nil_not_term: ¬ ns_is_term nil.
+Lemma nil_not_term: ¬ stack_is_term nil.
 Proof.
-  unfold ns_is_term.
+  unfold stack_is_term.
   cbn.
   intro s0s1.
-  set (contr := ii1_injectivity 0 1 s0s1).
-  exact (negpaths0sx 0 contr).
+  apply ii1_injectivity in s0s1.
+  apply negpaths0sx in s0s1.
+  contradiction.
 Defined.
 
-Definition term := ∑ ns: Stack, ns_is_term ns.
+Definition term := ∑ s: Stack, stack_is_term s.
 
-Definition mkseq {n: nat} (vec: Vector term n): ∑ s: Stack, s2ss s = stackok n.
+Coercion term2stack (t: term): Stack := pr1 t.
+
+Definition term2proof (t: term): stack_is_term (term2stack t) := pr2 t.
+
+Definition mkseq {n: nat} (vec: Vector term n): ∑ s: Stack, stack2status s = stackok n.
 Proof.
   induction n.
    - exists nil.
      reflexivity.
-   - set (rest := IHn (tl vec)).
-     induction rest as [l l_ss].
-     set (result := concatenate (pr1 (hd vec)) l).
-     exists result.
-     unfold result.  
-     rewrite <- s2nss_compositional.
-     + rewrite (pr2 (hd vec)).
-       rewrite l_ss.
-       cbn.
-       apply idpath.
-     + rewrite (pr2 (hd vec)).
+   - induction (IHn (tl vec)) as [rest rest_status].
+     exists (concatenate (term2stack (hd vec)) rest).
+     rewrite <- stack2status_compositional.
+     + rewrite (term2proof (hd vec)).
+       rewrite rest_status.
+       reflexivity.
+     + rewrite (term2proof (hd vec)).
        apply negpathsii1ii2.
 Defined.
 
 Definition mkterm (n: names sigma) (vec: Vector term (arity n)): term.
 Proof.
-  set (seq := mkseq vec).
-  induction seq as [tail tailss].
+  induction (mkseq vec) as [tail tail_status].
   exists (cons n tail).
-  red.
-  rewrite s2nss_cons.
-  rewrite tailss.
-  change (stackok (arity n)) with (ii1 (B:=unit)(arity n)).
-  unfold nss_cons.
+  unfold stack_is_term.
+  rewrite stack2status_cons.
+  rewrite tail_status.
+  unfold stackok.  (* replace stackok with inl *)
+  unfold status_cons.
   induction (isdecrelnatleh (arity n) (arity n)).
   - cbn.
     rewrite minuseq0'.
@@ -328,134 +293,30 @@ Proof.
     apply isreflnatleh.
 Defined.
 
-Coercion term_to_s(t: term): Stack := pr1 t.
-
 Definition term_isaset: isaset term.
   apply isaset_total2.
   apply isofhlevellist.
   - exact (pr2 (names sigma)).
   - intro nm.
-    unfold ns_is_term.
+    unfold stack_is_term.
     apply hlevelntosn.
     apply isaproppathstoisolated.
     apply isolatedtoisolatedii1.
     apply isisolatedn.
 Defined.
 
-Lemma nss_flatten_bound1 {n} (v: Vector Status n) (a: nat):
-  (∏ m : ⟦ n ⟧, ∑ b: nat, el v m = stackok b × b ≤ a) → ∑ c: nat, nss_vector_flatten v  = stackok c × c ≤ n * a.
-Proof.
-  apply (vector_ind (λ  (n: nat) (v: Vector Status n), (∏ m : ⟦ n ⟧, ∑ b: nat, el v m = stackok b × b ≤ a) → ∑ c: nat, nss_vector_flatten v  = stackok c × c ≤ n * a)).
-  - intros.
-    exists 0.
-    split ; reflexivity.
-  - intros.
-    assert (∏ m : ⟦ n0 ⟧, ∑ b : nat, el v0 m = stackok b × b ≤ a).
-    {
-      intro.
-      rewrite <- (el_vcons_tl v0 x).
-      exact (X0 (dni_firstelement m)).
-    }
-    set (X2 := (X X1)).
-    induction X2 as [c'  [ IH bound']].
-    set (xok := X0 (●0)).
-    induction xok as [xval [xok xbounded]].
-    simpl (el (vcons x v0) (stnpr 0)) in xok.
-    rewrite xok.
-    exists (xval + c').
-    split.
-    + change (nss_vector_flatten (vcons (stackok xval) v0)) with (nss_concatenate (stackok xval) (nss_vector_flatten v0)).
-      rewrite IH.
-      reflexivity.
-    + rewrite multsnm.
-      apply natlehandplus ; assumption.
-Defined.
-
-Lemma nss_flatten_eq {n} (v: Vector Status n) (a: nat):
-  (∏ m : ⟦ n ⟧, el v m = stackok a) → nss_vector_flatten v  = stackok (n * a).
-Proof.
-  apply (vector_ind (λ  (n: nat) (v: Vector Status n), (∏ m : ⟦ n ⟧, el v m = stackok a) → ∑ c: nat, nss_vector_flatten v  = stackok ( n * a))).
-  - intros.
-    exists 0.
-    split ; reflexivity.
-  - intros.
-    assert (∏ m : ⟦ n0 ⟧, el v0 m = stackok a).
-    {
-      intro.
-      rewrite <- (el_vcons_tl v0 x).
-      exact (X0 (dni_firstelement m)).
-    }
-    set (X2 := (X X1)).
-    induction X2 as [c'  IH].
-    set (xok := X0 (●0)).
-    simpl (el (vcons x v0) (stnpr 0)) in xok.
-    rewrite xok.
-    exists ( c').
-    + change (nss_vector_flatten (vcons (stackok a) v0)) with (nss_concatenate (stackok a) (nss_vector_flatten v0)).
-      rewrite IH.
-      simpl.
-      rewrite natpluscomm.
-      reflexivity.
-Defined.
-
-Lemma nss_flatten_eq1 {n} (v: Vector Status n):
-  (∏ m : ⟦ n ⟧, el v m = stackok 1) → nss_vector_flatten v  = stackok n.
-Proof.
-  intro.
-  set (temp :=  nss_flatten_eq v 1 X).
-  apply (transportf (λ n, nss_vector_flatten v = stackok n) (natmultr1 n)).
-  assumption.
-Defined.
-
-Definition term_op (nm: names sigma)(v: Vector term (arity nm)): term.
-  exists (cons nm (ns_vector_flatten (vector_map term_to_s v))).
-  assert (∏ m : ⟦ arity nm ⟧, s2ss (el v m) = stackok 1).
-  - intro m.
-    exact (pr2 (el v m)).
-  - unfold ns_is_term.
-    rewrite s2nss_cons.
-    rewrite <- nss_flatten_functorial.
-    + change (vector_map s2ss (vector_map term_to_s v)) with (((vector_map s2ss) ∘ (vector_map term_to_s)) v).
-      rewrite <- vector_map_comp.
-      assert (s2ss ∘ term_to_s = λ _ , stackok 1).
-      {
-        apply funextfun. intro. exact (pr2 x).
-      }
-      rewrite X0.
-      assert (nss_vector_flatten (vector_map (λ _ : term, stackok 1) v) = stackok (arity nm)).
-      {
-        assert (arity nm = (arity nm) * 1) by ( rewrite natmultr1; apply idpath).
-        apply nss_flatten_eq1.
-        intro.
-        apply el_vector_map.
-      }
-      rewrite X1.
-      simpl.
-      induction (isdecrelnatleh (arity nm) (arity nm)) as [okarity | badarity].
-      * cbn.
-        rewrite minuseq0'.
-        reflexivity.
-      * induction badarity.
-        apply isreflnatleh.
-   + intro m.
-     rewrite el_vector_map.
-     assert ( s2ss (el v m) = stackok 1) by (exact (X m)).
-     rewrite X0.
-     apply negpathsii1ii2.
-Defined.
-
 Definition term_hset: hSet := make_hSet term (term_isaset).
 
 Definition term_algebra: Algebra sigma
-  := mk_algebra term_hset term_op.
+  := mk_algebra term_hset mkterm.
 
 Definition princ_op(t: term): names sigma.
 Proof.
-  induction t as [s sterm].
-  generalize sterm.
-  apply (list_ind (λ s : Stack, ns_is_term s → names sigma)).
+  induction t as [s s_is_term].
+  generalize s_is_term.
+  apply (list_ind (λ s : Stack, stack_is_term s → names sigma)).
   - intro nilterm.
-    unfold ns_is_term in nilterm.
+    unfold stack_is_term in nilterm.
     cbn in nilterm.
     apply ii1_injectivity in nilterm.
     apply negpaths0sx in nilterm.
@@ -464,40 +325,7 @@ Proof.
     exact x.
 Defined.
 
-Lemma lengthnil {A: UU} (l: list A): length l = 0 → l = nil.
-Proof.
-  apply (list_ind (λ l: list A, length l = 0 → l = nil)).
-  - reflexivity.
-  - intros x xs IH lencons.
-    cbn in lencons.
-    apply negpathssx0 in lencons.
-    contradiction.
-Defined.
-
-Definition headtail {A: UU} (l: list A): length l > 0 → A × list A.
-Proof.
-  apply (list_ind (λ l: list A, length l > 0 → A × list A)).
-  - cbn.
-    intro tf.
-    apply pathsinv0 in tf.
-    apply nopathstruetofalse in tf.
-    contradiction.
-  - intros x xs IH lencons.
-    exact (x ,, xs).
-Defined.
-
-Definition head  {A: UU} (l: list A) (lenl: length l > 0): A := pr1 (headtail l lenl).
-
-Definition tail  {A: UU} (l: list A) (lenl: length l > 0): list A := pr2 (headtail l lenl).
-
-(*
-Lemma s2ssok_to_len (s: Stack): (∑ n: nat, s2ss s = stackok n × n > 0) → length s > 0.
-Proof.
-  intro sok.
-  induction sok as [n [ss ngt0]].
-  *)
-
-(*** These axioms probably needs some addition hypotheses **)
+(*** These axioms probably needs some additional hypotheses **)
 
 Axiom natlehandminusl: ∏ n m k : nat, n ≤ m → n - k ≤ m - k.
 
@@ -509,11 +337,9 @@ Axiom natdiffasymm: ∏ a b: nat, a ≤ b → a ≥ b → a=b.
 
 Axiom nat_ax: ∏ a b c: nat, a = S (b - c) → b = a + c -1. 
 
-Axiom nat_ax2: ∏ a b c d : nat, a = b + c -d → a - c = b - d.
-
 Axiom nat_ax3: ∏ a b c : nat, a + b - 1 - (c + b - 1) = a-c.
 
-Lemma nat_ax4: ∏ n: nat, ¬ (n ≥ 1) → n = 0.
+Lemma nat_notgeh1: ∏ n: nat, ¬ (n ≥ 1) → n = 0.
 Proof.
   intro.
   induction n.
@@ -526,84 +352,85 @@ Proof.
     apply natgthsn0.
 Defined.
 
-Definition extract_subnss (s: Stack): 
-  ∏ n m: nat, s2ss s = stackok m → n ≤ m →  ∑ first second: Stack, s2ss first = stackok n × s2ss second = stackok (m - n) ×  concatenate first second = s.
+Lemma nat_notgeh1_inv: ∏ n: nat, n != 0 → n ≥ 1.
 Proof.
-   apply (list_ind (λ s : Stack, ∏ n m: nat, s2ss s = stackok m → n ≤ m → 
-          ∑ first second: Stack, s2ss first = stackok n × s2ss second = stackok (m - n) × 
+  intros.
+  apply natgthtogehsn.
+  apply natneq0togth0.
+  apply nat_nopath_to_neq.
+  assumption.
+Defined.
+
+Definition extract_substack (s: Stack):
+   ∏ n m: nat, stack2status s = stackok m → n ≤ m →  
+       ∑ first second: Stack, stack2status first = stackok n × stack2status second = stackok (m - n) ×
+                              concatenate first second = s.
+Proof.
+   apply (list_ind (λ s : Stack, ∏ n m: nat, stack2status s = stackok m → n ≤ m → 
+          ∑ first second: Stack, stack2status first = stackok n × stack2status second = stackok (m - n) × 
           concatenate first second = s)).
-   - intros n m ss.
-     cbn in ss.
-     apply ii1_injectivity in ss.
-     rewrite <- ss.
-     intro n0.
-     apply nat0gehtois0 in n0.
-     rewrite n0.
+   - intros n m s_status.
+     cbn in s_status.
+     apply ii1_injectivity in s_status.
+     rewrite <- s_status.
+     intro n_leh_0.
+     apply nat0gehtois0 in n_leh_0.
+     rewrite n_leh_0.
      exists nil.
      exists nil.
      repeat split.
-   - intros nm nms IH n m ss mgtn.
-     induction (isdeceqnat n 0) as [nis0 | ngt0].
-     + rewrite nis0.
+   - intros nm tail IH n m s_status m_geh_n.
+     induction (isdeceqnat n 0) as [n_is_0 | n_gt_0].
+     + rewrite n_is_0.
        exists nil.
-       exists (cons nm nms).
+       exists (cons nm tail).
        repeat split.
        * rewrite natminuseqn.
          assumption.
-     + assert (ngte1: n >= 1).
+     + apply nat_notgeh1_inv in n_gt_0.
+       rewrite stack2status_cons in s_status.
+       assert ( tail_ok: ∑ tail_ar: nat, stack2status tail = stackok tail_ar × arity nm ≤ tail_ar ).
        {
-         apply natgthtogehsn.
-         apply natneq0togth0.
-         apply nat_nopath_to_neq.
-         assumption.
-       }
-       rewrite s2nss_cons in ss.
-       assert ( X: ∑ sstail: nat, s2ss nms = stackok sstail ×  arity nm ≤ sstail ). {
-         apply nss_cons_noerror.
-         rewrite ss.
+         apply status_cons_noerror.
+         rewrite s_status.
          apply negpathsii1ii2.
        }
-       induction X as [ss_nms [ss_nms_proof ss_nms_bound]].
-       rewrite ss_nms_proof in ss.
-       apply nss_cons_stackok2 in ss.
-       apply nat_ax in ss.
-       assert (X: n + arity nm - 1 ≤ ss_nms).
+       induction tail_ok as [ tail_ar [ tail_status_prf tail_ar_bound]].
+       rewrite tail_status_prf in s_status.
+       apply status_cons_stackok2 in s_status.
+       apply nat_ax in s_status.
+       assert (tail_ar_newbound: n + arity nm - 1 ≤ tail_ar).
        {
-          rewrite ss.
+          rewrite s_status.
           apply natlehandminusl.
           apply natlehandplus.
           - assumption.
           - apply isreflnatleh.
        }
-       set (IH1 := IH (n + arity nm - 1) ss_nms  ss_nms_proof X).
-       induction IH1 as [first [rest [ssfirst [ssrest conc]]]]. 
-       rewrite ss in ssrest.
-       rewrite nat_ax3 in ssrest.
-       set (realfirst := cons nm first).
-       assert (s2ss realfirst = stackok n).
+       set (IH1 := IH (n + arity nm - 1) tail_ar tail_status_prf tail_ar_newbound).
+       induction IH1 as [fst [snd [status_fst_prf [status_snd_prf conc]]]]. 
+       rewrite s_status in status_snd_prf.
+       rewrite nat_ax3 in status_snd_prf.
+       set (realfirst := cons nm fst).
+       assert (stack2status realfirst = stackok n).
        {
          unfold realfirst.
-         rewrite s2nss_cons.
-         rewrite ssfirst.
-         change (stackok (n + arity nm - 1)) with (ii1(B:=unit) (n + arity nm - 1)).
-         unfold nss_cons.
+         rewrite stack2status_cons.
+         rewrite status_fst_prf.
+         unfold stackok.
+         unfold status_cons.
          induction (isdecrelnatleh (arity nm) (n + arity nm - 1)).
          - cbn.
-           assert (S (n + arity nm - 1 - arity nm) = n).
-           { 
-             rewrite natminusminus.
-             rewrite (natpluscomm 1 (arity nm)).
-             rewrite <- natminusminus.
+           rewrite natminusminus.
+           rewrite (natpluscomm 1 (arity nm)).
+           rewrite <- natminusminus.
+           rewrite plusminusnmm.
+           change (S (n - 1)) with (1 + (n - 1)).
+           rewrite natplusminusle.
+           * rewrite natpluscomm.
              rewrite plusminusnmm.
-             change (S (n - 1)) with (1 + (n - 1)).
-             rewrite natplusminusle.
-             * rewrite natpluscomm.
-               rewrite plusminusnmm.
-               apply idpath.
-             * assumption.
-           }
-           rewrite X0.
-           apply idpath.
+             apply idpath.
+           * assumption.
          - induction b.
            rewrite natpluscomm.
            rewrite <- natplusminusle.
@@ -611,7 +438,7 @@ Proof.
            + assumption.
        }   
        exists realfirst.
-       exists rest.
+       exists snd.
        repeat split.
        * assumption.
        * assumption.
@@ -621,38 +448,38 @@ Proof.
          apply idpath.
 Defined.
 
-Definition subterm(l: Stack): ∏ (l_is_term: ns_is_term l),  ⟦ arity (princ_op (l ,, l_is_term)) ⟧ → term.
+Definition subterm (s: Stack): ∏ s_is_term: stack_is_term s,  ⟦ arity (princ_op (s ,, s_is_term)) ⟧ → term.
 Proof.
-  apply (list_ind (λ (l: Stack), ∏ l_is_term : ns_is_term l, ⟦ arity (princ_op (l,, l_is_term)) ⟧ → term)).
+  apply (list_ind (λ (s: Stack), ∏ s_is_term : stack_is_term s, ⟦ arity (princ_op (s,, s_is_term)) ⟧ → term)).
   - intro.
-    set (contr := nil_not_term l_is_term).
+    set (contr := nil_not_term s_is_term).
     contradiction.
-  - intros x xs IH xxs_is_term.
+  - intros x tail IH s_is_term.
     cbn.
     intro arx.
     induction arx as [n n_lt_arx].
-    red in xxs_is_term.
-    rewrite s2nss_cons in xxs_is_term.
-    assert (xxs_ok: nss_cons x (s2ss xs) != stackerror).
+    red in s_is_term.
+    rewrite stack2status_cons in s_is_term.
+    assert (s_ok: status_cons x (stack2status tail) != stackerror).
     {
-      rewrite xxs_is_term.
+      rewrite s_is_term.
       apply negpathsii1ii2.
     }
-    set ( xs_ok := nss_cons_noerror x (s2ss xs) xxs_ok).
-    induction xs_ok as [xs_ss [ xs_ss_proof xs_ss_bound ]].
-    rewrite xs_ss_proof in xxs_is_term.
-    assert ( xs_arity: xs_ss = arity x).
+    set ( tail_ok := status_cons_noerror s_ok).
+    induction tail_ok as [ tail_ar [ tail_status_prf tail_ar_bound ]].
+    rewrite tail_status_prf in s_is_term.
+    assert ( tail_ar_x: tail_ar = arity x).
     {
-      set ( X := nss_cons_stackok2  xxs_is_term).
+      set ( X := status_cons_stackok2  s_is_term).
       change (1) with (1+0) in X.
-      change (S (xs_ss - arity x)) with (1 + (xs_ss - arity x)) in X.
+      change (S (tail_ar - arity x)) with (1 + (tail_ar - arity x)) in X.
       set (Y := natpluslcan _ _ _ X).
       set (Z := natdiff0 _ _ Y).
       apply natdiffasymm; assumption.
     }
-    rewrite xs_arity in xs_ss_proof.
+    rewrite tail_ar_x in tail_status_prf.
     induction (isdecrelnatgeh n 1) as [n_gte_1 | n_eq_0].
-    + assert ( extractok: n- 1 ≤ arity x).
+    + assert ( extractok: n - 1 ≤ arity x).
       {
         apply (istransnatleh(m := arity x - 1)).
         - apply natlehandminusl.
@@ -660,7 +487,7 @@ Proof.
           assumption.
         - apply natminuslehn.
       }
-      set (remove := extract_subnss xs (n - 1) (arity x) xs_ss_proof extractok).
+      set (remove := extract_substack tail (n - 1) (arity x) tail_status_prf extractok).
       induction remove as [first [ second  [ firstss [ secondss conc] ] ] ].
       assert ( extractok2: 1 ≤ arity x - (n - 1) ).
       {
@@ -674,17 +501,17 @@ Proof.
         apply natlthtoleh.
         assumption.
       }
-      set (res := extract_subnss second 1 (arity x - (n - 1)) secondss extractok2).
+      set (res := extract_substack second 1 (arity x - (n - 1)) secondss extractok2).
       induction res as [result [second0 [result_is_term [second_ss conc1]]]].
       exact (result ,, result_is_term).
-   + assert (n_is_0: n = 0) by ( apply nat_ax4; assumption ).
+   + apply nat_notgeh1 in n_eq_0.
      assert (extractok: 1 ≤ arity x ).
      {
        apply natlthtolehsn.
-       rewrite <- n_is_0.
+       rewrite <- n_eq_0.
        assumption.
      }
-     set (res := extract_subnss xs 1 (arity x) xs_ss_proof extractok).
+     set (res := extract_substack tail 1 (arity x) tail_status_prf extractok).
      induction res as [result  [second0 [result_is_term [second_ss conc1]]]].
      exact (result ,, result_is_term).
 Defined.
