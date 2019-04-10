@@ -5,8 +5,8 @@ Require Import UniMath.Combinatorics.FiniteSets.
 Require Import UniMath.Combinatorics.Vectors.
 Require Import UniMath.Combinatorics.Lists.
 
-Open Scope stn.
-Open Scope nat.
+Local Open Scope stn.
+Local Open Scope nat.
 
 (** Basic definitions *)
 
@@ -18,11 +18,11 @@ Definition names (sigma: Signature): hSet := pr1 sigma.
 
 Definition arity {sigma: Signature}: names sigma → Arity := pr2 sigma.
 
-Definition make_signature_from_vector {n: nat} (v: Vector nat n): Signature
+Definition mk_signature {n: nat} (v: Vector nat n): Signature
   := (stnset n,, el v).
 
-Definition Algebra (sigma: Signature): UU :=
-  ∑ (support: hSet), ∏ (nm: names sigma), Vector support (arity nm) → support.
+Definition Algebra (sigma: Signature): UU
+  := ∑ (support: hSet), ∏ (nm: names sigma), Vector support (arity nm) → support.
 
 Definition mk_algebra {sigma : Signature}
            (support : hSet)
@@ -37,11 +37,11 @@ Definition dom {sigma: Signature} {a: Algebra sigma} (nm: names sigma): UU :=
 Definition cod {sigma: Signature} {a: Algebra sigma} (nm: names sigma): UU :=
   support a.
 
-Definition op {sigma: Signature} {a: Algebra sigma} (nm: names sigma): (dom nm) → (cod nm) :=
-  pr2 a nm.
+Definition op {sigma: Signature} {a: Algebra sigma} (nm: names sigma): (dom nm) → (cod nm)
+  := pr2 a nm.
 
 Definition final_algebra (signature : Signature) : Algebra signature
-  := mk_algebra unitset (λ nm:names signature, (λ u:Vector unit (arity nm), tt)).
+  := mk_algebra unitset (λ nm: names signature, (λ u: Vector unit (arity nm), tt)).
 
 (** Algebra homomorphism **)
 
@@ -54,11 +54,11 @@ Definition is_hom {a1 a2: Algebra sigma} (f: support a1 → support a2): UU :=
 
 Definition hom (a1 a2: Algebra sigma) :=  ∑ (f: support a1 → support a2), is_hom f.
 
-Notation "m1 |-> m2" := (hom m1 m2) (at level 80, right associativity).
+Local Notation "m1 ↦ m2" := (hom m1 m2)  (at level 80, right associativity).
 
-Definition hom_to_fun {a1 a2: Algebra sigma}: (a1 |-> a2) → support a1 → support a2 := pr1.
+Definition hom_to_fun {a1 a2: Algebra sigma}: (a1 ↦ a2) → support a1 → support a2 := pr1.
 
-Definition hom_id {a: Algebra sigma}: a |-> a.
+Definition hom_id {a: Algebra sigma}: a ↦ a.
   exists (idfun (support a)).
   red.
   intros.
@@ -66,7 +66,7 @@ Definition hom_id {a: Algebra sigma}: a |-> a.
   reflexivity.
 Defined.
 
-Definition hom_comp {a1 a2 a3: Algebra sigma} (h1: a1 |-> a2) (h2: a2 |-> a3) : a1 |-> a3.
+Definition hom_comp {a1 a2 a3: Algebra sigma} (h1: a1 ↦ a2) (h2: a2 ↦ a3) : a1 ↦ a3.
   exists (funcomp (hom_to_fun h1) (hom_to_fun h2)).
   red.
   intros.
@@ -79,7 +79,7 @@ Definition hom_comp {a1 a2 a3: Algebra sigma} (h1: a1 |-> a2) (h2: a2 |-> a3) : 
   reflexivity.
 Defined.
 
-Definition final_hom (a : Algebra sigma) : a |-> (final_algebra sigma).
+Definition final_hom (a : Algebra sigma) : a ↦ (final_algebra sigma).
   red.
   exists (λ _, tt).
   red.
@@ -88,58 +88,58 @@ Defined.
 
 End Homomorphisms.
 
-(** ** Free term algebra. *)
+(** Free term algebra **)
 
 Section TermAlgebra.
 
 Context { sigma: Signature }.
 
-Definition NameStack: UU := list (names sigma).
+Definition Stack: UU := list (names sigma).
 
-Definition NameStackStatus: UU := coprod nat unit.
+Definition Status: UU := nat ⨿  unit.
 
-Definition stackok n: NameStackStatus := ii1 n.
+Definition stackok n: Status := ii1 n.
 
-Definition stackerror: NameStackStatus := ii2 tt.
+Definition stackerror: Status := ii2 tt.
 
-Definition nss_cons (nm: names sigma) (s: NameStackStatus): NameStackStatus.
+Definition nss_cons (nm: names sigma) (s: Status): Status.
 Proof.
   destruct s as [n | error].
   induction (isdecrelnatleh (arity nm) n).
     - exact (stackok ( S(n - arity nm) )).
-    - exact (stackerror).
-  - exact (stackerror).
+    - exact stackerror.
+  - exact stackerror.
 Defined.
 
-Lemma nss_cons_stackok (nm: names sigma) (n: nat):
+Lemma nss_cons_stackok {nm: names sigma} {n: nat}:
   nss_cons nm (stackok n) != stackerror →  arity nm ≤ n.
 Proof.
   intro noerror.
   unfold stackok in noerror.
   unfold nss_cons in noerror.
-  induction (isdecrelnatleh (arity nm) n) as [okarity | badarity].
+  induction (isdecrelnatleh (arity nm) n).
   * assumption.
-  * induction noerror.
-    reflexivity.
+  * cbn in noerror.
+    contradiction.
 Defined.
 
-Lemma nss_cons_stackok2 (nm: names sigma)  (n: nat) (m: nat):
+Lemma nss_cons_stackok2 {nm: names sigma} {n: nat} {m: nat}:
   nss_cons nm (stackok n) = stackok m → m = S(n - arity nm).
 Proof.
   intro comp.
   unfold stackok in comp.
   unfold nss_cons in comp.
-  induction (isdecrelnatleh (arity nm) n) as [okarity | badarity].
+  induction (isdecrelnatleh (arity nm) n).
   * cbn in comp.
     apply ii1_injectivity in comp.
-    apply pathsinv0 in comp. 
+    apply pathsinv0.
     assumption.
   * cbn in comp.
-    assert (stackerror != inl m) by (apply negpathsii2ii1).
+    apply negpathsii2ii1 in comp.
     contradiction.
 Defined.
 
-Lemma nss_cons_noerror (nm: names sigma) (ss: NameStackStatus):
+Lemma nss_cons_noerror (nm: names sigma) (ss: Status):
   nss_cons nm ss != stackerror → ∑ n: nat, ss = stackok n × arity nm ≤ n.
 Proof.
   intro noerror.
@@ -153,7 +153,7 @@ Proof.
     apply idpath.
 Defined.
 
-Lemma nss_cons_noerror2 (nm: names sigma) (ss: NameStackStatus):
+Lemma nss_cons_noerror2 (nm: names sigma) (ss: Status):
   nss_cons nm ss != stackerror → ss != stackerror.
 Proof.
   assert ( negres: ss = stackerror → nss_cons nm ss = stackerror ).
@@ -163,7 +163,7 @@ Proof.
   - exact (negf negres).
 Defined.
 
-Definition nss_concatenate (s1 s2: NameStackStatus): NameStackStatus.
+Definition nss_concatenate (s1 s2: Status): Status.
   induction s2 as [len_s2 | error2].
   - induction s1 as [len_s1 | error1].
     + exact (stackok (len_s1 + len_s2)).
@@ -177,7 +177,7 @@ Axiom natleh_add: ∏( n1 n2 m: nat), n1 ≤ n2 → n1 ≤ (n2 + m).
 (** to be provd later ***)
 Axiom natleh_adddiff: ∏( n1 n2 n3: nat), n3 ≤ n1 → n1 - n3 + n2 = n1+ n2 -n3.
 
-Lemma nss_concatenate_nsscons (nm: names sigma) (ss1 ss2: NameStackStatus):
+Lemma nss_concatenate_nsscons (nm: names sigma) (ss1 ss2: Status):
    (nss_cons nm ss1 != stackerror) →
    nss_concatenate (nss_cons nm ss1) ss2 = nss_cons nm (nss_concatenate ss1 ss2).
 Proof.
@@ -203,13 +203,13 @@ Proof.
   - contradiction.
 Defined.
 
-Definition s2ss: NameStack → NameStackStatus.
+Definition s2ss: Stack → Status.
   apply (foldr(A := names sigma)).
   - exact nss_cons.
   - exact (stackok 0).
 Defined.
 
-Lemma s2ss_length(s: NameStack): ( ∑ n: nat, s2ss s = stackok n × n > 0 ) → length s > 0.
+Lemma s2ss_length(s: Stack): ( ∑ n: nat, s2ss s = stackok n × n > 0 ) → length s > 0.
 Proof.
   apply (list_ind (λ l, (∑ n : nat, s2ss l = stackok n × n > 0) → length l > 0)).
   - intro X.
@@ -225,11 +225,11 @@ Proof.
     apply idpath.
 Defined.
 
-Lemma s2nss_cons (nm: names sigma) (ns: NameStack): s2ss (cons nm ns) = nss_cons nm (s2ss ns).
+Lemma s2nss_cons (nm: names sigma) (ns: Stack): s2ss (cons nm ns) = nss_cons nm (s2ss ns).
   reflexivity.
 Defined.
 
-Lemma s2nss_compositional (s1 s2: NameStack):
+Lemma s2nss_compositional (s1 s2: Stack):
   s2ss s1 != stackerror → nss_concatenate (s2ss s1) (s2ss s2) = s2ss (concatenate s1 s2).
 Proof.
   apply (list_ind (λ s, s2ss s != stackerror → nss_concatenate (s2ss s) (s2ss s2) = s2ss (concatenate s s2))).
@@ -250,16 +250,16 @@ Proof.
     reflexivity.
 Defined.
 
-Definition ns_vector_flatten {n} (v: Vector NameStack n): NameStack :=
-  vector_foldr (λ (t: NameStack) (s: NameStack), concatenate t s) nil v.
+Definition ns_vector_flatten {n} (v: Vector Stack n): Stack :=
+  vector_foldr (λ (t: Stack) (s: Stack), concatenate t s) nil v.
 
-Definition nss_vector_flatten {n} (v: Vector NameStackStatus n): NameStackStatus :=
-  vector_foldr (λ (t: NameStackStatus) (s: NameStackStatus), nss_concatenate t s) (stackok 0) v.
+Definition nss_vector_flatten {n} (v: Vector Status n): Status :=
+  vector_foldr (λ (t: Status) (s: Status), nss_concatenate t s) (stackok 0) v.
 
-Lemma nss_flatten_functorial {n} (v: Vector NameStack n):
+Lemma nss_flatten_functorial {n} (v: Vector Stack n):
   (∏ m : ⟦ n ⟧, s2ss (el v m) != stackerror) → nss_vector_flatten(vector_map s2ss v) = s2ss(ns_vector_flatten v).
 Proof.
-  apply (vector_ind (λ (n: nat) (v: Vector NameStack n), (∏ m : ⟦ n ⟧, s2ss (el v m) != stackerror)
+  apply (vector_ind (λ (n: nat) (v: Vector Stack n), (∏ m : ⟦ n ⟧, s2ss (el v m) != stackerror)
           → nss_vector_flatten(vector_map s2ss v) = s2ss(ns_vector_flatten v))).
   - intro.
     reflexivity.
@@ -278,7 +278,7 @@ Proof.
       trivial.
 Defined.
 
-Definition ns_is_term (ns: NameStack): UU := s2ss ns = stackok 1.
+Definition ns_is_term (ns: Stack): UU := s2ss ns = stackok 1.
 
 Lemma nil_not_term: ¬ ns_is_term nil.
 Proof.
@@ -289,9 +289,9 @@ Proof.
   exact (negpaths0sx 0 contr).
 Defined.
 
-Definition term := ∑ ns: NameStack, ns_is_term ns.
+Definition term := ∑ ns: Stack, ns_is_term ns.
 
-Definition mkseq {n: nat} (vec: Vector term n): ∑ s: NameStack, s2ss s = stackok n.
+Definition mkseq {n: nat} (vec: Vector term n): ∑ s: Stack, s2ss s = stackok n.
 Proof.
   induction n.
    - exists nil.
@@ -328,7 +328,7 @@ Proof.
     apply isreflnatleh.
 Defined.
 
-Coercion term_to_s(t: term): NameStack := pr1 t.
+Coercion term_to_s(t: term): Stack := pr1 t.
 
 Definition term_isaset: isaset term.
   apply isaset_total2.
@@ -342,10 +342,10 @@ Definition term_isaset: isaset term.
     apply isisolatedn.
 Defined.
 
-Lemma nss_flatten_bound1 {n} (v: Vector NameStackStatus n) (a: nat):
+Lemma nss_flatten_bound1 {n} (v: Vector Status n) (a: nat):
   (∏ m : ⟦ n ⟧, ∑ b: nat, el v m = stackok b × b ≤ a) → ∑ c: nat, nss_vector_flatten v  = stackok c × c ≤ n * a.
 Proof.
-  apply (vector_ind (λ  (n: nat) (v: Vector NameStackStatus n), (∏ m : ⟦ n ⟧, ∑ b: nat, el v m = stackok b × b ≤ a) → ∑ c: nat, nss_vector_flatten v  = stackok c × c ≤ n * a)).
+  apply (vector_ind (λ  (n: nat) (v: Vector Status n), (∏ m : ⟦ n ⟧, ∑ b: nat, el v m = stackok b × b ≤ a) → ∑ c: nat, nss_vector_flatten v  = stackok c × c ≤ n * a)).
   - intros.
     exists 0.
     split ; reflexivity.
@@ -371,10 +371,10 @@ Proof.
       apply natlehandplus ; assumption.
 Defined.
 
-Lemma nss_flatten_eq {n} (v: Vector NameStackStatus n) (a: nat):
+Lemma nss_flatten_eq {n} (v: Vector Status n) (a: nat):
   (∏ m : ⟦ n ⟧, el v m = stackok a) → nss_vector_flatten v  = stackok (n * a).
 Proof.
-  apply (vector_ind (λ  (n: nat) (v: Vector NameStackStatus n), (∏ m : ⟦ n ⟧, el v m = stackok a) → ∑ c: nat, nss_vector_flatten v  = stackok ( n * a))).
+  apply (vector_ind (λ  (n: nat) (v: Vector Status n), (∏ m : ⟦ n ⟧, el v m = stackok a) → ∑ c: nat, nss_vector_flatten v  = stackok ( n * a))).
   - intros.
     exists 0.
     split ; reflexivity.
@@ -398,7 +398,7 @@ Proof.
       reflexivity.
 Defined.
 
-Lemma nss_flatten_eq1 {n} (v: Vector NameStackStatus n):
+Lemma nss_flatten_eq1 {n} (v: Vector Status n):
   (∏ m : ⟦ n ⟧, el v m = stackok 1) → nss_vector_flatten v  = stackok n.
 Proof.
   intro.
@@ -453,7 +453,7 @@ Definition princ_op(t: term): names sigma.
 Proof.
   induction t as [s sterm].
   generalize sterm.
-  apply (list_ind (λ s : NameStack, ns_is_term s → names sigma)).
+  apply (list_ind (λ s : Stack, ns_is_term s → names sigma)).
   - intro nilterm.
     unfold ns_is_term in nilterm.
     cbn in nilterm.
@@ -491,7 +491,7 @@ Definition head  {A: UU} (l: list A) (lenl: length l > 0): A := pr1 (headtail l 
 Definition tail  {A: UU} (l: list A) (lenl: length l > 0): list A := pr2 (headtail l lenl).
 
 (*
-Lemma s2ssok_to_len (s: NameStack): (∑ n: nat, s2ss s = stackok n × n > 0) → length s > 0.
+Lemma s2ssok_to_len (s: Stack): (∑ n: nat, s2ss s = stackok n × n > 0) → length s > 0.
 Proof.
   intro sok.
   induction sok as [n [ss ngt0]].
@@ -526,11 +526,11 @@ Proof.
     apply natgthsn0.
 Defined.
 
-Definition extract_subnss (s: NameStack): 
-  ∏ n m: nat, s2ss s = stackok m → n ≤ m →  ∑ first second: NameStack, s2ss first = stackok n × s2ss second = stackok (m - n) ×  concatenate first second = s.
+Definition extract_subnss (s: Stack): 
+  ∏ n m: nat, s2ss s = stackok m → n ≤ m →  ∑ first second: Stack, s2ss first = stackok n × s2ss second = stackok (m - n) ×  concatenate first second = s.
 Proof.
-   apply (list_ind (λ s : NameStack, ∏ n m: nat, s2ss s = stackok m → n ≤ m → 
-          ∑ first second: NameStack, s2ss first = stackok n × s2ss second = stackok (m - n) × 
+   apply (list_ind (λ s : Stack, ∏ n m: nat, s2ss s = stackok m → n ≤ m → 
+          ∑ first second: Stack, s2ss first = stackok n × s2ss second = stackok (m - n) × 
           concatenate first second = s)).
    - intros n m ss.
      cbn in ss.
@@ -621,9 +621,9 @@ Proof.
          apply idpath.
 Defined.
 
-Definition subterm(l: NameStack): ∏ (l_is_term: ns_is_term l),  ⟦ arity (princ_op (l ,, l_is_term)) ⟧ → term.
+Definition subterm(l: Stack): ∏ (l_is_term: ns_is_term l),  ⟦ arity (princ_op (l ,, l_is_term)) ⟧ → term.
 Proof.
-  apply (list_ind (λ (l: NameStack), ∏ l_is_term : ns_is_term l, ⟦ arity (princ_op (l,, l_is_term)) ⟧ → term)).
+  apply (list_ind (λ (l: Stack), ∏ l_is_term : ns_is_term l, ⟦ arity (princ_op (l,, l_is_term)) ⟧ → term)).
   - intro.
     set (contr := nil_not_term l_is_term).
     contradiction.
