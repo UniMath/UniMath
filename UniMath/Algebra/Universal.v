@@ -6,6 +6,7 @@ Require Import UniMath.Combinatorics.Vectors.
 Require Import UniMath.Combinatorics.Lists.
 
 Open Scope stn.
+Open Scope nat.
 
 (** Basic definitions *)
 
@@ -120,6 +121,22 @@ Proof.
   * assumption.
   * induction noerror.
     reflexivity.
+Defined.
+
+Lemma nss_cons_stackok2 (nm: names sigma)  (n: nat) (m: nat):
+  nss_cons nm (stackok n) = stackok m → m = S(n - arity nm).
+Proof.
+  intro comp.
+  unfold stackok in comp.
+  unfold nss_cons in comp.
+  induction (isdecrelnatleh (arity nm) n) as [okarity | badarity].
+  * cbn in comp.
+    apply ii1_injectivity in comp.
+    apply pathsinv0 in comp. 
+    assumption.
+  * cbn in comp.
+    assert (stackerror != inl m) by (apply negpathsii2ii1).
+    contradiction.
 Defined.
 
 Lemma nss_cons_noerror (nm: names sigma) (ss: NameStackStatus):
@@ -369,5 +386,123 @@ Definition term_hset: hSet := make_hSet term (term_isaset).
 
 Definition term_algebra: Algebra sigma
   := mk_algebra term_hset term_op.
+
+Definition princ_op(t: term): names sigma.
+Proof.
+  induction t as [s sterm].
+  generalize sterm.
+  apply (list_ind (λ s : NameStack, ns_is_term s → names sigma)).
+  - intro nilterm.
+    unfold ns_is_term in nilterm.
+    cbn in nilterm.
+    apply ii1_injectivity in nilterm.
+    apply negpaths0sx in nilterm.
+    contradiction.
+  - intros.
+    exact x.
+Defined.
+
+Lemma lengthnil {A: UU} (l: list A): length l = 0 → l = nil.
+Proof.
+  apply (list_ind (λ l: list A, length l = 0 → l = nil)).
+  - reflexivity.
+  - intros x xs IH lencons.
+    cbn in lencons.
+    apply negpathssx0 in lencons.
+    contradiction.
+Defined.
+
+Definition headtail {A: UU} (l: list A): length l > 0 → A × list A.
+Proof.
+  apply (list_ind (λ l: list A, length l > 0 → A × list A)).
+  - cbn.
+    intro tf.
+    apply pathsinv0 in tf.
+    apply nopathstruetofalse in tf.
+    contradiction.
+  - intros x xs IH lencons.
+    exact (x ,, xs).
+Defined.
+
+Definition head  {A: UU} (l: list A) (lenl: length l > 0): A := pr1 (headtail l lenl).
+
+Definition tail  {A: UU} (l: list A) (lenl: length l > 0): list A := pr2 (headtail l lenl).
+
+(*
+Lemma s2ssok_to_len (s: NameStack): (∑ n: nat, s2ss s = stackok n × n > 0) → length s > 0.
+Proof.
+  intro sok.
+  induction sok as [n [ss ngt0]].
+  *)
+
+(*** These axioms probably needs some addition hypotheses **)
+
+Axiom natlehandminusl: ∏ n m k : nat, n ≤ m → n - k ≤ m - k.
+Axiom natlehandminusr: ∏ n m k : nat, n ≤ m → n - k ≤ m - k.
+
+Axiom nat_ax: ∏ a b c: nat, a = S (b - c) → b = a + c -1. 
+
+Axiom nat_ax2: ∏ a b c d : nat, a = b + c -d → a - c = b - d.
+
+Axiom nat_ax3: ∏ a b c d : nat, a + b - 1 - (c + b - 1) = a-c.
+
+Definition extract_subnss (s: NameStack): 
+  ∏ n m: nat, s2ss s = stackok m → n ≤ m →  ∑ first second: NameStack, s2ss first = stackok n × s2ss second = stackok (m - n) ×  concatenate first second = s.
+Proof.
+   apply (list_ind (λ s : NameStack, ∏ n m: nat, s2ss s = stackok m → n ≤ m → 
+          ∑ first second: NameStack, s2ss first = stackok n × s2ss second = stackok (m - n) × 
+          concatenate first second = s)).
+   - intros n m ss.
+     cbn in ss.
+     apply ii1_injectivity in ss.
+     rewrite <- ss.
+     intro n0.
+     apply nat0gehtois0 in n0.
+     rewrite n0.
+     exists nil.
+     exists nil.
+     repeat split.
+   - intros nm nms IH n m ss mgtn.
+     rewrite s2nss_cons in ss.
+     assert ( X: ∑ sstail: nat, s2ss nms = stackok sstail ×  arity nm ≤ sstail ). {
+       apply nss_cons_noerror.
+       rewrite ss.
+       apply negpathsii1ii2.
+     }
+     induction X as [ss_nms [ss_nms_proof ss_nms_bound]].
+     rewrite ss_nms_proof in ss.
+     apply nss_cons_stackok2 in ss.
+     apply nat_ax in ss.
+     assert (X: n + arity nm - 1 ≤ ss_nms).
+     {
+        rewrite ss.
+        apply natlehandminusl.
+        apply natlehandplus.
+        + assumption.
+        + apply isreflnatleh.
+     }     
+     set (IH1 := IH (n + arity nm - 1) ss_nms  ss_nms_proof X).
+     induction IH1 as [first [rest [ssfirst [ssrest conc]]]]. 
+     rewrite ss in ssrest.
+     rewrite nat_ax3 in ssrest.
+     set (realfirst := cons nm first).
+     assert (s2ss realfirst = stackok n).
+     {
+       unfold realfirst.
+       rewrite s2nss_cons.
+       rewrite ssfirst.
+       unfold nss_cons.
+       induction (isdecrelnatleh (arity nm) (n + arity nm - 1)).
+       - cbn.
+Abort.
+
+Definition subterm(t: term):  ⟦ arity (princ_op t) ⟧ → term.
+Proof.
+   induction (arity (princ_op t)).
+   - intro.
+     apply fromstn0.
+     assumption.
+   -      
+Abort.
 
 End TermAlgebra.
