@@ -7,7 +7,7 @@ Require Import UniMath.Algebra.Universal.
 
 Open Scope stn.
 
-Definition nat_signature: Signature := make_signature_from_vector (vcons 0 (vcons 1 vnil)).
+Definition nat_signature: Signature := mk_signature (vcons 0 (vcons 1 vnil)).
 
 Definition nat_zero: names nat_signature := (●0).
 Definition nat_succ: names nat_signature := (●1).

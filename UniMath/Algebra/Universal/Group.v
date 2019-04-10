@@ -9,7 +9,7 @@ Require Import UniMath.Algebra.Groups.
 Open Scope stn.
 
 Definition group_signature: Signature
-  := make_signature_from_vector
+  := mk_signature
        (vcons 2                 (* multiplication *)
          (vcons 0               (* identity *)
            (vcons 1             (* inverse *)

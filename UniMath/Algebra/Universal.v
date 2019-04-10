@@ -643,7 +643,7 @@ Proof.
     rewrite xs_ss_proof in xxs_is_term.
     assert ( xs_arity: xs_ss = arity x).
     {
-      set ( X := nss_cons_stackok2 x xs_ss 1  xxs_is_term).
+      set ( X := nss_cons_stackok2  xxs_is_term).
       change (1) with (1+0) in X.
       change (S (xs_ss - arity x)) with (1 + (xs_ss - arity x)) in X.
       set (Y := natpluslcan _ _ _ X).
