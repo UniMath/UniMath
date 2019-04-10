@@ -209,6 +209,22 @@ Definition s2ss: NameStack → NameStackStatus.
   - exact (stackok 0).
 Defined.
 
+Lemma s2ss_length(s: NameStack): ( ∑ n: nat, s2ss s = stackok n × n > 0 ) → length s > 0.
+Proof.
+  apply (list_ind (λ l, (∑ n : nat, s2ss l = stackok n × n > 0) → length l > 0)).
+  - intro X.
+    induction X as [n [ n_is_ss n_gt_0 ]].
+    cbn in n_is_ss.
+    apply ii1_injectivity in n_is_ss.
+    rewrite n_is_ss in n_gt_0.
+    set (contr := isirreflnatgth n n_gt_0).
+    contradiction.
+  - intros.
+    unfold cons.
+    cbn.
+    apply idpath.
+Defined.
+
 Lemma s2nss_cons (nm: names sigma) (ns: NameStack): s2ss (cons nm ns) = nss_cons nm (s2ss ns).
   reflexivity.
 Defined.
@@ -264,7 +280,53 @@ Defined.
 
 Definition ns_is_term (ns: NameStack): UU := s2ss ns = stackok 1.
 
+Lemma nil_not_term: ¬ ns_is_term nil.
+Proof.
+  unfold ns_is_term.
+  cbn.
+  intro s0s1.
+  set (contr := ii1_injectivity 0 1 s0s1).
+  exact (negpaths0sx 0 contr).
+Defined.
+
 Definition term := ∑ ns: NameStack, ns_is_term ns.
+
+Definition mkseq {n: nat} (vec: Vector term n): ∑ s: NameStack, s2ss s = stackok n.
+Proof.
+  induction n.
+   - exists nil.
+     reflexivity.
+   - set (rest := IHn (tl vec)).
+     induction rest as [l l_ss].
+     set (result := concatenate (pr1 (hd vec)) l).
+     exists result.
+     unfold result.  
+     rewrite <- s2nss_compositional.
+     + rewrite (pr2 (hd vec)).
+       rewrite l_ss.
+       cbn.
+       apply idpath.
+     + rewrite (pr2 (hd vec)).
+       apply negpathsii1ii2.
+Defined.
+
+Definition mkterm (n: names sigma) (vec: Vector term (arity n)): term.
+Proof.
+  set (seq := mkseq vec).
+  induction seq as [tail tailss].
+  exists (cons n tail).
+  red.
+  rewrite s2nss_cons.
+  rewrite tailss.
+  change (stackok (arity n)) with (ii1 (B:=unit)(arity n)).
+  unfold nss_cons.
+  induction (isdecrelnatleh (arity n) (arity n)).
+  - cbn.
+    rewrite minuseq0'.
+    apply idpath.
+  - induction b.
+    apply isreflnatleh.
+Defined.
 
 Coercion term_to_s(t: term): NameStack := pr1 t.
 
@@ -438,13 +500,31 @@ Proof.
 (*** These axioms probably needs some addition hypotheses **)
 
 Axiom natlehandminusl: ∏ n m k : nat, n ≤ m → n - k ≤ m - k.
+
 Axiom natlehandminusr: ∏ n m k : nat, n ≤ m → n - k ≤ m - k.
+
+Axiom natdiff0: ∏ a b: nat, 0 = a - b → b ≥ a.
+
+Axiom natdiffasymm: ∏ a b: nat, a ≤ b → a ≥ b → a=b.
 
 Axiom nat_ax: ∏ a b c: nat, a = S (b - c) → b = a + c -1. 
 
 Axiom nat_ax2: ∏ a b c d : nat, a = b + c -d → a - c = b - d.
 
-Axiom nat_ax3: ∏ a b c d : nat, a + b - 1 - (c + b - 1) = a-c.
+Axiom nat_ax3: ∏ a b c : nat, a + b - 1 - (c + b - 1) = a-c.
+
+Lemma nat_ax4: ∏ n: nat, ¬ (n ≥ 1) → n = 0.
+Proof.
+  intro.
+  induction n.
+  - intro.
+    apply idpath.
+  - intro n_gte_1.
+    apply fromempty.
+    apply n_gte_1.
+    apply natgthtogehsn.
+    apply natgthsn0.
+Defined.
 
 Definition extract_subnss (s: NameStack): 
   ∏ n m: nat, s2ss s = stackok m → n ≤ m →  ∑ first second: NameStack, s2ss first = stackok n × s2ss second = stackok (m - n) ×  concatenate first second = s.
@@ -463,46 +543,155 @@ Proof.
      exists nil.
      repeat split.
    - intros nm nms IH n m ss mgtn.
-     rewrite s2nss_cons in ss.
-     assert ( X: ∑ sstail: nat, s2ss nms = stackok sstail ×  arity nm ≤ sstail ). {
-       apply nss_cons_noerror.
-       rewrite ss.
-       apply negpathsii1ii2.
-     }
-     induction X as [ss_nms [ss_nms_proof ss_nms_bound]].
-     rewrite ss_nms_proof in ss.
-     apply nss_cons_stackok2 in ss.
-     apply nat_ax in ss.
-     assert (X: n + arity nm - 1 ≤ ss_nms).
-     {
-        rewrite ss.
-        apply natlehandminusl.
-        apply natlehandplus.
-        + assumption.
-        + apply isreflnatleh.
-     }     
-     set (IH1 := IH (n + arity nm - 1) ss_nms  ss_nms_proof X).
-     induction IH1 as [first [rest [ssfirst [ssrest conc]]]]. 
-     rewrite ss in ssrest.
-     rewrite nat_ax3 in ssrest.
-     set (realfirst := cons nm first).
-     assert (s2ss realfirst = stackok n).
-     {
-       unfold realfirst.
-       rewrite s2nss_cons.
-       rewrite ssfirst.
-       unfold nss_cons.
-       induction (isdecrelnatleh (arity nm) (n + arity nm - 1)).
-       - cbn.
-Abort.
+     induction (isdeceqnat n 0) as [nis0 | ngt0].
+     + rewrite nis0.
+       exists nil.
+       exists (cons nm nms).
+       repeat split.
+       * rewrite natminuseqn.
+         assumption.
+     + assert (ngte1: n >= 1).
+       {
+         apply natgthtogehsn.
+         apply natneq0togth0.
+         apply nat_nopath_to_neq.
+         assumption.
+       }
+       rewrite s2nss_cons in ss.
+       assert ( X: ∑ sstail: nat, s2ss nms = stackok sstail ×  arity nm ≤ sstail ). {
+         apply nss_cons_noerror.
+         rewrite ss.
+         apply negpathsii1ii2.
+       }
+       induction X as [ss_nms [ss_nms_proof ss_nms_bound]].
+       rewrite ss_nms_proof in ss.
+       apply nss_cons_stackok2 in ss.
+       apply nat_ax in ss.
+       assert (X: n + arity nm - 1 ≤ ss_nms).
+       {
+          rewrite ss.
+          apply natlehandminusl.
+          apply natlehandplus.
+          - assumption.
+          - apply isreflnatleh.
+       }
+       set (IH1 := IH (n + arity nm - 1) ss_nms  ss_nms_proof X).
+       induction IH1 as [first [rest [ssfirst [ssrest conc]]]]. 
+       rewrite ss in ssrest.
+       rewrite nat_ax3 in ssrest.
+       set (realfirst := cons nm first).
+       assert (s2ss realfirst = stackok n).
+       {
+         unfold realfirst.
+         rewrite s2nss_cons.
+         rewrite ssfirst.
+         change (stackok (n + arity nm - 1)) with (ii1(B:=unit) (n + arity nm - 1)).
+         unfold nss_cons.
+         induction (isdecrelnatleh (arity nm) (n + arity nm - 1)).
+         - cbn.
+           assert (S (n + arity nm - 1 - arity nm) = n).
+           { 
+             rewrite natminusminus.
+             rewrite (natpluscomm 1 (arity nm)).
+             rewrite <- natminusminus.
+             rewrite plusminusnmm.
+             change (S (n - 1)) with (1 + (n - 1)).
+             rewrite natplusminusle.
+             * rewrite natpluscomm.
+               rewrite plusminusnmm.
+               apply idpath.
+             * assumption.
+           }
+           rewrite X0.
+           apply idpath.
+         - induction b.
+           rewrite natpluscomm.
+           rewrite <- natplusminusle.
+           + apply natlehnplusnm.
+           + assumption.
+       }   
+       exists realfirst.
+       exists rest.
+       repeat split.
+       * assumption.
+       * assumption.
+       * unfold realfirst.
+         rewrite concatenateStep.
+         rewrite conc.
+         apply idpath.
+Defined.
 
-Definition subterm(t: term):  ⟦ arity (princ_op t) ⟧ → term.
+Definition subterm(l: NameStack): ∏ (l_is_term: ns_is_term l),  ⟦ arity (princ_op (l ,, l_is_term)) ⟧ → term.
 Proof.
-   induction (arity (princ_op t)).
-   - intro.
-     apply fromstn0.
-     assumption.
-   -      
-Abort.
+  apply (list_ind (λ (l: NameStack), ∏ l_is_term : ns_is_term l, ⟦ arity (princ_op (l,, l_is_term)) ⟧ → term)).
+  - intro.
+    set (contr := nil_not_term l_is_term).
+    contradiction.
+  - intros x xs IH xxs_is_term.
+    cbn.
+    intro arx.
+    induction arx as [n n_lt_arx].
+    red in xxs_is_term.
+    rewrite s2nss_cons in xxs_is_term.
+    assert (xxs_ok: nss_cons x (s2ss xs) != stackerror).
+    {
+      rewrite xxs_is_term.
+      apply negpathsii1ii2.
+    }
+    set ( xs_ok := nss_cons_noerror x (s2ss xs) xxs_ok).
+    induction xs_ok as [xs_ss [ xs_ss_proof xs_ss_bound ]].
+    rewrite xs_ss_proof in xxs_is_term.
+    assert ( xs_arity: xs_ss = arity x).
+    {
+      set ( X := nss_cons_stackok2 x xs_ss 1  xxs_is_term).
+      change (1) with (1+0) in X.
+      change (S (xs_ss - arity x)) with (1 + (xs_ss - arity x)) in X.
+      set (Y := natpluslcan _ _ _ X).
+      set (Z := natdiff0 _ _ Y).
+      apply natdiffasymm; assumption.
+    }
+    rewrite xs_arity in xs_ss_proof.
+    induction (isdecrelnatgeh n 1) as [n_gte_1 | n_eq_0].
+    + assert ( extractok: n- 1 ≤ arity x).
+      {
+        apply (istransnatleh(m := arity x - 1)).
+        - apply natlehandminusl.
+          apply natlthtoleh.
+          assumption.
+        - apply natminuslehn.
+      }
+      set (remove := extract_subnss xs (n - 1) (arity x) xs_ss_proof extractok).
+      induction remove as [first [ second  [ firstss [ secondss conc] ] ] ].
+      assert ( extractok2: 1 ≤ arity x - (n - 1) ).
+      {
+        apply (natlehandplusrinv _ _ (n - 1)).
+        rewrite minusplusnmm by (assumption).
+        rewrite natplusminusle by (assumption).
+        rewrite natpluscomm.
+        rewrite <- natplusminusle by (apply idpath).
+        simpl (1 - 1).
+        rewrite natplusr0.
+        apply natlthtoleh.
+        assumption.
+      }
+      set (res := extract_subnss second 1 (arity x - (n - 1)) secondss extractok2).
+      induction res as [result [second0 [result_is_term [second_ss conc1]]]].
+      exact (result ,, result_is_term).
+   + assert (n_is_0: n = 0) by ( apply nat_ax4; assumption ).
+     assert (extractok: 1 ≤ arity x ).
+     {
+       apply natlthtolehsn.
+       rewrite <- n_is_0.
+       assumption.
+     }
+     set (res := extract_subnss xs 1 (arity x) xs_ss_proof extractok).
+     induction res as [result  [second0 [result_is_term [second_ss conc1]]]].
+     exact (result ,, result_is_term).
+Defined.
+
+Definition term_ind :=
+  ∏ (P: term → UU),
+     ( ∏ (nm: names sigma) (vterm: Vector term (arity nm)), (∏ (i:  ⟦ arity nm ⟧), P (el vterm i)) → P (mkterm nm vterm) ) →
+     (∏ t: term, P t).
 
 End TermAlgebra.
