@@ -71,7 +71,8 @@ NNO.v
 Subcategory/Limits.v
 EpiFacts.v
 exponentials.v
-categories/Types.v
+categories/Type/Core.v
+categories/Type/MonoEpiIso.v
 SimplicialSets.v
 yoneda.v
 Monads/Monads.v
@@ -137,6 +138,10 @@ categories/modules.v
 categories/StandardCategories.v
 categories/Cats.v
 categories/preorder_categories.v
+categories/Type/Colimits.v
+categories/Type/Limits.v
+categories/Type/Structures.v
+categories/Type/Univalence.v
 
 categories/HSET/Limits.v
 categories/HSET/Colimits.v
@@ -249,6 +254,7 @@ Monoidal/MonoidalFunctors.v
 Monoidal/CategoriesOfMonoids.v
 Monoidal/Actions.v
 Monoidal/Strengths.v
+Monoidal/BicategoryFromMonoidal.v
 Monoidal/BraidedMonoidalCategories.v
 
 Enriched/Enriched.v
