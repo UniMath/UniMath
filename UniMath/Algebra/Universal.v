@@ -51,7 +51,7 @@ Definition is_hom {a1 a2: Algebra sigma} (f: support a1 → support a2): UU :=
 
 Definition hom (a1 a2: Algebra sigma): UU :=  ∑ (f: support a1 → support a2), is_hom f.
 
-Local Notation "m1 ↦ m2" := (hom m1 m2)  (at level 80, right associativity).
+Local Notation "a1 ↦ a2" := (hom a1 a2)  (at level 80, right associativity).
 
 Definition hom_to_fun {a1 a2: Algebra sigma}: (a1 ↦ a2) → support a1 → support a2 := pr1.
 
@@ -94,7 +94,26 @@ Proof.
   red.
   exists (λ _, tt).
   red.
-  reflexivity.
+  intros.
+  apply iscontrunit.
+Defined.
+
+Theorem terminal_hom_unicity (a: Algebra sigma) (f: hom a terminal_algebra): f = terminal_hom a.
+Proof.
+  eapply total2_paths2_f.
+  Unshelve.
+  all:revgoals.
+  - apply iscontrfuntounit.
+  - assert (isprop: ∏ (f: support a → support terminal_algebra), isaprop (is_hom f)).
+    + intro.
+      apply isapropifcontr.
+      unfold is_hom.
+      apply impred_iscontr.
+      intros.
+      apply impred_iscontr.
+      intros.
+      apply iscontrpathsinunit.
+    + apply isprop.
 Defined.
 
 End TerminalAlgebra.
