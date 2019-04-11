@@ -59,6 +59,7 @@ Local Notation "m1 ↦ m2" := (hom m1 m2)  (at level 80, right associativity).
 Definition hom_to_fun {a1 a2: Algebra sigma}: (a1 ↦ a2) → support a1 → support a2 := pr1.
 
 Definition hom_id {a: Algebra sigma}: a ↦ a.
+Proof.
   exists (idfun (support a)).
   red.
   intros.
@@ -67,6 +68,7 @@ Definition hom_id {a: Algebra sigma}: a ↦ a.
 Defined.
 
 Definition hom_comp {a1 a2 a3: Algebra sigma} (h1: a1 ↦ a2) (h2: a2 ↦ a3) : a1 ↦ a3.
+Proof.
   exists (funcomp (hom_to_fun h1) (hom_to_fun h2)).
   red.
   intros.
@@ -80,6 +82,7 @@ Definition hom_comp {a1 a2 a3: Algebra sigma} (h1: a1 ↦ a2) (h2: a2 ↦ a3) : 
 Defined.
 
 Definition final_hom (a : Algebra sigma) : a ↦ (final_algebra sigma).
+Proof.
   red.
   exists (λ _, tt).
   red.
@@ -161,6 +164,7 @@ Proof.
 Defined.
 
 Definition status_concatenate (status1 status2: Status): Status.
+Proof.
   induction status2 as [len_s2 | error2].
   - induction status1 as [len_s1 | error1].
     + exact (stackok (len_s1 + len_s2)).
@@ -294,6 +298,7 @@ Proof.
 Defined.
 
 Definition term_isaset: isaset term.
+Proof.
   apply isaset_total2.
   apply isofhlevellist.
   - exact (pr2 (names sigma)).
