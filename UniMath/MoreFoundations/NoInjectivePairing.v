@@ -20,24 +20,21 @@ Proof.
   apply funextsec; intro. apply idpath.
 Defined.
 
-(** Weak equivalences are injective. *)
-Lemma isinj_weq {A B} (eq : A ≃ B) : isInjective (pr1weq eq).
+Lemma univalence_pathsinv0 {A B : UU} (p : A = B) :
+  univalence _ _ (!p) = invweq (univalence _ _ p).
 Proof.
-  apply isweqonpathsincl.
-  apply isofhlevelfweq.
+  apply eqweqmap_pathsinv0.
 Defined.
 
 (** Inverting the path obtained from an equivalence is the same as inverting the equivalence. *)
 Lemma pathsinv0_weqtopaths {A B : UU} (eq : A ≃ B) :
   ! (weqtopaths eq) = weqtopaths (invweq eq).
 Proof.
-  apply (Injectivity _ (isinj_weq (univalence _ _))). cbn.
-  etrans.
-  { apply eqweqmap_pathsinv0. }
-  etrans.
-  { exact (maponpaths invweq (weqpathsweq _)). }
-  apply pathsinv0.
-  apply weqpathsweq.
+  type_induction eq e.
+  rewrite <- univalence_pathsinv0.
+  unfold weqtopaths.
+  rewrite 2 homotinvweqweq.
+  apply idpath.
 Defined.
 
 
