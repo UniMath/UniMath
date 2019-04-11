@@ -40,9 +40,6 @@ Definition cod {sigma: Signature} {a: Algebra sigma} (nm: names sigma): UU :=
 Definition op {sigma: Signature} {a: Algebra sigma} (nm: names sigma): (dom nm) → (cod nm)
   := pr2 a nm.
 
-Definition final_algebra (signature : Signature) : Algebra signature
-  := mk_algebra unitset (λ nm: names signature, (λ u: Vector unit (arity nm), tt)).
-
 (** Algebra homomorphism **)
 
 Section Homomorphisms.
@@ -81,7 +78,18 @@ Proof.
   reflexivity.
 Defined.
 
-Definition final_hom (a : Algebra sigma) : a ↦ (final_algebra sigma).
+End Homomorphisms.
+
+(** Terminal algebra **)
+
+Section TerminalAlgebra.
+
+Context { sigma: Signature }.
+
+Definition terminal_algebra: Algebra sigma
+  := mk_algebra unitset (λ nm: names sigma, (λ u: Vector unit (arity nm), tt)).
+
+Definition terminal_hom (a : Algebra sigma) : hom a terminal_algebra.
 Proof.
   red.
   exists (λ _, tt).
@@ -89,9 +97,9 @@ Proof.
   reflexivity.
 Defined.
 
-End Homomorphisms.
+End TerminalAlgebra.
 
-(** Free term algebra **)
+(** Term algebra **)
 
 Section TermAlgebra.
 
@@ -378,7 +386,7 @@ Proof.
    apply (list_ind (λ s : Stack, ∏ n m: nat, stack2status s = stackok m → n ≤ m → 
           ∑ first second: Stack, stack2status first = stackok n × 
                                  stack2status second = stackok (m - n) × 
-          concatenate first second = s)).
+                                 concatenate first second = s)).
    - intros n m s_status.
      cbn in s_status.
      apply ii1_injectivity in s_status.
