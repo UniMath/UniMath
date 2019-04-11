@@ -52,7 +52,7 @@ Context { sigma: Signature }.
 Definition is_hom {a1 a2: Algebra sigma} (f: support a1 → support a2): UU :=
    ∏ (nm: names sigma) (x: dom nm), (f (op nm x) = (op nm (vector_map f x))).
 
-Definition hom (a1 a2: Algebra sigma) :=  ∑ (f: support a1 → support a2), is_hom f.
+Definition hom (a1 a2: Algebra sigma): UU :=  ∑ (f: support a1 → support a2), is_hom f.
 
 Local Notation "m1 ↦ m2" := (hom m1 m2)  (at level 80, right associativity).
 
@@ -178,9 +178,10 @@ Axiom natleh_add: ∏( n1 n2 m: nat), n1 ≤ n2 → n1 ≤ (n2 + m).
 (** to be proved later ***)
 Axiom natleh_adddiff: ∏( n1 n2 n3: nat), n3 ≤ n1 → n1 - n3 + n2 = n1 + n2 -n3.
 
-Lemma status_concatenate_nsscons {nm: names sigma} {status1 status2: Status}:
+Lemma status_concatenate_statuscons {nm: names sigma} {status1 status2: Status}:
    (status_cons nm status1 != stackerror) → 
-      status_concatenate (status_cons nm status1) status2 = status_cons nm (status_concatenate status1 status2).
+      status_concatenate (status_cons nm status1) status2
+      = status_cons nm (status_concatenate status1 status2).
 Proof.
   induction status1 as [a1 | error1].
   - induction status2 as [a2 | error2].
@@ -206,7 +207,8 @@ Defined.
 
 Definition stack2status: Stack → Status := foldr status_cons (stackok 0).
 
-Lemma stack2status_length(s: Stack): ( ∑ n: nat, stack2status s = stackok n × n > 0 ) → length s > 0.
+Lemma stack2status_length(s: Stack): 
+  ( ∑ n: nat, stack2status s = stackok n × n > 0 ) → length s > 0.
 Proof.
   apply (list_ind (λ s, (∑ n : nat, stack2status s = stackok n × n > 0) → length s > 0)).
   - intro status.
@@ -230,7 +232,8 @@ Lemma stack2status_compositional (s1 s2: Stack): stack2status s1 != stackerror �
   status_concatenate (stack2status s1) (stack2status s2) = stack2status (concatenate s1 s2).
 Proof.
   apply (list_ind (λ s, stack2status s != stackerror → 
-           status_concatenate (stack2status s) (stack2status s2) = stack2status (concatenate s s2))).
+           status_concatenate (stack2status s) (stack2status s2)
+           = stack2status (concatenate s s2))).
   - intros.
     change (stack2status (concatenate nil s2)) with (stack2status s2).
     induction (stack2status s2) as [oks2 | bads2].
@@ -239,7 +242,7 @@ Proof.
       reflexivity.
   - intros nm s1tail IH noerror.
     rewrite stack2status_cons.
-    rewrite status_concatenate_nsscons by (assumption).
+    rewrite status_concatenate_statuscons by (assumption).
     rewrite IH.
     + rewrite <- stack2status_cons.
       reflexivity.
@@ -297,7 +300,7 @@ Proof.
     apply isreflnatleh.
 Defined.
 
-Definition term_isaset: isaset term.
+Lemma term_isaset: isaset term.
 Proof.
   apply isaset_total2.
   apply isofhlevellist.
@@ -368,11 +371,13 @@ Defined.
 
 Definition extract_substack (s: Stack):
    ∏ n m: nat, stack2status s = stackok m → n ≤ m →  
-       ∑ first second: Stack, stack2status first = stackok n × stack2status second = stackok (m - n) ×
+       ∑ first second: Stack, stack2status first = stackok n × 
+                              stack2status second = stackok (m - n) ×
                               concatenate first second = s.
 Proof.
    apply (list_ind (λ s : Stack, ∏ n m: nat, stack2status s = stackok m → n ≤ m → 
-          ∑ first second: Stack, stack2status first = stackok n × stack2status second = stackok (m - n) × 
+          ∑ first second: Stack, stack2status first = stackok n × 
+                                 stack2status second = stackok (m - n) × 
           concatenate first second = s)).
    - intros n m s_status.
      cbn in s_status.
@@ -394,7 +399,8 @@ Proof.
          assumption.
      + apply nat_notgeh1_inv in n_gt_0.
        rewrite stack2status_cons in s_status.
-       assert ( tail_ok: ∑ tail_ar: nat, stack2status tail = stackok tail_ar × arity nm ≤ tail_ar ).
+       assert ( tail_ok: ∑ tail_ar: nat, stack2status tail = stackok tail_ar × 
+                                         arity nm ≤ tail_ar ).
        {
          apply status_cons_noerror.
          rewrite s_status.
@@ -453,9 +459,11 @@ Proof.
          apply idpath.
 Defined.
 
-Definition subterm (s: Stack): ∏ s_is_term: stack_is_term s,  ⟦ arity (princ_op (s ,, s_is_term)) ⟧ → term.
+Definition subterm (s: Stack):
+  ∏ s_is_term: stack_is_term s, ⟦ arity (princ_op (s ,, s_is_term)) ⟧ → term.
 Proof.
-  apply (list_ind (λ (s: Stack), ∏ s_is_term : stack_is_term s, ⟦ arity (princ_op (s,, s_is_term)) ⟧ → term)).
+  apply (list_ind (λ (s: Stack), 
+           ∏ s_is_term : stack_is_term s, ⟦ arity (princ_op (s,, s_is_term)) ⟧ → term)).
   - intro.
     set (contr := nil_not_term s_is_term).
     contradiction.
@@ -521,9 +529,10 @@ Proof.
      exact (result ,, result_is_term).
 Defined.
 
-Definition term_ind :=
-  ∏ (P: term → UU),
-     ( ∏ (nm: names sigma) (vterm: Vector term (arity nm)), (∏ (i:  ⟦ arity nm ⟧), P (el vterm i)) → P (mkterm nm vterm) ) →
-     (∏ t: term, P t).
+Definition term_ind: UU :=
+  ∏ (P: term → UU), 
+     ( ∏ (nm: names sigma) (vterm: Vector term (arity nm)), 
+        (∏ (i:  ⟦ arity nm ⟧), P (el vterm i)) → P (mkterm nm vterm) ) 
+     → (∏ t: term, P t).
 
 End TermAlgebra.
