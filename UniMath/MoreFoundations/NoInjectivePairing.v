@@ -1,7 +1,7 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Univalence.
 
-(** We prove that the following proposition ("injective pairing") is inconsistent with univalence: *)
+(** We prove that the following lemma ("injective pairing") is inconsistent with univalence: *)
 Definition injective_pairing_statement :=
   ∏ A (B : A → UU) a (b b' : B a),
   a ,, b = a ,, b' →
