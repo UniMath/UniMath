@@ -39,15 +39,15 @@ Context (F : C ⟶ D).
 Definition monoidal_functor_map_dom : precategory_binproduct C C ⟶ D.
 use tpair; [| split].
 - use tpair.
-  exact (λ c, F (ob1 c) ⊗_D F (ob2 c)).
-  intros ? ? f.
-  exact (#F (mor1 f) #⊗_D #F (mor2 f)).
+  + exact (λ c, F (ob1 c) ⊗_D F (ob2 c)).
+  + intros ? ? f.
+    exact (#F (mor1 f) #⊗_D #F (mor2 f)).
 - intro.
-  simpl.
+  cbn.
   repeat rewrite functor_id.
   apply tensor_id.
-- unfold functor_compax.
-  simpl.
+- red.
+  cbn.
   intros.
   repeat rewrite functor_comp.
   apply tensor_comp.
@@ -56,22 +56,22 @@ Defined.
 Definition monoidal_functor_map_codom : precategory_binproduct C C ⟶ D.
 use tpair; [| split].
 - use tpair.
-  exact (λ c, F (ob1 c ⊗_C ob2 c)).
-  intros ? ? f.
-  exact (#F (mor1 f #⊗_C mor2 f)).
+  + exact (λ c, F (ob1 c ⊗_C ob2 c)).
+  + intros ? ? f.
+    exact (#F (mor1 f #⊗_C mor2 f)).
 - intro.
-  simpl.
+  cbn.
   rewrite binprod_id.
   rewrite (functor_id tensor_C).
   rewrite functor_id.
-  reflexivity.
-- unfold functor_compax.
+  apply idpath.
+- red.
   simpl.
   intros.
   rewrite binprod_comp.
   rewrite (functor_comp tensor_C).
   rewrite functor_comp.
-  reflexivity.
+  apply idpath.
 Defined.
 
 Definition monoidal_functor_map :=
@@ -92,7 +92,8 @@ Definition monoidal_functor_unitality (ϵ : I_D --> F I_C) (μ : monoidal_functo
 End Monoidal_Functor_Conditions.
 
 Definition lax_monoidal_functor : UU :=
-  ∑ F : C ⟶ D, ∑ ϵ : I_D --> F I_C, ∑ μ : monoidal_functor_map F, (monoidal_functor_associativity F μ) × (monoidal_functor_unitality F ϵ μ).
+  ∑ F : C ⟶ D, ∑ ϵ : I_D --> F I_C, ∑ μ : monoidal_functor_map F,
+   (monoidal_functor_associativity F μ) × (monoidal_functor_unitality F ϵ μ).
 
 Definition strong_monoidal_functor : UU :=
   ∑ L : lax_monoidal_functor,
