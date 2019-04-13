@@ -61,14 +61,14 @@ Proof.
     rewrite (functor_id F).
     rewrite <- (functor_id odot').
     rewrite <- binprod_id.
-    reflexivity.
+    apply idpath.
   - unfold functor_compax.
     simpl.
     intros.
     rewrite <- (functor_comp odot').
     rewrite <- binprod_comp.
     rewrite <- (functor_comp F).
-    reflexivity.
+    apply idpath.
 Qed.
 
 Definition strength_dom : (precategory_binproduct A V) ⟶ A' := mk_functor strength_dom_data strength_dom_is_functor.
@@ -88,30 +88,31 @@ Proof.
     rewrite <- (functor_id F).
     rewrite <- (functor_id odot).
     rewrite <- binprod_id.
-    reflexivity.
+    apply idpath.
   - unfold functor_compax.
     simpl.
     intros.
     rewrite <- (functor_comp F).
     rewrite <- (functor_comp odot).
     rewrite <- binprod_comp.
-    reflexivity.
+    apply idpath.
 Qed.
 
 Definition strength_codom : A ⊠ V ⟶ A' := mk_functor strength_codom_data strength_codom_is_functor.
 
 Definition strength_nat : UU := nat_iso strength_dom strength_codom.
 
-Definition strength_triangle_eq (ϛ : strength_nat) := ∏ (a : A),
-(pr1 ϛ (a, I)) · (#F (pr1 ϱ a)) = pr1 ϱ' (F a).
+Definition strength_triangle_eq (ϛ : strength_nat) :=
+  ∏ (a : A), (pr1 ϛ (a, I)) · (#F (pr1 ϱ a)) = pr1 ϱ' (F a).
 
-Definition strength_pentagon_eq (ϛ : strength_nat) := ∏ (a : A), ∏ (x y : V),
-  (pr1 χ' ((F a, x), y)) · pr1 ϛ (a, x ⊗ y) = (pr1 ϛ (a, x)) #⊙' (id y) · (pr1 ϛ (a ⊙ x, y)) · (#F (pr1 χ ((a, x), y))).
+Definition strength_pentagon_eq (ϛ : strength_nat): UU := ∏ (a : A), ∏ (x y : V),
+  (pr1 χ' ((F a, x), y)) · pr1 ϛ (a, x ⊗ y) =
+  (pr1 ϛ (a, x)) #⊙' (id y) · (pr1 ϛ (a ⊙ x, y)) · (#F (pr1 χ ((a, x), y))).
 
 End Strengths_Natural_Transformation.
 
-Definition strength : UU := ∏ F : A ⟶ A', ∑ (ϛ : strength_nat F),
-(strength_triangle_eq F ϛ) × (strength_pentagon_eq F ϛ).
+Definition strength (F : A ⟶ A'): UU := ∑ (ϛ : strength_nat F),
+  (strength_triangle_eq F ϛ) × (strength_pentagon_eq F ϛ).
 
 End Strengths_Definition.
 
