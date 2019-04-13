@@ -12,8 +12,7 @@ Definition nat_signature: Signature := mk_signature (vcons 0 (vcons 1 vnil)).
 Definition nat_zero: names nat_signature := (●0).
 Definition nat_succ: names nat_signature := (●1).
 
-Definition nat_ops (nm : names nat_signature)
-  : Vector nat (arity nm) → nat.
+Definition nat_ops (nm : names nat_signature): Vector nat (arity nm) → nat.
 Proof.
   induction nm as [n proofn].
   induction n.

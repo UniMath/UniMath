@@ -17,8 +17,7 @@ Definition bool_and: names bool_signature := (●3).
 Local Definition andb (b1 b2: bool): bool := if b1 then b2 else false.
 Local Definition orb (b1 b2: bool): bool := if b1 then true else b2.
 
-Definition bool_ops (nm : names bool_signature)
-  : Vector bool (arity nm) → bool.
+Definition bool_ops (nm : names bool_signature): Vector bool (arity nm) → bool.
 Proof.
   induction nm as [n proofn].
   induction n.
