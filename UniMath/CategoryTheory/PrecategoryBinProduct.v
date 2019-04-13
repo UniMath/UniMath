@@ -252,6 +252,48 @@ Definition functor_fix_fst_arg : functor D E
 
 End functor_fix_fst_arg.
 
+Section nat_trans_from_functor_fix_fst_morphism_arg.
+
+Variable C D E : precategory.
+Variable F : functor (precategory_binproduct C D) E.
+Variable c c' : C.
+Variable g: c --> c'.
+
+Definition nat_trans_from_functor_fix_fst_morphism_arg_data (d: D): functor_fix_fst_arg C D E F c d --> functor_fix_fst_arg C D E F c' d.
+Proof.
+  apply (#F).
+  exact (dirprodpair g (identity d)).
+Defined.
+
+Lemma nat_trans_from_functor_fix_fst_morphism_arg_ax: is_nat_trans _ _ nat_trans_from_functor_fix_fst_morphism_arg_data.
+Proof.
+  red.
+  intros d d' f.
+  unfold nat_trans_from_functor_fix_fst_morphism_arg_data.
+  unfold functor_fix_fst_arg; cbn.
+  unfold functor_fix_fst_arg_mor; simpl.
+  eapply pathscomp0.
+  2: { apply functor_comp. }
+  apply pathsinv0.
+  eapply pathscomp0.
+  2: { apply functor_comp. }
+  apply maponpaths.
+  unfold compose.
+  cbn.
+  do 2 rewrite id_left.
+  do 2 rewrite id_right.
+  apply idpath.
+Qed.
+
+Definition nat_trans_from_functor_fix_fst_morphism_arg: functor_fix_fst_arg C D E F c ⟹ functor_fix_fst_arg C D E F c'.
+Proof.
+  use tpair.
+  - intro d. apply nat_trans_from_functor_fix_fst_morphism_arg_data.
+  - cbn. exact nat_trans_from_functor_fix_fst_morphism_arg_ax.
+Defined.
+
+End nat_trans_from_functor_fix_fst_morphism_arg.
+
 Section nat_trans_fix_fst_arg.
 
 Variable C D E : precategory.
@@ -322,6 +364,48 @@ Proof.
 Defined.
 
 End functor_fix_snd_arg.
+
+Section nat_trans_from_functor_fix_snd_morphism_arg.
+
+Variable C D E : precategory.
+Variable F : functor (precategory_binproduct C D) E.
+Variable d d' : D.
+Variable f: d --> d'.
+
+Definition nat_trans_from_functor_fix_snd_morphism_arg_data (c: C): functor_fix_snd_arg C D E F d c --> functor_fix_snd_arg C D E F d' c.
+Proof.
+  apply (#F).
+  exact (dirprodpair (identity c) f).
+Defined.
+
+Lemma nat_trans_from_functor_fix_snd_morphism_arg_ax: is_nat_trans _ _ nat_trans_from_functor_fix_snd_morphism_arg_data.
+Proof.
+  red.
+  intros c c' g.
+  unfold nat_trans_from_functor_fix_snd_morphism_arg_data.
+  unfold functor_fix_snd_arg; cbn.
+  unfold functor_fix_snd_arg_mor; simpl.
+  eapply pathscomp0.
+  2: { apply functor_comp. }
+  apply pathsinv0.
+  eapply pathscomp0.
+  2: { apply functor_comp. }
+  apply maponpaths.
+  unfold compose.
+  cbn.
+  do 2 rewrite id_left.
+  do 2 rewrite id_right.
+  apply idpath.
+Qed.
+
+Definition nat_trans_from_functor_fix_snd_morphism_arg: functor_fix_snd_arg C D E F d ⟹ functor_fix_snd_arg C D E F d'.
+Proof.
+  use tpair.
+  - intro c. apply nat_trans_from_functor_fix_snd_morphism_arg_data.
+  - cbn. exact nat_trans_from_functor_fix_snd_morphism_arg_ax.
+Defined.
+
+End nat_trans_from_functor_fix_snd_morphism_arg.
 
 Section nat_trans_fix_snd_arg.
 
