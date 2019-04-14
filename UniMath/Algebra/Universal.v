@@ -253,11 +253,14 @@ Section TermAlgebra.
       induction (isdecrelnatleh (arity nm) (a1 + a2)) as [okarity | badarity].
       + cbn.
         apply maponpaths.
-        apply (maponpaths S).
-        apply natleh_adddiff.
-        assumption.
-      + apply fromempty, badarity, natleh_add.
-        assumption.
+        abstract
+          (apply (maponpaths S);
+           apply natleh_adddiff;
+           assumption).
+      + apply fromempty.
+        abstract
+          (apply badarity, natleh_add;
+           assumption).
     - apply fromempty, b.
       apply status_cons_stackok; assumption.
   Defined.
@@ -333,7 +336,7 @@ Section TermAlgebra.
 
   Definition term_op (nm: names sigma) (vec: Vector (Term sigma) (arity nm)): Term sigma.
   Proof.
-    set (res := (stack_cons nm (stack_vector_concatenate vec) (isreflnatleh (arity nm)))).
+    set (res := stack_cons nm (stack_vector_concatenate vec) (isreflnatleh (arity nm))).
     rewrite minuseq0' in res.
     assumption.
   Defined.
@@ -400,9 +403,8 @@ Section TermInduction.
       apply idpath.
     - intro n_gte_1.
       apply fromempty.
-      apply n_gte_1.
-      apply natgthtogehsn.
-      apply natgthsn0.
+      abstract
+        (apply n_gte_1,natgthtogehsn, natgthsn0).
   Defined.
 
   Lemma nat_notgeh1_inv: ∏ n: nat, n != 0 → n ≥ 1.
@@ -412,7 +414,7 @@ Section TermInduction.
     apply natneq0togth0.
     apply nat_nopath_to_neq.
     assumption.
-  Defined.
+  Qed.
 
   Definition extract_sublist (s: list (names sigma)):
     ∏ n m: nat, list2status s = stackok m → n ≤ m  →
@@ -458,11 +460,12 @@ Section TermInduction.
         apply nat_ax in s_status.
         assert (tail_ar_newbound: n + arity nm - 1 ≤ tail_ar).
         {
-          rewrite s_status.
-          apply natlehandminusl.
-          apply natlehandplus.
-          - assumption.
-          - apply isreflnatleh.
+          abstract
+            (rewrite s_status;
+             apply natlehandminusl;
+             apply natlehandplus;
+             [ assumption |
+               apply isreflnatleh ]).
         }
         set (IH1 := IH (n + arity nm - 1) tail_ar tail_status_prf tail_ar_newbound).
         induction IH1 as [fst [snd [status_fst_prf [status_snd_prf conc]]]].
@@ -485,15 +488,16 @@ Section TermInduction.
             rewrite plusminusnmm.
             change (S (n - 1)) with (1 + (n - 1)).
             rewrite natplusminusle.
-            * rewrite natpluscomm.
-              rewrite plusminusnmm.
-              apply idpath.
+            * apply maponpaths.
+              abstract
+                (rewrite natpluscomm, plusminusnmm;
+                 apply idpath).
             * assumption.
           - induction b.
-            rewrite natpluscomm.
-            rewrite <- natplusminusle.
-            + apply natlehnplusnm.
-            + assumption.
+            abstract
+              (rewrite natpluscomm;
+               rewrite <- natplusminusle;
+               [ apply natlehnplusnm | assumption ]).
         }
         exists realfirst.
         exists snd.
@@ -537,12 +541,12 @@ Section TermInduction.
         rewrite s_is_term.
         apply negpathsii1ii2.
       }
-      set ( tail_ok := status_cons_noerror s_ok).
+      set (tail_ok := status_cons_noerror s_ok).
       induction tail_ok as [ tail_ar [ tail_status_prf tail_ar_bound ]].
       rewrite tail_status_prf in s_is_term.
       assert ( tail_ar_x: tail_ar = arity x).
       {
-        set ( X := status_cons_stackok2  s_is_term).
+        set (X := status_cons_stackok2 s_is_term).
         change (1) with (1+0) in X.
         change (S (tail_ar - arity x)) with (1 + (tail_ar - arity x)) in X.
         set (Y := natpluslcan _ _ _ X).
@@ -551,27 +555,28 @@ Section TermInduction.
       }
       rewrite tail_ar_x in tail_status_prf.
       induction (isdecrelnatgeh n 1) as [n_gte_1 | n_eq_0].
-      + assert ( extractok: n - 1 ≤ arity x).
+      + assert (extractok: n - 1 ≤ arity x).
         {
-          apply (istransnatleh(m := arity x - 1)).
-          - apply natlehandminusl.
-            apply natlthtoleh.
-            assumption.
-          - apply natminuslehn.
+          abstract
+            (apply (istransnatleh(m := arity x - 1));
+             [ apply natlehandminusl, natlthtoleh;
+               assumption
+             | apply natminuslehn ]).
         }
         set (remove := extract_sublist tail (n - 1) (arity x) tail_status_prf extractok).
         induction remove as [first [ second  [ firstss [ secondss conc] ] ] ].
         assert ( extractok2: 1 ≤ arity x - (n - 1) ).
         {
-          apply (natlehandplusrinv _ _ (n - 1)).
-          rewrite minusplusnmm by (assumption).
-          rewrite natplusminusle by (assumption).
-          rewrite natpluscomm.
-          rewrite <- natplusminusle by (apply idpath).
-          simpl (1 - 1).
-          rewrite natplusr0.
-          apply natlthtoleh.
-          assumption.
+          abstract
+            (apply (natlehandplusrinv _ _ (n - 1));
+             rewrite minusplusnmm by (assumption);
+             rewrite natplusminusle by (assumption);
+             rewrite natpluscomm;
+             rewrite <- natplusminusle by (apply idpath);
+             simpl (1 - 1);
+             rewrite natplusr0;
+             apply natlthtoleh;
+             assumption).
         }
         set (res := extract_sublist second 1 (arity x - (n - 1)) secondss extractok2).
         induction res as [result [second0 [result_is_term [second_ss conc1]]]].
@@ -579,9 +584,10 @@ Section TermInduction.
       + apply nat_notgeh1 in n_eq_0.
         assert (extractok: 1 ≤ arity x ).
         {
-          apply natlthtolehsn.
-          rewrite <- n_eq_0.
-          assumption.
+          abstract
+            (apply natlthtolehsn;
+             rewrite <- n_eq_0;
+             assumption).
         }
         set (res := extract_sublist tail 1 (arity x) tail_status_prf extractok).
         induction res as [result  [second0 [result_is_term [second_ss conc1]]]].
