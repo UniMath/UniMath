@@ -56,7 +56,7 @@ To cite UniMath in your article, you can use the following bibtex item:
 Note that this requires ```\usepackage{url}``` or ```\usepackage{hyperref}```.
 
 
-The UniMath Development Team
+The UniMath Coordinating Committee
 ----------------------------
 
 The UniMath project was started in 2014 by merging the repository
@@ -67,7 +67,7 @@ Benedikt Ahrens, and [Ktheory](https://github.com/DanGrayson/Ktheory), by
 Daniel Grayson.  Vladimir Voevodsky was a member of the team until his death in
 September, 2017.
 
-The current members of the UniMath Development Team are:
+The current members of the UniMath Coordinating Committee are:
 
 - Benedikt Ahrens
 - Daniel Grayson
