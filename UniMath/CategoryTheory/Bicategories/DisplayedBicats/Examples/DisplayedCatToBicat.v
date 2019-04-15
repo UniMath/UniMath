@@ -22,6 +22,24 @@ Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispUnivalenc
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
+Definition is_chaotic
+           {C : bicat}
+           (D : disp_bicat C)
+  : UU
+  := ∏ (a b : C) (f g : a --> b) (α : f ==> g)
+       (aa : D a) (bb : D b)
+       (ff : aa -->[ f ] bb) (gg : aa -->[ g ] bb),
+     iscontr (ff ==>[ α ] gg).
+
+Definition isaprop_is_chaotic
+           {C : bicat}
+           (D : disp_bicat C)
+  : isaprop (is_chaotic D).
+Proof.
+  repeat (apply impred ; intro).
+  apply isapropiscontr.
+Qed.
+
 Section Disp_Prebicat_Cells_Unit.
   Context {C : bicat} (D : disp_cat_data C).
 
@@ -243,5 +261,13 @@ Section Disp_Prebicat_Cells_Unit.
     - apply disp_cell_unit_bicat_univalent_2_0; assumption.
     - apply disp_cell_unit_bicat_univalent_2_1; assumption.
   Defined.
-
 End Disp_Prebicat_Cells_Unit.
+
+Definition is_chaotic_disp_bicat_cells_unit
+           {C : bicat}
+           (D : disp_cat_data C)
+  : is_chaotic (disp_cell_unit_bicat D).
+Proof.
+  intro ; intros.
+  apply iscontrunit.
+Defined.
