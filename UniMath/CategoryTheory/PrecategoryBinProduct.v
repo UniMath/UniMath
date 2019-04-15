@@ -21,12 +21,18 @@
   - From a functor on a product of precategories to a functor on one of
     the categories by fixing the argument in the other component
 
+  - From a functor on a product of precategories to a nat. transformation on one of
+    the categories by fixing the morphism argument in the other component
+
   - Definition of the associator functors
 
   - Definition of the pair of two functors: A × C → B × D
     given A → B and C → D
 
   - Definition of the diagonal functor [bindelta_functor].
+
+  - Definition of post-whiskering with parameter (with a functor on a
+    product of precategories where one argument is seen as parameter)
 
 *)
 
@@ -540,14 +546,14 @@ Section whiskering.
 (** Postwhiskering with parameter *)
 
 Definition nat_trans_data_post_whisker_fst_param {B C D P: precategory}
-           {G H : functor B C} (γ : nat_trans G H) (K : functor (P × C) D):
+           {G H : functor B C} (γ : G ⟹ H) (K : functor (P × C) D):
   nat_trans_data (functor_composite (pair_functor (functor_identity _) G) K)
                  (functor_composite (pair_functor (functor_identity _) H) K) :=
   λ pb : P × B, #K ((identity (ob1 pb),, γ (ob2 pb)):
                       (P × C)⟦ob1 pb,, G(ob2 pb), ob1 pb,, H(ob2 pb)⟧).
 
 Lemma is_nat_trans_post_whisker_fst_param {B C D P: precategory}
-      {G H : functor B C} (γ : nat_trans G H) (K : functor (P × C) D):
+      {G H : functor B C} (γ : G ⟹ H) (K : functor (P × C) D):
   is_nat_trans _ _ (nat_trans_data_post_whisker_fst_param γ K).
 Proof.
   intros pb pb' f.
@@ -565,21 +571,21 @@ Proof.
 Qed.
 
 Definition post_whisker_fst_param {B C D P: precategory}
-  {G H : functor B C} (γ : nat_trans G H) (K : functor (P × C) D):
+  {G H : functor B C} (γ : G ⟹ H) (K : functor (P × C) D):
   (functor_composite (pair_functor (functor_identity _) G) K) ⟹
   (functor_composite (pair_functor (functor_identity _) H) K) :=
   mk_nat_trans _ _ _ (is_nat_trans_post_whisker_fst_param γ K).
 
 
 Definition nat_trans_data_post_whisker_snd_param {B C D P: precategory}
-           {G H : functor B C} (γ : nat_trans G H) (K : functor (C × P) D):
+           {G H : functor B C} (γ : G ⟹ H) (K : functor (C × P) D):
   nat_trans_data (functor_composite (pair_functor G (functor_identity _)) K)
                  (functor_composite (pair_functor H (functor_identity _)) K) :=
   λ bp : B × P, #K ((γ (ob1 bp),, identity (ob2 bp)):
                       (C × P)⟦G(ob1 bp),, ob2 bp, H(ob1 bp),, ob2 bp⟧).
 
 Lemma is_nat_trans_post_whisker_snd_param {B C D P: precategory}
-      {G H : functor B C} (γ : nat_trans G H) (K : functor (C × P) D):
+      {G H : functor B C} (γ : G ⟹ H) (K : functor (C × P) D):
   is_nat_trans _ _ (nat_trans_data_post_whisker_snd_param γ K).
 Proof.
   intros bp bp' f.
@@ -597,7 +603,7 @@ Proof.
 Qed.
 
 Definition post_whisker_snd_param {B C D P: precategory}
-  {G H : functor B C} (γ : nat_trans G H) (K : functor (C × P) D):
+  {G H : functor B C} (γ : G ⟹ H) (K : functor (C × P) D):
   (functor_composite (pair_functor G (functor_identity _)) K) ⟹
   (functor_composite (pair_functor H (functor_identity _)) K) :=
   mk_nat_trans _ _ _ (is_nat_trans_post_whisker_snd_param γ K).
