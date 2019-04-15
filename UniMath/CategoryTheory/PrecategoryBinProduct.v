@@ -534,3 +534,72 @@ Definition binswap_pair_functor {C D : precategory} :
   pair_functor (pr2_functor C D) (pr1_functor C D) □ bindelta_functor (precategory_binproduct C D).
 
 End functors.
+
+Section whiskering.
+
+(** Postwhiskering with parameter *)
+
+Definition nat_trans_data_post_whisker_fst_param {B C D P: precategory}
+           {G H : functor B C} (γ : nat_trans G H) (K : functor (P × C) D):
+  nat_trans_data (functor_composite (pair_functor (functor_identity _) G) K)
+                 (functor_composite (pair_functor (functor_identity _) H) K) :=
+  λ pb : P × B, #K ((identity (ob1 pb),, γ (ob2 pb)):
+                      (P × C)⟦ob1 pb,, G(ob2 pb), ob1 pb,, H(ob2 pb)⟧).
+
+Lemma is_nat_trans_post_whisker_fst_param {B C D P: precategory}
+      {G H : functor B C} (γ : nat_trans G H) (K : functor (P × C) D):
+  is_nat_trans _ _ (nat_trans_data_post_whisker_fst_param γ K).
+Proof.
+  intros pb pb' f.
+  cbn.
+  unfold nat_trans_data_post_whisker_fst_param.
+  eapply pathscomp0.
+  2: { apply functor_comp. }
+  eapply pathscomp0.
+  { apply pathsinv0. apply functor_comp. }
+  apply maponpaths.
+  unfold compose; cbn.
+  rewrite id_left. rewrite id_right.
+  apply maponpaths.
+  apply (nat_trans_ax γ).
+Qed.
+
+Definition post_whisker_fst_param {B C D P: precategory}
+  {G H : functor B C} (γ : nat_trans G H) (K : functor (P × C) D):
+  (functor_composite (pair_functor (functor_identity _) G) K) ⟹
+  (functor_composite (pair_functor (functor_identity _) H) K) :=
+  mk_nat_trans _ _ _ (is_nat_trans_post_whisker_fst_param γ K).
+
+
+Definition nat_trans_data_post_whisker_snd_param {B C D P: precategory}
+           {G H : functor B C} (γ : nat_trans G H) (K : functor (C × P) D):
+  nat_trans_data (functor_composite (pair_functor G (functor_identity _)) K)
+                 (functor_composite (pair_functor H (functor_identity _)) K) :=
+  λ bp : B × P, #K ((γ (ob1 bp),, identity (ob2 bp)):
+                      (C × P)⟦G(ob1 bp),, ob2 bp, H(ob1 bp),, ob2 bp⟧).
+
+Lemma is_nat_trans_post_whisker_snd_param {B C D P: precategory}
+      {G H : functor B C} (γ : nat_trans G H) (K : functor (C × P) D):
+  is_nat_trans _ _ (nat_trans_data_post_whisker_snd_param γ K).
+Proof.
+  intros bp bp' f.
+  cbn.
+  unfold nat_trans_data_post_whisker_snd_param.
+  eapply pathscomp0.
+  2: { apply functor_comp. }
+  eapply pathscomp0.
+  { apply pathsinv0. apply functor_comp. }
+  apply maponpaths.
+  unfold compose; cbn.
+  rewrite id_left. rewrite id_right.
+  apply (maponpaths (λ x, dirprodpair x (pr2 f))).
+  apply (nat_trans_ax γ).
+Qed.
+
+Definition post_whisker_snd_param {B C D P: precategory}
+  {G H : functor B C} (γ : nat_trans G H) (K : functor (C × P) D):
+  (functor_composite (pair_functor G (functor_identity _)) K) ⟹
+  (functor_composite (pair_functor H (functor_identity _)) K) :=
+  mk_nat_trans _ _ _ (is_nat_trans_post_whisker_snd_param γ K).
+
+End whiskering.

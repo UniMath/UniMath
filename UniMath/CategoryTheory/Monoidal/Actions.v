@@ -9,6 +9,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
@@ -156,71 +157,22 @@ Qed.
 
 Definition U_action_ρ : action_right_unitor otimes_U_functor := mk_nat_iso _ _ U_action_ρ_nat_trans U_action_ρ_is_nat_iso.
 
-Definition U_action_χ_nat_trans_data : nat_trans_data (odot_x_odot_y_functor otimes_U_functor)
-(odot_x_otimes_y_functor otimes_U_functor).
+Definition U_action_χ_nat_trans : odot_x_odot_y_functor otimes_U_functor ⟹ odot_x_otimes_y_functor otimes_U_functor.
 Proof.
+  apply (nat_trans_comp _ _ _ (pre_whisker (pair_functor (pair_functor (functor_identity _) U) U) (pr1 α_A))).
   pose (μ := pr1 (pr2 (pr2 (pr1 U)))).
-  intro x.
-  pose (k := ob1 (ob1 x)); pose (k' := ob2 (ob1 x)); pose (k'' := ob2 x).
-  exact (pr1 α_A ((k, U k'), U k'') · id k #⊗_A pr1 μ (k', k'')).
+  exact (pre_whisker (precategory_binproduct_unassoc _ _ _) (post_whisker_fst_param μ tensor_A)).
 Defined.
 
-Definition U_action_χ_is_nat_trans : is_nat_trans (odot_x_odot_y_functor otimes_U_functor)
-  (odot_x_otimes_y_functor otimes_U_functor) U_action_χ_nat_trans_data.
+Lemma U_action_χ_nat_trans_ok: nat_trans_data_from_nat_trans U_action_χ_nat_trans =
+  let μ := pr1 (pr2 (pr2 (pr1 U))) in
+  λ x, let k   := ob1 (ob1 x) in
+       let k'  := ob2 (ob1 x) in
+       let k'' := ob2 x in
+       pr1 α_A ((k, U k'), U k'') · id k #⊗_A pr1 μ (k', k'').
 Proof.
-  pose (μ := pr1 (pr2 (pr2 (pr1 U)))).
-  unfold U_action_χ_nat_trans_data.
-  intros x x' g.
-  cbn.
-  pose (k_1 := ob1 (ob1 x)); pose (k'_1 := ob2 (ob1 x)); pose (k''_1 := ob2 x).
-  pose (k_2 := ob1 (ob1 x')); pose (k'_2 := ob2 (ob1 x')); pose (k''_2 := ob2 x').
-  pose (f := mor1 (mor1 g)); pose (f' := mor2 (mor1 g)); pose (f'' := mor2 g).
-  assert (α_nat_law := pr2 (pr1 α_A) ((k_1, U k'_1), U k''_1)
-                                     ((k_2, U k'_2), U k''_2)
-                                     ((f #, #U f') #, #U f'')).
-  assert (μ_coher : id k_1 #⊗_A (pr1 μ (k'_1, k''_1)) · (f #⊗_A #U (f' #⊗ f'')) =
-                    f #⊗_A (#U f' #⊗_A #U f'') · id k_2 #⊗_A (pr1 μ (k'_2, k''_2))).
-  { do 2 rewrite <- tensor_comp.
-    rewrite id_left; rewrite id_right.
-    assert (snd_eq : pr1 μ (k'_1, k''_1) · # U (f' #⊗ f'') =
-                     # tensor_A (# U f' #, # U f'') · pr1 μ (k'_2, k''_2)).
-    { apply pathsinv0.
-      exact (pr2 μ (k'_1, k''_1) (k'_2, k''_2) (f' #, f'')).
-    }
-    change (# tensor_A (f #, pr1 μ (k'_1, k''_1) · # U (# tensor (f' #, f''))) =
-            # tensor_A (f #, # tensor_A (# U f' #, # U f'') · pr1 μ (k'_2, k''_2))).
-    rewrite <- snd_eq.
-    apply idpath.
-  }
-  change (# tensor_A (# tensor_A (f #, # U f') #, # U f'') ·
-            pr1 (pr1 α_A) ((k_2, U k'_2), U k''_2) =
-          pr1 (pr1 α_A) ((k_1, U k'_1), U k''_1) ·
-              # tensor_A (f #, # tensor_A (# U f' #, # U f''))) in α_nat_law.
-  assert (α_nat_law' := maponpaths (λ p, p · id k_2 #⊗_A (pr1 μ (k'_2, k''_2))) α_nat_law).
-  simpl in α_nat_law'.
-  repeat rewrite <- assoc in α_nat_law'.
-  change (# tensor_A (# tensor_A (f #, # U f') #, # U f'') ·
-            (pr1 (pr1 α_A) ((k_2, U k'_2), U k''_2) ·
-                 # tensor_A (id k_2 #, pr1 μ (k'_2, k''_2))) =
-          pr1 (pr1 α_A) ((k_1, U k'_1), U k''_1) ·
-              (# tensor_A (f #, # tensor_A (# U f' #, # U f'')) ·
-                 # tensor_A (id k_2 #, pr1 μ (k'_2, k''_2)))) in α_nat_law'.
-  change (# tensor_A (id k_1 #, pr1 μ (k'_1, k''_1)) ·
-            # tensor_A (f #, # U (# tensor (f' #, f''))) =
-          # tensor_A (f #, # tensor_A (# U f' #, # U f'')) ·
-            # tensor_A (id k_2 #, pr1 μ (k'_2, k''_2))) in μ_coher.
-  pose (common := (# tensor_A (f #, # tensor_A (# U f' #, # U f'')) ·
-                     # tensor_A (id k_2 #, pr1 μ (k'_2, k''_2)))).
-  fold common in μ_coher.
-  fold common in α_nat_law'.
-  rewrite <- μ_coher in α_nat_law'.
-  repeat rewrite assoc in α_nat_law'.
-  repeat rewrite assoc.
-  exact α_nat_law'.
+  apply idpath.
 Qed.
-
-Definition U_action_χ_nat_trans : odot_x_odot_y_functor otimes_U_functor ⟹ odot_x_otimes_y_functor otimes_U_functor :=
-  mk_nat_trans _ _ U_action_χ_nat_trans_data U_action_χ_is_nat_trans.
 
 Lemma U_action_χ_is_nat_iso : is_nat_iso U_action_χ_nat_trans.
 Proof.
