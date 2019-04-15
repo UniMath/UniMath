@@ -49,98 +49,50 @@ Proof.
 Defined.
 
 (* I ⊗ - *)
-Definition I_pretensor : C ⟶ C.
+Definition I_pretensor : C ⟶ C := functor_fix_fst_arg _ _ _ tensor I.
+
+Lemma I_pretensor_ok: functor_on_objects I_pretensor = λ c, I ⊗ c.
 Proof.
-    use tpair.
-    - use tpair.
-      + exact (λ c, I ⊗ c).
-      + intros ? ? f.
-        exact (id I #⊗ f).
-    - split.
-      + intro.
-        cbn.
-        apply tensor_id.
-      + unfold functor_compax.
-        cbn.
-        intros.
-        rewrite <- (id_left (id I)).
-        rewrite binprod_comp.
-        rewrite id_left.
-        rewrite (functor_comp tensor).
-        apply idpath.
-Defined.
+  apply idpath.
+Qed.
 
 (* λ *)
 Definition left_unitor : UU :=
   nat_iso I_pretensor (functor_identity C).
 
 (* - ⊗ I *)
-Definition I_posttensor : C ⟶ C.
+Definition I_posttensor : C ⟶ C := functor_fix_snd_arg _ _ _ tensor I.
+
+Lemma I_posttensor_ok: functor_on_objects I_posttensor = λ c, c ⊗ I.
 Proof.
-    use tpair.
-    - use tpair.
-      + exact (λ c, c ⊗ I).
-      + intros ? ? f.
-        exact (f #⊗ id I).
-    - split.
-      + intro.
-        cbn.
-        apply tensor_id.
-      + unfold functor_compax.
-        cbn.
-        intros.
-        rewrite <- (id_left (id I)).
-        rewrite binprod_comp.
-        rewrite id_left.
-        rewrite (functor_comp tensor).
-        apply idpath.
-Defined.
+  apply idpath.
+Qed.
 
 (* ρ *)
 Definition right_unitor : UU :=
   nat_iso I_posttensor (functor_identity C).
 
 (* (- ⊗ =) ⊗ ≡ *)
-Definition assoc_left : (C ⊠ C) ⊠ C ⟶ C.
+Definition assoc_left : (C ⊠ C) ⊠ C ⟶ C :=
+  functor_composite (pair_functor tensor (functor_identity _)) tensor.
+
+Lemma assoc_left_ok: functor_on_objects assoc_left =
+  λ c, (ob1 (ob1 c) ⊗ ob2 (ob1 c)) ⊗ ob2 c.
 Proof.
-  use tpair; [| split].
-  - use tpair.
-    + exact (λ c, (ob1 (ob1 c) ⊗ ob2 (ob1 c)) ⊗ ob2 c).
-    + intros ? ? f.
-      exact ((mor1 (mor1 f) #⊗ mor2 (mor1 f)) #⊗ mor2 f).
-  - intro a.
-    cbn.
-    repeat rewrite (binprod_proj_id a); repeat rewrite binprod_proj_id.
-    do 2 rewrite tensor_id.
-    apply idpath.
-  - unfold functor_compax.
-    cbn.
-    intros a b c f g.
-    repeat rewrite (binprod_proj_comp f); repeat rewrite binprod_proj_comp.
-    do 2 rewrite tensor_comp.
-    apply idpath.
-Defined.
+  apply idpath.
+Qed.
 
 (* - ⊗ (= ⊗ ≡) *)
-Definition assoc_right : (C ⊠ C) ⊠ C ⟶ C.
+Definition assoc_right : (C ⊠ C) ⊠ C ⟶ C :=
+  functor_composite
+    (precategory_binproduct_unassoc _ _ _)
+    (functor_composite (pair_functor (functor_identity _) tensor) tensor).
+
+Lemma assoc_right_ok: functor_on_objects assoc_right =
+  λ c, ob1 (ob1 c) ⊗ (ob2 (ob1 c) ⊗ ob2 c).
 Proof.
-  use tpair; [| split].
-  - use tpair.
-    + exact (λ c, ob1 (ob1 c) ⊗ (ob2 (ob1 c) ⊗ ob2 c)).
-    + intros ? ? f.
-      exact (mor1 (mor1 f) #⊗ (mor2 (mor1 f) #⊗ mor2 f)).
-  - intro a.
-    cbn.
-    repeat rewrite (binprod_proj_id a); repeat rewrite binprod_proj_id.
-    do 2 rewrite tensor_id.
-    apply idpath.
-  - unfold functor_compax.
-    cbn.
-    intros a b c f g.
-    repeat rewrite (binprod_proj_comp f); repeat rewrite binprod_proj_comp.
-    do 2 rewrite tensor_comp.
-    apply idpath.
-Defined.
+  apply idpath.
+Qed.
 
 (* α *)
 Definition associator : UU :=
