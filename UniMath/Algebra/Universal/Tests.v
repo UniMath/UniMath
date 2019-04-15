@@ -129,16 +129,17 @@ Section Bool.
   Goal pr1 (extract_substack t1 0 (natleh0n 0)) = stack_empty bool_signature.
   Proof. exact (idpath _). Qed.
 
-  Compute pr2 (pr2 (extract_substack t1 0 (natleh0n 0))).
-
-  Goal stack2list (pr1 (pr2 (extract_substack t1 0 (natleh0n 0)))) = stack2list t1.
+  Goal pr1 ( pr2 (extract_substack t1 0 (natleh0n 0))) = t1.
   Proof. exact (idpath _). Qed.
 
-  (* Compute stack2list (pr1 (extract_substack t1 1 (natleh0n 0))) *)
+  Compute pr2 (pr2 (extract_substack t1 0 (natleh0n 0))).
 
-  (* Compute stack2proof (pr1 (pr2 (extract_substack t1 0 (natleh0n 0)))). *)
+  (* Compute hangs *)
+  Eval cbn in stack2proof (pr1 (pr2 (extract_substack t1 0 (natleh0n 0)))).
 
-  (* Compute term2list (subterm t2 (●0)). *)
+  Eval cbn in stack2list (pr1 (extract_substack t1 1 (natleh0n 0))).
+
+  Eval cbn in term2list (subterm t2 (●0)).
 
   Goal subterm t2 (●0) = t1.
   Proof. Abort.
