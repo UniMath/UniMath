@@ -149,6 +149,22 @@ Section Terms.
 
   Definition Status: UU := nat ⨿ unit.
 
+  Lemma status_isaset: isaset Status.
+  Proof.
+    apply isasetcoprod.
+    - apply isasetnat.
+    - apply isasetunit.
+  Qed.
+
+  Lemma status_isisolated (s: Status): isisolated Status s.
+  Proof.
+    induction s as [sok | serror].
+    - apply isolatedtoisolatedii1.
+      apply isisolatedn.
+    - induction serror.
+      apply disjointl1.
+  Qed.
+
   Definition stackok n: Status := ii1 n.
 
   Definition stackerror: Status := ii2 tt.
@@ -167,6 +183,17 @@ Section Terms.
 
   Definition Stack (sigma: Signature) (n: nat)
     : UU := ∑ s: list (names sigma), list2status s = stackok n.
+
+  Lemma stack_isaset {sigma: Signature} {n: nat}: isaset (Stack sigma n).
+  Proof.
+    apply isaset_total2.
+    - apply isofhlevellist.
+      exact (pr2 (names sigma)).
+    - intros.
+      apply isasetaprop.
+      apply isaproppathstoisolated.
+      apply status_isisolated.
+  Qed.
 
   Definition mk_stack {sigma: Signature} (n: nat) (s: list (names sigma))
              (proofs: list2status s = stackok n)
@@ -475,7 +502,7 @@ Section TermInduction.
         split.
         2: split.
         * apply idpath.
-        * (**** THIS PROOF DOES NOT COMPUTE ****)
+        * (**** THIS PROOF DOES NOT COMPUTE WELL ****)
           rewrite natminuseqn.
           assumption.
         * apply idpath.
@@ -588,44 +615,20 @@ Section TermInduction.
         apply natdiffasymm; assumption.
       }
       rewrite tail_ar_x in tail_status_prf.
-      induction (isdecrelnatgeh n 1) as [n_gte_1 | n_eq_0].
-      + assert (extractok: n - 1 ≤ arity x).
-        {
-          abstract
-            (apply (istransnatleh(m := arity x - 1));
-             [ apply natlehandminusl, natlthtoleh;
-               assumption
-             | apply natminuslehn ]).
-        }
-        set (remove := extract_sublist tail (n - 1) (arity x) tail_status_prf extractok).
-        induction remove as [first [ second  [ firstss [ secondss conc] ] ] ].
-        assert ( extractok2: 1 ≤ arity x - (n - 1) ).
-        {
-          abstract
-            (apply (natlehandplusrinv _ _ (n - 1));
-             rewrite minusplusnmm by (assumption);
-             rewrite natplusminusle by (assumption);
-             rewrite natpluscomm;
-             rewrite <- natplusminusle by (apply idpath);
-             simpl (1 - 1);
-             rewrite natplusr0;
-             apply natlthtoleh;
-             assumption).
-        }
-        set (res := extract_sublist second 1 (arity x - (n - 1)) secondss extractok2).
-        induction res as [result [second0 [result_is_term [second_ss conc1]]]].
-        exact (result ,, result_is_term).
-      + apply nat_notgeh1 in n_eq_0.
-        assert (extractok: 1 ≤ arity x ).
-        {
-          abstract
-            (apply natlthtolehsn;
-             rewrite <- n_eq_0;
-             assumption).
-        }
-        set (res := extract_sublist tail 1 (arity x) tail_status_prf extractok).
-        induction res as [result  [second0 [result_is_term [second_ss conc1]]]].
-        exact (result ,, result_is_term).
+      set (n_le_arx := natlthtoleh _ _ n_lt_arx).
+      set (remove := extract_sublist tail n (arity x) tail_status_prf n_le_arx).
+      induction remove as [first [ second  [ firstss [ secondss conc] ] ] ].
+      assert ( extractok2: 1 ≤ arity x - n ).
+      {
+        apply (natlehandplusrinv _ _ n).
+        rewrite minusplusnmm by (assumption).
+        rewrite natpluscomm.
+        apply natlthtolehp1.
+        exact n_lt_arx.
+      }
+      set (res := extract_sublist second 1 (arity x - n) secondss extractok2).
+      induction res as [result [second0 [result_is_term [second_ss conc1]]]].
+      exact (result ,, result_is_term).
   Defined.
 
   Definition term_ind: UU :=
