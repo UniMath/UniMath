@@ -16,23 +16,22 @@ Definition Signature: UU := ∑ (names: hSet), names → Arity.
 
 Definition names (sigma: Signature): hSet := pr1 sigma.
 
-Definition arity {sigma: Signature}: names sigma → Arity := pr2 sigma.
+Definition arity {sigma: Signature} (nm: names sigma): Arity := pr2 sigma nm.
 
-Definition mk_signature {n: nat} (v: Vector nat n): Signature
-  := (stnset n,, el v).
+Definition mk_signature {n: nat} (v: Vector nat n): Signature := (stnset n,, el v).
 
 Definition Algebra (sigma: Signature): UU
   := ∑ (support: hSet), ∏ (nm: names sigma), Vector support (arity nm) → support.
 
-Definition support {sigma: Signature} (a: Algebra sigma): hSet := pr1 a.
+Coercion support {sigma: Signature} (a: Algebra sigma): hSet := pr1 a.
 
-Definition dom {sigma: Signature} {a: Algebra sigma} (nm: names sigma): UU :=
-  Vector (support a) (arity nm).
+Definition dom {sigma: Signature} (a: Algebra sigma) (nm: names sigma): UU
+  := Vector (support a) (arity nm).
 
-Definition cod {sigma: Signature} {a: Algebra sigma} (nm: names sigma): UU :=
-  support a.
+Definition cod {sigma: Signature} (a: Algebra sigma) (nm: names sigma): UU
+  := support a.
 
-Definition op {sigma: Signature} {a: Algebra sigma} (nm: names sigma): (dom nm) → (cod nm)
+Definition op {sigma: Signature} (a: Algebra sigma) (nm: names sigma): (dom a nm) → (cod a nm)
   := pr2 a nm.
 
 Definition mk_algebra {sigma : Signature} (support : hSet)
@@ -45,29 +44,51 @@ Section Homomorphisms.
 
   Context { sigma: Signature }.
 
-  Definition is_hom {a1 a2: Algebra sigma} (f: support a1 → support a2): UU :=
-    ∏ (nm: names sigma) (x: dom nm), (f (op nm x) = (op nm (vector_map f x))).
+  Definition is_hom (a1 a2: Algebra sigma) (f: a1 → a2): UU
+    := ∏ (nm: names sigma) (x: dom a1 nm), (f (op a1 nm x) = (op a2 nm (vector_map f x))).
 
-  Definition hom (a1 a2: Algebra sigma): UU :=  ∑ (f: support a1 → support a2), is_hom f.
+  Definition hom (a1 a2: Algebra sigma): UU :=  ∑ (f: support a1 → support a2), is_hom a1 a2 f.
+
+  Definition mk_hom (a1 a2: Algebra sigma) (f: a1 → a2) (f_is_hom: is_hom a1 a2 f): hom a1 a2 := f ,, f_is_hom.
 
   Local Notation "a1 ↦ a2" := (hom a1 a2)  (at level 80, right associativity).
 
-  Definition hom_to_fun {a1 a2: Algebra sigma} (f: a1 ↦ a2): support a1 → support a2 := pr1 f.
+  Definition hom2fun {a1 a2: Algebra sigma} (f: a1 ↦ a2): support a1 → support a2 := pr1 f.
 
-  Definition hom_to_proof {a1 a2: Algebra sigma} (f: a1 ↦ a2): is_hom (hom_to_fun f) := pr2 f.
+  Coercion hom2fun: hom >-> Funclass.
 
-  Definition hom_id {a: Algebra sigma}: a ↦ a.
+  Definition hom2proof {a1 a2: Algebra sigma} (f: a1 ↦ a2): is_hom a1 a2 (hom2fun f) := pr2 f.
+
+  Theorem hom_isaset (a1 a2: Algebra sigma): isaset (hom a1 a2).
   Proof.
-    exists (idfun (support a)).
+    unfold hom.
+    apply isaset_total2.
+    - apply isaset_forall_hSet.
+    - intros.
+      unfold is_hom.
+      apply impred_isaset.
+      intros.
+      apply impred_isaset.
+      intros.
+      induction a2 as [support ops].
+      induction support as [T isasetT].
+      apply isasetaprop.
+      apply isaproppathstoisolated.
+      cbn.
+  Abort.
+
+  Lemma idfun_is_hom (a: Algebra sigma): is_hom a a (idfun (support a)).
+  Proof.
     red.
     intros.
     rewrite vector_map_id.
     reflexivity.
   Defined.
 
-  Definition hom_comp {a1 a2 a3: Algebra sigma} (h1: a1 ↦ a2) (h2: a2 ↦ a3) : a1 ↦ a3.
+  Definition hom_id (a: Algebra sigma): a ↦ a := mk_hom a a (idfun a) (idfun_is_hom a).
+
+  Lemma comp_is_hom  {a1 a2 a3: Algebra sigma} (h1: a1 ↦ a2) (h2: a2 ↦ a3): is_hom a1 a3 (funcomp h1 h2).
   Proof.
-    exists (funcomp (hom_to_fun h1) (hom_to_fun h2)).
     red.
     intros.
     induction h1 as [f1 ishomf1].
@@ -78,6 +99,9 @@ Section Homomorphisms.
     rewrite ishomf2.
     reflexivity.
   Defined.
+
+  Definition hom_comp {a1 a2 a3: Algebra sigma} (h1: a1 ↦ a2) (h2: a2 ↦ a3) : a1 ↦ a3
+    := mk_hom a1 a3 (funcomp h1 h2) (comp_is_hom h1 h2).
 
 End Homomorphisms.
 
@@ -90,21 +114,22 @@ Section TerminalAlgebra.
   Definition terminal_algebra: Algebra sigma
     := mk_algebra unitset (λ nm: names sigma, (λ u: Vector unit (arity nm), tt)).
 
-  Definition terminal_hom (a : Algebra sigma): hom a terminal_algebra.
+  Lemma is_hom_terminalhom {a: Algebra sigma}: is_hom a terminal_algebra (λ x: a, tt).
   Proof.
-    red.
-    exists (λ _, tt).
     red.
     intros.
     apply iscontrunit.
   Defined.
+
+  Definition terminal_hom (a : Algebra sigma): hom a terminal_algebra
+    :=  mk_hom a terminal_algebra (λ _: a, tt) is_hom_terminalhom.
 
   Theorem terminal_hom_unicity (a: Algebra sigma) (f: hom a terminal_algebra): f = terminal_hom a.
   Proof.
     eapply total2_paths2_f.
     Unshelve.
     2: apply iscontrfuntounit.
-    assert (isprop: ∏ (f: support a → support terminal_algebra), isaprop (is_hom f)).
+    assert (isprop: ∏ (f: support a → support terminal_algebra), isaprop (is_hom _ _ f)).
     - intro.
       apply isapropifcontr.
       unfold is_hom.
@@ -131,23 +156,34 @@ Section Terms.
   Definition status_cons {sigma: Signature} (nm: names sigma) (status: Status): Status.
   Proof.
     induction status as [n | error].
-  - induction (isdecrelnatleh (arity nm) n).
-    + exact (stackok ( S(n - arity nm) ) ).
-    + exact stackerror.
-  - exact stackerror.
+    - induction (isdecrelnatleh (arity nm) n).
+      + exact (stackok ( S(n - arity nm) ) ).
+      + exact stackerror.
+    - exact stackerror.
   Defined.
 
-  Definition list2status {sigma: Signature}
-    : list (names sigma) → Status := foldr status_cons (stackok 0).
+  Definition list2status {sigma: Signature} (l: list (names sigma)): Status
+    := foldr status_cons (stackok 0) l.
 
   Definition Stack (sigma: Signature) (n: nat)
     : UU := ∑ s: list (names sigma), list2status s = stackok n.
 
-  Coercion stack2list {sigma: Signature} {n: nat}
-    : Stack sigma n → list (names sigma) := pr1.
+  Definition mk_stack {sigma: Signature} (n: nat) (s: list (names sigma))
+             (proofs: list2status s = stackok n)
+    : Stack sigma n := s ,, proofs.
+
+  Coercion stack2list {sigma: Signature} {n: nat} (s: Stack sigma n)
+    : list (names sigma) := pr1 s.
 
   Definition stack2proof {sigma: Signature} {n: nat} (s: Stack sigma n)
     : list2status s = stackok n := pr2 s.
+
+  Lemma empty_status (sigma: Signature): list2status(sigma := sigma) nil = stackok 0.
+  Proof.
+    exact (idpath _).
+  Defined.
+
+  Definition stack_empty (sigma: Signature): Stack sigma 0 := nil ,, (empty_status sigma).
 
   Definition Term (sigma: Signature): UU := Stack sigma 1.
 
@@ -170,10 +206,38 @@ Section Terms.
 
 End Terms.
 
-
 Section TermAlgebra.
 
   Context {sigma: Signature}.
+
+  Definition status_concatenate (status1 status2: Status): Status.
+  Proof.
+    induction status2 as [len_s2 | error2].
+    - induction status1 as [len_s1 | error1].
+      + exact (stackok (len_s1 + len_s2)).
+      + exact stackerror.
+    - exact stackerror.
+  Defined.
+
+  Lemma list2status_cons {nm: names sigma} {l: list (names sigma)}:
+    list2status (cons nm l) = status_cons nm (list2status l).
+  Proof.
+    reflexivity.
+  Defined.
+
+  Lemma is_stack_cons (nm: names sigma) {n: nat} (s: Stack sigma n) (p: arity nm ≤ n)
+    : list2status (cons nm s) = stackok ( S (n - arity nm) ) .
+  Proof.
+    rewrite list2status_cons.
+    rewrite (stack2proof s).
+    cbn [stackok status_cons coprod_rect].
+    induction (isdecrelnatleh (arity nm) n).
+    - cbn; reflexivity.
+    - contradiction.
+  Defined.
+
+  Definition stack_cons (nm: names sigma) {n: nat} (s: Stack sigma n) (p: arity nm ≤ n)
+    : Stack sigma (S(n - arity nm)) := mk_stack ( S (n - arity nm)) (cons nm s) (is_stack_cons nm s p).
 
   Lemma status_cons_stackok {nm: names sigma} {n: nat}:
     status_cons nm (stackok n) != stackerror →  arity nm ≤ n.
@@ -181,10 +245,10 @@ Section TermAlgebra.
     intro noerror.
     cbn [stackok status_cons coprod_rect] in noerror.
     induction (isdecrelnatleh (arity nm) n).
-    * assumption.
-    * cbn in noerror.
+    - assumption.
+    - cbn in noerror.
       contradiction.
-  Defined.
+ Defined.
 
   Lemma status_cons_stackok2 {nm: names sigma} {n: nat} {m: nat}:
     status_cons nm (stackok n) = stackok m → m = S(n - arity nm).
@@ -222,15 +286,6 @@ Section TermAlgebra.
     reflexivity.
   Defined.
 
-  Definition status_concatenate (status1 status2: Status): Status.
-  Proof.
-    induction status2 as [len_s2 | error2].
-    - induction status1 as [len_s1 | error1].
-      + exact (stackok (len_s1 + len_s2)).
-      + exact stackerror.
-    - exact stackerror.
-  Defined.
-
   (** to be proved later ***)
   Axiom natleh_add: ∏( n1 n2 m: nat), n1 ≤ n2 → n1 ≤ n2 + m.
 
@@ -265,12 +320,6 @@ Section TermAlgebra.
       apply status_cons_stackok; assumption.
   Defined.
 
-  Lemma list2status_cons {nm: names sigma} {l: list (names sigma)}:
-    list2status (cons nm l) = status_cons nm (list2status l).
-  Proof.
-    reflexivity.
-  Defined.
-
   Lemma list2status_compositional {l1 l2: list (names sigma)}:
     list2status l1 != stackerror →
     status_concatenate (list2status l1) (list2status l2) = list2status (concatenate l1 l2).
@@ -294,30 +343,9 @@ Section TermAlgebra.
         assumption.
   Defined.
 
-  Definition stack_empty: Stack sigma 0.
+  Lemma is_stack_concatenate  {n1 n2: nat} (s1: Stack sigma n1) (s2: Stack sigma n2)
+    : list2status (concatenate s1 s2) = stackok ( n1 + n2 ).
   Proof.
-    exists nil.
-    reflexivity.
-  Defined.
-
-  Definition stack_cons (nm: names sigma) {n: nat} (s: Stack sigma n) (p: arity nm ≤ n):
-  Stack sigma (S(n - arity nm)).
-  Proof.
-    exists (cons nm s).
-    rewrite list2status_cons.
-    rewrite (stack2proof s).
-    cbn [stackok status_cons coprod_rect].
-    induction (isdecrelnatleh (arity nm) n).
-    - cbn.
-      reflexivity.
-    - contradiction.
-  Defined.
-
-  Definition stack_concatenate {n1 n2: nat} (s1: Stack sigma n1) (s2: Stack sigma n2):
-    Stack sigma (n1 + n2).
-  Proof.
-    unfold Stack.
-    exists (concatenate s1 s2).
     rewrite <- list2status_compositional.
     - rewrite (stack2proof s1).
       rewrite (stack2proof s2).
@@ -326,12 +354,14 @@ Section TermAlgebra.
       apply negpathsii1ii2.
   Defined.
 
+  Definition stack_concatenate {n1 n2: nat} (s1: Stack sigma n1) (s2: Stack sigma n2)
+    : Stack sigma (n1 + n2) := mk_stack (n1 + n2) (concatenate s1 s2) (is_stack_concatenate s1 s2).
+
   Definition stack_vector_concatenate {n: nat} (vec: Vector (Term sigma) n): Stack sigma n.
   Proof.
     induction n.
-   - exists nil.
-     reflexivity.
-   - exact (stack_concatenate (hd vec) (IHn (tl vec))).
+    - exact (stack_empty sigma).
+    - exact (stack_concatenate (hd vec) (IHn (tl vec))).
   Defined.
 
   Definition term_op (nm: names sigma) (vec: Vector (Term sigma) (arity nm)): Term sigma.
@@ -442,9 +472,13 @@ Section TermInduction.
       + rewrite n_is_0.
         exists nil.
         exists (cons nm tail).
-        do 2 ( split; try reflexivity ).
-        rewrite natminuseqn.
-        assumption.
+        split.
+        2: split.
+        * apply idpath.
+        * (**** THIS PROOF DOES NOT COMPUTE ****)
+          rewrite natminuseqn.
+          assumption.
+        * apply idpath.
       + apply nat_notgeh1_inv in n_gt_0.
         rewrite list2status_cons in s_status.
         assert ( tail_ok: ∑ tail_ar: nat, list2status tail = stackok tail_ar ×
