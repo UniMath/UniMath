@@ -41,14 +41,32 @@ Notation "f #⊙ g" := (# odot (f #, g)) (at level 31).
 
 Definition odot_I_functor : functor A A := functor_fix_snd_arg _ _ _ odot I.
 
+Lemma odot_I_functor_ok: functor_on_objects odot_I_functor =
+  λ a, a ⊙ I.
+Proof.
+  apply idpath.
+Qed.
+
 Definition action_right_unitor : UU := nat_iso odot_I_functor (functor_identity A).
 
 Definition odot_x_odot_y_functor : (A ⊠ V) ⊠ V ⟶ A :=
   functor_composite (pair_functor odot (functor_identity _)) odot.
 
+Lemma odot_x_odot_y_functor_ok: functor_on_objects odot_x_odot_y_functor =
+  λ a, (ob1 (ob1 a) ⊙ ob2 (ob1 a)) ⊙ ob2 a.
+Proof.
+  apply idpath.
+Qed.
+
 Definition odot_x_otimes_y_functor : (A ⊠ V) ⊠ V ⟶ A :=
   functor_composite (precategory_binproduct_unassoc _ _ _)
                     (functor_composite (pair_functor (functor_identity _) tensor) odot).
+
+Lemma odot_x_otimes_y_functor_ok: functor_on_objects odot_x_otimes_y_functor =
+  λ a, ob1 (ob1 a) ⊙ (ob2 (ob1 a) ⊗ ob2 a).
+Proof.
+  apply idpath.
+Qed.
 
 Definition action_convertor : UU := nat_iso odot_x_odot_y_functor odot_x_otimes_y_functor.
 
@@ -97,6 +115,12 @@ Context (U : strong_monoidal_functor Mon_V Mon_A).
 
 Definition otimes_U_functor : A ⊠ V ⟶ A := functor_composite (pair_functor (functor_identity _) U) tensor_A.
 
+Lemma otimes_U_functor_ok: functor_on_objects otimes_U_functor =
+  λ av, ob1 av ⊗_A U (ob2 av).
+Proof.
+  apply idpath.
+Qed.
+
 Definition U_action_ρ_nat_trans : odot_I_functor otimes_U_functor ⟹ functor_identity A.
   refine (nat_trans_comp _ _ _ _  (pr1 ρ_A)).
   unfold odot_I_functor.
@@ -112,6 +136,12 @@ Definition U_action_ρ_nat_trans : odot_I_functor otimes_U_functor ⟹ functor_i
     rewrite functor_id.
     exact (pr2 aux a a' f).
 Defined.
+
+Lemma U_action_ρ_nat_trans_ok: nat_trans_data_from_nat_trans U_action_ρ_nat_trans =
+ let ϵ_inv := inv_from_iso (mk_iso (pr1 (pr2 U))) in λ x, id x #⊗_A ϵ_inv · pr1 ρ_A x.
+Proof.
+  apply idpath.
+Qed.
 
 Definition U_action_ρ_is_nat_iso : is_nat_iso U_action_ρ_nat_trans.
 Proof.
