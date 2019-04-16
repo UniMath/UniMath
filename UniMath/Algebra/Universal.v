@@ -205,6 +205,16 @@ Section Terms.
   Definition stack2proof {sigma: Signature} {n: nat} (s: Stack sigma n)
     : list2status s = stackok n := pr2 s.
 
+  Lemma stack_extens {sigma : Signature} {n} {s1 s2 : Stack sigma n}
+        (p : stack2list s1 = stack2list s2)
+    : s1 = s2.
+  Proof.
+    apply subtypePath.
+    2: exact p.
+    intros s.
+    apply status_isaset.
+  Defined.
+
   Lemma empty_status (sigma: Signature): list2status(sigma := sigma) nil = stackok 0.
   Proof.
     exact (idpath _).

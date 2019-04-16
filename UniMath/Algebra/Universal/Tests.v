@@ -115,45 +115,41 @@ Section Nat.
   Proof. exact (idpath _). Qed.
 
   Goal pr1 (extract_substack zero_one_stack 0 (natleh0n 0)) = stack_empty nat_signature.
-  Proof. exact (idpath _). Qed.
+  Proof. apply stack_extens. exact (idpath _ ). Qed.
 
   Goal pr1 (pr2 (extract_substack zero_one_stack 0 (natleh0n 0))) = zero_one_stack.
-  Proof. exact (idpath _). Qed.
+  Proof. apply stack_extens. exact (idpath _). Qed.
 
-  (** FAILED **)
   Goal pr1 (extract_substack zero_one_stack 1 (natleh0n 0)) = term_zero.
-  Proof. Abort.
+  Proof. apply stack_extens. apply idpath. Qed.
 
   Goal stack2list (pr1 (extract_substack zero_one_stack 1 (natleh0n 0))) = nat_zero :: nil.
   Proof. exact (idpath _). Qed.
 
-  (** FAILED **)
   Goal pr1 (pr2 (extract_substack zero_one_stack 1 (natleh0n 0))) = term_one.
-  Proof. Abort.
+  Proof. apply stack_extens. exact (idpath _). Qed.
 
   Goal stack2list (pr1 (pr2 (extract_substack zero_one_stack 1 (natleh0n 0)))) = stack2list term_one.
   Proof. exact (idpath _). Qed.
 
-  (** FAILED **)
   Goal pr1 (extract_substack zero_one_stack 2 (natleh0n 0)) = zero_one_stack.
-  Proof. Abort.
+  Proof. apply stack_extens. exact (idpath _). Qed.
 
   Goal stack2list (pr1 (extract_substack zero_one_stack 2 (natleh0n 0))) = stack2list zero_one_stack.
   Proof. exact (idpath _). Qed.
 
-  (** FAILED **)
   Goal pr1 (pr2 (extract_substack zero_one_stack 2 (natleh0n 0))) = stack_empty nat_signature.
-  Proof. Abort.
+  Proof. apply stack_extens. exact (idpath _). Qed.
 
   Goal stack2list (pr1 (pr2 (extract_substack zero_one_stack 2 (natleh0n 0)))) = stack2list (stack_empty nat_signature).
   Proof. exact (idpath _). Qed.
 
-  (** FAILED **)
   Goal subterm term_one (●0) = term_zero.
-  Proof. Abort.
+  Proof. apply stack_extens. exact (idpath _). Qed.
 
   Goal stack2list (subterm term_one (●0)) = stack2list term_zero.
   Proof. exact (idpath _). Qed.
+
 End Nat.
 
 Section Bool.
@@ -174,22 +170,20 @@ Section Bool.
   Goal pr1 ( pr2 (extract_substack t1 0 (natleh0n 0))) = t1.
   Proof. exact (idpath _). Qed.
 
-  (** FAILED **)
   Goal pr1 (extract_substack t1 1 (natleh0n 0)) = t1.
-  Proof. Abort.
+  Proof. apply stack_extens. exact (idpath _). Qed.
 
   Goal stack2list (pr1 (extract_substack t1 1 (natleh0n 0))) = stack2list t1.
   Proof. exact (idpath _). Qed.
 
   Goal pr1 (pr2 (extract_substack t1 1 (natleh0n 0))) = stack_empty bool_signature.
-  Proof. Abort.
+  Proof. apply stack_extens. exact (idpath _). Qed.
 
   Goal stack2list (pr1 (pr2 (extract_substack t1 1 (natleh0n 0)))) = stack2list (stack_empty bool_signature).
   Proof. exact (idpath _). Qed.
 
-  (** FAILED **)
   Goal subterm t2 (●0) = t1.
-  Proof. Abort.
+  Proof. apply stack_extens. exact (idpath _). Qed.
 
   Goal stack2list (subterm t2 (●0)) = stack2list t1.
   Proof. exact (idpath _). Qed.
@@ -199,6 +193,5 @@ Section Bool.
 
   Goal stack2list (subterm t1 (●1)) = stack2list t_false.
   Proof. exact (idpath _). Qed.
-
 
 End Bool.
