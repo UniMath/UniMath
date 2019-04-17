@@ -115,13 +115,13 @@ Section Nat.
   Proof. exact (idpath _). Qed.
 
   Goal pr1 (extract_substack zero_one_stack 0 (natleh0n 0)) = stack_empty nat_signature.
-  Proof. apply stack_extens. exact (idpath _ ). Qed.
+  Proof. exact (idpath _ ). Qed.
 
   Goal pr1 (pr2 (extract_substack zero_one_stack 0 (natleh0n 0))) = zero_one_stack.
-  Proof. apply stack_extens. exact (idpath _). Qed.
+  Proof. exact (idpath _). Qed.
 
   Goal pr1 (extract_substack zero_one_stack 1 (natleh0n 0)) = term_zero.
-  Proof. apply stack_extens. apply idpath. Qed.
+  Proof. apply stack_extens. exact (idpath _). Qed.
 
   Goal stack2list (pr1 (extract_substack zero_one_stack 1 (natleh0n 0))) = nat_zero :: nil.
   Proof. exact (idpath _). Qed.
