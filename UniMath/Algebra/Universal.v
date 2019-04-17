@@ -298,11 +298,25 @@ Section TermAlgebra.
     reflexivity.
   Defined.
 
-  (** to be proved later ***)
-  Axiom natleh_add: ∏( n1 n2 m: nat), n1 ≤ n2 → n1 ≤ n2 + m.
+  Lemma natleh_add: ∏( n1 n2 m: nat), n1 ≤ n2 → n1 ≤ n2 + m.
+  Proof.
+    intros.
+    apply (istransnatleh(m:=n2)).
+    - assumption.
+    - apply natlehnplusnm.
+  Defined.
+
+  (** Forward chaining variant
+  Lemma natleh_add: ∏( n1 n2 m: nat), n1 ≤ n2 → n1 ≤ n2 + m.
+  Proof.
+    intros.
+    set (H := natlehnplusnm n2 m).
+    exact (istransnatleh X H).
+  Defined.
+  **)
 
   (** to be proved later ***)
-  Axiom natleh_adddiff: ∏( n1 n2 n3: nat), n3 ≤ n1 → n1 - n3 + n2 = n1 + n2 - n3.
+  Axiom natleh_adddiff: ∏(n1 n2 n3: nat), n3 ≤ n1 → n1 - n3 + n2 = n1 + n2 - n3.
 
   Lemma status_concatenate_statuscons {nm: names sigma} {status1 status2: Status}:
     (status_cons nm status1 != stackerror) →
