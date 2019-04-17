@@ -44,12 +44,10 @@ Section Homomorphisms.
 
   Context { sigma: Signature }.
 
-  Definition is_hom (a1 a2: Algebra sigma) (f: a1 → a2): UU
+  Definition is_hom {a1 a2: Algebra sigma} (f: a1 → a2): UU
     := ∏ (nm: names sigma) (x: dom a1 nm), (f (op a1 nm x) = (op a2 nm (vector_map f x))).
 
-  Definition hom (a1 a2: Algebra sigma): UU :=  ∑ (f: support a1 → support a2), is_hom a1 a2 f.
-
-  Definition mk_hom (a1 a2: Algebra sigma) (f: a1 → a2) (f_is_hom: is_hom a1 a2 f): hom a1 a2 := f ,, f_is_hom.
+  Definition hom (a1 a2: Algebra sigma): UU :=  ∑ (f: a1 → a2), is_hom f.
 
   Local Notation "a1 ↦ a2" := (hom a1 a2)  (at level 80, right associativity).
 
@@ -57,7 +55,9 @@ Section Homomorphisms.
 
   Coercion hom2fun: hom >-> Funclass.
 
-  Definition hom2proof {a1 a2: Algebra sigma} (f: a1 ↦ a2): is_hom a1 a2 (hom2fun f) := pr2 f.
+  Definition hom2proof {a1 a2: Algebra sigma} (f: a1 ↦ a2): is_hom f := pr2 f.
+
+  Definition mk_hom {a1 a2: Algebra sigma} (f: a1 → a2) (f_is_hom: is_hom f): hom a1 a2 := f ,, f_is_hom.
 
   Theorem hom_isaset (a1 a2: Algebra sigma): isaset (hom a1 a2).
   Proof.
@@ -77,7 +77,7 @@ Section Homomorphisms.
       cbn.
   Abort.
 
-  Lemma idfun_is_hom (a: Algebra sigma): is_hom a a (idfun (support a)).
+  Lemma idfun_is_hom (a: Algebra sigma): is_hom (idfun a).
   Proof.
     red.
     intros.
@@ -85,9 +85,9 @@ Section Homomorphisms.
     reflexivity.
   Defined.
 
-  Definition hom_id (a: Algebra sigma): a ↦ a := mk_hom a a (idfun a) (idfun_is_hom a).
+  Definition hom_id (a: Algebra sigma): a ↦ a := mk_hom (idfun a) (idfun_is_hom a).
 
-  Lemma comp_is_hom  {a1 a2 a3: Algebra sigma} (h1: a1 ↦ a2) (h2: a2 ↦ a3): is_hom a1 a3 (funcomp h1 h2).
+  Lemma comp_is_hom  {a1 a2 a3: Algebra sigma} (h1: a1 ↦ a2) (h2: a2 ↦ a3): is_hom (funcomp h1 h2).
   Proof.
     red.
     intros.
@@ -101,7 +101,7 @@ Section Homomorphisms.
   Defined.
 
   Definition hom_comp {a1 a2 a3: Algebra sigma} (h1: a1 ↦ a2) (h2: a2 ↦ a3) : a1 ↦ a3
-    := mk_hom a1 a3 (funcomp h1 h2) (comp_is_hom h1 h2).
+    := mk_hom (funcomp h1 h2) (comp_is_hom h1 h2).
 
 End Homomorphisms.
 
@@ -114,7 +114,7 @@ Section TerminalAlgebra.
   Definition terminal_algebra: Algebra sigma
     := mk_algebra unitset (λ nm: names sigma, (λ u: Vector unit (arity nm), tt)).
 
-  Lemma is_hom_terminalhom {a: Algebra sigma}: is_hom a terminal_algebra (λ x: a, tt).
+  Lemma is_hom_terminalhom {a: Algebra sigma}: is_hom(a2 := terminal_algebra) (λ x: a, tt).
   Proof.
     red.
     intros.
@@ -122,14 +122,14 @@ Section TerminalAlgebra.
   Defined.
 
   Definition terminal_hom (a : Algebra sigma): hom a terminal_algebra
-    :=  mk_hom a terminal_algebra (λ _: a, tt) is_hom_terminalhom.
+    :=  mk_hom(a2 := terminal_algebra) (λ _: a, tt) is_hom_terminalhom.
 
   Theorem terminal_hom_unicity (a: Algebra sigma) (f: hom a terminal_algebra): f = terminal_hom a.
   Proof.
     eapply total2_paths2_f.
     Unshelve.
     2: apply iscontrfuntounit.
-    assert (isprop: ∏ (f: support a → support terminal_algebra), isaprop (is_hom _ _ f)).
+    assert (isprop: ∏ (f: support a → support terminal_algebra), isaprop (is_hom f)).
     - intro.
       apply isapropifcontr.
       unfold is_hom.
