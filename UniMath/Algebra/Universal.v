@@ -70,12 +70,9 @@ Section Homomorphisms.
       intros.
       apply impred_isaset.
       intros.
-      induction a2 as [support ops].
-      induction support as [T isasetT].
       apply isasetaprop.
-      apply isaproppathstoisolated.
-      cbn.
-  Abort.
+      apply (setproperty a2).
+  Qed.
 
   Lemma idfun_is_hom (a: Algebra sigma): is_hom (idfun a).
   Proof.
@@ -149,20 +146,11 @@ Section Terms.
 
   Definition Status: UU := nat ⨿ unit.
 
-  Lemma status_isaset: isaset Status.
+  Lemma Status_isaset: isaset Status.
   Proof.
     apply isasetcoprod.
     - apply isasetnat.
     - apply isasetunit.
-  Qed.
-
-  Lemma status_isisolated (s: Status): isisolated Status s.
-  Proof.
-    induction s as [sok | serror].
-    - apply isolatedtoisolatedii1.
-      apply isisolatedn.
-    - induction serror.
-      apply disjointl1.
   Qed.
 
   Definition stackok n: Status := ii1 n.
@@ -184,15 +172,14 @@ Section Terms.
   Definition Stack (sigma: Signature) (n: nat)
     : UU := ∑ s: list (names sigma), list2status s = stackok n.
 
-  Lemma stack_isaset {sigma: Signature} {n: nat}: isaset (Stack sigma n).
+  Lemma Stack_isaset (sigma: Signature) (n: nat): isaset (Stack sigma n).
   Proof.
     apply isaset_total2.
     - apply isofhlevellist.
       exact (pr2 (names sigma)).
     - intros.
       apply isasetaprop.
-      apply isaproppathstoisolated.
-      apply status_isisolated.
+      apply Status_isaset.
   Qed.
 
   Definition mk_stack {sigma: Signature} (n: nat) (s: list (names sigma))
@@ -212,7 +199,7 @@ Section Terms.
     apply subtypePath.
     2: exact p.
     intros s.
-    apply status_isaset.
+    apply Status_isaset.
   Defined.
 
   Lemma empty_status (sigma: Signature): list2status(sigma := sigma) nil = stackok 0.
@@ -227,19 +214,7 @@ Section Terms.
   Coercion term2list {sigma: Signature}
     : Term sigma → list (names sigma) := pr1.
 
-  Lemma Term_isaset {sigma: Signature}: isaset (Term sigma).
-  Proof.
-    apply isaset_total2.
-    apply isofhlevellist.
-    - exact (pr2 (names sigma)).
-    - intro nm.
-      apply hlevelntosn.
-      apply isaproppathstoisolated.
-      apply isolatedtoisolatedii1.
-      apply isisolatedn.
-  Defined.
-
-  Definition term_hset (sigma : Signature): hSet := make_hSet (Term sigma) Term_isaset.
+  Definition Term_hset (sigma : Signature): hSet := make_hSet (Term sigma) (Stack_isaset sigma 1).
 
 End Terms.
 
@@ -411,7 +386,7 @@ Section TermAlgebra.
 End TermAlgebra.
 
 Definition term_algebra (sigma: Signature): Algebra sigma
-  := mk_algebra (term_hset sigma) term_op.
+  := mk_algebra (Term_hset sigma) term_op.
 
 Section TermInduction.
 
