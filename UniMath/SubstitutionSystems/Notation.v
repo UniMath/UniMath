@@ -56,4 +56,6 @@ Notation "A ⊗ B" := (precatbinprodpair A B) : subsys.
 Notation "A ⊠ B" := (precategory_binproduct A B) (at level 38) : subsys.
 Notation "'ℓ'" := (pre_composition_functor(*_data*) _ _ _ _ _ ) : subsys.
 Notation "Z 'p•' Z'" := (ptd_composite _ _ Z Z') (at level 25) : subsys.
+
+(** The forgetful functor from pointed endofunctors to endofunctors *)
 Notation "'U'" := (functor_ptd_forget _ _ ) : subsys.
