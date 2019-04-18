@@ -89,7 +89,7 @@ Proof.
 Defined.
 
 Local Lemma is_nat_trans_θ_ob :
- is_nat_trans (θ_source_functor_data C hsC D hs H) (θ_target_functor_data C hsC D hs H)
+ is_nat_trans (θ_source H) (θ_target H)
      θ_ob.
 Proof.
   intros [X Z] [X' Z'] [α β].

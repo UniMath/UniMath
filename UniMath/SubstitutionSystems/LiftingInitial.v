@@ -229,7 +229,6 @@ Proof.
   apply BinCoproductOfArrows_eq.
   + apply idpath.
   + unfold functor_fix_snd_arg_mor; simpl.
-    unfold θ_target_mor; simpl.
     revert c.
     apply nat_trans_eq_pointwise.
     apply maponpaths.
@@ -574,7 +573,6 @@ Proof.
   apply BinCoproductOfArrows_eq.
   - apply idpath.
   - unfold functor_fix_snd_arg_mor; simpl.
-    unfold θ_target_mor; simpl.
     revert c.
     apply nat_trans_eq_pointwise.
     apply maponpaths.

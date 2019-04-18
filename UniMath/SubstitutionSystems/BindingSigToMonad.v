@@ -174,9 +174,9 @@ Definition BindingSigToSignature (TC : Terminal C)
   (sig : BindingSig) (CC : Coproducts (BindingSigIndex sig) C) :
   Signature C hsC C hsC.
 Proof.
-apply (Sum_of_Signatures (BindingSigIndex sig)).
-- apply CC.
-- intro i; apply (Arity_to_Signature TC (BindingSigMap sig i)).
+  apply (Sum_of_Signatures (BindingSigIndex sig)).
+  - apply CC.
+  - intro i; apply (Arity_to_Signature TC (BindingSigMap sig i)).
 Defined.
 
 Lemma is_omega_cocont_BindingSigToSignature
@@ -185,8 +185,9 @@ Lemma is_omega_cocont_BindingSigToSignature
   (sig : BindingSig) (CC : Coproducts (BindingSigIndex sig) C) :
   is_omega_cocont (BindingSigToSignature TC sig CC).
 Proof.
-apply is_omega_cocont_Sum_of_Signatures.
-now intro i; apply is_omega_cocont_Arity_to_Signature, HF.
+  unfold BindingSigToSignature.
+  apply is_omega_cocont_Sum_of_Signatures.
+  now intro i; apply is_omega_cocont_Arity_to_Signature, HF.
 Defined.
 
 Let Id_H := Id_H C hsC BCC.

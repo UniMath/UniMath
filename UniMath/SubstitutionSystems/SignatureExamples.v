@@ -157,7 +157,7 @@ Variable DL : DistributiveLaw G.
 
 Let precompG := (pre_composition_functor _ _ _ hsC hsC G).
 
-Definition θ_from_δ_mor (XZe : [C, C, hsC] XX Ptd) :
+Definition θ_from_δ_mor (XZe : [C, C, hsC] ⊠ Ptd) :
   [C, C, hsC] ⟦ θ_source precompG XZe, θ_target precompG XZe ⟧.
 Proof.
 set (X := pr1 XZe); set (Z := pr1 (pr2 XZe)).
@@ -561,7 +561,7 @@ Variable G : functor D E.
 
 Let GH : functor [C, C, hsC] [C, E, hsE] := functor_composite H (post_composition_functor _ _ _ _ _ G).
 
-Definition Gθ_mor (XZe : [C, C, hsC] XX Ptd) :
+Definition Gθ_mor (XZe : [C, C, hsC] ⊠ Ptd) :
   [C, E, hsE] ⟦ θ_source GH XZe, θ_target GH XZe ⟧.
 Proof.
 set (X := pr1 XZe); set (Z := pr1 (pr2 XZe)).

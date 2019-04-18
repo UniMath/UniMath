@@ -68,118 +68,31 @@ Local Notation "'EndC'":= ([C, C, hs]) .
 
 
 (** Source is given by [(X,Z) => H(X)∙U(Z)] *)
-Definition θ_source_ob (FX : EndC XX Ptd) : [C, D, hsD] := H (pr1 FX) • U (pr2 FX).
-
-Definition θ_source_mor {FX FX' : EndC XX Ptd} (αβ : FX --> FX')
-  : θ_source_ob FX --> θ_source_ob FX' := horcomp (#U (pr2 αβ)) (#H (pr1 αβ)).
-
-
-Definition θ_source_functor_data : functor_data (EndC XX Ptd) [C, D, hsD].
+Definition θ_source: functor ([C, C, hs] ⊠ Ptd) [C, D, hsD].
 Proof.
-  exists θ_source_ob.
-  exact (@θ_source_mor).
+  apply (functor_composite (pair_functor H U)).
+  apply (functor_composite binswap_pair_functor).
+  apply functorial_composition.
 Defined.
 
-Lemma is_functor_θ_source : is_functor θ_source_functor_data.
+Lemma θ_source_ok: pr1 (pr1 θ_source) =  λ FX : EndC ⊠ Ptd, H (pr1 FX) • U (pr2 FX).
 Proof.
-  split; simpl.
-  - intro FX.
-    apply nat_trans_eq.
-    + apply hsD.
-    + intro c. simpl.
-      rewrite functor_id.
-      rewrite id_right.
-      set (HH:=functor_id H).
-      rewrite HH. apply idpath.
-  - intros FX FX' FX'' α β.
-    apply nat_trans_eq.
-    + apply hsD.
-    + destruct FX as [F X].
-      destruct FX' as [F' X'].
-      destruct FX'' as [F'' X''].
-      intro c ; simpl in *.
-      destruct α as [α a].
-      destruct β as [β b]. simpl in *.
-      rewrite functor_comp.
-      rewrite (functor_comp H); simpl.
-      repeat rewrite <- assoc.
-      apply maponpaths.
-      rewrite <- nat_trans_ax.
-      destruct a as [a aax].
-      destruct b as [b bax]. simpl in *.
-      destruct X as [X eta].
-      destruct X' as [X' eta'].
-      destruct X'' as [X'' eta'']; simpl in *.
-      clear aax eta. clear bax eta'. clear eta''.
-      set (HHH:=nat_trans_ax (#H β)).
-      rewrite <- functor_comp.
-      rewrite assoc.
-      rewrite <- functor_comp.
-      rewrite HHH.
-      apply idpath.
+  apply idpath.
 Qed.
-
-Definition θ_source : functor _ _ := tpair _ _ is_functor_θ_source.
 
 (** Target is given by [(X,Z) => H(X∙U(Z))] *)
-
-Definition θ_target_ob (FX : EndC XX Ptd) : [C, D, hsD] := H (pr1 FX • U (pr2 FX)).
-
-Definition θ_target_mor (FX FX' : EndC XX Ptd) (αβ : FX --> FX')
-  : θ_target_ob FX --> θ_target_ob FX'
-  := #H (pr1 αβ ∙∙ #U(pr2 αβ)).
-
-Definition θ_target_functor_data : functor_data (EndC XX Ptd) [C, D, hsD].
+Definition θ_target : functor ([C, C, hs] ⊠ Ptd) [C, D, hsD].
 Proof.
-  exists θ_target_ob.
-  exact θ_target_mor.
+  apply (functor_composite (pair_functor (functor_identity _) U)).
+  apply (functor_composite binswap_pair_functor).
+  use (functor_composite _ H).
+  apply functorial_composition.
 Defined.
 
-
-Lemma is_functor_θ_target_functor_data : is_functor θ_target_functor_data.
+Lemma θ_target_ok: pr1 (pr1 θ_target) =  λ FX : EndC ⊠ Ptd, H (pr1 FX • U (pr2 FX)).
 Proof.
-  split; simpl.
-  - intro FX; simpl.
-    unfold θ_target_mor.
-    set (T:= functor_id_id _ _ H).
-    apply T; simpl.
-    apply nat_trans_eq.
-    + apply hs.
-    + intro c; simpl.
-      rewrite id_left.
-      rewrite functor_id.
-      apply idpath.
-  - intros FX FX' FX''.
-    intros α β.
-    unfold θ_target_functor_data. simpl in *.
-    unfold θ_target_mor.
-    set (T:=functor_comp H (pr1 α ∙∙ # U (pr2 α)) (pr1 β ∙∙ # U (pr2 β))).
-    simpl in *.
-    eapply pathscomp0.
-(*    match goal with |[ H :  ?f = _ |- _ ] => transitivity f end. *)
-(*    etransitivity. *)
-    2: apply T.
-(*  unfold θ_target_mor. simpl. *)
-    clear T.
-    apply maponpaths.
-    destruct α as [α a].
-    destruct β as [β b]; simpl in *.
-    apply nat_trans_eq.
-    + apply hs.
-    + intro c.
-      unfold horcomp; simpl.
-      destruct FX as [F X];
-      destruct FX' as [F' X'];
-      destruct FX'' as [F'' X'']; simpl in *.
-      repeat rewrite <- assoc. apply maponpaths.
-      rewrite <- (nat_trans_ax β ((pr1 X') c)).
-      rewrite assoc.
-      rewrite <- functor_comp.
-      rewrite nat_trans_ax.
-      apply idpath.
+  apply idpath.
 Qed.
-
-Definition θ_target : functor _ _ := tpair _ _ is_functor_θ_target_functor_data.
 
 (** * Two alternative versions of the strength laws *)
 
@@ -204,11 +117,11 @@ Lemma θ_Strength1_int_implies_θ_Strength1 : θ_Strength1_int → θ_Strength1.
 Proof.
   unfold θ_Strength1_int, θ_Strength1.
   intros T X.
-  assert (TX:= T X).
+  assert (TX := T X).
   apply nat_trans_eq; try assumption.
-  intro c; simpl.
+  intro c; cbn.
   assert (T2 := nat_trans_eq_pointwise TX c).
-  simpl in *.
+  cbn in *.
   assert (X0 : λ_functor X = identity (X : EndC)).
   { apply nat_trans_eq; try assumption; intros; apply idpath. }
   rewrite X0 in T2.
@@ -220,11 +133,11 @@ Lemma θ_Strength1_implies_θ_Strength1_int : θ_Strength1 → θ_Strength1_int.
 Proof.
   unfold θ_Strength1_int, θ_Strength1.
   intros T X.
-  assert (TX:= T X).
+  assert (TX := T X).
   apply nat_trans_eq; try assumption.
-  intro c; simpl.
+  intro c; cbn.
   assert (T2 := nat_trans_eq_pointwise TX c).
-  simpl in *.
+  cbn in *.
   assert (X0 : λ_functor X = identity (X : EndC)).
   { apply nat_trans_eq; try assumption; intros; apply idpath. }
   rewrite X0.
@@ -234,9 +147,6 @@ Qed.
 
 End Strength_law_1_intensional.
 
-(*
-Hypothesis θ_strength1 : θ_Strength1.
-*)
 
 Definition θ_Strength2 : UU := ∏ (X : EndC) (Z Z' : Ptd) (Y : EndC)
            (α : functor_compose hs hs (functor_composite (U Z) (U Z')) X --> Y),
@@ -262,18 +172,18 @@ Proof.
 
   assert (TXZZ' := T X Z Z').
   assert (TXZZ'c := nat_trans_eq_pointwise TXZZ' c).
-  simpl in TXZZ'c.
+  cbn in TXZZ'c.
   clear T TXZZ'.
   rewrite id_left in TXZZ'c.
-  simpl. rewrite <- TXZZ'c; clear TXZZ'c.
+  cbn. rewrite <- TXZZ'c; clear TXZZ'c.
   rewrite <- assoc.
   apply maponpaths.
   assert (functor_comp_H := functor_comp H (α_functor (pr1 Z) (pr1 Z') X)
            (a : functor_compose hs hs (U Z) (functor_composite (U Z') X) --> Y)).
   assert (functor_comp_H_c := nat_trans_eq_pointwise functor_comp_H c).
-  simpl in functor_comp_H_c.
+  cbn in functor_comp_H_c.
   eapply pathscomp0.
-  2: apply functor_comp_H_c.
+  2: { apply functor_comp_H_c. }
   clear functor_comp_H functor_comp_H_c.
   revert c.
   apply nat_trans_eq_pointwise.
@@ -289,11 +199,12 @@ Proof.
   intros T X Z Z'.
   assert (TXZZ'_inst := T X Z Z' (functor_compose hs hs (U Z)
           (functor_composite (U Z') X)) (α_functor (pr1 Z) (pr1 Z') X)).
-  eapply pathscomp0. apply TXZZ'_inst.
+  eapply pathscomp0.
+  { apply TXZZ'_inst. }
   clear T TXZZ'_inst.
   apply nat_trans_eq; try assumption.
   intro c.
-  simpl.
+  cbn.
   rewrite id_left.
   rewrite <- assoc.
   apply maponpaths.
@@ -312,10 +223,6 @@ Qed.
 
 End Strength_law_2_intensional.
 
-(*
-Hypothesis θ_strength2 : θ_Strength2.
-*)
-
 (** Not having a general theory of binatural transformations, we isolate
     naturality in each component here *)
 
@@ -323,10 +230,10 @@ Lemma θ_nat_1 (X X' : EndC) (α : X --> X') (Z : Ptd)
   : compose(C:=[C, D, hsD]) (# H α ∙∙ nat_trans_id (pr1 (U Z))) (θ (X' ⊗ Z)) =
         θ (X ⊗ Z)· # H (α ∙∙ nat_trans_id (pr1 (U Z))).
 Proof.
-  set (t:=nat_trans_ax θ).
-  set (t':=t (X ⊗ Z) (X' ⊗ Z)).
-  set (t'':= t' (precatbinprodmor α (identity _ ))).
-  simpl in t''.
+  set (t := nat_trans_ax θ).
+  set (t' := t (X ⊗ Z) (X' ⊗ Z)).
+  set (t'' := t' (precatbinprodmor α (identity _ ))).
+  cbn in t''.
   exact t''.
 Qed.
 
@@ -344,9 +251,9 @@ Lemma θ_nat_1_pointwise (X X' : EndC) (α : X --> X') (Z : Ptd) (c : C)
 Proof.
   set (t := θ_nat_1 _ _ α Z).
   set (t' := nat_trans_eq_weq hsD _ _ t c);
-  clearbody t';  simpl in t'.
-  assert (H':= functor_id (H X') (pr1 (pr1 Z) c));
-  simpl in H'.
+  clearbody t';  cbn in t'.
+  assert (H' := functor_id (H X') (pr1 (pr1 Z) c));
+  cbn in H'.
   match goal with |[H1 : ?f · _ · ?g = _ , H2 : ?x = _ |- _ ] =>
                         intermediate_path (f · x · g) end.
   - repeat rewrite <- assoc.
@@ -362,12 +269,11 @@ Lemma θ_nat_2 (X : EndC) (Z Z' : Ptd) (f : Z --> Z')
 Proof.
   set (t := nat_trans_ax θ).
   set (t' := t (precatbinprodpair X Z) (precatbinprodpair X Z') (precatbinprodmor (identity _ ) f)).
-  simpl in t'.
-  unfold θ_source_mor in t'.
-  unfold θ_target_mor in t'.
-  simpl in t'.
+  cbn in t'.
+  unfold precatbinprodmor in t'.
+  cbn in t'.
   set (T := functor_id H X).
-  simpl in *.
+  cbn in *.
   rewrite T in t'. clear T.
   exact t'.
 Qed.
@@ -376,10 +282,10 @@ Lemma θ_nat_2_pointwise (X : EndC) (Z Z' : Ptd) (f : Z --> Z') (c : C)
   :  # (pr1 (H X)) ((pr1 f) c)· pr1 (θ (X ⊗ Z')) c =
        pr1 (θ (X ⊗ Z)) c· pr1 (# H (identity X ∙∙ pr1 f)) c .
 Proof.
-  set (t:=θ_nat_2 X _ _ f).
-  set (t':=nat_trans_eq_weq hsD _ _ t c).
+  set (t := θ_nat_2 X _ _ f).
+  set (t' := nat_trans_eq_weq hsD _ _ t c).
   clearbody t'; clear t.
-  simpl in t'.
+  cbn in t'.
   rewrite id_left in t'.
   exact t'.
 Qed.
@@ -391,7 +297,7 @@ Section Strength_laws.
 
 End Strength_laws.
 
-Definition Signature (*C : precategory) (hs : has_homsets C*) : UU
+Definition Signature : UU
   :=
   ∑ H : functor [C, C, hs] [C, D, hsD] ,
      ∑ θ : nat_trans (θ_source H) (θ_target H) , θ_Strength1_int H θ × θ_Strength2_int H θ.

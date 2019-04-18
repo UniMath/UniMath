@@ -418,7 +418,6 @@ Proof.
     simpl.
     match goal with | [ |- ?a · _ · _ = _ ] => set (Ac:= a) end.
     simpl in Ac.
-    unfold θ_target_ob in *.
     simpl in *.
     unfold functor_compose in *.
     assert (HX:=θ_nat_1 _ _ _ _ H θ _ _ μ_2).  (* it may be tested with the primed version *)

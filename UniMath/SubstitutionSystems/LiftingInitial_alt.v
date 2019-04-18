@@ -208,7 +208,6 @@ unfold coproduct_nat_trans_data; simpl.
 unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
 apply BinCoproductOfArrows_eq; trivial.
 unfold functor_fix_snd_arg_mor; simpl.
-unfold θ_target_mor; simpl.
 revert c; apply nat_trans_eq_pointwise, maponpaths.
 apply (nat_trans_eq hsC); intro c; simpl.
 now rewrite <- (nat_trans_ax α), functor_id, id_left.
@@ -432,7 +431,6 @@ unfold coproduct_nat_trans_data; simpl.
 unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
 apply BinCoproductOfArrows_eq; trivial.
 unfold functor_fix_snd_arg_mor; simpl.
-unfold θ_target_mor; simpl.
 revert c; apply nat_trans_eq_pointwise, maponpaths.
 apply (nat_trans_eq hsC); intro c; simpl.
 rewrite <- (nat_trans_ax α), functor_id.
