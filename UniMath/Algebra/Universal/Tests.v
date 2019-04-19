@@ -57,46 +57,46 @@ Section Nat.
   Goal terminal_hom nat_algebra 2 = tt.
   Proof. exact (idpath _). Qed.
 
-  Goal status_cons nat_succ (stackok 1) = stackok 1.
+  Goal status_cons nat_succ (statusok 1) = statusok 1.
   Proof. exact (idpath _). Qed.
 
-  Goal status_cons nat_succ (stackok 0) = stackerror.
+  Goal status_cons nat_succ (statusok 0) = statuserror.
   Proof. exact (idpath _). Qed.
 
-  Goal status_concatenate (stackok 1) (stackok 2) = stackok 3.
+  Goal status_concatenate (statusok 1) (statusok 2) = statusok 3.
   Proof. exact (idpath _). Qed.
 
-  Goal status_concatenate (stackok 1) stackerror = stackerror.
+  Goal status_concatenate (statusok 1) statuserror = statuserror.
   Proof. exact (idpath _). Qed.
 
-  Local Lemma one_status: list2status (nat_succ :: nat_zero :: nil) = stackok 1.
+  Local Lemma one_status: list2status (nat_succ :: nat_zero :: nil) = statusok 1.
   Proof. exact (idpath _). Qed.
 
-  Goal list2status(sigma:=nat_signature) nil = stackok 0.
+  Goal list2status(sigma:=nat_signature) nil = statusok 0.
   Proof. exact (idpath _). Qed.
 
   Local Definition term_zero: Stack nat_signature 1 :=
-    mk_stack 1 (nat_zero :: nil) (idpath (stackok 1)).
+    mk_stack 1 (nat_zero :: nil) (idpath (statusok 1)).
 
   Local Definition term_one: Stack nat_signature 1 :=
     mk_stack 1 (nat_succ :: nat_zero :: nil) one_status.
 
-  Goal list2status term_one = stackok 1.
+  Goal list2status term_one = statusok 1.
   Proof. exact (idpath _). Qed.
 
   Local Definition term_two: Stack nat_signature 1 :=
     mk_stack 1 (nat_succ :: nat_succ :: nat_zero :: nil) one_status.
 
-  Goal list2status term_two = stackok 1.
+  Goal list2status term_two = statusok 1.
   Proof. exact (idpath _). Qed.
 
-  Local Lemma zero_one_status: list2status (nat_zero :: nat_succ :: nat_zero :: nil) = stackok 2.
+  Local Lemma zero_one_status: list2status (nat_zero :: nat_succ :: nat_zero :: nil) = statusok 2.
   Proof. exact (idpath _). Qed.
 
   Local Definition zero_one_stack: Stack nat_signature 2:=
     mk_stack 2 (nat_zero :: nat_succ :: nat_zero :: nil) zero_one_status.
 
-  Goal list2status (nat_succ :: nil) = stackerror.
+  Goal list2status (nat_succ :: nil) = statuserror.
   Proof. exact (idpath _). Qed.
 
   Goal stack2list (stack_cons nat_succ term_one (natleh0n 0)) = nat_succ :: nat_succ :: nat_zero :: nil.

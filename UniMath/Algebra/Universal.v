@@ -140,11 +140,17 @@ Section TerminalAlgebra.
 
 End TerminalAlgebra.
 
-(** Terms **)
+(** Status **)
 
-Section Terms.
+Section Status.
+
+  Context {sigma: Signature}.
 
   Definition Status: UU := nat ⨿ unit.
+
+  Definition statusok n: Status := ii1 n.
+
+  Definition statuserror: Status := ii2 tt.
 
   Lemma Status_isaset: isaset Status.
   Proof.
@@ -153,120 +159,31 @@ Section Terms.
     - apply isasetunit.
   Qed.
 
-  Definition stackok n: Status := ii1 n.
-
-  Definition stackerror: Status := ii2 tt.
-
-  Definition status_cons {sigma: Signature} (nm: names sigma) (status: Status): Status.
+  Definition status_cons (nm: names sigma) (status: Status): Status.
   Proof.
     induction status as [n | error].
     - induction (isdecrelnatleh (arity nm) n).
-      + exact (stackok ( S(n - arity nm) ) ).
-      + exact stackerror.
-    - exact stackerror.
+      + exact (statusok ( S(n - arity nm) ) ).
+      + exact statuserror.
+    - exact statuserror.
   Defined.
 
-  Definition list2status {sigma: Signature} (l: list (names sigma)): Status
-    := foldr status_cons (stackok 0) l.
-
-  Definition Stack (sigma: Signature) (n: nat)
-    : UU := ∑ s: list (names sigma), list2status s = stackok n.
-
-  Lemma Stack_isaset (sigma: Signature) (n: nat): isaset (Stack sigma n).
-  Proof.
-    apply isaset_total2.
-    - apply isofhlevellist.
-      exact (pr2 (names sigma)).
-    - intros.
-      apply isasetaprop.
-      apply Status_isaset.
-  Qed.
-
-  Definition mk_stack {sigma: Signature} (n: nat) (s: list (names sigma))
-             (proofs: list2status s = stackok n)
-    : Stack sigma n := s ,, proofs.
-
-  Coercion stack2list {sigma: Signature} {n: nat} (s: Stack sigma n)
-    : list (names sigma) := pr1 s.
-
-  Definition stack2proof {sigma: Signature} {n: nat} (s: Stack sigma n)
-    : list2status s = stackok n := pr2 s.
-
-  Lemma stack_extens {sigma : Signature} {n} {s1 s2 : Stack sigma n}
-        (p : stack2list s1 = stack2list s2)
-    : s1 = s2.
-  Proof.
-    apply subtypePath.
-    2: exact p.
-    intros s.
-    apply Status_isaset.
-  Defined.
-
-  Lemma empty_status (sigma: Signature): list2status(sigma := sigma) nil = stackok 0.
-  Proof.
-    exact (idpath _).
-  Defined.
-
-  Definition stack_empty (sigma: Signature): Stack sigma 0 := nil ,, (empty_status sigma).
-
-  Definition Term (sigma: Signature): UU := Stack sigma 1.
-
-  Coercion term2list {sigma: Signature}
-    : Term sigma → list (names sigma) := pr1.
-
-  Definition Term_hset (sigma : Signature): hSet := make_hSet (Term sigma) (Stack_isaset sigma 1).
-
-End Terms.
-
-Section TermAlgebra.
-
-  Context {sigma: Signature}.
-
-  Definition status_concatenate (status1 status2: Status): Status.
-  Proof.
-    induction status2 as [len_s2 | error2].
-    - induction status1 as [len_s1 | error1].
-      + exact (stackok (len_s1 + len_s2)).
-      + exact stackerror.
-    - exact stackerror.
-  Defined.
-
-  Lemma list2status_cons {nm: names sigma} {l: list (names sigma)}:
-    list2status (cons nm l) = status_cons nm (list2status l).
-  Proof.
-    reflexivity.
-  Defined.
-
-  Lemma is_stack_cons (nm: names sigma) {n: nat} (s: Stack sigma n) (p: arity nm ≤ n)
-    : list2status (cons nm s) = stackok ( S (n - arity nm) ) .
-  Proof.
-    rewrite list2status_cons.
-    rewrite (stack2proof s).
-    cbn [stackok status_cons coprod_rect].
-    induction (isdecrelnatleh (arity nm) n).
-    - cbn; reflexivity.
-    - contradiction.
-  Defined.
-
-  Definition stack_cons (nm: names sigma) {n: nat} (s: Stack sigma n) (p: arity nm ≤ n)
-    : Stack sigma (S(n - arity nm)) := mk_stack ( S (n - arity nm)) (cons nm s) (is_stack_cons nm s p).
-
-  Lemma status_cons_stackok {nm: names sigma} {n: nat}:
-    status_cons nm (stackok n) != stackerror →  arity nm ≤ n.
+  Lemma status_cons_statusok {nm: names sigma} {n: nat}:
+    status_cons nm (statusok n) != statuserror →  arity nm ≤ n.
   Proof.
     intro noerror.
-    cbn [stackok status_cons coprod_rect] in noerror.
+    cbn [statusok status_cons coprod_rect] in noerror.
     induction (isdecrelnatleh (arity nm) n).
     - assumption.
     - cbn in noerror.
       contradiction.
- Defined.
+  Defined.
 
-  Lemma status_cons_stackok2 {nm: names sigma} {n: nat} {m: nat}:
-    status_cons nm (stackok n) = stackok m → m = S(n - arity nm).
+  Lemma status_cons_statusok2 {nm: names sigma} {n: nat} {m: nat}:
+    status_cons nm (statusok n) = statusok m → m = S(n - arity nm).
   Proof.
     intro scons.
-    cbn [stackok status_cons coprod_rect] in scons.
+    cbn [statusok status_cons coprod_rect] in scons.
     induction (isdecrelnatleh (arity nm) n).
     * cbn in scons.
       apply ii1_injectivity in scons.
@@ -278,24 +195,33 @@ Section TermAlgebra.
   Defined.
 
   Lemma status_cons_noerror {nm: names sigma} {status: Status}:
-    status_cons nm status != stackerror → ∑ n: nat, status = stackok n × arity nm ≤ n.
+    status_cons nm status != statuserror → ∑ n: nat, status = statusok n × arity nm ≤ n.
   Proof.
     intro noerror.
     induction status.
     - exists a.
       split.
       + apply idpath.
-      + apply status_cons_stackok. assumption.
+      + apply status_cons_statusok. assumption.
     - contradiction.
   Defined.
 
   Lemma status_cons_noerror2 {nm: names sigma} {status: Status}:
-    status_cons nm status != stackerror → status != stackerror.
+    status_cons nm status != statuserror → status != statuserror.
   Proof.
     apply negf.
     intro status_err.
     rewrite status_err.
     reflexivity.
+  Defined.
+
+  Definition status_concatenate (status1 status2: Status): Status.
+  Proof.
+    induction status2 as [len_s2 | error2].
+    - induction status1 as [len_s1 | error1].
+      + exact (statusok (len_s1 + len_s2)).
+      + exact statuserror.
+    - exact statuserror.
   Defined.
 
   Lemma natleh_add: ∏( n1 n2 m: nat), n1 ≤ n2 → n1 ≤ n2 + m.
@@ -319,7 +245,7 @@ Section TermAlgebra.
   Axiom natleh_adddiff: ∏(n1 n2 n3: nat), n3 ≤ n1 → n1 - n3 + n2 = n1 + n2 - n3.
 
   Lemma status_concatenate_statuscons {nm: names sigma} {status1 status2: Status}:
-    (status_cons nm status1 != stackerror) →
+    (status_cons nm status1 != statuserror) →
     status_concatenate (status_cons nm status1) status2
     = status_cons nm (status_concatenate status1 status2).
   Proof.
@@ -328,9 +254,9 @@ Section TermAlgebra.
     induction status2 as [a2 | error2].
     2: reflexivity.
     intro noerror.
-    cbn [status_concatenate status_cons stackok stackerror coprod_rect].
+    cbn [status_concatenate status_cons statusok statuserror coprod_rect].
     induction (isdecrelnatleh (arity nm) a1).
-    - cbn [stackok coprod_rect].
+    - cbn [statusok coprod_rect].
       induction (isdecrelnatleh (arity nm) (a1 + a2)) as [okarity | badarity].
       + cbn.
         apply maponpaths.
@@ -343,14 +269,94 @@ Section TermAlgebra.
           (apply badarity, natleh_add;
            assumption).
     - apply fromempty, b.
-      apply status_cons_stackok; assumption.
+      apply status_cons_statusok; assumption.
   Defined.
 
+End Status.
+
+Section Terms.
+
+  Definition list2status {sigma: Signature} (l: list (names sigma)): Status
+    := foldr status_cons (statusok 0) l.
+
+  Definition Stack (sigma: Signature) (n: nat)
+    : UU := ∑ s: list (names sigma), list2status s = statusok n.
+
+  Lemma Stack_isaset (sigma: Signature) (n: nat): isaset (Stack sigma n).
+  Proof.
+    apply isaset_total2.
+    - apply isofhlevellist.
+      exact (pr2 (names sigma)).
+    - intros.
+      apply isasetaprop.
+      apply Status_isaset.
+  Qed.
+
+  Definition mk_stack {sigma: Signature} (n: nat) (s: list (names sigma))
+             (proofs: list2status s = statusok n)
+    : Stack sigma n := s ,, proofs.
+
+  Coercion stack2list {sigma: Signature} {n: nat} (s: Stack sigma n)
+    : list (names sigma) := pr1 s.
+
+  Definition stack2proof {sigma: Signature} {n: nat} (s: Stack sigma n)
+    : list2status s = statusok n := pr2 s.
+
+  Lemma stack_extens {sigma : Signature} {n} {s1 s2 : Stack sigma n}
+        (p : stack2list s1 = stack2list s2)
+    : s1 = s2.
+  Proof.
+    apply subtypePath.
+    2: exact p.
+    intros s.
+    apply Status_isaset.
+  Defined.
+
+  Lemma empty_status (sigma: Signature): list2status(sigma := sigma) nil = statusok 0.
+  Proof.
+    exact (idpath _).
+  Defined.
+
+  Definition stack_empty (sigma: Signature): Stack sigma 0 := nil ,, (empty_status sigma).
+
+  Definition Term (sigma: Signature): UU := Stack sigma 1.
+
+  Coercion term2list {sigma: Signature}
+    : Term sigma → list (names sigma) := pr1.
+
+  Definition Term_hset (sigma : Signature): hSet := make_hSet (Term sigma) (Stack_isaset sigma 1).
+
+End Terms.
+
+Section TermAlgebra.
+
+  Context {sigma: Signature}.
+
+  Lemma list2status_cons {nm: names sigma} {l: list (names sigma)}:
+    list2status (cons nm l) = status_cons nm (list2status l).
+  Proof.
+    reflexivity.
+  Defined.
+
+  Lemma is_stack_cons (nm: names sigma) {n: nat} (s: Stack sigma n) (p: arity nm ≤ n)
+    : list2status (cons nm s) = statusok ( S (n - arity nm) ) .
+  Proof.
+    rewrite list2status_cons.
+    rewrite (stack2proof s).
+    cbn [statusok status_cons coprod_rect].
+    induction (isdecrelnatleh (arity nm) n).
+    - cbn; reflexivity.
+    - contradiction.
+  Defined.
+
+  Definition stack_cons (nm: names sigma) {n: nat} (s: Stack sigma n) (p: arity nm ≤ n)
+    : Stack sigma (S(n - arity nm)) := mk_stack ( S (n - arity nm)) (cons nm s) (is_stack_cons nm s p).
+
   Lemma list2status_compositional {l1 l2: list (names sigma)}:
-    list2status l1 != stackerror →
+    list2status l1 != statuserror →
     status_concatenate (list2status l1) (list2status l2) = list2status (concatenate l1 l2).
   Proof.
-    apply (list_ind (λ s, list2status s != stackerror →
+    apply (list_ind (λ s, list2status s != statuserror →
                           status_concatenate (list2status s) (list2status l2)
                           = list2status (concatenate s l2))).
     - intros.
@@ -370,7 +376,7 @@ Section TermAlgebra.
   Defined.
 
   Lemma is_stack_concatenate  {n1 n2: nat} (s1: Stack sigma n1) (s2: Stack sigma n2)
-    : list2status (concatenate s1 s2) = stackok ( n1 + n2 ).
+    : list2status (concatenate s1 s2) = statusok ( n1 + n2 ).
   Proof.
     rewrite <- list2status_compositional.
     - rewrite (stack2proof s1).
@@ -406,7 +412,7 @@ Section TermInduction.
 
   Context {sigma: Signature}.
 
-  Lemma nil_not_term: @list2status sigma nil != stackok 1.
+  Lemma nil_not_term: @list2status sigma nil != statusok 1.
   Proof.
     cbn.
     intro H.
@@ -473,15 +479,15 @@ Section TermInduction.
   Qed.
 
   Definition extract_sublist (s: list (names sigma)):
-    ∏ n m: nat, list2status s = stackok m → n ≤ m  →
+    ∏ n m: nat, list2status s = statusok m → n ≤ m  →
                 ∑ first second: list (names sigma),
-                        list2status first = stackok n ×
-                        list2status second = stackok (m - n) ×
+                        list2status first = statusok n ×
+                        list2status second = statusok (m - n) ×
                         concatenate first second = s.
   Proof.
-    apply (list_ind (λ s : list (names sigma), ∏ n m: nat, list2status s = stackok m → n ≤ m →
-                     ∑ first second: list (names sigma), list2status first = stackok n ×
-                                                  list2status second = stackok (m - n) ×
+    apply (list_ind (λ s : list (names sigma), ∏ n m: nat, list2status s = statusok m → n ≤ m →
+                     ∑ first second: list (names sigma), list2status first = statusok n ×
+                                                  list2status second = statusok (m - n) ×
                                                   concatenate first second = s)).
     - intros n m s_status.
       cbn in s_status.
@@ -507,7 +513,7 @@ Section TermInduction.
         * apply idpath.
       + apply nat_notgeh1_inv in n_gt_0.
         rewrite list2status_cons in s_status.
-        assert ( tail_ok: ∑ tail_ar: nat, list2status tail = stackok tail_ar ×
+        assert ( tail_ok: ∑ tail_ar: nat, list2status tail = statusok tail_ar ×
                                                                       arity nm ≤ tail_ar ).
         {
           apply status_cons_noerror.
@@ -516,7 +522,7 @@ Section TermInduction.
         }
         induction tail_ok as [ tail_ar [ tail_status_prf tail_ar_bound]].
         rewrite tail_status_prf in s_status.
-        apply status_cons_stackok2 in s_status.
+        apply status_cons_statusok2 in s_status.
         apply nat_ax in s_status.
         assert (tail_ar_newbound: n + arity nm - 1 ≤ tail_ar).
         {
@@ -532,12 +538,12 @@ Section TermInduction.
         rewrite s_status in status_snd_prf.
         rewrite nat_ax3 in status_snd_prf.
         set (realfirst := cons nm fst).
-        assert (list2status realfirst = stackok n).
+        assert (list2status realfirst = statusok n).
         {
           unfold realfirst.
           rewrite list2status_cons.
           rewrite status_fst_prf.
-          unfold stackok.
+          unfold statusok.
           unfold status_cons.
           unfold coprod_rect at 1.
           induction (isdecrelnatleh (arity nm) (n + arity nm - 1)).
@@ -582,11 +588,11 @@ Section TermInduction.
 
   Definition subterm (t: Term sigma): ⟦ arity (princ_op t) ⟧ → Term sigma.
   Proof.
-    assert (subterm2: ∏ (s: list (names sigma)) (s_is_term: list2status s = stackok 1),
+    assert (subterm2: ∏ (s: list (names sigma)) (s_is_term: list2status s = statusok 1),
             ⟦ arity (princ_op (s ,, s_is_term)) ⟧ → Term sigma).
     2: exact (subterm2 t (stack2proof t)).
     apply (list_ind (λ (s: list (names sigma)),
-                     ∏ s_is_term : list2status s = stackok 1,
+                     ∏ s_is_term : list2status s = statusok 1,
                                    ⟦ arity (princ_op (s,, s_is_term)) ⟧ → Term sigma)).
     - intro.
       set (contr := nil_not_term s_is_term).
@@ -596,7 +602,7 @@ Section TermInduction.
       intro arx.
       induction arx as [n n_lt_arx].
       rewrite list2status_cons in s_is_term.
-      assert (s_ok: status_cons x (list2status tail) != stackerror).
+      assert (s_ok: status_cons x (list2status tail) != statuserror).
       {
         rewrite s_is_term.
         apply negpathsii1ii2.
@@ -606,7 +612,7 @@ Section TermInduction.
       rewrite tail_status_prf in s_is_term.
       assert ( tail_ar_x: tail_ar = arity x).
       {
-        set (X := status_cons_stackok2 s_is_term).
+        set (X := status_cons_statusok2 s_is_term).
         change (1) with (1+0) in X.
         change (S (tail_ar - arity x)) with (1 + (tail_ar - arity x)) in X.
         set (Y := natpluslcan _ _ _ X).
