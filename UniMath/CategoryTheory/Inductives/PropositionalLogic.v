@@ -110,11 +110,15 @@ Defined.
 Definition PL_impl_fun (x : PL_type) (y : PL_type) : PL_type :=
   PL_impl (dirprodpair x y).
 
+Definition PL_iff_fun (x : PL_type) (y : PL_type) : PL_type :=
+  PL_and_fun (PL_impl (dirprodpair x y)) (PL_impl (dirprodpair y x)).
+
 Delimit Scope PL with PL.
 Notation "¬" := (PL_not) : PL.
 Infix "∧" := (PL_and) : PL.
 Infix "∨" := (PL_or) : PL.
 Infix "⇒" := (PL_impl) : PL.
+Infix "⇔" := (PL_iff_fun) (at level 90) : PL.
 
 Definition PL_mk_algebra (X : HSET) (vs : pr1 vars -> pr1 X) (not : pr1 X -> pr1 X)
            (and : pr1 X -> pr1 X -> pr1 X) (or : pr1 X -> pr1 X -> pr1 X) (impl : pr1 X -> pr1 X -> pr1 X) :
