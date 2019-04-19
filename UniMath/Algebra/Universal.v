@@ -148,7 +148,7 @@ Section Status.
 
   Definition Status: UU := nat ⨿ unit.
 
-  Definition statusok n: Status := ii1 n.
+  Definition statusok (n: nat): Status := ii1 n.
 
   Definition statuserror: Status := ii2 tt.
 
@@ -168,29 +168,28 @@ Section Status.
     - exact statuserror.
   Defined.
 
-  Lemma status_cons_statusok {nm: names sigma} {n: nat}:
-    status_cons nm (statusok n) != statuserror →  arity nm ≤ n.
+  Lemma status_cons_statusok_cases (nm: names sigma) (n: nat):
+    (arity nm ≤ n × status_cons nm (statusok n) = statusok (S(n - arity nm)))
+      ⨿ (¬ (arity nm ≤ n) × status_cons nm (statusok n) = statuserror).
   Proof.
-    intro noerror.
-    cbn [statusok status_cons coprod_rect] in noerror.
-    induction (isdecrelnatleh (arity nm) n).
-    - assumption.
-    - cbn in noerror.
-      contradiction.
+    cbn [status_cons statusok coprod_rect].
+    induction (isdecrelnatleh (arity nm) n) as [ok | error].
+    - left.
+      exact (ok ,, idpath _).
+    - right.
+      exact (error ,, idpath _).
   Defined.
 
-  Lemma status_cons_statusok2 {nm: names sigma} {n: nat} {m: nat}:
+  Lemma status_cons_statusok {nm: names sigma} {n m: nat}:
     status_cons nm (statusok n) = statusok m → m = S(n - arity nm).
   Proof.
     intro scons.
-    cbn [statusok status_cons coprod_rect] in scons.
-    induction (isdecrelnatleh (arity nm) n).
-    * cbn in scons.
-      apply ii1_injectivity in scons.
-      apply pathsinv0.
+    induction (status_cons_statusok_cases nm n) as [ [aritynm ok] | [aritynm error] ].
+    - rewrite scons in ok.
+      apply ii1_injectivity in ok.
       assumption.
-    * cbn in scons.
-      apply negpathsii2ii1 in scons.
+    - rewrite scons in error.
+      apply negpathsii1ii2 in error.
       contradiction.
   Defined.
 
@@ -199,10 +198,10 @@ Section Status.
   Proof.
     intro noerror.
     induction status.
-    - exists a.
-      split.
-      + apply idpath.
-      + apply status_cons_statusok. assumption.
+    - induction (status_cons_statusok_cases nm a) as [ [aritynm ok] | [aritynm error] ].
+      + exists a.
+        exact (idpath _ ,, aritynm).
+      + contradiction.
     - contradiction.
   Defined.
 
@@ -254,22 +253,21 @@ Section Status.
     induction status2 as [a2 | error2].
     2: reflexivity.
     intro noerror.
-    cbn [status_concatenate status_cons statusok statuserror coprod_rect].
-    induction (isdecrelnatleh (arity nm) a1).
-    - cbn [statusok coprod_rect].
-      induction (isdecrelnatleh (arity nm) (a1 + a2)) as [okarity | badarity].
-      + cbn.
+    change inl with statusok.
+    induction (status_cons_statusok_cases nm a1) as [ [aritynm ok] | [aritynm error] ].
+    - rewrite ok.
+      cbn [status_concatenate statusok coprod_rect].
+      induction (status_cons_statusok_cases nm (a1+a2)) as [ [aritynm2 ok2] | [aritynm2 error2] ].
+      + rewrite ok2.
         apply maponpaths.
-        abstract
-          (apply (maponpaths S);
-           apply natleh_adddiff;
-           assumption).
+        apply (maponpaths S).
+        apply natleh_adddiff.
+        assumption.
       + apply fromempty.
-        abstract
-          (apply badarity, natleh_add;
-           assumption).
-    - apply fromempty, b.
-      apply status_cons_statusok; assumption.
+        apply aritynm2.
+        apply natleh_add.
+        assumption.
+    - contradiction.
   Defined.
 
 End Status.
@@ -343,9 +341,8 @@ Section TermAlgebra.
   Proof.
     rewrite list2status_cons.
     rewrite (stack2proof s).
-    cbn [statusok status_cons coprod_rect].
-    induction (isdecrelnatleh (arity nm) n).
-    - cbn; reflexivity.
+    induction (status_cons_statusok_cases nm n) as [ [aritynm ok] | [aritynm error] ].
+    - assumption.
     - contradiction.
   Defined.
 
@@ -421,26 +418,14 @@ Section TermInduction.
     contradiction.
   Defined.
 
-  Lemma list_destruct {A: UU} (l: list A): (l = nil) ⨿ ( ∑ (x: A) (xs: list A), l = cons x xs ).
-  Proof.
-    apply (list_ind (λ l: list A, (l = nil) ⨿ (∑ (x: A) (xs: list A), l = cons x xs))).
-    - left.
-      apply idpath.
-    - right.
-      exists x.
-      exists xs.
-      apply idpath.
-  Defined.
-
   Definition princ_op (t: Term sigma): names sigma.
   Proof.
-    induction t as [l l_is_term].
-    induction (list_destruct l) as [l_nil | l_cons].
-    - rewrite l_nil in l_is_term.
+    induction t as [[len vec] l_is_term].
+    induction len.
+    - induction vec.
       apply nil_not_term in l_is_term.
       contradiction.
-    - induction l_cons as [x rest].
-      exact x.
+    - exact (hd vec).
   Defined.
 
   (*** These axioms probably needs some additional hypotheses **)
@@ -522,7 +507,7 @@ Section TermInduction.
         }
         induction tail_ok as [ tail_ar [ tail_status_prf tail_ar_bound]].
         rewrite tail_status_prf in s_status.
-        apply status_cons_statusok2 in s_status.
+        apply status_cons_statusok in s_status.
         apply nat_ax in s_status.
         assert (tail_ar_newbound: n + arity nm - 1 ≤ tail_ar).
         {
@@ -543,11 +528,9 @@ Section TermInduction.
           unfold realfirst.
           rewrite list2status_cons.
           rewrite status_fst_prf.
-          unfold statusok.
-          unfold status_cons.
-          unfold coprod_rect at 1.
-          induction (isdecrelnatleh (arity nm) (n + arity nm - 1)).
-          - cbn.
+          induction (status_cons_statusok_cases nm (n + arity nm - 1))
+            as [ [aritynm ok] | [aritynm error] ].
+          - rewrite ok.
             rewrite natminusminus.
             rewrite (natpluscomm 1 (arity nm)).
             rewrite <- natminusminus.
@@ -559,7 +542,7 @@ Section TermInduction.
                 (rewrite natpluscomm, plusminusnmm;
                  apply idpath).
             * assumption.
-          - induction b.
+          - induction aritynm.
             abstract
               (rewrite natpluscomm;
                rewrite <- natplusminusle;
@@ -612,7 +595,7 @@ Section TermInduction.
       rewrite tail_status_prf in s_is_term.
       assert ( tail_ar_x: tail_ar = arity x).
       {
-        set (X := status_cons_statusok2 s_is_term).
+        set (X := status_cons_statusok s_is_term).
         change (1) with (1+0) in X.
         change (S (tail_ar - arity x)) with (1 + (tail_ar - arity x)) in X.
         set (Y := natpluslcan _ _ _ X).
