@@ -165,6 +165,7 @@ Chains/All.v
 Inductives/Lists.v
 Inductives/Trees.v
 Inductives/LambdaCalculus.v
+Inductives/PropositionalLogic.v
 
 DisplayedCats/Auxiliary.v
 DisplayedCats/Core.v
