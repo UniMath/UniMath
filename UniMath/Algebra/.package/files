@@ -15,6 +15,7 @@ Lattice/Bounded.v
 Lattice/Complement.v
 Lattice/Distributive.v
 Lattice/Heyting.v
+Lattice/Subsets.v
 IteratedBinaryOperations.v
 Free_Monoids_and_Groups.v
 Tests.v
