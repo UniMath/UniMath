@@ -123,3 +123,14 @@ Proof.
     induction k, l; simpl. unfold transportf; simpl.
     unfold idfun; simpl. apply idweq. }
 Defined.
+
+Lemma maponpaths_funextsec {A : UU} {B : A -> UU}
+          (f g : ∏ x, B x) (x : A) (p : f ~ g) :
+ maponpaths (λ h, h x) (funextsec _ f g p) = p x.
+Proof.
+ intermediate_path (toforallpaths _ _ _ (funextsec _ f g p) x).
+ - generalize (funextsec _ f g p); intros q.
+   induction q.
+   reflexivity.
+ - apply (eqtohomot (eqtohomot (toforallpaths_funextsec_comp f g x) p) x).
+Qed.

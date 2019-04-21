@@ -71,3 +71,42 @@ Proof.
   - apply dirprod_with_contr_r; assumption.
   - apply weqdirprodcomm.
 Defined.
+
+Lemma total2_assoc_fun_left {A B : UU} (C : A -> B -> UU) (D : (∏ a : A, ∑ b : B, C a b) -> UU) :
+ (∑ (x : ∏ a : A, ∑ b : B, C a b), D x) ≃
+ ∑ (x : ∏ _ : A, B),
+   ∑ (y : ∏ a : A, C a (x a)),
+     D (fun a : A => (x a,, y a)).
+Proof.
+ use weq_iso.
+ - intros p.
+   exists (fun a => (pr1 (pr1 p a))).
+   exists (fun a => (pr2 (pr1 p a))).
+   exact (pr2 p).
+ - intros p.
+   use tpair.
+   + intros a.
+     use tpair.
+     * exact (pr1 p a).
+     * exact (pr1 (pr2 p) a).
+   + exact (pr2 (pr2 p)).
+ - reflexivity.
+ - reflexivity.
+Qed.
+
+Lemma sec_total2_distributivity {A : UU} {B : A -> UU} (C : ∏ a, B a -> UU) :
+  (∏ a : A, ∑ b : B a, C a b)
+    ≃ (∑ b : ∏ a : A, B a, ∏ a, C a (b a)).
+Proof.
+  use weq_iso.
+  - intro f.
+    use tpair.
+    + exact (fun a => pr1 (f a)).
+    + exact (fun a => pr2 (f a)).
+  - intro f.
+    intro a.
+    exists ((pr1 f) a).
+    apply (pr2 f).
+  - apply idpath.
+  - apply idpath.
+Defined.

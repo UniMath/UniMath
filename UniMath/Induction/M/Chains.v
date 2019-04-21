@@ -10,6 +10,7 @@ Require Import UniMath.MoreFoundations.WeakEquivalences.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.categories.Type.Core.
+Require Import UniMath.CategoryTheory.categories.Type.Limits.
 
 Require Import UniMath.CategoryTheory.Chains.Chains.
 Require Import UniMath.CategoryTheory.Chains.Cochains.
@@ -246,37 +247,6 @@ Proof.
 Defined.
 
 
-Local Lemma transportf_paths_FlFr {A B : UU} {f g : A -> B} {x1 x2 : A}
- (p : x1 = x2) (q : f x1 = g x1)
- : transportf (λ x, f x = g x) p q = !maponpaths f p @ q @ maponpaths g p.
-Proof.
- induction p; cbn.
- cbn.
- symmetry.
- apply pathscomp0rid.
-Defined.
-
-Definition maponpaths_funextsec {A : UU} {B : A -> UU}
-          (f g : ∏ x, B x) (x : A) (p : f ~ g) :
- maponpaths (λ h, h x) (funextsec _ f g p) = p x.
-Proof.
- intermediate_path (toforallpaths _ _ _ (funextsec _ f g p) x).
- - generalize (funextsec _ f g p); intros q.
-   induction q.
-   reflexivity.
- - apply (eqtohomot (eqtohomot (toforallpaths_funextsec_comp f g x) p) x).
-Qed.
-
-Local Lemma transportf_sec_constant
- {A B : UU} {C : A -> B -> UU}
- {x1 x2 : A} (p : x1 = x2) (f : ∏ y : B, C x1 y)
- : (transportf (λ x, ∏ y : B, C x y) p f)
-   = (λ y, transportf (λ x, C x y) p (f y)).
-Proof.
- induction p; cbn; unfold idfun.
- reflexivity.
-Defined.
-
 (** Lemma 11 in Ahrens, Capriotti, and Spadotti *)
 Local Definition Z X l :=
  ∑ (x : ∏ n, X n), ∏ n, x (S n) = l n (x n).
@@ -331,63 +301,6 @@ Defined.
 (* Maybe easier to apply in Lemma *)
 Definition lemma_11_unfolded (X : nat -> UU) (l : ∏ n, X n -> X (S n)) :
   (∑ (x : ∏ n, X n), ∏ n, x (S n) = l n (x n)) ≃ X 0 := lemma_11 X l.
-
-Lemma total2_assoc_fun_left {A B : UU} (C : A -> B -> UU) (D : (∏ a : A, ∑ b : B, C a b) -> UU) :
- (∑ (x : ∏ a : A, ∑ b : B, C a b), D x) ≃
- ∑ (x : ∏ _ : A, B),
-   ∑ (y : ∏ a : A, C a (x a)),
-     D (fun a : A => (x a,, y a)).
-Proof.
- use weq_iso.
- - intros p.
-   exists (fun a => (pr1 (pr1 p a))).
-   exists (fun a => (pr2 (pr1 p a))).
-   exact (pr2 p).
- - intros p.
-   use tpair.
-   + intros a.
-     use tpair.
-     * exact (pr1 p a).
-     * exact (pr1 (pr2 p) a).
-   + exact (pr2 (pr2 p)).
- - reflexivity.
- - reflexivity.
-Qed.
-
-Lemma sec_total2_distributivity {A : UU} {B : A -> UU} (C : ∏ a, B a -> UU) :
-  (∏ a : A, ∑ b : B a, C a b)
-    ≃ (∑ b : ∏ a : A, B a, ∏ a, C a (b a)).
-Proof.
-  use weq_iso.
-  - intro f.
-    use tpair.
-    + exact (fun a => pr1 (f a)).
-    + exact (fun a => pr2 (f a)).
-  - intro f.
-    intro a.
-    exists ((pr1 f) a).
-    apply (pr2 f).
-  - apply idpath.
-  - apply idpath.
-Defined.
-
-
-Lemma weq_functor_total2 {A B : UU} (C : A -> UU) (D : B -> UU) :
-  ∏ e : A ≃ B,
-        (∏ x, C x ≃ D (e x)) ->
-        (∑ x, C x) ≃ (∑ x, D x).
-Proof.
-  intros e f.
-  exact (weqbandf e C D f).
-Defined.
-
-Lemma weq_functor_total2_id {A : UU} (B C : A -> UU) :
-  (∏ x, B x ≃ C x) ->
-  (∑ x, B x) ≃ (∑ x, C x).
-Proof.
-  intros e.
-  apply (weqfibtototal B C e).
-Defined.
 
 Lemma cochain_limit_standard_limit_weq (cha cha' : cochain type_precat) :
   cochain_limit cha ≃ cochain_limit cha' → standard_limit cha ≃ standard_limit cha'.

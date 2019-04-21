@@ -749,3 +749,21 @@ Section Weqpaths.
   Defined.
 
 End Weqpaths.
+
+Lemma transportf_paths_FlFr {A B : UU} {f g : A -> B} {x1 x2 : A}
+ (p : x1 = x2) (q : f x1 = g x1)
+ : transportf (λ x, f x = g x) p q = !maponpaths f p @ q @ maponpaths g p.
+Proof.
+ induction p; cbn.
+ symmetry.
+ apply pathscomp0rid.
+Qed.
+
+Lemma transportf_sec_constant
+ {A B : UU} {C : A -> B -> UU}
+ {x1 x2 : A} (p : x1 = x2) (f : ∏ y : B, C x1 y)
+ : (transportf (λ x, ∏ y : B, C x y) p f)
+   = (λ y, transportf (λ x, C x y) p (f y)).
+Proof.
+ induction p; reflexivity.
+Qed.
