@@ -12,6 +12,7 @@ ConstructiveStructures.v
 Archimedean.v
 Lattice/Lattice.v
 Lattice/Bounded.v
+Lattice/Complement.v
 Lattice/Distributive.v
 Lattice/Heyting.v
 IteratedBinaryOperations.v
