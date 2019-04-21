@@ -14,39 +14,10 @@ Require Import UniMath.Algebra.Lattice.Bounded.
 Require Import UniMath.Algebra.Lattice.Distributive.
 Require Import UniMath.Algebra.Lattice.Complement.
 
-(** Functions from bool are determined by two points *)
-(** TODO: This is a weak equivalence. *)
-(** TODO: Define boolsum in terms of this. *)
-(** TODO: Bool.v *)
-Lemma fun_from_bool (X : UU) (true : X) (false : X) : bool -> X.
-Proof.
-  apply bool_rec; [exact true|exact false].
-Defined.
-
-(** TODO: BinaryOperations *)
-(** Limit a more general infinitary operation to a binary operation *)
-Lemma infinitary_op_to_binop {X : hSet} (op : ∏ I : UU, (I -> X) -> X) : binop X.
-Proof.
-  intros x y; exact (op _ (fun_from_bool X x y)).
-Defined.
-
-(** TODO: How to prove this? Is it true? *)
-Lemma isassoc_infinitary_op_to_binop
-      {X : hSet} (op : ∏ I : UU, (I -> X) -> X) :
-  isassoc (infinitary_op_to_binop op).
-Proof.
-  intros x y z.
-  unfold infinitary_op_to_binop.
-  unfold fun_from_bool.
-Abort.
-
 Section Subsets.
   Context {X : hSet}.
 
-  (** The set of subsets of a given set *)
-  Definition subsets : hSet := hSetpair _ (isasethsubtype X).
-
-  Definition intersection_binop : binop subsets.
+  Definition intersection_binop : binop (subtype_set X).
   Proof.
     apply infinitary_op_to_binop; exact (@subtype_intersection X).
   Defined.
@@ -80,7 +51,7 @@ Section Subsets.
     - exact (f true).
   Qed.
 
-  Definition union_binop : binop subsets.
+  Definition union_binop : binop (subtype_set X).
   Proof.
     apply infinitary_op_to_binop; exact (@subtype_union X).
   Defined.
@@ -131,7 +102,7 @@ Section Subsets.
     - exists true; assumption.
   Qed.
 
-  Lemma subset_lattice : lattice subsets.
+  Lemma subset_lattice : lattice (subtype_set X).
   Proof.
     use mklattice.
     - exact intersection_binop. (** [Lmin] *)
