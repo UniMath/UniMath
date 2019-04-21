@@ -22,21 +22,27 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.NaturalNumbers.
 
+Require Import UniMath.MoreFoundations.Bool.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorCategory.
-Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.FunctorAlgebras.
+
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
+
 Require Import UniMath.CategoryTheory.limits.initial.
-Require Import UniMath.CategoryTheory.FunctorAlgebras.
+Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
-Require Import UniMath.CategoryTheory.Chains.All.
+
+Require Import UniMath.CategoryTheory.Chains.OmegaCocontFunctors.
+Require Import UniMath.CategoryTheory.Chains.Chains.
+Require Import UniMath.CategoryTheory.Chains.Adamek.
 
 Local Open Scope cat.
 Local Open Scope cocont_functor_hset_scope.
@@ -144,40 +150,6 @@ Proof.
 Defined.
 
 End PL.
-
-(** TODO: do these really not exist yet? upstream *)
-Local Definition andb : bool -> bool -> bool.
-Proof.
-  intros b1 b2; induction b1; [exact b2|exact false].
-Defined.
-
-(** TODO: do these really not exist yet? upstream *)
-Local Definition orb : bool -> bool -> bool.
-Proof.
-  intros b1 b2; induction b1; [exact true|exact b2].
-Defined.
-
-(** TODO: do these really not exist yet? upstream *)
-Local Definition implb : bool -> bool -> bool.
-Proof.
-  intros b1 b2; induction b1; [exact b2|exact true].
-Defined.
-
-(* Double check they have the right truth tables: *)
-Local Definition andbtt1 : andb true true = true := (idpath _).
-Local Definition andbtt2 : andb true false = false := (idpath _).
-Local Definition andbtt3 : andb false true = false := (idpath _).
-Local Definition andbtt4 : andb false false = false := (idpath _).
-
-Local Definition orbtt1 : orb true true = true := (idpath _).
-Local Definition orbtt2 : orb true false = true := (idpath _).
-Local Definition orbtt3 : orb false true = true := (idpath _).
-Local Definition orbtt4 : orb false false = false := (idpath _).
-
-Local Definition implbtt1 : implb true true = true := (idpath _).
-Local Definition implbtt2 : implb true false = false := (idpath _).
-Local Definition implbtt3 : implb false true = true := (idpath _).
-Local Definition implbtt4 : implb false false = true := (idpath _).
 
 (** A valuation for atomic sentences can be extended to one for all sentences. *)
 Definition bool_valuation {vars : hSet} (V : vars -> bool) : PL vars -> bool.

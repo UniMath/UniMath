@@ -1,3 +1,4 @@
+Bool.v
 WeakEquivalences.v
 Tactics.v
 PartA.v
