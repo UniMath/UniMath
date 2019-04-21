@@ -225,6 +225,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monads/MonadAlgebras.v](CategoryTheory/Monads/MonadAlgebras.v)
    - [Adjunctions/Restriction.v](CategoryTheory/Adjunctions/Restriction.v)
    - [Adjunctions/Examples.v](CategoryTheory/Adjunctions/Examples.v)
+   - [Subcategories/Reflective.v](CategoryTheory/Subcategories/Reflective.v)
    - [categories/setwith2binops.v](CategoryTheory/categories/setwith2binops.v)
    - [categories/monoids.v](CategoryTheory/categories/monoids.v)
    - [categories/abmonoids.v](CategoryTheory/categories/abmonoids.v)
