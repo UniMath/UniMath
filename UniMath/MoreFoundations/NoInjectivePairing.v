@@ -13,13 +13,6 @@ Definition injective_pairing_statement :=
 
 (** * Preliminaries *)
 
-(** [idfun] is a left identity of [funcomp]. *)
-Lemma funcomp_id_l {A B} (f : A → B) :
-  idfun B ∘ f = f.
-Proof.
-  apply funextsec; intro. apply idpath.
-Defined.
-
 Lemma univalence_pathsinv0 {A B : UU} (p : A = B) :
   univalence _ _ (!p) = invweq (univalence _ _ p).
 Proof.
@@ -64,8 +57,7 @@ Proof.
   ).
   etrans.
   { apply (transportf_fun (idfun UU)). }
-  etrans.
-  { apply funcomp_id_l. }
+  change (transportb (idfun UU) (weqtopaths negb_weq) = negb).
   etrans.
   { refine (maponpaths _ (pathsinv0_weqtopaths _ )). }
   apply weqpath_transport.
