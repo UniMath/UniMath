@@ -10,7 +10,8 @@ DivisionRig.v
 Apartness.v
 ConstructiveStructures.v
 Archimedean.v
-Lattice.v
+Lattice/Lattice.v
+Lattice/Bounded.v
 IteratedBinaryOperations.v
 Free_Monoids_and_Groups.v
 Tests.v
