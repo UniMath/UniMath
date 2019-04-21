@@ -55,11 +55,9 @@ Proof.
     total2_paths_f (B := λ A, A → bool) (s := bool ,, idfun bool) (s' := bool ,, negb)
       (weqtopaths negb_weq) _
   ).
-  etrans.
-  { apply (transportf_fun (idfun UU)). }
+  refine (transportf_fun (idfun UU) (weqtopaths negb_weq) (idfun (idfun UU bool)) @ _).
   change (transportb (idfun UU) (weqtopaths negb_weq) = negb).
-  etrans.
-  { refine (maponpaths _ (pathsinv0_weqtopaths _ )). }
+  refine (maponpaths _ (pathsinv0_weqtopaths _ ) @ _).
   apply weqpath_transport.
 Defined.
 
