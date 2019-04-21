@@ -24,10 +24,10 @@ Lemma pathsinv0_weqtopaths {A B : UU} (eq : A ≃ B) :
   ! (weqtopaths eq) = weqtopaths (invweq eq).
 Proof.
   type_induction eq e.
-  rewrite <- univalence_pathsinv0.
-  unfold weqtopaths.
-  rewrite 2 homotinvweqweq.
-  apply idpath.
+  symmetry.
+  refine (maponpaths _ (! univalence_pathsinv0 e) @ _).
+  refine (homotinvweqweq _ _ @ _).
+  refine (maponpaths _ (! homotinvweqweq _ _)).
 Defined.
 
 
