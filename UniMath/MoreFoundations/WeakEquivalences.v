@@ -92,7 +92,7 @@ Proof.
    + exact (pr2 (pr2 p)).
  - reflexivity.
  - reflexivity.
-Qed.
+Defined.
 
 Lemma sec_total2_distributivity {A : UU} {B : A -> UU} (C : ∏ a, B a -> UU) :
   (∏ a : A, ∑ b : B a, C a b)
