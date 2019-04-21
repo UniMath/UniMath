@@ -46,7 +46,7 @@ Section PL.
 Let times x y := BinProductObject _ (BinProductsHSET x y).
 Local Infix "⊗" := times.
 
-Variable (vars : HSET).
+Variable (vars : hSet).
 
 (**
   <<
@@ -72,7 +72,7 @@ Defined.
 Let PL_alg : algebra_ob PL_functor' := InitialObject PL_functor_initial.
 
 (** The underlying set of the initial algebra *)
-Definition PL : HSET := alg_carrier _ PL_alg.
+Definition PL : hSet := alg_carrier _ PL_alg.
 
 Definition PL_type : UU := pr1hSet PL.
 
@@ -120,8 +120,8 @@ Infix "∨" := (PL_or) : PL.
 Infix "⇒" := (PL_impl) : PL.
 Infix "⇔" := (PL_iff_fun) (at level 90) : PL.
 
-Definition PL_mk_algebra (X : HSET) (vs : pr1 vars -> pr1 X) (not : pr1 X -> pr1 X)
-           (and : pr1 X -> pr1 X -> pr1 X) (or : pr1 X -> pr1 X -> pr1 X) (impl : pr1 X -> pr1 X -> pr1 X) :
+Definition PL_mk_algebra (X : hSet) (vs : vars -> X) (not : X -> X)
+           (and : X -> X -> X) (or : X -> X -> X) (impl : X -> X -> X) :
   algebra_ob PL_functor'.
 Proof.
   exists X.
@@ -136,9 +136,9 @@ Defined.
 (** The fold, or catamorphism: given the same structure of operations on any
     other set, we can construct an interpretation of PL in that set. *)
 (** TODO: why are the pr1s necessary? *)
-Definition PL_fold (X : HSET) (vs : pr1 vars -> pr1 X)
-           (not : pr1 X -> pr1 X) (and : pr1 X -> pr1 X -> pr1 X) (or : pr1 X -> pr1 X -> pr1 X) (impl : pr1 X -> pr1 X -> pr1 X) :
-  pr1 PL -> pr1 X.
+Definition PL_fold (X : hSet) (vs : vars -> X)
+           (not : X -> X) (and : X -> X -> X) (or : X -> X -> X) (impl : X -> X -> X) :
+  PL -> X.
 Proof.
   apply (InitialArrow PL_functor_initial (PL_mk_algebra X vs not and or impl)).
 Defined.
@@ -180,7 +180,7 @@ Local Definition implbtt3 : implb false true = true := (idpath _).
 Local Definition implbtt4 : implb false false = true := (idpath _).
 
 (** A valuation for atomic sentences can be extended to one for all sentences. *)
-Definition bool_valuation {vars : HSET} (V : pr1 vars -> bool) : pr1 (PL vars) -> bool.
+Definition bool_valuation {vars : hSet} (V : vars -> bool) : PL vars -> bool.
 Proof.
   use (PL_fold vars (hSetpair _ isasetbool)).
   - assumption. (* V *)
