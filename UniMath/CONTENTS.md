@@ -71,6 +71,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Archimedean.v](Algebra/Archimedean.v)
    - [Lattice/Lattice.v](Algebra/Lattice/Lattice.v)
    - [Lattice/Bounded.v](Algebra/Lattice/Bounded.v)
+   - [Lattice/Distributive.v](Algebra/Lattice/Distributive.v)
    - [Lattice/Heyting.v](Algebra/Lattice/Heyting.v)
    - [IteratedBinaryOperations.v](Algebra/IteratedBinaryOperations.v)
    - [Free_Monoids_and_Groups.v](Algebra/Free_Monoids_and_Groups.v)
