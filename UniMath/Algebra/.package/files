@@ -12,6 +12,7 @@ ConstructiveStructures.v
 Archimedean.v
 Lattice/Lattice.v
 Lattice/Bounded.v
+Lattice/Heyting.v
 IteratedBinaryOperations.v
 Free_Monoids_and_Groups.v
 Tests.v
