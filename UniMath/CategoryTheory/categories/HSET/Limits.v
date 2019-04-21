@@ -10,6 +10,7 @@
     - Terminal object from general limits ([TerminalHSET_from_Lims])
   - Pullbacks ([PullbacksHSET])
     - Pullbacks from general limits ([PullbacksHSET_from_Lims])
+    - Pullbacks of arrows from [unit] as inverse images
   - Equalizers from general limits ([EqualizersHSET_from_Lims])
 
 Written by: Benedikt Ahrens, Anders Mörtberg
@@ -24,6 +25,7 @@ Require Import UniMath.Foundations.Sets.
 
 Require Import UniMath.MoreFoundations.PartA. (* flip *)
 Require Import UniMath.MoreFoundations.Tactics.
+Require Import UniMath.MoreFoundations.WeakEquivalences.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -246,6 +248,90 @@ Proof.
   apply (graphs.pullbacks.Pullbacks_from_Lims HSET LimsHSET).
 Defined.
 
+(** *** Pullbacks of arrows from [unit] as inverse images *)
+
+(** The set [hfiber f y] is a pullback of a diagram involving an arrow
+    from [TerminalHSET], i.e. [unit].
+
+    In particular, A pullback diagram of shape
+    <<
+      Z --- ! --> unit
+      |            |
+      |            | y
+      V            V
+      X --- f -->  Y
+    >>
+    makes [Z] (isomorphic to) the inverse image of a point [y : Y] under [f].
+ *)
+
+(** A translation of [weqfunfromunit] into the language of category theory,
+    to make the statement of the next lemmas more concise. *)
+Lemma weqfunfromunit_HSET (X : hSet) : HSET⟦TerminalHSET, X⟧ ≃ X.
+Proof.
+  apply weqfunfromunit.
+Defined.
+
+(** The [hfiber] of a function between sets is also a set. *)
+Definition hfiber_hSet {X Y : hSet} (f : HSET⟦X, Y⟧) (y : Y) : hSet.
+Proof.
+  use hSetpair.
+  - exact (hfiber f y).
+  - apply isaset_hfiber; apply setproperty.
+Defined.
+
+Local Lemma tosecoverunit_compute {X : UU} {x : X} :
+  ∏ t, tosecoverunit (λ _ : unit, X) x t = x.
+Proof.
+  abstract (induction t; reflexivity).
+Qed.
+
+Local Definition hfiber_hSet_pr1 {X Y : hSet} (f : HSET⟦X, Y⟧) (y : Y) :
+    HSET⟦hfiber_hSet f y, X⟧ := hfiberpr1 f y.
+
+Lemma hfiber_is_pullback {X Y : hSet} (f : HSET⟦X, Y⟧)
+      (y : Y) (y' := invweq (weqfunfromunit_HSET _) y) :
+  ∑ H, isPullback f y' (hfiber_hSet_pr1 f y)
+                       (TerminalArrow TerminalHSET _) H.
+Proof.
+  use tpair.
+  - apply funextfun; intro.
+    apply hfiberpr2.
+  - intros pb pbpr1 pbpr2 pbH.
+
+    (** First, simplify what we have to prove.
+        Part of the condition is trivial. *)
+    use iscontrweqb.
+    + exact (∑ hk : HSET ⟦ pb, hfiber_hSet f y ⟧,
+              hk · hfiber_hSet_pr1 f y = pbpr1).
+    + apply weqfibtototal; intro.
+      apply invweq.
+      apply dirprod_with_contr_r.
+      use iscontrpair.
+      * apply proofirrelevance.
+        apply hlevelntosn.
+        apply (pr2 TerminalHSET). (** TODO: should be an accessor *)
+      * intro; apply proofirrelevance; apply setproperty.
+    + unfold hfiber_hSet, hfiber; cbn.
+      use iscontrpair.
+      * use tpair.
+        intros pb0.
+        use tpair.
+        -- exact (pbpr1 pb0).
+        -- cbn.
+           apply toforallpaths in pbH.
+           specialize (pbH pb0); cbn in pbH.
+           refine (pbH @ _).
+           apply tosecoverunit_compute.
+        -- apply funextfun; intro; reflexivity.
+      * intros t.
+        apply subtypeEquality.
+        -- intro; apply has_homsets_HSET.
+        -- cbn.
+           apply funextfun; intro; cbn.
+           apply subtypeEquality.
+           ++ intro; apply setproperty.
+           ++ apply (toforallpaths _ _ _ (pr2 t)).
+Defined.
 
 (** ** Equalizers from general limits [EqualizersHSET_from_Lims] *)
 
