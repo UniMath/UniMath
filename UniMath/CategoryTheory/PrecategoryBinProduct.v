@@ -21,12 +21,18 @@
   - From a functor on a product of precategories to a functor on one of
     the categories by fixing the argument in the other component
 
+  - From a functor on a product of precategories to a nat. transformation on one of
+    the categories by fixing the morphism argument in the other component
+
   - Definition of the associator functors
 
   - Definition of the pair of two functors: A × C → B × D
     given A → B and C → D
 
   - Definition of the diagonal functor [bindelta_functor].
+
+  - Definition of post-whiskering with parameter (with a functor on a
+    product of precategories where one argument is seen as parameter)
 
 *)
 
@@ -252,6 +258,48 @@ Definition functor_fix_fst_arg : functor D E
 
 End functor_fix_fst_arg.
 
+Section nat_trans_from_functor_fix_fst_morphism_arg.
+
+Variable C D E : precategory.
+Variable F : functor (precategory_binproduct C D) E.
+Variable c c' : C.
+Variable g: c --> c'.
+
+Definition nat_trans_from_functor_fix_fst_morphism_arg_data (d: D): functor_fix_fst_arg C D E F c d --> functor_fix_fst_arg C D E F c' d.
+Proof.
+  apply (#F).
+  exact (dirprodpair g (identity d)).
+Defined.
+
+Lemma nat_trans_from_functor_fix_fst_morphism_arg_ax: is_nat_trans _ _ nat_trans_from_functor_fix_fst_morphism_arg_data.
+Proof.
+  red.
+  intros d d' f.
+  unfold nat_trans_from_functor_fix_fst_morphism_arg_data.
+  unfold functor_fix_fst_arg; cbn.
+  unfold functor_fix_fst_arg_mor; simpl.
+  eapply pathscomp0.
+  2: { apply functor_comp. }
+  apply pathsinv0.
+  eapply pathscomp0.
+  2: { apply functor_comp. }
+  apply maponpaths.
+  unfold compose.
+  cbn.
+  do 2 rewrite id_left.
+  do 2 rewrite id_right.
+  apply idpath.
+Qed.
+
+Definition nat_trans_from_functor_fix_fst_morphism_arg: functor_fix_fst_arg C D E F c ⟹ functor_fix_fst_arg C D E F c'.
+Proof.
+  use tpair.
+  - intro d. apply nat_trans_from_functor_fix_fst_morphism_arg_data.
+  - cbn. exact nat_trans_from_functor_fix_fst_morphism_arg_ax.
+Defined.
+
+End nat_trans_from_functor_fix_fst_morphism_arg.
+
 Section nat_trans_fix_fst_arg.
 
 Variable C D E : precategory.
@@ -322,6 +370,48 @@ Proof.
 Defined.
 
 End functor_fix_snd_arg.
+
+Section nat_trans_from_functor_fix_snd_morphism_arg.
+
+Variable C D E : precategory.
+Variable F : functor (precategory_binproduct C D) E.
+Variable d d' : D.
+Variable f: d --> d'.
+
+Definition nat_trans_from_functor_fix_snd_morphism_arg_data (c: C): functor_fix_snd_arg C D E F d c --> functor_fix_snd_arg C D E F d' c.
+Proof.
+  apply (#F).
+  exact (dirprodpair (identity c) f).
+Defined.
+
+Lemma nat_trans_from_functor_fix_snd_morphism_arg_ax: is_nat_trans _ _ nat_trans_from_functor_fix_snd_morphism_arg_data.
+Proof.
+  red.
+  intros c c' g.
+  unfold nat_trans_from_functor_fix_snd_morphism_arg_data.
+  unfold functor_fix_snd_arg; cbn.
+  unfold functor_fix_snd_arg_mor; simpl.
+  eapply pathscomp0.
+  2: { apply functor_comp. }
+  apply pathsinv0.
+  eapply pathscomp0.
+  2: { apply functor_comp. }
+  apply maponpaths.
+  unfold compose.
+  cbn.
+  do 2 rewrite id_left.
+  do 2 rewrite id_right.
+  apply idpath.
+Qed.
+
+Definition nat_trans_from_functor_fix_snd_morphism_arg: functor_fix_snd_arg C D E F d ⟹ functor_fix_snd_arg C D E F d'.
+Proof.
+  use tpair.
+  - intro c. apply nat_trans_from_functor_fix_snd_morphism_arg_data.
+  - cbn. exact nat_trans_from_functor_fix_snd_morphism_arg_ax.
+Defined.
+
+End nat_trans_from_functor_fix_snd_morphism_arg.
 
 Section nat_trans_fix_snd_arg.
 
@@ -450,3 +540,72 @@ Definition binswap_pair_functor {C D : precategory} :
   pair_functor (pr2_functor C D) (pr1_functor C D) □ bindelta_functor (precategory_binproduct C D).
 
 End functors.
+
+Section whiskering.
+
+(** Postwhiskering with parameter *)
+
+Definition nat_trans_data_post_whisker_fst_param {B C D P: precategory}
+           {G H : functor B C} (γ : G ⟹ H) (K : functor (P × C) D):
+  nat_trans_data (functor_composite (pair_functor (functor_identity _) G) K)
+                 (functor_composite (pair_functor (functor_identity _) H) K) :=
+  λ pb : P × B, #K ((identity (ob1 pb),, γ (ob2 pb)):
+                      (P × C)⟦ob1 pb,, G(ob2 pb), ob1 pb,, H(ob2 pb)⟧).
+
+Lemma is_nat_trans_post_whisker_fst_param {B C D P: precategory}
+      {G H : functor B C} (γ : G ⟹ H) (K : functor (P × C) D):
+  is_nat_trans _ _ (nat_trans_data_post_whisker_fst_param γ K).
+Proof.
+  intros pb pb' f.
+  cbn.
+  unfold nat_trans_data_post_whisker_fst_param.
+  eapply pathscomp0.
+  2: { apply functor_comp. }
+  eapply pathscomp0.
+  { apply pathsinv0. apply functor_comp. }
+  apply maponpaths.
+  unfold compose; cbn.
+  rewrite id_left. rewrite id_right.
+  apply maponpaths.
+  apply (nat_trans_ax γ).
+Qed.
+
+Definition post_whisker_fst_param {B C D P: precategory}
+  {G H : functor B C} (γ : G ⟹ H) (K : functor (P × C) D):
+  (functor_composite (pair_functor (functor_identity _) G) K) ⟹
+  (functor_composite (pair_functor (functor_identity _) H) K) :=
+  mk_nat_trans _ _ _ (is_nat_trans_post_whisker_fst_param γ K).
+
+
+Definition nat_trans_data_post_whisker_snd_param {B C D P: precategory}
+           {G H : functor B C} (γ : G ⟹ H) (K : functor (C × P) D):
+  nat_trans_data (functor_composite (pair_functor G (functor_identity _)) K)
+                 (functor_composite (pair_functor H (functor_identity _)) K) :=
+  λ bp : B × P, #K ((γ (ob1 bp),, identity (ob2 bp)):
+                      (C × P)⟦G(ob1 bp),, ob2 bp, H(ob1 bp),, ob2 bp⟧).
+
+Lemma is_nat_trans_post_whisker_snd_param {B C D P: precategory}
+      {G H : functor B C} (γ : G ⟹ H) (K : functor (C × P) D):
+  is_nat_trans _ _ (nat_trans_data_post_whisker_snd_param γ K).
+Proof.
+  intros bp bp' f.
+  cbn.
+  unfold nat_trans_data_post_whisker_snd_param.
+  eapply pathscomp0.
+  2: { apply functor_comp. }
+  eapply pathscomp0.
+  { apply pathsinv0. apply functor_comp. }
+  apply maponpaths.
+  unfold compose; cbn.
+  rewrite id_left. rewrite id_right.
+  apply (maponpaths (λ x, dirprodpair x (pr2 f))).
+  apply (nat_trans_ax γ).
+Qed.
+
+Definition post_whisker_snd_param {B C D P: precategory}
+  {G H : functor B C} (γ : G ⟹ H) (K : functor (C × P) D):
+  (functor_composite (pair_functor G (functor_identity _)) K) ⟹
+  (functor_composite (pair_functor H (functor_identity _)) K) :=
+  mk_nat_trans _ _ _ (is_nat_trans_post_whisker_snd_param γ K).
+
+End whiskering.

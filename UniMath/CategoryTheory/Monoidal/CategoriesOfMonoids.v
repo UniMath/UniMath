@@ -28,6 +28,8 @@ Definition monoid_ob_data : UU :=
 Definition is_monoid_ob (X : C) (μ : X ⊗ X --> X) (η : I --> X) : UU :=
 	(μ #⊗ id X · μ = pr1 α' ((X, X), X) · id X #⊗ μ · μ) × (* Pentagon diagram *)
 	(pr1 λ' X = η #⊗ id X · μ) × (pr1 ρ' X = id X #⊗ η · μ). (* Unitor diagrams *)
+(* This definition deviates from that by Mac Lane (CWM 2nd ed., p.170) since the associator goes in the opposite direction. However, it conforms to the def. on Wikipedia for monoid objects. *)
+
 
 Definition monoid_ob : UU :=
 	∑ X : monoid_ob_data, is_monoid_ob (pr1 X) (pr1 (pr2 X)) (pr2 (pr2 X)).
@@ -40,12 +42,18 @@ Definition monoid_mult (X : monoid_ob) := pr1 (pr2 (pr1 X)).
 Definition monoid_unit (X : monoid_ob) := pr2 (pr2 (pr1 X)).
 
 Definition is_monoid_mor (X Y : monoid_ob) (f : monoid_carrier X --> monoid_carrier Y) : UU :=
-	((@monoid_mult X) · f = f #⊗ f · (@monoid_mult Y)) ×
-  (@monoid_unit X) · f = (@monoid_unit Y).
+  ((@monoid_mult X) · f = f #⊗ f · (@monoid_mult Y)) ×
+   (@monoid_unit X) · f = (@monoid_unit Y).
 
 Definition monoid_mor (X Y : monoid_ob) : UU :=
   ∑ f : X --> Y, is_monoid_mor X Y f.
 Coercion mor_from_monoid_mor (X Y : monoid_ob) (f : monoid_mor X Y) : X --> Y := pr1 f.
+
+Definition isaprop_is_monoid_mor (hs : has_homsets C) (X Y : monoid_ob) (f : monoid_carrier X --> monoid_carrier Y):
+  isaprop (is_monoid_mor X Y f).
+Proof.
+  use isapropdirprod; apply hs.
+Qed.
 
 Definition isaset_monoid_mor (hs : has_homsets C) (X Y : monoid_ob) : isaset (monoid_mor X Y).
 Proof.
@@ -53,23 +61,22 @@ Proof.
   - apply hs.
   - intro.
     apply isasetaprop.
-    unfold is_monoid_mor.
-    refine (isapropdirprod _ _ _ _); apply hs.
+    apply isaprop_is_monoid_mor; assumption.
 Qed.
 
-Definition monoid_mor_eq (hs : has_homsets C) {X Y : monoid_ob} {f g : monoid_mor X Y} : (f : X --> Y) = g ≃ f = g.
+Definition monoid_mor_eq (hs : has_homsets C) {X Y : monoid_ob} {f g : monoid_mor X Y} :
+  (f : X --> Y) = g ≃ f = g.
 Proof.
   apply invweq.
   apply subtypeInjectivity.
   intro.
-  unfold is_monoid_mor.
-  refine (isapropdirprod _ _ _ _); apply hs.
+  apply isaprop_is_monoid_mor; assumption.
 Defined.
 
 Definition monoid_mor_id (X : monoid_ob) : monoid_mor X X.
 Proof.
   exists (id _).
-  unfold is_monoid_mor.
+  red.
   rewrite id_right.
   rewrite tensor_id.
   rewrite id_left.
@@ -79,21 +86,22 @@ Defined.
 
 Definition monoid_mor_comp (X Y Z : monoid_ob) (f : monoid_mor X Y) (g : monoid_mor Y Z) : monoid_mor X Z.
 Proof.
-	use tpair; [| split].
-	- exact (f · g).
-	- rewrite assoc.
-    assert (goal' : (monoid_mult X · pr1 f · g = # tensor (f · g #, f · g) · monoid_mult Z)); [| exact goal'].
+  use tpair; [| split].
+  - exact (f · g).
+  - rewrite assoc.
+    change (monoid_mult X · pr1 f · g = # tensor (f · g #, f · g) · monoid_mult Z).
     rewrite (pr1 (pr2 f)).
     rewrite <- assoc.
-    assert (goal' : (# tensor (f #, f) · (monoid_mult Y · g) =
-    # tensor (precatbinprodmor (f · g) (f · g)) · monoid_mult Z)); [| exact goal'].
+    change ((# tensor (f #, f) · (monoid_mult Y · g) =
+             # tensor (precatbinprodmor (f · g) (f · g)) · monoid_mult Z)).
     rewrite binprod_comp.
-    assert (goal' : (# tensor (pr1 f #, pr1 f) · (monoid_mult Y · pr1 g) = # tensor ((f #, f) · (g #, g)) · monoid_mult Z)); [| exact goal'].
+    change ((# tensor (pr1 f #, pr1 f) · (monoid_mult Y · pr1 g) =
+             # tensor ((f #, f) · (g #, g)) · monoid_mult Z)).
     rewrite functor_comp.
     rewrite (pr1 (pr2 g)).
     rewrite assoc.
-    reflexivity.
-	- rewrite assoc.
+    apply idpath.
+  - rewrite assoc.
     rewrite <- (pr2 (pr2 g)).
     rewrite <- (pr2 (pr2 f)).
     apply idpath.
@@ -134,5 +142,22 @@ Definition precategory_monoid (hs : has_homsets C)
   : precategory := tpair _ _ (is_precategory_precategory_monoid_data hs).
 
 Local Notation monoid := precategory_monoid.
+
+Lemma precategory_monoid_has_homsets (hs: has_homsets C):
+  has_homsets (precategory_monoid hs).
+Proof.
+  red.
+  intros X Y.
+  red.
+  intros f g.
+  apply (isofhlevelweqf 1 (monoid_mor_eq hs (f := f) (g := g))).
+  apply hs.
+Qed.
+
+Definition category_monoid (hs: has_homsets C): category.
+Proof.
+  exists (precategory_monoid hs).
+  apply precategory_monoid_has_homsets.
+Defined.
 
 End Precategory_of_Monoids.

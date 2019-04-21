@@ -36,43 +36,23 @@ Section Monoidal_Functor_Conditions.
 
 Context (F : C ⟶ D).
 
-Definition monoidal_functor_map_dom : precategory_binproduct C C ⟶ D.
-use tpair; [| split].
-- use tpair.
-  exact (λ c, F (ob1 c) ⊗_D F (ob2 c)).
-  intros ? ? f.
-  exact (#F (mor1 f) #⊗_D #F (mor2 f)).
-- intro.
-  simpl.
-  repeat rewrite functor_id.
-  apply tensor_id.
-- unfold functor_compax.
-  simpl.
-  intros.
-  repeat rewrite functor_comp.
-  apply tensor_comp.
-Defined.
+Definition monoidal_functor_map_dom : precategory_binproduct C C ⟶ D :=
+  functor_composite (pair_functor F F) tensor_D.
 
-Definition monoidal_functor_map_codom : precategory_binproduct C C ⟶ D.
-use tpair; [| split].
-- use tpair.
-  exact (λ c, F (ob1 c ⊗_C ob2 c)).
-  intros ? ? f.
-  exact (#F (mor1 f #⊗_C mor2 f)).
-- intro.
-  simpl.
-  rewrite binprod_id.
-  rewrite (functor_id tensor_C).
-  rewrite functor_id.
-  reflexivity.
-- unfold functor_compax.
-  simpl.
-  intros.
-  rewrite binprod_comp.
-  rewrite (functor_comp tensor_C).
-  rewrite functor_comp.
-  reflexivity.
-Defined.
+Lemma monoidal_functor_map_dom_ok: functor_on_objects monoidal_functor_map_dom =
+  λ c, F (ob1 c) ⊗_D F (ob2 c).
+Proof.
+  apply idpath.
+Qed.
+
+Definition monoidal_functor_map_codom : precategory_binproduct C C ⟶ D :=
+  functor_composite tensor_C F.
+
+Lemma monoidal_functor_map_codom_ok: functor_on_objects monoidal_functor_map_codom =
+  λ c, F (ob1 c ⊗_C ob2 c).
+Proof.
+  apply idpath.
+Qed.
 
 Definition monoidal_functor_map :=
   monoidal_functor_map_dom ⟹ monoidal_functor_map_codom.
@@ -92,7 +72,8 @@ Definition monoidal_functor_unitality (ϵ : I_D --> F I_C) (μ : monoidal_functo
 End Monoidal_Functor_Conditions.
 
 Definition lax_monoidal_functor : UU :=
-  ∑ F : C ⟶ D, ∑ ϵ : I_D --> F I_C, ∑ μ : monoidal_functor_map F, (monoidal_functor_associativity F μ) × (monoidal_functor_unitality F ϵ μ).
+  ∑ F : C ⟶ D, ∑ ϵ : I_D --> F I_C, ∑ μ : monoidal_functor_map F,
+   (monoidal_functor_associativity F μ) × (monoidal_functor_unitality F ϵ μ).
 
 Definition strong_monoidal_functor : UU :=
   ∑ L : lax_monoidal_functor,
