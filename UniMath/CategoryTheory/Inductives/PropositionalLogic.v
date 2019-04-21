@@ -141,7 +141,6 @@ Defined.
 
 (** The fold, or catamorphism: given the same structure of operations on any
     other set, we can construct an interpretation of PL in that set. *)
-(** TODO: why are the pr1s necessary? *)
 Definition PL_fold (X : hSet) (vs : vars -> X)
            (not : X -> X) (and : X -> X -> X) (or : X -> X -> X) (impl : X -> X -> X) :
   PL -> X.
