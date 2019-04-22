@@ -75,7 +75,7 @@ Let CPEndEndC:= BinCoproducts_functor_precat _ _ CPEndC hsEndC: BinCoproducts En
 
 Variable KanExt : ∏ Z : Ptd, GlobalRightKanExtensionExists _ _ (U Z) _ hs hs.
 
-Variable H : Signature C hs C hs.
+Variable H : Signature C hs C hs C hs.
 Let θ := theta H.
 
 Definition Const_plus_H (X : EndC) : functor EndC EndC
@@ -830,7 +830,7 @@ Proof.
       fold θ.
       apply nat_trans_eq; try (exact hs).
       intro c.
-      assert (θ_nat_1_pointwise_inst := θ_nat_1_pointwise _ hs _ hs H θ _ _ β Z c).
+      assert (θ_nat_1_pointwise_inst := θ_nat_1_pointwise _ hs _ hs _ hs H θ _ _ β Z c).
       eapply pathscomp0 ; [exact θ_nat_1_pointwise_inst | ].
       clear θ_nat_1_pointwise_inst.
       simpl.

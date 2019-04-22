@@ -54,8 +54,8 @@ Local Infix "::" := (@cons nat).
 Local Notation "[]" := (@nil nat) (at level 0, format "[]").
 Local Notation "'HSET2'":= [HSET, HSET, has_homsets_HSET].
 Local Notation "'Id'" := (functor_identity _).
-Local Notation "F * G" := (H HSET has_homsets_HSET HSET has_homsets_HSET BinProductsHSET F G).
-Local Notation "F + G" := (BinSumOfSignatures.H _ _ _ _ BinCoproductsHSET F G).
+Local Notation "F * G" := (H HSET HSET has_homsets_HSET HSET has_homsets_HSET BinProductsHSET F G).
+Local Notation "F + G" := (BinSumOfSignatures.H _ _ _ _ _ _ BinCoproductsHSET F G).
 Local Notation "'_' 'o' 'option'" :=
   (ℓ (option_functor BinCoproductsHSET TerminalHSET)) (at level 10).
 
@@ -83,7 +83,7 @@ Definition LamSig : BindingSig :=
   mkBindingSig isasetbool (λ b, if b then 0 :: 0 :: [] else 1 :: [])%nat.
 
 (** The signature with strength for the lambda calculus *)
-Definition LamSignature : Signature HSET has_homsets_HSET _ _ :=
+Definition LamSignature : Signature HSET has_homsets_HSET _ _ _ _ :=
   BindingSigToSignatureHSET LamSig.
 
 Let Id_H := Id_H _ has_homsets_HSET BinCoproductsHSET.

@@ -51,7 +51,7 @@ Section category_Algebra.
 
 Variables (C : precategory) (hsC : has_homsets C) (CP : BinCoproducts C).
 Variables (IC : Initial C) (CC : Colims_of_shape nat_graph C).
-Variables (H : Signature C hsC C hsC) (HH : is_omega_cocont H).
+Variables (H : Signature C hsC C hsC C hsC) (HH : is_omega_cocont H).
 
 Local Notation "'EndC'":= ([C, C, hsC]) .
 Local Notation "'Ptd'" := (precategory_Ptd C hsC).
@@ -617,7 +617,7 @@ intermediate_path (pr1 (pr1 X)).
       rewrite assoc.
       apply cancel_postcomposition.
       apply (nat_trans_eq hsC); intro c.
-      assert (θ_nat_1_pointwise_inst := θ_nat_1_pointwise _ hsC _ hsC H θ _ _ β Z c).
+      assert (θ_nat_1_pointwise_inst := θ_nat_1_pointwise _ hsC _ hsC _ hsC H θ _ _ β Z c).
       eapply pathscomp0 ; [exact θ_nat_1_pointwise_inst | ].
       clear θ_nat_1_pointwise_inst.
       simpl.

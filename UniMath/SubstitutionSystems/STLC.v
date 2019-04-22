@@ -99,7 +99,7 @@ use mkMultiSortedSig.
 Defined.
 
 (** The signature with strength for the simply typed lambda calculus *)
-Definition STLC_Signature : Signature (SET / sort) _ _ _ :=
+Definition STLC_Signature : Signature (SET / sort) _ _ _ _ _ :=
   MultiSortedSigToSignature sort STLC_Sig.
 
 Let Id_H := Id_H _ hs (BinCoproducts_HSET_slice sort).

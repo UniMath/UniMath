@@ -35,22 +35,22 @@ Require Import UniMath.CategoryTheory.limits.products.
 
 Section sum_of_signatures.
 
-Variables (I : UU) (C : precategory) (hsC : has_homsets C) (D : precategory) (hsD : has_homsets D).
+Variables (I : UU) (C : precategory) (hsC : has_homsets C) (D : precategory) (hsD : has_homsets D) (D' : precategory) (hsD' : has_homsets D').
 Variables (CD : Coproducts I D).
 
 Section construction.
 
 Local Notation "'CCD'" := (Coproducts_functor_precat I C D CD hsD : Coproducts I [C, D, hsD]).
 
-Variables H1 : I -> functor [C, C, hsC] [C, D, hsD].
+Variables H1 : I -> functor [C, D', hsD'] [C, D, hsD].
 
-Variable θ1 : ∏ i, θ_source (H1 i) ⟹ θ_target (H1 i).
+Variable θ1 : ∏ i, θ_source(hs := hsC) (H1 i) ⟹ θ_target (H1 i).
 
 (** * Definition of the data of the sum of signatures *)
 
-Local Definition H : functor [C, C, hsC] [C, D, hsD] := coproduct_of_functors _ _ _ CCD H1.
+Local Definition H : functor [C, D', hsD'] [C, D, hsD] := coproduct_of_functors _ _ _ CCD H1.
 
-Local Definition θ_ob_fun (X : [C, C, hsC]) (Z : precategory_Ptd C hsC) (x : C) :
+Local Definition θ_ob_fun (X : [C, D', hsD']) (Z : precategory_Ptd C hsC) (x : C) :
    D ⟦ coproduct_of_functors_ob _ _ _ CD (λ i, H1 i X) (pr1 Z x),
        coproduct_of_functors_ob _ _ _ CD (λ i, H1 i (functor_composite (pr1 Z) X)) x ⟧.
 Proof.
@@ -58,7 +58,7 @@ apply CoproductOfArrows; intro i.
 exact (pr1 (θ1 i (X ⊗ Z)) x).
 Defined.
 
-Local Lemma is_nat_trans_θ_ob_fun (X : [C, C, hsC]) (Z : precategory_Ptd C hsC) :
+Local Lemma is_nat_trans_θ_ob_fun (X : [C, D', hsD']) (Z : precategory_Ptd C hsC) :
   is_nat_trans (functor_composite_data (pr1 Z)
                  (coproduct_of_functors_data _ _ _  CD (λ i, H1 i X)))
                  (coproduct_of_functors_data _ _ _ CD (λ i, H1 i (functor_composite (pr1 Z) X)))
@@ -71,7 +71,7 @@ apply CoproductOfArrows_eq, funextsec; intro i.
 apply (nat_trans_ax (θ1 i (X ⊗ Z))).
 Qed.
 
-Definition θ_ob : ∏ XF, θ_source H XF --> θ_target H XF.
+Definition θ_ob : ∏ XF, θ_source(hs := hsC) H XF --> θ_target H XF.
 Proof.
 intros [X Z]; exists (θ_ob_fun X Z); apply is_nat_trans_θ_ob_fun.
 Defined.
@@ -121,18 +121,18 @@ Qed.
 
 End construction.
 
-Definition Sum_of_Signatures (S : I -> Signature C hsC D hsD) : Signature C hsC D hsD.
+Definition Sum_of_Signatures (S : I -> Signature C hsC D hsD D' hsD') : Signature C hsC D hsD D' hsD'.
 Proof.
 use tpair.
 - apply H; intro i.
   apply (S i).
 - exists (θ (λ i, S i) (λ i, theta (S i))).
   split.
-  + apply SumStrength1'; intro i; apply (Sig_strength_law1 _ _ _ _ (S i)).
-  + apply SumStrength2'; intro i; apply (Sig_strength_law2 _ _ _ _ (S i)).
+  + apply SumStrength1'; intro i; apply (Sig_strength_law1 _ _ _ _ _ _ (S i)).
+  + apply SumStrength2'; intro i; apply (Sig_strength_law2 _ _ _ _ _ _ (S i)).
 Defined.
 
-Lemma is_omega_cocont_Sum_of_Signatures (S : I -> Signature C hsC D hsD)
+Lemma is_omega_cocont_Sum_of_Signatures (S : I -> Signature C hsC D hsD D' hsD')
   (h : ∏ i, is_omega_cocont (S i)) : is_omega_cocont (Sum_of_Signatures S).
 Proof.
 apply is_omega_cocont_coproduct_of_functors; try assumption.

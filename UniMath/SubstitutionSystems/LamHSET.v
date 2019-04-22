@@ -41,7 +41,7 @@ Require Import UniMath.CategoryTheory.Chains.All.
 
 Section LamHSET.
 
-Let Lam_S : Signature HSET has_homsets_HSET _ _ :=
+Let Lam_S : Signature HSET has_homsets_HSET _ _ _ _ :=
   Lam_Sig HSET has_homsets_HSET TerminalHSET BinCoproductsHSET BinProductsHSET.
 
 Local Notation "'EndHSET'":= ([HSET, HSET, has_homsets_HSET]) .
