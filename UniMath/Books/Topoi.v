@@ -1,4 +1,4 @@
-(** * Topoi: The Categorical Analysis of Logic - Robert Goldblatt *)
+(** * Topoi: The Categorial Analysis of Logic - Robert Goldblatt *)
 
 (** ** Contents
 
