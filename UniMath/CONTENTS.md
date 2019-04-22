@@ -74,6 +74,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Lattice/Complement.v](Algebra/Lattice/Complement.v)
    - [Lattice/Distributive.v](Algebra/Lattice/Distributive.v)
    - [Lattice/Heyting.v](Algebra/Lattice/Heyting.v)
+   - [Lattice/Boolean.v](Algebra/Lattice/Boolean.v)
    - [Lattice/Subsets.v](Algebra/Lattice/Subsets.v)
    - [IteratedBinaryOperations.v](Algebra/IteratedBinaryOperations.v)
    - [Free_Monoids_and_Groups.v](Algebra/Free_Monoids_and_Groups.v)

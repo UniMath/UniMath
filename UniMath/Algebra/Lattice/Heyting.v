@@ -17,6 +17,10 @@ Section Def.
     ∑ exponential_map : X -> X -> X,
       ∏ x y z : X, z ≤ (exponential_map x y) <-> (z ∧ x) ≤ y.
 
+  Definition make_exponential (exponential_map : X -> X -> X)
+             (prop : ∏ x y z : X, z ≤ (exponential_map x y) <-> (z ∧ x) ≤ y) :
+    exponential := tpair _ exponential_map prop.
+
   Definition exponential_map (exp : exponential) : X -> X -> X := pr1 exp.
   Coercion exponential_map : exponential >-> Funclass.
 
