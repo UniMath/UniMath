@@ -4,6 +4,7 @@ Require Import UniMath.Foundations.Preamble.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Sets.
 Require Import UniMath.MoreFoundations.Subtypes.
+Require Export UniMath.MoreFoundations.Propositions.
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -154,5 +155,23 @@ Section Subsets.
         * exact tt. (* always in total subtype *)
         * assumption.
   Qed.
+
+  (** Using [LEM], we can show the lattice is complemented *)
+  Lemma subset_lattice_is_complemented :
+    LEM -> is_complemented (mkbounded_lattice subset_lattice_is_bounded).
+  Proof.
+    intros lem sub.
+    exists (subtype_complement sub).
+    use dirprodpair.
+    - apply (invweq (hsubtype_univalence _ _)).
+      apply (subtype_complement_union sub lem).
+      + exists true; reflexivity.
+      + exists false; reflexivity.
+    - (** We don't need [LEM] for this branch. *)
+      apply (invweq (hsubtype_univalence _ _)).
+      apply (subtype_complement_intersection_empty sub).
+      + exists true; reflexivity.
+      + exists false; reflexivity.
+  Defined.
 
 End Subsets.

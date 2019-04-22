@@ -8,6 +8,8 @@ Local Open Scope subtype.
 
 Local Open Scope logic.
 
+Definition emptysubtype (X : UU) : hsubtype X := λ x, hfalse.
+
 (** The powerset, or set of all subsets, of a set. *)
 Definition subtype_set X : hSet := hSetpair (hsubtype X) (isasethsubtype X).
 
@@ -176,3 +178,58 @@ Proof.
   - exact (le x Sx).
   - induction e. exact Tz.
 Defined.
+
+Section Complement.
+
+  Context {X : UU} (S : hsubtype X).
+
+  Definition subtype_complement : hsubtype X := fun x => hneg (S x).
+
+  (** Something can't be in a subset and its complement. *)
+  Lemma not_in_subtype_and_complement :
+    ∏ x, S x -> subtype_complement x -> empty.
+  Proof.
+    intros x in_S in_neg_S; exact (in_neg_S in_S).
+  Defined.
+
+  (** An intersection containing a set and its complement is empty. *)
+  Lemma subtype_complement_intersection_empty {I : UU} {f : I -> hsubtype X} :
+    (∑ i : I, f i = S) ->
+    (∑ i : I, f i = subtype_complement) ->
+    subtype_intersection f ≡ emptysubtype _.
+  Proof.
+    intros has_S has_neg_S x; use dirprodpair.
+    - intros in_intersection.
+      pose (in_S := in_intersection (pr1 has_S)).
+      pose (in_neg_S := in_intersection (pr1 has_neg_S)).
+      cbn in *.
+
+      pose (in_S' := (eqtohomot (pr2 has_S)) x).
+      pose (in_neg_S' := (eqtohomot (pr2 has_neg_S)) x).
+
+      apply (not_in_subtype_and_complement x).
+      + abstract (induction in_S'; assumption).
+      + abstract (induction in_neg_S'; assumption).
+
+    - intros empt; induction empt.
+  Qed.
+
+  (** A union containing a set and its complement is the whole set (assuming LEM). *)
+  Lemma subtype_complement_union (lem : LEM) {I : UU} {f : I -> hsubtype X} :
+    (∑ i : I, f i = S) ->
+    (∑ i : I, f i = subtype_complement) ->
+    subtype_union f ≡ totalsubtype _.
+  Proof.
+    intros has_S has_neg_S x; use dirprodpair.
+    - intros ?; exact tt.
+    - intros ?.
+      induction (lem (S x)).
+      + apply hinhpr.
+        exists (pr1 has_S).
+        abstract (rewrite (pr2 has_S); assumption).
+      + apply hinhpr.
+        exists (pr1 has_neg_S).
+        abstract (rewrite (pr2 has_neg_S); assumption).
+  Qed.
+
+End Complement.
