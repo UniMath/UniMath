@@ -130,6 +130,29 @@ Section Subsets.
           -- assumption.
           -- apply (bin true).
         * intros ? ?; apply hinhpr; exists true; assumption.
+  Defined.
+
+  Lemma subset_lattice_is_bounded :
+    bounded_latticeop subset_lattice (emptysubtype X) (totalsubtype X).
+  Proof.
+    (** TODO: constructor *)
+    use dirprodpair.
+    - intros x; cbn.
+      apply (invweq (hsubtype_univalence _ _)), subtype_equal_cond;
+        use dirprodpair.
+      + intros ? in_union.
+        refine (hinhuniv _ in_union); clear in_union; intro in_union.
+        induction in_union as [b bin]; induction b; cbn in bin.
+        * induction bin. (* can't be in the empty subset *)
+        * assumption.
+      + intros ? ?; apply hinhpr; exists false; assumption.
+    - intros x; cbn.
+      apply (invweq (hsubtype_univalence _ _)), subtype_equal_cond;
+        use dirprodpair.
+      + intros ? in_intersection; exact (in_intersection false).
+      + intros ? ? b; induction b; cbn.
+        * exact tt. (* always in total subtype *)
+        * assumption.
   Qed.
 
 End Subsets.
