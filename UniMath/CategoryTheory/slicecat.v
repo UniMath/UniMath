@@ -130,7 +130,7 @@ Definition comp_slice_precat (a b c : slice_precat_ob_mor)
   (pr1 f · pr1 g,,comp_slice_precat_subproof _ _).
 
 Definition slice_precat_data : precategory_data :=
-  precategory_data_pair _ id_slice_precat comp_slice_precat.
+  make_precategory_data _ id_slice_precat comp_slice_precat.
 
 Lemma is_precategory_slice_precat_data (hsC : has_homsets C) :
   is_precategory slice_precat_data.
@@ -183,7 +183,7 @@ Proof.
 Qed.
 
 Definition  eq_mor_slicecat_weq (af bg : C / x) (f g : C/x⟦af,bg⟧) :
-  (pr1 f = pr1 g ≃ f = g) := weqpair _ (eq_mor_slicecat_isweq af bg f g).
+  (pr1 f = pr1 g ≃ f = g) := make_weq _ (eq_mor_slicecat_isweq af bg f g).
 
 
 (** ** Isos in slice categories *)
@@ -267,7 +267,7 @@ Qed.
 (** The forgetful functor from C/x to C *)
 Definition slicecat_to_cat : functor (C / x) C.
 Proof.
-  use mk_functor.
+  use make_functor.
   + use tpair.
     - apply pr1.
     - intros a b; apply pr1.
@@ -279,7 +279,7 @@ Defined.
 (** Right adjoint to slicecat_to_cat *)
 Definition cat_to_slicecat (BPC : BinProducts C) : functor C (C / x).
 Proof.
-use mk_functor.
+use make_functor.
 + use tpair.
   * intro y.
     exists (BinProductObject _ (BPC x y)).
@@ -299,8 +299,8 @@ Lemma is_left_adjoint_slicecat_to_cat (BPC : BinProducts C) :
   is_left_adjoint slicecat_to_cat.
 Proof.
 exists (cat_to_slicecat BPC).
-use mk_are_adjoints.
-+ use mk_nat_trans.
+use make_are_adjoints.
++ use make_nat_trans.
   * simpl; intros F.
     exists (BinProductArrow _ _ (pr2 F) (identity _)); simpl.
     abstract (rewrite BinProductPr1Commutes; apply idpath).
@@ -309,7 +309,7 @@ use mk_are_adjoints.
     apply BinProductArrowUnique.
     - rewrite <- assoc, BinProductPr1Commutes, id_right, (pr2 F); apply idpath.
     - rewrite <- assoc, BinProductPr2Commutes, id_left, id_right; apply idpath.
-+ use mk_nat_trans.
++ use make_nat_trans.
   * intros Y.
     apply BinProductPr2.
   * intros Y Z f; apply BinProductOfArrowsPr2.
@@ -348,7 +348,7 @@ assert (weq2 : weq (total2 (fun (p : a = b) => transportf _ p (pr2 af) = g))
 
 assert (weq3 : weq (total2 (fun (p : a = b) => idtoiso (! p) · f = g))
                    (total2 (λ h : iso a b, f = h · g))).
-  apply (weqbandf (weqpair _ ((pr1 is_catC) a b))); intro p.
+  apply (weqbandf (make_weq _ ((pr1 is_catC) a b))); intro p.
   rewrite idtoiso_inv; simpl.
   apply weqimplimpl; simpl; try apply (pr2 is_catC); intro Hp.
     rewrite <- Hp, assoc, iso_inv_after_iso, id_left; apply idpath.
@@ -498,7 +498,7 @@ Lemma slice_precat_isColimCocone (d : diagram g (C / x)) (a : C / x)
   (H : isColimCocone (mapdiagram U d) (U a) (mapcocone U d cc)) :
   isColimCocone d a cc.
 Proof.
-set (CC := mk_ColimCocone _ _ _ H).
+set (CC := make_ColimCocone _ _ _ H).
 intros y ccy.
 use unique_exists.
 + use tpair; simpl.
@@ -521,14 +521,14 @@ Lemma slice_precat_ColimCocone (d : diagram g (C / x))
   (H : ColimCocone (mapdiagram U d)) :
   ColimCocone d.
 Proof.
-use mk_ColimCocone.
+use make_ColimCocone.
 - use tpair.
   + apply (colim H).
   + apply colimArrow.
-    use mk_cocone.
+    use make_cocone.
     * intro v; apply (pr2 (dob d v)).
     * abstract (intros u v e; apply (! pr2 (dmor d e))).
-- use mk_cocone.
+- use make_cocone.
   + intro v; simpl.
     use tpair; simpl.
     * apply (colimIn H v).
@@ -626,7 +626,7 @@ Local Notation "C / X" := (slice_precat C X hsC).
 Lemma BinCoproducts_slice_precat (x : C) : BinCoproducts (C / x).
 Proof.
 intros a b.
-use mk_BinCoproduct.
+use make_BinCoproduct.
 + exists (BinCoproductObject _ (BC (pr1 a) (pr1 b))).
   apply (BinCoproductArrow _ _ (pr2 a) (pr2 b)).
 + use tpair.
@@ -659,7 +659,7 @@ Local Notation "C / X" := (slice_precat C X hsC).
 Lemma Coproducts_slice_precat (x : C) : Coproducts I (C / x).
 Proof.
 intros a.
-use mk_Coproduct.
+use make_Coproduct.
 + exists (CoproductObject _ _ (BC (λ i, pr1 (a i)))).
   apply CoproductArrow; intro i; apply (pr2 (a i)).
 + intro i; use tpair; simpl.
@@ -688,7 +688,7 @@ Local Notation "C / X" := (slice_precat C X hsC).
 
 Lemma Initial_slice_precat (x : C) : Initial (C / x).
 Proof.
-use mk_Initial.
+use make_Initial.
 - use tpair.
   + apply (InitialObject IC).
   + apply InitialArrow.
@@ -710,7 +710,7 @@ Local Notation "C / X" := (slice_precat C X hsC).
 
 Lemma Terminal_slice_precat (x : C) : Terminal (C / x).
 Proof.
-use mk_Terminal.
+use make_Terminal.
 - use tpair.
   + apply x.
   + apply (identity x).
@@ -766,7 +766,7 @@ Local Definition eta {c c' : C} (g : C⟦c,c'⟧) :
   nat_trans (functor_identity (C / c))
             (functor_composite (slicecat_functor hsC g) (base_change_functor g)).
 Proof.
-use mk_nat_trans.
+use make_nat_trans.
 - intros x.
   use tpair; simpl.
   + use (PullbackArrow _ _ (pr2 x) (identity _)).
@@ -784,7 +784,7 @@ Local Definition eps {c c' : C} (g : C⟦c,c'⟧) :
   nat_trans (functor_composite (base_change_functor g) (slicecat_functor hsC g))
             (functor_identity (C / c')).
 Proof.
-use mk_nat_trans.
+use make_nat_trans.
 - intros x.
   exists (PullbackPr2 _); simpl.
   abstract (apply PullbackSqrCommutes).
@@ -872,7 +872,7 @@ Section Pullbacks.
     (∃! x : X, P x × Q x × R x).
   Proof.
     intros ispropR ispropP ispropQ rxx.
-    use iscontrpair.
+    use make_iscontr.
     - exists (pr1 (iscontrpr1 xx)).
       split; [|split].
       + exact (dirprod_pr1 (pr2 (iscontrpr1 xx))).
@@ -880,7 +880,7 @@ Section Pullbacks.
       + assumption.
     - intros t.
       use total2_paths_f.
-      + pose (eq := proofirrelevancecontr xx (iscontrpr1 xx) (pr1 t,, dirprodpair (dirprod_pr1 (pr2 t)) (dirprod_pr1 (dirprod_pr2 (pr2 t))))).
+      + pose (eq := proofirrelevancecontr xx (iscontrpr1 xx) (pr1 t,, make_dirprod (dirprod_pr1 (pr2 t)) (dirprod_pr1 (dirprod_pr2 (pr2 t))))).
         apply pathsinv0.
         eapply pathscomp0.
         apply (maponpaths pr1 eq).
@@ -915,7 +915,7 @@ Section Pullbacks.
     }
 
     pose (PBtoI := PullbackPr1 PB · $ A).
-    use mk_Pullback.
+    use make_Pullback.
     - use tpair.
       + exact (PullbackObject PB).
       + exact PBtoI.

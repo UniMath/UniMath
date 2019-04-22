@@ -9,18 +9,18 @@ Require Export UniMath.Algebra.Domains_and_Fields.
 Require Export UniMath.Algebra.IteratedBinaryOperations.
 
 Definition nataddabmonoid : abmonoid :=
-  abmonoidpair (setwithbinoppair natset (λ n m : nat, n + m))
-               (dirprodpair
-                  (dirprodpair natplusassoc
-                               (@isunitalpair natset _ 0 (dirprodpair natplusl0 natplusr0)))
+  make_abmonoid (make_setwithbinop natset (λ n m : nat, n + m))
+               (make_dirprod
+                  (make_dirprod natplusassoc
+                               (@make_isunital natset _ 0 (make_dirprod natplusl0 natplusr0)))
                   natpluscomm).
 
 
 Definition natmultabmonoid : abmonoid :=
-  abmonoidpair
-    (setwithbinoppair natset (λ n m : nat, n * m))
-    (dirprodpair
-       (dirprodpair natmultassoc (@isunitalpair natset _ 1 (dirprodpair natmultl1 natmultr1)))
+  make_abmonoid
+    (make_setwithbinop natset (λ n m : nat, n * m))
+    (make_dirprod
+       (make_dirprod natmultassoc (@make_isunital natset _ 1 (make_dirprod natmultl1 natmultr1)))
        natmultcomm).
 
 (** *** Submonoid of non-zero elements in [nat] *)
@@ -78,17 +78,17 @@ Defined.
 
 Definition natcommrig : commrig.
 Proof.
-  split with (setwith2binoppair natset (dirprodpair (λ n m : nat, n + m) (λ n m : nat, n * m))).
+  split with (make_setwith2binop natset (make_dirprod (λ n m : nat, n + m) (λ n m : nat, n * m))).
   split.
   - split.
     + split with
-      (dirprodpair
-         (dirprodpair
-            (dirprodpair natplusassoc (@isunitalpair natset _ 0 (dirprodpair natplusl0 natplusr0)))
+      (make_dirprod
+         (make_dirprod
+            (make_dirprod natplusassoc (@make_isunital natset _ 0 (make_dirprod natplusl0 natplusr0)))
             natpluscomm)
-         (dirprodpair natmultassoc (@isunitalpair natset _ 1 (dirprodpair natmultl1 natmultr1)))).
-      apply (dirprodpair natmult0n natmultn0).
-    + apply (dirprodpair natldistr natrdistr).
+         (make_dirprod natmultassoc (@make_isunital natset _ 1 (make_dirprod natmultl1 natmultr1)))).
+      apply (make_dirprod natmult0n natmultn0).
+    + apply (make_dirprod natldistr natrdistr).
   - unfold iscomm. apply natmultcomm.
 Defined.
 

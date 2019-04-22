@@ -469,7 +469,7 @@ Definition WOSubset_plus_point {X:hSet}
 Definition wosub_univalence_map {X:hSet} (S T : WOSubset X) : (S = T) -> (S ≣ T).
 Proof.
   intros e. induction e. unfold wosub_equal.
-  simple refine ((λ L, dirprodpair L L) _).
+  simple refine ((λ L, make_dirprod L L) _).
   use tpair.
   + intros x s. assumption.
   + split.
@@ -1364,7 +1364,7 @@ Qed.
 
 
 Definition theSmallest {X : WellOrderedSet} (S : hsubtype X) : hProp
-  := (∃ s, S s) ⇒ hProppair
+  := (∃ s, S s) ⇒ make_hProp
                 (∑ s:X, S s ∧ ∀ t:X, S t ⇒ WOrel X s t)%type
                 (isaprop_theSmallest _ (WO_isTotalOrder X) S).
 

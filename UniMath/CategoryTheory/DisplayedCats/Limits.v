@@ -46,7 +46,7 @@ Definition creates_limit
       ( ∑ (d : D x)
           (δ : ∏ j : vertex J, d -->[L j] (pr2 (dob F j))),
           forms_cone F (x,,d)  (λ j, (L j ,, δ j))))
-  , isLimCone _ _ (mk_cone _ (pr2 (pr2 (iscontrpr1 CC)))).
+  , isLimCone _ _ (make_cone _ (pr2 (pr2 (iscontrpr1 CC)))).
 
 Definition creates_limits {C : category} (D : disp_cat C) : UU
 :=
@@ -78,7 +78,7 @@ Proof.
   set (XR := H _ d _ _ isL).
   unfold creates_limit in XR.
   cbn.
-  use (mk_LimCone _ _ _ (pr2 XR)).
+  use (make_LimCone _ _ _ (pr2 XR)).
 Defined.
 
 Lemma pr1_preserves_limit (d : diagram J (total_category D))
@@ -97,14 +97,14 @@ Proof.
     set (RR := pr1 tL).
     set (RT1 := pr2 tL).
 (*
-    set (RX := isLim_is_iso _ (mk_LimCone _ _ CC H1) _ _ RT1).
+    set (RX := isLim_is_iso _ (make_LimCone _ _ CC H1) _ _ RT1).
     cbn in RX.
     set (XR := @functor_on_is_iso_is_iso _ _ π _ _ _ RX).
     cbn in XR.
     match goal with |[ H : is_iso ?f |- _ ] => set (T':= f) end.
 *)
 
-    set (RX := isLim_is_iso _ (mk_LimCone _ _ _ RT1) _ _ H1).
+    set (RX := isLim_is_iso _ (make_LimCone _ _ _ RT1) _ _ H1).
     set (XR := @functor_on_is_iso_is_iso _ _ π _ _ _ RX).
     match goal with |[ H : is_iso ?f |- _ ] => set (T':= f) end.
 
@@ -115,9 +115,9 @@ Proof.
       clear RX.
       unfold T.
       unfold T'.
-      apply (limArrowUnique (mk_LimCone _ _ _ isL)) .
+      apply (limArrowUnique (make_LimCone _ _ _ isL)) .
       intro j.
-      set (RRt := mk_LimCone _ _ _ RT1).
+      set (RRt := make_LimCone _ _ _ RT1).
       set (RRtt := limArrowCommutes RRt x CC j).
       set (RH := maponpaths (#π)%Cat RRtt).
       cbn in RH.

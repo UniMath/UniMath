@@ -116,7 +116,7 @@ Proof.
     + exact (pr2 r).
   - intros q Hq.
     generalize (pr1 Hq).
-    apply (hinhuniv (P := hProppair _ isapropempty)).
+    apply (hinhuniv (P := make_hProp _ isapropempty)).
     intros r.
     generalize (pr2 (pr2 H) _ _ (pr1 (pr2 r))).
     apply hinhuniv, sumofmaps.
@@ -150,7 +150,7 @@ Proof.
   - intros LU.
     change (pr1 (g (f LU)),, pr2 (g (f LU)) = pr1 LU,, pr2 LU).
     apply pair_path_in2.
-    simple refine (subtypeEquality_prop (B := λ _, hProppair _ _) _).
+    simple refine (subtypeEquality_prop (B := λ _, make_hProp _ _) _).
     +  apply isapropdirprod.
        apply isapropdirprod ;
          apply impred_isaprop ; intro q ;
@@ -184,7 +184,7 @@ Proof.
         apply (pr1 (pr2 r)).
         apply Lr.
   - intros S.
-    simple refine (subtypeEquality_prop (B := λ _, hProppair _ _) _).
+    simple refine (subtypeEquality_prop (B := λ _, make_hProp _ _) _).
     + apply isapropdirprod.
       apply propproperty.
       apply isapropdirprod.
@@ -507,7 +507,7 @@ Lemma weqOneSidedDcuts :
   weq (∑ S : hq → hProp, isOneSided S × ∏ q : hq, q < 0 → S q) Dcuts.
 Proof.
   set (f := (λ (D : ∑ S : hq → hProp, isOneSided S × (∏ q : hq, q < 0 → S q)),
-             mk_Dcuts (λ r : NonnegativeRationals, pr1 D (pr1 r))
+             make_Dcuts (λ r : NonnegativeRationals, pr1 D (pr1 r))
                      (isOneSided_Dcuts_bot (pr1 D) (pr1 (pr2 D)))
                      (isOneSided_Dcuts_open (pr1 D) (pr1 (pr2 D)))
                      (isOneSided_Dcuts_corr (pr1 D) (pr1 (pr2 D))))
@@ -532,7 +532,7 @@ set (g := (λ D : Dcuts,
           : Dcuts → ∑ S : hq → hProp, isOneSided S × (∏ q : hq, q < 0 → S q)).
   apply (weq_iso f g).
   - intros D.
-    simple refine (subtypeEquality_prop (B := λ _, hProppair _ _) _).
+    simple refine (subtypeEquality_prop (B := λ _, make_hProp _ _) _).
     + apply isapropdirprod.
       apply isapropdirprod.
       apply propproperty.

@@ -107,7 +107,7 @@ Definition dcpo := ∑ (X : Poset), isdirectedcomplete X.
 Definition dcpoposet : dcpo -> Poset := pr1.
 Coercion dcpoposet : dcpo >-> Poset.
 Definition dcpoisdirectedcomplete (D : dcpo) : isdirectedcomplete D := pr2 D.
-Definition dcpopair (X : Poset) (i : isdirectedcomplete X) : dcpo := (X,,i).
+Definition make_dcpo (X : Poset) (i : isdirectedcomplete X) : dcpo := (X,,i).
 
 Definition dcpo_mklub {D : dcpo} {I : UU} {f : I -> D} : isdirected f -> D.
 Proof.
@@ -251,7 +251,7 @@ End morphismofdcpos.
 Section morphismsofdcpos_formdcpo.
 Definition pointwiseorder (D D' : dcpo) : hrel (dcpomorphism D D').
 Proof.
-  intros f g. use hProppair.
+  intros f g. use make_hProp.
   - exact (∏ (d : D), f d ≤ g d).
   - apply impred_isaprop; intro d. apply propproperty.
 Defined.
@@ -277,14 +277,14 @@ Qed.
 
 Definition posetofdcpomorphisms (D D' : dcpo) : Poset.
 Proof.
-  use Posetpair.
-  - use hSetpair.
+  use make_Poset.
+  - use make_hSet.
     + exact (dcpomorphism D D').
     + apply (isofhleveltotal2 2).
       ++ apply impred_isaset; intro d.
          apply setproperty.
       ++ intro f; apply isasetaprop, isaprop_isdcpomorphism.
-  - use PartialOrderpair.
+  - use make_PartialOrder.
     + apply pointwiseorder.
     + apply ispartialorder_pointwiseorder.
 Defined.
@@ -416,7 +416,7 @@ Qed.
 
 Definition dcpoofdcpomorphisms (D D' : dcpo) : dcpo.
 Proof.
-  eapply dcpopair.
+  eapply make_dcpo.
   - exact (posetofdcpomorphisms_isdirectedcomplete D D').
 Defined.
 End morphismsofdcpos_formdcpo.

@@ -29,7 +29,7 @@ Proof.
   - apply G.
 Defined.
 
-Definition mk_pstrans_data
+Definition make_pstrans_data
            {C D : bicat}
            {F G : psfunctor C D}
            (η₁ : ∏ (X : C), F X --> G X)
@@ -90,7 +90,7 @@ Definition is_pstrans
         • lassociator (#F f) (#F g) (pr1 η Z)
         • (psfunctor_comp F f g ▹ pr1 η Z)).
 
-Definition mk_pstrans
+Definition make_pstrans
            {C D : bicat}
            {F G : psfunctor C D}
            (η : pstrans_data F G)

@@ -18,10 +18,10 @@ Section def_precategory_with_abgrops.
 
   (** Definition of precategories such that homsets are abgrops. *)
   Definition categoryWithAbgropsData (PB : precategoryWithBinOps) (hs : has_homsets PB) : UU :=
-    ∏ (x y : PB), @isabgrop (hSetpair (PB⟦x,y⟧) (hs x y)) (@to_binop _ x y).
+    ∏ (x y : PB), @isabgrop (make_hSet (PB⟦x,y⟧) (hs x y)) (@to_binop _ x y).
 
-  Definition mk_categoryWithAbgropsData {PB : precategoryWithBinOps} (hs : has_homsets PB)
-             (H : ∏ (x y : PB), @isabgrop (hSetpair (PB⟦x,y⟧) (hs x y)) (@to_binop _ x y)) :
+  Definition make_categoryWithAbgropsData {PB : precategoryWithBinOps} (hs : has_homsets PB)
+             (H : ∏ (x y : PB), @isabgrop (make_hSet (PB⟦x,y⟧) (hs x y)) (@to_binop _ x y)) :
     categoryWithAbgropsData PB hs := H.
 
   Definition categoryWithAbgrops : UU :=
@@ -43,7 +43,7 @@ Section def_precategory_with_abgrops.
   Coercion categoryWithAbgrops_category : categoryWithAbgrops >-> category.
 
 
-  Definition mk_categoryWithAbgrops (PB : precategoryWithBinOps) (hs : has_homsets PB)
+  Definition make_categoryWithAbgrops (PB : precategoryWithBinOps) (hs : has_homsets PB)
              (H : categoryWithAbgropsData PB hs) : categoryWithAbgrops.
   Proof.
     exact (tpair _ (tpair _ PB hs) H).
@@ -55,13 +55,13 @@ Section def_precategory_with_abgrops.
   (** Definitions to access the structure of a precategory with abelian groups. *)
   Definition to_has_homsets : has_homsets PA := pr2 (pr1 PA).
 
-  Definition to_homset (x y : PA) : hSet := hSetpair (PA⟦x, y⟧) (to_has_homsets x y).
+  Definition to_homset (x y : PA) : hSet := make_hSet (PA⟦x, y⟧) (to_has_homsets x y).
 
-  Definition to_setwithbinoppair (x y : PA) := setwithbinoppair (to_homset x y) (to_binop x y).
+  Definition to_setwithbinop (x y : PA) := make_setwithbinop (to_homset x y) (to_binop x y).
 
   Definition to_isabgrop (x y : PA) := (pr2 PA) x y.
 
-  Definition to_abgr (x y : PA) : abgr := abgrpair (to_setwithbinoppair x y) (to_isabgrop x y).
+  Definition to_abgr (x y : PA) : abgr := make_abgr (to_setwithbinop x y) (to_isabgrop x y).
 
   Definition to_unel (x y : PA) := unel (to_abgr x y).
 
@@ -187,7 +187,7 @@ End def_precategory_with_abgrops.
 
 Arguments to_has_homsets [PA] _ _ _ _ _ _.
 Arguments to_homset [PA] _ _.
-Arguments to_setwithbinoppair [PA] _ _.
+Arguments to_setwithbinop [PA] _ _.
 Arguments to_isabgrop [PA] _ _.
 Arguments to_abgr [PA] _ _.
 Arguments to_unel [PA] _ _.

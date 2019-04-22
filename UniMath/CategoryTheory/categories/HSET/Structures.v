@@ -73,7 +73,7 @@ Qed.
 
 Definition NNO_HSET : NNO TerminalHSET.
 Proof.
-  use mk_NNO.
+  use make_NNO.
   - exact natHSET.
   - exact (λ _, 0).
   - exact S.
@@ -102,7 +102,7 @@ Proof.
 use tpair.
 - use tpair.
   + use tpair.
-    * intro x; simpl; apply dirprodpair.
+    * intro x; simpl; apply make_dirprod.
     * abstract (intros x y f; apply idpath).
   + use tpair.
     * intros X fx; apply (pr1 fx (pr2 fx)).
@@ -119,7 +119,7 @@ exists (exponential_functor a).
 use tpair.
 - use tpair.
   + use tpair.
-    * intro x; simpl; apply flip, dirprodpair.
+    * intro x; simpl; apply flip, make_dirprod.
     * abstract (intros x y f; apply idpath).
   + use tpair.
     * intros x xf; simpl in *; apply (pr2 xf (pr1 xf)).
@@ -153,7 +153,7 @@ Proof.
 use tpair.
 - use tpair.
   + intro c.
-    use hSetpair.
+    use make_hSet.
     * apply (nat_trans (BinProduct_of_functors C _ BinProductsHSET (cy c) P) Q).
     * abstract (apply (isaset_nat_trans has_homsets_HSET)).
   + simpl; intros a b f alpha.
@@ -202,16 +202,16 @@ use left_adjoint_from_partial.
 - intros Q R φ; simpl in *.
   use tpair.
   + use tpair.
-    * { use mk_nat_trans.
+    * { use make_nat_trans.
         - intros c u; simpl.
-          use mk_nat_trans.
+          use make_nat_trans.
           + simpl; intros d fx.
-            apply (φ d (dirprodpair (pr2 fx) (# R (pr1 fx) u))).
+            apply (φ d (make_dirprod (pr2 fx) (# R (pr1 fx) u))).
           + intros a b f; simpl; cbn; unfold prodtofuntoprod.
             apply funextsec; intro x.
             etrans;
               [|apply (toforallpaths _ _ _ (nat_trans_ax φ _ _ f)
-                                     (dirprodpair (pr2 x) (# R (pr1 x) u)))]; cbn.
+                                     (make_dirprod (pr2 x) (# R (pr1 x) u)))]; cbn.
               repeat (apply maponpaths).
               assert (H : # R (pr1 x · f) = # R (pr1 x) · #R f).
               { apply functor_comp. }
@@ -266,7 +266,7 @@ Lemma pullback_HSET_univprop_elements {P A B C : HSET}
   : (∏ a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b).
 Proof.
   intros a b e.
-  set (Pb := (mk_Pullback _ _ _ _ _ _ pb)).
+  set (Pb := (make_Pullback _ _ _ _ _ _ pb)).
   apply iscontraprop1.
   - apply invproofirrelevance; intros [ab [ea eb]] [ab' [ea' eb']].
     apply subtypeEquality; simpl.
@@ -372,8 +372,8 @@ Qed.
 
 Definition forgetful_HSET : functor HSET type_precat.
 Proof.
-  use mk_functor.
-  - use mk_functor_data.
+  use make_functor.
+  - use make_functor_data.
     + exact pr1.
     + exact (λ _ _, idfun _).
   - split.
@@ -387,8 +387,8 @@ Lemma conservative_forgetful_HSET : conservative forgetful_HSET.
 Proof.
   unfold conservative.
   intros a b f is_iso_forget_f.
-  refine (hset_equiv_is_iso a b (weqpair f _)).
-  apply (type_iso_is_equiv _ _ (isopair _ is_iso_forget_f)).
+  refine (hset_equiv_is_iso a b (make_weq f _)).
+  apply (type_iso_is_equiv _ _ (make_iso _ is_iso_forget_f)).
 Defined.
 
 (** ** Subobject classifier *)
@@ -432,14 +432,14 @@ Proof.
   use tpair.
   + apply funextfun; intro.
     apply hProp_eq_unit; cbn.
-    use hfiberpair.
+    use make_hfiber.
     * assumption.
     * reflexivity.
   + (** The aforementioned square is a pullback *)
     cbn beta.
     unfold isPullback; cbn.
     intros Z f g H.
-    use iscontrpair.
+    use make_iscontr.
     * use tpair.
       -- (** The hypothesis H states that that each [f x] is in the image of [m],
               and since [m] is monic (injective), this assignment extends to a map
@@ -467,7 +467,7 @@ Proof.
       -- cbn.
           apply funextsec; intro; cbn.
           (** Precompose with [m] and use the commutative square *)
-          apply (invweq (weqpair _ (MonosAreInjective_HSET m (MonicisMonic _ m) _ _))).
+          apply (invweq (make_weq _ (MonosAreInjective_HSET m (MonicisMonic _ m) _ _))).
           eapply pathscomp0.
           ++ apply (toforallpaths _ _ _ (pr1 (pr2 t))).
           ++ apply pathsinv0.
@@ -479,7 +479,7 @@ Defined.
 Lemma carrier_Pullback {Y : HSET} (chi : HSET ⟦ Y, hProp_set ⟧) :
   Pullback chi (@const_htrue unitHSET).
 Proof.
-  use mk_Pullback.
+  use make_Pullback.
   - exact (carrier_subset chi).
   - exact (pr1carrier _).
   - exact (TerminalArrow TerminalHSET _).
@@ -488,7 +488,7 @@ Proof.
     apply (pr2 yy).
   - cbn.
     intros pb' h k H.
-    use iscontrpair.
+    use make_iscontr.
     + use tpair.
       * intro p.
         use tpair.
@@ -510,7 +510,7 @@ Lemma hfiber_in_hfiber :
   ∏ Z W (g : Z -> W) (w : W) (z : hfiber g w), hfiber g (g (hfiberpr1 _ _ z)).
 Proof.
   intros.
-  use hfiberpair.
+  use make_hfiber.
   - exact (hfiberpr1 _ _ z).
   - reflexivity.
 Defined.
@@ -521,7 +521,7 @@ Proof.
   exists const_htrue.
   intros ? ? m.
 
-  use iscontrpair.
+  use make_iscontr.
 
   - (** The image of m *)
     apply subobject_classifier_HSET_pullback.
@@ -570,11 +570,11 @@ Proof.
             >>
          *)
 
-        pose (PBO' := mk_Pullback (pr1 O') (@const_htrue unitHSET) X m (TerminalArrow TerminalHSET X) (pr1 (pr2 O')) (pr2 (pr2 O'))).
+        pose (PBO' := make_Pullback (pr1 O') (@const_htrue unitHSET) X m (TerminalArrow TerminalHSET X) (pr1 (pr2 O')) (pr2 (pr2 O'))).
         pose (PBC := carrier_Pullback (pr1 O')).
         pose (pbiso := pullbackiso PBC PBO').
 
-        use hfiberpair.
+        use make_hfiber.
         -- exact (morphism_from_z_iso _ _ _ (pr1 pbiso) (y,, isO)).
         -- change (pr1 m (morphism_from_z_iso _ _ _ (pr1 pbiso) (y,, isO))) with
                   (((pr1 pbiso) · pr1 m) (y,, isO)).

@@ -92,7 +92,7 @@ Definition InitAlg : Alg :=
 
 Lemma isInitial_pre_comp (Z : Ptd) : isInitial [C, C, hsC] (ℓ (U Z) InitialEndC).
 Proof.
-use mk_isInitial; intros F.
+use make_isInitial; intros F.
 use tpair.
 - use tpair.
   + intros c; simpl; apply InitialArrow.
@@ -647,7 +647,7 @@ Qed.
 
 Lemma isInitial_InitHSS : isInitial (hss_precategory CP H) InitHSS.
 Proof.
-use mk_isInitial; intro T.
+use make_isInitial; intro T.
 exists (hss_InitMor T).
 apply hss_InitMor_unique.
 Defined.
@@ -655,7 +655,7 @@ Defined.
 
 Lemma InitialHSS : Initial (hss_precategory CP H).
 Proof.
-apply (mk_Initial InitHSS), isInitial_InitHSS.
+apply (make_Initial InitHSS), isInitial_InitHSS.
 Defined.
 
 End category_Algebra.

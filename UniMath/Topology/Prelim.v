@@ -11,14 +11,14 @@ Lemma hinhuniv' {P X : UU} :
   isaprop P → (X → P) → (∥ X ∥ → P).
 Proof.
   intros HP Hx.
-  apply (hinhuniv (P := hProppair _ HP)).
+  apply (hinhuniv (P := make_hProp _ HP)).
   exact Hx.
 Qed.
 Lemma hinhuniv2' {P X Y : UU} :
   isaprop P → (X → Y → P) → (∥ X ∥ → ∥ Y ∥ → P).
 Proof.
   intros HP Hxy.
-  apply (hinhuniv2 (P := hProppair _ HP)).
+  apply (hinhuniv2 (P := make_hProp _ HP)).
   exact Hxy.
 Qed.
 
@@ -147,7 +147,7 @@ Qed.
 Definition finite_intersection {X : UU} (P : Sequence (X → hProp)) : X → hProp.
 Proof.
   intros x.
-  simple refine (hProppair _ _).
+  simple refine (make_hProp _ _).
   apply (∏ n, P n x).
   apply (impred_isaprop _ (λ _, propproperty _)).
 Defined.

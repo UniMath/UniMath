@@ -22,13 +22,13 @@ Local Open Scope cat.
 (** * Category of commrings *)
 Section def_commring_precategory.
 
-  Definition commring_fun_space (A B : commring) : hSet := hSetpair (ringfun A B) (isasetrigfun A B).
+  Definition commring_fun_space (A B : commring) : hSet := make_hSet (ringfun A B) (isasetrigfun A B).
 
   Definition commring_precategory_ob_mor : precategory_ob_mor :=
     tpair (λ ob : UU, ob -> ob -> UU) commring (λ A B : commring, commring_fun_space A B).
 
   Definition commring_precategory_data : precategory_data :=
-    precategory_data_pair
+    make_precategory_data
       commring_precategory_ob_mor (λ (X : commring), (rigisotorigfun (idrigiso X)))
       (fun (X Y Z : commring) (f : ringfun X Y) (g : ringfun Y Z) => rigfuncomp f g).
 
@@ -55,14 +55,14 @@ Section def_commring_precategory.
 
   Lemma is_precategory_commring_precategory_data : is_precategory commring_precategory_data.
   Proof.
-    use mk_is_precategory_one_assoc.
+    use make_is_precategory_one_assoc.
     - intros a b f. use commring_id_left.
     - intros a b f. use commring_id_right.
     - intros a b c d f g h. use commring_assoc.
   Qed.
 
   Definition commring_precategory : precategory :=
-    mk_precategory commring_precategory_data is_precategory_commring_precategory_data.
+    make_precategory commring_precategory_data is_precategory_commring_precategory_data.
 
   Lemma has_homsets_commring_precategory : has_homsets commring_precategory.
   Proof.
@@ -94,8 +94,8 @@ Section def_commring_category.
     iso X Y -> ringiso (X : commring) (Y : commring).
   Proof.
     intro f.
-    use ringisopair.
-    - exact (weqpair (pr1 (pr1 f)) (commring_iso_is_equiv X Y f)).
+    use make_ringiso.
+    - exact (make_weq (pr1 (pr1 f)) (commring_iso_is_equiv X Y f)).
     - exact (pr2 (pr1 f)).
   Defined.
 
@@ -105,7 +105,7 @@ Section def_commring_category.
   Proof.
     use is_iso_qinv.
     - exact (ringfunconstr (pr2 (invrigiso f))).
-    - use mk_is_inverse_in_precat.
+    - use make_is_inverse_in_precat.
       + use rigfun_paths. use funextfun. intros x. use homotinvweqweq.
       + use rigfun_paths. use funextfun. intros y. use homotweqinvweq.
   Defined.
@@ -114,7 +114,7 @@ Section def_commring_category.
   Lemma commring_equiv_iso (X Y : ob commring_precategory) :
     ringiso (X : commring) (Y : commring) -> iso X Y.
   Proof.
-    intros f. exact (@isopair commring_precategory X Y (ringfunconstr (pr2 f))
+    intros f. exact (@make_iso commring_precategory X Y (ringfunconstr (pr2 f))
                               (commring_equiv_is_iso X Y f)).
   Defined.
 
@@ -132,7 +132,7 @@ Section def_commring_category.
   Definition commring_iso_equiv_weq (X Y : ob commring_precategory) :
     weq (iso X Y) (ringiso (X : commring) (Y : commring)).
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (commring_iso_equiv X Y).
     - exact (commring_iso_equiv_is_equiv X Y).
   Defined.
@@ -151,7 +151,7 @@ Section def_commring_category.
   Definition commring_equiv_weq_iso (X Y : ob commring_precategory) :
     (ringiso (X : commring) (Y : commring)) ≃ (iso X Y).
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (commring_equiv_iso X Y).
     - exact (commring_equiv_iso_is_equiv X Y).
   Defined.
@@ -176,12 +176,12 @@ Section def_commring_category.
 
   Definition commring_precategory_is_univalent : is_univalent commring_precategory.
   Proof.
-    use mk_is_univalent.
+    use make_is_univalent.
     - intros X Y. exact (commring_precategory_isweq X Y).
     - exact has_homsets_commring_precategory.
   Defined.
 
   Definition commring_category : univalent_category :=
-    mk_category commring_precategory commring_precategory_is_univalent.
+    make_univalent_category commring_precategory commring_precategory_is_univalent.
 
 End def_commring_category.

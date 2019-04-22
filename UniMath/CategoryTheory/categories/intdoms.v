@@ -23,13 +23,13 @@ Local Open Scope cat.
 (** * Precategory of intdoms *)
 Section def_intdom_precategory.
 
-  Definition intdom_fun_space (A B : intdom) : hSet := hSetpair (ringfun A B) (isasetrigfun A B).
+  Definition intdom_fun_space (A B : intdom) : hSet := make_hSet (ringfun A B) (isasetrigfun A B).
 
   Definition intdom_precategory_ob_mor : precategory_ob_mor :=
     tpair (λ ob : UU, ob -> ob -> UU) intdom (λ A B : intdom, intdom_fun_space A B).
 
   Definition intdom_precategory_data : precategory_data :=
-    precategory_data_pair
+    make_precategory_data
       intdom_precategory_ob_mor (λ (X : intdom), (rigisotorigfun (idrigiso X)))
       (fun (X Y Z : intdom) (f : ringfun X Y) (g : ringfun Y Z) => rigfuncomp f g).
 
@@ -56,14 +56,14 @@ Section def_intdom_precategory.
 
   Lemma is_precategory_intdom_precategory_data : is_precategory intdom_precategory_data.
   Proof.
-    use mk_is_precategory_one_assoc.
+    use make_is_precategory_one_assoc.
     - intros a b f. use intdom_id_left.
     - intros a b f. use intdom_id_right.
     - intros a b c d f g h. use intdom_assoc.
   Qed.
 
   Definition intdom_precategory : precategory :=
-    mk_precategory intdom_precategory_data is_precategory_intdom_precategory_data.
+    make_precategory intdom_precategory_data is_precategory_intdom_precategory_data.
 
   Lemma has_homsets_intdom_precategory : has_homsets intdom_precategory.
   Proof.
@@ -94,8 +94,8 @@ Section def_intdom_category.
   Lemma intdom_iso_equiv (X Y : ob intdom_precategory) : iso X Y -> ringiso (X : intdom) (Y : intdom).
   Proof.
     intro f.
-    use ringisopair.
-    - exact (weqpair (pr1 (pr1 f)) (intdom_iso_is_equiv X Y f)).
+    use make_ringiso.
+    - exact (make_weq (pr1 (pr1 f)) (intdom_iso_is_equiv X Y f)).
     - exact (pr2 (pr1 f)).
   Defined.
 
@@ -104,7 +104,7 @@ Section def_intdom_category.
   Proof.
     use is_iso_qinv.
     - exact (ringfunconstr (pr2 (invrigiso f))).
-    - use mk_is_inverse_in_precat.
+    - use make_is_inverse_in_precat.
       + use rigfun_paths. use funextfun. intros x. use homotinvweqweq.
       + use rigfun_paths. use funextfun. intros y. use homotweqinvweq.
   Defined.
@@ -112,7 +112,7 @@ Section def_intdom_category.
 
   Lemma intdom_equiv_iso (X Y : ob intdom_precategory) : ringiso (X : intdom) (Y : intdom) -> iso X Y.
   Proof.
-    intros f. exact (@isopair intdom_precategory X Y (ringfunconstr (pr2 f))
+    intros f. exact (@make_iso intdom_precategory X Y (ringfunconstr (pr2 f))
                               (intdom_equiv_is_iso X Y f)).
   Defined.
 
@@ -130,7 +130,7 @@ Section def_intdom_category.
   Definition intdom_iso_equiv_weq (X Y : ob intdom_precategory) :
     weq (iso X Y) (ringiso (X : intdom) (Y : intdom)).
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (intdom_iso_equiv X Y).
     - exact (intdom_iso_equiv_is_equiv X Y).
   Defined.
@@ -150,7 +150,7 @@ Section def_intdom_category.
   Definition intdom_equiv_weq_iso (X Y : ob intdom_precategory) :
     (ringiso (X : intdom) (Y : intdom)) ≃ (iso X Y).
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (intdom_equiv_iso X Y).
     - exact (intdom_equiv_iso_is_equiv X Y).
   Defined.
@@ -175,12 +175,12 @@ Section def_intdom_category.
 
   Definition intdom_precategory_is_univalent : is_univalent intdom_precategory.
   Proof.
-    use mk_is_univalent.
+    use make_is_univalent.
     - intros X Y. exact (intdom_precategory_isweq X Y).
     - exact has_homsets_intdom_precategory.
   Defined.
 
   Definition intdom_category : univalent_category :=
-    mk_category intdom_precategory intdom_precategory_is_univalent.
+    make_univalent_category intdom_precategory intdom_precategory_is_univalent.
 
 End def_intdom_category.

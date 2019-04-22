@@ -42,7 +42,7 @@ Defined.
 Definition isBinProductCone (c d p : C) (p1 : C⟦p,c⟧) (p2 : C⟦p,d⟧) :=
   isLimCone (binproduct_diagram c d) p (ProdCone p1 p2).
 
-Definition mk_isBinProductCone (hsC : has_homsets C) (a b p : C)
+Definition make_isBinProductCone (hsC : has_homsets C) (a b p : C)
   (pa : C⟦p,a⟧) (pb : C⟦p,b⟧) :
   (∏ (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
     ∃! k : C⟦c,p⟧, k · pa = f × k · pb = g) ->
@@ -62,7 +62,7 @@ Defined.
 
 Definition BinProductCone (a b : C) := LimCone (binproduct_diagram a b).
 
-Definition mk_BinProductCone (a b : C) :
+Definition make_BinProductCone (a b : C) :
   ∏ (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
    isBinProductCone _ _ _ f g -> BinProductCone a b.
 Proof.
@@ -90,7 +90,7 @@ Definition BinProductArrow {a b : C} (P : BinProductCone a b) {c : C}
   (f : C⟦c,a⟧) (g : C⟦c,b⟧) : C⟦c,BinProductObject P⟧.
 Proof.
 apply (limArrow P).
-use mk_cone.
+use make_cone.
 - intro v; induction v; [ apply f | apply g ].
 - intros ? ? e; induction e. (* <- should not be opaque! otherwise BinProductPr1Commutes doesn't work *)
 Defined.

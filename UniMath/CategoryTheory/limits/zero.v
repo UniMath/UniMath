@@ -30,12 +30,12 @@ Section def_zero.
   Definition ZeroObject (Z : Zero) : C := pr1 Z.
   Coercion ZeroObject : Zero >-> ob.
 
-  Definition mk_Zero (b : C) (H : isZero b) : Zero.
+  Definition make_Zero (b : C) (H : isZero b) : Zero.
   Proof.
     exists b; exact H.
   Defined.
 
-  Definition mk_isZero (b : C) (H : ∏ (a : C), iscontr (b --> a))
+  Definition make_isZero (b : C) (H : ∏ (a : C), iscontr (b --> a))
              (H' : ∏ (a : C), iscontr (a --> b)) : isZero b.
   Proof.
     unfold isZero.  exact ((H,,H')).
@@ -102,10 +102,10 @@ Section def_zero.
 
   Definition z_iso_Zeros (Z Z' : Zero) : z_iso Z Z'.
   Proof.
-    use mk_z_iso.
+    use make_z_iso.
     - exact (ZeroArrowTo Z' Z).
     - exact (ZeroArrowTo Z Z').
-    - use mk_is_inverse_in_precat.
+    - use make_is_inverse_in_precat.
       + apply ArrowsFromZero.
       + apply ArrowsFromZero.
   Defined.
@@ -152,7 +152,7 @@ Section def_zero.
   Definition IsoToisZero {A : C} (Z : Zero) (i : iso A Z) :
     isZero A.
   Proof.
-    use mk_isZero.
+    use make_isZero.
     - intros a.
       use tpair.
       + exact (i · (ZeroArrowFrom Z a)).
@@ -191,7 +191,7 @@ Arguments ZeroObject [C] _.
 Arguments ZeroArrowTo [C]{Z} b.
 Arguments ZeroArrowFrom [C]{Z} b.
 Arguments ZeroArrow [C] _ _ _.
-Arguments mk_isZero {_} _ _ _ .
-Arguments mk_Zero {_} _ _ .
+Arguments make_isZero {_} _ _ _ .
+Arguments make_Zero {_} _ _ .
 
 Definition zero_lifts (M:precategory) {X:Type} (j : X -> ob M) := ∃ z, isZero (j z).

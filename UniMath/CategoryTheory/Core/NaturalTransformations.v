@@ -50,7 +50,7 @@ Notation "F ⟹ G" := (nat_trans F G) (at level 39) : cat.
 (* to input: type "\==>" with Agda input method *)
 
 (** Note that this makes the second component opaque for efficiency reasons *)
-Definition mk_nat_trans {C C' : precategory_data} (F F' : functor_data C C')
+Definition make_nat_trans {C C' : precategory_data} (F F' : functor_data C C')
            (t : nat_trans_data F F') (H : is_nat_trans F F' t) :
            nat_trans F F'.
 Proof.
@@ -227,7 +227,7 @@ Definition is_nat_id {C D : precategory} {F : C ⟶ D} (μ : F ⟹ F) : UU :=
 Definition nat_iso {C D : precategory} (F G : C ⟶ D) : UU
 := ∑ (μ : F ⟹ G), is_nat_iso μ.
 
-Definition mk_nat_iso {C D : precategory} (F G : C ⟶ D) (μ : F ⟹ G) (is_iso : is_nat_iso μ) : nat_iso F G.
+Definition make_nat_iso {C D : precategory} (F G : C ⟶ D) (μ : F ⟹ G) (is_iso : is_nat_iso μ) : nat_iso F G.
 Proof.
   exists μ.
   abstract (exact is_iso).
@@ -247,7 +247,7 @@ Defined.
 
 Definition nat_iso_inv {C D : precategory} {F G : C ⟶ D} (μ : nat_iso F G) : nat_iso G F.
 Proof.
-  pose (iso := (λ c, mk_iso (pr2 μ c))).
+  pose (iso := (λ c, make_iso _ (pr2 μ c))).
   pose (inv := (λ c, inv_from_iso (iso c))).
   use tpair.
   - exists inv.
@@ -296,8 +296,8 @@ Definition is_nat_iso_id {C D : precategory} {F G : C ⟶ D} (eq : F = G) (ν : 
 Definition induced_precategory_incl {M : precategory} {X:Type} (j : X -> ob M) :
   induced_precategory M j ⟶ M.
 Proof.
-  use mk_functor.
-  - use mk_functor_data.
+  use make_functor.
+  - use make_functor_data.
     + exact j.
     + intros a b f. exact f.
   - repeat split.

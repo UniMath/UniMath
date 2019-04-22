@@ -1048,7 +1048,7 @@ Section Algebra.
       ≃
       disp_adjoint_equivalence (internal_adjoint_equivalence_identity a) aa bb.
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (disp_alg_bicat_adjoint_equivalence aa bb).
     - use isweq_iso.
       + exact (disp_alg_bicat_adjoint_equivalence_inv aa bb).

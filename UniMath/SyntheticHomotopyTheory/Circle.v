@@ -45,7 +45,7 @@ Definition ZGuidedHomotopy {Y} {y:Y} (l:y = y) (T:Torsor ℤ) :=
 
 Definition GH {Y} {y:Y} (l:y = y) := ∑ T:Torsor ℤ, ZGuidedHomotopy l T.
 
-Definition GHpair {Y} {y:Y} (l:y = y) (T:Torsor ℤ) (g:ZGuidedHomotopy l T) :=
+Definition make_GH {Y} {y:Y} (l:y = y) (T:Torsor ℤ) (g:ZGuidedHomotopy l T) :=
   T,,g : GH l.
 
 Definition pr1_GH {Y} {y:Y} {l:y = y} := pr1 : GH l -> Torsor ℤ.
@@ -55,7 +55,7 @@ Definition pr2_GH {Y} {y:Y} (l:y = y) (u:GH l)
 
 Definition GH_path3 {Y} {y:Y} (l:y = y) {T:Torsor ℤ} {y':Y}
            {g g':GHomotopy (confun T l) y'} (u:g = g') :
-  GHpair l T (y',, g) = GHpair l T (y',,g').
+  make_GH l T (y',, g) = make_GH l T (y',,g').
 Proof.
   intros. destruct u. reflexivity.
 Defined.
@@ -102,7 +102,7 @@ Proof.
 Defined.
 
 Definition makeGH {Y} {y:Y} (l:y = y) (T:Torsor ℤ) (t:T) {y':Y} (h:y' = y) : GH l
-  := GHpair l T (makeGuidedHomotopy (t0:=t) _ h).
+  := make_GH l T (makeGuidedHomotopy (t0:=t) _ h).
 
 Definition makeGH1 {Y} {y:Y} (l:y = y) (T:Torsor ℤ) (t:T) : GH l
   := makeGH l T t (idpath y).
@@ -122,7 +122,7 @@ Definition pr1_GH_weq_compute {Y} {y:Y} (l:y = y) :
               (idpath y).
 Proof.
   intros.
-  unfold makeGH1,makeGH,GHpair.
+  unfold makeGH1,makeGH,make_GH.
   refine (maponpaths (maponpaths pr12_GH)
                      (homotinvweqweq_GH_comp
                         T0

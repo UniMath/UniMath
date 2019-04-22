@@ -162,7 +162,7 @@ Proof.
        apply ( θ_nat_2_pw Mf (id_Ptd C hsC) (p T) (ptd_mor_pt hsC _) c). }
     etrans.
     { apply cancel_postcomposition.
-      rewrite (horcomp_pre_post _ _ (category_pair _ hsC )).
+      rewrite (horcomp_pre_post _ _ (make_category _ hsC )).
       rewrite (functor_comp H).
       etrans; [apply assoc|].
       apply cancel_postcomposition.

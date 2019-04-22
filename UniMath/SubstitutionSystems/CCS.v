@@ -246,7 +246,7 @@ Definition forall_map : SET_over_sort2⟦forall_source CCS,CCS⟧ :=
     · (BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _))
     · CCS_mor.
 
-Definition mk_CCS_Algebra X
+Definition make_CCS_Algebra X
   (fvar    : SET_over_sort2⟦Id,X⟧)
   (fPi     : SET_over_sort2⟦Pi_source X,X⟧)
   (fProp   : SET_over_sort2⟦Prop_source X,X⟧)
@@ -279,9 +279,9 @@ Definition foldr_map X
   (flam    : SET_over_sort2⟦lam_source X,X⟧)
   (fapp    : SET_over_sort2⟦app_source X,X⟧)
   (fforall : SET_over_sort2⟦forall_source X,X⟧) :
-  algebra_mor _ CCS_alg (mk_CCS_Algebra X fvar fPi fProp fProof flam fapp fforall).
+  algebra_mor _ CCS_alg (make_CCS_Algebra X fvar fPi fProp fProof flam fapp fforall).
 Proof.
-apply (InitialArrow CCS_Functor_Initial (mk_CCS_Algebra X fvar fPi fProp fProof flam fapp fforall)).
+apply (InitialArrow CCS_Functor_Initial (make_CCS_Algebra X fvar fPi fProp fProof flam fapp fforall)).
 Defined.
 
 End ccs.

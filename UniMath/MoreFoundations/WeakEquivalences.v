@@ -44,9 +44,9 @@ Defined.
 (** A rewrite of [pathsdirprod] as an equivalence:
     Two pairs are equal if and only if both of their components are. *)
 Definition pathsdirprodweq {X Y : UU} {x1 x2 : X} {y1 y2 : Y} :
-  (dirprodpair x1 y1 = dirprodpair x2 y2) ≃ (x1 = x2) × (y1 = y2).
+  (make_dirprod x1 y1 = make_dirprod x2 y2) ≃ (x1 = x2) × (y1 = y2).
 Proof.
-  intermediate_weq (dirprodpair x1 y1 ╝ dirprodpair x2 y2).
+  intermediate_weq (make_dirprod x1 y1 ╝ make_dirprod x2 y2).
   - apply total2_paths_equiv.
   - unfold PathPair; cbn.
     use weqfibtototal; intro p; cbn.

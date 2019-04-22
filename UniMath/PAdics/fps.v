@@ -1225,7 +1225,7 @@ Defined.
 Definition isasetfps ( R : commring ) : isaset ( seqson R ) :=
   seqsonisaset R.
 
-Definition fps ( R : commring ) : hSet := hSetpair _ ( isasetfps R ).
+Definition fps ( R : commring ) : hSet := make_hSet _ ( isasetfps R ).
 
 Definition fpsplus ( R : commring ) : binop ( fps R ) :=
   fun v w n => ( ( v n ) + ( w n ) ).
@@ -1646,8 +1646,8 @@ Proof.
 Defined.
 
 Definition fpsring ( R : commring ) :=
-  setwith2binoppair ( hSetpair ( seqson R ) ( isasetfps R ) )
-                    ( dirprodpair ( fpsplus R ) ( fpstimes R ) ).
+  make_setwith2binop ( make_hSet ( seqson R ) ( isasetfps R ) )
+                    ( make_dirprod ( fpsplus R ) ( fpstimes R ) ).
 
 Theorem fpsiscommring ( R : commring ) : iscommring ( fpsring R ).
 Proof.
@@ -1676,7 +1676,7 @@ Proof.
 Defined.
 
 Definition fpscommring ( R : commring ) : commring :=
-  commringpair ( fpsring R ) ( fpsiscommring R ).
+  make_commring ( fpsring R ) ( fpsiscommring R ).
 
 Definition fpsshift { R : commring } ( a : fpscommring R ) : fpscommring R :=
   fun n : nat => a ( S n ).

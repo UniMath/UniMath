@@ -81,7 +81,7 @@ Definition unkleislify_mor {C : precategory} {T T' : Kleisli C}
 Definition functor_data_unkleislify (C : precategory) (hs : has_homsets C) :
   functor_data (precategory_Kleisli C hs) (precategory_Monad C hs).
 Proof.
-  use mk_functor_data.
+  use make_functor_data.
   - exact (λ T : Kleisli C, unkleislify T).
   - intros. apply (unkleislify_mor X).
 Defined.
@@ -170,7 +170,7 @@ Definition kleislify_mor {C : precategory} {M M' : Monad C}
 Definition functor_data_kleislify (C : precategory) (hs : has_homsets C) :
   functor_data (precategory_Monad C hs) (precategory_Kleisli C hs).
 Proof.
-  use mk_functor_data.
+  use make_functor_data.
   - exact (λ T : Monad C, kleislify T).
   - intros. apply (kleislify_mor X).
 Defined.
@@ -538,7 +538,7 @@ Section Adjunction.
     (precategory_Monad C hs) ≃ (precategory_Kleisli C hs).
   Proof.
     set (aux := pr2 is_catiso).
-    exact (invweq (weqpair _ aux)).
+    exact (invweq (make_weq _ aux)).
   Defined.
 (** This is the main result of [UniMath.CategoryTheory.Monad.Kleisli]. *)
 

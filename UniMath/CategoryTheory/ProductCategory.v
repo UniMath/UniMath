@@ -77,7 +77,7 @@ Qed.
 
 (** The product of categories is again a category. *)
 Definition product_category {I : UU} (C : I -> category) : category.
-  use category_pair.
+  use make_category.
   - exact (product_precategory C).
   - apply has_homsets_product_precategory.
     intro; exact (homset_property (C _)).

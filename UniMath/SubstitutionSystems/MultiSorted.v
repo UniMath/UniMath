@@ -336,7 +336,7 @@ Local Definition proj_functor' (s : sort) : functor (SET / sort) SET :=
 
 Local Lemma nat_trans_proj_functor (s : sort) : nat_trans (proj_functor' s) (proj_functor s).
 Proof.
-use mk_nat_trans.
+use make_nat_trans.
 - simpl; intros x H.
   exists (pr2 (pr1 H)).
   apply (!pr2 H).
@@ -350,7 +350,7 @@ Local Lemma is_iso_nat_trans_proj_functor (s : sort) :
   @is_iso [SET/sort,SET] _ _ (nat_trans_proj_functor s).
 Proof.
 use is_iso_qinv.
-+ use mk_nat_trans.
++ use make_nat_trans.
   - simpl; intros x xy.
     exists (tt,,pr1 xy).
     apply (!pr2 xy).
@@ -389,12 +389,12 @@ Defined.
 Local Lemma is_left_adjoint_hat (s : sort) : is_left_adjoint (hat_functor s).
 Proof.
 exists (proj_functor s).
-use mk_are_adjoints.
-+ use mk_nat_trans.
+use make_are_adjoints.
++ use make_nat_trans.
   - intros X; simpl; intros x; apply (x,,idpath s).
   - intros X Y f; simpl; apply funextsec; intro x; cbn.
     now apply subtypeEquality; trivial; intros y; apply setproperty.
-+ use mk_nat_trans.
++ use make_nat_trans.
   - intros X; simpl in *.
     use tpair; simpl.
     * intros H; apply (pr1 H).
@@ -576,7 +576,7 @@ Proof.
 apply (BinProducts_functor_precat _ _ BP).
 Defined.
 
-Local Definition mk_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid f.
+Local Definition make_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid f.
 
 Local Definition proj_gen_fun (D : precategory) (E : category) (d : D) : functor [D,E] E.
 Proof.
@@ -625,7 +625,7 @@ Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)).
 Local Definition option_fun : sort -> sortToC -> sortToC.
 Proof.
 intros s f.
-apply mk_sortToC; intro t.
+apply make_sortToC; intro t.
 induction (eq s t) as [H|H].
 - apply (pr1 f t ⊕ 1).
 - apply (pr1 f t).

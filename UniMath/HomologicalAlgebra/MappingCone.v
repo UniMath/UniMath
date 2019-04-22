@@ -262,7 +262,7 @@ Section mapping_cone.
 
   Definition MappingCone {C1 C2 : Complex A} (f : Morphism C1 C2) : Complex A.
   Proof.
-    use mk_Complex.
+    use make_Complex.
     - intros i. exact (to_BinDirectSums A (C1 (i + 1)) (C2 i)).
     - intros i. exact (MappingConeDiff f i).
     - intros i. exact (MappingCone_comp f i).
@@ -287,7 +287,7 @@ Section mapping_cone.
 
   Definition MappingConeIn2 {C1 C2 : Complex A} (f : Morphism C1 C2) : Morphism C2 (MappingCone f).
   Proof.
-    use mk_Morphism.
+    use make_Morphism.
     - intros i. exact (to_In2 (to_BinDirectSums A (TranslationComplex A C1 i) (C2 i))).
     - intros i. exact (MappingConeIn2_comm f i).
   Defined.
@@ -315,7 +315,7 @@ Section mapping_cone.
   Definition MappingConePr1 {C1 C2 : Complex A} (f : Morphism C1 C2) :
     Morphism (MappingCone f) (TranslationComplex A C1).
   Proof.
-    use mk_Morphism.
+    use make_Morphism.
     - intros i. exact (to_Pr1 (to_BinDirectSums A (TranslationComplex A C1 i) (C2 i))).
     - intros i. exact (MappingConePr1_comm f i).
   Defined.
@@ -718,7 +718,7 @@ Section mapping_cone_of_id.
                  ((ComplexHomotFunctor A) (MappingCone A (@identity (ComplexPreCat_Additive A) C)))
                  ((ComplexHomotFunctor A) (Additive.to_Zero (ComplexPreCat_Additive A)))).
   Proof.
-    use mk_is_inverse_in_precat.
+    use make_is_inverse_in_precat.
     - rewrite ZeroArrow_comp_left.
       use (@ArrowsToZero (ComplexHomot_Additive A) (Additive.to_Zero (ComplexHomot_Additive A))).
     - rewrite ZeroArrow_comp_left.
@@ -735,7 +735,7 @@ Section mapping_cone_of_id.
                  ((ComplexHomotFunctor A)
                     (MappingCone A (@identity (ComplexPreCat_Additive A) C)))).
   Proof.
-    use mk_is_z_isomorphism.
+    use make_is_z_isomorphism.
     - exact (ZeroArrow (Additive.to_Zero (ComplexHomot_Additive A)) _ _).
     - exact (IDMappingCone_is_z_isomorphism_inverses C).
   Defined.
@@ -832,7 +832,7 @@ Section rotation_mapping_cone.
   Definition RotMorphism {C1 C2 : Complex A} (f : Morphism C1 C2) :
     Morphism (TranslationComplex A C1) (MappingCone A (MappingConeIn2 A f)).
   Proof.
-    use mk_Morphism.
+    use make_Morphism.
     - intros i. cbn.
       use to_binop.
       + use compose.
@@ -891,7 +891,7 @@ Section rotation_mapping_cone.
   Definition RotMorphismInv {C1 C2 : Complex A} (f : Morphism C1 C2) :
     Morphism (MappingCone A (MappingConeIn2 A f)) (TranslationComplex A C1).
   Proof.
-    use mk_Morphism.
+    use make_Morphism.
     - intros i. cbn.
       use compose.
       + exact (to_BinDirectSums A (C1 (i + 1)) (C2 i)).
@@ -1222,7 +1222,7 @@ Section rotation_mapping_cone.
     is_inverse_in_precat (# (ComplexHomotFunctor A) (RotMorphism f))
                          (# (ComplexHomotFunctor A) (RotMorphismInv f)).
   Proof.
-    use mk_is_inverse_in_precat.
+    use make_is_inverse_in_precat.
     - rewrite <- functor_comp.
       rewrite <- (@functor_id _ _ (ComplexHomotFunctor A)).
       apply maponpaths. exact (RotMorphismIsoEq1 f).
@@ -1237,7 +1237,7 @@ Section rotation_mapping_cone.
   Lemma RotMorphism_is_z_isomorphism {C1 C2 : Complex A} (f : Morphism C1 C2) :
     is_z_isomorphism (# (ComplexHomotFunctor A) (RotMorphism f)).
   Proof.
-    use mk_is_z_isomorphism.
+    use make_is_z_isomorphism.
     - exact (# (ComplexHomotFunctor A) (RotMorphismInv f)).
     - exact (RotMorphism_is_z_isomorphism_inverses f).
   Defined.
@@ -1886,7 +1886,7 @@ Section inv_rotation_mapping_cone.
                 A (to_inv (# (InvTranslationFunctor A) (MappingConePr1 A f))
                           · z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A) C1))) C2.
   Proof.
-    use mk_Morphism.
+    use make_Morphism.
     - intros i. exact (InvRotMorphismMor f i).
     - intros i. exact (InvRotMorphismComm f i).
   Defined.
@@ -2224,7 +2224,7 @@ Section inv_rotation_mapping_cone.
     Morphism C2 (MappingCone A (to_inv (# (InvTranslationFunctor A) (MappingConePr1 A f)) ·
                                        z_iso_inv_mor (AddEquivUnitIso (TranslationEquiv A) C1))).
   Proof.
-    use mk_Morphism.
+    use make_Morphism.
     - intros i. exact (InvRotMorphismMorInv f i).
     - intros i. exact (InvRotMorphismMorInvComm f i).
   Defined.
@@ -2998,7 +2998,7 @@ Section inv_rotation_mapping_cone.
     is_inverse_in_precat (# (ComplexHomotFunctor A) (InvRotMorphismInv f))
                          (# (ComplexHomotFunctor A) (InvRotMorphism f)).
   Proof.
-    use mk_is_inverse_in_precat.
+    use make_is_inverse_in_precat.
     - cbn beta. rewrite <- functor_comp. rewrite <- functor_id.
       exact (InvRotMorphism_is_iso_with_inv_eq1 f).
     - cbn beta. rewrite <- functor_comp. rewrite <- functor_id.
@@ -3010,7 +3010,7 @@ Section inv_rotation_mapping_cone.
                       (# (ComplexHomotFunctor A)
                          (((InvRotMorphismInv f) : (ComplexPreCat_Additive A)⟦_, _⟧))).
   Proof.
-    use mk_is_z_isomorphism.
+    use make_is_z_isomorphism.
     - exact (# (ComplexHomotFunctor A) (InvRotMorphism f)).
     - exact (InvRotMorphism_is_z_isomorphism_inverses f).
   Defined.
@@ -3190,7 +3190,7 @@ Section fiber_ext.
                      ComplexHomotMorphism A H) :
     Morphism (MappingCone A f) (MappingCone A g).
   Proof.
-    use mk_Morphism.
+    use make_Morphism.
     - intros i. exact (FiberExtMor f g H i).
     - intros i. exact (FiberExtComm f g H Comm i).
   Defined.
@@ -3288,7 +3288,7 @@ Section fiber_ext.
     @is_inverse_in_precat (ComplexPreCat_Additive A) _ _ ((FiberExt f g H Comm))
                           ((FiberExt g f (InvHomot H) (InvHomotEq f g H Comm))).
   Proof.
-    use mk_is_inverse_in_precat.
+    use make_is_inverse_in_precat.
     - exact (FiberExt_eq1 f g H Comm).
     - exact (FiberExt_eq2 f g H Comm).
   Qed.
@@ -3302,7 +3302,7 @@ Section fiber_ext.
                          (# (ComplexHomotFunctor A) (FiberExt g f (InvHomot H)
                                                               (InvHomotEq f g H Comm))).
   Proof.
-    use mk_is_inverse_in_precat.
+    use make_is_inverse_in_precat.
     - rewrite <- functor_id. rewrite <- functor_comp. apply maponpaths.
       exact (FiberExt_eq1 f g H Comm).
     - rewrite <- functor_id. rewrite <- functor_comp. apply maponpaths.
@@ -3318,7 +3318,7 @@ Section fiber_ext.
                       (# (ComplexHomotFunctor A)
                          (((FiberExt f g H Comm) : (ComplexPreCat_Additive A)⟦_, _⟧))).
   Proof.
-    use mk_is_z_isomorphism.
+    use make_is_z_isomorphism.
     - exact (# (ComplexHomotFunctor A) ((FiberExt g f (InvHomot H) (InvHomotEq f g H Comm)) :
                                           (ComplexPreCat_Additive A)⟦_, _⟧)).
     - exact (FiberExt_inverses f g H Comm).
@@ -3533,7 +3533,7 @@ Section mapping_cone_ext.
                      ComplexHomotMorphism A H) :
     Morphism (MappingCone A f) (MappingCone A f').
   Proof.
-    use mk_Morphism.
+    use make_Morphism.
     - intros i. exact (MappingConeMorExtMor f f' g1 g2 H i).
     - intros i. exact (MappingConeMorExtComm f f' g1 g2 H Comm i).
   Defined.
@@ -3658,7 +3658,7 @@ Section mapping_cone_octa.
   Definition KAOctaMor1 {x y z : ob (ComplexPreCat_Additive A)} (f1 : x --> y) (f2 : y --> z) :
     Morphism (MappingCone A f1) (MappingCone A (f1 · f2)).
   Proof.
-    use mk_Morphism.
+    use make_Morphism.
     - intros i. cbn.
       use to_binop.
       + exact (to_Pr1 _ · to_In1 _).
@@ -3734,7 +3734,7 @@ Section mapping_cone_octa.
   Definition KAOctaMor2 {x y z : ob (ComplexPreCat_Additive A)} (f1 : x --> y) (f2 : y --> z) :
     Morphism (MappingCone A (f1 · f2)) (MappingCone A f2).
   Proof.
-    use mk_Morphism.
+    use make_Morphism.
     - intros i. cbn.
       use to_binop.
       + exact (to_Pr1 _ · ((f1 : Morphism _ _) (i + 1)) · to_In1 _).
@@ -3869,7 +3869,7 @@ Section mapping_cone_octa.
   Definition KAOctaMor3 {x y z : ob (ComplexPreCat_Additive A)} (f1 : x --> y) (f2 : y --> z) :
     Morphism (MappingCone A f2) (MappingCone A (KAOctaMor1 f1 f2)).
   Proof.
-    use mk_Morphism.
+    use make_Morphism.
     - intros i. cbn.
       use to_binop.
       + exact (to_Pr1 _ · to_In2 _ · to_In1 _).
@@ -4025,7 +4025,7 @@ Section mapping_cone_octa.
   Definition KAOctaMor3Inv {x y z : Complex A} (f1 : Morphism x y) (f2 : Morphism y z) :
     Morphism (MappingCone A (KAOctaMor1 f1 f2)) (MappingCone A f2).
   Proof.
-    use mk_Morphism.
+    use make_Morphism.
     - exact (KAOctaMor3InvMor f1 f2).
     - exact (KAOctaMor3InvComm f1 f2).
   Defined.
@@ -4417,7 +4417,7 @@ Section mapping_cone_octa.
     is_inverse_in_precat (# (ComplexHomotFunctor A) (KAOctaMor3 f1 f2))
                          (# (ComplexHomotFunctor A) (KAOctaMor3Inv f1 f2)).
   Proof.
-    use mk_is_inverse_in_precat.
+    use make_is_inverse_in_precat.
     - rewrite <- functor_comp. rewrite <- functor_id. apply maponpaths.
       use MorphismEq. exact (KAOctaMor3Iso1 f1 f2).
     - rewrite <- functor_comp. rewrite <- functor_id.
@@ -4430,7 +4430,7 @@ Section mapping_cone_octa.
     is_z_isomorphism
       (# (ComplexHomotFunctor A) ((KAOctaMor3 f1 f2) : (ComplexPreCat_Additive A)⟦_, _⟧)).
   Proof.
-    use mk_is_z_isomorphism.
+    use make_is_z_isomorphism.
     - exact (# (ComplexHomotFunctor A) (KAOctaMor3Inv f1 f2)).
     - exact (KAOctaMor3IsoInverses f1 f2).
   Defined.

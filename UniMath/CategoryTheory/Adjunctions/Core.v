@@ -85,7 +85,7 @@ Proof.
   - apply A.
 Defined.
 
-Definition mk_form_adjunction {A B : precategory} {F : functor A B} {G : functor B A}
+Definition make_form_adjunction {A B : precategory} {F : functor A B} {G : functor B A}
            {eta : nat_trans (functor_identity A) (functor_composite F G)}
            {eps : nat_trans (functor_composite G F) (functor_identity B)}
            (H1 : ∏ a : A, # F (eta a) · eps (F a) = identity (F a))
@@ -98,7 +98,7 @@ Definition mk_form_adjunction {A B : precategory} {F : functor A B} {G : functor
     form_adjunction F G (pr1 etaeps) (pr2 etaeps).
 
   (** Note that this makes the second component opaque for efficiency reasons *)
-  Definition mk_are_adjoints {A B : precategory}
+  Definition make_are_adjoints {A B : precategory}
              (F : functor A B) (G : functor B A)
              (eta : nat_trans (functor_identity A) (functor_composite F G))
              (eps : nat_trans (functor_composite G F) (functor_identity B))
@@ -194,7 +194,7 @@ Coercion adjunction_data_from_is_left_adjoint {A B : precategory}
     destruct H1 as [[eta1 eps1] [H11 H12]].
     destruct H2 as [[eta2 eps2] [H21 H22]].
     simpl in *.
-    use mk_are_adjoints.
+    use make_are_adjoints.
     - apply (nat_trans_comp _ _ _ eta1).
       use (nat_trans_comp _ _ _ _ (nat_trans_functor_assoc_inv _ _ _)).
       apply pre_whisker.
@@ -248,7 +248,7 @@ Coercion adjunction_data_from_is_left_adjoint {A B : precategory}
     destruct HF as [F' [[α' β'] [HF1 HF2]]]; simpl in HF1, HF2.
     use tpair.
     - apply F'.
-    - use mk_are_adjoints.
+    - use make_are_adjoints.
       + apply (nat_trans_comp _ _ _ α' (post_whisker α F')).
       + apply (nat_trans_comp _ _ _ (pre_whisker F' αinv) β').
       + split.
@@ -332,7 +332,7 @@ Local Definition G : functor A X := tpair _ G_data G_is_functor.
 
 Local Definition unit : nat_trans (functor_identity X) (functor_composite F G).
 Proof.
-  use mk_nat_trans.
+  use make_nat_trans.
   * intro x.
     apply (pr1 (pr1 (Huniv (F x) x (identity _)))).
   *  intros x y f; simpl.
@@ -433,7 +433,7 @@ Local Notation F := left_adj_from_partial.
 Local Definition counit_left_from_partial
   : functor_composite G F ⟹ functor_identity A.
 Proof.
-  use mk_nat_trans.
+  use make_nat_trans.
   - intro a.
     apply (pr1 (pr1 (Huniv _ _  (identity _)))).
   - intros a b f; simpl.
@@ -514,7 +514,7 @@ Proof.
   exists (post_composition_functor _ _ _ _ _ G).
   use tpair.
   - split.
-    + use mk_nat_trans.
+    + use make_nat_trans.
       * simpl; intros F'. simpl in F'.
         apply (nat_trans_comp _ _ _
                               (nat_trans_comp _ _ _ (nat_trans_functor_id_right_inv F')
@@ -522,7 +522,7 @@ Proof.
                               (nat_trans_functor_assoc_inv _ _ _)).
       * abstract (intros F1 F2 α; apply (nat_trans_eq hsD); intro c; simpl in *;
                     now rewrite !id_right, !id_left; apply (nat_trans_ax η (F1 c) _ (α c))).
-    + use mk_nat_trans.
+    + use make_nat_trans.
       * simpl; intros F'. simpl in F'.
         apply (nat_trans_comp _ _ _
                               (nat_trans_functor_assoc _ _ _)
@@ -723,7 +723,7 @@ Section Adjunction_from_HomSetIso.
 
   Definition unit_from_hom : nat_trans (functor_identity C) (F ∙ G).
   Proof.
-    use mk_nat_trans.
+    use make_nat_trans.
     - exact (λ A, (hom_weq H (identity (F A)))).
     - intros A A' h. cbn.
       rewrite <- hom_natural_precomp.
@@ -735,7 +735,7 @@ Section Adjunction_from_HomSetIso.
 
   Definition counit_from_hom : nat_trans (G ∙ F) (functor_identity D).
   Proof.
-    use mk_nat_trans.
+    use make_nat_trans.
     - exact (λ B, hom_inv (identity (G B))).
     - intros B B' k. cbn.
       rewrite <- inv_natural_postcomp.
@@ -747,8 +747,8 @@ Section Adjunction_from_HomSetIso.
 
   Definition adj_from_nathomweq : are_adjoints F G.
   Proof.
-    apply (mk_are_adjoints F G unit_from_hom counit_from_hom).
-    apply dirprodpair.
+    apply (make_are_adjoints F G unit_from_hom counit_from_hom).
+    apply make_dirprod.
     - intro a. cbn.
       rewrite <- inv_natural_precomp.
       rewrite id_right.

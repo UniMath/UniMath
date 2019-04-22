@@ -32,7 +32,7 @@ Definition cone {J C : precategory} (F : functor J C) (c : C) : UU :=
   ∑ (f : ∏ (v : J), C⟦c,F v⟧),
     ∏ (u v : J) (e : J⟦u,v⟧), f u · # F e = f v.
 
-Definition mk_cone {J C : precategory} {F : functor J C} {c : C}
+Definition make_cone {J C : precategory} {F : functor J C} {c : C}
   (f : ∏ v, C⟦c, F v⟧) (Hf : ∏ u v (e : J⟦u,v⟧) , f u · # F e  = f v) :
   cone F c := tpair _ f Hf.
 
@@ -52,7 +52,7 @@ Definition isLimCone {J C : precategory} (F : functor J C)
 Definition LimCone {J C : precategory} (F : functor J C) : UU :=
   ∑ (A : (∑ l, cone F l)), isLimCone F (pr1 A) (pr2 A).
 
-Definition mk_LimCone {J C : precategory} (F : functor J C)
+Definition make_LimCone {J C : precategory} (F : functor J C)
   (c : C) (cc : cone F c) (isCC : isLimCone F c cc) : LimCone F :=
   tpair _ (tpair _ c cc) isCC.
 
@@ -131,7 +131,7 @@ Definition limOfArrows {J C : precategory} {F1 F2 : functor J C}
   (fNat : ∏ u v (e : J⟦u,v⟧), f u · # F2 e = # F1 e · f v) :
   C⟦lim CC1 , lim CC2⟧.
 Proof.
-apply limArrow; use mk_cone.
+apply limArrow; use make_cone.
 - now intro u; apply (limOut CC1 u · f u).
 - abstract (intros u v e; simpl;
             now rewrite <- assoc, fNat, assoc, limOutCommutes).
@@ -165,7 +165,7 @@ Lemma postcompWithLimOfArrows
   (fNat : ∏ u v (e : J⟦u,v⟧), f u · # F2 e = # F1 e · f v)
   (x : C) (cc : cone F1 x) :
      limArrow CC1 x cc · limOfArrows CC1 CC2 f fNat =
-       limArrow CC2 x (mk_cone (λ u, coneOut cc u · f u)
+       limArrow CC2 x (make_cone (λ u, coneOut cc u · f u)
          (postCompWithLimOfArrows_subproof CC1 CC2 f fNat x cc)).
 Proof.
 apply limArrowUnique; intro u.
@@ -175,7 +175,7 @@ Qed.
 Lemma postcompWithLimArrow {J C : precategory} {F : functor J C}
  (CC : LimCone F) (c : C) (cc : cone F c) (d : C) (k : C⟦d,c⟧) :
    k · limArrow CC c cc  =
-   limArrow CC d (mk_cone (λ u, k · coneOut cc u)
+   limArrow CC d (make_cone (λ u, k · coneOut cc u)
               (Cone_precompose cc d k)).
 Proof.
 apply limArrowUnique.
@@ -210,10 +210,10 @@ Qed.
 Lemma isColim_weq_subproof2 (g : graph) (D : diagram g C)
   (c : C) (cc : cocone D c) (H : ∏ d, isweq (Cocone_by_postcompose D c cc d))
   (d : C) (cd : cocone D d) (u : vertex g) :
-    coconeIn cc u · invmap (weqpair _ (H d)) cd = coconeIn cd u.
+    coconeIn cc u · invmap (make_weq _ (H d)) cd = coconeIn cd u.
 Proof.
-rewrite (isColim_weq_subproof1 D c cc d (invmap (weqpair _ (H d)) _) u).
-set (p := homotweqinvweq (weqpair _ (H d)) cd); simpl in p.
+rewrite (isColim_weq_subproof1 D c cc d (invmap (make_weq _ (H d)) _) u).
+set (p := homotweqinvweq (make_weq _ (H d)) cd); simpl in p.
 now rewrite p.
 Qed.
 
@@ -224,22 +224,22 @@ split.
 - intros H d.
   refine (isweq_iso _ _ _ _).
   + intros k.
-    exact (colimArrow (mk_ColimCocone D c cc H) _ k).
+    exact (colimArrow (make_ColimCocone D c cc H) _ k).
   + abstract (intro k; simpl;
-              now apply pathsinv0, (colimArrowEta (mk_ColimCocone D c cc H))).
+              now apply pathsinv0, (colimArrowEta (make_ColimCocone D c cc H))).
   + abstract (simpl; intro k;
               apply total2_paths_second_isaprop;
                 [ now repeat (apply impred; intro); apply hsC
                 | destruct k as [k Hk]; simpl; apply funextsec; intro u;
-                  now apply (colimArrowCommutes (mk_ColimCocone D c cc H))]).
+                  now apply (colimArrowCommutes (make_ColimCocone D c cc H))]).
 - intros H d cd.
   refine (tpair _ _ _).
-  + exists (invmap (weqpair _ (H d)) cd).
+  + exists (invmap (make_weq _ (H d)) cd).
     abstract (intro u; now apply isColim_weq_subproof2).
   + abstract (intro t; apply total2_paths_second_isaprop;
                 [ now apply impred; intro; apply hsC
                 | destruct t as [t Ht]; simpl;
-                  apply (invmaponpathsweq (weqpair _ (H d))); simpl;
+                  apply (invmaponpathsweq (make_weq _ (H d))); simpl;
                   apply total2_paths_second_isaprop;
                     [ now repeat (apply impred; intro); apply hsC
                     | simpl; apply pathsinv0, funextsec; intro u; rewrite Ht;
@@ -250,7 +250,7 @@ Defined.
 Definition iso_from_lim_to_lim {J C : precategory} {F : functor J C}
   (CC CC' : LimCone F) : iso (lim CC) (lim CC').
 Proof.
-use isopair.
+use make_iso.
 - apply limArrow, limCone.
 - use is_iso_qinv.
   + apply limArrow, limCone.
@@ -355,7 +355,7 @@ Defined.
 Definition cone_pointwise (F : [A,C,hsC]) (cc : cone D F) a :
   cone (functor_pointwise a) (pr1 F a).
 Proof.
-use mk_cone.
+use make_cone.
 - now intro v; apply (pr1 (coneOut cc v) a).
 - abstract (intros u v e;
     now apply (nat_trans_eq_pointwise (coneOutCommutes cc u v e))).
@@ -386,9 +386,9 @@ Defined.
 
 Lemma LimFunctorCone : LimCone D.
 Proof.
-use mk_LimCone.
+use make_LimCone.
 - exact LimFunctor.
-- use mk_cone.
+- use make_cone.
   + now apply lim_nat_trans_in_data.
   + abstract (now intros u v e; apply (nat_trans_eq hsC);
                   intro a; apply (limOutCommutes (HCg a))).

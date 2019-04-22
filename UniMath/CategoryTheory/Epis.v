@@ -30,7 +30,7 @@ Section def_epi.
   Definition isEpi {x y : C} (f : x --> y) : UU :=
     ∏ (z : C) (g h : y --> z), f · g = f · h -> g = h.
 
-  Definition mk_isEpi {x y : C} (f : x --> y)
+  Definition make_isEpi {x y : C} (f : x --> y)
              (H : ∏ (z : C) (g h : y --> z), f · g = f · h -> g = h) : isEpi f := H.
 
   Lemma isapropisEpi {y z : C} (f : y --> z) : isaprop (isEpi f).
@@ -44,7 +44,7 @@ Section def_epi.
 
   (** Definition and construction of Epi. *)
   Definition Epi (x y : C) : UU := ∑ f : x --> y, isEpi f.
-  Definition mk_Epi {x y : C} (f : x --> y) (H : isEpi f) :
+  Definition make_Epi {x y : C} (f : x --> y) (H : isEpi f) :
     Epi x y := tpair _ f H.
 
   (** Gets the arrow out of Epi. *)
@@ -56,7 +56,7 @@ Section def_epi.
   (** Isomorphism to isEpi and Epi. *)
   Lemma is_iso_isEpi {x y : C} (f : x --> y) (H : is_z_isomorphism f) : isEpi f.
   Proof.
-    apply mk_isEpi.
+    apply make_isEpi.
     intros z g h X.
     apply (pre_comp_with_z_iso_is_inj H).
     exact X.
@@ -64,7 +64,7 @@ Section def_epi.
 
   Lemma is_iso_Epi {x y : C} (f : x --> y) (H : is_z_isomorphism f) : Epi x y.
   Proof.
-    apply (mk_Epi f (is_iso_isEpi f H)).
+    apply (make_Epi f (is_iso_isEpi f H)).
   Defined.
 
   (** Identity to isEpi and Epi. *)
@@ -126,10 +126,10 @@ Section epis_subcategory.
   Variable C : precategory.
   Hypothesis hs : has_homsets C.
 
-  Definition hsubtype_obs_isEpi : hsubtype C := (λ c : C, hProppair _ isapropunit).
+  Definition hsubtype_obs_isEpi : hsubtype C := (λ c : C, make_hProp _ isapropunit).
 
   Definition hsubtype_mors_isEpi : ∏ (a b : C), hsubtype (C⟦a, b⟧) :=
-    (λ a b : C, (fun f : C⟦a, b⟧ => hProppair _ (isapropisEpi C hs f))).
+    (λ a b : C, (fun f : C⟦a, b⟧ => make_hProp _ (isapropisEpi C hs f))).
 
   Definition subprecategory_of_epis : sub_precategories C.
   Proof.

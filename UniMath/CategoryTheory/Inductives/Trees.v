@@ -85,7 +85,7 @@ Definition node : pr1 A × (pr1 Tree × pr1 Tree) -> pr1 Tree := node_map.
         foldr x f : Tree A -> X
 >>
 *)
-Definition mk_treeAlgebra (X : HSET) (x : pr1 X)
+Definition make_treeAlgebra (X : HSET) (x : pr1 X)
   (f : HSET⟦(A × X × X)%set,X⟧) : algebra_ob treeFunctor.
 Proof.
 set (x' := λ (_ : unit), x).
@@ -93,9 +93,9 @@ apply (tpair _ X (sumofmaps x' f) : algebra_ob treeFunctor).
 Defined.
 
 Definition foldr_map (X : HSET) (x : pr1 X) (f : HSET⟦(A × X × X)%set,X⟧) :
-  algebra_mor _ Tree_alg (mk_treeAlgebra X x f).
+  algebra_mor _ Tree_alg (make_treeAlgebra X x f).
 Proof.
-apply (InitialArrow treeFunctor_Initial (mk_treeAlgebra X x f)).
+apply (InitialArrow treeFunctor_Initial (make_treeAlgebra X x f)).
 Defined.
 
 Definition foldr (X : HSET) (x : pr1 X)

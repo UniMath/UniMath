@@ -200,10 +200,10 @@ Section Kleisli_precat.
 Context {C: precategory_data} {D : precategory} {J : functor_data C D}.
 
 Definition Kleisli_precat_ob_mor (R : RelMonad_data J) : precategory_ob_mor :=
-  precategory_ob_mor_pair (ob C) (λ c d, J c --> R d).
+  make_precategory_ob_mor (ob C) (λ c d, J c --> R d).
 
 Definition Kleisli_precat_data (R : RelMonad_data J) : precategory_data :=
-  precategory_data_pair (Kleisli_precat_ob_mor R) (λ c, r_eta R c)
+  make_precategory_data (Kleisli_precat_ob_mor R) (λ c, r_eta R c)
                                               (λ a b c f g, f · r_bind R g).
 
 Lemma Kleisli_precat_is_precat (R : RelMonad J) : is_precategory (Kleisli_precat_data R).
@@ -361,12 +361,12 @@ Definition RelMonad_composition {C : precategory_data} {D : precategory}
 
 Definition precategory_RelMonad_ob_mor  {C : precategory_data} {D : precategory}
       (J : functor_data C D) : precategory_ob_mor :=
-  precategory_ob_mor_pair (RelMonad J) RelMonadMor.
+  make_precategory_ob_mor (RelMonad J) RelMonadMor.
 
 Definition precategory_RelMonad_data {C : precategory_data} {D : precategory}
            (J : functor_data C D) : precategory_data.
 Proof.
-  apply (precategory_data_pair (precategory_RelMonad_ob_mor J)).
+  apply (make_precategory_data (precategory_RelMonad_ob_mor J)).
   - intro R.
     apply RelMonad_identity.
   - intros R R' R'' α α'.
@@ -417,9 +417,9 @@ Definition forgetfunctor_RelMonad {C : precategory} (D : category)
       (J : functor C D) :
   functor (category_RelMonad D J) (functor_category C D).
 Proof.
-  use mk_functor.
+  use make_functor.
   - simpl.
-    use mk_functor_data.
+    use make_functor_data.
     + simpl.
       exact (λ R : RelMonad J, R_functor R).
     + simpl. intros R R' α.
@@ -461,7 +461,7 @@ Definition relmonadmor_weq_nat_trans_fails {C : precategory_data} {D : precatego
            (J : functor C D)(R R': RelMonad J) :
   (precategory_RelMonad hs J ⟦R, R'⟧) ≃ [C, D, hs] ⟦R_functor R, R_functor R'⟧.
 Proof.
-  apply (weqpair nat_trans_RelMonadMor).
+  apply (make_weq nat_trans_RelMonadMor).
   use isweq_iso.
   - intro α.
     exists (nat_trans_data_from_nat_trans α).
@@ -481,7 +481,7 @@ Definition relmonadmor_ob_eq  {C : precategory_data} {D : precategory} (H: is_un
 Proof.
   eapply weqcomp.
   - apply total2_paths_equiv.
-  - set (H1 := weqpair _ (pr1 (is_univalent_functor_category C D H) (R_functor R) (R_functor R'))).
+  - set (H1 := make_weq _ (pr1 (is_univalent_functor_category C D H) (R_functor R) (R_functor R'))).
 Abort.
 
 
@@ -534,7 +534,7 @@ Definition iso_from_is_relmonadmor_iso  {C : precategory_data} {D : precategory}
       (J : functor C D) {R R': RelMonad J} (α : iso(C := precategory_RelMonad hs J) R R')
   : iso(C := [C, D, hs]) (R_functor R) (R_functor R').
 Proof.
-  use (isopair(C := [C, D, hs]) (nat_trans_RelMonadMor (pr1 α))).
+  use (make_iso(C := [C, D, hs]) (nat_trans_RelMonadMor (pr1 α))).
   exact (is_iso_from_is_relmonadmor_iso hs J α).
 Defined.
 
@@ -644,7 +644,7 @@ Definition inv_relmonadmor_from_is_iso {C : precategory_data} {D : precategory}
   : is_iso(C := [C, D, hs]) (nat_trans_RelMonadMor α) → precategory_RelMonad hs J ⟦R', R⟧.
 Proof.
   intro T.
-  set (fiso := isopair(C := [C, D, hs]) (nat_trans_RelMonadMor α) T).
+  set (fiso := make_iso(C := [C, D, hs]) (nat_trans_RelMonadMor α) T).
   set (finv := inv_from_iso fiso).
   exists (pr1 finv).
   unfold finv.
@@ -693,13 +693,13 @@ Proof.
     apply RelMonadMor_equiv.
     + exact hs.
     + simpl.
-      set (aux := iso_inv_after_iso (isopair(C := [C, D, hs]) (nat_trans_RelMonadMor α) T)).
+      set (aux := iso_inv_after_iso (make_iso(C := [C, D, hs]) (nat_trans_RelMonadMor α) T)).
       apply (maponpaths pr1) in aux.
       exact aux.
   - apply RelMonadMor_equiv.
     + exact hs.
     + simpl.
-      set (aux := iso_after_iso_inv (isopair(C := [C, D, hs]) (nat_trans_RelMonadMor α) T)).
+      set (aux := iso_after_iso_inv (make_iso(C := [C, D, hs]) (nat_trans_RelMonadMor α) T)).
       apply (maponpaths pr1) in aux.
       exact aux.
 Defined.
@@ -711,7 +711,7 @@ Definition relmonadmor_iso_from_is_iso {C : precategory_data} {D : precategory}
   : is_iso(C := [C, D, hs]) (nat_trans_RelMonadMor α) → iso(C := precategory_RelMonad hs J) R R'.
 Proof.
   intro T.
-  use (isopair α).
+  use (make_iso α).
   exact (is_relmonadmor_iso_from_is_iso hs J α T).
 Defined.
 
@@ -730,7 +730,7 @@ Proof.
   intro α.
   change (pr1 (pr1 (R_functor R)) = pr1 (pr1 (R_functor R'))).
   do 2 apply maponpaths.
-  set (H1 := weqpair _ (pr1 (is_univalent_functor_category C D H) (R_functor R) (R_functor R'))).
+  set (H1 := make_weq _ (pr1 (is_univalent_functor_category C D H) (R_functor R) (R_functor R'))).
   apply H1.
   apply (iso_from_is_relmonadmor_iso (pr2 H) J α).
 Defined.
@@ -1046,7 +1046,7 @@ Definition relmonadmor_idtoiso {C : precategory_data} {D : precategory}
            (H: is_univalent D) (J : functor C D)(R R': RelMonad J) :
   (R = R') ≃ iso(C := precategory_RelMonad (pr2 H) J) R R'.
 Proof.
-  apply (weqpair (@idtoiso (precategory_RelMonad (pr2 H) J) R R')).
+  apply (make_weq (@idtoiso (precategory_RelMonad (pr2 H) J) R R')).
   use isweq_iso.
   - exact (relmonad_eq_from_relmonad_iso H J).
   - intro p. exact (relmonad_eq_from_relmonad_iso_idtoiso H J p).
@@ -1088,7 +1088,7 @@ Definition Left_rKleisli_functor_data {C: precategory_data} {D : precategory}
              {J : functor_data C D} (R: RelMonad J) :
   functor_data C (Kleisli_precat R).
 Proof.
-  use mk_functor_data.
+  use make_functor_data.
   - apply idfun.
   - intros a b f; unfold idfun.
     exact (#J f · (r_eta R) b).
@@ -1122,7 +1122,7 @@ Definition Right_rKleisli_functor_data {C: precategory_data} {D : precategory}
       {J : functor_data C D} (R: RelMonad J):
   functor_data (Kleisli_precat R) D.
 Proof.
-  use mk_functor_data.
+  use make_functor_data.
   - exact R.
   - intros a b.
     apply r_bind.

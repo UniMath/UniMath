@@ -214,11 +214,11 @@ Proof.
   intros F.
   use tpair.
   - use tpair.
-    + use weqpair.
+    + use make_weq.
       * exact (functor_on_objects F).
       * apply F.
     + intros a b.
-      use weqpair.
+      use make_weq.
       * exact (functor_on_morphisms F).
       * apply F.
   - split.

@@ -194,7 +194,7 @@ Proof.
       intro y.
       apply isapropimpl.
       apply propproperty. }
-    set (Q := λ A : T → hProp, isOpen A ∧ (hProppair (∏ y : T, A y → P y) (H A))).
+    set (Q := λ A : T → hProp, isOpen A ∧ (make_hProp (∏ y : T, A y → P y) (H A))).
     assert (X : P = (union Q)).
     { apply funextfun.
       intros x.
@@ -447,7 +447,7 @@ Qed.
 Lemma topologyfromneighborhood_open :
   isSetOfOpen_union
    (λ A : X → hProp,
-          hProppair (topologyfromneighborhood A)
+          make_hProp (topologyfromneighborhood A)
                     (isaprop_topologyfromneighborhood A)).
 Proof.
   intros L Hl x.
@@ -469,7 +469,7 @@ Proof.
   simple refine (mkTopologicalSet _ _ _ _ _).
   - apply X.
   - intros A.
-    simple refine (hProppair _ _).
+    simple refine (make_hProp _ _).
     apply (topologyfromneighborhood N A).
     apply isaprop_topologyfromneighborhood.
   - apply topologyfromneighborhood_open.
@@ -1265,7 +1265,7 @@ Definition isTopological_DivRig (X : DivRig) (is : isTopologicalSet X) :=
   isTopological_rig (pr1 X) is
   × continuous_on (U := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is))
                   (V := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is))
-                  (λ x : X, hProppair (x != 0%dr) (isapropneg _)) (λ x Hx, invDivRig (x,,Hx)).
+                  (λ x : X, make_hProp (x != 0%dr) (isapropneg _)) (λ x Hx, invDivRig (x,,Hx)).
 Definition Topological_DivRig :=
   ∑ (X : DivRig) is, isTopological_DivRig X is.
 
@@ -1273,7 +1273,7 @@ Definition isTopological_fld (X : fld) (is : isTopologicalSet X) :=
   isTopological_ring (pr1 X) is
   × continuous_on (U := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is))
                   (V := ((pr1 (pr1 (pr1 (pr1 X)))) ,, is))
-                  (λ x : X, hProppair (x != 0%ring) (isapropneg _))
+                  (λ x : X, make_hProp (x != 0%ring) (isapropneg _))
                   fldmultinv.
 Definition Topological_fld :=
   ∑ (X : fld) is, isTopological_fld X is.

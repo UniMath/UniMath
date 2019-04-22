@@ -361,7 +361,7 @@ Lemma θ_nat_2 (X : EndC) (Z Z' : Ptd) (f : Z --> Z')
        θ (X ⊗ Z)· # H (identity X ∙∙ pr1 f).
 Proof.
   set (t := nat_trans_ax θ).
-  set (t' := t (precatbinprodpair X Z) (precatbinprodpair X Z') (precatbinprodmor (identity _ ) f)).
+  set (t' := t (make_precatbinprod X Z) (make_precatbinprod X Z') (precatbinprodmor (identity _ ) f)).
   simpl in t'.
   unfold θ_source_mor in t'.
   unfold θ_target_mor in t'.

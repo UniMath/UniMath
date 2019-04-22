@@ -155,7 +155,7 @@ Theorem AC_iff_ADC_and_LEM : AxiomOfChoice ⇔ AxiomOfDecidableChoice ∧ LEM.
 Proof.
   split.
   - intros AC. split.
-    + intros X i. exact (AC (hSetpair X (isasetifdeceq X i))).
+    + intros X i. exact (AC (make_hSet X (isasetifdeceq X i))).
     + exact (AC_to_LEM AC).
   - intros [adc lem] X. refine (adc X _). intros x y. exact (lem (x = y)).
 Defined.
