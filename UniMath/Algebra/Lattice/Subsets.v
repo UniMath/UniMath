@@ -14,6 +14,7 @@ Require Import UniMath.Algebra.Lattice.Lattice.
 Require Import UniMath.Algebra.Lattice.Bounded.
 Require Import UniMath.Algebra.Lattice.Distributive.
 Require Import UniMath.Algebra.Lattice.Complement.
+Require Import UniMath.Algebra.Lattice.Boolean.
 
 Section Subsets.
   Context {X : hSet}.
@@ -173,5 +174,26 @@ Section Subsets.
       + exists true; reflexivity.
       + exists false; reflexivity.
   Defined.
+
+  Definition subset_bounded_lattice : bounded_lattice (subtype_set X).
+  Proof.
+    use mkbounded_lattice.
+    - exact subset_lattice.
+    - exact (emptysubtype X).
+    - exact (totalsubtype X).
+    - exact subset_lattice_is_bounded.
+  Defined.
+
+  Lemma subset_lattice_is_distributive : is_distributive subset_lattice.
+  Proof.
+  Abort.
+
+  Definition subset_lattice_is_boolean :
+    LEM -> is_boolean subset_bounded_lattice.
+  Proof.
+    intros lem.
+    use make_is_boolean.
+    2: apply (subset_lattice_is_complemented lem).
+  Abort.
 
 End Subsets.

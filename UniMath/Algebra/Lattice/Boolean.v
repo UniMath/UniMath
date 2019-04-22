@@ -36,6 +36,15 @@ Section Def.
 
 End Def.
 
+Definition make_is_boolean {X : hSet} (L : bounded_lattice X) :
+  is_distributive L -> is_complemented L -> is_boolean L.
+Proof.
+  intros ? ?.
+  use tpair.
+  - assumption.
+  - assumption.
+Defined.
+
 Definition boolean_algebra (X : hSet) :=
   ∑ L : bounded_lattice X, is_boolean L.
 
