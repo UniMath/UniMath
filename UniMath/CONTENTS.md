@@ -185,7 +185,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [precomp_fully_faithful.v](CategoryTheory/precomp_fully_faithful.v)
    - [precomp_ess_surj.v](CategoryTheory/precomp_ess_surj.v)
    - [rezk_completion.v](CategoryTheory/rezk_completion.v)
-   - [EndofunctorsMonoidal.v](CategoryTheory/EndofunctorsMonoidal.v)
+   - [Monoidal/EndofunctorsMonoidal.v](CategoryTheory/Monoidal/EndofunctorsMonoidal.v)
    - [CategoricalRecursionSchemes.v](CategoryTheory/CategoricalRecursionSchemes.v)
    - [PointedFunctors.v](CategoryTheory/PointedFunctors.v)
    - [HorizontalComposition.v](CategoryTheory/HorizontalComposition.v)

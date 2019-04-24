@@ -1136,6 +1136,16 @@ Proof.
   - apply rassociator_lassociator.
 Defined.
 
+Lemma is_iso_rassociator {a b c d : C} (f : hom a b) (g : hom b c) (h : hom c d)
+  : is_iso (rassociator f g h : (hom a d) ⟦ (f · g) · h, f · (g · h) ⟧).
+Proof.
+  apply is_iso_from_is_z_iso.
+  exists (lassociator f g h).
+  split.
+  - apply rassociator_lassociator.
+  - apply lassociator_rassociator.
+Defined.
+
 Lemma is_iso_lunitor {a b : C} (f : hom a b)
   : is_iso (lunitor f : (hom a b) ⟦ identity a · f, f ⟧).
 Proof.

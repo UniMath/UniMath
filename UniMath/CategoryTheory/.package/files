@@ -82,7 +82,7 @@ FunctorCoalgebras.v
 precomp_fully_faithful.v
 precomp_ess_surj.v
 rezk_completion.v
-EndofunctorsMonoidal.v
+Monoidal/EndofunctorsMonoidal.v
 CategoricalRecursionSchemes.v
 PointedFunctors.v
 HorizontalComposition.v
