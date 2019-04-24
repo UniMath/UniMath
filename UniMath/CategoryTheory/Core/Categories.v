@@ -296,3 +296,30 @@ Proof.
   induction H.
   exact (identity a).
 Defined.
+
+Section SectionsAndRetractions.
+  Context {C : precategory}.
+
+  Definition is_retraction {A B : ob C} (m : A --> B) (r : B --> A) :=
+    m · r = identity A.
+
+  Lemma isaprop_is_retraction {A B : ob C} (m : A --> B) (r : B --> A) :
+    has_homsets C -> isaprop (is_retraction m r).
+  Proof.
+    intro H; apply H.
+  Qed.
+
+  (** A retraction of B onto A *)
+  Definition retraction (A B : ob C) :=
+    ∑ m r, @is_retraction A B m r.
+
+  Lemma isaset_retraction (A B : ob C) :
+    has_homsets C -> isaset (retraction A B).
+  Proof.
+    intro.
+    do 2 (apply isaset_total2; [auto|intros]).
+    apply hlevelntosn, isaprop_is_retraction.
+    assumption.
+  Qed.
+
+End SectionsAndRetractions.
