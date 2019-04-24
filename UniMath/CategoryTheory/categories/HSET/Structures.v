@@ -45,6 +45,7 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.covyoneda.
 Require Import UniMath.CategoryTheory.EpiFacts.
 Require Import UniMath.CategoryTheory.Monics.
+Require Import UniMath.CategoryTheory.SplitMonicsAndEpis.
 
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Limits.
@@ -357,7 +358,7 @@ Qed.
 
 (** ** Split epis with axiom of choice ([SplitEpis_HSET]) *)
 
-Lemma SplitEpis_HSET : AxiomOfChoice_surj -> EpisAreSplit HSET.
+Lemma SplitEpis_HSET : AxiomOfChoice_surj -> epis_are_split HSET.
 Proof.
   intros axC A B f epif.
   apply EpisAreSurjective_HSET,axC in epif.

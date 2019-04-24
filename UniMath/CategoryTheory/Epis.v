@@ -119,6 +119,16 @@ Section def_epi.
 End def_epi.
 Arguments isEpi [C] [x] [y] _.
 
+Lemma precomp_with_epi_isincl {C : category} {A B : ob C} {f : A --> B} :
+  isEpi f -> ∏ c, isincl (@precomp_with _ _ _ f c).
+Proof.
+  intros is_epi ? ?.
+  apply invproofirrelevance.
+  intros z w.
+  apply subtypeEquality; [intros ? ?; apply homset_property|].
+  apply (is_epi _ (hfiberpr1 _ _ z) (hfiberpr1 _ _ w)).
+  exact (hfiberpr2 _ _ z @ !hfiberpr2 _ _ w).
+Qed.
 
 (** * Construction of the subcategory consisting of all epis. *)
 Section epis_subcategory.
