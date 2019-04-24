@@ -40,6 +40,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [AxiomOfChoice.v](MoreFoundations/AxiomOfChoice.v)
    - [StructureIdentity.v](MoreFoundations/StructureIdentity.v)
    - [Univalence.v](MoreFoundations/Univalence.v)
+   - [NoInjectivePairing.v](MoreFoundations/NoInjectivePairing.v)
    - [PartD.v](MoreFoundations/PartD.v)
    - [All.v](MoreFoundations/All.v)
 ## Package [Combinatorics](Combinatorics/README.md)
