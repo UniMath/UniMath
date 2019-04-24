@@ -69,6 +69,8 @@ Definition PL_functor : omega_cocont_functor HSET HSET :=
 
 Definition PL_functor' : functor HSET HSET := pr1 PL_functor.
 
+Let is_omega_cocont_PL_functor' : is_omega_cocont PL_functor' := pr2 PL_functor.
+
 Lemma PL_functor_initial :
   Initial (precategory_FunctorAlg PL_functor' has_homsets_HSET).
 Proof.
@@ -139,21 +141,108 @@ Proof.
   - apply (invweq (weqfunfromdirprod _ _ _)); exact impl.
 Defined.
 
+
 (** The fold, or catamorphism: given the same structure of operations on any
     other set, we can construct an interpretation of PL in that set. *)
-Definition PL_fold (X : hSet) (vs : vars -> X)
+Definition PL_fold_alg_mor {X : hSet} (vs : vars -> X)
            (not : X -> X) (and : X -> X -> X) (or : X -> X -> X) (impl : X -> X -> X) :
-  PL -> X.
+  algebra_mor PL_functor' PL_alg (PL_mk_algebra X vs not and or impl).
 Proof.
   apply (InitialArrow PL_functor_initial (PL_mk_algebra X vs not and or impl)).
 Defined.
+
+Opaque is_omega_cocont_PL_functor'.
+
+Definition PL_fold {X : hSet} (vs : vars -> X)
+           (not : X -> X) (and : X -> X -> X) (or : X -> X -> X) (impl : X -> X -> X) :
+  PL -> X := mor_from_algebra_mor _ _ _ (PL_fold_alg_mor vs not and or impl).
+
+(** Some lemmas expressing the computational behavior of [PL_fold] *)
+Section FoldComputationLemmas.
+  Context {X : hSet} (vs : vars -> X)
+          (not : X -> X) (and : X -> X -> X) (or : X -> X -> X) (impl : X -> X -> X).
+
+  Let fold := PL_fold vs not and or impl.
+  Let mor := PL_fold_alg_mor vs not and or impl.
+
+  Lemma PL_fold_var : ∏ z, fold (PL_var z) = vs z.
+  Proof.
+    reflexivity.
+  Qed.
+
+  Lemma PL_fold_not : ∏ p, fold (PL_not p) = not (fold p).
+  Proof.
+    intro.
+    unfold fold.
+    pose (comm := algebra_mor_commutes _ _ _ mor).
+    do 3 apply (maponpaths (λ x, (inl : HSET ⟦_, BinCoproductsHSET _ _⟧) · x)) in comm.
+    apply (maponpaths (λ x, (inr : HSET ⟦_, BinCoproductsHSET _ _⟧) · x)) in comm.
+    apply eqtohomot in comm.
+    specialize (comm p).
+    (* this takes forever:  *)
+    (* apply comm. *)
+    (* exact comm. *)
+  Abort.
+End FoldComputationLemmas.
+
+
+(** The induction principle.
+
+    Mirrors the proof for lists.
+ *)
+Section PL_ind.
+
+Context {P : PL -> UU} (PhSet : ∏ l, isaset (P l)).
+Context (P_vars : ∏ v : vars, P (PL_var v))
+        (P_not : ∏ pl, P pl -> P (PL_not pl))
+        (P_and : ∏ pl1 pl2, P pl1 -> P pl2 -> P (PL_and (dirprodpair pl1 pl2)))
+        (P_or : ∏ pl1 pl2, P pl1 -> P pl2 -> P (PL_or (dirprodpair pl1 pl2)))
+        (P_impl : ∏ pl1 pl2, P pl1 -> P pl2 -> P (PL_impl (dirprodpair pl1 pl2))).
+
+Let P' : UU := ∑ pl : PL, P pl.
+Let P'_vars (v : vars) : P' := (PL_var v,, P_vars v).
+Let P'_not (pl : P') : P' := (PL_not (pr1 pl),, P_not _ (pr2 pl)).
+Let P'_and (pl1 pl2 : P') : P' :=
+  (PL_and (dirprodpair (pr1 pl1) (pr1 pl2)),,
+   P_and _ _ (pr2 pl1) (pr2 pl2)).
+Let P'_or (pl1 pl2 : P') : P' :=
+  (PL_or (dirprodpair (pr1 pl1) (pr1 pl2)),,
+   P_or _ _ (pr2 pl1) (pr2 pl2)).
+Let P'_impl (pl1 pl2 : P') : P' :=
+  (PL_impl (dirprodpair (pr1 pl1) (pr1 pl2)),,
+   P_impl _ _ (pr2 pl1) (pr2 pl2)).
+
+Definition P'HSET : HSET.
+Proof.
+  use hSetpair.
+  - exact P'.
+  - abstract (apply (isofhleveltotal2 2); [ apply setproperty | intro x; apply PhSet ]).
+Defined.
+
+(** This line is crucial for isalghom_pr1foldr to typecheck *)
+(* Opaque is_omega_cocont_listFunctor. *)
+Opaque is_omega_cocont_PL_functor'.
+
+Lemma is_algebra_morphism_pr1_PL_fold :
+  is_algebra_mor _ PL_alg PL_alg (λ l, pr1 (@PL_fold P'HSET P'_vars P'_not P'_and P'_or P'_impl l)).
+Proof.
+apply (BinCoproductArrow_eq_cor _ BinCoproductsHSET).
+- apply funextfun; intro x; induction x as [x2 | x3].
+  + induction x2 as [x4 | x5].
+    * induction x4 as [x6 | x7].
+      -- cbn in x6.
+         (** Also takes forever: *)
+         (* apply (maponpaths pr1 (@PL_fold_var P'HSET P'_vars P'_not P'_and P'_or P'_impl x6)). *)
+Abort.
+
+End PL_ind.
 
 End PL.
 
 (** A valuation for atomic sentences can be extended to one for all sentences. *)
 Definition bool_valuation {vars : hSet} (V : vars -> bool) : PL vars -> bool.
 Proof.
-  use (PL_fold vars (hSetpair _ isasetbool)).
+  use (@PL_fold vars boolset).
   - assumption. (* V *)
   - exact negb.
   - exact andb.
