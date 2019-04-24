@@ -193,3 +193,158 @@ Definition prebicat_from_monoidal : prebicat :=
   prebicat_data_from_monoidal ,, prebicat_laws_from_monoidal.
 
 End Prebicat_From_Monoidal_Precat.
+
+Section Monoidal_Precat_From_Prebicat.
+
+Local Open Scope bicategory_scope.
+Local Notation "x • y" := (vcomp2 x y) (at level 60).
+Local Notation "x ⋆ y" := (hcomp x y) (at level 50, left associativity).
+Local Notation "f ◃ x" := (lwhisker f x) (at level 60). (* \tw *)
+Local Notation "y ▹ g" := (rwhisker g y) (at level 60). (* \tw nr 2 *)
+
+Context {C : prebicat}.
+Variable (c0: ob C).
+
+Definition precategory_from_prebicat_and_ob: precategory.
+Proof.
+  use mk_precategory.
+  + use precategory_data_pair.
+    * use precategory_ob_mor_pair.
+      -- exact (C⟦c0,c0⟧).
+      -- apply prebicat_cells.
+    * intro c.
+      apply id2.
+    * intros a b c.
+      apply vcomp2.
+  + use mk_is_precategory.
+    * intros a b f.
+      apply id2_left.
+    * intros a b f.
+      apply id2_right.
+    * intros a b c d f g h.
+      apply vassocr.
+    * intros a b c d f g h.
+      apply pathsinv0.
+      apply vassocr.
+Defined.
+
+Definition tensor_from_prebicat_and_ob: precategory_from_prebicat_and_ob ⊠ precategory_from_prebicat_and_ob ⟶ precategory_from_prebicat_and_ob.
+Proof.
+  use mk_functor.
+  - use mk_functor_data.
+    + intro ab.
+      induction ab as [a b].
+      exact (a · b).
+    + intros ab1 ab2 f.
+      induction ab1 as [a1 b1].
+      induction ab2 as [a2 b2].
+      induction f as [f1 f2].
+      cbn in f1, f2.
+      exact (hcomp f1 f2).
+  - split.
+    + red.
+      intro a.
+      cbn.
+      apply hcomp_identity.
+    + red.
+      intros a b c f g.
+      cbn.
+      apply hcomp_vcomp.
+Defined.
+
+Definition monoidal_precat_from_prebicat_and_ob: monoidal_precat.
+Proof.
+  use (mk_monoidal_precat precategory_from_prebicat_and_ob tensor_from_prebicat_and_ob (id c0)).
+  - red.
+    use mk_nat_iso.
+    + use mk_nat_trans.
+      * intro c.
+        apply lunitor.
+      * intros a b f.
+        cbn.
+        apply lunitor_natural.
+    + red.
+      intro c.
+      cbn.
+      apply is_iso_lunitor.
+  - red.
+    use mk_nat_iso.
+    + use mk_nat_trans.
+      * intro c.
+        apply runitor.
+      * intros a b f.
+        cbn.
+        apply runitor_natural.
+    + red.
+      intro c.
+      cbn.
+      apply is_iso_runitor.
+  - red.
+    use mk_nat_iso.
+    + use mk_nat_trans.
+      * intro c.
+        induction c as [c12 c3].
+        induction c12 as [c1 c2].
+        cbn.
+        apply (rassociator_fun (c1,,(c2,,c3))).
+      * intros a b f.
+        cbn.
+        apply (rassociator_fun_natural (pr11 a,,(pr21 a,, pr2 a)) (pr11 b,,(pr21 b,, pr2 b)) (pr11 f,,(pr21 f,, pr2 f))).
+    + red.
+      intro c.
+      cbn.
+      apply is_iso_rassociator.
+  - red. intros a b. unfold rassociator_fun.
+    cbn.
+    unfold hcomp.
+    (* a simple proof by rewriting:
+    rewrite id2_rwhisker.
+    rewrite lwhisker_id2.
+    rewrite id2_right.
+    rewrite id2_left.
+    apply pathsinv0.
+    apply lunitor_lwhisker. *)
+    intermediate_path ((runitor a ▹ b) • id2 (a · b)).
+    apply maponpaths.
+    apply lwhisker_id2.
+    intermediate_path (rassociator a (id c0) b • (id2 (a · (id c0 · b)) • (a ◃ lunitor b))).
+    2: { apply maponpaths.
+         apply (maponpaths ( λ x, vcomp2 x _)).
+         apply pathsinv0.
+         apply id2_rwhisker. }
+    eapply pathscomp0.
+    { apply id2_right. }
+    eapply pathscomp0.
+    { apply pathsinv0. apply lunitor_lwhisker. }
+    apply maponpaths.
+    apply pathsinv0.
+    apply id2_left.
+  - red; intros a b c d; unfold rassociator_fun; cbn.
+    unfold hcomp.
+    (* a simple proof by rewriting:
+    rewrite id2_rwhisker.
+    rewrite lwhisker_id2.
+    rewrite id2_right.
+    rewrite id2_left.
+    apply pathsinv0.
+    apply rassociator_rassociator. *)
+    eapply pathscomp0.
+    { apply pathsinv0. apply rassociator_rassociator. }
+    intermediate_path (((rassociator a b c ▹ d) • rassociator a (b · c) d) • ((id2 a ▹ b · c · d) • (a ◃ rassociator b c d))).
+    { apply maponpaths.
+      eapply pathscomp0.
+      { apply pathsinv0. apply id2_left. }
+      apply (maponpaths ( λ x, vcomp2 x _)).
+      apply pathsinv0.
+      apply id2_rwhisker.
+    }
+    apply (maponpaths ( λ x, vcomp2 x _)).
+    apply (maponpaths ( λ x, vcomp2 x _)).
+    rewrite lwhisker_id2.
+    intermediate_path ((rassociator a b c ▹ d) • id2 (a · (b · c) · d)).
+    { apply pathsinv0.
+      apply id2_right. }
+    apply idpath.
+Defined.
+
+End Monoidal_Precat_From_Prebicat.
