@@ -985,7 +985,7 @@ Section AdjunctionLemmas.
     apply (squash_to_prop iss); [apply isapropishinh|].
     intros a; apply hinhpr.
     exists (hfiberpr1 _ _ a).
-    apply (weqpair _ (isweqmaponpaths w _ _)).
+    apply (make_weq _ (isweqmaponpaths w _ _)).
     apply (hfiberpr2 _ _ a).
   Qed.
 

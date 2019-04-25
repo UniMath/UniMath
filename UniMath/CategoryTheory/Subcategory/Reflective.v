@@ -52,7 +52,7 @@ Lemma localization_is_idempotent {C : category} (R : reflective_subcategory C)
       (d : ob R) :
   iso (localization R (precategory_object_from_sub_precategory_object _ _ d)) d.
 Proof.
-  use mk_iso.
+  use make_iso.
   - exact ((counit_from_left_adjoint (pr2 (pr2 R))) d).
   - abstract (
         apply (@counit_is_iso_if_right_adjoint_is_fully_faithful
