@@ -124,6 +124,17 @@ Definition monoidal_precat : UU :=
   ∑ α' : associator tensor,
          (triangle_eq tensor I λ' ρ' α') × (pentagon_eq tensor α').
 
+
+Definition monoidal_precat_struct : UU :=
+  ∑ C : precategory, ∑ tensor : C ⊠ C ⟶ C, ∑ I : C,
+  ∑ λ' : left_unitor tensor I,
+  ∑ ρ' : right_unitor tensor I,
+  ∑ α' : associator tensor, unit.
+
+Definition mk_monoidal_precat_struct (C: precategory)(tensor: C ⊠ C ⟶ C)(I: C)
+  (λ': left_unitor tensor I)(ρ': right_unitor tensor I)(α': associator tensor): monoidal_precat_struct :=
+  (C,, (tensor,, (I,, (λ',, (ρ',, (α',, tt)))))).
+
 Definition mk_monoidal_precat (C: precategory)(tensor: C ⊠ C ⟶ C)(I: C)
   (λ': left_unitor tensor I)(ρ': right_unitor tensor I)(α': associator tensor)
   (eq1: triangle_eq tensor I λ' ρ' α')(eq2: pentagon_eq tensor α'): monoidal_precat :=
