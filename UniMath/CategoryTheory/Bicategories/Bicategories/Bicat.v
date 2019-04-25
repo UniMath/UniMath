@@ -718,6 +718,17 @@ Proof.
   apply runitor_rwhisker.
 Qed.
 
+Corollary unit_triangle {a b c : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
+  : rassociator f (identity b) g • id2 f ⋆ lunitor g = runitor f ⋆ id2 g.
+Proof.
+  unfold hcomp.
+  rewrite id2_rwhisker.
+  rewrite lwhisker_id2.
+  rewrite id2_right.
+  rewrite id2_left.
+  apply lunitor_lwhisker.
+Qed.
+
 Lemma hcomp_hcomp' {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
       (η : f1 ==> f2) (φ : g1 ==> g2)
   : hcomp η φ = hcomp' η φ.
@@ -940,6 +951,19 @@ Proof.
   apply maponpaths.
   apply lassociator_rassociator.
   apply lwhisker_id2.
+Qed.
+
+Corollary associativity_pentagon {a b c d e : C}
+  (f : C ⟦ a, b ⟧) (g : C ⟦ b, c ⟧) (h : C ⟦ c, d ⟧) (i : C ⟦ d, e ⟧)
+  : (rassociator f g h ⋆ id2 i • rassociator f (g · h) i) • id2  f ⋆ rassociator g h i =
+    rassociator (f · g) h i • rassociator f g (h · i).
+Proof.
+  unfold hcomp.
+  rewrite id2_rwhisker.
+  rewrite lwhisker_id2.
+  rewrite id2_right.
+  rewrite id2_left.
+  apply rassociator_rassociator.
 Qed.
 
 End Derived_laws.

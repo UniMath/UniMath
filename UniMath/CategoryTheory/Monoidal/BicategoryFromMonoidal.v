@@ -228,6 +228,8 @@ Proof.
       apply vassocr.
 Defined.
 
+Local Notation EndC := precategory_from_prebicat_and_ob.
+
 Definition tensor_from_prebicat_and_ob: precategory_from_prebicat_and_ob ⊠ precategory_from_prebicat_and_ob ⟶ precategory_from_prebicat_and_ob.
 Proof.
   use mk_functor.
@@ -252,58 +254,67 @@ Proof.
       apply hcomp_vcomp.
 Defined.
 
+Local Notation tensor := tensor_from_prebicat_and_ob.
+
+Local Definition build_left_unitor: left_unitor tensor (id c0).
+Proof.
+  red.
+  use mk_nat_iso.
+  + use mk_nat_trans.
+    * intro c.
+      apply lunitor.
+    * intros a b f.
+      cbn.
+      apply lunitor_natural.
+  + red.
+    intro c.
+    cbn.
+    apply is_iso_lunitor.
+Defined.
+
+Local Definition build_right_unitor: right_unitor tensor (id c0).
+Proof.
+  red.
+  use mk_nat_iso.
+  + use mk_nat_trans.
+    * intro c.
+      apply runitor.
+    * intros a b f.
+      cbn.
+      apply runitor_natural.
+  + red.
+    intro c.
+    cbn.
+    apply is_iso_runitor.
+Defined.
+
+Local Definition build_associator: associator tensor.
+Proof.
+  use mk_nat_iso.
+  + use mk_nat_trans.
+    * intro c.
+      apply (rassociator_fun (pr11 c,, (pr21 c,, pr2 c))).
+    * intros a b f. unfold rassociator_fun.
+      set (rassociator_fun_natural_inst := rassociator_fun_natural (pr11 a,, (pr21 a,, pr2 a)) (pr11 b,, (pr21 b,, pr2 b)) (pr11 f,, (pr21 f,, pr2 f))).
+      unfold rassociator_fun in rassociator_fun_natural_inst.
+      (* cbn in rassociator_fun_natural_inst. *) (* if not given, then [exact] takes very long *)
+      exact rassociator_fun_natural_inst.
+  + intro c.
+    apply is_iso_rassociator.
+Defined.
+
 Definition monoidal_precat_from_prebicat_and_ob: monoidal_precat.
 Proof.
   use (mk_monoidal_precat precategory_from_prebicat_and_ob tensor_from_prebicat_and_ob (id c0)).
-  - red.
-    use mk_nat_iso.
-    + use mk_nat_trans.
-      * intro c.
-        apply lunitor.
-      * intros a b f.
-        cbn.
-        apply lunitor_natural.
-    + red.
-      intro c.
-      cbn.
-      apply is_iso_lunitor.
-  - red.
-    use mk_nat_iso.
-    + use mk_nat_trans.
-      * intro c.
-        apply runitor.
-      * intros a b f.
-        cbn.
-        apply runitor_natural.
-    + red.
-      intro c.
-      cbn.
-      apply is_iso_runitor.
-  - red.
-    use mk_nat_iso.
-    + use mk_nat_trans.
-      * intro c.
-        induction c as [c12 c3].
-        induction c12 as [c1 c2].
-        cbn.
-        apply (rassociator_fun (c1,,(c2,,c3))).
-      * intros a b f.
-        cbn.
-        apply (rassociator_fun_natural (pr11 a,,(pr21 a,, pr2 a)) (pr11 b,,(pr21 b,, pr2 b)) (pr11 f,,(pr21 f,, pr2 f))).
-    + red.
-      intro c.
-      cbn.
-      apply is_iso_rassociator.
+  - exact build_left_unitor.
+  - exact build_right_unitor.
+  - exact build_associator.
   - red. intros a b. unfold rassociator_fun.
     cbn.
-    unfold hcomp.
-    (* a simple proof by rewriting:
-    rewrite id2_rwhisker.
-    rewrite lwhisker_id2.
-    rewrite id2_right.
-    rewrite id2_left.
     apply pathsinv0.
-    apply lunitor_lwhisker. *)
+    apply unit_triangle.
+(* a historic proof without rewriting:
+    unfold hcomp.
     intermediate_path ((runitor a ▹ b) • id2 (a · b)).
     apply maponpaths.
     apply lwhisker_id2.
@@ -319,15 +330,13 @@ Proof.
     apply maponpaths.
     apply pathsinv0.
     apply id2_left.
-  - red; intros a b c d; unfold rassociator_fun; cbn.
-    unfold hcomp.
-    (* a simple proof by rewriting:
-    rewrite id2_rwhisker.
-    rewrite lwhisker_id2.
-    rewrite id2_right.
-    rewrite id2_left.
+*)
+  - red. intros a b c d. unfold rassociator_fun.
+    cbn.
     apply pathsinv0.
-    apply rassociator_rassociator. *)
+    apply associativity_pentagon.
+(* a historic proof without rewriting:
+    unfold hcomp.
     eapply pathscomp0.
     { apply pathsinv0. apply rassociator_rassociator. }
     intermediate_path (((rassociator a b c ▹ d) • rassociator a (b · c) d) • ((id2 a ▹ b · c · d) • (a ◃ rassociator b c d))).
@@ -345,6 +354,7 @@ Proof.
     { apply pathsinv0.
       apply id2_right. }
     apply idpath.
+*)
 Defined.
 
 End Monoidal_Precat_From_Prebicat.
