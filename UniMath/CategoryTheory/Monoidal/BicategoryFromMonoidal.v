@@ -7,6 +7,7 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat.
+Require Import UniMath.CategoryTheory.whiskering.
 
 Local Open Scope cat.
 
@@ -205,28 +206,26 @@ Local Notation "y ▹ g" := (rwhisker g y) (at level 60). (* \tw nr 2 *)
 Context {C : prebicat}.
 Variable (c0: ob C).
 
-Definition precategory_from_prebicat_and_ob: precategory.
+Definition precategory_data_from_prebicat_and_ob: precategory_data.
 Proof.
-  use mk_precategory.
-  + use precategory_data_pair.
-    * use precategory_ob_mor_pair.
-      -- exact (C⟦c0,c0⟧).
-      -- apply prebicat_cells.
-    * intro c.
-      apply id2.
-    * intros a b c.
-      apply vcomp2.
-  + use mk_is_precategory.
-    * intros a b f.
-      apply id2_left.
-    * intros a b f.
-      apply id2_right.
-    * intros a b c d f g h.
-      apply vassocr.
-    * intros a b c d f g h.
-      apply pathsinv0.
-      apply vassocr.
+  use precategory_data_pair.
+  - use precategory_ob_mor_pair.
+    + exact (C⟦c0,c0⟧).
+    + apply prebicat_cells.
+  - intro c; apply id2.
+  - intros a b c; apply vcomp2.
 Defined.
+
+Lemma is_precategory_data_from_prebicat_and_ob: is_precategory precategory_data_from_prebicat_and_ob.
+Proof.
+  use mk_is_precategory.
+  - intros a b f; apply id2_left.
+  - intros a b f; apply id2_right.
+  - intros a b c d f g h; apply vassocr.
+  - intros a b c d f g h; apply pathsinv0; apply vassocr.
+Qed.
+
+Definition precategory_from_prebicat_and_ob: precategory := _,, is_precategory_data_from_prebicat_and_ob.
 
 Local Notation EndC := precategory_from_prebicat_and_ob.
 
@@ -235,23 +234,11 @@ Proof.
   use mk_functor.
   - use mk_functor_data.
     + intro ab.
-      induction ab as [a b].
-      exact (a · b).
+     exact (pr1 ab · pr2 ab).
     + intros ab1 ab2 f.
-      induction ab1 as [a1 b1].
-      induction ab2 as [a2 b2].
-      induction f as [f1 f2].
-      cbn in f1, f2.
-      exact (hcomp f1 f2).
-  - split.
-    + red.
-      intro a.
-      cbn.
-      apply hcomp_identity.
-    + red.
-      intros a b c f g.
-      cbn.
-      apply hcomp_vcomp.
+      exact (hcomp (pr1 f) (pr2 f)).
+  - abstract ( split; [ intro c; apply hcomp_identity |
+                        intros a b c f g; apply hcomp_vcomp ] ).
 Defined.
 
 Local Notation tensor := tensor_from_prebicat_and_ob.
@@ -288,19 +275,42 @@ Proof.
     apply is_iso_runitor.
 Defined.
 
+Definition nat_trans_associator: (assoc_left tensor) ⟹ (assoc_right tensor).
+Proof.
+  (*
+  set (aux := rassociator_transf(C := C) c0 c0 c0 c0).
+  set (aux' := pre_whisker (precategory_binproduct_unassoc _ _ _) aux).
+  use mk_nat_trans.
+  - intro c. exact (pr1 aux' c).
+  - apply (pr2 aux').
+   *)
+  set (aux := rassociator_transf'(C := C) c0 c0 c0 c0).
+  use mk_nat_trans.
+  - intro c. exact (pr1 aux c).
+  - apply (pr2 aux).
+Defined.
+
+(*
+Definition nat_trans_data_associator: nat_trans_data (assoc_left tensor) (assoc_right tensor) := λ c, rassociator_fun (pr11 c,, (pr21 c,, pr2 c)).
+
+Lemma is_nat_trans_data_associator: is_nat_trans _ _ nat_trans_data_associator.
+Proof.
+  intros a b f; unfold rassociator_fun.
+  set (rassociator_fun_natural_inst := rassociator_fun_natural (pr11 a,, (pr21 a,, pr2 a)) (pr11 b,, (pr21 b,, pr2 b)) (pr11 f,, (pr21 f,, pr2 f))).
+  unfold rassociator_fun in rassociator_fun_natural_inst.
+  (* cbn in rassociator_fun_natural_inst. *) (* if not given, then [exact] takes very long *)
+  unfold assoc_left, assoc_right.
+  unfold tensor.
+  cbn.
+  exact rassociator_fun_natural_inst.
+Qed.
+*)
+
 Local Definition build_associator: associator tensor.
 Proof.
   use mk_nat_iso.
-  + use mk_nat_trans.
-    * intro c.
-      apply (rassociator_fun (pr11 c,, (pr21 c,, pr2 c))).
-    * intros a b f. unfold rassociator_fun.
-      set (rassociator_fun_natural_inst := rassociator_fun_natural (pr11 a,, (pr21 a,, pr2 a)) (pr11 b,, (pr21 b,, pr2 b)) (pr11 f,, (pr21 f,, pr2 f))).
-      unfold rassociator_fun in rassociator_fun_natural_inst.
-      (* cbn in rassociator_fun_natural_inst. *) (* if not given, then [exact] takes very long *)
-      exact rassociator_fun_natural_inst.
-  + intro c.
-    apply is_iso_rassociator.
+  - exact nat_trans_associator.
+  - intro c; apply is_iso_rassociator.
 Defined.
 
 Definition monoidal_precat_from_prebicat_and_ob: monoidal_precat.

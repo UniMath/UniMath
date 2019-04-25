@@ -1315,6 +1315,34 @@ Definition rassociator_transf (a b c d : C)
     pair_functor (functor_identity (hom a b)) hcomp_functor ∙ hcomp_functor
   := rassociator_fun,, rassociator_fun_natural.
 
+Definition rassociator_fun' {a b c d : C}
+           (x : (C⟦a,b⟧ × C⟦b,c⟧) × C⟦c,d⟧)
+  : (pr11 x · pr21 x) · pr2 x ==> pr11 x · (pr21 x · pr2 x)
+  := rassociator (pr11 x) (pr21 x) (pr2 x).
+
+Lemma rassociator_fun'_natural {a b c d : C}
+  : is_nat_trans
+      (pair_functor hcomp_functor (functor_identity (hom c d)) ∙ hcomp_functor)
+      (precategory_binproduct_unassoc (hom a b) (hom b c) (hom c d) ∙
+       pair_functor (functor_identity (hom a b)) hcomp_functor ∙ hcomp_functor)
+      rassociator_fun'.
+Proof.
+  red; cbn. intros ((f1, f2), f3) ((g1, g2), g3).
+  unfold precategory_binproduct_mor, hom_ob_mor. cbn.
+  unfold precategory_binproduct_mor, hom_ob_mor. cbn.
+  intros ((x1, x2), x3). cbn.
+  unfold rassociator_fun. cbn.
+  apply hcomp_rassoc.
+Defined.
+
+Definition rassociator_transf' (a b c d : C)
+  : pair_functor hcomp_functor (functor_identity (hom c d)) ∙
+    hcomp_functor
+    ⟹
+    precategory_binproduct_unassoc (hom a b) (hom b c) (hom c d) ∙
+    pair_functor (functor_identity (hom a b)) hcomp_functor ∙ hcomp_functor
+  := rassociator_fun',, rassociator_fun'_natural.
+
 End Associators_Unitors_Natural.
 
 (* -----------------------------------------------------------------------------------*)
