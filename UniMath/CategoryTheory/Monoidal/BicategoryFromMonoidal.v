@@ -198,10 +198,7 @@ End Prebicat_From_Monoidal_Precat.
 Section Monoidal_Precat_From_Prebicat.
 
 Local Open Scope bicategory_scope.
-Local Notation "x • y" := (vcomp2 x y) (at level 60).
-Local Notation "x ⋆ y" := (hcomp x y) (at level 50, left associativity).
-Local Notation "f ◃ x" := (lwhisker f x) (at level 60). (* \tw *)
-Local Notation "y ▹ g" := (rwhisker g y) (at level 60). (* \tw nr 2 *)
+Import Bicat.Notations.
 
 Context {C : prebicat}.
 Variable (c0: ob C).
@@ -234,7 +231,7 @@ Proof.
   use mk_functor.
   - use mk_functor_data.
     + intro ab.
-     exact (pr1 ab · pr2 ab).
+      exact (pr1 ab · pr2 ab).
     + intros ab1 ab2 f.
       exact (hcomp (pr1 f) (pr2 f)).
   - abstract ( split; [ intro c; apply hcomp_identity |
@@ -250,13 +247,8 @@ Proof.
   + use mk_nat_trans.
     * intro c.
       apply lunitor.
-    * intros a b f.
-      cbn.
-      apply lunitor_natural.
-  + red.
-    intro c.
-    cbn.
-    apply is_iso_lunitor.
+    * abstract ( intros a b f; apply lunitor_natural ).
+  + abstract ( intro c; apply is_iso_lunitor ).
 Defined.
 
 Local Definition build_right_unitor: right_unitor tensor (id c0).
@@ -266,13 +258,8 @@ Proof.
   + use mk_nat_trans.
     * intro c.
       apply runitor.
-    * intros a b f.
-      cbn.
-      apply runitor_natural.
-  + red.
-    intro c.
-    cbn.
-    apply is_iso_runitor.
+    * abstract ( intros a b f; apply runitor_natural ).
+  + abstract ( intro c; apply is_iso_runitor ).
 Defined.
 
 Definition nat_trans_associator: (assoc_left tensor) ⟹ (assoc_right tensor).
@@ -286,8 +273,8 @@ Proof.
    *)
   set (aux := rassociator_transf'(C := C) c0 c0 c0 c0).
   use mk_nat_trans.
-  - intro c. exact (pr1 aux c).
-  - apply (pr2 aux).
+  - intro c.  exact (pr1 aux c).
+  - abstract ( apply (pr2 aux) ).
 Defined.
 
 (*
@@ -310,19 +297,13 @@ Local Definition build_associator: associator tensor.
 Proof.
   use mk_nat_iso.
   - exact nat_trans_associator.
-  - intro c; apply is_iso_rassociator.
+  - abstract ( intro c; apply is_iso_rassociator).
 Defined.
 
 Definition monoidal_precat_from_prebicat_and_ob: monoidal_precat.
 Proof.
-  use (mk_monoidal_precat precategory_from_prebicat_and_ob tensor_from_prebicat_and_ob (id c0)).
-  - exact build_left_unitor.
-  - exact build_right_unitor.
-  - exact build_associator.
-  - red. intros a b. unfold rassociator_fun.
-    cbn.
-    apply pathsinv0.
-    apply unit_triangle.
+  use (mk_monoidal_precat precategory_from_prebicat_and_ob tensor_from_prebicat_and_ob (id c0) build_left_unitor build_right_unitor build_associator).
+  - abstract ( intros a b; apply pathsinv0; apply unit_triangle ).
 (* a historic proof without rewriting:
     unfold hcomp.
     intermediate_path ((runitor a ▹ b) • id2 (a · b)).
@@ -341,10 +322,7 @@ Proof.
     apply pathsinv0.
     apply id2_left.
 *)
-  - red. intros a b c d. unfold rassociator_fun.
-    cbn.
-    apply pathsinv0.
-    apply associativity_pentagon.
+  - abstract ( intros a b c d; apply pathsinv0; apply associativity_pentagon ).
 (* a historic proof without rewriting:
     unfold hcomp.
     eapply pathscomp0.
