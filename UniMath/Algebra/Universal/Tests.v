@@ -133,7 +133,7 @@ Section Nat.
   Proof. apply stack_extens. exact (idpath _). Qed.
 
   Goal subterm term_one (●0) = term_zero.
-  Proof. exact (idpath _). Qed.
+  Proof. apply stack_extens. exact (idpath _). Qed.
 
 End Nat.
 
@@ -162,12 +162,12 @@ Section Bool.
   Proof. apply stack_extens. exact (idpath _). Qed.
 
   Goal subterm t2 (●0) = t1.
-  Proof. exact (idpath _). Qed.
+  Proof. apply stack_extens. exact (idpath _). Qed.
 
   Goal subterm t1 (●0) = t_true.
   Proof. exact (idpath _). Qed.
 
   Goal subterm t1 (●1) = t_false.
-  Proof. exact (idpath _). Qed.
+  Proof. apply stack_extens. exact (idpath _). Qed.
 
 End Bool.
