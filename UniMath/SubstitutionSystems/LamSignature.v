@@ -36,7 +36,7 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
+Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
 Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
 Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
@@ -282,14 +282,14 @@ Proof.
   apply pathsinv0.
   apply BinProductArrowUnique.
   + rewrite id_left.
-    unfold EndofunctorsMonoidal.λ_functor.
-    unfold EndofunctorsMonoidal.ρ_functor.
+    unfold UnitorsAndAssociatorsForEndofunctors.λ_functor.
+    unfold UnitorsAndAssociatorsForEndofunctors.ρ_functor.
     simpl.
     rewrite id_right.
     apply idpath.
   + rewrite id_left.
-    unfold EndofunctorsMonoidal.λ_functor.
-    unfold EndofunctorsMonoidal.ρ_functor.
+    unfold UnitorsAndAssociatorsForEndofunctors.λ_functor.
+    unfold UnitorsAndAssociatorsForEndofunctors.ρ_functor.
     simpl.
     rewrite id_right.
     apply idpath.
@@ -311,12 +311,12 @@ Proof.
   apply pathsinv0.
   apply BinProductArrowUnique.
   + rewrite id_left.
-    unfold EndofunctorsMonoidal.α_functor.
+    unfold UnitorsAndAssociatorsForEndofunctors.α_functor.
     simpl.
     rewrite id_right.
     apply idpath.
   + rewrite id_left.
-    unfold EndofunctorsMonoidal.α_functor.
+    unfold UnitorsAndAssociatorsForEndofunctors.α_functor.
     simpl.
     rewrite id_right.
     apply idpath.
