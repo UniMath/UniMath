@@ -49,13 +49,12 @@ Definition nat_trans {C C' : precategory_data} (F F' : functor_data C C') : UU :
 Notation "F ⟹ G" := (nat_trans F G) (at level 39) : cat.
 (* to input: type "\==>" with Agda input method *)
 
-(** Note that this makes the second component opaque for efficiency reasons *)
 Definition mk_nat_trans {C C' : precategory_data} (F F' : functor_data C C')
            (t : nat_trans_data F F') (H : is_nat_trans F F' t) :
            nat_trans F F'.
 Proof.
 exists t.
-abstract (exact H).
+exact H.
 Defined.
 
 Lemma isaset_nat_trans {C C' : precategory_data} (hs: has_homsets C')
@@ -230,7 +229,7 @@ Definition nat_iso {C D : precategory} (F G : C ⟶ D) : UU
 Definition mk_nat_iso {C D : precategory} (F G : C ⟶ D) (μ : F ⟹ G) (is_iso : is_nat_iso μ) : nat_iso F G.
 Proof.
   exists μ.
-  abstract (exact is_iso).
+  exact is_iso.
 Defined.
 
 Definition iso_inv_after_iso' {C : precategory} {a b : C} (f : a --> b) (f' : iso a b) (deref : pr1 f' = f) : f · inv_from_iso f' = identity _.
