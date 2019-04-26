@@ -135,6 +135,10 @@ Section Nat.
   Goal subterm term_one (●0) = term_zero.
   Proof. apply stack_extens. exact (idpath _). Qed.
 
+  (** Goal which needs to be proved **)
+  Goal depth term_zero = 1.
+  Proof. Abort.
+
 End Nat.
 
 Section Bool.

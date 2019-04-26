@@ -1005,7 +1005,6 @@ Section Term.
         * assumption.
   Defined.
 
-
   Lemma length_terms2stack {n: nat} (s: Vector (Term sigma) n):
     ∏ i:  ⟦ n ⟧, length (el s i) ≤ length (terms2stack s).
   Proof.
@@ -1107,6 +1106,23 @@ Section Term.
       induction t as [[lent vect] prooft].
       exact (X lent lent (isreflnatleh _) vect prooft).
   Defined.
+
+  (** Cannot prove this lemma **)
+
+  Lemma term_ind_destruct (nm: names sigma) (v: Vector (Term sigma) (arity nm)):
+    ∏ (P: Term sigma → UU)
+      (Ind: ∏ (nm: names sigma) (vterm: Vector (Term sigma) (arity nm)),
+              (∏ (i:  ⟦ arity nm ⟧), P (el vterm i)) → P (term_op nm vterm)),
+    term_ind P Ind (term_op nm v) = Ind nm v (λ i:  ⟦ arity nm ⟧, term_ind P Ind (el v i)).
+  Proof.
+    intros.
+  Abort.
+
+  Definition depth (t: Term sigma): nat
+    := term_ind ( λ t: Term sigma, nat)
+                ( λ (nm: names sigma) (vterm: Vector (Term sigma) (arity nm))
+                    (levels: ⟦ arity nm ⟧ → nat), 1 + vector_foldr max 0 (mk_vector levels) )
+                t.
 
   Definition subterm (t: Term sigma): ⟦ arity (princ_op t) ⟧ → Term sigma.
   Proof.
