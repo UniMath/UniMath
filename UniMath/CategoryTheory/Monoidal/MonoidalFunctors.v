@@ -103,6 +103,30 @@ Section swapped_tensor.
   Let tensor := monoidal_precat_tensor Mon.
   Let tensor' := monoidal_precat_tensor Mon'.
 
+Lemma swapping_of_lax_monoidal_functor_assoc (Fun: lax_monoidal_functor Mon Mon'):
+    let F := pr1 Fun in let μ := pr1 (pr2 (pr2 Fun)) in
+  monoidal_functor_associativity (swapping_of_monoidal_precat Mon) (swapping_of_monoidal_precat Mon') F
+                                 (pre_whisker binswap_pair_functor μ).
+Proof.
+  induction Fun as [F [ϵ [μ [Hass Hunit]]]].
+  red. intros x y z.
+  set (Hass_inst := Hass z y x).
+  apply pathsinv0. rewrite <- assoc. apply iso_inv_on_right.
+  transparent assert (is : (is_iso (# F ((pr1 (monoidal_precat_associator Mon)) ((z, y), x))))).
+  { apply functor_on_is_iso_is_iso.
+    apply monoidal_precat_associator.
+  }
+  set (Hass_inst' := iso_inv_on_left _ _ _ _ _ (_,, is) _ (! Hass_inst)).
+  eapply pathscomp0.
+  { exact Hass_inst'. }
+  clear Hass_inst Hass_inst'.
+  do 2 rewrite assoc.
+  apply cancel_precomposition.
+  eapply pathscomp0.
+  2: { cbn. apply functor_on_inv_from_iso'. }
+  apply idpath.
+Qed.
+
 Definition swapping_of_lax_monoidal_functor: lax_monoidal_functor Mon Mon' ->
   lax_monoidal_functor (swapping_of_monoidal_precat Mon)
                        (swapping_of_monoidal_precat Mon').
@@ -113,25 +137,8 @@ Proof.
   - exact F.
   - exact ϵ.
   - exact (pre_whisker binswap_pair_functor μ).
-  - red. intros x y z.
-    set (Hass_inst := Hass z y x).
-    apply pathsinv0. rewrite <- assoc. apply iso_inv_on_right.
-    transparent assert (is : (is_iso (# F ((pr1 (monoidal_precat_associator Mon)) ((z, y), x))))).
-    { apply functor_on_is_iso_is_iso.
-      apply monoidal_precat_associator.
-    }
-    set (Hass_inst' := iso_inv_on_left _ _ _ _ _ (_,, is) _ (! Hass_inst)).
-    eapply pathscomp0.
-    { exact Hass_inst'. }
-    clear Hass_inst Hass_inst'.
-    do 2 rewrite assoc.
-    apply cancel_precomposition.
-    eapply pathscomp0.
-    2: { cbn. apply functor_on_inv_from_iso'. }
-    apply idpath.
-  - red. intro x.
-    induction (Hunit x) as [Hunit1 Hunit2].
-    split; assumption.
+  - apply (swapping_of_lax_monoidal_functor_assoc (F,, (ϵ,, (μ,, (Hass,, Hunit))))).
+  - abstract ( red; intro x; induction (Hunit x) as [Hunit1 Hunit2]; split; assumption ).
 Defined.
 
 Definition swapping_of_strong_monoidal_functor: strong_monoidal_functor Mon Mon' ->

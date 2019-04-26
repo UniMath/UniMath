@@ -179,76 +179,92 @@ Section swapped_tensor.
 
 Definition swapping_of_tensor: C ⊠ C ⟶ C := functor_composite binswap_pair_functor tensor.
 
+Definition associator_swapping_of_tensor: associator swapping_of_tensor.
+Proof.
+  set (α := monoidal_precat_associator M).
+  set (α' := nat_iso_to_trans_inv α).
+  red.
+  set (trafo := (pre_whisker reverse_three_args α'): (assoc_left swapping_of_tensor) ⟹ (assoc_right swapping_of_tensor)).
+  assert (tisiso: is_nat_iso trafo).
+  { red. intro c. set (aux := pr2 (nat_iso_inv α)).
+    apply (pre_whisker_iso_is_iso reverse_three_args α' aux).
+  }
+  exact (trafo,, tisiso).
+Defined.
+
+Lemma triangle_eq_swapping_of_tensor: triangle_eq swapping_of_tensor (monoidal_precat_unit M)
+  (monoidal_precat_right_unitor M) (monoidal_precat_left_unitor M) associator_swapping_of_tensor.
+Proof.
+  red. intros a b. cbn.
+  set (H := pr1 (monoidal_precat_eq M)).
+  unfold triangle_eq in H.
+  eapply pathscomp0.
+  2: { apply cancel_precomposition.
+       apply pathsinv0.
+       apply H. }
+  clear H.
+  rewrite assoc.
+  eapply pathscomp0.
+  { apply pathsinv0.
+    apply id_left. }
+  apply cancel_postcomposition.
+  apply pathsinv0.
+  apply iso_after_iso_inv.
+Qed.
+
+Lemma pentagon_eq_swapping_of_tensor: pentagon_eq swapping_of_tensor associator_swapping_of_tensor.
+Proof.
+  red. intros a b c d. cbn.
+  set (H := pr2 (monoidal_precat_eq M)).
+  unfold pentagon_eq in H.
+  apply iso_inv_on_right.
+  apply pathsinv0.
+  apply inv_iso_unique'.
+  unfold precomp_with.
+  rewrite assoc.
+  eapply pathscomp0.
+  { apply cancel_postcomposition.
+    apply H. }
+  clear H.
+  repeat rewrite assoc.
+  eapply pathscomp0.
+  { do 2 apply cancel_postcomposition.
+    rewrite <- assoc.
+    apply cancel_precomposition.
+    apply pathsinv0.
+    apply (functor_comp (functor_fix_fst_arg _ _ _ tensor d)).
+  }
+  eapply pathscomp0.
+  { do 2 apply cancel_postcomposition.
+    apply cancel_precomposition.
+    apply maponpaths.
+    apply (iso_inv_after_iso (mk_iso (pr2 (monoidal_precat_associator M) ((c, b), a)))). }
+  rewrite functor_id.
+  rewrite id_right.
+  eapply pathscomp0.
+  { apply cancel_postcomposition.
+    rewrite <- assoc.
+    apply cancel_precomposition.
+    apply (iso_inv_after_iso (mk_iso (pr2 (monoidal_precat_associator M) ((d, tensor (c, b)), a)))). }
+  rewrite id_right.
+  eapply pathscomp0.
+  apply pathsinv0.
+  apply (functor_comp (functor_fix_snd_arg _ _ _ tensor a)).
+  eapply pathscomp0.
+  { apply maponpaths.
+    apply (iso_inv_after_iso (mk_iso (pr2 (monoidal_precat_associator M) ((d, c), b)))). }
+  use functor_id.
+Qed.
+
 Definition swapping_of_monoidal_precat: monoidal_precat.
 Proof.
   use (mk_monoidal_precat C swapping_of_tensor).
   - exact (monoidal_precat_unit M).
   - apply monoidal_precat_right_unitor.
   - apply monoidal_precat_left_unitor.
-  - set (α := monoidal_precat_associator M).
-    set (α' := nat_iso_to_trans_inv α).
-    red.
-    set (trafo := (pre_whisker reverse_three_args α'): (assoc_left swapping_of_tensor) ⟹ (assoc_right swapping_of_tensor)).
-    assert (tisiso: is_nat_iso trafo).
-    { red. intro c. set (aux := pr2 (nat_iso_inv α)).
-      apply (pre_whisker_iso_is_iso reverse_three_args α' aux).
-    }
-    exact (trafo,, tisiso).
-  - red. intros a b. cbn.
-    set (H := pr1 (monoidal_precat_eq M)).
-    unfold triangle_eq in H.
-    eapply pathscomp0.
-    2: { apply cancel_precomposition.
-         apply pathsinv0.
-         apply H. }
-    clear H.
-    rewrite assoc.
-    eapply pathscomp0.
-    { apply pathsinv0.
-      apply id_left. }
-    apply cancel_postcomposition.
-    apply pathsinv0.
-    apply iso_after_iso_inv.
-  - red. intros a b c d. cbn.
-    set (H := pr2 (monoidal_precat_eq M)).
-    unfold pentagon_eq in H.
-    apply iso_inv_on_right.
-    apply pathsinv0.
-    apply inv_iso_unique'.
-    unfold precomp_with.
-    rewrite assoc.
-    eapply pathscomp0.
-    { apply cancel_postcomposition.
-      apply H. }
-    clear H.
-    repeat rewrite assoc.
-    eapply pathscomp0.
-    { do 2 apply cancel_postcomposition.
-      rewrite <- assoc.
-      apply cancel_precomposition.
-      apply pathsinv0.
-      apply (functor_comp (functor_fix_fst_arg _ _ _ tensor d)).
-    }
-    eapply pathscomp0.
-    { do 2 apply cancel_postcomposition.
-      apply cancel_precomposition.
-      apply maponpaths.
-      apply (iso_inv_after_iso (mk_iso (pr2 (monoidal_precat_associator M) ((c, b), a)))). }
-    rewrite functor_id.
-    rewrite id_right.
-    eapply pathscomp0.
-    { apply cancel_postcomposition.
-      rewrite <- assoc.
-      apply cancel_precomposition.
-      apply (iso_inv_after_iso (mk_iso (pr2 (monoidal_precat_associator M) ((d, tensor (c, b)), a)))). }
-    rewrite id_right.
-    eapply pathscomp0.
-    apply pathsinv0.
-    apply (functor_comp (functor_fix_snd_arg _ _ _ tensor a)).
-    eapply pathscomp0.
-    { apply maponpaths.
-      apply (iso_inv_after_iso (mk_iso (pr2 (monoidal_precat_associator M) ((d, c), b)))). }
-    use functor_id.
+  - exact associator_swapping_of_tensor.
+  - exact triangle_eq_swapping_of_tensor.
+  - exact pentagon_eq_swapping_of_tensor.
 Defined.
 
 End swapped_tensor.
