@@ -187,7 +187,7 @@ Proof.
     rewrite <-  assoc.
     apply cancel_precomposition.
     exact (triangle_right B).
-Defined.
+Qed.
 
 Lemma adjuncts_mutually_inverse2 {C D : precategory} {A : D} {B : C}
       {L : functor D C} {R : functor C D} (h : are_adjoints L R)
@@ -217,7 +217,7 @@ Proof.
     rewrite assoc.
     apply cancel_postcomposition.
     exact (triangle_left A).
-Defined.
+Qed.
 
 (*  Locate "-->".
   Print φ_adj.
@@ -247,12 +247,12 @@ Lemma isaprop_are_conjugates {C C' D D' : precategory} {L : functor D C} {R : fu
       (h : are_adjoints L R) (h' : are_adjoints L' R')
       (σ : DistrLaw L' L K H) (τ : DistrLaw K H R R') (hs: has_homsets D') :
   isaprop (are_conjugates h h' σ τ).
-  Proof.
-    apply impred; intro d.
-    apply impred; intro c.
-    apply impred; intro f.
-    apply hs.
-  Qed.
+Proof.
+  apply impred; intro d.
+  apply impred; intro c.
+  apply impred; intro f.
+  apply hs.
+Qed.
 
 Lemma isaprop_are_conjugates'  {C C' D D' : precategory} {L : functor D C} {R : functor C D}
       {L' : functor D' C'} {R' : functor C' D'} {H : functor C C'} {K : functor D D' }
@@ -314,7 +314,7 @@ Proof.
       apply φ_adj_inv_after_φ_adj.
     }
     exact hyp.
-Defined.
+Qed.
 
 
 Definition σ_data_from_τ {C C' D D' : precategory} {L : functor D C} {R : functor C D}
@@ -323,11 +323,11 @@ Definition σ_data_from_τ {C C' D D' : precategory} {L : functor D C} {R : func
            (τ : DistrLaw K H R R') : DistrLaw_data L' L K H :=
   λ A : D, φ_adj_inv h' (#K (unit_from_are_adjoints h A) · nat_trans_data_from_nat_trans τ (L A)).
 
-Definition σ_from_τ {C C' D D' : precategory} {L : functor D C} {R : functor C D}
-  {L' : functor D' C'} {R' : functor C' D'} {H : functor C C'} {K : functor D D' }
-  (h : are_adjoints L R) (h' : are_adjoints L' R') (τ : DistrLaw K H R R') : DistrLaw L' L K H.
+Lemma is_nat_trans_σ_data_from_τ {C C' D D' : precategory} {L : functor D C} {R : functor C D}
+           {L' : functor D' C'} {R' : functor C' D'} {H : functor C C'} {K : functor D D' }
+           (h : are_adjoints L R) (h' : are_adjoints L' R')
+           (τ : DistrLaw K H R R') : is_nat_trans _ _ (σ_data_from_τ h h' τ).
 Proof.
-  apply (mk_nat_trans _ _ (σ_data_from_τ h h' τ)).
   red.
   intros d d' f.
   unfold σ_data_from_τ.
@@ -380,6 +380,13 @@ Proof.
   apply Hη.
 Defined.
 
+Definition σ_from_τ {C C' D D' : precategory} {L : functor D C} {R : functor C D}
+  {L' : functor D' C'} {R' : functor C' D'} {H : functor C C'} {K : functor D D' }
+  (h : are_adjoints L R) (h' : are_adjoints L' R') (τ : DistrLaw K H R R') : DistrLaw L' L K H.
+Proof.
+  apply (mk_nat_trans _ _ (σ_data_from_τ h h' τ)).
+  apply is_nat_trans_σ_data_from_τ.
+Defined.
 
 Lemma σ_from_τ_is_conjugate {C C' D D' : precategory} {L : functor D C}
       {R : functor C D} {L' : functor D' C'} {R' : functor C' D'} {H : functor C C'} {K : functor D D' }
@@ -424,12 +431,11 @@ Definition τ_data_from_σ {C C' D D' : precategory} {L : functor D C} {R : func
   DistrLaw_data K H R R' :=
   λ B : C, φ_adj h' (nat_trans_data_from_nat_trans σ (R B) · #H (counit_from_are_adjoints h B)).
 
-Definition τ_from_σ {C C' D D' : precategory} {L : functor D C} {R : functor C D}
+Lemma is_nat_trans_τ_data_from_σ {C C' D D' : precategory} {L : functor D C} {R : functor C D}
            {L' : functor D' C'} {R' : functor C' D'} {H : functor C C'} {K : functor D D' }
            (h : are_adjoints L R) (h' : are_adjoints L' R') (σ : DistrLaw L' L K H) :
-  DistrLaw K H R R'.
+  is_nat_trans _ _ (τ_data_from_σ h h' σ).
 Proof.
-  apply (mk_nat_trans _ _ (τ_data_from_σ h h' σ)).
   red.
   intros c c' f.
   unfold τ_data_from_σ.
@@ -465,6 +471,15 @@ Proof.
   set (Hη := nat_trans_ax (counit_from_are_adjoints h)).
   apply pathsinv0.
   apply Hη.
+Qed.
+
+Definition τ_from_σ {C C' D D' : precategory} {L : functor D C} {R : functor C D}
+           {L' : functor D' C'} {R' : functor C' D'} {H : functor C C'} {K : functor D D' }
+           (h : are_adjoints L R) (h' : are_adjoints L' R') (σ : DistrLaw L' L K H) :
+  DistrLaw K H R R'.
+Proof.
+  apply (mk_nat_trans _ _ (τ_data_from_σ h h' σ)).
+  apply is_nat_trans_τ_data_from_σ.
 Defined.
 
 Lemma τ_from_σ_is_conjugate {C C' D D' : precategory} {L : functor D C} {R : functor C D}
@@ -507,39 +522,30 @@ Proof.
   exact (UF ∙ H = HH ∙ UG).
 Defined.
 
-Definition lifting_from_distr_law_data {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D) {F: functor C C} {G: functor D D} {H: functor C D} (lambda : DistrLaw G F H H): functor_data (FunctorAlg F hsC) (FunctorAlg G hsD).
+Definition lifting_from_distr_law_data_on_ob {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D) {F: functor C C} {G: functor D D} {H: functor C D} (lambda : DistrLaw G F H H): FunctorAlg F hsC → FunctorAlg G hsD.
 Proof.
-  use mk_functor_data.
-  simpl.
   intro Aa.
   set (A := alg_carrier _ Aa).
   set (a := alg_map _ Aa).
-  simpl in a.
   set (B := H A).
   set (b := nat_trans_data_from_nat_trans lambda A · (# H a)).
   use tpair.
-  exact B.
-  exact b.
+  - exact B.
+  - exact b.
+Defined.
 
-  simpl.
-  intros Aa Bb.
-  intro h.
-  set (H_lambda_h := #H h).
-  unfold algebra_mor.
-  simpl.
-  use tpair.
-  apply H_lambda_h.
-
+Lemma lifting_from_distr_law_data_aux {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D) {F: functor C C} {G: functor D D} {H: functor C D} (lambda : DistrLaw G F H H)(Aa Bb : algebra_ob F)(h : algebra_mor F Aa Bb)
+  : is_algebra_mor G (lifting_from_distr_law_data_on_ob hsC hsD lambda Aa)
+                     (lifting_from_distr_law_data_on_ob hsC hsD lambda Bb) (#H h).
+Proof.
   unfold is_algebra_mor.
   simpl.
-  unfold H_lambda_h.
   set (ax := nat_trans_ax lambda).
   apply pathsinv0.
   etrans.
-  rewrite assoc.
-  apply cancel_postcomposition.
-  apply ax.
-
+  { rewrite assoc.
+    apply cancel_postcomposition.
+    apply ax. }
   rewrite <- assoc.
   apply pathsinv0.
   rewrite <- assoc.
@@ -549,42 +555,53 @@ Proof.
   apply pathsinv0.
   change (# (F ∙ H) h) with (# H (# F h)).
   etrans.
-  apply pathsinv0.
-  apply (functor_comp H).
-
+  { apply pathsinv0.
+    apply (functor_comp H). }
   apply maponpaths.
   apply pathsinv0.
   apply h_commutes.
+Qed.
+
+Definition lifting_from_distr_law_data {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D) {F: functor C C} {G: functor D D} {H: functor C D} (lambda : DistrLaw G F H H): functor_data (FunctorAlg F hsC) (FunctorAlg G hsD).
+Proof.
+  use mk_functor_data.
+  - apply (lifting_from_distr_law_data_on_ob hsC hsD lambda).
+  - cbn.
+    intros Aa Bb.
+    intro h.
+    unfold algebra_mor.
+    use tpair.
+    + exact (#H h).
+    + apply lifting_from_distr_law_data_aux.
 Defined.
 
-
-Definition lifting_from_distr_law {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D) {F: functor C C} {G: functor D D} {H: functor C D} (lambda : DistrLaw G F H H): functor (FunctorAlg F hsC) (FunctorAlg G hsD).
+Lemma is_functor_lifting_from_distr_law_data {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D) {F: functor C C} {G: functor D D} {H: functor C D} (lambda : DistrLaw G F H H): is_functor (lifting_from_distr_law_data hsC hsD lambda).
 Proof.
-  set (HH_data := lifting_from_distr_law_data hsC hsD lambda).
-  use (mk_functor HH_data).
-  red.
   split.
-  - red.
-    intro Aa.
-    unfold HH_data.
+  - intro Aa.
     unfold lifting_from_distr_law_data.
-    simpl.
+    cbn.
     UniMath.MoreFoundations.Tactics.show_id_type.
     apply algebra_mor_eq.
     (*Locate algebra_mor_eq.*)
     + assumption.
-    + simpl.
+    + cbn.
       apply functor_id.
-  - red.
-    intros Aa Bb Cc f g.
-    unfold HH_data.
+  - intros Aa Bb Cc f g.
     unfold lifting_from_distr_law_data.
-    simpl.
+    cbn.
     UniMath.MoreFoundations.Tactics.show_id_type.
     apply algebra_mor_eq.
     + assumption.
-    + simpl.
+    + cbn.
       apply functor_comp.
+Qed.
+
+Definition lifting_from_distr_law {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D) {F: functor C C} {G: functor D D} {H: functor C D} (lambda : DistrLaw G F H H): functor (FunctorAlg F hsC) (FunctorAlg G hsD).
+Proof.
+  use tpair.
+  - apply (lifting_from_distr_law_data hsC hsD lambda).
+  - apply is_functor_lifting_from_distr_law_data.
 Defined.
 
 
@@ -600,7 +617,7 @@ Proof.
   - assumption.
   - UniMath.MoreFoundations.Tactics.show_id_type.
     apply idpath.
-Defined.
+Qed.
 
 (** a simple preparation for the next lemma - strictly speaking, not even needed *)
 Ltac get_sides_of_eq := match goal with |- @paths _ ?L ?R => set (left := L); set (right := R) end.
@@ -629,11 +646,10 @@ Proof.
    : functor_data (FunctorAlg F hsC) (FunctorAlg F'' hsC'')).
   transparent assert (okonobs: (functor_on_objects left' ~ functor_on_objects right')).
   { intro alg.
-    simpl.
+    cbn. unfold lifting_from_distr_law_data_on_ob. cbn.
     (* UniMath.MoreFoundations.Tactics.show_id_type. *)
     apply (maponpaths (λ p, tpair _ (H' (H (alg_carrier F alg))) p )).
-    abstract (repeat rewrite id_left; rewrite id_right;
-              rewrite <- assoc; apply maponpaths; apply functor_comp).
+    abstract ( repeat rewrite id_left; rewrite id_right; rewrite <- assoc; apply maponpaths; apply functor_comp ).
   }
   (* UniMath.MoreFoundations.Tactics.show_id_type. *)
   apply (functor_data_eq_from_nat_trans _ _ _ _ okonobs).

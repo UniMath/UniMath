@@ -205,7 +205,7 @@ Proof.
   set (TA := iso_inv_after_iso (isopair A Aiso)).
   set (TA' := iso_after_iso_inv (isopair A Aiso)).
   apply (nat_trans_eq_pointwise TA').
-Defined.
+Qed.
 
 Lemma nat_trans_inv_pointwise_inv_after (C : precategory_data) (C' : precategory)
   (hs: has_homsets C')
@@ -217,7 +217,7 @@ Proof.
   set (TA := iso_inv_after_iso (isopair A Aiso)).
   set (TA' := iso_after_iso_inv (isopair A Aiso)).
   apply (nat_trans_eq_pointwise TA).
-Defined.
+Qed.
 
 
 Definition functor_iso_pointwise_if_iso (C : precategory_data) (C' : precategory)
@@ -241,7 +241,7 @@ Proof.
   set (TA := iso_inv_after_iso (isopair A Aiso)).
   simpl in TA.
   apply (nat_trans_eq_pointwise TA).
-Defined.
+Qed.
 
 Definition pr1_pr1_functor_eq_from_functor_iso (C : precategory_data) (D : precategory)
   (hs: has_homsets D)
@@ -271,7 +271,7 @@ Lemma transport_of_functor_map_is_pointwise (C : precategory_data) (D : precateg
 Proof.
   induction gamma.
   apply idpath.
-Defined.
+Qed.
 
 Lemma nat_trans_comp_pointwise (C : precategory_data)(C' : precategory) (hs: has_homsets C')
   (F G H : ob [C, C', hs]) (A : F --> G) (A' : G --> H)
@@ -283,7 +283,7 @@ Proof.
   apply idpath.
   destruct H'.
   apply idpath.
-Defined.
+Qed.
 
 Definition pr1_functor_eq_from_functor_iso (C : precategory_data) (D : precategory)(hs: has_homsets D)
     (H : is_univalent D) (F G : ob [C , D, hs]) :

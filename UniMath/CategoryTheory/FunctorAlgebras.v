@@ -184,10 +184,7 @@ Defined.
 Definition forget_algebras (hsC: has_homsets C): functor (FunctorAlg hsC) C.
 Proof.
   apply (mk_functor (forget_algebras_data hsC)).
-  red.
-  split; red.
-  - intro alg. apply idpath.
-  - intros alg1 alg2 alg3 m n. apply idpath.
+  abstract ( split; [intro alg; apply idpath | intros alg1 alg2 alg3 m n; apply idpath] ).
 Defined.
 
 
@@ -291,8 +288,8 @@ Definition swapweq (A B : UU) : (A × B) ≃ (B × A).
 Proof.
   exists (swap A B).
   apply (isweq_iso _ (swap B A)).
-  - intro ab. destruct ab. apply idpath.
-  - intro ba. destruct ba. apply idpath.
+  - abstract ( intro ab; destruct ab; apply idpath ).
+  - abstract ( intro ba; destruct ba; apply idpath ).
 Defined.
 
 Definition algebra_iso_rearrange {X Y : FunctorAlg (pr2 H)}
@@ -381,23 +378,24 @@ Local Definition Ha' := algebra_mor_commutes _ _ _ Fa'.
 
 Lemma initialAlg_is_iso_subproof : is_inverse_in_precat a a'.
 Proof.
-assert (Ha'a : a' · a = identity A).
-  assert (algMor_a'a : is_algebra_mor _ _ _ (a' · a)).
-    unfold is_algebra_mor, a'; rewrite functor_comp.
-    eapply pathscomp0; [|eapply cancel_postcomposition; apply Ha'].
-    now apply assoc.
-  apply pathsinv0; set (X := tpair _ _ algMor_a'a).
-  now apply (maponpaths pr1 (!@InitialEndo_is_identity _ AaInitial X)).
-split; simpl; trivial.
-eapply pathscomp0; [apply Ha'|]; simpl.
-rewrite <- functor_comp.
-eapply pathscomp0; [eapply maponpaths; apply Ha'a|].
-now apply functor_id.
+  assert (Ha'a : a' · a = identity A).
+  { assert (algMor_a'a : is_algebra_mor _ _ _ (a' · a)).
+    { unfold is_algebra_mor, a'; rewrite functor_comp.
+      eapply pathscomp0; [|eapply cancel_postcomposition; apply Ha'].
+      apply assoc. }
+    apply pathsinv0; set (X := tpair _ _ algMor_a'a).
+    apply (maponpaths pr1 (!@InitialEndo_is_identity _ AaInitial X)).
+  }
+  split; trivial.
+  eapply pathscomp0; [apply Ha'|]; cbn.
+  rewrite <- functor_comp.
+  eapply pathscomp0; [eapply maponpaths; apply Ha'a|].
+  apply functor_id.
 Qed.
 
 Lemma initialAlg_is_iso : is_iso a.
 Proof.
-exact (is_iso_qinv _ a' initialAlg_is_iso_subproof).
+  exact (is_iso_qinv _ a' initialAlg_is_iso_subproof).
 Defined.
 
 End Lambeks_lemma.

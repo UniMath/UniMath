@@ -1211,7 +1211,7 @@ Proof.
   rewrite <- vassocr. rewrite vcomp_lunitor.
   rewrite vassocr. apply maponpaths_2.
   rewrite id2_rwhisker. apply id2_left.
-Defined.
+Qed.
 
 Definition lunitor_transf (a b : C)
   : bindelta_pair_functor
@@ -1236,7 +1236,7 @@ Proof.
   rewrite vcomp_runitor.
   rewrite vassocr. apply maponpaths_2.
   rewrite lwhisker_id2. apply id2_left.
-Defined.
+Qed.
 
 Definition runitor_transf (a b : C)
   : bindelta_pair_functor
@@ -1272,7 +1272,7 @@ Proof.
   intros (x1, (x2, x3)). cbn.
   unfold lassociator_fun. cbn.
   apply hcomp_lassoc.
-Defined.
+Qed.
 
 Definition lassociator_transf (a b c d : C)
   : pair_functor (functor_identity (hom a b)) hcomp_functor ∙ hcomp_functor
@@ -1305,7 +1305,7 @@ Proof.
   intros (x1, (x2, x3)). cbn.
   unfold rassociator_fun. cbn.
   apply hcomp_rassoc.
-Defined.
+Qed.
 
 Definition rassociator_transf (a b c d : C)
   : precategory_binproduct_assoc (hom a b) (hom b c) (hom c d) ∙
@@ -1333,7 +1333,7 @@ Proof.
   intros ((x1, x2), x3). cbn.
   unfold rassociator_fun. cbn.
   apply hcomp_rassoc.
-Defined.
+Qed.
 
 Definition rassociator_transf' (a b c d : C)
   : pair_functor hcomp_functor (functor_identity (hom c d)) ∙

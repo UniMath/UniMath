@@ -166,6 +166,7 @@ Proof.
       rewrite (functor_comp H).
       etrans; [apply assoc|].
       apply cancel_postcomposition.
+      rewrite pre_whisker_identity; try assumption.
       apply strength_law1_pw. }
     etrans;[|apply id_right].
     rewrite <- assoc.

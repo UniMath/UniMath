@@ -68,12 +68,12 @@ Variables C D : precategory.
 
 Lemma is_precategory_precategory_binproduct_data : is_precategory (precategory_binproduct_data C D).
 Proof.
-  repeat split; simpl; intros.
+  repeat split; intros.
   - apply dirprodeq; apply id_left.
   - apply dirprodeq; apply id_right.
   - apply dirprodeq; apply assoc.
   - apply dirprodeq; apply assoc'.
-Defined.
+Defined. (** needed for the op-related goal below *)
 
 Definition precategory_binproduct : precategory
   := tpair _ _ is_precategory_precategory_binproduct_data.
@@ -100,9 +100,11 @@ Arguments mor1 { _ _ _ _ } _ .
 Arguments mor2 { _ _ _ _ } _ .
 Local Notation "C × D" := (precategory_binproduct C D) (at level 75, right associativity).
 
+
 Goal ∏ (C D:precategory), (C × D)^op = (C^op × D^op).
   reflexivity.
 Qed.
+
 
 (** Objects and morphisms in the product precategory of two precategories *)
 Definition precatbinprodpair {C D : precategory} (X : C) (Y : D) : precategory_binproduct C D
@@ -128,10 +130,10 @@ Proof.
   apply idpath.
 Defined.
 
-Definition is_iso_binprod_iso {C D : precategory} {c c' : C} {d d' : D} {f : c --> c'} {g : d --> d'} (f_is_iso : is_iso f)
-  (g_is_iso : is_iso g) : is_iso (f #, g).
+Lemma is_iso_binprod_iso_aux {C D : precategory} {c c' : C} {d d' : D} {f : c --> c'} {g : d --> d'} (f_is_iso : is_iso f)
+  (g_is_iso : is_iso g) : is_inverse_in_precat (f #, g)
+        (inv_from_iso (isopair f f_is_iso) #, inv_from_iso (isopair g g_is_iso)).
 Proof.
-  apply (is_iso_qinv (f #, g) (inv_from_iso (isopair f f_is_iso) #, inv_from_iso (isopair g g_is_iso))).
   apply dirprodpair.
   - transitivity ((isopair f f_is_iso) · (inv_from_iso (isopair f f_is_iso)) #, (isopair g g_is_iso) · (inv_from_iso (isopair g g_is_iso))).
     + symmetry.
@@ -143,6 +145,13 @@ Proof.
       apply binprod_comp.
     + rewrite 2 iso_after_iso_inv.
       apply binprod_id.
+Qed.
+
+Definition is_iso_binprod_iso {C D : precategory} {c c' : C} {d d' : D} {f : c --> c'} {g : d --> d'} (f_is_iso : is_iso f)
+  (g_is_iso : is_iso g) : is_iso (f #, g).
+Proof.
+  apply (is_iso_qinv (f #, g) (inv_from_iso (isopair f f_is_iso) #, inv_from_iso (isopair g g_is_iso))).
+  apply is_iso_binprod_iso_aux.
 Defined.
 
 (** Isos in product precategories *)
@@ -188,9 +197,8 @@ Defined.
 Definition precategory_binproduct_assoc (C0 C1 C2 : precategory)
   : (C0 × (C1 × C2)) ⟶ ((C0 × C1) × C2).
 Proof.
-  exists (precategory_binproduct_assoc_data _ _ _). split.
-  - intros c. simpl; apply paths_refl.
-  - intros c0 c1 c2 f g. simpl; apply paths_refl.
+  exists (precategory_binproduct_assoc_data _ _ _).
+  abstract ( split; [ intros c; apply idpath | intros c0 c1 c2 f g; apply idpath] ).
 Defined.
 
 Definition precategory_binproduct_unassoc_data (C0 C1 C2 : precategory_data)
@@ -205,9 +213,8 @@ Defined.
 Definition precategory_binproduct_unassoc (C0 C1 C2 : precategory)
   : ((C0 × C1) × C2) ⟶ (C0 × (C1 × C2)).
 Proof.
-  exists (precategory_binproduct_unassoc_data _ _ _). split.
-  - intros c. simpl; apply paths_refl.
-  - intros c0 c1 c2 f g. simpl; apply paths_refl.
+  exists (precategory_binproduct_unassoc_data _ _ _).
+  abstract ( split; [ intros c; apply idpath | intros c0 c1 c2 f g; apply idpath] ).
 Defined.
 
 End assoc.
@@ -509,10 +516,9 @@ Proof.
   - intros x y f. simpl. apply (precatbinprodmor (# F f) (# G f)).
 Defined.
 
-Definition bindelta_pair_functor {C D E : precategory}
-  (F : C ⟶ D) (G : C ⟶ E) : C ⟶ (D × E).
+Lemma is_functor_bindelta_pair_functor_data (C D E : precategory)
+  (F : C ⟶ D) (G : C ⟶ E) : is_functor (bindelta_pair_functor_data _ _ _ F G).
 Proof.
-  apply (tpair _ (bindelta_pair_functor_data C D E F G)).
   split.
   - intro c.
     simpl.
@@ -524,6 +530,13 @@ Proof.
     rewrite functor_comp.
     rewrite functor_comp.
     apply idpath.
+Qed.
+
+Definition bindelta_pair_functor {C D E : precategory}
+  (F : C ⟶ D) (G : C ⟶ E) : C ⟶ (D × E).
+Proof.
+  apply (tpair _ (bindelta_pair_functor_data C D E F G)).
+  apply is_functor_bindelta_pair_functor_data.
 Defined.
 
 (* A swapping functor σ : C × D → D × C. *)

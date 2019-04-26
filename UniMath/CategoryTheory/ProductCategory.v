@@ -57,7 +57,7 @@ Section dep_product_precategory.
     - apply id_right.
     - apply assoc.
     - apply assoc'.
-  Defined.
+  Defined. (** needed for the op-related goal below *)
 
   Definition product_precategory : precategory
     := tpair _ _ is_precategory_product_precategory_data.
@@ -71,9 +71,11 @@ Section dep_product_precategory.
 
 End dep_product_precategory.
 
+
 Goal ∏ (I:UU) (C:I->precategory), product_precategory (λ i, (C i)^op) = (product_precategory C)^op.
   reflexivity.
 Qed.
+
 
 (** The product of categories is again a category. *)
 Definition product_category {I : UU} (C : I -> category) : category.
@@ -106,7 +108,7 @@ Section functors.
 (** *** Families of functors ([family_functor]) *)
 
 Definition family_functor_data (I : UU) {A B : I -> precategory}
-  (F : ∏ (i : I), functor (A i) (B i)) :
+  (F : ∏ (i : I), (A i) ⟶ (B i)) :
   functor_data (product_precategory A)
                (product_precategory B).
 Proof.
@@ -116,9 +118,8 @@ use tpair.
 Defined.
 
 Definition family_functor (I : UU) {A B : I -> precategory}
-  (F : ∏ (i : I), functor (A i) (B i)) :
-  functor (product_precategory A)
-          (product_precategory B).
+  (F : ∏ (i : I), (A i) ⟶ (B i)) :
+  (product_precategory A) ⟶ (product_precategory B).
 Proof.
 apply (tpair _ (family_functor_data I F)).
 abstract
@@ -137,7 +138,7 @@ use tpair.
 Defined.
 
 Definition pr_functor (I : UU) (C : I -> precategory) (i : I) :
-  functor (product_precategory C) (C i).
+  (product_precategory C) ⟶ (C i).
 Proof.
 apply (tpair _ (pr_functor_data I C i)).
 abstract (split; intros x *; apply idpath).
@@ -154,7 +155,7 @@ use tpair.
 Defined.
 
 Definition delta_functor (I : UU) (C : precategory) :
-  functor C (power_precategory I C).
+  C ⟶ (power_precategory I C).
 Proof.
 apply (tpair _ (delta_functor_data I C)).
 abstract (split; intros x *; apply idpath).
@@ -163,7 +164,7 @@ Defined.
 (** *** Tuple functor ([tuple_functor]) *)
 
 Definition tuple_functor_data {I : UU} {A : precategory} {B : I → precategory}
-  (F : ∏ i, functor A (B i)) : functor_data A (product_precategory B).
+  (F : ∏ i, A ⟶ (B i)) : functor_data A (product_precategory B).
 Proof.
 use tpair.
 - intros a i; exact (F i a).
@@ -171,7 +172,7 @@ use tpair.
 Defined.
 
 Lemma tuple_functor_axioms {I : UU} {A : precategory} {B : I → precategory}
-  (F : ∏ i, functor A (B i)) : is_functor (tuple_functor_data F).
+  (F : ∏ i, A ⟶ (B i)) : is_functor (tuple_functor_data F).
 Proof.
 split.
 - intros a. apply funextsec; intro i. apply functor_id.
@@ -179,11 +180,11 @@ split.
 Qed.
 
 Definition tuple_functor {I : UU} {A : precategory} {B : I → precategory}
-  (F : ∏ i, functor A (B i)) : functor A (product_precategory B)
+  (F : ∏ i, A ⟶ (B i)) : A ⟶ (product_precategory B)
     := (tuple_functor_data F,, tuple_functor_axioms F).
 
 Lemma pr_tuple_functor {I : UU} {A : precategory} {B : I → precategory} (hsB : ∏ i, has_homsets (B i))
-  (F : ∏ i, functor A (B i)) (i : I) : tuple_functor F ∙ pr_functor I B i = F i.
+  (F : ∏ i, A ⟶ (B i)) (i : I) : tuple_functor F ∙ pr_functor I B i = F i.
 Proof.
 now apply functor_eq.
 Qed.
@@ -195,7 +196,7 @@ End functors.
 (** This is a phrasing of the universal property of the product, compare to
     [weqfuntoprodtoprod]. *)
 Lemma functor_into_product_weq {I : UU} {A : category} {B : I → category} :
-  functor A (product_category B) ≃ (∏ i : I, functor A (B i)).
+  A ⟶ (product_category B) ≃ (∏ i : I, A ⟶ (B i)).
 Proof.
   use weq_iso.
   - intros ? i.
