@@ -195,6 +195,13 @@ Definition prebicat_from_monoidal : prebicat :=
 
 End Prebicat_From_Monoidal_Precat.
 
+(** *** Going into the opposite direction *)
+(** We fix a bicategory and an object of it and construct the monoidal category of endomorphisms.
+
+This part written by Ralph Matthes in 2019.
+
+*)
+
 Section Monoidal_Precat_From_Prebicat.
 
 Local Open Scope bicategory_scope.
@@ -248,7 +255,7 @@ Proof.
     * intro c.
       apply lunitor.
     * abstract ( intros a b f; apply lunitor_natural ).
-  + abstract ( intro c; apply is_iso_lunitor ).
+  + intro c; apply is_iso_lunitor.
 Defined.
 
 Local Definition build_right_unitor: right_unitor tensor (id c0).
@@ -259,90 +266,41 @@ Proof.
     * intro c.
       apply runitor.
     * abstract ( intros a b f; apply runitor_natural ).
-  + abstract ( intro c; apply is_iso_runitor ).
+  + intro c; apply is_iso_runitor.
 Defined.
 
-Definition nat_trans_associator: (assoc_left tensor) ⟹ (assoc_right tensor).
+Definition nat_trans_associator: assoc_left tensor ⟹ assoc_right tensor.
 Proof.
-  (*
+  (* very slow with library elements:
   set (aux := rassociator_transf(C := C) c0 c0 c0 c0).
   set (aux' := pre_whisker (precategory_binproduct_unassoc _ _ _) aux).
   use mk_nat_trans.
   - intro c. exact (pr1 aux' c).
   - apply (pr2 aux').
    *)
+  (* still very slow with new additions to library:
   set (aux := rassociator_transf'(C := C) c0 c0 c0 c0).
   use mk_nat_trans.
-  - intro c.  exact (pr1 aux c).
+  - intro c. exact (pr1 aux c).
   - abstract ( apply (pr2 aux) ).
+   *)
+  (* now def. by Anders Mörtberg: *)
+  exists rassociator_fun'.
+  abstract (intros f g x; apply hcomp_rassoc).
 Defined.
-
-(*
-Definition nat_trans_data_associator: nat_trans_data (assoc_left tensor) (assoc_right tensor) := λ c, rassociator_fun (pr11 c,, (pr21 c,, pr2 c)).
-
-Lemma is_nat_trans_data_associator: is_nat_trans _ _ nat_trans_data_associator.
-Proof.
-  intros a b f; unfold rassociator_fun.
-  set (rassociator_fun_natural_inst := rassociator_fun_natural (pr11 a,, (pr21 a,, pr2 a)) (pr11 b,, (pr21 b,, pr2 b)) (pr11 f,, (pr21 f,, pr2 f))).
-  unfold rassociator_fun in rassociator_fun_natural_inst.
-  (* cbn in rassociator_fun_natural_inst. *) (* if not given, then [exact] takes very long *)
-  unfold assoc_left, assoc_right.
-  unfold tensor.
-  cbn.
-  exact rassociator_fun_natural_inst.
-Qed.
-*)
 
 Local Definition build_associator: associator tensor.
 Proof.
   use mk_nat_iso.
   - exact nat_trans_associator.
-  - abstract ( intro c; apply is_iso_rassociator).
+  - intro c; apply is_iso_rassociator.
 Defined.
 
 Definition monoidal_precat_from_prebicat_and_ob: monoidal_precat.
 Proof.
   use (mk_monoidal_precat precategory_from_prebicat_and_ob tensor_from_prebicat_and_ob (id c0) build_left_unitor build_right_unitor build_associator).
   - abstract ( intros a b; apply pathsinv0; apply unit_triangle ).
-(* a historic proof without rewriting:
-    unfold hcomp.
-    intermediate_path ((runitor a ▹ b) • id2 (a · b)).
-    apply maponpaths.
-    apply lwhisker_id2.
-    intermediate_path (rassociator a (id c0) b • (id2 (a · (id c0 · b)) • (a ◃ lunitor b))).
-    2: { apply maponpaths.
-         apply (maponpaths ( λ x, vcomp2 x _)).
-         apply pathsinv0.
-         apply id2_rwhisker. }
-    eapply pathscomp0.
-    { apply id2_right. }
-    eapply pathscomp0.
-    { apply pathsinv0. apply lunitor_lwhisker. }
-    apply maponpaths.
-    apply pathsinv0.
-    apply id2_left.
-*)
   - abstract ( intros a b c d; apply pathsinv0; apply associativity_pentagon ).
-(* a historic proof without rewriting:
-    unfold hcomp.
-    eapply pathscomp0.
-    { apply pathsinv0. apply rassociator_rassociator. }
-    intermediate_path (((rassociator a b c ▹ d) • rassociator a (b · c) d) • ((id2 a ▹ b · c · d) • (a ◃ rassociator b c d))).
-    { apply maponpaths.
-      eapply pathscomp0.
-      { apply pathsinv0. apply id2_left. }
-      apply (maponpaths ( λ x, vcomp2 x _)).
-      apply pathsinv0.
-      apply id2_rwhisker.
-    }
-    apply (maponpaths ( λ x, vcomp2 x _)).
-    apply (maponpaths ( λ x, vcomp2 x _)).
-    rewrite lwhisker_id2.
-    intermediate_path ((rassociator a b c ▹ d) • id2 (a · (b · c) · d)).
-    { apply pathsinv0.
-      apply id2_right. }
-    apply idpath.
-*)
 Defined.
 
 End Monoidal_Precat_From_Prebicat.
