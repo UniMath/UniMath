@@ -30,7 +30,7 @@ Section def_equalizers.
     ∏ (w : C) (h : w --> y) (H : h · f = h · g),
       ∃! φ : w --> x, φ · e = h.
 
-  Definition mk_isEqualizer {x y z : C} (f g : y --> z) (e : x --> y)
+  Definition make_isEqualizer {x y z : C} (f g : y --> z) (e : x --> y)
              (H : e · f = e · g) :
     (∏ (w : C) (h : w --> y) (H' : h · f = h · g),
         ∃! ψ : w --> x, ψ · e = h) -> isEqualizer f g e H.
@@ -50,7 +50,7 @@ Section def_equalizers.
         {H H' : e · f = e · g} (iC : isEqualizer f g e H) :
     isEqualizer f g e H'.
   Proof.
-    use mk_isEqualizer.
+    use make_isEqualizer.
     intros w0 h H'0.
     use unique_exists.
     - exact (pr1 (pr1 (iC w0 h H'0))).
@@ -77,7 +77,7 @@ Section def_equalizers.
     ∑ e : (∑ w : C, w --> y),
           (∑ H : (pr2 e) · f = (pr2 e) · g, isEqualizer f g (pr2 e) H).
 
-  Definition mk_Equalizer {x y z : C} (f g : y --> z) (e : x --> y)
+  Definition make_Equalizer {x y z : C} (f g : y --> z) (e : x --> y)
              (H : e · f = e · g) (isE : isEqualizer f g e H) :
     Equalizer f g.
   Proof.
@@ -130,7 +130,7 @@ Section def_equalizers.
   Proof.
     assert (H'1 : φ1 · e · f = φ1 · e · g).
     rewrite <- assoc. rewrite H. rewrite assoc. apply idpath.
-    set (E' := mk_Equalizer _ _ _ _ E).
+    set (E' := make_Equalizer _ _ _ _ E).
     set (E'ar := EqualizerIn E' w (φ1 · e) H'1).
     intermediate_path E'ar.
     apply isEqualizerInUnique. apply idpath.
@@ -210,7 +210,7 @@ Section def_equalizers.
         (E E' : Equalizer f g) :
     is_inverse_in_precat (from_Equalizer_to_Equalizer E E') (from_Equalizer_to_Equalizer E' E).
   Proof.
-    use mk_is_inverse_in_precat.
+    use make_is_inverse_in_precat.
     - apply pathsinv0. use EqualizerEndo_is_identity.
       rewrite <- assoc. unfold from_Equalizer_to_Equalizer. rewrite EqualizerCommutes.
       rewrite EqualizerCommutes. apply idpath.
@@ -222,7 +222,7 @@ Section def_equalizers.
   Definition z_iso_from_Equalizer_to_Equalizer {y z : C} {f g : y --> z}
              (E E' : Equalizer f g) : z_iso E E'.
   Proof.
-    use mk_z_iso.
+    use make_z_iso.
     - exact (from_Equalizer_to_Equalizer E E').
     - exact (from_Equalizer_to_Equalizer E' E).
     - exact (z_iso_from_Equalizer_to_Equalizer_inverses E E').
@@ -234,7 +234,7 @@ Section def_equalizers.
   Lemma EqualizerArrowisMonic {y z : C} {f g : y --> z} (E : Equalizer f g ) :
     isMonic (EqualizerArrow E).
   Proof.
-    apply mk_isMonic.
+    apply make_isMonic.
     intros z0 g0 h X.
     apply (EqualizerInsEq E).
     apply X.
@@ -243,7 +243,7 @@ Section def_equalizers.
   Lemma EqualizerArrowMonic {y z : C} {f g : y --> z} (E : Equalizer f g ) :
     Monic _ E y.
   Proof.
-    exact (mk_Monic C (EqualizerArrow E) (EqualizerArrowisMonic E)).
+    exact (make_Monic C (EqualizerArrow E) (EqualizerArrowisMonic E)).
   Defined.
 
 
@@ -276,7 +276,7 @@ Section Equalizers'.
 
   Definition isEqualizer'_weq (is : isEqualizer') :
     ∏ a, (a --> E) ≃ (∑ k : a --> c, (k · f = k · g)) :=
-    λ a, weqpair (postcomp_with_equalizer_mor a) (is a).
+    λ a, make_weq (postcomp_with_equalizer_mor a) (is a).
 
   Lemma isaprop_isEqualizer' : isaprop isEqualizer'.
   Proof.

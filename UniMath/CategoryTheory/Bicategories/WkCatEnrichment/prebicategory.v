@@ -78,7 +78,7 @@ Definition compose_functor {C : prebicategory_id_comp} (a b c : C)
   := pr2 (pr2 C) a b c.
 
 Definition compose1 {C : prebicategory_id_comp} {a b c : C} (f : a -1-> b) (g : b -1-> c)
-  := functor_on_objects (compose_functor a b c) (dirprodpair f g).
+  := functor_on_objects (compose_functor a b c) (make_dirprod f g).
 
 Local Notation "f  ';1;'  g" := (compose1 f g)
   (at level 50, left associativity).
@@ -158,7 +158,7 @@ Definition associator_2mor {C : prebicategory_data} {a b c d : C}
            (g : b -1-> c)
            (h : c -1-> d)
   : (f ;1; (g ;1; h)) -2-> ((f ;1; g) ;1; h)
-  := associator_trans a b c d (precatbinprodpair f (precatbinprodpair g h)).
+  := associator_trans a b c d (make_precatbinprod f (make_precatbinprod g h)).
 
 Definition left_unitor_trans {C : prebicategory_data} (a b : C)
   : bindelta_pair_functor
@@ -301,7 +301,7 @@ Lemma horizontal_comp_id {C : prebicategory_id_comp} {a b c : C}
 Proof.
   unfold compose2h.
   intermediate_path (functor_on_morphisms (compose_functor a b c)
-            (identity (precatbinprodpair f g))).
+            (identity (make_precatbinprod f g))).
     reflexivity.
   apply functor_id.
 Defined.

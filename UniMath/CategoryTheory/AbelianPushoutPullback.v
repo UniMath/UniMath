@@ -95,7 +95,7 @@ Section pushout_monic_pullback_epi.
                            (g · to_In2 (A:=AbelianToPreAdditive A hs) DS)).
     set (CK := AdditiveCoequalizerToCokernel (AbelianToAdditive A hs) _ _ CE).
     set (M1 := @isMonic_to_binop_BinDirectSum1' (AbelianToAdditive A hs) x y z f g DS).
-    set (K := MonicToKernel' A hs (mk_Monic _ _ M1) CK).
+    set (K := MonicToKernel' A hs (make_Monic _ _ M1) CK).
     use (@to_isMonic (AbelianToAdditive A hs)).
     intros z0 g0 H. cbn in H. rewrite assoc in H.
     set (φ := KernelIn _ K z0 (g0 · to_In2 (A:=AbelianToPreAdditive A hs) DS) H).
@@ -131,7 +131,7 @@ Section pushout_monic_pullback_epi.
   Lemma AbelianPushoutMonic1 {x y z : A} (f : x --> y) (g : Monic A x z) (Po : Pushout f g) :
     Monics.isMonic (PushoutIn1 Po).
   Proof.
-    set (Po' := mk_Pushout _ _ _ _ _ _ (is_symmetric_isPushout hs _ (isPushout_Pushout Po))).
+    set (Po' := make_Pushout _ _ _ _ _ _ (is_symmetric_isPushout hs _ (isPushout_Pushout Po))).
     use (AbelianPushoutMonic2 g f Po').
   Qed.
 
@@ -194,7 +194,7 @@ Section pushout_monic_pullback_epi.
       + exact (PushoutSqrCommutes _ ).
       + set (K := MonicToKernel f).
         set (CK := Abelian.Cokernel f). fold CK in K.
-        use mk_isPullback.
+        use make_isPullback.
         intros e h k Hk.
         use unique_exists.
         * use (KernelIn (to_Zero A) K).
@@ -220,7 +220,7 @@ Section pushout_monic_pullback_epi.
   Lemma AbelianPushoutMonicisPullback2 {x y z : A} (f : x --> y) (g : Monic A x z)
         (Po : Pushout f g) : isPullback (PushoutIn1 Po) (PushoutIn2 Po) f g (PushoutSqrCommutes Po).
   Proof.
-    set (Po' := mk_Pushout _ _ _ _ _ _ (is_symmetric_isPushout hs _ (isPushout_Pushout Po))).
+    set (Po' := make_Pushout _ _ _ _ _ _ (is_symmetric_isPushout hs _ (isPushout_Pushout Po))).
     use is_symmetric_isPullback.
     - exact hs.
     - exact (! (PushoutSqrCommutes _ )).
@@ -251,7 +251,7 @@ Section pushout_monic_pullback_epi.
     set (E := Equalizer A hs ((to_Pr1 DS) · f) ((to_Pr2 DS) · g)).
     set (K := AdditiveEqualizerToKernel (AbelianToAdditive A hs) _ _ E).
     set (E1 := @isEpi_to_binop_BinDirectSum1' (AbelianToAdditive A hs) x y z f g DS).
-    set (CK := EpiToCokernel' A hs (mk_Epi _ _ E1) K).
+    set (CK := EpiToCokernel' A hs (make_Epi _ _ E1) K).
     use (@to_isEpi (AbelianToAdditive A hs)).
     intros z0 g0 H. cbn in H. cbn. rewrite <- assoc in H.
     set (φ := CokernelOut _ CK z0 (to_Pr2 DS · g0) H).
@@ -286,7 +286,7 @@ Section pushout_monic_pullback_epi.
   Lemma AbelianPullbackEpi1 {x y z : A} (f : x --> z) (g : Epi A y z) (Pb : Pullback f g) :
     Epis.isEpi (PullbackPr1 Pb).
   Proof.
-    set (Pb' := mk_Pullback _ _ _ _ _ _ (is_symmetric_isPullback hs _ (isPullback_Pullback Pb))).
+    set (Pb' := make_Pullback _ _ _ _ _ _ (is_symmetric_isPullback hs _ (isPullback_Pullback Pb))).
     use (AbelianPullbackEpi2 g f Pb').
   Qed.
 
@@ -347,7 +347,7 @@ Section pushout_monic_pullback_epi.
       + exact (PullbackSqrCommutes _ ).
       + set (CK := EpiToCokernel f).
         set (K := Abelian.Kernel f). fold K in CK.
-        use mk_isPushout.
+        use make_isPushout.
         intros e h k Hk.
         use unique_exists.
         * use (CokernelOut (to_Zero A) CK).
@@ -373,7 +373,7 @@ Section pushout_monic_pullback_epi.
   Lemma AbelianPullbackEpiisPushout2 {x y z : A} (f : x --> z) (g : Epi A y z) (Pb : Pullback f g) :
     isPushout (PullbackPr1 Pb) (PullbackPr2 Pb) f g (PullbackSqrCommutes Pb).
   Proof.
-    set (Pb' := mk_Pullback _ _ _ _ _ _ (is_symmetric_isPullback hs _ (isPullback_Pullback Pb))).
+    set (Pb' := make_Pullback _ _ _ _ _ _ (is_symmetric_isPullback hs _ (isPullback_Pullback Pb))).
     use is_symmetric_isPushout.
     - exact hs.
     - exact (! (PullbackSqrCommutes _ )).

@@ -17,7 +17,7 @@ Local Open Scope cat.
 Notation "'id' X" := (identity X) (at level 30).
 
 Notation "C ⊠ D" := (precategory_binproduct C D) (at level 38).
-Notation "( c , d )" := (precatbinprodpair c d).
+Notation "( c , d )" := (make_precatbinprod c d).
 Notation "( f #, g )" := (precatbinprodmor f g).
 
 Section Monoidal_Precat.

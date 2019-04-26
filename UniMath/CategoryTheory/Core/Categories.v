@@ -21,7 +21,7 @@ Require Import UniMath.MoreFoundations.Notations.
 Definition precategory_ob_mor : UU
   := ∑ ob : UU, ob -> ob -> UU.
 
-Definition precategory_ob_mor_pair (ob : UU)(mor : ob -> ob -> UU) :
+Definition make_precategory_ob_mor (ob : UU)(mor : ob -> ob -> UU) :
     precategory_ob_mor := tpair _ ob mor.
 
 Definition ob (C : precategory_ob_mor) : UU := @pr1 _ _ C.
@@ -64,11 +64,11 @@ Definition precategory_id_comp (C : precategory_ob_mor) : UU
 
 Definition precategory_data : UU := ∑ X, precategory_id_comp X.
 
-Definition precategory_data_pair (C : precategory_ob_mor)
+Definition make_precategory_data (C : precategory_ob_mor)
     (id : ∏ c : C, c --> c)
     (comp: ∏ a b c : C, a --> b -> b --> c -> a --> c)
   : precategory_data
-  := tpair _ C (dirprodpair id comp).
+  := tpair _ C (make_dirprod id comp).
 
 Definition precategory_ob_mor_from_precategory_data (C : precategory_data) :
      precategory_ob_mor := pr1 C.
@@ -125,7 +125,7 @@ Definition is_precategory_one_assoc_to_two (C : precategory_data) :
   is_precategory_one_assoc C -> is_precategory C
   := λ i, (pr11 i,,pr21 i),,(pr2 i,,λ a b c d f g h, pathsinv0 (pr2 i a b c d f g h)).
 
-Definition mk_is_precategory {C : precategory_data}
+Definition make_is_precategory {C : precategory_data}
            (H1 : ∏ (a b : C) (f : a --> b), identity a · f = f)
            (H2 : ∏ (a b : C) (f : a --> b), f · identity b = f)
            (H3 : ∏ (a b c d : C) (f : a --> b) (g : b --> c) (h : c --> d), f · (g · h) = (f · g) · h)
@@ -133,7 +133,7 @@ Definition mk_is_precategory {C : precategory_data}
   : is_precategory C
   := (H1,,H2),,(H3,,H4).
 
-Definition mk_is_precategory_one_assoc {C : precategory_data}
+Definition make_is_precategory_one_assoc {C : precategory_data}
            (H1 : ∏ (a b : C) (f : a --> b), identity a · f = f)
            (H2 : ∏ (a b : C) (f : a --> b), f · identity b = f)
            (H3 : ∏ (a b c d : C) (f : a --> b) (g : b --> c) (h : c --> d), f · (g · h) = (f · g) · h)
@@ -142,11 +142,11 @@ Definition mk_is_precategory_one_assoc {C : precategory_data}
 
 Definition precategory := total2 is_precategory.
 
-Definition mk_precategory (C : precategory_data) (H : is_precategory C)
+Definition make_precategory (C : precategory_data) (H : is_precategory C)
   : precategory
   := tpair _ C H.
 
-Definition mk_precategory_one_assoc (C : precategory_data) (H : is_precategory_one_assoc C)
+Definition make_precategory_one_assoc (C : precategory_data) (H : is_precategory_one_assoc C)
   : precategory
   := tpair _ C (is_precategory_one_assoc_to_two C H).
 
@@ -163,14 +163,10 @@ Proof.
 Qed.
 
 Definition category := ∑ C:precategory, has_homsets C.
-Definition category_pair C h : category := C,,h.
+Definition make_category C h : category := C,,h.
 Definition category_to_precategory : category -> precategory := pr1.
 Coercion category_to_precategory : category >-> precategory.
 Definition homset_property (C : category) : has_homsets C := pr2 C.
-
-
-Definition precategory_pair (C:precategory_data) (i:is_precategory C)
-  : precategory := C,,i.
 
 Definition makecategory
     (obj : UU)
@@ -185,9 +181,9 @@ Definition makecategory
     (associativity' : ∏ a b c d (f:mor a b) (g:mor b c) (h:mor c d),
         compose _ _ _ (compose _ _ _ f g) h = compose _ _ _ f (compose _ _ _ g h))
   : category
-  := (precategory_pair
-           (precategory_data_pair
-              (precategory_ob_mor_pair
+  := (make_precategory
+           (make_precategory_data
+              (make_precategory_ob_mor
                  obj
                  (λ i j, mor i j))
               identity compose)

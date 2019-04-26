@@ -88,7 +88,7 @@ Section products_set_slice.
 Lemma Products_HSET_slice I X : Products I (HSET / X).
 Proof.
 intros F.
-use mk_Product.
+use make_Product.
 + use tpair.
   - exists (∑ x : pr1 X, ∏ i : I, hfiber_hSet (pr2 (F i)) x).
     abstract (apply isaset_total2; [apply setproperty|];
@@ -141,7 +141,7 @@ Defined.
 Definition hfiber_functor (X : HSET) (f : HSET / X) :
   functor (HSET / X) (HSET / X).
 Proof.
-  use mk_functor.
+  use make_functor.
   + use tpair.
     * apply (hfiber_fun _ f).
     * cbn. intros a b g.
@@ -173,7 +173,7 @@ Local Definition eta X (f : HSET / X) :
   nat_trans (functor_identity (HSET / X))
             (functor_composite (constprod_functor1 (BinProducts_HSET_slice X) f) (hfiber_functor X f)).
 Proof.
-  use mk_nat_trans.
+  use make_nat_trans.
   + intros g; simpl.
     use tpair.
     * intros y; simpl.
@@ -192,7 +192,7 @@ Local Definition eps X (f : HSET / X) :
   nat_trans (functor_composite (hfiber_functor X f) (constprod_functor1 (BinProducts_HSET_slice X) f))
             (functor_identity (HSET / X)).
 Proof.
-  use mk_nat_trans.
+  use make_nat_trans.
   + intros g; simpl.
     use tpair.
     * intros H; apply (pr1 ((pr2 (pr2 (pr1 H))) (pr1 (pr1 H),,pr2 H))).
@@ -207,7 +207,7 @@ Lemma Exponentials_HSET_slice (X : HSET) : Exponentials (BinProducts_HSET_slice 
 Proof.
   intros f.
   exists (hfiber_functor _ f).
-  use mk_are_adjoints.
+  use make_are_adjoints.
   - apply eta.
   - apply eps.
   - split.

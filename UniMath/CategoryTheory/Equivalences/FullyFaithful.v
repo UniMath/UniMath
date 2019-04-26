@@ -141,11 +141,11 @@ Section HomtypeProperties.
     intermediate_weq (D ⟦ F (pr1 c), F (pr1 c') ⟧).
     - apply weq_from_fully_faithful; assumption.
     - intermediate_weq (D ⟦ F (pr1 c), d' ⟧).
-      + eapply weqpair.
+      + eapply make_weq.
         apply iso_comp_left_isweq.
         Unshelve.
         exact (pr2 c').
-      + eapply weqpair.
+      + eapply make_weq.
         apply iso_comp_right_weq.
         Unshelve.
         exact (iso_inv_from_is_iso (pr1 (pr2 c)) (pr2 (pr2 c))).
@@ -183,7 +183,7 @@ Section HomtypeProperties.
             (FES : essentially_surjective F) (hsC : has_homsets C) : has_homsets D.
   Proof.
     refine (ff_es_homtype_property FFF FES
-              (λ t, hProppair _ (isapropisaset t)) _).
+              (λ t, make_hProp _ (isapropisaset t)) _).
     apply hsC.
   Defined.
 

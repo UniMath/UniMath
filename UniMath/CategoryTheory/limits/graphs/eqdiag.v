@@ -174,7 +174,7 @@ Proof.
   clear.
   intros.
   destruct heq_d as [heq heq2].
-  use mk_cocone.
+  use make_cocone.
   intro v.
   use (transportf (λ obj, C⟦obj,_⟧ ) (heq v)); simpl.
   apply (coconeIn cc).
@@ -208,7 +208,7 @@ Proof.
   intros.
   set (heq := pr1 heq_d).
   set (heq2 := pr2 heq_d).
-  use mk_cone.
+  use make_cone.
   intro v.
   apply (transportf (λ obj, C⟦_,obj⟧ ) (heq v) (coneOut cc v)).
     abstract(
@@ -341,7 +341,7 @@ Definition eq_diag_liftcolimcocone
            (d' : diagram g C)
            (eq_d : eq_diag d d')
            (cc:ColimCocone d ) : ColimCocone d'
-  := mk_ColimCocone _ _ _ (eq_diag_iscolimcocone _ eq_d
+  := make_ColimCocone _ _ _ (eq_diag_iscolimcocone _ eq_d
                                                  (isColimCocone_ColimCocone cc)).
 
 Definition eq_diag_liftlimcone
@@ -349,5 +349,5 @@ Definition eq_diag_liftlimcone
            (d' : diagram g C)
            (eq_d : eq_diag d d')
            (cc:LimCone d ) : LimCone d'
-  := mk_LimCone _ _ _ (eq_diag_islimcone _ eq_d
+  := make_LimCone _ _ _ (eq_diag_islimcone _ eq_d
                                          (isLimCone_LimCone cc)).

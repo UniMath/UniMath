@@ -25,7 +25,7 @@ Require Import UniMath.CategoryTheory.categories.Type.Core.
 (** The [unit] type is a terminal object for the precategory of types. *)
 Lemma TerminalType : Terminal type_precat.
 Proof.
-  apply (mk_Terminal (unit : ob type_precat)).
+  apply (make_Terminal (unit : ob type_precat)).
   exact iscontrfuntounit.
 Defined.
 

@@ -59,7 +59,7 @@ Local Notation "p ## a" := (transportf _ p a) (at level 3, only parsing).
 (** ** Objects and a dependent type of morphisms *)
 
 Definition folds_3_ob_mor := ∑ a : UU, a → a → UU.
-Definition folds_3_ob_mor_pair (ob : UU)(mor : ob → ob → UU) : folds_3_ob_mor
+Definition make_folds_3_ob_mor (ob : UU)(mor : ob → ob → UU) : folds_3_ob_mor
   := tpair _ ob mor.
 
 Definition ob (C : folds_3_ob_mor) : UU := @pr1 _ _ C.
@@ -286,7 +286,7 @@ Qed.
 
 Definition isotoid2 (C : folds_pre_2_cat) (H : is_univalent_folds_pre_2_cat C)
   (a b : C) (f g : a ⇒ b) : folds_iso f g → f = g :=
-  invmap (weqpair _ (H a b f g)).
+  invmap (make_weq _ (H a b f g)).
 
 (** * FOLDS precategories *)
 (** We define them as special FOLDS pre-2-categories, namely such that
@@ -342,11 +342,11 @@ Hypothesis H : is_univalent_folds_pre_2_cat C.
 
 Lemma is_univalent_implies_is_folds_precat : is_folds_precategory C.
 Proof.
-  apply dirprodpair.
+  apply make_dirprod.
   - intros a b f g.
-    apply (isofhlevelweqb _ (weqpair _ (H a b f g))).
+    apply (isofhlevelweqb _ (make_weq _ (H a b f g))).
     apply isaprop_folds_2_iso.
-  - apply dirprodpair.
+  - apply make_dirprod.
     + intros. apply (isotoid2 _ H).
       apply E_implies_folds_iso.
       set (T_unique := pr1 (pr2 (pr2 (pr1 (pr2 (pr1 C)))))).

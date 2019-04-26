@@ -75,7 +75,7 @@ Proof.
     + assumption.
   - cbn.
     intros X.
-    use iscontrpair.
+    use make_iscontr.
     + use morphism_in_full_subcat.
       apply TerminalArrow.
     + intro; apply eq_in_sub_precategory; cbn.
@@ -92,7 +92,7 @@ Proof.
   intros c1' c2'.
   pose (c1'_in_C := (precategory_object_from_sub_precategory_object _ _ c1')).
   pose (c2'_in_C := (precategory_object_from_sub_precategory_object _ _ c2')).
-  use tpair; [use tpair|]; [|use dirprodpair|].
+  use tpair; [use tpair|]; [|use make_dirprod|].
   - use precategory_object_in_subcat.
     + apply (BinProductObject _ (BPC c1'_in_C c2'_in_C)).
     + apply all.
@@ -110,7 +110,7 @@ Proof.
           apply (precategory_morphism_from_sub_precategory_morphism _ (full_sub_precategory C'));
           assumption.
       * cbn.
-        use dirprodpair; apply eq_in_sub_precategory.
+        use make_dirprod; apply eq_in_sub_precategory.
         { apply BinProductPr1Commutes. }
         { apply BinProductPr2Commutes. }
     + intros otherarrow.
@@ -211,7 +211,7 @@ Proof.
     + assumption.
   - cbn.
     intros X.
-    use iscontrpair.
+    use make_iscontr.
     + use morphism_in_full_subcat.
       apply InitialArrow.
     + intro; apply eq_in_sub_precategory; cbn.
@@ -228,7 +228,7 @@ Proof.
   intros c1' c2'.
   pose (c1'_in_C := (precategory_object_from_sub_precategory_object _ _ c1')).
   pose (c2'_in_C := (precategory_object_from_sub_precategory_object _ _ c2')).
-  use tpair; [use tpair|]; [|use dirprodpair|].
+  use tpair; [use tpair|]; [|use make_dirprod|].
   - use precategory_object_in_subcat.
     + apply (BinCoproductObject _ (BPC c1'_in_C c2'_in_C)).
     + apply all.
@@ -246,7 +246,7 @@ Proof.
           apply (precategory_morphism_from_sub_precategory_morphism _ (full_sub_precategory C'));
           assumption.
       * cbn.
-        use dirprodpair; apply eq_in_sub_precategory.
+        use make_dirprod; apply eq_in_sub_precategory.
         { apply BinCoproductIn1Commutes. }
         { apply BinCoproductIn2Commutes. }
     + intros otherarrow.

@@ -45,7 +45,7 @@ Defined.
 Definition pregroupoid : UU := ∑ C : precategory, is_pregroupoid C.
 
 (** Constructors, accessors, and coersions *)
-Definition mk_pregroupoid (C : precategory) (is : is_pregroupoid C) : pregroupoid :=
+Definition make_pregroupoid (C : precategory) (is : is_pregroupoid C) : pregroupoid :=
   (C,, is).
 Definition pregroupoid_to_precategory : pregroupoid -> precategory := pr1.
 Definition pregroupoid_is_pregroupoid :
@@ -56,19 +56,19 @@ Coercion pregroupoid_to_precategory : pregroupoid >-> precategory.
 Definition groupoid : UU := ∑ C : category, is_pregroupoid C.
 
 (** Constructors, accessors, and coersions *)
-Definition mk_groupoid (C : category) (is : is_pregroupoid C) : groupoid := (C,, is).
+Definition make_groupoid (C : category) (is : is_pregroupoid C) : groupoid := (C,, is).
 Definition groupoid_to_category : groupoid -> category := pr1.
 Definition groupoid_is_pregroupoid :
   ∏ gpd : groupoid, is_pregroupoid (pr1 gpd) := pr2.
 Coercion groupoid_to_category : groupoid >-> category.
 Definition groupoid_to_pregroupoid :
-  groupoid → pregroupoid := λ gpd, mk_pregroupoid gpd (groupoid_is_pregroupoid gpd).
+  groupoid → pregroupoid := λ gpd, make_pregroupoid gpd (groupoid_is_pregroupoid gpd).
 Coercion groupoid_to_pregroupoid : groupoid >-> pregroupoid.
 
 Definition univalent_groupoid : UU := ∑ C : univalent_category, is_pregroupoid C.
 
 (** Constructors, accessors, and coersions *)
-Definition mk_univalent_groupoid (C : univalent_category) (is : is_pregroupoid C) :
+Definition make_univalent_groupoid (C : univalent_category) (is : is_pregroupoid C) :
   univalent_groupoid := (C,, is).
 Definition univalent_groupoid_to_univalent_category :
   univalent_groupoid -> univalent_category := pr1.
@@ -78,7 +78,7 @@ Definition univalent_groupoid_is_pregroupoid :
   ∏ ugpd : univalent_groupoid, is_pregroupoid (pr1 ugpd) := pr2.
 Definition univalent_groupoid_to_groupoid :
   univalent_groupoid -> groupoid :=
-  λ ugpd, mk_groupoid ugpd (univalent_groupoid_is_pregroupoid ugpd).
+  λ ugpd, make_groupoid ugpd (univalent_groupoid_is_pregroupoid ugpd).
 Coercion univalent_groupoid_to_groupoid :
   univalent_groupoid >-> groupoid.
 
@@ -154,7 +154,7 @@ Lemma univalent_groupoid_arrow_weq_path {ugpd : univalent_groupoid} {a b : ob ug
 Proof.
   intermediate_weq (iso a b).
   - apply (@pregroupoid_hom_weq_iso ugpd).
-  - apply invweq; use weqpair.
+  - apply invweq; use make_weq.
     + exact idtoiso.
     + apply univalent_category_is_univalent.
 Defined.
@@ -164,26 +164,26 @@ Defined.
 (** Every category has a subgroupoid of all the objects and only the [iso]s. *)
 Definition maximal_subgroupoid {C : precategory} : pregroupoid.
 Proof.
-  use mk_pregroupoid.
-  - use mk_precategory; use tpair.
+  use make_pregroupoid.
+  - use make_precategory; use tpair.
     + use tpair.
       * exact (ob C).
       * exact (λ a b, ∑ f : a --> b, is_iso f).
     + unfold precategory_id_comp; cbn.
-      use dirprodpair.
+      use make_dirprod.
       * exact (λ a, identity a,, identity_is_iso _ _).
       * intros ? ? ? f g; exact (pr1 g ∘ pr1 f,, is_iso_comp_of_isos f g).
-    + use dirprodpair;
+    + use make_dirprod;
         intros;
         apply eq_iso.
       * apply id_left.
       * apply id_right.
-    + use dirprodpair; intros; apply eq_iso.
+    + use make_dirprod; intros; apply eq_iso.
       * apply assoc.
       * apply assoc'.
   - intros ? ? f; use (is_iso_qinv f).
     + exact (iso_inv_from_iso f).
-    + use dirprodpair; apply eq_iso.
+    + use make_dirprod; apply eq_iso.
       * apply iso_inv_after_iso.
       * apply iso_after_iso_inv.
 Defined.
@@ -218,12 +218,12 @@ Definition is_discrete (C : precategory) :=
   (is_setcategory C × is_pregroupoid C × is_univalent C).
 
 Definition discrete_category : UU := ∑ C : precategory, is_discrete C.
-Definition mk_discrete_category :
+Definition make_discrete_category :
   ∏ C : precategory, is_discrete C → discrete_category := tpair is_discrete.
 Definition discrete_category_to_univalent_groupoid :
   discrete_category -> univalent_groupoid :=
-  λ disc, mk_univalent_groupoid
-            (mk_category (pr1 disc) (dirprod_pr2 (dirprod_pr2 (pr2 disc))))
+  λ disc, make_univalent_groupoid
+            (make_univalent_category (pr1 disc) (dirprod_pr2 (dirprod_pr2 (pr2 disc))))
             (dirprod_pr1 (dirprod_pr2 (pr2 disc))).
 Coercion discrete_category_to_univalent_groupoid :
   discrete_category >-> univalent_groupoid.
@@ -254,8 +254,8 @@ Defined.
 Lemma discrete_functor {C D : discrete_category} (f : ob C → ob D) :
   functor C D.
 Proof.
-  use mk_functor.
-  - use mk_functor_data.
+  use make_functor.
+  - use make_functor_data.
     + apply f.
     + intros a b atob.
       pose (aeqb := @univalent_groupoid_arrow_weq_path C _ _ atob).

@@ -52,7 +52,7 @@ Definition adj_from_equiv (D1 D2 : precategory) (F : functor D1 D2):
     adj_equivalence_of_precats F → is_left_adjoint F := λ x, pr1 x.
 Coercion adj_from_equiv : adj_equivalence_of_precats >-> is_left_adjoint.
 
-Definition mk_adj_equivalence_of_precats {A B : precategory} (F : functor A B)
+Definition make_adj_equivalence_of_precats {A B : precategory} (F : functor A B)
            (G : functor B A) η ε
            (H1 : form_adjunction F G η ε)
            (H2 : forms_equivalence ((F,,G,,η,,ε)))
@@ -152,15 +152,15 @@ Proof.
   = 1                                            [by inverses, 7]
 *)
 
-  apply (invmaponpathsweq (weqpair _ (iso_comp_left_isweq (isopair _ (Hη _ )) _ ))).
+  apply (invmaponpathsweq (make_weq _ (iso_comp_left_isweq (make_iso _ (Hη _ )) _ ))).
   cbn.
   apply pathsinv0. etrans. apply id_left. etrans. apply (! id_right _ ).
   apply pathsinv0.
-  apply (iso_inv_to_left _ _ _ _  (isopair _ (Hη _ ))).
-  apply (invmaponpathsweq (weqpair _ (iso_comp_left_isweq (functor_on_iso G (isopair _ (Hε _ ))) _ ))).
+  apply (iso_inv_to_left _ _ _ _  (make_iso _ (Hη _ ))).
+  apply (invmaponpathsweq (make_weq _ (iso_comp_left_isweq (functor_on_iso G (make_iso _ (Hε _ ))) _ ))).
   cbn.
-  set (XR := functor_on_iso_is_iso _ _ G _ _ (isopair _ (Hε x))).
-  set (XR' := isopair (#G (ε x)) XR). cbn in XR'.
+  set (XR := functor_on_iso_is_iso _ _ G _ _ (make_iso _ (Hε x))).
+  set (XR' := make_iso (#G (ε x)) XR). cbn in XR'.
   apply pathsinv0. etrans. apply id_left. etrans. apply (! id_right _ ).
   apply pathsinv0.
   apply (iso_inv_to_left _ _ _  _ XR').
@@ -168,10 +168,10 @@ Proof.
 
   repeat rewrite assoc.
   set (i := inv_from_iso
-    (isopair (# G (ε x))
-       (functor_on_iso_is_iso D C G (F (G x)) x (isopair (ε x) (Hε x))))).
+    (make_iso (# G (ε x))
+       (functor_on_iso_is_iso D C G (F (G x)) x (make_iso (ε x) (Hε x))))).
 
-  set (i' := inv_from_iso (isopair (η (G x)) (Hη (G x)))).
+  set (i' := inv_from_iso (make_iso (η (G x)) (Hη (G x)))).
 
   etrans. apply cancel_postcomposition. repeat rewrite <- assoc.
           rewrite etaH. apply idpath.
@@ -181,7 +181,7 @@ Proof.
           apply cancel_postcomposition. rewrite <- assoc. rewrite <- functor_comp.
           rewrite T1. rewrite functor_id. apply id_right.
   etrans. apply maponpaths. rewrite assoc. apply cancel_postcomposition.
-          use (iso_after_iso_inv (isopair _ (Hη _ ))).
+          use (iso_after_iso_inv (make_iso _ (Hη _ ))).
   rewrite id_left.
   apply (iso_after_iso_inv ).
 Defined.
@@ -273,7 +273,7 @@ Qed.
 
 Definition adjointificiation : adj_equivalence_of_precats F.
 Proof.
-  use mk_adj_equivalence_of_precats.
+  use make_adj_equivalence_of_precats.
   - exact G.
   - apply ηntiso.
   - apply ε'ntiso.
@@ -565,7 +565,7 @@ Qed.
 
 Definition rad_are_adjoints : are_adjoints F rad.
 Proof.
-  exists (dirprodpair rad_eta_trans rad_eps_trans).
+  exists (make_dirprod rad_eta_trans rad_eps_trans).
   apply rad_form_adjunction.
 Defined.
 

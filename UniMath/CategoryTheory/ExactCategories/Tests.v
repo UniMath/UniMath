@@ -123,7 +123,7 @@ Goal ∏ (M:PreAdditive) (A B:M) (AB : BinDirectSum A B), reverseBinDirectSum (r
 Abort.
 
 Local Definition hom (C:precategory_data) : ob C -> ob C -> UU := λ c c', precategory_morphisms c c'.
-Local Definition Hom (C : category) : ob C -> ob C -> hSet := λ c c', hSetpair _ (homset_property C c c').
+Local Definition Hom (C : category) : ob C -> ob C -> hSet := λ c c', make_hSet _ (homset_property C c c').
 Local Definition Hom_add (C : PreAdditive) : ob C -> ob C -> abgr := λ c c', (@to_abgr C c c').
 
 Section Sanity.

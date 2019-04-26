@@ -22,13 +22,13 @@ Local Open Scope cat.
 (** * Precategory of commrigs *)
 Section def_commrig_precategory.
 
-  Definition commrig_fun_space (A B : commrig) : hSet := hSetpair (rigfun A B) (isasetrigfun A B).
+  Definition commrig_fun_space (A B : commrig) : hSet := make_hSet (rigfun A B) (isasetrigfun A B).
 
   Definition commrig_precategory_ob_mor : precategory_ob_mor :=
     tpair (λ ob : UU, ob -> ob -> UU) commrig (λ A B : commrig, commrig_fun_space A B).
 
   Definition commrig_precategory_data : precategory_data :=
-    precategory_data_pair
+    make_precategory_data
       commrig_precategory_ob_mor (λ (X : commrig), (rigisotorigfun (idrigiso X)))
       (fun (X Y Z : commrig) (f : rigfun X Y) (g : rigfun Y Z) => rigfuncomp f g).
 
@@ -55,14 +55,14 @@ Section def_commrig_precategory.
 
   Lemma is_precategory_commrig_precategory_data : is_precategory commrig_precategory_data.
   Proof.
-    use mk_is_precategory_one_assoc.
+    use make_is_precategory_one_assoc.
     - intros a b f. use commrig_id_left.
     - intros a b f. use commrig_id_commright.
     - intros a b c d f g h. use commrig_assoc.
   Qed.
 
   Definition commrig_precategory : precategory :=
-    mk_precategory commrig_precategory_data is_precategory_commrig_precategory_data.
+    make_precategory commrig_precategory_data is_precategory_commrig_precategory_data.
 
   Lemma has_homsets_commrig_precategory : has_homsets commrig_precategory.
   Proof.
@@ -94,8 +94,8 @@ Section def_commrig_category.
     iso X Y -> rigiso (X : commrig) (Y : commrig).
   Proof.
     intro f.
-    use rigisopair.
-    - exact (weqpair (pr1 (pr1 f)) (commrig_iso_is_equiv X Y f)).
+    use make_rigiso.
+    - exact (make_weq (pr1 (pr1 f)) (commrig_iso_is_equiv X Y f)).
     - exact (pr2 (pr1 f)).
   Defined.
 
@@ -105,7 +105,7 @@ Section def_commrig_category.
   Proof.
     use is_iso_qinv.
     - exact (rigfunconstr (pr2 (invrigiso f))).
-    - use mk_is_inverse_in_precat.
+    - use make_is_inverse_in_precat.
       + use rigfun_paths. use funextfun. intros x. use homotinvweqweq.
       + use rigfun_paths. use funextfun. intros y. use homotweqinvweq.
   Defined.
@@ -114,7 +114,7 @@ Section def_commrig_category.
   Lemma commrig_equiv_iso (X Y : ob commrig_precategory) :
     rigiso (X : commrig) (Y : commrig) -> iso X Y.
   Proof.
-    intros f. exact (@isopair commrig_precategory X Y (rigfunconstr (pr2 f))
+    intros f. exact (@make_iso commrig_precategory X Y (rigfunconstr (pr2 f))
                               (commrig_equiv_is_iso X Y f)).
   Defined.
 
@@ -132,7 +132,7 @@ Section def_commrig_category.
   Definition commrig_iso_equiv_weq (X Y : ob commrig_precategory) :
     weq (iso X Y) (rigiso (X : commrig) (Y : commrig)).
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (commrig_iso_equiv X Y).
     - exact (commrig_iso_equiv_is_equiv X Y).
   Defined.
@@ -151,7 +151,7 @@ Section def_commrig_category.
   Definition commrig_equiv_weq_iso (X Y : ob commrig_precategory) :
     (rigiso (X : commrig) (Y : commrig)) ≃ (iso X Y).
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (commrig_equiv_iso X Y).
     - exact (commrig_equiv_iso_is_equiv X Y).
   Defined.
@@ -175,12 +175,12 @@ Section def_commrig_category.
 
   Definition commrig_precategory_is_univalent : is_univalent commrig_precategory.
   Proof.
-    use mk_is_univalent.
+    use make_is_univalent.
     - intros X Y. exact (commrig_precategory_isweq X Y).
     - exact has_homsets_commrig_precategory.
   Defined.
 
   Definition commrig_category : univalent_category :=
-    mk_category commrig_precategory commrig_precategory_is_univalent.
+    make_univalent_category commrig_precategory commrig_precategory_is_univalent.
 
 End def_commrig_category.

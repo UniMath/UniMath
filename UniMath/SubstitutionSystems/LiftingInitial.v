@@ -864,7 +864,7 @@ Qed.
 
 Lemma isInitial_InitHSS : isInitial (hss_precategory CP H) InitHSS.
 Proof.
-  use mk_isInitial.
+  use make_isInitial.
   intro T.
   exists (hss_InitMor T).
   apply hss_InitMor_unique.
@@ -873,7 +873,7 @@ Defined.
 
 Lemma InitialHSS : Initial (hss_precategory CP H).
 Proof.
-  use (mk_Initial InitHSS).
+  use (make_Initial InitHSS).
   apply isInitial_InitHSS.
 Defined.
 

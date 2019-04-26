@@ -50,7 +50,7 @@ Local Open Scope logic.
 Local Open Scope cat.
 
 Local Definition hom (C:precategory_data) : ob C -> ob C -> UU := λ c c', precategory_morphisms c c'.
-Local Definition Hom (C : category) : ob C -> ob C -> hSet := λ c c', hSetpair _ (homset_property C c c').
+Local Definition Hom (C : category) : ob C -> ob C -> hSet := λ c c', make_hSet _ (homset_property C c c').
 Local Definition Hom_add (C : PreAdditive) : ob C -> ob C -> abgr := λ c c', (@to_abgr C c c').
 
 (* move upstream, when ready *)
@@ -334,7 +334,7 @@ Section PreAdditive.
         rewrite assoc. rewrite b. apply zeroLeft.
       - intros T h v. rewrite assoc' in v.
         assert (Q := co T (j·h) v); cbn in Q. generalize Q; clear Q.
-        apply iscontrweqb. use weqpair.
+        apply iscontrweqb. use make_weq.
         + intros [k w]; exists (j'·k); abstract (rewrite assoc; unfold categoryWithAbgrops_category, category_to_precategory, pr1 in e; rewrite <- e; rewrite assoc';
           rewrite w; reflexivity) using _L_.
         + cbn beta. intros [l w]; unfold hfiber. assert (PO := po T h l (!w)); clear po.
@@ -498,7 +498,7 @@ Section PreAdditive.
   Definition to_BinOpId'' {M:PreAdditive} {a b : M} (ab : BinDirectSum a b)
              : (to_Pr1 ab · to_In1 ab) + (to_Pr2 ab · to_In2 ab) = 1
     := to_BinOpId ab.
-  Definition ismonoidfun_prop {G H:abgr} (f:G->H) : hProp := hProppair (ismonoidfun f) (isapropismonoidfun f).
+  Definition ismonoidfun_prop {G H:abgr} (f:G->H) : hProp := make_hProp (ismonoidfun f) (isapropismonoidfun f).
   Definition PreAdditive_functor (M N:PreAdditive) :=
     ∑ F : M ⟶ N, ∀ A B:M, ismonoidfun_prop (@functor_on_morphisms M N F A B : A --> B -> F A --> F B).
   Coercion PreAdditive_functor_to_functor {M N:PreAdditive} : PreAdditive_functor M N -> functor M N := pr1.
@@ -557,7 +557,7 @@ Section PreAdditive.
   Qed.
   Definition applyFunctorToBinDirectSum {M N:PreAdditive} (F : PreAdditive_functor M N) {A B:M} :
     BinDirectSum A B -> BinDirectSum (F A) (F B)
-    := λ S, mk_BinDirectSum _ _ _ _ _ _ _ _ (applyFunctorToIsBinDirectSum F A B S ι₁ ι₂ π₁ π₂ (pr2 S)).
+    := λ S, make_BinDirectSum _ _ _ _ _ _ _ _ (applyFunctorToIsBinDirectSum F A B S ι₁ ι₂ π₁ π₂ (pr2 S)).
   Definition induced_PreAdditive_incl (M : PreAdditive) {X:Type} (j : X -> ob M) :
     PreAdditive_functor (induced_PreAdditive M j) M.
   Proof.
@@ -871,7 +871,7 @@ Section theDefinition.
   Definition ExactCategoryData := ∑ M:AdditiveCategory, MorphismPair M -> hProp. (* properties added below *)
   Coercion ExactCategoryDataToAdditiveCategory (ME : ExactCategoryData) : AdditiveCategory := pr1 ME.
   Definition isExact {M : ExactCategoryData} (E : MorphismPair M) : hProp := pr2 M E.
-  Definition isExact2 {M : ExactCategoryData} {A B C:M} (f:A-->B) (g:B-->C) := isExact (mk_MorphismPair f g).
+  Definition isExact2 {M : ExactCategoryData} {A B C:M} (f:A-->B) (g:B-->C) := isExact (make_MorphismPair f g).
   Definition isAdmissibleMonomorphism {M : ExactCategoryData} {A B:M} (i : A --> B) : hProp :=
     ∃ C (p : B --> C), isExact2 i p.
   Definition AdmissibleMonomorphism {M : ExactCategoryData} (A B:M) : Type :=
@@ -935,7 +935,7 @@ Section theDefinition.
           hasKernel j ⇒ isAdmissibleEpimorphism (i·j) ⇒ isAdmissibleEpimorphism j)).
   Definition ExactCategory := ∑ (ME:ExactCategoryData), ExactCategoryProperties ME.
   Coercion ExactCategoryToData (M:ExactCategory) : ExactCategoryData := pr1 M.
-  Definition mk_ExactCategory (ME:ExactCategoryData) (p : ExactCategoryProperties ME) : ExactCategory := ME,,p.
+  Definition make_ExactCategory (ME:ExactCategoryData) (p : ExactCategoryProperties ME) : ExactCategory := ME,,p.
   Definition isExactFunctor {M N:ExactCategory} (F : M ⟶ N) : hProp
     := ∀ (P : MorphismPair M), isExact P ⇒ isExact (applyFunctorToPair F P).
   Definition ExactFunctor (M N:ExactCategory)
@@ -1022,7 +1022,7 @@ Section OppositeExactCategory.
   Defined.
   Definition oppositeExactCategory (M:ExactCategory) : ExactCategory.
   Proof.
-    use (mk_ExactCategory (oppositeExactCategoryData M)).
+    use (make_ExactCategory (oppositeExactCategoryData M)).
     split.
     { split;intros P Q f.
       - exact (EC_IsomorphicToExact' (opp_MorphismPairIsomorphism f)).
@@ -1124,8 +1124,8 @@ Section ExactCategoryFacts.
   Proof.
     intros [g [h e]] i. apply (squash_to_hProp i); clear i; intros [C [p E]].
     apply hinhpr. exists C. exists (z_iso_inv h · p). use (EC_IsomorphicToExact _ E).
-    simple refine (mk_MorphismPairIsomorphism
-                     (mk_MorphismPair f p) (mk_MorphismPair f' (z_iso_inv h · p))
+    simple refine (make_MorphismPairIsomorphism
+                     (make_MorphismPair f p) (make_MorphismPair f' (z_iso_inv h · p))
                      g h (identity_z_iso C) e _).
     refine (assoc _ _ _ @ maponpaths (postcomp_with p) _ @ id_left p @ ! id_right p).
     apply z_iso_inv_after_z_iso.
@@ -1152,7 +1152,7 @@ Section ExactCategoryFacts.
     isPullback' (M:=M) f g h k -> isAdmissibleEpimorphism f -> isAdmissibleEpimorphism k.
   (* dual needed *)
   Proof.
-    intros pb. exact (PullbackEpiIsEpi f g (mk_Pullback _ _ _ _ _ _ (pr2 pb))).
+    intros pb. exact (PullbackEpiIsEpi f g (make_Pullback _ _ _ _ _ _ (pr2 pb))).
   Qed.
   Lemma IsIsoIsMono {M : ExactCategory} {A B:M} (f:A-->B) :
     is_z_isomorphism f -> isAdmissibleMonomorphism f.
@@ -1214,12 +1214,12 @@ Section ExactCategoryFacts.
   Definition TrivialExactSequence {M : ExactCategory} (A:M) (Z:Zero M) : ShortExactSequence M.
   Proof.
     assert (Q := DirectSumToExact (TrivialDirectSum Z A)).
-    exact (mk_MorphismPair ι₁ π₂,, Q).
+    exact (make_MorphismPair ι₁ π₂,, Q).
   Defined.
   Definition TrivialExactSequence' {M : ExactCategory} (Z:Zero M) (A:M) : ShortExactSequence M.
   Proof.
     assert (Q := DirectSumToExact (TrivialDirectSum' Z A)).
-    exact (mk_MorphismPair ι₁ π₂,, Q).
+    exact (make_MorphismPair ι₁ π₂,, Q).
   Defined.
   Lemma ExactPushout {M : ExactCategory} {A B C A':M} (i : A --> B) (p : B --> C)
         (pr : isExact2 i p) (r : A --> A') :
@@ -1818,7 +1818,7 @@ Section SplitSequences.
   Proof.
     intros sp.
     apply (squash_to_hProp sp); clear sp; intros [j [q issum]].
-    set (S := mk_BinDirectSum _ _ _ _ _ _ _ _ issum).
+    set (S := make_BinDirectSum _ _ _ _ _ _ _ _ issum).
     exact (DirectSumToKernel S,,DirectSumToCokernel S).
   Qed.
   Lemma ComposeSplitMono {M:AdditiveCategory} {A B C : M} (i : A --> B) (j : B --> C) :
@@ -1909,7 +1909,7 @@ Section SplitSequences.
             apply (maponpaths (λ z, z + s · ι₂)). rewrite rightDistribute in H, K.
             rewrite 3 assoc in H, K. rewrite H' in H. rewrite K' in K.
             apply (maponpaths (λ z, z · ι₁)).
-            apply (to_In1_isMonic _ (mk_BinDirectSum _ _ _ _ _ _ _ _ e)).
+            apply (to_In1_isMonic _ (make_BinDirectSum _ _ _ _ _ _ _ _ e)).
             change (h · π₁ · i = k · π₁ · i). apply (grrcan (T-->A) (s · g · j)).
             exact (H @ !K). }
           exists (r · p · ι₁ + s · ι₂).
@@ -1967,7 +1967,7 @@ Section AdditiveToExact.
         { exact (@PushoutSplitMono M). } }
   Defined.
   Definition AdditiveToExact : AdditiveCategory -> ExactCategory
-    := λ M, mk_ExactCategory (M,,isSplit) (AdditiveExactnessProperties M).
+    := λ M, make_ExactCategory (M,,isSplit) (AdditiveExactnessProperties M).
   Lemma additive_exact_opposite {M:AdditiveCategory} :
     AdditiveToExact (oppositeAdditiveCategory M) = oppositeExactCategory (AdditiveToExact M).
   Proof.
@@ -2036,10 +2036,10 @@ Section InducedExactCategory.
       * exact (EC_IsomorphicToExact  (applyFunctorToPairIsomorphism J _ _ t)).
       * exact (EC_IsomorphicToExact' (applyFunctorToPairIsomorphism J _ _ t)).
     + split.
-      * apply (squash_to_hProp hz). intros [_Z iz]. set (zM := mk_Zero (j _Z) iz).
+      * apply (squash_to_hProp hz). intros [_Z iz]. set (zM := make_Zero (j _Z) iz).
         assert (izz : @isZero N _Z).
         { split; intros a; apply iz. }
-        set (zN := @mk_Zero N _Z izz). (* J zN = zM judgmentally *)
+        set (zN := @make_Zero N _Z izz). (* J zN = zM judgmentally *)
         split.
         { intros A. use ExactToAdmMono.
           3 : { exact (pr2 (TrivialExactSequence (J A) zM)). } }
@@ -2101,6 +2101,6 @@ Section InducedExactCategory.
   Qed.
   Definition induced_ExactCategory {M:ExactCategory} {X:Type}
              (j : X -> ob M) (ce : exts_lift M j) : ExactCategory
-    := mk_ExactCategory (induced_ExactCategoryData j ce)
+    := make_ExactCategory (induced_ExactCategoryData j ce)
                         (induced_ExactCategoryProperties j ce).
 End InducedExactCategory.

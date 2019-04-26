@@ -13,7 +13,7 @@ Require Export UniMath.Foundations.Sets.
 
 Local Open Scope set.
 
-Definition hProp_set : hSet := hSetpair _ isasethProp.
+Definition hProp_set : hSet := make_hSet _ isasethProp.
 
 Definition isconst {X:UU} {Y:hSet} (f : X -> Y) : hProp := ∀ x x', f x = f x'.
 
@@ -79,14 +79,14 @@ Defined.
 Theorem setquotunivprop' {X : UU} {R : eqrel X} (P : setquot (pr1 R) -> UU)
         (H : ∏ x, isaprop (P x)) (ps : ∏ x : X, P (setquotpr R x)) : ∏ c : setquot (pr1 R), P c.
 Proof.
-  exact (setquotunivprop R (λ x, hProppair (P x) (H x)) ps).
+  exact (setquotunivprop R (λ x, make_hProp (P x) (H x)) ps).
 Defined.
 
 Theorem setquotuniv2prop' {X : UU} {R : eqrel X} (P : setquot (pr1 R) → setquot (pr1 R) → UU)
         (H : ∏ x1 x2, isaprop (P x1 x2))
         (ps : ∏ x1 x2, P (setquotpr R x1) (setquotpr R x2)) : ∏ c1 c2 : setquot (pr1 R), P c1 c2.
 Proof.
-  exact (setquotuniv2prop R (λ x1 x2, hProppair (P x1 x2) (H x1 x2)) ps).
+  exact (setquotuniv2prop R (λ x1 x2, make_hProp (P x1 x2) (H x1 x2)) ps).
 Defined.
 
 Theorem setquotuniv3prop' {X : UU} {R : eqrel X}
@@ -95,7 +95,7 @@ Theorem setquotuniv3prop' {X : UU} {R : eqrel X}
         (ps : ∏ x1 x2 x3, P (setquotpr R x1) (setquotpr R x2) (setquotpr R x3)) :
   ∏ c1 c2 c3 : setquot (pr1 R), P c1 c2 c3.
 Proof.
-  exact (setquotuniv3prop R (λ x1 x2 x3, hProppair (P x1 x2 x3) (H x1 x2 x3)) ps).
+  exact (setquotuniv3prop R (λ x1 x2 x3, make_hProp (P x1 x2 x3) (H x1 x2 x3)) ps).
 Defined.
 
 Theorem setquotuniv4prop' {X : UU} {R : eqrel X}
@@ -105,18 +105,18 @@ Theorem setquotuniv4prop' {X : UU} {R : eqrel X}
               P (setquotpr R x1) (setquotpr R x2) (setquotpr R x3) (setquotpr R x4)) :
   ∏ c1 c2 c3 c4 : setquot (pr1 R), P c1 c2 c3 c4.
 Proof.
-  exact (setquotuniv4prop R (λ x1 x2 x3 x4, hProppair (P x1 x2 x3 x4) (H x1 x2 x3 x4)) ps).
+  exact (setquotuniv4prop R (λ x1 x2 x3 x4, make_hProp (P x1 x2 x3 x4) (H x1 x2 x3 x4)) ps).
 Defined.
 
 Definition setcoprod (X Y : hSet) : hSet :=
-  hSetpair (X ⨿ Y) (isasetcoprod X Y (pr2 X) (pr2 Y)).
+  make_hSet (X ⨿ Y) (isasetcoprod X Y (pr2 X) (pr2 Y)).
 
 
 (** ** The equivalence relation of being in the same fiber *)
 
 Definition same_fiber_eqrel {X Y : hSet} (f : X → Y) : eqrel X.
 Proof.
-  use eqrelpair.
+  use make_eqrel.
   - intros x y.
     exact (eqset (f x) (f y)).
   - use iseqrelconstr.
@@ -128,7 +128,7 @@ Defined.
 (** ** Subsets *)
 
 Definition subset {X : hSet} (Hsub : hsubtype X) : hSet :=
-  hSetpair (carrier Hsub) (isaset_carrier_subset _ Hsub).
+  make_hSet (carrier Hsub) (isaset_carrier_subset _ Hsub).
 
 Definition makeSubset {X : hSet} {Hsub : hsubtype X} (x : X) (Hx : Hsub x) : subset Hsub :=
   x,, Hx.
@@ -184,7 +184,7 @@ Section mineqrel.
   Qed.
 
   Definition eqrel_from_hrel : hrel A :=
-    λ a b, hProppair _ (isaprop_eqrel_from_hrel a b).
+    λ a b, make_hProp _ (isaprop_eqrel_from_hrel a b).
 
   Lemma iseqrel_eqrel_from_hrel : iseqrel eqrel_from_hrel.
   Proof.

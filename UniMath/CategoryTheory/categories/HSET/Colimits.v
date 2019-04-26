@@ -51,7 +51,7 @@ Local Definition cobase : UU := ∑ j : vertex g, pr1hSet (dob D j).
 
 (* Theory about hprop is in UniMath.Foundations.Propositions *)
 Local Definition rel0 : hrel cobase := λ (ia jb : cobase),
-  hProppair (ishinh (∑ f : edge (pr1 ia) (pr1 jb), dmor D f (pr2 ia) = pr2 jb))
+  make_hProp (ishinh (∑ f : edge (pr1 ia) (pr1 jb), dmor D f (pr2 ia) = pr2 jb))
             (isapropishinh _).
 
 Local Definition rel : hrel cobase := eqrel_from_hrel rel0.
@@ -61,11 +61,11 @@ Proof.
   now apply iseqrel_eqrel_from_hrel.
 Qed.
 
-Local Definition eqr : eqrel cobase := eqrelpair _ iseqrel_rel.
+Local Definition eqr : eqrel cobase := make_eqrel _ iseqrel_rel.
 
 (* Defined in UniMath.Foundations.Sets *)
 Definition colimHSET : HSET :=
-  hSetpair (setquot eqr) (isasetsetquot _).
+  make_hSet (setquot eqr) (isasetsetquot _).
 
 (*
            (X,~)
@@ -144,7 +144,7 @@ End from_colim.
 
 Definition colimCoconeHSET : cocone D colimHSET.
 Proof.
-  use mk_cocone.
+  use make_cocone.
   - now apply injections.
   - abstract (intros u v e;
               apply funextfun; intros Fi; simpl;
@@ -163,7 +163,7 @@ Defined.
 
 Definition ColimCoconeHSET : ColimCocone D.
 Proof.
-  apply (mk_ColimCocone _ colimHSET colimCoconeHSET); intros c cc.
+  apply (make_ColimCocone _ colimHSET colimCoconeHSET); intros c cc.
   exists (ColimHSETArrow _ cc).
   abstract (intro f; apply subtypeEquality;
             [ intro; now apply impred; intro i; apply has_homsets_HSET
@@ -223,11 +223,11 @@ Qed.
 Lemma BinCoproductsHSET : BinCoproducts HSET.
 Proof.
   intros A B.
-  use mk_BinCoproduct.
+  use make_BinCoproduct.
   - apply (setcoprod A B).
   - simpl in *; apply ii1.
   - simpl in *; intros x; apply (ii2 x).
-  - apply (mk_isBinCoproduct _ has_homsets_HSET).
+  - apply (make_isBinCoproduct _ has_homsets_HSET).
     intros C f g; simpl in *.
     use tpair.
     * exists (sumofmaps f g); abstract (split; apply idpath).
@@ -244,11 +244,11 @@ Defined.
 Lemma CoproductsHSET (I : UU) (HI : isaset I) : Coproducts I HSET.
 Proof.
   intros A.
-  use mk_Coproduct.
+  use make_Coproduct.
   - exists (∑ i, pr1 (A i)).
     apply (isaset_total2 _ HI); intro i; apply setproperty.
   - simpl; apply tpair.
-  - apply (mk_isCoproduct _ _ has_homsets_HSET).
+  - apply (make_isCoproduct _ _ has_homsets_HSET).
     intros C f; simpl in *.
     use tpair.
     * exists (λ X, f (pr1 X) (pr2 X)); abstract (intro i; apply idpath).
@@ -278,8 +278,8 @@ Qed.
 
 Lemma InitialHSET : Initial HSET.
 Proof.
-  apply (mk_Initial emptyHSET).
-  apply mk_isInitial; intro a.
+  apply (make_Initial emptyHSET).
+  apply make_isInitial; intro a.
   use tpair.
   - simpl; intro e; induction e.
   - abstract (intro f; apply funextfun; intro e; induction e).

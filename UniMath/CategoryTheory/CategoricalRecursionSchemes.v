@@ -327,7 +327,7 @@ Definition σ_from_τ {C C' D D' : precategory} {L : functor D C} {R : functor C
   {L' : functor D' C'} {R' : functor C' D'} {H : functor C C'} {K : functor D D' }
   (h : are_adjoints L R) (h' : are_adjoints L' R') (τ : DistrLaw K H R R') : DistrLaw L' L K H.
 Proof.
-  apply (mk_nat_trans _ _ (σ_data_from_τ h h' τ)).
+  apply (make_nat_trans _ _ (σ_data_from_τ h h' τ)).
   red.
   intros d d' f.
   unfold σ_data_from_τ.
@@ -429,7 +429,7 @@ Definition τ_from_σ {C C' D D' : precategory} {L : functor D C} {R : functor C
            (h : are_adjoints L R) (h' : are_adjoints L' R') (σ : DistrLaw L' L K H) :
   DistrLaw K H R R'.
 Proof.
-  apply (mk_nat_trans _ _ (τ_data_from_σ h h' σ)).
+  apply (make_nat_trans _ _ (τ_data_from_σ h h' σ)).
   red.
   intros c c' f.
   unfold τ_data_from_σ.
@@ -509,7 +509,7 @@ Defined.
 
 Definition lifting_from_distr_law_data {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D) {F: functor C C} {G: functor D D} {H: functor C D} (lambda : DistrLaw G F H H): functor_data (FunctorAlg F hsC) (FunctorAlg G hsD).
 Proof.
-  use mk_functor_data.
+  use make_functor_data.
   simpl.
   intro Aa.
   set (A := alg_carrier _ Aa).
@@ -561,7 +561,7 @@ Defined.
 Definition lifting_from_distr_law {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D) {F: functor C C} {G: functor D D} {H: functor C D} (lambda : DistrLaw G F H H): functor (FunctorAlg F hsC) (FunctorAlg G hsD).
 Proof.
   set (HH_data := lifting_from_distr_law_data hsC hsD lambda).
-  use (mk_functor HH_data).
+  use (make_functor HH_data).
   red.
   split.
   - red.

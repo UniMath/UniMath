@@ -51,7 +51,7 @@ Defined.
 Definition catiso_ob_weq {A B : precategory_data}
   (F : catiso A B)
   : (ob A) ≃ (ob B)
-  := weqpair (functor_on_objects F) (pr2 (pr2 F)).
+  := make_weq (functor_on_objects F) (pr2 (pr2 F)).
 
 Definition catiso_to_precategory_ob_path {A B : precategory_data}
   (F : catiso A B)
@@ -61,7 +61,7 @@ Definition catiso_to_precategory_ob_path {A B : precategory_data}
 Definition catiso_fully_faithful_weq {A B : precategory_data}
   (F : catiso A B)
   : forall a a' : A, (a --> a') ≃ (F a --> F a')
-  := λ a a', (weqpair (functor_on_morphisms F) (pr1 (pr2 F) a a')).
+  := λ a a', (make_weq (functor_on_morphisms F) (pr1 (pr2 F) a a')).
 
 Lemma catiso_fully_faithful_path {A B : precategory_data}
   (F : catiso A B)
@@ -479,7 +479,7 @@ Definition inv_catiso
            (F : catiso C D)
   : D ⟶ C.
 Proof.
-  use mk_functor.
+  use make_functor.
   - use tpair.
     + exact (invweq (catiso_ob_weq F)).
     + intros X Y f ; cbn.

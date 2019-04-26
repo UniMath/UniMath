@@ -211,12 +211,12 @@ Definition comma_cat_mor : comma_cat_ob -> comma_cat_ob -> UU :=
     (λ cdg : comma_cat_ob,
              ∑ kh : E⟦pr1 (pr1 abf), pr1 (pr1 cdg)⟧ × D⟦pr2 (pr1 abf), pr2 (pr1 cdg)⟧, pr2 (abf) · #S(pr2 kh) = #T(pr1 kh) · pr2 (cdg)).
 
-Definition comma_cat_ob_mor : precategory_ob_mor := precategory_ob_mor_pair comma_cat_ob comma_cat_mor.
+Definition comma_cat_ob_mor : precategory_ob_mor := make_precategory_ob_mor comma_cat_ob comma_cat_mor.
 
 Definition comma_cat_id : ∏ edf : comma_cat_ob_mor, comma_cat_ob_mor ⟦ edf, edf ⟧.
 Proof.
   intro edf. cbn.
-  exists (dirprodpair (identity (pr1 (pr1 edf))) (identity (pr2 (pr1 edf)))). cbn.
+  exists (make_dirprod (identity (pr1 (pr1 edf))) (identity (pr2 (pr1 edf)))). cbn.
   abstract (
     rewrite 2 functor_id;
     rewrite id_right;
@@ -228,7 +228,7 @@ Defined.
 Definition comma_cat_comp : ∏ uvf xyg zwh : comma_cat_ob, comma_cat_mor uvf xyg → comma_cat_mor xyg zwh → comma_cat_mor uvf zwh.
 Proof.
   intros uvf xyg zwh ijp klq.
-  exists (dirprodpair (pr1 (pr1 ijp) · pr1 (pr1 klq)) (pr2 (pr1 ijp) · pr2 (pr1 klq))). cbn.
+  exists (make_dirprod (pr1 (pr1 ijp) · pr1 (pr1 klq)) (pr2 (pr1 ijp) · pr2 (pr1 klq))). cbn.
   abstract (
     rewrite 2 functor_comp;
     rewrite assoc;
@@ -240,7 +240,7 @@ Proof.
     ).
 Defined.
 
-Definition comma_cat_id_comp : precategory_id_comp comma_cat_ob_mor := dirprodpair comma_cat_id comma_cat_comp.
+Definition comma_cat_id_comp : precategory_id_comp comma_cat_ob_mor := make_dirprod comma_cat_id comma_cat_comp.
 
 Definition comma_cat_data : precategory_data := tpair _ comma_cat_ob_mor comma_cat_id_comp.
 
@@ -287,9 +287,9 @@ Proof.
 Qed.
 
 Definition is_precategory_comma_cat_data : is_precategory comma_cat_data :=
-  mk_is_precategory comma_cat_data_id_left comma_cat_data_id_right comma_cat_data_assoc comma_cat_data_assoc'.
+  make_is_precategory comma_cat_data_id_left comma_cat_data_id_right comma_cat_data_assoc comma_cat_data_assoc'.
 
-Definition comma_precategory : precategory := mk_precategory comma_cat_data is_precategory_comma_cat_data.
+Definition comma_precategory : precategory := make_precategory comma_cat_data is_precategory_comma_cat_data.
 
 (** When all the precategories involved have homsets, so does the comma category. *)
 Lemma has_homsets_comma_precat {hsE : has_homsets E} {hsD : has_homsets D} :
@@ -311,22 +311,22 @@ Qed.
 
 Definition comma_domain : functor comma_precategory E.
 Proof.
-  use mk_functor.
-  - use mk_functor_data.
+  use make_functor.
+  - use make_functor_data.
     + intros uvf; exact (dirprod_pr1 (pr1 uvf)).
     + intros ? ? mor; exact (dirprod_pr1 (pr1 mor)).
-  - use dirprodpair.
+  - use make_dirprod.
     + intro; reflexivity.
     + intros ? ? ? ? ?; reflexivity.
 Defined.
 
 Definition comma_codomain : functor comma_precategory D.
 Proof.
-  use mk_functor.
-  - use mk_functor_data.
+  use make_functor.
+  - use make_functor_data.
     + intros uvf; exact (dirprod_pr2 (pr1 uvf)).
     + intros ? ? mor; exact (dirprod_pr2 (pr1 mor)).
-  - use dirprodpair.
+  - use make_dirprod.
     + intro; reflexivity.
     + intros ? ? ? ? ?; reflexivity.
 Defined.
@@ -336,7 +336,7 @@ End general_comma_precategories.
 Lemma comma_category {C D E : category} (S : functor D C) (T : functor E C) :
   category.
 Proof.
-  use category_pair.
+  use make_category.
   - exact (comma_precategory S T).
   - apply has_homsets_comma_precat; apply homset_property.
 Defined.

@@ -49,7 +49,7 @@ Section SplitMonic.
       more generally useful ([Monic C A B] coerces to [A --> B]). *)
   Definition split_monic_to_monic (m : split_monic) : Monic C A B.
   Proof.
-    use mk_Monic.
+    use make_Monic.
     - exact (pr1 m).
     - abstract (apply split_monic_is_monic; exact (pr2 m)).
   Defined.
@@ -70,7 +70,7 @@ Section SplitMonic.
 
   Definition is_merely_split_monic (m : A --> B) : hProp.
   Proof.
-    use hProppair.
+    use make_hProp.
     - exact (∥ ∑ r : B --> A, is_retraction m r ∥).
     - apply isapropishinh.
   Defined.
@@ -118,7 +118,7 @@ Section SplitMonic.
     merely_split_monic -> Monic C A B.
   Proof.
     intros m.
-    use mk_Monic.
+    use make_Monic.
     - exact (pr1 m).
     - abstract (apply merely_split_monic_is_monic; [auto|]; exact (pr2 m)).
   Qed.
@@ -225,7 +225,7 @@ Section SplitEpis.
 
   Definition split_epi_to_epi (f : split_epi) : Epi C A B.
   Proof.
-    use mk_Epi.
+    use make_Epi.
     - exact (pr1 f).
     - abstract (apply split_epi_is_epi; exact (pr2 f)).
   Defined.

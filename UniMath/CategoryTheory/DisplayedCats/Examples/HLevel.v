@@ -50,22 +50,22 @@ Definition disp_HSET_equiv_HSET_adjunction_data :
   adjunction_data (total_precategory disp_HSET) HSET_univalent_category.
 Proof.
   use tpair; [|use tpair].
-  - use mk_functor.
-    + use mk_functor_data.
+  - use make_functor.
+    + use make_functor_data.
       * exact (idfun _).
       * intros ? ? f; exact (pr1 f).
     + split.
       * intro; reflexivity.
       * intros ? ? ?; reflexivity.
-  - use mk_functor.
-    + use mk_functor_data.
+  - use make_functor.
+    + use make_functor_data.
       * exact (idfun _).
       * intros ? ? f; exact (f,, tt).
     + split.
       * intro; reflexivity.
       * intros ? ? ?; reflexivity.
   - split.
-    + use mk_nat_trans.
+    + use make_nat_trans.
       * intros x.
         use tpair.
         -- exact (idfun _).
@@ -75,7 +75,7 @@ Proof.
         apply subtypeEquality'.
         -- unfold funcomp; apply funextfun; intro; reflexivity.
         -- apply isapropunit.
-    + use mk_nat_trans.
+    + use make_nat_trans.
       * intros ?; exact (idfun _).
       * intros ? ? ?; apply funextfun; intro; reflexivity.
 Defined.
@@ -93,11 +93,11 @@ Qed.
 Lemma disp_HSET_adj_equivalence_of_precats_left :
   adj_equivalence_of_precats (left_functor disp_HSET_equiv_HSET_adjunction_data).
 Proof.
-  use mk_adj_equivalence_of_precats.
+  use make_adj_equivalence_of_precats.
   - exact (right_functor disp_HSET_equiv_HSET_adjunction_data).
   - exact (adjunit disp_HSET_equiv_HSET_adjunction_data).
   - exact (adjcounit disp_HSET_equiv_HSET_adjunction_data).
-  - use mk_form_adjunction.
+  - use make_form_adjunction.
     + intro; reflexivity.
     + intro; reflexivity.
   - apply disp_HSET_equiv_HSET.

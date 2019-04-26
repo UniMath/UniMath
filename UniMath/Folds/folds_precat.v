@@ -23,7 +23,7 @@ Require Import UniMath.Foundations.Sets.
 (** ** Objects and a dependent type of morphisms *)
 
 Definition folds_ob_mor := ∑ a : UU, a → a → UU.
-Definition folds_ob_mor_pair (ob : UU)(mor : ob → ob → UU) :
+Definition make_folds_ob_mor (ob : UU)(mor : ob → ob → UU) :
     folds_ob_mor := tpair _ ob mor.
 
 Definition ob (C : folds_ob_mor) : UU := @pr1 _ _ C.
@@ -112,7 +112,7 @@ Lemma I_contr : ∏ a : C, iscontr (∑ f : a ⇒ a, I f).
 Proof.
   intro a.
   set (H := pr1 (pr1 (pr2 C)) a).
-  set (H' := hProppair (iscontr (∑ f : a ⇒ a, I f))
+  set (H' := make_hProp (iscontr (∑ f : a ⇒ a, I f))
                       (isapropiscontr _ )).
   apply (H H'); simpl.
   intro t; exists t.
@@ -133,7 +133,7 @@ Defined.
 Lemma T_contr : ∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c), iscontr (∑ h, T f g h).
 Proof.
   intros a b c f g.
-  set (H' := hProppair (iscontr (∑ h : a ⇒ c, T f g h))
+  set (H' := make_hProp (iscontr (∑ h : a ⇒ c, T f g h))
                       (isapropiscontr _ )).
   apply (pr1 (pr2 (pr2 C)) a b c f g H').
   simpl; intro t; exists t.

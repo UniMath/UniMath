@@ -78,7 +78,7 @@ Proof.
   revert X Y p; intros [X [Xm [Xu Xa]]] [Y [Ym [Yu Ya]]] ? .
   (* should just apply hPropUnivalence at this point, as in Poset_univalence_prelim! *)
   simpl in p. destruct p; simpl. unfold transportf; simpl. unfold idfun; simpl.
-  simple refine (weqpair _ _).
+  simple refine (make_weq _ _).
   { intros p g x. simpl in x. simpl.
     exact (eqtohomot (eqtohomot (maponpaths act_mult p) g) x). }
   simple refine (isweq_iso _ _ _ _).
@@ -285,7 +285,7 @@ Definition torsor_nonempty {G} (X:Torsor G) := pr1 (is_torsor_prop X).
 Definition torsor_splitting {G} (X:Torsor G) := pr2 (is_torsor_prop X).
 
 Definition torsor_mult_weq {G} (X:Torsor G) (x:X) :=
-  weqpair (right_mult x) (torsor_splitting X x) : G ≃ X.
+  make_weq (right_mult x) (torsor_splitting X x) : G ≃ X.
 
 Definition torsor_mult_weq' {G} (X:Torsor G) (g:G) : X ≃ X.
 Proof.

@@ -25,7 +25,7 @@ Section FunctorComposition.
 
   Definition ps_comp_d : psfunctor_data C E.
   Proof.
-    use mk_psfunctor_data.
+    use make_psfunctor_data.
     - exact (λ X, G(F X)).
     - exact (λ _ _ f, #G(#F f)).
     - exact (λ _ _ _ _ α, ##G(##F α)).
@@ -108,7 +108,7 @@ Section FunctorComposition.
 
   Definition ps_comp : psfunctor C E.
   Proof.
-    use mk_psfunctor.
+    use make_psfunctor.
     - exact ps_comp_d.
     - exact comp_is_ps.
     - split.
