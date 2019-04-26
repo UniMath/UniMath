@@ -212,8 +212,8 @@ Variable (c0: ob C).
 
 Definition precategory_data_from_prebicat_and_ob: precategory_data.
 Proof.
-  use precategory_data_pair.
-  - use precategory_ob_mor_pair.
+  use make_precategory_data.
+  - use make_precategory_ob_mor.
     + exact (C⟦c0,c0⟧).
     + apply prebicat_cells.
   - intro c; apply id2.
@@ -222,7 +222,7 @@ Defined.
 
 Lemma is_precategory_data_from_prebicat_and_ob: is_precategory precategory_data_from_prebicat_and_ob.
 Proof.
-  use mk_is_precategory.
+  use make_is_precategory.
   - intros a b f; apply id2_left.
   - intros a b f; apply id2_right.
   - intros a b c d f g h; apply vassocr.
@@ -235,8 +235,8 @@ Local Notation EndC := precategory_from_prebicat_and_ob.
 
 Definition tensor_from_prebicat_and_ob: precategory_from_prebicat_and_ob ⊠ precategory_from_prebicat_and_ob ⟶ precategory_from_prebicat_and_ob.
 Proof.
-  use mk_functor.
-  - use mk_functor_data.
+  use make_functor.
+  - use make_functor_data.
     + intro ab.
       exact (pr1 ab · pr2 ab).
     + intros ab1 ab2 f.
@@ -249,9 +249,8 @@ Local Notation tensor := tensor_from_prebicat_and_ob.
 
 Local Definition build_left_unitor: left_unitor tensor (id c0).
 Proof.
-  red.
-  use mk_nat_iso.
-  + use mk_nat_trans.
+  use make_nat_iso.
+  + use make_nat_trans.
     * intro c.
       apply lunitor.
     * abstract ( intros a b f; apply lunitor_natural ).
@@ -260,9 +259,8 @@ Defined.
 
 Local Definition build_right_unitor: right_unitor tensor (id c0).
 Proof.
-  red.
-  use mk_nat_iso.
-  + use mk_nat_trans.
+  use make_nat_iso.
+  + use make_nat_trans.
     * intro c.
       apply runitor.
     * abstract ( intros a b f; apply runitor_natural ).
@@ -291,7 +289,7 @@ Defined.
 
 Local Definition build_associator: associator tensor.
 Proof.
-  use mk_nat_iso.
+  use make_nat_iso.
   - exact nat_trans_associator.
   - intro c; apply is_iso_rassociator.
 Defined.

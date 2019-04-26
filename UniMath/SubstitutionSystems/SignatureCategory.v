@@ -243,7 +243,7 @@ Local Lemma isBinProduct_Signature_precategory (Ht1 Ht2 : Signature C hsC D hsD 
                    (BinProduct_of_Signatures C hsC D hsD D' hsD' BD Ht1 Ht2)
                    (Signature_precategory_pr1 Ht1 Ht2) (Signature_precategory_pr2 Ht1 Ht2).
 Proof.
-apply (make_isBinProduct _ (has_homsets_Signature_precategory C D)).
+apply (make_isBinProduct _ (has_homsets_Signature_precategory C D D')).
 simpl; intros Ht3 F G.
 use unique_exists; simpl.
 - apply (tpair _ (BinProductArrow _ (BCD (pr1 Ht1) (pr1 Ht2)) (pr1 F) (pr1 G))).
@@ -261,7 +261,7 @@ Lemma BinProducts_Signature_precategory : BinProducts (Signature_precategory C D
 Proof.
 intros Ht1 Ht2.
 use make_BinProduct.
-- apply (BinProduct_of_Signatures _ _ _ _ BD Ht1 Ht2).
+- apply (BinProduct_of_Signatures _ _ _ _ _ _ BD Ht1 Ht2).
 - apply Signature_precategory_pr1.
 - apply Signature_precategory_pr2.
 - apply isBinProduct_Signature_precategory.
@@ -321,7 +321,7 @@ Local Lemma isCoproduct_Signature_precategory (Hti : I → Signature_precategory
   isCoproduct I (Signature_precategory C D D') _
     (Sum_of_Signatures I C hsC D hsD D' hsD' CD Hti) (Signature_precategory_in Hti).
 Proof.
-apply (make_isCoproduct _ _ (has_homsets_Signature_precategory C D)); simpl.
+apply (make_isCoproduct _ _ (has_homsets_Signature_precategory C D D')); simpl.
 intros Ht F.
 use unique_exists; simpl.
 + use tpair.
@@ -338,7 +338,7 @@ Lemma Coproducts_Signature_precategory : Coproducts I (Signature_precategory C D
 Proof.
 intros Ht.
 use make_Coproduct.
-- apply (Sum_of_Signatures I _ _ _ _ CD Ht).
+- apply (Sum_of_Signatures I _ _ _ _ _ _ CD Ht).
 - apply Signature_precategory_in.
 - apply isCoproduct_Signature_precategory.
 Defined.

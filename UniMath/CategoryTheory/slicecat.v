@@ -278,8 +278,7 @@ Defined.
 
 Definition cat_to_slicecat_data (BPC : BinProducts C) : functor_data C (C / x).
 Proof.
-use make_functor.
-+ use tpair.
+  use make_functor_data.
   * intro y.
     exists (BinProductObject _ (BPC x y)).
     apply BinProductPr1.
@@ -300,7 +299,7 @@ Qed.
 
 Definition cat_to_slicecat (BPC : BinProducts C) : C ⟶ (C / x).
 Proof.
-  use mk_functor.
+  use make_functor.
   + exact (cat_to_slicecat_data BPC).
   + apply is_functor_cat_to_slicecat_data.
 Defined.
@@ -778,8 +777,7 @@ Local Definition eta_data {c c' : C} (g : C⟦c,c'⟧) :
   nat_trans_data (functor_identity (C / c))
             (functor_composite (slicecat_functor hsC g) (base_change_functor g)).
 Proof.
-use make_nat_trans.
-- intros x.
+  intros x.
   use tpair; simpl.
   + use (PullbackArrow _ _ (pr2 x) (identity _)).
     abstract (rewrite id_left; apply idpath).
@@ -800,7 +798,7 @@ Local Definition eta {c c' : C} (g : C⟦c,c'⟧) :
   nat_trans (functor_identity (C / c))
             (functor_composite (slicecat_functor hsC g) (base_change_functor g)).
 Proof.
-  use mk_nat_trans.
+  use make_nat_trans.
   - apply eta_data.
   - apply is_nat_trans_eta_data.
 Defined.

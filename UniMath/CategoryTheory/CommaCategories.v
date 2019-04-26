@@ -228,7 +228,7 @@ Defined.
 Definition comma_cat_comp : ∏ uvf xyg zwh : comma_cat_ob, comma_cat_mor uvf xyg → comma_cat_mor xyg zwh → comma_cat_mor uvf zwh.
 Proof.
   intros uvf xyg zwh ijp klq.
-  exists (make_dirprod (pr1 (pr1 ijp) · pr1 (pr1 klq)) (pr2 (pr1 ijp) · pr2 (pr1 klq))). cbn.
+  exists (make_dirprod (pr1 (pr1 ijp) · pr1 (pr1 klq)) (pr2 (pr1 ijp) · pr2 (pr1 klq))).
   abstract (
     cbn;
     rewrite 2 functor_comp;
@@ -316,7 +316,7 @@ Proof.
   - use make_functor_data.
     + intros uvf; exact (dirprod_pr1 (pr1 uvf)).
     + intros ? ? mor; exact (dirprod_pr1 (pr1 mor)).
-  - abstract ( use dirprodpair; [intro; apply idpath | intros ? ? ? ? ?; apply idpath] ).
+  - abstract ( use make_dirprod; [intro; apply idpath | intros ? ? ? ? ?; apply idpath] ).
 Defined.
 
 Definition comma_codomain : comma_precategory ⟶ D.
@@ -325,7 +325,7 @@ Proof.
   - use make_functor_data.
     + intros uvf; exact (dirprod_pr2 (pr1 uvf)).
     + intros ? ? mor; exact (dirprod_pr2 (pr1 mor)).
-  - abstract ( use dirprodpair; [intro; apply idpath | intros ? ? ? ? ?; apply idpath] ).
+  - abstract ( use make_dirprod; [intro; apply idpath | intros ? ? ? ? ?; apply idpath] ).
 Defined.
 
 End general_comma_precategories.
