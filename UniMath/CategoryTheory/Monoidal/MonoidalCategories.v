@@ -238,21 +238,21 @@ Proof.
   { do 2 apply cancel_postcomposition.
     apply cancel_precomposition.
     apply maponpaths.
-    apply (iso_inv_after_iso (mk_iso (pr2 (monoidal_precat_associator M) ((c, b), a)))). }
+    apply (iso_inv_after_iso (make_iso _ (pr2 (monoidal_precat_associator M) ((c, b), a)))). }
   rewrite functor_id.
   rewrite id_right.
   eapply pathscomp0.
   { apply cancel_postcomposition.
     rewrite <- assoc.
     apply cancel_precomposition.
-    apply (iso_inv_after_iso (mk_iso (pr2 (monoidal_precat_associator M) ((d, tensor (c, b)), a)))). }
+    apply (iso_inv_after_iso (make_iso _ (pr2 (monoidal_precat_associator M) ((d, tensor (c, b)), a)))). }
   rewrite id_right.
   eapply pathscomp0.
   apply pathsinv0.
   apply (functor_comp (functor_fix_snd_arg _ _ _ tensor a)).
   eapply pathscomp0.
   { apply maponpaths.
-    apply (iso_inv_after_iso (mk_iso (pr2 (monoidal_precat_associator M) ((d, c), b)))). }
+    apply (iso_inv_after_iso (make_iso _ (pr2 (monoidal_precat_associator M) ((d, c), b)))). }
   use functor_id.
 Qed.
 

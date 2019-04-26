@@ -132,9 +132,8 @@ Defined.
 
 Lemma is_iso_binprod_iso_aux {C D : precategory} {c c' : C} {d d' : D} {f : c --> c'} {g : d --> d'} (f_is_iso : is_iso f)
   (g_is_iso : is_iso g) : is_inverse_in_precat (f #, g)
-        (inv_from_iso (isopair f f_is_iso) #, inv_from_iso (isopair g g_is_iso)).
+        (inv_from_iso (make_iso f f_is_iso) #, inv_from_iso (make_iso g g_is_iso)).
 Proof.
-  apply (is_iso_qinv (f #, g) (inv_from_iso (make_iso f f_is_iso) #, inv_from_iso (make_iso g g_is_iso))).
   apply make_dirprod.
   - transitivity ((make_iso f f_is_iso) · (inv_from_iso (make_iso f f_is_iso)) #, (make_iso g g_is_iso) · (inv_from_iso (make_iso g g_is_iso))).
     + symmetry.
@@ -151,7 +150,7 @@ Qed.
 Definition is_iso_binprod_iso {C D : precategory} {c c' : C} {d d' : D} {f : c --> c'} {g : d --> d'} (f_is_iso : is_iso f)
   (g_is_iso : is_iso g) : is_iso (f #, g).
 Proof.
-  apply (is_iso_qinv (f #, g) (inv_from_iso (isopair f f_is_iso) #, inv_from_iso (isopair g g_is_iso))).
+  apply (is_iso_qinv (f #, g) (inv_from_iso (make_iso f f_is_iso) #, inv_from_iso (make_iso g g_is_iso))).
   apply is_iso_binprod_iso_aux.
 Defined.
 

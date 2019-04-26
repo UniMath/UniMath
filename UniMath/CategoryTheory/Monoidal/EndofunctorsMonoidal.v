@@ -49,8 +49,8 @@ Qed.
 
 Definition left_unitor_of_endofunctors: left_unitor (functorial_composition C C C hs hs) (functor_identity C).
 Proof.
-  red. use mk_nat_iso.
-  + use mk_nat_trans.
+  use make_nat_iso.
+  + use make_nat_trans.
     * intro F. apply λ_functor.
     * apply is_nat_trans_left_unitor_data.
     + red. intro F.
@@ -75,8 +75,8 @@ Qed.
 
 Definition right_unitor_of_endofunctors: right_unitor (functorial_composition C C C hs hs) (functor_identity C).
 Proof.
-  red. use mk_nat_iso.
-  + use mk_nat_trans.
+  use make_nat_iso.
+  + use make_nat_trans.
     * intro F. apply ρ_functor.
     * apply is_nat_trans_right_unitor_data.
   + red. intro F.
@@ -106,9 +106,8 @@ Qed.
 
 Definition associator_of_endofunctors: associator (functorial_composition C C C hs hs).
 Proof.
-  red.
-  use mk_nat_iso.
-  + use mk_nat_trans.
+  use make_nat_iso.
+  + use make_nat_trans.
     * intro F. apply α_functor.
     * apply is_nat_trans_associator_data.
   + intro F; use functor_iso_if_pointwise_iso; intro c; apply Isos.is_iso_from_is_z_iso.
