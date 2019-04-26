@@ -129,8 +129,8 @@ Section Test_stn.
     Proof. apply stnneq_to_nopath. exact tt. Defined.
     Local Definition re := weqrecompl (stn 4) i (isisolatedinstn _).
     Local Definition re' := weqrecompl_ne (stn 4) i (isisolatedinstn i) (stnneq i).
-    Local Definition c := complpair (stn 4) i j ne : compl _ i.
-    Local Definition c' := compl_ne_pair (stn 4) i (stnneq i) j tt : stn_compl i.
+    Local Definition c := make_compl (stn 4) i j ne : compl _ i.
+    Local Definition c' := make_compl_ne (stn 4) i (stnneq i) j tt : stn_compl i.
     Goal re (ii2 tt) = i. reflexivity. Defined.
     Goal re (ii1 c) = j. reflexivity. Defined.
     Goal invmap re i = (ii2 tt). reflexivity. Defined.
@@ -255,8 +255,8 @@ Section Test_fin.
   Goal cardinalityFiniteSet (isfinite_to_FiniteSet (isfinitedirprod  isfinitebool (isfinitedirprod  isfinitebool isfinitebool))) = 8. reflexivity. Qed.
   Goal fincard (isfinitecompl (ii1 tt) (isfinitecoprod  (isfiniteunit) (isfinitebool))) = 2. reflexivity. Qed.
   Goal fincard (isfinitecompl (ii1 tt) (isfinitecoprod (isfiniteunit) (isfinitebool))) = 2. reflexivity. Qed.
-  Goal fincard (isfinitecompl (dirprodpair tt tt) (isfinitedirprod  isfiniteunit isfiniteunit)) = 0. reflexivity. Qed.
-  Goal fincard (isfinitecompl (dirprodpair  true (dirprodpair  true false)) (isfinitedirprod  (isfinitebool) (isfinitedirprod  (isfinitebool) (isfinitebool)))) = 7. reflexivity. Qed.
+  Goal fincard (isfinitecompl (make_dirprod tt tt) (isfinitedirprod  isfiniteunit isfiniteunit)) = 0. reflexivity. Qed.
+  Goal fincard (isfinitecompl (make_dirprod  true (make_dirprod  true false)) (isfinitedirprod  (isfinitebool) (isfinitedirprod  (isfinitebool) (isfinitebool)))) = 7. reflexivity. Qed.
 
   Goal fincard (
          isfiniteweq (isfinitedirprod isfinitebool isfinitebool)
@@ -271,7 +271,7 @@ Section Test_fin.
   *)
 
   (* Eval compute in (carddneg _  (isfinitedirprod _ _ (isfinitestn (S (S (S (S O)))))  (isfinitestn (S (S (S O)))))). *)
-  (* Eval lazy in   (pr1 (finitestructcomplement _ (dirprodpair _ _ tt tt) (finitestructdirprod _ _ (finitestructunit) (finitestructunit)))). *)
+  (* Eval lazy in   (pr1 (finitestructcomplement _ (make_dirprod _ _ tt tt) (finitestructdirprod _ _ (finitestructunit) (finitestructunit)))). *)
 
   Section Test_isfinite_isdeceq.
 
@@ -511,7 +511,7 @@ Section Test_search.
   Local Definition P : nat → hProp.
   Proof.
     intros n.
-    refine (hProppair (someseq n = true) _).
+    refine (make_hProp (someseq n = true) _).
     refine (isasetbool _ _).
   Defined.
 

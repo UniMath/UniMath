@@ -89,7 +89,7 @@ Proof.
       intros n; induction n.
       * exact (dirprod_pr1 z0zs).
       * apply (dirprod_pr2 z0zs).
-    + intros xs; use dirprodpair.
+    + intros xs; use make_dirprod.
       * apply xs.
       * exact (xs ∘ S).
     + reflexivity.
@@ -99,8 +99,8 @@ Proof.
 Defined.
 
 Local Lemma combine_over_nat {X : nat → UU} {P : (X 0 × (∏ n : nat, X (S n))) → UU} :
-  (∑ x0 : X 0, ∑ xs : ∏ n : nat, X (S n), P (dirprodpair x0 xs)) ≃
-  (∑ xs : ∏ n : nat, X n, P (dirprodpair (xs 0) (xs ∘ S))).
+  (∑ x0 : X 0, ∑ xs : ∏ n : nat, X (S n), P (make_dirprod x0 xs)) ≃
+  (∑ xs : ∏ n : nat, X n, P (make_dirprod (xs 0) (xs ∘ S))).
 Proof.
   ≃ (∑ pair : (X 0 × ∏ n : nat, X (S n)), P pair) by apply weqtotal2asstol.
   use weqbandf.
@@ -114,9 +114,9 @@ Local Lemma combine_over_nat' {X : nat → UU} {P : X 0 → (∏ n : nat, X (S n
   (∑ xs : ∏ n : nat, X n, P (xs 0) (xs ∘ S)).
 Proof.
   ≃ (∑ (x0 : X 0) (xs : ∏ n : nat, X (S n)), (uncurry (Z := λ _, UU) P)
-                                             (dirprodpair x0 xs)) by apply idweq.
+                                             (make_dirprod x0 xs)) by apply idweq.
   ≃' (∑ xs : ∏ n : nat, X n, uncurry P (Z := λ _, UU)
-                                     (dirprodpair (xs 0) (xs ∘ S))) by apply idweq.
+                                     (make_dirprod (xs 0) (xs ∘ S))) by apply idweq.
   apply combine_over_nat.
 Defined.
 

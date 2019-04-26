@@ -65,13 +65,13 @@ Section def_abgr_precategory.
 
   (** ** precategory_data *)
 
-  Definition abgr_fun_space (A B : abgr) : hSet := hSetpair (monoidfun A B) (isasetmonoidfun A B).
+  Definition abgr_fun_space (A B : abgr) : hSet := make_hSet (monoidfun A B) (isasetmonoidfun A B).
 
   Definition abgr_precategory_ob_mor : precategory_ob_mor :=
     tpair (λ ob : UU, ob -> ob -> UU) abgr (λ A B : abgr, abgr_fun_space A B).
 
   Definition abgr_precategory_data : precategory_data :=
-    precategory_data_pair
+    make_precategory_data
       abgr_precategory_ob_mor (λ (A : abgr), ((idmonoidiso A) : monoidfun A A))
       (fun (A B C : abgr) (f : monoidfun A B) (g : monoidfun B C) => monoidfuncomp f g).
 
@@ -79,7 +79,7 @@ Section def_abgr_precategory.
 
   Lemma is_precategory_abgr_precategory_data : is_precategory abgr_precategory_data.
   Proof.
-    use mk_is_precategory_one_assoc.
+    use make_is_precategory_one_assoc.
     - intros a b f. use monoidfunidleft.
     - intros a b f. use monoidfunidright.
     - intros a b c d f g h. use monoidfunassoc.
@@ -88,14 +88,14 @@ Section def_abgr_precategory.
   (** ** precategory and category *)
 
   Definition abgr_precategory : precategory :=
-    mk_precategory abgr_precategory_data is_precategory_abgr_precategory_data.
+    make_precategory abgr_precategory_data is_precategory_abgr_precategory_data.
 
   Lemma has_homsets_abgr : has_homsets abgr_precategory.
   Proof.
     intros a b. use isasetmonoidfun.
   Qed.
 
-  Definition abgr_category : category := category_pair abgr_precategory has_homsets_abgr.
+  Definition abgr_category : category := make_category abgr_precategory has_homsets_abgr.
 
 End def_abgr_precategory.
 
@@ -123,8 +123,8 @@ Section def_abgr_category.
   Lemma abgr_iso_equiv (X Y : ob abgr_category) : iso X Y -> monoidiso (X : abgr) (Y : abgr).
   Proof.
     intro f.
-    use monoidisopair.
-    - exact (weqpair (pr1 (pr1 f)) (abgr_iso_is_equiv X Y f)).
+    use make_monoidiso.
+    - exact (make_weq (pr1 (pr1 f)) (abgr_iso_is_equiv X Y f)).
     - exact (pr2 (pr1 f)).
   Defined.
 
@@ -133,13 +133,13 @@ Section def_abgr_category.
   Proof.
     use is_iso_qinv.
     - exact (monoidfunconstr (pr2 (invmonoidiso f))).
-    - use mk_is_inverse_in_precat.
+    - use make_is_inverse_in_precat.
       + use monoidfun_paths. use funextfun. intros x. use homotinvweqweq.
       + use monoidfun_paths. use funextfun. intros y. use homotweqinvweq.
   Qed.
 
   Definition abgr_equiv_iso (X Y : ob abgr_category) (f : monoidiso (X : abgr) (Y : abgr)) :
-    iso X Y := @isopair abgr_category X Y (monoidfunconstr (pr2 f)) (abgr_equiv_is_iso X Y f).
+    iso X Y := @make_iso abgr_category X Y (monoidfunconstr (pr2 f)) (abgr_equiv_is_iso X Y f).
 
   Lemma abgr_iso_equiv_is_equiv (X Y : abgr_category) : isweq (abgr_iso_equiv X Y).
   Proof.
@@ -154,7 +154,7 @@ Section def_abgr_category.
   Definition abgr_iso_equiv_weq (X Y : ob abgr_category) :
     weq (iso X Y) (monoidiso (X : abgr) (Y : abgr)).
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (abgr_iso_equiv X Y).
     - exact (abgr_iso_equiv_is_equiv X Y).
   Defined.
@@ -172,7 +172,7 @@ Section def_abgr_category.
   Definition abgr_equiv_weq_iso (X Y : ob abgr_category) :
     (monoidiso (X : abgr) (Y : abgr)) ≃ (iso X Y).
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (abgr_equiv_iso X Y).
     - exact (abgr_equiv_iso_is_equiv X Y).
   Defined.
@@ -197,13 +197,13 @@ Section def_abgr_category.
 
   Definition abgr_category_is_univalent : is_univalent abgr_category.
   Proof.
-    use dirprodpair.
+    use make_dirprod.
     - intros a b. exact (abgr_category_isweq a b).
     - exact has_homsets_abgr.
   Defined.
 
   Definition abgr_univalent_category : univalent_category :=
-    mk_category abgr_category abgr_category_is_univalent.
+    make_univalent_category abgr_category abgr_category_is_univalent.
 
 End def_abgr_category.
 
@@ -235,16 +235,16 @@ Section def_abgr_zero.
 
   Definition abgr_isZero : @isZero abgr_category unitabgr.
   Proof.
-    use mk_isZero.
-    - intros a. use iscontrpair.
+    use make_isZero.
+    - intros a. use make_iscontr.
       + exact (abgrfunfromunit a).
       + intros t. exact (isconnectedfromunitabgr a t).
-    - intros a. use iscontrpair.
+    - intros a. use make_iscontr.
       + exact (abgrfuntounit a).
       + intros t. exact (isconnectedtounitabgr a t).
   Defined.
 
-  Definition abgr_Zero : Zero abgr_category := @mk_Zero abgr_category unitabgr abgr_isZero.
+  Definition abgr_Zero : Zero abgr_category := @make_Zero abgr_category unitabgr abgr_isZero.
 
 
   (** ** Computations on zero object *)
@@ -294,16 +294,16 @@ Section abgr_preadditive.
   Defined.
 
   Definition abgr_WithBinOps : precategoryWithBinOps :=
-    mk_precategoryWithBinOps abgr_category abgr_WithBinOpsData.
+    make_precategoryWithBinOps abgr_category abgr_WithBinOpsData.
 
   (** ** [categoryWithAbgrops] structure on the category of abelian groups *)
 
   Definition abgr_WithAbGrops : categoryWithAbgrops.
   Proof.
-    use mk_categoryWithAbgrops.
+    use make_categoryWithAbgrops.
     - exact abgr_WithBinOps.
     - use homset_property.
-    - use mk_categoryWithAbgropsData.
+    - use make_categoryWithAbgropsData.
       intros X Y. exact (@abgrshomabgr_isabgrop X Y).
   Defined.
 
@@ -311,22 +311,22 @@ Section abgr_preadditive.
 
   Definition abgr_isPreAdditive : isPreAdditive abgr_WithAbGrops.
   Proof.
-    use mk_isPreAdditive.
+    use make_isPreAdditive.
     (* Precomposition with morphism is linear *)
     - intros X Y Z f.
-      use mk_ismonoidfun.
-      + use mk_isbinopfun. intros g h. use monoidfun_paths. use funextfun. intros x. use idpath.
+      use make_ismonoidfun.
+      + use make_isbinopfun. intros g h. use monoidfun_paths. use funextfun. intros x. use idpath.
       + use monoidfun_paths. use funextfun. intros x. use idpath.
     (* Postcomposition with morphism is linear *)
     - intros X Y Z f.
-      use mk_ismonoidfun.
-      + use mk_isbinopfun. intros g h. use monoidfun_paths. use funextfun. intros x.
+      use make_ismonoidfun.
+      + use make_isbinopfun. intros g h. use monoidfun_paths. use funextfun. intros x.
         use (pathscomp0 ((pr1 (pr2 f)) _ _)). use idpath.
       + use monoidfun_paths. use funextfun. intros x. exact (monoidfununel f).
   Qed.
 
   Definition abgr_PreAdditive : PreAdditive :=
-    mk_PreAdditive abgr_WithAbGrops abgr_isPreAdditive.
+    make_PreAdditive abgr_WithAbGrops abgr_isPreAdditive.
 
 End abgr_preadditive.
 
@@ -349,8 +349,8 @@ Section abgr_additive.
   Lemma abgr_DirectSumPr1_ismonoidfun (A B : abgr) :
     ismonoidfun (λ X : abgrdirprod A B, dirprod_pr1 X).
   Proof.
-    use mk_ismonoidfun.
-    - use mk_isbinopfun. intros x x'. use idpath.
+    use make_ismonoidfun.
+    - use make_isbinopfun. intros x x'. use idpath.
     - use idpath.
   Qed.
 
@@ -360,8 +360,8 @@ Section abgr_additive.
   Lemma abgr_DirectSumPr2_ismonoidfun (A B : abgr) :
     ismonoidfun (λ X : abgrdirprod A B, dirprod_pr2 X).
   Proof.
-    use mk_ismonoidfun.
-    - use mk_isbinopfun. intros x x'. use idpath.
+    use make_ismonoidfun.
+    - use make_isbinopfun. intros x x'. use idpath.
     - use idpath.
   Qed.
 
@@ -369,10 +369,10 @@ Section abgr_additive.
     monoidfunconstr (abgr_DirectSumPr2_ismonoidfun A B).
 
   Lemma abgr_DirectSumIn1_ismonoidfun (A B : abgr) :
-    @ismonoidfun A (abgrdirprod A B) (λ a : A, dirprodpair a (unel B)).
+    @ismonoidfun A (abgrdirprod A B) (λ a : A, make_dirprod a (unel B)).
   Proof.
-    use mk_ismonoidfun.
-    - use mk_isbinopfun. intros x x'. use dirprod_paths.
+    use make_ismonoidfun.
+    - use make_isbinopfun. intros x x'. use dirprod_paths.
       + use idpath.
       + use pathsinv0. use (runax B).
     - use dirprod_paths.
@@ -384,10 +384,10 @@ Section abgr_additive.
     monoidfunconstr (abgr_DirectSumIn1_ismonoidfun A B).
 
   Lemma abgr_DirectSumIn2_ismonoidfun (A B : abgr) :
-    @ismonoidfun B (abgrdirprod A B) (λ b : B, dirprodpair (unel A) b).
+    @ismonoidfun B (abgrdirprod A B) (λ b : B, make_dirprod (unel A) b).
   Proof.
-    use mk_ismonoidfun.
-    - use mk_isbinopfun. intros x x'. use dirprod_paths.
+    use make_ismonoidfun.
+    - use make_isbinopfun. intros x x'. use dirprod_paths.
       + use pathsinv0. use (runax A).
       + use idpath.
     - use dirprod_paths.
@@ -439,7 +439,7 @@ Section abgr_additive.
       abgr_PreAdditive X Y (abgrdirprod X Y) (abgr_DirectSumIn1 X Y) (abgr_DirectSumIn2 X Y)
       (abgr_DirectSumPr1 X Y) (abgr_DirectSumPr2 X Y).
   Proof.
-    use mk_isBinDirectSum.
+    use make_isBinDirectSum.
     - exact (abgr_DirectSumIdIn1 X Y).
     - exact (abgr_DirectSumIdIn2 X Y).
     - exact (abgr_DirectSumUnel1 X Y).
@@ -449,9 +449,9 @@ Section abgr_additive.
 
   Definition abgr_AdditiveStructure : AdditiveStructure abgr_PreAdditive.
   Proof.
-    use mk_AdditiveStructure.
+    use make_AdditiveStructure.
     - exact abgr_Zero.
-    - use mk_BinDirectSums. intros X Y. use mk_BinDirectSum.
+    - use make_BinDirectSums. intros X Y. use make_BinDirectSum.
       + exact (abgrdirprod X Y).
       + exact (abgr_DirectSumIn1 X Y).
       + exact (abgr_DirectSumIn2 X Y).
@@ -460,7 +460,7 @@ Section abgr_additive.
       + exact (abgr_isBinDirectSum X Y).
   Defined.
 
-  Definition abgr_Additive : CategoryWithAdditiveStructure := mk_Additive abgr_PreAdditive abgr_AdditiveStructure.
+  Definition abgr_Additive : CategoryWithAdditiveStructure := make_Additive abgr_PreAdditive abgr_AdditiveStructure.
 
 End abgr_additive.
 
@@ -475,8 +475,8 @@ Section abgr_kernels_and_cokernels.
     abgr_category⟦carrierofasubabgr (abgr_Kernel_subabgr f), A⟧ :=
     monoidincltomonoidfun
       (abgr_Kernel_subabgr f) A
-      (@monoidmonopair (abgr_Kernel_subabgr f) A
-                       (inclpair (pr1carrier (abgr_kernel_hsubtype f))
+      (@make_monoidmono (abgr_Kernel_subabgr f) A
+                       (make_incl (pr1carrier (abgr_kernel_hsubtype f))
                                  (isinclpr1carrier (abgr_kernel_hsubtype f)))
                        (abgr_Kernel_monoidfun_ismonoidfun f)).
 
@@ -511,8 +511,8 @@ Section abgr_kernels_and_cokernels.
         (f : A --> B) (H : h · f = ZeroArrow abgr_Zero C B) :
     @ismonoidfun (C : abgr) (@abgr_Kernel_subabgr A B f) (@abgr_KernelArrowIn_map A B C h f H).
   Proof.
-    use mk_ismonoidfun.
-    - use mk_isbinopfun. intros x x'. use total2_paths_f.
+    use make_ismonoidfun.
+    - use make_isbinopfun. intros x x'. use total2_paths_f.
       + exact (binopfunisbinopfun (h : monoidfun (C : abgr) (A : abgr)) x x').
       + use proofirrelevance. use propproperty.
     - use total2_paths_f.
@@ -557,17 +557,17 @@ Section abgr_kernels_and_cokernels.
   Definition abgr_Kernel_isKernel {A B : abgr} (f : abgr_category⟦A, B⟧) :
     isKernel abgr_Zero (abgr_Kernel_monoidfun f) f (abgr_Kernel_eq f).
   Proof.
-    use mk_isKernel.
+    use make_isKernel.
     - use homset_property.
     - intros w h H'.
-      use iscontrpair.
+      use make_iscontr.
       + exact (abgr_Kernel_isKernel_KernelArrrow f h H').
       + intros t. exact (abgr_Kernel_isKernel_uniqueness f h H' t).
   Defined.
 
   Definition abgr_Kernel {A B : abgr} (f : monoidfun A B) :
     Kernel abgr_Zero f :=
-    mk_Kernel (abgr_Zero) (abgr_Kernel_monoidfun f) f (abgr_Kernel_eq f) (abgr_Kernel_isKernel f).
+    make_Kernel (abgr_Zero) (abgr_Kernel_monoidfun f) f (abgr_Kernel_eq f) (abgr_Kernel_isKernel f).
 
   Corollary abgr_Kernels : Kernels abgr_Zero.
   Proof.
@@ -640,15 +640,15 @@ Section abgr_kernels_and_cokernels.
   Qed.
 
   Definition abgr_Cokernel_abgr {A B : abgr} (f : monoidfun A B) : abgr :=
-    @abgrquot B (binopeqrelpair (abgr_Cokernel_eqrel f) (abgr_Cokernel_abgr_isbinoprel f)).
+    @abgrquot B (make_binopeqrel (abgr_Cokernel_eqrel f) (abgr_Cokernel_abgr_isbinoprel f)).
 
   (** *** The canonical morphism Y --> Y/(Im f) *)
 
   Lemma abgr_CokernelArrow_ismonoidfun {A B : abgr} (f : monoidfun A B) :
     @ismonoidfun B (@abgr_Cokernel_abgr A B f) (@setquotpr B (@abgr_Cokernel_eqrel A B f)).
   Proof.
-    use mk_ismonoidfun.
-    - use mk_isbinopfun. intros x x'. use idpath.
+    use make_ismonoidfun.
+    - use make_isbinopfun. intros x x'. use idpath.
     - use idpath.
   Qed.
 
@@ -710,7 +710,7 @@ Section abgr_kernels_and_cokernels.
              (h : abgr_category ⟦B, C⟧) (H : f · h = ZeroArrow abgr_Zero A C) :
     @ismonoidfun (@abgr_Cokernel_abgr A B f) C (@abgr_CokernelOut_map A B C f h H).
   Proof.
-    use mk_ismonoidfun.
+    use make_ismonoidfun.
     - exact (@isbinopfun_twooutof3b
                (pr1 B) (abgr_Cokernel_abgr f) C
                (pr1 (abgr_CokernelArrow f))
@@ -732,7 +732,7 @@ Section abgr_kernels_and_cokernels.
     use monoidfun_paths. use funextfun. intros x. use idpath.
   Qed.
 
-  Definition abgr_CokernelOut_pair {A B C : abgr} (f : abgr_category ⟦A, B⟧)
+  Definition make_abgr_CokernelOut {A B C : abgr} (f : abgr_category ⟦A, B⟧)
              (h : abgr_category ⟦B, C⟧) (H : f · h = ZeroArrow abgr_Zero A C) :
     ∑ ψ : abgr_category⟦abgr_Cokernel_abgr f, C⟧, abgr_CokernelArrow f · ψ = h.
   Proof.
@@ -746,7 +746,7 @@ Section abgr_kernels_and_cokernels.
   Lemma abgr_isCokernel_uniquenss {A B C : abgr} (f : abgr_category⟦A, B⟧) (h : abgr_category⟦B, C⟧)
         (H : f · h = ZeroArrow abgr_Zero A C)
         (t : ∑ ψ : abgr_category ⟦abgr_Cokernel_abgr f, C⟧, abgr_CokernelArrow f · ψ = h) :
-    t = abgr_CokernelOut_pair f h H.
+    t = make_abgr_CokernelOut f h H.
   Proof.
     use total2_paths_f.
     - use monoidfun_paths. use funextfun. intros x.
@@ -759,15 +759,15 @@ Section abgr_kernels_and_cokernels.
   Definition abgr_isCokernel {A B : abgr} (f : abgr_category⟦A, B⟧) :
     isCokernel abgr_Zero f (abgr_CokernelArrow f) (abgr_Cokernel_eq f).
   Proof.
-    use mk_isCokernel.
+    use make_isCokernel.
     - use homset_property.
-    - intros C h H. use iscontrpair.
-      + exact (abgr_CokernelOut_pair f h H).
+    - intros C h H. use make_iscontr.
+      + exact (make_abgr_CokernelOut f h H).
       + intros t. exact (abgr_isCokernel_uniquenss f h H t).
   Defined.
 
   Definition abgr_Cokernel {A B : abgr} (f : abgr_category⟦A, B⟧) : Cokernel abgr_Zero f :=
-    mk_Cokernel abgr_Zero f (abgr_CokernelArrow f) (abgr_Cokernel_eq f) (abgr_isCokernel f).
+    make_Cokernel abgr_Zero f (abgr_CokernelArrow f) (abgr_Cokernel_eq f) (abgr_isCokernel f).
 
   Corollary abgr_Cokernels : Cokernels abgr_Zero.
   Proof.
@@ -793,7 +793,7 @@ Section abgr_monics_and_epis.
     set (tmp := weqpathsinsetquot (abgr_Cokernel_eqrel f) b (unel _)).
     use (hinhuniv _ ((invweq tmp) H)). intros Y. use hinhpr. induction Y as [t p].
     rewrite grinvunel in p. rewrite (runax B) in p.
-    exact (hfiberpair (pr1 f) t p).
+    exact (make_hfiber (pr1 f) t p).
   Qed.
 
   Definition abgr_epi_issurjective {A B : abgr} (f : abgr_category⟦A, B⟧) (isE : isEpi f) :
@@ -873,7 +873,7 @@ Section abgr_monics_and_epis.
     isincl (pr1 f).
   Proof.
     intros b h1 h2.
-    use iscontrpair.
+    use make_iscontr.
     - use total2_paths_f.
       + set (e := hfiberpr2 _ _ h1 @ (! hfiberpr2 _ _ h2)).
         set (tmp := isM hzaddabgr (hz_abgr_fun_monoidfun (pr1 h1))
@@ -896,7 +896,7 @@ Section abgr_monics_and_epis.
   Lemma abgr_monic_paths {A B : abgr} (f : abgr_category⟦A, B⟧) (isM : isMonic f) (a1 a2 : A) :
     pr1 f a1 = pr1 f a2 -> a1 = a2.
   Proof.
-    exact (invweq (weqpair _ (abgr_monic_isInjective f isM a1 a2))).
+    exact (invweq (make_weq _ (abgr_monic_isInjective f isM a1 a2))).
   Qed.
 
   Lemma abgr_monoidfun_postcomp {A B C : abgr} (f1 f2 : monoidfun A B) (g : monoidfun B C)
@@ -904,7 +904,7 @@ Section abgr_monics_and_epis.
     monoidfuncomp f1 g = monoidfuncomp f2 g -> f1 = f2.
   Proof.
     intros e. use monoidfun_paths. use funextfun. intros x.
-    use (invmap (weqpair _ (abgr_monic_isInjective g isM (pr1 f1 x) (pr1 f2 x)))).
+    use (invmap (make_weq _ (abgr_monic_isInjective g isM (pr1 f1 x) (pr1 f2 x)))).
     exact (toforallpaths _ _ _ (base_paths _ _ e) x).
   Qed.
 
@@ -927,12 +927,12 @@ Section abgr_monic_kernels_epi_cokernels.
            ((invweq (weqpathsinsetquot (abgr_Cokernel_eqrel f) (pr1 h c) (unel _)))
               (toforallpaths _ _ _ (base_paths _ _ H) c)) (isapropiscontr _)).
     intros hf.
-    use iscontrpair.
-    - use hfiberpair.
+    use make_iscontr.
+    - use make_hfiber.
       + exact (pr1 hf).
       + use (pathscomp0 (pr2 hf)). rewrite grinvunel. use (runax B).
     - intros t. use total2_paths_f.
-      + use (invmap (weqpair _ (abgr_monic_isInjective f isM (pr1 t) (pr1 hf)))).
+      + use (invmap (make_weq _ (abgr_monic_isInjective f isM (pr1 t) (pr1 hf)))).
         use (pathscomp0 (hfiberpr2 _ _ t)). use (pathscomp0 _ (! (pr2 hf))).
         rewrite grinvunel. rewrite runax. use idpath.
       + use proofirrelevance. use (setproperty B).
@@ -956,7 +956,7 @@ Section abgr_monic_kernels_epi_cokernels.
     -> hfiber (pr1 f) (pr1 h (x * x')%multmonoid).
   Proof.
     intros X X0.
-    exact (hfiberpair (pr1 f) ((pr1 X) * (pr1 X0))%multmonoid
+    exact (make_hfiber (pr1 f) ((pr1 X) * (pr1 X0))%multmonoid
                       (abgr_monic_kernel_in_hfiber_mult_eq f w x x' h X X0)).
   Defined.
 
@@ -968,7 +968,7 @@ Section abgr_monic_kernels_epi_cokernels.
 
   Definition abgr_monic_kernel_in_hfiber_unel {A B : abgr} (f : abgr_category⟦A, B⟧) (w : abgr)
              (h : abgr_category⟦w, B⟧) : hfiber (pr1 f) (pr1 h 1%multmonoid) :=
-    hfiberpair (pr1 f) 1%multmonoid (abgr_monic_kernel_in_hfiber_unel_eq f h).
+    make_hfiber (pr1 f) 1%multmonoid (abgr_monic_kernel_in_hfiber_unel_eq f h).
 
   Definition abgr_monic_kernel_in {A B : abgr} (f : abgr_category⟦A, B⟧) (isM : isMonic f)
              (w : abgr) (h: abgr_category⟦w, B⟧)
@@ -983,8 +983,8 @@ Section abgr_monic_kernels_epi_cokernels.
              (H : h · CokernelArrow (abgr_Cokernel f) = ZeroArrow abgr_Zero _ _) :
     ismonoidfun (abgr_monic_kernel_in f isM w h H).
   Proof.
-    use mk_ismonoidfun.
-    - use mk_isbinopfun. intros x x'.
+    use make_ismonoidfun.
+    - use make_isbinopfun. intros x x'.
       set (t := abgr_monic_kernel_in_hfiber_iscontr f isM h H x).
       set (tmp := abgr_monic_kernel_in_hfiber_mult
                     f w x x' h
@@ -993,7 +993,7 @@ Section abgr_monic_kernels_epi_cokernels.
       use pathscomp0.
       + exact (hfiberpr1 _ _ tmp).
       + unfold abgr_monic_kernel_in.
-        use (invmap (weqpair _ (abgr_monic_isInjective f isM _ _))).
+        use (invmap (make_weq _ (abgr_monic_isInjective f isM _ _))).
         use (pathscomp0 (hfiberpr2 _ _ (iscontrpr1 (abgr_monic_kernel_in_hfiber_iscontr
                                                       f isM h H (x * x')%multmonoid)))).
         use pathsinv0.
@@ -1003,7 +1003,7 @@ Section abgr_monic_kernels_epi_cokernels.
                   = (abgr_monic_kernel_in_hfiber_unel f w h)).
       {
         use total2_paths_f.
-        - use (invmap (weqpair _ (abgr_monic_isInjective f isM _ _))).
+        - use (invmap (make_weq _ (abgr_monic_isInjective f isM _ _))).
           use (pathscomp0 (hfiberpr2 _ _ (iscontrpr1 (abgr_monic_kernel_in_hfiber_iscontr
                                                         f isM h H 1%multmonoid)))).
           use pathsinv0.
@@ -1033,7 +1033,7 @@ Section abgr_monic_kernels_epi_cokernels.
     exact (hfiberpr2 _ _ (iscontrpr1 (abgr_monic_kernel_in_hfiber_iscontr f isM h H x))).
   Qed.
 
-  Definition abgr_monic_Kernel_isKernel_pair {A B C : abgr} (f : abgr_category⟦A, B⟧)
+  Definition make_abgr_monic_Kernel_isKernel {A B C : abgr} (f : abgr_category⟦A, B⟧)
              (isM : isMonic f) (h : abgr_category⟦C, B⟧)
              (H : h · CokernelArrow (abgr_Cokernel f) = ZeroArrow abgr_Zero C (abgr_Cokernel f)) :
     ∑ ψ : abgr_category ⟦C, A⟧, ψ · f = h.
@@ -1047,11 +1047,11 @@ Section abgr_monic_kernels_epi_cokernels.
              (isM : isMonic f) (h : abgr_category⟦C, B⟧)
              (H : h · CokernelArrow (abgr_Cokernel f) = ZeroArrow abgr_Zero C (abgr_Cokernel f))
              (t : ∑ ψ : abgr_category ⟦C, A⟧, ψ · f = h) :
-    t = abgr_monic_Kernel_isKernel_pair f isM h H.
+    t = make_abgr_monic_Kernel_isKernel f isM h H.
   Proof.
     use total2_paths_f.
     - use monoidfun_paths. use funextfun. intros x.
-      use (invmap (weqpair _ (abgr_monic_isInjective f isM _ _))).
+      use (invmap (make_weq _ (abgr_monic_isInjective f isM _ _))).
       use (pathscomp0 (toforallpaths _ _ _ (base_paths _ _ (pr2 t)) x)).
       use pathsinv0.
       exact (hfiberpr2 _ _ (iscontrpr1 (abgr_monic_kernel_in_hfiber_iscontr f isM h H x))).
@@ -1062,17 +1062,17 @@ Section abgr_monic_kernels_epi_cokernels.
     isKernel abgr_Zero f (CokernelArrow (abgr_Cokernel f))
              (CokernelCompZero abgr_Zero (abgr_Cokernel f)).
   Proof.
-    use mk_isKernel.
+    use make_isKernel.
     - use homset_property.
     - intros w h H.
-      use iscontrpair.
-      + exact (abgr_monic_Kernel_isKernel_pair f isM h H).
+      use make_iscontr.
+      + exact (make_abgr_monic_Kernel_isKernel f isM h H).
       + exact (abgr_monic_Kernel_isKernel_uniqueness f isM h H).
   Defined.
 
   Definition abgr_monic_kernel {A B : abgr} (f : abgr_category⟦A, B⟧) (isM : isMonic f) :
     Kernel abgr_Zero (CokernelArrow (abgr_Cokernel f)) :=
-    mk_Kernel abgr_Zero f (CokernelArrow (abgr_Cokernel f)) (abgr_monic_Kernel_eq f isM)
+    make_Kernel abgr_Zero f (CokernelArrow (abgr_Cokernel f)) (abgr_monic_Kernel_eq f isM)
               (abgr_monic_Kernel_isKernel f isM).
 
   Lemma abgr_monic_kernel_comp {A B : abgr} (f : abgr_category⟦A, B⟧) (isM : isMonic f) :
@@ -1136,7 +1136,7 @@ Section abgr_monic_kernels_epi_cokernels.
     iscontr (∑ x : C, ∏ (hfib : hfiber (pr1 f) b), pr1 h (pr1 hfib) = x).
   Proof.
     use (squash_to_prop (abgr_epi_issurjective f isE b) (isapropiscontr _)).
-    intros X. use iscontrpair.
+    intros X. use make_iscontr.
     - use tpair.
       + exact (pr1 h (pr1 X)).
       + exact (abgr_epi_cokernel_out_data_hfiber_eq f isE h H b X).
@@ -1178,7 +1178,7 @@ Section abgr_monic_kernels_epi_cokernels.
     ∏ hfib : hfiber (pr1 f) 1%multmonoid, pr1 h (pr1 hfib) = 1%multmonoid.
   Proof.
     intros hfib.
-    set (hfib_unel := hfiberpair (pr1 f) 1%multmonoid (pr2 (pr2 f))).
+    set (hfib_unel := make_hfiber (pr1 f) 1%multmonoid (pr2 (pr2 f))).
     rewrite (abgr_epi_cokernel_out_data_hfiber_eq f isE h H 1%multmonoid hfib_unel hfib).
     exact (monoidfununel h).
   Qed.
@@ -1194,8 +1194,8 @@ Section abgr_monic_kernels_epi_cokernels.
         (H : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero _ _) :
     ismonoidfun (λ b : B, (pr1 (iscontrpr1 (abgr_epi_CokernelOut_iscontr f isE h H b)))).
   Proof.
-    use mk_ismonoidfun.
-    - use mk_isbinopfun. intros x x'.
+    use make_ismonoidfun.
+    - use make_isbinopfun. intros x x'.
       set (HH0 := abgr_epi_cokernel_out_data_mult
                     x x' f isE h H
                     (iscontrpr1 (abgr_epi_CokernelOut_iscontr f isE h H x))
@@ -1237,11 +1237,11 @@ Section abgr_monic_kernels_epi_cokernels.
     use total2_paths_f.
     - use funextfun. intros x. use pathsinv0.
       exact (pr2 (iscontrpr1 (abgr_epi_CokernelOut_iscontr f isE h H (pr1 f x)))
-                 (@hfiberpair _ _ (pr1 f) (pr1 f x) x (idpath _))).
+                 (@make_hfiber _ _ (pr1 f) (pr1 f x) x (idpath _))).
     - use proofirrelevance. use isapropismonoidfun.
   Qed.
 
-  Definition abgr_epi_cokernel_isCokernel_pair {A B C : abgr} (f : abgr_category⟦A, B⟧)
+  Definition make_abgr_epi_cokernel_isCokernel {A B C : abgr} (f : abgr_category⟦A, B⟧)
              (isE : isEpi f)  (h : abgr_category⟦A, C⟧)
              (H : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero (abgr_Kernel f) C) :
     ∑ ψ : abgr_category ⟦B, C⟧, f · ψ = h.
@@ -1255,28 +1255,28 @@ Section abgr_monic_kernels_epi_cokernels.
         (isE : isEpi f)  (h : abgr_category⟦A, C⟧)
         (H : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero (abgr_Kernel f) C)
         (t : ∑ ψ : abgr_category ⟦B, C⟧, f · ψ = h) :
-    t = abgr_epi_cokernel_isCokernel_pair f isE h H.
+    t = make_abgr_epi_cokernel_isCokernel f isE h H.
   Proof.
     use total2_paths_f.
     - use isE. use (pathscomp0 (pr2 t)). use monoidfun_paths. use funextfun. intros x.
       exact (pr2 (iscontrpr1 (abgr_epi_CokernelOut_iscontr f isE h H (pr1 f x)))
-                 (@hfiberpair _ _ (pr1 f) (pr1 f x) x (idpath _))).
+                 (@make_hfiber _ _ (pr1 f) (pr1 f x) x (idpath _))).
     - use proofirrelevance. use setproperty.
   Qed.
 
   Definition abgr_epi_cokernel_isCokernel {A B : abgr} (f : abgr_category⟦A, B⟧) (isE : isEpi f) :
     isCokernel abgr_Zero (KernelArrow (abgr_Kernel f)) f (abgr_epi_cokernel_eq f isE).
   Proof.
-    use mk_isCokernel.
+    use make_isCokernel.
     - use homset_property.
-    - intros w h H. use iscontrpair.
-      + exact (abgr_epi_cokernel_isCokernel_pair f isE h H).
+    - intros w h H. use make_iscontr.
+      + exact (make_abgr_epi_cokernel_isCokernel f isE h H).
       + intros t. exact (abgr_epi_cokernel_isCokernel_uniqueness f isE h H t).
   Defined.
 
   Definition abgr_epi_cokernel {A B : abgr} (f : abgr_category⟦A, B⟧) (isE : isEpi f) :
     Cokernel abgr_Zero (KernelArrow (abgr_Kernel f)) :=
-    mk_Cokernel abgr_Zero (KernelArrow (abgr_Kernel f)) f _ (abgr_epi_cokernel_isCokernel f isE).
+    make_Cokernel abgr_Zero (KernelArrow (abgr_Kernel f)) f _ (abgr_epi_cokernel_isCokernel f isE).
 
   Definition abgr_epi_cokernel_comp {A B : abgr} (f : abgr_category⟦A, B⟧) (isE : isEpi f) :
     CokernelArrow (abgr_epi_cokernel f isE) = f.
@@ -1293,19 +1293,19 @@ Section abgr_abelian.
   Definition abgr_Abelian : AbelianPreCat.
   Proof.
     set (BinDS := to_BinDirectSums abgr_Additive).
-    use (mk_Abelian abgr_category).
-    - use mk_Data1.
+    use (make_Abelian abgr_category).
+    - use make_Data1.
       + exact abgr_Zero.
       + intros X Y. exact (BinDirectSum_BinProduct abgr_Additive (BinDS X Y)).
       + intros X Y. exact (BinDirectSum_BinCoproduct abgr_Additive (BinDS X Y)).
-    - use mk_AbelianData.
-      + use mk_Data2.
+    - use make_AbelianData.
+      + use make_Data2.
         * intros A B f. exact (abgr_Kernel f).
         * intros A B f. exact (abgr_Cokernel f).
-      + use mk_MonicsAreKernels.
+      + use make_MonicsAreKernels.
         intros x y M.
         exact (KernelisKernel abgr_Zero (abgr_monic_kernel M (MonicisMonic abgr_category M))).
-      + use mk_EpisAreCokernels.
+      + use make_EpisAreCokernels.
         intros x y E.
         exact (CokernelisCokernel abgr_Zero (abgr_epi_cokernel E (EpiisEpi abgr_category E))).
   Defined.
@@ -1351,7 +1351,7 @@ Section abgr_corollaries.
     is_inverse_in_precat ((to_premor_monoidfun Add x y z f) : abgr_Abelian⟦_, _⟧)
                          (to_premor_monoidfun Add y x z (is_z_isomorphism_mor H)).
   Proof.
-    use mk_is_inverse_in_precat.
+    use make_is_inverse_in_precat.
     - use monoidfun_paths. use funextfun.
       intros x0. cbn. unfold to_premor. rewrite assoc.
       rewrite (is_inverse_in_precat2 H). use id_left.
@@ -1364,7 +1364,7 @@ Section abgr_corollaries.
         (H : is_z_isomorphism f) :
     @is_z_isomorphism abgr_Abelian _ _ (to_premor_monoidfun Add x y z f).
   Proof.
-    use mk_is_z_isomorphism.
+    use make_is_z_isomorphism.
     - exact (to_premor_monoidfun Add _ _ z (is_z_isomorphism_mor H)).
     - exact (abgr_Additive_is_iso_premor_inverses _ _ z H).
   Defined.
@@ -1376,7 +1376,7 @@ Section abgr_corollaries.
     is_inverse_in_precat ((to_postmor_monoidfun Add x y z f) : abgr_Abelian⟦_, _⟧)
                          (to_postmor_monoidfun Add x z y (is_z_isomorphism_mor H)).
   Proof.
-    use mk_is_inverse_in_precat.
+    use make_is_inverse_in_precat.
     - use monoidfun_paths. use funextfun.
       intros x0. cbn. unfold to_postmor. rewrite <- assoc.
       rewrite (is_inverse_in_precat1 H). use id_right.
@@ -1389,7 +1389,7 @@ Section abgr_corollaries.
         (H : is_z_isomorphism f) :
     @is_z_isomorphism abgr_Abelian _ _ (to_postmor_monoidfun Add x y z f).
   Proof.
-    use mk_is_z_isomorphism.
+    use make_is_z_isomorphism.
     - exact (to_postmor_monoidfun Add x _ _ (is_z_isomorphism_mor H)).
     - exact (abgr_Additive_is_iso_postmor_inverses x _ _ H).
   Defined.
@@ -1424,7 +1424,7 @@ Section abgr_corollaries.
       rewrite id_left.
       use idpath.
     }
-    use mk_is_inverse_in_precat.
+    use make_is_inverse_in_precat.
     - exact Hx.
     - rewrite H. exact Hy.
   Qed.
@@ -1434,7 +1434,7 @@ Section abgr_corollaries.
         (H2 : @is_z_isomorphism abgr_Abelian _ _ (to_postmor_monoidfun Add y x y f)) :
     is_z_isomorphism f.
   Proof.
-    use mk_is_z_isomorphism.
+    use make_is_z_isomorphism.
     - exact (((is_z_isomorphism_mor H1) : (monoidfun (to_abgr x x) (to_abgr y x)))
                ((identity x) : to_abgr x x)).
     - exact (abgr_Additive_premor_postmor_is_iso_inverses _ _ H1 H2).
@@ -1478,8 +1478,8 @@ Section abgr_corollaries.
              (H' : h · g = ZeroArrow (to_Zero abgr_Abelian) W Z) :
     ismonoidfun (λ w' : (W : abgr), pr1 (iscontrpr1 (abgr_isKernel_iscontr f g ZA H isM h H' w'))).
   Proof.
-    use mk_ismonoidfun.
-    - use mk_isbinopfun. intros x y. use (abgr_monic_paths f isM).
+    use make_ismonoidfun.
+    - use make_isbinopfun. intros x y. use (abgr_monic_paths f isM).
       use (pathscomp0 _ (! binopfunisbinopfun (f : monoidfun _ _) _ _)).
       use (pathscomp0 (pr2 (iscontrpr1 (abgr_isKernel_iscontr
                                           f g ZA H isM h H' ((x * y)%multmonoid))))).
@@ -1506,7 +1506,7 @@ Section abgr_corollaries.
     exact (pr2 (iscontrpr1 (abgr_isKernel_iscontr f g ZA H isM h H' (x%multmonoid)))).
   Qed.
 
-  Definition abgr_isKernel_Criteria_pair {X Y Z W : abgr_category} (f : X --> Y) (g : Y --> Z)
+  Definition make_abgr_isKernel_Criteria {X Y Z W : abgr_category} (f : X --> Y) (g : Y --> Z)
              (ZA : f · g = ZeroArrow (to_Zero abgr_Abelian) _ _)
              (H : ∏ (D : (∑ y : pr1 Y, pr1 g y = 1%multmonoid)),
                   ∥ ∑ (x : abgrtogr X), monoidfuntobinopfun _ _ f x = (pr1 D) ∥)
@@ -1528,7 +1528,7 @@ Section abgr_corollaries.
         (isM : @isMonic abgr_category _ _ f) (h : abgr_Abelian ⟦W, Y⟧)
         (H' : h · g = ZeroArrow (to_Zero abgr_Abelian) W Z)
         (t : ∑ ψ : abgr_Abelian ⟦W, X⟧, ψ · f = h) :
-    t = abgr_isKernel_Criteria_pair f g ZA H isM h H'.
+    t = make_abgr_isKernel_Criteria f g ZA H isM h H'.
   Proof.
     use total2_paths_f.
     - use monoidfun_paths. use funextfun. intros x.
@@ -1544,10 +1544,10 @@ Section abgr_corollaries.
                   ∥ ∑ (x : abgrtogr X), monoidfuntobinopfun _ _ f x = (pr1 D) ∥)
              (isM : @isMonic abgr_category _ _ f) : isKernel (to_Zero abgr_Abelian) f g ZA.
   Proof.
-    use mk_isKernel.
+    use make_isKernel.
     - use homset_property.
-    - intros w h H'. use iscontrpair.
-      + exact (abgr_isKernel_Criteria_pair f g ZA H isM h H').
+    - intros w h H'. use make_iscontr.
+      + exact (make_abgr_isKernel_Criteria f g ZA H isM h H').
       + intros t. exact (abgr_isKernel_Criteria_uniqueness f g ZA H isM h H' t).
   Defined.
 

@@ -133,7 +133,7 @@ Section complexes_homotopies.
       these to C2 i. *)
   Definition ComplexHomotMorphism {C1 C2 : Complex A} (H : ComplexHomot C1 C2) : Morphism C1 C2.
   Proof.
-    use mk_Morphism.
+    use make_Morphism.
     - intros i.
       use (@to_binop A (C1 i) (C2 i)).
       + exact (transportf _ (maponpaths C2 (hzrminusplus i 1)) ((H i) · (Diff C2 (i - 1)))).

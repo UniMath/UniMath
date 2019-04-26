@@ -62,7 +62,7 @@ Section def_po.
              (f' : C ⟦b, d⟧) (g' : C ⟦c, d⟧) (H : f · f' = g · g') :
     cocone (pushout_diagram f g) d.
   Proof.
-    use mk_cocone.
+    use make_cocone.
     - use three_rec_dep; try assumption.
       apply (f · f').
     - use three_rec_dep; use three_rec_dep.
@@ -81,7 +81,7 @@ Section def_po.
              (i1 : C⟦b, d⟧) (i2 : C⟦c, d⟧) (H : f · i1 = g · i2) : UU :=
     isColimCocone (pushout_diagram f g) d (PushoutCocone f g d i1 i2 H).
 
-  Definition mk_isPushout {a b c d : C} (f : C ⟦a, b⟧) (g : C ⟦a, c⟧)
+  Definition make_isPushout {a b c d : C} (f : C ⟦a, b⟧) (g : C ⟦a, c⟧)
              (i1 : C⟦b, d⟧) (i2 : C⟦c, d⟧) (H : f · i1 = g · i2) :
     (∏ e (h : C ⟦b, e⟧) (k : C⟦c, e⟧)(Hk : f · h = g · k ),
      iscontr (total2 (fun hk : C⟦d, e⟧ => dirprod (i1 · hk = h)(i2 · hk = k)))) →
@@ -112,7 +112,7 @@ Section def_po.
   Definition Pushout {a b c : C} (f : C⟦a, b⟧) (g : C⟦a, c⟧) : UU :=
     ColimCocone (pushout_diagram f g).
 
-  Definition mk_Pushout {a b c : C} (f : C⟦a, b⟧) (g : C⟦a, c⟧) (d : C)
+  Definition make_Pushout {a b c : C} (f : C⟦a, b⟧) (g : C⟦a, c⟧) (d : C)
              (i1 : C⟦b,d⟧) (i2 : C ⟦c,d⟧) (H : f · i1 = g · i2)
              (ispo : isPushout f g i1 i2 H) : Pushout f g.
   Proof.
@@ -178,7 +178,7 @@ Section def_po.
   Definition isPushout_Pushout {a b c : C} {f : C⟦a, b⟧} {g : C⟦a, c⟧} (P : Pushout f g) :
     isPushout f g (PushoutIn1 P) (PushoutIn2 P) (PushoutSqrCommutes P).
   Proof.
-    apply mk_isPushout.
+    apply make_isPushout.
     intros e h k HK.
     use tpair.
     - use tpair.
@@ -204,7 +204,7 @@ Section def_po.
                                                    (PushoutIn2 Po · hk = PushoutIn2 Po)).
   Proof.
     exists (identity (colim Po)).
-    apply dirprodpair; apply id_right.
+    apply make_dirprod; apply id_right.
   Defined.
 
   (* was PushoutArrowUnique *)
@@ -337,7 +337,7 @@ Section pushout_coincide.
     limits.pushouts.isPushout f g i1 i2 H -> isPushout C f g i1 i2 H.
   Proof.
     intros X R cc.
-    set (XR := limits.pushouts.mk_Pushout f g d i1 i2 H X).
+    set (XR := limits.pushouts.make_Pushout f g d i1 i2 H X).
     use unique_exists.
     + use (limits.pushouts.PushoutArrow XR).
       - exact (coconeIn cc Two).
@@ -362,7 +362,7 @@ Section pushout_coincide.
     limits.pushouts.isPushout f g i1 i2 H <- isPushout C f g i1 i2 H.
   Proof.
     intros X R k h HH.
-    set (XR := mk_Pushout C f g d i1 i2 H X).
+    set (XR := make_Pushout C f g d i1 i2 H X).
     use unique_exists.
     + use (PushoutArrow C XR).
       - exact k.
@@ -386,7 +386,7 @@ Section pushout_coincide.
     limits.pushouts.Pushout f g -> Pushout C f g.
   Proof.
     intros X.
-    exact (mk_Pushout
+    exact (make_Pushout
              C f g X
              (limits.pushouts.PushoutIn1 X)
              (limits.pushouts.PushoutIn2 X)
@@ -398,7 +398,7 @@ Section pushout_coincide.
     limits.pushouts.Pushout f g <- Pushout C f g.
   Proof.
     intros X.
-    exact (limits.pushouts.mk_Pushout
+    exact (limits.pushouts.make_Pushout
              f g
              (PushoutObject C X)
              (PushoutIn1 C X)

@@ -34,7 +34,7 @@ Local Open Scope functions.
 
 Definition type_precat : precategory.
 Proof.
-  use mk_precategory.
+  use make_precategory.
   - use tpair; use tpair.
     + exact UU.
     + exact (λ X Y, X -> Y).
@@ -54,7 +54,7 @@ Section HomFunctors.
   Definition hom_functor_data :
     functor_data (precategory_binproduct C^op C) type_precat.
   Proof.
-    use mk_functor_data.
+    use make_functor_data.
     - intros pair; exact (C ⟦ pr1 pair, pr2 pair ⟧).
     - intros x y fg h.
       refine (_ · h · _).
@@ -64,7 +64,7 @@ Section HomFunctors.
 
   Lemma is_functor_hom_functor_type : is_functor hom_functor_data.
   Proof.
-    use dirprodpair.
+    use make_dirprod.
     - intro; cbn.
       apply funextsec; intro.
       unfold idfun.
@@ -76,7 +76,7 @@ Section HomFunctors.
   Defined.
 
   Definition hom_functor : functor (precategory_binproduct C^op C) type_precat :=
-    mk_functor _ is_functor_hom_functor_type.
+    make_functor _ is_functor_hom_functor_type.
 
   Context (c : C).
 

@@ -550,7 +550,7 @@ Section Map1Cells.
       ≃
       disp_adjoint_equivalence (internal_adjoint_equivalence_identity F₀) F₁ F₁'.
   Proof.
-    refine (weqpair (all_invertible_2cell_to_disp_adjoint_equivalence F₀ F₁ F₁') _).
+    refine (make_weq (all_invertible_2cell_to_disp_adjoint_equivalence F₀ F₁ F₁') _).
     use isweq_iso.
     - exact (disp_adjoint_equivalence_to_all_invertible_2cell F₀ F₁ F₁').
     - intro m.
@@ -593,14 +593,14 @@ Section Map1Cells.
     apply fiberwise_univalent_2_0_to_disp_univalent_2_0.
     intros F₀ F₁ F₁'.
     use weqhomot.
-    - simple refine (_ ∘ weqpair _ (isweqtoforallpaths _ _ _))%weq.
+    - simple refine (_ ∘ make_weq _ (isweqtoforallpaths _ _ _))%weq.
       simple refine (_ ∘ weqonsecfibers _ _ _)%weq.
       + exact (λ X, ∏ (Y : C) (f : X --> Y), F₁ X Y f = F₁' X Y f).
       + intro X ; cbn.
-        simple refine (_ ∘ weqpair _ (isweqtoforallpaths _ _ _))%weq.
+        simple refine (_ ∘ make_weq _ (isweqtoforallpaths _ _ _))%weq.
         simple refine (weqonsecfibers _ _ _)%weq.
         intro Y ; cbn.
-        simple refine (_ ∘ weqpair _ (isweqtoforallpaths _ _ _))%weq.
+        simple refine (_ ∘ make_weq _ (isweqtoforallpaths _ _ _))%weq.
         apply idweq.
       + refine (_ ∘ weqonsecfibers _ _ _)%weq.
         intro X ; cbn.
@@ -609,7 +609,7 @@ Section Map1Cells.
         simple refine (weqonsecfibers _ _ _).
         * exact (λ f, invertible_2cell (F₁ X Y f) (F₁' X Y f)).
         * intro f ; cbn.
-          exact (weqpair (idtoiso_2_1 (F₁ X Y f) (F₁' X Y f)) (HD_2_1 _ _ _ _)).
+          exact (make_weq (idtoiso_2_1 (F₁ X Y f) (F₁' X Y f)) (HD_2_1 _ _ _ _)).
         * exact (all_invertible_2cell_is_disp_adjoint_equivalence HD_2_1 F₀ F₁ F₁').
     - intro p.
       induction p.

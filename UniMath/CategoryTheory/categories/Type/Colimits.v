@@ -25,7 +25,7 @@ Require Import UniMath.CategoryTheory.categories.Type.Core.
 (** The [empty] type is an initial object for the precategory of types. *)
 Lemma InitialType : Initial type_precat.
 Proof.
-  apply (mk_Initial (empty : ob type_precat)).
+  apply (make_Initial (empty : ob type_precat)).
   exact iscontrfunfromempty.
 Defined.
 

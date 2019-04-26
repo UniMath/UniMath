@@ -22,7 +22,7 @@ Local Open Scope cat.
 *)
 
 Definition conat_graph : graph :=
-    mk_graph nat (λ m n, S n = m).
+    make_graph nat (λ m n, S n = m).
 
 Notation "'cochain'" := (diagram conat_graph).
 

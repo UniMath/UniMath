@@ -14,12 +14,12 @@ Defined.
 Lemma sum_of_fibers {A B:Type} (f: A -> B) :
   (∑ b:B, hfiber f b) ≃ A.
 Proof.
-  use weqpair.
+  use make_weq.
   - intro bap. exact (pr1 (pr2 bap)).
-  - intro a. use iscontrpair.
-    + use hfiberpair.
+  - intro a. use make_iscontr.
+    + use make_hfiber.
       * exists (f a).
-        use hfiberpair.
+        use make_hfiber.
         { exact a. }
         { reflexivity. }
       * cbn. reflexivity.

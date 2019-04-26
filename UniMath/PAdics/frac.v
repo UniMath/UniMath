@@ -311,7 +311,7 @@ Proof.
     intro p.
     apply ( pr1 ( afldfracapart ) b c ).
   }
-  apply ( setquotuniv3prop _ ( fun a b c => hProppair _ ( int a b c ) ) ).
+  apply ( setquotuniv3prop _ ( fun a b c => make_hProp _ ( int a b c ) ) ).
   intros ab cd ef p.
   destruct ab as [ a b ].
   destruct b as [ b b' ].
@@ -326,9 +326,9 @@ Proof.
   rewrite setquotuniv2comm.
   unfold afldfracapartrelpre.
   simpl.
-  assert ( afldfracapartrelpre ( dirprodpair ( @op1 A ( @op2 A d a ) ( @op2 A b c ) )
+  assert ( afldfracapartrelpre ( make_dirprod ( @op1 A ( @op2 A d a ) ( @op2 A b c ) )
              ( @op ( aintdomazerosubmonoid A ) ( tpair b b' ) ( tpair d d' ) ) )
-                               ( dirprodpair ( @op1 A ( @op2 A f a ) ( @op2 A b e ) )
+                               ( make_dirprod ( @op1 A ( @op2 A f a ) ( @op2 A b e ) )
              ( @op ( aintdomazerosubmonoid A ) ( tpair b b' ) ( tpair f f' ) ) ) ) as u
   by apply p.
   unfold afldfracapartrelpre in u.
@@ -398,7 +398,7 @@ Proof.
     intro p.
     apply ( pr1 ( afldfracapart ) b c ).
   }
-  apply ( setquotuniv3prop _ ( fun a b c => hProppair _ ( int a b c ) ) ).
+  apply ( setquotuniv3prop _ ( fun a b c => make_hProp _ ( int a b c ) ) ).
   intros ab cd ef p.
   destruct ab as [ a b ].
   destruct b as [ b b' ].
@@ -406,9 +406,9 @@ Proof.
   destruct d as [ d d' ].
   destruct ef as [ e f ].
   destruct f as [ f f' ].
-  assert ( afldfracapartrelpre ( dirprodpair ( ( a * c ) )
+  assert ( afldfracapartrelpre ( make_dirprod ( ( a * c ) )
             ( @op ( aintdomazerosubmonoid A ) ( tpair b b' ) ( tpair d d' ) ) )
-                               ( dirprodpair ( a * e )
+                               ( make_dirprod ( a * e )
             ( @op ( aintdomazerosubmonoid A ) ( tpair b b' ) ( tpair f f' ) ) ) ) as u
   by apply p.
   unfold afldfracapart in *.
@@ -475,7 +475,7 @@ Proof.
 Defined.
 
 Definition afldfracmultinvint ( ab : A × aintdomazerosubmonoid A )
-           ( is : afldfracapartrelpre ab ( dirprodpair ( @ringunel1 A )
+           ( is : afldfracapartrelpre ab ( make_dirprod ( @ringunel1 A )
                               ( unel ( aintdomazerosubmonoid A ) ) ) ) :
   A × aintdomazerosubmonoid A.
 Proof.
@@ -504,40 +504,40 @@ Proof.
     apply ( isapropmultinvpair afldfrac0 ).
   }
   assert ( forall b : afldfrac0, b # 0 -> multinvpair afldfrac0 b ) as p.
-  { apply ( setquotunivprop _ ( fun x0 => hProppair _ ( int x0 ) ) ).
+  { apply ( setquotunivprop _ ( fun x0 => make_hProp _ ( int x0 ) ) ).
     intros bc q.
     destruct bc as [ b c ].
-    assert ( afldfracapartrelpre ( dirprodpair b c )
-      ( dirprodpair ( @ringunel1 A ) ( unel (aintdomazerosubmonoid A ) ) ) ) as is'
+    assert ( afldfracapartrelpre ( make_dirprod b c )
+      ( make_dirprod ( @ringunel1 A ) ( unel (aintdomazerosubmonoid A ) ) ) ) as is'
     by apply q.
     split with (setquotpr (eqrelcommringfrac A (aintdomazerosubmonoid A))
-                              (afldfracmultinvint ( dirprodpair b c ) is' ) ).
+                              (afldfracmultinvint ( make_dirprod b c ) is' ) ).
     split.
     - change ( setquotpr ( eqrelcommringfrac A ( aintdomazerosubmonoid A ) )
-        ( dirprodpair ( @op2 A ( pr1 ( afldfracmultinvint ( dirprodpair b c ) is' ) ) b )
+        ( make_dirprod ( @op2 A ( pr1 ( afldfracmultinvint ( make_dirprod b c ) is' ) ) b )
                       ( @op ( aintdomazerosubmonoid A ) ( pr2 ( afldfracmultinvint
-                                                  ( dirprodpair b c ) is' ) ) c ) ) =
+                                                  ( make_dirprod b c ) is' ) ) c ) ) =
       ( commringfracunel2 A ( aintdomazerosubmonoid A ) ) ).
       apply iscompsetquotpr.
       unfold commringfracunel2int.
       destruct c as [ c c' ].
       simpl.
       apply total2tohexists.
-      split with ( carrierpair ( fun x : pr1 A => x # 0 ) 1 ( pr1 ( pr2 A ) ) ).
+      split with ( make_carrier ( fun x : pr1 A => x # 0 ) 1 ( pr1 ( pr2 A ) ) ).
       simpl.
       rewrite 3! ( @ringrunax2 A ).
       rewrite ( @ringlunax2 A ).
       apply ( @ringcomm2 A ).
     - change ( setquotpr ( eqrelcommringfrac A ( aintdomazerosubmonoid A ) )
-        ( dirprodpair ( @op2 A b ( pr1 ( afldfracmultinvint ( dirprodpair b c ) is' ) ) )
+        ( make_dirprod ( @op2 A b ( pr1 ( afldfracmultinvint ( make_dirprod b c ) is' ) ) )
                       ( @op ( aintdomazerosubmonoid A ) c ( pr2 ( afldfracmultinvint
-                                                  ( dirprodpair b c ) is' ) ) ) ) =
+                                                  ( make_dirprod b c ) is' ) ) ) ) =
       ( commringfracunel2 A ( aintdomazerosubmonoid A ) ) ).
       apply iscompsetquotpr.
       destruct c as [ c c' ].
       simpl.
       apply total2tohexists.
-      split with ( carrierpair ( fun x : pr1 A => x # 0 ) 1 ( pr1 ( pr2 A ) ) ).
+      split with ( make_carrier ( fun x : pr1 A => x # 0 ) 1 ( pr1 ( pr2 A ) ) ).
       simpl.
       rewrite 3! ( @ringrunax2 A ).
       rewrite ( @ringlunax2 A ).
@@ -568,7 +568,7 @@ Proof.
     assumption.
 Defined.
 
-Definition afldfrac := afldpair afldfrac0 afldfracisafld.
+Definition afldfrac := make_afld afldfrac0 afldfracisafld.
 
 End aint.
 

@@ -22,13 +22,13 @@ Local Open Scope cat.
 (** * Precategory of rings *)
 Section def_ring_precategory.
 
-  Definition ring_fun_space (A B : ring) : hSet := hSetpair (ringfun A B) (isasetrigfun A B).
+  Definition ring_fun_space (A B : ring) : hSet := make_hSet (ringfun A B) (isasetrigfun A B).
 
   Definition ring_precategory_ob_mor : precategory_ob_mor :=
     tpair (λ ob : UU, ob -> ob -> UU) ring (λ A B : ring, ring_fun_space A B).
 
   Definition ring_precategory_data : precategory_data :=
-    precategory_data_pair
+    make_precategory_data
       ring_precategory_ob_mor (λ (X : ring), (rigisotorigfun (idrigiso X)))
       (fun (X Y Z : ring) (f : ringfun X Y) (g : ringfun Y Z) => rigfuncomp f g).
 
@@ -55,14 +55,14 @@ Section def_ring_precategory.
 
   Lemma is_precategory_ring_precategory_data : is_precategory ring_precategory_data.
   Proof.
-    use mk_is_precategory_one_assoc.
+    use make_is_precategory_one_assoc.
     - intros a b f. use ring_id_left.
     - intros a b f. use ring_id_right.
     - intros a b c d f g h. use ring_assoc.
   Qed.
 
   Definition ring_precategory : precategory :=
-    mk_precategory ring_precategory_data is_precategory_ring_precategory_data.
+    make_precategory ring_precategory_data is_precategory_ring_precategory_data.
 
   Lemma has_homsets_ring_precategory : has_homsets ring_precategory.
   Proof.
@@ -93,8 +93,8 @@ Section def_ring_category.
   Lemma ring_iso_equiv (X Y : ob ring_precategory) : iso X Y -> ringiso (X : ring) (Y : ring).
   Proof.
     intro f.
-    use ringisopair.
-    - exact (weqpair (pr1 (pr1 f)) (ring_iso_is_equiv X Y f)).
+    use make_ringiso.
+    - exact (make_weq (pr1 (pr1 f)) (ring_iso_is_equiv X Y f)).
     - exact (pr2 (pr1 f)).
   Defined.
 
@@ -103,7 +103,7 @@ Section def_ring_category.
   Proof.
     use is_iso_qinv.
     - exact (ringfunconstr (pr2 (invrigiso f))).
-    - use mk_is_inverse_in_precat.
+    - use make_is_inverse_in_precat.
       + use rigfun_paths. use funextfun. intros x. use homotinvweqweq.
       + use rigfun_paths. use funextfun. intros y. use homotweqinvweq.
   Defined.
@@ -111,7 +111,7 @@ Section def_ring_category.
 
   Lemma ring_equiv_iso (X Y : ob ring_precategory) : ringiso (X : ring) (Y : ring) -> iso X Y.
   Proof.
-    intros f. exact (@isopair ring_precategory X Y (ringfunconstr (pr2 f))
+    intros f. exact (@make_iso ring_precategory X Y (ringfunconstr (pr2 f))
                               (ring_equiv_is_iso X Y f)).
   Defined.
 
@@ -129,7 +129,7 @@ Section def_ring_category.
   Definition ring_iso_equiv_weq (X Y : ob ring_precategory) :
     weq (iso X Y) (ringiso (X : ring) (Y : ring)).
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (ring_iso_equiv X Y).
     - exact (ring_iso_equiv_is_equiv X Y).
   Defined.
@@ -148,7 +148,7 @@ Section def_ring_category.
   Definition ring_equiv_weq_iso (X Y : ob ring_precategory) :
     (ringiso (X : ring) (Y : ring)) ≃ (iso X Y).
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (ring_equiv_iso X Y).
     - exact (ring_equiv_iso_is_equiv X Y).
   Defined.
@@ -172,12 +172,12 @@ Section def_ring_category.
 
   Definition ring_precategory_is_univalent : is_univalent ring_precategory.
   Proof.
-    use mk_is_univalent.
+    use make_is_univalent.
     - intros X Y. exact (ring_precategory_isweq X Y).
     - exact has_homsets_ring_precategory.
   Defined.
 
   Definition ring_category : univalent_category :=
-    mk_category ring_precategory ring_precategory_is_univalent.
+    make_univalent_category ring_precategory ring_precategory_is_univalent.
 
 End def_ring_category.

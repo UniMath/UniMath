@@ -11,7 +11,7 @@ Definition hequiv (P Q:hProp) : hProp := (P ⇒ Q) ∧ (Q ⇒ P).
 Notation "A ⇔ B" := (hequiv A B) (at level 95, no associativity) : logic.
 
 Definition total2_hProp {X : hProp} (Y : X -> hProp) : hProp
-  := hProppair (∑ x, Y x) (isaprop_total2 X Y).
+  := make_hProp (∑ x, Y x) (isaprop_total2 X Y).
 
 (* Declare Scope prop. *)
 Delimit Scope prop with prop.
@@ -50,9 +50,9 @@ Proof. apply iscontrcoconustot. Defined.
 Lemma iscontr_paths_from {X} (x:X) : iscontr (paths_from x).
 Proof. apply iscontrcoconusfromt. Defined.
 Definition paths_to_prop {X} (x:X) :=
-  hProppair (paths_to x) (isapropifcontr (iscontr_paths_to x)).
+  make_hProp (paths_to x) (isapropifcontr (iscontr_paths_to x)).
 Definition paths_from_prop {X} (x:X) :=
-  hProppair (paths_from x) (isapropifcontr (iscontr_paths_from x)).
+  make_hProp (paths_from x) (isapropifcontr (iscontr_paths_from x)).
 
 (** ** Squashing *)
 

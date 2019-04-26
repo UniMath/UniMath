@@ -65,7 +65,7 @@ Definition yoneda_objects_mor (C : precategory) (c : C)
 Definition yoneda_ob_functor_data (C : precategory) (hs: has_homsets C) (c : C) :
     functor_data (C^op) HSET.
 Proof.
-  exists (λ c', hSetpair (yoneda_objects_ob C c c') (hs c' c)) .
+  exists (λ c', make_hSet (yoneda_objects_ob C c c') (hs c' c)) .
   intros a b f g. unfold yoneda_objects_ob in *. simpl in *.
   exact (f · g).
 Defined.
@@ -222,12 +222,12 @@ Qed.
 Lemma yoneda_iso_sets (C : precategory) (hs: has_homsets C) (c : C)
    (F : functor C^op HSET) :
    is_iso (C:=HSET)
-     (a := hSetpair (hom _ ((yoneda C) hs c) F) (isaset_nat_trans_yoneda C hs c F))
+     (a := make_hSet (hom _ ((yoneda C) hs c) F) (isaset_nat_trans_yoneda C hs c F))
      (b := F c)
      (yoneda_map_1 C hs c F).
 Proof.
   set (T:=yoneda_map_2 C hs c F). simpl in T.
-  set (T':= T : hom HSET (F c) (hSetpair (hom _ ((yoneda C) hs c) F)
+  set (T':= T : hom HSET (F c) (make_hSet (hom _ ((yoneda C) hs c) F)
                                          (isaset_nat_trans_yoneda C hs c F))).
   apply (is_iso_qinv (C:=HSET) _ T' ).
   repeat split; simpl.
@@ -311,7 +311,7 @@ Definition natural_trans_yoneda_iso_inv (C : precategory) (hs : has_homsets C)
 Lemma isweq_yoneda_map_1 (C : precategory) (hs: has_homsets C) (c : C)
    (F : functor C^op HSET) :
   isweq
-     (*a := hSetpair (hom _ ((yoneda C) hs c) F) (isaset_nat_trans_yoneda C hs c F)*)
+     (*a := make_hSet (hom _ ((yoneda C) hs c) F) (isaset_nat_trans_yoneda C hs c F)*)
      (*b := F c*)
      (yoneda_map_1 C hs c F).
 Proof.
@@ -325,7 +325,7 @@ Defined.
 Definition yoneda_weq (C : precategory) (hs: has_homsets C) (c : C)
    (F : functor C^op HSET)
   :  hom [C^op, HSET, has_homsets_HSET] ((yoneda C hs) c) F ≃ pr1hSet (F c)
-  := weqpair _ (isweq_yoneda_map_1 C hs c F).
+  := make_weq _ (isweq_yoneda_map_1 C hs c F).
 
 
 (** ** The Yoneda embedding is fully faithful *)
@@ -384,9 +384,9 @@ Lemma is_iso_yoneda_functor_precomp : is_iso yoneda_functor_precomp.
 Proof.
   apply functor_iso_if_pointwise_iso.
   intro. simpl.
-  set (T:= weqpair _ (Fff a c)).
-  set (TA := hSetpair (hom C a c) (hsC _ _ )).
-  set (TB := hSetpair (hom D (F a) (F c)) (hsD _ _ )).
+  set (T:= make_weq _ (Fff a c)).
+  set (TA := make_hSet (hom C a c) (hsC _ _ )).
+  set (TB := make_hSet (hom D (F a) (F c)) (hsD _ _ )).
   apply (hset_equiv_is_iso TA TB T).
 Defined.
 

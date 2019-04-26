@@ -175,7 +175,7 @@ Context {C : category} (D1 D2 : disp_cat C).
 Definition dirprod_disp_cat_axioms
   : disp_cat_axioms _ (dirprod_disp_cat_data D1 D2).
 Proof.
-  repeat apply dirprodpair.
+  repeat apply make_dirprod.
   - intros. apply dirprod_paths; use (id_left_disp @ !_).
     + use pr1_transportf.
     + apply pr2_transportf.
@@ -566,7 +566,7 @@ Abort.
 Definition sigma_disp_iso_equiv
     {x y} (xx : sigma_disp_cat x) (yy : sigma_disp_cat y)
     (f : iso x y)
-:= weqpair _ (sigma_disp_isweq_iso xx yy f).
+:= make_weq _ (sigma_disp_isweq_iso xx yy f).
 *)
 
 (*
@@ -603,7 +603,7 @@ Proof.
       exact (isweqtransportf (λ I, iso_disp I xxx yyy) _).
     apply (@weqcomp _ (∑ f : iso_disp (identity_iso x) xx yy,
                       (iso_disp (@total_iso _ D (_,,_) (_,,_) _ f) xxx yyy)) _).
-      refine (weqfp (weqpair _ _) _). refine (DD _ _ (idpath _) _ _).
+      refine (weqfp (make_weq _ _) _). refine (DD _ _ (idpath _) _ _).
     apply (sigma_disp_iso_equiv (_,,_) (_,,_) _).
   - assert (lemma2 : forall i i' (e : i = i') ii,
                  pr1 (transportf (λ i, iso_disp i (pr2 xx) (pr2 yy)) e ii)
@@ -892,7 +892,7 @@ Proof.
          )
        ).
     specialize (XR ((xx : disp_functor _ _ _  ) x0 xx0)).
-    set (Xweq := weqpair _ XR).
+    set (Xweq := make_weq _ XR).
     apply (invmaponpathsweq Xweq).
     unfold Xweq. clear Xweq.
     etrans.  apply mor_disp_transportf_prewhisker.
@@ -1128,7 +1128,7 @@ Variable H : is_univalent_disp D.
 
 Let idto1 (a b : fiber_category) : a = b ≃ iso_disp (identity_iso c) a b
   :=
-  weqpair (@idtoiso_fiber_disp _ _ _ a b) (H _ _ (idpath _ ) a b).
+  make_weq (@idtoiso_fiber_disp _ _ _ a b) (H _ _ (idpath _ ) a b).
 
 Let idto2 (a b : fiber_category) : a = b -> iso_disp (identity_iso c) a b
   :=
@@ -1179,7 +1179,7 @@ Proof.
   apply is_univalent_disp_from_fibers.
   intros c xx xx'.
   specialize (H c).
-  set (w := weqpair _ (pr1 H xx xx')).
+  set (w := make_weq _ (pr1 H xx xx')).
   set (w' := weqcomp w (iso_disp_iso_fiber D _ xx xx')).
   apply (weqhomot _ w').
   intro e. induction e.

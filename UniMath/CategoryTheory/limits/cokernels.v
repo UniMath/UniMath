@@ -37,7 +37,7 @@ Section def_cokernels.
     induction e. exact isC.
   Qed.
 
-  Local Lemma mk_isCokernel_uniqueness {x y z : C} (f : x --> y) (g : y --> z)
+  Local Lemma make_isCokernel_uniqueness {x y z : C} (f : x --> y) (g : y --> z)
         (H1 : f · g = ZeroArrow Z x z)
         (H2 : ∏ (w : C) (h : C ⟦ y, w ⟧),
               f · h = ZeroArrow Z x w → ∃! ψ : C ⟦ z, w ⟧, g · ψ = h)
@@ -47,7 +47,7 @@ Section def_cokernels.
     intros y0 H. apply (base_paths _ _ ((pr2 (H2 w h H')) (tpair _ y0 H))).
   Qed.
 
-  Definition mk_isCokernel {x y z : C} (f : x --> y) (g : y --> z) (H1 : f · g = ZeroArrow Z x z)
+  Definition make_isCokernel {x y z : C} (f : x --> y) (g : y --> z) (H1 : f · g = ZeroArrow Z x z)
              (H2 : ∏ (w : C) (h : y --> w) (H' : f · h = ZeroArrow Z x w),
                    ∃! ψ : z --> w, g · ψ = h) : isCokernel f g H1.
   Proof.
@@ -64,7 +64,7 @@ Section def_cokernels.
     ∑ D : (∑ z : ob C, y --> z),
           ∑ (e : f · (pr2 D) = ZeroArrow Z x (pr1 D)), isCokernel f (pr2 D) e.
 
-  Definition mk_Cokernel {x y z : C} (f : x --> y) (g : y --> z) (H : f · g = (ZeroArrow Z x z))
+  Definition make_Cokernel {x y z : C} (f : x --> y) (g : y --> z) (H : f · g = (ZeroArrow Z x z))
              (isCK : isCokernel f g H) : Cokernel f := ((z,,g),,(H,,isCK)).
 
   Definition Cokernels : UU := ∏ (x y : C) (f : x --> y), Cokernel f.
@@ -156,14 +156,14 @@ Section def_cokernels.
   Qed.
 
   Definition iso_from_Cokernel_to_Cokernel {y z : C} {g : y --> z} (CK CK' : Cokernel g) :
-    z_iso CK CK' := mk_z_iso (from_Cokernel_to_Cokernel CK CK') (from_Cokernel_to_Cokernel CK' CK)
+    z_iso CK CK' := make_z_iso (from_Cokernel_to_Cokernel CK CK') (from_Cokernel_to_Cokernel CK' CK)
                              (are_inverses_from_Cokernel_to_Cokernel CK CK').
 
   (** Cokernel of the ZeroArrow is given by the identity. *)
   Lemma CokernelOfZeroArrow_isCokernel (x y : C) :
     isCokernel (ZeroArrow Z x y) (identity y) (id_right (ZeroArrow Z x y)).
   Proof.
-    use mk_isCokernel.
+    use make_isCokernel.
     intros w h H'.
     use unique_exists.
     - exact h.
@@ -173,14 +173,14 @@ Section def_cokernels.
   Qed.
 
   Definition CokernelofZeroArrow (x y : C) : Cokernel (ZeroArrow Z x y) :=
-    mk_Cokernel (ZeroArrow Z x y) (identity y) (id_right _) (CokernelOfZeroArrow_isCokernel x y).
+    make_Cokernel (ZeroArrow Z x y) (identity y) (id_right _) (CokernelOfZeroArrow_isCokernel x y).
 
   (** Cokernel of identity is given by arrow to zero *)
   Local Lemma CokernelOfIdentity_isCokernel (x : C) :
     isCokernel (identity x) (ZeroArrowTo x)
                (ArrowsToZero C Z x (identity x · ZeroArrowTo x) (ZeroArrow Z x Z)).
   Proof.
-    use mk_isCokernel.
+    use make_isCokernel.
     intros w h H'.
     use unique_exists.
     - exact (ZeroArrowFrom w).
@@ -191,7 +191,7 @@ Section def_cokernels.
 
   Definition CokernelOfIdentity (x : C) : Cokernel (identity x).
   Proof.
-    use mk_Cokernel.
+    use make_Cokernel.
     - exact Z.
     - exact (ZeroArrowTo x).
     - use ArrowsToZero.
@@ -204,7 +204,7 @@ Section def_cokernels.
     is_inverse_in_precat (CokernelArrow CK)
                          (from_Cokernel_to_Cokernel CK (CokernelofZeroArrow x y)).
   Proof.
-    use mk_is_inverse_in_precat.
+    use make_is_inverse_in_precat.
     - unfold from_Cokernel_to_Cokernel. rewrite CokernelCommutes. apply idpath.
     - unfold from_Cokernel_to_Cokernel. cbn.
       use CokernelOutsEq. rewrite assoc. rewrite CokernelCommutes.
@@ -212,7 +212,7 @@ Section def_cokernels.
   Qed.
 
   Definition CokernelofZeroArrow_iso (x y : C) (CK : Cokernel (ZeroArrow Z x y)) : z_iso y CK :=
-    mk_z_iso (CokernelArrow CK) (from_Cokernel_to_Cokernel CK (CokernelofZeroArrow x y))
+    make_z_iso (CokernelArrow CK) (from_Cokernel_to_Cokernel CK (CokernelofZeroArrow x y))
              (CokernelofZeroArrow_is_iso CK).
 
   (** It follows that CokernelArrow is an epi. *)
@@ -260,7 +260,7 @@ Section cokernels_coequalizers.
   Lemma CokernelCoequalizer_isCokernel {x y : ob C} {f : x --> y} (CK : Cokernel Z f) :
     isCoequalizer f (ZeroArrow Z x y) (CokernelArrow CK) (CokernelCoequalizer_eq CK).
   Proof.
-    use mk_isCoequalizer.
+    use make_isCoequalizer.
     intros w0 h H'.
     use unique_exists.
     - use CokernelOut.
@@ -274,7 +274,7 @@ Section cokernels_coequalizers.
   Definition CokernelCoequalizer {x y : ob C} {f : x --> y} (CK : Cokernel Z f) :
     Coequalizer f (ZeroArrow Z _ _).
   Proof.
-    use mk_Coequalizer.
+    use make_Coequalizer.
     - exact CK.
     - exact (CokernelArrow CK).
     - exact (CokernelCoequalizer_eq CK).
@@ -295,7 +295,7 @@ Section cokernels_coequalizers.
         (CE : Coequalizer f (ZeroArrow Z _ _)) :
     isCokernel Z f (CoequalizerArrow CE) (CoequalizerCokernel_eq CE).
   Proof.
-    use (mk_isCokernel hs).
+    use (make_isCokernel hs).
     intros w h H'.
     use unique_exists.
     - use CoequalizerOut.
@@ -309,7 +309,7 @@ Section cokernels_coequalizers.
   Definition CoequalizerCokernel {x y : ob C} {f : x --> y} (CE : Coequalizer f (ZeroArrow Z _ _)) :
     Cokernel Z f.
   Proof.
-    use mk_Cokernel.
+    use make_Cokernel.
     - exact CE.
     - exact (CoequalizerArrow CE).
     - exact (CoequalizerCokernel_eq CE).
@@ -343,7 +343,7 @@ Section cokernels_iso.
         (h : z_iso CK z) (H : g = (CokernelArrow CK) · h) (H'' : f · g = ZeroArrow Z x z) :
     isCokernel Z f g H''.
   Proof.
-    use (mk_isCokernel hs).
+    use (make_isCokernel hs).
     intros w h0 H'.
     use unique_exists.
     - exact ((z_iso_inv_mor h) · (CokernelOut Z CK w h0 H')).
@@ -363,7 +363,7 @@ Section cokernels_iso.
 
   Definition Cokernel_up_to_iso {x y z : C} (f : x --> y) (g : y --> z) (CK : Cokernel Z f)
              (h : z_iso CK z) (H : g = (CokernelArrow CK) · h) : Cokernel Z f :=
-    mk_Cokernel Z f g (Cokernel_up_to_iso_eq f g CK h H)
+    make_Cokernel Z f g (Cokernel_up_to_iso_eq f g CK h H)
                 (Cokernel_up_to_iso_isCokernel f g CK h H (Cokernel_up_to_iso_eq f g CK h H)).
 
   Definition Cokernel_up_to_iso2_eq {x y z : C} (f1 : x --> z) (f2 : y --> z) (h : z_iso y x)
@@ -377,7 +377,7 @@ Section cokernels_iso.
              (h : z_iso y x) (H : h · f1 = f2) (CK : Cokernel Z f1) :
     isCokernel Z f2 (CokernelArrow CK) (Cokernel_up_to_iso2_eq f1 f2 h H CK).
   Proof.
-    use (mk_isCokernel hs).
+    use (make_isCokernel hs).
     intros w h0 H'.
     use unique_exists.
     - use CokernelOut.
@@ -393,7 +393,7 @@ Section cokernels_iso.
 
   Definition Cokernel_up_to_iso2 {x y z : C} (f1 : x --> z) (f2 : y --> z) (h : z_iso y x)
              (H : h · f1 = f2) (CK : Cokernel Z f1) : Cokernel Z f2 :=
-    mk_Cokernel Z f2 (CokernelArrow CK) (Cokernel_up_to_iso2_eq f1 f2 h H CK)
+    make_Cokernel Z f2 (CokernelArrow CK) (Cokernel_up_to_iso2_eq f1 f2 h H CK)
                 (Cokernel_up_to_iso2_isCoequalizer f1 f2 h H CK).
 
 End cokernels_iso.
@@ -476,7 +476,7 @@ Section cokernels_epis.
   Local Lemma CokernelEpiComp_isCoequalizer {x y z : C} (E : Epi C x y) (f : y --> z)
         (CK : Cokernel Z (E · f)) : isCokernel Z f (CokernelArrow CK) (CokernelEpiComp_eq E f CK).
   Proof.
-    use mk_isCokernel.
+    use make_isCokernel.
     - exact hs.
     - intros w h H'.
       use unique_exists.
@@ -488,14 +488,14 @@ Section cokernels_epis.
       + intros y0. apply hs.
       + intros y0 X.
         apply pathsinv0. cbn in X.
-        use (EpiisEpi C (mk_Epi _ _ (CokernelArrowisEpi Z CK))). cbn.
+        use (EpiisEpi C (make_Epi _ _ (CokernelArrowisEpi Z CK))). cbn.
         rewrite CokernelCommutes. apply pathsinv0. apply X.
   Qed.
 
   Definition CokernelEpiComp {x y z : C} (E : Epi C x y) (f : y --> z) (CK : Cokernel Z (E · f)) :
     Cokernel Z f.
   Proof.
-    use mk_Cokernel.
+    use make_Cokernel.
     - exact CK.
     - use CokernelArrow.
     - exact (CokernelEpiComp_eq E f CK).
@@ -543,7 +543,7 @@ Section cokernel_out_paths.
   Definition CokernelPath {x y : C} {f f' : x --> y} (e : f = f') (CK : Cokernel Z f) :
     Cokernel Z f'.
   Proof.
-    use mk_Cokernel.
+    use make_Cokernel.
     - exact CK.
     - use CokernelArrow.
     - exact (CokernelPath_eq e CK).

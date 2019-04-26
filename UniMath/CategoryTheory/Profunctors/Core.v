@@ -43,7 +43,7 @@ Identity Coercion profunctor_coercion : profunctor >-> functor.
 
 Infix "↛" := profunctor (at level 99, only parsing) : cat. (* \nrightarrow *)
 
-Local Notation "A ⊗ B" := (precatbinprodpair A B).
+Local Notation "A ⊗ B" := (make_precatbinprod A B).
 
 Local Open Scope cat.
 
@@ -86,7 +86,7 @@ Section Dinatural.
   Definition is_dinatural {F : C ↛ C} {G : C ↛ C}
              (data : dinatural_transformation_data F G) : hProp.
   Proof.
-    use hProppair.
+    use make_hProp.
     - exact (∏ (a b : ob C) (f : a --> b),
                lmap F f · data a · rmap G f = rmap F f · data b · lmap G f).
     - abstract (do 3 (apply impred; intro); apply setproperty).
@@ -193,7 +193,7 @@ Section Ends.
 
   Definition is_wedge (w : ob HSET_univalent_category) (pi : ∏ a : ob C, w --> F (a ⊗ a)) : hProp.
   Proof.
-    use hProppair.
+    use make_hProp.
     - exact (∏ (a b : ob C) (f : a --> b), pi a · rmap F f = pi b · lmap F f).
     - abstract (do 3 (apply impred; intro); apply setproperty).
   Defined.
@@ -220,7 +220,7 @@ Section Ends.
 
   Definition is_end (w : ob HSET_univalent_category) (W : wedge w) : hProp.
   Proof.
-    use hProppair.
+    use make_hProp.
     - exact (∏ v (V : wedge v),
                iscontr (∑ f : v --> w, ∏ a, f · W a = V a)).
     - abstract (do 2 (apply impred; intro); apply isapropiscontr).

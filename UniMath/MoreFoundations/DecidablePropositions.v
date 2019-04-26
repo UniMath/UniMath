@@ -16,7 +16,7 @@ Proof.
   - now apply ii2, (negf YtoX).
 Defined.
 
-Definition decidable_prop (X:hProp) := hProppair (decidable X) (isapropdec X (pr2 X)).
+Definition decidable_prop (X:hProp) := make_hProp (decidable X) (isapropdec X (pr2 X)).
 
 Definition LEM : hProp := ∀ P : hProp, decidable_prop P.
 
@@ -164,7 +164,7 @@ Defined.
    appeal to it. *)
 
 Lemma LEM_for_sets (X : UU) : LEM -> isaset X -> isdeceq X.
-Proof. intros lem is x y. exact (lem (hProppair (x = y) (is x y))). Defined.
+Proof. intros lem is x y. exact (lem (make_hProp (x = y) (is x y))). Defined.
 
 Lemma isaprop_LEM : isaprop LEM.
 Proof.

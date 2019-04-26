@@ -106,7 +106,7 @@ Proof.
   apply CoproductInCommutes.
 Qed.
 
-Definition mk_Coproduct (a : I -> C) (c : C) (f : ∏ i, a i --> c) :
+Definition make_Coproduct (a : I -> C) (c : C) (f : ∏ i, a i --> c) :
    isCoproduct _ _ f →  Coproduct a.
 Proof.
 intro H.
@@ -115,7 +115,7 @@ use tpair.
 - apply H.
 Defined.
 
-Definition mk_isCoproduct (hsC : has_homsets C) (a : I -> C) (co : C)
+Definition make_isCoproduct (hsC : has_homsets C) (a : I -> C) (co : C)
   (f : ∏ i, a i --> co) : (∏ (c : C) (g : ∏ i, a i --> c),
                                   ∃! k : C ⟦co, c⟧, ∏ i, f i · k = g i)
    →    isCoproduct a co f.
@@ -327,10 +327,10 @@ End vertex.
 Definition functor_precat_coproduct_cocone
   : Coproduct I [C, D, hsD] F.
 Proof.
-use mk_Coproduct.
+use make_Coproduct.
 - apply coproduct_of_functors.
 - apply coproduct_nat_trans_in.
-- use mk_isCoproduct.
+- use make_isCoproduct.
   + apply functor_category_has_homsets.
   + intros A f.
     use tpair.
@@ -380,10 +380,10 @@ Lemma Coproducts_from_Colims : Colims_of_shape I_graph C -> Coproducts I C.
 Proof.
 intros H F.
 set (HF := H (coproducts_diagram F)).
-use mk_Coproduct.
+use make_Coproduct.
 + apply (colim HF).
 + intros i; apply (colimIn HF).
-+ apply (mk_isCoproduct _ _ hsC); intros c Fic.
++ apply (make_isCoproduct _ _ hsC); intros c Fic.
   use unique_exists.
   - now apply colimArrow, Coproducts_cocone.
   - abstract (simpl; intro i; apply (colimArrowCommutes HF)).

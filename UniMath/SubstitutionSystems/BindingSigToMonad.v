@@ -140,9 +140,9 @@ Qed.
 Context (BPC : BinProducts C) (BCC : BinCoproducts C).
 
 (** [nat] to a Signature *)
-Definition Arity_to_Signature (TC : Terminal C) (xs : list nat) : Signature C hsC C hsC C hsC :=
-  foldr1 (BinProduct_of_Signatures _ _ _ _ _ _ BPC)
-         (ConstConstSignature (category_pair C hsC) (category_pair C hsC) (category_pair C hsC) (TerminalObject TC))
+Definition Arity_to_Signature (TC : Terminal C) (xs : list nat) : Signature C hsC C hsC :=
+  foldr1 (BinProduct_of_Signatures _ _ _ _ BPC)
+         (ConstConstSignature (make_category C hsC) (make_category C hsC) (TerminalObject TC))
         (map (precomp_option_iter_Signature BCC TC) xs).
 
 Let BPC2 BPC := BinProducts_functor_precat C _ BPC hsC.

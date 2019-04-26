@@ -116,7 +116,7 @@ Lemma opp_is_inverse_in_precat {C : precategory} {a b : C} {f : a --> b} {g : b 
   @is_inverse_in_precat C a b f g -> @is_inverse_in_precat (opp_precat C) a b g f.
 Proof.
   intros H.
-  use mk_is_inverse_in_precat.
+  use make_is_inverse_in_precat.
   - exact (is_inverse_in_precat1 H).
   - exact (is_inverse_in_precat2 H).
 Defined.
@@ -125,7 +125,7 @@ Definition opp_is_z_isomorphism {C : precategory} {a b : C} (f : a --> b) :
   @is_z_isomorphism C a b f -> @is_z_isomorphism C^op b a f.
 Proof.
   intros H.
-  use mk_is_z_isomorphism.
+  use make_is_z_isomorphism.
   - exact (is_z_isomorphism_mor H).
   - exact (opp_is_inverse_in_precat (is_inverse_in_precat_inv H)).
 Defined.
@@ -133,7 +133,7 @@ Defined.
 Definition opp_z_iso {C : precategory} {a b : C} : @z_iso C a b -> @z_iso C^op b a.
 Proof.
   intros H.
-  use mk_z_iso.
+  use make_z_iso.
   - exact (z_iso_mor H).
   - exact (z_iso_inv_mor H).
   - exact (opp_is_inverse_in_precat (is_inverse_in_precat_inv H)).
@@ -289,7 +289,7 @@ Proof.
   - intros X Y.
     use weqhomot.
     + exact ((op_iso_is_cat_iso X Y)
-               ∘ weqpair (@idtoiso C Y X) (pr1(pr2 C) Y X)
+               ∘ make_weq (@idtoiso C Y X) (pr1(pr2 C) Y X)
                ∘ weqpathsinv0 _ _)%weq.
     + intros p.
       induction p ; cbn.

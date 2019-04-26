@@ -328,6 +328,7 @@ Lemma is_nat_trans_σ_data_from_τ {C C' D D' : precategory} {L : functor D C} {
            (h : are_adjoints L R) (h' : are_adjoints L' R')
            (τ : DistrLaw K H R R') : is_nat_trans _ _ (σ_data_from_τ h h' τ).
 Proof.
+  apply (make_nat_trans _ _ (σ_data_from_τ h h' τ)).
   red.
   intros d d' f.
   unfold σ_data_from_τ.
@@ -436,6 +437,7 @@ Lemma is_nat_trans_τ_data_from_σ {C C' D D' : precategory} {L : functor D C} {
            (h : are_adjoints L R) (h' : are_adjoints L' R') (σ : DistrLaw L' L K H) :
   is_nat_trans _ _ (τ_data_from_σ h h' σ).
 Proof.
+  apply (make_nat_trans _ _ (τ_data_from_σ h h' σ)).
   red.
   intros c c' f.
   unfold τ_data_from_σ.
@@ -524,6 +526,8 @@ Defined.
 
 Definition lifting_from_distr_law_data_on_ob {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D) {F: functor C C} {G: functor D D} {H: functor C D} (lambda : DistrLaw G F H H): FunctorAlg F hsC → FunctorAlg G hsD.
 Proof.
+  use make_functor_data.
+  simpl.
   intro Aa.
   set (A := alg_carrier _ Aa).
   set (a := alg_map _ Aa).
@@ -577,6 +581,9 @@ Defined.
 
 Lemma is_functor_lifting_from_distr_law_data {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D) {F: functor C C} {G: functor D D} {H: functor C D} (lambda : DistrLaw G F H H): is_functor (lifting_from_distr_law_data hsC hsD lambda).
 Proof.
+  set (HH_data := lifting_from_distr_law_data hsC hsD lambda).
+  use (make_functor HH_data).
+  red.
   split.
   - intro Aa.
     unfold lifting_from_distr_law_data.

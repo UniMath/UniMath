@@ -51,7 +51,7 @@ Definition two_cells_from_monoidal : prebicat_2cell_struct (one_cells_data_from_
 
 Definition prebicat_data_from_monoidal : prebicat_data.
 Proof.
-  use mk_prebicat_data.
+  use make_prebicat_data.
   - exact (one_cells_data_from_monoidal ,, two_cells_from_monoidal).
   - split. { intros ? ? f. exact (id f). }
     split. { intros ? ? f. apply l. }

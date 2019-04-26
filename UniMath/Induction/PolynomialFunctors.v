@@ -50,7 +50,7 @@ Section PolynomialFunctors.
   Defined.
 
   Definition polynomial_functor : functor type_precat type_precat :=
-    mk_functor polynomial_functor_data polynomial_functor_is_functor.
+    make_functor polynomial_functor_data polynomial_functor_is_functor.
 
   (** An algebra with an uncurried structure map *)
   Definition polynomial_alg_uncurried : UU :=

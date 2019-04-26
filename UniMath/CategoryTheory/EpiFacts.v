@@ -121,7 +121,7 @@ Section IsEffectivePw.
     apply equiv_isCoequalizer1 in hf;[|apply homset_property].
     set (eqd := eq_coeq_pw (PullbackPr1 g) (PullbackPr2 g) x).
     set (z:= (eq_diag_iscolimcocone _ eqd hf)).
-    set (CC := (mk_ColimCocone _ _ _ z)).
+    set (CC := (make_ColimCocone _ _ _ z)).
     apply (is_iso_isColim (homset_property D) _ CC).
     rewrite <- (colimArrowUnique CC _ _ (identity _)).
     apply identity_is_iso.
@@ -175,7 +175,7 @@ Section PointwiseEpi.
       - apply colimD.
     }
     apply (eq_diag_iscolimcocone _ (sym_eq_diag _ _ (eq_po_pw x)))in epia; cycle 1.
-    set (CC := (mk_ColimCocone _ _ _ epia)).
+    set (CC := (make_ColimCocone _ _ _ epia)).
     eapply (is_iso_isColim (homset_property D) _ CC).
     rewrite <- (colimArrowUnique CC _ _ (identity _)).
     apply identity_is_iso.

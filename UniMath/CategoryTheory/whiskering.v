@@ -106,7 +106,7 @@ Proof.
   intros b.
   unfold post_whisker.
   simpl.
-  set ( gammab := isopair (gamma b) (X b) ).
+  set ( gammab := make_iso (gamma b) (X b) ).
   apply (functor_on_iso_is_iso C D K _ _ gammab).
 Defined.
 

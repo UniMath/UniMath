@@ -118,7 +118,7 @@ Definition lam_map : HSET2⟦LC + 1,LC⟧ :=
   CoproductIn bool HSET2 (Coproducts_functor_precat _ _ _ _ _ _) false ·
   BinCoproductIn2 HSET2 (BinCoproducts_functor_precat _ _ _ _ _ _) · LC_mor.
 
-Definition mk_lambdaAlgebra X (fvar : HSET2⟦1,X⟧) (fapp : HSET2⟦X ⊗ X,X⟧) (flam : HSET2⟦X + 1,X⟧) :
+Definition make_lambdaAlgebra X (fvar : HSET2⟦1,X⟧) (fapp : HSET2⟦X ⊗ X,X⟧) (flam : HSET2⟦X + 1,X⟧) :
   algebra_ob LamFunctor.
 Proof.
 apply (tpair _ X).
@@ -130,9 +130,9 @@ intro b; induction b.
 Defined.
 
 Definition foldr_map X (fvar : HSET2⟦1,X⟧) (fapp : HSET2⟦X ⊗ X,X⟧) (flam : HSET2⟦X + 1,X⟧) :
-  algebra_mor _ LC_alg (mk_lambdaAlgebra X fvar fapp flam).
+  algebra_mor _ LC_alg (make_lambdaAlgebra X fvar fapp flam).
 Proof.
-apply (InitialArrow lambdaFunctor_Initial (mk_lambdaAlgebra X fvar fapp flam)).
+apply (InitialArrow lambdaFunctor_Initial (make_lambdaAlgebra X fvar fapp flam)).
 Defined.
 
 Lemma foldr_var X (fvar : HSET2⟦1,X⟧) (fapp : HSET2⟦X ⊗ X,X⟧) (flam : HSET2⟦X + 1,X⟧) :

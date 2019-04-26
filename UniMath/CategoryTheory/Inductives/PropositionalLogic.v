@@ -100,7 +100,7 @@ Definition PL_and : HSET⟦PL ⊗ PL, PL⟧.
 Defined.
 
 Definition PL_and_fun (x : PL_type) (y : PL_type) : PL_type :=
-  PL_and (dirprodpair x y).
+  PL_and (make_dirprod x y).
 
 Definition PL_or : HSET⟦PL ⊗ PL, PL⟧.
   refine (_ · alg_map _ PL_alg).
@@ -108,7 +108,7 @@ Definition PL_or : HSET⟦PL ⊗ PL, PL⟧.
 Defined.
 
 Definition PL_or_fun (x : PL_type) (y : PL_type) : PL_type :=
-  PL_or (dirprodpair x y).
+  PL_or (make_dirprod x y).
 
 Definition PL_impl : HSET⟦PL ⊗ PL, PL⟧.
   refine (_ · alg_map _ PL_alg).
@@ -116,10 +116,10 @@ Definition PL_impl : HSET⟦PL ⊗ PL, PL⟧.
 Defined.
 
 Definition PL_impl_fun (x : PL_type) (y : PL_type) : PL_type :=
-  PL_impl (dirprodpair x y).
+  PL_impl (make_dirprod x y).
 
 Definition PL_iff_fun (x : PL_type) (y : PL_type) : PL_type :=
-  PL_and_fun (PL_impl (dirprodpair x y)) (PL_impl (dirprodpair y x)).
+  PL_and_fun (PL_impl (make_dirprod x y)) (PL_impl (make_dirprod y x)).
 
 Delimit Scope PL with PL.
 Notation "¬" := (PL_not) : PL.
@@ -195,26 +195,26 @@ Section PL_ind.
 Context {P : PL -> UU} (PhSet : ∏ l, isaset (P l)).
 Context (P_vars : ∏ v : vars, P (PL_var v))
         (P_not : ∏ pl, P pl -> P (PL_not pl))
-        (P_and : ∏ pl1 pl2, P pl1 -> P pl2 -> P (PL_and (dirprodpair pl1 pl2)))
-        (P_or : ∏ pl1 pl2, P pl1 -> P pl2 -> P (PL_or (dirprodpair pl1 pl2)))
-        (P_impl : ∏ pl1 pl2, P pl1 -> P pl2 -> P (PL_impl (dirprodpair pl1 pl2))).
+        (P_and : ∏ pl1 pl2, P pl1 -> P pl2 -> P (PL_and (make_dirprod pl1 pl2)))
+        (P_or : ∏ pl1 pl2, P pl1 -> P pl2 -> P (PL_or (make_dirprod pl1 pl2)))
+        (P_impl : ∏ pl1 pl2, P pl1 -> P pl2 -> P (PL_impl (make_dirprod pl1 pl2))).
 
 Let P' : UU := ∑ pl : PL, P pl.
 Let P'_vars (v : vars) : P' := (PL_var v,, P_vars v).
 Let P'_not (pl : P') : P' := (PL_not (pr1 pl),, P_not _ (pr2 pl)).
 Let P'_and (pl1 pl2 : P') : P' :=
-  (PL_and (dirprodpair (pr1 pl1) (pr1 pl2)),,
+  (PL_and (make_dirprod (pr1 pl1) (pr1 pl2)),,
    P_and _ _ (pr2 pl1) (pr2 pl2)).
 Let P'_or (pl1 pl2 : P') : P' :=
-  (PL_or (dirprodpair (pr1 pl1) (pr1 pl2)),,
+  (PL_or (make_dirprod (pr1 pl1) (pr1 pl2)),,
    P_or _ _ (pr2 pl1) (pr2 pl2)).
 Let P'_impl (pl1 pl2 : P') : P' :=
-  (PL_impl (dirprodpair (pr1 pl1) (pr1 pl2)),,
+  (PL_impl (make_dirprod (pr1 pl1) (pr1 pl2)),,
    P_impl _ _ (pr2 pl1) (pr2 pl2)).
 
 Definition P'HSET : HSET.
 Proof.
-  use hSetpair.
+  use make_hSet.
   - exact P'.
   - abstract (apply (isofhleveltotal2 2); [ apply setproperty | intro x; apply PhSet ]).
 Defined.

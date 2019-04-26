@@ -175,7 +175,7 @@ Proof.
 Defined.
 
 Definition flipsec_weq {A B : UU} {C : A -> B -> UU} :
-  (∏ a b, C a b) ≃ (∏ b a, C a b) := weqpair flipsec isweq_flipsec.
+  (∏ a b, C a b) ≃ (∏ b a, C a b) := make_weq flipsec isweq_flipsec.
 
 (** The subtypes of a type of hlevel S n are also of hlevel S n.
     This doesn't work for types of hlevel 0: a subtype of a contractible
@@ -243,7 +243,7 @@ End PointedTypes.
 Definition weq_total2_prod {X Y} (Z:Y->Type) : (∑ y, X × Z y) ≃ (X × ∑ y, Z y).
 Proof.
   (* move upstream *)
-  intros. simple refine (weqpair _ (isweq_iso _ _ _ _)).
+  intros. simple refine (make_weq _ (isweq_iso _ _ _ _)).
   { intros [y [x z]]. exact (x,,y,,z). }
   { intros [x [y z]]. exact (y,,x,,z). }
   { intros [y [x z]]. reflexivity. }
@@ -361,8 +361,8 @@ Defined.
 
 (** ** Pairs *)
 
-Definition pr2_of_hfiberpair {X Y} {f:X->Y} {x:X} {y:Y} {e:f x = y} :
-  pr2 (hfiberpair f x e) = e.
+Definition pr2_of_make_hfiber {X Y} {f:X->Y} {x:X} {y:Y} {e:f x = y} :
+  pr2 (make_hfiber f x e) = e.
 Proof.
   reflexivity.
 Defined.
@@ -372,7 +372,7 @@ Proof.
   reflexivity.
 Defined.
 
-Definition pr2_of_weqpair {X Y} (f:X->Y) (i:isweq f) : pr2 (weqpair f i) = i.
+Definition pr2_of_make_weq {X Y} (f:X->Y) (i:isweq f) : pr2 (make_weq f i) = i.
 Proof.
   reflexivity.
 Defined.
@@ -602,7 +602,7 @@ Proof.
 Defined.
 
 Definition funset X (Y:hSet) : hSet
-  := hSetpair (X->Y) (impredfun 2 _ _ (setproperty Y)).
+  := make_hSet (X->Y) (impredfun 2 _ _ (setproperty Y)).
 
 Lemma eq_equalities_between_pairs (A : UU) (B : A -> UU)(x y : total2 (λ x, B x))
     (p q : x = y) (H : base_paths _ _ p = base_paths _ _ q)

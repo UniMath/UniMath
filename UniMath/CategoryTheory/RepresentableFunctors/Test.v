@@ -26,7 +26,7 @@ Variable C : category.
 Definition isCoproductCocone (a b co : C) (ia : a --> co) (ib : b --> co) :=
   binarySumProperty ia ib.
 
-Definition mk_isCoproductCocone (a b co : C) (ia : a --> co) (ib : b --> co) :
+Definition make_isCoproductCocone (a b co : C) (ia : a --> co) (ib : b --> co) :
    (∏ (c : C) (f : a --> c) (g : b --> c),
     ∃! k : C ⟦co, c⟧,
       ia · k = f ×
@@ -49,7 +49,7 @@ Defined.
 
 Definition CoproductCocone (a b : C) := BinarySum a b.
 
-Definition mk_CoproductCocone (a b : C) :
+Definition make_CoproductCocone (a b : C) :
   ∏ (c : C) (f : a --> c) (g : b --> c),
     isCoproductCocone _ _ _ f g -> CoproductCocone a b
   := λ c f g i, c,,(f,,g),,i.

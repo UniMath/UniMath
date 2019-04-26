@@ -58,7 +58,7 @@ Defined.
 Definition Kleisli_precat_data_monad {C : precategory_data} (T : Monad_data C) :
   precategory_data.
 Proof.
-  use precategory_data_pair.
+  use make_precategory_data.
   - exact (Kleisli_precat_ob_mor_monad T).
   - intro c.
     exact (η T c).
@@ -106,7 +106,7 @@ Definition Kleisli_cat_monad {C : category} (T : Monad C): category
 Definition Left_Kleisli_functor_data {C : precategory} (T: Monad C) :
   functor_data C (Kleisli_precat_monad T).
 Proof.
-  use mk_functor_data.
+  use make_functor_data.
   - apply idfun.
   - intros a b f; unfold idfun.
     exact (f · (η T) b).
@@ -134,7 +134,7 @@ Definition Left_Kleisli_functor {C : precategory} (T : Monad C) :
 Definition Right_Kleisli_functor_data {C : precategory} (T : Monad C) :
   functor_data (Kleisli_precat_monad T) C.
 Proof.
-  use mk_functor_data.
+  use make_functor_data.
   - exact T.
   - intros a b.
     apply bind.

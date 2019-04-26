@@ -67,7 +67,7 @@ Definition prebicat_2_id_comp_struct (C : prebicat_1_id_comp_cells) : UU
 
 Definition prebicat_data : UU := ∑ C, prebicat_2_id_comp_struct C.
 
-Definition mk_prebicat_data C (str : prebicat_2_id_comp_struct C)
+Definition make_prebicat_data C (str : prebicat_2_id_comp_struct C)
   : prebicat_data
   := C,, str.
 
@@ -430,14 +430,14 @@ Definition is_invertible_2cell {C : prebicat_data}
   : UU
   := ∑ φ : g ==> f, η • φ = id2 f × φ • η = id2 g.
 
-Definition mk_is_invertible_2cell {C : prebicat_data}
+Definition make_is_invertible_2cell {C : prebicat_data}
            {a b : C} {f g : a --> b}
            {η : f ==> g}
            {φ : g ==> f}
            (ηφ : η • φ = id2 f)
            (φη : φ • η = id2 g)
   : is_invertible_2cell η
-  := φ,, dirprodpair ηφ φη.
+  := φ,, make_dirprod ηφ φη.
 
 Definition inv_cell {C : prebicat_data} {a b : C} {f g : a --> b} {η : f ==> g}
   : is_invertible_2cell η → g ==> f
@@ -463,11 +463,11 @@ Definition vcomp_lid {C : prebicat_data} {a b : C} {f g : a --> b}
 Definition is_invertible_2cell_inv {C : prebicat_data} {a b : C} {f g : a --> b}
            {η : f ==> g} (inv_η : is_invertible_2cell η)
   : is_invertible_2cell (inv_η^-1)
-  := mk_is_invertible_2cell (vcomp_lid inv_η) (vcomp_rinv inv_η).
+  := make_is_invertible_2cell (vcomp_lid inv_η) (vcomp_rinv inv_η).
 
 Definition is_invertible_2cell_id₂ {C : prebicat} {a b : C} (f : a --> b)
   : is_invertible_2cell (id2 f)
-  := mk_is_invertible_2cell (id2_left (id2 f)) (id2_left (id2 f)).
+  := make_is_invertible_2cell (id2_left (id2 f)) (id2_left (id2 f)).
 
 Lemma isaprop_is_invertible_2cell {C : bicat}
       {a b : C} {f g : C ⟦a, b⟧} (x : f ==> g)
@@ -539,7 +539,7 @@ Definition invertible_2cell {C : prebicat_data}
            {a b : C} (f g : a --> b) : UU
   := ∑ η : f ==> g, is_invertible_2cell η.
 
-Definition mk_invertible_2cell {C : prebicat_data}
+Definition make_invertible_2cell {C : prebicat_data}
          {a b : C} {f g : C⟦a,b⟧}
          {η : f ==> g} (inv_η : is_invertible_2cell η)
   : invertible_2cell f g
@@ -558,7 +558,7 @@ Coercion property_from_invertible_2cell {C : prebicat_data}
 
 Definition id2_invertible_2cell {C : prebicat} {a b : C} (f : a --> b)
   : invertible_2cell f f
-  := mk_invertible_2cell (is_invertible_2cell_id₂ f).
+  := make_invertible_2cell (is_invertible_2cell_id₂ f).
 
 Lemma cell_from_invertible_2cell_eq {C : bicat}
       {a b : C} {f g : C⟦a,b⟧} {x y : invertible_2cell f g}
@@ -978,11 +978,11 @@ Context {C : prebicat} (a b : C).
 
 Definition hom_ob_mor
   : precategory_ob_mor
-  := precategory_ob_mor_pair (C⟦a,b⟧) (λ (f g : C⟦a,b⟧), f ==> g).
+  := make_precategory_ob_mor (C⟦a,b⟧) (λ (f g : C⟦a,b⟧), f ==> g).
 
 Definition hom_data
   : precategory_data
-  := precategory_data_pair hom_ob_mor id2 (λ f g h x y, x • y).
+  := make_precategory_data hom_ob_mor id2 (λ f g h x y, x • y).
 
 Lemma is_precategory_hom : is_precategory hom_data.
 Proof.
@@ -995,7 +995,7 @@ Defined.
 
 Definition hom
   : precategory
-  := mk_precategory hom_data is_precategory_hom.
+  := make_precategory hom_data is_precategory_hom.
 
 End Hom_Spaces.
 
@@ -1027,7 +1027,7 @@ Qed.
 
 Definition hcomp_functor
   : precategory_binproduct (hom a b) (hom b c) ⟶ hom a c
-  := mk_functor hcomp_functor_data is_functor_hcomp.
+  := make_functor hcomp_functor_data is_functor_hcomp.
 
 End hcomp_functor.
 
@@ -1050,7 +1050,7 @@ Defined.
 
 Definition chaotic_prebicat_laws : prebicat_laws chaotic_prebicat_data.
 Proof.
-  repeat apply dirprodpair; intros; apply isProofIrrelevantUnit.
+  repeat apply make_dirprod; intros; apply isProofIrrelevantUnit.
 Qed.
 
 Definition chaotic_prebicat : prebicat

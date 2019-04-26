@@ -82,7 +82,7 @@ Definition cons : pr1 A → List -> List := λ a l, cons_map (a,,l).
        foldr x f : List A -> X
 >>
 *)
-Definition mk_listAlgebra (X : HSET) (x : pr1 X)
+Definition make_listAlgebra (X : HSET) (x : pr1 X)
   (f : HSET⟦(A × X)%set,X⟧) : algebra_ob listFunctor.
 Proof.
 set (x' := λ (_ : unit), x).
@@ -90,9 +90,9 @@ apply (tpair _ X (sumofmaps x' f) : algebra_ob listFunctor).
 Defined.
 
 Definition foldr_map (X : HSET) (x : pr1 X) (f : HSET⟦(A × X)%set,X⟧) :
-  algebra_mor _ List_alg (mk_listAlgebra X x f).
+  algebra_mor _ List_alg (make_listAlgebra X x f).
 Proof.
-apply (InitialArrow listFunctor_Initial (mk_listAlgebra X x f)).
+apply (InitialArrow listFunctor_Initial (make_listAlgebra X x f)).
 Defined.
 
 (** Iteration/fold *)
@@ -358,7 +358,7 @@ Proof.
 intros hF c L ccL HcL cc.
 use tpair.
 - transparent assert (HX : (cocone hF (hset_fun_space x HcL))).
-  {  use mk_cocone.
+  {  use make_cocone.
     * simpl; intro n; apply flip, (curry (Z := λ _,_)), (pr1 cc).
     * abstract (destruct cc as [f hf]; simpl; intros m n e;
                 rewrite <- (hf m n e); destruct e; simpl;
@@ -366,13 +366,13 @@ use tpair.
   }
   use tpair.
   + simpl; apply uncurry, flip.
-    apply (colimArrow (mk_ColimCocone _ _ _ ccL) (hset_fun_space x HcL)).
+    apply (colimArrow (make_ColimCocone _ _ _ ccL) (hset_fun_space x HcL)).
     apply HX.
   + cbn.
     destruct cc as [f hf]; simpl; intro n.
     apply funextfun; intro p.
     change p with (pr1 p,,pr2 p).
-    assert (XR := colimArrowCommutes (mk_ColimCocone hF c L ccL) _ HX n).
+    assert (XR := colimArrowCommutes (make_ColimCocone hF c L ccL) _ HX n).
     unfold flip, curry, colimIn in *; simpl in *.
     now rewrite <- (toforallpaths _ _ _ (toforallpaths _ _ _ XR (pr2 p)) (pr1 p)).
 - abstract (
@@ -383,7 +383,7 @@ use tpair.
     | apply (@has_homsets_HSET _ HcL _ ff) ]
   | destruct p as [t p]; simpl;
     apply funextfun; intro xc; destruct xc as [x' c']; simpl;
-    use (let g : HSET⟦colim (mk_ColimCocone hF c L ccL),
+    use (let g : HSET⟦colim (make_ColimCocone hF c L ccL),
                                 hset_fun_space x HcL⟧ := _ in _);
     [ simpl; apply flip, (curry (Z := λ _,_)), t
     | rewrite <- (colimArrowUnique _ _ _ g); [apply idpath | ];
@@ -411,7 +411,7 @@ use tpair.
   + eapply BinCoproductArrow.
     * exact (BinCoproductIn1 _ (PC x (dob hF 0)) · pr1 cc 0).
     * use (let ccHcL : cocone hF HcL := _ in _).
-      { use mk_cocone.
+      { use make_cocone.
         - intros n; exact (BinCoproductIn2 _ (PC x (dob hF n)) · pr1 cc n).
         - abstract (
             intros m n e; destruct e; simpl;
@@ -505,7 +505,7 @@ Definition cons : pr1 A × pr1 List -> pr1 List := cons_map.
 (* ------------------------------------ *)
 (*       foldr x f : List A -> X *)
 
-Definition mk_listAlgebra (X : HSET) (x : pr1 X)
+Definition make_listAlgebra (X : HSET) (x : pr1 X)
   (f : HSET⟦(A × X)%set,X⟧) : algebra_ob listFunctor.
 Proof.
 set (x' := λ (_ : unit), x).
@@ -513,9 +513,9 @@ apply (tpair _ X (sumofmaps x' f) : algebra_ob listFunctor).
 Defined.
 
 Definition foldr_map (X : HSET) (x : pr1 X) (f : HSET⟦(A × X)%set,X⟧) :
-  algebra_mor _ List_alg (mk_listAlgebra X x f).
+  algebra_mor _ List_alg (make_listAlgebra X x f).
 Proof.
-apply (InitialArrow listFunctor_Initial (mk_listAlgebra X x f)).
+apply (InitialArrow listFunctor_Initial (make_listAlgebra X x f)).
 Defined.
 
 Definition foldr (X : HSET) (x : pr1 X)
