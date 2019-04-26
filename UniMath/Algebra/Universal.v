@@ -85,7 +85,8 @@ Section Homomorphisms.
 
   Definition hom_id (a: Algebra sigma): a ↦ a := mkhom (idfun a) (idfun_is_hom a).
 
-  Local Lemma comp_is_hom  {a1 a2 a3: Algebra sigma} (h1: a1 ↦ a2) (h2: a2 ↦ a3): is_hom (funcomp h1 h2).
+  Local Lemma comp_is_hom  {a1 a2 a3: Algebra sigma} (h1: a1 ↦ a2) (h2: a2 ↦ a3)
+    : is_hom (funcomp h1 h2).
   Proof.
     red.
     intros.
@@ -141,14 +142,14 @@ End TerminalAlgebra.
 
 Section Natlemmas.
 
-  Local Lemma nat_movesubleft {a b c: nat}: c ≤ b → a = b - c  → a + c = b.
+  Local Lemma nat_movminusleft {a b c: nat}: c ≤ b → a = b - c  → a + c = b.
   Proof.
     intros hp1 hp2.
     apply (maponpaths  (λ n: nat, n + c)) in hp2.
     rewrite minusplusnmm in hp2 ; assumption.
   Defined.
 
-  Local Lemma nat_movaddleft {a b c: nat}: a = b + c → a - c = b.
+  Local Lemma nat_movplusright {a b c: nat}: a + c = b → a = b - c.
   Proof.
     intros hp.
     apply (maponpaths (λ n: nat, n - c)) in hp.
@@ -156,7 +157,7 @@ Section Natlemmas.
     assumption.
   Defined.
 
-  Local Lemma natleh_add { n1 n2 m: nat }: n1 ≤ n2 → n1 ≤ n2 + m.
+  Local Lemma natleh_plusright {n1 n2 m: nat}: n1 ≤ n2 → n1 ≤ n2 + m.
   Proof.
     intros.
     apply (istransnatleh(m:=n2)).
@@ -164,63 +165,17 @@ Section Natlemmas.
     - apply natlehnplusnm.
   Defined.
 
-  (** Forward chaining variant
-  Lemma natleh_add { n1 n2 m: nat }: n1 ≤ n2 → n1 ≤ n2 + m.
+  Local Lemma natleh_minusplus {n1 n2 n3: nat}: n3 ≤ n1 → n1 - n3 + n2 = n1 + n2 - n3.
   Proof.
     intros.
-    set (H := natlehnplusnm n2 m).
-    exact (istransnatleh X H).
-  Defined.
-  **)
-
-  Local Lemma natleh_adddiff {n1 n2 n3: nat}: n3 ≤ n1 → n1 - n3 + n2 = n1 + n2 - n3.
-  Proof.
-    intros.
-    apply nat_movesubleft.
-    - rewrite natpluscomm.
-      rewrite <- natplusminusle.
-      + apply natlehnplusnm.
-      + assumption.
-    - rewrite NaturalNumbers.natminusminus.
-      replace (n3 + n2) with (n2 + n3) by (rewrite natpluscomm; reflexivity).
-      rewrite <- NaturalNumbers.natminusminus.
-      rewrite plusminusnmm.
-      reflexivity.
-  Defined.
-
-  Local Lemma nat_notgeh1 {n: nat}: ¬ (n ≥ 1) → n = 0.
-  Proof.
-    intro n_gte_1.
-    induction n.
-    - apply idpath.
-    - apply fromempty.
-      apply n_gte_1.
-      apply natgthtogehsn.
-      apply natgthsn0.
-  Defined.
-
-  Local Lemma nat_notgeh1_inv {n: nat}: n != 0 → n ≥ 1.
-  Proof.
-    intros.
-    apply natgthtogehsn.
-    apply natneq0togth0.
-    apply nat_nopath_to_neq.
+    apply nat_movplusright.
+    rewrite natplusassoc.
+    rewrite (natpluscomm n2 n3).
+    rewrite <- natplusassoc.
+    rewrite minusplusnmm.
+    reflexivity.
     assumption.
   Defined.
-
-  (*** These axioms probably needs some additional hypotheses ***)
-
-  Local Axiom natlehandminusl: ∏ n m k : nat, n ≤ m → n - k ≤ m - k.
-
-  Local Axiom natlehandminusr: ∏ n m k : nat, n ≤ m → n - k ≤ m - k.
-
-  Local Axiom natdiff0: ∏ a b: nat, 0 = a - b → b ≥ a.
-
-  Local Axiom natdiffasymm: ∏ a b: nat, a ≤ b → a ≥ b → a=b.
-
-  Local Axiom nat_ax: ∏ a b c: nat, a = S (b - c) → b = a + c -1.
-
-  Local Axiom nat_ax3: ∏ a b c : nat, a + b - 1 - (c + b - 1) = a-c.
 
 End Natlemmas.
 
@@ -291,13 +246,13 @@ Section Status.
     intros hp valn1.
     change (S (n2 - n3)) with (1 + (n2 - n3)) in valn1.
     rewrite natplusminusle in valn1.
-    - apply nat_movesubleft in valn1.
-      + replace (1+n2) with (n2+1) in valn1 by (rewrite natpluscomm; reflexivity).
-        apply nat_movaddleft in valn1.
-        apply pathsinv0.
+    - apply nat_movminusleft in valn1.
+      + apply pathsinv0 in valn1.
+        replace (1+n2) with (n2+1) in valn1 by (rewrite natpluscomm; reflexivity).
+        apply nat_movplusright in valn1.
         assumption.
       + rewrite natpluscomm.
-        apply natleh_add.
+        apply natleh_plusright.
         assumption.
     - assumption.
   Defined.
@@ -366,11 +321,11 @@ Section Status.
       + rewrite ok2.
         apply maponpaths.
         apply (maponpaths S).
-        apply natleh_adddiff.
+        apply natleh_minusplus.
         assumption.
       + apply fromempty.
         apply aritynm2.
-        apply natleh_add.
+        apply natleh_plusright.
         assumption.
     - contradiction.
   Defined.
@@ -684,7 +639,7 @@ Section Term.
         induction proofl1 as [n1gt0 proofxs].
         assert (newnok: S n + arity x - 1 ≤ n1 + arity x - 1).
         {
-          apply natlehandminusl, natlehandplusr.
+          apply natgehandminusl, natlehandplusr.
           assumption.
         }
         set (ind := HPind (n1 + arity x - 1) (S n + arity x - 1) proofxs newnok).
@@ -751,10 +706,10 @@ Section Term.
         assert (arityind: n + arity x ≤ m + arity x - 1).
         {
           apply (natlehandplusr  _ _  (arity x)) in nlehm.
-          apply (natlehandminusl _ _  1) in nlehm.
+          apply (natgehandminusl _ _  1) in nlehm.
           change (S n) with (1 + n) in nlehm.
           rewrite natplusassoc in nlehm.
-          rewrite natpluscomm in nlehm.
+          rewrite (natpluscomm 1 (n + arity x)) in nlehm.
           rewrite plusminusnmm in nlehm.
           assumption.
         }
@@ -768,14 +723,15 @@ Section Term.
              rewrite plusminusnmm.
              apply idpath.
           -- rewrite natpluscomm.
-             apply natleh_add.
+             apply natleh_plusright.
              apply isreflnatleh.
         * rewrite (pr1 (pr2 ind)).
+          Search (?a - _ - _).
           apply (maponpaths statusok).
-          rewrite natminusminus.
+          rewrite NaturalNumbers.natminusminus.
           rewrite <- natplusassoc.
           rewrite (natpluscomm (1+n) (arity x)).
-          rewrite <- natminusminus.
+          rewrite <- NaturalNumbers.natminusminus.
           rewrite plusminusnmm.
           apply idpath.
         * change (concatenate (cons x (pr1 (extract_substack_list xs (n + arity x))))
@@ -981,7 +937,7 @@ Section Term.
       + change (terms2stack_list s) with (concatenate (hd s) (terms2stack_list (tl s))).
         change (el s (0,, iproof)) with (hd s).
         rewrite length_concatenate.
-        apply natleh_add.
+        apply natleh_plusright.
         apply isreflnatleh.
       + set (ind := IHn (tl s) (i,, iproof)).
         assert (X: el (tl s) (i,, iproof) = el s (S i,, iproof)).
@@ -997,7 +953,7 @@ Section Term.
           change  (tl (vcons (hd s) (tl s))) with (tl s).
           rewrite length_concatenate.
           rewrite natpluscomm.
-          apply natleh_add.
+          apply natleh_plusright.
           apply isreflnatleh.
         }
         apply (istransnatleh(m:=length (terms2stack_list (tl s)))).
@@ -1155,8 +1111,10 @@ Section Term.
         change (1) with (1+0) in X.
         change (S (tail_ar - arity x)) with (1 + (tail_ar - arity x)) in X.
         set (Y := natpluslcan _ _ _ X).
-        set (Z := natdiff0 _ _ Y).
-        apply natdiffasymm; assumption.
+        apply nat_movminusleft in Y.
+        apply pathsinv0.
+        assumption.
+        assumption.
       }
       rewrite tail_ar_x in tail_status_prf.
       set (n_le_arx := natlthtoleh _ _ n_lt_arx).
