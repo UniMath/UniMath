@@ -124,7 +124,7 @@ Proof.
   intro H.
   exact H.
   apply idisweq.
-Qed.
+Defined.
 
 (** Forgetful functor to functor category *)
 
@@ -136,9 +136,7 @@ Defined.
 
 Lemma is_functor_ptd_forget : is_functor ptd_forget_data.
 Proof.
-  split; simpl; intros.
-  - unfold functor_idax; intros; apply idpath.
-  - unfold functor_compax; intros; apply idpath.
+  split; intros; red; intros; apply idpath.
 Qed.
 
 Definition functor_ptd_forget : functor _ _ := tpair _ _ is_functor_ptd_forget.

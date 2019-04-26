@@ -94,12 +94,12 @@ Definition functor (C C' : precategory_data) : UU :=
 Notation "a ⟶ b" := (functor a b) : cat.
 (* to input: type "\-->" with Agda input method *)
 
-(** Note that this makes the second component opaque for efficiency reasons *)
+
 Definition make_functor {C C' : precategory_data} (F : functor_data C C') (H : is_functor F) :
   functor C C'.
 Proof.
 exists F.
-abstract (exact H).
+exact H.
 Defined.
 
 Lemma functor_data_eq_prf (C C': precategory_ob_mor) (F F' : functor_data C C')

@@ -149,7 +149,7 @@ use mkMultiSortedSig.
   + exact ((([],,ty) :: (cons el [],,el) :: nil),,el).
 Defined.
 
-Definition CCS_Signature : Signature (SET / sort) _ _ _ :=
+Definition CCS_Signature : Signature (SET / sort) _ _ _ _ _ :=
   MultiSortedSigToSignature sort CCS_Sig.
 
 Let Id_H := Id_H _ hs (BinCoproducts_HSET_slice sort).

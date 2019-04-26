@@ -718,6 +718,17 @@ Proof.
   apply runitor_rwhisker.
 Qed.
 
+Corollary unit_triangle {a b c : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
+  : rassociator f (identity b) g • id2 f ⋆ lunitor g = runitor f ⋆ id2 g.
+Proof.
+  unfold hcomp.
+  rewrite id2_rwhisker.
+  rewrite lwhisker_id2.
+  rewrite id2_right.
+  rewrite id2_left.
+  apply lunitor_lwhisker.
+Qed.
+
 Lemma hcomp_hcomp' {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
       (η : f1 ==> f2) (φ : g1 ==> g2)
   : hcomp η φ = hcomp' η φ.
@@ -942,6 +953,19 @@ Proof.
   apply lwhisker_id2.
 Qed.
 
+Corollary associativity_pentagon {a b c d e : C}
+  (f : C ⟦ a, b ⟧) (g : C ⟦ b, c ⟧) (h : C ⟦ c, d ⟧) (i : C ⟦ d, e ⟧)
+  : (rassociator f g h ⋆ id2 i • rassociator f (g · h) i) • id2  f ⋆ rassociator g h i =
+    rassociator (f · g) h i • rassociator f g (h · i).
+Proof.
+  unfold hcomp.
+  rewrite id2_rwhisker.
+  rewrite lwhisker_id2.
+  rewrite id2_right.
+  rewrite id2_left.
+  apply rassociator_rassociator.
+Qed.
+
 End Derived_laws.
 
 (* ----------------------------------------------------------------------------------- *)
@@ -1136,6 +1160,16 @@ Proof.
   - apply rassociator_lassociator.
 Defined.
 
+Lemma is_iso_rassociator {a b c d : C} (f : hom a b) (g : hom b c) (h : hom c d)
+  : is_iso (rassociator f g h : (hom a d) ⟦ (f · g) · h, f · (g · h) ⟧).
+Proof.
+  apply is_iso_from_is_z_iso.
+  exists (lassociator f g h).
+  split.
+  - apply rassociator_lassociator.
+  - apply lassociator_rassociator.
+Defined.
+
 Lemma is_iso_lunitor {a b : C} (f : hom a b)
   : is_iso (lunitor f : (hom a b) ⟦ identity a · f, f ⟧).
 Proof.
@@ -1177,7 +1211,7 @@ Proof.
   rewrite <- vassocr. rewrite vcomp_lunitor.
   rewrite vassocr. apply maponpaths_2.
   rewrite id2_rwhisker. apply id2_left.
-Defined.
+Qed.
 
 Definition lunitor_transf (a b : C)
   : bindelta_pair_functor
@@ -1202,7 +1236,7 @@ Proof.
   rewrite vcomp_runitor.
   rewrite vassocr. apply maponpaths_2.
   rewrite lwhisker_id2. apply id2_left.
-Defined.
+Qed.
 
 Definition runitor_transf (a b : C)
   : bindelta_pair_functor
@@ -1238,7 +1272,7 @@ Proof.
   intros (x1, (x2, x3)). cbn.
   unfold lassociator_fun. cbn.
   apply hcomp_lassoc.
-Defined.
+Qed.
 
 Definition lassociator_transf (a b c d : C)
   : pair_functor (functor_identity (hom a b)) hcomp_functor ∙ hcomp_functor
@@ -1271,7 +1305,7 @@ Proof.
   intros (x1, (x2, x3)). cbn.
   unfold rassociator_fun. cbn.
   apply hcomp_rassoc.
-Defined.
+Qed.
 
 Definition rassociator_transf (a b c d : C)
   : precategory_binproduct_assoc (hom a b) (hom b c) (hom c d) ∙
@@ -1280,6 +1314,34 @@ Definition rassociator_transf (a b c d : C)
     ⟹
     pair_functor (functor_identity (hom a b)) hcomp_functor ∙ hcomp_functor
   := rassociator_fun,, rassociator_fun_natural.
+
+Definition rassociator_fun' {a b c d : C}
+           (x : (C⟦a,b⟧ × C⟦b,c⟧) × C⟦c,d⟧)
+  : (pr11 x · pr21 x) · pr2 x ==> pr11 x · (pr21 x · pr2 x)
+  := rassociator (pr11 x) (pr21 x) (pr2 x).
+
+Lemma rassociator_fun'_natural {a b c d : C}
+  : is_nat_trans
+      (pair_functor hcomp_functor (functor_identity (hom c d)) ∙ hcomp_functor)
+      (precategory_binproduct_unassoc (hom a b) (hom b c) (hom c d) ∙
+       pair_functor (functor_identity (hom a b)) hcomp_functor ∙ hcomp_functor)
+      rassociator_fun'.
+Proof.
+  red; cbn. intros ((f1, f2), f3) ((g1, g2), g3).
+  unfold precategory_binproduct_mor, hom_ob_mor. cbn.
+  unfold precategory_binproduct_mor, hom_ob_mor. cbn.
+  intros ((x1, x2), x3). cbn.
+  unfold rassociator_fun. cbn.
+  apply hcomp_rassoc.
+Qed.
+
+Definition rassociator_transf' (a b c d : C)
+  : pair_functor hcomp_functor (functor_identity (hom c d)) ∙
+    hcomp_functor
+    ⟹
+    precategory_binproduct_unassoc (hom a b) (hom b c) (hom c d) ∙
+    pair_functor (functor_identity (hom a b)) hcomp_functor ∙ hcomp_functor
+  := rassociator_fun',, rassociator_fun'_natural.
 
 End Associators_Unitors_Natural.
 

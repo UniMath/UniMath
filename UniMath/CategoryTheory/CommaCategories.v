@@ -108,7 +108,7 @@ Proof.
     simpl. apply assoc.
   - intros. apply cComma_mor_eq.
     simpl. apply assoc'.
-Defined.
+Qed.
 
 Definition cComma : precategory.
 Proof.
@@ -130,7 +130,7 @@ Proof.
   - intros ? ? ? ? ?. apply idpath.
 Qed.
 
-Definition cComma_pr1 : functor _ _ := tpair _ _ is_functor_ccomma_pr1.
+Definition cComma_pr1 : cComma ⟶ M := tpair _ _ is_functor_ccomma_pr1.
 
 
 End const_comma_category_definition.
@@ -183,7 +183,7 @@ Proof.
     apply idpath.
 Qed.
 
-Definition functor_cComma_mor : functor _ _ := tpair _ _ is_functor_cComma_mor_functor_data.
+Definition functor_cComma_mor : c' ↓ K ⟶ c ↓ K := tpair _ _ is_functor_cComma_mor_functor_data.
 
 End lemmas_on_const_comma_cats.
 
@@ -228,8 +228,9 @@ Defined.
 Definition comma_cat_comp : ∏ uvf xyg zwh : comma_cat_ob, comma_cat_mor uvf xyg → comma_cat_mor xyg zwh → comma_cat_mor uvf zwh.
 Proof.
   intros uvf xyg zwh ijp klq.
-  exists (make_dirprod (pr1 (pr1 ijp) · pr1 (pr1 klq)) (pr2 (pr1 ijp) · pr2 (pr1 klq))). cbn.
+  exists (make_dirprod (pr1 (pr1 ijp) · pr1 (pr1 klq)) (pr2 (pr1 ijp) · pr2 (pr1 klq))).
   abstract (
+    cbn;
     rewrite 2 functor_comp;
     rewrite assoc;
     rewrite (pr2 ijp);
@@ -309,26 +310,22 @@ Qed.
 
 (** ** Projection functors *)
 
-Definition comma_domain : functor comma_precategory E.
+Definition comma_domain : comma_precategory ⟶ E.
 Proof.
   use make_functor.
   - use make_functor_data.
     + intros uvf; exact (dirprod_pr1 (pr1 uvf)).
     + intros ? ? mor; exact (dirprod_pr1 (pr1 mor)).
-  - use make_dirprod.
-    + intro; reflexivity.
-    + intros ? ? ? ? ?; reflexivity.
+  - abstract ( use make_dirprod; [intro; apply idpath | intros ? ? ? ? ?; apply idpath] ).
 Defined.
 
-Definition comma_codomain : functor comma_precategory D.
+Definition comma_codomain : comma_precategory ⟶ D.
 Proof.
   use make_functor.
   - use make_functor_data.
     + intros uvf; exact (dirprod_pr2 (pr1 uvf)).
     + intros ? ? mor; exact (dirprod_pr2 (pr1 mor)).
-  - use make_dirprod.
-    + intro; reflexivity.
-    + intros ? ? ? ? ?; reflexivity.
+  - abstract ( use make_dirprod; [intro; apply idpath | intros ? ? ? ? ?; apply idpath] ).
 Defined.
 
 End general_comma_precategories.

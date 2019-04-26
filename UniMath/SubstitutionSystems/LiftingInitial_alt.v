@@ -39,7 +39,7 @@ Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration_alt.
-Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
+Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
 Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 
@@ -51,7 +51,7 @@ Section category_Algebra.
 
 Variables (C : precategory) (hsC : has_homsets C) (CP : BinCoproducts C).
 Variables (IC : Initial C) (CC : Colims_of_shape nat_graph C).
-Variables (H : Signature C hsC C hsC) (HH : is_omega_cocont H).
+Variables (H : Signature C hsC C hsC C hsC) (HH : is_omega_cocont H).
 
 Local Notation "'EndC'":= ([C, C, hsC]) .
 Local Notation "'Ptd'" := (precategory_Ptd C hsC).
@@ -208,7 +208,6 @@ unfold coproduct_nat_trans_data; simpl.
 unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
 apply BinCoproductOfArrows_eq; trivial.
 unfold functor_fix_snd_arg_mor; simpl.
-unfold θ_target_mor; simpl.
 revert c; apply nat_trans_eq_pointwise, maponpaths.
 apply (nat_trans_eq hsC); intro c; simpl.
 now rewrite <- (nat_trans_ax α), functor_id, id_left.
@@ -432,7 +431,6 @@ unfold coproduct_nat_trans_data; simpl.
 unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
 apply BinCoproductOfArrows_eq; trivial.
 unfold functor_fix_snd_arg_mor; simpl.
-unfold θ_target_mor; simpl.
 revert c; apply nat_trans_eq_pointwise, maponpaths.
 apply (nat_trans_eq hsC); intro c; simpl.
 rewrite <- (nat_trans_ax α), functor_id.
@@ -619,7 +617,7 @@ intermediate_path (pr1 (pr1 X)).
       rewrite assoc.
       apply cancel_postcomposition.
       apply (nat_trans_eq hsC); intro c.
-      assert (θ_nat_1_pointwise_inst := θ_nat_1_pointwise _ hsC _ hsC H θ _ _ β Z c).
+      assert (θ_nat_1_pointwise_inst := θ_nat_1_pointwise _ hsC _ hsC _ hsC H θ _ _ β Z c).
       eapply pathscomp0 ; [exact θ_nat_1_pointwise_inst | ].
       clear θ_nat_1_pointwise_inst.
       simpl.

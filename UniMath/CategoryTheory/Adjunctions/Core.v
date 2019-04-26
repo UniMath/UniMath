@@ -102,7 +102,6 @@ Definition make_form_adjunction {A B : precategory} {F : functor A B} {G : funct
                   × (nat_trans (functor_composite G F) (functor_identity B))),
     form_adjunction F G (pr1 etaeps) (pr2 etaeps).
 
-  (** Note that this makes the second component opaque for efficiency reasons *)
   Definition make_are_adjoints {A B : precategory}
              (F : functor A B) (G : functor B A)
              (eta : nat_trans (functor_identity A) (functor_composite F G))
@@ -110,7 +109,7 @@ Definition make_form_adjunction {A B : precategory} {F : functor A B} {G : funct
              (HH : form_adjunction F G eta eps) : are_adjoints F G.
   Proof.
     exists (eta,,eps).
-    abstract (exact HH).
+    exact HH.
   Defined.
 
   Definition unit_from_are_adjoints {A B : precategory}

@@ -61,7 +61,7 @@ Definition is_equivariant_isaprop {G:gr} {X Y:Action G} (f:X->Y) :
   isaprop (is_equivariant f).
 Proof.
   apply propproperty.
-Defined.
+Qed.
 
 (** The following fact is fundamental: it shows that our definition of
     [is_equivariant] captures all of the structure.  The proof reduces to
@@ -73,7 +73,7 @@ Local Open Scope transport.
 
 Definition is_equivariant_identity {G:gr} {X Y:Action G}
            (p:ac_set X = ac_set Y) :
-  weq (p # ac_str X = ac_str Y) (is_equivariant (cast (maponpaths pr1hSet p))).
+  p # ac_str X = ac_str Y ≃ is_equivariant (cast (maponpaths pr1hSet p)).
 Proof.
   revert X Y p; intros [X [Xm [Xu Xa]]] [Y [Ym [Yu Ya]]] ? .
   (* should just apply hPropUnivalence at this point, as in Poset_univalence_prelim! *)
@@ -81,7 +81,7 @@ Proof.
   simple refine (make_weq _ _).
   { intros p g x. simpl in x. simpl.
     exact (eqtohomot (eqtohomot (maponpaths act_mult p) g) x). }
-  simple refine (isweq_iso _ _ _ _).
+  use isweq_iso.
   { unfold cast; simpl.
     intro i.
     assert (p:Xm=Ym).
@@ -92,7 +92,7 @@ Proof.
     destruct p. assert (p:Xa=Ya).
     { apply funextsec; intro g. apply funextsec; intro h.
       apply funextsec; intro x. apply setproperty. }
-    destruct p. reflexivity. }
+    destruct p. apply idpath. }
   { intro p. apply isaset_ActionStructure. }
   { intro is. apply proofirrelevance.
     apply impred; intros g.

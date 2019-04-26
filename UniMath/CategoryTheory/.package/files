@@ -83,7 +83,7 @@ FunctorCoalgebras.v
 precomp_fully_faithful.v
 precomp_ess_surj.v
 rezk_completion.v
-EndofunctorsMonoidal.v
+UnitorsAndAssociatorsForEndofunctors.v
 CategoricalRecursionSchemes.v
 PointedFunctors.v
 HorizontalComposition.v
@@ -252,6 +252,7 @@ Bicategories/Graph.v
 Bicategories/Discreteness.v
 
 Monoidal/MonoidalCategories.v
+Monoidal/EndofunctorsMonoidal.v
 Monoidal/MonoidalFunctors.v
 Monoidal/CategoriesOfMonoids.v
 Monoidal/Actions.v

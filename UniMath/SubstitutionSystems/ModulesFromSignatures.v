@@ -35,7 +35,7 @@ Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.whiskering.
 
 Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
-Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
+Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
@@ -71,7 +71,7 @@ Section SignatureLiftModule.
 
 Context {C : precategory} {hsC : has_homsets C}
         {D : precategory} {hsD : has_homsets D}
-        (H : Signature C hsC D hsD).
+        (H : Signature C hsC D hsD C hsC).
 
 (** The forgetful functor from pointed endofunctors to endofunctors *)
 Local Notation "'U'" := (functor_ptd_forget C hsC).
@@ -104,7 +104,7 @@ Definition ptd_mor_from_μ : ptd_mor _ T2 (p T) := (_ ,, is_ptd_mor_μ).
 
 Let strength_law1_pw M x :=
   nat_trans_eq_pointwise
-    (θ_Strength1_int_implies_θ_Strength1 _ _ _ _ _ _ (Sig_strength_law1 _ _ _ _ H ) M) x.
+    (θ_Strength1_int_implies_θ_Strength1 _ _ _ _ _ _ _ _ (Sig_strength_law1 _ _ _ _ _ _ H ) M) x.
 
 (** A pointwise version of the second strength law with only one identity instead
     of two α_functor *)
@@ -122,8 +122,8 @@ Proof.
   intros X Z Z' x.
   etrans; revgoals.
   { apply (nat_trans_eq_pointwise
-             (θ_Strength2_int_implies_θ_Strength2 _ _ _ _ _ _
-                                                  (Sig_strength_law2 _ _ _ _ H) X Z Z'
+             (θ_Strength2_int_implies_θ_Strength2 _ _ _ _ _ _ _ _
+                                                  (Sig_strength_law2 _ _ _ _ _ _ H) X Z Z'
                                                   _
                                                   (identity _) ) x). }
   etrans;[eapply pathsinv0;apply id_right|].
@@ -136,8 +136,8 @@ Proof.
   apply idpath.
 Qed.
 
-Local Notation θ_nat_2_pw := (θ_nat_2_pointwise _ _ _ _ H (theta H)).
-Local Notation θ_nat_1_pw := (θ_nat_1_pointwise _ _ _ _ H (theta H) ).
+Local Notation θ_nat_2_pw := (θ_nat_2_pointwise _ _ _ _ _ _ H (theta H)).
+Local Notation θ_nat_1_pw := (θ_nat_1_pointwise _ _ _ _ _ _ H (theta H) ).
 
 
 (** The module multiplication is given by
@@ -166,6 +166,7 @@ Proof.
       rewrite (functor_comp H).
       etrans; [apply assoc|].
       apply cancel_postcomposition.
+      rewrite pre_whisker_identity; try assumption.
       apply strength_law1_pw. }
     etrans;[|apply id_right].
     rewrite <- assoc.
@@ -232,11 +233,11 @@ Let CPEndC : BinCoproducts EndC := BinCoproducts_functor_precat _ _ CP hs.
 
 
 (** Assume having a signature on [C] *)
-Variable H : Signature C hs C hs.
+Variable H : Signature C hs C hs C hs.
 Let θ := theta H.
 
-Local Notation θ_nat_2_pw := (θ_nat_2_pointwise _ _ _ _ H (theta H)).
-Local Notation θ_nat_1_pw := (θ_nat_1_pointwise _ _ _ _ H (theta H)).
+Local Notation θ_nat_2_pw := (θ_nat_2_pointwise _ _ _ _ _ _ H (theta H)).
+Local Notation θ_nat_1_pw := (θ_nat_1_pointwise _ _ _ _ _ _ H (theta H)).
 
 Let Id_H : functor EndC EndC
   := BinCoproduct_of_functors _ _ CPEndC
