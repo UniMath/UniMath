@@ -205,40 +205,26 @@ Section Status.
     - exact statuserror.
   Defined.
 
-  Lemma status_cons_statusok_cases (nm: names sigma) (n: nat):
-    (arity nm ≤ n × status_cons nm (statusok n) = statusok (S(n - arity nm)))
-      ⨿ (¬ (arity nm ≤ n) × status_cons nm (statusok n) = statuserror).
-  Proof.
-    cbn [status_cons statusok coprod_rect].
-    induction (isdecrelnatleh (arity nm) n) as [ok | error].
-    - left.
-      exact (ok ,, idpath _).
-    - right.
-      exact (error ,, idpath _).
-  Defined.
-
   Lemma status_cons_statusok_f {nm: names sigma} {n: nat} (p: arity nm ≤ n):
     status_cons nm (statusok n) = statusok (S (n - arity nm)).
   Proof.
-    induction (status_cons_statusok_cases nm n) as [ [aritynm ok] | [aritynm error] ].
-    - rewrite ok.
-      apply idpath.
-    - apply fromempty.
-      apply aritynm.
-      assumption.
+    cbn [status_cons statusok coprod_rect].
+    induction (isdecrelnatleh (arity nm) n) as [ok | error].
+    - apply idpath.
+    - contradiction.
   Defined.
 
   Lemma status_cons_statusok_fr {nm: names sigma} {n m: nat}:
     status_cons nm (statusok n) = statusok m → arity nm ≤ n × m = S(n - arity nm).
   Proof.
     intro scons.
-    induction (status_cons_statusok_cases nm n) as [ [aritynm ok] | [aritynm error] ].
-    - rewrite scons in ok.
-      apply ii1_injectivity in ok.
-      exact (aritynm ,, ok).
-    - rewrite scons in error.
-      apply negpathsii1ii2 in error.
-      contradiction.
+    cbn [status_cons statusok coprod_rect] in scons.
+    induction (isdecrelnatleh (arity nm) n) as [ok | error].
+    - apply ii1_injectivity in scons.
+      exact (ok ,, ! scons).
+    -  cbn in scons.
+       apply negpathsii2ii1 in scons.
+       contradiction.
   Defined.
 
   Lemma status_cons_arith {n1 n2 n3: nat}: n3 ≤ n2 → n1 = S (n2 - n3) → n2 = n1 + n3 -1.
@@ -278,20 +264,12 @@ Section Status.
   Proof.
     intro noerror.
     induction status.
-    - induction (status_cons_statusok_cases nm a) as [ [aritynm ok] | [aritynm error] ].
+    - cbn [status_cons statusok coprod_rect] in noerror.
+      induction (isdecrelnatleh (arity nm) a) as [ok | error].
       + exists a.
-        exact (aritynm ,, idpath _).
+        exact (ok ,, idpath _).
       + contradiction.
     - contradiction.
-  Defined.
-
-  Lemma status_cons_noerror2_r {nm: names sigma} {status: Status}:
-    status_cons nm status != statuserror → status != statuserror.
-  Proof.
-    apply negf.
-    intro status_err.
-    rewrite status_err.
-    reflexivity.
   Defined.
 
   Definition status_concatenate (status1 status2: Status): Status.
@@ -313,18 +291,17 @@ Section Status.
     induction status2 as [a2 | error2].
     2: reflexivity.
     intro noerror.
-    change inl with statusok.
-    induction (status_cons_statusok_cases nm a1) as [ [aritynm ok] | [aritynm error] ].
-    - rewrite ok.
-      cbn [status_concatenate statusok coprod_rect].
-      induction (status_cons_statusok_cases nm (a1+a2)) as [ [aritynm2 ok2] | [aritynm2 error2] ].
-      + rewrite ok2.
+    cbn [status_cons coprod_rect] in noerror.
+    cbn [status_concatenate status_cons statusok coprod_rect].
+    induction (isdecrelnatleh (arity nm) a1) as [ok1 | error1].
+    - induction (isdecrelnatleh (arity nm) (a1+a2)) as [ok2 | error2].
+      + cbn.
         apply maponpaths.
         apply (maponpaths S).
         apply natleh_minusplus.
         assumption.
       + apply fromempty.
-        apply aritynm2.
+        apply error2.
         apply natleh_plusright.
         assumption.
     - contradiction.
@@ -363,8 +340,7 @@ Section Stack.
   Definition stack_nil (sigma: Signature): Stack sigma 0 := stnpr nil.
 
   Lemma stack_extens {sigma : Signature} {n: nat} {s1 s2 : Stack sigma n}
-        (p : stack2list s1 = stack2list s2)
-    : s1 = s2.
+        (p : stack2list s1 = stack2list s2) : s1 = s2.
   Proof.
     apply subtypePath.
     2: exact p.
@@ -375,6 +351,9 @@ Section Stack.
   Definition Term (sigma: Signature): UU := Stack sigma 1.
 
   Coercion term2list {sigma: Signature} (t: Term sigma): list (names sigma) := pr1 t.
+
+  Definition term2proof {sigma: Signature} (t: Term sigma)
+    : list2status t = statusok 1 := pr2 t.
 
   Definition Term_hset (sigma : Signature): hSet := make_hSet (Term sigma) (Stack_isaset sigma 1).
 
@@ -401,8 +380,8 @@ Section StackOps.
       change (S len,, vec) with (cons (hd vec) (len ,, tl vec)) in proof.
       rewrite list2status_cons in proof.
       apply status_cons_statusok_r in proof.
-      apply pr1 in proof.
-      apply isirreflnatgth in proof.
+      induction proof as [contr _].
+      apply isirreflnatgth in contr.
       assumption.
   Defined.
 
@@ -431,11 +410,11 @@ Section StackOps.
 
   Lemma list2status_concatenate {l1 l2: list (names sigma)}:
     list2status l1 != statuserror →
-    status_concatenate (list2status l1) (list2status l2) = list2status (concatenate l1 l2).
+    list2status (concatenate l1 l2) = status_concatenate (list2status l1) (list2status l2).
   Proof.
     apply (list_ind (λ s, list2status s != statuserror →
-                          status_concatenate (list2status s) (list2status l2)
-                          = list2status (concatenate s l2))).
+                          list2status (concatenate s l2) =
+                          status_concatenate (list2status s) (list2status l2))).
     - intros.
       change (list2status (concatenate nil l2)) with (list2status l2).
       induction (list2status l2) as [okl2 | badl2].
@@ -445,37 +424,31 @@ Section StackOps.
     - intros nm l1tail IH noerror.
       rewrite list2status_cons.
       rewrite status_concatenate_statuscons by (assumption).
-      rewrite IH.
+      rewrite <- IH.
       + rewrite <- list2status_cons.
         reflexivity.
-      + apply (status_cons_noerror2_r(nm:=nm)).
-        assumption.
+      + intro error.
+        rewrite list2status_cons in noerror.
+        rewrite error in noerror.
+        contradiction.
   Defined.
 
   Lemma list2status_concatenate2 {l1 l2: list (names sigma)} {n1 n2: nat}
         (proof1: list2status l1 = statusok n1) (proof2: list2status l2 = statusok n2)
     : list2status (concatenate l1 l2) = statusok (n1 + n2).
   Proof.
-    apply pathsinv0.
     change (statusok (n1 + n2)) with (status_concatenate (statusok n1) (statusok n2)).
     rewrite <- proof1.
     rewrite <- proof2.
     apply list2status_concatenate.
-    intro l1error.
-    rewrite proof1 in l1error.
-    apply negpathsii1ii2 in l1error.
-    assumption.
+    rewrite proof1.
+    apply negpathsii1ii2.
   Defined.
 
   Local Lemma is_stack_concatenate  {n1 n2: nat} (s1: Stack sigma n1) (s2: Stack sigma n2)
-    : list2status (concatenate s1 s2) = statusok ( n1 + n2 ).
+    : list2status (concatenate s1 s2) = statusok (n1 + n2).
   Proof.
-    rewrite <- list2status_concatenate.
-    - rewrite (stack2proof s1).
-      rewrite (stack2proof s2).
-      reflexivity.
-    - rewrite (stack2proof s1).
-      apply negpathsii1ii2.
+    exact (list2status_concatenate2 (stack2proof s1) (stack2proof s2)).
   Defined.
 
   Definition stack_concatenate {n1 n2: nat} (s1: Stack sigma n1) (s2: Stack sigma n2)
@@ -498,13 +471,13 @@ Section Term.
 
   Definition terms2stack {n: nat} (vec: Vector (Term sigma) n): Stack sigma n.
   Proof.
-    exists (terms2stack_list (vector_map stack2list vec)).
+    exists (terms2stack_list (vector_map term2list vec)).
     induction n.
     - reflexivity.
     - simpl.
-      rewrite (list2status_concatenate2(n1:= 1)(n2:=n)).
+      rewrite (list2status_concatenate2(n1:=1)(n2:=n)).
       * reflexivity.
-      * exact (stack2proof (hd vec)).
+      * exact (term2proof (hd vec)).
       * exact (IHn (tl vec)).
   Defined.
 
@@ -726,7 +699,6 @@ Section Term.
              apply natleh_plusright.
              apply isreflnatleh.
         * rewrite (pr1 (pr2 ind)).
-          Search (?a - _ - _).
           apply (maponpaths statusok).
           rewrite NaturalNumbers.natminusminus.
           rewrite <- natplusassoc.

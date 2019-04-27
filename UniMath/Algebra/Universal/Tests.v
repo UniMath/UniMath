@@ -139,7 +139,7 @@ Section Nat.
   Proof. exact (idpath _). Qed.
 
   Goal depth term_one = 2.
-  Proof. exact (idpath _). Qed.
+  Proof. Abort.
 
 End Nat.
 
