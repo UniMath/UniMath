@@ -2693,20 +2693,11 @@ Defined.
 
 (** ** Infinitary operations *)
 
-(** Functions from bool are determined by two points *)
-(** TODO: This is a weak equivalence. *)
-(** TODO: Define boolsum in terms of this. *)
-(** TODO: Put in Bool.v *)
-Lemma fun_from_bool (X : UU) (true : X) (false : X) : bool -> X.
-Proof.
-  apply bool_rec; [exact true|exact false].
-Defined.
-
 (** Limit a more general infinitary operation to a binary operation *)
 
 Lemma infinitary_op_to_binop {X : hSet} (op : ∏ I : UU, (I -> X) -> X) : binop X.
 Proof.
-  intros x y; exact (op _ (fun_from_bool X x y)).
+  intros x y; exact (op _ (bool_rect (fun _ => X) x y)).
 Defined.
 
 (** TODO: How to prove this? Is it true? *)
@@ -2716,7 +2707,6 @@ Lemma isassoc_infinitary_op_to_binop
 Proof.
   intros x y z.
   unfold infinitary_op_to_binop.
-  unfold fun_from_bool.
 Abort.
 
 (* End of file *)

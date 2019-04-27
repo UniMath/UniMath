@@ -159,7 +159,7 @@ Section Subsets.
 
   (** Using [LEM], we can show the lattice is complemented *)
   Lemma subset_lattice_is_complemented :
-    LEM -> is_complemented (mkbounded_lattice subset_lattice_is_bounded).
+    LEM -> complemented_structure (mkbounded_lattice subset_lattice_is_bounded).
   Proof.
     intros lem sub.
     exists (subtype_complement sub).

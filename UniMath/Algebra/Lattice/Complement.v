@@ -30,6 +30,6 @@ Section Def.
     dirprod_pr2 (pr2 y).
 
   (** This is _not_ a proposition: complements need not be unique. *)
-  Definition is_complemented : UU := ∏ x : X, complement x.
+  Definition complemented_structure : UU := ∏ x : X, complement x.
 
 End Def.

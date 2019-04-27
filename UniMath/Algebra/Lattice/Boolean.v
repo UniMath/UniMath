@@ -28,7 +28,7 @@ Section Def.
     use hProppair.
     - refine (∑ is_distr : is_distributive L, _).
       use hProppair.
-      + exact (is_complemented L).
+      + exact (complemented_structure L).
       + apply impred; intro.
         apply distributive_lattice_complements_are_unique; auto.
     - abstract (apply isaprop_total2).
@@ -37,7 +37,7 @@ Section Def.
 End Def.
 
 Definition make_is_boolean {X : hSet} (L : bounded_lattice X) :
-  is_distributive L -> is_complemented L -> is_boolean L.
+  is_distributive L -> complemented_structure L -> is_boolean L.
 Proof.
   intros ? ?.
   use tpair.
@@ -57,7 +57,7 @@ Section Accessors.
   Definition boolean_algebra_is_boolean :
     is_boolean boolean_algebra_lattice := pr2 B.
 
-  Definition boolean_algebra_complement : is_complemented boolean_algebra_lattice :=
+  Definition boolean_algebra_complement : complemented_structure boolean_algebra_lattice :=
     pr2 (pr2 B).
 
 End Accessors.
