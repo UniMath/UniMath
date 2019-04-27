@@ -1,13 +1,11 @@
 (** * Lattice of subsets *)
 
 Require Import UniMath.Foundations.Preamble.
+Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Sets.
-Require Import UniMath.MoreFoundations.Subtypes.
 Require Export UniMath.MoreFoundations.Propositions.
-
-Require Import UniMath.Foundations.All.
-Require Import UniMath.MoreFoundations.All.
+Require Export UniMath.MoreFoundations.Subtypes.
 
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Lattice.Lattice.
@@ -28,7 +26,7 @@ Section Subsets.
   Proof.
     intros W Y Z.
     apply (invweq (hsubtype_univalence _ _)), subtype_equal_cond.
-    use dirprodpair; cbn; intros z f b; induction b; cbn in *.
+    use make_dirprod; cbn; intros z f b; induction b; cbn in *.
     + (** [z ∈ W] *)
       exact (f true true).
     + intro b; induction b; cbn in *.
@@ -46,7 +44,7 @@ Section Subsets.
   Proof.
     intros ? ?; unfold intersection_binop, infinitary_op_to_binop; cbn.
     apply (invweq (hsubtype_univalence _ _)), subtype_equal_cond.
-    use dirprodpair; intro; cbn; intros f b; induction b.
+    use make_dirprod; intro; cbn; intros f b; induction b.
     - exact (f false).
     - exact (f true).
     - exact (f false).
@@ -70,7 +68,7 @@ Section Subsets.
   Proof.
     intros ? ? ?.
     apply (invweq (hsubtype_univalence _ _)), subtype_equal_cond.
-    use dirprodpair; cbn; intros ? ain;
+    use make_dirprod; cbn; intros ? ain;
       apply (squash_to_prop_ishinh ain);
         clear ain; intro ain; induction ain as [b bin].
     - induction b; cbn in bin.
@@ -94,7 +92,7 @@ Section Subsets.
   Lemma iscomm_union_binop : iscomm union_binop.
     intros ? ?; unfold union_binop, infinitary_op_to_binop; cbn.
     apply (invweq (hsubtype_univalence _ _)), subtype_equal_cond.
-    use dirprodpair; intro; cbn; intros ain;
+    use make_dirprod; intro; cbn; intros ain;
       apply (squash_to_prop_ishinh ain); clear ain; intro ain;
         induction ain as [b bin]; induction b; cbn in *;
           apply hinhpr.
@@ -110,14 +108,14 @@ Section Subsets.
     - exact intersection_binop. (** [Lmin] *)
     - exact union_binop. (** [Lmax] *)
     - (** TODO: constructor for this *)
-      apply dirprodpair; [apply dirprodpair|apply dirprodpair; [apply dirprodpair|apply dirprodpair]].
+      apply make_dirprod; [apply make_dirprod|apply make_dirprod; [apply make_dirprod|apply make_dirprod]].
       + apply isassoc_intersection_binop.
       + apply iscomm_intersection_binop.
       + apply isassoc_union_binop.
       + apply iscomm_union_binop.
       + intros ? ?.
         apply (invweq (hsubtype_univalence _ _)), subtype_equal_cond.
-        use dirprodpair.
+        use make_dirprod.
         * intros ? f; exact (f true).
         * intros ? ?.
           intros b; induction b; cbn.
@@ -125,7 +123,7 @@ Section Subsets.
           -- apply hinhpr; exists true; assumption.
       + intros ? ?.
         apply (invweq (hsubtype_univalence _ _)), subtype_equal_cond.
-        use dirprodpair.
+        use make_dirprod.
         * intros ? f; cbn in f.
           refine (hinhuniv _ f); clear f; intro f.
           induction f as [b bin]; induction b; cbn in bin.
@@ -138,10 +136,10 @@ Section Subsets.
     bounded_latticeop subset_lattice (emptysubtype X) (totalsubtype X).
   Proof.
     (** TODO: constructor *)
-    use dirprodpair.
+    use make_dirprod.
     - intros x; cbn.
       apply (invweq (hsubtype_univalence _ _)), subtype_equal_cond;
-        use dirprodpair.
+        use make_dirprod.
       + intros ? in_union.
         refine (hinhuniv _ in_union); clear in_union; intro in_union.
         induction in_union as [b bin]; induction b; cbn in bin.
@@ -150,7 +148,7 @@ Section Subsets.
       + intros ? ?; apply hinhpr; exists false; assumption.
     - intros x; cbn.
       apply (invweq (hsubtype_univalence _ _)), subtype_equal_cond;
-        use dirprodpair.
+        use make_dirprod.
       + intros ? in_intersection; exact (in_intersection false).
       + intros ? ? b; induction b; cbn.
         * exact tt. (* always in total subtype *)
@@ -163,7 +161,7 @@ Section Subsets.
   Proof.
     intros lem sub.
     exists (subtype_complement sub).
-    use dirprodpair.
+    use make_dirprod.
     - apply (invweq (hsubtype_univalence _ _)).
       apply (subtype_complement_union sub lem).
       + exists true; reflexivity.

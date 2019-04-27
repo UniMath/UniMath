@@ -25,9 +25,9 @@ Section Def.
       case of Boolean algebras. Therefore, Boolean algebra structure is a proposition. *)
   Definition is_boolean : hProp.
   Proof.
-    use hProppair.
+    use make_hProp.
     - refine (∑ is_distr : is_distributive L, _).
-      use hProppair.
+      use make_hProp.
       + exact (complemented_structure L).
       + apply impred; intro.
         apply distributive_lattice_complements_are_unique; auto.
@@ -78,6 +78,6 @@ Section Heyting.
   Proof.
     use make_exponential.
     - intros x y; exact ((¬ x) ⊕ y).
-    - intros x y z; use dirprodpair; cbn; intros H.
+    - intros x y z; use make_dirprod; cbn; intros H.
   Abort.
 End Heyting.

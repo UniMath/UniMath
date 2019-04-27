@@ -16,7 +16,8 @@ Lattice/Complement.v
 Lattice/Distributive.v
 Lattice/Heyting.v
 Lattice/Boolean.v
-Lattice/Subsets.v
+Lattice/Examples/Bool.v
+Lattice/Examples/Subsets.v
 IteratedBinaryOperations.v
 Free_Monoids_and_Groups.v
 Tests.v

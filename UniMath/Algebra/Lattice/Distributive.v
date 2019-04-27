@@ -19,7 +19,7 @@ Section Def.
 
   Definition is_distributive : hProp.
   Proof.
-    use hProppair.
+    use make_hProp.
     - exact (∏ x y z : X, x ⊗ (y ⊕ z) = ((x ⊗ y) ⊕ (x ⊗ z))).
     - do 3 (apply impred; intro); apply setproperty.
   Defined.

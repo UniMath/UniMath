@@ -198,7 +198,7 @@ Section Complement.
     (∑ i : I, f i = subtype_complement) ->
     subtype_intersection f ≡ emptysubtype _.
   Proof.
-    intros has_S has_neg_S x; use dirprodpair.
+    intros has_S has_neg_S x; use make_dirprod.
     - intros in_intersection.
       pose (in_S := in_intersection (pr1 has_S)).
       pose (in_neg_S := in_intersection (pr1 has_neg_S)).
@@ -220,7 +220,7 @@ Section Complement.
     (∑ i : I, f i = subtype_complement) ->
     subtype_union f ≡ totalsubtype _.
   Proof.
-    intros has_S has_neg_S x; use dirprodpair.
+    intros has_S has_neg_S x; use make_dirprod.
     - intros ?; exact tt.
     - intros ?.
       induction (lem (S x)).
