@@ -34,13 +34,13 @@ Local Open Scope cat.
 Section def_monoid_precategory.
 
   Definition monoid_fun_space (A B : monoid) : hSet :=
-    hSetpair (monoidfun A B) (isasetmonoidfun A B).
+    make_hSet (monoidfun A B) (isasetmonoidfun A B).
 
   Definition monoid_precategory_ob_mor : precategory_ob_mor :=
     tpair (λ ob : UU, ob -> ob -> UU) monoid (λ A B : monoid, monoid_fun_space A B).
 
   Definition monoid_precategory_data : precategory_data :=
-    precategory_data_pair
+    make_precategory_data
       monoid_precategory_ob_mor (λ (X : monoid), ((idmonoidiso X) : monoidfun X X))
       (fun (X Y Z : monoid) (f : monoidfun X Y) (g : monoidfun Y Z) => monoidfuncomp f g).
 
@@ -68,14 +68,14 @@ Section def_monoid_precategory.
 
   Lemma is_precategory_monoid_precategory_data : is_precategory monoid_precategory_data.
   Proof.
-   use mk_is_precategory_one_assoc.
+   use make_is_precategory_one_assoc.
     - intros a b f. use monoid_id_left.
     - intros a b f. use monoid_id_right.
     - intros a b c d f g h. use monoid_assoc.
   Qed.
 
   Definition monoid_precategory : precategory :=
-    mk_precategory monoid_precategory_data is_precategory_monoid_precategory_data.
+    make_precategory monoid_precategory_data is_precategory_monoid_precategory_data.
 
   Lemma has_homsets_monoid_precategory : has_homsets monoid_precategory.
   Proof.
@@ -106,8 +106,8 @@ Section def_monoid_category.
   Lemma monoid_iso_equiv (X Y : ob monoid_precategory) : iso X Y -> monoidiso X Y.
   Proof.
     intro f.
-    use monoidisopair.
-    - exact (weqpair (pr1 (pr1 f)) (monoid_iso_is_equiv X Y f)).
+    use make_monoidiso.
+    - exact (make_weq (pr1 (pr1 f)) (monoid_iso_is_equiv X Y f)).
     - exact (pr2 (pr1 f)).
   Defined.
 
@@ -116,7 +116,7 @@ Section def_monoid_category.
   Proof.
     use is_iso_qinv.
     - exact (monoidfunconstr (pr2 (invmonoidiso f))).
-    - use mk_is_inverse_in_precat.
+    - use make_is_inverse_in_precat.
       + use monoidfun_paths. use funextfun. intros x. use homotinvweqweq.
       + use monoidfun_paths. use funextfun. intros y. use homotweqinvweq.
   Defined.
@@ -124,7 +124,7 @@ Section def_monoid_category.
 
   Lemma monoid_equiv_iso (X Y : ob monoid_precategory) : monoidiso X Y -> iso X Y.
   Proof.
-    intros f. exact (@isopair monoid_precategory X Y (monoidfunconstr (pr2 f))
+    intros f. exact (@make_iso monoid_precategory X Y (monoidfunconstr (pr2 f))
                               (monoid_equiv_is_iso X Y f)).
   Defined.
 
@@ -141,7 +141,7 @@ Section def_monoid_category.
 
   Definition monoid_iso_equiv_weq (X Y : ob monoid_precategory) : (iso X Y) ≃ (monoidiso X Y).
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (monoid_iso_equiv X Y).
     - exact (monoid_iso_equiv_is_equiv X Y).
   Defined.
@@ -159,7 +159,7 @@ Section def_monoid_category.
 
   Definition monoid_equiv_weq_iso (X Y : ob monoid_precategory) : (monoidiso X Y) ≃ (iso X Y).
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (monoid_equiv_iso X Y).
     - exact (monoid_equiv_iso_is_equiv X Y).
   Defined.
@@ -184,13 +184,13 @@ Section def_monoid_category.
 
   Definition monoid_precategory_is_univalent : is_univalent monoid_precategory.
   Proof.
-    use mk_is_univalent.
+    use make_is_univalent.
     - intros X Y. exact (monoid_precategory_isweq X Y).
     - exact has_homsets_monoid_precategory.
   Defined.
 
   Definition monoid_category : univalent_category :=
-    mk_category monoid_precategory monoid_precategory_is_univalent.
+    make_univalent_category monoid_precategory monoid_precategory_is_univalent.
 
 End def_monoid_category.
 
@@ -198,8 +198,8 @@ End def_monoid_category.
 
 Definition monoid_forgetful_functor : functor monoid_precategory HSET.
 Proof.
-  use mk_functor.
-  - use mk_functor_data.
+  use make_functor.
+  - use make_functor_data.
     + intro; exact (pr1setwithbinop (pr1monoid ltac:(assumption))).
     + intros ? ? f; exact (pr1monoidfun _ _ f).
   - split.
@@ -221,8 +221,8 @@ Defined.
 
 Definition monoid_free_functor : functor HSET monoid_precategory.
 Proof.
-  use mk_functor.
-  - use mk_functor_data.
+  use make_functor.
+  - use make_functor_data.
     + intros s; exact (free_monoid s).
     + intros ? ? f; exact (free_monoidfun f).
   - split.
@@ -243,7 +243,7 @@ Definition monoid_free_forgetful_unit :
   nat_trans (functor_identity _)
             (functor_composite monoid_free_functor monoid_forgetful_functor).
 Proof.
-  use mk_nat_trans.
+  use make_nat_trans.
   - intros ?; exact singleton.
   - intros ? ? ?.
     abstract (apply funextfun; intro; reflexivity).
@@ -274,7 +274,7 @@ Definition monoid_free_forgetful_counit :
   nat_trans (functor_composite monoid_forgetful_functor monoid_free_functor )
             (functor_identity _).
 Proof.
-  use mk_nat_trans.
+  use make_nat_trans.
   - intros ?.
     use tpair.
     + intro; apply iterop_list_mon; assumption.

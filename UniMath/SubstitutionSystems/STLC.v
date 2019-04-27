@@ -99,7 +99,7 @@ use mkMultiSortedSig.
 Defined.
 
 (** The signature with strength for the simply typed lambda calculus *)
-Definition STLC_Signature : Signature (SET / sort) _ _ _ :=
+Definition STLC_Signature : Signature (SET / sort) _ _ _ _ _ :=
   MultiSortedSigToSignature sort STLC_Sig.
 
 Let Id_H := Id_H _ hs (BinCoproducts_HSET_slice sort).
@@ -161,7 +161,7 @@ Definition lam_map (s t : sort) : SET_over_sort2⟦lam_source s t STLC,STLC⟧ :
     · BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _)
     · STLC_mor.
 
-Definition mk_STLC_Algebra X (fvar : SET_over_sort2⟦1,X⟧)
+Definition make_STLC_Algebra X (fvar : SET_over_sort2⟦1,X⟧)
   (fapp : ∏ s t, SET_over_sort2⟦app_source s t X,X⟧)
   (flam : ∏ s t, SET_over_sort2⟦lam_source s t X,X⟧) :
     algebra_ob STLC_Functor.
@@ -178,9 +178,9 @@ Defined.
 Definition foldr_map X (fvar : SET_over_sort2⟦1,X⟧)
   (fapp : ∏ s t, SET_over_sort2⟦app_source s t X,X⟧)
   (flam : ∏ s t, SET_over_sort2⟦lam_source s t X,X⟧) :
-  algebra_mor _ STLC_alg (mk_STLC_Algebra X fvar fapp flam).
+  algebra_mor _ STLC_alg (make_STLC_Algebra X fvar fapp flam).
 Proof.
-apply (InitialArrow STLC_Functor_Initial (mk_STLC_Algebra X fvar fapp flam)).
+apply (InitialArrow STLC_Functor_Initial (make_STLC_Algebra X fvar fapp flam)).
 Defined.
 
 (** The equation for variables *)

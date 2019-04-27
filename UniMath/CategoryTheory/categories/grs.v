@@ -23,13 +23,13 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 (** * Precategory of grs *)
 Section def_gr_precategory.
 
-  Definition gr_fun_space (A B : gr) : hSet := hSetpair (monoidfun A B) (isasetmonoidfun A B).
+  Definition gr_fun_space (A B : gr) : hSet := make_hSet (monoidfun A B) (isasetmonoidfun A B).
 
   Definition gr_precategory_ob_mor : precategory_ob_mor :=
     tpair (λ ob : UU, ob -> ob -> UU) gr (λ A B : gr, gr_fun_space A B).
 
   Definition gr_precategory_data : precategory_data :=
-    precategory_data_pair
+    make_precategory_data
       gr_precategory_ob_mor (λ (X : gr), ((idmonoidiso X) : monoidfun X X))
       (fun (X Y Z : gr) (f : monoidfun X Y) (g : monoidfun Y Z) => monoidfuncomp f g).
 
@@ -54,14 +54,14 @@ Section def_gr_precategory.
 
   Lemma is_precategory_gr_precategory_data : is_precategory gr_precategory_data.
   Proof.
-    use mk_is_precategory_one_assoc.
+    use make_is_precategory_one_assoc.
     - intros a b f. use gr_id_left.
     - intros a b f. use gr_id_right.
     - intros a b c d f g h. use gr_assoc.
   Qed.
 
   Definition gr_precategory : precategory :=
-    mk_precategory gr_precategory_data is_precategory_gr_precategory_data.
+    make_precategory gr_precategory_data is_precategory_gr_precategory_data.
 
   Lemma has_homsets_gr_precategory : has_homsets gr_precategory.
   Proof.
@@ -92,8 +92,8 @@ Section def_gr_category.
   Lemma gr_iso_equiv (X Y : ob gr_precategory) : iso X Y -> monoidiso (X : gr) (Y : gr).
   Proof.
     intro f.
-    use monoidisopair.
-    - exact (weqpair (pr1 (pr1 f)) (gr_iso_is_equiv X Y f)).
+    use make_monoidiso.
+    - exact (make_weq (pr1 (pr1 f)) (gr_iso_is_equiv X Y f)).
     - exact (pr2 (pr1 f)).
   Defined.
 
@@ -102,7 +102,7 @@ Section def_gr_category.
   Proof.
     use is_iso_qinv.
     - exact (monoidfunconstr (pr2 (invmonoidiso f))).
-    - use mk_is_inverse_in_precat.
+    - use make_is_inverse_in_precat.
       + use monoidfun_paths. use funextfun. intros x. use homotinvweqweq.
       + use monoidfun_paths. use funextfun. intros y. use homotweqinvweq.
   Defined.
@@ -110,7 +110,7 @@ Section def_gr_category.
 
   Lemma gr_equiv_iso (X Y : ob gr_precategory) : monoidiso (X : gr) (Y : gr) -> iso X Y.
   Proof.
-    intros f. exact (@isopair gr_precategory X Y (monoidfunconstr (pr2 f))
+    intros f. exact (@make_iso gr_precategory X Y (monoidfunconstr (pr2 f))
                               (gr_equiv_is_iso X Y f)).
   Defined.
 
@@ -128,7 +128,7 @@ Section def_gr_category.
   Definition gr_iso_equiv_weq (X Y : ob gr_precategory) :
     weq (iso X Y) (monoidiso (X : gr) (Y : gr)).
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (gr_iso_equiv X Y).
     - exact (gr_iso_equiv_is_equiv X Y).
   Defined.
@@ -147,7 +147,7 @@ Section def_gr_category.
   Definition gr_equiv_weq_iso (X Y : ob gr_precategory) :
     (monoidiso (X : gr) (Y : gr)) ≃ (iso X Y).
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (gr_equiv_iso X Y).
     - exact (gr_equiv_iso_is_equiv X Y).
   Defined.
@@ -171,11 +171,12 @@ Section def_gr_category.
 
   Definition gr_precategory_is_univalent : is_univalent gr_precategory.
   Proof.
-    use mk_is_univalent.
+    use make_is_univalent.
     - intros X Y. exact (gr_precategory_isweq X Y).
     - exact has_homsets_gr_precategory.
   Defined.
 
-  Definition gr_category : univalent_category := mk_category gr_precategory gr_precategory_is_univalent.
+  Definition gr_category : univalent_category
+    := make_univalent_category gr_precategory gr_precategory_is_univalent.
 
 End def_gr_category.

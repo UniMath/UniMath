@@ -101,7 +101,7 @@ Section Disp_Cat.
 Definition disp_cat_ob_mor (C : precategory_ob_mor)
   := ∑ (obd : C -> UU), (∏ x y:C, obd x -> obd y -> (x --> y) -> UU).
 
-Definition mk_disp_cat_ob_mor
+Definition make_disp_cat_ob_mor
            (C : precategory_ob_mor)
            (obd : C -> UU)
            (mord : ∏ x y:C, obd x -> obd y -> (x --> y) -> UU)
@@ -348,7 +348,7 @@ Definition iso_disp {C : precategory} {D : disp_cat_data C}
     {x y : C} (f : iso x y) (xx : D x) (yy : D y)
   := ∑ ff : xx -->[f] yy, is_iso_disp f ff.
 
-Definition iso_disp_pair {C : precategory} {D : disp_cat_data C}
+Definition make_iso_disp {C : precategory} {D : disp_cat_data C}
     {x y : C} {f : iso x y} {xx : D x} {yy : D y}
     (ff : xx -->[f] yy) (is : is_iso_disp f ff)
     : iso_disp _ _ _
@@ -785,7 +785,7 @@ Proof.
       (∏ a b : D c, isofhlevel 2 (a = b)).
   intros xx xx'.
   set (XR := is_univalent_in_fibers_from_univalent_disp _ is_u).
-  apply (isofhlevelweqb _ (weqpair _ (XR _ xx xx'))).
+  apply (isofhlevelweqb _ (make_weq _ (XR _ xx xx'))).
   apply isaset_iso_disp.
 Defined.
 
@@ -793,7 +793,7 @@ Defined.
 Definition disp_univalent_category C
   := ∑ D : disp_cat C, is_univalent_disp D.
 
-Definition disp_univalent_category_pair
+Definition make_disp_univalent_category
     {C} {D : disp_cat C} (H : is_univalent_disp D)
   : disp_univalent_category C
 := (D,,H).
@@ -813,7 +813,7 @@ Definition isotoid_disp
     {c c' : C} (e : c = c') {d : D c} {d'} (i : iso_disp (idtoiso e) d d')
   : transportf _ e d = d'.
 Proof.
-  exact (invmap (weqpair (idtoiso_disp e) (D_cat _ _ _ _ _)) i).
+  exact (invmap (make_weq (idtoiso_disp e) (D_cat _ _ _ _ _)) i).
 Defined.
 
 Definition idtoiso_isotoid_disp
@@ -926,7 +926,7 @@ Qed.
 
 Definition pr1_category {C : precategory} (D : disp_precat C) :
   functor (total_precategory D) C :=
-  mk_functor (pr1_category_data D) (pr1_category_is_functor D).
+  make_functor (pr1_category_data D) (pr1_category_is_functor D).
 
 Lemma full_pr1_category {C : precategory} (D : disp_precat C)
   (H : ∏ (a b : total_precategory D) (x : C ⟦ pr1 a, pr1 b ⟧), (∥ pr2 a -->[ x] pr2 b ∥))
@@ -958,7 +958,7 @@ Defined.
 Definition is_iso_total {C : precategory} {D : disp_precat C}
            {xx yy : total_precategory D} (ff : xx --> yy)
   (i : is_iso (pr1 ff))
-  (fi := isopair (pr1 ff) i)
+  (fi := make_iso (pr1 ff) i)
   (ii : is_iso_disp fi (pr2 ff))
   : is_iso ff.
 Proof.
@@ -979,7 +979,7 @@ Definition is_iso_base_from_total {C : precategory} {D : disp_precat C}
            {xx yy : total_precategory D} {ff : xx --> yy} (i : is_iso ff)
   : is_iso (pr1 ff).
 Proof.
-  set (ffi := isopair ff i).
+  set (ffi := make_iso ff i).
   apply (is_iso_qinv _ (pr1 (inv_from_iso ffi))).
   split.
   - exact (maponpaths pr1 (iso_inv_after_iso ffi)).
@@ -988,7 +988,7 @@ Qed.
 
 Definition iso_base_from_total {C : precategory} {D : disp_precat C}
            {xx yy : total_precategory D} (ffi : iso xx yy) : iso (pr1 xx) (pr1 yy) :=
-  isopair _ (is_iso_base_from_total (pr2 ffi)).
+  make_iso _ (is_iso_base_from_total (pr2 ffi)).
 
 Definition inv_iso_base_from_total {C : precategory} {D : disp_precat C}
            {xx yy : total_precategory D} (ffi : iso xx yy) :
@@ -999,7 +999,7 @@ Proof.
 Qed.
 
 Definition is_iso_disp_from_total {C : category} {D : disp_cat C}
-           {xx yy : total_precategory D} {ff : xx --> yy} (i : is_iso ff) (ffi := isopair ff i) :
+           {xx yy : total_precategory D} {ff : xx --> yy} (i : is_iso ff) (ffi := make_iso ff i) :
   is_iso_disp (iso_base_from_total (ff,,i)) (pr2 ff).
 Proof.
   use tpair; [ | split].
@@ -1090,7 +1090,7 @@ Qed.
 Definition total_iso_equiv {C : category} {D : disp_cat C} (xx yy : total_category D)
   : (∑ f : iso (pr1 xx) (pr1 yy), iso_disp f (pr2 xx) (pr2 yy))
   ≃ iso xx yy
-:= weqpair _ (total_isweq_iso xx yy).
+:= make_weq _ (total_isweq_iso xx yy).
 
 Lemma is_univalent_total_category {C : category} {D : disp_cat C}
       (CC : is_univalent C) (DD : is_univalent_disp D) :
@@ -1108,7 +1108,7 @@ Proof.
     intros e. exists (λ ee, idtoiso_disp e ee).
     apply DD.
   apply (@weqcomp _ (∑ f : iso x y, iso_disp f xx yy) _).
-    use (weqfp (weqpair _ _)). apply CC.
+    use (weqfp (make_weq _ _)). apply CC.
   apply total_iso_equiv.
   intros e; destruct e; apply eq_iso; cbn.
     apply idpath.
@@ -1560,7 +1560,7 @@ Context {C C' : category}
         (FF_ff : disp_functor_ff FF).
 
 Definition disp_functor_ff_weq {x y} xx yy f
-  := weqpair _ (FF_ff x y xx yy f).
+  := make_weq _ (FF_ff x y xx yy f).
 Definition disp_functor_ff_inv {x y} {xx} {yy} {f : x --> y}
   := invmap (disp_functor_ff_weq xx yy f).
 

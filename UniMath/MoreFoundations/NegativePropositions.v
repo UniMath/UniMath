@@ -95,7 +95,7 @@ Defined.
 
 Definition isolated_ne ( T : UU ) (neq:neqReln T) := ∑ t:T, isisolated_ne _ t (neq t).
 
-Definition isolatedpair_ne (T : UU) (t:T) (neq:neqReln T) (i:isisolated_ne _ t (neq t)) :
+Definition make_isolated_ne (T : UU) (t:T) (neq:neqReln T) (i:isisolated_ne _ t (neq t)) :
   isolated_ne T neq
   := (t,,i).
 
@@ -120,7 +120,7 @@ Defined.
 
 Definition compl_ne (X:UU) (x:X) (neq_x : neqPred x) := ∑ y, neq_x y.
 
-Definition compl_ne_pair (X : UU) (x : X) (neq_x : neqPred x) (y : X)
+Definition make_compl_ne (X : UU) (x : X) (neq_x : neqPred x) (y : X)
            (ne :neq_x y) :
   compl_ne X x neq_x := (y,,ne).
 
@@ -215,7 +215,7 @@ Definition invrecompl_ne (X : UU) (x : X) (neq_x : neqPred x)
 Proof.
   intros y. induction (is y) as [k|k].
   - exact (ii2 tt).
-  - exact (ii1 (compl_ne_pair X x neq_x y (neg_to_negProp k))).
+  - exact (ii1 (make_compl_ne X x neq_x y (neg_to_negProp k))).
 Defined.
 
 Theorem isweqrecompl_ne (X : UU) (x : X) (is : isisolated X x)
@@ -241,7 +241,7 @@ Proof.
        {contradicts (negProp_to_neg neq) eq'. }
        {induction (ii2 ne') as [eq|neq'].
         {simpl. contradicts eq ne'. }
-        {simpl. apply maponpaths. unfold compl_ne_pair. apply maponpaths.
+        {simpl. apply maponpaths. unfold make_compl_ne. apply maponpaths.
          apply proofirrelevance. exact (pr1 (pr2 (neq_x y))). }}
      + induction u. unfold f,g,invrecompl_ne;simpl.
        induction (is x) as [eq|neq].
@@ -283,7 +283,7 @@ Defined.
 
 Definition weqrecompl_ne (X : UU) (x : X) (is : isisolated X x)
            (neq_x : neqPred x) : compl_ne X x neq_x ⨿ unit ≃ X
-  := weqpair _ (isweqrecompl_ne X x is neq_x).
+  := make_weq _ (isweqrecompl_ne X x is neq_x).
 
 Theorem isweqrecompl' (X : UU) (x : X) (is : isisolated X x) :
   isweq (recompl _ x).

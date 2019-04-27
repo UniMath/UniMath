@@ -15,6 +15,11 @@ Groupoids.v
 PrecategoryBinProduct.v
 ProductCategory.v
 whiskering.v
+Subcategory/Core.v
+Subcategory/Full.v
+Monics.v
+Epis.v
+SplitMonicsAndEpis.v
 Adjunctions/Core.v
 Monads/RelativeMonads.v
 Monads/RelMonads_Coreflection.v
@@ -22,10 +27,6 @@ Monads/RelativeModules.v
 Equivalences/Core.v
 Equivalences/CompositesAndInverses.v
 Equivalences/FullyFaithful.v
-Subcategory/Core.v
-Subcategory/Full.v
-Monics.v
-Epis.v
 categories/HSET/MonoEpiIso.v
 categories/HSET/Univalence.v
 Profunctors/Core.v
@@ -82,7 +83,7 @@ FunctorCoalgebras.v
 precomp_fully_faithful.v
 precomp_ess_surj.v
 rezk_completion.v
-EndofunctorsMonoidal.v
+UnitorsAndAssociatorsForEndofunctors.v
 CategoricalRecursionSchemes.v
 PointedFunctors.v
 HorizontalComposition.v
@@ -121,6 +122,7 @@ Monads/Derivative.v
 Monads/MonadAlgebras.v
 Adjunctions/Restriction.v
 Adjunctions/Examples.v
+Subcategory/Reflective.v
 
 categories/setwith2binops.v
 categories/monoids.v
@@ -165,6 +167,7 @@ Chains/All.v
 Inductives/Lists.v
 Inductives/Trees.v
 Inductives/LambdaCalculus.v
+Inductives/PropositionalLogic.v
 
 DisplayedCats/Auxiliary.v
 DisplayedCats/Core.v
@@ -249,6 +252,7 @@ Bicategories/Graph.v
 Bicategories/Discreteness.v
 
 Monoidal/MonoidalCategories.v
+Monoidal/EndofunctorsMonoidal.v
 Monoidal/MonoidalFunctors.v
 Monoidal/CategoriesOfMonoids.v
 Monoidal/Actions.v

@@ -31,7 +31,7 @@ Definition op2_prebicat_data (C : prebicat_data)
   : prebicat_data.
 Proof.
   exists (op2_prebicat_1_id_comp_cells C).
-  repeat use dirprodpair.
+  repeat use make_dirprod.
   - intros; apply id2.
   - intros; cbn. apply linvunitor.
   - intros; cbn. apply rinvunitor.
@@ -271,7 +271,7 @@ Definition op2_bicat_left_adjoint_equivalence_is_bicat_left_adjoint_equivalence
            (f : X --> Y)
   : @left_adjoint_equivalence C X Y f ≃ left_adjoint_equivalence f.
 Proof.
-  use weqpair.
+  use make_weq.
   - exact (bicat_left_adjoint_equivalence_to_op2_bicat_left_adjoint_equivalence f).
   - use isweq_iso.
     + exact (op2_bicat_left_adjoint_equivalence_to_bicat_left_adjoint_equivalence f).

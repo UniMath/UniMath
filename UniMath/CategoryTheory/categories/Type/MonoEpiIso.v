@@ -51,7 +51,7 @@ Defined.
 
 Lemma type_iso_equiv (A B : ob type_precat) : iso A B -> A ≃ B.
 Proof.
-  intro f; use weqpair; [exact (pr1 f)|apply type_iso_is_equiv].
+  intro f; use make_weq; [exact (pr1 f)|apply type_iso_is_equiv].
 Defined.
 
 (** Given a weak equivalence, we construct an iso. Again mostly unwrapping and
@@ -73,7 +73,7 @@ Defined.
 Lemma type_precat_equiv_iso (A B : ob type_precat) : A ≃ B -> iso A B.
 Proof.
   intro f.
-  use isopair.
+  use make_iso.
   - exact (pr1 f).
   - apply type_equiv_is_iso.
 Defined.

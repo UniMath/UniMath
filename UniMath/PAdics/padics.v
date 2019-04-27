@@ -295,7 +295,7 @@ Proof.
 Defined.
 
 Definition carryequiv0 : hrel ( fpscommring hz ) :=
-  fun a b : fpscommring hz => hProppair _ ( isapropcarryequiv a b ).
+  fun a b : fpscommring hz => make_hProp _ ( isapropcarryequiv a b ).
 
 Lemma carryequiviseqrel : iseqrel carryequiv0.
 Proof.
@@ -324,7 +324,7 @@ Proof.
 Defined.
 
 Definition carryequiv : eqrel ( fpscommring hz ) :=
-  eqrelpair _ carryequiviseqrel.
+  make_eqrel _ carryequiviseqrel.
 
 Lemma precarryandcarry_pointwise ( a : fpscommring hz ) :
   forall n : nat,
@@ -1521,7 +1521,7 @@ Proof.
     apply ( pr1 padicapart ).
   }
   apply ( setquotuniv3prop _ ( fun x x' x'' =>
-                                 hProppair _ ( int x x' x'' ) ) ).
+                                 make_hProp _ ( int x x' x'' ) ) ).
   intros a b c.
   change (pr1 padicapart
               (padicplus (setquotpr (ringcarryequiv p (isaprimetoneq0 is)) a)
@@ -1600,7 +1600,7 @@ Proof.
     rewrite i.
     apply idpath.
   - set ( Q := ( fun o : nat =>
-                   hProppair ( carry p ( isaprimetoneq0 is ) b o =
+                   make_hProp ( carry p ( isaprimetoneq0 is ) b o =
                                carry p ( isaprimetoneq0 is ) c o )
                              ( isasethz _ _ ) ) ).
     assert ( isdecnatprop Q ) as isdec'.
@@ -1682,7 +1682,7 @@ Proof.
     rewrite j.
     apply idpath.
   - set ( Q := ( fun o : nat =>
-                   hProppair ( carry p ( isaprimetoneq0 is ) b o =
+                   make_hProp ( carry p ( isaprimetoneq0 is ) b o =
                                carry p ( isaprimetoneq0 is ) c o )
                              ( isasethz _ _ ) ) ).
     assert ( isdecnatprop Q ) as isdec'.
@@ -1757,7 +1757,7 @@ Proof.
      apply ( pr1 padicapart ).
   }
   apply ( setquotuniv3prop _ ( fun x x' x'' =>
-                                 hProppair _ ( int x x' x'' ) ) ).
+                                 make_hProp _ ( int x x' x'' ) ) ).
   intros a b c.
   change (pr1 padicapart
               (padictimes (setquotpr (carryequiv p (isaprimetoneq0 is)) a)
@@ -2088,7 +2088,7 @@ Proof.
   }
   revert a b.
   apply ( setquotuniv2prop _ ( fun x y =>
-                                 hProppair _ ( int x y ) ) ).
+                                 make_hProp _ ( int x y ) ) ).
   intros a b.
   change (pr1 padicapart
               (setquotpr (carryequiv p (isaprimetoneq0 is)) a)

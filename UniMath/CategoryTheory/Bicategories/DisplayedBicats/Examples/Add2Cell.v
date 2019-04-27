@@ -184,7 +184,7 @@ Section Add2Cell.
              (HD : disp_univalent_2_1 D)
     : disp_univalent_2 add_cell_disp_cat.
   Proof.
-    apply mk_disp_univalent_2.
+    apply make_disp_univalent_2.
     - apply add_cell_disp_cat_univalent_2_0; assumption.
     - apply add_cell_disp_cat_univalent_2_1.
   Defined.

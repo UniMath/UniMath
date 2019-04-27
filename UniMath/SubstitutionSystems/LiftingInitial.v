@@ -49,7 +49,7 @@ Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration.
 Require Import UniMath.CategoryTheory.RightKanExtension.
 Require Import UniMath.SubstitutionSystems.GenMendlerIteration.
-Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
+Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
 Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 
@@ -75,7 +75,7 @@ Let CPEndEndC:= BinCoproducts_functor_precat _ _ CPEndC hsEndC: BinCoproducts En
 
 Variable KanExt : ∏ Z : Ptd, GlobalRightKanExtensionExists _ _ (U Z) _ hs hs.
 
-Variable H : Signature C hs C hs.
+Variable H : Signature C hs C hs C hs.
 Let θ := theta H.
 
 Definition Const_plus_H (X : EndC) : functor EndC EndC
@@ -229,7 +229,6 @@ Proof.
   apply BinCoproductOfArrows_eq.
   + apply idpath.
   + unfold functor_fix_snd_arg_mor; simpl.
-    unfold θ_target_mor; simpl.
     revert c.
     apply nat_trans_eq_pointwise.
     apply maponpaths.
@@ -574,7 +573,6 @@ Proof.
   apply BinCoproductOfArrows_eq.
   - apply idpath.
   - unfold functor_fix_snd_arg_mor; simpl.
-    unfold θ_target_mor; simpl.
     revert c.
     apply nat_trans_eq_pointwise.
     apply maponpaths.
@@ -832,7 +830,7 @@ Proof.
       fold θ.
       apply nat_trans_eq; try (exact hs).
       intro c.
-      assert (θ_nat_1_pointwise_inst := θ_nat_1_pointwise _ hs _ hs H θ _ _ β Z c).
+      assert (θ_nat_1_pointwise_inst := θ_nat_1_pointwise _ hs _ hs _ hs H θ _ _ β Z c).
       eapply pathscomp0 ; [exact θ_nat_1_pointwise_inst | ].
       clear θ_nat_1_pointwise_inst.
       simpl.
@@ -864,7 +862,7 @@ Qed.
 
 Lemma isInitial_InitHSS : isInitial (hss_precategory CP H) InitHSS.
 Proof.
-  use mk_isInitial.
+  use make_isInitial.
   intro T.
   exists (hss_InitMor T).
   apply hss_InitMor_unique.
@@ -873,7 +871,7 @@ Defined.
 
 Lemma InitialHSS : Initial (hss_precategory CP H).
 Proof.
-  use (mk_Initial InitHSS).
+  use (make_Initial InitHSS).
   apply isInitial_InitHSS.
 Defined.
 

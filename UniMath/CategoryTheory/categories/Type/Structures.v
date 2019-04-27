@@ -41,13 +41,13 @@ Section ExponentialFunctor.
 
   Lemma exp_functor_is_functor : is_functor exp_functor_data.
   Proof.
-    use dirprodpair.
+    use make_dirprod.
     - intro; reflexivity.
     - intros ? ? ? ? ?; reflexivity.
   Defined.
 
   Definition exp_functor : functor type_precat type_precat :=
-    mk_functor exp_functor_data exp_functor_is_functor.
+    make_functor exp_functor_data exp_functor_is_functor.
 End ExponentialFunctor.
 
 Lemma ExponentialsType : Exponentials BinProductsType.
@@ -58,16 +58,16 @@ Proof.
   refine (exp_functor X,, _).
   unfold are_adjoints.
   use tpair.
-  - use dirprodpair.
-    + use mk_nat_trans.
+  - use make_dirprod.
+    + use make_nat_trans.
       * intro Y; cbn.
         unfold exp_functor_ob.
-        exact (flip dirprodpair).
+        exact (flip make_dirprod).
       * intros ? ? ?; reflexivity.
-    + use mk_nat_trans.
+    + use make_nat_trans.
       * intro Y; cbn.
         unfold exp_functor_ob.
         exact (λ pair, (pr2 pair) (pr1 pair)).
       * intros ? ? ?; reflexivity.
-  - use mk_form_adjunction; reflexivity.
+  - use make_form_adjunction; reflexivity.
 Defined.

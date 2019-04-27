@@ -146,7 +146,7 @@ Context {C : precategory}.
 
 Definition constant_PreShv (A : HSET) : PreShv C.
 Proof.
-use mk_functor.
+use make_functor.
 + use tpair.
   - intros _; apply A.
   - cbn. intros a b f. apply idfun.
@@ -287,7 +287,7 @@ Definition Ω_PreShv : PreShv C := (Ω_PreShv_data,,is_functor_Ω_PreShv_data).
 
 Definition Ω_mor : (PreShv C)⟦Terminal_PreShv,Ω_PreShv⟧.
 Proof.
-use mk_nat_trans.
+use make_nat_trans.
 - red; simpl; apply (λ c _, maximal_sieve c).
 - intros x y f; simpl in *; apply funextfun; cbn; intros _.
   apply sieve_eq; simpl.
@@ -303,7 +303,7 @@ Local Notation "c ⊗ d" := (BinProductObject _ (BinProducts_PreShv c d)) : cat.
 
 Definition Ω_PreShv_meet : PreShv(C)⟦Ω_PreShv ⊗ Ω_PreShv,Ω_PreShv⟧.
 Proof.
-use mk_nat_trans.
+use make_nat_trans.
 + intros c S1S2.
   apply (intersection_sieve c (pr1 S1S2) (pr2 S1S2)).
 + intros x y f.
@@ -313,7 +313,7 @@ Defined.
 
 Definition Ω_PreShv_join : PreShv(C)⟦Ω_PreShv ⊗ Ω_PreShv,Ω_PreShv⟧.
 Proof.
-use mk_nat_trans.
+use make_nat_trans.
 + intros c S1S2.
   apply (union_sieve c (pr1 S1S2) (pr2 S1S2)).
 + intros x y f.
@@ -323,7 +323,7 @@ Defined.
 
 Definition Ω_PreShv_lattice : latticeob BinProducts_PreShv Ω_PreShv.
 Proof.
-use mk_latticeob.
+use make_latticeob.
 + apply Ω_PreShv_meet.
 + apply Ω_PreShv_join.
 + repeat split; apply (nat_trans_eq has_homsets_HSET); intro c;
@@ -338,14 +338,14 @@ Defined.
 
 Definition Ω_PreShv_bottom : PreShv(C)⟦Terminal_PreShv,Ω_PreShv⟧.
 Proof.
-use mk_nat_trans.
+use make_nat_trans.
 + intros c _; apply empty_sieve.
 + now intros x y f; apply funextsec; intros []; apply sieve_eq.
 Defined.
 
 Definition Ω_PreShv_top : PreShv(C)⟦Terminal_PreShv,Ω_PreShv⟧.
 Proof.
-use mk_nat_trans.
+use make_nat_trans.
 + intros c _; apply maximal_sieve.
 + now intros x y f; apply funextsec; intros []; apply sieve_eq.
 Defined.
@@ -353,7 +353,7 @@ Defined.
 Definition Ω_PreShv_bounded_lattice :
   bounded_latticeob BinProducts_PreShv Terminal_PreShv Ω_PreShv.
 Proof.
-use mk_bounded_latticeob.
+use make_bounded_latticeob.
 - exact Ω_PreShv_lattice.
 - exact Ω_PreShv_bottom.
 - exact Ω_PreShv_top.

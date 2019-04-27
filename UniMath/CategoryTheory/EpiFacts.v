@@ -121,7 +121,7 @@ Section IsEffectivePw.
     apply equiv_isCoequalizer1 in hf;[|apply homset_property].
     set (eqd := eq_coeq_pw (PullbackPr1 g) (PullbackPr2 g) x).
     set (z:= (eq_diag_iscolimcocone _ eqd hf)).
-    set (CC := (mk_ColimCocone _ _ _ z)).
+    set (CC := (make_ColimCocone _ _ _ z)).
     apply (is_iso_isColim (homset_property D) _ CC).
     rewrite <- (colimArrowUnique CC _ _ (identity _)).
     apply identity_is_iso.
@@ -175,7 +175,7 @@ Section PointwiseEpi.
       - apply colimD.
     }
     apply (eq_diag_iscolimcocone _ (sym_eq_diag _ _ (eq_po_pw x)))in epia; cycle 1.
-    set (CC := (mk_ColimCocone _ _ _ epia)).
+    set (CC := (make_ColimCocone _ _ _ epia)).
     eapply (is_iso_isColim (homset_property D) _ CC).
     rewrite <- (colimArrowUnique CC _ _ (identity _)).
     apply identity_is_iso.
@@ -199,43 +199,3 @@ Proof.
   rewrite <- functor_comp, <- functor_comp.
   now rewrite huv.
 Qed.
-
-(** Definition of a split epimorphism.
-It is a morphism f such that there exists a morphism g that satisfies f ∘ g = id
-*)
-Section SplitEpis.
-
-Section DefSplitEpis.
-
-Context {C:precategory} {A B:C} (f:C⟦A,B⟧).
-Definition isSplitEpi :=
-  ∥ ∑  (g:C⟦B,A⟧), g · f = identity B ∥.
-
-
-Lemma isSplitEpi_isEpi {hsc:has_homsets C} (split_f:isSplitEpi): isEpi f.
-Proof.
-  apply (squash_to_prop split_f).
-  - now apply isapropisEpi.
-  - intros hf z u v e.
-    rewrite <- (id_left u), <- (id_left v).
-    rewrite <- (pr2 hf).
-    repeat rewrite <- assoc.
-    now apply cancel_precomposition.
-Qed.
-
-End DefSplitEpis.
-
-Definition EpisAreSplit (C:precategory) :=
-  ∏ (A B:C) (f:C⟦A,B⟧), isEpi f -> isSplitEpi f.
-
-(** Functors preserve split epimorphisms *)
-Lemma preserves_isSplitEpi {C D:precategory} (F:functor C D)
-      {A B : C} (f:C⟦A,B⟧) : isSplitEpi f -> isSplitEpi (#F f).
-Proof.
-  apply hinhfun.
-  intro hf.
-  exists (#F (pr1 hf)).
-  now rewrite <-functor_id,<- (pr2 hf), <- functor_comp.
-Qed.
-
-End SplitEpis.

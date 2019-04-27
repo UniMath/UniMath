@@ -27,7 +27,7 @@ Section ApFunctor.
   Definition ap_functor_data
     : psfunctor_data (fundamental_bigroupoid X HX) (fundamental_bigroupoid Y HY).
   Proof.
-    use mk_psfunctor_data.
+    use make_psfunctor_data.
     - exact f.
     - exact (λ _ _, maponpaths f).
     - exact (λ _ _ _ _ s, maponpaths (maponpaths f) s).
@@ -61,7 +61,7 @@ Section ApFunctor.
   Definition ps_ap_functor
     : psfunctor (fundamental_bigroupoid X HX) (fundamental_bigroupoid Y HY).
   Proof.
-    use mk_psfunctor.
+    use make_psfunctor.
     - exact ap_functor_data.
     - exact ap_functor_laws.
     - split.

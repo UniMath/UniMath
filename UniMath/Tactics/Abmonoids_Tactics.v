@@ -15,7 +15,7 @@ Definition isabsemigrop {X : hSet} (opp : binop X) :=
   (isassoc opp) ** (iscomm opp).
 
 Definition abmonoid_to_absemigr (M : abmonoid) : isabsemigrop (@op M) :=
-  dirprodpair (@assocax M) (@commax M).
+  make_dirprod (@assocax M) (@commax M).
 
 Definition absemigr_perm021 :
   ∏ X : hSet, ∏ opp : binop X, ∏ is : isabsemigrop opp,

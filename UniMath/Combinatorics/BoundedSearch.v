@@ -42,7 +42,7 @@ Section constr_indef_descr.
       + exact (m' n p).
   Defined.
 
-  Local Definition min_n : hProp := hProppair min_n_UU isapropmin_n.
+  Local Definition min_n : hProp := make_hProp min_n_UU isapropmin_n.
 
   Local Definition smaller (n : nat) := ∑ l : nat, P l × minimal l × (l ≤ n)%nat.
 

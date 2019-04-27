@@ -269,7 +269,7 @@ Qed.
 
 Definition TRRGraph_univalence (G H : TRRGraph) : (G = H) ≃ (G ≅ H).
 Proof.
-  use weqpair.
+  use make_weq.
   - exact (TRRGraph_univalence_map G H).
   - exact (isweq_TRRGraph_univalence_map G H).
 Defined.
@@ -820,7 +820,7 @@ Lemma UpUpid  (T : Tree) (x : pr11 T) (y : pr11 (Up x)) :
   pr1 (Up (pr1 y)) = Upw_to_TRRGraph (Up x) y.
 Proof.
   apply TRRGraph_univalence.
-  exists (weqpair (Up_to_Up T x y) (isweq_Up_to_Up T x y)).
+  exists (make_weq (Up_to_Up T x y) (isweq_Up_to_Up T x y)).
   apply (isTRRGhomo_Up_to_Up T x y).
 Qed.
 

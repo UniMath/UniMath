@@ -53,7 +53,7 @@ Section def_coequalizers.
   Definition Coequalizer_cocone {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦b, d⟧)
              (H : f · h = g · h) : cocone (Coequalizer_diagram f g) d.
   Proof.
-    use mk_cocone.
+    use make_cocone.
     - use two_rec_dep.
       + exact (f · h).
       + exact h.
@@ -70,7 +70,7 @@ Section def_coequalizers.
              (H : f · h = g · h) : UU := isColimCocone (Coequalizer_diagram f g) d
                                                          (Coequalizer_cocone f g d h H).
 
-  Definition mk_isCoequalizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦b, d⟧)
+  Definition make_isCoequalizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦b, d⟧)
              (H : f · h = g · h) :
     (∏ e (h' : C⟦b, e⟧) (H' : f · h' = g · h'),
      iscontr (total2 (fun hk : C⟦d, e⟧ => h · hk = h'))) ->
@@ -100,7 +100,7 @@ Section def_coequalizers.
 
   Definition Coequalizer {a b : C} (f g : C⟦a, b⟧) : UU := ColimCocone (Coequalizer_diagram f g).
 
-  Definition mk_Coequalizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦b, d⟧) (H : f · h = g · h)
+  Definition make_Coequalizer {a b : C} (f g : C⟦a, b⟧) (d : C) (h : C⟦b, d⟧) (H : f · h = g · h)
              (isCEq : isCoequalizer f g d h H) : Coequalizer f g.
   Proof.
     use tpair.
@@ -161,7 +161,7 @@ Section def_coequalizers.
     isCoequalizer f g (CoequalizerObject E) (CoequalizerArrow E)
                   (CoequalizerArrowEq E).
   Proof.
-    apply mk_isCoequalizer.
+    apply make_isCoequalizer.
     intros e h H.
     use (unique_exists (CoequalizerOut E e h H)).
     (* Commutativity *)
@@ -270,8 +270,8 @@ Section coequalizers_coincide.
     limits.coequalizers.isCoequalizer f g h H -> isCoequalizer C f g e h H.
   Proof.
     intros X.
-    set (E := limits.coequalizers.mk_Coequalizer f g h H X).
-    use (mk_isCoequalizer C hs).
+    set (E := limits.coequalizers.make_Coequalizer f g h H X).
+    use (make_isCoequalizer C hs).
     intros e' h' H'.
     use (unique_exists (limits.coequalizers.CoequalizerOut E e' h' H')).
     (* Commutativity *)
@@ -289,7 +289,7 @@ Section coequalizers_coincide.
     limits.coequalizers.isCoequalizer f g h H <- isCoequalizer C f g e h H.
   Proof.
     intros X.
-    set (E := mk_Coequalizer C f g e h H X).
+    set (E := make_Coequalizer C f g e h H X).
     intros e' h' H'.
     use (unique_exists (CoequalizerOut C E e' h' H')).
     (* Commutativity *)
@@ -308,7 +308,7 @@ Section coequalizers_coincide.
     limits.coequalizers.Coequalizer f g -> Coequalizer C f g.
   Proof.
     intros E.
-    exact (mk_Coequalizer
+    exact (make_Coequalizer
              C f g _ _ _
              (equiv_isCoequalizer1
                 (limits.coequalizers.CoequalizerObject E)
@@ -321,7 +321,7 @@ Section coequalizers_coincide.
     limits.coequalizers.Coequalizer f g <- Coequalizer C f g.
   Proof.
     intros E.
-    exact (@limits.coequalizers.mk_Coequalizer
+    exact (@limits.coequalizers.make_Coequalizer
              C a b (CoequalizerObject C E) f g
              (CoequalizerArrow C E)
              (CoequalizerArrowEq C E)

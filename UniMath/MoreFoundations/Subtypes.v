@@ -11,7 +11,7 @@ Local Open Scope logic.
 Definition emptysubtype (X : UU) : hsubtype X := λ x, hfalse.
 
 (** The powerset, or set of all subsets, of a set. *)
-Definition subtype_set X : hSet := hSetpair (hsubtype X) (isasethsubtype X).
+Definition subtype_set X : hSet := make_hSet (hsubtype X) (isasethsubtype X).
 
 Definition subtype_isIn {X:UU} {S:hsubtype X} (s:S) (T:hsubtype X) : hProp := T (pr1 s).
 
@@ -106,7 +106,7 @@ Definition subtype_union {X I:UU} (S : I -> hsubtype X) : hsubtype X := λ x, �
 Notation "⋃ S" := (subtype_union S) (at level 100, no associativity) : subtype.
 
 Definition carrier_set {X : hSet} (S : hsubtype X) : hSet :=
-  hSetpair (carrier S) (isaset_carrier_subset _ S).
+  make_hSet (carrier S) (isaset_carrier_subset _ S).
 
 Definition subtype_union_containedIn {X:hSet} {I:UU} (S : I -> hsubtype X) i : S i ⊆ ⋃ S
   := λ x s, hinhpr (i,,s).

@@ -125,7 +125,7 @@ Qed.
 Definition U_action_ρ_nat_trans : odot_I_functor otimes_U_functor ⟹ functor_identity A.
   refine (nat_trans_comp _ _ _ _  (pr1 ρ_A)).
   unfold odot_I_functor.
-  pose (ϵ_inv := inv_from_iso (mk_iso (pr1 (pr2 U)))).
+  pose (ϵ_inv := inv_from_iso (make_iso _ (pr1 (pr2 U)))).
   set (aux := nat_trans_from_functor_fix_snd_morphism_arg _ _ _ tensor_A _ _ ϵ_inv).
   (* aux is "morally" the result, but types do not fully agree, hence we argue more extensionally *)
   use tpair.
@@ -139,7 +139,7 @@ Definition U_action_ρ_nat_trans : odot_I_functor otimes_U_functor ⟹ functor_i
 Defined.
 
 Lemma U_action_ρ_nat_trans_ok: nat_trans_data_from_nat_trans U_action_ρ_nat_trans =
- let ϵ_inv := inv_from_iso (mk_iso (pr1 (pr2 U))) in λ x, id x #⊗_A ϵ_inv · pr1 ρ_A x.
+ let ϵ_inv := inv_from_iso (make_iso _ (pr1 (pr2 U))) in λ x, id x #⊗_A ϵ_inv · pr1 ρ_A x.
 Proof.
   apply idpath.
 Qed.
@@ -155,7 +155,7 @@ Proof.
   - exact (pr2 ρ_A c).
 Qed.
 
-Definition U_action_ρ : action_right_unitor otimes_U_functor := mk_nat_iso _ _ U_action_ρ_nat_trans U_action_ρ_is_nat_iso.
+Definition U_action_ρ : action_right_unitor otimes_U_functor := make_nat_iso _ _ U_action_ρ_nat_trans U_action_ρ_is_nat_iso.
 
 Definition U_action_χ_nat_trans : odot_x_odot_y_functor otimes_U_functor ⟹ odot_x_otimes_y_functor otimes_U_functor.
 Proof.
@@ -186,7 +186,7 @@ Proof.
 Qed.
 
 Definition U_action_χ : action_convertor otimes_U_functor :=
-  mk_nat_iso _ _ U_action_χ_nat_trans U_action_χ_is_nat_iso.
+  make_nat_iso _ _ U_action_χ_nat_trans U_action_χ_is_nat_iso.
 
 Definition U_action_struct : action_struct.
 Proof.

@@ -110,18 +110,18 @@ Defined.
 Definition isunit {X : UU} (opp : binop X) (un0 : X) : UU :=
   (islunit opp un0) × (isrunit opp un0).
 
-Definition isunitpair {X : UU} {opp : binop X} {un0 : X} (H1 : islunit opp un0)
-           (H2 : isrunit opp un0) : isunit opp un0 := dirprodpair H1 H2.
+Definition make_isunit {X : UU} {opp : binop X} {un0 : X} (H1 : islunit opp un0)
+           (H2 : isrunit opp un0) : isunit opp un0 := make_dirprod H1 H2.
 
 Definition isunital {X : UU} (opp : binop X) : UU := total2 (λ un0 : X, isunit opp un0).
 
-Definition isunitalpair {X : UU} {opp : binop X} (un0 : X) (is : isunit opp un0) :
+Definition make_isunital {X : UU} {opp : binop X} (un0 : X) (is : isunit opp un0) :
   isunital opp := tpair _ un0 is.
 
 Lemma isapropisunital {X : hSet} (opp : binop X) : isaprop (isunital opp).
 Proof.
-  apply (@isapropsubtype X (λ un0 : _, hconj (hProppair _ (isapropislunit opp un0))
-                                              (hProppair _ (isapropisrunit opp un0)))).
+  apply (@isapropsubtype X (λ un0 : _, hconj (make_hProp _ (isapropislunit opp un0))
+                                              (make_hProp _ (isapropisrunit opp un0)))).
   intros u1 u2. intros ua1 ua2.
   apply (pathscomp0 (pathsinv0 (pr2 ua2 u1)) (pr1 ua1 u2)).
 Defined.
@@ -130,8 +130,8 @@ Defined.
 
 Definition ismonoidop {X : UU} (opp : binop X) : UU := (isassoc opp) × (isunital opp).
 
-Definition mk_ismonoidop {X : UU} {opp : binop X} (H1 : isassoc opp) (H2 : isunital opp) :
-  ismonoidop opp := dirprodpair H1 H2.
+Definition make_ismonoidop {X : UU} {opp : binop X} (H1 : isassoc opp) (H2 : isunital opp) :
+  ismonoidop opp := make_dirprod H1 H2.
 
 Definition assocax_is {X : UU} {opp : binop X} : ismonoidop opp -> isassoc opp := @pr1 _ _.
 
@@ -144,7 +144,7 @@ Definition runax_is {X : UU} {opp : binop X} (is : ismonoidop opp) :
   isrunit opp (pr1 (pr2 is)) := pr2 (pr2 (pr2 is)).
 
 Definition unax_is {X : UU} {opp : binop X} (is : ismonoidop opp) :
-  isunit opp (pr1 (pr2 is)) := dirprodpair (lunax_is is) (runax_is is).
+  isunit opp (pr1 (pr2 is)) := make_dirprod (lunax_is is) (runax_is is).
 
 Lemma isapropismonoidop {X : hSet} (opp : binop X) : isaprop (ismonoidop opp).
 Proof.
@@ -178,8 +178,8 @@ Defined.
 Definition isinv {X : UU} (opp : binop X) (un0 : X) (inv0 : X -> X) : UU :=
   (islinv opp un0 inv0) × (isrinv opp un0 inv0).
 
-Definition mk_isinv {X : UU} {opp : binop X} {un0 : X} {inv0 : X -> X} (H1 : islinv opp un0 inv0)
-           (H2 : isrinv opp un0 inv0) : isinv opp un0 inv0 := dirprodpair H1 H2.
+Definition make_isinv {X : UU} {opp : binop X} {un0 : X} {inv0 : X -> X} (H1 : islinv opp un0 inv0)
+           (H2 : isrinv opp un0 inv0) : isinv opp un0 inv0 := make_dirprod H1 H2.
 
 Lemma isapropisinv {X : hSet} (opp : binop X) (un0 : X) (inv0 : X -> X) :
   isaprop (isinv opp un0 inv0).
@@ -192,16 +192,13 @@ Defined.
 Definition invstruct {X : UU} (opp : binop X) (is : ismonoidop opp) : UU :=
   total2 (fun inv0 : X -> X => isinv opp (unel_is is) inv0).
 
-Definition mk_invstruct {X : UU} {opp : binop X} {is : ismonoidop opp} (inv0 : X -> X)
+Definition make_invstruct {X : UU} {opp : binop X} {is : ismonoidop opp} (inv0 : X -> X)
            (H : isinv opp (unel_is is) inv0) : invstruct opp is := tpair _ inv0 H.
 
 Definition isgrop {X : UU} (opp : binop X) : UU :=
   total2 (λ is : ismonoidop opp, invstruct opp is).
 
-Definition mk_isgrop {X : UU} {opp : binop X} (H1 : ismonoidop opp) (H2 : invstruct opp H1) :
-  isgrop opp := tpair _ H1 H2.
-
-Definition isgroppair {X : UU} {opp : binop X} (is1 : ismonoidop opp) (is2 : invstruct opp is1) :
+Definition make_isgrop {X : UU} {opp : binop X} (is1 : ismonoidop opp) (is2 : invstruct opp is1) :
   isgrop opp := tpair (λ is : ismonoidop opp, invstruct opp is) is1 is2.
 
 Definition pr1isgrop (X : UU) (opp : binop X) : isgrop opp -> ismonoidop opp := @pr1 _ _.
@@ -282,9 +279,9 @@ Proof.
     - apply impred. intro x. simpl. apply (setproperty X).
     - apply impred. intro x. simpl. apply (setproperty X).
   }
-  apply (isapropsubtype (λ i : _, hProppair _ (int i))).
+  apply (isapropsubtype (λ i : _, make_hProp _ (int i))).
   intros inv1 inv2. simpl. intro ax1. intro ax2. apply funextfun. intro x0.
-  apply (invmaponpathsweq (weqpair _ (isweqrmultingr_is (tpair _ is is0) x0))).
+  apply (invmaponpathsweq (make_weq _ (isweqrmultingr_is (tpair _ is is0) x0))).
   simpl. rewrite (pr1 ax1 x0). rewrite (pr1 ax2 x0). apply idpath.
 Defined.
 
@@ -299,7 +296,7 @@ Defined.
 
 Definition allinvvertibleinv {X : hSet} {opp : binop X} (is : ismonoidop opp)
   (allinv : ∏ x : X, islinvertible opp x) : X -> X
-  := λ x : X, invmap (weqpair _ (allinv x)) (unel_is is).
+  := λ x : X, invmap (make_weq _ (allinv x)) (unel_is is).
 
 *)
 
@@ -318,7 +315,7 @@ Proof.
   {
     intro x'.
     apply (@hinhuniv (total2 (λ x0 : X, (opp x' x0) = un0))
-                     (hProppair _ (isapropisincl (λ x0 : X, opp x0 x')))).
+                     (make_hProp _ (isapropisincl (λ x0 : X, opp x0 x')))).
     - intro int1. simpl. apply isinclbetweensets.
       + apply (pr2 X).
       + apply (pr2 X).
@@ -343,7 +340,7 @@ Proof.
   {
     intro x'.
     apply (@hinhuniv (total2 (λ x0 : X, (opp x0 x') = un0))
-                     (hProppair _ (isapropisincl (λ x0 : X, opp x' x0)))).
+                     (make_hProp _ (isapropisincl (λ x0 : X, opp x' x0)))).
     - intro int1. simpl. apply isinclbetweensets.
       + apply (pr2 X).
       + apply (pr2 X).
@@ -362,7 +359,7 @@ Proof.
     rewrite eq1. rewrite eq2. apply idpath.
   }
   simpl.
-  set (linv0 := λ x : X, hinhunivcor1 (hProppair _ (int x)) (is' x)).
+  set (linv0 := λ x : X, hinhunivcor1 (make_hProp _ (int x)) (is' x)).
   simpl in linv0.
   set (inv0 := λ x : X, pr1 (linv0 x)). split with inv0. simpl.
   split with (λ x : _, pr2 (linv0 x)). intro x.
@@ -386,8 +383,8 @@ Defined.
 
 Definition isabmonoidop {X : UU} (opp : binop X) : UU := (ismonoidop opp) × (iscomm opp).
 
-Definition mk_isabmonoidop {X : UU} {opp : binop X} (H1 : ismonoidop opp) (H2 : iscomm opp) :
-  isabmonoidop opp := dirprodpair H1 H2.
+Definition make_isabmonoidop {X : UU} {opp : binop X} (H1 : ismonoidop opp) (H2 : iscomm opp) :
+  isabmonoidop opp := make_dirprod H1 H2.
 
 Definition pr1isabmonoidop (X : UU) (opp : binop X) : isabmonoidop opp -> ismonoidop opp :=
   @pr1 _ _.
@@ -498,14 +495,14 @@ Opaque abmonoidoprer.
 
 Definition isabgrop {X : UU} (opp : binop X) : UU := (isgrop opp) × (iscomm opp).
 
-Definition mk_isabgrop {X : UU} {opp : binop X} (H1 : isgrop opp) (H2 : iscomm opp) :
-  isabgrop opp := dirprodpair H1 H2.
+Definition make_isabgrop {X : UU} {opp : binop X} (H1 : isgrop opp) (H2 : iscomm opp) :
+  isabgrop opp := make_dirprod H1 H2.
 
 Definition pr1isabgrop (X : UU) (opp : binop X) : isabgrop opp -> isgrop opp := @pr1 _ _.
 Coercion pr1isabgrop : isabgrop >-> isgrop.
 
 Definition isabgroptoisabmonoidop (X : UU) (opp : binop X) : isabgrop opp -> isabmonoidop opp :=
-  λ is : _, dirprodpair (pr1 (pr1 is)) (pr2 is).
+  λ is : _, make_dirprod (pr1 (pr1 is)) (pr2 is).
 Coercion isabgroptoisabmonoidop : isabgrop >-> isabmonoidop.
 
 Lemma isapropisabgrop {X : hSet} (opp : binop X) : isaprop (isabgrop opp).
@@ -591,11 +588,11 @@ Definition isrigops {X : UU} (opp1 opp2 : binop X) : UU :=
              × (∏ x : X, (opp2 x (unel_is (pr1 axs))) = (unel_is (pr1 axs))))
     × (isdistr opp1 opp2).
 
-Definition mk_isrigops {X : UU} {opp1 opp2 : binop X} (H1 : isabmonoidop opp1)
+Definition make_isrigops {X : UU} {opp1 opp2 : binop X} (H1 : isabmonoidop opp1)
            (H2 : ismonoidop opp2) (H3 : ∏ x : X, (opp2 (unel_is H1) x) = (unel_is H1))
            (H4 : ∏ x : X, (opp2 x (unel_is H1)) = (unel_is H1))
            (H5 : isdistr opp1 opp2) : isrigops opp1 opp2 :=
-  tpair _ (tpair _ (dirprodpair H1 H2) (dirprodpair H3 H4)) H5.
+  tpair _ (tpair _ (make_dirprod H1 H2) (make_dirprod H3 H4)) H5.
 
 Definition rigop1axs_is {X : UU} {opp1 opp2 : binop X} :
   isrigops opp1 opp2 -> isabmonoidop opp1 := λ is : _, pr1 (pr1 (pr1 is)).
@@ -644,9 +641,9 @@ Defined.
 Definition isringops {X : UU} (opp1 opp2 : binop X) : UU :=
   dirprod ((isabgrop opp1) × (ismonoidop opp2)) (isdistr opp1 opp2).
 
-Definition mk_isringops {X : UU} {opp1 opp2 : binop X} (H1 : isabgrop opp1) (H2 : ismonoidop opp2)
+Definition make_isringops {X : UU} {opp1 opp2 : binop X} (H1 : isabgrop opp1) (H2 : ismonoidop opp2)
            (H3 : isdistr opp1 opp2) : isringops opp1 opp2 :=
-  dirprodpair (dirprodpair H1 H2) H3.
+  make_dirprod (make_dirprod H1 H2) H3.
 
 Definition ringop1axs_is {X : UU} {opp1 opp2 : binop X} : isringops opp1 opp2 -> isabgrop opp1 :=
   λ is : _, pr1 (pr1 is).
@@ -684,7 +681,7 @@ Proof.
   destruct is12 as [ ldistr0 rdistr0 ].
   destruct is2 as [ assoc2 [ un2 [ lun2 run2 ] ] ].
   simpl in *.
-  apply (invmaponpathsweq (weqpair _ (isweqrmultingr_is is1 (opp2 x un2)))).
+  apply (invmaponpathsweq (make_weq _ (isweqrmultingr_is is1 (opp2 x un2)))).
   simpl.
   destruct is1 as [ [ assoc1 [ un1 [ lun1 run1 ] ] ] [ inv0 [ linv0 rinv0 ] ] ].
   unfold unel_is. simpl in *.
@@ -698,7 +695,7 @@ Lemma mult0x_is_l {X : UU} {opp1 opp2 : binop X} (is1 : isgrop opp1) (is2 : ismo
 Proof.
   destruct is12 as [ ldistr0 rdistr0 ].
   destruct is2 as [ assoc2 [ un2 [ lun2 run2 ] ] ]. simpl in *.
-  apply (invmaponpathsweq (weqpair _ (isweqrmultingr_is is1 (opp2 un2 x)))).
+  apply (invmaponpathsweq (make_weq _ (isweqrmultingr_is is1 (opp2 un2 x)))).
   simpl.
   destruct is1 as [ [ assoc1 [ un1 [ lun1 run1 ] ] ] [ inv0 [ linv0 rinv0 ] ] ].
   unfold unel_is. simpl in *.
@@ -741,7 +738,7 @@ Lemma isminusmultwithminus1_is_l {X : UU} {opp1 opp2 : binop X} (is1 : isgrop op
       (is2 : ismonoidop opp2) (is12 : isdistr opp1 opp2) (x : X) :
   paths (opp2 (minus1_is_l is1 is2) x) (grinv_is is1 x).
 Proof.
-  apply (invmaponpathsweq (weqpair _ (isweqrmultingr_is is1 x))).
+  apply (invmaponpathsweq (make_weq _ (isweqrmultingr_is is1 x))).
   simpl. rewrite (islinvmultwithminus1_is_l is1 is2 is12 x).
   unfold grinv_is. rewrite (grlinvax_is is1 x). apply idpath.
 Defined.
@@ -756,7 +753,7 @@ Proof.
     + split with is1.
       intros x y.
       apply (invmaponpathsweq
-               (weqpair _ (isweqrmultingr_is is1 (opp2 (minus1_is_l is1 is2) (opp1 x y))))).
+               (make_weq _ (isweqrmultingr_is is1 (opp2 (minus1_is_l is1 is2) (opp1 x y))))).
       simpl. rewrite (isrinvmultwithminus1_is_l is1 is2 is12 (opp1 x y)).
       rewrite (pr1 is12 x y _).
       destruct (assoc1 (opp1 y x) (opp2 (minus1_is_l is1 is2) x) (opp2 (minus1_is_l is1 is2) y)).
@@ -789,7 +786,7 @@ Definition isringopstoisrigops (X : UU) (opp1 opp2 : binop X) (is : isringops op
   isrigops opp1 opp2.
 Proof.
   split.
-  - split with (dirprodpair (isabgroptoisabmonoidop _ _ (ringop1axs_is is)) (ringop2axs_is is)).
+  - split with (make_dirprod (isabgroptoisabmonoidop _ _ (ringop1axs_is is)) (ringop2axs_is is)).
     split.
     + simpl. apply (ringmult0x_is).
     + simpl. apply (ringmultx0_is).
@@ -837,7 +834,7 @@ Defined.
 
 Definition iscommringopstoiscommrigops (X : UU) (opp1 opp2 : binop X)
            (is : iscommringops opp1 opp2) : iscommrigops opp1 opp2 :=
-  dirprodpair (isringopstoisrigops _ _ _ (pr1 is)) (pr2 is).
+  make_dirprod (isringopstoisrigops _ _ _ (pr1 is)) (pr2 is).
 Coercion iscommringopstoiscommrigops : iscommringops >-> iscommrigops.
 
 (** **** Transfer properties of binary operations relative to weak equivalences *)
@@ -1308,7 +1305,7 @@ Defined.
 
 Definition setwithbinop : UU := total2 (λ X : hSet, binop X).
 
-Definition setwithbinoppair (X : hSet) (opp : binop X) : setwithbinop :=
+Definition make_setwithbinop (X : hSet) (opp : binop X) : setwithbinop :=
   tpair (λ X : hSet, binop X) X opp.
 
 Definition pr1setwithbinop : setwithbinop -> hSet := @pr1 _ (λ X : hSet, binop X).
@@ -1333,14 +1330,14 @@ Notation "x * y" := (op x y) : multoperation_scope.
 
 (* The reverse/opposite binary operation where the arguments are flipped. *)
 Definition setwithbinop_rev (X : setwithbinop) : setwithbinop :=
-  setwithbinoppair X (λ x y, op y x).
+  make_setwithbinop X (λ x y, op y x).
 
 (** **** Functions compatible with a binary operation (homomorphisms) and their properties *)
 
 Definition isbinopfun {X Y : setwithbinop} (f : X -> Y) : UU :=
   ∏ x x' : X, paths (f (op x x')) (op (f x) (f x')).
 
-Definition mk_isbinopfun {X Y : setwithbinop} {f : X -> Y}
+Definition make_isbinopfun {X Y : setwithbinop} {f : X -> Y}
            (H : ∏ x x' : X, f (op x x') = op (f x) (f x')) : isbinopfun f := H.
 
 Lemma isapropisbinopfun {X Y : setwithbinop} (f : X -> Y) : isaprop (isbinopfun f).
@@ -1354,7 +1351,7 @@ Definition isbinopfun_twooutof3b {A B C : setwithbinop} (f : A -> B) (g : B -> C
            (H : issurjective f) : isbinopfun (g ∘ f)%functions -> isbinopfun f -> isbinopfun g.
 Proof.
   intros H1 H2.
-  use mk_isbinopfun.
+  use make_isbinopfun.
   intros b1 b2.
   use (squash_to_prop (H b1) (@setproperty C _ _)). intros H1'.
   use (squash_to_prop (H b2) (@setproperty C _ _)). intros H2'.
@@ -1366,7 +1363,7 @@ Qed.
 
 Definition binopfun (X Y : setwithbinop) : UU := total2 (fun f : X -> Y => isbinopfun f).
 
-Definition binopfunpair {X Y : setwithbinop} (f : X -> Y) (is : isbinopfun f) : binopfun X Y :=
+Definition make_binopfun {X Y : setwithbinop} (f : X -> Y) (is : isbinopfun f) : binopfun X Y :=
   tpair _ f is.
 
 Definition pr1binopfun (X Y : setwithbinop) : binopfun X Y -> (X -> Y) := @pr1 _ _.
@@ -1395,26 +1392,26 @@ Defined.
 Opaque isbinopfuncomp.
 
 Definition binopfuncomp {X Y Z : setwithbinop} (f : binopfun X Y) (g : binopfun Y Z) :
-  binopfun X Z := binopfunpair (funcomp (pr1 f) (pr1 g)) (isbinopfuncomp f g).
+  binopfun X Z := make_binopfun (funcomp (pr1 f) (pr1 g)) (isbinopfuncomp f g).
 
 Definition binopmono (X Y : setwithbinop) : UU := total2 (λ f : incl X Y, isbinopfun (pr1 f)).
 
-Definition binopmonopair {X Y : setwithbinop} (f : incl X Y) (is : isbinopfun f) :
+Definition make_binopmono {X Y : setwithbinop} (f : incl X Y) (is : isbinopfun f) :
   binopmono X Y := tpair _  f is.
 
 Definition pr1binopmono (X Y : setwithbinop) : binopmono X Y -> incl X Y := @pr1 _ _.
 Coercion pr1binopmono : binopmono >-> incl.
 
 Definition binopincltobinopfun (X Y : setwithbinop) :
-  binopmono X Y -> binopfun X Y := λ f, binopfunpair (pr1 (pr1 f)) (pr2 f).
+  binopmono X Y -> binopfun X Y := λ f, make_binopfun (pr1 (pr1 f)) (pr2 f).
 Coercion binopincltobinopfun : binopmono >-> binopfun.
 
 Definition binopmonocomp {X Y Z : setwithbinop} (f : binopmono X Y) (g : binopmono Y Z) :
-  binopmono X Z := binopmonopair (inclcomp (pr1 f) (pr1 g)) (isbinopfuncomp f g).
+  binopmono X Z := make_binopmono (inclcomp (pr1 f) (pr1 g)) (isbinopfuncomp f g).
 
 Definition binopiso (X Y : setwithbinop) : UU := total2 (λ f : X ≃ Y, isbinopfun f).
 
-Definition binopisopair {X Y : setwithbinop} (f : X ≃ Y) (is : isbinopfun f) :
+Definition make_binopiso {X Y : setwithbinop} (f : X ≃ Y) (is : isbinopfun f) :
   binopiso X Y := tpair _  f is.
 
 Definition pr1binopiso (X Y : setwithbinop) : binopiso X Y -> X ≃ Y := @pr1 _ _.
@@ -1431,11 +1428,11 @@ Defined.
 Opaque isasetbinopiso.
 
 Definition binopisotobinopmono (X Y : setwithbinop) :
-  binopiso X Y -> binopmono X Y := λ f, binopmonopair (weqtoincl (pr1 f)) (pr2 f).
+  binopiso X Y -> binopmono X Y := λ f, make_binopmono (weqtoincl (pr1 f)) (pr2 f).
 Coercion binopisotobinopmono : binopiso >-> binopmono.
 
 Definition binopisocomp {X Y Z : setwithbinop} (f : binopiso X Y) (g : binopiso Y Z) :
-  binopiso X Z := binopisopair (weqcomp (pr1 f) (pr1 g)) (isbinopfuncomp f g).
+  binopiso X Z := make_binopiso (weqcomp (pr1 f) (pr1 g)) (isbinopfuncomp f g).
 
 Lemma isbinopfuninvmap {X Y : setwithbinop} (f : binopiso X Y) : isbinopfun (invmap (pr1 f)).
 Proof.
@@ -1450,11 +1447,11 @@ Defined.
 Opaque isbinopfuninvmap.
 
 Definition invbinopiso {X Y : setwithbinop} (f : binopiso X Y) :
-  binopiso Y X := binopisopair (invweq (pr1 f)) (isbinopfuninvmap f).
+  binopiso Y X := make_binopiso (invweq (pr1 f)) (isbinopfuninvmap f).
 
 Definition idbinopiso (X : setwithbinop) : binopiso X X.
 Proof.
-  use binopisopair.
+  use make_binopiso.
   - exact (idweq X).
   - intros x1 x2. use idpath.
 Defined.
@@ -1499,7 +1496,7 @@ Opaque setwithbinop_univalence_isweq.
 
 Definition setwithbinop_univalence (X Y : setwithbinop) : (X = Y) ≃ (binopiso X Y).
 Proof.
-  use weqpair.
+  use make_weq.
   - exact (setwithbinop_univalence_map X Y).
   - exact (setwithbinop_univalence_isweq X Y).
 Defined.
@@ -1518,7 +1515,7 @@ Qed.
 Definition hfiberbinop {A B : setwithbinop} (f : binopfun A B) (b1 b2 : B)
            (hf1 : hfiber (pr1 f) b1) (hf2 : hfiber (pr1 f) b2) :
   hfiber (pr1 f) (@op B b1 b2) :=
-  hfiberpair (pr1 f) (@op A (pr1 hf1) (pr1 hf2)) (hfiberbinop_path f b1 b2 hf1 hf2).
+  make_hfiber (pr1 f) (@op A (pr1 hf1) (pr1 hf2)) (hfiberbinop_path f b1 b2 hf1 hf2).
 
 
 (** **** Transport of properties of a binary operation  *)
@@ -1533,7 +1530,7 @@ Proof.
     intro x0. unfold funcomp. apply (pathsinv0 ((pr2 f) x x0)).
   }
   apply (isinclhomot _ _ h).
-  apply (isinclcomp f (inclpair _ is)).
+  apply (isinclcomp f (make_incl _ is)).
 Defined.
 
 Lemma isrcancelablemonob {X Y : setwithbinop} (f : binopmono X Y) (x : X)
@@ -1545,13 +1542,13 @@ Proof.
   {
     intro x0. unfold funcomp. apply (pathsinv0 ((pr2 f) x0 x)).
   }
-  apply (isinclhomot _ _ h). apply (isinclcomp f (inclpair _ is)).
+  apply (isinclhomot _ _ h). apply (isinclcomp f (make_incl _ is)).
 Defined.
 
 Lemma iscancelablemonob {X Y : setwithbinop} (f : binopmono X Y) (x : X)
       (is : iscancelable (@op Y) (f x)) : iscancelable (@op X) x.
 Proof.
-  apply (dirprodpair (islcancelablemonob f x (pr1 is)) (isrcancelablemonob f x (pr2 is))).
+  apply (make_dirprod (islcancelablemonob f x (pr1 is)) (isrcancelablemonob f x (pr2 is))).
 Defined.
 
 Notation islcancelableisob := islcancelablemonob.
@@ -1566,7 +1563,7 @@ Proof.
     {
       intro x0. unfold funcomp. apply (pathsinv0 ((pr2 f) x x0)).
     }
-    apply (isweqhomot _ _ h). apply (pr2 (weqcomp f (weqpair _ is))).
+    apply (isweqhomot _ _ h). apply (pr2 (weqcomp f (make_weq _ is))).
   - apply (pr2 (pr1 f)).
 Defined.
 
@@ -1578,14 +1575,14 @@ Proof.
     {
       intro x0. unfold funcomp. apply (pathsinv0 ((pr2 f) x0 x)).
     }
-    apply (isweqhomot _ _ h). apply (pr2 (weqcomp f (weqpair _ is))).
+    apply (isweqhomot _ _ h). apply (pr2 (weqcomp f (make_weq _ is))).
   - apply (pr2 (pr1 f)).
 Defined.
 
 Lemma isinvertiblemonob {X Y : setwithbinop} (f : binopiso X Y) (x : X)
       (is : isinvertible (@op Y) (f x)) : isinvertible (@op X) x.
 Proof.
-  apply (dirprodpair (islinvertibleisob f x (pr1 is)) (isrinvertibleisob f x (pr2 is))).
+  apply (make_dirprod (islinvertibleisob f x (pr1 is)) (isrinvertibleisob f x (pr2 is))).
 Defined.
 
 Definition islinvertibleisof {X Y : setwithbinop} (f : binopiso X Y) (x : X)
@@ -1597,7 +1594,7 @@ Proof.
     {
       intro x0. unfold funcomp. apply (pr2 f x x0).
     }
-    apply (isweqhomot _ _ h). apply (pr2 (weqcomp (weqpair _ is) f)).
+    apply (isweqhomot _ _ h). apply (pr2 (weqcomp (make_weq _ is) f)).
 Defined.
 
 Definition isrinvertibleisof {X Y : setwithbinop} (f : binopiso X Y) (x : X)
@@ -1609,13 +1606,13 @@ Proof.
     {
       intro x0. unfold funcomp. apply (pr2 f x0 x).
     }
-    apply (isweqhomot _ _ h). apply (pr2 (weqcomp (weqpair _ is) f)).
+    apply (isweqhomot _ _ h). apply (pr2 (weqcomp (make_weq _ is) f)).
 Defined.
 
 Lemma isinvertiblemonof {X Y : setwithbinop} (f : binopiso X Y) (x : X)
       (is : isinvertible (@op X) x) : isinvertible (@op Y) (f x).
 Proof.
-  apply (dirprodpair (islinvertibleisof f x (pr1 is)) (isrinvertibleisof f x (pr2 is))).
+  apply (make_dirprod (islinvertibleisof f x (pr1 is)) (isrinvertibleisof f x (pr2 is))).
 Defined.
 
 Lemma isassocmonob {X Y : setwithbinop} (f : binopmono X Y) (is : isassoc (@op Y)) :
@@ -1667,7 +1664,7 @@ Defined.
 Opaque isunitisof.
 
 Definition isunitalisof {X Y : setwithbinop} (f : binopiso X Y) (is : isunital (@op X)) :
-  isunital (@op Y) := isunitalpair (f (pr1 is)) (isunitisof f (pr1 is) (pr2 is)).
+  isunital (@op Y) := make_isunital (f (pr1 is)) (isunitisof f (pr1 is) (pr2 is)).
 
 Lemma isunitisob {X Y : setwithbinop} (f : binopiso X Y) (uny : Y) (is : isunit (@op Y) uny) :
   isunit (@op X) ((invmap f) uny).
@@ -1678,13 +1675,13 @@ Defined.
 Opaque isunitisob.
 
 Definition isunitalisob {X Y : setwithbinop} (f : binopiso X Y) (is : isunital (@op Y)) :
-  isunital (@op X) := isunitalpair ((invmap f) (pr1 is)) (isunitisob f (pr1 is) (pr2 is)).
+  isunital (@op X) := make_isunital ((invmap f) (pr1 is)) (isunitisob f (pr1 is) (pr2 is)).
 
 Definition ismonoidopisof {X Y : setwithbinop} (f : binopiso X Y) (is : ismonoidop (@op X)) :
-  ismonoidop (@op Y) := dirprodpair (isassocisof f (pr1 is)) (isunitalisof f (pr2 is)).
+  ismonoidop (@op Y) := make_dirprod (isassocisof f (pr1 is)) (isunitalisof f (pr2 is)).
 
 Definition ismonoidopisob {X Y : setwithbinop} (f : binopiso X Y) (is : ismonoidop (@op Y)) :
-  ismonoidop (@op X) := dirprodpair (isassocisob f (pr1 is)) (isunitalisob f (pr2 is)).
+  ismonoidop (@op X) := make_dirprod (isassocisob f (pr1 is)) (isunitalisob f (pr2 is)).
 
 Lemma isinvisof {X Y : setwithbinop} (f : binopiso X Y) (unx : X) (invx : X -> X)
       (is : isinv (@op X) unx invx) :
@@ -1752,14 +1749,14 @@ Defined.
 Definition subsetswithbinop (X : setwithbinop) : UU :=
   total2 (λ A : hsubtype X, issubsetwithbinop (@op X) A).
 
-Definition subsetswithbinoppair {X : setwithbinop} :
+Definition make_subsetswithbinop {X : setwithbinop} :
   ∏ (t : hsubtype X), (λ A : hsubtype X, issubsetwithbinop op A) t →
                        ∑ A : hsubtype X, issubsetwithbinop op A :=
   tpair (λ A : hsubtype X, issubsetwithbinop (@op X) A).
 
 Definition subsetswithbinopconstr {X : setwithbinop} :
   ∏ (t : hsubtype X), (λ A : hsubtype X, issubsetwithbinop op A) t →
-                       ∑ A : hsubtype X, issubsetwithbinop op A := @subsetswithbinoppair X.
+                       ∑ A : hsubtype X, issubsetwithbinop op A := @make_subsetswithbinop X.
 
 Definition pr1subsetswithbinop (X : setwithbinop) : subsetswithbinop X -> hsubtype X :=
   @pr1 _ (λ A : hsubtype X, issubsetwithbinop (@op X) A).
@@ -1775,10 +1772,10 @@ Defined.
 
 Definition carrierofasubsetwithbinop {X : setwithbinop} (A : subsetswithbinop X) : setwithbinop.
 Proof.
-  set (aset := (hSetpair (carrier A) (isasetsubset (pr1carrier A) (setproperty X)
+  set (aset := (make_hSet (carrier A) (isasetsubset (pr1carrier A) (setproperty X)
                                                    (isinclpr1carrier A))) : hSet).
   split with aset.
-  set (subopp := (λ a a' : A, carrierpair A (op (pr1carrier _ a) (pr1carrier _ a')) (pr2 A a a')) :
+  set (subopp := (λ a a' : A, make_carrier A (op (pr1carrier _ a) (pr1carrier _ a')) (pr2 A a a')) :
                    (A -> A -> A)).
   simpl. unfold binop. apply subopp.
 Defined.
@@ -1790,7 +1787,7 @@ Coercion carrierofasubsetwithbinop : subsetswithbinop >-> setwithbinop.
 Definition isbinophrel {X : setwithbinop} (R : hrel X) : UU :=
   dirprod (∏ a b c : X, R a b -> R (op c a) (op c b)) (∏ a b c : X, R a b -> R (op a c) (op b c)).
 
-Definition mk_isbinophrel {X : setwithbinop} {R : hrel X}
+Definition make_isbinophrel {X : setwithbinop} {R : hrel X}
            (H1 : ∏ a b c : X, R a b -> R (op c a) (op c b))
            (H2 : ∏ a b c : X, R a b -> R (op a c) (op b c)) : isbinophrel R :=
   tpair _ H1 H2.
@@ -1845,7 +1842,7 @@ Defined.
 
 Definition binophrel (X : setwithbinop) : UU := total2 (λ R : hrel X, isbinophrel R).
 
-Definition binophrelpair {X : setwithbinop} :
+Definition make_binophrel {X : setwithbinop} :
   ∏ (t : hrel X), (λ R : hrel X, isbinophrel R) t → ∑ R : hrel X, isbinophrel R :=
   tpair (λ R : hrel X, isbinophrel R).
 
@@ -1863,7 +1860,7 @@ Definition binophrel_resp_right {X : setwithbinop} (R : binophrel X)
 
 Definition binoppo (X : setwithbinop) : UU := total2 (λ R : po X, isbinophrel R).
 
-Definition binoppopair {X : setwithbinop} :
+Definition make_binoppo {X : setwithbinop} :
   ∏ (t : po X), (λ R : po X, isbinophrel R) t → ∑ R : po X, isbinophrel R :=
   tpair (λ R : po X, isbinophrel R).
 
@@ -1872,7 +1869,7 @@ Coercion pr1binoppo : binoppo >-> po.
 
 Definition binopeqrel (X : setwithbinop) : UU := total2 (λ R : eqrel X, isbinophrel R).
 
-Definition binopeqrelpair {X : setwithbinop} :
+Definition make_binopeqrel {X : setwithbinop} :
   ∏ (t : eqrel X), (λ R : eqrel X, isbinophrel R) t → ∑ R : eqrel X, isbinophrel R :=
   tpair (λ R : eqrel X, isbinophrel R).
 
@@ -1941,7 +1938,7 @@ Proof.
 Defined.
 
 Definition generated_binophrel {X : setwithbinop} (R : hrel X) : binophrel X :=
-  binophrelpair (generated_binophrel_hrel R) (isbinophrel_generated_binophrel R).
+  make_binophrel (generated_binophrel_hrel R) (isbinophrel_generated_binophrel R).
 
 Lemma generated_binophrel_intro {X : setwithbinop} {R : hrel X} {x x' : X}
       (r : R x x') : generated_binophrel R x x'.
@@ -1973,7 +1970,7 @@ Proof.
 Defined.
 
 Definition generated_binopeqrel {X : setwithbinop} (R : hrel X) : binopeqrel X :=
-  binopeqrelpair (eqrelpair (generated_binopeqrel_hrel R) (iseqrel_generated_binopeqrel R))
+  make_binopeqrel (make_eqrel (generated_binopeqrel_hrel R) (iseqrel_generated_binopeqrel R))
                  (isbinophrel_generated_binopeqrel R).
 
 Lemma generated_binopeqrel_intro {X : setwithbinop} {R : hrel X} {x x' : X}
@@ -1986,14 +1983,14 @@ Defined.
 Definition pullback_binopeqrel {X Y : setwithbinop} (f : binopfun X Y) (R : binopeqrel Y) :
   binopeqrel X.
 Proof.
-  use binopeqrelpair.
-  - use eqrelpair.
+  use make_binopeqrel.
+  - use make_eqrel.
     + intros x x'. exact (R (f x) (f x')).
     + apply iseqrelconstr.
       * intros x1 x2 x3 r1 r2. exact (eqreltrans R _ _ _ r1 r2).
       * intro x. exact (eqrelrefl R _).
       * intros x x' r. exact (eqrelsymm R _ _ r).
-  - apply mk_isbinophrel; simpl; intros x1 x2 x3 r; rewrite !binopfunisbinopfun.
+  - apply make_isbinophrel; simpl; intros x1 x2 x3 r; rewrite !binopfunisbinopfun.
     + exact (binopeqrel_resp_left R _ r).
     + exact (binopeqrel_resp_right R _ r).
 Defined.
@@ -2001,21 +1998,21 @@ Defined.
 Definition pullback_binopeqrel_rev {X Y : setwithbinop} (f : binopfun X (setwithbinop_rev Y))
            (R : binopeqrel Y) : binopeqrel X.
 Proof.
-  apply (pullback_binopeqrel f). use binopeqrelpair.
+  apply (pullback_binopeqrel f). use make_binopeqrel.
   - exact R.
-  - apply mk_isbinophrel; intros x1 x2 x3 r; apply (pr2 R); exact r.
+  - apply make_isbinophrel; intros x1 x2 x3 r; apply (pr2 R); exact r.
 Defined.
 
 Definition binopeqrel_eq (X : setwithbinop) : binopeqrel X.
 Proof.
-  use binopeqrelpair.
-  - use eqrelpair.
-    + intros x x'. exact (hProppair (x = x') (pr2 (pr1 X) _ _)).
+  use make_binopeqrel.
+  - use make_eqrel.
+    + intros x x'. exact (make_hProp (x = x') (pr2 (pr1 X) _ _)).
     + apply iseqrelconstr.
       * intros x1 x2 x3 r1 r2. exact (r1 @ r2).
       * intro x. reflexivity.
       * intros x x' r. exact (!r).
-  - apply mk_isbinophrel; simpl; intros x1 x2 x3 r; rewrite r; reflexivity.
+  - apply make_isbinophrel; simpl; intros x1 x2 x3 r; rewrite r; reflexivity.
 Defined.
 
 Definition binopeqrel_of_binopfun {X Y : setwithbinop} (f : binopfun X Y) : binopeqrel X :=
@@ -2174,14 +2171,14 @@ Proof.
     {
       intros a b c. apply impred. intro. apply (pr2 (quotrel is _ _)).
     }
-    apply (setquotuniv3prop R (λ a b c, hProppair _ (int a b c))).
+    apply (setquotuniv3prop R (λ a b c, make_hProp _ (int a b c))).
     exact (pr1 isl).
   - assert (int : ∏ (a b c : setwithbinopquot R),
                   isaprop (quotrel is a b -> quotrel is (op a c) (op b c))).
     {
       intros a b c. apply impred. intro. apply (pr2 (quotrel is _ _)).
     }
-    apply (setquotuniv3prop R (λ a b c, hProppair _ (int a b c))).
+    apply (setquotuniv3prop R (λ a b c, make_hProp _ (int a b c))).
     exact (pr2 isl).
 Defined.
 
@@ -2194,7 +2191,7 @@ Proof.
   (* ??? in 8.4-8.5-trunk the following apply generates an error message if the
      type of xy and xy' is left as _ despite the fact that the type of goal is
      dirprod X Y -> dirprod X Y ->.. *)
-  apply (λ xy xy' : dirprod X Y, dirprodpair (op (pr1 xy) (pr1 xy')) (op (pr2 xy) (pr2 xy'))).
+  apply (λ xy xy' : dirprod X Y, make_dirprod (op (pr1 xy) (pr1 xy')) (op (pr2 xy) (pr2 xy'))).
 Defined.
 
 
@@ -2204,7 +2201,7 @@ Defined.
 
 Definition setwith2binop : UU := total2 (λ X : hSet, (binop X) × (binop X)).
 
-Definition setwith2binoppair (X : hSet) (opps : (binop X) × (binop X)) :
+Definition make_setwith2binop (X : hSet) (opps : (binop X) × (binop X)) :
   setwith2binop := tpair (λ X : hSet, (binop X) × (binop X)) X opps.
 
 Definition pr1setwith2binop : setwith2binop -> hSet :=
@@ -2215,9 +2212,9 @@ Definition op1 {X : setwith2binop} : binop X := pr1 (pr2 X).
 
 Definition op2 {X : setwith2binop} : binop X := pr2 (pr2 X).
 
-Definition setwithbinop1 (X : setwith2binop) : setwithbinop := setwithbinoppair (pr1 X) (@op1 X).
+Definition setwithbinop1 (X : setwith2binop) : setwithbinop := make_setwithbinop (pr1 X) (@op1 X).
 
-Definition setwithbinop2 (X : setwith2binop) : setwithbinop := setwithbinoppair (pr1 X) (@op2 X).
+Definition setwithbinop2 (X : setwith2binop) : setwithbinop := make_setwithbinop (pr1 X) (@op2 X).
 
 (* Declare Scope twobinops_scope. *)
 Notation "x + y" := (op1 x y) : twobinops_scope.
@@ -2238,10 +2235,10 @@ Definition istwobinopfun {X Y : setwith2binop} (f : X -> Y) : UU :=
   dirprod (∏ x x' : X, paths (f (op1 x x')) (op1 (f x) (f x')))
           (∏ x x' : X, paths (f (op2 x x')) (op2 (f x) (f x'))).
 
-Definition mk_istwobinopfun {X Y : setwith2binop} (f : X -> Y)
+Definition make_istwobinopfun {X Y : setwith2binop} (f : X -> Y)
            (H1 : ∏ x x' : X, paths (f (op1 x x')) (op1 (f x) (f x')))
            (H2 : ∏ x x' : X, paths (f (op2 x x')) (op2 (f x) (f x'))) :
-  istwobinopfun f := dirprodpair H1 H2.
+  istwobinopfun f := make_dirprod H1 H2.
 
 Lemma isapropistwobinopfun {X Y : setwith2binop} (f : X -> Y) : isaprop (istwobinopfun f).
 Proof.
@@ -2256,7 +2253,7 @@ Defined.
 
 Definition twobinopfun (X Y : setwith2binop) : UU := total2 (fun f : X -> Y => istwobinopfun f).
 
-Definition twobinopfunpair {X Y : setwith2binop} (f : X -> Y) (is : istwobinopfun f) :
+Definition make_twobinopfun {X Y : setwith2binop} (f : X -> Y) (is : istwobinopfun f) :
   twobinopfun X Y := tpair _ f is.
 
 Definition pr1twobinopfun (X Y : setwith2binop) : twobinopfun X Y -> (X -> Y) := @pr1 _ _.
@@ -2264,11 +2261,11 @@ Coercion pr1twobinopfun : twobinopfun >-> Funclass.
 
 Definition binop1fun {X Y : setwith2binop} (f : twobinopfun X Y) :
   binopfun (setwithbinop1 X) (setwithbinop1 Y) :=
-  @binopfunpair (setwithbinop1 X) (setwithbinop1 Y) (pr1 f) (pr1 (pr2 f)).
+  @make_binopfun (setwithbinop1 X) (setwithbinop1 Y) (pr1 f) (pr1 (pr2 f)).
 
 Definition binop2fun {X Y : setwith2binop} (f : twobinopfun X Y) :
   binopfun (setwithbinop2 X) (setwithbinop2 Y) :=
-  @binopfunpair (setwithbinop2 X) (setwithbinop2 Y) (pr1 f) (pr2 (pr2 f)).
+  @make_binopfun (setwithbinop2 X) (setwithbinop2 Y) (pr1 f) (pr2 (pr2 f)).
 
 Definition twobinopfun_paths {X Y : setwith2binop} (f g : twobinopfun X Y)
            (e : pr1 f = pr1 g) : f = g.
@@ -2304,45 +2301,45 @@ Defined.
 Opaque istwobinopfuncomp.
 
 Definition twobinopfuncomp {X Y Z : setwith2binop} (f : twobinopfun X Y) (g : twobinopfun Y Z) :
-  twobinopfun X Z := twobinopfunpair (funcomp (pr1 f) (pr1 g)) (istwobinopfuncomp f g).
+  twobinopfun X Z := make_twobinopfun (funcomp (pr1 f) (pr1 g)) (istwobinopfuncomp f g).
 
 Definition twobinopmono (X Y : setwith2binop) : UU := total2 (λ f : incl X Y, istwobinopfun f).
 
-Definition twobinopmonopair {X Y : setwith2binop} (f : incl X Y) (is : istwobinopfun f) :
+Definition make_twobinopmono {X Y : setwith2binop} (f : incl X Y) (is : istwobinopfun f) :
   twobinopmono X Y := tpair _  f is.
 
 Definition pr1twobinopmono (X Y : setwith2binop) : twobinopmono X Y -> incl X Y := @pr1 _ _.
 Coercion pr1twobinopmono : twobinopmono >-> incl.
 
 Definition twobinopincltotwobinopfun (X Y : setwith2binop) :
-  twobinopmono X Y -> twobinopfun X Y := λ f, twobinopfunpair (pr1 (pr1 f)) (pr2 f).
+  twobinopmono X Y -> twobinopfun X Y := λ f, make_twobinopfun (pr1 (pr1 f)) (pr2 f).
 Coercion twobinopincltotwobinopfun : twobinopmono >-> twobinopfun.
 
 Definition binop1mono {X Y : setwith2binop} (f : twobinopmono X Y) :
   binopmono (setwithbinop1 X) (setwithbinop1 Y) :=
-  @binopmonopair (setwithbinop1 X) (setwithbinop1 Y) (pr1 f) (pr1 (pr2 f)).
+  @make_binopmono (setwithbinop1 X) (setwithbinop1 Y) (pr1 f) (pr1 (pr2 f)).
 
 Definition binop2mono {X Y : setwith2binop} (f : twobinopmono X Y) :
   binopmono (setwithbinop2 X) (setwithbinop2 Y) :=
-  @binopmonopair (setwithbinop2 X) (setwithbinop2 Y) (pr1 f) (pr2 (pr2 f)).
+  @make_binopmono (setwithbinop2 X) (setwithbinop2 Y) (pr1 f) (pr2 (pr2 f)).
 
 Definition twobinopmonocomp {X Y Z : setwith2binop} (f : twobinopmono X Y) (g : twobinopmono Y Z) :
-  twobinopmono X Z := twobinopmonopair (inclcomp (pr1 f) (pr1 g)) (istwobinopfuncomp f g).
+  twobinopmono X Z := make_twobinopmono (inclcomp (pr1 f) (pr1 g)) (istwobinopfuncomp f g).
 
 Definition twobinopiso (X Y : setwith2binop) : UU := total2 (λ f : X ≃ Y, istwobinopfun f).
 
-Definition twobinopisopair {X Y : setwith2binop} (f : X ≃ Y) (is : istwobinopfun f) :
+Definition make_twobinopiso {X Y : setwith2binop} (f : X ≃ Y) (is : istwobinopfun f) :
   twobinopiso X Y := tpair _  f is.
 
 Definition pr1twobinopiso (X Y : setwith2binop) : twobinopiso X Y -> X ≃ Y := @pr1 _ _.
 Coercion pr1twobinopiso : twobinopiso >-> weq.
 
 Definition twobinopisototwobinopmono (X Y : setwith2binop) :
-  twobinopiso X Y -> twobinopmono X Y := λ f, twobinopmonopair (weqtoincl (pr1 f)) (pr2 f).
+  twobinopiso X Y -> twobinopmono X Y := λ f, make_twobinopmono (weqtoincl (pr1 f)) (pr2 f).
 Coercion twobinopisototwobinopmono : twobinopiso >-> twobinopmono.
 
 Definition twobinopisototwobinopfun {X Y : setwith2binop} (f : twobinopiso X Y) :
-  twobinopfun X Y := twobinopfunpair f (pr2 f).
+  twobinopfun X Y := make_twobinopfun f (pr2 f).
 
 Lemma twobinopiso_paths {X Y : setwith2binop} (f g : twobinopiso X Y) (e : pr1 f = pr1 g) : f = g.
 Proof.
@@ -2354,14 +2351,14 @@ Opaque twobinopiso_paths.
 
 Definition binop1iso {X Y : setwith2binop} (f : twobinopiso X Y) :
   binopiso (setwithbinop1 X) (setwithbinop1 Y) :=
-  @binopisopair (setwithbinop1 X) (setwithbinop1 Y) (pr1 f) (pr1 (pr2 f)).
+  @make_binopiso (setwithbinop1 X) (setwithbinop1 Y) (pr1 f) (pr1 (pr2 f)).
 
 Definition binop2iso {X Y : setwith2binop} (f : twobinopiso X Y) :
   binopiso (setwithbinop2 X) (setwithbinop2 Y) :=
-  @binopisopair (setwithbinop2 X) (setwithbinop2 Y) (pr1 f) (pr2 (pr2 f)).
+  @make_binopiso (setwithbinop2 X) (setwithbinop2 Y) (pr1 f) (pr2 (pr2 f)).
 
 Definition twobinopisocomp {X Y Z : setwith2binop} (f : twobinopiso X Y) (g : twobinopiso Y Z) :
-  twobinopiso X Z := twobinopisopair (weqcomp (pr1 f) (pr1 g)) (istwobinopfuncomp f g).
+  twobinopiso X Z := make_twobinopiso (weqcomp (pr1 f) (pr1 g)) (istwobinopfuncomp f g).
 
 Lemma istwobinopfuninvmap {X Y : setwith2binop} (f : twobinopiso X Y) :
   istwobinopfun (invmap (pr1 f)).
@@ -2384,13 +2381,13 @@ Defined.
 Opaque istwobinopfuninvmap.
 
 Definition invtwobinopiso {X Y : setwith2binop} (f : twobinopiso X Y) :
-  twobinopiso Y X := twobinopisopair (invweq (pr1 f)) (istwobinopfuninvmap f).
+  twobinopiso Y X := make_twobinopiso (invweq (pr1 f)) (istwobinopfuninvmap f).
 
 Definition idtwobinopiso (X : setwith2binop) : twobinopiso X X.
 Proof.
-  use twobinopisopair.
+  use make_twobinopiso.
   - use (idweq X).
-  - use mk_istwobinopfun.
+  - use make_istwobinopfun.
     + intros x x'. use idpath.
     + intros x x'. use idpath.
 Defined.
@@ -2418,7 +2415,7 @@ Proof.
         use funextfun. intros x2.
         exact ((dirprod_pr2 i) x1 x2).
     + intros e. change (Xop = Yop) in e.
-      use mk_istwobinopfun.
+      use make_istwobinopfun.
       * intros x1 x2. induction e. use idpath.
       * intros x1 x2. induction e. use idpath.
     + use isapropistwobinopfun.
@@ -2443,7 +2440,7 @@ Opaque setwith2binop_univalence_isweq.
 
 Definition setwith2binop_univalence (X Y : setwith2binop) : (X = Y) ≃ (twobinopiso X Y).
 Proof.
-  use weqpair.
+  use make_weq.
   - exact (setwith2binop_univalence_map X Y).
   - exact (setwith2binop_univalence_isweq X Y).
 Defined.
@@ -2485,7 +2482,7 @@ Opaque isrdistrmonob.
 
 Definition isdistrmonob {X Y : setwith2binop} (f : twobinopmono X Y)
            (is : isdistr (@op1 Y) (@op2 Y)) :
-  isdistr (@op1 X) (@op2 X) := dirprodpair (isldistrmonob f (pr1 is)) (isrdistrmonob f (pr2 is)).
+  isdistr (@op1 X) (@op2 X) := make_dirprod (isldistrmonob f (pr1 is)) (isrdistrmonob f (pr2 is)).
 
 Notation isldistrisob := isldistrmonob.
 Notation isrdistrisob := isrdistrmonob.
@@ -2513,7 +2510,7 @@ Definition isrigopsisof {X Y : setwith2binop} (f : twobinopiso X Y)
            (is : isrigops (@op1 X) (@op2 X)) : isrigops (@op1 Y) (@op2 Y).
 Proof.
   split.
-  - split with (dirprodpair (isabmonoidopisof (binop1iso f) (rigop1axs_is is))
+  - split with (make_dirprod (isabmonoidopisof (binop1iso f) (rigop1axs_is is))
                             (ismonoidopisof (binop2iso f) (rigop2axs_is is))).
     simpl.
     change (unel_is (ismonoidopisof (binop1iso f) (rigop1axs_is is)))
@@ -2539,23 +2536,23 @@ Defined.
 
 Definition isringopsisof {X Y : setwith2binop} (f : twobinopiso X Y)
            (is : isringops (@op1 X) (@op2 X)) : isringops (@op1 Y) (@op2 Y) :=
-  dirprodpair (dirprodpair (isabgropisof (binop1iso f) (ringop1axs_is is))
+  make_dirprod (make_dirprod (isabgropisof (binop1iso f) (ringop1axs_is is))
                            (ismonoidopisof (binop2iso f) (ringop2axs_is is)))
               (isdistrisof f (pr2 is)).
 
 Definition isringopsisob {X Y : setwith2binop} (f : twobinopiso X Y)
            (is : isringops (@op1 Y) (@op2 Y)) : isringops (@op1 X) (@op2 X) :=
-  dirprodpair (dirprodpair (isabgropisob (binop1iso f) (ringop1axs_is is))
+  make_dirprod (make_dirprod (isabgropisob (binop1iso f) (ringop1axs_is is))
                            (ismonoidopisob (binop2iso f) (ringop2axs_is is)))
               (isdistrisob f (pr2 is)).
 
 Definition iscommringopsisof {X Y : setwith2binop} (f : twobinopiso X Y)
            (is : iscommringops (@op1 X) (@op2 X)) : iscommringops (@op1 Y) (@op2 Y) :=
-  dirprodpair (isringopsisof f is) (iscommisof (binop2iso f) (pr2 is)).
+  make_dirprod (isringopsisof f is) (iscommisof (binop2iso f) (pr2 is)).
 
 Definition iscommringopsisob {X Y : setwith2binop} (f : twobinopiso X Y)
            (is : iscommringops (@op1 Y) (@op2 Y)) : iscommringops (@op1 X) (@op2 X) :=
-  dirprodpair (isringopsisob f is) (iscommisob (binop2iso f) (pr2 is)).
+  make_dirprod (isringopsisob f is) (iscommisob (binop2iso f) (pr2 is)).
 
 
 (** **** Subobjects *)
@@ -2578,7 +2575,7 @@ Defined.
 Definition subsetswith2binop (X : setwith2binop) : UU :=
   total2 (λ A : hsubtype X, issubsetwith2binop A).
 
-Definition subsetswith2binoppair {X : setwith2binop} :
+Definition make_subsetswith2binop {X : setwith2binop} :
   ∏ (t : hsubtype X), (λ A : hsubtype X, issubsetwith2binop A) t →
                        ∑ A : hsubtype X, issubsetwith2binop A :=
   tpair (λ A : hsubtype X, issubsetwith2binop A).
@@ -2586,7 +2583,7 @@ Definition subsetswith2binoppair {X : setwith2binop} :
 Definition subsetswith2binopconstr {X : setwith2binop} :
   ∏ (t : hsubtype X), (λ A : hsubtype X, issubsetwith2binop A) t →
                        ∑ A : hsubtype X, issubsetwith2binop A :=
-  @subsetswith2binoppair X.
+  @make_subsetswith2binop X.
 
 Definition pr1subsetswith2binop (X : setwith2binop) : subsetswith2binop X -> hsubtype X :=
   @pr1 _ (λ A : hsubtype X, issubsetwith2binop A).
@@ -2601,14 +2598,14 @@ Defined.
 
 Definition carrierofsubsetwith2binop {X : setwith2binop} (A : subsetswith2binop X) : setwith2binop.
 Proof.
-  set (aset := (hSetpair (carrier A) (isasetsubset (pr1carrier A) (setproperty X)
+  set (aset := (make_hSet (carrier A) (isasetsubset (pr1carrier A) (setproperty X)
                                                    (isinclpr1carrier A))) : hSet).
   split with aset.
-  set (subopp1 := (λ a a' : A, carrierpair A (op1 (pr1carrier _ a) (pr1carrier _ a'))
+  set (subopp1 := (λ a a' : A, make_carrier A (op1 (pr1carrier _ a) (pr1carrier _ a'))
                                             (pr1 (pr2 A) a a')) : (A -> A -> A)).
-  set (subopp2 := (λ a a' : A, carrierpair A (op2 (pr1carrier _ a) (pr1carrier _ a'))
+  set (subopp2 := (λ a a' : A, make_carrier A (op2 (pr1carrier _ a) (pr1carrier _ a'))
                                             (pr2 (pr2 A) a a')) : (A -> A -> A)).
-  simpl. apply (dirprodpair subopp1 subopp2).
+  simpl. apply (make_dirprod subopp1 subopp2).
 Defined.
 Coercion carrierofsubsetwith2binop : subsetswith2binop >-> setwith2binop.
 
@@ -2636,7 +2633,7 @@ Defined.
 
 Definition twobinophrel (X : setwith2binop) : UU := total2 (λ R : hrel X, is2binophrel R).
 
-Definition twobinophrelpair {X : setwith2binop} :
+Definition make_twobinophrel {X : setwith2binop} :
   ∏ (t : hrel X), (λ R : hrel X, is2binophrel R) t → ∑ R : hrel X, is2binophrel R :=
   tpair (λ R : hrel X, is2binophrel R).
 
@@ -2646,7 +2643,7 @@ Coercion pr1twobinophrel : twobinophrel >-> hrel.
 
 Definition twobinoppo (X : setwith2binop) : UU := total2 (λ R : po X, is2binophrel R).
 
-Definition twobinoppopair {X : setwith2binop} :
+Definition make_twobinoppo {X : setwith2binop} :
   ∏ (t : po X), (λ R : po X, is2binophrel R) t → ∑ R : po X, is2binophrel R :=
   tpair (λ R : po X, is2binophrel R).
 
@@ -2656,7 +2653,7 @@ Coercion pr1twobinoppo : twobinoppo >-> po.
 
 Definition twobinopeqrel (X : setwith2binop) : UU := total2 (λ R : eqrel X, is2binophrel R).
 
-Definition twobinopeqrelpair {X : setwith2binop} :
+Definition make_twobinopeqrel {X : setwith2binop} :
   ∏ (t : eqrel X), (λ R : eqrel X, is2binophrel R) t → ∑ R : eqrel X, is2binophrel R :=
   tpair (λ R : eqrel X, is2binophrel R).
 
@@ -2674,7 +2671,7 @@ Proof.
   assert (iscomp2 : iscomprelrelfun2 R R (@op2 X))
     by apply (pr2 (iscomp2binoptransrel (pr1 R) (eqreltrans _) (pr2 R))).
   set (qtop2 := setquotfun2 R R (@op2 X) iscomp2).
-  simpl. apply (dirprodpair qtop1 qtop2).
+  simpl. apply (make_dirprod qtop1 qtop2).
 Defined.
 
 
@@ -2684,9 +2681,9 @@ Definition setwith2binopdirprod (X Y : setwith2binop) : setwith2binop.
 Proof.
   split with (setdirprod X Y). simpl.
   (* ??? same issue as with setwithbinopdirpro above *)
-  apply (dirprodpair
-           (λ xy xy' : dirprod X Y, dirprodpair (op1 (pr1 xy) (pr1 xy')) (op1 (pr2 xy) (pr2 xy')))
-           (λ xy xy' : dirprod X Y, dirprodpair (op2 (pr1 xy) (pr1 xy'))
+  apply (make_dirprod
+           (λ xy xy' : dirprod X Y, make_dirprod (op1 (pr1 xy) (pr1 xy')) (op1 (pr2 xy) (pr2 xy')))
+           (λ xy xy' : dirprod X Y, make_dirprod (op2 (pr1 xy) (pr1 xy'))
                                                  (op2 (pr2 xy) (pr2 xy')))).
 Defined.
 
