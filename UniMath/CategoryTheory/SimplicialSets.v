@@ -28,7 +28,7 @@ Require Export UniMath.CategoryTheory.opp_precat.
 Local Open Scope stn.
 
 Definition monfunstn ( n m : nat ) : UU := ∑ f : ⟦ n ⟧ -> ⟦ m ⟧, ∏ (x y: ⟦n⟧), x ≤ y -> f x ≤ f y.
-Definition monfunstnpair { m n : nat } f is := (f,,is) : monfunstn m n.
+Definition make_monfunstn { m n : nat } f is := (f,,is) : monfunstn m n.
 Definition monfunstnpr1 {n m : nat} : monfunstn n m  -> ⟦ n ⟧ -> ⟦ m ⟧ := pr1.
 
 Lemma monfunstnpr1_isInjective {m n} (f g : monfunstn m n) : monfunstnpr1 f = monfunstnpr1 g -> f = g.
@@ -50,7 +50,7 @@ Proof.
   apply isasetaprop, propproperty.
 Defined.
 
-Definition monfunstnid n : monfunstn n n := monfunstnpair (idfun _) (λ x y is, is).
+Definition monfunstnid n : monfunstn n n := make_monfunstn (idfun _) (λ x y is, is).
 
 Definition monfunstncomp { n m k : nat } ( f : monfunstn n m ) ( g : monfunstn m k ) :
   monfunstn n k .

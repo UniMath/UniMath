@@ -48,7 +48,7 @@ Section def_po.
     w = (pr1 (pr1 (P e h k Hcomm))).
   Proof.
     set (T := tpair (fun hk : d --> e => dirprod (in1 · hk = h)(in2 · hk = k))
-                    w (dirprodpair H1 H2)).
+                    w (make_dirprod H1 H2)).
     set (T' := pr2 (P e h k Hcomm) T).
     exact (base_paths _ _ T').
   Qed.
@@ -109,7 +109,7 @@ Section def_po.
     exact (pr2 (pr2 (pr1 (isPushout_Pushout Pb e h k H)))).
   Qed.
 
-  Definition mk_Pushout {a b c : C} (f : C⟦a, b⟧) (g : C⟦a, c⟧)
+  Definition make_Pushout {a b c : C} (f : C⟦a, b⟧) (g : C⟦a, c⟧)
              (d : C) (in1 : C⟦b,d⟧) (in2 : C ⟦c,d⟧)
              (H : f · in1 = g · in2)
              (ispb : isPushout f g in1 in2 H)
@@ -124,7 +124,7 @@ Section def_po.
       apply ispb.
   Defined.
 
-  Definition mk_isPushout {a b c d : C} (f : C ⟦a, b⟧) (g : C ⟦a, c⟧)
+  Definition make_isPushout {a b c d : C} (f : C ⟦a, b⟧) (g : C ⟦a, c⟧)
              (in1 : C⟦b,d⟧) (in2 : C⟦c,d⟧) (H : f · in1 = g · in2) :
     (∏ e (h : C ⟦b, e⟧) (k : C⟦c,e⟧)(Hk : f · h = g · k),
         ∃! hk : C⟦d,e⟧,(in1 · hk = h) × (in2 · hk = k)) →
@@ -145,7 +145,7 @@ Section def_po.
     { rewrite H. apply idpath. }
     assert (Hw' : f · in1 · w' = g · in2 · w').
     { rewrite H. apply idpath. }
-    set (Pb := mk_Pushout _ _ _ _ _ _ P).
+    set (Pb := make_Pushout _ _ _ _ _ _ P).
     rewrite <- assoc in Hw. rewrite <- assoc in Hw.
     set (Xw := PushoutArrow Pb e (in1 · w) (in2 · w) Hw).
     intermediate_path Xw; [ apply PushoutArrowUnique; apply idpath |].
@@ -161,7 +161,7 @@ Section def_po.
       (PushoutIn1 Pb · hk = PushoutIn1 Pb) × (PushoutIn2 Pb · hk = PushoutIn2 Pb).
   Proof.
     exists (identity Pb).
-    apply dirprodpair; apply id_right.
+    apply make_dirprod; apply id_right.
   Defined.
 
   Lemma PushoutEndo_is_identity {a b c : C} {f : a --> b} {g : a --> c}
@@ -171,7 +171,7 @@ Section def_po.
     identity Pb = k.
   Proof.
     set (H1 := tpair ((fun hk : Pb --> Pb => dirprod (_ · hk = _)(_ · hk = _)))
-                     k (dirprodpair kH1 kH2)).
+                     k (make_dirprod kH1 kH2)).
     assert (H2 : identity_is_Pushout_input Pb = H1).
     - apply proofirrelevance.
       apply isapropifcontr.
@@ -312,7 +312,7 @@ Section epi_po.
   Lemma EpiPushoutisEpi {a b c : C} (E : Epi _ a b) (g : a --> c) (PB : Pushout E g) :
     isEpi (PushoutIn2 PB).
   Proof.
-    apply mk_isEpi. intros z g0 h X.
+    apply make_isEpi. intros z g0 h X.
     use (MorphismsOutofPushoutEqual (isPushout_Pushout PB) _ _ _ X).
 
     set (X0 := maponpaths (λ f, g · f) X); simpl in X0.
@@ -326,7 +326,7 @@ Section epi_po.
   Lemma EpiPushoutisEpi' {a b c : C} (f : a --> b) (E : Epi _ a c) (PB : Pushout f E) :
     isEpi (PushoutIn1 PB).
   Proof.
-    apply mk_isEpi. intros z g0 h X.
+    apply make_isEpi. intros z g0 h X.
     use (MorphismsOutofPushoutEqual (isPushout_Pushout PB) _ _ X).
 
     set (X0 := maponpaths (λ f', f · f') X); simpl in X0.
@@ -365,7 +365,7 @@ Section po_criteria.
                (Pushout_from_Coequalizer_BinCoproduct_eq
                   X Y Z f g BinCoprod CEq).
   Proof.
-    use mk_isPushout.
+    use make_isPushout.
     intros e h k Hk.
     set (com1 := BinCoproductIn1Commutes C _ _ BinCoprod _ h k).
     set (com2 := BinCoproductIn2Commutes C _ _ BinCoprod _ h k).
@@ -402,7 +402,7 @@ Section po_criteria.
                                 (g · (BinCoproductIn2 C BinCoprod))) :
     Pushout f g.
   Proof.
-    use (mk_Pushout f g CEq ((BinCoproductIn1 C BinCoprod)
+    use (make_Pushout f g CEq ((BinCoproductIn1 C BinCoprod)
                                · CoequalizerArrow CEq)
                     ((BinCoproductIn2 C BinCoprod) · CoequalizerArrow CEq)).
     apply Pushout_from_Coequalizer_BinCoproduct_eq.
@@ -433,8 +433,8 @@ Section lemmas_on_pushouts.
   Lemma is_symmetric_isPushout : isPushout _ _ _ _ H -> isPushout _ _ _ _ (!H).
   Proof.
     intro isPo.
-    set (Po := mk_Pushout _ _ _ _ _ _ isPo).
-    use mk_isPushout.
+    set (Po := make_Pushout _ _ _ _ _ _ isPo).
+    use make_isPushout.
     intros e x y Hxy.
     use unique_exists.
     - use (PushoutArrow Po).
@@ -473,8 +473,8 @@ Section pushout_up_to_iso.
         (iPo : isPushout (i · f) (i · g) in1 in2 (isPushout_up_to_iso_eq f g in1 in2 H i)) :
     isPushout f g in1 in2 H.
   Proof.
-    set (Po := mk_Pushout _ _ _ _ _ _ iPo).
-    use mk_isPushout.
+    set (Po := make_Pushout _ _ _ _ _ _ iPo).
+    use make_isPushout.
     intros e h k Hk.
     use unique_exists.
     - use (PushoutArrow Po).

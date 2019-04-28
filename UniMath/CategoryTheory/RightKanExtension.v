@@ -85,7 +85,7 @@ Local Definition lambda (c : C) : cone (QT c) (R c) := limCone (LA _ (QT c)).
 
 Local Definition Rmor_cone (c c' : C) (g : C⟦c,c'⟧) : cone (QT c') (R c).
 Proof.
-use mk_cone.
+use make_cone.
 - intro m1f1.
   transparent assert (m1gf1 : (c ↓ K)).
   { use tpair.
@@ -162,7 +162,7 @@ use left_adjoint_from_partial.
 
   transparent assert (cc : (∏ c, cone (QT T c) (S c))).
   { intro c.
-    use mk_cone.
+    use make_cone.
     + intro mf; apply (# S (pr2 mf) · α (pr1 mf)).
     + abstract (intros fm fm' h; simpl; rewrite <- assoc;
                 eapply pathscomp0; [apply maponpaths, (pathsinv0 (nat_trans_ax α _ _ (pr1 h)))|];
@@ -192,7 +192,7 @@ use left_adjoint_from_partial.
   assert (is_nat_trans_σ : is_nat_trans S (R_data T) σ).
   { intros c c' g; simpl.
     transparent assert (ccc : (cone (QT T c') (S c))).
-    { use mk_cone.
+    { use make_cone.
       - intro mf'; apply (σ c · Rmor T c c' g · limOut (LA (c' ↓ K) (QT T c')) mf').
       - abstract (intros u v e; simpl; rewrite <- !assoc;
                   apply maponpaths, maponpaths, (limOutCommutes (LA (c' ↓ K) (QT T c')) u v e)).

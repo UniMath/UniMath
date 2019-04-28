@@ -64,7 +64,7 @@ Module Uniqueness.
            (λ fh, pr1 fh 0)
            p0).
   Proof.
-    intros. simple refine (weqpair _ (isweq_iso _ _ _ _)).
+    intros. simple refine (make_weq _ (isweq_iso _ _ _ _)).
     { intros [f [h0 h']]. exact ((f,,h'),,h0). }
     { intros [[f h'] h0]. exact (f,,(h0,,h')). }
     { intros [f [h0 h']]. reflexivity. }
@@ -182,7 +182,7 @@ Module Discern.
 
   Definition E m n : (nat_discern m n) ≃ (m = n).
   Proof.
-    intros. exact (weqpair (helper_B _ _) (helper_D _ _)).
+    intros. exact (make_weq (helper_B _ _) (helper_D _ _)).
   Defined.
 
   Definition nat_dist_anti m n : nat_dist m n = 0 -> m = n.

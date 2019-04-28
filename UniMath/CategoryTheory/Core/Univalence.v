@@ -34,8 +34,8 @@ Defined.
 Definition is_univalent (C : precategory) :=
   (∏ (a b : ob C), isweq (fun p : a = b => idtoiso p)) × (has_homsets C).
 
-Definition mk_is_univalent {C : precategory} (H1 : ∏ (a b : ob C), isweq (fun p : a = b => idtoiso p))
-           (H2 : has_homsets C) : is_univalent C := dirprodpair H1 H2.
+Definition make_is_univalent {C : precategory} (H1 : ∏ (a b : ob C), isweq (fun p : a = b => idtoiso p))
+           (H2 : has_homsets C) : is_univalent C := make_dirprod H1 H2.
 
 Lemma eq_idtoiso_idtomor {C:precategory} (a b:ob C) (e:a = b) :
     pr1 (idtoiso e) = idtomor _ _ e.
@@ -60,7 +60,8 @@ Qed.
 
 Definition univalent_category : UU := total2 (λ C : precategory, is_univalent C).
 
-Definition mk_category (C : precategory) (H : is_univalent C) : univalent_category := tpair _ C H.
+Definition make_univalent_category (C : precategory) (H : is_univalent C) : univalent_category
+  := tpair _ C H.
 
 Definition univalent_category_to_category (C : univalent_category) : category.
 Proof.
@@ -68,9 +69,6 @@ Proof.
   exact (pr2 (pr2 C)).
 Defined.
 Coercion univalent_category_to_category : univalent_category >-> category.
-
-Definition univalent_category_pair (C:precategory) (i:is_univalent C) : univalent_category := C,,i.
-
 
 Definition univalent_category_has_homsets (C : univalent_category) := pr2 (pr2 C).
 
@@ -89,13 +87,13 @@ Qed.
 (** ** Definition of [isotoid] *)
 
 Definition isotoid (C : precategory) (H : is_univalent C) {a b : ob C}:
-      iso a b -> a = b := invmap (weqpair _ (pr1 H a b)).
+      iso a b -> a = b := invmap (make_weq _ (pr1 H a b)).
 
 Lemma idtoiso_isotoid (C : precategory) (H : is_univalent C) (a b : ob C)
     (f : iso a b) : idtoiso (isotoid _ H f) = f.
 Proof.
   unfold isotoid.
-  set (Hw := homotweqinvweq (weqpair idtoiso (pr1 H a b))).
+  set (Hw := homotweqinvweq (make_weq idtoiso (pr1 H a b))).
   simpl in Hw.
   apply Hw.
 Qed.
@@ -104,7 +102,7 @@ Lemma isotoid_idtoiso (C : precategory) (H : is_univalent C) (a b : ob C)
     (p : a = b) : isotoid _ H (idtoiso p) = p.
 Proof.
   unfold isotoid.
-  set (Hw := homotinvweqweq (weqpair idtoiso (pr1 H a b))).
+  set (Hw := homotinvweqweq (make_weq idtoiso (pr1 H a b))).
   simpl in Hw.
   apply Hw.
 Qed.

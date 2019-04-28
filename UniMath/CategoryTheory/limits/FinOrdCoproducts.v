@@ -39,9 +39,9 @@ Section FinOrdCoproduct_criteria.
     ∏ (a : stn 0 -> C), Coproduct (stn 0) C a.
   Proof.
     intros a.
-    use (mk_Coproduct _ _ _ I
+    use (make_Coproduct _ _ _ I
                             (λ i : stn 0, fromempty (weqstn0toempty i))).
-    use (mk_isCoproduct _ _ hs).
+    use (make_isCoproduct _ _ hs).
     intros c g. use unique_exists.
 
     apply (InitialArrow I c).
@@ -56,11 +56,11 @@ Section FinOrdCoproduct_criteria.
   Proof.
     intros a.
     set (stn1ob := invweq(weqstn1tounit) tt).
-    use (mk_Coproduct _ _ _ (a stn1ob)).
+    use (make_Coproduct _ _ _ (a stn1ob)).
     intros i. exact (idtoiso (! (maponpaths a (isconnectedstn1 stn1ob i)))).
 
     (* isCoproductcocone *)
-    use (mk_isCoproduct _ _ hs).
+    use (make_isCoproduct _ _ hs).
     intros c g.
     use (unique_exists (g stn1ob)).
 
@@ -98,17 +98,17 @@ Section FinOrdCoproduct_criteria.
     set (m1 := λ i1 : stn n, (Cone1In i1) · in1).
     set (m2 := λ i2 : stn 1, (Cone2In i2) · in2).
 
-    use (mk_Coproduct (stn (S n)) C a (BinCoproductObject _ BinCone) _).
+    use (make_Coproduct (stn (S n)) C a (BinCoproductObject _ BinCone) _).
 
     (* Construction of the arrows from a i to BinCone *)
     intros i. induction (natlehchoice4 (pr1 i) _ (pr2 i)) as [a0|b].
     exact (idtoiso (maponpaths a (dni_lastelement_eq n i a0))
-                   · m1 (stnpair n (pr1 i) a0)).
+                   · m1 (make_stn n (pr1 i) a0)).
     exact (idtoiso (maponpaths a (lastelement_eq n i b))
                    ·  m2 (invweq(weqstn1tounit) tt)).
 
     (* Construction of isCoproduct. *)
-    use (mk_isCoproduct _ _ hs).
+    use (make_isCoproduct _ _ hs).
 
     intros c g.
     set (g1 := λ i : stn n, g(dni_lastelement i)).
@@ -134,7 +134,7 @@ Section FinOrdCoproduct_criteria.
     apply remove_id_left. apply idpath.
 
     unfold m1. unfold in1. rewrite <- assoc. fold g1. fold ar1.
-    use (pathscomp0 (maponpaths (λ f : _, Cone1In (stnpair n (pr1 i) a0) · f)
+    use (pathscomp0 (maponpaths (λ f : _, Cone1In (make_stn n (pr1 i) a0) · f)
                                 com1)).
     fold ar1 in com3. rewrite com3. unfold g1. apply idpath.
 

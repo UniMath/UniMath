@@ -54,14 +54,14 @@ Section Def.
     enriched_cat_mor y z ⊗ enriched_cat_mor x y --> enriched_cat_mor x z :=
     pr2 (pr2 (pr2 d)) x y z.
 
-  (** Constructor. Use like so: [use mk_enriched_cat_data] *)
-  Definition mk_enriched_precat_data (C : UU) (mor : ∏ x y : C, ob V)
+  (** Constructor. Use like so: [use make_enriched_cat_data] *)
+  Definition make_enriched_precat_data (C : UU) (mor : ∏ x y : C, ob V)
              (ids : ∏ x : C, I --> mor x x)
              (assoc : ∏ x y z : C, mor y z ⊗ mor x y --> mor x z) :
     enriched_precat_data.
   Proof.
     unfold enriched_precat_data.
-    use tpair; [|use tpair; [|use dirprodpair]].
+    use tpair; [|use tpair; [|use make_dirprod]].
     - exact C.
     - exact mor.
     - exact ids.
@@ -123,9 +123,9 @@ Section Def.
   Coercion enriched_precat_to_enriched_precat_data :
     enriched_precat >-> enriched_precat_data.
 
-  Definition mk_enriched_precat (d : enriched_precat_data) (idax : enriched_id_ax d)
+  Definition make_enriched_precat (d : enriched_precat_data) (idax : enriched_id_ax d)
              (assocax : enriched_assoc_ax d) : enriched_precat :=
-    tpair _ d (dirprodpair idax assocax).
+    tpair _ d (make_dirprod idax assocax).
 
 End Def.
 
@@ -139,7 +139,7 @@ Section Functors.
       ∏ x y : enriched_cat_ob D,
         V⟦enriched_cat_mor x y, enriched_cat_mor (F x) (F y)⟧.
 
-  Definition mk_enriched_functor_data
+  Definition make_enriched_functor_data
     (F : enriched_cat_ob D -> enriched_cat_ob E)
     (mor : ∏ x y : enriched_cat_ob D,
        V⟦enriched_cat_mor x y, enriched_cat_mor (F x) (F y)⟧)
@@ -175,10 +175,10 @@ Section Functors.
 
   (** Constructor *)
 
-  Definition mk_enriched_functor (d : enriched_functor_data)
+  Definition make_enriched_functor (d : enriched_functor_data)
     (uax : enriched_functor_unit_ax d) (cax : enriched_functor_comp_ax d) :
     enriched_functor :=
-    tpair _ d (dirprodpair uax cax).
+    tpair _ d (make_dirprod uax cax).
 
   (** Coercion to *_data *)
 
@@ -205,7 +205,7 @@ Definition enriched_functor_comp_data
            (F : enriched_functor_data P Q) (G : enriched_functor_data Q R) :
   enriched_functor_data P R.
 Proof.
-  use mk_enriched_functor_data.
+  use make_enriched_functor_data.
   - exact (λ x, G (F x)).
   - intros x y; cbn.
     refine (_ · (# G (F x) (F y))).
@@ -217,7 +217,7 @@ Definition enriched_functor_comp
            (F : enriched_functor P Q) (G : enriched_functor Q R) :
   enriched_functor P R.
 Proof.
-  use mk_enriched_functor.
+  use make_enriched_functor.
   - apply (enriched_functor_comp_data F G).
   - (** Unit axioms *)
     intros a.

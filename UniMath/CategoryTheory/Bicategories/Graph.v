@@ -20,7 +20,7 @@ Definition edge (G : pregraph) (a b : G) : UU := pr2 G a b.
 Definition graph_mor (G1 G2 : pregraph) : UU
   := ∑ f0 : G1 → G2, ∏ (a b : G1), edge G1 a b → edge G2 (f0 a) (f0 b).
 
-Definition mk_graph_mor (G1 G2 : pregraph) (f0 : G1 → G2)
+Definition make_graph_mor (G1 G2 : pregraph) (f0 : G1 → G2)
            (f1 : ∏ (a b : G1), edge G1 a b → edge G2 (f0 a) (f0 b))
   : graph_mor G1 G2
   := f0,, f1.
@@ -34,11 +34,11 @@ Definition graphmap {G1 G2 : pregraph} (f : graph_mor G1 G2) {a b : G1} (p : edg
   := pr2 f a b p.
 
 Definition graph_mor_id (G : pregraph) : graph_mor G G
-  := mk_graph_mor G G (idfun G) (λ a b : G, idfun (edge G a b)).
+  := make_graph_mor G G (idfun G) (λ a b : G, idfun (edge G a b)).
 
 Definition graph_mor_comp {G1 G2 G3 : pregraph} (f : graph_mor G1 G2) (g : graph_mor G2 G3)
   : graph_mor G1 G3
-  := mk_graph_mor G1 G3
+  := make_graph_mor G1 G3
                   (g ∘ f)%functions
                   (λ (a b : G1) (p : edge G1 a b), graphmap g (graphmap f p)).
 
@@ -81,7 +81,7 @@ Definition graph_precategory_data : precategory_data
 Lemma is_precategory_graph : is_precategory graph_precategory_data.
 Proof.
   apply is_precategory_one_assoc_to_two.
-  repeat apply dirprodpair; cbn.
+  repeat apply make_dirprod; cbn.
   - apply graph_mor_id_right.
   - apply graph_mor_id_left.
   - apply graph_mor_comp_assoc.

@@ -56,12 +56,12 @@ Local Notation "'EndC'":= ([C, C, hs]) .
 Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
 Let CPEndC : BinCoproducts EndC := BinCoproducts_functor_precat _ _ CP hs.
 
-Variable H : Signature C hs C hs.
+Variable H : Signature C hs C hs C hs.
 
 Let θ := theta H.
 
-Let θ_strength1_int := Sig_strength_law1 _ _ _ _ H.
-Let θ_strength2_int := Sig_strength_law2 _ _ _ _ H.
+Let θ_strength1_int := Sig_strength_law1 _ _ _ _ _ _ H.
+Let θ_strength2_int := Sig_strength_law2 _ _ _ _ _ _ H.
 
 Let Id_H
 : functor EndC EndC
@@ -353,7 +353,7 @@ Proof.
     clear X.
     set (A:=θ_nat_2_pointwise).
     simpl in *.
-    set (A':= A _ hs _ hs H θ (`T) Z Z').
+    set (A':= A _ hs _ hs _ hs H θ (`T) Z Z').
     simpl in A'.
     set (A2:= A' f).
     clearbody A2; clear A'; clear A.

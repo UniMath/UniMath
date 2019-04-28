@@ -36,16 +36,18 @@ Variable C : precategory.
 Variable hsC : has_homsets C.
 Variable D : precategory.
 Variable hs : has_homsets D.
+Variable D' : precategory.
+Variable hs' : has_homsets D'.
 Variable PD : BinProducts D.
 
 Section construction.
 
 Local Notation "'PCD'" := (BinProducts_functor_precat C D PD hs : BinProducts [C, D, hs]).
 
-Variables H1 H2 : functor [C, C, hsC] [C, D, hs].
+Variables H1 H2 : functor [C, D', hs'] [C, D, hs].
 
-Variable θ1 : θ_source H1 ⟹ θ_target H1.
-Variable θ2 : θ_source H2 ⟹ θ_target H2.
+Variable θ1 : θ_source (hs := hsC) H1 ⟹ θ_target H1.
+Variable θ2 : θ_source (hs := hsC) H2 ⟹ θ_target H2.
 
 Variable S11 : θ_Strength1 θ1.
 Variable S12 : θ_Strength2 θ1.
@@ -54,10 +56,10 @@ Variable S22 : θ_Strength2 θ2.
 
 (** * Definition of the data of the product of two signatures *)
 
-Definition H : functor [C, C, hsC] [C, D, hs] :=
+Definition H : functor [C, D', hs'] [C, D, hs] :=
   BinProduct_of_functors _ _ PCD H1 H2.
 
-Local Definition θ_ob_fun (X : [C, C, hsC]) (Z : precategory_Ptd C hsC) :
+Local Definition θ_ob_fun (X : [C, D', hs']) (Z : precategory_Ptd C hsC) :
    ∏ c : C,
     (functor_composite_data (pr1 Z)
      (BinProduct_of_functors_data C D PD (H1 X) (H2 X))) c
@@ -70,7 +72,7 @@ Proof.
   - exact (pr1 (θ2 (X ⊗ Z)) c).
 Defined.
 
-Local Lemma is_nat_trans_θ_ob_fun (X : [C, C, hsC]) (Z : precategory_Ptd C hsC):
+Local Lemma is_nat_trans_θ_ob_fun (X : [C, D', hs']) (Z : precategory_Ptd C hsC):
    is_nat_trans _ _ (θ_ob_fun X Z).
 Proof.
   intros x x' f.
@@ -81,7 +83,7 @@ Proof.
   * apply (nat_trans_ax (θ2 (X ⊗ Z))).
 Qed.
 
-Definition θ_ob : ∏ XZ, θ_source H XZ --> θ_target H XZ.
+Definition θ_ob : ∏ XZ, θ_source H XZ --> θ_target(hs := hsC) H XZ.
 Proof.
   intro XZ.
   exists (θ_ob_fun (pr1 XZ) (pr2 XZ)).
@@ -89,7 +91,7 @@ Proof.
 Defined.
 
 Local Lemma is_nat_trans_θ_ob :
- is_nat_trans (θ_source_functor_data C hsC D hs H) (θ_target_functor_data C hsC D hs H)
+ is_nat_trans (θ_source H) (θ_target H)
      θ_ob.
 Proof.
   intros [X Z] [X' Z'] [α β].
@@ -102,7 +104,7 @@ Proof.
   + exact (nat_trans_eq_pointwise (nat_trans_ax θ2 _ _ (α,,β)) c).
 Qed.
 
-Local Definition θ : θ_source H ⟹ θ_target H.
+Local Definition θ : θ_source(hs := hsC) H ⟹ θ_target H.
 Proof.
   exists θ_ob.
   apply is_nat_trans_θ_ob.
@@ -178,7 +180,7 @@ Qed.
 End construction.
 
 (** Binary product of signatures *)
-Definition BinProduct_of_Signatures (S1 S2 : Signature C hsC D hs) : Signature C hsC D hs.
+Definition BinProduct_of_Signatures (S1 S2 : Signature C hsC D hs D' hs') : Signature C hsC D hs D' hs'.
 Proof.
   (* destruct S1 as [H1 [θ1 [S11' S12']]]. *)
   (* destruct S2 as [H2 [θ2 [S21' S22']]]. *)
@@ -189,8 +191,8 @@ Proof.
   + apply ProductStrength2'; [apply (pr2 (pr2 (pr2 S1)))|apply (pr2 (pr2 (pr2 S2)))].
 Defined.
 
-Lemma is_omega_cocont_BinProduct_of_Signatures (S1 S2 : Signature C hsC D hs)
-  (h1 : is_omega_cocont S1) (h2 : is_omega_cocont S2) (PC: BinProducts C)
+Lemma is_omega_cocont_BinProduct_of_Signatures (S1 S2 : Signature C hsC D hs D' hs')
+  (h1 : is_omega_cocont S1) (h2 : is_omega_cocont S2) (PC: BinProducts D')
   (hE : ∏ x, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C D PD hs) x)) :
   is_omega_cocont (BinProduct_of_Signatures S1 S2).
 Proof.

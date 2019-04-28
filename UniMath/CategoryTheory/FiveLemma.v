@@ -114,7 +114,7 @@ Section five_lemma_data.
 
   Definition FiveRowObs : UU := (ob A) × (ob A) × (ob A) × (ob A) × (ob A).
 
-  Definition mk_FiveRowObs (C1 C2 C3 C4 C5 : ob A) : FiveRowObs := (C1,,(C2,,(C3,,(C4,,C5)))).
+  Definition make_FiveRowObs (C1 C2 C3 C4 C5 : ob A) : FiveRowObs := (C1,,(C2,,(C3,,(C4,,C5)))).
 
   Definition FOb1 (FRO : FiveRowObs) : ob A := dirprod_pr1 FRO.
 
@@ -135,7 +135,7 @@ Section five_lemma_data.
     (A⟦FOb1 FRO, FOb2 FRO⟧) × (A⟦FOb2 FRO, FOb3 FRO⟧) × (A⟦FOb3 FRO, FOb4 FRO⟧)
                             × (A⟦FOb4 FRO, FOb5 FRO⟧).
 
-  Definition mk_FiveRowDiffs (FRO : FiveRowObs) (f1 : A⟦FOb1 FRO, FOb2 FRO⟧)
+  Definition make_FiveRowDiffs (FRO : FiveRowObs) (f1 : A⟦FOb1 FRO, FOb2 FRO⟧)
              (f2 : A⟦FOb2 FRO, FOb3 FRO⟧) (f3 : A⟦FOb3 FRO, FOb4 FRO⟧)
              (f4 : A⟦FOb4 FRO, FOb5 FRO⟧) : FiveRowDiffs FRO := (f1,,(f2,,(f3,,f4))).
 
@@ -158,7 +158,7 @@ Section five_lemma_data.
       × (FDiff2 FRD · FDiff3 FRD = ZeroArrow (to_Zero A) _ _)
       × (FDiff3 FRD · FDiff4 FRD = ZeroArrow (to_Zero A) _ _).
 
-  Definition mk_FiveRowDiffsEq {FRO : FiveRowObs} (FRD : FiveRowDiffs FRO)
+  Definition make_FiveRowDiffsEq {FRO : FiveRowObs} (FRD : FiveRowDiffs FRO)
              (H1 : FDiff1 FRD · FDiff2 FRD = ZeroArrow (to_Zero A) _ _)
              (H2 : FDiff2 FRD · FDiff3 FRD = ZeroArrow (to_Zero A) _ _)
              (H3 : FDiff3 FRD · FDiff4 FRD = ZeroArrow (to_Zero A) _ _) : FiveRowDiffsEq FRD :=
@@ -181,7 +181,7 @@ Section five_lemma_data.
       × (isExact A hs (FDiff2 FRD) (FDiff3 FRD) (FEq2 FRDE))
       × (isExact A hs (FDiff3 FRD) (FDiff4 FRD) (FEq3 FRDE)).
 
-  Definition mk_FiveRowExacts {FRO : FiveRowObs} {FRD : FiveRowDiffs FRO}
+  Definition make_FiveRowExacts {FRO : FiveRowObs} {FRD : FiveRowDiffs FRO}
              (FRDE : FiveRowDiffsEq FRD) (H1 : isExact A hs (FDiff1 FRD) (FDiff2 FRD) (FEq1 FRDE))
              (H2 : isExact A hs (FDiff2 FRD) (FDiff3 FRD) (FEq2 FRDE))
              (H3 : isExact A hs (FDiff3 FRD) (FDiff4 FRD) (FEq3 FRDE)) : FiveRowExacts FRDE :=
@@ -205,7 +205,7 @@ Section five_lemma_data.
     ∑ (FRO : FiveRowObs),
     (∑ (FRD : FiveRowDiffs FRO), (∑ (FRDE : FiveRowDiffsEq FRD), FiveRowExacts FRDE)).
 
-  Definition mk_FiveRow (FRO : FiveRowObs) (FRD : FiveRowDiffs FRO) (FRDE : FiveRowDiffsEq FRD)
+  Definition make_FiveRow (FRO : FiveRowObs) (FRD : FiveRowDiffs FRO) (FRDE : FiveRowDiffsEq FRD)
              (FRE : FiveRowExacts FRDE) : FiveRow := (FRO,,(FRD,,(FRDE,,FRE))).
 
   Definition FiveRow_Obs (FR : FiveRow) : FiveRowObs := pr1 FR.
@@ -229,7 +229,7 @@ Section five_lemma_data.
     (A⟦FOb1 FR1, FOb1 FR2⟧) × (A⟦FOb2 FR1, FOb2 FR2⟧) × (A⟦FOb3 FR1, FOb3 FR2⟧)
                             × (A⟦FOb4 FR1, FOb4 FR2⟧) × (A⟦FOb5 FR1, FOb5 FR2⟧).
 
-  Definition mk_FiveRowMors (FR1 FR2 : FiveRow) (f1 : A⟦FOb1 FR1, FOb1 FR2⟧)
+  Definition make_FiveRowMors (FR1 FR2 : FiveRow) (f1 : A⟦FOb1 FR1, FOb1 FR2⟧)
              (f2 : A⟦FOb2 FR1, FOb2 FR2⟧) (f3 : A⟦FOb3 FR1, FOb3 FR2⟧)
              (f4 : A⟦FOb4 FR1, FOb4 FR2⟧) (f5 : A⟦FOb5 FR1, FOb5 FR2⟧) : FiveRowMors FR1 FR2 :=
     (f1,,(f2,,(f3,,(f4,,f5)))).
@@ -257,7 +257,7 @@ Section five_lemma_data.
       × (FDiff3 FR1 · FMor4 FRMs = FMor3 FRMs · FDiff3 FR2)
       × (FDiff4 FR1 · FMor5 FRMs = FMor4 FRMs · FDiff4 FR2).
 
-  Definition mk_FiveRowMorsComm {FR1 FR2 : FiveRow} (FRMs : FiveRowMors FR1 FR2)
+  Definition make_FiveRowMorsComm {FR1 FR2 : FiveRow} (FRMs : FiveRowMors FR1 FR2)
     (H1 : FDiff1 FR1 · FMor2 FRMs = FMor1 FRMs · FDiff1 FR2)
     (H2 : FDiff2 FR1 · FMor3 FRMs = FMor2 FRMs · FDiff2 FR2)
     (H3 : FDiff3 FR1 · FMor4 FRMs = FMor3 FRMs · FDiff3 FR2)
@@ -283,7 +283,7 @@ Section five_lemma_data.
   Definition FiveRowMorphism (FR1 FR2 : FiveRow) : UU :=
     ∑ (FRMs : FiveRowMors FR1 FR2), FiveRowMorsComm FRMs.
 
-  Definition mk_FiveRowMorphism (FR1 FR2 : FiveRow) (FRMs : FiveRowMors FR1 FR2)
+  Definition make_FiveRowMorphism (FR1 FR2 : FiveRow) (FRMs : FiveRowMors FR1 FR2)
              (FRMC : FiveRowMorsComm FRMs) : FiveRowMorphism FR1 FR2 := (FRMs,,FRMC).
 
   Definition FiveRowMorphism_Mors {FR1 FR2 : FiveRow} (FRM : FiveRowMorphism FR1 FR2) :
@@ -305,11 +305,11 @@ Section five_lemma_opp.
 
   Definition FiveRowObs_opp {A : AbelianPreCat} {hs : has_homsets A} (FRO : FiveRowObs) :
     @FiveRowObs (Abelian_opp A hs) :=
-    @mk_FiveRowObs (Abelian_opp A hs) (FOb5 FRO) (FOb4 FRO) (FOb3 FRO) (FOb2 FRO) (FOb1 FRO).
+    @make_FiveRowObs (Abelian_opp A hs) (FOb5 FRO) (FOb4 FRO) (FOb3 FRO) (FOb2 FRO) (FOb1 FRO).
 
   Definition FiveRowDiffs_opp {A : AbelianPreCat} {hs : has_homsets A} {FRO : @FiveRowObs A}
              (FRD : FiveRowDiffs FRO) : @FiveRowDiffs (Abelian_opp A hs) (FiveRowObs_opp FRO) :=
-    @mk_FiveRowDiffs (Abelian_opp A hs) (FiveRowObs_opp FRO)
+    @make_FiveRowDiffs (Abelian_opp A hs) (FiveRowObs_opp FRO)
                      (FDiff4 FRD) (FDiff3 FRD) (FDiff2 FRD) (FDiff1 FRD).
 
   Local Opaque ZeroArrow.
@@ -343,38 +343,38 @@ Section five_lemma_opp.
   Definition FiveRowDiffsEq_opp {A : AbelianPreCat} {hs : has_homsets A} {FRO : @FiveRowObs A}
              {FRD : @FiveRowDiffs A FRO} (FRDE : @FiveRowDiffsEq A FRO FRD) :
     @FiveRowDiffsEq (Abelian_opp A hs) _ (FiveRowDiffs_opp FRD) :=
-    @mk_FiveRowDiffsEq _ _ (FiveRowDiffs_opp FRD) (FiveRowDiffsEq_opp1 FRDE)
+    @make_FiveRowDiffsEq _ _ (FiveRowDiffs_opp FRD) (FiveRowDiffsEq_opp1 FRDE)
                        (FiveRowDiffsEq_opp2 FRDE) (FiveRowDiffsEq_opp3 FRDE).
 
   Definition FiveRowExacts_opp {A : AbelianPreCat} {hs : has_homsets A} {FRO : @FiveRowObs A}
              {FRD : @FiveRowDiffs A FRO} {FRDE : @FiveRowDiffsEq A FRO FRD}
              (FRE : @FiveRowExacts A hs FRO FRD FRDE) :
     @FiveRowExacts (Abelian_opp A hs) (has_homsets_opp hs) _ _ (FiveRowDiffsEq_opp FRDE) :=
-    @mk_FiveRowExacts (Abelian_opp A hs) (has_homsets_opp hs) _ _ (FiveRowDiffsEq_opp FRDE)
+    @make_FiveRowExacts (Abelian_opp A hs) (has_homsets_opp hs) _ _ (FiveRowDiffsEq_opp FRDE)
                       (isExact_opp (FEx3 hs FRE)) (isExact_opp (FEx2 hs FRE))
                       (isExact_opp (FEx1 hs FRE)).
 
   Definition FiveRow_opp {A : AbelianPreCat} {hs : has_homsets A} (FR : @FiveRow A hs) :
     @FiveRow (Abelian_opp A hs) (has_homsets_opp hs) :=
-    @mk_FiveRow (Abelian_opp A hs) (has_homsets_opp hs) (FiveRowObs_opp FR)
+    @make_FiveRow (Abelian_opp A hs) (has_homsets_opp hs) (FiveRowObs_opp FR)
                 (FiveRowDiffs_opp FR) (FiveRowDiffsEq_opp FR) (FiveRowExacts_opp FR).
 
   Definition FiveRowMors_opp {A : AbelianPreCat} {hs : has_homsets A} {FR1 FR2 : @FiveRow A hs}
              (FRM : @FiveRowMors A hs FR1 FR2) :
     @FiveRowMors (Abelian_opp A hs) (has_homsets_opp hs) (FiveRow_opp FR2) (FiveRow_opp FR1) :=
-    @mk_FiveRowMors (Abelian_opp A hs) (has_homsets_opp hs) (FiveRow_opp FR2) (FiveRow_opp FR1)
+    @make_FiveRowMors (Abelian_opp A hs) (has_homsets_opp hs) (FiveRow_opp FR2) (FiveRow_opp FR1)
                     (FMor5 hs FRM) (FMor4 hs FRM) (FMor3 hs FRM) (FMor2 hs FRM) (FMor1 hs FRM).
 
   Definition FiveRowMorsComm_opp {A : AbelianPreCat} {hs : has_homsets A} {FR1 FR2 : @FiveRow A hs}
              {FRM : @FiveRowMors A hs FR1 FR2} (FRMC : @FiveRowMorsComm A hs FR1 FR2 FRM) :
     @FiveRowMorsComm (Abelian_opp A hs) (has_homsets_opp hs) _ _ (FiveRowMors_opp FRM) :=
-    @mk_FiveRowMorsComm (Abelian_opp A hs) (has_homsets_opp hs) _ _ (FiveRowMors_opp FRM)
+    @make_FiveRowMorsComm (Abelian_opp A hs) (has_homsets_opp hs) _ _ (FiveRowMors_opp FRM)
                         (! FComm4 hs FRMC) (! FComm3 hs FRMC) (! FComm2 hs FRMC) (! FComm1 hs FRMC).
 
   Definition FiveRowMorphism_opp {A : AbelianPreCat} {hs : has_homsets A} {FR1 FR2 : @FiveRow A hs}
              (FRM : @FiveRowMorphism A hs FR1 FR2) :
     @FiveRowMorphism (Abelian_opp A hs) (has_homsets_opp hs) (FiveRow_opp FR2) (FiveRow_opp FR1) :=
-    @mk_FiveRowMorphism (Abelian_opp A hs) (has_homsets_opp hs) (FiveRow_opp FR2) (FiveRow_opp FR1)
+    @make_FiveRowMorphism (Abelian_opp A hs) (has_homsets_opp hs) (FiveRow_opp FR2) (FiveRow_opp FR1)
                         (FiveRowMors_opp FRM) (FiveRowMorsComm_opp FRM).
 
 End five_lemma_opp.
@@ -495,7 +495,7 @@ Section short_exact_five_lemma.
   Definition ShortExactObs1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowObs A.
   Proof.
-    use mk_FiveRowObs.
+    use make_FiveRowObs.
     - exact (to_Zero A).
     - exact (Ob1 SSE1).
     - exact (Ob2 SSE1).
@@ -506,7 +506,7 @@ Section short_exact_five_lemma.
   Definition ShortExactDiffs1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowDiffs A (ShortExactObs1 Mor).
   Proof.
-    use mk_FiveRowDiffs.
+    use make_FiveRowDiffs.
     - exact (ZeroArrow (to_Zero A) _ _).
     - exact (Mor1 SSE1).
     - exact (Mor2 SSE1).
@@ -516,7 +516,7 @@ Section short_exact_five_lemma.
   Lemma ShortExactDiffsEq1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowDiffsEq A _ (ShortExactDiffs1 Mor).
   Proof.
-    use mk_FiveRowDiffsEq.
+    use make_FiveRowDiffsEq.
     - cbn. apply ZeroArrow_comp_left.
     - cbn. use (ShortShortExactData_Eq (to_Zero A) SSE1).
     - cbn. apply ZeroArrow_comp_right.
@@ -525,7 +525,7 @@ Section short_exact_five_lemma.
   Lemma ShortExactExacts1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowExacts A hs _ _ (ShortExactDiffsEq1 Mor).
   Proof.
-    use mk_FiveRowExacts.
+    use make_FiveRowExacts.
     - cbn. use isExactisMonic. exact (ShortExactSequences.isMonic hs SSE1).
     - unfold isExact. exact (ShortShortExact_isKernel hs SSE1).
     - cbn. use isExactisEpi. exact (ShortExactSequences.isEpi hs SSE1).
@@ -534,7 +534,7 @@ Section short_exact_five_lemma.
   Definition ShortExactRow1 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRow A hs.
   Proof.
-    use mk_FiveRow.
+    use make_FiveRow.
     - exact (ShortExactObs1 Mor).
     - exact (ShortExactDiffs1 Mor).
     - exact (ShortExactDiffsEq1 Mor).
@@ -546,7 +546,7 @@ Section short_exact_five_lemma.
   Definition ShortExactObs2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowObs A.
   Proof.
-    use mk_FiveRowObs.
+    use make_FiveRowObs.
     - exact (to_Zero A).
     - exact (Ob1 SSE2).
     - exact (Ob2 SSE2).
@@ -557,7 +557,7 @@ Section short_exact_five_lemma.
   Definition ShortExactDiffs2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowDiffs A (ShortExactObs2 Mor).
   Proof.
-    use mk_FiveRowDiffs.
+    use make_FiveRowDiffs.
     - exact (ZeroArrow (to_Zero A) _ _).
     - exact (Mor1 SSE2).
     - exact (Mor2 SSE2).
@@ -567,7 +567,7 @@ Section short_exact_five_lemma.
   Lemma ShortExactDiffsEq2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowDiffsEq A _ (ShortExactDiffs2 Mor).
   Proof.
-    use mk_FiveRowDiffsEq.
+    use make_FiveRowDiffsEq.
     - cbn. apply ZeroArrow_comp_left.
     - cbn. use (ShortShortExactData_Eq (to_Zero A) SSE2).
     - cbn. apply ZeroArrow_comp_right.
@@ -576,7 +576,7 @@ Section short_exact_five_lemma.
   Lemma ShortExactExacts2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowExacts A hs _ _ (ShortExactDiffsEq2 Mor).
   Proof.
-    use mk_FiveRowExacts.
+    use make_FiveRowExacts.
     - cbn. use isExactisMonic. exact (ShortExactSequences.isMonic hs SSE2).
     - unfold isExact. exact (ShortShortExact_isKernel hs SSE2).
     - cbn. use isExactisEpi. exact (ShortExactSequences.isEpi hs SSE2).
@@ -585,7 +585,7 @@ Section short_exact_five_lemma.
   Definition ShortExactRow2 {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRow A hs.
   Proof.
-    use mk_FiveRow.
+    use make_FiveRow.
     - exact (ShortExactObs2 Mor).
     - exact (ShortExactDiffs2 Mor).
     - exact (ShortExactDiffsEq2 Mor).
@@ -597,7 +597,7 @@ Section short_exact_five_lemma.
   Definition ShortExactMors {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowMors A hs (ShortExactRow1 Mor) (ShortExactRow2 Mor).
   Proof.
-    use mk_FiveRowMors.
+    use make_FiveRowMors.
     - exact (identity _).
     - exact (MPMor1 Mor).
     - exact (MPMor2 Mor).
@@ -608,7 +608,7 @@ Section short_exact_five_lemma.
   Lemma ShortExactMorComm {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowMorsComm A hs _ _ (ShortExactMors Mor).
   Proof.
-    use mk_FiveRowMorsComm.
+    use make_FiveRowMorsComm.
     - cbn. rewrite ZeroArrow_comp_left. rewrite id_left. apply idpath.
     - cbn. exact (! (MPComm1 Mor)).
     - cbn. exact (! (MPComm2 Mor)).
@@ -618,7 +618,7 @@ Section short_exact_five_lemma.
   Definition ShortExactMor {SSE1 SSE2 : ShortExact A hs} (Mor : MPMor SSE1 SSE2) :
     @FiveRowMorphism A hs (ShortExactRow1 Mor) (ShortExactRow2 Mor).
   Proof.
-    use mk_FiveRowMorphism.
+    use make_FiveRowMorphism.
     - exact (ShortExactMors Mor).
     - exact (ShortExactMorComm Mor).
   Defined.

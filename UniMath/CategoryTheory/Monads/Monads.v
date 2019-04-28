@@ -226,8 +226,8 @@ Definition category_Monad (C : category) : category :=
 Definition forgetfunctor_Monad (C : category) :
   functor (category_Monad C) (functor_category C C).
 Proof.
-  use mk_functor.
-  - use mk_functor_data.
+  use make_functor.
+  - use make_functor_data.
     + exact (λ M, pr1 M: functor C C).
     + exact (λ M N f, pr1 f).
   - abstract (split; red; intros;  reflexivity).
@@ -403,7 +403,7 @@ Section Monad_eq_helper.
                      (∏ a : ob C, a --> F a)).
 
     Coercion functor_data_from_raw_Monad_data {C : precategory_ob_mor} (T : raw_Monad_data C) :
-      functor_data C C := mk_functor_data (pr1 T) (pr1 (pr1 (pr2 T))).
+      functor_data C C := make_functor_data (pr1 T) (pr1 (pr1 (pr2 T))).
 
     Definition Monad'_data_laws {C : precategory} (T : raw_Monad_data C) :=
       ((is_functor T) ×
@@ -503,8 +503,8 @@ Proof.
   use tpair.
   - exact (Monad_data_from_adjunction H).
   - cbn.
-    use dirprodpair.
-    + use dirprodpair.
+    use make_dirprod.
+    + use make_dirprod.
       * intro c; cbn.
         apply triangle_id_right_ad.
       * intro c; cbn.

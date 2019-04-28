@@ -174,7 +174,7 @@ Qed.
 Definition forget_algebras_data (hsC: has_homsets C): functor_data (FunctorAlg hsC) C.
 Proof.
   set (onobs := fun alg : FunctorAlg hsC => alg_carrier alg).
-  apply (mk_functor_data onobs).
+  apply (make_functor_data onobs).
   intros alg1 alg2 m.
   simpl in m.
   exact (mor_from_algebra_mor _ _ m).
@@ -183,11 +183,8 @@ Defined.
 (* the forgetful functor *)
 Definition forget_algebras (hsC: has_homsets C): functor (FunctorAlg hsC) C.
 Proof.
-  apply (mk_functor (forget_algebras_data hsC)).
-  red.
-  split; red.
-  - intro alg. apply idpath.
-  - intros alg1 alg2 alg3 m n. apply idpath.
+  apply (make_functor (forget_algebras_data hsC)).
+  abstract ( split; [intro alg; apply idpath | intros alg1 alg2 alg3 m n; apply idpath] ).
 Defined.
 
 
@@ -205,7 +202,7 @@ Definition algebra_ob_eq (X Y : FunctorAlg (pr2 H)) :
 Proof.
   eapply weqcomp.
   - apply total2_paths_equiv.
-  - set (H1 := weqpair _ (pr1 H (pr1 X) (pr1 Y))).
+  - set (H1 := make_weq _ (pr1 H (pr1 X) (pr1 Y))).
     apply (weqbandf H1).
     simpl.
     intro p.
@@ -224,9 +221,9 @@ Definition is_iso_from_is_algebra_iso (X Y : FunctorAlg (pr2 H)) (f : X --> Y)
 Proof.
   intro p.
   apply is_iso_from_is_z_iso.
-  set (H' := iso_inv_after_iso (isopair f p)).
-  set (H'':= iso_after_iso_inv (isopair f p)).
-  exists (pr1 (inv_from_iso (isopair f p))).
+  set (H' := iso_inv_after_iso (make_iso f p)).
+  set (H'':= iso_after_iso_inv (make_iso f p)).
+  exists (pr1 (inv_from_iso (make_iso f p))).
   split; simpl.
   - apply (maponpaths pr1 H').
   - apply (maponpaths pr1 H'').
@@ -236,7 +233,7 @@ Definition inv_algebra_mor_from_is_iso {X Y : FunctorAlg (pr2 H)} (f : X --> Y)
   : is_iso (pr1 f) → (Y --> X).
 Proof.
   intro T.
-  set (fiso:=isopair (pr1 f) T).
+  set (fiso:=make_iso (pr1 f) T).
   set (finv:=inv_from_iso fiso).
   exists finv.
   unfold finv.
@@ -261,10 +258,10 @@ Proof.
   - apply algebra_mor_eq.
     + apply (pr2 H).
     + simpl.
-      apply (iso_inv_after_iso (isopair (pr1 f) T)).
+      apply (iso_inv_after_iso (make_iso (pr1 f) T)).
   - apply algebra_mor_eq.
     + apply (pr2 H).
-    + apply (iso_after_iso_inv (isopair (pr1 f) T)).
+    + apply (iso_after_iso_inv (make_iso (pr1 f) T)).
 Defined.
 
 Definition algebra_iso_first_iso {X Y : FunctorAlg (pr2 H)}
@@ -291,8 +288,8 @@ Definition swapweq (A B : UU) : (A × B) ≃ (B × A).
 Proof.
   exists (swap A B).
   apply (isweq_iso _ (swap B A)).
-  - intro ab. destruct ab. apply idpath.
-  - intro ba. destruct ba. apply idpath.
+  - abstract ( intro ab; destruct ab; apply idpath ).
+  - abstract ( intro ba; destruct ba; apply idpath ).
 Defined.
 
 Definition algebra_iso_rearrange {X Y : FunctorAlg (pr2 H)}
@@ -368,7 +365,7 @@ Variables (C : precategory) (hsC : has_homsets C) (F : functor C C).
 Variables (Aa : algebra_ob F) (AaIsInitial : isInitial (FunctorAlg F hsC) Aa).
 
 Local Definition AaInitial : Initial (FunctorAlg F hsC) :=
-  mk_Initial _ AaIsInitial.
+  make_Initial _ AaIsInitial.
 
 Local Notation A := (alg_carrier _ Aa).
 Local Notation a := (alg_map _ Aa).
@@ -381,23 +378,24 @@ Local Definition Ha' := algebra_mor_commutes _ _ _ Fa'.
 
 Lemma initialAlg_is_iso_subproof : is_inverse_in_precat a a'.
 Proof.
-assert (Ha'a : a' · a = identity A).
-  assert (algMor_a'a : is_algebra_mor _ _ _ (a' · a)).
-    unfold is_algebra_mor, a'; rewrite functor_comp.
-    eapply pathscomp0; [|eapply cancel_postcomposition; apply Ha'].
-    now apply assoc.
-  apply pathsinv0; set (X := tpair _ _ algMor_a'a).
-  now apply (maponpaths pr1 (!@InitialEndo_is_identity _ AaInitial X)).
-split; simpl; trivial.
-eapply pathscomp0; [apply Ha'|]; simpl.
-rewrite <- functor_comp.
-eapply pathscomp0; [eapply maponpaths; apply Ha'a|].
-now apply functor_id.
+  assert (Ha'a : a' · a = identity A).
+  { assert (algMor_a'a : is_algebra_mor _ _ _ (a' · a)).
+    { unfold is_algebra_mor, a'; rewrite functor_comp.
+      eapply pathscomp0; [|eapply cancel_postcomposition; apply Ha'].
+      apply assoc. }
+    apply pathsinv0; set (X := tpair _ _ algMor_a'a).
+    apply (maponpaths pr1 (!@InitialEndo_is_identity _ AaInitial X)).
+  }
+  split; trivial.
+  eapply pathscomp0; [apply Ha'|]; cbn.
+  rewrite <- functor_comp.
+  eapply pathscomp0; [eapply maponpaths; apply Ha'a|].
+  apply functor_id.
 Qed.
 
 Lemma initialAlg_is_iso : is_iso a.
 Proof.
-exact (is_iso_qinv _ a' initialAlg_is_iso_subproof).
+  exact (is_iso_qinv _ a' initialAlg_is_iso_subproof).
 Defined.
 
 End Lambeks_lemma.
@@ -461,18 +459,18 @@ Section Nats.
 
   (** Use the universal property of the coproduct to make any object with a
       point and an endomorphism into an F-algebra *)
-  Definition mk_F_alg {X : ob C} (f : 1 --> X) (g : X --> X) : ob (FunctorAlg F hsC).
+  Definition make_F_alg {X : ob C} (f : 1 --> X) (g : X --> X) : ob (FunctorAlg F hsC).
   Proof.
     refine (X,, _).
     exact (BinCoproductArrow _ _ f g).
   Defined.
 
-  (** Using mk_F_alg, X will be an F-algebra, and by initiality of N, there will
+  (** Using make_F_alg, X will be an F-algebra, and by initiality of N, there will
       be a unique morphism of F-algebras N --> X, which can be projected to a
       morphism in C. *)
   Definition nat_ob_rec (N : nat_ob) {X : ob C} :
     ∏ (f : 1 --> X) (g : X --> X), (N --> X) :=
-    fun f g => mor_from_algebra_mor _ _ _ (InitialArrow N (mk_F_alg f g)).
+    fun f g => mor_from_algebra_mor _ _ _ (InitialArrow N (make_F_alg f g)).
 
   (** When calling the recursor on 0, you get the base case.
       Specifically,
@@ -507,7 +505,7 @@ Section Nats.
       (diagram :=
          maponpaths
            (fun x => inlN · x)
-           (algebra_mor_commutes F (pr1 N) _ (InitialArrow N (mk_F_alg f g)))).
+           (algebra_mor_commutes F (pr1 N) _ (InitialArrow N (make_F_alg f g)))).
     rewrite (F_compute2 _) in diagram.
 
     (** Using the η-rules for coproducts, we can assume that alg_map X = [f,g]
@@ -557,7 +555,7 @@ Section Nats.
       (diagram :=
          maponpaths
            (fun x => inrN · x)
-           (algebra_mor_commutes F (pr1 N) _ (InitialArrow N (mk_F_alg f g)))).
+           (algebra_mor_commutes F (pr1 N) _ (InitialArrow N (make_F_alg f g)))).
     rewrite (F_compute2 _) in diagram.
 
     rewrite (BinCoproductArrowEta C 1 X (bc _ _) _ _) in diagram.
@@ -590,7 +588,7 @@ Lemma nat_ob_NNO {C : precategory} (BC : BinCoproducts C) (hsC : has_homsets C) 
   nat_ob C BC hsC TC → NNO TC.
 Proof.
 intros N.
-use mk_NNO.
+use make_NNO.
 - exact (nat_ob_carrier _ _ _ _ N).
 - apply nat_ob_z.
 - apply nat_ob_s.
@@ -603,7 +601,7 @@ use mk_NNO.
     transparent assert (xalg : (FunctorAlg (BinCoproduct_of_functors C C BC
                                               (constant_functor C C TC)
                                               (functor_identity C)) hsC
-                                              ⟦ InitialObject N, mk_F_alg C BC hsC TC z s ⟧)).
+                                              ⟦ InitialObject N, make_F_alg C BC hsC TC z s ⟧)).
     { refine (x,,_).
       abstract (apply pathsinv0; etrans; [apply precompWithBinCoproductArrow |];
                 rewrite id_left, <- H1;
@@ -611,5 +609,5 @@ use mk_NNO.
                 now apply pathsinv0, BinCoproductArrowUnique; rewrite assoc;
                 apply maponpaths).
     }
-    exact (maponpaths pr1 (InitialArrowUnique N (mk_F_alg C BC hsC TC z s) xalg)).
+    exact (maponpaths pr1 (InitialArrowUnique N (make_F_alg C BC hsC TC z s) xalg)).
 Defined.

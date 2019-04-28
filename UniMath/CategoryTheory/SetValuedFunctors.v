@@ -87,7 +87,7 @@ Section LiftEpiNatTrans.
   Proof.
     apply EffectiveEpis_Functor_HSET in surjectivep.
     red in surjectivep.
-    set (coeq := limits.coequalizers.mk_Coequalizer _ _ _ _ (pr2 surjectivep)).
+    set (coeq := limits.coequalizers.make_Coequalizer _ _ _ _ (pr2 surjectivep)).
     apply (limits.coequalizers.CoequalizerOut coeq _ f).
     abstract(
     apply (nat_trans_eq (has_homsets_HSET));
@@ -104,7 +104,7 @@ Section LiftEpiNatTrans.
   Lemma univ_surj_nt_ax : nat_trans_comp _ _ _ p univ_surj_nt = f .
   Proof.
     unfold univ_surj_nt; cbn.
-    set (coeq := mk_Coequalizer _ _ _ _ _).
+    set (coeq := make_Coequalizer _ _ _ _ _).
     apply (CoequalizerCommutes coeq).
   Qed.
 
@@ -125,7 +125,7 @@ Section LiftEpiNatTrans.
     intros g hg b.
     apply nat_trans_eq_pointwise.
     unfold univ_surj_nt.
-    set (coeq := mk_Coequalizer _ _ _ _ _).
+    set (coeq := make_Coequalizer _ _ _ _ _).
     use (isCoequalizerOutUnique _ _ _ _ (isCoequalizer_Coequalizer coeq)).
     apply hg.
   Qed.

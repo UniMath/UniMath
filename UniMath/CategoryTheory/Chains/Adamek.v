@@ -56,11 +56,11 @@ Let FFchain : chain C := mapchain F Fchain.
 Let Fa : cocone FFchain (F L) := mapcocone F _ (colimCocone CC).
 Let FHC' : isColimCocone FFchain (F L) Fa :=
   HF Fchain L (colimCocone CC) (isColimCocone_from_ColimCocone CC).
-Let FHC : ColimCocone FFchain := mk_ColimCocone _ _ _ FHC'.
+Let FHC : ColimCocone FFchain := make_ColimCocone _ _ _ FHC'.
 
 Local Definition shiftCocone : cocone FFchain L.
 Proof.
-use mk_cocone.
+use make_cocone.
 - intro n; apply (coconeIn (colimCocone CC) (S n)).
 - abstract (intros m n e; destruct e ;
             apply (coconeInCommutes (colimCocone CC) (S m) _ (idpath _))).
@@ -68,7 +68,7 @@ Defined.
 
 Local Definition unshiftCocone (x : C) (cc : cocone FFchain x) : cocone Fchain x.
 Proof.
-use mk_cocone.
+use make_cocone.
 - simpl; intro n.
   induction n as [|n]; simpl.
   + apply InitialArrow.
@@ -92,14 +92,14 @@ use tpair.
 Defined.
 
 Local Definition shiftColimCocone : ColimCocone FFchain :=
-  mk_ColimCocone FFchain L shiftCocone shiftIsColimCocone.
+  make_ColimCocone FFchain L shiftCocone shiftIsColimCocone.
 
 Definition colim_algebra_mor : C⟦F L,L⟧ := colimArrow FHC L shiftCocone.
 
 Local Definition is_iso_colim_algebra_mor : is_iso colim_algebra_mor :=
   isColim_is_iso _ FHC _ _ shiftIsColimCocone.
 
-Let α : iso (F L) L := isopair _ is_iso_colim_algebra_mor.
+Let α : iso (F L) L := make_iso _ is_iso_colim_algebra_mor.
 Let α_inv : iso L (F L) := iso_inv_from_iso α.
 Let α_alg : algebra_ob F := tpair (λ X : C, C ⟦ F X, X ⟧) L α.
 
@@ -161,7 +161,7 @@ Qed.
 Local Definition ad : C⟦L,A⟧.
 Proof.
 apply colimArrow.
-use mk_cocone.
+use make_cocone.
 - apply cocone_over_alg.
 - apply isCoconeOverAlg.
 Defined.
@@ -201,12 +201,12 @@ Qed.
 
 Lemma colimAlgIsInitial : isInitial (precategory_FunctorAlg F hsC) α_alg.
 Proof.
-apply mk_isInitial; intros Aa.
+apply make_isInitial; intros Aa.
 exists (ad_mor Aa).
 apply colimAlgIsInitial_subproof.
 Defined.
 
 Definition colimAlgInitial : Initial (precategory_FunctorAlg F hsC) :=
-  mk_Initial _ colimAlgIsInitial.
+  make_Initial _ colimAlgIsInitial.
 
 End colim_initial_algebra.

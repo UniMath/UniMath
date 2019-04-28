@@ -52,7 +52,7 @@ Variable C : precategory.
 Definition isBinCoproductCocone (a b co : C) (ia : a --> co) (ib : b --> co) :=
   isColimCocone (bincoproduct_diagram a b) co (CopCocone ia ib).
 
-Definition mk_isBinCoproductCocone (hsC : has_homsets C)(a b co : C) (ia : a --> co) (ib : b --> co) :
+Definition make_isBinCoproductCocone (hsC : has_homsets C)(a b co : C) (ia : a --> co) (ib : b --> co) :
    (∏ (c : C) (f : a --> c) (g : b --> c),
     ∃! k : C ⟦co, c⟧,
       ia · k = f ×
@@ -76,7 +76,7 @@ Defined.
 Definition BinCoproductCocone (a b : C) :=
   ColimCocone (bincoproduct_diagram a b).
 
-Definition mk_BinCoproductCocone (a b : C) :
+Definition make_BinCoproductCocone (a b : C) :
   ∏ (c : C) (f : a --> c) (g : b --> c),
    isBinCoproductCocone _ _ _ f g →  BinCoproductCocone a b.
 Proof.
@@ -101,7 +101,7 @@ Definition BinCoproductArrow {a b : C} (CC : BinCoproductCocone a b) {c : C} (f 
       BinCoproductObject CC --> c.
 Proof.
   apply (colimArrow CC).
-  use mk_cocone.
+  use make_cocone.
   + intro v. induction v.
     - apply f.
     - apply g.
@@ -251,7 +251,7 @@ Defined.
 
 Definition iso_from_BinCoproduct_to_BinCoproduct (CC CC' : BinCoproductCocone a b)
   : iso (BinCoproductObject CC) (BinCoproductObject CC')
-  := isopair _ (is_iso_from_BinCoproduct_to_BinCoproduct CC CC').
+  := make_iso _ (is_iso_from_BinCoproduct_to_BinCoproduct CC CC').
 
 Lemma transportf_isotoid' (c d d': C) (p : iso d d') (f : c --> d) :
   transportf (λ a0 : C, c --> a0) (isotoid C H p) f = f · p .

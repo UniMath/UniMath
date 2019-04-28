@@ -22,7 +22,7 @@ Section Projection.
 
   Definition pr1_psfunctor_data : psfunctor_data (total_bicat D) C.
   Proof.
-    use mk_psfunctor_data.
+    use make_psfunctor_data.
     - exact pr1.
     - exact (λ _ _, pr1).
     - exact (λ _ _ _ _, pr1).
@@ -54,7 +54,7 @@ Section Projection.
 
   Definition pr1_psfunctor : psfunctor (total_bicat D) C.
   Proof.
-    use mk_psfunctor.
+    use make_psfunctor.
     - exact pr1_psfunctor_data.
     - exact pr1_psfunctor_laws.
     - split ; cbn ; intros ; is_iso.

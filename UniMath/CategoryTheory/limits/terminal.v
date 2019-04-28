@@ -52,12 +52,12 @@ Proof.
 now rewrite (TerminalArrowUnique f), (TerminalArrowUnique g).
 Qed.
 
-Definition mk_Terminal (b : C) (H : isTerminal b) : Terminal.
+Definition make_Terminal (b : C) (H : isTerminal b) : Terminal.
 Proof.
   exists b; exact H.
 Defined.
 
-Definition mk_isTerminal (b : C) (H : ∏ (a : C), iscontr (a --> b)) :
+Definition make_isTerminal (b : C) (H : ∏ (a : C), iscontr (a --> b)) :
   isTerminal b.
 Proof.
   exact H.
@@ -99,8 +99,8 @@ Arguments isTerminal : clear implicits.
 Arguments TerminalObject {_} _.
 Arguments TerminalArrow {_} _ _.
 Arguments TerminalArrowUnique {_} _ _ _.
-Arguments mk_isTerminal {_} _ _ _.
-Arguments mk_Terminal {_} _ _.
+Arguments make_isTerminal {_} _ _ _.
+Arguments make_Terminal {_} _ _.
 
 Section Terminal_and_EmptyProd.
 
@@ -109,12 +109,12 @@ Section Terminal_and_EmptyProd.
     Product empty C fromempty -> Terminal C.
   Proof.
     intros X.
-    use (mk_Terminal (ProductObject _ C X)).
-    use mk_isTerminal.
+    use (make_Terminal (ProductObject _ C X)).
+    use make_isTerminal.
     intros a.
     assert (H : ∏ i : empty, C⟦a, fromempty i⟧) by
         (intros i; apply (fromempty i)).
-    apply (iscontrpair (ProductArrow _ _ X H)); intros t.
+    apply (make_iscontr (ProductArrow _ _ X H)); intros t.
     apply ProductArrowUnique; intros i; apply (fromempty i).
   Defined.
 
@@ -144,14 +144,14 @@ End Terminal_and_EmptyProd.
 
 (* Definition termCone (c : C) : cone termDiagram c. *)
 (* Proof. *)
-(* simple refine (mk_cone _ _); intro u; induction u. *)
+(* simple refine (make_cone _ _); intro u; induction u. *)
 (* Defined. *)
 
 (* Lemma Terminal_from_Lims : Lims C -> Terminal C. *)
 (* Proof. *)
 (* intros H. *)
 (* case (H _ termDiagram); intros cc iscc; destruct cc as [c cc]; simpl in *. *)
-(* apply (mk_Terminal c); apply mk_isTerminal; intros b. *)
+(* apply (make_Terminal c); apply make_isTerminal; intros b. *)
 (* case (iscc _ (termCone b)); intros f Hf; destruct f as [f fcomm]. *)
 (* apply (tpair _ f); intro g. *)
 (* simple refine (let X : ∑ x : b --> c, *)
@@ -169,8 +169,8 @@ Variables (C D : precategory) (ID : Terminal D) (hsD : has_homsets D).
 
 Definition Terminal_functor_precat : Terminal [C,D,hsD].
 Proof.
-use mk_Terminal.
-- use mk_functor.
+use make_Terminal.
+- use make_functor.
   + use tpair.
     * intros c; apply (TerminalObject ID).
     * simpl; intros a b f; apply (TerminalArrow ID).
@@ -179,7 +179,7 @@ use mk_Terminal.
     * intros a b c f g; apply pathsinv0, TerminalArrowUnique.
 - intros F.
   use tpair.
-  + use mk_nat_trans; simpl.
+  + use make_nat_trans; simpl.
     * intro a; apply TerminalArrow.
     * intros a b f; simpl.
       rewrite (TerminalEndo_is_identity (TerminalArrow ID ID)), id_right.
@@ -196,7 +196,7 @@ Context {C : precategory} (TC : Terminal C).
 
 Lemma from_terminal_isMonic (a : C) (f : C⟦TC,a⟧) : isMonic f.
 Proof.
-apply mk_isMonic; intros b g h H.
+apply make_isMonic; intros b g h H.
 now apply TerminalArrowEq.
 Qed.
 
