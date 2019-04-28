@@ -8,6 +8,8 @@ Require Import UniMath.Combinatorics.Lists.
 Local Open Scope stn.
 Local Open Scope nat.
 
+Set Printing Coercions.
+
 Section Basic.
 
   Definition Arity: UU := nat.
@@ -309,59 +311,11 @@ Section Status.
 
 End Status.
 
-Section Stack.
-
-  Definition list2status {sigma: Signature} (l: list (names sigma)): Status
-    := foldr status_cons (statusok 0) l.
-
-  Definition Stack (sigma: Signature) (n: nat)
-    : UU := ∑ s: list (names sigma), list2status s = statusok n.
-
-  Lemma Stack_isaset (sigma: Signature) (n: nat): isaset (Stack sigma n).
-  Proof.
-    apply isaset_total2.
-    - apply isofhlevellist.
-      exact (pr2 (names sigma)).
-    - intros.
-      apply isasetaprop.
-      apply Status_isaset.
-  Defined.
-
-  Definition mkstack {sigma: Signature} {n: nat} (s: list (names sigma))
-             (proofs: list2status s = statusok n)
-    : Stack sigma n := s ,, proofs.
-
-  Coercion stack2list {sigma: Signature} {n: nat} (s: Stack sigma n)
-    : list (names sigma) := pr1 s.
-
-  Definition stack2proof {sigma: Signature} {n: nat} (s: Stack sigma n)
-    : list2status s = statusok n := pr2 s.
-
-  Definition stack_nil (sigma: Signature): Stack sigma 0 := stnpr nil.
-
-  Lemma stack_extens {sigma : Signature} {n: nat} {s1 s2 : Stack sigma n}
-        (p : stack2list s1 = stack2list s2) : s1 = s2.
-  Proof.
-    apply subtypePath.
-    2: exact p.
-    intros s.
-    apply Status_isaset.
-  Defined.
-
-  Definition Term (sigma: Signature): UU := Stack sigma 1.
-
-  Coercion term2list {sigma: Signature} (t: Term sigma): list (names sigma) := pr1 t.
-
-  Definition term2proof {sigma: Signature} (t: Term sigma)
-    : list2status t = statusok 1 := pr2 t.
-
-  Definition Term_hset (sigma : Signature): hSet := make_hSet (Term sigma) (Stack_isaset sigma 1).
-
-End Stack.
-
-Section StackOps.
+Section ListStatus.
 
   Context {sigma: Signature}.
+
+  Definition list2status (l: list (names sigma)): Status := foldr status_cons (statusok 0) l.
 
   Lemma list2status_cons {nm: names sigma} {l: list (names sigma)}:
     list2status (cons nm l) = status_cons nm (list2status l).
@@ -369,15 +323,15 @@ Section StackOps.
     reflexivity.
   Defined.
 
-  Lemma stack_zero (s: Stack sigma 0): s = stack_nil sigma.
+  Lemma list2status_zero {l: list (names sigma)}: list2status l = statusok 0 → l = nil.
   Proof.
-    induction s as [[len vec] proof].
+    intro proof.
+    induction l as [len v].
     induction len.
-    - induction vec.
-      apply stack_extens.
+    - induction v.
       reflexivity.
     - apply fromempty.
-      change (S len,, vec) with (cons (hd vec) (len ,, tl vec)) in proof.
+      change (S len,, v) with (cons (hd v) (len ,, tl v)) in proof.
       rewrite list2status_cons in proof.
       apply status_cons_statusok_r in proof.
       induction proof as [contr _].
@@ -385,27 +339,21 @@ Section StackOps.
       assumption.
   Defined.
 
-  Lemma stack_positive {n: nat} (s: Stack sigma (S n)):
-    ∑ (lentail: nat) (v: Vector (names sigma) (S lentail)),
-    stack2list s = cons (hd v) (lentail ,, tl v).
+  Lemma list2status_positive {l: list (names sigma)} {n: nat}:
+    list2status l = statusok (S n) →
+    ∑ (lentail: nat) (v: Vector (names sigma) (S lentail)), l = (S lentail,, v).
   Proof.
-    induction s as [[len vec] s_is_stack].
+    intro proof.
+    induction l as [len v].
     induction len.
-    - induction vec.
+    - induction v.
       apply fromempty.
-      apply ii1_injectivity in s_is_stack.
-      apply negpaths0sx in s_is_stack.
+      apply ii1_injectivity in proof.
+      apply negpaths0sx in proof.
       assumption.
     - exists len.
-      exists vec.
+      exists v.
       apply idpath.
-  Defined.
-
-  Definition stack_hd {n: nat} (s: Stack sigma (S n)): names sigma.
-  Proof.
-    set (s_struct := stack_positive s).
-    induction s_struct as [lentail [v _]].
-    exact (hd v).
   Defined.
 
   Lemma list2status_concatenate {l1 l2: list (names sigma)}:
@@ -416,7 +364,7 @@ Section StackOps.
                           list2status (concatenate s l2) =
                           status_concatenate (list2status s) (list2status l2))).
     - intros.
-      change (list2status (concatenate nil l2)) with (list2status l2).
+      change (concatenate nil l2) with (l2).
       induction (list2status l2) as [okl2 | badl2].
       + reflexivity.
       + induction badl2.
@@ -433,132 +381,55 @@ Section StackOps.
         contradiction.
   Defined.
 
-  Lemma list2status_concatenate2 {l1 l2: list (names sigma)} {n1 n2: nat}
-        (proof1: list2status l1 = statusok n1) (proof2: list2status l2 = statusok n2)
-    : list2status (concatenate l1 l2) = statusok (n1 + n2).
-  Proof.
-    change (statusok (n1 + n2)) with (status_concatenate (statusok n1) (statusok n2)).
-    rewrite <- proof1.
-    rewrite <- proof2.
-    apply list2status_concatenate.
-    rewrite proof1.
-    apply negpathsii1ii2.
-  Defined.
-
-  Local Lemma is_stack_concatenate  {n1 n2: nat} (s1: Stack sigma n1) (s2: Stack sigma n2)
-    : list2status (concatenate s1 s2) = statusok (n1 + n2).
-  Proof.
-    exact (list2status_concatenate2 (stack2proof s1) (stack2proof s2)).
-  Defined.
-
-  Definition stack_concatenate {n1 n2: nat} (s1: Stack sigma n1) (s2: Stack sigma n2)
-    : Stack sigma (n1 + n2) := mkstack (concatenate s1 s2) (is_stack_concatenate s1 s2).
-
-End StackOps.
-
-Section Term.
-
-  Context {sigma: Signature}.
-
-  Definition terms2stack_list {n: nat} (vec: Vector (list (names sigma)) n): list (names sigma)
-    := vector_foldr concatenate nil vec.
-
-  Lemma terms2stack_list_vcons {l: list (names sigma)} {n: nat} {v: Vector (list (names sigma)) n}:
-    terms2stack_list (vcons l v) = concatenate l (terms2stack_list v).
-  Proof.
-    reflexivity.
-  Defined.
-
-  Definition terms2stack {n: nat} (vec: Vector (Term sigma) n): Stack sigma n.
-  Proof.
-    exists (terms2stack_list (vector_map term2list vec)).
-    induction n.
-    - reflexivity.
-    - simpl.
-      rewrite (list2status_concatenate2(n1:=1)(n2:=n)).
-      * reflexivity.
-      * exact (term2proof (hd vec)).
-      * exact (IHn (tl vec)).
-  Defined.
-
-  Lemma terms2stack_vcons {t: Term sigma} {n: nat} {v: Vector (Term sigma) n}:
-    terms2stack (vcons t v) = stack_concatenate t (terms2stack v).
-  Proof.
-    apply stack_extens.
-    simpl.
-    reflexivity.
-  Defined.
-
-  Definition term_op_list (nm: names sigma) {n: nat} (vec: Vector (list (names sigma)) n)
-    : list (names sigma) := cons nm (terms2stack_list vec).
-
-  Definition term_op (nm: names sigma) (vec: Vector (Term sigma) (arity nm)): Term sigma.
-  Proof.
-    exists (cons nm (terms2stack vec)).
-    change (terms2stack_list (vector_map stack2list vec)) with (stack2list (terms2stack vec)).
-    rewrite list2status_cons.
-    rewrite (stack2proof (terms2stack vec)).
-    rewrite status_cons_statusok_f.
-    - rewrite minuseq0'.
-      apply idpath.
-    - apply isreflnatleh.
-  Defined.
-
-  Definition princ_op (t: Term sigma): names sigma := stack_hd t.
-
-  Definition extract_substack_list (l: list (names sigma)) (n: nat):
+  Definition extract_list (l: list (names sigma)) (n: nat):
     list (names sigma) × list (names sigma).
   Proof.
+    generalize l n.
     apply (list_ind (λ l: list (names sigma),
-                         ∏ (n : nat), list (names sigma) × list (names sigma))).
+                          ∏ (n : nat), list (names sigma) × list (names sigma))).
+    - intros.
+      exact (nil,, nil).
     - clear n.
-      intros.
-      exact (nil ,, nil).
-    - clear n.
-      intros x xs HPind n.
+      intros x xs IH n.
       induction n.
-      + exact (nil ,, (cons x xs)).
-      + set (resind := HPind (n + arity x)).
+      + exact (nil,, (cons x xs)).
+      + set (resind := IH (n + arity x)).
         exact (cons x (pr1 resind) ,, pr2 resind).
-    - exact l.
-    - exact n.
   Defined.
 
-  Lemma extract_substack_list_zero (l: list (names sigma)):
-    extract_substack_list l 0 = nil,, l.
+  Lemma extract_list_zero {l: list (names sigma)}: extract_list l 0 = nil,, l.
   Proof.
-    apply (list_ind (λ l: list (names sigma), extract_substack_list l 0 = nil,, l)).
+    apply (list_ind (λ l: list (names sigma), extract_list l 0 = nil,, l)).
     - reflexivity.
     - reflexivity.
   Defined.
 
-  Lemma extract_substack_list_cons {x: names sigma} {xs: list (names sigma)} {n: nat}:
-    extract_substack_list (cons x xs) (S n) =
-    cons x (pr1 (extract_substack_list xs (n + arity x))) ,,
-         (pr2 (extract_substack_list xs (n + arity x))).
+  Lemma extract_list_cons {x: names sigma} {xs: list (names sigma)} {n: nat}:
+    extract_list (cons x xs) (S n) =
+    cons x (pr1 (extract_list xs (n + arity x))) ,,
+         (pr2 (extract_list xs (n + arity x))).
   Proof.
     reflexivity.
   Defined.
 
-  Lemma extract_substack_list_arith1 {n1 n2: nat}: S n1 + n2 - 1 = n1 + n2.
+  Local Lemma extract_list_arith1 {n1 n2: nat}: S n1 + n2 - 1 = n1 + n2.
   Proof.
-    change (S n1) with (1+n1).
+    change (S n1) with (1 + n1).
     rewrite natplusassoc.
     rewrite (natpluscomm 1 (n1 + n2)).
     rewrite plusminusnmm.
     apply idpath.
   Defined.
 
-  Lemma extract_substack_list_norest (l: list (names sigma)) {n: nat}
-    :  list2status l = statusok n →  extract_substack_list l n = l ,, nil.
+  Lemma extract_list_norest {l: list (names sigma)} {n: nat}
+    : list2status l = statusok n →  extract_list l n = l ,, nil.
   Proof.
     generalize l n.
     apply (list_ind (λ l: list (names sigma),
                           ∏ (n : nat),  list2status l = statusok n →
-                                        extract_substack_list l n = l,, nil)).
+                                        extract_list l n = l,, nil)).
     - clear l n.
       intros n proofl.
-      cbn in proofl.
       apply ii1_injectivity in proofl.
       rewrite <- proofl.
       reflexivity.
@@ -570,88 +441,75 @@ Section Term.
       induction n.
       + apply isirreflnatgth in nbound.
         contradiction.
-      + rewrite extract_substack_list_cons.
-        rewrite extract_substack_list_arith1 in proofxs.
+      + rewrite extract_list_cons.
+        rewrite extract_list_arith1 in proofxs.
         set (ind := HPind (n + arity x) proofxs).
         rewrite ind.
         reflexivity.
   Defined.
 
-  Lemma extract_substack_list_concatenate (l1: list (names sigma)) {n1: nat}
-        (l2: list (names sigma)) (n: nat)
+  Lemma extract_list_concatenate (l1: list (names sigma)) {n1: nat} (l2: list (names sigma))
+        (n: nat)
     :  list2status l1 = statusok n1 → n ≤ n1 →
-       extract_substack_list (concatenate l1 l2) n =
-       (pr1 (extract_substack_list l1 n)) ,,
-                                          concatenate (pr2 (extract_substack_list l1 n)) l2.
+       extract_list (concatenate l1 l2) n = let l1div := extract_list l1 n in
+                                            (pr1 l1div) ,, concatenate (pr2 l1div) l2.
   Proof.
     generalize l1 n1 n.
-    apply (list_ind (λ l1 : list (names sigma),
-                     ∏ (n1 n: nat),
-                     list2status l1 = statusok n1 → n ≤ n1
-                     → extract_substack_list (concatenate l1 l2) n =
-                       pr1 (extract_substack_list l1 n),,
-                           concatenate (pr2 (extract_substack_list l1 n)) l2)).
+    apply (list_ind (λ l1 : list (names sigma), ∏ (n1 n: nat),
+                            list2status l1 = statusok n1 → n ≤ n1 →
+                            extract_list (concatenate l1 l2) n =
+                            let l1div := extract_list l1 n in
+                            (pr1 l1div) ,, concatenate (pr2 l1div) l2)).
     - clear l1 n1 n.
       intros n1 n proofl1 nlehn1.
-      cbn in proofl1.
       apply ii1_injectivity in proofl1.
       rewrite <- proofl1 in *.
       apply natleh0tois0 in nlehn1.
       rewrite nlehn1.
       simpl.
-      rewrite extract_substack_list_zero.
+      rewrite extract_list_zero.
       reflexivity.
     - clear l1 n1 n.
       intros x xs HPind n1 n proofl1 nlehn1.
       change (concatenate (cons x xs) l2) with (cons x (concatenate xs l2)).
       induction n.
-      + rewrite extract_substack_list_zero.
+      + rewrite extract_list_zero.
         reflexivity.
       + rewrite list2status_cons in proofl1.
         apply status_cons_statusok_r in proofl1.
-        induction proofl1 as [n1gt0 proofxs].
+        induction proofl1 as [_ proofxs].
         assert (newnok: S n + arity x - 1 ≤ n1 + arity x - 1).
         {
           apply natgehandminusl, natlehandplusr.
           assumption.
         }
         set (ind := HPind (n1 + arity x - 1) (S n + arity x - 1) proofxs newnok).
-        assert (X: S n + arity x - 1 = n + arity x).
-        {
-          change (S n) with (1+n).
-          rewrite natplusassoc.
-          rewrite (natpluscomm 1 (n+arity x)).
-          rewrite plusminusnmm.
-          apply idpath.
-        }
-        rewrite X in ind.
-        do 2 rewrite extract_substack_list_cons.
+        rewrite extract_list_arith1 in ind.
+        do 2 rewrite extract_list_cons.
         apply pathsdirprod.
         * apply (maponpaths (λ xs, cons x xs)).
           apply (maponpaths pr1) in ind.
-          cbn in ind.
           assumption.
         * apply (maponpaths dirprod_pr2) in ind.
-          cbn in ind.
           assumption.
   Defined.
 
-  Definition extract_sublist (l: list (names sigma)) (m n: nat):
+  Definition extract_sublist (l: list (names sigma)) {m: nat} (n: nat):
     list2status l = statusok m → n ≤ m  →
     ∑ first second: list (names sigma),
                     list2status first = statusok n ×
                     list2status second = statusok (m - n) ×
                     concatenate first second = l.
   Proof.
-    set (res := (extract_substack_list l n)).
+    set (res := (extract_list l n)).
     intros proofl nlehm.
     exists (pr1 res).
     exists (pr2 res).
     apply (list_ind (λ l : list (names sigma), ∏ (m n: nat),
         list2status l = statusok m → n ≤ m  →
-        list2status (pr1 (extract_substack_list l n)) = statusok n ×
-        list2status (pr2 (extract_substack_list l n)) = statusok (m - n) ×
-        concatenate (pr1 (extract_substack_list l n)) (pr2 (extract_substack_list l n)) = l)).
+        list2status (pr1 (extract_list l n)) = statusok n ×
+        list2status (pr2 (extract_list l n)) = statusok (m - n) ×
+        concatenate (pr1 (extract_list l n)) (pr2 (extract_list l n)) = l)).
     - clear l m n res proofl nlehm.
       intros m n proofnil nlehm.
       cbn.
@@ -663,15 +521,15 @@ Section Term.
     - clear l m n res proofl nlehm.
       intros x xs HPind m n proofxxs nlehm.
       induction n.
-      + change (extract_substack_list (cons x xs) 0)
+      + change (extract_list (cons x xs) 0)
           with (make_dirprod (nil(A:=names sigma)) (cons x xs)).
         rewrite natminuseqn.
         repeat split.
         assumption.
       + clear IHn.
-        change (extract_substack_list (cons x xs) (S n))
-          with (make_dirprod (cons x (pr1 (extract_substack_list xs (n + arity x))))
-                            (pr2 (extract_substack_list xs (n + arity x)))).
+        change (extract_list (cons x xs) (S n))
+          with (make_dirprod (cons x (pr1 (extract_list xs (n + arity x))))
+                            (pr2 (extract_list xs (n + arity x)))).
         simpl.
         rewrite list2status_cons in proofxxs.
         apply status_cons_statusok_r in proofxxs.
@@ -706,14 +564,83 @@ Section Term.
           rewrite <- NaturalNumbers.natminusminus.
           rewrite plusminusnmm.
           apply idpath.
-        * change (concatenate (cons x (pr1 (extract_substack_list xs (n + arity x))))
-                              (pr2 (extract_substack_list xs (n + arity x))))
-            with (cons x (concatenate (pr1 (extract_substack_list xs (n + arity x)))
-                              (pr2 (extract_substack_list xs (n + arity x))))).
+        * change (concatenate (cons x (pr1 (extract_list xs (n + arity x))))
+                              (pr2 (extract_list xs (n + arity x))))
+            with (cons x (concatenate (pr1 (extract_list xs (n + arity x)))
+                              (pr2 (extract_list xs (n + arity x))))).
           rewrite (pr2 (pr2 ind)).
           apply idpath.
     - assumption.
     - assumption.
+  Defined.
+
+End ListStatus.
+
+Section Stack.
+
+
+  Definition Stack (sigma: Signature) (n: nat)
+    : UU := ∑ s: list (names sigma), list2status s = statusok n.
+
+  Definition mkstack {sigma: Signature} {n: nat} (s: list (names sigma))
+             (proofs: list2status s = statusok n)
+    : Stack sigma n := s ,, proofs.
+
+  Coercion stack2list {sigma: Signature} {n: nat} (s: Stack sigma n)
+    : list (names sigma) := pr1 s.
+
+  Definition stack2proof {sigma: Signature} {n: nat} (s: Stack sigma n)
+    : list2status s = statusok n := pr2 s.
+
+  Lemma Stack_isaset (sigma: Signature) (n: nat): isaset (Stack sigma n).
+  Proof.
+    apply isaset_total2.
+    - apply isofhlevellist.
+      exact (pr2 (names sigma)).
+    - intros.
+      apply isasetaprop.
+      apply Status_isaset.
+  Defined.
+
+  Context {sigma: Signature}.
+
+  Lemma stack_extens {n: nat} {s1 s2 : Stack sigma n} (p : stack2list s1 = stack2list s2)
+    : s1 = s2.
+  Proof.
+    apply subtypePath.
+    2: exact p.
+    intros s.
+    apply Status_isaset.
+  Defined.
+
+  Definition stack_nil (sigma: Signature): Stack sigma 0 := stnpr nil.
+
+  Lemma stack_isnil (s: Stack sigma 0): s = stack_nil sigma.
+  Proof.
+    induction s as [l proof].
+    apply stack_extens.
+    apply list2status_zero.
+    assumption.
+  Defined.
+
+  Local Lemma is_stack_concatenate  {n1 n2: nat} (s1: Stack sigma n1) (s2: Stack sigma n2)
+    : list2status (concatenate s1 s2) = statusok (n1 + n2).
+  Proof.
+    change (statusok (n1 + n2)) with (status_concatenate (statusok n1) (statusok n2)).
+    rewrite <- (stack2proof s1).
+    rewrite <- (stack2proof s2).
+    apply list2status_concatenate.
+    rewrite (stack2proof s1).
+    apply negpathsii1ii2.
+  Defined.
+
+  Definition stack_concatenate {n1 n2: nat} (s1: Stack sigma n1) (s2: Stack sigma n2)
+    : Stack sigma (n1 + n2) := mkstack (concatenate s1 s2) (is_stack_concatenate s1 s2).
+
+  Definition stack2list_stackconcatenate {n1 n2: nat} (s1: Stack sigma n1) (s2: Stack sigma n2)
+    : stack2list (stack_concatenate s1 s2) = concatenate (stack2list s1) (stack2list s2).
+  Proof.
+    reflexivity.
   Defined.
 
   Definition extract_substack {m: nat} (s: Stack sigma m) (n: nat):
@@ -721,17 +648,63 @@ Section Term.
     concatenate first second = s.
   Proof.
     intro n_leq_m.
-    set (res := extract_sublist s m n (stack2proof s) n_leq_m).
+    set (res := extract_sublist s n (stack2proof s) n_leq_m).
     induction res as [fsupp [ssupp [fproof [sproof concproof]]]].
     exists (mkstack fsupp fproof).
     exists (mkstack ssupp sproof).
     assumption.
   Defined.
 
+End Stack.
+
+Section Term.
+
+  Definition Term (sigma: Signature): UU := Stack sigma 1.
+
+  Coercion term2list {sigma: Signature} (t: Term sigma): list (names sigma) := pr1 t.
+
+  Definition term2proof {sigma: Signature} (t: Term sigma)
+    : list2status t = statusok 1 := pr2 t.
+
+  Definition Term_hset (sigma : Signature): hSet := make_hSet (Term sigma) (Stack_isaset sigma 1).
+
+  Context {sigma: Signature}.
+
+  Definition terms2stack {n: nat} (vec: Vector (Term sigma) n): Stack sigma n.
+  Proof.
+    induction n.
+    - exact (stack_nil sigma).
+    - exact (stack_concatenate (hd vec) (IHn (tl vec))).
+  Defined.
+
+  Lemma terms2stack_vcons {t: Term sigma} {n: nat} {v: Vector (Term sigma) n}:
+    terms2stack (vcons t v) = stack_concatenate t (terms2stack v).
+  Proof.
+    reflexivity.
+  Defined.
+
+  Definition term_op (nm: names sigma) (vec: Vector (Term sigma) (arity nm)): Term sigma.
+  Proof.
+    exists (cons nm (terms2stack vec)).
+    rewrite list2status_cons.
+    rewrite (stack2proof (terms2stack vec)).
+    rewrite status_cons_statusok_f.
+    - rewrite minuseq0'.
+      apply idpath.
+    - apply isreflnatleh.
+  Defined.
+
+  Definition princ_op (t: Term sigma): names sigma.
+  Proof.
+    induction t as [l proof].
+    induction (list2status_positive proof) as [len [v _]].
+    exact (hd v).
+  Defined.
+
   Definition extract_term {n: nat} (s: Stack sigma (S n)):
     ∑ (term: Term sigma) (rest: Stack sigma n), stack_concatenate term rest = s.
   Proof.
-    set (rest := extract_sublist s (S n) 1 (stack2proof s) (natleh0n n)).
+    set (rest := extract_sublist s 1 (stack2proof s) (natleh0n n)).
     induction rest as [fsupp [ssupp [fproof [sproof conc]]]].
     exists (mkstack fsupp fproof).
     change (S n) with (1 + n) in sproof.
@@ -742,43 +715,20 @@ Section Term.
     assumption.
   Defined.
 
-  Definition stack_first_list (l: list (names sigma)): list (names sigma)
-    := dirprod_pr1 (extract_substack_list l 1).
-
-  Definition stack_rest_list (l: list (names sigma)): list (names sigma)
-    := dirprod_pr2 (extract_substack_list l 1).
-
   Definition stack_first {n: nat} (s: Stack sigma (S n)): Term sigma.
   Proof.
-    set (res := extract_sublist s (S n) 1 (stack2proof s) (natleh0n n)).
-    induction res as [first [second [prooff _]]].
-    exists first.
-    exact prooff.
+    exact (pr1 (extract_term s)).
   Defined.
 
   Definition stack_rest {n: nat} (s: Stack sigma (S n)): Stack sigma n.
   Proof.
-    set (res := extract_sublist s (S n) 1 (stack2proof s) (natleh0n n)).
-    induction res as [first [second [prooff [secondf _]]]].
-    exists (second).
-    rewrite secondf.
-    apply (maponpaths statusok).
-    change (S n) with (1 + n).
-    rewrite natpluscomm.
-    rewrite plusminusnmm.
-    apply idpath.
+    exact (pr1 (pr2 (extract_term s))).
   Defined.
 
   Lemma stack_concatenate_normalize1 {n: nat} (s: Stack sigma (S n))
     : stack_concatenate (stack_first s) (stack_rest s) = s.
   Proof.
-    set (res := extract_sublist s (S n) 1 (stack2proof s) (natleh0n n)).
-    apply stack_extens.
-    simpl.
-    change (pr1 (extract_substack_list s 1)) with (pr1 res).
-    change (pr2 (extract_substack_list s 1)) with (pr1 (pr2 res)).
-    induction res as [first [second [prooff [secondf conc]]]].
-    exact conc.
+    exact (pr2 (pr2 (extract_term s))).
   Defined.
 
   Lemma stack_concatenate_normalize2 (t: Term sigma) {n2: nat} (s2: Stack sigma n2)
@@ -786,7 +736,7 @@ Section Term.
   Proof.
     apply stack_extens.
     simpl.
-    set (res := extract_substack_list_concatenate t  s2 1 (stack2proof t) (natleh0n 0)).
+    set (res := extract_list_concatenate t s2 1 (stack2proof t) (natleh0n 0)).
     apply (maponpaths pr1) in res.
     assumption.
   Defined.
@@ -796,12 +746,12 @@ Section Term.
   Proof.
     apply stack_extens.
     simpl.
-    set (res := extract_substack_list_concatenate t s2 1 (stack2proof t) (natleh0n 0)).
+    set (res := extract_list_concatenate t s2 1 (stack2proof t) (natleh0n 0)).
     apply (maponpaths dirprod_pr2) in res.
     simpl in res.
-    replace (pr2 (extract_substack_list t 1)) with (nil(A:=names sigma)) in res.
+    replace (pr2 (extract_list t 1)) with (nil(A:=names sigma)) in res.
     - assumption.
-    - rewrite extract_substack_list_norest.
+    - rewrite extract_list_norest.
       + reflexivity.
       + exact (stack2proof t).
   Defined.
@@ -810,7 +760,7 @@ Section Term.
   Proof.
     apply stack_extens.
     simpl.
-    rewrite extract_substack_list_norest.
+    rewrite extract_list_norest.
     - reflexivity.
     - exact (stack2proof t).
   Defined.
@@ -840,37 +790,6 @@ Section Term.
     apply idpath.
   Defined.
 
-(*
-  Lemma stack2terms_el {n: nat} {s: Stack sigma n} {i:  ⟦ n ⟧}:
-    term2list (el (stack2terms s) i) = pr1 (extract_substack_list (pr2 (extract_substack_list s i)) 1).
-  Proof.
-    generalize s.
-    induction i as [i ilessn].
-    induction i.
-    - induction n.
-      + apply fromempty.
-        apply isirreflnatlth in ilessn.
-        assumption.
-      + intros.
-        rewrite extract_substack_list_zero.
-        change (pr1 (extract_substack_list (pr2 (nil,, stack2list s)) 1))
-          with (stack2list (stack_first s)).
-        reflexivity.
-    - induction n.
-      + apply fromempty.
-        apply (negnatlehsn0 i) in ilessn.
-        assumption.
-      + set (ind := IHi (
-
-      change (el (stack2terms s) (S i,, ilessn)) with (hd
-
-
-      reflexivity.
-      cbn
-      cbn.
-      change (pr2 (extract_substack_list (stack2list s) 0)) with (stack2list s).
-*)
-
   Lemma length_cons {A: UU} (x: A) (xs: list A):
     length (cons x xs) = S(length xs).
   Proof.
@@ -895,69 +814,55 @@ Section Term.
       apply ind.
   Defined.
 
-  Lemma length_terms2stack_list {n: nat} (s: Vector (list (names sigma)) n):
-    ∏ i:  ⟦ n ⟧, length (el s i) ≤ length (terms2stack_list s).
+  Lemma length_terms2stack {n: nat} (s: Vector (Term sigma) n):
+    ∏ i:  ⟦ n ⟧, length (el s i) ≤ length (terms2stack s).
   Proof.
     induction n.
     - intro i.
-      induction i as [i iproof].
       apply fromempty.
-      apply negnatlthn0 in iproof.
+      apply negstn0 in i.
       assumption.
-    - induction i as [i iproof].
+    - change (S n) with (1 + n) in *.
+      induction i as [i iproof].
       induction i.
-      + change (terms2stack_list s) with (concatenate (hd s) (terms2stack_list (tl s))).
+      + change s with (vcons (hd s) (tl s)).
+        rewrite terms2stack_vcons.
         change (el s (0,, iproof)) with (hd s).
+        rewrite stack2list_stackconcatenate.
         rewrite length_concatenate.
         apply natleh_plusright.
         apply isreflnatleh.
       + set (ind := IHn (tl s) (i,, iproof)).
-        assert (X: el (tl s) (i,, iproof) = el s (S i,, iproof)).
-        {
-          rewrite <- drop_el.
-          reflexivity.
-        }
-        rewrite <- X.
-        assert (length (terms2stack_list (tl s)) ≤  length (terms2stack_list s)).
+        rewrite <- drop_el in ind.
+        change  (drop (el s) (i,, iproof)) with (el s (S i,, iproof)) in ind.
+        assert (length (terms2stack (tl s)) ≤  length (terms2stack s)).
         {
           change s with (vcons (hd s) (tl s)).
-          rewrite terms2stack_list_vcons.
+          rewrite terms2stack_vcons.
           change  (tl (vcons (hd s) (tl s))) with (tl s).
+          rewrite stack2list_stackconcatenate.
           rewrite length_concatenate.
           rewrite natpluscomm.
           apply natleh_plusright.
           apply isreflnatleh.
         }
-        apply (istransnatleh(m:=length (terms2stack_list (tl s)))).
+        apply (istransnatleh(m:=length (terms2stack (tl s)))).
         * assumption.
         * assumption.
-  Defined.
-
-  Lemma length_terms2stack {n: nat} (s: Vector (Term sigma) n):
-    ∏ i:  ⟦ n ⟧, length (el s i) ≤ length (terms2stack s).
-  Proof.
-    intro i.
-    change (length (terms2stack s)) with (length (terms2stack_list (vector_map stack2list s))).
-    rewrite <- el_vector_map.
-    apply length_terms2stack_list.
   Defined.
 
   Lemma terms2stack2terms {n: nat} (s: Stack sigma n): terms2stack (stack2terms s) = s.
   Proof.
-    generalize s.
     induction n.
     - intros.
-      rewrite stack_zero.
+      rewrite stack_isnil.
       apply idpath.
-    - clear s.
-      intro s.
-      replace s with (stack_concatenate (stack_first s) (stack_rest s)).
+    - replace s with (stack_concatenate (stack_first s) (stack_rest s)).
       2: { rewrite stack_concatenate_normalize1. reflexivity. }
       simpl.
       rewrite stack_concatenate_normalize2.
       rewrite stack_concatenate_normalize3.
       rewrite stack_first_term.
-      rewrite terms2stack_vcons.
       apply (maponpaths (λ s', stack_concatenate (stack_first s) s')).
       apply (IHn (stack_rest s)).
   Defined.
@@ -1090,7 +995,7 @@ Section Term.
       }
       rewrite tail_ar_x in tail_status_prf.
       set (n_le_arx := natlthtoleh _ _ n_lt_arx).
-      set (remove := extract_sublist tail (arity x) n tail_status_prf n_le_arx).
+      set (remove := extract_sublist tail n tail_status_prf n_le_arx).
       induction remove as [first [ second  [ firstss [ secondss conc] ] ] ].
       assert ( extractok2: 1 ≤ arity x - n ).
       {
@@ -1100,7 +1005,7 @@ Section Term.
         apply natlthtolehp1.
         exact n_lt_arx.
       }
-      set (res := extract_sublist second (arity x - n) 1 secondss extractok2).
+      set (res := extract_sublist second 1 secondss extractok2).
       induction res as [result [second0 [result_is_term [second_ss conc1]]]].
       exact (mkstack result result_is_term).
   Defined.
