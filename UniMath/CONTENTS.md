@@ -281,6 +281,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/Limits.v](CategoryTheory/DisplayedCats/Limits.v)
    - [DisplayedCats/Examples.v](CategoryTheory/DisplayedCats/Examples.v)
    - [DisplayedCats/Examples/HLevel.v](CategoryTheory/DisplayedCats/Examples/HLevel.v)
+   - [DisplayedCats/Examples/Categories.v](CategoryTheory/DisplayedCats/Examples/Categories.v)
    - [DisplayedCats/FunctorCategory.v](CategoryTheory/DisplayedCats/FunctorCategory.v)
    - [DisplayedCats/Adjunctions.v](CategoryTheory/DisplayedCats/Adjunctions.v)
    - [DisplayedCats/ComprehensionC.v](CategoryTheory/DisplayedCats/ComprehensionC.v)
