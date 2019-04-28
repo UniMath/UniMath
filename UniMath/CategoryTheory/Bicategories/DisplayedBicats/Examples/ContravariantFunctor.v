@@ -37,7 +37,7 @@ Section fix_a_category.
 
   Variable (K : univalent_category).
 
-  Definition disp_presheaf_cat_ob_mor : disp_cat_ob_mor ∁.
+  Definition disp_presheaf_cat_ob_mor : disp_precat_ob_mor ∁.
   Proof.
     use tpair.
     + exact (λ c : univalent_category, functor (op_unicat c) K).
@@ -45,7 +45,7 @@ Section fix_a_category.
       exact (nat_trans ty (functor_composite (functor_opp f) ty')).
   Defined.
 
-  Definition disp_presheaf_cat_data : disp_cat_data ∁.
+  Definition disp_presheaf_cat_data : disp_precat_data ∁.
   Proof.
     exists disp_presheaf_cat_ob_mor.
     use tpair.

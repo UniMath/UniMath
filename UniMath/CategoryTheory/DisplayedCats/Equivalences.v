@@ -171,13 +171,15 @@ End disp_adjunction.
 (** ** Adjunctions *)
 Section Adjunctions.
 
+Context {C : category}.
+
 (** In general, one can define displayed equivalences/adjunctions over any equivalences/adjunctions between the bases (and probably more generally still).  For now we just give the case over a single base precategory — i.e. over an identity functor.
 
 We give the “bidirectional” version first, and then the “handed” versions afterwards, with enough coercions between the two to (hopefully) make it easy to work with both versions. *)
 
 (* TODO: consider carefully the graph of coercions in this section; make them more systematic, and whatever we decide on, DOCUMENT the system clearly. *)
 
-Definition disp_adjunction_id_data {C} (D D' : disp_cat C) : UU
+Definition disp_adjunction_id_data (D D' : disp_cat C) : UU
 := ∑ (FF : disp_functor (functor_identity _) D D')
      (GG : disp_functor (functor_identity _) D' D),
      (disp_nat_trans (nat_trans_id _)
@@ -186,23 +188,23 @@ Definition disp_adjunction_id_data {C} (D D' : disp_cat C) : UU
             (disp_functor_composite GG FF) (disp_functor_identity _)).
 
 (* TODO: consider naming of these access functions *)
-Definition left_adj_over_id {C} {D D' : disp_cat C}
+Definition left_adj_over_id {D D' : disp_cat C}
   (A : disp_adjunction_id_data D D')
   : disp_functor _ D D'
 := pr1 A.
 Coercion left_adj_over_id
   : disp_adjunction_id_data >-> disp_functor.
 
-Definition right_adj_over_id {C} {D D' : disp_cat C}
+Definition right_adj_over_id {D D' : disp_cat C}
   (A : disp_adjunction_id_data D D')
   : disp_functor _ D' D
 := pr1 (pr2 A).
 
-Definition unit_over_id {C} {D D' : disp_cat C}
+Definition unit_over_id {D D' : disp_cat C}
   (A : disp_adjunction_id_data D D')
 := pr1 (pr2 (pr2 A)).
 
-Definition counit_over_id {C} {D D' : disp_cat C}
+Definition counit_over_id {D D' : disp_cat C}
   (A : disp_adjunction_id_data D D')
 := pr2 (pr2 (pr2 A)).
 
@@ -214,7 +216,7 @@ This roughly follows the pattern of [univalenceStatement], [funextfunStatement],
 *)
 
 
-Definition triangle_1_statement_over_id  {C} {D D' : disp_cat C}
+Definition triangle_1_statement_over_id  {D D' : disp_cat C}
     (A : disp_adjunction_id_data D D')
     (FF := left_adj_over_id A)
     (η := unit_over_id A)
@@ -223,7 +225,7 @@ Definition triangle_1_statement_over_id  {C} {D D' : disp_cat C}
 := ∏ x xx, #FF ( η x xx) ;;  ε _ (FF _ xx)
             = transportb _ (id_left _ ) (id_disp _) .
 
-Definition triangle_2_statement_over_id  {C} {D D' : disp_cat C}
+Definition triangle_2_statement_over_id  {D D' : disp_cat C}
     (A : disp_adjunction_id_data D D')
     (GG := right_adj_over_id A)
     (η := unit_over_id A)
@@ -232,25 +234,25 @@ Definition triangle_2_statement_over_id  {C} {D D' : disp_cat C}
 := ∏ x xx, η _ (GG x xx) ;; # GG (ε _ xx)
            = transportb _ (id_left _ ) (id_disp _).
 
-Definition form_disp_adjunction_id {C} {D D' : disp_cat C}
+Definition form_disp_adjunction_id {D D' : disp_cat C}
     (A : disp_adjunction_id_data D D')
   : UU
 := triangle_1_statement_over_id A × triangle_2_statement_over_id A.
 
-Definition disp_adjunction_id {C} (D D' : disp_cat C) : UU
+Definition disp_adjunction_id (D D' : disp_cat C) : UU
 := ∑ A : disp_adjunction_id_data D D', form_disp_adjunction_id A.
 
-Definition data_of_disp_adjunction_id {C} {D D' : disp_cat C}
+Definition data_of_disp_adjunction_id {D D' : disp_cat C}
   (A : disp_adjunction_id D D')
 := pr1 A.
 Coercion data_of_disp_adjunction_id
   : disp_adjunction_id >-> disp_adjunction_id_data.
 
-Definition triangle_1_over_id {C} {D D' : disp_cat C}
+Definition triangle_1_over_id {D D' : disp_cat C}
   (A : disp_adjunction_id D D')
 := pr1 (pr2 A).
 
-Definition triangle_2_over_id {C} {D D' : disp_cat C}
+Definition triangle_2_over_id {D D' : disp_cat C}
   (A : disp_adjunction_id D D')
 := pr2 (pr2 A).
 
@@ -260,7 +262,7 @@ Definition triangle_2_over_id {C} {D D' : disp_cat C}
 
 Our choice here does _not_ agree with that of the base UniMath category theory library. TODO: consider these conventions, and eventually harmonise them by changing it either here or in UniMath. *)
 
-Definition right_adjoint_over_id_data {C} {D D' : disp_cat C}
+Definition right_adjoint_over_id_data {D D' : disp_cat C}
   (FF : disp_functor (functor_identity _) D D') : UU
 := ∑ (GG : disp_functor (functor_identity _) D' D),
      (disp_nat_trans (nat_trans_id _)
@@ -268,14 +270,14 @@ Definition right_adjoint_over_id_data {C} {D D' : disp_cat C}
    × (disp_nat_trans (nat_trans_id _ )
             (disp_functor_composite GG FF) (disp_functor_identity _)).
 
-Definition functor_of_right_adjoint_over_id {C} {D D' : disp_cat C}
+Definition functor_of_right_adjoint_over_id {D D' : disp_cat C}
   {FF : disp_functor _ D D'}
   (GG : right_adjoint_over_id_data FF)
 := pr1 GG.
 Coercion functor_of_right_adjoint_over_id
   : right_adjoint_over_id_data >-> disp_functor.
 
-Definition adjunction_of_right_adjoint_over_id_data {C} {D D' : disp_cat C}
+Definition adjunction_of_right_adjoint_over_id_data {D D' : disp_cat C}
     {FF : disp_functor _ D D'}
     (GG : right_adjoint_over_id_data FF)
   : disp_adjunction_id_data D D'
@@ -283,30 +285,30 @@ Definition adjunction_of_right_adjoint_over_id_data {C} {D D' : disp_cat C}
 Coercion adjunction_of_right_adjoint_over_id_data
   : right_adjoint_over_id_data >-> disp_adjunction_id_data.
 
-Definition right_adjoint_of_disp_adjunction_id_data {C} {D D' : disp_cat C}
+Definition right_adjoint_of_disp_adjunction_id_data {D D' : disp_cat C}
     (A : disp_adjunction_id_data D D')
   : right_adjoint_over_id_data A
 := pr2 A.
 
-Definition right_adjoint_over_id {C} {D D' : disp_cat C}
+Definition right_adjoint_over_id {D D' : disp_cat C}
   (FF : disp_functor (functor_identity _) D D') : UU
 := ∑ GG : right_adjoint_over_id_data FF,
    form_disp_adjunction_id GG.
 
-Definition data_of_right_adjoint_over_id {C} {D D' : disp_cat C}
+Definition data_of_right_adjoint_over_id {D D' : disp_cat C}
   {FF : disp_functor _ D D'}
   (GG : right_adjoint_over_id FF)
 := pr1 GG.
 Coercion data_of_right_adjoint_over_id
   : right_adjoint_over_id >-> right_adjoint_over_id_data.
 
-Definition adjunction_of_right_adjoint_over_id {C} {D D' : disp_cat C}
+Definition adjunction_of_right_adjoint_over_id {D D' : disp_cat C}
     {FF : disp_functor _ D D'}
     (GG : right_adjoint_over_id FF)
   : disp_adjunction_id D D'
 := (adjunction_of_right_adjoint_over_id_data GG ,, pr2 GG).
 
-Definition right_adjoint_of_disp_adjunction_id {C} {D D' : disp_cat C}
+Definition right_adjoint_of_disp_adjunction_id {D D' : disp_cat C}
     (A : disp_adjunction_id D D')
   : right_adjoint_over_id A
 := (right_adjoint_of_disp_adjunction_id_data A,, pr2 A).
@@ -317,7 +319,9 @@ End Adjunctions.
 Section Equivalences.
 (** ** Equivalences (adjoint and quasi) *)
 
-Definition form_equiv_over_id {C} {D D' : disp_cat C}
+Context {C : category}.
+
+Definition form_equiv_over_id {D D' : disp_cat C}
     (A : disp_adjunction_id_data D D')
     (η := unit_over_id A)
     (ε := counit_over_id A)
@@ -325,44 +329,44 @@ Definition form_equiv_over_id {C} {D D' : disp_cat C}
 := (∏ x xx, is_iso_disp (identity_iso _ ) (η x xx))
  × (∏ x xx, is_iso_disp (identity_iso _ ) (ε x xx)).
 
-Definition is_iso_unit_over_id {C} {D D' : disp_cat C}
+Definition is_iso_unit_over_id {D D' : disp_cat C}
   {A : disp_adjunction_id_data D D'}
   (E : form_equiv_over_id A)
 := pr1 E.
 
-Definition is_iso_counit_over_id {C} {D D' : disp_cat C}
+Definition is_iso_counit_over_id {D D' : disp_cat C}
   {A : disp_adjunction_id_data D D'}
   (E : form_equiv_over_id A)
 := pr2 E.
 
-Definition equiv_over_id {C} (D D' : disp_cat C) : UU
+Definition equiv_over_id (D D' : disp_cat C) : UU
 := ∑ A : disp_adjunction_id D D', form_equiv_over_id A.
 
-Definition adjunction_of_equiv_over_id {C} {D D' : disp_cat C}
+Definition adjunction_of_equiv_over_id {D D' : disp_cat C}
   (A : equiv_over_id D D')
 := pr1 A.
 Coercion adjunction_of_equiv_over_id
   : equiv_over_id >-> disp_adjunction_id.
 
-Definition axioms_of_equiv_over_id {C} {D D' : disp_cat C}
+Definition axioms_of_equiv_over_id {D D' : disp_cat C}
   (A : equiv_over_id D D')
 := pr2 A.
 Coercion axioms_of_equiv_over_id
   : equiv_over_id >-> form_equiv_over_id.
 
-Definition is_equiv_over_id {C} {D D' : disp_cat C}
+Definition is_equiv_over_id {D D' : disp_cat C}
   (FF : disp_functor (functor_identity _) D D') : UU
 := ∑ GG : right_adjoint_over_id FF,
    form_equiv_over_id GG.
 
-Definition right_adjoint_of_is_equiv_over_id {C} {D D' : disp_cat C}
+Definition right_adjoint_of_is_equiv_over_id {D D' : disp_cat C}
   {FF : disp_functor _ D D'}
   (E : is_equiv_over_id FF)
 := pr1 E.
 Coercion right_adjoint_of_is_equiv_over_id
   : is_equiv_over_id >-> right_adjoint_over_id.
 
-Definition equiv_of_is_equiv_over_id {C} {D D' : disp_cat C}
+Definition equiv_of_is_equiv_over_id {D D' : disp_cat C}
     {FF : disp_functor _ D D'}
     (E : is_equiv_over_id FF)
   : equiv_over_id D D'
@@ -371,7 +375,7 @@ Coercion equiv_of_is_equiv_over_id
   : is_equiv_over_id >-> equiv_over_id.
 (* Again, don’t worry about the ambiguous path generated here. *)
 
-Definition is_equiv_of_equiv_over_id {CC} {DD DD' : disp_cat CC}
+Definition is_equiv_of_equiv_over_id {DD DD' : disp_cat C}
     (E : equiv_over_id DD DD')
   : is_equiv_over_id E
 := (right_adjoint_of_disp_adjunction_id E,, axioms_of_equiv_over_id E).
@@ -385,7 +389,7 @@ Definition is_equiv_of_equiv_over_id {CC} {DD DD' : disp_cat CC}
 Local Open Scope hide_transport_scope.
 
 Lemma triangle_2_from_1_for_equiv_over_id
-  {C} {D D' : disp_cat C}
+  {D D' : disp_cat C}
   (A : disp_adjunction_id_data D D')
   (E : form_equiv_over_id A)
 : triangle_1_statement_over_id A -> triangle_2_statement_over_id A.
@@ -405,7 +409,7 @@ Proof.
   = 1                                            [by inverses, 7]
 
   It’s perhaps most readable when written in string diagrams. *)
-  etrans. apply id_left_disp_var.
+  etrans. apply (@id_left_disp_var C D).
   etrans. eapply transportf_bind.
     eapply cancel_postcomposition_disp.
     etrans. eapply transportf_transpose. apply @pathsinv0.
@@ -422,13 +426,13 @@ Proof.
       apply (Hη). (*1b*)
     eapply transportf_bind, assoc_disp.
   etrans. eapply transportf_bind.
-    etrans. apply assoc_disp_var.
+    etrans. apply (@assoc_disp_var C D).
     eapply transportf_bind.
-    etrans. apply assoc_disp_var.
+    etrans. apply (@assoc_disp_var C D).
     eapply transportf_bind.
     eapply cancel_precomposition_disp.
     etrans. eapply cancel_precomposition_disp.
-      etrans. apply assoc_disp.
+      etrans. apply (@assoc_disp C D).
       eapply transportf_bind.
       etrans. eapply cancel_postcomposition_disp.
         exact (disp_nat_trans_ax η (# GG (ε x yy))). (*2*)
@@ -438,14 +442,14 @@ Proof.
       eapply cancel_precomposition_disp.
       cbn.
       etrans. eapply transportf_transpose.
-        apply @pathsinv0, (disp_functor_comp GG).
+        apply @pathsinv0, (disp_functor_comp _ GG).
       eapply transportf_bind.
       etrans. apply maponpaths.
         apply (disp_nat_trans_ax ε). (*3*)
       cbn.
       etrans. apply (disp_functor_transportf _ GG).
       eapply transportf_bind.
-      apply (disp_functor_comp GG).
+      apply (disp_functor_comp _ GG).
     eapply transportf_bind.
     etrans. apply assoc_disp.
     eapply transportf_bind.
@@ -453,21 +457,21 @@ Proof.
       apply (disp_nat_trans_ax η (η x (GG x yy))). (*4*)
     cbn.
     eapply transportf_bind.
-    etrans. apply assoc_disp_var.
+    etrans. apply (@assoc_disp_var C D).
     eapply transportf_bind.
     eapply cancel_precomposition_disp.
-    etrans. apply assoc_disp.
+    etrans. apply (@assoc_disp C D).
     eapply transportf_bind.
     etrans. eapply cancel_postcomposition_disp.
       etrans. eapply transportf_transpose.
-        apply @pathsinv0, (disp_functor_comp GG). (*5*)
+        apply @pathsinv0, (disp_functor_comp _ GG). (*5*)
       eapply transportf_bind.
       etrans. apply maponpaths, T1. (*6*)
       etrans. apply (disp_functor_transportf _ GG).
-      eapply transportf_bind. apply (disp_functor_id GG).
+      eapply transportf_bind. apply (disp_functor_id _ GG).
     eapply transportf_bind. apply id_left_disp.
   etrans. eapply transportf_bind.
-    etrans. apply assoc_disp_var.
+    etrans. apply (@assoc_disp_var C D).
     eapply transportf_bind.
     etrans. eapply cancel_precomposition_disp.
       etrans. apply assoc_disp.
@@ -482,7 +486,7 @@ Time Qed.
 (* TODO: [Qed.] takes about 30sec!  [etrans_dep] + [etrans_disp] make it shorter and more readable (see commit 7c1f411a), but make the typechecking time even worse. *)
 
 Lemma triangle_1_from_2_for_equiv_over_id
-  {C} {D D' : disp_cat C}
+  {D D' : disp_cat C}
   (A : disp_adjunction_id_data D D')
   (E : form_equiv_over_id A)
 : triangle_2_statement_over_id A -> triangle_1_statement_over_id A.
@@ -533,7 +537,7 @@ Proof.
   split.
   - unfold ffinv. unfold FFffinv.
     apply (invmaponpathsweq (@FFweq _ _ _ _ _ )). cbn.
-    etrans. apply (disp_functor_comp FF).
+    etrans. apply (disp_functor_comp _ FF).
     etrans. apply maponpaths. apply maponpaths_2. apply (homotweqinvweq (@FFweq _ _ _ _ _ )).
     etrans. apply maponpaths. apply iso_disp_after_inv_mor.
     etrans. apply transport_f_f.
@@ -543,7 +547,7 @@ Proof.
     etrans. apply transport_f_f.
     apply maponpaths_2. apply homset_property.
   - apply (invmaponpathsweq (@FFweq _ _ _ _ _ )). cbn.
-    etrans. apply (disp_functor_comp FF).
+    etrans. apply (disp_functor_comp _ FF).
     etrans. apply maponpaths. apply maponpaths. apply (homotweqinvweq (@FFweq _ _ _ _ _ )).
     etrans. apply maponpaths. apply inv_mor_after_iso_disp.
     etrans. apply transport_f_f.
@@ -579,14 +583,14 @@ Proof.
     cbn. etrans. apply id_right. apply id_left.
 Defined.
 
-Local Lemma GG_ax : disp_functor_axioms GG_data.
+Local Lemma GG_ax : disp_functor_axioms _ GG_data.
 Proof.
   split; simpl.
   + intros x xx.
     apply invmap_eq. cbn.
-    etrans. 2: apply @pathsinv0, (disp_functor_id FF).
+    etrans. 2: apply @pathsinv0, (disp_functor_id _ FF).
     etrans. apply maponpaths.
-      etrans. apply maponpaths_2, id_right_disp.
+      etrans. apply maponpaths_2, (@id_right_disp C D).
       etrans. apply mor_disp_transportf_postwhisker.
       apply maponpaths, (inv_mor_after_iso_disp (pr2 (FF_split _ _))).
     etrans. apply transport_f_f.
@@ -596,7 +600,7 @@ Proof.
     apply invmap_eq. cbn.
     etrans.
     2: { apply @pathsinv0.
-         etrans. apply (disp_functor_comp FF).
+         etrans. apply (disp_functor_comp _ FF).
          etrans. apply maponpaths.
            etrans. apply maponpaths; use homotweqinvweq.
            apply maponpaths_2; use homotweqinvweq.
@@ -605,13 +609,13 @@ Proof.
            apply maponpaths.
            etrans. apply mor_disp_transportf_postwhisker.
            apply maponpaths.
-           etrans. apply maponpaths, assoc_disp_var.
+           etrans. apply maponpaths, (@assoc_disp_var C D).
            etrans. apply mor_disp_transportf_prewhisker.
            apply maponpaths.
            etrans. apply assoc_disp.
            apply maponpaths.
            etrans. apply maponpaths_2.
-             etrans. apply assoc_disp_var.
+             etrans. apply (@assoc_disp_var C D).
              apply maponpaths.
              etrans. apply maponpaths.
                exact (iso_disp_after_inv_mor (pr2 (FF_split _ _))).
@@ -629,9 +633,9 @@ Proof.
          apply maponpaths_2. shelve.
        }
     etrans. apply maponpaths.
-      etrans. apply maponpaths_2, assoc_disp.
+      etrans. apply maponpaths_2, (@assoc_disp C D).
       etrans. apply mor_disp_transportf_postwhisker.
-      apply maponpaths. apply assoc_disp_var.
+      apply maponpaths. apply (@assoc_disp_var C D).
     etrans. apply transport_f_f.
     etrans. apply transport_f_f.
     apply maponpaths_2, homset_property.
@@ -651,7 +655,7 @@ Proof.
   etrans. apply maponpaths_2; use homotweqinvweq.
   etrans. apply mor_disp_transportf_postwhisker.
   etrans. apply maponpaths.
-    etrans. apply assoc_disp_var.
+    etrans. apply (@assoc_disp_var C D).
     apply maponpaths.
     etrans. apply maponpaths.
       apply (iso_disp_after_inv_mor (pr2 (FF_split _ _))).
@@ -688,10 +692,10 @@ Proof.
     apply maponpaths.
     etrans. apply mor_disp_transportf_prewhisker.
     apply maponpaths.
-    etrans. apply assoc_disp.
+    etrans. apply (@assoc_disp C D).
     apply maponpaths.
     etrans. apply maponpaths_2.
-      etrans. apply assoc_disp.
+      etrans. apply (@assoc_disp C D).
       apply maponpaths.
       etrans.
         apply maponpaths_2, (iso_disp_after_inv_mor (pr2 (FF_split _ _))).
@@ -789,7 +793,7 @@ Proof.
     set (R := make_weq _ XR).
     apply (invmaponpathsweq R).
     unfold R. unfold E. cbn.
-    etrans. apply assoc_disp.
+    etrans. apply (@assoc_disp C D).
     etrans. apply maponpaths. apply maponpaths_2.
             apply (inv_mor_after_iso_disp (Ha x xx)).
     etrans. apply maponpaths.
@@ -800,7 +804,7 @@ Proof.
     apply pathsinv0.
     etrans.            apply mor_disp_transportf_prewhisker.
     etrans. apply maponpaths.
-            apply assoc_disp.
+            apply (@assoc_disp C D).
     etrans. apply transport_f_f.
     etrans. apply maponpaths. apply maponpaths_2.
             apply (disp_nat_trans_ax_var alpha).
@@ -916,9 +920,9 @@ Proof.
         cbn.
         clear RG XR Ge.
         unfold Gepsxxx.
-        etrans. apply assoc_disp.
+        etrans. apply (@assoc_disp _ D').
         etrans. apply maponpaths. apply maponpaths_2.
-                eapply pathsinv0. apply (disp_functor_comp_var GG).
+                eapply pathsinv0. apply (disp_functor_comp_var _ GG).
         etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
         etrans. apply transport_f_f.
         etrans. apply maponpaths. apply maponpaths_2.
@@ -929,10 +933,10 @@ Proof.
         etrans. apply maponpaths. apply  mor_disp_transportf_postwhisker.
         etrans. apply ( transport_f_f _ _ _ _ ).
         etrans. apply maponpaths. apply maponpaths_2.
-                apply (disp_functor_id GG).
+                apply (disp_functor_id _ GG).
         etrans. apply maponpaths. apply  mor_disp_transportf_postwhisker.
         etrans. apply transport_f_f.
-        etrans. apply maponpaths. apply id_left_disp.
+        etrans. apply maponpaths. apply (@id_left_disp _ D').
         etrans. apply transport_f_f.
 
         match goal with |[|- transportf _ ?EE _ = _ ] => generalize EE end.
@@ -965,7 +969,7 @@ Proof.
         etrans. apply maponpaths. apply  mor_disp_transportf_prewhisker.
         etrans. apply mor_disp_transportf_prewhisker.
         etrans. apply maponpaths.
-                apply maponpaths. apply id_right_disp.
+                apply maponpaths. apply (@id_right_disp C D').
         etrans. apply maponpaths. apply  mor_disp_transportf_prewhisker.
         etrans. apply transport_f_f.
         set (XR := triangle_2_over_id isEquiv).

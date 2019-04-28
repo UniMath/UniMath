@@ -87,7 +87,7 @@ Definition base_category
   concrete case of the Structure Identity Principle.
 *)
 
-Definition disp_morph : disp_cat_data (base_precategory_data C D).
+Definition disp_morph : disp_precat_data (base_precategory_data C D).
 Proof.
   use tpair.
   - exists (λ F₀, ∏ {a b : C}, C ⟦a, b⟧ → D ⟦F₀ a, F₀ b⟧).
@@ -110,8 +110,8 @@ Lemma step1_disp_axioms
 Proof.
   repeat split; intros; repeat (apply impred; intro);
     repeat (apply funextsec; intro); try apply homset_property.
-  cbn.
-  repeat (apply (impred 2); intro).
+  intros ? ? ? ? ?.
+  do 3 (apply (impred 2); intro).
   apply hlevelntosn.
   apply homset_property.
 Qed.

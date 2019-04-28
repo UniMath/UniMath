@@ -60,15 +60,15 @@ Section Sigma.
            (D : disp_bicat C)
            (E : disp_bicat (total_bicat D)).
 
-  Definition sigma_disp_cat_ob_mor : disp_cat_ob_mor C.
+  Definition sigma_disp_precat_ob_mor : disp_precat_ob_mor C.
   Proof.
     exists (λ c, ∑ (d : D c), (E (c,,d))).
     intros x y xx yy f.
     exact (∑ (fD : pr1 xx -->[f] pr1 yy), pr2 xx -->[f,,fD] pr2 yy).
   Defined.
 
-  Definition sigma_disp_cat_id_comp
-    : disp_cat_id_comp _ sigma_disp_cat_ob_mor.
+  Definition sigma_disp_precat_id_comp
+    : disp_precat_id_comp _ sigma_disp_precat_ob_mor.
   Proof.
     apply tpair.
     - intros x xx.
@@ -77,12 +77,12 @@ Section Sigma.
       exists (pr1 ff ;; pr1 gg). exact (pr2 ff ;; pr2 gg).
   Defined.
 
-  Definition sigma_disp_cat_data : disp_cat_data C
-    := (_ ,, sigma_disp_cat_id_comp).
+  Definition sigma_disp_precat_data : disp_precat_data C
+    := (_ ,, sigma_disp_precat_id_comp).
 
   Definition sigma_prebicat_1_id_comp_cells : disp_prebicat_1_id_comp_cells C.
   Proof.
-    exists sigma_disp_cat_data.
+    exists sigma_disp_precat_data.
     red.
     intros c c' f g x d d' ff gg.
     cbn in *.

@@ -24,8 +24,8 @@ Local Open Scope cat.
 Section Map2Cells.
   Variable (C D : bicat).
 
-  Definition map2cells_disp_cat_data
-    : disp_cat_ob_mor (map1cells C D).
+  Definition map2cells_disp_precat_data
+    : disp_precat_ob_mor (map1cells C D).
   Proof.
     use tpair.
     - exact (λ F, ∏ (X Y : C) (f g : X --> Y), f ==> g → Fmor F f ==> Fmor F g).
@@ -35,8 +35,8 @@ Section Map2Cells.
              ηmor η f • (F₂ X Y f g α ▹ ηobj η Y)) ; cbn in *.
   Defined.
 
-  Definition map2cells_disp_cat_id_comp
-    : disp_cat_id_comp (map1cells C D) map2cells_disp_cat_data.
+  Definition map2cells_disp_precat_id_comp
+    : disp_precat_id_comp (map1cells C D) map2cells_disp_precat_data.
   Proof.
     split.
     - intros F F₂ X Y f g α ; cbn in *.
@@ -75,8 +75,8 @@ Section Map2Cells.
   Proof.
     use disp_cell_unit_bicat.
     use tpair.
-    - exact map2cells_disp_cat_data.
-    - exact map2cells_disp_cat_id_comp.
+    - exact map2cells_disp_precat_data.
+    - exact map2cells_disp_precat_id_comp.
   Defined.
 
   Definition map2cells_is_disp_univalent_2_1

@@ -42,7 +42,7 @@ Section Add2Cell.
            (l r : pstrans (@ps_comp E C C S F)
                           (@ps_comp E C C (ps_id_functor C) F)).
 
-  Definition add_cell_disp_cat_data : disp_cat_ob_mor E.
+  Definition add_cell_disp_precat_data : disp_precat_ob_mor E.
   Proof.
     use tpair.
     - exact (λ X, l X ==> r X).
@@ -54,7 +54,7 @@ Section Add2Cell.
                • (#S(#F f) ◃ β)).
   Defined.
 
-  Definition add_cell_disp_cat_id_comp : disp_cat_id_comp E add_cell_disp_cat_data.
+  Definition add_cell_disp_precat_id_comp : disp_precat_id_comp E add_cell_disp_precat_data.
   Proof.
     split.
     - intros x xx ; cbn.
@@ -120,8 +120,8 @@ Section Add2Cell.
   Proof.
     use disp_cell_unit_bicat.
     use tpair.
-    - exact add_cell_disp_cat_data.
-    - exact add_cell_disp_cat_id_comp.
+    - exact add_cell_disp_precat_data.
+    - exact add_cell_disp_precat_id_comp.
   Defined.
 
   Definition add_cell_disp_cat_univalent_2_1

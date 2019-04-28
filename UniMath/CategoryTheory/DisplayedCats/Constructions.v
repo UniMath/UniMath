@@ -57,28 +57,28 @@ End Auxiliary.
 Section full_subcat.
 
 Definition disp_full_sub_ob_mor (C : precategory_ob_mor) (P : C → UU)
-  : disp_cat_ob_mor C
+  : disp_precat_ob_mor C
   := (P,, (λ a b aa bb f, unit)).
 
 Definition disp_full_sub_id_comp (C : precategory_data) (P : C → UU)
-  : disp_cat_id_comp C (disp_full_sub_ob_mor C P).
+  : disp_precat_id_comp C (disp_full_sub_ob_mor C P).
 Proof.
   split; intros; apply tt.
 Defined.
 
 Definition disp_full_sub_data (C : precategory_data) (P : C → UU)
-  : disp_cat_data C
+  : disp_precat_data C
   :=  disp_full_sub_ob_mor C P,, disp_full_sub_id_comp C P.
 
 Definition disp_full_sub_axioms (C : precategory) (P : C → UU)
   : disp_cat_axioms _ (disp_full_sub_data C P).
 Proof.
   repeat split; intros; try (apply proofirrelevance; apply isapropunit).
-  apply isasetaprop; apply isapropunit.
+  intros ? ? ? ? ?; apply isasetaprop; apply isapropunit.
 Qed.
 
 Definition disp_full_sub (C : precategory) (P : C → UU)
-  : disp_precat C := _ ,, disp_full_sub_axioms C P.
+  : disp_cat C := make_disp_cat (disp_full_sub_axioms _ P).
 
 Lemma disp_full_sub_univalent (C : category) (P : C → UU) :
   (∏ x : C, isaprop (P x)) →
@@ -110,28 +110,28 @@ Variable Hid : ∏ (x : C) (a : P x), H a a (identity _ ).
 Variable Hcomp : ∏ (x y z : C) a b c (f : C⟦x,y⟧) (g : C⟦y,z⟧),
                  H a b f → H b c g → H a c (f · g).
 
-Definition disp_struct_ob_mor : disp_cat_ob_mor C.
+Definition disp_struct_ob_mor : disp_precat_ob_mor C.
 Proof.
   exists P.
   intros ? ? f a b; exact (H f a b ).
 Defined.
 
-Definition disp_struct_id_comp : disp_cat_id_comp _ disp_struct_ob_mor.
+Definition disp_struct_id_comp : disp_precat_id_comp _ disp_struct_ob_mor.
 Proof.
   split; cbn; intros.
   - apply Hid.
   - eapply Hcomp. apply X. apply X0.
 Qed.
 
-Definition disp_struct_data : disp_cat_data C := _ ,, disp_struct_id_comp.
+Definition disp_struct_data : disp_precat_data C := _ ,, disp_struct_id_comp.
 
 Definition disp_struct_axioms : disp_cat_axioms _ disp_struct_data.
 Proof.
   repeat split; intros; try (apply proofirrelevance; apply Hisprop).
-  apply isasetaprop; apply Hisprop.
+  intros ? ? ? ? ?; apply isasetaprop; apply Hisprop.
 Qed.
 
-Definition disp_struct : disp_cat C := _ ,, disp_struct_axioms.
+Definition disp_struct : disp_cat C := make_disp_cat disp_struct_axioms.
 
 End struct_hom.
 
@@ -141,19 +141,19 @@ We directly define direct products of displayed categories over a base.
 
 An alternative would be to define the direct product as the [sigma_disp_cat] of the pullback to either factor.  *)
 
-Definition dirprod_disp_cat_ob_mor
-           {C : precategory_ob_mor} (D1 D2 : disp_cat_ob_mor C)
-  : disp_cat_ob_mor C.
+Definition dirprod_disp_precat_ob_mor
+           {C : precategory_ob_mor} (D1 D2 : disp_precat_ob_mor C)
+  : disp_precat_ob_mor C.
 Proof.
   exists (λ c, D1 c × D2 c).
   intros x y xx yy f.
   exact (pr1 xx -->[f] pr1 yy × pr2 xx -->[f] pr2 yy).
 Defined.
 
-Definition dirprod_disp_cat_id_comp
+Definition dirprod_disp_precat_id_comp
            {C : precategory_data}
-           (D1 D2 : disp_cat_data C)
-  : disp_cat_id_comp _ (dirprod_disp_cat_ob_mor D1 D2).
+           (D1 D2 : disp_precat_data C)
+  : disp_precat_id_comp _ (dirprod_disp_precat_ob_mor D1 D2).
 Proof.
   apply tpair.
   - intros x (x1, x2).
@@ -162,20 +162,21 @@ Proof.
     exact ((pr1 ff ;; pr1 gg),, (pr2 ff ;; pr2 gg)).
 Defined.
 
-Definition dirprod_disp_cat_data
+Definition dirprod_disp_precat_data
            {C : precategory_data}
-           (D1 D2 : disp_cat_data C)
-  : disp_cat_data C
-  := (_ ,, dirprod_disp_cat_id_comp D1 D2).
+           (D1 D2 : disp_precat_data C)
+  : disp_precat_data C
+  := (_ ,, dirprod_disp_precat_id_comp D1 D2).
 
 Section Dirprod.
 
 Context {C : category} (D1 D2 : disp_cat C).
 
 Definition dirprod_disp_cat_axioms
-  : disp_cat_axioms _ (dirprod_disp_cat_data D1 D2).
+  : disp_cat_axioms _ (dirprod_disp_precat_data D1 D2).
 Proof.
   repeat apply make_dirprod.
+  - intros ? ? ? ? ?. apply isaset_dirprod; apply homsets_disp.
   - intros. apply dirprod_paths; use (id_left_disp @ !_).
     + use pr1_transportf.
     + apply pr2_transportf.
@@ -185,11 +186,10 @@ Proof.
   - intros. apply dirprod_paths; use (assoc_disp @ !_).
     + use pr1_transportf.
     + apply pr2_transportf.
-  - intros. apply isaset_dirprod; apply homsets_disp.
 Qed.
 
 Definition dirprod_disp_cat : disp_cat C
-  := (_ ,, dirprod_disp_cat_axioms).
+  := make_disp_cat dirprod_disp_cat_axioms.
 
 (** ** Characterization of the isomorphisms of the direct product of displayed categories *)
 (** TODO: generalize over an aritrary base isomorphism *)
@@ -329,7 +329,7 @@ Proof.
 Defined.
 
 Definition dirprodpr1_disp_functor_axioms
-  : disp_functor_axioms dirprodpr1_disp_functor_data.
+  : disp_functor_axioms _ dirprodpr1_disp_functor_data.
 Proof.
   split.
   - intros; apply idpath.
@@ -350,7 +350,7 @@ Proof.
 Defined.
 
 Definition dirprodpr2_disp_functor_axioms
-  : disp_functor_axioms dirprodpr2_disp_functor_data.
+  : disp_functor_axioms _ dirprodpr2_disp_functor_data.
 Proof.
   split.
   - intros; apply idpath.
@@ -375,7 +375,7 @@ Context {C : category}
         {D : disp_cat C}
         (E : disp_cat (total_category D)).
 
-Definition sigma_disp_cat_ob_mor : disp_cat_ob_mor C.
+Definition sigma_disp_precat_ob_mor : disp_precat_ob_mor C.
 Proof.
   exists (λ c, ∑ (d : D c), (E (c,,d))).
   intros x y xx yy f.
@@ -383,8 +383,8 @@ Proof.
                 (pr2 xx -->[f,,fD] pr2 yy)).
 Defined.
 
-Definition sigma_disp_cat_id_comp
-  : disp_cat_id_comp _ sigma_disp_cat_ob_mor.
+Definition sigma_disp_precat_id_comp
+  : disp_precat_id_comp _ sigma_disp_precat_ob_mor.
 Proof.
   apply tpair.
   - intros x xx.
@@ -393,14 +393,15 @@ Proof.
     exists (pr1 ff ;; pr1 gg). exact (pr2 ff ;; pr2 gg).
 Defined.
 
-Definition sigma_disp_cat_data : disp_cat_data C
-  := (_ ,, sigma_disp_cat_id_comp).
+Definition sigma_disp_precat_data : disp_precat_data C
+  := (_ ,, sigma_disp_precat_id_comp).
 
 
 Definition sigma_disp_cat_axioms
-  : disp_cat_axioms _ sigma_disp_cat_data.
+  : disp_cat_axioms _ sigma_disp_precat_data.
 Proof.
   repeat apply tpair.
+  - intros ? ? ? ? ?. apply isaset_total2; intros; apply homsets_disp.
   - intros. use total2_reassoc_paths'.
     + apply id_left_disp.
     + etrans. exact (@id_left_disp _ _ _ _ _ _ _ (pr2 ff)).
@@ -416,11 +417,10 @@ Proof.
                  _ _ _ _  _ _ _
                  _ _ _ _  (pr2 ff) (pr2 gg) (pr2 hh)).
       apply maponpaths_2, homset_property.
-  - intros. apply isaset_total2; intros; apply homsets_disp.
 Qed.
 
 Definition sigma_disp_cat : disp_cat C
-  := (_ ,, sigma_disp_cat_axioms).
+  := make_disp_cat sigma_disp_cat_axioms.
 
 Definition sigmapr1_disp_functor_data
   : disp_functor_data (functor_identity C) sigma_disp_cat D.
@@ -431,7 +431,7 @@ Proof.
 Defined.
 
 Definition sigmapr1_disp_functor_axioms
-  : disp_functor_axioms sigmapr1_disp_functor_data.
+  : disp_functor_axioms _ sigmapr1_disp_functor_data.
 Proof.
   split.
   - intros; apply idpath.
@@ -770,10 +770,10 @@ Proof.
         apply disp_nat_trans_id.
       * intros ? ? ? ? ? ? ? ? X X0. apply (disp_nat_trans_comp X X0 ).
   - repeat split.
+    + intros ? ? ? ? ?; apply isaset_disp_nat_trans.
     + apply disp_nat_trans_id_left.
     + apply disp_nat_trans_id_right.
     + apply disp_nat_trans_assoc.
-    + apply isaset_disp_nat_trans.
 Defined.
 
 (** TODO : characterize isos in the displayed functor cat *)
@@ -1038,15 +1038,15 @@ Lemma fiber_is_precategory : is_precategory fiber_category_data.
 Proof.
   apply is_precategory_one_assoc_to_two.
   repeat split; intros; cbn.
-  - etrans. apply maponpaths. apply id_left_disp.
+  - etrans. apply maponpaths. apply (@id_left_disp C D).
     etrans. apply transport_f_f. apply transportf_comp_lemma_hset.
     apply (homset_property). apply idpath.
-  - etrans. apply maponpaths. apply id_right_disp.
+  - etrans. apply maponpaths. apply (@id_right_disp C D).
     etrans. apply transport_f_f. apply transportf_comp_lemma_hset.
     apply (homset_property). apply idpath.
   - etrans. apply maponpaths. apply mor_disp_transportf_prewhisker.
     etrans. apply transport_f_f.
-    etrans. apply maponpaths. apply assoc_disp.
+    etrans. apply maponpaths. apply (@assoc_disp C D).
     etrans. apply transport_f_f.
     apply pathsinv0.
     etrans. apply maponpaths.  apply mor_disp_transportf_postwhisker.

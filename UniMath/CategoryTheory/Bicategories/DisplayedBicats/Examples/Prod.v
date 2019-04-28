@@ -37,7 +37,7 @@ Section Disp_PreDirprod.
 
   Definition disp_dirprod_prebicat_1_id_comp_cells : disp_prebicat_1_id_comp_cells C.
   Proof.
-    exists (dirprod_disp_cat_data D1 D2).
+    exists (dirprod_disp_precat_data D1 D2).
     intros c c' f g x d d' f' g'.
     cbn in *.
     exact ( (pr1 f' ==>[ x ] pr1 g') × (pr2 f' ==>[ x ] pr2 g')).

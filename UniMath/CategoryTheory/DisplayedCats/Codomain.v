@@ -32,14 +32,14 @@ Section Codomain_Disp.
 
 Context (C:category).
 
-Definition cod_disp_ob_mor : disp_cat_ob_mor C.
+Definition cod_disp_ob_mor : disp_precat_ob_mor C.
 Proof.
   exists (λ x : C, ∑ y, y --> x).
   simpl; intros x y xx yy f.
     exact (∑ ff : pr1 xx --> pr1 yy, ff · pr2 yy = pr2 xx · f).
 Defined.
 
-Definition cod_id_comp : disp_cat_id_comp _ cod_disp_ob_mor.
+Definition cod_id_comp : disp_precat_id_comp _ cod_disp_ob_mor.
 Proof.
   split.
   - simpl; intros.
@@ -58,12 +58,15 @@ Proof.
         apply assoc).
 Defined.
 
-Definition cod_disp_data : disp_cat_data _
+Definition cod_disp_data : disp_precat_data _
   := (cod_disp_ob_mor ,, cod_id_comp).
 
 Lemma cod_disp_axioms : disp_cat_axioms C cod_disp_data.
 Proof.
   repeat apply tpair; intros; try apply homset_property.
+  - intros ? ? ? ? ?; apply (isofhleveltotal2 2).
+    + apply homset_property.
+    + intro. apply isasetaprop. apply homset_property.
   - apply subtypeEquality.
     { intro. apply homset_property. }
     etrans. apply id_left.
@@ -86,9 +89,6 @@ Proof.
     etrans. unfold mor_disp.
     use (pr1_transportf (A := C⟦x,w⟧)).
     cbn; apply (eqtohomot (transportf_const _ _)).
-  - apply (isofhleveltotal2 2).
-    + apply homset_property.
-    + intro. apply isasetaprop. apply homset_property.
 Qed.
 
 Definition disp_codomain : disp_cat C

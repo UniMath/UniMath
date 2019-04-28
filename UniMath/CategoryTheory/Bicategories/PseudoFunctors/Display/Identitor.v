@@ -24,8 +24,8 @@ Local Open Scope cat.
 Section Identitor.
   Variable (C D : bicat).
 
-  Definition identitor_disp_cat_data
-    : disp_cat_ob_mor (map1cells C D).
+  Definition identitor_disp_precat_data
+    : disp_precat_ob_mor (map1cells C D).
   Proof.
     use tpair.
     - exact (λ F, ∏ (X : C), id₁ (Fobj F X) ==> Fmor F (id₁ X)).
@@ -40,7 +40,7 @@ Section Identitor.
   Defined.
 
   Definition identitor_disp_id_comp
-    : disp_cat_id_comp (map1cells C D) identitor_disp_cat_data.
+    : disp_precat_id_comp (map1cells C D) identitor_disp_precat_data.
   Proof.
     split.
     - intros F Fid X ; cbn in *.
@@ -92,7 +92,7 @@ Section Identitor.
   Proof.
     use disp_cell_unit_bicat.
     use tpair.
-    - exact identitor_disp_cat_data.
+    - exact identitor_disp_precat_data.
     - exact identitor_disp_id_comp.
   Defined.
 

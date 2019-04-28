@@ -264,25 +264,25 @@ Proof.
   - exact (cartesian_factorisation' fd (identity _) fd' (id_left _)).
   - cbn; split.
     + apply (cartesian_factorisation_unique fd').
-      etrans. apply assoc_disp_var.
+      etrans. apply (@assoc_disp_var C D).
       rewrite cartesian_factorisation_commutes'.
       etrans. eapply transportf_bind, mor_disp_transportf_prewhisker.
       rewrite cartesian_factorisation_commutes'.
       etrans. apply transport_f_f.
       apply pathsinv0.
       etrans. apply mor_disp_transportf_postwhisker.
-      rewrite id_left_disp.
+      rewrite (@id_left_disp C D).
       etrans. apply transport_f_f.
       apply maponpaths_2, homset_property.
     + apply (cartesian_factorisation_unique fd).
-      etrans. apply assoc_disp_var.
+      etrans. apply (@assoc_disp_var C D).
       rewrite cartesian_factorisation_commutes'.
       etrans. eapply transportf_bind, mor_disp_transportf_prewhisker.
       rewrite cartesian_factorisation_commutes'.
       etrans. apply transport_f_f.
       apply pathsinv0.
       etrans. apply mor_disp_transportf_postwhisker.
-      rewrite id_left_disp.
+      rewrite (@id_left_disp C D).
       etrans. apply transport_f_f.
       apply maponpaths_2, homset_property.
 Defined.
@@ -345,7 +345,7 @@ Definition is_discrete_fibration {C : category} (D : disp_cat C) : UU
   ×
   (forall c, isaset (D c)).
 
-Definition discrete_fibration C : UU
+Definition discrete_fibration (C : category) : UU
   := ∑ D : disp_cat C, is_discrete_fibration D.
 
 Coercion disp_cat_from_discrete_fibration C (D : discrete_fibration C)
@@ -388,7 +388,8 @@ Proof.
   intros x x'. apply disp_mor_unique_disc_fib.
 Qed.
 
-Definition fibration_from_discrete_fibration C (D : discrete_fibration C)
+(*
+Definition fibration_from_discrete_fibration {C : category} (D : discrete_fibration C)
   : cleaving D.
 Proof.
   intros c c' f d.
@@ -426,7 +427,6 @@ Proof.
         assert (YY := pair_inj (isaset_fiber_discrete_fibration _ _ ) XR0).
         etrans. apply (!XX). apply YY.
 Defined.
-
 
 
 Section Equivalence_disc_fibs_presheaves.
@@ -729,7 +729,6 @@ Definition adj_equivalence_disc_fib : adj_equivalence_of_precats _ :=
 
 End Equivalence_disc_fibs_presheaves.
 
-End Discrete_Fibrations.
 
 Section Opfibrations.
 
@@ -897,5 +896,7 @@ Definition fiber_functor_from_cleaving : D [{c}] ⟶ D [{c'}]
 
 End fiber_functor_from_cleaving.
 
+ *)
+End Discrete_Fibrations.
 
 (* *)

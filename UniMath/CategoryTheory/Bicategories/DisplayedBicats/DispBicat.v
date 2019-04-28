@@ -48,16 +48,16 @@ Definition transportf_transpose_alt {X : UU} {P : X → UU}
 (** ** Definition of displayed bicategories.                                           *)
 (* ----------------------------------------------------------------------------------- *)
 
-Definition disp_2cell_struct {C : prebicat_1_id_comp_cells} (D : disp_cat_ob_mor C) : UU
+Definition disp_2cell_struct {C : prebicat_1_id_comp_cells} (D : disp_precat_ob_mor C) : UU
   := ∏ (c c' : C) (f g : C⟦c,c'⟧) (x : f ==> g)
        (d : D c) (d' : D c') (f' : d -->[f] d') (g' : d -->[g] d'), UU.
 
 Definition disp_prebicat_1_id_comp_cells (C : prebicat_1_id_comp_cells) : UU
-  := ∑ D : disp_cat_data C, disp_2cell_struct D.
+  := ∑ D : disp_precat_data C, disp_2cell_struct D.
 
-Coercion disp_cat_data_from_disp_prebicat_1_id_comp_cells
+Coercion disp_precat_data_from_disp_prebicat_1_id_comp_cells
          {C : prebicat_1_id_comp_cells} (D : disp_prebicat_1_id_comp_cells C)
-  : disp_cat_data C
+  : disp_precat_data C
   := pr1 D.
 
 Definition disp_2cells {C : prebicat_1_id_comp_cells}

@@ -72,7 +72,7 @@ Section Cofunctormaps.
     - exact disp_two_presheaves_is_univalent_2_1.
   Defined.
 
-  Definition disp_cofunctormaps_cat_ob_mor : disp_cat_ob_mor (total_bicat disp_two_presheaves).
+  Definition disp_cofunctormaps_cat_ob_mor : disp_precat_ob_mor (total_bicat disp_two_presheaves).
   Proof.
     red.
     use tpair.
@@ -85,7 +85,7 @@ Section Cofunctormaps.
   Defined.
 
   Definition disp_cofunctormaps_cat_id_comp
-    : disp_cat_id_comp _ disp_cofunctormaps_cat_ob_mor.
+    : disp_precat_id_comp _ disp_cofunctormaps_cat_ob_mor.
   Proof.
     apply tpair.
     - intros (C, (ty, tm)) p.
@@ -118,7 +118,7 @@ Section Cofunctormaps.
         apply h2.
   Defined.
 
-  Definition disp_cofunctormaps_cat_data : disp_cat_data (total_bicat disp_two_presheaves)
+  Definition disp_cofunctormaps_cat_data : disp_precat_data (total_bicat disp_two_presheaves)
     := (_ ,, disp_cofunctormaps_cat_id_comp).
 
   Definition disp_cofunctormaps_bicat

@@ -168,7 +168,7 @@ Section DispHomSetIso_from_Adjunction.
     rewrite triangle1.
     unfold transportb.
     rewrite mor_disp_transportf_postwhisker.
-    rewrite id_left_disp.
+    rewrite (@id_left_disp C' D').
     unfold transportb.
     rewrite 2 transport_f_f.
     intermediate_path (transportf _ (idpath _) beta).
@@ -193,7 +193,7 @@ Section DispHomSetIso_from_Adjunction.
     rewrite triangle2.
     unfold transportb.
     rewrite mor_disp_transportf_prewhisker.
-    rewrite id_right_disp.
+    rewrite (@id_right_disp C D).
     unfold transportb.
     rewrite 2 transport_f_f.
     intermediate_path (transportf _ (idpath _ ) alpha).
@@ -264,6 +264,7 @@ End DispHomSetIso_from_Adjunction.
 
 (** * The right adjoint functor of a displayed adjunction preserves cartesian morphisms. *)
 
+(*
 Lemma right_over_adj_preserves_cartesianness : is_cartesian_disp_functor GG.
 Proof.
   unfold is_cartesian_disp_functor.
@@ -287,11 +288,11 @@ Proof.
       * apply idpath.
       * apply maponpaths_2, homset_property.
     + intro p.
-      set (equiv1 := homset_conj'_after_conj_inv _ h).
-      set (equiv2 := homset_conj'_after_conj_inv _ (gg;; # GG ff)).
+      set (equiv1 := homset_conj'_after_conj_inv d h).
+      set (equiv2 := homset_conj'_after_conj_inv d (gg;; # GG ff)).
       unfold homset_conj' in equiv1, equiv2.
       rewrite <- equiv1.
-      rewrite <- equiv2.
+      refine (!equiv2 @ _).
       rewrite eq2.
       rewrite p.
       rewrite transport_b_f.
@@ -303,5 +304,5 @@ Proof.
     + apply homsets_disp.
   - apply ff_cart.
 Defined.
-
+*)
 End fix_disp_adjunction.

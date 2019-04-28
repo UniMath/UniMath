@@ -24,8 +24,8 @@ Local Open Scope cat.
 Section Compositor.
   Variable (C D : bicat).
 
-  Definition compositor_disp_cat_data
-    : disp_cat_ob_mor (map1cells C D).
+  Definition compositor_disp_precat_data
+    : disp_precat_ob_mor (map1cells C D).
   Proof.
     use tpair.
     - exact (λ F,
@@ -44,8 +44,8 @@ Section Compositor.
                • (Fcomp X Y Z f g ▹ ηobj η Z)).
   Defined.
 
-  Definition compositor_disp_cat_id_comp
-    : disp_cat_id_comp (map1cells C D) compositor_disp_cat_data.
+  Definition compositor_disp_precat_id_comp
+    : disp_precat_id_comp (map1cells C D) compositor_disp_precat_data.
   Proof.
     split.
     - intros F Fcomp X Y Z f g ; cbn in *.
@@ -249,8 +249,8 @@ Section Compositor.
   Proof.
     use disp_cell_unit_bicat.
     use tpair.
-    - exact compositor_disp_cat_data.
-    - exact compositor_disp_cat_id_comp.
+    - exact compositor_disp_precat_data.
+    - exact compositor_disp_precat_id_comp.
   Defined.
 
   Definition compositor_is_disp_univalent_2_1

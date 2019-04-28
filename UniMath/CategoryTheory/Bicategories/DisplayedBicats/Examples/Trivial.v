@@ -36,23 +36,23 @@ Section Trivial_Displayed.
   (* ----------------------------------------------------------------------------------- *)
   Variable (B C : bicat).
 
-  Definition trivial_disp_cat_ob_mor : disp_cat_ob_mor B
-    := make_disp_cat_ob_mor
+  Definition trivial_disp_precat_ob_mor : disp_precat_ob_mor B
+    := make_disp_precat_ob_mor
          B
          (λ _ : B, C)
          (λ (_ _ : B) (a b : C) _, C⟦a,b⟧).
 
-  Definition trivial_disp_cat_id_comp
-    : disp_cat_id_comp B trivial_disp_cat_ob_mor
+  Definition trivial_disp_precat_id_comp
+    : disp_precat_id_comp B trivial_disp_precat_ob_mor
     := (λ (_ : B) (a : C), identity a),,
                                       (λ (_ _ _ : B) _ _ (a b c : C) (f : C⟦a,b⟧) (g : C⟦b,c⟧), f · g).
 
-  Definition trivial_disp_cat_data : disp_cat_data B
-    := trivial_disp_cat_ob_mor,, trivial_disp_cat_id_comp.
+  Definition trivial_disp_precat_data : disp_precat_data B
+    := trivial_disp_precat_ob_mor,, trivial_disp_precat_id_comp.
 
   Definition trivial_disp_prebicat_1_id_comp_cells : disp_prebicat_1_id_comp_cells B
-    := tpair (λ C:disp_cat_data B, disp_2cell_struct C)
-             trivial_disp_cat_data
+    := tpair (λ C:disp_precat_data B, disp_2cell_struct C)
+             trivial_disp_precat_data
              (λ _ _ _ _ _ a b f g, f ==> g).
 
   Definition trivial_displayed_data : disp_prebicat_data B.

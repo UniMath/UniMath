@@ -26,7 +26,7 @@ Local Open Scope cat.
 Section Map1Cells.
   Variable (C D : bicat).
 
-  Definition map1cells_disp_cat : disp_cat_ob_mor (ps_base C D).
+  Definition map1cells_disp_cat : disp_precat_ob_mor (ps_base C D).
   Proof.
     use tpair.
     - exact (λ F₀, ∏ (X Y : C), X --> Y → F₀ X --> F₀ Y).
@@ -34,7 +34,7 @@ Section Map1Cells.
              invertible_2cell (η X · G₁ X Y f) (F₁ X Y f · η Y)).
   Defined.
 
-  Definition map1cells_disp_cat_id_comp : disp_cat_id_comp (ps_base C D) map1cells_disp_cat.
+  Definition map1cells_disp_precat_id_comp : disp_precat_id_comp (ps_base C D) map1cells_disp_cat.
   Proof.
     use tpair.
     - cbn.
@@ -64,7 +64,7 @@ Section Map1Cells.
     use tpair.
     - use tpair.
       + exact map1cells_disp_cat.
-      + exact map1cells_disp_cat_id_comp.
+      + exact map1cells_disp_precat_id_comp.
     - exact (λ F₀ G₀ η₁ ε₁ m F₁ G₁ η₂ ε₂,
              ∏ (X Y : C) (f : X --> Y),
              η₂ X Y f • (F₁ X Y f ◃ m Y)

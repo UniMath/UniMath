@@ -78,7 +78,7 @@ Proof.
     apply pathsinv0.
     etrans. apply mor_disp_transportf_postwhisker.
     etrans. eapply transportf_bind.
-      apply assoc_disp_var.
+      apply (@assoc_disp_var C D).
     etrans. eapply transportf_bind.
       etrans. apply maponpaths, e.
       apply mor_disp_transportf_prewhisker.

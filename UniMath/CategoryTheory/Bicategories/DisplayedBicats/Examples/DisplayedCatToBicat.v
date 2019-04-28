@@ -41,7 +41,7 @@ Proof.
 Qed.
 
 Section Disp_Prebicat_Cells_Unit.
-  Context {C : bicat} (D : disp_cat_data C).
+  Context {C : bicat} (D : disp_precat_data C).
 
   Definition disp_prebicat_cells_unit
     : disp_prebicat_1_id_comp_cells C.
@@ -265,7 +265,7 @@ End Disp_Prebicat_Cells_Unit.
 
 Definition is_chaotic_disp_bicat_cells_unit
            {C : bicat}
-           (D : disp_cat_data C)
+           (D : disp_precat_data C)
   : is_chaotic (disp_cell_unit_bicat D).
 Proof.
   intro ; intros.

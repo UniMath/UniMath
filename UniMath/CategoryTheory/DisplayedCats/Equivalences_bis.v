@@ -406,7 +406,7 @@ Proof.
   = 1                                            [by inverses, 7]
 
   It’s perhaps most readable when written in string diagrams. *)
-  etrans. apply id_left_disp_var.
+  etrans. apply (@id_left_disp_var C D).
   etrans. eapply transportf_bind.
     eapply cancel_postcomposition_disp.
     etrans. eapply transportf_transpose. apply @pathsinv0.
@@ -423,13 +423,13 @@ Proof.
       apply (Hη). (*1b*)
     eapply transportf_bind, assoc_disp.
   etrans. eapply transportf_bind.
-    etrans. apply assoc_disp_var.
+    etrans. apply (@assoc_disp_var C D).
     eapply transportf_bind.
-    etrans. apply assoc_disp_var.
+    etrans. apply (@assoc_disp_var C D).
     eapply transportf_bind.
     eapply cancel_precomposition_disp.
     etrans. eapply cancel_precomposition_disp.
-      etrans. apply assoc_disp.
+      etrans. apply (@assoc_disp C D).
       eapply transportf_bind.
       etrans. eapply cancel_postcomposition_disp.
         exact (disp_nat_trans_ax η (# GG (ε x yy))). (*2*)
@@ -439,14 +439,14 @@ Proof.
       eapply cancel_precomposition_disp.
       cbn.
       etrans. eapply transportf_transpose.
-        apply @pathsinv0, (disp_functor_comp GG).
+        apply @pathsinv0, (disp_functor_comp _ GG).
       eapply transportf_bind.
       etrans. apply maponpaths.
         apply (disp_nat_trans_ax ε). (*3*)
       cbn.
       etrans. apply (disp_functor_transportf _ GG).
       eapply transportf_bind.
-      apply (disp_functor_comp GG).
+      apply (disp_functor_comp _ GG).
     eapply transportf_bind.
     etrans. apply assoc_disp.
     eapply transportf_bind.
@@ -454,21 +454,21 @@ Proof.
       apply (disp_nat_trans_ax η (η _ (GG x yy))). (*4*)
     cbn.
     eapply transportf_bind.
-    etrans. apply assoc_disp_var.
+    etrans. apply (@assoc_disp_var C D).
     eapply transportf_bind.
     eapply cancel_precomposition_disp.
-    etrans. apply assoc_disp.
+    etrans. apply (@assoc_disp C D).
     eapply transportf_bind.
     etrans. eapply cancel_postcomposition_disp.
       etrans. eapply transportf_transpose.
-        apply @pathsinv0, (disp_functor_comp GG). (*5*)
+        apply @pathsinv0, (disp_functor_comp _ GG). (*5*)
       eapply transportf_bind.
       etrans. apply maponpaths, T1. (*6*)
       etrans. apply (disp_functor_transportf _ GG).
-      eapply transportf_bind. apply (disp_functor_id GG).
+      eapply transportf_bind. apply (disp_functor_id _ GG).
     eapply transportf_bind. apply id_left_disp.
   etrans. eapply transportf_bind.
-    etrans. apply assoc_disp_var.
+    etrans. apply (@assoc_disp_var C D).
     eapply transportf_bind.
     etrans. eapply cancel_precomposition_disp.
       etrans. apply assoc_disp.
@@ -542,7 +542,7 @@ Proof.
   split.
   - unfold ffinv, FFffinv''; clear ffinv FFffinv''.
     apply (invmaponpathsweq (@FFweq _ _ _ _ _ )). cbn.
-    etrans. apply (disp_functor_comp FF).
+    etrans. apply (disp_functor_comp _ FF).
     etrans. apply maponpaths. apply maponpaths_2. apply (homotweqinvweq (@FFweq _ _ _ _ _ )).
     etrans. apply maponpaths. apply mor_disp_transportf_postwhisker.
     etrans. apply transport_f_f.
@@ -557,7 +557,7 @@ Proof.
     apply maponpaths_2. apply homset_property.
   - unfold ffinv, FFffinv''; clear ffinv FFffinv''.
     apply (invmaponpathsweq (@FFweq _ _ _ _ _ )). cbn.
-    etrans. apply (disp_functor_comp FF).
+    etrans. apply (disp_functor_comp _ FF).
     etrans. apply maponpaths. apply maponpaths. apply (homotweqinvweq (@FFweq _ _ _ _ _ )).
         etrans. apply maponpaths. apply mor_disp_transportf_prewhisker.
     etrans. apply transport_f_f.

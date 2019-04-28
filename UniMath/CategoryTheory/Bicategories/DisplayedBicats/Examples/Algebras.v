@@ -28,7 +28,7 @@ Section Algebra.
   Context `{C : bicat}.
   Variable (F : psfunctor C C).
 
-  Definition alg_disp_cat : disp_cat_ob_mor C.
+  Definition alg_disp_cat : disp_precat_ob_mor C.
   Proof.
     use tpair.
     - exact (λ X, C⟦F X,X⟧).
@@ -36,7 +36,7 @@ Section Algebra.
       exact (invertible_2cell (f · h) (#F h · g)).
   Defined.
 
-  Definition alg_disp_cat_id_comp : disp_cat_id_comp C alg_disp_cat.
+  Definition alg_disp_precat_id_comp : disp_precat_id_comp C alg_disp_cat.
   Proof.
     split ; cbn.
     - intros X f.
@@ -67,7 +67,7 @@ Section Algebra.
     use tpair.
     - use tpair.
       + exact alg_disp_cat.
-      + exact alg_disp_cat_id_comp.
+      + exact alg_disp_precat_id_comp.
     - exact alg_disp_cat_2cell.
   Defined.
 

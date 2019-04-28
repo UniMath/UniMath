@@ -128,14 +128,14 @@ Section Arrow_Disp.
 
 Context (C:category).
 
-Definition arrow_disp_ob_mor : disp_cat_ob_mor (prod_category C C).
+Definition arrow_disp_ob_mor : disp_precat_ob_mor (prod_category C C).
 Proof.
   exists (λ xy : (C × C), (pr1 xy) --> (pr2 xy)).
   simpl; intros xx' yy' g h ff'.
     exact (pr1 ff' · h = g · pr2 ff').
 Defined.
 
-Definition arrow_id_comp : disp_cat_id_comp _ arrow_disp_ob_mor.
+Definition arrow_id_comp : disp_precat_id_comp _ arrow_disp_ob_mor.
 Proof.
   split.
   - simpl; intros.
@@ -148,13 +148,13 @@ Proof.
     apply pathsinv0, assoc.
 Qed.
 
-Definition arrow_data : disp_cat_data _
+Definition arrow_data : disp_precat_data _
   := (arrow_disp_ob_mor ,, arrow_id_comp).
 
 Lemma arrow_axioms : disp_cat_axioms (prod_category C C) arrow_data.
 Proof.
   repeat apply tpair; intros; try apply homset_property.
-  apply isasetaprop, homset_property.
+  intros ? ? ? ? ?; apply isasetaprop, homset_property.
 Qed.
 
 Definition arrow_disp : disp_cat (prod_category C C)
@@ -173,13 +173,13 @@ Section NAction.
 
 Context (C:category).
 
-Definition NAction_disp_ob_mor : disp_cat_ob_mor C.
+Definition NAction_disp_ob_mor : disp_precat_ob_mor C.
 Proof.
   exists (λ c, c --> c).
   intros x y xx yy f. exact (f · yy = xx · f).
 Defined.
 
-Definition NAction_id_comp : disp_cat_id_comp C NAction_disp_ob_mor.
+Definition NAction_id_comp : disp_precat_id_comp C NAction_disp_ob_mor.
 Proof.
   split.
   - simpl; intros.
@@ -192,13 +192,13 @@ Proof.
     apply pathsinv0, assoc.
 Qed.
 
-Definition NAction_data : disp_cat_data C
+Definition NAction_data : disp_precat_data C
   := (NAction_disp_ob_mor ,, NAction_id_comp).
 
 Lemma NAction_axioms : disp_cat_axioms C NAction_data.
 Proof.
   repeat apply tpair; intros; try apply homset_property.
-  apply isasetaprop, homset_property.
+  intros ? ? ? ? ?; apply isasetaprop, homset_property.
 Qed.
 
 Definition NAction_disp : disp_cat C
@@ -216,14 +216,14 @@ A presheaf on a (pre)category can be viewed as a fiberwise discrete displayed (p
 
 Section Elements_Disp.
 
-Definition elements_ob_mor : disp_cat_ob_mor SET.
+Definition elements_ob_mor : disp_precat_ob_mor SET.
 Proof.
   use tpair.
   - simpl. exact (λ X, X).
   - simpl. intros X Y x y f. exact (f x = y).
 Defined.
 
-Lemma elements_id_comp : disp_cat_id_comp SET elements_ob_mor.
+Lemma elements_id_comp : disp_precat_id_comp SET elements_ob_mor.
 Proof.
   apply tpair; simpl.
   - intros X x. apply idpath.
@@ -231,17 +231,17 @@ Proof.
     eapply pathscomp0. apply maponpaths, e_fx_y. apply e_gy_z.
 Qed.
 
-Definition elements_data : disp_cat_data SET
+Definition elements_data : disp_precat_data SET
   := (_ ,, elements_id_comp).
 
 Lemma elements_axioms : disp_cat_axioms SET elements_data.
 Proof.
   repeat split; intros; try apply setproperty.
-  apply isasetaprop; apply setproperty.
+  intros ? ? ? ? ?; apply isasetaprop; apply setproperty.
 Qed.
 
 Definition elements_universal : disp_cat SET
-  := (_ ,, elements_axioms).
+  := make_disp_cat elements_axioms.
 
 Definition disp_cat_of_elements {C : category} (P : functor C SET)
   := reindex_disp_cat P elements_universal.
@@ -502,7 +502,7 @@ Section over_terminal_category.
 
 Variable C : category.
 
-Definition disp_over_unit_data : disp_cat_data unit_category.
+Definition disp_over_unit_data : disp_precat_data unit_category.
 Proof.
   use tpair.
   - use tpair.
@@ -517,6 +517,7 @@ Defined.
 Definition disp_over_unit_axioms : disp_cat_axioms _ disp_over_unit_data.
 Proof.
   repeat split; cbn; intros.
+  - intros ? ? ? ?; apply homset_property.
   - apply id_left.
   - etrans. apply id_right.
     apply pathsinv0. unfold mor_disp. cbn.
@@ -524,10 +525,9 @@ Proof.
   - etrans. apply assoc.
     apply pathsinv0. unfold mor_disp. cbn.
     apply (eqtohomot (transportf_const _ _)).
-  - apply homset_property.
 Qed.
 
-Definition disp_over_unit : disp_cat _ := _ ,, disp_over_unit_axioms.
+Definition disp_over_unit : disp_cat _ := make_disp_cat disp_over_unit_axioms.
 
 End over_terminal_category.
 
@@ -547,7 +547,7 @@ Section arrow.
 
 Variable C : category.
 
-Definition disp_arrow_data : disp_cat_data (cartesian C C).
+Definition disp_arrow_data : disp_precat_data (cartesian C C).
 Proof.
   use tpair.
   - use tpair.
@@ -578,11 +578,10 @@ Definition disp_arrow_axioms : disp_cat_axioms _ disp_arrow_data.
 Proof.
   repeat split; intros; cbn;
     try apply homset_property.
-  apply isasetaprop.
-  apply homset_property.
+  intros ? ? ? ? ?; apply isasetaprop, homset_property.
 Qed.
 
-Definition disp_arrow : disp_cat (cartesian C C) := _ ,, disp_arrow_axioms.
+Definition disp_arrow : disp_cat (cartesian C C) := make_disp_cat disp_arrow_axioms.
 
 Definition arrow : category := total_category disp_arrow.
 
@@ -596,14 +595,14 @@ Section cartesian_product.
 
 Variables C C' : category.
 
-Definition disp_cartesian_ob_mor : disp_cat_ob_mor C.
+Definition disp_cartesian_ob_mor : disp_precat_ob_mor C.
 Proof.
   use tpair.
   - exact (λ c, C').
   - cbn. intros x y x' y' f. exact (C'⟦x', y'⟧).
 Defined.
 
-Definition disp_cartesian_data : disp_cat_data C.
+Definition disp_cartesian_data : disp_precat_data C.
 Proof.
   exists disp_cartesian_ob_mor.
   use tpair; cbn.
@@ -614,6 +613,7 @@ Defined.
 Definition disp_cartesian_axioms : disp_cat_axioms _ disp_cartesian_data.
 Proof.
   repeat split; intros; cbn.
+  - intros ? ? ? ? ?; apply homset_property.
   - etrans. apply id_left.
     apply pathsinv0.
     etrans. unfold mor_disp. cbn. apply (eqtohomot (transportf_const _ _)).
@@ -626,10 +626,9 @@ Proof.
     apply pathsinv0.
     etrans. unfold mor_disp. cbn. apply (eqtohomot (transportf_const _ _)).
     apply idpath.
-  - apply homset_property.
 Qed.
 
-Definition disp_cartesian' : disp_cat C := _ ,, disp_cartesian_axioms.
+Definition disp_cartesian' : disp_cat C := make_disp_cat disp_cartesian_axioms.
 
 End cartesian_product.
 
