@@ -874,15 +874,6 @@ Section Term.
       apply (IHn (stack_rest s)).
   Defined.
 
-  Lemma nil_not_term: list2status(sigma:=sigma) nil != statusok 1.
-  Proof.
-    cbn.
-    intro H.
-    apply ii1_injectivity in H.
-    apply negpaths0sx in H.
-    contradiction.
-  Defined.
-
   Theorem term_ind:
     ∏ (P: Term sigma → UU),
     ( ∏ (nm: names sigma) (vterm: Vector (Term sigma) (arity nm)),
@@ -890,18 +881,20 @@ Section Term.
     → (∏ t: Term sigma, P t).
   Proof.
     intros P HPind.
-    assert (∏ (n vlen: nat) (vlehn: vlen ≤ n) (v: Vector (names sigma) vlen)
-              (lp: list2status (vlen ,, v) = statusok 1), P (mkstack (vlen ,, v) lp)).
+    assert (thm: ∏ (n vlen: nat) (vlehn: vlen ≤ n) (v: Vector (names sigma) vlen)
+                   (lp: list2status (vlen ,, v) = statusok 1), P (mkstack (vlen ,, v) lp)).
     intro n.
     induction n.
     - intros.
       apply fromempty.
       apply natleh0tois0 in vlehn.
       generalize v lp.
+      clear v lp.
       rewrite vlehn.
       intros.
-      induction v0.
-      apply nil_not_term in lp0.
+      induction v.
+      apply ii1_injectivity in lp.
+      apply negpaths0sx in lp.
       assumption.
     - intros.
       induction (isdeceqnat vlen (S n)) as [vlenlehn | vleneqsn].
@@ -913,23 +906,19 @@ Section Term.
         change (S n,, v) with (cons (hd v) (n ,, tl v)) in l.
         rewrite list2status_cons in l.
         apply status_cons_statusok_r in l.
-
-        apply dirprod_pr2 in l.
-        rewrite natpluscomm in l.
-        rewrite plusminusnmm in l.
+        induction l as [_ l].
+        rewrite <- stack_concatenate_normalize_arith in l.
         set (terms := stack2terms (mkstack (n ,, tl v) l)).
         assert (struct: mkstack (S n ,, v) lp = mkterm (hd v) terms).
-        * unfold mkterm, is_mkterm_term.
-          unfold terms.
+        * unfold mkterm, is_mkterm_term, terms.
           rewrite terms2stack2terms.
           apply stack_extens.
-          simpl.
           reflexivity.
         * rewrite struct.
           assert (prevterms: ∏ i: ⟦ arity (hd v) ⟧, P (el terms i)).
           {
             intro i.
-            set (sizei:= length_terms2stack terms i).
+            set (sizei := length_terms2stack terms i).
             change  (length (terms2stack terms))
               with (length (terms2stack (stack2terms (mkstack (n,, tl v) l)))) in sizei.
             rewrite terms2stack2terms in sizei.
@@ -945,7 +934,7 @@ Section Term.
         * contradiction.
     - intro t.
       induction t as [[lent vect] prooft].
-      exact (X lent lent (isreflnatleh _) vect prooft).
+      exact (thm lent lent (isreflnatleh _) vect prooft).
   Defined.
 
   (**  TODO: is it possible to change definition of term_ind so that this lemma may be
