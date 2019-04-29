@@ -51,7 +51,7 @@ Section Homomorphisms.
 
   Definition hom (a1 a2: Algebra sigma): UU :=  ∑ (f: a1 → a2), is_hom f.
 
-  Local Notation "a1 ↦ a2" := (hom a1 a2)  (at level 80, right associativity).
+  Notation "a1 ↦ a2" := (hom a1 a2) (at level 80, right associativity).
 
   Definition hom2fun {a1 a2: Algebra sigma} (f: a1 ↦ a2): support a1 → support a2 := pr1 f.
 
@@ -105,6 +105,14 @@ Section Homomorphisms.
     := mkhom (funcomp h1 h2) (comp_is_hom h1 h2).
 
 End Homomorphisms.
+
+Declare Scope hom_scope.
+
+Notation "a1 ↦ a2" := (hom a1 a2) (at level 80, right associativity): hom_scope.
+
+Delimit Scope hom_scope with hom.
+
+Local Open Scope hom.
 
 Section TerminalAlgebra.
 
@@ -701,15 +709,11 @@ Section Term.
     assumption.
   Defined.
 
-  Definition stack_first {n: nat} (s: Stack sigma (S n)): Term sigma.
-  Proof.
-    exact (pr1 (extract_term s)).
-  Defined.
+  Definition stack_first {n: nat} (s: Stack sigma (S n)): Term sigma
+    := pr1 (extract_term s).
 
-  Definition stack_rest {n: nat} (s: Stack sigma (S n)): Stack sigma n.
-  Proof.
-    exact (pr1 (pr2 (extract_term s))).
-  Defined.
+  Definition stack_rest {n: nat} (s: Stack sigma (S n)): Stack sigma n
+    := pr1 (pr2 (extract_term s)).
 
   Lemma stack_concatenate_normalize1 {n: nat} (s: Stack sigma (S n))
     : stack_concatenate (stack_first s) (stack_rest s) = s.
@@ -944,7 +948,8 @@ Section Term.
       exact (X lent lent (isreflnatleh _) vect prooft).
   Defined.
 
-  (** Cannot prove this lemma **)
+  (**  TODO: is it possible to change definition of term_ind so that this lemma may be
+   proved by reflexivity? **)
 
   Lemma term_ind_destruct (nm: names sigma) (v: Vector (Term sigma) (arity nm)):
     ∏ (P: Term sigma → UU)
@@ -954,6 +959,8 @@ Section Term.
   Proof.
     intros.
   Abort.
+
+  (** TODO: change term_ind so that this definition computes. **)
 
   Definition depth (t: Term sigma): nat
     := term_ind ( λ t: Term sigma, nat)
@@ -967,5 +974,14 @@ Section TermAlgebra.
 
   Definition term_algebra (sigma: Signature): Algebra sigma
     := mkalgebra (Term_hset sigma) mkterm.
+
+  (** TODO
+
+  Definition initial_hom {sigma: Signature} (a: Algebra sigma): term_algebra sigma ↦ a.
+
+  Definition initial_hom_unicity {sigma: Signature} (a: Algebra sigma) (f: hom term_algebra a)
+     : f = initial_hom a.
+
+  **)
 
 End TermAlgebra.
