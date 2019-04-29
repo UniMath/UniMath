@@ -105,34 +105,28 @@ Section Nat.
   Goal terms2stack (term_zero ::: term_one ::: vnil) = zero_one_stack.
   Proof. apply stack_extens. exact (idpath _). Qed.
 
-  Goal term_op nat_succ ((term_op nat_zero vnil) ::: vnil) = term_one.
+  Goal mkterm nat_succ ((mkterm nat_zero vnil) ::: vnil) = term_one.
   Proof. apply stack_extens. exact (idpath _). Qed.
 
-  Goal princ_op term_two = nat_succ.
+  Goal princop term_two = nat_succ.
   Proof. exact (idpath _). Qed.
 
-  Goal pr1 (extract_substack zero_one_stack 0 (natleh0n 0)) = stack_nil nat_signature.
+  Goal pr1 (extract_list zero_one_stack 0) = nil.
   Proof. exact (idpath _ ). Qed.
 
-  Goal pr1 (extract_substack zero_one_stack 0 (natleh0n 0)) = stack_nil nat_signature.
+  Goal pr1 (extract_list zero_one_stack 0) = nil.
   Proof. exact (idpath _ ). Qed.
 
-  Goal pr1 (pr2 (extract_substack zero_one_stack 0 (natleh0n 0))) = zero_one_stack.
+  Goal pr2 (extract_list zero_one_stack 0) = zero_one_stack.
   Proof. exact (idpath _). Qed.
 
-  Goal pr1 (extract_substack zero_one_stack 1 (natleh0n 0)) = term_zero.
+  Goal pr1 (extract_list zero_one_stack 1) = term_zero.
   Proof. exact (idpath _). Qed.
 
-  Goal pr1 (pr2 (extract_substack zero_one_stack 1 (natleh0n 0))) = term_one.
-  Proof. apply stack_extens. exact (idpath _). Qed.
+  Goal stack_first zero_one_stack = term_zero.
+  Proof. exact (idpath _). Qed.
 
-  Goal pr1 (extract_substack zero_one_stack 2 (natleh0n 0)) = zero_one_stack.
-  Proof. apply stack_extens. exact (idpath _). Qed.
-
-  Goal pr1 (pr2 (extract_substack zero_one_stack 2 (natleh0n 0))) = stack_nil nat_signature.
-  Proof. apply stack_extens. exact (idpath _). Qed.
-
-  Goal subterm term_one (●0) = term_zero.
+  Goal el (subterms term_one) (●0) = term_zero.
   Proof. apply stack_extens. exact (idpath _). Qed.
 
   Goal depth term_zero = 1.
@@ -144,36 +138,36 @@ Section Nat.
 End Nat.
 
 Section Bool.
-  Local Definition t_false: Term bool_signature := term_op bool_false vnil.
-  Local Definition t_true: Term bool_signature := term_op bool_true vnil.
-  Local Definition t1: Term bool_signature := term_op bool_and (t_true ::: t_false ::: vnil).
-  Local Definition t2: Term bool_signature := term_op bool_not (t1 ::: vnil).
+  Local Definition t_false: Term bool_signature := mkterm bool_false vnil.
+  Local Definition t_true: Term bool_signature := mkterm bool_true vnil.
+  Local Definition t1: Term bool_signature := mkterm bool_and (t_true ::: t_false ::: vnil).
+  Local Definition t2: Term bool_signature := mkterm bool_not (t1 ::: vnil).
 
-  Goal princ_op t1 = bool_and.
+  Goal princop t1 = bool_and.
   Proof. exact (idpath _). Qed.
 
   Goal bool_not :: bool_and :: bool_true :: bool_false :: [] = t2.
   Proof. exact (idpath _). Qed.
 
-  Goal pr1 (extract_substack t1 0 (natleh0n 0)) = stack_nil bool_signature.
+  Goal pr1 (extract_list t1 0) = nil.
   Proof. exact (idpath _). Qed.
 
-  Goal pr1 ( pr2 (extract_substack t1 0 (natleh0n 0))) = t1.
+  Goal pr2 (extract_list t1 0) = t1.
   Proof. exact (idpath _). Qed.
 
-  Goal pr1 (extract_substack t1 1 (natleh0n 0)) = t1.
+  Goal pr1 (extract_list t1 1) = t1.
   Proof. exact (idpath _). Qed.
 
-  Goal pr1 (pr2 (extract_substack t1 1 (natleh0n 0))) = stack_nil bool_signature.
-  Proof. apply stack_extens. exact (idpath _). Qed.
-
-  Goal subterm t2 (●0) = t1.
-  Proof. apply stack_extens. exact (idpath _). Qed.
-
-  Goal subterm t1 (●0) = t_true.
+  Goal pr2 (extract_list t1 1) = nil.
   Proof. exact (idpath _). Qed.
 
-  Goal subterm t1 (●1) = t_false.
-  Proof. apply stack_extens. exact (idpath _). Qed.
+  Goal el (subterms t2) (●0) = t1.
+  Proof. exact (idpath _). Qed.
+
+  Goal el (subterms t1) (●0) = t_true.
+  Proof. exact (idpath _). Qed.
+
+  Goal el (subterms t1) (●1) = t_false.
+  Proof. exact (idpath _). Qed.
 
 End Bool.
