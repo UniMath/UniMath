@@ -15,11 +15,6 @@ Groupoids.v
 PrecategoryBinProduct.v
 ProductCategory.v
 whiskering.v
-Subcategory/Core.v
-Subcategory/Full.v
-Monics.v
-Epis.v
-SplitMonicsAndEpis.v
 Adjunctions/Core.v
 Monads/RelativeMonads.v
 Monads/RelMonads_Coreflection.v
@@ -27,6 +22,10 @@ Monads/RelativeModules.v
 Equivalences/Core.v
 Equivalences/CompositesAndInverses.v
 Equivalences/FullyFaithful.v
+Subcategory/Core.v
+Subcategory/Full.v
+Monics.v
+Epis.v
 categories/HSET/MonoEpiIso.v
 categories/HSET/Univalence.v
 Profunctors/Core.v
@@ -71,8 +70,7 @@ NNO.v
 Subcategory/Limits.v
 EpiFacts.v
 exponentials.v
-categories/Type/Core.v
-categories/Type/MonoEpiIso.v
+categories/Types.v
 SimplicialSets.v
 yoneda.v
 Monads/Monads.v
@@ -83,7 +81,7 @@ FunctorCoalgebras.v
 precomp_fully_faithful.v
 precomp_ess_surj.v
 rezk_completion.v
-UnitorsAndAssociatorsForEndofunctors.v
+EndofunctorsMonoidal.v
 CategoricalRecursionSchemes.v
 PointedFunctors.v
 HorizontalComposition.v
@@ -122,7 +120,6 @@ Monads/Derivative.v
 Monads/MonadAlgebras.v
 Adjunctions/Restriction.v
 Adjunctions/Examples.v
-Subcategory/Reflective.v
 
 categories/setwith2binops.v
 categories/monoids.v
@@ -139,10 +136,6 @@ categories/modules.v
 categories/StandardCategories.v
 categories/Cats.v
 categories/preorder_categories.v
-categories/Type/Colimits.v
-categories/Type/Limits.v
-categories/Type/Structures.v
-categories/Type/Univalence.v
 
 categories/HSET/Limits.v
 categories/HSET/Colimits.v
@@ -167,7 +160,6 @@ Chains/All.v
 Inductives/Lists.v
 Inductives/Trees.v
 Inductives/LambdaCalculus.v
-Inductives/PropositionalLogic.v
 
 DisplayedCats/Auxiliary.v
 DisplayedCats/Core.v
@@ -229,6 +221,9 @@ Bicategories/PseudoFunctors/Examples/ApFunctor.v
 Bicategories/PseudoFunctors/Examples/OpFunctor.v
 Bicategories/PseudoFunctors/Examples/Projection.v
 Bicategories/Transformations/PseudoTransformation.v
+Bicategories/Modifications/Modification.v
+Bicategories/PseudoFunctors/Representable.v
+Bicategories/PseudoFunctors/Yoneda.v
 
 Bicategories/DisplayedBicats/Examples/PointedOneTypes.v
 Bicategories/DisplayedBicats/Examples/Algebras.v
@@ -237,6 +232,8 @@ Bicategories/DisplayedBicats/Examples/Monads.v
 Bicategories/DisplayedBicats/Examples/ContravariantFunctor.v
 Bicategories/DisplayedBicats/Examples/Cofunctormap.v
 Bicategories/DisplayedBicats/Examples/CwF.v
+
+Bicategories/Colimits/Initial.v
 
 Bicategories/WkCatEnrichment/prebicategory.v
 Bicategories/WkCatEnrichment/Notations.v
@@ -252,13 +249,10 @@ Bicategories/Graph.v
 Bicategories/Discreteness.v
 
 Monoidal/MonoidalCategories.v
-Monoidal/EndofunctorsMonoidal.v
 Monoidal/MonoidalFunctors.v
 Monoidal/CategoriesOfMonoids.v
 Monoidal/Actions.v
 Monoidal/Strengths.v
-Monoidal/BicategoryFromMonoidal.v
-Monoidal/BraidedMonoidalCategories.v
 
 Enriched/Enriched.v
 
