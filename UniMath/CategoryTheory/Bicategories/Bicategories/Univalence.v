@@ -177,16 +177,16 @@ Section IsoInvertible2Cells.
     - intro ψ.
       cbn in *.
       exact (p^-1 • ψ).
-    - intro ψ.
-      cbn in *.
-      rewrite vassocr.
-      rewrite vcomp_lid.
-      apply id2_left.
-    - intro ψ.
-      cbn in *.
-      rewrite vassocr.
-      rewrite vcomp_rinv.
-      apply id2_left.
+    - abstract (intro ψ;
+                cbn in *;
+                rewrite vassocr;
+                rewrite vcomp_lid;
+                apply id2_left).
+    - abstract (intro ψ;
+                cbn in *;
+                rewrite vassocr;
+                rewrite vcomp_rinv;
+                apply id2_left).
   Defined.
 
   Definition inv2cell_to_iso {a b : C} (f g : hom a b) : invertible_2cell f g → iso f g.
