@@ -67,7 +67,7 @@ Definition modnaturality_of
   : is_modification m
   := pr211 m.
 
-Definition mk_modification
+Definition make_modification
            {B B' : bicat}
            {F G : psfunctor B B'}
            {σ τ : pstrans F G}
@@ -174,13 +174,13 @@ Definition is_invertible_modcomponent_of
   : ∏ (X : B), is_invertible_2cell (m X).
 Proof.
   intro X.
-  use mk_is_invertible_2cell.
+  use make_is_invertible_2cell.
   - exact ((Hm^-1 : modification _ _) X).
   - exact (modcomponent_eq (vcomp_rinv Hm) X).
   - exact (modcomponent_eq (vcomp_lid Hm) X).
 Defined.
 
-Definition mk_is_invertible_modification
+Definition make_is_invertible_modification
            {B B' : bicat}
            {F G : psfunctor B B'}
            {σ τ : pstrans F G}
@@ -188,8 +188,8 @@ Definition mk_is_invertible_modification
            (Hm : ∏ (X : B), is_invertible_2cell (m X))
   : is_invertible_modification m.
 Proof.
-  use mk_is_invertible_2cell.
-  - use mk_modification.
+  use make_is_invertible_2cell.
+  - use make_modification.
     + exact (λ X, (Hm X)^-1).
     + intros X Y f.
       simpl.
@@ -220,13 +220,13 @@ Definition invertible_modcomponent_of
   : ∏ (X : B), invertible_2cell (σ X) (τ X).
 Proof.
   intro X.
-  use mk_invertible_2cell.
+  use make_invertible_2cell.
   - exact ((cell_from_invertible_2cell m : modification _ _) X).
   - apply is_invertible_modcomponent_of.
     exact (property_from_invertible_2cell m).
 Defined.
 
-Definition mk_invertible_modification
+Definition make_invertible_modification
            {B B' : bicat}
            {F G : psfunctor B B'}
            {σ τ : pstrans F G}
@@ -234,12 +234,12 @@ Definition mk_invertible_modification
            (Hm : is_modification m)
   : invertible_modification σ τ.
 Proof.
-  use mk_invertible_2cell.
-  - use mk_modification.
+  use make_invertible_2cell.
+  - use make_modification.
     + unfold modification_data.
       apply m.
     + exact Hm.
-  - apply mk_is_invertible_modification.
+  - apply make_is_invertible_modification.
     intro.
     apply m.
 Defined.

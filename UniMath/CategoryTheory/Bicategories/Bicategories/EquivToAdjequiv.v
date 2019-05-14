@@ -395,3 +395,20 @@ Proof.
   - exact f.
   - exact g.
 Defined.
+
+Definition inv_adjequiv
+           {C : bicat}
+           {X Y : C}
+  : adjoint_equivalence X Y → adjoint_equivalence Y X.
+Proof.
+  intro f.
+  use equiv_to_adjequiv.
+  - exact (left_adjoint_right_adjoint f).
+  - simpl.
+    use tpair.
+    + repeat (use tpair).
+      * exact f.
+      * exact ((left_equivalence_counit_iso f)^-1).
+      * exact ((left_equivalence_unit_iso f)^-1).
+    + split ; cbn ; is_iso.
+Defined.

@@ -24,7 +24,7 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.BicatOf
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Univalence.
 Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Presheaves.
+(* Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Presheaves. *)
 Require Import UniMath.CategoryTheory.catiso.
 
 Local Open Scope bicategory_scope.
@@ -129,7 +129,7 @@ Section Initial.
     pose (pr1 (left_adjoint_equivalence_to_is_catiso _ (HX Y))) as HL.
     pose (pr1 (left_adjoint_equivalence_to_is_catiso
                  _
-                 (@inv_adjoint_equivalence bicat_of_cats _ _ (_ ,, HX Y))))
+                 (@inv_adjequiv bicat_of_cats _ _ (_ ,, HX Y))))
       as HR.
     exact (isweq_isinj (HL _ _) (isweq_isinj (HR _ _) p)).
   Qed.
@@ -152,7 +152,7 @@ Section Initial.
     - exact (biinitial_eq HX).
   Defined.
 
-  Definition biinitial_inv_d
+  Definition biinitial_inv_data
              {X : C}
              (HX : is_biinitial' X)
     : ∏ (Y : C),
@@ -161,7 +161,7 @@ Section Initial.
         (univ_hom C_is_univalent_2_1 X Y).
   Proof.
     intros Y.
-    use mk_functor_data.
+    use make_functor_data.
     - intro.
       exact (pr1 HX Y).
     - intros ; simpl.
@@ -172,7 +172,7 @@ Section Initial.
              {X : C}
              (HX : is_biinitial' X)
     : ∏ (Y : C),
-      is_functor (biinitial_inv_d HX Y).
+      is_functor (biinitial_inv_data HX Y).
   Proof.
     intros Y.
     split ; simpl.
@@ -191,12 +191,29 @@ Section Initial.
       unit_category ⟶ univ_hom C_is_univalent_2_1 X Y.
   Proof.
     intros Y.
-    use mk_functor.
-    - exact (biinitial_inv_d HX Y).
+    use make_functor.
+    - exact (biinitial_inv_data HX Y).
     - exact (biinitial_inv_is_functor HX Y).
   Defined.
 
-  Definition biinitial_inv_unit_d
+  Definition is_biinitial'_1cell_property
+             {X : C}
+             (HX : is_biinitial' X)
+    : biinitial_1cell_property X := pr1 HX.
+
+  Definition is_biinitial'_2cell_property
+             {X : C}
+             (HX : is_biinitial' X)
+             (Y : C)
+    : biinitial_2cell_property X Y := pr1 (pr2 HX Y).
+
+  Definition is_biinitial'_eq_property
+             {X : C}
+             (HX : is_biinitial' X)
+             (Y : C)
+    : biinitial_eq_property X Y := pr2 (pr2 HX Y).
+
+  Definition biinitial_inv_unit_data
              {X : C}
              (HX : is_biinitial' X)
              (Y : C)
@@ -207,20 +224,20 @@ Section Initial.
            (biinitial_inv HX Y)).
   Proof.
     intros f.
-    simpl.
-    exact (pr1 (pr2 HX Y) f (pr1 HX Y)).
+    simpl. Check pr1 HX Y.
+    exact (is_biinitial'_2cell_property HX Y f (is_biinitial'_1cell_property HX Y)).
   Defined.
 
   Definition biinitial_inv_unit_is_nat_trans
              {X : C}
              (HX : is_biinitial' X)
              (Y : C)
-    : is_nat_trans _ _ (biinitial_inv_unit_d HX Y).
+    : is_nat_trans _ _ (biinitial_inv_unit_data HX Y).
   Proof.
     intros f g α.
     simpl in * ; cbn.
     rewrite id2_right.
-    apply (pr2 (pr2 HX Y)).
+    apply (is_biinitial'_eq_property HX Y).
   Qed.
 
   Definition biinitial_inv_unit
@@ -233,12 +250,12 @@ Section Initial.
         (functor_to_unit (hom X Y))
         (biinitial_inv HX Y).
   Proof.
-    use mk_nat_trans.
-    - exact (biinitial_inv_unit_d HX Y).
+    use make_nat_trans.
+    - exact (biinitial_inv_unit_data HX Y).
     - exact (biinitial_inv_unit_is_nat_trans HX Y).
   Defined.
 
-  Definition biinitial_inv_counit_d
+  Definition biinitial_inv_counit_data
              {X : C}
              (HX : is_biinitial' X)
              (Y : C)
@@ -256,7 +273,7 @@ Section Initial.
              {X : C}
              (HX : is_biinitial' X)
              (Y : C)
-    : is_nat_trans _ _ (biinitial_inv_counit_d HX Y).
+    : is_nat_trans _ _ (biinitial_inv_counit_data HX Y).
   Proof.
     intros f g α.
     apply isasetunit.
@@ -272,8 +289,8 @@ Section Initial.
         ⟹
         (functor_identity _).
   Proof.
-    use mk_nat_trans.
-    - exact (biinitial_inv_counit_d HX Y).
+    use make_nat_trans.
+    - exact (biinitial_inv_counit_data HX Y).
     - exact (biinitial_inv_counit_is_nat_trans HX Y).
   Defined.
 
@@ -292,7 +309,7 @@ Section Initial.
     - split.
       + apply is_nat_iso_to_is_invertible_2cell.
         intro g.
-        cbn in * ; unfold biinitial_inv_unit_d.
+        cbn in * ; unfold biinitial_inv_unit_data.
         apply inv2cell_to_iso.
       + apply is_nat_iso_to_is_invertible_2cell.
         intro g.
@@ -344,7 +361,7 @@ Section Initial.
   Qed.
 End Initial.
 
-Definition mk_is_biinitial
+Definition make_is_biinitial
            {C : bicat}
            (C_is_univalent_2_1 : is_univalent_2_1 C)
            (X : C)
@@ -374,11 +391,11 @@ Definition empty_1_type
 Definition biinitial_1_types
   : is_biinitial one_types_is_univalent_2_1 empty_1_type.
 Proof.
-  use mk_is_biinitial.
+  use make_is_biinitial.
   - intros X.
     exact fromempty.
   - intros Y f g.
-    use mk_invertible_2cell.
+    use make_invertible_2cell.
     + intros z.
       exact (fromempty z).
     + apply one_type_2cell_iso.
@@ -391,22 +408,22 @@ Defined.
 Definition biinitial_cats
   : is_biinitial univalent_cat_is_univalent_2_1 empty_category.
 Proof.
-  use mk_is_biinitial.
+  use make_is_biinitial.
   - intros C.
-    use mk_functor.
-    + use mk_functor_data.
+    use make_functor.
+    + use make_functor_data.
       * exact fromempty.
       * exact (λ z, fromempty z).
     + split.
       * exact (λ z, fromempty z).
       * exact (λ z, fromempty z).
   - intros Y f g.
-    use mk_invertible_2cell.
-    + use mk_nat_trans.
+    use make_invertible_2cell.
+    + use make_nat_trans.
       * exact (λ z, fromempty z).
       * exact (λ z, fromempty z).
-    + use mk_is_invertible_2cell.
-      * use mk_nat_trans.
+    + use make_is_invertible_2cell.
+      * use make_nat_trans.
         ** exact (λ z, fromempty z).
         ** exact (λ z, fromempty z).
       * use nat_trans_eq.

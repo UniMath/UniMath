@@ -46,8 +46,8 @@ Definition representable_id_inv2cell (X : C)
                                  (representable1 C_is_univalent_2_1 (id₁ X)).
 Proof.
   intro Y.
-  use mk_invertible_2cell.
-  - use mk_nat_trans.
+  use make_invertible_2cell.
+  - use make_nat_trans.
     * intro f.
       cbn in *.
       apply rinvunitor.
@@ -56,8 +56,8 @@ Proof.
          cbn in * ;
          rewrite rwhisker_hcomp ;
          apply rinvunitor_natural).
-  - use mk_is_invertible_2cell.
-    + use mk_nat_trans.
+  - use make_is_invertible_2cell.
+    + use make_nat_trans.
       * intro f.
         cbn in *.
         apply runitor.
@@ -91,7 +91,7 @@ Qed.
 Definition representable_id_invmod (X : C)
   : invertible_modification (id_trans _) (representable1 C_is_univalent_2_1 (id₁ X)).
 Proof.
-  use mk_invertible_modification.
+  use make_invertible_modification.
   - exact (representable_id_inv2cell X).
   - exact (representable_id_is_mod X).
 Defined.
@@ -103,16 +103,16 @@ Definition representable_comp_inv2cell {X Y Z: C} (f : X --> Y) (g : Y --> Z)
       (representable1 C_is_univalent_2_1 (f · g)).
 Proof.
   intro W.
-  use mk_invertible_2cell.
-  - use mk_nat_trans.
+  use make_invertible_2cell.
+  - use make_nat_trans.
     + intro h.
       cbn in *.
       apply rassociator.
     + abstract (intros V U h;
                 cbn in *;
                 apply rwhisker_rwhisker_alt).
-  - use mk_is_invertible_2cell.
-    + use mk_nat_trans.
+  - use make_is_invertible_2cell.
+    + use make_nat_trans.
       * intro h.
         cbn in *.
         apply lassociator.
@@ -155,14 +155,14 @@ Definition representable_comp_invmod {X Y Z: C} (f : X --> Y) (g : Y --> Z)
                   (representable1 C_is_univalent_2_1 g))
       (representable1 C_is_univalent_2_1 (f · g)).
 Proof.
-  use mk_invertible_modification.
+  use make_invertible_modification.
   - exact (representable_comp_inv2cell f g).
   - exact (representable_comp_is_mod f g).
 Defined.
 
 Definition y_data : psfunctor_data C (psfunctor_bicat (op1_bicat C) bicat_of_cats).
 Proof.
-  use mk_psfunctor_data.
+  use make_psfunctor_data.
   - exact (representable C_is_univalent_2_1).
   - intros X Y.
     exact (representable1 C_is_univalent_2_1).
@@ -260,7 +260,7 @@ Defined.
 
 Definition y : psfunctor C (psfunctor_bicat (op1_bicat C) bicat_of_cats).
 Proof.
-  use mk_psfunctor.
+  use make_psfunctor.
   - exact y_data.
   - exact y_laws.
   - exact y_invertible_cells.

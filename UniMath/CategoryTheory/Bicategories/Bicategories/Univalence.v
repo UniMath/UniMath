@@ -7,6 +7,8 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Unitors.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
@@ -161,3 +163,101 @@ Proof.
   apply (isofhlevelweqb _ (idtoiso_2_1 f g,, pr2 HC _ _ f g)).
   apply isaset_invertible_2cell.
 Qed.
+
+(** Local Univalence implies the hom cats are univalent *)
+Section IsoInvertible2Cells.
+  Context {C : bicat}.
+  Variable (C_is_univalent_2_1 : is_univalent_2_1 C).
+
+  Definition is_inv2cell_to_is_iso {a b : C} (f g : hom a b) (η : f ==> g)
+    : is_invertible_2cell η → is_iso η.
+  Proof.
+    intros p h.
+    use isweq_iso.
+    - intro ψ.
+      cbn in *.
+      exact (p^-1 • ψ).
+    - intro ψ.
+      cbn in *.
+      rewrite vassocr.
+      rewrite vcomp_lid.
+      apply id2_left.
+    - intro ψ.
+      cbn in *.
+      rewrite vassocr.
+      rewrite vcomp_rinv.
+      apply id2_left.
+  Defined.
+
+  Definition inv2cell_to_iso {a b : C} (f g : hom a b) : invertible_2cell f g → iso f g.
+  Proof.
+    intro i.
+    use make_iso.
+    - apply i.
+    - apply is_inv2cell_to_is_iso.
+      apply i.
+  Defined.
+
+
+  Definition iso_to_inv2cell {a b : C} (f g : hom a b) : iso f g → invertible_2cell f g.
+  Proof.
+    intro i.
+    use tpair.
+    + exact (morphism_from_iso i).
+    + use make_is_invertible_2cell.
+      * exact (inv_from_iso i).
+      * exact (iso_inv_after_iso i).
+      * exact (iso_after_iso_inv i).
+  Defined.
+
+  Definition inv2cell_to_iso_isweq {a b : C} (f g : hom a b) : isweq (inv2cell_to_iso f g).
+  Proof.
+    use isweq_iso.
+    - exact (iso_to_inv2cell f g).
+    - intro i.
+      apply cell_from_invertible_2cell_eq.
+      apply idpath.
+    - intro i.
+      apply eq_iso.
+      apply idpath.
+  Defined.
+
+  Definition inv2cell_to_iso_weq {a b : C} (f g : hom a b) : invertible_2cell f g ≃ iso f g.
+  Proof.
+    use make_weq.
+    - exact (inv2cell_to_iso f g).
+    - exact (inv2cell_to_iso_isweq f g).
+  Defined.
+
+  Definition idtoiso_alt_weq {a b : C} (f g : hom a b) : f = g ≃ iso f g.
+  Proof.
+    refine (inv2cell_to_iso_weq f g ∘ _)%weq.
+    use make_weq.
+    - exact (idtoiso_2_1 f g).
+    - apply C_is_univalent_2_1.
+  Defined.
+
+  Definition idtoiso_weq {a b : C} (f g : hom a b) : isweq (λ p : f = g, idtoiso p).
+  Proof.
+    use weqhomot.
+    + exact (idtoiso_alt_weq f g).
+    + intro p.
+      apply eq_iso.
+      induction p.
+      apply idpath.
+  Defined.
+End IsoInvertible2Cells.
+
+Definition univ_hom
+           {C : bicat}
+           (C_is_univalent_2_1 : is_univalent_2_1 C)
+           (X Y : C)
+  : univalent_category.
+Proof.
+  use make_univalent_category.
+  - exact (hom X Y).
+  - split.
+    + apply idtoiso_weq.
+      exact C_is_univalent_2_1.
+    + exact (pr2 C X Y).
+Defined.

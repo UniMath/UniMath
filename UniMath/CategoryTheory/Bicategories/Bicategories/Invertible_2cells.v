@@ -307,3 +307,29 @@ Ltac is_iso :=
   | [ |- is_invertible_2cell (id₂ _)] => apply is_invertible_2cell_id₂
   | _ => try assumption
   end.
+
+Definition inv_of_invertible_2cell
+           {C : bicat}
+           {X Y : C}
+           {f g : X --> Y}
+  : invertible_2cell f g → invertible_2cell g f.
+Proof.
+  intro α.
+  use make_invertible_2cell.
+  - exact (α^-1).
+  - is_iso.
+Defined.
+
+Definition comp_of_invertible_2cell
+           {C : bicat}
+           {X Y : C}
+           {f g h : X --> Y}
+  : invertible_2cell f g → invertible_2cell g h → invertible_2cell f h.
+Proof.
+  intros α β.
+  use make_invertible_2cell.
+  - exact (α • β).
+  - is_iso.
+    + apply α.
+    + apply β.
+Defined.

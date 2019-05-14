@@ -46,8 +46,8 @@ Definition representable_data_fun (X Y Z : C) (f : op1_bicat C ⟦ Y, Z ⟧)
   : bicat_of_cats ⟦ representable_data_cat X Y, representable_data_cat X Z ⟧.
 Proof.
   simpl in f.
-  use mk_functor.
-  - use mk_functor_data.
+  use make_functor.
+  - use make_functor_data.
     + intro g.
       exact (f · g).
     + intros g h.
@@ -62,7 +62,7 @@ Definition representable_data_nat (X Y Z : C) (f g : op1_bicat C ⟦ Y, Z ⟧)
   : f ==> g → representable_data_fun X Y Z f ==> representable_data_fun X Y Z g.
 Proof.
   intro η.
-  use mk_nat_trans.
+  use make_nat_trans.
   - intro h.
     exact (rwhisker h η).
   - intros h k φ.
@@ -71,19 +71,19 @@ Defined.
 
 Definition representable_data (X : C) : psfunctor_data (op1_bicat C) bicat_of_cats.
 Proof.
-  use mk_psfunctor_data.
+  use make_psfunctor_data.
   - exact (representable_data_cat X).
   - exact (representable_data_fun X).
   - exact (representable_data_nat X).
   - intro Y.
-    use mk_nat_trans.
+    use make_nat_trans.
     + exact linvunitor.
     + abstract (intros f g η ;
                 simpl in * ;
                 rewrite lwhisker_hcomp ;
                 apply linvunitor_natural).
   - intros Y Z W f g.
-    use mk_nat_trans.
+    use make_nat_trans.
     + intro h. simpl.
       cbn in *.
       apply lassociator.
@@ -176,7 +176,7 @@ Defined.
 
 Definition representable (X : C) : pspsh.
 Proof.
-  use mk_psfunctor.
+  use make_psfunctor.
   - exact (representable_data X).
   - exact (representable_laws X).
   - exact (representable_invertible_cells X).
@@ -192,11 +192,11 @@ Variable (C_is_univalent_2_1 : is_univalent_2_1 C) (f : X --> Y).
 Definition representable1_data :
   pstrans_data (representable C_is_univalent_2_1 X) (representable C_is_univalent_2_1 Y).
 Proof.
-  use mk_pstrans_data.
+  use make_pstrans_data.
   - intro Z.
     cbn.
-    use mk_functor.
-    + use mk_functor_data.
+    use make_functor.
+    + use make_functor_data.
       -- intro g.
          exact (g · f).
       -- intros g h η.
@@ -209,8 +209,8 @@ Proof.
          apply rwhisker_vcomp.
   - intros Z W h.
     cbn.
-    use mk_invertible_2cell.
-    + use mk_nat_trans.
+    use make_invertible_2cell.
+    + use make_nat_trans.
       -- intro k.
          apply lassociator.
       -- intros k l η.
@@ -256,7 +256,7 @@ Qed.
 Definition representable1 :
   pstrans (representable C_is_univalent_2_1 X) (representable C_is_univalent_2_1 Y).
 Proof.
-  use mk_pstrans.
+  use make_pstrans.
   - exact representable1_data.
   - exact representable1_is_pstrans.
 Defined.
@@ -273,7 +273,7 @@ Definition representable2_data
                       (representable1 C_is_univalent_2_1 g).
 Proof.
   intro Z.
-  use mk_nat_trans.
+  use make_nat_trans.
   - intro h.
     simpl.
     exact (h ◃ η).
@@ -297,7 +297,7 @@ Qed.
 Definition representable2 :
   modification (representable1 C_is_univalent_2_1 f) (representable1 C_is_univalent_2_1 g).
 Proof.
-  use mk_modification.
+  use make_modification.
   - apply representable2_data.
   - apply representable2_is_modification.
 Defined.
