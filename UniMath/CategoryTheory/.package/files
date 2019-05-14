@@ -229,6 +229,9 @@ Bicategories/PseudoFunctors/Examples/ApFunctor.v
 Bicategories/PseudoFunctors/Examples/OpFunctor.v
 Bicategories/PseudoFunctors/Examples/Projection.v
 Bicategories/Transformations/PseudoTransformation.v
+Bicategories/Modifications/Modification.v
+Bicategories/PseudoFunctors/Representable.v
+Bicategories/PseudoFunctors/Yoneda.v
 
 Bicategories/DisplayedBicats/Examples/PointedOneTypes.v
 Bicategories/DisplayedBicats/Examples/Algebras.v
@@ -237,6 +240,8 @@ Bicategories/DisplayedBicats/Examples/Monads.v
 Bicategories/DisplayedBicats/Examples/ContravariantFunctor.v
 Bicategories/DisplayedBicats/Examples/Cofunctormap.v
 Bicategories/DisplayedBicats/Examples/CwF.v
+
+Bicategories/Colimits/Initial.v
 
 Bicategories/WkCatEnrichment/prebicategory.v
 Bicategories/WkCatEnrichment/Notations.v
@@ -269,3 +274,6 @@ RepresentableFunctors/Representation.v
 RepresentableFunctors/RawMatrix.v
 RepresentableFunctors/DirectSum.v
 RepresentableFunctors/Test.v
+
+
+
