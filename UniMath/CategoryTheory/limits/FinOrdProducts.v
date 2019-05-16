@@ -39,9 +39,9 @@ Section FinOrdProduct_criteria.
     ∏ (a : stn 0 -> C), Product (stn 0) C a.
   Proof.
     intros a.
-    use (mk_Product _ _ _ T
+    use (make_Product _ _ _ T
                         (λ i : stn 0, fromempty (weqstn0toempty i))).
-    use (mk_isProduct _ _ hs).
+    use (make_isProduct _ _ hs).
     intros c g. use unique_exists.
 
     apply (TerminalArrow _ c).
@@ -57,10 +57,10 @@ Section FinOrdProduct_criteria.
     intros a.
     set (stn1ob := invweq(weqstn1tounit) tt).
 
-    use (mk_Product _ _ _ (a stn1ob)).
+    use (make_Product _ _ _ (a stn1ob)).
     intros i. exact (idtoiso ((maponpaths a (isconnectedstn1 stn1ob i)))).
 
-    use (mk_isProduct _ _ hs).
+    use (make_isProduct _ _ hs).
     intros c g.
     use (unique_exists).
     exact (g stn1ob).
@@ -101,17 +101,17 @@ Section FinOrdProduct_criteria.
     set (BinOb := BinProductObject _ Bin).
     fold BinOb in p1, p2, m1, m2.
 
-    use (mk_Product (stn (S n)) C a BinOb _).
+    use (make_Product (stn (S n)) C a BinOb _).
 
     (* Construction of the arrows from a i to BinOb *)
     intros i. induction (natlehchoice4 (pr1 i) _ (pr2 i)) as [a0|b].
-    exact (m1 (stnpair n (pr1 i) a0) ·
+    exact (m1 (make_stn n (pr1 i) a0) ·
               idtoiso (! maponpaths a (dni_lastelement_eq n i a0))).
     exact (m2 (invweq(weqstn1tounit) tt) ·
               idtoiso (! maponpaths a (lastelement_eq n i b))).
 
     (* Construction of isProduct. *)
-    use (mk_isProduct _ _ hs).
+    use (make_isProduct _ _ hs).
     intros c g.
 
     set (g1 := λ i : stn n, g(dni_lastelement i)).
@@ -135,7 +135,7 @@ Section FinOrdProduct_criteria.
     apply remove_id_right. apply idpath.
 
     unfold m1. unfold p1. rewrite assoc. fold g1. fold ar1.
-    use (pathscomp0 (maponpaths (λ f : _, f · cone1Pr (stnpair n (pr1 i) a0))
+    use (pathscomp0 (maponpaths (λ f : _, f · cone1Pr (make_stn n (pr1 i) a0))
                                 com1)).
     fold ar1 in com3. rewrite com3. unfold g1. apply idpath.
 

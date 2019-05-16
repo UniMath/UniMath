@@ -136,7 +136,7 @@ Section set_slice_fam_equiv.
     change (fun h : total2 (λ x' : X, hfiber (@pr2 _ (λ a : hSet, forall _ : a, X) x) x')
             => pr1 (pr2 h))
     with (fromcoconusf (pr2 x)).
-    exact (hset_equiv_is_iso (hSetpair (coconusf (pr2 x)) (isaset_total2_hSet X (λ y, (hfiber_hSet (pr2 x) y)))) _ (weqfromcoconusf (pr2 x))).
+    exact (hset_equiv_is_iso (make_hSet (coconusf (pr2 x)) (isaset_total2_hSet X (λ y, (hfiber_hSet (pr2 x) y)))) _ (weqfromcoconusf (pr2 x))).
   Qed.
 
   Definition slice_unit := nat_trans_inv_from_pointwise_inv _ _
@@ -182,7 +182,7 @@ Section set_slice_fam_equiv.
     unfold is_iso.
     unfold fam_unit_fun_fun.
     exact (hset_equiv_is_iso ((pr1 F) x)
-                             (hSetpair (hfiber pr1 x)
+                             (make_hSet (hfiber pr1 x)
                                        (isaset_hfiber pr1 x
                                                       (isaset_total2_hSet X (λ x, (pr1 F) x)) (pr2 X)))
                              (ezweqpr1 (funcomp (pr1 (pr1 F)) pr1) x)).

@@ -57,9 +57,9 @@ Proof.
   exists (precategory_binproduct_ob_mor C D).
   split.
   - intro cd.
-    exact (dirprodpair (identity (pr1 cd)) (identity (pr2 cd))).
+    exact (make_dirprod (identity (pr1 cd)) (identity (pr2 cd))).
   - intros cd cd' cd'' fg fg'.
-    exact (dirprodpair (pr1 fg · pr1 fg') (pr2 fg · pr2 fg')).
+    exact (make_dirprod (pr1 fg · pr1 fg') (pr2 fg · pr2 fg')).
 Defined.
 
 Section precategory_binproduct.
@@ -68,12 +68,12 @@ Variables C D : precategory.
 
 Lemma is_precategory_precategory_binproduct_data : is_precategory (precategory_binproduct_data C D).
 Proof.
-  repeat split; simpl; intros.
+  repeat split; intros.
   - apply dirprodeq; apply id_left.
   - apply dirprodeq; apply id_right.
   - apply dirprodeq; apply assoc.
   - apply dirprodeq; apply assoc'.
-Defined.
+Defined. (** needed for the op-related goal below *)
 
 Definition precategory_binproduct : precategory
   := tpair _ _ is_precategory_precategory_binproduct_data.
@@ -100,20 +100,22 @@ Arguments mor1 { _ _ _ _ } _ .
 Arguments mor2 { _ _ _ _ } _ .
 Local Notation "C × D" := (precategory_binproduct C D) (at level 75, right associativity).
 
+
 Goal ∏ (C D:precategory), (C × D)^op = (C^op × D^op).
   reflexivity.
 Qed.
 
-(** Objects and morphisms in the product precategory of two precategories *)
-Definition precatbinprodpair {C D : precategory} (X : C) (Y : D) : precategory_binproduct C D
-  := dirprodpair X Y.
 
-Local Notation "A ⊗ B" := (precatbinprodpair A B).
-Local Notation "( A , B )" := (precatbinprodpair A B).
+(** Objects and morphisms in the product precategory of two precategories *)
+Definition make_precatbinprod {C D : precategory} (X : C) (Y : D) : precategory_binproduct C D
+  := make_dirprod X Y.
+
+Local Notation "A ⊗ B" := (make_precatbinprod A B).
+Local Notation "( A , B )" := (make_precatbinprod A B).
 
 Definition precatbinprodmor {C D : precategory} {X X' : C} {Z Z' : D} (α : X --> X') (β : Z --> Z')
   : X ⊗ Z --> X' ⊗ Z'
-  := dirprodpair α β.
+  := make_dirprod α β.
 
 Local Notation "( f #, g )" := (precatbinprodmor f g).
 
@@ -128,21 +130,28 @@ Proof.
   apply idpath.
 Defined.
 
-Definition is_iso_binprod_iso {C D : precategory} {c c' : C} {d d' : D} {f : c --> c'} {g : d --> d'} (f_is_iso : is_iso f)
-  (g_is_iso : is_iso g) : is_iso (f #, g).
+Lemma is_iso_binprod_iso_aux {C D : precategory} {c c' : C} {d d' : D} {f : c --> c'} {g : d --> d'} (f_is_iso : is_iso f)
+  (g_is_iso : is_iso g) : is_inverse_in_precat (f #, g)
+        (inv_from_iso (make_iso f f_is_iso) #, inv_from_iso (make_iso g g_is_iso)).
 Proof.
-  apply (is_iso_qinv (f #, g) (inv_from_iso (isopair f f_is_iso) #, inv_from_iso (isopair g g_is_iso))).
-  apply dirprodpair.
-  - transitivity ((isopair f f_is_iso) · (inv_from_iso (isopair f f_is_iso)) #, (isopair g g_is_iso) · (inv_from_iso (isopair g g_is_iso))).
+  apply make_dirprod.
+  - transitivity ((make_iso f f_is_iso) · (inv_from_iso (make_iso f f_is_iso)) #, (make_iso g g_is_iso) · (inv_from_iso (make_iso g g_is_iso))).
     + symmetry.
       apply binprod_comp.
     + rewrite 2 iso_inv_after_iso.
       apply binprod_id.
-  - transitivity ((inv_from_iso (isopair f f_is_iso)) · (isopair f f_is_iso) #, (inv_from_iso (isopair g g_is_iso)) · (isopair g g_is_iso)).
+  - transitivity ((inv_from_iso (make_iso f f_is_iso)) · (make_iso f f_is_iso) #, (inv_from_iso (make_iso g g_is_iso)) · (make_iso g g_is_iso)).
     + symmetry.
       apply binprod_comp.
     + rewrite 2 iso_after_iso_inv.
       apply binprod_id.
+Qed.
+
+Definition is_iso_binprod_iso {C D : precategory} {c c' : C} {d d' : D} {f : c --> c'} {g : d --> d'} (f_is_iso : is_iso f)
+  (g_is_iso : is_iso g) : is_iso (f #, g).
+Proof.
+  apply (is_iso_qinv (f #, g) (inv_from_iso (make_iso f f_is_iso) #, inv_from_iso (make_iso g g_is_iso))).
+  apply is_iso_binprod_iso_aux.
 Defined.
 
 (** Isos in product precategories *)
@@ -181,16 +190,15 @@ Definition precategory_binproduct_assoc_data (C0 C1 C2 : precategory_data)
                  (precategory_binproduct_data (precategory_binproduct_data C0 C1) C2).
 Proof.
   use tpair.
-  (* functor_on_objects *) intros c. exact (tpair _ (tpair _ (pr1 c) (pr1 (pr2 c))) (pr2 (pr2 c))).
-  (* functor_on_morphisms *) intros a b c. exact (tpair _ (tpair _ (pr1 c) (pr1 (pr2 c))) (pr2 (pr2 c))).
+  - intros c. exact (tpair _ (tpair _ (pr1 c) (pr1 (pr2 c))) (pr2 (pr2 c))).
+  - intros a b c. exact (tpair _ (tpair _ (pr1 c) (pr1 (pr2 c))) (pr2 (pr2 c))).
 Defined.
 
 Definition precategory_binproduct_assoc (C0 C1 C2 : precategory)
-  : functor (C0 × (C1 × C2)) ((C0 × C1) × C2).
+  : (C0 × (C1 × C2)) ⟶ ((C0 × C1) × C2).
 Proof.
-  exists (precategory_binproduct_assoc_data _ _ _). split.
-  (* functor_id *) intros c. simpl; apply paths_refl.
-  (* functor_comp *) intros c0 c1 c2 f g. simpl; apply paths_refl.
+  exists (precategory_binproduct_assoc_data _ _ _).
+  abstract ( split; [ intros c; apply idpath | intros c0 c1 c2 f g; apply idpath] ).
 Defined.
 
 Definition precategory_binproduct_unassoc_data (C0 C1 C2 : precategory_data)
@@ -198,16 +206,15 @@ Definition precategory_binproduct_unassoc_data (C0 C1 C2 : precategory_data)
                  (precategory_binproduct_data C0 (precategory_binproduct_data C1 C2)).
 Proof.
   use tpair.
-  (* functor_on_objects *) intros c. exact (tpair _ (pr1 (pr1 c)) (tpair _ (pr2 (pr1 c)) (pr2 c))).
-  (* functor_on_morphisms *) intros a b c. exact (tpair _ (pr1 (pr1 c)) (tpair _ (pr2 (pr1 c)) (pr2 c))).
+  - intros c. exact (tpair _ (pr1 (pr1 c)) (tpair _ (pr2 (pr1 c)) (pr2 c))).
+  - intros a b c. exact (tpair _ (pr1 (pr1 c)) (tpair _ (pr2 (pr1 c)) (pr2 c))).
 Defined.
 
 Definition precategory_binproduct_unassoc (C0 C1 C2 : precategory)
-  : functor ((C0 × C1) × C2) (C0 × (C1 × C2)).
+  : ((C0 × C1) × C2) ⟶ (C0 × (C1 × C2)).
 Proof.
-  exists (precategory_binproduct_unassoc_data _ _ _). split.
-  (* functor_id *) intros c. simpl; apply paths_refl.
-  (* functor_comp *) intros c0 c1 c2 f g. simpl; apply paths_refl.
+  exists (precategory_binproduct_unassoc_data _ _ _).
+  abstract ( split; [ intros c; apply idpath | intros c0 c1 c2 f g; apply idpath] ).
 Defined.
 
 End assoc.
@@ -219,11 +226,11 @@ Variable C D E : precategory.
 Variable F : functor (precategory_binproduct C D) E.
 Variable c : C.
 
-Definition functor_fix_fst_arg_ob (d:D) : E := F (tpair _ c d).
+Definition functor_fix_fst_arg_ob (d: D) : E := F (tpair _ c d).
 Definition functor_fix_fst_arg_mor (d d' : D) (f : d --> d') : functor_fix_fst_arg_ob d --> functor_fix_fst_arg_ob d'.
 Proof.
   apply (#F).
-  exact (dirprodpair (identity c) f).
+  exact (make_dirprod (identity c) f).
 Defined.
 
 Definition functor_fix_fst_arg_data : functor_data D E
@@ -244,7 +251,7 @@ Proof.
   + intros d d' d'' f g.
     unfold functor_fix_fst_arg_data; simpl.
     unfold functor_fix_fst_arg_mor; simpl.
-    assert (functor_comp_inst := @functor_comp _ _ F (dirprodpair c d) (dirprodpair c d') (dirprodpair c d'')).
+    assert (functor_comp_inst := @functor_comp _ _ F (make_dirprod c d) (make_dirprod c d') (make_dirprod c d'')).
     rewrite <- functor_comp_inst.
     apply maponpaths.
     unfold compose at 2.
@@ -253,7 +260,7 @@ Proof.
     apply idpath.
 Qed.
 
-Definition functor_fix_fst_arg : functor D E
+Definition functor_fix_fst_arg : D ⟶ E
   := tpair _ functor_fix_fst_arg_data is_functor_functor_fix_fst_arg_data.
 
 End functor_fix_fst_arg.
@@ -261,14 +268,14 @@ End functor_fix_fst_arg.
 Section nat_trans_from_functor_fix_fst_morphism_arg.
 
 Variable C D E : precategory.
-Variable F : functor (precategory_binproduct C D) E.
+Variable F : (C × D) ⟶ E.
 Variable c c' : C.
 Variable g: c --> c'.
 
 Definition nat_trans_from_functor_fix_fst_morphism_arg_data (d: D): functor_fix_fst_arg C D E F c d --> functor_fix_fst_arg C D E F c' d.
 Proof.
   apply (#F).
-  exact (dirprodpair g (identity d)).
+  exact (make_dirprod g (identity d)).
 Defined.
 
 Lemma nat_trans_from_functor_fix_fst_morphism_arg_ax: is_nat_trans _ _ nat_trans_from_functor_fix_fst_morphism_arg_data.
@@ -303,11 +310,11 @@ End nat_trans_from_functor_fix_fst_morphism_arg.
 Section nat_trans_fix_fst_arg.
 
 Variable C D E : precategory.
-Variable F F' : functor (precategory_binproduct C D) E.
+Variable F F' : (C × D) ⟶ E.
 Variable α : F ⟹ F'.
 Variable c : C.
 
-Definition nat_trans_fix_fst_arg_data (d:D): functor_fix_fst_arg C D E F c d --> functor_fix_fst_arg C D E F' c d := α (tpair _ c d).
+Definition nat_trans_fix_fst_arg_data (d: D): functor_fix_fst_arg C D E F c d --> functor_fix_fst_arg C D E F' c d := α (tpair _ c d).
 
 Lemma nat_trans_fix_fst_arg_ax: is_nat_trans _ _ nat_trans_fix_fst_arg_data.
 Proof.
@@ -327,14 +334,14 @@ End nat_trans_fix_fst_arg.
 Section functor_fix_snd_arg.
 
 Variable C D E : precategory.
-Variable F: functor (precategory_binproduct C D) E.
+Variable F: (C × D) ⟶ E.
 Variable d: D.
 
-Definition functor_fix_snd_arg_ob (c:C): E := F(tpair _ c d).
-Definition functor_fix_snd_arg_mor (c c':C)(f: c --> c'): functor_fix_snd_arg_ob c --> functor_fix_snd_arg_ob c'.
+Definition functor_fix_snd_arg_ob (c: C): E := F (tpair _ c d).
+Definition functor_fix_snd_arg_mor (c c': C)(f: c --> c'): functor_fix_snd_arg_ob c --> functor_fix_snd_arg_ob c'.
 Proof.
   apply (#F).
-  exact (dirprodpair f (identity d)).
+  exact (make_dirprod f (identity d)).
 Defined.
 
 Definition functor_fix_snd_arg_data : functor_data C E
@@ -354,7 +361,7 @@ Proof.
   + intros c c' c'' f g.
     unfold functor_fix_snd_arg_data; simpl.
     unfold functor_fix_snd_arg_mor; simpl.
-    assert (functor_comp_inst := @functor_comp _ _ F (dirprodpair c d) (dirprodpair c' d) (dirprodpair c'' d)).
+    assert (functor_comp_inst := @functor_comp _ _ F (make_dirprod c d) (make_dirprod c' d) (make_dirprod c'' d)).
     rewrite <- functor_comp_inst.
     apply maponpaths.
     unfold compose at 2.
@@ -363,7 +370,7 @@ Proof.
     apply idpath.
 Qed.
 
-Definition functor_fix_snd_arg: functor C E.
+Definition functor_fix_snd_arg: C ⟶ E.
 Proof.
   exists functor_fix_snd_arg_data.
   exact is_functor_functor_fix_snd_arg_data.
@@ -374,14 +381,14 @@ End functor_fix_snd_arg.
 Section nat_trans_from_functor_fix_snd_morphism_arg.
 
 Variable C D E : precategory.
-Variable F : functor (precategory_binproduct C D) E.
+Variable F : (C × D) ⟶ E.
 Variable d d' : D.
 Variable f: d --> d'.
 
 Definition nat_trans_from_functor_fix_snd_morphism_arg_data (c: C): functor_fix_snd_arg C D E F d c --> functor_fix_snd_arg C D E F d' c.
 Proof.
   apply (#F).
-  exact (dirprodpair (identity c) f).
+  exact (make_dirprod (identity c) f).
 Defined.
 
 Lemma nat_trans_from_functor_fix_snd_morphism_arg_ax: is_nat_trans _ _ nat_trans_from_functor_fix_snd_morphism_arg_data.
@@ -416,7 +423,7 @@ End nat_trans_from_functor_fix_snd_morphism_arg.
 Section nat_trans_fix_snd_arg.
 
 Variable C D E : precategory.
-Variable F F': functor (precategory_binproduct C D) E.
+Variable F F': (C × D) ⟶ E.
 Variable α: F ⟹ F'.
 Variable d: D.
 
@@ -441,17 +448,15 @@ End nat_trans_fix_snd_arg.
 Section functors.
 
 Definition pair_functor_data {A B C D : precategory}
-  (F : functor A C) (G : functor B D) :
-  functor_data (precategory_binproduct A B) (precategory_binproduct C D).
+  (F : A ⟶ C) (G : B ⟶ D) : functor_data (A × B) (C × D).
 Proof.
 use tpair.
-- intro x; apply (precatbinprodpair (F (pr1 x)) (G (pr2 x))).
+- intro x; apply (make_precatbinprod (F (pr1 x)) (G (pr2 x))).
 - intros x y f; simpl; apply (precatbinprodmor (# F (pr1 f)) (# G (pr2 f))).
 Defined.
 
 Definition pair_functor {A B C D : precategory}
-  (F : functor A C) (G : functor B D) :
-  functor (precategory_binproduct A B) (precategory_binproduct C D).
+  (F : A ⟶ C) (G : B ⟶ D) : (A × B) ⟶ (C × D).
 Proof.
 apply (tpair _ (pair_functor_data F G)).
 abstract (split;
@@ -460,67 +465,60 @@ abstract (split;
 Defined.
 
 Definition pr1_functor_data (A B : precategory) :
-  functor_data (precategory_binproduct A B) A.
+  functor_data (A × B) A.
 Proof.
 use tpair.
 - intro x; apply (pr1 x).
 - intros x y f; simpl; apply (pr1 f).
 Defined.
 
-Definition pr1_functor (A B : precategory) :
-  functor (precategory_binproduct A B) A.
+Definition pr1_functor (A B : precategory) : (A × B) ⟶ A.
 Proof.
 apply (tpair _ (pr1_functor_data A B)).
 abstract (split; [ intro x; apply idpath | intros x y z f g; apply idpath ]).
 Defined.
 
 Definition pr2_functor_data (A B : precategory) :
-  functor_data (precategory_binproduct A B) B.
+  functor_data (A × B) B.
 Proof.
 use tpair.
 - intro x; apply (pr2 x).
 - intros x y f; simpl; apply (pr2 f).
 Defined.
 
-Definition pr2_functor (A B : precategory) :
-  functor (precategory_binproduct A B) B.
+Definition pr2_functor (A B : precategory) : (A × B) ⟶ B.
 Proof.
 apply (tpair _ (pr2_functor_data A B)).
 abstract (split; [ intro x; apply idpath | intros x y z f g; apply idpath ]).
 Defined.
 
 Definition bindelta_functor_data (C : precategory) :
-  functor_data C (precategory_binproduct C C).
+  functor_data C (C × C).
 Proof.
 use tpair.
-- intro x; apply (precatbinprodpair x x).
+- intro x; apply (make_precatbinprod x x).
 - intros x y f; simpl; apply (precatbinprodmor f f).
 Defined.
 
 (* The diagonal functor Δ *)
-Definition bindelta_functor (C : precategory) :
-  functor C (precategory_binproduct C C).
+Definition bindelta_functor (C : precategory) : C ⟶ (C × C).
 Proof.
 apply (tpair _ (bindelta_functor_data C)).
 abstract (split; [ intro x; apply idpath | intros x y z f g; apply idpath ]).
 Defined.
 
 Definition bindelta_pair_functor_data (C D E : precategory)
-  (F : functor C D)
-  (G : functor C E) :
+  (F : C ⟶ D) (G : C ⟶ E) :
   functor_data C (precategory_binproduct D E).
 Proof.
   use tpair.
-  - intro c. apply (precatbinprodpair (F c) (G c)).
+  - intro c. apply (make_precatbinprod (F c) (G c)).
   - intros x y f. simpl. apply (precatbinprodmor (# F f) (# G f)).
 Defined.
 
-Definition bindelta_pair_functor {C D E : precategory}
-  (F : functor C D)
-  (G : functor C E) :
-  functor C (precategory_binproduct D E).
+Lemma is_functor_bindelta_pair_functor_data (C D E : precategory)
+  (F : C ⟶ D) (G : C ⟶ E) : is_functor (bindelta_pair_functor_data _ _ _ F G).
 Proof.
-  apply (tpair _ (bindelta_pair_functor_data C D E F G)).
   split.
   - intro c.
     simpl.
@@ -532,12 +530,31 @@ Proof.
     rewrite functor_comp.
     rewrite functor_comp.
     apply idpath.
+Qed.
+
+Definition bindelta_pair_functor {C D E : precategory}
+  (F : C ⟶ D) (G : C ⟶ E) : C ⟶ (D × E).
+Proof.
+  apply (tpair _ (bindelta_pair_functor_data C D E F G)).
+  apply is_functor_bindelta_pair_functor_data.
 Defined.
 
 (* A swapping functor σ : C × D → D × C. *)
-Definition binswap_pair_functor {C D : precategory} :
-  functor (precategory_binproduct C D) (precategory_binproduct D C) :=
-  pair_functor (pr2_functor C D) (pr1_functor C D) □ bindelta_functor (precategory_binproduct C D).
+Definition binswap_pair_functor {C D : precategory} : (C × D) ⟶ (D × C) :=
+  pair_functor (pr2_functor C D) (pr1_functor C D) □ bindelta_functor (C × D).
+
+(* Reversing the order of three arguments *)
+Definition reverse_three_args {C: precategory}: ((C × C) × C) ⟶ ((C × C) × C).
+Proof.
+  use (functor_composite (precategory_binproduct_unassoc _ _ _)).
+  use (functor_composite binswap_pair_functor).
+  exact (pair_functor binswap_pair_functor (functor_identity _)).
+Defined.
+
+Lemma reverse_three_args_ok {C: precategory}: functor_on_objects (reverse_three_args(C := C)) = λ c, ((pr2 c, pr2 (pr1 c)), pr1 (pr1 c)).
+Proof.
+  apply idpath.
+Qed.
 
 End functors.
 
@@ -546,14 +563,14 @@ Section whiskering.
 (** Postwhiskering with parameter *)
 
 Definition nat_trans_data_post_whisker_fst_param {B C D P: precategory}
-           {G H : functor B C} (γ : G ⟹ H) (K : functor (P × C) D):
+           {G H : B ⟶ C} (γ : G ⟹ H) (K : (P × C) ⟶ D):
   nat_trans_data (functor_composite (pair_functor (functor_identity _) G) K)
                  (functor_composite (pair_functor (functor_identity _) H) K) :=
   λ pb : P × B, #K ((identity (ob1 pb),, γ (ob2 pb)):
                       (P × C)⟦ob1 pb,, G(ob2 pb), ob1 pb,, H(ob2 pb)⟧).
 
 Lemma is_nat_trans_post_whisker_fst_param {B C D P: precategory}
-      {G H : functor B C} (γ : G ⟹ H) (K : functor (P × C) D):
+  {G H : B ⟶ C} (γ : G ⟹ H) (K : (P × C) ⟶ D):
   is_nat_trans _ _ (nat_trans_data_post_whisker_fst_param γ K).
 Proof.
   intros pb pb' f.
@@ -571,21 +588,21 @@ Proof.
 Qed.
 
 Definition post_whisker_fst_param {B C D P: precategory}
-  {G H : functor B C} (γ : G ⟹ H) (K : functor (P × C) D):
+  {G H : B ⟶ C} (γ : G ⟹ H) (K : (P × C) ⟶ D):
   (functor_composite (pair_functor (functor_identity _) G) K) ⟹
   (functor_composite (pair_functor (functor_identity _) H) K) :=
-  mk_nat_trans _ _ _ (is_nat_trans_post_whisker_fst_param γ K).
+  make_nat_trans _ _ _ (is_nat_trans_post_whisker_fst_param γ K).
 
 
 Definition nat_trans_data_post_whisker_snd_param {B C D P: precategory}
-           {G H : functor B C} (γ : G ⟹ H) (K : functor (C × P) D):
+           {G H : B ⟶ C} (γ : G ⟹ H) (K : (C × P) ⟶ D):
   nat_trans_data (functor_composite (pair_functor G (functor_identity _)) K)
                  (functor_composite (pair_functor H (functor_identity _)) K) :=
   λ bp : B × P, #K ((γ (ob1 bp),, identity (ob2 bp)):
                       (C × P)⟦G(ob1 bp),, ob2 bp, H(ob1 bp),, ob2 bp⟧).
 
 Lemma is_nat_trans_post_whisker_snd_param {B C D P: precategory}
-      {G H : functor B C} (γ : G ⟹ H) (K : functor (C × P) D):
+  {G H : B ⟶ C} (γ : G ⟹ H) (K : (C × P) ⟶ D):
   is_nat_trans _ _ (nat_trans_data_post_whisker_snd_param γ K).
 Proof.
   intros bp bp' f.
@@ -598,14 +615,14 @@ Proof.
   apply maponpaths.
   unfold compose; cbn.
   rewrite id_left. rewrite id_right.
-  apply (maponpaths (λ x, dirprodpair x (pr2 f))).
+  apply (maponpaths (λ x, make_dirprod x (pr2 f))).
   apply (nat_trans_ax γ).
 Qed.
 
 Definition post_whisker_snd_param {B C D P: precategory}
-  {G H : functor B C} (γ : G ⟹ H) (K : functor (C × P) D):
+  {G H : B ⟶ C} (γ : G ⟹ H) (K : (C × P) ⟶ D):
   (functor_composite (pair_functor G (functor_identity _)) K) ⟹
   (functor_composite (pair_functor H (functor_identity _)) K) :=
-  mk_nat_trans _ _ _ (is_nat_trans_post_whisker_snd_param γ K).
+  make_nat_trans _ _ _ (is_nat_trans_post_whisker_snd_param γ K).
 
 End whiskering.

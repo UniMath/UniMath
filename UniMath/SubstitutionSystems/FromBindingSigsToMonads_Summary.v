@@ -55,28 +55,30 @@ Definition BindingSig : UU :=
 
 (** Definition 4: Signatures with strength *)
 Definition Signature : ∏ C : precategory, has_homsets C →
-                       ∏ D : precategory, has_homsets D → UU :=
+                       ∏ D : precategory, has_homsets D →
+                       ∏ D' : precategory, has_homsets D' → UU :=
   @UniMath.SubstitutionSystems.Signatures.Signature.
 
 (** Definition 5: Morphism of signatures with strength *)
 Definition SignatureMor :
-  ∏ C D : category,
-    Signatures.Signature C (homset_property C) D (homset_property D)
-  → Signatures.Signature C (homset_property C) D (homset_property D) → UU :=
+  ∏ C D D' : category,
+    Signatures.Signature C (homset_property C) D (homset_property D) D' (homset_property D')
+  → Signatures.Signature C (homset_property C) D (homset_property D) D' (homset_property D') → UU :=
   @UniMath.SubstitutionSystems.SignatureCategory.SignatureMor.
 
 (** Definition 6: Coproduct of signatures with strength *)
 Definition Sum_of_Signatures :
   ∏ (I : UU) (C : precategory) (hsC : has_homsets C)
-    (D : precategory) (hsD : has_homsets D), Coproducts I D
-  → (I → Signature C hsC D hsD) → Signature C hsC D hsD :=
+    (D : precategory) (hsD : has_homsets D) (D' : precategory) (hsD' : has_homsets D'), Coproducts I D
+  → (I → Signature C hsC D hsD D' hsD') → Signature C hsC D hsD D' hsD' :=
   @UniMath.SubstitutionSystems.SumOfSignatures.Sum_of_Signatures.
 
 (** Definition 7: Binary product of signatures with strength *)
 Definition BinProduct_of_Signatures :
   ∏ (C : precategory) (hsC : has_homsets C)
-    (D : precategory) (hsD : has_homsets D), BinProducts D →
-    Signature C hsC D hsD → Signature C hsC D hsD → Signature C hsC D hsD :=
+    (D : precategory) (hsD : has_homsets D)
+    (D' : precategory) (hsD' : has_homsets D'), BinProducts D →
+    Signature C hsC D hsD D' hsD' → Signature C hsC D hsD D' hsD' → Signature C hsC D hsD D' hsD' :=
   @UniMath.SubstitutionSystems.BinProductOfSignatures.BinProduct_of_Signatures.
 
 (** Problem 8: Signatures with strength from binding signatures *)
@@ -84,7 +86,7 @@ Definition BindingSigToSignature :
   ∏ {C : precategory} (hsC : has_homsets C),
     BinProducts C → BinCoproducts C → Terminal C
   → ∏ sig : BindingSig, Coproducts (BindingSigIndex sig) C →
-    Signature C hsC C hsC :=
+    Signature C hsC C hsC C hsC :=
     @UniMath.SubstitutionSystems.BindingSigToMonad.BindingSigToSignature.
 
 (** Definition 10 and Lemma 11 and 12: see UniMath/SubstitutionSystems/SignatureExamples.v *)
@@ -378,14 +380,14 @@ Defined.
 Definition InitHSS :
   ∏ (C : precategory) (hsC : has_homsets C) (CP : BinCoproducts C),
   Initial C → Colims_of_shape nat_graph C →
-  ∏ H : Signature C hsC C hsC, is_omega_cocont (pr1 H) → hss_precategory CP H.
+  ∏ H : Signature C hsC C hsC C hsC, is_omega_cocont (pr1 H) → hss_precategory CP H.
 Proof.
 exact @UniMath.SubstitutionSystems.LiftingInitial_alt.InitHSS.
 Defined.
 
 Lemma isInitial_InitHSS :
   ∏ (C : precategory) (hsC : has_homsets C) (CP : BinCoproducts C)
-  (IC : Initial C) (CC : Colims_of_shape nat_graph C) (H : Signature C hsC C hsC)
+  (IC : Initial C) (CC : Colims_of_shape nat_graph C) (H : Signature C hsC C hsC C hsC)
   (HH : is_omega_cocont (pr1 H)),
   isInitial (hss_precategory CP H) (InitHSS C hsC CP IC CC H HH).
 Proof.

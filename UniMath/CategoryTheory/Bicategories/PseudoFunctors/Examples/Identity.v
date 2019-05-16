@@ -22,7 +22,7 @@ Section IdentityFunctor.
 
   Definition id_functor_d : psfunctor_data C C.
   Proof.
-    use mk_psfunctor_data.
+    use make_psfunctor_data.
     - exact (λ x, x).
     - exact (λ _ _ x, x).
     - exact (λ _ _ _ _ x, x).
@@ -55,7 +55,7 @@ Section IdentityFunctor.
 
   Definition ps_id_functor : psfunctor C C.
   Proof.
-    use mk_psfunctor.
+    use make_psfunctor.
     - exact id_functor_d.
     - exact id_functor_laws.
     - split ; cbn ; intros ; is_iso.

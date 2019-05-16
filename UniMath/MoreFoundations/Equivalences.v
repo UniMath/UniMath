@@ -81,7 +81,7 @@ Defined.
 Definition Equivalence_to_weq {X Y} : X ≅ Y -> X ≃ Y.
 Proof.
   intros w.
-  exact (weqpair (Equivalence_toFunction w) (isEquivalence_to_isweq (Equivalence_to_isEquivalence w))).
+  exact (make_weq (Equivalence_toFunction w) (isEquivalence_to_isweq (Equivalence_to_isEquivalence w))).
 Defined.
 
 Definition weq_to_Equivalence {X Y} : X ≃ Y -> X ≅ Y.
@@ -128,7 +128,7 @@ Definition weq_to_Equivalence' X Y : X ≃ Y -> Equivalence X Y.
   set (g := λ y, hfiberpr1 f y (pr1 (r y))).
   set (p := λ y, pr2 (pr1 (r y))).
   simpl in p.
-  set (L := λ x, pr2 (r (f x)) (hfiberpair f x (idpath (f x)))).
+  set (L := λ x, pr2 (r (f x)) (make_hfiber f x (idpath (f x)))).
   set (q := λ x, maponpaths pr1 (L x)).
   set (q' := λ x, !q x).
   exact (makeEquivalence X Y f g p q'

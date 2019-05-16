@@ -48,7 +48,7 @@ Let φ {X Y} (f : F X --> Y) : X --> G Y := hom_weq NHW f.
 Let φinv {X Y} (g : X --> G Y) : F X --> Y := invweq (hom_weq NHW) g.
 
 Hypothesis corefl : ∏ c : C, is_iso (eta c).
-Let ηinv (X : C)  : G (F X) --> X := inv_from_iso (isopair (eta X) (corefl X )).
+Let ηinv (X : C)  : G (F X) --> X := inv_from_iso (make_iso (eta X) (corefl X )).
 
 Let ηinv_is_natural : is_nat_trans (G □ F) (functor_identity _ ) (fun X => ηinv X).
 Proof. use is_nat_trans_inv_from_pointwise_inv. apply C. Qed.
@@ -95,7 +95,7 @@ Proof.
     cbn.
     rewrite φ_adj_identity. cbn.
     rewrite <- assoc.
-    set (RT := iso_inv_after_iso (isopair (eta _ ) (corefl (T c)))).
+    set (RT := iso_inv_after_iso (make_iso (eta _ ) (corefl (T c)))).
     cbn in RT. simpl in RT.
     etrans.
     apply maponpaths_2.

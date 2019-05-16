@@ -31,7 +31,7 @@ Local Open Scope cat.
 (** ** Functor category [[C, D]] *)
 
 Definition functor_precategory_ob_mor (C C' : precategory_data):
-  precategory_ob_mor := precategory_ob_mor_pair
+  precategory_ob_mor := make_precategory_ob_mor
    (functor C C') (λ F F' : functor C C', nat_trans F F').
 
 
@@ -39,7 +39,7 @@ Definition functor_precategory_ob_mor (C C' : precategory_data):
 
 Definition functor_precategory_data (C : precategory_data)(C' : precategory): precategory_data.
 Proof.
-  apply (precategory_data_pair (functor_precategory_ob_mor C C')).
+  apply (make_precategory_data (functor_precategory_ob_mor C C')).
   + intro a; simpl.
     apply (nat_trans_id (pr1 a)).
   + intros a b c f g.
@@ -198,26 +198,26 @@ Defined.
 Lemma nat_trans_inv_pointwise_inv_before (C : precategory_data) (C' : precategory)
   (hs: has_homsets C')
  (F G : ob [C, C', hs]) (A : F --> G) (Aiso: is_iso A) :
-       ∏ a : C, pr1 (inv_from_iso (isopair A Aiso)) a · pr1 A a = identity _ .
+       ∏ a : C, pr1 (inv_from_iso (make_iso A Aiso)) a · pr1 A a = identity _ .
 Proof.
   intro a.
-  set (T := inv_from_iso (isopair A Aiso)).
-  set (TA := iso_inv_after_iso (isopair A Aiso)).
-  set (TA' := iso_after_iso_inv (isopair A Aiso)).
+  set (T := inv_from_iso (make_iso A Aiso)).
+  set (TA := iso_inv_after_iso (make_iso A Aiso)).
+  set (TA' := iso_after_iso_inv (make_iso A Aiso)).
   apply (nat_trans_eq_pointwise TA').
-Defined.
+Qed.
 
 Lemma nat_trans_inv_pointwise_inv_after (C : precategory_data) (C' : precategory)
   (hs: has_homsets C')
  (F G : ob [C, C', hs]) (A : F --> G) (Aiso: is_iso A) :
-       ∏ a : C, pr1 A a · pr1 (inv_from_iso (isopair A Aiso)) a = identity _ .
+       ∏ a : C, pr1 A a · pr1 (inv_from_iso (make_iso A Aiso)) a = identity _ .
 Proof.
   intro a.
-  set (T := inv_from_iso (isopair A Aiso)).
-  set (TA := iso_inv_after_iso (isopair A Aiso)).
-  set (TA' := iso_after_iso_inv (isopair A Aiso)).
+  set (T := inv_from_iso (make_iso A Aiso)).
+  set (TA := iso_inv_after_iso (make_iso A Aiso)).
+  set (TA' := iso_after_iso_inv (make_iso A Aiso)).
   apply (nat_trans_eq_pointwise TA).
-Defined.
+Qed.
 
 
 Definition functor_iso_pointwise_if_iso (C : precategory_data) (C' : precategory)
@@ -232,16 +232,16 @@ Lemma nat_trans_inv_pointwise_inv_after_p (C : precategory_data) (C' : precatego
   (hs: has_homsets C')
  (F G : ob [C, C', hs]) (A : F --> G) (Aiso: is_iso A) a :
   inv_from_iso (functor_iso_pointwise_if_iso C C' hs F G A Aiso a) =
-        pr1 (inv_from_iso (isopair A Aiso)) a.
+        pr1 (inv_from_iso (make_iso A Aiso)) a.
 Proof.
   apply pathsinv0.
   apply inv_iso_unique'.
   unfold precomp_with.
   simpl.
-  set (TA := iso_inv_after_iso (isopair A Aiso)).
+  set (TA := iso_inv_after_iso (make_iso A Aiso)).
   simpl in TA.
   apply (nat_trans_eq_pointwise TA).
-Defined.
+Qed.
 
 Definition pr1_pr1_functor_eq_from_functor_iso (C : precategory_data) (D : precategory)
   (hs: has_homsets D)
@@ -271,7 +271,7 @@ Lemma transport_of_functor_map_is_pointwise (C : precategory_data) (D : precateg
 Proof.
   induction gamma.
   apply idpath.
-Defined.
+Qed.
 
 Lemma nat_trans_comp_pointwise (C : precategory_data)(C' : precategory) (hs: has_homsets C')
   (F G H : ob [C, C', hs]) (A : F --> G) (A' : G --> H)
@@ -283,7 +283,7 @@ Proof.
   apply idpath.
   destruct H'.
   apply idpath.
-Defined.
+Qed.
 
 Definition pr1_functor_eq_from_functor_iso (C : precategory_data) (D : precategory)(hs: has_homsets D)
     (H : is_univalent D) (F G : ob [C , D, hs]) :
@@ -434,7 +434,7 @@ Definition iso_to_nat_iso
   : @iso (functor_category C D) F G → nat_iso F G.
 Proof.
   intros α.
-  use mk_nat_iso.
+  use make_nat_iso.
   - exact (pr1 α).
   - use is_functor_iso_pointwise_if_iso.
     apply α.
@@ -454,7 +454,7 @@ Definition iso_is_nat_iso
            (F G : C ⟶ D)
   : @iso (functor_category C D) F G ≃ nat_iso F G.
 Proof.
-  refine (weqpair (iso_to_nat_iso F G) _).
+  refine (make_weq (iso_to_nat_iso F G) _).
   use isweq_iso.
   - exact (nat_iso_to_iso F G).
   - intros X.

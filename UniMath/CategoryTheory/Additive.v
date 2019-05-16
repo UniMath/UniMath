@@ -38,7 +38,7 @@ Section def_additive.
   (** A preadditive category has an additive structure if it is given a zero object and a binary direct sum operation. *)
   Definition AdditiveStructure (PA : PreAdditive) : UU := (Zero PA) × (BinDirectSums PA).
 
-  Definition mk_AdditiveStructure (PA : PreAdditive) (H1 : Zero PA) (H2 : BinDirectSums PA) :
+  Definition make_AdditiveStructure (PA : PreAdditive) (H1 : Zero PA) (H2 : BinDirectSums PA) :
     AdditiveStructure PA.
   Proof.
     exact (H1,,H2).
@@ -50,7 +50,7 @@ Section def_additive.
   Definition Additive_PreAdditive (A : CategoryWithAdditiveStructure) : PreAdditive := pr1 A.
   Coercion Additive_PreAdditive : CategoryWithAdditiveStructure >-> PreAdditive.
 
-  Definition mk_Additive (PA : PreAdditive) (H : AdditiveStructure PA) : CategoryWithAdditiveStructure.
+  Definition make_Additive (PA : PreAdditive) (H : AdditiveStructure PA) : CategoryWithAdditiveStructure.
   Proof.
     exact (tpair _ PA H).
   Defined.
@@ -58,7 +58,7 @@ Section def_additive.
   (** A preadditive category is additive if it has a zero object and binary direct sums. *)
   Definition isAdditive (PA : PreAdditive) : hProp := hasZero PA ∧ hasBinDirectSums PA.
 
-  Definition mk_isAdditive (PA : PreAdditive) (H1 : hasZero PA) (H2 : hasBinDirectSums PA) : isAdditive PA := H1,,H2.
+  Definition make_isAdditive (PA : PreAdditive) (H1 : hasZero PA) (H2 : hasBinDirectSums PA) : isAdditive PA := H1,,H2.
 
   (** Definition of additive categories *)
 
@@ -164,9 +164,9 @@ Section additive_quot_additive.
 
   Definition Quotcategory_Additive : CategoryWithAdditiveStructure.
   Proof.
-    use mk_Additive.
+    use make_Additive.
     - exact (Quotcategory_PreAdditive A PAS PAC).
-    - use mk_AdditiveStructure.
+    - use make_AdditiveStructure.
       + exact (Quotcategory_Zero A PAS PAC (to_Zero A)).
       + exact (Quotcategory_BinDirectSums A (to_BinDirectSums A) PAS PAC).
   Defined.
@@ -198,7 +198,7 @@ Section additive_kernel_equalizers.
              (K : Kernel (to_Zero A) (to_binop _ _ f (to_inv g))) :
     isEqualizer f g (KernelArrow K) (AdditiveKernelToEqualizer_eq1 f g K).
   Proof.
-    use mk_isEqualizer.
+    use make_isEqualizer.
     intros w h H'.
     use unique_exists.
     - use KernelIn.
@@ -214,7 +214,7 @@ Section additive_kernel_equalizers.
   Definition AdditiveKernelToEqualizer {x y : ob A} (f g : x --> y)
              (K : Kernel (to_Zero A) (to_binop _ _ f (to_inv g))) : Equalizer f g.
   Proof.
-    use mk_Equalizer.
+    use make_Equalizer.
     - exact K.
     - use (KernelArrow K).
     - exact (AdditiveKernelToEqualizer_eq1 f g K).
@@ -234,7 +234,7 @@ Section additive_kernel_equalizers.
     isKernel (to_Zero A) (EqualizerArrow E) (to_binop x y f (to_inv g))
              (AdditiveEqualizerToKernel_eq1 f g E).
   Proof.
-    use mk_isKernel.
+    use make_isKernel.
     - apply to_has_homsets.
     - intros w h H'.
       use unique_exists.
@@ -254,7 +254,7 @@ Section additive_kernel_equalizers.
   Definition AdditiveEqualizerToKernel {x y : ob A} (f g : x --> y) (E : Equalizer f g) :
     Kernel (to_Zero A) (to_binop _ _ f (to_inv g)).
   Proof.
-    use mk_Kernel.
+    use make_Kernel.
     - exact E.
     - use (EqualizerArrow E).
     - exact (AdditiveEqualizerToKernel_eq1 f g E).
@@ -278,7 +278,7 @@ Section additive_kernel_equalizers.
              (CK : Cokernel (to_Zero A) (to_binop _ _ f (to_inv g))) :
     isCoequalizer f g (CokernelArrow CK) (AdditiveCokernelToCoequalizer_eq1 f g CK).
   Proof.
-    use mk_isCoequalizer.
+    use make_isCoequalizer.
     intros w0 h H'.
     use unique_exists.
     - use CokernelOut.
@@ -298,7 +298,7 @@ Section additive_kernel_equalizers.
   Definition AdditiveCokernelToCoequalizer {x y : ob A} (f g : x --> y)
              (CK : Cokernel (to_Zero A) (to_binop _ _ f (to_inv g))) : Coequalizer f g.
   Proof.
-    use mk_Coequalizer.
+    use make_Coequalizer.
     - exact CK.
     - use (CokernelArrow CK).
     - exact (AdditiveCokernelToCoequalizer_eq1 f g CK).
@@ -318,7 +318,7 @@ Section additive_kernel_equalizers.
     isCokernel (to_Zero A) (to_binop x y f (to_inv g)) (CoequalizerArrow CE)
                (AdditiveCoequalizerToCokernel_eq1 f g CE).
   Proof.
-    use mk_isCokernel.
+    use make_isCokernel.
     - apply to_has_homsets.
     - intros w h H'.
       use unique_exists.
@@ -338,7 +338,7 @@ Section additive_kernel_equalizers.
   Definition AdditiveCoequalizerToCokernel {x y : ob A} (f g : x --> y)
              (CE : Coequalizer f g) : Cokernel (to_Zero A) (to_binop _ _ f (to_inv g)).
   Proof.
-    use mk_Cokernel.
+    use make_Cokernel.
     - exact CE.
     - use CoequalizerArrow.
     - exact (AdditiveCoequalizerToCokernel_eq1 f g CE).
@@ -357,7 +357,7 @@ Section additive_minus_monic.
         (DS : BinDirectSum y z) :
     isMonic (to_binop _ _ (f · to_In1 DS) (g · to_In2 DS)).
   Proof.
-    use mk_isMonic.
+    use make_isMonic.
     intros x0 g0 h X.
     assert (e : g0 · to_binop x DS (f · to_In1 DS) (g · to_In2 DS) · to_Pr1 DS =
                 h · to_binop x DS (f · to_In1 DS) (g · to_In2 DS) · to_Pr1 DS).
@@ -383,7 +383,7 @@ Section additive_minus_monic.
         (DS : BinDirectSum y z) :
     isMonic (to_binop _ _ (f · to_In1 DS) (g · to_In2 DS)).
   Proof.
-    use mk_isMonic.
+    use make_isMonic.
     intros x0 g0 h X.
     assert (e : g0 · to_binop x DS (f · to_In1 DS) (g · to_In2 DS) · to_Pr2 DS =
                 h · to_binop x DS (f · to_In1 DS) (g · to_In2 DS) · to_Pr2 DS).
@@ -401,7 +401,7 @@ Section additive_minus_monic.
         (DS : BinDirectSum y z) :
     isEpi (to_binop _ _ (to_Pr1 DS · f) (to_Pr2 DS · g)).
   Proof.
-    use mk_isEpi.
+    use make_isEpi.
     intros z0 g0 h X.
     use (EpiisEpi A f).
     assert (e : to_In1 DS · to_binop DS x (to_Pr1 DS · f) (to_Pr2 DS · g) · g0 =
@@ -426,7 +426,7 @@ Section additive_minus_monic.
         (DS : BinDirectSum y z) :
     isEpi (to_binop _ _ (to_Pr1 DS · f) (to_Pr2 DS · g)).
   Proof.
-    use mk_isEpi.
+    use make_isEpi.
     intros z0 g0 h X.
     use (EpiisEpi A g).
     assert (e : to_In2 DS · to_binop DS x (to_Pr1 DS · f) (to_Pr2 DS · g) · g0 =
@@ -451,7 +451,7 @@ Section monics_and_epis_in_additive.
         (H : ∏ (z : ob A) (g : z --> x) (H : g · f = ZeroArrow (to_Zero A) _ _),
              g = ZeroArrow (to_Zero A) _ _ ) : isMonic f.
   Proof.
-    use mk_isMonic.
+    use make_isMonic.
     intros x0 g h X.
     set (tmp := H x0 (to_binop _ _ g (to_inv h))).
     use (to_rcan A (to_inv h)). rewrite (@to_rinvax' A (to_Zero A)). apply tmp. clear tmp.
@@ -465,7 +465,7 @@ Section monics_and_epis_in_additive.
         (H : ∏ (z : ob A) (g : y --> z) (H : f · g = ZeroArrow (to_Zero A) _ _),
              g = ZeroArrow (to_Zero A) _ _ ) : isEpi f.
   Proof.
-    use mk_isEpi.
+    use make_isEpi.
     intros x0 g h X.
     set (tmp := H x0 (to_binop _ _ g (to_inv h))).
     use (to_rcan A (to_inv h)). rewrite (@to_rinvax' A (to_Zero A)). apply tmp. clear tmp.

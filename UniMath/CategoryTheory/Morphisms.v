@@ -27,7 +27,7 @@ Section def_morphismpair.
 
   Definition Morphism : UU := ∑ (a b : C), a --> b.
 
-  Definition mk_Morphism {a b : C} (f : a --> b) : Morphism := (a,,(b,,f)).
+  Definition make_Morphism {a b : C} (f : a --> b) : Morphism := (a,,(b,,f)).
 
   Definition Source (M : Morphism) : ob C := pr1 M.
 
@@ -41,7 +41,7 @@ Section def_morphismpair.
 
   Definition MorphismPair : UU := ∑ (a b c : C), (a --> b × b --> c).
 
-  Definition mk_MorphismPair {a b c : C} (f : a --> b) (g : b --> c) : MorphismPair.
+  Definition make_MorphismPair {a b c : C} (f : a --> b) (g : b --> c) : MorphismPair.
   Proof.
     use tpair.
     - exact a.
@@ -49,7 +49,7 @@ Section def_morphismpair.
       + exact b.
       + use tpair.
         * exact c.
-        * use dirprodpair.
+        * use make_dirprod.
           -- exact f.
           -- exact g.
   Defined.
@@ -69,7 +69,7 @@ Section def_morphismpair.
   Definition MPMorMors (MP1 MP2 : MorphismPair) : UU :=
     (Ob1 MP1 --> Ob1 MP2) × (Ob2 MP1 --> Ob2 MP2) × (Ob3 MP1 --> Ob3 MP2).
 
-  Definition mk_MPMorMors {MP1 MP2 : MorphismPair} (f1 : Ob1 MP1 --> Ob1 MP2)
+  Definition make_MPMorMors {MP1 MP2 : MorphismPair} (f1 : Ob1 MP1 --> Ob1 MP2)
              (f2 : Ob2 MP1 --> Ob2 MP2) (f3 : Ob3 MP1 --> Ob3 MP2) : MPMorMors MP1 MP2 :=
     (f1,,(f2,,f3)).
 
@@ -86,7 +86,7 @@ Section def_morphismpair.
     (MPMor1 MPM · Mor1 MP2 = Mor1 MP1 · MPMor2 MPM)
       × (MPMor2 MPM · Mor2 MP2 = Mor2 MP1 · MPMor3 MPM).
 
-  Definition mk_MPMorComms {MP1 MP2 : MorphismPair} (MPM : MPMorMors MP1 MP2)
+  Definition make_MPMorComms {MP1 MP2 : MorphismPair} (MPM : MPMorMors MP1 MP2)
              (H1 : MPMor1 MPM · Mor1 MP2 = Mor1 MP1 · MPMor2 MPM)
              (H2 : MPMor2 MPM · Mor2 MP2 = Mor2 MP1 · MPMor3 MPM) : MPMorComms MPM := (H1,,H2).
 
@@ -98,7 +98,7 @@ Section def_morphismpair.
 
   Definition MPMor (MP1 MP2 : MorphismPair) : UU := ∑ MPM : MPMorMors MP1 MP2, MPMorComms MPM.
 
-  Definition mk_MPMor {MP1 MP2 : MorphismPair} (MPM : MPMorMors MP1 MP2) (MPMC : MPMorComms MPM) :
+  Definition make_MPMor {MP1 MP2 : MorphismPair} (MPM : MPMorMors MP1 MP2) (MPMC : MPMorComms MPM) :
     MPMor MP1 MP2 := (MPM,,MPMC).
 
   Definition MPMor_MPMorMors {MP1 MP2 : MorphismPair} (MPM : MPMor MP1 MP2) :
@@ -158,7 +158,7 @@ Section def_morphismpair.
       + apply reverseCommIsoSquare. exact (pr12 (pr222 f)).
       + apply reverseCommIsoSquare'. exact (pr22 (pr222 f)).
   Defined.
-  Definition mk_MorphismPairIsomorphism
+  Definition make_MorphismPairIsomorphism
              (P Q : MorphismPair)
              (f : z_iso (Ob1 P) (Ob1 Q))
              (g : z_iso (Ob2 P) (Ob2 Q))
@@ -175,7 +175,7 @@ Section MorphismPair_opp.
   Definition MorphismPair_opp {C : precategory} (MP : @MorphismPair C) :
     @MorphismPair (opp_precat C).
   Proof.
-    use mk_MorphismPair.
+    use make_MorphismPair.
     - exact (Ob3 MP).
     - exact (Ob2 MP).
     - exact (Ob1 MP).
@@ -191,7 +191,7 @@ Section MorphismPair_opp.
 
   Definition applyFunctorToPair {M N:precategory} :
     (M⟶N) -> @MorphismPair M -> @MorphismPair N
-    := λ F P, mk_MorphismPair (# F (Mor1 P)) (# F (Mor2 P)).
+    := λ F P, make_MorphismPair (# F (Mor1 P)) (# F (Mor2 P)).
   Definition applyFunctorToPairIsomorphism {M N:precategory}
              (F : M⟶N) (P Q : @MorphismPair M) :
     MorphismPairIsomorphism P Q ->
@@ -232,7 +232,7 @@ Section def_shortshortexactdata.
   Definition ShortShortExactData : UU :=
     ∑ MP : MorphismPair C, Mor1 MP · Mor2 MP = ZeroArrow Z _ _.
 
-  Definition mk_ShortShortExactData (MP : MorphismPair C)
+  Definition make_ShortShortExactData (MP : MorphismPair C)
              (H : Mor1 MP · Mor2 MP = ZeroArrow Z _ _) : ShortShortExactData := tpair _ MP H.
 
   (** Accessor functions *)
@@ -244,7 +244,7 @@ Section def_shortshortexactdata.
     (Mor1 SSED) · (Mor2 SSED) = ZeroArrow Z _ _ := pr2 SSED.
 
 End def_shortshortexactdata.
-Arguments mk_ShortShortExactData [C] _ _ _.
+Arguments make_ShortShortExactData [C] _ _ _.
 Arguments ShortShortExactData_Eq [C] _ _.
 
 
@@ -263,7 +263,7 @@ Section shortshortexactdata_opp.
   Definition opp_ShortShortExactData {C : precategory} {Z : Zero C}
              (SSED : ShortShortExactData (opp_precat C) (Zero_opp C Z)) : ShortShortExactData C Z.
   Proof.
-    use mk_ShortShortExactData.
+    use make_ShortShortExactData.
     - exact (opp_MorphismPair SSED).
     - exact (opp_ShortShortExactData_Eq SSED).
   Defined.
@@ -280,7 +280,7 @@ Section shortshortexactdata_opp.
   Definition ShortShortExactData_opp {C : precategory} {Z : Zero C}
              (SSED : ShortShortExactData C Z) : ShortShortExactData (opp_precat C) (Zero_opp C Z).
   Proof.
-    use mk_ShortShortExactData.
+    use make_ShortShortExactData.
     - exact (MorphismPair_opp SSED).
     - exact (ShortShortExactData_opp_Eq SSED).
   Defined.

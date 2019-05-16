@@ -36,7 +36,7 @@ Section def_kernels.
         (K : limits.kernels.Kernel (equiv_Zero2 Z) f) :
     isEqualizer C f (ZeroArrow Z a b) K (KernelArrow K) (equiv_Kernel1_eq f K).
   Proof.
-    use (mk_isEqualizer _ hs).
+    use (make_isEqualizer _ hs).
     intros e h' H'.
     use unique_exists.
     (* Construction of the morphism *)
@@ -59,7 +59,7 @@ Section def_kernels.
   Definition equiv_Kernel1 {a b : C} (f : C⟦a, b⟧) (K : limits.kernels.Kernel (equiv_Zero2 Z) f) :
     Kernel f.
   Proof.
-    use mk_Equalizer.
+    use make_Equalizer.
     - exact K.
     - exact (KernelArrow K).
     - exact (equiv_Kernel1_eq f K).
@@ -79,7 +79,7 @@ Section def_kernels.
   Lemma equiv_Kernel2_isEqualizer {a b : C} (f : C⟦a, b⟧) (K : Kernel f) :
     isKernel (equiv_Zero2 Z) (EqualizerArrow C K) f (equiv_Kernel2_eq f K).
   Proof.
-    use (mk_isKernel hs).
+    use (make_isKernel hs).
     intros w h H.
     use unique_exists.
     (* Construction of the morphism *)
@@ -100,7 +100,7 @@ Section def_kernels.
   Definition equiv_Kernel2 {a b : C} (f : C⟦a, b⟧) (K : Kernel f) :
     limits.kernels.Kernel (equiv_Zero2 Z) f.
   Proof.
-    use mk_Kernel.
+    use make_Kernel.
     - exact (EqualizerObject C K).
     - exact (EqualizerArrow C K).
     - exact (equiv_Kernel2_eq f K).

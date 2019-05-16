@@ -105,7 +105,7 @@ Proof.
   revert p.
   induction n.
   - intros.
-    split with ( dirprodpair 0 0 ).
+    split with ( make_dirprod 0 0 ).
     split.
     + simpl.
       rewrite ( ringrunax1 hz ).
@@ -130,7 +130,7 @@ Proof.
     }
     set ( choice := hzlehchoice ( r' + 1 ) ( nattohz m ) p' ).
     destruct choice as [ k | h ].
-    + split with ( dirprodpair q' ( r' + 1 ) ).
+    + split with ( make_dirprod q' ( r' + 1 ) ).
       split.
       * rewrite (nattohzandS _ ).
         rewrite hzpluscomm.
@@ -143,7 +143,7 @@ Proof.
            ++ apply hzlthtoleh.
               apply hzlthnsn.
         -- assumption.
-    + split with ( dirprodpair ( q' + 1 ) 0 ).
+    + split with ( make_dirprod ( q' + 1 ) 0 ).
       split.
       * rewrite ( nattohzandS _ ).
         rewrite hzpluscomm.
@@ -265,7 +265,7 @@ Proof.
       set ( Q := q + 1 ).
       set ( R := - m - r ).
       destruct ( hzlehchoice 0 r ( pr1 ( pr2 ( pr2 a ) ) )) as [ less | equal ].
-      * split with ( dirprodpair Q R ).
+      * split with ( make_dirprod Q R ).
         split.
         -- rewrite ( pathsinv0( ringminusminus hz n) ).
            assert ( - nattohz n' = ( m * Q + R ) ) as f1.
@@ -298,7 +298,7 @@ Proof.
                 assumption.
               }
               rewrite <- ( hzlminus m ).
-              change ( pr2 ( dirprodpair Q ( - m - r ) ) ) with ( - m - r ).
+              change ( pr2 ( make_dirprod Q ( - m - r ) ) ) with ( - m - r ).
               apply hzlehandplusl.
               apply hzlthtoleh.
               rewrite <- ( ringminusminus hz m ).
@@ -318,7 +318,7 @@ Proof.
                                         hzlth ( - m + - r ) x ) f' u ).
               ** apply hzlthtoleh.
                  assumption.
-      * split with (dirprodpair q 0 ).
+      * split with (make_dirprod q 0 ).
         split.
         -- rewrite <- ( ringminusminus hz n ).
            assert ( - nattohz n' = m * q + 0 ) as f1.
@@ -341,10 +341,10 @@ Proof.
            }
            exact ( pathscomp0 f0 f1 ).
         -- split.
-           ++ change ( pr2 ( dirprodpair q 0 ) ) with 0.
+           ++ change ( pr2 ( make_dirprod q 0 ) ) with 0.
               apply isreflhzleh.
            ++ rewrite equal.
-              change ( pr2 ( dirprodpair q r ) ) with r.
+              change ( pr2 ( make_dirprod q r ) ) with r.
               apply ( pr2 ( pr2 ( pr2 a ) ) ).
     + destruct ( hzgehchoice m 0 m_nonneg ) as [ h | k ].
       * (*====*)
@@ -367,10 +367,10 @@ Proof.
           assumption.
         }
         destruct ( hzlehchoice 0 r' ( pr1 ( pr2 ( pr2 a ) ) ) ) as [ less | equal ].
-        -- split with (dirprodpair ( - q' - 1 ) ( m - r' ) ).
+        -- split with (make_dirprod ( - q' - 1 ) ( m - r' ) ).
            split.
-           ++ change ( pr1 ( dirprodpair ( - q' - 1 ) ( m - r' ) ) ) with ( - q' - 1 ).
-              change ( pr2 ( dirprodpair ( - q' - 1 ) ( m - r' ) ) ) with ( m - r' ).
+           ++ change ( pr1 ( make_dirprod ( - q' - 1 ) ( m - r' ) ) ) with ( - q' - 1 ).
+              change ( pr2 ( make_dirprod ( - q' - 1 ) ( m - r' ) ) ) with ( m - r' ).
               change ( - q' - 1 ) with ( - q' + ( - 1%hz ) ).
               rewrite hzldistr.
               assert ( - nattohz ( hzabsval n ) =
@@ -407,7 +407,7 @@ Proof.
               rewrite f0, f1.
               assumption.
            ++ split.
-              ** change ( pr2 ( dirprodpair ( - q' - 1 ) ( m - r' ) ) ) with ( m - r' ).
+              ** change ( pr2 ( make_dirprod ( - q' - 1 ) ( m - r' ) ) ) with ( m - r' ).
                  apply hzlthtoleh.
                  rewrite <- ( hzrminus r' ).
                  apply hzlthandplusr.
@@ -421,10 +421,10 @@ Proof.
                  }
                  rewrite hzplusr0 in u.
                  assumption.
-        -- split with ( dirprodpair ( - q' ) 0 ).
+        -- split with ( make_dirprod ( - q' ) 0 ).
            split.
-           ++ change ( pr1 ( dirprodpair ( - q' ) 0 ) ) with ( - q' ).
-              change ( pr2 ( dirprodpair ( - q' ) 0 ) ) with 0.
+           ++ change ( pr1 ( make_dirprod ( - q' ) 0 ) ) with ( - q' ).
+              change ( pr2 ( make_dirprod ( - q' ) 0 ) ) with 0.
               assert ( - nattohz ( hzabsval n ) = m * - q' + 0 ) as f2.
               { rewrite hzplusr0.
                 rewrite ( pr1 ( pr2 a ) ).
@@ -462,14 +462,14 @@ Proof.
       set ( a := divalgorithmnonneg ( hzabsval n ) ( hzabsval m ) p' ).
       set ( q' := pr1 ( pr1 a ) ).
       set ( r' := pr2 ( pr1 a ) ).
-      split with ( dirprodpair ( - q' ) r' ).
+      split with ( make_dirprod ( - q' ) r' ).
       split.
       * rewrite <- hzabsvalgeh0.
         -- rewrite ( pr1 ( pr2 a ) ).
            change ( pr1 ( pr1 a ) ) with q'.
            change ( pr2 ( pr1 a ) ) with r'.
-           change ( pr1 ( dirprodpair ( - q' ) r' ) ) with ( - q' ).
-           change ( pr2 ( dirprodpair ( - q' ) r' ) ) with r'.
+           change ( pr1 ( make_dirprod ( - q' ) r' ) ) with ( - q' ).
+           change ( pr2 ( make_dirprod ( - q' ) r' ) ) with r'.
            rewrite hzabsvalleh0.
            ++ apply ( maponpaths ( fun x => x + r' ) ).
               assert ( - m * q' = - ( m * q' ) ) as f0
@@ -498,14 +498,14 @@ Proof.
       set ( a := divalgorithmnonneg ( hzabsval n ) ( hzabsval m ) p' ).
       set ( q' := pr1 ( pr1 a ) ).
       set ( r' := pr2 ( pr1 a ) ).
-      split with ( dirprodpair q' r' ).
+      split with ( make_dirprod q' r' ).
       split.
       -- rewrite <- hzabsvalgeh0.
          ++ rewrite ( pr1 ( pr2 a ) ).
             change ( pr1 ( pr1 a ) ) with q'.
             change ( pr2 ( pr1 a ) ) with r'.
-            change ( pr1 ( dirprodpair q' r' ) ) with q'.
-            change ( pr2 ( dirprodpair q' r' ) ) with r'.
+            change ( pr1 ( make_dirprod q' r' ) ) with q'.
+            change ( pr2 ( make_dirprod q' r' ) ) with r'.
             rewrite hzabsvalgeh0.
             ** apply idpath.
             ** assumption.
@@ -587,7 +587,7 @@ Proof.
       assumption.
     }
     assert ( isaprop ( r' = r ) ) as P by apply isasethz.
-    apply ( v ( hProppair ( r' = r ) P ) ).
+    apply ( v ( make_hProp ( r' = r ) P ) ).
     intro s.
     destruct s as [ left | right ].
     - assert ( hzlth ( nattohz ( hzabsval ( r' - r ) ) ) ( nattohz ( hzabsval m ) ) ) as u.
@@ -668,7 +668,7 @@ Proof.
       apply f'.
   }
   (* Path in direct product: *)
-  assert ( dirprodpair q' r' = ( dirprodpair q r ) ) as j
+  assert ( make_dirprod q' r' = ( make_dirprod q r ) ) as j
   by (apply pathsdirprod; assumption).
   (* Proof of general path: *)
   apply pathintotalfiber with ( p0 := j ).
@@ -754,7 +754,7 @@ Proof.
   set ( k := tpair ( P := ( fun qr : hz × hz =>
     a = m * ( pr1 qr ) + pr2 qr ×
     ( hzleh 0 ( pr2 qr ) × hzlth ( pr2 qr ) ( nattohz ( hzabsval m ) ) ) ) )
-    ( dirprodpair q r ) d ).
+    ( make_dirprod q r ) d ).
   assert ( k = pr1 ( divalgorithm a m x ) ) as f
   by apply ( pr2 ( divalgorithm a m x ) ).
   split.
@@ -934,7 +934,7 @@ Lemma hzremaindermodandplus ( p : hz ) ( x : hzneq 0 p ) ( a c : hz ) :
 Proof.
   intros.
   apply pathsinv0.
-  apply ( hzqrtest p x ( a + c ) _ _ ( dirprodpair ( hzqrandpluseq p x a c )
+  apply ( hzqrtest p x ( a + c ) _ _ ( make_dirprod ( hzqrandpluseq p x a c )
                                                    ( hzqrandplusineq p x a c ) ) ).
 Defined.
 
@@ -945,7 +945,7 @@ Lemma hzquotientmodandplus ( p : hz ) ( x : hzneq 0 p ) ( a c : hz ) :
 Proof.
   intros.
   apply pathsinv0.
-  apply ( hzqrtest p x ( a + c ) _ _ ( dirprodpair ( hzqrandpluseq p x a c )
+  apply ( hzqrtest p x ( a + c ) _ _ ( make_dirprod ( hzqrandpluseq p x a c )
                                                    ( hzqrandplusineq p x a c ) ) ).
 Defined.
 
@@ -1048,8 +1048,8 @@ Defined.
 
 Lemma hzqrandremaindereq ( m : hz ) ( is : hzneq 0 m ) ( n : hz ) :
   hzremaindermod m is n =
-  ( ( m * ( pr1 ( dirprodpair 0 ( hzremaindermod m is n ) ) ) +
-          ( pr2 ( dirprodpair (@ringunel1 hz ) ( hzremaindermod m is n ) ) ) ) ).
+  ( ( m * ( pr1 ( make_dirprod 0 ( hzremaindermod m is n ) ) ) +
+          ( pr2 ( make_dirprod (@ringunel1 hz ) ( hzremaindermod m is n ) ) ) ) ).
 Proof.
   intros.
   simpl.
@@ -1355,8 +1355,8 @@ Defined.
 Lemma hzgcdandminusl ( m n : hz ) : hzgcd m n = hzgcd ( - m ) n.
 Proof.
   intros.
-  assert ( hProppair ( hzgcd m n ) ( isaprophzgcd _ _ )
-      = ( hProppair ( hzgcd ( - m ) n ) ( isaprophzgcd _ _ ) ) ) as x.
+  assert ( make_hProp ( hzgcd m n ) ( isaprophzgcd _ _ )
+      = ( make_hProp ( hzgcd ( - m ) n ) ( isaprophzgcd _ _ ) ) ) as x.
   { apply hPropUnivalence.
     - intro i.
       destruct i as [ a i ].
@@ -1435,8 +1435,8 @@ Defined.
 Lemma hzgcdsymm ( m n : hz ) : hzgcd m n = hzgcd n m.
 Proof.
   intros.
-  assert ( hProppair ( hzgcd m n ) ( isaprophzgcd _ _ ) =
-         ( hProppair ( hzgcd n m ) ( isaprophzgcd _ _ ) ) ) as x.
+  assert ( make_hProp ( hzgcd m n ) ( isaprophzgcd _ _ ) =
+         ( make_hProp ( hzgcd n m ) ( isaprophzgcd _ _ ) ) ) as x.
   { apply hPropUnivalence.
     - intro i.
       destruct i as [ a i ].
@@ -1561,7 +1561,7 @@ Proof.
   unfold hzneq in i. (* is crucial *)
   simpl in i.
   apply i.
-  apply ( p ( hProppair ( 0 = n ) ( isasethz 0 n ) ) ).
+  apply ( p ( make_hProp ( 0 = n ) ( isasethz 0 n ) ) ).
   intro t.
   destruct t as [ k f ].
   unfold hzdiv0 in f.
@@ -1718,7 +1718,7 @@ Proof.
     - (* Base Case: *)
       unfold E.
       intros.
-      split with ( dirprodpair 1 0 ).
+      split with ( make_dirprod 1 0 ).
       simpl.
       rewrite nattohzand0.
       destruct ( gcdand0 ( nattohz n ) i ) as [ left | right ].
@@ -1785,8 +1785,8 @@ Proof.
       destruct c as [ ab f ].
       destruct ab as [ a b ].
       simpl in f.
-      (* split with ( dirprodpair ( ( nattohz n ) - q * ( nattohz m ) ) ( a - b * q ) ).*)
-      split with ( dirprodpair b ( a - b * q ) ).
+      (* split with ( make_dirprod ( ( nattohz n ) - q * ( nattohz m ) ) ( a - b * q ) ).*)
+      split with ( make_dirprod b ( a - b * q ) ).
       assert ( gcd ( nattohz m ) ( nattohz ( hzabsval r ) ) p =
              ( gcd ( nattohz n ) ( nattohz m ) i ) ) as g.
       { apply isantisymmhzleh.
@@ -1982,7 +1982,7 @@ Proof.
   }
   destruct ( hzneqchoice 0 n i ) as [ left_n | right_n ].
   - destruct ( hzlthorgeh 0 m ) as [ left_m | right_m ].
-    + split with ( dirprodpair ( - a ) b ).
+    + split with ( make_dirprod ( - a ) b ).
       simpl.
       assert ( - a * n + b * m =
              ( a * nattohz ( hzabsval n ) + b * nattohz ( hzabsval m ) ) ) as l.
@@ -1997,7 +1997,7 @@ Proof.
       rewrite l.
       rewrite g.
       exact f.
-    + split with ( dirprodpair ( - a ) ( - b ) ).
+    + split with ( make_dirprod ( - a ) ( - b ) ).
       simpl.
       rewrite 2! ( ringlmultminus hz ).
       rewrite <- 2! ( ringrmultminus hz ).
@@ -2008,7 +2008,7 @@ Proof.
         -- assumption.
       * assumption.
   - destruct ( hzlthorgeh 0 m ) as [ left_m | right_m ].
-    + split with ( dirprodpair a b ).
+    + split with ( make_dirprod a b ).
       simpl.
       rewrite g.
       rewrite f.
@@ -2016,7 +2016,7 @@ Proof.
       * apply idpath.
       * assumption.
       * assumption.
-    + split with ( dirprodpair a ( - b ) ).
+    + split with ( make_dirprod a ( - b ) ).
       rewrite g.
       rewrite f.
       simpl.
@@ -2041,7 +2041,7 @@ Defined.
 Definition hzmod ( p : hz ) ( x : hzneq 0 p ) : hrel hz.
 Proof.
   intros n m.
-  exact ( hProppair ( hzremaindermod p x n = hzremaindermod p x m )
+  exact ( make_hProp ( hzremaindermod p x n = hzremaindermod p x m )
                     ( hzmodisaprop p x n m ) ).
 Defined.
 
@@ -2216,7 +2216,7 @@ Proof.
   intros.
   assert ( isaprop ( hzremaindermod p x a = 0 ) ) as v
   by apply isasethz.
-  apply ( y ( hProppair _ v ) ).
+  apply ( y ( make_hProp _ v ) ).
   intro t.
   destruct t as [ k f ].
   unfold hzdiv0 in f.
@@ -2229,8 +2229,8 @@ Proof.
                              a = p * pr1 qr + pr2 qr ×
                              ( hzleh 0 (pr2 qr) ×
                                hzlth (pr2 qr) (nattohz (hzabsval p)))) )
-         ( dirprodpair k 0 ) (dirprodpair f'
-                              ( dirprodpair ( isreflhzleh 0 ) ( lemmas.hzabsvalneq0 p x ) ) ) ).
+         ( make_dirprod k 0 ) (make_dirprod f'
+                              ( make_dirprod ( isreflhzleh 0 ) ( lemmas.hzabsvalneq0 p x ) ) ) ).
   assert ( e = pr1 ( divalgorithm a p x ) ) as s
   by apply ( pr2 ( divalgorithm a p x ) ).
   set ( w := pathintotalpr1 ( pathsinv0 s ) ).
@@ -2246,7 +2246,7 @@ Proof.
   assert ( isaprop ( gcd p a x = 1) ) as is
   by apply isasethz.
   apply ( pr2 y ( gcd p a x )
-              ( pr1 ( gcdiscommondiv p a x ) ) (hProppair _ is ) ).
+              ( pr1 ( gcdiscommondiv p a x ) ) (make_hProp _ is ) ).
   intro t.
   destruct t as [ t0 | t1 ].
   - apply t0.
@@ -2372,7 +2372,7 @@ Proof.
       intro q.
       apply isapropmultinvpair.
     }
-    apply ( setquotunivprop _ ( fun x0 => hProppair _ ( int x0 ) ) ).
+    apply ( setquotunivprop _ ( fun x0 => make_hProp _ ( int x0 ) ) ).
     intro a.
     simpl.
     intro q.

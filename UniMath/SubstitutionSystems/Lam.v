@@ -41,7 +41,7 @@ Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
+Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
 Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LamSignature.
@@ -83,8 +83,8 @@ Variable KanExt : ∏ Z : precategory_Ptd C hs,
      (U Z) C hs hs.
 
 
-Let Lam_S : Signature _ _ _ _ := Lam_Sig C hs terminal CC CP.
-Let LamE_S : Signature _ _ _ _ := LamE_Sig C hs terminal CC CP.
+Let Lam_S : Signature _ _ _ _ _ _ := Lam_Sig C hs terminal CC CP.
+Let LamE_S : Signature _ _ _ _ _ _ := LamE_Sig C hs terminal CC CP.
 
 (* assume initial algebra for signature Lam *)
 
@@ -129,7 +129,7 @@ Defined.
 
 
 Definition Lam_App_Abs :  [C, C, hs]
-   ⟦ (H C hs C hs CC (App_H C hs CP) (Abs_H C hs terminal CC)) `Lam , `Lam ⟧.
+   ⟦ (H C C hs C hs CC (App_H C hs CP) (Abs_H C hs terminal CC)) `Lam , `Lam ⟧.
 Proof.
   exact (BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _) · alg_map _ Lam).
 Defined.

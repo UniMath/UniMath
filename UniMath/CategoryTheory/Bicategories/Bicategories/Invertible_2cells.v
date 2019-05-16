@@ -19,7 +19,7 @@ Lemma is_invertible_2cell_vcomp {C : prebicat} {a b : C} {f g h: C ⟦a, b⟧}
       {y : g ==> h} (inv_y : is_invertible_2cell y)
   : is_invertible_2cell (x • y).
 Proof.
-  use mk_is_invertible_2cell.
+  use make_is_invertible_2cell.
   - exact (inv_y^-1 • inv_x^-1).
   - abstract (
         repeat rewrite vassocl;
@@ -44,7 +44,7 @@ Lemma is_invertible_2cell_lwhisker {C : prebicat} {a b c : C}
       {x : g1 ==> g2} (inv_x : is_invertible_2cell x)
   : is_invertible_2cell (f ◃ x).
 Proof.
-  use mk_is_invertible_2cell.
+  use make_is_invertible_2cell.
   - exact (f ◃ inv_x^-1).
   - abstract (
         etrans; [ apply lwhisker_vcomp |];
@@ -60,7 +60,7 @@ Lemma is_invertible_2cell_rwhisker {C : prebicat} {a b c : C} {f1 f2 : a --> b} 
       {x : f1 ==> f2} (inv_x : is_invertible_2cell x)
   : is_invertible_2cell (x ▹ g).
 Proof.
-  use mk_is_invertible_2cell.
+  use make_is_invertible_2cell.
   - exact (inv_x^-1 ▹ g).
   - abstract (
         etrans; [ apply rwhisker_vcomp |];
@@ -103,7 +103,7 @@ Definition is_invertible_2cell_hcomp
        (inv_η₂ : is_invertible_2cell η₂)
   : is_invertible_2cell (η₁ ⋆⋆ η₂).
 Proof.
-  use mk_is_invertible_2cell.
+  use make_is_invertible_2cell.
   - exact (inv_η₁^-1 ⋆⋆ inv_η₂^-1).
   - abstract (rewrite <- hcomp_vcomp, !vcomp_rinv; apply hcomp_identity).
   - abstract (rewrite <- hcomp_vcomp, !vcomp_lid; apply hcomp_identity).
@@ -307,3 +307,29 @@ Ltac is_iso :=
   | [ |- is_invertible_2cell (id₂ _)] => apply is_invertible_2cell_id₂
   | _ => try assumption
   end.
+
+Definition inv_of_invertible_2cell
+           {C : bicat}
+           {X Y : C}
+           {f g : X --> Y}
+  : invertible_2cell f g → invertible_2cell g f.
+Proof.
+  intro α.
+  use make_invertible_2cell.
+  - exact (α^-1).
+  - is_iso.
+Defined.
+
+Definition comp_of_invertible_2cell
+           {C : bicat}
+           {X Y : C}
+           {f g h : X --> Y}
+  : invertible_2cell f g → invertible_2cell g h → invertible_2cell f h.
+Proof.
+  intros α β.
+  use make_invertible_2cell.
+  - exact (α • β).
+  - is_iso.
+    + apply α.
+    + apply β.
+Defined.

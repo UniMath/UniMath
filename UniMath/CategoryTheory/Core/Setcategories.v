@@ -14,11 +14,11 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Local Open Scope cat.
 
 Definition object_hlevel (n : nat) (C : precategory) : hProp :=
-  hProppair _ (isapropisofhlevel n (ob C)).
+  make_hProp _ (isapropisofhlevel n (ob C)).
 
 (* TODO: someday, [has_homsets] should be rephrased in terms of this *)
 Definition homtype_hlevel (n : nat) (C : precategory) : hProp :=
-  hProppair (∏ a b : C, isofhlevel n (C ⟦ a, b ⟧))
+  make_hProp (∏ a b : C, isofhlevel n (C ⟦ a, b ⟧))
             (impred _ _ (λ _, impred _ _ (λ _, isapropisofhlevel n _))).
 
 Definition object_homtype_hlevel (n m : nat) (C : precategory) : hProp :=
@@ -38,7 +38,7 @@ Proof.
 Defined.
 
 Definition setcategory_objects_set (C : setcategory) : hSet :=
-    hSetpair (ob C) (pr1 (pr2 C)).
+    make_hSet (ob C) (pr1 (pr2 C)).
 
 Definition isaset_ob (C : setcategory) : isaset C := (dirprod_pr1 (pr2 C)).
 Definition isaset_mor (C : setcategory) : has_homsets C := homset_property C.

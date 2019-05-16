@@ -10,7 +10,7 @@ Definition weq_to_InverseEquivalence X Y : X ≃ Y -> Equivalence Y X.
   set (g := λ y, hfiberpr1 f y (pr1 (r y))).
   set (p := λ y, pr2 (pr1 (r y))).
   simpl in p.
-  set (L := λ x, pr2 (r (f x)) (hfiberpair f x (idpath (f x)))).
+  set (L := λ x, pr2 (r (f x)) (make_hfiber f x (idpath (f x)))).
   set (q := λ x, maponpaths pr1 (L x)).
   set (q' := λ x, !q x).
   refine (makeEquivalence Y X g f q' p _).
@@ -27,7 +27,7 @@ Abort.
 
 Definition weq_pathscomp0r {X} x {y z:X} (p:y = z) : (x = y) ≃ (x = z).
 Proof.
-  intros. exact (weqpair _ (isweqpathscomp0r _ p)).
+  intros. exact (make_weq _ (isweqpathscomp0r _ p)).
 Defined.
 
 Definition iscontrretract_compute {X Y} (p:X->Y) (s:Y->X)

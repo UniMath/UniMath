@@ -37,7 +37,7 @@ Lemma whisker_left_id_2mor {C : prebicategory} {a b c : C}
   : whisker_left f (identity g) = identity (f ;1; g).
 Proof.
   intermediate_path (functor_on_morphisms (compose_functor a b c)
-                                (identity (precatbinprodpair f g))).
+                                (identity (make_precatbinprod f g))).
   reflexivity.
   apply functor_id.
 Defined.
@@ -135,7 +135,7 @@ Lemma whisker_right_id_2mor {C : prebicategory} {a b c : C}
   : whisker_right (identity f) g = identity (f ;1; g).
 Proof.
   intermediate_path (functor_on_morphisms (compose_functor a b c)
-                                (identity (precatbinprodpair f g))).
+                                (identity (make_precatbinprod f g))).
   reflexivity.
   apply functor_id.
 Defined.

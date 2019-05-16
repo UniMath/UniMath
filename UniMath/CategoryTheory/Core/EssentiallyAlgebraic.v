@@ -28,7 +28,7 @@ Proof.
 Qed.
 
 Definition setcategory_total_morphisms_set (C : setcategory) : hSet :=
-    hSetpair _ (isaset_setcategory_total_morphisms C).
+    make_hSet _ (isaset_setcategory_total_morphisms C).
 
 Definition precategory_source (C : precategory_ob_mor) :
      total_morphisms C -> ob C :=
@@ -40,7 +40,7 @@ Definition precategory_target (C : precategory_ob_mor) :
 
 Definition precategory_total_id (C : precategory_data) :
       ob C -> total_morphisms C :=
-      λ c, tpair _ (dirprodpair c c) (identity c).
+      λ c, tpair _ (make_dirprod c c) (identity c).
 
 Definition precategory_total_comp'' (C : precategory_data) :
       ∏ f g : total_morphisms C,
@@ -53,7 +53,7 @@ Proof.
   unfold precategory_target in e; simpl in e.
   unfold precategory_source in e; simpl in e.
   simpl.
-  exists (dirprodpair a c). simpl.
+  exists (make_dirprod a c). simpl.
   exact ((f · idtomor _ _ e) · g).
 Defined.
 
@@ -62,5 +62,5 @@ Definition precategory_total_comp (C : precategory_data) :
         precategory_target C f = precategory_source C g ->
          total_morphisms C :=
   λ f g e,
-     tpair _ (dirprodpair (pr1 (pr1 f))(pr2 (pr1 g)))
+     tpair _ (make_dirprod (pr1 (pr1 f))(pr2 (pr1 g)))
         ((pr2 f · idtomor _ _ e) · pr2 g).

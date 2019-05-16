@@ -79,10 +79,8 @@ Proof.
   exact (horcomp α β).
 Defined.
 
-Definition functorial_composition (A B C : precategory) (hsB: has_homsets B) (hsC: has_homsets C) :
-  functor (precategory_binproduct [A, B, hsB] [B, C, hsC]) [A, C, hsC].
+Lemma is_functor_functorial_composition_data (A B C : precategory) (hsB: has_homsets B) (hsC: has_homsets C) : is_functor (functorial_composition_data A B C hsB hsC).
 Proof.
-  exists (functorial_composition_data A B C hsB hsC).
   split.
   - unfold functor_idax.
     intros FG.
@@ -110,6 +108,13 @@ Proof.
     apply cancel_postcomposition.
     apply pathsinv0.
     apply nat_trans_ax.
+Qed.
+
+Definition functorial_composition (A B C : precategory) (hsB: has_homsets B) (hsC: has_homsets C) :
+  functor (precategory_binproduct [A, B, hsB] [B, C, hsC]) [A, C, hsC].
+Proof.
+  exists (functorial_composition_data A B C hsB hsC).
+  apply is_functor_functorial_composition_data.
 Defined.
 
 Lemma horcomp_pre_post

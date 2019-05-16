@@ -257,11 +257,11 @@ Section Disp_Univalent_2.
     : UU
     := disp_univalent_2_0 D × disp_univalent_2_1 D.
 
-  Definition mk_disp_univalent_2 {D : disp_bicat C}
+  Definition make_disp_univalent_2 {D : disp_bicat C}
              (univ_2_0 : disp_univalent_2_0 D)
              (univ_2_1 : disp_univalent_2_1 D)
     : disp_univalent_2 D
-    := dirprodpair univ_2_0 univ_2_1.
+    := make_dirprod univ_2_0 univ_2_1.
 
   Definition disp_univalent_2_0_of_2 {D : disp_bicat C}
              (univ_2 : disp_univalent_2 D)

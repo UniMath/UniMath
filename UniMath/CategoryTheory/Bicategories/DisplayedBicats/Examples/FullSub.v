@@ -212,7 +212,7 @@ Section FullSubBicat.
              (f : X --> Y)
     : left_adjoint_equivalence f ≃ @left_adjoint_equivalence C (pr1 X) (pr1 Y) (pr1 f).
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (fullsub_left_adjoint_equivalence_to_bicat_left_adjoint_equivalence f).
     - use isweq_iso.
       + exact (bicat_left_adjoint_equivalence_to_fullsub_left_adjoint_equivalence f).

@@ -22,8 +22,8 @@ Local Open Scope cat.
 Section Defn.
   Definition arrow_precategory_data (C : precategory) : precategory_data.
   Proof.
-    use precategory_data_pair.
-    - use precategory_ob_mor_pair.
+    use make_precategory_data.
+    - use make_precategory_ob_mor.
       + exact (∑ (a : ob C × ob C), dirprod_pr1 a --> dirprod_pr2 a).
       + intros x y.
         (** The commutative square
@@ -38,10 +38,10 @@ Section Defn.
                       dirprod_pr2 (pr1 x) --> dirprod_pr2 (pr1 y),
               pr2 x · dirprod_pr2 fg = dirprod_pr1 fg · pr2 y).
     - intros x; cbn.
-      exists (dirprodpair (identity _) (identity _)).
+      exists (make_dirprod (identity _) (identity _)).
       exact (id_right _ @ !id_left _).
     - intros x y z f g; cbn in *.
-      exists (dirprodpair (dirprod_pr1 (pr1 f) · dirprod_pr1 (pr1 g))
+      exists (make_dirprod (dirprod_pr1 (pr1 f) · dirprod_pr1 (pr1 g))
                      (dirprod_pr2 (pr1 f) · dirprod_pr2 (pr1 g))).
       (** Composing commutative squares
           <<
@@ -63,8 +63,8 @@ Section Defn.
 
   Definition arrow_category (C : category) : category.
   Proof.
-    use category_pair.
-    - use mk_precategory_one_assoc; [apply (arrow_precategory_data C)|].
+    use make_category.
+    - use make_precategory_one_assoc; [apply (arrow_precategory_data C)|].
       unfold is_precategory_one_assoc.
       split; [split|].
       + intros a b f.

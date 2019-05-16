@@ -65,7 +65,7 @@ Defined.
 
 Lemma LimConeHSET : LimCone D.
 Proof.
-use mk_LimCone.
+use make_LimCone.
 - apply limset.
 - exists (λ u f, pr1 f u).
   abstract (intros u v e; simpl; apply funextfun; intro f; simpl; apply (pr2 f)).
@@ -118,7 +118,7 @@ Defined.
 
 Lemma cats_LimConeHSET : cats.limits.LimCone D.
 Proof.
-use mk_LimCone.
+use make_LimCone.
 - apply cats_limset.
 - exists (λ u f, pr1 f u).
   abstract (intros u v e; apply funextfun; intro f; apply (pr2 f)).
@@ -152,11 +152,11 @@ Defined.
 Lemma BinProductsHSET : BinProducts HSET.
 Proof.
 intros A B.
-use mk_BinProduct.
+use make_BinProduct.
 - apply (A × B)%set.
 - simpl in *; apply pr1.
 - simpl in *; intros x; apply (pr2 x).
-- apply (mk_isBinProduct _ has_homsets_HSET).
+- apply (make_isBinProduct _ has_homsets_HSET).
   intros C f g; use tpair.
   * exists (prodtofuntoprod (f,,g)); abstract (split; apply idpath).
   * abstract (intros [t [ht1 ht2]]; apply subtypeEquality;
@@ -178,10 +178,10 @@ Defined.
 Lemma ProductsHSET (I : UU) : Products I HSET.
 Proof.
 intros A.
-use mk_Product.
+use make_Product.
 - exists (∏ i, pr1 (A i)); apply isaset_forall_hSet.
 - simpl; intros i f; apply (f i).
-- apply (mk_isProduct _ _ has_homsets_HSET).
+- apply (make_isProduct _ _ has_homsets_HSET).
   intros C f; simpl in *.
   use tpair.
   * exists (λ c i, f i c); intro i; apply idpath.
@@ -195,8 +195,8 @@ Defined.
 
 Lemma TerminalHSET : Terminal HSET.
 Proof.
-  apply (mk_Terminal unitHSET).
-  apply mk_isTerminal; intro a.
+  apply (make_Terminal unitHSET).
+  apply make_isTerminal; intro a.
   exists (λ _, tt).
   abstract (simpl; intro f; apply funextfun; intro x; case (f x); apply idpath).
 Defined.
@@ -222,12 +222,12 @@ Defined.
 Lemma PullbacksHSET : Pullbacks HSET.
 Proof.
 intros A B C f g.
-use mk_Pullback.
+use make_Pullback.
   + apply (PullbackHSET_ob f g).
   + intros xy; apply (pr1 (pr1 xy)).
   + intros xy; apply (pr2 (pr1 xy)).
   + abstract (apply funextsec; intros [[x y] Hxy]; apply Hxy).
-  + use mk_isPullback.
+  + use make_isPullback.
     intros X f1 f2 Hf12; cbn.
     use unique_exists.
     - intros x.
@@ -274,7 +274,7 @@ Defined.
 (** The [hfiber] of a function between sets is also a set. *)
 Definition hfiber_hSet {X Y : hSet} (f : HSET⟦X, Y⟧) (y : Y) : hSet.
 Proof.
-  use hSetpair.
+  use make_hSet.
   - exact (hfiber f y).
   - apply isaset_hfiber; apply setproperty.
 Defined.
@@ -306,13 +306,13 @@ Proof.
     + apply weqfibtototal; intro.
       apply invweq.
       apply dirprod_with_contr_r.
-      use iscontrpair.
+      use make_iscontr.
       * apply proofirrelevance.
         apply hlevelntosn.
         apply (pr2 TerminalHSET). (** TODO: should be an accessor *)
       * intro; apply proofirrelevance; apply setproperty.
     + unfold hfiber_hSet, hfiber; cbn.
-      use iscontrpair.
+      use make_iscontr.
       * use tpair.
         intros pb0.
         use tpair.

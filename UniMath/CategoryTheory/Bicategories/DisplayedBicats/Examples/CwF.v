@@ -226,8 +226,8 @@ Section CwFRepresentation.
     destruct H as [H isP].
     destruct H' as [H' isP'].
     use (total2_paths_f).
-    - set (T1 := mk_Pullback _ _ _ _ _ _ isP).
-      set (T2 := mk_Pullback _ _ _ _ _ _ isP').
+    - set (T1 := make_Pullback _ _ _ _ _ _ isP).
+      set (T2 := make_Pullback _ _ _ _ _ _ isP').
       set (i := iso_from_Pullback_to_Pullback T1 T2). cbn in i.
       set (i' := invmap (weq_ff_functor_on_iso (yoneda_fully_faithful _ _ ) _ _ ) i ).
       set (TT := isotoid _ isC i').

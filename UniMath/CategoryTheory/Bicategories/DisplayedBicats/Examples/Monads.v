@@ -55,8 +55,8 @@ Definition alg_map
          (total_bicat (disp_alg_bicat F)) C C
          (ps_id_functor C) (pr1_psfunctor (disp_alg_bicat F))).
 Proof.
-  use mk_pstrans.
-  - use mk_pstrans_data.
+  use make_pstrans.
+  - use make_pstrans_data.
     + intros X ; cbn in *.
       exact (pr2 X).
     + intros X Y f ; cbn in *.
@@ -201,7 +201,7 @@ Section MonadBicategory.
 
   Definition monad := fullsubbicat lawless_monad monad_laws.
 
-  Definition mk_monad
+  Definition make_monad
              (X : C)
              (f : C⟦X,X⟧)
              (η : id₁ X ==> f)

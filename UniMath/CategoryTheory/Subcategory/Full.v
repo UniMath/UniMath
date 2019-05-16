@@ -54,7 +54,7 @@ Defined.
 Definition full_sub_precategory {C : precategory}
          (C': hsubtype (ob C)) :
    sub_precategories C :=
-  tpair _  (dirprodpair C' (λ a b f, htrue)) (is_sub_precategory_full C C').
+  tpair _  (make_dirprod C' (λ a b f, htrue)) (is_sub_precategory_full C C').
 
 (** Any morphism between appropriate objects is a morphism of the full subprecategory *)
 Definition morphism_in_full_subcat {C : precategory} {C' : hsubtype (ob C)}
@@ -431,7 +431,7 @@ End full_sub_cat.
 Definition subcategory_univalent (C : univalent_category) (C' : hsubtype (ob C)) :
   univalent_category.
 Proof.
-  use mk_category.
+  use make_univalent_category.
   - exact (subcategory C (full_sub_precategory C')).
   - apply is_univalent_full_subcat, univalent_category_is_univalent.
 Defined.
