@@ -29,8 +29,8 @@ Section Refinement.
   Local Notation F := (polynomial_functor A B).
 
   Variable M0 : coalgebra F.
-  Local Notation carrierM0 := (pr1 M0).
-  Local Notation destrM0 := (pr2 M0).
+  Local Notation carrierM0 := (coalgebra_ob _  M0).
+  Local Notation destrM0 := (coalgebra_mor _ M0).
 
   Variable finalM0 : is_final M0.
   Local Notation corecM0 C := (pr11 (finalM0 C)).
@@ -41,7 +41,7 @@ Section Refinement.
 
   (* Definition of the corecursor *)
 
-  Definition corecM (C : coalgebra F) (c : pr1 C) :
+  Definition corecM (C : coalgebra F) (c : coalgebra_ob _ C) :
     carrierM.
   Proof.
     exists (corecM0 C c). apply hinhpr. exists C, c. apply idpath.
