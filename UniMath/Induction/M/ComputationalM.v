@@ -5,6 +5,8 @@
 
     Author: Dominik Kirst (@dominik-kirst)
 
+    with help by Ralph Matthes (CNRS): proof of [P_isaprop] and change to def. of [destrM'] so that the proof of [eq3] became trivial
+
  *)
 
 Require Import UniMath.Foundations.All.
@@ -18,6 +20,75 @@ Require Import UniMath.CategoryTheory.categories.Type.Core.
 Require Import UniMath.Induction.PolynomialFunctors.
 Require Import UniMath.Induction.M.Core.
 Require Import UniMath.Induction.M.Uniqueness.
+
+Section Upstream.
+
+(** mostly copied from Felix Rech *)
+
+Lemma total2_symmetry (A B : UU) (C : A -> B -> UU) :
+  (∑ a b, C a b)
+    ≃ (∑ b a, C a b).
+Proof.
+  use weq_iso.
+  - intros abc; induction abc as [a [b c]].
+    exact (b,, a,, c).
+  - intros bac; induction bac as [b [a c]].
+    exact (a,, b,, c).
+  - reflexivity.
+  - reflexivity.
+Defined.
+
+Lemma sec_total2_distributivity (A : UU) (B : A -> UU) (C : ∏ a, B a -> UU) :
+  (∏ a : A, ∑ b : B a, C a b)
+    ≃ (∑ b : ∏ a : A, B a, ∏ a, C a (b a)).
+Proof.
+  use weq_iso.
+  - intros f.
+    exists (λ a, pr1 (f a)).
+    exact (λ a, pr2 (f a)).
+  - intros fg; induction fg as [f g].
+    exact (λ a, f a,, g a).
+  - reflexivity.
+  - reflexivity.
+Defined.
+
+Lemma weq_functor_sec_id (A : UU) (B C : A -> UU) :
+  (∏ a, B a ≃ C a) ->
+  (∏ a, B a) ≃ (∏ a, C a).
+Proof.
+  intros e.
+  use weq_iso.
+  - exact (λ f a, e a (f a)).
+  - exact (λ f a, invmap (e a) (f a)).
+  - cbn.
+    intros f.
+    apply funextsec; intros a.
+    apply homotinvweqweq.
+  - cbn.
+    intros f.
+    apply funextsec; intros a.
+    apply homotweqinvweq.
+Defined.
+
+Lemma tpair_eta X (Y : X -> UU) :
+  forall (p : ∑ x, Y x), p = (pr1 p,,pr2 p).
+Proof.
+  intros p. apply idpath.
+Qed.
+
+Definition transportf_sec_constant X Y (Z : X -> Y -> UU) x1 x2 (p : x1 = x2) f y :
+  transportf (λ x, forall y, Z x y) p f y = transportf (λ x, Z x y) p (f y).
+Proof.
+  destruct p. apply idpath.
+Defined.
+
+Definition transportf_total2_const X Y (Z : X -> Y -> UU) x y1 y2 (p : y1 = y2) z :
+  transportf (λ y, ∑ a, Z a y) p (x,, z) = x,, transportf (Z x) p z.
+Proof.
+  destruct p. apply idpath.
+Defined.
+
+End Upstream.
 
 Section Refinement.
 
@@ -48,12 +119,12 @@ Defined.
 
 (* Definition of a proposition we factor the computation through *)
 
-Definition P (m0 : carrierM0) :=
+Local Definition P (m0 : carrierM0) :=
   ∑ af : F carrierM, destrM0 m0 = # F pr1 af.
 
 (** in order to show [P] to be a proposition, a not obviously equivalent
-      formulation is given for which it is easy to show [isaprop] *)
-Definition P' (m0 : carrierM0) :=
+    formulation is given for which it is easy to show [isaprop] *)
+Local Definition P' (m0 : carrierM0) :=
   ∑ ap : ∑ a : A, pr1 (destrM0 m0) = a,
                    ∏ (b : B (pr1 ap)),
                    ∑ mp : ∑ m0' : carrierM0,
@@ -61,10 +132,10 @@ Definition P' (m0 : carrierM0) :=
                                             (pr2 ap)
                                             (pr2 (destrM0 m0)) b =
                                  m0',
-                                 ∥ ∑ C c, corecM0 C c = pr1 mp ∥.
+                                 ∃ C c, corecM0 C c = pr1 mp.
 
 (** the easy auxiliary lemma *)
-Lemma P'_isaprop m0 :
+Local Lemma P'_isaprop m0 :
   isaprop (P' m0).
 Proof.
   apply isofhleveltotal2.
@@ -80,7 +151,7 @@ Proof.
 Qed.
 
 (** the crucial lemma *)
-Lemma P_isaprop (m0 : carrierM0) :
+Local Lemma P_isaprop (m0 : carrierM0) :
   isaprop (P m0).
 Proof.
   use (@isofhlevelweqb _ _ (P' m0) _ (P'_isaprop m0)).
@@ -94,44 +165,120 @@ Proof.
                         (λ a, B a -> carrierM0)
                         p
                         (pr2 (destrM0 m0)) =
-                      fun b => pr1 (f b)). {
-        apply weqfibtototal; intro f.
-        apply invweq.
-(*        assert (H : ∏ A B (x : ∑ a : A, B a), x = pr1 x,, pr2 x) by reflexivity.
-        rewrite (H _ _ (destrM0 m0)).
-*)
-(*        change ((∑ p : pr1 (destrM0 m0) = a,
-                       transportf
-                         (λ a, B a → carrierM0)
-                         p
-                         (pr2 (destrM0 m0)) =
-                       (λ b : B a, pr1 (f b))) ≃
-                                        tpair (λ a, B a -> carrierM0)
-                                        (pr1 (destrM0 m0)) (pr2 (destrM0 m0)) =
-                # F pr1 (a,, f)).
-*)
-        apply invweq.
-        apply total2_paths_equiv.
-        }
-
-Admitted.
+                      fun b => pr1 (f b)).
+  {
+    apply weqfibtototal; intro f.
+    apply total2_paths_equiv.
+  }
+  intermediate_weq (∑ p : pr1 (destrM0 m0) = a,
+                        ∑ f : B a → carrierM,
+                              transportf
+                                (λ a, B a → carrierM0)
+                                p
+                                (pr2 (destrM0 m0)) =
+                              fun b => pr1 (f b)).
+  { apply total2_symmetry. }
+  apply weqfibtototal; intro p.
+  intermediate_weq (∑ fg : ∑ f : B a -> carrierM0,
+                                     ∏ b, ∃ C c, corecM0 C c = f b,
+                               transportf
+                                 (λ a, B a -> carrierM0)
+                                 p
+                                 (pr2 (destrM0 m0)) =
+                               pr1 fg).
+  { use weqbandf.
+    - apply weqfuntototaltototal.
+    - cbn.
+      intro f.
+      apply idweq.
+  }
+  intermediate_weq (∑ f : B a  → carrierM0,
+                        ∑ _ : ∏ b, ∃ C c, corecM0 C c = f b,
+                              transportf
+                                (λ a, B a  → carrierM0)
+                                p
+                                (pr2 (destrM0 m0)) =
+                              f).
+  { apply weqtotal2asstor. }
+  intermediate_weq (∑ f : B a → carrierM0,
+                        ∑ _ : ∏ b, ∃ C c, corecM0 C c = f b,
+                              ∏ b, transportf
+                                       (λ a, B a → carrierM0)
+                                       p
+                                       (pr2 (destrM0 m0)) b =
+                                   f b).
+  { apply weqfibtototal; intro f.
+    apply weqfibtototal; intros _.
+    apply weqtoforallpaths.
+  }
+  intermediate_weq (∑ f : B a → carrierM0,
+                              ∏ b, ∑ _ : ∃ C c, corecM0 C c = f b,
+                                           transportf
+                                             (λ a, B a  → carrierM0)
+                                             p
+                                             (pr2 (destrM0 m0)) b =
+                                           f b).
+  { apply weqfibtototal; intro f.
+    apply invweq.
+    apply sec_total2_distributivity.
+  }
+  intermediate_weq (∏ b, ∑ m0' : carrierM0,
+                               ∑ _ : ∃ C c, corecM0 C c = m0',
+                                     transportf
+                                       (λ a, B a -> carrierM0)
+                                       p
+                                       (pr2 (destrM0 m0)) b =
+                                     m0').
+  { apply invweq.
+    apply sec_total2_distributivity.
+  }
+  apply weq_functor_sec_id; intro b.
+  intermediate_weq (∑ m0' : carrierM0,
+                               ∑ _ : transportf
+                                       (λ a, B a -> carrierM0)
+                                       p
+                                       (pr2 (destrM0 m0)) b =
+                                     m0',
+                                     ∃ C c, corecM0 C c = m0').
+  {
+    apply weqfibtototal; intro m0'.
+    apply weqdirprodcomm.
+  }
+  intermediate_weq (∑ mp : ∑ m0', transportf (λ a, B a → carrierM0) p
+                                                (pr2 (destrM0 m0)) b = m0',
+                           ∃ C c, corecM0 C c = pr1 mp).
+  {
+    apply invweq.
+    apply weqtotal2asstor.
+  }
+  use weqbandf.
+  - apply weqfibtototal; intro m0'.
+    apply idweq.
+  - cbn. intro mp.
+    apply idweq.
+Qed.
 
   (* Now the destructor of M can be defined *)
 
-  Definition destrM' (m : carrierM) : P (pr1 m).
+  Local Definition destrM' (m : carrierM) : P (pr1 m).
   Proof.
-    destruct m as [m0 H]. apply (squash_to_prop H); try apply P_isaprop.
-    intros [C[c <-]]. refine ((# F (corecM C) ∘ (pr2 C)) c,, _). cbn [pr1]. clear H.
+    induction m as [m0 H]. apply (squash_to_prop H); try apply P_isaprop.
+    intros [C [c H1]].
+    refine ((# F (corecM C) ∘ (pr2 C)) c,, _). cbn [pr1]. clear H.
     assert (H : is_coalgebra_homo F (corecM0 C)).
-    - destruct finalM0 as [[G H] H']. apply H.
-    - apply toforallpaths in H. symmetry. apply H.
+    { destruct finalM0 as [[G H] H']. apply H. }
+    apply toforallpaths in H.
+    apply pathsinv0.
+    intermediate_path (destrM0 (corecM0 C c)).
+    - apply H.
+    - apply maponpaths. assumption.
   Defined.
 
   Definition destrM (m : carrierM) : F carrierM :=
     pr1 (destrM' m).
 
   Definition M : coalgebra F :=
-    (carrierM,,destrM).
+    (carrierM,, destrM).
 
   (* The destructor satisfies the corecursion equation definitionally *)
 
@@ -146,11 +293,13 @@ Admitted.
   Lemma eq_corecM0 m0 :
     corecM0 M0 m0 = m0.
   Proof.
-    destruct finalM0 as [[G H1] H2]. cbn.
+    induction finalM0 as [[G H1] H2]. cbn.
     specialize (H2 (coalgebra_homo_id F M0)).
-    change (pr1 (G,, H1) m0 = m0).
-    pattern (G,, H1). rewrite <- H2. apply idpath.
-  Defined.
+    change (pr1 (G,, H1) m0 = pr1 (coalgebra_homo_id F M0) m0).
+    apply (maponpaths (fun X => pr1 X m0)).
+    apply pathsinv0.
+    assumption.
+  Qed.
 
   Definition injectM0 m0 :
     ∃ C c, corecM0 C c = m0.
@@ -170,55 +319,36 @@ Admitted.
     carrierM = carrierM0.
   Proof.
     apply weqtopaths, carriers_weq.
-  Defined.
+  Defined. (** needs to be transparent *)
 
   (* The two coalgebras are equal *)
 
-  Lemma tpair_eta X (Y : X -> UU) :
-    forall (p : ∑ x, Y x), p = (pr1 p,,pr2 p).
-  Proof.
-    intros p. apply idpath.
-  Qed.
 
-  Definition transportf_sec_constant X Y (Z : X -> Y -> UU) x1 x2 (p : x1 = x2) f y :
-    transportf (λ x, forall y, Z x y) p f y = transportf (λ x, Z x y) p (f y).
-  Proof.
-    destruct p. apply idpath.
-  Defined.
-
-  Definition transportf_total2_const X Y (Z : X -> Y -> UU) x y1 y2 (p : y1 = y2) z :
-    transportf (λ y, ∑ a, Z a y) p (x,, z) = x,, transportf (Z x) p z.
-  Proof.
-    destruct p. apply idpath.
-  Defined.
-
-  Lemma eq1 (m0 : carrierM0) :
+  Local Lemma eq1 (m0 : carrierM0) :
     transportf (λ X, X → F X) carriers_eq destrM m0
     = transportf (λ X, F X) carriers_eq (destrM (transportf (λ X, X) (!carriers_eq) m0)).
   Proof.
     destruct carriers_eq. apply idpath.
   Qed.
 
-  Lemma eq2 (m0 : carrierM0) :
-    transportf (λ X, X) (!carriers_eq) m0 = (m0,,injectM0 m0).
+  Local Lemma eq2 (m0 : carrierM0) :
+    transportf (λ X, X) (!carriers_eq) m0 = (m0,, injectM0 m0).
   Proof.
     apply (transportf_pathsinv0' (idfun UU) carriers_eq).
     unfold carriers_eq. rewrite weqpath_transport. apply idpath.
   Qed.
 
-  (* this should hold (by computation) once P_isaprop was proven *)
-
-  Lemma eq3 m0 :
+  Local Lemma eq3 m0 :
     destrM (m0,, injectM0 m0) = pr1 (destrM0 m0),, (corecM M0 ∘ pr2 (destrM0 m0))%functions.
   Proof.
-    cbn. unfold destrM, destrM'.
-  Admitted.
+    apply idpath.
+  Qed.
 
   Lemma coalgebras_eq :
     M = M0.
   Proof.
     use total2_paths_f; try apply carriers_eq.
-    apply funextfun. intros m0.
+    apply funextfun. intro m0.
     rewrite eq1. rewrite eq2. rewrite eq3.
     cbn. unfold polynomial_functor_obj.
     rewrite transportf_total2_const.
@@ -230,10 +360,9 @@ Admitted.
 
   (* Thus M is final *)
 
-  Lemma finalM :
-    is_final M.
+  Lemma finalM : is_final M.
   Proof.
     rewrite coalgebras_eq. apply finalM0.
-  Qed.
+  Defined.
 
 End Refinement.
