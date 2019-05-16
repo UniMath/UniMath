@@ -394,13 +394,12 @@ Section CochainCone.
     - intros eq.
       intros ? ? e.
       induction e; apply eq.
-    - intro.
-      do 2 (apply funextsec; intro).
-      apply funextsec; intro e.
-      induction e.
-      reflexivity.
-    - intro; apply funextsec; intro.
-      reflexivity.
-  Qed.
+    - abstract ( intro;
+      do 2 (apply funextsec; intro);
+      apply funextsec; intro e;
+      induction e;
+      reflexivity ).
+    - abstract ( intro; apply funextsec; intro; reflexivity ).
+  Defined.
 
 End CochainCone.

@@ -6,25 +6,35 @@ Require Import UniMath.Foundations.UnivalenceAxiom.
 
 (** Funextsec and toforallpaths are mutually inverses *)
 Lemma funextsec_toforallpaths {T : UU} {P : T -> UU} {f g : ∏ t : T, P t} :
-      ∏ (h : f = g), funextsec _  _ _ (toforallpaths _ _ _ h) = h.
+  ∏ (h : f = g), funextsec _  _ _ (toforallpaths _ _ _ h) = h.
 Proof.
   intro h; exact (!homotinvweqweq0 (weqtoforallpaths _ _ _) h).
 Defined.
 
-(** Funextsec and toforallpaths are mutually inverses *)
-Definition toforallpaths_funextsec_comp {A : UU} {B : A -> UU}
-          (f g : ∏ x, B x) (x : A) :
- toforallpaths B f g ∘ funextsec B f g = idfun _.
-Proof.
- apply funextsec; intro; unfold funcomp.
- exact ((homotweqinvweq (weqtoforallpaths _ _ _) _)).
-Qed.
-
 Lemma toforallpaths_funextsec {T : UU} {P : T -> UU} {f g : ∏ t : T, P t} :
-      ∏ (h : ∏ t : T, f t = g t), toforallpaths _  _ _ (funextsec _ _ _ h) = h.
+  ∏ (h : ∏ t : T, f t = g t), toforallpaths _  _ _ (funextsec _ _ _ h) = h.
 Proof.
   intro h; exact (homotweqinvweq (weqtoforallpaths _ _ _) h).
 Defined.
+
+Definition toforallpaths_funextsec_comp {T : UU} {P : T -> UU} (f g : ∏ t, P t) :
+  toforallpaths P f g ∘ funextsec P f g = idfun _.
+Proof.
+  apply funextsec; intro; unfold funcomp.
+  apply toforallpaths_funextsec.
+Defined.
+
+Lemma maponpaths_funextsec {T : UU} {P : T -> UU}
+          (f g : ∏ t, P t) (t : T) (p : f ~ g) :
+ maponpaths (λ h, h t) (funextsec _ f g p) = p t.
+Proof.
+ intermediate_path (toforallpaths _ _ _ (funextsec _ f g p) t).
+ - generalize (funextsec _ f g p); intros q.
+   induction q.
+   reflexivity.
+ - apply (eqtohomot (eqtohomot (toforallpaths_funextsec_comp f g) p) t).
+Qed.
+
 
 Definition weqonsec {X Y} (P:X->Type) (Q:Y->Type)
            (f:X ≃ Y) (g:∏ x, weq (P x) (Q (f x))) :
@@ -123,14 +133,3 @@ Proof.
     induction k, l; simpl. unfold transportf; simpl.
     unfold idfun; simpl. apply idweq. }
 Defined.
-
-Lemma maponpaths_funextsec {A : UU} {B : A -> UU}
-          (f g : ∏ x, B x) (x : A) (p : f ~ g) :
- maponpaths (λ h, h x) (funextsec _ f g p) = p x.
-Proof.
- intermediate_path (toforallpaths _ _ _ (funextsec _ f g p) x).
- - generalize (funextsec _ f g p); intros q.
-   induction q.
-   reflexivity.
- - apply (eqtohomot (eqtohomot (toforallpaths_funextsec_comp f g x) p) x).
-Qed.

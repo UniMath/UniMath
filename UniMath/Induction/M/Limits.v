@@ -4,9 +4,7 @@
   theory" by Jeremy Avigad, Chris Kapulkin, and Peter LeFanu Lumsdaine
   (arXiv:1304.0680v3).
 
-  Eventually, this should probably be moved into CategoryTheory, but there is
-  no proof of the universal property ([isLimCone]) as phrased in
-  [CategoryTheory.limits.graphs.limits]. *)
+  Eventually, this should probably be moved into CategoryTheory. *)
 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Sets.
@@ -162,8 +160,7 @@ Section CochainLimit.
   Let π' n := π (S n) n (idpath _).
 
   Definition cochain_limit :=
-    ∑ (x : forall n : nat, X n),
-    forall n, π' n (x (S n)) = x n.
+    ∑ (x : forall n : nat, X n), forall n, π' n (x (S n)) = x n.
 
   Lemma simplify_cochain_step
         {u v : nat}
@@ -207,13 +204,13 @@ Section CochainLimit.
       refine (_ @ eq).
       apply simplify_cochain_step.
     - intros eq; intro; apply eq.
-    - intro; apply funextsec; intro; reflexivity.
-    - intro; cbn.
-      do 2 (apply funextsec; intro).
-      apply funextsec; intro p.
-      induction p.
-      reflexivity.
-  Qed.
+    - abstract ( intro; apply funextsec; intro; reflexivity ).
+    - abstract ( intro; cbn;
+      do 2 (apply funextsec; intro);
+      apply funextsec; intro p;
+      induction p;
+      reflexivity ).
+  Defined.
 
   Lemma cochain_limit_is_limit :
     ∑ c : cone coch cochain_limit, is_limit_cone c.
@@ -229,6 +226,6 @@ Section CochainLimit.
     apply H.
     eapply tpair.
     apply limit_universal.
-  Qed.
+  Defined.
 
 End CochainLimit.
