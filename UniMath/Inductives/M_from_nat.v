@@ -576,7 +576,7 @@ Section M_From_Nat.
                                 transportb Cone1 p (transportf Cone1 p q) =
                                 transportb Cone1 p (Φ1 u q)). {
           apply weq_functor_total2_id; intros q.
-          apply (weqonpaths (weqpair _ (isweqtransportb Cone1 p))).
+          apply (weqonpaths (make_weq _ (isweqtransportb Cone1 p))).
         }
         intermediate_weq (∑ q : Cone1 u, q = transportb Cone1 p (Φ1 u q)). {
           apply weq_functor_total2_id; intros q.
@@ -1008,7 +1008,7 @@ Section M_From_Nat.
   Defined.
 
   Definition weq_m_out : m_type ≃__i P m_type :=
-    λ i, weqpair (m_out i) (isweq_m_out i).
+    λ i, make_weq (m_out i) (isweq_m_out i).
 
   Definition m_sup {i} (label : A i) (arg : ∏ j, B i label j -> m_type j) :
     m_type i :=

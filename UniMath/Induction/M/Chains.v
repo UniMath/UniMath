@@ -10,6 +10,7 @@ Require Import UniMath.MoreFoundations.WeakEquivalences.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.categories.Type.Core.
+Require Import UniMath.CategoryTheory.categories.Type.Limits.
 
 Require Import UniMath.CategoryTheory.Chains.Chains.
 Require Import UniMath.CategoryTheory.Chains.Cochains.
@@ -288,7 +289,7 @@ Proof.
    exists (nat_rect _ x l).
    exact (λ n, idpath _).
  }
- apply (weqpair f).
+ apply (make_weq f).
  apply (isweq_iso f g).
  - cbn.
    intros xp; induction xp as [x p].

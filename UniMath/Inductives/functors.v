@@ -151,7 +151,7 @@ Defined.
 Goal ¬ ∑ A, A ≃ powerset (λ _, A) tt.
 Proof.
   intros [A e].
-  set (C a := hneg (hProppair (e a a) (propproperty (e a a)))).
+  set (C a := hneg (make_hProp (e a a) (propproperty (e a a)))).
   assert (equivalence : C (invweq e C) <-> ¬ C (invweq e C)). {
     change (¬ e (invmap e C) (invweq e C) <-> ¬ C (invweq e C)).
     rewrite homotweqinvweq.
