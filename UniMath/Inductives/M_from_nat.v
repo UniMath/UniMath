@@ -671,7 +671,7 @@ Section M_From_Nat.
     (∑ af : P m_type i, m0_out i (pr1 m) = P.map (λ _, pr1) i af).
   Proof.
     intros.
-    induction m as [m Ccp]; simpl.
+    induction m as [m Ccp]; simpl. clear Ccp.
     change (isaprop (∑ af : P m_type i,
                             m0_out i m =
                             P.map (λ _, pr1) i af)).

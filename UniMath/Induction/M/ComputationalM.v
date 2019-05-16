@@ -35,31 +35,90 @@ Section Refinement.
   Variable finalM0 : is_final M0.
   Local Notation corecM0 C := (pr11 (finalM0 C)).
 
-  (* Refinement of the final coalgebra to computable elements *)
+(* Refinement of the final coalgebra to computable elements *)
 
-  Definition carrierM := ∑ m0 : carrierM0, ∃ C c, corecM0 C c = m0.
+Definition carrierM := ∑ m0 : carrierM0, ∃ C c, corecM0 C c = m0.
 
-  (* Definition of the corecursor *)
+(* Definition of the corecursor *)
 
-  Definition corecM (C : coalgebra F) (c : coalgebra_ob _ C) :
-    carrierM.
-  Proof.
-    exists (corecM0 C c). apply hinhpr. exists C, c. apply idpath.
-  Defined.
+Definition corecM (C : coalgebra F) (c : coalgebra_ob _ C) : carrierM.
+Proof.
+  exists (corecM0 C c). apply hinhpr. exists C, c. apply idpath.
+Defined.
 
-  (* Definition of a proposition we factor the computation through *)
+(* Definition of a proposition we factor the computation through *)
 
-  Definition P (m : carrierM) :=
-    ∑ af : F carrierM, destrM0 (pr1 m) = # F pr1 af.
+Definition P (m0 : carrierM0) :=
+  ∑ af : F carrierM, destrM0 m0 = # F pr1 af.
 
-  Lemma P_isaprop m :
-    isaprop (P m).
-  Proof.
-  Admitted.
+(** in order to show [P] to be a proposition, a not obviously equivalent
+      formulation is given for which it is easy to show [isaprop] *)
+Definition P' (m0 : carrierM0) :=
+  ∑ ap : ∑ a : A, pr1 (destrM0 m0) = a,
+                   ∏ (b : B (pr1 ap)),
+                   ∑ mp : ∑ m0' : carrierM0,
+                                 transportf (λ a, B a  -> carrierM0)
+                                            (pr2 ap)
+                                            (pr2 (destrM0 m0)) b =
+                                 m0',
+                                 ∥ ∑ C c, corecM0 C c = pr1 mp ∥.
+
+(** the easy auxiliary lemma *)
+Lemma P'_isaprop m0 :
+  isaprop (P' m0).
+Proof.
+  apply isofhleveltotal2.
+  - apply isofhlevelcontr.
+    apply iscontrcoconusfromt.
+  - intro ap; induction ap as [a p].
+    apply impred; intros b.
+    apply isofhleveltotal2.
+    + apply isofhlevelcontr.
+      apply iscontrcoconusfromt.
+    + intro mp; induction mp as [m0' q].
+      apply isapropishinh.
+Qed.
+
+(** the crucial lemma *)
+Lemma P_isaprop (m0 : carrierM0) :
+  isaprop (P m0).
+Proof.
+  use (@isofhlevelweqb _ _ (P' m0) _ (P'_isaprop m0)).
+  simple refine (weqcomp (weqtotal2asstor _ _) _).
+  simple refine (weqcomp _ (invweq (weqtotal2asstor _ _))).
+  apply weqfibtototal; intro a.
+  intermediate_weq (
+          ∑ f : B a  → carrierM,
+                ∑ p : pr1 (destrM0 m0) = a,
+                      transportf
+                        (λ a, B a -> carrierM0)
+                        p
+                        (pr2 (destrM0 m0)) =
+                      fun b => pr1 (f b)). {
+        apply weqfibtototal; intro f.
+        apply invweq.
+(*        assert (H : ∏ A B (x : ∑ a : A, B a), x = pr1 x,, pr2 x) by reflexivity.
+        rewrite (H _ _ (destrM0 m0)).
+*)
+(*        change ((∑ p : pr1 (destrM0 m0) = a,
+                       transportf
+                         (λ a, B a → carrierM0)
+                         p
+                         (pr2 (destrM0 m0)) =
+                       (λ b : B a, pr1 (f b))) ≃
+                                        tpair (λ a, B a -> carrierM0)
+                                        (pr1 (destrM0 m0)) (pr2 (destrM0 m0)) =
+                # F pr1 (a,, f)).
+*)
+        apply invweq.
+        apply total2_paths_equiv.
+        }
+
+Admitted.
 
   (* Now the destructor of M can be defined *)
 
-  Definition destrM' (m : carrierM) : P m.
+  Definition destrM' (m : carrierM) : P (pr1 m).
   Proof.
     destruct m as [m0 H]. apply (squash_to_prop H); try apply P_isaprop.
     intros [C[c <-]]. refine ((# F (corecM C) ∘ (pr2 C)) c,, _). cbn [pr1]. clear H.
