@@ -66,7 +66,7 @@ Let cocone_μF : cocone chnF μF := colimCocone (CC chnF).
 Local Lemma e_comm (n : nat) : e (S n) = # F (e n) · inF.
 Proof.
 apply pathsinv0,
-      (colimArrowCommutes (mk_ColimCocone _ _ _ (HF _ _ _
+      (colimArrowCommutes (make_ColimCocone _ _ _ (HF _ _ _
                           (isColimCocone_from_ColimCocone (CC chnF))))).
 Qed.
 
@@ -117,7 +117,7 @@ Qed.
 
 Local Definition Pow_cocone : cocone LchnF X.
 Proof.
-use mk_cocone.
+use make_cocone.
 - intro n.
   apply (pr1 (Pow n) _ z).
 - abstract (intros n m []; clear m; apply Pow_cocone_subproof).
@@ -125,7 +125,7 @@ Defined.
 
 Local Definition CC_LchnF : ColimCocone LchnF.
 Proof.
-use mk_ColimCocone.
+use make_ColimCocone.
 - apply (L μF).
 - apply (mapcocone L _ cocone_μF).
 - apply HL, (isColimCocone_from_ColimCocone (CC chnF)).
@@ -144,7 +144,7 @@ Proof.
 apply (initialAlg_is_iso _ hsC), pr2.
 Defined.
 
-Let inF_iso : iso (F μF) μF := isopair _ is_iso_inF.
+Let inF_iso : iso (F μF) μF := make_iso _ is_iso_inF.
 Let inF_inv : C⟦μF,F μF⟧ := inv_from_iso inF_iso.
 
 (* The direction * -> ** *)

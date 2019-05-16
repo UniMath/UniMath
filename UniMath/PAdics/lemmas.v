@@ -31,7 +31,7 @@ Proof.
 Defined.
 
 Definition neq ( X : UU ) : hrel X :=
-  fun x y : X => hProppair (neg (x = y)) (isapropneg (x = y)).
+  fun x y : X => make_hProp (neg (x = y)) (isapropneg (x = y)).
 
 Definition pathintotalpr1 { B : UU } { E : B -> UU } { v w : total2 E} ( p : v = w ) :
   ( pr1 v ) = ( pr1 w ) := maponpaths ( fun x => pr1 x ) p.
@@ -41,8 +41,8 @@ Lemma isinclisinj { A B : UU } { f : A -> B } ( p : isincl f ) { a b : A }
 Proof.
   intros.
   set ( q := p ( f a )).
-  set ( a' := hfiberpair f a ( idpath ( f a ) ) ).
-  set ( b' := hfiberpair f b ( pathsinv0 f_eq ) ).
+  set ( a' := make_hfiber f a ( idpath ( f a ) ) ).
+  set ( b' := make_hfiber f b ( pathsinv0 f_eq ) ).
   assert ( a' = b' ) as p1. apply (p ( f a ) ).
   apply ( pathintotalpr1 p1 ).
 Defined.
@@ -801,9 +801,9 @@ Local Open Scope ring_scope.
 Definition acommring := ∑ (X : commring) (R : apart X),
   isbinopapart R ( @op1 X ) × isbinopapart R ( @op2 X ).
 
-Definition acommringpair := tpair ( P := fun X : commring =>
+Definition make_acommring := tpair ( P := fun X : commring =>
   ∑ R : apart X, isbinopapart R ( @op1 X ) × isbinopapart R ( @op2 X ) ).
-Definition acommringconstr := acommringpair.
+Definition acommringconstr := make_acommring.
 
 Definition acommringtocommring : acommring -> commring := @pr1 _ _.
 Coercion acommringtocommring : acommring >-> commring.
@@ -833,10 +833,10 @@ Definition aintdom := ∑ A : acommring,
   ( ringunel2 ( X := A ) ) # 0 ×
   forall a b : A, a # 0 -> b # 0 -> ( a * b ) # 0.
 
-Definition aintdompair := tpair ( P := fun A : acommring =>
+Definition make_aintdom := tpair ( P := fun A : acommring =>
   ( ringunel2 ( X := A ) ) # 0 ×
   forall a b : A, a # 0 -> b # 0 -> ( a * b ) # 0 ).
-Definition aintdomconstr := aintdompair.
+Definition aintdomconstr := make_aintdom.
 
 Definition pr1aintdom : aintdom -> acommring := @pr1 _ _.
 Coercion pr1aintdom : aintdom >-> acommring.
@@ -856,7 +856,7 @@ Definition isaafield ( A : acommring ) :=
   forall x : A, x # 0 -> multinvpair A x.
 
 Definition afld := ∑ A : acommring, isaafield A.
-Definition afldpair ( A : acommring ) ( is : isaafield A ) : afld := tpair A is .
+Definition make_afld ( A : acommring ) ( is : isaafield A ) : afld := tpair A is .
 Definition pr1afld : afld -> acommring := @pr1 _ _ .
 Coercion pr1afld : afld >-> acommring.
 

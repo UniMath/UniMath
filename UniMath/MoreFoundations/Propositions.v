@@ -79,7 +79,7 @@ Proof.
   apply (squash_to_hProp r); clear r; intros [p nq]. exact (p,,nq).
 Defined.
 
-Definition hrel_set (X : hSet) : hSet := hSetpair (hrel X) (isaset_hrel X).
+Definition hrel_set (X : hSet) : hSet := make_hSet (hrel X) (isaset_hrel X).
 
 Lemma isaprop_assume_it_is {X : UU} : (X -> isaprop X) -> isaprop X.
 Proof.
@@ -129,7 +129,7 @@ Definition proofirrelevance_hProp (X : hProp) : isProofIrrelevant X
 
 Ltac induction_hProp x y := induction (proofirrelevance_hProp _ x y).
 
-Definition iscontr_hProp (X:UU) : hProp := hProppair (iscontr X) (isapropiscontr X).
+Definition iscontr_hProp (X:UU) : hProp := make_hProp (iscontr X) (isapropiscontr X).
 
 Notation "'∃!' x .. y , P"
   := (iscontr_hProp (∑ x, .. (∑ y, P) ..))
@@ -276,7 +276,7 @@ Lemma factor_dep_through_squash {X} {Q:∥ X ∥->UU} :
   (∏ x, Q(squash_element x)) ->
   (∏ h, Q h).
 Proof.
-  intros i f ?.  apply (h (hProppair (Q h) (i h))).
+  intros i f ?.  apply (h (make_hProp (Q h) (i h))).
   intro x. simpl. induction (squash_uniqueness x h). exact (f x).
 Defined.
 
@@ -314,7 +314,7 @@ Proof.
   intros x'.
   assert (q := squash_to_prop x' i h).
   assert (e := iscontrpr1 (propproperty (∥X∥) (pr1 q) x')).
-  assert (w := hfiberpair pr1 q e).
+  assert (w := make_hfiber pr1 q e).
   assert (g := invweq (ezweqpr1 P x')).
   exact (g w).
 Defined.
@@ -399,7 +399,7 @@ Defined.
 
 Definition BasePointComponent_weq {X:PointedType} (bc : isBaseConnected X) :
   BasePointComponent X ≃ X
-  := weqpair (@basePointComponent_inclusion X) (BasePointComponent_isweq bc).
+  := make_weq (@basePointComponent_inclusion X) (BasePointComponent_isweq bc).
 
 Lemma baseConnectedness X : isBaseConnected X -> isConnected X.
 Proof.

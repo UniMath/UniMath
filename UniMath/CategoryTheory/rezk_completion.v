@@ -140,7 +140,7 @@ Proof.
 Defined.
 
 Definition Rezk_weq : [Rezk_completion A hsA, C, pr2 Ccat] ≃ [A, C, pr2 Ccat ]
-  := weqpair _ Rezk_eta_Universal_Property.
+  := make_weq _ Rezk_eta_Universal_Property.
 
 End fix_a_category.
 
@@ -237,7 +237,7 @@ Proof.
 Defined.
 
 Definition Rezk_opp_weq : [(Rezk_completion A hsA)^op, C, pr2 Ccat] ≃ [A^op, C, pr2 Ccat]
-  := weqpair _ Rezk_eta_opp_Universal_Property.
+  := make_weq _ Rezk_eta_opp_Universal_Property.
 
 End fix_a_category.
 

@@ -2,8 +2,6 @@
 
 Benedikt Ahrens, Ralph Matthes
 
-SubstitutionSystems
-
 2015
 
 Modified by: Anders Mörtberg, 2016
@@ -18,6 +16,10 @@ Contents :
 
 - Definition of the (weak) monoidal structure on endofunctors
   (however, the definitions are not confined to endofunctors)
+
+  Here, we only give the unitors and associators and do not
+  build a monoidal category (anyway, this is not possible
+  since we are not considering only endofunctors).
 
 
 ************************************************************)

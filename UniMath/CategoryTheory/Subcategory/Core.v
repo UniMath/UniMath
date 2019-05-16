@@ -227,7 +227,7 @@ Definition sub_precategory_morphisms_set {C : precategory} (hs: has_homsets C)
 
 Definition subcategory (C : category) (C' : sub_precategories C) : category.
 Proof.
-  use category_pair.
+  use make_category.
   - exact (carrier_of_sub_precategory C C').
   - intros ? ?.
     apply is_set_sub_precategory_morphisms.
@@ -239,12 +239,12 @@ Defined.
 Definition restrict_functor_to_sub_precategory {C D : precategory}
            (C' : sub_precategories C) (F : functor C D) : functor C' D.
 Proof.
-  use mk_functor.
-  - use mk_functor_data.
+  use make_functor.
+  - use make_functor_data.
     + exact (F ∘ precategory_object_from_sub_precategory_object _ C')%functions.
     + intros ? ?.
       apply (# F ∘ precategory_morphism_from_sub_precategory_morphism _ C' _ _)%functions.
-  - use dirprodpair.
+  - use make_dirprod.
     + intro; apply (functor_id F).
     + intros ? ? ? ? ?; apply (functor_comp F).
 Defined.

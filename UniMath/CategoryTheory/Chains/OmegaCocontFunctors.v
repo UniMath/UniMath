@@ -120,7 +120,7 @@ Let Hα : is_iso α := pr2 αiso.
 
 Local Definition ccFy y (ccGy : cocone (mapdiagram G d) y) : cocone (mapdiagram F d) y.
 Proof.
-use mk_cocone.
+use make_cocone.
 - intro v; apply (pr1 α (dob d v) · coconeIn ccGy v).
 - abstract (simpl; intros u v e; rewrite <- (coconeInCommutes ccGy u v e), !assoc;
             apply cancel_postcomposition, nat_trans_ax).
@@ -135,7 +135,7 @@ eapply pathscomp0; [apply cancel_postcomposition, nat_trans_ax|].
 rewrite <- assoc; eapply pathscomp0; [apply maponpaths, (Hf v)|]; simpl; rewrite assoc.
 eapply pathscomp0.
   apply cancel_postcomposition.
-  apply (nat_trans_eq_pointwise (@iso_after_iso_inv [C,D,hsD] _ _ (isopair _ Hα))).
+  apply (nat_trans_eq_pointwise (@iso_after_iso_inv [C,D,hsD] _ _ (make_iso _ Hα))).
 now rewrite id_left.
 Qed.
 
@@ -157,7 +157,7 @@ generalize (maponpaths pr1 (HHf HH)); intro Htemp; simpl in *.
 rewrite <- Htemp; simpl; rewrite assoc.
 eapply pathscomp0.
   apply cancel_postcomposition.
-  apply (nat_trans_eq_pointwise (@iso_after_iso_inv [C,D,hsD] _ _ (isopair _ Hα))).
+  apply (nat_trans_eq_pointwise (@iso_after_iso_inv [C,D,hsD] _ _ (make_iso _ Hα))).
 now apply id_left.
 Qed.
 
@@ -197,7 +197,7 @@ Lemma preserves_colimit_identity {g : graph} (d : diagram g C) (L : C)
   (cc : cocone d L) : preserves_colimit (functor_identity C) d L cc.
 Proof.
 intros HcL y ccy; simpl.
-set (CC := mk_ColimCocone _ _ _ HcL).
+set (CC := make_ColimCocone _ _ _ HcL).
 use tpair.
 - use tpair.
   + apply (colimArrow CC), ccy.
@@ -273,7 +273,7 @@ Lemma preserves_colimit_functor_composite (F : functor C D) (G : functor D E)
   preserves_colimit (functor_composite F G) d L cc.
 Proof.
 intros HcL y ccy; simpl.
-set (CC := mk_ColimCocone _ _ _ (H2 (H1 HcL))).
+set (CC := make_ColimCocone _ _ _ (H2 (H1 HcL))).
 use tpair.
 - use tpair.
   + apply (colimArrow CC), ccy.
@@ -339,7 +339,7 @@ Local Definition cocone_pr1_functor {g : graph} (cAB : diagram g (precategory_bi
   (ab : A × B) (ccab : cocone cAB ab) :
   cocone (mapdiagram (pr1_functor A B) cAB) (ob1 ab).
 Proof.
-use mk_cocone.
+use make_cocone.
 - simpl; intro n; apply (mor1 (coconeIn ccab n)).
 - abstract (simpl; intros m n e; now rewrite <- (coconeInCommutes ccab m n e)).
 Defined.
@@ -351,7 +351,7 @@ Local Lemma isColimCocone_pr1_functor {g : graph} (cAB : diagram g (precategory_
 Proof.
 intros x ccx.
 transparent assert (HHH : (cocone cAB (x,, ob2 ab))).
-{ use mk_cocone.
+{ use make_cocone.
   - simpl; intro n; split;
       [ apply (pr1 ccx n) | apply (# (pr2_functor A B) (pr1 ccab n)) ].
   - abstract(simpl; intros m n e; apply pathsdirprod;
@@ -383,7 +383,7 @@ Local Definition cocone_pr2_functor {g : graph} (cAB : diagram g (precategory_bi
   (ab : A × B) (ccab : cocone cAB ab) :
   cocone (mapdiagram (pr2_functor A B) cAB) (pr2 ab).
 Proof.
-use mk_cocone.
+use make_cocone.
 - simpl; intro n; apply (pr2 (coconeIn ccab n)).
 - abstract (simpl; intros m n e; now rewrite <- (coconeInCommutes ccab m n e)).
 Defined.
@@ -395,7 +395,7 @@ Local Lemma isColimCocone_pr2_functor {g : graph} (cAB : diagram g (precategory_
 Proof.
 intros x ccx.
 transparent assert (HHH : (cocone cAB (pr1 ab,, x))).
-{ use mk_cocone.
+{ use make_cocone.
   - simpl; intro n; split;
       [ apply (# (pr1_functor A B) (pr1 ccab n)) | apply (pr1 ccx n) ].
   - abstract (simpl; intros m n e; apply pathsdirprod;
@@ -434,12 +434,12 @@ Lemma isColimCocone_pair_functor {gr : graph}
 Proof.
 intros cAB ml ccml Hccml xy ccxy.
 transparent assert (cFAX : (cocone (mapdiagram F (mapdiagram (pr1_functor A B) cAB)) (pr1 xy))).
-{ use mk_cocone.
+{ use make_cocone.
   - intro n; apply (pr1 (pr1 ccxy n)).
   - abstract (intros m n e; apply (maponpaths dirprod_pr1 (pr2 ccxy m n e))).
 }
 transparent assert (cGBY : (cocone (mapdiagram G (mapdiagram (pr2_functor A B) cAB)) (pr2 xy))).
-{ use mk_cocone.
+{ use make_cocone.
   - intro n; apply (pr2 (pr1 ccxy n)).
   - abstract (intros m n e; apply (maponpaths dirprod_pr2 (pr2 ccxy m n e))).
 }
@@ -589,7 +589,7 @@ Proof.
 intros i x ccx; simpl in *.
 transparent assert (HHH : (cocone c (λ j, ifI i j x (L j)))).
 { unfold ifI.
-  use mk_cocone.
+  use make_cocone.
   - simpl; intros n j.
     destruct (HI i j) as [p|p].
     + apply (transportf (λ i, A ⟦ dob c n i, x ⟧) p (coconeIn ccx n)).
@@ -645,7 +645,7 @@ Lemma isColimCocone_family_functor {gr : graph} (F : ∏ (i : I), functor A B)
 Proof.
 intros cAB ml ccml Hccml xy ccxy; simpl in *.
 transparent assert (cc : (∏ i, cocone (mapdiagram (F i) (mapdiagram (pr_functor I (λ _ : I, A) i) cAB)) (xy i))).
-{ intro i; use mk_cocone.
+{ intro i; use make_cocone.
   - intro n; use (pr1 ccxy n).
   - abstract (intros m n e; apply (toforallpaths _ _ _ (pr2 ccxy m n e) i)).
 }
@@ -1019,7 +1019,7 @@ Local Definition ccAiB_K (cAB : chain (precategory_binproduct C C)) (K : C)
   cocone (mapchain (constprod_functor1 PC (pr1 (pr1 cAB i)))
          (mapchain (pr2_functor C C) cAB)) K.
 Proof.
-use mk_cocone.
+use make_cocone.
 + intro j; apply (map_to_K cAB K ccK i j).
 + simpl; intros j k e; apply map_to_K_commutes.
 Defined.
@@ -1043,10 +1043,10 @@ Let HB := isColimCocone_pr2_functor hsC _ _ _ HccLM
 Let HAiB := λ i, omega_cocont_constprod_functor1 (pr1 (pr1 cAB i)) _ _ _ HB.
 
 (* Turn HAiB into a ColimCocone: *)
-Let CCAiB := λ i, mk_ColimCocone _ _ _ (HAiB i).
+Let CCAiB := λ i, make_ColimCocone _ _ _ (HAiB i).
 
 (* Define the HAiM ColimCocone: *)
-Let HAiM := mk_ColimCocone _ _ _ (omega_cocont_constprod_functor2 M _ _ _ HA).
+Let HAiM := make_ColimCocone _ _ _ (omega_cocont_constprod_functor2 M _ _ _ HA).
 
 Let ccAiB_K := λ i, ccAiB_K _ _ ccK i.
 
@@ -1145,7 +1145,7 @@ Proof.
       now rewrite H.
 Qed.
 
-Local Definition ccAiM_K := mk_cocone _ ccAiM_K_subproof.
+Local Definition ccAiM_K := make_cocone _ ccAiM_K_subproof.
 
 Local Lemma is_cocone_morphism :
  ∏ v : nat,
@@ -1412,7 +1412,7 @@ Lemma preserves_colimit_slicecat_to_cat_HSET_direct (X : HSET)
   preserves_colimit (slicecat_to_cat has_homsets_HSET X) d L ccL.
 Proof.
 intros HccL y ccy.
-set (CC := mk_ColimCocone _ _ _ HccL).
+set (CC := make_ColimCocone _ _ _ HccL).
 transparent assert (c : (HSET / X)).
 { use tpair.
   - exists (∑ (x : pr1 X), pr1 y).
@@ -1420,7 +1420,7 @@ transparent assert (c : (HSET / X)).
   - cbn. apply pr1.
 }
 transparent assert (cc : (cocone d c)).
-{ use mk_cocone.
+{ use make_cocone.
   - intros n.
     use tpair; simpl.
     + intros z.

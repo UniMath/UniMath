@@ -13,10 +13,10 @@ Context {X : UU}.
 
 (** Precategory over a preorder *)
 Definition po_precategory_ob_mor (PO : po X) : precategory_ob_mor :=
-    precategory_ob_mor_pair X (carrierofpo X PO).
+    make_precategory_ob_mor X (carrierofpo X PO).
 
 Definition po_precategory_data (PO : po X) : precategory_data :=
-  precategory_data_pair (po_precategory_ob_mor PO)
+  make_precategory_data (po_precategory_ob_mor PO)
                         (pr2 (pr2 PO)) (pr1 (pr2 PO)).
 
 
@@ -29,12 +29,12 @@ Defined.
 Definition po_precategory_data_is_precategory (PO : po X) :
   is_precategory (po_precategory_data PO).
 Proof.
-  use mk_is_precategory; intros; apply po_homsets_isaprop.
+  use make_is_precategory; intros; apply po_homsets_isaprop.
 Defined.
 
 Definition po_precategory (PO : po X) : precategory.
 Proof.
-  use mk_precategory.
+  use make_precategory.
   - exact (po_precategory_data PO).
   - exact (po_precategory_data_is_precategory PO).
 Defined.
@@ -48,9 +48,8 @@ Proof.
   apply po_homsets_isaprop.
 Defined.
 
-Definition po_category (PO : po X) : category :=
-   category_pair (po_precategory PO) (po_precategory_has_homsets PO).
-
+Definition po_category (PO : po X) : category
+  := make_category (po_precategory PO) (po_precategory_has_homsets PO).
 
 (** If the preorder is antisymmetric and X is a set, the category is univalent *)
 Context (xisaset : isaset X).
@@ -84,11 +83,11 @@ Proof.
   split.
   - intros isuni a b relab relba.
     apply (isotoid _ isuni).
-    apply (@isopair (po_precategory PO) _ _ relab).
+    apply (@make_iso (po_precategory PO) _ _ relab).
     apply (@is_iso_qinv (po_precategory PO) _ _  relab relba).
-    apply mk_is_inverse_in_precat; apply po_homsets_isaprop.
+    apply make_is_inverse_in_precat; apply po_homsets_isaprop.
   - intro poasymm.
-    use mk_is_univalent.
+    use make_is_univalent.
     + intros ? ?.
       apply (antisymm_po_category_isweq PO poasymm).
     + apply po_precategory_has_homsets.
@@ -96,7 +95,7 @@ Defined.
 
 Definition antisymm_po_univalent_category (PO : po X) (poasymm : isantisymm PO) :
   univalent_category.
-  use mk_category.
+  use make_univalent_category.
   - exact (po_category PO).
   - apply po_category_is_univalent_iff_is_antisymm.
     exact poasymm.

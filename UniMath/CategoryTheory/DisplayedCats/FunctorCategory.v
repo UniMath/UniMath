@@ -20,11 +20,11 @@ Local Open Scope mor_disp_scope.
 
 Definition base_precategory_ob_mor (C D:precategory_data)
   : precategory_ob_mor
-  := precategory_ob_mor_pair (C → D)
+  := make_precategory_ob_mor (C → D)
                              (λ F₀ G₀ : C → D, ∏ x : C, D ⟦ F₀ x, G₀ x ⟧).
 
 Definition base_precategory_data (C D:precategory_data) : precategory_data
-  := precategory_data_pair
+  := make_precategory_data
        (base_precategory_ob_mor C D)
        (λ (F₀ : C → D) (x : C), identity (F₀ x))
        (λ (F₀ G₀ H₀ : C → D)
@@ -47,7 +47,7 @@ The base category contains:
 Lemma is_precategory_base_precategory_data
   : is_precategory (base_precategory_data C D).
 Proof.
-  apply mk_is_precategory.
+  apply make_is_precategory.
   - intros F₀ G₀. cbn. intros γ.
     apply funextsec. intros x.
     apply id_left.
@@ -64,7 +64,7 @@ Qed.
 
 Definition base_precategory
   : precategory
-  := precategory_pair (base_precategory_data C D)
+  := make_precategory (base_precategory_data C D)
                       is_precategory_base_precategory_data.
 
 Lemma has_homsets_base_precategory_ob_mor
@@ -75,7 +75,7 @@ Qed.
 
 Definition base_category
   : category
-  := category_pair base_precategory
+  := make_category base_precategory
                    has_homsets_base_precategory_ob_mor.
 
 (** ** Step 1

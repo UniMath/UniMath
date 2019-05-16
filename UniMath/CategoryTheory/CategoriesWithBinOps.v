@@ -22,7 +22,7 @@ Section def_precategory_with_binops.
   Definition precategoryWithBinOps_precategory (P : precategoryWithBinOps) : precategory := pr1 P.
   Coercion precategoryWithBinOps_precategory : precategoryWithBinOps >-> precategory.
 
-  Definition mk_precategoryWithBinOps (C : precategory) (H : precategoryWithBinOpsData C) :
+  Definition make_precategoryWithBinOps (C : precategory) (H : precategoryWithBinOpsData C) :
     precategoryWithBinOps := tpair _ C H.
 
   (** Gives the binop of the homs from x to y. *)
@@ -37,7 +37,7 @@ Section def_precategory_with_binops.
 End def_precategory_with_binops.
 
 Definition oppositePrecategoryWithBinOps (M : precategoryWithBinOps) : precategoryWithBinOps
-  := mk_precategoryWithBinOps
+  := make_precategoryWithBinOps
        (opp_precat M)
        (λ A B f g, @to_binop M (rm_opp_ob B) (rm_opp_ob A) (rm_opp_mor f) (rm_opp_mor g)).
 

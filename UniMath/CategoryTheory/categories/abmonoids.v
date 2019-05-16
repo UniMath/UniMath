@@ -22,13 +22,13 @@ Local Open Scope cat.
 Section def_abmonoid_precategory.
 
   Definition abmonoid_fun_space (A B : abmonoid) : hSet :=
-    hSetpair (monoidfun A B) (isasetmonoidfun A B).
+    make_hSet (monoidfun A B) (isasetmonoidfun A B).
 
   Definition abmonoid_precategory_ob_mor : precategory_ob_mor :=
     tpair (λ ob : UU, ob -> ob -> UU) abmonoid (λ A B : abmonoid, abmonoid_fun_space A B).
 
   Definition abmonoid_precategory_data : precategory_data :=
-    precategory_data_pair
+    make_precategory_data
       abmonoid_precategory_ob_mor (λ (X : abmonoid), ((idmonoidiso X) : monoidfun X X))
       (fun (X Y Z : abmonoid) (f : monoidfun X Y) (g : monoidfun Y Z) => monoidfuncomp f g).
 
@@ -56,14 +56,14 @@ Section def_abmonoid_precategory.
 
   Lemma is_precategory_abmonoid_precategory_data : is_precategory abmonoid_precategory_data.
   Proof.
-    use mk_is_precategory_one_assoc.
+    use make_is_precategory_one_assoc.
     - intros a b f. use abmonoid_id_left.
     - intros a b f. use abmonoid_id_right.
     - intros a b c d f g h. use abmonoid_assoc.
   Qed.
 
   Definition abmonoid_precategory : precategory :=
-    mk_precategory abmonoid_precategory_data is_precategory_abmonoid_precategory_data.
+    make_precategory abmonoid_precategory_data is_precategory_abmonoid_precategory_data.
 
   Lemma has_homsets_abmonoid_precategory : has_homsets abmonoid_precategory.
   Proof.
@@ -95,8 +95,8 @@ Section def_abmonoid_category.
     iso X Y -> monoidiso (X : abmonoid) (Y : abmonoid).
   Proof.
     intro f.
-    use monoidisopair.
-    - exact (weqpair (pr1 (pr1 f)) (abmonoid_iso_is_equiv X Y f)).
+    use make_monoidiso.
+    - exact (make_weq (pr1 (pr1 f)) (abmonoid_iso_is_equiv X Y f)).
     - exact (pr2 (pr1 f)).
   Defined.
 
@@ -106,7 +106,7 @@ Section def_abmonoid_category.
   Proof.
     use is_iso_qinv.
     - exact (monoidfunconstr (pr2 (invmonoidiso f))).
-    - use mk_is_inverse_in_precat.
+    - use make_is_inverse_in_precat.
       + use monoidfun_paths. use funextfun. intros x. use homotinvweqweq.
       + use monoidfun_paths. use funextfun. intros y. use homotweqinvweq.
   Defined.
@@ -115,7 +115,7 @@ Section def_abmonoid_category.
   Lemma abmonoid_equiv_iso (X Y : ob abmonoid_precategory) :
     monoidiso (X : abmonoid) (Y : abmonoid) -> iso X Y.
   Proof.
-    intros f. exact (@isopair abmonoid_precategory X Y (monoidfunconstr (pr2 f))
+    intros f. exact (@make_iso abmonoid_precategory X Y (monoidfunconstr (pr2 f))
                               (abmonoid_equiv_is_iso X Y f)).
   Defined.
 
@@ -134,7 +134,7 @@ Section def_abmonoid_category.
   Definition abmonoid_iso_equiv_weq (X Y : ob abmonoid_precategory) :
     weq (iso X Y) (monoidiso (X : abmonoid) (Y : abmonoid)).
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (abmonoid_iso_equiv X Y).
     - exact (abmonoid_iso_equiv_is_equiv X Y).
   Defined.
@@ -154,7 +154,7 @@ Section def_abmonoid_category.
   Definition abmonoid_equiv_weq_iso (X Y : ob abmonoid_precategory) :
     (monoidiso (X : abmonoid) (Y : abmonoid)) ≃ (iso X Y).
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (abmonoid_equiv_iso X Y).
     - exact (abmonoid_equiv_iso_is_equiv X Y).
   Defined.
@@ -179,12 +179,12 @@ Section def_abmonoid_category.
 
   Definition abmonoid_precategory_is_univalent : is_univalent abmonoid_precategory.
   Proof.
-    use mk_is_univalent.
+    use make_is_univalent.
     - intros X Y. exact (abmonoid_precategory_isweq X Y).
     - exact has_homsets_abmonoid_precategory.
   Defined.
 
   Definition abmonoid_category : univalent_category :=
-    mk_category abmonoid_precategory abmonoid_precategory_is_univalent.
+    make_univalent_category abmonoid_precategory abmonoid_precategory_is_univalent.
 
 End def_abmonoid_category.

@@ -47,25 +47,25 @@ Section Disp_PreDirprod.
   Proof.
     repeat (use tpair).
     - cbn. intros.
-      apply (dirprodpair (disp_id2 _ ) (disp_id2  _)).
+      apply (make_dirprod (disp_id2 _ ) (disp_id2  _)).
     - cbn. intros.
-      apply (dirprodpair (disp_lunitor _ ) (disp_lunitor  _)).
+      apply (make_dirprod (disp_lunitor _ ) (disp_lunitor  _)).
     - cbn. intros.
-      apply (dirprodpair (disp_runitor _ ) (disp_runitor  _)).
+      apply (make_dirprod (disp_runitor _ ) (disp_runitor  _)).
     - cbn. intros.
-      apply (dirprodpair (disp_linvunitor _ ) (disp_linvunitor  _)).
+      apply (make_dirprod (disp_linvunitor _ ) (disp_linvunitor  _)).
     - cbn. intros.
-      apply (dirprodpair (disp_rinvunitor _ ) (disp_rinvunitor  _)).
+      apply (make_dirprod (disp_rinvunitor _ ) (disp_rinvunitor  _)).
     - cbn. intros.
-      apply (dirprodpair (disp_rassociator _ _ _ ) (disp_rassociator _ _ _)).
+      apply (make_dirprod (disp_rassociator _ _ _ ) (disp_rassociator _ _ _)).
     - cbn. intros.
-      apply (dirprodpair (disp_lassociator _ _ _ ) (disp_lassociator _ _ _)).
+      apply (make_dirprod (disp_lassociator _ _ _ ) (disp_lassociator _ _ _)).
     - cbn. intros.
-      apply (dirprodpair (disp_vcomp2 (pr1 X) (pr1 X0)) (disp_vcomp2 (pr2 X) (pr2 X0))).
+      apply (make_dirprod (disp_vcomp2 (pr1 X) (pr1 X0)) (disp_vcomp2 (pr2 X) (pr2 X0))).
     - cbn. intros.
-      apply (dirprodpair (disp_lwhisker (pr1 ff) (pr1 X)) (disp_lwhisker (pr2 ff) (pr2 X))).
+      apply (make_dirprod (disp_lwhisker (pr1 ff) (pr1 X)) (disp_lwhisker (pr2 ff) (pr2 X))).
     - cbn. intros.
-      apply (dirprodpair (disp_rwhisker (pr1 gg) (pr1 X)) (disp_rwhisker (pr2 gg) (pr2 X))).
+      apply (make_dirprod (disp_rwhisker (pr1 gg) (pr1 X)) (disp_rwhisker (pr2 gg) (pr2 X))).
   Defined.
 
   Definition disp_dirprod_prebicat_data : disp_prebicat_data C := _ ,, disp_dirprod_prebicat_ops.
@@ -405,7 +405,7 @@ Section Disp_Dirprod.
         ≃
         disp_invertible_2cell x ff gg.
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (pair_disp_invertible_2cell x).
     - use isweq_iso.
       + intros H.

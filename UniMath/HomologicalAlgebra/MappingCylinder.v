@@ -269,7 +269,7 @@ Section mapping_cylinder.
 
   Definition MappingCylinder {C1 C2 : Complex A} (f : Morphism C1 C2) : Complex A.
   Proof.
-    use mk_Complex.
+    use make_Complex.
     - intros i. exact (to_BinDirectSums
                          A (C1 i) (to_BinDirectSums A (TranslationComplex A C1 i) (C2 i))).
     - intros i. exact (MappingCylinderDiff f i).
@@ -348,7 +348,7 @@ Section mapping_cylinder_KA_iso.
     (ComplexPreCat_Additive A)⟦(ComplexHomotFunctor A C2),
                               (ComplexHomotFunctor A (MappingCylinder A f))⟧.
   Proof.
-    cbn. use mk_Morphism.
+    cbn. use make_Morphism.
     - intros i. exact (MappingCylinderMor1_mor f i).
     - intros i. exact (MappingCylinderMor1_comm f i).
   Defined.
@@ -414,7 +414,7 @@ Section mapping_cylinder_KA_iso.
     (ComplexPreCat_Additive A)⟦(ComplexHomotFunctor A (MappingCylinder A f)),
                                (ComplexHomotFunctor A C2)⟧.
   Proof.
-    cbn. use mk_Morphism.
+    cbn. use make_Morphism.
     - intros i. exact (MappingCylinderMor2_mor f i).
     - intros i. exact (MappingCylinderMor2_comm f i).
   Defined.

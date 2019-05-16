@@ -101,7 +101,7 @@ Lemma BinProductArrowUnique (c d : C) (P : BinProduct c d) (x : C)
       k = BinProductArrow P f g.
 Proof.
   intros H1 H2.
-  set (H := tpair (λ h, dirprod _ _ ) k (dirprodpair H1 H2)).
+  set (H := tpair (λ h, dirprod _ _ ) k (make_dirprod H1 H2)).
   set (H' := (pr2 (isBinProduct_BinProduct P _ f g)) H).
   apply (base_paths _ _ H').
 Qed.
@@ -123,7 +123,7 @@ Proof.
   apply idpath. apply idpath.
 Qed.
 
-Definition mk_BinProduct (a b : C) :
+Definition make_BinProduct (a b : C) :
   ∏ (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
    isBinProduct _ _ _ f g -> BinProduct a b.
 Proof.
@@ -135,7 +135,7 @@ Proof.
   - exact X.
 Defined.
 
-Definition mk_isBinProduct (hsC : has_homsets C) (a b p : C)
+Definition make_isBinProduct (hsC : has_homsets C) (a b p : C)
   (pa : C⟦p,a⟧) (pb : C⟦p,b⟧) :
   (∏ (c : C) (f : C⟦c,a⟧) (g : C⟦c,b⟧),
     ∃! k : C⟦c,p⟧, k · pa = f × k · pb = g) ->
@@ -286,7 +286,7 @@ Defined.
 Definition Binproduct {a b c : C} (f : c --> a) (g : c --> b) :
   cone (binproduct_diagram a b) c.
 Proof.
-use mk_cone; simpl.
+use make_cone; simpl.
 + intros x; induction x; assumption.
 + abstract (intros x y e; destruct e).
 Defined.
@@ -295,11 +295,11 @@ Lemma BinProducts_from_Lims : Lims_of_shape two_graph C -> BinProducts C.
 Proof.
 intros H a b.
 set (LC := H (binproduct_diagram a b)); simpl.
-use mk_BinProduct.
+use make_BinProduct.
 + apply (lim LC).
 + apply (limOut LC true).
 + apply (limOut LC false).
-+ apply (mk_isBinProduct _ hsC); simpl; intros c f g.
++ apply (make_isBinProduct _ hsC); simpl; intros c f g.
   use unique_exists; simpl.
   - apply limArrow, (Binproduct f g).
   - abstract (split;
@@ -547,7 +547,7 @@ Lemma binproduct_nat_trans_univ_prop (A : [C, D, hsD])
    ×
       fg · (binproduct_nat_trans_pr2 : (BinProduct_of_functors:[C,D,hsD]) --> G) = g)
      (binproduct_nat_trans A f g)
-     (dirprodpair (binproduct_nat_trans_Pr1Commutes A f g)
+     (make_dirprod (binproduct_nat_trans_Pr1Commutes A f g)
         (binproduct_nat_trans_Pr2Commutes A f g)).
 Proof.
   intro t.
@@ -575,15 +575,15 @@ Qed.
 Definition functor_precat_binproduct_cone
   : BinProduct [C, D, hsD] F G.
 Proof.
-use mk_BinProduct.
+use make_BinProduct.
 - apply BinProduct_of_functors.
 - apply binproduct_nat_trans_pr1.
 - apply binproduct_nat_trans_pr2.
-- use mk_isBinProduct.
+- use make_isBinProduct.
   + apply functor_category_has_homsets.
   + intros A f g.
     exists (tpair _ (binproduct_nat_trans A f g)
-             (dirprodpair (binproduct_nat_trans_Pr1Commutes _ _ _ )
+             (make_dirprod (binproduct_nat_trans_Pr1Commutes _ _ _ )
                           (binproduct_nat_trans_Pr2Commutes _ _ _ ))).
     simpl.
     apply binproduct_nat_trans_univ_prop.
@@ -652,7 +652,7 @@ Section BinProduct_from_iso.
 
   Definition iso_to_BinProduct {x y z : C} (BP : BinProduct C x y)
              (i : iso z (BinProductObject C BP)) :
-    BinProduct C x y := mk_BinProduct C _ _ z
+    BinProduct C x y := make_BinProduct C _ _ z
                                               (i · (BinProductPr1 C BP))
                                               (i · (BinProductPr2 C BP))
                                               (iso_to_isBinProduct BP i).
@@ -668,20 +668,20 @@ Section EquivalentDefinition.
   Context {C : precategory} {c d p : ob C} (p1 : p --> c) (p2 : p --> d).
 
   Definition postcomp_with_projections (a : ob C) (f : a --> p) :
-    (a --> c) × (a --> d) := dirprodpair (f · p1)  (f · p2).
+    (a --> c) × (a --> d) := make_dirprod (f · p1)  (f · p2).
 
   Definition isBinProduct' : UU := ∏ a : ob C, isweq (postcomp_with_projections a).
 
   Definition isBinProduct'_weq (is : isBinProduct') :
     ∏ a, (a --> p) ≃ (a --> c) × (a --> d) :=
-    λ a, weqpair (postcomp_with_projections a) (is a).
+    λ a, make_weq (postcomp_with_projections a) (is a).
 
   Lemma isBinProduct'_to_isBinProduct :
     isBinProduct' -> isBinProduct _ _ _ p p1 p2.
   Proof.
     intros isBP' ? f g.
     apply (@iscontrweqf (hfiber (isBinProduct'_weq isBP' _)
-                                (dirprodpair f g))).
+                                (make_dirprod f g))).
     - use weqfibtototal; intro; cbn.
       unfold postcomp_with_projections.
       apply pathsdirprodweq.

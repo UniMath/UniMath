@@ -25,7 +25,7 @@ Section Definitions.
 
   Definition is_lideal (S : subabmonoid (rigaddabmonoid R)) : hProp.
   Proof.
-    use hProppair.
+    use make_hProp.
     - exact (∏ (r : R) (s : R), S s → S (r * s)).
     - do 3 (apply impred; intro).
       apply propproperty.
@@ -33,14 +33,14 @@ Section Definitions.
 
   Definition lideal : UU := ∑ S : subabmonoid (rigaddabmonoid R), is_lideal S.
 
-  Definition mk_lideal :
+  Definition make_lideal :
     ∏ (S : subabmonoid (rigaddabmonoid R)), is_lideal S → lideal := tpair _.
 
   (** *** Right ideals ([rideal]) *)
 
   Definition is_rideal (S : subabmonoid (rigaddabmonoid R)) : hProp.
   Proof.
-    use hProppair.
+    use make_hProp.
     - exact (∏ (r : R) (s : R), S s → S (s * r)).
     - do 3 (apply impred; intro).
       apply propproperty.
@@ -48,7 +48,7 @@ Section Definitions.
 
   Definition rideal : UU := ∑ S : subabmonoid (rigaddabmonoid R), is_rideal S.
 
-  Definition mk_rideal :
+  Definition make_rideal :
     ∏ (S : subabmonoid (rigaddabmonoid R)), is_rideal S → rideal := tpair _.
 
   (** *** Two-sided ideals ([ideal]) *)
@@ -58,9 +58,9 @@ Section Definitions.
 
   Definition ideal : UU := ∑ S : subabmonoid (rigaddabmonoid R), is_ideal S.
 
-  Definition mk_ideal (S : subabmonoid (rigaddabmonoid R))
+  Definition make_ideal (S : subabmonoid (rigaddabmonoid R))
              (isl : is_lideal S) (isr : is_rideal S) : ideal :=
-    tpair _ S (dirprodpair isl isr).
+    tpair _ S (make_dirprod isl isr).
 End Definitions.
 
 Arguments lideal _ : clear implicits.
@@ -97,8 +97,8 @@ Defined.
 (** The kernel of a rig homomorphism is a two-sided ideal. *)
 Definition kernel_ideal {R S : rig} (f : rigfun R S) : @ideal R.
 Proof.
-  use mk_ideal.
-  - use submonoidpair.
+  use make_ideal.
+  - use make_submonoid.
     + exact (@monoid_kernel_hsubtype (rigaddabmonoid R) (rigaddabmonoid S)
                                       (rigaddfun f)).
     + (** This does, in fact, describe a submonoid *)

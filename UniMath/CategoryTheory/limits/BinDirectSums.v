@@ -136,7 +136,7 @@ Section def_bindirectsums.
     (to_binop co co) (p1 · i1) (p2 · i2) = identity co := pr222 (pr2 B).
 
   (** The following definition constructs isBinDirectSum from data. *)
-  Definition mk_isBinDirectSum (a b co : A)
+  Definition make_isBinDirectSum (a b co : A)
              (i1 : a --> co) (i2 : b --> co) (p1 : co --> a) (p2 : co --> b)
              (H1 : i1 · p1 = identity a) (H2 : i2 · p2 = identity b)
              (H3 : i1 · p2 = (to_unel a b)) (H4 : i2 · p1 = (to_unel b a))
@@ -150,14 +150,14 @@ Section def_bindirectsums.
                                 (pr1 (pr2 (pr2 (pr2 coab)))) (pr2 (pr2 (pr2 (pr2 coab)))).
 
   (** Construction of BinDirectSum. *)
-  Definition mk_BinDirectSum (a b co : A) (i1 : a --> co) (i2 : b --> co)
+  Definition make_BinDirectSum (a b co : A) (i1 : a --> co) (i2 : b --> co)
              (p1 : co --> a) (p2 : co --> b) (H :  isBinDirectSum a b co i1 i2 p1 p2) :
     BinDirectSum a b := tpair _ (tpair _ co (i1,,(i2,,(p1,,p2)))) H.
 
   (** BinDirectSum in categories. *)
   Definition BinDirectSums : UU := ∏ (a b : A), BinDirectSum a b.
 
-  Definition mk_BinDirectSums (H : ∏ (a b : A), BinDirectSum a b) : BinDirectSums := H.
+  Definition make_BinDirectSums (H : ∏ (a b : A), BinDirectSum a b) : BinDirectSums := H.
 
   Definition hasBinDirectSums : hProp.
   Proof.
@@ -192,13 +192,13 @@ Section def_bindirectsums.
   Definition BinDirectSum_BinCoproduct {a b : A} (B : BinDirectSum a b) :
     BinCoproduct A a b.
   Proof.
-    use (mk_BinCoproduct A a b B (to_In1 B) (to_In2 B)).
+    use (make_BinCoproduct A a b B (to_In1 B) (to_In2 B)).
     exact (to_isBinCoproduct B).
   Defined.
 
   Definition BinDirectSum_BinProduct {a b : A} (B : BinDirectSum a b) : BinProduct A a b.
   Proof.
-    use (mk_BinProduct A a b B (to_Pr1 B) (to_Pr2 B)).
+    use (make_BinProduct A a b B (to_Pr1 B) (to_Pr2 B)).
     exact (to_isBinProduct B).
   Defined.
 
@@ -535,7 +535,7 @@ Section bindirectsums_criteria.
                          (BinProductArrow A P (identity X) (ZeroArrow Z X Y))
                          (BinProductArrow A P (ZeroArrow Z Y X) (identity Y)).
   Proof.
-    use (mk_isBinCoproduct _ hs).
+    use (make_isBinCoproduct _ hs).
     intros c f g.
     use unique_exists.
     - exact (to_binop (BinProductObject A P) c (BinProductPr1 A P · f) (BinProductPr2 A P · g)).
@@ -568,7 +568,7 @@ Section bindirectsums_criteria.
              (P : BinProduct A X Y) :
     isBinProduct A X Y (BinProductObject A P) (BinProductPr1 A P) (BinProductPr2 A P).
   Proof.
-    use (mk_isBinProduct _ hs).
+    use (make_isBinProduct _ hs).
     intros c f g.
     use unique_exists.
     - exact (BinProductArrow A P f g).
@@ -587,14 +587,14 @@ Section bindirectsums_criteria.
 
   Definition BinDirectSum_from_BinProduct {X Y : A} (P : BinProduct A X Y) :
     BinDirectSum X Y :=
-    mk_BinDirectSum
+    make_BinDirectSum
       A X Y
       (BinProductObject A P)
       (BinProductArrow A P (identity X) (ZeroArrow Z X Y))
       (BinProductArrow A P (ZeroArrow Z Y X) (identity Y))
       (BinProductPr1 A P)
       (BinProductPr2 A P)
-      (mk_isBinDirectSum
+      (make_isBinDirectSum
          _ _ _ _ _ _ _ _
          (BinDirectSums_from_binproduct_bincoproducts_eq1 P)
          (BinDirectSums_from_binproduct_bincoproducts_eq4 P)
@@ -628,7 +628,7 @@ Section bindirectsums_in_quot.
                          (to_quot_mor A PAS (to_In1 (BD x y)))
                          (to_quot_mor A PAS (to_In2 (BD x y))).
   Proof.
-    use mk_isBinCoproduct.
+    use make_isBinCoproduct.
     - apply has_homsets_Quotcategory.
     - intros c f g.
       set (f'' := @issurjsetquotpr (@to_abgr A x c) (binopeqrel_subgr_eqrel (PAS x c)) f).
@@ -686,7 +686,7 @@ Section bindirectsums_in_quot.
                      (to_quot_mor A PAS (to_Pr1 (BD x y)))
                      (to_quot_mor A PAS (to_Pr2 (BD x y))).
   Proof.
-    use mk_isBinProduct.
+    use make_isBinProduct.
     - apply has_homsets_Quotcategory.
     - intros c f g.
       set (f'' := @issurjsetquotpr (@to_abgr A c x) (binopeqrel_subgr_eqrel (PAS c x)) f).
@@ -746,7 +746,7 @@ Section bindirectsums_in_quot.
       (to_quot_mor A PAS (to_In1 (BD x y))) (to_quot_mor A PAS (to_In2 (BD x y)))
       (to_quot_mor A PAS (to_Pr1 (BD x y))) (to_quot_mor A PAS (to_Pr2 (BD x y))).
   Proof.
-    use mk_isBinDirectSum.
+    use make_isBinDirectSum.
     - unfold to_quot_mor.
       rewrite <- comp_eq.
       set (tmp := @Quotcategory_comp_linear A PAS PAC x (BD x y) x).
@@ -787,7 +787,7 @@ Section bindirectsums_in_quot.
   Definition Quotcategory_BinDirectSums : BinDirectSums (Quotcategory_PreAdditive A PAS PAC).
   Proof.
     intros x y.
-    use mk_BinDirectSum.
+    use make_BinDirectSum.
     - exact (BD x y).
     - exact (to_quot_mor A PAS (to_In1 (BD x y))).
     - exact (to_quot_mor A PAS (to_In2 (BD x y))).
@@ -807,7 +807,7 @@ Local Open Scope abgrcat.
 Definition reverseBinDirectSum {M:PreAdditive} {A B:M} : BinDirectSum A B -> BinDirectSum B A.
 Proof.
   intros AB.
-  refine (mk_BinDirectSum M B A (BinDirectSumOb AB) ι₂ ι₁ π₂ π₁ _).
+  refine (make_BinDirectSum M B A (BinDirectSumOb AB) ι₂ ι₁ π₂ π₁ _).
   unfold isBinDirectSum.
   exists (to_IdIn2 (pr2 AB)).
   exists (to_IdIn1 (pr2 AB)).
@@ -822,13 +822,13 @@ Definition oppositeBinDirectSum {M:PreAdditive} {x y:M} :
   BinDirectSum x y -> BinDirectSum (A:=oppositePreAdditive M) x y.
 Proof.
   intros Q.
-  use mk_BinDirectSum.
+  use make_BinDirectSum.
   + exact (BinDirectSumOb Q).
   + exact (to_Pr1 Q).
   + exact (to_Pr2 Q).
   + exact (to_In1 Q).
   + exact (to_In2 Q).
-  + exact (mk_isBinDirectSum (oppositePreAdditive M) _ _ _ _ _ _ _
+  + exact (make_isBinDirectSum (oppositePreAdditive M) _ _ _ _ _ _ _
        (to_IdIn1 Q) (to_IdIn2 Q) (to_Unel2 Q) (to_Unel1 Q)
        (to_BinOpId Q)).
 Defined.
@@ -844,7 +844,7 @@ Proof.
 Qed.
 Definition TrivialDirectSum {M : PreAdditive} (Z:Zero M) (A:M) : BinDirectSum A Z.
 Proof.
-  exact (mk_BinDirectSum _ _ _ _ _ _ _ _ (isTrivialDirectSum _ _)).
+  exact (make_BinDirectSum _ _ _ _ _ _ _ _ (isTrivialDirectSum _ _)).
 Defined.
 Definition isTrivialDirectSum' {M : PreAdditive} (Z:Zero M) (A:M) : @isBinDirectSum M Z A A 0 1 0 1.
 Proof.
@@ -857,7 +857,7 @@ Proof.
 Qed.
 Definition TrivialDirectSum' {M : PreAdditive} (Z:Zero M) (A:M) : BinDirectSum Z A.
 Proof.
-  exact (mk_BinDirectSum _ _ _ _ _ _ _ _ (isTrivialDirectSum' _ _)).
+  exact (make_BinDirectSum _ _ _ _ _ _ _ _ (isTrivialDirectSum' _ _)).
 Defined.
 Definition replaceSum {M:PreAdditive} {A B C:M} (S:BinDirectSum A B) :
   z_iso C S -> BinDirectSum A B (* with C judgmentally equal to the sum object *).

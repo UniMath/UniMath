@@ -86,14 +86,14 @@ Proof.
   apply (base_paths _ _ H').
 Qed.
 
-Definition mk_Product (a : ∏ i, C) :
+Definition make_Product (a : ∏ i, C) :
   ∏ (c : C) (f : ∏ i, C⟦c,a i⟧), isProduct _ _ f -> Product a.
 Proof.
   intros c f X.
   exact (tpair _ (c,,f) X).
 Defined.
 
-Definition mk_isProduct (hsC : has_homsets C) (a : I -> C) (p : C)
+Definition make_isProduct (hsC : has_homsets C) (a : I -> C) (p : C)
   (pa : ∏ i, C⟦p,a i⟧) : (∏ (c : C) (f : ∏ i, C⟦c,a i⟧),
                                   ∃! k : C⟦c,p⟧, ∏ i, k · pa i = f i) ->
                               isProduct a p pa.
@@ -315,10 +315,10 @@ End vertex.
 Definition functor_precat_product_cone
   : Product I [C, D, hsD] F.
 Proof.
-use mk_Product.
+use make_Product.
 - apply product_of_functors.
 - apply product_nat_trans_pr.
-- use mk_isProduct.
+- use make_isProduct.
   + apply functor_category_has_homsets.
   + intros A f.
     use tpair.
@@ -367,13 +367,13 @@ Lemma Products_from_Lims : Lims_of_shape I_graph C -> Products I C.
 Proof.
 intros H F.
 set (HF := H (products_diagram F)).
-use mk_Product.
+use make_Product.
 + apply (lim HF).
 + intros i; apply (limOut HF).
-+ apply (mk_isProduct _ _ hsC); intros c Fic.
++ apply (make_isProduct _ _ hsC); intros c Fic.
   use unique_exists.
   - apply limArrow.
-    use mk_cone.
+    use make_cone.
     * simpl; intro i; apply Fic.
     * abstract (simpl; intros u v e; induction e).
   - abstract (simpl; intro i; apply (limArrowCommutes HF)).

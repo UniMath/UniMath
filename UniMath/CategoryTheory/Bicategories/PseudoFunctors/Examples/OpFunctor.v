@@ -20,7 +20,7 @@ Local Notation "∁" := bicat_of_cats.
 
 Definition op_psfunctor_data : psfunctor_data (op2_bicat ∁) ∁.
 Proof.
-  use mk_psfunctor_data.
+  use make_psfunctor_data.
   - exact (λ C, op_unicat C).
   - exact (λ _ _ f, functor_opp f).
   - exact (λ _ _ _ _ x, op_nt x).
@@ -82,7 +82,7 @@ Qed.
 
 Definition op_psfunctor : psfunctor (op2_bicat ∁) ∁.
 Proof.
-  use mk_psfunctor.
+  use make_psfunctor.
   - exact op_psfunctor_data.
   - exact op_psfunctor_laws.
   - split.

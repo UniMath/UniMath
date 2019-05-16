@@ -31,20 +31,20 @@ Section def_zero.
   (** Construction of isZero for an object c from the conditions that the space
     of all morphisms from c to any object d is contractible and and the space of
     all morphisms from any object d to c is contractible. *)
-  Definition mk_isZero (c : C) (H : (∏ (d : C), iscontr (c --> d))
+  Definition make_isZero (c : C) (H : (∏ (d : C), iscontr (c --> d))
                                       × (∏ (d : C), iscontr (d --> c))) :
-    isZero c := mk_isInitial c (dirprod_pr1 H),,mk_isTerminal c (dirprod_pr2 H).
+    isZero c := make_isInitial c (dirprod_pr1 H),,make_isTerminal c (dirprod_pr2 H).
 
   (** Definition of Zero. *)
   Definition Zero : UU := ∑ c : C, isZero c.
-  Definition mk_Zero (c : C) (H : isZero c) : Zero := tpair _ c H.
+  Definition make_Zero (c : C) (H : isZero c) : Zero := tpair _ c H.
   Definition ZeroObject (Z : Zero) : C := pr1 Z.
 
   (** Construction of Initial and Terminal from Zero. *)
   Definition Zero_to_Initial (Z : Zero) : Initial C :=
-    mk_Initial (pr1 Z) (dirprod_pr1 (pr2 Z)).
+    make_Initial (pr1 Z) (dirprod_pr1 (pr2 Z)).
   Definition Zero_to_Terminal (Z : Zero) : Terminal C :=
-    mk_Terminal (pr1 Z) (dirprod_pr2 (pr2 Z)).
+    make_Terminal (pr1 Z) (dirprod_pr2 (pr2 Z)).
 
   (** The following lemmas show that the underlying objects of Initial
     and Terminal, constructed above, are equal to ZeroObject. *)
@@ -159,17 +159,17 @@ Section def_zero.
              (I : Initial C) (T : Terminal C)
              (e: iso (InitialObject I) (TerminalObject T)) : Zero.
   Proof.
-    use (mk_Zero (InitialObject I)).
+    use (make_Zero (InitialObject I)).
     split.
-    - use (mk_isInitial (InitialObject I)); intro b.
-      apply iscontrpair with (x := (InitialArrow I b)), InitialArrowUnique.
-    - use (mk_isTerminal (InitialObject I)); intro a.
+    - use (make_isInitial (InitialObject I)); intro b.
+      apply make_iscontr with (x := (InitialArrow I b)), InitialArrowUnique.
+    - use (make_isTerminal (InitialObject I)); intro a.
       apply (iscontrretract (postcomp_with (inv_from_iso e))
                             (postcomp_with (morphism_from_iso e))).
       intros y. unfold postcomp_with.
       rewrite <- assoc. rewrite (iso_inv_after_iso e).
       apply (remove_id_right _ _ _ y y _ (idpath _) (idpath _)).
-      apply (iscontrpair (TerminalArrow T a)), TerminalArrowUnique.
+      apply (make_iscontr (TerminalArrow T a)), TerminalArrowUnique.
   Defined.
 
   (** The following lemma verifies that the ZeroObject of the Zero,
@@ -198,7 +198,7 @@ Section zero_coincides.
     limits.zero.isZero c -> isZero c.
   Proof.
     intros X.
-    use mk_isZero.
+    use make_isZero.
     split.
     - intros d. apply ((pr1 X) d).
     - intros d. apply ((pr2 X) d).
@@ -208,7 +208,7 @@ Section zero_coincides.
     limits.zero.isZero c <- isZero c.
   Proof.
     intros X.
-    set (XZ := mk_Zero c X).
+    set (XZ := make_Zero c X).
 
     split.
     - intros b.
@@ -229,14 +229,14 @@ Section zero_coincides.
     limits.zero.Zero C -> @Zero C.
   Proof.
     intros Z.
-    exact (mk_Zero Z (equiv_isZero1 _ (pr2 Z))).
+    exact (make_Zero Z (equiv_isZero1 _ (pr2 Z))).
   Defined.
 
   Definition equiv_Zero2 :
     limits.zero.Zero C <- @Zero C.
   Proof.
     intros Z.
-    exact (limits.zero.mk_Zero
+    exact (limits.zero.make_Zero
              (ZeroObject Z)
              (equiv_isZero2
                 _ ((isInitial_Initial (Zero_to_Initial Z))

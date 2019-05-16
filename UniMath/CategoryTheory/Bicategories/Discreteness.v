@@ -50,7 +50,7 @@ Definition has_trivial_2cells_equality {C : prebicat_data}
            (disc : has_trivial_2cells C)
            {a b} {f g : C⟦a,b⟧}
   : (f ==> g) -> (f = g)
-  := invmap (weqpair (λ p : f = g, idto2cell p) (disc a b f g)).
+  := invmap (make_weq (λ p : f = g, idto2cell p) (disc a b f g)).
 
 Definition is_discrete_bicategory (C : prebicat_data)
   : UU
@@ -111,7 +111,7 @@ Lemma is_discrete_bicategory_has_homsets {C : prebicat_data}
 Proof.
   intros a b f g.
   refine (isofhlevelweqb 1 _ _).
-  - apply (weqpair idto2cell), disc.
+  - apply (make_weq idto2cell), disc.
   - apply (is_discrete_bicategory_cellprop disc).
 Qed.
 
@@ -168,7 +168,7 @@ Proof.
   apply weqdirprodf.
   { eapply weqcomp. 2: apply weqpathsinv0.
     apply invweq.
-    apply (weqpair _ (is_discrete_bicategory_trivial_2cells disc _ _ _ _)). }
+    apply (make_weq _ (is_discrete_bicategory_trivial_2cells disc _ _ _ _)). }
   apply invweq.
-  apply (weqpair _ (is_discrete_bicategory_trivial_2cells disc _ _ _ _)).
+  apply (make_weq _ (is_discrete_bicategory_trivial_2cells disc _ _ _ _)).
 Defined.

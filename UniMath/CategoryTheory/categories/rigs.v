@@ -22,13 +22,13 @@ Local Open Scope cat.
 (** * Precategory of rigs *)
 Section def_rig_precategory.
 
-  Definition rig_fun_space (A B : rig) : hSet := hSetpair (rigfun A B) (isasetrigfun A B).
+  Definition rig_fun_space (A B : rig) : hSet := make_hSet (rigfun A B) (isasetrigfun A B).
 
   Definition rig_precategory_ob_mor : precategory_ob_mor :=
     tpair (λ ob : UU, ob -> ob -> UU) rig (λ A B : rig, rig_fun_space A B).
 
   Definition rig_precategory_data : precategory_data :=
-    precategory_data_pair
+    make_precategory_data
       rig_precategory_ob_mor (λ (X : rig), (rigisotorigfun (idrigiso X)))
       (fun (X Y Z : rig) (f : rigfun X Y) (g : rigfun Y Z) => rigfuncomp f g).
 
@@ -55,14 +55,14 @@ Section def_rig_precategory.
 
   Lemma is_precategory_rig_precategory_data : is_precategory rig_precategory_data.
   Proof.
-    use mk_is_precategory_one_assoc.
+    use make_is_precategory_one_assoc.
     - intros a b f. use rig_id_left.
     - intros a b f. use rig_id_right.
     - intros a b c d f g h. use rig_assoc.
   Qed.
 
   Definition rig_precategory : precategory :=
-    mk_precategory rig_precategory_data is_precategory_rig_precategory_data.
+    make_precategory rig_precategory_data is_precategory_rig_precategory_data.
 
   Lemma has_homsets_rig_precategory : has_homsets rig_precategory.
   Proof.
@@ -93,8 +93,8 @@ Section def_rig_category.
   Lemma rig_iso_equiv (X Y : ob rig_precategory) : iso X Y -> rigiso (X : rig) (Y : rig).
   Proof.
     intro f.
-    use rigisopair.
-    - exact (weqpair (pr1 (pr1 f)) (rig_iso_is_equiv X Y f)).
+    use make_rigiso.
+    - exact (make_weq (pr1 (pr1 f)) (rig_iso_is_equiv X Y f)).
     - exact (pr2 (pr1 f)).
   Defined.
 
@@ -103,7 +103,7 @@ Section def_rig_category.
   Proof.
     use is_iso_qinv.
     - exact (rigfunconstr (pr2 (invrigiso f))).
-    - use mk_is_inverse_in_precat.
+    - use make_is_inverse_in_precat.
       + use rigfun_paths. use funextfun. intros x. use homotinvweqweq.
       + use rigfun_paths. use funextfun. intros y. use homotweqinvweq.
   Defined.
@@ -111,7 +111,7 @@ Section def_rig_category.
 
   Lemma rig_equiv_iso (X Y : ob rig_precategory) : rigiso (X : rig) (Y : rig) -> iso X Y.
   Proof.
-    intros f. exact (@isopair rig_precategory X Y (rigfunconstr (pr2 f))
+    intros f. exact (@make_iso rig_precategory X Y (rigfunconstr (pr2 f))
                               (rig_equiv_is_iso X Y f)).
   Defined.
 
@@ -129,7 +129,7 @@ Section def_rig_category.
   Definition rig_iso_equiv_weq (X Y : ob rig_precategory) :
     weq (iso X Y) (rigiso (X : rig) (Y : rig)).
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (rig_iso_equiv X Y).
     - exact (rig_iso_equiv_is_equiv X Y).
   Defined.
@@ -148,7 +148,7 @@ Section def_rig_category.
   Definition rig_equiv_weq_iso (X Y : ob rig_precategory) :
     (rigiso (X : rig) (Y : rig)) ≃ (iso X Y).
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (rig_equiv_iso X Y).
     - exact (rig_equiv_iso_is_equiv X Y).
   Defined.
@@ -173,12 +173,12 @@ Section def_rig_category.
 
   Definition rig_precategory_is_univalent : is_univalent rig_precategory.
   Proof.
-    use mk_is_univalent.
+    use make_is_univalent.
     - intros X Y. exact (rig_precategory_isweq X Y).
     - exact has_homsets_rig_precategory.
   Defined.
 
   Definition rig_category : univalent_category :=
-    mk_category rig_precategory rig_precategory_is_univalent.
+    make_univalent_category rig_precategory rig_precategory_is_univalent.
 
 End def_rig_category.

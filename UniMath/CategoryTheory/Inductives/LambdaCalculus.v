@@ -140,7 +140,7 @@ Let precomp_option X := (pre_composition_functor _ _ HSET has_homsets_HSET has_h
 Definition lam_map : HSET2⟦precomp_option LambdaCalculus,LambdaCalculus⟧ :=
   BinCoproductIn2 HSET2 (BinCoproductsHSET2 _ _) · BinCoproductIn2 HSET2 (BinCoproductsHSET2 _ _) · LambdaCalculus_mor.
 
-Definition mk_lambdaAlgebra (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
+Definition make_lambdaAlgebra (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
   (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) : algebra_ob lambdaFunctor.
 Proof.
 apply (tpair _ X).
@@ -149,14 +149,14 @@ Defined.
 
 Definition foldr_map (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
   (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) :
-  algebra_mor lambdaFunctor LambdaCalculus_alg (mk_lambdaAlgebra X fvar fapp flam).
+  algebra_mor lambdaFunctor LambdaCalculus_alg (make_lambdaAlgebra X fvar fapp flam).
 Proof.
-apply (InitialArrow lambdaFunctor_Initial (mk_lambdaAlgebra X fvar fapp flam)).
+apply (InitialArrow lambdaFunctor_Initial (make_lambdaAlgebra X fvar fapp flam)).
 Defined.
 
 Definition foldr_map' (X : HSET2) (fvar : HSET2⟦functor_identity HSET,X⟧)
   (fapp : HSET2⟦prod2 X X,X⟧) (flam : HSET2⟦precomp_option X,X⟧) :
-   HSET2 ⟦ pr1 LambdaCalculus_alg, pr1 (mk_lambdaAlgebra X fvar fapp flam) ⟧.
+   HSET2 ⟦ pr1 LambdaCalculus_alg, pr1 (make_lambdaAlgebra X fvar fapp flam) ⟧.
 Proof.
 apply (foldr_map X fvar fapp flam).
 Defined.

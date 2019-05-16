@@ -71,7 +71,7 @@ Context {C : precategory} (hsC : has_homsets C).
 (** Equivalence classes of subobjects defined by identifying monos into c
     with isomorphic source *)
 Definition SubObj (c : C) : HSET :=
-  hSetpair (setquot (iso_eqrel (Subobjectscategory hsC c))) (isasetsetquot _).
+  make_hSet (setquot (iso_eqrel (Subobjectscategory hsC c))) (isasetsetquot _).
 
 (* For f and g monics into c: f <= g := ∃ h, f = h · g *)
 Definition monorel c : hrel (Subobjectscategory hsC c) :=
@@ -157,7 +157,7 @@ assert (int : ∏ x1 x2, isaprop (SubObj_rel c x1 x2 → SubObj_rel c x2 x1 -> x
   repeat (apply impred; intro).
   apply (isasetsetquot _ x1 x2).
 }
-apply (setquotuniv2prop _ (λ x1 x2, hProppair _ (int x1 x2))).
+apply (setquotuniv2prop _ (λ x1 x2, make_hProp _ (int x1 x2))).
 intros x y h1 h2.
 simpl in *. (* This is slow *)
 apply (iscompsetquotpr (iso_eqrel (Subobjectscategory hsC c))).

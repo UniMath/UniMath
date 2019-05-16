@@ -31,14 +31,14 @@ Local Open Scope cat.
 Section HSET_precategory.
 
 Definition hset_fun_space (A B : hSet) : hSet :=
-  hSetpair _ (isaset_set_fun_space A B).
+  make_hSet _ (isaset_set_fun_space A B).
 
 Definition hset_precategory_ob_mor : precategory_ob_mor :=
   tpair (λ ob : UU, ob -> ob -> UU) hSet
         (λ A B : hSet, hset_fun_space A B).
 
 Definition hset_precategory_data : precategory_data :=
-  precategory_data_pair hset_precategory_ob_mor (fun (A:hSet) (x : A) => x)
+  make_precategory_data hset_precategory_ob_mor (fun (A:hSet) (x : A) => x)
      (fun (A B C : hSet) (f : A -> B) (g : B -> C) (x : A) => g (f x)).
 
 Lemma is_precategory_hset_precategory_data :

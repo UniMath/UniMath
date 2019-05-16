@@ -386,7 +386,7 @@ Variables a b : C.
 Variable f : z_iso (C:=C') a b.
 
 Definition folds_iso_data_from_z_iso : folds_iso_data a b :=
-  dirprodpair (dirprodpair (z_iso_comp_left_weq f)
+  make_dirprod (make_dirprod (z_iso_comp_left_weq f)
                            (z_iso_comp_right_weq (z_iso_inv_from_z_iso f)))
               (z_iso_conjug_weq f).
 

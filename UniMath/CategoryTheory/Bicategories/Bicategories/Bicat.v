@@ -67,7 +67,7 @@ Definition prebicat_2_id_comp_struct (C : prebicat_1_id_comp_cells) : UU
 
 Definition prebicat_data : UU := ∑ C, prebicat_2_id_comp_struct C.
 
-Definition mk_prebicat_data C (str : prebicat_2_id_comp_struct C)
+Definition make_prebicat_data C (str : prebicat_2_id_comp_struct C)
   : prebicat_data
   := C,, str.
 
@@ -430,14 +430,14 @@ Definition is_invertible_2cell {C : prebicat_data}
   : UU
   := ∑ φ : g ==> f, η • φ = id2 f × φ • η = id2 g.
 
-Definition mk_is_invertible_2cell {C : prebicat_data}
+Definition make_is_invertible_2cell {C : prebicat_data}
            {a b : C} {f g : a --> b}
            {η : f ==> g}
            {φ : g ==> f}
            (ηφ : η • φ = id2 f)
            (φη : φ • η = id2 g)
   : is_invertible_2cell η
-  := φ,, dirprodpair ηφ φη.
+  := φ,, make_dirprod ηφ φη.
 
 Definition inv_cell {C : prebicat_data} {a b : C} {f g : a --> b} {η : f ==> g}
   : is_invertible_2cell η → g ==> f
@@ -463,11 +463,11 @@ Definition vcomp_lid {C : prebicat_data} {a b : C} {f g : a --> b}
 Definition is_invertible_2cell_inv {C : prebicat_data} {a b : C} {f g : a --> b}
            {η : f ==> g} (inv_η : is_invertible_2cell η)
   : is_invertible_2cell (inv_η^-1)
-  := mk_is_invertible_2cell (vcomp_lid inv_η) (vcomp_rinv inv_η).
+  := make_is_invertible_2cell (vcomp_lid inv_η) (vcomp_rinv inv_η).
 
 Definition is_invertible_2cell_id₂ {C : prebicat} {a b : C} (f : a --> b)
   : is_invertible_2cell (id2 f)
-  := mk_is_invertible_2cell (id2_left (id2 f)) (id2_left (id2 f)).
+  := make_is_invertible_2cell (id2_left (id2 f)) (id2_left (id2 f)).
 
 Lemma isaprop_is_invertible_2cell {C : bicat}
       {a b : C} {f g : C ⟦a, b⟧} (x : f ==> g)
@@ -539,7 +539,7 @@ Definition invertible_2cell {C : prebicat_data}
            {a b : C} (f g : a --> b) : UU
   := ∑ η : f ==> g, is_invertible_2cell η.
 
-Definition mk_invertible_2cell {C : prebicat_data}
+Definition make_invertible_2cell {C : prebicat_data}
          {a b : C} {f g : C⟦a,b⟧}
          {η : f ==> g} (inv_η : is_invertible_2cell η)
   : invertible_2cell f g
@@ -558,7 +558,7 @@ Coercion property_from_invertible_2cell {C : prebicat_data}
 
 Definition id2_invertible_2cell {C : prebicat} {a b : C} (f : a --> b)
   : invertible_2cell f f
-  := mk_invertible_2cell (is_invertible_2cell_id₂ f).
+  := make_invertible_2cell (is_invertible_2cell_id₂ f).
 
 Lemma cell_from_invertible_2cell_eq {C : bicat}
       {a b : C} {f g : C⟦a,b⟧} {x y : invertible_2cell f g}
@@ -716,6 +716,17 @@ Proof.
   cbn.
   apply pathsinv0.
   apply runitor_rwhisker.
+Qed.
+
+Corollary unit_triangle {a b c : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧)
+  : rassociator f (identity b) g • id2 f ⋆ lunitor g = runitor f ⋆ id2 g.
+Proof.
+  unfold hcomp.
+  rewrite id2_rwhisker.
+  rewrite lwhisker_id2.
+  rewrite id2_right.
+  rewrite id2_left.
+  apply lunitor_lwhisker.
 Qed.
 
 Lemma hcomp_hcomp' {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
@@ -942,6 +953,19 @@ Proof.
   apply lwhisker_id2.
 Qed.
 
+Corollary associativity_pentagon {a b c d e : C}
+  (f : C ⟦ a, b ⟧) (g : C ⟦ b, c ⟧) (h : C ⟦ c, d ⟧) (i : C ⟦ d, e ⟧)
+  : (rassociator f g h ⋆ id2 i • rassociator f (g · h) i) • id2  f ⋆ rassociator g h i =
+    rassociator (f · g) h i • rassociator f g (h · i).
+Proof.
+  unfold hcomp.
+  rewrite id2_rwhisker.
+  rewrite lwhisker_id2.
+  rewrite id2_right.
+  rewrite id2_left.
+  apply rassociator_rassociator.
+Qed.
+
 End Derived_laws.
 
 (* ----------------------------------------------------------------------------------- *)
@@ -954,11 +978,11 @@ Context {C : prebicat} (a b : C).
 
 Definition hom_ob_mor
   : precategory_ob_mor
-  := precategory_ob_mor_pair (C⟦a,b⟧) (λ (f g : C⟦a,b⟧), f ==> g).
+  := make_precategory_ob_mor (C⟦a,b⟧) (λ (f g : C⟦a,b⟧), f ==> g).
 
 Definition hom_data
   : precategory_data
-  := precategory_data_pair hom_ob_mor id2 (λ f g h x y, x • y).
+  := make_precategory_data hom_ob_mor id2 (λ f g h x y, x • y).
 
 Lemma is_precategory_hom : is_precategory hom_data.
 Proof.
@@ -971,7 +995,7 @@ Defined.
 
 Definition hom
   : precategory
-  := mk_precategory hom_data is_precategory_hom.
+  := make_precategory hom_data is_precategory_hom.
 
 End Hom_Spaces.
 
@@ -1003,7 +1027,7 @@ Qed.
 
 Definition hcomp_functor
   : precategory_binproduct (hom a b) (hom b c) ⟶ hom a c
-  := mk_functor hcomp_functor_data is_functor_hcomp.
+  := make_functor hcomp_functor_data is_functor_hcomp.
 
 End hcomp_functor.
 
@@ -1026,7 +1050,7 @@ Defined.
 
 Definition chaotic_prebicat_laws : prebicat_laws chaotic_prebicat_data.
 Proof.
-  repeat apply dirprodpair; intros; apply isProofIrrelevantUnit.
+  repeat apply make_dirprod; intros; apply isProofIrrelevantUnit.
 Qed.
 
 Definition chaotic_prebicat : prebicat
@@ -1136,6 +1160,16 @@ Proof.
   - apply rassociator_lassociator.
 Defined.
 
+Lemma is_iso_rassociator {a b c d : C} (f : hom a b) (g : hom b c) (h : hom c d)
+  : is_iso (rassociator f g h : (hom a d) ⟦ (f · g) · h, f · (g · h) ⟧).
+Proof.
+  apply is_iso_from_is_z_iso.
+  exists (lassociator f g h).
+  split.
+  - apply rassociator_lassociator.
+  - apply lassociator_rassociator.
+Defined.
+
 Lemma is_iso_lunitor {a b : C} (f : hom a b)
   : is_iso (lunitor f : (hom a b) ⟦ identity a · f, f ⟧).
 Proof.
@@ -1177,7 +1211,7 @@ Proof.
   rewrite <- vassocr. rewrite vcomp_lunitor.
   rewrite vassocr. apply maponpaths_2.
   rewrite id2_rwhisker. apply id2_left.
-Defined.
+Qed.
 
 Definition lunitor_transf (a b : C)
   : bindelta_pair_functor
@@ -1202,7 +1236,7 @@ Proof.
   rewrite vcomp_runitor.
   rewrite vassocr. apply maponpaths_2.
   rewrite lwhisker_id2. apply id2_left.
-Defined.
+Qed.
 
 Definition runitor_transf (a b : C)
   : bindelta_pair_functor
@@ -1238,7 +1272,7 @@ Proof.
   intros (x1, (x2, x3)). cbn.
   unfold lassociator_fun. cbn.
   apply hcomp_lassoc.
-Defined.
+Qed.
 
 Definition lassociator_transf (a b c d : C)
   : pair_functor (functor_identity (hom a b)) hcomp_functor ∙ hcomp_functor
@@ -1271,7 +1305,7 @@ Proof.
   intros (x1, (x2, x3)). cbn.
   unfold rassociator_fun. cbn.
   apply hcomp_rassoc.
-Defined.
+Qed.
 
 Definition rassociator_transf (a b c d : C)
   : precategory_binproduct_assoc (hom a b) (hom b c) (hom c d) ∙
@@ -1280,6 +1314,34 @@ Definition rassociator_transf (a b c d : C)
     ⟹
     pair_functor (functor_identity (hom a b)) hcomp_functor ∙ hcomp_functor
   := rassociator_fun,, rassociator_fun_natural.
+
+Definition rassociator_fun' {a b c d : C}
+           (x : (C⟦a,b⟧ × C⟦b,c⟧) × C⟦c,d⟧)
+  : (pr11 x · pr21 x) · pr2 x ==> pr11 x · (pr21 x · pr2 x)
+  := rassociator (pr11 x) (pr21 x) (pr2 x).
+
+Lemma rassociator_fun'_natural {a b c d : C}
+  : is_nat_trans
+      (pair_functor hcomp_functor (functor_identity (hom c d)) ∙ hcomp_functor)
+      (precategory_binproduct_unassoc (hom a b) (hom b c) (hom c d) ∙
+       pair_functor (functor_identity (hom a b)) hcomp_functor ∙ hcomp_functor)
+      rassociator_fun'.
+Proof.
+  red; cbn. intros ((f1, f2), f3) ((g1, g2), g3).
+  unfold precategory_binproduct_mor, hom_ob_mor. cbn.
+  unfold precategory_binproduct_mor, hom_ob_mor. cbn.
+  intros ((x1, x2), x3). cbn.
+  unfold rassociator_fun. cbn.
+  apply hcomp_rassoc.
+Qed.
+
+Definition rassociator_transf' (a b c d : C)
+  : pair_functor hcomp_functor (functor_identity (hom c d)) ∙
+    hcomp_functor
+    ⟹
+    precategory_binproduct_unassoc (hom a b) (hom b c) (hom c d) ∙
+    pair_functor (functor_identity (hom a b)) hcomp_functor ∙ hcomp_functor
+  := rassociator_fun',, rassociator_fun'_natural.
 
 End Associators_Unitors_Natural.
 

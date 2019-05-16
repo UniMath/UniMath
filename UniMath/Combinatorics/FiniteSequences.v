@@ -645,7 +645,7 @@ Proof.
   - cbn. apply natplusassoc.
   - intros i ltg ltg'. cbn. unfold concatenate'. unfold weqfromcoprodofstn_invmap. unfold coprod_rect. cbn.
     induction (natlthorgeh i (length x + length y)) as [H | H].
-    + induction (natlthorgeh (stnpair (length x + length y) i H) (length x)) as [H1 | H1].
+    + induction (natlthorgeh (make_stn (length x + length y) i H) (length x)) as [H1 | H1].
       * induction (natlthorgeh i (length x)) as [H2 | H2].
         -- apply maponpaths. apply isinjstntonat. apply idpath.
         -- apply fromempty. exact (natlthtonegnatgeh i (length x) H1 H2).

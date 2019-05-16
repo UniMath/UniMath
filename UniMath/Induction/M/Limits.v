@@ -12,7 +12,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.MoreFoundations.Univalence.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.categories.Types.
+Require Import UniMath.CategoryTheory.categories.Type.Core.
 
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
@@ -30,7 +30,7 @@ Section StandardLimits.
   (** The condition that [standard_limit] is a cone is basically a rephrasing of
       its definition. *)
   Lemma type_cone : cone d standard_limit.
-    use mk_cone; cbn.
+    use make_cone; cbn.
     - exact (λ n l, pr1 l n).
     - intros u v f.
       apply funextsec; intro l; unfold funcomp; cbn.
@@ -82,7 +82,7 @@ End StandardLimitHomot.
 
 Definition into_cone_to_cone {X Y : UU} {g : graph} {d : diagram g _}
             (coneY : cone d (Y : ob type_precat)) (f : X → Y) : cone d X.
-  use mk_cone.
+  use make_cone.
   - intro ver.
     exact (pr1 coneY ver ∘ (f : type_precat ⟦ X, Y ⟧)).
   - intros ver1 ver2 ed; cbn.
@@ -107,7 +107,7 @@ Section StandardLimitUP.
 
   (** A weak equivalence expressing the above universal property. *)
   Definition limit_up_weq {X L} {C : cone d L} {is : is_limit_cone C} :
-    (X → L) ≃ cone d X := weqpair (into_cone_to_cone C) (is X).
+    (X → L) ≃ cone d X := make_weq (into_cone_to_cone C) (is X).
 
   (** The universal property of a limit.
 
@@ -148,6 +148,6 @@ Section StandardLimitUP.
 
   (** The above weak equivalence specialized to the case of [standard_limit]s *)
   Definition standard_limit_up_weq {X} : (X → standard_limit d) ≃ cone d X :=
-    weqpair (into_cone_to_cone (type_cone d)) (limit_universal X).
+    make_weq (into_cone_to_cone (type_cone d)) (limit_universal X).
 
 End StandardLimitUP.

@@ -9,7 +9,7 @@ Local Open Scope poset.
 (** partially ordered sets and ordered sets *)
 
 Definition isTotalOrder {X : hSet} (R : hrel X) : hProp
-  := hProppair (isPartialOrder R × istotal R)
+  := make_hProp (isPartialOrder R × istotal R)
                (isapropdirprod _ _ (isaprop_isPartialOrder R) (isaprop_istotal R)).
 
 Section A.
@@ -254,7 +254,7 @@ Definition underlyingPoset_weq (X Y:OrderedSet) :
   X=Y ≃ (underlyingPoset X)=(underlyingPoset Y).
 Proof.
   Set Printing Coercions.
-  intros. simple refine (weqpair _ _).
+  intros. simple refine (make_weq _ _).
   { apply maponpaths. }
   apply isweqonpathsincl. apply isincl_underlyingPoset.
   Unset Printing Coercions.

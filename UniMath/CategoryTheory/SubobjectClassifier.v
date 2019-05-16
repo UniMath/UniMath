@@ -55,7 +55,7 @@ Section Accessors.
   Qed.
 
   Definition true : Monic _ T subobject_classifier_object :=
-    mk_Monic _ true' true_is_monic.
+    make_Monic _ true' true_is_monic.
 
   Definition subobject_classifier_universal_property {X Y} (m : Monic _ X Y) :
     iscontr (∑ (chi : C⟦Y, subobject_classifier_object⟧)
@@ -73,7 +73,7 @@ Section Accessors.
   Definition subobject_classifier_pullback {X Y} (m : Monic _ X Y) :
     Pullback (characteristic_morphism m) true.
   Proof.
-    use mk_Pullback.
+    use make_Pullback.
     - exact X.
     - exact m.
     - apply TerminalArrow.

@@ -225,7 +225,7 @@ Section ForgetLModFunctor.
   Local Notation MOD := (precategory_LModule R C).
 
   Definition LModule_forget_functor_data : functor_data MOD [B,C] :=
-    mk_functor_data (C := MOD) (C' := [B,C])
+    make_functor_data (C := MOD) (C' := [B,C])
                     (fun X => ((X : LModule _ _): functor _ _))
                     (fun a b f => ((f : LModule_Mor _ _ _) : nat_trans _ _)).
 
@@ -234,7 +234,7 @@ Section ForgetLModFunctor.
       ,, ((fun a b c f g => idpath _) : functor_compax LModule_forget_functor_data).
 
   Definition LModule_forget_functor: functor MOD [B,C] :=
-    mk_functor LModule_forget_functor_data LModule_forget_is_functor.
+    make_functor LModule_forget_functor_data LModule_forget_is_functor.
 End ForgetLModFunctor.
 
 (** Let m : M -> M' a monad morphism.
@@ -336,7 +336,7 @@ Section PbmFunctor.
   Context {B : precategory} {C : category} {R S : Monad B} (f : Monad_Mor R S).
   Let MOD (R : Monad B) := (precategory_LModule R C).
   Definition pb_LModule_functor_data : functor_data (MOD S) (MOD R) :=
-    mk_functor_data (C := MOD S) (C' := MOD R) (pb_LModule f )
+    make_functor_data (C := MOD S) (C' := MOD R) (pb_LModule f )
                     (@pb_LModule_Mor _ _ _ f _).
   Lemma pb_LModule_is_functor : is_functor pb_LModule_functor_data.
   Proof.
@@ -348,7 +348,7 @@ Section PbmFunctor.
   Qed.
 
   Definition pb_LModule_functor : functor (MOD S) (MOD R) :=
-                              mk_functor _ pb_LModule_is_functor.
+                              make_functor _ pb_LModule_is_functor.
 End PbmFunctor.
 (**
 Construction of an isomorphism between modules sharing the same underlying
@@ -403,23 +403,23 @@ Section IsoLModPb.
 
   (** Isomorphism between M1 and M2 *)
   Lemma LModule_same_func_Mor_is_inverse hsC :
-    is_inverse_in_precat (C := precategory_LModule R (category_pair C hsC) )
+    is_inverse_in_precat (C := precategory_LModule R (make_category C hsC) )
                          (LModule_same_func_Mor hm m1_law m2_law)
                          (LModule_same_func_Mor (fun c => ! (hm c)) m2_law m1_law).
   Proof.
-    use mk_is_inverse_in_precat.
+    use make_is_inverse_in_precat.
     - apply LModule_Mor_equiv;[ apply homset_property|].
       apply  (id_left (C := [B ,C , hsC])).
     - apply LModule_Mor_equiv;[ apply homset_property|].
       apply  (id_right (C := [B ,C , hsC])).
   Qed.
 
-  Definition LModule_same_func_iso hsC : iso (C := precategory_LModule R (category_pair C hsC) )
+  Definition LModule_same_func_iso hsC : iso (C := precategory_LModule R (make_category C hsC) )
                                          M1 M2.
   Proof.
-    eapply isopair.
+    eapply make_iso.
     eapply is_iso_from_is_z_iso.
-    eapply mk_is_z_isomorphism.
+    eapply make_is_z_isomorphism.
     apply LModule_same_func_Mor_is_inverse.
   Defined.
 
@@ -482,8 +482,9 @@ Local Notation pbm_comp := (pb_LModule (Monad_composition m  m') T'').
     apply pathsinv0.
     apply functor_comp.
   Qed.
-  Definition pb_LModule_comp_iso hsC : iso  (C := category_LModule _ (category_pair C hsC)) comp_pbm pbm_comp  :=
-    LModule_same_func_iso _ _ pb_LModule_comp_law hsC.
 
+  Definition pb_LModule_comp_iso hsC
+    : iso  (C := category_LModule _ (make_category C hsC)) comp_pbm pbm_comp
+    := LModule_same_func_iso _ _ pb_LModule_comp_law hsC.
 
 End Pullback_Composition.

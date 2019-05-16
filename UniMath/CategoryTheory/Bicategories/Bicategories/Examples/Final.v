@@ -39,7 +39,7 @@ Section Final_Bicategory.
 
   Lemma final_bicat_laws : prebicat_laws final_prebicat_data.
   Proof.
-    repeat apply dirprodpair; intros; apply isProofIrrelevantUnit.
+    repeat apply make_dirprod; intros; apply isProofIrrelevantUnit.
   Qed.
 
   Definition final_prebicat : prebicat

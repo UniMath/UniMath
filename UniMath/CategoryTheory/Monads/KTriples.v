@@ -194,7 +194,7 @@ Definition μ {C : precategory} (T : Kleisli_Data C) (a : C) :
 
 Definition kleisli_functor_data {C : precategory} (T : Kleisli_Data C) :
   functor_data C C :=
-  mk_functor_data T (@map C T).
+  make_functor_data T (@map C T).
 
 Definition is_functor_kleisli {C : precategory}
            {T : Kleisli_Data C} (H : Kleisli_Laws T) :
@@ -202,7 +202,7 @@ Definition is_functor_kleisli {C : precategory}
   map_id H ,, map_map H.
 
 Definition kleisli_functor {C : precategory} (T : Kleisli C) : functor C C :=
-  mk_functor (kleisli_functor_data T) (is_functor_kleisli T).
+  make_functor (kleisli_functor_data T) (is_functor_kleisli T).
 
 Lemma is_nat_trans_kleisli_mor {C : precategory} {T T' : Kleisli C} (α : Kleisli_Mor T T') :
   is_nat_trans (kleisli_functor T) (kleisli_functor T') (nat_trans_from_kleisli_mor α).
@@ -215,7 +215,7 @@ Defined.
 
 Definition nat_trans_kleisli_mor {C : precategory} {T T' : Kleisli C} (α : Kleisli_Mor T T') :
   nat_trans (kleisli_functor T) (kleisli_functor T') :=
-  mk_nat_trans (kleisli_functor T) (kleisli_functor T')
+  make_nat_trans (kleisli_functor T) (kleisli_functor T')
                (nat_trans_from_kleisli_mor α) (is_nat_trans_kleisli_mor α).
 
 Lemma Kleisli_Mor_eq {C : precategory} (hs : has_homsets C)
@@ -294,10 +294,10 @@ Definition Kleisli_composition {C : precategory} {T T' T'' : Kleisli C}
 (* ----- Precategory of Kleisli Monads ----- *)
 
 Definition precategory_Kleisli_ob_mor (C : precategory) : precategory_ob_mor :=
-  precategory_ob_mor_pair (Kleisli C) Kleisli_Mor.
+  make_precategory_ob_mor (Kleisli C) Kleisli_Mor.
 
 Definition precategory_Kleisli_Data (C : precategory) : precategory_data :=
-  precategory_data_pair (precategory_Kleisli_ob_mor C)
+  make_precategory_data (precategory_Kleisli_ob_mor C)
                         (@Kleisli_identity C)
                         (@Kleisli_composition C).
 
@@ -340,9 +340,9 @@ Definition category_Kleisli (C : category) : category :=
 Definition forgetfunctor_Kleisli (C : category) :
   functor (category_Kleisli C) (functor_category C C).
 Proof.
-  use mk_functor.
+  use make_functor.
   - simpl.
-    use mk_functor_data.
+    use make_functor_data.
     + simpl.
       exact (λ T : Kleisli C, kleisli_functor T).
     + simpl. intros T T' α.
