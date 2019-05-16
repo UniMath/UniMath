@@ -250,7 +250,7 @@ Defined.
 (** Lemma 11 in Ahrens, Capriotti, and Spadotti *)
 Local Definition Z X l :=
  ∑ (x : ∏ n, X n), ∏ n, x (S n) = l n (x n).
-Lemma lemma_11 (X : nat -> UU) (l : ∏ n, X n -> X (S n)) : Z X l ≃ X 0.
+Local Lemma lemma_11 (X : nat -> UU) (l : ∏ n, X n -> X (S n)) : Z X l ≃ X 0.
 Proof.
  set (f (xp : Z X l) := pr1 xp 0).
  transparent assert (g : (X 0 -> Z X l)). {
@@ -299,7 +299,7 @@ Proof.
 Defined.
 
 (* Maybe easier to apply in Lemma *)
-Definition lemma_11_unfolded (X : nat -> UU) (l : ∏ n, X n -> X (S n)) :
+Local Definition lemma_11_unfolded (X : nat -> UU) (l : ∏ n, X n -> X (S n)) :
   (∑ (x : ∏ n, X n), ∏ n, x (S n) = l n (x n)) ≃ X 0 := lemma_11 X l.
 
 Lemma cochain_limit_standard_limit_weq (cha cha' : cochain type_precat) :
