@@ -3,8 +3,7 @@
   This is a partial reconstruction of the results of "Homotopy limits in type
   theory" by Jeremy Avigad, Chris Kapulkin, and Peter LeFanu Lumsdaine
   (arXiv:1304.0680v3).
-
-  Eventually, this should probably be moved into CategoryTheory. *)
+*)
 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Sets.
