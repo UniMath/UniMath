@@ -185,7 +185,7 @@ Section CochainLimit.
   Definition cochain_limit_cone :
     cone coch cochain_limit.
   Proof.
-    use mk_cone; cbn.
+    use make_cone; cbn.
     - intros v cochain_limit_element.
       apply (pr1 cochain_limit_element).
     - intros u v e.

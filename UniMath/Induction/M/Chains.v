@@ -258,7 +258,7 @@ Proof.
    exists (nat_rect _ x l).
    exact (λ n, idpath _).
  }
- apply (weqpair f).
+ apply (make_weq f).
  apply (isweq_iso f g).
  - cbn.
    intros xp; induction xp as [x p].
