@@ -96,6 +96,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Circle.v](SyntheticHomotopyTheory/Circle.v)
    - [Circle2.v](SyntheticHomotopyTheory/Circle2.v)
    - [Test.v](SyntheticHomotopyTheory/Test.v)
+   - [CoprodPaths.v](SyntheticHomotopyTheory/CoprodPaths.v)
    - [All.v](SyntheticHomotopyTheory/All.v)
 ## Package [PAdics](PAdics/README.md)
    - [lemmas.v](PAdics/lemmas.v)
