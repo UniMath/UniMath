@@ -40,7 +40,7 @@ Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
-Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
+Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
 
 Local Open Scope cat.
 
@@ -63,12 +63,12 @@ Local Notation "'EndC'":= ([C, C, hs]) .
 Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
 Let CPEndC : BinCoproducts EndC := BinCoproducts_functor_precat _ _ CP hs.
 
-Variable H : Signature C hs C hs.
+Variable H : Signature C hs C hs C hs.
 
 Let θ := theta H.
 
-Let θ_strength1_int := Sig_strength_law1 _ _ _ _ H.
-Let θ_strength2_int := Sig_strength_law2 _ _ _ _ H.
+Let θ_strength1_int := Sig_strength_law1 _ _ _ _ _ _ H.
+Let θ_strength2_int := Sig_strength_law2 _ _ _ _ _ _ H.
 
 Let Id_H
 : functor EndC EndC
@@ -124,7 +124,7 @@ Proof.
   - apply nat_trans_eq; try assumption.
     intro c. simpl.
     rewrite id_right.
-    assert (H':= θ_Strength1_int_implies_θ_Strength1 _ _ _ _ _ _ θ_strength1_int).
+    assert (H':= θ_Strength1_int_implies_θ_Strength1 _ _ _ _ _ _ _ _ θ_strength1_int).
     red in H'. simpl in H'.
     assert (H2 := H' (`T)).
     assert (H3 := nat_trans_eq_pointwise H2 c).
@@ -238,7 +238,7 @@ Proof.
         apply cancel_postcomposition.
         apply cancel_postcomposition.
         apply cancel_postcomposition.
-        assert (H':=θ_nat_2 _ _ _ _ H θ).
+        assert (H':=θ_nat_2 _ _ _ _ _ _ H θ).
         assert (H2 := H' (`T) _ _ μ_0_ptd); clear H'.
         assert (H3:= nat_trans_eq_weq hs _ _ H2 c); clear H2.
         simpl in H3.
@@ -331,7 +331,7 @@ Proof.
       apply pathsinv0.
       apply maponpaths. apply Monad_law_1_from_hss.
   - rewrite functor_comp.
-    assert (H1 := θ_nat_2 _ _ _ _ H θ (`T) _ _ μ_2_ptd).
+    assert (H1 := θ_nat_2 _ _ _ _ _ _ H θ (`T) _ _ μ_2_ptd).
     simpl in H1.
     repeat rewrite assoc.
     match goal with |[H1 : ?g = _ |- _ · _ · ?f · ?h = _ ] =>
@@ -418,10 +418,9 @@ Proof.
     simpl.
     match goal with | [ |- ?a · _ · _ = _ ] => set (Ac:= a) end.
     simpl in Ac.
-    unfold θ_target_ob in *.
     simpl in *.
     unfold functor_compose in *.
-    assert (HX:=θ_nat_1 _ _ _ _ H θ _ _ μ_2).  (* it may be tested with the primed version *)
+    assert (HX:=θ_nat_1 _ _ _ _ _ _ H θ _ _ μ_2).  (* it may be tested with the primed version *)
     assert (HX1:= HX (ptd_from_alg T)); clear HX.
     simpl in HX1.
     assert (HXX:=nat_trans_eq_pointwise HX1 c); clear HX1.
@@ -447,7 +446,7 @@ Proof.
                      pr1 (θ (( ((`T) • (`T) : [_, _, hs])) ⊗ (ptd_from_alg T))) c·
                      pr1 (# H (α : functor_compose hs hs (`T) (functor_composite (`T) (` T))--> _)) c       ).
       { (intro α;
-          assert (HA := θ_Strength2_int_implies_θ_Strength2 _ _ _ _ _ _ θ_strength2_int);
+          assert (HA := θ_Strength2_int_implies_θ_Strength2 _ _ _ _ _ _ _ _ θ_strength2_int);
           assert (HA':= HA (`T) (ptd_from_alg T) (ptd_from_alg T) _ α); clear HA;
           assert (HA2 := nat_trans_eq_pointwise HA' c ); clear HA';
           simpl in HA2; apply HA2 ).
@@ -536,7 +535,7 @@ Proof.
     + clear HX'.
       rewrite id_left.
       rewrite id_right.
-      assert (HX:=θ_nat_1 _ _ _ _ H θ _ _ μ_2).
+      assert (HX:=θ_nat_1 _ _ _ _ _ _ H θ _ _ μ_2).
       assert (HX1:= HX (ptd_from_alg T)); clear HX.
       simpl in HX1.
       assert (HXX:=nat_trans_eq_pointwise HX1 x); clear HX1.

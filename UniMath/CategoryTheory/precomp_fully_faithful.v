@@ -63,7 +63,7 @@ Proof.
     apply nat_trans_eq.
     + apply hsC.
     + intro b.
-      apply (p b (hProppair _ (hsC _ _ _ _))).
+      apply (p b (make_hProp _ (hsC _ _ _ _))).
       intro t; induction t as [a f]; simpl.
       apply (pre_comp_with_iso_is_inj _ _ _ _ (# F f)
          (functor_on_iso_is_iso _ _ _ _ _ f)).
@@ -102,13 +102,13 @@ Lemma iscontr_aux_space (b : B) :
       ∏ a : A, ∏ f : iso (H a) b,
            g = functor_on_iso F (iso_inv_from_iso f) · gamma a · #G f)).
 Proof.
-  apply (p b (hProppair _ (isapropiscontr _))).
+  apply (p b (make_hProp _ (isapropiscontr _))).
   intro t; induction t as [anot h]; simpl.
   set (g := functor_on_iso F (iso_inv_from_iso h) · gamma anot · #G h).
   assert (gp : ∏ (a : A) (f : iso (H a) b),
                  g = #F (inv_from_iso f) · gamma a · #G f).
   - intros a f.
-    apply (Hf _ _ (h · inv_from_iso f) (hProppair _ (hsC _ _ _ _))).
+    apply (Hf _ _ (h · inv_from_iso f) (make_hProp _ (hsC _ _ _ _))).
     intro sur.
     simpl.
     unfold g.
@@ -146,9 +146,9 @@ Lemma is_nat_trans_pdelta :
      is_nat_trans F G pdelta.
 Proof.
   intros b b' f.
-  apply (p b (hProppair _ (hsC _ _ _ _) )).
+  apply (p b (make_hProp _ (hsC _ _ _ _) )).
   intro t; induction t as [a h]; simpl.
-  apply (p b' (hProppair _ (hsC _ _ _ _) )).
+  apply (p b' (make_hProp _ (hsC _ _ _ _) )).
   intro t; induction t as [a' h']; simpl.
   unfold pdelta.
   rewrite (pr2 ((pr1 (iscontr_aux_space b))) a h).
@@ -160,7 +160,7 @@ Proof.
   rewrite 4 assoc.
   simpl.
   rewrite <- 2 functor_comp.
-  apply (Hf _ _ (h · f · (inv_from_iso h')) (hProppair _ (hsC _ _ _ _))).
+  apply (Hf _ _ (h · f · (inv_from_iso h')) (make_hProp _ (hsC _ _ _ _))).
   intro sur.
   simpl.
   rewrite <- (pr2 sur).

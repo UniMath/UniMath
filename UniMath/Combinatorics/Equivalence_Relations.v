@@ -21,7 +21,7 @@ Proof.
 Defined.
 
 Definition eqrel_closure {X : UU} (R : hrel X) : eqrel X :=
-  eqrelpair _ (iseqrel_closure R).
+  make_eqrel _ (iseqrel_closure R).
 
 Lemma eqrel_closure_minimal {X : UU} {R : hrel X} (S : eqrel X) (H : ∏ x x', R x x' → S x x') {x x' : X} :
   eqrel_closure R x x' → S x x'.

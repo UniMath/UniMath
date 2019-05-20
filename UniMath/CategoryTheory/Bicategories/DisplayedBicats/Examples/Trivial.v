@@ -37,7 +37,7 @@ Section Trivial_Displayed.
   Variable (B C : bicat).
 
   Definition trivial_disp_cat_ob_mor : disp_cat_ob_mor B
-    := mk_disp_cat_ob_mor
+    := make_disp_cat_ob_mor
          B
          (λ _ : B, C)
          (λ (_ _ : B) (a b : C) _, C⟦a,b⟧).
@@ -57,7 +57,7 @@ Section Trivial_Displayed.
 
   Definition trivial_displayed_data : disp_prebicat_data B.
     use (trivial_disp_prebicat_1_id_comp_cells,, _).
-    repeat apply dirprodpair; cbn.
+    repeat apply make_dirprod; cbn.
     - intros _ _ _. exact (λ a b f, id2 f).
     - intros _ _ _. exact (λ a b f, lunitor f).
     - intros _ _ _. exact (λ a b f, runitor f).
@@ -72,7 +72,7 @@ Section Trivial_Displayed.
 
   Lemma trivial_disp_prebicat_laws : disp_prebicat_laws trivial_displayed_data.
   Proof.
-    repeat apply dirprodpair; red; cbn; intros.
+    repeat apply make_dirprod; red; cbn; intros.
     - etrans. apply id2_left. apply transportf_trivial.
     - etrans. apply id2_right. apply transportf_trivial.
     - etrans. apply vassocr. apply transportf_trivial.

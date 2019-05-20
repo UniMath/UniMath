@@ -62,7 +62,7 @@ Local Open Scope functions.
 
 Definition precat_precat : precategory.
 Proof.
-  use mk_precategory_one_assoc.
+  use make_precategory_one_assoc.
   - use tpair; use tpair; cbn.
     + exact precategory.
     + exact functor.
@@ -76,7 +76,7 @@ Defined.
 (** *** The precategory of 𝒰-small categories ([cat_precat]) *)
 
 Definition cat_precat_subtype : hsubtype precat_precat :=
-  λ C : precategory, hProppair _ (isaprop_has_homsets C).
+  λ C : precategory, make_hProp _ (isaprop_has_homsets C).
 
 (** A subcategory can be coerced to a precategory, see [carrier_of_sub_precategory]. *)
 Definition cat_precat : sub_precategories precat_precat :=
@@ -87,7 +87,7 @@ Definition cat_precat : sub_precategories precat_precat :=
 (** *** The precategory of 𝒰-small univalent categories ([univalent_cat_precat]) *)
 
 Definition univalent_cat_precat_subtype : hsubtype precat_precat :=
-  λ C : precategory, hProppair _ (isaprop_is_univalent C).
+  λ C : precategory, make_hProp _ (isaprop_is_univalent C).
 
 Definition univalent_cat_precat : sub_precategories precat_precat :=
   full_sub_precategory univalent_cat_precat_subtype.
@@ -98,7 +98,7 @@ Definition univalent_cat_precat : sub_precategories precat_precat :=
     [univalent_cat_precat]. *)
 
 Definition univalent_cat_precat_subtype' : hsubtype cat_precat :=
-  λ C : category, hProppair _ (isaprop_is_univalent C).
+  λ C : category, make_hProp _ (isaprop_is_univalent C).
 
 Definition univalent_cat_precat' : sub_precategories cat_precat :=
   full_sub_precategory univalent_cat_precat_subtype'.
@@ -170,7 +170,7 @@ Proof.
     apply isofhlevelcontr, iscontrunit.
 Defined.
 
-Definition setcat_cat : category := category_pair _ has_homsets_setcat_precat.
+Definition setcat_cat : category := make_category _ has_homsets_setcat_precat.
 
 (** ** Colimits *)
 
@@ -180,7 +180,7 @@ Definition setcat_cat : category := category_pair _ has_homsets_setcat_precat.
 
 Definition InitialPrecat : Initial precat_precat.
 Proof.
-  use mk_Initial.
+  use make_Initial.
   - cbn; exact empty_category.
   - intros ?; apply iscontr_functor_from_empty.
 Defined.
@@ -219,7 +219,7 @@ Defined.
 
 Definition TerminalPrecat : Terminal precat_precat.
 Proof.
-  use mk_Terminal.
+  use make_Terminal.
   - cbn; exact unit_category.
   - intros ?; apply iscontr_functor_to_unit.
 Defined.
@@ -262,7 +262,7 @@ Defined.
 Definition ProductsCat {I : UU} : Products I cat_precat.
 Proof.
   intros f; cbn in *.
-  use mk_Product.
+  use make_Product.
   - exact (product_category f).
   - intro i.
     use morphism_in_full_subcat.
@@ -284,7 +284,7 @@ Proof.
           (∑ ff : pr1 (pr1 other_prod) ⟶ product_precategory_data (λ x : I, pr1 (f x)),
             ∏ i : I, ff ∙ pr_functor I (λ x : I, pr1 (f x)) i,, tt = other_proj i).
         {
-          refine (weqfp (weqpair pr1 _) _).
+          refine (weqfp (make_weq pr1 _) _).
           apply isweqpr1.
           intros ?.
           apply iscontrunit.
@@ -292,9 +292,9 @@ Proof.
         {
           apply weqfibtototal; intro.
           apply weqonsecfibers; intro.
-          use weqpair.
+          use make_weq.
           * intros eq; exact (maponpaths pr1 eq).
-          * refine (isweqmaponpaths (weqpair pr1 _) _ _).
+          * refine (isweqmaponpaths (make_weq pr1 _) _ _).
             apply isweqpr1.
             intros.
             apply iscontrunit.

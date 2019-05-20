@@ -3,19 +3,18 @@
   This is a partial reconstruction of the results of "Homotopy limits in type
   theory" by Jeremy Avigad, Chris Kapulkin, and Peter LeFanu Lumsdaine
   (arXiv:1304.0680v3).
-
-  Eventually, this should probably be moved into CategoryTheory, but there is
-  no proof of the universal property ([isLimCone]) as phrased in
-  [CategoryTheory.limits.graphs.limits]. *)
+*)
 
 Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.Univalence.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.categories.Types.
+Require Import UniMath.CategoryTheory.categories.Type.Core.
 
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.Chains.Cochains.
 
 Local Open Scope cat.
 
@@ -30,7 +29,7 @@ Section StandardLimits.
   (** The condition that [standard_limit] is a cone is basically a rephrasing of
       its definition. *)
   Lemma type_cone : cone d standard_limit.
-    use mk_cone; cbn.
+    use make_cone; cbn.
     - exact (λ n l, pr1 l n).
     - intros u v f.
       apply funextsec; intro l; unfold funcomp; cbn.
@@ -82,7 +81,7 @@ End StandardLimitHomot.
 
 Definition into_cone_to_cone {X Y : UU} {g : graph} {d : diagram g _}
             (coneY : cone d (Y : ob type_precat)) (f : X → Y) : cone d X.
-  use mk_cone.
+  use make_cone.
   - intro ver.
     exact (pr1 coneY ver ∘ (f : type_precat ⟦ X, Y ⟧)).
   - intros ver1 ver2 ed; cbn.
@@ -107,7 +106,7 @@ Section StandardLimitUP.
 
   (** A weak equivalence expressing the above universal property. *)
   Definition limit_up_weq {X L} {C : cone d L} {is : is_limit_cone C} :
-    (X → L) ≃ cone d X := weqpair (into_cone_to_cone C) (is X).
+    (X → L) ≃ cone d X := make_weq (into_cone_to_cone C) (is X).
 
   (** The universal property of a limit.
 
@@ -148,6 +147,84 @@ Section StandardLimitUP.
 
   (** The above weak equivalence specialized to the case of [standard_limit]s *)
   Definition standard_limit_up_weq {X} : (X → standard_limit d) ≃ cone d X :=
-    weqpair (into_cone_to_cone (type_cone d)) (limit_universal X).
+    make_weq (into_cone_to_cone (type_cone d)) (limit_universal X).
 
 End StandardLimitUP.
+
+(** In the case of cochains, we can provide a somewhat simpler limit. *)
+Section CochainLimit.
+  Context (coch : cochain type_precat).
+  Let X := (pr1 coch).
+  Let π := (pr2 coch).
+  Let π' n := π (S n) n (idpath _).
+
+  Definition cochain_limit :=
+    ∑ (x : forall n : nat, X n), forall n, π' n (x (S n)) = x n.
+
+  Lemma simplify_cochain_step
+        {u v : nat}
+        (x : forall n, X n)
+        (e : S v = u) :
+    dmor coch e (x u) = π' v (x (S v)).
+  Proof.
+    unfold π', π in *; unfold dmor.
+    (induction e; auto).
+  Defined.
+
+  Lemma simplify_cochain_step_idpath {u : nat} (x : forall n, X n) :
+    @simplify_cochain_step (S u) u x (idpath _) =
+    idpath _.
+  Proof.
+    reflexivity.
+  Qed.
+
+  Definition cochain_limit_cone :
+    cone coch cochain_limit.
+  Proof.
+    use make_cone; cbn.
+    - intros v cochain_limit_element.
+      apply (pr1 cochain_limit_element).
+    - intros u v e.
+      apply funextsec; intro l; unfold funcomp; cbn.
+      refine (_ @ pr2 l _).
+      unfold dmor, π', π.
+      apply simplify_cochain_step.
+  Defined.
+
+  Lemma lim_equiv : cochain_limit ≃ (standard_limit coch).
+  Proof.
+    unfold cochain_limit, standard_limit; cbn.
+    apply weqfibtototal; intro.
+    use weq_iso.
+    - intros eq.
+      intros u v e.
+      specialize (eq v).
+      unfold π', π in *; unfold dmor.
+      refine (_ @ eq).
+      apply simplify_cochain_step.
+    - intros eq; intro; apply eq.
+    - abstract ( intro; apply funextsec; intro; reflexivity ).
+    - abstract ( intro; cbn;
+      do 2 (apply funextsec; intro);
+      apply funextsec; intro p;
+      induction p;
+      reflexivity ).
+  Defined.
+
+  Lemma cochain_limit_is_limit :
+    ∑ c : cone coch cochain_limit, is_limit_cone c.
+  Proof.
+    assert (H :
+      (∑ c : cone coch cochain_limit, is_limit_cone c)
+      ≃ ∑ c : cone coch (standard_limit coch), is_limit_cone c
+      ).
+    {
+      induction (weqtopaths lim_equiv).
+      apply idweq.
+    }
+    apply H.
+    eapply tpair.
+    apply limit_universal.
+  Defined.
+
+End CochainLimit.

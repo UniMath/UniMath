@@ -40,7 +40,7 @@ Variable hsC : has_homsets C.
 
 (** identity as a predicate *)
 Definition id_pred {a : C} : a ⇒ a → hProp :=
-   λ f, hProppair (f = identity _ ) (hsC a a _ _) .
+   λ f, make_hProp (f = identity _ ) (hsC a a _ _) .
 
 Lemma id_pred_id (a : C) : id_pred (identity a).
 Proof.
@@ -49,7 +49,7 @@ Qed.
 
 (** composition as a predicate *)
 Definition comp_pred {a b c : C} : a ⇒ b → b ⇒ c → a ⇒ c → hProp :=
-  λ f g fg, hProppair (compose f g = fg) (hsC _ _ _ _ ).
+  λ f g fg, make_hProp (compose f g = fg) (hsC _ _ _ _ ).
 
 Lemma comp_pred_comp (a b c : C) (f : a ⇒ b) (g : b ⇒ c) : comp_pred f g (compose f g).
 Proof.
@@ -59,7 +59,7 @@ Defined.
 Definition folds_id_comp_from_precat_data : folds_id_T :=
   tpair (λ C : folds_ob_mor, (∏ a : C, a ⇒ a → hProp)
                            × (∏ (a b c : C), (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp))
-        (pr1 C) (dirprodpair (@id_pred) (@comp_pred)).
+        (pr1 C) (make_dirprod (@id_pred) (@comp_pred)).
 
 End data.
 
@@ -110,7 +110,7 @@ Variable C : folds_precat.
 
 Definition precat_from_folds_data : precategory_data :=
   tpair (λ C : precategory_ob_mor, precategory_id_comp C)
-    (pr1 (pr1 C)) (dirprodpair (I_func C)(@T_func C)).
+    (pr1 (pr1 C)) (make_dirprod (I_func C)(@T_func C)).
 
 Lemma is_precategory_precat_from_folds_data :
    is_precategory precat_from_folds_data.

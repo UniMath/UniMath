@@ -12,10 +12,7 @@
     - functors and
     - natural transformations (whiskering)
 
-  - Functoriality of precomposition
-
-  - Precomposition with an essentially surjective
-        functor yields a faithful functor
+  - Functoriality of precomposition / postcomposition
 
 *)
 
@@ -54,7 +51,7 @@ Lemma is_nat_trans_pre_whisker (A B C : precategory_data)
 Proof.
   intros a b f; simpl.
   apply nat_trans_ax.
-Defined.
+Qed.
 
 
 Definition pre_whisker {A B C : precategory_data}
@@ -109,9 +106,9 @@ Proof.
   intros b.
   unfold post_whisker.
   simpl.
-  set ( gammab := isopair (gamma b) (X b) ).
+  set ( gammab := make_iso (gamma b) (X b) ).
   apply (functor_on_iso_is_iso C D K _ _ gammab).
-Qed.
+Defined.
 
 (** Precomposition with a functor is functorial *)
 

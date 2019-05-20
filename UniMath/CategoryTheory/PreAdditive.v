@@ -43,7 +43,7 @@ Section def_preadditive.
     (∏ (x y z : PA) (f : x --> y), ismonoidfun (to_premor z f))
       × (∏ (x y z : PA) (f : y --> z), ismonoidfun (to_postmor x f)).
 
-  Definition mk_isPreAdditive (PA : categoryWithAbgrops)
+  Definition make_isPreAdditive (PA : categoryWithAbgrops)
              (H1 : ∏ (x y z : PA) (f : x --> y), ismonoidfun (to_premor z f))
              (H2 : ∏ (x y z : PA) (f : y --> z), ismonoidfun (to_postmor x f)) :
     isPreAdditive PA.
@@ -51,7 +51,7 @@ Section def_preadditive.
     exact (H1,,H2).
   Defined.
 
-  Definition mk_isPreAdditive' (PA : categoryWithAbgrops)
+  Definition make_isPreAdditive' (PA : categoryWithAbgrops)
              (H1 : ∏ (x y z : PA) (f : x --> y) (g h : y --> z),
                    f · (to_binop _ _ g h) = to_binop _ _ (f · g) (f · h))
              (H1' : ∏ (x y z : PA) (f : x --> y), to_premor z f (to_unel y z) = to_unel x z)
@@ -60,7 +60,7 @@ Section def_preadditive.
              (H2' : ∏ (x y z : PA) (f : y --> z), to_premor z (to_unel x y) f = to_unel x z):
     isPreAdditive PA.
   Proof.
-    use mk_isPreAdditive.
+    use make_isPreAdditive.
     - intros x y z f.
       use tpair.
       + intros g h. exact (H1 x y z f g h).
@@ -91,7 +91,7 @@ Section def_preadditive.
   Definition PreAdditive_categoryWithAbgrops (A : PreAdditive) : categoryWithAbgrops := pr1 A.
   Coercion PreAdditive_categoryWithAbgrops : PreAdditive >-> categoryWithAbgrops.
 
-  Definition mk_PreAdditive (PA : categoryWithAbgrops) (H : isPreAdditive PA) : PreAdditive.
+  Definition make_PreAdditive (PA : categoryWithAbgrops) (H : isPreAdditive PA) : PreAdditive.
   Proof.
     exact (tpair _ PA H).
   Defined.
@@ -303,7 +303,7 @@ Section monics_and_epis_in_preadditive.
 
   Lemma to_inv_isMonic {x y : PA} (f : x --> y) (isM : isMonic f) : isMonic (to_inv f).
   Proof.
-    use mk_isMonic.
+    use make_isMonic.
     intros x0 g h X.
     rewrite <- PreAdditive_invrcomp in X. rewrite <- PreAdditive_invrcomp in X.
     apply cancel_inv in X. use isM. exact X.
@@ -311,7 +311,7 @@ Section monics_and_epis_in_preadditive.
 
   Lemma to_inv_isEpi {x y : PA} (f : x --> y) (isE : isEpi f) : isEpi (to_inv f).
   Proof.
-    use mk_isEpi.
+    use make_isEpi.
     intros x0 g h X.
     rewrite <- PreAdditive_invlcomp in X. rewrite <- PreAdditive_invlcomp in X.
     apply cancel_inv in X. use isE. exact X.
@@ -430,7 +430,7 @@ Section preadditive_quotient.
   (** The relation we defined respects binary operations. Note that we use commax, thus the proof
       does not work for nonabelian groups. *)
   Lemma isbinopeqrel_subgr_eqrel {A : abgr} (B : @subabgr A) :
-    isbinophrel (eqrelpair (subgrhrel B) (iseqrel_subgrhrel A B)).
+    isbinophrel (make_eqrel (subgrhrel B) (iseqrel_subgrhrel A B)).
   Proof.
     use isbinophrelif.
     - apply (pr2 (pr2 A)).
@@ -448,8 +448,8 @@ Section preadditive_quotient.
   (** Thus the relation is a binopeqrel *)
   Lemma binopeqrel_subgr_eqrel {A : abgr} (B : @subabgr A) : @binopeqrel A.
   Proof.
-    use binopeqrelpair.
-    - exact (eqrelpair _ (iseqrel_subgrhrel A B)).
+    use make_binopeqrel.
+    - exact (make_eqrel _ (iseqrel_subgrhrel A B)).
     - exact (isbinopeqrel_subgr_eqrel B).
   Defined.
 
@@ -536,7 +536,7 @@ Section preadditive_quotient.
           (∏ (f' : PA⟦A, B⟧) (e1 : setquotpr _ f' = f)
              (g' : PA⟦B, C⟧) (e2 : setquotpr _ g' = g), setquotpr _ (f' · g') = h).
 
-  Definition mk_QuotcategoryComp {A B C : ob PA} {f : Quotcategory_ob_mor⟦A, B⟧}
+  Definition make_QuotcategoryComp {A B C : ob PA} {f : Quotcategory_ob_mor⟦A, B⟧}
              {g : Quotcategory_ob_mor⟦B, C⟧} (h : Quotcategory_ob_mor⟦A, C⟧)
              (H : ∏ (f' : PA⟦A, B⟧) (e1 : setquotpr _ f' = f)
                     (g' : PA⟦B, C⟧) (e2 : setquotpr _ g' = g), setquotpr _ (f' · g') = h) :
@@ -593,7 +593,7 @@ Section preadditive_quotient.
     setquotpr _ (f' · g') = setquotpr (binopeqrel_subgr_eqrel (PAS A C)) (f'1 · g'1).
   Proof.
     intros f1 Hf g1 Hg. cbn.
-    apply (iscompsetquotpr (eqrelpair _ (iseqrel_subgrhrel (to_abgr A C) (PAS A C)))).
+    apply (iscompsetquotpr (make_eqrel _ (iseqrel_subgrhrel (to_abgr A C) (PAS A C)))).
     set (HH := @abgrquotpr_rels_to_unel
                  (to_abgr A B) f'1 f1 (binopeqrel_subgr_eqrel (PAS A B)) f f''1 Hf).
     set (HH' := @abgrquotpr_rels_to_unel
@@ -618,7 +618,7 @@ Section preadditive_quotient.
              (f' : hfiber (setquotpr (binopeqrel_subgr_eqrel (PAS A B))) f)
              (g' : hfiber (setquotpr (binopeqrel_subgr_eqrel (PAS B C))) g) :
     ∏ t : QuotcategoryComp f g,
-          t = mk_QuotcategoryComp
+          t = make_QuotcategoryComp
                 (setquotpr (binopeqrel_subgr_eqrel (PAS A C))
                            (hfiberpr1 _ _ f' · hfiberpr1 _ _ g'))
                 (Quotcategory_comp_iscontr_eq
@@ -643,8 +643,8 @@ Section preadditive_quotient.
   Proof.
     use (squash_to_prop (Quotcategory_surj f) (isapropiscontr _)). intros f'.
     use (squash_to_prop (Quotcategory_surj g) (isapropiscontr _)). intros g'.
-    use iscontrpair.
-    - use mk_QuotcategoryComp.
+    use make_iscontr.
+    - use make_QuotcategoryComp.
       + exact (setquotpr
                  (binopeqrel_subgr_eqrel (PAS A C)) ((hfiberpr1 _ _ f') · (hfiberpr1 _ _ g'))).
       + exact (Quotcategory_comp_iscontr_eq
@@ -763,7 +763,7 @@ Section preadditive_quotient.
   (** ** Construction of the Quotcategory *)
 
   Definition Quotcategory_data : precategory_data :=
-    precategory_data_pair
+    make_precategory_data
       Quotcategory_ob_mor
       (λ (A : ob PA), setquotpr (binopeqrel_subgr_eqrel (PAS A A)) (identity A))
       (fun (A B C : ob PA) (f : Quotcategory_ob_mor⟦A, B⟧)
@@ -878,7 +878,7 @@ Section preadditive_quotient.
 
   Definition Quotcategory_binops : precategoryWithBinOps.
   Proof.
-    use mk_precategoryWithBinOps.
+    use make_precategoryWithBinOps.
     - exact Quotcategory.
     - intros x y. exact (@op (subabgr_quot (PAS x y))).
   Defined.
@@ -886,7 +886,7 @@ Section preadditive_quotient.
   Unset Kernel Term Sharing.
   Definition Quotcategory_abgrops : categoryWithAbgrops.
   Proof.
-    use mk_categoryWithAbgrops.
+    use make_categoryWithAbgrops.
     - exact Quotcategory_binops.
     - exact has_homsets_Quotcategory.
     - intros x y. exact (pr2 (subabgr_quot (PAS x y))).
@@ -943,7 +943,7 @@ Section preadditive_quotient.
 
   Lemma Quotcategory_isPreAdditive : isPreAdditive Quotcategory_abgrops.
   Proof.
-    use mk_isPreAdditive'.
+    use make_isPreAdditive'.
     - intros x y z f g h. exact (PreAdditive_pre_linear x y z f g h).
     - intros x y z f. exact (PreAdditive_pre_unel x y z f).
     - intros x y z f g h. exact (PreAdditive_post_linear x y z f g h).
@@ -952,7 +952,7 @@ Section preadditive_quotient.
 
   Definition Quotcategory_PreAdditive : PreAdditive.
   Proof.
-    use mk_PreAdditive.
+    use make_PreAdditive.
     - exact Quotcategory_abgrops.
     - exact Quotcategory_isPreAdditive.
   Defined.
@@ -1003,7 +1003,7 @@ Section preadditive_quotient.
 
   Lemma Quotcategory_isZero : isZero (C:=Quotcategory) Z.
   Proof.
-    use mk_isZero.
+    use make_isZero.
     - intros a.
       use tpair.
       + exact (to_quot_mor (@ZeroArrowFrom PA Z a)).
@@ -1024,7 +1024,7 @@ Section preadditive_quotient.
 
   Definition Quotcategory_Zero : @Zero Quotcategory.
   Proof.
-    use mk_Zero.
+    use make_Zero.
     - exact Z.
     - exact Quotcategory_isZero.
   Defined.

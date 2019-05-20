@@ -21,7 +21,7 @@ Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.CategoryTheory.EndofunctorsMonoidal.
+Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.SubstitutionSystems.BinSumOfSignatures.
 Require Import UniMath.SubstitutionSystems.SubstitutionSystems.
@@ -41,7 +41,7 @@ Require Import UniMath.CategoryTheory.Chains.All.
 
 Section LamHSET.
 
-Let Lam_S : Signature HSET has_homsets_HSET _ _ :=
+Let Lam_S : Signature HSET has_homsets_HSET _ _ _ _ :=
   Lam_Sig HSET has_homsets_HSET TerminalHSET BinCoproductsHSET BinProductsHSET.
 
 Local Notation "'EndHSET'":= ([HSET, HSET, has_homsets_HSET]) .

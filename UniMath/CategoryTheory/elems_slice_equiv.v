@@ -36,11 +36,11 @@ Section elems_slice_equiv.
   Variable (C : precategory) (P : PreShv C).
 
   (** ** Construction of the functor from PreShv ∫P to PreShv C / P *)
-  Local Definition mk_ob := @make_ob C P.
-  Local Definition mk_mor := @make_mor C P.
+  Local Definition make_ob := @make_ob C P.
+  Local Definition make_mor := @make_mor C P.
 
   Definition PreShv_to_slice_ob_funct_fun (F : PreShv ∫P) : C^op → SET :=
-    λ X, total2_hSet (fun p : ##P X => (pr1 F) (mk_ob X p)).
+    λ X, total2_hSet (fun p : ##P X => (pr1 F) (make_ob X p)).
 
   Definition PreShv_to_slice_ob_funct_mor (F : PreShv ∫P) {X Y : C^op} (f : X --> Y) :
     PreShv_to_slice_ob_funct_fun F X --> PreShv_to_slice_ob_funct_fun F Y :=
@@ -80,7 +80,7 @@ Section elems_slice_equiv.
 
     + set (T := ∑ p' : ## P X, p' = # (pr1 P) (identity X) p : UU).
       set (T' := ∑ p' : ## P X, (pr1 F) (X ,, p) --> (pr1 F) (X ,, p') : UU).
-      set (phi := λ (x : T), mk_mor (X ,, pr1 x) (X ,, p) (identity X) (pr2 x)).
+      set (phi := λ (x : T), make_mor (X ,, pr1 x) (X ,, p) (identity X) (pr2 x)).
       set (G := λ (x : T), pr1 x ,, # (pr1 F) (phi x) : T').
       set (e := fun (x : ∫P) => eqtohomot (!((functor_id P) (pr1 x))) (pr2 x)).
       set (h := λ (x : T'), pr1 x ,, (pr2 x) q : pr1hSet (PreShv_to_slice_ob_funct_fun F X)).
@@ -97,7 +97,7 @@ Section elems_slice_equiv.
 
     + set (T := ∑ p' : ## P Z, p' = # (pr1 P) (g ∘ f) p : UU).
       set (T' := ∑ p' : ## P Z, (pr1 F) (X ,, p) --> (pr1 F) (Z ,, p') : UU).
-      set (phi := λ (x : T), mk_mor (Z ,, pr1 x) (X ,, p) (g ∘ f) (pr2 x)).
+      set (phi := λ (x : T), make_mor (Z ,, pr1 x) (X ,, p) (g ∘ f) (pr2 x)).
       set (G := λ (x : T), (pr1 x ,, # (pr1 F) (phi x)) : T').
       set (e := fun (z y x : ∫P) (f : z --> y) (g : y --> x) =>
                   ((pr2 f) @ maponpaths (# (pr1 P) (pr1 f)) (pr2 g)
@@ -107,13 +107,13 @@ Section elems_slice_equiv.
       use (maponpaths (funcomp G h)
                          (coconustot_isProofIrrelevant (# (pr1 P) (g ∘ f) p ,, idpath _)
                                               (# (pr1 P) g (# (pr1 P) f p) ,,
-                                                 e (mk_ob Z (# (pr1 P) g (# (pr1 P) f p)))
-                                                 (mk_ob Y (# (pr1 P) f p)) (mk_ob X p)
+                                                 e (make_ob Z (# (pr1 P) g (# (pr1 P) f p)))
+                                                 (make_ob Y (# (pr1 P) f p)) (make_ob X p)
                                                  (g ,, idpath _) (f ,, idpath _))) @ _).
       use (@pair_path_in2 _ (λ x, pr1hSet ((pr1 F) (Z ,, x))) (# (pr1 P) g (# (pr1 P) f p))).
-      use (eqtohomot _ q @ eqtohomot (@functor_comp _ _ F (mk_ob X p)
-                                                       (mk_ob Y (# (pr1 P) f p))
-                                                       (mk_ob Z (# (pr1 P) g (# (pr1 P) f p)))
+      use (eqtohomot _ q @ eqtohomot (@functor_comp _ _ F (make_ob X p)
+                                                       (make_ob Y (# (pr1 P) f p))
+                                                       (make_ob Z (# (pr1 P) g (# (pr1 P) f p)))
                                                        (f ,, idpath _) (g,, idpath _)) q).
       use (maponpaths (# (pr1 F))).
       use total2_paths_f.
@@ -258,7 +258,7 @@ Section elems_slice_equiv.
                   exact (pr2 (eqset _ _)));
       simpl;
       unfold hfiber;
-      unfold hfibersgftog; unfold hfiberpair;
+      unfold hfibersgftog; unfold make_hfiber;
       repeat (rewrite transportf_total2;
               simpl; unfold hfiber);
       now repeat rewrite transportf_const.
@@ -310,14 +310,8 @@ Section elems_slice_equiv.
     apply iso_to_slice_precat_iso.
     apply functor_iso_if_pointwise_iso.
     intros X; simpl.
-    match goal with
-    | |- is_iso ?t => assert (eq : t =
-                                   (λ X0, pr1 (pr2 X0)))
-    end.
-    { apply funextsec. intros [p q]. simpl. reflexivity. }
-    rewrite eq.
     change (λ X0, pr1 (pr2 X0)) with (fromcoconusf (Fnat X)).
-    exact (hset_equiv_is_iso (hSetpair (coconusf (Fnat X))
+    exact (hset_equiv_is_iso (make_hSet (coconusf (Fnat X))
                                          (isaset_total2_hSet _ (λ y, (hfiber_hSet (Fnat X) y)))) _
                                (weqfromcoconusf (Fnat X))).
   Qed.

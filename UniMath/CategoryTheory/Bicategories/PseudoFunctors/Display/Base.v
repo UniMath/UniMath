@@ -153,7 +153,7 @@ Section BasePseudoFunctor.
         ≃
         invertible_2cell η ε.
   Proof.
-    refine (weqpair (invertible_2cell_ps_base η ε) _).
+    refine (make_weq (invertible_2cell_ps_base η ε) _).
     use isweq_iso.
     - exact (invertible_2cell_ps_base_inv η ε).
     - intros α.
@@ -175,10 +175,10 @@ Section BasePseudoFunctor.
     intros F G η ε.
     use weqhomot.
     - simple refine (invertible_2cell_ps_base_weq η ε ∘ _)%weq.
-      simple refine (_ ∘ weqpair _ (isweqtoforallpaths _ _ _))%weq.
+      simple refine (_ ∘ make_weq _ (isweqtoforallpaths _ _ _))%weq.
       simple refine (weqonsecfibers _ _ _).
       intro X ; cbn.
-      exact (weqpair (idtoiso_2_1 (η X) (ε X)) (HD_2_1 _ _ _ _)).
+      exact (make_weq (idtoiso_2_1 (η X) (ε X)) (HD_2_1 _ _ _ _)).
     - intros p.
       induction p.
       use subtypeEquality.
@@ -234,7 +234,7 @@ Section BasePseudoFunctor.
              (η : F --> G)
     : (∏ (X : C), left_adjoint_equivalence (η X)) ≃ left_adjoint_equivalence η.
   Proof.
-    refine (weqpair (all_is_adjequiv_to_is_adjequiv η) _).
+    refine (make_weq (all_is_adjequiv_to_is_adjequiv η) _).
     use isweq_iso.
     - exact (is_adjequiv_to_all_is_adjequiv η).
     - intros Hη.
@@ -289,7 +289,7 @@ Section BasePseudoFunctor.
       ≃
       adjoint_equivalence F G.
   Proof.
-    refine (weqpair (adjequiv_ps_base F G) _).
+    refine (make_weq (adjequiv_ps_base F G) _).
     use isweq_iso.
     - exact (adjequiv_ps_base_inv F G).
     - intros η.
@@ -324,10 +324,10 @@ Section BasePseudoFunctor.
     intros F G.
     use weqhomot.
     - simple refine (adjequiv_ps_base_weq F G ∘ _)%weq.
-      simple refine (_ ∘ weqpair _ (isweqtoforallpaths _ _ _))%weq.
+      simple refine (_ ∘ make_weq _ (isweqtoforallpaths _ _ _))%weq.
       simple refine (weqonsecfibers _ _ _).
       intro X ; cbn.
-      exact (weqpair (idtoiso_2_0 (F X) (G X)) (pr1 HD _ _)).
+      exact (make_weq (idtoiso_2_0 (F X) (G X)) (pr1 HD _ _)).
     - intros p.
       induction p.
       use subtypeEquality.

@@ -24,30 +24,30 @@ Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispUnivalenc
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
-Definition mk_total_ob {C : bicat} {D : disp_bicat C} {a : C} (aa : D a)
+Definition make_total_ob {C : bicat} {D : disp_bicat C} {a : C} (aa : D a)
   : total_bicat D
   := (a,, aa).
 
-Definition mk_total_mor {C : bicat} {D : disp_bicat C}
+Definition make_total_mor {C : bicat} {D : disp_bicat C}
            {a b : C} {f : C⟦a, b⟧}
            {aa : D a} {bb : D b} (ff : aa -->[f] bb)
-  : mk_total_ob aa --> mk_total_ob bb
+  : make_total_ob aa --> make_total_ob bb
   := (f,, ff).
 
-Definition mk_total_cell {C : bicat} {D : disp_bicat C}
+Definition make_total_cell {C : bicat} {D : disp_bicat C}
            {a b : C} {f g : C⟦a, b⟧} {aa : D a} {bb : D b}
            {ff : aa -->[f] bb}
            {gg : aa -->[g] bb}
            (η : f ==> g)
            (ηη : ff ==>[η] gg)
-  : prebicat_cells _ (mk_total_mor ff) (mk_total_mor gg)
+  : prebicat_cells _ (make_total_mor ff) (make_total_mor gg)
   := (η,, ηη).
 
 (* Useful? *)
 Lemma total_cell_eq {C : bicat} {D : disp_bicat C}
       {a b : C} {f g : C⟦a, b⟧} {aa : D a} {bb : D b}
       {ff : aa -->[f] bb} {gg : aa -->[g] bb}
-      (x y : mk_total_mor ff ==> mk_total_mor gg)
+      (x y : make_total_mor ff ==> make_total_mor gg)
       (e : pr1 x = pr1 y)
       (ee : pr2 x = transportb (λ η : f ==> g, ff ==>[ η] gg) e (pr2 y))
   : x = y.
@@ -139,7 +139,7 @@ Section Sigma.
     repeat split; red; cbn; intros *;
       use (@total2_reassoc_paths'
              (_ ==> _) (fun x' => _ ==>[ x'] _)
-             (fun x'xx => _ ==>[ mk_total_cell (pr1 x'xx) (pr2 x'xx)] _));
+             (fun x'xx => _ ==>[ make_total_cell (pr1 x'xx) (pr2 x'xx)] _));
       cbn.
     - apply disp_id2_left.
     - apply (disp_id2_left (pr2 ηη)).
@@ -256,7 +256,7 @@ Section SigmaUnivalent.
 
   Definition E₂_to_E₁_weq : E₂ ≃ E₁.
   Proof.
-    use weqpair.
+    use make_weq.
     - exact E₂_to_E₁.
     - use isweq_iso.
       + exact E₁_to_E₂.
@@ -268,7 +268,7 @@ Section SigmaUnivalent.
              (x y : E₂)
     : x = y ≃ E₂_to_E₁ x = E₂_to_E₁ y.
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (maponpaths E₂_to_E₁).
     - exact (isweqmaponpaths E₂_to_E₁_weq x y).
   Defined.
@@ -287,7 +287,7 @@ Section SigmaUnivalent.
              {x y : E₂}
     : x --> y ≃ E₂_to_E₁ x --> E₂_to_E₁ y.
   Proof.
-    use weqpair.
+    use make_weq.
     - exact mor_E₂_to_E₁.
     - use isweq_iso.
       + exact mor_E₁_to_E₂.
@@ -300,7 +300,7 @@ Section SigmaUnivalent.
              (f g : x --> y)
     : f = g ≃ mor_E₂_to_E₁ f = mor_E₂_to_E₁ g.
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (maponpaths mor_E₂_to_E₁).
     - exact (isweqmaponpaths mor_E₂_to_E₁_weq f g).
   Defined.
@@ -422,7 +422,7 @@ Section SigmaUnivalent.
              (f g : x --> y)
     : invertible_2cell (mor_E₂_to_E₁ f) (mor_E₂_to_E₁ g) ≃ invertible_2cell f g.
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (iso_in_E₂ f g).
     - use isweq_iso.
       + exact (iso_in_E₂_inv f g).
@@ -512,7 +512,7 @@ Section SigmaUnivalent.
              (HD₂_2_1 : disp_univalent_2_1 D₂)
     : adjoint_equivalence (E₂_to_E₁ x) (E₂_to_E₁ y) ≃ adjoint_equivalence x y.
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (adjequiv_in_E₂ x y).
     - use isweq_iso.
       + exact (adjequiv_in_E₂_inv x y).

@@ -115,14 +115,14 @@ Defined.
 Definition adjunitiso {A B : precategory} (X : equivalence_of_precats A B)
            (a : A) : iso a (right_functor X (left_functor X a)).
 Proof.
-  use isopair.
+  use make_iso.
   - exact (adjunit X a).
   - exact (pr1 (pr2 X) a).
 Defined.
 Definition adjcounitiso {A B : precategory} (X : equivalence_of_precats A B)
            (b : B) : iso (left_functor X (right_functor X b)) b.
 Proof.
-  use isopair.
+  use make_iso.
   - exact (adjcounit X b).
   - exact (pr2 (pr2 X) b).
 Defined.
@@ -786,7 +786,7 @@ Proof.
     specialize (XR _ _ _ _ (identity_iso _ ) _ _ (alpha x xx ,, Ha x xx) ).
     match goal with |[|- ?EE = _ ] => set (E := EE) end. cbn in E.
     specialize (XR _ (identity x · f) (FF y yy)).
-    set (R := weqpair _ XR).
+    set (R := make_weq _ XR).
     apply (invmaponpathsweq R).
     unfold R. unfold E. cbn.
     etrans. apply assoc_disp.
@@ -903,7 +903,7 @@ Proof.
         specialize (RG (is_iso_counit_over_id (pr2 isEquiv) x xx)).
         transparent assert (Ge : (iso_disp (identity_iso x)
                                   (GG _ (FF _ (GG _ xx))) (GG _ xx))).
-        { apply (iso_disp_pair (f:=identity_iso _ ) Gepsxxx).
+        { apply (make_iso_disp (f:=identity_iso _ ) Gepsxxx).
           eapply is_iso_disp_independent_of_is_iso.
           apply RG.
         }
@@ -911,7 +911,7 @@ Proof.
         match goal with |[|- ?EE = _ ] => set (E := EE) end. cbn in E.
         specialize (XR _ _ _ _ _ _ _ Ge).
         specialize (XR _ (identity x · identity x ) (GG x xx)).
-        apply (invmaponpathsweq (weqpair _ XR)).
+        apply (invmaponpathsweq (make_weq _ XR)).
         unfold E; clear E.
         cbn.
         clear RG XR Ge.
@@ -942,7 +942,7 @@ Proof.
         set (etaGxxx := η _ (GG x xx)).
         transparent assert (Ge : (iso_disp (identity_iso x)
                                   (GG _ xx) (GG _ (FF _ (GG _ xx))) )).
-        { apply (iso_disp_pair (f:=identity_iso _ ) etaGxxx).
+        { apply (make_iso_disp (f:=identity_iso _ ) etaGxxx).
           eapply is_iso_disp_independent_of_is_iso.
           apply (is_iso_unit_over_id (pr2 isEquiv) ).
         }
@@ -950,7 +950,7 @@ Proof.
         match goal with |[|- ?EE = _ ] => set (E := EE) end. cbn in E.
         specialize (XR _ _ _ _ _ _ _ Ge).
         specialize (XR _ (identity x · (identity x · identity x) )  (GG x xx)).
-        apply (invmaponpathsweq (weqpair _ XR)).
+        apply (invmaponpathsweq (make_weq _ XR)).
 
         cbn. unfold etaGxxx.
         unfold E.

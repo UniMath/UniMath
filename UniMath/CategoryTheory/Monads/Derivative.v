@@ -268,7 +268,7 @@ Defined.
 
 Definition monad_comp {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) : Monad C :=
   (monad_comp_data a,,
-  dirprodpair (dirprodpair (monad_comp_law1 l) (monad_comp_law2 l)) (monad_comp_law3 l)).
+  make_dirprod (make_dirprod (monad_comp_law1 l) (monad_comp_law2 l)) (monad_comp_law3 l)).
 
 (** morphism from the factor T to the composite S ∙ T of two monads *)
 Definition monad_to_comp_data {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) :
@@ -344,7 +344,7 @@ Defined.
 
 Definition monad_to_comp {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) :
   Monad_Mor T (monad_comp l) :=
-  (monad_to_comp_data l,, dirprodpair (monad_to_comp_law1 l) (monad_to_comp_law2 l)).
+  (monad_to_comp_data l,, make_dirprod (monad_to_comp_law1 l) (monad_to_comp_law2 l)).
 
 End comp_def.
 
@@ -409,7 +409,7 @@ Defined.
 
 Definition maybe_monad : Monad C :=
   (maybe_monad_data,,
-  dirprodpair (dirprodpair maybe_monad_law1 maybe_monad_law2) maybe_monad_law3).
+  make_dirprod (make_dirprod maybe_monad_law1 maybe_monad_law2) maybe_monad_law3).
 
 (** Definition of the derivative of a monad, i.e. precomposing with the maybe monad *)
 Section deriv_def.
@@ -510,7 +510,7 @@ Proof.
 Defined.
 
 Definition deriv_dist_is_monad_dist (T : Monad C) : monad_dist_laws (deriv_dist T) :=
-  dirprodpair (dirprodpair (dirprodpair (deriv_dist_law1 T) (deriv_dist_law2 T))
+  make_dirprod (make_dirprod (make_dirprod (deriv_dist_law1 T) (deriv_dist_law2 T))
                            (deriv_dist_law3 T))
               (deriv_dist_law4 T).
 
@@ -557,7 +557,7 @@ Definition LModule_comp_data {D : precategory} {T : Monad C} {S : Monad C} (a : 
 
 Definition LModule_comp_laws {D : precategory} {T : Monad C} {S : Monad C}
       {a : T ∙ S ⟹ S ∙ T} (l : monad_dist_laws a) (L : LModule T D) :
-  (LModule_laws T (LModule_comp_data a L)) := dirprodpair (LModule_comp_law1 l L)
+  (LModule_laws T (LModule_comp_data a L)) := make_dirprod (LModule_comp_law1 l L)
                                                           (LModule_comp_law2 l L).
 
 Definition LModule_deriv {D : precategory} {T : Monad C} (L : LModule T D) : LModule T D :=

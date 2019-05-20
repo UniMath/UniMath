@@ -117,7 +117,7 @@ Section def_grothendiecktopology.
 
   Definition PresheafToFunctor (P : Presheaf) : functor (opp_precat C) HSET := P.
 
-  Definition mk_Presheaf (F : functor (opp_precat C) HSET) : Presheaf := F.
+  Definition make_Presheaf (F : functor (opp_precat C) HSET) : Presheaf := F.
 
   (** This is a formalization of the definition on page 122 *)
   Definition isSheaf (P : Presheaf) (GT : GrothendieckTopology) : UU :=
@@ -140,7 +140,7 @@ Section def_grothendiecktopology.
   Definition hsubtype_obs_isSheaf (GT : GrothendieckTopology) :
     hsubtype (functor_precategory (opp_precat C) HSET has_homsets_HSET) :=
     (λ P : functor_precategory (opp_precat C) HSET has_homsets_HSET,
-       hProppair _ (isaprop_isSheaf GT (mk_Presheaf P))).
+       make_hProp _ (isaprop_isSheaf GT (make_Presheaf P))).
 
   Definition categoryOfSheaves (GT : GrothendieckTopology) :
     sub_precategories (functor_precategory (opp_precat C) HSET has_homsets_HSET) :=

@@ -44,9 +44,9 @@ Defined.
 (** A rewrite of [pathsdirprod] as an equivalence:
     Two pairs are equal if and only if both of their components are. *)
 Definition pathsdirprodweq {X Y : UU} {x1 x2 : X} {y1 y2 : Y} :
-  (dirprodpair x1 y1 = dirprodpair x2 y2) ≃ (x1 = x2) × (y1 = y2).
+  (make_dirprod x1 y1 = make_dirprod x2 y2) ≃ (x1 = x2) × (y1 = y2).
 Proof.
-  intermediate_weq (dirprodpair x1 y1 ╝ dirprodpair x2 y2).
+  intermediate_weq (make_dirprod x1 y1 ╝ make_dirprod x2 y2).
   - apply total2_paths_equiv.
   - unfold PathPair; cbn.
     use weqfibtototal; intro p; cbn.
@@ -70,4 +70,43 @@ Proof.
   intermediate_weq (Y × X).
   - apply dirprod_with_contr_r; assumption.
   - apply weqdirprodcomm.
+Defined.
+
+Lemma total2_assoc_fun_left {A B : UU} (C : A -> B -> UU) (D : (∏ a : A, ∑ b : B, C a b) -> UU) :
+ (∑ (x : ∏ a : A, ∑ b : B, C a b), D x) ≃
+ ∑ (x : ∏ _ : A, B),
+   ∑ (y : ∏ a : A, C a (x a)),
+     D (fun a : A => (x a,, y a)).
+Proof.
+ use weq_iso.
+ - intros p.
+   exists (fun a => (pr1 (pr1 p a))).
+   exists (fun a => (pr2 (pr1 p a))).
+   exact (pr2 p).
+ - intros p.
+   use tpair.
+   + intros a.
+     use tpair.
+     * exact (pr1 p a).
+     * exact (pr1 (pr2 p) a).
+   + exact (pr2 (pr2 p)).
+ - reflexivity.
+ - reflexivity.
+Defined.
+
+Lemma sec_total2_distributivity {A : UU} {B : A -> UU} (C : ∏ a, B a -> UU) :
+  (∏ a : A, ∑ b : B a, C a b)
+    ≃ (∑ b : ∏ a : A, B a, ∏ a, C a (b a)).
+Proof.
+  use weq_iso.
+  - intro f.
+    use tpair.
+    + exact (fun a => pr1 (f a)).
+    + exact (fun a => pr2 (f a)).
+  - intro f.
+    intro a.
+    exists ((pr1 f) a).
+    apply (pr2 f).
+  - apply idpath.
+  - apply idpath.
 Defined.

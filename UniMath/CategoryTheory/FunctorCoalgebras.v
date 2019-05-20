@@ -98,10 +98,10 @@ Proof.
 Defined.
 
 Definition CoAlg_precategory_ob_mor : precategory_ob_mor :=
-  precategory_ob_mor_pair coalgebra coalgebra_homo.
+  make_precategory_ob_mor coalgebra coalgebra_homo.
 
 Definition CoAlg_precategory_data: precategory_data :=
-  precategory_data_pair CoAlg_precategory_ob_mor
+  make_precategory_data CoAlg_precategory_ob_mor
                         coalgebra_homo_id
                         coalgebra_homo_comp.
 
@@ -128,7 +128,7 @@ Proof.
 Defined.
 
 Definition CoAlg_precategory (hasHom : has_homsets C) : precategory
-  := mk_precategory CoAlg_precategory_data
+  := make_precategory CoAlg_precategory_data
                    (CoAlg_is_precategory hasHom).
 
 Lemma has_homsets_coalgebra (hasHom : has_homsets C)
@@ -151,7 +151,7 @@ Local Notation F_CoAlg := (CoAlg_precategory F hasHomC).
 
 Context (isTerminalX : isTerminal F_CoAlg X).
 
-Definition TerminalX : Terminal F_CoAlg := mk_Terminal _ isTerminalX.
+Definition TerminalX : Terminal F_CoAlg := make_Terminal _ isTerminalX.
 
 Local Notation α := (coalgebra_mor _ (TerminalObject TerminalX)).
 Local Notation A := (coalgebra_ob _ (TerminalObject TerminalX)).
@@ -206,6 +206,6 @@ Proof.
   - exact α'α_idFA.
 Defined.
 
-Definition terminalcoalgebra_iso : iso A (F A) := isopair α terminalcoalgebra_isiso.
+Definition terminalcoalgebra_iso : iso A (F A) := make_iso α terminalcoalgebra_isiso.
 
 End Lambek_dual.

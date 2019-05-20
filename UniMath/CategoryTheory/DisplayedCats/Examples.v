@@ -360,7 +360,7 @@ Proof.
   intros J D x L isL.
   unfold creates_limit. cbn.
   transparent assert (FC : (cone (mapdiagram π D) (F x))).
-  { use mk_cone.
+  { use make_cone.
     - intro j.
       eapply compose.
       apply ((#F)%cat (coneOut L j )).
@@ -378,7 +378,7 @@ Proof.
       ).
   }
   transparent assert (LL : (LimCone (mapdiagram π D))).
-  { use mk_LimCone. apply x. apply L. apply isL. }
+  { use make_LimCone. apply x. apply L. apply isL. }
   use tpair.
   - use tpair.
     + use tpair.
@@ -422,7 +422,7 @@ Proof.
         unfold disp_cat_functor_alg in a. cbn in a.
         cbn in πCC.
         transparent assert (X : (cone (mapdiagram π D) (F c))).
-        { use mk_cone.
+        { use make_cone.
           - intro j.
             apply (λ f, a · f). cbn.
             apply (coneOut CC j).

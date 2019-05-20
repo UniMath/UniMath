@@ -96,7 +96,7 @@ Proof.
   now apply isrefl_reverse, (pr2 H).
 Qed.
 Definition po_reverse {X : UU} (l : po X) :=
-  popair (hrel_reverse l) (ispreorder_reverse l (pr2 l)).
+  make_po (hrel_reverse l) (ispreorder_reverse l (pr2 l)).
 Lemma po_reverse_correct {X : UU} (l : po X) :
   ∏ x y : X, po_reverse l x y = l y x.
 Proof.
@@ -120,7 +120,7 @@ Proof.
   now apply issymm_reverse, (pr2 H).
 Qed.
 Definition eqrel_reverse {X : UU} (l : eqrel X) :=
-  eqrelpair (hrel_reverse l) (iseqrel_reverse l (pr2 l)).
+  make_eqrel (hrel_reverse l) (iseqrel_reverse l (pr2 l)).
 Lemma eqrel_reverse_correct {X : UU} (l : eqrel X) :
   ∏ x y : X, eqrel_reverse l x y = l y x.
 Proof.
@@ -202,7 +202,7 @@ Coercion pr1EffectivelyOrderedSet : EffectivelyOrderedSet >-> hSet.
 
 Definition EOle {X : EffectivelyOrderedSet} : po X :=
   let R := pr2 X in
-  popair (pr1 R) (pr1 (pr1 (pr2 (pr2 R)))).
+  make_po (pr1 R) (pr1 (pr1 (pr2 (pr2 R)))).
 Definition EOle_rel {X : EffectivelyOrderedSet} : hrel X :=
   pr1 EOle.
 Arguments EOle_rel {X} x y: simpl never.

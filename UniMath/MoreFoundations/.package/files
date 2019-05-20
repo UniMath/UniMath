@@ -1,3 +1,5 @@
+Bool.v
+Test.v
 WeakEquivalences.v
 Tactics.v
 PartA.v
@@ -20,4 +22,5 @@ Subtypes.v
 AxiomOfChoice.v
 StructureIdentity.v
 Univalence.v
+NoInjectivePairing.v
 PartD.v

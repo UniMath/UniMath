@@ -188,7 +188,7 @@ Definition cat_of_elems_on_nat_trans (α : X ⟹ Y) : ∫ X ⟶ ∫ Y :=
 (** The forgetful functor from the category of elements to C *)
 Definition cat_of_elems_forgetful : ∫ X ⟶ C.
 Proof.
-use mk_functor.
+use make_functor.
 - exists pr1.
   intros a b; apply pr1.
 - now split.

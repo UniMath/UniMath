@@ -35,8 +35,8 @@ Section monad_types_equiv.
 
   Definition Kleisli_to_functor {C : precategory} (T: Kleisli C) : C ⟶ C.
   Proof.
-    use mk_functor.
-    - use mk_functor_data.
+    use make_functor.
+    - use make_functor_data.
       + exact T.
       + apply r_lift.
     - apply is_functor_r_lift.

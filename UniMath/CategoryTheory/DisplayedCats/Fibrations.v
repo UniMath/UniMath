@@ -892,7 +892,7 @@ Proof.
 Qed.
 
 Definition fiber_functor_from_cleaving : D [{c}] ⟶ D [{c'}]
-  := mk_functor _  is_functor_from_cleaving_data.
+  := make_functor _  is_functor_from_cleaving_data.
 
 
 End fiber_functor_from_cleaving.

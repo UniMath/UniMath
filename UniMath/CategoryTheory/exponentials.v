@@ -159,7 +159,7 @@ Qed.
 Lemma is_left_adjoint_constprod_functor2 : is_left_adjoint F'.
 Proof.
 apply (tpair _ G).
-apply (tpair _ (dirprodpair eta' eps')).
+apply (tpair _ (make_dirprod eta' eps')).
 apply form_adjunction_eta'_eps'.
 Defined.
 

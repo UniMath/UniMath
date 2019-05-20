@@ -137,7 +137,7 @@ Defined.
 
 Lemma is_precategory_precategory_Alg_data : is_precategory (precategory_Alg_data T).
 Proof.
-  apply mk_is_precategory; intros;
+  apply make_is_precategory; intros;
   apply Algebra_mor_eq.
   - apply id_left.
   - apply id_right.
@@ -206,11 +206,11 @@ Defined.
 
 Definition free_forgetful_are_adjoints : are_adjoints free_Alg forget_Alg.
 Proof.
-  use mk_are_adjoints.
-  - apply (mk_nat_trans _ _ (η T)).
+  use make_are_adjoints.
+  - apply (make_nat_trans _ _ (η T)).
     intros X Y f.
     apply η.
-  - use mk_nat_trans.
+  - use make_nat_trans.
     + intro X.
       exact (Alg_map T (X : Algebra T),, Algebra_multlaw T X).
     + intros X Y f.
@@ -321,7 +321,7 @@ Defined.
 
 Definition lift_functor : (MonadAlg S) ⟶ (MonadAlg S).
 Proof.
-  use mk_functor.
+  use make_functor.
   - exists T_on_SAlg.
     intros X Y f.
     exists ((# T) (mor_from_Algebra_mor S f)).
@@ -344,7 +344,7 @@ Defined.
 
 Definition lift_η : functor_identity (MonadAlg S) ⟹ lift_functor.
 Proof.
-  use mk_nat_trans.
+  use make_nat_trans.
     - intro X. cbn in X.
       exists (η T X).
       abstract (red; cbn;
@@ -360,7 +360,7 @@ Defined.
 
 Definition lift_μ : lift_functor ∙ lift_functor ⟹ lift_functor.
 Proof.
-  use mk_nat_trans.
+  use make_nat_trans.
     - intro X. cbn in X.
       exists (μ T X).
       abstract (red; cbn;

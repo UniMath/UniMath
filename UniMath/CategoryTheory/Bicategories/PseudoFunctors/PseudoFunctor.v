@@ -37,7 +37,7 @@ Definition psfunctor
   : UU
   := psfunctor_bicat C D.
 
-Definition mk_psfunctor_data
+Definition make_psfunctor_data
            {C D : bicat}
            (F₀ : C → D)
            (F₁ : ∏ {a b : C}, C⟦a,b⟧ → D⟦F₀ a, F₀ b⟧)
@@ -50,7 +50,7 @@ Proof.
   exact ((F₀ ,, F₁) ,, (F₂ ,, Fid ,, Fcomp)).
 Defined.
 
-Definition mk_psfunctor
+Definition make_psfunctor
            {C D : bicat}
            (F : psfunctor_data C D)
            (HF : psfunctor_laws F)

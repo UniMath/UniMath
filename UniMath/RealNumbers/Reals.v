@@ -1209,7 +1209,7 @@ Qed.
 
 Definition Cauchy_seq (u : nat → hr_ConstructiveField) : hProp.
 Proof.
-  apply (hProppair (∏ c : NonnegativeReals, 0 < c -> ∃ N : nat, ∏ n m : nat, N ≤ n -> N ≤ m -> hr_abs (u m - u n)%ring < c)).
+  apply (make_hProp (∏ c : NonnegativeReals, 0 < c -> ∃ N : nat, ∏ n m : nat, N ≤ n -> N ≤ m -> hr_abs (u m - u n)%ring < c)).
   apply impred_isaprop ; intro.
   apply isapropimpl.
   apply pr2.
@@ -1290,7 +1290,7 @@ Qed.
 
 Definition is_lim_seq (u : nat → hr_ConstructiveField) (l : hr_ConstructiveField) : hProp.
 Proof.
-  apply (hProppair (∏ c : NonnegativeReals, 0 < c -> ∃ N : nat, ∏ n : nat, N ≤ n -> hr_abs (u n - l)%ring < c)).
+  apply (make_hProp (∏ c : NonnegativeReals, 0 < c -> ∃ N : nat, ∏ n : nat, N ≤ n -> hr_abs (u n - l)%ring < c)).
   apply impred_isaprop ; intro.
   apply isapropimpl.
   apply pr2.

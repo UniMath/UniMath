@@ -104,7 +104,7 @@ Proof.
 Defined.
 
 Definition weqforalltototal {X : UU} (P : X -> UU) (PP : ∏ x : X, P x -> UU)
-  := weqpair _ (isweqforalltototal P PP).
+  := make_weq _ (isweqforalltototal P PP).
 
 Definition weqtotaltoforall {X : UU} (P : X -> UU) (PP : ∏ x : X, P x -> UU)
   := invweq (weqforalltototal P PP).
@@ -125,17 +125,17 @@ Definition weqfuntototaltototal (X : UU) {Y : UU} (Q : Y -> UU) :
 
 Definition funtoprodtoprod {X Y Z : UU} (f : X -> dirprod Y Z) :
   (X -> Y) × (X -> Z)
-  := dirprodpair (λ x : X, pr1 (f x)) (λ x : X, (pr2 (f x))).
+  := make_dirprod (λ x : X, pr1 (f x)) (λ x : X, (pr2 (f x))).
 
 Definition prodtofuntoprod {X Y Z : UU} (fg : (X -> Y) × (X -> Z))
   : X -> dirprod Y Z
-  := match fg with tpair _ f g => λ x : X, dirprodpair (f x) (g x) end.
+  := match fg with tpair _ f g => λ x : X, make_dirprod (f x) (g x) end.
 
 Theorem weqfuntoprodtoprod (X Y Z : UU) :
   weq (X -> dirprod Y Z) ((X -> Y) × (X -> Z)).
 Proof.
   intros.
-  simple refine (weqpair _ (isweq_iso (@funtoprodtoprod X Y Z)
+  simple refine (make_weq _ (isweq_iso (@funtoprodtoprod X Y Z)
                                    (@prodtofuntoprod X Y Z) _ _)).
   - intro a. apply funextfun. intro x. apply idpath.
   - intro a. induction a as [ fy fz ]. apply idpath.
@@ -213,7 +213,7 @@ Defined.
 
 
 Definition weqhfibertoforall {X : UU} (P Q : X -> UU) (f : ∏ x : X, P x -> Q x)
-           (s : ∏ x : X, Q x) := weqpair _ (isweqhfibertoforall P Q f s).
+           (s : ∏ x : X, Q x) := make_weq _ (isweqhfibertoforall P Q f s).
 
 
 
@@ -262,7 +262,7 @@ Defined.
 
 
 Definition weqforalltohfiber {X : UU} (P Q : X -> UU) (f : ∏ x : X, P x -> Q x)
-           (s : ∏ x : X, Q x) := weqpair _ (isweqforalltohfiber P Q f s).
+           (s : ∏ x : X, Q x) := make_weq _ (isweqforalltohfiber P Q f s).
 
 
 
@@ -285,7 +285,7 @@ Proof.
 Defined.
 
 Definition weqonsecfibers {X : UU} (P Q : X -> UU) (f : ∏ x : X, (P x) ≃ (Q x))
-  := weqpair _ (isweqmaponsec P Q f).
+  := make_weq _ (isweqmaponsec P Q f).
 
 
 (** *** Composition of functions with a weak equivalence on the right *)
@@ -388,7 +388,7 @@ Defined.
 
 Definition weqonsecbase {X Y : UU} (P : Y -> UU) (f : X ≃ Y)
   : weq (∏ y : Y, P y) (∏ x : X, P (f x))
-  := weqpair _ (isweqmaponsec1 P f).
+  := make_weq _ (isweqmaponsec1 P f).
 
 
 (** *** Composition of functions with a weak equivalence on the left *)
@@ -436,7 +436,7 @@ Defined.
 Definition secovercoprodtoprod {X Y : UU} (P : coprod X Y -> UU)
            (a : ∏ xy : coprod X Y, P xy) :
   dirprod (∏ x : X, P (ii1 x)) (∏ y : Y, P (ii2 y))
-  := dirprodpair (λ x : X, a (ii1 x)) (λ y : Y, a (ii2 y)).
+  := make_dirprod (λ x : X, a (ii1 x)) (λ y : Y, a (ii2 y)).
 
 Definition prodtosecovercoprod {X Y : UU} (P : coprod X Y -> UU)
            (a : dirprod (∏ x : X, P (ii1 x)) (∏ y : Y, P (ii2 y))) :
@@ -494,7 +494,7 @@ Defined.
 
 Definition funfromcoprodtoprod {X Y Z : UU} (f : coprod X Y -> Z) :
   (X -> Z) × (Y -> Z)
-  := dirprodpair (λ x : X, f (ii1 x)) (λ y : Y, f (ii2 y)).
+  := make_dirprod (λ x : X, f (ii1 x)) (λ y : Y, f (ii2 y)).
 
 Definition prodtofunfromcoprod {X Y Z : UU} (fg : (X -> Z) × (Y -> Z)) :
   coprod X Y -> Z := match fg with tpair _ f g => sumofmaps f g end.
@@ -504,7 +504,7 @@ Theorem weqfunfromcoprodtoprod (X Y Z : UU) :
 Proof.
   intros.
   simple refine (
-           weqpair _ (isweq_iso (@funfromcoprodtoprod X Y Z)
+           make_weq _ (isweq_iso (@funfromcoprodtoprod X Y Z)
                              (@prodtofunfromcoprod X Y Z) _ _)).
   - intro a. apply funextfun; intro xy. induction xy as [ x | y ]; apply idpath.
   - intro a. induction a as [fx fy]. apply idpath.
@@ -623,9 +623,9 @@ Proof.
       by apply (IHn _ (λ t0 : T, paths (x t0) (x' t0)) is).
     set (u := toforallpaths P x x').
     assert (is3: isweq u) by apply isweqtoforallpaths.
-    set (v:= invmap (weqpair u is3)).
+    set (v:= invmap (make_weq u is3)).
     assert (is4: isweq v) by apply isweqinvmap.
-    apply (isofhlevelweqf n (weqpair v is4)).
+    apply (isofhlevelweqf n (make_weq v is4)).
     assumption.
 Defined.
 
@@ -748,7 +748,7 @@ Proof.
   assert (X1 : isweq f)
     by (apply isweqpr1; assumption).
   change (total2 (λ cntr : X, ∏ x : X, x = cntr)) with (iscontr X) in X1.
-  apply (iscontrweqb (weqpair f X1)). assumption.
+  apply (iscontrweqb (make_weq f X1)). assumption.
 Defined.
 
 
@@ -1199,7 +1199,7 @@ Definition dnegimageincl (X Y : UU) (f : X -> Y)
 := pr1 Y (λ y : Y, dneg(hfiber  f y)).
 
 Definition xtodnegimage (X : UU) (Y : UU) (f : X -> Y) : X -> dnegimage f
-:= λ x : X, tpair (f x) ((todneg _) (hfiberpair  f (f x) x (idpath (f x)))).
+:= λ x : X, tpair (f x) ((todneg _) (make_hfiber  f (f x) x (idpath (f x)))).
 
 Definition locsplitsec (X : UU) (Y : UU) (f : X -> Y) (ls : locsplit  f) :
 dnegimage f -> X

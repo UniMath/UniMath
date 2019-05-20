@@ -153,7 +153,7 @@ Lemma Functor_eq_weq {A B: category} (F G:[A,B]) :
                                    (ob a')
                                    (F ▭ f)) = G ▭ f.
 Proof.
-  exact (weqpair _ Functor_eq_map_isweq).
+  exact (make_weq _ Functor_eq_map_isweq).
 Defined.
 
 Lemma Functor_eq {A B: category} {F G:[A,B]}

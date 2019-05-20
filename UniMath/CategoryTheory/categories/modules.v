@@ -30,10 +30,10 @@ Context {R : ring}.
 (** * The category of (left) R-modules ([mod_category]) *)
 
 Definition mod_precategory_ob_mor : precategory_ob_mor :=
-  precategory_ob_mor_pair (module R) (λ M N, modulefun M N).
+  make_precategory_ob_mor (module R) (λ M N, modulefun M N).
 
 Definition mod_precategory_data : precategory_data :=
-  precategory_data_pair
+  make_precategory_data
     mod_precategory_ob_mor (λ (M : module R), (idfun M,, id_modulefun M))
     (fun M N P => @modulefun_comp R M N P).
 
@@ -41,8 +41,8 @@ Lemma is_precategory_mod_precategory_data :
   is_precategory (mod_precategory_data).
 Proof.
   apply is_precategory_one_assoc_to_two.
-  apply dirprodpair.
-  - apply dirprodpair.
+  apply make_dirprod.
+  - apply make_dirprod.
     + intros M N f.
       use total2_paths_f.
       * apply funextfun. intro x. apply idpath.
@@ -61,11 +61,11 @@ Proof.
 Defined.
 
 Definition mod_precategory : precategory :=
-  mk_precategory (mod_precategory_data) (is_precategory_mod_precategory_data).
+  make_precategory (mod_precategory_data) (is_precategory_mod_precategory_data).
 
 Definition has_homsets_mod : has_homsets mod_precategory := isasetmodulefun.
 
-Definition mod_category : category := category_pair mod_precategory has_homsets_mod.
+Definition mod_category : category := make_category mod_precategory has_homsets_mod.
 
 Definition mor_to_modulefun {M N : ob mod_category} : mod_category⟦M, N⟧ -> modulefun M N := idfun _.
 
@@ -115,7 +115,7 @@ Defined.
 
 Definition modules_univalence (M N : mod_precategory) : (M = N) ≃ (moduleiso M N).
 Proof.
-   use weqpair.
+   use make_weq.
    - exact (modules_univalence_map M N).
    - exact (modules_univalence_map_isweq M N).
 Defined.
@@ -140,8 +140,8 @@ Defined.
 Lemma iso_moduleiso (M N : ob mod_precategory) : iso M N -> moduleiso M N.
 Proof.
    intro f.
-   use mk_moduleiso.
-   - use weqpair.
+   use make_moduleiso.
+   - use make_weq.
      + exact (pr1modulefun (morphism_from_iso f)).
      + exact (moduleisweq_iso f).
    - exact (modulefun_ismodulefun (morphism_from_iso f)).
@@ -150,7 +150,7 @@ Defined.
 Lemma moduleiso_is_iso {M N : ob mod_precategory} (f : moduleiso M N) :
   @is_iso _ M N (moduleiso_to_modulefun f).
 Proof.
-   apply (is_iso_qinv (C:= mod_precategory) _ (modulefunpair (invmoduleiso f) (pr2 (invmoduleiso f)))).
+   apply (is_iso_qinv (C:= mod_precategory) _ (make_modulefun (invmoduleiso f) (pr2 (invmoduleiso f)))).
    split; use total2_paths_f.
     + apply funextfun. intro.
       unfold funcomp, idfun.
@@ -164,7 +164,7 @@ Defined.
 Lemma moduleiso_iso (M N : ob mod_precategory) : moduleiso M N -> iso M N.
 Proof.
    intro f.
-   use isopair.
+   use make_iso.
    - exact (moduleiso_to_modulefun f).
    - exact (moduleiso_is_iso f).
 Defined.
@@ -186,7 +186,7 @@ Proof.
 Defined.
 
 Definition moduleiso_weq_iso (M N : mod_precategory) : (moduleiso M N) ≃ (iso M N) :=
-   weqpair (moduleiso_iso M N) (moduleiso_isweq_iso M N).
+   make_weq (moduleiso_iso M N) (moduleiso_isweq_iso M N).
 
 Definition mod_precategory_idtoisweq_iso :
   ∏ M N : mod_precategory, isweq (fun p : M = N => idtoiso p).
@@ -203,9 +203,10 @@ Proof.
 Defined.
 
 Definition is_univalent_mod : is_univalent mod_precategory :=
-  mk_is_univalent mod_precategory_idtoisweq_iso has_homsets_mod.
+  make_is_univalent mod_precategory_idtoisweq_iso has_homsets_mod.
 
-Definition univalent_category_mod_precategory : univalent_category := mk_category mod_precategory is_univalent_mod.
+Definition univalent_category_mod_precategory : univalent_category
+  := make_univalent_category mod_precategory is_univalent_mod.
 
 (** * Abelian structure *)
 
@@ -240,12 +241,12 @@ Defined.
 
 Lemma isZero_zero_module : @isZero mod_category (zero_module R).
 Proof.
-  exact (@mk_isZero mod_category (zero_module _)
+  exact (@make_isZero mod_category (zero_module _)
                     iscontrfromzero_module iscontrtozero_module).
 Defined.
 
 Definition mod_category_Zero : Zero mod_category :=
-  @mk_Zero mod_category (zero_module _) isZero_zero_module.
+  @make_Zero mod_category (zero_module _) isZero_zero_module.
 
 (** ** Preadditive structure *)
 
