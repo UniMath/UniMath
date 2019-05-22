@@ -10,6 +10,7 @@
   - Subobjects
   - Quotient objects
   - Cosets
+  - Normal Subgroups
   - Direct products
  - Abelian groups
   - Basic definitions
@@ -568,6 +569,105 @@ Section GrCosets.
     - apply isaprop_in_same_left_coset.
   Defined.
 End GrCosets.
+
+
+(** *** Normal Subgroups *)
+
+Section NormalSubGroups.
+  Local Open Scope multmonoid.
+
+  Definition isnormalsubgr {X : gr} (N : subgr X) : UU := ∏ g : X, ∏ n1 : N, ∑ n2 : N, (g * (pr1 n1)) * (grinv X g) = pr1 n2.
+
+  Definition lcoset_in_rcoset {X : gr} (N : subgr X) : UU := ∏ g : X, ∏ n1 : N, ∑ n2 : N, g * (pr1 n1) = (pr1 n2) * g.
+
+  Definition rcoset_in_lcoset {X : gr} (N : subgr X) : UU := ∏ g : X, ∏ n1 : N, ∑ n2 : N, (pr1 n1) * g = g * (pr1 n2).
+
+  Definition lcoset_equal_rcoset {X : gr} (N : subgr X) : UU := lcoset_in_rcoset N × rcoset_in_lcoset N.
+
+  Lemma lcoset_equal_rcoset_impl_normal {X : gr} (N : subgr X) : lcoset_equal_rcoset N -> isnormalsubgr N.
+  Proof.
+    intros pf.
+    unfold isnormalsubgr.
+    intros g n1.
+    set (pfcond := (pr1 pf) g n1).
+    set (n2 := pr1 pfcond).
+    split with n2.
+    apply (grrcan X g).
+    rewrite (assocax _ _ _ _).
+    rewrite (grlinvax X _).
+    rewrite (runax X).
+    exact (pr2 pfcond).
+  Defined.
+
+  Lemma normal_impl_lcoset_equal_rcoset {X : gr} (N : subgr X) : isnormalsubgr N -> lcoset_equal_rcoset N.
+  Proof.
+    intros pf.
+    split.
+    - unfold lcoset_in_rcoset.
+      intros g n1.
+      set (pfcond := pf g n1).
+      set (n2 := pr1 pfcond).
+      split with n2.
+      apply (grrcan X (grinv X g)).
+      refine (_ @ !assocax _ _ _ _ ).
+      rewrite (grrinvax X _).
+      rewrite (runax X).
+      exact (pr2 pfcond).
+    - unfold rcoset_in_lcoset.
+      intros g n1.
+      set (pfcond := pf (grinv X g) n1).
+      set (n2 := pr1 pfcond).
+      split with n2.
+      apply (grlcan X (grinv X g)).
+      refine (_ @ assocax _ _ _ _).
+      rewrite (grlinvax X _).
+      rewrite (lunax X).
+      rewrite (!assocax _ _ _ _).
+      refine (maponpaths (λ x, grinv X g * pr1 n1 * x) (!grinvinv X g) @ _).
+      exact (pr2 pfcond).
+  Defined.
+
+  Definition normalsubgr (X : gr) : UU := ∑ N : subgr X, isnormalsubgr N.
+
+  Definition normalsubgrtosubgr (X : gr) : normalsubgr X -> subgr X := pr1.
+  Coercion normalsubgrtosubgr : normalsubgr >-> subgr.
+
+  Lemma in_same_coset_isbinophrel {X : gr} (N : normalsubgr X) : isbinophrel (in_same_left_coset_eqrel N).
+  Proof.
+    unfold isbinophrel.
+    split.
+    - intros a b c.
+      unfold in_same_left_coset_eqrel.
+      simpl.
+      unfold in_same_left_coset.
+      intros pf.
+      set (y := pr1 pf).
+      split with y.
+      refine (assocax _ _ _ _ @ _).
+      apply (maponpaths (λ x, c * x)).
+      exact (pr2 pf).
+    - intros a b c.
+      unfold in_same_left_coset_eqrel.
+      simpl.
+      unfold in_same_left_coset.
+      intros pf1.
+      set (n1 := pr1 pf1).
+      set (pf2 := pr2 (normal_impl_lcoset_equal_rcoset (pr1 N) (pr2 N)) c n1).
+      set (n2 := pr1 pf2).
+      split with n2.
+      refine (assocax _ _ _ _ @ _).
+      refine (maponpaths (λ x, _ * x) (!pr2 pf2) @ _).
+      refine (!assocax _ _ _ _ @ _).
+      apply (maponpaths (λ x, x * c)).
+      exact (pr2 pf1).
+  Defined.
+
+  Definition in_same_coset_binopeqrel {X : gr} (N : normalsubgr X) : binopeqrel X :=
+    tpair _ (in_same_left_coset_eqrel N) (in_same_coset_isbinophrel N).
+
+  Definition grquot_by_normal_subgr (X : gr) (N : normalsubgr X) : gr := grquot (in_same_coset_binopeqrel N).
+
+End NormalSubGroups.
 
 (** *** Direct products *)
 
