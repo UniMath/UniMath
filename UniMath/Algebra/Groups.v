@@ -603,48 +603,59 @@ Section NormalSubGroups.
     unfold isnormalsubgr.
     intros g n1.
     induction ((pr1 pf) g n1) as [n2 eq_n2].
-    assert (g * pr1 n1 * (grinv X g) = pr1 n2).
+    assert (n2isconjn1 : g * pr1 n1 * (grinv X g) = pr1 n2).
     { apply (grrcan X g).
       rewrite (assocax _ _ _ _).
       rewrite (grlinvax X _).
       rewrite (runax X).
       exact eq_n2.
     }
-    induction (!X0).
+    induction (!n2isconjn1).
     exact (pr2 n2).
-  Defined.
-
-  Lemma normal_impl_lcoset_equal_rcoset {X : gr} (N : subgr X) : isnormalsubgr N -> lcoset_equal_rcoset N.
-  Proof.
-    intros pf.
-    unfold isnormalsubgr in pf.
-    split.
-    - unfold lcoset_in_rcoset.
-      intros g n1.
-      use (tpair _).
-      + exact (tpair _ (g * (pr1 n1) * (grinv X g)) (pf g n1)).
-      + simpl.
-        rewrite (assocax _ _ _ g).
-        rewrite (grlinvax X _).
-        rewrite (runax X).
-        reflexivity.
-    - unfold rcoset_in_lcoset.
-      intros g n1.
-      use (tpair _).
-      + exact (tpair _ ((grinv X g) * (pr1 n1) * (grinv X (grinv X g))) (pf (grinv X g) n1)).
-      + simpl.
-        rewrite (assocax _ (grinv X g) _ _).
-        rewrite (!assocax _ g _ _).
-        rewrite (grrinvax X).
-        rewrite (lunax X).
-        rewrite (grinvinv X).
-        reflexivity.
   Defined.
 
   Definition normalsubgr (X : gr) : UU := ∑ N : subgr X, isnormalsubgr N.
 
   Definition normalsubgrtosubgr (X : gr) : normalsubgr X -> subgr X := pr1.
   Coercion normalsubgrtosubgr : normalsubgr >-> subgr.
+
+  Definition normalsubgrprop {X : gr} (N : normalsubgr X) : isnormalsubgr N := pr2 N.
+
+  Lemma normal_lcoset_in_rcoset {X : gr} (N : normalsubgr X) : lcoset_in_rcoset N.
+  Proof.
+    unfold normalsubgr in N.
+    induction N as [N normalprop].
+    simpl.
+    unfold lcoset_in_rcoset.
+    intros g n1.
+    use tpair.
+    - exact (tpair _ (g * (pr1 n1) * (grinv X g)) (normalprop g n1)).
+    - simpl.
+      rewrite (assocax _ _ _ g).
+      rewrite (grlinvax X _).
+      rewrite (runax X).
+      reflexivity.
+  Defined.
+
+  Definition normal_rcoset_in_lcoset {X : gr} (N : normalsubgr X) : rcoset_in_lcoset N.
+  Proof.
+    induction N as [N normalprop].
+    simpl.
+    unfold rcoset_in_lcoset.
+    intros g n1.
+    use tpair.
+    - exact (tpair _ ((grinv X g) * (pr1 n1) * (grinv X (grinv X g))) (normalprop (grinv X g) n1)).
+    - simpl.
+      rewrite (assocax _ (grinv X g) _ _).
+      rewrite (!assocax _ g _ _).
+      rewrite (grrinvax X).
+      rewrite (lunax X).
+      rewrite (grinvinv X).
+      reflexivity.
+  Defined.
+
+  Definition normal_lcoset_equal_rcoset {X : gr} (N : normalsubgr X) : lcoset_equal_rcoset N :=
+    (normal_lcoset_in_rcoset N,,normal_rcoset_in_lcoset N).
 
   Lemma in_same_coset_isbinophrel {X : gr} (N : normalsubgr X) : isbinophrel (in_same_left_coset_eqrel N).
   Proof.
@@ -655,7 +666,7 @@ Section NormalSubGroups.
       simpl.
       unfold in_same_left_coset.
       intros pf.
-      use (tpair _).
+      use tpair.
       + exact (pr1 pf).
       + simpl.
         rewrite (assocax _ c _ _).
@@ -666,8 +677,8 @@ Section NormalSubGroups.
       simpl.
       unfold in_same_left_coset.
       intros pf1.
-      use (tpair _).
-      + exact (pr1 (pr2 (normal_impl_lcoset_equal_rcoset (pr1 N) (pr2 N)) c (pr1 pf1))).
+      use tpair.
+      + exact (pr1 (normal_rcoset_in_lcoset N c (pr1 pf1))).
       + simpl.
         rewrite (grinvinv _).
         rewrite (assocax _ a _ _).
