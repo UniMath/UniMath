@@ -772,6 +772,30 @@ Section LocalIsoFibration.
       apply C.
     Admitted.
 
+    Local Definition discrete_fiber_data_laws_rwhisker_lwhisker
+      : ∏ (a₁ a₂ a₃ a₄ : discrete_fiber_data)
+          (f₁ : discrete_fiber_data ⟦ a₁ , a₂ ⟧)
+          (f₂ f₃ : discrete_fiber_data ⟦ a₂ , a₃ ⟧)
+          (f₄ : discrete_fiber_data ⟦ a₃ , a₄ ⟧)
+          (x : f₂ ==> f₃),
+        (f₁ ◃ (x ▹ f₄)) • lassociator f₁ f₃ f₄
+        =
+        lassociator f₁ f₂ f₄ • ((f₁ ◃ x) ▹ f₄).
+    Proof.
+    Admitted.
+
+    Local Definition discrete_fiber_data_laws_rwhisker_rwhisker
+      :  ∏ (a₁ a₂ a₃ a₄ : discrete_fiber_data)
+           (f₁ f₂ : discrete_fiber_data ⟦ a₁ , a₂ ⟧)
+           (f₃ : discrete_fiber_data ⟦ a₂ , a₃ ⟧)
+           (f₄ : discrete_fiber_data ⟦ a₃ , a₄ ⟧)
+           (x : f₁ ==> f₂),
+         lassociator f₁ f₃ f₄ • ((x ▹ f₃) ▹ f₄)
+         =
+         (x ▹ f₃ · f₄) • lassociator f₂ f₃ f₄.
+    Proof.
+    Admitted.
+
     Local Definition discrete_fiber_data_vcomp_whisker
       :  ∏ (a₁ a₂ a₃ : discrete_fiber_data)
            (f₁ f₂ : discrete_fiber_data ⟦ a₁ , a₂ ⟧)
@@ -1405,6 +1429,30 @@ Section LocalIsoFibration.
       apply C.
     Admitted.
 
+    Local Definition discrete_fiber_data_laws_runitor_rwhisker
+      : ∏ (a₁ a₂ a₃ : discrete_fiber_data)
+          (f : discrete_fiber_data ⟦ a₁ , a₂ ⟧)
+          (g : discrete_fiber_data ⟦ a₂ , a₃ ⟧),
+        lassociator f (id₁ a₂) g • (runitor f ▹ g)
+        =
+        f ◃ lunitor g.
+    Proof.
+    Admitted.
+
+    Local Definition discrete_fiber_data_laws_lassociator_lassociator
+      : ∏ (a₁ a₂ a₃ a₄ a₅ : discrete_fiber_data)
+          (f₁ : discrete_fiber_data ⟦ a₁ , a₂ ⟧)
+          (f₂ : discrete_fiber_data ⟦ a₂ , a₃ ⟧)
+          (f₃ : discrete_fiber_data ⟦ a₃ , a₄ ⟧)
+          (f₄ : discrete_fiber_data ⟦ a₄ , a₅ ⟧),
+        ((f₁ ◃ lassociator f₂ f₃ f₄)
+           • lassociator f₁ (f₂ · f₃) f₄)
+          • (lassociator f₁ f₂ f₃ ▹ f₄)
+        =
+        lassociator f₁ f₂ (f₃ · f₄) • lassociator (f₁ · f₂) f₃ f₄.
+    Proof.
+    Admitted.
+
     Definition discrete_fiber_data_laws : prebicat_laws discrete_fiber_data.
     Proof.
       repeat split.
@@ -1418,8 +1466,8 @@ Section LocalIsoFibration.
       - exact discrete_fiber_data_laws_vcomp_lunitor.
       - exact discrete_fiber_data_laws_vcomp_runitor.
       - exact discrete_fiber_data_laws_lwhisker_lwhisker.
-      - admit.
-      - admit.
+      - exact discrete_fiber_data_laws_rwhisker_lwhisker.
+      - exact discrete_fiber_data_laws_rwhisker_rwhisker.
       - exact discrete_fiber_data_vcomp_whisker.
       - exact discrete_fiber_data_laws_lunitor_linvunitor.
       - exact discrete_fiber_data_laws_linvunitor_lunitor.
@@ -1427,11 +1475,9 @@ Section LocalIsoFibration.
       - exact discete_fiber_data_laws.
       - exact discrete_fiber_data_laws_lassociator_rassociator.
       - exact discrete_fiber_data_laws_rassociator_lassociator.
-      - intros a₁ a₂ a₃ f₁ f₂ ; cbn.
-        admit.
-      - intros a b f g x.
-        admit.
-    Admitted.
+      - exact discrete_fiber_data_laws_runitor_rwhisker.
+      - exact discrete_fiber_data_laws_lassociator_lassociator.
+    Qed.
 
     Definition discrete_fiber : prebicat.
     Proof.
