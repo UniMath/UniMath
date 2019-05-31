@@ -1007,7 +1007,145 @@ Section LocalIsoFibration.
         apply (transportf_set (λ α : id₁ c ==> id₁ c, _ ==>[ α] _) _).
         apply C.
       - intros a₁ a₂ a₃ a₄ f₁ f₂ f₃ ; cbn.
-        admit.
+        rewrite disp_mor_transportf_prewhisker.
+        rewrite disp_mor_transportf_postwhisker.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          rewrite disp_vassocl.
+          do 2 apply maponpaths.
+          rewrite disp_vassocl.
+          do 2 apply maponpaths.
+          rewrite disp_vassocr.
+          apply maponpaths.
+          apply maponpaths_2.
+          rewrite disp_vassocr.
+          apply maponpaths.
+          apply maponpaths_2.
+          rewrite disp_vassocr.
+          apply maponpaths.
+          apply maponpaths_2.
+          apply (disp_vcomp_linv (disp_local_iso_cleaving_invertible_2cell h (f₁;; local_iso_cleaving_1cell h (f₂;; f₃) idempunitor) idempunitor)).
+        }
+        unfold transportb.
+        do 3 rewrite disp_mor_transportf_prewhisker.
+        do 6 rewrite disp_mor_transportf_postwhisker.
+        rewrite !transport_f_f.
+        do 2 rewrite disp_mor_transportf_prewhisker.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          do 3 apply maponpaths.
+          do 2 apply maponpaths_2.
+          apply disp_id2_left.
+        }
+        unfold transportb.
+        do 2 rewrite disp_mor_transportf_postwhisker.
+        do 2 rewrite disp_mor_transportf_prewhisker.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          rewrite disp_vassocl.
+          do 3 apply maponpaths.
+          rewrite disp_vassocr.
+          apply maponpaths.
+          apply maponpaths_2.
+          rewrite disp_vassocr.
+          apply maponpaths.
+          apply maponpaths_2.
+          rewrite disp_lwhisker_vcomp.
+          do 2 apply maponpaths.
+          apply (disp_vcomp_linv (disp_local_iso_cleaving_invertible_2cell h (f₂;; f₃) idempunitor)).
+        }
+        unfold transportb.
+        rewrite transport_f_f.
+        do 3 rewrite disp_mor_transportf_postwhisker.
+        do 6 rewrite disp_mor_transportf_prewhisker.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          do 3 apply maponpaths.
+          do 2 apply maponpaths_2.
+          apply disp_rwhisker_transport_right.
+        }
+        unfold transportb.
+        do 2 rewrite disp_mor_transportf_postwhisker.
+        do 2 rewrite disp_mor_transportf_prewhisker.
+        rewrite transport_f_f.
+        rewrite disp_lwhisker_id2.
+        unfold transportb.
+        do 2 rewrite disp_mor_transportf_postwhisker.
+        do 2 rewrite disp_mor_transportf_prewhisker.
+        rewrite transport_f_f.
+        rewrite disp_id2_left.
+        unfold transportb.
+        rewrite disp_mor_transportf_postwhisker.
+        do 2 rewrite disp_mor_transportf_prewhisker.
+        rewrite transport_f_f.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          rewrite disp_vassocr.
+          apply maponpaths, maponpaths_2.
+          apply disp_rassociator_lassociator.
+        }
+        unfold transportb.
+        rewrite disp_mor_transportf_postwhisker.
+        do 2 rewrite disp_mor_transportf_prewhisker.
+        rewrite !transport_f_f.
+        rewrite disp_id2_left.
+        unfold transportb.
+        rewrite disp_mor_transportf_prewhisker.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          rewrite disp_vassocl.
+          do 2 apply maponpaths.
+          rewrite disp_vassocr.
+          apply maponpaths.
+          apply maponpaths_2.
+          rewrite disp_rwhisker_vcomp.
+          do 2 apply maponpaths.
+          apply (disp_vcomp_rinv (disp_local_iso_cleaving_invertible_2cell h (f₁;; f₂) idempunitor)).
+        }
+        unfold transportb.
+        rewrite transport_f_f.
+        rewrite disp_mor_transportf_postwhisker.
+        do 2 rewrite disp_mor_transportf_prewhisker.
+        rewrite !transport_f_f.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          apply maponpaths_2.
+          rewrite disp_rwhisker_transport_left_new.
+          apply maponpaths.
+          apply disp_id2_rwhisker.
+        }
+        unfold transportb.
+        rewrite transport_f_f.
+        rewrite disp_mor_transportf_postwhisker.
+        rewrite disp_mor_transportf_prewhisker.
+        rewrite transport_f_f.
+        etrans.
+        {
+          do 2 apply maponpaths.
+          apply disp_id2_left.
+        }
+        unfold transportb.
+        rewrite disp_mor_transportf_prewhisker.
+        rewrite transport_f_f.
+        etrans.
+        {
+          apply maponpaths.
+          apply (disp_vcomp_rinv (disp_local_iso_cleaving_invertible_2cell h (local_iso_cleaving_1cell h (f₁;; f₂) idempunitor;; f₃) idempunitor)).
+        }
+        unfold transportb.
+        rewrite transport_f_f.
+        apply (transportf_set (λ α : id₁ c ==> id₁ c, _ ==>[ α] _) _).
+        apply C.
       - intros a₁ a₂ a₃ f₁ f₂ ; cbn.
         admit.
       - intros a b f g x.
