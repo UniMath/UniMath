@@ -103,8 +103,8 @@ Section Refinement.
   Variable finalM0 : is_final M0.
   Local Notation corecM0 C := (pr11 (finalM0 C)).
 
-  Local Open Scope functions.
   Local Open Scope cat.
+  Local Open Scope functions.
 
   (* Refinement of the final coalgebra to computable elements *)
 
@@ -336,8 +336,6 @@ Section Refinement.
     apply (transportf_pathsinv0' (idfun UU) carriers_eq).
     unfold carriers_eq. rewrite weqpath_transport. apply idpath.
   Qed.
-
-  Local Open Scope functions.
 
   Local Lemma eq3 m0 :
     destrM (m0,, injectM0 m0) = pr1 (destrM0 m0),, corecM M0 ∘ pr2 (destrM0 m0).
