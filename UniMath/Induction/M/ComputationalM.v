@@ -1,7 +1,11 @@
 (** ** Refinement of M-types
 
     M-types can be refined to satisfy the right definitional equalities.
-    This idea is from Felix Rech's Bachelor's thesis.
+    This idea is from Felix Rech's Bachelor's thesis, and Felix
+    Rech also developed together with Luis Scoccola a first formalization
+    in UniMath as project work of the UniMath 2017 school. The present
+    formalization was obtained as project work of the UniMath 2019 school
+    and is heavily inspired by that former formalization.
 
     Author: Dominik Kirst (@dominik-kirst)
 
@@ -23,70 +27,20 @@ Require Import UniMath.Induction.M.Uniqueness.
 
 Section Upstream.
 
-  (** mostly copied from Felix Rech *)
-
-  Lemma total2_symmetry (A B : UU) (C : A -> B -> UU) :
-    (∑ a b, C a b)
-      ≃ (∑ b a, C a b).
-  Proof.
-    use weq_iso.
-    - intros abc; induction abc as [a [b c]].
-      exact (b,, a,, c).
-    - intros bac; induction bac as [b [a c]].
-      exact (a,, b,, c).
-    - reflexivity.
-    - reflexivity.
-  Defined.
-
   Lemma sec_total2_distributivity (A : UU) (B : A -> UU) (C : ∏ a, B a -> UU) :
     (∏ a : A, ∑ b : B a, C a b)
       ≃ (∑ b : ∏ a : A, B a, ∏ a, C a (b a)).
   Proof.
-    use weq_iso.
-    - intros f.
-      exists (λ a, pr1 (f a)).
-      exact (λ a, pr2 (f a)).
-    - intros fg; induction fg as [f g].
-      exact (λ a, f a,, g a).
-    - reflexivity.
-    - reflexivity.
+    apply weqforalltototal.
   Defined.
+  (** is kept here since [weqforalltototal] is not declared with its type in [Foundations/PartD.v] *)
 
-  Lemma weq_functor_sec_id (A : UU) (B C : A -> UU) :
-    (∏ a, B a ≃ C a) ->
-    (∏ a, B a) ≃ (∏ a, C a).
+  Lemma tpair_eta X (Y : X -> UU) (p : ∑ x, Y x) :
+   p = pr1 p,, pr2 p.
   Proof.
-    intros e.
-    use weq_iso.
-    - exact (λ f a, e a (f a)).
-    - exact (λ f a, invmap (e a) (f a)).
-    - cbn.
-      intros f.
-      apply funextsec; intros a.
-      apply homotinvweqweq.
-    - cbn.
-      intros f.
-      apply funextsec; intros a.
-      apply homotweqinvweq.
-  Defined.
-
-  Lemma tpair_eta X (Y : X -> UU) :
-    forall (p : ∑ x, Y x), p = (pr1 p,,pr2 p).
-  Proof.
-    intros p. apply idpath.
+    apply idpath.
   Qed.
-
-  Definition transportf_sec_constant X Y (Z : X -> Y -> UU) x1 x2 (p : x1 = x2) f y :
-    transportf (λ x, forall y, Z x y) p f y = transportf (λ x, Z x y) p (f y).
-  Proof.
-    destruct p. apply idpath.
-  Defined.
-
-  Definition transportf_total2_const X Y (Z : X -> Y -> UU) x y1 y2 (p : y1 = y2) z :
-    transportf (λ y, ∑ a, Z a y) p (x,, z) = x,, transportf (Z x) p z.
-  Proof.
-    destruct p. apply idpath.
-  Defined.
+  (** can be used to expand a goal *)
 
 End Upstream.
 
@@ -165,7 +119,7 @@ Section Refinement.
                       (λ a, B a -> carrierM0)
                       p
                       (pr2 (destrM0 m0)) =
-                    fun b => pr1 (f b)).
+                    pr1 ∘ f).
     {
       apply weqfibtototal; intro f.
       apply total2_paths_equiv.
@@ -176,8 +130,8 @@ Section Refinement.
                                     (λ a, B a → carrierM0)
                                     p
                                     (pr2 (destrM0 m0)) =
-                                  fun b => pr1 (f b)).
-    { apply total2_symmetry. }
+                                  pr1 ∘ f).
+    { apply weqtotal2comm. }
     apply weqfibtototal; intro p.
     intermediate_weq (∑ fg : ∑ f : B a -> carrierM0,
                                    ∏ b, ∃ C c, corecM0 C c = f b,
@@ -232,7 +186,7 @@ Section Refinement.
     { apply invweq.
       apply sec_total2_distributivity.
     }
-    apply weq_functor_sec_id; intro b.
+    apply weqonsecfibers; intro b.
     intermediate_weq (∑ m0' : carrierM0,
                               ∑ _ : transportf
                                       (λ a, B a -> carrierM0)
@@ -352,7 +306,7 @@ Section Refinement.
     cbn. unfold polynomial_functor_obj.
     rewrite transportf_total2_const.
     rewrite tpair_eta. use total2_paths_f; try apply idpath.
-    cbn. apply funextsec. intros b. rewrite transportf_sec_constant.
+    cbn. apply funextsec. intros b. rewrite <- helper_A.
     unfold carriers_eq. rewrite weqpath_transport.
     cbn. rewrite eq_corecM0. apply idpath.
   Qed.

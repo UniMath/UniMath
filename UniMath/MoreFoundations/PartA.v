@@ -122,6 +122,7 @@ Proof.
   apply (transport_map (λ a, pr2 (P := λ _, B2 a))).
 Defined.
 
+
 Lemma coprodcomm_coprodcomm {X Y : UU} (v : X ⨿ Y) : coprodcomm Y X (coprodcomm X Y v) = v.
 Proof.
   induction v as [x|y]; reflexivity.
@@ -577,6 +578,16 @@ Definition transportb_pair X (Y:X->Type) (Z:∏ x, Y x->Type)
 Proof.
   intros. induction p. reflexivity.
 Defined.
+
+
+Lemma transportf_total2_const (A B : UU) (P : B -> A -> UU) (b : B) (a1 a2 : A) (e : a1 = a2) (p : P b a1) :
+  transportf (λ x, ∑ y, P y x) e (b,, p) = b,, transportf (P b) e p.
+Proof.
+  induction e.
+  apply idpath.
+Defined.
+
+
 
 (** ** h-levels and paths *)
 
