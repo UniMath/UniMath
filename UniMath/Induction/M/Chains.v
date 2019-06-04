@@ -402,4 +402,3 @@ Section CochainCone.
   Defined.
 
 End CochainCone.
->>>>>>> master
