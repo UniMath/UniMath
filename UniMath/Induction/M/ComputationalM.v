@@ -25,25 +25,6 @@ Require Import UniMath.Induction.PolynomialFunctors.
 Require Import UniMath.Induction.M.Core.
 Require Import UniMath.Induction.M.Uniqueness.
 
-Section Upstream.
-
-  Lemma sec_total2_distributivity (A : UU) (B : A -> UU) (C : ∏ a, B a -> UU) :
-    (∏ a : A, ∑ b : B a, C a b)
-      ≃ (∑ b : ∏ a : A, B a, ∏ a, C a (b a)).
-  Proof.
-    apply weqforalltototal.
-  Defined.
-  (** is kept here since [weqforalltototal] is not declared with its type in [Foundations/PartD.v] *)
-
-  Lemma tpair_eta X (Y : X -> UU) (p : ∑ x, Y x) :
-   p = pr1 p,, pr2 p.
-  Proof.
-    apply idpath.
-  Qed.
-  (** can be used to expand a goal *)
-
-End Upstream.
-
 Section Refinement.
 
   Context (A : UU).
@@ -174,7 +155,7 @@ Section Refinement.
                         f b).
     { apply weqfibtototal; intro f.
       apply invweq.
-      apply sec_total2_distributivity.
+      apply weqforalltototal.
     }
     intermediate_weq (∏ b, ∑ m0' : carrierM0,
                                    ∑ _ : ∃ C c, corecM0 C c = m0',
@@ -184,7 +165,7 @@ Section Refinement.
                           (pr2 (destrM0 m0)) b =
                         m0').
     { apply invweq.
-      apply sec_total2_distributivity.
+      apply weqforalltototal.
     }
     apply weqonsecfibers; intro b.
     intermediate_weq (∑ m0' : carrierM0,
@@ -305,7 +286,7 @@ Section Refinement.
     rewrite eq1. rewrite eq2. rewrite eq3.
     cbn. unfold polynomial_functor_obj.
     rewrite transportf_total2_const.
-    rewrite tpair_eta. use total2_paths_f; try apply idpath.
+    use total2_paths_f; try apply idpath.
     cbn. apply funextsec. intros b. rewrite <- helper_A.
     unfold carriers_eq. rewrite weqpath_transport.
     cbn. rewrite eq_corecM0. apply idpath.
