@@ -122,7 +122,6 @@ Proof.
   apply (transport_map (λ a, pr2 (P := λ _, B2 a))).
 Defined.
 
-
 Lemma coprodcomm_coprodcomm {X Y : UU} (v : X ⨿ Y) : coprodcomm Y X (coprodcomm X Y v) = v.
 Proof.
   induction v as [x|y]; reflexivity.

@@ -246,6 +246,7 @@ Proof.
                nat (λ n, (S (S u)) = n) (λ _ _, _ = xs (S u)) (iscontr_paths_from _)).
 Defined.
 
+
 (** Lemma 11 in Ahrens, Capriotti, and Spadotti *)
 Local Definition Z X l :=
  ∑ (x : ∏ n, X n), ∏ n, x (S n) = l n (x n).
