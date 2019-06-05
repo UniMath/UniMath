@@ -276,7 +276,7 @@ Section fix_a_category.
              (FC FC' : disp_presheaf_bicat C)
     : FC = FC' ≃ disp_adjoint_equivalence (internal_adjoint_equivalence_identity C) FC FC'
     := ((disp_presheaves_adjequiv_weq FC FC')
-          ∘ (weqpair (@idtoiso_2_1 bicat_of_cats _ _ FC FC')
+          ∘ (make_weq (@idtoiso_2_1 bicat_of_cats _ _ FC FC')
                      (univalent_cat_is_univalent_2_1 _ _ _ _)))%weq.
 
   Definition disp_presheaves_is_univalent_2_0

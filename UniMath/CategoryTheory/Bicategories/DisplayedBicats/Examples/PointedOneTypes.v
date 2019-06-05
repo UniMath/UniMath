@@ -121,7 +121,7 @@ Defined.
 
 Lemma p1types_disp_univalent_2 : disp_univalent_2 p1types_disp.
 Proof.
-  apply mk_disp_univalent_2.
+  apply make_disp_univalent_2.
   - exact p1types_disp_univalent_2_0.
   - exact p1types_disp_univalent_2_1.
 Defined.

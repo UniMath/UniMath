@@ -26,7 +26,7 @@ Section def_coequalizers.
     ∏ (w : C) (h : y --> w) (H : f · h = g · h),
       ∃! φ : z --> w, e · φ  = h.
 
-  Definition mk_isCoequalizer {y z w : C} (f g : y --> z) (e : z --> w)
+  Definition make_isCoequalizer {y z w : C} (f g : y --> z) (e : z --> w)
              (H : f · e = g · e) :
     (∏ (w0 : C) (h : z --> w0) (H' : f · h = g · h),
         ∃! ψ : w --> w0, e · ψ = h) -> isCoequalizer f g e H.
@@ -46,7 +46,7 @@ Section def_coequalizers.
         {H H' : f · e = g · e} (iC : isCoequalizer f g e H) :
     isCoequalizer f g e H'.
   Proof.
-    use mk_isCoequalizer.
+    use make_isCoequalizer.
     intros w0 h H'0.
     use unique_exists.
     - exact (pr1 (pr1 (iC w0 h H'0))).
@@ -73,7 +73,7 @@ Section def_coequalizers.
     ∑ e : (∑ w : C, z --> w),
           (∑ H : f · (pr2 e) = g · (pr2 e), isCoequalizer f g (pr2 e) H).
 
-  Definition mk_Coequalizer {y z w : C} (f g : y --> z) (e : z --> w)
+  Definition make_Coequalizer {y z w : C} (f g : y --> z) (e : z --> w)
              (H : f · e = g · e) (isE : isCoequalizer f g e H) :
     Coequalizer f g.
   Proof.
@@ -128,7 +128,7 @@ Section def_coequalizers.
   Proof.
     assert (H'1 : f · e · φ1 = g · e · φ1).
     rewrite H. apply idpath.
-    set (E' := mk_Coequalizer _ _ _ _ E).
+    set (E' := make_Coequalizer _ _ _ _ E).
     repeat rewrite <- assoc in H'1.
     set (E'ar := CoequalizerOut E' w0 (e · φ1) H'1).
     intermediate_path E'ar.
@@ -211,7 +211,7 @@ Section def_coequalizers.
   Lemma CoequalizerArrowisEpi {y z : C} {f g : y --> z} (E : Coequalizer f g ) :
     isEpi (CoequalizerArrow E).
   Proof.
-    apply mk_isEpi.
+    apply make_isEpi.
     intros z0 g0 h X.
     apply (CoequalizerOutsEq E).
     apply X.
@@ -220,7 +220,7 @@ Section def_coequalizers.
   Lemma CoequalizerArrowEpi {y z : C} {f g : y --> z} (E : Coequalizer f g ) :
     Epi _ z E.
   Proof.
-    exact (mk_Epi C (CoequalizerArrow E) (CoequalizerArrowisEpi E)).
+    exact (make_Epi C (CoequalizerArrow E) (CoequalizerArrowisEpi E)).
   Defined.
 
 End def_coequalizers.

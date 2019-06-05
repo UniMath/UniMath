@@ -30,7 +30,7 @@ Definition full_subcat_nat_trans_is_iso {C D : category}
   sub_precategories C.
 Proof.
   apply full_sub_precategory.
-  intro c; use hProppair.
+  intro c; use make_hProp.
   - exact (is_iso (eta c)).
   - apply isaprop_is_iso.
 Defined.
@@ -44,7 +44,7 @@ Section Restriction.
   Definition restricted_adjunction_left_adjoint :
     functor (full_subcat_nat_trans_is_iso η) (full_subcat_nat_trans_is_iso ε).
   Proof.
-    use mk_functor; [use mk_functor_data|split].
+    use make_functor; [use make_functor_data|split].
     - (* Left adjoint data on objects *)
       * intros c'; pose (c := precategory_object_from_sub_precategory_object _ _ c').
         use tpair.
@@ -52,7 +52,7 @@ Section Restriction.
         -- cbn.
            (* need: ε (F c) is an iso *)
            apply is_iso_from_is_z_iso.
-           use mk_is_z_isomorphism.
+           use make_is_z_isomorphism.
            ++ exact (post_whisker η F _).
            ++ assert (HH : (post_whisker η F) c · ε (F c) = identity (F c)).
              { apply (triangle_id_left_ad are). }
@@ -60,8 +60,8 @@ Section Restriction.
              assert (inv : ∑ h, is_inverse_in_precat ((post_whisker η F) c) h).
              {
                use tpair.
-               - exact (# F (inv_from_iso (isopair _ (pr2 c')))).
-               - apply (functor_is_inverse_in_precat_inv_from_iso F (isopair _ (pr2 c'))).
+               - exact (# F (inv_from_iso (make_iso _ (pr2 c')))).
+               - apply (functor_is_inverse_in_precat_inv_from_iso F (make_iso _ (pr2 c'))).
              }
              split.
              ** (* Since [# F (η x)] is invertible and [ε (F c)] is its right inverse,
@@ -91,7 +91,7 @@ Section Restriction.
   Definition restricted_adjunction_right_adjoint :
     functor (full_subcat_nat_trans_is_iso ε) (full_subcat_nat_trans_is_iso η).
   Proof.
-    use mk_functor; [use mk_functor_data|split].
+    use make_functor; [use make_functor_data|split].
     - (* The definition of the right adjoint just mirrors that of the left *)
       (* Right adjoint data on objects *)
       intros d'; pose (d := precategory_object_from_sub_precategory_object _ _ d').
@@ -99,15 +99,15 @@ Section Restriction.
       + exact (G d).
       + cbn.
         apply is_iso_from_is_z_iso.
-        use mk_is_z_isomorphism.
+        use make_is_z_isomorphism.
         * exact (post_whisker ε G _).
         * assert (HH : η (G d) · (post_whisker ε G) d = identity (G d)).
           { apply (triangle_id_right_ad are). }
           assert (inv : ∑ h, is_inverse_in_precat (post_whisker ε G d) h).
           {
             use tpair.
-            - exact (# G (inv_from_iso (isopair _ (pr2 d')))).
-            - apply (functor_is_inverse_in_precat_inv_from_iso G (isopair _ (pr2 d'))).
+            - exact (# G (inv_from_iso (make_iso _ (pr2 d')))).
+            - apply (functor_is_inverse_in_precat_inv_from_iso G (make_iso _ (pr2 d'))).
           }
           split.
           -- exact HH.
@@ -135,7 +135,7 @@ Section Restriction.
     nat_trans (functor_identity (full_subcat_nat_trans_is_iso η))
               (restricted_adjunction_left_adjoint ∙ restricted_adjunction_right_adjoint).
   Proof.
-    use mk_nat_trans.
+    use make_nat_trans.
     - intro; cbn.
       use tpair.
       + apply η.
@@ -150,7 +150,7 @@ Section Restriction.
     nat_trans (restricted_adjunction_right_adjoint ∙ restricted_adjunction_left_adjoint)
               (functor_identity (full_subcat_nat_trans_is_iso ε)).
   Proof.
-    use mk_nat_trans.
+    use make_nat_trans.
     - intro; cbn.
       use tpair.
       + apply ε.
@@ -165,10 +165,10 @@ Section Restriction.
     are_adjoints restricted_adjunction_left_adjoint
                  restricted_adjunction_right_adjoint.
   Proof.
-    use mk_are_adjoints.
+    use make_are_adjoints.
     - exact restricted_adjunction_unit.
     - exact restricted_adjunction_counit.
-    - use mk_form_adjunction.
+    - use make_form_adjunction.
       + (* 1st triangle identity *)
         intro; apply subtypeEquality'; [|apply propproperty].
         apply triangle_id_left_ad.
@@ -185,13 +185,13 @@ Section Restriction.
          are_adjoints_restricted_adjunction).
     split.
     - intro a.
-      pose (isomor := isopair _ (pr2 a) :
+      pose (isomor := make_iso _ (pr2 a) :
                         iso (pr1 a) (pr1 (right_adjoint are_adjoints_restricted_adjunction
                                            (left_adjoint are_adjoints_restricted_adjunction a)))).
       apply (iso_in_precat_is_iso_in_subcat C _ _ _ isomor).
     - intro b.
       cbn.
-      pose (isomor := isopair _ (pr2 b) :
+      pose (isomor := make_iso _ (pr2 b) :
                         iso (pr1 (left_adjoint are_adjoints_restricted_adjunction
                                    (right_adjoint are_adjoints_restricted_adjunction b))) (pr1 b)).
       apply (iso_in_precat_is_iso_in_subcat _ _ _ _ isomor).

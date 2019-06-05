@@ -199,7 +199,7 @@ Definition composePathOver_weq (A:Type) (a1 a2 a3:A) (B:A->Type)
       (p1:a1=a2) (p2:a2=a3)
       (q:PathOver b1 b2 p1)
   : PathOver b2 b3 p2 ≃ PathOver b1 b3 (p1@p2)
-  := weqpair (composePathOver q) (Lemma023 _).
+  := make_weq (composePathOver q) (Lemma023 _).
 
 Lemma Lemma0_2_4 (A:Type) (B:A->Type) (a1 a2:A)
       (b1:B a1) (b2:B a2) (p q:a1=a2) (α : p=q) :
@@ -212,7 +212,7 @@ Definition cp                   (* "change path" *)
            (A:Type) (a1 a2:A) (p q:a1=a2) (α : p=q)
            (B:A->Type) (b1:B a1) (b2:B a2) :
   PathOver b1 b2 p ≃ PathOver b1 b2 q
-  := weqpair (transportf _ α) (Lemma0_2_4 α).
+  := make_weq (transportf _ α) (Lemma0_2_4 α).
 
 Arguments cp {_ _ _ _ _} _ {_ _ _}.
 

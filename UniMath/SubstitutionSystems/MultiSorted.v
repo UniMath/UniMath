@@ -252,72 +252,72 @@ Defined.
 
 (* The signature for exp_functor *)
 Local Definition Sig_exp_functor (lt : list sort × sort) :
-  Signature _ hs _ has_homsets_HSET.
+  Signature _ hs _ has_homsets_HSET _ hs.
 Proof.
 exists (exp_functor lt).
 induction lt as [l t].
 induction l as [[|n] xs].
 + induction xs.
-  exact (pr2 (Gθ_Signature (IdSignature _ _) (proj_functor t))).
+  exact (pr2 (Gθ_Signature _ _ (IdSignature _ _ _ _) (proj_functor t))).
 + induction n as [|n IH].
   * induction xs as [m []].
     set (Sig_option_list := θ_from_δ_Signature (DL_option_list (cons m (0,,tt)))).
-    exact (pr2 (Gθ_Signature Sig_option_list (proj_functor t))).
+    exact (pr2 (Gθ_Signature _ _ Sig_option_list (proj_functor t))).
   * induction xs as [m xs].
     set (Sig_option_list := θ_from_δ_Signature (DL_option_list (cons m (S n,,xs)))).
-    exact (pr2 (Gθ_Signature Sig_option_list (proj_functor t))).
+    exact (pr2 (Gθ_Signature _ _ Sig_option_list (proj_functor t))).
 Defined.
 
 Local Lemma functor_in_Sig_exp_functor_ok (lt : list sort × sort) :
-  Signature_Functor (Sig_exp_functor lt) = exp_functor lt.
+  Signature_Functor _ _ (Sig_exp_functor lt) = exp_functor lt.
 Proof.
 apply idpath.
 Qed.
 
 (* The signature for exp_functor_list *)
 Local Definition Sig_exp_functor_list (xs : list (list sort × sort)) :
-  Signature _ hs _ has_homsets_HSET.
+  Signature _ hs _ has_homsets_HSET _ hs.
 Proof.
 exists (exp_functor_list xs).
 induction xs as [[|n] xs].
 - induction xs.
-  exact (pr2 (ConstConstSignature SET_over_sort SET TerminalHSET)).
+  exact (pr2 (ConstConstSignature SET_over_sort SET SET_over_sort TerminalHSET)).
 - induction n as [|n IH].
   + induction xs as [m []].
     exact (pr2 (Sig_exp_functor m)).
   + induction xs as [m [k xs]].
-    exact (pr2 (BinProduct_of_Signatures _ (Sig_exp_functor _) (tpair _ _ (IH (k,,xs))))).
+    exact (pr2 (BinProduct_of_Signatures _ _ _ (Sig_exp_functor _) (tpair _ _ (IH (k,,xs))))).
 Defined.
 
 Local Lemma functor_in_Sig_exp_functor_list_ok (xs : list (list sort × sort)) :
-  Signature_Functor (Sig_exp_functor_list xs) = exp_functor_list xs.
+  Signature_Functor _ _ (Sig_exp_functor_list xs) = exp_functor_list xs.
 Proof.
 apply idpath.
 Qed.
 
 (* the signature for hat_exp_functor_list *)
 Local Definition Sig_hat_exp_functor_list (xst : list (list sort × sort) × sort) :
-  Signature _ hs _ hs.
+  Signature _ hs _ hs _ hs.
 Proof.
-apply (Gθ_Signature (Sig_exp_functor_list (pr1 xst)) (hat_functor (pr2 xst))).
+apply (Gθ_Signature _ _ (Sig_exp_functor_list (pr1 xst)) (hat_functor (pr2 xst))).
 Defined.
 
 Local Lemma functor_in_Sig_hat_exp_functor_list_ok (xst : list (list sort × sort) × sort) :
-  Signature_Functor (Sig_hat_exp_functor_list xst) = hat_exp_functor_list xst.
+  Signature_Functor _ _ (Sig_hat_exp_functor_list xst) = hat_exp_functor_list xst.
 Proof.
 apply idpath.
 Qed.
 
 (* The signature for MultiSortedSigToFunctor *)
-Definition MultiSortedSigToSignature (M : MultiSortedSig) : Signature _ hs _ hs.
+Definition MultiSortedSigToSignature (M : MultiSortedSig) : Signature _ hs _ hs _ hs.
 Proof.
 set (Hyps := λ (op : ops M), Sig_hat_exp_functor_list (arity M op)).
-use (Sum_of_Signatures (ops M) _ Hyps).
+use (Sum_of_Signatures (ops M) _ _ _ Hyps).
 apply Coproducts_slice_precat, CoproductsHSET, setproperty.
 Defined.
 
 Local Lemma functor_in_MultiSortedSigToSignature_ok (M : MultiSortedSig) :
-  Signature_Functor (MultiSortedSigToSignature M) = MultiSortedSigToFunctor M.
+  Signature_Functor _ _ (MultiSortedSigToSignature M) = MultiSortedSigToFunctor M.
 Proof.
 apply idpath.
 Qed.
@@ -336,7 +336,7 @@ Local Definition proj_functor' (s : sort) : functor (SET / sort) SET :=
 
 Local Lemma nat_trans_proj_functor (s : sort) : nat_trans (proj_functor' s) (proj_functor s).
 Proof.
-use mk_nat_trans.
+use make_nat_trans.
 - simpl; intros x H.
   exists (pr2 (pr1 H)).
   apply (!pr2 H).
@@ -350,7 +350,7 @@ Local Lemma is_iso_nat_trans_proj_functor (s : sort) :
   @is_iso [SET/sort,SET] _ _ (nat_trans_proj_functor s).
 Proof.
 use is_iso_qinv.
-+ use mk_nat_trans.
++ use make_nat_trans.
   - simpl; intros x xy.
     exists (tt,,pr1 xy).
     apply (!pr2 xy).
@@ -389,12 +389,12 @@ Defined.
 Local Lemma is_left_adjoint_hat (s : sort) : is_left_adjoint (hat_functor s).
 Proof.
 exists (proj_functor s).
-use mk_are_adjoints.
-+ use mk_nat_trans.
+use make_are_adjoints.
++ use make_nat_trans.
   - intros X; simpl; intros x; apply (x,,idpath s).
   - intros X Y f; simpl; apply funextsec; intro x; cbn.
     now apply subtypeEquality; trivial; intros y; apply setproperty.
-+ use mk_nat_trans.
++ use make_nat_trans.
   - intros X; simpl in *.
     use tpair; simpl.
     * intros H; apply (pr1 H).
@@ -496,7 +496,7 @@ Let FunctorAlg F := FunctorAlg F has_homsets_SetSort2.
 
 (* ** Construction of initial algebra for a signature with strength on Set / sort *)
 Definition SignatureInitialAlgebraSetSort
-  (H : Signature _ hs _ hs) (Hs : is_omega_cocont H) :
+  (H : Signature _ hs _ hs _ hs) (Hs : is_omega_cocont H) :
   Initial (FunctorAlg (Id_H H)).
 Proof.
 use colimAlgInitial.
@@ -576,7 +576,7 @@ Proof.
 apply (BinProducts_functor_precat _ _ BP).
 Defined.
 
-Local Definition mk_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid f.
+Local Definition make_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid f.
 
 Local Definition proj_gen_fun (D : precategory) (E : category) (d : D) : functor [D,E] E.
 Proof.
@@ -625,7 +625,7 @@ Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)).
 Local Definition option_fun : sort -> sortToC -> sortToC.
 Proof.
 intros s f.
-apply mk_sortToC; intro t.
+apply make_sortToC; intro t.
 induction (eq s t) as [H|H].
 - apply (pr1 f t ⊕ 1).
 - apply (pr1 f t).

@@ -142,7 +142,7 @@ Defined.
 
 
 Definition Cone_precategory_ob_mor : precategory_ob_mor :=
-   precategory_ob_mor_pair Cone
+   make_precategory_ob_mor Cone
    (λ a b, Cone_Mor a b).
 
 Definition Cone_precategory_data : precategory_data.

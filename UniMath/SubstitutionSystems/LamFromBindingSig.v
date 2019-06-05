@@ -54,8 +54,8 @@ Local Infix "::" := (@cons nat).
 Local Notation "[]" := (@nil nat) (at level 0, format "[]").
 Local Notation "'HSET2'":= [HSET, HSET, has_homsets_HSET].
 Local Notation "'Id'" := (functor_identity _).
-Local Notation "F * G" := (H HSET has_homsets_HSET HSET has_homsets_HSET BinProductsHSET F G).
-Local Notation "F + G" := (BinSumOfSignatures.H _ _ _ _ BinCoproductsHSET F G).
+Local Notation "F * G" := (H HSET HSET has_homsets_HSET HSET has_homsets_HSET BinProductsHSET F G).
+Local Notation "F + G" := (BinSumOfSignatures.H _ _ _ _ _ _ BinCoproductsHSET F G).
 Local Notation "'_' 'o' 'option'" :=
   (ℓ (option_functor BinCoproductsHSET TerminalHSET)) (at level 10).
 
@@ -83,7 +83,7 @@ Definition LamSig : BindingSig :=
   mkBindingSig isasetbool (λ b, if b then 0 :: 0 :: [] else 1 :: [])%nat.
 
 (** The signature with strength for the lambda calculus *)
-Definition LamSignature : Signature HSET has_homsets_HSET _ _ :=
+Definition LamSignature : Signature HSET has_homsets_HSET _ _ _ _ :=
   BindingSigToSignatureHSET LamSig.
 
 Let Id_H := Id_H _ has_homsets_HSET BinCoproductsHSET.
@@ -118,7 +118,7 @@ Definition lam_map : HSET2⟦LC + 1,LC⟧ :=
   CoproductIn bool HSET2 (Coproducts_functor_precat _ _ _ _ _ _) false ·
   BinCoproductIn2 HSET2 (BinCoproducts_functor_precat _ _ _ _ _ _) · LC_mor.
 
-Definition mk_lambdaAlgebra X (fvar : HSET2⟦1,X⟧) (fapp : HSET2⟦X ⊗ X,X⟧) (flam : HSET2⟦X + 1,X⟧) :
+Definition make_lambdaAlgebra X (fvar : HSET2⟦1,X⟧) (fapp : HSET2⟦X ⊗ X,X⟧) (flam : HSET2⟦X + 1,X⟧) :
   algebra_ob LamFunctor.
 Proof.
 apply (tpair _ X).
@@ -130,9 +130,9 @@ intro b; induction b.
 Defined.
 
 Definition foldr_map X (fvar : HSET2⟦1,X⟧) (fapp : HSET2⟦X ⊗ X,X⟧) (flam : HSET2⟦X + 1,X⟧) :
-  algebra_mor _ LC_alg (mk_lambdaAlgebra X fvar fapp flam).
+  algebra_mor _ LC_alg (make_lambdaAlgebra X fvar fapp flam).
 Proof.
-apply (InitialArrow lambdaFunctor_Initial (mk_lambdaAlgebra X fvar fapp flam)).
+apply (InitialArrow lambdaFunctor_Initial (make_lambdaAlgebra X fvar fapp flam)).
 Defined.
 
 Lemma foldr_var X (fvar : HSET2⟦1,X⟧) (fapp : HSET2⟦X ⊗ X,X⟧) (flam : HSET2⟦X + 1,X⟧) :

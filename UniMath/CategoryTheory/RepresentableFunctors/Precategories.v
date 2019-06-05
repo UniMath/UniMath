@@ -23,7 +23,7 @@ Definition hom (C:precategory_data) : ob C -> ob C -> UU :=
   λ c c', c --> c'.
 
 Definition Hom (C : category) : ob C -> ob C -> hSet :=
-  λ c c', hSetpair (c --> c') (homset_property C _ _ ).
+  λ c c', make_hSet (c --> c') (homset_property C _ _ ).
 
 Ltac eqn_logic :=
   abstract (
@@ -109,14 +109,14 @@ Coercion isomorphismToEmbedding : categoryIsomorphism >-> categoryEmbedding.
 
 Definition isomorphismOnMor {B C:category} (F:categoryIsomorphism B C)
            (b b':B) : Hom B b b'  ≃  Hom C (F b) (F b')
-  := weqpair _ (pr2 (pr1 F) b b').
+  := make_weq _ (pr2 (pr1 F) b b').
 
 (** *** make a precategory *)
 
 Definition makecategory_ob_mor
     (obj : UU)
     (mor : obj -> obj -> UU) : precategory_ob_mor
-  := precategory_ob_mor_pair obj (λ i j:obj, mor i j).
+  := make_precategory_ob_mor obj (λ i j:obj, mor i j).
 
 Definition makecategory_data
     (obj : UU)
@@ -124,7 +124,7 @@ Definition makecategory_data
     (identity : ∏ i, mor i i)
     (compose : ∏ i j k (f:mor i j) (g:mor j k), mor i k)
     : precategory_data
-  := precategory_data_pair (makecategory_ob_mor obj mor) identity compose.
+  := make_precategory_data (makecategory_ob_mor obj mor) identity compose.
 
 
 Local Open Scope cat_deprecated.
@@ -276,11 +276,11 @@ Defined.
 Lemma weq_iff_iso_SET {X Y:SET} (f:X-->Y) : is_iso f <-> isweq f.
 Proof.
   split.
-  - intro i. set (F := isopair f i).
+  - intro i. set (F := make_iso f i).
     refine (isweq_iso f (inv_from_iso F)
                    (λ x, eqtohomot (iso_inv_after_iso F) x)
                    (λ y, eqtohomot (iso_after_iso_inv F) y)).
-  - exact (λ i Z, weqproperty (weqbfun (Z:hSet) (weqpair f i))).
+  - exact (λ i Z, weqproperty (weqbfun (Z:hSet) (make_weq f i))).
 Defined.
 
 Lemma weq_to_iso_SET {X Y:SET} : iso X Y ≃ ((X:hSet) ≃ (Y:hSet)).

@@ -173,7 +173,7 @@ Definition invertible_2cell_to_nat_iso
   : invertible_2cell F G → nat_iso F G.
 Proof.
   intros η.
-  use mk_nat_iso.
+  use make_nat_iso.
   - exact (cell_from_invertible_2cell η).
   - apply is_invertible_2cell_to_is_nat_iso.
     apply η.
@@ -216,7 +216,7 @@ Definition invertible_2cell_is_nat_iso
            (F G : C --> D)
   : nat_iso F G ≃ invertible_2cell F G.
 Proof.
-  use weqpair.
+  use make_weq.
   - exact (nat_iso_to_invertible_2cell F G).
   - use isweq_iso.
     + exact (invertible_2cell_to_nat_iso F G).
@@ -238,7 +238,7 @@ Definition adj_equiv_to_equiv_cat
   : left_adjoint_equivalence F → adj_equivalence_of_precats F.
 Proof.
   intros A.
-  use mk_adj_equivalence_of_precats.
+  use make_adj_equivalence_of_precats.
   - exact (left_adjoint_right_adjoint A).
   - exact (left_adjoint_unit A).
   - exact (left_adjoint_counit A).
@@ -298,7 +298,7 @@ Definition adj_equiv_is_equiv_cat
            (F : C --> D)
   : left_adjoint_equivalence F ≃ adj_equivalence_of_precats F.
 Proof.
-  use weqpair.
+  use make_weq.
   - exact (adj_equiv_to_equiv_cat F).
   - use isweq_iso.
     + exact (equiv_cat_to_adj_equiv F).
@@ -330,7 +330,7 @@ Definition univalent_cat_idtoiso_2_1
 Proof.
   refine ((invertible_2cell_is_nat_iso F G)
             ∘ iso_is_nat_iso F G
-            ∘ weqpair (@idtoiso (functor_category C D) F G) _)%weq.
+            ∘ make_weq (@idtoiso (functor_category C D) F G) _)%weq.
   exact (pr1 (is_univalent_functor_category C D _) F G).
 Defined.
 
@@ -370,7 +370,7 @@ Section CatIso_To_LeftAdjEquiv.
         (functor_composite F (inv_catiso (F ,, HF))).
   Proof.
     use tpair.
-    - use mk_nat_trans.
+    - use make_nat_trans.
       + intros X ; cbn.
         exact (pr1 (idtoiso (! homotinvweqweq (catiso_ob_weq (F ,, HF)) X))).
       + intros X Y f ; cbn.
@@ -421,7 +421,7 @@ Section CatIso_To_LeftAdjEquiv.
         (functor_identity (pr1 (pr1 D))).
   Proof.
     use tpair.
-    - use mk_nat_trans.
+    - use make_nat_trans.
       + intros X ; cbn.
         exact (pr1 (idtoiso (homotweqinvweq (catiso_ob_weq (F ,, HF)) X))).
       + intros X Y f ; cbn.

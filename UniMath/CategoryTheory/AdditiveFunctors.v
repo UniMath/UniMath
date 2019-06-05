@@ -53,7 +53,7 @@ Section def_additivefunctor.
   Definition isAdditiveFunctor {A B : CategoryWithAdditiveStructure} (F : functor A B) : UU :=
     ∏ (a1 a2 : A), @ismonoidfun (to_abgr a1 a2) (to_abgr (F a1) (F a2)) (# F).
 
-  Definition mk_isAdditiveFunctor {A B : CategoryWithAdditiveStructure} (F : functor A B)
+  Definition make_isAdditiveFunctor {A B : CategoryWithAdditiveStructure} (F : functor A B)
              (H : ∏ (a1 a2 : A),
                   @ismonoidfun (to_abgr a1 a2) (to_abgr (F a1) (F a2)) (# F)) :
     isAdditiveFunctor F.
@@ -62,14 +62,14 @@ Section def_additivefunctor.
     exact (H a1 a2).
   Qed.
 
-  Definition mk_isAdditiveFunctor' {A B : CategoryWithAdditiveStructure} (F : functor A B)
+  Definition make_isAdditiveFunctor' {A B : CategoryWithAdditiveStructure} (F : functor A B)
              (H1 : ∏ (a1 a2 : A), (# F (ZeroArrow (to_Zero A) a1 a2)) =
                                   ZeroArrow (to_Zero B) (F a1) (F a2))
              (H2 : ∏ (a1 a2 : A) (f g : A⟦a1, a2⟧), # F (to_binop _ _ f g) =
                                                     to_binop _ _ (# F f) (# F g)) :
     isAdditiveFunctor F.
   Proof.
-    use mk_isAdditiveFunctor.
+    use make_isAdditiveFunctor.
     intros a1 a2.
     split.
     - intros f g. apply (H2 a1 a2 f g).
@@ -92,7 +92,7 @@ Section def_additivefunctor.
 
   Definition AdditiveFunctor (A B : CategoryWithAdditiveStructure) : UU := ∑ F : (functor A B), isAdditiveFunctor F.
 
-  Definition mk_AdditiveFunctor {A B : CategoryWithAdditiveStructure} (F : functor A B) (H : isAdditiveFunctor F) :
+  Definition make_AdditiveFunctor {A B : CategoryWithAdditiveStructure} (F : functor A B) (H : isAdditiveFunctor F) :
     AdditiveFunctor A B := tpair _ F H.
 
   (** Accessor functions *)
@@ -136,14 +136,14 @@ Section def_additivefunctor.
   Definition CompositionIsAdditive {A1 A2 A3 : CategoryWithAdditiveStructure} (F1 : AdditiveFunctor A1 A2)
              (F2 : AdditiveFunctor A2 A3) : isAdditiveFunctor (functor_composite F1 F2).
   Proof.
-    use mk_isAdditiveFunctor'.
+    use make_isAdditiveFunctor'.
     - intros a1 a2. cbn. rewrite AdditiveFunctorZeroArrow. use AdditiveFunctorZeroArrow.
     - intros a1 a2 f g. cbn. rewrite AdditiveFunctorLinear. use AdditiveFunctorLinear.
   Qed.
 
   Definition AdditiveComposite {A1 A2 A3 : CategoryWithAdditiveStructure}(F1 : AdditiveFunctor A1 A2)
              (F2 : AdditiveFunctor A2 A3) : AdditiveFunctor A1 A3 :=
-    mk_AdditiveFunctor (functor_composite F1 F2) (CompositionIsAdditive F1 F2).
+    make_AdditiveFunctor (functor_composite F1 F2) (CompositionIsAdditive F1 F2).
 
 End def_additivefunctor.
 
@@ -176,7 +176,7 @@ Section additivefunctor_preserves_bindirectsums.
     unfold to_unel in tmp2. rewrite tmp2 in tmp. clear tmp2.
     assert (X0 : iso (F (to_Zero A)) (to_Zero B)).
     {
-      use isopair.
+      use make_iso.
       - apply (ZeroArrowTo (F (to_Zero A))).
       - use is_iso_qinv.
         apply (ZeroArrowFrom (F (to_Zero A))).
@@ -232,7 +232,7 @@ Section additivefunctor_preserves_bindirectsums.
     PreservesBinDirectSums F.
   Proof.
     intros a1 a2 DS.
-    use mk_isBinDirectSum.
+    use make_isBinDirectSum.
     - use (AdditiveFunctorPreservesBinDirectSums_idin1 F DS).
     - use (AdditiveFunctorPreservesBinDirectSums_idin2 F DS).
     - use (AdditiveFunctorPreservesBinDirectSums_unit1 F DS).
@@ -269,8 +269,8 @@ Section additivefunctor_criteria.
     }
     cbn in isBDS.
     rewrite e1 in isBDS. rewrite e2 in isBDS. clear e1 e2.
-    set (BDS := mk_BinDirectSum _ _ _ _ _ _ _ _ isBDS).
-    use mk_isZero.
+    set (BDS := make_BinDirectSum _ _ _ _ _ _ _ _ isBDS).
+    use make_isZero.
     - intros b.
       use tpair.
       + apply (ZeroArrow (to_Zero B) _ _).
@@ -292,7 +292,7 @@ Section additivefunctor_criteria.
         (H : PreservesBinDirectSums F) (a1 a2 : A) :
     (# F (to_unel a1 a2)) = (to_unel (F a1) (F a2)).
   Proof.
-    set (Z := mk_Zero (F (to_Zero A)) (isAdditiveCriteria_isZero F H)).
+    set (Z := make_Zero (F (to_Zero A)) (isAdditiveCriteria_isZero F H)).
     rewrite (PreAdditive_unel_zero A (to_Zero A) a1 a2).
     rewrite (PreAdditive_unel_zero B Z (F a1) (F a2)).
     unfold ZeroArrow. rewrite functor_comp. cbn.
@@ -317,7 +317,7 @@ Section additivefunctor_criteria.
     to_binop (F DS) (F a1) (# F (to_Pr1 DS)) (# F (to_Pr2 DS)).
   Proof.
     set (isBDS := H a1 a1 DS).
-    set (BDS := mk_BinDirectSum _ _ _ _ _ _ _ _ isBDS).
+    set (BDS := make_BinDirectSum _ _ _ _ _ _ _ _ isBDS).
     use (FromBinDirectSumsEq B BDS); cbn.
     - rewrite <- functor_comp.
       rewrite to_premor_linear'.
@@ -345,7 +345,7 @@ Section additivefunctor_criteria.
                            · (to_binop DS a2 (to_Pr1 DS) (to_Pr2 DS)).
   Proof.
     set (isBDS := H a2 a2 DS).
-    set (BDS := mk_BinDirectSum _ _ _ _ _ _ _ _ isBDS).
+    set (BDS := make_BinDirectSum _ _ _ _ _ _ _ _ isBDS).
     (* First term of to_binop *)
     rewrite to_premor_linear'. rewrite to_postmor_linear'.
     rewrite <- assoc. rewrite <- assoc.
@@ -365,7 +365,7 @@ Section additivefunctor_criteria.
   Proof.
     set (DS := to_BinDirectSums A a2 a2).
     set (isBDS := H a2 a2 DS).
-    set (BDS := mk_BinDirectSum _ _ _ _ _ _ _ _ isBDS).
+    set (BDS := make_BinDirectSum _ _ _ _ _ _ _ _ isBDS).
     rewrite (isAdditiveCriteria_BinOp_eq F H f g). rewrite functor_comp.
     rewrite (@isAdditiveCriteria_isBinopFun_Pr A B F H a2 DS).
     rewrite to_premor_linear'.
@@ -385,7 +385,7 @@ Section additivefunctor_criteria.
   Lemma isAdditiveCriteria {A B : CategoryWithAdditiveStructure} (F : functor A B) (H : PreservesBinDirectSums F) :
     isAdditiveFunctor F.
   Proof.
-    use mk_isAdditiveFunctor.
+    use make_isAdditiveFunctor.
     intros a1 a2.
     split.
     - intros f g. cbn.
@@ -397,7 +397,7 @@ Section additivefunctor_criteria.
   Definition AdditiveFunctorCriteria {A B : CategoryWithAdditiveStructure} (F : functor A B)
              (H : PreservesBinDirectSums F) : AdditiveFunctor A B.
   Proof.
-    use mk_AdditiveFunctor.
+    use make_AdditiveFunctor.
     - exact F.
     - exact (isAdditiveCriteria F H).
   Defined.
@@ -416,7 +416,7 @@ Section def_additive_quot_functor.
     @isAdditiveFunctor A (Quotcategory_Additive A PAS PAC)
                        (QuotcategoryFunctor (Additive_PreAdditive A) PAS PAC).
   Proof.
-    use mk_isAdditiveFunctor.
+    use make_isAdditiveFunctor.
     intros X Y.
     split.
     - intros f g. apply idpath.
@@ -426,7 +426,7 @@ Section def_additive_quot_functor.
   Definition QuotcategoryAdditiveFunctor :
     AdditiveFunctor A (Quotcategory_Additive A PAS PAC).
   Proof.
-    use mk_AdditiveFunctor.
+    use make_AdditiveFunctor.
     - exact (QuotcategoryFunctor A PAS PAC).
     - exact QuotcategoryAdditiveFunctor_isAdditiveFunctor.
   Defined.
@@ -443,7 +443,7 @@ Section def_additive_equivalence.
           (∏ a : A1, is_z_isomorphism (unit_from_left_adjoint (pr2 D) a))
             × (∏ b : A2, is_z_isomorphism (counit_from_left_adjoint (pr2 D) b)).
 
-  Definition mk_AddEquiv {A1 A2 : CategoryWithAdditiveStructure} (F : AdditiveFunctor A1 A2)
+  Definition make_AddEquiv {A1 A2 : CategoryWithAdditiveStructure} (F : AdditiveFunctor A1 A2)
              (G : AdditiveFunctor A2 A1) (H : are_adjoints F G)
              (H1 : ∏ a : A1, is_z_isomorphism (unit_from_left_adjoint H a))
              (H2 : ∏ b : A2, is_z_isomorphism (counit_from_left_adjoint H b)) :
@@ -495,7 +495,7 @@ Section def_additive_equivalence.
   Definition AddEquivUnitIso {A1 A2 : CategoryWithAdditiveStructure} (AE : AddEquiv A1 A2) (X : A1) :
     z_iso X (AddEquiv2 AE (AddEquiv1 AE X)).
   Proof.
-    use mk_z_iso.
+    use make_z_iso.
     - exact (AddEquivUnit AE X).
     - exact (AddEquivUnitInvMor AE X).
     - exact (AddEquivUnitInvMor_is_inverse_in_precat AE X).
@@ -504,7 +504,7 @@ Section def_additive_equivalence.
   Definition AddEquivCounitIso {A1 A2 : CategoryWithAdditiveStructure} (AE : AddEquiv A1 A2) (X : A2) :
     z_iso (AddEquiv1 AE (AddEquiv2 AE X)) X.
   Proof.
-    use mk_z_iso.
+    use make_z_iso.
     - exact (AddEquivCounit AE X).
     - exact (AddEquivCounitInvMor AE X).
     - exact (AddEquivCounitInvMor_is_inverse_in_precat AE X).

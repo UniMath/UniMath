@@ -106,7 +106,7 @@ Lemma BinCoproductArrowUnique (a b : C) (CC : BinCoproduct a b) (x : C)
       k = BinCoproductArrow CC f g.
 Proof.
   intros H1 H2.
-  set (H := tpair (λ h, dirprod _ _ ) k (dirprodpair H1 H2)).
+  set (H := tpair (λ h, dirprod _ _ ) k (make_dirprod H1 H2)).
   set (H' := (pr2 (isBinCoproduct_BinCoproduct CC _ f g)) H).
   apply (base_paths _ _ H').
 Qed.
@@ -159,7 +159,7 @@ Proof.
 Qed.
 
 
-Definition mk_BinCoproduct (a b : C) :
+Definition make_BinCoproduct (a b : C) :
   ∏ (c : C) (f : a --> c) (g : b --> c),
    isBinCoproduct _ _ _ f g →  BinCoproduct a b.
 Proof.
@@ -171,7 +171,7 @@ Proof.
   - apply X.
 Defined.
 
-Definition mk_isBinCoproduct (hsC : has_homsets C) (a b co : C)
+Definition make_isBinCoproduct (hsC : has_homsets C) (a b co : C)
    (ia : a --> co) (ib : b --> co) :
    (∏ (c : C) (f : a --> c) (g : b --> c),
     ∃! k : C ⟦co, c⟧,
@@ -238,8 +238,8 @@ Proof.
   set (X := (∑ fg : pr1 (pr1 CC) --> BinCoproductObject CC,
           pr1 (pr2 (pr1 CC))· fg = BinCoproductIn1 CC
           × pr2 (pr2 (pr1 CC))· fg = BinCoproductIn2 CC)).
-  set (t1 := tpair _ k (dirprodpair H1 H2) : X).
-  set (t2 := tpair _ (identity _ ) (dirprodpair (id_right _ ) (id_right _ ) ) : X).
+  set (t1 := tpair _ k (make_dirprod H1 H2) : X).
+  set (t2 := tpair _ (identity _ ) (make_dirprod (id_right _ ) (id_right _ ) ) : X).
   assert (X' : t1 = t2).
   { apply proofirrelevance.
     apply isapropifcontr.
@@ -276,7 +276,7 @@ Defined.
 
 Definition iso_from_BinCoproduct_to_BinCoproduct (CC CC' : BinCoproduct a b)
   : iso (BinCoproductObject CC) (BinCoproductObject CC')
-  := isopair _ (is_iso_from_BinCoproduct_to_BinCoproduct CC CC').
+  := make_iso _ (is_iso_from_BinCoproduct_to_BinCoproduct CC CC').
 
 Lemma transportf_isotoid' (c d d': C) (p : iso d d') (f : c --> d) :
   transportf (λ a0 : C, c --> a0) (isotoid C H p) f = f · p .
@@ -621,7 +621,7 @@ Defined.
 Definition BinCoprod {a b c : C} (ac : a --> c) (bc : b --> c) :
    cocone (bincoproduct_diagram a b) c.
 Proof.
-use mk_cocone; simpl.
+use make_cocone; simpl.
 + intros x; induction x; assumption.
 + abstract (intros x y e; destruct e).
 Defined.
@@ -630,11 +630,11 @@ Lemma BinCoproducts_from_Colims : Colims_of_shape two_graph C -> BinCoproducts C
 Proof.
 intros H a b.
 set (CC := H (bincoproduct_diagram a b)); simpl.
-use mk_BinCoproduct.
+use make_BinCoproduct.
 + apply (colim CC).
 + apply (colimIn CC true).
 + apply (colimIn CC false).
-+ apply (mk_isBinCoproduct _ hsC); simpl; intros c f g.
++ apply (make_isBinCoproduct _ hsC); simpl; intros c f g.
   use unique_exists; simpl.
   - apply colimArrow, (BinCoprod f g).
   - abstract (split;
@@ -653,10 +653,10 @@ Lemma CoproductsBool {C : precategory} (hsC : has_homsets C)
   (HC : BinCoproducts C) : Coproducts bool C.
 Proof.
 intros H.
-use mk_Coproduct.
+use make_Coproduct.
 - apply (HC (H true) (H false)).
 - induction i; apply (pr1 (HC (H true) (H false))).
-- use (mk_isCoproduct _ _ hsC); intros c f.
+- use (make_isCoproduct _ _ hsC); intros c f.
   induction (pr2 (HC (H true) (H false)) c (f true) (f false)) as [[x1 [x2 x3]] x4].
   use unique_exists.
   + apply x1.
@@ -939,7 +939,7 @@ Lemma coproduct_nat_trans_univ_prop (A : [C, D, hsD])
    ×
       (coproduct_nat_trans_in2 : (G:[C,D,hsD]) --> BinCoproduct_of_functors) · fg = g)
      (coproduct_nat_trans A f g)
-     (dirprodpair (coproduct_nat_trans_In1Commutes A f g)
+     (make_dirprod (coproduct_nat_trans_In1Commutes A f g)
         (coproduct_nat_trans_In2Commutes A f g)).
 Proof.
   intro t.
@@ -968,15 +968,15 @@ Qed.
 Definition functor_precat_coproduct_cocone
   : BinCoproduct [C, D, hsD] F G.
 Proof.
-  use mk_BinCoproduct.
+  use make_BinCoproduct.
   - apply BinCoproduct_of_functors.
   - apply coproduct_nat_trans_in1.
   - apply coproduct_nat_trans_in2.
-  - use mk_isBinCoproduct.
+  - use make_isBinCoproduct.
     + apply functor_category_has_homsets.
     + intros A f g.
      exists (tpair _ (coproduct_nat_trans A f g)
-             (dirprodpair (coproduct_nat_trans_In1Commutes _ _ _ )
+             (make_dirprod (coproduct_nat_trans_In1Commutes _ _ _ )
                           (coproduct_nat_trans_In2Commutes _ _ _ ))).
      simpl.
      apply coproduct_nat_trans_univ_prop.
@@ -1071,7 +1071,7 @@ Section BinCoproduct_from_iso.
 
   Definition iso_to_BinCoproduct {x y z : C} (BP : BinCoproduct C x y)
              (i : iso z (BinCoproductObject C BP)) :
-    BinCoproduct C x y := mk_BinCoproduct
+    BinCoproduct C x y := make_BinCoproduct
                                   C _ _ z
                                   ((BinCoproductIn1 C BP) · (iso_inv_from_iso i))
                                   ((BinCoproductIn2 C BP) · (iso_inv_from_iso i))
@@ -1088,21 +1088,21 @@ Section EquivalentDefinition.
   Context {C : precategory} {a b co : ob C} (i1 : a --> co) (i2 : b --> co) .
 
   Definition precomp_with_injections (c : ob C) (f : co --> c) : (a --> c) × (b --> c) :=
-    dirprodpair (i1 · f)  (i2 · f).
+    make_dirprod (i1 · f)  (i2 · f).
 
   Definition isBinCoproduct' : UU :=
     ∏ c : ob C, isweq (precomp_with_injections c).
 
   Definition isBinCoproduct'_weq (is : isBinCoproduct') :
     ∏ c, (co --> c) ≃ (a --> c) × (b --> c) :=
-    λ a, weqpair (precomp_with_injections a) (is a).
+    λ a, make_weq (precomp_with_injections a) (is a).
 
   Lemma isBinCoproduct'_to_isBinCoproduct :
     isBinCoproduct' -> isBinCoproduct _ _ _ co i1 i2.
   Proof.
     intros isBCP' ? f g.
     apply (@iscontrweqf (hfiber (isBinCoproduct'_weq isBCP' _)
-                                (dirprodpair f g))).
+                                (make_dirprod f g))).
     - use weqfibtototal; intro; cbn.
       unfold precomp_with_injections.
       apply pathsdirprodweq.

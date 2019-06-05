@@ -22,7 +22,7 @@ Local Open Scope cat.
    with exactly one arrow from n to S n.
 *)
 
-Definition nat_graph : graph := mk_graph nat (λ m n, 1 + m = n).
+Definition nat_graph : graph := make_graph nat (λ m n, 1 + m = n).
 
 Notation "'chain'" := (diagram nat_graph).
 

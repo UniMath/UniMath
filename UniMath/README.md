@@ -84,6 +84,8 @@ semantics is more likely to be rigorously verifiable and portable to new proof
 checking systems, and we follow a style of coding designed to render proofs
 less fragile and to make the files have a more uniform and pleasing appearance.
 
+* Constructing identifiers:
+    * form the identifier by concatenating English words or existing identifiers, separating them by underscores
 * Do not use `Admitted` or introduce new axioms.
 * Do not use `apply` with a term that needs no additional arguments filled in,
   because using `exact` would be clearer.

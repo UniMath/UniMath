@@ -172,7 +172,7 @@ End bounded_lattice_pty.
 (** [Lle] *)
 
 Definition Lle {X : hSet} (is : lattice X) : hrel X :=
-  λ (x y : X), hProppair (Lmin is x y = x) ((pr2 X) (Lmin is x y) x).
+  λ (x y : X), make_hProp (Lmin is x y = x) ((pr2 X) (Lmin is x y) x).
 
 Section lattice_le.
 

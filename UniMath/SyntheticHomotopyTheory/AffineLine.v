@@ -57,7 +57,7 @@ Proof.
                                          (f (ii1 O) = IH' O (f (ii2 O))) ×
                                          (∏ n : nat, f (ii1 (S n)) = IH' (S n) (f (ii1 n))))).
   { apply (weqbandf (weqonsecbase _ negpos)). intro f.
-    simple refine (weqpair _ (isweq_iso _ _ _ _)).
+    simple refine (make_weq _ (isweq_iso _ _ _ _)).
     { intros [h0 [hp hn]]. simple refine (_,,_,,_,,_).
       { exact h0. } { exact hp. }
                     { exact (hn O). } { intro n. exact (hn (S n)). } }
@@ -134,7 +134,7 @@ Lemma A (P:ℤ->Type) (p0:P zero)
          p0).
 Proof.
   intros.
-  simple refine (weqpair _ (isweq_iso _ _ _ _)).
+  simple refine (make_weq _ (isweq_iso _ _ _ _)).
   { intros [f [h0 h]]. exact ((f,,h),,h0). }
   { intros [[f h] h0]. exact (f,,(h0,,h)). }
   { intros [f [h0 h]]. reflexivity. }
@@ -189,7 +189,7 @@ Proof.
     { unfold l. apply weq_transportf_comp. }
     { reflexivity. } }
   { apply weqonsecfibers; intro n. simpl.
-    simple refine (weqcomp (weqpair _ (isweqpathsinv0 _ _)) _).
+    simple refine (weqcomp (make_weq _ (isweqpathsinv0 _ _)) _).
     simple refine (weqonpaths2 _ _ _).
     { apply invweq. apply IH. }
     { simpl. rewrite homotinvweqweq. reflexivity. }

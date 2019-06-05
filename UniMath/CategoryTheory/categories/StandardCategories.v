@@ -38,20 +38,20 @@ Proof. intros. exact (compose f g). Defined.
 
 (** The pregroupoid with points in X as objects and paths as morphisms *)
 Definition path_pregroupoid (X:UU) : pregroupoid.
-  use mk_pregroupoid.
-  - use mk_precategory_one_assoc; use tpair.
+  use make_pregroupoid.
+  - use make_precategory_one_assoc; use tpair.
     + exact (X,, λ x y, x = y).
-    + use dirprodpair.
+    + use make_dirprod.
       * exact (λ _, idpath _).
       * intros a b c; exact pathscomp0.
-    + use dirprodpair.
+    + use make_dirprod.
       * reflexivity.
       * intros; apply pathscomp0rid.
     + intros ? ? ? ? ? ?; apply path_assoc.
   - intros x y path.
     use (is_iso_qinv path); cbn in *.
     + exact (!path).
-    + use dirprodpair.
+    + use make_dirprod.
       * apply pathsinv0r.
       * apply pathsinv0l.
 Defined.
@@ -66,8 +66,8 @@ Defined.
 
 Definition path_groupoid (X : UU) (iobj : isofhlevel 3 X) : groupoid.
 Proof.
-  use mk_groupoid.
-  - use category_pair.
+  use make_groupoid.
+  - use make_category.
     + exact (path_pregroupoid X).
     + apply (has_homsets_path_pregroupoid); assumption.
   - apply (pregroupoid_is_pregroupoid (path_pregroupoid X)).
@@ -96,7 +96,7 @@ Defined.
 
 Definition path_univalent_groupoid {X : UU} (i3 : isofhlevel 3 X) :
   univalent_groupoid :=
-  mk_univalent_groupoid (univalent_category_pair _ (is_univalent_path_groupoid X i3))
+  make_univalent_groupoid (make_univalent_category _ (is_univalent_path_groupoid X i3))
                         (groupoid_is_pregroupoid _).
 
 Definition path_groupoid_hset (X : hSet) : univalent_groupoid :=
@@ -114,7 +114,7 @@ Proof.
 Defined.
 
 Definition discrete_category_hset (X : hSet) : discrete_category :=
-  mk_discrete_category (path_groupoid_hset X) (path_groupoid_hset_is_discrete X).
+  make_discrete_category (path_groupoid_hset X) (path_groupoid_hset_is_discrete X).
 
 (** To define a functor out of a path pregroupoid, it suffices to give
     its values on objects. Compare to [functor_discrete_categories]. *)
@@ -122,8 +122,8 @@ Lemma functor_path_pregroupoid
       {X : UU} {D : precategory} (f : X → ob D) :
   functor (path_pregroupoid X) D.
 Proof.
-  use mk_functor.
-  - use mk_functor_data.
+  use make_functor.
+  - use make_functor_data.
     + apply f.
     + intros a b aeqb.
       exact (transportf (λ z, D ⟦ f a, z ⟧) (maponpaths f aeqb) (identity _)).
@@ -167,17 +167,17 @@ Lemma discrete_category_iso_path_groupoid (C : discrete_category) :
               (setcategory_objects_set (_,, discrete_category_is_setcategory C))).
 Proof.
   use tpair.
-  - use mk_functor.
-    + use mk_functor_data.
+  - use make_functor.
+    + use make_functor_data.
       * exact (idfun _).
       * intros a b f.
         apply isotoid.
         -- apply univalent_category_is_univalent.
         -- exact (@pregroupoid_hom_weq_iso C _ _ f).
-    + use dirprodpair.
+    + use make_dirprod.
       * intro; apply setproperty.
       * intros ? ? ? ? ?; apply setproperty.
-  - use dirprodpair.
+  - use make_dirprod.
     + intros a b.
       use isweq_iso.
       * intros f.
@@ -193,7 +193,7 @@ Defined.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Definition cat_n (n:nat): univalent_groupoid.
-  apply path_groupoid_hset; use hSetpair.
+  apply path_groupoid_hset; use make_hSet.
   - exact (stn n).
   - apply isasetstn.
 Defined.
@@ -217,7 +217,7 @@ Section FunctorToUnit.
 
   Definition functor_to_unit_data : functor_data A unit_category.
   Proof.
-    use mk_functor_data.
+    use make_functor_data.
     - exact tounit.
     - exact (λ _ _ _, idpath _ ).
   Defined.
@@ -229,11 +229,11 @@ Section FunctorToUnit.
     - intros ? ? ? ? ?; apply idpath.
   Qed.
 
-  Definition functor_to_unit : functor A _ := mk_functor _ is_functor_to_unit.
+  Definition functor_to_unit : functor A _ := make_functor _ is_functor_to_unit.
 
   Lemma iscontr_functor_to_unit : iscontr (functor A unit_category).
   Proof.
-    use iscontrpair.
+    use make_iscontr.
     - exact functor_to_unit.
     - intro F.
       apply functor_eq.
@@ -264,7 +264,7 @@ Section FunctorFromEmpty.
 
   Definition functor_from_empty_data : functor_data empty_category A.
   Proof.
-    use mk_functor_data.
+    use make_functor_data.
     - exact fromempty.
     - intros empt ?; induction empt.
   Defined.
@@ -275,7 +275,7 @@ Section FunctorFromEmpty.
   Defined.
 
   Definition functor_from_empty : functor empty_category A :=
-    mk_functor _ is_functor_from_empty.
+    make_functor _ is_functor_from_empty.
 
   (** Compare to [isaprop_is_functor]. For a functor from the empty_category,
       it's not necessary that the codomain has homsets. *)
@@ -291,7 +291,7 @@ Section FunctorFromEmpty.
 
   Lemma iscontr_functor_from_empty : iscontr (functor empty_category A).
   Proof.
-    use iscontrpair.
+    use make_iscontr.
     - exact functor_from_empty.
     - intro F.
       use total2_paths_f.

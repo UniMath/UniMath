@@ -32,13 +32,13 @@ Lemma is_iso_comp_is_iso {C : precategory} {a b c : ob C}
   : is_iso f -> is_iso g -> is_iso (f ;; g).
 Proof.
   intros Hf Hg.
-  apply (is_iso_comp_of_isos (isopair f Hf) (isopair g Hg)).
+  apply (is_iso_comp_of_isos (make_iso f Hf) (make_iso g Hg)).
 Defined.
 
 Lemma functor_is_iso_is_iso {C C' : precategory} (F : functor C C')
     {a b : ob C} (f : C ⟦a,b⟧) (fH : is_iso f) : is_iso (#F f).
 Proof.
-  apply (functor_on_iso_is_iso _ _ F _ _ (isopair f fH)).
+  apply (functor_on_iso_is_iso _ _ F _ _ (make_iso f fH)).
 Defined.
 
 Coercion left_adj_from_adj_equiv (X Y : precategory) (K : functor X Y)
@@ -155,7 +155,7 @@ End eqv_comp.
 Section eqv_inv.
 
   Local Definition nat_iso_to_pointwise_iso {A B : precategory} {F G : functor A B}
-    (n : nat_iso F G) (x : ob A) : iso (F x) (G x) := mk_iso (pr2 n x).
+    (n : nat_iso F G) (x : ob A) : iso (F x) (G x) := make_iso _ (pr2 n x).
 
   Local Lemma nat_iso_inv_after_nat_iso {A B : precategory} {F G : functor A B}
     (n : nat_iso F G) : ∏ x, (nat_iso_to_pointwise_iso n) x · (nat_iso_inv n) x = identity _.

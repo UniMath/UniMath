@@ -12,7 +12,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.categories.Types.
+Require Import UniMath.CategoryTheory.categories.Type.Core.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.Induction.PolynomialFunctors.
 Require Import UniMath.Induction.W.Core.
@@ -83,7 +83,7 @@ Proof.
     - exact (pr1 dprodpair).
     - exact (pr2 dprodpair (bfun tt)).
   * intro pairfun.
-    exact (dirprodpair (pairfun (true,, fromempty))
+    exact (make_dirprod (pairfun (true,, fromempty))
                        (λ x, pairfun (false,, λ _, x))).
   * reflexivity.
   * intro Y; apply from_nat_functor_eq; reflexivity.
@@ -93,7 +93,7 @@ Defined.
     ℕ. Any choice of zero results in an isomorphic algebra.
  *)
 Definition nat_alg (n : ℕ) : algebra_ob nat_functor :=
-  (ℕ,, nat_functor_equiv (dirprodpair n S)).
+  (ℕ,, nat_functor_equiv (make_dirprod n S)).
 
 Definition nat_alg_z : algebra_ob nat_functor := nat_alg 0.
 
@@ -112,7 +112,7 @@ Lemma nat_algs_eq : nat_alg_z = nat_alg'. Proof. reflexivity. Defined.
 
 (** An algebra morphism between algebras for the nat functor is a
     function that respects all the relevant structure. *)
-Definition mk_nat_functor_algebra_mor {X Y : algebra_ob nat_functor} :
+Definition make_nat_functor_algebra_mor {X Y : algebra_ob nat_functor} :
   let X' := invmap nat_functor_equiv (pr2 X) in
   let Y' := invmap nat_functor_equiv (pr2 Y) in
   ∏ (f : pr1 X → pr1 Y),
@@ -143,7 +143,7 @@ Proof.
   (** The recursor for ℕ gets an extra argument of type ℕ, which we don't pass
       to xsucc. Compare to [CategoryTheory.FunctorAlgebras.nat_ob_rec]. *)
   refine ((nat_rect _ x0 (λ _, xsucc)),, _).
-  apply mk_nat_functor_algebra_mor; split; reflexivity.
+  apply make_nat_functor_algebra_mor; split; reflexivity.
 Defined.
 
 (** The first projection of the morphism out of ℕ (the actual function)
@@ -188,7 +188,7 @@ Proof.
   apply weqfibtototal; intro X; cbn in X.
   use weq_iso.
   - intro x.
-    apply dirprodpair.
+    apply make_dirprod.
     + exact (x (true,, fromempty) (λ e, fromempty e)).
     + refine (λ n xn, _).
       unfold fibered_alg in x; cbn in x.
@@ -218,7 +218,7 @@ Defined.
     x agrees with the function which is a part of the fibered
     algebra (see above).
  *)
-Definition mk_nat_alg_sec :
+Definition make_nat_alg_sec :
   ∏ (FA : fibered_alg nat_alg_z),
   let FA' := fibered_algebra_nat FA
   in ∏ (x : ∏ n : ℕ, pr1 FA' n)
@@ -245,7 +245,7 @@ Proof.
 Defined.
 
 (** Another way to make an algebra section given different starting data. *)
-Definition mk_nat_alg_sec' {X : ℕ -> UU} {ρ : ∏ n, X n → X (S n)}
+Definition make_nat_alg_sec' {X : ℕ -> UU} {ρ : ∏ n, X n → X (S n)}
            (x : ∏ n : ℕ, X n) (H : ∏ n : ℕ, x (S n) = ρ n (x n)) :
   algebra_section
     (invmap fibered_algebra_nat (X,, (x 0,, ρ))).
@@ -261,7 +261,7 @@ Lemma nat_alg_is_preinitial_sec : is_preinitial_sec nat_alg_z.
 Proof.
   intro E. pose (x := pr2 E).
   unfold is_preinitial, algebra_section.
-  use mk_nat_alg_sec.
+  use make_nat_alg_sec.
   - apply nat_rect.
     + exact (x (true,, fromempty) (empty_rect (pr1 E ∘ fromempty))).
     + intros ? fn.

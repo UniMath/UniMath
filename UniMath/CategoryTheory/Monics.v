@@ -28,7 +28,7 @@ Section def_monic.
   Definition isMonic {y z : C} (f : y --> z) : UU :=
     ∏ (x : C) (g h : x --> y), g · f = h · f -> g = h.
 
-  Definition mk_isMonic {y z : C} (f : y --> z)
+  Definition make_isMonic {y z : C} (f : y --> z)
              (H : ∏ (x : C) (g h : x --> y), g · f = h · f -> g = h) : isMonic f := H.
 
   Lemma isapropisMonic {y z : C} (f : y --> z) : isaprop (isMonic f).
@@ -43,7 +43,7 @@ Section def_monic.
   (** Definition and construction of Monic. *)
   Definition Monic (y z : C) : UU := ∑ f : y --> z, isMonic f.
 
-  Definition mk_Monic {y z : C} (f : y --> z) (H : isMonic f) : Monic y z := tpair _ f H.
+  Definition make_Monic {y z : C} (f : y --> z) (H : isMonic f) : Monic y z := tpair _ f H.
 
   (** Gets the arrow out of Monic. *)
   Definition MonicArrow {y z : C} (M : Monic y z) : C⟦y, z⟧ := pr1 M.
@@ -54,7 +54,7 @@ Section def_monic.
   (** Isomorphism to isMonic and Monic. *)
   Lemma is_iso_isMonic {y x : C} (f : y --> x) (H : is_z_isomorphism f) : isMonic f.
   Proof.
-    apply mk_isMonic.
+    apply make_isMonic.
     intros z g h X.
     apply (post_comp_with_z_iso_is_inj H).
     exact X.
@@ -62,7 +62,7 @@ Section def_monic.
 
   Lemma is_iso_Monic {y x : C} (f : y --> x) (H : is_z_isomorphism f) : Monic y x.
   Proof.
-    apply (mk_Monic f (is_iso_isMonic f H)).
+    apply (make_Monic f (is_iso_isMonic f H)).
   Defined.
 
   (** Identity to isMonic and Monic. *)
@@ -80,7 +80,7 @@ Section def_monic.
   Definition isMonic_comp {x y z : C} (f : x --> y) (g : y --> z) :
     isMonic f -> isMonic g -> isMonic (f · g).
   Proof.
-    intros X X0. apply mk_isMonic. intros x0 g0 h X1.
+    intros X X0. apply make_isMonic. intros x0 g0 h X1.
     repeat rewrite assoc in X1. apply X0 in X1. apply X in X1. apply X1.
   Qed.
 
@@ -125,10 +125,10 @@ Section monics_subcategory.
   Variable C : precategory.
   Hypothesis hs : has_homsets C.
 
-  Definition hsubtype_obs_isMonic : hsubtype C := (λ c : C, hProppair _ isapropunit).
+  Definition hsubtype_obs_isMonic : hsubtype C := (λ c : C, make_hProp _ isapropunit).
 
   Definition hsubtype_mors_isMonic : ∏ (a b : C), hsubtype (C⟦a, b⟧) :=
-    (λ a b : C, (fun f : C⟦a, b⟧ => hProppair _ (isapropisMonic C hs f))).
+    (λ a b : C, (fun f : C⟦a, b⟧ => make_hProp _ (isapropisMonic C hs f))).
 
   Definition subprecategory_of_monics : sub_precategories C.
   Proof.

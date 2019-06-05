@@ -98,7 +98,7 @@ Proof.
 Defined.
 
 Lemma nth'_step n (x:iterprod (S n) A) i (I:i<n) :
-  nth' (S n) x (stnpair (S n) (S i) I) = nth' n (pr2 x) (stnpair n i I).
+  nth' (S n) x (make_stn (S n) (S i) I) = nth' n (pr2 x) (make_stn n i I).
 Proof.
   reflexivity.
 Defined.
@@ -350,7 +350,7 @@ Defined.
 
 Corollary weqlistfun {A} n : (iterprod n A) ≃ (stn n -> A).
 Proof.
-  exact (weqpair _ (isweqlistfun _)).
+  exact (make_weq _ (isweqlistfun _)).
 Defined.
 
 Lemma isofhleveliterprod (n : nat) (k : nat) {X : UU} (is1 : isofhlevel n X) : isofhlevel n (iterprod k X).

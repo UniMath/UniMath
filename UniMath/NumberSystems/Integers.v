@@ -38,7 +38,7 @@ Definition hz : commring := commrigtocommring natcommrig .
 Definition hzaddabgr : abgr := hz .
 Definition hzmultabmonoid : abmonoid := ringmultabmonoid hz .
 
-Definition natnattohz : nat -> nat -> hz := λ n m, setquotpr _ ( dirprodpair n m ) .
+Definition natnattohz : nat -> nat -> hz := λ n m, setquotpr _ ( make_dirprod n m ) .
 
 Definition hzplus : hz -> hz -> hz := @op1 hz.
 Definition hzsign : hz -> hz := grinv hzaddabgr .
@@ -70,17 +70,17 @@ Lemma isasethz : isaset hz .
 Proof . apply ( setproperty hzaddabgr ) . Defined .
 Opaque isasethz.
 
-Definition hzeq ( x y : hz ) : hProp := hProppair ( x = y ) ( isasethz _ _  )  .
+Definition hzeq ( x y : hz ) : hProp := make_hProp ( x = y ) ( isasethz _ _  )  .
 Definition isdecrelhzeq : isdecrel hzeq  := λ a b, isdeceqhz a b .
-Definition hzdeceq : decrel hz := decrelpair isdecrelhzeq .
+Definition hzdeceq : decrel hz := make_decrel isdecrelhzeq .
 
 (* Canonical Structure hzdeceq. *)
 
 Definition hzbooleq := decreltobrel hzdeceq .
 
-Definition hzneq ( x y : hz ) : hProp := hProppair ( neg ( x = y ) ) ( isapropneg _  )  .
+Definition hzneq ( x y : hz ) : hProp := make_hProp ( neg ( x = y ) ) ( isapropneg _  )  .
 Definition isdecrelhzneq : isdecrel hzneq  := isdecnegrel _ isdecrelhzeq .
-Definition hzdecneq : decrel hz := decrelpair isdecrelhzneq .
+Definition hzdecneq : decrel hz := make_decrel isdecrelhzneq .
 
 (* Canonical Structure hzdecneq. *)
 
@@ -202,9 +202,9 @@ Definition hzgth : hrel hz := rigtoringrel natcommrig isplushrelnatgth .
 
 Definition hzlth : hrel hz := λ a b, hzgth b a .
 
-Definition hzleh : hrel hz := λ a b, hProppair ( neg ( hzgth a b ) ) ( isapropneg _ )  .
+Definition hzleh : hrel hz := λ a b, make_hProp ( neg ( hzgth a b ) ) ( isapropneg _ )  .
 
-Definition hzgeh : hrel hz := λ a b, hProppair ( neg ( hzgth b a ) ) ( isapropneg _ )  .
+Definition hzgeh : hrel hz := λ a b, make_hProp ( neg ( hzgth b a ) ) ( isapropneg _ )  .
 
 (** *** Decidability *)
 
@@ -212,25 +212,25 @@ Definition hzgeh : hrel hz := λ a b, hProppair ( neg ( hzgth b a ) ) ( isapropn
 Lemma isdecrelhzgth : isdecrel hzgth .
 Proof . apply ( isdecrigtoringrel natcommrig isplushrelnatgth  ) .  apply isinvplushrelnatgth . apply isdecrelnatgth . Defined .
 
-Definition hzgthdec := decrelpair isdecrelhzgth .
+Definition hzgthdec := make_decrel isdecrelhzgth .
 
 (* Canonical Structure hzgthdec . *)
 
 Definition isdecrelhzlth : isdecrel hzlth := λ x x', isdecrelhzgth x' x .
 
-Definition hzlthdec := decrelpair isdecrelhzlth .
+Definition hzlthdec := make_decrel isdecrelhzlth .
 
 (* Canonical Structure hzlthdec . *)
 
 Definition isdecrelhzleh : isdecrel hzleh := isdecnegrel _ isdecrelhzgth .
 
-Definition hzlehdec := decrelpair isdecrelhzleh .
+Definition hzlehdec := make_decrel isdecrelhzleh .
 
 (* Canonical Structure hzlehdec . *)
 
 Definition isdecrelhzgeh : isdecrel hzgeh := λ x x', isdecrelhzleh x' x .
 
-Definition hzgehdec := decrelpair isdecrelhzgeh .
+Definition hzgehdec := make_decrel isdecrelhzgeh .
 
 (* Canonical Structure hzgehdec . *)
 
@@ -722,11 +722,11 @@ Definition hzgehtogehs ( n m : hz ) : hzgeh n m -> hzgeh ( n + 1 ) m := hzlehtol
 Lemma hzgthtogehsn ( n m : hz ) : hzgth n m -> hzgeh n ( m + 1 ) .
 Proof. assert ( int : ∏ n m , isaprop ( hzgth n m -> hzgeh n ( m + 1 )  ) ) .
        { intros . apply impred . intro . apply ( pr2 _ ) . }
-       unfold hzgth in * .  apply ( setquotuniv2prop _ ( λ n m, hProppair _ ( int n m ) ) ) . set ( R := abgrdiffrelint nataddabmonoid natgth ) .
-       intros x x' .  change ( R x x' -> ( neg ( R ( @op ( abmonoiddirprod (rigaddabmonoid natcommrig) (rigaddabmonoid natcommrig) ) x' ( dirprodpair 1%nat 0%nat ) ) x ) ) ) .
+       unfold hzgth in * .  apply ( setquotuniv2prop _ ( λ n m, make_hProp _ ( int n m ) ) ) . set ( R := abgrdiffrelint nataddabmonoid natgth ) .
+       intros x x' .  change ( R x x' -> ( neg ( R ( @op ( abmonoiddirprod (rigaddabmonoid natcommrig) (rigaddabmonoid natcommrig) ) x' ( make_dirprod 1%nat 0%nat ) ) x ) ) ) .
        unfold R . unfold abgrdiffrelint . simpl .
-       apply ( @hinhuniv _  (hProppair ( neg ( ishinh_UU _ ) ) ( isapropneg _ ) ) ) .
-       intro t2 . simpl . unfold neg .  apply ( @hinhuniv _ ( hProppair _ isapropempty ) ) .
+       apply ( @hinhuniv _  (make_hProp ( neg ( ishinh_UU _ ) ) ( isapropneg _ ) ) ) .
+       intro t2 . simpl . unfold neg .  apply ( @hinhuniv _ ( make_hProp _ isapropempty ) ) .
        intro t2' .
        set ( x1 := pr1 x ) . set ( a1 := pr2 x ) . set ( x2 := pr1 x' ) .
        set ( a2 := pr2 x' ) . set ( c1 := pr1 t2 ) . assert ( r1 := pr2 t2 ) .
@@ -790,7 +790,7 @@ Proof . intros . apply ( natnattohzandgth xa2 xa1 is ) .  Defined .
 
 (** *** Canonical rig homomorphism from [ nat ] to [ hz ] *)
 
-Definition nattohz : nat -> hz := λ n, setquotpr _ ( dirprodpair n 0%nat ) .
+Definition nattohz : nat -> hz := λ n, setquotpr _ ( make_dirprod n 0%nat ) .
 
 Definition isinclnattohz : isincl nattohz := isincltoringdiff natcommrig ( λ n, isinclnatplusr n ) .
 
@@ -841,7 +841,7 @@ Definition hzabsvalint : ( dirprod nat nat ) -> nat .
 Proof . intro nm . destruct ( natgthorleh ( pr1 nm ) ( pr2  nm ) ) .  apply ( sub ( pr1 nm ) ( pr2 nm ) ) . apply ( sub ( pr2 nm ) ( pr1 nm ) ) . Defined .
 
 Lemma hzabsvalintcomp : @iscomprelfun ( dirprod nat nat ) nat ( hrelabgrdiff nataddabmonoid )  hzabsvalint .
-Proof . unfold iscomprelfun .  intros x x' . unfold hrelabgrdiff . simpl . apply ( @hinhuniv _ ( hProppair _ ( isasetnat (hzabsvalint x) (hzabsvalint x') ) ) ) .  unfold hzabsvalint . set ( n := ( pr1 x ) : nat  ) . set ( m := ( pr2 x ) : nat ) . set ( n' := ( pr1 x' ) : nat ) . set ( m' := ( pr2 x' ) : nat ) .   set ( int := natgthorleh n m ) . set ( int' := natgthorleh n' m' ) .   intro tt0 . simpl .  destruct tt0 as [ x0 eq ] .  simpl in eq .  assert ( e' := invmaponpathsincl _ ( isinclnatplusr x0 ) _ _ eq ) .
+Proof . unfold iscomprelfun .  intros x x' . unfold hrelabgrdiff . simpl . apply ( @hinhuniv _ ( make_hProp _ ( isasetnat (hzabsvalint x) (hzabsvalint x') ) ) ) .  unfold hzabsvalint . set ( n := ( pr1 x ) : nat  ) . set ( m := ( pr2 x ) : nat ) . set ( n' := ( pr1 x' ) : nat ) . set ( m' := ( pr2 x' ) : nat ) .   set ( int := natgthorleh n m ) . set ( int' := natgthorleh n' m' ) .   intro tt0 . simpl .  destruct tt0 as [ x0 eq ] .  simpl in eq .  assert ( e' := invmaponpathsincl _ ( isinclnatplusr x0 ) _ _ eq ) .
 
 destruct int as [isgt | isle ] . destruct int' as [ isgt' | isle' ] .
 
@@ -864,7 +864,7 @@ Proof .  apply idpath .  Defined .
 Lemma hzabsvalgth0 { x : hz } ( is : hzgth x 0 ) : ( nattohz ( hzabsval x ) ) = x .
 Proof .
 revert x is.
-assert ( int : ∏ x : hz , isaprop ( hzgth x 0 -> ( nattohz ( hzabsval x ) ) = x ) ) . intro . apply impred . intro . apply ( setproperty hz ) .  apply ( setquotunivprop _ ( λ x, hProppair _ ( int x ) ) ) . intros xa g . simpl in xa . assert ( g' := natnattohzandgth _ _ g ) . simpl in g' .  simpl .  change (( setquotpr (eqrelabgrdiff (rigaddabmonoid natcommrig)) ( dirprodpair ( hzabsvalint xa ) 0%nat ) ) = ( setquotpr (eqrelabgrdiff (rigaddabmonoid natcommrig)) xa ) ) . apply weqpathsinsetquot . simpl . apply hinhpr . split with 0%nat .  change ( pr1 ( natgth ( pr1 xa + 0%nat ) ( pr2 xa ) ) ) in g' . rewrite ( natplusr0 _ ) in g' .  change ((hzabsvalint xa + pr2 xa + 0)%nat = (pr1 xa + 0 + 0)%nat ) . rewrite ( natplusr0 _ ) .  rewrite ( natplusr0 _ ) .  rewrite ( natplusr0 _ ) . unfold hzabsvalint .   destruct ( natgthorleh (pr1 xa) (pr2 xa)  ) as [ g'' | l ] .
+assert ( int : ∏ x : hz , isaprop ( hzgth x 0 -> ( nattohz ( hzabsval x ) ) = x ) ) . intro . apply impred . intro . apply ( setproperty hz ) .  apply ( setquotunivprop _ ( λ x, make_hProp _ ( int x ) ) ) . intros xa g . simpl in xa . assert ( g' := natnattohzandgth _ _ g ) . simpl in g' .  simpl .  change (( setquotpr (eqrelabgrdiff (rigaddabmonoid natcommrig)) ( make_dirprod ( hzabsvalint xa ) 0%nat ) ) = ( setquotpr (eqrelabgrdiff (rigaddabmonoid natcommrig)) xa ) ) . apply weqpathsinsetquot . simpl . apply hinhpr . split with 0%nat .  change ( pr1 ( natgth ( pr1 xa + 0%nat ) ( pr2 xa ) ) ) in g' . rewrite ( natplusr0 _ ) in g' .  change ((hzabsvalint xa + pr2 xa + 0)%nat = (pr1 xa + 0 + 0)%nat ) . rewrite ( natplusr0 _ ) .  rewrite ( natplusr0 _ ) .  rewrite ( natplusr0 _ ) . unfold hzabsvalint .   destruct ( natgthorleh (pr1 xa) (pr2 xa)  ) as [ g'' | l ] .
 
 rewrite ( minusplusnmm _ _ ( natlthtoleh _ _ g'' ) ) . apply idpath .
 
@@ -879,7 +879,7 @@ Proof .  intros . destruct ( hzgehchoice _ _ is ) as [ g | e ] .  apply ( hzabsv
 Lemma hzabsvallth0 { x : hz } ( is : hzlth x 0 ) : ( nattohz ( hzabsval x ) ) = ( - x ) .
 Proof .
 revert x is.
-assert ( int : ∏ x : hz , isaprop ( hzlth x 0 -> ( nattohz ( hzabsval x ) ) = ( - x ) ) ) . intro . apply impred . intro . apply ( setproperty hz ) .  apply ( setquotunivprop _ ( λ x, hProppair _ ( int x ) ) ) . intros xa l . simpl in xa . assert ( l' := natnattohzandlth _ _ l ) . simpl in l' .  simpl .  change (( setquotpr (eqrelabgrdiff (rigaddabmonoid natcommrig)) ( dirprodpair ( hzabsvalint xa ) 0%nat ) ) = ( setquotpr (eqrelabgrdiff (rigaddabmonoid natcommrig)) ( dirprodpair ( pr2 xa ) ( pr1 xa ) ) ) ) . apply weqpathsinsetquot . simpl . apply hinhpr . split with 0%nat .  change ( pr1 ( natlth ( pr1 xa + 0%nat ) ( pr2 xa ) ) ) in l' . rewrite ( natplusr0 _ ) in l' .  change ((hzabsvalint xa + pr1 xa + 0)%nat = (pr2 xa + 0 + 0)%nat). rewrite ( natplusr0 _ ) .  rewrite ( natplusr0 _ ) .  rewrite ( natplusr0 _ ) . unfold hzabsvalint .   destruct ( natgthorleh (pr1 xa) (pr2 xa)  ) as [ g | l'' ] .
+assert ( int : ∏ x : hz , isaprop ( hzlth x 0 -> ( nattohz ( hzabsval x ) ) = ( - x ) ) ) . intro . apply impred . intro . apply ( setproperty hz ) .  apply ( setquotunivprop _ ( λ x, make_hProp _ ( int x ) ) ) . intros xa l . simpl in xa . assert ( l' := natnattohzandlth _ _ l ) . simpl in l' .  simpl .  change (( setquotpr (eqrelabgrdiff (rigaddabmonoid natcommrig)) ( make_dirprod ( hzabsvalint xa ) 0%nat ) ) = ( setquotpr (eqrelabgrdiff (rigaddabmonoid natcommrig)) ( make_dirprod ( pr2 xa ) ( pr1 xa ) ) ) ) . apply weqpathsinsetquot . simpl . apply hinhpr . split with 0%nat .  change ( pr1 ( natlth ( pr1 xa + 0%nat ) ( pr2 xa ) ) ) in l' . rewrite ( natplusr0 _ ) in l' .  change ((hzabsvalint xa + pr1 xa + 0)%nat = (pr2 xa + 0 + 0)%nat). rewrite ( natplusr0 _ ) .  rewrite ( natplusr0 _ ) .  rewrite ( natplusr0 _ ) . unfold hzabsvalint .   destruct ( natgthorleh (pr1 xa) (pr2 xa)  ) as [ g | l'' ] .
 
 destruct ( isasymmnatgth _ _ g l' ) .
 
@@ -1127,13 +1127,13 @@ Qed.
 Transparent nat_to_monoid_fun.
 
 Lemma nat_nat_to_monoid1 {X : gr} (x : X) {n1 n2 m2 : nat} (e : n2 = m2) :
-  nat_nat_to_monoid_fun x (dirprodpair n1 n2) = nat_nat_to_monoid_fun x (dirprodpair n1 m2).
+  nat_nat_to_monoid_fun x (make_dirprod n1 n2) = nat_nat_to_monoid_fun x (make_dirprod n1 m2).
 Proof.
   induction e. use idpath.
 Qed.
 
 Lemma nat_nat_to_monoid2 {X : gr} (x : X) {n1 m1 n2 : nat} (e : n1 = m1) :
-  nat_nat_to_monoid_fun x (dirprodpair n1 n2) = nat_nat_to_monoid_fun x (dirprodpair m1 n2).
+  nat_nat_to_monoid_fun x (make_dirprod n1 n2) = nat_nat_to_monoid_fun x (make_dirprod m1 n2).
 Proof.
   induction e. use idpath.
 Qed.
@@ -1145,7 +1145,7 @@ Opaque nat_to_monoid_fun.
 Lemma nat_nat_monoid_fun_isbinopfun {X : abgr} (x : X) :
   isbinopfun (nataddabmonoid_nataddabmonoid_to_monoid_fun x).
 Proof.
-  use mk_isbinopfun. intros n m. induction n as [n1 n2]. induction m as [m1 m2]. cbn.
+  use make_isbinopfun. intros n m. induction n as [n1 n2]. induction m as [m1 m2]. cbn.
   unfold nataddabmonoid_nataddabmonoid_to_monoid_fun. unfold nat_nat_to_monoid_fun. cbn.
   rewrite nat_to_abmonoid_fun_plus. rewrite nat_to_abmonoid_fun_plus.
   rewrite (assocax X). rewrite (assocax X).
@@ -1182,7 +1182,7 @@ Definition nat_nat_prod_abmonoid_monoidfun {X : abgr} (x : X) :
 Proof.
   use monoidfunconstr.
   - exact (nataddabmonoid_nataddabmonoid_to_monoid_fun x).
-  - use mk_ismonoidfun.
+  - use make_ismonoidfun.
     + exact (nat_nat_monoid_fun_isbinopfun x).
     + exact (nat_nat_prod_abmonoid_fun_unel x).
 Defined.
@@ -1194,8 +1194,8 @@ Lemma hz_abmonoid_ismonoidfun :
                                            (rigaddabmonoid natcommrig))
                           (binopeqrelabgrdiff (rigaddabmonoid natcommrig))).
 Proof.
-  use mk_ismonoidfun.
-  - use mk_isbinopfun. intros x x'. use idpath.
+  use make_ismonoidfun.
+  - use make_isbinopfun. intros x x'. use idpath.
   - use idpath.
 Qed.
 
@@ -1208,16 +1208,16 @@ Proof.
 Defined.
 
 Definition nat_nat_fun_unel {X : abgr} (x : X) (n : nat) :
-  nat_nat_to_monoid_fun x (dirprodpair n n) = unel X.
+  nat_nat_to_monoid_fun x (make_dirprod n n) = unel X.
 Proof.
   exact (nat_to_monoid_unel' x n).
 Qed.
 
 Opaque nat_to_monoid_fun.
 Definition nat_nat_fun_ind {X : abgr} (x : X) (n m : nat) :
-  nat_nat_to_monoid_fun x (dirprodpair (n + m)%nat m) = nat_nat_to_monoid_fun x (dirprodpair n O).
+  nat_nat_to_monoid_fun x (make_dirprod (n + m)%nat m) = nat_nat_to_monoid_fun x (make_dirprod n O).
 Proof.
-  use (pathscomp0 (nat_nat_monoid_fun_isbinopfun x (dirprodpair n O) (dirprodpair m m))).
+  use (pathscomp0 (nat_nat_monoid_fun_isbinopfun x (make_dirprod n O) (make_dirprod m m))).
   unfold nataddabmonoid_nataddabmonoid_to_monoid_fun.
   rewrite (nat_nat_fun_unel x m). rewrite (runax X). use idpath.
 Qed.
@@ -1225,8 +1225,8 @@ Transparent nat_to_monoid_fun.
 
 Opaque nat_to_monoid_fun.
 Definition nat_nat_fun_ind2 {X : abgr} (x : X) (n1 n2 m k : nat) :
-  nat_nat_to_monoid_fun x (dirprodpair n1 m) = nat_nat_to_monoid_fun x (dirprodpair n2 k) ->
-  nat_nat_to_monoid_fun x (dirprodpair n1 (S m)) = nat_nat_to_monoid_fun x (dirprodpair n2 (S k)).
+  nat_nat_to_monoid_fun x (make_dirprod n1 m) = nat_nat_to_monoid_fun x (make_dirprod n2 k) ->
+  nat_nat_to_monoid_fun x (make_dirprod n1 (S m)) = nat_nat_to_monoid_fun x (make_dirprod n2 (S k)).
 Proof.
   intros H.
   unfold nat_nat_to_monoid_fun in *. cbn in *.
@@ -1269,7 +1269,7 @@ Proof.
         rewrite natplusnsm in H2. rewrite <- natplusassoc in H2.
         apply natplusrcan in H2. exact H2.
     }
-    set (tmp := IHx1 (dirprodpair x2 (S e2)) HH). cbn in tmp.
+    set (tmp := IHx1 (make_dirprod x2 (S e2)) HH). cbn in tmp.
     use (pathscomp0 (maponpaths (λ xx : X, (x * xx)%multmonoid) tmp)).
     clear tmp. clear HH. clear H2. clear IHx1. rewrite (commax X x). rewrite (assocax X).
     use two_arg_paths.
@@ -1292,7 +1292,7 @@ Defined.
 (** Hide ismonoidfun behind Qed. *)
 Definition hz_abgr_fun_ismonoidfun {X : abgr} (x : X) : ismonoidfun (hz_abgr_fun x).
 Proof.
-  use mk_ismonoidfun.
+  use make_ismonoidfun.
   - use isbinopfun_twooutof3b.
     + use (abmonoiddirprod (rigaddabmonoid natcommrig) (rigaddabmonoid natcommrig)).
     + use (hz_abmonoid_monoidfun).
@@ -1431,11 +1431,11 @@ Proof.
     - exact (!e). }
 Defined.
 
-Definition negpos_weq := weqpair _ negpos' : weq (total2 hz_normal_form) ℤ.
+Definition negpos_weq := make_weq _ negpos' : weq (total2 hz_normal_form) ℤ.
 
 Definition negpos : weq (coprod nat nat) ℤ. (* ℤ = (-inf,-1) + (0,inf) *)
 Proof.
-  simple refine (weqpair _ (isweq_iso _ _ _ _)).
+  simple refine (make_weq _ (isweq_iso _ _ _ _)).
   { intros [n'|n].
     { exact (natnattohz 0 (S n')). } { exact (natnattohz n 0). } }
   { intro i. destruct (hz_to_normal_form i) as [[n p]|[m q]].
@@ -1461,4 +1461,3 @@ Proof.
   intros. assert (m := loop_power_nat l (hzabsval n)).
   destruct (hzlthorgeh n 0%hz). { exact (!m). } { exact m. }
 Defined.
-

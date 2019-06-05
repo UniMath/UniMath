@@ -21,14 +21,14 @@ Local Open Scope cat.
 Section def_setwith2binop_precategory.
 
   Definition setwith2binop_fun_space (A B : setwith2binop) : hSet :=
-    hSetpair (twobinopfun A B) (isasettwobinopfun A B).
+    make_hSet (twobinopfun A B) (isasettwobinopfun A B).
 
   Definition setwith2binop_precategory_ob_mor : precategory_ob_mor :=
     tpair (λ ob : UU, ob -> ob -> UU) setwith2binop
           (λ A B : setwith2binop, setwith2binop_fun_space A B).
 
   Definition setwith2binop_precategory_data : precategory_data :=
-    precategory_data_pair
+    make_precategory_data
       setwith2binop_precategory_ob_mor
       (λ (X : setwith2binop), ((idtwobinopiso X) : twobinopfun X X))
       (fun (X Y Z : setwith2binop) (f : twobinopfun X Y) (g : twobinopfun Y Z)
@@ -59,7 +59,7 @@ Section def_setwith2binop_precategory.
   Lemma is_precategory_setwith2binop_precategory_data :
     is_precategory setwith2binop_precategory_data.
   Proof.
-    use mk_is_precategory.
+    use make_is_precategory.
     - intros a b f. use setwith2binop_id_left.
     - intros a b f. use setwith2binop_id_right.
     - intros a b c d f g h. use setwith2binop_assoc.
@@ -67,7 +67,7 @@ Section def_setwith2binop_precategory.
   Defined.
 
   Definition setwith2binop_precategory : precategory :=
-    mk_precategory setwith2binop_precategory_data is_precategory_setwith2binop_precategory_data.
+    make_precategory setwith2binop_precategory_data is_precategory_setwith2binop_precategory_data.
 
   Lemma has_homsets_setwith2binop_precategory : has_homsets setwith2binop_precategory.
   Proof.
@@ -99,17 +99,17 @@ Section def_setwith2binop_category.
   Lemma setwith2binop_iso_equiv (X Y : ob setwith2binop_precategory) : iso X Y -> twobinopiso X Y.
   Proof.
     intro f.
-    use twobinopisopair.
-    - exact (weqpair (pr1 (pr1 f)) (setwith2binop_iso_is_equiv X Y f)).
+    use make_twobinopiso.
+    - exact (make_weq (pr1 (pr1 f)) (setwith2binop_iso_is_equiv X Y f)).
     - exact (pr2 (pr1 f)).
   Defined.
 
   Lemma setwith2binop_equiv_is_iso (X Y : ob setwith2binop_precategory) (f : twobinopiso X Y) :
-    @is_iso setwith2binop_precategory X Y (twobinopfunpair (pr1 (pr1 f)) (pr2 f)).
+    @is_iso setwith2binop_precategory X Y (make_twobinopfun (pr1 (pr1 f)) (pr2 f)).
   Proof.
     use is_iso_qinv.
-    - exact (twobinopfunpair (pr1 (pr1 (invtwobinopiso f))) (pr2 (invtwobinopiso f))).
-    - use mk_is_inverse_in_precat.
+    - exact (make_twobinopfun (pr1 (pr1 (invtwobinopiso f))) (pr2 (invtwobinopiso f))).
+    - use make_is_inverse_in_precat.
       + use twobinopfun_paths. use funextfun. intros x. use homotinvweqweq.
       + use twobinopfun_paths. use funextfun. intros y. use homotweqinvweq.
   Defined.
@@ -117,7 +117,7 @@ Section def_setwith2binop_category.
 
   Lemma setwith2binop_equiv_iso (X Y : ob setwith2binop_precategory) : twobinopiso X Y -> iso X Y.
   Proof.
-    intros f. exact (@isopair setwith2binop_precategory X Y (twobinopfunpair (pr1 (pr1 f)) (pr2 f))
+    intros f. exact (@make_iso setwith2binop_precategory X Y (make_twobinopfun (pr1 (pr1 f)) (pr2 f))
                               (setwith2binop_equiv_is_iso X Y f)).
   Defined.
 
@@ -136,7 +136,7 @@ Section def_setwith2binop_category.
   Definition setwith2binop_iso_equiv_weq (X Y : ob setwith2binop_precategory) :
     (iso X Y) ≃ (twobinopiso X Y).
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (setwith2binop_iso_equiv X Y).
     - exact (setwith2binop_iso_equiv_is_equiv X Y).
   Defined.
@@ -156,7 +156,7 @@ Section def_setwith2binop_category.
   Definition setwith2binop_equiv_weq_iso (X Y : ob setwith2binop_precategory) :
     (twobinopiso X Y) ≃ (iso X Y).
   Proof.
-    use weqpair.
+    use make_weq.
     - exact (setwith2binop_equiv_iso X Y).
     - exact (setwith2binop_equiv_iso_is_equiv X Y).
   Defined.
@@ -182,12 +182,12 @@ Section def_setwith2binop_category.
 
   Definition setwith2binop_precategory_is_univalent : is_univalent setwith2binop_precategory.
   Proof.
-    use mk_is_univalent.
+    use make_is_univalent.
     - intros X Y. exact (setwith2binop_precategory_isweq X Y).
     - exact has_homsets_setwith2binop_precategory.
   Defined.
 
   Definition setwith2binop_category : univalent_category :=
-    mk_category setwith2binop_precategory setwith2binop_precategory_is_univalent.
+    make_univalent_category setwith2binop_precategory setwith2binop_precategory_is_univalent.
 
 End def_setwith2binop_category.
