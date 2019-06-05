@@ -1,7 +1,0 @@
-functors.v
-auxiliary_lemmas.v
-containers.v
-algebras.v
-M_from_nat.v
-addresses.v
-W_from_M.v
