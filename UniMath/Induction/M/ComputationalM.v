@@ -7,11 +7,9 @@
     formalization was obtained as project work of the UniMath 2019 school
     and is heavily inspired by that former formalization.
 
-    Author: Dominik Kirst (@dominik-kirst)
+    Author: Dominik Kirst (@dominik-kirst) and Ralph Matthes (@rmatthes)
 
-    with help by Ralph Matthes (CNRS): proof of [P_isaprop] and change to def. of [destrM'] so that the proof of [eq3] became trivial
-
- *)
+*)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
