@@ -19,7 +19,6 @@ env:
     - PACKAGES=Tactics BUILD_COQIDE=yes BUILD_ALSO=TAGS
     - PACKAGES=Folds
     - PACKAGES=Induction
-    - PACKAGES=Inductives
     - PACKAGES="Foundations Combinatorics Algebra NumberSystems" COQ_BRANCH=master
 
 # The "docker run" command will pull if needed.

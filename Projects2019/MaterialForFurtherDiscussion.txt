@@ -1,5 +1,0 @@
-mentioned by Liang-Ting:
-
-(propositional) resizing rules can be invalidated in models of type theory with a univalent and impredicative universe, paper by Taichi Uemura:
-Cubical Assemblies and the Independence of the Propositional Resizing Axiom
-https://arxiv.org/abs/1803.06649v2

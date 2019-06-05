@@ -25,7 +25,6 @@ PACKAGES += Folds
 PACKAGES += HomologicalAlgebra
 PACKAGES += Paradoxes
 PACKAGES += Induction
-PACKAGES += Inductives
 ############################################
 # other user options; see also build/Makefile-configuration-template
 BUILD_COQ ?= yes
