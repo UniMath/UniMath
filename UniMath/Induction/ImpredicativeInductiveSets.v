@@ -9,7 +9,6 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
-Require Import UniMath.CategoryTheory.categories.Types.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Structures.
 
@@ -32,7 +31,7 @@ Proof.
   apply setproperty.
 Defined.
 
-Definition pre_prod_as_set: HSET := hSetpair pre_prod pre_prod_isaset.
+Definition pre_prod_as_set: HSET := make_hSet pre_prod pre_prod_isaset.
 
 Definition nProduct (α: pre_prod): UU :=
   ∏(X Y : HSET) (f : pr1hSet X → pr1hSet Y) (h : pr1hSet A -> pr1hSet B -> pr1hSet X), f (α X h) = α Y (λ a b, f (h a b)).
@@ -52,7 +51,7 @@ Proof.
   apply (setproperty Y).
 Defined.
 
-Definition nProduct_as_set (α: pre_prod): HSET := hSetpair _ (nProduct_isaset α).
+Definition nProduct_as_set (α: pre_prod): HSET := make_hSet _ (nProduct_isaset α).
 
 Definition Product: UU := ∑ α: pre_prod, pr1hSet (nProduct_as_set α).
 
@@ -61,7 +60,7 @@ Proof.
   apply (isaset_total2_hSet pre_prod_as_set).
 Defined.
 
-Definition Product_as_set: HSET := hSetpair _ Product_isaset.
+Definition Product_as_set: HSET := make_hSet _ Product_isaset.
 
 Definition Pair (a : pr1hSet A) (b : pr1hSet B) : Product.
 Proof.
@@ -243,7 +242,7 @@ Proof.
   apply setproperty.
 Defined.
 
-Definition pre_sum_as_set: HSET := hSetpair pre_sum pre_sum_isaset.
+Definition pre_sum_as_set: HSET := make_hSet pre_sum pre_sum_isaset.
 
 Definition nSum (α: pre_sum): UU :=
   ∏(X Y : HSET) (f : pr1hSet X → pr1hSet Y) (h : pr1hSet A -> pr1hSet X) (k: pr1hSet B -> pr1hSet X), f (α X h k) = α Y (f ∘ h) (f ∘ k).
@@ -265,7 +264,7 @@ Proof.
   apply (setproperty Y).
 Defined.
 
-Definition nSum_as_set (α: pre_sum): HSET := hSetpair _ (nSum_isaset α).
+Definition nSum_as_set (α: pre_sum): HSET := make_hSet _ (nSum_isaset α).
 
 Definition Sum: UU := ∑ α: pre_sum, pr1hSet (nSum_as_set α).
 
@@ -274,7 +273,7 @@ Proof.
   apply (isaset_total2_hSet pre_sum_as_set).
 Defined.
 
-Definition Sum_as_set: HSET := hSetpair _ Sum_isaset.
+Definition Sum_as_set: HSET := make_hSet _ Sum_isaset.
 
 Definition Sum_inl: HSET ⟦A, Sum_as_set⟧.
 Proof.
@@ -464,7 +463,7 @@ Proof.
   apply setproperty.
 Defined.
 
-Definition pre_nat_as_set: HSET := hSetpair _ pre_nat_isaset.
+Definition pre_nat_as_set: HSET := make_hSet _ pre_nat_isaset.
 
 Definition nNat (α: pre_nat): UU :=
   ∏(X Y : HSET) (x: pr1hSet X) (y: pr1hSet Y)(h: pr1hSet X → pr1hSet X)(k: pr1hSet Y → pr1hSet Y) (f : pr1hSet X -> pr1hSet Y), f x = y -> f ∘ h = k ∘ f -> f (α X h x) = α Y k y.
@@ -494,7 +493,7 @@ Proof.
   apply (setproperty Y).
 Defined.
 
-Definition nNat_as_set (α: pre_nat): HSET := hSetpair _ (nNat_isaset α).
+Definition nNat_as_set (α: pre_nat): HSET := make_hSet _ (nNat_isaset α).
 
 Definition Nat: UU := ∑ α: pre_nat, pr1hSet (nNat_as_set α).
 
@@ -503,7 +502,7 @@ Proof.
   apply (isaset_total2_hSet pre_nat_as_set).
 Defined.
 
-Definition Nat_as_set: HSET := hSetpair _ Nat_isaset.
+Definition Nat_as_set: HSET := make_hSet _ Nat_isaset.
 
 Definition Z: Nat.
 Proof.
