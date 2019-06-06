@@ -23,6 +23,14 @@ Require Import UniMath.Induction.PolynomialFunctors.
 Require Import UniMath.Induction.M.Core.
 Require Import UniMath.Induction.M.Uniqueness.
 
+(**
+    The construction is called a refinement: as input we take any final coalgebra
+    for the respective polynomial functor describing an M-type  (hence, with the
+    provable coiteration rule), the output is the refined final coalgebra with the
+    equational rule of coiteration holding definitionally: Lemma [corec_computation]
+    is proved merely by [idpath]. Of course, both coalgebras are equal - provably
+    (Lemma [coalgebras_eq]).
+*)
 Section Refinement.
 
   Context (A : UU).
