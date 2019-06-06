@@ -89,7 +89,7 @@ Section Refinement.
         apply iscontrcoconusfromt.
       + intro mp; induction mp as [m0' q].
         apply isapropishinh.
-  Qed.
+  Defined.
 
   (** the crucial lemma *)
   Local Lemma P_isaprop (m0 : carrierM0) :
@@ -197,7 +197,7 @@ Section Refinement.
       apply idweq.
     - cbn. intro mp.
       apply idweq.
-  Qed.
+  Defined.
 
   (* Now the destructor of M can be defined *)
 
@@ -240,7 +240,7 @@ Section Refinement.
     apply (maponpaths (fun X => pr1 X m0)).
     apply pathsinv0.
     assumption.
-  Qed.
+  Defined.
 
   Definition injectM0 m0 :
     ∃ C c, corecM0 C c = m0.
@@ -269,20 +269,20 @@ Section Refinement.
     = transportf (λ X, F X) carriers_eq (destrM (transportf (λ X, X) (!carriers_eq) m0)).
   Proof.
     destruct carriers_eq. apply idpath.
-  Qed.
+  Defined.
 
   Local Lemma eq2 (m0 : carrierM0) :
     transportf (λ X, X) (!carriers_eq) m0 = m0,, injectM0 m0.
   Proof.
     apply (transportf_pathsinv0' (idfun UU) carriers_eq).
     unfold carriers_eq. rewrite weqpath_transport. apply idpath.
-  Qed.
+  Defined.
 
   Local Lemma eq3 m0 :
     destrM (m0,, injectM0 m0) = pr1 (destrM0 m0),, corecM M0 ∘ pr2 (destrM0 m0).
   Proof.
     apply idpath.
-  Qed.
+  Defined.
 
   Lemma coalgebras_eq :
     M = M0.
@@ -296,7 +296,7 @@ Section Refinement.
     cbn. apply funextsec. intros b. rewrite <- helper_A.
     unfold carriers_eq. rewrite weqpath_transport.
     cbn. rewrite eq_corecM0. apply idpath.
-  Qed.
+  Defined.
 
   (* Thus M is final *)
 
