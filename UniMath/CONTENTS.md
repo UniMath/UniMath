@@ -448,4 +448,5 @@ The packages and files are listed here in logical order: each file depends only 
    - [W/Naturals.v](Induction/W/Naturals.v)
    - [W/Uniqueness.v](Induction/W/Uniqueness.v)
    - [M/Chains.v](Induction/M/Chains.v)
+   - [M/ComputationalM.v](Induction/M/ComputationalM.v)
    - [All.v](Induction/All.v)
