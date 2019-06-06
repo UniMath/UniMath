@@ -227,7 +227,7 @@ Section Refinement.
     destrM (corecM C c) = # F (corecM C) (pr2 C c).
   Proof.
     apply idpath.
-  Qed.
+  Defined.
 
   (* The two carriers are equal *)
 
