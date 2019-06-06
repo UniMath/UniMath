@@ -1,6 +1,16 @@
 (** ** Impredicative Construction of Inductive Types that are Sets and Eliminate into Sets *)
 
-(** This is based on Sam Speight's master's thesis *)
+(** This is based on Sam Speight's master's thesis
+
+
+    A Lean formalization of this had been available at https://github.com/jonas-frey/Impredicative/blob/master/
+    The aim of this project at the UniMath School 2019 was to have the same results within UniMath - for the
+    time being only binary products, binary coproducts and natural numbers. This has been achieved, with the
+    exception of the universal property of the binary product which has not been tried out for lack of time.
+
+    Authors: Ralph Matthes (@rmatthes), Sam Speight (@sspeight93)
+
+*)
 
 Require Import UniMath.Foundations.Init.
 Require Import UniMath.Foundations.Preamble.
