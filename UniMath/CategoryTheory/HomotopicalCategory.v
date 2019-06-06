@@ -17,7 +17,7 @@
 
   - Results:
     - [two_of_six_implies_two_of_three]
-    - cats_minimal_homotopical (any category is a minimal homotopical category)
+    - [cats_minimal_homotopical] (any category is a minimal homotopical category)
 
 *)
 
