@@ -23,6 +23,14 @@ Require Import UniMath.Induction.PolynomialFunctors.
 Require Import UniMath.Induction.M.Core.
 Require Import UniMath.Induction.M.Uniqueness.
 
+(**
+    The construction is called a refinement: as input we take any final coalgebra
+    for the respective polynomial functor describing an M-type  (hence, with the
+    provable coiteration rule), the output is the refined final coalgebra with the
+    equational rule of coiteration holding definitionally: Lemma [corec_computation]
+    is proved merely by [idpath]. Of course, both coalgebras are equal - provably
+    (Lemma [coalgebras_eq]).
+*)
 Section Refinement.
 
   Context (A : UU).
@@ -81,7 +89,7 @@ Section Refinement.
         apply iscontrcoconusfromt.
       + intro mp; induction mp as [m0' q].
         apply isapropishinh.
-  Qed.
+  Defined.
 
   (** the crucial lemma *)
   Local Lemma P_isaprop (m0 : carrierM0) :
@@ -189,7 +197,7 @@ Section Refinement.
       apply idweq.
     - cbn. intro mp.
       apply idweq.
-  Qed.
+  Defined.
 
   (* Now the destructor of M can be defined *)
 
@@ -219,7 +227,7 @@ Section Refinement.
     destrM (corecM C c) = # F (corecM C) (pr2 C c).
   Proof.
     apply idpath.
-  Qed.
+  Defined.
 
   (* The two carriers are equal *)
 
@@ -232,7 +240,7 @@ Section Refinement.
     apply (maponpaths (fun X => pr1 X m0)).
     apply pathsinv0.
     assumption.
-  Qed.
+  Defined.
 
   Definition injectM0 m0 :
     ∃ C c, corecM0 C c = m0.
@@ -261,20 +269,20 @@ Section Refinement.
     = transportf (λ X, F X) carriers_eq (destrM (transportf (λ X, X) (!carriers_eq) m0)).
   Proof.
     destruct carriers_eq. apply idpath.
-  Qed.
+  Defined.
 
   Local Lemma eq2 (m0 : carrierM0) :
     transportf (λ X, X) (!carriers_eq) m0 = m0,, injectM0 m0.
   Proof.
     apply (transportf_pathsinv0' (idfun UU) carriers_eq).
     unfold carriers_eq. rewrite weqpath_transport. apply idpath.
-  Qed.
+  Defined.
 
   Local Lemma eq3 m0 :
     destrM (m0,, injectM0 m0) = pr1 (destrM0 m0),, corecM M0 ∘ pr2 (destrM0 m0).
   Proof.
     apply idpath.
-  Qed.
+  Defined.
 
   Lemma coalgebras_eq :
     M = M0.
@@ -288,7 +296,7 @@ Section Refinement.
     cbn. apply funextsec. intros b. rewrite <- helper_A.
     unfold carriers_eq. rewrite weqpath_transport.
     cbn. rewrite eq_corecM0. apply idpath.
-  Qed.
+  Defined.
 
   (* Thus M is final *)
 
