@@ -3365,8 +3365,8 @@ equivalences. *)
 *)
 
 Definition totalfun {X : UU} (P Q : X -> UU) (f : ∏ x : X, P x -> Q x)
+  : (∑ y, P y) → (∑ y, Q y)
   := (λ z: total2 P, tpair Q (pr1 z) (f (pr1 z) (pr2 z))).
-
 
 Theorem isweqtotaltofib {X : UU} (P Q : X -> UU) (f : ∏ x : X, P x -> Q x):
   isweq (totalfun _ _ f) -> ∏ x : X, isweq (f x).
