@@ -572,24 +572,10 @@ Proof.
   - cbn.
     cbn in H.
     red in H.
-    apply funextsec.
-    intro X.
-    apply funextsec.
-    intro Y.
-    apply funextsec.
-    intro x.
-    apply funextsec.
-    intro y.
-    apply funextsec.
-    intro h.
-    apply funextsec.
-    intro k.
-    apply funextsec.
-    intro f.
-    apply funextfun.
-    intro H1.
-    apply funextfun.
-    intro H2.
+    apply funextsec; intro.
+    apply funextsec; intro Y.
+    do 5 (apply funextsec; intro).
+    do 2 (apply funextfun; intro).
     apply (setproperty Y).
 Defined.
 
