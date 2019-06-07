@@ -3,10 +3,12 @@
 (** This is based on Sam Speight's master's thesis
 
 
-    A Lean formalization of this had been available at https://github.com/jonas-frey/Impredicative/blob/master/
-    The aim of this project at the UniMath School 2019 was to have the same results within UniMath - for the
-    time being only binary products, binary coproducts and natural numbers. This has been achieved, with the
-    exception of the universal property of the binary product which has not been tried out for lack of time.
+    A Lean formalization of this had been available at
+    https://github.com/jonas-frey/Impredicative/blob/master/
+    The aim of this project at the UniMath School 2019 was to have
+    the same results within UniMath - for the time being only binary
+    products, binary coproducts and natural numbers. This has been
+    achieved (with a minor addition afterwards).
 
     Authors: Ralph Matthes (@rmatthes), Sam Speight (@sspeight93)
 
@@ -170,7 +172,13 @@ Proof.
     apply Product_η_inst.
 Defined.
 
-(* still missing: universal property *)
+Lemma Product_univ_prop {C : HSET} : isweq (@Product_rec C).
+Proof.
+  use isweq_iso.
+  - exact (λ f a b, f (Pair a b)).
+  - apply idpath.
+  - apply Product_η.
+Defined.
 
 (* copied from https://github.com/jonas-frey/Impredicative/blob/master/encode.hlean#L173 :
 -- System F encoding
