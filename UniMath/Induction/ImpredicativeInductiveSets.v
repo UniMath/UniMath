@@ -8,7 +8,8 @@
     The aim of this project at the UniMath School 2019 was to have
     the same results within UniMath - for the time being only binary
     products, binary coproducts and natural numbers. This has been
-    achieved (with a minor addition afterwards).
+    achieved (with a minor addition afterwards). The Lean code we
+    used is always put into a comment at the end of the sections.
 
     Authors: Ralph Matthes (@rmatthes), Sam Speight (@sspeight93)
 
@@ -36,10 +37,7 @@ Definition pre_prod: UU := ∏ (X: HSET), (pr1hSet A -> pr1hSet B -> pr1hSet X) 
 Lemma pre_prod_isaset: isaset pre_prod.
 Proof.
   change (isofhlevel 2 pre_prod).
-  apply impred.
-  intro X.
-  apply impred.
-  intros _.
+  do 2 (apply impred; intro).
   apply setproperty.
 Defined.
 
@@ -51,16 +49,9 @@ Definition nProduct (α: pre_prod): UU :=
 Definition nProduct_isaset (α: pre_prod): isaset (nProduct α).
 Proof.
   change (isofhlevel 2 (nProduct α)).
-  apply impred.
-  intro X.
-  apply impred.
-  intro Y.
-  apply impred.
-  intro f.
-  apply impred.
-  intro h.
+  do 4 (apply impred; intro).
   apply hlevelntosn.
-  apply (setproperty Y).
+  apply setproperty.
 Defined.
 
 Definition nProduct_as_set (α: pre_prod): HSET := make_hSet _ (nProduct_isaset α).
@@ -118,25 +109,15 @@ Proof.
   - cbn.
     (* UniMath.MoreFoundations.Tactics.show_id_type. *)
     unfold pre_prod in P.
-    apply funextsec.
-    intro X.
-    apply funextfun.
-    intro f.
-    cbn in H.
-    red in H.
+    apply funextsec; intro X.
+    apply funextfun; intro f.
+    cbn in H; red in H.
     exact (H Product_as_set X (fun x => pr1 x X f) Pair).
   - cbn.
     cbn in H.
     red in H.
-    apply funextsec.
-    intro X.
-    apply funextsec.
-    intro Y.
-    apply funextsec.
-    intro f.
-    apply funextsec.
-    intro h.
-    apply (setproperty Y).
+    do 4 (apply funextsec; intro).
+    apply setproperty.
 Defined.
 
 Lemma Product_com_con {C D : HSET} (f : pr1hSet A → pr1hSet B → pr1hSet C) (g : pr1hSet C → pr1hSet D): Product_rec (λ a b, g (f a b)) = g ∘ Product_rec f.
@@ -153,8 +134,7 @@ Lemma Product_η {C : HSET} (g : Product → pr1hSet C): Product_rec (λ a b, g 
 Proof.
   eapply pathscomp0.
   - apply (Product_com_con (C := Product_as_set) Pair).
-  - apply funextfun.
-    intro x.
+  - apply funextfun; intro p.
     unfold funcomp.
     apply maponpaths.
     apply Product_weak_η.
@@ -251,12 +231,7 @@ Definition pre_sum: UU := ∏ (X: HSET), (pr1hSet A -> pr1hSet X) -> (pr1hSet B 
 Lemma pre_sum_isaset: isaset pre_sum.
 Proof.
   change (isofhlevel 2 pre_sum).
-  apply impred.
-  intro X.
-  apply impred.
-  intros _.
-  apply impred.
-  intros _.
+  do 3 (apply impred; intro).
   apply setproperty.
 Defined.
 
@@ -268,18 +243,9 @@ Definition nSum (α: pre_sum): UU :=
 Definition nSum_isaset (α: pre_sum): isaset (nSum α).
 Proof.
   change (isofhlevel 2 (nSum α)).
-  apply impred.
-  intro X.
-  apply impred.
-  intro Y.
-  apply impred.
-  intro f.
-  apply impred.
-  intro h.
-  apply impred.
-  intro k.
+  do 5 (apply impred; intro).
   apply hlevelntosn.
-  apply (setproperty Y).
+  apply setproperty.
 Defined.
 
 Definition nSum_as_set (α: pre_sum): HSET := make_hSet _ (nSum_isaset α).
@@ -339,29 +305,15 @@ Proof.
   use total2_paths_f.
   - cbn.
     unfold pre_sum in c.
-    apply funextsec.
-    intro X.
-    apply funextfun.
-    intro f.
-    apply funextfun.
-    intro g.
-    cbn in H.
-    red in H.
+    apply funextsec; intro X.
+    apply funextfun; intro f.
+    apply funextfun; intro g.
+    cbn in H; red in H.
     apply (H Sum_as_set X (fun x => pr1 x X f g)).
   - cbn.
-    cbn in H.
-    red in H.
-    apply funextsec.
-    intro X.
-    apply funextsec.
-    intro Y.
-    apply funextsec.
-    intro f.
-    apply funextsec.
-    intro h.
-    apply funextsec.
-    intro k.
-    apply (setproperty Y).
+    cbn in H; red in H.
+    do 5 (apply funextsec; intro).
+    apply setproperty.
 Defined.
 
 Lemma Sum_com_con {X Y: HSET} (f : pr1hSet A → pr1hSet X) (g : pr1hSet B → pr1hSet X) (h : pr1hSet X → pr1hSet Y): Sum_rec (h ∘ f) (h ∘ g) = h ∘ (Sum_rec f g).
@@ -369,7 +321,7 @@ Proof.
   apply funextfun.
   intro x.
   induction x as [c H].
-  cbn in H. red in H.
+  cbn in H; red in H.
   cbn.
   apply pathsinv0.
   apply H.
@@ -380,8 +332,7 @@ Lemma Sum_η {X : HSET} (h : Sum → pr1hSet X)
 Proof.
   eapply pathscomp0.
   apply Sum_com_con.
-  apply funextfun.
-  intro x.
+  apply funextfun; intro s.
   unfold funcomp.
   apply maponpaths.
   apply Sum_weak_eta.
@@ -400,7 +351,7 @@ Proof.
     + exact (Proj2 _ _ a).
   - cbn. intro x.
     apply Sum_η.
-  - cbn.  intro y.
+  - cbn. intro y.
     intermediate_path (Pair _ _ (Proj1 _ _ y) (Proj2 _ _ y)).
     + apply idpath.
     + apply Product_classical_η.
@@ -472,12 +423,7 @@ Definition pre_nat: UU := ∏ (X: HSET), (pr1hSet X -> pr1hSet X) -> pr1hSet X -
 Lemma pre_nat_isaset: isaset pre_nat.
 Proof.
   change (isofhlevel 2 pre_nat).
-  apply impred.
-  intro X.
-  apply impred.
-  intros _.
-  apply impred.
-  intros _.
+  do 3 (apply impred; intro).
   apply setproperty.
 Defined.
 
@@ -489,26 +435,9 @@ Definition nNat (α: pre_nat): UU :=
 Definition nNat_isaset (α: pre_nat): isaset (nNat α).
 Proof.
   change (isofhlevel 2 (nNat α)).
-  apply impred.
-  intro X.
-  apply impred.
-  intro Y.
-  apply impred.
-  intro x.
-  apply impred.
-  intro y.
-  apply impred.
-  intro h.
-  apply impred.
-  intro k.
-  apply impred.
-  intro f.
-  apply impred.
-  intros _.
-  apply impred.
-  intros _.
+  do 9 (apply impred; intro).
   apply hlevelntosn.
-  apply (setproperty Y).
+  apply setproperty.
 Defined.
 
 Definition nNat_as_set (α: pre_nat): HSET := make_hSet _ (nNat_isaset α).
@@ -526,7 +455,7 @@ Definition Z: Nat.
 Proof.
   use tpair.
   - exact (λ X f x, x).
-  - cbn. red.
+  - cbn; red.
     intros; assumption.
 Defined.
 
@@ -536,10 +465,10 @@ Proof.
   intro n.
   use tpair.
   - exact (λ X h x, h (pr1 n X h x)).
-  - cbn. red.
+  - cbn; red.
     intros ? ? ? ? ? ? ? H1 H2.
     induction n as [n1 n2].
-    cbn in n2. red in n2.
+    cbn in n2; red in n2.
     cbn.
     eapply pathscomp0.
     2: { apply maponpaths.
@@ -568,23 +497,16 @@ Proof.
   use total2_paths_f.
   - cbn.
     unfold pre_nat in n0.
-    apply funextsec.
-    intro X.
-    apply funextfun.
-    intro h.
-    apply funextfun.
-    intro x.
-    cbn in H.
-    red in H.
+    apply funextsec; intro X.
+    apply funextfun; intro h.
+    apply funextfun; intro x.
+    cbn in H; red in H.
     apply (H Nat_as_set X Z x S h (fun n => pr1 n X h x)); apply idpath.
   - cbn.
-    cbn in H.
-    red in H.
-    apply funextsec; intro.
-    apply funextsec; intro Y.
-    do 5 (apply funextsec; intro).
+    cbn in H; red in H.
+    do 7 (apply funextsec; intro).
     do 2 (apply funextfun; intro).
-    apply (setproperty Y).
+    apply setproperty.
 Defined.
 
 Lemma Nat_η {C: HSET} (h: pr1hSet C -> pr1hSet C)
@@ -600,7 +522,7 @@ Proof.
     apply Nat_weak_eta.
   - unfold Nat_rec.
     induction n as [n0 H].
-    cbn in H. red in H.
+    cbn in H; red in H.
     cbn.
     apply H; assumption.
 Defined.
