@@ -160,7 +160,9 @@ Proof.
   - apply Product_η.
 Defined.
 
-(* copied from https://github.com/jonas-frey/Impredicative/blob/master/encode.hlean#L173 :
+(* copied from https://github.com/jonas-frey/Impredicative/blob/a75cb998/encode.hlean#L173 onwards:
+/- Product A × B of sets -/
+
 -- System F encoding
 definition  preProduct (A B : USet) : USet :=
   tΠ (X : USet), (A ⇒ B ⇒ X) ⇒ X
@@ -357,8 +359,10 @@ Proof.
     + apply Product_classical_η.
 Defined.
 
-(* copied from https://github.com/jonas-frey/Impredicative/blob/master/encode.hlean#L173:
+(* copied from https://github.com/jonas-frey/Impredicative/blob/a75cb998/encode.hlean#L233 onwards:
+/- Sum A + B of sets -/
 
+-- System F encoding
 definition  preSum (A B : USet) : USet :=
   tΠ(X : USet), (A ⇒ X) ⇒ (B ⇒ X) ⇒ X
 
@@ -527,8 +531,10 @@ Proof.
     apply H; assumption.
 Defined.
 
-(* copied from https://github.com/jonas-frey/Impredicative/blob/master/encode.hlean#L289:
+(* copied from https://github.com/jonas-frey/Impredicative/blob/a75cb998/encode.hlean#L289 onwards:
+/- Natural numbers -/
 
+-- System F encoding
 definition preNat : USet := tΠ X : USet, (X ⇒ X) ⇒ X ⇒ X
 
 -- naturality condition
