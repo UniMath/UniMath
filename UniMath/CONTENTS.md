@@ -440,6 +440,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [All.v](Paradoxes/All.v)
 ## Package [Induction](Induction/README.md)
    - [PolynomialFunctors.v](Induction/PolynomialFunctors.v)
+   - [ImpredicativeInductiveSets.v](Induction/ImpredicativeInductiveSets.v)
    - [M/Core.v](Induction/M/Core.v)
    - [M/Limits.v](Induction/M/Limits.v)
    - [M/Uniqueness.v](Induction/M/Uniqueness.v)
