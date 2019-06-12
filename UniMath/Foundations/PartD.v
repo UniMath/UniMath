@@ -127,7 +127,7 @@ Definition weqfuntototaltototal (X : UU) {Y : UU} (Q : Y -> UU)
 (** Note: we give direct proofs for this special case. *)
 
 
-Definition funtoprodtoprod {X Y Z : UU} (f : X -> dirprod Y Z)
+Definition funtoprodtoprod {X Y Z : UU} (f : X -> Y × Z)
   : (X -> Y) × (X -> Z)
   := make_dirprod (λ x, pr1 (f x)) (λ x, (pr2 (f x))).
 
@@ -136,7 +136,7 @@ Definition prodtofuntoprod {X Y Z : UU} (fg : (X -> Y) × (X -> Z))
   := λ x, (pr1 fg x ,, pr2 fg x).
 
 Theorem weqfuntoprodtoprod (X Y Z : UU) :
-  (X -> Y × Z) ≃ ((X -> Y) × (X -> Z)).
+  (X -> Y × Z) ≃ (X -> Y) × (X -> Z).
 Proof.
   intros.
   simple refine (make_weq _ (isweq_iso (@funtoprodtoprod X Y Z)
@@ -346,11 +346,11 @@ Defined.
 
 Definition secovercoprodtoprod {X Y : UU} (P : X ⨿ Y -> UU)
            (a : ∏ xy : X ⨿ Y, P xy) :
-  dirprod (∏ x, P (ii1 x)) (∏ y : Y, P (ii2 y))
+  (∏ x, P (ii1 x)) × (∏ y : Y, P (ii2 y))
   := make_dirprod (λ x, a (ii1 x)) (λ y : Y, a (ii2 y)).
 
 Definition prodtosecovercoprod {X Y : UU} (P : X ⨿ Y -> UU)
-           (a : dirprod (∏ x, P (ii1 x)) (∏ y : Y, P (ii2 y))) :
+           (a : (∏ x, P (ii1 x)) × (∏ y : Y, P (ii2 y))) :
   ∏ xy : X ⨿ Y, P xy.
 Proof.
   intros. induction xy as [ x | y ].
@@ -483,7 +483,7 @@ Definition weqfunfromtotal2 {X : UU} (P : X -> UU) (Y : UU) :
 (** *** Functions from direct product *)
 
 Definition weqfunfromdirprod (X X' Y : UU) :
-  (dirprod X X' -> Y) ≃ (∏ x, X' -> Y) := weqsecovertotal2 _ _.
+  (X × X' -> Y) ≃ (∏ x, X' -> Y) := weqsecovertotal2 _ _.
 
 (** ** Theorem saying that if each member of a family is of h-level n then the space of sections of the family is of h-level n. *)
 
