@@ -2621,7 +2621,7 @@ Section LocalIsoFibration.
       apply C.
     Qed.
 
-    Local Definition discete_fiber_data_laws
+    Local Definition discrete_fiber_data_laws_rinvunitor_runitor
       :  ∏ (a b : discrete_fiber_data)
            (f : discrete_fiber_data ⟦ a, b ⟧),
          rinvunitor f • runitor f = id₂ f.
@@ -3309,7 +3309,7 @@ Section LocalIsoFibration.
       - exact discrete_fiber_data_laws_lunitor_linvunitor.
       - exact discrete_fiber_data_laws_linvunitor_lunitor.
       - exact discrete_fiber_data_laws_runitor_rinvunitor.
-      - exact discete_fiber_data_laws.
+      - exact discrete_fiber_data_laws_rinvunitor_runitor.
       - exact discrete_fiber_data_laws_lassociator_rassociator.
       - exact discrete_fiber_data_laws_rassociator_lassociator.
       - exact discrete_fiber_data_laws_runitor_rwhisker.
