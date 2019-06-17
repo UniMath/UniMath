@@ -47,7 +47,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [StandardFiniteSets.v](Combinatorics/StandardFiniteSets.v)
    - [Lists.v](Combinatorics/Lists.v)
    - [FiniteSets.v](Combinatorics/FiniteSets.v)
-   - [Graphs.v](Combinatorics/Graphs.v)
+   - [GraphPaths.v](Combinatorics/GraphPaths.v)
    - [Equivalence_Relations.v](Combinatorics/Equivalence_Relations.v)
    - [OrderedSets.v](Combinatorics/OrderedSets.v)
    - [WellFoundedRelations.v](Combinatorics/WellFoundedRelations.v)
