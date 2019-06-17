@@ -5,9 +5,31 @@
     Revised June 2019
  ********************************************************************************* *)
 
-Require Import UniMath.Foundations.PartA.
+Require Import UniMath.Foundations.PartB.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.Combinatorics.Graph.
+
+(** NB: pregraph is the same as precategory_ob_mor. *)
+
+Require UniMath.CategoryTheory.Core.Univalence.  (* double_transport *)
+Require UniMath.CategoryTheory.Core.Functors.    (* functor_data_eq *)
+
+(** Should be moved in Combinatorics/Graph.v,
+    but it depends on code from CategoryTheory for now. *)
+Definition graph_mor_eq {G H : pregraph} (p q : graph_mor G H)
+           (e₀ : ∏ x : vertex G, onvertex p x = onvertex q x)
+           (e₁ : ∏ x y (f : edge G x y),
+                 UniMath.CategoryTheory.Core.Univalence.double_transport
+                   (e₀ x) (e₀ y) (onedge p f) =
+                 onedge q f)
+  : p = q
+  := UniMath.CategoryTheory.Core.Functors.functor_data_eq G H p q e₀ e₁.
+
+Lemma isaprop_has_edgesets (G : pregraph)
+  : isaprop (has_edgesets G).
+Proof.
+  apply UniMath.CategoryTheory.Core.Categories.isaprop_has_homsets.
+Qed.
 
 (** ** Precategory of pregraphs. *)
 

@@ -8,10 +8,6 @@
 Require Import UniMath.MoreFoundations.Notations.
 Require Import UniMath.MoreFoundations.Propositions.
 
-Require UniMath.CategoryTheory.Core.Categories.  (* isaprop_has_homsets *)
-Require UniMath.CategoryTheory.Core.Univalence.  (* double_transport *)
-Require UniMath.CategoryTheory.Core.Functors.    (* functor_data_eq *)
-
 (** ** Pregraphs. *)
 
 Definition pregraph : UU
@@ -36,12 +32,6 @@ Definition isaprop_has_vertexset (G : pregraph)
 
 Definition has_edgesets (G : pregraph) : UU
   := ∏ x y : vertex G, isaset (edge G x y).
-
-Lemma isaprop_has_edgesets (G : pregraph)
-  : isaprop (has_edgesets G).
-Proof.
-  apply UniMath.CategoryTheory.Core.Categories.isaprop_has_homsets.
-Qed.
 
 (** ** Graphs. *)
 
@@ -151,12 +141,3 @@ Proof.
     apply funspace_isaset.
     apply k.
 Qed.
-
-Definition graph_mor_eq {G H : pregraph} (p q : graph_mor G H)
-           (e₀ : ∏ x : vertex G, onvertex p x = onvertex q x)
-           (e₁ : ∏ x y (f : edge G x y),
-                 UniMath.CategoryTheory.Core.Univalence.double_transport
-                   (e₀ x) (e₀ y) (onedge p f) =
-                 onedge q f)
-  : p = q
-  := UniMath.CategoryTheory.Core.Functors.functor_data_eq G H p q e₀ e₁.
