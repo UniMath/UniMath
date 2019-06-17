@@ -19,20 +19,21 @@ Definition make_pregraph
   : ∏ N : UU, (N → N → UU) → pregraph
   := tpair _.
 
-Definition node : pregraph → UU := pr1.
-(* Coercion node : Graph >-> UU. *)
+Definition vertex : pregraph → UU := pr1.
 
-Definition edge : ∏ G : pregraph, node G → node G → UU := pr2.
+Definition edge
+  : ∏ G : pregraph, vertex G → vertex G → UU
+  := pr2.
 
-Definition has_nodeset (G : pregraph) : UU
-  := isaset (node G).
+Definition has_vertexset (G : pregraph) : UU
+  := isaset (vertex G).
 
-Definition isaprop_has_nodeset (G : pregraph)
-  : isaprop (has_nodeset G)
-  := isapropisaset (node G).
+Definition isaprop_has_vertexset (G : pregraph)
+  : isaprop (has_vertexset G)
+  := isapropisaset (vertex G).
 
 Definition has_edgesets (G : pregraph) : UU
-  := ∏ x y : node G, isaset (edge G x y).
+  := ∏ x y : vertex G, isaset (edge G x y).
 
 Lemma isaprop_has_edgesets (G : pregraph)
   : isaprop (has_edgesets G).
@@ -43,10 +44,10 @@ Qed.
 (** ** Graphs. *)
 
 Definition graph : UU
-  := ∑ G : pregraph, has_nodeset G × has_edgesets G.
+  := ∑ G : pregraph, has_vertexset G × has_edgesets G.
 
 Definition make_graph (G : pregraph)
-           (h : has_nodeset G)
+           (h : has_vertexset G)
            (k : has_edgesets G)
   : graph
   := G,, make_dirprod h k.
@@ -54,8 +55,8 @@ Definition make_graph (G : pregraph)
 Definition pregraph_of_graph : graph → pregraph := pr1.
 Coercion pregraph_of_graph : graph >-> pregraph.
 
-Definition graph_has_nodeset (G : graph)
-  : has_nodeset G
+Definition graph_has_vertexset (G : graph)
+  : has_vertexset G
   := pr12 G.
 
 Definition graph_has_edgesets (G : graph)
@@ -65,39 +66,39 @@ Definition graph_has_edgesets (G : graph)
 (** ** Graph morphisms. *)
 
 Definition graph_mor (G H : pregraph) : UU :=
-  ∑ (f₀ : node G → node H),
-  (∏ x y : node G, edge G x y → edge H (f₀ x) (f₀ y)).
+  ∑ (f₀ : vertex G → vertex H),
+  (∏ x y : vertex G, edge G x y → edge H (f₀ x) (f₀ y)).
 
 Definition make_graph_mor {G H : pregraph}
-  : ∏ (f₀ : node G → node H)
-      (f₁ : ∏ x y : node G, edge G x y → edge H (f₀ x) (f₀ y)),
+  : ∏ (f₀ : vertex G → vertex H)
+      (f₁ : ∏ x y : vertex G, edge G x y → edge H (f₀ x) (f₀ y)),
     graph_mor G H
   := tpair _.
 
-Definition onnode {G H : pregraph}
-  : ∏ (p : graph_mor G H), node G → node H
+Definition onvertex {G H : pregraph}
+  : ∏ (p : graph_mor G H), vertex G → vertex H
   := pr1.
 
-Definition onedge {G H : pregraph} (p : graph_mor G H) {x y : node G}
-  : edge G x y → edge H (onnode p x) (onnode p y)
+Definition onedge {G H : pregraph} (p : graph_mor G H) {x y : vertex G}
+  : edge G x y → edge H (onvertex p x) (onvertex p y)
   := pr2 p x y.
 
 Definition graph_mor_id (G : pregraph)
   : graph_mor G G
     := make_graph_mor
-         (idfun (node G))
-         (λ x y : node G, idfun (edge G x y)).
+         (idfun (vertex G))
+         (λ x y : vertex G, idfun (edge G x y)).
 
 Definition graph_mor_comp {G H K: pregraph}
            (p : graph_mor G H) (q : graph_mor H K)
   : graph_mor G K
   := make_graph_mor
-       (onnode q ∘ onnode p)
-         (λ (x y : node G) (f : edge G x y), onedge q (pr2 p x y f)).
+       (onvertex q ∘ onvertex p)
+         (λ (x y : vertex G) (f : edge G x y), onedge q (pr2 p x y f)).
 
 Lemma make_graph_mor_eq {G H : pregraph}
-      (p₀ : node G → node H)
-      (p₁ p₁' : ∏ x y : node G, edge G x y → edge H (p₀ x) (p₀ y))
+      (p₀ : vertex G → vertex H)
+      (p₁ p₁' : ∏ x y : vertex G, edge G x y → edge H (p₀ x) (p₀ y))
       (e : ∏ x y (f : edge G x y), p₁ x y f = p₁' x y f)
   : make_graph_mor p₀ p₁ = make_graph_mor p₀ p₁'.
 Proof.
@@ -137,12 +138,11 @@ Proof.
 Qed.
 
 Lemma isaset_graph_mor {G H : pregraph}
-      (h : has_nodeset H) (k : has_edgesets H)
+      (h : has_vertexset H) (k : has_edgesets H)
   : isaset (graph_mor G H).
 Proof.
   apply isaset_total2.
-  - apply funspace_isaset.
-    exact h.
+  - exact (funspace_isaset h).
   - intro p₀.
     apply impred_isaset. intro x.
     apply impred_isaset. intro y.
@@ -151,7 +151,7 @@ Proof.
 Qed.
 
 Definition graph_mor_eq {G H : pregraph} (p q : graph_mor G H)
-           (e₀ : ∏ x : node G, onnode p x = onnode q x)
+           (e₀ : ∏ x : vertex G, onvertex p x = onvertex q x)
            (e₁ : ∏ x y (f : edge G x y),
                  double_transport (e₀ x) (e₀ y) (onedge p f) = onedge q f)
   : p = q
@@ -197,9 +197,9 @@ Lemma is_precategory_graph : is_precategory graph_precategory_data.
 Proof.
   apply is_precategory_one_assoc_to_two.
   repeat apply make_dirprod; cbn.
-  - intros G H. apply graph_mor_id_left.
-  - intros G H. apply graph_mor_id_right.
-  - intros G H K L. apply graph_mor_comp_assoc.
+  - exact @graph_mor_id_left.
+  - exact @graph_mor_id_right.
+  - exact @graph_mor_comp_assoc.
 Qed.
 
 Definition graph_precategory : precategory
@@ -211,6 +211,6 @@ Lemma has_homsets_graph : has_homsets graph_precategory_ob_mor.
 Proof.
   intros G H.
   apply isaset_graph_mor.
-  - exact (graph_has_nodeset H).
+  - exact (graph_has_vertexset H).
   - exact (graph_has_edgesets H).
 Defined.
