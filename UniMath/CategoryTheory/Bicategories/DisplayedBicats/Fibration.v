@@ -1931,7 +1931,7 @@ Section LocalIsoFibration.
                              _ _ _ _ _ _ @ _).
       apply (@transportf_paths _ (λ α : id₁ c ==> id₁ c, _ ==>[ α] _)).
       apply cellset_property.
-    Time Qed.
+    Qed.
 
     Local Definition discrete_fiber_data_laws_rwhisker_rwhisker
       :  ∏ (a₁ a₂ a₃ a₄ : discrete_fiber_data)
@@ -1943,8 +1943,436 @@ Section LocalIsoFibration.
          =
          (x ▹ f₃ · f₄) • lassociator f₂ f₃ f₄.
     Proof.
-      intros a₁ a₂ a₃ a₄ f₁ f₂ f₃ f₄ x.
-    Admitted.
+      intros a₁ a₂ a₃ a₄ f₁ f₂ f₃ f₄ x ; cbn.
+      etrans.
+      {
+        apply maponpaths.
+        etrans.
+        {
+          apply disp_mor_transportf_postwhisker.
+        }
+        apply maponpaths.
+        etrans.
+        {
+          apply disp_mor_transportf_prewhisker.
+        }
+        apply maponpaths.
+        etrans.
+        {
+          apply maponpaths.
+          etrans.
+          {
+            apply maponpaths_2.
+            etrans.
+            {
+              apply maponpaths.
+              apply disp_rwhisker_transport_left_new.
+            }
+            apply disp_mor_transportf_prewhisker.
+          }
+          apply disp_mor_transportf_postwhisker.
+        }
+        apply disp_mor_transportf_prewhisker.
+      }
+      do 3 refine (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)
+                                  _ _ _ _ _ _ @ _).
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        etrans.
+        {
+          apply disp_mor_transportf_postwhisker.
+        }
+        apply maponpaths.
+        apply disp_mor_transportf_prewhisker.
+      }
+      do 2 refine (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)
+                                  _ _ _ _ _ _ @ _).
+      etrans.
+      {
+        apply maponpaths.
+        refine (disp_vassocl _ _ _ @ _).
+        apply maponpaths.
+        etrans.
+        {
+          apply maponpaths.
+          refine (disp_vassocr _ _ _ @ _).
+          etrans.
+          {
+            apply maponpaths.
+            etrans.
+            {
+              apply maponpaths_2.
+              refine (disp_vassocr _ _ _ @ _).
+              etrans.
+              {
+                apply maponpaths.
+                etrans.
+                {
+                  apply maponpaths_2.
+                  refine (disp_vassocr _ _ _ @ _).
+                  etrans.
+                  {
+                    apply maponpaths.
+                    etrans.
+                    {
+                      apply maponpaths_2.
+                      exact (disp_vcomp_linv
+                               (disp_local_iso_cleaving_invertible_2cell
+                                  h
+                                  (f₂;; local_iso_cleaving_1cell h (f₃;; f₄) idempunitor)
+                                  idempunitor)).
+                    }
+                    apply disp_mor_transportf_postwhisker.
+                  }
+                  etrans.
+                  {
+                    apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+                  }
+                  apply maponpaths.
+                  apply disp_id2_left.
+                }
+                etrans.
+                {
+                  apply disp_mor_transportf_postwhisker.
+                }
+                etrans.
+                {
+                  apply maponpaths.
+                  apply disp_mor_transportf_postwhisker.
+                }
+                apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+              }
+              apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+            }
+            apply disp_mor_transportf_postwhisker.
+          }
+          apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+        }
+        apply disp_mor_transportf_prewhisker.
+      }
+      do 2 refine (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)
+                                  _ _ _ _ _ _ @ _).
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        etrans.
+        {
+          refine (disp_vassocl _ _ _ @ _).
+          apply maponpaths.
+          etrans.
+          {
+            apply maponpaths.
+            etrans.
+            {
+              refine (disp_vassocr _ _ _ @ _).
+              apply maponpaths.
+              etrans.
+              {
+                apply maponpaths_2.
+                refine (disp_vassocl _ _ _ @ _).
+                etrans.
+                {
+                  apply maponpaths.
+                  etrans.
+                  {
+                    apply maponpaths.
+                    refine (disp_vassocr _ _ _ @ _).
+                    etrans.
+                    {
+                      apply maponpaths.
+                      etrans.
+                      {
+                        apply maponpaths_2.
+                        apply (disp_vcomp_linv
+                                 (disp_local_iso_cleaving_invertible_2cell
+                                    h
+                                    (local_iso_cleaving_1cell h (f₁;; f₃) idempunitor;; f₄)
+                                    idempunitor)).
+                      }
+                      apply disp_mor_transportf_postwhisker.
+                    }
+                    etrans.
+                    {
+                      apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+                    }
+                    etrans.
+                    {
+                      apply maponpaths.
+                      apply disp_id2_left.
+                    }
+                    apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+                  }
+                  apply disp_mor_transportf_prewhisker.
+                }
+                apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+              }
+              apply disp_mor_transportf_postwhisker.
+            }
+            apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+          }
+          apply disp_mor_transportf_prewhisker.
+        }
+        apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+      }
+      etrans.
+      {
+        apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+      }
+      etrans.
+      {
+        apply maponpaths.
+        refine (disp_vassocl _ _ _ @ _).
+        etrans.
+        {
+          apply maponpaths.
+          etrans.
+          {
+            apply maponpaths.
+            etrans.
+            {
+              apply maponpaths.
+              etrans.
+              {
+                apply maponpaths_2.
+                apply disp_rwhisker_vcomp.
+              }
+              apply disp_mor_transportf_postwhisker.
+            }
+            apply disp_mor_transportf_prewhisker.
+          }
+          apply disp_mor_transportf_prewhisker.
+        }
+        apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+      }
+      etrans.
+      {
+        apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+      }
+      etrans.
+      {
+        apply maponpaths.
+        etrans.
+        {
+          apply maponpaths.
+          etrans.
+          {
+            apply maponpaths.
+            etrans.
+            {
+              apply maponpaths_2.
+              etrans.
+              {
+                apply maponpaths.
+                refine (disp_vassocr _ _ _ @ _).
+                etrans.
+                {
+                  apply maponpaths.
+                  etrans.
+                  {
+                    apply maponpaths_2.
+                    refine (disp_vassocr _ _ _ @ _).
+                    etrans.
+                    {
+                      apply maponpaths.
+                      etrans.
+                      {
+                        apply maponpaths_2.
+                        apply (disp_vcomp_linv
+                                 (disp_local_iso_cleaving_invertible_2cell
+                                    h (f₁;; f₃)
+                                    idempunitor)).
+                      }
+                      etrans.
+                      {
+                        apply disp_mor_transportf_postwhisker.
+                      }
+                      apply maponpaths.
+                      apply disp_id2_left.
+                    }
+                    etrans.
+                    {
+                      apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+                    }
+                    apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+                  }
+                  apply disp_mor_transportf_postwhisker.
+                }
+                apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+              }
+              apply disp_rwhisker_transport_left_new.
+            }
+            apply disp_mor_transportf_postwhisker.
+          }
+          apply disp_mor_transportf_prewhisker.
+        }
+        apply disp_mor_transportf_prewhisker.
+      }
+      etrans.
+      {
+        apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+      }
+      etrans.
+      {
+        apply maponpaths.
+        etrans.
+        {
+          apply maponpaths.
+          etrans.
+          {
+            apply maponpaths.
+            etrans.
+            {
+              apply maponpaths_2.
+              apply disp_rwhisker_vcomp_Alt.
+            }
+            apply disp_mor_transportf_postwhisker.
+          }
+          apply disp_mor_transportf_prewhisker.
+        }
+        apply disp_mor_transportf_prewhisker.
+      }
+      etrans.
+      {
+        apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+      }
+      etrans.
+      {
+        apply maponpaths.
+        etrans.
+        {
+          apply maponpaths.
+          refine (disp_vassocr _ _ _ @ _).
+          etrans.
+          {
+            apply maponpaths.
+            etrans.
+            {
+              apply maponpaths_2.
+              refine (disp_vassocr _ _ _ @ _).
+              etrans.
+              {
+                apply maponpaths.
+                etrans.
+                {
+                  apply maponpaths_2.
+                  apply disp_rwhisker_rwhisker.
+                }
+                apply disp_mor_transportf_postwhisker.
+              }
+              apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+            }
+            apply disp_mor_transportf_postwhisker.
+          }
+          apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+        }
+        apply disp_mor_transportf_prewhisker.
+      }
+      etrans.
+      {
+        apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+      }
+      etrans.
+      {
+        apply maponpaths.
+        refine (disp_vassocl _ _ _ @ _).
+        etrans.
+        {
+          apply maponpaths.
+          etrans.
+          {
+            apply maponpaths.
+            refine (disp_vassocr _ _ _ @ _).
+            etrans.
+            {
+              apply maponpaths.
+              etrans.
+              {
+                apply maponpaths_2.
+                refine (disp_vassocr _ _ _ @ _).
+                etrans.
+                {
+                  apply maponpaths.
+                  etrans.
+                  {
+                    apply maponpaths_2.
+                    refine (disp_vassocr _ _ _ @ _).
+                    etrans.
+                    {
+                      apply maponpaths.
+                      etrans.
+                      {
+                        apply maponpaths_2.
+                        apply disp_vcomp_whisker_alt.
+                      }
+                      apply disp_mor_transportf_postwhisker.
+                    }
+                    apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+                  }
+                  apply disp_mor_transportf_postwhisker.
+                }
+                apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+              }
+              apply disp_mor_transportf_postwhisker.
+            }
+            apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+          }
+          apply disp_mor_transportf_prewhisker.
+        }
+        apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+      }
+      etrans.
+      {
+        apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+      }
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        refine (disp_vassocl _ _ _ @ _).
+        etrans.
+        {
+          apply maponpaths.
+          etrans.
+          {
+            apply maponpaths.
+            refine (disp_vassocr _ _ _ @ _).
+            etrans.
+            {
+              apply maponpaths.
+              refine (disp_vassocr _ _ _ @ _).
+              apply maponpaths.
+              etrans.
+              {
+                apply maponpaths_2.
+                etrans.
+                {
+                  apply maponpaths_2.
+                  apply disp_vassocr.
+                }
+                apply disp_mor_transportf_postwhisker.
+              }
+              apply disp_mor_transportf_postwhisker.
+            }
+            etrans.
+            {
+              apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+            }
+            apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+          }
+          apply disp_mor_transportf_prewhisker.
+        }
+        apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+      }
+      etrans.
+      {
+        apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
+      }
+      apply (@transportf_paths _ (λ α : id₁ c ==> id₁ c, _ ==>[ α] _)).
+      apply cellset_property.
+    Qed.
 
     Local Definition discrete_fiber_data_vcomp_whisker
       :  ∏ (a₁ a₂ a₃ : discrete_fiber_data)
