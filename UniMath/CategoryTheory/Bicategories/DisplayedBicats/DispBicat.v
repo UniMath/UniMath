@@ -1077,6 +1077,68 @@ Proof.
   induction p. apply idpath.
 Defined.
 
+
+Definition disp_lwhisker_vcomp_alt
+           {C : bicat} {D : disp_prebicat C}
+           {a b c : C} {f : C⟦a,b⟧} {g h i : C⟦b,c⟧}
+           {η : g ==> h} {φ : h ==> i}
+           {x : D a} {y : D b} {z : D c} {ff : x -->[f] y}
+           {gg : y -->[g] z} {hh : y -->[h] z} {ii : y -->[i] z}
+           (ηη : gg ==>[η] hh) (φφ : hh ==>[φ] ii)
+  : ff ◃◃ (ηη •• φφ)
+    =
+    transportf (λ α, _ ==>[α] _) (lwhisker_vcomp _ _ _) ((ff ◃◃ ηη) •• (ff ◃◃ φφ)).
+Proof.
+  refine (!_).
+  apply (@transportf_transpose_alt _ (λ α, _ ==>[α] _)).
+  apply disp_lwhisker_vcomp.
+Qed.
+
+Definition disp_rwhisker_vcomp_alt
+           {C : bicat} {D : disp_prebicat C}
+           {a b c : C} {f g h : C⟦a,b⟧} {i : C⟦b,c⟧}
+           {η : f ==> g} {φ : g ==> h}
+           {x : D a} {y : D b} {z : D c}
+           {ff : x -->[f] y} {gg : x -->[g] y} {hh : x -->[h] y} {ii : y -->[i] z}
+           (ηη : ff ==>[η] gg) (φφ : gg ==>[φ] hh)
+  : (ηη •• φφ) ▹▹ ii
+    =
+    transportf (λ α, _ ==>[α] _) (rwhisker_vcomp _ _ _) ((ηη ▹▹ ii) •• (φφ ▹▹ ii)).
+Proof.
+  refine (!_).
+  apply (@transportf_transpose_alt _ (λ α, _ ==>[α] _)).
+  apply disp_rwhisker_vcomp.
+Qed.
+
+Definition disp_vcomp_whisker_alt
+           {C : bicat} {D : disp_prebicat C}
+           {a b c : C} {f g : C⟦a,b⟧} {h i : C⟦b,c⟧}
+           (η : f ==> g) (φ : h ==> i)
+           (x : D a) (y : D b) (z : D c)
+           (ff : x -->[f] y) (gg : x -->[g] y) (hh : y -->[h] z) (ii : y -->[i] z)
+           (ηη : ff ==>[η] gg) (φφ : hh ==>[φ] ii)
+  : (ff ◃◃ φφ) •• (ηη ▹▹ ii)
+    =
+    transportf (λ α, _ ==>[α] _) (vcomp_whisker _ _) ((ηη ▹▹ hh) •• (gg ◃◃ φφ)).
+Proof.
+  refine (!_).
+  apply (@transportf_transpose_alt _ (λ α, _ ==>[α] _)).
+  apply disp_vcomp_whisker.
+Qed.
+
+Definition disp_id2_rwhisker_alt
+           {C : bicat} {D : disp_prebicat C}
+           {a b c : C} {f : C⟦a,b⟧} {g : C⟦b,c⟧}
+           {x : D a} {y : D b} {z : D c}
+           (ff : x -->[f] y) (gg : y -->[g] z)
+  : transportf (λ α, _ ==>[α] _) (id2_rwhisker _ _) (disp_id2 ff ▹▹ gg)
+    =
+    disp_id2 (ff ;; gg).
+Proof.
+  apply (@transportf_transpose_alt _ (λ α, _ ==>[α] _)).
+  apply disp_id2_rwhisker.
+Qed.
+
 End Derived_Laws.
 
 (* ----------------------------------------------------------------------------------- *)
