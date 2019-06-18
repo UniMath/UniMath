@@ -34,7 +34,7 @@ Proof.
   apply disp_lwhisker_vcomp.
 Qed.
 
-Definition disp_rwhisker_vcomp_Alt
+Definition disp_rwhisker_vcomp_alt
            {C : bicat} {D : disp_prebicat C}
            {a b c : C} {f g h : C⟦a,b⟧} {i : C⟦b,c⟧}
            {η : f ==> g} {φ : g ==> h}
@@ -1676,7 +1676,7 @@ Section LocalIsoFibration.
                       etrans.
                       {
                         apply maponpaths.
-                        apply disp_rwhisker_vcomp_Alt.
+                        apply disp_rwhisker_vcomp_alt.
                       }
                       apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
                     }
@@ -2043,7 +2043,7 @@ Section LocalIsoFibration.
             etrans.
             {
               apply maponpaths_2.
-              apply disp_rwhisker_vcomp_Alt.
+              apply disp_rwhisker_vcomp_alt.
             }
             apply disp_mor_transportf_postwhisker.
           }
@@ -4219,7 +4219,7 @@ Section LocalIsoFibration.
                       etrans.
                       {
                         apply maponpaths_2.
-                        apply disp_rwhisker_vcomp_Alt.
+                        apply disp_rwhisker_vcomp_alt.
                       }
                       apply disp_mor_transportf_postwhisker.
                     }
@@ -4446,7 +4446,7 @@ Section LocalIsoFibration.
                   etrans.
                   {
                     apply maponpaths.
-                    apply disp_rwhisker_vcomp_Alt.
+                    apply disp_rwhisker_vcomp_alt.
                   }
                   etrans.
                   {
