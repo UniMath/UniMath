@@ -4812,8 +4812,7 @@ Section LocalIsoFibration.
       }
       apply (@transportf_paths _ (λ α : id₁ c ==> id₁ c, _ ==>[ α] _)).
       apply cellset_property.
-      Time Qed.
-
+    Qed.
 
     Definition discrete_fiber_data_laws : prebicat_laws discrete_fiber_data.
     Proof.
@@ -4847,7 +4846,5 @@ Section LocalIsoFibration.
       - exact discrete_fiber_data.
       - exact discrete_fiber_data_laws.
     Defined.
-
   End Discrete_Fiber.
-
 End LocalIsoFibration.
