@@ -243,6 +243,8 @@ Bicategories/DisplayedBicats/Examples/ContravariantFunctor.v
 Bicategories/DisplayedBicats/Examples/Cofunctormap.v
 Bicategories/DisplayedBicats/Examples/CwF.v
 
+Bicategories/Bicategories/YonedaLemma.v
+
 Bicategories/Colimits/Initial.v
 
 Bicategories/WkCatEnrichment/prebicategory.v

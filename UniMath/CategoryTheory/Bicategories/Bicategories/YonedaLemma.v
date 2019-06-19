@@ -42,17 +42,32 @@ Section YonedaLemma.
            (X : B).
 
   (** First, we construct a functor from the yoneda to the presheaf *)
+  Definition yoneda_to_presheaf_data_ob
+    : pstrans (representable B_is_univalent_2_1 X) F → pr1 (F X).
+  Proof.
+    apply TODO.
+  Defined.
+
+  Definition yoneda_to_presheaf_data_mor
+             (η₁ η₂ : pstrans (representable B_is_univalent_2_1 X) F)
+             (m : modification η₁ η₂)
+    : yoneda_to_presheaf_data_ob η₁ --> yoneda_to_presheaf_data_ob η₂.
+  Proof.
+    apply TODO.
+  Defined.
+
   Definition yoneda_to_presheaf_data
     : functor_data
         (univ_hom
-           (psfunctor_bicat_is_univalent_2_1 (op1_bicat B) bicat_of_cats
-                                             univalent_cat_is_univalent_2_1)
+           (psfunctor_bicat_is_univalent_2_1
+              (op1_bicat B) bicat_of_cats
+              univalent_cat_is_univalent_2_1)
            ((y B_is_univalent_2_1) X) F)
         (F X : univalent_category).
   Proof.
     use make_functor_data.
-    - apply TODO.
-    - apply TODO.
+    - exact yoneda_to_presheaf_data_ob.
+    - exact yoneda_to_presheaf_data_mor.
   Defined.
 
   Definition yoneda_to_presheaf_is_functor
@@ -80,13 +95,102 @@ Section YonedaLemma.
   Section PresheafToYonedaOb.
     Variable (x : (F X : univalent_category)).
 
+    Definition presheaf_to_yoneda_ob_pstrans_functor_ob
+               (Y : op1_bicat B)
+      : B ⟦ Y , X ⟧ → pr1 (F Y).
+    Proof.
+      apply TODO.
+    Defined.
+
+    Definition presheaf_to_yoneda_ob_pstrans_functor_mor
+               (Y : op1_bicat B)
+               (f g : B ⟦ Y , X ⟧)
+               (α : f ==> g)
+      : (presheaf_to_yoneda_ob_pstrans_functor_ob Y f)
+          -->
+          presheaf_to_yoneda_ob_pstrans_functor_ob Y g.
+    Proof.
+      apply TODO.
+    Defined.
+
+    Definition presheaf_to_yoneda_ob_pstrans_functor_data
+               (Y : op1_bicat B)
+      : functor_data (@hom B Y X) (pr1 (F Y)).
+    Proof.
+      use make_functor_data.
+      - exact (presheaf_to_yoneda_ob_pstrans_functor_ob Y).
+      - exact (presheaf_to_yoneda_ob_pstrans_functor_mor Y).
+    Defined.
+
+    Definition presheaf_to_yoneda_ob_pstrans_is_functor
+               (Y : op1_bicat B)
+      : is_functor (presheaf_to_yoneda_ob_pstrans_functor_data Y).
+    Proof.
+      split.
+      - apply TODO.
+      - apply TODO.
+    Qed.
+
+    Definition presheaf_to_yoneda_ob_pstrans_functor
+               (Y : op1_bicat B)
+      : bicat_of_cats ⟦ @univ_hom B B_is_univalent_2_1 Y X , F Y ⟧.
+    Proof.
+      use make_functor.
+      - exact (presheaf_to_yoneda_ob_pstrans_functor_data Y).
+      - exact (presheaf_to_yoneda_ob_pstrans_is_functor Y).
+    Defined.
+
+    Definition presheaf_to_yoneda_ob_pstrans_nat_trans_data
+               (Y₁ Y₂ : op1_bicat B)
+               (f : B ⟦ Y₂ , Y₁ ⟧)
+      : nat_trans_data
+          (presheaf_to_yoneda_ob_pstrans_functor Y₁ · # F f : functor _ _)
+          (#(y B_is_univalent_2_1 X : psfunctor _ _) f
+            · presheaf_to_yoneda_ob_pstrans_functor Y₂ : functor _ _).
+    Proof.
+      apply TODO.
+    Defined.
+
+    Definition presheaf_to_yoneda_ob_pstrans_is_nat_trans
+               (Y₁ Y₂ : op1_bicat B)
+               (f : B ⟦ Y₂ , Y₁ ⟧)
+      : is_nat_trans _ _ (presheaf_to_yoneda_ob_pstrans_nat_trans_data Y₁ Y₂ f).
+    Proof.
+      apply TODO.
+    Qed.
+
+    Definition presheaf_to_yoneda_ob_pstrans_nat_trans
+               (Y₁ Y₂ : op1_bicat B)
+               (f : B ⟦ Y₂ , Y₁ ⟧)
+      : (presheaf_to_yoneda_ob_pstrans_functor Y₁ · # F f)
+          ==>
+          #(y B_is_univalent_2_1 X : psfunctor _ _) f
+          · presheaf_to_yoneda_ob_pstrans_functor Y₂.
+    Proof.
+      use make_nat_trans.
+      - exact (presheaf_to_yoneda_ob_pstrans_nat_trans_data Y₁ Y₂ f).
+      - exact (presheaf_to_yoneda_ob_pstrans_is_nat_trans Y₁ Y₂ f).
+    Defined.
+
+    Definition presheaf_to_yoneda_ob_pstrans_is_nat_iso
+               (Y₁ Y₂ : op1_bicat B)
+               (f : B ⟦ Y₂ , Y₁ ⟧)
+      : is_nat_iso (presheaf_to_yoneda_ob_pstrans_nat_trans Y₁ Y₂ f).
+    Proof.
+      apply TODO.
+    Defined.
+
     Definition presheaf_to_yoneda_ob_pstrans_data
       : pstrans_data ((y B_is_univalent_2_1) X) F.
     Proof.
       pose x.
       use make_pstrans_data.
-      - apply TODO.
-      - apply TODO.
+      - exact presheaf_to_yoneda_ob_pstrans_functor.
+      - intros Y₁ Y₂ f.
+        use make_invertible_2cell.
+        + exact (presheaf_to_yoneda_ob_pstrans_nat_trans Y₁ Y₂ f).
+        + apply is_nat_iso_to_is_invertible_2cell.
+          exact (presheaf_to_yoneda_ob_pstrans_is_nat_iso Y₁ Y₂ f).
     Defined.
 
     Definition presheaf_to_yoneda_ob_pstrans_is_pstrans
