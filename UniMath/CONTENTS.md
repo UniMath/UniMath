@@ -337,6 +337,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Bicategories/DisplayedBicats/Examples/ContravariantFunctor.v](CategoryTheory/Bicategories/DisplayedBicats/Examples/ContravariantFunctor.v)
    - [Bicategories/DisplayedBicats/Examples/Cofunctormap.v](CategoryTheory/Bicategories/DisplayedBicats/Examples/Cofunctormap.v)
    - [Bicategories/DisplayedBicats/Examples/CwF.v](CategoryTheory/Bicategories/DisplayedBicats/Examples/CwF.v)
+   - [Bicategories/Bicategories/YonedaLemma.v](CategoryTheory/Bicategories/Bicategories/YonedaLemma.v)
    - [Bicategories/Colimits/Initial.v](CategoryTheory/Bicategories/Colimits/Initial.v)
    - [Bicategories/WkCatEnrichment/prebicategory.v](CategoryTheory/Bicategories/WkCatEnrichment/prebicategory.v)
    - [Bicategories/WkCatEnrichment/Notations.v](CategoryTheory/Bicategories/WkCatEnrichment/Notations.v)
