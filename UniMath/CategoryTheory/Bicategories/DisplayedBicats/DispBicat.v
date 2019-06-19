@@ -1079,7 +1079,6 @@ Defined.
 
 
 Definition disp_lwhisker_vcomp_alt
-           {C : bicat} {D : disp_prebicat C}
            {a b c : C} {f : C⟦a,b⟧} {g h i : C⟦b,c⟧}
            {η : g ==> h} {φ : h ==> i}
            {x : D a} {y : D b} {z : D c} {ff : x -->[f] y}
@@ -1095,7 +1094,6 @@ Proof.
 Qed.
 
 Definition disp_rwhisker_vcomp_alt
-           {C : bicat} {D : disp_prebicat C}
            {a b c : C} {f g h : C⟦a,b⟧} {i : C⟦b,c⟧}
            {η : f ==> g} {φ : g ==> h}
            {x : D a} {y : D b} {z : D c}
@@ -1111,7 +1109,6 @@ Proof.
 Qed.
 
 Definition disp_vcomp_whisker_alt
-           {C : bicat} {D : disp_prebicat C}
            {a b c : C} {f g : C⟦a,b⟧} {h i : C⟦b,c⟧}
            (η : f ==> g) (φ : h ==> i)
            (x : D a) (y : D b) (z : D c)
@@ -1127,7 +1124,6 @@ Proof.
 Qed.
 
 Definition disp_id2_rwhisker_alt
-           {C : bicat} {D : disp_prebicat C}
            {a b c : C} {f : C⟦a,b⟧} {g : C⟦b,c⟧}
            {x : D a} {y : D b} {z : D c}
            (ff : x -->[f] y) (gg : y -->[g] z)
