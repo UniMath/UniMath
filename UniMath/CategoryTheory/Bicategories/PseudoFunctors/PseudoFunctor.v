@@ -201,7 +201,7 @@ Section PseudoFunctorDerivedLaws.
   Qed.
 
   Definition psfunctor_rinvunitor
-             (a b : C)
+             {a b : C}
              (f : C⟦a, b⟧)
     : ##F (rinvunitor f)
       =
