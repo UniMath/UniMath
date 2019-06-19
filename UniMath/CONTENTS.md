@@ -305,6 +305,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [Bicategories/DisplayedBicats/DispInvertibles.v](CategoryTheory/Bicategories/DisplayedBicats/DispInvertibles.v)
    - [Bicategories/DisplayedBicats/DispAdjunctions.v](CategoryTheory/Bicategories/DisplayedBicats/DispAdjunctions.v)
    - [Bicategories/DisplayedBicats/DispUnivalence.v](CategoryTheory/Bicategories/DisplayedBicats/DispUnivalence.v)
+   - [Bicategories/DisplayedBicats/Fibration/Fibration1.v](CategoryTheory/Bicategories/DisplayedBicats/Fibration/Fibration1.v)
+   - [Bicategories/DisplayedBicats/Fibration/Fibration2.v](CategoryTheory/Bicategories/DisplayedBicats/Fibration/Fibration2.v)
    - [Bicategories/DisplayedBicats/Fibration.v](CategoryTheory/Bicategories/DisplayedBicats/Fibration.v)
    - [Bicategories/DisplayedBicats/Examples/Sigma.v](CategoryTheory/Bicategories/DisplayedBicats/Examples/Sigma.v)
    - [Bicategories/DisplayedBicats/Examples/DispBicatOfDispCats.v](CategoryTheory/Bicategories/DisplayedBicats/Examples/DispBicatOfDispCats.v)
