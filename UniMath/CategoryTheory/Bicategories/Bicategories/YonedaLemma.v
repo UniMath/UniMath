@@ -319,7 +319,6 @@ Section YonedaLemma.
   Proof.
     split.
     - intros z.
-      simpl.
       apply modification_eq.
       intros Z.
       apply nat_trans_eq.
