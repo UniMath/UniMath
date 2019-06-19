@@ -14,6 +14,7 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat.
 Import Bicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.BicategoryLaws.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.OpMorBicat.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.BicatOfCats.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.EquivToAdjequiv.
@@ -31,6 +32,8 @@ Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Representable.
 
 Local Open Scope bicategory_scope.
 Local Open Scope cat.
+
+Opaque psfunctor.
 
 Definition TODO {A : UU} : A.
 Admitted.
@@ -97,10 +100,8 @@ Section YonedaLemma.
 
     Definition presheaf_to_yoneda_ob_pstrans_functor_ob
                (Y : op1_bicat B)
-      : B ⟦ Y , X ⟧ → pr1 (F Y).
-    Proof.
-      apply TODO.
-    Defined.
+      : B ⟦ Y , X ⟧ → pr1 (F Y)
+      := λ f, (#F f : functor _ _) x.
 
     Definition presheaf_to_yoneda_ob_pstrans_functor_mor
                (Y : op1_bicat B)
@@ -108,10 +109,8 @@ Section YonedaLemma.
                (α : f ==> g)
       : (presheaf_to_yoneda_ob_pstrans_functor_ob Y f)
           -->
-          presheaf_to_yoneda_ob_pstrans_functor_ob Y g.
-    Proof.
-      apply TODO.
-    Defined.
+          presheaf_to_yoneda_ob_pstrans_functor_ob Y g
+      := (##F α : nat_trans _ _) x.
 
     Definition presheaf_to_yoneda_ob_pstrans_functor_data
                (Y : op1_bicat B)
@@ -127,8 +126,13 @@ Section YonedaLemma.
       : is_functor (presheaf_to_yoneda_ob_pstrans_functor_data Y).
     Proof.
       split.
-      - apply TODO.
-      - apply TODO.
+      - intro f ; cbn.
+        unfold presheaf_to_yoneda_ob_pstrans_functor_mor ;
+        unfold presheaf_to_yoneda_ob_pstrans_functor_ob.
+        exact (maponpaths (λ z, (z : nat_trans _ _) x) (psfunctor_id2 F f)).
+      - intros f₁ f₂ f₃ α₁ α₂ ; cbn.
+        unfold presheaf_to_yoneda_ob_pstrans_functor_mor.
+        exact (maponpaths (λ z, (z : nat_trans _ _) x) (psfunctor_vcomp F α₁ α₂)).
     Qed.
 
     Definition presheaf_to_yoneda_ob_pstrans_functor
@@ -148,7 +152,10 @@ Section YonedaLemma.
           (#(y B_is_univalent_2_1 X : psfunctor _ _) f
             · presheaf_to_yoneda_ob_pstrans_functor Y₂ : functor _ _).
     Proof.
-      apply TODO.
+      intros g ; cbn in *.
+      unfold presheaf_to_yoneda_ob_pstrans_functor_ob.
+      pose (psfunctor_comp F g f : _ ==> _) as p ; cbn in p.
+      exact (p x).
     Defined.
 
     Definition presheaf_to_yoneda_ob_pstrans_is_nat_trans
@@ -156,7 +163,12 @@ Section YonedaLemma.
                (f : B ⟦ Y₂ , Y₁ ⟧)
       : is_nat_trans _ _ (presheaf_to_yoneda_ob_pstrans_nat_trans_data Y₁ Y₂ f).
     Proof.
-      apply TODO.
+      intros g₁ g₂ α ; cbn in *.
+      unfold presheaf_to_yoneda_ob_pstrans_functor_mor ;
+      unfold presheaf_to_yoneda_ob_pstrans_nat_trans_data.
+      pose (psfunctor_rwhisker F f α) as p.
+      pose (!(maponpaths (λ z, (z : nat_trans _ _) x) p)) as q.
+      exact q.
     Qed.
 
     Definition presheaf_to_yoneda_ob_pstrans_nat_trans
@@ -197,9 +209,32 @@ Section YonedaLemma.
       : is_pstrans presheaf_to_yoneda_ob_pstrans_data.
     Proof.
       repeat split.
-      - apply TODO.
-      - apply TODO.
-      - apply TODO.
+      - intros Y₁ Y₂ g₁ g₂ α.
+        apply nat_trans_eq.
+        { apply homset_property. }
+        intro h ; cbn in *.
+        unfold presheaf_to_yoneda_ob_pstrans_functor_ob,
+               presheaf_to_yoneda_ob_pstrans_functor_mor,
+               presheaf_to_yoneda_ob_pstrans_nat_trans_data.
+        pose (psfunctor_lwhisker F h α).
+        pose (!(maponpaths (λ z, (z : nat_trans _ _) x) p)) as q.
+        exact q.
+      - intros Y.
+        apply nat_trans_eq.
+        { apply homset_property. }
+        intro h ; cbn in *.
+        unfold presheaf_to_yoneda_ob_pstrans_functor_ob,
+               presheaf_to_yoneda_ob_pstrans_functor_mor,
+               presheaf_to_yoneda_ob_pstrans_nat_trans_data.
+        apply TODO.
+      - intros Y₁ Y₂ Y₃ g₁ g₂.
+        apply nat_trans_eq.
+        { apply homset_property. }
+        intro h ; cbn in *.
+        unfold presheaf_to_yoneda_ob_pstrans_functor_ob,
+               presheaf_to_yoneda_ob_pstrans_functor_mor,
+               presheaf_to_yoneda_ob_pstrans_nat_trans_data.
+        apply TODO.
     Qed.
 
     Definition presheaf_to_yoneda_ob
@@ -219,11 +254,8 @@ Section YonedaLemma.
                (Y : op1_bicat B)
       : nat_trans_data
           ((presheaf_to_yoneda_ob a) Y : functor _ _)
-          ((presheaf_to_yoneda_ob b) Y : functor _ _).
-    Proof.
-      pose f.
-      apply TODO.
-    Defined.
+          ((presheaf_to_yoneda_ob b) Y : functor _ _)
+      := λ h, #(#F h : functor _ _) f.
 
     Definition presheaf_to_yoneda_mor_modification_is_nat_trans
                (Y : op1_bicat B)
@@ -231,7 +263,11 @@ Section YonedaLemma.
           _ _
           (presheaf_to_yoneda_mor_modification_nat_trans_data Y).
     Proof.
-      apply TODO.
+      intros h₁ h₂ α ; cbn in *.
+      unfold presheaf_to_yoneda_ob_pstrans_functor_mor,
+             presheaf_to_yoneda_mor_modification_nat_trans_data.
+      pose (pr2 (##F α : nat_trans _ _)) as p.
+      exact (!(p a b f)).
     Qed.
 
     Definition presheaf_to_yoneda_mor_modification_data
@@ -246,7 +282,14 @@ Section YonedaLemma.
     Definition presheaf_to_yoneda_mor_is_modification
       : is_modification presheaf_to_yoneda_mor_modification_data.
     Proof.
-      apply TODO.
+      intros Y₁ Y₂ g.
+      apply nat_trans_eq.
+      { apply homset_property. }
+      intros h ; cbn in *.
+      unfold presheaf_to_yoneda_ob_pstrans_nat_trans_data,
+             presheaf_to_yoneda_mor_modification_nat_trans_data.
+      pose (pr21 (psfunctor_comp F h g)) as p.
+      exact (!(p a b f)).
     Qed.
 
     Definition presheaf_to_yoneda_mor_modification
@@ -275,8 +318,27 @@ Section YonedaLemma.
     : is_functor presheaf_to_yoneda_data.
   Proof.
     split.
-    - apply TODO.
-    - apply TODO.
+    - intros z.
+      simpl.
+      apply modification_eq.
+      intros Z.
+      apply nat_trans_eq.
+      { apply homset_property. }
+      intros f.
+      cbn in *.
+      unfold  presheaf_to_yoneda_mor_modification_nat_trans_data,
+              presheaf_to_yoneda_ob_pstrans_functor_ob.
+      apply functor_id.
+    - intros z₁ z₂ z₃ f₁ f₂.
+      apply modification_eq.
+      intros Z.
+      apply nat_trans_eq.
+      { apply homset_property. }
+      intros f.
+      cbn in *.
+      unfold  presheaf_to_yoneda_mor_modification_nat_trans_data,
+              presheaf_to_yoneda_ob_pstrans_functor_ob.
+      apply functor_comp.
   Qed.
 
   Definition presheaf_to_yoneda
