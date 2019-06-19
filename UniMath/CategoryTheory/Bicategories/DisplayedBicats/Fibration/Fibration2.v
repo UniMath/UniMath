@@ -1796,7 +1796,7 @@ Section LocalIsoFibration.
   Definition discrete_fiber : prebicat.
   Proof.
     use tpair.
-    - exact discrete_fiber_data.
+    - exact (iscrete_fiber_data D h c).
     - exact discrete_fiber_data_laws.
   Defined.
 End LocalIsoFibration.
