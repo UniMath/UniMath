@@ -129,10 +129,10 @@ Section YonedaLemma.
       - intro f ; cbn.
         unfold presheaf_to_yoneda_ob_pstrans_functor_mor ;
         unfold presheaf_to_yoneda_ob_pstrans_functor_ob.
-        exact (maponpaths (λ z, (z : nat_trans _ _) x) (psfunctor_id2 F f)).
+        exact (nat_trans_eq_pointwise (psfunctor_id2 F f) x).
       - intros f₁ f₂ f₃ α₁ α₂ ; cbn.
         unfold presheaf_to_yoneda_ob_pstrans_functor_mor.
-        exact (maponpaths (λ z, (z : nat_trans _ _) x) (psfunctor_vcomp F α₁ α₂)).
+        exact (nat_trans_eq_pointwise (psfunctor_vcomp F α₁ α₂) x).
     Qed.
 
     Definition presheaf_to_yoneda_ob_pstrans_functor
@@ -167,8 +167,8 @@ Section YonedaLemma.
       unfold presheaf_to_yoneda_ob_pstrans_functor_mor ;
       unfold presheaf_to_yoneda_ob_pstrans_nat_trans_data.
       pose (psfunctor_rwhisker F f α) as p.
-      pose (!(maponpaths (λ z, (z : nat_trans _ _) x) p)) as q.
-      exact q.
+      pose (nat_trans_eq_pointwise p x) as q.
+      exact (!q).
     Qed.
 
     Definition presheaf_to_yoneda_ob_pstrans_nat_trans
@@ -217,8 +217,8 @@ Section YonedaLemma.
                presheaf_to_yoneda_ob_pstrans_functor_mor,
                presheaf_to_yoneda_ob_pstrans_nat_trans_data.
         pose (psfunctor_lwhisker F h α).
-        pose (!(maponpaths (λ z, (z : nat_trans _ _) x) p)) as q.
-        exact q.
+        pose (nat_trans_eq_pointwise p x) as q.
+        exact (!q).
       - intros Y.
         apply nat_trans_eq.
         { apply homset_property. }
@@ -226,7 +226,23 @@ Section YonedaLemma.
         unfold presheaf_to_yoneda_ob_pstrans_functor_ob,
                presheaf_to_yoneda_ob_pstrans_functor_mor,
                presheaf_to_yoneda_ob_pstrans_nat_trans_data.
-        apply TODO.
+        refine (!_).
+        etrans.
+        {
+          etrans.
+          {
+            apply maponpaths_2.
+            apply id_left.
+          }
+          etrans.
+          {
+            apply id_left.
+          }
+          exact (nat_trans_eq_pointwise (psfunctor_rinvunitor F h) x).
+        }
+        cbn -[psfunctor_id psfunctor_comp].
+        apply maponpaths_2.
+        apply id_left.
       - intros Y₁ Y₂ Y₃ g₁ g₂.
         apply nat_trans_eq.
         { apply homset_property. }
@@ -234,7 +250,28 @@ Section YonedaLemma.
         unfold presheaf_to_yoneda_ob_pstrans_functor_ob,
                presheaf_to_yoneda_ob_pstrans_functor_mor,
                presheaf_to_yoneda_ob_pstrans_nat_trans_data.
-        apply TODO.
+        refine (!_).
+        etrans.
+        {
+          etrans.
+          {
+            apply maponpaths_2.
+            etrans.
+            { apply id_right. }
+            apply maponpaths_2.
+            etrans.
+            { apply id_right. }
+            apply id_left.
+          }
+          exact (nat_trans_eq_pointwise (psfunctor_rassociator F h g₁ g₂) x).
+        }
+        simpl.
+        etrans.
+        {
+          apply maponpaths_2.
+          apply id_left.
+        }
+        reflexivity.
     Qed.
 
     Definition presheaf_to_yoneda_ob
