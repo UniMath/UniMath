@@ -67,6 +67,25 @@ Definition modnaturality_of
   : is_modification m
   := pr211 m.
 
+Definition mod_inv_naturality_of
+           {B B' : bicat}
+           {F G : psfunctor B B'}
+           {σ τ : pstrans F G}
+           (m : modification σ τ)
+  : ∏ (X Y : B) (f : X --> Y),
+    (m Y ▻ #F f) • (psnaturality_of τ f)^-1
+    =
+    (psnaturality_of σ f)^-1 • (#G f ◅ m X).
+Proof.
+  intros X Y f.
+  use vcomp_move_L_pM.
+  { is_iso. }
+  rewrite vassocr.
+  use vcomp_move_R_Mp.
+  { is_iso. }
+  exact (modnaturality_of m X Y f).
+Qed.
+
 Definition make_modification
            {B B' : bicat}
            {F G : psfunctor B B'}

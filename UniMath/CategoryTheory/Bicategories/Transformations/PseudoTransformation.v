@@ -113,6 +113,30 @@ Definition psnaturality_natural
       • (##F α ▹ η Y)
   := pr121 η.
 
+Definition psnaturality_inv_natural
+           {C D : bicat}
+           {F G : psfunctor C D}
+           (η : pstrans F G)
+  : ∏ (X Y : C) (f g : X --> Y) (α : f ==> g),
+    (psnaturality_of η f)^-1
+      • (η X ◃ ##G α)
+    =
+    (##F α ▹ η Y)
+      • (psnaturality_of η g)^-1.
+Proof.
+  intros X Y f g α.
+  use vcomp_move_L_Mp.
+  { is_iso. }
+  etrans.
+  {
+    apply vassocl.
+  }
+  use vcomp_move_R_pM.
+  { is_iso. }
+  cbn.
+  exact (psnaturality_natural η X Y f g α).
+Qed.
+
 Definition pstrans_id
            {C D : bicat}
            {F G : psfunctor C D}
@@ -185,6 +209,34 @@ Proof.
   cbn.
   rewrite !vassocr.
   exact (pstrans_comp η f g).
+Qed.
+
+Definition pstrans_inv_comp_alt
+           {C D : bicat}
+           {F G : psfunctor C D}
+           (η : pstrans F G)
+  : ∏ {X Y Z : C} (f : X --> Y) (g : Y --> Z),
+    (psnaturality_of η (f · g))^-1
+    =
+    ((psfunctor_comp F f g)^-1 ▹ η Z)
+      • rassociator (#F f) (#F g) (η Z)
+      • (#F f ◃ ((psnaturality_of η g)^-1))
+      • lassociator (#F f) (η Y) (#G g)
+      • ((psnaturality_of η f)^-1 ▹ (#G g))
+      • (rassociator (η X) (#G f) (#G g))
+      • (η X ◃ (psfunctor_comp G f g)).
+Proof.
+  intros X Y Z f g.
+  use vcomp_move_L_pM.
+  { is_iso. }
+  use vcomp_move_R_Mp.
+  { is_iso. }
+  use vcomp_move_L_pM.
+  { is_iso. apply (psfunctor_comp G). }
+  simpl.
+  rewrite pstrans_comp_alt.
+  rewrite !vassocl.
+  reflexivity.
 Qed.
 
 Definition id_trans
