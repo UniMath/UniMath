@@ -83,7 +83,7 @@ Proof.
   apply F.
 Defined.
 
-Definition psfunctor_comp
+Definition psfunctor_compake
            {C D : bicat}
            (F : psfunctor C D)
            {a b c : C}
@@ -101,7 +101,7 @@ Section Projection.
   Context {C D : bicat}.
   Variable (F : psfunctor C D).
 
-  Definition psfunctor_id2
+  Definition psfunctor_id
     : ∏ {a b : C} (f : a --> b), ##F (id2 f) = id2 (#F f)
     := pr1(pr12 F).
 
