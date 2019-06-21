@@ -107,7 +107,7 @@ Section YonedaLemma.
     Definition presheaf_to_yoneda_ob_pstrans_functor_ob
                (Y : op1_bicat B)
       : B ⟦ Y , X ⟧ → pr1 (F Y)
-      := λ f, (#F f : functor _ _) x.
+      := λ f, (#F f : _ ⟶ _) x.
 
     Definition presheaf_to_yoneda_ob_pstrans_functor_mor
                (Y : op1_bicat B)
@@ -154,9 +154,9 @@ Section YonedaLemma.
                (Y₁ Y₂ : op1_bicat B)
                (f : B ⟦ Y₂ , Y₁ ⟧)
       : nat_trans_data
-          (presheaf_to_yoneda_ob_pstrans_functor Y₁ · # F f : functor _ _)
+          (presheaf_to_yoneda_ob_pstrans_functor Y₁ · # F f : _ ⟶ _)
           (#(y B_is_univalent_2_1 X : psfunctor _ _) f
-            · presheaf_to_yoneda_ob_pstrans_functor Y₂ : functor _ _).
+            · presheaf_to_yoneda_ob_pstrans_functor Y₂ : _ ⟶ _).
     Proof.
       intros g ; cbn in *.
       unfold presheaf_to_yoneda_ob_pstrans_functor_ob.
@@ -302,9 +302,9 @@ Section YonedaLemma.
     Definition presheaf_to_yoneda_mor_modification_nat_trans_data
                (Y : op1_bicat B)
       : nat_trans_data
-          ((presheaf_to_yoneda_ob a) Y : functor _ _)
-          ((presheaf_to_yoneda_ob b) Y : functor _ _)
-      := λ h, #(#F h : functor _ _) f.
+          ((presheaf_to_yoneda_ob a) Y : _ ⟶ _)
+          ((presheaf_to_yoneda_ob b) Y : _ ⟶ _)
+      := λ h, #(#F h : _ ⟶ _) f.
 
     Definition presheaf_to_yoneda_mor_modification_is_nat_trans
                (Y : op1_bicat B)
@@ -315,7 +315,7 @@ Section YonedaLemma.
       intros h₁ h₂ α ; cbn in *.
       unfold presheaf_to_yoneda_ob_pstrans_functor_mor,
              presheaf_to_yoneda_mor_modification_nat_trans_data.
-      pose (pr2 (##F α : nat_trans _ _)) as p.
+      pose (pr2 (##F α : _ ⟹ _)) as p.
       exact (!(p a b f)).
     Qed.
 
@@ -400,5 +400,140 @@ Section YonedaLemma.
     use make_functor.
     - exact presheaf_to_yoneda_data.
     - exact presheaf_to_yoneda_is_functor.
+  Defined.
+
+  Definition yoneda_unit_component_mod_component_nat_component
+             (η : pstrans (representable B_is_univalent_2_1 X) F)
+             (Z : op1_bicat B)
+             (f : B ⟦ Z , X ⟧)
+    : (F Z : univalent_category)
+        ⟦ (η Z : _ ⟶ _) f ,
+          (# F f : _ ⟶ _) ((η X : _ ⟶ _) (id₁ X)) ⟧.
+  Proof.
+    cbn.
+    apply TODO.
+  Defined.
+
+  Definition yoneda_unit_component_mod_component_is_nat_trans
+             (η : pstrans (representable B_is_univalent_2_1 X) F)
+             (Z : op1_bicat B)
+             (f₁ f₂ : B ⟦ Z , X ⟧)
+             (α : f₁ ==> f₂)
+    : # (η Z : _ ⟶ _) α
+        · yoneda_unit_component_mod_component_nat_component η Z f₂
+      =
+      (yoneda_unit_component_mod_component_nat_component η Z f₁)
+        · (## F α : _ ⟹ _) ((η X : _ ⟶ _) (id₁ X)).
+  Proof.
+    cbn.
+    apply TODO.
+  Qed.
+
+  Definition yoneda_unit_component_mod_component_nat
+             (η : pstrans (representable B_is_univalent_2_1 X) F)
+             (Z : op1_bicat B)
+    : (η Z : _ ⟶ _)
+        ⟹
+        presheaf_to_yoneda_ob_pstrans_functor_data (yoneda_to_presheaf_data_ob η) Z.
+  Proof.
+    use make_nat_trans.
+    - exact (yoneda_unit_component_mod_component_nat_component η Z).
+    - exact (yoneda_unit_component_mod_component_is_nat_trans η Z).
+  Defined.
+
+  Definition yoneda_unit_component_is_modification
+             (η : pstrans (representable B_is_univalent_2_1 X) F)
+    : @is_modification
+        _
+        _
+        (representable B_is_univalent_2_1 X)
+        F
+        _
+        ((yoneda_to_presheaf ∙ presheaf_to_yoneda) η)
+        (yoneda_unit_component_mod_component_nat η).
+  Proof.
+    intros Z₁ Z₂ f.
+    apply nat_trans_eq.
+    { apply homset_property. }
+    intro g ; cbn in g.
+    cbn.
+    apply TODO.
+  Qed.
+
+  Definition yoneda_unit_component_mod
+             (η : pstrans (representable B_is_univalent_2_1 X) F)
+    : modification
+        (functor_identity (hom_data (representable B_is_univalent_2_1 X) F) η)
+        ((yoneda_to_presheaf ∙ presheaf_to_yoneda) η).
+  Proof.
+    use make_modification.
+    - exact (yoneda_unit_component_mod_component_nat η).
+    - exact (yoneda_unit_component_is_modification η).
+  Defined.
+
+  Definition yoneda_unit_is_nat_trans
+    : is_nat_trans
+        (functor_identity (hom_data (representable B_is_univalent_2_1 X) F))
+        (yoneda_to_presheaf ∙ presheaf_to_yoneda)
+        yoneda_unit_component_mod.
+  Proof.
+    intros η₁ η₂ m.
+    apply modification_eq.
+    intros Z.
+    apply nat_trans_eq.
+    { apply homset_property. }
+    intros g ; cbn in g.
+    cbn.
+    apply TODO.
+  Qed.
+
+  Definition yoneda_unit
+    : functor_identity _ ⟹ yoneda_to_presheaf ∙ presheaf_to_yoneda.
+  Proof.
+    use make_nat_trans.
+    - exact yoneda_unit_component_mod.
+    - exact yoneda_unit_is_nat_trans.
+  Qed.
+
+  Definition yoneda_counit_component
+             (Z : pr1 (F X))
+    : pr1 (F X) ⟦ (# F (id₁ X) : _ ⟶ _) Z, Z ⟧.
+  Proof.
+    apply TODO.
+  Defined.
+
+  Definition yoneda_counit_is_natural
+    : is_nat_trans
+        _
+        (functor_identity _)
+        yoneda_counit_component.
+  Proof.
+    apply TODO.
+  Qed.
+
+  Definition yoneda_counit
+    : presheaf_to_yoneda ∙ yoneda_to_presheaf ⟹ functor_identity _.
+  Proof.
+    use make_nat_trans.
+    - exact yoneda_counit_component.
+    - exact yoneda_counit_is_natural.
+  Defined.
+
+  Definition bicategorical_yoneda_lemma
+    : left_adjoint_equivalence yoneda_to_presheaf.
+  Proof.
+    apply equiv_to_isadjequiv.
+    use tpair.
+    - use tpair.
+      + exact presheaf_to_yoneda.
+      + split.
+        * exact yoneda_unit.
+        * exact yoneda_counit.
+    - split.
+      + cbn.
+        apply is_nat_iso_to_is_invertible_2cell.
+        intro Z.
+        apply TODO.
+      + apply TODO.
   Defined.
 End YonedaLemma.
