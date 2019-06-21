@@ -195,6 +195,7 @@ Bicategories/Bicategories/Univalence.v
 Bicategories/Bicategories/TransportLaws.v
 Bicategories/Bicategories/EquivToAdjequiv.v
 Bicategories/Bicategories/AdjointUnique.v
+Bicategories/Bicategories/UnivalenceOp.v
 Bicategories/Bicategories/Examples/OneTypes.v
 Bicategories/Bicategories/Examples/PointedOneTypesBicat.v
 Bicategories/Bicategories/Examples/TwoType.v

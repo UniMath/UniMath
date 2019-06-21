@@ -22,6 +22,7 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Unitors.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Adjunctions.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Univalence.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.UnivalenceOp.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.PseudoFunctor.
 Import PseudoFunctor.Notations.
@@ -803,4 +804,32 @@ Section YonedaLocalEquivalence.
     apply is_inv2cell_to_is_iso.
     is_iso.
   Defined.
+
+  Definition yoneda_mor_is_equivalence
+    : UU.
+  Proof.
+    pose (Fmor_univ (y B_is_univalent_2_1) X Y B_is_univalent_2_1) as p.
+    pose (psfunctor_bicat_is_univalent_2_1
+               B bicat_of_cats
+               univalent_cat_is_univalent_2_1) as i.
+    Search is_univalent_2_1 op1_bicat.
+    pose (Fmor_univ
+            (y B_is_univalent_2_1)
+            X Y
+            B_is_univalent_2_1
+            (psfunctor_bicat_is_univalent_2_1
+               B bicat_of_cats
+               univalent_cat_is_univalent_2_1) : _ ⟶ _).
+    simple refine (@left_adjoint_equivalence bicat_of_cats _ _ _).
+    @left_adjoint_equivalence
+        bicat_of_cats
+        _ _
+        (Fmor_univ
+           (y B_is_univalent_2_1)
+           X Y
+           B_is_univalent_2_1
+           (psfunctor_bicat_is_univalent_2_1
+              B bicat_of_cats
+              univalent_cat_is_univalent_2_1)).
+
 End YonedaLocalEquivalence.
