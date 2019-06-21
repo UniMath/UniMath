@@ -80,9 +80,9 @@ Section YonedaLemma.
     : is_functor yoneda_to_presheaf_data.
   Proof.
     split.
-    - intro η.
+    - intro η ; cbn.
       apply idpath.
-    - intros η₁ η₂ η₃ f g.
+    - intros η₁ η₂ η₃ f g ; cbn.
       apply idpath.
   Qed.
 
