@@ -681,3 +681,126 @@ Section YonedaLemma.
         apply TODO.
   Defined.
 End YonedaLemma.
+
+Section YonedaLocalEquivalence.
+  Context {B : bicat}.
+  Variable (B_is_univalent_2_1 : is_univalent_2_1 B)
+           (X Y : B).
+
+  Definition yoneda_to_presheaf_representable_component_mod_component_nat
+             (f : X --> Y)
+             (Z : B)
+             (g : Z --> X)
+    : g · f ==> g · f
+    := id₂ (g · f).
+
+  Definition yoneda_to_presheaf_representable_component_mod_is_nat_trans
+             (f : X --> Y)
+             (Z : B)
+    : is_nat_trans
+        (representable1 B_is_univalent_2_1 f Z : _ ⟶ _)
+        (presheaf_to_yoneda_ob
+           B_is_univalent_2_1
+           (representable B_is_univalent_2_1 Y)
+           X f Z
+         : _ ⟶ _)
+        (yoneda_to_presheaf_representable_component_mod_component_nat f Z).
+  Proof.
+    intros h₁ h₂ α.
+    cbn in h₁, h₂, α.
+    apply TODO.
+  Qed.
+
+  Definition yoneda_to_presheaf_representable_component_mod_component
+             (f : X --> Y)
+    : modification_data
+        (representable1 B_is_univalent_2_1 f)
+        (presheaf_to_yoneda_ob
+           B_is_univalent_2_1
+           (representable B_is_univalent_2_1 Y) X f).
+  Proof.
+    intros Z.
+    use make_nat_trans.
+    - exact (yoneda_to_presheaf_representable_component_mod_component_nat f Z).
+    - exact (yoneda_to_presheaf_representable_component_mod_is_nat_trans f Z).
+  Defined.
+
+  Definition yoneda_to_presheaf_representable_is_modification
+             (f : X --> Y)
+    : is_modification (yoneda_to_presheaf_representable_component_mod_component f).
+  Proof.
+    intros Z₁ Z₂ h.
+    apply nat_trans_eq.
+    { apply homset_property. }
+    intros g.
+    cbn in *.
+    unfold yoneda_to_presheaf_representable_component_mod_component_nat.
+    apply TODO.
+  Qed.
+
+  Definition yoneda_to_presheaf_representable_component_mod
+             (f : X --> Y)
+    : modification
+        (Fmor (y B_is_univalent_2_1) X Y f)
+        ((presheaf_to_yoneda
+            B_is_univalent_2_1
+            (representable B_is_univalent_2_1 Y)
+            X
+          : _ ⟶ _) f).
+  Proof.
+    use make_modification.
+    - exact (yoneda_to_presheaf_representable_component_mod_component f).
+    - exact (yoneda_to_presheaf_representable_is_modification f).
+  Defined.
+
+  Definition yoneda_to_presheaf_representable_is_natural
+    : is_nat_trans
+        (Fmor_data (y B_is_univalent_2_1) X Y)
+        _
+        yoneda_to_presheaf_representable_component_mod.
+  Proof.
+    intros g₁ g₂ α.
+    apply modification_eq.
+    intros Z.
+    apply nat_trans_eq.
+    { apply homset_property. }
+    intros h.
+    cbn in *.
+    unfold yoneda_to_presheaf_representable_component_mod_component_nat.
+    apply TODO.
+  Qed.
+
+  Definition yoneda_to_presheaf_representable
+    : (Fmor_univ  (y B_is_univalent_2_1) X Y _ _)
+        ⟹
+        (presheaf_to_yoneda
+           B_is_univalent_2_1
+           (representable B_is_univalent_2_1 Y)
+           X
+         : _⟶ _).
+  Proof.
+    use make_nat_trans.
+    - exact yoneda_to_presheaf_representable_component_mod.
+    - exact yoneda_to_presheaf_representable_is_natural.
+  Defined.
+
+  Definition yoneda_to_presheaf_representable_is_iso
+    : @is_invertible_2cell
+        bicat_of_cats
+        _ _
+        (Fmor_univ (y B_is_univalent_2_1) X Y _ _ : _ ⟶ _)
+        _ (yoneda_to_presheaf_representable).
+  Proof.
+    apply is_nat_iso_to_is_invertible_2cell.
+    intro g.
+    apply is_inv2cell_to_is_iso.
+    apply make_is_invertible_modification.
+    intro Z.
+    apply is_nat_iso_to_is_invertible_2cell.
+    intros h.
+    cbn in *.
+    unfold yoneda_to_presheaf_representable_component_mod_component_nat.
+    apply is_inv2cell_to_is_iso.
+    is_iso.
+  Defined.
+End YonedaLocalEquivalence.
