@@ -86,6 +86,7 @@ Section YonedaLemma.
       apply idpath.
   Qed.
 
+
   Definition yoneda_to_presheaf
     : bicat_of_cats
         ⟦ univ_hom
@@ -194,7 +195,13 @@ Section YonedaLemma.
                (f : B ⟦ Y₂ , Y₁ ⟧)
       : is_nat_iso (presheaf_to_yoneda_ob_pstrans_nat_trans Y₁ Y₂ f).
     Proof.
-      apply TODO.
+      intro g ; cbn in g.
+      unfold presheaf_to_yoneda_ob_pstrans_nat_trans.
+      simpl.
+      unfold presheaf_to_yoneda_ob_pstrans_nat_trans_data.
+      pose (is_invertible_2cell_to_is_nat_iso (psfunctor_comp F g f)) as i.
+      apply i.
+      exact (psfunctor_comp F g f).
     Defined.
 
     Definition presheaf_to_yoneda_ob_pstrans_data
