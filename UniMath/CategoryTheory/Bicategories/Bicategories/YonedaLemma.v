@@ -48,7 +48,9 @@ Section YonedaLemma.
   Definition yoneda_to_presheaf_data_ob
     : pstrans (representable B_is_univalent_2_1 X) F → pr1 (F X).
   Proof.
-    apply TODO.
+    intro τ.
+    pose (τ X) as f; cbn in f.
+    exact (f (identity X)).
   Defined.
 
   Definition yoneda_to_presheaf_data_mor
@@ -56,7 +58,8 @@ Section YonedaLemma.
              (m : modification η₁ η₂)
     : yoneda_to_presheaf_data_ob η₁ --> yoneda_to_presheaf_data_ob η₂.
   Proof.
-    apply TODO.
+    pose (m X) as n; cbn in n.
+    exact (n (identity X)).
   Defined.
 
   Definition yoneda_to_presheaf_data
@@ -65,7 +68,7 @@ Section YonedaLemma.
            (psfunctor_bicat_is_univalent_2_1
               (op1_bicat B) bicat_of_cats
               univalent_cat_is_univalent_2_1)
-           ((y B_is_univalent_2_1) X) F)
+           (y B_is_univalent_2_1 X) F)
         (F X : univalent_category).
   Proof.
     use make_functor_data.
@@ -77,8 +80,10 @@ Section YonedaLemma.
     : is_functor yoneda_to_presheaf_data.
   Proof.
     split.
-    - apply TODO.
-    - apply TODO.
+    - intro η.
+      apply idpath.
+    - intros η₁ η₂ η₃ f g.
+      apply idpath.
   Qed.
 
   Definition yoneda_to_presheaf
