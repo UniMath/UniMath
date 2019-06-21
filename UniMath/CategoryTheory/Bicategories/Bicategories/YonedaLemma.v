@@ -681,6 +681,10 @@ Section YonedaLemma.
         intros Z ; cbn.
         apply TODO.
   Defined.
+
+  Definition bicategorical_yoneda_lemma_inv
+    : left_adjoint_equivalence presheaf_to_yoneda
+    := inv_adjequiv (_ ,, bicategorical_yoneda_lemma).
 End YonedaLemma.
 
 Section YonedaLocalEquivalence.
@@ -806,22 +810,7 @@ Section YonedaLocalEquivalence.
   Defined.
 
   Definition yoneda_mor_is_equivalence
-    : UU.
-  Proof.
-    pose (Fmor_univ (y B_is_univalent_2_1) X Y B_is_univalent_2_1) as p.
-    pose (psfunctor_bicat_is_univalent_2_1
-               B bicat_of_cats
-               univalent_cat_is_univalent_2_1) as i.
-    Search is_univalent_2_1 op1_bicat.
-    pose (Fmor_univ
-            (y B_is_univalent_2_1)
-            X Y
-            B_is_univalent_2_1
-            (psfunctor_bicat_is_univalent_2_1
-               B bicat_of_cats
-               univalent_cat_is_univalent_2_1) : _ ⟶ _).
-    simple refine (@left_adjoint_equivalence bicat_of_cats _ _ _).
-    @left_adjoint_equivalence
+    : @left_adjoint_equivalence
         bicat_of_cats
         _ _
         (Fmor_univ
@@ -829,7 +818,22 @@ Section YonedaLocalEquivalence.
            X Y
            B_is_univalent_2_1
            (psfunctor_bicat_is_univalent_2_1
-              B bicat_of_cats
+              (op1_bicat B) _
               univalent_cat_is_univalent_2_1)).
-
+  Proof.
+    apply equiv_to_isadjequiv.
+    exact (@iso_equiv
+            bicat_of_cats
+            _
+            _
+            _
+            (presheaf_to_yoneda
+               B_is_univalent_2_1
+               (representable B_is_univalent_2_1 Y)
+               X
+             : _⟶ _)
+            (bicategorical_yoneda_lemma_inv B_is_univalent_2_1 _ _)
+            _
+            yoneda_to_presheaf_representable_is_iso).
+  Defined.
 End YonedaLocalEquivalence.
