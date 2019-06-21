@@ -676,6 +676,8 @@ Section YonedaLemma.
         apply is_nat_iso_to_is_invertible_2cell.
         intros Y.
         exact (yoneda_unit_iso g Z Y).
-      + apply TODO.
+      + apply is_nat_iso_to_is_invertible_2cell.
+        intros Z ; cbn.
+        apply TODO.
   Defined.
 End YonedaLemma.
