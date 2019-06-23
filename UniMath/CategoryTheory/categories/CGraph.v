@@ -5,9 +5,15 @@
     June 2019
  ********************************************************************************* *)
 
+
 Require Import UniMath.Foundations.PartA.
+Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.Combinatorics.CGraph.
+
+Local Open Scope cat.
 
 (** ** Precategory of precgraphs. *)
 
@@ -73,3 +79,34 @@ Definition cgraph_category : precategory
   := make_precategory
        cgraph_precategory_data
        is_precategory_cgraph.
+
+
+(** ** Forgetful functor. *)
+
+Definition cgraph_forget_map (G : cgraph) : hSet
+  := make_hSet (node G) (isaset_node G).
+
+Definition cgraph_forget_data
+  : functor_data cgraph_precategory_ob_mor hset_precategory_ob_mor
+  := @make_functor_data
+       cgraph_category HSET
+       cgraph_forget_map
+       (λ G H : cgraph, onnode).
+
+Lemma is_functor_cgraph_forget
+  : @is_functor cgraph_precategory hset_precategory cgraph_forget_data.
+Proof.
+  apply make_dirprod.
+  - intro x.
+    cbn.
+    apply idpath.
+  - intros x y z. cbn.
+    intros f g.
+    apply idpath.
+Qed.
+
+Definition cgraph_forget
+  : cgraph_category ⟶ HSET
+  := @make_functor cgraph_precategory hset_precategory
+       cgraph_forget_data
+ is_functor_cgraph_forget.

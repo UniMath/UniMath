@@ -81,9 +81,15 @@ Definition isaset_node (G : cgraph)
   : isaset (node G)
   := pr12 G.
 
+Definition nodeset (G : cgraph) : hSet
+  := make_hSet (node G) (isaset_node G).
+
 Definition isaset_arc (G : cgraph)
   : isaset (arc G)
   := pr22 G.
+
+Definition arcset (G : cgraph) : hSet
+  := make_hSet (arc G) (isaset_arc G).
 
 (** ** Cgraph morphisms. *)
 
@@ -231,4 +237,41 @@ Proof.
       apply isasetaprop.
       apply isaprop_is_cgraph_mor.
       exact h.
+Qed.
+
+(** ** Equality of cgraph morphisms *)
+
+Lemma cgraph_mor_eq_aux {G H : precgraph}
+      (p q : cgraph_mor G H)
+      (e₀ : onnode p = onnode q)
+      (e₁ : onarc p = onarc q)
+      (h : has_nodeset H)
+  : p = q.
+Proof.
+  induction p as (p₀,(p₁,(psrc,ptrg))).
+  induction q as (q₀,(q₁,(qsrc,qtrg))).
+  cbn in *.
+  induction e₀.
+  apply pair_path_in2.
+  induction e₁.
+  apply pair_path_in2.
+  apply pathsdirprod.
+  - apply funextsec.
+    intro f. apply h.
+  - apply funextsec.
+    intro f. apply h.
+Qed.
+
+Lemma cgraph_mor_eq {G H : cgraph}
+      (p q : cgraph_mor G H)
+      (e₀ : ∏ x : node G, onnode p x = onnode q x)
+      (e₁ : ∏ f : arc G, onarc p f = onarc q f)
+  : p = q.
+Proof.
+  apply cgraph_mor_eq_aux.
+  - apply funextfun.
+    exact e₀.
+  - apply funextfun.
+    exact e₁.
+  - apply isaset_node.
 Qed.
