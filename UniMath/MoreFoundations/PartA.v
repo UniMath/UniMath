@@ -578,6 +578,16 @@ Proof.
   intros. induction p. reflexivity.
 Defined.
 
+
+Lemma transportf_total2_const (A B : UU) (P : B -> A -> UU) (b : B) (a1 a2 : A) (e : a1 = a2) (p : P b a1) :
+  transportf (λ x, ∑ y, P y x) e (b,, p) = b,, transportf (P b) e p.
+Proof.
+  induction e.
+  apply idpath.
+Defined.
+
+
+
 (** ** h-levels and paths *)
 
 Lemma isaprop_wma_inhab X : (X -> isaprop X) -> isaprop X.

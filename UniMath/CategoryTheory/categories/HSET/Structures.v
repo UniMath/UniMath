@@ -189,7 +189,7 @@ use tpair.
     unfold covyoneda_morphisms_data;
     assert (X := nat_trans_ax theta);
     assert (Y := toforallpaths _ _ _ (X c c' f) (identity c,, y));
-    eapply pathscomp0; [|apply Y]; cbn; unfold prodtofuntoprod;
+    eapply pathscomp0; [|apply Y]; cbn; unfold prodtofuntoprod; cbn;
     now rewrite id_right, id_left).
 Defined.
 
@@ -250,7 +250,7 @@ use left_adjoint_from_partial.
     apply funextsec; intros [t0 pd]; simpl;
     assert (HH := toforallpaths _ _ _ (nat_trans_ax t c d t0) rc);
     cbn in HH; rewrite HH; cbn; unfold covyoneda_morphisms_data;
-    unfold prodtofuntoprod;
+    unfold prodtofuntoprod; cbn;
     now rewrite id_right).
 Qed.
 

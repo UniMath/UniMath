@@ -224,7 +224,7 @@ Section Initial.
            (biinitial_inv HX Y)).
   Proof.
     intros f.
-    simpl. Check pr1 HX Y.
+    simpl.
     exact (is_biinitial'_2cell_property HX Y f (is_biinitial'_1cell_property HX Y)).
   Defined.
 
