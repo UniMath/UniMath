@@ -32,10 +32,11 @@ Require Import UniMath.Foundations.UnivalenceAxiom.
    is called [weq2].
 *)
 
-Local Lemma weq1  (P : UU -> hProp) (X X' : UU) (p : P X) (p' : P X') :
-  (X,, p) = (X',, p' : ∑ (T : UU), P T )
-  ≃
-  (∑ w : X = X', transportf P w p = p').
+Local Lemma weq1  (P : UU -> hProp) (X X' : UU)
+      (p : P X) (p' : P X')
+  : (X,, p) = (X',, p' : ∑ (T : UU), P T )
+    ≃
+    (∑ w : X = X', transportf P w p = p').
 Proof.
   apply total2_paths_equiv.
 Defined.
@@ -61,8 +62,10 @@ Defined.
 *)
 
 Local Lemma weq2 (P : UU -> hProp) (X X' : UU)
-      (p : P X) (p' : P X') :
-  (∑ w : X = X', transportf P w p = p') ≃ (X = X').
+      (p : P X) (p' : P X')
+  : (∑ w : X = X', transportf P w p = p')
+    ≃
+    (X = X').
 Proof.
   use weqpr1.
   intro. cbn. apply (pr2 (P X')).
@@ -73,10 +76,10 @@ Defined.
 *)
 
 Local Lemma Id_p_weq_Id (P : UU -> hProp) (X X' : UU)
-      (p : P X) (p' : P X') :
-  (X ,, p) = (X',, p' : ∑ T , P T)
-  ≃
-  X = X'.
+      (p : P X) (p' : P X')
+  : (X ,, p) = (X',, p' : ∑ T , P T)
+    ≃
+    X = X'.
 Proof.
   set (f := weq1 P X X' p p').
   set (g := weq2 P X X' p p').
@@ -109,8 +112,8 @@ Proof.
   apply funextfun. cbn. intro x. apply (pr2 cY).
 Defined.
 
-Lemma isofhlevel0pathspace (X Y : UU) :
-    iscontr X -> iscontr Y -> iscontr (X = Y).
+Lemma isofhlevel0pathspace (X Y : UU)
+  : iscontr X -> iscontr Y -> iscontr (X = Y).
 Proof.
   intros pX pY.
   set (H := isofhlevelweqb 0 (eqweqmap ,, univalenceAxiom X Y)).
@@ -153,21 +156,22 @@ Defined.
 
 (** We define the type [HLevel n] of types of hlevel n. *)
 
-Definition HLevel n := ∑ X : UU, isofhlevel n X.
+Definition HLevel (n : nat) : UU := ∑ X : UU, isofhlevel n X.
 
 (** * Main theorem: [HLevel n] is of hlevel [S n] *)
 
-Lemma hlevel_of_hlevels : ∏ n, isofhlevel (S n) (HLevel n).
+Lemma isofhlevel_HLevel (n : nat) : isofhlevel (S n) (HLevel n).
 Proof.
-  intro n.
-  simpl.
-  intros [X pX] [X' pX'].
+  cbn.
+  intros X X'.
+  induction X as [X p].
+  induction X' as [X' p'].
   set (H := isofhlevelweqb n
-       (Id_p_weq_Id (λ X, tpair isaprop (isofhlevel n X)
-                               (isapropisofhlevel _ _)) X X' pX pX')).
+       (Id_p_weq_Id (λ X, (isofhlevel n X,, isapropisofhlevel _ _)) X X' p p')).
+  cbn in H.
   apply H.
   apply isofhlevelpathspace;
-  assumption.
+    assumption.
 Defined.
 
 (** ** Aside: Univalence for predicates and hlevels *)
