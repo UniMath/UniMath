@@ -1,5 +1,5 @@
 (** Author: Floris van Doorn, december 2017 *)
-Require Import UniMath.Combinatorics.Graphs.
+Require Import UniMath.Combinatorics.GraphPaths.
 Require Import UniMath.MoreFoundations.Subtypes.
 
 (** Equivalence relations.
