@@ -193,3 +193,27 @@ Section Internal_Adjunction.
   Defined.
 
 End Internal_Adjunction.
+
+Definition iso_equiv
+           {B : bicat}
+           {X Y : B}
+           {f g : X --> Y}
+           (g_equiv : left_equivalence g)
+           {α : f ==> g}
+           (α_invertible : is_invertible_2cell α)
+  : left_equivalence f.
+Proof.
+  use tpair.
+  - use tpair.
+    + exact (left_adjoint_right_adjoint g_equiv).
+    + split.
+      * exact ((left_adjoint_unit g_equiv)
+                 • ((α_invertible^-1) ▹ left_adjoint_right_adjoint g_equiv)).
+      * exact ((left_adjoint_right_adjoint g_equiv ◃ α)
+                 • (left_adjoint_counit g_equiv)).
+  - split ; cbn.
+    + is_iso.
+      apply g_equiv.
+    + is_iso.
+      apply g_equiv.
+Defined.

@@ -12,11 +12,13 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Univalence.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.BicategoryLaws.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.Base.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.Map1Cells.
@@ -201,7 +203,7 @@ Section PseudoFunctorDerivedLaws.
   Qed.
 
   Definition psfunctor_rinvunitor
-             (a b : C)
+             {a b : C}
              (f : C⟦a, b⟧)
     : ##F (rinvunitor f)
       =
@@ -304,6 +306,49 @@ Section PseudoFunctorDerivedLaws.
     exact (!(psfunctor_runitor F f)).
   Qed.
 End PseudoFunctorDerivedLaws.
+
+Section PseudoFunctorLocalFunctor.
+  Context {B C : bicat}.
+  Variable (F : psfunctor B C)
+           (X Y : B).
+
+  Definition Fmor_data
+    : functor_data (hom X Y) (hom (F X) (F Y)).
+  Proof.
+    use make_functor_data.
+    - exact (λ f, #F f).
+    - exact (λ _ _ α, ##F α).
+  Defined.
+
+  Definition Fmor_is_functor
+    : is_functor Fmor_data.
+  Proof.
+    split.
+    - intros f.
+      exact (psfunctor_id2 F f).
+    - intros f g h α β.
+      exact (psfunctor_vcomp F α β).
+  Defined.
+
+  Definition Fmor
+    : hom X Y ⟶ hom (F X) (F Y).
+  Proof.
+    use make_functor.
+    - exact Fmor_data.
+    - exact Fmor_is_functor.
+  Defined.
+
+  Definition Fmor_univ
+             (B_is_univalent_2_1 : is_univalent_2_1 B)
+             (C_is_univalent_2_1 : is_univalent_2_1 C)
+    : (univ_hom B_is_univalent_2_1 X Y)
+        ⟶
+        univ_hom C_is_univalent_2_1 (F X) (F Y).
+  Proof.
+    exact Fmor.
+  Defined.
+
+End PseudoFunctorLocalFunctor.
 
 Module Notations.
   Notation "'##'" := (psfunctor_on_cells).
