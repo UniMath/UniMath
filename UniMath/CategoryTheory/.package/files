@@ -153,6 +153,7 @@ categories/HSET/All.v
 SetValuedFunctors.v
 categories/FinSet.v
 categories/wosets.v
+categories/Graph.v
 
 GrothendieckTopos.v
 Presheaf.v
@@ -255,7 +256,6 @@ Bicategories/WkCatEnrichment/bicategory.v
 
 Bicategories/BicategoryOfBicat.v
 Bicategories/BicatOfBicategory.v
-Bicategories/Graph.v
 Bicategories/Discreteness.v
 
 Monoidal/MonoidalCategories.v
