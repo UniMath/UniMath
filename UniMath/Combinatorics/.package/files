@@ -1,7 +1,8 @@
 StandardFiniteSets.v
 Lists.v
 FiniteSets.v
-Graphs.v
+Graph.v
+GraphPaths.v
 Equivalence_Relations.v
 OrderedSets.v
 WellFoundedRelations.v
