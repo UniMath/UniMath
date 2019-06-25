@@ -155,12 +155,12 @@ Definition isotoid_2_0
 
 (** In a univalent bicategory 0-cells are 1-types.
 For the proofs that 1-cells are 2-types see AdjointUnique.v *)
-Lemma univalent_bicategory_0_cell_hlevel_3
-      (C : bicat) (HC : is_univalent_2 C) (a b : C) :
+Lemma univalent_bicategory_1_cell_hlevel_3
+      (C : bicat) (HC : is_univalent_2_1 C) (a b : C) :
   isofhlevel 3 (C⟦a,b⟧).
 Proof.
   intros f g.
-  apply (isofhlevelweqb _ (idtoiso_2_1 f g,, pr2 HC _ _ f g)).
+  apply (isofhlevelweqb _ (idtoiso_2_1 f g,, HC _ _ f g)).
   apply isaset_invertible_2cell.
 Qed.
 
