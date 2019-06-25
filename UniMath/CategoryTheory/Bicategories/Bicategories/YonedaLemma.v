@@ -1,7 +1,7 @@
 (* ******************************************************************************* *)
 (** * Yoneda Lemma
     Niccolo Veltri, Niels van der Weide
-    February 2018
+    June 2019
  ********************************************************************************* *)
 
 Require Import UniMath.Foundations.All.
@@ -35,9 +35,6 @@ Local Open Scope bicategory_scope.
 Local Open Scope cat.
 
 Opaque psfunctor.
-
-Definition TODO {A : UU} : A.
-Admitted.
 
 Section YonedaLemma.
   Context {B : bicat}.
@@ -635,10 +632,8 @@ Section YonedaLemma.
 
   Definition yoneda_counit_component
              (Z : pr1 (F X))
-    : pr1 (F X) ⟦ (# F (id₁ X) : _ ⟶ _) Z, Z ⟧.
-  Proof.
-    apply TODO.
-  Defined.
+    : pr1 (F X) ⟦ (# F (id₁ X) : _ ⟶ _) Z, Z ⟧
+    := pr1 ((psfunctor_id F X)^-1) Z.
 
   Definition yoneda_counit_is_natural
     : is_nat_trans
@@ -646,7 +641,10 @@ Section YonedaLemma.
         (functor_identity _)
         yoneda_counit_component.
   Proof.
-    apply TODO.
+    intros Z₁ Z₂ h ; cbn.
+    unfold yoneda_counit_component.
+    pose (pr2 ((psfunctor_id F X)^-1) _ _ h) as p.
+    exact p.
   Qed.
 
   Definition yoneda_counit
@@ -679,7 +677,14 @@ Section YonedaLemma.
         exact (yoneda_unit_iso g Z Y).
       + apply is_nat_iso_to_is_invertible_2cell.
         intros Z ; cbn.
-        apply TODO.
+        unfold yoneda_counit_component.
+        use is_iso_qinv.
+        * exact (pr1 (pr1 (psfunctor_id F X)) Z).
+        * split.
+          ** abstract (exact (nat_trans_eq_pointwise
+                                (vcomp_lid (psfunctor_id F X)) Z)).
+          ** abstract (exact (nat_trans_eq_pointwise
+                                (vcomp_rinv (psfunctor_id F X)) Z)).
   Defined.
 
   Definition bicategorical_yoneda_lemma_inv
@@ -712,8 +717,10 @@ Section YonedaLocalEquivalence.
         (yoneda_to_presheaf_representable_component_mod_component_nat f Z).
   Proof.
     intros h₁ h₂ α.
-    cbn in h₁, h₂, α.
-    apply TODO.
+    cbn in *.
+    unfold yoneda_to_presheaf_representable_component_mod_component_nat.
+    rewrite id2_left,id2_right.
+    apply idpath.
   Qed.
 
   Definition yoneda_to_presheaf_representable_component_mod_component
@@ -740,7 +747,8 @@ Section YonedaLocalEquivalence.
     intros g.
     cbn in *.
     unfold yoneda_to_presheaf_representable_component_mod_component_nat.
-    apply TODO.
+    rewrite id2_right, lwhisker_id2, id2_left.
+    apply idpath.
   Qed.
 
   Definition yoneda_to_presheaf_representable_component_mod
@@ -772,7 +780,8 @@ Section YonedaLocalEquivalence.
     intros h.
     cbn in *.
     unfold yoneda_to_presheaf_representable_component_mod_component_nat.
-    apply TODO.
+    rewrite id2_right, id2_left.
+    apply idpath.
   Qed.
 
   Definition yoneda_to_presheaf_representable
