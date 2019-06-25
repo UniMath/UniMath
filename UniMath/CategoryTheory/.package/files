@@ -225,6 +225,9 @@ Bicategories/PseudoFunctors/Display/Map2Cells.v
 Bicategories/PseudoFunctors/Display/Identitor.v
 Bicategories/PseudoFunctors/Display/Compositor.v
 Bicategories/PseudoFunctors/Display/PseudoFunctorBicat.v
+Bicategories/PseudoFunctors/Display/StrictIdentitor.v
+Bicategories/PseudoFunctors/Display/StrictCompositor.v
+Bicategories/PseudoFunctors/Display/StrictPseudoFunctorBicat.v
 
 Bicategories/PseudoFunctors/PseudoFunctor.v
 Bicategories/PseudoFunctors/Examples/Identity.v
