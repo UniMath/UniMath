@@ -49,7 +49,7 @@ Proof.
   exact ((F₀ ,, F₁) ,, (F₂ ,, Fid ,, Fcomp)).
 Defined.
 
-Definition make_strict__psfunctor
+Definition make_strict_psfunctor
            {C D : bicat}
            (F : strict_psfunctor_data C D)
            (HF : is_strict_psfunctor F)

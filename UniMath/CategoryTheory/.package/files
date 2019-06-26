@@ -230,10 +230,12 @@ Bicategories/PseudoFunctors/Display/StrictCompositor.v
 Bicategories/PseudoFunctors/Display/StrictPseudoFunctorBicat.v
 
 Bicategories/PseudoFunctors/PseudoFunctor.v
+Bicategories/PseudoFunctors/StrictPseudoFunctor.v
 Bicategories/PseudoFunctors/Examples/Identity.v
 Bicategories/PseudoFunctors/Examples/Composition.v
 Bicategories/PseudoFunctors/Examples/ApFunctor.v
 Bicategories/PseudoFunctors/Examples/OpFunctor.v
+Bicategories/PseudoFunctors/Examples/StrictToPseudo.v
 Bicategories/PseudoFunctors/Examples/Projection.v
 Bicategories/Transformations/PseudoTransformation.v
 Bicategories/Modifications/Modification.v
