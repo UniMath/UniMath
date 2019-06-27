@@ -642,6 +642,114 @@ Section Strictify.
     - apply TODO.
   Defined.
 
+  Local Definition modifications_help
+        (F : functor_data B₁ B₂)
+        (X Y : B₁)
+        (f : X --> Y)
+    : (rassociator (id₁ (F X)) (id₁ (F X)) (#F f))
+        • (id₁ (F X) ◃ (lunitor (# F f) • rinvunitor (# F f)))
+        • lassociator (id₁ (F X)) (# F f) (id₁ (F Y))
+        • ((lunitor (# F f) • rinvunitor (# F f)) ▹ id₁ (F Y))
+        • rassociator (#F f) (id₁ (F Y)) (id₁ (F Y))
+        • (# F f ◃ lunitor (id₁ (F Y)))
+      =
+      (lunitor (id₁ (F X)) ▹ # F f)
+        • lunitor (#F f)
+        • rinvunitor (#F f).
+  Proof.
+    rewrite <- lwhisker_vcomp.
+    rewrite !vassocr.
+    rewrite lunitor_lwhisker.
+    rewrite !vassocl.
+    rewrite runitor_lunitor_identity.
+    apply maponpaths.
+    rewrite !vassocr.
+    rewrite rinvunitor_triangle.
+    rewrite !vassocl.
+    rewrite lunitor_lwhisker.
+    rewrite rwhisker_vcomp.
+    rewrite !vassocl.
+    rewrite rinvunitor_runitor, id2_right.
+    rewrite rinvunitor_natural.
+    rewrite rwhisker_hcomp.
+    apply idpath.
+  Qed.
+
+  Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+
+  Definition modification_help_alt
+             (F₁ F₂ : functor_data B₁ B₂)
+             (α : nat_trans_data F₁ F₂)
+             (X : B₁)
+    : (rassociator (id₁ (F₁ X)) (id₁ (F₁ X)) (α X))
+        • (id₁ (F₁ X) ◃ (lunitor (α X) • rinvunitor (α X)))
+        • lassociator (id₁ (F₁ X)) (α X) (id₁ (F₂ X))
+        • ((lunitor (α X) • rinvunitor (α X)) ▹ id₁ (F₂ X))
+        • rassociator (α X) (id₁ (F₂ X)) (id₁ (F₂ X))
+        • (α X ◃ lunitor (id₁ (F₂ X)))
+      =
+      (lunitor (id₁ (F₁ X)) ▹ α X)
+        • lunitor (α X)
+        • rinvunitor (α X).
+  Proof.
+    rewrite !vassocl.
+    rewrite lunitor_lwhisker.
+    rewrite rwhisker_vcomp.
+    rewrite !vassocl.
+    rewrite rinvunitor_runitor, id2_right.
+    refine (!_).
+    etrans.
+    {
+      rewrite rinvunitor_natural, <- rwhisker_hcomp.
+      apply idpath.
+    }
+    rewrite !vassocr.
+    apply maponpaths_2.
+    rewrite !vassocl.
+    rewrite <- lwhisker_vcomp.
+    rewrite !vassocl.
+    rewrite rinvunitor_triangle.
+    rewrite !vassocr.
+    apply maponpaths_2.
+    rewrite lunitor_lwhisker.
+    rewrite runitor_lunitor_identity.
+    apply idpath.
+  Qed.
+
+  Local Definition psfunctor_to_functor_data
+        (F : psfunctor B₁ B₂)
+    : functor_data B₁ B₂.
+  Proof.
+    use make_functor_data.
+    - exact (λ X, F X).
+    - exact (λ _ _ f, #F f).
+  Defined.
+
+  Local Definition strict_psfunctor_to_functor_data
+        (F : strict_psfunctor B₁ B₂)
+    : functor_data B₁ B₂.
+  Proof.
+    use make_functor_data.
+    - exact (λ X, F X).
+    - exact (λ _ _ f, #F f).
+  Defined.
+
+  Local Definition pstrans_to_nattrans_data
+        {F₁ F₂ : psfunctor B₁ B₂}
+        (α : pstrans F₁ F₂)
+    : nat_trans_data
+        (psfunctor_to_functor_data F₁)
+        (psfunctor_to_functor_data F₂)
+    := λ X, α X.
+
+  Local Definition strict_pstrans_to_nattrans_data
+        {F₁ F₂ : strict_psfunctor_bicat B₁ B₂}
+        (α : F₁ --> F₂)
+    : nat_trans_data
+        (strict_psfunctor_to_functor_data F₁)
+        (strict_psfunctor_to_functor_data F₂)
+    := λ X, pr111 α X.
+
   Definition strictify_counit_inv_strictify_counit
     : invertible_modification
         (comp_trans
@@ -657,43 +765,16 @@ Section Strictify.
         * exact (lunitor (id₁ _)).
         * is_iso.
       + abstract (intros X Y f ; cbn ;
-                  rewrite <- lwhisker_vcomp ;
                   rewrite !vassocr ;
-                  rewrite lunitor_lwhisker ;
-                  rewrite !vassocl ;
-                  rewrite runitor_lunitor_identity ;
-                  apply maponpaths ;
-                  rewrite !vassocr ;
-                  rewrite rinvunitor_triangle ;
-                  rewrite !vassocl ;
-                  rewrite lunitor_lwhisker ;
-                  rewrite rwhisker_vcomp ;
-                  rewrite !vassocl ;
-                  rewrite rinvunitor_runitor, id2_right ;
-                  rewrite rinvunitor_natural ;
-                  rewrite rwhisker_hcomp ;
-                  apply idpath).
+                  apply (modifications_help (psfunctor_to_functor_data F) X Y f)).
     - abstract (intros F₁ F₂ α ;
                 apply modification_eq ;
                 intros X ; cbn ;
-                rewrite !vassocl ;
-                rewrite lunitor_lwhisker ;
-                rewrite rwhisker_vcomp ;
-                rewrite !vassocl ;
-                rewrite rinvunitor_runitor, id2_right ;
-                refine (!_) ;
-                rewrite rinvunitor_natural, <- rwhisker_hcomp ;
                 rewrite !vassocr ;
-                apply maponpaths_2 ;
-                rewrite !vassocl ;
-                rewrite <- lwhisker_vcomp ;
-                rewrite !vassocl ;
-                rewrite rinvunitor_triangle ;
-                rewrite !vassocr ;
-                apply maponpaths_2 ;
-                rewrite lunitor_lwhisker ;
-                rewrite runitor_lunitor_identity ;
-                apply idpath).
+                apply (modification_help_alt
+                         (psfunctor_to_functor_data F₁)
+                         (psfunctor_to_functor_data F₂)
+                         (pstrans_to_nattrans_data α))).
   Defined.
 
   Definition strictify_counit_strictify_counit_inv
@@ -711,44 +792,16 @@ Section Strictify.
         * exact (lunitor (id₁ _)).
         * is_iso.
       + abstract (intros X Y f ; cbn ;
-                  rewrite <- lwhisker_vcomp ;
                   rewrite !vassocr ;
-                  rewrite lunitor_lwhisker ;
-                  rewrite !vassocl ;
-                  rewrite runitor_lunitor_identity ;
-                  apply maponpaths ;
-                  rewrite !vassocr ;
-                  rewrite rinvunitor_triangle ;
-                  rewrite !vassocl ;
-                  rewrite lunitor_lwhisker ;
-                  rewrite rwhisker_vcomp ;
-                  rewrite !vassocl ;
-                  rewrite rinvunitor_runitor, id2_right ;
-                  rewrite rinvunitor_natural ;
-                  rewrite rwhisker_hcomp ;
-                  apply idpath).
+                  apply (modifications_help (psfunctor_to_functor_data F) X Y f)).
     - abstract (intros F₁ F₂ α ;
                 apply modification_eq ;
                 intros X ; cbn ;
-                rewrite !vassocl ;
-                rewrite lunitor_lwhisker ;
-                rewrite rwhisker_vcomp ;
-                rewrite !vassocl ;
-                rewrite rinvunitor_runitor, id2_right ;
-                rewrite rinvunitor_natural, <- rwhisker_hcomp ;
                 rewrite !vassocr ;
-                apply maponpaths_2 ;
-                rewrite !vassocl ;
-                rewrite rwhisker_hcomp ;
-                rewrite <- rinvunitor_natural ;
-                rewrite <- lwhisker_vcomp ;
-                rewrite !vassocl ;
-                rewrite rinvunitor_triangle ;
-                rewrite !vassocr ;
-                apply maponpaths_2 ;
-                rewrite lunitor_lwhisker ;
-                rewrite runitor_lunitor_identity ;
-                apply idpath).
+                apply (modification_help_alt
+                         (psfunctor_to_functor_data F₁)
+                         (psfunctor_to_functor_data F₂)
+                         (pstrans_to_nattrans_data α))).
   Defined.
 
   Definition strictify_unit_data_help1
@@ -1021,48 +1074,21 @@ Section Strictify.
       + use make_strict_modification.
         * intro X ; cbn.
           exact (lunitor (id₁ _)).
-        * abstract (intros X Y f ; cbn ;
-                  rewrite <- lwhisker_vcomp ;
-                  rewrite !vassocr ;
-                  rewrite lunitor_lwhisker ;
-                  rewrite !vassocl ;
-                  rewrite runitor_lunitor_identity ;
-                  apply maponpaths ;
-                  rewrite !vassocr ;
-                  rewrite rinvunitor_triangle ;
-                  rewrite !vassocl ;
-                  rewrite lunitor_lwhisker ;
-                  rewrite rwhisker_vcomp ;
-                  rewrite !vassocl ;
-                  rewrite rinvunitor_runitor, id2_right ;
-                  rewrite rinvunitor_natural ;
-                  rewrite rwhisker_hcomp ;
-                  apply idpath).
+        * abstract
+            (intros X Y f ; cbn ;
+             rewrite !vassocr ;
+             apply (modifications_help (strict_psfunctor_to_functor_data F) X Y f)).
       + use make_is_invertible_strict_modification.
         intro X ; cbn.
         is_iso.
-    - apply TODO.
-      (*abstract (intros F₁ F₂ α ;
-                apply modification_eq ;
+    - abstract (intros F₁ F₂ α ;
+                apply strict_modification_eq ;
                 intros X ; cbn ;
-                rewrite !vassocl ;
-                rewrite lunitor_lwhisker ;
-                rewrite rwhisker_vcomp ;
-                rewrite !vassocl ;
-                rewrite rinvunitor_runitor, id2_right ;
-                refine (!_) ;
-                rewrite rinvunitor_natural, <- rwhisker_hcomp ;
                 rewrite !vassocr ;
-                apply maponpaths_2 ;
-                rewrite !vassocl ;
-                rewrite <- lwhisker_vcomp ;
-                rewrite !vassocl ;
-                rewrite rinvunitor_triangle ;
-                rewrite !vassocr ;
-                apply maponpaths_2 ;
-                rewrite lunitor_lwhisker ;
-                rewrite runitor_lunitor_identity ;
-                apply idpath).*)
+                apply (modification_help_alt
+                         (strict_psfunctor_to_functor_data F₁)
+                         (strict_psfunctor_to_functor_data F₂)
+                         (strict_pstrans_to_nattrans_data α))).
   Defined.
 
   Definition strictify_unit_inv_strictify_unit
@@ -1078,26 +1104,20 @@ Section Strictify.
       + use make_strict_modification.
         * intro X ; cbn.
           exact (lunitor (id₁ _)).
-        * abstract (intros X Y f ; cbn ;
-                    rewrite <- lwhisker_vcomp ;
-                    rewrite !vassocr ;
-                    rewrite lunitor_lwhisker ;
-                    rewrite !vassocl ;
-                    rewrite runitor_lunitor_identity ;
-                    apply maponpaths ;
-                    rewrite !vassocr ;
-                    rewrite rinvunitor_triangle ;
-                    rewrite !vassocl ;
-                    rewrite lunitor_lwhisker ;
-                    rewrite rwhisker_vcomp ;
-                    rewrite !vassocl ;
-                    rewrite rinvunitor_runitor, id2_right ;
-                    rewrite rinvunitor_natural ;
-                    rewrite rwhisker_hcomp ;
-                    apply idpath).
+        * abstract
+            (intros X Y f ; cbn ;
+             rewrite !vassocr ;
+             apply (modifications_help (strict_psfunctor_to_functor_data F) X Y f)).
       + use make_is_invertible_strict_modification.
         intro X ; cbn.
         is_iso.
-    - apply TODO.
+    - abstract (intros F₁ F₂ α ;
+                apply strict_modification_eq ;
+                intros X ; cbn ;
+                rewrite !vassocr ;
+                apply (modification_help_alt
+                         (strict_psfunctor_to_functor_data F₁)
+                         (strict_psfunctor_to_functor_data F₂)
+                         (strict_pstrans_to_nattrans_data α))).
   Defined.
 End Strictify.
