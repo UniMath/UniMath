@@ -12,7 +12,7 @@ We refer to graphs formalized in this file as "correspondence graphs"
     N <--- A ---> N'
 
 In our case A is the type of arcs and N = N' is the type of nodes and
-the two arrows are interpreted as source an target of an arc.
+the two arrows are interpreted as source and target of an arc.
 
 This name is chosen to make a name distinction with the graphs
 defined in CategoryTheory/Graph.v.
