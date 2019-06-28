@@ -51,16 +51,8 @@ Definition trg {G : precgraph}
 Definition has_nodeset (G : precgraph) : UU
   := isaset (node G).
 
-Definition isaprop_has_nodeset (G : precgraph)
-  : isaprop (has_nodeset G)
-  := isapropisaset (node G).
-
 Definition has_arcset (G : precgraph) : UU
   := isaset (arc G).
-
-Definition isaprop_has_arcsets (G : precgraph)
-  : isaprop (has_arcset G)
-  := isapropisaset (arc G).
 
 (** Cgraphs. *)
 
@@ -275,3 +267,21 @@ Proof.
     exact e₁.
   - apply isaset_node.
 Qed.
+
+(** ** Weak equivalence between CGraphs and Graphs *)
+
+Require Import UniMath.MoreFoundations.PartD. (* display *)
+Require Import UniMath.Combinatorics.Graph.
+
+Lemma precgraph_weq_pregraph : precgraph ≃ pregraph.
+Proof.
+  unfold pregraph, precgraph.
+  apply weqfibtototal. intro X.
+  apply (weqcomp (Y := ∑ E : UU, E → X × X)).
+  - apply weqfibtototal. intro Y.
+    apply invweq, weqfuntoprodtoprod.
+  - apply (weqcomp (Y := X × X → UU)).
+    + set (A := X × X).
+      apply display_weq.
+    + apply weqfunfromdirprod.
+Defined.
