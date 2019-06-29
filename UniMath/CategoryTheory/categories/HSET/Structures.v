@@ -222,7 +222,7 @@ use left_adjoint_from_partial.
               apply (eqtohomot H u).
         - intros a b f; cbn.
           apply funextsec; intros x; cbn.
-          apply subtypeEquality;
+          apply subtypePath;
             [intros xx; apply (isaprop_is_nat_trans _ _ has_homsets_HSET)|].
           apply funextsec; intro y; apply funextsec; intro z; cbn.
           repeat apply maponpaths;  unfold covyoneda_morphisms_data.
@@ -240,11 +240,11 @@ use left_adjoint_from_partial.
         induction p as [t p]; apply maponpaths; simpl;
         now apply pathsinv0; eapply pathscomp0; [apply (toforallpaths _ _ _ H p)|]).
   + abstract (
-    intros [t p]; apply subtypeEquality; simpl;
+    intros [t p]; apply subtypePath; simpl;
     [intros x; apply (isaset_nat_trans has_homsets_HSET)|];
     apply (nat_trans_eq has_homsets_HSET); intros c;
     apply funextsec; intro rc;
-    apply subtypeEquality;
+    apply subtypePath;
     [intro x; apply (isaprop_is_nat_trans _ _ has_homsets_HSET)|]; simpl;
     rewrite p; cbn; clear p; apply funextsec; intro d; cbn;
     apply funextsec; intros [t0 pd]; simpl;
@@ -270,7 +270,7 @@ Proof.
   set (Pb := (make_Pullback _ _ _ _ _ _ pb)).
   apply iscontraprop1.
   - apply invproofirrelevance; intros [ab [ea eb]] [ab' [ea' eb']].
-    apply subtypeEquality; simpl.
+    apply subtypePath; simpl.
       intros x; apply isapropdirprod; apply setproperty.
     use (@toforallpaths unitset _ (λ _, ab) (λ _, ab') _ tt).
     use (MorphismsIntoPullbackEqual pb);
@@ -460,7 +460,7 @@ Proof.
             apply proofirrelevance, impred.
             intro; apply isapropunit.
     * intro t.
-      apply subtypeEquality.
+      apply subtypePath.
       -- intro.
           apply isapropdirprod.
           ++ apply (setproperty (hset_fun_space _ _)).
@@ -500,9 +500,9 @@ Proof.
       * split; [reflexivity|].
         apply proofirrelevance, hlevelntosn, iscontrfuntounit.
     + intro t.
-      apply subtypeEquality'; [|apply isapropdirprod; apply setproperty].
+      apply subtypePath; [intro; apply isapropdirprod; apply setproperty|].
       apply funextfun; intro.
-      apply subtypeEquality'; [|apply propproperty].
+      apply subtypePath; [intro; apply propproperty|].
       refine (_ @ toforallpaths _ _ _ (pr1 (pr2 t)) x).
       reflexivity.
 Defined.
@@ -527,7 +527,7 @@ Proof.
   - (** The image of m *)
     apply subobject_classifier_HSET_pullback.
   - intro O'.
-    apply subtypeEquality.
+    apply subtypePath.
     + intro.
       apply Propositions.isaproptotal2.
       * intro; apply isaprop_isPullback.

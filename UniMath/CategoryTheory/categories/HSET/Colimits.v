@@ -165,7 +165,7 @@ Definition ColimCoconeHSET : ColimCocone D.
 Proof.
   apply (make_ColimCocone _ colimHSET colimCoconeHSET); intros c cc.
   exists (ColimHSETArrow _ cc).
-  abstract (intro f; apply subtypeEquality;
+  abstract (intro f; apply subtypePath;
             [ intro; now apply impred; intro i; apply has_homsets_HSET
             | apply funextfun; intro x; simpl;
               apply (surjectionisepitosets (setquotpr eqr));
@@ -231,7 +231,7 @@ Proof.
     intros C f g; simpl in *.
     use tpair.
     * exists (sumofmaps f g); abstract (split; apply idpath).
-    * abstract (intros h; apply subtypeEquality;
+    * abstract (intros h; apply subtypePath;
       [ intros x; apply isapropdirprod; apply has_homsets_HSET
       | destruct h as [t [ht1 ht2]]; simpl;
                 apply funextfun; intro x;
@@ -252,7 +252,7 @@ Proof.
     intros C f; simpl in *.
     use tpair.
     * exists (λ X, f (pr1 X) (pr2 X)); abstract (intro i; apply idpath).
-    * abstract (intros h; apply subtypeEquality; simpl;
+    * abstract (intros h; apply subtypePath; simpl;
         [ intro; apply impred; intro; apply has_homsets_HSET
         | destruct h as [t ht]; simpl; apply funextfun;
           intro x; rewrite <- ht; destruct x; apply idpath]).

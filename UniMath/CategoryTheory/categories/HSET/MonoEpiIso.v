@@ -61,7 +61,7 @@ Proof.
   - intro isM.
     apply incl_injectivity; intros b.
     apply invproofirrelevance; intros a1 a2.
-    apply subtypeEquality; [intro; apply setproperty|].
+    apply subtypePath; [intro; apply setproperty|].
     apply global_element_HSET_paths_weq.
     apply isM.
     apply funextsec; intro t.
@@ -166,7 +166,7 @@ Proof.
   apply (isweq_iso _ (hset_equiv_iso A B)).
   intro; apply eq_iso.
   - reflexivity.
-  - intro; apply subtypeEquality.
+  - intro; apply subtypePath.
     + intro; apply isapropisweq.
     + reflexivity.
 Qed.
@@ -181,7 +181,7 @@ Lemma hset_equiv_iso_is_equiv (A B : ob HSET) : isweq (hset_equiv_iso A B).
 Proof.
   apply (isweq_iso _ (hset_iso_equiv A B)).
   { intro f.
-    apply subtypeEquality.
+    apply subtypePath.
     { intro; apply isapropisweq. }
     reflexivity. }
   intro; apply eq_iso.

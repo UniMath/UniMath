@@ -240,7 +240,7 @@ Proof.
       { apply (pr2 (natlth m (S n))). }
       now rewrite H.
       assert (H : lastelement = (n,, Hm)).
-      { now apply subtypeEquality_prop. }
+      { now apply subtypePath_prop. }
       rewrite <- H.
       exact (pr1 Hx).
 Qed.

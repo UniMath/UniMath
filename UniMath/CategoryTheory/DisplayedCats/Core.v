@@ -393,7 +393,7 @@ Lemma isaprop_is_iso_disp {C : category} {D : disp_cat C}
   : isaprop (is_iso_disp f ff).
 Proof.
   apply invproofirrelevance; intros i i'.
-  apply subtypeEquality.
+  apply subtypePath.
   - intros gg. apply isapropdirprod; apply homsets_disp.
   (* uniqueness of inverses *)
   (* TODO: think about better lemmas for this sort of calculation?
@@ -431,7 +431,7 @@ Lemma eq_iso_disp {C : category} {D : disp_cat C}
     {xx : D x} {yy} (ff ff' : iso_disp f xx yy)
   : pr1 ff = pr1 ff' -> ff = ff'.
 Proof.
-  apply subtypeEquality; intro; apply isaprop_is_iso_disp.
+  apply subtypePath; intro; apply isaprop_is_iso_disp.
 Qed.
 
 Lemma is_iso_disp_transportf {C : precategory} {D : disp_precat C}
@@ -1938,7 +1938,7 @@ Definition disp_nat_trans_eq
   : (∏ x (xx : D' x), b x xx = b' x xx) → b = b'.
 Proof.
   intro H.
-  apply subtypeEquality.
+  apply subtypePath.
   { intro r.  apply isaprop_disp_nat_trans_axioms. }
   apply funextsec. intro x.
   apply funextsec.  intro xx.

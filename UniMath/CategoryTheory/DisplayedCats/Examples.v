@@ -390,7 +390,7 @@ Proof.
             set (XR := limArrowCommutes LL _ FC); cbn in XR;
             apply pathsinv0; apply XR
           | cbn; intros i j e;
-            apply subtypeEquality;
+            apply subtypePath;
             [ intro; apply homset_property |];
             cbn; apply (coneOutCommutes L)
           ]).
@@ -456,14 +456,14 @@ Proof.
         }
     + simpl.
       intro j.
-      apply subtypeEquality.
+      apply subtypePath.
       { intro. apply homset_property. }
       cbn. apply (limArrowCommutes LL).
     + intros.
       apply impred_isaprop. intro t. (apply (homset_property (total_category _ ))).
     + simpl.
       intros.
-      apply subtypeEquality.
+      apply subtypePath.
       { intro. apply homset_property. }
       apply (limArrowUnique LL).
       intro u.

@@ -21,7 +21,7 @@ Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
 
-Definition transportf_subtypeEquality'
+Definition transportf_subtypePath'
            {A : UU}
            {B : A → UU}
            (Bprop : ∏ (a : A), isaprop (B a))
@@ -30,7 +30,7 @@ Definition transportf_subtypeEquality'
            (b₁ : B a) (b₂ : B a)
            (x : C a)
   : transportf (λ (z : ∑ (x : A), B x), C (pr1 z))
-               (@subtypeEquality' A B (a ,, b₁) (a ,, b₂) (idpath _) (Bprop _))
+               (@subtypePath' A B (a ,, b₁) (a ,, b₂) (idpath _) (Bprop _))
                x
     =
     x.
@@ -59,7 +59,7 @@ Definition transportf_cell_from_invertible_2cell_eq
     =
     y.
 Proof.
-  apply transportf_subtypeEquality'.
+  apply transportf_subtypePath'.
 Qed.
 
 (** The displayed identity 2-cells are invertible *)
@@ -178,13 +178,13 @@ Section Prop_disp_invertible_2cell.
     use isweq_iso.
     - apply disp_invertible_2cell_to_disp_iso_inv.
     - intros z.
-      apply subtypeEquality'.
+      apply subtypePath.
+      + intro; apply isapropdirprod ; apply D.
       + reflexivity.
-      + apply isapropdirprod ; apply D.
     - intros z.
-      apply subtypeEquality'.
+      apply subtypePath.
+      + intro; apply isapropdirprod ; apply (total_bicat D).
       + reflexivity.
-      + apply isapropdirprod ; apply (total_bicat D).
   Defined.
 
   Definition disp_iso_to_invetible_2cell
@@ -307,13 +307,14 @@ Section Prop_disp_invertible_2cell.
     use isweq_iso.
     - apply disp_iso_to_invetible_2cell_inv.
     - intros z.
-      use subtypeEquality'.
+      use subtypePath.
+      + intro; apply isapropdirprod ; apply (total_bicat D).
       + cbn.
         apply (transportf_set (λ z, gg ==>[ z ] ff)).
         apply C.
-      + apply isapropdirprod ; apply (total_bicat D).
     - intros z.
-      use subtypeEquality'.
+      use subtypePath.
+      + intro; apply isapropdirprod ; apply (total_bicat D).
       + use total2_paths_b.
         * cbn.
           exact (base_paths _ _ (pr1
@@ -322,7 +323,6 @@ Section Prop_disp_invertible_2cell.
                                       (pr1_invertible_2cell_total xx z)))).
         * cbn.
           reflexivity.
-      + apply isapropdirprod ; apply (total_bicat D).
   Defined.
 
   Definition isaprop_is_disp_invertible_2cell

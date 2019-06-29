@@ -111,7 +111,7 @@ Section FullSubBicat.
     use tpair.
     - refine (_ ,, tt).
       apply Hα.
-    - split ; use subtypeEquality.
+    - split ; use subtypePath.
       + intro ; apply isapropunit.
       + apply Hα.
       + intro ; apply isapropunit.
@@ -195,10 +195,10 @@ Section FullSubBicat.
         * exact (left_adjoint_unit Hf ,, tt).
         * exact (left_adjoint_counit Hf ,, tt).
     - split ; split.
-      + use subtypeEquality.
+      + use subtypePath.
         * intro ; apply isapropunit.
         * exact (internal_triangle1 Hf).
-      + use subtypeEquality.
+      + use subtypePath.
         * intro ; apply isapropunit.
         * exact (internal_triangle2 Hf).
       + apply bicat_is_invertible_2cell_to_fullsub_is_invertible_2cell.
@@ -217,7 +217,7 @@ Section FullSubBicat.
     - use isweq_iso.
       + exact (bicat_left_adjoint_equivalence_to_fullsub_left_adjoint_equivalence f).
       + intros x.
-        use subtypeEquality.
+        use subtypePath.
         * intro.
           do 2 apply isapropdirprod.
           ** apply fullsubbicat.
@@ -236,7 +236,7 @@ Section FullSubBicat.
           cbn in *.
           reflexivity.
       + intros x.
-        use subtypeEquality.
+        use subtypePath.
         * intro.
           do 2 apply isapropdirprod ; try (apply C) ; apply isaprop_is_invertible_2cell.
         * reflexivity.

@@ -54,7 +54,7 @@ Definition cComma_mor_eq a b (f f' : ccomma_morphism a b)
   : pr1 f = pr1 f' -> f = f'.
 Proof.
   intro H.
-  apply subtypeEquality.
+  apply subtypePath.
   intro. apply hsC.
   exact H.
 Qed.

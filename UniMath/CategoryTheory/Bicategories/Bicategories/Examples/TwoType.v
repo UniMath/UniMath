@@ -148,9 +148,9 @@ Section TwoTypeBiGroupoid.
     - intros q.
       induction q as [q Hq].
       induction q ; cbn.
-      use subtypeEquality' ; cbn.
+      use subtypePath ; cbn.
+      + intro. apply (isaprop_is_invertible_2cell (C:=fundamental_bigroupoid)).
       + reflexivity.
-      + exact (@isaprop_is_invertible_2cell fundamental_bigroupoid x y p₁ p₁ (idpath p₁)).
   Defined.
 
   Definition fundamental_bigroupoid_is_univalent_2_0

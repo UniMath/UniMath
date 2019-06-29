@@ -280,7 +280,7 @@ split.
   + abstract (intro k; simpl;
               now apply pathsinv0, (colimArrowEta (make_ColimCocone D c cc H))).
   + abstract (simpl; intro k;
-              apply subtypeEquality;
+              apply subtypePath;
                 [ intro; now repeat (apply impred; intro); apply hsC
                 | destruct k as [k Hk]; simpl; apply funextsec; intro u;
                   now apply (colimArrowCommutes (make_ColimCocone D c cc H))]).
@@ -288,11 +288,11 @@ split.
   use tpair.
   + exists (invmap (make_weq _ (H d)) cd).
     abstract (intro u; now apply isColim_weq_subproof2).
-  + abstract (intro t; apply subtypeEquality;
+  + abstract (intro t; apply subtypePath;
                 [ intro; now apply impred; intro; apply hsC
                 | destruct t as [t Ht]; simpl;
                   apply (invmaponpathsweq (make_weq _ (H d))); simpl;
-                  apply subtypeEquality;
+                  apply subtypePath;
                     [ intro; now repeat (apply impred; intro); apply hsC
                     | simpl; apply pathsinv0, funextsec; intro u; rewrite Ht;
                       now apply isColim_weq_subproof2]]).
@@ -339,7 +339,7 @@ use tpair.
     rewrite <- (colimArrowCommutes CC x cx u), assoc.
     apply cancel_postcomposition, pathsinv0, z_iso_inv_on_left, pathsinv0, colimArrowCommutes.
 - intros p; destruct p as [f Hf].
-  apply subtypeEquality.
+  apply subtypePath.
   + intro a; apply impred; intro u; apply hsC.
   + simpl; apply pathsinv0, z_iso_inv_on_right; simpl.
     apply pathsinv0, colimArrowUnique; intro u.
@@ -380,13 +380,13 @@ Lemma isaprop_Colims: isaprop (Colims C).
 Proof.
 apply impred; intro g; apply impred; intro cc.
 apply invproofirrelevance; intros Hccx Hccy.
-apply subtypeEquality.
+apply subtypePath.
 - intro; apply isaprop_isColimCocone.
 - apply (total2_paths_f (isotoid _ H (iso_from_colim_to_colim Hccx Hccy))).
   set (B c := ∏ v, C⟦dob cc v,c⟧).
   set (C' (c : C) f := ∏ u v (e : edge u v), @compose _ _ _ c (dmor cc e) (f v) = f u).
   rewrite (@transportf_total2 _ B C').
-  apply subtypeEquality.
+  apply subtypePath.
   + intro; repeat (apply impred; intro); apply univalent_category_has_homsets.
   + simpl; eapply pathscomp0; [apply transportf_isotoid_dep''|].
     apply funextsec; intro v.
@@ -476,7 +476,7 @@ use tpair.
   + abstract (intro u; apply (nat_trans_eq hsC); simpl; intro a;
               now apply (colimArrowCommutes (HCg a))).
 - abstract (intro t; destruct t as [t1 t2];
-            apply subtypeEquality; simpl;
+            apply subtypePath; simpl;
               [ intro; apply impred; intro u; apply functor_category_has_homsets
               | apply (nat_trans_eq hsC); simpl; intro a;
                 apply colimArrowUnique; intro u;
@@ -622,7 +622,7 @@ Context {A B C : precategory} (hsC : has_homsets C)
 Lemma mapcocone_functor_composite {g : graph} {D : diagram g A} {a : A} (cc : cocone D a) :
   mapcocone (functor_composite F G) _ cc = mapcocone G _ (mapcocone F _ cc).
 Proof.
-  apply subtypeEquality.
+  apply subtypePath.
   - intros x. repeat (apply impred_isaprop; intro). apply hsC.
   - reflexivity.
 Qed.

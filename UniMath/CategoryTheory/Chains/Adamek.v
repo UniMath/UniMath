@@ -85,7 +85,7 @@ use tpair.
 + use tpair.
   * apply colimArrow, (unshiftCocone _ cc).
   * abstract (intro n; apply (colimArrowCommutes CC x (unshiftCocone x cc) (S n))).
-+ abstract (intros p; apply subtypeEquality;
++ abstract (intros p; apply subtypePath;
              [ intro f; apply impred; intro; apply hsC
              | apply colimArrowUnique; intro n;
                destruct n as [|n]; [ apply InitialArrowUnique | apply (pr2 p) ]]).

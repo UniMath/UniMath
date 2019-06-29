@@ -188,7 +188,7 @@ Coercion pr1sieve : sieve_def >-> hsubtype.
 
 Lemma sieve_eq (c : C) (s t : sieve c) (H : pr1 s = pr1 t) : s = t.
 Proof.
-apply subtypeEquality; [|apply H].
+apply subtypePath; [|apply H].
 now intros x; repeat (apply impred; intros); apply propproperty.
 Qed.
 
@@ -272,11 +272,11 @@ Local Lemma is_functor_Ω_PreShv_data : is_functor Ω_PreShv_data.
 Proof.
 split.
 - intros x; apply funextfun; intros [S hS]; simpl.
-  apply subtypeEquality; simpl.
+  apply subtypePath; simpl.
   + intros X; repeat (apply impred; intro); apply propproperty.
   + now apply funextsec; intro; rewrite id_right.
 - intros x y z f g; apply funextfun; intros [S hS]; simpl.
-  apply subtypeEquality; simpl.
+  apply subtypePath; simpl.
   + intros X; repeat (apply impred; intro); apply propproperty.
   + now repeat (apply funextsec; intro); rewrite <- assoc.
 Qed.

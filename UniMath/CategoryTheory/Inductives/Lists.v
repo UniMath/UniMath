@@ -376,7 +376,7 @@ use tpair.
     unfold flip, curry, colimIn in *; simpl in *.
     now rewrite <- (toforallpaths _ _ _ (toforallpaths _ _ _ XR (pr2 p)) (pr1 p)).
 - abstract (
-  intro p; unfold uncurry; simpl; apply subtypeEquality; simpl;
+  intro p; unfold uncurry; simpl; apply subtypePath; simpl;
   [ intro g; apply impred; intro t;
     use (let ff : HSET ⟦(x × dob hF t)%set,HcL⟧ := _ in _);
     [ simpl; apply (pr1 cc)
@@ -430,7 +430,7 @@ use tpair.
       rewrite p0; apply maponpaths, hf]).
 - abstract (
   destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
-  intro t; apply subtypeEquality; simpl;
+  intro t; apply subtypePath; simpl;
   [ intro g; apply impred; intro; apply hsC
   | destruct t as [t p]; destruct ccL as [t0 p0]; unfold BinCoproduct_of_functors_mor in *; destruct t0 as [t0 p1]; simpl;
     apply BinCoproductArrowUnique;

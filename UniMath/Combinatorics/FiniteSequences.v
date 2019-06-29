@@ -432,7 +432,7 @@ Proof.
   unfold funcomp.
   unfold append_vec.
   induction (natlehchoice4 (pr1 (dni lastelement i)) n (pr2 (dni lastelement i))) as [I|J].
-  - simpl. apply maponpaths. apply subtypeEquality_prop. simpl. apply di_eq1. exact (stnlt i).
+  - simpl. apply maponpaths. apply subtypePath_prop. simpl. apply di_eq1. exact (stnlt i).
   - apply fromempty. simpl in J.
     assert (P : di n i = i).
     { apply di_eq1. exact (stnlt i). }
@@ -568,8 +568,8 @@ Proof.
         set (tmp2 := natlehlthtrans _ _ _ tmp H).
         exact (isirreflnatlth _ tmp2).
     + induction (natlehchoice4 i (m + n) s) as [I|J].
-      * apply maponpaths, subtypeEquality_prop. rewrite replace_dni_last. reflexivity.
-      * apply maponpaths, subtypeEquality_prop. simpl.
+      * apply maponpaths, subtypePath_prop. rewrite replace_dni_last. reflexivity.
+      * apply maponpaths, subtypePath_prop. simpl.
         induction (!J). rewrite natpluscomm. apply plusminusnmm.
 Qed.
 
@@ -633,7 +633,7 @@ Definition flatten_partition {X n} (f:stn n -> nat) (x:stn (stnsum f) -> X) :
 Proof.
   intros. intro i.
   change (x (weqstnsum1 f (pr1 (invmap (weqstnsum1 f) i),, pr2 (invmap (weqstnsum1 f) i))) = x i).
-  apply maponpaths. apply subtypeEquality_prop. now rewrite homotweqinvweq.
+  apply maponpaths. apply subtypePath_prop. now rewrite homotweqinvweq.
 Defined.
 
 (* associativity of "concatenate" *)

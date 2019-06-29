@@ -354,7 +354,7 @@ Section Map1Cells.
       cbn in n.
       rewrite id2_rwhisker, lwhisker_id2 in n.
       rewrite id2_left, id2_right in n.
-      apply subtypeEquality.
+      apply subtypePath.
       + intro.
         apply isaprop_is_invertible_2cell.
       + apply n.
@@ -557,7 +557,7 @@ Section Map1Cells.
       apply funextsec ; intro X.
       apply funextsec ; intro Y.
       apply funextsec ; intro f.
-      apply subtypeEquality.
+      apply subtypePath.
       { intro ; apply isaprop_is_invertible_2cell. }
       cbn.
       rewrite !vassocr.
@@ -566,7 +566,7 @@ Section Map1Cells.
       rewrite linvunitor_lunitor, id2_right.
       reflexivity.
     - intro m.
-      use subtypeEquality.
+      use subtypePath.
       {
         intro.
         apply isaprop_disp_left_adjoint_equivalence.
@@ -576,7 +576,7 @@ Section Map1Cells.
       apply funextsec ; intro X.
       apply funextsec ; intro Y.
       apply funextsec ; intro f.
-      apply subtypeEquality.
+      apply subtypePath.
       { intro ; apply isaprop_is_invertible_2cell. }
       cbn.
       rewrite !vassocr.
@@ -613,7 +613,7 @@ Section Map1Cells.
         * exact (all_invertible_2cell_is_disp_adjoint_equivalence HD_2_1 F₀ F₁ F₁').
     - intro p.
       induction p.
-      apply subtypeEquality.
+      apply subtypePath.
       {
         intro.
         apply isaprop_disp_left_adjoint_equivalence.
@@ -623,7 +623,7 @@ Section Map1Cells.
       apply funextsec ; intro X.
       apply funextsec ; intro Y.
       apply funextsec ; intro f.
-      apply subtypeEquality.
+      apply subtypePath.
       { intro ; apply isaprop_is_invertible_2cell. }
       cbn ; unfold idfun.
       rewrite id2_right.

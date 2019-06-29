@@ -45,7 +45,7 @@ intros b cb.
 use tpair.
 - exists (pr1 (H b)); intro v; induction v.
 - intro t.
-  apply subtypeEquality; simpl;
+  apply subtypePath; simpl;
     [intro; apply impred; intro v; induction v|].
   apply (pr2 (H b)).
 Defined.

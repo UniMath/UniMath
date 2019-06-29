@@ -119,7 +119,7 @@ Section def_gr_category.
     use isweq_iso.
     - exact (gr_equiv_iso X Y).
     - intros x. use eq_iso. use monoidfun_paths. use idpath.
-    - intros y. use monoidiso_paths. use subtypeEquality.
+    - intros y. use monoidiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
   Defined.
@@ -137,7 +137,7 @@ Section def_gr_category.
   Proof.
     use isweq_iso.
     - exact (gr_iso_equiv X Y).
-    - intros y. use monoidiso_paths. use subtypeEquality.
+    - intros y. use monoidiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
     - intros x. use eq_iso. use monoidfun_paths. use idpath.

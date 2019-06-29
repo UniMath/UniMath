@@ -73,7 +73,7 @@ Lemma posetStructureIdentity {X:hSet} (R S:PartialOrder X) :
 Proof.
   intros. split.
   { intros e.
-    apply subtypeEquality. { intros T. apply isaprop_isPartialOrder. }
+    apply subtypePath. { intros T. apply isaprop_isPartialOrder. }
     induction R as [R r]; induction S as [S s]; simpl.
     apply funextfun; intro x; apply funextfun; intro y.
     unfold isPosetEquivalence in e.
@@ -549,7 +549,7 @@ Definition FiniteStructure (X:OrderedSet) := ∑ n, ⟦ n ⟧ %foset ≅ X.
 Local Lemma std_auto n : iscontr (⟦ n ⟧ ≅ ⟦ n ⟧) %foset.
 Proof.
   intros. exists (identityPosetEquivalence _). intros f.
-  apply subtypeEquality.
+  apply subtypePath.
   { intros g. apply isaprop_isPosetEquivalence. }
   simpl. apply isinjpr1weq. simpl. apply funextfun. intros i.
 

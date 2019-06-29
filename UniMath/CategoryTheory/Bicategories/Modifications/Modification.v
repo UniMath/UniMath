@@ -103,15 +103,15 @@ Definition modification_eq
            (p : ∏ (X : B), m X = m' X)
   : m = m'.
 Proof.
-  use subtypeEquality.
+  use subtypePath.
   { intro. simpl.
     exact isapropunit.
   }
-  use subtypeEquality.
+  use subtypePath.
   { intro. simpl.
     repeat (apply isapropdirprod) ; apply isapropunit.
   }
-  use subtypeEquality.
+  use subtypePath.
   { intro. simpl.
     repeat (apply impred ; intro).
     apply B'.

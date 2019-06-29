@@ -34,7 +34,7 @@ Definition monfunstnpr1 {n m : nat} : monfunstn n m  -> ⟦ n ⟧ -> ⟦ m ⟧ :
 Lemma monfunstnpr1_isInjective {m n} (f g : monfunstn m n) : monfunstnpr1 f = monfunstnpr1 g -> f = g.
 Proof.
   intros e.
-  apply subtypeEquality.
+  apply subtypePath.
   { intros h. apply impred; intro i. apply impred; intro j. apply impred; intro l.
     apply propproperty. }
   exact e.

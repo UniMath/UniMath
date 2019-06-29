@@ -90,7 +90,7 @@ Lemma folds_iso_eq {a b : C} (i i' : folds_iso a b) :
   folds_iso_data_from_folds_iso i = folds_iso_data_from_folds_iso i' → i = i'.
 Proof.
   intro H.
-  apply subtypeEquality.
+  apply subtypePath.
   - intro; apply isaprop_folds_iso_prop.
   - assumption.
 Qed.
@@ -225,7 +225,7 @@ Proof.
   apply dirprodeq.
   - apply dirprodeq.
     + apply funextsec; intro.
-      apply subtypeEquality.
+      apply subtypePath.
       * intro. apply isapropisweq.
       * apply funextfun; intro f.
         eapply pathscomp0.
@@ -235,10 +235,10 @@ Proof.
         { apply ϕ₁_is_comp. }
         rewrite H. apply idpath.
     + apply funextsec; intro.
-      apply subtypeEquality.
+      apply subtypePath.
       * intro; apply isapropisweq.
       * apply funextfun. unfold homot. apply ϕ₂_determined.
-  - apply subtypeEquality.
+  - apply subtypePath.
     intro. apply isapropisweq.
     apply funextfun. intro t.
     apply ϕo_determined.

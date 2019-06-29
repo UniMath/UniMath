@@ -95,7 +95,7 @@ Definition iso_inv_from_iso {C:precategory}{a b : C} (f : iso a b) : iso b a :=
 Lemma eq_iso {C: precategory_data} {a b : C} (f g : iso a b) : pr1 f = pr1 g -> f = g.
 Proof.
   intro H.
-  apply subtypeEquality.
+  apply subtypePath.
   - intros t. apply isaprop_is_iso.
   - apply H.
 Defined.

@@ -175,7 +175,7 @@ Proof.
     destruct t as [h h_rec_eq]; simpl.
     assert (same: h = preIt).
     2: {
-      apply subtypeEquality.
+      apply subtypePath.
       + intro.
         simpl.
         apply hsC'.

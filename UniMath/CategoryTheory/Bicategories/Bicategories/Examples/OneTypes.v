@@ -139,13 +139,13 @@ Proof.
     change (homotrefl f) with (toforallpaths _ f f (idpath f)).
     apply funextsec_toforallpaths.
   - intros α. cbn.
-    use subtypeEquality' ; cbn.
+    use subtypePath ; cbn.
+    + intro. exact (@isaprop_is_invertible_2cell one_types X Y f g _).
     + etrans. 2:{ apply toforallpaths_funextsec. }
       unfold idtoiso_2_1, toforallpaths. cbn.
       apply funextsec. intro x.
       induction (funextsec _ f g (pr1 α)).
       reflexivity.
-    + exact (@isaprop_is_invertible_2cell one_types X Y f g α).
 Defined.
 
 Definition adjoint_equivalence_is_weq

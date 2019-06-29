@@ -132,7 +132,7 @@ Lemma is_functor_full_img (C D: precategory) (F : functor C D) :
 Proof.
   split.
   intro a; simpl.
-  apply subtypeEquality.
+  apply subtypePath.
     intro; apply pr2.
   apply functor_id.
   intros a b c f g.

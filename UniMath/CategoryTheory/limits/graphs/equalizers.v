@@ -91,7 +91,7 @@ Section def_equalizers.
         change (coneOut (Equalizer_cone f g d h H) (● 1)%stn) with (h · f).
         rewrite assoc.
         apply cancel_postcomposition, (pr2 (pr1 H2)).
-    - abstract (intro t; apply subtypeEquality;
+    - abstract (intro t; apply subtypePath;
                 [ intros y; apply impred; intros t0; apply hs
                 | induction t as [t p]; apply path_to_ctr, (p One)]).
   Defined.

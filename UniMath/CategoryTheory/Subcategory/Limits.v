@@ -115,16 +115,16 @@ Proof.
         { apply BinProductPr2Commutes. }
     + intros otherarrow.
       (** This is where we use the condition that C has homsets. *)
-      apply subtypeEquality'.
+      apply subtypePath.
+      { intro. apply isapropdirprod;
+          apply is_set_sub_precategory_morphisms, homset_property.
+      }
       {
         apply eq_in_sub_precategory.
         cbn.
         apply BinProductArrowUnique.
         - exact (maponpaths pr1 (dirprod_pr1 (pr2 otherarrow))).
         - exact (maponpaths pr1 (dirprod_pr2 (pr2 otherarrow))).
-      }
-      { apply isapropdirprod;
-          apply is_set_sub_precategory_morphisms, homset_property.
       }
 Defined.
 
@@ -251,16 +251,16 @@ Proof.
         { apply BinCoproductIn2Commutes. }
     + intros otherarrow.
       (** This is where we use the condition that C has homsets. *)
-      apply subtypeEquality'.
+      apply subtypePath.
+      { intro. apply isapropdirprod;
+          apply is_set_sub_precategory_morphisms, homset_property.
+      }
       {
         apply eq_in_sub_precategory.
         cbn.
         apply BinCoproductArrowUnique.
         - exact (maponpaths pr1 (dirprod_pr1 (pr2 otherarrow))).
         - exact (maponpaths pr1 (dirprod_pr2 (pr2 otherarrow))).
-      }
-      { apply isapropdirprod;
-          apply is_set_sub_precategory_morphisms, homset_property.
       }
 Defined.
 

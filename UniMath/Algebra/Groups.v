@@ -456,7 +456,7 @@ Section GrCosets.
   Local Lemma isaprop_mult_eq_r (x y : X) : isaprop (∑ z : X, x * z = y).
   Proof.
     apply invproofirrelevance; intros z1 z2.
-    apply subtypeEquality.
+    apply subtypePath.
     { intros x'. apply setproperty. }
     refine (!lunax _ _ @ _ @ lunax _ _).
     refine (maponpaths (λ z, z * _) (!grlinvax X x) @ _ @
@@ -469,7 +469,7 @@ Section GrCosets.
   Local Lemma isaprop_mult_eq_l (x y : X) : isaprop (∑ z : X, z * x = y).
   Proof.
     apply invproofirrelevance; intros z1 z2.
-    apply subtypeEquality.
+    apply subtypePath.
     { intros x'. apply setproperty. }
     refine (!runax _ _ @ _ @ runax _ _).
     refine (maponpaths (λ z, _ * z) (!grrinvax X x) @ _ @
@@ -486,9 +486,9 @@ Section GrCosets.
   Proof.
     unfold in_same_left_coset.
     apply invproofirrelevance; intros p q.
-    apply subtypeEquality.
+    apply subtypePath.
     { intros x'. apply setproperty. }
-    apply subtypeEquality.
+    apply subtypePath.
     { intros x'. apply propproperty. }
     pose (p' := (pr11 p,, pr2 p) : ∑ y : X, x1 * y = x2).
     pose (q' := (pr11 q,, pr2 q) : ∑ y : X, x1 * y = x2).
@@ -500,8 +500,8 @@ Section GrCosets.
   Proof.
     apply invproofirrelevance.
     intros p q.
-    apply subtypeEquality'; [|apply setproperty].
-    apply subtypeEquality'; [|apply propproperty].
+    apply subtypePath; [intros x; apply setproperty|].
+    apply subtypePath; [intros x; apply propproperty|].
     pose (p' := (pr11 p,, pr2 p) : ∑ y : X, y * x1 = x2).
     pose (q' := (pr11 q,, pr2 q) : ∑ y : X, y * x1 = x2).
     apply (maponpaths pr1 (iscontrpr1 (isaprop_mult_eq_l _ _ p' q'))).

@@ -107,7 +107,7 @@ Proof.
   intros cX cY.
   exists (weqcontrcontr cX cY ).
   intro f.
-  apply subtypeEquality.
+  apply subtypePath.
   { exact isapropisweq. }
   apply funextfun. cbn. intro x. apply (pr2 cY).
 Defined.

@@ -671,7 +671,7 @@ Lemma disp_nat_trans_id_left
               (id_left (a : FunctorsC'C ⟦ _ , _ ⟧))
               b.
 Proof.
-  apply subtypeEquality.
+  apply subtypePath.
   { intro. apply isaprop_disp_nat_trans_axioms. }
   apply funextsec; intro c'.
   apply funextsec; intro xx'.
@@ -695,7 +695,7 @@ Lemma disp_nat_trans_id_right
               (id_right (a : FunctorsC'C ⟦ _ , _ ⟧))
               b.
 Proof.
-  apply subtypeEquality.
+  apply subtypePath.
   { intro. apply isaprop_disp_nat_trans_axioms. }
   apply funextsec; intro c'.
   apply funextsec; intro xx'.
@@ -725,7 +725,7 @@ Lemma disp_nat_trans_assoc
      (assoc (f : FunctorsC'C⟦_,_⟧) g h)
      (disp_nat_trans_comp (disp_nat_trans_comp ff gg) hh).
 Proof.
-  apply subtypeEquality.
+  apply subtypePath.
   { intro. apply isaprop_disp_nat_trans_axioms. }
   apply funextsec; intro c'.
   apply funextsec; intro xx'.
@@ -968,7 +968,7 @@ Proof.
   use tpair.
   - apply (inv_disp_from_pointwise_iso _ _ _ _ _ FF H).
   - split.
-    + apply subtypeEquality.
+    + apply subtypePath.
       { intro. apply isaprop_disp_nat_trans_axioms. }
       apply funextsec; intro c'.
       apply funextsec; intro xx'.
@@ -980,7 +980,7 @@ Proof.
       etrans. apply maponpaths. apply (iso_disp_after_inv_mor (H c' xx')).
       etrans. apply transport_f_f.
       apply maponpaths_2, homset_property.
-    + apply subtypeEquality.
+    + apply subtypePath.
       { intro. apply isaprop_disp_nat_trans_axioms. }
       apply funextsec; intro c'.
       apply funextsec; intro xx'.

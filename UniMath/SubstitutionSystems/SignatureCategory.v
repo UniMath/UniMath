@@ -92,7 +92,7 @@ Lemma SignatureMor_eq (Ht Ht' : Signature C hsC D hsD D' hsD') (f g : SignatureM
   pr1 f = pr1 g -> f = g.
 Proof.
 intros H.
-apply subtypeEquality; trivial.
+apply subtypePath; trivial.
 now intros α; repeat (apply impred; intro); apply functor_category_has_homsets.
 Qed.
 

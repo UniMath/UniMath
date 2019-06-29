@@ -290,7 +290,7 @@ Lemma isaprop_BinCoproduct : isaprop (BinCoproduct a b).
 Proof.
   apply invproofirrelevance.
   intros CC CC'.
-  apply subtypeEquality.
+  apply subtypePath.
   + intros.
     intro. do 3 (apply impred; intro); apply isapropiscontr.
   + apply (total2_paths_f (isotoid _ H (iso_from_BinCoproduct_to_BinCoproduct CC CC'))).
@@ -946,7 +946,7 @@ Proof.
   simpl in *.
   destruct t as [t1 [ta tb]].
   simpl in *.
-  apply subtypeEquality.
+  apply subtypePath.
   - intro.
     apply isapropdirprod;
     apply isaset_nat_trans;

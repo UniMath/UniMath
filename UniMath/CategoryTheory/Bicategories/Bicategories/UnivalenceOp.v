@@ -42,7 +42,7 @@ Proof.
   - exact (op1_bicat_idtoiso_2_1_alt C_is_univalent_2_1 f g).
   - intros p.
     induction p.
-    use subtypeEquality.
+    use subtypePath.
     { apply isPredicate_is_invertible_2cell. }
     apply idpath.
 Defined.
@@ -67,7 +67,7 @@ Proof.
   - exact (op1_bicat_idtoiso_2_0_alt C_is_univalent_2_0 X Y).
   - intros p.
     induction p.
-    use subtypeEquality.
+    use subtypePath.
     {
       intro ; apply isaprop_left_adjoint_equivalence.
       apply op1_bicat_is_univalent_2_1.
@@ -106,7 +106,7 @@ Proof.
   - exact (op2_bicat_idtoiso_2_1_alt C_is_univalent_2_1 f g).
   - intros p.
     induction p.
-    use subtypeEquality.
+    use subtypePath.
     { apply isPredicate_is_invertible_2cell. }
     apply idpath.
 Defined.
@@ -130,7 +130,7 @@ Proof.
   - exact (op2_bicat_idtoiso_2_0_alt C_is_univalent_2_0 X Y).
   - intros p.
     induction p.
-    use subtypeEquality.
+    use subtypePath.
     {
       intro ; apply isaprop_left_adjoint_equivalence.
       apply op2_bicat_is_univalent_2_1.

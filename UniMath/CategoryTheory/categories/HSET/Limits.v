@@ -75,9 +75,9 @@ use make_LimCone.
     * intro x; exists (λ u, coneOut CC u x).
       abstract (intros u v e; apply (toforallpaths _ _ _ (coneOutCommutes CC _ _ e))).
     * abstract (intro v; apply idpath).
-  + abstract (intros [t p]; apply subtypeEquality;
+  + abstract (intros [t p]; apply subtypePath;
               [ intro; apply impred; intro; apply isaset_set_fun_space
-              | apply funextfun; intro; apply subtypeEquality];
+              | apply funextfun; intro; apply subtypePath];
                 [ intro; repeat (apply impred; intro); apply setproperty
                 | apply funextsec; intro u; apply (toforallpaths _ _ _ (p u))]).
 Defined.
@@ -128,9 +128,9 @@ use make_LimCone.
     * intro x; exists (λ u, coneOut CC u x).
       abstract (intros u v e; apply (toforallpaths _ _ _ (coneOutCommutes CC _ _ e))).
     * abstract (intro v; apply idpath).
-  + abstract (intros [t p]; apply subtypeEquality;
+  + abstract (intros [t p]; apply subtypePath;
      [ intro; apply impred; intro; apply isaset_set_fun_space
-     | apply funextfun; intro x; apply subtypeEquality];
+     | apply funextfun; intro x; apply subtypePath];
        [ intro; repeat (apply impred; intro); apply setproperty
        | simpl; apply funextsec; intro u; apply (toforallpaths _ _ _ (p u))]).
 Defined.
@@ -159,7 +159,7 @@ use make_BinProduct.
 - apply (make_isBinProduct _ has_homsets_HSET).
   intros C f g; use tpair.
   * exists (prodtofuntoprod (f,,g)); abstract (split; apply idpath).
-  * abstract (intros [t [ht1 ht2]]; apply subtypeEquality;
+  * abstract (intros [t [ht1 ht2]]; apply subtypePath;
              [ intros x; apply isapropdirprod; apply has_homsets_HSET
              | now apply funextfun; intro x; rewrite <- ht2, <- ht1 ]).
 Defined.
@@ -185,7 +185,7 @@ use make_Product.
   intros C f; simpl in *.
   use tpair.
   * exists (λ c i, f i c); intro i; apply idpath.
-   * abstract (intros h; apply subtypeEquality; simpl;
+   * abstract (intros h; apply subtypePath; simpl;
        [ intro; apply impred; intro; apply has_homsets_HSET
        | destruct h as [t ht]; simpl; apply funextfun; intro x;
          apply funextsec; intro i; rewrite <- ht; apply idpath ]).
@@ -235,7 +235,7 @@ use make_Pullback.
     - abstract (now split).
     - abstract (now intros h; apply isapropdirprod; apply has_homsets_HSET).
     - abstract (intros h [H1 H2]; apply funextsec; intro x;
-      apply subtypeEquality; [intros H; apply setproperty|]; simpl;
+      apply subtypePath; [intros H; apply setproperty|]; simpl;
       now rewrite <- (toforallpaths _ _ _ H1 x), <- (toforallpaths _ _ _ H2 x)).
 Defined.
 
@@ -324,11 +324,11 @@ Proof.
            apply tosecoverunit_compute.
         -- apply funextfun; intro; reflexivity.
       * intros t.
-        apply subtypeEquality.
+        apply subtypePath.
         -- intro; apply has_homsets_HSET.
         -- cbn.
            apply funextfun; intro; cbn.
-           apply subtypeEquality.
+           apply subtypePath.
            ++ intro; apply setproperty.
            ++ apply (toforallpaths _ _ _ (pr2 t)).
 Defined.

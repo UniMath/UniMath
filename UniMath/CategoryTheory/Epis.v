@@ -125,7 +125,7 @@ Proof.
   intros is_epi ? ?.
   apply invproofirrelevance.
   intros z w.
-  apply subtypeEquality; [intros ? ?; apply homset_property|].
+  apply subtypePath; [intros ? ?; apply homset_property|].
   apply (is_epi _ (hfiberpr1 _ _ z) (hfiberpr1 _ _ w)).
   exact (hfiberpr2 _ _ z @ !hfiberpr2 _ _ w).
 Qed.

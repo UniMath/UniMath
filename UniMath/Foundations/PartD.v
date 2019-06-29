@@ -726,7 +726,7 @@ Defined.
 Definition weqcomp_assoc {W X Y Z : UU} (f : W ≃ X) (g: X ≃ Y) (h : Y ≃ Z) :
   (h ∘ (g ∘ f) = (h ∘ g) ∘ f)%weq.
 Proof.
-  intros. apply subtypeEquality.
+  intros. apply subtypePath.
   - intros p. apply isapropisweq.
   - simpl. apply idpath.
 Defined.

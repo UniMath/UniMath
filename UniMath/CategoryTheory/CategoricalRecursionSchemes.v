@@ -833,7 +833,7 @@ Proof.
   induction t as [x hyp].
   assert (same: x = traho_of_Hinze_Wu).
   2: {
-    apply subtypeEquality.
+    apply subtypePath.
     + intro.
       simpl.
       apply hsC.

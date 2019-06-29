@@ -475,7 +475,7 @@ Lemma isaprop_is_invertible_2cell {C : bicat}
 Proof.
   apply invproofirrelevance.
   intros p q.
-  apply subtypeEquality.
+  apply subtypePath.
   { intro. apply isapropdirprod; apply cellset_property. }
   set (Hz1 := pr12 q).
   set (Hy2 := pr22 p).
@@ -566,9 +566,9 @@ Lemma cell_from_invertible_2cell_eq {C : bicat}
   : x = y.
 Proof.
   unfold cell_from_invertible_2cell.
-  apply subtypeEquality'.
+  apply subtypePath.
+  - intro. apply isPredicate_is_invertible_2cell.
   - apply p.
-  - apply isPredicate_is_invertible_2cell.
 Defined.
 
 (* ----------------------------------------------------------------------------------- *)
