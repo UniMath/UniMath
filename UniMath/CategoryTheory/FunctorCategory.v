@@ -458,14 +458,14 @@ Proof.
   use isweq_iso.
   - exact (nat_iso_to_iso F G).
   - intros X.
-    use subtypeEquality.
+    use subtypePath.
     + intro.
       apply isaprop_is_iso.
     + apply nat_trans_eq.
       { apply D. }
       reflexivity.
   - intros X.
-    use subtypeEquality.
+    use subtypePath.
     + intro.
       apply isaprop_is_nat_iso.
     + reflexivity.

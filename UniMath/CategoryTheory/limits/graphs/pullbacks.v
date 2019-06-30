@@ -107,7 +107,7 @@ Proof.
         eapply cancel_postcomposition, (pr2 (pr1 H2)).
       apply (coneOutCommutes cx One Two tt).
     * apply (pr2 (pr2 (pr1 H2))).
-  + abstract (intro t; apply subtypeEquality;
+  + abstract (intro t; apply subtypePath;
               [ intro; apply impred; intro; apply hs
               | destruct t as [t p0];
                 apply path_to_ctr; split; [ apply (p0 One) | apply (p0 Three) ]]).
@@ -226,7 +226,7 @@ Proof.
       * apply PullbackArrow_PullbackPr1.
       * apply PullbackArrow_PullbackPr2.
   - intro t.
-    apply subtypeEquality.
+    apply subtypePath.
     + intro. apply isapropdirprod; apply hs.
     + destruct t as [t p]. simpl.
       use (PullbackArrowUnique _ _ P).
@@ -269,7 +269,7 @@ Proof.
       * abstract (apply (limits.pullbacks.PullbackArrow_PullbackPr2 XR)).
   - abstract (
     intro t;
-    apply subtypeEquality;
+    apply subtypePath;
     [intro; apply impred; intro; apply hs |];
     simpl; destruct t as [t HH];  simpl in *;
     apply limits.pullbacks.PullbackArrowUnique;
@@ -314,7 +314,7 @@ Proof.
     + apply (PullbackArrow_PullbackPr1 XR).
     + apply (PullbackArrow_PullbackPr2 XR).
   - abstract (
-    intro t; apply subtypeEquality;
+    intro t; apply subtypePath;
     [ intro; apply isapropdirprod; apply hs |] ;
     induction t as [x Hx]; simpl in * ;
     use (PullbackArrowUnique _ _ XR);
@@ -471,7 +471,7 @@ Proof.
    }
   exists (tpair _ awe (make_dirprod Hawe1 Hawe2)).
   intro t.
-  apply subtypeEquality.
+  apply subtypePath.
   - intro a0. apply isapropdirprod;
     apply hs.
   - simpl. destruct t as [t [Ht1 Ht2]].
@@ -515,7 +515,7 @@ Proof.
   apply impred; intro g;
   apply invproofirrelevance.
   intros Pb Pb'.
-  apply subtypeEquality.
+  apply subtypePath.
   - intro; apply isofhleveltotal2.
     + apply hs.
     + intros; apply isaprop_isPullback.

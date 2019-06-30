@@ -250,7 +250,7 @@ use tpair.
     apply z_iso_inv_on_right.
     apply pathsinv0, limArrowCommutes.
 - intros p; destruct p as [f Hf].
-  apply subtypeEquality.
+  apply subtypePath.
   + intro a; apply impred; intro u; apply hsC.
   + simpl; apply  z_iso_inv_on_left; simpl.
     apply pathsinv0, limArrowUnique; intro u.
@@ -349,13 +349,13 @@ Lemma isaprop_Lims : isaprop (Lims C).
 Proof.
 apply impred; intro g; apply impred; intro cc.
 apply invproofirrelevance; intros Hccx Hccy.
-apply subtypeEquality.
+apply subtypePath.
 - intro; apply isaprop_isLimCone.
 - apply (total2_paths_f (isotoid _ H (iso_from_lim_to_lim Hccx Hccy))).
   set (B c := ∏ v, C⟦c,dob cc v⟧).
   set (C' (c : C) f := ∏ u v (e : edge u v), @compose _ c _ _ (f u) (dmor cc e) = f v).
   rewrite (@transportf_total2 _ B C').
-  apply subtypeEquality.
+  apply subtypePath.
   + intro; repeat (apply impred; intro); apply univalent_category_has_homsets.
   + abstract (now simpl; eapply pathscomp0; [apply transportf_isotoid_dep'|];
               apply funextsec; intro v; rewrite inv_isotoid, idtoiso_isotoid;
@@ -435,7 +435,7 @@ use tpair.
   + abstract (intro u; apply (nat_trans_eq hsC); simpl; intro a;
               now apply (limArrowCommutes (HCg a))).
 - abstract (intro t; destruct t as [t1 t2];
-            apply subtypeEquality; simpl;
+            apply subtypePath; simpl;
               [ intro; apply impred; intro u; apply functor_category_has_homsets
               | apply (nat_trans_eq hsC); simpl; intro a;
                 apply limArrowUnique; intro u;
@@ -886,7 +886,7 @@ use tpair.
     apply z_iso_inv_on_right.
     apply pathsinv0, limArrowCommutes.
 - intros p; destruct p as [f Hf].
-  apply subtypeEquality.
+  apply subtypePath.
   + intro a; apply impred; intro u; apply hsC.
   + simpl; apply  z_iso_inv_on_left; simpl.
     apply pathsinv0, limArrowUnique; intro u.
@@ -960,7 +960,7 @@ use (make_ColimCocone _ (from_opp_opp_to_opp _ _ _ pr1pr1x)).
       abstract (intros a b f; simpl; now apply pathsinv0, (nat_trans_ax α b a f)).
     * abstract (intro u; apply (nat_trans_eq hsC); intro a;
         destruct ccF as [t p]; apply (toforallpaths _ _ _ (maponpaths pr1 (Hα u)) a)).
-  + intro H; destruct H as [f Hf]; apply subtypeEquality.
+  + intro H; destruct H as [f Hf]; apply subtypePath.
     * abstract (intro β; repeat (apply impred; intro);
         now apply (has_homsets_opp (functor_category_has_homsets A C hsC))).
     * match goal with |[ H2 : ∏ _ : ?TT ,  _ = _ ,,_   |- _ ] =>

@@ -132,7 +132,7 @@ use tpair.
   exists (pr1 f (pr1 p)).
   abstract (now induction f as [h hh]; induction p as [x hx]; simpl in *; rewrite <- hx, hh).
 - abstract (split; [intros X|intros X Y Z f g];
-            apply funextsec; intro p; apply subtypeEquality; trivial;
+            apply funextsec; intro p; apply subtypePath; trivial;
             intros x; apply setproperty).
 Defined.
 
@@ -144,7 +144,7 @@ use tpair.
   + intro A; apply (A,,λ _, t).
   + intros A B f; apply (tpair _ f), idpath.
 - abstract (now split; [intros A|intros A B C f g];
-            apply subtypeEquality; try (intro x; apply has_homsets_HSET)).
+            apply subtypePath; try (intro x; apply has_homsets_HSET)).
 Defined.
 
 (*
@@ -342,7 +342,7 @@ use make_nat_trans.
   apply (!pr2 H).
 - intros x y f.
   apply funextsec; intro w.
-  apply subtypeEquality; trivial.
+  apply subtypePath; trivial.
   intro z; apply setproperty.
 Defined.
 
@@ -355,14 +355,14 @@ use is_iso_qinv.
     exists (tt,,pr1 xy).
     apply (!pr2 xy).
   - abstract (intros X Y f; apply funextsec; intros x;
-              apply subtypeEquality; trivial; intros w; apply setproperty).
+              apply subtypePath; trivial; intros w; apply setproperty).
 + abstract (split;
-  [ apply subtypeEquality; [intros x; apply isaprop_is_nat_trans, has_homsets_HSET|];
+  [ apply subtypePath; [intros x; apply isaprop_is_nat_trans, has_homsets_HSET|];
     apply funextsec; intro x; apply funextsec; intro y; cbn;
     now rewrite pathsinv0inv0; induction y as [y' y3]; induction y' as [y'' y2]; induction y''
   | apply (nat_trans_eq has_homsets_HSET); simpl; intros x;
     apply funextsec; intros z; simpl in *;
-    now apply subtypeEquality; trivial; intros w; apply setproperty]).
+    now apply subtypePath; trivial; intros w; apply setproperty]).
 Defined.
 
 Local Lemma is_left_adjoint_proj_functor' (s : sort) : is_left_adjoint (proj_functor' s).
@@ -393,7 +393,7 @@ use make_are_adjoints.
 + use make_nat_trans.
   - intros X; simpl; intros x; apply (x,,idpath s).
   - intros X Y f; simpl; apply funextsec; intro x; cbn.
-    now apply subtypeEquality; trivial; intros y; apply setproperty.
+    now apply subtypePath; trivial; intros y; apply setproperty.
 + use make_nat_trans.
   - intros X; simpl in *.
     use tpair; simpl.
@@ -403,7 +403,7 @@ use make_are_adjoints.
 + split.
   - now intros X; apply (eq_mor_slicecat has_homsets_HSET).
   - intros X; apply funextsec; intro x.
-    now apply subtypeEquality; trivial; intros x'; apply setproperty.
+    now apply subtypePath; trivial; intros x'; apply setproperty.
 Defined.
 
 Local Lemma is_omega_cocont_exp_functor (a : list sort × sort)

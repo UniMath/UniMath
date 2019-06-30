@@ -34,9 +34,9 @@ Lemma Monad_Mor_eq {C : precategory_data} (hs : has_homsets C) (T T' : Monad_dat
       (e : ∏ a : C, α a = β a) :
   α = β.
 Proof.
-  use subtypeEquality'.
+  use subtypePath.
+  - intro. now apply isaprop_Monad_Mor_laws.
   - now apply (nat_trans_eq hs).
-  - now apply isaprop_Monad_Mor_laws.
 Defined.
 
 (* ----- Monad associated to a Kleisli ----- *)
@@ -91,16 +91,16 @@ Lemma is_functor_unkleislify {C : precategory} (hs : has_homsets C) :
 Proof.
   split; red; simpl; intros.
   - unfold unkleislify_mor.
-    apply subtypeEquality'; simpl.
-    + apply subtypeEquality'; simpl.
+    apply subtypePath; simpl.
+    + intro. now apply isaprop_Monad_Mor_laws.
+    + apply subtypePath; simpl.
+      * intro. now apply isaprop_is_nat_trans.
       * now apply funextsec.
-      * now apply isaprop_is_nat_trans.
-    + now apply isaprop_Monad_Mor_laws.
-  - apply subtypeEquality'; simpl.
-    + apply subtypeEquality'; simpl.
+  - apply subtypePath; simpl.
+    + intro. now apply isaprop_Monad_Mor_laws.
+    + apply subtypePath; simpl.
+      * intro. now apply isaprop_is_nat_trans.
       * now apply funextsec.
-      * now apply isaprop_is_nat_trans.
-    + now apply isaprop_Monad_Mor_laws.
 Defined.
 
 Definition functor_unkleislify {C : precategory} (hs: has_homsets C) :
@@ -182,12 +182,12 @@ Lemma is_functor_kleislify {C : precategory} (hs : has_homsets C) :
 Proof.
   split; red; simpl; intros.
   - unfold kleislify_mor.
-    apply subtypeEquality'; simpl.
+    apply subtypePath; simpl.
+    + intro. now apply isaprop_Kleisli_Mor_laws.
     + reflexivity.
-    + now apply isaprop_Kleisli_Mor_laws.
-  - apply subtypeEquality'; simpl.
+  - apply subtypePath; simpl.
+    + intro. now apply isaprop_Kleisli_Mor_laws.
     + reflexivity.
-    + now apply isaprop_Kleisli_Mor_laws.
 Defined.
 
 Definition functor_kleislify {C : precategory} (hs: has_homsets C) :

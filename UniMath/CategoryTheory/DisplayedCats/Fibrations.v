@@ -305,7 +305,7 @@ Proof.
   use total2_paths_f.
   { apply (isotoid_disp D_cat (idpath _)); cbn.
     apply cartesian_lifts_iso. }
-  apply subtypeEquality.
+  apply subtypePath.
   { intros ff. repeat (apply impred; intro).
     apply isapropiscontr. }
   etrans.
@@ -417,7 +417,7 @@ Proof.
       intros gg XR1 XR0.
       apply iscontraprop1.
       * apply invproofirrelevance.
-        intros x x'. apply subtypeEquality.
+        intros x x'. apply subtypePath.
         { intro. apply homsets_disp. }
         apply disp_mor_unique_disc_fib.
       * exists gg.
@@ -470,7 +470,7 @@ Lemma eq_discrete_fib_mor (F G : precat_of_discrete_fibs_ob_mor)
       (H : ∏ x y, pr1 (pr1 a) x y = pr1 (pr1 b) x y)
   : a = b.
 Proof.
-  apply subtypeEquality.
+  apply subtypePath.
   { intro. apply isaprop_disp_functor_axioms. }
   use total2_paths_f.
   - apply funextsec. intro x.

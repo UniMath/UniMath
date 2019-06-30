@@ -85,7 +85,7 @@ Lemma stn_ne_iff_neq {n : nat} (i j: ⟦n⟧ ) : ¬ (i = j) <-> stntonat _ i ≠
 Proof.
   intros. split.
   - intro ne. apply nat_nopath_to_neq. Set Printing Coercions. idtac.
-    intro e; apply ne; clear ne. apply subtypeEquality_prop. assumption.
+    intro e; apply ne; clear ne. apply subtypePath_prop. assumption.
   - simpl. intros neq e. apply (nat_neq_to_nopath neq), maponpaths. assumption.
   Unset Printing Coercions.
 Defined.
@@ -127,7 +127,7 @@ Defined.
 Lemma stn_eq_or_neq {n : nat} (i j: ⟦n⟧ ) : (i=j) ⨿ (i≠j).
 Proof.
   intros. induction (nat_eq_or_neq i j) as [eq|ne].
-  - apply ii1, subtypeEquality_prop. assumption.
+  - apply ii1, subtypePath_prop. assumption.
   - apply ii2. assumption.
 Defined.
 
@@ -255,7 +255,7 @@ Defined.
 Lemma stn_left_0 {m:nat} {i:⟦m⟧} (e: m=m+0) : stn_left m 0 i = transportf stn e i.
 Proof.
   intros.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   induction e.
   apply idpath.
 Defined.
@@ -276,7 +276,7 @@ Lemma stn_left_compare (m n : nat) (r : m ≤ m+n) : stn_left' m (m+n) r = stn_l
 Proof.
   intros.
   apply funextfun; intro i.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   apply idpath.
 Defined.
 
@@ -330,7 +330,7 @@ Definition replace_dni_first (n : nat) : dni (@firstelement n) = dni_firstelemen
 Proof.
   intros.
   apply funextfun; intros i.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   exact (compute_pr1_dni_first n i).
 Defined.
 
@@ -346,7 +346,7 @@ Definition replace_dni_last (n : nat) : dni (@lastelement n) = dni_lastelement.
 Proof.
   intros.
   apply funextfun; intros i.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   exact (compute_pr1_dni_last n i).
 Defined.
 
@@ -516,7 +516,7 @@ Definition weqdnicompl_compute {n : nat} (j: ⟦S n⟧ ) (i: ⟦n⟧ ) :
   pr1 (weqdnicompl j i) = dni j i.
 Proof.
   intros.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   apply idpath.
 Defined.
 
@@ -544,7 +544,7 @@ Proof.
   intros.
   intros i.
   induction i as [i|i].
-  - apply subtypeEquality_prop. induction i as [i I]. apply idpath.
+  - apply subtypePath_prop. induction i as [i I]. apply idpath.
   - apply idpath.
 Defined.
 
@@ -610,7 +610,7 @@ Proof.
               ** exact b.
            ++ apply natlthnsn.
       * induction b.
-        induction (ne (@subtypeEquality_prop _ _ (make_stn _ j I) (make_stn _ j J) (idpath j))).
+        induction (ne (@subtypePath_prop _ _ (make_stn _ j I) (make_stn _ j J) (idpath j))).
 Defined.
 
 (** *** Weak equivalences from [ stn n ] for [ n = 0 , 1 , 2 ] to [ empty ] , [ unit ] and [ bool ] ( see also the section on [ nelstruct ] in finitesets.v ). *)
@@ -701,7 +701,7 @@ Defined.
 Lemma isinjstntonat (n : nat) : isInjectiveFunction (pr1 : stnset n -> natset).
 Proof.
   intros i j.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
 Defined.
 
 (** ***  Weak equivalence between the coproduct of [ stn n ] and [ stn m ] and [ stn ( n + m ) ] *)
@@ -721,7 +721,7 @@ Proof.
   unfold weqfromcoprodofstn_invmap.
   simpl.
   induction (natlthorgeh i n) as [I|J].
-  - simpl. apply maponpaths. apply subtypeEquality_prop. simpl.
+  - simpl. apply maponpaths. apply subtypePath_prop. simpl.
     induction (natplusr0 n). apply idpath.
   - simpl. apply fromempty. induction (! natplusr0 n).
     exact (natgehtonegnatlth _ _ J (stnlt i)).
@@ -858,7 +858,7 @@ Lemma transport_stn {m n : nat} (e: m=n) (i: ⟦m⟧ ) :
 Proof.
   intros.
   induction e.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   apply idpath.
 Defined.
 
@@ -877,15 +877,15 @@ Proof.
   rewrite stnsum_step. rewrite <- natplusassoc. apply map_on_two_paths.
   { rewrite IHn; clear IHn. apply map_on_two_paths.
     { apply stnsum_eq; intro i. unfold funcomp.
-      apply maponpaths. apply subtypeEquality_prop.
+      apply maponpaths. apply subtypePath_prop.
       rewrite stn_left_compute. induction e.
       rewrite idpath_transportf. rewrite dni_last.
       apply idpath. }
     { apply stnsum_eq; intro i. unfold funcomp.
-      apply maponpaths. apply subtypeEquality_prop.
+      apply maponpaths. apply subtypePath_prop.
       rewrite stn_right_compute. unfold stntonat. induction e.
       rewrite idpath_transportf. rewrite 2? dni_last. apply idpath. } }
-  unfold funcomp. apply maponpaths. apply subtypeEquality_prop.
+  unfold funcomp. apply maponpaths. apply subtypePath_prop.
   induction e. apply idpath.
 Defined.
 
@@ -932,7 +932,7 @@ Proof.
     apply map_on_two_paths.
     + apply map_on_two_paths.
       * apply stnsum_eq; intro i. induction i as [i I].
-        apply maponpaths. apply subtypeEquality_prop.
+        apply maponpaths. apply subtypePath_prop.
         induction e. rewrite idpath_transportf. rewrite stn_left_compute.
         unfold dni,di, stntonat; simpl.
         induction (natlthorgeh i j) as [R|R].
@@ -948,10 +948,10 @@ Proof.
         unfold dni,di, stn_right, stntonat; repeat rewrite transport_stn; simpl.
         induction (natlthorgeh (j+i) j) as [X|X].
         -- contradicts (negnatlthplusnmn j i) X.
-        -- apply subtypeEquality_prop. simpl. apply idpath.
+        -- apply subtypePath_prop. simpl. apply idpath.
     + apply maponpaths.
       rewrite transport_stn; simpl.
-      apply subtypeEquality_prop.
+      apply subtypePath_prop.
       apply idpath.
 Defined.
 
@@ -1038,9 +1038,9 @@ Proof.
     apply two_arg_paths.
     + apply stnsum_eq. intro l.
       unfold funcomp. apply maponpaths.
-      apply subtypeEquality_prop; simpl.
+      apply subtypePath_prop; simpl.
       apply pathsinv0, di_eq1, stnlt.
-    + unfold funcomp. apply maponpaths. apply subtypeEquality_prop.
+    + unfold funcomp. apply maponpaths. apply subtypePath_prop.
       simpl. apply idpath.
 Defined.
 
@@ -1104,7 +1104,7 @@ Proof.
       apply stnsum_eq.
       intros k.
       unfold funcomp. apply maponpaths.
-      apply subtypeEquality_prop. simpl.
+      apply subtypePath_prop. simpl.
       apply pathsinv0, di_eq1.
       apply (stnlt k).
     }
@@ -1112,7 +1112,7 @@ Proof.
     apply natlthandplusl.
     assert ((m ∘ stn_left'' ltS) lastelement = m i) as e. {
       unfold funcomp. apply maponpaths.
-      apply subtypeEquality_prop, idpath.
+      apply subtypePath_prop, idpath.
     }
     induction e.
     apply (stnlt j).
@@ -1121,7 +1121,7 @@ Proof.
       apply stnsum_eq.
       intros k.
       unfold funcomp. apply maponpaths.
-      apply subtypeEquality_prop, idpath.
+      apply subtypePath_prop, idpath.
     }
     rewrite e.
     apply stnsum_left_le'.
@@ -1138,7 +1138,7 @@ Proof.
   pose (e'' := e @ !e').
   assert (i = i') as p. {
     induction (nat_eq_or_neq i i') as [eq | ne].
-    + apply subtypeEquality_prop. assumption.
+    + apply subtypePath_prop. assumption.
     + apply fromempty.
       generalize e''.
       apply nat_neq_to_nopath.
@@ -1150,7 +1150,7 @@ Proof.
   apply total2_paths_f with p.
   - use total2_paths_f.
     + induction p. simpl.
-      apply subtypeEquality_prop.
+      apply subtypePath_prop.
       apply (natpluslcan _ _ _ e'').
     + apply isasetnat.
 Defined.
@@ -1170,7 +1170,7 @@ Proof.
     use tpair.
     + exists (dni_lastelement i). exists j.
       abstract (use (_ @ J); apply (maponpaths (λ x, x+j)); apply stnsum_eq; intro r;
-      unfold m'; unfold funcomp; apply maponpaths; apply subtypeEquality_prop, idpath).
+      unfold m'; unfold funcomp; apply maponpaths; apply subtypePath_prop, idpath).
     + intro t.
       apply partial_sum_prop.
   - clear IH. set (j := l - len').
@@ -1188,7 +1188,7 @@ Proof.
     * simpl. intermediate_path (stnsum m' + j).
       -- apply (maponpaths (λ x, x+j)). apply stnsum_eq; intro i.
          unfold m'. unfold funcomp. apply maponpaths.
-         apply subtypeEquality_prop, idpath.
+         apply subtypePath_prop, idpath.
       -- rewrite natpluscomm. exact K.
 Defined.
 
@@ -1196,7 +1196,7 @@ Lemma stn_right_first (n i : nat) :
   stn_right i (S n) firstelement = make_stn (i + S n) i (natltplusS n i).
 Proof.
   intros.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   simpl.
   apply natplusr0.
 Defined.
@@ -1278,26 +1278,26 @@ Proof.
         induction jk as [j k].
         change (invmap (weqoverdnicoprod P) (ii1 (j,,k))) with (tpair P (dni lastelement j) k).
         unfold weqfromcoprodofstn_map. unfold coprod_rect. unfold weqstnsum_map.
-        apply subtypeEquality_prop.
+        apply subtypePath_prop.
         induction k as [k K]. simpl.
         apply (maponpaths (λ x, x+k)). unfold funcomp. unfold stntonat. unfold di.
         clear K k.
         induction (natlthorgeh _ n) as [G|G'].
         -- simpl. apply stnsum_eq; intro k. apply maponpaths.
-           apply subtypeEquality_prop. simpl.
+           apply subtypePath_prop. simpl.
            apply pathsinv0, di_eq1.
            exact (istransnatlth _ _ _ (stnlt k) G).
         -- apply fromempty. exact (natlthtonegnatgeh _ _ (stnlt j) G').
       * change (invmap (weqoverdnicoprod P) (ii2 k)) with (tpair P lastelement k).
         unfold coprodf, idfun. unfold weqfromcoprodofstn_map. unfold coprod_rect.
         unfold weqstnsum_map.
-        apply subtypeEquality_prop.
+        apply subtypePath_prop.
         induction k as [k K]. simpl.
         apply (maponpaths (λ x, x+k)).
         apply maponpaths.
         apply funextfun; intro i. induction i as [i I].
         unfold funcomp. apply maponpaths.
-        apply subtypeEquality_prop.
+        apply subtypePath_prop.
         simpl.
         apply pathsinv0, di_eq1. assumption.
 Defined.
@@ -2119,7 +2119,7 @@ Proof.
   intros inc ? ? e. induction (natlehchoice _ _ e) as [I|J]; clear e.
   + apply natlthtoleh. apply inc. exact I.
   + assert (J' : i = j).
-    { apply subtypeEquality_prop. exact J. }
+    { apply subtypePath_prop. exact J. }
     clear J. induction J'. apply isreflnatleh.
 Defined.
 
@@ -2256,7 +2256,7 @@ Proof.
     { unfold f'. intros x j j'.
       apply iscontraprop1.
       * apply isaset_hfiber; apply isasetstn.
-      * use subtypeEquality.
+      * use subtypePath.
         ** intros ?. apply isasetstn.
         ** induction j as [j e]. induction j' as [j' e']. simpl.
            apply (invmaponpathsincl f'' (pr2 f'')).
@@ -2267,15 +2267,15 @@ Proof.
       change (pr1 (dni lastelement j) ≤ pr1 (dni lastelement j')).
       rewrite 2?dni_last. assumption. }
 
-    apply subtypeEquality_prop.
+    apply subtypePath_prop.
     change (stntonat _ (f i) = i).
     induction (natgehchoice _ _ (lastelement_ge i)) as [ge | eq].
     + pose (p := maponpaths (stntonat _) (F (make_stn n i ge))).
       simpl in p. induction p.
       change (stntonat _ (f i) = f (dni lastelement (make_stn n i ge))).
       apply maponpaths, maponpaths, pathsinv0.
-      apply subtypeEquality_prop. apply dni_last.
-    + apply subtypeEquality_prop in eq.
+      apply subtypePath_prop. apply dni_last.
+    + apply subtypePath_prop in eq.
       rewrite <- eq.
       apply M.
 Defined.

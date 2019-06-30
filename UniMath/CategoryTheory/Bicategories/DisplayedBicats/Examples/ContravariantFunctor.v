@@ -257,11 +257,11 @@ Section fix_a_category.
     use isweq_iso.
     - exact (disp_presheaves_adjequiv_inv FC FC').
     - intro x.
-      apply subtypeEquality.
+      apply subtypePath.
       { intro ; apply isaprop_is_invertible_2cell. }
       reflexivity.
     - intro x.
-      apply subtypeEquality.
+      apply subtypePath.
       {
         intro.
         apply isaprop_disp_left_adjoint_equivalence.
@@ -287,7 +287,7 @@ Section fix_a_category.
     use weqhomot.
     - exact (disp_presheaves_idtoiso_2_0 FC FC').
     - intro p.
-      apply subtypeEquality.
+      apply subtypePath.
       {
         intro.
         apply isaprop_disp_left_adjoint_equivalence.

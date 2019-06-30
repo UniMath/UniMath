@@ -293,7 +293,7 @@ Proof.
                ∘ weqpathsinv0 _ _)%weq.
     + intros p.
       induction p ; cbn.
-      apply subtypeEquality.
+      apply subtypePath.
       * intro ; apply isaprop_is_iso.
       * reflexivity.
   - intros X Y ; cbn.

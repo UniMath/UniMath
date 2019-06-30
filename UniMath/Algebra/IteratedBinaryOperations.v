@@ -368,7 +368,7 @@ Proof.
       { unfold funcomp. set (s0' := dni lastelement (@lastelement 0)).
         unfold partition'. change (f' s0') with j.
         apply iterop_seq_mon_homot. intro i. unfold x', x'', funcomp. apply maponpaths.
-        apply subtypeEquality_prop.
+        apply subtypePath_prop.
         change_lhs (stntonat _ i).
         unfold dni. unfold di.
         unfold stntonat.
@@ -379,7 +379,7 @@ Proof.
           exact (natlthtonegnatgeh _ _ (stnlt i) P). } }
       { unfold partition'. change (f' lastelement) with (n-j).
         apply iterop_seq_mon_homot. intro i. unfold x', x'', funcomp. apply maponpaths.
-        apply subtypeEquality_prop. change_lhs (j+1+i). unfold dni, di.
+        apply subtypePath_prop. change_lhs (j+1+i). unfold dni, di.
         unfold stntonat.
         match goal with |- context [ match ?x with _ => _ end ]
                         => induction x as [c|c] end.
@@ -387,7 +387,7 @@ Proof.
         { change_rhs (1 + (j + i)). rewrite <- natplusassoc. rewrite (natpluscomm j 1).
           reflexivity. } } }
     unfold x'. unfold funcomp. apply maponpaths.
-    apply subtypeEquality_prop. change (j+0 = j). apply natplusr0. }
+    apply subtypePath_prop. change (j+0 = j). apply natplusr0. }
   { apply (maponpaths (λ k, k * _)). induction (!B').
     change_rhs (iterop_seq_mon (n,, x ∘ dni (j,, jlt))).
     apply iterop_seq_mon_homot; intros i.
@@ -422,7 +422,7 @@ Proof.
       rewrite homotweqinvweq.
       rewrite (weqoncompl_ne_compute f i (stnneq i) (stnneq i') _).
       apply maponpaths, maponpaths.
-      apply subtypeEquality_prop.
+      apply subtypePath_prop.
       unfold stntonat.
       now rewrite weqdnicompl_compute. }
     rewrite (IH (x ∘ dni i') h).

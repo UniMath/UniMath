@@ -276,12 +276,12 @@ Proof.
   - use isweq_iso.
     + exact (op2_bicat_left_adjoint_equivalence_to_bicat_left_adjoint_equivalence f).
     + intros x.
-      use subtypeEquality.
+      use subtypePath.
       * intro.
         do 2 apply isapropdirprod ; try (apply C) ; apply isaprop_is_invertible_2cell.
       * reflexivity.
     + intros x.
-      use subtypeEquality.
+      use subtypePath.
       * intro.
         do 2 apply isapropdirprod ; try (apply C) ; apply isaprop_is_invertible_2cell.
       * reflexivity.

@@ -93,7 +93,7 @@ Section def_coequalizers.
         rewrite <- assoc.
         apply cancel_precomposition, (pr2 (pr1 H2)).
       + apply (pr2 (pr1 H2)).
-    - abstract (intro t; apply subtypeEquality;
+    - abstract (intro t; apply subtypePath;
                [intros y; apply impred; intros t0; apply hs
                |induction t as [t p]; apply path_to_ctr, (p Two)]).
   Defined.

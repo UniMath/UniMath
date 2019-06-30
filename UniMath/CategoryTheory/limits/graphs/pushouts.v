@@ -103,7 +103,7 @@ Section def_po.
         apply cancel_precomposition, (pr1 (pr2 (pr1 H2)))).
       * abstract ( apply (pr1 (pr2 (pr1 H2)))).
       * abstract (now use (pathscomp0 _ (pr2 (pr2 (pr1 H2))))).
-    + abstract (intro t; apply subtypeEquality;
+    + abstract (intro t; apply subtypePath;
                [ intro; apply impred; intro; apply hs
                | destruct t as [t p0];
                  apply path_to_ctr; split; [ apply (p0 Two) | apply (p0 Three) ]]).
@@ -187,7 +187,7 @@ Section def_po.
         * apply PushoutArrow_PushoutIn1.
         * apply PushoutArrow_PushoutIn2.
     - intro t.
-      apply subtypeEquality.
+      apply subtypePath.
       + intro. apply isapropdirprod; apply hs.
       + destruct t as [t p]. simpl.
         use (PushoutArrowUnique _ _ P).

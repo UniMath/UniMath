@@ -72,9 +72,9 @@ Proof.
         -- exact tt.
       * (** [is_nat_trans] *)
         intros ? ? ?.
-        apply subtypeEquality'.
+        apply subtypePath.
+        -- intro. apply isapropunit.
         -- unfold funcomp; apply funextfun; intro; reflexivity.
-        -- apply isapropunit.
     + use make_nat_trans.
       * intros ?; exact (idfun _).
       * intros ? ? ?; apply funextfun; intro; reflexivity.

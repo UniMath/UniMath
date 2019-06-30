@@ -326,7 +326,7 @@ use make_Product.
       abstract (intro i; apply (nat_trans_eq hsD); intro c;
                 apply (ProductPrCommutes I D _ (HD (λ j, (F j) c)))).
     * abstract (
-        intro t; apply subtypeEquality; simpl;
+        intro t; apply subtypePath; simpl;
           [intro; apply impred; intro; apply (isaset_nat_trans hsD)|];
         apply (nat_trans_eq hsD); intro c;
         apply ProductArrowUnique; intro i;

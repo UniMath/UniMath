@@ -546,12 +546,12 @@ Proof.
   - intros b a e w; simpl in *. exists (pr1 w ∘ e).
     abstract (rewrite <- 2? assoc; apply maponpaths; exact (pr2 w)) using _M_.
   - abstract (
-        intros b; apply funextsec; intro w; apply subtypeEquality;
+        intros b; apply funextsec; intro w; apply subtypePath;
         [ intro; apply homset_property
         | simpl; apply id_left]) using _N_.
   - abstract (
         intros a'' a' a r s; apply funextsec;
-        intro w; apply subtypeEquality;
+        intro w; apply subtypePath;
         [ intro; apply homset_property
         | apply pathsinv0, assoc ]) using _O_.
 Defined.
@@ -653,11 +653,11 @@ Proof.
             apply (pr2 (pr2 zero) _ _ _ _)) using _M_. } } }
   { abstract (split;
     [ intros x; apply funextsec; intros [r rf0];
-      apply subtypeEquality;
+      apply subtypePath;
       [ intro; apply homset_property
       | simpl; unfold opp_mor; apply id_left ]
     | intros w x y t u; apply funextsec; intros [r rf0];
-      apply subtypeEquality;
+      apply subtypePath;
       [ intro; apply homset_property
       | simpl; unfold opp_mor; apply pathsinv0, assoc ] ]) using _N_. }
 Defined.
@@ -732,7 +732,7 @@ Definition cone {I C:category} (c:C) (D: [I,C]) : UU
 Lemma cone_eq {C I:category} (c:C^op) (D: I⟶C) (p q:cone (C:=C) c D) :
   pr1 p ~ pr1 q -> p = q.
 Proof.
-  intros h. apply subtypeEquality.
+  intros h. apply subtypePath.
   { intro r.
     apply impred_isaprop; intro i;
     apply impred_isaprop; intro j;
@@ -893,7 +893,7 @@ Proof.
       - intros x. unshelve refine (_,,_).
         + unfold θ_1; simpl. intro b. exact tt.
         + eqn_logic.
-      - simpl. intros w. apply subtypeEquality.
+      - simpl. intros w. apply subtypePath.
         { intros f. apply impred; intro b; apply impred; intro b'; apply impred; intro g. apply isasetunit. }
         apply funextfun; intro b. apply isapropunit.
       - eqn_logic. }

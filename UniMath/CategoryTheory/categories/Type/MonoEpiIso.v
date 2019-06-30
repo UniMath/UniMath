@@ -85,7 +85,7 @@ Proof.
   apply (isweq_iso _ (type_precat_equiv_iso A B)).
   intro; apply eq_iso.
   - reflexivity.
-  - intro; apply subtypeEquality.
+  - intro; apply subtypePath.
     + intro; apply isapropisweq.
     + reflexivity.
 Qed.
@@ -101,7 +101,7 @@ Lemma type_equiv_iso_is_equiv (A B : ob type_precat) :
 Proof.
   apply (isweq_iso _ (type_iso_equiv A B)).
   { intro f.
-    apply subtypeEquality.
+    apply subtypePath.
     { intro; apply isapropisweq. }
     reflexivity. }
   intro; apply eq_iso.

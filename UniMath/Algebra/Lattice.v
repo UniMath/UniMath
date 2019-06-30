@@ -685,21 +685,21 @@ Lemma isaprop_extruncminus {X : abmonoid} (is : lattice X)
   isaprop (extruncminus is).
 Proof.
   intros minus1 minus2 ; simpl.
-  rewrite (subtypeEquality' (s := minus1) (s' := minus2)).
-  - apply iscontrloopsifisaset.
-    apply isaset_total2.
+  apply iscontraprop1.
+  - apply isaset_total2.
     apply impred_isaset ; intros _.
     apply impred_isaset ; intros _.
     apply (pr2 (pr1 (pr1 X))).
     intros minus.
     apply isasetaprop.
     apply isaprop_istruncminus.
-  - apply weqfunextsec ; intros x.
-    apply weqfunextsec ; intros y.
-    apply (Hop y).
-    rewrite (pr2 minus1).
-    apply pathsinv0, (pr2 minus2).
-  - apply isaprop_istruncminus.
+  - apply subtypePath.
+    + intros f. apply isaprop_istruncminus.
+    + apply weqfunextsec ; intros x.
+      apply weqfunextsec ; intros y.
+      apply (Hop y).
+      rewrite (pr2 minus1).
+      apply pathsinv0, (pr2 minus2).
 Qed.
 
 Definition truncminus {X : abmonoid} {is : lattice X} (ex : extruncminus is) : binop X :=

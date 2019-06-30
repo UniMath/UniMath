@@ -158,11 +158,11 @@ Section BasePseudoFunctor.
     - exact (invertible_2cell_ps_base_inv η ε).
     - intros α.
       apply funextsec ; intro X.
-      apply subtypeEquality.
+      apply subtypePath.
       { intro ; apply isaprop_is_invertible_2cell. }
       reflexivity.
     - intros α.
-      apply subtypeEquality.
+      apply subtypePath.
       { intro ; apply isaprop_is_invertible_2cell. }
       apply funextsec ; intro X.
       reflexivity.
@@ -181,7 +181,7 @@ Section BasePseudoFunctor.
       exact (make_weq (idtoiso_2_1 (η X) (ε X)) (HD_2_1 _ _ _ _)).
     - intros p.
       induction p.
-      use subtypeEquality.
+      use subtypePath.
       { intro ; apply isaprop_is_invertible_2cell. }
       reflexivity.
   Defined.
@@ -239,7 +239,7 @@ Section BasePseudoFunctor.
     - exact (is_adjequiv_to_all_is_adjequiv η).
     - intros Hη.
       apply funextsec ; intro X.
-      use subtypeEquality.
+      use subtypePath.
       {
         intro.
         do 2 apply isapropdirprod ; try (apply D)
@@ -247,7 +247,7 @@ Section BasePseudoFunctor.
       }
       reflexivity.
     - intros Hη.
-      use subtypeEquality.
+      use subtypePath.
       {
         intro.
         do 2 apply isapropdirprod ; try (apply ps_base)
@@ -297,7 +297,7 @@ Section BasePseudoFunctor.
       use total2_paths_b.
       + reflexivity.
       + cbn ; unfold idfun.
-        use subtypeEquality.
+        use subtypePath.
         {
           intro.
           do 2 apply isapropdirprod ; try (apply D)
@@ -308,7 +308,7 @@ Section BasePseudoFunctor.
       use total2_paths_b.
       + reflexivity.
       + cbn ; unfold idfun.
-        use subtypeEquality.
+        use subtypePath.
         {
           intro.
           do 2 apply isapropdirprod ; try (apply ps_base)
@@ -330,7 +330,7 @@ Section BasePseudoFunctor.
       exact (make_weq (idtoiso_2_0 (F X) (G X)) (pr1 HD _ _)).
     - intros p.
       induction p.
-      use subtypeEquality.
+      use subtypePath.
       {
         intro.
         apply isaprop_left_adjoint_equivalence.

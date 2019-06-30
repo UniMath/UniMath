@@ -213,7 +213,7 @@ Section CwFRepresentation.
   Proof.
     intro isC.
     apply invproofirrelevance.
-    intros x x'. apply subtypeEquality.
+    intros x x'. apply subtypePath.
     { intro.
       apply isofhleveltotal2.
       - apply setproperty.

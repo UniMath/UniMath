@@ -203,7 +203,7 @@ Definition θ_subset {B C:category} {F : [B, C]} {X : [B, [C^op, SET]]}
            (t u : F ⟹ X) :
   pr1 t = pr1 u -> t = u.
 Proof.
-  apply subtypeEquality.
+  apply subtypePath.
   intros x. apply impred; intro b;apply impred; intro b'; apply impred; intro f.
   apply setproperty.
 Defined.

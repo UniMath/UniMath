@@ -58,7 +58,7 @@ Lemma cat_of_elems_mor_eq (x y : cat_of_elems_data) (f g : _⟦x,y⟧) :
   get_mor f = get_mor g → f = g.
 Proof.
 intros p.
-apply subtypeEquality.
+apply subtypePath.
 - intro r; apply setproperty.
 - exact p.
 Qed.

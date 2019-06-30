@@ -99,7 +99,7 @@ Proof.
   intros. apply subtypeInjectivity. intro. apply propproperty.
 Defined.
 
-Corollary subtypeEquality_prop {A : UU} {B : A -> hProp}
+Corollary subtypePath_prop {A : UU} {B : A -> hProp}
    {s s' : total2 (λ x, B x)} : pr1 s = pr1 s' -> s = s'.
 Proof.
   apply invmap. apply subtypeInjectivity_prop.
@@ -659,7 +659,7 @@ Theorem hPropUnivalence : ∏ (P Q : hProp), (P -> Q) -> (Q -> P) -> P = Q.
      "uahp" *)
 Proof.
   intros ? ? f g.
-  apply subtypeEquality.
+  apply subtypePath.
   - intro X. apply isapropisaprop.
   - apply propositionalUnivalenceAxiom.
     + apply propproperty.

@@ -508,7 +508,7 @@ Definition unique_internal_adjoint_equivalence
            (A₂ : left_adjoint_equivalence l)
   : A₁ = A₂.
 Proof.
-  use subtypeEquality.
+  use subtypePath.
   - intro x.
     apply isapropdirprod.
     + apply isapropdirprod ; apply C.

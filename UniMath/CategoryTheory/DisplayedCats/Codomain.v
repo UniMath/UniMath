@@ -64,21 +64,21 @@ Definition cod_disp_data : disp_cat_data _
 Lemma cod_disp_axioms : disp_cat_axioms C cod_disp_data.
 Proof.
   repeat apply tpair; intros; try apply homset_property.
-  - apply subtypeEquality.
+  - apply subtypePath.
     { intro. apply homset_property. }
     etrans. apply id_left.
     destruct ff as [ff H].
     apply pathsinv0.
     etrans. use (pr1_transportf (A := C⟦x,y⟧)).
     cbn; apply (eqtohomot (transportf_const _ _)).
-  - apply subtypeEquality.
+  - apply subtypePath.
     { intro. apply homset_property. }
     etrans. apply id_right.
     destruct ff as [ff H].
     apply pathsinv0.
     etrans. use (pr1_transportf (A := C⟦x,y⟧)).
     cbn; apply (eqtohomot (transportf_const _ _)).
-  - apply subtypeEquality.
+  - apply subtypePath.
     { intro. apply homset_property. }
     etrans. apply assoc.
     destruct ff as [ff H].
@@ -123,7 +123,7 @@ Proof.
     + intros. apply homsets_disp.
   - intros gg; split; intros H.
     + exists (pr2 H).
-      apply subtypeEquality.
+      apply subtypePath.
         intro; apply homset_property.
       exact (pr1 H).
     + split.
@@ -171,7 +171,7 @@ Proof.
     + use tpair.
       * rewrite id_right.
         exact (pr2 HRR).
-      * apply subtypeEquality.
+      * apply subtypePath.
         intro; apply homset_property.
       exact (pr1 HRR).
 Qed.

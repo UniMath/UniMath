@@ -80,11 +80,11 @@ Section Restriction.
       + exact tt.
     - (* Left adjoint identity axiom *)
       intro; cbn.
-      apply subtypeEquality; [intro; apply propproperty|].
+      apply subtypePath; [intro; apply propproperty|].
       apply functor_id.
     - (* Left adjoint composition axiom *)
       intros ? ? ? ? ?; cbn.
-      apply subtypeEquality; [intro; apply propproperty|].
+      apply subtypePath; [intro; apply propproperty|].
       apply functor_comp.
   Defined.
 
@@ -123,11 +123,11 @@ Section Restriction.
           -- exact tt.
     - (* Right adjoint identity axiom *)
       intro; cbn.
-      apply subtypeEquality; [intro; apply propproperty|].
+      apply subtypePath; [intro; apply propproperty|].
       apply functor_id.
     - (* Right adjoint composition axiom *)
       intros ? ? ? ? ?; cbn.
-      apply subtypeEquality; [intro; apply propproperty|].
+      apply subtypePath; [intro; apply propproperty|].
       apply functor_comp.
   Defined.
 
@@ -142,7 +142,7 @@ Section Restriction.
       + exact tt.
     - (* Unit is natural *)
       intros ? ? ?.
-      apply subtypeEquality; [intro; apply propproperty|].
+      apply subtypePath; [intro; apply propproperty|].
       apply (pr2 η).
   Defined.
 
@@ -157,7 +157,7 @@ Section Restriction.
       + exact tt.
     - (* Counit is natural *)
       intros ? ? ?.
-      apply subtypeEquality; [intro; apply propproperty|].
+      apply subtypePath; [intro; apply propproperty|].
       apply (pr2 ε).
   Defined.
 
@@ -170,10 +170,10 @@ Section Restriction.
     - exact restricted_adjunction_counit.
     - use make_form_adjunction.
       + (* 1st triangle identity *)
-        intro; apply subtypeEquality'; [|apply propproperty].
+        intro; apply subtypePath; [intro; apply propproperty|].
         apply triangle_id_left_ad.
       + (* 2nd triangle identity *)
-        intro; apply subtypeEquality'; [|apply propproperty].
+        intro; apply subtypePath; [intro; apply propproperty|].
         apply triangle_id_right_ad.
   Defined.
 

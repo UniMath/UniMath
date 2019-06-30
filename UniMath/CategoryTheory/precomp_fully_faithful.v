@@ -130,7 +130,7 @@ Proof.
     apply pathsinv0, id_right.
   - exists (g,, gp).
     intro t; induction t as [g' gp'].
-    apply subtypeEquality.
+    apply subtypePath.
     { intro; do 2 (apply impred; intro).
       apply hsC. }
     simpl.

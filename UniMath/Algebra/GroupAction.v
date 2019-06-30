@@ -174,18 +174,18 @@ Defined.
 
 Lemma composeActionIsoId {G:gr} {X Y:Action G} (f : ActionIso X Y) : composeActionIso (idActionIso X) f = f.
 Proof.
-  apply subtypeEquality.
+  apply subtypePath.
   { intros g. apply propproperty. }
-  apply subtypeEquality.
+  apply subtypePath.
   { intros g. apply isapropisweq. }
   reflexivity.
 Defined.
 
 Lemma composeActionIsoId' {G:gr} {X Y:Action G} (f : ActionIso X Y) : composeActionIso f (idActionIso Y) = f.
 Proof.
-  apply subtypeEquality.
+  apply subtypePath.
   { intros g. apply propproperty. }
-  apply subtypeEquality.
+  apply subtypePath.
   { intros g. apply isapropisweq. }
   reflexivity.
 Defined.
@@ -490,8 +490,8 @@ Defined.
 Lemma triviality_isomorphism_compute (G:gr) :
   triviality_isomorphism (trivialTorsor G) (unel G) = idActionIso (trivialTorsor G).
 Proof.
-  apply subtypeEquality_prop.
-  apply subtypeEquality.
+  apply subtypePath_prop.
+  apply subtypePath.
   { intros X. apply isapropisweq. }
   apply funextsec; intros g.
   change (op g (unel _) = g).
@@ -542,9 +542,9 @@ Defined.
 Lemma trivialTorsorAuto_unit (G:gr) :
   trivialTorsorAuto G (unel _) = idActionIso _.
 Proof.
-  intros. simple refine (subtypeEquality _ _).
+  intros. simple refine (subtypePath _ _).
   { intro k. apply is_equivariant_isaprop. }
-  { simple refine (subtypeEquality _ _).
+  { simple refine (subtypePath _ _).
     { intro; apply isapropisweq. }
     { apply funextsec; intro x; simpl. exact (runax G x). } }
 Defined.
@@ -553,9 +553,9 @@ Lemma trivialTorsorAuto_mult (G:gr) (g h:G) :
   composeActionIso (trivialTorsorAuto G g) (trivialTorsorAuto G h)
   = (trivialTorsorAuto G (op g h)).
 Proof.
-  intros. simple refine (subtypeEquality _ _).
+  intros. simple refine (subtypePath _ _).
   { intro; apply is_equivariant_isaprop. }
-  { simple refine (subtypeEquality _ _).
+  { simple refine (subtypePath _ _).
     { intro; apply isapropisweq. }
     { apply funextsec; intro x; simpl. exact (assocax _ x g h). } }
 Defined.

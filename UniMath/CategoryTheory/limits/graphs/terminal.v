@@ -46,7 +46,7 @@ intros a ca.
 use tpair.
 - exists (pr1 (H a)); intro v; induction v.
 - intro t.
-  apply subtypeEquality; simpl;
+  apply subtypePath; simpl;
     [ intro f; apply impred; intro v; induction v|].
   apply (pr2 (H a)).
 Defined.
