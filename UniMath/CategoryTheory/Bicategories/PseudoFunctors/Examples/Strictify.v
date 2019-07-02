@@ -32,6 +32,9 @@ Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Compo
 
 Local Open Scope cat.
 
+Opaque psfunctor pstrans.
+Opaque strict_psfunctor.
+
 Definition idtoiso_2_1_isotoid_2_1
            {B : bicat}
            (HB : is_univalent_2_1 B)
@@ -54,6 +57,58 @@ Definition isotoid_2_1_idtoiso_2_1
 Proof.
   unfold isotoid_2_1.
   exact (homotinvweqweq (make_weq (idtoiso_2_1 f g) (HB _ _ f g)) p).
+Defined.
+
+Definition strict_pstrans_data
+           {C D : bicat}
+           (F G : strict_psfunctor C D)
+  : UU.
+Proof.
+  refine (map1cells C D⟦_,_⟧).
+  - apply F.
+  - apply G.
+Defined.
+
+Definition is_strict_pstrans
+           {C D : bicat}
+           {F G : strict_psfunctor C D}
+           (η : strict_pstrans_data F G)
+  : UU
+  := (∏ (X Y : C) (f g : X --> Y) (α : f ==> g),
+      (pr1 η X ◃ ##G α)
+        • pr2 η _ _ g
+      =
+      (pr2 η _ _ f)
+        • (##F α ▹ pr1 η Y))
+     ×
+     (∏ (X : C),
+      (pr1 η X ◃ strict_psfunctor_id_cell G X)
+        • pr2 η _ _ (id₁ X)
+      =
+      (runitor (pr1 η X))
+        • linvunitor (pr1 η X)
+        • (strict_psfunctor_id_cell F X ▹ pr1 η X))
+     ×
+     (∏ (X Y Z : C) (f : X --> Y) (g : Y --> Z),
+      (pr1 η X ◃ strict_psfunctor_comp_cell G f g)
+        • pr2 η _ _ (f · g)
+      =
+      (lassociator (pr1 η X) (#G f) (#G g))
+        • (pr2 η _ _ f ▹ (#G g))
+        • rassociator (#F f) (pr1 η Y) (#G g)
+        • (#F f ◃ pr2 η _ _ g)
+        • lassociator (#F f) (#F g) (pr1 η Z)
+        • (strict_psfunctor_comp_cell F f g ▹ pr1 η Z)).
+
+Definition make_strict_pstrans
+           {C D : bicat}
+           {F G : strict_psfunctor C D}
+           (η : strict_pstrans_data F G)
+           (Hη : is_strict_pstrans η)
+  : F --> G.
+Proof.
+  refine ((η ,, _) ,, tt).
+  repeat split ; cbn ; intros ; apply Hη.
 Defined.
 
 Definition strict_modification_eq
@@ -81,17 +136,88 @@ Proof.
   exact p.
 Qed.
 
+Definition is_strict_modification
+           {B B' : bicat}
+           {F G : strict_psfunctor B B'}
+           {σ τ : F --> G}
+           (m : ∏ (X : B), pr111 σ X ==> pr111 τ X)
+  : UU
+  := ∏ (X Y : B) (f : X --> Y),
+     pr211 σ _ _ f • (m Y ▻ #F f)
+     =
+     #G f ◅ m X • pr211 τ _ _ f.
+
 Definition make_strict_modification
            {B B' : bicat}
            {F G : strict_psfunctor B B'}
            {σ τ : F --> G}
            (m : ∏ (X : B), pr111 σ X ==> pr111 τ X)
-           (Hm : ∏ (X Y : B) (f : X --> Y),
-                 pr211 σ _ _ f • (m Y ▻ #F f)
-                 =
-                 #G f ◅ m X • pr211 τ _ _ f)
+           (Hm : is_strict_modification m)
   : σ ==> τ
   := (((m ,, Hm) ,, (tt ,, tt ,, tt)),, tt).
+
+Definition make_is_invertible_strict_modification_inv_is_modification
+           {B B' : bicat}
+           {F G : strict_psfunctor B B'}
+           {σ τ : F --> G}
+           (m : σ ==> τ)
+           (Hm : ∏ (X : B), is_invertible_2cell (pr111 m X))
+  : ∏ (X Y : B) (f : B ⟦ X, Y ⟧),
+    (pr211 τ) X Y f • (# F f ◃ (Hm Y) ^-1) = ((Hm X) ^-1 ▹ # G f) • (pr211 σ) X Y f.
+Proof.
+  intros X Y f.
+  simpl.
+  use vcomp_move_R_Mp.
+  { is_iso. }
+  simpl.
+  rewrite <- vassocr.
+  use vcomp_move_L_pM.
+  { is_iso. }
+  symmetry.
+  simpl.
+  exact (pr211 m X Y f).
+Qed.
+
+Definition inv_modification
+           {B B' : bicat}
+           {F G : strict_psfunctor B B'}
+           {σ τ : F --> G}
+           (m : σ ==> τ)
+           (Hm : ∏ (X : B), is_invertible_2cell (pr111 m X))
+  : τ ==> σ.
+Proof.
+  use make_strict_modification.
+  - exact (λ X, (Hm X)^-1).
+  - exact (make_is_invertible_strict_modification_inv_is_modification m Hm).
+Defined.
+
+Definition modification_inv_modification
+           {B B' : bicat}
+           {F G : strict_psfunctor B B'}
+           {σ τ : F --> G}
+           (m : σ ==> τ)
+           (Hm : ∏ (X : B), is_invertible_2cell (pr111 m X))
+  : m • inv_modification m Hm = id₂ σ.
+Proof.
+  use strict_modification_eq.
+  intro X.
+  cbn.
+  exact (vcomp_rinv (Hm X)).
+Qed.
+
+Definition inv_modification_modification
+           {B B' : bicat}
+           {F G : strict_psfunctor B B'}
+           {σ τ : F --> G}
+           (m : σ ==> τ)
+           (Hm : ∏ (X : B), is_invertible_2cell (pr111 m X))
+  : inv_modification m Hm • m = id₂ τ.
+Proof.
+  use strict_modification_eq.
+  intro X.
+  cbn.
+  exact (vcomp_lid (Hm X)).
+Qed.
 
 Definition make_is_invertible_strict_modification
            {B B' : bicat}
@@ -102,27 +228,9 @@ Definition make_is_invertible_strict_modification
   : is_invertible_2cell m.
 Proof.
   use make_is_invertible_2cell.
-  - use make_strict_modification.
-    + exact (λ X, (Hm X)^-1).
-    + intros X Y f.
-      simpl.
-      use vcomp_move_R_Mp.
-      { is_iso. }
-      simpl.
-      rewrite <- vassocr.
-      use vcomp_move_L_pM.
-      { is_iso. }
-      symmetry.
-      simpl.
-      exact (pr211 m X Y f).
-  - use strict_modification_eq.
-    intro X.
-    cbn.
-    exact (vcomp_rinv (Hm X)).
-  - use strict_modification_eq.
-    intro X.
-    cbn.
-    exact (vcomp_lid (Hm X)).
+  - exact (inv_modification m Hm).
+  - exact (modification_inv_modification m Hm).
+  - exact (inv_modification_modification m Hm).
 Defined.
 
 Section Strictify.
@@ -132,55 +240,80 @@ Section Strictify.
   Local Arguments idtoiso_2_1 {_} {_} {_} {_} {_} _.
   Local Arguments isotoid_2_1 {_} _ {_} {_} {_} {_} _.
 
+  Definition strictify_ob_data
+    : psfunctor B₁ B₂ → strict_psfunctor_data B₁ B₂.
+  Proof.
+    intros F.
+    use make_strict_psfunctor_data.
+    - exact (λ X, F X).
+    - exact (λ _ _ f, #F f).
+    - intros a b f g α ; cbn.
+      exact (psfunctor_on_cells F α).
+    - intro a ; cbn.
+      exact (isotoid_2_1 HB₂_2_1 (psfunctor_id F a)).
+    - intros a b c f g; cbn.
+      exact (isotoid_2_1 HB₂_2_1 (psfunctor_comp F f g)).
+  Defined.
+
+  Definition strictify_ob_is_strict_psfunctor
+             (F : psfunctor B₁ B₂)
+    : is_strict_psfunctor (strictify_ob_data F).
+  Proof.
+    repeat split ; try (apply F)
+    ; intro ; intros ; cbn ;
+      unfold StrictPseudoFunctorBicat.strict_psfunctor_id_cell,
+      StrictPseudoFunctorBicat.strict_psfunctor_comp_cell ;
+      cbn ;
+      rewrite !idtoiso_2_1_isotoid_2_1 ;
+      apply F.
+  Qed.
+
   Definition strictify_ob
     : psfunctor B₁ B₂ → strict_psfunctor_bicat B₁ B₂.
   Proof.
     intros F.
     use make_strict_psfunctor.
-    - use make_strict_psfunctor_data.
-      + exact (λ X, F X).
-      + exact (λ _ _ f, #F f).
-      + intros a b f g α ; cbn.
-        exact (psfunctor_on_cells F α).
-      + intro a ; cbn.
-        exact (isotoid_2_1 HB₂_2_1 (psfunctor_id F a)).
-      + intros a b c f g; cbn.
-        exact (isotoid_2_1 HB₂_2_1 (psfunctor_comp F f g)).
-    - repeat split ; try (apply F)
-      ; abstract (intro ; intros ; cbn ;
-             unfold StrictPseudoFunctorBicat.strict_psfunctor_id_cell,
-             StrictPseudoFunctorBicat.strict_psfunctor_comp_cell ;
-             cbn ;
-             rewrite !idtoiso_2_1_isotoid_2_1 ;
-             apply F).
+    - exact (strictify_ob_data F).
+    - exact (strictify_ob_is_strict_psfunctor F).
   Defined.
+
+  Definition strictify_mor_data
+             (F G : psfunctor_bicat B₁ B₂)
+             (η : pstrans F G)
+    : strict_pstrans_data (strictify_ob F) (strictify_ob G).
+  Proof.
+    use tpair ; cbn.
+    - exact (λ X, η X).
+    - exact (λ X Y f, psnaturality_of η f).
+  Defined.
+
+  Definition strictify_mor_is_strict_pstrans
+             (F G : psfunctor_bicat B₁ B₂)
+             (η : pstrans F G)
+    : is_strict_pstrans (strictify_mor_data F G η).
+  Proof.
+    repeat split.
+    - intro ; intros ; cbn.
+      apply (psnaturality_natural η).
+    - intro ; intros ; cbn
+      ; unfold strict_psfunctor_id_cell, strict_psfunctor_comp_cell ; cbn.
+      rewrite !idtoiso_2_1_isotoid_2_1.
+      apply (pstrans_id η).
+    - intro ; intros ; cbn
+      ; unfold strict_psfunctor_id_cell, strict_psfunctor_comp_cell
+      ; cbn.
+      rewrite !idtoiso_2_1_isotoid_2_1.
+      apply (pstrans_comp η).
+  Qed.
 
   Definition strictify_mor
              (F G : psfunctor_bicat B₁ B₂)
     : pstrans F G → strictify_ob F --> strictify_ob G.
   Proof.
     intros η.
-    use tpair.
-    - use tpair.
-      + use tpair ; cbn.
-        * exact (λ X, η X).
-        * exact (λ X Y f, psnaturality_of η f).
-      + refine (_ ,, (_ ,, _)).
-        * intro ; intros ; cbn.
-          apply (psnaturality_natural η).
-        * abstract (intro ; intros ; cbn
-                    ; unfold StrictPseudoFunctorBicat.strict_psfunctor_id_cell,
-                      StrictPseudoFunctorBicat.strict_psfunctor_comp_cell
-                    ; cbn
-                    ; rewrite !idtoiso_2_1_isotoid_2_1
-                    ; apply (pstrans_id η)).
-        * abstract (intro ; intros ; cbn
-                    ; unfold StrictPseudoFunctorBicat.strict_psfunctor_id_cell,
-                      StrictPseudoFunctorBicat.strict_psfunctor_comp_cell
-                    ; cbn
-                    ; rewrite !idtoiso_2_1_isotoid_2_1
-                    ; apply (pstrans_comp η)).
-    - exact tt.
+    use make_strict_pstrans.
+    - exact (strictify_mor_data F G η).
+    - exact (strictify_mor_is_strict_pstrans F G η).
   Defined.
 
   Definition strictify_cell
@@ -188,10 +321,25 @@ Section Strictify.
              (η₁ η₂ : pstrans F G)
     : modification η₁ η₂
       →
-      (strictify_mor _ _ η₁)
-        ==>
-        strictify_mor _ _ η₂
-    := λ m, m.
+      (strictify_mor _ _ η₁ ==> strictify_mor _ _ η₂).
+  Proof.
+    intros m.
+    use make_strict_modification.
+    - exact (λ X, m X).
+    - intros X Y f.
+      exact (modnaturality_of m _ _ f).
+  Defined.
+
+  Definition strictify_identitor_help
+             (F : psfunctor B₁ B₂)
+    : is_strict_modification (λ X : B₁, id₂ ((pr111 (id₁ (strictify_ob F))) X)).
+  Proof.
+    intros X Y f.
+    rewrite lwhisker_id2.
+    rewrite id2_rwhisker.
+    rewrite id2_left, id2_right.
+    reflexivity.
+  Qed.
 
   Definition strictify_identitor
              (F : psfunctor B₁ B₂)
@@ -199,16 +347,24 @@ Section Strictify.
       ==>
         strictify_mor F F (id₁ F).
   Proof.
-    use tpair.
-    - use tpair.
-      + use tpair.
-        * exact (λ X, id₂ _).
-        * intros X Y f ; cbn.
-          abstract (rewrite lwhisker_id2, id2_rwhisker, id2_left, id2_right
-                    ; reflexivity).
-      + exact (tt ,, tt ,, tt).
-    - exact tt.
+    use make_strict_modification.
+    - exact (λ X, id₂ _).
+    - exact (strictify_identitor_help F).
   Defined.
+
+  Definition strictify_compositor_help
+             (F₁ F₂ F₃ : psfunctor B₁ B₂)
+             (η₁ : F₁ --> F₂)
+             (η₂ : F₂ --> F₃)
+    : is_strict_modification
+        (λ X : B₁, id₂ ((pr111 (strictify_mor F₁ F₂ η₁ · strictify_mor F₂ F₃ η₂)) X)).
+  Proof.
+    intros X Y f.
+    rewrite lwhisker_id2.
+    rewrite id2_rwhisker.
+    rewrite id2_left, id2_right.
+    reflexivity.
+  Qed.
 
   Definition strictify_compositor
              (F₁ F₂ F₃ : psfunctor B₁ B₂)
@@ -219,15 +375,9 @@ Section Strictify.
         ==>
         strictify_mor _ _ (η₁ · η₂).
   Proof.
-    use tpair.
-    - use tpair.
-      + use tpair.
-        * exact (λ X, id₂ _).
-        * intros X Y f ; cbn.
-          abstract (rewrite lwhisker_id2, id2_rwhisker, id2_left, id2_right
-                    ; reflexivity).
-      + exact (tt ,, tt ,, tt).
-    - exact tt.
+    use make_strict_modification.
+    - exact (λ X, id₂ _).
+    - exact (strictify_compositor_help F₁ F₂ F₃ η₁ η₂).
   Defined.
 
   Definition strictify_data
@@ -260,14 +410,20 @@ Section Strictify.
       exact (idpath _).
   Qed.
 
+  Definition strictify_invertible_2cells
+    : invertible_cells strictify_data.
+  Proof.
+    split ; intros ; apply make_is_invertible_strict_modification
+    ; intros ; cbn ; is_iso.
+  Qed.
+
   Definition strictify
     : psfunctor (psfunctor_bicat B₁ B₂) (strict_psfunctor_bicat B₁ B₂).
   Proof.
     use make_psfunctor.
     - exact strictify_data.
     - exact strictify_laws.
-    - split ; intros ; apply make_is_invertible_strict_modification
-      ; intros ; cbn ; is_iso.
+    - exact strictify_invertible_2cells.
   Defined.
 
   Definition TODO {A : UU} : A.
@@ -472,10 +628,15 @@ Section Strictify.
                   apply strict_counit_data_help).
   Defined.
 
+  Opaque ps_comp.
+
   Definition strictify_counit_is_pstrans
     : is_pstrans strictify_counit_data.
   Proof.
-     exact TODO.
+    refine (_ ,, _ ,, _).
+    - apply TODO.
+    - apply TODO.
+    - apply TODO.
   Qed.
   (*
     refine (_ ,, (_ ,, _)).
