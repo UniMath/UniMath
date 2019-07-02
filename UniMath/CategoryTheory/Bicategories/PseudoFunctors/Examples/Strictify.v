@@ -326,8 +326,8 @@ Section Strictify.
     intros m.
     use make_strict_modification.
     - exact (λ X, m X).
-    - intros X Y f.
-      exact (modnaturality_of m _ _ f).
+    - abstract (intros X Y f ;
+                exact (modnaturality_of m _ _ f)).
   Defined.
 
   Definition strictify_identitor_help
@@ -628,46 +628,122 @@ Section Strictify.
                   apply strict_counit_data_help).
   Defined.
 
+  Definition strictify_counit_is_pstrans_help₁
+             (F₁ F₂ : psfunctor B₁ B₂)
+             (α β : pstrans F₁ F₂)
+             (m : modification α β)
+             (X : B₁)
+    : (id₁ (F₁ X) ◃ (pr111 m) X) • (lunitor ((pr111 β) X) • rinvunitor ((pr111 β) X)) =
+      (lunitor ((pr111 α) X) • rinvunitor ((pr111 α) X)) • (m X ▹ id₁ (F₂ X)).
+  Proof.
+    rewrite !vassocr.
+    rewrite vcomp_lunitor.
+    rewrite !vassocl.
+    rewrite rinvunitor_natural.
+    rewrite rwhisker_hcomp.
+    reflexivity.
+  Qed.
+
+  Definition strictify_counit_is_pstrans_help₂
+             (F : psfunctor B₁ B₂)
+             (X : B₁)
+    : (id₁ (F X) ◃ id₂ (id₁ ((pr111 F) X)))
+        • (lunitor (id₁ ((pr111 F) X)) • rinvunitor (id₁ ((pr111 F) X)))
+      =
+      (runitor (id₁ (F X)) • linvunitor (id₁ (F X)))
+        • ((pr111 (pr1 (psfunctor_id
+                  (ps_comp (strict_psfunctor_to_psfunctor B₁ B₂) strictify) F)) X)
+             ▹ id₁ (F X)).
+  Proof.
+    rewrite !vassocr.
+    rewrite vcomp_lunitor.
+    rewrite runitor_lunitor_identity.
+    rewrite !vassocl.
+    apply maponpaths.
+    rewrite id2_left.
+    refine (!(id2_right _) @ _).
+    rewrite lunitor_V_id_is_left_unit_V_id.
+    apply maponpaths.
+    rewrite <- id2_rwhisker.
+    apply maponpaths.
+    cbn.
+    rewrite id2_left.
+    apply idpath.
+  Qed.
+
+  Definition strictify_counit_is_pstrans_help₃
+             (F₁ F₂ F₃ : psfunctor B₁ B₂)
+             (α : pstrans F₁ F₂)
+             (β : pstrans F₂ F₃)
+             (X : B₁)
+    : (id₁ (F₁ X) ◃ id₂ ((pr111 α) X · (pr111 β) X))
+        • (lunitor ((pr111 α) X · (pr111 β) X) • rinvunitor ((pr111 α) X · (pr111 β) X))
+      =
+      ((((lassociator (id₁ (F₁ X)) ((pr111 α) X) ((pr111 β) X)
+           • ((lunitor ((pr111 α) X) • rinvunitor ((pr111 α) X)) ▹ (pr111 β) X))
+           • rassociator
+               ((pr111 (# (ps_comp (strict_psfunctor_to_psfunctor B₁ B₂) strictify) α)) X)
+               (id₁ (F₂ X))
+               ((pr111 β) X))
+          • ((pr111 (# (ps_comp (strict_psfunctor_to_psfunctor B₁ B₂) strictify) α)) X
+            ◃ (lunitor ((pr111 β) X)
+         • rinvunitor ((pr111 β) X))))
+         • lassociator
+             ((pr111
+                 (# (ps_comp (strict_psfunctor_to_psfunctor B₁ B₂) strictify) α))
+                      X)
+                 ((pr111 (# (ps_comp (strict_psfunctor_to_psfunctor B₁ B₂) strictify) β))
+                      X)
+             (id₁ (F₃ X)))
+        • ((pr111 ((pr222 (pr1 (ps_comp (strict_psfunctor_to_psfunctor B₁ B₂) strictify)))
+                     F₁ F₂ F₃ α β)) X ▹ id₁ (F₃ X)).
+  Proof.
+    cbn.
+    rewrite lwhisker_id2, !id2_left.
+    rewrite id2_rwhisker, id2_right.
+    rewrite <- !rwhisker_vcomp.
+    rewrite !vassocr.
+    rewrite lunitor_triangle.
+    rewrite !vassocl.
+    apply maponpaths.
+    rewrite <- lwhisker_vcomp.
+    rewrite !vassocl.
+    rewrite rinvunitor_triangle.
+    rewrite !vassocr.
+    refine (!(id2_left _) @ _).
+    apply maponpaths_2.
+    rewrite !vassocl.
+    rewrite lunitor_lwhisker.
+    rewrite rwhisker_vcomp.
+    rewrite rinvunitor_runitor, id2_rwhisker.
+    apply idpath.
+  Qed.
+
   Opaque ps_comp.
 
   Definition strictify_counit_is_pstrans
     : is_pstrans strictify_counit_data.
   Proof.
     refine (_ ,, _ ,, _).
-    - apply TODO.
-    - apply TODO.
-    - apply TODO.
-  Qed.
-  (*
-    refine (_ ,, (_ ,, _)).
     - intros F₁ F₂ α β m.
-      (*
-      pose ((pr1 strictify_counit_data F₁ ◃ psfunctor_on_cells (ps_id_functor (psfunctor_bicat B₁ B₂)) m)
-              • pr2 strictify_counit_data F₁ F₂ β) as r₁.
-      pose (pr2 strictify_counit_data F₁ F₂ α
-                • (psfunctor_on_cells (ps_comp (strict_psfunctor_to_psfunctor B₁ B₂) strictify) m
-                      ▹ pr1 strictify_counit_data F₂)) as r₂.
-      assert UU.
+      rewrite (ps_comp_cell (strict_psfunctor_to_psfunctor B₁ B₂) strictify m).
+      assert (psfunctor_on_cells (strict_psfunctor_to_psfunctor B₁ B₂) (psfunctor_on_cells strictify m)
+              =
+              strict_psfunctor_cell_to_modification _ _ _ _ _ _ (strictify_cell _ _ _ _ m))
+        as p.
       {
-        refine (modification
-                  _
-                  (pr211 (ps_comp (strict_psfunctor_to_psfunctor B₁ B₂) strictify) F₁ F₂ β)).
-        pose (pr1 strictify_counit_data F₁ · # (ps_id_functor (psfunctor_bicat B₁ B₂)) α) as p.
-        cbn -[psfunctor_bicat] in p.
+        apply idpath.
+      }
+      rewrite p.
       use modification_eq.
-      intros X ; cbn.
-       *)
-      apply TODO.
+      exact (strictify_counit_is_pstrans_help₁ F₁ F₂ α β m).
     - intros F.
-      (*use modification_eq.
-      intros X ; cbn.
-      *)apply TODO.
-    - intros.
-      (*use modification_eq.
-      intros X ; cbn.
-       *)
-      apply TODO.
-  Qed.*)
+      use modification_eq.
+      exact (strictify_counit_is_pstrans_help₂ F).
+    - intros F₁ F₂ F₃ α β.
+      use modification_eq.
+      exact (strictify_counit_is_pstrans_help₃ F₁ F₂ F₃ α β).
+  Qed.
 
   Definition strictify_counit
     : pstrans

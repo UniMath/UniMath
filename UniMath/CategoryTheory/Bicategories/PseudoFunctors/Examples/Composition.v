@@ -121,4 +121,32 @@ Section FunctorComposition.
         * exact (psfunctor_comp G (#F f) (#F g)).
         * exact (psfunctor_is_iso G (psfunctor_comp F f g)).
   Defined.
+
+  Definition ps_comp_cell
+             {X Y : C}
+             {f g : X --> Y}
+             (α : f ==> g)
+    : ## ps_comp α = ## G (## F α).
+  Proof.
+    apply idpath.
+  Qed.
+
+  Definition ps_comp_psfunctor_id
+             (X : C)
+    : pr1 (psfunctor_id ps_comp X)
+      =
+      psfunctor_id G (F X) • ##G (psfunctor_id F X).
+  Proof.
+    apply idpath.
+  Qed.
+
+  Definition ps_comp_psfunctor_comp
+             {X Y Z : C}
+             (f : X --> Y) (g : Y --> Z)
+    : pr1 (psfunctor_comp ps_comp f g)
+      =
+      psfunctor_comp G (#F f) (#F g) • ##G (psfunctor_comp F f g).
+  Proof.
+    apply idpath.
+  Qed.
 End FunctorComposition.

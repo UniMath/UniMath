@@ -31,24 +31,66 @@ Local Open Scope cat.
 Section Inclusion.
   Variable (B₁ B₂ : bicat).
 
+  Definition strict_psfunctor_to_psfunctor_map_data
+    : strict_psfunctor B₁ B₂ → psfunctor_data B₁ B₂.
+  Proof.
+    intro F.
+    use make_psfunctor_data.
+    - exact (λ X, F X).
+    - exact (λ _ _ f, #F f).
+    - exact (λ _ _ _ _ α, ##F α).
+    - exact (strict_psfunctor_id_cell F).
+    - exact (λ _ _ _ f g, strict_psfunctor_comp_cell F f g).
+  Defined.
+
+  Definition strict_psfunctor_to_psfunctor_map_laws
+             (F : strict_psfunctor B₁ B₂)
+    : psfunctor_laws (strict_psfunctor_to_psfunctor_map_data F).
+  Proof.
+    repeat split ; apply F.
+  Qed.
+
   Definition strict_psfunctor_to_psfunctor_map
     : strict_psfunctor B₁ B₂ → psfunctor B₁ B₂.
   Proof.
     intros F.
     use make_psfunctor.
-    - use make_psfunctor_data.
-      + exact (λ X, F X).
-      + exact (λ _ _ f, #F f).
-      + exact (λ _ _ _ _ α, ##F α).
-      + exact (strict_psfunctor_id_cell F).
-      + exact (λ _ _ _ f g, strict_psfunctor_comp_cell F f g).
-    - repeat split ; apply F.
+    - exact (strict_psfunctor_to_psfunctor_map_data F).
+    - exact (strict_psfunctor_to_psfunctor_map_laws F).
     - split ; cbn.
       + intro a.
         apply (strict_psfunctor_id_cell F a).
       + intros a b c f g.
         apply (strict_psfunctor_comp_cell F f g).
   Defined.
+
+  Definition strict_psfunctor_mor_to_pstrans_data
+             (F G : strict_psfunctor_bicat B₁ B₂)
+    : F --> G
+      →
+      pstrans_data
+        (strict_psfunctor_to_psfunctor_map F)
+        (strict_psfunctor_to_psfunctor_map G).
+  Proof.
+    intro η.
+    use make_pstrans_data.
+    - exact (λ X, pr111 η X).
+    - exact (pr211 η).
+  Defined.
+
+  Definition strict_psfunctor_mor_to_pstrans_is_pstrans
+             (F G : strict_psfunctor_bicat B₁ B₂)
+             (η : F --> G)
+    : is_pstrans (strict_psfunctor_mor_to_pstrans_data F G η).
+  Proof.
+    repeat split.
+    - intros X Y f g α ; cbn.
+      exact (pr121 η X Y f g α).
+    - intros X ; cbn.
+      exact (pr1 (pr221 η) X).
+    - intros X Y Z f g ; cbn.
+      exact (pr2 (pr221 η) X Y Z f g).
+  Qed.
 
   Definition strict_psfunctor_mor_to_pstrans
              (F G : strict_psfunctor_bicat B₁ B₂)
@@ -60,16 +102,8 @@ Section Inclusion.
   Proof.
     intros η.
     use make_pstrans.
-    - use make_pstrans_data.
-      + exact (λ X, pr111 η X).
-      + exact (pr211 η).
-    - repeat split.
-      + intros X Y f g α ; cbn.
-        exact (pr121 η X Y f g α).
-      + intros X ; cbn.
-        exact (pr1 (pr221 η) X).
-      + intros X Y Z f g ; cbn.
-        exact (pr2 (pr221 η) X Y Z f g).
+    - exact (strict_psfunctor_mor_to_pstrans_data F G η).
+    - exact (strict_psfunctor_mor_to_pstrans_is_pstrans F G η).
   Defined.
 
   Definition strict_psfunctor_cell_to_modification
@@ -85,8 +119,7 @@ Section Inclusion.
     use make_modification.
     - intros X.
       exact (pr111 m X).
-    - intros X Y f.
-      exact (pr211 m X Y f).
+    - abstract (intros X Y f ; exact (pr211 m X Y f)).
   Defined.
 
   Definition strict_psfunctor_to_psfunctor_identitor
@@ -97,8 +130,8 @@ Section Inclusion.
   Proof.
     use make_modification.
     - exact (λ X, id₂ _).
-    - intros X Y f ; cbn.
-      abstract (rewrite lwhisker_id2, id2_rwhisker, id2_left, id2_right
+    - abstract (intros X Y f ; cbn
+                ; rewrite lwhisker_id2, id2_rwhisker, id2_left, id2_right
                 ; reflexivity).
   Defined.
 
@@ -113,8 +146,8 @@ Section Inclusion.
   Proof.
     use make_modification.
     - exact (λ X, id₂ _).
-    - intros X Y f ; cbn.
-      abstract (rewrite lwhisker_id2, id2_rwhisker, id2_left, id2_right
+    - abstract (intros X Y f ; cbn
+                ; rewrite lwhisker_id2, id2_rwhisker, id2_left, id2_right
                 ; reflexivity).
   Defined.
 
