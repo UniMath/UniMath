@@ -81,8 +81,8 @@ Definition theUnivalenceProperty (C: univalent_category) := pr2 C : is_univalent
 Lemma category_eq (C D : category) :
   (C:precategory_data) = (D:precategory_data) -> C=D.
 Proof.
-  intro e. apply subtypeEquality. intro. apply isaprop_has_homsets.
-  apply subtypeEquality'.
+  intro e. apply subtypePath. intro. apply isaprop_has_homsets.
+  apply subtypePath'.
   { assumption. }
   apply isaprop_is_precategory.
   apply homset_property.

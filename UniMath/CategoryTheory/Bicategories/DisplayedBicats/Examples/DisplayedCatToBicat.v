@@ -173,7 +173,7 @@ Section Disp_Prebicat_Cells_Unit.
     - exact (disp_cell_unit_bicat_left_adjoint_equivalence_inv f ff).
     - reflexivity.
     - intros y.
-      use subtypeEquality.
+      use subtypePath.
       + intro.
         do 2 apply isapropdirprod.
         * apply disp_cell_unit_bicat_disp_cellset.

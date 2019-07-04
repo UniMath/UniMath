@@ -455,15 +455,15 @@ Section Monad_eq_helper.
     pr1 (pr1 T) = pr1 (pr1 T') -> T = T'.
   Proof.
     intro e.
-    apply subtypeEquality'.
-    - apply subtypeEquality'.
-      + apply e.
-      + apply isapropdirprod.
+    apply subtypePath.
+    - intro. now apply isaprop_Monad_laws.
+    - apply subtypePath.
+      + intro. apply isapropdirprod.
         * apply isapropdirprod.
           -- apply (isaprop_is_functor C C hs).
           -- apply (isaprop_is_nat_trans C C hs).
         * apply (isaprop_is_nat_trans C C hs).
-    - apply (isaprop_Monad_laws C hs).
+      + apply e.
   Qed.
 
   Lemma Monad_eq_raw_data {C : precategory} (hs : has_homsets C) (T T' : Monad C) :

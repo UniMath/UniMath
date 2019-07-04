@@ -321,7 +321,7 @@ Section StrictCompositor.
               isotoid_2_1 HD_2_1 (idtoiso_2_1 _ _ (F₂' X Y Z f g))) as H'.
       {
         apply maponpaths.
-        apply subtypeEquality.
+        apply subtypePath.
         { intro ; apply isaprop_is_invertible_2cell. }
         exact H.
       }

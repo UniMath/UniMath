@@ -268,7 +268,7 @@ Section def_po.
         apply impred; intro p1; apply impred; intro p2;
           apply invproofirrelevance.
       intros Pb Pb'.
-      apply subtypeEquality.
+      apply subtypePath.
       - intro; apply isofhleveltotal2.
         + apply hsC.
         + intros; apply isaprop_isPushout.

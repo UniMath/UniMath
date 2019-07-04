@@ -343,7 +343,7 @@ Proof.
     + apply fromempty. now apply negstn0.
     + induction i as [i I].
       induction i as [|i IHi].
-      * unfold nth', functionToList'; simpl. apply maponpaths. now apply subtypeEquality_prop.
+      * unfold nth', functionToList'; simpl. apply maponpaths. now apply subtypePath_prop.
       * change (hProptoType (i<n)) in I.
         exact (nth'_step _ (functionToList' _ _) _ _ @ N _ _).
 Defined.

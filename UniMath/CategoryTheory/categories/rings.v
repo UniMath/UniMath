@@ -120,7 +120,7 @@ Section def_ring_category.
     use isweq_iso.
     - exact (ring_equiv_iso X Y).
     - intros x. use eq_iso. use rigfun_paths. use idpath.
-    - intros y. use rigiso_paths. use subtypeEquality.
+    - intros y. use rigiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
   Defined.
@@ -138,7 +138,7 @@ Section def_ring_category.
   Proof.
     use isweq_iso.
     - exact (ring_iso_equiv X Y).
-    - intros y. use rigiso_paths. use subtypeEquality.
+    - intros y. use rigiso_paths. use subtypePath.
       + intros x0. use isapropisweq.
       + use idpath.
     - intros x. use eq_iso. use rigfun_paths. use idpath.

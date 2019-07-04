@@ -427,11 +427,11 @@ Section SigmaUnivalent.
     - use isweq_iso.
       + exact (iso_in_E₂_inv f g).
       + intros α.
-        use subtypeEquality.
+        use subtypePath.
         { intro ; apply isaprop_is_invertible_2cell. }
         reflexivity.
       + intros α.
-        use subtypeEquality.
+        use subtypePath.
         { intro ; apply isaprop_is_invertible_2cell. }
         reflexivity.
   Defined.
@@ -461,7 +461,7 @@ Section SigmaUnivalent.
     - exact (idtoiso_2_1_alt_E₂ f g HC_2_1 HD₁_2_1 HD₂_2_1).
     - intros p.
       induction p ; cbn.
-      use subtypeEquality.
+      use subtypePath.
       {
         intro.
         apply (@isaprop_is_invertible_2cell (total_bicat (sigma_bicat C D₁ D₂))).
@@ -517,7 +517,7 @@ Section SigmaUnivalent.
     - use isweq_iso.
       + exact (adjequiv_in_E₂_inv x y).
       + intros l.
-        use subtypeEquality.
+        use subtypePath.
         {
           intro.
           apply isaprop_left_adjoint_equivalence.
@@ -525,7 +525,7 @@ Section SigmaUnivalent.
         }
         reflexivity.
       + intros l.
-        use subtypeEquality.
+        use subtypePath.
         {
           intro.
           apply isaprop_left_adjoint_equivalence.
@@ -561,7 +561,7 @@ Section SigmaUnivalent.
     - exact (idtoiso_2_0_alt_E₂ x y HC HD₁ HD₂).
     - intros p.
       induction p.
-      use subtypeEquality.
+      use subtypePath.
       {
         intro.
         apply isaprop_left_adjoint_equivalence.

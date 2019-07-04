@@ -778,7 +778,8 @@ Section Adjunction_HomSetIso_weq.
   Lemma adj_after_nathomweq (H : are_adjoints F G)
     : adj_from_nathomweq (nathomweq_from_adj H) = H.
   Proof.
-    apply subtypeEquality'.
+    apply subtypePath.
+    - intro. apply isaprop_form_adjunction.
     - apply dirprod_paths; cbn.
       + apply (nat_trans_eq (homset_property C)).
         intro c. cbn.
@@ -790,17 +791,22 @@ Section Adjunction_HomSetIso_weq.
         unfold φ_adj_inv, counit_from_are_adjoints.
         rewrite functor_id.
         apply id_left.
-    - apply isaprop_form_adjunction.
   Defined.
 
   Lemma nathomweq_after_adj (H : natural_hom_weq F G)
     : nathomweq_from_adj (adj_from_nathomweq H) = H.
   Proof.
-    apply subtypeEquality'.
+    apply subtypePath.
+    - intros p. apply isapropdirprod.
+      + do 5 (apply impred_isaprop; intro).
+        apply C.
+      + do 5 (apply impred_isaprop; intro).
+        apply C.
     - cbn.
       unfold adjunction_hom_weq.
       do 2 (apply funextsec; intro).
-      apply subtypeEquality'.
+      apply subtypePath.
+      + intro. apply isapropisweq.
       + cbn.
         unfold φ_adj, adj_from_nathomweq. cbn.
         apply funextsec.
@@ -808,12 +814,6 @@ Section Adjunction_HomSetIso_weq.
         rewrite <- hom_natural_postcomp.
         apply maponpaths.
         apply id_left.
-      + apply isapropisweq.
-    - apply isapropdirprod.
-      + do 5 (apply impred_isaprop; intro).
-        apply C.
-      + do 5 (apply impred_isaprop; intro).
-        apply C.
   Defined.
 
   Lemma adjunction_homsetiso_weq : (are_adjoints F G) ≃ (natural_hom_weq F G).

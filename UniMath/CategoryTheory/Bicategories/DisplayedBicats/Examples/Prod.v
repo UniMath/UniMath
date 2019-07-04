@@ -416,16 +416,16 @@ Section Disp_Dirprod.
           exact H.
       + intros H ; cbn.
         use total2_paths2.
-        * use subtypeEquality.
+        * use subtypePath.
           ** intro ; simpl.
              apply isaprop_is_disp_invertible_2cell.
           ** reflexivity.
-        * use subtypeEquality.
+        * use subtypePath.
           ** intro ; simpl.
              apply isaprop_is_disp_invertible_2cell.
           ** reflexivity.
       + intros H ; cbn.
-        use subtypeEquality.
+        use subtypePath.
         * intro xx ; simpl.
           apply (@isaprop_is_disp_invertible_2cell C disp_dirprod_bicat).
         * reflexivity.
@@ -464,7 +464,7 @@ Section Disp_Dirprod.
     - exact (prod_idtoiso_2_1 p ff gg HD1 HD2).
     - intros q.
       induction p, q.
-      use subtypeEquality.
+      use subtypePath.
       + intro.
         apply (@isaprop_is_disp_invertible_2cell C disp_dirprod_bicat).
       + reflexivity.
@@ -702,20 +702,20 @@ Section Disp_Dirprod.
         * exact (pr2_adjoint_equivalence f aa bb H).
       + intros A.
         use total2_paths2.
-        * use subtypeEquality.
+        * use subtypePath.
           ** intro ; simpl.
              apply isaprop_disp_left_adjoint_equivalence.
              *** exact HC.
              *** exact HD1.
           ** reflexivity.
-        * use subtypeEquality.
+        * use subtypePath.
           ** intro ; simpl.
              apply isaprop_disp_left_adjoint_equivalence.
              *** exact HC.
              *** exact HD2.
           ** reflexivity.
       + intros H ; cbn.
-        use subtypeEquality.
+        use subtypePath.
         * intro xx ; simpl.
           apply (@isaprop_disp_left_adjoint_equivalence C disp_dirprod_bicat).
           ** exact HC.
@@ -755,7 +755,7 @@ Section Disp_Dirprod.
     - exact (prod_idtoiso_2_0 HC HD1 HD2 p aa bb).
     - intros q.
       induction p, q.
-      use subtypeEquality.
+      use subtypePath.
       + intro.
         apply (@isaprop_disp_left_adjoint_equivalence C disp_dirprod_bicat).
         * exact HC.

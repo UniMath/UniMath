@@ -175,12 +175,12 @@ use tpair.
 - exists (h1,,mon_h1).
   apply (@is_iso_from_is_z_iso (subprecategory_of_monics C hsC)).
   exists (h2,,mon_h2).
-  split; apply subtypeEquality; try (intros xx; apply isapropisMonic, hsC).
+  split; apply subtypePath; try (intros xx; apply isapropisMonic, hsC).
   + simpl; apply Hfx.
     now rewrite <- assoc, <- Hh2, <- Hh1, id_left.
   + simpl; apply Hfy.
     now rewrite <- assoc, <- Hh1, <- Hh2, id_left.
-- apply subtypeEquality; simpl; try apply Hh1.
+- apply subtypePath; simpl; try apply Hh1.
   now intros xx; apply isapropisMonic, hsC.
 Qed.
 

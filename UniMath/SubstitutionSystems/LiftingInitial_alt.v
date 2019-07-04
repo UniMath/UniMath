@@ -97,7 +97,7 @@ use tpair.
 - use tpair.
   + intros c; simpl; apply InitialArrow.
   + abstract (intros x y f; cbn; apply InitialArrowEq).
-- abstract (intros G; apply subtypeEquality;
+- abstract (intros G; apply subtypePath;
     [ intros x; apply isaprop_is_nat_trans,hsC
     | apply funextsec; intro c; apply InitialArrowUnique]).
 Defined.
@@ -335,7 +335,7 @@ Local Lemma bracket_unique (Z : Ptd) (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :
                             pr1 InitAlg ⟧, bracket_property f h,
    t = tpair _ ⦃f⦄ (bracket_Thm15_ok_cor Z f).
 Proof.
-intros [h' h'_eq]; apply subtypeEquality; [intro; apply (isaset_nat_trans hsC)|].
+intros [h' h'_eq]; apply subtypePath; [intro; apply (isaset_nat_trans hsC)|].
 simpl; apply parts_from_whole in h'_eq.
 apply path_to_ctr, (nat_trans_eq hsC); intro c.
 simpl; rewrite !(@id_left EndC), id_right, <- !assoc.

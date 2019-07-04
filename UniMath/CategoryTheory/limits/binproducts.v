@@ -554,7 +554,7 @@ Proof.
   simpl in *.
   destruct t as [t1 [ta tb]].
   simpl in *.
-  apply subtypeEquality.
+  apply subtypePath.
   - intro.
     simpl.
     apply isapropdirprod;

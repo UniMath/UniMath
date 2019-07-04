@@ -234,7 +234,7 @@ Section Total_Category_Globally_Univalent.
     induction p.
     use total2_paths_b.
     - reflexivity.
-    - use subtypeEquality.
+    - use subtypePath.
       + intro.
         apply isapropdirprod.
         * apply isapropdirprod ; apply E.

@@ -352,10 +352,9 @@ Proof.
                 rewrite_cbn (monad_dist_law2 l X);
                 apply (nat_trans_ax (η T))).
     - abstract (intros X Y f;
-                apply subtypeEquality';
+                apply subtypePath;
                 cbn;
-                [ apply (nat_trans_ax (η T)) |
-                  apply homset_property]).
+                [ intro; apply homset_property | apply (nat_trans_ax (η T))]).
 Defined.
 
 Definition lift_μ : lift_functor ∙ lift_functor ⟹ lift_functor.
@@ -372,10 +371,9 @@ Proof.
                 rewrite_cbn (nat_trans_ax (μ T) _ _ (Alg_map S X));
                 apply assoc).
      - abstract (intros X Y f;
-                 apply subtypeEquality';
+                 apply subtypePath;
                  cbn;
-                 [ apply (nat_trans_ax (μ T)) |
-                   apply homset_property]).
+                 [ intro; apply homset_property | apply (nat_trans_ax (μ T))]).
 Defined.
 
 Definition lift_monad : Monad (MonadAlg S).
@@ -383,14 +381,14 @@ Proof.
   exists ((lift_functor ,, lift_μ) ,, lift_η).
   abstract (split;
             [ split; intro X;
-              apply subtypeEquality';
-              [ apply Monad_law1 |
-                apply homset_property |
-                apply Monad_law2 |
-                apply homset_property] |
-              intro X; apply subtypeEquality';
-              [ apply Monad_law3 |
-                apply homset_property] ]).
+              apply subtypePath;
+              [ intro; apply homset_property |
+                apply Monad_law1 |
+                intro; apply homset_property |
+                apply Monad_law2] |
+              intro X; apply subtypePath;
+              [ intro; apply homset_property |
+                apply Monad_law3 ] ]).
 Defined.
 
 Definition lifting_from_dist_law : lifting.

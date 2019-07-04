@@ -397,7 +397,7 @@ Lemma Dcuts_eq_is_eq :
     Dcuts_eq x y -> x = y.
 Proof.
   intros x y Heq.
-  apply subtypeEquality_prop.
+  apply subtypePath_prop.
   apply funextsec.
   intro r.
   apply hPropUnivalence.
@@ -2472,7 +2472,7 @@ Proof.
     exists (pr1 q,,pr1 q).
     repeat split.
     + assert (X : (2 = 1+1)%NRat).
-      { apply subtypeEquality_prop ; simpl.
+      { apply subtypePath_prop ; simpl.
         apply hq2eq1plus1. }
       pattern 2%NRat at 1 ; rewrite X ; clear X.
       rewrite isrdistr_mult_plusNonnegativeRationals, islunit_oneNonnegativeRationals.

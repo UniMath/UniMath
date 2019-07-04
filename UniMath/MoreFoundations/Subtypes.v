@@ -151,7 +151,7 @@ Defined.
 Lemma subtype_deceq {X} (S:hsubtype X) : isdeceq X -> isdeceq (carrier S).
 Proof.
   intro i. intros s t. induction (i (pr1 s) (pr1 t)) as [eq|ne].
-  - apply ii1, subtypeEquality_prop, eq.
+  - apply ii1, subtypePath_prop, eq.
   - apply ii2. intro eq. apply ne. apply maponpaths. exact eq.
 Defined.
 

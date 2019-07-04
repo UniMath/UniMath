@@ -97,7 +97,7 @@ Section Test_stn.
       { intro. exact firstelement. }
       { intro. exact tt. }
       { intro u. simpl. induction u. reflexivity. }
-      { intro i. simpl. apply subtypeEquality_prop.
+      { intro i. simpl. apply subtypePath_prop.
         simpl. induction i as [i I]. simpl. apply pathsinv0. apply natlth1tois0. exact I. }
     Defined.
     Goal w tt = firstelement. reflexivity. Defined.

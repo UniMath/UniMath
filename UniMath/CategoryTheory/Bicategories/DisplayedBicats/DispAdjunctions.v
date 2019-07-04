@@ -854,8 +854,8 @@ Proof.
 Defined.
 
 
-(* TODO. DF: MOVE TO A SANER PLACE, merge with transportf_subtypeEquality' *)
-(* Definition transportf_subtypeEquality'_QUALITY *)
+(* TODO. DF: MOVE TO A SANER PLACE, merge with transportf_subtypePath' *)
+(* Definition transportf_subtypePath'_QUALITY *)
 (*            {A : UU} *)
 (*            {P : A → UU} *)
 (*            (Pprop : ∏ (a : A), isaprop (P a)) *)
@@ -863,7 +863,7 @@ Defined.
 (*            (x : A) (P₁ P₂ : P x) *)
 (*            (y : C (x,,P₁)) : *)
 (*   transportf (λ (z : total2 P), C z) *)
-(*              (@subtypeEquality' _ _ (x,,P₁) (x,,P₂) (idpath x) (Pprop x)) *)
+(*              (@subtypePath' _ _ (x,,P₁) (x,,P₂) (idpath x) (Pprop x)) *)
 (*              y *)
 (*   = transportf (λ (p : P x), C (x,, p)) (pr1 (Pprop x P₁ P₂)) y. *)
 (* Proof. *)

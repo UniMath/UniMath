@@ -111,7 +111,7 @@ use make_Product.
   - abstract (now intros g; apply impred_isaprop; intro i; apply has_homsets_slice_precat).
   - abstract(simpl; intros [y1 y2] Hy; apply eq_mor_slicecat, funextsec; intro x;
     use total2_paths_f; [apply (toforallpaths _ _ _ (!y2) x)|];
-    apply funextsec; intro i; apply subtypeEquality; [intros w; apply setproperty|];
+    apply funextsec; intro i; apply subtypePath; [intros w; apply setproperty|];
     destruct f as [f Hf]; cbn in *;
     rewrite y2;
     simpl;
@@ -159,13 +159,13 @@ Proof.
     - intros x; apply (eq_mor_slicecat has_homsets_HSET); simpl.
       apply funextsec; intros [y hy].
       use total2_paths_f; [ apply idpath |].
-      apply funextsec; intros w; apply subtypeEquality; [|apply idpath].
+      apply funextsec; intros w; apply subtypePath; [|apply idpath].
       now intros XX; apply setproperty.
     - intros x y z g h; apply (eq_mor_slicecat has_homsets_HSET); simpl.
       apply funextsec; intros [w hw].
       use total2_paths_f; [ apply idpath |].
       apply funextsec; intros w'.
-      apply subtypeEquality; [|apply idpath].
+      apply subtypePath; [|apply idpath].
       now intros XX; apply setproperty.
 Defined.
 
@@ -184,7 +184,7 @@ Proof.
   + intros [g Hg] [h Hh] [w Hw].
     apply (eq_mor_slicecat has_homsets_HSET), funextsec; intro x1.
     apply (two_arg_paths_f (!toforallpaths _ _ _ Hw x1)), funextsec; intro y.
-    repeat (apply subtypeEquality; [intros x; apply setproperty|]); cbn in *.
+    repeat (apply subtypePath; [intros x; apply setproperty|]); cbn in *.
     now induction (! toforallpaths _ _ (λ x : g, Hh (w x)) _ _).
 Defined.
 
@@ -212,11 +212,11 @@ Proof.
   - apply eps.
   - split.
     + intros x; apply eq_mor_slicecat, funextsec; intro x1.
-      now apply subtypeEquality; [intro y; apply setproperty|]; reflexivity.
+      now apply subtypePath; [intro y; apply setproperty|]; reflexivity.
     + intros x; apply eq_mor_slicecat, funextsec; intro x1; simpl.
       use total2_paths_f; [apply idpath|]; cbn.
       apply funextsec; intro y.
-      use subtypeEquality.
+      use subtypePath.
       * intro z; apply setproperty.
       * simpl.
         apply maponpaths.

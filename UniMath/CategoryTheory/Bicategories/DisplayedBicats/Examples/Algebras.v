@@ -510,7 +510,7 @@ Section Algebra.
   Proof.
     apply invproofirrelevance.
     intro ; intro.
-    use subtypeEquality.
+    use subtypePath.
     - intro.
       apply isaprop_is_disp_invertible_2cell.
     - apply C.
@@ -532,7 +532,7 @@ Section Algebra.
       rewrite psfunctor_id2 in d.
       rewrite id2_rwhisker in d.
       rewrite id2_right in d.
-      use subtypeEquality.
+      use subtypePath.
       { intro ; apply isaprop_is_invertible_2cell. }
       exact (!d).
     - apply isaset_invertible_2cell.
@@ -1053,7 +1053,7 @@ Section Algebra.
     - use isweq_iso.
       + exact (disp_alg_bicat_adjoint_equivalence_inv aa bb).
       + intros x.
-        use subtypeEquality.
+        use subtypePath.
         * intro.
           apply isaprop_is_invertible_2cell.
         * cbn.
@@ -1068,7 +1068,7 @@ Section Algebra.
                     rewrite linvunitor_lunitor, id2_right ;
                     reflexivity).
       + intros x.
-        use subtypeEquality.
+        use subtypePath.
         * intro.
           apply isaprop_disp_left_adjoint_equivalence.
           ** exact HC.
@@ -1076,7 +1076,7 @@ Section Algebra.
         * cbn.
           unfold left_adjoint_2cell.
           unfold disp_alg_bicat_adjoint_equivalence_inv ; cbn.
-          apply subtypeEquality.
+          apply subtypePath.
           { intro ; apply isaprop_is_invertible_2cell. }
           cbn.
           abstract (rewrite invertible_2cell_map_alg_eq2 ;
@@ -1101,13 +1101,13 @@ Section Algebra.
     - exact (disp_alg_bicat_adjoint_equivalence_weq HC aa bb ∘ (_ ,, HC _ _ aa bb))%weq.
     - intros p.
       induction p ; cbn ; unfold idfun.
-      use subtypeEquality.
+      use subtypePath.
       + intro ; simpl.
         apply (@isaprop_disp_left_adjoint_equivalence C disp_alg_bicat).
         * exact HC.
         * exact disp_alg_bicat_univalent_2_1.
       + cbn ; unfold left_adjoint_2cell ; cbn.
-        use subtypeEquality.
+        use subtypePath.
         { intro ; apply isaprop_is_invertible_2cell. }
         cbn.
         rewrite id2_right.

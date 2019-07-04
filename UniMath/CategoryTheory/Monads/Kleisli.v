@@ -74,16 +74,16 @@ Section monad_types_equiv.
   Proposition Kleisli_to_Monad_to_Kleisli {C : precategory} (hs : has_homsets C) (T : Kleisli C) :
     Monad_to_Kleisli (Kleisli_to_Monad T) = T.
   Proof.
-    apply subtypeEquality'.
+    apply subtypePath.
+    - intro. do 2 try apply isapropdirprod;
+        do 5 try (apply impred; intro);
+        apply hs.
     - apply (maponpaths (λ p, tpair _ _ p )); simpl.
       apply dirprod_paths.
       * apply idpath.
       * repeat (apply funextsec; unfold homot; intro).
         simpl; unfold Monads.bind; simpl; unfold r_lift.
         now rewrite (r_bind_r_bind T), <- assoc, (r_eta_r_bind T (T x0)), id_right.
-    - do 2 try apply isapropdirprod;
-        do 5 try (apply impred; intro);
-        apply hs.
   Defined.
 
   Lemma Monad_to_Kleisli_to_Monad_raw_data {C : precategory} (T : Monad C) :

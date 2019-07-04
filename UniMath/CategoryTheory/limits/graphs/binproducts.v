@@ -55,7 +55,7 @@ use tpair.
 - exists (pr1 (pr1 H')).
   set (T := pr2 (pr1 H')); simpl in T.
   abstract (intro u; induction u; simpl; [exact (pr1 T)|exact (pr2 T)]).
-- abstract (simpl; intros; apply subtypeEquality;
+- abstract (simpl; intros; apply subtypePath;
               [intro; apply impred;intro; apply hsC|]; simpl;
             apply path_to_ctr; split; [ apply (pr2 t true) | apply (pr2 t false) ]).
 Defined.

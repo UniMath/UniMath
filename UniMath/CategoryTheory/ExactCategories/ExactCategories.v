@@ -193,19 +193,19 @@ Section Pullbacks.              (* move upstream *)
   Lemma IsoArrowTo_isaprop (M : category) {A A' B:M} (g : A --> B) (g' : A' --> B) :
     isMonic g' -> isaprop (IsoArrowTo g g').
   Proof.
-    intros i. apply invproofirrelevance; intros k k'. apply subtypeEquality'.
+    intros i. apply invproofirrelevance; intros k k'. apply subtypePath.
+    - intro. apply homset_property.
     - induction k as [[k K] e], k' as [[k' K'] e']; cbn; cbn in e, e'.
       induction (i A k k' (e @ !e')). apply maponpaths. apply isaprop_is_z_isomorphism.
       apply homset_property.
-    - apply homset_property.
   Qed.
   Lemma IsoArrowFrom_isaprop (M : category) {A B B':M} (g : A --> B) (g' : A --> B') :
      isEpi g -> isaprop (IsoArrowFrom g g').
   Proof.
-    intros i. apply invproofirrelevance; intros k k'. apply subtypeEquality.
+    intros i. apply invproofirrelevance; intros k k'. apply subtypePath.
     { intros j. apply homset_property. }
     induction k as [[k K] e], k' as [[k' K'] e']; cbn; cbn in e, e'.
-    apply subtypeEquality; cbn.
+    apply subtypePath; cbn.
     { intros f. apply isaprop_is_z_isomorphism. apply homset_property. }
     use i. exact (e @ !e').
   Qed.
@@ -382,7 +382,7 @@ Section PreAdditive.
     intros im eq ex. exists eq. intros w h e.
     apply iscontraprop1.
     - apply invproofirrelevance; intros [r R] [s S].
-      apply subtypeEquality_prop; simpl. apply im. exact (R@!S).
+      apply subtypePath_prop; simpl. apply im. exact (R@!S).
     - apply ex. exact e.
   Qed.
   Definition makeEpiCokernel {M:PreAdditive} {x y z : M} (f : x --> y) (g : y --> z) :
@@ -681,7 +681,7 @@ Section PreAdditive.
         apply BinDirectSumPr2Commutes. }
     apply invproofirrelevance.
     intros [k K] [k' K'].
-    apply subtypeEquality_prop; cbn.
+    apply subtypePath_prop; cbn.
     apply ToBinDirectSumsEq.
     - refine (KernelIsMonic _ _ i _ _ _ _).
       exact (! assoc _ _ _
@@ -836,7 +836,7 @@ Section KernelCokernelPairs.
     induction V as [k e3].
     use iscontraprop1.
     { apply invproofirrelevance; intros φ φ'.
-      apply subtypeEquality_prop.
+      apply subtypePath_prop.
       induction φ as [φ e4]; induction φ' as [φ' e5]; cbn.
       use (_ : isEpi q).
       { apply (isEpi_precomp M s q). rewrite e1. apply (CokernelIsEpi i p). apply pr. }
@@ -1468,7 +1468,7 @@ Section ExactCategoryFacts.
     { rewrite assoc'. rewrite directSumMapEqIn1. rewrite assoc. rewrite (pr1 ic). apply zeroLeft. }
     intros T h u.
     apply iscontraprop1.
-    { apply invproofirrelevance. intros [r r'] [s s']. apply subtypeEquality_prop; cbn.
+    { apply invproofirrelevance. intros [r r'] [s s']. apply subtypePath_prop; cbn.
       assert (Q := r' @ ! s'); clear r' s' u h. apply FromBinDirectSumsEq.
       - assert (L := maponpaths (λ w, ι₁ · w) Q); clear Q. simpl in L. rewrite 2 assoc in L.
         rewrite directSumMapEqIn1 in L.
@@ -1495,7 +1495,7 @@ Section ExactCategoryFacts.
   Proof.
     intros T g h e. apply iscontraprop1.
     - apply invproofirrelevance. intros [p [P P']] [q [Q Q']].
-      apply subtypeEquality.
+      apply subtypePath.
       { intros r. apply isapropdirprod; apply to_has_homsets. }
       cbn. clear P Q.
       refine (! id_right _ @ _ @ id_right _).
@@ -1901,7 +1901,7 @@ Section SplitSequences.
           rewrite zeroRight, lunax. reflexivity.
         * intros T r s eqn. apply iscontraprop1.
           { apply invproofirrelevance. intros h k.
-            apply subtypeEquality.
+            apply subtypePath.
             { intros l. apply isapropdirprod;apply to_has_homsets. }
             induction h as [h [H H']], k as [k [K K']]. simpl.
             rewrite <- (id_right h), <- (id_right k). rewrite <- (to_BinOpId' A'C).
@@ -1971,7 +1971,7 @@ Section AdditiveToExact.
   Lemma additive_exact_opposite {M:AdditiveCategory} :
     AdditiveToExact (oppositeAdditiveCategory M) = oppositeExactCategory (AdditiveToExact M).
   Proof.
-    intros. apply subtypeEquality_prop. apply pair_path_in2.
+    intros. apply subtypePath_prop. apply pair_path_in2.
     apply funextsec; intros P. apply hPropUnivalence.
     * exact (opposite_isSplit P).
     * exact (opposite_isSplit (MorphismPair_opp P)).

@@ -173,7 +173,7 @@ Lemma moduleiso_isweq_iso (M N : ob mod_precategory) : isweq (@moduleiso_iso M N
 Proof.
    apply (isweq_iso _ (iso_moduleiso M N)).
    - intro.
-     apply subtypeEquality.
+     apply subtypePath.
      + intro; apply isapropismodulefun.
      + unfold moduleiso_iso, iso_moduleiso.
        use total2_paths_f.

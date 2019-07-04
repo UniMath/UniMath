@@ -311,7 +311,7 @@ Proof.
    }
   exists (tpair _ awe (make_dirprod Hawe1 Hawe2)).
   intro t.
-  apply subtypeEquality.
+  apply subtypePath.
   - intro a0. apply isapropdirprod;
     apply hsC.
   - simpl. destruct t as [t [Ht1 Ht2]].
@@ -352,7 +352,7 @@ Proof.
   apply impred; intro g;
   apply invproofirrelevance.
   intros Pb Pb'.
-  apply subtypeEquality.
+  apply subtypePath.
   - intro; apply isofhleveltotal2.
     + apply hsC.
     + intros; apply isaprop_isPullback.
@@ -536,7 +536,7 @@ Proof.
       * apply (PullbackArrow_PullbackPr2 Pb).
       * apply (PullbackArrow_PullbackPr1 Pb).
   - cbn.
-    intro t. apply subtypeEquality.
+    intro t. apply subtypePath.
     intros ? . apply isapropdirprod; apply hsC.
     destruct t as [t Ht].
     cbn; apply PullbackArrowUnique.
@@ -588,9 +588,9 @@ Definition weq_section_from_diagonal (isPb : isPullback _ _ _ _ H)
 Proof.
   exists (section_from_diagonal isPb).
   apply (isweq_iso _ (diagonal_from_section isPb )).
-  - abstract (intro x; apply subtypeEquality; [intro; apply hsC  |];
+  - abstract (intro x; apply subtypePath; [intro; apply hsC  |];
               apply (PullbackArrow_PullbackPr2 (make_Pullback f g d h k H isPb) )).
-  - abstract (intro y; apply subtypeEquality; [intro; apply hsC |];
+  - abstract (intro y; apply subtypePath; [intro; apply hsC |];
               destruct y as [y t2];
               apply pathsinv0, PullbackArrowUnique; [
                 apply t2 |
@@ -647,7 +647,7 @@ Proof.
       cbn in T; rewrite <- assoc, T; apply idpath
       ).
   - abstract (
-    intro t; apply subtypeEquality;
+    intro t; apply subtypePath;
               [ intro; apply isapropdirprod; apply hsC
               |
               simpl; apply PullbackArrowUnique; [
@@ -720,7 +720,7 @@ Proof.
         - apply X.
         }
   - cbn. intro t.
-    apply subtypeEquality.
+    apply subtypePath.
     + intros ? . apply isapropdirprod; apply hsC.
     + cbn.
       destruct t as [t Ht]; cbn in *.
@@ -807,7 +807,7 @@ Proof.
       apply XX. exact p.
   - simpl.
     intro t.
-    apply subtypeEquality.
+    apply subtypePath.
     + intro kkkk. apply isapropdirprod; apply hsC.
     + simpl.
       use (invmaponpathsweq (make_weq _ (Fff _ _ ))).
@@ -888,7 +888,7 @@ Proof.
       set (TX:= homotinvweqweq (FF e' c)). cbn in TX.
       rewrite TX; clear TX.
       unfold umor; rewrite umorPr2. apply idpath.
-  - cbn. intro t. apply subtypeEquality ; [
+  - cbn. intro t. apply subtypePath ; [
         intros ?; apply isapropdirprod; apply hsD | cbn ].
     destruct t as [t [Htx Hty]]; cbn.
     apply (pre_comp_with_iso_is_inj _ _ _ _ i (pr2 i)).

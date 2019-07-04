@@ -221,12 +221,12 @@ Proof.
   - use isweq_iso.
     + exact (invertible_2cell_to_nat_iso F G).
     + intros X.
-      use subtypeEquality.
+      use subtypePath.
       * intro.
         apply isaprop_is_nat_iso.
       * reflexivity.
     + intros X.
-      use subtypeEquality.
+      use subtypePath.
       * intro.
         apply isaprop_is_invertible_2cell.
       * reflexivity.
@@ -303,7 +303,7 @@ Proof.
   - use isweq_iso.
     + exact (equiv_cat_to_adj_equiv F).
     + intros A.
-      use subtypeEquality.
+      use subtypePath.
       * intro.
         do 2 apply isapropdirprod.
         ** apply bicat_of_cats.
@@ -312,12 +312,12 @@ Proof.
         ** apply isaprop_is_invertible_2cell.
       * reflexivity.
     + intros A.
-      use subtypeEquality.
+      use subtypePath.
       * intro.
         apply isapropdirprod ; apply impred ; intro ; apply isaprop_is_iso.
       * use total2_paths_b.
         ** reflexivity.
-        ** use subtypeEquality.
+        ** use subtypePath.
            *** intro ; simpl.
                apply (@isaprop_form_adjunction (pr1 C ,, _) (pr1 D ,, _)).
            *** reflexivity.
@@ -342,7 +342,7 @@ Proof.
   - exact (univalent_cat_idtoiso_2_1 f g).
   - intros p.
     induction p.
-    use subtypeEquality.
+    use subtypePath.
     + intro.
       apply isaprop_is_invertible_2cell.
     + apply nat_trans_eq.

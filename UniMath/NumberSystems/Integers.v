@@ -1426,7 +1426,7 @@ Proof.
     assert (c := proofirrelevance _ (isinclnattohz (-i)) (S m,,p') (S n,,q')).
     assert (d := maponpaths pr1 c); simpl in d.
     assert (e := invmaponpathsS _ _ d); clear d.
-    apply subtypeEquality.
+    apply subtypePath.
     - intro; apply setproperty.
     - exact (!e). }
 Defined.

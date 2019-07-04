@@ -68,7 +68,7 @@ Proof.
     abstract (intro u; induction u;
               [ apply (pr1 T) | apply (pr2 T)]).
   - simpl. intros. abstract (intros;
-              apply subtypeEquality;
+              apply subtypePath;
               [ intro; apply impred; intro; apply hsC
               | apply path_to_ctr; split; [ apply (pr2 t true) | apply (pr2 t false)] ]).
 Defined.
@@ -268,7 +268,7 @@ Lemma isaprop_BinCoproductCocone : isaprop (BinCoproductCocone a b).
 Proof.
   apply invproofirrelevance.
   intros CC CC'.
-  apply subtypeEquality.
+  apply subtypePath.
   + intros.
     unfold isColimCocone.
     do 2 (apply impred; intro); apply isapropiscontr.

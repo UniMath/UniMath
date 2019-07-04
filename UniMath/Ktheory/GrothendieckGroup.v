@@ -28,7 +28,7 @@ Section setquot.
       intros x x' r. unfold funcomp. apply maponpaths. apply iscompsetquotpr. exact r.
     - intros f. exact (setquotuniv R Y (pr1 f) (pr2 f)).
     - intros h. apply funextsec. unfold pr1,pr2. intros w. apply setquot_map_recovery.
-    - intros f. cbn beta. apply subtypeEquality.
+    - intros f. cbn beta. apply subtypePath.
       * intros f'. apply isapropiscomprelfun.
       * cbn. reflexivity.
   Defined.

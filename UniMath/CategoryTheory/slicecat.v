@@ -518,7 +518,7 @@ use unique_exists.
               apply pathsinv0, (colimArrowUnique CC); intros u; simpl;
               eapply pathscomp0; [apply (!(pr2 (coconeIn cc u)))|];
               apply (pr2 (coconeIn ccy u))).
-+ abstract (intros u; apply subtypeEquality; [intros xx; apply hsC|]; simpl;
++ abstract (intros u; apply subtypePath; [intros xx; apply hsC|]; simpl;
             apply (colimArrowCommutes CC)).
 + abstract (intros f; simpl; apply impred; intro u; apply has_homsets_slice_precat).
 + abstract (intros f; simpl; intros Hf;

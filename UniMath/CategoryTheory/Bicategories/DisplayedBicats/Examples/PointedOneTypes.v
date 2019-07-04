@@ -97,8 +97,8 @@ Proof.
   - intro α. apply α.
   - intros α. apply Y.
   - intros α. cbn in  *.
-    use subtypeEquality'. 2: {
-      apply (isaprop_is_disp_invertible_2cell (D:=p1types_disp)).
+    use subtypePath. {
+      intro. apply (isaprop_is_disp_invertible_2cell (D:=p1types_disp)).
     }
     apply Y.
 Defined.
@@ -112,11 +112,12 @@ Proof.
   - intro p.
     induction p. reflexivity.
   - intros [f Hf].
-    use subtypeEquality'.
-    { induction f. reflexivity. }
-    { apply (isaprop_disp_left_adjoint_equivalence (D:=p1types_disp)).
+    use subtypePath.
+    { intros y y'.
+      apply (isaprop_disp_left_adjoint_equivalence (D:=p1types_disp)).
       apply one_types_is_univalent_2.
       apply p1types_disp_univalent_2_1. }
+    { cbn; cbn in f. induction f. cbn. reflexivity. }
 Defined.
 
 Lemma p1types_disp_univalent_2 : disp_univalent_2 p1types_disp.

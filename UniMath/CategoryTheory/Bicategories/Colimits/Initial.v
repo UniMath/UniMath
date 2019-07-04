@@ -347,7 +347,7 @@ Section Initial.
     intros x y.
     induction x as [f Hf].
     induction y as [g Hg].
-    use subtypeEquality.
+    use subtypePath.
     - intro ; simpl.
       apply impred ; intro Y.
       apply isapropdirprod.
