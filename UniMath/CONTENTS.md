@@ -353,6 +353,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Bicategories/WkCatEnrichment/Cat.v](CategoryTheory/Bicategories/WkCatEnrichment/Cat.v)
    - [Bicategories/WkCatEnrichment/internal_equivalence.v](CategoryTheory/Bicategories/WkCatEnrichment/internal_equivalence.v)
    - [Bicategories/WkCatEnrichment/bicategory.v](CategoryTheory/Bicategories/WkCatEnrichment/bicategory.v)
+   - [Bicategories/PseudoFunctors/Examples/Strictify.v](CategoryTheory/Bicategories/PseudoFunctors/Examples/Strictify.v)
    - [Bicategories/BicategoryOfBicat.v](CategoryTheory/Bicategories/BicategoryOfBicat.v)
    - [Bicategories/BicatOfBicategory.v](CategoryTheory/Bicategories/BicatOfBicategory.v)
    - [Bicategories/Discreteness.v](CategoryTheory/Bicategories/Discreteness.v)

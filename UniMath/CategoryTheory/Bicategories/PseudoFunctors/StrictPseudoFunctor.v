@@ -186,11 +186,11 @@ Section StrictPseudoFunctorDerivedLaws.
   Definition strict_psfunctor_linvunitor
              {a b : C}
              (f : C⟦a, b⟧)
-  : ##F (linvunitor f)
-    =
-    (linvunitor (#F f))
-      • ((strict_psfunctor_id_cell F a) ▹ #F f)
-      • (strict_psfunctor_comp_cell F _ _).
+    : ##F (linvunitor f)
+      =
+      (linvunitor (#F f))
+        • ((strict_psfunctor_id_cell F a) ▹ #F f)
+        • (strict_psfunctor_comp_cell F _ _).
   Proof.
     rewrite !vassocl.
     cbn.
@@ -312,6 +312,180 @@ Section StrictPseudoFunctorDerivedLaws.
     exact (!(strict_psfunctor_runitor F f)).
   Qed.
 End StrictPseudoFunctorDerivedLaws.
+
+Definition strict_pstrans_data
+           {C D : bicat}
+           (F G : strict_psfunctor C D)
+  : UU.
+Proof.
+  refine (map1cells C D⟦_,_⟧).
+  - apply F.
+  - apply G.
+Defined.
+
+Definition is_strict_pstrans
+           {C D : bicat}
+           {F G : strict_psfunctor C D}
+           (η : strict_pstrans_data F G)
+  : UU
+  := (∏ (X Y : C) (f g : X --> Y) (α : f ==> g),
+      (pr1 η X ◃ ##G α)
+        • pr2 η _ _ g
+      =
+      (pr2 η _ _ f)
+        • (##F α ▹ pr1 η Y))
+       ×
+       (∏ (X : C),
+        (pr1 η X ◃ strict_psfunctor_id_cell G X)
+          • pr2 η _ _ (id₁ X)
+        =
+        (runitor (pr1 η X))
+          • linvunitor (pr1 η X)
+          • (strict_psfunctor_id_cell F X ▹ pr1 η X))
+       ×
+       (∏ (X Y Z : C) (f : X --> Y) (g : Y --> Z),
+        (pr1 η X ◃ strict_psfunctor_comp_cell G f g)
+          • pr2 η _ _ (f · g)
+        =
+        (lassociator (pr1 η X) (#G f) (#G g))
+          • (pr2 η _ _ f ▹ (#G g))
+          • rassociator (#F f) (pr1 η Y) (#G g)
+          • (#F f ◃ pr2 η _ _ g)
+          • lassociator (#F f) (#F g) (pr1 η Z)
+          • (strict_psfunctor_comp_cell F f g ▹ pr1 η Z)).
+
+Definition make_strict_pstrans
+           {C D : bicat}
+           {F G : strict_psfunctor C D}
+           (η : strict_pstrans_data F G)
+           (Hη : is_strict_pstrans η)
+  : F --> G.
+Proof.
+  refine ((η ,, _) ,, tt).
+  repeat split ; cbn ; intros ; apply Hη.
+Defined.
+
+Definition strict_modification_eq
+           {B B' : bicat}
+           {F G : strict_psfunctor B B'}
+           {σ τ : F --> G}
+           {m m' : σ ==> τ}
+           (p : ∏ (X : B), pr111 m X = pr111 m' X)
+  : m = m'.
+Proof.
+  use subtypeEquality.
+  { intro. simpl.
+    exact isapropunit.
+  }
+  use subtypeEquality.
+  { intro. simpl.
+    repeat (apply isapropdirprod) ; apply isapropunit.
+  }
+  use subtypeEquality.
+  { intro. simpl.
+    repeat (apply impred ; intro).
+    apply B'.
+  }
+  use funextsec.
+  exact p.
+Qed.
+
+Definition is_strict_modification
+           {B B' : bicat}
+           {F G : strict_psfunctor B B'}
+           {σ τ : F --> G}
+           (m : ∏ (X : B), pr111 σ X ==> pr111 τ X)
+  : UU
+  := ∏ (X Y : B) (f : X --> Y),
+     pr211 σ _ _ f • (m Y ▻ #F f)
+     =
+     #G f ◅ m X • pr211 τ _ _ f.
+
+Definition make_strict_modification
+           {B B' : bicat}
+           {F G : strict_psfunctor B B'}
+           {σ τ : F --> G}
+           (m : ∏ (X : B), pr111 σ X ==> pr111 τ X)
+           (Hm : is_strict_modification m)
+  : σ ==> τ
+  := (((m ,, Hm) ,, (tt ,, tt ,, tt)),, tt).
+
+Definition make_is_invertible_strict_modification_inv_is_modification
+           {B B' : bicat}
+           {F G : strict_psfunctor B B'}
+           {σ τ : F --> G}
+           (m : σ ==> τ)
+           (Hm : ∏ (X : B), is_invertible_2cell (pr111 m X))
+  : ∏ (X Y : B) (f : B ⟦ X, Y ⟧),
+    (pr211 τ) X Y f • (# F f ◃ (Hm Y) ^-1) = ((Hm X) ^-1 ▹ # G f) • (pr211 σ) X Y f.
+Proof.
+  intros X Y f.
+  simpl.
+  use vcomp_move_R_Mp.
+  { is_iso. }
+  simpl.
+  rewrite <- vassocr.
+  use vcomp_move_L_pM.
+  { is_iso. }
+  symmetry.
+  simpl.
+  exact (pr211 m X Y f).
+Qed.
+
+Definition inv_modification
+           {B B' : bicat}
+           {F G : strict_psfunctor B B'}
+           {σ τ : F --> G}
+           (m : σ ==> τ)
+           (Hm : ∏ (X : B), is_invertible_2cell (pr111 m X))
+  : τ ==> σ.
+Proof.
+  use make_strict_modification.
+  - exact (λ X, (Hm X)^-1).
+  - exact (make_is_invertible_strict_modification_inv_is_modification m Hm).
+Defined.
+
+Definition modification_inv_modification
+           {B B' : bicat}
+           {F G : strict_psfunctor B B'}
+           {σ τ : F --> G}
+           (m : σ ==> τ)
+           (Hm : ∏ (X : B), is_invertible_2cell (pr111 m X))
+  : m • inv_modification m Hm = id₂ σ.
+Proof.
+  use strict_modification_eq.
+  intro X.
+  cbn.
+  exact (vcomp_rinv (Hm X)).
+Qed.
+
+Definition inv_modification_modification
+           {B B' : bicat}
+           {F G : strict_psfunctor B B'}
+           {σ τ : F --> G}
+           (m : σ ==> τ)
+           (Hm : ∏ (X : B), is_invertible_2cell (pr111 m X))
+  : inv_modification m Hm • m = id₂ τ.
+Proof.
+  use strict_modification_eq.
+  intro X.
+  cbn.
+  exact (vcomp_lid (Hm X)).
+Qed.
+
+Definition make_is_invertible_strict_modification
+           {B B' : bicat}
+           {F G : strict_psfunctor B B'}
+           {σ τ : F --> G}
+           (m : σ ==> τ)
+           (Hm : ∏ (X : B), is_invertible_2cell (pr111 m X))
+  : is_invertible_2cell m.
+Proof.
+  use make_is_invertible_2cell.
+  - exact (inv_modification m Hm).
+  - exact (modification_inv_modification m Hm).
+  - exact (inv_modification_modification m Hm).
+Defined.
 
 Module Notations.
   Notation "'##'" := (strict_psfunctor_on_cells).

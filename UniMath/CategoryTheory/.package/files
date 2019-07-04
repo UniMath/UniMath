@@ -262,6 +262,7 @@ Bicategories/WkCatEnrichment/internal_equivalence.v
 Bicategories/WkCatEnrichment/bicategory.v
 
 
+Bicategories/PseudoFunctors/Examples/Strictify.v
 Bicategories/BicategoryOfBicat.v
 Bicategories/BicatOfBicategory.v
 Bicategories/Discreteness.v

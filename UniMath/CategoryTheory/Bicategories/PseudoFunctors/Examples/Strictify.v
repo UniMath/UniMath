@@ -6,6 +6,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
@@ -34,204 +35,6 @@ Local Open Scope cat.
 
 Opaque psfunctor pstrans.
 Opaque strict_psfunctor.
-
-Definition idtoiso_2_1_isotoid_2_1
-           {B : bicat}
-           (HB : is_univalent_2_1 B)
-           {a b : B}
-           {f g : a --> b}
-           (α : invertible_2cell f g)
-  : idtoiso_2_1 _ _ (isotoid_2_1 HB α) = α.
-Proof.
-  unfold isotoid_2_1.
-  exact (homotweqinvweq (make_weq (idtoiso_2_1 f g) (HB _ _ f g)) α).
-Defined.
-
-Definition isotoid_2_1_idtoiso_2_1
-           {B : bicat}
-           (HB : is_univalent_2_1 B)
-           {a b : B}
-           {f g : a --> b}
-           (p : f = g)
-  : isotoid_2_1 HB (idtoiso_2_1 _ _ p) = p.
-Proof.
-  unfold isotoid_2_1.
-  exact (homotinvweqweq (make_weq (idtoiso_2_1 f g) (HB _ _ f g)) p).
-Defined.
-
-Definition strict_pstrans_data
-           {C D : bicat}
-           (F G : strict_psfunctor C D)
-  : UU.
-Proof.
-  refine (map1cells C D⟦_,_⟧).
-  - apply F.
-  - apply G.
-Defined.
-
-Definition is_strict_pstrans
-           {C D : bicat}
-           {F G : strict_psfunctor C D}
-           (η : strict_pstrans_data F G)
-  : UU
-  := (∏ (X Y : C) (f g : X --> Y) (α : f ==> g),
-      (pr1 η X ◃ ##G α)
-        • pr2 η _ _ g
-      =
-      (pr2 η _ _ f)
-        • (##F α ▹ pr1 η Y))
-     ×
-     (∏ (X : C),
-      (pr1 η X ◃ strict_psfunctor_id_cell G X)
-        • pr2 η _ _ (id₁ X)
-      =
-      (runitor (pr1 η X))
-        • linvunitor (pr1 η X)
-        • (strict_psfunctor_id_cell F X ▹ pr1 η X))
-     ×
-     (∏ (X Y Z : C) (f : X --> Y) (g : Y --> Z),
-      (pr1 η X ◃ strict_psfunctor_comp_cell G f g)
-        • pr2 η _ _ (f · g)
-      =
-      (lassociator (pr1 η X) (#G f) (#G g))
-        • (pr2 η _ _ f ▹ (#G g))
-        • rassociator (#F f) (pr1 η Y) (#G g)
-        • (#F f ◃ pr2 η _ _ g)
-        • lassociator (#F f) (#F g) (pr1 η Z)
-        • (strict_psfunctor_comp_cell F f g ▹ pr1 η Z)).
-
-Definition make_strict_pstrans
-           {C D : bicat}
-           {F G : strict_psfunctor C D}
-           (η : strict_pstrans_data F G)
-           (Hη : is_strict_pstrans η)
-  : F --> G.
-Proof.
-  refine ((η ,, _) ,, tt).
-  repeat split ; cbn ; intros ; apply Hη.
-Defined.
-
-Definition strict_modification_eq
-           {B B' : bicat}
-           {F G : strict_psfunctor B B'}
-           {σ τ : F --> G}
-           {m m' : σ ==> τ}
-           (p : ∏ (X : B), pr111 m X = pr111 m' X)
-  : m = m'.
-Proof.
-  use subtypeEquality.
-  { intro. simpl.
-    exact isapropunit.
-  }
-  use subtypeEquality.
-  { intro. simpl.
-    repeat (apply isapropdirprod) ; apply isapropunit.
-  }
-  use subtypeEquality.
-  { intro. simpl.
-    repeat (apply impred ; intro).
-    apply B'.
-  }
-  use funextsec.
-  exact p.
-Qed.
-
-Definition is_strict_modification
-           {B B' : bicat}
-           {F G : strict_psfunctor B B'}
-           {σ τ : F --> G}
-           (m : ∏ (X : B), pr111 σ X ==> pr111 τ X)
-  : UU
-  := ∏ (X Y : B) (f : X --> Y),
-     pr211 σ _ _ f • (m Y ▻ #F f)
-     =
-     #G f ◅ m X • pr211 τ _ _ f.
-
-Definition make_strict_modification
-           {B B' : bicat}
-           {F G : strict_psfunctor B B'}
-           {σ τ : F --> G}
-           (m : ∏ (X : B), pr111 σ X ==> pr111 τ X)
-           (Hm : is_strict_modification m)
-  : σ ==> τ
-  := (((m ,, Hm) ,, (tt ,, tt ,, tt)),, tt).
-
-Definition make_is_invertible_strict_modification_inv_is_modification
-           {B B' : bicat}
-           {F G : strict_psfunctor B B'}
-           {σ τ : F --> G}
-           (m : σ ==> τ)
-           (Hm : ∏ (X : B), is_invertible_2cell (pr111 m X))
-  : ∏ (X Y : B) (f : B ⟦ X, Y ⟧),
-    (pr211 τ) X Y f • (# F f ◃ (Hm Y) ^-1) = ((Hm X) ^-1 ▹ # G f) • (pr211 σ) X Y f.
-Proof.
-  intros X Y f.
-  simpl.
-  use vcomp_move_R_Mp.
-  { is_iso. }
-  simpl.
-  rewrite <- vassocr.
-  use vcomp_move_L_pM.
-  { is_iso. }
-  symmetry.
-  simpl.
-  exact (pr211 m X Y f).
-Qed.
-
-Definition inv_modification
-           {B B' : bicat}
-           {F G : strict_psfunctor B B'}
-           {σ τ : F --> G}
-           (m : σ ==> τ)
-           (Hm : ∏ (X : B), is_invertible_2cell (pr111 m X))
-  : τ ==> σ.
-Proof.
-  use make_strict_modification.
-  - exact (λ X, (Hm X)^-1).
-  - exact (make_is_invertible_strict_modification_inv_is_modification m Hm).
-Defined.
-
-Definition modification_inv_modification
-           {B B' : bicat}
-           {F G : strict_psfunctor B B'}
-           {σ τ : F --> G}
-           (m : σ ==> τ)
-           (Hm : ∏ (X : B), is_invertible_2cell (pr111 m X))
-  : m • inv_modification m Hm = id₂ σ.
-Proof.
-  use strict_modification_eq.
-  intro X.
-  cbn.
-  exact (vcomp_rinv (Hm X)).
-Qed.
-
-Definition inv_modification_modification
-           {B B' : bicat}
-           {F G : strict_psfunctor B B'}
-           {σ τ : F --> G}
-           (m : σ ==> τ)
-           (Hm : ∏ (X : B), is_invertible_2cell (pr111 m X))
-  : inv_modification m Hm • m = id₂ τ.
-Proof.
-  use strict_modification_eq.
-  intro X.
-  cbn.
-  exact (vcomp_lid (Hm X)).
-Qed.
-
-Definition make_is_invertible_strict_modification
-           {B B' : bicat}
-           {F G : strict_psfunctor B B'}
-           {σ τ : F --> G}
-           (m : σ ==> τ)
-           (Hm : ∏ (X : B), is_invertible_2cell (pr111 m X))
-  : is_invertible_2cell m.
-Proof.
-  use make_is_invertible_2cell.
-  - exact (inv_modification m Hm).
-  - exact (modification_inv_modification m Hm).
-  - exact (inv_modification_modification m Hm).
-Defined.
 
 Section Strictify.
   Variable (B₁ B₂ : bicat)
@@ -425,9 +228,6 @@ Section Strictify.
     - exact strictify_laws.
     - exact strictify_invertible_2cells.
   Defined.
-
-  Definition TODO {A : UU} : A.
-  Admitted.
 
   Definition strictify_counit_comp_comp
              (F : psfunctor B₁ B₂)
@@ -745,6 +545,8 @@ Section Strictify.
       exact (strictify_counit_is_pstrans_help₃ F₁ F₂ F₃ α β).
   Qed.
 
+  Transparent ps_comp.
+
   Definition strictify_counit
     : pstrans
         (ps_comp (strict_psfunctor_to_psfunctor B₁ B₂) strictify)
@@ -869,6 +671,51 @@ Section Strictify.
                   apply strict_counit_data_help).
   Defined.
 
+  Definition strictify_counit_inv_is_pstrans
+    : is_pstrans strictify_counit_inv_data.
+  Proof.
+    refine (_ ,, _ ,, _).
+    - intros F₁ F₂ α β m.
+      use modification_eq.
+      intro X ; cbn.
+      rewrite !vassocr.
+      rewrite vcomp_lunitor.
+      rewrite !vassocl.
+      rewrite rinvunitor_natural.
+      rewrite rwhisker_hcomp.
+      apply idpath.
+    - intros F.
+      use modification_eq.
+      intros X ; cbn.
+      rewrite id2_left, lwhisker_id2, id2_left.
+      rewrite id2_rwhisker, id2_right.
+      rewrite lunitor_runitor_identity.
+      rewrite lunitor_V_id_is_left_unit_V_id.
+      apply idpath.
+    - intros F₁ F₂ F₃ α β.
+      use modification_eq.
+      intros X ; cbn.
+      rewrite id2_left, lwhisker_id2, id2_left.
+      rewrite id2_rwhisker, id2_right.
+      rewrite <- rwhisker_vcomp.
+      rewrite !vassocr.
+      rewrite lunitor_triangle.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite <- lwhisker_vcomp.
+      rewrite !vassocl.
+      rewrite rinvunitor_triangle.
+      refine (!(id2_left _) @ _).
+      rewrite !vassocr.
+      apply maponpaths_2.
+      rewrite !vassocl.
+      rewrite lunitor_lwhisker.
+      rewrite rwhisker_vcomp.
+      rewrite rinvunitor_runitor.
+      rewrite id2_rwhisker.
+      apply idpath.
+  Qed.
+
   Definition strictify_counit_inv
     : pstrans
         (ps_id_functor _)
@@ -876,7 +723,7 @@ Section Strictify.
   Proof.
     use make_pstrans.
     - exact strictify_counit_inv_data.
-    - apply TODO.
+    - exact strictify_counit_inv_is_pstrans.
   Defined.
 
   Local Definition modifications_help
@@ -911,8 +758,6 @@ Section Strictify.
     rewrite rwhisker_hcomp.
     apply idpath.
   Qed.
-
-  Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 
   Definition modification_help_alt
              (F₁ F₂ : functor_data B₁ B₂)
@@ -1241,6 +1086,51 @@ Section Strictify.
         is_iso.
   Defined.
 
+  Definition strictify_unit_is_pstrans
+    : is_pstrans strictify_unit_data.
+  Proof.
+    repeat split.
+    - intros F₁ F₂ α β m.
+      use strict_modification_eq.
+      intros X ; cbn.
+      rewrite !vassocr.
+      rewrite vcomp_lunitor.
+      rewrite !vassocl.
+      rewrite rinvunitor_natural.
+      rewrite rwhisker_hcomp.
+      apply idpath.
+    - intros F.
+      use strict_modification_eq.
+      intros X ; cbn.
+      rewrite id2_left, lwhisker_id2, id2_left.
+      rewrite id2_rwhisker, id2_right.
+      rewrite lunitor_runitor_identity.
+      rewrite lunitor_V_id_is_left_unit_V_id.
+      apply idpath.
+    - intros F₁ F₂ F₃ α β.
+      use strict_modification_eq.
+      intros X ; cbn.
+      rewrite id2_left, lwhisker_id2, id2_left.
+      rewrite id2_rwhisker, id2_right.
+      rewrite <- rwhisker_vcomp.
+      rewrite !vassocr.
+      rewrite lunitor_triangle.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite <- lwhisker_vcomp.
+      rewrite !vassocl.
+      rewrite rinvunitor_triangle.
+      refine (!(id2_left _) @ _).
+      rewrite !vassocr.
+      apply maponpaths_2.
+      rewrite !vassocl.
+      rewrite lunitor_lwhisker.
+      rewrite rwhisker_vcomp.
+      rewrite rinvunitor_runitor.
+      rewrite id2_rwhisker.
+      apply idpath.
+  Qed.
+
   Definition strictify_unit
     : pstrans
         (ps_id_functor _)
@@ -1248,7 +1138,7 @@ Section Strictify.
   Proof.
     use make_pstrans.
     - exact strictify_unit_data.
-    - apply TODO.
+    - exact strictify_unit_is_pstrans.
   Defined.
 
   Definition strictify_unit_inv_data
@@ -1288,6 +1178,119 @@ Section Strictify.
         is_iso.
   Defined.
 
+  Definition strictify_unit_is_pstrans_help₁
+             (F₁ F₂ : strict_psfunctor_bicat B₁ B₂)
+             (α β : F₁ --> F₂)
+             (m : α ==> β)
+             (X : B₁)
+    : (id₁ (pr111 F₁ X) ◃ (pr111 m) X)
+        • (lunitor ((pr111 β) X) • rinvunitor ((pr111 β) X))
+      =
+      (lunitor ((pr111 α) X) • rinvunitor ((pr111 α) X)) • (pr111 m X ▹ id₁ (pr111 F₂ X)).
+  Proof.
+    rewrite !vassocr.
+    rewrite vcomp_lunitor.
+    rewrite !vassocl.
+    rewrite rinvunitor_natural.
+    rewrite rwhisker_hcomp.
+    reflexivity.
+  Qed.
+
+  Definition strictify_unit_is_pstrans_help₂
+             (F : strict_psfunctor B₁ B₂)
+             (X : B₁)
+    :  (id₁ ((pr111 F) X) ◃ id₂ (id₁ ((pr111 F) X)))
+         • (lunitor (id₁ ((pr111 F) X)) • rinvunitor (id₁ ((pr111 F) X)))
+       =
+       (runitor (id₁ ((pr111 F) X)) • linvunitor (id₁ ((pr111 F) X)))
+         • ((pr111 ((pr122 (pr1
+                              (ps_comp strictify
+                                       (strict_psfunctor_to_psfunctor B₁ B₂)))) F)) X
+                                                                                                ▹ id₁ ((pr111 F) X)).
+  Proof.
+    rewrite !vassocr.
+    rewrite vcomp_lunitor.
+    rewrite runitor_lunitor_identity.
+    rewrite !vassocl.
+    apply maponpaths.
+    rewrite id2_left.
+    refine (!(id2_right _) @ _).
+    rewrite lunitor_V_id_is_left_unit_V_id.
+    apply maponpaths.
+    rewrite <- id2_rwhisker.
+    apply maponpaths.
+    cbn.
+    rewrite id2_left.
+    apply idpath.
+  Qed.
+
+  Definition strictify_unit_is_pstrans_help₃
+             (F₁ F₂ F₃ : strict_psfunctor_bicat B₁ B₂)
+             (α : F₁ --> F₂)
+             (β : F₂ --> F₃)
+             (X : B₁)
+    : (id₁ ((pr111 F₁) X) ◃ id₂ ((pr111 α) X · (pr111 β) X))
+        • (lunitor ((pr111 α) X · (pr111 β) X) • rinvunitor ((pr111 α) X · (pr111 β) X))
+      =
+      ((((lassociator (id₁ ((pr111 F₁) X)) ((pr111 α) X) ((pr111 β) X)
+           • ((lunitor ((pr111 α) X) • rinvunitor ((pr111 α) X)) ▹ (pr111 β) X))
+           • rassociator
+               ((pr111 (# (ps_comp strictify (strict_psfunctor_to_psfunctor B₁ B₂)) α)) X)
+               (id₁ ((pr111 F₂) X))
+               ((pr111 β) X))
+          • ((pr111 (# (ps_comp
+                          strictify
+                          (strict_psfunctor_to_psfunctor B₁ B₂)) α)) X
+               ◃ (lunitor ((pr111 β) X) • rinvunitor ((pr111 β) X))))
+         • lassociator
+             ((pr111 (# (ps_comp strictify (strict_psfunctor_to_psfunctor B₁ B₂)) α)) X)
+             ((pr111 (# (ps_comp strictify (strict_psfunctor_to_psfunctor B₁ B₂)) β)) X)
+             (id₁ ((pr111 F₃) X)))
+        • ((pr111 ((pr222 (pr1 (ps_comp
+                                  strictify
+                                  (strict_psfunctor_to_psfunctor B₁ B₂)))) F₁ F₂ F₃ α
+                                  β)) X ▹ id₁ ((pr111 F₃) X)).
+  Proof.
+    cbn.
+    rewrite lwhisker_id2, !id2_left.
+    rewrite id2_rwhisker, id2_right.
+    rewrite <- !rwhisker_vcomp.
+    rewrite !vassocr.
+    rewrite lunitor_triangle.
+    rewrite !vassocl.
+    apply maponpaths.
+    rewrite <- lwhisker_vcomp.
+    rewrite !vassocl.
+    rewrite rinvunitor_triangle.
+    rewrite !vassocr.
+    refine (!(id2_left _) @ _).
+    apply maponpaths_2.
+    rewrite !vassocl.
+    rewrite lunitor_lwhisker.
+    rewrite rwhisker_vcomp.
+    rewrite rinvunitor_runitor, id2_rwhisker.
+    apply idpath.
+  Qed.
+
+  Opaque ps_comp.
+
+  Definition strictify_unit_inv_is_pstrans
+    : is_pstrans strictify_unit_inv_data.
+  Proof.
+    refine (_ ,, _ ,, _).
+    - intros F₁ F₂ α β m.
+      use strict_modification_eq.
+      exact (strictify_unit_is_pstrans_help₁ F₁ F₂ α β m).
+    - intros F.
+      use strict_modification_eq.
+      exact (strictify_unit_is_pstrans_help₂ F).
+    - intros F₁ F₂ F₃ α β.
+      use strict_modification_eq.
+      exact (strictify_unit_is_pstrans_help₃ F₁ F₂ F₃ α β).
+  Qed.
+
+  Transparent ps_comp.
+
   Definition strictify_unit_inv
     : pstrans
         (ps_comp strictify (strict_psfunctor_to_psfunctor B₁ B₂))
@@ -1295,7 +1298,7 @@ Section Strictify.
   Proof.
     use make_pstrans.
     - exact strictify_unit_inv_data.
-    - apply TODO.
+    - exact strictify_unit_inv_is_pstrans.
   Defined.
 
   Definition strictify_unit_strictify_unit_inv

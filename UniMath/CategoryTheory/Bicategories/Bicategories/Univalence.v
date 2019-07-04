@@ -261,3 +261,27 @@ Proof.
       exact C_is_univalent_2_1.
     + exact (pr2 C X Y).
 Defined.
+
+Definition idtoiso_2_1_isotoid_2_1
+           {B : bicat}
+           (HB : is_univalent_2_1 B)
+           {a b : B}
+           {f g : a --> b}
+           (α : invertible_2cell f g)
+  : idtoiso_2_1 _ _ (isotoid_2_1 HB α) = α.
+Proof.
+  unfold isotoid_2_1.
+  exact (homotweqinvweq (make_weq (idtoiso_2_1 f g) (HB _ _ f g)) α).
+Defined.
+
+Definition isotoid_2_1_idtoiso_2_1
+           {B : bicat}
+           (HB : is_univalent_2_1 B)
+           {a b : B}
+           {f g : a --> b}
+           (p : f = g)
+  : isotoid_2_1 HB (idtoiso_2_1 _ _ p) = p.
+Proof.
+  unfold isotoid_2_1.
+  exact (homotinvweqweq (make_weq (idtoiso_2_1 f g) (HB _ _ f g)) p).
+Defined.
