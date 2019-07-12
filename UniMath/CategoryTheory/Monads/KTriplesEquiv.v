@@ -39,12 +39,12 @@ Proof.
   - now apply (nat_trans_eq hs).
 Defined.
 
-(* ----- Monad associated to a Kleisli ----- *)
+(* ----- Monad associated to a Kleisli monad ----- *)
 
-Definition unkleislify_data {C : precategory} (T : Kleisli C) : Monad_data C :=
+Definition unkleislify_data {C : precategory} (T : KleisliMonad C) : Monad_data C :=
   (kleisli_functor T,, nat_trans_μ T) ,, nat_trans_η T.
 
-Lemma unkleislify_laws {C : precategory} (T : Kleisli C) :
+Lemma unkleislify_laws {C : precategory} (T : KleisliMonad C) :
   Monad_laws (unkleislify_data T).
 Proof.
   split; simpl; intros; unfold μ.
@@ -55,12 +55,12 @@ Proof.
     rewrite (bind_bind T). now rewrite id_left.
 Defined.
 
-Definition unkleislify {C : precategory} (T : Kleisli C) : Monad C :=
+Definition unkleislify {C : precategory} (T : KleisliMonad C) : Monad C :=
   unkleislify_data T ,, unkleislify_laws T.
 
-(* ----- Monad morphism associated to a Kleisli morphism ----- *)
+(* ----- Monad morphism associated to a Kleisli monad morphism ----- *)
 
-Lemma unkleislify_mor_laws {C : precategory} {T T' : Kleisli C} (α : Kleisli_Mor T T') :
+Lemma unkleislify_mor_laws {C : precategory} {T T' : KleisliMonad C} (α : Kleisli_Mor T T') :
   Monad_Mor_laws (T  := unkleislify T)
                  (T' := unkleislify T')
                  (nat_trans_kleisli_mor α).
@@ -71,18 +71,18 @@ Proof.
   + apply Kleisli_Mor_η.
 Defined.
 
-Definition unkleislify_mor {C : precategory} {T T' : Kleisli C}
+Definition unkleislify_mor {C : precategory} {T T' : KleisliMonad C}
            (α : Kleisli_Mor T T') :
   Monad_Mor (unkleislify T) (unkleislify T') :=
   nat_trans_kleisli_mor α ,, unkleislify_mor_laws α.
 
-(* ----- Functor from Kleisli to Monads. ----- *)
+(* ----- Functor from KleisliMonad to Monads. ----- *)
 
 Definition functor_data_unkleislify (C : precategory) (hs : has_homsets C) :
   functor_data (precategory_Kleisli C hs) (precategory_Monad C hs).
 Proof.
   use make_functor_data.
-  - exact (λ T : Kleisli C, unkleislify T).
+  - exact (λ T : KleisliMonad C, unkleislify T).
   - intros. apply (unkleislify_mor X).
 Defined.
 
@@ -121,7 +121,7 @@ Proof.
   apply (nat_trans_ax (Monads.μ T) _ _ f).
 Defined.
 
-(* ----- Kleisli associated to a Monad. ----- *)
+(* ----- Kleisli monad associated to a Monad. ----- *)
 
 Definition Monad_Kleisli_data {C : precategory} (T : Monad_data C) : Kleisli_Data C := (pr1(pr1(pr1 (pr1 T))),,
   (Monads.η T: nat_trans_data _ _),, (@Monads.bind C T)).
@@ -136,9 +136,9 @@ Proof.
     + exact (@Monads.bind_bind C T).
 Defined.
 
-(* ----- Kleisli morphism associated to a Monad morphism. ----- *)
+(* ----- Kleisli monad morphism associated to a Monad morphism. ----- *)
 
-Definition kleislify {C : precategory} (M : Monad C) : Kleisli C :=
+Definition kleislify {C : precategory} (M : Monad C) : KleisliMonad C :=
   Monad_Kleisli_data M ,, Monad_Kleisli_laws M.
 
 Lemma kleislify_mor_law {C : precategory} {M M' : Monad C} (α : Monad_Mor M M') :
@@ -214,7 +214,7 @@ Section Adjunction.
   Defined.
 *)
 
-  Lemma unkleislify_data_eq  (T : Kleisli C) : Monad_Kleisli_data (unkleislify_data T) = T.
+  Lemma unkleislify_data_eq  (T : KleisliMonad C) : Monad_Kleisli_data (unkleislify_data T) = T.
   Proof.
     (* UniMath.MoreFoundations.Tactics.show_id_type. *)
     apply (maponpaths (λ p, tpair _ _ p )).
@@ -225,7 +225,7 @@ Section Adjunction.
     abstract (simpl; unfold μ; rewrite (bind_map T); rewrite id_right; apply idpath).
   Defined.
 
-  Lemma kleislify_unkleislify (T : Kleisli C) :
+  Lemma kleislify_unkleislify (T : KleisliMonad C) :
     kleislify (unkleislify T) = T.
   Proof.
     unfold unkleislify, kleislify. simpl.
@@ -266,10 +266,10 @@ Section Adjunction.
   Defined.
 
 
-  Definition eps (T : Kleisli C) (a : C) : C ⟦ T a, T a ⟧ :=
+  Definition eps (T : KleisliMonad C) (a : C) : C ⟦ T a, T a ⟧ :=
     identity (pr1 T a).
 
-  Lemma eps_morph_law (T : Kleisli C) :
+  Lemma eps_morph_law (T : KleisliMonad C) :
     Kleisli_Mor_laws T (kleislify (unkleislify T)) (eps T).
   Proof.
     split; simpl; intros.
@@ -279,11 +279,11 @@ Section Adjunction.
       unfold μ. rewrite (bind_map T). now rewrite id_right.
   Defined.
 
-  Definition eps_morph (T : Kleisli C) :
+  Definition eps_morph (T : KleisliMonad C) :
     Kleisli_Mor T (kleislify (unkleislify T)) :=
     eps T ,, eps_morph_law T.
 
-  Lemma epsinv_morph_law (T : Kleisli C) :
+  Lemma epsinv_morph_law (T : KleisliMonad C) :
     Kleisli_Mor_laws (kleislify (unkleislify T)) T (eps T).
   Proof.
     split; simpl; intros.
@@ -293,11 +293,11 @@ Section Adjunction.
       unfold μ. rewrite (bind_map T). now rewrite id_right.
   Defined.
 
-  Definition epsinv_morph (T : Kleisli C) :
+  Definition epsinv_morph (T : KleisliMonad C) :
     Kleisli_Mor (kleislify (unkleislify T)) T :=
     eps T ,, epsinv_morph_law T.
 
-  Lemma is_inverse_epsinv (T : Kleisli C) :
+  Lemma is_inverse_epsinv (T : KleisliMonad C) :
     is_inverse_in_precat
       (eps_morph T : precategory_Kleisli C hs ⟦T, kleislify (unkleislify T)⟧)
       (epsinv_morph T).
@@ -311,7 +311,7 @@ Section Adjunction.
       unfold eps. apply id_left.
   Defined.
 
-  Definition is_iso_eps_morph (T : Kleisli C) :
+  Definition is_iso_eps_morph (T : KleisliMonad C) :
     is_iso (eps_morph T :
               precategory_Kleisli C hs ⟦ T,(kleislify (unkleislify T))⟧) :=
     is_iso_from_is_z_iso
