@@ -251,12 +251,11 @@ Bicategories/PseudoFunctors/Examples/Projection.v
 Bicategories/DisplayedBicats/Examples/PointedOneTypes.v
 Bicategories/DisplayedBicats/Examples/Algebras.v
 Bicategories/DisplayedBicats/Examples/Add2Cell.v
-Bicategories/DisplayedBicats/Examples/Monads.v
 Bicategories/DisplayedBicats/Examples/ContravariantFunctor.v
 Bicategories/DisplayedBicats/Examples/Cofunctormap.v
 Bicategories/DisplayedBicats/Examples/CwF.v
-
 Bicategories/Transformations/Examples/AlgebraMap.v
+Bicategories/DisplayedBicats/Examples/Monads.v
 
 Bicategories/Bicategories/YonedaLemma.v
 
