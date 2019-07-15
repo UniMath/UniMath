@@ -236,7 +236,12 @@ Bicategories/PseudoFunctors/Examples/Composition.v
 Bicategories/PseudoFunctors/Examples/ApFunctor.v
 Bicategories/PseudoFunctors/Examples/OpFunctor.v
 Bicategories/Transformations/PseudoTransformation.v
+Bicategories/Transformations/Examples/Whiskering.v
+Bicategories/Transformations/Examples/Unitality.v
+Bicategories/Transformations/Examples/Associativity.v
 Bicategories/Modifications/Modification.v
+Bicategories/Modifications/Examples/Unitality.v
+Bicategories/Modifications/Examples/Associativity.v
 Bicategories/PseudoFunctors/Representable.v
 Bicategories/PseudoFunctors/Yoneda.v
 
@@ -246,14 +251,17 @@ Bicategories/PseudoFunctors/Examples/Projection.v
 Bicategories/DisplayedBicats/Examples/PointedOneTypes.v
 Bicategories/DisplayedBicats/Examples/Algebras.v
 Bicategories/DisplayedBicats/Examples/Add2Cell.v
-Bicategories/DisplayedBicats/Examples/Monads.v
 Bicategories/DisplayedBicats/Examples/ContravariantFunctor.v
 Bicategories/DisplayedBicats/Examples/Cofunctormap.v
 Bicategories/DisplayedBicats/Examples/CwF.v
+Bicategories/Transformations/Examples/AlgebraMap.v
+Bicategories/DisplayedBicats/Examples/Monads.v
 
 Bicategories/Bicategories/YonedaLemma.v
 
 Bicategories/Colimits/Initial.v
+
+Bicategories/PseudoFunctors/Biadjunction.v
 
 Bicategories/WkCatEnrichment/prebicategory.v
 Bicategories/WkCatEnrichment/Notations.v

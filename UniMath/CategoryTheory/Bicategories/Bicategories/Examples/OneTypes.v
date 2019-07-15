@@ -17,10 +17,24 @@ Local Open Scope cat.
 Local Open Scope bicategory_scope.
 
 Definition one_type
-  := ∑ (A : Type), isofhlevel 3 A.
+  : UU
+  := HLevel 3.
+
+Definition make_one_type
+           (X : UU)
+           (i : isofhlevel 3 X)
+  : one_type
+  := tpair (λ A, isofhlevel 3 A) X i.
 
 Definition one_type_to_type : one_type -> UU := pr1.
 Coercion one_type_to_type : one_type >-> UU.
+
+Definition one_type_isofhlevel
+           (X : one_type)
+  : isofhlevel 3 X.
+Proof.
+  apply X.
+Defined.
 
 (** The bicategory *)
 Definition one_type_bicat_data

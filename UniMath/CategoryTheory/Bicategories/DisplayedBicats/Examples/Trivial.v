@@ -104,5 +104,30 @@ Section Trivial_Displayed.
     refine (trivial_displayed_prebicat ,, _).
     repeat intro; apply C.
   Defined.
-
 End Trivial_Displayed.
+
+Definition prod_bicat
+           (B C : bicat)
+  : bicat
+  := total_bicat (trivial_displayed_bicat B C).
+
+Definition pairobj
+           {B C : bicat}
+           (X : B) (Y : C)
+  : prod_bicat B C
+  := X ,, Y.
+
+Definition pairmor
+           {B C : bicat}
+           {X₁ X₂ : B} {Y₁ Y₂ : C}
+           (f : X₁ --> X₂) (g : Y₁ --> Y₂)
+  : pairobj X₁ Y₁ --> pairobj X₂ Y₂
+  := f ,, g.
+
+Definition paircell
+           {B C : bicat}
+           {X₁ X₂ : B} {Y₁ Y₂ : C}
+           {f₁ f₂ : X₁ --> X₂} {g₁ g₂ : Y₁ --> Y₂}
+           (α : f₁ ==> f₂) (β : g₁ ==> g₂)
+  : pairmor f₁ g₁ ==> pairmor f₂ g₂
+  := α ,, β.

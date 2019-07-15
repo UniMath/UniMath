@@ -19,6 +19,7 @@ Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Ident
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Composition.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Projection.
 Require Import UniMath.CategoryTheory.Bicategories.Transformations.PseudoTransformation.
+Require Import UniMath.CategoryTheory.Bicategories.Transformations.Examples.AlgebraMap.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Unitors.
@@ -31,48 +32,6 @@ Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Add2
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Prod.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.FullSub.
 Local Open Scope cat.
-
-Definition var
-           {C : bicat}
-           (F S : psfunctor C C)
-  : pstrans
-      (@ps_comp
-         (total_bicat (disp_alg_bicat F)) C C
-         S (pr1_psfunctor (disp_alg_bicat F)))
-      (@ps_comp
-         (total_bicat (disp_alg_bicat F)) C C
-         S (pr1_psfunctor (disp_alg_bicat F)))
-  := id₁ _.
-
-Definition alg_map
-           {C : bicat}
-           (F : psfunctor C C)
-  : pstrans
-      (@ps_comp
-         (total_bicat (disp_alg_bicat F)) C C
-         F (pr1_psfunctor (disp_alg_bicat F)))
-      (@ps_comp
-         (total_bicat (disp_alg_bicat F)) C C
-         (ps_id_functor C) (pr1_psfunctor (disp_alg_bicat F))).
-Proof.
-  use make_pstrans.
-  - use make_pstrans_data.
-    + intros X ; cbn in *.
-      exact (pr2 X).
-    + intros X Y f ; cbn in *.
-      exact (pr2 f).
-  - repeat split ; cbn.
-    + intros X Y f g α.
-      apply α.
-    + intros.
-      rewrite !id2_left, lwhisker_id2, psfunctor_id2.
-      rewrite !id2_left, !id2_right.
-      reflexivity.
-    + intros.
-      rewrite !id2_left, lwhisker_id2, psfunctor_id2.
-      rewrite !id2_left, !id2_right.
-      reflexivity.
-Defined.
 
 Section MonadBicategory.
   Variable (C : bicat).
