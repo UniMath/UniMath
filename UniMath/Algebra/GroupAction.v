@@ -8,6 +8,8 @@ Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Combinatorics.OrderedSets.
 
+Import UniMath.MoreFoundations.PartA.
+
 (** ** Definitions *)
 
 Definition action_op G (X:hSet) : Type := ∏ (g:G) (x:X), X.
