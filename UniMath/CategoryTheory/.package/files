@@ -239,7 +239,6 @@ Bicategories/Transformations/PseudoTransformation.v
 Bicategories/Transformations/Examples/Whiskering.v
 Bicategories/Transformations/Examples/Unitality.v
 Bicategories/Transformations/Examples/Associativity.v
-Bicategories/Transformations/Examples/AlgebraMap.v
 Bicategories/Modifications/Modification.v
 Bicategories/Modifications/Examples/Unitality.v
 Bicategories/Modifications/Examples/Associativity.v
@@ -256,6 +255,8 @@ Bicategories/DisplayedBicats/Examples/Monads.v
 Bicategories/DisplayedBicats/Examples/ContravariantFunctor.v
 Bicategories/DisplayedBicats/Examples/Cofunctormap.v
 Bicategories/DisplayedBicats/Examples/CwF.v
+
+Bicategories/Transformations/Examples/AlgebraMap.v
 
 Bicategories/Bicategories/YonedaLemma.v
 
