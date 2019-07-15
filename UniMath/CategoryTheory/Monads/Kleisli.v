@@ -12,37 +12,38 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Monads.KTriples.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.Monads.RelativeMonads.
 
 Local Open Scope cat.
 
-(** * Definition of "Kleisli style" monad *)
-Section Kleisli_def.
+(** Remark that a monad on C is the same as a relative monad for the identity functor on C  *)
+Goal ∏ (C : precategory_data), KleisliMonad C = RelMonad (functor_identity C).
+Proof.
+  intros.
+  apply idpath.
+Qed.
 
-  Definition Kleisli (C : precategory_data) : UU := RelMonad (functor_identity C).
+Coercion RelMonad_from_Kleisli {C : precategory_data} (T : KleisliMonad C) := (T : RelMonad (functor_identity C)).
 
-  Definition RelMonad_from_Kleisli {C : precategory_data} (T : Kleisli C) := (T : RelMonad (functor_identity C)).
-  Coercion RelMonad_from_Kleisli : Kleisli >-> RelMonad.
-
-End Kleisli_def.
-
-(** * Equivalence of the types of Kleisli monads and "monoidal" monads *)
+(** * Equivalence of the types of KleisliMonad and "monoidal" monads *)
 Section monad_types_equiv.
-  Definition Monad_to_Kleisli {C : precategory} : Monad C → Kleisli C :=
+
+  Definition Monad_to_Kleisli {C : precategory} : Monad C → KleisliMonad C :=
     λ T, (functor_on_objects T ,, (pr1 (η T) ,, @bind C T))
                ,, @Monad_law2 C T ,, (@η_bind C T ,, @bind_bind C T).
 
-  Definition Kleisli_to_functor {C : precategory} (T: Kleisli C) : C ⟶ C.
+  Definition Kleisli_to_functor {C : precategory} (T: KleisliMonad C) : C ⟶ C.
   Proof.
     use make_functor.
     - use make_functor_data.
-      + exact T.
+      + exact (RelMonad_from_Kleisli T).
       + apply r_lift.
     - apply is_functor_r_lift.
   Defined.
 
-  Definition Kleisli_to_μ {C : precategory} (T: Kleisli C) :
+  Definition Kleisli_to_μ {C : precategory} (T: KleisliMonad C) :
     Kleisli_to_functor T ∙ Kleisli_to_functor T ⟹ Kleisli_to_functor T.
   Proof.
     use tpair.
@@ -52,7 +53,7 @@ Section monad_types_equiv.
       now rewrite (r_bind_r_bind T), <- assoc, (r_eta_r_bind T (T x')), id_right, (r_bind_r_bind T), id_left.
   Defined.
 
-  Definition Kleisli_to_η {C : precategory} (T: Kleisli C) :
+  Definition Kleisli_to_η {C : precategory} (T: KleisliMonad C) :
     functor_identity C ⟹ Kleisli_to_functor T.
   Proof.
     use tpair.
@@ -62,7 +63,7 @@ Section monad_types_equiv.
       now rewrite (r_eta_r_bind T x).
   Defined.
 
-  Definition Kleisli_to_Monad {C : precategory} (T : Kleisli C) : Monad C.
+  Definition Kleisli_to_Monad {C : precategory} (T : KleisliMonad C) : Monad C.
   Proof.
     use (((Kleisli_to_functor T,, Kleisli_to_μ T) ,, Kleisli_to_η T) ,, _).
     do 2 try apply tpair; intros; simpl.
@@ -71,7 +72,7 @@ Section monad_types_equiv.
     - unfold r_lift. now rewrite !(r_bind_r_bind T), id_left, <- assoc, (r_eta_r_bind T (T c)), id_right.
   Defined.
 
-  Proposition Kleisli_to_Monad_to_Kleisli {C : precategory} (hs : has_homsets C) (T : Kleisli C) :
+  Proposition Kleisli_to_Monad_to_Kleisli {C : precategory} (hs : has_homsets C) (T : KleisliMonad C) :
     Monad_to_Kleisli (Kleisli_to_Monad T) = T.
   Proof.
     apply subtypePath.
@@ -115,6 +116,6 @@ Section monad_types_equiv.
     isweq_iso _ _ (Monad_to_Kleisli_to_Monad hs) (Kleisli_to_Monad_to_Kleisli hs).
 
   Definition weq_Kleisli_Monad {C : precategory} (hs : has_homsets C) :
-    (Monad C) ≃ (Kleisli C) := _,, (isweq_Monad_to_Kleisli hs).
+    Monad C ≃ KleisliMonad C := _,, (isweq_Monad_to_Kleisli hs).
 
 End monad_types_equiv.

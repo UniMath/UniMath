@@ -15,11 +15,10 @@
 Require Export UniMath.Foundations.All.
 Require Export UniMath.MoreFoundations.Notations.
 Require Export UniMath.MoreFoundations.PartA.
-Require Export UniMath.MoreFoundations.Propositions.
+
 Require Export UniMath.Algebra.BinaryOperations.
 Require Export UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
-
 Require Export UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Export UniMath.CategoryTheory.Core.Functors.
@@ -43,6 +42,8 @@ Require Export UniMath.CategoryTheory.PreAdditive.
 Require Export UniMath.CategoryTheory.Morphisms.
 Require Export UniMath.CategoryTheory.Additive.
 Require Export UniMath.CategoryTheory.Subcategory.Full.
+
+Require Export UniMath.MoreFoundations.Propositions.
 
 Local Arguments grinv {_}.
 
@@ -267,6 +268,7 @@ Section PreAdditive.
       rewrite (assoc ι₁). rewrite (assoc ι₁). rewrite DirectSumIn1Pr2. rewrite 2 zeroLeft.
       rewrite 2 zeroRight. use grinvunel.
   Defined.
+
   Definition isKernel' {M:PreAdditive} {x y z : M} (f : x --> y) (g : y --> z) : hProp :=
     f · g = 0 ∧ ∀ (w : M) (h : w --> y), h · g = 0 ⇒ ∃! φ : w --> x, φ · f = h.
   Definition hasKernel {M:PreAdditive} {y z : M} (g : y --> z) : hProp :=

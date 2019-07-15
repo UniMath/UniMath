@@ -75,30 +75,24 @@ Definition η_bind {T : Kleisli_Data} (H : Kleisli_Laws T) :
 
 (* ----- Packing the whole data -----*)
 
-Definition Kleisli: UU :=
+Definition KleisliMonad : UU :=
   ∑ (T : Kleisli_Data), Kleisli_Laws T.
 (* argument [C] will be set as not implicit after the end of the section *)
-Coercion Kleisli_Data_from_Kleisli (T : Kleisli) : Kleisli_Data := pr1 T.
-
-Lemma Kleisli_is_rel_monad: Kleisli = RelMonad (functor_identity C).
-Proof.
-  apply idpath.
-Qed.
-
-Coercion kleisli_laws (T : Kleisli) : Kleisli_Laws (pr1 T) := pr2 T.
+Coercion Kleisli_Data_from_Kleisli (T : KleisliMonad) : Kleisli_Data := pr1 T.
+Coercion kleisli_laws (T : KleisliMonad) : Kleisli_Laws (pr1 T) := pr2 T.
 
 End Kleisli_defn.
 
-Arguments Kleisli: clear implicits.
+Arguments KleisliMonad: clear implicits.
 Arguments Kleisli_Data: clear implicits.
 
 (* --------------------------------------------------------------------------------------------- *)
-(* ** Kleisli Precategory                                                                        *)
+(* ** KleisliMonad Precategory                                                                        *)
 (* --------------------------------------------------------------------------------------------- *)
 
 Section Kleisli_precategory.
 
-(* ----- Morphisms of Kleisli Monads ----- *)
+(* ----- Morphisms of KleisliMonad Monads ----- *)
 
 Definition Kleisli_Mor_laws {C : precategory_data} (T T': Kleisli_Data C)
              (α : ∏ a : C, T a --> T' a) : UU :=
@@ -119,17 +113,17 @@ Definition nat_trans_from_kleisli_mor {C : precategory_data}
            {T T' : Kleisli_Data C} (s : Kleisli_Mor T T') :
   ∏ a : C, T a --> T' a := pr1 s.
 
-Definition Kleisli_Mor_η {C : precategory_data} {T T' : Kleisli C} (α : Kleisli_Mor T T') :
+Definition Kleisli_Mor_η {C : precategory_data} {T T' : KleisliMonad C} (α : Kleisli_Mor T T') :
   ∏ a : C, η T a · nat_trans_from_kleisli_mor  α a = η T' a :=
   pr1 (pr2 α).
 
-Definition Kleisli_Mor_bind {C : precategory_data} {T T' : Kleisli C} (α : Kleisli_Mor T T') :
+Definition Kleisli_Mor_bind {C : precategory_data} {T T' : KleisliMonad C} (α : Kleisli_Mor T T') :
   ∏ (a b : C) (f : C⟦a,T b⟧),
     bind T' (nat_trans_from_kleisli_mor α b ∘ f) ∘ nat_trans_from_kleisli_mor α a =
     nat_trans_from_kleisli_mor α b ∘ (bind T f) :=
   pr2 (pr2 α).
 
-Definition Kleisli_Mor_equiv {C : precategory_data} (hs : has_homsets C) {T T' : Kleisli C}
+Definition Kleisli_Mor_equiv {C : precategory_data} (hs : has_homsets C) {T T' : KleisliMonad C}
            (α β : Kleisli_Mor T T') :
   α = β ≃ (nat_trans_from_kleisli_mor α = nat_trans_from_kleisli_mor β).
 Proof.
@@ -190,7 +184,7 @@ Definition μ {C : precategory} (T : Kleisli_Data C) (a : C) :
   T (T a) --> T a :=
   bind T (identity (T a)).
 
-(* -----  Morphisms of Kleisli Monads are Natural Transformations ----- *)
+(* -----  Morphisms of KleisliMonad Monads are Natural Transformations ----- *)
 
 Definition kleisli_functor_data {C : precategory} (T : Kleisli_Data C) :
   functor_data C C :=
@@ -201,10 +195,10 @@ Definition is_functor_kleisli {C : precategory}
   is_functor(kleisli_functor_data T) :=
   map_id H ,, map_map H.
 
-Definition kleisli_functor {C : precategory} (T : Kleisli C) : functor C C :=
+Definition kleisli_functor {C : precategory} (T : KleisliMonad C) : functor C C :=
   make_functor (kleisli_functor_data T) (is_functor_kleisli T).
 
-Lemma is_nat_trans_kleisli_mor {C : precategory} {T T' : Kleisli C} (α : Kleisli_Mor T T') :
+Lemma is_nat_trans_kleisli_mor {C : precategory} {T T' : KleisliMonad C} (α : Kleisli_Mor T T') :
   is_nat_trans (kleisli_functor T) (kleisli_functor T') (nat_trans_from_kleisli_mor α).
 Proof.
   unfold is_nat_trans. intros. simpl. unfold map.
@@ -213,33 +207,33 @@ Proof.
   now rewrite (Kleisli_Mor_η α).
 Defined.
 
-Definition nat_trans_kleisli_mor {C : precategory} {T T' : Kleisli C} (α : Kleisli_Mor T T') :
+Definition nat_trans_kleisli_mor {C : precategory} {T T' : KleisliMonad C} (α : Kleisli_Mor T T') :
   nat_trans (kleisli_functor T) (kleisli_functor T') :=
   make_nat_trans (kleisli_functor T) (kleisli_functor T')
                (nat_trans_from_kleisli_mor α) (is_nat_trans_kleisli_mor α).
 
 Lemma Kleisli_Mor_eq {C : precategory} (hs : has_homsets C)
-      {T T' : Kleisli C} (α α' : Kleisli_Mor T T') :
+      {T T' : KleisliMonad C} (α α' : Kleisli_Mor T T') :
   nat_trans_from_kleisli_mor α  = nat_trans_from_kleisli_mor α' → α = α'.
 Proof.
   apply Kleisli_Mor_equiv; assumption.
 Defined.
 
 (* ----- η natural transformation. ----- *)
-Lemma is_nat_trans_η {C : precategory} (T : Kleisli C) :
+Lemma is_nat_trans_η {C : precategory} (T : KleisliMonad C) :
   is_nat_trans (functor_identity C) (kleisli_functor T) (η T).
 Proof.
   unfold is_nat_trans. simpl. intros.
   now rewrite (map_η T).
 Defined.
 
-Definition nat_trans_η {C : precategory} (T : Kleisli C) :
+Definition nat_trans_η {C : precategory} (T : KleisliMonad C) :
   functor_identity C ⟹ kleisli_functor T :=
   (η T,, is_nat_trans_η T).
 
 (* ----- μ natural transformation. ----- *)
 
-Lemma is_nat_trans_μ {C : precategory} (T : Kleisli C) :
+Lemma is_nat_trans_μ {C : precategory} (T : KleisliMonad C) :
   is_nat_trans (kleisli_functor T □ kleisli_functor T) (kleisli_functor T) (μ T).
 Proof.
   unfold is_nat_trans, μ. simpl. intros.
@@ -247,13 +241,13 @@ Proof.
   now rewrite id_left, id_right.
 Defined.
 
-Definition nat_trans_μ {C : precategory} (T : Kleisli C) :
+Definition nat_trans_μ {C : precategory} (T : KleisliMonad C) :
   kleisli_functor T □ kleisli_functor T ⟹ kleisli_functor T :=
   μ T,, is_nat_trans_μ T.
 
 (* ----- Identity Morphism ----- *)
 
-Lemma Kleisli_identity_laws {C : precategory} (T : Kleisli C) :
+Lemma Kleisli_identity_laws {C : precategory} (T : KleisliMonad C) :
   Kleisli_Mor_laws T T (λ a : C, identity (T a)).
 Proof.
   split; simpl; intros a.
@@ -261,12 +255,12 @@ Proof.
   - intros. do 2 rewrite id_right; apply id_left.
 Defined.
 
-Definition Kleisli_identity {C : precategory} (T : Kleisli C) : Kleisli_Mor T T :=
+Definition Kleisli_identity {C : precategory} (T : KleisliMonad C) : Kleisli_Mor T T :=
   (λ a : C, identity (T a)),, Kleisli_identity_laws T.
 
 (* ----- Composition of Morphisms ----- *)
 
-Lemma Kleisli_composition_laws {C : precategory} {T T' T'' : Kleisli C}
+Lemma Kleisli_composition_laws {C : precategory} {T T' T'' : KleisliMonad C}
         (α : Kleisli_Mor T T') (α' : Kleisli_Mor T' T'') :
   Kleisli_Mor_laws T T''
     (λ a : C, nat_trans_from_kleisli_mor α a · nat_trans_from_kleisli_mor α' a).
@@ -285,16 +279,16 @@ Proof.
       apply pathsinv0. apply assoc.
 Defined.
 
-Definition Kleisli_composition {C : precategory} {T T' T'' : Kleisli C}
+Definition Kleisli_composition {C : precategory} {T T' T'' : KleisliMonad C}
            (α : Kleisli_Mor T T') (α' : Kleisli_Mor T' T'') :
   Kleisli_Mor T T'' :=
   (λ a : C, nat_trans_from_kleisli_mor α a · nat_trans_from_kleisli_mor α' a),,
   Kleisli_composition_laws α α'.
 
-(* ----- Precategory of Kleisli Monads ----- *)
+(* ----- Precategory of KleisliMonad Monads ----- *)
 
 Definition precategory_Kleisli_ob_mor (C : precategory) : precategory_ob_mor :=
-  make_precategory_ob_mor (Kleisli C) Kleisli_Mor.
+  make_precategory_ob_mor (KleisliMonad C) Kleisli_Mor.
 
 Definition precategory_Kleisli_Data (C : precategory) : precategory_data :=
   make_precategory_data (precategory_Kleisli_ob_mor C)
@@ -331,7 +325,7 @@ Proof.
     apply C.
 Defined.
 
-(* ----- Category of Kleisli Monads ----- *)
+(* ----- Category of KleisliMonad Monads ----- *)
 
 Definition category_Kleisli (C : category) : category :=
   precategory_Kleisli C (homset_property C),, has_homsets_Kleisli C.
@@ -344,7 +338,7 @@ Proof.
   - simpl.
     use make_functor_data.
     + simpl.
-      exact (λ T : Kleisli C, kleisli_functor T).
+      exact (λ T : KleisliMonad C, kleisli_functor T).
     + simpl. intros T T' α.
       exact (nat_trans_kleisli_mor α).
   - split.
@@ -376,7 +370,7 @@ Defined.
 
 (** inherit the univalence result from [precategory_RelMonad] *)
 Lemma is_univalent_precategory_Kleisli {C : precategory}
-      (H: is_univalent C) (R R': Kleisli C)
+      (H: is_univalent C) (R R': KleisliMonad C)
   : is_univalent (precategory_Kleisli C (pr2 H)).
 Proof.
   exact (is_univalent_RelMonad H (functor_identity C) R R').

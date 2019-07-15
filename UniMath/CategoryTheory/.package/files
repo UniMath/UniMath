@@ -115,8 +115,8 @@ PseudoElements.v
 FiveLemma.v
 LatticeObject.v
 Elements.v
-Monads/Kleisli.v
 Monads/KTriples.v
+Monads/Kleisli.v
 Monads/KTriplesEquiv.v
 Monads/Derivative.v
 Monads/MonadAlgebras.v
