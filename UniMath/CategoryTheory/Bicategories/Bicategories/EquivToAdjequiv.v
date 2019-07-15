@@ -396,6 +396,22 @@ Proof.
   - exact g.
 Defined.
 
+Definition inv_equiv
+           {C : bicat}
+           {X Y : C}
+           {f : X --> Y}
+           (Hf : left_equivalence f)
+  : left_equivalence (pr11 Hf).
+Proof.
+  use tpair.
+  - use tpair.
+    + exact f.
+    + split.
+      * exact ((left_equivalence_counit_iso Hf)^-1).
+      * exact ((left_equivalence_unit_iso Hf)^-1).
+  - split ; cbn ; is_iso.
+Defined.
+
 Definition inv_adjequiv
            {C : bicat}
            {X Y : C}
@@ -404,11 +420,5 @@ Proof.
   intro f.
   use equiv_to_adjequiv.
   - exact (left_adjoint_right_adjoint f).
-  - simpl.
-    use tpair.
-    + repeat (use tpair).
-      * exact f.
-      * exact ((left_equivalence_counit_iso f)^-1).
-      * exact ((left_equivalence_unit_iso f)^-1).
-    + split ; cbn ; is_iso.
+  - exact (inv_equiv (left_equivalence_of_left_adjoint_equivalence f)).
 Defined.
