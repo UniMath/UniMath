@@ -219,6 +219,8 @@ Bicategories/DisplayedBicats/Examples/Prod.v
 Bicategories/DisplayedBicats/Examples/FullSub.v
 Bicategories/DisplayedBicats/Examples/Trivial.v
 
+Bicategories/Bicategories/Examples/Groupoids.v
+
 Bicategories/PseudoFunctors/Display/Base.v
 Bicategories/PseudoFunctors/Display/Map1Cells.v
 Bicategories/PseudoFunctors/Display/Map2Cells.v
@@ -262,6 +264,7 @@ Bicategories/Bicategories/YonedaLemma.v
 Bicategories/Colimits/Initial.v
 
 Bicategories/PseudoFunctors/Biadjunction.v
+Bicategories/PseudoFunctors/Examples/PathGroupoid.v
 
 Bicategories/WkCatEnrichment/prebicategory.v
 Bicategories/WkCatEnrichment/Notations.v
