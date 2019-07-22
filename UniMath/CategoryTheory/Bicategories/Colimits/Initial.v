@@ -122,16 +122,13 @@ Section Initial.
     intros f g α β.
     pose (L := functor_to_unit (univ_hom C_is_univalent_2_1 X Y)).
     pose (R := (left_adjoint_right_adjoint (HX Y) : functor _ _)).
-    assert (#R(#L α) = #R(#L β)) as p.
-    {
-      reflexivity.
-    }
     pose (pr1 (left_adjoint_equivalence_to_is_catiso _ (HX Y))) as HL.
     pose (pr1 (left_adjoint_equivalence_to_is_catiso
                  _
                  (@inv_adjequiv bicat_of_cats _ _ (_ ,, HX Y))))
       as HR.
-    exact (isweq_isinj (HL _ _) (isweq_isinj (HR _ _) p)).
+    refine (isweq_isinj (HL _ _) (isweq_isinj (HR _ _) _)).
+    apply idpath.
   Qed.
 
   Definition is_biinitial'
