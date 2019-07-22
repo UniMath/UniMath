@@ -235,6 +235,7 @@ Bicategories/PseudoFunctors/PseudoFunctor.v
 Bicategories/PseudoFunctors/StrictPseudoFunctor.v
 Bicategories/PseudoFunctors/Examples/Identity.v
 Bicategories/PseudoFunctors/Examples/Composition.v
+Bicategories/PseudoFunctors/Examples/Constant.v
 Bicategories/PseudoFunctors/Examples/ApFunctor.v
 Bicategories/PseudoFunctors/Examples/OpFunctor.v
 Bicategories/Transformations/PseudoTransformation.v
