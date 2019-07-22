@@ -16,10 +16,13 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Univalence.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.BicategoryLaws.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Adjunctions.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.Base.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.Map1Cells.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.Map2Cells.
@@ -349,6 +352,27 @@ Section PseudoFunctorLocalFunctor.
   Defined.
 
 End PseudoFunctorLocalFunctor.
+
+Section ExtendPseudoFunctor.
+  Context {C D : bicat}
+          (HD : is_univalent_2 D)
+          (F : psfunctor C D)
+          (G : ob C → ob D)
+          (η : ∏ (a : C), adjoint_equivalence (F a) (G a)).
+
+
+  Definition extend_psfunctor : psfunctor C D.
+  Proof.
+    cbn.
+    pose (adjequiv_base_adjequiv_tot (ps_base_is_univalent_2_0 C D HD) (adjequiv_ps_base C D F G η) (pr211 F)) as m.
+    induction m as [m1 m2].
+    pose (adjequiv_base_adjequiv_tot (map1cells_is_univalent_2_0 C D HD) m2 (pr21 F)) as n.
+    induction n as [n1 n2].
+    pose (adjequiv_base_adjequiv_tot (psfunctor_data_is_univalent_2_0 C D HD) n2 (pr2 F)) as p.
+    exact (_ ,, pr1 p).
+  Defined.
+
+End ExtendPseudoFunctor.
 
 Module Notations.
   Notation "'##'" := (psfunctor_on_cells).
