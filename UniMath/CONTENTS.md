@@ -333,6 +333,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Bicategories/PseudoFunctors/Examples/Composition.v](CategoryTheory/Bicategories/PseudoFunctors/Examples/Composition.v)
    - [Bicategories/PseudoFunctors/Examples/ApFunctor.v](CategoryTheory/Bicategories/PseudoFunctors/Examples/ApFunctor.v)
    - [Bicategories/PseudoFunctors/Examples/OpFunctor.v](CategoryTheory/Bicategories/PseudoFunctors/Examples/OpFunctor.v)
+   - [Bicategories/PseudoFunctors/Biequivalence.v](CategoryTheory/Bicategories/PseudoFunctors/Biequivalence.v)
    - [Bicategories/Transformations/PseudoTransformation.v](CategoryTheory/Bicategories/Transformations/PseudoTransformation.v)
    - [Bicategories/Transformations/Examples/Whiskering.v](CategoryTheory/Bicategories/Transformations/Examples/Whiskering.v)
    - [Bicategories/Transformations/Examples/Unitality.v](CategoryTheory/Bicategories/Transformations/Examples/Unitality.v)
