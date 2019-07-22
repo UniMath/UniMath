@@ -27,7 +27,6 @@ Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Univalence.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.catiso.
-(* Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Colimits.Inital. *)
 
 Local Open Scope bicategory_scope.
 Local Open Scope cat.
