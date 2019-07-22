@@ -5,8 +5,11 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Adjunctions.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.BicategoryLaws.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.Base.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.Map1Cells.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.Map2Cells.
@@ -15,7 +18,6 @@ Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.Compos
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.PseudoFunctor.
 Import PseudoFunctor.Notations.
-Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.TwoType.
 
 Local Open Scope cat.
 
@@ -251,3 +253,18 @@ Definition comp_trans
            (σ₁ : pstrans F₁ F₂) (σ₂ : pstrans F₂ F₃)
   : pstrans F₁ F₃
   := σ₁ · σ₂.
+
+(** Pseudo adjoint equivalence is pointwise adjoint equivalence *)
+Definition pointwise_adjequiv
+           {B₁ B₂ : bicat}
+           {F₁ F₂ : psfunctor B₁ B₂}
+           (σ : pstrans F₁ F₂)
+           (Hf : left_adjoint_equivalence σ)
+  : ∏ (X : B₁), left_adjoint_equivalence (σ X).
+Proof.
+  intro X.
+  pose (pr1 (left_adjoint_equivalence_total_disp_weq _ _ Hf)) as t₁.
+  pose (pr1 (left_adjoint_equivalence_total_disp_weq _ _ t₁)) as t₂.
+  pose (pr1 (left_adjoint_equivalence_total_disp_weq _ _ t₂)) as t₃.
+  exact (is_adjequiv_to_all_is_adjequiv _ _ _ t₃ X).
+Defined.
