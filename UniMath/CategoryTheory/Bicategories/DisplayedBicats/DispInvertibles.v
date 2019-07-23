@@ -550,3 +550,123 @@ Section Total_invertible_2cells.
   Defined.
 
 End Total_invertible_2cells.
+
+Section VCompDispIsInvertible.
+
+Context {B : bicat}
+        {D : disp_bicat B}
+        {a b : B}
+        {aa : D a} {bb : D b}
+        {f g h : a --> b}
+        {ff : aa -->[ f ] bb}
+        {gg : aa -->[ g ] bb}
+        {hh : aa -->[ h ] bb}
+        {α : invertible_2cell f g}
+        {β : invertible_2cell g h}
+        (αα : disp_invertible_2cell α ff gg)
+        (ββ : disp_invertible_2cell β gg hh).
+
+Definition vcomp_disp_is_invertible_rinv
+  : (αα •• ββ) •• (disp_inv_cell ββ •• disp_inv_cell αα)
+    =
+    transportb
+      (λ z, ff ==>[z] ff)
+      (vcomp_rinv (comp_of_invertible_2cell α β))
+      (disp_id2 ff).
+Proof.
+  cbn.
+  rewrite disp_vassocl.
+  etrans.
+  {
+    do 2 apply maponpaths.
+    rewrite disp_vassocr.
+    apply maponpaths.
+    apply maponpaths_2.
+    apply disp_vcomp_rinv.
+  }
+  unfold transportb.
+  rewrite !disp_mor_transportf_postwhisker, !disp_mor_transportf_prewhisker.
+  rewrite !transport_f_f.
+  rewrite disp_id2_left.
+  unfold transportb.
+  rewrite !disp_mor_transportf_prewhisker.
+  rewrite !transport_f_f.
+  etrans.
+  {
+    apply maponpaths.
+    exact (disp_vcomp_rinv αα).
+  }
+  unfold transportb.
+  rewrite !transport_f_f.
+  refine (maponpaths (λ p, transportf (λ z, _ ==>[ z ] _) p _) _).
+  apply B.
+Qed.
+
+Definition vcomp_disp_is_invertible_linv
+  : (disp_inv_cell ββ •• disp_inv_cell αα) •• (αα •• ββ)
+    =
+    transportb
+      (λ z, hh ==>[z] hh)
+      (vcomp_lid (comp_of_invertible_2cell α β))
+      (disp_id2 hh).
+Proof.
+  cbn.
+  etrans.
+  {
+    rewrite disp_vassocl.
+    do 2 apply maponpaths.
+    rewrite disp_vassocr.
+    apply maponpaths.
+    apply maponpaths_2.
+    apply disp_vcomp_linv.
+  }
+  unfold transportb.
+  rewrite !disp_mor_transportf_postwhisker, !disp_mor_transportf_prewhisker.
+  rewrite !transport_f_f.
+  rewrite disp_id2_left.
+  unfold transportb.
+  rewrite !disp_mor_transportf_prewhisker.
+  rewrite !transport_f_f.
+  etrans.
+  {
+    apply maponpaths.
+    exact (disp_vcomp_linv ββ).
+  }
+  unfold transportb.
+  rewrite !transport_f_f.
+  refine (maponpaths (λ p, transportf (λ z, _ ==>[ z ] _) p _) _).
+  apply B.
+Qed.
+
+Definition vcomp_disp_is_invertible
+  : is_disp_invertible_2cell (comp_of_invertible_2cell α β) (αα •• ββ).
+Proof.
+  use tpair.
+  - exact (disp_inv_cell ββ •• disp_inv_cell αα).
+  - split.
+    + exact vcomp_disp_is_invertible_rinv.
+    + exact vcomp_disp_is_invertible_linv.
+Defined.
+
+End VCompDispIsInvertible.
+
+Definition vcomp_disp_invertible
+           {B : bicat}
+           {D : disp_bicat B}
+           {a b : B}
+           {aa : D a} {bb : D b}
+           {f g h : a --> b}
+           {ff : aa -->[ f ] bb}
+           {gg : aa -->[ g ] bb}
+           {hh : aa -->[ h ] bb}
+           {α : invertible_2cell f g}
+           {β : invertible_2cell g h}
+           (αα : disp_invertible_2cell α ff gg)
+           (ββ : disp_invertible_2cell β gg hh)
+  : disp_invertible_2cell (comp_of_invertible_2cell α β) ff hh.
+Proof.
+  use tpair.
+  repeat use tpair.
+  - exact (αα •• ββ).
+  - apply vcomp_disp_is_invertible.
+Defined.

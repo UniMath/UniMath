@@ -10,11 +10,14 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.Initial
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.Final.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Univalence.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispInvertibles.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispAdjunctions.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.PseudoFunctor.
+Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Identity.
+Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Composition.
 Import PseudoFunctor.Notations.
 
 Local Open Scope cat.
@@ -49,6 +52,29 @@ Definition disp_psfunctor_data : UU
        (psfunctor_comp F f g)
        (comp_disp (morFF x y f xx yy ff) (morFF y z g yy zz gg))
        (morFF x z (f · g) xx zz (comp_disp ff gg))).
+
+Definition make_disp_psfunctor_data
+           (obFF : ∏ x:B₁, D₁ x → D₂ (F x))
+           (morFF : ∏ (x y : B₁) (f : B₁⟦x,y⟧) (xx : D₁ x) (yy : D₁ y),
+                    (xx -->[f] yy) →
+                    (obFF x xx -->[#F f] obFF y yy))
+           (cellFF : ∏ (x y : B₁) (f g : B₁⟦x,y⟧) (α : f ==> g) (xx : D₁ x) (yy : D₁ y)
+                       (ff : xx -->[f] yy) (gg : xx -->[g] yy),
+                     (ff ==>[α] gg) → (morFF x y f xx yy ff ==>[##F α] morFF x y g xx yy gg))
+           (disp_psfunctor_id : ∏ (x : B₁) (xx : D₁ x),
+                                disp_invertible_2cell
+                                  (psfunctor_id F x)
+                                  (id_disp (obFF x xx))
+                                  (morFF x x (id₁ x) xx xx (id_disp xx)))
+           (disp_psfunctor_comp : ∏ (x y z : B₁) (f : x --> y) (g : y --> z)
+                                    (xx : D₁ x) (yy : D₁ y) (zz : D₁ z)
+                                    (ff : xx -->[f] yy) (gg : yy -->[g] zz),
+                                  disp_invertible_2cell
+                                    (psfunctor_comp F f g)
+                                    (comp_disp (morFF x y f xx yy ff) (morFF y z g yy zz gg))
+                                    (morFF x z (f · g) xx zz (comp_disp ff gg)))
+  : disp_psfunctor_data
+  := (obFF,, morFF,, cellFF,, disp_psfunctor_id,, disp_psfunctor_comp).
 
 Definition disp_psfunctor_ob (FFdata : disp_psfunctor_data)
            {x : B₁}
@@ -128,7 +154,7 @@ Definition disp_psfunctor_vcomp2_law : UU
      disp_psfunctor_cell FFdata (ηη •• φφ) =
      transportb
        (λ p : # F f ==> # F h, disp_psfunctor_mor FFdata ff ==>[ p] disp_psfunctor_mor FFdata hh)
-       (psfunctor_vcomp F η φ) (disp_psfunctor_cell FFdata ηη •• disp_psfunctor_cell FFdata φφ) .
+       (psfunctor_vcomp F η φ) (disp_psfunctor_cell FFdata ηη •• disp_psfunctor_cell FFdata φφ).
 
 Definition disp_psfunctor_lunitor_law : UU
   := ∏ (a b : B₁) (f : B₁ ⟦ a, b ⟧) (aa : D₁ a) (bb : D₁ b) (ff : aa -->[ f] bb),
@@ -200,6 +226,24 @@ Definition is_disp_psfunctor : UU
          × disp_psfunctor_lwhisker_law
          × disp_psfunctor_rwhisker_law.
 
+Definition disp_psfunctor_id2 (H : is_disp_psfunctor) := pr1 H.
+
+Definition disp_psfunctor_vcomp2 (H : is_disp_psfunctor) := pr12 H.
+
+Definition disp_psfunctor_vcomp2_alt (H : is_disp_psfunctor)
+           (a b : B₁) (f g h : B₁ ⟦a, b⟧) (η : f ==> g) (φ : g ==> h) (aa : D₁ a)
+           (bb : D₁ b) (ff : aa -->[f] bb) (gg : aa -->[g] bb) (hh : aa -->[h] bb)
+           (ηη : ff ==>[η] gg) (φφ : gg ==>[φ] hh)
+  : transportf
+      (λ p : # F f ==> # F h, disp_psfunctor_mor FFdata ff ==>[ p] disp_psfunctor_mor FFdata hh)
+      (psfunctor_vcomp F η φ)
+      (disp_psfunctor_cell FFdata (ηη •• φφ)) =
+    disp_psfunctor_cell FFdata ηη •• disp_psfunctor_cell FFdata φφ.
+Proof.
+  refine (transportf_transpose_alt (P := λ p, _ ==>[p] _)).
+  apply (disp_psfunctor_vcomp2 H).
+Qed.
+
 End DispPseudofunctorLaws.
 
 (** Disp pseudofunct *)
@@ -207,4 +251,366 @@ End DispPseudofunctorLaws.
 Definition disp_psfunctor : UU
   := ∑ FF : disp_psfunctor_data, is_disp_psfunctor FF.
 
+Coercion disp_psfunctor_to_disp_psfunctor_data (FF : disp_psfunctor)
+  : disp_psfunctor_data
+  := pr1 FF.
+
+Lemma total_psfunctor_laws (FF : disp_psfunctor)
+  : psfunctor_laws (total_psfunctor_data FF).
+Proof.
+  repeat apply make_dirprod; intro; intros; (use total2_paths_b; [ apply F | apply FF ]).
+Qed.
+
+Definition total_psfunctor (FF : disp_psfunctor)
+  : psfunctor (total_bicat D₁) (total_bicat D₂).
+Proof.
+  use make_psfunctor.
+  - exact (total_psfunctor_data FF).
+  - exact (total_psfunctor_laws FF).
+  - split; intros; use iso_in_E_weq.
+Defined.
+
+Definition is_disp_psfunctor_from_total (FF : disp_psfunctor_data)
+  : is_psfunctor (total_psfunctor_data FF) → is_disp_psfunctor FF.
+Proof.
+  intros HFF.
+  pose (EF := make_psfunctor _ (pr1 HFF) (pr2 HFF)).
+  repeat split.
+  - intros a b f aa bb ff.
+    pose (P := !fiber_paths (@psfunctor_id2 _ _ EF (a,,aa) (b,,bb) (f,,ff))).
+    symmetry.
+    etrans. { apply maponpaths. exact P. }
+    unfold transportb.
+    rewrite transport_f_f.
+    rewrite transportf_set.
+    * apply idpath.
+    * apply B₂.
+  - intros a b f g h η φ aa bb ff gg hh ηη φφ.
+    pose (P := !fiber_paths (@psfunctor_vcomp _ _ EF
+                                              (a,,aa) (b,,bb) (f,,ff) (g,,gg) (h,,hh)
+                                              (η,,ηη) (φ,,φφ))).
+    cbn in P; rewrite P.
+    unfold transportb.
+    rewrite transport_f_f.
+    rewrite transportf_set.
+    * apply idpath.
+    * apply B₂.
+  - intros a b f aa bb ff.
+    pose (P := !fiber_paths (@psfunctor_lunitor _ _
+                                                EF (a,,aa) (b,,bb) (f,,ff))).
+    symmetry.
+    etrans. { apply maponpaths. exact P. }
+    unfold transportb.
+    rewrite transport_f_f.
+    rewrite transportf_set.
+    * apply idpath.
+    * apply B₂.
+  - intros a b f aa bb ff.
+    pose (P := !fiber_paths (@psfunctor_runitor _ _
+                                                EF (a,,aa) (b,,bb) (f,,ff))).
+    symmetry.
+    etrans. { apply maponpaths. exact P. }
+    unfold transportb.
+    rewrite transport_f_f.
+    rewrite transportf_set.
+    * apply idpath.
+    * apply B₂.
+  - intros a b c d f g h aa bb cc dd ff gg hh.
+    pose (P := !fiber_paths (@psfunctor_lassociator _ _
+                                                    EF (a,,aa) (b,,bb) (c,,cc) (d,,dd)
+                                                    (f,,ff) (g,,gg)  (h,,hh))).
+    symmetry.
+    etrans. { apply maponpaths. exact P. }
+    unfold transportb.
+    rewrite transport_f_f.
+    rewrite transportf_set.
+    * apply idpath.
+    * apply B₂.
+  - intros a b c f g1 g2 η aa bb cc ff gg1 gg2 ηη.
+    pose (P := !fiber_paths (@psfunctor_lwhisker _ _
+                                                 EF (a,,aa) (b,,bb) (c,,cc)
+                                                 (f,,ff) (g1,,gg1) (g2,,gg2) (η,,ηη))).
+    symmetry.
+    etrans. { apply maponpaths. exact P. }
+    unfold transportb.
+    rewrite transport_f_f.
+    rewrite transportf_set.
+    * apply idpath.
+    * apply B₂.
+  - intros a b c f1 f2 g η aa bb cc ff1 ff2 gg ηη.
+    pose (P := !fiber_paths (@psfunctor_rwhisker _ _ EF (a,,aa) (b,,bb) (c,,cc)
+                                                 (f1,,ff1) (f2,,ff2) (g,,gg) (η,,ηη))).
+    symmetry.
+    etrans. { apply maponpaths. exact P. }
+    unfold transportb.
+    rewrite transport_f_f.
+    rewrite transportf_set.
+    * apply idpath.
+    * apply B₂.
+Qed.
+
 End DispPseudofunctor.
+
+Section DispPseudofunctor_identity.
+
+Context {B : bicat} (D : disp_bicat B).
+
+Definition disp_pseudo_id_data : disp_psfunctor_data D D (ps_id_functor B).
+Proof.
+  use make_disp_psfunctor_data; cbn.
+  - exact (λ _ y, y).
+  - exact (λ _ _ _ _ _ ff, ff).
+  - exact (λ _ _ _ _ _ _ _ _ _ αα, αα).
+  - intros. apply disp_id2_invertible_2cell.
+  - intros. apply disp_id2_invertible_2cell.
+Defined.
+
+Lemma disp_pseudo_id_laws : is_disp_psfunctor D D _ disp_pseudo_id_data.
+Proof.
+  apply is_disp_psfunctor_from_total.
+  apply ps_id_functor.
+Qed.
+
+Definition disp_pseudo_id : disp_psfunctor D D (ps_id_functor B)
+  := disp_pseudo_id_data,, disp_pseudo_id_laws.
+
+End DispPseudofunctor_identity.
+
+Definition disp_psfunctor_cell_transportb
+           {B₁ B₂ : bicat}
+           {F : psfunctor B₁ B₂}
+           {D₁ : disp_bicat B₁}
+           {D₂ : disp_bicat B₂}
+           (FF : disp_psfunctor D₁ D₂ F)
+           {x y : B₁}
+           {f : x --> y}
+           {φ ψ : f ==> f}
+           {xx : D₁ x}
+           {yy : D₁ y}
+           {ff : xx -->[f] yy}
+           (p : φ = ψ)
+           (ψψ : ff ==>[ ψ ] ff)
+  : disp_psfunctor_cell
+      _ _ _ (pr1 FF)
+      (transportb (λ z, ff ==>[ z ] ff) p ψψ)
+    =
+    transportb
+      (λ z, _ ==>[ z ] _)
+      (maponpaths (λ z, ##F z) p)
+      (disp_psfunctor_cell
+         _ _ _ (pr1 FF)
+         ψψ).
+Proof.
+  induction p.
+  cbn.
+  apply idpath.
+Defined.
+
+Section DispPseudofunctorInvertible_2cell.
+
+Context {B₁ B₂ : bicat}
+        {F : psfunctor B₁ B₂}
+        {D₁ : disp_bicat B₁}
+        {D₂ : disp_bicat B₂}
+        (FF : disp_psfunctor D₁ D₂ F)
+        {x y : B₁}
+        {f g : x --> y}
+        {α : invertible_2cell f g}
+        {xx : D₁ x}
+        {yy : D₁ y}
+        {ff : xx -->[f] yy}
+        {gg : xx -->[g] yy}
+        (αα : disp_invertible_2cell α ff gg).
+
+Definition disp_psfunctor_invertible_2cell
+  : disp_invertible_2cell
+      (_,, psfunctor_is_iso F α)
+      (disp_psfunctor_mor _ _ _ FF ff)
+      (disp_psfunctor_mor _ _ _ FF gg).
+Proof.
+  repeat use tpair; cbn.
+  - exact (disp_psfunctor_cell _ _ _ FF αα).
+  - exact (disp_psfunctor_cell _ _ _ FF (disp_inv_cell αα)).
+  - abstract
+      (rewrite <- (disp_psfunctor_vcomp2_alt _ _ _ _ (pr2 FF));
+       rewrite disp_vcomp_rinv;
+       rewrite disp_psfunctor_cell_transportb;
+       unfold transportb;
+       rewrite transport_f_f;
+       rewrite (disp_psfunctor_id2 _ _ _ _ (pr2 FF));
+       unfold transportb;
+       rewrite transport_f_f;
+       apply (@transportf_paths _ (λ p, _ ==>[ p ] _));
+       apply B₂).
+  - abstract
+      (rewrite <- (disp_psfunctor_vcomp2_alt _ _ _ _ (pr2 FF));
+       rewrite disp_vcomp_linv;
+       rewrite disp_psfunctor_cell_transportb;
+       unfold transportb;
+       rewrite transport_f_f;
+       rewrite (disp_psfunctor_id2 _ _ _ _ (pr2 FF));
+       unfold transportb;
+       rewrite transport_f_f;
+       apply (@transportf_paths _ (λ p, _ ==>[ p ] _));
+       apply B₂).
+Defined.
+
+End DispPseudofunctorInvertible_2cell.
+
+Section VCompDispIsInvertible.
+Context {B : bicat}
+        {D : disp_bicat B}
+        {a b : B}
+        {aa : D a} {bb : D b}
+        {f g h : a --> b}
+        {ff : aa -->[ f ] bb}
+        {gg : aa -->[ g ] bb}
+        {hh : aa -->[ h ] bb}
+        {α : invertible_2cell f g}
+        {β : invertible_2cell g h}
+        (αα : disp_invertible_2cell α ff gg)
+        (ββ : disp_invertible_2cell β gg hh).
+
+Definition vcomp_disp_is_invertible_rinv
+  :(αα •• ββ) •• (disp_inv_cell ββ •• disp_inv_cell αα)
+   =
+   transportb
+     (λ z, ff ==>[z] ff)
+     (vcomp_rinv (comp_of_invertible_2cell α β))
+     (disp_id2 ff).
+Proof.
+  cbn.
+  rewrite disp_vassocl.
+  etrans.
+  {
+    do 2 apply maponpaths.
+    rewrite disp_vassocr.
+    apply maponpaths.
+    apply maponpaths_2.
+    apply disp_vcomp_rinv.
+  }
+  unfold transportb.
+  rewrite !disp_mor_transportf_postwhisker, !disp_mor_transportf_prewhisker.
+  rewrite !transport_f_f.
+  rewrite disp_id2_left.
+  unfold transportb.
+  rewrite !disp_mor_transportf_prewhisker.
+  rewrite !transport_f_f.
+  etrans.
+  {
+    apply maponpaths.
+    exact (disp_vcomp_rinv αα).
+  }
+  unfold transportb.
+  rewrite !transport_f_f.
+  refine (maponpaths (λ p, transportf (λ z, _ ==>[ z ] _) p _) _).
+  apply B.
+Qed.
+
+Definition vcomp_disp_is_invertible_linv
+  : (disp_inv_cell ββ •• disp_inv_cell αα) •• (αα •• ββ)
+    =
+    transportb
+      (λ z, hh ==>[z] hh)
+      (vcomp_lid (comp_of_invertible_2cell α β))
+      (disp_id2 hh).
+Proof.
+  cbn.
+  etrans.
+  {
+    rewrite disp_vassocl.
+    do 2 apply maponpaths.
+    rewrite disp_vassocr.
+    apply maponpaths.
+    apply maponpaths_2.
+    apply disp_vcomp_linv.
+  }
+  unfold transportb.
+  rewrite !disp_mor_transportf_postwhisker, !disp_mor_transportf_prewhisker.
+  rewrite !transport_f_f.
+  rewrite disp_id2_left.
+  unfold transportb.
+  rewrite !disp_mor_transportf_prewhisker.
+  rewrite !transport_f_f.
+  etrans.
+  {
+    apply maponpaths.
+    exact (disp_vcomp_linv ββ).
+  }
+  unfold transportb.
+  rewrite !transport_f_f.
+  refine (maponpaths (λ p, transportf (λ z, _ ==>[ z ] _) p _) _).
+  apply B.
+Qed.
+
+Definition vcomp_disp_is_invertible
+  : is_disp_invertible_2cell (comp_of_invertible_2cell α β) (αα •• ββ).
+Proof.
+  use tpair.
+  - exact (disp_inv_cell ββ •• disp_inv_cell αα).
+  - split.
+    + exact vcomp_disp_is_invertible_rinv.
+    + exact vcomp_disp_is_invertible_linv.
+Defined.
+End VCompDispIsInvertible.
+
+Definition vcomp_disp_invertible
+           {B : bicat}
+           {D : disp_bicat B}
+           {a b : B}
+           {aa : D a} {bb : D b}
+           {f g h : a --> b}
+           {ff : aa -->[ f ] bb}
+           {gg : aa -->[ g ] bb}
+           {hh : aa -->[ h ] bb}
+           {α : invertible_2cell f g}
+           {β : invertible_2cell g h}
+           (αα : disp_invertible_2cell α ff gg)
+           (ββ : disp_invertible_2cell β gg hh)
+  : disp_invertible_2cell (comp_of_invertible_2cell α β) ff hh.
+Proof.
+  use tpair.
+  repeat use tpair.
+  - exact (αα •• ββ).
+  - apply vcomp_disp_is_invertible.
+Defined.
+
+Section DispPseudofunctor_comp.
+
+Context {B₁ B₂ B₃ : bicat}
+        (F₁ : psfunctor B₁ B₂)
+        (F₂ : psfunctor B₂ B₃)
+        (D₁ : disp_bicat B₁)
+        (D₂ : disp_bicat B₂)
+        (D₃ : disp_bicat B₃)
+        (FF₁ : disp_psfunctor D₁ D₂ F₁)
+        (FF₂ : disp_psfunctor D₂ D₃ F₂).
+
+Definition disp_pseudo_comp_data : disp_psfunctor_data D₁ D₃ (ps_comp F₂ F₁).
+Proof.
+  use make_disp_psfunctor_data; cbn.
+  - exact (λ x xx, FF₂ _ (FF₁ _ xx)).
+  - exact (λ x y f xx yy ff, disp_psfunctor_mor _ _ _ FF₂ (disp_psfunctor_mor _ _ _ FF₁ ff)).
+  - exact (λ x y f g α xx yy ff gg αα, disp_psfunctor_cell _ _ _ FF₂ (disp_psfunctor_cell _ _ _ FF₁ αα)).
+  - intros x xx.
+    exact (vcomp_disp_invertible
+             (disp_psfunctor_id _ _ _ FF₂ (FF₁ _ xx))
+             (disp_psfunctor_invertible_2cell FF₂ (disp_psfunctor_id _ _ _ FF₁ xx))).
+  - intros x y z f g xx yy zz ff gg.
+    exact (vcomp_disp_invertible
+             (disp_psfunctor_comp _ _ _ FF₂
+                                  (disp_psfunctor_mor _ _ _ FF₁ ff)
+                                  (disp_psfunctor_mor _ _ _ FF₁ gg))
+             (disp_psfunctor_invertible_2cell FF₂ (disp_psfunctor_comp _ _ _ FF₁ ff gg))).
+Defined.
+
+Lemma disp_pseudo_comp_laws : is_disp_psfunctor _ _ _ disp_pseudo_comp_data.
+Proof.
+  apply is_disp_psfunctor_from_total.
+  apply (ps_comp (total_psfunctor _ _ _ FF₂) (total_psfunctor _ _ _ FF₁)).
+Qed.
+
+Definition disp_pseudo_comp : disp_psfunctor _ _ (ps_comp F₂ F₁)
+  := disp_pseudo_comp_data,, disp_pseudo_comp_laws.
+
+End DispPseudofunctor_comp.
