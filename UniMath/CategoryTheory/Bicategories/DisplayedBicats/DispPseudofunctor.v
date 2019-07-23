@@ -1,3 +1,13 @@
+(* ------------------------------------------------------------------------- *)
+(** Displayed pseudofunctors.
+    Marco Maggesi, Niccolò Veltri, Niels van der Weide
+    April 2019
+
+    Contents:
+      - Definition of displayed pseudofunctors.
+      - Identity and composition of displayed pseudofunctors.                *)
+(* ------------------------------------------------------------------------- *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -21,7 +31,8 @@ Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Compo
 Import PseudoFunctor.Notations.
 
 Local Open Scope cat.
-(* Local Open Scope mor_disp_scope. *)
+
+(** ** Definition of displayed pseudofunctor *)
 
 Section DispPseudofunctor.
 
@@ -29,7 +40,7 @@ Context {B₁ : bicat} (D₁ : disp_bicat B₁)
         {B₂ : bicat} (D₂ : disp_bicat B₂)
         (F : psfunctor B₁ B₂).
 
-(** Data *)
+(** *** Data *)
 
 Definition disp_psfunctor_data : UU
   :=
@@ -130,7 +141,7 @@ Proof.
     exact (psfunctor_comp F (pr1 f) (pr1 g),, disp_psfunctor_comp FFdata (pr2 f) (pr2 g)).
 Defined.
 
-(** Properties *)
+(** *** Properties *)
 
 Section DispPseudofunctorLaws.
 
@@ -246,7 +257,7 @@ Qed.
 
 End DispPseudofunctorLaws.
 
-(** Disp pseudofunct *)
+(** *** Disp pseudofunct *)
 
 Definition disp_psfunctor : UU
   := ∑ FF : disp_psfunctor_data, is_disp_psfunctor FF.
@@ -350,6 +361,8 @@ Proof.
 Qed.
 
 End DispPseudofunctor.
+
+(** ** Identity *)
 
 Section DispPseudofunctor_identity.
 
@@ -457,123 +470,7 @@ Defined.
 
 End DispPseudofunctorInvertible_2cell.
 
-Section VCompDispIsInvertible.
-Context {B : bicat}
-        {D : disp_bicat B}
-        {a b : B}
-        {aa : D a} {bb : D b}
-        {f g h : a --> b}
-        {ff : aa -->[ f ] bb}
-        {gg : aa -->[ g ] bb}
-        {hh : aa -->[ h ] bb}
-        {α : invertible_2cell f g}
-        {β : invertible_2cell g h}
-        (αα : disp_invertible_2cell α ff gg)
-        (ββ : disp_invertible_2cell β gg hh).
-
-Definition vcomp_disp_is_invertible_rinv
-  :(αα •• ββ) •• (disp_inv_cell ββ •• disp_inv_cell αα)
-   =
-   transportb
-     (λ z, ff ==>[z] ff)
-     (vcomp_rinv (comp_of_invertible_2cell α β))
-     (disp_id2 ff).
-Proof.
-  cbn.
-  rewrite disp_vassocl.
-  etrans.
-  {
-    do 2 apply maponpaths.
-    rewrite disp_vassocr.
-    apply maponpaths.
-    apply maponpaths_2.
-    apply disp_vcomp_rinv.
-  }
-  unfold transportb.
-  rewrite !disp_mor_transportf_postwhisker, !disp_mor_transportf_prewhisker.
-  rewrite !transport_f_f.
-  rewrite disp_id2_left.
-  unfold transportb.
-  rewrite !disp_mor_transportf_prewhisker.
-  rewrite !transport_f_f.
-  etrans.
-  {
-    apply maponpaths.
-    exact (disp_vcomp_rinv αα).
-  }
-  unfold transportb.
-  rewrite !transport_f_f.
-  refine (maponpaths (λ p, transportf (λ z, _ ==>[ z ] _) p _) _).
-  apply B.
-Qed.
-
-Definition vcomp_disp_is_invertible_linv
-  : (disp_inv_cell ββ •• disp_inv_cell αα) •• (αα •• ββ)
-    =
-    transportb
-      (λ z, hh ==>[z] hh)
-      (vcomp_lid (comp_of_invertible_2cell α β))
-      (disp_id2 hh).
-Proof.
-  cbn.
-  etrans.
-  {
-    rewrite disp_vassocl.
-    do 2 apply maponpaths.
-    rewrite disp_vassocr.
-    apply maponpaths.
-    apply maponpaths_2.
-    apply disp_vcomp_linv.
-  }
-  unfold transportb.
-  rewrite !disp_mor_transportf_postwhisker, !disp_mor_transportf_prewhisker.
-  rewrite !transport_f_f.
-  rewrite disp_id2_left.
-  unfold transportb.
-  rewrite !disp_mor_transportf_prewhisker.
-  rewrite !transport_f_f.
-  etrans.
-  {
-    apply maponpaths.
-    exact (disp_vcomp_linv ββ).
-  }
-  unfold transportb.
-  rewrite !transport_f_f.
-  refine (maponpaths (λ p, transportf (λ z, _ ==>[ z ] _) p _) _).
-  apply B.
-Qed.
-
-Definition vcomp_disp_is_invertible
-  : is_disp_invertible_2cell (comp_of_invertible_2cell α β) (αα •• ββ).
-Proof.
-  use tpair.
-  - exact (disp_inv_cell ββ •• disp_inv_cell αα).
-  - split.
-    + exact vcomp_disp_is_invertible_rinv.
-    + exact vcomp_disp_is_invertible_linv.
-Defined.
-End VCompDispIsInvertible.
-
-Definition vcomp_disp_invertible
-           {B : bicat}
-           {D : disp_bicat B}
-           {a b : B}
-           {aa : D a} {bb : D b}
-           {f g h : a --> b}
-           {ff : aa -->[ f ] bb}
-           {gg : aa -->[ g ] bb}
-           {hh : aa -->[ h ] bb}
-           {α : invertible_2cell f g}
-           {β : invertible_2cell g h}
-           (αα : disp_invertible_2cell α ff gg)
-           (ββ : disp_invertible_2cell β gg hh)
-  : disp_invertible_2cell (comp_of_invertible_2cell α β) ff hh.
-Proof.
-  use tpair.
-  repeat use tpair.
-  - exact (αα •• ββ).
-  - apply vcomp_disp_is_invertible.
-Defined.
+(** ** Composition *)
 
 Section DispPseudofunctor_comp.
 
