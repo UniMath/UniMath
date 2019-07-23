@@ -315,8 +315,8 @@ Defined.
 Section J21.
   Context {B : bicat}.
   Variable (HB : is_univalent_2_1 B)
-           (Y : ∏ {a b : B} {f g : a --> b}, invertible_2cell f g → UU)
-           (r : ∏ {a b : B} {f : a --> b}, Y (id2_invertible_2cell f)).
+           (Y : ∏ (a b : B) (f g : a --> b), invertible_2cell f g → UU)
+           (r : ∏ (a b : B) (f : a --> b), Y _ _ _ _ (id2_invertible_2cell f)).
 
   Local Definition Y'_2_1
         {a b : B}
@@ -373,8 +373,8 @@ End J21.
 Section J20.
   Context {B : bicat}.
   Variable (HB : is_univalent_2_0 B)
-           (Y : ∏ {a b : B}, adjoint_equivalence a b → UU)
-           (r : ∏ {a : B}, Y (internal_adjoint_equivalence_identity a)).
+           (Y : ∏ (a b : B), adjoint_equivalence a b → UU)
+           (r : ∏ (a : B), Y _ _ (internal_adjoint_equivalence_identity a)).
 
   Local Definition Y'_2_0 : ∏ {a b : B}, a = b → UU
     := λ a b p,  Y a b (idtoiso_2_0 a b p).
