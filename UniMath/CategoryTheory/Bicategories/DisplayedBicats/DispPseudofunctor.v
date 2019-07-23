@@ -1,7 +1,7 @@
 (* ------------------------------------------------------------------------- *)
 (** Displayed pseudofunctors.
     Marco Maggesi, Niccolò Veltri, Niels van der Weide
-    April 2019
+    July 2019
 
     Contents:
       - Definition of displayed pseudofunctors.
