@@ -3647,7 +3647,7 @@ Proof.
   set (f2:= fpmap w Q).
   set (is2:= isweqfpmap w Q).
   assert (h: ∏ xp: total2 P, (f2 (f1 xp)) = (bandfmap w P Q fw xp)).
-  intro. induction xp. apply idpath.
+  { intro. apply idpath. }
   apply (isweqhomot _ _ h (twooutof3c f1 f2 is1 is2)).
 Defined.
 
