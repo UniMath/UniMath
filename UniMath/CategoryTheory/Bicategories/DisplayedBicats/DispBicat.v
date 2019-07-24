@@ -18,6 +18,8 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bi
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cells.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.BicategoryLaws.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Unitors.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Adjunctions.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Univalence.
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
@@ -1322,6 +1324,17 @@ Proof.
 Qed.
 
 
+Lemma adjequiv_base_adjequiv_tot
+      {B : bicat}
+      (HB : is_univalent_2_0 B)
+      {D : disp_bicat B}
+      {a b : B}
+  : adjoint_equivalence a b → ∏ (aa : D a), ∑ (bb : D b), @adjoint_equivalence (total_bicat D) (a ,, aa) (b ,, bb).
+Proof.
+  use (J_2_0 HB (λ _ _ _, _)).
+  intros c aa.
+  exact (aa ,, internal_adjoint_equivalence_identity _).
+Defined.
 
 (* ----------------------------------------------------------------------------------- *)
 (** ** Notations.                                                                      *)

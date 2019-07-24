@@ -17,6 +17,7 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cell
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.BicategoryLaws.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Univalence.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.TransportLaws.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.EquivToAdjequiv.
 Local Open Scope cat.
 Local Open Scope bicategory_scope.
 
@@ -590,3 +591,45 @@ Proof.
   - intros f. do 2 apply hlevelntosn.
     apply isaprop_left_adjoint_equivalence, HC.
 Qed.
+
+Section AdjointEquivUniqueCompInv.
+  Context {B : bicat}
+          (HB : is_univalent_2 B).
+
+  Definition unique_adjoint_equivalence_inv
+             {a b : B}
+    : ∏ (f : adjoint_equivalence a b), inv_adjequiv f = inv_adjoint_equivalence (pr1 HB) f.
+  Proof.
+    use (J_2_0 (pr1 HB) (λ a b f, _)).
+    intro x; simpl.
+    unfold inv_adjoint_equivalence.
+    rewrite J_2_0_comp.
+    use subtypePath.
+    {
+      intro.
+      exact (isaprop_left_adjoint_equivalence _ (pr2 HB)).
+    }
+    apply idpath.
+  Defined.
+
+  Definition unique_adjoint_equivalence_comp
+             {a b c : B}
+    : ∏ (f : adjoint_equivalence a b) (g : adjoint_equivalence b c),
+      comp_adjequiv f g = comp_adjoint_equivalence (pr1 HB) f g.
+  Proof.
+    use (J_2_0 (pr1 HB) (λ a b f, _)).
+    intros x g; simpl.
+    unfold comp_adjoint_equivalence.
+    rewrite J_2_0_comp.
+    use subtypePath.
+    {
+      intro.
+      exact (isaprop_left_adjoint_equivalence _ (pr2 HB)).
+    }
+    cbn.
+    apply (isotoid_2_1 (pr2 HB)).
+    use make_invertible_2cell.
+    - exact (lunitor (pr1 g)).
+    - is_iso.
+  Defined.
+End AdjointEquivUniqueCompInv.

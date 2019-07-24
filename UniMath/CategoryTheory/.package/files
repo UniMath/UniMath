@@ -235,6 +235,7 @@ Bicategories/PseudoFunctors/PseudoFunctor.v
 Bicategories/PseudoFunctors/StrictPseudoFunctor.v
 Bicategories/PseudoFunctors/Examples/Identity.v
 Bicategories/PseudoFunctors/Examples/Composition.v
+Bicategories/PseudoFunctors/Examples/Constant.v
 Bicategories/PseudoFunctors/Examples/ApFunctor.v
 Bicategories/PseudoFunctors/Examples/OpFunctor.v
 Bicategories/Transformations/PseudoTransformation.v
@@ -256,6 +257,7 @@ Bicategories/DisplayedBicats/Examples/Add2Cell.v
 Bicategories/DisplayedBicats/Examples/ContravariantFunctor.v
 Bicategories/DisplayedBicats/Examples/Cofunctormap.v
 Bicategories/DisplayedBicats/Examples/CwF.v
+Bicategories/DisplayedBicats/DispPseudofunctor.v
 Bicategories/Transformations/Examples/AlgebraMap.v
 Bicategories/DisplayedBicats/Examples/Monads.v
 
