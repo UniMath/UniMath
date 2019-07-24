@@ -261,6 +261,8 @@ Bicategories/DisplayedBicats/Examples/CwF.v
 Bicategories/DisplayedBicats/DispPseudofunctor.v
 Bicategories/Transformations/Examples/AlgebraMap.v
 Bicategories/DisplayedBicats/Examples/Monads.v
+Bicategories/DisplayedBicats/DispTransformation.v
+Bicategories/DisplayedBicats/DispModification.v
 
 Bicategories/Bicategories/YonedaLemma.v
 
