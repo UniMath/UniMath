@@ -358,6 +358,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [Bicategories/Colimits/Initial.v](CategoryTheory/Bicategories/Colimits/Initial.v)
    - [Bicategories/PseudoFunctors/Biadjunction.v](CategoryTheory/Bicategories/PseudoFunctors/Biadjunction.v)
    - [Bicategories/PseudoFunctors/Examples/PathGroupoid.v](CategoryTheory/Bicategories/PseudoFunctors/Examples/PathGroupoid.v)
+   - [Bicategories/DisplayedBicats/Examples/PointedGroupoid.v](CategoryTheory/Bicategories/DisplayedBicats/Examples/PointedGroupoid.v)
+   - [Bicategories/DisplayedBicats/Examples/ProdCommutativity.v](CategoryTheory/Bicategories/DisplayedBicats/Examples/ProdCommutativity.v)
    - [Bicategories/WkCatEnrichment/prebicategory.v](CategoryTheory/Bicategories/WkCatEnrichment/prebicategory.v)
    - [Bicategories/WkCatEnrichment/Notations.v](CategoryTheory/Bicategories/WkCatEnrichment/Notations.v)
    - [Bicategories/WkCatEnrichment/whiskering.v](CategoryTheory/Bicategories/WkCatEnrichment/whiskering.v)
