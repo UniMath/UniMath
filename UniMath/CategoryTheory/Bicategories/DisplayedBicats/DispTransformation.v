@@ -32,7 +32,7 @@ Import PseudoFunctor.Notations.
 
 Local Open Scope cat.
 
-(** ** Definition of displayed pseudofunctor *)
+(** ** Definition of displayed transformation. *)
 
 Section DispTransformation.
 

@@ -355,6 +355,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Bicategories/Transformations/Examples/AlgebraMap.v](CategoryTheory/Bicategories/Transformations/Examples/AlgebraMap.v)
    - [Bicategories/DisplayedBicats/Examples/Monads.v](CategoryTheory/Bicategories/DisplayedBicats/Examples/Monads.v)
    - [Bicategories/DisplayedBicats/DispTransformation.v](CategoryTheory/Bicategories/DisplayedBicats/DispTransformation.v)
+   - [Bicategories/DisplayedBicats/DispModification.v](CategoryTheory/Bicategories/DisplayedBicats/DispModification.v)
    - [Bicategories/Bicategories/YonedaLemma.v](CategoryTheory/Bicategories/Bicategories/YonedaLemma.v)
    - [Bicategories/Colimits/Initial.v](CategoryTheory/Bicategories/Colimits/Initial.v)
    - [Bicategories/PseudoFunctors/Biadjunction.v](CategoryTheory/Bicategories/PseudoFunctors/Biadjunction.v)
