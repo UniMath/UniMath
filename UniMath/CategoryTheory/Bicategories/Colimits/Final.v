@@ -31,19 +31,6 @@ Require Import UniMath.CategoryTheory.catiso.
 Local Open Scope bicategory_scope.
 Local Open Scope cat.
 
-Definition isweq_isinj
-           {A B : UU}
-           {f : A → B}
-           (Hf : isweq f)
-  : ∏ {x y : A}, f x = f y → x = y.
-Proof.
-  intros x y p.
-  pose (ff := make_weq f Hf).
-  refine (!_ @ maponpaths (invmap ff) p @ _).
-  - exact (homotinvweqweq ff x).
-  - exact (homotinvweqweq ff y).
-Defined.
-
 Section Final.
   Context {C : bicat}.
   Variable (C_is_univalent_2_1 : is_univalent_2_1 C).
@@ -128,7 +115,8 @@ Section Final.
                  _
                  (@inv_adjequiv bicat_of_cats _ _ (_ ,, HX Y))))
       as HR.
-    refine (isweq_isinj (HL _ _) (isweq_isinj (HR _ _) _)).
+    refine (invmaponpathsincl _ (HL _ _) _ _ _).
+    refine (invmaponpathsincl _ (HR _ _) _ _ _).
     apply idpath.
   Qed.
 
