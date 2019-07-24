@@ -343,6 +343,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Bicategories/Modifications/Examples/Associativity.v](CategoryTheory/Bicategories/Modifications/Examples/Associativity.v)
    - [Bicategories/PseudoFunctors/Representable.v](CategoryTheory/Bicategories/PseudoFunctors/Representable.v)
    - [Bicategories/PseudoFunctors/Yoneda.v](CategoryTheory/Bicategories/PseudoFunctors/Yoneda.v)
+   - [Bicategories/PseudoFunctors/Biequivalence.v](CategoryTheory/Bicategories/PseudoFunctors/Biequivalence.v)
    - [Bicategories/PseudoFunctors/Examples/StrictToPseudo.v](CategoryTheory/Bicategories/PseudoFunctors/Examples/StrictToPseudo.v)
    - [Bicategories/PseudoFunctors/Examples/Projection.v](CategoryTheory/Bicategories/PseudoFunctors/Examples/Projection.v)
    - [Bicategories/DisplayedBicats/Examples/PointedOneTypes.v](CategoryTheory/Bicategories/DisplayedBicats/Examples/PointedOneTypes.v)
