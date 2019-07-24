@@ -262,3 +262,40 @@ Proof.
     intro.
     apply m.
 Defined.
+
+(** Only on data *)
+Definition invertible_modification_data_on_data
+           {B B' : bicat}
+           {F G : psfunctor_data B B'}
+           (σ τ : pstrans_on_data F G)
+  : UU
+  := ∏ (X : B), invertible_2cell (pr11 σ X) (pr11 τ X).
+
+Definition invertible_modification_on_data_is_modification
+           {B B' : bicat}
+           {F G : psfunctor_data B B'}
+           {σ τ : pstrans_on_data F G}
+           (m : invertible_modification_data_on_data σ τ)
+  : UU
+  := ∏ (X Y : B) (f : X --> Y),
+     pr21 σ _ _ f • (_ ◃ m Y) = (m X ▹ _) • pr21 τ _ _ f.
+
+Definition invertible_modification_on_data
+           {B B' : bicat}
+           {F G : psfunctor_data B B'}
+           (σ τ : pstrans_on_data F G)
+  : UU
+  := ∑ (m : invertible_modification_data_on_data σ τ),
+     invertible_modification_on_data_is_modification m.
+
+Definition make_invertible_modification_on_data
+           {B B' : bicat}
+           {F G : psfunctor B B'}
+           {σ τ : pstrans F G}
+           (m : invertible_modification_on_data (pr1 σ) (pr1 τ))
+  : invertible_modification σ τ.
+Proof.
+  use make_invertible_modification.
+  - exact (pr1 m).
+  - exact (pr2 m).
+Defined.

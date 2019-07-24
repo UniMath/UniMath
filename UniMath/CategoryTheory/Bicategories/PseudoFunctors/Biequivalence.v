@@ -245,17 +245,17 @@ Local Notation "'ηinv'" := (unit_of_is_biequivalence a).
 Local Notation "'ε'" := (counit_of_is_biequivalence a).
 
 Context (pη : invertible_modification
-               (id_trans (ps_comp G F))
-               (comp_trans ηinv η))
+                (comp_trans ηinv η)
+                (id_trans (ps_comp G F)))
         (qη : invertible_modification
-               (comp_trans η ηinv)
-               (id_trans (ps_id_functor C)))
+                (comp_trans η ηinv)
+                (id_trans (ps_id_functor C)))
         (pε : invertible_modification
-               (id_trans (ps_comp F G))
-               (comp_trans ε εinv))
+                (comp_trans ε εinv)
+                (id_trans (ps_comp F G)))
         (qε : invertible_modification
-               (comp_trans εinv ε)
-               (id_trans (ps_id_functor D))).
+                (comp_trans εinv ε)
+                (id_trans (ps_id_functor D))).
 
 Definition make_is_biequivalence_from_unit_counit : is_biequivalence F.
 Proof.
@@ -265,9 +265,9 @@ Proof.
   - exact ηinv.
   - exact ε.
   - exact εinv.
-  - exact pη.
+  - exact (inv_of_invertible_2cell pη).
   - exact qη.
-  - exact pε.
+  - exact (inv_of_invertible_2cell pε).
   - exact qε.
 Defined.
 

@@ -282,3 +282,79 @@ Definition pstrans_to_is_pstrans
            (α : pstrans F₁ F₂)
   : is_pstrans (pstrans_to_pstrans_data α)
   := pr21 α.
+
+(** Pseudotansformations between psfunctor data *)
+Definition pstrans_data_on_data
+           {C D : bicat}
+           (F G : psfunctor_data C D)
+  : UU.
+Proof.
+  refine (map1cells C D⟦_,_⟧).
+  - apply F.
+  - apply G.
+Defined.
+
+Definition make_pstrans_data_on_data
+           {C D : bicat}
+           {F G : psfunctor_data C D}
+           (η₁ : ∏ (X : C), F X --> G X)
+           (η₂ : ∏ (X Y : C) (f : X --> Y), invertible_2cell (η₁ X · #G f) (#F f · η₁ Y))
+  : pstrans_data_on_data F G
+  := (η₁ ,, η₂).
+
+Definition psfunctor_data_on_cells
+           {C D : bicat}
+           (F : psfunctor_data C D)
+           {a b : C}
+           {f g : a --> b}
+           (x : f ==> g)
+  : #F f ==> #F g
+  := pr12 F a b f g x.
+
+Section LocalNotation.
+  Local Notation "'##'" := (PseudoFunctorBicat.psfunctor_on_cells).
+
+  Definition is_pstrans_on_data
+             {C D : bicat}
+             {F G : psfunctor_data C D}
+             (η : pstrans_data_on_data F G)
+    : UU
+    := (∏ (X Y : C) (f g : X --> Y) (α : f ==> g),
+        (pr1 η X ◃ ##G α)
+          • pr2 η _ _ g
+        =
+        (pr2 η _ _ f)
+          • (##F α ▹ pr1 η Y))
+         ×
+         (∏ (X : C),
+          (pr1 η X ◃ PseudoFunctorBicat.psfunctor_id G X)
+            • pr2 η _ _ (id₁ X)
+          =
+          (runitor (pr1 η X))
+            • linvunitor (pr1 η X)
+            • (PseudoFunctorBicat.psfunctor_id F X ▹ pr1 η X))
+         ×
+         (∏ (X Y Z : C) (f : X --> Y) (g : Y --> Z),
+          (pr1 η X ◃ PseudoFunctorBicat.psfunctor_comp G f g)
+            • pr2 η _ _ (f · g)
+          =
+          (lassociator (pr1 η X) (#G f) (#G g))
+            • (pr2 η _ _ f ▹ (#G g))
+            • rassociator (#F f) (pr1 η Y) (#G g)
+            • (#F f ◃ pr2 η _ _ g)
+            • lassociator (#F f) (#F g) (pr1 η Z)
+            • (PseudoFunctorBicat.psfunctor_comp F f g ▹ pr1 η Z)).
+
+  Definition pstrans_on_data
+             {C D : bicat}
+             (F G : psfunctor_data C D)
+    : UU
+    := ∑ (η : pstrans_data_on_data F G), is_pstrans_on_data η.
+
+  Definition pstrans_on_data_to_pstrans
+             {C D : bicat}
+             {F G : psfunctor C D}
+             (η : pstrans_on_data (pr1 F) (pr1 G))
+    : pstrans F G
+    := η ,, tt.
+End LocalNotation.

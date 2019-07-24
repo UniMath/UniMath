@@ -10,8 +10,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
-Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.Initial.
-Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.Final.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.BicategoryLaws.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Unitors.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
@@ -35,88 +33,7 @@ Import PseudoFunctor.Notations.
 
 Local Open Scope cat.
 
-Opaque ps_comp.
-
-Definition is_psfunctor_eq_to_pstrans_data
-           {B₁ B₂ : bicat}
-           (F : psfunctor_data B₁ B₂)
-           (HF₁ HF₂ : is_psfunctor F)
-  : pstrans_data (F,,HF₁) (F,,HF₂).
-Proof.
-  use make_pstrans_data.
-  + intros x.
-    exact (id₁ _).
-  + intros x y f. cbn.
-    use make_invertible_2cell.
-    * exact (lunitor _ • rinvunitor _).
-    * is_iso.
-Defined.
-
-Lemma is_psfunctor_eq_to_pstrans_is_pstrans
-      {B₁ B₂ : bicat}
-      (F : psfunctor_data B₁ B₂)
-      (HF₁ HF₂ : is_psfunctor F)
-  : is_pstrans (is_psfunctor_eq_to_pstrans_data F HF₁ HF₂).
-Proof.
-  repeat split; cbn.
-  - intros x y f g α.
-    rewrite vassocr. rewrite vcomp_lunitor.
-    rewrite !vassocl.
-    rewrite rinvunitor_natural.
-    rewrite rwhisker_hcomp.
-    apply idpath.
-  - intros x.
-    rewrite vassocr. rewrite vcomp_lunitor.
-    rewrite !vassocl.
-    rewrite rinvunitor_natural.
-    rewrite rwhisker_hcomp.
-    rewrite lunitor_runitor_identity.
-    rewrite lunitor_V_id_is_left_unit_V_id.
-    apply idpath.
-  - intros x y z f g.
-    rewrite vassocr. rewrite vcomp_lunitor.
-    rewrite !vassocl.
-    rewrite rinvunitor_natural.
-    rewrite <- rwhisker_hcomp.
-    rewrite !vassocr.
-    apply maponpaths_2.
-    rewrite <- rwhisker_vcomp.
-    rewrite <- lunitor_triangle.
-    rewrite !vassocl.
-    do 2 apply maponpaths.
-    rewrite <- rinvunitor_triangle.
-    rewrite !vassocr.
-    apply maponpaths_2.
-    rewrite <- lwhisker_vcomp.
-    symmetry.
-    etrans.
-    {
-      rewrite !vassocl.
-      apply maponpaths.
-      rewrite vassocr.
-      rewrite lunitor_lwhisker.
-      apply idpath.
-    }
-    rewrite vassocr.
-    rewrite rwhisker_vcomp.
-    rewrite rinvunitor_runitor.
-    rewrite id2_rwhisker.
-    rewrite id2_left.
-    apply idpath.
-Qed.
-
-Definition is_psfunctor_eq_to_pstrans
-           {B₁ B₂ : bicat}
-           (F : psfunctor_data B₁ B₂)
-           (HF₁ HF₂ : is_psfunctor F)
-  : pstrans (F,,HF₁) (F,,HF₂).
-Proof.
-  use make_pstrans.
-  - apply is_psfunctor_eq_to_pstrans_data.
-  - apply is_psfunctor_eq_to_pstrans_is_pstrans.
-Defined.
-
-Section DisplayedBiequivalece.
+Section DisplayedBiequivalence.
 
 Context {B₁ B₂ : bicat}
         (D₁ : disp_bicat B₁)
@@ -162,18 +79,15 @@ Definition total_is_biequivalence_unit_counit
                                  (total_psfunctor _ _ _ GG).
 Proof.
   split.
-  - pose (unit_of_is_disp_biequivalence ee) as uu.
+  - apply pstrans_on_data_to_pstrans.
+    pose (unit_of_is_disp_biequivalence ee) as uu.
     pose (total_pstrans _ _ _ uu) as tuu.
-    refine (comp_trans _ (comp_trans tuu _)).
-    + apply is_psfunctor_eq_to_pstrans.
-    + apply is_psfunctor_eq_to_pstrans.
-  - pose (counit_of_is_disp_biequivalence ee) as uu.
+    apply tuu.
+  - apply pstrans_on_data_to_pstrans.
+    pose (counit_of_is_disp_biequivalence ee) as uu.
     pose (total_pstrans _ _ _ uu) as tuu.
-    refine (comp_trans _ (comp_trans tuu _)).
-    + apply is_psfunctor_eq_to_pstrans.
-    + apply is_psfunctor_eq_to_pstrans.
+    apply tuu.
 Defined.
-
 
 Definition disp_is_biequivalence_data
            {F : psfunctor B₁ B₂} {G : psfunctor B₂ B₁}
@@ -182,7 +96,7 @@ Definition disp_is_biequivalence_data
            {FF : disp_psfunctor D₁ D₂ F} {GG : disp_psfunctor D₂ D₁ G}
            (ee : is_disp_biequivalence_unit_counit e FF GG)
   : UU.
-
+Proof.
   simple refine
          (∑ uu : disp_pstrans (disp_pseudo_id D₁)
                               (disp_pseudo_comp _ _ _ _ _ FF GG)
@@ -236,36 +150,99 @@ Definition total_biequivalence_unit_inv
   : pstrans (ps_id_functor (total_bicat D₁))
             (ps_comp (total_psfunctor D₂ D₁ G GG) (total_psfunctor D₁ D₂ F FF)).
 Proof.
+  apply pstrans_on_data_to_pstrans.
   pose (pr1 aa) as aapr.
   pose (total_pstrans _ _ _ aapr) as taapr.
-  refine (comp_trans _ (comp_trans taapr _)).
-  - apply is_psfunctor_eq_to_pstrans.
-  - apply is_psfunctor_eq_to_pstrans.
+  apply taapr.
 Defined.
 
 Definition total_biequivalence_counit_inv
   : pstrans (ps_id_functor (total_bicat D₂))
             (ps_comp (total_psfunctor D₁ D₂ F FF) (total_psfunctor D₂ D₁ G GG)).
 Proof.
+  apply pstrans_on_data_to_pstrans.
   pose (pr12 aa) as aapr.
   pose (total_pstrans _ _ _ aapr) as taapr.
-  refine (comp_trans _ (comp_trans taapr _)).
-  - apply is_psfunctor_eq_to_pstrans.
-  - apply is_psfunctor_eq_to_pstrans.
+  apply taapr.
+Defined.
+
+Opaque ps_comp.
+
+Definition total_biequivalence_unit_unit_inv
+  : invertible_modification
+      (comp_trans
+         (unit_of_is_biequivalence (total_is_biequivalence_unit_counit ee))
+         total_biequivalence_unit_inv)
+      (id_trans (ps_comp (total_psfunctor D₂ D₁ G GG)
+                         (total_psfunctor D₁ D₂ F FF))).
+Proof.
+  pose (total_invmodification _ _ _ _ _ _ _ (pr122 (pr2 aa))) as m.
+  apply make_invertible_modification_on_data.
+  use tpair.
+  - intro X.
+    exact (invertible_modcomponent_of m X).
+  - exact (modnaturality_of (pr1 m)).
+Defined.
+
+Definition total_biequivalence_unit_inv_unit
+  : invertible_modification
+      (comp_trans
+         total_biequivalence_unit_inv
+         (unit_of_is_biequivalence (total_is_biequivalence_unit_counit ee)))
+      (id_trans (ps_id_functor (total_bicat D₁))).
+Proof.
+  pose (total_invmodification _ _ _ _ _ _ _ (pr122 ( aa))) as m.
+  apply make_invertible_modification_on_data.
+  use tpair.
+  - intro X.
+    exact (invertible_modcomponent_of m X).
+  - exact (modnaturality_of (pr1 m)).
+Defined.
+
+Definition total_biequivalence_counit_counit_inv
+  : invertible_modification
+      (comp_trans
+         (counit_of_is_biequivalence (total_is_biequivalence_unit_counit ee))
+         total_biequivalence_counit_inv)
+    (id_trans (ps_comp (total_psfunctor D₁ D₂ F FF) (total_psfunctor D₂ D₁ G GG))).
+Proof.
+  pose (total_invmodification _ _ _ _ _ _ _ (pr222 (pr22 aa))) as m.
+  apply make_invertible_modification_on_data.
+  use tpair.
+  - intro X.
+    exact (invertible_modcomponent_of m X).
+  - exact (modnaturality_of (pr1 m)).
+Defined.
+
+
+Definition total_biequivalence_counit_inv_counit
+  : invertible_modification
+      (comp_trans
+         total_biequivalence_counit_inv
+         (counit_of_is_biequivalence (total_is_biequivalence_unit_counit ee)))
+      (id_trans (ps_id_functor (total_bicat D₂))).
+Proof.
+  pose (total_invmodification _ _ _ _ _ _ _ (pr122 (pr22 aa))) as m.
+  apply make_invertible_modification_on_data.
+  use tpair.
+  - intro X.
+    exact (invertible_modcomponent_of m X).
+  - exact (modnaturality_of (pr1 m)).
 Defined.
 
 Definition total_is_biequivalence
   : is_biequivalence (total_psfunctor _ _ _ FF).
 Proof.
-
   use make_is_biequivalence_from_unit_counit.
   - exact (total_psfunctor _ _ _ GG).
   - exact (total_is_biequivalence_unit_counit ee).
   - exact total_biequivalence_unit_inv.
   - exact total_biequivalence_counit_inv.
-
-  - pose (pr122 aa) as aapr.
-    pose (total_invmodification _ _ _ _ _ _ _ aapr) as taapr.
-Abort.
+  - exact total_biequivalence_unit_unit_inv.
+  - exact total_biequivalence_unit_inv_unit.
+  - exact total_biequivalence_counit_counit_inv.
+  - exact total_biequivalence_counit_inv_counit.
+Defined.
 
 End total_biequivalence.
+End DisplayedBiequivalence.
