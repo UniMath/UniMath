@@ -3421,8 +3421,24 @@ Proof.
   apply (iscontrweqf (make_weq intmap (isweqinvezmaphf fpq pr1q x xqe)) isint).
 Defined.
 
+Theorem isweqfibtototal' {X : UU} (P Q : X -> UU) (f : ∏ x : X, P x ≃ Q x) :
+  isweq (totalfun _ _ f).
+Proof.
+  use isweq_iso.
+  - use totalfun.
+    intro x. apply (invmap (f x)).
+  - intro xp.
+    use total2_paths_f.
+    + apply idpath.
+    + apply homotinvweqweq.
+  - intro xp.
+    use total2_paths_f.
+    + apply idpath.
+    + apply homotweqinvweq.
+Defined.
+
 Definition weqfibtototal {X : UU} (P Q : X -> UU) (f : ∏ x, P x ≃ Q x) :
-  (∑ x, P x) ≃ (∑ x, Q x) := make_weq _ (isweqfibtototal P Q f).
+  (∑ x, P x) ≃ (∑ x, Q x) := make_weq _ (isweqfibtototal' P Q f).
 
 
 (** *** Function [ fpmap ] between the total spaces from a function between the bases
