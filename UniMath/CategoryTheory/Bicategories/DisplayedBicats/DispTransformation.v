@@ -607,34 +607,40 @@ Context {B₁ B₂ : bicat}
         (ηη₁ : disp_pstrans FF₁ FF₂ η₁)
         (ηη₂ : disp_pstrans FF₂ FF₃ η₂).
 
-(* WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP *)
+Local Notation "αα '••' ββ" := (vcomp_disp_invertible αα ββ).
+Local Notation "ff '◃◃' αα" := (disp_invertible_2cell_lwhisker ff αα).
+Local Notation "αα '▹▹' ff" := (disp_invertible_2cell_rwhisker ff αα).
 
-Definition disp_pstrans_comp_data : disp_pstrans_data FF₁ FF₃ (comp_trans η₁ η₂).
+Definition disp_ps_comp_data : disp_pstrans_data FF₁ FF₃ (comp_trans η₁ η₂).
 Proof.
   use make_disp_pstrans_data; cbn.
   - exact (λ x xx, comp_disp (ηη₁ x xx) (ηη₂ x xx)).
-  - refine (λ x y f xx yy ff, _).
-(*
+  - exact (λ x y f xx yy ff,
+           (disp_invertible_2cell_rassociator _ _ _)
+             •• (_ ◃◃ disp_psnaturality_of _ _ _ ηη₂ ff)
+             •• disp_invertible_2cell_lassociator _ _ _
+             •• (disp_psnaturality_of _ _ _ ηη₁ ff ▹▹ _)
+             •• disp_invertible_2cell_rassociator _ _ _).
+Defined.
 
-      refine (λ F₀ G₀ H₀ η₁ ε₁ F₁ G₁ H₁ η₂ ε₂ X Y f,
-              (rassociator (η₁ X) (ε₁ X) (H₁ X Y f))
-                • (η₁ X ◃ ε₂ X Y f)
-                • lassociator (η₁ X) (G₁ X Y f) (ε₁ Y)
-                • (η₂ X Y f ▹ ε₁ Y)
-                • rassociator (F₁ X Y f) (η₁ Y) (ε₁ Y) ,, _).
-
-*)
-Admitted.
-
-(*
-Lemma disp_pseudo_comp_laws : is_disp_psfunctor _ _ _ disp_pseudo_comp_data.
+Lemma disp_ps_comp_laws : is_disp_pstrans _ _ _ disp_ps_comp_data.
 Proof.
-  apply is_disp_psfunctor_from_total.
-  apply (ps_comp (total_psfunctor _ _ _ FF₂) (total_psfunctor _ _ _ FF₁)).
+  apply is_disp_pstrans_from_total.
+  pose (PP := comp_trans (total_pstrans _ _ _ ηη₁) (total_pstrans _ _ _ ηη₂)).
+  pose (PP2 := pstrans_to_is_pstrans PP).
+  assert (pr11 PP = total_pstrans_data _ _ _ disp_ps_comp_data).
+  - use total2_paths_f.
+    + apply idpath.
+    + apply funextsec. intro x.
+      apply funextsec. intro y.
+      apply funextsec. intro f.
+      use subtypePath.
+      { intro. apply isaprop_is_invertible_2cell. }
+      apply idpath.
+  - exact (transportf _ X PP2).
 Qed.
 
-Definition disp_pseudo_comp : disp_psfunctor _ _ (ps_comp F₂ F₁)
-  := disp_pseudo_comp_data,, disp_pseudo_comp_laws.
- *)
+Definition disp_ps_comp : disp_pstrans _ _ (comp_trans η₁ η₂)
+  := disp_ps_comp_data,, disp_ps_comp_laws.
 
 End DispTrans_comp.
