@@ -370,16 +370,11 @@ Proof.
   exact (HX₁ ,, λ Y, (HX₂ Y ,, HX₃ Y)).
 Defined.
 
-Lemma isofhlevel_unit n : isofhlevel n unit.
-  apply isofhlevelcontr.
-  exact iscontrunit.
-Qed.
-
-Definition isofhleve_unit n : isofhlevel n unit
+Definition isofhlevel_unit n : isofhlevel n unit
   := isofhlevelcontr n iscontrunit.
 
 Definition unit_1_type : one_types
-  := (unit,, isofhleve_unit 3).
+  := (unit,, isofhlevel_unit 3).
 
 Definition bifinal_1_types
   : is_bifinal one_types_is_univalent_2_1 unit_1_type.
