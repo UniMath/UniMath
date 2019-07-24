@@ -247,6 +247,7 @@ Bicategories/Modifications/Examples/Unitality.v
 Bicategories/Modifications/Examples/Associativity.v
 Bicategories/PseudoFunctors/Representable.v
 Bicategories/PseudoFunctors/Yoneda.v
+Bicategories/PseudoFunctors/Biequivalence.v
 
 Bicategories/PseudoFunctors/Examples/StrictToPseudo.v
 Bicategories/PseudoFunctors/Examples/Projection.v
@@ -257,8 +258,11 @@ Bicategories/DisplayedBicats/Examples/Add2Cell.v
 Bicategories/DisplayedBicats/Examples/ContravariantFunctor.v
 Bicategories/DisplayedBicats/Examples/Cofunctormap.v
 Bicategories/DisplayedBicats/Examples/CwF.v
+Bicategories/DisplayedBicats/DispPseudofunctor.v
 Bicategories/Transformations/Examples/AlgebraMap.v
 Bicategories/DisplayedBicats/Examples/Monads.v
+Bicategories/DisplayedBicats/DispTransformation.v
+Bicategories/DisplayedBicats/DispModification.v
 
 Bicategories/Bicategories/YonedaLemma.v
 

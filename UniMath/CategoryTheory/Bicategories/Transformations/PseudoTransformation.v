@@ -268,3 +268,17 @@ Proof.
   pose (pr1 (left_adjoint_equivalence_total_disp_weq _ _ t₂)) as t₃.
   exact (is_adjequiv_to_all_is_adjequiv _ _ _ t₃ X).
 Defined.
+
+Definition pstrans_to_pstrans_data
+           {B₁ B₂ : bicat}
+           {F₁ F₂ : psfunctor B₁ B₂}
+           (α : pstrans F₁ F₂)
+  : pstrans_data F₁ F₂
+  := pr11 α.
+
+Definition pstrans_to_is_pstrans
+           {B₁ B₂ : bicat}
+           {F₁ F₂ : psfunctor B₁ B₂}
+           (α : pstrans F₁ F₂)
+  : is_pstrans (pstrans_to_pstrans_data α)
+  := pr21 α.
