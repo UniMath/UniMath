@@ -670,3 +670,317 @@ Proof.
   - exact (αα •• ββ).
   - apply vcomp_disp_is_invertible.
 Defined.
+
+Definition is_disp_invertible_2cell_lunitor
+           {B : bicat}
+           {x y : B}
+           {f : x --> y}
+           {D : disp_bicat B}
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[f] yy)
+  : is_disp_invertible_2cell (is_invertible_2cell_lunitor f) (disp_lunitor ff).
+Proof.
+  use tpair.
+  - exact (disp_linvunitor ff).
+  - split.
+    + etrans.
+      { apply disp_lunitor_linvunitor. }
+      apply (transportf_paths (λ p, _ ==>[p] _)).
+      apply B.
+    + etrans.
+      { apply disp_linvunitor_lunitor. }
+      apply (transportf_paths (λ p, _ ==>[p] _)).
+      apply B.
+Defined.
+
+Definition disp_invertible_2cell_lunitor
+           {B : bicat}
+           {x y : B}
+           {f : x --> y}
+           {D : disp_bicat B}
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[f] yy)
+  : disp_invertible_2cell (lunitor f,, is_invertible_2cell_lunitor f) (id_disp xx;; ff) ff
+  := disp_lunitor ff,, is_disp_invertible_2cell_lunitor ff.
+
+Definition is_disp_invertible_2cell_runitor
+           {B : bicat}
+           {x y : B}
+           {f : x --> y}
+           {D : disp_bicat B}
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[f] yy)
+  : is_disp_invertible_2cell (is_invertible_2cell_runitor f) (disp_runitor ff).
+Proof.
+  use tpair.
+  - exact (disp_rinvunitor ff).
+  - split.
+    + etrans.
+      { apply disp_runitor_rinvunitor. }
+      apply (transportf_paths (λ p, _ ==>[p] _)).
+      apply B.
+    + etrans.
+      { apply disp_rinvunitor_runitor. }
+      apply (transportf_paths (λ p, _ ==>[p] _)).
+      apply B.
+Defined.
+
+Definition disp_invertible_2cell_runitor
+           {B : bicat}
+           {x y : B}
+           {f : x --> y}
+           {D : disp_bicat B}
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[f] yy)
+  : disp_invertible_2cell (runitor f,, is_invertible_2cell_runitor f) (ff;; id_disp yy) ff
+  := disp_runitor ff,, is_disp_invertible_2cell_runitor ff.
+
+Definition is_disp_invertible_2cell_rinvunitor
+           {B : bicat}
+           {x y : B}
+           {f : x --> y}
+           {D : disp_bicat B}
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[f] yy)
+  : is_disp_invertible_2cell (is_invertible_2cell_rinvunitor f) (disp_rinvunitor ff).
+Proof.
+  use tpair.
+  - exact (disp_runitor ff).
+  - split.
+    + etrans.
+      { apply disp_rinvunitor_runitor. }
+      apply (transportf_paths (λ p, _ ==>[p] _)).
+      apply B.
+    + etrans.
+      { apply disp_runitor_rinvunitor. }
+      apply (transportf_paths (λ p, _ ==>[p] _)).
+      apply B.
+Defined.
+
+Definition disp_invertible_2cell_rinvunitor
+           {B : bicat}
+           {x y : B}
+           {f : x --> y}
+           {D : disp_bicat B}
+           {xx : D x}
+           {yy : D y}
+           (ff : xx -->[f] yy)
+  : disp_invertible_2cell (rinvunitor f,, is_invertible_2cell_rinvunitor f) ff (ff;; id_disp yy)
+  := disp_rinvunitor ff,, is_disp_invertible_2cell_rinvunitor ff.
+
+Definition is_disp_invertible_2cell_lassociator
+           {B : bicat}
+           {w x y z : B}
+           {f : w --> x}
+           {g : x --> y}
+           {h : y --> z}
+           {D : disp_bicat B}
+           {ww : D w}
+           {xx : D x}
+           {yy : D y}
+           {zz : D z}
+           (ff : ww -->[f] xx)
+           (gg : xx -->[g] yy)
+           (hh : yy -->[h] zz)
+  : is_disp_invertible_2cell (is_invertible_2cell_lassociator f g h) (disp_lassociator ff gg hh).
+Proof.
+  use tpair.
+  - exact (disp_rassociator ff gg hh).
+  - split.
+    + etrans.
+      { apply disp_lassociator_rassociator. }
+      apply (transportf_paths (λ p, _ ==>[p] _)).
+      apply B.
+    + etrans.
+      { apply disp_rassociator_lassociator. }
+      apply (transportf_paths (λ p, _ ==>[p] _)).
+      apply B.
+Defined.
+
+Definition disp_invertible_2cell_lassociator
+           {B : bicat}
+           {w x y z : B}
+           {f : w --> x}
+           {g : x --> y}
+           {h : y --> z}
+           {D : disp_bicat B}
+           {ww : D w}
+           {xx : D x}
+           {yy : D y}
+           {zz : D z}
+           (ff : ww -->[f] xx)
+           (gg : xx -->[g] yy)
+           (hh : yy -->[h] zz)
+  : disp_invertible_2cell
+      (lassociator f g h,,
+                   is_invertible_2cell_lassociator f g h) _ _
+  := disp_lassociator ff gg hh,, is_disp_invertible_2cell_lassociator ff gg hh.
+
+Definition is_disp_invertible_2cell_rassociator
+           {B : bicat}
+           {w x y z : B}
+           {f : w --> x}
+           {g : x --> y}
+           {h : y --> z}
+           {D : disp_bicat B}
+           {ww : D w}
+           {xx : D x}
+           {yy : D y}
+           {zz : D z}
+           (ff : ww -->[f] xx)
+           (gg : xx -->[g] yy)
+           (hh : yy -->[h] zz)
+  : is_disp_invertible_2cell (is_invertible_2cell_rassociator f g h) (disp_rassociator ff gg hh).
+Proof.
+  use tpair.
+  - exact (disp_lassociator ff gg hh).
+  - split.
+    + etrans.
+      { apply disp_rassociator_lassociator. }
+      apply (transportf_paths (λ p, _ ==>[p] _)).
+      apply B.
+    + etrans.
+      { apply disp_lassociator_rassociator. }
+      apply (transportf_paths (λ p, _ ==>[p] _)).
+      apply B.
+Defined.
+
+Definition disp_invertible_2cell_rassociator
+           {B : bicat}
+           {w x y z : B}
+           {f : w --> x}
+           {g : x --> y}
+           {h : y --> z}
+           {D : disp_bicat B}
+           {ww : D w}
+           {xx : D x}
+           {yy : D y}
+           {zz : D z}
+           (ff : ww -->[f] xx)
+           (gg : xx -->[g] yy)
+           (hh : yy -->[h] zz)
+  : disp_invertible_2cell
+      (rassociator f g h,,
+                   is_invertible_2cell_rassociator f g h) _ _
+  := disp_rassociator ff gg hh,, is_disp_invertible_2cell_rassociator ff gg hh.
+
+Definition is_disp_invertible_2cell_lwhisker
+           {B : bicat}
+           {x y z : B}
+           {f : x --> y}
+           {g₁ g₂ : y --> z}
+           {α : invertible_2cell g₁ g₂}
+           {D : disp_bicat B}
+           {xx : D x}
+           {yy : D y}
+           {zz : D z}
+           (ff : xx -->[f] yy)
+           {gg₁ : yy -->[g₁] zz}
+           {gg₂ : yy -->[g₂] zz}
+           (αα : disp_invertible_2cell α gg₁ gg₂)
+  : is_disp_invertible_2cell (is_invertible_2cell_lwhisker f (pr2 α)) (ff ◃◃ αα).
+Proof.
+  use tpair.
+  - exact (ff ◃◃ disp_inv_cell αα).
+  - split.
+    + abstract
+        (refine (disp_lwhisker_vcomp _ _ @ _) ;
+         refine (maponpaths _ (maponpaths _ (disp_vcomp_rinv _)) @ _) ;
+         unfold transportb ;
+         rewrite disp_rwhisker_transport_right ;
+         rewrite disp_lwhisker_id2 ;
+         unfold transportb ;
+         rewrite !transport_f_f ;
+         apply (transportf_paths (λ p, _ ==>[ p ] _)) ;
+         apply B).
+    + abstract
+        (refine (disp_lwhisker_vcomp _ _ @ _) ;
+         refine (maponpaths _ (maponpaths _ (disp_vcomp_linv _)) @ _) ;
+         unfold transportb ;
+         rewrite disp_rwhisker_transport_right ;
+         rewrite disp_lwhisker_id2 ;
+         unfold transportb ;
+         rewrite !transport_f_f ;
+         apply (transportf_paths (λ p, _ ==>[ p ] _)) ;
+         apply B).
+Defined.
+
+Definition disp_invertible_2cell_lwhisker
+           {B : bicat}
+           {x y z : B}
+           {f : x --> y}
+           {g₁ g₂ : y --> z}
+           {α : invertible_2cell g₁ g₂}
+           {D : disp_bicat B}
+           {xx : D x}
+           {yy : D y}
+           {zz : D z}
+           (ff : xx -->[f] yy)
+           {gg₁ : yy -->[g₁] zz}
+           {gg₂ : yy -->[g₂] zz}
+           (αα : disp_invertible_2cell α gg₁ gg₂)
+  : disp_invertible_2cell (_ ,, is_invertible_2cell_lwhisker f (pr2 α)) _ _
+  := disp_lwhisker ff αα,, is_disp_invertible_2cell_lwhisker ff αα.
+
+Definition is_disp_invertible_2cell_rwhisker
+           {B : bicat}
+           {x y z : B}
+           {f₁ f₂ : x --> y}
+           {g : y --> z}
+           {α : invertible_2cell f₁ f₂}
+           {D : disp_bicat B}
+           {xx : D x}
+           {yy : D y}
+           {zz : D z}
+           {ff₁ : xx -->[f₁] yy}
+           {ff₂ : xx -->[f₂] yy}
+           (gg : yy -->[g] zz)
+           (αα : disp_invertible_2cell α ff₁ ff₂)
+  : is_disp_invertible_2cell (is_invertible_2cell_rwhisker g (pr2 α)) (αα ▹▹ gg).
+Proof.
+  use tpair.
+  - exact (disp_inv_cell αα ▹▹ gg).
+  - split.
+    + abstract
+        (refine (disp_rwhisker_vcomp _ _ @ _) ;
+         refine (maponpaths _ (maponpaths _ (disp_vcomp_rinv _)) @ _) ;
+         unfold transportb ;
+         rewrite disp_rwhisker_transport_left_new ;
+         rewrite disp_id2_rwhisker ;
+         unfold transportb ;
+         rewrite !transport_f_f ;
+         apply (transportf_paths (λ p, _ ==>[ p ] _)) ;
+         apply B).
+    +abstract
+        (refine (disp_rwhisker_vcomp _ _ @ _) ;
+         refine (maponpaths _ (maponpaths _ (disp_vcomp_linv _)) @ _) ;
+         unfold transportb ;
+         rewrite disp_rwhisker_transport_left_new ;
+         rewrite disp_id2_rwhisker ;
+         unfold transportb ;
+         rewrite !transport_f_f ;
+         apply (transportf_paths (λ p, _ ==>[ p ] _)) ;
+         apply B).
+Defined.
+
+Definition disp_invertible_2cell_rwhisker
+           {B : bicat}
+           {x y z : B}
+           {f₁ f₂ : x --> y}
+           {g : y --> z}
+           {α : invertible_2cell f₁ f₂}
+           {D : disp_bicat B}
+           {xx : D x}
+           {yy : D y}
+           {zz : D z}
+           {ff₁ : xx -->[f₁] yy}
+           {ff₂ : xx -->[f₂] yy}
+           (gg : yy -->[g] zz)
+           (αα : disp_invertible_2cell α ff₁ ff₂)
+  : disp_invertible_2cell (_ ,, is_invertible_2cell_rwhisker g (pr2 α)) _ _
+  := disp_rwhisker gg αα,, is_disp_invertible_2cell_rwhisker gg αα.
