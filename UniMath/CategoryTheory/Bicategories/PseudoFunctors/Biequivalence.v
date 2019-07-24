@@ -74,6 +74,80 @@ Definition is_biequivalence_adjoint_counit {C D : bicat}
   : left_adjoint_equivalence (counit_of_is_biequivalence e)
   := pr2 a.
 
+Definition invunit_of_is_biequivalence {C D : bicat}
+           {F : psfunctor C D}
+           {G : psfunctor D C}
+           {e : is_biequivalence_unit_counit F G}
+           (a : is_biequivalence_adjoints e)
+  : pstrans (ps_id_functor C) (ps_comp G F)
+  := left_adjoint_right_adjoint (is_biequivalence_adjoint_unit a).
+
+Definition invcounit_of_is_biequivalence {C D : bicat}
+           {F : psfunctor C D}
+           {G : psfunctor D C}
+           {e : is_biequivalence_unit_counit F G}
+           (a : is_biequivalence_adjoints e)
+  : pstrans (ps_id_functor D) (ps_comp F G)
+  := left_adjoint_right_adjoint (is_biequivalence_adjoint_counit a).
+
+Definition unitcounit_of_is_biequivalence {C D : bicat}
+           {F : psfunctor C D}
+           {G : psfunctor D C}
+           {e : is_biequivalence_unit_counit F G}
+           (a : is_biequivalence_adjoints e)
+  : invertible_modification
+      (comp_trans (invunit_of_is_biequivalence a)
+                  (unit_of_is_biequivalence e))
+      (id_trans _).
+Proof.
+  refine (left_adjoint_counit (is_biequivalence_adjoint_unit a) ,, _).
+  exact (left_equivalence_counit_iso (is_biequivalence_adjoint_unit a)).
+Defined.
+
+Definition unitunit_of_is_biequivalence {C D : bicat}
+           {F : psfunctor C D}
+           {G : psfunctor D C}
+           {e : is_biequivalence_unit_counit F G}
+           (a : is_biequivalence_adjoints e)
+  : invertible_modification
+      (comp_trans (unit_of_is_biequivalence e)
+                  (invunit_of_is_biequivalence a))
+      (id_trans _).
+Proof.
+  refine (inv_of_invertible_2cell _).
+  refine (left_adjoint_unit (is_biequivalence_adjoint_unit a) ,, _).
+  exact (left_equivalence_unit_iso (is_biequivalence_adjoint_unit a)).
+Defined.
+
+Definition counitunit_of_is_biequivalence {C D : bicat}
+           {F : psfunctor C D}
+           {G : psfunctor D C}
+           {e : is_biequivalence_unit_counit F G}
+           (a : is_biequivalence_adjoints e)
+  : invertible_modification
+      (comp_trans (counit_of_is_biequivalence e)
+                  (invcounit_of_is_biequivalence a))
+      (id_trans _).
+Proof.
+  refine (inv_of_invertible_2cell _).
+  refine (left_adjoint_unit (is_biequivalence_adjoint_counit a) ,, _).
+  exact (left_equivalence_unit_iso (is_biequivalence_adjoint_counit a)).
+Defined.
+
+Definition counitcounit_of_is_biequivalence {C D : bicat}
+           {F : psfunctor C D}
+           {G : psfunctor D C}
+           {e : is_biequivalence_unit_counit F G}
+           (a : is_biequivalence_adjoints e)
+  : invertible_modification
+      (comp_trans (invcounit_of_is_biequivalence a)
+                  (counit_of_is_biequivalence e))
+      (id_trans _).
+Proof.
+  refine (left_adjoint_counit (is_biequivalence_adjoint_counit a) ,, _).
+  exact (left_equivalence_counit_iso (is_biequivalence_adjoint_counit a)).
+Defined.
+
 Definition is_biequivalence {C D : bicat} (F : psfunctor C D) : UU
   := ∑ (G : psfunctor D C) (e : is_biequivalence_unit_counit F G),
      is_biequivalence_adjoints e.
@@ -159,6 +233,45 @@ Proof.
 Defined.
 
 End Builder.
+
+Section Builder_From_Unit_Counit.
+
+Context {C D : bicat} (F : psfunctor C D) (G : psfunctor D C)
+        (a : is_biequivalence_unit_counit F G)
+        (η : pstrans (ps_id_functor C) (ps_comp G F))
+        (εinv : pstrans (ps_id_functor D) (ps_comp F G)).
+
+Local Notation "'ηinv'" := (unit_of_is_biequivalence a).
+Local Notation "'ε'" := (counit_of_is_biequivalence a).
+
+Context (pη : invertible_modification
+               (id_trans (ps_comp G F))
+               (comp_trans ηinv η))
+        (qη : invertible_modification
+               (comp_trans η ηinv)
+               (id_trans (ps_id_functor C)))
+        (pε : invertible_modification
+               (id_trans (ps_comp F G))
+               (comp_trans ε εinv))
+        (qε : invertible_modification
+               (comp_trans εinv ε)
+               (id_trans (ps_id_functor D))).
+
+Definition make_is_biequivalence_from_unit_counit : is_biequivalence F.
+Proof.
+  use make_is_biequivalence.
+  - exact G.
+  - exact η.
+  - exact ηinv.
+  - exact ε.
+  - exact εinv.
+  - exact pη.
+  - exact qη.
+  - exact pε.
+  - exact qε.
+Defined.
+
+End Builder_From_Unit_Counit.
 
 
 Section Pointwise.
