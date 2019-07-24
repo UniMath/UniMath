@@ -1,8 +1,8 @@
 (* ------------------------------------------------------------------------- *)
-(** Displayed pseudofunctors.
+(** Displayed transformation.
     Contents:
-      - Definition of displayed pseudofunctors.
-      - Identity and composition of displayed pseudofunctors.                *)
+      - Definition of displayed transformation.
+      - Identity and composition of displayed transformations.                *)
 (* ------------------------------------------------------------------------- *)
 
 Require Import UniMath.Foundations.All.
