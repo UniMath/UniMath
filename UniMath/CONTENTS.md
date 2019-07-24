@@ -359,6 +359,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Bicategories/DisplayedBicats/DispModification.v](CategoryTheory/Bicategories/DisplayedBicats/DispModification.v)
    - [Bicategories/Bicategories/YonedaLemma.v](CategoryTheory/Bicategories/Bicategories/YonedaLemma.v)
    - [Bicategories/Colimits/Initial.v](CategoryTheory/Bicategories/Colimits/Initial.v)
+   - [Bicategories/Colimits/Final.v](CategoryTheory/Bicategories/Colimits/Final.v)
    - [Bicategories/PseudoFunctors/Biadjunction.v](CategoryTheory/Bicategories/PseudoFunctors/Biadjunction.v)
    - [Bicategories/PseudoFunctors/Examples/PathGroupoid.v](CategoryTheory/Bicategories/PseudoFunctors/Examples/PathGroupoid.v)
    - [Bicategories/WkCatEnrichment/prebicategory.v](CategoryTheory/Bicategories/WkCatEnrichment/prebicategory.v)
