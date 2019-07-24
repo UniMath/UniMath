@@ -238,7 +238,6 @@ Bicategories/PseudoFunctors/Examples/Composition.v
 Bicategories/PseudoFunctors/Examples/Constant.v
 Bicategories/PseudoFunctors/Examples/ApFunctor.v
 Bicategories/PseudoFunctors/Examples/OpFunctor.v
-Bicategories/PseudoFunctors/Biequivalence.v
 Bicategories/Transformations/PseudoTransformation.v
 Bicategories/Transformations/Examples/Whiskering.v
 Bicategories/Transformations/Examples/Unitality.v
@@ -248,6 +247,7 @@ Bicategories/Modifications/Examples/Unitality.v
 Bicategories/Modifications/Examples/Associativity.v
 Bicategories/PseudoFunctors/Representable.v
 Bicategories/PseudoFunctors/Yoneda.v
+Bicategories/PseudoFunctors/Biequivalence.v
 
 Bicategories/PseudoFunctors/Examples/StrictToPseudo.v
 Bicategories/PseudoFunctors/Examples/Projection.v
