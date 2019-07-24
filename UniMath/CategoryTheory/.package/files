@@ -267,6 +267,7 @@ Bicategories/DisplayedBicats/DispModification.v
 Bicategories/Bicategories/YonedaLemma.v
 
 Bicategories/Colimits/Initial.v
+Bicategories/Colimits/Final.v
 
 Bicategories/PseudoFunctors/Biadjunction.v
 Bicategories/PseudoFunctors/Examples/PathGroupoid.v
