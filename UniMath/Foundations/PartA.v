@@ -960,10 +960,9 @@ Definition famhomotfun {X : UU} {P Q : X -> UU}
            (h : P ~ Q) (xp : total2 P) : total2 Q.
 Proof.
   intros.
-  induction xp as [ x p ].
-  split with x.
-  induction (h x).
-  apply p.
+  exists (pr1 xp).
+  induction (h (pr1 xp)).
+  apply (pr2 xp).
 Defined.
 
 Definition famhomothomothomot {X : UU} {P Q : X -> UU} (h1 h2 : P ~ Q)
@@ -971,10 +970,8 @@ Definition famhomothomothomot {X : UU} {P Q : X -> UU} (h1 h2 : P ~ Q)
 Proof.
   intros.
   intro xp.
-  induction xp as [x p].
-  simpl.
-  apply (maponpaths (λ q, tpair Q x q)).
-  induction (H x).
+  apply (maponpaths (λ q, tpair Q (pr1 xp) q)).
+  induction (H (pr1 xp)).
   apply idpath.
 Defined.
 
@@ -1008,8 +1005,7 @@ Defined.
 Lemma proofirrelevancecontr {X : UU} (is : iscontr X) (x x' : X) : x = x'.
 Proof.
   intros.
-  induction is as [y fe].
-  apply (fe x @ !(fe x')).
+  apply ((pr2 is) x @ !(pr2 is x')).
 Defined.
 
 Lemma path_to_ctr (A : UU) (B : A -> UU) (isc : ∃! a, B a)
@@ -2286,9 +2282,7 @@ Proof.
   intros xpq.
   exists (pr1 (pr1 xpq)).
   exists (pr2 (pr1 xpq)).
-  induction xpq as [ xp q ].
-  induction xp as [ x p ].
-  assumption.
+  exact (pr2 xpq).
 Defined.
 
 Lemma total2asstol {X : UU} (P : X -> UU) (Q : total2 P -> UU) :
@@ -2299,9 +2293,7 @@ Proof.
   - use tpair.
     + apply (pr1 xpq).
     + apply (pr1 (pr2 xpq)).
-  - induction xpq as [ x pq ].
-    induction pq as [ p q ].
-    assumption.
+  - exact (pr2 (pr2 xpq)).
 Defined.
 
 
@@ -2312,9 +2304,9 @@ Proof.
   set (f := total2asstor P Q). set (g:= total2asstol P Q).
   split with f.
   assert (egf : ∏ xpq : _ , (g (f xpq)) = xpq).
-  intro. induction xpq as [ xp q ]. induction xp as [ x p ]. apply idpath.
+  intro. apply idpath.
   assert (efg : ∏ xpq : _ , (f (g xpq)) = xpq).
-  intro. induction xpq as [ x pq ]. induction pq as [ p q ]. apply idpath.
+  intro. apply idpath.
   apply (isweq_iso _ _ egf efg).
 Defined.
 
@@ -2349,13 +2341,13 @@ Definition weqtotal2dirprodcomm {X Y : UU} (P : X × Y -> UU) :
 Proof.
   intros.
   use weq_iso.
-  - intros xyp. induction xyp as [xy p]. induction xy as [x y].
-    exact ((y,,x),,p).
-  - intros yxp. induction yxp as [yx p]. induction yx as [y x].
-    exact ((x,,y),,p).
-  - intros xyp. induction xyp as [xy p]. induction xy as [x y].
+  - intros xyp.
+    exact ((pr2 (pr1 xyp),, pr1 (pr1 xyp)),,pr2 xyp).
+  - intros yxp.
+    exact (((pr2 (pr1 yxp)),, (pr1 (pr1 yxp))),, pr2 yxp).
+  - intros xyp.
     apply idpath.
-  - intros yxp. induction yxp as [yx p]. induction yx as [y x].
+  - intros yxp.
     apply idpath.
 Defined.
 
@@ -2363,13 +2355,13 @@ Definition weqtotal2dirprodassoc  {X Y : UU} (P : X × Y -> UU) :
   (∑ xy : X × Y, P xy) ≃ (∑ (x : X) (y : Y), P (x,,y)).
   intros.
   use weq_iso.
-  - intros xyp. induction xyp as [xy p]. induction xy as [x y].
-    exact (x,,y,,p).
-  - intros xyp. induction xyp as [x yp]. induction yp as [y p].
-    exact ((x,,y),,p).
-  - intros xyp. induction xyp as [xy p]. induction xy as [x y].
+  - intros xyp.
+    exact (pr1 (pr1 xyp),,pr2 (pr1 xyp),, pr2 xyp).
+  - intros xyp.
+    exact (((pr1 xyp),, pr1 (pr2 xyp)),, pr2 (pr2 xyp)).
+  - intros xyp.
     apply idpath.
-  - intros xyp. induction xyp as [x yp]. induction yp as [y p].
+  - intros xyp.
     apply idpath.
 Defined.
 
@@ -2378,13 +2370,13 @@ Definition weqtotal2dirprodassoc' {X Y : UU} (P : X × Y -> UU) :
 Proof.
   intros.
   use weq_iso.
-  - intros xyp. induction xyp as [xy p]. induction xy as [x y].
-    exact (y,,x,,p).
-  - intros yxp. induction yxp as [x yp]. induction yp as [y p].
-    exact ((y,,x),,p).
-  - intros xyp. induction xyp as [xy p]. induction xy as [x y].
+  - intros xyp.
+    exact (pr2 (pr1 xyp),,pr1 (pr1 xyp),,pr2 xyp).
+  - intros yxp.
+    exact ((pr1 (pr2 yxp),,pr1 yxp),,pr2 (pr2 yxp)).
+  - intros xyp.
     apply idpath.
-  - intros yxp. induction yxp as [x yp]. induction yp as [y p].
+  - intros yxp.
     apply idpath.
 Defined.
 
@@ -2393,10 +2385,10 @@ Definition weqtotal2comm12 {X} (P Q : X -> UU) :
 Proof.
   intros.
   use weq_iso.
-  - intros [[x p] q]. exact ((x,,q),,p).
-  - intros [[x q] p]. exact ((x,,p),,q).
-  - intros [[x p] q]. apply idpath.
-  - intros [[x q] p]. apply idpath.
+  - intro xpq. exact ((pr1 (pr1 xpq),,pr2 xpq),, pr2 (pr1 xpq)).
+  - intro xqp. exact ((pr1 (pr1 xqp),, pr2 xqp),, pr2 (pr1 xqp)).
+  - intro. apply idpath.
+  - intro. apply idpath.
 Defined.
 
 (** ** Binary coproducts and their basic properties *)
