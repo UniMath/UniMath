@@ -255,16 +255,16 @@ Definition comp_trans
   := σ₁ · σ₂.
 
 (** Pseudo adjoint equivalence is pointwise adjoint equivalence *)
- Definition pointwise_adjequiv
-            {B₁ B₂ : bicat}
-            {F₁ F₂ : psfunctor B₁ B₂}
-            (σ : pstrans F₁ F₂)
-            (Hf : left_adjoint_equivalence σ)
-   : ∏ (X : B₁), left_adjoint_equivalence (σ X).
- Proof.
-   intro X.
-   pose (pr1 (left_adjoint_equivalence_total_disp_weq _ _ Hf)) as t₁.
-   pose (pr1 (left_adjoint_equivalence_total_disp_weq _ _ t₁)) as t₂.
-   pose (pr1 (left_adjoint_equivalence_total_disp_weq _ _ t₂)) as t₃.
-   exact (is_adjequiv_to_all_is_adjequiv _ _ _ t₃ X).
- Defined.
+Definition pointwise_adjequiv
+           {B₁ B₂ : bicat}
+           {F₁ F₂ : psfunctor B₁ B₂}
+           (σ : pstrans F₁ F₂)
+           (Hf : left_adjoint_equivalence σ)
+  : ∏ (X : B₁), left_adjoint_equivalence (σ X).
+Proof.
+  intro X.
+  pose (pr1 (left_adjoint_equivalence_total_disp_weq _ _ Hf)) as t₁.
+  pose (pr1 (left_adjoint_equivalence_total_disp_weq _ _ t₁)) as t₂.
+  pose (pr1 (left_adjoint_equivalence_total_disp_weq _ _ t₂)) as t₃.
+  exact (is_adjequiv_to_all_is_adjequiv _ _ _ t₃ X).
+Defined.

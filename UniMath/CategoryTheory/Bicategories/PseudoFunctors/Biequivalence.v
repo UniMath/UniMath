@@ -158,13 +158,6 @@ Proof.
         ** apply qε.
 Defined.
 
-
-(*
-Check pointwise_adjequiv.
-pointwise_adjequiv
-     : ∏ σ : pstrans ?F₁ ?F₂, left_adjoint_equivalence σ → ∏ X : ?B₁, left_adjoint_equivalence (σ X)
- *)
-
 End Builder.
 
 
