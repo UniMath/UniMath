@@ -73,7 +73,7 @@ Definition isaset_node (G : cgraph)
   : isaset (node G)
   := pr12 G.
 
-Definition nodeset (G : cgraph) : hSet
+Definition node_set (G : cgraph) : hSet
   := make_hSet (node G) (isaset_node G).
 
 Definition isaset_arc (G : cgraph)
