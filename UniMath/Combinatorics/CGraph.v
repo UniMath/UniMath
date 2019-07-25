@@ -44,7 +44,7 @@ Definition source {G : precgraph}
   : arc G → node G
   := pr122 G.
 
-Definition trg {G : precgraph}
+Definition target {G : precgraph}
   : arc G → node G
   := pr222 G.
 
