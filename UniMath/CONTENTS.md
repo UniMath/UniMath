@@ -359,6 +359,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Bicategories/DisplayedBicats/DispTransformation.v](CategoryTheory/Bicategories/DisplayedBicats/DispTransformation.v)
    - [Bicategories/DisplayedBicats/DispModification.v](CategoryTheory/Bicategories/DisplayedBicats/DispModification.v)
    - [Bicategories/DisplayedBicats/DispBiequivalence.v](CategoryTheory/Bicategories/DisplayedBicats/DispBiequivalence.v)
+   - [Bicategories/DisplayedBicats/Examples/ProdCommutativity.v](CategoryTheory/Bicategories/DisplayedBicats/Examples/ProdCommutativity.v)
    - [Bicategories/Bicategories/YonedaLemma.v](CategoryTheory/Bicategories/Bicategories/YonedaLemma.v)
    - [Bicategories/Colimits/Initial.v](CategoryTheory/Bicategories/Colimits/Initial.v)
    - [Bicategories/Colimits/Final.v](CategoryTheory/Bicategories/Colimits/Final.v)
