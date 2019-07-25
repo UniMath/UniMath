@@ -1,3 +1,7 @@
+(* ------------------------------------------------------------------------- *)
+(** * Biequivalence between Monads and Ktriples                              *)
+(* ------------------------------------------------------------------------- *)
+
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
@@ -108,7 +112,7 @@ Local Definition unit_mu_kleisli_data
   : add_unit_mu bicat_of_cats (ps_id_functor bicat_of_cats x)
   := (functor_of_kleisli_triple k,,
       make_dirprod (unit_kleisli k)
-      (mu_kleisli k)).
+                   (mu_kleisli k)).
 
 Local Lemma unit_mu_kleisli_laws
   : disp_fullsubbicat (lawless_monad bicat_of_cats)
@@ -361,7 +365,7 @@ Proof.
   rewrite (unit_bind kx).
   symmetry.
   apply (bind_unit kx).
-Defined.
+Qed.
 
 Definition Ktriple_to_Monad_data
   : disp_psfunctor kleisli_triple_disp_bicat
@@ -391,18 +395,29 @@ Proof.
   - simpl.
     intros x y z f g kx ky kz kf kg.
     refine ((_,, (tt,, tt)),, tt).
-    use nat_trans_eq.
-    { apply z. }
-    intro a. cbn.
-    change (ob x) in a.
-    rewrite !id_left.
-    rewrite !id_right.
-    rewrite assoc'.
-    rewrite (bind_bind kz).
-    rewrite (unit_bind kz).
-    rewrite (bind_unit kz).
-    rewrite id_right.
-    apply idpath.
+    abstract
+      (unfold alg_disp_cat_2cell; simpl;
+       use nat_trans_eq; try apply z;
+       intro a; cbn;
+       change (ob x) in a;
+       rewrite !id_left;
+       rewrite !id_right;
+       rewrite assoc';
+       rewrite (bind_bind kz);
+       rewrite (unit_bind kz);
+       rewrite (bind_unit kz);
+       rewrite id_right;
+       apply idpath).
+Admitted. (* No subgoal, but very slow Qed. *)
+
+Local Lemma Ktriple_to_Monad_psfunctor
+  : is_disp_psfunctor kleisli_triple_disp_bicat (disp_monad bicat_of_cats)
+                      (ps_id_functor bicat_of_cats) (pr1 Ktriple_to_Monad_data).
+Proof.
+  repeat apply make_dirprod;
+    intro; intros; simpl;
+      repeat apply isapropdirprod; try apply isapropunit;
+        apply isaprop_eq_2cell.
 Admitted. (* No subgoal, but very slow Qed. *)
 
 Definition Ktriple_to_Monad
@@ -412,5 +427,5 @@ Definition Ktriple_to_Monad
 Proof.
   use tpair.
   - apply Ktriple_to_Monad_data.
-
-Admitted.
+  - apply Ktriple_to_Monad_psfunctor.
+Defined.
