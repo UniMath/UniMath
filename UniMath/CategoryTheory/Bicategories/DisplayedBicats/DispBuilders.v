@@ -94,7 +94,7 @@ Section NiceBuilders.
     - abstract (repeat split; intro; intros; apply HD₁).
   Defined.
 
-  Definition make_disp_pstrans_data
+  Definition make_disp_pstrans
              {F₁ F₂ : psfunctor B₁ B₂}
              {FF₁ : disp_psfunctor D₁ D₂ F₁}
              {FF₂ : disp_psfunctor D₁ D₂ F₂}
