@@ -89,8 +89,8 @@ Definition is_cgraph_mor {G H : precgraph}
            (p₀ : node G → node H)
            (p₁ : arc G → arc H)
   : UU
-  := (∏ f : arc G, src (p₁ f) = p₀ (src f)) ×
-     (∏ f : arc G, trg (p₁ f) = p₀ (trg f)).
+  := (∏ f : arc G, source (p₁ f) = p₀ (source f)) ×
+     (∏ f : arc G, target (p₁ f) = p₀ (target f)).
 
 Definition cgraph_mor (G H : precgraph) : UU
   := ∑ (p₀ : node G → node H)
@@ -112,14 +112,14 @@ Definition onarc {G H : precgraph}
   : cgraph_mor G H → arc G → arc H
   := λ f, pr12 f.
 
-Definition preserves_src {G H : precgraph}
+Definition preserves_source {G H : precgraph}
            (p : cgraph_mor G H)
-  : ∏ x : arc G, src (onarc p x) = onnode p (src x)
+  : ∏ x : arc G, source (onarc p x) = onnode p (source x)
   := pr122 p.
 
-Definition preserves_trg {G H : precgraph}
+Definition preserves_target {G H : precgraph}
            (p : cgraph_mor G H)
-  : ∏ f : arc G, trg (onarc p f) = onnode p (trg f)
+  : ∏ f : arc G, target (onarc p f) = onnode p (target f)
   := pr222 p.
 
 Lemma is_cgraph_mor_id (G : precgraph)
@@ -140,11 +140,11 @@ Lemma is_cgraph_mor_comp {G H K : precgraph}
 Proof.
   apply make_dirprod.
   - intros. unfold funcomp.
-    etrans. apply (preserves_src q).
-    apply maponpaths. apply (preserves_src p).
+    etrans. apply (preserves_source q).
+    apply maponpaths. apply (preserves_source p).
   - intros. unfold funcomp.
-    etrans. apply (preserves_trg q).
-    apply maponpaths. apply (preserves_trg p).
+    etrans. apply (preserves_target q).
+    apply maponpaths. apply (preserves_target p).
 Defined.
 
 Definition cgraph_mor_comp {G H K : precgraph}
@@ -240,8 +240,8 @@ Lemma cgraph_mor_eq_aux {G H : precgraph}
       (h : has_nodeset H)
   : p = q.
 Proof.
-  induction p as (p₀,(p₁,(psrc,ptrg))).
-  induction q as (q₀,(q₁,(qsrc,qtrg))).
+  induction p as (p₀,(p₁,(psource,ptarget))).
+  induction q as (q₀,(q₁,(qsource,qtarget))).
   cbn in *.
   induction e₀.
   apply pair_path_in2.
