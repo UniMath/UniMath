@@ -258,6 +258,7 @@ Bicategories/DisplayedBicats/Examples/Add2Cell.v
 Bicategories/DisplayedBicats/Examples/ContravariantFunctor.v
 Bicategories/DisplayedBicats/Examples/Cofunctormap.v
 Bicategories/DisplayedBicats/Examples/CwF.v
+Bicategories/DisplayedBicats/Examples/KleisliTriple.v
 Bicategories/DisplayedBicats/DispPseudofunctor.v
 Bicategories/Transformations/Examples/AlgebraMap.v
 Bicategories/DisplayedBicats/Examples/Monads.v

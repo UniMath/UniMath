@@ -352,6 +352,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Bicategories/DisplayedBicats/Examples/ContravariantFunctor.v](CategoryTheory/Bicategories/DisplayedBicats/Examples/ContravariantFunctor.v)
    - [Bicategories/DisplayedBicats/Examples/Cofunctormap.v](CategoryTheory/Bicategories/DisplayedBicats/Examples/Cofunctormap.v)
    - [Bicategories/DisplayedBicats/Examples/CwF.v](CategoryTheory/Bicategories/DisplayedBicats/Examples/CwF.v)
+   - [Bicategories/DisplayedBicats/Examples/KleisliTriple.v](CategoryTheory/Bicategories/DisplayedBicats/Examples/KleisliTriple.v)
    - [Bicategories/DisplayedBicats/DispPseudofunctor.v](CategoryTheory/Bicategories/DisplayedBicats/DispPseudofunctor.v)
    - [Bicategories/Transformations/Examples/AlgebraMap.v](CategoryTheory/Bicategories/Transformations/Examples/AlgebraMap.v)
    - [Bicategories/DisplayedBicats/Examples/Monads.v](CategoryTheory/Bicategories/DisplayedBicats/Examples/Monads.v)
