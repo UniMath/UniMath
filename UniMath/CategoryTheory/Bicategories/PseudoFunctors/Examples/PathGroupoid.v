@@ -20,6 +20,7 @@ Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.Map2Ce
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.StrictIdentitor.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.StrictCompositor.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.PseudoFunctor.
+Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Biequivalence.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Identity.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Composition.
 Import PseudoFunctor.Notations.
@@ -828,7 +829,7 @@ Proof.
        apply idpath).
 Defined.
 
-Definition path_groupoid_counit_inv_unit
+Definition path_groupoid_counit_inv_counit
   : invertible_modification
       (comp_trans path_groupoid_counit_inv path_groupoid_counit)
       (id_trans _).
@@ -853,3 +854,20 @@ Proof.
        rewrite (functor_id (pr1 F)) ;
        apply idpath).
 Defined.
+
+Definition is_biequiv_path_groupoid : is_biequivalence path_groupoid.
+Proof.
+  use make_is_biequivalence.
+  - exact objects_of_grpd.
+  - exact path_groupoid_unit.
+  - exact path_groupoid_unit_inv.
+  - exact path_groupoid_counit.
+  - exact path_groupoid_counit_inv.
+  - exact (inv_of_invertible_2cell path_groupoid_unit_inv_unit).
+  - exact path_groupoid_unit_unit_inv.
+  - exact (inv_of_invertible_2cell path_groupoid_counit_counit_inv).
+  - exact path_groupoid_counit_inv_counit.
+Defined.
+
+Definition biequiv_path_groupoid : biequivalence one_types grpds
+  := path_groupoid ,, is_biequiv_path_groupoid.
