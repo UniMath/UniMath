@@ -273,8 +273,6 @@ Bicategories/Colimits/Final.v
 
 Bicategories/PseudoFunctors/Biadjunction.v
 Bicategories/PseudoFunctors/Examples/PathGroupoid.v
-Bicategories/DisplayedBicats/Examples/PointedGroupoid.v
-Bicategories/DisplayedBicats/Examples/ProdCommutativity.v
 
 Bicategories/WkCatEnrichment/prebicategory.v
 Bicategories/WkCatEnrichment/Notations.v
