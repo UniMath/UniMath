@@ -31,6 +31,7 @@ Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Alge
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Add2Cell.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Prod.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.FullSub.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Sigma.
 Local Open Scope cat.
 
 Section MonadBicategory.
@@ -75,7 +76,7 @@ Section MonadBicategory.
     - exact (alg_map _).
   Defined.
 
-  Definition add_bind
+  Definition add_mu
     : disp_bicat plain_monad.
   Proof.
     use add_cell_disp_cat.
@@ -84,20 +85,22 @@ Section MonadBicategory.
     - exact (alg_map _).
   Defined.
 
-  Definition add_unit_bind
-    : disp_bicat plain_monad
-    := disp_dirprod_bicat add_unit add_bind.
+  Definition add_unit_mu
+    : disp_bicat C
+    := sigma_bicat _ _ (disp_dirprod_bicat add_unit add_mu).
 
-  Definition lawless_monad := total_bicat add_unit_bind.
+  Definition lawless_monad := total_bicat add_unit_mu.
 
   Definition lawless_monad_is_univalent_2_1
              (HC_1 : is_univalent_2_1 C)
     : is_univalent_2_1 lawless_monad.
   Proof.
-    apply is_univalent_2_1_total_dirprod.
-    - exact (plain_monad_is_univalent_2_1 HC_1).
-    - apply add_cell_disp_cat_univalent_2_1.
-    - apply add_cell_disp_cat_univalent_2_1.
+    apply sigma_is_univalent_2_1.
+    - exact HC_1.
+    - apply disp_alg_bicat_univalent_2_1.
+    - apply is_univalent_2_1_dirprod_bicat.
+      + apply add_cell_disp_cat_univalent_2_1.
+      + apply add_cell_disp_cat_univalent_2_1.
   Defined.
 
   Definition lawless_monad_is_univalent_2_0
@@ -105,14 +108,26 @@ Section MonadBicategory.
     : is_univalent_2_0 lawless_monad.
   Proof.
     pose (HC_1 := pr2 HC).
-    apply is_univalent_2_0_total_dirprod.
-    - exact (plain_monad_is_univalent_2 HC).
-    - apply add_cell_disp_cat_univalent_2.
-      + exact (pr2 HC).
+    apply sigma_is_univalent_2_0.
+    - exact HC.
+    - split.
+      + apply disp_alg_bicat_univalent_2_0.
+        apply HC.
       + apply disp_alg_bicat_univalent_2_1.
-    - apply add_cell_disp_cat_univalent_2.
-      + exact (pr2 HC).
-      + apply disp_alg_bicat_univalent_2_1.
+    - split.
+      + apply is_univalent_2_0_dirprod_bicat.
+        * apply total_is_univalent_2_1.
+          ** exact (pr2 HC).
+          ** apply disp_alg_bicat_univalent_2_1.
+        * apply add_cell_disp_cat_univalent_2.
+          ** exact (pr2 HC).
+          ** apply disp_alg_bicat_univalent_2_1.
+        * apply add_cell_disp_cat_univalent_2.
+          ** exact (pr2 HC).
+          ** apply disp_alg_bicat_univalent_2_1.
+      + apply is_univalent_2_1_dirprod_bicat.
+        * apply add_cell_disp_cat_univalent_2_1.
+        * apply add_cell_disp_cat_univalent_2_1.
   Defined.
 
   Definition lawless_monad_is_univalent_2
@@ -126,39 +141,42 @@ Section MonadBicategory.
   Defined.
 
   Definition monad_obj : lawless_monad → C
-    := λ m, pr1 (pr1 m).
+    := λ m, pr1 m.
 
   Definition monad_map : ∏ (m : lawless_monad), monad_obj m --> monad_obj m
-    := λ m, pr2(pr1 m).
+    := λ m, pr12 m.
 
   Definition monad_unit : ∏ (m : lawless_monad), id₁ (monad_obj m) ==> monad_map m
-    := λ m, pr1(pr2 m).
+    := λ m, pr122 m.
 
-  Definition monad_bind
+  Definition monad_mu
     : ∏ (m : lawless_monad), monad_map m · monad_map m ==> monad_map m
-    := λ m, pr2(pr2 m).
+    := λ m, pr222 m.
 
   Definition monad_laws (m : lawless_monad) : UU
     := ((linvunitor (monad_map m))
           • (monad_unit m ▹ monad_map m)
-          • monad_bind m
+          • monad_mu m
         =
         id₂ (monad_map m))
        ×
        ((rinvunitor (monad_map m))
           • (monad_map m ◃ monad_unit m)
-          • monad_bind m
+          • monad_mu m
         =
         id₂ (monad_map m))
        ×
-       ((monad_map m ◃ monad_bind m)
-          • monad_bind m
+       ((monad_map m ◃ monad_mu m)
+          • monad_mu m
         =
         (lassociator (monad_map m) (monad_map m) (monad_map m))
-          • (monad_bind m ▹ monad_map m)
-          • monad_bind m).
+          • (monad_mu m ▹ monad_map m)
+          • monad_mu m).
 
-  Definition monad := fullsubbicat lawless_monad monad_laws.
+  Definition disp_monad : disp_bicat C
+    := sigma_bicat _ _ (disp_fullsubbicat lawless_monad monad_laws).
+
+  Definition monad := total_bicat disp_monad.
 
   Definition make_monad
              (X : C)
@@ -177,25 +195,28 @@ Section MonadBicategory.
     : monad.
   Proof.
     use tpair.
+    - exact X.
     - use tpair.
       + use tpair.
-        * exact X.
         * exact f.
-      + split.
-        * exact η.
-        * exact μ.
-    - repeat split.
-      + exact ημ.
-      + exact μη.
-      + exact μμ.
+        * split.
+          ** exact η.
+          ** exact μ.
+      + repeat split.
+        * exact ημ.
+        * exact μη.
+        * exact μμ.
   Defined.
 
+  (*
   Definition monad_is_univalent_2_1
              (HC_1 : is_univalent_2_1 C)
     : is_univalent_2_1 monad.
   Proof.
-    apply is_univalent_2_1_fullsubbicat.
-    apply lawless_monad_is_univalent_2_1.
+    apply sigma_is_univalent_2_1.
+    - exact HC_1.
+    - apply is_univalent_2_1_fullsubbicat.
+      apply lawless_monad_is_univalent_2_1.
     exact HC_1.
   Defined.
 
@@ -218,5 +239,6 @@ Section MonadBicategory.
     - apply monad_is_univalent_2_1.
       exact (pr2 HC).
   Defined.
+   *)
 
 End MonadBicategory.

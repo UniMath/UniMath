@@ -30,7 +30,7 @@ Local Open Scope cat.
 Local Open Scope bicategory_scope.
 
 Definition kleisli_triple_data_on_cat
-           (C : univalent_category)
+           (C : category)
   : UU
   := ∑ (M : ob C → ob C)
        (η : ∏ (A : C), A --> M A)
@@ -41,7 +41,7 @@ Definition kleisli_triple_data_on_cat
      bind A B f · bind B C g = bind A C (f · bind B C g).
 
 Definition object_map_kt
-           {C : univalent_category}
+           {C : category}
            (M : kleisli_triple_data_on_cat C)
   : ob C → ob C
   := pr1 M.
@@ -49,7 +49,7 @@ Definition object_map_kt
 Coercion object_map_kt : kleisli_triple_data_on_cat >-> Funclass.
 
 Section Projections.
-  Context {C : univalent_category}
+  Context {C : category}
           (M : kleisli_triple_data_on_cat C).
 
   Definition unit_kt
@@ -105,21 +105,20 @@ Section Projections.
 End Projections.
 
 Definition kleisli_triple_data_on_functor
-           {C D : univalent_category}
+           {C D : category}
            (MC : kleisli_triple_data_on_cat C)
            (MD : kleisli_triple_data_on_cat D)
            (F : C ⟶ D)
   : UU
   := ∑ (MF : ∏ (X : C), iso (MD (F X)) (F (MC X))),
      (∏ (A : C), #F (unit_kt MC A) = unit_kt MD (F A) · MF A)
-       ×
-       ∏ (A B : C) (f : A --> MC B),
-     #F (bind_kt MC f)
-     =
-     inv_from_iso (MF A) · bind_kt MD (#F f · inv_from_iso (MF B)) · MF B.
+     ×
+     (∏ (A B : C) (f : A --> MC B),
+      #F (bind_kt MC f) =
+      inv_from_iso (MF A) · bind_kt MD (#F f · inv_from_iso (MF B)) · MF B).
 
 Definition kleisli_triple_data_on_identity_functor
-           {C : univalent_category}
+           {C : category}
            (MC : kleisli_triple_data_on_cat C)
   : kleisli_triple_data_on_functor MC MC (functor_identity C).
 Proof.
@@ -237,13 +236,13 @@ Proof.
     etrans.
     {
       apply maponpaths_2.
-      apply bind_bind.
+      apply (bind_bind MC₂).
     }
     apply maponpaths_2.
     apply maponpaths.
     rewrite <- !assoc.
     apply maponpaths.
-    apply unit_bind.
+    apply (unit_bind MC₂).
   - intros C₁ C₂ C₃ F G₁ G₂ n MC₁ MC₂ MC₃ MF MG₁ MG₂ Mn X.
     rewrite <- !assoc.
     etrans.
