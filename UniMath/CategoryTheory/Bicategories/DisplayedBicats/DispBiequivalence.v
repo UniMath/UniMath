@@ -95,7 +95,6 @@ Proof.
 Defined.
 
 (** ** Data *)
-
 Definition disp_is_biequivalence_data
            {F : psfunctor B₁ B₂} {G : psfunctor B₂ B₁}
            {e : is_biequivalence_unit_counit F G}
