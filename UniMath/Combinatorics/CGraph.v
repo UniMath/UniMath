@@ -80,7 +80,7 @@ Definition isaset_arc (G : cgraph)
   : isaset (arc G)
   := pr22 G.
 
-Definition arcset (G : cgraph) : hSet
+Definition arc_set (G : cgraph) : hSet
   := make_hSet (arc G) (isaset_arc G).
 
 (** ** Cgraph morphisms. *)
