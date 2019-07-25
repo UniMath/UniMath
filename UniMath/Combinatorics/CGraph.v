@@ -40,7 +40,7 @@ Definition node : precgraph → UU := pr1.
 Definition arc (G : precgraph) : UU
   := pr12 G.
 
-Definition src {G : precgraph}
+Definition source {G : precgraph}
   : arc G → node G
   := pr122 G.
 
