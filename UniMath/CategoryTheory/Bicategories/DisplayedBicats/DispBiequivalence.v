@@ -1,5 +1,10 @@
 (* ------------------------------------------------------------------------- *)
-(** Displayed biequivalence.                                                 *)
+(** Displayed biequivalence.
+
+   Contents:
+   - Definition of displayed biequivalence.
+   - Associated total biequivalence.
+                                                                             *)
 (* ------------------------------------------------------------------------- *)
 
 Require Import UniMath.Foundations.All.
@@ -89,53 +94,47 @@ Proof.
     apply tuu.
 Defined.
 
+(** ** Data *)
+
 Definition disp_is_biequivalence_data
            {F : psfunctor B₁ B₂} {G : psfunctor B₂ B₁}
            {e : is_biequivalence_unit_counit F G}
            (a : is_biequivalence_adjoints e)
            {FF : disp_psfunctor D₁ D₂ F} {GG : disp_psfunctor D₂ D₁ G}
            (ee : is_disp_biequivalence_unit_counit e FF GG)
-  : UU.
-Proof.
-  simple refine
-         (∑ uu : disp_pstrans (disp_pseudo_id D₁)
-                              (disp_pseudo_comp _ _ _ _ _ FF GG)
-                              (invunit_of_is_biequivalence a),
-                 _).
-  simple refine
-         (∑ cc : disp_pstrans (disp_pseudo_id D₂)
+  : UU
+  := ∑ (uu : disp_pstrans (disp_pseudo_id D₁)
+                          (disp_pseudo_comp _ _ _ _ _ FF GG)
+                          (invunit_of_is_biequivalence a))
+       (cc : disp_pstrans (disp_pseudo_id D₂)
                               (disp_pseudo_comp _ _ _ _ _ GG FF)
-                              (invcounit_of_is_biequivalence a),
-                 _).
-  simple refine
-    (∑ mpuu : disp_invmodification _ _ _ _
+                              (invcounit_of_is_biequivalence a))
+       (mpuu : disp_invmodification _ _ _ _
                                    (disp_ps_comp _ _ _ _ _ _ _ _ _ _
                                                  uu
                                                  (unit_of_is_disp_biequivalence ee))
                                    (disp_id_trans _)
-                                   (unitcounit_of_is_biequivalence _ ),_).
-  simple refine
-    (∑ mquu : disp_invmodification _ _ _ _
+                                   (unitcounit_of_is_biequivalence _ ))
+       (mquu : disp_invmodification _ _ _ _
                                    (disp_ps_comp _ _ _ _ _ _ _ _ _ _
                                                  (unit_of_is_disp_biequivalence ee)
                                                  uu)
                                    (disp_id_trans _)
-                                   (unitunit_of_is_biequivalence _ ),_).
-  simple refine
-    (∑ mpcc : disp_invmodification _ _ _ _
+                                   (unitunit_of_is_biequivalence _ ))
+       (mpcc : disp_invmodification _ _ _ _
                                    (disp_ps_comp _ _ _ _ _ _ _ _ _ _
                                                  cc
                                                  (counit_of_is_disp_biequivalence ee))
                                    (disp_id_trans _)
-                                   (counitcounit_of_is_biequivalence _ ),_).
-  exact (disp_invmodification _ _ _ _
-                              (disp_ps_comp _ _ _ _ _ _ _ _ _ _
-                                            (counit_of_is_disp_biequivalence ee)
-                                            cc)
-                              (disp_id_trans _)
-                              (counitunit_of_is_biequivalence _ )).
-Defined.
+                                   (counitcounit_of_is_biequivalence _ )),
+              disp_invmodification _ _ _ _
+                                   (disp_ps_comp _ _ _ _ _ _ _ _ _ _
+                                                 (counit_of_is_disp_biequivalence ee)
+                                                 cc)
+                                   (disp_id_trans _)
+                                   (counitunit_of_is_biequivalence _ ).
 
+(** ** Total biequivalence. *)
 
 Section total_biequivalence.
 
@@ -191,7 +190,7 @@ Definition total_biequivalence_unit_inv_unit
          (unit_of_is_biequivalence (total_is_biequivalence_unit_counit ee)))
       (id_trans (ps_id_functor (total_bicat D₁))).
 Proof.
-  pose (total_invmodification _ _ _ _ _ _ _ (pr122 ( aa))) as m.
+  pose (total_invmodification _ _ _ _ _ _ _ (pr122 aa)) as m.
   apply make_invertible_modification_on_data.
   use tpair.
   - intro X.
@@ -213,7 +212,6 @@ Proof.
     exact (invertible_modcomponent_of m X).
   - exact (modnaturality_of (pr1 m)).
 Defined.
-
 
 Definition total_biequivalence_counit_inv_counit
   : invertible_modification
