@@ -266,7 +266,7 @@ Bicategories/DisplayedBicats/DispTransformation.v
 Bicategories/DisplayedBicats/DispModification.v
 Bicategories/DisplayedBicats/DispBiequivalence.v
 Bicategories/DisplayedBicats/DispBuilders.v
-
+Bicategories/DisplayedBicats/Examples/ProdCommutativity.v
 
 Bicategories/Bicategories/YonedaLemma.v
 
