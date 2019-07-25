@@ -29,7 +29,7 @@ Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispUnivalenc
 Local Open Scope cat.
 Local Open Scope bicategory_scope.
 
-Definition kleisli_triple_data_on_cat
+Definition kleisli_triple
            (C : category)
   : UU
   := ∑ (M : ob C → ob C)
@@ -42,15 +42,15 @@ Definition kleisli_triple_data_on_cat
 
 Definition object_map_kt
            {C : category}
-           (M : kleisli_triple_data_on_cat C)
+           (M : kleisli_triple C)
   : ob C → ob C
   := pr1 M.
 
-Coercion object_map_kt : kleisli_triple_data_on_cat >-> Funclass.
+Coercion object_map_kt : kleisli_triple >-> Funclass.
 
 Section Projections.
   Context {C : category}
-          (M : kleisli_triple_data_on_cat C).
+          (M : kleisli_triple C).
 
   Definition unit_kt
     : ∏ (A : C), A --> M A
@@ -104,10 +104,10 @@ Section Projections.
   Defined.
 End Projections.
 
-Definition kleisli_triple_data_on_functor
+Definition kleisli_triple_on_functor
            {C D : category}
-           (MC : kleisli_triple_data_on_cat C)
-           (MD : kleisli_triple_data_on_cat D)
+           (MC : kleisli_triple C)
+           (MD : kleisli_triple D)
            (F : C ⟶ D)
   : UU
   := ∑ (MF : ∏ (X : C), iso (MD (F X)) (F (MC X))),
@@ -117,10 +117,10 @@ Definition kleisli_triple_data_on_functor
       #F (bind_kt MC f) =
       inv_from_iso (MF A) · bind_kt MD (#F f · inv_from_iso (MF B)) · MF B).
 
-Definition kleisli_triple_data_on_identity_functor
+Definition kleisli_triple_on_identity_functor
            {C : category}
-           (MC : kleisli_triple_data_on_cat C)
-  : kleisli_triple_data_on_functor MC MC (functor_identity C).
+           (MC : kleisli_triple C)
+  : kleisli_triple_on_functor MC MC (functor_identity C).
 Proof.
   use tpair.
   - exact (λ X, identity_iso _).
@@ -155,15 +155,15 @@ Proof.
   apply iso_inv_after_iso.
 Qed.
 
-Definition kleisli_triple_data_disp_cat_data
+Definition kleisli_triple_disp_cat_data
   : disp_cat_data bicat_of_cats.
 Proof.
   use tpair.
   - use tpair ; cbn.
-    + exact kleisli_triple_data_on_cat.
-    + exact @kleisli_triple_data_on_functor.
+    + exact kleisli_triple.
+    + exact @kleisli_triple_on_functor.
   - split ; cbn.
-    + exact @kleisli_triple_data_on_identity_functor.
+    + exact @kleisli_triple_on_identity_functor.
     + intros C₁ C₂ C₃ F₁ F₂ M₁ M₂ M₃ MF₁ MF₂.
       use tpair.
       * exact (λ X, iso_comp (pr1 MF₂ (F₁ X)) (functor_on_iso F₂ (pr1 MF₁ X))).
@@ -190,7 +190,7 @@ Definition kleisli_triple_disp_prebicat_1_id_comp_cells
   : disp_prebicat_1_id_comp_cells bicat_of_cats.
 Proof.
   use tpair.
-  - exact kleisli_triple_data_disp_cat_data.
+  - exact kleisli_triple_disp_cat_data.
   - intros C₁ C₂ F₁ F₂ n MC₁ MC₂ MF₁ MF₂ ; cbn in *.
     exact (∏ (X : C₁),
            pr1 MF₁ X · n (MC₁ X)
@@ -345,7 +345,8 @@ Proof.
     etrans.
     { apply maponpaths_2.
       do 2 apply maponpaths.
-      apply unit_bind. }
+      apply (unit_bind bb).
+    }
     rewrite assoc.
     etrans.
     {
