@@ -256,35 +256,6 @@ Proof.
     + apply grpd_all_homot.
       exact (one_type_isofhlevel Z).
 Defined.
-(*
-    exact (@idtoiso (pr11 (path_univalent_groupoid (pr2 Y))) _ _ p).
-  - intros X Y f g α x y p q αα.
-    cbn in *.
-    induction (α x).
-    cbn in *.
-    apply maponpaths.
-    apply maponpaths.
-    exact (! αα).
-  - intros X x.
-    repeat use tpair.
-    + apply idpath.
-    + apply idpath.
-    + apply grpd_all_homot.
-      exact (one_type_isofhlevel X).
-    + apply grpd_all_homot.
-      exact (one_type_isofhlevel X).
-  - intros X Y Z f g x y z p q.
-    repeat use tpair.
-    + induction p. induction q.
-      apply idpath.
-    + induction p. induction q.
-      apply idpath.
-    + apply grpd_all_homot.
-      exact (one_type_isofhlevel Z).
-    + apply grpd_all_homot.
-      exact (one_type_isofhlevel Z).
-Defined.
-*)
 
 Definition disp_path_pgroupoid_laws
   : is_disp_psfunctor p1types_disp pgrpds_disp path_groupoid disp_path_pgroupoid_data.
@@ -362,25 +333,6 @@ Proof.
     + apply (pr1 G2).
     + apply (pr1 G2).
 Defined.
-(*
-    rewrite <- maponpaths_idtoiso.
-    refine (transportb _ _ _).
-    + refine (_@ idtoiso_isotoid (pr11 G2) (pr21 G2) _ _ i).
-      apply maponpaths.
-      rewrite maponpathsidfun.
-      apply idpath.
-    + repeat use tpair.
-      * cbn.
-        rewrite id_left.
-        apply idpath.
-      * apply iso_inv_on_right.
-        cbn.
-        rewrite id_left.
-        apply idpath.
-      * apply (pr1 G2).
-      * apply (pr1 G2).
-Defined.
-*)
 
 Definition disp_path_pgroupoid_counit_laws
   : is_disp_pstrans (disp_pseudo_comp _ _ _ _ _ disp_objects_of_pgrpd disp_path_pgroupoid)
@@ -453,6 +405,24 @@ Definition disp_path_pgroupoid_unit
                  path_groupoid_unit
                  := disp_path_pgroupoid_unit_data ,, disp_path_pgroupoid_unit_laws.
 
+(*
+Definition disp_invertible_2cell_of_1types
+           {X Y : one_type} {f g : X → Y} {h : f ~ g}
+           {x : X} {y : Y} {p : f x = y} {q : g x = y}
+           (hh : @disp_2cells _ p1types_disp X Y f g h x y p q)
+  : UU.
+Proof.
+  Check @disp_invertible_2cell _ p1types_disp X Y f g x y (invhomot h).
+  Locate "~".
+  Search homot.
+  Check .
+  cbn.
+  Check.
+  refine ( _ _ _ _ _ _).
+           (α : disp_2cells α ff gg)
+  : disp_invertible_2cell α ff gg.
+ *)
+
 Definition disp_path_pgroupoid_counit_inv_data
   : disp_pstrans_data (disp_pseudo_id _)
                       (disp_pseudo_comp _ _ _ _ _ disp_objects_of_pgrpd disp_path_pgroupoid)
@@ -467,12 +437,80 @@ Proof.
     rewrite functor_on_iso_on_identity.
     rewrite iso_comp_lid.
     repeat use tpair.
-    + cbn in *.
+    + cbn.
+      apply maponpaths.
+      use eq_iso.
+      apply idpath.
+    + cbn.
+      apply maponpaths.
+      use eq_iso.
+      apply idpath.
+    + apply (pr1 (path_groupoid (objects_of_grpd G2))).
+    + apply (pr1 (path_groupoid (objects_of_grpd G2))).
+Defined.
 
-      Set Printing Implicit.
+Definition disp_path_pgroupoid_counit_inv_laws
+  : is_disp_pstrans (disp_pseudo_id _)
+                     (disp_pseudo_comp _ _ _ _ _ disp_objects_of_pgrpd disp_path_pgroupoid)
+                     path_groupoid_counit_inv
+                     disp_path_pgroupoid_counit_inv_data.
+Proof.
+  repeat use tpair; intro; intros.
+  - apply (pr1 (path_groupoid (objects_of_grpd y))).
+  - apply (pr1 (path_groupoid (objects_of_grpd x))).
+  - apply (pr1 (path_groupoid (objects_of_grpd z))).
+Qed.
 
-      Check (_@ ! (idtoiso_isotoid _ (pr21 G2) _ _ i)).
+Definition disp_path_pgroupoid_counit_inv
+  : disp_pstrans (disp_pseudo_id _)
+                 (disp_pseudo_comp _ _ _ _ _ disp_objects_of_pgrpd disp_path_pgroupoid)
+                 path_groupoid_counit_inv
+  := disp_path_pgroupoid_counit_inv_data ,, disp_path_pgroupoid_counit_inv_laws.
 
+Definition disp_path_pgroupoid_unit_inv_data
+  : disp_pstrans_data (disp_pseudo_comp _ _ _ _ _ disp_path_pgroupoid disp_objects_of_pgrpd)
+                      (disp_pseudo_id _)
+                      path_groupoid_unit_inv.
+Proof.
+  use make_disp_pstrans_data.
+  - exact (λ X x, idpath x).
+  - intros X Y f x y p.
+    cbn in *.
+    rewrite pathscomp0rid.
+    rewrite maponpathsidfun.
+    repeat use tpair.
+    + refine (!_@_).
+      apply (isotoid_idtoiso _ (is_univalent_path_groupoid (pr1 Y) (pr2 Y))).
+      apply maponpaths.
+      induction p.
+      use eq_iso.
+      apply idpath.
+    + cbn.
+      refine (!(!_@_)).
+      apply (isotoid_idtoiso _ (is_univalent_path_groupoid (pr1 Y) (pr2 Y))).
+      unfold idfun.
+      apply maponpaths.
+      induction p.
+      use eq_iso.
+      apply idpath.
+    + apply Y.
+    + apply Y.
+Defined.
 
-    refine (transportb (λ z, disp_invertible_2cell _ z _) _ _).
-    + refine ((idtoiso_isotoid (pr11 G2) (pr21 G2) _ _ i).
+Definition disp_path_pgroupoid_unit_inv_laws
+  : is_disp_pstrans (disp_pseudo_comp _ _ _ _ _ disp_path_pgroupoid disp_objects_of_pgrpd)
+                    (disp_pseudo_id _)
+                    path_groupoid_unit_inv
+                    disp_path_pgroupoid_unit_inv_data.
+Proof.
+  repeat use tpair; intro; intros.
+  - apply y.
+  - apply x.
+  - apply z.
+Qed.
+
+Definition disp_path_pgroupoid_unit_inv
+  : disp_pstrans (disp_pseudo_comp _ _ _ _ _ disp_path_pgroupoid disp_objects_of_pgrpd)
+                 (disp_pseudo_id _)
+                 path_groupoid_unit_inv
+  := disp_path_pgroupoid_unit_inv_data ,, disp_path_pgroupoid_unit_inv_laws.
