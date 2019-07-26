@@ -406,7 +406,7 @@ Defined.
 
 Definition disp_biequiv_data_unit_counit_path_pgroupoid :
   disp_is_biequivalence_data _ _
-                             (adjoints_from_is_biequivalence is_biequiv_path_groupoid)
+                             is_biequiv_path_groupoid
                              is_disp_biequiv_unit_counit_path_pgroupoid.
 Proof.
   use tpair.

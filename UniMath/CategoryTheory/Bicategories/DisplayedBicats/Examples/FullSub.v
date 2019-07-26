@@ -286,4 +286,18 @@ Section FullSubBicat.
       exact (pr2 HC).
   Defined.
 
+  Definition disp_2cells_isaprop_fullsubbicat
+    : disp_2cells_isaprop disp_fullsubbicat.
+  Proof.
+    intro; intros; exact isapropunit.
+  Qed.
+
+  Definition disp_locally_groupoid_fullsubbicat
+    : disp_locally_groupoid disp_fullsubbicat.
+  Proof.
+    use make_disp_locally_groupoid.
+    - intro; intros. exact tt.
+    - exact disp_2cells_isaprop_fullsubbicat.
+  Qed.
+
 End FullSubBicat.

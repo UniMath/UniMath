@@ -200,6 +200,18 @@ Section Sigma.
   Definition sigma_bicat
     : disp_bicat C
     := sigma_prebicat,, has_disp_cellset_sigma_prebicat.
+
+  Definition disp_2cells_isaprop_sigma
+             (HD : disp_2cells_isaprop D)
+             (HE : disp_2cells_isaprop E)
+    : disp_2cells_isaprop sigma_bicat.
+  Proof.
+    intro; intros.
+    apply isaproptotal2.
+    - intro; apply HE.
+    - intros; apply HD.
+  Qed.
+
 End Sigma.
 
 Section SigmaUnivalent.

@@ -202,4 +202,11 @@ Section Cofunctormaps.
     - exact morphisms_of_presheaves_univalent_2_1.
   Defined.
 
+  Definition disp_2cells_isaprop_cofunctormaps
+    : disp_2cells_isaprop disp_cofunctormaps_bicat
+    := disp_2cells_isaprop_cell_unit_bicat disp_cofunctormaps_cat_data.
+
+  Definition disp_locally_groupoid_cofunctormaps
+    : disp_locally_groupoid disp_cofunctormaps_bicat
+    := disp_locally_groupoid_cell_unit_bicat disp_cofunctormaps_cat_data.
 End Cofunctormaps.

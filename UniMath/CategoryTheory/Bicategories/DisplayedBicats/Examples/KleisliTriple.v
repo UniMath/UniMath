@@ -319,3 +319,50 @@ Defined.
 Definition kleisli_triple_bicat
   : bicat
   := total_bicat kleisli_triple_disp_bicat.
+
+Definition disp_2cells_isaprop_kleisli
+  : disp_2cells_isaprop kleisli_triple_disp_bicat.
+Proof.
+  exact @disp_2cellsisaprop.
+Qed.
+
+(* Improve Qed is slow *)
+Definition disp_locally_groupoid_kleisli
+  : disp_locally_groupoid kleisli_triple_disp_bicat.
+Proof.
+  use make_disp_locally_groupoid.
+  - intros a b f g x aa bb ff gg xx X.
+    pose (pr2 (invertible_2cell_to_nat_iso _ _ (inv_of_invertible_2cell x)) (pr1 aa X)) as q.
+    apply (iso_inv_to_right _ _ _ _ _ (_ ,, q)).
+    cbn.
+    unfold precomp_with.
+    rewrite id_right.
+    rewrite assoc'.
+    rewrite xx.
+    rewrite assoc.
+    refine (!(_ @ _)).
+    { apply maponpaths_2. apply bind_bind. }
+    rewrite assoc'.
+    etrans.
+    { apply maponpaths_2.
+      do 2 apply maponpaths.
+      apply unit_bind. }
+    rewrite assoc.
+    etrans.
+    {
+      apply maponpaths_2.
+      apply maponpaths.
+      apply maponpaths_2.
+      pose (pr2 (invertible_2cell_to_nat_iso _ _ (inv_of_invertible_2cell x)) X) as q'.
+      pose (iso_inv_after_iso (_ ,, q')) as p.
+      cbn in p.
+      unfold precomp_with in p.
+      rewrite id_right in p.
+      apply p.
+    }
+    rewrite id_left.
+    rewrite bind_unit.
+    rewrite id_left.
+    apply idpath.
+  - exact disp_2cells_isaprop_kleisli.
+Qed.

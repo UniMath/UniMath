@@ -21,38 +21,6 @@ Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispModificat
 Local Open Scope cat.
 Local Open Scope bicategory_scope.
 
-(* MOVE THIS TO DispBicat.v *)
-Definition disp_2cells_isaprop
-           {B : bicat} (D : disp_bicat B)
-  := ∏ (a b : B) (f g : a --> b) (x : f ==> g)
-       (aa : D a) (bb : D b) (ff : aa -->[f] bb) (gg : aa -->[g] bb),
-     isaprop (ff ==>[x] gg).
-
-Definition disp_locally_groupoid
-           {B : bicat} (D : disp_bicat B)
-  := ∏ (a b : B) (f g : a --> b) (x : invertible_2cell f g)
-       (aa : D a) (bb : D b) (ff : aa -->[f] bb) (gg : aa -->[g] bb)
-       (xx : ff ==>[x] gg), is_disp_invertible_2cell x xx.
-
-Definition disp_locally_sym
-           {B : bicat} (D : disp_bicat B)
-  := ∏ (a b : B) (f g : a --> b) (x : invertible_2cell f g)
-       (aa : D a) (bb : D b) (ff : aa -->[f] bb) (gg : aa -->[g] bb)
-       (xx : ff ==>[x] gg), gg ==>[ x^-1 ] ff.
-
-Definition make_disp_locally_groupoid
-           {B : bicat} (D : disp_bicat B)
-           (H : disp_locally_sym D)
-           (HD : disp_2cells_isaprop D)
-  : disp_locally_groupoid D.
-Proof.
-  intros a b f g x aa bb ff gg xx.
-  use tpair.
-  - apply H.
-    exact xx.
-  - split; apply HD.
-Defined.
-
 Section NiceBuilders.
 
   Context {B₁ B₂ : bicat} {D₁ : disp_bicat B₁} {D₂ : disp_bicat B₂}.
