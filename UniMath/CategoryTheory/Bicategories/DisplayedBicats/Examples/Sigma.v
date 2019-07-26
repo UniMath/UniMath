@@ -222,6 +222,183 @@ Section SigmaUnivalent.
   Local Notation E₁ := (total_bicat D₂).
   Local Notation E₂ := (total_bicat (sigma_bicat C D₁ D₂)).
 
+  Definition TODO {A : UU} : A.
+  Admitted.
+
+  Definition pair_disp_invertible_to_sigma_disp_invertible
+             {x y : C}
+             {f : C ⟦ x, y ⟧}
+             {xx : (sigma_bicat C D₁ D₂) x}
+             {yy : (sigma_bicat C D₁ D₂) y}
+             {ff1 : pr1 xx -->[ f] pr1 yy}
+             (ff2 : pr2 xx -->[ f,, ff1] pr2 yy)
+             {gg1 : pr1 xx -->[ f] pr1 yy}
+             (gg2 : pr2 xx -->[ f,, gg1] pr2 yy)
+    : (∑ (p : disp_invertible_2cell
+                (id2_invertible_2cell f)
+                ff1 gg1),
+       disp_invertible_2cell
+         (iso_in_E_weq _ _ (id2_invertible_2cell f ,, p))
+         ff2 gg2)
+      →
+      @disp_invertible_2cell
+        C (sigma_prebicat C D₁ D₂) _ _ _ _ _ _
+        (id2_invertible_2cell f) (ff1,, ff2) (gg1,, gg2).
+  Proof.
+    intros p.
+    use tpair.
+    - exact (pr11 p ,, pr12 p).
+    - simple refine (_ ,, (_ ,, _)).
+      + exact (disp_inv_cell (pr1 p) ,, disp_inv_cell (pr2 p)).
+      + use total2_paths_b.
+        * refine (disp_vcomp_rinv (pr1 p) @ _).
+          unfold transportb.
+          apply TODO.
+        * refine (disp_vcomp_rinv (pr2 p) @ _).
+          unfold transportb.
+          apply TODO.
+      + use total2_paths_b.
+        * refine (disp_vcomp_linv (pr1 p) @ _).
+          unfold transportb.
+          apply TODO.
+        * refine (disp_vcomp_linv (pr2 p) @ _).
+          unfold transportb.
+          apply TODO.
+  Defined.
+
+  Definition sigma_disp_invertible_to_pair_disp_invertible
+             {x y : C}
+             {f : C ⟦ x, y ⟧}
+             {xx : (sigma_bicat C D₁ D₂) x}
+             {yy : (sigma_bicat C D₁ D₂) y}
+             {ff1 : pr1 xx -->[ f] pr1 yy}
+             (ff2 : pr2 xx -->[ f,, ff1] pr2 yy)
+             {gg1 : pr1 xx -->[ f] pr1 yy}
+             (gg2 : pr2 xx -->[ f,, gg1] pr2 yy)
+    : @disp_invertible_2cell
+        C (sigma_prebicat C D₁ D₂) _ _ _ _ _ _
+        (id2_invertible_2cell f) (ff1,, ff2) (gg1,, gg2)
+      →
+      (∑ (p : disp_invertible_2cell
+                (id2_invertible_2cell f)
+                ff1 gg1),
+       disp_invertible_2cell
+         (iso_in_E_weq _ _ (id2_invertible_2cell f ,, p))
+         ff2 gg2).
+  Proof.
+    intros p.
+    use tpair.
+    - use tpair.
+      + exact (pr11 p).
+      + apply TODO.
+    - use tpair.
+      + exact (pr21 p).
+      + apply TODO.
+  Defined.
+
+  Definition pair_disp_invertible_to_sigma_disp_invertible_weq
+             {x y : C}
+             {f : C ⟦ x, y ⟧}
+             {xx : (sigma_bicat C D₁ D₂) x}
+             {yy : (sigma_bicat C D₁ D₂) y}
+             {ff1 : pr1 xx -->[ f] pr1 yy}
+             (ff2 : pr2 xx -->[ f,, ff1] pr2 yy)
+             {gg1 : pr1 xx -->[ f] pr1 yy}
+             (gg2 : pr2 xx -->[ f,, gg1] pr2 yy)
+    : (∑ (p : disp_invertible_2cell
+                (id2_invertible_2cell f)
+                ff1 gg1),
+       disp_invertible_2cell
+         (iso_in_E_weq _ _ (id2_invertible_2cell f ,, p))
+         ff2 gg2)
+        ≃ @disp_invertible_2cell
+        C (sigma_prebicat C D₁ D₂) _ _ _ _ _ _
+        (id2_invertible_2cell f) (ff1,, ff2) (gg1,, gg2).
+  Proof.
+    use make_weq.
+    - apply pair_disp_invertible_to_sigma_disp_invertible.
+    - use gradth.
+      + apply sigma_disp_invertible_to_pair_disp_invertible.
+      + intro p.
+        induction p as [p1 p2].
+        use total2_paths_b.
+        * use subtypePath.
+          { intro ; apply isaprop_is_disp_invertible_2cell. }
+          apply idpath.
+        * use subtypePath.
+          { intro ; apply isaprop_is_disp_invertible_2cell. }
+          transitivity (pr1 p2).
+          { apply idpath. }
+          unfold transportb.
+          refine (!_).
+          etrans.
+          {
+            apply maponpaths.
+            refine (transportf_subtypePath' (λ z, isaprop_is_disp_invertible_2cell _)
+                                           _
+                                           _
+                                           p2).
+          Search transportb subtypePath.
+          etrans.
+          {
+            simpl.
+          unfold transportb.
+          refine (!_).
+          etrans.
+          {
+            apply pr1_transportf.
+
+          apply idpath.
+          cbn.
+          simpl.
+
+      + intro p.
+        use subtypePath.
+        { intro
+          ; apply (@isaprop_is_disp_invertible_2cell C (sigma_bicat C D₁ D₂)). }
+        apply idpath.
+      apply TODO.
+  Defined.
+
+  Definition test
+             (HD₁_2_0 : disp_univalent_2_0 D₁)
+             (HD₁_2_1 : disp_univalent_2_1 D₁)
+             (HD₂_2_0 : disp_univalent_2_0 D₂)
+             (HD₂_2_1 : disp_univalent_2_1 D₂)
+    : disp_univalent_2_1 (sigma_bicat _ _ D₂).
+  Proof.
+    apply fiberwise_local_univalent_is_univalent_2_1.
+    intros x y f xx yy ff gg.
+    use weqhomot.
+    - cbn ; unfold idfun.
+      refine (_ ∘ total2_paths_equiv _ _ _)%weq.
+      refine (test1 _ _ ∘ _)%weq.
+      unfold PathPair.
+      induction ff as [ff1 ff2] ; induction gg as [gg1 gg2].
+      refine (weqtotal2
+                (disp_idtoiso_2_1
+                   _ (idpath f) ff1 gg1 ,,
+                   HD₁_2_1 _ _ _ _ _ _ _ _ _)
+                _).
+      intro p ; cbn in p ; unfold idfun in p.
+      induction p.
+      exact (make_weq
+               (@disp_idtoiso_2_1
+                  _ D₂
+                  (make_total_ob (pr1 xx)) (make_total_ob (pr1 yy))
+                  (make_total_mor ff1) (make_total_mor ff1)
+                  (idpath _) _ _
+                  ff2 gg2)
+               (HD₂_2_1 _ _ _ _ _ _ _ _ _)).
+    - intros p.
+      cbn in p ; unfold idfun in p.
+      induction p.
+      use subtypePath.
+      { intro ; apply isaprop_is_disp_invertible_2cell. }
+      apply idpath.
+  Defined.
+
+
   Definition E₁_univalent_2_0
              (HC_2_0 : is_univalent_2_0 C)
              (HD₁_2_0 : disp_univalent_2_0 D₁)
