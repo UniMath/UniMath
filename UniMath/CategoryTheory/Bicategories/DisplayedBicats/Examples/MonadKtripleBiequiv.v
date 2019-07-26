@@ -1,6 +1,6 @@
-(* ------------------------------------------------------------------------- *)
+(* ========================================================================= *)
 (** * Biequivalence between Monads and Ktriples                              *)
-(* ------------------------------------------------------------------------- *)
+(* ========================================================================= *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
@@ -49,6 +49,24 @@ Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBuilders.
 Local Open Scope cat.
 Local Open Scope bicategory_scope.
 
+(* ------------------------------------------------------------------------- *)
+(** ** Miscellanea                                                           *)
+(* ------------------------------------------------------------------------- *)
+
+Definition isaprop_eq_2cell
+           {B : bicat}
+           {a b : B}
+           {f g : a --> b}
+           (x y : f ==> g)
+  : isaprop (x = y).
+Proof.
+  apply B.
+Defined.
+
+(* ------------------------------------------------------------------------- *)
+(** ** Basic monadic constructions built from a Ktriple.                     *)
+(* ------------------------------------------------------------------------- *)
+
 Section Monad_of_Kleisli_Data.
 
 Context {x : category} (k : kleisli_triple x).
@@ -67,12 +85,11 @@ Proof.
 Qed.
 
 Definition unit_kleisli
-  : functor_identity x ⟹ functor_of_kleisli_triple k.
-Proof.
-   use make_nat_trans.
-   - exact unit_kleisli_data.
-   - exact unit_kleisli_natural.
-Defined.
+  : functor_identity x ⟹ functor_of_kleisli_triple k
+  := make_nat_trans (functor_identity x)
+                    (functor_of_kleisli_triple k)
+                    unit_kleisli_data
+                    unit_kleisli_natural.
 
 Local Definition mu_kleisli_data (a : x) : x ⟦ k (k a), k a ⟧
   := bind_kt k (identity (k a)).
@@ -95,12 +112,11 @@ Qed.
 Definition mu_kleisli
   : functor_of_kleisli_triple k ∙ functor_of_kleisli_triple k
     ⟹
-    functor_of_kleisli_triple k.
-Proof.
-  use make_nat_trans.
-  - exact mu_kleisli_data.
-  - exact mu_kleisli_natural.
-Defined.
+    functor_of_kleisli_triple k
+  := make_nat_trans (functor_of_kleisli_triple k ∙ functor_of_kleisli_triple k)
+                    (functor_of_kleisli_triple k)
+                    mu_kleisli_data
+                    mu_kleisli_natural.
 
 End Monad_of_Kleisli_Data.
 
@@ -148,15 +164,9 @@ Definition unit_mu_kleisli
 
 End Monad_of_Kleisli_Data.
 
-Definition isaprop_eq_2cell
-           {B : bicat}
-           {a b : B}
-           {f g : a --> b}
-           (x y : f ==> g)
-  : isaprop (x = y).
-Proof.
-  apply B.
-Defined.
+(* ------------------------------------------------------------------------- *)
+(** ** Pseudofunctor Ktriples to Monads.                                     *)
+(* ------------------------------------------------------------------------- *)
 
 Lemma disp_2cells_isaprop_monad : disp_2cells_isaprop (disp_monad bicat_of_cats).
 Proof.
@@ -182,7 +192,7 @@ Proof.
   - exact disp_2cells_isaprop_monad.
 Admitted.
 
-Lemma functor_of_kleisli_comm
+Definition functor_of_kleisli_comm
       {x y : univalent_category}
       {f : x ⟶ y}
       {kx : kleisli_triple x}
@@ -240,134 +250,50 @@ Proof.
   - exact (functor_of_kleisli_comm_nat_iso kf).
 Defined.
 
-Local Lemma lemma1
-      {x y : univalent_category}
-      {f : bicat_of_cats ⟦x, y⟧}
-      {kx : kleisli_triple x}
-      {ky : kleisli_triple y}
-      (kf : kleisli_triple_on_functor kx ky f)
-  :
-      (unit_kleisli kx ▹ f) • functor_of_kleisli_comm kf =
-      (lunitor f • rinvunitor f) • (f ◃ unit_kleisli ky)
-    × (mu_kleisli kx ▹ f) • functor_of_kleisli_comm kf =
-      ((((rassociator (functor_of_kleisli_triple kx : bicat_of_cats ⟦_,_⟧)
-                      (functor_of_kleisli_triple kx) f
-            • ((functor_of_kleisli_triple kx : bicat_of_cats ⟦_,_⟧) ◃ functor_of_kleisli_comm kf))
-           • lassociator (functor_of_kleisli_triple kx : bicat_of_cats ⟦_,_⟧)
-                         f
-                         (functor_of_kleisli_triple ky))
-          • (functor_of_kleisli_comm kf ▹
-             (functor_of_kleisli_triple ky : bicat_of_cats ⟦_,_⟧)))
-         • rassociator f (functor_of_kleisli_triple ky) (functor_of_kleisli_triple ky))
-        • (f ◃ mu_kleisli ky).
+Definition Ktriple_to_Monad_disp_2cell
+           {x y : bicat_of_cats}
+           {f : bicat_of_cats ⟦ x, y ⟧}
+           {kx : kleisli_triple_disp_bicat x}
+           {ky : kleisli_triple_disp_bicat y}
+           (kf : kx -->[f] ky)
+  : unit_mu_kleisli kx -->[ #(ps_id_functor bicat_of_cats) f] unit_mu_kleisli ky.
 Proof.
-  split.
-  - use nat_trans_eq.
-    { apply y. }
-    intro a. cbn.
-    rewrite !id_left.
-    unfold unit_kleisli_data.
-    refine (maponpaths (λ z, z · _) (pr12 kf a) @ _).
-    rewrite assoc'.
-    rewrite iso_inv_after_iso.
-    apply id_right.
-  - use nat_trans_eq. { apply y. }
-                      intro a. cbn.
-    do 2 rewrite id_right.
-    rewrite id_left.
-    unfold mu_kleisli_data.
-    etrans.
-    apply maponpaths_2.
-    apply (pr22 kf).
-    rewrite assoc'.
-    rewrite iso_inv_after_iso.
-    rewrite id_right.
-    rewrite assoc'.
-    apply maponpaths.
-    rewrite (bind_bind ky).
-    apply maponpaths.
-    rewrite functor_id.
-    rewrite id_left.
-    rewrite assoc'.
-    rewrite (unit_bind ky).
-    apply pathsinv0.
-    apply id_right.
-Qed.
+  refine (make_dirprod _ tt).
+  use tpair.
+  - apply nat_iso_to_invertible_2cell.
+    exact (functor_of_kleisli_iso kf).
+  - abstract
+      (split;
+       [ use nat_trans_eq; try apply homset_property;
+         intro a; cbn;
+         do 2 rewrite id_left;
+         unfold unit_kleisli_data;
+         refine (maponpaths (λ z, z · _) (pr12 kf a) @ _);
+         rewrite assoc';
+         rewrite iso_inv_after_iso;
+         apply id_right
+       | use nat_trans_eq; try apply homset_property;
+         intro a; cbn;
+         do 2 rewrite id_right;
+         rewrite id_left;
+         unfold mu_kleisli_data;
+         rewrite (pr22 kf);
+         rewrite assoc';
+         rewrite iso_inv_after_iso;
+         rewrite id_right;
+         rewrite assoc';
+         apply maponpaths;
+         rewrite (bind_bind ky);
+         apply maponpaths;
+         rewrite functor_id;
+         rewrite id_left;
+         rewrite assoc';
+         rewrite (unit_bind ky);
+         apply pathsinv0;
+         apply id_right ]).
+Defined.
 
-Local Lemma lemma2
-      {x y : univalent_category}
-      {f g : x ⟶ y} {α : f ⟹ g}
-      {kx : kleisli_triple x}
-      {ky : kleisli_triple y}
-      {kf : kleisli_triple_on_functor kx ky f}
-      {kg : kleisli_triple_on_functor kx ky g}
-      (e : (∏ a : x, pr1 kf a · α (kx a) = bind_kt ky (α a · unit_kt ky (g a)) · pr1 kg a))
-  : alg_disp_cat_2cell
-      (ps_id_functor bicat_of_cats) x y f g α
-      (functor_of_kleisli_triple kx) (functor_of_kleisli_triple ky)
-      (nat_iso_to_invertible_2cell
-         (functor_of_kleisli_triple kx ∙ f)
-         (f ∙ functor_of_kleisli_triple ky) (functor_of_kleisli_iso kf))
-      (nat_iso_to_invertible_2cell
-         (functor_of_kleisli_triple kx ∙ g)
-         (g ∙ functor_of_kleisli_triple ky) (functor_of_kleisli_iso kg)).
-Proof.
-  use nat_trans_eq.
-  { apply y. }
-  cbn. intro a.
-  symmetry.
-  apply iso_inv_on_left.
-  rewrite assoc'.
-  rewrite <- e.
-  rewrite assoc.
-  rewrite iso_after_iso_inv.
-  symmetry.
-  apply id_left.
-Qed.
-
-Local Lemma lemma3
-      {x : univalent_category}
-      (kx : kleisli_triple x)
-  : alg_disp_cat_2cell
-      (ps_id_functor bicat_of_cats) x x (functor_identity (pr1 x))
-      (functor_identity (pr1 x)) (nat_trans_id (functor_identity (pr1 x)))
-      (functor_of_kleisli_triple kx) (functor_of_kleisli_triple kx)
-      (nat_trans_comp
-         (functor_of_kleisli_triple kx ∙ functor_identity (pr1 x))
-         (functor_identity (pr1 x) ∙ functor_of_kleisli_triple kx)
-         (functor_identity (pr1 x) ∙ functor_of_kleisli_triple kx)
-         (nat_trans_comp
-            (functor_of_kleisli_triple kx ∙ functor_identity (pr1 x))
-            (functor_of_kleisli_triple kx) (functor_identity (pr1 x) ∙ functor_of_kleisli_triple kx)
-            (nat_trans_id (functor_of_kleisli_triple kx))
-            (nat_trans_id (functor_of_kleisli_triple kx)))
-         (post_whisker (nat_trans_id (functor_identity (pr1 x))) (functor_of_kleisli_triple kx)),,
-         is_invertible_2cell_vcomp
-         (is_invertible_2cell_vcomp
-            (is_invertible_2cell_runitor
-               (functor_of_kleisli_triple kx : bicat_of_cats ⟦ x, x ⟧))
-            (is_invertible_2cell_linvunitor
-               (functor_of_kleisli_triple kx : bicat_of_cats ⟦ x, x ⟧)))
-         (is_invertible_2cell_rwhisker
-            (functor_of_kleisli_triple kx : bicat_of_cats ⟦ x, x ⟧)
-            (is_invertible_2cell_id₂ (functor_identity (pr1 x) : bicat_of_cats ⟦ x, x ⟧))))
-      (nat_iso_to_invertible_2cell
-         (functor_of_kleisli_triple kx ∙ functor_identity (pr1 x))
-         (functor_identity (pr1 x) ∙ functor_of_kleisli_triple kx)
-         (functor_of_kleisli_iso (kleisli_triple_on_identity_functor kx))).
-Proof.
-  unfold alg_disp_cat_2cell.
-  use nat_trans_eq.
-  { apply x. }
-  intro a. cbn.
-  rewrite !id_left.
-  rewrite (bind_bind kx).
-  rewrite (unit_bind kx).
-  symmetry.
-  apply (bind_unit kx).
-Qed.
-
-Definition Ktriple_to_Monad_data
+Definition Ktriple_to_Monad
   : disp_psfunctor kleisli_triple_disp_bicat
                    (disp_monad bicat_of_cats)
                    (ps_id_functor bicat_of_cats).
@@ -376,27 +302,35 @@ Proof.
   - exact disp_2cells_isaprop_monad.
   - exact disp_locally_groupoid_monad.
   - exact @unit_mu_kleisli.
-  - unfold bicat_of_cats.
-    simpl.
-    intros x y f kx ky kf.
-    refine (make_dirprod _ tt).
-    use tpair.
-    + apply nat_iso_to_invertible_2cell.
-      exact (functor_of_kleisli_iso kf).
-    + exact (lemma1 kf).
-  - cbn.
-    intros.
-    repeat apply make_dirprod; try exact tt.
-    exact (lemma2 X).
-  - cbn.
-    intros x kx.
-    refine ((_,, (tt,, tt)),, tt).
-    exact (lemma3 kx).
-  - simpl.
-    intros x y z f g kx ky kz kf kg.
-    refine ((_,, (tt,, tt)),, tt).
-    abstract
-      (unfold alg_disp_cat_2cell; simpl;
+  - exact @Ktriple_to_Monad_disp_2cell.
+  - abstract
+      (cbn; intros x y f g α kx ky kf kg e;
+       refine ((_,, (tt,, tt)),, tt);
+       use nat_trans_eq; try apply homset_property;
+       cbn; intro a;
+       symmetry;
+       apply iso_inv_on_left;
+       rewrite assoc';
+       rewrite <- e;
+       rewrite assoc;
+       rewrite iso_after_iso_inv;
+       symmetry;
+       apply id_left).
+  - abstract
+      (intros x kx;
+       refine ((_,, (tt,, tt)),, tt);
+       unfold alg_disp_cat_2cell;
+       use nat_trans_eq; try apply homset_property;
+       intro a; cbn;
+       rewrite !id_left;
+       rewrite (bind_bind kx);
+       rewrite (unit_bind kx);
+       symmetry;
+       apply (bind_unit kx)).
+  - abstract
+      (simpl;
+       intros x y z f g kx ky kz kf kg;
+       refine ((_,, (tt,, tt)),, tt);
        use nat_trans_eq; try apply z;
        intro a; cbn;
        change (ob x) in a;
@@ -408,24 +342,4 @@ Proof.
        rewrite (bind_unit kz);
        rewrite id_right;
        apply idpath).
-Admitted. (* No subgoal, but very slow Qed. *)
-
-Local Lemma Ktriple_to_Monad_psfunctor
-  : is_disp_psfunctor kleisli_triple_disp_bicat (disp_monad bicat_of_cats)
-                      (ps_id_functor bicat_of_cats) (pr1 Ktriple_to_Monad_data).
-Proof.
-  repeat apply make_dirprod;
-    intro; intros; simpl;
-      repeat apply isapropdirprod; try apply isapropunit;
-        apply isaprop_eq_2cell.
-Admitted. (* No subgoal, but very slow Qed. *)
-
-Definition Ktriple_to_Monad
-  : disp_psfunctor kleisli_triple_disp_bicat
-                   (disp_monad bicat_of_cats)
-                   (ps_id_functor bicat_of_cats).
-Proof.
-  use tpair.
-  - apply Ktriple_to_Monad_data.
-  - apply Ktriple_to_Monad_psfunctor.
 Defined.
