@@ -263,6 +263,8 @@ Bicategories/Transformations/Examples/AlgebraMap.v
 Bicategories/DisplayedBicats/Examples/Monads.v
 Bicategories/DisplayedBicats/DispTransformation.v
 Bicategories/DisplayedBicats/DispModification.v
+Bicategories/DisplayedBicats/DispBiequivalence.v
+Bicategories/DisplayedBicats/Examples/ProdCommutativity.v
 
 Bicategories/Bicategories/YonedaLemma.v
 
