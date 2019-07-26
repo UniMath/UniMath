@@ -40,6 +40,18 @@ Definition kleisli_triple
        × ∏ (A B C : C) (f : A --> M B) (g : B --> M C),
      bind A B f · bind B C g = bind A C (f · bind B C g).
 
+Definition make_kleisli_triple
+           {C : category}
+           (M : ob C → ob C)
+           (η : ∏ (A : C), A --> M A)
+           (bind : ∏ (A B : C), A --> M B → M A --> M B)
+           (bind_unit : ∏ (A : C), bind A A (η A) = id₁ (M A))
+           (unit_bind : ∏ (A B : C) (f : A --> M B), η A · bind A B f = f)
+           (bind_bind : ∏ (A B C : C) (f : A --> M B) (g : B --> M C),
+                        bind A B f · bind B C g = bind A C (f · bind B C g))
+  : kleisli_triple C
+  := (M,, η,, bind,, (bind_unit,, unit_bind,, bind_bind)).
+
 Definition object_map_kt
            {C : category}
            (M : kleisli_triple C)
@@ -117,6 +129,51 @@ Definition kleisli_triple_on_functor
       #F (bind_kt MC f) =
       inv_from_iso (MF A) · bind_kt MD (#F f · inv_from_iso (MF B)) · MF B).
 
+Definition make_kleisli_triple_on_functor
+           {C D : category}
+           {MC : kleisli_triple C}
+           {MD : kleisli_triple D}
+           {F : C ⟶ D}
+           (MF : ∏ (X : C), iso (MD (F X)) (F (MC X)))
+           (MFunit : ∏ (A : C),
+                     #F (unit_kt MC A) = unit_kt MD (F A) · MF A)
+           (MFbind : ∏ (A B : C) (f : A --> MC B),
+                     #F (bind_kt MC f)
+                     =
+                     inv_from_iso (MF A) · bind_kt MD (#F f · inv_from_iso (MF B)) · MF B)
+  : kleisli_triple_on_functor MC MD F
+  := (MF,, MFunit,, MFbind).
+
+Section Projections.
+
+Context {C D : category}
+        {MC : kleisli_triple C}
+        {MD : kleisli_triple D}
+        {F : C ⟶ D}
+        (MF : kleisli_triple_on_functor MC MD F).
+
+Definition kleisli_triple_on_functor_iso
+  : ∏ (X : C), iso (MD (F X)) (F (MC X))
+  := pr1 MF.
+
+Definition kleisli_triple_on_functor_unit_kt
+  : ∏ (A : C),
+    #F (unit_kt MC A)
+    =
+    unit_kt MD (F A) · kleisli_triple_on_functor_iso A
+  := pr12 MF.
+
+Definition kleisli_triple_on_functor_bind_kt
+  : ∏ (A B : C) (f : A --> MC B),
+    #F (bind_kt MC f)
+    =
+    inv_from_iso (kleisli_triple_on_functor_iso A)
+                 · bind_kt MD (#F f · inv_from_iso (kleisli_triple_on_functor_iso B))
+                 · kleisli_triple_on_functor_iso B
+  := pr22 MF.
+
+End Projections.
+
 Definition kleisli_triple_on_identity_functor
            {C : category}
            (MC : kleisli_triple C)
@@ -168,61 +225,80 @@ Proof.
       use tpair.
       * exact (λ X, iso_comp (pr1 MF₂ (F₁ X)) (functor_on_iso F₂ (pr1 MF₁ X))).
       * split.
-        ** intros A ; cbn.
-           rewrite (pr12 MF₁).
-           rewrite functor_comp.
-           rewrite (pr12 MF₂).
-           rewrite assoc.
-           apply idpath.
-        ** intros A B f ; simpl.
-           rewrite (pr22 MF₁).
-           rewrite !functor_comp.
-           rewrite (pr22 MF₂).
-           rewrite !functor_comp.
-           rewrite (inv_from_iso_iso_comp (pr1 MF₂ (F₁ A))).
-           rewrite (inv_from_iso_iso_comp (pr1 MF₂ (F₁ B))).
-           rewrite <- !functor_on_inv_from_iso.
-           rewrite !assoc.
-           apply idpath.
+        ** abstract
+             (intros A ; cbn;
+              rewrite (pr12 MF₁);
+              rewrite functor_comp;
+              rewrite (pr12 MF₂);
+              rewrite assoc;
+              apply idpath).
+        ** abstract
+             (intros A B f ; simpl;
+              rewrite (pr22 MF₁);
+              rewrite !functor_comp;
+              rewrite (pr22 MF₂);
+              rewrite !functor_comp;
+              rewrite (inv_from_iso_iso_comp (pr1 MF₂ (F₁ A)));
+              rewrite (inv_from_iso_iso_comp (pr1 MF₂ (F₁ B)));
+              rewrite <- !functor_on_inv_from_iso;
+              rewrite !assoc;
+              apply idpath).
 Defined.
+
+Definition kleisli_triple_nat_trans
+           {C₁ C₂ : univalent_category}
+           {F₁ F₂ : C₁ ⟶ C₂}
+           (n : F₁ ⟹ F₂)
+           {MC₁ : kleisli_triple C₁}
+           {MC₂ : kleisli_triple C₂}
+           (MF₁ : kleisli_triple_on_functor MC₁ MC₂ F₁)
+           (MF₂ : kleisli_triple_on_functor MC₁ MC₂ F₂)
+  : UU
+  := ∏ (X : C₁),
+     pr1 MF₁ X · n (MC₁ X)
+     =
+     #(functor_data_of_kleisli_triple MC₂) (n X) · pr1 MF₂ X.
 
 Definition kleisli_triple_disp_prebicat_1_id_comp_cells
   : disp_prebicat_1_id_comp_cells bicat_of_cats.
 Proof.
   use tpair.
   - exact kleisli_triple_disp_cat_data.
-  - intros C₁ C₂ F₁ F₂ n MC₁ MC₂ MF₁ MF₂ ; cbn in *.
-    exact (∏ (X : C₁),
-           pr1 MF₁ X · n (MC₁ X)
-           =
-           #(functor_data_of_kleisli_triple MC₂) (n X) · pr1 MF₂ X).
+  - exact @kleisli_triple_nat_trans.
 Defined.
 
 Definition kleisli_triple_disp_prebicat_ops
   : disp_prebicat_ops kleisli_triple_disp_prebicat_1_id_comp_cells.
 Proof.
-  repeat split ; cbn.
-  - intros ; rewrite ?id_left, ?id_right.
+  repeat split.
+  - intros ; intro ; cbn.
+    rewrite ?id_left, ?id_right.
     rewrite bind_unit, id_left.
     apply idpath.
-  - intros ; rewrite ?functor_id, ?id_left, ?id_right.
+  - intros ; intro ; cbn.
+    rewrite ?functor_id, ?id_left, ?id_right.
     rewrite bind_unit, id_left.
     apply idpath.
-  - intros ; rewrite ?id_left, ?id_right.
+  - intros ; intro ; cbn.
+    rewrite ?id_left, ?id_right.
     rewrite bind_unit, id_left.
     apply idpath.
-  - intros ; rewrite ?functor_id, ?id_left, ?id_right.
+  - intros ; intro ; cbn.
+    rewrite ?functor_id, ?id_left, ?id_right.
     rewrite bind_unit, id_left.
     apply idpath.
-  - intros ; rewrite ?id_left, ?id_right.
+  - intros ; intro ; cbn.
+    rewrite ?id_left, ?id_right.
     rewrite bind_unit, id_left.
     apply idpath.
-  - intros ; rewrite ?id_left, ?id_right.
+  - intros ; intro ; cbn.
+    rewrite ?id_left, ?id_right.
     rewrite bind_unit, id_left.
     rewrite functor_comp.
     rewrite assoc.
     apply idpath.
-  - intros ; rewrite ?id_left, ?id_right.
+  - intros ; intro ; cbn.
+    rewrite ?id_left, ?id_right.
     rewrite bind_unit, id_left.
     rewrite functor_comp.
     rewrite assoc.
@@ -231,6 +307,7 @@ Proof.
     rewrite !assoc.
     rewrite MN₁.
     rewrite <- !assoc.
+    unfold functor_data_of_kleisli_triple ; cbn.
     rewrite MN₂.
     rewrite !assoc.
     etrans.
@@ -243,7 +320,7 @@ Proof.
     rewrite <- !assoc.
     apply maponpaths.
     apply (unit_bind MC₂).
-  - intros C₁ C₂ C₃ F G₁ G₂ n MC₁ MC₂ MC₃ MF MG₁ MG₂ Mn X.
+  - intros C₁ C₂ C₃ F G₁ G₂ n MC₁ MC₂ MC₃ MF MG₁ MG₂ Mn X ; cbn.
     rewrite <- !assoc.
     etrans.
     {
@@ -253,13 +330,14 @@ Proof.
     rewrite !assoc.
     rewrite Mn.
     apply idpath.
-  - intros C₁ C₂ C₃ F₁ F₂ G n MC₁ MC₂ MC₃ MF₁ MF₂ MG Mn X.
+  - intros C₁ C₂ C₃ F₁ F₂ G n MC₁ MC₂ MC₃ MF₁ MF₂ MG Mn X ; cbn.
     rewrite <- !assoc.
     rewrite <- functor_comp.
     rewrite Mn.
     rewrite functor_comp.
     rewrite !assoc.
     apply maponpaths_2.
+    unfold functor_data_of_kleisli_triple ; cbn.
     rewrite (pr22 MG) ; cbn.
     rewrite !assoc.
     rewrite iso_inv_after_iso, id_left.
