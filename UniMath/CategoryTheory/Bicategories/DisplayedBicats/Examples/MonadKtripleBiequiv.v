@@ -50,6 +50,7 @@ Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBuilders.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispTransformation.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispModification.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBiequivalence.
+Require Import UniMath.CategoryTheory.Bicategories.Transformations.Examples.Unitality.
 
 Local Open Scope cat.
 Local Open Scope bicategory_scope.
@@ -424,14 +425,39 @@ Proof.
   - apply TODO.
 Defined.
 
-Search is_biequivalence.
-
-(*
 Definition Monad_biequiv_Ktriple
   : is_disp_biequivalence_unit_counit
       (monad bicat_of_cats)
       kleisli_triple_disp_bicat
-biequiv.
-
-      monad kleisli_triple_disp_bicat bicat_of_cats.
-*)
+      (id_is_biequivalence _) Monad_to_Ktriple Ktriple_to_Monad.
+Proof.
+  split.
+  - use make_disp_pstrans.
+    + apply TODO.
+    + apply TODO.
+    + intros.
+      use make_cat_monad_mor.
+      * simpl.
+        cbn.
+        use make_nat_iso.
+        ** use make_nat_trans.
+           *** intro z ; cbn.
+               apply identity.
+           *** intros z t f ; cbn.
+               rewrite id_left, id_right.
+               apply TODO.
+        ** intros z. simpl.
+           apply TODO.
+      * intros z.
+        cbn.
+        apply id_right.
+      * intros.
+        cbn.
+        apply TODO.
+    + intros.
+      use make_cat_monad_cell.
+      cbn.
+      intros X.
+      apply TODO.
+  - apply TODO.
+Defined.
