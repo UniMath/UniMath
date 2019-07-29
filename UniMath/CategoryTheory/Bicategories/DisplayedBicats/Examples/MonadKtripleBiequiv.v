@@ -334,8 +334,6 @@ Defined.
 (*  Kleisly_of_Monad                                                         *)
 (* ------------------------------------------------------------------------- *)
 
-
-
 Definition disp_2cells_isaprop_kleisli
   : disp_2cells_isaprop kleisli_triple_disp_bicat.
 Proof.
@@ -345,7 +343,6 @@ Definition disp_locally_groupoid_kleisli
   : disp_locally_groupoid kleisli_triple_disp_bicat.
 Proof.
 Admitted.
-
 
 Section Kleisly_of_Monad_data.
 
@@ -457,15 +454,18 @@ Proof.
         cbn.
         use make_nat_iso.
         ** use make_nat_trans.
-           *** intro z ; cbn.
-               apply identity.
-           *** intros z t f ; cbn.
-               rewrite id_left, id_right.
-               apply TODO.
-        ** intros z. simpl.
-           apply TODO.
+           *** intro z. apply identity.
+           *** abstract
+                 (intros z t f ; cbn;
+                  rewrite id_left, id_right;
+                  unfold bind_monad;
+                  rewrite (functor_comp (monad_map xx : _ ⟶ _));
+                  rewrite assoc';
+                  etrans;
+                  [ apply maponpaths; apply (cat_monad_ημ xx)
+                  | apply id_right ]).
+        ** intros z. apply identity_is_iso.
       * intros z.
-        cbn.
         apply id_right.
       * intros.
         cbn.
