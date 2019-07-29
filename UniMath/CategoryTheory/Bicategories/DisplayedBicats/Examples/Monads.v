@@ -525,3 +525,12 @@ Proof.
   intros X; cbn.
   apply H.
 Qed.
+
+Definition monad_mor_nat_iso
+           {C₁ C₂ : univalent_category}
+           {F : C₁ ⟶ C₂}
+           {M₁ : monad bicat_of_cats C₁}
+           {M₂ : monad bicat_of_cats C₂}
+           (FF : M₁ -->[F] M₂)
+  : nat_iso (monad_map M₁ ∙ F) (F ∙ monad_map M₂)
+  := invertible_2cell_to_nat_iso _ _ (monad_mor_natural FF).

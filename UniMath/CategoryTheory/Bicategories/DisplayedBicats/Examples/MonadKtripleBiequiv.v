@@ -392,6 +392,18 @@ Proof.
        apply (cat_monad_μμ m C)).
 Defined.
 
+(* NB: We need to take the inverse to match the definition used to build the biequivalence. *)
+Definition monad_mor_natural_pointwise
+           {C₁ C₂ : univalent_category}
+           {F : C₁ ⟶ C₂}
+           {M₁ : monad bicat_of_cats C₁}
+           {M₂ : monad bicat_of_cats C₂}
+           (FF : M₁ -->[F] M₂)
+           (X : C₁)
+  : iso ((monad_map M₂ : C₂ ⟶ C₂) (F X)) (F ((monad_map M₁ : C₁ ⟶ C₁) X))
+  := CompositesAndInverses.nat_iso_to_pointwise_iso
+       (nat_iso_inv (monad_mor_nat_iso FF)) X.
+
 Definition TODO {A : UU} : A.
 Admitted.
 
@@ -407,12 +419,7 @@ Definition Monad_to_Ktriple_functor
       f.
 Proof.
   use make_kleisli_triple_on_functor.
-  - simpl ; intro X.
-    exact (iso_inv_from_iso
-             (make_iso _
-                       (pr2 (invertible_2cell_to_nat_iso
-                               _ _
-                               (monad_mor_natural mf)) X))).
+  - exact (monad_mor_natural_pointwise mf).
   - simpl ; intro X.
     apply TODO.
   - simpl ; intros A B g.
