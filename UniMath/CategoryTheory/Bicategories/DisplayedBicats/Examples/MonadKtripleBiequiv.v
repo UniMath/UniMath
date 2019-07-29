@@ -52,6 +52,8 @@ Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispModificat
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBiequivalence.
 Require Import UniMath.CategoryTheory.Bicategories.Transformations.Examples.Unitality.
 
+Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
+
 Local Open Scope cat.
 Local Open Scope bicategory_scope.
 
@@ -417,7 +419,19 @@ Definition Monad_to_Ktriple_functor
 Proof.
   use make_kleisli_triple_on_functor.
   - exact (monad_mor_natural_pointwise mf).
-  - simpl ; intro X.
+  - refine (λ (X : x), _).
+    cbn.
+    pose (nat_trans_eq_pointwise (monad_mor_unit mf) X) as mf_unit.
+    cbn in mf_unit.
+    do 2 rewrite id_left in mf_unit.
+    etrans.
+    2: { apply maponpaths_2. exact mf_unit. }
+    symmetry.
+    etrans.
+    2: apply id_right.
+    rewrite assoc'.
+    apply maponpaths.
+    (* Hopefully this will follow from a general result about nat_iso_inv. *)
     apply TODO.
   - simpl ; intros A B g.
     apply TODO.
