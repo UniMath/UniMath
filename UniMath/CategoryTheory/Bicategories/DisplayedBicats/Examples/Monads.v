@@ -475,10 +475,6 @@ Proof.
   exact p.
 Qed.
 
-
-
-
-
 Definition make_cat_monad_mor
            {C D : univalent_category}
            {mx : monad bicat_of_cats C} {my : monad bicat_of_cats D}

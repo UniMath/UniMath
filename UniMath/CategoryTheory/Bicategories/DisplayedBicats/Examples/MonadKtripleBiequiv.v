@@ -359,9 +359,6 @@ Definition bind_monad
 
 End Kleisly_of_Monad_data.
 
-Definition TODO {A : UU} : A.
-Admitted.
-
 Definition Monad_to_Ktriple_data {x : univalent_category}
            (m : monad bicat_of_cats x)
   : kleisli_triple_disp_bicat (ps_id_functor bicat_of_cats x).
@@ -383,8 +380,20 @@ Proof.
        rewrite assoc';
        refine (maponpaths (λ z, _ · z) (cat_monad_μη m _) @ _);
        apply id_right).
-  - apply TODO.
+  - abstract
+      (cbn; intros; unfold bind_monad;
+       do 2 rewrite (functor_comp ((monad_map m) : _ ⟶ _));
+       do 3 rewrite assoc';
+       apply maponpaths;
+       do 2 rewrite assoc;
+       pose (p := !pr2 (monad_mu m) _ _ g); cbn in p;
+       (etrans; [ apply maponpaths_2, p | do 2 rewrite assoc' ]);
+       apply maponpaths;
+       apply (cat_monad_μμ m C)).
 Defined.
+
+Definition TODO {A : UU} : A.
+Admitted.
 
 Definition Monad_to_Ktriple_functor
            {x y : univalent_category}
