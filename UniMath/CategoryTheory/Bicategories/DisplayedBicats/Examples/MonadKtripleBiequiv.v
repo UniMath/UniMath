@@ -509,16 +509,60 @@ Proof.
   - exact disp_locally_groupoid_kleisli.
   - exact @Monad_to_Ktriple_data.
   - exact @Monad_to_Ktriple_functor.
-  - intros x y f g α mx my mf mg mα a.
-    cbn.
-    unfold bind_monad.
-    cbn.
-    unfold monad_map.
-    simpl.
-    cbn.
+  - intros x y f g α mx my mf mg mα.
+    refine (λ X: (x:univalent_category), _).
+    change
+      (
+        inv_from_iso
+          (make_iso
+             (pr11 (monad_mor_natural mf) X)
+             (is_invertible_2cell_to_is_nat_iso
+                (monad_mor_natural mf)
+                (pr2 (monad_mor_natural mf)) X))
+          · pr1 α (pr1 (monad_map mx) X) =
+        # (pr1 (monad_map my))
+          (pr1 α X · (pr1 (monad_unit my)) (pr1 g X))
+          · pr1 (monad_mu my) (pr1 g X)
+          · inv_from_iso
+          (make_iso
+             (pr11 (monad_mor_natural mg) X)
+             (is_invertible_2cell_to_is_nat_iso
+                (monad_mor_natural mg)
+                (pr2 (monad_mor_natural mg)) X))
+      ).
+    use post_comp_with_iso_is_inj;
+      [ idtac
+      | idtac
+      | exact (is_invertible_2cell_to_is_nat_iso
+                 (monad_mor_natural mg) (pr2 (monad_mor_natural mg)) X)
+      | idtac ].
+    etrans.
+    { rewrite assoc'.
+      apply maponpaths.
+      apply (nat_trans_eq_pointwise (pr11 mα) X).
+    }
+    symmetry.
+    etrans;
+    [ rewrite assoc';
+      apply maponpaths;
+      exact (iso_after_iso_inv (pr11 (monad_mor_natural mg) X,, _))
+    | rewrite id_right ].
     apply TODO.
-  - apply TODO.
-  - apply TODO.
+  - intros x mx X; simpl.
+    unfold bind_kt, unit_kt; simpl.
+    unfold bind_monad; simpl.
+    do 2 rewrite id_left.
+    (* Here symmetry is slow! *)
+    apply pathsinv0.
+    etrans.
+    {
+      apply maponpaths_2, (cat_monad_ημ mx X).
+    }
+    rewrite id_left.
+    apply TODO.
+  - intros x y z f g mx my mz mf mg.
+    simpl.
+    apply TODO.
 Defined.
 
 Definition Monad_biequiv_Ktriple
