@@ -588,9 +588,6 @@ Section SigmaTotalUnivalent.
   Defined.
 End SigmaTotalUnivalent.
 
-Definition TODO {A : UU} : A.
-Admitted.
-
 Definition help_disp_left_adjoint_axioms
            {C : bicat}
            (D : disp_bicat C)
@@ -606,23 +603,27 @@ Proof.
   split ; apply HD.
 Qed.
 
-Definition transportb_subtypePath'
+Definition transportf_subtypePath
             {A : UU}
             {P : A → UU}
             (Pprop : ∏ (a : A), isaprop (P a))
             {C : total2 P → UU}
             (x : A) (P₁ P₂ : P x)
             (y : C (x,,P₂))
-  : transportb (λ (z : total2 P), C z)
-              (@subtypePath' _ _ (x,,P₁) (x,,P₂) (idpath x) (Pprop x))
-              y
+  : transportf
+      (λ (z : total2 P), C z)
+      (!(@subtypePath A P Pprop (x ,, P₁) (x ,, P₂) (idpath x)))
+      y
     =
-    transportb (λ (p : P x), C (x,, p)) (pr1 (Pprop x P₁ P₂)) y.
+    transportf
+      (λ (p : P x), C (x,, p))
+      (!(pr1 (Pprop x P₁ P₂)))
+      y.
 Proof.
-   cbn.
-   induction (Pprop x P₁ P₂) as [p q].
-   induction p.
-   reflexivity.
+  cbn.
+  induction (Pprop x P₁ P₂) as [p q].
+  induction p.
+  apply idpath.
 Defined.
 
 Section SigmaDisplayedUnivalent.
@@ -883,6 +884,73 @@ Section SigmaDisplayedUnivalent.
     - exact (pair_disp_adjequiv_to_sigma_disp_adjequiv_inv_pr2 xx yy p).
   Defined.
 
+  Definition pair_disp_adjequiv_to_sigma_disp_adjequiv_weq_help
+             {x : C}
+             (xx : (sigma_bicat C D₁ D₂) x)
+             (yy : (sigma_bicat C D₁ D₂) x)
+    : homot
+        ((pair_disp_adjequiv_to_sigma_disp_adjequiv_inv xx yy)
+           ∘ pair_disp_adjequiv_to_sigma_disp_adjequiv xx yy)%functions
+        (idfun _).
+  Proof.
+    intro p.
+    induction p as [p1 p2].
+    use total2_paths_b.
+    - use subtypePath.
+      {
+        intro.
+        apply isaprop_disp_left_adjoint_equivalence
+        ; [ exact (pr2 HC) | exact HD₁_2_1 ].
+      }
+      apply idpath.
+    - use subtypePath.
+      {
+        intro.
+        apply isaprop_disp_left_adjoint_equivalence
+        ; [ apply total_is_univalent_2_1 ; [ exact (pr2 HC) | exact HD₁_2_1 ]
+          | exact HD₂_2_1 ].
+      }
+      unfold transportb.
+      refine (!(_ @ _)).
+      {
+        apply (@pr1_transportf
+                 _
+                 (λ z : disp_adjoint_equivalence
+                          (internal_adjoint_equivalence_identity x)
+                          (pr1 xx) (pr1 yy),
+                        pr2 xx
+                            -->[invmap (adjoint_equivalence_total_disp_weq (pr1 xx) (pr1 yy))
+                                       (internal_adjoint_equivalence_identity x,, z)]
+                            pr2 yy)).
+      }
+      etrans.
+      {
+        exact (@transportf_subtypePath
+                (pr1 xx -->[ internal_adjoint_equivalence_identity x ] pr1 yy)
+                (λ z, disp_left_adjoint_equivalence
+                        (internal_adjoint_equivalence_identity x) z)
+                (λ z, isaprop_disp_left_adjoint_equivalence
+                        (internal_adjoint_equivalence_identity x) z
+                        (pr2 HC) HD₁_2_1)
+                (λ z, pr2 xx
+                          -->[ invmap (adjoint_equivalence_total_disp_weq
+                                         (pr1 xx) (pr1 yy))
+                                      (internal_adjoint_equivalence_identity x,, z)
+                             ]
+                          pr2 yy)
+                (pr1 p1)
+                (pr1 (pair_disp_adjequiv_to_sigma_disp_adjequiv_inv
+                        xx yy
+                        (pair_disp_adjequiv_to_sigma_disp_adjequiv xx yy (p1,, p2))))
+                (pr2 p1)
+                (pr1 p2)).
+      }
+      match goal with
+      | [ |- transportf _?p _ = _ ] => induction p
+      end.
+      apply idpath.
+  Qed.
+
   Definition pair_disp_adjequiv_to_sigma_disp_adjequiv_weq
              {x : C}
              (xx : (sigma_bicat C D₁ D₂) x)
@@ -901,24 +969,7 @@ Section SigmaDisplayedUnivalent.
     - exact (pair_disp_adjequiv_to_sigma_disp_adjequiv xx yy).
     - use gradth.
       + exact (pair_disp_adjequiv_to_sigma_disp_adjequiv_inv xx yy).
-      + intros p.
-        induction p as [p1 p2].
-        use total2_paths_b.
-        * use subtypePath.
-          {
-            intro.
-            apply isaprop_disp_left_adjoint_equivalence
-            ; [ exact (pr2 HC) | exact HD₁_2_1 ].
-          }
-          apply idpath.
-        * use subtypePath.
-          {
-            intro.
-            apply isaprop_disp_left_adjoint_equivalence
-            ; [ apply total_is_univalent_2_1 ; [ exact (pr2 HC) | exact HD₁_2_1 ]
-              | exact HD₂_2_1 ].
-          }
-          apply TODO.
+      + exact (pair_disp_adjequiv_to_sigma_disp_adjequiv_weq_help xx yy).
       + intros p.
         use subtypePath.
         { intro ; apply isaprop_disp_left_adjoint_equivalence
