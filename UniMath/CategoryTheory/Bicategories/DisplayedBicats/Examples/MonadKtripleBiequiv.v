@@ -403,7 +403,24 @@ Definition monad_mor_natural_pointwise
   := CompositesAndInverses.nat_iso_to_pointwise_iso
        (nat_iso_inv (monad_mor_nat_iso FF)) X.
 
-Definition TODO {A : UU} : A.
+Lemma inv_monad_mor_natural_pointwise
+      {C₁ C₂ : univalent_category}
+      {F : C₁ ⟶ C₂}
+      {M₁ : monad bicat_of_cats C₁}
+      {M₂ : monad bicat_of_cats C₂}
+      (FF : M₁ -->[F] M₂)
+      (X : C₁)
+  : inv_from_iso (monad_mor_natural_pointwise FF X)
+    =
+    CompositesAndInverses.nat_iso_to_pointwise_iso (monad_mor_nat_iso FF) X.
+Proof.
+  unfold monad_mor_natural_pointwise, CompositesAndInverses.nat_iso_to_pointwise_iso.
+  (* Easy proof for this?
+     No luck with the following searches:
+  Search inv_from_iso nat_iso_inv.
+  Search make_iso nat_iso_inv.
+  Search inv_from_iso make_iso.
+  *)
 Admitted.
 
 Definition Monad_to_Ktriple_functor
@@ -419,23 +436,68 @@ Definition Monad_to_Ktriple_functor
 Proof.
   use make_kleisli_triple_on_functor.
   - exact (monad_mor_natural_pointwise mf).
-  - refine (λ (X : x), _).
-    cbn.
-    pose (nat_trans_eq_pointwise (monad_mor_unit mf) X) as mf_unit.
-    cbn in mf_unit.
-    do 2 rewrite id_left in mf_unit.
-    etrans.
-    2: { apply maponpaths_2. exact mf_unit. }
-    symmetry.
-    etrans.
-    2: apply id_right.
-    rewrite assoc'.
-    apply maponpaths.
-    (* Hopefully this will follow from a general result about nat_iso_inv. *)
-    apply TODO.
-  - simpl ; intros A B g.
-    apply TODO.
+  - abstract (
+      refine (λ (X : x), _); simpl;
+      pose (nat_trans_eq_pointwise (monad_mor_unit mf) X) as mf_unit;
+      cbn in mf_unit;
+      do 2 rewrite id_left in mf_unit;
+      etrans; [ symmetry | apply maponpaths_2; exact mf_unit ];
+      etrans; [ rewrite assoc' | apply id_right ];
+      apply maponpaths;
+      exact (iso_inv_after_iso (pr11 (monad_mor_natural mf) X ,, _))
+    ).
+  - abstract (
+      refine (λ (X Y : x) (p : x ⟦ X, pr1 (Monad_to_Ktriple_data mx) Y ⟧), _);
+      unfold Monad_to_Ktriple_data, bind_kt; simpl;
+      unfold bind_monad;
+      rewrite (functor_comp ((monad_map my) : _ ⟶ _));
+      rewrite functor_comp;
+      use post_comp_with_iso_is_inj;
+      [ idtac
+      | idtac
+      | exact (is_invertible_2cell_to_is_nat_iso
+                 (monad_mor_natural mf) (pr2 (monad_mor_natural mf)) Y)
+      | idtac ];
+      etrans;
+      [ rewrite assoc';
+        apply maponpaths;
+        pose (nat_trans_eq_pointwise (monad_mor_mu mf) Y) as mf_mu;
+        simpl in mf_mu;
+        rewrite id_left in mf_mu;
+        do 2 rewrite id_right in mf_mu;
+        apply mf_mu
+      | idtac];
+      etrans;
+      [ rewrite assoc;
+        apply maponpaths_2;
+        rewrite assoc;
+        apply maponpaths_2;
+        pose (nat_trans_ax (pr1 (monad_mor_natural mf)) _ _ p) as Hp;
+        simpl in Hp;
+        apply Hp
+      | idtac ];
+      etrans; [ symmetry; apply id_right | symmetry];
+      etrans;
+      [ do 2 apply maponpaths_2;
+        etrans;
+        [ apply maponpaths_2;
+          apply inv_monad_mor_natural_pointwise
+        | simpl;
+          apply maponpaths;
+          apply maponpaths_2;
+          apply maponpaths;
+          apply maponpaths;
+          apply inv_monad_mor_natural_pointwise ]
+      | simpl;
+        rewrite !assoc';
+        do 4 apply maponpaths;
+        exact (iso_after_iso_inv (pr11 (monad_mor_natural mf) Y ,, _))
+      ]
+    ).
 Defined.
+
+Definition TODO {A : UU} : A.
+Admitted.
 
 Definition Monad_to_Ktriple
   : disp_psfunctor (monad bicat_of_cats)
@@ -447,7 +509,14 @@ Proof.
   - exact disp_locally_groupoid_kleisli.
   - exact @Monad_to_Ktriple_data.
   - exact @Monad_to_Ktriple_functor.
-  - apply TODO.
+  - intros x y f g α mx my mf mg mα a.
+    cbn.
+    unfold bind_monad.
+    cbn.
+    unfold monad_map.
+    simpl.
+    cbn.
+    apply TODO.
   - apply TODO.
   - apply TODO.
 Defined.
@@ -481,13 +550,18 @@ Proof.
         ** intros z. apply identity_is_iso.
       * intros z.
         apply id_right.
-      * intros.
-        cbn.
-        apply TODO.
+      * apply TODO.
     + intros.
       use make_cat_monad_cell.
       cbn.
       intros X.
+      rewrite !(functor_id ((monad_map yy) : _ ⟶ _)), !id_left, !id_right.
+      rewrite (functor_id f).
+      rewrite !(functor_id ((monad_map yy) : _ ⟶ _)), !id_left, !id_right.
       apply TODO.
-  - apply TODO.
+  - use make_disp_pstrans.
+    + apply TODO.
+    + apply TODO.
+    + apply TODO.
+    + apply TODO.
 Defined.
