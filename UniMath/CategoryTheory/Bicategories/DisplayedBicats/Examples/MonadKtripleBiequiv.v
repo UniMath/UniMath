@@ -178,20 +178,6 @@ Proof.
   apply isaprop_eq_2cell.
 Qed.
 
-Lemma disp_locally_groupoid_monad : disp_locally_groupoid (monad bicat_of_cats).
-Proof.
-  apply make_disp_locally_groupoid.
-  - intros a b f g x aa bb ff gg xx.
-    refine ((_ ,, (tt ,, tt)) ,, tt).
-    cbn.
-    unfold alg_disp_cat_2cell.
-    pose (pr11 xx) as xx11.
-    cbn in xx11.
-    unfold alg_disp_cat_2cell in xx11.
-    admit.
-  - exact disp_2cells_isaprop_monad.
-Admitted.
-
 Definition functor_of_kleisli_comm
       {x y : univalent_category}
       {f : x ⟶ y}
@@ -287,7 +273,9 @@ Definition Ktriple_to_Monad
 Proof.
   use make_disp_psfunctor.
   - exact disp_2cells_isaprop_monad.
-  - exact disp_locally_groupoid_monad.
+  - exact (disp_locally_groupoid_monad
+             bicat_of_cats
+             univalent_cat_is_univalent_2).
   - exact @unit_mu_kleisli.
   - exact @unit_mu_kleisli_functor.
   - abstract
@@ -573,8 +561,10 @@ Definition Monad_biequiv_Ktriple
 Proof.
   split.
   - use make_disp_pstrans.
-    + apply TODO.
-    + apply TODO.
+    + exact disp_2cells_isaprop_monad.
+    + exact (disp_locally_groupoid_monad
+               bicat_of_cats
+               univalent_cat_is_univalent_2).
     + intros.
       use make_cat_monad_mor.
       * simpl.
