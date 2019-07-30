@@ -40,7 +40,7 @@ Definition make_total_cell {C : bicat} {D : disp_bicat C}
            {gg : aa -->[g] bb}
            (η : f ==> g)
            (ηη : ff ==>[η] gg)
-  : prebicat_cells _ (make_total_mor ff) (make_total_mor gg)
+  : (make_total_mor ff) ==> (make_total_mor gg)
   := (η,, ηη).
 
 (* Useful? *)
@@ -214,202 +214,13 @@ Section Sigma.
 
 End Sigma.
 
-Section SigmaUnivalent.
-  Variable (C : bicat)
-           (D₁ : disp_bicat C)
-           (D₂ : disp_bicat (total_bicat D₁)).
-           (*
-           (HC_2_0 : is_univalent_2_0 C)
-           (HC_2_1 : is_univalent_2_1 C)
-            *)
-           (*
-           (HD₁_2_0 : disp_univalent_2_0 D₁)
-           (HD₁_2_1 : disp_univalent_2_1 D₁)
-            *)
-           (*
-           (HD₂_2_0 : disp_univalent_2_0 D₂)
-           (HD₂_2_1 : disp_univalent_2_1 D₂).
-            *)
+Section SigmaTotalUnivalent.
+  Context {C : bicat}
+          {D₁ : disp_bicat C}
+          (D₂ : disp_bicat (total_bicat D₁)).
 
   Local Notation E₁ := (total_bicat D₂).
   Local Notation E₂ := (total_bicat (sigma_bicat C D₁ D₂)).
-
-  Definition TODO {A : UU} : A.
-  Admitted.
-
-  Definition pair_disp_invertible_to_sigma_disp_invertible
-             {x y : C}
-             {f : C ⟦ x, y ⟧}
-             {xx : (sigma_bicat C D₁ D₂) x}
-             {yy : (sigma_bicat C D₁ D₂) y}
-             {ff1 : pr1 xx -->[ f] pr1 yy}
-             (ff2 : pr2 xx -->[ f,, ff1] pr2 yy)
-             {gg1 : pr1 xx -->[ f] pr1 yy}
-             (gg2 : pr2 xx -->[ f,, gg1] pr2 yy)
-    : (∑ (p : disp_invertible_2cell
-                (id2_invertible_2cell f)
-                ff1 gg1),
-       disp_invertible_2cell
-         (iso_in_E_weq _ _ (id2_invertible_2cell f ,, p))
-         ff2 gg2)
-      →
-      @disp_invertible_2cell
-        C (sigma_prebicat C D₁ D₂) _ _ _ _ _ _
-        (id2_invertible_2cell f) (ff1,, ff2) (gg1,, gg2).
-  Proof.
-    intros p.
-    use tpair.
-    - exact (pr11 p ,, pr12 p).
-    - simple refine (_ ,, (_ ,, _)).
-      + exact (disp_inv_cell (pr1 p) ,, disp_inv_cell (pr2 p)).
-      + use total2_paths_b.
-        * refine (disp_vcomp_rinv (pr1 p) @ _).
-          unfold transportb.
-          apply TODO.
-        * refine (disp_vcomp_rinv (pr2 p) @ _).
-          unfold transportb.
-          apply TODO.
-      + use total2_paths_b.
-        * refine (disp_vcomp_linv (pr1 p) @ _).
-          unfold transportb.
-          apply TODO.
-        * refine (disp_vcomp_linv (pr2 p) @ _).
-          unfold transportb.
-          apply TODO.
-  Defined.
-
-  Definition sigma_disp_invertible_to_pair_disp_invertible
-             {x y : C}
-             {f : C ⟦ x, y ⟧}
-             {xx : (sigma_bicat C D₁ D₂) x}
-             {yy : (sigma_bicat C D₁ D₂) y}
-             {ff1 : pr1 xx -->[ f] pr1 yy}
-             (ff2 : pr2 xx -->[ f,, ff1] pr2 yy)
-             {gg1 : pr1 xx -->[ f] pr1 yy}
-             (gg2 : pr2 xx -->[ f,, gg1] pr2 yy)
-    : @disp_invertible_2cell
-        C (sigma_prebicat C D₁ D₂) _ _ _ _ _ _
-        (id2_invertible_2cell f) (ff1,, ff2) (gg1,, gg2)
-      →
-      (∑ (p : disp_invertible_2cell
-                (id2_invertible_2cell f)
-                ff1 gg1),
-       disp_invertible_2cell
-         (iso_in_E_weq _ _ (id2_invertible_2cell f ,, p))
-         ff2 gg2).
-  Proof.
-    intros p.
-    use tpair.
-    - use tpair.
-      + exact (pr11 p).
-      + apply TODO.
-    - use tpair.
-      + exact (pr21 p).
-      + apply TODO.
-  Defined.
-
-  Definition pair_disp_invertible_to_sigma_disp_invertible_weq
-             {x y : C}
-             {f : C ⟦ x, y ⟧}
-             {xx : (sigma_bicat C D₁ D₂) x}
-             {yy : (sigma_bicat C D₁ D₂) y}
-             {ff1 : pr1 xx -->[ f] pr1 yy}
-             (ff2 : pr2 xx -->[ f,, ff1] pr2 yy)
-             {gg1 : pr1 xx -->[ f] pr1 yy}
-             (gg2 : pr2 xx -->[ f,, gg1] pr2 yy)
-    : (∑ (p : disp_invertible_2cell
-                (id2_invertible_2cell f)
-                ff1 gg1),
-       disp_invertible_2cell
-         (iso_in_E_weq _ _ (id2_invertible_2cell f ,, p))
-         ff2 gg2)
-        ≃ @disp_invertible_2cell
-        C (sigma_prebicat C D₁ D₂) _ _ _ _ _ _
-        (id2_invertible_2cell f) (ff1,, ff2) (gg1,, gg2).
-  Proof.
-    use make_weq.
-    - apply pair_disp_invertible_to_sigma_disp_invertible.
-    - use gradth.
-      + apply sigma_disp_invertible_to_pair_disp_invertible.
-      + intro p.
-        induction p as [p1 p2].
-        use total2_paths_b.
-        * use subtypePath.
-          { intro ; apply isaprop_is_disp_invertible_2cell. }
-          apply idpath.
-        * use subtypePath.
-          { intro ; apply isaprop_is_disp_invertible_2cell. }
-          transitivity (pr1 p2).
-          { apply idpath. }
-          unfold transportb.
-          refine (!_).
-          etrans.
-          {
-            apply maponpaths.
-            refine (transportf_subtypePath' (λ z, isaprop_is_disp_invertible_2cell _)
-                                           _
-                                           _
-                                           p2).
-          Search transportb subtypePath.
-          etrans.
-          {
-            simpl.
-          unfold transportb.
-          refine (!_).
-          etrans.
-          {
-            apply pr1_transportf.
-
-          apply idpath.
-          cbn.
-          simpl.
-
-      + intro p.
-        use subtypePath.
-        { intro
-          ; apply (@isaprop_is_disp_invertible_2cell C (sigma_bicat C D₁ D₂)). }
-        apply idpath.
-      apply TODO.
-  Defined.
-
-  Definition test
-             (HD₁_2_0 : disp_univalent_2_0 D₁)
-             (HD₁_2_1 : disp_univalent_2_1 D₁)
-             (HD₂_2_0 : disp_univalent_2_0 D₂)
-             (HD₂_2_1 : disp_univalent_2_1 D₂)
-    : disp_univalent_2_1 (sigma_bicat _ _ D₂).
-  Proof.
-    apply fiberwise_local_univalent_is_univalent_2_1.
-    intros x y f xx yy ff gg.
-    use weqhomot.
-    - cbn ; unfold idfun.
-      refine (_ ∘ total2_paths_equiv _ _ _)%weq.
-      refine (test1 _ _ ∘ _)%weq.
-      unfold PathPair.
-      induction ff as [ff1 ff2] ; induction gg as [gg1 gg2].
-      refine (weqtotal2
-                (disp_idtoiso_2_1
-                   _ (idpath f) ff1 gg1 ,,
-                   HD₁_2_1 _ _ _ _ _ _ _ _ _)
-                _).
-      intro p ; cbn in p ; unfold idfun in p.
-      induction p.
-      exact (make_weq
-               (@disp_idtoiso_2_1
-                  _ D₂
-                  (make_total_ob (pr1 xx)) (make_total_ob (pr1 yy))
-                  (make_total_mor ff1) (make_total_mor ff1)
-                  (idpath _) _ _
-                  ff2 gg2)
-               (HD₂_2_1 _ _ _ _ _ _ _ _ _)).
-    - intros p.
-      cbn in p ; unfold idfun in p.
-      induction p.
-      use subtypePath.
-      { intro ; apply isaprop_is_disp_invertible_2cell. }
-      apply idpath.
-  Defined.
-
 
   Definition E₁_univalent_2_0
              (HC_2_0 : is_univalent_2_0 C)
@@ -449,8 +260,8 @@ Section SigmaUnivalent.
     - exact E₂_to_E₁.
     - use isweq_iso.
       + exact E₁_to_E₂.
-      + reflexivity.
-      + reflexivity.
+      + apply idpath.
+      + apply idpath.
   Defined.
 
   Definition path_E₂_to_path_E₁_weq
@@ -480,8 +291,8 @@ Section SigmaUnivalent.
     - exact mor_E₂_to_E₁.
     - use isweq_iso.
       + exact mor_E₁_to_E₂.
-      + reflexivity.
-      + reflexivity.
+      + apply idpath.
+      + apply idpath.
   Defined.
 
   Definition path_mor_E₂_to_path_mor_E₁_weq
@@ -618,11 +429,11 @@ Section SigmaUnivalent.
       + intros α.
         use subtypePath.
         { intro ; apply isaprop_is_invertible_2cell. }
-        reflexivity.
+        apply idpath.
       + intros α.
         use subtypePath.
         { intro ; apply isaprop_is_invertible_2cell. }
-        reflexivity.
+        apply idpath.
   Defined.
 
   Definition idtoiso_2_1_alt_E₂
@@ -655,7 +466,7 @@ Section SigmaUnivalent.
         intro.
         apply (@isaprop_is_invertible_2cell (total_bicat (sigma_bicat C D₁ D₂))).
       }
-      reflexivity.
+      apply idpath.
   Defined.
 
   Definition adjequiv_in_E₂
@@ -712,7 +523,7 @@ Section SigmaUnivalent.
           apply isaprop_left_adjoint_equivalence.
           apply E₁_univalent_2_1; assumption.
         }
-        reflexivity.
+        apply idpath.
       + intros l.
         use subtypePath.
         {
@@ -720,7 +531,7 @@ Section SigmaUnivalent.
           apply isaprop_left_adjoint_equivalence.
           apply sigma_is_univalent_2_1; assumption.
         }
-        reflexivity.
+        apply idpath.
   Defined.
 
   Definition idtoiso_2_0_alt_E₂
@@ -775,5 +586,477 @@ Section SigmaUnivalent.
       * exact (pr2 HD₁).
       * exact (pr2 HD₂).
   Defined.
+End SigmaTotalUnivalent.
 
-End SigmaUnivalent.
+Definition TODO {A : UU} : A.
+Admitted.
+
+Definition help_disp_left_adjoint_axioms
+           {C : bicat}
+           (D : disp_bicat C)
+           (HD : disp_2cells_isaprop D)
+           {x y : C}
+           {f : x --> y}
+           (Af : left_adjoint f)
+           {xx : D x} {yy : D y}
+           {ff : xx -->[ f ] yy}
+           {Aff : disp_left_adjoint_data Af ff}
+  : disp_left_adjoint_axioms Af Aff.
+Proof.
+  split ; apply HD.
+Qed.
+
+Definition transportb_subtypePath'
+            {A : UU}
+            {P : A → UU}
+            (Pprop : ∏ (a : A), isaprop (P a))
+            {C : total2 P → UU}
+            (x : A) (P₁ P₂ : P x)
+            (y : C (x,,P₂))
+  : transportb (λ (z : total2 P), C z)
+              (@subtypePath' _ _ (x,,P₁) (x,,P₂) (idpath x) (Pprop x))
+              y
+    =
+    transportb (λ (p : P x), C (x,, p)) (pr1 (Pprop x P₁ P₂)) y.
+Proof.
+   cbn.
+   induction (Pprop x P₁ P₂) as [p q].
+   induction p.
+   reflexivity.
+Defined.
+
+Section SigmaDisplayedUnivalent.
+  Context {C : bicat}
+          {D₁ : disp_bicat C}
+          (D₂ : disp_bicat (total_bicat D₁)).
+
+  Variable (HC : is_univalent_2 C)
+           (HD₁ : disp_2cells_isaprop D₁)
+           (HD₂ : disp_2cells_isaprop D₂)
+           (HD₁_2_1 : disp_univalent_2_1 D₁)
+           (HD₂_2_1 : disp_univalent_2_1 D₂).
+
+  Definition pair_disp_invertible_to_sigma_disp_invertible
+             {x y : C}
+             {f : C ⟦ x, y ⟧}
+             {xx : (sigma_bicat C D₁ D₂) x}
+             {yy : (sigma_bicat C D₁ D₂) y}
+             {ff1 : pr1 xx -->[ f] pr1 yy}
+             (ff2 : pr2 xx -->[ f,, ff1] pr2 yy)
+             {gg1 : pr1 xx -->[ f] pr1 yy}
+             (gg2 : pr2 xx -->[ f,, gg1] pr2 yy)
+    : (∑ (p : disp_invertible_2cell
+                (id2_invertible_2cell f)
+                ff1 gg1),
+       disp_invertible_2cell
+         (iso_in_E_weq _ _ (id2_invertible_2cell f ,, p))
+         ff2 gg2)
+      →
+      @disp_invertible_2cell
+        C (sigma_prebicat C D₁ D₂) _ _ _ _ _ _
+        (id2_invertible_2cell f) (ff1,, ff2) (gg1,, gg2).
+  Proof.
+    intros p.
+    use tpair.
+    - exact (pr11 p ,, pr12 p).
+    - simpl.
+      simple refine (_ ,, (_ ,, _)).
+      + exact (disp_inv_cell (pr1 p) ,, disp_inv_cell (pr2 p)).
+      + apply disp_2cells_isaprop_sigma ; assumption.
+      + apply disp_2cells_isaprop_sigma ; assumption.
+  Defined.
+
+  Definition sigma_disp_invertible_to_pair_disp_invertible
+             {x y : C}
+             {f : C ⟦ x, y ⟧}
+             {xx : (sigma_bicat C D₁ D₂) x}
+             {yy : (sigma_bicat C D₁ D₂) y}
+             {ff1 : pr1 xx -->[ f] pr1 yy}
+             (ff2 : pr2 xx -->[ f,, ff1] pr2 yy)
+             {gg1 : pr1 xx -->[ f] pr1 yy}
+             (gg2 : pr2 xx -->[ f,, gg1] pr2 yy)
+    : @disp_invertible_2cell
+        C (sigma_prebicat C D₁ D₂) _ _ _ _ _ _
+        (id2_invertible_2cell f) (ff1,, ff2) (gg1,, gg2)
+      →
+      (∑ (p : disp_invertible_2cell
+                (id2_invertible_2cell f)
+                ff1 gg1),
+       disp_invertible_2cell
+         (iso_in_E_weq _ _ (id2_invertible_2cell f ,, p))
+         ff2 gg2).
+  Proof.
+    intros p.
+    use tpair.
+    - use tpair.
+      + exact (pr11 p).
+      + simple refine (_ ,, (_ ,, _)).
+        * exact (pr1 (disp_inv_cell p)).
+        * apply HD₁.
+        * apply HD₁.
+    - use tpair.
+      + exact (pr21 p).
+      + simple refine (_ ,, (_ ,, _)).
+        * exact (pr2 (disp_inv_cell p)).
+        * apply HD₂.
+        * apply HD₂.
+  Defined.
+
+  Definition pair_disp_invertible_to_sigma_disp_invertible_weq
+             {x y : C}
+             {f : C ⟦ x, y ⟧}
+             {xx : (sigma_bicat C D₁ D₂) x}
+             {yy : (sigma_bicat C D₁ D₂) y}
+             {ff1 : pr1 xx -->[ f] pr1 yy}
+             (ff2 : pr2 xx -->[ f,, ff1] pr2 yy)
+             {gg1 : pr1 xx -->[ f] pr1 yy}
+             (gg2 : pr2 xx -->[ f,, gg1] pr2 yy)
+    : (∑ (p : disp_invertible_2cell
+                (id2_invertible_2cell f)
+                ff1 gg1),
+       disp_invertible_2cell
+         (iso_in_E_weq _ _ (id2_invertible_2cell f ,, p))
+         ff2 gg2)
+        ≃ @disp_invertible_2cell
+        C (sigma_prebicat C D₁ D₂) _ _ _ _ _ _
+        (id2_invertible_2cell f) (ff1,, ff2) (gg1,, gg2).
+  Proof.
+    use make_weq.
+    - apply pair_disp_invertible_to_sigma_disp_invertible.
+    - use gradth.
+      + apply sigma_disp_invertible_to_pair_disp_invertible.
+      + intro p.
+        induction p as [p1 p2].
+        use total2_paths_b.
+        * use subtypePath.
+          { intro ; apply isaprop_is_disp_invertible_2cell. }
+          apply idpath.
+        * use subtypePath.
+          { intro ; apply isaprop_is_disp_invertible_2cell. }
+          apply HD₂.
+      + intro p.
+        use subtypePath.
+        { intro
+          ; apply (@isaprop_is_disp_invertible_2cell C (sigma_bicat C D₁ D₂)). }
+        apply idpath.
+  Defined.
+
+  Definition sigma_disp_univalent_2_1_with_props
+    : disp_univalent_2_1 (sigma_bicat _ _ D₂).
+  Proof.
+    apply fiberwise_local_univalent_is_univalent_2_1.
+    intros x y f xx yy ff gg.
+    use weqhomot.
+    - cbn ; unfold idfun.
+      refine (_ ∘ total2_paths_equiv _ _ _)%weq.
+      refine (pair_disp_invertible_to_sigma_disp_invertible_weq _ _ ∘ _)%weq.
+      induction ff as [ff1 ff2] ; induction gg as [gg1 gg2].
+      refine (weqtotal2
+                (make_weq
+                   _
+                   (HD₁_2_1 _ _ _ _ (idpath _) _ _ ff1 gg1))
+                _).
+      intro p ; cbn in p ; unfold idfun in p.
+      induction p.
+      exact (make_weq
+               _
+               (HD₂_2_1 _ _ _ _ (idpath _) _ _ ff2 gg2)).
+    - intros p.
+      cbn in p ; unfold idfun in p.
+      induction p.
+      use subtypePath.
+      { intro ; apply isaprop_is_disp_invertible_2cell. }
+      apply idpath.
+  Defined.
+
+  Opaque adjoint_equivalence_total_disp_weq.
+
+  Variable (LG₁ : disp_locally_groupoid D₁)
+           (LG₂ : disp_locally_groupoid D₂).
+
+  Definition disp_locally_groupoid_sigma
+    : disp_locally_groupoid (sigma_bicat C D₁ D₂).
+  Proof.
+    use make_disp_locally_groupoid_univalent_2_1.
+    - intros a b f aa bb ff gg xx.
+      pose (p₁ := pr1 xx ,, LG₁ _ _ _ _ _ _ _ _ _ (pr1 xx) : disp_invertible_2cell _ _ _).
+      pose (pr2 xx) as m.
+      cbn in m.
+      pose (p₂ := pr2 xx ,, LG₂
+                      (a ,, pr1 aa) (b ,, pr1 bb)
+                      (f ,, pr1 ff) (f ,, pr1 gg)
+                      (iso_in_E_weq _ _ (id2_invertible_2cell f ,, p₁))
+                      (pr2 aa) (pr2 bb)
+                      (pr2 ff) (pr2 gg) m).
+      exact (pr2 (pair_disp_invertible_to_sigma_disp_invertible _ _ (p₁ ,, p₂))).
+    - exact (pr2 HC).
+  Defined.
+
+  Definition pair_disp_adjequiv_to_sigma_disp_adjequiv
+             {x : C}
+             (xx : (sigma_bicat C D₁ D₂) x)
+             (yy : (sigma_bicat C D₁ D₂) x)
+    : (∑ (p : disp_adjoint_equivalence
+                (internal_adjoint_equivalence_identity x)
+                (pr1 xx) (pr1 yy)),
+       disp_adjoint_equivalence
+         (invmap (adjoint_equivalence_total_disp_weq (pr1 xx) (pr1 yy))
+                 (internal_adjoint_equivalence_identity x ,, p))
+         (pr2 xx) (pr2 yy))
+      →
+      disp_adjoint_equivalence (internal_adjoint_equivalence_identity x) xx yy.
+  Proof.
+    intros p.
+    simple refine (_ ,, ((_ ,, (_ ,, _)) ,, _ ,, (_ ,, _))).
+    - exact (pr11 p ,, pr12 p).
+    - exact (pr112 (pr1 p) ,, pr112 (pr2 p)).
+    - exact (pr1 (pr212 (pr1 p)) ,, pr1 (pr212 (pr2 p))).
+    - exact (pr2 (pr212 (pr1 p)) ,, pr2 (pr212 (pr2 p))).
+    - apply help_disp_left_adjoint_axioms.
+      apply disp_2cells_isaprop_sigma ; assumption.
+    - apply disp_locally_groupoid_sigma.
+    - apply disp_locally_groupoid_sigma.
+  Defined.
+
+  Definition pair_disp_adjequiv_to_sigma_disp_adjequiv_inv_pr1
+             {x : C}
+             (xx : (sigma_bicat C D₁ D₂) x)
+             (yy : (sigma_bicat C D₁ D₂) x)
+    : disp_adjoint_equivalence (internal_adjoint_equivalence_identity x) xx yy
+      →
+      disp_adjoint_equivalence
+        (internal_adjoint_equivalence_identity x)
+        (pr1 xx) (pr1 yy).
+  Proof.
+    intro p.
+    simple refine (pr11 p ,, ((_ ,, (_ ,, _)) ,, _ ,, (_ ,, _))).
+    - exact (pr1 (pr112 p)).
+    - exact (pr11 (pr212 p)).
+    - exact (pr12 (pr212 p)).
+    - apply help_disp_left_adjoint_axioms.
+      exact HD₁.
+    - apply LG₁.
+    - apply LG₁.
+  Defined.
+
+  Definition pair_disp_adjequiv_to_sigma_disp_adjequiv_inv_pr2
+             {x : C}
+             (xx : (sigma_bicat C D₁ D₂) x)
+             (yy : (sigma_bicat C D₁ D₂) x)
+    : ∏ (p : disp_adjoint_equivalence
+               (internal_adjoint_equivalence_identity x) xx yy),
+      disp_adjoint_equivalence
+        (invmap
+           (adjoint_equivalence_total_disp_weq (pr1 xx) (pr1 yy))
+           (internal_adjoint_equivalence_identity
+              x,,
+              pair_disp_adjequiv_to_sigma_disp_adjequiv_inv_pr1 xx yy p))
+        (pr2 xx) (pr2 yy).
+  Proof.
+    intro p.
+    simple refine (pr21 p ,,
+                        ((pr2 (pr112 p) ,, (pr21 (pr212 p) ,, pr22 (pr212 p)))
+                           ,, _ ,, (_ ,, _))).
+    - apply help_disp_left_adjoint_axioms.
+      exact HD₂.
+    - apply LG₂.
+    - apply LG₂.
+  Defined.
+
+  Definition pair_disp_adjequiv_to_sigma_disp_adjequiv_inv
+             {x : C}
+             (xx : (sigma_bicat C D₁ D₂) x)
+             (yy : (sigma_bicat C D₁ D₂) x)
+    : disp_adjoint_equivalence (internal_adjoint_equivalence_identity x) xx yy
+      →
+      (∑ (p : disp_adjoint_equivalence
+                (internal_adjoint_equivalence_identity x)
+                (pr1 xx) (pr1 yy)),
+       disp_adjoint_equivalence
+         (invmap (adjoint_equivalence_total_disp_weq (pr1 xx) (pr1 yy))
+                 (internal_adjoint_equivalence_identity x ,, p))
+         (pr2 xx) (pr2 yy)).
+  Proof.
+    intros p.
+    simple refine (_ ,, _).
+    - exact (pair_disp_adjequiv_to_sigma_disp_adjequiv_inv_pr1 xx yy p).
+    - exact (pair_disp_adjequiv_to_sigma_disp_adjequiv_inv_pr2 xx yy p).
+  Defined.
+
+  Definition pair_disp_adjequiv_to_sigma_disp_adjequiv_weq
+             {x : C}
+             (xx : (sigma_bicat C D₁ D₂) x)
+             (yy : (sigma_bicat C D₁ D₂) x)
+    : (∑ (p : disp_adjoint_equivalence
+                (internal_adjoint_equivalence_identity x)
+                (pr1 xx) (pr1 yy)),
+       disp_adjoint_equivalence
+         (invmap (adjoint_equivalence_total_disp_weq (pr1 xx) (pr1 yy))
+                 (internal_adjoint_equivalence_identity x ,, p))
+         (pr2 xx) (pr2 yy))
+      ≃
+      disp_adjoint_equivalence (internal_adjoint_equivalence_identity x) xx yy.
+  Proof.
+    use make_weq.
+    - exact (pair_disp_adjequiv_to_sigma_disp_adjequiv xx yy).
+    - use gradth.
+      + exact (pair_disp_adjequiv_to_sigma_disp_adjequiv_inv xx yy).
+      + intros p.
+        induction p as [p1 p2].
+        use total2_paths_b.
+        * use subtypePath.
+          {
+            intro.
+            apply isaprop_disp_left_adjoint_equivalence
+            ; [ exact (pr2 HC) | exact HD₁_2_1 ].
+          }
+          apply idpath.
+        * use subtypePath.
+          {
+            intro.
+            apply isaprop_disp_left_adjoint_equivalence
+            ; [ apply total_is_univalent_2_1 ; [ exact (pr2 HC) | exact HD₁_2_1 ]
+              | exact HD₂_2_1 ].
+          }
+          apply TODO.
+      + intros p.
+        use subtypePath.
+        { intro ; apply isaprop_disp_left_adjoint_equivalence
+          ; [ exact (pr2 HC) | exact sigma_disp_univalent_2_1_with_props ].
+        }
+        apply idpath.
+  Defined.
+
+  Definition disp_adjequiv_sigma_help
+             (x : C)
+             (xx1 : D₁ x)
+             (xx2 yy2 : D₂ (x,, xx1))
+    : disp_adjoint_equivalence
+        (@internal_adjoint_equivalence_identity (total_bicat D₁) (x,, xx1))
+        xx2 yy2
+      →
+      disp_adjoint_equivalence
+        (invmap (adjoint_equivalence_total_disp_weq xx1 xx1)
+                ((internal_adjoint_equivalence_identity x)
+                   ,,disp_identity_adjoint_equivalence xx1)) xx2
+        yy2.
+  Proof.
+    intros p.
+    simple refine (pr1 p ,, ((pr112 p ,,
+                                    (pr1 (pr212 p) ,, pr2 (pr212 p)))
+                               ,, _ ,, (_ ,, _))).
+    - abstract
+        (apply help_disp_left_adjoint_axioms ;
+         apply HD₂).
+    - abstract (apply LG₂).
+    - abstract (apply LG₂).
+  Defined.
+
+  Definition disp_adjequiv_sigma_help_inv
+             (x : C)
+             (xx1 : D₁ x)
+             (xx2 yy2 : D₂ (x,, xx1))
+    : disp_adjoint_equivalence
+        (invmap (adjoint_equivalence_total_disp_weq xx1 xx1)
+                ((internal_adjoint_equivalence_identity x)
+                   ,,disp_identity_adjoint_equivalence xx1)) xx2
+        yy2
+      →
+      disp_adjoint_equivalence
+        (@internal_adjoint_equivalence_identity (total_bicat D₁) (x,, xx1))
+        xx2 yy2.
+  Proof.
+    intros p.
+    simple refine (pr1 p ,, ((pr112 p ,,
+                                    (pr1 (pr212 p) ,, pr2 (pr212 p)))
+                               ,, _ ,, (_ ,, _))).
+    - abstract
+        (apply help_disp_left_adjoint_axioms ;
+         apply HD₂).
+    - abstract (apply LG₂).
+    - abstract (apply LG₂).
+  Defined.
+
+  Definition disp_adjequiv_sigma_help_weq
+             (x : C)
+             (xx1 : D₁ x)
+             (xx2 yy2 : D₂ (x,, xx1))
+    : disp_adjoint_equivalence
+        (@internal_adjoint_equivalence_identity (total_bicat D₁) (x,, xx1))
+        xx2 yy2
+      ≃
+      disp_adjoint_equivalence
+        (invmap (adjoint_equivalence_total_disp_weq xx1 xx1)
+                ((internal_adjoint_equivalence_identity x)
+                   ,,disp_identity_adjoint_equivalence xx1)) xx2
+        yy2.
+  Proof.
+    use make_weq.
+    - exact (disp_adjequiv_sigma_help x xx1 xx2 yy2).
+    - use gradth.
+      + exact (disp_adjequiv_sigma_help_inv x xx1 xx2 yy2).
+      + intros p.
+        use subtypePath.
+        { intro ; apply isaprop_disp_left_adjoint_equivalence.
+          + apply total_is_univalent_2_1.
+            * exact (pr2 HC).
+            * exact HD₁_2_1.
+          + exact HD₂_2_1.
+        }
+        apply idpath.
+      + intros p.
+        use subtypePath.
+        { intro ; apply isaprop_disp_left_adjoint_equivalence.
+          + apply total_is_univalent_2_1.
+            * exact (pr2 HC).
+            * exact HD₁_2_1.
+          + exact HD₂_2_1.
+        }
+        apply idpath.
+  Defined.
+
+  Definition sigma_idtoiso_2_0_alt
+             (HD₁_2_0 : disp_univalent_2_0 D₁)
+             (HD₂_2_0 : disp_univalent_2_0 D₂)
+             {x : C}
+             (xx yy : (sigma_bicat C D₁ D₂) x)
+    : xx = yy ≃ disp_adjoint_equivalence (idtoiso_2_0 x x (idpath x)) xx yy.
+  Proof.
+    refine (_ ∘ total2_paths_equiv _ _ _)%weq.
+    refine (pair_disp_adjequiv_to_sigma_disp_adjequiv_weq xx yy ∘ _)%weq.
+    refine (weqtotal2
+              (make_weq
+                 _
+                 (HD₁_2_0 x x (idpath _) (pr1 xx) (pr1 yy)))
+              _)%weq.
+    induction xx as [xx1 xx2].
+    induction yy as [yy1 yy2].
+    intro p ; cbn in p ; unfold idfun in p.
+    induction p.
+    unfold transportf ; simpl ; unfold idfun.
+    refine (_ ∘ make_weq
+              _
+              (HD₂_2_0 _ _ (idpath (x ,, xx1)) xx2 yy2))%weq.
+    exact (disp_adjequiv_sigma_help_weq x xx1 xx2 yy2).
+  Defined.
+
+  Definition sigma_disp_univalent_2_0_with_props
+             (HD₁_2_0 : disp_univalent_2_0 D₁)
+             (HD₂_2_0 : disp_univalent_2_0 D₂)
+    : disp_univalent_2_0 (sigma_bicat _ _ D₂).
+  Proof.
+    apply fiberwise_univalent_2_0_to_disp_univalent_2_0.
+    intros x xx yy.
+    use weqhomot.
+    - exact (sigma_idtoiso_2_0_alt HD₁_2_0 HD₂_2_0 xx yy).
+    - intros p.
+      cbn in p ; unfold idfun in p.
+      induction p.
+      use subtypePath.
+      { intro ; apply isaprop_disp_left_adjoint_equivalence.
+        + exact (pr2 HC).
+        + apply sigma_disp_univalent_2_1_with_props ; assumption.
+      }
+      apply idpath.
+  Defined.
+End SigmaDisplayedUnivalent.

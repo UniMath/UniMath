@@ -254,6 +254,25 @@ Section FullSubBicat.
       apply fullsub_left_adjoint_equivalence_is_bicat_left_adjoint_equivalence.
   Defined.
 
+  Definition disp_univalent_2_0_fullsubbicat
+             (HC : is_univalent_2 C)
+             (HP : ∏ (x : C), isaprop (P x))
+    : disp_univalent_2_0 disp_fullsubbicat.
+  Proof.
+    intros x y p xx yy.
+    induction p.
+    use isweqimplimpl.
+    - intros ; cbn in *.
+      apply HP.
+    - apply isasetaprop.
+      apply HP.
+    - simple refine (isaprop_total2 (_ ,, _) (λ η , _ ,, _)).
+      + exact isapropunit.
+      + apply isaprop_disp_left_adjoint_equivalence.
+        * apply (pr2 HC).
+        * exact disp_fullsubbicat_univalent_2_1.
+  Defined.
+
   Definition is_univalent_2_0_fullsubbicat
              (HC : is_univalent_2 C)
              (HP : ∏ (x : C), isaprop (P x))
@@ -261,18 +280,7 @@ Section FullSubBicat.
   Proof.
     apply total_is_univalent_2_0.
     - exact (pr1 HC).
-    - intros x y p xx yy.
-      induction p.
-      use isweqimplimpl.
-      + intros ; cbn in *.
-        apply HP.
-      + apply isasetaprop.
-        apply HP.
-      + simple refine (isaprop_total2 (_ ,, _) (λ η , _ ,, _)).
-        * exact isapropunit.
-        * apply isaprop_disp_left_adjoint_equivalence.
-          ** apply (pr2 HC).
-          ** exact disp_fullsubbicat_univalent_2_1.
+    - exact (disp_univalent_2_0_fullsubbicat HC HP).
   Defined.
 
   Definition is_univalent_2_fullsubbicat

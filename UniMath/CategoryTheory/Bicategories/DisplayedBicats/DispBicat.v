@@ -1371,6 +1371,26 @@ Proof.
   - split; apply HD.
 Defined.
 
+Definition disp_locally_groupoid_over_id
+           {B : bicat} (D : disp_bicat B)
+  : UU
+  := ∏ (a b : B)
+       (f : B ⟦ a, b ⟧)
+       (aa : D a)
+       (bb : D b)
+       (ff gg : aa -->[ f] bb)
+       (xx : disp_2cells (id2_invertible_2cell f) ff gg),
+     is_disp_invertible_2cell (is_invertible_2cell_id₂ f) xx.
+
+Definition make_disp_locally_groupoid_univalent_2_1
+           {B : bicat} (D : disp_bicat B)
+           (HD : disp_locally_groupoid_over_id D)
+           (HB : is_univalent_2_1 B)
+  : disp_locally_groupoid D.
+Proof.
+  use (J_2_1 HB).
+  exact HD.
+Defined.
 
 (* ----------------------------------------------------------------------------------- *)
 (** ** Notations.                                                                      *)
