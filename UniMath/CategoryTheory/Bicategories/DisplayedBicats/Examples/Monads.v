@@ -374,38 +374,124 @@ Proof.
     + exact μμ.
 Defined.
 
-  (*
-  Definition monad_is_univalent_2_1
-             (HC_1 : is_univalent_2_1 C)
-    : is_univalent_2_1 monad.
-  Proof.
-    apply sigma_is_univalent_2_1.
-    - exact HC_1.
-    - apply is_univalent_2_1_fullsubbicat.
-      apply lawless_monad_is_univalent_2_1.
-    exact HC_1.
-  Defined.
+Definition monad_is_univalent_2_1
+           (C : bicat)
+  : disp_univalent_2_1 (monad_data C).
+Proof.
+  use sigma_disp_univalent_2_1_with_props.
+  - apply disp_2cells_isaprop_alg.
+  - apply disp_2cells_isaprop_prod ; apply disp_2cells_isaprop_add_cell.
+  - apply disp_alg_bicat_univalent_2_1.
+  - apply is_univalent_2_1_dirprod_bicat ; apply add_cell_disp_cat_univalent_2_1.
+Defined.
 
-  Definition monad_is_univalent_2_0
-             (HC : is_univalent_2 C)
-    : is_univalent_2_0 monad.
-  Proof.
-    apply is_univalent_2_0_fullsubbicat.
-    - exact (lawless_monad_is_univalent_2 HC).
-    - intro ; simpl.
-      repeat (apply isapropdirprod) ; apply C.
-  Defined.
+Definition monad_is_univalent_2_0
+           (C : bicat)
+           (HC : is_univalent_2 C)
+  : disp_univalent_2_0 (monad_data C).
+Proof.
+  use sigma_disp_univalent_2_0_with_props.
+  - exact HC.
+  - apply disp_2cells_isaprop_alg.
+  - apply disp_2cells_isaprop_prod ; apply disp_2cells_isaprop_add_cell.
+  - apply disp_alg_bicat_univalent_2_1.
+  - apply is_univalent_2_1_dirprod_bicat ; apply add_cell_disp_cat_univalent_2_1.
+  - apply disp_locally_groupoid_alg.
+  - apply disp_locally_groupoid_prod ; apply disp_locally_groupoid_add_cell.
+  - apply disp_alg_bicat_univalent_2_0.
+    exact (pr2 HC).
+  - apply is_univalent_2_0_dirprod_bicat.
+    + apply total_is_univalent_2_1.
+      * exact (pr2 HC).
+      * apply disp_alg_bicat_univalent_2_1.
+    + apply add_cell_disp_cat_univalent_2.
+      * exact (pr2 HC).
+      * apply disp_alg_bicat_univalent_2_1.
+    + apply add_cell_disp_cat_univalent_2.
+      * exact (pr2 HC).
+      * apply disp_alg_bicat_univalent_2_1.
+Defined.
 
-  Definition monad_is_univalent_2
-             (HC : is_univalent_2 C)
-    : is_univalent_2 monad.
-  Proof.
-    split.
-    - apply monad_is_univalent_2_0; assumption.
-    - apply monad_is_univalent_2_1.
-      exact (pr2 HC).
-  Defined.
-   *)
+Definition bigmonad_is_univalent_2_1
+           (C : bicat)
+           (HC_1 : is_univalent_2_1 C)
+  : is_univalent_2_1 (bigmonad C).
+Proof.
+  apply sigma_is_univalent_2_1.
+  - exact HC_1.
+  - apply monad_is_univalent_2_1.
+  - apply disp_fullsubbicat_univalent_2_1.
+Defined.
+
+Definition bigmonad_is_univalent_2_0
+           (C : bicat)
+           (HC : is_univalent_2 C)
+  : is_univalent_2_0 (bigmonad C).
+Proof.
+  apply sigma_is_univalent_2_0.
+  - exact HC.
+  - split.
+    + apply monad_is_univalent_2_0.
+      exact HC.
+    + apply monad_is_univalent_2_1.
+  - split.
+    + apply disp_univalent_2_0_fullsubbicat.
+      * exact (lawless_monad_is_univalent_2 C HC).
+      * intro ; simpl.
+        repeat (apply isapropdirprod) ; apply C.
+    + apply disp_fullsubbicat_univalent_2_1.
+Defined.
+
+Definition bigmonad_is_univalent_2
+           (C : bicat)
+           (HC : is_univalent_2 C)
+  : is_univalent_2 (bigmonad C).
+Proof.
+  split.
+  - apply bigmonad_is_univalent_2_0; assumption.
+  - apply bigmonad_is_univalent_2_1.
+    exact (pr2 HC).
+Defined.
+
+Definition disp_2cells_isaprop_monad
+           (C : bicat)
+           (HC : is_univalent_2 C)
+  : disp_2cells_isaprop (monad C).
+Proof.
+  apply disp_2cells_isaprop_sigma.
+  - apply disp_2cells_isaprop_sigma.
+    + apply disp_2cells_isaprop_alg.
+    + apply disp_2cells_isaprop_prod.
+      * apply disp_2cells_isaprop_add_cell.
+      * apply disp_2cells_isaprop_add_cell.
+  - apply disp_2cells_isaprop_fullsubbicat.
+Qed.
+
+Definition disp_locally_groupoid_monad
+           (C : bicat)
+           (HC : is_univalent_2 C)
+  : disp_locally_groupoid (monad C).
+Proof.
+  apply disp_locally_groupoid_sigma.
+  - exact HC.
+  - apply disp_2cells_isaprop_sigma.
+    + apply disp_2cells_isaprop_alg.
+    + apply disp_2cells_isaprop_prod.
+      * apply disp_2cells_isaprop_add_cell.
+      * apply disp_2cells_isaprop_add_cell.
+  - apply disp_2cells_isaprop_fullsubbicat.
+  - apply disp_locally_groupoid_sigma.
+    + exact HC.
+    + apply disp_2cells_isaprop_alg.
+    + apply disp_2cells_isaprop_prod.
+      * apply disp_2cells_isaprop_add_cell.
+      * apply disp_2cells_isaprop_add_cell.
+    + apply disp_locally_groupoid_alg.
+    + apply disp_locally_groupoid_prod.
+      * apply disp_locally_groupoid_add_cell.
+      * apply disp_locally_groupoid_add_cell.
+  - apply disp_locally_groupoid_fullsubbicat.
+Qed.
 
 (* ------------------------------------------------------------------------- *)
 (* C = bicat_of_cats.                                                        *)
