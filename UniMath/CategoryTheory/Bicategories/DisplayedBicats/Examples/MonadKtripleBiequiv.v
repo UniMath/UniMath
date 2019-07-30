@@ -50,6 +50,9 @@ Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBuilders.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispTransformation.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispModification.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBiequivalence.
+Require Import UniMath.CategoryTheory.Bicategories.Transformations.Examples.Unitality.
+
+Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 
 Local Open Scope cat.
 Local Open Scope bicategory_scope.
@@ -333,8 +336,6 @@ Defined.
 (*  Kleisly_of_Monad                                                         *)
 (* ------------------------------------------------------------------------- *)
 
-
-
 Definition disp_2cells_isaprop_kleisli
   : disp_2cells_isaprop kleisli_triple_disp_bicat.
 Proof.
@@ -344,7 +345,6 @@ Definition disp_locally_groupoid_kleisli
   : disp_locally_groupoid kleisli_triple_disp_bicat.
 Proof.
 Admitted.
-
 
 Section Kleisly_of_Monad_data.
 
@@ -357,9 +357,6 @@ Definition bind_monad
   := #(pr1 (monad_map m)) F · pr1 (monad_mu m) B.
 
 End Kleisly_of_Monad_data.
-
-Definition TODO {A : UU} : A.
-Admitted.
 
 Definition Monad_to_Ktriple_data {x : univalent_category}
            (m : monad bicat_of_cats x)
@@ -382,8 +379,32 @@ Proof.
        rewrite assoc';
        refine (maponpaths (λ z, _ · z) (cat_monad_μη m _) @ _);
        apply id_right).
-  - apply TODO.
+  - abstract
+      (cbn; intros; unfold bind_monad;
+       do 2 rewrite (functor_comp ((monad_map m) : _ ⟶ _));
+       do 3 rewrite assoc';
+       apply maponpaths;
+       do 2 rewrite assoc;
+       pose (p := !pr2 (monad_mu m) _ _ g); cbn in p;
+       (etrans; [ apply maponpaths_2, p | do 2 rewrite assoc' ]);
+       apply maponpaths;
+       apply (cat_monad_μμ m C)).
 Defined.
+
+(* NB: We need to take the inverse to match the definition used to build the biequivalence. *)
+Definition monad_mor_natural_pointwise
+           {C₁ C₂ : univalent_category}
+           {F : C₁ ⟶ C₂}
+           {M₁ : monad bicat_of_cats C₁}
+           {M₂ : monad bicat_of_cats C₂}
+           (FF : M₁ -->[F] M₂)
+           (X : C₁)
+  : iso ((monad_map M₂ : C₂ ⟶ C₂) (F X)) (F ((monad_map M₁ : C₁ ⟶ C₁) X))
+  := CompositesAndInverses.nat_iso_to_pointwise_iso
+       (nat_iso_inv (monad_mor_nat_iso FF)) X.
+
+Definition TODO {A : UU} : A.
+Admitted.
 
 Definition Monad_to_Ktriple_functor
            {x y : univalent_category}
@@ -397,13 +418,20 @@ Definition Monad_to_Ktriple_functor
       f.
 Proof.
   use make_kleisli_triple_on_functor.
-  - simpl ; intro X.
-    exact (iso_inv_from_iso
-             (make_iso _
-                       (pr2 (invertible_2cell_to_nat_iso
-                               _ _
-                               (monad_mor_natural mf)) X))).
-  - simpl ; intro X.
+  - exact (monad_mor_natural_pointwise mf).
+  - refine (λ (X : x), _).
+    cbn.
+    pose (nat_trans_eq_pointwise (monad_mor_unit mf) X) as mf_unit.
+    cbn in mf_unit.
+    do 2 rewrite id_left in mf_unit.
+    etrans.
+    2: { apply maponpaths_2. exact mf_unit. }
+    symmetry.
+    etrans.
+    2: apply id_right.
+    rewrite assoc'.
+    apply maponpaths.
+    (* Hopefully this will follow from a general result about nat_iso_inv. *)
     apply TODO.
   - simpl ; intros A B g.
     apply TODO.
@@ -424,14 +452,42 @@ Proof.
   - apply TODO.
 Defined.
 
-Search is_biequivalence.
-
-(*
 Definition Monad_biequiv_Ktriple
   : is_disp_biequivalence_unit_counit
       (monad bicat_of_cats)
       kleisli_triple_disp_bicat
-biequiv.
-
-      monad kleisli_triple_disp_bicat bicat_of_cats.
-*)
+      (id_is_biequivalence _) Monad_to_Ktriple Ktriple_to_Monad.
+Proof.
+  split.
+  - use make_disp_pstrans.
+    + apply TODO.
+    + apply TODO.
+    + intros.
+      use make_cat_monad_mor.
+      * simpl.
+        cbn.
+        use make_nat_iso.
+        ** use make_nat_trans.
+           *** intro z. apply identity.
+           *** abstract
+                 (intros z t f ; cbn;
+                  rewrite id_left, id_right;
+                  unfold bind_monad;
+                  rewrite (functor_comp (monad_map xx : _ ⟶ _));
+                  rewrite assoc';
+                  etrans;
+                  [ apply maponpaths; apply (cat_monad_ημ xx)
+                  | apply id_right ]).
+        ** intros z. apply identity_is_iso.
+      * intros z.
+        apply id_right.
+      * intros.
+        cbn.
+        apply TODO.
+    + intros.
+      use make_cat_monad_cell.
+      cbn.
+      intros X.
+      apply TODO.
+  - apply TODO.
+Defined.
