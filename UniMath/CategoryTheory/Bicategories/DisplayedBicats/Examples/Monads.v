@@ -10,6 +10,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Bicat. Import Bicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.BicategoryLaws.
@@ -34,8 +35,8 @@ Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Add2
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Prod.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.FullSub.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.Sigma.
-
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.BicatOfCats.
+Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 
 Local Open Scope cat.
 
@@ -698,3 +699,80 @@ Definition monad_mor_nat_iso
            (FF : M₁ -->[F] M₂)
   : nat_iso (monad_endo M₁ ∙ F) (F ∙ monad_endo M₂)
   := invertible_2cell_to_nat_iso _ _ (monad_mor_natural FF).
+
+Definition monad_mor_natural_pointwise
+           {C₁ C₂ : univalent_category}
+           {F : C₁ ⟶ C₂}
+           {M₁ : monad bicat_of_cats C₁}
+           {M₂ : monad bicat_of_cats C₂}
+           (FF : M₁ -->[F] M₂)
+           (X : C₁)
+  : iso ((monad_endo M₂ : C₂ ⟶ C₂) (F X)) (F ((monad_endo M₁ : C₁ ⟶ C₁) X))
+  := CompositesAndInverses.nat_iso_to_pointwise_iso
+       (nat_iso_inv (monad_mor_nat_iso FF)) X.
+
+Definition monad_mor_iso
+           {C₁ C₂ : univalent_category}
+           {F : C₁ ⟶ C₂}
+           {M₁ : monad bicat_of_cats C₁}
+           {M₂ : monad bicat_of_cats C₂}
+           (FF : M₁ -->[F] M₂)
+  : ∏ X : C₁, iso (F ((monad_endo M₁ : C₁ ⟶ C₁) X)) ((monad_endo M₂ : C₂ ⟶ C₂) (F X))
+  := CompositesAndInverses.nat_iso_to_pointwise_iso (monad_mor_nat_iso FF).
+
+Lemma monad_mor_bind
+      {C₁ C₂ : univalent_category}
+      {F : C₁ ⟶ C₂}
+      {M₁ : monad bicat_of_cats C₁}
+      {M₂ : monad bicat_of_cats C₂}
+      (FF : M₁ -->[F] M₂)
+      {A B : C₁}
+      (f : A --> (monad_endo M₁ : _ ⟶ _) B)
+  : #F (monad_bind M₁ f) · monad_mor_iso FF B
+    =
+    monad_mor_iso FF A · monad_bind M₂ (# F f · pr1 (monad_mor_iso FF B)).
+Proof.
+  unfold monad_bind, monad_mor_iso.
+  simpl.
+  etrans.
+  2: {
+    rewrite assoc.
+    apply maponpaths_2.
+    rewrite (functor_comp (monad_endo M₂ : _ ⟶ _)).
+    rewrite assoc.
+    apply maponpaths_2.
+    apply (nat_trans_ax (pr1 (monad_mor_natural FF)) _ _ f).
+  }
+  simpl.
+  rewrite functor_comp.
+  do 3 rewrite assoc'.
+  apply maponpaths.
+  etrans.
+  { pose (nat_trans_eq_pointwise (monad_mor_mu FF) B) as H.
+    simpl in H.
+    rewrite id_left in H.
+    do 2 rewrite id_right in H.
+    apply H.
+  }
+  rewrite assoc'.
+  apply idpath.
+Qed.
+
+Lemma monad_mor_bind_alt
+      {C₁ C₂ : univalent_category}
+      {F : C₁ ⟶ C₂}
+      {M₁ : monad bicat_of_cats C₁}
+      {M₂ : monad bicat_of_cats C₂}
+      (FF : M₁ -->[F] M₂)
+      {A B : C₁}
+      (f : A --> (monad_endo M₁ : _ ⟶ _) B)
+  : #F (monad_bind M₁ f)
+    =
+    monad_mor_iso FF A
+      · monad_bind M₂ (# F f · pr1 (monad_mor_iso FF B))
+      · inv_from_iso (monad_mor_iso FF B).
+Proof.
+  use iso_inv_on_left.
+  apply pathsinv0.
+  apply monad_mor_bind.
+Qed.
