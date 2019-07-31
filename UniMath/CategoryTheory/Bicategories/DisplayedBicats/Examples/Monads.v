@@ -561,6 +561,83 @@ Proof.
   exact p.
 Qed.
 
+(* ------------------------------------------------------------------------- *)
+(* Bind and associated fusion laws.                                          *)
+(* ------------------------------------------------------------------------- *)
+
+Section Bind.
+
+Context {C : univalent_category}
+        (M : monad bicat_of_cats C).
+
+Definition monad_bind
+           {A B : C}
+           (f : C⟦A, (monad_map M : _ ⟶ _) B⟧)
+  : C⟦ (monad_map M : _ ⟶ _) A, (monad_map M : _ ⟶ _) B⟧
+  := #(monad_map M : _ ⟶ _) f · pr1 (monad_mu M) B.
+
+Lemma cat_monad_bind_unit
+      {A B : C}
+      (f : C⟦A, (monad_map M : _ ⟶ _) B⟧)
+  : (monad_unit M : _ ⟹ _) A · monad_bind f = f.
+Proof.
+  unfold monad_bind.
+  etrans.
+  { rewrite assoc.
+    apply maponpaths_2.
+    apply (!(nat_trans_ax ((monad_unit M : _ ⟹ _)) A _ f)).
+  }
+  etrans.
+  2: apply id_right.
+  rewrite assoc'.
+  apply maponpaths.
+  apply (cat_monad_μη M).
+Qed.
+
+Lemma cat_monad_unit_bind
+      {A : C}
+  : monad_bind ((monad_unit M : _ ⟹ _) A) = id₁ _.
+Proof.
+  apply (cat_monad_ημ M).
+Qed.
+
+Lemma cat_monad_bind_bind
+      {a b c : C}
+      (f : C⟦a, (monad_map M : _ ⟶ _) b⟧)
+      (g : C⟦b, (monad_map M : _ ⟶ _) c⟧)
+  : monad_bind f · monad_bind g = monad_bind (f · monad_bind g).
+Proof.
+  unfold monad_bind.
+  etrans.
+  2: {
+    rewrite (functor_comp (monad_map M : _ ⟶ _)).
+    rewrite assoc'.
+    apply maponpaths.
+    rewrite (functor_comp (monad_map M : _ ⟶ _)).
+    rewrite assoc'.
+    apply maponpaths.
+    apply (cat_monad_μμ M).
+  }
+  pose (nat_trans_ax ((monad_mu M : _ ⟹ _)) _ _ g) as Hμ.
+  simpl in Hμ.
+  rewrite assoc'.
+  apply maponpaths.
+  etrans.
+  { rewrite assoc.
+    apply maponpaths_2.
+    apply (!Hμ).
+  }
+  rewrite assoc.
+  apply idpath.
+Qed.
+
+End Bind.
+
+
+(* ------------------------------------------------------------------------- *)
+(* Monad morphism on C = bicat_of_cats.                                      *)
+(* ------------------------------------------------------------------------- *)
+
 Definition make_cat_monad_mor
            {C D : univalent_category}
            {mx : monad bicat_of_cats C} {my : monad bicat_of_cats D}

@@ -338,12 +338,6 @@ Section Kleisly_of_Monad_data.
 
 Context {x : univalent_category} (m : monad bicat_of_cats x).
 
-Definition bind_monad
-           {A B : x}
-           (F : x ⟦ A, (pr111 (pr1 m)) B ⟧)
-  : x ⟦ (pr111 m) A, (pr111 m) B ⟧
-  := #(pr1 (monad_map m)) F · pr1 (monad_mu m) B.
-
 End Kleisly_of_Monad_data.
 
 Definition Monad_to_Ktriple_data {x : univalent_category}
@@ -353,30 +347,10 @@ Proof.
   use make_kleisli_triple.
   - apply m.
   - exact (pr1 (monad_unit m)).
-  - exact (λ _ _ F, bind_monad m F).
-  - abstract
-      (cbn; unfold bind_monad; intros X;
-       apply cat_monad_ημ).
-  - abstract
-      (cbn; unfold bind_monad;
-       intros;
-       pose (p := pr2 (monad_unit m) _ _ f);
-       cbn in p;
-       rewrite assoc;
-       refine (maponpaths (λ z, z · _) (!p) @ _);
-       rewrite assoc';
-       refine (maponpaths (λ z, _ · z) (cat_monad_μη m _) @ _);
-       apply id_right).
-  - abstract
-      (cbn; intros; unfold bind_monad;
-       do 2 rewrite (functor_comp ((monad_map m) : _ ⟶ _));
-       do 3 rewrite assoc';
-       apply maponpaths;
-       do 2 rewrite assoc;
-       pose (p := !pr2 (monad_mu m) _ _ g); cbn in p;
-       (etrans; [ apply maponpaths_2, p | do 2 rewrite assoc' ]);
-       apply maponpaths;
-       apply (cat_monad_μμ m C)).
+  - exact (λ _ _ F, monad_bind m F).
+  - intros A. apply (cat_monad_unit_bind m).
+  - simpl. intros. apply (cat_monad_bind_unit m).
+  - simpl. intros. apply (cat_monad_bind_bind m).
 Defined.
 
 (* NB: We need to take the inverse to match the definition used to build the biequivalence. *)
@@ -434,7 +408,7 @@ Proof.
   - abstract (
       refine (λ (X Y : x) (p : x ⟦ X, pr1 (Monad_to_Ktriple_data mx) Y ⟧), _);
       unfold Monad_to_Ktriple_data, bind_kt; simpl;
-      unfold bind_monad;
+      unfold monad_bind;
       rewrite (functor_comp ((monad_map my) : _ ⟶ _));
       rewrite functor_comp;
       use post_comp_with_iso_is_inj;
@@ -620,7 +594,7 @@ Defined.
   - abstract
       ( intros x mx X; simpl;
         unfold bind_kt, unit_kt; simpl;
-        unfold bind_monad; simpl;
+        unfold monad_bind; simpl;
         do 2 rewrite id_left;
         apply pathsinv0;
         etrans;
@@ -638,7 +612,7 @@ Defined.
       ( intros x y z f g mx my mz mf mg;
         refine (λ X : pr1 x, _); simpl;
         unfold bind_kt, unit_kt; simpl;
-        unfold bind_monad; simpl;
+        unfold monad_bind; simpl;
         apply pathsinv0;
         etrans;
         [ apply maponpaths_2;
@@ -698,7 +672,7 @@ Proof.
            *** abstract
                  (intros z t f ; cbn;
                   rewrite id_left, id_right;
-                  unfold bind_monad;
+                  unfold monad_bind;
                   rewrite (functor_comp (monad_map xx : _ ⟶ _));
                   rewrite assoc';
                   etrans;
