@@ -481,6 +481,29 @@ Proof.
     ).
 Defined.
 
+Definition help_monad_to_ktriple
+           {C : bicat_of_cats}
+           (mx : monad _ C)
+           {x y : pr1 C}
+           (f : x --> y)
+  : #(pr111 mx) f = bind_monad mx (f · pr1 (monad_unit mx) y).
+Proof.
+  unfold bind_monad.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths_2.
+    apply functor_comp.
+  }
+  rewrite assoc'.
+  etrans.
+  {
+    apply maponpaths.
+    apply cat_monad_ημ.
+  }
+  apply id_right.
+Qed.
+
 Definition Monad_to_Ktriple
   : disp_psfunctor (monad bicat_of_cats)
                    kleisli_triple_disp_bicat
@@ -491,6 +514,53 @@ Proof.
   - exact disp_locally_groupoid_kleisli.
   - exact @Monad_to_Ktriple_data.
   - exact @Monad_to_Ktriple_functor.
+  - abstract
+      (intros x y f g α mx my mf mg mα;
+       refine (λ X: (x:univalent_category), _);
+       cbn ; unfold precomp_with ; cbn;
+       rewrite !id_right;
+       pose (nat_trans_eq_pointwise (pr11 mα) X) as d;
+       cbn in d;
+       pose (maponpaths (λ z, z · pr1 ((pr2 (monad_mor_natural mg)) ^-1) X) d) as p₁;
+       cbn in p₁;
+       rewrite assoc' in p₁;
+       pose (maponpaths (λ z, pr1 α (pr1 (pr11 mx) X) · z)
+                        (!(nat_trans_eq_pointwise
+                             (vcomp_rinv (monad_mor_natural mg))
+                             X))) as p₂;
+       cbn in p₂;
+       pose (!(id_right _) @ p₂ @ p₁) as r;
+       refine (maponpaths (λ z, _ · z) r @ _);
+       clear d p₁ p₂ r;
+       rewrite !assoc;
+       apply maponpaths_2;
+       pose (maponpaths (λ z, z · # (pr111 my) (pr1 α X))
+                        (!(nat_trans_eq_pointwise
+                             (vcomp_lid (monad_mor_natural mf))
+                             X))) as p;
+       pose (!(id_left _) @ p) as r;
+       refine (!r @ _);
+       clear p r;
+       apply help_monad_to_ktriple).
+(*
+  - intros x mx X; simpl.
+    unfold bind_kt, unit_kt; simpl.
+    unfold bind_monad; simpl.
+    do 2 rewrite id_left.
+    (* Here symmetry is slow! *)
+    apply pathsinv0.
+    etrans.
+    {
+      apply maponpaths_2, (cat_monad_ημ mx X).
+    }
+    rewrite id_left.
+    apply TODO.
+  - intros x y z f g mx my mz mf mg.
+    simpl.
+    apply TODO.
+Defined.
+*)
+(*
   - abstract
       ( intros x y f g α mx my mf mg mα;
         refine (λ X: (x:univalent_category), _);
@@ -546,6 +616,7 @@ Proof.
           exact (iso_after_iso_inv (pr11 (monad_mor_natural mf) X,, _))
         | apply id_left ]
       ).
+*)
   - abstract
       ( intros x mx X; simpl;
         unfold bind_kt, unit_kt; simpl;
