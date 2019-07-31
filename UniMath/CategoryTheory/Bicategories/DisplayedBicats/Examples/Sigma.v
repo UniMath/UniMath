@@ -667,6 +667,26 @@ Section SigmaDisplayedUnivalent.
       + apply disp_2cells_isaprop_sigma ; assumption.
   Defined.
 
+  Definition disp_locally_groupoid_sigma
+             (LG₁ : disp_locally_groupoid D₁)
+             (LG₂ : disp_locally_groupoid D₂)
+    : disp_locally_groupoid (sigma_bicat C D₁ D₂).
+  Proof.
+    use make_disp_locally_groupoid_univalent_2_1.
+    - intros a b f aa bb ff gg xx.
+      pose (p₁ := pr1 xx ,, LG₁ _ _ _ _ _ _ _ _ _ (pr1 xx) : disp_invertible_2cell _ _ _).
+      pose (pr2 xx) as m.
+      cbn in m.
+      pose (p₂ := pr2 xx ,, LG₂
+                      (a ,, pr1 aa) (b ,, pr1 bb)
+                      (f ,, pr1 ff) (f ,, pr1 gg)
+                      (iso_in_E_weq _ _ (id2_invertible_2cell f ,, p₁))
+                      (pr2 aa) (pr2 bb)
+                      (pr2 ff) (pr2 gg) m).
+      exact (pr2 (pair_disp_invertible_to_sigma_disp_invertible _ _ (p₁ ,, p₂))).
+    - exact (pr2 HC).
+  Defined.
+
   Definition sigma_disp_invertible_to_pair_disp_invertible
              {x y : C}
              {f : C ⟦ x, y ⟧}
@@ -775,24 +795,6 @@ Section SigmaDisplayedUnivalent.
   Variable (LG₁ : disp_locally_groupoid D₁)
            (LG₂ : disp_locally_groupoid D₂).
 
-  Definition disp_locally_groupoid_sigma
-    : disp_locally_groupoid (sigma_bicat C D₁ D₂).
-  Proof.
-    use make_disp_locally_groupoid_univalent_2_1.
-    - intros a b f aa bb ff gg xx.
-      pose (p₁ := pr1 xx ,, LG₁ _ _ _ _ _ _ _ _ _ (pr1 xx) : disp_invertible_2cell _ _ _).
-      pose (pr2 xx) as m.
-      cbn in m.
-      pose (p₂ := pr2 xx ,, LG₂
-                      (a ,, pr1 aa) (b ,, pr1 bb)
-                      (f ,, pr1 ff) (f ,, pr1 gg)
-                      (iso_in_E_weq _ _ (id2_invertible_2cell f ,, p₁))
-                      (pr2 aa) (pr2 bb)
-                      (pr2 ff) (pr2 gg) m).
-      exact (pr2 (pair_disp_invertible_to_sigma_disp_invertible _ _ (p₁ ,, p₂))).
-    - exact (pr2 HC).
-  Defined.
-
   Definition pair_disp_adjequiv_to_sigma_disp_adjequiv
              {x : C}
              (xx : (sigma_bicat C D₁ D₂) x)
@@ -815,8 +817,8 @@ Section SigmaDisplayedUnivalent.
     - exact (pr2 (pr212 (pr1 p)) ,, pr2 (pr212 (pr2 p))).
     - apply help_disp_left_adjoint_axioms.
       apply disp_2cells_isaprop_sigma ; assumption.
-    - apply disp_locally_groupoid_sigma.
-    - apply disp_locally_groupoid_sigma.
+    - apply disp_locally_groupoid_sigma ; assumption.
+    - apply disp_locally_groupoid_sigma ; assumption.
   Defined.
 
   Definition pair_disp_adjequiv_to_sigma_disp_adjequiv_inv_pr1

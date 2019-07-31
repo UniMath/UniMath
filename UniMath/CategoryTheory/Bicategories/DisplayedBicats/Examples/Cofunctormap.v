@@ -209,4 +209,23 @@ Section Cofunctormaps.
   Definition disp_locally_groupoid_cofunctormaps
     : disp_locally_groupoid disp_cofunctormaps_bicat
     := disp_locally_groupoid_cell_unit_bicat disp_cofunctormaps_cat_data.
+
+  Definition disp_2cells_isaprop_morphisms_of_presheaves_display
+    : disp_2cells_isaprop morphisms_of_presheaves_display.
+  Proof.
+    apply disp_2cells_isaprop_sigma.
+    - apply disp_2cells_isaprop_prod ; apply disp_2cells_isaprop_presheaf.
+    - apply disp_2cells_isaprop_cofunctormaps.
+  Qed.
+
+  Definition disp_locally_groupoid_morphisms_of_presheaves_display
+    : disp_locally_groupoid morphisms_of_presheaves_display.
+  Proof.
+    apply disp_locally_groupoid_sigma.
+    - exact univalent_cat_is_univalent_2.
+    - apply disp_2cells_isaprop_prod ; apply disp_2cells_isaprop_presheaf.
+    - apply disp_2cells_isaprop_cofunctormaps.
+    - apply disp_locally_groupoid_prod ; apply disp_locally_groupoid_presheaf.
+    - exact disp_locally_groupoid_cofunctormaps.
+  Qed.
 End Cofunctormaps.
