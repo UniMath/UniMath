@@ -88,7 +88,7 @@ Local Lemma unit_kleisli_natural
                  unit_kleisli_data.
 Proof.
   intros a b f. cbn.
-  symmetry.
+  refine (!_).
   apply (unit_bind k).
 Qed.
 
@@ -283,13 +283,13 @@ Proof.
        refine ((_,, (tt,, tt)),, tt);
        use nat_trans_eq; try apply homset_property;
        cbn; intro a;
-       symmetry;
+       apply pathsinv0;
        apply iso_inv_on_left;
        rewrite assoc';
        rewrite <- e;
        rewrite assoc;
        rewrite iso_after_iso_inv;
-       symmetry;
+       apply pathsinv0;
        apply id_left).
   - abstract
       (intros x kx;
@@ -300,7 +300,7 @@ Proof.
        rewrite !id_left;
        rewrite (bind_bind kx);
        rewrite (unit_bind kx);
-       symmetry;
+       apply pathsinv0;
        apply (bind_unit kx)).
   - abstract
       (simpl;
@@ -402,14 +402,11 @@ Lemma inv_monad_mor_natural_pointwise
     =
     CompositesAndInverses.nat_iso_to_pointwise_iso (monad_mor_nat_iso FF) X.
 Proof.
-  unfold monad_mor_natural_pointwise, CompositesAndInverses.nat_iso_to_pointwise_iso.
-  (* Easy proof for this?
-     No luck with the following searches:
-  Search inv_from_iso nat_iso_inv.
-  Search make_iso nat_iso_inv.
-  Search inv_from_iso make_iso.
-  *)
-Admitted.
+  refine (!_).
+  apply inv_iso_unique'.
+  unfold precomp_with.
+  apply iso_after_iso_inv.
+Qed.
 
 Definition Monad_to_Ktriple_functor
            {x y : univalent_category}
@@ -429,7 +426,7 @@ Proof.
       pose (nat_trans_eq_pointwise (monad_mor_unit mf) X) as mf_unit;
       cbn in mf_unit;
       do 2 rewrite id_left in mf_unit;
-      etrans; [ symmetry | apply maponpaths_2; exact mf_unit ];
+      etrans; [ apply pathsinv0 | apply maponpaths_2; exact mf_unit ];
       etrans; [ rewrite assoc' | apply id_right ];
       apply maponpaths;
       exact (iso_inv_after_iso (pr11 (monad_mor_natural mf) X ,, _))
@@ -464,7 +461,7 @@ Proof.
         simpl in Hp;
         apply Hp
       | idtac ];
-      etrans; [ symmetry; apply id_right | symmetry];
+      etrans; [ apply pathsinv0 ; apply id_right | apply pathsinv0 ];
       etrans;
       [ do 2 apply maponpaths_2;
         etrans;
@@ -483,9 +480,6 @@ Proof.
       ]
     ).
 Defined.
-
-Definition TODO {A : UU} : A.
-Admitted.
 
 Definition help_monad_to_ktriple
            {C : bicat_of_cats}
@@ -548,6 +542,7 @@ Proof.
        refine (!r @ _);
        clear p r;
        apply help_monad_to_ktriple).
+(*
   - intros x mx X; simpl.
     unfold bind_kt, unit_kt; simpl.
     unfold bind_monad; simpl.
@@ -564,6 +559,122 @@ Proof.
     simpl.
     apply TODO.
 Defined.
+*)
+(*
+  - abstract
+      ( intros x y f g α mx my mf mg mα;
+        refine (λ X: (x:univalent_category), _);
+        change
+          (
+            inv_from_iso
+              (make_iso
+                 (pr11 (monad_mor_natural mf) X)
+                 (is_invertible_2cell_to_is_nat_iso
+                    (monad_mor_natural mf)
+                    (pr2 (monad_mor_natural mf)) X))
+              · pr1 α (pr1 (monad_map mx) X) =
+            # (pr1 (monad_map my))
+              (pr1 α X · (pr1 (monad_unit my)) (pr1 g X))
+              · pr1 (monad_mu my) (pr1 g X)
+              · inv_from_iso
+              (make_iso
+                 (pr11 (monad_mor_natural mg) X)
+                 (is_invertible_2cell_to_is_nat_iso
+                    (monad_mor_natural mg)
+                    (pr2 (monad_mor_natural mg)) X))
+          );
+        use post_comp_with_iso_is_inj;
+        [ idtac
+        | idtac
+        | exact (is_invertible_2cell_to_is_nat_iso
+                   (monad_mor_natural mg) (pr2 (monad_mor_natural mg)) X)
+        | idtac ];
+        etrans;
+        [ rewrite assoc';
+          apply maponpaths;
+          apply (nat_trans_eq_pointwise (pr11 mα) X)
+        | idtac ];
+        apply pathsinv0;
+        etrans;
+        [ rewrite assoc';
+          apply maponpaths;
+          exact (iso_after_iso_inv (pr11 (monad_mor_natural mg) X,, _))
+        | rewrite id_right ];
+        simpl;
+        etrans;
+        [
+          rewrite (functor_comp ((monad_map my) : _ ⟶ _));
+          rewrite assoc';
+          apply maponpaths;
+          apply (cat_monad_ημ my (pr1 g X))
+        | idtac ];
+        rewrite id_right;
+        apply pathsinv0;
+        etrans;
+        [ rewrite assoc;
+          apply maponpaths_2;
+          exact (iso_after_iso_inv (pr11 (monad_mor_natural mf) X,, _))
+        | apply id_left ]
+      ).
+*)
+  - abstract
+      ( intros x mx X; simpl;
+        unfold bind_kt, unit_kt; simpl;
+        unfold bind_monad; simpl;
+        do 2 rewrite id_left;
+        apply pathsinv0;
+        etrans;
+        [ apply maponpaths_2, (cat_monad_ημ mx X)
+        | rewrite id_left ];
+        apply pathsinv0;
+        apply inv_iso_unique';
+        unfold precomp_with;
+        simpl;
+        do 2 rewrite id_left;
+        rewrite id_right;
+        apply functor_id ).
+
+  - (* abstract *)
+      ( intros x y z f g mx my mz mf mg;
+        refine (λ X : pr1 x, _); simpl;
+        unfold bind_kt, unit_kt; simpl;
+        unfold bind_monad; simpl;
+        apply pathsinv0;
+        etrans;
+        [ apply maponpaths_2;
+          rewrite id_left;
+          apply (cat_monad_ημ mz (pr1 g (pr1 f X)))
+        | idtac ];
+        simpl;
+        etrans; [ apply id_left | apply pathsinv0 ];
+        apply inv_iso_unique';
+        unfold precomp_with;
+        simpl;
+        etrans; [ rewrite assoc; apply id_right | idtac ];
+        etrans;
+        [ apply maponpaths_2; rewrite (functor_id (monad_map mz : _ ⟶ _));
+          do 3 rewrite id_right;
+          rewrite assoc';
+          apply id_left
+        | idtac ];
+        etrans;
+        [ rewrite assoc';
+          apply maponpaths;
+          rewrite assoc;
+          etrans;
+          [ apply maponpaths_2;
+            exact (iso_inv_after_iso (pr11 (monad_mor_natural mg) (pr1 f X),, _))
+          | apply id_left ]
+        | idtac ];
+        rewrite <- functor_comp;
+        etrans;
+        [ apply maponpaths;
+          exact (iso_inv_after_iso (pr11 (monad_mor_natural mf) X,, _))
+        | apply functor_id ] ).
+Admitted.
+
+Definition TODO {A : UU} : A.
+Admitted.
 
 Definition Monad_biequiv_Ktriple
   : is_disp_biequivalence_unit_counit
@@ -596,7 +707,10 @@ Proof.
         ** intros z. apply identity_is_iso.
       * intros z.
         apply id_right.
-      * apply TODO.
+      * simpl.
+        intros X.
+        rewrite id_left.
+        apply id_right.
     + intros.
       use make_cat_monad_cell.
       cbn.
