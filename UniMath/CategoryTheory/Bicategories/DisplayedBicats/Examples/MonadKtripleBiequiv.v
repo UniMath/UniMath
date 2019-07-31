@@ -361,7 +361,7 @@ Definition monad_mor_natural_pointwise
            {M₂ : monad bicat_of_cats C₂}
            (FF : M₁ -->[F] M₂)
            (X : C₁)
-  : iso ((monad_map M₂ : C₂ ⟶ C₂) (F X)) (F ((monad_map M₁ : C₁ ⟶ C₁) X))
+  : iso ((monad_endo M₂ : C₂ ⟶ C₂) (F X)) (F ((monad_endo M₁ : C₁ ⟶ C₁) X))
   := CompositesAndInverses.nat_iso_to_pointwise_iso
        (nat_iso_inv (monad_mor_nat_iso FF)) X.
 
@@ -409,7 +409,7 @@ Proof.
       refine (λ (X Y : x) (p : x ⟦ X, pr1 (Monad_to_Ktriple_data mx) Y ⟧), _);
       unfold Monad_to_Ktriple_data, bind_kt; simpl;
       unfold monad_bind;
-      rewrite (functor_comp ((monad_map my) : _ ⟶ _));
+      rewrite (functor_comp ((monad_endo my) : _ ⟶ _));
       rewrite functor_comp;
       use post_comp_with_iso_is_inj;
       [ idtac
@@ -455,29 +455,6 @@ Proof.
     ).
 Defined.
 
-Definition help_monad_to_ktriple
-           {C : bicat_of_cats}
-           (mx : monad _ C)
-           {x y : pr1 C}
-           (f : x --> y)
-  : #(pr111 mx) f = bind_monad mx (f · pr1 (monad_unit mx) y).
-Proof.
-  unfold bind_monad.
-  refine (!_).
-  etrans.
-  {
-    apply maponpaths_2.
-    apply functor_comp.
-  }
-  rewrite assoc'.
-  etrans.
-  {
-    apply maponpaths.
-    apply cat_monad_ημ.
-  }
-  apply id_right.
-Qed.
-
 Definition Monad_to_Ktriple
   : disp_psfunctor (monad bicat_of_cats)
                    kleisli_triple_disp_bicat
@@ -515,82 +492,7 @@ Proof.
        pose (!(id_left _) @ p) as r;
        refine (!r @ _);
        clear p r;
-       apply help_monad_to_ktriple).
-(*
-  - intros x mx X; simpl.
-    unfold bind_kt, unit_kt; simpl.
-    unfold bind_monad; simpl.
-    do 2 rewrite id_left.
-    (* Here symmetry is slow! *)
-    apply pathsinv0.
-    etrans.
-    {
-      apply maponpaths_2, (cat_monad_ημ mx X).
-    }
-    rewrite id_left.
-    apply TODO.
-  - intros x y z f g mx my mz mf mg.
-    simpl.
-    apply TODO.
-Defined.
-*)
-(*
-  - abstract
-      ( intros x y f g α mx my mf mg mα;
-        refine (λ X: (x:univalent_category), _);
-        change
-          (
-            inv_from_iso
-              (make_iso
-                 (pr11 (monad_mor_natural mf) X)
-                 (is_invertible_2cell_to_is_nat_iso
-                    (monad_mor_natural mf)
-                    (pr2 (monad_mor_natural mf)) X))
-              · pr1 α (pr1 (monad_map mx) X) =
-            # (pr1 (monad_map my))
-              (pr1 α X · (pr1 (monad_unit my)) (pr1 g X))
-              · pr1 (monad_mu my) (pr1 g X)
-              · inv_from_iso
-              (make_iso
-                 (pr11 (monad_mor_natural mg) X)
-                 (is_invertible_2cell_to_is_nat_iso
-                    (monad_mor_natural mg)
-                    (pr2 (monad_mor_natural mg)) X))
-          );
-        use post_comp_with_iso_is_inj;
-        [ idtac
-        | idtac
-        | exact (is_invertible_2cell_to_is_nat_iso
-                   (monad_mor_natural mg) (pr2 (monad_mor_natural mg)) X)
-        | idtac ];
-        etrans;
-        [ rewrite assoc';
-          apply maponpaths;
-          apply (nat_trans_eq_pointwise (pr11 mα) X)
-        | idtac ];
-        apply pathsinv0;
-        etrans;
-        [ rewrite assoc';
-          apply maponpaths;
-          exact (iso_after_iso_inv (pr11 (monad_mor_natural mg) X,, _))
-        | rewrite id_right ];
-        simpl;
-        etrans;
-        [
-          rewrite (functor_comp ((monad_map my) : _ ⟶ _));
-          rewrite assoc';
-          apply maponpaths;
-          apply (cat_monad_ημ my (pr1 g X))
-        | idtac ];
-        rewrite id_right;
-        apply pathsinv0;
-        etrans;
-        [ rewrite assoc;
-          apply maponpaths_2;
-          exact (iso_after_iso_inv (pr11 (monad_mor_natural mf) X,, _))
-        | apply id_left ]
-      ).
-*)
+       apply cat_monad_map_as_bind).
   - abstract
       ( intros x mx X; simpl;
         unfold bind_kt, unit_kt; simpl;
@@ -626,7 +528,7 @@ Defined.
         simpl;
         etrans; [ rewrite assoc; apply id_right | idtac ];
         etrans;
-        [ apply maponpaths_2; rewrite (functor_id (monad_map mz : _ ⟶ _));
+        [ apply maponpaths_2; rewrite (functor_id (monad_endo mz : _ ⟶ _));
           do 3 rewrite id_right;
           rewrite assoc';
           apply id_left
@@ -673,7 +575,7 @@ Proof.
                  (intros z t f ; cbn;
                   rewrite id_left, id_right;
                   unfold monad_bind;
-                  rewrite (functor_comp (monad_map xx : _ ⟶ _));
+                  rewrite (functor_comp (monad_endo xx : _ ⟶ _));
                   rewrite assoc';
                   etrans;
                   [ apply maponpaths; apply (cat_monad_ημ xx)
@@ -689,9 +591,9 @@ Proof.
       use make_cat_monad_cell.
       cbn.
       intros X.
-      rewrite !(functor_id ((monad_map yy) : _ ⟶ _)), !id_left, !id_right.
+      rewrite !(functor_id ((monad_endo yy) : _ ⟶ _)), !id_left, !id_right.
       rewrite (functor_id f).
-      rewrite !(functor_id ((monad_map yy) : _ ⟶ _)), !id_left, !id_right.
+      rewrite !(functor_id ((monad_endo yy) : _ ⟶ _)), !id_left, !id_right.
       apply TODO.
   - use make_disp_pstrans.
     + apply TODO.
