@@ -47,6 +47,18 @@ Section Displayed_Local_Univalence.
     := ∏ (a b : C) (f g : C⟦a,b⟧) (p : f = g) (aa : D a) (bb : D b)
          (ff : aa -->[ f ] bb) (gg : aa -->[ g ] bb),
        isweq (disp_idtoiso_2_1 p ff gg).
+
+  Definition disp_isotoid_2_1
+             (HD : disp_univalent_2_1)
+             {a b : C}
+             {f g : C⟦a, b⟧}
+             (p : f = g)
+             {aa : D a} {bb : D b}
+             (ff : aa -->[ f ] bb)
+             (gg : aa -->[ g ] bb)
+             (pp : disp_invertible_2cell (idtoiso_2_1 f g p) ff gg)
+    : transportf (λ z, _ -->[ z ] _) p ff = gg
+    := invmap (make_weq _ (HD a b f g p aa bb ff gg)) pp.
 End Displayed_Local_Univalence.
 
 Section Total_Category_Univalent_2_1.
