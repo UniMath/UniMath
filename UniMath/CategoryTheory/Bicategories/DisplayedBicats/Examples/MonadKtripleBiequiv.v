@@ -470,7 +470,6 @@ Proof.
          rewrite id_right;
          apply functor_id
        ).
-
   (* About 3min on my computer. *)
   - Time abstract (
       intros x y z f g mx my mz mf mg;
@@ -486,32 +485,35 @@ Proof.
       apply pathsinv0;
       apply inv_iso_unique';
       unfold precomp_with;
+      etrans; [ apply maponpaths, id_right | idtac ];
+      simpl;
       etrans;
       [ apply maponpaths_2;
-        simpl;
-        rewrite id_left;
-        do 2 rewrite id_right;
-        rewrite (functor_id (monad_endo mz : _ ⟶ _));
-        apply id_right
-      | idtac ];
-      rewrite id_right;
-      etrans; [ apply assoc' | idtac ];
-      etrans;
-      [ apply maponpaths;
-        etrans; [ apply assoc | idtac ];
         etrans;
-        [ apply maponpaths_2;
-          apply (iso_inv_after_iso (pr11 (monad_mor_natural mg) (pr1 f X),, _))
+        [ apply maponpaths;
+          apply (functor_id (monad_endo mz : _ ⟶ _))
         | idtac ];
-        apply id_left
+        etrans; [ apply id_right | idtac ];
+          etrans; [ apply id_right | idtac ];
+          apply maponpaths_2;
+          etrans; [ apply id_right | apply id_left ]
+      | idtac ];
+      etrans; [ apply assoc | idtac ];
+      etrans;
+      [ apply maponpaths_2;
+        etrans; [ apply assoc' | idtac ];
+        etrans;
+        [ apply maponpaths;
+          exact (iso_inv_after_iso (pr11 (monad_mor_natural mg) (pr1 f X),, _))
+        | apply id_right ]
       | idtac ];
       etrans; [ apply pathsinv0, functor_comp | idtac ];
       etrans;
       [ apply maponpaths;
-        apply (iso_inv_after_iso (pr11 (monad_mor_natural mf) X,, _))
-      | apply functor_id]
+        exact (iso_inv_after_iso (pr11 (monad_mor_natural mf) X,, _))
+      | apply functor_id ]
     ).
-Time Defined.
+Defined.
 
 Definition TODO {A : UU} : A.
 Admitted.
