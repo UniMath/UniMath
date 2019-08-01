@@ -494,8 +494,23 @@ Proof.
     ).
 Defined.
 
-Definition TODO {A : UU} : A.
-Admitted.
+Lemma bind_kt_monad_to_kleisli
+      {x : univalent_category}
+      (k : kleisli_triple x)
+      {a b : x}
+      (f : x ⟦ a, k b ⟧)
+  : bind_kt (Monad_to_Ktriple_data (unit_mu_kleisli k)) f = bind_kt k f.
+Proof.
+  unfold bind_kt at 1; simpl.
+  unfold monad_bind; simpl.
+  unfold mu_kleisli_data.
+  rewrite (bind_bind k).
+  apply maponpaths.
+  etrans; [ idtac | apply id_right ].
+  rewrite assoc'.
+  apply maponpaths.
+  apply (unit_bind k).
+Qed.
 
 Definition Monad_biequiv_Ktriple
   : is_disp_biequivalence_unit_counit
@@ -528,21 +543,81 @@ Proof.
         ** intros z. apply identity_is_iso.
       * intros z.
         apply id_right.
-      * simpl.
-        intros X.
-        rewrite id_left.
-        apply id_right.
-    + intros.
-      use make_cat_monad_cell.
-      cbn.
-      intros X.
-      rewrite !(functor_id ((monad_endo yy) : _ ⟶ _)), !id_left, !id_right.
-      rewrite (functor_id f).
-      rewrite !(functor_id ((monad_endo yy) : _ ⟶ _)), !id_left, !id_right.
-      apply TODO.
+      * abstract (
+          simpl;
+          intros X;
+          rewrite id_left;
+          apply id_right).
+    + abstract (
+        intros;
+        use make_cat_monad_cell;
+        simpl;
+        intros X;
+        rewrite !(functor_id ((monad_endo yy) : _ ⟶ _));
+        rewrite (functor_id f);
+        rewrite !id_left;
+        rewrite !(functor_id ((monad_endo yy) : _ ⟶ _));
+        rewrite !id_right;
+        apply pathsinv0;
+        apply inv_iso_unique';
+        unfold precomp_with;
+        simpl;
+        exact (iso_after_iso_inv (pr11 (monad_mor_natural ff) X,, _))
+      ).
   - use make_disp_pstrans.
-    + apply TODO.
-    + apply TODO.
-    + apply TODO.
-    + apply TODO.
+    + exact disp_2cells_isaprop_kleisli.
+    + exact disp_locally_groupoid_kleisli.
+    + refine (λ (x : univalent_category) (kx : kleisli_triple x), _).
+      use make_kleisli_triple_on_functor.
+      * exact (λ X, identity_iso (kx X)).
+      * abstract (
+          refine (λ A : x, _);
+          apply pathsinv0;
+          apply id_right).
+      * abstract (
+          refine (λ (A B : pr1 x) (f : pr1 x ⟦ A, pr1 kx B ⟧), _);
+          simpl;
+          rewrite id_right;
+          etrans; [ apply bind_kt_monad_to_kleisli | idtac ];
+          etrans;
+          [ pose (kleisli_triple_on_functor_bind_kt
+                    (kleisli_triple_on_identity_functor
+                       kx)
+                    _ _ f
+                 ) as H;
+            simpl in H;
+            exact H
+          | idtac ];
+          apply id_right
+        ).
+    + abstract (
+        refine (λ (x y : univalent_category)
+                  (f : pr1 x ⟶ pr1 y)
+                  (kx : kleisli_triple x)
+                  (ky : kleisli_triple y)
+                  (kf : kleisli_triple_on_functor kx ky f)
+                  (X : x),
+                _);
+        simpl;
+        apply pathsinv0;
+        etrans;
+        [ apply maponpaths_2;
+          do 2 rewrite id_left;
+          apply (bind_unit ky)
+        | idtac ];
+        etrans; [ apply id_left | idtac];
+        etrans; [ apply id_left | idtac];
+        apply pathsinv0;
+        simpl;
+        etrans;
+        [ rewrite assoc';
+          apply maponpaths;
+          rewrite functor_id;
+          etrans; [ apply id_left | idtac];
+          apply id_left
+        | idtac ];
+        etrans; [ apply id_right | idtac];
+        apply inv_iso_unique';
+        exact (iso_after_iso_inv (kleisli_triple_on_functor_iso kf X))
+      ).
 Defined.
