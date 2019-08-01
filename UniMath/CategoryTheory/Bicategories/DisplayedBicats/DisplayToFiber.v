@@ -33,7 +33,7 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cell
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
-Definition move_transportf
+Definition transportb_transpose
            {A : UU}
            {Y : A → UU}
            {a₁ a₂ : A}
@@ -86,11 +86,11 @@ Definition local_iso_cleaving_id
     id_disp xx.
 Proof.
   rewrite <- (idtoiso_2_1_isotoid_2_1 HC (idempunitor c)) in α.
-  rewrite (move_transportf (disp_isotoid_2_1 _ HD_2_1 _ _ _ α)).
+  rewrite (transportb_transpose (disp_isotoid_2_1 _ HD_2_1 _ _ _ α)).
   pose (disp_local_iso_cleaving_invertible_2cell h p (idempunitor c)) as d.
   rewrite <- (idtoiso_2_1_isotoid_2_1 HC (idempunitor c)) in d.
   rewrite <- (idtoiso_2_1_isotoid_2_1 HC (idempunitor c)).
-  rewrite (move_transportf (disp_isotoid_2_1 _ HD_2_1 _ _ _ d)).
+  rewrite (transportb_transpose (disp_isotoid_2_1 _ HD_2_1 _ _ _ d)).
   rewrite idtoiso_2_1_isotoid_2_1.
   apply idpath.
 Qed.
@@ -143,7 +143,7 @@ Section FiberOfFunctor.
       etrans.
       {
         apply maponpaths.
-        pose (move_transportf (disp_isotoid_2_1 D₁ HD₁_2_1 _ _ _ p2)) as p.
+        pose (transportb_transpose (disp_isotoid_2_1 D₁ HD₁_2_1 _ _ _ p2)) as p.
         rewrite idtoiso_2_1_isotoid_2_1 in p.
         exact p.
       }
@@ -151,7 +151,7 @@ Section FiberOfFunctor.
       refine (!_).
       etrans.
       {
-        pose (move_transportf (disp_isotoid_2_1 D₂ HD₂_2_1 _ _ _ p1)) as p.
+        pose (transportb_transpose (disp_isotoid_2_1 D₂ HD₂_2_1 _ _ _ p1)) as p.
         rewrite idtoiso_2_1_isotoid_2_1 in p.
         exact p.
       }
@@ -171,73 +171,6 @@ Section FiberOfFunctor.
     - exact (fiber_is_functor c).
   Defined.
 End FiberOfFunctor.
-
-Definition help_equation
-           {C : bicat}
-           (c : C)
-  : ((((((rinvunitor (id₁ c))
-           • (id₁ c ◃ linvunitor (id₁ c)))
-          • lassociator (id₁ c) (id₁ c) (id₁ c))
-         • ((((lunitor (id₁ c) • rinvunitor (id₁ c))
-                • (id₁ c ◃ linvunitor (id₁ c)))
-               • lassociator (id₁ c) (id₁ c) (id₁ c)) ▹ id₁ c))
-        • rassociator (id₁ c · id₁ c) (id₁ c) (id₁ c))
-       • (id₁ c · id₁ c ◃ lunitor (id₁ c)))
-      • runitor (id₁ c · id₁ c)
-    =
-    linvunitor (id₁ c).
-Proof.
-  rewrite !vassocl.
-  etrans.
-  {
-    do 3 apply maponpaths.
-    apply maponpaths_2.
-    apply maponpaths.
-    rewrite !vassocr.
-    rewrite lunitor_runitor_identity.
-    rewrite runitor_rinvunitor.
-    rewrite !vassocl.
-    apply id2_left.
-  }
-  use vcomp_move_R_pM.
-  { is_iso. }
-  cbn.
-  rewrite runitor_lunitor_identity.
-  rewrite lunitor_linvunitor.
-  rewrite lwhisker_hcomp.
-  rewrite !vassocr.
-  rewrite triangle_l_inv.
-  rewrite <- !rwhisker_hcomp.
-  rewrite !vassocl.
-  etrans.
-  {
-    apply maponpaths.
-    rewrite !vassocr.
-    rewrite rwhisker_rwhisker_alt.
-    apply idpath.
-  }
-  use vcomp_move_R_pM.
-  { is_iso. }
-  cbn.
-  rewrite id2_right.
-  rewrite !vassocl.
-  use vcomp_move_R_pM.
-  { is_iso. }
-  cbn.
-  rewrite runitor_rwhisker.
-  rewrite !vassocr.
-  rewrite vcomp_whisker.
-  rewrite !vassocl.
-  refine (_ @ id2_right _).
-  apply maponpaths.
-  rewrite <- runitor_triangle.
-  rewrite runitor_lunitor_identity.
-  rewrite lunitor_lwhisker.
-  rewrite rwhisker_vcomp.
-  rewrite rinvunitor_runitor.
-  rewrite id2_rwhisker.
-  apply idpath.
-Qed.
 
 Section FiberOfBiequiv.
   Context {C : bicat}
@@ -261,6 +194,72 @@ Section FiberOfBiequiv.
   Local Notation "'FF'" := (fiber_functor HC HD₁ HD₁_2_1 h₁ HD₂ HD₂_2_1 h₂ F c).
   Local Notation "'GG'" := (fiber_functor HC HD₂ HD₂_2_1 h₂ HD₁ HD₁_2_1 h₁ G c).
 
+  Definition help_equation
+    : ((((((rinvunitor (id₁ c))
+             • (id₁ c ◃ linvunitor (id₁ c)))
+            • lassociator (id₁ c) (id₁ c) (id₁ c))
+           • ((((lunitor (id₁ c) • rinvunitor (id₁ c))
+                  • (id₁ c ◃ linvunitor (id₁ c)))
+                 • lassociator (id₁ c) (id₁ c) (id₁ c)) ▹ id₁ c))
+          • rassociator (id₁ c · id₁ c) (id₁ c) (id₁ c))
+         • (id₁ c · id₁ c ◃ lunitor (id₁ c)))
+        • runitor (id₁ c · id₁ c)
+      =
+      linvunitor (id₁ c).
+  Proof.
+    rewrite !vassocl.
+    etrans.
+    {
+      do 3 apply maponpaths.
+      apply maponpaths_2.
+      apply maponpaths.
+      rewrite !vassocr.
+      rewrite lunitor_runitor_identity.
+      rewrite runitor_rinvunitor.
+      rewrite !vassocl.
+      apply id2_left.
+    }
+    use vcomp_move_R_pM.
+    { is_iso. }
+    cbn.
+    rewrite runitor_lunitor_identity.
+    rewrite lunitor_linvunitor.
+    rewrite lwhisker_hcomp.
+    rewrite !vassocr.
+    rewrite triangle_l_inv.
+    rewrite <- !rwhisker_hcomp.
+    rewrite !vassocl.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !vassocr.
+      rewrite rwhisker_rwhisker_alt.
+      apply idpath.
+    }
+    use vcomp_move_R_pM.
+    { is_iso. }
+    cbn.
+    rewrite id2_right.
+    rewrite !vassocl.
+    use vcomp_move_R_pM.
+    { is_iso. }
+    cbn.
+    rewrite runitor_rwhisker.
+    rewrite !vassocr.
+    rewrite vcomp_whisker.
+    rewrite !vassocl.
+    refine (_ @ id2_right _).
+    apply maponpaths.
+    rewrite <- runitor_triangle.
+    rewrite runitor_lunitor_identity.
+    rewrite lunitor_lwhisker.
+    rewrite rwhisker_vcomp.
+    rewrite rinvunitor_runitor.
+    rewrite id2_rwhisker.
+    apply idpath.
+  Qed.
+
+
   Definition fiber_unit_is_nat_trans
     : is_nat_trans
         (FF ∙ GG) (functor_identity _)
@@ -274,7 +273,7 @@ Section FiberOfBiequiv.
     rewrite <- (idtoiso_2_1_isotoid_2_1
                   HC
                   (psnaturality_of (pstrans_lunitor (ps_id_functor C)) (id₁ c))) in d.
-    pose (move_transportf (disp_isotoid_2_1 _ HD₁_2_1 _ _ _ d)) as p.
+    pose (transportb_transpose (disp_isotoid_2_1 _ HD₁_2_1 _ _ _ d)) as p.
     refine (_ @ !p).
     clear d p.
     refine (!_).
@@ -322,7 +321,7 @@ Section FiberOfBiequiv.
              simpl in m.
              pose (disp_inv_cell m) as d.
              refine (transportf (λ z, _ ==>[ z ] _)  _ d).
-             exact (help_equation c).
+             exact help_equation.
           ** apply LGD₁.
   Qed.
 
@@ -339,7 +338,7 @@ Section FiberOfBiequiv.
     rewrite <- (idtoiso_2_1_isotoid_2_1
                   HC
                   (psnaturality_of (pstrans_lunitor (ps_id_functor C)) (id₁ c))) in d.
-    pose (move_transportf (disp_isotoid_2_1 _ HD₂_2_1 _ _ _ d)) as p.
+    pose (transportb_transpose (disp_isotoid_2_1 _ HD₂_2_1 _ _ _ d)) as p.
     refine (_ @ !p).
     clear d p.
     refine (!_).
@@ -387,7 +386,7 @@ Section FiberOfBiequiv.
              simpl in m.
              pose (disp_inv_cell m) as d.
              refine (transportf (λ z, _ ==>[ z ] _)  _ d).
-             exact (help_equation c).
+             exact help_equation.
           ** apply LGD₂.
   Qed.
 End FiberOfBiequiv.
