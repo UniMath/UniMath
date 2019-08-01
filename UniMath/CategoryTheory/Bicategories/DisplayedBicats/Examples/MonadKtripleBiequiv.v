@@ -522,7 +522,6 @@ Lemma bind_kt_monad_to_kleisli
 Proof.
   unfold bind_kt at 1; simpl.
   unfold monad_bind; simpl.
-  unfold mu_kleisli_data.
   rewrite (bind_bind k).
   apply maponpaths.
   etrans; [ idtac | apply id_right ].
@@ -539,7 +538,9 @@ Definition Monad_biequiv_Ktriple
 Proof.
   split.
   - use make_disp_pstrans.
-    + exact disp_2cells_isaprop_monad.
+    + exact (disp_2cells_isaprop_monad
+               bicat_of_cats
+               univalent_cat_is_univalent_2).
     + exact (disp_locally_groupoid_monad
                bicat_of_cats
                univalent_cat_is_univalent_2).
