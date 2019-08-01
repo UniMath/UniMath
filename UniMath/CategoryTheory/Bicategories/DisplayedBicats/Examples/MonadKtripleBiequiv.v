@@ -51,6 +51,7 @@ Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispTransform
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispModification.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispBiequivalence.
 Require Import UniMath.CategoryTheory.Bicategories.Transformations.Examples.Unitality.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.KleisliTriple.
 
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 
@@ -323,16 +324,6 @@ Defined.
 (* ------------------------------------------------------------------------- *)
 (*  Kleisly_of_Monad                                                         *)
 (* ------------------------------------------------------------------------- *)
-
-Definition disp_2cells_isaprop_kleisli
-  : disp_2cells_isaprop kleisli_triple_disp_bicat.
-Proof.
-Admitted.
-
-Definition disp_locally_groupoid_kleisli
-  : disp_locally_groupoid kleisli_triple_disp_bicat.
-Proof.
-Admitted.
 
 Section Kleisly_of_Monad_data.
 
