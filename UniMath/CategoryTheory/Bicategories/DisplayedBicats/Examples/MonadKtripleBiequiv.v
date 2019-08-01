@@ -378,9 +378,6 @@ Proof.
       ).
 Defined.
 
-Definition TODO {A : UU} : A.
-Admitted.
-
 Definition Monad_to_Ktriple_2cell
   : ∏ (x y : bicat_of_cats)
       (f g : bicat_of_cats ⟦ x, y ⟧)
