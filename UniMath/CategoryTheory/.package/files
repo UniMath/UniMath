@@ -208,8 +208,6 @@ Bicategories/DisplayedBicats/DispBicat.v
 Bicategories/DisplayedBicats/DispInvertibles.v
 Bicategories/DisplayedBicats/DispAdjunctions.v
 Bicategories/DisplayedBicats/DispUnivalence.v
-Bicategories/DisplayedBicats/Fibration/Fibration1.v
-Bicategories/DisplayedBicats/Fibration/Fibration2.v
 Bicategories/DisplayedBicats/Fibration.v
 Bicategories/DisplayedBicats/Examples/Sigma.v
 
@@ -277,6 +275,7 @@ Bicategories/Colimits/Final.v
 Bicategories/PseudoFunctors/Biadjunction.v
 Bicategories/PseudoFunctors/Examples/PathGroupoid.v
 Bicategories/DisplayedBicats/Examples/PointedGroupoid.v
+Bicategories/DisplayedBicats/DisplayToFiber.v
 
 Bicategories/WkCatEnrichment/prebicategory.v
 Bicategories/WkCatEnrichment/Notations.v

@@ -80,13 +80,10 @@ Section Monad_of_Kleisli_Data.
 
 Context {x : category} (k : kleisli_triple x).
 
-Local Definition unit_kleisli_data : ∏ a : x, x ⟦ a, pr1 k a ⟧
-  := unit_kt k.
-
 Local Lemma unit_kleisli_natural
   : is_nat_trans (functor_identity_data x)
                  (functor_data_of_kleisli_triple k)
-                 unit_kleisli_data.
+                 (unit_kt k).
 Proof.
   intros a b f. cbn.
   refine (!_).
@@ -97,18 +94,15 @@ Definition unit_kleisli
   : functor_identity x ⟹ functor_of_kleisli_triple k
   := make_nat_trans (functor_identity x)
                     (functor_of_kleisli_triple k)
-                    unit_kleisli_data
+                    (unit_kt k)
                     unit_kleisli_natural.
-
-Local Definition mu_kleisli_data (a : x) : x ⟦ k (k a), k a ⟧
-  := bind_kt k (identity (k a)).
 
 Local Lemma mu_kleisli_natural
   : is_nat_trans (functor_composite_data (functor_of_kleisli_triple k)
                                          (functor_of_kleisli_triple k))
-                 (functor_of_kleisli_triple k) mu_kleisli_data.
+                 (functor_of_kleisli_triple k)
+                 (λ a, bind_kt k (identity (k a))).
 Proof.
-  unfold mu_kleisli_data.
   intros a b f. cbn.
   do 2 rewrite (bind_bind k).
   apply maponpaths.
@@ -124,9 +118,8 @@ Definition mu_kleisli
     functor_of_kleisli_triple k
   := make_nat_trans (functor_of_kleisli_triple k ∙ functor_of_kleisli_triple k)
                     (functor_of_kleisli_triple k)
-                    mu_kleisli_data
+                    _
                     mu_kleisli_natural.
-
 End Monad_of_Kleisli_Data.
 
 Section Monad_of_Kleisli_Data.
@@ -142,7 +135,6 @@ Proof.
   - exact (mu_kleisli k).
   - abstract
       (cbn; intros;
-       unfold unit_kleisli_data, mu_kleisli_data;
        rewrite (bind_bind k);
        rewrite assoc';
        rewrite (unit_bind k);
@@ -150,11 +142,9 @@ Proof.
        apply (bind_unit k)).
   - abstract
       (cbn; intros;
-       unfold unit_kleisli_data, mu_kleisli_data;
        apply (unit_bind k)).
   - abstract
       (cbn; intros;
-       unfold unit_kleisli_data, mu_kleisli_data;
        do 2 rewrite (bind_bind k);
        rewrite id_left;
        apply maponpaths;
@@ -168,16 +158,6 @@ End Monad_of_Kleisli_Data.
 (* ------------------------------------------------------------------------- *)
 (** ** Pseudofunctor Ktriples to Monads.                                     *)
 (* ------------------------------------------------------------------------- *)
-
-Lemma disp_2cells_isaprop_monad : disp_2cells_isaprop (monad bicat_of_cats).
-Proof.
-  cbn.
-  intro.
-  intros.
-  simpl.
-  repeat apply isapropdirprod; try apply isapropunit.
-  apply isaprop_eq_2cell.
-Qed.
 
 Definition functor_of_kleisli_comm
       {x y : univalent_category}
@@ -248,14 +228,14 @@ Proof.
   use make_cat_monad_mor ; cbn.
   - exact (functor_of_kleisli_iso KF).
   - abstract
-      (intros X ; cbn ; unfold unit_kleisli_data;
+      (intros X ; cbn ;
        rewrite (kleisli_triple_on_functor_unit_kt KF);
        rewrite assoc';
        rewrite iso_inv_after_iso;
        rewrite id_right;
        apply idpath).
   - abstract
-      (intros X ; cbn ; unfold mu_kleisli_data;
+      (intros X ; cbn ;
        rewrite (kleisli_triple_on_functor_bind_kt KF);
        rewrite !assoc';
        apply maponpaths;
@@ -273,7 +253,8 @@ Definition Ktriple_to_Monad
                    (ps_id_functor bicat_of_cats).
 Proof.
   use make_disp_psfunctor.
-  - exact disp_2cells_isaprop_monad.
+  - apply disp_2cells_isaprop_monad.
+    apply univalent_cat_is_univalent_2.
   - exact (disp_locally_groupoid_monad
              bicat_of_cats
              univalent_cat_is_univalent_2).
@@ -322,14 +303,8 @@ Defined.
 
 
 (* ------------------------------------------------------------------------- *)
-(*  Kleisly_of_Monad                                                         *)
+(*  Kleisli_of_Monad                                                         *)
 (* ------------------------------------------------------------------------- *)
-
-Section Kleisly_of_Monad_data.
-
-Context {x : univalent_category} (m : monad bicat_of_cats x).
-
-End Kleisly_of_Monad_data.
 
 Definition Monad_to_Ktriple_data {x : univalent_category}
            (m : monad bicat_of_cats x)
@@ -379,10 +354,7 @@ Definition Monad_to_Ktriple_functor
            {mx : (monad bicat_of_cats) x}
            {my : (monad bicat_of_cats) y}
            (mf : mx -->[ f] my)
-  : kleisli_triple_on_functor
-      (Monad_to_Ktriple_data mx)
-      (Monad_to_Ktriple_data my)
-      f.
+  : Monad_to_Ktriple_data mx -->[ f ] Monad_to_Ktriple_data my.
 Proof.
   use make_kleisli_triple_on_functor.
   - exact (monad_mor_natural_pointwise mf).
@@ -406,6 +378,126 @@ Proof.
       ).
 Defined.
 
+Definition Monad_to_Ktriple_2cell
+  : ∏ (x y : univalent_category)
+      (f g : x ⟶ y)
+      (α : prebicat_cells bicat_of_cats f g)
+      (mx : (monad bicat_of_cats) x) (my : (monad bicat_of_cats) y)
+      (mf : mx -->[ f] my)
+      (mg : mx -->[ g] my),
+    mf ==>[ α] mg
+    →
+    ∏ X,
+    pr1 ((pr2 (monad_mor_natural mf)) ^-1) X
+        · id₁ (f (pr1 (monad_endo mx) X))
+        · pr1 α ((pr111 (pr1 mx)) X) =
+    monad_bind my (pr1 α X · pr1 (monad_unit my) (g X))
+               · (pr1 ((pr2 (monad_mor_natural mg)) ^-1) X
+                      · id₁ (g (pr1 (monad_endo mx) X))).
+Proof.
+  intros x y f g α mx my mf mg mα.
+  refine (λ X: (x:univalent_category), _).
+  rewrite !id_right.
+  pose (nat_trans_eq_pointwise (pr11 mα) X) as d.
+  pose (maponpaths (λ z, z · pr1 ((pr2 (monad_mor_natural mg)) ^-1) X) d) as p₁.
+  cbn in p₁.
+  rewrite assoc' in p₁.
+  pose (maponpaths (λ z, pr1 α (pr1 (pr11 mx) X) · z)
+                   (!(nat_trans_eq_pointwise
+                        (vcomp_rinv (monad_mor_natural mg))
+                        X))) as p₂.
+  pose (!(id_right _) @ p₂ @ p₁) as r.
+  refine (maponpaths (λ z, _ · z) r @ _).
+  clear d p₁ p₂ r.
+  rewrite !assoc.
+  apply maponpaths_2.
+  pose (maponpaths (λ z, z · # (pr111 my) (pr1 α X))
+                   (!(nat_trans_eq_pointwise
+                        (vcomp_lid (monad_mor_natural mf))
+                        X))) as p.
+  pose (!(id_left _) @ p) as r.
+  refine (!r @ _).
+  clear p r.
+  apply cat_monad_map_as_bind.
+Qed.
+
+Definition Monad_to_Ktriple_identitor
+  : ∏ (x : bicat_of_cats) (xx : (monad bicat_of_cats) x),
+    (id_disp (Monad_to_Ktriple_data xx))
+      ==>[ psfunctor_id (ps_id_functor bicat_of_cats) x]
+      Monad_to_Ktriple_functor (id_disp xx).
+Proof.
+  intros x mx X; cbn.
+  unfold precomp_with.
+  do 2 rewrite id_left ; do 3 rewrite id_right.
+  rewrite (functor_id (pr11 mx)), id_right.
+  refine (!_).
+  apply (cat_monad_unit_bind mx).
+Qed.
+
+Definition Monad_to_Ktriple_compositor
+  : ∏ (x y z : univalent_category)
+      (f : x ⟶ y) (g : y ⟶ z)
+      (xx : (monad bicat_of_cats) x)
+      (yy : (monad bicat_of_cats) y)
+      (zz : (monad bicat_of_cats) z)
+      (ff : xx -->[ f] yy) (gg : yy -->[ g] zz),
+    (Monad_to_Ktriple_functor ff;; Monad_to_Ktriple_functor gg)
+      ==>[ id₂ _]
+      Monad_to_Ktriple_functor (ff;; gg).
+Proof.
+  intros x y z f g mx my mz mf mg.
+  refine (λ X : pr1 x, _).
+  cbn ; unfold precomp_with.
+  etrans.
+  {
+    refine (id_right _ @ _).
+    etrans.
+    {
+      do 2 apply maponpaths.
+      apply id_right.
+    }
+    apply maponpaths_2.
+    apply id_right.
+  }
+  refine (!_).
+  etrans.
+  {
+    etrans.
+    {
+      apply maponpaths.
+      apply id_right.
+    }
+    etrans.
+    {
+      apply maponpaths_2.
+      etrans.
+      {
+        apply maponpaths.
+        apply id_left.
+      }
+      exact (cat_monad_unit_bind mz).
+    }
+    refine (id_left _ @ _).
+    apply maponpaths.
+    refine (id_left _ @ _).
+    apply maponpaths.
+    refine (id_left _ @ _).
+    apply id_right.
+  }
+  etrans.
+  {
+    etrans.
+    {
+      apply maponpaths_2.
+      exact (functor_id (pr11 mz) (g(f X))).
+    }
+    apply id_left.
+  }
+  apply idpath.
+Qed. (* 32 seconds on my computer *)
+
+
 Definition Monad_to_Ktriple
   : disp_psfunctor (monad bicat_of_cats)
                    kleisli_triple_disp_bicat
@@ -416,82 +508,9 @@ Proof.
   - exact disp_locally_groupoid_kleisli.
   - exact @Monad_to_Ktriple_data.
   - exact @Monad_to_Ktriple_functor.
-  - abstract
-      (intros x y f g α mx my mf mg mα;
-       refine (λ X: (x:univalent_category), _);
-       cbn ; unfold precomp_with ; cbn;
-       rewrite !id_right;
-       pose (nat_trans_eq_pointwise (pr11 mα) X) as d;
-       cbn in d;
-       pose (maponpaths (λ z, z · pr1 ((pr2 (monad_mor_natural mg)) ^-1) X) d) as p₁;
-       cbn in p₁;
-       rewrite assoc' in p₁;
-       pose (maponpaths (λ z, pr1 α (pr1 (pr11 mx) X) · z)
-                        (!(nat_trans_eq_pointwise
-                             (vcomp_rinv (monad_mor_natural mg))
-                             X))) as p₂;
-       cbn in p₂;
-       pose (!(id_right _) @ p₂ @ p₁) as r;
-       refine (maponpaths (λ z, _ · z) r @ _);
-       clear d p₁ p₂ r;
-       rewrite !assoc;
-       apply maponpaths_2;
-       pose (maponpaths (λ z, z · # (pr111 my) (pr1 α X))
-                        (!(nat_trans_eq_pointwise
-                             (vcomp_lid (monad_mor_natural mf))
-                             X))) as p;
-       pose (!(id_left _) @ p) as r;
-       refine (!r @ _);
-       clear p r;
-       apply cat_monad_map_as_bind).
-  - abstract (
-      intros x mx X; simpl;
-      etrans; [apply id_left | apply pathsinv0 ];
-      etrans;
-      [ apply maponpaths_2;
-        rewrite id_left;
-        apply (bind_unit (Monad_to_Ktriple_data mx))
-      | idtac ];
-      etrans; [apply id_left | apply pathsinv0 ];
-      apply inv_iso_unique';
-      unfold precomp_with;
-      simpl;
-      do 2 rewrite id_left;
-      rewrite id_right;
-      apply functor_id
-    ).
-  (* About 2min on my computer. *)
-  - Time abstract (
-      intros x y z f g mx my mz mf mg;
-      refine (λ X : pr1 x, _); simpl;
-      apply pathsinv0;
-      etrans;
-      [ apply maponpaths_2;
-        rewrite id_left;
-        apply (bind_unit (Monad_to_Ktriple_data mz))
-      | idtac ];
-      etrans; [ apply id_left | idtac ];
-      apply pathsinv0;
-      apply inv_iso_unique';
-      unfold precomp_with;
-      simpl;
-      rewrite (functor_id (monad_endo mz : _ ⟶ _));
-      do 4 rewrite id_right;
-      rewrite id_left;
-      etrans;
-      [ rewrite assoc;
-        apply maponpaths_2;
-        rewrite assoc';
-        apply maponpaths;
-        exact (iso_inv_after_iso (pr11 (monad_mor_natural mg) (pr1 f X),, _))
-      | idtac ];
-      rewrite id_right;
-      etrans; [ apply pathsinv0, functor_comp | idtac ];
-      etrans;
-      [ apply maponpaths;
-        exact (iso_inv_after_iso (pr11 (monad_mor_natural mf) X,, _))
-      | apply functor_id ]
-    ).
+  - exact Monad_to_Ktriple_2cell.
+  - exact Monad_to_Ktriple_identitor.
+  - exact Monad_to_Ktriple_compositor.
 Defined.
 
 Lemma bind_kt_monad_to_kleisli
