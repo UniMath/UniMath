@@ -444,60 +444,48 @@ Proof.
        refine (!r @ _);
        clear p r;
        apply cat_monad_map_as_bind).
-  -  abstract (
-         intros x mx X; simpl;
-         unfold bind_kt, unit_kt; simpl;
-         etrans; [apply id_left | apply pathsinv0 ];
-         etrans;
-         [ apply maponpaths_2;
-           rewrite id_left;
-          apply (cat_monad_unit_bind mx)
-         | idtac];
-         etrans; [apply id_left | apply pathsinv0 ];
-         apply inv_iso_unique';
-         unfold precomp_with;
-         simpl;
-         do 2 rewrite id_left;
-         rewrite id_right;
-         apply functor_id
-       ).
-  (* About 3min on my computer. *)
+  - abstract (
+      intros x mx X; simpl;
+      etrans; [apply id_left | apply pathsinv0 ];
+      etrans;
+      [ apply maponpaths_2;
+        rewrite id_left;
+        apply (bind_unit (Monad_to_Ktriple_data mx))
+      | idtac ];
+      etrans; [apply id_left | apply pathsinv0 ];
+      apply inv_iso_unique';
+      unfold precomp_with;
+      simpl;
+      do 2 rewrite id_left;
+      rewrite id_right;
+      apply functor_id
+    ).
+  (* About 2min on my computer. *)
   - Time abstract (
       intros x y z f g mx my mz mf mg;
       refine (λ X : pr1 x, _); simpl;
-      unfold bind_kt, unit_kt; simpl;
       apply pathsinv0;
       etrans;
       [ apply maponpaths_2;
         rewrite id_left;
-        apply (cat_monad_unit_bind mz)
+        apply (bind_unit (Monad_to_Ktriple_data mz))
       | idtac ];
       etrans; [ apply id_left | idtac ];
       apply pathsinv0;
       apply inv_iso_unique';
       unfold precomp_with;
-      etrans; [ apply maponpaths, id_right | idtac ];
       simpl;
+      rewrite (functor_id (monad_endo mz : _ ⟶ _));
+      do 4 rewrite id_right;
+      rewrite id_left;
       etrans;
-      [ apply maponpaths_2;
-        etrans;
-        [ apply maponpaths;
-          apply (functor_id (monad_endo mz : _ ⟶ _))
-        | idtac ];
-        etrans; [ apply id_right | idtac ];
-          etrans; [ apply id_right | idtac ];
-          apply maponpaths_2;
-          etrans; [ apply id_right | apply id_left ]
+      [ rewrite assoc;
+        apply maponpaths_2;
+        rewrite assoc';
+        apply maponpaths;
+        exact (iso_inv_after_iso (pr11 (monad_mor_natural mg) (pr1 f X),, _))
       | idtac ];
-      etrans; [ apply assoc | idtac ];
-      etrans;
-      [ apply maponpaths_2;
-        etrans; [ apply assoc' | idtac ];
-        etrans;
-        [ apply maponpaths;
-          exact (iso_inv_after_iso (pr11 (monad_mor_natural mg) (pr1 f X),, _))
-        | apply id_right ]
-      | idtac ];
+      rewrite id_right;
       etrans; [ apply pathsinv0, functor_comp | idtac ];
       etrans;
       [ apply maponpaths;
