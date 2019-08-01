@@ -415,10 +415,10 @@ Proof.
     + exact disp_path_pgroupoid_counit_inv.
     + use tpair.
       * simpl.
-        exact disp_path_pgroupoid_unit_unit_inv.
-      * use tpair.
+        use tpair.
+        -- exact disp_path_pgroupoid_unit_unit_inv.
         -- exact disp_path_pgroupoid_unit_inv_unit.
-        -- use tpair.
-           ++ exact disp_path_pgroupoid_counit_inv_counit.
-           ++ exact disp_path_pgroupoid_counit_counit_inv.
+      * use tpair.
+        -- exact disp_path_pgroupoid_counit_inv_counit.
+        -- exact disp_path_pgroupoid_counit_counit_inv.
 Defined.

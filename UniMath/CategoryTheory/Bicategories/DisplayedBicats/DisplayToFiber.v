@@ -311,13 +311,13 @@ Section FiberOfBiequiv.
         * exact HC.
         * exact HD₁_2_1.
         * use tpair.
-          ** apply (pr1 (pr1 (pr222 EE)) c z).
+          ** apply ((pr12 (pr122 EE)) c z).
           ** apply (LGD₁ _ _ _ _ (_ ,, is_invertible_2cell_linvunitor (id₁ c))).
       + apply local_iso_cleaving_id.
         * exact HC.
         * exact HD₁_2_1.
         * use tpair.
-          ** pose (pr1 ((pr122 EE)) c z) as m.
+          ** pose ((pr111 (pr22 EE)) c z) as m.
              simpl in m.
              pose (disp_inv_cell m) as d.
              refine (transportf (λ z, _ ==>[ z ] _)  _ d).
@@ -376,13 +376,13 @@ Section FiberOfBiequiv.
         * exact HC.
         * exact HD₂_2_1.
         * use tpair.
-          ** apply (pr1 (pr22 (pr222 EE)) c z).
+          ** apply (pr12 (pr222 EE) c z).
           ** apply (LGD₂ _ _ _ _ (_ ,, is_invertible_2cell_linvunitor (id₁ c))).
       + apply local_iso_cleaving_id.
         * exact HC.
         * exact HD₂_2_1.
         * use tpair.
-          ** pose ((pr1 (pr12 (pr222 EE)) c z)) as m.
+          ** pose (pr11 (pr222 EE) c z) as m; simpl in m.
              simpl in m.
              pose (disp_inv_cell m) as d.
              refine (transportf (λ z, _ ==>[ z ] _)  _ d).
