@@ -379,21 +379,24 @@ Proof.
 Defined.
 
 Definition Monad_to_Ktriple_2cell
-  : ∏ (x y : bicat_of_cats)
-      (f g : bicat_of_cats ⟦ x, y ⟧)
-      (α : f ==> g)
-      (xx : (monad bicat_of_cats) x) (yy : (monad bicat_of_cats) y)
-      (ff : xx -->[ f] yy)
-      (gg : xx -->[ g] yy),
-    ff ==>[ α] gg
+  : ∏ (x y : univalent_category)
+      (f g : x ⟶ y)
+      (α : prebicat_cells bicat_of_cats f g)
+      (mx : (monad bicat_of_cats) x) (my : (monad bicat_of_cats) y)
+      (mf : mx -->[ f] my)
+      (mg : mx -->[ g] my),
+    mf ==>[ α] mg
     →
-    (Monad_to_Ktriple_functor ff)
-      ==>[ α]
-      Monad_to_Ktriple_functor gg.
+    ∏ X,
+    pr1 ((pr2 (monad_mor_natural mf)) ^-1) X
+        · id₁ (f (pr1 (monad_endo mx) X))
+        · pr1 α ((pr111 (pr1 mx)) X) =
+    monad_bind my (pr1 α X · pr1 (monad_unit my) (g X))
+               · (pr1 ((pr2 (monad_mor_natural mg)) ^-1) X
+                      · id₁ (g (pr1 (monad_endo mx) X))).
 Proof.
   intros x y f g α mx my mf mg mα.
   refine (λ X: (x:univalent_category), _).
-  cbn ; unfold precomp_with ; cbn.
   rewrite !id_right.
   pose (nat_trans_eq_pointwise (pr11 mα) X) as d.
   pose (maponpaths (λ z, z · pr1 ((pr2 (monad_mor_natural mg)) ^-1) X) d) as p₁.
@@ -416,7 +419,7 @@ Proof.
   refine (!r @ _).
   clear p r.
   apply cat_monad_map_as_bind.
-Qed. (* 17.4 seconds *)
+Qed.
 
 Definition Monad_to_Ktriple_identitor
   : ∏ (x : bicat_of_cats) (xx : (monad bicat_of_cats) x),
