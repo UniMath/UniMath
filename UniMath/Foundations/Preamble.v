@@ -177,7 +177,7 @@ in a proof term, just mentally replace it by
 Set Primitive Projections.
 Set Nonrecursive Elimination Schemes.
 
-Record total2 { T: UU } ( P: T -> UU ) := tpair { pr1 : T; pr2 : P pr1 }.
+Record total2 { T: UU } ( P: T -> UU ) : UU := tpair { pr1 : T; pr2 : P pr1 }.
 
 Arguments tpair {_} _ _ _.
 Arguments pr1 {_ _} _.
