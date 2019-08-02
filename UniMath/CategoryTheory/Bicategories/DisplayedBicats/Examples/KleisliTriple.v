@@ -403,10 +403,6 @@ Proof.
   exact @disp_2cellsisaprop.
 Qed.
 
-(* Improve Qed is slow *)
-Definition TODO {A : UU} : A.
-Admitted.
-
 Definition disp_locally_groupoid_kleisli_help
            (a b : univalent_category)
            (f g : bicat_of_cats ⟦ a , b ⟧)
