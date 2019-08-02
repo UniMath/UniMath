@@ -29,15 +29,6 @@ Local Open Scope mor_disp_scope.
 (* =================================================================================== *)
 
 (* ----------------------------------------------------------------------------------- *)
-(** ** Miscellanea.                                                                    *)
-(* ----------------------------------------------------------------------------------- *)
-
-Definition transportf_transpose_alt {X : UU} {P : X → UU}
-           {x x' : X} {e : x = x'} {y : P x} {y' : P x'} {p : y = transportb P e y'}
-  : transportf P e y = y'
-  := !transportf_transpose _ _ _ (!p).
-
-(* ----------------------------------------------------------------------------------- *)
 (** ** Transport of displayed cells.
 
     Transport of displayed cells is used pervasively, to make the code more terse
@@ -520,7 +511,7 @@ Definition disp_vassocr' {a b : C} {f g h k : C⟦a,b⟧}
   : transportf (λ α, _ ==>[α] _) (vassocr _ _ _) (ηη •• (φφ •• ψψ)) =
     ((ηη •• φφ) •• ψψ).
 Proof.
-  use (transportf_transpose_alt (P := λ x' : f ==> k, ff ==>[x'] kk)).
+  use (transportf_transpose_left (P := λ x' : f ==> k, ff ==>[x'] kk)).
   apply disp_vassocr.
 Defined.
 
@@ -695,7 +686,7 @@ Lemma disp_vassocl {D : disp_prebicat} {a b : C} {f g h k : C⟦a,b⟧}
   : (ηη •• φφ) •• ψψ
     = transportb (λ α, _ ==>[α] _) (vassocl _ _ _) (ηη •• (φφ •• ψψ)).
 Proof.
-  apply (transportf_transpose (P := λ x', _ ==>[x'] _)).
+  apply (transportf_transpose_right (P := λ x', _ ==>[x'] _)).
   apply pathsinv0.
   etrans.
   apply disp_vassocr.
@@ -1091,7 +1082,7 @@ Definition disp_lwhisker_vcomp_alt
     transportf (λ α, _ ==>[α] _) (lwhisker_vcomp _ _ _) ((ff ◃◃ ηη) •• (ff ◃◃ φφ)).
 Proof.
   refine (!_).
-  apply (@transportf_transpose_alt _ (λ α, _ ==>[α] _)).
+  apply (@transportf_transpose_left _ (λ α, _ ==>[α] _)).
   apply disp_lwhisker_vcomp.
 Qed.
 
@@ -1106,7 +1097,7 @@ Definition disp_rwhisker_vcomp_alt
     transportf (λ α, _ ==>[α] _) (rwhisker_vcomp _ _ _) ((ηη ▹▹ ii) •• (φφ ▹▹ ii)).
 Proof.
   refine (!_).
-  apply (@transportf_transpose_alt _ (λ α, _ ==>[α] _)).
+  apply (@transportf_transpose_left _ (λ α, _ ==>[α] _)).
   apply disp_rwhisker_vcomp.
 Qed.
 
@@ -1121,7 +1112,7 @@ Definition disp_vcomp_whisker_alt
     transportf (λ α, _ ==>[α] _) (vcomp_whisker _ _) ((ηη ▹▹ hh) •• (gg ◃◃ φφ)).
 Proof.
   refine (!_).
-  apply (@transportf_transpose_alt _ (λ α, _ ==>[α] _)).
+  apply (@transportf_transpose_left _ (λ α, _ ==>[α] _)).
   apply disp_vcomp_whisker.
 Qed.
 
@@ -1133,7 +1124,7 @@ Definition disp_id2_rwhisker_alt
     =
     disp_id2 (ff ;; gg).
 Proof.
-  apply (@transportf_transpose_alt _ (λ α, _ ==>[α] _)).
+  apply (@transportf_transpose_left _ (λ α, _ ==>[α] _)).
   apply disp_id2_rwhisker.
 Qed.
 
@@ -1315,7 +1306,7 @@ Theorem disp_runitor_lunitor_identity {C : bicat} {D : disp_bicat C} {a : C} (aa
     transportb (λ x, disp_2cells x _ _) (runitor_lunitor_identity a)
                (disp_lunitor (id_disp aa)).
 Proof.
-  apply (transportf_transpose (P := (λ x, disp_2cells x _ _))).
+  apply (transportf_transpose_right (P := (λ x, disp_2cells x _ _))).
   apply pathsinv0.
   etrans.
   1: now apply disp_lunitor_runitor_identity.

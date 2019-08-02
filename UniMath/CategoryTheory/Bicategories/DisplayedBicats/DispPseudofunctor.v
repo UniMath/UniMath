@@ -252,7 +252,7 @@ Definition disp_psfunctor_vcomp2_alt (H : is_disp_psfunctor)
       (disp_psfunctor_cell FFdata (ηη •• φφ)) =
     disp_psfunctor_cell FFdata ηη •• disp_psfunctor_cell FFdata φφ.
 Proof.
-  refine (transportf_transpose_alt (P := λ p, _ ==>[p] _)).
+  refine (transportf_transpose_left (P := λ p, _ ==>[p] _) _).
   apply (disp_psfunctor_vcomp2 H).
 Qed.
 
@@ -587,7 +587,7 @@ Section FiberOfFunctor.
       etrans.
       {
         apply maponpaths.
-        pose (transportb_transpose (disp_isotoid_2_1 D₁ HD₁_2_1 _ _ _ p2)) as p.
+        pose (transportb_transpose_right (disp_isotoid_2_1 D₁ HD₁_2_1 _ _ _ p2)) as p.
         rewrite idtoiso_2_1_isotoid_2_1 in p.
         exact p.
       }
@@ -595,7 +595,7 @@ Section FiberOfFunctor.
       refine (!_).
       etrans.
       {
-        pose (transportb_transpose (disp_isotoid_2_1 D₂ HD₂_2_1 _ _ _ p1)) as p.
+        pose (transportb_transpose_right (disp_isotoid_2_1 D₂ HD₂_2_1 _ _ _ p1)) as p.
         rewrite idtoiso_2_1_isotoid_2_1 in p.
         exact p.
       }

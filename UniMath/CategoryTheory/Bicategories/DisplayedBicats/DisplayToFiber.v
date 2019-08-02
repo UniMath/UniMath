@@ -52,11 +52,11 @@ Definition local_iso_cleaving_id
     id_disp xx.
 Proof.
   rewrite <- (idtoiso_2_1_isotoid_2_1 HC (idempunitor c)) in α.
-  rewrite (transportb_transpose (disp_isotoid_2_1 _ HD_2_1 _ _ _ α)).
+  rewrite (transportb_transpose_right (disp_isotoid_2_1 _ HD_2_1 _ _ _ α)).
   pose (disp_local_iso_cleaving_invertible_2cell h p (idempunitor c)) as d.
   rewrite <- (idtoiso_2_1_isotoid_2_1 HC (idempunitor c)) in d.
   rewrite <- (idtoiso_2_1_isotoid_2_1 HC (idempunitor c)).
-  rewrite (transportb_transpose (disp_isotoid_2_1 _ HD_2_1 _ _ _ d)).
+  rewrite (transportb_transpose_right (disp_isotoid_2_1 _ HD_2_1 _ _ _ d)).
   rewrite idtoiso_2_1_isotoid_2_1.
   apply idpath.
 Qed.
@@ -162,7 +162,7 @@ Section FiberOfBiequiv.
     rewrite <- (idtoiso_2_1_isotoid_2_1
                   HC
                   (psnaturality_of (pstrans_lunitor (ps_id_functor C)) (id₁ c))) in d.
-    pose (transportb_transpose (disp_isotoid_2_1 _ HD₁_2_1 _ _ _ d)) as p.
+    pose (transportb_transpose_right (disp_isotoid_2_1 _ HD₁_2_1 _ _ _ d)) as p.
     refine (_ @ !p).
     clear d p.
     refine (!_).
@@ -227,7 +227,7 @@ Section FiberOfBiequiv.
     rewrite <- (idtoiso_2_1_isotoid_2_1
                   HC
                   (psnaturality_of (pstrans_lunitor (ps_id_functor C)) (id₁ c))) in d.
-    pose (transportb_transpose (disp_isotoid_2_1 _ HD₂_2_1 _ _ _ d)) as p.
+    pose (transportb_transpose_right (disp_isotoid_2_1 _ HD₂_2_1 _ _ _ d)) as p.
     refine (_ @ !p).
     clear d p.
     refine (!_).
