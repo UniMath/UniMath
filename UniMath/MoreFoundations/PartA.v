@@ -32,6 +32,17 @@ Proof.
 intro H; induction e; exact H.
 Defined.
 
+Definition transportb_transpose
+           {A : UU}
+           {Y : A → UU}
+           {a₁ a₂ : A}
+           {p : a₁ = a₂}
+           {y : Y a₁} {z : Y a₂}
+  : transportf Y p y = z → y = transportb Y p z
+  := λ H, transportf_transpose
+            _ _ _
+            (transportb (λ q, transportf Y q y = z) (pathsinv0inv0 p) H).
+
 Definition transportf_pathsinv0 {X} (P:X->UU) {x y:X} (p:x = y) (u:P x) (v:P y) :
   transportf _ (!p) v = u -> transportf _ p u = v.
 Proof. intro e. induction p, e. reflexivity. Defined.

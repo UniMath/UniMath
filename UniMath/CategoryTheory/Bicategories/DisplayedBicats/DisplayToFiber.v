@@ -1,6 +1,7 @@
 (* ******************************************************************************* *)
-(** * Fiber category of a displayed bicategory
-
+(** * Displayed biequivalences give rise to equivalences on the fiber.
+      This requires tha the involved displayed bicategoies are have propositions
+      as displayed 2-cells, are locally groupoidal, and locally univalent.
  ********************************************************************************* *)
 
 Require Import UniMath.Foundations.All.
@@ -33,41 +34,6 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cell
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
-Definition transportb_transpose
-           {A : UU}
-           {Y : A → UU}
-           {a₁ a₂ : A}
-           {p : a₁ = a₂}
-           {y : Y a₁} {z : Y a₂}
-  : transportf Y p y = z → y = transportb Y p z.
-Proof.
-  induction p.
-  apply idfun.
-Defined.
-
-Definition transportb_disp_psfunctor
-           {C : bicat}
-           (HC : is_univalent_2_1 C)
-           (D₁ : disp_bicat C)
-           (D₂ : disp_bicat C)
-           (F : disp_psfunctor D₁ D₂ (ps_id_functor C))
-           {x y : C}
-           {f g : x --> y}
-           {xx : D₁ x} {yy : D₁ y}
-           (ff : xx -->[ f ] yy)
-           (p : g = f)
-  : transportb
-      (mor_disp ((pr11 F) x xx) ((pr11 F) y yy)) p
-      ((pr121 F) _ _ _ xx yy ff)
-    =
-    (pr121 F)
-      x y g xx yy
-      (transportb (mor_disp xx yy) p ff).
-Proof.
-  induction p.
-  apply idpath.
-Defined.
-
 Definition local_iso_cleaving_id
            {C : bicat}
            (HC : is_univalent_2_1 C)
@@ -94,83 +60,6 @@ Proof.
   rewrite idtoiso_2_1_isotoid_2_1.
   apply idpath.
 Qed.
-
-Section FiberOfFunctor.
-  Context {C : bicat}
-          (HC : is_univalent_2_1 C)
-          {D₁ : disp_bicat C}
-          (HD₁ : disp_2cells_isaprop D₁)
-          (HD₁_2_1 : disp_univalent_2_1 D₁)
-          (h₁ : local_iso_cleaving D₁)
-          {D₂ : disp_bicat C}
-          (HD₂ : disp_2cells_isaprop D₂)
-          (HD₂_2_1 : disp_univalent_2_1 D₂)
-          (h₂ : local_iso_cleaving D₂)
-          (F : disp_psfunctor D₁ D₂ (ps_id_functor C)).
-
-  Definition fiber_functor_data
-             (c : C)
-    : functor_data
-        (discrete_fiber_category D₁ HD₁ HD₁_2_1 h₁ c)
-        (discrete_fiber_category D₂ HD₂ HD₂_2_1 h₂ c).
-  Proof.
-    use make_functor_data.
-    - exact (pr11 F c).
-    - exact (pr121 F c c (id₁ c)).
-  Defined.
-
-  Definition fiber_is_functor
-             (c : C)
-    : is_functor (fiber_functor_data c).
-  Proof.
-    split.
-    - intros x.
-      exact (!(disp_isotoid_2_1 _ HD₂_2_1 (idpath _) _ _ (pr12 (pr221 F) c x))).
-    - intros x y z f g ; cbn.
-      pose ((disp_isotoid_2_1
-               _
-               HD₂_2_1 (idpath _)
-               _ _
-               (pr22 (pr221 F) c c c (id₁ c) (id₁ c) x y z f g))) as p.
-      cbn in p ; unfold idfun in p.
-      rewrite p ; clear p.
-      pose (disp_local_iso_cleaving_invertible_2cell
-              h₂
-              ((pr121 F) c c (id₁ c · id₁ c) x z (f;; g))
-              (idempunitor c)) as p1.
-      pose (disp_local_iso_cleaving_invertible_2cell h₁ (f;; g) (idempunitor c)) as p2.
-      rewrite <- (idtoiso_2_1_isotoid_2_1 HC (idempunitor c)) in p1, p2.
-      etrans.
-      {
-        apply maponpaths.
-        pose (transportb_transpose (disp_isotoid_2_1 D₁ HD₁_2_1 _ _ _ p2)) as p.
-        rewrite idtoiso_2_1_isotoid_2_1 in p.
-        exact p.
-      }
-      clear p2.
-      refine (!_).
-      etrans.
-      {
-        pose (transportb_transpose (disp_isotoid_2_1 D₂ HD₂_2_1 _ _ _ p1)) as p.
-        rewrite idtoiso_2_1_isotoid_2_1 in p.
-        exact p.
-      }
-      clear p1.
-      apply transportb_disp_psfunctor.
-      exact HC.
-  Qed.
-
-  Definition fiber_functor
-             (c : C)
-    : discrete_fiber_category D₁ HD₁ HD₁_2_1 h₁ c
-      ⟶
-      discrete_fiber_category D₂ HD₂ HD₂_2_1 h₂ c.
-  Proof.
-    use make_functor.
-    - exact (fiber_functor_data c).
-    - exact (fiber_is_functor c).
-  Defined.
-End FiberOfFunctor.
 
 Section FiberOfBiequiv.
   Context {C : bicat}
