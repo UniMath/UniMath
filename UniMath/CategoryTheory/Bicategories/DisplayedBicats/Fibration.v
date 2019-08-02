@@ -1,6 +1,6 @@
 (* ******************************************************************************* *)
 (** * Fiber category of a displayed bicategory whose displayed 2-cells form a
-      proposition. In addition, the displayed needs to be locally univalent and
+      proposition. In addition, we ask the displayed bicategory to be locally univalent and
       there needs to be a local isofibration on the 2-cells.
  ********************************************************************************* *)
 
