@@ -1,6 +1,6 @@
 (* ******************************************************************************* *)
 (** * Displayed biequivalences give rise to equivalences on the fiber.
-      This requires that the involved displayed bicategoies are propositions
+      This requires that the involved displayed bicategoies have propositions
       as displayed 2-cells, are locally groupoidal, and locally univalent.
  ********************************************************************************* *)
 
