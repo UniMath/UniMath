@@ -208,7 +208,7 @@ Bicategories/DisplayedBicats/DispBicat.v
 Bicategories/DisplayedBicats/DispInvertibles.v
 Bicategories/DisplayedBicats/DispAdjunctions.v
 Bicategories/DisplayedBicats/DispUnivalence.v
-Bicategories/DisplayedBicats/Fibration.v
+Bicategories/DisplayedBicats/FiberCategory.v
 Bicategories/DisplayedBicats/Examples/Sigma.v
 
 Bicategories/DisplayedBicats/Examples/DispBicatOfDispCats.v
