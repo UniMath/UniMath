@@ -29,9 +29,9 @@ Section LocalIsoFibration.
   Local Arguments disp_lassociator {_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _}.
   Local Arguments disp_rassociator {_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _}.
   Local Notation "'ℓ1'" := (local_iso_cleaving_1cell h _ (idempunitor c))
-                               (at level 0).
+                             (at level 0).
   Local Notation "'ℓ2'" := (disp_local_iso_cleaving_invertible_2cell h _ (idempunitor c))
-                               (at level 0).
+                             (at level 0).
   Local Notation "f ^-1" := (disp_inv_cell f).
 
   Definition discrete_fiber_data_laws_rassociator_lassociator
@@ -863,17 +863,17 @@ Section LocalIsoFibration.
                    •• ((ℓ2 •• ((((ℓ2 •• (f₁ ◃◃ ℓ2)) •• disp_lassociator)
                                   •• ((ℓ2^-1 ▹▹ f₃) •• ℓ2^-1)) ▹▹ f₄))
                          •• ℓ2^-1)))
-           =
-           transportf
-             (λ z, _ ==>[ z] _)
-             p
-             ((ℓ2 •• (f₁ ◃◃ (((ℓ2 •• (f₂ ◃◃ ℓ2)) •• disp_lassociator)
-                               •• ((ℓ2^-1 ▹▹ f₄) •• ℓ2^-1))))
-                •• (((f₁ ◃◃ ℓ2) •• disp_lassociator)
-                      •• ((ℓ2^-1 ▹▹ f₄)
-                            •• (((((ℓ2 •• (f₁ ◃◃ ℓ2)) •• disp_lassociator)
-                                    •• ((ℓ2^-1 ▹▹ f₃) •• ℓ2^-1)) ▹▹ f₄)
-                                  •• ℓ2^-1)))).
+        =
+        transportf
+          (λ z, _ ==>[ z] _)
+          p
+          ((ℓ2 •• (f₁ ◃◃ (((ℓ2 •• (f₂ ◃◃ ℓ2)) •• disp_lassociator)
+                            •• ((ℓ2^-1 ▹▹ f₄) •• ℓ2^-1))))
+             •• (((f₁ ◃◃ ℓ2) •• disp_lassociator)
+                   •• ((ℓ2^-1 ▹▹ f₄)
+                         •• (((((ℓ2 •• (f₁ ◃◃ ℓ2)) •• disp_lassociator)
+                                 •• ((ℓ2^-1 ▹▹ f₃) •• ℓ2^-1)) ▹▹ f₄)
+                               •• ℓ2^-1)))).
     Proof.
       eexists.
       etrans.
@@ -944,16 +944,16 @@ Section LocalIsoFibration.
 
     Local Definition step5
       : ∑ p,
-           transportf
-             (λ z, _ ==>[ z] _)
-             (pr1 step4)
-             ((ℓ2 •• (f₁ ◃◃ (((ℓ2 •• (f₂ ◃◃ ℓ2)) •• disp_lassociator)
-                               •• ((ℓ2^-1 ▹▹ f₄) •• ℓ2^-1))))
-                •• (((f₁ ◃◃ ℓ2) •• disp_lassociator)
-                      •• ((ℓ2^-1 ▹▹ f₄)
-                            •• (((((ℓ2 •• (f₁ ◃◃ ℓ2)) •• disp_lassociator)
-                                    •• ((ℓ2^-1 ▹▹ f₃) •• ℓ2^-1)) ▹▹ f₄)
-                                  •• ℓ2^-1))))
+        transportf
+          (λ z, _ ==>[ z] _)
+          (pr1 step4)
+          ((ℓ2 •• (f₁ ◃◃ (((ℓ2 •• (f₂ ◃◃ ℓ2)) •• disp_lassociator)
+                            •• ((ℓ2^-1 ▹▹ f₄) •• ℓ2^-1))))
+             •• (((f₁ ◃◃ ℓ2) •• disp_lassociator)
+                   •• ((ℓ2^-1 ▹▹ f₄)
+                         •• (((((ℓ2 •• (f₁ ◃◃ ℓ2)) •• disp_lassociator)
+                                 •• ((ℓ2^-1 ▹▹ f₃) •• ℓ2^-1)) ▹▹ f₄)
+                               •• ℓ2^-1))))
         =
         transportf
           (λ z, _ ==>[ z] _)
@@ -1983,11 +1983,11 @@ Section LocalIsoFibration.
     Local Arguments transportf {_} _ {_} {_} {_} _.
 
     Definition discrete_fiber_data_laws_lassociator_lassociator
-    : ((f₁ ◃ lassociator f₂ f₃ f₄)
-         • lassociator f₁ (f₂ · f₃) f₄)
-        • (lassociator f₁ f₂ f₃ ▹ f₄)
-      =
-      lassociator f₁ f₂ (f₃ · f₄) • lassociator (f₁ · f₂) f₃ f₄.
+      : ((f₁ ◃ lassociator f₂ f₃ f₄)
+           • lassociator f₁ (f₂ · f₃) f₄)
+          • (lassociator f₁ f₂ f₃ ▹ f₄)
+        =
+        lassociator f₁ f₂ (f₃ · f₄) • lassociator (f₁ · f₂) f₃ f₄.
     Proof.
       refine (pr2 step1 @ _).
       refine (_ @ pr2 step2).
@@ -2158,9 +2158,10 @@ Section LocalIsoFibration.
       {
         apply (@transport_f_f _ (λ z : _ ==> _, _ ==>[ z ] _)).
       }
-    apply (@transportf_paths _ (λ α : id₁ c ==> id₁ c, _ ==>[ α] _)).
-    apply cellset_property.
-  Qed.
+      apply (@transportf_paths _ (λ α : id₁ c ==> id₁ c, _ ==>[ α] _)).
+      apply cellset_property.
+    Qed.
+  End LassociatorLassociator.
 
   Definition discrete_fiber_data_laws : prebicat_laws (discrete_fiber_data D h c).
   Proof.
