@@ -24,7 +24,7 @@ Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Invertible_2cell
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispInvertibles.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispAdjunctions.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispUnivalence.
-Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Fibration.
+Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.FiberCategory.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Identity.
