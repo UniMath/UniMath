@@ -31,6 +31,7 @@ BUILD_COQ ?= yes
 BUILD_COQIDE ?= no
 DEBUG_COQ ?= no
 COQBIN ?=
+MEMORY_LIMIT ?= 2000000
 ############################################
 SHOW := $(if $(VERBOSE),@true "",@echo "")
 HIDE := $(if $(VERBOSE),,@)
@@ -77,7 +78,8 @@ ifeq ($(BUILD_COQ),yes)
 $(VOFILES) : $(COQBIN)coqc
 endif
 
-all html install uninstall $(VOFILES): build/CoqMakefile.make ; $(MAKE) -f build/CoqMakefile.make $@
+all html install uninstall $(VOFILES): build/CoqMakefile.make
+	ulimit -v $(MEMORY_LIMIT) ; $(MAKE) -f build/CoqMakefile.make $@
 clean:: build/CoqMakefile.make; $(MAKE) -f build/CoqMakefile.make $@
 distclean:: build/CoqMakefile.make; $(MAKE) -f build/CoqMakefile.make cleanall archclean
 
@@ -143,7 +145,8 @@ TAGS : Makefile $(PACKAGE_FILES) $(VFILES)
 FILES_FILTER := grep -vE '^[[:space:]]*(\#.*)?$$'
 FILES_FILTER_2 := grep -vE '^[[:space:]]*(\#.*)?$$$$'
 $(foreach P,$(PACKAGES),												\
-	$(eval $P: make-summary-files build/CoqMakefile.make;									\
+	$(eval $P: make-summary-files build/CoqMakefile.make;								\
+		ulimit -v $(MEMORY_LIMIT) ; 										\
 		+$(MAKE) -f build/CoqMakefile.make									\
 			$(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\).v=UniMath/$P/\1.vo=" )	\
 			UniMath/$P/All.vo))
