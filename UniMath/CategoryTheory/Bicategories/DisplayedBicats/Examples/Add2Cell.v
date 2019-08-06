@@ -189,4 +189,18 @@ Section Add2Cell.
     - apply add_cell_disp_cat_univalent_2_1.
   Defined.
 
+  Definition disp_2cells_isaprop_add_cell
+    : disp_2cells_isaprop add_cell_disp_cat.
+  Proof.
+    intro; intros; exact isapropunit.
+  Qed.
+
+  Definition disp_locally_groupoid_add_cell
+    : disp_locally_groupoid add_cell_disp_cat.
+  Proof.
+    use make_disp_locally_groupoid.
+    - intro; intros. exact tt.
+    - exact disp_2cells_isaprop_add_cell.
+  Qed.
+
 End Add2Cell.

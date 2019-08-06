@@ -883,21 +883,13 @@ Proof.
 Defined.
 
 
-(** the dual of [UniMath.MoreFoundations.PartA.transportf_transpose] *)
-Lemma transportb_transpose {X : UU} {P : X → UU} {x x' : X}
-      (e : x' = x) (y : P x) (y' : P x') :
-      transportf P e y' = y -> y' = transportb P e y.
-Proof.
-intro H; induction e; exact H.
-Defined.
-
 (** the following lemma should also be put upstream *)
 Lemma transportb_isotoid (C : precategory) (H : is_univalent C)
    (a b b' : ob C) (p : iso b b') (f : a --> b') :
  transportb (λ b0 : C, a --> b0) (isotoid C H p) f = f · inv_from_iso p.
 Proof.
   apply pathsinv0.
-  apply transportb_transpose.
+  apply transportb_transpose_right.
   change (precategory_morphisms a) with (λ b0 : C, a --> b0).
   rewrite transportf_isotoid'.
   rewrite <- assoc.

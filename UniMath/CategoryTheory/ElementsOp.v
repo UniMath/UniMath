@@ -138,7 +138,7 @@ Lemma mor_to_el_mor_id {I : C} (ρ : pr1 (pr1 X I)) :
   mor_to_el_mor (identity I) ρ =
   transportb (λ Z, ∫ X⟦Z, make_ob I ρ⟧) (make_ob_identity_eq ρ) (identity _).
 Proof.
-apply (@transportf_transpose _ (λ Z : ∫ X, ∫ X ⟦Z,_⟧)), cat_of_elems_mor_eq; simpl.
+apply (@transportf_transpose_right _ (λ Z : ∫ X, ∫ X ⟦Z,_⟧)), cat_of_elems_mor_eq; simpl.
 unfold transportb; rewrite pathsinv0inv0.
 rewrite transportf_total2; simpl; rewrite transportf_make_ob_eq.
 now unfold make_ob_identity_eq; rewrite base_paths_maponpaths_make_ob, idpath_transportf.
@@ -155,7 +155,7 @@ Lemma mor_to_el_mor_comp {I J K} (ρ : pr1 (pr1 X I)) (f : C^op⟦I,J⟧) (g : C
   transportb (λ Z, ∫ X⟦Z,_⟧) (make_ob_comp_eq ρ f g)
              (mor_to_el_mor g (# (pr1 X) f ρ) · mor_to_el_mor f ρ).
 Proof.
-apply (@transportf_transpose _ (λ Z : ∫ X, ∫ X ⟦Z,_⟧)), cat_of_elems_mor_eq; simpl.
+apply (@transportf_transpose_right _ (λ Z : ∫ X, ∫ X ⟦Z,_⟧)), cat_of_elems_mor_eq; simpl.
 unfold transportb; rewrite pathsinv0inv0.
 rewrite transportf_total2; simpl; rewrite transportf_make_ob_eq.
 now unfold make_ob_comp_eq; rewrite base_paths_maponpaths_make_ob, idpath_transportf.

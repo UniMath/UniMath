@@ -15,6 +15,53 @@ Proof.
 now induction e.
 Qed.
 
+Lemma transportf_transpose_right
+      {X : UU}
+      {P : X → UU}
+      {x x' : X}
+      {e : x = x'}
+      {y : P x}
+      {y' : P x'} :
+      transportb P e y' = y -> y' = transportf P e y.
+Proof.
+  induction e; apply idfun.
+Defined.
+
+Definition transportb_transpose_right
+           {A : UU}
+           {P : A → UU}
+           {x x' : A}
+           {e : x = x'}
+           {y : P x} {y' : P x'}
+  : transportf P e y = y' → y = transportb P e y'.
+Proof.
+  induction e; apply idfun.
+Defined.
+
+Definition transportf_transpose_left
+           {X : UU}
+           {P : X → UU}
+           {x x' : X}
+           {e : x = x'}
+           {y : P x}
+           {y' : P x'}
+  : y = transportb P e y' → transportf P e y = y'.
+Proof.
+  induction e; apply idfun.
+Defined.
+
+Definition transportb_transpose_left
+           {X : UU}
+           {P : X → UU}
+           {x x' : X}
+           {e : x = x'}
+           {y : P x}
+           {y' : P x'}
+  : y' = transportf P e y → transportb P e y' = y.
+Proof.
+  induction e; apply idfun.
+Defined.
+
 (* taken from TypeTheory/Display_Cats/Auxiliary.v *)
 (** Very handy for reasoning with “dependent paths” —
 
@@ -22,15 +69,6 @@ Note: similar to [transportf_pathsinv0_var], [transportf_pathsinv0'],
 but not quite a special case of them, or (as far as I can find) any other
 library lemma.
  *)
-
-
-
-Lemma transportf_transpose {X : UU} {P : X → UU} {x x' : X}
-      (e : x = x') (y : P x) (y' : P x') :
-      transportb P e y' = y -> y' = transportf P e y.
-Proof.
-intro H; induction e; exact H.
-Defined.
 
 Definition transportf_pathsinv0 {X} (P:X->UU) {x y:X} (p:x = y) (u:P x) (v:P y) :
   transportf _ (!p) v = u -> transportf _ p u = v.

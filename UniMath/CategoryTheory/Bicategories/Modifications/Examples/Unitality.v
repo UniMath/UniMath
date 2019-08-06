@@ -121,12 +121,12 @@ Section LeftUnitality.
     apply idpath.
   Qed.
 
-  Definition pstrans_left_unit_right_inverse
-    : modification
+  Definition pstrans_linvunitor_lunitor
+    : invertible_modification
         (comp_trans (pstrans_linvunitor F) (pstrans_lunitor F))
         (id_trans _).
   Proof.
-    use make_modification.
+    use make_invertible_modification.
     - exact pstrans_linvunitor_lunitor_data.
     - exact pstrans_linvunitor_lunitor_is_modification.
   Defined.
@@ -227,11 +227,11 @@ Section RightUnitality.
   Qed.
 
   Definition pstrans_rinvunitor_runitor
-    : modification
+    : invertible_modification
         (comp_trans (pstrans_rinvunitor F) (pstrans_runitor F))
         (id_trans _).
   Proof.
-    use make_modification.
+    use make_invertible_modification.
     - exact pstrans_rinvunitor_runitor_data.
     - exact pstrans_rinvunitor_runitor_is_modification.
   Defined.

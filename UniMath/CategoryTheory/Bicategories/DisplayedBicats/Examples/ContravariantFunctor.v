@@ -306,4 +306,18 @@ Section fix_a_category.
     - exact disp_presheaves_is_univalent_2_1.
   Defined.
 
+  Definition disp_2cells_isaprop_presheaf
+    : disp_2cells_isaprop disp_presheaf_bicat.
+  Proof.
+    intro; intros.
+    apply isaset_nat_trans.
+    apply K.
+  Qed.
+
+  Definition disp_locally_groupoid_presheaf
+    : disp_locally_groupoid disp_presheaf_bicat.
+  Proof.
+    intro; intros.
+    apply disp_presheaves_all_invertible.
+  Qed.
 End fix_a_category.
