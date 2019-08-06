@@ -21,7 +21,9 @@ Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Composition.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Identity.
 Require Import UniMath.CategoryTheory.Bicategories.Transformations.PseudoTransformation.
+Require Import UniMath.CategoryTheory.Bicategories.Transformations.Examples.Unitality.
 Require Import UniMath.CategoryTheory.Bicategories.Modifications.Modification.
+Require Import UniMath.CategoryTheory.Bicategories.Modifications.Examples.Unitality.
 
 Import PseudoFunctor.Notations.
 
@@ -311,3 +313,18 @@ Proof.
 Defined.
 
 End Pointwise.
+
+Definition id_is_biequivalence (B : bicat) : is_biequivalence (ps_id_functor B).
+Proof.
+  use make_is_biequivalence_from_unit_counit.
+  - exact (ps_id_functor B).
+  - use tpair.
+    + apply pstrans_lunitor.
+    + apply pstrans_lunitor.
+  - apply pstrans_linvunitor.
+  - apply pstrans_linvunitor.
+  - apply pstrans_lunitor_linvunitor.
+  - apply pstrans_linvunitor_lunitor.
+  - apply pstrans_lunitor_linvunitor.
+  - apply pstrans_linvunitor_lunitor.
+Defined.

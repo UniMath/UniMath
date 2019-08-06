@@ -817,4 +817,27 @@ Section Disp_Dirprod.
       * exact (pr2 HD2).
   Defined.
 
+  Definition disp_2cells_isaprop_prod
+             (HD1 : disp_2cells_isaprop D1)
+             (HD2 : disp_2cells_isaprop D2)
+    : disp_2cells_isaprop disp_dirprod_bicat.
+  Proof.
+    intro; intros.
+    apply isapropdirprod.
+    - apply HD1.
+    - apply HD2.
+  Qed.
+
+  Definition disp_locally_groupoid_prod
+             (HD1 : disp_locally_groupoid D1)
+             (HD2 : disp_locally_groupoid D2)
+    : disp_locally_groupoid disp_dirprod_bicat.
+  Proof.
+    intros a b f g x aa bb ff gg xx.
+    apply pair_is_disp_invertible_2cell.
+    split.
+    - apply HD1.
+    - apply HD2.
+  Qed.
+
 End Disp_Dirprod.

@@ -333,30 +333,89 @@ End Projections.
 Arguments iso _ _ _ : clear implicits.
 
 Section CwF.
-  Definition cwf : bicat.
+  Definition disp_cwf' : disp_bicat (morphisms_of_presheaves SET).
   Proof.
-    refine (fullsubbicat (morphisms_of_presheaves SET) _).
+    refine (disp_fullsubbicat (morphisms_of_presheaves SET) _).
     intros (C, ((Ty, Tm), pp)).
     cbn in *.
     exact (@cwf_representation C _ _ pp).
   Defined.
 
+  Definition disp_cwf : disp_bicat bicat_of_cats
+    := sigma_bicat _ _ disp_cwf'.
+
+  Definition disp_2cells_isaprop_disp_cwf
+    : disp_2cells_isaprop disp_cwf.
+  Proof.
+    apply disp_2cells_isaprop_sigma.
+    - apply disp_2cells_isaprop_morphisms_of_presheaves_display.
+    - apply disp_2cells_isaprop_fullsubbicat.
+  Qed.
+
+  Definition disp_locally_groupoid_disp_cwf
+    : disp_locally_groupoid disp_cwf.
+  Proof.
+    apply disp_locally_groupoid_sigma.
+    - exact univalent_cat_is_univalent_2.
+    - apply disp_2cells_isaprop_morphisms_of_presheaves_display.
+    - apply disp_2cells_isaprop_fullsubbicat.
+    - apply disp_locally_groupoid_morphisms_of_presheaves_display.
+    - apply disp_locally_groupoid_fullsubbicat.
+  Qed.
+
+  Definition cwf : bicat
+    := total_bicat disp_cwf.
+
+  Lemma disp_univalent_2_1_morphisms_of_presheaf_display
+    : disp_univalent_2_1 (morphisms_of_presheaves_display SET).
+  Proof.
+    apply sigma_disp_univalent_2_1_with_props.
+    - apply disp_2cells_isaprop_prod ; apply disp_2cells_isaprop_presheaf.
+    - apply disp_2cells_isaprop_cofunctormaps.
+    - apply disp_two_presheaves_is_univalent_2_1.
+    - apply disp_cofunctormaps_bicat_univalent_2_1.
+  Qed.
+
+  Lemma disp_univalent_2_0_morphisms_of_presheaf_display
+    : disp_univalent_2_0 (morphisms_of_presheaves_display SET).
+  Proof.
+    apply sigma_disp_univalent_2_0_with_props.
+    - exact univalent_cat_is_univalent_2.
+    - apply disp_2cells_isaprop_prod ; apply disp_2cells_isaprop_presheaf.
+    - apply disp_2cells_isaprop_cofunctormaps.
+    - apply disp_two_presheaves_is_univalent_2_1.
+    - apply disp_cofunctormaps_bicat_univalent_2_1.
+    - apply disp_locally_groupoid_prod ; apply disp_locally_groupoid_presheaf.
+    - apply disp_locally_groupoid_cofunctormaps.
+    - apply disp_two_presheaves_is_univalent_2_0.
+    - apply disp_cofunctormaps_bicat_univalent_2_0.
+  Qed.
+
   Definition cwf_is_univalent_2_1
     : is_univalent_2_1 cwf.
   Proof.
-    apply is_univalent_2_1_fullsubbicat.
-    apply morphisms_of_presheaves_univalent_2_1.
-  Defined.
+    apply sigma_is_univalent_2_1.
+    - exact univalent_cat_is_univalent_2_1.
+    - exact disp_univalent_2_1_morphisms_of_presheaf_display.
+    - apply disp_fullsubbicat_univalent_2_1.
+  Qed.
 
   Definition cwf_is_univalent_2_0
     : is_univalent_2_0 cwf.
   Proof.
-    apply is_univalent_2_0_fullsubbicat.
-    - apply morphisms_of_presheaves_univalent_2.
-    - intros C.
-      apply isaprop_cwf_representation.
-      apply (pr1 C).
-  Defined.
+    apply sigma_is_univalent_2_0.
+    - exact univalent_cat_is_univalent_2.
+    - split.
+      + exact disp_univalent_2_0_morphisms_of_presheaf_display.
+      + exact disp_univalent_2_1_morphisms_of_presheaf_display.
+    - split.
+      + apply disp_univalent_2_0_fullsubbicat.
+        * apply morphisms_of_presheaves_univalent_2.
+        * intros C.
+          apply isaprop_cwf_representation.
+          apply (pr1 C).
+      + apply disp_fullsubbicat_univalent_2_1.
+  Qed.
 
   Definition cwf_is_univalent_2
     : is_univalent_2 cwf.
@@ -365,5 +424,4 @@ Section CwF.
     - exact cwf_is_univalent_2_0.
     - exact cwf_is_univalent_2_1.
   Defined.
-
 End CwF.

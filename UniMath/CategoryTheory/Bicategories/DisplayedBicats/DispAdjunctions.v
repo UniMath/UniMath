@@ -546,13 +546,13 @@ Definition left_adjoint_axioms_total_to_fiber
     (left_adjoint_data_total_to_fiber td).
 Proof.
   use tpair.
-  - apply (transportf_transpose (P:=λ x, _ ==>[x] _)).
+  - apply (transportf_transpose_right (P:=λ x, _ ==>[x] _)).
     etrans; [| apply (fiber_paths (pr1 ta)) ].
-    apply (transportf_transpose (P:=λ x, _ ==>[x] _)).
+    apply (transportf_transpose_right (P:=λ x, _ ==>[x] _)).
     apply (transportfbinv (λ x, _ ==>[x] _)).
-  - apply (transportf_transpose (P:=λ x, _ ==>[x] _)).
+  - apply (transportf_transpose_right (P:=λ x, _ ==>[x] _)).
     etrans; [| apply (fiber_paths (pr2 ta)) ].
-    apply (transportf_transpose (P:=λ x, _ ==>[x] _)).
+    apply (transportf_transpose_right (P:=λ x, _ ==>[x] _)).
     apply (transportfbinv (λ x, _ ==>[x] _)).
 Qed.
 

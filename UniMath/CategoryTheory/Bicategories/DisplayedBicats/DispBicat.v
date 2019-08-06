@@ -29,15 +29,6 @@ Local Open Scope mor_disp_scope.
 (* =================================================================================== *)
 
 (* ----------------------------------------------------------------------------------- *)
-(** ** Miscellanea.                                                                    *)
-(* ----------------------------------------------------------------------------------- *)
-
-Definition transportf_transpose_alt {X : UU} {P : X → UU}
-           {x x' : X} {e : x = x'} {y : P x} {y' : P x'} {p : y = transportb P e y'}
-  : transportf P e y = y'
-  := !transportf_transpose _ _ _ (!p).
-
-(* ----------------------------------------------------------------------------------- *)
 (** ** Transport of displayed cells.
 
     Transport of displayed cells is used pervasively, to make the code more terse
@@ -520,7 +511,7 @@ Definition disp_vassocr' {a b : C} {f g h k : C⟦a,b⟧}
   : transportf (λ α, _ ==>[α] _) (vassocr _ _ _) (ηη •• (φφ •• ψψ)) =
     ((ηη •• φφ) •• ψψ).
 Proof.
-  use (transportf_transpose_alt (P := λ x' : f ==> k, ff ==>[x'] kk)).
+  use (transportf_transpose_left (P := λ x' : f ==> k, ff ==>[x'] kk)).
   apply disp_vassocr.
 Defined.
 
@@ -695,7 +686,7 @@ Lemma disp_vassocl {D : disp_prebicat} {a b : C} {f g h k : C⟦a,b⟧}
   : (ηη •• φφ) •• ψψ
     = transportb (λ α, _ ==>[α] _) (vassocl _ _ _) (ηη •• (φφ •• ψψ)).
 Proof.
-  apply (transportf_transpose (P := λ x', _ ==>[x'] _)).
+  apply (transportf_transpose_right (P := λ x', _ ==>[x'] _)).
   apply pathsinv0.
   etrans.
   apply disp_vassocr.
@@ -1091,7 +1082,7 @@ Definition disp_lwhisker_vcomp_alt
     transportf (λ α, _ ==>[α] _) (lwhisker_vcomp _ _ _) ((ff ◃◃ ηη) •• (ff ◃◃ φφ)).
 Proof.
   refine (!_).
-  apply (@transportf_transpose_alt _ (λ α, _ ==>[α] _)).
+  apply (@transportf_transpose_left _ (λ α, _ ==>[α] _)).
   apply disp_lwhisker_vcomp.
 Qed.
 
@@ -1106,7 +1097,7 @@ Definition disp_rwhisker_vcomp_alt
     transportf (λ α, _ ==>[α] _) (rwhisker_vcomp _ _ _) ((ηη ▹▹ ii) •• (φφ ▹▹ ii)).
 Proof.
   refine (!_).
-  apply (@transportf_transpose_alt _ (λ α, _ ==>[α] _)).
+  apply (@transportf_transpose_left _ (λ α, _ ==>[α] _)).
   apply disp_rwhisker_vcomp.
 Qed.
 
@@ -1121,7 +1112,7 @@ Definition disp_vcomp_whisker_alt
     transportf (λ α, _ ==>[α] _) (vcomp_whisker _ _) ((ηη ▹▹ hh) •• (gg ◃◃ φφ)).
 Proof.
   refine (!_).
-  apply (@transportf_transpose_alt _ (λ α, _ ==>[α] _)).
+  apply (@transportf_transpose_left _ (λ α, _ ==>[α] _)).
   apply disp_vcomp_whisker.
 Qed.
 
@@ -1133,7 +1124,7 @@ Definition disp_id2_rwhisker_alt
     =
     disp_id2 (ff ;; gg).
 Proof.
-  apply (@transportf_transpose_alt _ (λ α, _ ==>[α] _)).
+  apply (@transportf_transpose_left _ (λ α, _ ==>[α] _)).
   apply disp_id2_rwhisker.
 Qed.
 
@@ -1315,7 +1306,7 @@ Theorem disp_runitor_lunitor_identity {C : bicat} {D : disp_bicat C} {a : C} (aa
     transportb (λ x, disp_2cells x _ _) (runitor_lunitor_identity a)
                (disp_lunitor (id_disp aa)).
 Proof.
-  apply (transportf_transpose (P := (λ x, disp_2cells x _ _))).
+  apply (transportf_transpose_right (P := (λ x, disp_2cells x _ _))).
   apply pathsinv0.
   etrans.
   1: now apply disp_lunitor_runitor_identity.
@@ -1334,6 +1325,62 @@ Proof.
   use (J_2_0 HB (λ _ _ _, _)).
   intros c aa.
   exact (aa ,, internal_adjoint_equivalence_identity _).
+Defined.
+
+(* ----------------------------------------------------------------------------------- *)
+(** ** Useful properties                                                               *)
+(* ----------------------------------------------------------------------------------- *)
+
+Definition disp_2cells_isaprop
+           {B : bicat} (D : disp_bicat B)
+  := ∏ (a b : B) (f g : a --> b) (x : f ==> g)
+       (aa : D a) (bb : D b) (ff : aa -->[f] bb) (gg : aa -->[g] bb),
+     isaprop (disp_2cells x ff gg).
+
+Definition disp_locally_groupoid
+           {B : bicat} (D : disp_bicat B)
+  := ∏ (a b : B) (f g : a --> b) (x : invertible_2cell f g)
+       (aa : D a) (bb : D b) (ff : aa -->[f] bb) (gg : aa -->[g] bb)
+       (xx : disp_2cells x ff gg), is_disp_invertible_2cell x xx.
+
+Definition disp_locally_sym
+           {B : bicat} (D : disp_bicat B)
+  := ∏ (a b : B) (f g : a --> b) (x : invertible_2cell f g)
+       (aa : D a) (bb : D b) (ff : aa -->[f] bb) (gg : aa -->[g] bb)
+       (xx : disp_2cells x ff gg), disp_2cells (x^-1) gg ff.
+
+Definition make_disp_locally_groupoid
+           {B : bicat} (D : disp_bicat B)
+           (H : disp_locally_sym D)
+           (HD : disp_2cells_isaprop D)
+  : disp_locally_groupoid D.
+Proof.
+  intros a b f g x aa bb ff gg xx.
+  use tpair.
+  - apply H.
+    exact xx.
+  - split; apply HD.
+Defined.
+
+Definition disp_locally_groupoid_over_id
+           {B : bicat} (D : disp_bicat B)
+  : UU
+  := ∏ (a b : B)
+       (f : B ⟦ a, b ⟧)
+       (aa : D a)
+       (bb : D b)
+       (ff gg : aa -->[ f] bb)
+       (xx : disp_2cells (id2_invertible_2cell f) ff gg),
+     is_disp_invertible_2cell (is_invertible_2cell_id₂ f) xx.
+
+Definition make_disp_locally_groupoid_univalent_2_1
+           {B : bicat} (D : disp_bicat B)
+           (HD : disp_locally_groupoid_over_id D)
+           (HB : is_univalent_2_1 B)
+  : disp_locally_groupoid D.
+Proof.
+  use (J_2_1 HB).
+  exact HD.
 Defined.
 
 (* ----------------------------------------------------------------------------------- *)

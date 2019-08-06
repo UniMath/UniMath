@@ -1142,4 +1142,16 @@ Section Algebra.
     - apply bicat_algebra_is_univalent_2_0. assumption.
     - apply bicat_algebra_is_univalent_2_1. exact (pr2 HC).
   Defined.
+
+  Definition disp_2cells_isaprop_alg : disp_2cells_isaprop disp_alg_bicat.
+  Proof.
+    intro; intros; apply C.
+  Qed.
+
+  Definition disp_locally_groupoid_alg : disp_locally_groupoid disp_alg_bicat.
+  Proof.
+    intro; intros.
+    apply disp_alg_bicat_disp_is_invertible_2cell.
+  Qed.
+
 End Algebra.

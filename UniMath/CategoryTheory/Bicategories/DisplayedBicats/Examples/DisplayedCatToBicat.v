@@ -271,3 +271,23 @@ Proof.
   intro ; intros.
   apply iscontrunit.
 Defined.
+
+Definition disp_2cells_isaprop_cell_unit_bicat
+           {C : bicat}
+           (D : disp_cat_data C)
+  : disp_2cells_isaprop (disp_cell_unit_bicat D).
+Proof.
+  intro; intros.
+  apply isapropifcontr.
+  apply (is_chaotic_disp_bicat_cells_unit D).
+Qed.
+
+Definition disp_locally_groupoid_cell_unit_bicat
+           {C : bicat}
+           (D : disp_cat_data C)
+  : disp_locally_groupoid (disp_cell_unit_bicat D).
+Proof.
+  use make_disp_locally_groupoid.
+  - intro; intros; exact tt.
+  - exact (disp_2cells_isaprop_cell_unit_bicat D).
+Qed.
