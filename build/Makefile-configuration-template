@@ -33,4 +33,4 @@ COQBIN =
 PACKAGES =
 
 # Memory limit, expressed as a multiple of 1024 bytes, for the command "ulimit -v".
-MEMORY_LIMIT = 2000000
+MEMORY_LIMIT = 2500000

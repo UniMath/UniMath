@@ -31,7 +31,7 @@ BUILD_COQ ?= yes
 BUILD_COQIDE ?= no
 DEBUG_COQ ?= no
 COQBIN ?=
-MEMORY_LIMIT ?= 2000000
+MEMORY_LIMIT ?= 2500000
 ############################################
 SHOW := $(if $(VERBOSE),@true "",@echo "")
 HIDE := $(if $(VERBOSE),,@)
