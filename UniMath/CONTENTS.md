@@ -313,6 +313,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Bicategories/DisplayedBicats/Examples/DispBicatOfDispCats.v](CategoryTheory/Bicategories/DisplayedBicats/Examples/DispBicatOfDispCats.v)
    - [Bicategories/DisplayedBicats/Examples/DisplayedCatToBicat.v](CategoryTheory/Bicategories/DisplayedBicats/Examples/DisplayedCatToBicat.v)
    - [Bicategories/DisplayedBicats/Examples/Prod.v](CategoryTheory/Bicategories/DisplayedBicats/Examples/Prod.v)
+   - [Bicategories/DisplayedBicats/Examples/DispDepProd.v](CategoryTheory/Bicategories/DisplayedBicats/Examples/DispDepProd.v)
    - [Bicategories/DisplayedBicats/Examples/FullSub.v](CategoryTheory/Bicategories/DisplayedBicats/Examples/FullSub.v)
    - [Bicategories/DisplayedBicats/Examples/Trivial.v](CategoryTheory/Bicategories/DisplayedBicats/Examples/Trivial.v)
    - [Bicategories/Bicategories/Examples/Groupoids.v](CategoryTheory/Bicategories/Bicategories/Examples/Groupoids.v)

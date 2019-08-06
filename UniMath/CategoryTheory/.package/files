@@ -214,6 +214,7 @@ Bicategories/DisplayedBicats/Examples/Sigma.v
 Bicategories/DisplayedBicats/Examples/DispBicatOfDispCats.v
 Bicategories/DisplayedBicats/Examples/DisplayedCatToBicat.v
 Bicategories/DisplayedBicats/Examples/Prod.v
+Bicategories/DisplayedBicats/Examples/DispDepProd.v
 Bicategories/DisplayedBicats/Examples/FullSub.v
 Bicategories/DisplayedBicats/Examples/Trivial.v
 
