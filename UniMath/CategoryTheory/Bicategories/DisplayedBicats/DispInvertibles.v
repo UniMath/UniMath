@@ -154,11 +154,11 @@ Section Prop_disp_invertible_2cell.
     - exact (pr1 z).
     - split ; cbn.
       + cbn in *.
-        apply (@transportf_transpose _ (λ α : f ==> f, ff ==>[ α] ff)).
+        apply (@transportf_transpose_right _ (λ α : f ==> f, ff ==>[ α] ff)).
         refine (_ @ fiber_paths (pr1 (pr2 z))).
         apply (@transportf_paths _ (λ α : f ==> f, ff ==>[ α] ff)).
         apply C.
-      + apply (@transportf_transpose _ (λ α : g ==> g, gg ==>[ α] gg)).
+      + apply (@transportf_transpose_right _ (λ α : g ==> g, gg ==>[ α] gg)).
         refine (_ @ fiber_paths (pr2 (pr2 z))).
         apply (@transportf_paths _ (λ α : g ==> g, gg ==>[ α] gg)).
         apply C.
@@ -399,11 +399,11 @@ Section Total_invertible_2cells.
     - exact ii.
     - cbn.
       split.
-      * apply (@transportf_transpose _ (λ α : f ==> f, ff ==>[ α] ff)).
+      * apply (@transportf_transpose_right _ (λ α : f ==> f, ff ==>[ α] ff)).
         refine (_ @ fiber_paths Hz1).
         apply (@transportf_paths _ (λ α : f ==> f, ff ==>[ α] ff)).
         apply pathsinv0inv0.
-      * apply (@transportf_transpose _ (λ α : g ==> g, gg ==>[ α] gg)).
+      * apply (@transportf_transpose_right _ (λ α : g ==> g, gg ==>[ α] gg)).
         refine (_ @ fiber_paths Hz2).
         apply (@transportf_paths _ (λ α : g ==> g, gg ==>[ α] gg)).
         apply pathsinv0inv0.

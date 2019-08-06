@@ -194,7 +194,7 @@ Lemma id_left_disp_var {C} {D : disp_precat C}
   {x y} {f : x --> y} {xx : D x} {yy} {ff : xx -->[f] yy}
 : ff = transportf _ (id_left _) (id_disp _ ;; ff).
 Proof.
-  apply transportf_transpose.
+  apply transportf_transpose_right.
   apply @pathsinv0, id_left_disp.
 Qed.
 
@@ -207,7 +207,7 @@ Definition id_right_disp_var {C} {D : disp_precat C}
   {x y} {f : x --> y} {xx : D x} {yy} {ff : xx -->[f] yy}
   : ff = transportf _ (id_right _) (ff ;; id_disp _).
 Proof.
-  apply transportf_transpose.
+  apply transportf_transpose_right.
   apply @pathsinv0, id_right_disp.
 Qed.
 
