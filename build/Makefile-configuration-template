@@ -34,3 +34,6 @@ PACKAGES =
 
 # Memory limit, expressed as a multiple of 1024 bytes, for the command "ulimit -v".
 MEMORY_LIMIT = 2500000
+
+# Whether to apply the memory limit.  This will be set to "yes" when a pull request is tested.
+LIMIT_MEMORY = no
