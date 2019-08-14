@@ -75,6 +75,7 @@ Definition add_unit (C : bicat)
 Proof.
   use add_cell_disp_cat.
   - exact (ps_id_functor _).
+  - exact (ps_id_functor _).
   - exact (var _ _).
   - exact (alg_map _).
 Defined.
@@ -83,6 +84,7 @@ Definition add_mu (C : bicat)
   : disp_bicat (monad_support C).
 Proof.
   use add_cell_disp_cat.
+  - exact (ps_id_functor _).
   - exact (ps_id_functor _).
   - exact ((alg_map _) · (alg_map _)).
   - exact (alg_map _).

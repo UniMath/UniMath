@@ -267,6 +267,7 @@ Bicategories/DisplayedBicats/Examples/KleisliTriple.v
 Bicategories/DisplayedBicats/DispTransformation.v
 Bicategories/DisplayedBicats/DispModification.v
 Bicategories/DisplayedBicats/DispBiequivalence.v
+Bicategories/DisplayedBicats/DispBiadjunction.v
 
 Bicategories/Bicategories/YonedaLemma.v
 
