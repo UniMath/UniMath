@@ -1,3 +1,8 @@
+(**
+Dependent product of diplayed bicategories.
+If we have a type `J` and a family indexed by `J` of displayed bicategories on `J`,
+then we can assemble this into a displayed bicategory whose objects are dependent functions.
+*)
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
