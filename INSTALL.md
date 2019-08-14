@@ -309,3 +309,12 @@ This package is not among the build dependencies for older versions of Coq.
   checks can be skipped the same way.  For example, if you intend to make a
   change to the Foundations package, then you can add `-o
   check-for-change-to-Foundations` to the "make" command line.
+
+- Memory limits: pull requests are tested automatically by "travis" at github,
+  and at that point, a memory limit is imposed to ensure reproducibility of
+  results to and to prevent excessive memory usage.  To apply the same memory
+  limit on your own machine before submitting a pull request, add
+  `LIMIT_MEMORY=yes` to the `make` command line.  Unfortunately, under Mac OS
+  X, such memory limits are ineffective, so you may prefer to run the test
+  under Linux.
+  
