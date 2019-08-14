@@ -267,7 +267,6 @@ Bicategories/DisplayedBicats/Examples/KleisliTriple.v
 Bicategories/DisplayedBicats/DispTransformation.v
 Bicategories/DisplayedBicats/DispModification.v
 Bicategories/DisplayedBicats/DispBiequivalence.v
-Bicategories/DisplayedBicats/DispBiadjunction.v
 
 Bicategories/Bicategories/YonedaLemma.v
 
@@ -275,6 +274,7 @@ Bicategories/Colimits/Initial.v
 Bicategories/Colimits/Final.v
 
 Bicategories/PseudoFunctors/Biadjunction.v
+Bicategories/DisplayedBicats/DispBiadjunction.v
 Bicategories/PseudoFunctors/Examples/PathGroupoid.v
 Bicategories/DisplayedBicats/DisplayToFiber.v
 Bicategories/DisplayedBicats/DispBuilders.v
