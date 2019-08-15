@@ -22,6 +22,7 @@ Import DispBicat.Notations.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Unitors.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Adjunctions.
 Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Univalence.
+Require Import UniMath.CategoryTheory.Bicategories.Bicategories.Examples.OneTypes.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispAdjunctions.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat.
@@ -38,16 +39,17 @@ Section Add2Cell.
   Local Notation E := (total_bicat D).
   Local Notation F := (pr1_psfunctor D).
 
-  Variable (S : psfunctor C C)
-           (l r : pstrans (@ps_comp E C C S F)
-                          (@ps_comp E C C (ps_id_functor C) F)).
+  Variable (S T : psfunctor C C)
+           (l r : pstrans
+                    (@ps_comp E C C S F)
+                    (@ps_comp E C C T F)).
 
   Definition add_cell_disp_cat_data : disp_cat_ob_mor E.
   Proof.
-    use tpair.
+    use make_disp_cat_ob_mor.
     - exact (λ X, l X ==> r X).
     - exact (λ X Y α β f,
-             (α ▹ #F f)
+             (α ▹ #T(#F f))
                • psnaturality_of r f
              =
              (psnaturality_of l f)
@@ -57,23 +59,44 @@ Section Add2Cell.
   Definition add_cell_disp_cat_id_comp : disp_cat_id_comp E add_cell_disp_cat_data.
   Proof.
     split.
-    - intros x xx ; cbn.
+    - intros x xx.
       pose (pstrans_id_alt l x) as p.
-      cbn in p ; rewrite p ; clear p.
+      simpl.
+      cbn in p.
+      rewrite !psfunctor_id2 in p.
+      rewrite id2_left, id2_right in p.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths_2.
+        exact p.
+      }
+      clear p.
+      refine (!_).
       pose (pstrans_id_alt r x) as p.
-      cbn in p ; rewrite p ; clear p.
-      rewrite !id2_right, !lwhisker_id2, !id2_left.
+      cbn in p.
+      rewrite !psfunctor_id2 in p.
+      rewrite id2_left, id2_right in p.
+      etrans.
+      {
+        apply maponpaths.
+        exact p.
+      }
+      clear p.
+      rewrite !vassocr.
+      rewrite vcomp_whisker.
+      rewrite !vassocl.
+      apply maponpaths.
       rewrite !vassocr.
       rewrite vcomp_runitor.
       rewrite !vassocl.
       apply maponpaths.
       rewrite !vassocr.
       rewrite linvunitor_natural.
-      rewrite !vassocl.
-      apply maponpaths.
       rewrite <- lwhisker_hcomp.
+      rewrite !vassocl.
       rewrite vcomp_whisker.
-      reflexivity.
+      apply idpath.
     - intros x y z f g xx yy zz Hf Hg ; cbn.
       pose (pstrans_comp_alt l f g) as pl.
       pose (pstrans_comp_alt r f g) as pr.
@@ -146,37 +169,39 @@ Section Add2Cell.
     - intros x xx yy.
       simpl in *.
       apply C.
-    - intros x xx yy.
-      intros p.
-      induction p as [p q].
-      cbn ; unfold idfun.
-      cbn in p, q.
-      pose (pstrans_id_alt l) as pl.
-      cbn in pl ; rewrite pl in p ; clear pl.
-      pose (pstrans_id_alt r) as pr.
-      cbn in pr ; rewrite pr in p ; clear pr.
-      cbn in p.
-      rewrite !id2_right in p.
-      rewrite !lwhisker_id2 in p.
-      rewrite !id2_left in p.
-      rewrite !vassocr in p.
-      rewrite vcomp_runitor in p.
-      rewrite !vassocl in p.
-      pose (vcomp_lcancel _ (is_invertible_2cell_runitor _) p) as p'.
-      use (vcomp_rcancel (linvunitor (r x))).
-      { is_iso. }
-      use (vcomp_rcancel  (psfunctor_id S (pr1 x) ▹ r x)).
-      { is_iso.
-        exact (psfunctor_id S (pr1 x)).
-      }
-      rewrite !vassocl.
-      rewrite psfunctor_id2, id2_right in p'.
-      refine (p' @ _).
-      rewrite vcomp_whisker.
-      rewrite !vassocr.
-      apply maponpaths_2.
-      rewrite lwhisker_hcomp.
-      exact (!(linvunitor_natural _)).
+    - abstract
+        (intros x xx yy;
+         intros p;
+         induction p as [p q];
+         cbn ; unfold idfun;
+         cbn in p, q;
+         pose (pstrans_id_alt l) as pl;
+         cbn in pl ; rewrite pl in p ; clear pl;
+         pose (pstrans_id_alt r) as pr;
+         cbn in pr ; rewrite pr in p ; clear pr;
+         cbn in p;
+         rewrite !psfunctor_id2 in p;
+         rewrite !id2_right, !id2_left in p;
+         rewrite !vassocr in p;
+         rewrite vcomp_whisker in p;
+         rewrite !vassocl in p;
+         assert (is_invertible_2cell (l x ◃ ((pr122 T) (pr1 x)) ^-1)) as H;
+         try is_iso ;
+         pose (vcomp_lcancel _ H p) as p';
+         rewrite !vassocr in p';
+         rewrite vcomp_runitor in p';
+         rewrite !vassocl in p';
+         pose (vcomp_lcancel _ (is_invertible_2cell_runitor _) p') as p'';
+         use (vcomp_rcancel (linvunitor (r x))) ; try is_iso;
+         use (vcomp_rcancel  (psfunctor_id S (pr1 x) ▹ r x))
+         ; try (is_iso ; exact (psfunctor_id S (pr1 x)));
+         rewrite !vassocl;
+         refine (p'' @ _);
+         rewrite vcomp_whisker;
+         rewrite !vassocr;
+         apply maponpaths_2;
+         rewrite lwhisker_hcomp;
+         exact (!(linvunitor_natural _))).
   Defined.
 
   Definition add_cell_disp_cat_univalent_2

@@ -217,6 +217,7 @@ Bicategories/DisplayedBicats/Examples/Sigma.v
 Bicategories/DisplayedBicats/Examples/DispBicatOfDispCats.v
 Bicategories/DisplayedBicats/Examples/DisplayedCatToBicat.v
 Bicategories/DisplayedBicats/Examples/Prod.v
+Bicategories/DisplayedBicats/Examples/DispDepProd.v
 Bicategories/DisplayedBicats/Examples/FullSub.v
 Bicategories/DisplayedBicats/Examples/Trivial.v
 
@@ -273,6 +274,7 @@ Bicategories/Colimits/Initial.v
 Bicategories/Colimits/Final.v
 
 Bicategories/PseudoFunctors/Biadjunction.v
+Bicategories/DisplayedBicats/DispBiadjunction.v
 Bicategories/PseudoFunctors/Examples/PathGroupoid.v
 Bicategories/DisplayedBicats/DisplayToFiber.v
 Bicategories/DisplayedBicats/DispBuilders.v

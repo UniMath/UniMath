@@ -308,6 +308,31 @@ Section PseudoFunctorDerivedLaws.
     rewrite !vassocr.
     exact (!(psfunctor_runitor F f)).
   Qed.
+
+  Definition psfunctor_lassociator_alt
+             {a b c d : C}
+             (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : C⟦c, d⟧)
+    : (psfunctor_comp F f (g · h))
+        • ##F (lassociator _ _ _)
+        • (psfunctor_comp F (f · g) h)^-1
+        • ((psfunctor_comp F f g)^-1 ▹ #F h)
+        • rassociator _ _ _
+      =
+      #F f ◃ (psfunctor_comp F g h)^-1.
+  Proof.
+    use vcomp_move_R_Mp.
+    { is_iso. }
+    use vcomp_move_R_Mp.
+    { is_iso. }
+    use vcomp_move_R_Mp.
+    { is_iso. }
+    rewrite !vassocl.
+    use vcomp_move_L_pM.
+    { is_iso. }
+    cbn.
+    rewrite !vassocr.
+    apply (psfunctor_lassociator F f g h).
+  Qed.
 End PseudoFunctorDerivedLaws.
 
 Section PseudoFunctorLocalFunctor.

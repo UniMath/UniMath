@@ -26,6 +26,9 @@ Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.PseudoFunctor.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Identity.
 Require Import UniMath.CategoryTheory.Bicategories.PseudoFunctors.Examples.Composition.
 Require Import UniMath.CategoryTheory.Bicategories.Transformations.PseudoTransformation.
+Require Import UniMath.CategoryTheory.Bicategories.Transformations.Examples.Whiskering.
+Require Import UniMath.CategoryTheory.Bicategories.Transformations.Examples.Unitality.
+Require Import UniMath.CategoryTheory.Bicategories.Transformations.Examples.Associativity.
 Require Import UniMath.CategoryTheory.Bicategories.DisplayedBicats.DispPseudofunctor.
 
 Import PseudoFunctor.Notations.
@@ -312,3 +315,455 @@ Definition disp_ps_comp : disp_pstrans _ _ (comp_trans η₁ η₂)
   := disp_ps_comp_data,, disp_ps_comp_laws.
 
 End DispTrans_comp.
+
+Definition disp_inv_invertible
+           {B : bicat}
+           {D : disp_bicat B}
+           {x y : B}
+           {f g : x --> y}
+           {α : invertible_2cell f g}
+           {xx : D x} {yy : D y}
+           {ff : xx -->[ f ] yy} {gg : xx -->[ g ] yy}
+           (αα : disp_invertible_2cell α ff gg)
+  : disp_invertible_2cell (inv_of_invertible_2cell α) gg ff.
+Proof.
+  use tpair.
+  - exact (disp_inv_cell αα).
+  - use tpair.
+    + apply αα.
+    + split ; cbn.
+      * apply disp_vcomp_linv.
+      * apply disp_vcomp_rinv.
+Defined.
+
+Section DispTrans_lwhisker.
+
+Context {B₁ B₂ B₃ : bicat}
+        {F₁ F₂ : psfunctor B₁ B₂}
+        {G : psfunctor B₂ B₃}
+        {η : pstrans F₁ F₂}
+        {D₁ : disp_bicat B₁}
+        {D₂ : disp_bicat B₂}
+        {D₃ : disp_bicat B₃}
+        {FF₁ : disp_psfunctor D₁ D₂ F₁}
+        {FF₂ : disp_psfunctor D₁ D₂ F₂}
+        (GG : disp_psfunctor D₂ D₃ G)
+        (ηη : disp_pstrans FF₁ FF₂ η).
+
+Local Notation "αα '••' ββ" := (vcomp_disp_invertible αα ββ).
+
+Definition disp_left_whisker_data
+  : disp_pstrans_data
+      (disp_pseudo_comp _ _ _ _ _ FF₁ GG)
+      (disp_pseudo_comp _ _ _ _ _ FF₂ GG)
+      (G ◅ η).
+Proof.
+  use make_disp_pstrans_data; cbn.
+  - exact (λ x xx, pr121 GG _ _ _ _ _ (pr11 ηη x xx)).
+  - exact (λ x y f xx yy ff,
+           (disp_psfunctor_comp _ _ _ GG _ _)
+             •• disp_psfunctor_invertible_2cell GG (disp_psnaturality_of _ _ _ ηη ff)
+             •• (disp_inv_invertible (disp_psfunctor_comp _ _ _ GG _ _))).
+Defined.
+
+Lemma disp_left_whisker_laws : is_disp_pstrans _ _ _ disp_left_whisker_data.
+Proof.
+  apply is_disp_pstrans_from_total.
+  pose (PP := (total_psfunctor _ _ _ GG) ◅ total_pstrans _ _ _ ηη).
+  pose (PP2 := pstrans_to_is_pstrans PP).
+  assert (pstrans_to_pstrans_data PP = total_pstrans_data _ _ _ disp_left_whisker_data).
+  - use total2_paths_f.
+    + apply idpath.
+    + apply funextsec. intro x.
+      apply funextsec. intro y.
+      apply funextsec. intro f.
+      use subtypePath.
+      { intro. apply isaprop_is_invertible_2cell. }
+      apply idpath.
+  - exact (transportf is_pstrans X PP2). (* Slow, dunno why *)
+Qed.
+
+Definition disp_left_whisker
+  : disp_pstrans
+      (disp_pseudo_comp _ _ _ _ _ FF₁ GG)
+      (disp_pseudo_comp _ _ _ _ _ FF₂ GG)
+      (G ◅ η)
+  := disp_left_whisker_data,, disp_left_whisker_laws.
+
+End DispTrans_lwhisker.
+
+Section DispTrans_rwhisker.
+
+Context {B₁ B₂ B₃ : bicat}
+        {F : psfunctor B₁ B₂}
+        {G₁ G₂ : psfunctor B₂ B₃}
+        {η : pstrans G₁ G₂}
+        {D₁ : disp_bicat B₁}
+        {D₂ : disp_bicat B₂}
+        {D₃ : disp_bicat B₃}
+        (FF : disp_psfunctor D₁ D₂ F)
+        {GG₁ : disp_psfunctor D₂ D₃ G₁}
+        {GG₂ : disp_psfunctor D₂ D₃ G₂}
+        (ηη : disp_pstrans GG₁ GG₂ η).
+
+Definition disp_right_whisker_data
+  : disp_pstrans_data
+      (disp_pseudo_comp _ _ _ _ _ FF GG₁)
+      (disp_pseudo_comp _ _ _ _ _ FF GG₂)
+      (η ▻ F).
+Proof.
+  use make_disp_pstrans_data; cbn.
+  - exact (λ x xx, (pr11 ηη _ (FF _ xx))).
+  - exact (λ x y f xx yy ff, disp_psnaturality_of _ _ _ ηη (pr121 FF _ _ _ _ _ ff)).
+Defined.
+
+Lemma disp_right_whisker_laws : is_disp_pstrans _ _ _ disp_right_whisker_data.
+Proof.
+  apply is_disp_pstrans_from_total.
+  pose (PP := (total_pstrans _ _ _ ηη) ▻ (total_psfunctor _ _ _ FF)).
+  pose (PP2 := pstrans_to_is_pstrans PP).
+  assert (X : pstrans_to_pstrans_data PP
+              =
+              total_pstrans_data _ _ _ disp_right_whisker_data).
+  - use total2_paths_f.
+    + apply idpath.
+    + apply funextsec. intro x.
+      apply funextsec. intro y.
+      apply funextsec. intro f.
+      use subtypePath.
+      { intro. apply isaprop_is_invertible_2cell. }
+      lazy.
+      apply idpath.
+  - exact (transportf is_pstrans X PP2). (* Also slow, dunno why *)
+Qed.
+
+Definition disp_right_whisker
+  : disp_pstrans
+      (disp_pseudo_comp _ _ _ _ _ FF GG₁)
+      (disp_pseudo_comp _ _ _ _ _ FF GG₂)
+      (η ▻ F)
+  := disp_right_whisker_data,, disp_right_whisker_laws.
+
+End DispTrans_rwhisker.
+
+Section DispTransUnitality.
+Context {B₁ B₂ : bicat}
+        {F : psfunctor B₁ B₂}
+        {D₁ : disp_bicat B₁}
+        {D₂ : disp_bicat B₂}
+        (FF : disp_psfunctor D₁ D₂ F).
+
+Definition disp_pstrans_lunitor_data
+  : disp_pstrans_data
+      (disp_pseudo_comp _ _ _ _ _ FF (disp_pseudo_id D₂))
+      FF
+      (pstrans_lunitor F).
+Proof.
+  use make_disp_pstrans_data.
+  - exact (λ x xx, id_disp (FF x xx)).
+  - cbn.
+    refine (λ x y f xx yy ff, _).
+    apply (vcomp_disp_invertible (disp_invertible_2cell_lunitor _)
+                                 (disp_invertible_2cell_rinvunitor _)).
+Defined.
+
+Lemma disp_pstrans_lunitor_laws : is_disp_pstrans _ _ _ disp_pstrans_lunitor_data.
+Proof.
+  apply is_disp_pstrans_from_total.
+  pose (PP := pstrans_lunitor (total_psfunctor _ _ _ FF)).
+  pose (PP2 := pstrans_to_is_pstrans PP).
+  assert (X : pstrans_to_pstrans_data PP
+              =
+              total_pstrans_data _ _ _ disp_pstrans_lunitor_data).
+  - use total2_paths_f.
+    + apply idpath.
+    + apply funextsec. intro x.
+      apply funextsec. intro y.
+      apply funextsec. intro f.
+      use subtypePath.
+      { intro. apply isaprop_is_invertible_2cell. }
+      apply idpath.
+  - exact (transportf is_pstrans X PP2).
+Qed.
+
+Definition disp_pstrans_lunitor
+  : disp_pstrans
+      (disp_pseudo_comp _ _ _ _ _ FF (disp_pseudo_id D₂))
+      FF
+      (pstrans_lunitor F)
+  := disp_pstrans_lunitor_data,, disp_pstrans_lunitor_laws.
+
+Definition disp_pstrans_linvunitor_data
+  : disp_pstrans_data
+      FF
+      (disp_pseudo_comp _ _ _ _ _ FF (disp_pseudo_id D₂))
+      (pstrans_linvunitor F).
+Proof.
+  use make_disp_pstrans_data.
+  - exact (λ x xx, id_disp (FF x xx)).
+  - cbn.
+    refine (λ x y f xx yy ff, _).
+    apply (vcomp_disp_invertible (disp_invertible_2cell_lunitor _)
+                                 (disp_invertible_2cell_rinvunitor _)).
+Defined.
+
+Lemma disp_pstrans_linvunitor_laws : is_disp_pstrans _ _ _ disp_pstrans_linvunitor_data.
+Proof.
+  apply is_disp_pstrans_from_total.
+  pose (PP := pstrans_linvunitor (total_psfunctor _ _ _ FF)).
+  pose (PP2 := pstrans_to_is_pstrans PP).
+  assert (X : pstrans_to_pstrans_data PP
+              =
+              total_pstrans_data _ _ _ disp_pstrans_linvunitor_data).
+  - use total2_paths_f.
+    + apply idpath.
+    + apply funextsec. intro x.
+      apply funextsec. intro y.
+      apply funextsec. intro f.
+      use subtypePath.
+      { intro. apply isaprop_is_invertible_2cell. }
+      apply idpath.
+  - exact (transportf is_pstrans X PP2).
+Qed.
+
+Definition disp_pstrans_linvunitor
+  : disp_pstrans
+      FF
+      (disp_pseudo_comp _ _ _ _ _ FF (disp_pseudo_id D₂))
+      (pstrans_linvunitor F)
+  := disp_pstrans_linvunitor_data,, disp_pstrans_linvunitor_laws.
+
+Definition disp_pstrans_runitor_data
+  : disp_pstrans_data
+      (disp_pseudo_comp _ _ _ _ _ (disp_pseudo_id D₁) FF)
+      FF
+      (pstrans_runitor F).
+Proof.
+  use make_disp_pstrans_data.
+  - exact (λ x xx, id_disp (FF x xx)).
+  - cbn.
+    refine (λ x y f xx yy ff, _).
+    apply (vcomp_disp_invertible (disp_invertible_2cell_lunitor _)
+                                 (disp_invertible_2cell_rinvunitor _)).
+Defined.
+
+Lemma disp_pstrans_runitor_laws : is_disp_pstrans _ _ _ disp_pstrans_runitor_data.
+Proof.
+  apply is_disp_pstrans_from_total.
+  pose (PP := pstrans_runitor (total_psfunctor _ _ _ FF)).
+  pose (PP2 := pstrans_to_is_pstrans PP).
+  assert (X : pstrans_to_pstrans_data PP
+              =
+              total_pstrans_data _ _ _ disp_pstrans_runitor_data).
+  - use total2_paths_f.
+    + apply idpath.
+    + apply funextsec. intro x.
+      apply funextsec. intro y.
+      apply funextsec. intro f.
+      use subtypePath.
+      { intro. apply isaprop_is_invertible_2cell. }
+      apply idpath.
+  - exact (transportf is_pstrans X PP2).
+Qed.
+
+Definition disp_pstrans_runitor
+  : disp_pstrans
+      (disp_pseudo_comp _ _ _ _ _ (disp_pseudo_id D₁) FF)
+      FF
+      (pstrans_runitor F)
+  := disp_pstrans_runitor_data,, disp_pstrans_runitor_laws.
+
+Definition disp_pstrans_rinvunitor_data
+  : disp_pstrans_data
+      FF
+      (disp_pseudo_comp _ _ _ _ _ (disp_pseudo_id D₁) FF)
+      (pstrans_rinvunitor F).
+Proof.
+  use make_disp_pstrans_data.
+  - exact (λ x xx, id_disp (FF x xx)).
+  - cbn.
+    refine (λ x y f xx yy ff, _).
+    apply (vcomp_disp_invertible (disp_invertible_2cell_lunitor _)
+                                 (disp_invertible_2cell_rinvunitor _)).
+Defined.
+
+Lemma disp_pstrans_rinvunitor_laws : is_disp_pstrans _ _ _ disp_pstrans_rinvunitor_data.
+Proof.
+  apply is_disp_pstrans_from_total.
+  pose (PP := pstrans_rinvunitor (total_psfunctor _ _ _ FF)).
+  pose (PP2 := pstrans_to_is_pstrans PP).
+  assert (X : pstrans_to_pstrans_data PP
+              =
+              total_pstrans_data _ _ _ disp_pstrans_rinvunitor_data).
+  - use total2_paths_f.
+    + apply idpath.
+    + apply funextsec. intro x.
+      apply funextsec. intro y.
+      apply funextsec. intro f.
+      use subtypePath.
+      { intro. apply isaprop_is_invertible_2cell. }
+      apply idpath.
+  - exact (transportf is_pstrans X PP2).
+Qed.
+
+Definition disp_pstrans_rinvunitor
+  : disp_pstrans
+      FF
+      (disp_pseudo_comp _ _ _ _ _ (disp_pseudo_id D₁) FF)
+      (pstrans_rinvunitor F)
+  := disp_pstrans_rinvunitor_data,, disp_pstrans_rinvunitor_laws.
+End DispTransUnitality.
+
+Section DispTransAssociativiy.
+Context {B₁ B₂ B₃ B₄ : bicat}
+        {F₁ : psfunctor B₁ B₂}
+        {F₂ : psfunctor B₂ B₃}
+        {F₃ : psfunctor B₃ B₄}
+        {D₁ : disp_bicat B₁} {D₂ : disp_bicat B₂}
+        {D₃ : disp_bicat B₃} {D₄ : disp_bicat B₄}
+        (FF₁ : disp_psfunctor D₁ D₂ F₁)
+        (FF₂ : disp_psfunctor D₂ D₃ F₂)
+        (FF₃ : disp_psfunctor D₃ D₄ F₃).
+
+Definition disp_pstrans_lassociator_data
+  : disp_pstrans_data
+      (disp_pseudo_comp
+         _ _ _ _ _
+         (disp_pseudo_comp
+            _ _ _ _ _
+            FF₁
+            FF₂)
+         FF₃
+      )
+      (disp_pseudo_comp
+         _ _ _ _ _
+         FF₁
+         (disp_pseudo_comp
+            _ _ _ _ _
+            FF₂
+            FF₃)
+      )
+      (pstrans_lassociator F₁ F₂ F₃).
+Proof.
+  use make_disp_pstrans_data.
+  - exact (λ x xx, id_disp (_ x xx)).
+  - cbn.
+    refine (λ x y f xx yy ff, _).
+    apply (vcomp_disp_invertible (disp_invertible_2cell_lunitor _)
+                                 (disp_invertible_2cell_rinvunitor _)).
+Defined.
+
+Lemma disp_pstrans_lassociator_laws : is_disp_pstrans _ _ _ disp_pstrans_lassociator_data.
+Proof.
+  apply is_disp_pstrans_from_total.
+  pose (PP := pstrans_lassociator
+                (total_psfunctor _ _ _ FF₁)
+                (total_psfunctor _ _ _ FF₂)
+                (total_psfunctor _ _ _ FF₃)).
+  pose (PP2 := pstrans_to_is_pstrans PP).
+  assert (X : pstrans_to_pstrans_data PP
+              =
+              total_pstrans_data _ _ _ disp_pstrans_lassociator_data).
+  - use total2_paths_f.
+    + apply idpath.
+    + apply funextsec. intro x.
+      apply funextsec. intro y.
+      apply funextsec. intro f.
+      use subtypePath.
+      { intro. apply isaprop_is_invertible_2cell. }
+      apply idpath.
+  - exact (transportf is_pstrans X PP2).
+Qed.
+
+Definition disp_pstrans_lassociator
+  : disp_pstrans
+      (disp_pseudo_comp
+         _ _ _ _ _
+         (disp_pseudo_comp
+            _ _ _ _ _
+            FF₁
+            FF₂)
+         FF₃
+      )
+      (disp_pseudo_comp
+         _ _ _ _ _
+         FF₁
+         (disp_pseudo_comp
+            _ _ _ _ _
+            FF₂
+            FF₃)
+      )
+      (pstrans_lassociator F₁ F₂ F₃)
+  := disp_pstrans_lassociator_data,, disp_pstrans_lassociator_laws.
+
+Definition disp_pstrans_rassociator_data
+  : disp_pstrans_data
+      (disp_pseudo_comp
+         _ _ _ _ _
+         FF₁
+         (disp_pseudo_comp
+            _ _ _ _ _
+            FF₂
+            FF₃)
+      )
+      (disp_pseudo_comp
+         _ _ _ _ _
+         (disp_pseudo_comp
+            _ _ _ _ _
+            FF₁
+            FF₂)
+         FF₃
+      )
+      (pstrans_rassociator F₁ F₂ F₃).
+Proof.
+  use make_disp_pstrans_data.
+  - exact (λ x xx, id_disp (_ x xx)).
+  - cbn.
+    refine (λ x y f xx yy ff, _).
+    apply (vcomp_disp_invertible (disp_invertible_2cell_lunitor _)
+                                 (disp_invertible_2cell_rinvunitor _)).
+Defined.
+
+Lemma disp_pstrans_rassociator_laws : is_disp_pstrans _ _ _ disp_pstrans_rassociator_data.
+Proof.
+  apply is_disp_pstrans_from_total.
+  pose (PP := pstrans_rassociator
+                (total_psfunctor _ _ _ FF₁)
+                (total_psfunctor _ _ _ FF₂)
+                (total_psfunctor _ _ _ FF₃)).
+  pose (PP2 := pstrans_to_is_pstrans PP).
+  assert (X : pstrans_to_pstrans_data PP
+              =
+              total_pstrans_data _ _ _ disp_pstrans_lassociator_data).
+  - use total2_paths_f.
+    + apply idpath.
+    + apply funextsec. intro x.
+      apply funextsec. intro y.
+      apply funextsec. intro f.
+      use subtypePath.
+      { intro. apply isaprop_is_invertible_2cell. }
+      apply idpath.
+  - exact (transportf is_pstrans X PP2).
+Qed.
+
+Definition disp_pstrans_rassociator
+  : disp_pstrans
+      (disp_pseudo_comp
+         _ _ _ _ _
+         FF₁
+         (disp_pseudo_comp
+            _ _ _ _ _
+            FF₂
+            FF₃)
+      )
+      (disp_pseudo_comp
+         _ _ _ _ _
+         (disp_pseudo_comp
+            _ _ _ _ _
+            FF₁
+            FF₂)
+         FF₃
+      )
+      (pstrans_rassociator F₁ F₂ F₃)
+  := disp_pstrans_rassociator_data,, disp_pstrans_rassociator_laws.
+End DispTransAssociativiy.
