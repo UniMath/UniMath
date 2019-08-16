@@ -12,6 +12,7 @@ env:
     - PACKAGES= BUILD_ALSO=sanity-checks
     - PACKAGES="Foundations Combinatorics Algebra NumberSystems PAdics Paradoxes"
     - PACKAGES=CategoryTheory
+    - PACKAGES=Bicategories
     - PACKAGES="MoreFoundations Ktheory SyntheticHomotopyTheory"
     - PACKAGES=HomologicalAlgebra
     - PACKAGES=Topology

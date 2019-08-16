@@ -16,6 +16,7 @@ PACKAGES += NumberSystems
 PACKAGES += SyntheticHomotopyTheory
 PACKAGES += PAdics
 PACKAGES += CategoryTheory
+PACKAGES += Bicategories
 PACKAGES += Ktheory
 PACKAGES += Topology
 PACKAGES += RealNumbers
