@@ -327,7 +327,7 @@ Definition bigmonad (C : bicat) := total_bicat (monad C).
 
 Definition base {C : bicat} (m : bigmonad C) : C := pr1 m.
 
-Coercion bigmonad_to_monad {C : bicat} (m : bigmonad C) : monad C (base m)
+Definition bigmonad_to_monad (C : bicat) (m : bigmonad C) : monad C (base m)
   := pr2 m.
 
 Definition make_bigmonad {C : bicat}
