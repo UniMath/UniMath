@@ -26,16 +26,16 @@ Section Strict_Fiber_Bicat.
           (h : local_iso_cleaving D)
           (c : C).
 
-  Definition discrete_fiber_1_id_comp_cells : prebicat_1_id_comp_cells.
+  Definition strict_fiber_bicat_1_id_comp_cells : prebicat_1_id_comp_cells.
   Proof.
     exists (discrete_fiber_precategory_data D h c).
     red. cbn. intros d d' f f'.
     exact (f ==>[id2 (identity c)] f').
   Defined.
 
-  Definition discrete_fiber_data : prebicat_data.
+  Definition strict_fiber_bicat_data : prebicat_data.
   Proof.
-    exists discrete_fiber_1_id_comp_cells.
+    exists strict_fiber_bicat_1_id_comp_cells.
     repeat split; cbn.
     - intros. exact (disp_id2 _).
     - intros d d' ff.
@@ -159,9 +159,9 @@ Section Strict_Fiber_Bicat.
   Local Arguments transportf {_} {_} {_} {_} {_} _.
   Local Arguments transportb {_} {_} {_} {_} {_} _.
 
-  Definition discete_fiber_data_laws_vcomp_left
-    :  ∏ (a b : discrete_fiber_data)
-         (f g : discrete_fiber_data ⟦ a, b ⟧)
+  Definition strict_fiber_bicat_data_laws_vcomp_left
+    :  ∏ (a b : strict_fiber_bicat_data)
+         (f g : strict_fiber_bicat_data ⟦ a, b ⟧)
          (x : f ==> g),
        id₂ f • x = x.
   Proof.
@@ -171,9 +171,9 @@ Section Strict_Fiber_Bicat.
     reflexivity.
   Qed.
 
-  Definition discete_fiber_data_laws_vcomp_right
-    :  ∏ (a b : discrete_fiber_data)
-         (f g : discrete_fiber_data ⟦ a, b ⟧)
+  Definition strict_fiber_bicat_data_laws_vcomp_right
+    :  ∏ (a b : strict_fiber_bicat_data)
+         (f g : strict_fiber_bicat_data ⟦ a, b ⟧)
          (x : f ==> g),
        x • id₂ g = x.
   Proof.
@@ -186,9 +186,9 @@ Section Strict_Fiber_Bicat.
     - apply C.
   Qed.
 
-  Definition discrete_fiber_data_laws_vcomp_assoc
-    : ∏ (a b : discrete_fiber_data)
-        (f₁ f₂ f₃ f₄ : discrete_fiber_data ⟦ a, b ⟧)
+  Definition strict_fiber_bicat_data_laws_vcomp_assoc
+    : ∏ (a b : strict_fiber_bicat_data)
+        (f₁ f₂ f₃ f₄ : strict_fiber_bicat_data ⟦ a, b ⟧)
         (x : f₁ ==> f₂)
         (y : f₂ ==> f₃)
         (z : f₃ ==> f₄),
@@ -204,10 +204,10 @@ Section Strict_Fiber_Bicat.
     apply C.
   Qed.
 
-  Definition discrete_fiber_data_laws_rwhisker_id2
-    : ∏ (a₁ a₂ a₃ : discrete_fiber_data)
-        (f : discrete_fiber_data ⟦ a₁ , a₂ ⟧)
-        (g : discrete_fiber_data ⟦ a₂, a₃ ⟧),
+  Definition strict_fiber_bicat_data_laws_rwhisker_id2
+    : ∏ (a₁ a₂ a₃ : strict_fiber_bicat_data)
+        (f : strict_fiber_bicat_data ⟦ a₁ , a₂ ⟧)
+        (g : strict_fiber_bicat_data ⟦ a₂, a₃ ⟧),
       f ◃ id₂ g = id₂ (f · g).
   Proof.
     intros a₁ a₂ a₃ f g ; cbn.
@@ -229,10 +229,10 @@ Section Strict_Fiber_Bicat.
     apply C.
   Qed.
 
-  Definition discrete_fiber_data_laws_id2_lwhisker
-    : ∏ (a₁ a₂ a₃ : discrete_fiber_data)
-        (f : discrete_fiber_data ⟦ a₁ , a₂ ⟧)
-        (g : discrete_fiber_data ⟦ a₂ , a₃ ⟧),
+  Definition strict_fiber_bicat_data_laws_id2_lwhisker
+    : ∏ (a₁ a₂ a₃ : strict_fiber_bicat_data)
+        (f : strict_fiber_bicat_data ⟦ a₁ , a₂ ⟧)
+        (g : strict_fiber_bicat_data ⟦ a₂ , a₃ ⟧),
       id₂ f ▹ g = id₂ (f · g).
   Proof.
     intros a₁ a₂ a₃ f g ; cbn.
@@ -254,10 +254,10 @@ Section Strict_Fiber_Bicat.
     apply C.
   Qed.
 
-  Definition discrete_fiber_data_laws_vcomp_lwhisker
-    :  ∏ (a₁ a₂ a₃ : discrete_fiber_data)
-         (f : discrete_fiber_data ⟦ a₁ , a₂ ⟧)
-         (g₁ g₂ g₃ : discrete_fiber_data ⟦ a₂ , a₃ ⟧)
+  Definition strict_fiber_bicat_data_laws_vcomp_lwhisker
+    :  ∏ (a₁ a₂ a₃ : strict_fiber_bicat_data)
+         (f : strict_fiber_bicat_data ⟦ a₁ , a₂ ⟧)
+         (g₁ g₂ g₃ : strict_fiber_bicat_data ⟦ a₂ , a₃ ⟧)
          (x : g₁ ==> g₂)
          (y : g₂ ==> g₃),
        (f ◃ x) • (f ◃ y) = f ◃ (x • y).
@@ -394,10 +394,10 @@ Section Strict_Fiber_Bicat.
     apply C.
   Qed.
 
-  Definition discrete_fiber_data_laws_vcomp_rwhisker
-    : ∏ (a₁ a₂ a₃ : discrete_fiber_data)
-        (f₁ f₂ f₃ : discrete_fiber_data ⟦ a₁ , a₂ ⟧)
-        (g : discrete_fiber_data ⟦ a₂ , a₃ ⟧)
+  Definition strict_fiber_bicat_data_laws_vcomp_rwhisker
+    : ∏ (a₁ a₂ a₃ : strict_fiber_bicat_data)
+        (f₁ f₂ f₃ : strict_fiber_bicat_data ⟦ a₁ , a₂ ⟧)
+        (g : strict_fiber_bicat_data ⟦ a₂ , a₃ ⟧)
         (x : f₁ ==> f₂)
         (y : f₂ ==> f₃),
       (x ▹ g) • (y ▹ g) = (x • y) ▹ g.
@@ -523,9 +523,9 @@ Section Strict_Fiber_Bicat.
     apply C.
   Qed.
 
-  Definition discrete_fiber_data_laws_vcomp_lunitor
-    : ∏ (a b : discrete_fiber_data)
-        (f g : discrete_fiber_data ⟦ a, b ⟧)
+  Definition strict_fiber_bicat_data_laws_vcomp_lunitor
+    : ∏ (a b : strict_fiber_bicat_data)
+        (f g : strict_fiber_bicat_data ⟦ a, b ⟧)
         (x : f ==> g),
       (id₁ a ◃ x) • lunitor g = lunitor f • x.
   Proof.
@@ -582,9 +582,9 @@ Section Strict_Fiber_Bicat.
     apply C.
   Qed.
 
-  Definition discrete_fiber_data_laws_vcomp_runitor
-    : ∏ (a b : discrete_fiber_data)
-        (f g : discrete_fiber_data ⟦ a, b ⟧)
+  Definition strict_fiber_bicat_data_laws_vcomp_runitor
+    : ∏ (a b : strict_fiber_bicat_data)
+        (f g : strict_fiber_bicat_data ⟦ a, b ⟧)
         (x : f ==> g),
       (x ▹ id₁ b) • runitor g = runitor f • x.
   Proof.
@@ -641,11 +641,11 @@ Section Strict_Fiber_Bicat.
     apply C.
   Qed.
 
-  Definition discrete_fiber_data_laws_lwhisker_lwhisker
-    : ∏ (a₁ a₂ a₃ a₄ : discrete_fiber_data)
-        (f₁ : discrete_fiber_data ⟦ a₁ , a₂ ⟧)
-        (f₂ : discrete_fiber_data ⟦ a₂ , a₃ ⟧)
-        (f₃ f₄ : discrete_fiber_data ⟦ a₃ , a₄ ⟧)
+  Definition strict_fiber_bicat_data_laws_lwhisker_lwhisker
+    : ∏ (a₁ a₂ a₃ a₄ : strict_fiber_bicat_data)
+        (f₁ : strict_fiber_bicat_data ⟦ a₁ , a₂ ⟧)
+        (f₂ : strict_fiber_bicat_data ⟦ a₂ , a₃ ⟧)
+        (f₃ f₄ : strict_fiber_bicat_data ⟦ a₃ , a₄ ⟧)
         (x : f₃ ==> f₄),
       (f₁ ◃ (f₂ ◃ x)) • lassociator f₁ f₂ f₄
       =
@@ -1109,11 +1109,11 @@ Section Strict_Fiber_Bicat.
     apply cellset_property.
   Qed.
 
-  Definition discrete_fiber_data_laws_rwhisker_lwhisker
-    : ∏ (a₁ a₂ a₃ a₄ : discrete_fiber_data)
-        (f₁ : discrete_fiber_data ⟦ a₁ , a₂ ⟧)
-        (f₂ f₃ : discrete_fiber_data ⟦ a₂ , a₃ ⟧)
-        (f₄ : discrete_fiber_data ⟦ a₃ , a₄ ⟧)
+  Definition strict_fiber_bicat_data_laws_rwhisker_lwhisker
+    : ∏ (a₁ a₂ a₃ a₄ : strict_fiber_bicat_data)
+        (f₁ : strict_fiber_bicat_data ⟦ a₁ , a₂ ⟧)
+        (f₂ f₃ : strict_fiber_bicat_data ⟦ a₂ , a₃ ⟧)
+        (f₄ : strict_fiber_bicat_data ⟦ a₃ , a₄ ⟧)
         (x : f₂ ==> f₃),
       (f₁ ◃ (x ▹ f₄)) • lassociator f₁ f₃ f₄
       =
@@ -1641,11 +1641,11 @@ Section Strict_Fiber_Bicat.
     apply cellset_property.
   Qed.
 
-  Definition discrete_fiber_data_laws_rwhisker_rwhisker
-    :  ∏ (a₁ a₂ a₃ a₄ : discrete_fiber_data)
-         (f₁ f₂ : discrete_fiber_data ⟦ a₁ , a₂ ⟧)
-         (f₃ : discrete_fiber_data ⟦ a₂ , a₃ ⟧)
-         (f₄ : discrete_fiber_data ⟦ a₃ , a₄ ⟧)
+  Definition strict_fiber_bicat_data_laws_rwhisker_rwhisker
+    :  ∏ (a₁ a₂ a₃ a₄ : strict_fiber_bicat_data)
+         (f₁ f₂ : strict_fiber_bicat_data ⟦ a₁ , a₂ ⟧)
+         (f₃ : strict_fiber_bicat_data ⟦ a₂ , a₃ ⟧)
+         (f₄ : strict_fiber_bicat_data ⟦ a₃ , a₄ ⟧)
          (x : f₁ ==> f₂),
        lassociator f₁ f₃ f₄ • ((x ▹ f₃) ▹ f₄)
        =
@@ -2082,10 +2082,10 @@ Section Strict_Fiber_Bicat.
     apply cellset_property.
   Qed.
 
-  Definition discrete_fiber_data_vcomp_whisker
-    :  ∏ (a₁ a₂ a₃ : discrete_fiber_data)
-         (f₁ f₂ : discrete_fiber_data ⟦ a₁ , a₂ ⟧)
-         (g₁ g₂ : discrete_fiber_data ⟦ a₂ , a₃ ⟧)
+  Definition strict_fiber_bicat_data_vcomp_whisker
+    :  ∏ (a₁ a₂ a₃ : strict_fiber_bicat_data)
+         (f₁ f₂ : strict_fiber_bicat_data ⟦ a₁ , a₂ ⟧)
+         (g₁ g₂ : strict_fiber_bicat_data ⟦ a₂ , a₃ ⟧)
          (x : f₁ ==> f₂) (y : g₁ ==> g₂),
        (x ▹ g₁) • (f₂ ◃ y) = (f₁ ◃ y) • (x ▹ g₂).
   Proof.
@@ -2298,9 +2298,9 @@ Section Strict_Fiber_Bicat.
     apply cellset_property.
   Qed.
 
-  Definition discrete_fiber_data_laws_lunitor_linvunitor
-    :  ∏ (a b : discrete_fiber_data)
-         (f : discrete_fiber_data ⟦ a, b ⟧),
+  Definition strict_fiber_bicat_data_laws_lunitor_linvunitor
+    :  ∏ (a b : strict_fiber_bicat_data)
+         (f : strict_fiber_bicat_data ⟦ a, b ⟧),
        lunitor f • linvunitor f = id₂ (id₁ a · f).
   Proof.
     intros a b f ; cbn.
@@ -2343,9 +2343,9 @@ Section Strict_Fiber_Bicat.
     apply C.
   Qed.
 
-  Definition discrete_fiber_data_laws_linvunitor_lunitor
-    :  ∏ (a b : discrete_fiber_data)
-         (f : discrete_fiber_data ⟦ a, b ⟧),
+  Definition strict_fiber_bicat_data_laws_linvunitor_lunitor
+    :  ∏ (a b : strict_fiber_bicat_data)
+         (f : strict_fiber_bicat_data ⟦ a, b ⟧),
        linvunitor f • lunitor f = id₂ f.
   Proof.
     intros a b f ; cbn.
@@ -2388,9 +2388,9 @@ Section Strict_Fiber_Bicat.
     apply C.
   Qed.
 
-  Definition discrete_fiber_data_laws_runitor_rinvunitor
-    :  ∏ (a b : discrete_fiber_data)
-         (f : discrete_fiber_data ⟦ a, b ⟧),
+  Definition strict_fiber_bicat_data_laws_runitor_rinvunitor
+    :  ∏ (a b : strict_fiber_bicat_data)
+         (f : strict_fiber_bicat_data ⟦ a, b ⟧),
        runitor f • rinvunitor f = id₂ (f · id₁ b).
   Proof.
     intros a b f ; cbn.
@@ -2435,9 +2435,9 @@ Section Strict_Fiber_Bicat.
     apply C.
   Qed.
 
-  Definition discrete_fiber_data_laws_rinvunitor_runitor
-    :  ∏ (a b : discrete_fiber_data)
-         (f : discrete_fiber_data ⟦ a, b ⟧),
+  Definition strict_fiber_bicat_data_laws_rinvunitor_runitor
+    :  ∏ (a b : strict_fiber_bicat_data)
+         (f : strict_fiber_bicat_data ⟦ a, b ⟧),
        rinvunitor f • runitor f = id₂ f.
   Proof.
     intros a b f ; cbn.
@@ -2480,11 +2480,11 @@ Section Strict_Fiber_Bicat.
     apply C.
   Qed.
 
-  Definition discrete_fiber_data_laws_lassociator_rassociator
-    :  ∏ (a₁ a₂ a₃ a₄ : discrete_fiber_data)
-         (f₁ : discrete_fiber_data ⟦ a₁ , a₂ ⟧)
-         (f₂ : discrete_fiber_data ⟦ a₂ , a₃ ⟧)
-         (f₃ : discrete_fiber_data ⟦ a₃ , a₄ ⟧),
+  Definition strict_fiber_bicat_data_laws_lassociator_rassociator
+    :  ∏ (a₁ a₂ a₃ a₄ : strict_fiber_bicat_data)
+         (f₁ : strict_fiber_bicat_data ⟦ a₁ , a₂ ⟧)
+         (f₂ : strict_fiber_bicat_data ⟦ a₂ , a₃ ⟧)
+         (f₃ : strict_fiber_bicat_data ⟦ a₃ , a₄ ⟧),
        lassociator f₁ f₂ f₃ • rassociator f₁ f₂ f₃
        =
        id₂ (f₁ · (f₂ · f₃)).

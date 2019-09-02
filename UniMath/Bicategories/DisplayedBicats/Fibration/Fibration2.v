@@ -35,11 +35,11 @@ Section LocalIsoFibration.
                              (at level 0).
   Local Notation "f ^-1" := (disp_inv_cell f).
 
-  Definition discrete_fiber_data_laws_rassociator_lassociator
-    :  ∏ (a₁ a₂ a₃ a₄ : discrete_fiber_data D h c)
-         (f₁ : discrete_fiber_data D h c ⟦ a₁ , a₂ ⟧)
-         (f₂ : discrete_fiber_data D h c ⟦ a₂ , a₃ ⟧)
-         (f₃ : discrete_fiber_data D h c ⟦ a₃ , a₄ ⟧),
+  Definition strict_fiber_bicat_data_laws_rassociator_lassociator
+    :  ∏ (a₁ a₂ a₃ a₄ : strict_fiber_bicat_data D h c)
+         (f₁ : strict_fiber_bicat_data D h c ⟦ a₁ , a₂ ⟧)
+         (f₂ : strict_fiber_bicat_data D h c ⟦ a₂ , a₃ ⟧)
+         (f₃ : strict_fiber_bicat_data D h c ⟦ a₃ , a₄ ⟧),
        rassociator f₁ f₂ f₃ • lassociator f₁ f₂ f₃
        =
        id₂ (f₁ · f₂ · f₃).
@@ -331,10 +331,10 @@ Section LocalIsoFibration.
     apply C.
   Qed.
 
-  Definition discrete_fiber_data_laws_runitor_rwhisker
-    : ∏ (a₁ a₂ a₃ : discrete_fiber_data D h c)
-        (f : discrete_fiber_data D h c ⟦ a₁ , a₂ ⟧)
-        (g : discrete_fiber_data D h c ⟦ a₂ , a₃ ⟧),
+  Definition strict_fiber_bicat_data_laws_runitor_rwhisker
+    : ∏ (a₁ a₂ a₃ : strict_fiber_bicat_data D h c)
+        (f : strict_fiber_bicat_data D h c ⟦ a₁ , a₂ ⟧)
+        (g : strict_fiber_bicat_data D h c ⟦ a₂ , a₃ ⟧),
       lassociator f (id₁ a₂) g • (runitor f ▹ g)
       =
       f ◃ lunitor g.
@@ -601,11 +601,11 @@ Section LocalIsoFibration.
   Qed.
 
   Section LassociatorLassociator.
-    Variable (a₁ a₂ a₃ a₄ a₅ : discrete_fiber_data D h c)
-             (f₁ : discrete_fiber_data D h c ⟦ a₁ , a₂ ⟧)
-             (f₂ : discrete_fiber_data D h c ⟦ a₂ , a₃ ⟧)
-             (f₃ : discrete_fiber_data D h c ⟦ a₃ , a₄ ⟧)
-             (f₄ : discrete_fiber_data D h c ⟦ a₄ , a₅ ⟧).
+    Variable (a₁ a₂ a₃ a₄ a₅ : strict_fiber_bicat_data D h c)
+             (f₁ : strict_fiber_bicat_data D h c ⟦ a₁ , a₂ ⟧)
+             (f₂ : strict_fiber_bicat_data D h c ⟦ a₂ , a₃ ⟧)
+             (f₃ : strict_fiber_bicat_data D h c ⟦ a₃ , a₄ ⟧)
+             (f₄ : strict_fiber_bicat_data D h c ⟦ a₄ , a₅ ⟧).
     Arguments transportf {_} _ {_} {_} _ _.
 
     Local Definition step1
@@ -1983,7 +1983,7 @@ Section LocalIsoFibration.
 
     Local Arguments transportf {_} _ {_} {_} {_} _.
 
-    Definition discrete_fiber_data_laws_lassociator_lassociator
+    Definition strict_fiber_bicat_data_laws_lassociator_lassociator
       : ((f₁ ◃ lassociator f₂ f₃ f₄)
            • lassociator f₁ (f₂ · f₃) f₄)
           • (lassociator f₁ f₂ f₃ ▹ f₄)
@@ -2164,36 +2164,36 @@ Section LocalIsoFibration.
     Qed.
   End LassociatorLassociator.
 
-  Definition discrete_fiber_data_laws : prebicat_laws (discrete_fiber_data D h c).
+  Definition strict_fiber_bicat_data_laws : prebicat_laws (strict_fiber_bicat_data D h c).
   Proof.
     repeat split.
-    - exact (discete_fiber_data_laws_vcomp_left D h c).
-    - exact (discete_fiber_data_laws_vcomp_right D h c).
-    - exact (discrete_fiber_data_laws_vcomp_assoc D h c).
-    - exact (discrete_fiber_data_laws_rwhisker_id2 D h c).
-    - exact (discrete_fiber_data_laws_id2_lwhisker D h c).
-    - exact (discrete_fiber_data_laws_vcomp_lwhisker D h c).
-    - exact (discrete_fiber_data_laws_vcomp_rwhisker D h c).
-    - exact (discrete_fiber_data_laws_vcomp_lunitor D h c).
-    - exact (discrete_fiber_data_laws_vcomp_runitor D h c).
-    - exact (discrete_fiber_data_laws_lwhisker_lwhisker D h c).
-    - exact (discrete_fiber_data_laws_rwhisker_lwhisker D h c).
-    - exact (discrete_fiber_data_laws_rwhisker_rwhisker D h c).
-    - exact (discrete_fiber_data_vcomp_whisker D h c).
-    - exact (discrete_fiber_data_laws_lunitor_linvunitor D h c).
-    - exact (discrete_fiber_data_laws_linvunitor_lunitor D h c).
-    - exact (discrete_fiber_data_laws_runitor_rinvunitor D h c).
-    - exact (discrete_fiber_data_laws_rinvunitor_runitor D h c).
-    - exact (discrete_fiber_data_laws_lassociator_rassociator D h c).
-    - exact discrete_fiber_data_laws_rassociator_lassociator.
-    - exact discrete_fiber_data_laws_runitor_rwhisker.
-    - exact discrete_fiber_data_laws_lassociator_lassociator.
+    - exact (strict_fiber_bicat_data_laws_vcomp_left D h c).
+    - exact (strict_fiber_bicat_data_laws_vcomp_right D h c).
+    - exact (strict_fiber_bicat_data_laws_vcomp_assoc D h c).
+    - exact (strict_fiber_bicat_data_laws_rwhisker_id2 D h c).
+    - exact (strict_fiber_bicat_data_laws_id2_lwhisker D h c).
+    - exact (strict_fiber_bicat_data_laws_vcomp_lwhisker D h c).
+    - exact (strict_fiber_bicat_data_laws_vcomp_rwhisker D h c).
+    - exact (strict_fiber_bicat_data_laws_vcomp_lunitor D h c).
+    - exact (strict_fiber_bicat_data_laws_vcomp_runitor D h c).
+    - exact (strict_fiber_bicat_data_laws_lwhisker_lwhisker D h c).
+    - exact (strict_fiber_bicat_data_laws_rwhisker_lwhisker D h c).
+    - exact (strict_fiber_bicat_data_laws_rwhisker_rwhisker D h c).
+    - exact (strict_fiber_bicat_data_vcomp_whisker D h c).
+    - exact (strict_fiber_bicat_data_laws_lunitor_linvunitor D h c).
+    - exact (strict_fiber_bicat_data_laws_linvunitor_lunitor D h c).
+    - exact (strict_fiber_bicat_data_laws_runitor_rinvunitor D h c).
+    - exact (strict_fiber_bicat_data_laws_rinvunitor_runitor D h c).
+    - exact (strict_fiber_bicat_data_laws_lassociator_rassociator D h c).
+    - exact strict_fiber_bicat_data_laws_rassociator_lassociator.
+    - exact strict_fiber_bicat_data_laws_runitor_rwhisker.
+    - exact strict_fiber_bicat_data_laws_lassociator_lassociator.
   Qed.
 
-  Definition discrete_fiber : prebicat.
+  Definition strict_fiber_bicat : prebicat.
   Proof.
     use tpair.
-    - exact (discrete_fiber_data D h c).
-    - exact discrete_fiber_data_laws.
+    - exact (strict_fiber_bicat_data D h c).
+    - exact strict_fiber_bicat_data_laws.
   Defined.
 End LocalIsoFibration.
