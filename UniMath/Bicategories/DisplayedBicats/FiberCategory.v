@@ -1,7 +1,7 @@
 (* ******************************************************************************* *)
 (** * Fiber category of a displayed bicategory whose displayed 2-cells form a
-      proposition. In addition, we ask the displayed bicategory to be locally univalent and
-      to be equipped with a local iso-cleaving.
+      proposition. In addition, we ask the displayed bicategory to be locally
+      univalent and to be equipped with a local iso-cleaving.
  ********************************************************************************* *)
 
 Require Import UniMath.Foundations.All.
@@ -14,36 +14,13 @@ Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
+Require Import UniMath.Bicategories.DisplayedBicats.Fibration.
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
 Section LocalIsoFibration.
   Context {C : bicat}.
-
-  Definition local_iso_cleaving (D : disp_prebicat C)
-    : UU
-    := ∏ (c c' : C) (f f' : C⟦c,c'⟧)
-         (d : D c) (d' : D c')
-         (ff' : d -->[f'] d')
-         (α : invertible_2cell f f'),
-       ∑ ff : d -->[f] d', disp_invertible_2cell α ff ff'.
-
-  Section Projections.
-    Context {D : disp_prebicat C} (lic : local_iso_cleaving D)
-            {c c' : C} {f f' : C⟦c,c'⟧}
-            {d : D c} {d' : D c'}
-            (ff' : d -->[f'] d')
-            (α : invertible_2cell f f').
-
-    Definition local_iso_cleaving_1cell
-      : d -->[f] d'
-      := pr1 (lic c c' f f' d d' ff' α).
-
-    Definition disp_local_iso_cleaving_invertible_2cell
-      : disp_invertible_2cell α local_iso_cleaving_1cell ff'
-      := pr2 (lic c c' f f' d d' ff' α).
-  End Projections.
 
   Section Discrete_Fiber.
     Variable (D : disp_bicat C)
@@ -52,31 +29,18 @@ Section LocalIsoFibration.
              (h : local_iso_cleaving D)
              (c : C).
 
-    Definition discrete_fiber_ob_mor : precategory_ob_mor.
-    Proof.
-      use tpair.
-      - exact (D c).
-      - cbn. exact (λ (d : D c) (d' : D c), d -->[identity c] d').
-    Defined.
-
-    Definition idempunitor : invertible_2cell (identity c) (identity c · identity c).
-    Proof.
-      exists (linvunitor (identity c)).
-      apply is_invertible_2cell_linvunitor.
-    Defined.
-
     (** Laws of category *)
 
     (** Left unitality *)
     Definition discrete_fiber_lunitor
                {d d' : D c}
                (ff : d -->[ id₁ c] d')
-      : (local_iso_cleaving_1cell h (id_disp d;; ff) idempunitor)
+      : (local_iso_cleaving_1cell h (id_disp d;; ff) (idempunitor c))
           ==>[ id₂ (id₁ c)] ff.
     Proof.
-      set (PP := disp_local_iso_cleaving_invertible_2cell h (id_disp d;; ff) idempunitor).
+      set (PP := disp_local_iso_cleaving_invertible_2cell h (id_disp d;; ff) (idempunitor c)).
       set (RR := PP •• disp_lunitor ff).
-      assert (Heq : idempunitor • lunitor (identity c) = id2 (identity c)).
+      assert (Heq : idempunitor c • lunitor (identity c) = id2 (identity c)).
       { abstract (apply linvunitor_lunitor). }
       exact (transportf (λ x, _ ==>[x] _) Heq RR).
     Defined.
@@ -85,13 +49,13 @@ Section LocalIsoFibration.
                {d d' : D c}
                (ff : d -->[ id₁ c] d')
       : ff ==>[id₂ (id₁ c) ]
-           (local_iso_cleaving_1cell h (id_disp d;; ff) idempunitor).
+           (local_iso_cleaving_1cell h (id_disp d;; ff) (idempunitor c)).
     Proof.
       set (PP := disp_inv_cell
                    (disp_local_iso_cleaving_invertible_2cell
                       h
-                      (id_disp d;; ff) idempunitor)).
-      assert (Heq : linvunitor (identity c) • idempunitor^-1 = id2 (identity c)).
+                      (id_disp d;; ff) (idempunitor c))).
+      assert (Heq : linvunitor (identity c) • (idempunitor c)^-1 = id2 (identity c)).
       { abstract (apply linvunitor_lunitor). }
       exact (transportf (λ x, _ ==>[x] _) Heq (disp_linvunitor ff •• PP)).
     Defined.
@@ -101,7 +65,7 @@ Section LocalIsoFibration.
                (ff : d -->[ id₁ c] d')
       : disp_invertible_2cell
           (id2_invertible_2cell (id₁ c))
-          (local_iso_cleaving_1cell h (id_disp d;; ff) idempunitor)
+          (local_iso_cleaving_1cell h (id_disp d;; ff) (idempunitor c))
           ff.
     Proof.
       use tpair.
@@ -115,15 +79,15 @@ Section LocalIsoFibration.
     Definition discrete_fiber_runitor
                {d d' : D c}
                (ff : d -->[ id₁ c] d')
-      : (local_iso_cleaving_1cell h (ff;;id_disp d') idempunitor)
+      : (local_iso_cleaving_1cell h (ff;;id_disp d') (idempunitor c))
           ==>[ id₂ (id₁ c)] ff.
     Proof.
-      assert (Heq : idempunitor • runitor (identity c) = id2 (identity c)).
+      assert (Heq : idempunitor c • runitor (identity c) = id2 (identity c)).
       { abstract (cbn
                   ; rewrite <- lunitor_runitor_identity, linvunitor_lunitor
                   ; reflexivity).
       }
-      set (PP := disp_local_iso_cleaving_invertible_2cell h (ff;; id_disp d') idempunitor).
+      set (PP := disp_local_iso_cleaving_invertible_2cell h (ff;; id_disp d') (idempunitor c)).
       exact (transportf (λ x, _ ==>[x] _) Heq (PP •• disp_runitor ff)).
     Defined.
 
@@ -131,12 +95,12 @@ Section LocalIsoFibration.
                {d d' : D c}
                (ff : d -->[ id₁ c] d')
       : ff ==>[ id₂ (id₁ c) ]
-           (local_iso_cleaving_1cell h (ff;;id_disp d') idempunitor).
+           (local_iso_cleaving_1cell h (ff;;id_disp d') (idempunitor c)).
     Proof.
       set (PP := disp_inv_cell
                    (disp_local_iso_cleaving_invertible_2cell
-                      h (ff;; id_disp d') idempunitor)).
-      assert (Heq : rinvunitor (identity c) • idempunitor^-1 = id2 (identity c)).
+                      h (ff;; id_disp d') (idempunitor c))).
+      assert (Heq : rinvunitor (identity c) • (idempunitor c)^-1 = id2 (identity c)).
       { unfold idempunitor. cbn.
         abstract (rewrite lunitor_runitor_identity, rinvunitor_runitor
                   ; reflexivity).
@@ -149,7 +113,7 @@ Section LocalIsoFibration.
                (ff : d -->[ id₁ c] d')
       : disp_invertible_2cell
           (id2_invertible_2cell (id₁ c))
-          (local_iso_cleaving_1cell h (ff;;id_disp d') idempunitor)
+          (local_iso_cleaving_1cell h (ff;;id_disp d') (idempunitor c))
           ff.
     Proof.
       use tpair.
@@ -167,15 +131,15 @@ Section LocalIsoFibration.
                (hh : d2 -->[ id₁ c] d3)
       : local_iso_cleaving_1cell
           h
-          (ff;; local_iso_cleaving_1cell h (gg;; hh) idempunitor)
-          idempunitor
+          (ff;; local_iso_cleaving_1cell h (gg;; hh) (idempunitor c))
+          (idempunitor c)
         ==>[ id₂ (id₁ c)]
         local_iso_cleaving_1cell h
-          (local_iso_cleaving_1cell h (ff;; gg) idempunitor;; hh)
-          idempunitor.
+          (local_iso_cleaving_1cell h (ff;; gg) (idempunitor c);; hh)
+          (idempunitor c).
     Proof.
-      assert ((idempunitor
-                 • (identity c ◃ idempunitor))
+      assert ((idempunitor c
+                 • (identity c ◃ idempunitor c))
                 • lassociator _ _ _
                 • ((lunitor _ ▹ identity c)
                      • lunitor _) = id2 _) as Heq.
@@ -202,18 +166,18 @@ Section LocalIsoFibration.
         refine (_ •• disp_lassociator ff gg hh •• _).
         - refine (_ •• _).
           + exact (disp_local_iso_cleaving_invertible_2cell
-                     h (ff;;local_iso_cleaving_1cell h (gg;; hh) idempunitor)
-                     idempunitor).
+                     h (ff;;local_iso_cleaving_1cell h (gg;; hh) (idempunitor c))
+                     (idempunitor c)).
           + refine (disp_lwhisker _ _).
             exact (disp_local_iso_cleaving_invertible_2cell
-                     h (gg ;; hh) idempunitor).
+                     h (gg ;; hh) (idempunitor c)).
         - refine (_ •• _).
           + refine (disp_rwhisker _ _).
             exact (disp_inv_cell (disp_local_iso_cleaving_invertible_2cell
-                                    h (ff ;; gg) idempunitor)).
+                                    h (ff ;; gg) (idempunitor c))).
           + exact (disp_inv_cell (disp_local_iso_cleaving_invertible_2cell
-                                    h (local_iso_cleaving_1cell h (ff;; gg) idempunitor;;
-                                                                hh) idempunitor)).
+                                    h (local_iso_cleaving_1cell h (ff;; gg) (idempunitor c);;
+                                                                hh) (idempunitor c))).
     Defined.
 
     Definition discrete_fiber_rassociator
@@ -222,14 +186,14 @@ Section LocalIsoFibration.
                (gg : d1 -->[ id₁ c] d2)
                (hh : d2 -->[ id₁ c] d3)
       : local_iso_cleaving_1cell
-           h (local_iso_cleaving_1cell h (ff;; gg) idempunitor;; hh)
-           idempunitor
+           h (local_iso_cleaving_1cell h (ff;; gg) (idempunitor c);; hh)
+           (idempunitor c)
         ==>[ id₂ (id₁ c)]
         local_iso_cleaving_1cell
           h
-          (ff;; local_iso_cleaving_1cell h (gg;; hh) idempunitor) idempunitor.
+          (ff;; local_iso_cleaving_1cell h (gg;; hh) (idempunitor c)) (idempunitor c).
     Proof.
-      assert ((idempunitor • (idempunitor ▹ identity c))
+      assert ((idempunitor c • (idempunitor c ▹ identity c))
                 • rassociator _ _ _
                 • ((identity c ◃ lunitor _)
                      • lunitor _)
@@ -258,21 +222,21 @@ Section LocalIsoFibration.
       cbn.
       refine (_ •• disp_rassociator ff gg hh •• _).
       - refine (disp_local_iso_cleaving_invertible_2cell
-                  h (local_iso_cleaving_1cell h (ff;; gg) idempunitor;; hh) idempunitor
+                  h (local_iso_cleaving_1cell h (ff;; gg) (idempunitor c);; hh) (idempunitor c)
                   •• _).
         refine (disp_rwhisker _ _).
-        exact (disp_local_iso_cleaving_invertible_2cell h (ff ;; gg) idempunitor).
+        exact (disp_local_iso_cleaving_invertible_2cell h (ff ;; gg) (idempunitor c)).
       - refine (_ •• _).
         + refine (disp_lwhisker _ _).
           exact (disp_inv_cell
                    (disp_local_iso_cleaving_invertible_2cell
-                      h (gg ;; hh) idempunitor)).
+                      h (gg ;; hh) (idempunitor c))).
         + exact (disp_inv_cell ((disp_local_iso_cleaving_invertible_2cell
                                    h
                                    (ff;;local_iso_cleaving_1cell
                                       h (gg;; hh)
-                                      idempunitor)
-                                   idempunitor))).
+                                      (idempunitor c))
+                                   (idempunitor c)))).
     Defined.
 
     Definition discrete_fiber_lassociator_disp_invertible
@@ -284,12 +248,12 @@ Section LocalIsoFibration.
           (id2_invertible_2cell (id₁ c))
           (local_iso_cleaving_1cell
              h
-             (ff;; local_iso_cleaving_1cell h (gg;; hh) idempunitor)
-             idempunitor)
+             (ff;; local_iso_cleaving_1cell h (gg;; hh) (idempunitor c))
+             (idempunitor c))
           (local_iso_cleaving_1cell
              h
-             (local_iso_cleaving_1cell h (ff;; gg) idempunitor;; hh)
-             idempunitor).
+             (local_iso_cleaving_1cell h (ff;; gg) (idempunitor c);; hh)
+             (idempunitor c)).
     Proof.
       use tpair.
       - exact (discrete_fiber_lassociator ff gg hh).
@@ -298,21 +262,8 @@ Section LocalIsoFibration.
         + abstract (split ; apply HD).
     Defined.
 
-    (** Now let's assemble it! *)
-    Definition discrete_fiber_precategory_data : precategory_data.
-    Proof.
-      exists discrete_fiber_ob_mor.
-      split; cbn.
-      - intro d. exact (id_disp d).
-      - intros x y z ff gg.
-        use (local_iso_cleaving_1cell h).
-        + exact (identity c · identity c).
-        + exact (ff ;; gg).
-        + exact idempunitor.
-    Defined.
-
     Definition discrete_fiber_is_precategory
-      : is_precategory discrete_fiber_precategory_data.
+      : is_precategory (discrete_fiber_precategory_data D h c).
     Proof.
       apply is_precategory_one_assoc_to_two.
       repeat split.
@@ -342,7 +293,7 @@ Section LocalIsoFibration.
     Definition discrete_fiber_precategory : precategory.
     Proof.
       use make_precategory.
-      - exact discrete_fiber_precategory_data.
+      - exact (discrete_fiber_precategory_data D h c).
       - exact discrete_fiber_is_precategory.
     Defined.
 
@@ -359,30 +310,3 @@ Section LocalIsoFibration.
     Defined.
   End Discrete_Fiber.
 End LocalIsoFibration.
-
-Definition univalent_2_1_to_local_iso_cleaving_help
-           {C : bicat}
-           {D : disp_prebicat C}
-           {c c' : C}
-           {f f' : C⟦c,c'⟧}
-           {d : D c} {d' : D c'}
-           (ff' : d -->[f'] d')
-           (α : f  = f')
-  : ∑ ff : d -->[f] d', disp_invertible_2cell (idtoiso_2_1 _ _ α) ff ff'.
-Proof.
-  induction α.
-  refine (ff' ,, _).
-  apply disp_id2_invertible_2cell.
-Defined.
-
-Definition univalent_2_1_to_local_iso_cleaving
-           {C : bicat}
-           (HC : is_univalent_2_1 C)
-           (D : disp_prebicat C)
-  : local_iso_cleaving D.
-Proof.
-  intros x y f g xx yy ff gg.
-  pose (univalent_2_1_to_local_iso_cleaving_help ff (isotoid_2_1 HC gg)) as t.
-  rewrite idtoiso_2_1_isotoid_2_1 in t.
-  exact t.
-Defined.

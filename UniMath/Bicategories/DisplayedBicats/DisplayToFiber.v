@@ -23,7 +23,7 @@ Require Import UniMath.Bicategories.Transformations.Examples.Unitality.
 Require Import UniMath.Bicategories.Modifications.Modification.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
-Require Import UniMath.Bicategories.DisplayedBicats.FiberCategory.
+Require Import UniMath.Bicategories.DisplayedBicats.Fibration.
 Require Import UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
 Require Import UniMath.Bicategories.DisplayedBicats.DispTransformation.
 Require Import UniMath.Bicategories.DisplayedBicats.DispModification.

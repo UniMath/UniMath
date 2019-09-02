@@ -22,6 +22,7 @@ DisplayedBicats/DispBicat.v
 DisplayedBicats/DispInvertibles.v
 DisplayedBicats/DispAdjunctions.v
 DisplayedBicats/DispUnivalence.v
+DisplayedBicats/Fibration.v
 DisplayedBicats/FiberBicategory/FiberBicategory1.v
 DisplayedBicats/FiberBicategory/FiberBicategory2.v
 DisplayedBicats/FiberBicategory.v
