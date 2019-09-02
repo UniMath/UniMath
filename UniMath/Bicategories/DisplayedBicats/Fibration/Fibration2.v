@@ -14,6 +14,7 @@ Require Import UniMath.Bicategories.Core.Unitors.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.Notations.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
+Require Import UniMath.Bicategories.DisplayedBicats.FiberCategory.
 Require Import UniMath.Bicategories.DisplayedBicats.Fibration.Fibration1.
 
 Local Open Scope cat.
@@ -22,7 +23,7 @@ Local Open Scope mor_disp_scope.
 Section LocalIsoFibration.
   Context {C : bicat}.
 
-  Variable (D : disp_prebicat C) (h : local_iso_cleaving D) (c : C).
+  Variable (D : disp_bicat C) (h : local_iso_cleaving D) (c : C).
 
   Local Arguments transportf {_} {_} {_} {_} {_} _.
   Local Arguments transportb {_} {_} {_} {_} {_} _.
