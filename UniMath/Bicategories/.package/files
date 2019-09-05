@@ -82,7 +82,7 @@ Colimits/Final.v
 PseudoFunctors/Biadjunction.v
 DisplayedBicats/DispBiadjunction.v
 PseudoFunctors/Examples/PathGroupoid.v
-DisplayedBicats/DisplayToFiber.v
+DisplayedBicats/DispToFiberEquivalence.v
 DisplayedBicats/DispBuilders.v
 DisplayedBicats/Examples/MonadKtripleBiequiv.v
 DisplayedBicats/Examples/PointedGroupoid.v

@@ -385,7 +385,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [PseudoFunctors/Biadjunction.v](Bicategories/PseudoFunctors/Biadjunction.v)
    - [DisplayedBicats/DispBiadjunction.v](Bicategories/DisplayedBicats/DispBiadjunction.v)
    - [PseudoFunctors/Examples/PathGroupoid.v](Bicategories/PseudoFunctors/Examples/PathGroupoid.v)
-   - [DisplayedBicats/DisplayToFiber.v](Bicategories/DisplayedBicats/DisplayToFiber.v)
+   - [DisplayedBicats/DispToFiberEquivalence.v](Bicategories/DisplayedBicats/DispToFiberEquivalence.v)
    - [DisplayedBicats/DispBuilders.v](Bicategories/DisplayedBicats/DispBuilders.v)
    - [DisplayedBicats/Examples/MonadKtripleBiequiv.v](Bicategories/DisplayedBicats/Examples/MonadKtripleBiequiv.v)
    - [DisplayedBicats/Examples/PointedGroupoid.v](Bicategories/DisplayedBicats/Examples/PointedGroupoid.v)
