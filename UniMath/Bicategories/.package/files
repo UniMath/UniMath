@@ -23,10 +23,10 @@ DisplayedBicats/DispInvertibles.v
 DisplayedBicats/DispAdjunctions.v
 DisplayedBicats/DispUnivalence.v
 DisplayedBicats/Fibration.v
+DisplayedBicats/FiberCategory.v
 DisplayedBicats/FiberBicategory/FiberBicategory1.v
 DisplayedBicats/FiberBicategory/FiberBicategory2.v
 DisplayedBicats/FiberBicategory.v
-DisplayedBicats/FiberCategory.v
 DisplayedBicats/Examples/Sigma.v
 DisplayedBicats/Examples/DispBicatOfDispCats.v
 DisplayedBicats/Examples/DisplayedCatToBicat.v
