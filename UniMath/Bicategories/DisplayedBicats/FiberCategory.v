@@ -19,6 +19,39 @@ Require Import UniMath.Bicategories.DisplayedBicats.Fibration.
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
+Section Discrete_Fiber_Precategory.
+  Context {C : bicat}.
+
+  Variable (D : disp_prebicat C)
+           (h : local_iso_cleaving D)
+           (c : C).
+
+  Definition discrete_fiber_ob_mor : precategory_ob_mor.
+  Proof.
+    use tpair.
+    - exact (D c).
+    - cbn. exact (λ (d : D c) (d' : D c), d -->[identity c] d').
+  Defined.
+
+  Definition idempunitor : invertible_2cell (identity c) (identity c · identity c).
+  Proof.
+    exists (linvunitor (identity c)).
+    apply is_invertible_2cell_linvunitor.
+  Defined.
+
+  Definition discrete_fiber_precategory_data : precategory_data.
+  Proof.
+    exists discrete_fiber_ob_mor.
+    split; cbn.
+    - intro d. exact (id_disp d).
+    - intros x y z ff gg.
+      use (local_iso_cleaving_1cell h).
+      + exact (identity c · identity c).
+      + exact (ff ;; gg).
+      + exact idempunitor.
+  Defined.
+End Discrete_Fiber_Precategory.
+
 Section Discrete_Fiber.
 Context {C : bicat}.
 

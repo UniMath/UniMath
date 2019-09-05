@@ -15,6 +15,7 @@ Require Import UniMath.Bicategories.DisplayedBicats.DispBicat. Import DispBicat.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
 Require Import UniMath.Bicategories.DisplayedBicats.Fibration.
+Require Import UniMath.Bicategories.DisplayedBicats.FiberCategory.
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
