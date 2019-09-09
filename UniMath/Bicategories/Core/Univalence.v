@@ -6,6 +6,7 @@
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.CategoryTheory.Groupoids.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Isos.
@@ -419,32 +420,32 @@ End J20.
 
 (* ----------------------------------------------------------------------------------- *)
 (** ** Application of J:                                                               *)
-(** ** Adjoint equivalences in a globally univalent bicategory form a groupoid         *)
+(** ** Adjoint equivalences in a globally univalent bicategory form a pregroupoid      *)
 (* ----------------------------------------------------------------------------------- *)
 
-Section AdjointEquivGroupoid.
+Section AdjointEquivPregroupoid.
   Context {B : bicat}.
   Variable (HB : is_univalent_2_0 B).
 
   Definition comp_adjoint_equivalence
-             {a b c : B}
+             (a b c : B)
              (f : adjoint_equivalence a b)
              (g : adjoint_equivalence b c)
     : adjoint_equivalence a c
     := J_2_0 HB (λ a b _, ∏ (c : B), adjoint_equivalence b c → adjoint_equivalence a c) (λ _ _ h, h) f c g.
 
   Definition inv_adjoint_equivalence
-             {a b : B}
+             (a b : B)
              (f : adjoint_equivalence a b)
     : adjoint_equivalence b a
     := J_2_0 HB (λ a b _, adjoint_equivalence b a) internal_adjoint_equivalence_identity f.
 
   Definition adjoint_equivalence_lid
-             {a b : B}
+             (a b : B)
              (f : adjoint_equivalence a b)
-    : comp_adjoint_equivalence (internal_adjoint_equivalence_identity a) f = f.
+    : comp_adjoint_equivalence a a b (internal_adjoint_equivalence_identity a) f = f.
   Proof.
-    apply (J_2_0 HB (λ a b f, comp_adjoint_equivalence (internal_adjoint_equivalence_identity a) f = f)).
+    apply (J_2_0 HB (λ a b f, comp_adjoint_equivalence a a b (internal_adjoint_equivalence_identity a) f = f)).
     intro c.
     unfold comp_adjoint_equivalence.
     rewrite J_2_0_comp.
@@ -452,11 +453,11 @@ Section AdjointEquivGroupoid.
   Defined.
 
   Definition adjoint_equivalence_rid
-             {a b : B}
+             (a b : B)
              (f : adjoint_equivalence a b)
-    : comp_adjoint_equivalence f (internal_adjoint_equivalence_identity b) = f.
+    : comp_adjoint_equivalence a b b f (internal_adjoint_equivalence_identity b) = f.
   Proof.
-    apply (J_2_0 HB (λ a b f, comp_adjoint_equivalence f (internal_adjoint_equivalence_identity b) = f)).
+    apply (J_2_0 HB (λ a b f, comp_adjoint_equivalence a b b f (internal_adjoint_equivalence_identity b) = f)).
     intro c.
     unfold comp_adjoint_equivalence.
     rewrite J_2_0_comp.
@@ -464,16 +465,17 @@ Section AdjointEquivGroupoid.
   Defined.
 
   Definition adjoint_equivalence_assoc
-             {a b c d : B}
+             (a b c d : B)
              (f : adjoint_equivalence a b)
              (g : adjoint_equivalence b c)
              (h : adjoint_equivalence c d)
-    : comp_adjoint_equivalence f (comp_adjoint_equivalence g h) = comp_adjoint_equivalence (comp_adjoint_equivalence f g) h.
+    : comp_adjoint_equivalence a b d f (comp_adjoint_equivalence b c d g h) =
+      comp_adjoint_equivalence a c d (comp_adjoint_equivalence a b c f g) h.
   Proof.
     apply (J_2_0 HB (λ a b f,
                      ∏ (c d : B) (g : adjoint_equivalence b c) (h : adjoint_equivalence c d),
-                     comp_adjoint_equivalence f (comp_adjoint_equivalence g h) =
-                     comp_adjoint_equivalence (comp_adjoint_equivalence f g) h)).
+                     comp_adjoint_equivalence a b d f (comp_adjoint_equivalence b c d g h) =
+                     comp_adjoint_equivalence a c d (comp_adjoint_equivalence a b c f g) h)).
     intros.
     rewrite adjoint_equivalence_lid.
     apply maponpaths_2.
@@ -482,12 +484,14 @@ Section AdjointEquivGroupoid.
   Defined.
 
   Definition adjoint_equivalence_linv
-             {a b : B}
+             (a b : B)
              (f : adjoint_equivalence a b)
-    : comp_adjoint_equivalence (inv_adjoint_equivalence f) f = internal_adjoint_equivalence_identity b.
+    : comp_adjoint_equivalence b a b (inv_adjoint_equivalence a b f) f =
+      internal_adjoint_equivalence_identity b.
   Proof.
-    apply (J_2_0 HB (λ a b f, comp_adjoint_equivalence (inv_adjoint_equivalence f) f =
-                              internal_adjoint_equivalence_identity b)).
+    apply (J_2_0 HB (λ a b f,
+                     comp_adjoint_equivalence b a b (inv_adjoint_equivalence a b f) f =
+                     internal_adjoint_equivalence_identity b)).
     intro c.
     rewrite adjoint_equivalence_rid.
     unfold inv_adjoint_equivalence.
@@ -496,12 +500,14 @@ Section AdjointEquivGroupoid.
   Defined.
 
   Definition adjoint_equivalence_rinv
-             {a b : B}
+             (a b : B)
              (f : adjoint_equivalence a b)
-    : comp_adjoint_equivalence f (inv_adjoint_equivalence f) = internal_adjoint_equivalence_identity a.
+    : comp_adjoint_equivalence a b a f (inv_adjoint_equivalence a b f) =
+      internal_adjoint_equivalence_identity a.
   Proof.
-    apply (J_2_0 HB (λ a b f, comp_adjoint_equivalence f (inv_adjoint_equivalence f) =
-                              internal_adjoint_equivalence_identity a)).
+    apply (J_2_0 HB (λ a b f,
+                     comp_adjoint_equivalence a b a f (inv_adjoint_equivalence a b f) =
+                     internal_adjoint_equivalence_identity a)).
     intro c.
     rewrite adjoint_equivalence_lid.
     unfold inv_adjoint_equivalence.
@@ -509,4 +515,48 @@ Section AdjointEquivGroupoid.
     exact (idpath _).
   Defined.
 
-End AdjointEquivGroupoid.
+  Definition adjoint_equivalence_precategory_data : precategory_data.
+  Proof.
+    use make_precategory_data.
+    - use make_precategory_ob_mor.
+      + exact B.
+      + exact adjoint_equivalence.
+    - exact internal_adjoint_equivalence_identity.
+    - exact comp_adjoint_equivalence.
+  Defined.
+
+  Definition adjoint_equivalence_is_precategory
+    : is_precategory adjoint_equivalence_precategory_data.
+  Proof.
+    use make_is_precategory_one_assoc.
+    - exact adjoint_equivalence_lid.
+    - exact adjoint_equivalence_rid.
+    - exact adjoint_equivalence_assoc.
+  Qed.
+
+  Definition adjoint_equivalence_precategory : precategory.
+  Proof.
+    use make_precategory.
+    - exact adjoint_equivalence_precategory_data.
+    - exact adjoint_equivalence_is_precategory.
+  Defined.
+
+  Definition adjoint_equivalence_is_pregroupoid
+    : is_pregroupoid adjoint_equivalence_precategory.
+  Proof.
+    intros a b f.
+    use is_iso_qinv.
+    - exact (inv_adjoint_equivalence a b f).
+    - split.
+      + exact (adjoint_equivalence_rinv a b f).
+      + exact (adjoint_equivalence_linv a b f).
+  Qed.
+
+  Definition adjoint_equivalence_pregroupoid : pregroupoid.
+  Proof.
+    use make_pregroupoid.
+    - exact adjoint_equivalence_precategory.
+    - exact adjoint_equivalence_is_pregroupoid.
+  Defined.
+
+End AdjointEquivPregroupoid.

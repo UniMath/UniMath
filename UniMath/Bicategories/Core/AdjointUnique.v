@@ -598,7 +598,7 @@ Section AdjointEquivUniqueCompInv.
 
   Definition unique_adjoint_equivalence_inv
              {a b : B}
-    : ∏ (f : adjoint_equivalence a b), inv_adjequiv f = inv_adjoint_equivalence (pr1 HB) f.
+    : ∏ (f : adjoint_equivalence a b), inv_adjequiv f = inv_adjoint_equivalence (pr1 HB) a b f.
   Proof.
     use (J_2_0 (pr1 HB) (λ a b f, _)).
     intro x; simpl.
@@ -615,7 +615,7 @@ Section AdjointEquivUniqueCompInv.
   Definition unique_adjoint_equivalence_comp
              {a b c : B}
     : ∏ (f : adjoint_equivalence a b) (g : adjoint_equivalence b c),
-      comp_adjequiv f g = comp_adjoint_equivalence (pr1 HB) f g.
+      comp_adjequiv f g = comp_adjoint_equivalence (pr1 HB) a b c f g.
   Proof.
     use (J_2_0 (pr1 HB) (λ a b f, _)).
     intros x g; simpl.
