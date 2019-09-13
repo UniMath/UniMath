@@ -863,7 +863,7 @@ Proof.
   apply yoneda_mor_is_equivalence.
 Defined.
 
-Definition global_completion
+Definition rezk_completion_2_0
            (B : bicat)
            (HB : is_univalent_2_1 B)
   : ∑ (GC : bicat)
