@@ -11,6 +11,8 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
+Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
@@ -179,15 +181,13 @@ Section BiadjunctionHom.
   Context {B₁ B₂ : bicat}
           {L : psfunctor B₁ B₂}
           (R : left_biadj_data L)
-          (X : B₁) (Y : B₂)
-          (H₁ : is_univalent_2_1 B₁)
-          (H₂ : is_univalent_2_1 B₂).
+          (X : B₁) (Y : B₂).
 
   Local Notation "'η'" := (biadj_unit R).
   Local Notation "'ε'" := (biadj_counit R).
 
   Local Definition biadj_left_hom_data
-    : functor_data (univ_hom H₁ X (R Y)) (univ_hom H₂ (L X) Y).
+    : functor_data (hom X (R Y)) (hom (L X) Y).
   Proof.
     use make_functor_data.
     - cbn ; intro f.
@@ -211,7 +211,7 @@ Section BiadjunctionHom.
   Qed.
 
   Definition biadj_left_hom
-    : univ_hom H₁ X (R Y) ⟶ univ_hom H₂ (L X) Y.
+    : hom X (R Y) ⟶ hom (L X) Y.
   Proof.
     use make_functor.
     - exact biadj_left_hom_data.
@@ -219,7 +219,7 @@ Section BiadjunctionHom.
   Defined.
 
   Definition biadj_right_hom_data
-    : functor_data (univ_hom H₂ (L X) Y) (univ_hom H₁ X (R Y)).
+    : functor_data (hom (L X) Y) (hom X (R Y)).
   Proof.
     use make_functor_data.
     - cbn ; intro f.
@@ -243,7 +243,7 @@ Section BiadjunctionHom.
   Qed.
 
   Definition biadj_right_hom
-    : univ_hom H₂ (L X) Y ⟶ univ_hom H₁ X (R Y).
+    : hom (L X) Y ⟶ hom X (R Y).
   Proof.
     use make_functor.
     - exact biadj_right_hom_data.
@@ -252,7 +252,7 @@ Section BiadjunctionHom.
 
   Definition biadj_hom_left_right_data
     : nat_trans_data
-        (functor_identity (univ_hom H₁ X (R Y)))
+        (functor_identity (hom X (R Y)))
         (biadj_left_hom ∙ biadj_right_hom).
   Proof.
     intros f.
@@ -316,7 +316,7 @@ Section BiadjunctionHom.
   Qed.
 
   Definition biadj_hom_left_right
-    : (functor_identity (univ_hom H₁ X (R Y)))
+    : (functor_identity (hom X (R Y)))
         ⟹
         biadj_left_hom ∙ biadj_right_hom.
   Proof.
@@ -328,7 +328,7 @@ Section BiadjunctionHom.
   Definition biadj_hom_right_left_data
     : nat_trans_data
         (biadj_right_hom ∙ biadj_left_hom)
-        (functor_identity (univ_hom H₂ (L X) Y)).
+        (functor_identity (hom (L X) Y)).
   Proof.
     intros f.
     cbn in f ; cbn.
@@ -404,39 +404,86 @@ Section BiadjunctionHom.
   Definition biadj_hom_right_left
     : (biadj_right_hom ∙ biadj_left_hom)
         ⟹
-        (functor_identity (univ_hom H₂ (L X) Y)).
+        (functor_identity (hom (L X) Y)).
   Proof.
     use make_nat_trans.
     - exact biadj_hom_right_left_data.
     - exact biadj_hom_right_left_is_nat_trans.
   Defined.
 
-  Definition biadj_hom_equiv
-    : @left_equivalence bicat_of_cats _ _ biadj_left_hom.
+  Definition biadj_hom_equivalence
+    : equivalence_of_precats (hom X (R Y)) (hom (L X) Y).
   Proof.
     use tpair.
     - use tpair.
-      + exact biadj_right_hom.
-      + split.
-        * exact biadj_hom_left_right.
-        * exact biadj_hom_right_left.
-    - split.
-      + apply is_nat_iso_to_is_invertible_2cell.
-        intro f.
-        simpl.
+      + exact biadj_left_hom.
+      + use tpair.
+        * exact biadj_right_hom.
+        * split.
+          ** exact biadj_hom_left_right.
+          ** exact biadj_hom_right_left.
+    - split ; simpl.
+      + intro a.
         apply is_inv2cell_to_is_iso.
         unfold biadj_hom_left_right_data.
         is_iso.
         apply (psfunctor_comp R).
-      + apply is_nat_iso_to_is_invertible_2cell.
-        intro f.
-        simpl.
+      + intro a.
         apply is_inv2cell_to_is_iso.
         unfold biadj_hom_right_left_data.
         is_iso.
         apply (invertible_modcomponent_of (biadj_triangle_l R)).
   Defined.
+
+  Definition biadj_hom_equiv
+    : adj_equivalence_of_precats biadj_left_hom.
+  Proof.
+    refine (@adjointificiation
+              (make_category (hom X (R Y)) _)
+              (make_category (hom (L X) Y) _)
+              biadj_hom_equivalence).
+    - intros x y.
+      apply B₁.
+    - intros x y.
+      apply B₂.
+  Defined.
 End BiadjunctionHom.
+
+(** Biadjunctions preserve unique maps *)
+Section BiadjunctionUniqueMaps.
+  Context {B₁ B₂ : bicat}
+          {L : psfunctor B₁ B₂}
+          (R : left_biadj_data L)
+          (H₂ : is_univalent_2_1 B₂)
+          (X : B₁) (HX : unique_maps X).
+
+  Definition biadj_preserves_unique_maps
+    : is_biinitial H₂ (L X).
+  Proof.
+    intros Y.
+    unfold is_biinitial in *.
+    use equiv_to_adjequiv.
+    use iso_equiv.
+    - exact ((pr11 (biadj_hom_equiv R X Y))
+               ∙ functor_to_unit (hom X (R Y))).
+    - pose (comp_adj_equivalence_of_precats
+              (adj_equivalence_of_precats_inv (biadj_hom_equiv R X Y))
+              (HX (R Y))) as A.
+      exact (@adj_equivalence_to_left_equivalence
+               (univ_hom H₂ (L X) Y)
+               unit_category
+               _ A).
+    - use make_nat_trans.
+      + exact (λ _, idpath _).
+      + intros f g α.
+        apply isapropunit.
+    - apply is_nat_iso_to_is_invertible_2cell.
+      intros f.
+      use is_iso_qinv ; cbn.
+      + apply idpath.
+      + split ; apply idpath.
+  Defined.
+End BiadjunctionUniqueMaps.
 
 (** Biadjunctions preserve biinitial objects. *)
 Section BiadjunctionInitial.
@@ -450,25 +497,10 @@ Section BiadjunctionInitial.
   Definition biadj_preserves_biinitial
     : is_biinitial H₂ (L X).
   Proof.
-    intros Y.
-    unfold is_biinitial in *.
-    use equiv_to_adjequiv.
-    use iso_equiv.
-    - exact ((pr11 (biadj_hom_equiv R X Y H₁ H₂))
-               · functor_to_unit (univ_hom H₁ X (R Y))).
-    - apply comp_equiv.
-      + pose (biadj_hom_equiv R X Y H₁ H₂).
-        apply inv_equiv.
-      + apply left_equivalence_of_left_adjoint_equivalence.
-        exact (HX (R Y)).
-    - use make_nat_trans.
-      + exact (λ _, idpath _).
-      + intros f g α.
-        apply isapropunit.
-    - apply is_nat_iso_to_is_invertible_2cell.
-      intros f.
-      use is_iso_qinv ; cbn.
-      + apply idpath.
-      + split ; apply idpath.
+    apply biadj_preserves_unique_maps.
+    - exact R.
+    - use biinitial_to_unique_maps.
+      + exact H₁.
+      + apply HX.
   Defined.
 End BiadjunctionInitial.
