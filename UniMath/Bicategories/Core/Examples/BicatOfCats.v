@@ -621,3 +621,19 @@ Proof.
   - exact univalent_cat_is_univalent_2_0.
   - exact univalent_cat_is_univalent_2_1.
 Defined.
+
+Definition adj_equivalence_to_left_equivalence
+           {C₁ C₂ : univalent_category}
+           {F : C₁ ⟶ C₂}
+           (A : adj_equivalence_of_precats F)
+  : @left_equivalence bicat_of_cats _ _ F.
+Proof.
+  simple refine ((_ ,, (_ ,, _)) ,, (_ ,, _)).
+  - exact (adj_equivalence_inv A).
+  - exact (pr1 (unit_nat_iso_from_adj_equivalence_of_precats A)).
+  - exact (pr1 (counit_nat_iso_from_adj_equivalence_of_precats A)).
+  - apply is_nat_iso_to_is_invertible_2cell.
+    exact (pr2 (unit_nat_iso_from_adj_equivalence_of_precats A)).
+  - apply is_nat_iso_to_is_invertible_2cell.
+    exact (pr2 (counit_nat_iso_from_adj_equivalence_of_precats A)).
+Defined.

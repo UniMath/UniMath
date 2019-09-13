@@ -76,7 +76,11 @@ DisplayedBicats/Examples/KleisliTriple.v
 DisplayedBicats/DispTransformation.v
 DisplayedBicats/DispModification.v
 DisplayedBicats/DispBiequivalence.v
+
+Core/Examples/Image.v
+PseudoFunctors/Examples/RestrictImage.v
 Core/YonedaLemma.v
+
 Colimits/Initial.v
 Colimits/Final.v
 PseudoFunctors/Biadjunction.v

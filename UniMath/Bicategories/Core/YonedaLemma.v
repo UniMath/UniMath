@@ -30,6 +30,8 @@ Require Import UniMath.Bicategories.Transformations.PseudoTransformation.
 Require Import UniMath.Bicategories.Modifications.Modification.
 Require Import UniMath.Bicategories.PseudoFunctors.Yoneda.
 Require Import UniMath.Bicategories.PseudoFunctors.Representable.
+Require Import UniMath.Bicategories.Core.Examples.Image.
+Require Import UniMath.Bicategories.PseudoFunctors.Examples.RestrictImage.
 
 Local Open Scope bicategory_scope.
 Local Open Scope cat.
@@ -846,3 +848,39 @@ Section YonedaLocalEquivalence.
             yoneda_to_presheaf_representable_is_iso).
   Defined.
 End YonedaLocalEquivalence.
+
+Definition yoneda_local_equivalence
+           {B : bicat}
+           (B_is_univalent_2_1 : is_univalent_2_1 B)
+  : local_equivalence
+      B_is_univalent_2_1
+      (psfunctor_bicat_is_univalent_2_1
+         (op1_bicat B) _
+         univalent_cat_is_univalent_2_1)
+      (y B_is_univalent_2_1).
+Proof.
+  intros x y.
+  apply yoneda_mor_is_equivalence.
+Defined.
+
+Definition rezk_completion_2_0
+           (B : bicat)
+           (HB : is_univalent_2_1 B)
+  : ∑ (GC : bicat)
+      (CB : psfunctor B GC)
+      (HGC : is_univalent_2 GC),
+    weak_equivalence HB (pr2 HGC) CB.
+Proof.
+  refine (full_image (y HB) ,, _).
+  refine (restrict_full_image (y HB) ,, _).
+  use tpair.
+  - apply is_univalent_2_full_image.
+    apply psfunctor_bicat_is_univalent_2.
+    exact univalent_cat_is_univalent_2.
+  - exact (restrict_full_image_weak_equivalence
+             (y HB)
+             HB
+             _
+             _
+             (yoneda_local_equivalence HB)).
+Defined.

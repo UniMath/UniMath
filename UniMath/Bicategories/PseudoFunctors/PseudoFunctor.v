@@ -18,6 +18,7 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.Core.BicategoryLaws.
@@ -398,6 +399,39 @@ Section ExtendPseudoFunctor.
   Defined.
 
 End ExtendPseudoFunctor.
+
+Definition local_equivalence
+           {B₁ B₂ : bicat}
+           (B₁_is_univalent_2_1 : is_univalent_2_1 B₁)
+           (B₂_is_univalent_2_1 : is_univalent_2_1 B₂)
+           (F : psfunctor B₁ B₂)
+  : UU
+  := ∏ (x y : B₁),
+     @left_adjoint_equivalence
+       bicat_of_cats
+       _ _
+       (Fmor_univ
+          F x y
+          B₁_is_univalent_2_1
+          B₂_is_univalent_2_1).
+
+Definition essentially_surjective
+           {B₁ B₂ : bicat}
+           (F : psfunctor B₁ B₂)
+  : hProp
+  := ∀ (y : B₂), ∃ (x : B₁), adjoint_equivalence (F x) y.
+
+Definition weak_equivalence
+           {B₁ B₂ : bicat}
+           (B₁_is_univalent_2_1 : is_univalent_2_1 B₁)
+           (B₂_is_univalent_2_1 : is_univalent_2_1 B₂)
+           (F : psfunctor B₁ B₂)
+  : UU
+  := local_equivalence
+       B₁_is_univalent_2_1
+       B₂_is_univalent_2_1
+       F
+     × essentially_surjective F.
 
 Module Notations.
   Notation "'##'" := (psfunctor_on_cells).
