@@ -51,6 +51,7 @@ PseudoFunctors/Examples/Composition.v
 PseudoFunctors/Examples/Constant.v
 PseudoFunctors/Examples/ApFunctor.v
 PseudoFunctors/Examples/OpFunctor.v
+PseudoFunctors/Examples/RestrictImage.v
 Transformations/PseudoTransformation.v
 Transformations/Examples/Whiskering.v
 Transformations/Examples/Unitality.v
@@ -76,7 +77,10 @@ DisplayedBicats/Examples/KleisliTriple.v
 DisplayedBicats/DispTransformation.v
 DisplayedBicats/DispModification.v
 DisplayedBicats/DispBiequivalence.v
+
 Core/YonedaLemma.v
+Core/Examples/Image.v
+
 Colimits/Initial.v
 Colimits/Final.v
 PseudoFunctors/Biadjunction.v
