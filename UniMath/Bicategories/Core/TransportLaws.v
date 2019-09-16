@@ -79,6 +79,23 @@ Proof.
     apply lunitor_linvunitor.
 Defined.
 
+Definition idtoiso_2_1_concat
+           {C : bicat}
+           {a b : C}
+           {f₁ f₂ f₃ : a --> b}
+           (p : f₁ = f₂) (q : f₂ = f₃)
+  : idtoiso_2_1 _ _ (p @ q)
+    =
+    comp_of_invertible_2cell
+      (idtoiso_2_1 _ _ p)
+      (idtoiso_2_1 _ _ q).
+Proof.
+  induction p ; induction q ; cbn.
+  use subtypePath.
+  { intro ; apply isaprop_is_invertible_2cell. }
+  exact (!(id2_left _)).
+Defined.
+
 Definition idtoiso_2_1_rwhisker
            {C : bicat}
            {X Y Z : C}
@@ -118,4 +135,96 @@ Proof.
   induction p ; cbn.
   rewrite id2_right, id2_left.
   reflexivity.
+Qed.
+
+Definition isotoid_2_1_id
+           {B : bicat}
+           (HB : is_univalent_2_1 B)
+           {a b : B}
+           (f : a --> b)
+  : idpath f = isotoid_2_1 HB (id2_invertible_2cell f).
+Proof.
+  use (invmaponpathsincl (idtoiso_2_1 _ _)).
+  - apply isinclweq.
+    exact (HB _ _ _ _).
+  - rewrite idtoiso_2_1_isotoid_2_1.
+    apply idpath.
+Qed.
+
+Definition isotoid_2_1_lwhisker
+           {B : bicat}
+           (HB : is_univalent_2_1 B)
+           {a b c : B}
+           (f : a --> b)
+           {g₁ g₂ : b --> c}
+           (α : invertible_2cell g₁ g₂)
+  : maponpaths
+      (λ z : b --> c, f · z)
+      (isotoid_2_1 HB α)
+    =
+    isotoid_2_1 HB (f ◃ α ,, is_invertible_2cell_lwhisker _ (pr2 α)).
+Proof.
+  use (invmaponpathsincl (idtoiso_2_1 _ _)).
+  - apply isinclweq.
+    exact (HB _ _ _ _).
+  - use subtypePath.
+    { intro ; apply isaprop_is_invertible_2cell. }
+    etrans.
+    {
+      refine (!_).
+      apply idtoiso_2_1_lwhisker.
+    }
+    rewrite !idtoiso_2_1_isotoid_2_1.
+    apply idpath.
+Qed.
+
+Definition isotoid_2_1_rwhisker
+           {B : bicat}
+           (HB : is_univalent_2_1 B)
+           {a b c : B}
+           {f₁ f₂ : a --> b}
+           (α : invertible_2cell f₁ f₂)
+           (g : b --> c)
+  : maponpaths
+      (λ z : a --> b, z · g)
+      (isotoid_2_1 HB α)
+    =
+    isotoid_2_1 HB (α ▹ g ,, is_invertible_2cell_rwhisker _ (pr2 α)).
+Proof.
+  use (invmaponpathsincl (idtoiso_2_1 _ _)).
+  - apply isinclweq.
+    exact (HB _ _ _ _).
+  - use subtypePath.
+    { intro ; apply isaprop_is_invertible_2cell. }
+    etrans.
+    {
+      refine (!_).
+      apply idtoiso_2_1_rwhisker.
+    }
+    rewrite !idtoiso_2_1_isotoid_2_1.
+    apply idpath.
+Qed.
+
+Definition isotoid_2_1_vcomp
+           {B : bicat}
+           (HB : is_univalent_2_1 B)
+           {a b : B}
+           {f₁ f₂ f₃ : a --> b}
+           (α : invertible_2cell f₁ f₂)
+           (β : invertible_2cell f₂ f₃)
+  : isotoid_2_1 HB α @ isotoid_2_1 HB β
+    =
+    isotoid_2_1 HB (α • β ,, is_invertible_2cell_vcomp (pr2 α) (pr2 β)).
+Proof.
+  use (invmaponpathsincl (idtoiso_2_1 _ _)).
+  - apply isinclweq.
+    exact (HB _ _ _ _).
+  - etrans.
+    {
+      apply idtoiso_2_1_concat.
+    }
+    use subtypePath.
+    { intro ; apply isaprop_is_invertible_2cell. }
+    rewrite !idtoiso_2_1_isotoid_2_1.
+    apply idpath.
 Qed.
