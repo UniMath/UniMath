@@ -197,7 +197,7 @@ Definition locally_strict
   : UU
   := ∏ (a b : B), isaset (a --> b).
 
-Definition is_two_cat
+Definition is_strict_bicat
            (B : bicat)
   : UU
   := locally_strict B
@@ -208,7 +208,7 @@ Definition make_is_two_cat
            {B : bicat}
            (HB : locally_strict B)
            (S : strictness_structure B)
-  : is_two_cat B.
+  : is_strict_bicat B.
 Proof.
   use tpair.
   - exact HB.
@@ -223,17 +223,17 @@ Proof.
     + abstract (simpl ; intros ; apply HB).
 Defined.
 
-Definition two_cat
-  := ∑ (B : bicat), is_two_cat B.
+Definition strict_bicat
+  := ∑ (B : bicat), is_strict_bicat B.
 
-Coercion bicat_of_twocat
-         (B : two_cat)
+Coercion bicat_of_strict_bicat
+         (B : strict_bicat)
   : bicat
   := pr1 B.
 
 (** Underlying category of a 2-category *)
 Definition underlying_cat
-           (B : two_cat)
+           (B : strict_bicat)
   : category.
 Proof.
   use make_category.
@@ -253,11 +253,11 @@ Proof.
 Defined.
 
 Coercion underlying_cat
-  : two_cat >-> category.
+  : strict_bicat >-> category.
 
 (** Univalent 2-categories *)
 Definition univalent_two_cat_2cells_are_prop
-           (B : two_cat)
+           (B : strict_bicat)
            (HB : is_univalent_2_1 B)
            {a b : B}
            (f g : a --> b)
@@ -300,7 +300,7 @@ Proof.
 Defined.
 
 Definition cat_not_a_two_cat
-  : ¬ (is_two_cat bicat_of_cats).
+  : ¬ (is_strict_bicat bicat_of_cats).
 Proof.
   intro H.
   pose (maponpaths
