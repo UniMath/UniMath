@@ -7,6 +7,7 @@ Core/Unitors.v
 Core/BicategoryLaws.v
 Core/Univalence.v
 Core/TransportLaws.v
+Core/Strictness.v
 Core/EquivToAdjequiv.v
 Core/AdjointUnique.v
 Core/UnivalenceOp.v
@@ -14,6 +15,7 @@ Core/Examples/OneTypes.v
 Core/Examples/PointedOneTypesBicat.v
 Core/Examples/TwoType.v
 Core/Examples/BicatOfCats.v
+Core/Examples/StrictCats.v
 Core/Examples/Initial.v
 Core/Examples/Final.v
 Core/Examples/BicategoryFromMonoidal.v
