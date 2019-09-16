@@ -200,7 +200,7 @@ Proof.
 Qed.
 
 Definition bicat_of_strict_cats_is_two_cat
-  : is_two_cat bicat_of_strict_cats.
+  : is_strict_bicat bicat_of_strict_cats.
 Proof.
   use make_is_two_cat.
   - intros c d.
@@ -257,7 +257,7 @@ Proof.
 Qed.
 
 Definition two_cat_of_strict_cats
-  : two_cat.
+  : strict_bicat.
 Proof.
   use tpair.
   - exact bicat_of_strict_cats.

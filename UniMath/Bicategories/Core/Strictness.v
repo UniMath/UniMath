@@ -5,6 +5,7 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.TwoCategories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
@@ -231,8 +232,8 @@ Coercion bicat_of_strict_bicat
   : bicat
   := pr1 B.
 
-(** Underlying category of a 2-category *)
-Definition underlying_cat
+(** Strict bicat to 2-cat *)
+Definition strict_bicat_to_category
            (B : strict_bicat)
   : category.
 Proof.
@@ -252,8 +253,47 @@ Proof.
   - exact (pr12 B).
 Defined.
 
-Coercion underlying_cat
-  : strict_bicat >-> category.
+Definition strict_bicat_to_two_cat_data
+           (B : strict_bicat)
+  : two_cat_data.
+Proof.
+  use tpair.
+  - exact (strict_bicat_to_category B).
+  - use tpair.
+    + exact (λ _ _ f g, f ==> g).
+    + repeat split.
+      * exact (λ _ _ f, id₂ f).
+      * exact (λ _ _ _ _ _ α β, α • β).
+      * exact (λ _ _ _ f _ _ α, f ◃ α).
+      * exact (λ _ _ _ _ _ g α, α ▹ g).
+Defined.
+
+Definition strict_bicat_to_two_cat_laws
+           (B : strict_bicat)
+  : two_cat_laws (strict_bicat_to_two_cat_data B).
+Proof.
+  repeat split.
+  - intros ; apply id2_left.
+  - intros ; apply id2_right.
+  - intros ; apply vassocr.
+  - intros ; apply lwhisker_id2.
+  - intros ; apply id2_rwhisker.
+  - intros ; apply lwhisker_vcomp.
+  - intros ; apply rwhisker_vcomp.
+  - intros ; apply vcomp_whisker.
+Qed.
+
+Definition strict_bicat_to_two_cat
+           (B : strict_bicat)
+  : two_cat.
+Proof.
+  use tpair.
+  - use tpair.
+    + exact (strict_bicat_to_two_cat_data B).
+    + exact (strict_bicat_to_two_cat_laws B).
+  - intros x y f g ; simpl.
+    apply (pr1 B).
+Defined.
 
 (** Univalent 2-categories *)
 Definition univalent_two_cat_2cells_are_prop
