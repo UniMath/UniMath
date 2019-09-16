@@ -231,6 +231,30 @@ Coercion bicat_of_twocat
   : bicat
   := pr1 B.
 
+(** Underlying category of a 2-category *)
+Definition underlying_cat
+           (B : two_cat)
+  : category.
+Proof.
+  use make_category.
+  - use make_precategory.
+    + use make_precategory_data.
+      * use make_precategory_ob_mor.
+        ** exact (ob B).
+        ** exact (λ b₁ b₂, b₁ --> b₂).
+      * exact (λ z, id₁ z).
+      * exact (λ _ _ _ f g, f · g).
+    + repeat split ; cbn.
+      * exact (λ _ _ f, plunitor (pr22 B) f).
+      * exact (λ _ _ f, prunitor (pr22 B) f).
+      * exact (λ _ _ _ _ f g h, plassociator (pr22 B) f g h).
+      * exact (λ _ _ _ _ f g h, prassociator (pr22 B) f g h).
+  - exact (pr12 B).
+Defined.
+
+Coercion underlying_cat
+  : two_cat >-> category.
+
 (** Univalent 2-categories *)
 Definition univalent_two_cat_2cells_are_prop
            (B : two_cat)
