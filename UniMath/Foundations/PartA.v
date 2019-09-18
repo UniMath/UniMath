@@ -507,6 +507,19 @@ Definition funhomotsec {X Y:UU} {Z:Y->UU} (f : X -> Y) {g g' : ∏ y:Y, Z y}
 Definition homotfun {X Y Z : UU} {f f' : X -> Y} (h : f ~ f')
            (g : Y -> Z) : g ∘ f ~ g ∘ f' := λ x, maponpaths g (h x).
 
+(** Naturality of homotopies *)
+Definition homotsec_natural
+           {X Y : UU}
+           {f g : X → Y}
+           (e : f ~ g)
+           {x y : X}
+           (p : x = y)
+  : maponpaths f p @ e y = e x @ maponpaths g p.
+Proof.
+  induction p.
+  exact (!(pathscomp0rid _)).
+Defined.
+
 (** *** Equality between functions defines a homotopy *)
 
 Definition toforallpaths {T:UU} (P:T->UU) (f g:∏ t:T, P t) : f = g -> f ~ g.
