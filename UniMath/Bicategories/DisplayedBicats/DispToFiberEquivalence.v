@@ -10,6 +10,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
@@ -215,6 +216,10 @@ Section FiberOfBiequiv.
           ** apply LGD₁.
   Qed.
 
+  Definition fiber_unit_iso
+    : nat_iso (FF ∙ GG) (functor_identity _)
+    := (_ ,, fiber_unit_nat_iso).
+
   Definition fiber_counit_is_nat_trans
     : is_nat_trans
         (GG ∙ FF) (functor_identity _)
@@ -279,4 +284,20 @@ Section FiberOfBiequiv.
              exact help_equation.
           ** apply LGD₂.
   Qed.
+
+  Definition fiber_counit_iso
+    : nat_iso (GG ∙ FF) (functor_identity _)
+    := (_ ,, fiber_counit_nat_iso).
+
+  Definition fiber_equivalence
+    : equivalence_of_precats
+        (discrete_fiber_category D₁ HD₁ HD₁_2_1 h₁ c)
+        (discrete_fiber_category D₂ HD₂ HD₂_2_1 h₂ c).
+  Proof.
+    simple refine ((FF ,, (GG ,, (_ ,, _))) ,, (_ ,, _)).
+    - exact (pr1 (nat_iso_inv fiber_unit_iso)).
+    - exact (pr1 fiber_counit_iso).
+    - exact (pr2 (nat_iso_inv fiber_unit_iso)).
+    - exact (pr2 fiber_counit_iso).
+  Defined.
 End FiberOfBiequiv.

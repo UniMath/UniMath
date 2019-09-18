@@ -199,10 +199,10 @@ Proof.
   apply idtoiso_2_1_strict_cat_help.
 Qed.
 
-Definition bicat_of_strict_cats_is_two_cat
+Definition bicat_of_strict_cats_is_strict_bicat
   : is_strict_bicat bicat_of_strict_cats.
 Proof.
-  use make_is_two_cat.
+  use make_is_strict_bicat.
   - intros c d.
     repeat use isaset_total2.
     + apply funspace_isaset.
@@ -261,5 +261,5 @@ Definition two_cat_of_strict_cats
 Proof.
   use tpair.
   - exact bicat_of_strict_cats.
-  - exact bicat_of_strict_cats_is_two_cat.
+  - exact bicat_of_strict_cats_is_strict_bicat.
 Defined.
