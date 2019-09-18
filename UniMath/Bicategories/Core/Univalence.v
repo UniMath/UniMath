@@ -420,7 +420,7 @@ End J20.
 
 (* ----------------------------------------------------------------------------------- *)
 (** ** Application of J:                                                               *)
-(** ** Adjoint equivalences in a globally univalent bicategory form a pregroupoid      *)
+(** ** Adjoint equivalences in a globally univalent bicategory form a bigroupoid      *)
 (* ----------------------------------------------------------------------------------- *)
 
 Section AdjointEquivPregroupoid.
@@ -518,7 +518,7 @@ Section AdjointEquivPregroupoid.
   Definition adjoint_equivalence_precategory_data : precategory_data.
   Proof.
     use make_precategory_data.
-    - use make_precategory_ob_mor.
+    - use tpair.
       + exact B.
       + exact adjoint_equivalence.
     - exact internal_adjoint_equivalence_identity.
@@ -560,3 +560,15 @@ Section AdjointEquivPregroupoid.
   Defined.
 
 End AdjointEquivPregroupoid.
+
+Definition left_adjequiv_invertible_2cell
+           {D : bicat}
+           (HD : is_univalent_2_1 D)
+           {a b : D}
+           (f g : a --> b)
+           (α : invertible_2cell f g)
+  : left_adjoint_equivalence f → left_adjoint_equivalence g
+  :=J_2_1 HD
+          (λ a b f g α, left_adjoint_equivalence f → left_adjoint_equivalence g)
+          (λ _ _ _ p, p)
+          α.
