@@ -205,7 +205,7 @@ Definition is_strict_bicat
      ×
      coh_strictness_structure B.
 
-Definition make_is_two_cat
+Definition make_is_strict_bicat
            {B : bicat}
            (HB : locally_strict B)
            (S : strictness_structure B)
@@ -223,6 +223,45 @@ Proof.
     + abstract (simpl ; intros ; apply HB).
     + abstract (simpl ; intros ; apply HB).
 Defined.
+
+Definition isPredicate_is_coh_strictness_structure_from_locally_strict
+           {B : bicat}
+           (HB : locally_strict B)
+  : isPredicate (@is_coh_strictness_structure B).
+Proof.
+  intro z.
+  apply invproofirrelevance.
+  intros c₁ c₂.
+  use pathsdirprod.
+  - do 5 (use funextsec ; intro).
+    apply (isasetaprop (HB _ _ _ _)).
+  - do 9 (use funextsec ; intro).
+    apply (isasetaprop (HB _ _ _ _)).
+Qed.
+
+Definition isaprop_is_strict_bicat
+           (B : bicat)
+  : isaprop (is_strict_bicat B).
+Proof.
+  apply invproofirrelevance.
+  intros x y.
+  induction x as [LSx CSx].
+  induction y as [LSY CSy].
+  use pathsdirprod.
+  - do 2 (use funextsec ; intro).
+    apply isapropisaset.
+  - use subtypePath.
+    { exact (isPredicate_is_coh_strictness_structure_from_locally_strict LSx). }
+    use subtypePath.
+    { exact (isPredicate_strictness_structure_laws B). }
+    repeat use pathsdirprod.
+    + repeat (use funextsec ; intro).
+      apply LSx.
+    + repeat (use funextsec ; intro).
+      apply LSx.
+    + repeat (use funextsec ; intro).
+      apply LSx.
+Qed.
 
 Definition strict_bicat
   := ∑ (B : bicat), is_strict_bicat B.
