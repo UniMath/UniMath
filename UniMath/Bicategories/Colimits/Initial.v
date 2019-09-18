@@ -10,6 +10,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Isos.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
 Require Import UniMath.Bicategories.Core.Bicat. Import Notations.
 Require Import UniMath.Bicategories.Core.Invertible_2cells.
@@ -26,6 +27,14 @@ Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.catiso.
 
+Definition unique_maps
+           {C : bicat}
+           (X : C)
+  : UU
+    := ∏ (Y : C),
+       adj_equivalence_of_precats
+         (functor_to_unit (hom X Y)).
+
 Local Open Scope bicategory_scope.
 Local Open Scope cat.
 
@@ -39,6 +48,27 @@ Section Initial.
          bicat_of_cats
          _ _
          (functor_to_unit (univ_hom C_is_univalent_2_1 X Y)).
+
+  Definition unique_maps_to_biinitial
+             (X : C)
+             (HC : unique_maps X)
+    : is_biinitial X.
+  Proof.
+    intro Y.
+    apply equiv_cat_to_adj_equiv.
+    exact (HC Y).
+  Defined.
+
+  Definition biinitial_to_unique_maps
+             (X : C)
+             (HC : is_biinitial X)
+    : unique_maps X.
+  Proof.
+    intro Y.
+    apply (adj_equiv_to_equiv_cat
+             (functor_to_unit (univ_hom C_is_univalent_2_1 X Y))).
+    exact (HC Y).
+  Defined.
 
   Definition BiInitial : UU := ∑ (X : C), is_biinitial X.
 
