@@ -57,7 +57,9 @@ Transformations/PseudoTransformation.v
 Transformations/Examples/Whiskering.v
 Transformations/Examples/Unitality.v
 Transformations/Examples/Associativity.v
+Transformations/Examples/ApTransformation.v
 Modifications/Modification.v
+Modifications/Examples/ApModification.v
 Modifications/Examples/Unitality.v
 Modifications/Examples/Associativity.v
 PseudoFunctors/Representable.v
