@@ -400,6 +400,22 @@ Section ExtendPseudoFunctor.
 
 End ExtendPseudoFunctor.
 
+Definition psfunctor_preserves_adjequiv
+           {C D : bicat}
+           (HC : is_univalent_2_0 C)
+           (HD : is_univalent_2_1 D)
+           (F : psfunctor C D)
+           (a b : C)
+           (f : adjoint_equivalence a b)
+  : left_adjoint_equivalence (#F f)
+  := J_2_0 HC
+           (λ a b f, left_adjoint_equivalence (#F (pr1 f)))
+           (λ a0,
+            left_adjequiv_invertible_2cell HD _ _
+                                           (psfunctor_id F a0)
+                                           (pr2 (internal_adjoint_equivalence_identity (F a0))))
+           f.
+
 Definition local_equivalence
            {B₁ B₂ : bicat}
            (B₁_is_univalent_2_1 : is_univalent_2_1 B₁)
