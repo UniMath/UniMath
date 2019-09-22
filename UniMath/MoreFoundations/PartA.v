@@ -464,6 +464,19 @@ Defined.
 
 Notation homotsec := homot.
 
+(** Naturality of homotopies *)
+Definition homotsec_natural
+           {X Y : UU}
+           {f g : X → Y}
+           (e : f ~ g)
+           {x y : X}
+           (p : x = y)
+  : maponpaths f p @ e y = e x @ maponpaths g p.
+Proof.
+  induction p.
+  exact (!(pathscomp0rid _)).
+Defined.
+
 (* compare with [adjev] *)
 Definition evalat {T} {P:T->UU} (t:T) (f:∏ t:T, P t) := f t.
 
