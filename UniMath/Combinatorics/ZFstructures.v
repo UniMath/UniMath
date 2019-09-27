@@ -152,14 +152,12 @@ Proof.
   intros q.
   split.
   - intros x y.
-    rewrite -> idpath_transportf in q.
     split.
     rewrite -> q.
     intros P ; apply P.
     rewrite -> q.
     intros P ; apply P.
-  - rewrite -> idpath_transportf in q.
-    induction q.
+  - induction q.
     reflexivity.
 Qed.
 

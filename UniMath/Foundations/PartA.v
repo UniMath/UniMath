@@ -605,7 +605,7 @@ Defined.
 
 
 (** *** Fibrations and paths - the transport functions *)
-
+(*
 Definition constr1 {X : UU} (P : X -> UU) {x x' : X} (e : x = x') :
   ∑ (f : P x -> P x'),
   ∑ (ee : ∏ p : P x, tpair _ x p = tpair _ x' (f p)),
@@ -617,12 +617,19 @@ Proof.
   unfold maponpaths. simpl.
   intro. apply idpath.
 Defined.
-
+*)
 Definition transportf {X : UU} (P : X -> UU) {x x' : X}
-           (e : x = x') : P x -> P x' := pr1 (constr1 P e).
+           (e : x = x') : P x -> P x'.
+Proof.
+  induction e. exact (λ x, x).
+Defined.
 
 Definition transportf_eq {X : UU} (P : X -> UU) {x x' : X} (e : x = x') ( p : P x ) :
-  tpair _ x p = tpair  _ x' ( transportf P e p ) := ( pr1 ( pr2 ( constr1 P e ))) p .
+  tpair _ x p = tpair  _ x' ( transportf P e p ).
+Proof.
+  induction e.
+  apply idpath.
+Defined.
 
 Definition transportb {X : UU} (P : X -> UU) {x x' : X}
            (e : x = x') : P x' -> P x := transportf P (!e).
@@ -2891,7 +2898,7 @@ Proof.
   intro. induction pp as [ t x0 ]. set (cnewt := cnew t).
   unfold g. unfold f. simpl. change (cnew t) with cnewt.
   induction cnewt as [ x1 | y ].
-  apply (pathsinv0 (pr1 (pr2 (constr1 P (pathsinv0 x1))) x0)).
+  apply (pathsinv0 (transportf_eq _ _ _ )).
   induction (y x0).
 
   set (cnewx := cnew x).

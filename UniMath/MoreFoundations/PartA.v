@@ -802,9 +802,9 @@ Lemma transportf_paths_FlFr {A B : UU} {f g : A -> B} {x1 x2 : A}
  (p : x1 = x2) (q : f x1 = g x1)
  : transportf (λ x, f x = g x) p q = !maponpaths f p @ q @ maponpaths g p.
 Proof.
- induction p; cbn.
- symmetry.
- apply pathscomp0rid.
+  induction p; cbn.
+  refine (!_).
+  apply pathscomp0rid.
 Qed.
 
 Lemma transportf_sec_constant
