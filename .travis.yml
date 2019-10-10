@@ -63,6 +63,7 @@ script:
          cd $THIS_REPO
          git checkout -qf $TRAVIS_COMMIT
        fi &&
+       time apt-get update &&
        time apt-get install libgtksourceview-3.0-dev &&
        . /root/.opam/opam-init/init.sh &&
        time opam install num lablgtk3-sourceview3 &&
