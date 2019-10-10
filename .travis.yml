@@ -66,6 +66,7 @@ script:
        time apt-get update &&
        time apt-get install --assume-yes libgtksourceview-3.0-dev &&
        . /root/.opam/opam-init/init.sh &&
+       time opam update &&
        time opam install num lablgtk3-sourceview3 &&
        git submodule update --init sub/coq &&
        if [ '$COQ_BRANCH' != '' ]
