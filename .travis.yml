@@ -28,9 +28,7 @@ env:
 before_script:
   - timeout 5m docker pull palmskog/xenial-unimath || timeout 5m docker pull palmskog/xenial-unimath || timeout 5m docker pull palmskog/xenial-unimath
 
-# Using travis_wait here seems to cause the job to terminate after 1 minute
-# with no error (!).
-# The git commands are tried twice, in case of temporary network failure.
+# Using travis_wait here seems to cause the job to terminate after 1 minute with no error, so we avoid it.
 # The fcntl line works around a bug where Travis truncates logs and fails.
 script:
   - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
@@ -52,20 +50,22 @@ script:
   - >-
     docker run palmskog/xenial-unimath /bin/bash -x -c "true &&
        if [ $TRAVIS_EVENT_TYPE = pull_request ] ; then
-         git clone --quiet --depth 9 $REMOTE_ORIGIN_URL $THIS_REPO || git clone --quiet --depth 9 $REMOTE_ORIGIN_URL $THIS_REPO
+         git clone --quiet --depth 9 $REMOTE_ORIGIN_URL $THIS_REPO 
          cd $THIS_REPO
          git fetch origin +refs/pull/$TRAVIS_PULL_REQUEST/merge
          git checkout -qf $TRAVIS_PULL_REQUEST_SHA
          git config user.email noone@cares.com
          git config user.name Noone Cares
          git remote add theupstream https://github.com/$TRAVIS_REPO_SLUG.git
-         git pull --depth 9 theupstream $TRAVIS_BRANCH || git pull --depth 9 theupstream $TRAVIS_BRANCH
+         git pull --depth 9 theupstream $TRAVIS_BRANCH
        else
-         git clone --quiet --depth 9 -b $TRAVIS_BRANCH $REMOTE_ORIGIN_URL $THIS_REPO || git clone --quiet --depth 9 -b $TRAVIS_BRANCH $REMOTE_ORIGIN_URL $THIS_REPO
+         git clone --quiet --depth 9 -b $TRAVIS_BRANCH $REMOTE_ORIGIN_URL $THIS_REPO
          cd $THIS_REPO
          git checkout -qf $TRAVIS_COMMIT
        fi &&
+       time apt-get install libgtksourceview-3.0-dev &&
        . /root/.opam/opam-init/init.sh &&
+       time opam install num lablgtk3-sourceview3 &&
        git submodule update --init sub/coq &&
        if [ '$COQ_BRANCH' != '' ]
        then ( cd sub/coq && 
