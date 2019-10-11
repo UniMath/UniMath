@@ -64,7 +64,7 @@ script:
          git checkout -qf $TRAVIS_COMMIT
        fi &&
        time apt-get update &&
-       time apt-get upgrade &&
+       time apt-get upgrade --assume-yes &&
        time apt-get install --assume-yes libgtksourceview-3.0-dev &&
        rm -rf ~/.opam &&
        opam --version &&
