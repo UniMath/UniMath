@@ -19,7 +19,7 @@ env:
     - PACKAGES=Topology
     - PACKAGES=RealNumbers
     - PACKAGES=SubstitutionSystems
-    - PACKAGES=Tactics BUILD_COQIDE=yes BUILD_ALSO=TAGS
+    - PACKAGES=Tactics BUILD_COQIDE=yes
     - PACKAGES=Folds
     - PACKAGES=Induction
     - PACKAGES="Foundations Combinatorics Algebra NumberSystems" COQ_BRANCH=master
