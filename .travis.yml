@@ -83,6 +83,9 @@ script:
               git checkout $COQ_BRANCH
               git pull)
        fi
+       git clean -Xdfq
+       git submodule foreach git clean -Xdfq
+       git submodule update
        ( cd sub/coq
          git branch
          git describe --dirty --long --always --abbrev=40 --tags )
