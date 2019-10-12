@@ -18,73 +18,69 @@ Proof.
     + (** Objects and 1-cells *)
       use tpair.
       * (** Objects over a one type are points of X *)
-        intro X. apply X.
-      * cbn. intros X Y x y f.
-        (** 1-cells over f are properties: f preserves points *)
-        exact (f x = y).
+        exact (λ X, pr1 X).
+      * (** 1-cells over f are properties: f preserves points *)
+        exact (λ _ _ x y f, f x = y).
     + (** Identity and composition of 1-cells: composition of properties *)
       use tpair.
-      * cbn. intros X x. reflexivity.
-      * cbn. intros X Y Z f g x y z.
-        intros Hf Hg.
-        etrans. { apply maponpaths, Hf. }
-        apply Hg.
-  - cbn. hnf. intros X Y f g α. cbn in *.
-    (** Two cells over α : f = g *)
-    intros x y ff gg. cbn in *.
-    (* homotopies are stable w.r.t to point preservation *)
-    exact (transportf (λ h, h = y) (α x) ff = gg).
+      * exact (λ _ _, idpath _).
+      * exact (λ _ _ _ f g x y z Hf Hg, maponpaths g Hf @ Hg).
+  - exact (λ _ _ _ _ α x y ff gg, ff = α x @ gg).
 Defined.
 
-Definition p1types_disp_prebicat_ops : disp_prebicat_ops p1types_disp_prebicat_1_id_comp_cells.
+Definition p1types_disp_prebicat_ops
+  : disp_prebicat_ops p1types_disp_prebicat_1_id_comp_cells.
 Proof.
   repeat split; cbn.
   - intros X Y f x y ff.
-    induction ff. reflexivity.
+    exact (pathscomp0rid _ @ maponpathsidfun _).
   - intros X Y f x y ff.
-    induction ff. reflexivity.
+    exact (!(pathscomp0rid _ @ maponpathsidfun _)).
   - intros X Y Z W f g h x y z w ff gg hh.
-    induction ff. induction gg. reflexivity.
+    refine (_ @ !(path_assoc _ _ _)).
+    refine (maponpaths (λ z, z @ hh) _).
+    refine (maponpathscomp0 h (maponpaths g ff) gg @ _).
+    refine (maponpaths (λ z, z @ _) _).
+    apply maponpathscomp.
   - intros X Y Z W f g h x y z w ff gg hh.
-    induction ff. induction gg. reflexivity.
+    refine (!_).
+    refine (_ @ !(path_assoc _ _ _)).
+    refine (maponpaths (λ z, z @ hh) _).
+    refine (maponpathscomp0 h (maponpaths g ff) gg @ _).
+    refine (maponpaths (λ z, z @ _) _).
+    apply maponpathscomp.
   - intros X Y f g h α β x y ff gg hh αα ββ.
-    unfold homotcomp.
-    etrans. {
-      apply (!transport_f_f (λ h, h = y) _ _ _). }
-    etrans. {
-      apply maponpaths.
-      apply αα. }
-    apply ββ.
+    exact (αα @ maponpaths (λ z, _ @ z) ββ @ path_assoc _ _ _).
   - (* Whiskering *)
     intros X Y Z f g h α x y z ff gg hh αα.
-    induction ff. cbn. apply αα.
+    unfold funhomotsec.
+    refine (maponpaths (λ z, _ @ z) αα @ _).
+    refine (path_assoc _ _ _ @ _ @ !(path_assoc _ _ _)).
+    refine (maponpaths (λ z, z @ _) _).
+    apply homotsec_natural.
   - (* Whiskering *)
     intros X Y Z f g h α x y z ff gg hh αα.
     unfold homotfun.
-    etrans. {
-      apply transportf_id2. }
-    induction (α x). cbn in *. cbv[idfun] in *.
-    apply map_on_two_paths; [|reflexivity].
-    apply maponpaths. apply αα.
+    refine (_ @ !(path_assoc _ _ _)).
+    refine (maponpaths (λ z, z @ hh) _).
+    exact (maponpaths (maponpaths h) αα @ maponpathscomp0 h (α x) gg).
 Defined.
-
-Local Definition one_type_to_hlevel (X: one_type)
-      : isofhlevel 3 X := pr2 X.
-
 
 Definition p1types_prebicat : disp_prebicat one_types.
 Proof.
   use tpair.
   - exists p1types_disp_prebicat_1_id_comp_cells.
     apply p1types_disp_prebicat_ops.
-  - repeat split; repeat intro; apply one_type_to_hlevel.
+  - repeat split; repeat intro; apply one_type_isofhlevel.
 Defined.
 
 Definition p1types_disp : disp_bicat one_types.
 Proof.
   use tpair.
   - apply p1types_prebicat.
-  - repeat intro. apply hlevelntosn. apply one_type_to_hlevel.
+  - repeat intro.
+    apply hlevelntosn.
+    apply one_type_isofhlevel.
 Defined.
 
 Definition p1types : bicat := total_bicat p1types_disp.
@@ -97,7 +93,8 @@ Proof.
   - intro α. apply α.
   - intros α. apply Y.
   - intros α. cbn in  *.
-    use subtypePath. {
+    use subtypePath.
+    {
       intro. apply (isaprop_is_disp_invertible_2cell (D:=p1types_disp)).
     }
     apply Y.
@@ -110,14 +107,17 @@ Proof.
   use gradth; unfold idfun.
   - intros f. apply f.
   - intro p.
-    induction p. reflexivity.
+    induction p.
+    apply idpath.
   - intros [f Hf].
     use subtypePath.
     { intros y y'.
       apply (isaprop_disp_left_adjoint_equivalence (D:=p1types_disp)).
       apply one_types_is_univalent_2.
       apply p1types_disp_univalent_2_1. }
-    { cbn; cbn in f. induction f. cbn. reflexivity. }
+    cbn ; cbn in f.
+    induction f.
+    apply idpath.
 Defined.
 
 Lemma p1types_disp_univalent_2 : disp_univalent_2 p1types_disp.
