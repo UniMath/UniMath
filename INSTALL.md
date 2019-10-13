@@ -14,7 +14,7 @@ and under [Arch/Manjaro Linux](#preparing-for-the-installation-under-arch-linux-
 ### Preparing for the installation under Mac OS X
 
 NB: The method explained below is recommended for beginners.
-A more flexible, but complex, installation method is given in [INSTALL\_MACOS.md](./INSTALL_MACOS.md).
+A more flexible, but complex, installation method is given in [INSTALL\_OPAM.md](./INSTALL_OPAM.md).
 
 1. Install "Homebrew", available from http://brew.sh/.
 2. Using Homebrew, install ocaml with the following command:

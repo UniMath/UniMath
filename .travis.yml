@@ -6,8 +6,9 @@ services:
 
 env:
   global:
-    - THIS_REPO=UniMath
+    - THIS_REPO=UniMath.git
     - LIMIT_MEMORY=yes
+    - IMAGE=danielgrayson/unimath
   matrix:
     - PACKAGES= BUILD_ALSO=sanity-checks
     - PACKAGES="Foundations Combinatorics Algebra NumberSystems PAdics Paradoxes"
@@ -18,31 +19,45 @@ env:
     - PACKAGES=Topology
     - PACKAGES=RealNumbers
     - PACKAGES=SubstitutionSystems
-    - PACKAGES=Tactics BUILD_COQIDE=yes BUILD_ALSO=TAGS
+    - PACKAGES=Tactics BUILD_COQIDE=yes
     - PACKAGES=Folds
     - PACKAGES=Induction
     - PACKAGES="Foundations Combinatorics Algebra NumberSystems" COQ_BRANCH=master
 
-# The "docker run" command will pull if needed.
-# Running this first gives two tries in case of network lossage.
-before_script:
-  - timeout 5m docker pull palmskog/xenial-unimath || timeout 5m docker pull palmskog/xenial-unimath || timeout 5m docker pull palmskog/xenial-unimath
+# The docker image we formerly used is hosted at https://hub.docker.com/r/palmskog/xenial-unimath, and was created for us by Karl Palmskog.
+# Now we use the one at https://cloud.docker.com/repository/docker/danielgrayson/unimath
+# It was made this way:
+   # docker create --privileged --name ubuntu19 --hostname ubuntu19 --tty --interactive ubuntu:19.04 /bin/bash
+   # docker start ubuntu19
+   # docker exec -it --privileged ubuntu19 bash -c 'stty -echo -onlcr ; cd /root ; exec bash -l'
+   # apt-get update
+   # apt-get upgrade -y
+   # apt-get install -y --quiet --no-install-recommends opam pkg-config libcairo2-dev libexpat1-dev libgtk-3-dev libgtksourceview-3.0-dev libexpat1-dev libgtk2.0-dev mccs m4 git ca-certificates camlp5 libgtksourceview2.0-dev time
+   # opam init --bare
+   # opam switch create --empty empty
+   # opam install -y --solver=mccs num lablgtk conf-gtksourceview lablgtk3-sourceview3 camlp5
+# root's home directory has these files:
+    # # cat .profile
+    # . .bashrc
+    # eval `opam env`
+    # # cat .bashrc
+    # PS1="# "
+# And I cloned a clean copy of the UniMath repository there.
 
-# Using travis_wait here seems to cause the job to terminate after 1 minute
-# with no error (!).
-# The git commands are tried twice, in case of temporary network failure.
+# The "docker run" command will pull if needed, but we run this first in case of network interruptions.
+before_script:
+  - timeout 5m docker pull ${IMAGE} || timeout 5m docker pull ${IMAGE} || timeout 5m docker pull ${IMAGE}
+
+# Using travis_wait here seems to cause the job to terminate after 1 minute with no error, so we avoid it.
 # The fcntl line works around a bug where Travis truncates logs and fails.
 script:
   - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
-  - REMOTE_ORIGIN_URL=`git config --get remote.origin.url`
   - echo "THIS_REPO=${THIS_REPO}"
   - echo "LIMIT_MEMORY=${LIMIT_MEMORY}"
   - echo "PACKAGES=${PACKAGES}"
   - echo "BUILD_COQIDE=${BUILD_COQIDE}"
   - echo "BUILD_ALSO=${BUILD_ALSO}"
-  - echo "FOUNDATIONS_CHANGE_ERROR=${FOUNDATIONS_CHANGE_ERROR}"
   - echo "TRAVIS_BRANCH=${TRAVIS_BRANCH}"
-  - echo "REMOTE_ORIGIN_URL=${REMOTE_ORIGIN_URL}"
   - echo "TRAVIS_EVENT_TYPE=${TRAVIS_EVENT_TYPE}"
   - echo "TRAVIS_COMMIT=${TRAVIS_COMMIT}"
   - echo "TRAVIS_PULL_REQUEST=${TRAVIS_PULL_REQUEST}"
@@ -50,33 +65,30 @@ script:
   - echo "TRAVIS_PULL_REQUEST_SHA=${TRAVIS_PULL_REQUEST_SHA}"
   - echo "TRAVIS_REPO_SLUG=${TRAVIS_REPO_SLUG}"
   - >-
-    docker run palmskog/xenial-unimath /bin/bash -x -c "true &&
-       if [ $TRAVIS_EVENT_TYPE = pull_request ] ; then
-         git clone --quiet --depth 9 $REMOTE_ORIGIN_URL $THIS_REPO || git clone --quiet --depth 9 $REMOTE_ORIGIN_URL $THIS_REPO
-         cd $THIS_REPO
-         git fetch origin +refs/pull/$TRAVIS_PULL_REQUEST/merge
-         git checkout -qf $TRAVIS_PULL_REQUEST_SHA
-         git config user.email noone@cares.com
-         git config user.name Noone Cares
-         git remote add theupstream https://github.com/$TRAVIS_REPO_SLUG.git
-         git pull --depth 9 theupstream $TRAVIS_BRANCH || git pull --depth 9 theupstream $TRAVIS_BRANCH
-       else
-         git clone --quiet --depth 9 -b $TRAVIS_BRANCH $REMOTE_ORIGIN_URL $THIS_REPO || git clone --quiet --depth 9 -b $TRAVIS_BRANCH $REMOTE_ORIGIN_URL $THIS_REPO
-         cd $THIS_REPO
-         git checkout -qf $TRAVIS_COMMIT
-       fi &&
-       . /root/.opam/opam-init/init.sh &&
-       git submodule update --init sub/coq &&
+    docker run ${IMAGE} /bin/bash -x -c "
+       cd
+       . .profile
+       cd $THIS_REPO
+       if [ $TRAVIS_EVENT_TYPE = pull_request ]
+       then git fetch origin pull/$TRAVIS_PULL_REQUEST/merge
+            git checkout -qf $TRAVIS_PULL_REQUEST_SHA
+            git config user.email noone@cares.com
+            git config user.name Noone Cares
+            git pull origin $TRAVIS_BRANCH
+       else git fetch
+            git checkout -qf $TRAVIS_COMMIT
+       fi
        if [ '$COQ_BRANCH' != '' ]
-       then ( cd sub/coq && 
-              git checkout $COQ_BRANCH )
-       fi &&
-       ( cd sub/coq && 
-         git branch &&
-         git describe --dirty --long --always --abbrev=40 --tags ) &&
+       then ( cd sub/coq
+              git checkout $COQ_BRANCH
+              git pull)
+       fi
+       git clean -Xdfq
+       git submodule foreach git clean -Xdfq
+       git submodule update
+       ( cd sub/coq
+         git branch
+         git describe --dirty --long --always --abbrev=40 --tags )
        time make build-coq BUILD_COQIDE=$BUILD_COQIDE &&
-       time make TIMECMD=time $PACKAGES $BUILD_ALSO FOUNDATIONS_CHANGE_ERROR=$FOUNDATIONS_CHANGE_ERROR"
-
-git:
-  depth: 9
-  submodules: false
+       time make TIMECMD=time $PACKAGES $BUILD_ALSO
+       "
