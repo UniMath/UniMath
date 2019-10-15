@@ -115,7 +115,6 @@ use make_Product.
     destruct f as [f Hf]; cbn in *;
     rewrite y2;
     simpl;
-    rewrite idpath_transportf;
     rewrite <- Hy;
     reflexivity).
 Defined.

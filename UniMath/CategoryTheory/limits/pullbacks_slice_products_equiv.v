@@ -142,11 +142,10 @@ Section pullbacks_slice_products_equiv.
       rewrite idpath_transportf.
       exact (!leq).
     + induction (!leq). simpl.
-      rewrite idpath_transportf.
       use total2_paths2_f.
-    - now apply (eq_mor_slicecat hsC).
-    - rewrite transportf_const.
-      now apply (eq_mor_slicecat hsC).
+      - now apply (eq_mor_slicecat hsC).
+      - rewrite transportf_const.
+        now apply (eq_mor_slicecat hsC).
   Qed.
 
   (** ** function taking the type of all binary products in C / Z

@@ -1435,7 +1435,7 @@ transparent assert (cc : (cocone d c)).
                  (maponpaths pr1 (coconeInCommutes ccL m n e)) z))|];
     cbn in *; induction (maponpaths pr1 _);
     simpl;
-    now rewrite idpath_transportf, <- (coconeInCommutes ccy m n e)).
+    now rewrite <- (coconeInCommutes ccy m n e)).
 }
 use unique_exists.
 - intros l; apply (pr2 (pr1 (colimArrow CC c cc) l)).

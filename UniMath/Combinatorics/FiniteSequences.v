@@ -509,8 +509,6 @@ Lemma Sequence_rect_compute_nil {X} {P : Sequence X ->UU} (p0 : P nil)
   Sequence_rect p0 ind nil = p0.
 Proof.
   intros.
-  try reflexivity.
-  unfold Sequence_rect; simpl.
   change p0 with (transportf P (idpath nil) p0) at 2.
   apply (maponpaths (λ e, transportf P e p0)).
   exact (maponpaths (maponpaths functionToSequence) (iscontr_adjointness _ _ _)).
