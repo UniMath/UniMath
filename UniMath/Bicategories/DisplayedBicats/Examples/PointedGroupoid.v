@@ -189,11 +189,24 @@ Proof.
   use make_disp_locally_groupoid.
   - intros G₁ G₂ F₁ F₂ n pG₁ pG₂ pF₁ pF₂ pn.
     cbn in *.
-    rewrite <- pn.
-    rewrite transport_f_f.
-    refine (transportb (λ z, transportf _ z _ = _) _ _).
-    { exact (maponpaths (λ z, z pG₁) (vcomp_rinv n)). }
-    apply idpath.
+    refine (!_).
+    apply hornRotation.
+    refine (!_).
+    refine (maponpaths (λ z, _ @ ! z) pn @ _).
+    etrans.
+    {
+      apply maponpaths.
+      apply pathscomp_inv.
+    }
+    refine (path_assoc _ _ _ @ _).
+    etrans.
+    {
+      apply maponpaths_2.
+      apply pathsinv0r.
+    }
+    simpl.
+    apply pathsinv0_to_right'.
+    exact (!(maponpaths (λ z, z pG₁) (vcomp_rinv n))).
   - exact p1types_disp_2cells_isaprop.
 Qed.
 
@@ -208,8 +221,6 @@ Proof.
   - abstract
       (intros G1 G2 F1 F2 α x y i1 i2 p ;
        cbn in * ;
-       rewrite transportf_id2 ;
-       apply path_inv_rotate_ll ;
        rewrite <- isotoid_comp ;
        apply maponpaths ;
        apply eq_iso ;
