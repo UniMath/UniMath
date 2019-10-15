@@ -363,7 +363,7 @@ Definition dirprodpr2_disp_functor
 
 End Dirprod.
 
-(* Declare Scope disp_cat_scope. *)
+Declare Scope disp_cat_scope.
 Notation "D1 × D2" := (dirprod_disp_cat D1 D2) : disp_cat_scope.
 Delimit Scope disp_cat_scope with disp_cat.
 Bind Scope disp_cat_scope with disp_cat.

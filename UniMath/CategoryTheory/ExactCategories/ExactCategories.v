@@ -966,7 +966,7 @@ Section theDefinition.
   Defined.
 End theDefinition.
 
-(* Declare Scope excat. *)
+Declare Scope excat.
 Delimit Scope excat with excat.
 Local Open Scope excat.
 Notation "A ↣ B" := (AdmissibleMonomorphism A B) : excat.

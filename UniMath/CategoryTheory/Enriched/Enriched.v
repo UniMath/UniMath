@@ -28,6 +28,7 @@ Let α        := monoidal_precat_associator Mon_V.
 Let l_unitor := monoidal_precat_left_unitor Mon_V.
 Let r_unitor := monoidal_precat_right_unitor Mon_V.
 
+Declare Scope enriched.
 Notation "X ⊗ Y"  := (tensor (X , Y)) : enriched.
 Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31) : enriched.
 Local Open Scope enriched.

@@ -1,7 +1,7 @@
 Require Export UniMath.MoreFoundations.Notations.
 Require Export UniMath.MoreFoundations.Propositions.
 
-(* Declare Scope subtype. *)
+Declare Scope subtype.
 Delimit Scope subtype with subtype.
 
 Local Open Scope subtype.

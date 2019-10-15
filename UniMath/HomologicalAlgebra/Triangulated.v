@@ -765,7 +765,7 @@ Section def_pretrangulated.
   Coercion PreTriang_isPreTriang : PreTriang >-> isPreTriang.
 
 End def_pretrangulated.
-Arguments Trans [PTD] : simpl never.
+Arguments Trans {PTD} : simpl never.
 
 
 (** * Triangulated categories **)

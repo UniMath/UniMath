@@ -48,7 +48,7 @@ Definition hzzero : hz := unel hzaddabgr .
 Definition hzmult : hz -> hz -> hz := @op2 hz .
 Definition hzone : hz := unel hzmultabmonoid .
 
-(* Declare Scope hz_scope. *)
+Declare Scope hz_scope.
 Bind Scope hz_scope with hz .
 Notation " x + y " := ( hzplus x y ) : hz_scope .
 Notation " 0 " := hzzero : hz_scope .

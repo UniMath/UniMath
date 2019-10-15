@@ -122,6 +122,7 @@ Definition PL_impl_fun (x : PL_type) (y : PL_type) : PL_type :=
 Definition PL_iff_fun (x : PL_type) (y : PL_type) : PL_type :=
   PL_and_fun (PL_impl (make_dirprod x y)) (PL_impl (make_dirprod y x)).
 
+Declare Scope PL.
 Delimit Scope PL with PL.
 Notation "¬" := (PL_not) : PL.
 Infix "∧" := (PL_and) : PL.

@@ -34,10 +34,10 @@ Definition precategory_morphisms { C : precategory_ob_mor } :
 (** in order for this notation not to pollute subsequent files,
     we define this notation within the scope "cat" *)
 
-(* Declare Scope cat. *)
+Declare Scope cat.
 Delimit Scope cat with cat.     (* for precategories *)
 Delimit Scope cat with Cat.     (* a slight enhancement for categories *)
-(* Declare Scope cat_deprecated. *)
+Declare Scope cat_deprecated.
 Delimit Scope cat_deprecated with cat_deprecated.
 Local Open Scope cat.
 
