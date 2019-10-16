@@ -39,7 +39,7 @@ First install opam and needed prerequisites:
 
   Then install needed libraries as follows.
   ```bash
-  sudo apt-get install --quiet --no-install-recommends opam pkg-config libcairo2-dev libexpat1-dev libgtk-3-dev libgtksourceview-3.0-dev libexpat1-dev libgtk2.0-dev mccs m4 git ca-certificates camlp5 libgtksourceview2.0-dev
+  sudo apt-get install --quiet --no-install-recommends pkg-config libcairo2-dev libexpat1-dev libgtk-3-dev libgtksourceview-3.0-dev libexpat1-dev libgtk2.0-dev mccs m4 git ca-certificates camlp5 libgtksourceview2.0-dev
   ```
 
   Then set up the opam system as follows.
