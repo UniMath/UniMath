@@ -10,6 +10,7 @@ Require Import UniMath.MoreFoundations.PartA.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
+Declare Scope pathsover.
 Delimit Scope pathsover with pathsover.
 Local Open Scope pathsover.
 

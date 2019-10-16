@@ -442,6 +442,7 @@ Defined.
 
 End dcpowithbottom.
 
+Declare Scope DCPO.
 Delimit Scope DCPO with DCPO.
 Local Open Scope DCPO.
 Notation "A --> B" := (dcpowithbottom_ofdcpomorphisms A B) : DCPO.

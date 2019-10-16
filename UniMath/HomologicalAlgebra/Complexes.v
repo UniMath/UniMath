@@ -569,7 +569,7 @@ Section def_complexes.
 
 End def_complexes.
 Arguments Diff [A] _ _.
-Arguments ZeroComplex [A].
+Arguments ZeroComplex {A}.
 Arguments Morphism [A] _ _.
 Arguments MorphismEq [A] [C1] [C2] _ _ _.
 Arguments MorphismFromZero [A] _.

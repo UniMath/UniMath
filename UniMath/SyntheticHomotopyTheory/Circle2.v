@@ -31,6 +31,7 @@ Require Import UniMath.Algebra.GroupAction.
 Require Import UniMath.Algebra.Groups.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
+Declare Scope circle.
 Delimit Scope circle with circle.
 Local Open Scope hz.
 Local Open Scope addoperation.

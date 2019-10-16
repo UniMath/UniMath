@@ -15,6 +15,7 @@ Require Import UniMath.NumberSystems.Integers
                UniMath.SyntheticHomotopyTheory.AffineLine
                UniMath.Algebra.GroupAction
                UniMath.MoreFoundations.MoreEquivalences.
+Declare Scope paths_scope.
 Delimit Scope paths_scope with paths.
 Local Open Scope paths_scope.
 Local Open Scope action_scope.
