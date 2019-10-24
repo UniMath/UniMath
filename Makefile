@@ -426,16 +426,16 @@ check-listing-of-proof-files:
 
 # Here we check for changes to UniMath/Foundations, which normally does not change.
 # One step of the travis job will fail, if a change is made, see .travis.yml
-# Note: the following test depends on the master branch being up to date,
-#  which it will be when travis is running.
 check-for-change-to-Foundations:
 	@echo --- checking for changes to the Foundations package ---
-	test -z "`git diff --stat master -- UniMath/Foundations`"
+	git fetch origin
+	test -z "`git diff --stat origin/master -- UniMath/Foundations`"
 
-# note: the following test depends on the master branch being up to date,
-# which it will be when travis is running
+# Here we check for changes to sub/coq, which normally does not change.
+# One step of the travis job will fail, if a change is made, see .travis.yml
 check-for-submodule-changes:
 	@echo "--- checking for submodule changes ---"
+	git fetch origin
 	test -z "`git diff master sub`"
 
 # Here we create a table of contents file, in markdown format, for browsing on github
