@@ -246,12 +246,12 @@ Proof.
   - exact pgrpds_disp_locally_groupoid.
   - exact (λ X x, x).
   - intros X Y f x y p.
+    simpl in *.
     exact (p ,, pr2 (path_groupoid Y) _ _ p).
   - abstract
       (intros X Y f g α x y p q αα ;
        cbn in * ;
-       induction (α x) ;
-       exact (! αα)).
+       exact (!αα)).
   - abstract
       (intros X x ;
        apply idpath).
