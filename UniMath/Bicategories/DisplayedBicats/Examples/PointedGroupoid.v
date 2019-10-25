@@ -355,7 +355,7 @@ Defined.
 Definition disp_path_pgroupoid_unit_unit_inv :
   disp_invmodification _ _ _ _
     (disp_comp_psfunctor _ _ _ _ _ _ _ _ _ _ disp_path_pgroupoid_unit disp_path_pgroupoid_unit_inv)
-    (disp_id_trans _)
+    (disp_id_pstrans _)
     (unitcounit_of_is_biequivalence is_biequiv_path_groupoid).
 Proof.
   use make_disp_invmodification.
@@ -369,7 +369,7 @@ Defined.
 Definition disp_path_pgroupoid_unit_inv_unit :
   disp_invmodification _ _ _ _
     (disp_comp_psfunctor _ _ _ _ _ _ _ _ _ _ disp_path_pgroupoid_unit_inv disp_path_pgroupoid_unit)
-    (disp_id_trans _)
+    (disp_id_pstrans _)
     (unitunit_of_is_biequivalence is_biequiv_path_groupoid).
 Proof.
   use make_disp_invmodification.
@@ -383,7 +383,7 @@ Defined.
 Definition disp_path_pgroupoid_counit_inv_counit :
   disp_invmodification _ _ _ _
     (disp_comp_psfunctor _ _ _ _ _ _ _ _ _ _ disp_path_pgroupoid_counit_inv disp_path_pgroupoid_counit)
-    (disp_id_trans _)
+    (disp_id_pstrans _)
     (counitcounit_of_is_biequivalence is_biequiv_path_groupoid).
 Proof.
   use make_disp_invmodification.
@@ -399,7 +399,7 @@ Defined.
 Definition disp_path_pgroupoid_counit_counit_inv :
   disp_invmodification _ _ _ _
     (disp_comp_psfunctor _ _ _ _ _ _ _ _ _ _ disp_path_pgroupoid_counit disp_path_pgroupoid_counit_inv)
-    (disp_id_trans _)
+    (disp_id_pstrans _)
     (counitunit_of_is_biequivalence is_biequiv_path_groupoid).
 Proof.
   use make_disp_invmodification.

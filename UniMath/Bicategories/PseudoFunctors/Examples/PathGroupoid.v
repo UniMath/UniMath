@@ -500,7 +500,7 @@ Defined.
 Definition path_groupoid_biadj_triangle_l_data
   : invertible_modification_data
       (biadj_triangle_l_lhs path_groupoid_biadj_unit_counit)
-      (id_trans path_groupoid).
+      (id_pstrans path_groupoid).
 Proof.
   intros X.
   use make_invertible_2cell.
@@ -537,7 +537,7 @@ Defined.
 Definition path_groupoid_biadj_triangle_r_data
   : invertible_modification_data
       (biadj_triangle_r_lhs path_groupoid_biadj_unit_counit)
-      (id_trans path_groupoid_biadj_unit_counit).
+      (id_pstrans path_groupoid_biadj_unit_counit).
 Proof.
   intro G.
   use make_invertible_2cell.
@@ -636,8 +636,8 @@ Defined.
 
 Definition path_groupoid_unit_unit_inv
   : invertible_modification
-      (comp_trans path_groupoid_unit path_groupoid_unit_inv)
-      (id_trans _).
+      (comp_pstrans path_groupoid_unit path_groupoid_unit_inv)
+      (id_pstrans _).
 Proof.
   use make_invertible_modification.
   - intro.
@@ -651,8 +651,8 @@ Defined.
 
 Definition path_groupoid_unit_inv_unit
   : invertible_modification
-      (comp_trans path_groupoid_unit_inv path_groupoid_unit)
-      (id_trans _).
+      (comp_pstrans path_groupoid_unit_inv path_groupoid_unit)
+      (id_pstrans _).
 Proof.
   use make_invertible_modification.
   - intro.
@@ -802,8 +802,8 @@ Defined.
 
 Definition path_groupoid_counit_counit_inv
   : invertible_modification
-      (comp_trans path_groupoid_counit path_groupoid_counit_inv)
-      (id_trans _).
+      (comp_pstrans path_groupoid_counit path_groupoid_counit_inv)
+      (id_pstrans _).
 Proof.
   use make_invertible_modification.
   - intro.
@@ -831,8 +831,8 @@ Defined.
 
 Definition path_groupoid_counit_inv_counit
   : invertible_modification
-      (comp_trans path_groupoid_counit_inv path_groupoid_counit)
-      (id_trans _).
+      (comp_pstrans path_groupoid_counit_inv path_groupoid_counit)
+      (id_pstrans _).
 Proof.
   use make_invertible_modification.
   - intro.

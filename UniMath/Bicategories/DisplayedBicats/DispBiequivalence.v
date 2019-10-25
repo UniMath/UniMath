@@ -112,25 +112,25 @@ Definition disp_is_biequivalence_data
                            (disp_comp_psfunctor _ _ _ _ _ _ _ _ _ _
                                          uu
                                          (unit_of_is_disp_biequivalence ee))
-                           (disp_id_trans _)
+                           (disp_id_pstrans _)
                            (unitcounit_of_is_biequivalence _) ×
       disp_invmodification _ _ _ _
                            (disp_comp_psfunctor _ _ _ _ _ _ _ _ _ _
                                          (unit_of_is_disp_biequivalence ee)
                                          uu)
-                           (disp_id_trans _)
+                           (disp_id_pstrans _)
                            (unitunit_of_is_biequivalence _)) ×
      (disp_invmodification _ _ _ _
                            (disp_comp_psfunctor _ _ _ _ _ _ _ _ _ _
                                          cc
                                          (counit_of_is_disp_biequivalence ee))
-                           (disp_id_trans _)
+                           (disp_id_pstrans _)
                            (counitcounit_of_is_biequivalence _) ×
       disp_invmodification _ _ _ _
                            (disp_comp_psfunctor _ _ _ _ _ _ _ _ _ _
                                          (counit_of_is_disp_biequivalence ee)
                                          cc)
-                           (disp_id_trans _)
+                           (disp_id_pstrans _)
                            (counitunit_of_is_biequivalence _)).
 
 (** ** Total biequivalence. *)
@@ -168,10 +168,10 @@ Opaque comp_psfunctor.
 
 Definition total_biequivalence_unit_unit_inv
   : invertible_modification
-      (comp_trans
+      (comp_pstrans
          (unit_of_is_biequivalence (total_is_biequivalence_unit_counit ee))
          total_biequivalence_unit_inv)
-      (id_trans (comp_psfunctor (total_psfunctor D₂ D₁ G GG)
+      (id_pstrans (comp_psfunctor (total_psfunctor D₂ D₁ G GG)
                          (total_psfunctor D₁ D₂ F FF))).
 Proof.
   pose (total_invmodification _ _ _ _ _ _ _ (pr21 (pr22 aa))) as m.
@@ -184,10 +184,10 @@ Defined.
 
 Definition total_biequivalence_unit_inv_unit
   : invertible_modification
-      (comp_trans
+      (comp_pstrans
          total_biequivalence_unit_inv
          (unit_of_is_biequivalence (total_is_biequivalence_unit_counit ee)))
-      (id_trans (id_psfunctor (total_bicat D₁))).
+      (id_pstrans (id_psfunctor (total_bicat D₁))).
 Proof.
   pose (total_invmodification _ _ _ _ _ _ _ (pr11 (pr22 aa))) as m.
   apply make_invertible_modification_on_data.
@@ -199,10 +199,10 @@ Defined.
 
 Definition total_biequivalence_counit_counit_inv
   : invertible_modification
-      (comp_trans
+      (comp_pstrans
          (counit_of_is_biequivalence (total_is_biequivalence_unit_counit ee))
          total_biequivalence_counit_inv)
-    (id_trans (comp_psfunctor (total_psfunctor D₁ D₂ F FF) (total_psfunctor D₂ D₁ G GG))).
+    (id_pstrans (comp_psfunctor (total_psfunctor D₁ D₂ F FF) (total_psfunctor D₂ D₁ G GG))).
 Proof.
   pose (total_invmodification _ _ _ _ _ _ _ (pr22 (pr22 aa))) as m.
   apply make_invertible_modification_on_data.
@@ -214,10 +214,10 @@ Defined.
 
 Definition total_biequivalence_counit_inv_counit
   : invertible_modification
-      (comp_trans
+      (comp_pstrans
          total_biequivalence_counit_inv
          (counit_of_is_biequivalence (total_is_biequivalence_unit_counit ee)))
-      (id_trans (id_psfunctor (total_bicat D₂))).
+      (id_pstrans (id_psfunctor (total_bicat D₂))).
 Proof.
   pose (total_invmodification _ _ _ _ _ _ _ (pr12 (pr22 aa))) as m.
   apply make_invertible_modification_on_data.

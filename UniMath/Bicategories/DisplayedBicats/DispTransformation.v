@@ -228,8 +228,8 @@ Context {B₁ B₂ : bicat}
         {F : psfunctor B₁ B₂}
         (FF : disp_psfunctor D₁ D₂ F).
 
-Definition disp_id_trans_data
-  : disp_pstrans_data FF FF (id_trans F).
+Definition disp_id_pstrans_data
+  : disp_pstrans_data FF FF (id_pstrans F).
 Proof.
   use make_disp_pstrans_data; cbn.
   - exact (λ x xx, id_disp (FF x xx)).
@@ -238,12 +238,12 @@ Proof.
                                  (disp_invertible_2cell_rinvunitor _)).
 Defined.
 
-Lemma disp_id_trans_laws : is_disp_pstrans _ _ _ disp_id_trans_data.
+Lemma disp_id_pstrans_laws : is_disp_pstrans _ _ _ disp_id_pstrans_data.
 Proof.
   apply is_disp_pstrans_from_total.
-  pose (PP := id_trans (total_psfunctor _ _ _ FF)).
+  pose (PP := id_pstrans (total_psfunctor _ _ _ FF)).
   pose (PP2 := pstrans_to_is_pstrans PP).
-  assert (pr11 PP = total_pstrans_data FF FF (id_trans F) disp_id_trans_data).
+  assert (pr11 PP = total_pstrans_data FF FF (id_pstrans F) disp_id_pstrans_data).
   - use total2_paths_f.
     + apply idpath.
     + apply funextsec. intro x.
@@ -255,8 +255,8 @@ Proof.
   - exact (transportf _ X PP2).
 Qed.
 
-Definition disp_id_trans : disp_pstrans FF FF (id_trans F)
-  := disp_id_trans_data,, disp_id_trans_laws.
+Definition disp_id_pstrans : disp_pstrans FF FF (id_pstrans F)
+  := disp_id_pstrans_data,, disp_id_pstrans_laws.
 
 End DispTrans_identity.
 
@@ -282,7 +282,7 @@ Local Notation "αα '••' ββ" := (vcomp_disp_invertible αα ββ).
 Local Notation "ff '◃◃' αα" := (disp_invertible_2cell_lwhisker ff αα).
 Local Notation "αα '▹▹' ff" := (disp_invertible_2cell_rwhisker ff αα).
 
-Definition disp_comp_psfunctor_data : disp_pstrans_data FF₁ FF₃ (comp_trans η₁ η₂).
+Definition disp_comp_psfunctor_data : disp_pstrans_data FF₁ FF₃ (comp_pstrans η₁ η₂).
 Proof.
   use make_disp_pstrans_data; cbn.
   - exact (λ x xx, comp_disp (ηη₁ x xx) (ηη₂ x xx)).
@@ -297,7 +297,7 @@ Defined.
 Lemma disp_comp_psfunctor_laws : is_disp_pstrans _ _ _ disp_comp_psfunctor_data.
 Proof.
   apply is_disp_pstrans_from_total.
-  pose (PP := comp_trans (total_pstrans _ _ _ ηη₁) (total_pstrans _ _ _ ηη₂)).
+  pose (PP := comp_pstrans (total_pstrans _ _ _ ηη₁) (total_pstrans _ _ _ ηη₂)).
   pose (PP2 := pstrans_to_is_pstrans PP).
   assert (pr11 PP = total_pstrans_data _ _ _ disp_comp_psfunctor_data).
   - use total2_paths_f.
@@ -311,7 +311,7 @@ Proof.
   - exact (transportf _ X PP2).
 Qed.
 
-Definition disp_comp_psfunctor : disp_pstrans _ _ (comp_trans η₁ η₂)
+Definition disp_comp_psfunctor : disp_pstrans _ _ (comp_pstrans η₁ η₂)
   := disp_comp_psfunctor_data,, disp_comp_psfunctor_laws.
 
 End DispTrans_comp.
@@ -453,11 +453,11 @@ Context {B₁ B₂ : bicat}
         {D₂ : disp_bicat B₂}
         (FF : disp_psfunctor D₁ D₂ F).
 
-Definition disp_pstrans_lunitor_data
+Definition disp_lunitor_pstrans_data
   : disp_pstrans_data
       (disp_pseudo_comp _ _ _ _ _ FF (disp_pseudo_id D₂))
       FF
-      (pstrans_lunitor F).
+      (lunitor_pstrans F).
 Proof.
   use make_disp_pstrans_data.
   - exact (λ x xx, id_disp (FF x xx)).
@@ -467,14 +467,14 @@ Proof.
                                  (disp_invertible_2cell_rinvunitor _)).
 Defined.
 
-Lemma disp_pstrans_lunitor_laws : is_disp_pstrans _ _ _ disp_pstrans_lunitor_data.
+Lemma disp_lunitor_pstrans_laws : is_disp_pstrans _ _ _ disp_lunitor_pstrans_data.
 Proof.
   apply is_disp_pstrans_from_total.
-  pose (PP := pstrans_lunitor (total_psfunctor _ _ _ FF)).
+  pose (PP := lunitor_pstrans (total_psfunctor _ _ _ FF)).
   pose (PP2 := pstrans_to_is_pstrans PP).
   assert (X : pstrans_to_pstrans_data PP
               =
-              total_pstrans_data _ _ _ disp_pstrans_lunitor_data).
+              total_pstrans_data _ _ _ disp_lunitor_pstrans_data).
   - use total2_paths_f.
     + apply idpath.
     + apply funextsec. intro x.
@@ -486,18 +486,18 @@ Proof.
   - exact (transportf is_pstrans X PP2).
 Qed.
 
-Definition disp_pstrans_lunitor
+Definition disp_lunitor_pstrans
   : disp_pstrans
       (disp_pseudo_comp _ _ _ _ _ FF (disp_pseudo_id D₂))
       FF
-      (pstrans_lunitor F)
-  := disp_pstrans_lunitor_data,, disp_pstrans_lunitor_laws.
+      (lunitor_pstrans F)
+  := disp_lunitor_pstrans_data,, disp_lunitor_pstrans_laws.
 
 Definition disp_pstrans_linvunitor_data
   : disp_pstrans_data
       FF
       (disp_pseudo_comp _ _ _ _ _ FF (disp_pseudo_id D₂))
-      (pstrans_linvunitor F).
+      (linvunitor_pstrans F).
 Proof.
   use make_disp_pstrans_data.
   - exact (λ x xx, id_disp (FF x xx)).
@@ -510,7 +510,7 @@ Defined.
 Lemma disp_pstrans_linvunitor_laws : is_disp_pstrans _ _ _ disp_pstrans_linvunitor_data.
 Proof.
   apply is_disp_pstrans_from_total.
-  pose (PP := pstrans_linvunitor (total_psfunctor _ _ _ FF)).
+  pose (PP := linvunitor_pstrans (total_psfunctor _ _ _ FF)).
   pose (PP2 := pstrans_to_is_pstrans PP).
   assert (X : pstrans_to_pstrans_data PP
               =
@@ -530,14 +530,14 @@ Definition disp_pstrans_linvunitor
   : disp_pstrans
       FF
       (disp_pseudo_comp _ _ _ _ _ FF (disp_pseudo_id D₂))
-      (pstrans_linvunitor F)
+      (linvunitor_pstrans F)
   := disp_pstrans_linvunitor_data,, disp_pstrans_linvunitor_laws.
 
-Definition disp_pstrans_runitor_data
+Definition disp_runitor_pstrans_data
   : disp_pstrans_data
       (disp_pseudo_comp _ _ _ _ _ (disp_pseudo_id D₁) FF)
       FF
-      (pstrans_runitor F).
+      (runitor_pstrans F).
 Proof.
   use make_disp_pstrans_data.
   - exact (λ x xx, id_disp (FF x xx)).
@@ -547,14 +547,14 @@ Proof.
                                  (disp_invertible_2cell_rinvunitor _)).
 Defined.
 
-Lemma disp_pstrans_runitor_laws : is_disp_pstrans _ _ _ disp_pstrans_runitor_data.
+Lemma disp_runitor_pstrans_laws : is_disp_pstrans _ _ _ disp_runitor_pstrans_data.
 Proof.
   apply is_disp_pstrans_from_total.
-  pose (PP := pstrans_runitor (total_psfunctor _ _ _ FF)).
+  pose (PP := runitor_pstrans (total_psfunctor _ _ _ FF)).
   pose (PP2 := pstrans_to_is_pstrans PP).
   assert (X : pstrans_to_pstrans_data PP
               =
-              total_pstrans_data _ _ _ disp_pstrans_runitor_data).
+              total_pstrans_data _ _ _ disp_runitor_pstrans_data).
   - use total2_paths_f.
     + apply idpath.
     + apply funextsec. intro x.
@@ -566,18 +566,18 @@ Proof.
   - exact (transportf is_pstrans X PP2).
 Qed.
 
-Definition disp_pstrans_runitor
+Definition disp_runitor_pstrans
   : disp_pstrans
       (disp_pseudo_comp _ _ _ _ _ (disp_pseudo_id D₁) FF)
       FF
-      (pstrans_runitor F)
-  := disp_pstrans_runitor_data,, disp_pstrans_runitor_laws.
+      (runitor_pstrans F)
+  := disp_runitor_pstrans_data,, disp_runitor_pstrans_laws.
 
-Definition disp_pstrans_rinvunitor_data
+Definition disp_rinvunitor_pstrans_data
   : disp_pstrans_data
       FF
       (disp_pseudo_comp _ _ _ _ _ (disp_pseudo_id D₁) FF)
-      (pstrans_rinvunitor F).
+      (rinvunitor_pstrans F).
 Proof.
   use make_disp_pstrans_data.
   - exact (λ x xx, id_disp (FF x xx)).
@@ -587,14 +587,14 @@ Proof.
                                  (disp_invertible_2cell_rinvunitor _)).
 Defined.
 
-Lemma disp_pstrans_rinvunitor_laws : is_disp_pstrans _ _ _ disp_pstrans_rinvunitor_data.
+Lemma disp_rinvunitor_pstrans_laws : is_disp_pstrans _ _ _ disp_rinvunitor_pstrans_data.
 Proof.
   apply is_disp_pstrans_from_total.
-  pose (PP := pstrans_rinvunitor (total_psfunctor _ _ _ FF)).
+  pose (PP := rinvunitor_pstrans (total_psfunctor _ _ _ FF)).
   pose (PP2 := pstrans_to_is_pstrans PP).
   assert (X : pstrans_to_pstrans_data PP
               =
-              total_pstrans_data _ _ _ disp_pstrans_rinvunitor_data).
+              total_pstrans_data _ _ _ disp_rinvunitor_pstrans_data).
   - use total2_paths_f.
     + apply idpath.
     + apply funextsec. intro x.
@@ -606,12 +606,12 @@ Proof.
   - exact (transportf is_pstrans X PP2).
 Qed.
 
-Definition disp_pstrans_rinvunitor
+Definition disp_rinvunitor_pstrans
   : disp_pstrans
       FF
       (disp_pseudo_comp _ _ _ _ _ (disp_pseudo_id D₁) FF)
-      (pstrans_rinvunitor F)
-  := disp_pstrans_rinvunitor_data,, disp_pstrans_rinvunitor_laws.
+      (rinvunitor_pstrans F)
+  := disp_rinvunitor_pstrans_data,, disp_rinvunitor_pstrans_laws.
 End DispTransUnitality.
 
 Section DispTransAssociativiy.
@@ -625,7 +625,7 @@ Context {B₁ B₂ B₃ B₄ : bicat}
         (FF₂ : disp_psfunctor D₂ D₃ F₂)
         (FF₃ : disp_psfunctor D₃ D₄ F₃).
 
-Definition disp_pstrans_lassociator_data
+Definition disp_lassociator_pstrans_data
   : disp_pstrans_data
       (disp_pseudo_comp
          _ _ _ _ _
@@ -643,7 +643,7 @@ Definition disp_pstrans_lassociator_data
             FF₂
             FF₃)
       )
-      (pstrans_lassociator F₁ F₂ F₃).
+      (lassociator_pstrans F₁ F₂ F₃).
 Proof.
   use make_disp_pstrans_data.
   - exact (λ x xx, id_disp (_ x xx)).
@@ -653,17 +653,17 @@ Proof.
                                  (disp_invertible_2cell_rinvunitor _)).
 Defined.
 
-Lemma disp_pstrans_lassociator_laws : is_disp_pstrans _ _ _ disp_pstrans_lassociator_data.
+Lemma disp_lassociator_pstrans_laws : is_disp_pstrans _ _ _ disp_lassociator_pstrans_data.
 Proof.
   apply is_disp_pstrans_from_total.
-  pose (PP := pstrans_lassociator
+  pose (PP := lassociator_pstrans
                 (total_psfunctor _ _ _ FF₁)
                 (total_psfunctor _ _ _ FF₂)
                 (total_psfunctor _ _ _ FF₃)).
   pose (PP2 := pstrans_to_is_pstrans PP).
   assert (X : pstrans_to_pstrans_data PP
               =
-              total_pstrans_data _ _ _ disp_pstrans_lassociator_data).
+              total_pstrans_data _ _ _ disp_lassociator_pstrans_data).
   - use total2_paths_f.
     + apply idpath.
     + apply funextsec. intro x.
@@ -675,7 +675,7 @@ Proof.
   - exact (transportf is_pstrans X PP2).
 Qed.
 
-Definition disp_pstrans_lassociator
+Definition disp_lassociator_pstrans
   : disp_pstrans
       (disp_pseudo_comp
          _ _ _ _ _
@@ -693,8 +693,8 @@ Definition disp_pstrans_lassociator
             FF₂
             FF₃)
       )
-      (pstrans_lassociator F₁ F₂ F₃)
-  := disp_pstrans_lassociator_data,, disp_pstrans_lassociator_laws.
+      (lassociator_pstrans F₁ F₂ F₃)
+  := disp_lassociator_pstrans_data,, disp_lassociator_pstrans_laws.
 
 Definition disp_pstrans_rassociator_data
   : disp_pstrans_data
@@ -714,7 +714,7 @@ Definition disp_pstrans_rassociator_data
             FF₂)
          FF₃
       )
-      (pstrans_rassociator F₁ F₂ F₃).
+      (rassociator_pstrans F₁ F₂ F₃).
 Proof.
   use make_disp_pstrans_data.
   - exact (λ x xx, id_disp (_ x xx)).
@@ -727,14 +727,14 @@ Defined.
 Lemma disp_pstrans_rassociator_laws : is_disp_pstrans _ _ _ disp_pstrans_rassociator_data.
 Proof.
   apply is_disp_pstrans_from_total.
-  pose (PP := pstrans_rassociator
+  pose (PP := rassociator_pstrans
                 (total_psfunctor _ _ _ FF₁)
                 (total_psfunctor _ _ _ FF₂)
                 (total_psfunctor _ _ _ FF₃)).
   pose (PP2 := pstrans_to_is_pstrans PP).
   assert (X : pstrans_to_pstrans_data PP
               =
-              total_pstrans_data _ _ _ disp_pstrans_lassociator_data).
+              total_pstrans_data _ _ _ disp_lassociator_pstrans_data).
   - use total2_paths_f.
     + apply idpath.
     + apply funextsec. intro x.
@@ -764,6 +764,6 @@ Definition disp_pstrans_rassociator
             FF₂)
          FF₃
       )
-      (pstrans_rassociator F₁ F₂ F₃)
+      (rassociator_pstrans F₁ F₂ F₃)
   := disp_pstrans_rassociator_data,, disp_pstrans_rassociator_laws.
 End DispTransAssociativiy.

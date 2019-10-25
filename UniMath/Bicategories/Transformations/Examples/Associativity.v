@@ -31,7 +31,7 @@ Section Associativity.
            (F₂ : psfunctor B₂ B₃)
            (F₃ : psfunctor B₃ B₄).
 
-  Definition pstrans_lassociator_data
+  Definition lassociator_pstrans_data
     : pstrans_data
         (comp_psfunctor F₃ (comp_psfunctor F₂ F₁))
         (comp_psfunctor (comp_psfunctor F₃ F₂) F₁).
@@ -44,8 +44,8 @@ Section Associativity.
       + is_iso.
   Defined.
 
-  Definition pstrans_lassociator_is_pstrans
-    : is_pstrans pstrans_lassociator_data.
+  Definition lassociator_pstrans_is_pstrans
+    : is_pstrans lassociator_pstrans_data.
   Proof.
     repeat split.
     - intros X Y f g α ; cbn.
@@ -143,17 +143,17 @@ Section Associativity.
       apply idpath.
   Qed.
 
-  Definition pstrans_lassociator
+  Definition lassociator_pstrans
     : pstrans
         (comp_psfunctor F₃ (comp_psfunctor F₂ F₁))
         (comp_psfunctor (comp_psfunctor F₃ F₂) F₁).
   Proof.
     use make_pstrans.
-    - exact pstrans_lassociator_data.
-    - exact pstrans_lassociator_is_pstrans.
+    - exact lassociator_pstrans_data.
+    - exact lassociator_pstrans_is_pstrans.
   Defined.
 
-  Definition pstrans_rassociator_data
+  Definition rassociator_pstrans_data
     : pstrans_data
         (comp_psfunctor (comp_psfunctor F₃ F₂) F₁)
         (comp_psfunctor F₃ (comp_psfunctor F₂ F₁)).
@@ -166,8 +166,8 @@ Section Associativity.
       + is_iso.
   Defined.
 
-  Definition pstrans_rassociator_is_pstrans
-    : is_pstrans pstrans_rassociator_data.
+  Definition rassociator_pstrans_is_pstrans
+    : is_pstrans rassociator_pstrans_data.
   Proof.
     repeat split.
     - intros X Y f g α ; cbn.
@@ -259,13 +259,13 @@ Section Associativity.
       apply idpath.
   Qed.
 
-  Definition pstrans_rassociator
+  Definition rassociator_pstrans
     : pstrans
         (comp_psfunctor (comp_psfunctor F₃ F₂) F₁)
         (comp_psfunctor F₃ (comp_psfunctor F₂ F₁)).
   Proof.
     use make_pstrans.
-    - exact pstrans_rassociator_data.
-    - exact pstrans_rassociator_is_pstrans.
+    - exact rassociator_pstrans_data.
+    - exact rassociator_pstrans_is_pstrans.
   Defined.
 End Associativity.

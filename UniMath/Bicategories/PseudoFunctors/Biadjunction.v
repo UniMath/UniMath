@@ -87,39 +87,39 @@ Section BiadjunctionTriangleLaws.
 
   Definition biadj_triangle_l_lhs
     : pstrans L L
-    := comp_trans
-         (pstrans_rinvunitor L)
-         (comp_trans
+    := comp_pstrans
+         (rinvunitor_pstrans L)
+         (comp_pstrans
             (L ◅ η)
-            (comp_trans
-               (pstrans_lassociator L R L)
-               (comp_trans
+            (comp_pstrans
+               (lassociator_pstrans L R L)
+               (comp_pstrans
                   (ε ▻ L)
-                  (pstrans_lunitor L)))).
+                  (lunitor_pstrans L)))).
 
   Definition biadj_triangle_l_law
     : UU
     := invertible_modification
          biadj_triangle_l_lhs
-         (id_trans L).
+         (id_pstrans L).
 
   Definition biadj_triangle_r_lhs
     : pstrans R R
-    := comp_trans
-         (pstrans_linvunitor R)
-         (comp_trans
+    := comp_pstrans
+         (linvunitor_pstrans R)
+         (comp_pstrans
             (η ▻ R)
-            (comp_trans
-               (pstrans_rassociator R L R)
-                    (comp_trans
+            (comp_pstrans
+               (rassociator_pstrans R L R)
+                    (comp_pstrans
                        (R ◅ ε)
-                       (pstrans_runitor R)))).
+                       (runitor_pstrans R)))).
 
   Definition biadj_triangle_r_law
     : UU
     := invertible_modification
          biadj_triangle_r_lhs
-         (id_trans R).
+         (id_pstrans R).
 End BiadjunctionTriangleLaws.
 
 Definition left_biadj_data
@@ -141,13 +141,13 @@ Section BiadjunctionDataProjections.
   Definition biadj_triangle_l
     : invertible_modification
         (biadj_triangle_l_lhs (pr1 R))
-        (id_trans L)
+        (id_pstrans L)
     := pr12 R.
 
   Definition biadj_triangle_r
     : invertible_modification
         (biadj_triangle_r_lhs (pr1 R))
-        (id_trans (pr1 R))
+        (id_pstrans (pr1 R))
     := pr22 R.
 End BiadjunctionDataProjections.
 

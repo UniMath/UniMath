@@ -163,14 +163,14 @@ Section FiberOfBiequiv.
     simpl in d.
     rewrite <- (idtoiso_2_1_isotoid_2_1
                   HC
-                  (psnaturality_of (pstrans_lunitor (id_psfunctor C)) (id₁ c))) in d.
+                  (psnaturality_of (lunitor_pstrans (id_psfunctor C)) (id₁ c))) in d.
     pose (transportb_transpose_right (disp_isotoid_2_1 _ HD₁_2_1 _ _ _ d)) as p.
     refine (_ @ !p).
     clear d p.
     refine (!_).
     assert (isotoid_2_1
               HC
-              (psnaturality_of (pstrans_lunitor (id_psfunctor C)) (id₁ c))
+              (psnaturality_of (lunitor_pstrans (id_psfunctor C)) (id₁ c))
             = idpath _) as X.
     {
       cbn.
@@ -232,14 +232,14 @@ Section FiberOfBiequiv.
     simpl in d.
     rewrite <- (idtoiso_2_1_isotoid_2_1
                   HC
-                  (psnaturality_of (pstrans_lunitor (id_psfunctor C)) (id₁ c))) in d.
+                  (psnaturality_of (lunitor_pstrans (id_psfunctor C)) (id₁ c))) in d.
     pose (transportb_transpose_right (disp_isotoid_2_1 _ HD₂_2_1 _ _ _ d)) as p.
     refine (_ @ !p).
     clear d p.
     refine (!_).
     assert (isotoid_2_1
               HC
-              (psnaturality_of (pstrans_lunitor (id_psfunctor C)) (id₁ c))
+              (psnaturality_of (lunitor_pstrans (id_psfunctor C)) (id₁ c))
             = idpath _) as X.
     {
       cbn.

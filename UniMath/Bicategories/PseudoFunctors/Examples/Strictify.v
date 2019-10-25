@@ -834,10 +834,10 @@ Section Strictify.
 
   Definition strictify_counit_inv_strictify_counit
     : invertible_modification
-        (comp_trans
+        (comp_pstrans
            strictify_counit_inv
            strictify_counit)
-        (id_trans _).
+        (id_pstrans _).
   Proof.
     use make_invertible_modification.
     - intros F.
@@ -861,10 +861,10 @@ Section Strictify.
 
   Definition strictify_counit_strictify_counit_inv
     : invertible_modification
-        (comp_trans
+        (comp_pstrans
            strictify_counit
            strictify_counit_inv)
-        (id_trans _).
+        (id_pstrans _).
   Proof.
     use make_invertible_modification.
     - intros F.
@@ -1303,10 +1303,10 @@ Section Strictify.
 
   Definition strictify_unit_strictify_unit_inv
     : invertible_modification
-        (comp_trans
+        (comp_pstrans
            strictify_unit
            strictify_unit_inv)
-        (id_trans _).
+        (id_pstrans _).
   Proof.
     use make_invertible_modification.
     - intros F.
@@ -1333,10 +1333,10 @@ Section Strictify.
 
   Definition strictify_unit_inv_strictify_unit
     : invertible_modification
-        (comp_trans
+        (comp_pstrans
            strictify_unit_inv
            strictify_unit)
-        (id_trans _).
+        (id_pstrans _).
   Proof.
     use make_invertible_modification.
     - intros F.
