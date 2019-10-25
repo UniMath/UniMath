@@ -436,7 +436,7 @@ check-for-change-to-Foundations:
 check-for-submodule-changes:
 	@echo "--- checking for submodule changes ---"
 	git fetch origin
-	test -z "`git diff master sub`"
+	test -z "`git diff origin/master sub`"
 
 # Here we create a table of contents file, in markdown format, for browsing on github
 # When the file UniMath/CONTENTS.md changes, the new version should be committed to github.
