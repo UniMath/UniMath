@@ -412,8 +412,8 @@ Section Strictify.
 
   Definition strictify_counit_data
     : pstrans_data
-        (ps_comp (strict_psfunctor_to_psfunctor B₁ B₂) strictify)
-        (ps_id_functor (psfunctor_bicat B₁ B₂)).
+        (comp_psfunctor (strict_psfunctor_to_psfunctor B₁ B₂) strictify)
+        (id_psfunctor (psfunctor_bicat B₁ B₂)).
   Proof.
     use make_pstrans_data.
     - exact strictify_counit_comp.
@@ -452,7 +452,7 @@ Section Strictify.
       =
       (runitor (id₁ (F X)) • linvunitor (id₁ (F X)))
         • ((pr111 (pr1 (psfunctor_id
-                  (ps_comp (strict_psfunctor_to_psfunctor B₁ B₂) strictify) F)) X)
+                  (comp_psfunctor (strict_psfunctor_to_psfunctor B₁ B₂) strictify) F)) X)
              ▹ id₁ (F X)).
   Proof.
     rewrite !vassocr.
@@ -482,20 +482,20 @@ Section Strictify.
       ((((lassociator (id₁ (F₁ X)) ((pr111 α) X) ((pr111 β) X)
            • ((lunitor ((pr111 α) X) • rinvunitor ((pr111 α) X)) ▹ (pr111 β) X))
            • rassociator
-               ((pr111 (# (ps_comp (strict_psfunctor_to_psfunctor B₁ B₂) strictify) α)) X)
+               ((pr111 (# (comp_psfunctor (strict_psfunctor_to_psfunctor B₁ B₂) strictify) α)) X)
                (id₁ (F₂ X))
                ((pr111 β) X))
-          • ((pr111 (# (ps_comp (strict_psfunctor_to_psfunctor B₁ B₂) strictify) α)) X
+          • ((pr111 (# (comp_psfunctor (strict_psfunctor_to_psfunctor B₁ B₂) strictify) α)) X
             ◃ (lunitor ((pr111 β) X)
          • rinvunitor ((pr111 β) X))))
          • lassociator
              ((pr111
-                 (# (ps_comp (strict_psfunctor_to_psfunctor B₁ B₂) strictify) α))
+                 (# (comp_psfunctor (strict_psfunctor_to_psfunctor B₁ B₂) strictify) α))
                       X)
-                 ((pr111 (# (ps_comp (strict_psfunctor_to_psfunctor B₁ B₂) strictify) β))
+                 ((pr111 (# (comp_psfunctor (strict_psfunctor_to_psfunctor B₁ B₂) strictify) β))
                       X)
              (id₁ (F₃ X)))
-        • ((pr111 ((pr222 (pr1 (ps_comp (strict_psfunctor_to_psfunctor B₁ B₂) strictify)))
+        • ((pr111 ((pr222 (pr1 (comp_psfunctor (strict_psfunctor_to_psfunctor B₁ B₂) strictify)))
                      F₁ F₂ F₃ α β)) X ▹ id₁ (F₃ X)).
   Proof.
     cbn.
@@ -519,14 +519,14 @@ Section Strictify.
     apply idpath.
   Qed.
 
-  Opaque ps_comp.
+  Opaque comp_psfunctor.
 
   Definition strictify_counit_is_pstrans
     : is_pstrans strictify_counit_data.
   Proof.
     refine (_ ,, _ ,, _).
     - intros F₁ F₂ α β m.
-      rewrite (ps_comp_cell (strict_psfunctor_to_psfunctor B₁ B₂) strictify m).
+      rewrite (comp_psfunctor_cell (strict_psfunctor_to_psfunctor B₁ B₂) strictify m).
       assert (psfunctor_on_cells (strict_psfunctor_to_psfunctor B₁ B₂) (psfunctor_on_cells strictify m)
               =
               strict_psfunctor_cell_to_modification _ _ _ _ _ _ (strictify_cell _ _ _ _ m))
@@ -545,12 +545,12 @@ Section Strictify.
       exact (strictify_counit_is_pstrans_help₃ F₁ F₂ F₃ α β).
   Qed.
 
-  Transparent ps_comp.
+  Transparent comp_psfunctor.
 
   Definition strictify_counit
     : pstrans
-        (ps_comp (strict_psfunctor_to_psfunctor B₁ B₂) strictify)
-        (ps_id_functor _).
+        (comp_psfunctor (strict_psfunctor_to_psfunctor B₁ B₂) strictify)
+        (id_psfunctor _).
   Proof.
     use make_pstrans.
     - exact strictify_counit_data.
@@ -652,8 +652,8 @@ Section Strictify.
 
   Definition strictify_counit_inv_data
     : pstrans_data
-        (ps_id_functor (psfunctor_bicat B₁ B₂))
-        (ps_comp (strict_psfunctor_to_psfunctor B₁ B₂) strictify).
+        (id_psfunctor (psfunctor_bicat B₁ B₂))
+        (comp_psfunctor (strict_psfunctor_to_psfunctor B₁ B₂) strictify).
   Proof.
     use make_pstrans_data.
     - intro F.
@@ -718,8 +718,8 @@ Section Strictify.
 
   Definition strictify_counit_inv
     : pstrans
-        (ps_id_functor _)
-        (ps_comp (strict_psfunctor_to_psfunctor B₁ B₂) strictify).
+        (id_psfunctor _)
+        (comp_psfunctor (strict_psfunctor_to_psfunctor B₁ B₂) strictify).
   Proof.
     use make_pstrans.
     - exact strictify_counit_inv_data.
@@ -1051,8 +1051,8 @@ Section Strictify.
 
   Definition strictify_unit_data
     : pstrans_data
-        (ps_id_functor (strict_psfunctor_bicat B₁ B₂))
-        (ps_comp strictify (strict_psfunctor_to_psfunctor B₁ B₂)).
+        (id_psfunctor (strict_psfunctor_bicat B₁ B₂))
+        (comp_psfunctor strictify (strict_psfunctor_to_psfunctor B₁ B₂)).
   Proof.
     use make_pstrans_data.
     - intros F.
@@ -1133,8 +1133,8 @@ Section Strictify.
 
   Definition strictify_unit
     : pstrans
-        (ps_id_functor _)
-        (ps_comp strictify (strict_psfunctor_to_psfunctor B₁ B₂)).
+        (id_psfunctor _)
+        (comp_psfunctor strictify (strict_psfunctor_to_psfunctor B₁ B₂)).
   Proof.
     use make_pstrans.
     - exact strictify_unit_data.
@@ -1143,8 +1143,8 @@ Section Strictify.
 
   Definition strictify_unit_inv_data
     : pstrans_data
-        (ps_comp strictify (strict_psfunctor_to_psfunctor B₁ B₂))
-        (ps_id_functor _).
+        (comp_psfunctor strictify (strict_psfunctor_to_psfunctor B₁ B₂))
+        (id_psfunctor _).
   Proof.
     use make_pstrans_data.
     - intros F.
@@ -1204,7 +1204,7 @@ Section Strictify.
        =
        (runitor (id₁ ((pr111 F) X)) • linvunitor (id₁ ((pr111 F) X)))
          • ((pr111 ((pr122 (pr1
-                              (ps_comp strictify
+                              (comp_psfunctor strictify
                                        (strict_psfunctor_to_psfunctor B₁ B₂)))) F)) X
                                                                                                 ▹ id₁ ((pr111 F) X)).
   Proof.
@@ -1235,18 +1235,18 @@ Section Strictify.
       ((((lassociator (id₁ ((pr111 F₁) X)) ((pr111 α) X) ((pr111 β) X)
            • ((lunitor ((pr111 α) X) • rinvunitor ((pr111 α) X)) ▹ (pr111 β) X))
            • rassociator
-               ((pr111 (# (ps_comp strictify (strict_psfunctor_to_psfunctor B₁ B₂)) α)) X)
+               ((pr111 (# (comp_psfunctor strictify (strict_psfunctor_to_psfunctor B₁ B₂)) α)) X)
                (id₁ ((pr111 F₂) X))
                ((pr111 β) X))
-          • ((pr111 (# (ps_comp
+          • ((pr111 (# (comp_psfunctor
                           strictify
                           (strict_psfunctor_to_psfunctor B₁ B₂)) α)) X
                ◃ (lunitor ((pr111 β) X) • rinvunitor ((pr111 β) X))))
          • lassociator
-             ((pr111 (# (ps_comp strictify (strict_psfunctor_to_psfunctor B₁ B₂)) α)) X)
-             ((pr111 (# (ps_comp strictify (strict_psfunctor_to_psfunctor B₁ B₂)) β)) X)
+             ((pr111 (# (comp_psfunctor strictify (strict_psfunctor_to_psfunctor B₁ B₂)) α)) X)
+             ((pr111 (# (comp_psfunctor strictify (strict_psfunctor_to_psfunctor B₁ B₂)) β)) X)
              (id₁ ((pr111 F₃) X)))
-        • ((pr111 ((pr222 (pr1 (ps_comp
+        • ((pr111 ((pr222 (pr1 (comp_psfunctor
                                   strictify
                                   (strict_psfunctor_to_psfunctor B₁ B₂)))) F₁ F₂ F₃ α
                                   β)) X ▹ id₁ ((pr111 F₃) X)).
@@ -1272,7 +1272,7 @@ Section Strictify.
     apply idpath.
   Qed.
 
-  Opaque ps_comp.
+  Opaque comp_psfunctor.
 
   Definition strictify_unit_inv_is_pstrans
     : is_pstrans strictify_unit_inv_data.
@@ -1289,12 +1289,12 @@ Section Strictify.
       exact (strictify_unit_is_pstrans_help₃ F₁ F₂ F₃ α β).
   Qed.
 
-  Transparent ps_comp.
+  Transparent comp_psfunctor.
 
   Definition strictify_unit_inv
     : pstrans
-        (ps_comp strictify (strict_psfunctor_to_psfunctor B₁ B₂))
-        (ps_id_functor _).
+        (comp_psfunctor strictify (strict_psfunctor_to_psfunctor B₁ B₂))
+        (id_psfunctor _).
   Proof.
     use make_pstrans.
     - exact strictify_unit_inv_data.

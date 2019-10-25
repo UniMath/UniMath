@@ -58,7 +58,7 @@ Section ApFunctor.
       exact (pathscomp0rid _).
   Qed.
 
-  Definition ps_ap_functor
+  Definition ap_psfunctor
     : psfunctor (fundamental_bigroupoid X HX) (fundamental_bigroupoid Y HY).
   Proof.
     use make_psfunctor.

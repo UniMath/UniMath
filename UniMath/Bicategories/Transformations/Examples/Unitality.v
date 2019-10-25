@@ -30,7 +30,7 @@ Section LeftUnitality.
   Variable (F : psfunctor B₁ B₂).
 
   Definition pstrans_lunitor_data
-    : pstrans_data (ps_comp (ps_id_functor B₂) F) F.
+    : pstrans_data (comp_psfunctor (id_psfunctor B₂) F) F.
   Proof.
     use make_pstrans_data.
     - exact (λ X, id₁ (F X)).
@@ -87,7 +87,7 @@ Section LeftUnitality.
   Qed.
 
   Definition pstrans_lunitor
-    : pstrans (ps_comp (ps_id_functor B₂) F) F.
+    : pstrans (comp_psfunctor (id_psfunctor B₂) F) F.
   Proof.
     use make_pstrans.
     - exact pstrans_lunitor_data.
@@ -95,7 +95,7 @@ Section LeftUnitality.
   Defined.
 
   Definition pstrans_linvunitor_data
-    : pstrans_data F (ps_comp (ps_id_functor B₂) F).
+    : pstrans_data F (comp_psfunctor (id_psfunctor B₂) F).
   Proof.
     use make_pstrans_data.
     - exact (λ X, id₁ (F X)).
@@ -152,7 +152,7 @@ Section LeftUnitality.
   Qed.
 
   Definition pstrans_linvunitor
-    : pstrans F (ps_comp (ps_id_functor B₂) F).
+    : pstrans F (comp_psfunctor (id_psfunctor B₂) F).
   Proof.
     use make_pstrans.
     - exact pstrans_linvunitor_data.
@@ -165,7 +165,7 @@ Section RightUnitality.
   Variable (F : psfunctor B₁ B₂).
 
   Definition pstrans_runitor_data
-    : pstrans_data (ps_comp F (ps_id_functor B₁)) F.
+    : pstrans_data (comp_psfunctor F (id_psfunctor B₁)) F.
   Proof.
     use make_pstrans_data.
     - exact (λ X, id₁ (F X)).
@@ -222,7 +222,7 @@ Section RightUnitality.
   Qed.
 
   Definition pstrans_runitor
-    : pstrans (ps_comp F (ps_id_functor B₁)) F.
+    : pstrans (comp_psfunctor F (id_psfunctor B₁)) F.
   Proof.
     use make_pstrans.
     - exact pstrans_runitor_data.
@@ -230,7 +230,7 @@ Section RightUnitality.
   Defined.
 
   Definition pstrans_rinvunitor_data
-    : pstrans_data F (ps_comp F (ps_id_functor B₁)).
+    : pstrans_data F (comp_psfunctor F (id_psfunctor B₁)).
   Proof.
     use make_pstrans_data.
     - exact (λ X, id₁ (F X)).
@@ -287,7 +287,7 @@ Section RightUnitality.
   Qed.
 
   Definition pstrans_rinvunitor
-    : pstrans F (ps_comp F (ps_id_functor B₁)).
+    : pstrans F (comp_psfunctor F (id_psfunctor B₁)).
   Proof.
     use make_pstrans.
     - exact pstrans_rinvunitor_data.

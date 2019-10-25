@@ -58,8 +58,8 @@ Section ApTrans.
 
   Definition ap_pstrans_data
     : pstrans_data
-        (ps_ap_functor HX HY f)
-        (ps_ap_functor HX HY g).
+        (ap_psfunctor HX HY f)
+        (ap_psfunctor HX HY g).
   Proof.
     use make_pstrans_data.
     - exact e.
@@ -86,8 +86,8 @@ Section ApTrans.
 
   Definition ap_pstrans
     : pstrans
-        (ps_ap_functor HX HY f)
-        (ps_ap_functor HX HY g).
+        (ap_psfunctor HX HY f)
+        (ap_psfunctor HX HY g).
   Proof.
     use make_pstrans.
     - exact ap_pstrans_data.

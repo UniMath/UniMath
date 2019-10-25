@@ -46,12 +46,12 @@ Definition left_biadj_unit_counit
            (L : psfunctor B₁ B₂)
   := ∑ (R : psfunctor B₂ B₁),
      (pstrans
-       (ps_id_functor B₁)
-       (ps_comp R L))
+       (id_psfunctor B₁)
+       (comp_psfunctor R L))
      ×
      (pstrans
-        (ps_comp L R)
-        (ps_id_functor B₂)).
+        (comp_psfunctor L R)
+        (id_psfunctor B₂)).
 
 Section BiadjunctionProjections.
   Context {B₁ B₂ : bicat}
@@ -64,14 +64,14 @@ Section BiadjunctionProjections.
 
   Definition biadj_unit
     : pstrans
-        (ps_id_functor B₁)
-        (ps_comp biadj_right_adjoint L)
+        (id_psfunctor B₁)
+        (comp_psfunctor biadj_right_adjoint L)
     := pr12 R.
 
   Definition biadj_counit
     : pstrans
-        (ps_comp L biadj_right_adjoint)
-        (ps_id_functor B₂)
+        (comp_psfunctor L biadj_right_adjoint)
+        (id_psfunctor B₂)
     := pr22 R.
 End BiadjunctionProjections.
 
@@ -159,11 +159,11 @@ Definition make_biadj_unit_counit
            {L : psfunctor B₁ B₂}
            (R : psfunctor B₂ B₁)
            (η : pstrans
-                  (ps_id_functor B₁)
-                  (ps_comp R L))
+                  (id_psfunctor B₁)
+                  (comp_psfunctor R L))
            (ε : pstrans
-                  (ps_comp L R)
-                  (ps_id_functor B₂))
+                  (comp_psfunctor L R)
+                  (id_psfunctor B₂))
   : left_biadj_unit_counit L
   := R ,, η ,, ε.
 

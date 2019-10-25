@@ -30,10 +30,10 @@ Definition var
            {C : bicat}
            (F S : psfunctor C C)
   : pstrans
-      (@ps_comp
+      (@comp_psfunctor
          (total_bicat (disp_alg_bicat F)) C C
          S (pr1_psfunctor (disp_alg_bicat F)))
-      (@ps_comp
+      (@comp_psfunctor
          (total_bicat (disp_alg_bicat F)) C C
          S (pr1_psfunctor (disp_alg_bicat F)))
   := id₁ _.
@@ -42,12 +42,12 @@ Definition alg_map_data
            {C : bicat}
            (F : psfunctor C C)
   : pstrans_data
-      (@ps_comp
+      (@comp_psfunctor
          (total_bicat (disp_alg_bicat F)) C C
          F (pr1_psfunctor (disp_alg_bicat F)))
-      (@ps_comp
+      (@comp_psfunctor
          (total_bicat (disp_alg_bicat F)) C C
-         (ps_id_functor C) (pr1_psfunctor (disp_alg_bicat F))).
+         (id_psfunctor C) (pr1_psfunctor (disp_alg_bicat F))).
 Proof.
   use make_pstrans_data.
   - intros X ; cbn in *.
@@ -78,12 +78,12 @@ Definition alg_map
            {C : bicat}
            (F : psfunctor C C)
   : pstrans
-      (@ps_comp
+      (@comp_psfunctor
          (total_bicat (disp_alg_bicat F)) C C
          F (pr1_psfunctor (disp_alg_bicat F)))
-      (@ps_comp
+      (@comp_psfunctor
          (total_bicat (disp_alg_bicat F)) C C
-         (ps_id_functor C) (pr1_psfunctor (disp_alg_bicat F))).
+         (id_psfunctor C) (pr1_psfunctor (disp_alg_bicat F))).
 Proof.
   use make_pstrans.
   - exact (alg_map_data F).

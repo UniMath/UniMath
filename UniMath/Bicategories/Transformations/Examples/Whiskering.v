@@ -30,7 +30,7 @@ Section LeftWhisker.
            (η : pstrans F₁ F₂).
 
   Definition left_whisker_data
-    : pstrans_data (ps_comp G F₁) (ps_comp G F₂).
+    : pstrans_data (comp_psfunctor G F₁) (comp_psfunctor G F₂).
   Proof.
     use make_pstrans_data.
     - exact (λ X, #G (η X)).
@@ -116,14 +116,14 @@ Section LeftWhisker.
       {
         apply maponpaths_2.
         apply maponpaths.
-        apply ps_comp_psfunctor_comp.
+        apply comp_psfunctor_psfunctor_comp.
       }
       refine (!_).
       etrans.
       {
         apply maponpaths.
         apply maponpaths.
-        apply ps_comp_psfunctor_comp.
+        apply comp_psfunctor_psfunctor_comp.
       }
       rewrite !vassocl.
       refine (!_).
@@ -195,7 +195,7 @@ Section LeftWhisker.
   Qed.
 
   Definition left_whisker
-    : pstrans (ps_comp G F₁) (ps_comp G F₂).
+    : pstrans (comp_psfunctor G F₁) (comp_psfunctor G F₂).
   Proof.
     use make_pstrans.
     - exact left_whisker_data.
@@ -210,7 +210,7 @@ Section RightWhisker.
            (η : pstrans G₁ G₂).
 
   Definition right_whisker_data
-    : pstrans_data (ps_comp G₁ F) (ps_comp G₂ F).
+    : pstrans_data (comp_psfunctor G₁ F) (comp_psfunctor G₂ F).
   Proof.
     use make_pstrans_data.
     - exact (λ X, η (F X)).
@@ -255,7 +255,7 @@ Section RightWhisker.
   Qed.
 
   Definition right_whisker
-    : pstrans (ps_comp G₁ F) (ps_comp G₂ F).
+    : pstrans (comp_psfunctor G₁ F) (comp_psfunctor G₂ F).
   Proof.
     use make_pstrans.
     - exact right_whisker_data.

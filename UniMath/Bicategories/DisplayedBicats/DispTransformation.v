@@ -282,7 +282,7 @@ Local Notation "αα '••' ββ" := (vcomp_disp_invertible αα ββ).
 Local Notation "ff '◃◃' αα" := (disp_invertible_2cell_lwhisker ff αα).
 Local Notation "αα '▹▹' ff" := (disp_invertible_2cell_rwhisker ff αα).
 
-Definition disp_ps_comp_data : disp_pstrans_data FF₁ FF₃ (comp_trans η₁ η₂).
+Definition disp_comp_psfunctor_data : disp_pstrans_data FF₁ FF₃ (comp_trans η₁ η₂).
 Proof.
   use make_disp_pstrans_data; cbn.
   - exact (λ x xx, comp_disp (ηη₁ x xx) (ηη₂ x xx)).
@@ -294,12 +294,12 @@ Proof.
              •• disp_invertible_2cell_rassociator _ _ _).
 Defined.
 
-Lemma disp_ps_comp_laws : is_disp_pstrans _ _ _ disp_ps_comp_data.
+Lemma disp_comp_psfunctor_laws : is_disp_pstrans _ _ _ disp_comp_psfunctor_data.
 Proof.
   apply is_disp_pstrans_from_total.
   pose (PP := comp_trans (total_pstrans _ _ _ ηη₁) (total_pstrans _ _ _ ηη₂)).
   pose (PP2 := pstrans_to_is_pstrans PP).
-  assert (pr11 PP = total_pstrans_data _ _ _ disp_ps_comp_data).
+  assert (pr11 PP = total_pstrans_data _ _ _ disp_comp_psfunctor_data).
   - use total2_paths_f.
     + apply idpath.
     + apply funextsec. intro x.
@@ -311,8 +311,8 @@ Proof.
   - exact (transportf _ X PP2).
 Qed.
 
-Definition disp_ps_comp : disp_pstrans _ _ (comp_trans η₁ η₂)
-  := disp_ps_comp_data,, disp_ps_comp_laws.
+Definition disp_comp_psfunctor : disp_pstrans _ _ (comp_trans η₁ η₂)
+  := disp_comp_psfunctor_data,, disp_comp_psfunctor_laws.
 
 End DispTrans_comp.
 

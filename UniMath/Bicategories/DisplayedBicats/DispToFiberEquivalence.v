@@ -76,8 +76,8 @@ Section FiberOfBiequiv.
           (LGD₂ : disp_locally_groupoid D₂)
           (HD₂_2_1 : disp_univalent_2_1 D₂)
           (h₂ : local_iso_cleaving D₂)
-          {F : disp_psfunctor D₁ D₂ (ps_id_functor C)}
-          {G : disp_psfunctor D₂ D₁ (ps_id_functor C)}
+          {F : disp_psfunctor D₁ D₂ (id_psfunctor C)}
+          {G : disp_psfunctor D₂ D₁ (id_psfunctor C)}
           (E : is_disp_biequivalence_unit_counit _ _ (id_is_biequivalence C) F G)
           (EE : disp_is_biequivalence_data _ _ (id_is_biequivalence C) E)
           (c : C).
@@ -163,14 +163,14 @@ Section FiberOfBiequiv.
     simpl in d.
     rewrite <- (idtoiso_2_1_isotoid_2_1
                   HC
-                  (psnaturality_of (pstrans_lunitor (ps_id_functor C)) (id₁ c))) in d.
+                  (psnaturality_of (pstrans_lunitor (id_psfunctor C)) (id₁ c))) in d.
     pose (transportb_transpose_right (disp_isotoid_2_1 _ HD₁_2_1 _ _ _ d)) as p.
     refine (_ @ !p).
     clear d p.
     refine (!_).
     assert (isotoid_2_1
               HC
-              (psnaturality_of (pstrans_lunitor (ps_id_functor C)) (id₁ c))
+              (psnaturality_of (pstrans_lunitor (id_psfunctor C)) (id₁ c))
             = idpath _) as X.
     {
       cbn.
@@ -232,14 +232,14 @@ Section FiberOfBiequiv.
     simpl in d.
     rewrite <- (idtoiso_2_1_isotoid_2_1
                   HC
-                  (psnaturality_of (pstrans_lunitor (ps_id_functor C)) (id₁ c))) in d.
+                  (psnaturality_of (pstrans_lunitor (id_psfunctor C)) (id₁ c))) in d.
     pose (transportb_transpose_right (disp_isotoid_2_1 _ HD₂_2_1 _ _ _ d)) as p.
     refine (_ @ !p).
     clear d p.
     refine (!_).
     assert (isotoid_2_1
               HC
-              (psnaturality_of (pstrans_lunitor (ps_id_functor C)) (id₁ c))
+              (psnaturality_of (pstrans_lunitor (id_psfunctor C)) (id₁ c))
             = idpath _) as X.
     {
       cbn.

@@ -33,8 +33,8 @@ Section Associativity.
 
   Definition pstrans_lassociator_data
     : pstrans_data
-        (ps_comp F₃ (ps_comp F₂ F₁))
-        (ps_comp (ps_comp F₃ F₂) F₁).
+        (comp_psfunctor F₃ (comp_psfunctor F₂ F₁))
+        (comp_psfunctor (comp_psfunctor F₃ F₂) F₁).
   Proof.
     use make_pstrans_data.
     - exact (λ X, id₁ _).
@@ -145,8 +145,8 @@ Section Associativity.
 
   Definition pstrans_lassociator
     : pstrans
-        (ps_comp F₃ (ps_comp F₂ F₁))
-        (ps_comp (ps_comp F₃ F₂) F₁).
+        (comp_psfunctor F₃ (comp_psfunctor F₂ F₁))
+        (comp_psfunctor (comp_psfunctor F₃ F₂) F₁).
   Proof.
     use make_pstrans.
     - exact pstrans_lassociator_data.
@@ -155,8 +155,8 @@ Section Associativity.
 
   Definition pstrans_rassociator_data
     : pstrans_data
-        (ps_comp (ps_comp F₃ F₂) F₁)
-        (ps_comp F₃ (ps_comp F₂ F₁)).
+        (comp_psfunctor (comp_psfunctor F₃ F₂) F₁)
+        (comp_psfunctor F₃ (comp_psfunctor F₂ F₁)).
   Proof.
     use make_pstrans_data.
     - exact (λ X, id₁ _).
@@ -261,8 +261,8 @@ Section Associativity.
 
   Definition pstrans_rassociator
     : pstrans
-        (ps_comp (ps_comp F₃ F₂) F₁)
-        (ps_comp F₃ (ps_comp F₂ F₁)).
+        (comp_psfunctor (comp_psfunctor F₃ F₂) F₁)
+        (comp_psfunctor F₃ (comp_psfunctor F₂ F₁)).
   Proof.
     use make_pstrans.
     - exact pstrans_rassociator_data.
