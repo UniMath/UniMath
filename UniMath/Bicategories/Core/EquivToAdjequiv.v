@@ -261,7 +261,7 @@ Section EquivToAdjEquiv.
     rewrite !vassocr in p.
     rewrite !(maponpaths (fun z => _ o (_ o z)) (!(vassocr _ _ _))) in p.
     rewrite rassociator_lassociator, id2_right in p.
-    rewrite <- bc_whisker_l_compose in p.
+    rewrite rwhisker_vcomp in p.
     rewrite <- !vassocr in p.
     pose @inverse_pentagon_5 as q.
     rewrite !lwhisker_hcomp in p.
