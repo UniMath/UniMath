@@ -174,7 +174,7 @@ Proof.
   - split ; cbn
     ; rewrite <- psfunctor_vcomp, <- psfunctor_id2 ; apply maponpaths.
     + apply vcomp_rinv.
-    + apply vcomp_lid.
+    + apply vcomp_linv.
 Defined.
 
 Section PseudoFunctorDerivedLaws.

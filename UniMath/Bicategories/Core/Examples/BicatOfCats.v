@@ -164,7 +164,7 @@ Proof.
   - apply (Hη^-1).
   - split ; cbn.
     + exact (nat_trans_eq_pointwise (vcomp_rinv Hη) X).
-    + exact (nat_trans_eq_pointwise (vcomp_lid Hη) X).
+    + exact (nat_trans_eq_pointwise (vcomp_linv Hη) X).
 Defined.
 
 Definition invertible_2cell_to_nat_iso

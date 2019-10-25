@@ -172,7 +172,7 @@ Proof.
     etrans.
     {
       apply maponpaths_2.
-      apply (nat_trans_eq_pointwise (maponpaths pr1 (vcomp_lid (pr2 n)))).
+      apply (nat_trans_eq_pointwise (maponpaths pr1 (vcomp_linv (pr2 n)))).
     }
     apply id_left.
   - exact pgrpds_disp_2cells_isaprop.

@@ -413,7 +413,7 @@ Proof.
   apply maponpaths_2.
   pose (maponpaths (λ z, z · # (pr111 my) (pr1 α X))
                    (!(nat_trans_eq_pointwise
-                        (vcomp_lid (monad_mor_natural mf))
+                        (vcomp_linv (monad_mor_natural mf))
                         X))) as p.
   pose (!(id_left _) @ p) as r.
   refine (!r @ _).

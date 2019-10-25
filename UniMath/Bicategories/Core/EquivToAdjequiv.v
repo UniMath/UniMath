@@ -296,7 +296,7 @@ Section EquivToAdjEquiv.
       rewrite lassociator_rassociator, id2_right.
       rewrite !(maponpaths (fun z => _ o z) (!(vassocr _ _ _))).
       rewrite lwhisker_vcomp.
-      rewrite vcomp_lid.
+      rewrite vcomp_linv.
       rewrite lwhisker_id2.
       rewrite id2_right.
       rewrite rinvunitor_runitor.

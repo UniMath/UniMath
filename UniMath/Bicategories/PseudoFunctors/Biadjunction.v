@@ -386,7 +386,7 @@ Section BiadjunctionHom.
         exact (psnaturality_natural ε _ _ _ _ α).
       }
       rewrite !vassocr.
-      rewrite vcomp_lid, id2_left.
+      rewrite vcomp_linv, id2_left.
       apply idpath.
     }
     rewrite rwhisker_lwhisker_rassociator.

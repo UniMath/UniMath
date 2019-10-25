@@ -673,7 +673,7 @@ Section Algebra.
       rewrite !vassocl.
       rewrite !(maponpaths (λ z, _ • (_ • (_ • (_ • z)))) (vassocr _ _ _)).
       rewrite rwhisker_vcomp, lwhisker_vcomp.
-      rewrite vcomp_lid, lwhisker_id2, id2_rwhisker, id2_left.
+      rewrite vcomp_linv, lwhisker_id2, id2_rwhisker, id2_left.
       rewrite <- runitor_natural.
       rewrite <- !rwhisker_hcomp.
       rewrite <- !rwhisker_vcomp.
@@ -946,7 +946,7 @@ Section Algebra.
       rewrite !(maponpaths (λ z, _ • (_ • (_ • (_ • (_ • z)))))
                            (vassocr _ _ _)).
       rewrite rwhisker_vcomp.
-      rewrite vcomp_lid.
+      rewrite vcomp_linv.
       rewrite id2_rwhisker, id2_left.
       rewrite !vassocl.
       rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)).
@@ -991,7 +991,7 @@ Section Algebra.
       rewrite !(maponpaths (λ z, _ • (_ • (_ • (_ • (_ • (_ • z))))))
                            (vassocr _ _ _)).
       rewrite rwhisker_vcomp.
-      rewrite vcomp_lid.
+      rewrite vcomp_linv.
       rewrite id2_rwhisker, id2_left.
       rewrite !vassocl.
       rewrite !(maponpaths (λ z, _ • (_ • (_ • (_ • (_ • z)))))
@@ -1086,7 +1086,7 @@ Section Algebra.
                     rewrite !vassocl ;
                     rewrite !(maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)) ;
                     rewrite lunitor_linvunitor, id2_left ;
-                    rewrite rwhisker_vcomp, vcomp_lid ;
+                    rewrite rwhisker_vcomp, vcomp_linv ;
                     rewrite id2_rwhisker, id2_right ;
                     reflexivity).
   Defined.
