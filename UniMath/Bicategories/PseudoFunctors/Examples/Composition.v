@@ -23,7 +23,7 @@ Section FunctorComposition.
   Context {C D E : bicat}.
   Variable (G : psfunctor D E) (F : psfunctor C D).
 
-  Definition ps_comp_d : psfunctor_data C E.
+  Definition comp_psfunctor_data : psfunctor_data C E.
   Proof.
     use make_psfunctor_data.
     - exact (λ X, G(F X)).
@@ -33,7 +33,7 @@ Section FunctorComposition.
     - exact (λ _ _ _ f g, psfunctor_comp G (#F f) (#F g) • ##G (psfunctor_comp F f g)).
   Defined.
 
-  Definition comp_is_ps : psfunctor_laws ps_comp_d.
+  Definition comp_is_ps : psfunctor_laws comp_psfunctor_data.
   Proof.
     repeat split.
     - intros a b f ; cbn in *.
@@ -106,10 +106,10 @@ Section FunctorComposition.
       reflexivity.
   Qed.
 
-  Definition ps_comp : psfunctor C E.
+  Definition comp_psfunctor : psfunctor C E.
   Proof.
     use make_psfunctor.
-    - exact ps_comp_d.
+    - exact comp_psfunctor_data.
     - exact comp_is_ps.
     - split.
       + intros a ; cbn.
@@ -122,28 +122,28 @@ Section FunctorComposition.
         * exact (psfunctor_is_iso G (psfunctor_comp F f g)).
   Defined.
 
-  Definition ps_comp_cell
+  Definition comp_psfunctor_cell
              {X Y : C}
              {f g : X --> Y}
              (α : f ==> g)
-    : ## ps_comp α = ## G (## F α).
+    : ## comp_psfunctor α = ## G (## F α).
   Proof.
     apply idpath.
   Qed.
 
-  Definition ps_comp_psfunctor_id
+  Definition comp_psfunctor_psfunctor_id
              (X : C)
-    : pr1 (psfunctor_id ps_comp X)
+    : pr1 (psfunctor_id comp_psfunctor X)
       =
       psfunctor_id G (F X) • ##G (psfunctor_id F X).
   Proof.
     apply idpath.
   Qed.
 
-  Definition ps_comp_psfunctor_comp
+  Definition comp_psfunctor_psfunctor_comp
              {X Y Z : C}
              (f : X --> Y) (g : Y --> Z)
-    : pr1 (psfunctor_comp ps_comp f g)
+    : pr1 (psfunctor_comp comp_psfunctor f g)
       =
       psfunctor_comp G (#F f) (#F g) • ##G (psfunctor_comp F f g).
   Proof.

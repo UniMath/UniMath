@@ -42,7 +42,7 @@ Variable (C_is_univalent_2_1 : is_univalent_2_1 C).
 
 
 Definition representable_id_inv2cell (X : C)
-  : invertible_modification_data (id_trans (representable C_is_univalent_2_1 X))
+  : invertible_modification_data (id_pstrans (representable C_is_univalent_2_1 X))
                                  (representable1 C_is_univalent_2_1 (id₁ X)).
 Proof.
   intro Y.
@@ -89,7 +89,7 @@ Qed.
 
 
 Definition representable_id_invmod (X : C)
-  : invertible_modification (id_trans _) (representable1 C_is_univalent_2_1 (id₁ X)).
+  : invertible_modification (id_pstrans _) (representable1 C_is_univalent_2_1 (id₁ X)).
 Proof.
   use make_invertible_modification.
   - exact (representable_id_inv2cell X).
@@ -98,7 +98,7 @@ Defined.
 
 Definition representable_comp_inv2cell {X Y Z: C} (f : X --> Y) (g : Y --> Z)
   : invertible_modification_data
-      (comp_trans (representable1 C_is_univalent_2_1 f)
+      (comp_pstrans (representable1 C_is_univalent_2_1 f)
                   (representable1 C_is_univalent_2_1 g))
       (representable1 C_is_univalent_2_1 (f · g)).
 Proof.
@@ -151,7 +151,7 @@ Qed.
 
 Definition representable_comp_invmod {X Y Z: C} (f : X --> Y) (g : Y --> Z)
   : invertible_modification
-      (comp_trans (representable1 C_is_univalent_2_1 f)
+      (comp_pstrans (representable1 C_is_univalent_2_1 f)
                   (representable1 C_is_univalent_2_1 g))
       (representable1 C_is_univalent_2_1 (f · g)).
 Proof.

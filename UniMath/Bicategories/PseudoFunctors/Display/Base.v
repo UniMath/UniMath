@@ -86,7 +86,7 @@ Section BasePseudoFunctor.
     - exact (λ x, (Hα x)^-1).
     - split ; apply funextsec ; intro X ; cbn.
       + apply vcomp_rinv.
-      + apply vcomp_lid.
+      + apply vcomp_linv.
   Defined.
 
   Definition is_invertible_2cell_to_all_is_invertible
@@ -100,7 +100,7 @@ Section BasePseudoFunctor.
     - exact (Hα^-1 X).
     - split ; cbn.
       + exact (maponpaths (λ φ, φ X) (vcomp_rinv Hα)).
-      + exact (maponpaths (λ φ, φ X) (vcomp_lid Hα)).
+      + exact (maponpaths (λ φ, φ X) (vcomp_linv Hα)).
   Defined.
 
   Definition all_is_invertible_is_is_invertible_2cell

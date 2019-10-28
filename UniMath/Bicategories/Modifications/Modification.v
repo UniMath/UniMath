@@ -196,7 +196,7 @@ Proof.
   use make_is_invertible_2cell.
   - exact ((Hm^-1 : modification _ _) X).
   - exact (modcomponent_eq (vcomp_rinv Hm) X).
-  - exact (modcomponent_eq (vcomp_lid Hm) X).
+  - exact (modcomponent_eq (vcomp_linv Hm) X).
 Defined.
 
 Definition make_is_invertible_modification
@@ -228,7 +228,7 @@ Proof.
   - use modification_eq.
     intro X.
     cbn.
-    exact (vcomp_lid (Hm X)).
+    exact (vcomp_linv (Hm X)).
 Defined.
 
 Definition invertible_modcomponent_of

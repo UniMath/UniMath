@@ -309,8 +309,8 @@ Defined.
 (** The biadjunction *)
 Definition path_groupoid_unit_data
   : pstrans_data
-      (ps_id_functor one_types)
-      (ps_comp objects_of_grpd path_groupoid).
+      (id_psfunctor one_types)
+      (comp_psfunctor objects_of_grpd path_groupoid).
 Proof.
   use make_pstrans_data.
   - exact (λ _ x, x).
@@ -364,8 +364,8 @@ Qed.
 
 Definition path_groupoid_unit
   : pstrans
-      (ps_id_functor one_types)
-      (ps_comp objects_of_grpd path_groupoid).
+      (id_psfunctor one_types)
+      (comp_psfunctor objects_of_grpd path_groupoid).
 Proof.
   use make_pstrans.
   - exact path_groupoid_unit_data.
@@ -435,8 +435,8 @@ Defined.
 
 Definition path_groupoid_counit_data
   : pstrans_data
-      (ps_comp path_groupoid objects_of_grpd)
-      (ps_id_functor grpds).
+      (comp_psfunctor path_groupoid objects_of_grpd)
+      (id_psfunctor grpds).
 Proof.
   use make_pstrans_data.
   - exact (λ G, path_groupoid_counit_data_functor G ,, tt).
@@ -480,8 +480,8 @@ Qed.
 
 Definition path_groupoid_counit
   : pstrans
-      (ps_comp path_groupoid objects_of_grpd)
-      (ps_id_functor grpds).
+      (comp_psfunctor path_groupoid objects_of_grpd)
+      (id_psfunctor grpds).
 Proof.
   use make_pstrans.
   - exact path_groupoid_counit_data.
@@ -500,7 +500,7 @@ Defined.
 Definition path_groupoid_biadj_triangle_l_data
   : invertible_modification_data
       (biadj_triangle_l_lhs path_groupoid_biadj_unit_counit)
-      (id_trans path_groupoid).
+      (id_pstrans path_groupoid).
 Proof.
   intros X.
   use make_invertible_2cell.
@@ -537,7 +537,7 @@ Defined.
 Definition path_groupoid_biadj_triangle_r_data
   : invertible_modification_data
       (biadj_triangle_r_lhs path_groupoid_biadj_unit_counit)
-      (id_trans path_groupoid_biadj_unit_counit).
+      (id_pstrans path_groupoid_biadj_unit_counit).
 Proof.
   intro G.
   use make_invertible_2cell.
@@ -581,8 +581,8 @@ Defined.
 (** Inverse of unit *)
 Definition path_groupoid_unit_inv_data
   : pstrans_data
-      (ps_comp objects_of_grpd path_groupoid)
-      (ps_id_functor one_types).
+      (comp_psfunctor objects_of_grpd path_groupoid)
+      (id_psfunctor one_types).
 Proof.
   use make_pstrans_data.
   - exact (λ _ x, x).
@@ -626,8 +626,8 @@ Qed.
 
 Definition path_groupoid_unit_inv
   : pstrans
-      (ps_comp objects_of_grpd path_groupoid)
-      (ps_id_functor one_types).
+      (comp_psfunctor objects_of_grpd path_groupoid)
+      (id_psfunctor one_types).
 Proof.
   use make_pstrans.
   - exact path_groupoid_unit_inv_data.
@@ -636,8 +636,8 @@ Defined.
 
 Definition path_groupoid_unit_unit_inv
   : invertible_modification
-      (comp_trans path_groupoid_unit path_groupoid_unit_inv)
-      (id_trans _).
+      (comp_pstrans path_groupoid_unit path_groupoid_unit_inv)
+      (id_pstrans _).
 Proof.
   use make_invertible_modification.
   - intro.
@@ -651,8 +651,8 @@ Defined.
 
 Definition path_groupoid_unit_inv_unit
   : invertible_modification
-      (comp_trans path_groupoid_unit_inv path_groupoid_unit)
-      (id_trans _).
+      (comp_pstrans path_groupoid_unit_inv path_groupoid_unit)
+      (id_pstrans _).
 Proof.
   use make_invertible_modification.
   - intro.
@@ -740,8 +740,8 @@ Defined.
 
 Definition path_groupoid_counit_inv_data
   : pstrans_data
-      (ps_id_functor grpds)
-      (ps_comp path_groupoid objects_of_grpd).
+      (id_psfunctor grpds)
+      (comp_psfunctor path_groupoid objects_of_grpd).
 Proof.
   use make_pstrans_data.
   - exact (λ G, path_groupoid_counit_inv_data_functor G ,, tt).
@@ -792,8 +792,8 @@ Qed.
 
 Definition path_groupoid_counit_inv
   : pstrans
-      (ps_id_functor grpds)
-      (ps_comp path_groupoid objects_of_grpd).
+      (id_psfunctor grpds)
+      (comp_psfunctor path_groupoid objects_of_grpd).
 Proof.
   use make_pstrans.
   - exact path_groupoid_counit_inv_data.
@@ -802,8 +802,8 @@ Defined.
 
 Definition path_groupoid_counit_counit_inv
   : invertible_modification
-      (comp_trans path_groupoid_counit path_groupoid_counit_inv)
-      (id_trans _).
+      (comp_pstrans path_groupoid_counit path_groupoid_counit_inv)
+      (id_pstrans _).
 Proof.
   use make_invertible_modification.
   - intro.
@@ -831,8 +831,8 @@ Defined.
 
 Definition path_groupoid_counit_inv_counit
   : invertible_modification
-      (comp_trans path_groupoid_counit_inv path_groupoid_counit)
-      (id_trans _).
+      (comp_pstrans path_groupoid_counit_inv path_groupoid_counit)
+      (id_pstrans _).
 Proof.
   use make_invertible_modification.
   - intro.

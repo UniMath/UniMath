@@ -33,9 +33,9 @@ Proof.
         repeat rewrite vassocl;
         etrans; [apply vassoc4|];
         etrans; [ apply maponpaths_2, maponpaths;
-                  apply (vcomp_lid inv_x) |];
+                  apply (vcomp_linv inv_x) |];
         rewrite id2_right;
-        apply  (vcomp_lid inv_y)
+        apply  (vcomp_linv inv_y)
       ).
 Defined.
 
@@ -52,7 +52,7 @@ Proof.
         apply lwhisker_id2).
   - abstract (
         etrans; [ apply lwhisker_vcomp |];
-        etrans; [ apply maponpaths; apply (vcomp_lid inv_x) |];
+        etrans; [ apply maponpaths; apply (vcomp_linv inv_x) |];
         apply lwhisker_id2).
 Defined.
 
@@ -68,7 +68,7 @@ Proof.
         apply id2_rwhisker).
   - abstract (
         etrans; [ apply rwhisker_vcomp |];
-        etrans; [ apply maponpaths; apply (vcomp_lid inv_x) |];
+        etrans; [ apply maponpaths; apply (vcomp_linv inv_x) |];
         apply id2_rwhisker).
 Defined.
 
@@ -106,7 +106,7 @@ Proof.
   use make_is_invertible_2cell.
   - exact (inv_η₁^-1 ⋆⋆ inv_η₂^-1).
   - abstract (rewrite <- hcomp_vcomp, !vcomp_rinv; apply hcomp_identity).
-  - abstract (rewrite <- hcomp_vcomp, !vcomp_lid; apply hcomp_identity).
+  - abstract (rewrite <- hcomp_vcomp, !vcomp_linv; apply hcomp_identity).
 Defined.
 
 Definition bc_whisker_l
@@ -188,7 +188,7 @@ Definition vcomp_move_L_pV
 Proof.
   intros Hη.
   rewrite <- (id2_left η₁).
-  rewrite <- (vcomp_lid Hε).
+  rewrite <- (vcomp_linv Hε).
   rewrite <- vassocr.
   rewrite Hη.
   reflexivity.
@@ -204,7 +204,7 @@ Definition vcomp_move_R_Mp
 Proof.
   intros ?.
   rewrite <- (id2_right η₂).
-  rewrite <- (vcomp_lid Hε).
+  rewrite <- (vcomp_linv Hε).
   rewrite vassocr.
   apply maponpaths_2.
   assumption.
@@ -236,7 +236,7 @@ Definition vcomp_move_L_Mp
 Proof.
   intros ?.
   rewrite <- (id2_right η₁).
-  rewrite <- (vcomp_lid Hε).
+  rewrite <- (vcomp_linv Hε).
   rewrite vassocr.
   apply maponpaths_2.
   assumption.
@@ -270,7 +270,7 @@ Proof.
   intros p.
   rewrite <- (id2_left (inv_η₁^-1)).
   rewrite <- (id2_right (inv_η₂^-1)).
-  rewrite <- (vcomp_lid inv_η₂).
+  rewrite <- (vcomp_linv inv_η₂).
   rewrite <- vassocr.
   apply maponpaths.
   rewrite <- p.

@@ -250,7 +250,7 @@ Defined.
 Definition Ktriple_to_Monad
   : disp_psfunctor kleisli_triple_disp_bicat
                    (monad bicat_of_cats)
-                   (ps_id_functor bicat_of_cats).
+                   (id_psfunctor bicat_of_cats).
 Proof.
   use make_disp_psfunctor.
   - apply disp_2cells_isaprop_monad.
@@ -308,7 +308,7 @@ Defined.
 
 Definition Monad_to_Ktriple_data {x : univalent_category}
            (m : monad bicat_of_cats x)
-  : kleisli_triple_disp_bicat (ps_id_functor bicat_of_cats x).
+  : kleisli_triple_disp_bicat (id_psfunctor bicat_of_cats x).
 Proof.
   use make_kleisli_triple.
   - apply m.
@@ -413,7 +413,7 @@ Proof.
   apply maponpaths_2.
   pose (maponpaths (λ z, z · # (pr111 my) (pr1 α X))
                    (!(nat_trans_eq_pointwise
-                        (vcomp_lid (monad_mor_natural mf))
+                        (vcomp_linv (monad_mor_natural mf))
                         X))) as p.
   pose (!(id_left _) @ p) as r.
   refine (!r @ _).
@@ -424,7 +424,7 @@ Qed.
 Definition Monad_to_Ktriple_identitor
   : ∏ (x : bicat_of_cats) (xx : (monad bicat_of_cats) x),
     (id_disp (Monad_to_Ktriple_data xx))
-      ==>[ psfunctor_id (ps_id_functor bicat_of_cats) x]
+      ==>[ psfunctor_id (id_psfunctor bicat_of_cats) x]
       Monad_to_Ktriple_functor (id_disp xx).
 Proof.
   intros x mx X; cbn.
@@ -501,7 +501,7 @@ Qed. (* 32 seconds on my computer *)
 Definition Monad_to_Ktriple
   : disp_psfunctor (monad bicat_of_cats)
                    kleisli_triple_disp_bicat
-                   (ps_id_functor bicat_of_cats).
+                   (id_psfunctor bicat_of_cats).
 Proof.
   use make_disp_psfunctor.
   - exact disp_2cells_isaprop_kleisli.
@@ -533,14 +533,14 @@ Qed.
 Definition Monad_biequiv_Ktriple_unit
   : disp_pstrans
       (disp_pseudo_comp
-         (ps_id_functor bicat_of_cats) (ps_id_functor bicat_of_cats)
+         (id_psfunctor bicat_of_cats) (id_psfunctor bicat_of_cats)
          (monad bicat_of_cats)
          kleisli_triple_disp_bicat
          (monad bicat_of_cats)
          Monad_to_Ktriple
          Ktriple_to_Monad)
       (disp_pseudo_id (monad bicat_of_cats))
-      (pstrans_lunitor (ps_id_functor bicat_of_cats)).
+      (lunitor_pstrans (id_psfunctor bicat_of_cats)).
 Proof.
   use make_disp_pstrans.
   - exact (disp_2cells_isaprop_monad
@@ -594,13 +594,13 @@ Defined.
 Definition Monad_bequiv_Ktriple_counit
   : disp_pstrans
       (disp_pseudo_comp
-         (ps_id_functor bicat_of_cats) (ps_id_functor bicat_of_cats)
+         (id_psfunctor bicat_of_cats) (id_psfunctor bicat_of_cats)
          kleisli_triple_disp_bicat
          (monad bicat_of_cats)
          kleisli_triple_disp_bicat
          Ktriple_to_Monad Monad_to_Ktriple)
       (disp_pseudo_id kleisli_triple_disp_bicat)
-      (pstrans_lunitor (ps_id_functor bicat_of_cats)).
+      (lunitor_pstrans (id_psfunctor bicat_of_cats)).
 Proof.
   use make_disp_pstrans.
   - exact disp_2cells_isaprop_kleisli.
@@ -675,13 +675,13 @@ Definition Monad_biequiv_Ktriple_unit_inv
   : disp_pstrans
       (disp_pseudo_id (monad bicat_of_cats))
       (disp_pseudo_comp
-         (ps_id_functor bicat_of_cats) (ps_id_functor bicat_of_cats)
+         (id_psfunctor bicat_of_cats) (id_psfunctor bicat_of_cats)
          (monad bicat_of_cats)
          kleisli_triple_disp_bicat
          (monad bicat_of_cats)
          Monad_to_Ktriple
          Ktriple_to_Monad)
-      (pstrans_linvunitor (ps_id_functor bicat_of_cats)).
+      (linvunitor_pstrans (id_psfunctor bicat_of_cats)).
 Proof.
   use make_disp_pstrans.
   - exact (disp_2cells_isaprop_monad
@@ -738,12 +738,12 @@ Definition Monad_biequiv_Ktriple_counit_inv
   : disp_pstrans
       (disp_pseudo_id kleisli_triple_disp_bicat)
       (disp_pseudo_comp
-         (ps_id_functor bicat_of_cats) (ps_id_functor bicat_of_cats)
+         (id_psfunctor bicat_of_cats) (id_psfunctor bicat_of_cats)
          kleisli_triple_disp_bicat
          (monad bicat_of_cats)
          kleisli_triple_disp_bicat
          Ktriple_to_Monad Monad_to_Ktriple)
-      (pstrans_linvunitor (ps_id_functor bicat_of_cats)).
+      (linvunitor_pstrans (id_psfunctor bicat_of_cats)).
 Proof.
   use make_disp_pstrans.
   - exact disp_2cells_isaprop_kleisli.
@@ -855,7 +855,7 @@ Definition Monad_to_Ktriple_psfunctor
   := total_psfunctor
        (monad bicat_of_cats)
        kleisli_triple_disp_bicat
-       (ps_id_functor bicat_of_cats)
+       (id_psfunctor bicat_of_cats)
        Monad_to_Ktriple.
 
 Definition Monad_biequiv_Ktriple

@@ -33,12 +33,12 @@ Section Associativity.
            (F₂ : psfunctor B₂ B₃)
            (F₃ : psfunctor B₃ B₄).
 
-  Definition pstrans_lassociator_rassociator_data
+  Definition lassociator_rassociator_pstrans_data
     : invertible_modification_data
-        (comp_trans
-           (pstrans_lassociator F₁ F₂ F₃)
-           (pstrans_rassociator F₁ F₂ F₃))
-        (id_trans _).
+        (comp_pstrans
+           (lassociator_pstrans F₁ F₂ F₃)
+           (rassociator_pstrans F₁ F₂ F₃))
+        (id_pstrans _).
   Proof.
     intros X.
     use make_invertible_2cell.
@@ -46,8 +46,8 @@ Section Associativity.
     - is_iso.
   Defined.
 
-  Definition pstrans_lassociator_rassociator_is_modification
-    : is_modification pstrans_lassociator_rassociator_data.
+  Definition lassociator_rassociator_pstrans_modification
+    : is_modification lassociator_rassociator_pstrans_data.
   Proof.
     intros X Y f ; cbn.
     rewrite <- lwhisker_vcomp.
@@ -75,24 +75,24 @@ Section Associativity.
     apply idpath.
   Qed.
 
-  Definition pstrans_lassociator_rassociator
+  Definition lassociator_rassociator_pstrans
     : invertible_modification
-        (comp_trans
-           (pstrans_lassociator F₁ F₂ F₃)
-           (pstrans_rassociator F₁ F₂ F₃))
-        (id_trans _).
+        (comp_pstrans
+           (lassociator_pstrans F₁ F₂ F₃)
+           (rassociator_pstrans F₁ F₂ F₃))
+        (id_pstrans _).
   Proof.
     use make_invertible_modification.
-    - exact pstrans_lassociator_rassociator_data.
-    - exact pstrans_lassociator_rassociator_is_modification.
+    - exact lassociator_rassociator_pstrans_data.
+    - exact lassociator_rassociator_pstrans_modification.
   Defined.
 
-  Definition pstrans_rassociator_lassociator_data
+  Definition rassociator_lassociator_pstrans_data
     : invertible_modification_data
-        (comp_trans
-           (pstrans_rassociator F₁ F₂ F₃)
-           (pstrans_lassociator F₁ F₂ F₃))
-        (id_trans _).
+        (comp_pstrans
+           (rassociator_pstrans F₁ F₂ F₃)
+           (lassociator_pstrans F₁ F₂ F₃))
+        (id_pstrans _).
   Proof.
     intros X.
     use make_invertible_2cell.
@@ -100,8 +100,8 @@ Section Associativity.
     - is_iso.
   Defined.
 
-  Definition pstrans_rassociator_lassociator_is_modification
-    : is_modification pstrans_rassociator_lassociator_data.
+  Definition rassociator_lassociator_pstrans_is_modification
+    : is_modification rassociator_lassociator_pstrans_data.
   Proof.
     intros X Y f ; cbn.
     rewrite <- lwhisker_vcomp.
@@ -129,15 +129,15 @@ Section Associativity.
     apply idpath.
   Qed.
 
-  Definition pstrans_rassociator_lassociator
+  Definition rassociator_lassociator_pstrans
     : invertible_modification
-        (comp_trans
-           (pstrans_rassociator F₁ F₂ F₃)
-           (pstrans_lassociator F₁ F₂ F₃))
-        (id_trans _).
+        (comp_pstrans
+           (rassociator_pstrans F₁ F₂ F₃)
+           (lassociator_pstrans F₁ F₂ F₃))
+        (id_pstrans _).
   Proof.
     use make_invertible_modification.
-    - exact pstrans_rassociator_lassociator_data.
-    - exact pstrans_rassociator_lassociator_is_modification.
+    - exact rassociator_lassociator_pstrans_data.
+    - exact rassociator_lassociator_pstrans_is_modification.
   Defined.
 End Associativity.

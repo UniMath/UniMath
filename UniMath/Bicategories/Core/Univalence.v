@@ -181,7 +181,7 @@ Section IsoInvertible2Cells.
     - abstract (intro ψ;
                 cbn in *;
                 rewrite vassocr;
-                rewrite vcomp_lid;
+                rewrite vcomp_linv;
                 apply id2_left).
     - abstract (intro ψ;
                 cbn in *;

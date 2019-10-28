@@ -491,7 +491,7 @@ Section Map1Cells.
       rewrite !vassocl.
       rewrite !(maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)).
       rewrite lwhisker_vcomp.
-      rewrite vcomp_lid, lwhisker_id2, id2_left.
+      rewrite vcomp_linv, lwhisker_id2, id2_left.
       rewrite !vassocl.
       rewrite lunitor_runitor_identity.
       rewrite runitor_triangle.

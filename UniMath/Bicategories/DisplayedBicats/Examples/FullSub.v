@@ -98,7 +98,7 @@ Section FullSubBicat.
     - apply Hα.
     - split ; cbn.
       + exact (base_paths _ _ (vcomp_rinv Hα)).
-      + exact (base_paths _ _ (vcomp_lid Hα)).
+      + exact (base_paths _ _ (vcomp_linv Hα)).
   Defined.
 
   Definition bicat_is_invertible_2cell_to_fullsub_is_invertible_2cell

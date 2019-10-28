@@ -213,10 +213,10 @@ Section Disp_Dirprod.
                                      (λ α, _ ==>[α] _)
                                      (_ ,, (_ ,, _))
                                      (_ ,, (_ ,, _))
-                                     (vcomp_lid x)
+                                     (vcomp_linv x)
                )).
-        * exact (transportb (λ z, _ ==>[z] _) (vcomp_lid _) (disp_id2 _)).
-        * exact (transportb (λ z, _ ==>[z] _) (vcomp_lid _) (disp_id2 _)).
+        * exact (transportb (λ z, _ ==>[z] _) (vcomp_linv _) (disp_id2 _)).
+        * exact (transportb (λ z, _ ==>[z] _) (vcomp_linv _) (disp_id2 _)).
   Defined.
 
   Definition pair_disp_invertible_2cell
@@ -294,10 +294,10 @@ Section Disp_Dirprod.
                                (λ α, _ ==>[α] _)
                                (_ ,, (_ ,, _))
                                (_ ,, (_ ,, _))
-                               (vcomp_lid x)
+                               (vcomp_linv x)
                ))).
-        * exact (transportb (λ z, _ ==>[z] _) (vcomp_lid _) (disp_id2 _)).
-        * exact (transportb (λ z, _ ==>[z] _) (vcomp_lid _) (disp_id2 _)).
+        * exact (transportb (λ z, _ ==>[z] _) (vcomp_linv _) (disp_id2 _)).
+        * exact (transportb (λ z, _ ==>[z] _) (vcomp_linv _) (disp_id2 _)).
   Defined.
 
   Definition pr1_disp_invertible_2cell
@@ -370,10 +370,10 @@ Section Disp_Dirprod.
                                (λ α, _ ==>[α] _)
                                (_ ,, (_ ,, _))
                                (_ ,, (_ ,, _))
-                               (vcomp_lid x)
+                               (vcomp_linv x)
                ))).
-        * exact (transportb (λ z, _ ==>[z] _) (vcomp_lid _) (disp_id2 _)).
-        * exact (transportb (λ z, _ ==>[z] _) (vcomp_lid _) (disp_id2 _)).
+        * exact (transportb (λ z, _ ==>[z] _) (vcomp_linv _) (disp_id2 _)).
+        * exact (transportb (λ z, _ ==>[z] _) (vcomp_linv _) (disp_id2 _)).
   Defined.
 
   Definition pr2_disp_invertible_2cell

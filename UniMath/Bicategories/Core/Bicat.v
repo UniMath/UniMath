@@ -455,7 +455,7 @@ Definition vcomp_rinv {C : prebicat_data} {a b : C} {f g : a --> b}
   : η • inv_η^-1 = id2 f
   := pr1 (pr2 inv_η).
 
-Definition vcomp_lid {C : prebicat_data} {a b : C} {f g : a --> b}
+Definition vcomp_linv {C : prebicat_data} {a b : C} {f g : a --> b}
            {η : f ==> g} (inv_η : is_invertible_2cell η)
   : inv_η^-1 • η = id2 g
   := pr2 (pr2 inv_η).
@@ -463,7 +463,7 @@ Definition vcomp_lid {C : prebicat_data} {a b : C} {f g : a --> b}
 Definition is_invertible_2cell_inv {C : prebicat_data} {a b : C} {f g : a --> b}
            {η : f ==> g} (inv_η : is_invertible_2cell η)
   : is_invertible_2cell (inv_η^-1)
-  := make_is_invertible_2cell (vcomp_lid inv_η) (vcomp_rinv inv_η).
+  := make_is_invertible_2cell (vcomp_linv inv_η) (vcomp_rinv inv_η).
 
 Definition is_invertible_2cell_id₂ {C : prebicat} {a b : C} (f : a --> b)
   : is_invertible_2cell (id2 f)
@@ -517,8 +517,8 @@ Lemma vcomp_lcancel  {C : prebicat} {a b : C} {f g : C⟦a, b⟧}
 Proof.
   intro R.
   transitivity (inv_x^-1 • (x • y)).
-  - rewrite vassocr, vcomp_lid. apply (!id2_left _).
-  - rewrite R, vassocr, vcomp_lid. apply id2_left.
+  - rewrite vassocr, vcomp_linv. apply (!id2_left _).
+  - rewrite R, vassocr, vcomp_linv. apply id2_left.
 Qed.
 
 Lemma inv_cell_eq {C : bicat} {a b : C} {f g : C ⟦a, b⟧} (x y : f ==> g)
@@ -615,7 +615,7 @@ Proof.
   intro H1.
   etrans. apply maponpaths_2. apply H1.
   etrans. apply vassocl.
-  etrans. apply maponpaths. apply (vcomp_lid inv_y).
+  etrans. apply maponpaths. apply (vcomp_linv inv_y).
   apply id2_right.
 Qed.
 
@@ -640,7 +640,7 @@ Proof.
   etrans. 2: apply vassocr.
   apply pathsinv0.
   etrans. apply maponpaths.
-  apply vcomp_lid.
+  apply vcomp_linv.
   apply id2_right.
 Qed.
 

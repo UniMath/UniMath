@@ -710,7 +710,7 @@ Section Display_Invertible_2cell.
           transportb (λ α, _ ==>[α] _) (vcomp_rinv α)
                      (disp_id2 ff))
        × (y •• x =
-          transportb (λ α, _ ==>[α] _) (vcomp_lid α)
+          transportb (λ α, _ ==>[α] _) (vcomp_linv α)
                      (disp_id2 ff')).
 
   Definition is_disp_invertible_2cell {α : f ==> f'} (inv_α : is_invertible_2cell α)
@@ -721,7 +721,7 @@ Section Display_Invertible_2cell.
           transportb (λ α, _ ==>[α] _) (vcomp_rinv inv_α)
                      (disp_id2 ff))
        × (y •• x =
-          transportb (λ α, _ ==>[α] _) (vcomp_lid inv_α)
+          transportb (λ α, _ ==>[α] _) (vcomp_linv inv_α)
                      (disp_id2 ff')).
 
   Definition disp_invertible_2cell (α : invertible_2cell f f')
@@ -752,7 +752,7 @@ Section Display_Invertible_2cell.
              {ff : d -->[f] d'} {ff' : d -->[f'] d'}
              (e : disp_invertible_2cell α ff ff')
     : disp_inv_cell e •• e =
-      transportb (λ α, _ ==>[α] _) (vcomp_lid α) (disp_id2 ff')
+      transportb (λ α, _ ==>[α] _) (vcomp_linv α) (disp_id2 ff')
     := pr2 (pr2 (pr2 e)).
 
   End Def_inv_2cell.

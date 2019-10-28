@@ -133,7 +133,7 @@ Section Prop_disp_invertible_2cell.
         * apply vcomp_rinv.
         * apply p.
       + use total2_paths2_b.
-        * apply vcomp_lid.
+        * apply vcomp_linv.
         * apply p.
   Defined.
 
@@ -211,7 +211,7 @@ Section Prop_disp_invertible_2cell.
           apply (@transportf_paths _ (λ α : f ==> f, ff ==>[ α] ff)).
           apply C.
       + use total2_paths_f ; cbn.
-        * apply vcomp_lid.
+        * apply vcomp_linv.
         * refine (_ @ fiber_paths (pr2 (pr2 z))) ; cbn.
           apply (@transportf_paths _ (λ α : g ==> g, gg ==>[ α] gg)).
           apply C.
@@ -274,7 +274,7 @@ Section Prop_disp_invertible_2cell.
           apply (@transportf_paths _ (λ z, ff ==>[ z ] ff)).
           apply C.
       + use total2_paths_b.
-        * apply vcomp_lid.
+        * apply vcomp_linv.
         * cbn.
           induction z as [inv Hz].
           induction inv as [inv1 inv2].
@@ -456,7 +456,7 @@ Section Total_invertible_2cells.
         ** apply (disp_vcomp_rinv αα').
       + cbn.
         use total2_paths_b.
-        ** apply vcomp_lid.
+        ** apply vcomp_linv.
         ** apply (disp_vcomp_linv αα').
   Defined.
 
@@ -607,7 +607,7 @@ Definition vcomp_disp_is_invertible_linv
     =
     transportb
       (λ z, hh ==>[z] hh)
-      (vcomp_lid (comp_of_invertible_2cell α β))
+      (vcomp_linv (comp_of_invertible_2cell α β))
       (disp_id2 hh).
 Proof.
   cbn.

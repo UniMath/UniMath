@@ -597,7 +597,7 @@ Section YonedaLemma.
         {
           rewrite assoc.
           apply maponpaths_2.
-          exact (nat_trans_eq_pointwise (vcomp_lid (psnaturality_of g Y)) (id₁ X)).
+          exact (nat_trans_eq_pointwise (vcomp_linv (psnaturality_of g Y)) (id₁ X)).
         }
         apply id_left.
       }
@@ -684,7 +684,7 @@ Section YonedaLemma.
         * exact (pr1 (pr1 (psfunctor_id F X)) Z).
         * split.
           ** abstract (exact (nat_trans_eq_pointwise
-                                (vcomp_lid (psfunctor_id F X)) Z)).
+                                (vcomp_linv (psfunctor_id F X)) Z)).
           ** abstract (exact (nat_trans_eq_pointwise
                                 (vcomp_rinv (psfunctor_id F X)) Z)).
   Defined.

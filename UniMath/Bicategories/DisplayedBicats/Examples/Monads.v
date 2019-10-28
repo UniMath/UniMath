@@ -42,7 +42,7 @@ Local Open Scope cat.
 
 Definition monad_support (C : bicat)
   : bicat
-  := bicat_algebra (ps_id_functor C).
+  := bicat_algebra (id_psfunctor C).
 
 Definition monad_support_is_univalent_2_1 {C : bicat}
            (HC_1 : is_univalent_2_1 C)
@@ -74,8 +74,8 @@ Definition add_unit (C : bicat)
   : disp_bicat (monad_support C).
 Proof.
   use add_cell_disp_cat.
-  - exact (ps_id_functor _).
-  - exact (ps_id_functor _).
+  - exact (id_psfunctor _).
+  - exact (id_psfunctor _).
   - exact (var _ _).
   - exact (alg_map _).
 Defined.
@@ -84,8 +84,8 @@ Definition add_mu (C : bicat)
   : disp_bicat (monad_support C).
 Proof.
   use add_cell_disp_cat.
-  - exact (ps_id_functor _).
-  - exact (ps_id_functor _).
+  - exact (id_psfunctor _).
+  - exact (id_psfunctor _).
   - exact ((alg_map _) · (alg_map _)).
   - exact (alg_map _).
 Defined.

@@ -272,31 +272,9 @@ Section laws.
     rewrite triangle_r.
     rewrite vassocr.
     rewrite <- inverse_of_assoc.
-    rewrite vcomp_lid.
+    rewrite vcomp_linv.
     rewrite id2_left.
     reflexivity.
-  Qed.
-
-  Definition bc_whisker_r_compose
-             {X Y Z : C}
-             (f : C⟦X,Y⟧)
-             {g₁ g₂ g₃ : C⟦Y,Z⟧}
-             (p₁ : g₁ ==> g₂) (p₂ : g₂ ==> g₃)
-    : (p₂ o p₁) ▻ f = (p₂ ▻ f) o (p₁ ▻ f).
-  Proof.
-    symmetry.
-    apply lwhisker_vcomp.
-  Qed.
-
-  Definition bc_whisker_l_compose
-             {X Y Z : C}
-             {f₁ f₂ f₃ : C⟦X,Y⟧}
-             (g : C⟦Y,Z⟧)
-             (p₁ : f₁ ==> f₂) (p₂ : f₂ ==> f₃)
-    : g ◅ (p₂ o p₁) = (g ◅ p₂) o (g ◅ p₁).
-  Proof.
-    symmetry.
-    apply rwhisker_vcomp.
   Qed.
 
   Definition whisker_l_hcomp

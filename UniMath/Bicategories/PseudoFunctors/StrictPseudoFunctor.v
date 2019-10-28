@@ -176,7 +176,7 @@ Proof.
   - split ; cbn
     ; rewrite <- strict_psfunctor_vcomp, <- strict_psfunctor_id2 ; apply maponpaths.
     + apply vcomp_rinv.
-    + apply vcomp_lid.
+    + apply vcomp_linv.
 Defined.
 
 Section StrictPseudoFunctorDerivedLaws.
@@ -470,7 +470,7 @@ Proof.
   use strict_modification_eq.
   intro X.
   cbn.
-  exact (vcomp_lid (Hm X)).
+  exact (vcomp_linv (Hm X)).
 Qed.
 
 Definition make_is_invertible_strict_modification

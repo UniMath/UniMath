@@ -121,23 +121,23 @@ Definition disp_left_biadj_left_triangle
   : UU
   := disp_invmodification
        _ _ _ _
-       (disp_ps_comp
+       (disp_comp_psfunctor
           _ _ _ _ _ _ _ _ _ _
-          (disp_pstrans_rinvunitor LL)
-          (disp_ps_comp
+          (disp_rinvunitor_pstrans LL)
+          (disp_comp_psfunctor
              _ _ _ _ _ _ _ _ _ _
              (disp_left_whisker LL (unit_of_disp_left_biadj ee))
-             (disp_ps_comp
+             (disp_comp_psfunctor
                 _ _ _ _ _ _ _ _ _ _
-                (disp_pstrans_lassociator _ _ _)
-                (disp_ps_comp
+                (disp_lassociator_pstrans _ _ _)
+                (disp_comp_psfunctor
                    _ _ _ _ _ _ _ _ _ _
                    (disp_right_whisker LL (counit_of_disp_left_biadj ee))
-                   (disp_pstrans_lunitor LL))
+                   (disp_lunitor_pstrans LL))
              )
           )
        )
-       (disp_id_trans LL)
+       (disp_id_pstrans LL)
        e_lt.
 
 Definition disp_left_biadj_right_triangle
@@ -150,23 +150,23 @@ Definition disp_left_biadj_right_triangle
   := let RR := right_adj_of_disp_left_biadj ee in
      disp_invmodification
        _ _ _ _
-       (disp_ps_comp
+       (disp_comp_psfunctor
           _ _ _ _ _ _ _ _ _ _
           (disp_pstrans_linvunitor RR)
-          (disp_ps_comp
+          (disp_comp_psfunctor
              _ _ _ _ _ _ _ _ _ _
              (disp_right_whisker RR (unit_of_disp_left_biadj ee))
-             (disp_ps_comp
+             (disp_comp_psfunctor
                 _ _ _ _ _ _ _ _ _ _
                 (disp_pstrans_rassociator _ _ _)
-                (disp_ps_comp
+                (disp_comp_psfunctor
                    _ _ _ _ _ _ _ _ _ _
                    (disp_left_whisker RR (counit_of_disp_left_biadj ee))
-                   (disp_pstrans_runitor RR))
+                   (disp_runitor_pstrans RR))
              )
           )
        )
-       (disp_id_trans RR)
+       (disp_id_pstrans RR)
        e_lt.
 
 (** ** Data *)
