@@ -265,16 +265,16 @@ End DispTrans_identity.
 Section DispTrans_comp.
 
 Context {B₁ B₂ : bicat}
-        (F₁ : psfunctor B₁ B₂)
-        (F₂ : psfunctor B₁ B₂)
-        (F₃ : psfunctor B₁ B₂)
-        (η₁ : pstrans F₁ F₂)
-        (η₂ : pstrans F₂ F₃)
-        (D₁ : disp_bicat B₁)
-        (D₂ : disp_bicat B₂)
-        (FF₁ : disp_psfunctor D₁ D₂ F₁)
-        (FF₂ : disp_psfunctor D₁ D₂ F₂)
-        (FF₃ : disp_psfunctor D₁ D₂ F₃)
+        {F₁ : psfunctor B₁ B₂}
+        {F₂ : psfunctor B₁ B₂}
+        {F₃ : psfunctor B₁ B₂}
+        {η₁ : pstrans F₁ F₂}
+        {η₂ : pstrans F₂ F₃}
+        {D₁ : disp_bicat B₁}
+        {D₂ : disp_bicat B₂}
+        {FF₁ : disp_psfunctor D₁ D₂ F₁}
+        {FF₂ : disp_psfunctor D₁ D₂ F₂}
+        {FF₃ : disp_psfunctor D₁ D₂ F₃}
         (ηη₁ : disp_pstrans FF₁ FF₂ η₁)
         (ηη₂ : disp_pstrans FF₂ FF₃ η₂).
 
@@ -282,7 +282,7 @@ Local Notation "αα '••' ββ" := (vcomp_disp_invertible αα ββ).
 Local Notation "ff '◃◃' αα" := (disp_invertible_2cell_lwhisker ff αα).
 Local Notation "αα '▹▹' ff" := (disp_invertible_2cell_rwhisker ff αα).
 
-Definition disp_comp_psfunctor_data : disp_pstrans_data FF₁ FF₃ (comp_pstrans η₁ η₂).
+Definition disp_comp_pstrans_data : disp_pstrans_data FF₁ FF₃ (comp_pstrans η₁ η₂).
 Proof.
   use make_disp_pstrans_data; cbn.
   - exact (λ x xx, comp_disp (ηη₁ x xx) (ηη₂ x xx)).
@@ -294,12 +294,12 @@ Proof.
              •• disp_invertible_2cell_rassociator _ _ _).
 Defined.
 
-Lemma disp_comp_psfunctor_laws : is_disp_pstrans _ _ _ disp_comp_psfunctor_data.
+Lemma disp_comp_pstrans_laws : is_disp_pstrans _ _ _ disp_comp_pstrans_data.
 Proof.
   apply is_disp_pstrans_from_total.
   pose (PP := comp_pstrans (total_pstrans _ _ _ ηη₁) (total_pstrans _ _ _ ηη₂)).
   pose (PP2 := pstrans_to_is_pstrans PP).
-  assert (pr11 PP = total_pstrans_data _ _ _ disp_comp_psfunctor_data).
+  assert (pr11 PP = total_pstrans_data _ _ _ disp_comp_pstrans_data).
   - use total2_paths_f.
     + apply idpath.
     + apply funextsec. intro x.
@@ -311,8 +311,8 @@ Proof.
   - exact (transportf _ X PP2).
 Qed.
 
-Definition disp_comp_psfunctor : disp_pstrans _ _ (comp_pstrans η₁ η₂)
-  := disp_comp_psfunctor_data,, disp_comp_psfunctor_laws.
+Definition disp_comp_pstrans : disp_pstrans _ _ (comp_pstrans η₁ η₂)
+  := disp_comp_pstrans_data,, disp_comp_pstrans_laws.
 
 End DispTrans_comp.
 
