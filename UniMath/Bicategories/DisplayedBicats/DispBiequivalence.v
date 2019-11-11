@@ -109,25 +109,25 @@ Definition disp_is_biequivalence_data
                               (disp_pseudo_comp _ _ _ _ _ GG FF)
                               (invcounit_of_is_biequivalence a)),
      (disp_invmodification _ _ _ _
-                           (disp_comp_psfunctor _ _ _ _ _ _ _ _ _ _
+                           (disp_comp_pstrans
                                          uu
                                          (unit_of_is_disp_biequivalence ee))
                            (disp_id_pstrans _)
                            (unitcounit_of_is_biequivalence _) ×
       disp_invmodification _ _ _ _
-                           (disp_comp_psfunctor _ _ _ _ _ _ _ _ _ _
+                           (disp_comp_pstrans
                                          (unit_of_is_disp_biequivalence ee)
                                          uu)
                            (disp_id_pstrans _)
                            (unitunit_of_is_biequivalence _)) ×
      (disp_invmodification _ _ _ _
-                           (disp_comp_psfunctor _ _ _ _ _ _ _ _ _ _
+                           (disp_comp_pstrans
                                          cc
                                          (counit_of_is_disp_biequivalence ee))
                            (disp_id_pstrans _)
                            (counitcounit_of_is_biequivalence _) ×
       disp_invmodification _ _ _ _
-                           (disp_comp_psfunctor _ _ _ _ _ _ _ _ _ _
+                           (disp_comp_pstrans
                                          (counit_of_is_disp_biequivalence ee)
                                          cc)
                            (disp_id_pstrans _)

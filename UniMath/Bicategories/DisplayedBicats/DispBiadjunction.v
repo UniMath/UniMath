@@ -121,17 +121,13 @@ Definition disp_left_biadj_left_triangle
   : UU
   := disp_invmodification
        _ _ _ _
-       (disp_comp_psfunctor
-          _ _ _ _ _ _ _ _ _ _
+       (disp_comp_pstrans
           (disp_rinvunitor_pstrans LL)
-          (disp_comp_psfunctor
-             _ _ _ _ _ _ _ _ _ _
+          (disp_comp_pstrans
              (disp_left_whisker LL (unit_of_disp_left_biadj ee))
-             (disp_comp_psfunctor
-                _ _ _ _ _ _ _ _ _ _
+             (disp_comp_pstrans
                 (disp_lassociator_pstrans _ _ _)
-                (disp_comp_psfunctor
-                   _ _ _ _ _ _ _ _ _ _
+                (disp_comp_pstrans
                    (disp_right_whisker LL (counit_of_disp_left_biadj ee))
                    (disp_lunitor_pstrans LL))
              )
@@ -150,17 +146,13 @@ Definition disp_left_biadj_right_triangle
   := let RR := right_adj_of_disp_left_biadj ee in
      disp_invmodification
        _ _ _ _
-       (disp_comp_psfunctor
-          _ _ _ _ _ _ _ _ _ _
+       (disp_comp_pstrans
           (disp_pstrans_linvunitor RR)
-          (disp_comp_psfunctor
-             _ _ _ _ _ _ _ _ _ _
+          (disp_comp_pstrans
              (disp_right_whisker RR (unit_of_disp_left_biadj ee))
-             (disp_comp_psfunctor
-                _ _ _ _ _ _ _ _ _ _
+             (disp_comp_pstrans
                 (disp_pstrans_rassociator _ _ _)
-                (disp_comp_psfunctor
-                   _ _ _ _ _ _ _ _ _ _
+                (disp_comp_pstrans
                    (disp_left_whisker RR (counit_of_disp_left_biadj ee))
                    (disp_runitor_pstrans RR))
              )
