@@ -1112,4 +1112,16 @@ Section SigmaDisplayedUnivalent.
       }
       apply idpath.
   Defined.
+
+  Definition sigma_disp_univalent_2_with_props
+             (HD₁_2 : disp_univalent_2 D₁)
+             (HD₂_2 : disp_univalent_2 D₂)
+    : disp_univalent_2 (sigma_bicat _ _ D₂).
+  Proof.
+    split.
+    - apply sigma_disp_univalent_2_0_with_props.
+      + apply HD₁_2.
+      + apply HD₂_2.
+    - apply sigma_disp_univalent_2_1_with_props.
+  Defined.
 End SigmaDisplayedUnivalent.
