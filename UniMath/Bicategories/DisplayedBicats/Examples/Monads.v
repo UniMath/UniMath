@@ -163,17 +163,15 @@ Section BigProjections.
     := λ m, pr222 m.
 
   Definition bigmonad_laws (m : lawless_monad C) : UU
-    := ((linvunitor (bigmonad_map m))
-          • (bigmonad_unit m ▹ bigmonad_map m)
+    := ((bigmonad_unit m ▹ bigmonad_map m)
           • bigmonad_mu m
         =
-        id₂ (bigmonad_map m))
+        lunitor (bigmonad_map m))
          ×
-       (rinvunitor (bigmonad_map m)
-          • (bigmonad_map m ◃ bigmonad_unit m)
+       ((bigmonad_map m ◃ bigmonad_unit m)
           • bigmonad_mu m
         =
-        id₂ (bigmonad_map m))
+        runitor (bigmonad_map m))
          ×
        ((bigmonad_map m ◃ bigmonad_mu m)
           • bigmonad_mu m
@@ -202,12 +200,20 @@ Definition monad_mu : monad_endo · monad_endo ==> monad_endo
   := pr221 m.
 
 Definition monad_ημ
-  : linvunitor monad_endo • (monad_unit ▹ monad_endo) • monad_mu = id₂ monad_endo
-  := pr12 m.
+  : linvunitor monad_endo • (monad_unit ▹ monad_endo) • monad_mu = id₂ monad_endo.
+Proof.
+  refine (vassocl _ _ _ @ _ @ linvunitor_lunitor _ ).
+  refine (maponpaths _ _).
+  exact (pr12 m).
+Defined.
 
 Definition monad_μη
-  : rinvunitor monad_endo • (monad_endo ◃ monad_unit) • monad_mu = id₂ monad_endo
-  := pr122 m.
+  : rinvunitor monad_endo • (monad_endo ◃ monad_unit) • monad_mu = id₂ monad_endo.
+Proof.
+  refine (vassocl _ _ _ @ _ @ rinvunitor_runitor _ ).
+  refine (maponpaths _ _).
+  exact (pr122 m).
+Defined.
 
 Definition monad_μμ
   : (monad_endo ◃ monad_mu) • monad_mu
@@ -266,12 +272,12 @@ Definition make_monad {C : bicat}
            (f : C⟦X,X⟧)
            (η : id₁ X ==> f)
            (μ : f · f ==> f)
-           (ημ : linvunitor f • (η ▹ f) • μ
+           (ημ : (η ▹ f) • μ
                  =
-                 id₂ f)
-           (μη : rinvunitor f • (f ◃ η) • μ
+                 lunitor f)
+           (μη : (f ◃ η) • μ
                  =
-                 id₂ f)
+                 runitor f)
            (μμ : (f ◃ μ) • μ
                  =
                  lassociator f f f • (μ ▹ f) • μ)
@@ -335,12 +341,12 @@ Definition make_bigmonad {C : bicat}
            (f : C⟦X,X⟧)
            (η : id₁ X ==> f)
            (μ : f · f ==> f)
-           (ημ : linvunitor f • (η ▹ f) • μ
+           (ημ : (η ▹ f) • μ
                  =
-                 id₂ f)
-           (μη : rinvunitor f • (f ◃ η) • μ
+                 lunitor f)
+           (μη : (f ◃ η) • μ
                  =
-                 id₂ f)
+                 runitor f)
            (μμ : (f ◃ μ) • μ
                  =
                  lassociator f f f • (μ ▹ f) • μ)
@@ -497,12 +503,10 @@ Proof.
   - abstract
       (use nat_trans_eq; try apply homset_property;
        intros X ; cbn;
-       rewrite id_left;
        apply lid).
   - abstract
       (use nat_trans_eq; try apply homset_property;
        intros X ; cbn;
-       rewrite id_left;
        apply rid).
   - abstract
       (use nat_trans_eq; try apply homset_property;
@@ -647,7 +651,7 @@ Definition make_cat_monad_mor
            {mx : monad bicat_of_cats C} {my : monad bicat_of_cats D}
            {F : C ⟶ D}
            (mf_nat : nat_iso (monad_endo mx ∙ F) (F ∙ monad_endo my))
-           (mfη : ∏ (X : C), #F (pr1 (monad_unit mx) X) · mf_nat X
+           (mfη : ∏ (X : C), # F (pr1 (monad_unit mx) X) · mf_nat X
                              =
                              pr1 (monad_unit my) (F X))
            (mfμ : ∏ (X : C),
