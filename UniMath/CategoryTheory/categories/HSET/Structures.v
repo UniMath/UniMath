@@ -252,7 +252,7 @@ use left_adjoint_from_partial.
     cbn in HH; rewrite HH; cbn; unfold covyoneda_morphisms_data;
     unfold prodtofuntoprod; cbn;
     now rewrite id_right).
-Qed.
+Defined.
 
 End exponentials_functor_cat.
 
