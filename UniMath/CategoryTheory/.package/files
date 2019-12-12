@@ -76,6 +76,7 @@ categories/Type/Core.v
 categories/Type/MonoEpiIso.v
 SimplicialSets.v
 yoneda.v
+yoneda_binproducts.v
 Monads/Monads.v
 Monads/KleisliCategory.v
 Monads/LModules.v
@@ -160,6 +161,7 @@ GrothendieckTopos.v
 Presheaf.v
 ElementsOp.v
 elems_slice_equiv.v
+tiny.v
 
 Chains/Chains.v
 Chains/Cochains.v
