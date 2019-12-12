@@ -160,6 +160,8 @@ GrothendieckTopos.v
 Presheaf.v
 ElementsOp.v
 elems_slice_equiv.v
+YonedaBinproducts.v
+ExponentiationLeftAdjoint.v
 
 Chains/Chains.v
 Chains/Cochains.v
