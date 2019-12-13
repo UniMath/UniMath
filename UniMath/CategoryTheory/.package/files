@@ -155,7 +155,6 @@ SetValuedFunctors.v
 categories/FinSet.v
 categories/wosets.v
 categories/Graph.v
-categories/CartesianCubicalSets.v
 
 GrothendieckTopos.v
 Presheaf.v
@@ -163,6 +162,8 @@ ElementsOp.v
 elems_slice_equiv.v
 YonedaBinproducts.v
 ExponentiationLeftAdjoint.v
+
+categories/CartesianCubicalSets.v
 
 Chains/Chains.v
 Chains/Cochains.v
