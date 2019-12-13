@@ -18,27 +18,19 @@ Written by: Elisabeth Bonnevier, 2019
 
 Require Import UniMath.MoreFoundations.All.
 
+Require Import UniMath.Combinatorics.FiniteSets.
+
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Presheaf.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
-
 Require Import UniMath.CategoryTheory.ExponentiationLeftAdjoint.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.exponentials.
-Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.yoneda.
-
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Structures.
-
-Require Import UniMath.Combinatorics.FiniteSets.
-Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 
 Local Open Scope stn.
