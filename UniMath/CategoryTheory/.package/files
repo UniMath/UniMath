@@ -163,6 +163,8 @@ elems_slice_equiv.v
 YonedaBinproducts.v
 ExponentiationLeftAdjoint.v
 
+categories/CartesianCubicalSets.v
+
 Chains/Chains.v
 Chains/Cochains.v
 Chains/Adamek.v
