@@ -155,6 +155,7 @@ SetValuedFunctors.v
 categories/FinSet.v
 categories/wosets.v
 categories/Graph.v
+categories/CartesianCubicalSets.v
 
 GrothendieckTopos.v
 Presheaf.v
