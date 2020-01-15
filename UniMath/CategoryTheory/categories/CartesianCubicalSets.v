@@ -8,6 +8,8 @@ Contents:
 - Binary products in the cartesian cube category ([cartesian_cube_category_binproducts])
 - The empty set is a terminal object in the cartesian cube category
   ([empty_is_terminal_cartesian_cube_category])
+- The unit interval in cartesian cubical sets has two distinct elements
+  ([unit_interval_cartesian_cubical_sets_two_elements])
 - The unit interval in cartesian cubical sets is tiny
   ([unit_interval_cartesian_cubical_sets_is_tiny])
 
@@ -125,7 +127,22 @@ Definition cartesian_cubical_sets : category :=
   PreShv cartesian_cube_category.
 
 Local Definition I : cartesian_cubical_sets :=
-  yoneda cartesian_cube_category (homset_property cartesian_cube_category) 0.
+  yoneda cartesian_cube_category (homset_property cartesian_cube_category) 1.
+
+(** The unit interval in cartesian cubical sets has two distinct elements *)
+Lemma unit_interval_cartesian_cubical_sets_two_elements :
+  ∏ n : cartesian_cube_category, ∑ f g : pr1 (pr1 I n), f != g.
+Proof.
+  intro n.
+  exists (λ _ : stn 1, @inr (stn n) (stn 2) (make_stn 2 0 (idpath _))).
+  exists (λ _ : stn 1, @inr (stn n) (stn 2) (make_stn 2 1 (idpath _))).
+  intro p.
+  apply toforallpaths in p.
+  set (e := p (make_stn 1 0 (idpath _))).
+  apply ii2_injectivity in e.
+  apply (maponpaths pr1) in e.
+  apply (negpaths0sx 0 e).
+Defined.
 
 Definition cartesian_cubical_sets_exponentials : Exponentials (@BinProducts_PreShv cartesian_cube_category).
 Proof.
