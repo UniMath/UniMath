@@ -8,10 +8,12 @@ Contents:
 - Binary products in the cartesian cube category ([cartesian_cube_category_binproducts])
 - The empty set is a terminal object in the cartesian cube category
   ([empty_is_terminal_cartesian_cube_category])
-- The unit interval in cartesian cubical sets has two distinct elements
-  ([unit_interval_cartesian_cubical_sets_two_elements])
-- The unit interval in cartesian cubical sets is tiny
-  ([unit_interval_cartesian_cubical_sets_is_tiny])
+- The interval in cartesian cubical sets has two distinct elements
+  ([interval_cartesian_cubical_sets_two_elements])
+- The interval in cartesian cubical sets has decidable equality
+  ([interval_cartesian_cubical_sets_dec_eq])
+- The interval in cartesian cubical sets is tiny
+  ([interval_cartesian_cubical_sets_is_tiny])
 
 
 Written by: Elisabeth Bonnevier, 2019
@@ -129,8 +131,8 @@ Definition cartesian_cubical_sets : category :=
 Local Definition I : cartesian_cubical_sets :=
   yoneda cartesian_cube_category (homset_property cartesian_cube_category) 1.
 
-(** The unit interval in cartesian cubical sets has two distinct elements *)
-Lemma unit_interval_cartesian_cubical_sets_two_elements :
+(** The interval in cartesian cubical sets has two distinct elements *)
+Lemma interval_cartesian_cubical_sets_two_elements :
   ∏ n : cartesian_cube_category, ∑ f g : pr1 (pr1 I n), f != g.
 Proof.
   intro n.
@@ -144,6 +146,20 @@ Proof.
   apply (negpaths0sx 0 e).
 Defined.
 
+(** The interval in cartesian cubical sets has decidable equality *)
+Lemma interval_cartesian_cubical_sets_dec_eq :
+  ∏ (n : cartesian_cube_category), isdeceq (pr1 (pr1 I n)).
+Proof.
+  intro n.
+  use isdeceqweqb.
+  - exact (stn ((n+2) * 1)).
+  - use weqcomp.
+    + exact ((stn 1) → (stn (n+2))).
+    + apply weqffun, weqfromcoprodofstn.
+    + apply weqfromfunstntostn.
+  - apply isdeceqstn.
+Defined.
+
 Definition cartesian_cubical_sets_exponentials : Exponentials (@BinProducts_PreShv cartesian_cube_category).
 Proof.
   apply Exponentials_functor_HSET.
@@ -154,8 +170,8 @@ Defined.
 Local Definition exp_I : cartesian_cubical_sets ⟶ cartesian_cubical_sets :=
   pr1 (cartesian_cubical_sets_exponentials I).
 
-(** The unit interval in cartesian cubical sets is tiny *)
-Theorem unit_interval_cartesian_cubical_sets_is_tiny : is_left_adjoint exp_I.
+(** The interval in cartesian cubical sets is tiny *)
+Theorem interval_cartesian_cubical_sets_is_tiny : is_left_adjoint exp_I.
 Proof.
   use is_left_adjoint_exp_yoneda.
   apply cartesian_cube_category_binproducts.
