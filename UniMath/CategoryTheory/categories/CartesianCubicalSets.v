@@ -1,6 +1,11 @@
 (** ****************************************************************************
 
-Theory about the cartesian cube category and cartesian cubical sets.
+We define the cartesian cubical sets and show that the interval satisfies
+axioms B1, B2 and B3 in:
+
+A Survey of Constructive Presheaf Models of Univalence (2018),
+Thierry Coquand
+https://dl.acm.org/doi/abs/10.1145/3242953.3242962
 
 Contents:
 
@@ -8,11 +13,11 @@ Contents:
 - Binary products in the cartesian cube category ([cartesian_cube_category_binproducts])
 - The empty set is a terminal object in the cartesian cube category
   ([empty_is_terminal_cartesian_cube_category])
-- The interval in cartesian cubical sets has two distinct elements
+- The interval in cartesian cubical sets has two distinct elements (axiom B1)
   ([interval_cartesian_cubical_sets_two_elements])
-- The interval in cartesian cubical sets has decidable equality
+- The interval in cartesian cubical sets has decidable equality (axiom B2)
   ([interval_cartesian_cubical_sets_dec_eq])
-- The interval in cartesian cubical sets is tiny
+- The interval in cartesian cubical sets is tiny (axiom B3)
   ([interval_cartesian_cubical_sets_is_tiny])
 
 
@@ -133,7 +138,7 @@ Local Definition I : cartesian_cubical_sets :=
 
 (** The interval in cartesian cubical sets has two distinct elements *)
 Lemma interval_cartesian_cubical_sets_two_elements :
-  ∏ n : cartesian_cube_category, ∑ f g : pr1 (pr1 I n), f != g.
+  ∏ n : cartesian_cube_category, ∑ f g : I ⟨ n ⟩, f != g.
 Proof.
   intro n.
   exists (λ _ : stn 1, @inr (stn n) (stn 2) (make_stn 2 0 (idpath _))).
@@ -148,7 +153,7 @@ Defined.
 
 (** The interval in cartesian cubical sets has decidable equality *)
 Lemma interval_cartesian_cubical_sets_dec_eq :
-  ∏ (n : cartesian_cube_category), isdeceq (pr1 (pr1 I n)).
+  ∏ (n : cartesian_cube_category), isdeceq I ⟨ n ⟩.
 Proof.
   intro n.
   use isdeceqweqb.
