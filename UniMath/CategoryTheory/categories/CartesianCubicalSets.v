@@ -138,7 +138,7 @@ Local Definition I : cartesian_cubical_sets :=
 
 (** The interval in cartesian cubical sets has two distinct elements *)
 Lemma interval_cartesian_cubical_sets_two_elements :
-  ∏ n : cartesian_cube_category, ∑ f g : I ⟨ n ⟩, f != g.
+  ∏ n : cartesian_cube_category, ∑ f g : ((I : functor _ _) n : hSet), f != g.
 Proof.
   intro n.
   exists (λ _ : stn 1, @inr (stn n) (stn 2) (make_stn 2 0 (idpath _))).
@@ -153,7 +153,7 @@ Defined.
 
 (** The interval in cartesian cubical sets has decidable equality *)
 Lemma interval_cartesian_cubical_sets_dec_eq :
-  ∏ (n : cartesian_cube_category), isdeceq I ⟨ n ⟩.
+  ∏ (n : cartesian_cube_category), isdeceq ((I : functor _ _) n : hSet).
 Proof.
   intro n.
   use isdeceqweqb.
