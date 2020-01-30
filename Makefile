@@ -308,11 +308,11 @@ clean::; rm -f .check-prescribed-ordering.okay
 # So we have to distinguish the versions somehow; here we do that.
 # We expect the file build/CoqMakefile.make to exist now, because we have an include command above for the file .coq_makefile_output.conf,
 # and the same rule that make it makes build/CoqMakefile.make.
-VDFILE := .coqdeps
-clean::; rm -f $(VDFILE).d
+VDFILE := ..coq_makefile_output.d
+clean::; rm -f $(VDFILE)
 ifeq ($(shell grep -q ^VDFILE build/CoqMakefile.make && echo yes),yes)
 # Coq >= 8.8
-DEPFILES := $(VDFILE).d
+DEPFILES := $(VDFILE)
 .check-prescribed-ordering.okay: Makefile $(DEPFILES) $(PACKAGE_FILES)
 	@echo "--- checking the ordering prescribed by the files UniMath/*/.packages/files ---"
 	@set -e ;														    \
