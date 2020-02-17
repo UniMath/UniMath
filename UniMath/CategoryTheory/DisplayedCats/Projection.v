@@ -1,4 +1,6 @@
 (**
+Author: Niels van der Weide
+
 In this file, we show the following:
 - a displayed category adds properties if the type of displayed morphisms is contractible
 - a displayed category adds structure if the type of displayed morphisms is a proposition
@@ -19,7 +21,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Local Open Scope cat.
 
 (**
-We start with the definitions from 
+We start with the definitions from
 https://ncatlab.org/nlab/show/stuff%2C+structure%2C+property#definitions
  *)
 Definition adds_structure
@@ -99,7 +101,7 @@ Definition locally_propositional_if_locally_contractible
 Proof.
   intros HD ? ; intros.
   apply isapropifcontr.
-  apply HD.  
+  apply HD.
 Defined.
 
 Definition locally_inhabited_if_locally_contractible
@@ -183,7 +185,7 @@ Proof.
     + apply locally_contractible_disp_iso.
       apply HD₂.
 Defined.
-    
+
 (**
 Adding properties is the same as being locally propositional
  *)
@@ -226,7 +228,7 @@ Section DispProjectionIsPropositional.
     refine (!_) ; cbn.
     apply transportf_set.
     apply homset_property.
-  Defined.    
+  Defined.
 End DispProjectionIsPropositional.
 
 Definition adds_structure_weq_locally_propositional
@@ -239,8 +241,8 @@ Proof.
   - exact (pr1_category_faithful D).
   - apply isaprop_faithful.
   - apply isaprop_locally_propositional.
-Defined.    
-  
+Defined.
+
 (**
 Adding structure is the same as being locally contractible
  *)
@@ -298,7 +300,7 @@ Section DispProjectionIsContractible.
       cbn in m, p.
       exact (transportf (λ z, xx -->[ z ] yy) p m).
   Defined.
-  
+
   Definition pr1_category_locally_contractible
     : locally_contractible D.
   Proof.

@@ -21,12 +21,15 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.FunctorAlgebras.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.categories.HSET.Limits.
 Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Projection.
+Require Import UniMath.CategoryTheory.limits.binproducts.
 
 Local Open Scope cat.
 
@@ -39,11 +42,7 @@ After that, we show we have a univalent category of sets with a binary operation
 Definition diag
   : HSET ⟶ HSET.
 Proof.
-  use make_functor.
-  - use make_functor_data ; cbn.
-    + exact (λ X, dirprod_hSet X X).
-    + exact (λ X Y f x, (f (pr1 x) ,, f (pr2 x))).
-  - abstract (split ; intro ; intros ; apply idpath).
+  exact (bindelta_functor HSET ∙ binproduct_functor BinProductsHSET).
 Defined.
 
 Definition binop_precategory
