@@ -182,10 +182,12 @@ DisplayedCats/Fibrations.v
 DisplayedCats/Equivalences.v
 DisplayedCats/Equivalences_bis.v
 DisplayedCats/Codomain.v
+DisplayedCats/Projection.v
 DisplayedCats/SIP.v
 DisplayedCats/Limits.v
 DisplayedCats/Examples.v
 DisplayedCats/Examples/HLevel.v
+DisplayedCats/Examples/UnitalBinop.v
 DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v
 DisplayedCats/ComprehensionC.v
