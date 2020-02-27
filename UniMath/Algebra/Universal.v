@@ -189,6 +189,8 @@ Section Natlemmas.
 
 End Natlemmas.
 
+(** ** Status of a stack machine. *)
+
 Section Status.
 
   Context {sigma: Signature}.
@@ -379,7 +381,7 @@ Section OpList.
         reflexivity.
     - intros nm l1tail IH noerror.
       rewrite list2status_cons.
-      rewrite status_concatenate_statuscons by (assumption).
+      rewrite status_concatenate_statuscons. 2: { assumption. }
       rewrite <- IH.
       + rewrite <- list2status_cons.
         reflexivity.
@@ -443,13 +445,14 @@ Section OpList.
       reflexivity.
     - clear l n.
       intros x xs HPind n proofxxs.
-      rewrite list2status_cons in proofxxs.
+      change (status_cons x (list2status xs) = statusok n) in proofxxs.
       apply status_cons_statusok_r in proofxxs.
       induction proofxxs as [nbound proofxs].
       induction n.
       + apply isirreflnatgth in nbound.
         contradiction.
-      + rewrite extract_list_cons.
+      + clear IHn.
+        rewrite extract_list_cons.
         rewrite extract_list_arith1 in proofxs.
         set (ind := HPind (n + arity x) proofxs).
         rewrite ind.
@@ -687,6 +690,8 @@ Section Term.
 
   Definition mkterm (nm: names sigma) (vec: Vector (Term sigma) (arity nm)): Term sigma
     := mkstack (cons nm (terms2stack vec)) (is_mkterm_term nm vec).
+
+  (** Principal operation of a term (i.e., the head of the underling list). *)
 
   Definition princop (t: Term sigma): names sigma.
   Proof.
