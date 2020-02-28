@@ -879,16 +879,14 @@ Section Term.
       apply (IHn (stack_rest s)).
   Defined.
 
-  Theorem term_ind:
-    ∏ (P: Term sigma → UU),
-    ( ∏ (nm: names sigma) (vterm: Vector (Term sigma) (arity nm)),
-      (∏ (i:  ⟦ arity nm ⟧), P (el vterm i)) → P (mkterm nm vterm) )
-    → (∏ t: Term sigma, P t).
+  Theorem term_ind_len
+    (P: Term sigma → UU)
+    (HPind : ∏ (nm: names sigma) (vterm: Vector (Term sigma) (arity nm)),
+      (∏ (i : ⟦ arity nm ⟧), P (el vterm i)) → P (mkterm nm vterm) )
+  :
+    ∏ (n vlen: nat) (vlehn: vlen ≤ n) (v: Vector (names sigma) vlen)
+      (lp: list2status (vlen ,, v) = statusok 1), P (mkstack (vlen ,, v) lp).
   Proof.
-    intros P HPind.
-    assert (thm: ∏ (n vlen: nat) (vlehn: vlen ≤ n) (v: Vector (names sigma) vlen)
-                   (lp: list2status (vlen ,, v) = statusok 1), P (mkstack (vlen ,, v) lp)).
-    intro n.
     induction n.
     - intros.
       apply fromempty.
@@ -937,9 +935,17 @@ Section Term.
         * apply natlthsntoleh in vlenlehn.
           exact (IHn vlen vlenlehn v lp).
         * contradiction.
-    - intro t.
-      induction t as [[lent vect] prooft].
-      exact (thm lent lent (isreflnatleh _) vect prooft).
+  Defined.
+
+  Theorem term_ind
+    (P: Term sigma → UU)
+    (HPind: ∏ (nm: names sigma) (vterm: Vector (Term sigma) (arity nm)),
+      (∏ (i:  ⟦ arity nm ⟧), P (el vterm i)) → P (mkterm nm vterm) )
+    : (∏ t: Term sigma, P t).
+  Proof.
+    intro t.
+    induction t as [[lent vect] prooft].
+    exact (term_ind_len P HPind lent lent (isreflnatleh _) vect prooft).
   Defined.
 
   (**  TODO: is it possible to change definition of term_ind so that this lemma may be
@@ -961,6 +967,14 @@ Section Term.
                 ( λ (nm: names sigma) (vterm: Vector (Term sigma) (arity nm))
                     (levels: ⟦ arity nm ⟧ → nat), 1 + vector_foldr max 0 (mk_vector levels) )
                 t.
+
+  Lemma depth_step (t: Term sigma) (nm : names sigma) (args : Vector (Term sigma) (arity nm))
+     (levels : Vector nat (arity nm)) :
+     depth (mkterm nm args) = 1 + vector_foldr max 0 levels.
+  Proof.
+    unfold depth.
+    unfold term_ind.
+  Abort.
 
 End Term.
 
