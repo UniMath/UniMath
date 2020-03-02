@@ -670,15 +670,6 @@ Section Term.
   Definition mkterm (nm: names sigma) (vec: Vector (Term sigma) (arity nm)): Term sigma
     := mkstack (cons nm (terms2stack vec)) (is_mkterm_term nm vec).
 
-  (** Principal operation of a term (i.e., the head of the underling list). *)
-
-  Definition princop (t: Term sigma): names sigma.
-  Proof.
-    induction t as [l proof].
-    induction (list2status_positive proof) as [len [v _]].
-    exact (hd v).
-  Defined.
-
   Local Definition extract_term {n: nat} (s: Stack sigma (S n))
     : Term sigma ×  Stack sigma n.
   Proof.
@@ -758,21 +749,6 @@ Section Term.
     apply idpath.
   Defined.
 
-  Definition subterms (t: Term sigma): Vector (Term sigma) (arity (princop t)).
-  Proof.
-    induction t as [l proof].
-    unfold princop.
-    induction (list2status_positive proof) as [lentail [v ldef]].
-    rewrite ldef in proof.
-    change (S lentail ,, v) with (cons (hd v) (lentail ,, (tl v))) in proof.
-    rewrite list2status_cons in proof.
-    apply status_cons_statusok_r in proof.
-    induction proof as [_ proof].
-    rewrite natpluscomm in proof.
-    rewrite plusminusnmm in proof.
-    exact (stack2terms (mkstack (lentail,, tl v) proof)).
-  Defined.
-
   Lemma terms2stack2terms {n: nat} (s: Stack sigma n): terms2stack (stack2terms s) = s.
   Proof.
     induction n.
@@ -786,14 +762,82 @@ Section Term.
       apply maponpaths.
       apply (IHn (stack_rest s)).
   Defined.
+
+  Lemma stack2terms2stack {n: nat} (terms: Vector (Term sigma) n): stack2terms (terms2stack terms) = terms.
+  Proof.
+    induction n.
+    - induction terms.
+      reflexivity.
+    - induction terms as [t rest].
+      change (t ,, rest) with (vcons t rest).
+      change (terms2stack (vcons t rest)) with (stack_concatenate t (terms2stack rest)).
+      rewrite stack2terms_concatenate.
+      rewrite (IHn rest).
+      reflexivity.
+  Defined.
   
+  Definition term_decompose (t: Term sigma): ∑ (op: names sigma) (subs: Stack sigma (arity op)), term2list t = cons op subs.
+  Proof.
+    induction t as [l proof].
+    induction (list2status_positive proof) as [lentail [v ldef]].
+    exists (hd v).
+    revert proof.
+    rewrite ldef.
+    change (S lentail ,, v) with (cons (hd v) (lentail ,, (tl v))).
+    intro proof.
+    pose (p := proof).
+    rewrite list2status_cons in p.
+    apply status_cons_statusok_r in p.
+    induction p as [_ p].
+    rewrite natpluscomm in p.
+    rewrite plusminusnmm in p.
+    exists (mkstack (lentail,, tl v) p).
+    reflexivity.
+  Defined.
+
+  Definition princop (t: Term sigma): names sigma
+    := pr1 (term_decompose t).
+
+  Definition term_rest (t: Term sigma): Stack sigma (arity (princop t))
+    := (pr1 (pr2 (term_decompose t))).
+
+  Definition subterms (t: Term sigma):  Vector (Term sigma) (arity (princop t))
+    := stack2terms (term_rest t).
+
+  Lemma term_list_decomp (t: Term sigma): term2list t = cons (princop t) (term_rest t).
+  Proof.
+    exact (pr2 (pr2 (term_decompose t))).
+  Defined.
+
+  Lemma term_rest_subterms (t: Term sigma): term_rest t = terms2stack (subterms t).
+  Proof.
+    unfold subterms.
+    rewrite terms2stack2terms.
+    reflexivity.
+  Defined.
+
+  Lemma mkterm_normalize (t: Term sigma): mkterm (princop t) (subterms t) = t.
+  Proof.
+    apply stack_extens.
+    change (cons (princop t) (terms2stack (subterms t)) = stack2list t).
+    rewrite <- term_rest_subterms.
+    rewrite <- term_list_decomp.
+    reflexivity.
+  Defined.
+  
+  Lemma mkterm_normalize2 (nm: names sigma) (v: Vector (Term sigma) (arity nm))
+    : princop (mkterm nm v) = nm.
+  Proof.
+    reflexivity.
+  Defined.
+
 End Term.
 
-Section TermInduction.
+Section LengthStack.
 
-  Context {sigma: Signature}.
-  
-  (** Some lemmatas on length of lists **)
+  Context { sigma: Signature }.
+
+  (** This section contains proof on the length of stacks, to be used for induction **)
 
   Local Lemma length_cons {A: UU} (x: A) (xs: list A):
     length (cons x xs) = S(length xs).
@@ -813,100 +857,114 @@ Section TermInduction.
       apply (IHlen1 (tl vec1)).
   Defined.
 
-  Local Lemma length_terms2stack {n: nat} (s: Vector (Term sigma) n):
-    ∏ i:  ⟦ n ⟧, length (el s i) ≤ length (terms2stack s).
-  Proof.
-    induction n.
-    - intro i.
-      apply fromempty.
-      apply negstn0 in i.
-      assumption.
-    - change (S n) with (1 + n) in *.
-      induction i as [i iproof].
-      induction i.
-      + change s with (vcons (hd s) (tl s)).
-        rewrite terms2stack_vcons.
-        change (el s (0,, iproof)) with (hd s).
-        rewrite stack2list_stackconcatenate.
-        rewrite length_concatenate.
-        apply natleh_plusright.
-        apply isreflnatleh.
-      + set (ind := IHn (tl s) (i,, iproof)).
-        rewrite <- drop_el in ind.
-        change  (drop (el s) (i,, iproof)) with (el s (S i,, iproof)) in ind.
-        assert (length (terms2stack (tl s)) ≤  length (terms2stack s)).
-        {
-          change s with (vcons (hd s) (tl s)).
-          rewrite terms2stack_vcons.
-          change  (tl (vcons (hd s) (tl s))) with (tl s).
-          rewrite stack2list_stackconcatenate.
-          rewrite length_concatenate.
-          rewrite natpluscomm.
-          apply natleh_plusright.
-          apply isreflnatleh.
-        }
-        apply (istransnatleh(m:=length (terms2stack (tl s)))).
-        * assumption.
-        * assumption.
-  Defined.
+Lemma term_rest_length (t: Term sigma): S(length (term_rest t)) = length t.
+Proof.
+  rewrite term_list_decomp.
+  rewrite length_cons.
+  reflexivity.
+Defined.
 
-  Lemma term_ind_len
+Lemma stack_first_minlength {n: nat} (s: Stack sigma (S n)): length (stack_first s) > 0.
+Proof.
+  induction (stack_first s) as [l proofl].
+  pose (p := proofl).
+  apply list2status_positive in p.
+  induction p as [lent [v lstruct]].
+  change (term2list (l,, proofl)) with l.
+  rewrite lstruct.
+  change (length (S lent,, v)) with (S lent).
+  apply natgthsn0.
+Defined.
+
+Lemma stack_first_maxlength {n: nat} (s: Stack sigma (S n)): length (stack_first s) ≤ length s.
+Proof.
+  set (X := stack_concatenate_normalize1 s).
+  apply (maponpaths stack2list) in X.
+  apply (maponpaths length) in X.
+  change (stack2list (stack_concatenate (stack_first s) (stack_rest s))) with (concatenate (stack_first s) (stack_rest s)) in X.
+  rewrite length_concatenate in X.
+  apply nat_movplusright in X.
+  rewrite X.
+  apply natminuslehn.
+Defined.
+
+Lemma stack_rest_maxlength {n: nat} (s: Stack sigma (S n)): length (stack_rest s) ≤ length s.
+Proof.
+  set (X := stack_concatenate_normalize1 s).
+  apply (maponpaths stack2list) in X.
+  apply (maponpaths length) in X.
+  change (stack2list (stack_concatenate (stack_first s) (stack_rest s))) with (concatenate (stack_first s) (stack_rest s)) in X.
+  rewrite length_concatenate in X.
+  rewrite natpluscomm in X.
+  apply nat_movplusright in X.
+  rewrite X.
+  apply natminuslehn.
+Defined.
+
+Lemma stack2terms_length {n: nat} (s: Stack sigma n) : ∏ (i : ⟦ n ⟧), length (el (stack2terms s) i) ≤ length s.
+Proof.
+  induction n.
+  - intro i.
+    apply fromempty.
+    apply negstn0 in i.
+    assumption.
+  - change (stack2terms s) with (vcons (stack_first s) (stack2terms (stack_rest s))).
+    intro i.
+    induction i as [i iproof].
+    induction i.
+    + change (el (vcons (stack_first s) (stack2terms (stack_rest s))) (0,, iproof)) with (stack_first s).
+      apply stack_first_maxlength.
+    + set ( X := IHn (stack_rest s) (i ,, iproof)).
+      change (S i ,, iproof) with (dni_firstelement (i,, iproof)).
+      rewrite el_vcons_tl.
+      eapply istransnatleh.
+      apply X.
+      apply stack_rest_maxlength.
+Defined.
+
+Lemma subterms_length (t: Term sigma):
+  ∏ i : ⟦ arity (princop t) ⟧, length (el (subterms t) i) < length t.
+Proof.
+  intro i.
+  rewrite <- (term_rest_length t).
+  apply natlehtolthsn.
+  unfold subterms.
+  apply stack2terms_length.
+Defined.
+
+End LengthStack.
+
+Section TermInduction.
+
+  Context {sigma: Signature}.
+
+  Local Lemma term_ind_onlength
     (P: Term sigma → UU)
-    (HPind : ∏ (nm: names sigma) (vterm: Vector (Term sigma) (arity nm)),
-      (∏ (i : ⟦ arity nm ⟧), P (el vterm i)) → P (mkterm nm vterm) )
-  :
-    ∏ (n vlen: nat) (vlehn: vlen ≤ n) (v: Vector (names sigma) vlen)
-      (lp: list2status (vlen ,, v) = statusok 1), P (mkstack (vlen ,, v) lp).
+    (HPind: ∏ (nm: names sigma) (vterm: Vector (Term sigma) (arity nm)),
+      (∏ (i:  ⟦ arity nm ⟧), P (el vterm i)) → P (mkterm nm vterm) )
+    : (∏ (n: nat) (t: Term sigma), length (term2list t) ≤ n →  P t).
   Proof.
     induction n.
-    - intros.
-      apply fromempty.
-      apply natleh0tois0 in vlehn.
-      generalize v lp.
-      clear v lp.
-      rewrite vlehn.
+    - induction t as [[len vec] proofl].
+      intro lent.
+      apply natleh0tois0 in lent.
+      cbn in lent.
+      revert vec proofl.
+      rewrite lent.
       intros.
-      induction v.
-      apply ii1_injectivity in lp.
-      apply negpaths0sx in lp.
+      induction vec.
+      apply fromempty.
+      apply ii1_injectivity in proofl.
+      apply negpaths0sx in proofl.
       assumption.
-    - intros.
-      induction (isdeceqnat vlen (S n)) as [vlenlehn | vleneqsn].
-      + generalize v lp.
-        rewrite vlenlehn.
-        clear v lp.
-        intros v lp.
-        pose (l := lp).
-        change (S n,, v) with (cons (hd v) (n ,, tl v)) in l.
-        rewrite list2status_cons in l.
-        apply status_cons_statusok_r in l.
-        induction l as [_ l].
-        rewrite natpluscomm in l.
-        rewrite plusminusnmm in l.
-        set (terms := stack2terms (mkstack (n ,, tl v) l)).
-        assert (struct: mkstack (S n ,, v) lp = mkterm (hd v) terms).
-        * unfold mkterm, is_mkterm_term, terms.
-          rewrite terms2stack2terms.
-          apply stack_extens.
-          reflexivity.
-        * rewrite struct.
-          assert (prevterms: ∏ i: ⟦ arity (hd v) ⟧, P (el terms i)).
-          {
-            intro i.
-            set (sizei := length_terms2stack terms i).
-            change  (length (terms2stack terms))
-              with (length (terms2stack (stack2terms (mkstack (n,, tl v) l)))) in sizei.
-            rewrite terms2stack2terms in sizei.
-            change (length (mkstack (n,, tl v) l)) with n in sizei.
-            induction (el terms i) as [[leni veci] proofi].
-            change (length (term2list ((leni,, veci),, proofi))) with leni in sizei.
-            exact (IHn leni sizei  veci proofi).
-          }
-          exact (HPind (hd v) terms prevterms).
-      + induction (natlehchoice _ _ vlehn) as [vlenlehn | vleneqn].
-        * apply natlthsntoleh in vlenlehn.
-          exact (IHn vlen vlenlehn v lp).
-        * contradiction.
+    - intros t lent.
+      rewrite <- mkterm_normalize.
+      apply HPind.
+      intro i.
+      apply IHn.
+      eapply natlthlehtrans.
+      + apply subterms_length.
+      + assumption.
   Defined.
 
   Theorem term_ind
@@ -916,12 +974,8 @@ Section TermInduction.
     : (∏ t: Term sigma, P t).
   Proof.
     intro t.
-    induction t as [[lent vect] prooft].
-    exact (term_ind_len P HPind lent lent (isreflnatleh _) vect prooft).
+    exact (term_ind_onlength P HPind (length t) t (isreflnatleh _)).
   Defined.
-
-  (**  TODO: is it possible to change definition of term_ind so that this lemma may be
-   proved by reflexivity? **)
 
   Lemma term_ind_destruct (nm: names sigma) (v: Vector (Term sigma) (arity nm)):
     ∏ (P: Term sigma → UU)
@@ -930,6 +984,12 @@ Section TermInduction.
     term_ind P Ind (mkterm nm v) = Ind nm v (λ i:  ⟦ arity nm ⟧, term_ind P Ind (el v i)).
   Proof.
     intros.
+    unfold term_ind.
+    change (length (mkterm nm v)) with (S (length (terms2stack v))).
+    simpl.
+    change (princop (mkterm nm v)) with nm.
+    (** Almost there.. there is a unwanted internal_paths_rew and we should prove that
+        (subterms (mkterm nm v)) (although the latter cannot be used with rewrite **)
   Abort.
 
   (** TODO: change term_ind so that this definition computes. **)
