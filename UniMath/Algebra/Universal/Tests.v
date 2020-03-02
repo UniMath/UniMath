@@ -111,6 +111,17 @@ Section Nat.
   Goal princop term_two = nat_succ.
   Proof. exact (idpath _). Qed.
 
+  Goal stack_first zero_one_stack = term_zero.
+  Proof. exact (idpath _). Qed.
+
+  Goal stack2list (stack_rest zero_one_stack) = term2list term_one.
+  Proof. exact (idpath _). Qed.
+
+  (** In the following, the vector_map is needed because proofs cannot be unified **)
+
+  Goal vector_map term2list (stack2terms zero_one_stack) = vector_map term2list (term_zero ::: term_one ::: vnil).
+  Proof. exact (idpath _). Qed.
+
   Goal pr1 (extract_list zero_one_stack 0) = nil.
   Proof. exact (idpath _ ). Qed.
 
@@ -127,6 +138,9 @@ Section Nat.
   Proof. exact (idpath _). Qed.
 
   Goal el (subterms term_one) (●0) = term_zero.
+  Proof. apply stack_extens. exact (idpath _). Qed.
+
+  Goal el (subterms term_two) (●0) = term_one.
   Proof. apply stack_extens. exact (idpath _). Qed.
 
   Goal depth term_zero = 1.
