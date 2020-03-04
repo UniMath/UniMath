@@ -75,6 +75,8 @@ Section Nat.
   Goal oplist2status(sigma:=nat_signature) nil = statusok 0.
   Proof. exact (idpath _). Qed.
 
+  Eval cbn in pr1 ( oplist2vecoplist (nat_zero :: nat_succ :: nat_zero :: nil) (idpath (statusok 2)) ).
+
   Local Definition term_zero: term nat_signature :=
     make_stack (nat_zero :: nil) (idpath (statusok 1)).
 
@@ -146,10 +148,16 @@ Section Nat.
   Goal depth term_zero = 1.
   Proof. exact (idpath _). Qed.
 
+  Goal pr1 (make_term (princop term_one) (subterms term_one)) = pr1 term_one.
+  Proof. exact (idpath _). Qed.
+
+  Goal oplist_depth term_one (pr2 term_one) = 2.
+  Proof. exact (idpath _). Qed.
+
   Goal depth term_one = 2.
   Proof. Abort.
 
-End Nat.
+ End Nat.
 
 Section Bool.
   Local Definition t_false: term bool_signature := make_term bool_false vnil.
@@ -183,5 +191,9 @@ Section Bool.
 
   Goal el (subterms t1) (●1) = t_false.
   Proof. exact (idpath _). Qed.
+
+  Eval lazy in oplist_depth t1 (pr2 t1).
+
+  Eval lazy in oplist_depth t2 (pr2 t2).
 
 End Bool.
