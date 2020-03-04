@@ -8,8 +8,8 @@ Require Import UniMath.Algebra.Groups.
 
 Open Scope stn.
 
-Definition group_signature: Signature
-  := mksignature
+Definition group_signature: signature
+  := make_signature_simple
        (vcons 2                 (* multiplication *)
          (vcons 0               (* identity *)
            (vcons 1             (* inverse *)
@@ -39,7 +39,7 @@ Section Group_Algebra.
     exact (fromempty (nopathsfalsetotrue ilt)).
   Defined.
 
-  Definition group_algebra : Algebra group_signature
-    := mkalgebra G group_ops.
+  Definition group_algebra : algebra group_signature
+    := make_algebra G group_ops.
 
 End Group_Algebra.

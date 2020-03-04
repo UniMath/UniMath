@@ -20,7 +20,7 @@ Section Nat.
   Goal op nat_algebra nat_succ (0 ::: vnil) = 1.
   Proof. exact (idpath _). Qed.
 
-  Goal ∏ x: nat, hom_id nat_algebra x = x.
+  Goal ∏ x: nat, homid nat_algebra x = x.
   Proof. apply idpath. Qed.
 
   Definition nat_ops2 (nm : names nat_signature): Vector nat (arity nm) → nat.
@@ -33,12 +33,12 @@ Section Nat.
     { exact (fromempty (nopathsfalsetotrue proofn)). }
   Defined.
 
-  Definition nat_algebra2: Algebra nat_signature := mkalgebra natset nat_ops2.
+  Definition nat_algebra2: algebra nat_signature := make_algebra natset nat_ops2.
 
   Definition homnats: hom nat_algebra nat_algebra2.
   Proof.
     exists (λ x: nat, S x).
-    unfold is_hom.
+    unfold ishom.
     intros.
     induction nm as [n proofn].
     induction n.
@@ -51,10 +51,10 @@ Section Nat.
   Goal homnats 2 = 3.
   Proof. exact (idpath _). Qed.
 
-  Goal hom_comp (hom_id nat_algebra) homnats 2 = 3.
+  Goal homcomp (homid nat_algebra) homnats 2 = 3.
   Proof. exact (idpath _). Qed.
 
-  Goal terminal_hom nat_algebra 2 = tt.
+  Goal homtounit nat_algebra 2 = tt.
   Proof. exact (idpath _). Qed.
 
   Goal status_cons nat_succ (statusok 1) = statusok 1.
@@ -69,34 +69,34 @@ Section Nat.
   Goal status_concatenate (statusok 1) statuserror = statuserror.
   Proof. exact (idpath _). Qed.
 
-  Local Lemma one_status: list2status (nat_succ :: nat_zero :: nil) = statusok 1.
+  Local Lemma one_status: oplist2status (nat_succ :: nat_zero :: nil) = statusok 1.
   Proof. exact (idpath _). Qed.
 
-  Goal list2status(sigma:=nat_signature) nil = statusok 0.
+  Goal oplist2status(sigma:=nat_signature) nil = statusok 0.
   Proof. exact (idpath _). Qed.
 
-  Local Definition term_zero: Stack nat_signature 1 :=
-    mkstack (nat_zero :: nil) (idpath (statusok 1)).
+  Local Definition term_zero: term nat_signature :=
+    make_stack (nat_zero :: nil) (idpath (statusok 1)).
 
-  Local Definition term_one: Stack nat_signature 1 :=
-    mkstack (nat_succ :: nat_zero :: nil) one_status.
+  Local Definition term_one: term nat_signature :=
+    make_stack (nat_succ :: nat_zero :: nil) one_status.
 
-  Goal list2status term_one = statusok 1.
+  Goal oplist2status term_one = statusok 1.
   Proof. exact (idpath _). Qed.
 
-  Local Definition term_two: Stack nat_signature 1 :=
-    mkstack (nat_succ :: nat_succ :: nat_zero :: nil) one_status.
+  Local Definition term_two: term nat_signature :=
+    make_stack (nat_succ :: nat_succ :: nat_zero :: nil) one_status.
 
-  Goal list2status term_two = statusok 1.
+  Goal oplist2status term_two = statusok 1.
   Proof. exact (idpath _). Qed.
 
-  Local Lemma zero_one_status: list2status (nat_zero :: nat_succ :: nat_zero :: nil) = statusok 2.
+  Local Lemma zero_one_status: oplist2status (nat_zero :: nat_succ :: nat_zero :: nil) = statusok 2.
   Proof. exact (idpath _). Qed.
 
-  Local Definition zero_one_stack: Stack nat_signature 2:=
-    mkstack (nat_zero :: nat_succ :: nat_zero :: nil) zero_one_status.
+  Local Definition zero_one_stack: stack nat_signature 2:=
+    make_stack (nat_zero :: nat_succ :: nat_zero :: nil) zero_one_status.
 
-  Goal list2status (nat_succ :: nil) = statuserror.
+  Goal oplist2status (nat_succ :: nil) = statuserror.
   Proof. exact (idpath _). Qed.
 
   Goal stack_concatenate term_zero term_one = zero_one_stack.
@@ -105,7 +105,7 @@ Section Nat.
   Goal terms2stack (term_zero ::: term_one ::: vnil) = zero_one_stack.
   Proof. apply stack_extens. exact (idpath _). Qed.
 
-  Goal mkterm nat_succ ((mkterm nat_zero vnil) ::: vnil) = term_one.
+  Goal make_term nat_succ ((make_term nat_zero vnil) ::: vnil) = term_one.
   Proof. apply stack_extens. exact (idpath _). Qed.
 
   Goal princop term_two = nat_succ.
@@ -114,12 +114,12 @@ Section Nat.
   Goal stack_first zero_one_stack = term_zero.
   Proof. exact (idpath _). Qed.
 
-  Goal stack2list (stack_rest zero_one_stack) = term2list term_one.
+  Goal stack2list (stack_rest zero_one_stack) = stack2list term_one.
   Proof. exact (idpath _). Qed.
 
   (** In the following, the vector_map is needed because proofs cannot be unified **)
 
-  Goal vector_map term2list (stack2terms zero_one_stack) = vector_map term2list (term_zero ::: term_one ::: vnil).
+  Goal vector_map stack2list (stack2terms zero_one_stack) = vector_map stack2list (term_zero ::: term_one ::: vnil).
   Proof. exact (idpath _). Qed.
 
   Goal pr1 (extract_list zero_one_stack 0) = nil.
@@ -152,10 +152,10 @@ Section Nat.
 End Nat.
 
 Section Bool.
-  Local Definition t_false: Term bool_signature := mkterm bool_false vnil.
-  Local Definition t_true: Term bool_signature := mkterm bool_true vnil.
-  Local Definition t1: Term bool_signature := mkterm bool_and (t_true ::: t_false ::: vnil).
-  Local Definition t2: Term bool_signature := mkterm bool_not (t1 ::: vnil).
+  Local Definition t_false: term bool_signature := make_term bool_false vnil.
+  Local Definition t_true: term bool_signature := make_term bool_true vnil.
+  Local Definition t1: term bool_signature := make_term bool_and (t_true ::: t_false ::: vnil).
+  Local Definition t2: term bool_signature := make_term bool_not (t1 ::: vnil).
 
   Goal princop t1 = bool_and.
   Proof. exact (idpath _). Qed.

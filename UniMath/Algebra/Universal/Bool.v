@@ -7,7 +7,7 @@ Require Import UniMath.Algebra.Universal.
 
 Open Scope stn.
 
-Definition bool_signature := mksignature (vcons 0 (vcons 0 (vcons  1 (vcons 2 vnil)))).
+Definition bool_signature := make_signature_simple (vcons 0 (vcons 0 (vcons  1 (vcons 2 vnil)))).
 
 Definition bool_false: names bool_signature := (●0).
 Definition bool_true: names bool_signature := (●1).
@@ -31,5 +31,5 @@ Proof.
   { exact (fromempty (nopathsfalsetotrue proofn)). }
 Defined.
 
-Definition bool_algebra : Algebra bool_signature
-  := mkalgebra boolset bool_ops.
+Definition bool_algebra : algebra bool_signature
+  := make_algebra boolset bool_ops.

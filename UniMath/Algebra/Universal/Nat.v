@@ -7,7 +7,7 @@ Require Import UniMath.Algebra.Universal.
 
 Open Scope stn.
 
-Definition nat_signature: Signature := mksignature (vcons 0 (vcons 1 vnil)).
+Definition nat_signature: signature := make_signature_simple (vcons 0 (vcons 1 vnil)).
 
 Definition nat_zero: names nat_signature := (●0).
 Definition nat_succ: names nat_signature := (●1).
@@ -22,5 +22,5 @@ Proof.
   { exact (fromempty (nopathsfalsetotrue proofn)). }
 Defined.
 
-Definition nat_algebra : Algebra nat_signature
-  := mkalgebra natset nat_ops.
+Definition nat_algebra : algebra nat_signature
+  := make_algebra natset nat_ops.
