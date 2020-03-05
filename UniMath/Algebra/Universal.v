@@ -645,6 +645,11 @@ Section OpListInduction.
       apply (IHlen1 (tl vec1)).
   Defined.
 
+  Local Lemma cons_inj {A: UU} (a1 a2: A) (r1 r2: list A):
+    cons a1 r1 = cons a2 r2 → a1=a2 × r1=r2.
+  Proof.
+  Admitted.
+
   Local Lemma length_sublist1 {A: UU} (l1: list A) (l2: list A):
     length l1 ≤ length (concatenate l1 l2).
   Proof.
@@ -818,8 +823,20 @@ Section OpListInduction.
   Proof.
     intros.
     unfold oplist_ind.
+    unfold oplist_make_term in *.
+    change (length (cons nm (veclist_flatten v))) with (S (length (veclist_flatten v))) in *.
     unfold oplist_ind_onlength.
-  Abort.
+    rewrite nat_rect_step.
+      set (d := oplist_decompose (cons nm (veclist_flatten v)) (oplist_make_term_status nm v vterms)).
+      induction d as [nm0 [vterms0 [v0status [v0len v0norm ]]]].
+      unfold oplist_make_term in v0norm.
+      pose (X := v0norm).
+      apply cons_inj in X.
+      induction (! pr1 X).
+      induction (! pr2 X).
+
+    Abort.
+
 
   Definition oplist_depth (t: oplist sigma) (prooft: oplist2status t = statusok 1): nat
     := oplist_ind (λ t: oplist sigma, nat)
@@ -1238,7 +1255,7 @@ Section termInduction.
     exact (term_ind_onlength P HPind (length t) t (isreflnatleh _)).
   Defined.
 
-  Lemma term_ind_destruct (nm: names sigma) (v: Vector (term sigma) (arity nm)):
+  Lemma term_ind_step (nm: names sigma) (v: Vector (term sigma) (arity nm)):
     ∏ (P: oplist sigma → UU)
       (Ind: ∏ (nm: names sigma) (vterm: Vector (term sigma) (arity nm)),
               (∏ (i:  ⟦ arity nm ⟧), P (el vterm i)) → P (make_term nm vterm)),
@@ -1248,6 +1265,7 @@ Section termInduction.
     unfold term_ind.
     change (length (make_term nm v)) with (S (length (terms2stack v))).
     simpl.
+    change (princop (make_term nm v)) with (nm).
 
     (** Almost there.. there is a unwanted internal_paths_rew and we cannot use
         make_term_normalize4 **)
