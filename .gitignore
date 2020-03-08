@@ -23,3 +23,6 @@
 .vscode
 _CoqProject
 *.zip
+*.vos
+*.vok
+*.v~
