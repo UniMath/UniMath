@@ -19,7 +19,7 @@ A more flexible, but complex, installation method is given in [INSTALL\_OPAM.md]
 1. Install "Homebrew", available from http://brew.sh/.
 2. Using Homebrew, install ocaml with the following command:
 ```bash
-$ brew install objective-caml ocaml-num camlp4 camlp5 bash ocaml-findlib
+$ brew install objective-caml ocaml-num camlp5 bash ocaml-findlib
 ```
 3. Install Emacs from https://emacsformacosx.com/.
   
@@ -32,7 +32,7 @@ Under Ubuntu or Debian, you may install ocaml with the
 following shell command.
 
 ```bash
- sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp4-extra camlp5 libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib emacs
+ sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp5 libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib emacs
 ```
 Now proceed with [Installation of ProofGeneral](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
 
