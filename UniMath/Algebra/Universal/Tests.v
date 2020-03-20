@@ -147,6 +147,7 @@ Section Nat.
 
   Goal depth term_zero = 1.
   Proof. exact (idpath _). Qed.
+  
 
   Goal pr1 (make_term (princop term_one) (subterms term_one)) = pr1 term_one.
   Proof. exact (idpath _). Qed.

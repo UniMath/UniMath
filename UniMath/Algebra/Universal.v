@@ -790,7 +790,7 @@ Section OpListInduction.
       induction HPs as [statust lent].
       set (X := oplist_decompose t statust).
       induction X as [nm [vec [vecterms [veclength normalization]]]].
-      rewrite <- normalization.
+      apply (transportf P normalization).
       apply HPind.
       intro i.
       apply IHn.
@@ -827,15 +827,20 @@ Section OpListInduction.
     change (length (cons nm (veclist_flatten v))) with (S (length (veclist_flatten v))) in *.
     unfold oplist_ind_onlength.
     rewrite nat_rect_step.
-      set (d := oplist_decompose (cons nm (veclist_flatten v)) (oplist_make_term_status nm v vterms)).
-      induction d as [nm0 [vterms0 [v0status [v0len v0norm ]]]].
-      unfold oplist_make_term in v0norm.
-      pose (X := v0norm).
-      apply cons_inj in X.
-      induction (! pr1 X).
-      induction (! pr2 X).
-
-    Abort.
+    set (d := oplist_decompose (cons nm (veclist_flatten v)) (oplist_make_term_status nm v vterms)).
+    induction d as [nm0 [vterms0 [v0status [v0len v0norm ]]]].
+    unfold oplist_make_term in v0norm.
+    pose (X := v0norm).
+    apply cons_inj in X.
+    induction X as [X1 X2].
+    induction (! X1).
+    assert (H: vterms0 = v). { admit. }
+    induction (! H).
+    assert (H1: v0norm = idpath _).
+    { admit. }
+    rewrite H1.
+    rewrite idpath_transportf.
+  Abort.
 
 
   Definition oplist_depth (t: oplist sigma) (prooft: oplist2status t = statusok 1): nat
