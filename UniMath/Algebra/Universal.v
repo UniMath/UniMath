@@ -197,6 +197,106 @@ Section Natlemmas.
 
 End Natlemmas.
 
+Section Listlemmas.
+
+  Local Lemma length_cons {A: UU} (x: A) (xs: list A):
+    length (cons x xs) = S (length xs).
+  Proof.
+    apply idpath.
+  Defined.
+
+  Local Lemma length_concatenate {A: UU} (l1: list A) (l2: list A):
+    length (concatenate l1 l2) = length l1 + length l2.
+  Proof.
+    induction l1 as [len1 vec1].
+    induction len1.
+    - induction vec1.
+      apply idpath.
+    - change (S (length (concatenate (len1,, tl vec1) l2)) = S (len1 + length l2)).
+      apply maponpaths.
+      apply (IHlen1 (tl vec1)).
+  Defined.
+
+  Local Definition list_first {A: UU} (l: list A): A ⨿ unit.
+  Proof.
+    use (list_ind(A := A) (λ l, A ⨿ unit)).
+    - cbn.
+      exact(ii2 tt).
+    - cbn.
+      exact (λ x xs IH, ii1 x).
+    - exact l.
+  Defined.
+
+  Local Definition list_tail {A: UU} (l: list A): list A ⨿ unit.
+  Proof.
+    use (list_ind(A := A) (λ l, list A ⨿ unit)).
+    - cbn.
+      exact(ii2 tt).
+    - cbn.
+      exact (λ x xs IH, ii1 xs).
+    - exact l.
+  Defined.
+
+  Local Definition list_cons {A: UU} (x: A ⨿ unit) (xs: list A ⨿ unit): list A ⨿ unit.
+  Proof.
+    induction x as [x | errorx].
+    - induction xs as [xs | errorxs].
+      + exact (ii1 (cons x xs)).
+      + exact (ii2 tt).
+    - exact (ii2 tt).
+  Defined.
+
+  Local Lemma list_cons_norm1 {A: UU} (x: A) (xs: list A)
+    : list_first (cons x xs)  = ii1 x.
+  Proof.
+    apply idpath.
+  Defined.
+
+  Local Lemma list_cons_norm2 {A: UU} (x: A) (xs: list A)
+    : list_tail (cons x xs)  = ii1 xs.
+  Proof.
+    apply idpath.
+  Defined.
+
+  Local Lemma cons_inj1 {A: UU} (a1 a2: A) (r1 r2: list A):
+    cons a1 r1 = cons a2 r2 → a1 = a2.
+  Proof.
+    intro H.
+    apply (maponpaths list_first) in H.
+    rewrite list_cons_norm1 in H.
+    rewrite list_cons_norm1 in H.
+    apply ii1_injectivity in H.
+    assumption.
+  Defined.
+
+  Local Lemma cons_inj2 {A: UU} (a1 a2: A) (r1 r2: list A):
+    cons a1 r1 = cons a2 r2 → r1 = r2.
+  Proof.
+    intro H.
+    apply (maponpaths list_tail) in H.
+    rewrite list_cons_norm2 in H.
+    rewrite list_cons_norm2 in H.
+    apply ii1_injectivity in H.
+    assumption.
+  Defined.
+
+  Local Lemma length_sublist1 {A: UU} (l1: list A) (l2: list A):
+    length l1 ≤ length (concatenate l1 l2).
+  Proof.
+    repeat rewrite length_concatenate.
+    apply natlehnplusnm.
+  Defined.
+
+  Local Lemma length_sublist2 {A: UU} (l1: list A) (l2: list A):
+    length l2 ≤ length (concatenate l1 l2).
+  Proof.
+    repeat rewrite length_concatenate.
+    rewrite natpluscomm.
+    apply natlehnplusnm.
+  Defined.
+
+End Listlemmas.
+
 (** ** Status of a stack machine. *)
 
 Section Status.
@@ -450,6 +550,25 @@ Section OpList.
     apply idpath.
   Defined.
 
+  Lemma extract_list_self{l: oplist sigma} {n: nat} (p: oplist2status l = statusok n)
+    : extract_list l n = l ,, nil.
+  Proof.
+    induction l as [len vec].
+    induction len.
+    - induction vec.
+      apply idpath.
+    - induction (isdeceqnat n 0) as [n0 | ngt0].
+      + rewrite n0 in p.
+        apply oplist2status_zero in p.
+        rewrite p.
+        reflexivity.
+      + induction vec as [vhead vtail].
+        change (S len,, vhead,, vtail) with (cons vhead (len ,, vtail)).
+        assert (extract_list (len,, vtail) (n + arity vhead) = (len,, vtail),, nil).
+        {
+        set( IH := IHlen vtail).
+  Abort.
+
   Lemma extract_list_concatenate1 (l: oplist sigma) (n: nat):
     concatenate (pr1 (extract_list l n)) (pr2 (extract_list l n)) = l.
   Proof.
@@ -603,9 +722,38 @@ Section OpListInduction.
   Definition veclist_flatten {A: UU} {n: nat} (v: Vector (list A) n): list A :=
     vector_foldr concatenate nil v.
 
+  Lemma veclist_flatten_cons {A: UU} {n: nat} (x: list A) (xs: Vector (list A) n):
+    veclist_flatten (vcons x xs) = concatenate x (veclist_flatten xs).
+  Proof.
+    apply idpath.
+  Defined.
+
+  Lemma veclist_flatten_inj {n : nat} {v1 v2: Vector (oplist sigma) n}
+    (p1: ∏ (i: ⟦ n ⟧), oplist2status  (el v1 i) = statusok 1)
+    (p2: ∏ (i: ⟦ n ⟧), oplist2status  (el v2 i) = statusok 1)
+    : veclist_flatten v1 = veclist_flatten v2 → v1 = v2.
+  Proof.
+    intro eq.
+    induction n.
+    - induction v1.
+      induction v2.
+      apply idpath.
+    - induction v1 as [v1first v1tail].
+      induction v2 as [v2first v2tail].
+      change (v1first,, v1tail) with (vcons v1first v1tail) in *.
+      change (v2first,, v2tail) with (vcons v2first v2tail) in *.
+      unfold oplist in eq.
+      rewrite veclist_flatten_cons in eq.
+      rewrite veclist_flatten_cons in eq.
+      pose (eq2 := eq).
+      apply (maponpaths (λ l, extract_list l 1)) in eq2.
+      rewrite (@extract_list_concatenate2 _ _ _ 1 1) in eq2.
+  Abort.
+
   Lemma veclist_flatten_status {n: nat} (v: Vector (oplist sigma) n)
     (vterms: ∏ (i: ⟦ n ⟧), oplist2status  (el v i) = statusok 1):
     oplist2status (veclist_flatten v) = statusok n.
+
   Proof.
     induction n.
     - induction v.
@@ -625,44 +773,6 @@ Section OpListInduction.
         change (el v (● 0)) with (hd v) in H.
         rewrite H.
         apply negpathsii1ii2.
-  Defined.
-
-  Local Lemma length_cons {A: UU} (x: A) (xs: list A):
-    length (cons x xs) = S(length xs).
-  Proof.
-    apply idpath.
-  Defined.
-
-  Local Lemma length_concatenate {A: UU} (l1: list A) (l2: list A):
-    length (concatenate l1 l2) = length l1 + length l2.
-  Proof.
-    induction l1 as [len1 vec1].
-    induction len1.
-    - induction vec1.
-      apply idpath.
-    - change (S (length (concatenate (len1,, tl vec1) l2)) = S (len1 + length l2)).
-      apply maponpaths.
-      apply (IHlen1 (tl vec1)).
-  Defined.
-
-  Local Lemma cons_inj {A: UU} (a1 a2: A) (r1 r2: list A):
-    cons a1 r1 = cons a2 r2 → a1=a2 × r1=r2.
-  Proof.
-  Admitted.
-
-  Local Lemma length_sublist1 {A: UU} (l1: list A) (l2: list A):
-    length l1 ≤ length (concatenate l1 l2).
-  Proof.
-    repeat rewrite length_concatenate.
-    apply natlehnplusnm.
-  Defined.
-
-  Local Lemma length_sublist2 {A: UU} (l1: list A) (l2: list A):
-    length l2 ≤ length (concatenate l1 l2).
-  Proof.
-    repeat rewrite length_concatenate.
-    rewrite natpluscomm.
-    apply natlehnplusnm.
   Defined.
 
   Definition oplist2vecoplist (l: oplist sigma) {n: nat} (ln: oplist2status l = statusok n):
@@ -830,9 +940,10 @@ Section OpListInduction.
     set (d := oplist_decompose (cons nm (veclist_flatten v)) (oplist_make_term_status nm v vterms)).
     induction d as [nm0 [vterms0 [v0status [v0len v0norm ]]]].
     unfold oplist_make_term in v0norm.
-    pose (X := v0norm).
-    apply cons_inj in X.
-    induction X as [X1 X2].
+    pose (X1 := v0norm).
+    pose (X2 := v0norm).
+    apply cons_inj1 in X1.
+    apply cons_inj2 in X2.
     induction (! X1).
     assert (H: vterms0 = v). { admit. }
     induction (! H).
@@ -840,8 +951,8 @@ Section OpListInduction.
     { admit. }
     rewrite H1.
     rewrite idpath_transportf.
-  Abort.
 
+  Abort.
 
   Definition oplist_depth (t: oplist sigma) (prooft: oplist2status t = statusok 1): nat
     := oplist_ind (λ t: oplist sigma, nat)
