@@ -90,7 +90,7 @@ Section Homomorphism.
       apply isaprop_ishom.
   Defined.
 
-  Local Lemma ishomidfun (a: algebra sigma): ishom (idfun a).
+  Lemma ishomidfun (a: algebra sigma): ishom (idfun a).
   Proof.
     red.
     intros.
@@ -100,7 +100,7 @@ Section Homomorphism.
 
   Definition homid (a: algebra sigma): a ↦ a := make_hom (ishomidfun a).
 
-  Local Lemma ishomcomp  {a1 a2 a3: algebra sigma} (h1: a1 ↦ a2) (h2: a2 ↦ a3): ishom (h2 ∘ h1).
+  Lemma ishomcomp  {a1 a2 a3: algebra sigma} (h1: a1 ↦ a2) (h2: a2 ↦ a3): ishom (h2 ∘ h1).
   Proof.
     red.
     intros.
