@@ -439,8 +439,26 @@ Section OpList.
   Definition oplist (sigma: signature) := list (names sigma).
 
   Identity Coercion oplistislist: oplist >-> list.
-
+  
+  (** It's longer than expected. I would need a proof that isofhlevel 2 -> isaset **)
+  
+  Lemma isasetoplist (sigma: signature): isaset (oplist sigma).
+  Proof.
+    unfold oplist.
+    apply isaset_total2.
+    - apply natset.
+    - intro.
+      induction x.
+      + cbn.
+        apply isasetunit.
+      + change (Vector (pr1hSet (names sigma)) (S x)) with (pr1hSet (names sigma) × Vector (pr1hSet (names sigma)) x).
+        apply isaset_dirprod.
+        * apply (names sigma).
+        * apply IHx.
+  Defined.
+    
   Context {sigma: signature}.
+  
 
   (**
     Computes the status of a sequence of function symbols. The sequence should be thought of
@@ -550,24 +568,42 @@ Section OpList.
     apply idpath.
   Defined.
 
+
+  Local Lemma extract_list_arith2 {n1 n2: nat}: S n1 + n2 - 1 = n1 + n2.
+  Proof.
+    change (S n1) with (1 + n1).
+    rewrite natplusassoc.
+    rewrite (natpluscomm 1 (n1 + n2)).
+    rewrite plusminusnmm.
+    apply idpath.
+  Defined.
+
+
   Lemma extract_list_self{l: oplist sigma} {n: nat} (p: oplist2status l = statusok n)
     : extract_list l n = l ,, nil.
   Proof.
+    revert n p.
     induction l as [len vec].
     induction len.
     - induction vec.
-      apply idpath.
-    - induction (isdeceqnat n 0) as [n0 | ngt0].
-      + rewrite n0 in p.
+      reflexivity.
+    - induction n.
+      + intro p.
         apply oplist2status_zero in p.
         rewrite p.
         reflexivity.
-      + induction vec as [vhead vtail].
-        change (S len,, vhead,, vtail) with (cons vhead (len ,, vtail)).
-        assert (extract_list (len,, vtail) (n + arity vhead) = (len,, vtail),, nil).
-        {
-        set( IH := IHlen vtail).
-  Abort.
+      + intro p.
+        induction vec as [vhead vtail].
+        change (S len,, vhead,, vtail) with (cons vhead (len ,, vtail)) in *.
+        rewrite extract_list_cons.
+        rewrite IHlen.
+        * apply idpath.
+        * rewrite oplist2status_cons in p.
+          apply status_cons_statusok_r in p.
+          induction p as [_ p].
+          rewrite extract_list_arith2 in p.
+          exact p.
+  Defined.
 
   Lemma extract_list_concatenate1 (l: oplist sigma) (n: nat):
     concatenate (pr1 (extract_list l n)) (pr2 (extract_list l n)) = l.
@@ -664,15 +700,6 @@ Section OpList.
     apply dirprodeq ; assumption.
   Defined.
 
-  Local Lemma extract_list_arith2 {n1 n2: nat}: S n1 + n2 - 1 = n1 + n2.
-  Proof.
-    change (S n1) with (1 + n1).
-    rewrite natplusassoc.
-    rewrite (natpluscomm 1 (n1 + n2)).
-    rewrite plusminusnmm.
-    apply idpath.
-  Defined.
-
   Lemma extract_list_concatenate2 (l1 l2: oplist sigma) {n1: nat} (n: nat)
     : oplist2status l1 = statusok n1 → n ≤ n1 →
         extract_list (concatenate l1 l2) n =
@@ -742,13 +769,45 @@ Section OpListInduction.
       induction v2 as [v2first v2tail].
       change (v1first,, v1tail) with (vcons v1first v1tail) in *.
       change (v2first,, v2tail) with (vcons v2first v2tail) in *.
+      assert (statusv1first : oplist2status v1first = statusok 1).
+      {
+      set (opi := (p1 (make_stn (S n) 0 (natleh0n (S n))))).
+      rewrite el_vcons_hd in opi.
+      exact opi.
+      }
+      assert (statusv2first : oplist2status v2first = statusok 1).
+      {
+      set (opi := (p2 (make_stn (S n) 0 (natleh0n (S n))))).
+      rewrite el_vcons_hd in opi.
+      exact opi.
+      }
       unfold oplist in eq.
       rewrite veclist_flatten_cons in eq.
       rewrite veclist_flatten_cons in eq.
-      pose (eq2 := eq).
-      apply (maponpaths (λ l, extract_list l 1)) in eq2.
-      rewrite (@extract_list_concatenate2 _ _ _ 1 1) in eq2.
-  Abort.
+      apply (maponpaths (λ l, extract_list l 1)) in eq.
+      rewrite (@extract_list_concatenate2 _ _ _ 1 1 statusv1first (isreflnatleh _)) in eq.
+      rewrite (@extract_list_concatenate2 _ _ _ 1 1 statusv2first (isreflnatleh _)) in eq.
+      rewrite (extract_list_self statusv1first) in eq.
+      rewrite (extract_list_self statusv2first) in eq.
+      pose (eqfirst := eq).
+      apply (maponpaths (λ l, pr1 l)) in eqfirst.
+      cbn in eqfirst.
+      induction eqfirst.
+      cbn in eq.
+      apply (maponpaths (λ l, pr2 l: oplist sigma)) in eq.
+      cbn in eq.
+      apply IHn in eq.
+      + rewrite eq.
+        apply idpath.
+      + intro i.
+        set (opi := (p1 (dni_firstelement i))).
+        rewrite el_vcons_tl in opi.
+        exact opi.
+      + intro i.
+        set (opi := (p2 (dni_firstelement i))).
+        rewrite el_vcons_tl in opi.
+        exact opi.
+  Defined.
 
   Lemma veclist_flatten_status {n: nat} (v: Vector (oplist sigma) n)
     (vterms: ∏ (i: ⟦ n ⟧), oplist2status  (el v i) = statusok 1):
@@ -882,13 +941,13 @@ Section OpListInduction.
 
   Local Lemma oplist_ind_onlength
     (P: oplist sigma → UU)
-    (HPind: ∏ (nm: names sigma) (vterm: Vector (oplist sigma) (arity nm)),
+    (HPind: ∏ (nm: names sigma) (vterm: Vector (oplist sigma) (arity nm))
+      (vtermproofs: ∏ (i: ⟦ arity nm ⟧), oplist2status (el vterm i) = statusok 1) ,
       (∏ (i:  ⟦ arity nm ⟧), P (el vterm i)) → P (oplist_make_term nm vterm))
-    : (∏ (n: nat) (t: oplist sigma), oplist2status t = statusok 1 × length t ≤ n →  P t).
+    : (∏ (n: nat) (t: oplist sigma), oplist2status t = statusok 1 → length t ≤ n →  P t).
   Proof.
     induction n.
-    - intros t HPs.
-      induction HPs as [statust lent].
+    - intros t statust lent.
       apply fromempty.
       apply natleh0tois0 in lent.
       apply oplist2status_positive in statust.
@@ -896,46 +955,137 @@ Section OpListInduction.
       cbn in lent.
       apply negpathssx0 in lent.
       assumption.
-    - intros t HPs.
-      induction HPs as [statust lent].
+    - intros t statust lent.
       set (X := oplist_decompose t statust).
       induction X as [nm [vec [vecterms [veclength normalization]]]].
       apply (transportf P normalization).
       apply HPind.
-      intro i.
-      apply IHn.
-      split.
-      + exact (vecterms i).
-      + change (S (length (el vec i)) ≤ S n).
-        eapply istransnatleh.
-        * apply natlthtolehsn.
-          apply veclength.
-        * apply lent.
+      + assumption.
+      + intro i.
+        apply IHn.
+        * exact (vecterms i).
+        * change (S (length (el vec i)) ≤ S n).
+          eapply istransnatleh.
+        -- apply natlthtolehsn.
+           apply veclength.
+        -- apply lent.
   Defined.
 
   Theorem oplist_ind
     (P: oplist sigma → UU)
-    (HPind: ∏ (nm: names sigma) (vterm: Vector (oplist sigma) (arity nm)),
+    (HPind: ∏ (nm: names sigma) (vterm: Vector (oplist sigma) (arity nm))
+      (vtermproofs: ∏ (i: ⟦ arity nm ⟧), oplist2status (el vterm i) = statusok 1) ,
       (∏ (i:  ⟦ arity nm ⟧), P (el vterm i)) → P (oplist_make_term nm vterm) )
     : (∏ (t: oplist sigma), oplist2status t = statusok 1 → P t).
   Proof.
     intros t prooft.
-    exact (oplist_ind_onlength P HPind (length t) t (prooft ,, (isreflnatleh _))).
+    exact (oplist_ind_onlength P HPind (length t) t prooft (isreflnatleh _)).
   Defined.
 
-  Lemma oplist_ind_step (nm: names sigma) (v: Vector (oplist sigma) (arity nm)):
+  Lemma oplist_ind_onlength_step 
+    (P: oplist sigma → UU)
+   (HPind: ∏ (nm: names sigma) (vterm: Vector (oplist sigma) (arity nm))
+         (vtermproofs: ∏ (i: ⟦ arity nm ⟧), oplist2status (el vterm i) = statusok 1) ,
+      (∏ (i:  ⟦ arity nm ⟧), P (el vterm i)) → P (oplist_make_term nm vterm) )
+    (n: nat) (t: oplist sigma) (statust: oplist2status t = statusok 1) (lent: length t ≤ S n):
+  oplist_ind_onlength P HPind (S n) t statust lent =
+  transportf P (pr2 (pr2 (pr2 (pr2 (oplist_decompose t statust)))))
+  (HPind (pr1 (oplist_decompose t statust))
+     (pr1 (pr2 (oplist_decompose t statust)))
+     (pr1 (pr2 (pr2 (oplist_decompose t statust))))
+     (λ i : ⟦ arity (pr1 (oplist_decompose t statust)) ⟧,
+      oplist_ind_onlength P HPind n (el (pr1 (pr2 (oplist_decompose t statust))) i)
+        (pr1 (pr2 (pr2 (oplist_decompose t statust))) i)
+        (istransnatleh
+           (natlthtolehsn (length (el (pr1 (pr2 (oplist_decompose t statust))) i))
+              (length t) (pr1 (pr2 (pr2 (pr2 (oplist_decompose t statust)))) i))
+           lent))).
+  Proof.
+    apply idpath.
+  Defined.
+
+  Lemma oplist_ind_onlength_nirrelevant
+    (P: oplist sigma → UU)
+    (HPind: ∏ (nm: names sigma) (vterm: Vector (oplist sigma) (arity nm))
+          (vtermproofs: ∏ (i: ⟦ arity nm ⟧), oplist2status (el vterm i) = statusok 1) ,
+      (∏ (i:  ⟦ arity nm ⟧), P (el vterm i)) → P (oplist_make_term nm vterm))
+    : ∏ (n m1 m2: nat)
+        (m1n: m1 ≤ n) (m2n: m2 ≤ n)
+        (t: oplist sigma) 
+        (statust: oplist2status t = statusok 1) 
+        (lenm1: length t ≤ m1) (lenm2: length t ≤ m2),
+        oplist_ind_onlength P HPind m1 t statust lenm1 = oplist_ind_onlength P HPind m2 t statust lenm2.
+  Proof.
+    induction n.
+    - intros m1 m2 m1n m2n t statust lenm1 lenm2.
+      apply fromempty.
+      apply natleh0tois0 in m1n.
+      rewrite m1n in lenm1.
+      apply natleh0tois0 in lenm1.
+      apply oplist2status_positive in statust.
+      rewrite (pr2 (pr2 statust)) in lenm1.
+      cbn in lenm1.
+      apply negpathssx0 in lenm1.
+      assumption.
+    - intros m1 m2 m1n m2n t statust lenm1 lenm2.
+      induction m1.
+      { 
+        apply fromempty.
+        apply natleh0tois0 in lenm1.
+        apply oplist2status_positive in statust.
+        rewrite (pr2 (pr2 statust)) in lenm1.
+        cbn in lenm1.
+        apply negpathssx0 in lenm1.
+        assumption.
+      }
+      induction m2.
+      { 
+        apply fromempty.
+        clear IHm1.
+        apply natleh0tois0 in lenm2.
+        apply oplist2status_positive in statust.
+        rewrite (pr2 (pr2 statust)) in lenm2.
+        cbn in lenm2.
+        apply negpathssx0 in lenm2.
+        assumption.
+      }
+      pose (statust2 := statust).
+      apply oplist2status_positive in statust2.
+      induction statust2 as [lentail [v tstruct] ].
+      induction (! tstruct).
+      change (length (S lentail,, v)) with (S lentail) in *.
+      rewrite oplist_ind_onlength_step.
+      rewrite oplist_ind_onlength_step.
+      Search transportf idpath.
+      apply maponpaths.
+      apply maponpaths.
+      apply funextsec.
+      intro i.
+      apply IHn.
+      + apply natlthsntoleh.
+        apply nat_S_lt.
+        apply natlehtolthsn.
+        assumption. 
+      + apply natlthsntoleh.
+        apply nat_S_lt.
+        apply natlehtolthsn.
+        assumption.
+  Defined.
+
+  Lemma oplist_ind_step (nm: names sigma) (v: Vector (oplist sigma) (arity nm)) (vp: ∏ (i: ⟦ arity nm ⟧), oplist2status (el v i) = statusok 1):
     ∏ (P: oplist sigma → UU)
-      (Ind: ∏ (nm: names sigma) (vterm: Vector (oplist sigma) (arity nm)),
+      (Ind: ∏ (nm: names sigma) (vterm: Vector (oplist sigma) (arity nm))
+              (vtermproofs: ∏ (i: ⟦ arity nm ⟧), oplist2status (el vterm i) = statusok 1) ,
               (∏ (i:  ⟦ arity nm ⟧), P (el vterm i)) → P (oplist_make_term nm vterm))
       (vterms: ∏ (i:  ⟦ arity nm ⟧), oplist2status (el v i) = statusok 1),
     oplist_ind P Ind (oplist_make_term nm v) (oplist_make_term_status nm v vterms) =
-       Ind nm v (λ i:  ⟦ arity nm ⟧, oplist_ind P Ind (el v i) (vterms i)).
+       Ind nm v vp (λ i:  ⟦ arity nm ⟧, oplist_ind P Ind (el v i) (vterms i)).
   Proof.
     intros.
     unfold oplist_ind.
     unfold oplist_make_term in *.
     change (length (cons nm (veclist_flatten v))) with (S (length (veclist_flatten v))) in *.
-    unfold oplist_ind_onlength.
+    unfold oplist_ind_onlength at 1.
     rewrite nat_rect_step.
     set (d := oplist_decompose (cons nm (veclist_flatten v)) (oplist_make_term_status nm v vterms)).
     induction d as [nm0 [vterms0 [v0status [v0len v0norm ]]]].
@@ -945,58 +1095,92 @@ Section OpListInduction.
     apply cons_inj1 in X1.
     apply cons_inj2 in X2.
     induction (! X1).
-    assert (H: vterms0 = v). { admit. }
-    induction (! H).
+    
+    apply veclist_flatten_inj in X2.
+    induction (! X2).
     assert (H1: v0norm = idpath _).
-    { admit. }
+    { 
+      apply proofirrelevance.
+      apply isasetoplist.
+    }
     rewrite H1.
     rewrite idpath_transportf.
-
-  Abort.
+    assert (H2: vterms = v0status).
+    {
+      apply impred_isaprop.
+      intros.
+      apply isasetstatus.
+    }
+    induction H2.
+    assert (H3: vterms = vp).
+    {
+          apply impred_isaprop.
+      intros.
+      apply isasetstatus.
+    }
+    induction H3.
+    apply maponpaths.
+    apply funextsec.
+    intro i.
+    assert ( oplist_ind_onlength P Ind 
+                (length (el v i)) 
+                (el v i) (vterms i) 
+                (isreflnatleh (length (el v i)))  = 
+             
+                oplist_ind_onlength P Ind
+                (length (veclist_flatten v)) 
+                (el v i) (vterms i)  (istransnatleh
+                (natlthtolehsn (length (el v i)) (length (cons nm (veclist_flatten v)))
+                   (v0len i)) (isreflnatleh (S (length (veclist_flatten v))))) ).
+    {
+       apply (oplist_ind_onlength_nirrelevant P Ind (length (veclist_flatten v))).
+       - apply natlthsntoleh.
+         apply (v0len i).
+       - apply isreflnatleh.
+    }
+    rewrite X.
+    apply idpath.
+    assumption.
+    assumption.
+  Defined.
 
   Definition oplist_depth (t: oplist sigma) (prooft: oplist2status t = statusok 1): nat
     := oplist_ind (λ t: oplist sigma, nat)
-                (λ (nm: names sigma) (vterm: Vector (oplist sigma) (arity nm))
+                (λ (nm: names sigma) vterm vp
                    (levels: ⟦ arity nm ⟧ → nat), 1 + vector_foldr max 0 (mk_vector levels) )
                   t prooft.
 
 End OpListInduction.
 
-Section Term.
+Section term.
 
-  Definition stack (sigma: signature) (n: nat): UU :=
-    ∑ s: oplist sigma, oplist2status s = statusok n.
+  Definition isaterm {sigma: signature} (s: oplist sigma) 
+     := oplist2status s = statusok 1.
 
-  Definition make_stack {sigma: signature} {n: nat} (s: oplist sigma)
-             (is: oplist2status s = statusok n):
-    stack sigma n := s ,, is.
+  Definition term (sigma: signature)
+     := ∑ s: oplist sigma, isaterm s.
+ 
+  Coercion term2oplist {sigma: signature} (t: term sigma):
+    oplist sigma := pr1 t.
 
-  Coercion stack2list {sigma: signature} {n: nat} (s: stack sigma n):
-    oplist sigma := pr1 s.
-
-  Definition stack2proof {sigma: signature} {n: nat} (s: stack sigma n):
-    oplist2status s = statusok n := pr2 s.
-
-  Definition term (sigma: signature): UU := stack sigma 1.
-
-  Identity Coercion termisstack: term >-> stack.
-
-  Lemma isasetstack (sigma: signature) (n: nat): isaset (stack sigma n).
+  Definition term2proof {sigma: signature} (t: term sigma):
+    isaterm t := pr2 t.
+    
+  Lemma isasetterm(sigma: signature): isaset (term sigma).
   Proof.
     apply isaset_total2.
-    - apply isofhlevellist.
-      exact (setproperty (names sigma)).
+    - apply isasetoplist.
     - intros.
       apply isasetaprop.
       apply isasetstatus.
   Defined.
 
-  Definition stackset (sigma : signature) (n: nat): hSet
-    := make_hSet (stack sigma n) (isasetstack sigma n).
+  Definition termset (sigma : signature): hSet
+    := make_hSet (term sigma) (isasetterm sigma).
 
   Context {sigma: signature}.
-
-  Lemma stack_extens {n: nat} {s1 s2 : stack sigma n} (p : stack2list s1 = stack2list s2)
+  
+  Lemma term_extens {s1 s2 : term sigma} (p : term2oplist s1 = term2oplist s2)
     : s1 = s2.
   Proof.
     apply subtypePath.
@@ -1005,361 +1189,47 @@ Section Term.
     apply isasetstatus.
   Defined.
 
-  Definition stack_nil (sigma: signature): stack sigma 0 := stnpr nil.
-
-  Lemma stack_isnil (s: stack sigma 0): s = stack_nil sigma.
+  Definition make_term (nm: names sigma) (vec: Vector (term sigma) (arity nm)): term sigma.
   Proof.
-    induction s as [l proof].
-    apply stack_extens.
-    apply oplist2status_zero.
-    assumption.
-  Defined.
-
-  Local Lemma is_stack_concatenate  {n1 n2: nat} (s1: stack sigma n1) (s2: stack sigma n2)
-    : oplist2status (concatenate s1 s2) = statusok (n1 + n2).
-  Proof.
-    change (statusok (n1 + n2)) with (status_concatenate (statusok n1) (statusok n2)).
-    rewrite <- (stack2proof s1).
-    rewrite <- (stack2proof s2).
-    apply oplist2status_concatenate.
-    rewrite (stack2proof s1).
-    apply negpathsii1ii2.
-  Defined.
-
-  Definition stack_concatenate {n1 n2: nat} (s1: stack sigma n1) (s2: stack sigma n2)
-    : stack sigma (n1 + n2) := make_stack (concatenate s1 s2) (is_stack_concatenate s1 s2).
-
-  Lemma stack2list_stackconcatenate {n1 n2: nat} (s1: stack sigma n1) (s2: stack sigma n2)
-    : stack2list (stack_concatenate s1 s2) = concatenate (stack2list s1) (stack2list s2).
-  Proof.
-    apply idpath.
-  Defined.
-
-  Definition terms2stack {n: nat} (vec: Vector (term sigma) n): stack sigma n.
-  Proof.
-    induction n.
-    - exact (stack_nil sigma).
-    - exact (stack_concatenate (hd vec) (IHn (tl vec))).
-  Defined.
-
-  Lemma terms2stack_vcons {n: nat} {v: Vector (term sigma) n} {t: term sigma} :
-    terms2stack (vcons t v) = stack_concatenate t (terms2stack v).
-  Proof.
-    apply idpath.
-  Defined.
-
-  Lemma make_term_isterm (nm: names sigma) (vec: Vector (term sigma) (arity nm)):
-    oplist2status (cons nm (terms2stack vec)) = statusok 1.
-  Proof.
-    rewrite oplist2status_cons.
-    rewrite (stack2proof (terms2stack vec)).
-    rewrite status_cons_statusok_f.
-    - rewrite minuseq0'.
-      apply idpath.
-    - apply isreflnatleh.
-  Defined.
-
-  Definition make_term (nm: names sigma) (vec: Vector (term sigma) (arity nm)): term sigma
-    := make_stack (cons nm (terms2stack vec)) (make_term_isterm nm vec).
-
-  Local Definition extract_term {n: nat} (s: stack sigma (S n))
-    : term sigma ×  stack sigma n.
-  Proof.
-    set (rest := extract_list_success s 1 (stack2proof s) (natleh0n n)).
-    induction rest as [fproof sproof].
-    split.
-    - exact (make_stack (pr1 (extract_list s 1)) fproof).
-    - change (S n - 1) with (1 + n - 1) in sproof.
-      rewrite natpluscomm in sproof.
-      rewrite plusminusnmm in sproof.
-      exact (make_stack (pr2 (extract_list s 1)) sproof).
-  Defined.
-
-  Definition stack_first {n: nat} (s: stack sigma (S n)): term sigma
-    := pr1 (extract_term s).
-
-  Definition stack_rest {n: nat} (s: stack sigma (S n)): stack sigma n
-    := pr2 (extract_term s).
-
-  Lemma stack_concatenate_normalize1 {n: nat} (s: stack sigma (S n))
-    : stack_concatenate (stack_first s) (stack_rest s) = s.
-  Proof.
-    apply stack_extens.
-    apply (extract_list_concatenate1 s 1).
-  Defined.
-
-  Lemma stack_concatenate_normalize2 (t: term sigma) {n2: nat} (s2: stack sigma n2)
-    : stack_first (stack_concatenate t s2) = stack_first t.
-  Proof.
-    apply stack_extens.
-    cbn - [extract_list].
-    set (res := extract_list_concatenate2 t s2 1 (stack2proof t) (natleh0n 0)).
-    apply (maponpaths pr1) in res.
-    assumption.
-  Defined.
-
-  Lemma stack_concatenate_normalize3 (t: term sigma) {n2: nat} (s2: stack sigma n2)
-    : stack_rest (stack_concatenate t s2) = s2.
-  Proof.
-    apply stack_extens.
-    cbn - [extract_list].
-    set (res := extract_list_concatenate2 t s2 1 (stack2proof t) (natleh0n 0)).
-    apply (maponpaths dirprod_pr2) in res.
-    cbn - [extract_list] in res.
-    apply pathsinv0 in res.
-    rewrite extract_list_norest in res.
-    - apply pathsinv0 in res.
-      assumption.
-    - exact (stack2proof t).
-  Defined.
-
-  Lemma stack_first_term {t: term sigma}: stack_first t = t.
-  Proof.
-    apply stack_extens.
-    cbn.
-    rewrite extract_list_norest.
-    - apply idpath.
-    - exact (stack2proof t).
-  Defined.
-
-  Definition stack2terms {n: nat} (s: stack sigma n): Vector (term sigma) n.
-  Proof.
-    induction n.
-    - exact vnil.
-    - exact (vcons (stack_first s) (IHn (stack_rest s))).
-  Defined.
-
-  Lemma stack2terms_concatenate {t: term sigma} {n: nat} (s2: stack sigma n):
-    stack2terms (stack_concatenate t s2) = vcons t (stack2terms s2).
-  Proof.
-    change (stack2terms (stack_concatenate t s2))
-      with (vcons (stack_first (stack_concatenate t s2))
-                  (stack2terms (stack_rest (stack_concatenate t s2)))).
-    rewrite stack_concatenate_normalize2.
-    rewrite stack_concatenate_normalize3.
-    rewrite stack_first_term.
-    apply idpath.
-  Defined.
-
-  Lemma terms2stack2terms {n: nat} (s: stack sigma n): terms2stack (stack2terms s) = s.
-  Proof.
-    induction n.
-    - rewrite stack_isnil.
-      apply idpath.
-    - rewrite <- (stack_concatenate_normalize1 s).
-      simpl.
-      rewrite stack_concatenate_normalize2.
-      rewrite stack_concatenate_normalize3.
-      rewrite stack_first_term.
-      apply maponpaths.
-      apply (IHn (stack_rest s)).
-  Defined.
-
-  Lemma stack2terms2stack {n: nat} (terms: Vector (term sigma) n): stack2terms (terms2stack terms) = terms.
-  Proof.
-    induction n.
-    - induction terms.
-      apply idpath.
-    - induction terms as [t rest].
-      change (t ,, rest) with (vcons t rest).
-      change (terms2stack (vcons t rest)) with (stack_concatenate t (terms2stack rest)).
-      rewrite stack2terms_concatenate.
-      rewrite (IHn rest).
-      apply idpath.
-  Defined.
-
-  Definition term_decompose (t: term sigma):
-    ∑ (op: names sigma) (subs: stack sigma (arity op)), stack2list t = cons op subs.
-  Proof.
-    induction t as [l proof].
-    induction l as [len v].
-    induction len.
-    - induction v.
-      apply fromempty.
-      apply ii1_injectivity in proof.
-      apply negpaths0sx in proof.
-      assumption.
-    - exists (hd v).
-      change (S len ,, v) with (cons (hd v) (len ,, (tl v))) in *.
-      pose (p := proof).
-      rewrite oplist2status_cons in p.
-      apply status_cons_statusok_r in p.
-      induction p as [_ p].
-      rewrite natpluscomm in p.
-      rewrite plusminusnmm in p.
-      exists (make_stack (len,, tl v) p).
-      apply idpath.
-  Defined.
-
-  Definition princop (t: term sigma): names sigma
-    := pr1 (term_decompose t).
-
-  Definition term_rest (t: term sigma): stack sigma (arity (princop t))
-    := (pr1 (pr2 (term_decompose t))).
-
-  Definition subterms (t: term sigma):  Vector (term sigma) (arity (princop t))
-    := stack2terms (term_rest t).
-
-  Lemma term_list_decomp (t: term sigma): stack2list t = cons (princop t) (term_rest t).
-  Proof.
-    exact (pr2 (pr2 (term_decompose t))).
-  Defined.
-
-  Lemma term_rest_subterms (t: term sigma): term_rest t = terms2stack (subterms t).
-  Proof.
-    unfold subterms.
-    rewrite terms2stack2terms.
-    apply idpath.
-  Defined.
-
-  Lemma make_term_normalize (t: term sigma): make_term (princop t) (subterms t) = t.
-  Proof.
-    apply stack_extens.
-    change (cons (princop t) (terms2stack (subterms t)) = stack2list t).
-    unfold subterms.
-    rewrite terms2stack2terms.
-    rewrite <- term_list_decomp.
-    apply idpath.
-  Defined.
-
-  Lemma make_term_normalize2 (nm: names sigma) (v: Vector (term sigma) (arity nm))
-    : princop (make_term nm v) = nm.
-  Proof.
-    apply idpath.
-  Defined.
-
-  Lemma make_term_normalize3 (nm: names sigma) (v: Vector (term sigma) (arity nm))
-    : term_rest (make_term nm v) = terms2stack v.
-  Proof.
-    apply stack_extens.
-    apply idpath.
-  Defined.
-
-  Lemma make_term_normalize4 (nm: names sigma) (v: Vector (term sigma) (arity nm))
-    : subterms (make_term nm v) = v.
-  Proof.
-    unfold subterms.
-    rewrite make_term_normalize3.
-    rewrite stack2terms2stack.
-    apply idpath.
-  Defined.
-
-End Term.
-
-Section Lengthstack.
-
-  Context {sigma: signature}.
-
-
-  Lemma term_rest_length (t: term sigma): S(length (term_rest t)) = length t.
-  Proof.
-    rewrite term_list_decomp.
-    rewrite length_cons.
-    apply idpath.
-  Defined.
-
-  Lemma stack_first_minlength {n: nat} (s: stack sigma (S n)): length (stack_first s) > 0.
-  Proof.
-    induction (stack_first s) as [l proofl].
-    pose (p := proofl).
-    apply oplist2status_positive in p.
-    induction p as [lent [v lstruct]].
-    change (stack2list (l,, proofl)) with l.
-    rewrite lstruct.
-    change (length (S lent,, v)) with (S lent).
-    apply natgthsn0.
-  Defined.
-
-  Lemma stack_first_maxlength {n: nat} (s: stack sigma (S n)): length (stack_first s) ≤ length s.
-  Proof.
-    set (X := stack_concatenate_normalize1 s).
-    apply (maponpaths stack2list) in X.
-    apply (maponpaths length) in X.
-    change (stack2list (stack_concatenate (stack_first s) (stack_rest s))) with (concatenate (stack_first s) (stack_rest s)) in X.
-    rewrite length_concatenate in X.
-    apply nat_movplusright in X.
-    rewrite X.
-    apply natminuslehn.
-  Defined.
-
-  Lemma stack_rest_maxlength {n: nat} (s: stack sigma (S n)): length (stack_rest s) ≤ length s.
-  Proof.
-    set (X := stack_concatenate_normalize1 s).
-    apply (maponpaths stack2list) in X.
-    apply (maponpaths length) in X.
-    change (stack2list (stack_concatenate (stack_first s) (stack_rest s))) with (concatenate (stack_first s) (stack_rest s)) in X.
-    rewrite length_concatenate in X.
-    rewrite natpluscomm in X.
-    apply nat_movplusright in X.
-    rewrite X.
-    apply natminuslehn.
-  Defined.
-
-  Lemma stack2terms_length {n: nat} (s: stack sigma n) : ∏ (i : ⟦ n ⟧), length (el (stack2terms s) i) ≤ length s.
-  Proof.
-    induction n.
-    - intro i.
-      apply fromempty.
-      apply negstn0 in i.
-      assumption.
-    - change (stack2terms s) with (vcons (stack_first s) (stack2terms (stack_rest s))).
-      intro i.
-      induction i as [i iproof].
-      induction i.
-      + change (el (vcons (stack_first s) (stack2terms (stack_rest s))) (0,, iproof)) with (stack_first s).
-        apply stack_first_maxlength.
-      + set ( X := IHn (stack_rest s) (i ,, iproof)).
-        change (S i ,, iproof) with (dni_firstelement (i,, iproof)).
-        rewrite el_vcons_tl.
-        eapply istransnatleh.
-        apply X.
-        apply stack_rest_maxlength.
-  Defined.
-
-  Lemma subterms_length (t: term sigma):
-    ∏ i : ⟦ arity (princop t) ⟧, length (el (subterms t) i) < length t.
-  Proof.
+    exists (oplist_make_term nm (vector_map term2oplist vec)).
+    apply oplist_make_term_status.
     intro i.
-    rewrite <- (term_rest_length t).
-    apply natlehtolthsn.
-    unfold subterms.
-    apply stack2terms_length.
+    rewrite el_vector_map.
+    exact (pr2 (el vec i)).
   Defined.
+  
+  Definition princop (t: term sigma): names sigma
+    := pr1 (oplist_decompose (term2oplist t) (term2proof t)).
 
-End Lengthstack.
-
-Section termInduction.
-
-  Context {sigma: signature}.
-
-  Local Lemma term_ind_onlength
+  Definition subterms (t: term sigma): Vector (term sigma) (arity (princop t))
+    := let X := oplist_decompose (term2oplist t) (term2proof t) in
+       let nm := pr1 X in
+       let terms := pr1 ( pr2 X ) in
+       let termproofs := pr1 (pr2 (pr2 X)) in
+       (mk_vector (λ (i: ⟦ arity nm ⟧), (el terms i ,, termproofs i): term sigma)).
+ 
+  Theorem term_ind2
     (P: oplist sigma → UU)
-    (HPind: ∏ (nm: names sigma) (vterm: Vector (term sigma) (arity nm)),
-      (∏ (i:  ⟦ arity nm ⟧), P (el vterm i)) → P (make_term nm vterm))
-    : (∏ (n: nat) (t: term sigma), length (stack2list t) ≤ n →  P t).
+    (HPind: ∏ (nm: names sigma) (vterm: Vector (oplist sigma) (arity nm))
+      (vtermproofs: ∏ (i:  ⟦ arity nm ⟧), isaterm (el vterm i)),
+      (∏ (i:  ⟦ arity nm ⟧), P (el vterm i)) → P (oplist_make_term nm vterm) )
+    : (∏ t: term sigma, P t).
   Proof.
-    induction n.
-    - induction t as [[len vec] proofl].
-      intro lent.
-      apply natleh0tois0 in lent.
-      cbn in lent.
-      revert vec proofl.
-      rewrite lent.
-      intros.
-      induction vec.
-      apply fromempty.
-      apply ii1_injectivity in proofl.
-      apply negpaths0sx in proofl.
-      assumption.
-    - intros t lent.
-      rewrite <- (make_term_normalize t).
+    intro t.
+    apply oplist_ind.
+    - intros.
       apply HPind.
-      intro i.
-      apply IHn.
-      eapply natlthlehtrans.
-      + apply subterms_length.
       + assumption.
+      + assumption.
+    - apply t.
   Defined.
+
+  Definition depth2 (t: term sigma): nat
+    := term_ind2 ( λ (t: oplist sigma), nat)
+                ( λ (nm: names sigma) (vterm: Vector (oplist sigma) (arity nm))
+                      (vtermproofs: ∏ (i:  ⟦ arity nm ⟧), isaterm (el vterm i))
+                    (levels: ⟦ arity nm ⟧ → nat), 1 + vector_foldr max 0 (mk_vector levels) )
+                t.
 
   Theorem term_ind
     (P: oplist sigma → UU)
@@ -1368,47 +1238,56 @@ Section termInduction.
     : (∏ t: term sigma, P t).
   Proof.
     intro t.
-    exact (term_ind_onlength P HPind (length t) t (isreflnatleh _)).
+    apply oplist_ind.
+    - intros.
+      cbn.
+      set (vterm' := mk_vector (λ i, (el vterm i ,,  vtermproofs i): term sigma)).
+      evar (Y: ∏ (i : ⟦ arity nm ⟧), el vterm i = el vterm' i).
+      set (Z:= λ (i : ⟦ arity nm ⟧), transportf P (Y i) (X i)).
+      evar (X0: vterm = vector_map pr1 vterm').
+      rewrite X0.
+      apply (HPind nm vterm' Z).
+      Unshelve.
+      {
+        intro i.
+        cbn.
+        unfold vterm'.
+        rewrite el_mk_vector.
+        apply idpath.
+      }
+      {
+        apply vector_extens.
+        intro i.
+        unfold vterm'.
+        rewrite el_vector_map.
+        rewrite el_mk_vector.
+        apply idpath.
+      }
+   - apply t.
   Defined.
-
+ 
   Lemma term_ind_step (nm: names sigma) (v: Vector (term sigma) (arity nm)):
     ∏ (P: oplist sigma → UU)
       (Ind: ∏ (nm: names sigma) (vterm: Vector (term sigma) (arity nm)),
               (∏ (i:  ⟦ arity nm ⟧), P (el vterm i)) → P (make_term nm vterm)),
-    term_ind P Ind (make_term nm v) = Ind nm v (λ i:  ⟦ arity nm ⟧, term_ind P Ind (el v i)).
+              term_ind P Ind (make_term nm v) = Ind nm v (λ i:  ⟦ arity nm ⟧, term_ind P Ind (el v i)).
   Proof.
     intros.
     unfold term_ind.
-    change (length (make_term nm v)) with (S (length (terms2stack v))).
-    simpl.
-    change (princop (make_term nm v)) with (nm).
-
-    (** Almost there.. there is a unwanted internal_paths_rew and we cannot use
-        make_term_normalize4 **)
   Abort.
-
-  (** TODO: change term_ind so that this definition computes. **)
-
+  
   Definition depth (t: term sigma): nat
-    := term_ind ( λ t: oplist sigma, nat)
+    := term_ind ( λ (t: oplist sigma), nat)
                 ( λ (nm: names sigma) (vterm: Vector (term sigma) (arity nm))
                     (levels: ⟦ arity nm ⟧ → nat), 1 + vector_foldr max 0 (mk_vector levels) )
                 t.
 
-  Lemma depth_step (t: term sigma) (nm : names sigma) (args : Vector (term sigma) (arity nm))
-     (levels : Vector nat (arity nm)) :
-     depth (make_term nm args) = 1 + vector_foldr max 0 levels.
-  Proof.
-    unfold depth.
-    unfold term_ind.
-  Abort.
-
-End termInduction.
+End term.
 
 Section termalgebra.
 
   Definition term_algebra (sigma: signature): algebra sigma
-    := make_algebra (stackset sigma 1) make_term.
+    := make_algebra (termset sigma) make_term.
 
   (** TODO
 

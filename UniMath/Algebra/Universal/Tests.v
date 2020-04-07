@@ -78,16 +78,16 @@ Section Nat.
   Eval cbn in pr1 ( oplist2vecoplist (nat_zero :: nat_succ :: nat_zero :: nil) (idpath (statusok 2)) ).
 
   Local Definition term_zero: term nat_signature :=
-    make_stack (nat_zero :: nil) (idpath (statusok 1)).
-
+    make_term nat_zero vnil.
+    
   Local Definition term_one: term nat_signature :=
-    make_stack (nat_succ :: nat_zero :: nil) one_status.
+    make_term nat_succ (term_zero ::: vnil).
 
   Goal oplist2status term_one = statusok 1.
   Proof. exact (idpath _). Qed.
 
   Local Definition term_two: term nat_signature :=
-    make_stack (nat_succ :: nat_succ :: nat_zero :: nil) one_status.
+    make_term nat_succ (term_one ::: vnil).
 
   Goal oplist2status term_two = statusok 1.
   Proof. exact (idpath _). Qed.
@@ -95,31 +95,34 @@ Section Nat.
   Local Lemma zero_one_status: oplist2status (nat_zero :: nat_succ :: nat_zero :: nil) = statusok 2.
   Proof. exact (idpath _). Qed.
 
+  (*
   Local Definition zero_one_stack: stack nat_signature 2:=
     make_stack (nat_zero :: nat_succ :: nat_zero :: nil) zero_one_status.
-
+  *)
+  
   Goal oplist2status (nat_succ :: nil) = statuserror.
   Proof. exact (idpath _). Qed.
 
+  (*
   Goal stack_concatenate term_zero term_one = zero_one_stack.
   Proof. apply stack_extens. exact (idpath _). Qed.
-
+  
   Goal terms2stack (term_zero ::: term_one ::: vnil) = zero_one_stack.
   Proof. apply stack_extens. exact (idpath _). Qed.
+  *)
 
   Goal make_term nat_succ ((make_term nat_zero vnil) ::: vnil) = term_one.
-  Proof. apply stack_extens. exact (idpath _). Qed.
+  Proof. exact (idpath _). Qed.
 
   Goal princop term_two = nat_succ.
   Proof. exact (idpath _). Qed.
 
+  (**
   Goal stack_first zero_one_stack = term_zero.
   Proof. exact (idpath _). Qed.
 
   Goal stack2list (stack_rest zero_one_stack) = stack2list term_one.
   Proof. exact (idpath _). Qed.
-
-  (** In the following, the vector_map is needed because proofs cannot be unified **)
 
   Goal vector_map stack2list (stack2terms zero_one_stack) = vector_map stack2list (term_zero ::: term_one ::: vnil).
   Proof. exact (idpath _). Qed.
@@ -138,25 +141,28 @@ Section Nat.
 
   Goal stack_first zero_one_stack = term_zero.
   Proof. exact (idpath _). Qed.
+  
+  **)
 
   Goal el (subterms term_one) (●0) = term_zero.
-  Proof. apply stack_extens. exact (idpath _). Qed.
+  Proof.  exact (idpath _). Qed.
 
   Goal el (subterms term_two) (●0) = term_one.
-  Proof. apply stack_extens. exact (idpath _). Qed.
+  Proof. exact (idpath _). Qed.
 
   Goal depth term_zero = 1.
   Proof. exact (idpath _). Qed.
-  
-
+ 
   Goal pr1 (make_term (princop term_one) (subterms term_one)) = pr1 term_one.
   Proof. exact (idpath _). Qed.
 
+  Eval lazy in (oplist_depth term_one (pr2 term_one)).
+  
   Goal oplist_depth term_one (pr2 term_one) = 2.
   Proof. exact (idpath _). Qed.
 
-  Goal depth term_one = 2.
-  Proof. Abort.
+  Goal depth2 term_one = 2.
+  Proof. exact (idpath _). Qed.
 
  End Nat.
 
@@ -185,16 +191,16 @@ Section Bool.
   Proof. exact (idpath _). Qed.
 
   Goal el (subterms t2) (●0) = t1.
-  Proof. exact (idpath _). Qed.
+  Proof. apply term_extens. exact (idpath _). Qed.
 
   Goal el (subterms t1) (●0) = t_true.
   Proof. exact (idpath _). Qed.
 
   Goal el (subterms t1) (●1) = t_false.
-  Proof. exact (idpath _). Qed.
+  Proof. apply term_extens. exact (idpath _). Qed.
 
-  Eval lazy in oplist_depth t1 (pr2 t1).
+  Eval lazy in depth2 t1.
 
-  Eval lazy in oplist_depth t2 (pr2 t2).
+  Eval lazy in depth2 t2.
 
 End Bool.
