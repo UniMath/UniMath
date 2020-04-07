@@ -1,3 +1,4 @@
+
 Dcpo.v
 BinaryOperations.v
 Monoids.v
@@ -22,6 +23,7 @@ Modules/Quotient.v
 Modules.v
 Matrix.v
 Universal.v
+Universal/CatAlgebras.v
 Universal/Nat.v
 Universal/Bool.v
 Universal/Group.v
