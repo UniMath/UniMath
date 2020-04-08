@@ -23,6 +23,7 @@ Modules/Quotient.v
 Modules.v
 Matrix.v
 Universal.v
+Equations.v
 Universal/CatAlgebras.v
 Universal/Nat.v
 Universal/Bool.v
