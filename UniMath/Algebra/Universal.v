@@ -1072,7 +1072,10 @@ Section OpListInduction.
         assumption.
   Defined.
 
-  Lemma oplist_ind_step (nm: names sigma) (v: Vector (oplist sigma) (arity nm)) (vp: ∏ (i: ⟦ arity nm ⟧), oplist2status (el v i) = statusok 1):
+  Lemma oplist_ind_step 
+    (nm: names sigma) 
+    (v: Vector (oplist sigma) (arity nm)) 
+    (vp: ∏ (i: ⟦ arity nm ⟧), oplist2status (el v i) = statusok 1):
     ∏ (P: oplist sigma → UU)
       (Ind: ∏ (nm: names sigma) (vterm: Vector (oplist sigma) (arity nm))
               (vtermproofs: ∏ (i: ⟦ arity nm ⟧), oplist2status (el vterm i) = statusok 1) ,
@@ -1156,10 +1159,19 @@ Section term.
 
   Definition isaterm {sigma: signature} (s: oplist sigma) 
      := oplist2status s = statusok 1.
+     
+  Definition isapropisaterm {sigma: signature} (s: oplist sigma): isaprop (isaterm s).
+  Proof.
+    unfold isaterm.
+    apply isasetstatus.
+  Defined.
 
   Definition term (sigma: signature)
      := ∑ s: oplist sigma, isaterm s.
  
+  Definition make_term {sigma: signature} (s: oplist sigma) (p: isaterm s)
+    : term sigma := s ,, p.
+    
   Coercion term2oplist {sigma: signature} (t: term sigma):
     oplist sigma := pr1 t.
 
@@ -1189,12 +1201,12 @@ Section term.
     apply isasetstatus.
   Defined.
 
-  Definition make_term (nm: names sigma) (vec: Vector (term sigma) (arity nm)): term sigma.
+  Definition build_term (nm: names sigma) (vec: Vector (term sigma) (arity nm)): term sigma.
   Proof.
     exists (oplist_make_term nm (vector_map term2oplist vec)).
     apply oplist_make_term_status.
     intro i.
-    rewrite el_vector_map.
+    apply (transportb (λ x, oplist2status x = statusok 1) (el_vector_map _ _ _)).
     exact (pr2 (el vec i)).
   Defined.
   
@@ -1207,77 +1219,94 @@ Section term.
        let terms := pr1 ( pr2 X ) in
        let termproofs := pr1 (pr2 (pr2 X)) in
        (mk_vector (λ (i: ⟦ arity nm ⟧), (el terms i ,, termproofs i): term sigma)).
- 
-  Theorem term_ind2
-    (P: oplist sigma → UU)
-    (HPind: ∏ (nm: names sigma) (vterm: Vector (oplist sigma) (arity nm))
-      (vtermproofs: ∏ (i:  ⟦ arity nm ⟧), isaterm (el vterm i)),
-      (∏ (i:  ⟦ arity nm ⟧), P (el vterm i)) → P (oplist_make_term nm vterm) )
-    : (∏ t: term sigma, P t).
+
+  Lemma vectormap_mkvector {A B: UU} {n} {g: ⟦ n ⟧ → A} {f: A → B}
+    : vector_map f (mk_vector g) = mk_vector (f ∘ g).
   Proof.
-    intro t.
-    apply oplist_ind.
-    - intros.
-      apply HPind.
-      + assumption.
-      + assumption.
-    - apply t.
+    apply vector_extens.
+    intro i.
+    apply (transportb (λ x, x = _) (el_vector_map _ _ _)).
+    apply (transportb (λ x, f (x i) = _) (el_mk_vector _)).
+    apply (transportb (λ x, _ = x i) (el_mk_vector _)).
+    apply idpath.
+  Defined.
+  
+  Definition make_vector_term {n}
+    (vterm: Vector (oplist sigma) n)
+    (vtermproofs: ∏ (i: ⟦ n ⟧), isaterm (el vterm i))
+    : Vector (term sigma) n
+    := mk_vector (λ i, make_term (el vterm i) (vtermproofs i)).
+
+  Lemma make_vector_term1 (nm: names sigma)
+    (vterm: Vector (oplist sigma) (arity nm))
+    (vtermproofs: ∏ (i: ⟦ arity nm ⟧), isaterm (el vterm i))
+    (w: isaterm (oplist_make_term nm vterm))
+    : oplist_make_term nm vterm,, w = build_term nm (make_vector_term vterm vtermproofs).
+  Proof.
+    unfold build_term.
+    use total2_paths2_f.
+    - apply maponpaths.
+      apply (transportb (λ x, _ = x ) vectormap_mkvector).
+      apply vector_extens.
+      intro i.
+      apply (transportb (λ x, _ = x i) (el_mk_vector _)).
+      apply idpath.
+    - apply proofirrelevance.
+      apply isapropisaterm.
   Defined.
 
-  Definition depth2 (t: term sigma): nat
-    := term_ind2 ( λ (t: oplist sigma), nat)
-                ( λ (nm: names sigma) (vterm: Vector (oplist sigma) (arity nm))
-                      (vtermproofs: ∏ (i:  ⟦ arity nm ⟧), isaterm (el vterm i))
-                    (levels: ⟦ arity nm ⟧ → nat), 1 + vector_foldr max 0 (mk_vector levels) )
-                t.
+  Lemma make_vector_term2 {n}
+    (P: term sigma → UU)
+    (vterm: Vector (oplist sigma) n)
+    (vtermproofs: ∏ (i: ⟦ n ⟧), isaterm (el vterm i))
+    (X: ∏ (i : ⟦ n ⟧) (w: isaterm (el vterm i)), P (el vterm i,, w))
+    :  ∏ (i : ⟦ n ⟧), P (el (make_vector_term vterm vtermproofs) i).
+  Proof.
+    intro i.
+    apply (transportb (λ x, P (x i)) (el_mk_vector _)).
+    exact (X i (vtermproofs i)).
+  Defined.
 
   Theorem term_ind
-    (P: oplist sigma → UU)
+    (P: term sigma → UU)
     (HPind: ∏ (nm: names sigma) (vterm: Vector (term sigma) (arity nm)),
-      (∏ (i:  ⟦ arity nm ⟧), P (el vterm i)) → P (make_term nm vterm) )
+      (∏ (i:  ⟦ arity nm ⟧), P (el vterm i)) → P (build_term nm vterm) )
     : (∏ t: term sigma, P t).
   Proof.
     intro t.
-    apply oplist_ind.
-    - intros.
-      cbn.
-      set (vterm' := mk_vector (λ i, (el vterm i ,,  vtermproofs i): term sigma)).
-      evar (Y: ∏ (i : ⟦ arity nm ⟧), el vterm i = el vterm' i).
-      set (Z:= λ (i : ⟦ arity nm ⟧), transportf P (Y i) (X i)).
-      evar (X0: vterm = vector_map pr1 vterm').
-      rewrite X0.
-      apply (HPind nm vterm' Z).
-      Unshelve.
-      {
-        intro i.
-        cbn.
-        unfold vterm'.
-        rewrite el_mk_vector.
-        apply idpath.
-      }
-      {
-        apply vector_extens.
-        intro i.
-        unfold vterm'.
-        rewrite el_vector_map.
-        rewrite el_mk_vector.
-        apply idpath.
-      }
-   - apply t.
+    set (Q := λ (s: oplist sigma), ∏ (w: isaterm s), P ( (s,, w): term sigma)).
+    apply (oplist_ind Q).
+    2: apply t.
+    unfold Q.
+    intros.
+    set (vterm' := make_vector_term vterm vtermproofs).
+    set (X' := make_vector_term2 P vterm vtermproofs X).
+    apply (transportb P (make_vector_term1 nm vterm vtermproofs w)). 
+    apply (HPind nm vterm' X').
   Defined.
  
   Lemma term_ind_step (nm: names sigma) (v: Vector (term sigma) (arity nm)):
     ∏ (P: oplist sigma → UU)
       (Ind: ∏ (nm: names sigma) (vterm: Vector (term sigma) (arity nm)),
-              (∏ (i:  ⟦ arity nm ⟧), P (el vterm i)) → P (make_term nm vterm)),
-              term_ind P Ind (make_term nm v) = Ind nm v (λ i:  ⟦ arity nm ⟧, term_ind P Ind (el v i)).
+              (∏ (i:  ⟦ arity nm ⟧), P (el vterm i)) → P (build_term nm vterm)),
+              term_ind P Ind (build_term nm v) = Ind nm v (λ i:  ⟦ arity nm ⟧, term_ind P Ind (el v i)).
   Proof.
     intros.
     unfold term_ind.
+    unfold build_term.
+    simpl.
+    assert (vproofterms : ∏ (i: ⟦ arity nm ⟧), isaterm (el (vector_map term2oplist v) i)).
+    {
+      intro i.
+      rewrite el_vector_map.
+      apply (term2proof (el v i)).
+    }
+    rewrite oplist_ind_step with (vp := vproofterms).
+
   Abort.
   
   Definition depth (t: term sigma): nat
-    := term_ind ( λ (t: oplist sigma), nat)
+    := term_ind ( λ (t: term sigma), nat)
                 ( λ (nm: names sigma) (vterm: Vector (term sigma) (arity nm))
                     (levels: ⟦ arity nm ⟧ → nat), 1 + vector_foldr max 0 (mk_vector levels) )
                 t.
@@ -1287,7 +1316,7 @@ End term.
 Section termalgebra.
 
   Definition term_algebra (sigma: signature): algebra sigma
-    := make_algebra (termset sigma) make_term.
+    := make_algebra (termset sigma) build_term.
 
   (** TODO
 

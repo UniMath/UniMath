@@ -78,16 +78,16 @@ Section Nat.
   Eval cbn in pr1 ( oplist2vecoplist (nat_zero :: nat_succ :: nat_zero :: nil) (idpath (statusok 2)) ).
 
   Local Definition term_zero: term nat_signature :=
-    make_term nat_zero vnil.
+    build_term nat_zero vnil.
     
   Local Definition term_one: term nat_signature :=
-    make_term nat_succ (term_zero ::: vnil).
+    build_term nat_succ (term_zero ::: vnil).
 
   Goal oplist2status term_one = statusok 1.
   Proof. exact (idpath _). Qed.
 
   Local Definition term_two: term nat_signature :=
-    make_term nat_succ (term_one ::: vnil).
+    build_term nat_succ (term_one ::: vnil).
 
   Goal oplist2status term_two = statusok 1.
   Proof. exact (idpath _). Qed.
@@ -111,7 +111,7 @@ Section Nat.
   Proof. apply stack_extens. exact (idpath _). Qed.
   *)
 
-  Goal make_term nat_succ ((make_term nat_zero vnil) ::: vnil) = term_one.
+  Goal build_term nat_succ ((build_term nat_zero vnil) ::: vnil) = term_one.
   Proof. exact (idpath _). Qed.
 
   Goal princop term_two = nat_succ.
@@ -153,24 +153,21 @@ Section Nat.
   Goal depth term_zero = 1.
   Proof. exact (idpath _). Qed.
  
-  Goal pr1 (make_term (princop term_one) (subterms term_one)) = pr1 term_one.
+  Goal pr1 (build_term (princop term_one) (subterms term_one)) = pr1 term_one.
   Proof. exact (idpath _). Qed.
 
   Eval lazy in (oplist_depth term_one (pr2 term_one)).
   
-  Goal oplist_depth term_one (pr2 term_one) = 2.
-  Proof. exact (idpath _). Qed.
-
-  Goal depth2 term_one = 2.
+  Goal oplist_depth term_one (term2proof term_one) = 2.
   Proof. exact (idpath _). Qed.
 
  End Nat.
 
 Section Bool.
-  Local Definition t_false: term bool_signature := make_term bool_false vnil.
-  Local Definition t_true: term bool_signature := make_term bool_true vnil.
-  Local Definition t1: term bool_signature := make_term bool_and (t_true ::: t_false ::: vnil).
-  Local Definition t2: term bool_signature := make_term bool_not (t1 ::: vnil).
+  Local Definition t_false: term bool_signature := build_term bool_false vnil.
+  Local Definition t_true: term bool_signature := build_term bool_true vnil.
+  Local Definition t1: term bool_signature := build_term bool_and (t_true ::: t_false ::: vnil).
+  Local Definition t2: term bool_signature := build_term bool_not (t1 ::: vnil).
 
   Goal princop t1 = bool_and.
   Proof. exact (idpath _). Qed.
@@ -199,8 +196,8 @@ Section Bool.
   Goal el (subterms t1) (●1) = t_false.
   Proof. apply term_extens. exact (idpath _). Qed.
 
-  Eval lazy in depth2 t1.
+  Eval lazy in oplist_depth t1 (term2proof t1).
 
-  Eval lazy in depth2 t2.
+  Eval lazy in oplist_depth t2 (term2proof t2).
 
 End Bool.

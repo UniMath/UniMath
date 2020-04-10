@@ -47,7 +47,7 @@ Defined.
 
 Definition vsubst (f:nat -> term sigma)
   : vterm sigma → term sigma
-  := fromvterm (λ nm _ , make_term nm) f.
+  := fromvterm (λ nm _ , build_term nm) f.
 
 Definition veval (a : algebra sigma) (f:nat->support a)
   : vterm sigma → support a
