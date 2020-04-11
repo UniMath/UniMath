@@ -18,10 +18,10 @@ Section dispcat.
     - cbn. intros A B opA opB f prpt1 prpt2.
       use iscontraprop1.
       + assert (T : isaset (@ishom sigma (make_algebra A opA)(make_algebra B opB) f)).
-        { apply isasetaprop. use isaprop_ishom.
+        { apply isasetaprop. use isapropishom.
         }
         apply T.
-      + apply isaprop_ishom.
+      + apply isapropishom.
     - cbn. intros. apply ishomidfun.
     - cbn. intros A B C opA opB opC. intros f g ishomf ishomg.
       exact (ishomcomp (make_hom ishomf) (make_hom ishomg)).
