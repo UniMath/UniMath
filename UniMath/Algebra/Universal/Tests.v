@@ -63,10 +63,10 @@ Section Nat.
   Goal Universal.statuscons nat_succ (Universal.statusok 0) = Universal.statuserror.
   Proof. exact (idpath _). Qed.
 
-  Goal Universal.status_concatenate (Universal.statusok 1) (Universal.statusok 2) = Universal.statusok 3.
+  Goal Universal.statusconcatenate (Universal.statusok 1) (Universal.statusok 2) = Universal.statusok 3.
   Proof. exact (idpath _). Qed.
 
-  Goal Universal.status_concatenate (Universal.statusok 1) Universal.statuserror = Universal.statuserror.
+  Goal Universal.statusconcatenate (Universal.statusok 1) Universal.statuserror = Universal.statuserror.
   Proof. exact (idpath _). Qed.
 
   Local Lemma one_status: Universal.oplist2status (nat_succ :: nat_zero :: nil) = Universal.statusok 1.
@@ -80,9 +80,9 @@ Section Nat.
   Local Definition term_zero:= nat2term 0.
 
   Local Definition term_one:= nat2term 1.
-  
+
   Local Definition term_two:= nat2term 2.
-  
+
   Local Definition term_ten:= nat2term 10.
 
   Goal Universal.isaterm term_one.
@@ -145,122 +145,41 @@ Section Nat.
 
   Goal el (subterms term_two) (●0) = term_one.
   Proof. exact (idpath _). Qed.
- 
+
   Goal build_term (princop term_ten) (subterms term_ten) = nat2term 10.
   Proof. exact (idpath _). Qed.
- 
-  (* ----- oplist_decompose ----- *)
 
-  (* slow but works *)
-  (* Eval lazy in oplist_decompose term_ten (term2proof term_ten). *)
-
-  Eval lazy in pr1 (oplist_decompose term_ten (term2proof term_ten)).
-  
-  Eval lazy in (pr1 (pr2 (oplist_decompose term_ten (term2proof term_ten)))).
-  
-  Eval lazy in (pr1 (pr2 (pr2 (oplist_decompose term_zero (term2proof term_zero) )))).
-
-  (* long execution time *)
-  (* Eval lazy in (pr1 (pr2 (pr2 (oplist_decompose term_ten (term2proof term_te) )))). *)
-  
-  Eval lazy in (pr2 (pr2 (pr2 (oplist_decompose term_zero (term2proof term_zero) )))).
-  
-  Eval lazy in (pr2 (pr2 (pr2 (oplist_decompose term_one (term2proof term_one) )))).
-  
-  (* long execution time *)
-  (* Eval lazy in (pr2 (pr2 (pr2 (oplist_decompose term_ten (term2proof term_ten) )))). *)
-   
   (* ----- term_decompose ----- *)
-  
+
   (* does not terminate *)
-  (* Eval lazy in term_decompose term_one. *)
-  
-  (* does not terminate. this is weird because we may evaluare all the 
+  (* Eval lazy in Universal.term_decompose term_one. *)
+
+  (* does not terminate. this is weird because we may evaluare all the
      components separately *)
-  (* Eval lazy in term_decompose term_zero. *)
-  
-  Eval lazy in pr1 (term_decompose term_ten).
-  
-  Eval lazy in (pr1 (pr2 (term_decompose term_ten))).
-  
-  Eval lazy in (pr1 (pr2 (pr2 (term_decompose term_zero)))).
-  
+  (* Eval lazy in Universal.term_decompose term_zero. *)
+
+  Eval lazy in pr1 (Universal.term_decompose term_ten).
+
+  Eval lazy in (pr1 (pr2 (Universal.term_decompose term_ten))).
+
+  Eval lazy in (pr1 (pr2 (pr2 (Universal.term_decompose term_zero)))).
+
   (* long execution time *)
-  (* Eval lazy in (pr1 (pr2 (pr2 (term_decompose term_ten)))). *)
-  
-  Eval lazy in (pr2 (pr2 (pr2 (term_decompose term_zero)))).
-  
+  (* Eval lazy in (pr1 (pr2 (pr2 (Universal.term_decompose term_ten)))). *)
+
+  Eval lazy in (pr2 (pr2 (pr2 (Universal.term_decompose term_zero)))).
+
   (* does not terminate *)
-  (* Eval lazy in (pr2 (pr2 (pr2 (term_decompose term_one)))). *)
-  
-  (* ----- oplist_depth ------- *)
+  (* Eval lazy in (pr2 (pr2 (pr2 (Universal.term_decompose term_one)))). *)
 
-  Goal oplist_depth term_ten (term2proof term_ten) = 11.
+  Goal depth term_ten = 11.
   Proof. exact (idpath _). Qed.
 
-  Eval lazy in (oplist_depth term_ten (pr2 term_ten)).
-  
-  (* does not terminate: compute is call-by-value, hence it needs to compute
-     all the proofs involved in the induction *)
-  (* Eval compute in (oplist_depth term_ten (pr2 term_ten)). *)
+  Eval lazy in depth term_ten.
 
-  (* ----- depth recursive ------- *)
-  
-  Goal depth_rec term_ten = 11.
-  Proof. exact (idpath _). Qed.
-  
-  Eval lazy in depth_rec term_ten.
-  
   (* does not terminate: compute is call-by-value, hence it needs to compute
      all the proofs involved in the recursion *)
-  (* Eval compute in depth_rec term_ten. *)
-
-  Goal depth_rec2 term_ten = 11.
-  Proof. exact (idpath _). Qed.
-  
-  Eval lazy in depth_rec2 term_ten.
-  
-  (* does not terminate: compute is call-by-value, hence it needs to compute
-     all the proofs involved in the recursion *)
-  (* Eval compute in depth_rec2 term_ten. *)
-  
-  (* ----- depth inductive ------- *)
-  
-  Goal depth_ind term_zero = 1.
-  Proof. exact (idpath _). Qed.
-  
-  (* does non terminate, even with lazy, due (?) to the transport required for induction *)
-  (* Eval lazy in depth_ind term_one. *)
-  
-  (* does not work *)
-  (*
-    Goal depth_ind term_one = 2.
-    Proof. exact (idpath _). Qed.
-  *)
-
-  Goal depth_ind2 term_zero = 1.
-  Proof. exact (idpath _). Qed.
-  
-  (* does non terminate, even with lazy, due (?) to the transport required for induction *)
-  (* Eval lazy in depth_ind2 term_one. *)
-  
-  (* does not work *)
-  (*
-    Goal depth_ind2 term_one = 2.
-    Proof. exact (idpath _). Qed.
-  *)
-  
-  Goal depth_ind3 term_zero = 1.
-  Proof. exact (idpath _). Qed.
-  
-  (* does non terminate, even with lazy, due (?) to the transport required for induction *)
-  (* Eval lazy in depth_ind3 term_one. *)
-  
-  (* does not work *)
-  (*
-    Goal depth_ind3 term_one = 2.
-    Proof. exact (idpath _). Qed.
-  *)
+  (* Eval compute in depth term_ten. *)
 
 End Nat.
 
@@ -297,8 +216,8 @@ Section Bool.
   Goal el (subterms t1) (●1) = t_false.
   Proof. apply term_extens. exact (idpath _). Qed.
 
-  Eval lazy in oplist_depth t1 (term2proof t1).
+  Eval lazy in depth t1.
 
-  Eval lazy in oplist_depth t2 (term2proof t2).
+  Eval lazy in depth t2.
 
 End Bool.

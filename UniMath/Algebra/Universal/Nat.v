@@ -25,5 +25,5 @@ Defined.
 Definition nat_algebra : algebra nat_signature
   := make_algebra natset nat_ops.
 
-Definition nat2term (n: nat): term nat_signature 
+Definition nat2term (n: nat): term nat_signature
   := nat_rect _ (build_term nat_zero vnil) (λ n termn, build_term nat_succ (vcons termn vnil)) n.
