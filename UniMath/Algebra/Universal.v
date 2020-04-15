@@ -1013,7 +1013,7 @@ Section Term.
     contradiction.
   Defined.
 
-  Definition term_ind_HP (P: term sigma → UU): UU :=
+  Definition term_ind_HP (P: term sigma → UU) :=
     ∏ (nm: names sigma)
       (v: Vector (term sigma) (arity nm))
       (IH: ∏ (i:  ⟦ arity nm ⟧), P (el v i))
@@ -1208,8 +1208,43 @@ Section Term.
   Defined.
 
   Definition depth: term sigma → nat
-    := term_rec ( λ (nm: names sigma) (vterm: Vector (term sigma) (arity nm))
-                    (levels: ⟦ arity nm ⟧ → nat), 1 + vector_foldr max 0 (mk_vector levels) ).
+    := term_rec (λ (nm: names sigma) (vterm: Vector (term sigma) (arity nm))
+                   (levels: ⟦ arity nm ⟧ → nat), 1 + vector_foldr max 0 (mk_vector levels)).
+
+  Lemma term_rec_ind {A: UU} (R: term_rec_HP A) (t: term sigma)
+    : term_rec R t = term_ind  (λ _: term sigma, A) R t.
+  Proof.
+    unfold term_rec, term_ind.
+    unfold term_rec_onlength, term_ind_onlength.
+    (* ASK! a faster way to do this? *)
+    assert (H: @transportf _ (λ _ : term sigma, A)  = λ _ _ _, idfun A).
+    {
+      apply funextsec.
+      intro x.
+      apply funextsec.
+      intro x'.
+      apply funextsec.
+      intro e.
+      rewrite transportf_const.
+      apply idpath.
+    }
+    rewrite H.
+    apply idpath.
+ Defined.
+ 
+  Corollary term_rec_step {A: UU} (R: term_rec_HP A)
+    (nm: names sigma) (v: Vector (term sigma) (arity nm))
+    : term_rec R (build_term nm v)
+         = R nm v (λ i:  ⟦ arity nm ⟧, term_rec R (el v i)).
+  Proof.
+    rewrite term_rec_ind.
+    rewrite term_ind_step.
+    apply maponpaths.
+    apply funextsec.
+    intro i.
+    rewrite term_rec_ind.
+    apply idpath.
+  Defined.
 
 End Term.
 
