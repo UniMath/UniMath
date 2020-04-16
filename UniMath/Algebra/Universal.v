@@ -154,7 +154,7 @@ Section Unitalgebra.
     exists (unithom a).
     intros.
     apply subtypePairEquality'.
-    -  apply iscontrfuntounit.
+    - apply iscontrfuntounit.
     - apply isapropishom.
   Defined.
 
@@ -1177,13 +1177,13 @@ Section Term.
       apply (v0len i).
   Defined.
 
-  Definition term_rec_HP (A: UU): UU :=
+  Definition term_rec_HP {A: UU}: UU :=
     ∏ (nm: names sigma)
       (v: Vector (term sigma) (arity nm))
       (IH: ∏ (i:  ⟦ arity nm ⟧), A)
     , A.
 
-  Local Lemma term_rec_onlength {A: UU} (R: term_rec_HP A)
+  Local Lemma term_rec_onlength {A: UU} (R: @term_rec_HP A)
     : ∏ (n: nat) (t: term sigma), length t ≤ n →  A.
   Proof.
     induction n.
@@ -1202,7 +1202,7 @@ Section Term.
       -- apply tlen.
     Defined.
 
-  Theorem term_rec {A: UU} (R: term_rec_HP A) (t: term sigma): A.
+  Theorem term_rec {A: UU} (R: @term_rec_HP A) (t: term sigma): A.
   Proof.
     exact (term_rec_onlength R (length t) t (isreflnatleh _)).
   Defined.
@@ -1211,7 +1211,7 @@ Section Term.
     := term_rec (λ (nm: names sigma) (vterm: Vector (term sigma) (arity nm))
                    (levels: ⟦ arity nm ⟧ → nat), 1 + vector_foldr max 0 (mk_vector levels)).
 
-  Lemma term_rec_ind {A: UU} (R: term_rec_HP A) (t: term sigma)
+  Lemma term_rec_ind {A: UU} (R: @term_rec_HP A) (t: term sigma)
     : term_rec R t = term_ind  (λ _: term sigma, A) R t.
   Proof.
     unfold term_rec, term_ind.
@@ -1231,8 +1231,8 @@ Section Term.
     rewrite H.
     apply idpath.
  Defined.
- 
-  Corollary term_rec_step {A: UU} (R: term_rec_HP A)
+
+  Corollary term_rec_step {A: UU} (R: @term_rec_HP A)
     (nm: names sigma) (v: Vector (term sigma) (arity nm))
     : term_rec R (build_term nm v)
          = R nm v (λ i:  ⟦ arity nm ⟧, term_rec R (el v i)).
@@ -1253,13 +1253,56 @@ Section termalgebra.
   Definition term_algebra (sigma: signature): algebra sigma
     := make_algebra (termset sigma) build_term.
 
-  (** TODO
+  Context {sigma: signature}.
 
-  Definition initial_hom {sigma: signature} (a: algebra sigma): term_algebra sigma ↦ a.
+  Definition eval (a: algebra sigma): term_algebra sigma → a
+    := term_rec (λ nm vterms IH, op a nm (mk_vector IH)).
 
-  Definition initial_hom_unicity {sigma: signature} (a: algebra sigma) (f: hom term_algebra a)
-     : f = initial_hom a.
+  Lemma evalstep {a: algebra sigma} (nm: names sigma) (v: Vector (term sigma) (arity nm))
+    : eval a (build_term nm v) = op a nm (vector_map (eval a) v).
+  Proof.
+    unfold eval.
+    rewrite term_rec_step.
+    apply maponpaths.
+    apply vector_extens.
+    intro.
+    rewrite el_mk_vector.
+    rewrite el_vector_map.
+    apply idpath.
+  Defined.
 
-  **)
+  Lemma ishomeval (a: algebra sigma): ishom (eval a).
+  Proof.
+    unfold ishom.
+    intros.
+    simpl.
+    apply evalstep.
+  Defined.
+
+  Definition evalhom (a: algebra sigma): term_algebra sigma ↦ a
+    := make_hom (ishomeval a).
+
+  Definition iscontrhomsfromterm (a: algebra sigma): iscontr (term_algebra sigma ↦ a).
+  Proof.
+    exists (evalhom a).
+    intro.
+    rename t into f.
+    apply subtypePairEquality'.
+    2: apply isapropishom.
+    apply funextfun.
+    unfold homot.
+    apply term_ind.
+    unfold term_ind_HP.
+    intros.
+    change (build_term nm v) with (op (term_algebra sigma) nm v) at 1.
+    rewrite (hom2axiom f).
+    rewrite evalstep.
+    apply maponpaths.
+    apply vector_extens.
+    intros.
+    do 2 rewrite el_vector_map.
+    rewrite IH.
+    apply idpath.
+  Defined.
 
 End termalgebra.
