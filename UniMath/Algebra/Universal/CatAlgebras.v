@@ -1,9 +1,12 @@
 Require Import UniMath.Foundations.All.
-Require Import UniMath.CategoryTheory.All.
-Require Import UniMath.Combinatorics.FiniteSets.
+Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.categories.HSET.Core.
+Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
+Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 Require Import UniMath.Combinatorics.Vectors.
-Require Import UniMath.Combinatorics.Lists.
-
 Require Import UniMath.Algebra.Universal.
 
 Section dispcat.
@@ -44,4 +47,4 @@ Section dispcat.
     exact (@is_univalent_total_category SET disp_alg (is_univalent_HSET) is_univalent_disp_alg).
   Defined.
 
-  End dispcat.
+End dispcat.
