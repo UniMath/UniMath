@@ -44,8 +44,8 @@ Defined.
 Definition bool_algebra : algebra bool_signature
   := make_algebra boolset bool_ops.
 
-Definition bool_false := iter_build_term bool_false_op.
-Definition bool_true := iter_build_term bool_true_op.
-Definition bool_not := iter_build_term bool_not_op.
-Definition bool_and := iter_build_term bool_and_op.
-Definition bool_or := iter_build_term bool_or_op.
+Definition bool_false := build_term_curried bool_false_op.
+Definition bool_true := build_term_curried bool_true_op.
+Definition bool_not := build_term_curried bool_not_op.
+Definition bool_and := build_term_curried bool_and_op.
+Definition bool_or := build_term_curried bool_or_op.

@@ -1219,6 +1219,8 @@ End Term.
 
 Section termalgebra.
 
+  (** * Definition of term algebra and proof it is initial *)
+
   Definition term_algebra (sigma: signature): algebra sigma
     := make_algebra (termset sigma) build_term.
 
@@ -1271,7 +1273,17 @@ Section termalgebra.
 
 End termalgebra.
 
-Section iterfun.
+Section iterbuild.
+
+(** *
+  Define a curried version of build_term which is easier to use in
+  practice.
+*)
+
+(** **
+  "iterfun A B n" is the curried version of "Vector A n → B", i.e.
+  "iterfun A B n" = "A → (A → ...... → (A → B)" with A repeated n times
+*)
 
 Definition iterfun (A B: UU) (n: nat): UU
   := nat_rect (λ _, UU) B (λ (n: nat) (IH: UU), A → IH) n.
@@ -1287,8 +1299,8 @@ Proof.
     apply (IHn f').
 Defined.
 
-Definition iter_build_term {sigma: signature} (nm: names sigma)
+Definition build_term_curried {sigma: signature} (nm: names sigma)
   : iterfun (term sigma) (term sigma) (arity nm)
   := itercurry (build_term nm).
 
-End iterfun.
+End iterbuild.

@@ -28,8 +28,8 @@ Defined.
 Definition nat_algebra : algebra nat_signature
   := make_algebra natset nat_ops.
 
-Definition nat_zero := iter_build_term nat_zero_op.
-Definition nat_succ := iter_build_term nat_succ_op.
+Definition nat_zero := build_term_curried nat_zero_op.
+Definition nat_succ := build_term_curried nat_succ_op.
 
 Definition nat2term (n: nat): term nat_signature
   := nat_rect

@@ -44,6 +44,6 @@ Section Group_Algebra.
 
 End Group_Algebra.
 
-Definition group_mul := iter_build_term group_mul_op.
-Definition group_id  := iter_build_term group_id_op.
-Definition group_inv := iter_build_term group_inv_op.
+Definition group_mul := build_term_curried group_mul_op.
+Definition group_id  := build_term_curried group_id_op.
+Definition group_inv := build_term_curried group_inv_op.
