@@ -1,4 +1,4 @@
-(***** Universal Algebra: the natural number algebras ******)
+(***** Universal Algebra: the natural numbers signature and standard algebra ******)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.Vectors.
@@ -7,10 +7,13 @@ Require Import UniMath.Algebra.Universal.
 
 Open Scope stn.
 
-Definition nat_signature: signature := make_signature_simple (vcons 0 (vcons 1 vnil)).
+Definition nat_signature: signature
+  := make_signature_simple
+       (vcons 0             (* zero *)
+         (vcons 1 vnil)).   (* succ *)
 
-Definition nat_zero: names nat_signature := (●0).
-Definition nat_succ: names nat_signature := (●1).
+Definition nat_zero_op: names nat_signature := ●0.
+Definition nat_succ_op: names nat_signature := ●1.
 
 Definition nat_ops (nm : names nat_signature): Vector nat (arity nm) → nat.
 Proof.
@@ -25,5 +28,12 @@ Defined.
 Definition nat_algebra : algebra nat_signature
   := make_algebra natset nat_ops.
 
+Definition nat_zero := iter_build_term nat_zero_op.
+Definition nat_succ := iter_build_term nat_succ_op.
+
 Definition nat2term (n: nat): term nat_signature
-  := nat_rect _ (build_term nat_zero vnil) (λ n termn, build_term nat_succ (vcons termn vnil)) n.
+  := nat_rect
+       (λ _, term nat_signature)
+       nat_zero
+       (λ (n: nat) (tn: term nat_signature), nat_succ tn)
+       n.

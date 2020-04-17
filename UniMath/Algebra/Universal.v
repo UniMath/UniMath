@@ -1307,3 +1307,25 @@ Section termalgebra.
   Defined.
 
 End termalgebra.
+
+Section iterfun.
+
+Definition iterfun (A B: UU) (n: nat): UU
+  := nat_rect (λ _, UU) B (λ (n: nat) (IH: UU), A → IH) n.
+
+Definition itercurry {A B: UU} {n: nat} (f: Vector A n → B): iterfun A B n.
+Proof.
+  induction n.
+  - cbn. exact (f vnil).
+  - unfold iterfun.
+    rewrite nat_rect_step.
+    intro x.
+    set (f' := λ (v: Vector A n), f (vcons x v)).
+    apply (IHn f').
+Defined.
+
+Definition iter_build_term {sigma: signature} (nm: names sigma)
+  : iterfun (term sigma) (term sigma) (arity nm)
+  := itercurry (build_term nm).
+
+End iterfun.

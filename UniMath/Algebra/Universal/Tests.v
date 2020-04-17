@@ -12,142 +12,67 @@ Local Notation "[]" := nil (at level 0, format "[]").
 Local Infix "::" := cons.
 Local Infix ":::" := vcons (at level 60, right associativity).
 
-Section Nat.
+Section NatLowLevel.
 
-  Goal op nat_algebra nat_zero vnil = 0.
-  Proof. exact (idpath _). Qed.
-
-  Goal op nat_algebra nat_succ (0 ::: vnil) = 1.
-  Proof. exact (idpath _). Qed.
-
-  Goal ∏ x: nat, homid nat_algebra x = x.
+  Goal Universal.statuscons nat_succ_op (Universal.statusok 1) = Universal.statusok 1.
   Proof. apply idpath. Qed.
 
-  Definition nat_ops2 (nm : names nat_signature): Vector nat (arity nm) → nat.
-  Proof.
-    induction nm as [n proofn].
-    induction n.
-    { cbn. exact (λ _, 1). }
-    induction n.
-    { cbn. exact (λ x, S(pr1 x)). }
-    { exact (fromempty (nopathsfalsetotrue proofn)). }
-  Defined.
-
-  Definition nat_algebra2: algebra nat_signature := make_algebra natset nat_ops2.
-
-  Definition homnats: hom nat_algebra nat_algebra2.
-  Proof.
-    exists (λ x: nat, S x).
-    unfold ishom.
-    intros.
-    induction nm as [n proofn].
-    induction n.
-    { cbn. exact (idpath _). }
-    induction n.
-    { cbn. exact (idpath _).     }
-    { exact (fromempty (nopathsfalsetotrue proofn)).  }
-  Defined.
-
-  Goal homnats 2 = 3.
-  Proof. exact (idpath _). Qed.
-
-  Goal homcomp (homid nat_algebra) homnats 2 = 3.
-  Proof. exact (idpath _). Qed.
-
-  Goal unithom nat_algebra 2 = tt.
-  Proof. exact (idpath _). Qed.
-
-  Goal Universal.statuscons nat_succ (Universal.statusok 1) = Universal.statusok 1.
-  Proof. exact (idpath _). Qed.
-
-  Goal Universal.statuscons nat_succ (Universal.statusok 0) = Universal.statuserror.
-  Proof. exact (idpath _). Qed.
+  Goal Universal.statuscons nat_succ_op (Universal.statusok 0) = Universal.statuserror.
+  Proof. apply idpath. Qed.
 
   Goal Universal.statusconcatenate (Universal.statusok 1) (Universal.statusok 2) = Universal.statusok 3.
-  Proof. exact (idpath _). Qed.
+  Proof. apply idpath. Qed.
 
   Goal Universal.statusconcatenate (Universal.statusok 1) Universal.statuserror = Universal.statuserror.
-  Proof. exact (idpath _). Qed.
+  Proof. apply idpath. Qed.
 
-  Local Lemma one_status: Universal.oplist2status (nat_succ :: nat_zero :: nil) = Universal.statusok 1.
-  Proof. exact (idpath _). Qed.
+  Local Definition zero_one_oplist: Universal.oplist nat_signature
+    := nat_zero_op :: nat_succ_op :: nat_zero_op :: [].
 
-  Goal Universal.oplist2status(sigma:=nat_signature) nil = Universal.statusok 0.
-  Proof. exact (idpath _). Qed.
+  Local Definition one_oplist: Universal.oplist nat_signature
+    := nat_succ_op :: nat_zero_op :: [].
 
-  Eval cbn in pr1 ( Universal.oplist2vecoplist (nat_zero :: nat_succ :: nat_zero :: nil) (idpath (Universal.statusok 2)) ).
+  Local Definition zero_oplist: Universal.oplist nat_signature
+    := nat_zero_op :: [].
 
-  Local Definition term_zero:= nat2term 0.
+  Goal Universal.oplist2status (sigma:=nat_signature) [] = Universal.statusok 0.
+  Proof. apply idpath. Qed.
 
-  Local Definition term_one:= nat2term 1.
+  Goal Universal.oplist2status one_oplist = Universal.statusok 1.
+  Proof. apply idpath. Qed.
 
-  Local Definition term_two:= nat2term 2.
+  Goal Universal.oplist2status zero_one_oplist = Universal.statusok 2.
+  Proof. apply idpath. Qed.
 
-  Local Definition term_ten:= nat2term 10.
+  Goal Universal.oplist2status (nat_succ_op :: []) = Universal.statuserror.
+  Proof. apply idpath. Qed.
 
-  Goal Universal.isaterm term_one.
-  Proof. exact (idpath _). Qed.
+  Goal Universal.isaterm (nat2term 10).
+  Proof. apply idpath. Qed.
 
-  Goal Universal.isaterm term_two.
-  Proof. exact (idpath _). Qed.
+  Goal pr1 (Universal.oplistsplit zero_one_oplist 0) = [].
+  Proof. apply idpath. Qed.
 
-  Local Lemma zero_one_status: Universal.oplist2status (nat_zero :: nat_succ :: nat_zero :: nil) = Universal.statusok 2.
-  Proof. exact (idpath _). Qed.
+  Goal pr2 (Universal.oplistsplit zero_one_oplist 0) = zero_one_oplist.
+  Proof. apply idpath. Qed.
 
-  (*
-  Local Definition zero_one_stack: stack nat_signature 2:=
-    make_stack (nat_zero :: nat_succ :: nat_zero :: nil) zero_one_status.
-  *)
+  Goal pr1 (Universal.oplistsplit zero_one_oplist 1) = zero_oplist.
+  Proof. apply idpath. Qed.
 
-  Goal Universal.oplist2status (nat_succ :: nil) = Universal.statuserror.
-  Proof. exact (idpath _). Qed.
+  Goal pr2 (Universal.oplistsplit zero_one_oplist 1) = one_oplist.
+  Proof. apply idpath. Qed.
 
-  (*
-  Goal stack_concatenate term_zero term_one = zero_one_stack.
-  Proof. apply stack_extens. exact (idpath _). Qed.
+End NatLowLevel.
 
-  Goal terms2stack (term_zero ::: term_one ::: vnil) = zero_one_stack.
-  Proof. apply stack_extens. exact (idpath _). Qed.
-  *)
+Section Nat.
 
-  Goal princop term_two = nat_succ.
-  Proof. exact (idpath _). Qed.
+  Local Definition term_zero := nat_zero.
 
-  (**
-  Goal stack_first zero_one_stack = term_zero.
-  Proof. exact (idpath _). Qed.
+  Local Definition term_one := nat_succ nat_zero.
 
-  Goal stack2list (stack_rest zero_one_stack) = stack2list term_one.
-  Proof. exact (idpath _). Qed.
+  Local Definition term_two := nat_succ (nat_succ nat_zero).
 
-  Goal vector_map stack2list (stack2terms zero_one_stack) = vector_map stack2list (term_zero ::: term_one ::: vnil).
-  Proof. exact (idpath _). Qed.
-
-  Goal pr1 (oplistsplit zero_one_stack 0) = nil.
-  Proof. exact (idpath _ ). Qed.
-
-  Goal pr1 (oplistsplit zero_one_stack 0) = nil.
-  Proof. exact (idpath _ ). Qed.
-
-  Goal pr2 (oplistsplit zero_one_stack 0) = zero_one_stack.
-  Proof. exact (idpath _). Qed.
-
-  Goal pr1 (oplistsplit zero_one_stack 1) = term_zero.
-  Proof. exact (idpath _). Qed.
-
-  Goal stack_first zero_one_stack = term_zero.
-  Proof. exact (idpath _). Qed.
-
-  **)
-
-  Goal el (subterms term_one) (●0) = term_zero.
-  Proof.  exact (idpath _). Qed.
-
-  Goal el (subterms term_two) (●0) = term_one.
-  Proof. exact (idpath _). Qed.
-
-  Goal build_term (princop term_ten) (subterms term_ten) = nat2term 10.
-  Proof. exact (idpath _). Qed.
+  Local Definition term_four := nat_succ (nat_succ (nat_succ (nat_succ nat_zero))).
 
   (* ----- term_decompose ----- *)
 
@@ -158,66 +83,142 @@ Section Nat.
      components separately *)
   (* Eval lazy in Universal.term_decompose term_zero. *)
 
-  Eval lazy in pr1 (Universal.term_decompose term_ten).
-
-  Eval lazy in (pr1 (pr2 (Universal.term_decompose term_ten))).
-
-  Eval lazy in (pr1 (pr2 (pr2 (Universal.term_decompose term_zero)))).
-
-  (* long execution time *)
+  (* works, but long execution time *)
   (* Eval lazy in (pr1 (pr2 (pr2 (Universal.term_decompose term_ten)))). *)
 
-  Eval lazy in (pr2 (pr2 (pr2 (Universal.term_decompose term_zero)))).
+  (* works *)
+  (* Eval lazy in (pr2 (pr2 (pr2 (Universal.term_decompose term_zero)))). *)
 
   (* does not terminate *)
   (* Eval lazy in (pr2 (pr2 (pr2 (Universal.term_decompose term_one)))). *)
 
-  Goal depth term_ten = 11.
-  Proof. exact (idpath _). Qed.
 
-  Eval lazy in depth term_ten.
+  Goal princop term_four = nat_succ_op.
+  Proof. apply idpath. Qed.
+
+  Goal el (subterms term_one) (●0) = term_zero.
+  Proof. apply idpath. Qed.
+
+  Goal el (subterms term_two) (●0) = term_one.
+  Proof. apply idpath. Qed.
+
+  Goal build_term (princop term_four) (subterms term_four) = term_four.
+  Proof. apply idpath. Qed.
+
+  Goal depth term_four = 5.
+  Proof. apply idpath. Qed.
+
+  (* works *)
+  (* Eval lazy in depth term_four. *)
 
   (* does not terminate: compute is call-by-value, hence it needs to compute
      all the proofs involved in the recursion *)
-  (* Eval compute in depth term_ten. *)
+  (* Eval compute in depth term_four. *)
+
+  Goal eval nat_algebra term_zero = 0.
+  Proof. apply idpath. Qed.
+
+  Goal eval nat_algebra term_one = 1.
+  Proof. apply idpath. Qed.
+
+  Goal nat2term 4 = term_four.
+  Proof. apply idpath. Qed.
+
+  Goal eval nat_algebra (nat2term 4) = 4.
+  Proof. apply idpath. Qed.
 
 End Nat.
 
+Section NatHom.
+
+  Goal ∏ x: nat, homid nat_algebra x = x.
+  Proof. apply idpath. Qed.
+
+  Local Definition nat_ops2 (nm : names nat_signature): Vector nat (arity nm) → nat.
+  Proof.
+    induction nm as [n proofn].
+    induction n.
+    { cbn. exact (λ _, 1). }
+    induction n.
+    { cbn. exact (λ x, S(pr1 x)). }
+    { exact (fromempty (nopathsfalsetotrue proofn)). }
+  Defined.
+
+  Local Definition nat_algebra2: algebra nat_signature := make_algebra natset nat_ops2.
+
+  Local Definition homnats: hom nat_algebra nat_algebra2.
+  Proof.
+    exists (λ x: nat, S x).
+    unfold ishom.
+    intros.
+    induction nm as [n proofn].
+    induction n.
+    { cbn. apply idpath. }
+    induction n.
+    { cbn. apply idpath.     }
+    { exact (fromempty (nopathsfalsetotrue proofn)).  }
+  Defined.
+
+  Goal homnats 2 = 3.
+  Proof. apply idpath. Qed.
+
+  Goal homcomp (homid nat_algebra) homnats 2 = 3.
+  Proof. apply idpath. Qed.
+
+  Goal unithom nat_algebra 2 = tt.
+  Proof. apply idpath. Qed.
+
+End NatHom.
+
 Section Bool.
-  Local Definition t_false: term bool_signature := build_term bool_false vnil.
-  Local Definition t_true: term bool_signature := build_term bool_true vnil.
-  Local Definition t1: term bool_signature := build_term bool_and (t_true ::: t_false ::: vnil).
-  Local Definition t2: term bool_signature := build_term bool_not (t1 ::: vnil).
 
-  Goal princop t1 = bool_and.
-  Proof. exact (idpath _). Qed.
+  Local Definition t_false := bool_false.
+  Local Definition t_true := bool_true.
+  Local Definition t1 := bool_and bool_true bool_false.
+  Local Definition t2 := bool_not t1.
 
-  Goal bool_not :: bool_and :: bool_true :: bool_false :: [] = t2.
-  Proof. exact (idpath _). Qed.
+  Goal princop t1 = bool_and_op.
+  Proof. apply idpath. Qed.
 
-  Goal pr1 (Universal.oplistsplit t1 0) = nil.
-  Proof. exact (idpath _). Qed.
+  Goal bool_not_op :: bool_and_op :: bool_true_op :: bool_false_op :: [] = t2.
+  Proof. apply idpath. Qed.
+
+  Goal pr1 (Universal.oplistsplit t1 0) = [].
+  Proof. apply idpath. Qed.
 
   Goal pr2 (Universal.oplistsplit t1 0) = t1.
-  Proof. exact (idpath _). Qed.
+  Proof. apply idpath. Qed.
 
   Goal pr1 (Universal.oplistsplit t1 1) = t1.
-  Proof. exact (idpath _). Qed.
+  Proof. apply idpath. Qed.
 
-  Goal pr2 (Universal.oplistsplit t1 1) = nil.
-  Proof. exact (idpath _). Qed.
+  Goal pr2 (Universal.oplistsplit t1 1) = [].
+  Proof. apply idpath. Qed.
 
   Goal el (subterms t2) (●0) = t1.
-  Proof. apply term_extens. exact (idpath _). Qed.
+  Proof. apply term_extens. apply idpath. Qed.
 
   Goal el (subterms t1) (●0) = t_true.
-  Proof. exact (idpath _). Qed.
+  Proof. apply idpath. Qed.
 
   Goal el (subterms t1) (●1) = t_false.
-  Proof. apply term_extens. exact (idpath _). Qed.
+  Proof. apply term_extens. apply idpath. Qed.
 
-  Eval lazy in depth t1.
+  Goal depth t2 = 3.
+  Proof. apply idpath. Qed.
 
-  Eval lazy in depth t2.
+  Definition simple_t := bool_not (bool_and (bool_or bool_true bool_false) (bool_not bool_false)).
+
+  Lemma l1: eval bool_algebra bool_true = true.
+  Proof. apply idpath. Defined.
+
+  Lemma l2: eval bool_algebra (bool_not bool_true) = false.
+  Proof. apply idpath. Defined.
+
+  Lemma l3: eval bool_algebra (bool_and bool_true bool_false) = false.
+  Proof. apply idpath. Defined.
+
+  Lemma l4: eval bool_algebra simple_t = false.
+  Proof. apply idpath. Defined.
 
 End Bool.

@@ -10,21 +10,21 @@ Open Scope stn.
 
 Definition group_signature: signature
   := make_signature_simple
-       (vcons 2                 (* multiplication *)
-         (vcons 0               (* identity *)
-           (vcons 1             (* inverse *)
-             vnil))).
+       (vcons 2          (* multiplication *)
+       (vcons 0          (* identity *)
+       (vcons 1          (* inverse *)
+     vnil))).
 
-Definition group_mul: names group_signature := (●0).
-Definition group_id : names group_signature := (●1).
-Definition group_inv: names group_signature := (●2).
+Local Definition group_mul_op: names group_signature := ●0.
+Local Definition group_id_op: names group_signature := ●2.
+Local Definition group_inv_op: names group_signature := ●2.
 
 Section Group_Algebra.
 
   Variable G : gr.
 
-  Let arg1 {i} (p:Vector G (1 + i)) : G := el p (●0).
-  Let arg2 {i} (p:Vector G (2 + i)) : G := el p (●1).
+  Let arg1 {i} (p: Vector G (1 + i)) : G := el p (●0).
+  Let arg2 {i} (p: Vector G (2 + i)) : G := el p (●1).
 
   Definition group_ops (nm : names group_signature)
     : Vector G (arity nm) → G.
@@ -43,3 +43,7 @@ Section Group_Algebra.
     := make_algebra G group_ops.
 
 End Group_Algebra.
+
+Definition group_mul := iter_build_term group_mul_op.
+Definition group_id  := iter_build_term group_id_op.
+Definition group_inv := iter_build_term group_inv_op.

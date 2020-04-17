@@ -1,4 +1,4 @@
-(***** Universal Algebra: the boolean algebras ******)
+(***** Universal Algebra: the boolean signature and standard boolean algebra ******)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.Vectors.
@@ -7,12 +7,20 @@ Require Import UniMath.Algebra.Universal.
 
 Open Scope stn.
 
-Definition bool_signature := make_signature_simple (vcons 0 (vcons 0 (vcons  1 (vcons 2 vnil)))).
+Definition bool_signature :=
+  make_signature_simple
+    (vcons 0   (* false *)
+    (vcons 0   (* true *)
+    (vcons 1   (* not *)
+    (vcons 2   (* and *)
+    (vcons 2   (* ord *)
+    vnil))))).
 
-Definition bool_false: names bool_signature := (●0).
-Definition bool_true: names bool_signature := (●1).
-Definition bool_not: names bool_signature := (●2).
-Definition bool_and: names bool_signature := (●3).
+Definition bool_false_op: names bool_signature := ●0.
+Definition bool_true_op: names bool_signature := ●1.
+Definition bool_not_op: names bool_signature := ●2.
+Definition bool_and_op: names bool_signature := ●3.
+Definition bool_or_op: names bool_signature := ●4.
 
 Local Definition andb (b1 b2: bool): bool := if b1 then b2 else false.
 Local Definition orb (b1 b2: bool): bool := if b1 then true else b2.
@@ -25,11 +33,19 @@ Proof.
   induction n.
   { cbn. exact (λ _, true). }
   induction n.
-  { cbn. exact (λ x, negb(pr1 x)). }
+  { cbn. exact (λ x, negb (pr1 x)). }
   induction n.
   { cbn. exact (λ x, andb (pr1 x) (pr1 (pr2 x))). }
+  induction n.
+  { cbn. exact (λ x, orb (pr1 x) (pr1 (pr2 x))). }
   { exact (fromempty (nopathsfalsetotrue proofn)). }
 Defined.
 
 Definition bool_algebra : algebra bool_signature
   := make_algebra boolset bool_ops.
+
+Definition bool_false := iter_build_term bool_false_op.
+Definition bool_true := iter_build_term bool_true_op.
+Definition bool_not := iter_build_term bool_not_op.
+Definition bool_and := iter_build_term bool_and_op.
+Definition bool_or := iter_build_term bool_or_op.
