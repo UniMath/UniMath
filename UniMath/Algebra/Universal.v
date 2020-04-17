@@ -372,39 +372,15 @@ Section Oplist.
 
   Identity Coercion oplistislist: oplist >-> list.
 
-  (* ASK!
-     Proofs that lists and oplists are sets. It's longer than expected. I would
-     have expected a proof that isofhlevel 2 -> isaset, while only the opposite
-     is provided.
-   *)
-
-  Theorem isasetlist (A: UU): isaset A → isaset (list A).
-  Proof.
-    intro isasetA.
-    apply isaset_total2.
-    - apply natset.
-    - intro n.
-      induction n.
-      + cbn.
-        apply isasetunit.
-      + change (Vector A (S n)) with (A × Vector A n).
-        apply isaset_dirprod.
-        * apply isasetA.
-        * apply IHn.
-  Defined.
-
   Local Corollary isasetoplist (sigma: signature): isaset (oplist sigma).
   Proof.
-    apply isasetlist.
+    apply isofhlevellist.
     apply setproperty.
   Defined.
 
   Local Definition status: UU := maybe nat.
 
-  (* ASK! I would like to define statusok as "some", but then I would need to unfold "some"
-     manually in selected proof. *)
-
-  Local Definition statusok: nat → status := ii1.
+  Local Definition statusok: nat → status := some.
 
   Local Definition statuserror: status := error.
 
@@ -446,11 +422,7 @@ Section OplistProps.
   Local Lemma statuscons_statusok_f {nm: names sigma} {n: nat} (aritynm: arity nm ≤ n)
     : statuscons nm (statusok n) = statusok (S (n - arity nm)).
   Proof.
-    cbn [statuscons statusok coprod_rect].
-    (* ASK
-       Alternatively, "unfold statuscons, statusok, coprod_rect" produces a better
-       looking term, but with a match. Which is better?
-    *)
+    cbn [statuscons statusok some coprod_rect].
     induction (isdecrelnatleh (arity nm) n) as [arityok | arityerror] ; cbn.
     - apply idpath.
     - contradiction.
@@ -501,7 +473,6 @@ Section OplistProps.
     : oplist2status l = statusok 0 → l = nil.
   Proof.
     revert l.
-    (* ASK! Why apply does not work in the next tactic? *)
     refine (list_ind _ _ _).
     - reflexivity.
     - intros x xs _ lstatus.
@@ -548,7 +519,7 @@ Section OplistProps.
     2: reflexivity.
     intro noerror.
     cbn [statuscons coprod_rect] in noerror.
-    cbn [statusconcatenate statuscons statusok coprod_rect].
+    cbn [statusconcatenate statuscons statusok some coprod_rect].
     induction (isdecrelnatleh (arity nm) s1) as [arityok1 | arityerror1] ; cbn in noerror.
     2: contradiction.
     induction (isdecrelnatleh (arity nm) (s1+s2)) as [arityok2 | arityerror2]; cbn.
@@ -1108,14 +1079,8 @@ Section Term.
   Proof.
     unfold term_ind.
     unfold build_term in *.
-    (* ASK!
-      Is there a better way to guide the execution of cbn and similar?
-    *)
     cbn [term2oplist pr1].
     unfold oplist_build_term in *.
-    (* ASK!
-      Why "rewrite length_cons" does not work here?
-    *)
     change (length (cons nm (vecoplist2oplist (vector_map term2oplist v))))
            with (S (length (vecoplist2oplist (vector_map term2oplist v)))).
     set (l := (cons nm (vecoplist2oplist (vector_map term2oplist v)))).
@@ -1125,9 +1090,7 @@ Section Term.
                     (el (vector_map term2oplist v) i)
                     (term2oplist (el v i)) (λ o : oplist sigma, isaterm o)
                     (term2proof (el v i)) (el_vector_map term2oplist v i))).
-    set (t := (l,, statusl): term sigma).
-    (* ASK! Why do I need this change tactic?  *)
-    change (l ,, statusl) with t.
+    set (t := tpair (@isaterm sigma) l statusl).
     unfold term_ind_onlength at 1.
     rewrite nat_rect_step.
     induction (term_decompose t) as [nm0 [v0 [v0len v0norm]]].
@@ -1216,7 +1179,7 @@ Section Term.
     unfold term_rec, term_ind.
     unfold term_rec_onlength, term_ind_onlength.
     (* ASK! a faster way to do this ? *)
-    assert (H: @transportf _ (λ _ : term sigma, A)  = λ _ _ _, idfun A).
+    assert (H: @transportf _ (λ _ : term sigma, A) = λ _ _ _, idfun A).
     {
       apply funextsec.
       intro x.
