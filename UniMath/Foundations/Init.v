@@ -7,7 +7,7 @@ Require Export Coq.Init.Logic.
 Require Export Coq.Init.Notations.
 (* get the standard Coq reserved notations *)
 
-Require Export Coq.Init.Ltac.
+From Coq Require Ltac.
 (* get the tactics *)
 
 (** Notations *)
