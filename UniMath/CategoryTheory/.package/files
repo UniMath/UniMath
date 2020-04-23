@@ -200,6 +200,9 @@ Monoidal/Actions.v
 Monoidal/Strengths.v
 Monoidal/BraidedMonoidalCategories.v
 
+SkewMonoidal/SkewMonoidalCategories.v
+SkewMonoidal/CategoriesOfMonoids.v
+
 Enriched/Enriched.v
 
 # RepresentableFunctors
