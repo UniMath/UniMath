@@ -218,7 +218,7 @@ distclean::          ; - $(MAKE) -C sub/lablgtk arch-clean
 # building coq:
 export PATH:=$(shell pwd)/sub/coq/bin:$(PATH)
 CONFIGURE_OPTIONS := -coqide "$(COQIDE_OPTION)" -with-doc no -local -no-custom
-BUILD_TARGETS := coqbinaries tools states
+BUILD_TARGETS := coqbinaries tools states ltac
 ifeq ($(DEBUG_COQ),yes)
 CONFIGURE_OPTIONS += -annot
 BUILD_TARGETS += byte
