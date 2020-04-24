@@ -7,6 +7,9 @@ Require Export Coq.Init.Logic.
 Require Export Coq.Init.Notations.
 (* get the standard Coq reserved notations *)
 
+From Coq Require Export Ltac.
+(* get the tactics *)
+
 (** Notations *)
 
 Notation "'∏'  x .. y , P" := (forall x, .. (forall y, P) ..)
