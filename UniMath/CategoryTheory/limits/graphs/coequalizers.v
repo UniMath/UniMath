@@ -12,9 +12,11 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.limits.graphs.limits.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.limits.graphs.eqdiag.
 Require Import UniMath.CategoryTheory.limits.coequalizers.
 
 Local Open Scope cat.
@@ -172,6 +174,40 @@ Section def_coequalizers.
     - intros y t. cbn in t.
       use CoequalizerOutUnique.
       exact t.
+  Qed.
+
+  Definition CoequalizerOfArrows
+             {a a' b b' : C} {f g : a --> b}
+             {f' g' : a' --> b'}
+             (cfg : Coequalizer f g)
+             (cfg' : Coequalizer f' g')
+             (u : a --> a')
+             (v : b --> b')
+             (eqf : f · v = u · f')
+             (eqg : g · v = u · g')
+    :
+      CoequalizerObject cfg --> CoequalizerObject cfg'.
+  Proof.
+    unshelve eapply CoequalizerOut.
+    - refine (v · _).
+      apply CoequalizerArrow.
+    - abstract (rewrite ! assoc, eqf , eqg, ! assoc' ;
+                 apply cancel_precomposition, CoequalizerArrowEq).
+  Defined.
+  Lemma CoequalizerOfArrowsEq
+        {a a' b b' : C} {f g : a --> b}
+        {f' g' : a' --> b'}
+        (cfg : Coequalizer f g)
+        (cfg' : Coequalizer f' g')
+        (u : a --> a')
+        (v : b --> b')
+        (eqf : f · v = u · f')
+        (eqg : g · v = u · g')
+    :
+      CoequalizerArrow cfg · CoequalizerOfArrows cfg cfg' u v eqf eqg  =
+      v · CoequalizerArrow cfg'.
+  Proof.
+    apply  CoequalizerArrowComm.
   Qed.
 
   (** ** Coequalizers to coequalizers *)
@@ -333,3 +369,19 @@ Section coequalizers_coincide.
   Defined.
 
 End coequalizers_coincide.
+
+(** Post-composing a coequalizer diagram with a functor yields a
+     coequalizer diagram. *)
+Lemma mapdiagram_coequalizer_eq_diag {C : precategory}{D : category}
+      (F : functor C D){a b : C}(f g : a --> b)  :
+  eq_diag (C := D)
+          (mapdiagram F (Coequalizer_diagram _ f g))
+          (Coequalizer_diagram _ (# F f) (# F g)).
+Proof.
+  use tpair.
+  -  use StandardFiniteSets.two_rec_dep; cbn; apply idpath.
+  -  use StandardFiniteSets.two_rec_dep;  use StandardFiniteSets.two_rec_dep;
+       try exact (empty_rect _ ).
+     intro e.
+     induction e; apply idpath.
+Defined.

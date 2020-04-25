@@ -15,7 +15,10 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.limits.graphs.eqdiag.
+Require Import UniMath.CategoryTheory.limits.bincoproducts.
 
 Local Open Scope cat.
 
@@ -290,8 +293,46 @@ Qed.
 End coproduct_unique.
 End bincoproduct_def.
 
+Definition equiv_isBinCoproduct1 {C : precategory}(hsC : has_homsets C) { a b c}
+           (u : C ⟦ a, c⟧)(v : C ⟦ b, c⟧) :
+  limits.bincoproducts.isBinCoproduct C a b c u v -> isBinCoproductCocone _ _ _ _ u v :=
+  make_isBinCoproductCocone _ hsC _ _ _ _ _.
+
+Lemma equiv_isBinCoproduct2 {C : precategory}(hsC : has_homsets C) { a b c}
+      (u : C ⟦ a, c⟧)(v : C ⟦ b, c⟧) :
+  isBinCoproductCocone _ _ _ _ u v -> limits.bincoproducts.isBinCoproduct C a b c u v.
+Proof.
+  intro h.
+  set (CC := make_BinCoproductCocone _ _ _ _ _ _ h); simpl.
+  intros x f g.
+  (* set (CCfg := (bincoproducts.BinCoproductArrow C CC f g)). *)
+  use unique_exists; simpl.
+  - apply (bincoproducts.BinCoproductArrow C CC f g).
+  - abstract (split;
+              [ apply (bincoproducts.BinCoproductIn1Commutes  _ _ _ CC)
+              | apply (bincoproducts.BinCoproductIn2Commutes  _ _ _ CC)]).
+  - abstract (intros h'; apply isapropdirprod; apply hsC).
+  - intros h' [H1 H2].
+    eapply (bincoproducts.BinCoproductArrowUnique _ _ _ CC).
+    + exact H1.
+    + exact H2.
+Defined.
+
 Lemma BinCoproducts_from_Colims (C : precategory) :
   Colims_of_shape two_graph C -> BinCoproducts C.
 Proof.
 now intros H a b; apply H.
+Defined.
+
+(** Post-composing a bincoproduct diagram with a functor yields a
+     bincoproduct diagram. *)
+Lemma mapdiagram_bincoproduct_eq_diag {C : precategory}{D : category}
+      (F : functor C D)(a b : C)  :
+  eq_diag (C := D)
+          (mapdiagram F (bincoproducts.bincoproduct_diagram a b))
+          (bincoproducts.bincoproduct_diagram (F a) (F b)).
+Proof.
+  use tpair.
+  - use bool_rect; apply idpath.
+  - intros ??; use empty_rect.
 Defined.
