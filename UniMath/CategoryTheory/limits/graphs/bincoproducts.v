@@ -298,7 +298,7 @@ Definition equiv_isBinCoproduct1 {C : precategory}(hsC : has_homsets C) { a b c}
   limits.bincoproducts.isBinCoproduct C a b c u v -> isBinCoproductCocone _ _ _ _ u v :=
   make_isBinCoproductCocone _ hsC _ _ _ _ _.
 
-Lemma equiv_isBinCoproduct2 {C : precategory}(hsC : has_homsets C) { a b c}
+Lemma limits_isBinCoproduct_from_isBinCoproductCocone {C : precategory}(hsC : has_homsets C) { a b c}
       (u : C ⟦ a, c⟧)(v : C ⟦ b, c⟧) :
   isBinCoproductCocone _ _ _ _ u v -> limits.bincoproducts.isBinCoproduct C a b c u v.
 Proof.
