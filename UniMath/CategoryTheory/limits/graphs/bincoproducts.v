@@ -293,7 +293,7 @@ Qed.
 End coproduct_unique.
 End bincoproduct_def.
 
-Definition equiv_isBinCoproduct1 {C : precategory}(hsC : has_homsets C) { a b c}
+Definition limits_isBinCoproductCocone_from_isBinCoproduct {C : precategory}(hsC : has_homsets C) { a b c}
            (u : C ⟦ a, c⟧)(v : C ⟦ b, c⟧) :
   limits.bincoproducts.isBinCoproduct C a b c u v -> isBinCoproductCocone _ _ _ _ u v :=
   make_isBinCoproductCocone _ hsC _ _ _ _ _.
