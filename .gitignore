@@ -26,3 +26,4 @@ _CoqProject
 *.vos
 *.vok
 *.v~
+/..coq_makefile_output.d
