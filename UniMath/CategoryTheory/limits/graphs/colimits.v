@@ -90,6 +90,17 @@ Proof.
 exact (pr2 cc).
 Qed.
 
+Definition cocone_paths {g : graph}{d:  diagram g C}{x : C}
+           (cc1 cc2 : cocone d x)
+           (eqin : ∏ g, coconeIn cc1 g = coconeIn cc2 g)  : cc1 = cc2.
+Proof.
+  use subtypePath'.
+  - apply funextsec.
+    exact eqin.
+  - repeat (apply impred_isaprop; intro).
+    apply hsC.
+Defined.
+
 (** cc0 is a colimit cocone if for any other cocone cc over the same
    diagram there is a unique morphism from the tip of cc0 to the tip
    of cc *)
@@ -178,6 +189,20 @@ Proof.
 now apply colimArrowUnique.
 Qed.
 
+Lemma colimArrowUnique'
+      {g : graph} {d : diagram g C} (CC : ColimCocone d)
+      {c} (k k' : C ⟦ colim CC, c ⟧):
+  (∏ u : vertex g, colimIn CC u · k = colimIn CC u · k') → k = k'.
+Proof.
+  intro eq.
+  apply pathsinv0.
+  etrans.
+  { apply colimArrowEta. }
+  apply pathsinv0.
+  apply colimArrowUnique.
+  cbn.
+  exact eq.
+Qed.
 
 Definition colimOfArrows {g : graph} {d1 d2 : diagram g C}
   (CC1 : ColimCocone d1) (CC2 : ColimCocone d2)
@@ -570,6 +595,9 @@ Defined.
 Definition preserves_colimit {g : graph} (d : diagram g C) (L : C)
   (cc : cocone d L) : UU :=
   isColimCocone d L cc -> isColimCocone (mapdiagram d) (F L) (mapcocone d cc).
+
+Definition preserves_colimits_of_shape (g : graph) : UU :=
+  ∏ (d : diagram g C) (L : C)(cc : cocone d L), preserves_colimit d L cc.
 
 (** ** Left adjoints preserve colimits *)
 Lemma left_adjoint_preserves_colimit (HF : is_left_adjoint F) (hsC : has_homsets C) (hsD : has_homsets D)

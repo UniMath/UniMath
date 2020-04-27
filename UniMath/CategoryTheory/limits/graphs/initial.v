@@ -9,6 +9,7 @@ Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
+Require Import UniMath.CategoryTheory.limits.graphs.eqdiag.
 Require Import UniMath.CategoryTheory.limits.initial.
 
 Local Open Scope cat.
@@ -27,6 +28,13 @@ Definition initDiagram : diagram empty_graph C.
 Proof.
 exists fromempty.
 intros u; induction u.
+Defined.
+
+(** All diagrams over the empty graph are equal *)
+Lemma empty_graph_eq_diag (hsC : has_homsets C)(d d' : diagram empty_graph C) :
+  eq_diag (C := make_category C hsC) d d'.
+Proof.
+  use tpair; use empty_rect.
 Defined.
 
 Definition initCocone (c : C) : cocone initDiagram c.

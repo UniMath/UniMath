@@ -37,6 +37,7 @@ limits/cones.v
 limits/equalizers.v
 limits/graphs/colimits.v
 limits/graphs/limits.v
+limits/graphs/eqdiag.v
 limits/graphs/bincoproducts.v
 limits/graphs/binproducts.v
 limits/coproducts.v
@@ -66,7 +67,6 @@ limits/BinDirectSums.v
 limits/FinOrdProducts.v
 limits/FinOrdCoproducts.v
 limits/Opp.v
-limits/graphs/eqdiag.v
 SubobjectClassifier.v
 NNO.v
 Subcategory/Limits.v
