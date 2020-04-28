@@ -9,6 +9,7 @@ Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
+Require Import UniMath.CategoryTheory.limits.initial.
 
 Require Import UniMath.Combinatorics.FiniteSets.
 Require Import UniMath.Combinatorics.Vectors.
@@ -49,9 +50,14 @@ Section algebras.
 
   Definition category_algebras : category := total_category algebras_disp.
 
-  Lemma is_univalent_alg_tot_cat : is_univalent category_algebras.
+  Lemma is_univalent_category_algebras : is_univalent category_algebras.
   Proof.
     exact (@is_univalent_total_category SET algebras_disp (is_univalent_HSET) is_univalent_algebras_disp).
   Qed.
 
 End algebras.
+
+Lemma isinitial_termalgebra (sigma :signature) : Initial (category_algebras sigma).
+Proof.
+  exact (term_algebra sigma ,, iscontrhomsfromterm).
+Defined.
