@@ -1,4 +1,7 @@
+(***** Displayed Category of Algebras over a Signature *****)
+
 Require Import UniMath.Foundations.All.
+
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
@@ -6,14 +9,18 @@ Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
+
+Require Import UniMath.Combinatorics.FiniteSets.
 Require Import UniMath.Combinatorics.Vectors.
+Require Import UniMath.Combinatorics.Lists.
+
 Require Import UniMath.Algebra.Universal.
 
-Section dispcat.
+Section algebras.
 
   Context (sigma : signature).
 
-  Definition disp_alg :disp_cat SET.
+  Definition algebras_disp :disp_cat SET.
   Proof.
     use disp_struct.
     - exact (λ A:hSet, ∏ (nm : names sigma),  Vector A (arity nm) → A).
@@ -30,7 +37,7 @@ Section dispcat.
       exact (ishomcomp (make_hom ishomf) (make_hom ishomg)).
   Defined.
 
-  Lemma is_univalent_disp_alg : is_univalent_disp disp_alg.
+  Lemma is_univalent_algebras_disp : is_univalent_disp algebras_disp.
   Proof.
     use is_univalent_disp_from_SIP_data.
     - intro A. cbn. use impred_isaset. intro nm. cbn.
@@ -40,11 +47,11 @@ Section dispcat.
       apply H1.
   Qed.
 
-  Definition alg_tot_cat : category := total_category disp_alg.
+  Definition category_algebras : category := total_category algebras_disp.
 
-  Lemma is_univalent_alg_tot_cat : is_univalent alg_tot_cat.
+  Lemma is_univalent_alg_tot_cat : is_univalent category_algebras.
   Proof.
-    exact (@is_univalent_total_category SET disp_alg (is_univalent_HSET) is_univalent_disp_alg).
-  Defined.
+    exact (@is_univalent_total_category SET algebras_disp (is_univalent_HSET) is_univalent_algebras_disp).
+  Qed.
 
-End dispcat.
+End algebras.
