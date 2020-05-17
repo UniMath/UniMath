@@ -1,4 +1,4 @@
-(***** Universal Algebra ******)
+(** * Several tests for univeral algebra operations *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.FiniteSets.
@@ -14,52 +14,52 @@ Local Infix ":::" := vcons (at level 60, right associativity).
 
 Section NatLowLevel.
 
-  Goal Universal.statuscons nat_succ_op (Universal.statusok 1) = Universal.statusok 1.
+  Goal Terms.statuscons nat_succ_op (Terms.statusok 1) = Terms.statusok 1.
   Proof. apply idpath. Qed.
 
-  Goal Universal.statuscons nat_succ_op (Universal.statusok 0) = Universal.statuserror.
+  Goal Terms.statuscons nat_succ_op (Terms.statusok 0) = Terms.statuserror.
   Proof. apply idpath. Qed.
 
-  Goal Universal.statusconcatenate (Universal.statusok 1) (Universal.statusok 2) = Universal.statusok 3.
+  Goal Terms.statusconcatenate (Terms.statusok 1) (Terms.statusok 2) = Terms.statusok 3.
   Proof. apply idpath. Qed.
 
-  Goal Universal.statusconcatenate (Universal.statusok 1) Universal.statuserror = Universal.statuserror.
+  Goal Terms.statusconcatenate (Terms.statusok 1) Terms.statuserror = Terms.statuserror.
   Proof. apply idpath. Qed.
 
-  Local Definition zero_one_oplist: Universal.oplist nat_signature
+  Local Definition zero_one_oplist: Terms.oplist nat_signature
     := nat_zero_op :: nat_succ_op :: nat_zero_op :: [].
 
-  Local Definition one_oplist: Universal.oplist nat_signature
+  Local Definition one_oplist: Terms.oplist nat_signature
     := nat_succ_op :: nat_zero_op :: [].
 
-  Local Definition zero_oplist: Universal.oplist nat_signature
+  Local Definition zero_oplist: Terms.oplist nat_signature
     := nat_zero_op :: [].
 
-  Goal Universal.oplist2status (sigma:=nat_signature) [] = Universal.statusok 0.
+  Goal Terms.oplist2status (sigma:=nat_signature) [] = Terms.statusok 0.
   Proof. apply idpath. Qed.
 
-  Goal Universal.oplist2status one_oplist = Universal.statusok 1.
+  Goal Terms.oplist2status one_oplist = Terms.statusok 1.
   Proof. apply idpath. Qed.
 
-  Goal Universal.oplist2status zero_one_oplist = Universal.statusok 2.
+  Goal Terms.oplist2status zero_one_oplist = Terms.statusok 2.
   Proof. apply idpath. Qed.
 
-  Goal Universal.oplist2status (nat_succ_op :: []) = Universal.statuserror.
+  Goal Terms.oplist2status (nat_succ_op :: []) = Terms.statuserror.
   Proof. apply idpath. Qed.
 
-  Goal Universal.isaterm (nat2term 10).
+  Goal Terms.isaterm (nat2term 10).
   Proof. apply idpath. Qed.
 
-  Goal pr1 (Universal.oplistsplit zero_one_oplist 0) = [].
+  Goal pr1 (Terms.oplistsplit zero_one_oplist 0) = [].
   Proof. apply idpath. Qed.
 
-  Goal pr2 (Universal.oplistsplit zero_one_oplist 0) = zero_one_oplist.
+  Goal pr2 (Terms.oplistsplit zero_one_oplist 0) = zero_one_oplist.
   Proof. apply idpath. Qed.
 
-  Goal pr1 (Universal.oplistsplit zero_one_oplist 1) = zero_oplist.
+  Goal pr1 (Terms.oplistsplit zero_one_oplist 1) = zero_oplist.
   Proof. apply idpath. Qed.
 
-  Goal pr2 (Universal.oplistsplit zero_one_oplist 1) = one_oplist.
+  Goal pr2 (Terms.oplistsplit zero_one_oplist 1) = one_oplist.
   Proof. apply idpath. Qed.
 
 End NatLowLevel.
@@ -77,20 +77,20 @@ Section Nat.
   (* ----- term_decompose ----- *)
 
   (* does not terminate *)
-  (* Eval lazy in Universal.term_decompose term_one. *)
+  (* Eval lazy in Terms.term_decompose term_one. *)
 
   (* does not terminate. this is weird because we may evaluare all the
      components separately *)
-  (* Eval lazy in Universal.term_decompose term_zero. *)
+  (* Eval lazy in Terms.term_decompose term_zero. *)
 
   (* works, but long execution time *)
-  (* Eval lazy in (pr1 (pr2 (pr2 (Universal.term_decompose term_ten)))). *)
+  (* Eval lazy in (pr1 (pr2 (pr2 (Terms.term_decompose term_ten)))). *)
 
   (* works *)
-  (* Eval lazy in (pr2 (pr2 (pr2 (Universal.term_decompose term_zero)))). *)
+  (* Eval lazy in (pr2 (pr2 (pr2 (Terms.term_decompose term_zero)))). *)
 
   (* does not terminate *)
-  (* Eval lazy in (pr2 (pr2 (pr2 (Universal.term_decompose term_one)))). *)
+  (* Eval lazy in (pr2 (pr2 (pr2 (Terms.term_decompose term_one)))). *)
 
 
   Goal princop term_four = nat_succ_op.
@@ -183,16 +183,16 @@ Section Bool.
   Goal bool_not_op :: bool_and_op :: bool_true_op :: bool_false_op :: [] = t2.
   Proof. apply idpath. Qed.
 
-  Goal pr1 (Universal.oplistsplit t1 0) = [].
+  Goal pr1 (Terms.oplistsplit t1 0) = [].
   Proof. apply idpath. Qed.
 
-  Goal pr2 (Universal.oplistsplit t1 0) = t1.
+  Goal pr2 (Terms.oplistsplit t1 0) = t1.
   Proof. apply idpath. Qed.
 
-  Goal pr1 (Universal.oplistsplit t1 1) = t1.
+  Goal pr1 (Terms.oplistsplit t1 1) = t1.
   Proof. apply idpath. Qed.
 
-  Goal pr2 (Universal.oplistsplit t1 1) = [].
+  Goal pr2 (Terms.oplistsplit t1 1) = [].
   Proof. apply idpath. Qed.
 
   Goal el (subterms t2) (●0) = t1.

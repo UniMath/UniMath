@@ -1,4 +1,4 @@
-(***** Universal Algebra: the group-terms algebra ******)
+(** * Groups as universal algebras *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.Vectors.
@@ -19,12 +19,12 @@ Local Definition group_mul_op: names group_signature := ●0.
 Local Definition group_id_op: names group_signature := ●2.
 Local Definition group_inv_op: names group_signature := ●2.
 
-Section Group_Algebra.
+Section GroupAlgebra.
 
-  Variable G : gr.
+  Variable G: gr.
 
-  Let arg1 {i} (p: Vector G (1 + i)) : G := el p (●0).
-  Let arg2 {i} (p: Vector G (2 + i)) : G := el p (●1).
+  Let arg1 {i: nat} (p: Vector G (1 + i)): G := el p (●0).
+  Let arg2 {i} (p: Vector G (2 + i)): G := el p (●1).
 
   Definition group_ops (nm : names group_signature)
     : Vector G (arity nm) → G.
@@ -42,7 +42,7 @@ Section Group_Algebra.
   Definition group_algebra : algebra group_signature
     := make_algebra G group_ops.
 
-End Group_Algebra.
+End GroupAlgebra.
 
 Definition group_mul := build_term_curried group_mul_op.
 Definition group_id  := build_term_curried group_id_op.

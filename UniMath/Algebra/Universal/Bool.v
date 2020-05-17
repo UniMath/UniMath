@@ -1,4 +1,4 @@
-(***** Universal Algebra: the boolean signature and standard boolean algebra ******)
+(** * Boolean signature and the standard boolean algebra *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.Vectors.

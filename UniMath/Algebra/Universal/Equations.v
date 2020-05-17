@@ -1,4 +1,4 @@
-(***** Equations in universal algebra ******)
+(** * Equations and equation algebra (varieties) *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.Vectors.
@@ -6,8 +6,6 @@ Require Import UniMath.Algebra.Universal.
 
 Local Open Scope stn.
 Local Open Scope nat.
-
-(** ** Terms with variables. *)
 
 Definition vsignature (sigma : signature) : signature
   := setcoprod (names sigma) natset,,

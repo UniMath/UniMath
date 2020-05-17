@@ -1,4 +1,4 @@
-(***** Displayed Category of Algebras over a Signature *****)
+(** * Displayed category of algebras over a signature *)
 
 Require Import UniMath.Foundations.All.
 
@@ -17,11 +17,11 @@ Require Import UniMath.Combinatorics.Lists.
 
 Require Import UniMath.Algebra.Universal.
 
-Section algebras.
+Section Algebras.
 
   Context (sigma : signature).
 
-  Definition algebras_disp :disp_cat SET.
+  Definition algebras_disp : disp_cat SET.
   Proof.
     use disp_struct.
     - exact (λ A:hSet, ∏ (nm : names sigma),  Vector A (arity nm) → A).
@@ -55,9 +55,9 @@ Section algebras.
     exact (@is_univalent_total_category SET algebras_disp (is_univalent_HSET) is_univalent_algebras_disp).
   Qed.
 
-End algebras.
+End Algebras.
 
-Lemma isinitial_termalgebra (sigma :signature) : Initial (category_algebras sigma).
+Lemma isinitial_termalgebra (sigma: signature) : Initial (category_algebras sigma).
 Proof.
   exact (term_algebra sigma ,, iscontrhomsfromterm).
 Defined.

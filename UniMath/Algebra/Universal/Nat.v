@@ -1,4 +1,4 @@
-(***** Universal Algebra: the natural numbers signature and standard algebra ******)
+(** * Natural numbers signature and the standard algebra ******)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.Vectors.

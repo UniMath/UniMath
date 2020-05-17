@@ -1,4 +1,4 @@
-(***** Displayed Category of Varieties over a Theory *****)
+(** * Displayed category of varieties over a theory *)
 
 Require Import UniMath.Foundations.All.
 
@@ -13,12 +13,11 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 
 Require Import UniMath.Algebra.Universal.
-Require Import UniMath.Algebra.Equations.
+Require Import UniMath.Algebra.Universal.Equations.
 Require Import UniMath.Algebra.Universal.CatAlgebras.
 
 Notation "'theory'" := eqsignature. (* isn't it a standard name? *)
 Context (sigma : theory).
-
 
 Definition varieties_disp : disp_cat SET.
 Proof.
