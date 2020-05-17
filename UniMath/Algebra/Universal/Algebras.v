@@ -24,7 +24,7 @@ Section Algebra.
     : dom a nm → cod a nm := pr2 a nm.
 
   Definition make_algebra (support : hSet) {sigma: signature}
-    (ops: ∏ nm: names sigma, dom support nm → cod support nm)
+             (ops: ∏ nm: names sigma, dom support nm → cod support nm)
     : algebra sigma := support ,, ops.
 
 End Algebra.

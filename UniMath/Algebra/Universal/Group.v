@@ -10,10 +10,10 @@ Open Scope stn.
 
 Definition group_signature: signature
   := make_signature_simple
-       (vcons 2          (* multiplication *)
-       (vcons 0          (* identity *)
-       (vcons 1          (* inverse *)
-     vnil))).
+       (vcons 2                       (* multiplication *)
+              (vcons 0                (* identity *)
+                     (vcons 1         (* inverse *)
+                            vnil))).
 
 Local Definition group_mul_op: names group_signature := ●0.
 Local Definition group_id_op: names group_signature := ●2.

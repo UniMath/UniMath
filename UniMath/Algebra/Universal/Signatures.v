@@ -2,7 +2,7 @@
 
 (**
 This file contains a formalization of single-sorted signatures defined as a vector of arities.
-*)
+ *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.FiniteSets.
@@ -13,10 +13,10 @@ Definition Arity: UU := nat.
 Definition signature: UU := ∑ (names: hSet), names → Arity.
 
 Definition make_signature (names: hSet) (aritymap: names → Arity): signature
-    := names ,, aritymap.
+  := names ,, aritymap.
 
 Definition make_signature_simple {n: nat} (v: Vector nat n): signature
-    := make_signature (stnset n) (el v).
+  := make_signature (stnset n) (el v).
 
 Definition names (sigma: signature): hSet := pr1 sigma.
 

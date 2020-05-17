@@ -58,5 +58,6 @@ Definition category_varieties : category := total_category varieties_disp.
 
 Lemma is_univalent_category_varieties : is_univalent category_varieties.
 Proof.
-  exact (@is_univalent_total_category SET varieties_disp (is_univalent_HSET) is_univalent_varieties_disp).
+  exact (@is_univalent_total_category
+           SET varieties_disp (is_univalent_HSET) is_univalent_varieties_disp).
 Qed.

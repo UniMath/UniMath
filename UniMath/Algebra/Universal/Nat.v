@@ -9,8 +9,9 @@ Open Scope stn.
 
 Definition nat_signature: signature
   := make_signature_simple
-       (vcons 0             (* zero *)
-         (vcons 1 vnil)).   (* succ *)
+       (vcons 0                  (* zero *)
+              (vcons 1           (* succ *)
+                     vnil)).
 
 Definition nat_zero_op: names nat_signature := ●0.
 Definition nat_succ_op: names nat_signature := ●1.

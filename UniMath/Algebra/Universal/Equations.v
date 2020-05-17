@@ -9,7 +9,7 @@ Local Open Scope nat.
 
 Definition vsignature (sigma : signature) : signature
   := setcoprod (names sigma) natset,,
-     sumofmaps (@arity sigma) (λ _, 0).
+               sumofmaps (@arity sigma) (λ _, 0).
 
 Definition vterm (sigma : signature) := term (vsignature sigma).
 
@@ -21,30 +21,30 @@ Definition rhs {sigma : signature} : equation sigma → vterm sigma := pr2.
 
 Section Evaluation.
 
-Context {sigma : signature}.
+  Context {sigma : signature}.
 
-Definition fromvterm {A:UU}
-  (R : (∏ (nm : names sigma), Vector A (arity nm) → A))
-  (Q : nat → A)
-  : vterm sigma → A.
-Proof.
-  refine (@fromterm (vsignature sigma) A _).
-  induction nm as [nm | nm].
-  - exact (R nm).
-  - exact (λ rec, Q nm).
-Defined.
+  Definition fromvterm {A:UU}
+             (R : (∏ (nm : names sigma), Vector A (arity nm) → A))
+             (Q : nat → A)
+    : vterm sigma → A.
+  Proof.
+    refine (@fromterm (vsignature sigma) A _).
+    induction nm as [nm | nm].
+    - exact (R nm).
+    - exact (λ rec, Q nm).
+  Defined.
 
-Definition vsubst (f:nat -> term sigma)
-  : vterm sigma → term sigma
-  := fromvterm (λ nm , build_term nm) f.
+  Definition vsubst (f:nat -> term sigma)
+    : vterm sigma → term sigma
+    := fromvterm (λ nm , build_term nm) f.
 
-Definition veval (a : algebra sigma) (f:nat->support a)
-  : vterm sigma → support a
-  := fromvterm (λ nm rec, op a nm rec) f.
+  Definition veval (a : algebra sigma) (f:nat->support a)
+    : vterm sigma → support a
+    := fromvterm (λ nm rec, op a nm rec) f.
 
-Definition holds (a:algebra sigma) (e:equation sigma)
-  : UU
-  := ∏ f, veval a f (lhs e) = veval a f (rhs e).
+  Definition holds (a:algebra sigma) (e:equation sigma)
+    : UU
+    := ∏ f, veval a f (lhs e) = veval a f (rhs e).
 
 End Evaluation.
 

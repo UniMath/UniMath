@@ -9,12 +9,12 @@ Open Scope stn.
 
 Definition bool_signature :=
   make_signature_simple
-    (vcons 0   (* false *)
-    (vcons 0   (* true *)
-    (vcons 1   (* not *)
-    (vcons 2   (* and *)
-    (vcons 2   (* ord *)
-    vnil))))).
+    (vcons 0                                        (* false *)
+           (vcons 0                                 (* true *)
+                  (vcons 1                          (* not *)
+                         (vcons 2                   (* and *)
+                                (vcons 2            (* or *)
+                                       vnil))))).
 
 Definition bool_false_op: names bool_signature := ●0.
 Definition bool_true_op: names bool_signature := ●1.

@@ -52,7 +52,8 @@ Section Algebras.
 
   Lemma is_univalent_category_algebras : is_univalent category_algebras.
   Proof.
-    exact (@is_univalent_total_category SET algebras_disp (is_univalent_HSET) is_univalent_algebras_disp).
+    exact (@is_univalent_total_category
+             SET algebras_disp (is_univalent_HSET) is_univalent_algebras_disp).
   Qed.
 
 End Algebras.
