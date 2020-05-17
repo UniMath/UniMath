@@ -108,6 +108,9 @@ Section Nat.
   Goal depth term_four = 5.
   Proof. apply idpath. Qed.
 
+  Goal depth_ind term_four = 5.
+  Proof. apply idpath. Qed.
+
   (* works *)
   (* Eval lazy in depth term_four. *)
 

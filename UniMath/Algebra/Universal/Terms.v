@@ -802,23 +802,23 @@ Section Term.
     exact (term2proof (el v i)).
   Defined.
 
-  Local Lemma vector_map_mkvector {A B: UU} {n: nat} {g: ⟦ n ⟧ → A} {f: A → B}
+  Local Lemma vector_map_mkvector {A B: UU} {n: nat} (g: ⟦ n ⟧ → A) (f: A → B)
     : vector_map f (mk_vector g) = mk_vector (f ∘ g).
   Proof.
     apply vector_extens.
     intro i.
     rewrite el_vector_map.
-    rewrite el_mk_vector.
-    rewrite el_mk_vector.
+    rewrite el_mk_vector_i.
+    rewrite el_mk_vector_i.
     apply idpath.
   Defined.
 
-  Local Lemma mk_vector_fun {A: UU} {n:nat} {v: Vector A n}
+  Local Lemma mk_vector_fun {A: UU} {n:nat} (v: Vector A n)
     : mk_vector (λ (i: ⟦ n ⟧), el v i) = v.
   Proof.
     apply vector_extens.
     intro i.
-    rewrite el_mk_vector.
+    rewrite el_mk_vector_i.
     apply idpath.
   Defined.
 
@@ -1034,6 +1034,11 @@ Section TermInduction.
     - apply natlthsntoleh.
       apply (v0len i).
   Defined.
+
+  Definition depth_ind: term sigma → nat
+    := term_ind (λ _, nat) (λ (nm: names sigma) (vterm: Vector (term sigma) (arity nm))
+                (levels: ∏ i : ⟦ arity nm ⟧, (λ _ : term sigma, nat) (el vterm i)),
+                1 + vector_foldr max 0 (mk_vector levels)).
 
   Definition term_rec_HP (A: UU): UU :=
     ∏ (nm: names sigma) (v:Vector (term sigma) (arity nm))

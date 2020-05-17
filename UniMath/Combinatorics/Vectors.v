@@ -73,9 +73,8 @@ Defined.
 
 (** *** Some identities for computing [el]. *)
 
-Lemma el_mk_vector {n} (f : ⟦ n ⟧ → A) : el (mk_vector f) = f.
+Lemma el_mk_vector_i {n} (f : ⟦ n ⟧ → A) (i: ⟦ n ⟧ ): el (mk_vector f) i = f i.
 Proof.
-  apply funextfun. intro i.
   induction n as [|m meq].
   - exact (fromstn0 i).
   - induction i as (j,jlt).
@@ -90,6 +89,12 @@ Proof.
       apply maponpaths.
       apply stn_extens.
       reflexivity.
+Defined.
+
+Lemma el_mk_vector {n} (f : ⟦ n ⟧ → A) : el (mk_vector f) = f.
+Proof.
+  apply funextfun. intro i.
+  apply el_mk_vector_i.
 Defined.
 
 Lemma el_vcons_tl {n} (v : Vector A n) (x : A) (i : ⟦ n ⟧) :
