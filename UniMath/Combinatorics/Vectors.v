@@ -73,7 +73,7 @@ Defined.
 
 (** *** Some identities for computing [el]. *)
 
-Lemma el_mk_vector_i {n} (f : ⟦ n ⟧ → A) (i: ⟦ n ⟧ ): el (mk_vector f) i = f i.
+Lemma el_mk_vector {n} (f : ⟦ n ⟧ → A) (i: ⟦ n ⟧) : el (mk_vector f) i = f i.
 Proof.
   induction n as [|m meq].
   - exact (fromstn0 i).
@@ -91,10 +91,10 @@ Proof.
       reflexivity.
 Defined.
 
-Lemma el_mk_vector {n} (f : ⟦ n ⟧ → A) : el (mk_vector f) = f.
+Lemma el_mk_vector_fun {n} (f : ⟦ n ⟧ → A) : el (mk_vector f) = f.
 Proof.
   apply funextfun. intro i.
-  apply el_mk_vector_i.
+  apply el_mk_vector.
 Defined.
 
 Lemma el_vcons_tl {n} (v : Vector A n) (x : A) (i : ⟦ n ⟧) :
@@ -103,20 +103,18 @@ Proof.
   induction n as [|m meq].
   - apply fromstn0. exact i.
   - cbn. apply maponpaths.
-    abstract
-      (apply proofirrelevance;
-       exact (propproperty (pr1 i < S m))).
+    apply proofirrelevance;
+    exact (propproperty (pr1 i < S m)).
 Defined.
 
-Lemma el_vcons_hd {n} (v : Vector A n) (x : A) (ilt : 0 < S n) :
-  el (vcons x v) (make_stn _ 0 ilt) = x.
+Lemma el_vcons_hd {n} (v : Vector A n) (x : A) :
+  el (vcons x v) (firstelement) = x.
 Proof.
   reflexivity.
 Defined.
 
-Lemma drop_el {n} (v : Vector A (S n)) : drop (el v) = el (tl v).
+Lemma drop_el {n} (v : Vector A (S n)) (i: ⟦ n ⟧ ) : drop (el v) i = el (tl v) i.
 Proof.
-  apply funextfun. intro i.
   induction v as (x, u).
   change (drop (el (vcons x u)) i = el u i).
   apply el_vcons_tl.
@@ -164,7 +162,7 @@ Defined.
 (** *** Weak equivalence with functions. *)
 
 Definition isweq_el {n} : isweq (el:Vector A n → ⟦ n ⟧ → A)
-  := isweq_iso el mk_vector mk_el_vector el_mk_vector.
+  := isweq_iso el mk_vector mk_el_vector el_mk_vector_fun.
 
 Definition vector_weq_fun n : Vector A n ≃ (⟦ n ⟧ -> A)
   := make_weq el isweq_el.
@@ -258,11 +256,9 @@ Definition vector_append {A : UU} {m} (u : Vector A m) {n} (v : Vector A n)
 
 (** *** Fusion laws. *)
 
-Lemma vector_map_id {A : UU} {n}
-  : vector_map (idfun A) = idfun (Vector A n).
+Lemma vector_map_id {A : UU} {n} (v: Vector A n)
+  : vector_map (idfun A) v = v.
 Proof.
-  apply funextfun.
-  intro v.
   induction n.
   - induction v.
     reflexivity.
@@ -272,11 +268,9 @@ Proof.
       apply IHn.
 Defined.
 
-Lemma vector_map_comp {A B C: UU} (f: A → B) (g: B → C) {n: nat}:
-  (vector_map (funcomp f g): Vector A n -> Vector C n) = funcomp (vector_map f) (vector_map g).
+Lemma vector_map_comp {A B C: UU} (f: A → B) (g: B → C) {n: nat} (v: Vector A n) :
+  vector_map (funcomp f g) v = (funcomp (vector_map f) (vector_map g)) v.
 Proof.
-  apply funextfun.
-  intro v.
   induction n.
   - reflexivity.
   - apply vectorS_eq.
@@ -284,9 +278,20 @@ Proof.
     + apply IHn.
 Defined.
 
-Lemma vector_append_lid {A : UU} (u : Vector A 0) {n} (v : Vector A n)
-  : vector_append u v = v.
+Lemma vector_append_lid {A : UU} (u : Vector A 0) {n}
+  : vector_append u = idfun (Vector A n).
 Proof.
   induction u.
   reflexivity.
+Defined.
+
+Lemma vector_map_mkvector {A B: UU} {n: nat} (g: ⟦ n ⟧ → A) (f: A → B)
+  : vector_map f (mk_vector g) = mk_vector (f ∘ g).
+Proof.
+  apply vector_extens.
+  intro i.
+  rewrite el_vector_map.
+  rewrite el_mk_vector.
+  rewrite el_mk_vector.
+  apply idpath.
 Defined.

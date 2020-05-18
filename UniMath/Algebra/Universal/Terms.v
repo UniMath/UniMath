@@ -802,26 +802,6 @@ Section Term.
     exact (term2proof (el v i)).
   Defined.
 
-  Local Lemma vector_map_mkvector {A B: UU} {n: nat} (g: ⟦ n ⟧ → A) (f: A → B)
-    : vector_map f (mk_vector g) = mk_vector (f ∘ g).
-  Proof.
-    apply vector_extens.
-    intro i.
-    rewrite el_vector_map.
-    rewrite el_mk_vector_i.
-    rewrite el_mk_vector_i.
-    apply idpath.
-  Defined.
-
-  Local Lemma mk_vector_fun {A: UU} {n:nat} (v: Vector A n)
-    : mk_vector (λ (i: ⟦ n ⟧), el v i) = v.
-  Proof.
-    apply vector_extens.
-    intro i.
-    rewrite el_mk_vector_i.
-    apply idpath.
-  Defined.
-
   Local Definition term_decompose (t: term sigma)
     : ∑ (nm:names sigma) (v: Vector (term sigma) (arity nm))
       , (∏ (i: ⟦ arity nm  ⟧), length (el v i) < length t)
@@ -840,7 +820,7 @@ Section Term.
       rewrite vector_map_mkvector.
       unfold funcomp.
       cbn.
-      rewrite mk_vector_fun.
+      rewrite mk_el_vector.
       apply normalization.
   Defined.
 
