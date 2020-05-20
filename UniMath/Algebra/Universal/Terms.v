@@ -817,10 +817,10 @@ Section Term.
       exact (vlen i).
     - apply subtypePairEquality'.
       2: apply isapropisaterm.
-      rewrite vector_map_mkvector.
+      rewrite vector_map_mk_vector.
       unfold funcomp.
       cbn.
-      rewrite mk_el_vector.
+      rewrite mk_vector_el.
       apply normalization.
   Defined.
 
@@ -1015,85 +1015,15 @@ Section TermInduction.
       apply (v0len i).
   Defined.
 
-  Definition depth_ind: term sigma → nat
+  Definition depth: term sigma → nat
     := term_ind (λ _, nat) (λ (nm: names sigma) (vterm: Vector (term sigma) (arity nm))
                 (levels: ∏ i : ⟦ arity nm ⟧, (λ _ : term sigma, nat) (el vterm i)),
                 1 + vector_foldr max 0 (mk_vector levels)).
 
-  Definition term_rec_HP (A: UU): UU :=
-    ∏ (nm: names sigma) (v:Vector (term sigma) (arity nm))
-    , (Vector A (arity nm)) → A.
-
-  Local Lemma term_rec_onlength {A: UU} (R: term_rec_HP A)
-    : ∏ (n: nat) (t: term sigma), length t ≤ n →  A.
-  Proof.
-    induction n.
-    - intros t tlen.
-      induction t as [l lstatus].
-      exact (term_notnil lstatus tlen).
-    - intros t tlen.
-      induction (term_decompose t) as [nm [v [vlen normalization]]].
-      apply (R nm v).
-      apply mk_vector.
-      intro i.
-      apply (IHn (el v i)).
-      change (S (length (el v i)) ≤ S n).
-      eapply istransnatleh.
-      -- apply natlthtolehsn.
-         apply vlen.
-      -- apply tlen.
-  Defined.
-
-  Theorem term_rec {A: UU} (R: term_rec_HP A) (t: term sigma): A.
-  Proof.
-    exact (term_rec_onlength R (length t) t (isreflnatleh _)).
-  Defined.
-
-  Definition depth: term sigma → nat
-    := term_rec (λ (nm: names sigma) (vterm: Vector (term sigma) (arity nm))
-                   (levels: Vector nat (arity nm)), 1 + vector_foldr max 0 levels).
-
-  Lemma term_rec_ind {A: UU} (R: term_rec_HP A) (t: term sigma)
-    : term_rec R t = term_ind  (λ _: term sigma, A) (λ nm v rec, R nm v (mk_vector rec)) t.
-  Proof.
-    unfold term_rec, term_ind.
-    unfold term_rec_onlength, term_ind_onlength.
-    (* ASK! a faster way to do this ? *)
-    assert (H: @transportf _ (λ _ : term sigma, A) = λ _ _ _, idfun A).
-    {
-      apply funextsec.
-      intro x.
-      apply funextsec.
-      intro x'.
-      apply funextsec.
-      intro e.
-      rewrite transportf_const.
-      apply idpath.
-    }
-    rewrite H.
-    apply idpath.
-  Defined.
-
-  Corollary term_rec_step {A: UU} (R: term_rec_HP A)
-            (nm: names sigma) (v: Vector (term sigma) (arity nm))
-    : term_rec R (build_term nm v)
-      = R nm v (vector_map (term_rec R) v).
-  Proof.
-    rewrite term_rec_ind.
-    rewrite term_ind_step.
-    apply maponpaths.
-    apply vector_extens.
-    intro i.
-    rewrite el_mk_vector.
-    rewrite el_vector_map.
-    rewrite term_rec_ind.
-    apply idpath.
-  Defined.
-
   Definition fromterm {A:UU}
              (op : ∏ (nm : names sigma), Vector A (arity nm) → A)
     : term sigma → A
-    := term_rec (λ nm _ rec, op nm rec).
+    := term_ind (λ _, A) (λ nm _ rec, op nm (mk_vector rec)) .
 
 End TermInduction.
 

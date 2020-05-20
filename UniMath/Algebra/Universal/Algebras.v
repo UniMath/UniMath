@@ -157,7 +157,8 @@ Section Termalgebra.
     : eval a (build_term nm v) = op a nm (vector_map (eval a) v).
   Proof.
     unfold eval, fromterm.
-    rewrite term_rec_step.
+    rewrite term_ind_step.
+    rewrite vector_map_as_mk_vector.
     apply idpath.
   Defined.
 

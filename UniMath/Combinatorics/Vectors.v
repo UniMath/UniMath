@@ -151,7 +151,7 @@ Proof.
       apply H.
 Defined.
 
-Lemma mk_el_vector {n} (v : Vector A n) : mk_vector (el v) = v.
+Lemma mk_vector_el {n} (v : Vector A n) : mk_vector (el v) = v.
 Proof.
   apply vector_extens.
   intros i.
@@ -162,7 +162,7 @@ Defined.
 (** *** Weak equivalence with functions. *)
 
 Definition isweq_el {n} : isweq (el:Vector A n → ⟦ n ⟧ → A)
-  := isweq_iso el mk_vector mk_el_vector el_mk_vector_fun.
+  := isweq_iso el mk_vector mk_vector_el el_mk_vector_fun.
 
 Definition vector_weq_fun n : Vector A n ≃ (⟦ n ⟧ -> A)
   := make_weq el isweq_el.
@@ -231,6 +231,16 @@ Proof.
       reflexivity.
 Defined.
 
+Lemma vector_map_as_mk_vector {A B: UU} (f: A → B) {n} (v: Vector A n)
+  : vector_map f v = mk_vector (λ i, f (el v i)).
+Proof.
+  apply vector_extens.
+  intro i.
+  rewrite el_vector_map.
+  rewrite el_mk_vector.
+  apply idpath.
+Defined.
+
 (** *** Iteration. *)
 
 Definition vector_foldr {A B : UU} (f : A -> B -> B) (b : B) {n}
@@ -278,14 +288,7 @@ Proof.
     + apply IHn.
 Defined.
 
-Lemma vector_append_lid {A : UU} (u : Vector A 0) {n}
-  : vector_append u = idfun (Vector A n).
-Proof.
-  induction u.
-  reflexivity.
-Defined.
-
-Lemma vector_map_mkvector {A B: UU} {n: nat} (g: ⟦ n ⟧ → A) (f: A → B)
+Lemma vector_map_mk_vector {A B: UU} {n: nat} (g: ⟦ n ⟧ → A) (f: A → B)
   : vector_map f (mk_vector g) = mk_vector (f ∘ g).
 Proof.
   apply vector_extens.
@@ -294,4 +297,11 @@ Proof.
   rewrite el_mk_vector.
   rewrite el_mk_vector.
   apply idpath.
+Defined.
+
+Lemma vector_append_lid {A : UU} (u : Vector A 0) {n}
+  : vector_append u = idfun (Vector A n).
+Proof.
+  induction u.
+  reflexivity.
 Defined.
