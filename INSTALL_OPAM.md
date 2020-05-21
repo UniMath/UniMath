@@ -13,11 +13,21 @@ First install opam and needed prerequisites:
 
   Then set up the opam system as follows.
 
-  ```bash
-  $ opam init --bare
-  $ opam switch create --empty empty
-  $ opam install -y num lablgtk conf-gtksourceview lablgtk3-sourceview3 camlp5
-  ```
+  - with latest OCaml (not guaranteed to work well with Coq):
+
+    ```bash
+    $ opam init --bare
+    $ opam switch create --empty empty
+    $ opam install -y num lablgtk conf-gtksourceview lablgtk3-sourceview3 camlp5
+    ```
+
+  - with OCaml 4.07.1+flambda (should work on most systems, refer to [#1315](https://github.com/UniMath/UniMath/issues/1315) for details)
+
+    ```bash
+    $ opam init --bare
+    $ opam switch create with-coq 4.07.1+flambda
+    $ opam install -y num lablgtk conf-gtksourceview lablgtk3-sourceview3 camlp5
+    ```
 
 - Under Ubuntu:
 
