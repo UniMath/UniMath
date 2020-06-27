@@ -41,14 +41,8 @@ Proof.
   - exact false.
 Defined.
 
-Goal interp f (bool_and x bool_true) = true.
-Proof. apply idpath. Qed.
-
-Goal interp f (bool_and x y) = false.
-Proof. apply idpath. Qed.
-
-Goal interp f (bool_or x y) = true.
-Proof. apply idpath. Qed.
-
-Goal interp f (bool_or x (bool_and y bool_false)) = true.
-Proof. apply idpath. Qed.
+(** ** Tests. *)
+Eval lazy in interp f (bool_and x bool_true).
+Eval lazy in interp f (bool_and x y).
+Eval lazy in interp f (bool_or x y).
+Eval lazy in interp f (bool_or x (bool_and y bool_false)).
