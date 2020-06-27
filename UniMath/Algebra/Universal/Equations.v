@@ -13,6 +13,9 @@ Definition vsignature (sigma : signature) : signature
 
 Definition vterm (sigma : signature) := term (vsignature sigma).
 
+Definition var {sigma} (n : nat) : vterm sigma
+  := build_term_curried (inr n : names (vsignature sigma)).
+
 Definition equation (sigma : signature) : UU
   := vterm sigma × vterm sigma.
 
