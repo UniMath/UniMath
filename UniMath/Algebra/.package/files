@@ -32,4 +32,5 @@ Universal/CatVarieties.v
 Universal/Nat.v
 Universal/Bool.v
 Universal/Group.v
+Universal/Tarski.v
 Universal/Tests.v
