@@ -13,17 +13,11 @@ Open Scope stn.
 Definition σ := vsignature bool_signature.
 Definition T := vterm bool_signature.
 
-Definition bool_false_op: names σ := inl (●0).
-Definition bool_true_op : names σ := inl (●1).
-Definition bool_not_op  : names σ := inl (●2).
-Definition bool_and_op  : names σ := inl (●3).
-Definition bool_or_op   : names σ := inl (●4).
-
-Definition bool_false := build_term_curried bool_false_op.
-Definition bool_true  := build_term_curried bool_true_op.
-Definition bool_not   := build_term_curried bool_not_op.
-Definition bool_and   := build_term_curried bool_and_op.
-Definition bool_or    := build_term_curried bool_or_op.
+Definition falseb : T         := build_term_curried (inl (●0) : names σ).
+Definition trueb  : T         := build_term_curried (inl (●1) : names σ).
+Definition notb   : T → T     := build_term_curried (inl (●2) : names σ).
+Definition andb   : T → T → T := build_term_curried (inl (●3) : names σ).
+Definition orb    : T → T → T := build_term_curried (inl (●4) : names σ).
 
 Definition interp (v:nat->bool) (x:T) : bool
   := fromvterm (op bool_algebra) v x.
@@ -42,7 +36,7 @@ Proof.
 Defined.
 
 (** ** Tests. *)
-Eval lazy in interp f (bool_and x bool_true).
-Eval lazy in interp f (bool_and x y).
-Eval lazy in interp f (bool_or x y).
-Eval lazy in interp f (bool_or x (bool_and y bool_false)).
+Eval lazy in interp f (andb x trueb).
+Eval lazy in interp f (andb x y).
+Eval lazy in interp f (orb x y).
+Eval lazy in interp f (orb x (andb y falseb)).
