@@ -802,48 +802,89 @@ Section Term.
     exact (term2proof (el v i)).
   Defined.
 
-  Local Definition term_decompose (t: term sigma)
-    : ∑ (nm:names sigma) (v: Vector (term sigma) (arity nm))
-      , (∏ (i: ⟦ arity nm  ⟧), length (el v i) < length t)
-          × build_term nm v = t.
-  Proof.
-    induction (oplist_decompose t (term2proof t)) as [nm [v [vstatus [vlen normalization]]]].
-    exists nm.
-    exists (mk_vector (λ (i: ⟦ arity nm ⟧), make_term (el v i) (vstatus i))).
-    split.
-    - intro i.
-      rewrite el_mk_vector.
-      cbn - [natlth].
-      exact (vlen i).
-    - apply subtypePairEquality'.
-      2: apply isapropisaterm.
-      rewrite vector_map_mk_vector.
-      unfold funcomp.
-      cbn.
-      rewrite mk_vector_el.
-      apply normalization.
-  Defined.
-
   (** [princop] returns the principal function symbol of a term *)
 
   Definition princop (t: term sigma): names sigma
-    := pr1 (term_decompose t).
+    := pr1 (oplist_decompose t (term2proof t)).
 
   (** [subterms] retusn the subterms of a term term *)
 
-  Definition subterms (t: term sigma): Vector (term sigma) (arity (princop t))
-    := pr1 (pr2 (term_decompose t)).
-
-  Local Lemma term_notnil {X: UU} {l: oplist sigma}
-    : isaterm l → length l ≤ 0 → X.
+  Definition subterms (t: term sigma): Vector (term sigma) (arity (princop t)).
   Proof.
-    intros lstatus llen.
-    apply natleh0tois0 in llen.
-    apply oplist2status_positive_b in lstatus.
-    rewrite (pr2 (pr2 lstatus)) in llen.
-    cbn in llen.
-    apply negpathssx0 in llen.
-    contradiction.
+    unfold princop.
+    induction (oplist_decompose t (term2proof t)) as [nm [v [vstatus [vlen normalization]]]].
+    exact (mk_vector (λ (i: ⟦ arity nm ⟧), make_term (el v i) (vstatus i))).
+  Defined.
+
+  Local Lemma subterms_length (t: term sigma): ∏ (i: ⟦ arity (princop t) ⟧), length (el (subterms t) i) < length t.
+  Proof.
+    unfold subterms, princop.
+    induction (oplist_decompose t (term2proof t)) as [nm [v [vstatus [vlen normalization]]]].
+    intro i.
+    rewrite el_mk_vector.
+    cbn - [natlth].
+    exact (vlen i).
+  Defined.
+
+  Local Lemma term_normalization (t: term sigma): build_term (princop t) (subterms t) = t.
+  Proof.
+    unfold princop, subterms.
+    induction (oplist_decompose t (term2proof t)) as [nm [v [vstatus [vlen normalization]]]].
+    apply subtypePairEquality'.
+    2: apply isapropisaterm.
+    rewrite vector_map_mk_vector.
+    unfold funcomp.
+    cbn.
+    rewrite mk_vector_el.
+    apply normalization.
+  Defined.
+
+  Local Lemma princop_build_term (nm: names sigma) (v: Vector (term sigma) (arity nm))
+    : princop (build_term nm v) = nm.
+  Proof.
+    apply idpath.
+  Defined.
+
+  Local Lemma subterms_build_term (nm: names sigma) (v: Vector (term sigma) (arity nm))
+    : subterms (build_term nm v) = v.
+  Proof.
+    set (t := build_term nm v).
+    set (v0norm := term_normalization t).
+    unfold build_term in v0norm.
+    unfold oplist_build_term in v0norm.
+    set (v0norm_list := maponpaths pr1 v0norm).
+    cbn [pr1] in v0norm_list.
+    apply cons_inj2 in v0norm_list.
+    apply vecoplist2oplist_inj in v0norm_list.
+    unfold term2oplist in v0norm_list.
+    - apply vector_extens.
+      intro i.
+      apply term_extens.
+      apply (maponpaths (λ v, el v i)) in v0norm_list.
+      do 2 rewrite el_vector_map in v0norm_list.
+      apply v0norm_list.
+    - intro i.
+      rewrite el_vector_map.
+      apply (el (subterms t) i).
+    - intro i.
+      rewrite el_vector_map.
+      apply (el v i).
+  Defined.
+
+  Local Lemma length_term (t: term sigma): length t > 0.
+  Proof.
+    induction t as [l statusl].
+    induction (oplist2status_positive_b statusl) as [x [xs lstruct]].
+    induction (! lstruct).
+    cbn.
+    apply idpath.
+  Defined.
+
+  Local Lemma term_notnil {X: UU} {t: term sigma}: length t ≤ 0 → X.
+  Proof.
+    intro tlen.
+    apply natlehneggth in tlen.
+    contradicts tlen (length_term t).
   Defined.
 
 End Term.
@@ -865,20 +906,18 @@ Section TermInduction.
   Proof.
     induction n.
     - intros t tlen.
-      induction t as [l lstatus].
-      exact (term_notnil lstatus tlen).
+      exact (term_notnil tlen).
     - intros t tlen.
-      induction (term_decompose t) as [nm [v [vlen normalization]]].
-      apply (transportf P normalization). (* only in term_ind, not in term_rec *)
-      (* rewrite <- normalization. *)
-      (* induction normalization. *)
-      apply (R nm v).
+      apply (transportf P (term_normalization t)).
+      (* rewrite <- (term_normalization t).  *)
+      (* induction (term_normalization t). *)
+      apply (R (princop t) (subterms t)).
       intro i.
-      apply (IHn (el v i)).
-      change (S (length (el v i)) ≤ S n).
+      apply (IHn (el (subterms t) i)).
+      change (S (length (el (subterms t) i)) ≤ S n).
       eapply istransnatleh.
       -- apply natlthtolehsn.
-         apply vlen.
+         apply (subterms_length t).
       -- apply tlen.
   Defined.
 
@@ -886,23 +925,6 @@ Section TermInduction.
     : P t.
   Proof.
     exact (term_ind_onlength P R (length t) t (isreflnatleh _)).
-  Defined.
-
-  (* Simple lemma to simplify later proofs *)
-  Local Lemma term_ind_onlength_step (P: term sigma → UU) (R: term_ind_HP P)
-        (n: nat) (t: term sigma)  (lent: length t ≤ S n)
-    : term_ind_onlength P R (S n) t lent
-      = transportf P (pr2 (pr2 (pr2 (term_decompose t))))
-                   (R (pr1 (term_decompose t)) (pr1 (pr2 (term_decompose t)))
-                      (λ i : ⟦ arity (pr1 (term_decompose t)) ⟧,
-                             term_ind_onlength
-                               P R n (el (pr1 (pr2 (term_decompose t))) i)
-                               (istransnatleh
-                                  (natlthtolehsn
-                                     (length (el (pr1 (pr2 (term_decompose t))) i))
-                                     (length t) (pr1 (pr2 (pr2 (term_decompose t))) i)) lent))).
-  Proof.
-    apply idpath.
   Defined.
 
   Local Lemma term_ind_onlength_nirrelevant (P: term sigma → UU) (R: term_ind_HP P)
@@ -913,35 +935,21 @@ Section TermInduction.
       , term_ind_onlength P R m1 t lenm1 = term_ind_onlength P R m2 t lenm2.
   Proof.
     induction n.
-    - intros m1 m2 m1lehn m2lehn t lenm1 lenm2.
-      induction t as [t statust].
-      cbn - [natleh] in lenm1, lenm2.
-      apply (istransnatleh lenm1) in m1lehn.
-      exact (term_notnil statust m1lehn).
-    - intros m1 m2 m1lehn m2lehn t lenm1 lenm2.
-      induction t as [t statust].
-      unfold isaterm in statust.
-      cbn - [natleh] in lenm1, lenm2.
+    - intros.
+      set (tlen := istransnatleh lenm1 m1lehn).
+      exact (term_notnil tlen).
+    - intros.
       induction m1.
-      + exact (term_notnil statust lenm1).
+      + exact (term_notnil lenm1).
       + induction m2.
-        * exact (term_notnil statust lenm2).
-        * induction (oplist2status_positive_b statust) as [x [xs tstruct]].
-          induction (! tstruct).
-          change (length (cons x xs)) with (S (length xs)) in *.
-          do 2 rewrite term_ind_onlength_step.
+        * exact (term_notnil lenm2).
+        * simpl.
           do 2 apply maponpaths.
           apply funextsec.
           intro i.
           apply IHn.
-          -- apply natlthsntoleh.
-             apply nat_S_lt.
-             apply natlehtolthsn.
-             assumption.
-          -- apply natlthsntoleh.
-             apply nat_S_lt.
-             apply natlehtolthsn.
-             assumption.
+          -- apply m1lehn.
+          -- apply m2lehn.
   Defined.
 
   Lemma term_ind_step (P: term sigma → UU) (R: term_ind_HP P)
@@ -950,55 +958,14 @@ Section TermInduction.
       = R nm v (λ i:  ⟦ arity nm ⟧, term_ind P R (el v i)).
   Proof.
     unfold term_ind.
-    unfold build_term in *.
-    cbn [term2oplist pr1].
-    unfold oplist_build_term in *.
-    change (length (cons nm (vecoplist2oplist (vector_map term2oplist v))))
-    with (S (length (vecoplist2oplist (vector_map term2oplist v)))).
-    set (l := (cons nm (vecoplist2oplist (vector_map term2oplist v)))).
-    set (statusl := oplist_build_term_status
-                      nm
-                      (vector_map term2oplist v)
-                      (λ i : ⟦ arity nm ⟧,
-                             internal_paths_rew_r
-                               (oplist sigma)
-                               (el (vector_map term2oplist v) i)
-                               (term2oplist (el v i)) (λ o : oplist sigma, isaterm o)
-                               (term2proof (el v i)) (el_vector_map term2oplist v i))).
-    set (t := tpair (@isaterm sigma) l statusl).
+    set (t := build_term nm v).
+    simpl (length (term2oplist _)).
     unfold term_ind_onlength at 1.
     rewrite nat_rect_step.
-    induction (term_decompose t) as [nm0 [v0 [v0len v0norm]]].
-    unfold t in v0norm.
-    unfold build_term in v0norm.
-    unfold oplist_build_term in v0norm.
-    set (v0norm_list := maponpaths pr1 v0norm).
-    cbn in v0norm_list.
-    assert (nm0isnm: nm0 = nm).
-    {
-      apply cons_inj1 in v0norm_list.
-      assumption.
-    }
-    induction (! nm0isnm).
-    assert (v0isv: v0 = v).
-    {
-      apply cons_inj2 in v0norm_list.
-      apply vecoplist2oplist_inj in v0norm_list.
-      unfold term2oplist in v0norm_list.
-      - apply vector_extens.
-        intro i.
-        apply term_extens.
-        apply (maponpaths (λ v, el v i)) in v0norm_list.
-        do 2 rewrite el_vector_map in v0norm_list.
-        apply v0norm_list.
-      - intro i.
-        rewrite el_vector_map.
-        apply (el v0 i).
-      - intro i.
-        rewrite el_vector_map.
-        apply (el v i).
-    }
-    induction (! v0isv).
+    set (v0len := subterms_length t).
+    set (v0norm := term_normalization t).
+    clearbody v0len v0norm.  (* Needed to make induction work *)
+    induction (! (subterms_build_term nm v: subterms t = v)).
     assert (v0normisid: v0norm = idpath _).
     {
       apply proofirrelevance.
@@ -1009,6 +976,7 @@ Section TermInduction.
     apply maponpaths.
     apply funextsec.
     intro i.
+    unfold term_ind_onlength.
     apply (term_ind_onlength_nirrelevant P R (length (vecoplist2oplist (vector_map pr1 v)))).
     - apply isreflnatleh.
     - apply natlthsntoleh.
