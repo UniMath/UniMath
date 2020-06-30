@@ -15,36 +15,36 @@ Local Open Scope hom.
 
 Section Variables.
 
-  Definition vsignature (sigma : signature) : signature
-    := setcoprod (names sigma) natset,,
+  Definition vsignature (sigma : signature) (V: hSet): signature
+    := setcoprod (names sigma) V,,
                  sumofmaps (@arity sigma) (λ _, 0).
 
-  Definition vterm (sigma: signature) := term (vsignature sigma).
+  Definition vterm (sigma: signature) (V: hSet) := term (vsignature sigma V).
 
   Context {sigma : signature}.
 
-  Definition namelift (nm: names sigma): names (vsignature sigma) := inl nm.
+  Definition namelift {V: hSet} (nm: names sigma) : names (vsignature sigma V) := inl nm.
 
-  Definition varname (n: nat): names (vsignature sigma) := inr n.
+  Definition varname {V: hSet} (v: V): names (vsignature sigma V) := inr v.
 
-  Definition var (n : nat) : vterm sigma := build_term_curried (varname n).
+  Definition var {V: hSet} (v: V): vterm sigma V := build_term_curried (varname v).
 
-  Definition fromvterm {A:UU}
+  Definition fromvterm {A:UU} {V: hSet}
              (op : (∏ (nm : names sigma), Vector A (arity nm) → A))
-             (α : nat → A)
-    : vterm sigma → A.
+             (α : V → A)
+    : vterm sigma V → A.
   Proof.
-    refine (@fromterm (vsignature sigma) A _).
+    refine (@fromterm (vsignature sigma V) A _).
     induction nm as [nm | nm].
     - exact (op nm).
     - exact (λ rec, α nm).
   Defined.
 
-  Lemma fromvtermstep {A: UU}
+  Lemma fromvtermstep {A: UU} {V: hSet}
                       (nm: names sigma)
                       (op : (∏ (nm : names sigma), Vector A (arity nm) → A))
-                      (α : nat → A)
-                      (v: Vector (term (vsignature sigma)) (arity nm))
+                      (α : V → A)
+                      (v: Vector (term (vsignature sigma V)) (arity nm))
     : fromvterm op α (build_term (namelift nm) v) = op nm (vector_map (fromvterm op α) v).
   Proof.
     unfold fromvterm, fromterm.
@@ -57,43 +57,43 @@ End Variables.
 
 Section FreeAlgebras.
 
-  Definition free_algebra (sigma: signature): algebra sigma :=
-    make_algebra (termset (vsignature sigma)) (λ nm: names sigma, build_term (namelift nm)).
+  Definition free_algebra (sigma: signature) (V: hSet): algebra sigma :=
+    make_algebra (termset (vsignature sigma V)) (λ nm: names sigma, build_term (namelift nm)).
 
   Context {sigma: signature}.
 
-  Definition veval (a : algebra sigma) (f: nat → support a): free_algebra sigma → support a
-    := fromvterm (op a) f.
+  Definition veval (a : algebra sigma) {V: hSet} (α: V → support a): free_algebra sigma V → support a
+    := fromvterm (op a) α.
 
-  Lemma vevalstep {a: algebra sigma} (f: nat → support a) (nm: names sigma) (v: Vector (vterm sigma) (arity nm))
-    : veval a f (build_term (namelift nm) v) = op a nm (vector_map (veval a f) v).
+  Lemma vevalstep {a: algebra sigma} {V: hSet} (α: V → support a) (nm: names sigma) (v: Vector (vterm sigma V) (arity nm))
+    : veval a α (build_term (namelift nm) v) = op a nm (vector_map (veval a α) v).
   Proof.
     unfold veval.
     apply fromvtermstep.
   Defined.
 
-  Lemma ishomveval (a: algebra sigma) (f: nat → support a): ishom (veval a f).
+  Lemma ishomveval (a: algebra sigma) {V: hSet} (α: V → support a): ishom (veval a α).
   Proof.
     red.
     intros.
     apply vevalstep.
   Defined.
 
-  Definition vevalhom (a: algebra sigma) (f: nat → support a): free_algebra sigma ↦ a
-    := make_hom (ishomveval a f).
+  Definition vevalhom (a: algebra sigma) {V: hSet} (α: V → support a): free_algebra sigma V ↦ a
+    := make_hom (ishomveval a α).
 
-  Definition universalmap {a: algebra sigma} (f: nat → a)
-    : ∑ h: free_algebra sigma ↦ a, ∏ n: nat, h (var n) = f n.
+  Definition universalmap {a: algebra sigma} {V: hSet} (α: V → support a)
+    : ∑ h: free_algebra sigma V ↦ a, ∏ v: V, h (var v) = α v.
   Proof.
-    exists (vevalhom a f).
+    exists (vevalhom a α).
     intro n.
     apply idpath.
   Defined.
 
-  Definition iscontr_universalmap {a: algebra sigma} (f: nat → a)
-    : iscontr (∑ h: free_algebra sigma ↦ a, ∏ n: nat, h (var n) = f n).
+  Definition iscontr_universalmap {a: algebra sigma} {V: hSet} (α: V → support a)
+    : iscontr (∑ h: free_algebra sigma V ↦ a, ∏ v: V, h (var v) = α v).
   Proof.
-    exists (universalmap f).
+    exists (universalmap α).
     intro h.
     induction h as [h hvar].
     apply subtypePairEquality'.
@@ -105,8 +105,8 @@ Section FreeAlgebras.
       unfold term_ind_HP.
       intros.
       induction nm as [nm | var].
-      * change (inl nm) with (namelift nm).
-        change (build_term (namelift nm) v) with (op (free_algebra sigma) nm v) at 1.
+      * change (inl nm) with (namelift(V:=V) nm).
+        change (build_term (namelift nm) v) with (op (free_algebra sigma V) nm v) at 1.
         rewrite (hom2axiom h).
         rewrite vevalstep.
         apply maponpaths.
