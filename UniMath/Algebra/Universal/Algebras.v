@@ -156,10 +156,8 @@ Section Termalgebra.
   Lemma evalstep {a: algebra sigma} (nm: names sigma) (v: Vector (term sigma) (arity nm))
     : eval a (build_term nm v) = op a nm (vector_map (eval a) v).
   Proof.
-    unfold eval, fromterm.
-    rewrite term_ind_step.
-    rewrite vector_map_as_mk_vector.
-    apply idpath.
+    unfold eval.
+    apply fromtermstep.
   Defined.
 
   Lemma ishomeval (a: algebra sigma): ishom (eval a).

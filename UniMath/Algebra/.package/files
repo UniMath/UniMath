@@ -24,8 +24,9 @@ Modules.v
 Matrix.v
 Universal.v
 Universal/Signatures.v
-Universal/Algebras.v
 Universal/Terms.v
+Universal/Algebras.v
+Universal/FreeAlgebras.v
 Universal/CatAlgebras.v
 Universal/Equations.v
 Universal/CatVarieties.v

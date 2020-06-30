@@ -991,7 +991,17 @@ Section TermInduction.
   Definition fromterm {A:UU}
              (op : ∏ (nm : names sigma), Vector A (arity nm) → A)
     : term sigma → A
-    := term_ind (λ _, A) (λ nm _ rec, op nm (mk_vector rec)) .
+    := term_ind (λ _, A) (λ nm _ rec, op nm (mk_vector rec)).
+
+  Lemma fromtermstep {A: UU} (nm: names sigma) (op : ∏ (nm : names sigma), Vector A (arity nm) → A)
+                     (v: Vector (term sigma) (arity nm))
+    : fromterm op (build_term nm v) = op nm (vector_map (fromterm op) v).
+  Proof.
+    unfold fromterm.
+    rewrite term_ind_step.
+    rewrite vector_map_as_mk_vector.
+    apply idpath.
+  Defined.
 
 End TermInduction.
 
