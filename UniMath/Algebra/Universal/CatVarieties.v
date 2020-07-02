@@ -21,19 +21,13 @@ Context (sigma : theory).
 
 Definition varieties_disp : disp_cat SET.
 Proof.
-  use disp_struct.
+  use disp_cat_from_SIP_data.
   - cbn; intro A.
     exact (∑ (op :  ∏ (nm : names sigma),  Vector A (arity nm) → A),
            ∏ e : eqs sigma, holds (make_algebra A op) (geteq e)).
   - cbn; intros a b [opa iseqa] [opb iseqb] f.
     exact (@ishom sigma (make_algebra a opa) (make_algebra b opb) f).
-  - cbn. intros A B [opA iseqA] [opB iseqB] f prpt1 prpt2.
-    use iscontraprop1.
-    + assert (T : isaset (@ishom sigma (make_algebra A opA)(make_algebra B opB) f)).
-      { apply isasetaprop. use isapropishom.
-      }
-      apply T.
-    + apply isapropishom.
+  - intros. apply isapropishom.
   - cbn. intros. apply ishomidfun.
   - cbn. intros A B C prpA prpB prpC. intros f g ishomf ishomg.
     exact (ishomcomp (make_hom ishomf) (make_hom ishomg)).
