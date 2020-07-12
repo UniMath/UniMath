@@ -12,6 +12,13 @@ Local Notation "[]" := nil (at level 0, format "[]").
 Local Infix "::" := cons.
 Local Infix ":::" := vcons (at level 60, right associativity).
 
+
+Local Definition A : sortedhSet boolset := bool_ind _ nat unit.
+
+Eval cbn in sortedhSet_list A (cons true (cons false (cons true nil))).
+
+
+
 Section NatLowLevel.
 
   Goal Terms.statuscons nat_succ_op (Terms.statusok 1) = Terms.statusok 1.

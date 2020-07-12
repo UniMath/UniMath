@@ -1,31 +1,117 @@
 (** * Basic definitions for universal algebras *)
 
 Require Import UniMath.Foundations.All.
-Require Import UniMath.Combinatorics.Vectors.
+Require Import UniMath.MoreFoundations.Notations.
+Require Import UniMath.Combinatorics.Lists.
+Require Import UniMath.Algebra.Universal.MoreLists.
 Require Import UniMath.Algebra.Universal.Signatures.
-Require Import UniMath.Algebra.Universal.Terms.
+
+Declare Scope sorted_scope.
+
+Delimit Scope sorted_scope with sorted.
+
+Local Open Scope sorted_scope.
+
+Definition sUU (S: UU): UU := S → UU.
+
+Definition sfun {S: UU} (X Y: sUU S): UU := ∏ s: S, X s → Y s.
+
+Infix "s→" := sfun (at level 99, right associativity): sorted_scope.
+
+Definition idsfun {S: UU} (X: sUU S): X s→ X := λ s: S, idfun (X s).
+
+Definition sunit (S: UU): sUU S := λ σ: S, unit.
+
+Definition tosunit {S: UU} {X: sUU S}: X s→ sunit S := λ σ: S, tounit.
+
+Lemma iscontr_sfuntosunit {S: UU} {X: sUU S}: iscontr (X s→ sunit S).
+Proof.
+  apply impred_iscontr.
+  intros.
+  apply iscontrfuntounit.
+Defined.
+
+Definition scomp {S: UU} {X Y Z: sUU S} (f: Y s→ Z) (g: X s→ Y): sfun X Z
+  := λ s: S, (f s) ∘ (g s).
+
+Infix "∘" := scomp: sorted_scope.
+
+Definition shSet (S: UU): UU := S → hSet.
+
+Definition sunitset (S: UU): shSet S := λ _, unitset.
+
+Lemma isaset_set_sfun_space {S: UU} {X Y: shSet S}: isaset (X s→ Y).
+Proof.
+  apply impred_isaset.
+  intros.
+  apply isaset_forall_hSet.
+Defined.
+
+Definition star {S: UU} (X: sUU S): sUU (list S)
+  := list_ind (λ _, UU) unit (λ x xs HPind, dirprod (X x) (HPind)).
+
+Notation "A *" := (star A) (at level 10): sorted_scope.
+
+Definition starfun {S: UU} {X Y: sUU S} (f: sfun X Y): sfun (star X) (star Y)
+  := list_ind (λ arity, star X arity → star Y arity)
+              (idfun unit)
+              (λ (x: S) (xs: list S) HP, (dirprodf (f x) HP)).
+
+Notation "f **" := (starfun f) (at level 10): sorted_scope.
+
+Lemma staridfun {S: UU} {X: sUU S} (l: list S) (x: (star X) l): (idsfun X)** _ x = idsfun (X*) _ x.
+Proof.
+  change (idsfun (X*) l x) with x.
+  revert l x.
+  refine (list_ind _ _ _).
+  - apply idpath.
+  - intros σ σs HP x.
+    change (X* (cons σ σs)) with (dirprod (X σ) (X* σs)) in x.
+    induction x as [x1 x2].
+    change ((idsfun X)** (cons σ σs)) with (dirprodf (idsfun X σ) ((idsfun X)** σs)).
+    cbv [dirprodf make_dirprod].
+    rewrite HP.
+    apply idpath.
+Defined.
+
+Lemma starcomp {S: UU} {X Y Z: sUU S} (f: Y s→ Z) (g: X s→ Y) (l: list S) (x: (star X) l)
+  : (f ∘ g) ** _ x = f** _ (g** _ x).
+Proof.
+  revert l x.
+  refine (list_ind _ _ _).
+  - apply idpath.
+  - intros σ σs HP x.
+    change (((f ∘ g) **) (cons σ σs)) with (dirprodf ((f ∘ g) σ) (((f ∘ g))** σs)).
+    cbv [dirprodf make_dirprod].
+    rewrite HP.
+    apply idpath.
+Defined.
 
 (** ** Algebras for a given signature *)
 
 Section Algebra.
 
-  Definition dom {sigma: signature} (support: UU) (nm: names sigma): UU
-    := Vector support (arity nm).
+  Definition algebra (Σ: signature): UU
+    := ∑ A: shSet (sorts Σ), ∏ σ: Σ, A* (arity σ) → A (sort σ).
 
-  Definition cod {sigma: signature} (support: UU) (nm: names sigma): UU
-    := support.
+  Definition supportset {Σ: signature} (A: algebra Σ) := pr1 A.
 
-  Definition algebra (sigma: signature): UU
-    := ∑ (support: hSet), ∏ (nm: names sigma), dom support nm → cod support nm.
+  Coercion supportset: algebra >-> shSet.
 
-  Coercion support {sigma: signature} (a: algebra sigma): hSet := pr1 a.
+  Definition support {Σ: signature} (A: algebra Σ): sUU (sorts Σ) := pr1 A.
 
-  Definition op {sigma: signature} (a: algebra sigma) (nm: names sigma)
-    : dom a nm → cod a nm := pr2 a nm.
+  Coercion support: algebra >-> sUU.
 
-  Definition make_algebra (support : hSet) {sigma: signature}
-             (ops: ∏ nm: names sigma, dom support nm → cod support nm)
-    : algebra sigma := support ,, ops.
+  Definition ops {Σ: signature} (A: algebra Σ) := pr2 A.
+
+  Coercion ops: algebra >-> Funclass.
+
+  Definition make_algebra {Σ: signature} (A : shSet (sorts Σ)) (ops: ∏ σ: Σ, A* (arity σ) → A (sort σ))
+    : algebra Σ := A ,, ops.
+
+  Definition dom {Σ: signature} (A: algebra Σ) (σ: Σ): UU := A* (arity σ).
+
+  Definition rng {Σ: signature} (A: algebra Σ) (σ: Σ): UU := support A (sort σ).
 
 End Algebra.
 
@@ -33,24 +119,24 @@ End Algebra.
 
 Section Homomorphism.
 
-  Context {sigma: signature}.
+  Context {Σ: signature}.
 
-  Definition ishom {a1 a2: algebra sigma} (f: a1 → a2): UU
-    := ∏ (nm: names sigma) (x: dom a1 nm), f (op a1 nm x) = (op a2 nm (vector_map f x)).
+  Definition ishom {A1 A2: algebra Σ} (h: A1 s→ A2) : UU
+    := ∏ (σ: Σ) (x: dom A1 σ), h _ (A1 σ x) = A2 σ (h** _ x).
 
-  Definition hom (a1 a2: algebra sigma): UU := ∑ (f: a1 → a2), ishom f.
+  Definition hom (A1 A2: algebra Σ): UU := ∑ (h: A1 s→ A2), ishom h.
 
-  Notation "a1 ↦ a2" := (hom a1 a2) (at level 80, right associativity).
+  Local Notation "a1 ↦ a2" := (hom a1 a2) (at level 80, right associativity).
 
-  Definition hom2fun {a1 a2: algebra sigma} (f: a1 ↦ a2): support a1 → support a2 := pr1 f.
+  Definition hom2fun {A1 A2: algebra Σ} (f: A1 ↦ A2):= pr1 f.
 
-  Coercion hom2fun: hom >-> Funclass.
+  Coercion hom2fun: hom >-> sfun.
 
-  Definition hom2axiom {a1 a2: algebra sigma} (f: a1 ↦ a2): ishom f := pr2 f.
+  Definition hom2axiom {A1 A2: algebra Σ} (f: A1 ↦ A2):= pr2 f.
 
-  Definition make_hom {a1 a2: algebra sigma} {f: a1 → a2} (is: ishom f): a1 ↦ a2 := f ,, is.
+  Definition make_hom {A1 A2: algebra Σ} {f: sfun A1 A2} (is: ishom f): A1 ↦ A2 := f ,, is.
 
-  Theorem isapropishom {a1 a2: algebra sigma} (f: a1 → a2): isaprop (ishom f).
+  Theorem isapropishom {A1 A2: algebra Σ} (f: sfun A1 A2): isaprop (ishom f).
   Proof.
     red.
     apply impred_isaprop.
@@ -60,40 +146,40 @@ Section Homomorphism.
     apply setproperty.
   Defined.
 
-  Theorem isasethom (a1 a2: algebra sigma): isaset (a1 ↦ a2).
+  Theorem isasethom (A1 A2: algebra Σ): isaset (A1 ↦ A2).
   Proof.
     red.
     apply isaset_total2.
-    - apply isaset_forall_hSet.
+    - apply isaset_set_sfun_space.
     - intros.
       apply isasetaprop.
       apply isapropishom.
   Defined.
 
-  Lemma ishomidfun (a: algebra sigma): ishom (idfun a).
+  Lemma ishomid (A: algebra Σ): ishom (idsfun A).
   Proof.
     red.
     intros.
-    rewrite vector_map_id.
+    rewrite staridfun.
     apply idpath.
   Defined.
 
-  Definition homid (a: algebra sigma): a ↦ a := make_hom (ishomidfun a).
+  Definition homid (A: algebra Σ): A ↦ A := make_hom (ishomid A).
 
-  Lemma ishomcomp  {a1 a2 a3: algebra sigma} (h1: a1 ↦ a2) (h2: a2 ↦ a3): ishom (h2 ∘ h1).
+  Lemma ishomcomp  {A1 A2 A3: algebra Σ} (h1: A1 ↦ A2) (h2: A2 ↦ A3): ishom (h2 ∘ h1).
   Proof.
     red.
     intros.
-    induction h1 as [f1 ishomf1].
-    induction h2 as [f2 ishomf2].
+    induction h1 as [h1 ishomh1].
+    induction h2 as [h2 ishomh2].
     cbn.
-    rewrite vector_map_comp.
-    rewrite ishomf1.
-    rewrite ishomf2.
+    rewrite starcomp.
+    rewrite ishomh1.
+    rewrite ishomh2.
     apply idpath.
   Defined.
 
-  Definition homcomp {a1 a2 a3: algebra sigma} (h1: a1 ↦ a2) (h2: a2 ↦ a3) : a1 ↦ a3
+  Definition homcomp {a1 a2 a3: algebra Σ} (h1: a1 ↦ a2) (h2: a2 ↦ a3) : a1 ↦ a3
     := make_hom (ishomcomp h1 h2).
 
 End Homomorphism.
@@ -114,84 +200,29 @@ Local Open Scope hom.
 
 Section Unitalgebra.
 
-  Definition unitalgebra (sigma: signature): algebra sigma
-    := make_algebra unitset (λ nm: names sigma, tounit).
+  Definition unitalgebra (Σ: signature): algebra Σ
+    := make_algebra (sunitset (sorts Σ)) tosunit.
 
-  Context {sigma: signature}.
+  Context {Σ: signature}.
 
-  Lemma ishomtounit (a: algebra sigma)
-    : @ishom sigma a (unitalgebra sigma) tounit.
+  Lemma ishomtounit (A: algebra Σ): @ishom Σ A (unitalgebra Σ) tosunit.
   Proof.
     red.
     intros.
     apply iscontrunit.
   Defined.
 
-  Definition unithom (a : algebra sigma): hom a (unitalgebra sigma)
-    := make_hom (ishomtounit a).
+  Definition unithom (A : algebra Σ): hom A (unitalgebra Σ)
+    := make_hom (ishomtounit A).
 
-  Theorem iscontrhomstounit (a: algebra sigma): iscontr (hom a (unitalgebra sigma)).
+  Theorem iscontrhomstounit (A: algebra Σ): iscontr (hom A (unitalgebra Σ)).
   Proof.
-    exists (unithom a).
-    intros.
+    exists (unithom A).
+    intro.
     apply subtypePairEquality'.
-    - apply iscontrfuntounit.
+    - apply proofirrelevancecontr.
+      apply iscontr_sfuntosunit.
     - apply isapropishom.
   Defined.
 
 End Unitalgebra.
-
-(** ** The term algebra and the proof it is initial *)
-
-Section Termalgebra.
-
-  Definition term_algebra (sigma: signature): algebra sigma
-    := make_algebra (termset sigma) build_term.
-
-  Context {sigma: signature}.
-
-  Definition eval (a: algebra sigma): term_algebra sigma → a
-    := fromterm (op a).
-
-  Lemma evalstep {a: algebra sigma} (nm: names sigma) (v: Vector (term sigma) (arity nm))
-    : eval a (build_term nm v) = op a nm (vector_map (eval a) v).
-  Proof.
-    unfold eval.
-    apply fromtermstep.
-  Defined.
-
-  Lemma ishomeval (a: algebra sigma): ishom (eval a).
-  Proof.
-    red.
-    intros.
-    simpl.
-    apply evalstep.
-  Defined.
-
-  Definition evalhom (a: algebra sigma): term_algebra sigma ↦ a
-    := make_hom (ishomeval a).
-
-  Definition iscontrhomsfromterm (a: algebra sigma): iscontr (term_algebra sigma ↦ a).
-  Proof.
-    exists (evalhom a).
-    intro.
-    rename t into f.
-    apply subtypePairEquality'.
-    2: apply isapropishom.
-    apply funextfun.
-    unfold homot.
-    apply term_ind.
-    unfold term_ind_HP.
-    intros.
-    change (build_term nm v) with (op (term_algebra sigma) nm v) at 1.
-    rewrite (hom2axiom f).
-    rewrite evalstep.
-    apply maponpaths.
-    apply vector_extens.
-    intros.
-    do 2 rewrite el_vector_map.
-    rewrite IH.
-    apply idpath.
-  Defined.
-
-End Termalgebra.
