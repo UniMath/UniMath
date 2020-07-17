@@ -5,11 +5,11 @@ Require Import UniMath.MoreFoundations.Notations.
 Require Import UniMath.MoreFoundations.Bool.
 Require Import UniMath.Combinatorics.FiniteSets.
 Require Import UniMath.Algebra.Universal.MoreLists.
+Require Import UniMath.Algebra.Universal.HLists.
 Require Import UniMath.Algebra.Universal.Signatures.
 Require Import UniMath.Algebra.Universal.Algebras.
 
-Open Scope stn.
-Open Scope sorted.
+Local Open Scope stn.
 
 Definition bool_signature := make_signature_simple_single_sorted [0; 0; 1; 2; 2 ].
 
@@ -19,26 +19,14 @@ Definition bool_not_op : bool_signature := ●2.
 Definition bool_and_op : bool_signature := ●3.
 Definition bool_or_op : bool_signature := ●4.
 
-Definition bool_support: shSet (sorts bool_signature) := λ _, boolset.
-
-Definition bool_ops (σ: bool_signature): bool_support* (arity σ) → bool_support (sort σ).
-Proof.
-  induction σ as [n proofn].
-  induction n.
-  { cbn. exact (λ _, false). }
-  induction n.
-  { cbn. exact (λ _, true). }
-  induction n.
-  { cbn. exact (λ x, negb (pr1 x)). }
-  induction n.
-  { cbn. exact (λ x, andb (pr1 x) (pr12 x)). }
-  induction n.
-  { cbn. exact (λ x, orb (pr1 x) (pr12 x)). }
-  { exact (fromempty (nopathsfalsetotrue proofn)). }
-Defined.
-
-Definition bool_algebra : algebra bool_signature
-  := make_algebra bool_support bool_ops.
+Definition bool_algebra := make_algebra_simple_single_sorted bool_signature boolset
+  [ 
+    λ _, false ;
+    λ _, true ; 
+    λ x, negb (pr1 x) ;
+    λ x, andb (pr1 x) (pr12 x) ; 
+    λ x, orb (pr1 x) (pr12 x)
+  ].
 
 (*
 

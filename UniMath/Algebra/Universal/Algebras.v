@@ -2,8 +2,10 @@
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Notations.
+Require Import UniMath.Combinatorics.Vectors.
 Require Import UniMath.Combinatorics.Lists.
 Require Import UniMath.Algebra.Universal.MoreLists.
+Require Import UniMath.Algebra.Universal.HLists.
 Require Import UniMath.Algebra.Universal.Signatures.
 
 Declare Scope sorted_scope.
@@ -47,8 +49,7 @@ Proof.
   apply isaset_forall_hSet.
 Defined.
 
-Definition star {S: UU} (X: sUU S): sUU (list S)
-  := list_ind (λ _, UU) unit (λ x xs HPind, dirprod (X x) (HPind)).
+Definition star {S: UU} (X: sUU S): sUU (list S) := λ l: list S, HList (map X l).
 
 Notation "A *" := (star A) (at level 10): sorted_scope.
 
@@ -112,6 +113,62 @@ Section Algebra.
   Definition dom {Σ: signature} (A: algebra Σ) (σ: Σ): UU := A* (arity σ).
 
   Definition rng {Σ: signature} (A: algebra Σ) (σ: Σ): UU := support A (sort σ).
+
+  Definition make_algebra_simple_single_sorted (Σ: signature_simple_single_sorted) (A : hSet)
+             (ops: HList (map (λ n: nat, Vector A n → A) Σ)): algebra Σ.
+  Proof.
+    exists (λ _, A).
+    unfold arity.
+    revert Σ ops.
+    refine (list_ind _ _ _).
+    - intros.
+      cbn in σ.
+      apply fromstn0.
+      assumption.
+    - simpl.
+      intros x xs HPind ops.
+      change ( (Vector A x → A) × (HList  (map (λ n0 : nat, Vector A n0 → A) xs))) in ops.
+      induction ops as [op ops].
+      intro.
+      cbn in σ.
+      induction σ as [σ σproof].
+      induction σ.
+      + unfold star.
+        rewrite map_list_fill.
+        rewrite hlist_uniform.
+        rewrite length_list_fill.
+        exact op.
+      + change  (nth (x :: xs) (S σ,, σproof)) with (nth xs (σ ,, σproof)).
+        exact (HPind ops  (σ ,, σproof)).
+  Defined.
+
+  Definition make_algebra_simple (Σ: signature_simple) (A: Vector hSet (pr1 Σ)) 
+                                 (ops: HList (map (λ a, (el A)* (dirprod_pr1 a) → el A (dirprod_pr2 a)) (pr2 Σ)))
+    : algebra Σ.
+  Proof.
+    exists (el A).
+    unfold arity.
+    induction Σ as [ns ar].
+    simpl in A.
+    revert ar ops.
+    refine (list_ind _ _ _).
+    - intros.
+      cbn in σ.
+      apply fromstn0.
+      assumption.
+    - simpl.
+      intros x xs HPind ops.
+      rewrite map_cons in ops.
+      rewrite hlist_cons in ops.
+      induction ops as [op ops].
+      intro.
+      cbn in σ.
+      induction σ as [σ σproof].
+      induction σ.
+      + unfold star.
+        exact op.
+      + exact (HPind ops  (σ ,, σproof)).
+  Defined.
 
 End Algebra.
 

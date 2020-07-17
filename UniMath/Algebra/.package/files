@@ -22,8 +22,8 @@ Modules/Examples.v
 Modules/Quotient.v
 Modules.v
 Matrix.v
-Universal.v
 Universal/MoreLists.v
+Universal/HLists.v
 Universal/Signatures.v
 Universal/Algebras.v
 Universal/Examples/Nat.v
@@ -38,3 +38,4 @@ Universal/Equations.v
 Universal/CatVarieties.v
 Universal/Tarski.v
 Universal/Tests.v
+Universal.v

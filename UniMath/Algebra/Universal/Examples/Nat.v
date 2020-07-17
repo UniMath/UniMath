@@ -3,32 +3,20 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.FiniteSets.
 Require Import UniMath.Algebra.Universal.MoreLists.
+Require Import UniMath.Algebra.Universal.HLists.
 Require Import UniMath.Algebra.Universal.Signatures.
 Require Import UniMath.Algebra.Universal.Algebras.
 
-Open Scope stn.
-Open Scope sorted.
-Open Scope hom.
+Local Open Scope stn.
+Local Open Scope sorted.
+Local Open Scope hom.
 
 Definition nat_signature := make_signature_simple_single_sorted [ 0; 1 ].
 
 Definition nat_zero_op: nat_signature := ●0.
 Definition nat_succ_op: nat_signature := ●1.
 
-Definition nat_support: shSet (sorts nat_signature) := λ _, natset.
-
-Definition nat_ops (σ : nat_signature): nat_support* (arity σ) → nat_support (sort σ).
-Proof.
-  induction σ as [n proofn].
-  induction n.
-  { cbn. exact (λ _, 0). }
-  induction n.
-  { cbn. exact (λ x, S(pr1 x)). }
-  { exact (fromempty (nopathsfalsetotrue proofn)). }
-Defined.
-
-Definition nat_algebra: algebra nat_signature
-  := make_algebra nat_support nat_ops.
+Definition nat_algebra := make_algebra_simple_single_sorted nat_signature natset [ λ _, 0 ;  λ x, S (pr1 x) ].
 
 Goal nat_algebra nat_zero_op tt = 0.
 Proof. apply idpath. Defined.
@@ -36,22 +24,9 @@ Proof. apply idpath. Defined.
 Goal nat_algebra nat_succ_op (1 ,, tt) = 2.
 Proof. apply idpath. Defined.
 
-Definition z2_support: shSet (sorts nat_signature) := λ _, boolset.
+Definition z2_algebra := make_algebra_simple_single_sorted nat_signature boolset [ λ _, false ; λ x, negb (pr1 x) ].
 
-Definition z2_ops (σ : nat_signature): z2_support* (arity σ) → z2_support (sort σ).
-Proof.
-  induction σ as [n proofn].
-  induction n.
-  { cbn. exact (λ _, false). }
-  induction n.
-  { cbn. exact (λ x, negb (pr1 x)). }
-  { exact (fromempty (nopathsfalsetotrue proofn)). }
-Defined.
-
-Definition z2_algebra: algebra nat_signature
-  := make_algebra z2_support z2_ops.
-
-Definition nat_to_z2 : nat_support s→ z2_support
+Definition nat_to_z2 : nat_algebra s→ z2_algebra
   := λ s: sorts nat_signature, nat_rect (λ _, bool) false (λ n HP, negb HP).
 
 Goal nat_to_z2 tt 0 = false.

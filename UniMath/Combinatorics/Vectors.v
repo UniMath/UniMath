@@ -10,12 +10,7 @@ Require Import UniMath.Foundations.NaturalNumbers.
 Local Open Scope nat.
 Local Open Scope stn.
 
-(** ** Lemmata about natural numbers and standard finite sets. *)
-
-Lemma nat_S_lt (m n : nat) : S m < S n → m < n.
-Proof.
-  induction m; apply idfun.
-Defined.
+(** ** Lemmata about standard finite sets. *)
 
 Definition stn_extens {n} (i j : ⟦ n ⟧) (p : stntonat _ i = stntonat _ j)
   : i = j
@@ -33,16 +28,32 @@ induction n as [|n IHn].
 - apply (A × IHn).
 Defined.
 
+(** *** Constructors. *)
+
+Definition vnil {A: UU}: Vector A 0 := tt.
+
+Definition vcons {A: UU} {n} (x : A) (v : Vector A n) : Vector A (S n)
+  := x,, v.
+
+(** *** Notations. *)
+
+Declare Scope Vector_scope.
+
+Delimit Scope Vector_scope with vector.
+
+Bind Scope Vector_scope with Vector.
+
+Local Open Scope Vector_scope.
+
+Notation "[]" := vnil (at level 0, format "[]"): Vector_scope.
+
+Infix ":::" := vcons (at level 60, right associativity) : Vector_scope.
+
+Notation "[ x ; .. ; y ]" := (vcons x .. (vcons y vnil) ..): Vector_scope.
+
 Section Vectors.
 
 Context {A : UU}.
-
-(** *** Constructors. *)
-
-Definition vnil : Vector A 0 := tt.
-
-Definition vcons {n} (x : A) (v : Vector A n) : Vector A (S n)
-  := x,, v.
 
 Definition drop {n} (f : ⟦ S n ⟧ → A) (i : ⟦ n ⟧) : A :=
   f (dni_firstelement i).
@@ -51,7 +62,7 @@ Definition mk_vector {n} (f : ⟦ n ⟧ → A) : Vector A n.
 Proof.
   induction n as [|m h].
   - exact vnil.
-  - exact (vcons (f firstelement) (h (drop f))).
+  - exact ((f firstelement) ::: (h (drop f))).
 Defined.
 
 (** *** Projections. *)
@@ -68,13 +79,14 @@ Proof.
     induction i as (j,jlt).
     induction j as [|k _].
     + exact (hd v).
-    + exact (f (tl v) (make_stn _ k (nat_S_lt _ _ jlt))).
+    + exact (f (tl v) (k,, jlt)).
 Defined.
 
 (** *** Some identities for computing [el]. *)
 
-Lemma el_mk_vector {n} (f : ⟦ n ⟧ → A) (i: ⟦ n ⟧) : el (mk_vector f) i = f i.
+Lemma el_mk_vector {n} (f : ⟦ n ⟧ → A) : el (mk_vector f) ~ f .
 Proof.
+  intro i.
   induction n as [|m meq].
   - exact (fromstn0 i).
   - induction i as (j,jlt).
@@ -82,23 +94,22 @@ Proof.
     + cbn.
       apply maponpaths.
       apply stn_extens.
-      reflexivity.
+      apply idpath.
     + etrans.
       { apply meq. }
       unfold funcomp, drop.
       apply maponpaths.
-      apply stn_extens.
-      reflexivity.
+      apply idpath.
 Defined.
 
 Lemma el_mk_vector_fun {n} (f : ⟦ n ⟧ → A) : el (mk_vector f) = f.
 Proof.
-  apply funextfun. intro i.
+  apply funextfun.
   apply el_mk_vector.
 Defined.
 
 Lemma el_vcons_tl {n} (v : Vector A n) (x : A) (i : ⟦ n ⟧) :
-  el (vcons x v) (dni_firstelement i) = el v i.
+  el (x ::: v) (dni_firstelement i) = el v i.
 Proof.
   induction n as [|m meq].
   - apply fromstn0. exact i.
@@ -108,7 +119,7 @@ Proof.
 Defined.
 
 Lemma el_vcons_hd {n} (v : Vector A n) (x : A) :
-  el (vcons x v) (firstelement) = x.
+  el (x ::: v) (firstelement) = x.
 Proof.
   reflexivity.
 Defined.
@@ -116,7 +127,7 @@ Defined.
 Lemma drop_el {n} (v : Vector A (S n)) (i: ⟦ n ⟧ ) : drop (el v) i = el (tl v) i.
 Proof.
   induction v as (x, u).
-  change (drop (el (vcons x u)) i = el u i).
+  change (drop (el (x ::: u)) i = el u i).
   apply el_vcons_tl.
 Defined.
 
@@ -179,7 +190,7 @@ Defined.
 
 Lemma vector_ind (P : ∏ n, Vector A n → UU) :
   P 0 vnil
-  → (∏ x n (v : Vector A n), P n v → P (S n) (vcons x v))
+  → (∏ x n (v : Vector A n), P n v → P (S n) (x ::: v))
   → (∏ n (v : Vector A n), P n v).
 Proof.
   intros Hnil Hcons.
@@ -219,15 +230,14 @@ Proof.
   - induction i as (j, jlt).
     induction j as [|k _].
     + apply hd_vector_map.
-    + change (el (tl (vector_map f v)) (make_stn _ k (nat_S_lt _ _ jlt)) =
-              f (el (tl v) (make_stn _ k (nat_S_lt _ _ jlt)))).
+    + change (el (tl (vector_map f v)) (make_stn _ k jlt) =
+              f (el (tl v) (make_stn _ k jlt))).
       etrans.
       { apply el_tl. }
       etrans.
       { apply H. }
       apply maponpaths.
       apply maponpaths.
-      apply stn_extens.
       reflexivity.
 Defined.
 
@@ -261,7 +271,7 @@ Definition vector_append {A : UU} {m} (u : Vector A m) {n} (v : Vector A n)
   := vector_ind (λ (p : nat) (_ : Vector A p), Vector A (p + n))
                 v
                 (λ (x : A) (p : nat) (_ : Vector A p) (w : Vector A (p + n)),
-                 vcons x w)
+                 x ::: w)
                 m u.
 
 (** *** Fusion laws. *)
@@ -304,4 +314,18 @@ Lemma vector_append_lid {A : UU} (u : Vector A 0) {n}
 Proof.
   induction u.
   reflexivity.
+Defined.
+
+Definition vector_fill {A: UU} (a: A): ∏ n: nat, Vector A n
+  := nat_rect (λ n: nat, Vector A n) vnil (λ (n: nat) (v: Vector A n), a ::: v).
+
+Lemma vector_map_const {A: UU} {n: nat} {v: Vector A n} {B: UU} (b: B) : vector_map (λ _, b) v = vector_fill b n.
+Proof.
+  revert n v.
+  apply vector_ind.
+  - apply idpath.
+  - intros x n xs HPind.
+    change (b ::: vector_map (λ _: A, b) xs = b ::: vector_fill b n).
+    apply maponpaths.
+    exact HPind.
 Defined.
