@@ -1,4 +1,8 @@
-(** * Boolean signature and the standard boolean algebra *)
+(** * Example on booleans *)
+
+(**
+  This file contains the definition of the signature of booleans and the standard boolean algebra.
+*)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Notations.

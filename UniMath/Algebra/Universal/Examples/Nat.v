@@ -1,4 +1,9 @@
-(** * Natural numbers signature and the standard algebra ******)
+(** * Example on natural numbers *)
+
+(**
+  This file contains the definition of the signature of natural numbers, the standard algebra,
+  the boolean algebra and the morphism between them.
+*)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.FiniteSets.
@@ -8,7 +13,6 @@ Require Import UniMath.Algebra.Universal.Signatures.
 Require Import UniMath.Algebra.Universal.Algebras.
 
 Local Open Scope stn.
-Local Open Scope sorted.
 Local Open Scope hom.
 
 Definition nat_signature := make_signature_simple_single_sorted [ 0; 1 ].
@@ -42,14 +46,13 @@ Lemma ishom_nat_to_z2: @ishom _ nat_algebra z2_algebra (nat_to_z2).
 Proof.
   unfold ishom.
   intros.
-  induction σ as [n proofn].
+  induction nm as [n proofn].
   inductive_reflexivity n proofn.
 Defined.
 
 Definition natz2 : nat_algebra ↦ z2_algebra := make_hom ishom_nat_to_z2.
 
 (*
-
 Definition nat_zero := build_term_curried nat_zero_op.
 Definition nat_succ := build_term_curried nat_succ_op.
 

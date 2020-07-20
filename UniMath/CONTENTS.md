@@ -85,6 +85,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Modules/Quotient.v](Algebra/Modules/Quotient.v)
    - [Modules.v](Algebra/Modules.v)
    - [Matrix.v](Algebra/Matrix.v)
+   - [Universal/Maybe.v](Algebra/Universal/Maybe.v)
    - [Universal/MoreLists.v](Algebra/Universal/MoreLists.v)
    - [Universal/HLists.v](Algebra/Universal/HLists.v)
    - [Universal/Signatures.v](Algebra/Universal/Signatures.v)

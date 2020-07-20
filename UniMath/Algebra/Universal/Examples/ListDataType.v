@@ -1,4 +1,4 @@
-(** * Lists as universal algebras *)
+(** * Example of lists *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Notations.

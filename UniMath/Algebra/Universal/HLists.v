@@ -1,4 +1,4 @@
-(** * Basic definitions for heterogeneous vectors *)
+(** * Basic definitions for heterogeneous lists *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
@@ -19,7 +19,7 @@ Local Open Scope hlist_scope.
 
 Bind Scope hlist_scope with HList.
 
-(** *** Constructors. *)
+(** ** Constructors *)
 
 Definition hnil : HList nil := tt.
 
@@ -31,7 +31,7 @@ Notation "[]" := hnil (at level 0, format "[]"): hlist_scope.
 
 Infix "::" := hcons: hlist_scope.
 
-Definition mk_hlist {n: nat} {P: ⟦ n ⟧ → UU} (f: ∏ i: ⟦ n ⟧, P i) : HList (functionToList _ P).
+Definition make_hlist {n: nat} {P: ⟦ n ⟧ → UU} (f: ∏ i: ⟦ n ⟧, P i) : HList (functionToList _ P).
 Proof.
   induction n.
   - exact hnil.
@@ -39,9 +39,9 @@ Proof.
 Defined.
 
 Lemma hlist_cons (x: UU) (xs: list UU): HList (x :: xs) = (x × HList xs).
-Proof. apply idpath. Defined. 
+Proof. apply idpath. Defined.
 
-(** *** Projections. *)
+(** ** Projections *)
 
 Definition hhd {A: UU} {l: list UU} (hv: HList (cons A l)): A := pr1 hv.
 
@@ -60,13 +60,13 @@ Proof.
     + exact (HPind (htl hv) (make_stn _ i iproof)).
 Defined.
 
-(** *** HList and standard vectors *)
+(** ** HList and standard vectors *)
 
-Lemma hlist_uniform {A: UU} {n: nat}: HList (list_fill A n) = Vector A n.
+Lemma hlist_fill {A: UU} {n: nat}: HList (fill A n) = Vector A n.
 Proof.
   induction n.
   - apply idpath.
-  - change ((A × HList (list_fill A n)) = (A × Vector A n)).
+  - change ((A × HList (fill A n)) = (A × Vector A n)).
     apply maponpaths.
     exact IHn.
 Defined.

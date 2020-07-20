@@ -12,6 +12,8 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.FiniteSets.
 Require Import UniMath.Combinatorics.Vectors.
 Require Import UniMath.Combinatorics.Lists.
+Require Import UniMath.Algebra.Universal.Maybe.
+Require Import UniMath.Algebra.Universal.MoreLists.
 Require Import UniMath.Algebra.Universal.Signatures.
 
 Local Open Scope stn.
@@ -90,131 +92,6 @@ Section Natlemmas.
   Defined.
 
 End Natlemmas.
-
-(** ** A simple implementation of the option monad *)
-
-Section Maybe.
-
-  Definition maybe (A: UU):= A ⨿ unit.
-
-  Definition some {A: UU}: A → maybe A := ii1.
-
-  Definition error {A: UU}: maybe A := ii2 tt.
-
-  Context {A: UU}.
-
-  Theorem isasetmaybe (H: isaset A): isaset (maybe A).
-  Proof.
-    apply isasetcoprod.
-    - exact H.
-    - exact isasetunit.
-  Defined.
-
-  Definition flatmap {B: UU} (f: A → maybe B): maybe A → maybe B
-    := coprod_rect _ f (λ _, error).
-
-  Lemma flatmap_some {B: UU} (f: A → maybe B) (a: A)
-    : flatmap f (some a) = f a.
-  Proof.
-    apply idpath.
-  Defined.
-
-  Lemma flatmap_error {B: UU} (f: A → maybe B)
-    : flatmap f error = error.
-  Proof.
-    apply idpath.
-  Defined.
-
-End Maybe.
-
-(** ** Lemmas on lists that are used in the rest of the file. *)
-
-Section Listlemmas.
-
-  (** *** Proofs that cons is injective on both arguments *)
-
-  Local Definition list_first {A: UU}: list A → maybe A.
-  Proof.
-    apply list_ind.
-    - exact error.
-    - exact (λ x xs IH, ii1 x).
-  Defined.
-
-  Local Definition list_tail {A: UU}: list A → maybe (list A).
-  Proof.
-    apply list_ind.
-    - exact error.
-    - exact (λ x xs IH, ii1 xs).
-  Defined.
-
-  Local Lemma list_cons_norm1 {A: UU} (x: A) (xs: list A)
-    : list_first (cons x xs) = ii1 x.
-  Proof.
-    apply idpath.
-  Defined.
-
-  Local Lemma list_cons_norm2 {A: UU} (x: A) (xs: list A)
-    : list_tail (cons x xs) = ii1 xs.
-  Proof.
-    apply idpath.
-  Defined.
-
-  Local Theorem cons_inj1 {A: UU} (a1 a2: A) (r1 r2: list A)
-    : cons a1 r1 = cons a2 r2 → a1 = a2.
-  Proof.
-    intro H.
-    apply (maponpaths list_first) in H.
-    do 2 rewrite list_cons_norm1 in H.
-    apply ii1_injectivity in H.
-    assumption.
-  Defined.
-
-  Local Theorem cons_inj2 {A: UU} (a1 a2: A) (r1 r2: list A)
-    : cons a1 r1 = cons a2 r2 → r1 = r2.
-  Proof.
-    intro H.
-    apply (maponpaths list_tail) in H.
-    do 2 rewrite list_cons_norm2 in H.
-    apply ii1_injectivity in H.
-    assumption.
-  Defined.
-
-  (** *** Several properties of the length of a list. *)
-
-  Local Lemma length_cons {A: UU} (x: A) (xs: list A)
-    : length (cons x xs) = S (length xs).
-  Proof.
-    apply idpath.
-  Defined.
-
-  Local Lemma length_concatenate {A: UU} (l1: list A) (l2: list A)
-    : length (concatenate l1 l2) = length l1 + length l2.
-  Proof.
-    revert l1.
-    apply list_ind.
-    - apply idpath.
-    - intros x xs IH.
-      change (S (length (concatenate xs l2)) = S (length xs + length l2)).
-      apply maponpaths.
-      apply IH.
-  Defined.
-
-  Local Lemma length_sublist1 {A: UU} (l1: list A) (l2: list A)
-    : length l1 ≤ length (concatenate l1 l2).
-  Proof.
-    rewrite length_concatenate.
-    apply natlehnplusnm.
-  Defined.
-
-  Local Lemma length_sublist2 {A: UU} (l1: list A) (l2: list A)
-    : length l2 ≤ length (concatenate l1 l2).
-  Proof.
-    rewrite length_concatenate.
-    rewrite natpluscomm.
-    apply natlehnplusnm.
-  Defined.
-
-End Listlemmas.
 
 (** ** Definition of oplist (operation list) *)
 (**

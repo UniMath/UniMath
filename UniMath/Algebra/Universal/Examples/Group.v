@@ -1,4 +1,9 @@
-(** * Groups as universal algebras *)
+(** * Example on groups *)
+
+(**
+  This file contains the definition of the signature of groups and the way to turn
+  a group into an algebra.
+*)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Notations.
