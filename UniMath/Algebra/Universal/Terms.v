@@ -18,81 +18,6 @@ Require Import UniMath.Algebra.Universal.Signatures.
 
 Local Open Scope stn.
 
-(** ** Lemmas on natural numbers that are used in the rest of the file. *)
-
-Section Natlemmas.
-
-  Local Lemma nat_movminusleft {a b c: nat}: c ≤ b → a = b - c  → a + c = b.
-  Proof.
-    intros hp1 hp2.
-    apply (maponpaths  (λ n: nat, n + c)) in hp2.
-    rewrite minusplusnmm in hp2 ; assumption.
-  Defined.
-
-  Local Lemma nat_movplusright {a b c: nat}: a + c = b → a = b - c.
-  Proof.
-    intros hp.
-    apply (maponpaths (λ n: nat, n - c)) in hp.
-    rewrite plusminusnmm in hp.
-    assumption.
-  Defined.
-
-  Local Lemma natleh_plusright {n1 n2 m: nat}: n1 ≤ n2 → n1 ≤ n2 + m.
-  Proof.
-    intros.
-    apply (istransnatleh(m:=n2)).
-    - assumption.
-    - apply natlehnplusnm.
-  Defined.
-
-  Local Lemma natleh_minusplus {n1 n2 n3: nat}: n3 ≤ n1 → n1 - n3 + n2 = n1 + n2 - n3.
-  Proof.
-    intros.
-    apply nat_movplusright.
-    rewrite natplusassoc.
-    rewrite (natpluscomm n2 n3).
-    rewrite <- natplusassoc.
-    rewrite minusplusnmm.
-    - apply idpath.
-    - assumption.
-  Defined.
-
-  Local Lemma statuscons_arith {n1 n2 n3: nat}: n3 ≤ n2 → S (n2 - n3) = n1 → n2 = n1 + n3 - 1.
-  Proof.
-    intros hp valn1.
-    rewrite <- valn1.
-    change (S (n2 - n3)) with (1 + (n2 - n3)).
-    rewrite natplusassoc.
-    rewrite minusplusnmm.
-    - rewrite natpluscomm.
-      rewrite plusminusnmm.
-      apply idpath.
-    - assumption.
-  Defined.
-
-  Local Lemma oplistsplit_arith1 {n1 n2: nat}: S n1 + n2 - 1 = n1 + n2.
-  Proof.
-    change (S n1) with (1 + n1).
-    rewrite natplusassoc.
-    rewrite (natpluscomm 1 (n1 + n2)).
-    rewrite plusminusnmm.
-    apply idpath.
-  Defined.
-
-  Local Lemma oplistsplit_arith2 {n1 n2 n3: nat}: S n1 ≤ n2 → n1 + n3 ≤ n2 + n3 - 1.
-  Proof.
-    intro nlehm.
-    apply (natlehandplusr  _ _  n3) in nlehm.
-    apply (natgehandminusl _ _  1) in nlehm.
-    change (S n1) with (1 + n1) in nlehm.
-    rewrite natplusassoc in nlehm.
-    rewrite (natpluscomm 1 (n1 + n3)) in nlehm.
-    rewrite plusminusnmm in nlehm.
-    assumption.
-  Defined.
-
-End Natlemmas.
-
 (** ** Definition of oplist (operation list) *)
 (**
    An oplist is a list of function symbols, interpreted as commands to be executed by a stack
@@ -104,29 +29,33 @@ End Natlemmas.
 
 Section Oplist.
 
-  Local Definition oplist (sigma: signature) := list (names sigma).
-
+  Local Definition oplist (σ: signature):= list σ.
+  
   Identity Coercion oplistislist: oplist >-> list.
-
-  Local Corollary isasetoplist (sigma: signature): isaset (oplist sigma).
+  
+  Local Corollary isasetoplist (σ: signature): isaset (oplist σ).
   Proof.
     apply isofhlevellist.
+    induction σ as [ S  [ O  ar ] ].
     apply setproperty.
   Defined.
 
-  Local Definition status: UU := maybe nat.
+  Local Definition status (σ: signature): UU := maybe (list (sorts σ)).
 
-  Local Definition statusok: nat → status := some.
+  Local Definition statusok {σ: signature}: list (sorts σ) → status σ := just.
 
-  Local Definition statuserror: status := error.
+  Local Definition statuserror {σ: signature}: status σ := nothing.
 
-  Local Lemma isasetstatus: isaset status.
+  Local Lemma isasetstatus (σ: signature): isaset (status σ).
   Proof.
     apply isasetmaybe.
-    apply isasetnat.
+    apply isofhlevellist.
+    induction σ as [ S  [ O  ar ] ].
+    apply isasetifdeceq.
+    apply decproperty.
   Defined.
 
-  Context {sigma: signature}.
+  Context {σ: signature}.
 
   (** *** The [statuscons] and [oplist2status] functions *)
   (**
@@ -134,23 +63,52 @@ Section Oplist.
      stack status is [s]. The [statuserror] status is propagated by [statuscons]. Building
      over [statuscons], [oplist2status] returns the status corresponding to an oplist.
    *)
+ 
+  Local Definition statuscons (nm: σ) (s: status σ): status σ :=
+    flatmap (λ tl, (statusok ((sort nm) :: tl))) (flatmap (λ s, prefix_remove (arity nm) s) s).
 
-  Local Definition statuscons (nm: names sigma) (s: status): status.
+  (*
+  Local Definition statuscons (nm: σ) (s: status σ): status σ.
   Proof.
     induction s as [s | serror].
-    - induction (isdecrelnatleh (arity nm) s) as [arityok | arityerror].
-      + exact (statusok ( S(s - arity nm) ) ).
+    - induction (prefix_remove (deceqnames σ) (arity nm) s) as [tail | _].
+      + exact (statusok ((sort nm) :: tail) ).
       + exact statuserror.
     - exact statuserror.
   Defined.
+  *)
 
-  Local Definition oplist2status (l: oplist sigma): status := foldr statuscons (statusok 0) l.
+  Local Definition oplist2status (l: oplist σ): status σ := foldr statuscons (statusok nil) l.
+  
+  Local Definition isaterm (l: oplist σ) := ∑ s: sorts σ, oplist2status l = statusok ([s]).
 
-  Local Definition isaterm (l: oplist sigma) := oplist2status l = statusok 1.
-
-  Local Lemma isapropisaterm (l: oplist sigma): isaprop (isaterm l).
+  (** TODO: Quite complex... make it shorter *)
+  Local Lemma isapropisaterm (l: oplist σ): isaprop (isaterm l).
   Proof.
-    unfold isaterm.
+    cbn.
+    intros.
+    unfold isaterm in x, x'.
+    unfold iscontr.
+    induction x as [s liss].
+    induction x' as [s' liss'].
+    set (p := (! liss') @ liss).
+    apply ii1_injectivity in p.
+    apply cons_inj1 in p.
+    induction p.
+    assert (liss = liss').
+    {
+      apply proofirrelevance.
+      apply isasetstatus.
+    }
+    induction X.
+    exists (idpath _).
+    intro.
+    apply proofirrelevance.
+    apply isaset_total2.
+    - apply isasetifdeceq.
+      apply decproperty.
+    - intros.
+    apply isasetaprop.
     apply isasetstatus.
   Defined.
 
@@ -158,10 +116,11 @@ End Oplist.
 
 Section OplistProps.
 
-  Context {sigma: signature}.
+  Context {σ: signature}.
 
   (** **** Properties of [statuscons] and [oplist2status] *)
 
+(*
   Local Lemma statuscons_statusok_f {nm: names sigma} {n: nat} (aritynm: arity nm ≤ n)
     : statuscons nm (statusok n) = statusok (S (n - arity nm)).
   Proof.
@@ -171,8 +130,8 @@ Section OplistProps.
     - contradiction.
   Defined.
 
-  Local Lemma statuscons_statusok_b {nm: names sigma} {s: status} {m: nat}
-    : statuscons nm s = statusok m → m > 0 × s = statusok (m + arity nm - 1).
+  Local Lemma statuscons_statusok_b {nm: names σ} {s: status σ} {l: list (sorts σ)}
+    : statuscons nm s = statusok l → length l > 0 × s = statusok (cons (sort nm) (prefix_remove (deceqnames σ) (arity nm) l)).
   Proof.
     intro scons.
     induction s as [s | serror].
@@ -189,51 +148,75 @@ Section OplistProps.
     - apply negpathsii2ii1 in scons.
       contradiction.
   Defined.
+*)
 
-  Local Lemma statuscons_zero_b {nm: names sigma} {s: status}
-    : ¬ (statuscons nm s = statusok 0).
+  Local Lemma statuscons_dec (nm: names σ) (l: list (sorts σ))
+    : ((statuscons nm (ii1 l) = statuserror) × (prefix_remove (arity nm) l = nothing))
+              ⨿   ∑ (p: list (sorts σ)), (statuscons nm (ii1 l) = statusok ((sort nm) :: p))
+                       × (prefix_remove (arity nm) l = statusok p).
   Proof.
-    intro scons.
-    apply statuscons_statusok_b in scons.
-    induction scons as [contr _].
-    apply isirreflnatgth in contr.
-    assumption.
+    unfold statuscons.
+    rewrite flatmap_just.
+    induction (prefix_remove (arity nm) l) as [ p | error ].
+    - apply ii2.
+      exists p.
+      split; apply idpath.
+    - apply ii1.
+      split.
+      + apply idpath.
+      + induction error.
+        apply idpath.
+  Defined.
+  
+  Local Lemma statuscons_neq_nil {nm: names σ} {s: status σ}
+    : ¬ (statuscons nm s = statusok nil).
+  Proof.
+    induction s as [l | error].
+    - set (H := statuscons_dec nm l).
+      induction H as [H | H].
+      + apply pr1 in H.
+        intro H'.
+        set (H'' :=  (!!H @ H')).
+        apply negpathsii1ii2 in H''.
+        assumption.
+      + induction H as [p H].
+        apply pr1 in H.
+        intro H'.
+        set (H'' :=  (!!H @ H')).
+        apply ii1_injectivity in H''.
+        apply negpathsnilcons in H''.
+        assumption.
+    - apply negpathsii2ii1.
   Defined.
 
-  Local Lemma oplist2status_nil
-    : oplist2status (nil: oplist sigma) = statusok 0.
-  Proof.
-    apply idpath.
-  Defined.
-
-  Local Lemma oplist2status_cons {nm: names sigma} {l: oplist sigma}
+  Local Lemma oplist2status_cons {nm: names σ} {l: oplist σ}
     : oplist2status (cons nm l) = statuscons nm (oplist2status l).
   Proof.
     apply idpath.
   Defined.
 
-  Local Lemma oplist2status_zero_b {l: oplist sigma}
-    : oplist2status l = statusok 0 → l = nil.
+  Local Lemma oplist2status_zero_b {l: oplist σ}
+    : oplist2status l = statusok nil → l = nil.
   Proof.
     revert l.
     refine (list_ind _ _ _).
     - reflexivity.
     - intros x xs _ lstatus.
       rewrite oplist2status_cons in lstatus.
-      apply statuscons_zero_b in lstatus.
+      apply statuscons_neq_nil in lstatus.
       contradiction.
   Defined.
 
-  Local Lemma oplist2status_positive_b {l: oplist sigma} {n: nat}
-    : oplist2status l = statusok (S n)
-      → ∑ (x: names sigma) (xs: oplist sigma), l = cons x xs.
+  Local Lemma oplist2status_positive_b {l: oplist σ} (so: sorts σ) (sos: list (sorts σ))
+    : oplist2status l = statusok (cons so sos)
+      → ∑ (x: names σ) (xs: oplist σ), l = cons x xs.
   Proof.
     revert l.
     refine (list_ind _ _ _).
     - intro nilstatus.
-      rewrite oplist2status_nil in nilstatus.
+      cbn in nilstatus.
       apply ii1_injectivity in nilstatus.
-      apply negpaths0sx in nilstatus.
+      apply negpathsnilcons in nilstatus.
       contradiction.
     - intros x xs _ lstatus.
       exists x.
@@ -241,39 +224,40 @@ Section OplistProps.
       apply idpath.
   Defined.
 
-  Local Definition statusconcatenate (s1 s2: status): status.
-  Proof.
-    induction s2 as [s2 | s2error].
-    - induction s1 as [s1 | s1error].
-      + exact (statusok (s1 + s2)).
-      + exact statuserror.
-    - exact statuserror.
-  Defined.
+  Local Definition statusconcatenate (s1 s2: status σ): status σ
+    := flatmap (λ s2', flatmap (λ s1', statusok (s1' ++ s2')) s1) s2.
 
-  Local Lemma statusconcatenate_statuscons {nm: names sigma} {s1 s2: status}
+  Local Definition flatmap_comp {A B C: UU} {f: A → B} {g: B → C} {a: maybe A}:
+     flatmap (λ x: B, just (g x)) (flatmap (λ y: A, just (f y)) a) = flatmap (λ y:A, just (g (f y))) a.
+  Proof.
+     induction a as [a' | aerror]  ; apply idpath.
+  Defined.
+  
+  Local Lemma statusconcatenate_statuscons {nm: names σ} {s1 s2: status σ}
     : (statuscons nm s1 != statuserror)
       → statusconcatenate (statuscons nm s1) s2 = statuscons nm (statusconcatenate s1 s2).
   Proof.
-    induction s1 as [s1 | s1error].
+    induction s1 as [s1' | ].
     2: contradiction.
-    induction s2 as [s2 | s2error].
+    induction s2 as [s2'| ].
     2: reflexivity.
-    intro noerror.
-    cbn [statuscons coprod_rect] in noerror.
-    cbn [statusconcatenate statuscons statusok some coprod_rect].
-    induction (isdecrelnatleh (arity nm) s1) as [arityok1 | arityerror1] ; cbn in noerror.
-    2: contradiction.
-    induction (isdecrelnatleh (arity nm) (s1+s2)) as [arityok2 | arityerror2]; cbn.
-    - repeat apply maponpaths.
-      apply natleh_minusplus.
-      assumption.
-    - apply fromempty.
-      apply arityerror2.
-      apply natleh_plusright.
-      assumption.
+    intro H.
+    set (X := statuscons_dec nm s1').
+    induction X as [Xerr | Xok].
+    - contradicts H (pr1 Xerr).
+    - induction Xok as [tl [scons pref]].
+      rewrite scons.
+      simpl.
+      rewrite concatenateStep.
+      unfold statuscons.
+      simpl.
+      erewrite prefix_remove_concatenate.
+      + rewrite flatmap_just.
+        apply idpath.
+      + assumption.
   Defined.
 
-  Local Lemma oplist2status_concatenate {l1 l2: oplist sigma}
+ Local Lemma oplist2status_concatenate {l1 l2: oplist σ}
     : oplist2status l1 != statuserror
       → oplist2status (concatenate l1 l2)
         = statusconcatenate (oplist2status l1) (oplist2status l2).
@@ -303,7 +287,7 @@ Section OplistProps.
      terms.
    *)
 
-  Local Definition oplistsplit (l: oplist sigma) (n: nat): oplist sigma × oplist sigma.
+  Local Definition oplistsplit (l: oplist σ) (n: nat): oplist σ × oplist σ.
   Proof.
     revert l n.
     refine (list_ind _ _ _).
@@ -316,7 +300,7 @@ Section OplistProps.
         exact (cons x IHfirst ,, IHsecond).
   Defined.
 
-  Local Lemma oplistsplit_zero {l: oplist sigma}: oplistsplit l 0 = nil,, l.
+  Local Lemma oplistsplit_zero {l: oplist σ}: oplistsplit l 0 = nil,, l.
   Proof.
     revert l.
     refine (list_ind _ _ _).
@@ -329,14 +313,14 @@ Section OplistProps.
     apply idpath.
   Defined.
 
-  Local Lemma oplistsplit_cons {x: names sigma} {xs: oplist sigma} {n: nat}
+  Local Lemma oplistsplit_cons {x: names σ} {xs: oplist σ} {n: nat}
     : oplistsplit (cons x xs) (S n)
       = cons x (pr1 (oplistsplit xs (n + arity x))) ,, (pr2 (oplistsplit xs (n + arity x))).
   Proof.
     apply idpath.
   Defined.
 
-  Local Lemma oplistsplit_concatenate (l1 l2: oplist sigma) {m: nat} (n: nat)
+  Local Lemma oplistsplit_concatenate (l1 l2: oplist σ) {m: nat} (n: nat)
     : oplist2status l1 = statusok m → n ≤ m
       → oplistsplit (concatenate l1 l2) n
         = pr1 (oplistsplit l1 n) ,, concatenate (pr2 (oplistsplit l1 n)) l2.
@@ -375,7 +359,7 @@ Section OplistProps.
           assumption.
   Defined.
 
-  Local Lemma concatenate_oplistsplit (l: oplist sigma) (n: nat)
+  Local Lemma concatenate_oplistsplit (l: oplist σ) (n: nat)
     : concatenate (pr1 (oplistsplit l n)) (pr2 (oplistsplit l n)) = l.
   Proof.
     revert l n.
@@ -391,7 +375,7 @@ Section OplistProps.
         apply idpath.
   Defined.
 
-  Local Lemma oplist2status_oplistsplit (l: oplist sigma) {m: nat} (n: nat)
+  Local Lemma oplist2status_oplistsplit (l: oplist σ) {m: nat} (n: nat)
     : oplist2status l = statusok m → n ≤ m
       → dirprod
           (oplist2status (pr1 (oplistsplit l n)) = statusok n)
@@ -438,7 +422,7 @@ Section OplistProps.
           apply idpath.
   Defined.
 
-  Local Corollary oplistsplit_self {l: oplist sigma} {n: nat}
+  Local Corollary oplistsplit_self {l: oplist σ} {n: nat}
     : oplist2status l = statusok n → oplistsplit l n = l ,, nil.
   Proof.
     intro lstatus.
@@ -460,16 +444,16 @@ Section OplistProps.
      ([vecoplist2oplist]) and viceversa ([oplist2vecoplist]).
    *)
 
-  Local Definition vecoplist2oplist {n: nat} (v: Vector (oplist sigma) n): oplist sigma
+  Local Definition vecoplist2oplist {n: nat} (v: Vector (oplist σ) n): oplist σ
     := vector_foldr concatenate nil v.
 
-  Local Lemma vecoplist2oplist_vcons {n: nat} (x: oplist sigma) (v: Vector (oplist sigma) n)
+  Local Lemma vecoplist2oplist_vcons {n: nat} (x: oplist σ) (v: Vector (oplist σ) n)
     : vecoplist2oplist (vcons x v) = concatenate x (vecoplist2oplist v).
   Proof.
     apply idpath.
   Defined.
 
-  Local Lemma vecoplist2oplist_inj {n : nat} {v1 v2: Vector (oplist sigma) n}
+  Local Lemma vecoplist2oplist_inj {n : nat} {v1 v2: Vector (oplist σ) n}
         (v1status: ∏ (i: ⟦ n ⟧), isaterm (el v1 i))
         (v2status: ∏ (i: ⟦ n ⟧), isaterm (el v2 i))
     : vecoplist2oplist v1 = vecoplist2oplist v2 → v1 = v2.
@@ -497,11 +481,11 @@ Section OplistProps.
         * intro i.
           rewrite el_tl.
           apply v2status.
-        * apply (maponpaths (λ l, pr2 l: oplist sigma)) in eq.
+        * apply (maponpaths (λ l, pr2 l: oplist σ)) in eq.
           assumption.
   Defined.
 
-  Local Lemma oplist2status_vecoplist2oplist {n: nat} {v: Vector (oplist sigma) n}
+  Local Lemma oplist2status_vecoplist2oplist {n: nat} {v: Vector (oplist σ) n}
         (vstatus: ∏ (i: ⟦ n ⟧), isaterm (el v i))
     : oplist2status (vecoplist2oplist v) = statusok n.
   Proof.
@@ -523,9 +507,9 @@ Section OplistProps.
         apply negpathsii1ii2.
   Defined.
 
-  Local Definition oplist2vecoplist (l: oplist sigma) {n: nat}
+  Local Definition oplist2vecoplist (l: oplist σ) {n: nat}
         (lstatus: oplist2status l = statusok n)
-    : ∑ (v: Vector (oplist sigma) n)
+    : ∑ (v: Vector (oplist σ) n)
       , (∏ (i: ⟦ n ⟧), isaterm (el v i))
           × (∏ (i: ⟦ n ⟧), length (el v i) ≤ length l)
           × vecoplist2oplist v = l.
@@ -579,10 +563,10 @@ Section OplistProps.
         apply concatenate_oplistsplit.
   Defined.
 
-  Local Definition oplist_build_term (nm: names sigma) (v: Vector (oplist sigma) (arity nm))
-    : oplist sigma := cons nm (vecoplist2oplist v).
+  Local Definition oplist_build_term (nm: names σ) (v: Vector (oplist σ) (arity nm))
+    : oplist σ := cons nm (vecoplist2oplist v).
 
-  Local Lemma oplist_build_term_status (nm: names sigma) (v: Vector (oplist sigma) (arity nm))
+  Local Lemma oplist_build_term_status (nm: names σ) (v: Vector (oplist σ) (arity nm))
         (vstatus: (∏ (i: ⟦ arity nm ⟧), isaterm (el v i)))
     : isaterm (oplist_build_term nm v).
   Proof.
@@ -596,8 +580,8 @@ Section OplistProps.
     - exact vstatus.
   Defined.
 
-  Local Definition oplist_decompose (l: oplist sigma) (l1status: isaterm l):
-    ∑ (nm:names sigma) (v: Vector (oplist sigma) (arity nm))
+  Local Definition oplist_decompose (l: oplist σ) (l1status: isaterm l):
+    ∑ (nm:names σ) (v: Vector (oplist σ) (arity nm))
     , (∏ (i: ⟦ arity nm ⟧), isaterm (el v i))
         × (∏ (i: ⟦ arity nm  ⟧), length (el v i) < length l)
         × oplist_build_term nm v = l.
@@ -636,17 +620,17 @@ Section Term.
 
   (** A term is an oplist together with the proof it is a term *)
 
-  Definition term (sigma: signature)
-    := ∑ s: oplist sigma, isaterm s.
+  Definition term (σ: signature)
+    := ∑ s: oplist σ, isaterm s.
 
-  Definition make_term {sigma: signature} (l: oplist sigma) (lstatus: isaterm l)
-    : term sigma := l ,, lstatus.
+  Definition make_term {σ: signature} (l: oplist σ) (lstatus: isaterm l)
+    : term σ := l ,, lstatus.
 
-  Coercion term2oplist {sigma: signature}: term sigma → oplist sigma := pr1.
+  Coercion term2oplist {σ: signature}: term σ → oplist σ := pr1.
 
-  Definition term2proof {sigma: signature}: ∏ t: term sigma, isaterm t := pr2.
+  Definition term2proof {σ: signature}: ∏ t: term σ, isaterm t := pr2.
 
-  Lemma isasetterm(sigma: signature): isaset (term sigma).
+  Lemma isasetterm(σ: signature): isaset (term σ).
   Proof.
     apply isaset_total2.
     - apply isasetoplist.
@@ -655,12 +639,12 @@ Section Term.
       apply isasetstatus.
   Defined.
 
-  Definition termset (sigma : signature): hSet
-    := make_hSet (term sigma) (isasetterm sigma).
+  Definition termset (σ : signature): hSet
+    := make_hSet (term σ) (isasetterm σ).
 
-  Context {sigma: signature}.
+  Context {σ: signature}.
 
-  Lemma term_extens {t1 t2 : term sigma} (p : term2oplist t1 = term2oplist t2)
+  Lemma term_extens {t1 t2 : term σ} (p : term2oplist t1 = term2oplist t2)
     : t1 = t2.
   Proof.
     apply subtypePairEquality'.
@@ -670,7 +654,7 @@ Section Term.
 
   (* [build_term] builds a term starting from its principal function symbols and its subterms *)
 
-  Definition build_term (nm: names sigma) (v: Vector (term sigma) (arity nm)): term sigma.
+  Definition build_term (nm: names σ) (v: Vector (term σ) (arity nm)): term σ.
   Proof.
     exists (oplist_build_term nm (vector_map term2oplist v)).
     apply oplist_build_term_status.
@@ -681,19 +665,19 @@ Section Term.
 
   (** [princop] returns the principal function symbol of a term *)
 
-  Definition princop (t: term sigma): names sigma
+  Definition princop (t: term σ): names σ
     := pr1 (oplist_decompose t (term2proof t)).
 
   (** [subterms] retusn the subterms of a term term *)
 
-  Definition subterms (t: term sigma): Vector (term sigma) (arity (princop t)).
+  Definition subterms (t: term σ): Vector (term σ) (arity (princop t)).
   Proof.
     unfold princop.
     induction (oplist_decompose t (term2proof t)) as [nm [v [vstatus [vlen normalization]]]].
     exact (mk_vector (λ (i: ⟦ arity nm ⟧), make_term (el v i) (vstatus i))).
   Defined.
 
-  Local Lemma subterms_length (t: term sigma): ∏ (i: ⟦ arity (princop t) ⟧), length (el (subterms t) i) < length t.
+  Local Lemma subterms_length (t: term σ): ∏ (i: ⟦ arity (princop t) ⟧), length (el (subterms t) i) < length t.
   Proof.
     unfold subterms, princop.
     induction (oplist_decompose t (term2proof t)) as [nm [v [vstatus [vlen normalization]]]].
@@ -703,7 +687,7 @@ Section Term.
     exact (vlen i).
   Defined.
 
-  Local Lemma term_normalization (t: term sigma): build_term (princop t) (subterms t) = t.
+  Local Lemma term_normalization (t: term σ): build_term (princop t) (subterms t) = t.
   Proof.
     unfold princop, subterms.
     induction (oplist_decompose t (term2proof t)) as [nm [v [vstatus [vlen normalization]]]].
@@ -716,13 +700,13 @@ Section Term.
     apply normalization.
   Defined.
 
-  Local Lemma princop_build_term (nm: names sigma) (v: Vector (term sigma) (arity nm))
+  Local Lemma princop_build_term (nm: names σ) (v: Vector (term σ) (arity nm))
     : princop (build_term nm v) = nm.
   Proof.
     apply idpath.
   Defined.
 
-  Local Lemma subterms_build_term (nm: names sigma) (v: Vector (term sigma) (arity nm))
+  Local Lemma subterms_build_term (nm: names σ) (v: Vector (term σ) (arity nm))
     : subterms (build_term nm v) = v.
   Proof.
     set (t := build_term nm v).
@@ -748,7 +732,7 @@ Section Term.
       apply (el v i).
   Defined.
 
-  Local Lemma length_term (t: term sigma): length t > 0.
+  Local Lemma length_term (t: term σ): length t > 0.
   Proof.
     induction t as [l statusl].
     induction (oplist2status_positive_b statusl) as [x [xs lstruct]].
@@ -757,7 +741,7 @@ Section Term.
     apply idpath.
   Defined.
 
-  Local Lemma term_notnil {X: UU} {t: term sigma}: length t ≤ 0 → X.
+  Local Lemma term_notnil {X: UU} {t: term σ}: length t ≤ 0 → X.
   Proof.
     intro tlen.
     apply natlehneggth in tlen.
@@ -770,16 +754,16 @@ End Term.
 
 Section TermInduction.
 
-  Context {sigma: signature}.
+  Context {σ: signature}.
 
-  Definition term_ind_HP (P: term sigma → UU) :=
-    ∏ (nm: names sigma)
-      (v: Vector (term sigma) (arity nm))
+  Definition term_ind_HP (P: term σ → UU) :=
+    ∏ (nm: names σ)
+      (v: Vector (term σ) (arity nm))
       (IH: ∏ (i:  ⟦ arity nm ⟧), P (el v i))
     , P (build_term nm v).
 
-  Local Lemma term_ind_onlength (P: term sigma → UU) (R: term_ind_HP P)
-    : ∏ (n: nat) (t: term sigma), length t ≤ n →  P t.
+  Local Lemma term_ind_onlength (P: term σ → UU) (R: term_ind_HP P)
+    : ∏ (n: nat) (t: term σ), length t ≤ n →  P t.
   Proof.
     induction n.
     - intros t tlen.
@@ -798,16 +782,16 @@ Section TermInduction.
       -- apply tlen.
   Defined.
 
-  Theorem term_ind (P: term sigma → UU) (R: term_ind_HP P) (t: term sigma)
+  Theorem term_ind (P: term σ → UU) (R: term_ind_HP P) (t: term σ)
     : P t.
   Proof.
     exact (term_ind_onlength P R (length t) t (isreflnatleh _)).
   Defined.
 
-  Local Lemma term_ind_onlength_nirrelevant (P: term sigma → UU) (R: term_ind_HP P)
+  Local Lemma term_ind_onlength_nirrelevant (P: term σ → UU) (R: term_ind_HP P)
     : ∏ (n m1 m2: nat)
         (m1lehn: m1 ≤ n) (m2lehn: m2 ≤ n)
-        (t: term sigma)
+        (t: term σ)
         (lenm1: length t ≤ m1) (lenm2: length t ≤ m2)
       , term_ind_onlength P R m1 t lenm1 = term_ind_onlength P R m2 t lenm2.
   Proof.
@@ -829,8 +813,8 @@ Section TermInduction.
           -- apply m2lehn.
   Defined.
 
-  Lemma term_ind_step (P: term sigma → UU) (R: term_ind_HP P)
-        (nm: names sigma) (v: Vector (term sigma) (arity nm))
+  Lemma term_ind_step (P: term σ → UU) (R: term_ind_HP P)
+        (nm: names σ) (v: Vector (term σ) (arity nm))
     : term_ind P R (build_term nm v)
       = R nm v (λ i:  ⟦ arity nm ⟧, term_ind P R (el v i)).
   Proof.
@@ -860,18 +844,18 @@ Section TermInduction.
       apply (v0len i).
   Defined.
 
-  Definition depth: term sigma → nat
-    := term_ind (λ _, nat) (λ (nm: names sigma) (vterm: Vector (term sigma) (arity nm))
-                (levels: ∏ i : ⟦ arity nm ⟧, (λ _ : term sigma, nat) (el vterm i)),
+  Definition depth: term σ → nat
+    := term_ind (λ _, nat) (λ (nm: names σ) (vterm: Vector (term σ) (arity nm))
+                (levels: ∏ i : ⟦ arity nm ⟧, (λ _ : term σ, nat) (el vterm i)),
                 1 + vector_foldr max 0 (mk_vector levels)).
 
   Definition fromterm {A:UU}
-             (op : ∏ (nm : names sigma), Vector A (arity nm) → A)
-    : term sigma → A
+             (op : ∏ (nm : names σ), Vector A (arity nm) → A)
+    : term σ → A
     := term_ind (λ _, A) (λ nm _ rec, op nm (mk_vector rec)).
 
-  Lemma fromtermstep {A: UU} (nm: names sigma) (op : ∏ (nm : names sigma), Vector A (arity nm) → A)
-                     (v: Vector (term sigma) (arity nm))
+  Lemma fromtermstep {A: UU} (nm: names σ) (op : ∏ (nm : names σ), Vector A (arity nm) → A)
+                     (v: Vector (term σ) (arity nm))
     : fromterm op (build_term nm v) = op nm (vector_map (fromterm op) v).
   Proof.
     unfold fromterm.
@@ -908,8 +892,8 @@ Section iterbuild.
       apply (IHn f').
   Defined.
 
-  Definition build_term_curried {sigma: signature} (nm: names sigma)
-    : iterfun (term sigma) (term sigma) (arity nm)
+  Definition build_term_curried {σ: signature} (nm: names σ)
+    : iterfun (term σ) (term σ) (arity nm)
     := itercurry (build_term nm).
 
 End iterbuild.

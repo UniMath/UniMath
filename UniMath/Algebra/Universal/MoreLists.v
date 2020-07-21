@@ -18,6 +18,8 @@ Notation "[]" := nil (at level 0, format "[]"): list_scope.
 
 Infix "::" := cons: list_scope.
 
+Infix "++" := concatenate: list_scope.
+
 Local Open Scope list_scope.
 
 (** *** Proofs that cons is injective on both arguments *)
@@ -140,4 +142,97 @@ Proof.
   - change (S (length (fill a n)) = S n).
     apply maponpaths.
     exact IHn.
+Defined.
+
+Lemma negpathsconsnil {A: UU} (a: A) (l: list A): cons a l != nil.
+Proof.
+  intro X.
+  apply (maponpaths pr1) in X.
+  cbv in X.
+  apply negpathssx0 in X.
+  assumption.
+Defined.
+
+Lemma negpathsnilcons {A: UU} (a: A) (l: list A): nil != cons a l.
+Proof.
+  intro X.
+  apply pathsinv0 in X.
+  apply negpathsconsnil in X.
+  assumption.
+Defined.
+
+(** ** A decidable set is a type where equality is decidable *)
+
+Definition decSet: UU := ∑ (X: UU), isdeceq X.
+
+Definition make_decSet (X : UU) (i : isdeceq X) := X,, i.
+
+Definition pr1decSet: decSet -> UU := pr1.
+
+Coercion pr1decSet: decSet >-> UU.
+
+Definition decproperty (X: decSet) := pr2 X.
+
+(** ** The prefix_remove operation and related properties *)
+
+Definition prefix_remove {A: decSet} (l1 l2: list A): maybe (list A).
+Proof.
+  revert l1 l2.
+  refine (list_ind _ _ _).
+  - exact (λ l, just l).
+  - intros x xs HP.
+    refine (list_ind _ _ _).
+    + exact nothing.
+    + intros y ys _.
+      induction (decproperty A x y).
+      * exact (HP ys).
+      * exact nothing.
+Defined.
+
+Lemma prefix_remove_stepeq {A: decSet} (x: A) (xs1 xs2: list A)
+  : prefix_remove (x :: xs1) (x :: xs2) = prefix_remove xs1 xs2.
+Proof. 
+  unfold prefix_remove.
+  cbn.
+  induction (decproperty A x x).
+  - cbn.
+    apply idpath.
+  - contradiction (b (idpath x)).
+Defined.
+
+Lemma prefix_remove_stepneq {A: decSet} {x1 x2: A} (p: x1 != x2) (xs1 xs2: list A) 
+  : prefix_remove (x1 :: xs1) (x2 :: xs2) = nothing.
+Proof. 
+  unfold prefix_remove.
+  cbn.
+  induction (decproperty A x1 x2).
+  - contradicts a p.
+  - apply idpath.
+Defined.
+
+Lemma prefix_remove_concatenate {A: decSet} (l1 l2 l3: list A) (tl: list A)
+  : prefix_remove l1 l2 = ii1 tl → prefix_remove l1 (l2 ++ l3) = ii1 (tl ++ l3).
+Proof.
+  revert l1 l2.
+  refine (list_ind _ _ _).
+  - intros l2 prooftl.
+    apply ii1_injectivity in prooftl.
+    rewrite prooftl.
+    apply idpath.
+  - intros x xs HPind.
+    refine (list_ind _ _ _).
+    + intro HP.
+      cbv in HP.
+      apply negpathsii2ii1 in HP.
+      contradiction.
+    + intros x2 x2s HP2.
+      rewrite concatenateStep.
+      induction (decproperty A x x2) as [xeqx2 | xneqx2].
+      * rewrite xeqx2.
+        do 2 rewrite prefix_remove_stepeq.
+        apply (HPind x2s).
+      * rewrite (prefix_remove_stepneq xneqx2).
+        intro HP.
+        apply negpathsii2ii1 in HP.
+        contradiction.
 Defined.
