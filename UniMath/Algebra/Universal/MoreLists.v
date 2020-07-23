@@ -78,6 +78,17 @@ Proof.
   apply idpath.
 Defined.
 
+Lemma length_zero_back {A: UU} (l: list A): length l = 0 → l = [].
+Proof.
+  revert l.
+  refine (list_ind _ _ _).
+  - reflexivity.
+  - intros x xs _ HP.
+    rewrite length_cons in HP.
+    apply negpathssx0 in HP.
+    contradiction.
+Defined.
+
 Lemma length_concatenate {A: UU} (l1: list A) (l2: list A)
   : length (concatenate l1 l2) = length l1 + length l2.
 Proof.
@@ -210,6 +221,45 @@ Proof.
   - apply idpath.
 Defined.
 
+Lemma prefix_remove_stepback {A: decSet} (x1 x2: A) (xs1 xs2: list A)
+  : prefix_remove (x1 :: xs1) (x2 :: xs2) != nothing → x1 = x2.
+Proof.
+  induction (decproperty A x1 x2) as [x1eqx2 | x1neqx2] ; intro HP.
+  - assumption.
+  - rewrite (prefix_remove_stepneq x1neqx2) in HP.
+    apply fromempty.
+    apply (HP (idpath _)).
+Defined.
+
+Definition prefix_remove_back {A: decSet} (l1 l2 l3: list A):
+  prefix_remove l1 l2 = just l3 → l2 = l1 ++ l3.
+Proof. 
+  revert l1 l2.
+  refine (list_ind _ _ _).
+  - intros l2 prefixnil.
+    cbn in prefixnil.
+    apply just_injectivity in prefixnil.
+    cbn.
+    assumption.
+  - intros x1 xs1 HPind.
+    refine (list_ind _ _ _).
+    + intro prefixxs.
+      cbn in prefixxs.
+      apply negpathsii2ii1 in prefixxs.
+      contradiction.
+    + intros x2 xs2 HP2ind HP.
+      induction (decproperty A x1 x2) as [x1eqx2 | x1neqx2].
+      * rewrite x1eqx2 in *.
+        rewrite prefix_remove_stepeq in HP.
+        rewrite concatenateStep.
+        rewrite (HPind xs2 HP).
+        apply idpath.
+      * rewrite (prefix_remove_stepneq x1neqx2) in HP.
+        contradiction (negpathsii2ii1 _ _ HP).
+Defined.
+  
+Definition isprefix {A: decSet} (l1 l2: list A): UU := prefix_remove l1 l2 != nothing.
+
 Lemma prefix_remove_concatenate {A: decSet} (l1 l2 l3: list A) (tl: list A)
   : prefix_remove l1 l2 = ii1 tl → prefix_remove l1 (l2 ++ l3) = ii1 (tl ++ l3).
 Proof.
@@ -235,4 +285,120 @@ Proof.
         intro HP.
         apply negpathsii2ii1 in HP.
         contradiction.
+Defined.
+
+Lemma prefix_remove_concatenate2 {A: decSet} (l1 l2 l3: list A)
+  : length l1 ≤ length l2 → prefix_remove l1 l2 = nothing → prefix_remove l1 (l2 ++ l3) = nothing.
+Proof.
+  revert l1 l2.
+  refine (list_ind _ _ _).
+  - intros l2 Hlen Hpref.
+    contradiction (negpathsii1ii2 _ _ Hpref).
+  - intros x1 xs1 IH.
+    refine (list_ind _ _ _).
+    + intros Hlen Hpref.
+      contradiction (negnatlehsn0 _ Hlen).
+    + intros x2 xs2 _ Hlen Hpref.
+      rewrite concatenateStep.
+      induction (decproperty A x1 x2) as [x1eqx2 | x1neqx2].
+      * induction x1eqx2.
+        rewrite prefix_remove_stepeq.
+        rewrite prefix_remove_stepeq in Hpref.
+        apply (IH xs2 Hlen Hpref).
+      * apply (prefix_remove_stepneq x1neqx2).
+Defined.
+
+Lemma prefix_remove_prefix {A: decSet} (l1 l2: list A): prefix_remove l1 (l1 ++ l2) = just l2.
+Proof.
+  revert l1.
+  refine (list_ind _ _ _).
+  - reflexivity.
+  - intros x xs IHl1.
+    rewrite concatenateStep.
+    rewrite prefix_remove_stepeq.
+    assumption.
+Defined.
+    
+Definition drop {A: UU} (l: list A) (n: nat): list A.
+Proof.
+  revert l.
+  induction n.
+  - exact (idfun _).
+  - apply list_ind.
+    + exact nil.
+    + intros x xs _.
+      exact (IHn xs).
+Defined.
+
+Lemma drop_nil {A: UU} {n: nat}: @drop A [] n = [].
+Proof.
+  induction n ; apply idpath.
+Defined.
+
+Lemma drop_zero {A: UU} (l: list A): drop l 0 = l.
+Proof.
+  revert l.
+  apply list_ind; trivial.
+Defined.
+
+Lemma drop_step {A: UU} (x: A) (xs: list A) (n: nat)
+  : drop (x :: xs) (S n) = drop xs n.
+Proof. apply idpath. Defined.
+
+Lemma drop_full {A: UU} (l: list A): drop l (length l) = nil.
+Proof.
+  revert l; apply list_ind ; trivial.
+Defined.
+
+Lemma drop_concatenate {A: UU} (l1 l2: list A) (n: nat) (nok: n ≤ length l1): drop (l1 ++ l2) n = (drop l1 n) ++ l2.
+Proof.
+  revert l1 nok.
+  induction n.
+  - reflexivity.
+  - refine (list_ind _ _ _).
+    + intros.
+      contradiction (negnatlehsn0 _ nok).
+    + intros x xs _ sok.
+      rewrite concatenateStep.
+      do 2rewrite drop_step.
+      apply (IHn xs sok).
+Defined.
+
+Lemma prefix_remove_drop {A: decSet} (l1 l2: list A)
+  : prefix_remove l1 l2 != nothing → prefix_remove l1 l2 = just (drop l2 (length l1)).
+Proof.
+  revert l1 l2.
+  refine (list_ind _ _ _).
+  - reflexivity.
+  - intros x1 xs1 IH.
+    refine (list_ind _ _ _).
+    + contradiction.
+    + intros x2 xs2 _ prefixok.
+      induction (decproperty A x1 x2) as [x1eqx2 | x1neqx2].
+      * induction x1eqx2.
+        rewrite prefix_remove_stepeq.
+        rewrite prefix_remove_stepeq in prefixok.
+        apply (IH xs2 prefixok).
+      * rewrite (prefix_remove_stepneq x1neqx2) in prefixok.
+        contradiction prefixok.
+        apply idpath.
+Defined.
+
+Lemma length_drop {A: decSet} (l: list A) (n: nat): length (drop l n) = length l - n.
+Proof.
+  revert l n.
+  refine (list_ind _ _ _).
+  - intro n.
+    rewrite drop_nil.
+    induction n.
+    + apply idpath.
+    + change ( 0 = 0 - (1+ n)).
+      rewrite <- natminusminus.
+      assumption.
+  - intros x xs IH.
+    induction n.
+    + apply idpath.
+    + rewrite drop_step.
+      rewrite length_cons.
+      apply (IH n).
 Defined.

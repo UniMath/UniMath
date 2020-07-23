@@ -14,9 +14,67 @@ Require Import UniMath.Combinatorics.Vectors.
 Require Import UniMath.Combinatorics.Lists.
 Require Import UniMath.Algebra.Universal.Maybe.
 Require Import UniMath.Algebra.Universal.MoreLists.
+Require Import UniMath.Algebra.Universal.HLists.
 Require Import UniMath.Algebra.Universal.Signatures.
 
 Local Open Scope stn.
+Local Open Scope list.
+
+(** ** Lemmas on natural numbers that are used in the rest of the file. *)
+
+Section NatLemmas.
+
+  Local Lemma oplistsplit_arith1 {n1 n2: nat}: S n1 + n2 - 1 = n1 + n2.
+  Proof.
+    change (S n1) with (1 + n1).
+    rewrite natplusassoc.
+    rewrite (natpluscomm 1 (n1 + n2)).
+    rewrite plusminusnmm.
+    apply idpath.
+  Defined.
+  
+  Local Lemma oplistsplit_arith2 {n1 n2 n3: nat}: S n1 ≤ n2 → n1 + n3 ≤ n2 + n3 - 1.
+  Proof.
+    intro nlehm.
+    apply (natlehandplusr  _ _  n3) in nlehm.
+    apply (natgehandminusl _ _  1) in nlehm.
+    change (S n1) with (1 + n1) in nlehm.
+    rewrite natplusassoc in nlehm.
+    rewrite (natpluscomm 1 (n1 + n3)) in nlehm.
+    rewrite plusminusnmm in nlehm.
+    assumption.
+  Defined.
+
+  Local Lemma oplistsplit_arith3 {a b: nat}: S a + b - 1 = a + b.
+  Proof.
+    change (S a) with (1 + a).
+    rewrite natplusassoc.
+    rewrite natpluscomm.
+    rewrite plusminusnmm.
+    apply idpath.
+  Defined.
+
+  Local Lemma natleh_add (a b c: nat): b = a + c → a ≤ b.
+  Proof.
+   set (X := isreflnatleh a).
+   set (Y := natleh0n c).
+   set (Z := natlehandplus _ _ _ _ X Y).
+   intro H.
+   rewrite <- H in Z.
+   rewrite natplusr0 in Z.
+   assumption.
+ Defined.
+
+  Local Lemma nat_movplusright {a b c: nat}: a + c = b → a = b - c.
+  Proof.
+    intros hp.
+    apply (maponpaths (λ n: nat, n - c)) in hp.
+    rewrite plusminusnmm in hp.
+    assumption.
+  Defined.
+
+End NatLemmas.
+
 
 (** ** Definition of oplist (operation list) *)
 (**
@@ -32,7 +90,7 @@ Section Oplist.
   Local Definition oplist (σ: signature):= list σ.
   
   Identity Coercion oplistislist: oplist >-> list.
-  
+
   Local Corollary isasetoplist (σ: signature): isaset (oplist σ).
   Proof.
     apply isofhlevellist.
@@ -79,37 +137,17 @@ Section Oplist.
   *)
 
   Local Definition oplist2status (l: oplist σ): status σ := foldr statuscons (statusok nil) l.
-  
-  Local Definition isaterm (l: oplist σ) := ∑ s: sorts σ, oplist2status l = statusok ([s]).
+
+  Local Definition isaterm (s: sorts σ) (l: oplist σ) := oplist2status l = statusok ([s]).
 
   (** TODO: Quite complex... make it shorter *)
-  Local Lemma isapropisaterm (l: oplist σ): isaprop (isaterm l).
+  Local Lemma isapropisaterm (s: sorts σ) (l: oplist σ): isaprop (isaterm s l).
   Proof.
-    cbn.
-    intros.
-    unfold isaterm in x, x'.
-    unfold iscontr.
-    induction x as [s liss].
-    induction x' as [s' liss'].
-    set (p := (! liss') @ liss).
-    apply ii1_injectivity in p.
-    apply cons_inj1 in p.
-    induction p.
-    assert (liss = liss').
-    {
-      apply proofirrelevance.
-      apply isasetstatus.
-    }
-    induction X.
-    exists (idpath _).
-    intro.
-    apply proofirrelevance.
-    apply isaset_total2.
-    - apply isasetifdeceq.
-      apply decproperty.
-    - intros.
-    apply isasetaprop.
-    apply isasetstatus.
+    unfold isaterm.
+    apply isasetmaybe.
+    apply isofhlevellist.
+    apply isasetifdeceq.
+    apply decproperty.
   Defined.
 
 End Oplist.
@@ -120,40 +158,9 @@ Section OplistProps.
 
   (** **** Properties of [statuscons] and [oplist2status] *)
 
-(*
-  Local Lemma statuscons_statusok_f {nm: names sigma} {n: nat} (aritynm: arity nm ≤ n)
-    : statuscons nm (statusok n) = statusok (S (n - arity nm)).
-  Proof.
-    cbn [statuscons statusok some coprod_rect].
-    induction (isdecrelnatleh (arity nm) n) as [arityok | arityerror] ; cbn.
-    - apply idpath.
-    - contradiction.
-  Defined.
-
-  Local Lemma statuscons_statusok_b {nm: names σ} {s: status σ} {l: list (sorts σ)}
-    : statuscons nm s = statusok l → length l > 0 × s = statusok (cons (sort nm) (prefix_remove (deceqnames σ) (arity nm) l)).
-  Proof.
-    intro scons.
-    induction s as [s | serror].
-    - cbn [statuscons statusok coprod_rect] in scons.
-      induction (isdecrelnatleh (arity nm) s) as [arityok | arityerror]; cbn in scons.
-      + apply ii1_injectivity in scons.
-        split.
-        * rewrite <- scons.
-          apply natgthsn0.
-        * apply maponpaths.
-          apply statuscons_arith ; assumption.
-      + apply negpathsii2ii1 in scons.
-        contradiction.
-    - apply negpathsii2ii1 in scons.
-      contradiction.
-  Defined.
-*)
-
   Local Lemma statuscons_dec (nm: names σ) (l: list (sorts σ))
     : ((statuscons nm (ii1 l) = statuserror) × (prefix_remove (arity nm) l = nothing))
-              ⨿   ∑ (p: list (sorts σ)), (statuscons nm (ii1 l) = statusok ((sort nm) :: p))
-                       × (prefix_remove (arity nm) l = statusok p).
+              ⨿  ∑ (p: list (sorts σ)), (statuscons nm (ii1 l) = statusok ((sort nm) :: p)) × (prefix_remove (arity nm) l = statusok p).
   Proof.
     unfold statuscons.
     rewrite flatmap_just.
@@ -167,30 +174,68 @@ Section OplistProps.
       + induction error.
         apply idpath.
   Defined.
+
+ Local Lemma statuscons_statusok_f {nm: names σ} (l: list (sorts σ)) (arityok: isprefix (arity nm) l)
+    : ∑ p: list (sorts σ), statuscons nm (statusok l) = statusok ((sort nm) :: p) ×  prefix_remove (arity nm) l = just p.
+  Proof.
+    set (X := statuscons_dec nm l).
+    induction X as [err | ok].
+    - induction err as [_  err].
+      contradicts arityok err.
+    - assumption.
+  Defined.
+
+  Local Lemma statuscons_statusok_b {nm: names σ} {s: status σ} {l: list (sorts σ)}
+  : statuscons nm s = statusok l → ∑ x xs, l = x :: xs × x = sort nm × s = statusok ((arity nm) ++ xs).
+  Proof.
+    intro scons.
+    induction s as [sok | serror].
+    - set (X := statuscons_dec nm sok).
+      induction X as [Xerr | Xok].
+      + induction Xerr as [X1 _].
+        rewrite X1 in scons.
+        contradiction (negpathsii2ii1 _ _ scons).
+      + induction Xok as [p [X1 X2]].
+        set (ldef := !scons @ X1).
+        apply just_injectivity in ldef.
+        rewrite ldef.
+        exists (sort nm).
+        exists p.
+        repeat split.
+        change (tail (sort nm :: p)) with (just p).
+        apply maponpaths.
+        apply prefix_remove_back in X2.
+        assumption.
+   -  contradiction (negpathsii2ii1 _ _ scons).
+  Defined.
   
-  Local Lemma statuscons_neq_nil {nm: names σ} {s: status σ}
+  Local Lemma statuscons_zero_b {nm: names σ} {s: status σ}
     : ¬ (statuscons nm s = statusok nil).
   Proof.
     induction s as [l | error].
-    - set (H := statuscons_dec nm l).
-      induction H as [H | H].
-      + apply pr1 in H.
+    - induction (statuscons_dec nm l) as [scons_err| scons_ok].
+      + apply pr1 in scons_err.
         intro H'.
-        set (H'' :=  (!!H @ H')).
+        set (H'' :=  (!! scons_err @ H')).
         apply negpathsii1ii2 in H''.
         assumption.
-      + induction H as [p H].
-        apply pr1 in H.
+      + induction scons_ok as [p [proofp _]].
         intro H'.
-        set (H'' :=  (!!H @ H')).
+        set (H'' :=  (!proofp @ H')).
         apply ii1_injectivity in H''.
-        apply negpathsnilcons in H''.
+        apply negpathsconsnil in H''.
         assumption.
     - apply negpathsii2ii1.
   Defined.
+  
+  Local Lemma oplist2status_nil
+    : oplist2status (nil: oplist σ) = statusok nil.
+  Proof.
+    apply idpath.
+  Defined.
 
   Local Lemma oplist2status_cons {nm: names σ} {l: oplist σ}
-    : oplist2status (cons nm l) = statuscons nm (oplist2status l).
+    : oplist2status (nm :: l) = statuscons nm (oplist2status l).
   Proof.
     apply idpath.
   Defined.
@@ -203,7 +248,7 @@ Section OplistProps.
     - reflexivity.
     - intros x xs _ lstatus.
       rewrite oplist2status_cons in lstatus.
-      apply statuscons_neq_nil in lstatus.
+      apply statuscons_zero_b in lstatus.
       contradiction.
   Defined.
 
@@ -227,12 +272,6 @@ Section OplistProps.
   Local Definition statusconcatenate (s1 s2: status σ): status σ
     := flatmap (λ s2', flatmap (λ s1', statusok (s1' ++ s2')) s1) s2.
 
-  Local Definition flatmap_comp {A B C: UU} {f: A → B} {g: B → C} {a: maybe A}:
-     flatmap (λ x: B, just (g x)) (flatmap (λ y: A, just (f y)) a) = flatmap (λ y:A, just (g (f y))) a.
-  Proof.
-     induction a as [a' | aerror]  ; apply idpath.
-  Defined.
-  
   Local Lemma statusconcatenate_statuscons {nm: names σ} {s1 s2: status σ}
     : (statuscons nm s1 != statuserror)
       → statusconcatenate (statuscons nm s1) s2 = statuscons nm (statusconcatenate s1 s2).
@@ -296,7 +335,7 @@ Section OplistProps.
     - intros x xs IH n.
       induction n.
       + exact (nil,, (cons x xs)).
-      + induction (IH (n + arity x)) as [IHfirst IHsecond].
+      + induction (IH (n + length (arity x))) as [IHfirst IHsecond].
         exact (cons x IHfirst ,, IHsecond).
   Defined.
 
@@ -315,13 +354,13 @@ Section OplistProps.
 
   Local Lemma oplistsplit_cons {x: names σ} {xs: oplist σ} {n: nat}
     : oplistsplit (cons x xs) (S n)
-      = cons x (pr1 (oplistsplit xs (n + arity x))) ,, (pr2 (oplistsplit xs (n + arity x))).
+      = cons x (pr1 (oplistsplit xs (n + length (arity x)))) ,, (pr2 (oplistsplit xs (n + length (arity x)))).
   Proof.
     apply idpath.
   Defined.
 
-  Local Lemma oplistsplit_concatenate (l1 l2: oplist σ) {m: nat} (n: nat)
-    : oplist2status l1 = statusok m → n ≤ m
+  Local Lemma oplistsplit_concatenate (l1 l2: oplist σ) {m: list (sorts σ)} (n: nat)
+    : oplist2status l1 = statusok m → n ≤ length m
       → oplistsplit (concatenate l1 l2) n
         = pr1 (oplistsplit l1 n) ,, concatenate (pr2 (oplistsplit l1 n)) l2.
   Proof.
@@ -340,13 +379,24 @@ Section OplistProps.
       + apply idpath.
       + rewrite oplist2status_cons in l1status.
         apply statuscons_statusok_b in l1status.
-        induction l1status as [_ xs1status].
-        assert (newnok: S n + arity x1 - 1 ≤ m + arity x1 - 1).
+        induction l1status as [m_head [m_tail [mdef [mheaddef xs1status]]]].
+        assert (newnok: S n + length (arity x1) - 1 ≤  length (arity x1 ++ m_tail)).
         {
-          apply natgehandminusl, natlehandplusr.
+          rewrite length_concatenate.
+          rewrite mdef in nlehm.
+          rewrite length_cons in nlehm.
+          change (S n) with (1 + n).
+          rewrite natplusassoc.
+          rewrite natpluscomm.
+          rewrite <- natplusminusle.
+          2: apply isreflnatleh.
+          rewrite natpluscomm.
+          change (n + length (arity x1) ≤ length (arity x1) + length m_tail).
+          rewrite (natpluscomm (length (arity x1)) _).
+          apply natlehandplusr.
           assumption.
         }
-        set (IHinst := IH (m + arity x1 - 1) (S n + arity x1 - 1) xs1status newnok).
+        set (IHinst := IH (arity x1 ++ m_tail) (S n + length (arity x1) - 1) xs1status newnok).
         rewrite oplistsplit_arith1 in IHinst.
         do 2 rewrite oplistsplit_cons.
         apply pathsdirprod.
@@ -375,11 +425,13 @@ Section OplistProps.
         apply idpath.
   Defined.
 
-  Local Lemma oplist2status_oplistsplit (l: oplist σ) {m: nat} (n: nat)
-    : oplist2status l = statusok m → n ≤ m
-      → dirprod
-          (oplist2status (pr1 (oplistsplit l n)) = statusok n)
-          (oplist2status (pr2 (oplistsplit l n)) = statusok (m - n)).
+  Local Lemma oplist2status_oplistsplit (l: oplist σ) {m: list (sorts σ)} (n: nat)
+    : oplist2status l = statusok m → n ≤ length m
+      → ∑ t1 t2: list (sorts σ), 
+          m = t1 ++ t2 
+          × oplist2status (pr1 (oplistsplit l n)) = statusok t1 
+          × oplist2status (pr2 (oplistsplit l n)) = statusok t2
+          × length t1 = n.
   Proof.
     revert l m n.
     refine (list_ind _ _ _).
@@ -389,53 +441,96 @@ Section OplistProps.
       rewrite <- nilstatus in *.
       apply natleh0tois0 in nlehm.
       rewrite nlehm.
-      split ; apply idpath.
+      exists nil.
+      exists nil.
+      repeat split ; apply idpath.
     - intros x xs IH m n lstatus nlehm.
       induction n.
       + rewrite oplistsplit_zero.
-        rewrite natminuseqn.
-        split ; [apply idpath | assumption].
+        exists nil.
+        exists m.
+        repeat split ; trivial.
       + rewrite oplistsplit_cons.
         cbn - [oplist2status].
         rewrite oplist2status_cons in lstatus.
         apply statuscons_statusok_b in lstatus.
-        induction lstatus as [ _ xsstatus].
-        eapply oplistsplit_arith2 in nlehm.
-        induction (IH (m + arity x - 1) (n + arity x) xsstatus nlehm) as [IH1 IH2].
-        split.
+        induction lstatus as [mhead [ mtail [mdef [mheaddef xsstatus]]]].
+        assert (newok: n + length (arity x) ≤ length (arity x ++ mtail)).
+        {
+           apply (oplistsplit_arith2(n3 := length (arity x))) in nlehm.
+           rewrite mdef in nlehm.
+           rewrite length_cons in nlehm.
+           rewrite oplistsplit_arith3 in  nlehm.
+           rewrite (natpluscomm (length mtail) _) in nlehm.
+           rewrite <- length_concatenate in nlehm.
+           assumption.
+        }
+        induction (IH (arity x ++ mtail) (n + length (arity x)) xsstatus newok) 
+           as [t1 [ t2 [ t1t2concat [ t1def [ t2def t1len ] ] ] ] ].
+        exists (mhead :: drop t1 (length (arity x))).
+        exists t2.
+        repeat split.
+        * rewrite  concatenateStep.
+          rewrite <- drop_concatenate.
+          -- rewrite <- t1t2concat.
+             rewrite drop_concatenate.
+             2: apply isreflnatleh.
+             rewrite drop_full.
+             assumption.
+          -- rewrite natpluscomm in t1len.
+             apply natleh_add in t1len.
+             assumption.
         * rewrite oplist2status_cons.
-          rewrite IH1.
-          rewrite statuscons_statusok_f.
-          -- apply maponpaths.
-             rewrite plusminusnmm.
-             apply idpath.
-          -- rewrite natpluscomm.
-             apply natleh_plusright.
-             apply isreflnatleh.
-        * rewrite IH2.
+          rewrite t1def.
+          unfold statuscons.
+          unfold statusok, just.
+          rewrite flatmap_just.
+          rewrite prefix_remove_drop.
+          -- unfold just.
+             rewrite flatmap_just.
+             apply maponpaths.
+             rewrite mheaddef.
+              apply idpath.
+          -- intro H.
+             apply (prefix_remove_concatenate2 _ _ t2) in H.
+             ++ rewrite <- t1t2concat in H.
+                rewrite prefix_remove_prefix in H.
+                exact (negpathsii1ii2 _ _ H).
+             ++ rewrite natpluscomm in t1len.
+                apply natleh_add in t1len.
+                assumption.
+        * apply t2def.
+        * rewrite length_cons.
           apply maponpaths.
-          rewrite natminusminus.
-          rewrite <- natplusassoc.
-          rewrite (natpluscomm (1+n) (arity x)).
-          rewrite <- natminusminus.
-          rewrite plusminusnmm.
-          apply idpath.
+          rewrite length_drop.
+          rewrite t1len.
+          apply plusminusnmm.
   Defined.
 
-  Local Corollary oplistsplit_self {l: oplist σ} {n: nat}
-    : oplist2status l = statusok n → oplistsplit l n = l ,, nil.
+  Local Corollary oplistsplit_self {l: oplist σ} {n: list (sorts σ)}
+    : oplist2status l = statusok n → oplistsplit l (length n) = l ,, nil.
   Proof.
     intro lstatus.
-    set (H := oplist2status_oplistsplit l n lstatus (isreflnatleh n)).
-    induction H as [l1status l2status].
-    set (normalization := concatenate_oplistsplit l n).
-    rewrite minuseq0' in l2status.
-    apply oplist2status_zero_b in l2status.
-    rewrite l2status in normalization.
-    rename l2status into oplistsplit_first.
+    set (H := oplist2status_oplistsplit l (length n) lstatus (isreflnatleh (length n))).
+    induction H as [t1 [t2 [t1t2 [t1def [t2def t1len]]]]].
+    set (normalization := concatenate_oplistsplit l (length n)).
+    apply (maponpaths length) in t1t2.
+    rewrite length_concatenate in t1t2.
+    rewrite t1len in t1t2.
+    apply pathsinv0 in t1t2.
+    rewrite natpluscomm in t1t2.
+    apply nat_movplusright in t1t2.
+    rewrite minuseq0' in t1t2.
+    apply length_zero_back in t1t2.
+    induction (! t1t2).
+    apply oplist2status_zero_b in t2def.
+    rewrite t2def in normalization.
     rewrite concatenate_nil in normalization.
-    rename normalization into oplisplit_second.
-    apply dirprodeq ; assumption.
+    induction (oplistsplit l (length n)) as [l1 l2].
+    cbn in t2def, normalization.
+    rewrite t2def.
+    rewrite normalization.
+    apply idpath.
   Defined.
 
   (** *** The [vecoplist2oplist] and [oplist2vecoplist] functions *)
@@ -453,9 +548,9 @@ Section OplistProps.
     apply idpath.
   Defined.
 
-  Local Lemma vecoplist2oplist_inj {n : nat} {v1 v2: Vector (oplist σ) n}
-        (v1status: ∏ (i: ⟦ n ⟧), isaterm (el v1 i))
-        (v2status: ∏ (i: ⟦ n ⟧), isaterm (el v2 i))
+  Local Lemma vecoplist2oplist_inj {n : list (sorts σ)} {v1 v2: Vector (oplist σ) (length n)}
+        (v1status: HList (map (λ s: sort σ, isaterm s (el v1 i)) n))
+        (v2status: HList (map (λ s: sort σ, isaterm s (el v2 i)) n))
     : vecoplist2oplist v1 = vecoplist2oplist v2 → v1 = v2.
   Proof.
     intro eq.

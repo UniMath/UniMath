@@ -15,17 +15,6 @@ Proof.
   - exact isasetunit.
 Defined.
 
-Definition isdecjustnothing {A: UU} (x: maybe A) : (∑ a: A, x = ii1 a) ⨿  (x = nothing).
-Proof.
-  induction x.
-  - apply ii1.
-    exists a.
-    apply idpath.
-  - apply ii2.
-    induction b.
-    apply idpath.
-Defined.
-  
 Definition flatmap {A B: UU} (f: A → maybe B): maybe A → maybe B
   := coprod_rect _ f (λ _, nothing).
 
@@ -39,6 +28,13 @@ Lemma flatmap_nothing {A B: UU} (f: A → maybe B)
   : flatmap f nothing = nothing.
 Proof.
   apply idpath.
+Defined.
+
+
+Local Definition flatmap_comp {A B C: UU} {f: A → B} {g: B → C} {a: maybe A}:
+   flatmap (λ x: B, just (g x)) (flatmap (λ y: A, just (f y)) a) = flatmap (λ y:A, just (g (f y))) a.
+Proof.
+   induction a as [a' | aerror]  ; apply idpath.
 Defined.
 
 Definition just_injectivity {A: UU}: ∏ (x y: A), just x = just y → x = y := ii1_injectivity.
