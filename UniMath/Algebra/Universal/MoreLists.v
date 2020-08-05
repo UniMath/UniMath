@@ -89,6 +89,17 @@ Proof.
     contradiction.
 Defined.
 
+Lemma length_one_back {A: UU} (l: list A) (l1: length l = 1): ∑ x: A, l = [x].
+Proof.
+  induction l.
+  cbn in l1.
+  induction (! l1).
+  induction pr2 as [x xs].
+  exists x.
+  induction xs.
+  apply idpath.
+Defined.
+
 Lemma length_concatenate {A: UU} (l1: list A) (l2: list A)
   : length (concatenate l1 l2) = length l1 + length l2.
 Proof.
@@ -257,8 +268,25 @@ Proof.
       * rewrite (prefix_remove_stepneq x1neqx2) in HP.
         contradiction (negpathsii2ii1 _ _ HP).
 Defined.
-  
+
+Lemma prefix_remove_self {A: decSet} (l: list A): prefix_remove l l = just [].
+Proof.
+  revert l.
+  apply list_ind.
+  - apply idpath.
+  - intros x xs IH.
+    rewrite prefix_remove_stepeq.
+    apply IH.
+Defined. 
+
 Definition isprefix {A: decSet} (l1 l2: list A): UU := prefix_remove l1 l2 != nothing.
+
+Lemma isprefix_self {A: decSet} (l: list A): isprefix l l.
+Proof. 
+  unfold isprefix.
+  rewrite prefix_remove_self.
+  apply negpathsii1ii2.
+Defined.
 
 Lemma prefix_remove_concatenate {A: decSet} (l1 l2 l3: list A) (tl: list A)
   : prefix_remove l1 l2 = ii1 tl → prefix_remove l1 (l2 ++ l3) = ii1 (tl ++ l3).

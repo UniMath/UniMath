@@ -329,3 +329,13 @@ Proof.
     apply maponpaths.
     exact HPind.
 Defined.
+
+Definition vector_zip {A B: UU} {n: nat} (v1: Vector A n) (v2: Vector B n): Vector (A × B) n.
+Proof.
+  induction n.
+  - exact vnil.
+  - induction v1 as [x1 xs1].
+    induction v2 as [x2 xs2].
+    exact ((x1 ,, x2) ::: IHn xs1 xs2).
+Defined.
+

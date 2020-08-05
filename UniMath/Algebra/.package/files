@@ -24,6 +24,7 @@ Modules.v
 Matrix.v
 Universal/Maybe.v
 Universal/MoreLists.v
+Universal/HVectors.v
 Universal/HLists.v
 Universal/SortedTypes.v
 Universal/Signatures.v
