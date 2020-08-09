@@ -98,6 +98,22 @@ Proof.
     exact (vcons (f x (pr1 hv)) (IHv f (pr2 hv))).
 Defined.
 
+Lemma hmap_vector_flat {A: UU} {n: nat} {v: Vector A n}
+                       {P: A → UU} {hv: HVec (vector_map P v)}
+                       {Q: A → UU} (hhv: HVec (hmap_vector (λ a p, Q a) hv))
+   : HVec (vector_map Q v).
+Proof.
+  revert n v hv hhv.
+  refine (vector_ind _ _ _).
+  - reflexivity.
+  - intros.
+    simpl.
+    simpl in hv, hhv.
+    split.
+    + exact (pr1 hhv).
+    + exact (X (pr2 hv) (pr2 hhv)).
+Defined.
+
 Definition hmap' {A: UU} {n: nat} {v: Vector A n} {P: A → UU} {Q: ∏ (a: A) (p: P a), UU} (f: ∏ (a: A) (p: P a), Q a p)
                 (hv: HVec (vector_map P v)): HVec (hmap_vector (λ a pa, Q a pa) hv).
 Proof.
@@ -107,6 +123,50 @@ Proof.
     exact hvnil.
   - intros x n xs IHv f hv.
     exact (f x (pr1 hv) ::: IHv f (pr2 hv)).
+Defined.
+
+Lemma hmap_vector_flat_hmap'
+   {A: UU} {n: nat} {v: Vector A n} 
+   {P: A → UU} (hv: HVec (vector_map P v))
+   {Q: ∏ (a: A), UU} (f: ∏ (a: A), P a → Q a) 
+   : hmap_vector_flat (hmap' (λ a p, f a p) hv) = hmap f hv.
+Proof.
+  revert n v hv.
+  refine (vector_ind _ _ _).
+  - reflexivity.
+  - intros.
+    simpl.
+    apply maponpaths.
+    exact (X (pr2 hv)).
+Defined.
+
+Definition hmap'' {A: UU} {n: nat} {v: Vector A n} {P: A → UU} {hv: HVec (vector_map P v)}
+                  {Q: ∏ (a: A) (p: P a), UU} (hhv: HVec (hmap_vector (λ a p, Q a p) hv))
+                  {R: ∏ (a: A) (p: P a), UU} (f: ∏ (a: A) (p: P a) (q: Q a p), R a p)
+                  : HVec (hmap_vector (λ a p, R a p) hv).
+Proof.
+  revert n v f hv hhv.
+  refine (vector_ind _ _ _ ).
+  - intros.
+    exact hvnil.
+  - intros x n xs IHv f hv hhv.
+    exact (f x (pr1 hv) (pr1 hhv) ::: IHv f (pr2 hv) (pr2 hhv)).
+Defined.
+
+Lemma hmap12 {A: UU} {n: nat} {v: Vector A n} {P: A → UU} (hv: HVec (vector_map P v))
+             {Q: ∏ (a: A) (p: P a), UU} (hhv: HVec (hmap_vector (λ a p, Q a p) hv))
+             {R: ∏ (a: A) (p: P a), UU} (f: ∏ (a: A) (p: P a), R a p)
+  : hmap' f hv = hmap'' hhv  (λ a p q, f a p).
+Proof.
+  revert n v hv hhv.
+  refine (vector_ind _ _ _).
+  - reflexivity.
+  - intros x n xs IH hv hhv.
+    simpl in hv.
+    simpl in hhv.
+    simpl.
+    apply maponpaths.
+    exact (IH (pr2 hv) (pr2 hhv)).
 Defined.
 
 Lemma helfam {A: UU} {n: nat} {v: Vector A n} {P: A → UU} (hv: HVec (vector_map P v)) (i: ⟦ n ⟧): P (el v i).
@@ -163,4 +223,34 @@ Proof.
     apply isofhleveldirprod.
     + apply (pr1 levels).
     + apply (IH (pr2 levels)).
+Defined.  
+
+Definition hvec_foldr {A: UU} {n: nat} {v: Vector A n} {P: A → UU}
+                (hv: HVec (vector_map P v)) {B: UU} (comp: ∏ (a: A), P a → B → B) (s: B)
+                : B.
+Proof.
+   revert n v hv.
+   refine (vector_ind _ _ _).
+   - intro.
+     exact s.
+   - intros x n xs IH.
+     simpl.
+     intro.
+     exact (comp _ (pr1 hv) (IH (pr2 hv))).
 Defined.
+
+Definition hvec_foldr' {A: UU} {n: nat} {v: Vector A n} 
+                {P: A → UU} {hv: HVec (vector_map P v)}
+                {Q: ∏ (a: A) (p: P a), UU} (hhv: HVec (hmap_vector (λ a p, Q a p) hv))
+                {B: UU} (comp: ∏ (a: A) (p: P a), Q a p → B → B) (s: B)
+                : B.
+Proof.
+   revert n v hv hhv.
+   refine (vector_ind _ _ _).
+   - intros.
+     exact s.
+   - intros x n xs IH hv hhv.
+     simpl in hv, hhv.
+     exact (comp _ _ (pr1 hhv) (IH (pr2 hv) (pr2 hhv))).
+Defined.
+
