@@ -1,13 +1,14 @@
 (** * Basic definitions for sorted types *)
 
 (**
-   This file contains a formalization of sorted types, i.e. types indeced by element on another
-   type, called index type.
+This file contains a formalization of sorted types, i.e. types indeced by element on another
+type, called index type.
  *)
  
 Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.Lists.
-Require Import UniMath.Algebra.Universal.HLists.
+Require Import UniMath.Combinatorics.Vectors.
+Require Import UniMath.Algebra.Universal.HVectors.
 
 Declare Scope sorted_scope.
 
@@ -47,14 +48,15 @@ Definition shSet (S: UU): UU := S → hSet.
 
 Definition sunitset (S: UU): shSet S := λ _, unitset.
 
-Lemma isaset_set_sfun_space {S: UU} {X Y: shSet S}: isaset (X s→ Y).
+Lemma isaset_set_sfun_space {S: UU} {X: sUU S} {Y: shSet S}: isaset (X s→ Y).
 Proof.
+  change (isaset (X s→ Y)).
   apply impred_isaset.
   intros.
   apply isaset_forall_hSet.
 Defined.
 
-Definition star {S: UU} (X: sUU S): sUU (list S) := λ l: list S, HList (map X l).
+Definition star {S: UU} (X: sUU S): sUU (list S) := λ l: list S, HVec (vector_map X (pr2 l)).
 
 Notation "A *" := (star A) (at level 10): sorted_scope.
 
@@ -65,7 +67,7 @@ Definition starfun {S: UU} {X Y: sUU S} (f: sfun X Y): sfun (star X) (star Y)
 
 Notation "f **" := (starfun f) (at level 10): sorted_scope.
 
-Lemma staridfun {S: UU} {X: sUU S} (l: list S) (x: (star X) l): (idsfun X)** _ x = idsfun (X*) _ x.
+Lemma staridfun {S: UU} {X: sUU S} (l: list S) (x: X* l): (idsfun X)** _ x = idsfun (X*) _ x.
 Proof.
   change (idsfun (X*) l x) with x.
   revert l x.
@@ -73,7 +75,6 @@ Proof.
   - apply idpath.
   - intros σ σs HP x.
     change (X* (cons σ σs)) with (dirprod (X σ) (X* σs)) in x.
-    induction x as [x1 x2].
     change ((idsfun X)** (cons σ σs)) with (dirprodf (idsfun X σ) ((idsfun X)** σs)).
     cbv [dirprodf make_dirprod].
     rewrite HP.

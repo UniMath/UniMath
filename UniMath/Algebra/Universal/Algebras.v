@@ -4,8 +4,8 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Notations.
 Require Import UniMath.Combinatorics.Vectors.
 Require Import UniMath.Combinatorics.Lists.
-Require Import UniMath.Algebra.Universal.MoreLists.
-Require Import UniMath.Algebra.Universal.HLists.
+Require Import UniMath.Algebra.Universal.DecSet.
+Require Import UniMath.Algebra.Universal.HVectors.
 Require Export UniMath.Algebra.Universal.SortedTypes.
 Require Import UniMath.Algebra.Universal.Signatures.
 
@@ -38,7 +38,7 @@ Section Algebra.
   Definition rng {σ: signature} (A: algebra σ) (nm: σ): UU := support A (sort nm).
 
   Definition make_algebra_simple_single_sorted (σ: signature_simple_single_sorted) (A : hSet)
-             (ops: HList (map (λ n: nat, Vector A n → A) σ)): algebra σ.
+             (ops: HVec (vector_map (λ n: nat, Vector A n → A) (pr2 σ))): algebra σ.
   Proof.
     exists (λ _, A).
     unfold arity.
@@ -48,25 +48,20 @@ Section Algebra.
       cbn in nm.
       apply fromstn0.
       assumption.
-    - simpl.
-      intros x xs HPind ops.
-      change ( (Vector A x → A) × (HList  (map (λ n0 : nat, Vector A n0 → A) xs))) in ops.
-      induction ops as [op ops].
-      intro.
-      cbn in nm.
+    - intros x xs HPind ops nm.
+      simpl in ops.
       induction nm as [nm nmproof].
       induction nm.
       + unfold star.
-        rewrite map_const.
-        rewrite hlist_fill.
-        rewrite length_fill.
-        exact op.
-      + change  (nth (x :: xs) (S nm,, nmproof)) with (nth xs (nm ,, nmproof)).
-        exact (HPind ops  (nm ,, nmproof)).
+        rewrite vector_map_const.
+        rewrite hvec_fill.
+        simpl.
+        exact (pr1 ops).
+      + exact (HPind (pr2 ops) (nm ,, nmproof)).
   Defined.
 
   Definition make_algebra_simple (σ: signature_simple) (A: Vector hSet (pr1 σ)) 
-                                 (ops: HList (map (λ a, (el A)* (dirprod_pr1 a) → el A (dirprod_pr2 a)) (pr2 σ)))
+                                 (ops: HVec (vector_map (λ a, (el A)* (dirprod_pr1 a) → el A (dirprod_pr2 a)) (pr22 σ)))
     : algebra σ.
   Proof.
     exists (el A).
@@ -81,8 +76,6 @@ Section Algebra.
       assumption.
     - simpl.
       intros x xs HPind ops.
-      rewrite map_cons in ops.
-      rewrite hlist_cons in ops.
       induction ops as [op ops].
       intro.
       cbn in nm.
@@ -90,7 +83,7 @@ Section Algebra.
       induction nm.
       + unfold star.
         exact op.
-      + exact (HPind ops  (nm ,, nmproof)).
+      + exact (HPind ops (nm ,, nmproof)).
   Defined.
 
 End Algebra.
@@ -108,11 +101,11 @@ Section Homomorphism.
 
   Local Notation "a1 ↦ a2" := (hom a1 a2) (at level 80, right associativity).
 
-  Definition hom2fun {A1 A2: algebra σ} (f: A1 ↦ A2):= pr1 f.
+  Definition hom2fun {A1 A2: algebra σ} (f: A1 ↦ A2) := pr1 f.
 
   Coercion hom2fun: hom >-> sfun.
 
-  Definition hom2axiom {A1 A2: algebra σ} (f: A1 ↦ A2):= pr2 f.
+  Definition hom2axiom {A1 A2: algebra σ} (f: A1 ↦ A2) := pr2 f.
 
   Definition make_hom {A1 A2: algebra σ} {f: sfun A1 A2} (is: ishom f): A1 ↦ A2 := f ,, is.
 

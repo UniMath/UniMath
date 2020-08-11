@@ -3,6 +3,7 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.Lists.
 Require Import UniMath.Algebra.Universal.Maybe.
+Require Import UniMath.Algebra.Universal.DecSet.
 
 (** ** Notations for lists *)
 
@@ -182,18 +183,6 @@ Proof.
   apply negpathsconsnil in X.
   assumption.
 Defined.
-
-(** ** A decidable set is a type where equality is decidable *)
-
-Definition decSet: UU := ∑ (X: UU), isdeceq X.
-
-Definition make_decSet (X : UU) (i : isdeceq X) := X,, i.
-
-Definition pr1decSet: decSet -> UU := pr1.
-
-Coercion pr1decSet: decSet >-> UU.
-
-Definition decproperty (X: decSet) := pr2 X.
 
 (** ** The prefix_remove operation and related properties *)
 

@@ -253,4 +253,3 @@ Proof.
      simpl in hv, hhv.
      exact (comp _ _ (pr1 hhv) (IH (pr2 hv) (pr2 hhv))).
 Defined.
-
