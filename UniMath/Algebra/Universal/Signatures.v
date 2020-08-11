@@ -12,7 +12,7 @@ Require Import UniMath.Algebra.Universal.MoreLists.
 
 Local Open Scope stn.
 
-Definition signature: UU := ∑ (S: decSet) (O: hSet), isdeceq S × (O → list S × S).
+Definition signature: UU := ∑ (S: decSet) (O: hSet), O → list S × S.
 
 Definition sorts (σ: signature) := pr1 σ.
 
@@ -20,16 +20,14 @@ Definition names (σ: signature) := pr12 σ.
 
 Coercion names : signature >-> hSet.
 
-Definition deceqnames (σ: signature): isdeceq (sorts σ) := pr122 σ.
-
-Definition ar (σ: signature) := pr222 σ.
+Definition ar (σ: signature) := pr22 σ.
 
 Definition arity {σ: signature} (nm: σ) : list (sorts σ) := pr1 (ar σ nm).
 
 Definition sort {σ: signature} (nm: σ) : sorts σ := pr2 (ar σ nm).
 
 Definition make_signature (S: decSet) (O: hSet) (deceqnames: isdeceq S) (ar: O → list S × S) : signature 
-  := S ,, (O ,, (deceqnames,, ar)).
+  := S ,, (O ,, ar).
 
 Definition make_signature_single_sorted (O: hSet) (ar: O → nat) : signature
   := make_signature (unit,, isdecequnit) O isdecequnit (λ op, (fill tt (ar op)) ,, tt).
