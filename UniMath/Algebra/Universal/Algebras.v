@@ -54,7 +54,7 @@ Section Algebra.
       induction nm.
       + unfold star.
         rewrite vector_map_const.
-        rewrite hvec_fill.
+        rewrite hfill.
         simpl.
         exact (pr1 ops).
       + exact (HPind (pr2 ops) (nm ,, nmproof)).

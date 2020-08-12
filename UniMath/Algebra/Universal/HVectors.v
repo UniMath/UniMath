@@ -32,24 +32,12 @@ Notation "[]" := hvnil (at level 0, format "[]"): hvec_scope.
 
 Infix ":::" := hvcons: hvec_scope.
 
-Definition make_hvec {n: nat} {P: ⟦ n ⟧ → UU} (f: ∏ i: ⟦ n ⟧, P i) : HVec (mk_vector P).
+Definition functionToHVec {n: nat} {P: ⟦ n ⟧ → UU} (f: ∏ i: ⟦ n ⟧, P i) : HVec (mk_vector P).
 Proof.
   induction n.
   - exact [].
   - exact ((f firstelement) ::: (IHn (P ∘ dni_firstelement) (f ∘ dni_firstelement))).
-Defined.
-
-Lemma hvec_cons (x: UU) {n: nat} (xs: Vector UU n): HVec (x ::: xs) = (x × HVec xs).
-Proof. apply idpath. Defined.
-
-Definition vec_to_hvec {A: UU} {n: nat} (v: Vector A n): HVec (vector_map  (λ _, A) v).
-Proof.
-  revert n v.
-  apply vector_ind.
-  - exact hvnil.
-  - intros x n xs IHv.
-    exact (x ,, IHv).
-Defined.
+Defined.  
 
 (** ** Projections *)
 
@@ -70,10 +58,46 @@ Proof.
     + exact (IHv (htl hv) (make_stn _ i iproof)).
 Defined.
 
+Lemma hfill {A: UU} {n: nat}: HVec (vector_fill A n) = Vector A n.
+Proof.
+  induction n.
+  - apply idpath.
+  - change ((A × HVec (vector_fill A n)) = (A × Vector A n)).
+    apply maponpaths.
+    exact IHn.
+Defined.
+
+Definition hfoldr {A: UU} {n: nat} {v: Vector A n} {P: A → UU} (hv: HVec (vector_map P v))
+                  {B: UU} (comb: ∏ (a: A), P a → B → B) (s: B): B.
+Proof.
+   revert n v hv.
+   refine (vector_ind _ _ _).
+   - intro.
+     exact s.
+   - intros x n xs IH.
+     simpl.
+     intro.
+     exact (comb _ (pr1 hv) (IH (pr2 hv))).
+Defined.
+
+Lemma isofhlevelhvec {m: nat} {n: nat} (v: Vector UU n) (levels: HVec (vector_map (isofhlevel m) v)): isofhlevel m (HVec v).
+Proof.
+  revert n v levels.
+  refine (vector_ind _ _ _).
+  - intro.
+    apply isofhlevelcontr.
+    apply iscontrunit.
+  - intros x n xs IH levels.
+    simpl.
+    apply isofhleveldirprod.
+    + apply (pr1 levels).
+    + apply (IH (pr2 levels)).
+Defined.
+
 (** ** Map of HVecs *)
 
-Definition hmap {A: UU} {n: nat} {v: Vector A n} {P: A → UU} {Q: A → UU} (f: ∏ (a: A), P a → Q a)
-                (hv: HVec (vector_map P v)): HVec (vector_map Q v).
+Definition hmap {A: UU} {n: nat} {v: Vector A n} {P: A → UU}
+                {Q: A → UU} (f: ∏ (a: A), P a → Q a) (hv: HVec (vector_map P v)): HVec (vector_map Q v).
 Proof.
   revert n v f hv.
   refine (vector_ind _ _ _ ).
@@ -85,8 +109,38 @@ Proof.
     exact (f x (pr1 hv) ::: IHv f (pr2 hv)).
 Defined.
 
-Definition hmap_vector {A B: UU} {n: nat} {v: Vector A n} {P: A → UU} (f: ∏ (a: A), P a → B)
-                       (hv: HVec (vector_map P v)): Vector B n.
+Lemma hmap_idfun {A: UU} {n: nat} {v: Vector A n} {P: A → UU} (hv: HVec (vector_map P v))
+  : hmap (λ a: A, idfun (P a)) hv = hv.
+Proof.
+  revert n v hv.
+  refine (vector_ind _ _ _).
+  - induction hv.
+    apply idpath.
+  - intros.
+    simpl in hv.
+    simpl.
+    change hv with (pr1 hv ::: pr2 hv).
+    apply maponpaths.
+    apply (X (pr2 hv)).
+Defined.
+
+Lemma hmap_comp {A: UU} {n: nat} {v: Vector A n} {P: A → UU} {Q: A → UU} {R: A → UU}
+                (f: ∏ a: A, P a → Q a) (g: ∏ (a: A), Q a → R a) (hv: HVec (vector_map P v))
+  : hmap g (hmap f hv) = hmap (λ a: A, (g a) ∘ (f a)) hv. 
+Proof.
+  revert n v hv.
+  refine (vector_ind _ _ _).
+  - induction hv.
+    apply idpath.
+  - intros.
+    simpl in hv.
+    simpl.
+    apply maponpaths.
+    apply (X (pr2 hv)).
+Defined.
+
+Definition hmap_vector {A: UU} {n: nat} {v: Vector A n} {P: A → UU} 
+                       {B: UU} (f: ∏ (a: A), P a → B) (hv: HVec (vector_map P v)): Vector B n.
 Proof.
   revert n v f hv.
   refine (vector_ind _ _ _).
@@ -98,8 +152,24 @@ Proof.
     exact (vcons (f x (pr1 hv)) (IHv f (pr2 hv))).
 Defined.
 
-Lemma hmap_vector_flat {A: UU} {n: nat} {v: Vector A n}
-                       {P: A → UU} {hv: HVec (vector_map P v)}
+Lemma hmap_path {A: UU} {n: nat} {v: Vector A n} {P: A → UU} {Q: A → UU} (f: ∏ a: A, P a → Q a) 
+                (g: ∏ (a: A), P a → Q a) (hv: HVec (vector_map P v))
+                (hpath: HVec (hmap_vector (λ a p, f a p = g a p) hv))
+  : hmap f hv = hmap g hv.
+Proof.
+  revert n v hv hpath.
+  refine (vector_ind _ _ _).
+  - induction hv.
+    reflexivity.
+  - intros.
+    simpl in hv, hpath.
+    simpl.
+    use map_on_two_paths.
+    + exact (pr1 hpath).
+    + exact (X (pr2 hv) (pr2 hpath)).
+Defined.
+
+Lemma hmap_vector_flat {A: UU} {n: nat} {v: Vector A n} {P: A → UU} {hv: HVec (vector_map P v)}
                        {Q: A → UU} (hhv: HVec (hmap_vector (λ a p, Q a) hv))
    : HVec (vector_map Q v).
 Proof.
@@ -167,76 +237,6 @@ Proof.
     simpl.
     apply maponpaths.
     exact (IH (pr2 hv) (pr2 hhv)).
-Defined.
-
-Lemma helfam {A: UU} {n: nat} {v: Vector A n} {P: A → UU} (hv: HVec (vector_map P v)) (i: ⟦ n ⟧): P (el v i).
-Proof.
-  revert n v hv i.
-  refine (vector_ind _ _ _).
-  - intros.
-    apply (fromempty (negnatlthn0 (pr1 i) (pr2 i))).
-  - intros x n xs IHv.
-    induction i as [i iproof].
-    induction i.
-    + exact (hhd hv).
-    + exact (IHv (htl hv) (make_stn _ i iproof)).
-Defined.
-
-Lemma el_hmap_vector {A B: UU} {n: nat} {v: Vector A n} {P: A → UU} (f: ∏ (a: A), P a → B)
-                     (hv: HVec (vector_map P v)) (i: ⟦ n ⟧)
-  : el (hmap_vector f hv) i = f (el v i) (helfam hv i).
-Proof.
-  revert n v i hv.
-  refine (vector_ind _ _ _).
-  - intros.
-    contradiction (negstn0 i).
-  - intros x n xs IHv i hv.
-    induction i as [i ilehn].
-    induction i.
-    + apply idpath.
-    + change (el (hmap_vector f hv) (S i,, ilehn)) with (el (hmap_vector f (htl hv)) (i ,, ilehn)).
-      change (el (x ::: xs) (S i,, ilehn)) with (el xs (i,, ilehn)).
-      change (helfam hv (S i,, ilehn)) with (helfam (htl hv) (i ,, ilehn)).
-      apply (IHv (i ,, ilehn) (htl hv)).
-Defined.
-
-(** ** HVec and standard vectors *)
-
-Lemma hvec_fill {A: UU} {n: nat}: HVec (vector_fill A n) = Vector A n.
-Proof.
-  induction n.
-  - apply idpath.
-  - change ((A × HVec (vector_fill A n)) = (A × Vector A n)).
-    apply maponpaths.
-    exact IHn.
-Defined.
-
-Lemma isofhlevelhvec {m: nat} {n: nat} (v: Vector UU n) (levels: HVec (vector_map (isofhlevel m) v)): isofhlevel m (HVec v).
-Proof.
-  revert n v levels.
-  refine (vector_ind _ _ _).
-  - intro.
-    apply isofhlevelcontr.
-    apply iscontrunit.
-  - intros x n xs IH levels.
-    rewrite hvec_cons.
-    apply isofhleveldirprod.
-    + apply (pr1 levels).
-    + apply (IH (pr2 levels)).
-Defined.  
-
-Definition hvec_foldr {A: UU} {n: nat} {v: Vector A n} {P: A → UU}
-                (hv: HVec (vector_map P v)) {B: UU} (comp: ∏ (a: A), P a → B → B) (s: B)
-                : B.
-Proof.
-   revert n v hv.
-   refine (vector_ind _ _ _).
-   - intro.
-     exact s.
-   - intros x n xs IH.
-     simpl.
-     intro.
-     exact (comp _ (pr1 hv) (IH (pr2 hv))).
 Defined.
 
 Definition hvec_foldr' {A: UU} {n: nat} {v: Vector A n} 

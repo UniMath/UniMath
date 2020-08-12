@@ -60,36 +60,19 @@ Definition star {S: UU} (X: sUU S): sUU (list S) := λ l: list S, HVec (vector_m
 
 Notation "A *" := (star A) (at level 10): sorted_scope.
 
-Definition starfun {S: UU} {X Y: sUU S} (f: sfun X Y): sfun (star X) (star Y)
-  := list_ind (λ arity, star X arity → star Y arity)
-              (idfun unit)
-              (λ (x: S) (xs: list S) HP, (dirprodf (f x) HP)).
+Definition starfun {S: UU} {X Y: sUU S} (f: sfun X Y): sfun (star X) (star Y) := λ s: list S, hmap f.
 
 Notation "f **" := (starfun f) (at level 10): sorted_scope.
 
 Lemma staridfun {S: UU} {X: sUU S} (l: list S) (x: X* l): (idsfun X)** _ x = idsfun (X*) _ x.
 Proof.
-  change (idsfun (X*) l x) with x.
-  revert l x.
-  refine (list_ind _ _ _).
-  - apply idpath.
-  - intros σ σs HP x.
-    change (X* (cons σ σs)) with (dirprod (X σ) (X* σs)) in x.
-    change ((idsfun X)** (cons σ σs)) with (dirprodf (idsfun X σ) ((idsfun X)** σs)).
-    cbv [dirprodf make_dirprod].
-    rewrite HP.
-    apply idpath.
+  apply hmap_idfun.
 Defined.
 
 Lemma starcomp {S: UU} {X Y Z: sUU S} (f: Y s→ Z) (g: X s→ Y) (l: list S) (x: (star X) l)
   : (f ∘ g) ** _ x = f** _ (g** _ x).
 Proof.
-  revert l x.
-  refine (list_ind _ _ _).
-  - apply idpath.
-  - intros σ σs HP x.
-    change (((f ∘ g) **) (cons σ σs)) with (dirprodf ((f ∘ g) σ) (((f ∘ g))** σs)).
-    cbv [dirprodf make_dirprod].
-    rewrite HP.
-    apply idpath.
+  unfold starfun.
+  apply pathsinv0.
+  apply hmap_comp.
 Defined.
