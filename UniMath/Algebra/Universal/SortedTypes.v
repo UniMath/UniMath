@@ -58,6 +58,8 @@ Defined.
 
 Definition star {S: UU} (X: sUU S): sUU (list S) := λ l: list S, HVec (vector_map X (pr2 l)).
 
+Bind Scope hvec_scope with star.
+
 Notation "A *" := (star A) (at level 10): sorted_scope.
 
 Definition starfun {S: UU} {X Y: sUU S} (f: sfun X Y): sfun (star X) (star Y) := λ s: list S, hmap f.
@@ -76,3 +78,4 @@ Proof.
   apply pathsinv0.
   apply hmap_comp.
 Defined.
+

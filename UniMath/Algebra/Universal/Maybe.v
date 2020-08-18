@@ -19,7 +19,7 @@ Definition flatmap {A B: UU} (f: A → maybe B): maybe A → maybe B
   := coprod_rect _ f (λ _, nothing).
 
 Lemma flatmap_just {A B: UU} (f: A → maybe B) (a: A)
-  : flatmap f (ii1 a) = f a.
+  : flatmap f (just a) = f a.
 Proof.
   apply idpath.
 Defined.

@@ -7,9 +7,9 @@ This file contains a formalization of multi-sorted signatures defined as a vecto
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Notations.
 Require Import UniMath.Combinatorics.Lists.
-Require Import UniMath.Combinatorics.Vectors.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Algebra.Universal.DecSet.
+Require Import UniMath.Algebra.Universal.MoreLists.
 
 Local Open Scope stn.
 
@@ -19,19 +19,17 @@ Definition sorts (σ: signature) := pr1 σ.
 
 Definition names (σ: signature) := pr12 σ.
 
-Coercion names : signature >-> hSet.
+Definition ar (σ: signature) := pr22 σ.
 
-Local Definition ar (σ: signature) := pr22 σ.
+Definition arity {σ: signature} (nm: names σ) : list (sorts σ) := pr1 (ar σ nm).
 
-Definition arity {σ: signature} (nm: σ) : list (sorts σ) := pr1 (ar σ nm).
-
-Definition sort {σ: signature} (nm: σ) : sorts σ := pr2 (ar σ nm).
+Definition sort {σ: signature} (nm: names σ) : sorts σ := pr2 (ar σ nm).
 
 Definition make_signature (S: decSet) (O: hSet) (ar: O → list S × S) : signature 
   := S ,, (O ,, ar).
 
 Definition make_signature_single_sorted (O: hSet) (ar: O → nat) : signature
-  := make_signature (unit,, isdecequnit) O (λ op, (((ar op) ,, vector_fill tt (ar op))) ,, tt).
+  := make_signature (unit,, isdecequnit) O (λ op, fill tt (ar op) ,, tt).
 
 (** ** Some additional types to simplify the definition of signatures *)
 

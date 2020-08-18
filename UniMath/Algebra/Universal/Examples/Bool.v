@@ -19,11 +19,13 @@ Local Open Scope stn.
 
 Definition bool_signature := make_signature_simple_single_sorted [0; 0; 1; 2; 2 ].
 
-Definition bool_false_op : bool_signature := ●0.
-Definition bool_true_op : bool_signature := ●1.
-Definition bool_not_op : bool_signature := ●2.
-Definition bool_and_op : bool_signature := ●3.
-Definition bool_or_op : bool_signature := ●4.
+Definition bool_sort: sorts bool_signature := tt.
+
+Definition bool_false_op : names bool_signature := ●0.
+Definition bool_true_op : names bool_signature := ●1.
+Definition bool_not_op : names bool_signature := ●2.
+Definition bool_and_op : names bool_signature := ●3.
+Definition bool_or_op : names bool_signature := ●4.
 
 Definition bool_algebra := make_algebra_simple_single_sorted bool_signature boolset
   [ 

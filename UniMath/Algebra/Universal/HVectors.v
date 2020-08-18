@@ -139,6 +139,8 @@ Proof.
     apply (X (pr2 hv)).
 Defined.
 
+(** Rewrite in terms of hmap and vector_fill? *)
+
 Definition hmap_vector {A: UU} {n: nat} {v: Vector A n} {P: A → UU} 
                        {B: UU} (f: ∏ (a: A), P a → B) (hv: HVec (vector_map P v)): Vector B n.
 Proof.

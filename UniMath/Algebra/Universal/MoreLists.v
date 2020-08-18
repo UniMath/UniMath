@@ -1,6 +1,7 @@
 (** * Additional definitions, lemmas and notations for lists *)
 
 Require Import UniMath.Foundations.All.
+Require Import UniMath.Combinatorics.Vectors.
 Require Import UniMath.Combinatorics.Lists.
 Require Import UniMath.Algebra.Universal.Maybe.
 Require Import UniMath.Algebra.Universal.DecSet.
@@ -144,8 +145,7 @@ Defined.
 
 Definition listset (A: hSet): hSet := make_hSet (list A) (isofhlevellist 0 (setproperty A)).
 
-Definition fill {A: UU} (a: A): nat → list A
-  := nat_rect (λ _,  list A) nil (λ (n: nat) (l: list A), cons a l).
+Definition fill {A: UU} (a: A): nat → list A := λ n, n ,, vector_fill a n.
 
 Lemma map_const {A B: UU} (b: B) (l: list A): map (λ _, b) l = fill b (length l).
 Proof.
@@ -160,11 +160,7 @@ Defined.
 
 Lemma length_fill {A: UU} (a: A) (n: nat): length (fill a n) = n.
 Proof.
-  induction n.
-  - apply idpath.
-  - change (S (length (fill a n)) = S n).
-    apply maponpaths.
-    exact IHn.
+  apply idpath.
 Defined.
 
 Lemma negpathsconsnil {A: UU} (a: A) (l: list A): cons a l != nil.
