@@ -12,6 +12,7 @@ Require Import UniMath.Algebra.Universal.MoreLists.
 Require Import UniMath.Algebra.Universal.HVectors.
 Require Import UniMath.Algebra.Universal.Signatures.
 Require Import UniMath.Algebra.Universal.Algebras.
+Require Import UniMath.Algebra.Universal.Terms.
 
 Local Open Scope stn.
 Local Open Scope hom.
@@ -53,14 +54,12 @@ Defined.
 
 Definition natz2 : nat_algebra ↦ z2_algebra := make_hom ishom_nat_to_z2.
 
-(*
 Definition nat_zero := build_term_curried nat_zero_op.
 Definition nat_succ := build_term_curried nat_succ_op.
 
-Definition nat2term (n: nat): term nat_signature
+Definition nat2term (n: nat): term nat_signature tt
   := nat_rect
-       (λ _, term nat_signature)
+       (λ _, term nat_signature tt)
        nat_zero
-       (λ (n: nat) (tn: term nat_signature), nat_succ tn)
+       (λ (n: nat) (tn: term nat_signature tt), nat_succ tn)
        n.
-*)

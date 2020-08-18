@@ -13,6 +13,7 @@ Require Import UniMath.Algebra.Universal.MoreLists.
 Require Import UniMath.Algebra.Universal.HVectors.
 Require Import UniMath.Algebra.Universal.Signatures.
 Require Import UniMath.Algebra.Universal.Algebras.
+Require Import UniMath.Algebra.Universal.Terms.
 
 Local Open Scope stn.
 
@@ -33,12 +34,8 @@ Definition bool_algebra := make_algebra_simple_single_sorted bool_signature bool
     λ x, orb (pr1 x) (pr12 x)
   ].
 
-(*
-
 Definition bool_false := build_term_curried bool_false_op.
 Definition bool_true := build_term_curried bool_true_op.
 Definition bool_not := build_term_curried bool_not_op.
 Definition bool_and := build_term_curried bool_and_op.
 Definition bool_or := build_term_curried bool_or_op.
-
-*)

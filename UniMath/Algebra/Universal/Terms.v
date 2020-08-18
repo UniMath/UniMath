@@ -152,6 +152,8 @@ Section Oplist.
 
 End Oplist.
 
+Bind Scope list_scope with oplist.
+
 Section OplistProps.
 
   Context {σ: signature}.
