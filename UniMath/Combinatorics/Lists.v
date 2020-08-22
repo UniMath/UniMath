@@ -351,11 +351,11 @@ Proof.
   - apply isofhleveldirprod.
     + apply is1.
     + apply IH.
-Qed.
+Defined.
 
 Lemma isofhlevellist (n : nat) {X : UU} (is1 : isofhlevel (S (S n)) X) : isofhlevel (S (S n)) (list X).
 Proof.
   use isofhleveltotal2.
   - intros m k. apply isofhlevelsnprop, isasetnat.
   - intro m. apply isofhleveliterprod, is1.
-Qed.
+Defined.
