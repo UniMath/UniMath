@@ -647,12 +647,12 @@ Section Term.
   Defined.
 
   Local Lemma term_normalization {s: sorts σ} (t: term σ s)
-     : build_term (princop t) (subterms t) = transportb (term σ) (princop_sort t) t.
+     : transportf (term σ) (princop_sort t) (build_term (princop t) (subterms t)) = t.
   Proof.
     unfold princop, subterms, princop_sort.
     induction (term_decompose t) as [nm [v [vlen [nmsort normalization]]]].
     induction nmsort.
-    change (transportb (term σ) (idpath (sort nm)) t) with t.
+    change (build_term nm v = t). 
     apply subtypePairEquality'.
     - apply normalization.
     - apply isapropisaterm.
@@ -750,18 +750,13 @@ Section TermInduction.
     - intros s t tlen.
       exact (term_notnil tlen).
     - intros s t tlen.
-      set (X := term_normalization t).
-      apply (maponpaths (transportf (λ s : sorts σ, term σ s) (princop_sort t))) in X.
-      rewrite transportfbinv in X.
-      apply (transportf (λ t, P s t) X).
-      clear X.
+      apply (transportf (P s) (term_normalization t)).
       induction (princop_sort t).
-      rewrite idpath_transportf.
+      change (P (sort (princop t)) (build_term (princop t) (subterms t))).
       (* rewrite <- (term_normalization t).  *)
       (* induction (term_normalization t). *)
       apply (R (princop t) (subterms t)).
-      set (stlen := subterms_length t).
-      refine (hmap'' stlen _).
+      refine (hmap'' (subterms_length t) _).
       intros.
       apply IHn.
       apply natlthsntoleh.
@@ -811,7 +806,7 @@ Section TermInduction.
           -- apply m2lehn.
   Defined.
   
-  Lemma nat_rect_step {P: nat → UU} (a: P 0) (IH: ∏ n: nat, P n → P (S n)) (n: nat): 
+  Local Lemma nat_rect_step {P: nat → UU} (a: P 0) (IH: ∏ n: nat, P n → P (S n)) (n: nat): 
     nat_rect P a IH (S n) = IH n (nat_rect P a IH n).
   Proof. apply idpath. Defined.
 
@@ -831,9 +826,9 @@ Section TermInduction.
     induction (! (subterms_build_term nm v: subterms t = v)).
     assert (princop_sort_idpath: princop_sort t = idpath (sort nm)).
     {
-    apply proofirrelevance.
-    apply isasetifdeceq.
-    apply decproperty. 
+      apply proofirrelevance.
+      apply isasetifdeceq.
+      apply decproperty. 
     }
     induction (! princop_sort_idpath).
     change (build_term nm v = t) in v0norm.

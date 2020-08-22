@@ -20,10 +20,10 @@ Local Open Scope sorted.
 
 Section SortedTypes.
 
-Local Definition A : sUU bool := bool_ind _ nat unit.
+  Local Definition A : sUU bool := bool_ind _ nat unit.
 
-Goal A * (cons true (cons false (cons true nil))) = (nat × unit × nat × unit).
-Proof. apply idpath. Defined.
+  Goal A * (cons true (cons false (cons true nil))) = (nat × unit × nat × unit).
+  Proof. apply idpath. Defined.
 
 End SortedTypes.
 
@@ -81,16 +81,6 @@ Section NatLowLevel.
   
   Goal Terms.oplist_build_term nat_succ_op [zero_oplist] = one_oplist.
   Proof. apply idpath. Qed.
-  
-  Goal princop one_term = nat_succ_op.
-  Proof. apply idpath. Qed.
-  
-  Goal princop (nat2term 10) = nat_succ_op.
-  Proof. apply idpath. Qed.
-
-  Goal subterms (nat2term 10) = [nat2term 9]%hvec.
-  Proof. apply idpath. Qed.
-  
 
 End NatLowLevel.
 
@@ -104,23 +94,13 @@ Section Nat.
 
   Local Definition term_four := nat_succ (nat_succ (nat_succ (nat_succ nat_zero))).
 
+  Goal nat2term 4 = term_four.
+  Proof. apply idpath. Qed.
+
   (* ----- term_decompose ----- *)
 
-  (* does not terminate *)
-  (* Eval lazy in Terms.term_decompose term_one. *)
-
-  (* does not terminate. this is weird because we may evaluare all the
-     components separately *)
-  (* Eval lazy in Terms.term_decompose term_zero. *)
-
-  (* works, but long execution time *)
-  (* Eval lazy in (pr1 (pr2 (pr2 (Terms.term_decompose term_ten)))). *)
-
-  (* works *)
-  (* Eval lazy in (pr2 (pr2 (pr2 (Terms.term_decompose term_zero)))). *)
-
-  (* does not terminate *)
-  (* Eval lazy in (pr2 (pr2 (pr2 (Terms.term_decompose term_one)))). *)
+  (* works but slow, faster with lazy *)
+  (* Eval compute in Terms.term_decompose term_one. *)
 
   Goal princop term_four = nat_succ_op.
   Proof. apply idpath. Qed.
@@ -133,11 +113,9 @@ Section Nat.
 
   Goal build_term (princop term_four) (subterms term_four) = term_four.
   Proof. apply idpath. Qed.
-  
-  (* FIX DOES NOT COMPUTE
-    Goal depth term_four = 5.
-    Proof. apply idpath. Qed.
-  *)
+
+  Goal depth term_four = 5.
+  Proof. apply idpath. Qed.
 
   (* works *)
   (* Eval lazy in depth term_four. *)
@@ -146,21 +124,14 @@ Section Nat.
      all the proofs involved in the recursion *)
   (* Eval compute in depth term_four. *)
   
-  (* FIX DOES NOT COMPUTE 
   Goal eval nat_algebra tt term_zero = 0.
   Proof. apply idpath. Qed.
 
   Goal eval nat_algebra tt term_one = 1.
   Proof. apply idpath. Qed.
-  *)
-  
-  Goal nat2term 4 = term_four.
-  Proof. apply idpath. Qed.
 
-  (* FIX DOES NOT COMPUTE
   Goal eval nat_algebra tt (nat2term 4) = 4.
   Proof. apply idpath. Qed.
-  *)
 
 End Nat.
 
@@ -226,15 +197,11 @@ Section Bool.
   Goal subterms t1 = [ t_true ; t_false ]%hvec.
   Proof. apply idpath. Qed.
 
-  (* FIX 
   Goal depth t2 = 3.
   Proof. apply idpath. Qed.
-  *)
 
   Definition simple_t := bool_not (bool_and (bool_or bool_true bool_false) (bool_not bool_false)).
 
-  (* FIX DOES NOT COMUTE
-  
   Lemma l1: eval bool_algebra tt bool_true = true.
   Proof. apply idpath. Defined.
 
@@ -246,6 +213,5 @@ Section Bool.
 
   Lemma l4: eval bool_algebra tt simple_t = false.
   Proof. apply idpath. Defined.
-*)
 
 End Bool.
