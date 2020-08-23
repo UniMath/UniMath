@@ -20,7 +20,7 @@ Definition sUU (S: UU): UU := S → UU.
 
 Definition sfun {S: UU} (X Y: sUU S): UU := ∏ s: S, X s → Y s.
 
-Infix "s→" := sfun (at level 99, right associativity): type_scope.
+Notation "x s→ y" := (sfun x y) (at level 99, y at level 200, right associativity): type_scope.
 
 Bind Scope sorted_scope with sUU.
 
@@ -42,7 +42,7 @@ Defined.
 Definition scomp {S: UU} {X Y Z: sUU S} (f: Y s→ Z) (g: X s→ Y): sfun X Z
   := λ s: S, (f s) ∘ (g s).
 
-Infix "∘" := scomp: sorted_scope.
+Infix "s∘" := scomp (at level 40, left associativity): sorted_scope.
 
 Definition shSet (S: UU): UU := S → hSet.
 
@@ -60,19 +60,19 @@ Definition star {S: UU} (X: sUU S): sUU (list S) := λ l: list S, HVec (vector_m
 
 Bind Scope hvec_scope with star.
 
-Notation "A *" := (star A) (at level 10): sorted_scope.
+Notation "A ↑" := (star A) (at level 10): sorted_scope.
 
-Definition starfun {S: UU} {X Y: sUU S} (f: sfun X Y): sfun (star X) (star Y) := λ s: list S, hmap f.
+Definition starfun {S: UU} {X Y: sUU S} (f: sfun X Y): sfun (X ↑) (Y ↑) := λ s: list S, hmap f.
 
-Notation "f **" := (starfun f) (at level 10): sorted_scope.
+Notation "f ↑↑" := (starfun f) (at level 10): sorted_scope.
 
-Lemma staridfun {S: UU} {X: sUU S} (l: list S) (x: X* l): (idsfun X)** _ x = idsfun (X*) _ x.
+Lemma staridfun {S: UU} {X: sUU S} (l: list S) (x: X ↑ l): (idsfun X) ↑↑ _ x = idsfun (X ↑ ) _ x.
 Proof.
   apply hmap_idfun.
 Defined.
 
-Lemma starcomp {S: UU} {X Y Z: sUU S} (f: Y s→ Z) (g: X s→ Y) (l: list S) (x: (star X) l)
-  : (f ∘ g) ** _ x = f** _ (g** _ x).
+Lemma starcomp {S: UU} {X Y Z: sUU S} (f: Y s→ Z) (g: X s→ Y) (l: list S) (x: X ↑ l)
+  : (f s∘ g) ↑↑ _ x = f ↑↑ _ (g ↑↑ _ x).
 Proof.
   unfold starfun.
   apply pathsinv0.

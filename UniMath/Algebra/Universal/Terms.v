@@ -1,7 +1,7 @@
 (** * Terms for a given signature *)
 
 (**
-   This file contains a formalization of terms over a signature, defined as a sequence of
+   This file contains a formalization of terms over a signature, implemneted as a sequence of
    function symbols. This sequence is though to be executed by a stack machine: each
    symbol of arity n pops n elements from the stack and pushes a new element.
    A sequence of function symbols is a term when the result of the execution is a stack
@@ -18,7 +18,9 @@ Require Import UniMath.Algebra.Universal.HVectors.
 Require Import UniMath.Algebra.Universal.Signatures.
 Require Import UniMath.Algebra.Universal.SortedTypes.
 
+Local Open Scope sorted.
 Local Open Scope list.
+
   
 (** ** Definition of oplist (operation list) *)
 (**
@@ -539,7 +541,7 @@ Section Term.
         rewrite <- (concatenate_oplistsplit l 1).
         apply length_sublist1.
       + change (HVec (hmap_vector (λ (s: sorts σ) (t: term σ s), hProptoType (length (term2oplist t) ≤ length l)) v)).
-        eapply  (hmap'' vlen (λ _ _ p, istransnatleh p _)).
+        eapply (hhmap (λ _ _ p, istransnatleh p _) vlen).
         Unshelve.
         rewrite <- (concatenate_oplistsplit l 1).
         apply length_sublist2.
@@ -551,7 +553,7 @@ Section Term.
   Local Definition oplist_build_term (nm: names σ) (v: Vector (oplist σ) (length (arity nm)))
     : oplist σ := cons nm (vecoplist2oplist v).
 
-  Local Lemma oplist_build_term_status (nm: names σ) (v: HVec (vector_map (term σ) (pr2 (arity nm))))
+  Local Lemma oplist_build_term_status (nm: names σ) (v: term σ ↑ (arity nm))
     : isaterm (sort nm) (oplist_build_term nm (hmap_vector (λ _, term2oplist) v)).
   Proof.
     unfold oplist_build_term, isaterm.
@@ -566,7 +568,7 @@ Section Term.
   Defined.
 
   Local Definition term_decompose {s: sorts σ} (t: term  σ s):
-    ∑ (nm:names σ) (v: HVec (vector_map (term σ) (pr2 (arity nm))))
+    ∑ (nm:names σ) (v: term σ ↑ (arity nm))
       , (HVec (hmap_vector (λ _ t', hProptoType (length (term2oplist t') < length t)) v))
          × sort nm = s
          × oplist_build_term nm (hmap_vector (λ _, term2oplist) v) = t.
@@ -595,7 +597,7 @@ Section Term.
       induction (oplist2vecoplist xs statusxs) as [vtail [vlen vflatten]].
       exists vtail.
       repeat split.
-      + exact (hmap'' vlen (λ _ _ p, natlehtolthsn _ _ p)).
+      + exact (hhmap (λ _ _ p, natlehtolthsn _ _ p) vlen).
       + unfold oplist_build_term.
         rewrite <- vflatten.
         apply idpath.
@@ -603,7 +605,7 @@ Section Term.
 
   (* [build_term] builds a term starting from its principal function symbols and its subterms *)
 
-  Definition build_term (nm: names σ) (v: HVec (vector_map (λ s, term σ s) (pr2 (arity nm)))): term σ (sort nm).
+  Definition build_term (nm: names σ) (v: term σ ↑ (arity nm)): term σ (sort nm).
   Proof.
     exists (oplist_build_term nm (hmap_vector (λ _, term2oplist) v)).
     apply oplist_build_term_status.
@@ -621,7 +623,7 @@ Section Term.
     exact nmsort.
   Defined.
 
-  Definition subterms {s: sorts σ} (t: term σ s): HVec (vector_map (term σ) (pr2 (arity (princop t)))).
+  Definition subterms {s: sorts σ} (t: term σ s):  term σ ↑ (arity (princop t)).
   Proof.
     unfold princop.
     induction (term_decompose t) as [nm [v X]].
@@ -658,7 +660,7 @@ Section Term.
     - apply isapropisaterm.
   Defined.
 
-  Local Lemma princop_build_term (nm: names σ) (v: HVec (vector_map (term σ) (pr2 (arity nm))))
+  Local Lemma princop_build_term (nm: names σ) (v: term σ ↑ (arity nm))
     : princop (build_term nm v) = nm.
   Proof.
     apply idpath.
@@ -695,7 +697,7 @@ Section Term.
         apply (maponpaths (λ l, pr2 l: oplist σ) eq).
   Defined.
 
-  Local Lemma subterms_build_term (nm: names σ) (v: HVec (vector_map (term σ) (pr2 (arity nm))))
+  Local Lemma subterms_build_term (nm: names σ) (v:  term σ ↑ (arity nm))
     : subterms (build_term nm v) = v.
   Proof.
     set (t := build_term nm v).
@@ -739,8 +741,8 @@ Section TermInduction.
 
   Definition term_ind_HP (P: ∏ (s: sorts σ), term σ s → UU) :=
     ∏ (nm: names σ)
-      (v: HVec (vector_map (term σ) (pr2 (arity nm))))
-      (IH: HVec (hmap_vector (λ s t, P s t) v))
+      (v: term σ ↑ (arity nm))
+      (IH: HVec (hmap_vector P v))
     , P (sort nm) (build_term nm v).
 
   Local Lemma term_ind_onlength (P: ∏ (s: sorts σ), term σ s → UU) (R: term_ind_HP P)
@@ -753,10 +755,8 @@ Section TermInduction.
       apply (transportf (P s) (term_normalization t)).
       induction (princop_sort t).
       change (P (sort (princop t)) (build_term (princop t) (subterms t))).
-      (* rewrite <- (term_normalization t).  *)
-      (* induction (term_normalization t). *)
       apply (R (princop t) (subterms t)).
-      refine (hmap'' (subterms_length t) _).
+      refine (hhmap _ (subterms_length t)).
       intros.
       apply IHn.
       apply natlthsntoleh.
@@ -764,6 +764,17 @@ Section TermInduction.
       + exact q.
       + exact tlen.
   Defined.
+
+(*
+  I would like to prove something like the following:
+  
+  Lemma term_ind_onlength_step (P: ∏ (s: sorts σ), term σ s → UU) (R: term_ind_HP P) (nm: names σ) (v:  term σ ↑ (arity nm))
+    : ∏ (n: nat) (tlehn:  length (build_term nm v) ≤ n), 
+        term_ind_onlength P R n _ _ tlehn
+        =  R nm v (transportf (λ x, HVec (hmap_vector P x))
+                              (subterms_build_term nm v) 
+                              (hhmap (subterms_length (build_term nm v)) (λ s t p, term_ind_onlength P R n s t (istransnatleh (natlthtoleh _ _ p) tlehn)))).
+*)
 
   Theorem term_ind (P: ∏ (s: sorts σ), term σ s → UU) (R: term_ind_HP P) {s: sorts σ} (t: term σ s)
     : P s t.
@@ -780,8 +791,7 @@ Section TermInduction.
   Proof.
     induction n.
     - intros.
-      set (tlen := istransnatleh lenm1 m1lehn).
-      exact (term_notnil tlen).
+      exact (term_notnil (istransnatleh lenm1 m1lehn)).
     - intros.
       induction m1.
       + exact (term_notnil lenm1).
@@ -789,34 +799,30 @@ Section TermInduction.
         * exact (term_notnil lenm2).
         * simpl.
           apply maponpaths.
-          set (f := paths_rect (sorts σ) (sort (princop t))
-                    (λ (a : sorts σ) (p0 : sort (princop t) = a),
-                     P a (transportf (λ s0 : sorts σ, term σ s0) p0 (build_term (princop t) (subterms t))))).
-          apply (maponpaths (λ x, f x s (princop_sort t))).
+          set (f := paths_rect _ _ _).
+          apply (maponpaths (λ x, f x _ _)).
           apply maponpaths. 
-          apply (maponpaths (λ x, hmap'' (subterms_length t) x)).
-          apply funextsec.
-          intro.
-          apply funextsec.
-          intro.
-          apply funextsec.
-          intro.
+          apply (maponpaths (λ x, hhmap x _)).
+          do 3 (apply funextsec; intro).
           apply IHn.
           -- apply m1lehn.
           -- apply m2lehn.
   Defined.
-  
+
   Local Lemma nat_rect_step {P: nat → UU} (a: P 0) (IH: ∏ n: nat, P n → P (S n)) (n: nat): 
     nat_rect P a IH (S n) = IH n (nat_rect P a IH n).
   Proof. apply idpath. Defined.
+ 
+  Local Lemma paths_rect_step (A : UU) (a : A) (P : ∏ a0 : A, a = a0 → UU) (x: P a (idpath a))
+     : paths_rect A a P x a (idpath a) = x.
+  Proof. apply idpath. Defined.
 
-  Lemma term_ind_step (P: ∏ (s: sorts σ), term σ s → UU) (R: term_ind_HP P)
-        (nm: names σ) (v: HVec (vector_map (λ s, term σ s) (pr2 (arity nm))))
-    : term_ind P R (build_term nm v) = R nm v (hmap' (λ s t, term_ind P R t) v).
+  Lemma term_ind_step (P: ∏ (s: sorts σ), term σ s → UU) (R: term_ind_HP P) (nm: names σ) (v: term σ ↑ (arity nm))
+    : term_ind P R (build_term nm v) = R nm v (hmap_lift (λ s, term_ind P R) v).
   Proof.
     unfold term_ind.
     set (t := build_term nm v).
-    simpl (length (term2oplist _)).
+    simpl (length t).
     unfold term_ind_onlength at 1.
     rewrite nat_rect_step.
     set (v0len := subterms_length t).
@@ -837,14 +843,12 @@ Section TermInduction.
       apply proofirrelevance.
       apply isasetterm.
     }
-    rewrite v0normisid.
-    simpl.
+    induction (! v0normisid).
     rewrite idpath_transportf.
+    rewrite paths_rect_step.
     apply maponpaths.
-    unfold t in *.
-    clear t v0norm v0normisid princop_sort_idpath.
-    rewrite (hmap12 v  v0len).
-    apply maponpaths.
+    rewrite (hmap_lift_as_hhmap v v0len).
+    apply (maponpaths (λ x, hhmap x _)).
     repeat (apply funextsec; intro).
     apply (term_ind_onlength_nirrelevant P R  (pr1 (vecoplist2oplist (hmap_vector (λ x2 : sorts σ, term2oplist) v)))).
     - apply isreflnatleh.
@@ -854,24 +858,21 @@ Section TermInduction.
 
   Definition depth {s: sorts σ}: term σ s → nat
     := term_ind (λ _ _, nat) 
-                (λ (nm: names σ) (v: HVec (vector_map (λ s, term σ s) (pr2 (arity nm))))
-                   (levels: HVec (hmap_vector (λ _ _, nat) v)),
-                   1 + hvec_foldr' levels (λ _ _, max) 0).
+                (λ (nm: names σ) (v: term σ ↑ (arity nm)) (depths: HVec (hmap_vector (λ _ _, nat) v)),
+                   1 + hhfoldr (λ _ _, max) 0 depths).
 
-  Definition fromterm {A: sUU (sorts σ)}
-             (op : ∏ (nm : names σ), HVec (vector_map (λ s, A s) (pr2 (arity nm))) → A (sort nm)) {s: sorts σ}
+  Definition fromterm {A: sUU (sorts σ)} (op : ∏ (nm : names σ), A ↑ (arity nm) → A (sort nm)) {s: sorts σ}
     : term σ s → A s
-    := term_ind (λ s _, A s)
-                 (λ nm v rec, op nm (hmap_vector_flat rec)).
+    := term_ind (λ s _, A s) (λ nm v rec, op nm (hvec_lower rec)).
 
   Lemma fromtermstep {A: sUU (sorts σ)} (nm: names σ)
-                     (op : ∏ (nm : names σ), HVec (vector_map (λ s, A s) (pr2 (arity nm)))  → A (sort nm))
-                     (v: HVec (vector_map (λ s, term σ s) (pr2 (arity nm))))
-    : fromterm op (build_term nm v) = op nm (hmap (λ s t, @fromterm A op s t) v).
+                     (op : ∏ (nm : names σ), A ↑ (arity nm) → A (sort nm))
+                     (v: term σ ↑ (arity nm))
+    : fromterm op (build_term nm v) = op nm (hmap (@fromterm A op) v).
   Proof.
     unfold fromterm.
     rewrite term_ind_step.
-    rewrite hmap_vector_flat_hmap'.
+    rewrite hvec_lower_hmap_lift.
     apply idpath.
   Defined.
 
@@ -885,18 +886,23 @@ End TermInduction.
 Section iterbuild.
 
   (**
-     [iterfun A B n] is the curried version of [Vector A n → B], i.e.
-     [iterfun A B n] =  [A → (A → ...... → (A → B)] with A repeated n times
+     If [v] is a vector of types of length [n], [iterfun v B] is the curried version of [v → B], i.e.
+     [iterfun v B] =  [(el v 1) → ((el v 2) → ...... → ((el v n) → B)].
    *)
-  
+
   Definition iterfun {n: nat} (v: Vector UU n) (B: UU): UU.
   Proof.
     revert n v.
     refine (vector_ind _ _ _).
     - exact B.
-    - intros x n xs IH.
-      exact (x → IH).
+    - intros x n xs IHxs.
+      exact (x → IHxs).
   Defined.
+
+  (**
+     If  [f: HVec v → B], then [itercurry f] is the curried version of [f], which has type
+     [iterfun v B].
+   *)
 
   Definition itercurry {n: nat} {v: Vector UU n} {B: UU} (f: HVec v → B): iterfun v B.
   Proof.
@@ -904,15 +910,15 @@ Section iterbuild.
     refine (vector_ind _ _ _).
     - intros.
       exact (f tt).
-    - intros x n xs IH f.
+    - intros x n xs IHxs f.
       simpl in f.
       simpl.
       intro a.
-      exact (IH (λ l, f (a,, l))).
+      exact (IHxs (λ l, f (a,, l))).
   Defined.
 
   Definition build_term_curried {σ: signature} (nm: names σ)
-    : iterfun (vector_map (λ s, term σ s) (pr2 (arity nm))) (term σ (sort nm))
+    : iterfun (vector_map (term σ) (pr2 (arity nm))) (term σ (sort nm))
     := itercurry (build_term nm).
 
 End iterbuild.
