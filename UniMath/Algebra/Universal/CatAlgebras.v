@@ -1,15 +1,18 @@
 (** * Displayed category of algebras over a signature *)
 
 Require Import UniMath.Foundations.All.
-Require Import UniMath.CategoryTheory.All.
+Require Import UniMath.MoreFoundations.Univalence.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Univalence.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
+Require Import UniMath.CategoryTheory.categories.HSET.MonoEpiIso.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 Require Import UniMath.CategoryTheory.limits.initial.
+
 
 Require Import UniMath.Combinatorics.FiniteSets.
 Require Import UniMath.Combinatorics.Vectors.
@@ -73,7 +76,7 @@ Section Algebras.
   Definition algebras_disp : disp_cat shSet_category.
   Proof.
     use disp_cat_from_SIP_data. simpl.
-    - intro A. exact (∏ nm: σ, A* (arity nm) → A (sort nm)).
+    - intro A. exact (∏ nm: names σ, A ↑ (arity nm) → A (sort nm)).
     - simpl. intros A B asA asB f. exact (@ishom σ (make_algebra A asA) (make_algebra B asB) f).
     - simpl. intros A B asA asB f opA opB.
       apply isapropishom.
@@ -93,11 +96,13 @@ Section Algebras.
   Qed.
 Local Open Scope cat.
   Lemma aux{A : UU}{B : A → UU}{f g : ∏ a:A, B a}(p : f = g) : ∏ a, f a = g a.
-    Proof. intro a. induction p. apply idpath. Defined.
-  Lemma iso_fiber{A B : shSet_category}(i : Isos.iso A B) : ∏ s, @Isos.iso SET  (A s) (B s).
+    Proof. intro a. induction p. apply idpath. Defined. 
+    Search (?a = ?b) "homot".
+    
+  Lemma iso_fiber {A B : shSet_category} (i : Isos.iso A B): ∏ s, @Isos.iso SET (A s) (B s).
   Proof.
     intro S.
-     apply z_iso_to_iso.
+    apply z_iso_to_iso.
     apply iso_to_z_iso in i.
     induction i as [i [i' [p q]]].
     - simpl in *.
@@ -105,21 +110,86 @@ Local Open Scope cat.
       * exact (i S).
       * exact (i' S).
       * split.
-        + set (X:=aux p S). apply X.
-        + set (X:=aux q S). apply X.
+        + set (X:=eqtohomot p S). apply X.
+        + set (X:=eqtohomot q S). apply X.
   Defined.
 (*  Lemma isaset_shSet : isaset (shSet (pr1(sorts σ))).
   Proof.
     unfold shSet.
  *)
 
+  Definition functor_eq_from_functor_iso (F G : shSet_category) (H : iso F G) : F = G.
+  Proof.
+    apply funextsec.
+    intro S.
+    apply (isotoid HSET is_univalent_HSET).
+    apply iso_fiber.
+    assumption.
+  Defined.
 
-  Definition is_univalent_shSet_category : is_univalent shSet_category.
+  Lemma idtoiso_functorcat_compute_pointwise {A B : shSet_category} (p : A = B) (s: pr1 (sorts σ)):
+    iso_fiber (idtoiso p) s = idtoiso(C:=HSET) (toforallpaths (λ _ , hSet) A B p s).
+  Proof.
+    induction p.
+    apply eq_iso. apply idpath.
+  Qed.
+
+  Lemma functor_eq_from_functor_iso_idtoiso  (F G : shSet_category) (p : F = G) :
+    functor_eq_from_functor_iso  F G (idtoiso p) = p.
+  Proof.
+    unfold functor_eq_from_functor_iso.
+    apply (invmaponpathsweq (weqtoforallpaths _ _ _ )).
+    simpl (pr1weq (weqtoforallpaths (λ _ : pr1 (sorts σ), hSet) F G)).
+    rewrite (toforallpaths_funextsec).
+    apply funextsec.
+    intro a.
+    rewrite idtoiso_functorcat_compute_pointwise.
+    rewrite  isotoid_idtoiso.
+    apply idpath.
+  Defined.
+
+  Lemma idtoiso_functor_eq_from_functor_iso (F G : shSet_category) (gamma : iso F G) :
+          idtoiso (functor_eq_from_functor_iso F G gamma) = gamma.
+  Proof.
+    apply eq_iso.
+    apply funextsec.
+    intro a.
+    unfold functor_eq_from_functor_iso.
+    assert (H' := idtoiso_functorcat_compute_pointwise (functor_eq_from_functor_iso F G gamma) a).
+    simpl in *.
+    assert (H2 := maponpaths (@pr1 _ _ ) H').
+    simpl in H2.
+    etrans.
+    { apply H2. }
+    intermediate_path (pr1 (idtoiso (isotoid HSET is_univalent_HSET (iso_fiber gamma a)))).
+    - apply maponpaths.
+      apply maponpaths.
+      unfold functor_eq_from_functor_iso.
+      rewrite toforallpaths_funextsec.
+      apply idpath.
+    - rewrite idtoiso_isotoid.
+      apply idpath.
+  Qed.
+
+   Definition is_univalent_shSet_category : is_univalent shSet_category.
+  Proof.
+    split.
+    2: apply has_homsets_shSet_precategory.
+    intros F G.
+    apply (isweq_iso _ (functor_eq_from_functor_iso F G)).
+    - apply functor_eq_from_functor_iso_idtoiso.
+    - apply idtoiso_functor_eq_from_functor_iso.
+  Defined.
+ 
+  Definition is_univalent_shSet_category_old : is_univalent shSet_category.
   Proof.
     split.
     2: apply has_homsets_shSet_precategory.
     - intros F G. intro i. Search "contr" "prop". use iscontraprop1.
-      Focus 2. use tpair. use funextfun. intro S. apply hSet_univalence.
+      Focus 2.
+      use tpair. use funextfun. intro S.
+      Print z_iso.
+       apply hSet_univalence.
         Search "iso" "weq" . set (X:= invweq (hset_equiv_weq_iso (F S) (G S))).
         induction X as [eq _]. use eq. exact (iso_fiber i S).
     - simpl. use total2_paths_f.
@@ -128,7 +198,8 @@ Local Open Scope cat.
         use funextsec; intro S. use funextfun. intro FS.
         Check (i S FS). unfold iso_fiber. simpl. unfold all. simpl.
 
-      Search "is_univalent". Search "weq". use gradth.
+      Search "is_univalent". Search "weq".
+       use gradth.
       + intro i. use funextfun. intro S. apply hSet_univalence.
         Search "iso" "weq" . set (X:= invweq (hset_equiv_weq_iso (F S) (G S))).
         induction X as [eq _]. use eq. exact (iso_fiber i S).
