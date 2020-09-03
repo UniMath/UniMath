@@ -6,50 +6,75 @@
  *)
 
 Require Import UniMath.Foundations.All.
+Require Import UniMath.Combinatorics.Lists.
 Require Import UniMath.Combinatorics.Vectors.
+
+Require Import UniMath.Algebra.Universal.DecSet.
 Require Import UniMath.Algebra.Universal.Signatures.
+Require Import UniMath.Algebra.Universal.SortedTypes.
+Require Import UniMath.Algebra.Universal.HVectors.
+Require Import UniMath.Algebra.Universal.MoreLists.
 Require Import UniMath.Algebra.Universal.Terms.
 Require Import UniMath.Algebra.Universal.Algebras.
 
 Local Open Scope hom.
 
+Local Open Scope sorted.
+
 Section Variables.
 
-  Definition vsignature (sigma : signature) (V: hSet): signature
-    := setcoprod (names sigma) V,,
-                 sumofmaps (@arity sigma) (λ _, 0).
+  Definition varspec (σ: signature) := ∑ V: hSet, V → sorts σ.
 
-  Definition vterm (sigma: signature) (V: hSet) := term (vsignature sigma V).
+  Coercion varsupp {σ: signature}: varspec σ → hSet := pr1.
 
-  Context {sigma : signature}.
+  Definition varsort {σ: signature} {V: varspec σ}: V → sorts σ := pr2 V.
 
-  Definition namelift {V: hSet} (nm: names sigma) : names (vsignature sigma V) := inl nm.
+  Definition vsignature (σ : signature) (V: varspec σ): signature
+    := make_signature (sorts σ) (setcoprod (names σ) V) (sumofmaps (ar σ) (λ v, []%list ,, varsort v)).
 
-  Definition varname {V: hSet} (v: V): names (vsignature sigma V) := inr v.
+  Definition vterm (σ: signature) (V: varspec σ) := term (vsignature σ V).
 
-  Definition var {V: hSet} (v: V): vterm sigma V := build_term_curried (varname v).
+  Context {σ : signature}.
 
-  Definition fromvterm {A:UU} {V: hSet}
-             (op : (∏ (nm : names sigma), Vector A (arity nm) → A))
-             (α : V → A)
-    : vterm sigma V → A.
+  Definition namelift {V: varspec σ} (nm: names σ): names (vsignature σ V) := inl nm.
+
+  Definition varname {V: varspec σ} (v: V): names (vsignature σ V) := inr v.
+
+  Definition var {V: varspec σ} (v: V): vterm σ V (varsort v) := build_term (varname v) [].
+
+  Definition fromvterm {A: sUU (sorts σ)} {V: varspec σ}
+             (op : (∏ nm : names σ, A ↑ (arity nm) → A (sort nm)))
+             (α : ∏ v: V, A (varsort v))
+    : vterm σ V s→ A.
   Proof.
-    refine (@fromterm (vsignature sigma V) A _).
+    refine (@fromterm (vsignature σ V) A _).
     induction nm as [nm | nm].
     - exact (op nm).
     - exact (λ rec, α nm).
   Defined.
 
-  Lemma fromvtermstep {A: UU} {V: hSet}
-                      (nm: names sigma)
-                      (op : (∏ (nm : names sigma), Vector A (arity nm) → A))
-                      (α : V → A)
-                      (v: Vector (term (vsignature sigma V)) (arity nm))
-    : fromvterm op α (build_term (namelift nm) v) = op nm (vector_map (fromvterm op α) v).
+  Lemma fromvtermstep {A: sUU (sorts σ)}  {V: varspec σ}
+                      (op : (∏ nm : names σ, A ↑ (arity nm) → A (sort nm)))
+                      (α : ∏ v: V, A (varsort v))
+                      (nm: names σ) (v:  term (vsignature σ V) ↑ (arity nm))
+    : fromvterm op α (sort nm) (build_term (namelift nm) v) = op nm (fromvterm op α ↑↑ (arity nm) v).
   Proof.
     unfold fromvterm, fromterm.
-    rewrite term_ind_step.
-    rewrite vector_map_as_mk_vector.
+    rewrite (term_ind_step _ _  (namelift nm)).
+    simpl.
+    rewrite hvec_lower_hmap_lift.
+    apply idpath.
+  Defined.
+
+  (** This used to be provable with apply idpath in the single sorted case **)
+  Lemma fromvtermstep' {A: sUU (sorts σ)} {V: varspec σ}
+                      (op : (∏ nm : names σ, A ↑ (arity nm) → A (sort nm)))
+                      (α : ∏ v: V, A (varsort v))
+                      (v: V)
+    : fromvterm op α (varsort v) (build_term (varname v) []) = α v.
+  Proof.
+    unfold fromvterm, fromterm.
+    rewrite (term_ind_step _ _  (varname v)).
     apply idpath.
   Defined.
 
@@ -57,68 +82,92 @@ End Variables.
 
 Section FreeAlgebras.
 
-  Definition free_algebra (sigma: signature) (V: hSet): algebra sigma :=
-    make_algebra (termset (vsignature sigma V)) (λ nm: names sigma, build_term (namelift nm)).
+  Definition free_algebra (σ: signature) (V: varspec σ): algebra σ :=
+    @make_algebra σ (@termset (vsignature σ V)) (λ nm: names σ, build_term (namelift nm)).
 
-  Context {sigma: signature}.
+  Context {σ: signature} (a : algebra σ) {V: varspec σ} (α : ∏ v: V, support a (varsort v)).
 
-  Definition veval (a : algebra sigma) {V: hSet} (α: V → support a): free_algebra sigma V → support a
-    := fromvterm (op a) α.
+  Definition veval: free_algebra σ V s→ a
+    := fromvterm (ops a) α.
 
-  Lemma vevalstep {a: algebra sigma} {V: hSet} (α: V → support a) (nm: names sigma) (v: Vector (vterm sigma V) (arity nm))
-    : veval a α (build_term (namelift nm) v) = op a nm (vector_map (veval a α) v).
+  Lemma vevalstep (nm: names σ) (v:  term (vsignature σ V) ↑ (arity nm))
+    : veval (sort nm) (build_term (namelift nm) v) = ops a nm (veval ↑↑ (arity nm) v).
   Proof.
     unfold veval.
     apply fromvtermstep.
   Defined.
 
-  Lemma ishomveval (a: algebra sigma) {V: hSet} (α: V → support a): ishom (veval a α).
+  Lemma ishomveval: ishom veval.
   Proof.
     red.
     intros.
     apply vevalstep.
   Defined.
 
-  Definition vevalhom (a: algebra sigma) {V: hSet} (α: V → support a): free_algebra sigma V ↦ a
-    := make_hom (ishomveval a α).
+  Definition vevalhom: free_algebra σ V ↦ a
+    := make_hom ishomveval.
 
-  Definition universalmap {a: algebra sigma} {V: hSet} (α: V → support a)
-    : ∑ h: free_algebra sigma V ↦ a, ∏ v: V, h (var v) = α v.
+  Definition universalmap: ∑ h: free_algebra σ V ↦ a, ∏ v: V, h (varsort v) (var v) = α v.
   Proof.
-    exists (vevalhom a α).
-    intro n.
-    apply idpath.
+    exists vevalhom.
+    intro v.
+    simpl.
+    unfold veval, var.
+    apply fromvtermstep'.
   Defined.
 
-  Definition iscontr_universalmap {a: algebra sigma} {V: hSet} (α: V → support a)
-    : iscontr (∑ h: free_algebra sigma V ↦ a, ∏ v: V, h (var v) = α v).
+  Definition iscontr_universalmap
+    : iscontr (∑ h: free_algebra σ V ↦ a, ∏ v: V, h (varsort v) (var v) = α v).
   Proof.
-    exists (universalmap α).
+    exists universalmap.
     intro h.
     induction h as [h hvar].
     apply subtypePairEquality'.
     - apply subtypePairEquality'.
       2: apply isapropishom.
+      apply funextsec.
+      intro s.
       apply funextfun.
       unfold homot.
+      revert s.
+      change (sorts σ) with (sorts (vsignature σ V)).
       apply term_ind.
       unfold term_ind_HP.
-      intros.
-      induction nm as [nm | var].
+      intros nm hv IH.
+      induction nm as [nm | v].
       * change (inl nm) with (namelift(V:=V) nm).
-        change (build_term (namelift nm) v) with (op (free_algebra sigma V) nm v) at 1.
+        change (build_term (namelift nm) hv) with (ops (free_algebra σ V) nm hv) at 1.
+        change (sort (namelift nm)) with (sort nm).
         rewrite (hom2axiom h).
         rewrite vevalstep.
         apply maponpaths.
-        apply vector_extens.
-        intros.
-        do 2 rewrite el_vector_map.
-        rewrite IH.
+        change ((term (vsignature σ V)) ↑ (arity nm)) in hv.
+        revert hv IH.
+        assert ( X:  ∏ l: list (sorts σ),  ∏ v : ((term (vsignature σ V)) ↑) l,HVec
+  (hmap_vector (λ (s : pr1decSet (sorts (vsignature σ V))) (t : term (vsignature σ V) s), pr1 h s t = veval s t) v)
+→ ((pr1 h) ↑↑) l v = (veval ↑↑) l v).
+        {  refine (list_ind _ _ _).
+           - reflexivity.
+           - intros x xs IH' v IH.
+             unfold starfun.
+             simpl.
+             simpl in IH.
+             apply hvcons_paths.
+             + exact (pr1 IH).
+             + exact (IH' (pr2 v) (pr2 IH)).
+        }
+        exact (X (arity nm)).
+      * change (inr v) with (varname v).
+        change ((sort (varname v))) with (varsort v).
+        cbn in hv.
+        induction hv.
+        rewrite hvar.
+        unfold veval.
+        rewrite fromvtermstep'.
         apply idpath.
-     * apply hvar.
    - apply impred_isaprop.
      intros.
-     apply (support a).
+     apply (pr1 a (varsort t)).
   Defined.
 
 End FreeAlgebras.

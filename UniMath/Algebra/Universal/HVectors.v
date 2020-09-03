@@ -68,6 +68,12 @@ Proof.
     + apply (IHxs (pr2 levels)).
 Defined.
 
+Lemma hvcons_paths {A: UU} (x y: A) {n: nat} (v: Vector UU n) (xs ys: HVec v) (p: x = y) (ps: xs = ys)
+  : hvcons x xs = hvcons y ys.
+Proof.
+  apply (map_on_two_paths (λ x xs, @hvcons A x n v xs)) ; assumption.
+Defined.
+
 (** ** HVecs of vector_map *)
 
 Lemma hvec_vector_map_const {A: UU} {n: nat} (v: Vector A n) {B: UU}
