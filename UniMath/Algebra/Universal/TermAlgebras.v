@@ -18,7 +18,7 @@ Local Open Scope hom.
 Section TermAlgebra.
 
   Definition term_algebra (σ: signature): algebra σ
-    := make_algebra (λ s: sorts σ, termset s) build_term.
+    := make_algebra (termset σ) build_term.
 
   Context {σ: signature}.
 

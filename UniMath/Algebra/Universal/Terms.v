@@ -441,7 +441,7 @@ Section Term.
 
   (** A term is an oplist together with the proof it is a term *)
 
-  Definition term (σ: signature) (s: sorts σ)
+  Definition term (σ: signature) (s: sorts σ): UU
     := ∑ t: oplist σ, isaterm s t.
 
   Definition make_term {σ: signature} {s: sorts σ} {l: oplist σ} (lstatus: isaterm s l)
@@ -460,7 +460,7 @@ Section Term.
       apply isasetstatus.
   Defined.
 
-  Definition termset {σ: signature} (s: sorts σ): hSet
+  Definition termset (σ: signature) (s: sorts σ): hSet
     := make_hSet (term σ s) (isasetterm s).
 
   Context {σ: signature}.
