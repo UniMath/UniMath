@@ -1,15 +1,12 @@
 (** * Several tests for univeral algebra operations *)
 
 Require Import UniMath.Foundations.All.
-Require Import UniMath.Combinatorics.FiniteSets.
-Require Import UniMath.Combinatorics.Vectors.
-Require Import UniMath.Combinatorics.Lists.
-Require Import UniMath.Algebra.Universal.DecSet.
-Require Import UniMath.Algebra.Universal.Signatures.
-Require Import UniMath.Algebra.Universal.SortedTypes.
-Require Import UniMath.Algebra.Universal.Algebras.
+
 Require Import UniMath.Algebra.Universal.HVectors.
 Require Import UniMath.Algebra.Universal.MoreLists.
+Require Import UniMath.Algebra.Universal.SortedTypes.
+Require Import UniMath.Algebra.Universal.Signatures.
+Require Import UniMath.Algebra.Universal.Algebras.
 Require Import UniMath.Algebra.Universal.Terms.
 Require Import UniMath.Algebra.Universal.TermAlgebras.
 Require Import UniMath.Algebra.Universal.Examples.Nat.

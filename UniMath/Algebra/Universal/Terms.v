@@ -9,19 +9,16 @@
  *)
 
 Require Import UniMath.Foundations.All.
-Require Import UniMath.Combinatorics.Vectors.
-Require Import UniMath.Combinatorics.Lists.
-Require Import UniMath.Algebra.Universal.DecSet.
+
 Require Import UniMath.Algebra.Universal.Maybe.
 Require Import UniMath.Algebra.Universal.MoreLists.
 Require Import UniMath.Algebra.Universal.HVectors.
-Require Import UniMath.Algebra.Universal.Signatures.
 Require Import UniMath.Algebra.Universal.SortedTypes.
+Require Import UniMath.Algebra.Universal.Signatures.
 
 Local Open Scope sorted.
 Local Open Scope list.
 
-  
 (** ** Definition of oplist (operation list) *)
 (**
    An oplist is a list of function symbols, interpreted as commands to be executed by a stack
@@ -364,7 +361,7 @@ Section OplistProps.
         induction lstatus as [sstail [ssdef xsstatus]].
         eset (IHinst := IHxs (arity x ++ sstail) (length (arity x) + n) xsstatus _).
         induction IHinst as  [t1 [ t2 [ t1t2concat [ t1def [ t2def t1len ] ] ] ] ].
-        exists ((sort x) :: drop t1 (length (arity x))).
+        exists ((sort x) :: MoreLists.drop t1 (length (arity x))).
         exists t2.
         repeat split.
         * rewrite concatenateStep.

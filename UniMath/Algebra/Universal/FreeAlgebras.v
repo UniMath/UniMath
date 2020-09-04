@@ -7,13 +7,9 @@
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.Lists.
-Require Import UniMath.Combinatorics.Vectors.
 
-Require Import UniMath.Algebra.Universal.DecSet.
 Require Import UniMath.Algebra.Universal.Signatures.
-Require Import UniMath.Algebra.Universal.SortedTypes.
 Require Import UniMath.Algebra.Universal.HVectors.
-Require Import UniMath.Algebra.Universal.MoreLists.
 Require Import UniMath.Algebra.Universal.Terms.
 Require Import UniMath.Algebra.Universal.Algebras.
 
@@ -30,7 +26,7 @@ Section Variables.
   Definition varsort {σ: signature} {V: varspec σ}: V → sorts σ := pr2 V.
 
   Definition vsignature (σ : signature) (V: varspec σ): signature
-    := make_signature (sorts σ) (setcoprod (names σ) V) (sumofmaps (ar σ) (λ v, []%list ,, varsort v)).
+    := make_signature (sorts σ) (setcoprod (names σ) V) (sumofmaps (ar σ) (λ v, nil ,, varsort v)).
 
   Definition vterm (σ: signature) (V: varspec σ): sUU (sorts σ) := term (vsignature σ V).
 

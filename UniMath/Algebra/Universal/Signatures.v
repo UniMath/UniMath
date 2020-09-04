@@ -4,11 +4,10 @@
 This file contains a formalization of multi-sorted signatures defined as a vector of arities.
 *)
 
-Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Notations.
-Require Import UniMath.Combinatorics.Lists.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
-Require Import UniMath.Algebra.Universal.DecSet.
+
+Require Export UniMath.Algebra.Universal.DecSet.
 Require Import UniMath.Algebra.Universal.MoreLists.
 
 Local Open Scope stn.

@@ -2,12 +2,11 @@
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Notations.
-Require Import UniMath.Combinatorics.Vectors.
 Require Import UniMath.Combinatorics.Lists.
-Require Import UniMath.Algebra.Universal.DecSet.
-Require Import UniMath.Algebra.Universal.Signatures.
+
 Require Import UniMath.Algebra.Universal.HVectors.
 Require Export UniMath.Algebra.Universal.SortedTypes.
+Require Import UniMath.Algebra.Universal.Signatures.
 
 Local Open Scope sorted.
 

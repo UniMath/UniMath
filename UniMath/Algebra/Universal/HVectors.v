@@ -2,7 +2,7 @@
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
-Require Import UniMath.Combinatorics.Vectors.
+Require Export UniMath.Combinatorics.Vectors.
 
 Local Open Scope stn.
 

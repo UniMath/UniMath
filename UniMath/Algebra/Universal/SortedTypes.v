@@ -8,6 +8,7 @@ type, called index type.
 Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.Lists.
 Require Import UniMath.Combinatorics.Vectors.
+
 Require Import UniMath.Algebra.Universal.HVectors.
 
 Declare Scope sorted_scope.

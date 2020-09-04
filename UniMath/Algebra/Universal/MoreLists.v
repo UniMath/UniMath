@@ -2,7 +2,8 @@
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.Vectors.
-Require Import UniMath.Combinatorics.Lists.
+Require Export UniMath.Combinatorics.Lists.
+
 Require Import UniMath.Algebra.Universal.Maybe.
 Require Import UniMath.Algebra.Universal.DecSet.
 
@@ -331,7 +332,7 @@ Proof.
     rewrite prefix_remove_stepeq.
     assumption.
 Defined.
-    
+
 Definition drop {A: UU} (l: list A) (n: nat): list A.
 Proof.
   revert l.

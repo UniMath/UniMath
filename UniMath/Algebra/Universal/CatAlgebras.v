@@ -12,19 +12,18 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 Require Import UniMath.CategoryTheory.limits.initial.
-
-
 Require Import UniMath.Combinatorics.FiniteSets.
 Require Import UniMath.Combinatorics.Vectors.
 Require Import UniMath.Combinatorics.Lists.
 
-Require Import UniMath.Algebra.Universal.SortedTypes.
 Require Import UniMath.Algebra.Universal.Signatures.
 Require Import UniMath.Algebra.Universal.Algebras.
 
 Section Algebras.
+
   Local Open Scope sorted_scope.
-  Definition sfun_from_setfun{A B : hSet}(f : A → B)(σ: signature): (λ s: pr1 (sorts σ), A) s→ (λ s: pr1(sorts σ), B).
+
+  Definition sfun_from_setfun{A B : hSet}(f : A → B)(σ: signature): (λ s: sorts σ, A) s→ (λ s: sorts σ, B).
   Proof.
     unfold sfun. intro S. exact f. Defined.
   Context (σ : signature).
@@ -32,7 +31,7 @@ Section Algebras.
   Definition shSet_precategory_ob_mor : precategory_ob_mor.
   Proof.
     use make_precategory_ob_mor.
-    - exact (shSet (pr1(sorts σ))).
+    - exact (shSet (sorts σ)).
     - intros F G. exact (F s→ G).
   Defined.
 
@@ -113,7 +112,7 @@ Local Open Scope cat.
         + set (X:=eqtohomot p S). apply X.
         + set (X:=eqtohomot q S). apply X.
   Defined.
-(*  Lemma isaset_shSet : isaset (shSet (pr1(sorts σ))).
+(*  Lemma isaset_shSet : isaset (shSet (sorts σ)).
   Proof.
     unfold shSet.
  *)
@@ -127,7 +126,7 @@ Local Open Scope cat.
     assumption.
   Defined.
 
-  Lemma idtoiso_functorcat_compute_pointwise {A B : shSet_category} (p : A = B) (s: pr1 (sorts σ)):
+  Lemma idtoiso_functorcat_compute_pointwise {A B : shSet_category} (p : A = B) (s: sorts σ):
     iso_fiber (idtoiso p) s = idtoiso(C:=HSET) (toforallpaths (λ _ , hSet) A B p s).
   Proof.
     induction p.
@@ -139,7 +138,7 @@ Local Open Scope cat.
   Proof.
     unfold functor_eq_from_functor_iso.
     apply (invmaponpathsweq (weqtoforallpaths _ _ _ )).
-    simpl (pr1weq (weqtoforallpaths (λ _ : pr1 (sorts σ), hSet) F G)).
+    simpl (pr1weq (weqtoforallpaths (λ _ : sorts σ, hSet) F G)).
     rewrite (toforallpaths_funextsec).
     apply funextsec.
     intro a.
@@ -254,7 +253,7 @@ Local Open Scope cat.
         * use make_precategory_ob_mor.
           { exact (algebra σ). }
           {  intros. exact}
-          { exact (shSet (pr1 (sorts σ))).  }
+          { exact (shSet (sorts σ)).  }
           { intros F G. unfold shSet in *. exact (∑ f : hSet → hSet, f ∘ F = G). }
         * cbn. intro F. use tpair.
           { intro A. exact A. }

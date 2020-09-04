@@ -7,7 +7,7 @@
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
-Require Import UniMath.Algebra.Universal.DecSet.
+
 Require Import UniMath.Algebra.Universal.MoreLists.
 Require Import UniMath.Algebra.Universal.HVectors.
 Require Import UniMath.Algebra.Universal.Signatures.

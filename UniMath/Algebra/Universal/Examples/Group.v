@@ -5,11 +5,10 @@
   a group into an algebra.
 *)
 
-Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Notations.
-Require Import UniMath.Combinatorics.FiniteSets.
+Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Algebra.Groups.
-Require Import UniMath.Algebra.Universal.DecSet.
+
 Require Import UniMath.Algebra.Universal.MoreLists.
 Require Import UniMath.Algebra.Universal.HVectors.
 Require Import UniMath.Algebra.Universal.Signatures.

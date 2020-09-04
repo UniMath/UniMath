@@ -1,13 +1,11 @@
 (** * The term algebra and the proof it is initial *)
 
 Require Import UniMath.Foundations.All.
-Require Import UniMath.Combinatorics.Vectors.
-Require Import UniMath.Combinatorics.Lists.
-Require Import UniMath.Algebra.Universal.DecSet.
+
 Require Import UniMath.Algebra.Universal.MoreLists.
+Require Import UniMath.Algebra.Universal.HVectors.
 Require Import UniMath.Algebra.Universal.Signatures.
 Require Import UniMath.Algebra.Universal.Algebras.
-Require Import UniMath.Algebra.Universal.HVectors.
 Require Import UniMath.Algebra.Universal.Terms.
 
 Local Open Scope sorted_scope.
