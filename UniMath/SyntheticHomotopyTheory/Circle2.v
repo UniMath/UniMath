@@ -209,7 +209,7 @@ Proof.
   apply (maponpaths (λ f, pr1weq f v)). apply cp_irrelevance. apply torsor_hlevel.
 Defined.
 
-Opaque PathOver.
+Opaque PathOver.                (* see the discussion at https://github.com/UniMath/UniMath/pull/1329 *)
 Section A.
 
   Context (A : circle -> Type) (a : A pt) (p : PathOver a a loop).
