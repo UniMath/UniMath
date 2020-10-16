@@ -14,12 +14,14 @@ Declare Scope pathsover.
 Delimit Scope pathsover with pathsover.
 Local Open Scope pathsover.
 
+(** A path in a family of types "over" a path in the base *)
 Definition PathOver {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (y' : Y x') (p:x=x') : Type.
 Proof.
   induction p.
   exact (y=y').
 Defined.
 
+(** Paths-over versus path pairs *)
 Definition PathOverToPathPair {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (y' : Y x') (p:x=x') :
   PathOver y y' p → PathPair (x,,y) (x',,y').
 Proof.
@@ -46,20 +48,10 @@ Proof.
   induction p. apply iscontrcoconusfromt.
 Defined.
 
-Definition PathOver_inConstantFamily (X Y:Type) (x x':X) (y y':Y) (p:x=x') :
-   y = y' -> PathOver (Y := (λ x, Y)) y y' p.
-Proof.
-  intros q.
-  unfold PathOver.
-  induction p.
-  change (y=y').
-  exact q.
-Defined.
-
 Definition stdPathOver {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (p:x=x')
   : PathOver y (transportf Y p y) p.
 Proof.
-  induction p. reflexivity.
+  now induction p.
 Defined.
 
 Definition stdPathOver' {X:Type} {x x':X} {Y : X -> Type} (y' : Y x') (p:x=x')
@@ -122,6 +114,13 @@ Defined.
 
 Local Notation "q ⟥ e" := (composePathOverPath q e) (at level 56, left associativity) : pathsover.
 
+Definition composePathOverIdpath {X:Type} {x x':X} {Y : X -> Type} {y : Y x} {y': Y x'}
+           {p:x=x'} (q : PathOver y y' p)
+  : q ⟥ idpath y' = q.
+Proof.
+  reflexivity.
+Defined.
+
 Definition composePathPathOver {X:Type} {x' x'':X} {Y : X -> Type} {y y': Y x'} {y'' : Y x''}
            {p:x'=x''} : y = y' → PathOver y' y'' p → PathOver y y'' p.
 Proof.
@@ -129,6 +128,13 @@ Proof.
 Defined.
 
 Local Notation "e ⟤ q" := (composePathPathOver e q) (at level 56, left associativity) : pathsover.
+
+Lemma composeIdpathPathOver {X:Type} {x' x'':X} {Y : X -> Type} {y': Y x'} {y'' : Y x''}
+      {p:x'=x''} (q : PathOver y' y'' p)
+  : idpath y' ⟤ q = q.
+Proof.
+  reflexivity.
+Defined.
 
 Definition composePathOverLeftUnit {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (y' : Y x') (p:x=x') (q:PathOver y y' p) :
   identityPathOver y * q = q.
@@ -185,6 +191,69 @@ Definition inverseInversePathOver {X:Type} {Y : X -> Type} {x:X} {y : Y x} :
 Proof.
   now use inductionPathOver.
 Defined.
+
+(** Paths-over in a constant family *)
+
+Definition PathOverConstant_id {X:Type} {x x':X} {Z : Type} (z : Z) (z' : Z) (p:x=x')
+  : (z = z') = (PathOver (Y := λ _, Z) z z' p).
+Proof.
+  now induction p.
+Defined.
+
+Definition PathOverConstant_map1 {X:Type} {x x':X} {Z : Type} {z z' : Z} (p:x=x')
+  : z = z' -> PathOver (Y := λ _, Z) z z' p.
+Proof.
+  now induction p.
+Defined.
+
+Definition PathOverConstant_map1_eq1 {X:Type} {x x':X} {Z : Type} {z z' z'' : Z} (p:x=x')
+           (q: z = z') (r : z' = z'')
+  : PathOverConstant_map1 p (q @ r) = PathOverConstant_map1 p q ⟥ r.
+Proof.
+  now induction r, q.
+Defined.
+
+Definition PathOverConstant_map1_eq2 {X:Type} {x x':X} {Z : Type} {z z' z'' : Z} (p:x=x')
+           (q: z = z') (r : z' = z'')
+  : PathOverConstant_map1 p (q @ r) = q ⟤ PathOverConstant_map1 p r.
+Proof.
+  now induction r, q.
+Defined.
+
+Definition PathOverConstant_map2 {X:Type} {x x':X} {Z : Type} {z z' : Z} {p:x=x'}
+  : PathOver (Y := λ _, Z) z z' p -> z = z'.
+Proof.
+  now induction p.
+Defined.
+
+Definition PathOverConstant_map2_apd {X:Type} {x x':X} {Z : Type} {f : X -> Z} {p:x=x'}
+  : PathOverConstant_map2 (apd f p) = maponpaths f p.
+Proof.
+  now induction p.
+Defined.
+
+Definition PathOverConstant_map2_eq1 {X:Type} {x x':X} {Z : Type} {z z' z'' : Z} {p:x=x'}
+           (q: PathOver (Y := λ _, Z) z z' p) (r : z' = z'')
+  : PathOverConstant_map2 (q ⟥ r) = PathOverConstant_map2 q @ r.
+Proof.
+  induction r. change (q ⟥ idpath z') with q. apply pathsinv0, pathscomp0rid.
+Defined.
+
+Definition PathOverConstant_map2_eq2 {X:Type} {x x':X} {Z : Type} {z z' z'' : Z} (p:x=x')
+           (r : z = z') (q: PathOver (Y := λ _, Z) z' z'' p)
+  : PathOverConstant_map2 (r ⟤ q) = r @ PathOverConstant_map2 q.
+Proof.
+  now induction r.
+Defined.
+
+Lemma PathOverConstant_map1_map2 {X:Type} {x x':X} {Z : Type} {z z' : Z} (p:x=x')
+           (q : z = z')
+  : PathOverConstant_map2 (PathOverConstant_map1 p q) = q.
+Proof.
+  now induction p.
+Defined.
+
+(** lemmas *)
 
 Lemma Lemma023 (A:Type) (B:A->Type) (a1 a2 a3:A)
       (b1:B a1) (b2:B a2) (b3:B a3)
