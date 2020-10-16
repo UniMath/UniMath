@@ -154,10 +154,13 @@ FILES_FILTER := grep -vE '^[[:space:]]*(\#.*)?$$'
 FILES_FILTER_2 := grep -vE '^[[:space:]]*(\#.*)?$$$$'
 $(foreach P,$(PACKAGES),												\
 	$(eval $P: make-summary-files build/CoqMakefile.make;								\
-		+ ulimit -v $(EFFECTIVE_MEMORY_LIMIT) ; 										\
+		+ ulimit -v $(EFFECTIVE_MEMORY_LIMIT) ;									\
 		  $(MAKE) -f build/CoqMakefile.make									\
 			$(shell <UniMath/$P/.package/files $(FILES_FILTER) |sed "s=^\(.*\).v=UniMath/$P/\1.vo=" )	\
 			UniMath/$P/All.vo))
+
+$(foreach v,$(VFILES), $(eval $v.vo:; ulimit -v $(EFFECTIVE_MEMORY_LIMIT) ; $(MAKE) -f build/CoqMakefile.make $v.vo))
+
 install:all
 coqwc:; coqwc $(VFILES)
 lc:; wc -l $(VFILES)
