@@ -94,25 +94,76 @@ Lemma Circle_isaprop : isaprop Circle.
 Proof.
   apply invproofirrelevance.
   intros [C [pt [loop I]]] [C' [pt' [loop' I']]].
-  set (g  := I  (λ c, C') pt' (PathOverConstant_map1 _ loop')); induction g  as [g  [r  e]].
-  set (g' := I' (λ c, C ) pt  (PathOverConstant_map1 _ loop )); induction g' as [g' [r' e']].
+  set (R  := CircleInductionToRecursion I ).
+  set (R' := CircleInductionToRecursion I').
+  set (g  := R  C' pt' loop'); induction g  as [g  [r  e]].
+  set (g' := R' C  pt  loop ); induction g' as [g' [r' e']].
   set (fib := (pt ,, pathsinv0 r) : hfiber g pt').
   transparent assert (v : (g' (g pt) = pt)).
   { refine (_ @ !r'). apply (maponpaths g'). exact (!r). }
   transparent assert (v' : (g (g' pt') = pt')).
   { refine (_ @ !r). apply (maponpaths g). exact (!r'). }
-  assert (ie : isEquivalence g). (* try showing it is an adjoint equivalence first *)
-  { unfold isEquivalence.
-    exists g'.
-    simple refine (tpair _ _ _).
+  assert (ie : isweq g).
+  { apply (isweq_iso _ g').
+    { simple refine (pr1 (I _ _ _)).
+      - simpl. exact v.
+      - set (Q := ! pathOverEquations (f := funcomp g g') (g := idfun C) v v loop).
+        apply (cast Q); clear Q.
+        rewrite maponpathsidfun.
+        intermediate_path (maponpaths g' (maponpaths g loop) @ v).
+        + rewrite e.
+          rewrite maponpathscomp0.
+          rewrite maponpathscomp0.
+          rewrite e'.
+          unfold v.
+          rewrite <- (path_assoc _ (!r') _).
+          rewrite <- (path_assoc (maponpaths g' (! r)) _ _).
+          apply maponpaths.
+          rewrite <- (path_assoc _ (maponpaths g' r) _).
+          rewrite <- (path_assoc _ (loop @ r') _).
+          apply maponpaths.
+          rewrite <- (path_assoc _ r' _).
+          rewrite (path_assoc _ (maponpaths g' (! r)) _).
+          rewrite maponpathsinv0.
+          rewrite pathsinv0r.
+          simpl.
+          rewrite pathsinv0r.
+          rewrite pathscomp0rid.
+          reflexivity.
+        + apply (maponpaths (λ k, k @ v)).
+          apply maponpathscomp.
+      }
     { simple refine (pr1 (I' _ _ _)).
       - simpl. exact v'.
-      - set (PATHOVER := @PathOver).
-
-
-
-
-
+      - change (λ t : C', g (g' t) = t)
+          with (λ t : C', (funcomp g' g) t = t).
+        set (Q := ! pathOverEquations (f := funcomp g' g) (g := idfun C') v' v' loop').
+        apply (cast Q); clear Q.
+        rewrite maponpathsidfun.
+        intermediate_path (maponpaths g (maponpaths g' loop') @ v').
+        + rewrite e'.
+          rewrite maponpathscomp0.
+          rewrite maponpathscomp0.
+          rewrite e.
+          unfold v'.
+          rewrite <- (path_assoc _ (!r) _).
+          rewrite <- (path_assoc (maponpaths g (! r')) _ _).
+          apply maponpaths.
+          rewrite <- (path_assoc _ (maponpaths g r') _).
+          rewrite <- (path_assoc _ (loop' @ r) _).
+          apply maponpaths.
+          rewrite <- (path_assoc _ r _).
+          rewrite (path_assoc _ (maponpaths g (! r')) _).
+          rewrite maponpathsinv0.
+          rewrite pathsinv0r.
+          simpl.
+          rewrite pathsinv0r.
+          rewrite pathscomp0rid.
+          reflexivity.
+        + apply (maponpaths (λ k, k @ v')).
+          apply maponpathscomp.
+    }
+  }
 
 Abort.
 
