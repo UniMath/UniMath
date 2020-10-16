@@ -22,13 +22,19 @@
   *)
 
 Require Import UniMath.Foundations.All.
-Require Import UniMath.MoreFoundations.All. Import PathsOverNotations.
-Require Import UniMath.Algebra.Monoids. Import AddNotation.
+Require Import UniMath.MoreFoundations.PartA.
+Require Import UniMath.MoreFoundations.Propositions.
+Require Import UniMath.MoreFoundations.Equivalences.
+Require Import UniMath.MoreFoundations.PathsOver.
+  Import PathsOverNotations.
+Require Import UniMath.Algebra.Monoids.
+  Import AddNotation.
 Require Import UniMath.SyntheticHomotopyTheory.AffineLine.
 Require Import UniMath.NumberSystems.Integers.
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.GroupAction.
 Require Import UniMath.Algebra.Groups.
+
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 Declare Scope circle.
@@ -45,7 +51,9 @@ Local Definition elem (G:gr) (X:Torsor G) : Type := X.
 Arguments elem {_} _.
 Local Notation "ℤ¹" := (trivialTorsor ℤ) : circle.
 
-(** Statement of circle induction *)
+(** Statements of circle recursion and induction *)
+
+(* Circle "recursion" is the non-dependent induction principle  *)
 
 Definition CircleRecursion (circle : Type) (pt : circle) (loop : pt = pt) :=
   ∏ (X:Type) (x:X) (p:x=x),
@@ -62,30 +70,50 @@ Arguments CircleInduction : clear implicits.
 Lemma CircleInduction_isaprop (circle : Type) (pt : circle) (loop : pt = pt) :
   isaprop (CircleInduction circle pt loop).
 Proof.
-  apply invproofirrelevance.
-  intros I J.
-  apply funextsec; intros A.
-  apply funextsec; intros a.
-  apply funextsec; intros p.
 Abort.
 
-Definition Circles := ∑ (circle : Type) (pt : circle) (loop : pt = pt), CircleInduction circle pt loop.
+Lemma CircleInductionToRecursion (circle : Type) (pt : circle) (loop : pt = pt) :
+  CircleInduction circle pt loop -> CircleRecursion circle pt loop.
+Proof.
+  intros I X x p.
+  set (w := I (λ c, X) x (PathOverConstant_map1 loop p)); simpl in w. induction w as [f [r e]].
+  exists f. exists r.
+  refine (_ @ maponpaths (PathOverConstant_map2 (p:=loop)) e @ _).
+  { apply pathsinv0, PathOverConstant_map2_apd. }
+  { refine (PathOverConstant_map2_eq1 _ _ @ _). refine (_ @ ! path_assoc _ _ _).
+    apply (maponpaths (λ t, t @ r)). refine (PathOverConstant_map2_eq2 _ _ @ _).
+    apply maponpaths. apply PathOverConstant_map1_map2. }
+Defined.
 
-Lemma Circles_isaprop : isaprop Circles.
+(** A "circle" is a type with a point and a loop at that point that satisfies the
+    induction principle of the circle.  The type of all circles is called "Circle".  *)
+
+Definition Circle := ∑ (circle : Type) (pt : circle) (loop : pt = pt), CircleInduction circle pt loop.
+
+Lemma Circle_isaprop : isaprop Circle.
 Proof.
   apply invproofirrelevance.
   intros [C [pt [loop I]]] [C' [pt' [loop' I']]].
-Abort.
+  set (g  := I  (λ c, C') pt' (PathOverConstant_map1 _ loop')); induction g  as [g  [r  e]].
+  set (g' := I' (λ c, C ) pt  (PathOverConstant_map1 _ loop )); induction g' as [g' [r' e']].
+  set (fib := (pt ,, pathsinv0 r) : hfiber g pt').
+  transparent assert (v : (g' (g pt) = pt)).
+  { refine (_ @ !r'). apply (maponpaths g'). exact (!r). }
+  transparent assert (v' : (g (g' pt') = pt')).
+  { refine (_ @ !r). apply (maponpaths g). exact (!r'). }
+  assert (ie : isEquivalence g). (* try showing it is an adjoint equivalence first *)
+  { unfold isEquivalence.
+    exists g'.
+    simple refine (tpair _ _ _).
+    { simple refine (pr1 (I' _ _ _)).
+      - simpl. exact v'.
+      - set (PATHOVER := @PathOver).
 
-Lemma CircleInduction_to_Recursion (C : Type) (pt : C) (loop : pt = pt) :
-     CircleInduction C pt loop -> CircleRecursion C pt loop.
-Proof.
-  intros ci ? ? ?.
-  assert (q := ci (λ c, X) x (PathOver_inConstantFamily loop p)); cbn beta in q.
-  induction q as [F [R E]].
-  exists F.
-  exists R.
-  unfold PathOver_inConstantFamily in E.
+
+
+
+
+
 Abort.
 
 (** now start the formalization, following Marc and Ulrik *)
