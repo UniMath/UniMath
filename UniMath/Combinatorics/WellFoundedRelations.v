@@ -16,7 +16,8 @@
 *)
 
 Require Import UniMath.Foundations.All.
-Require Import UniMath.MoreFoundations.All.
+Require Export UniMath.MoreFoundations.Propositions.
+Require Import UniMath.MoreFoundations.Univalence.
 
 Local Arguments funextsec {_ _ _ _} _.
 

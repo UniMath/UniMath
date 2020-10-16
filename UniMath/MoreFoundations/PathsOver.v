@@ -445,6 +445,13 @@ Proof.
   now induction α, p.
 Defined.
 
+(* what a path-over is in a family of equations *)
+Lemma pathOverEquations {X Y:Type} {f g : X -> Y} {x x' : X} (e : f x = g x) (e' : f x' = g x') (p : x = x')
+  : PathOver (Y := λ x, f x = g x) e e' p = ( e @ maponpaths g p = maponpaths f p @ e' ).
+Proof.
+  induction p. simpl. apply (maponpaths (λ r, r = e')). apply pathsinv0, pathscomp0rid.
+Defined.
+
 Module PathsOverNotations.
 Notation "'Δ' q" := (fromPathOverIdpath q) (at level 10) : pathsover.
 Notation "'∇' q" := (toPathOverIdpath q) (at level 10) : pathsover.

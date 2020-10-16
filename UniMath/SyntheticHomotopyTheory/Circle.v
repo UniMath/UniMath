@@ -6,7 +6,8 @@ Unset Kernel Term Sharing.
 (** We will show that [B ℤ] has the universal property of the circle. *)
 
 Require Import UniMath.Foundations.All.
-Require Import UniMath.MoreFoundations.All.
+
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.

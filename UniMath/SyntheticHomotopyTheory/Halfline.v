@@ -1,8 +1,10 @@
 (** * The induction principle for the half line. *)
 
 Require Import UniMath.Foundations.All.
-Require Import UniMath.MoreFoundations.All.
-Require UniMath.MoreFoundations.Nat.
+Require Import UniMath.MoreFoundations.NullHomotopies.
+Require Import UniMath.MoreFoundations.Nat.
+Require Import UniMath.MoreFoundations.Notations.
+Require Import UniMath.MoreFoundations.PartA.
 
 Notation ℕ := nat.
 
