@@ -62,8 +62,8 @@ Definition CircleRecursion (circle : Type) (pt : circle) (loop : pt = pt) :=
 Arguments CircleRecursion : clear implicits.
 
 Definition CircleInduction (circle : Type) (pt : circle) (loop : pt = pt) :=
-  ∏ (X:circle->Type) (x:X pt) (p:PathOver x x loop),
-    ∑ (f:∏ t:circle, X t) (r : x = f pt), r ⟤ apd f loop = p ⟥ r.
+  ∏ (X:circle->Type) (x:X pt) (p:PathOver loop x x),
+    ∑ (f:∏ t:circle, X t) (r : x = f pt), r ⟤ apd loop f = p ⟥ r.
 
 Arguments CircleInduction : clear implicits.
 
@@ -248,7 +248,7 @@ Defined.
 
 Definition cp_irrelevance_circle
            (A:=circle) (B:circle->Type) (a1 a2:A) (b1:B a1) (b2:B a2) (p q:a1=a2) (α β: p=q)
-           (v : PathOver b1 b2 p) :
+           (v : PathOver p b1 b2) :
   cp α v = cp β v.
 Proof.
   apply (maponpaths (λ f, pr1weq f v)). apply cp_irrelevance. apply torsor_hlevel.
@@ -257,18 +257,18 @@ Defined.
 Opaque PathOver.                (* see the discussion at https://github.com/UniMath/UniMath/pull/1329 *)
 Section A.
 
-  Context (A : circle -> Type) (a : A pt) (p : PathOver a a loop).
+  Context (A : circle -> Type) (a : A pt) (p : PathOver loop a a).
 
   Definition Q (X: Torsor ℤ) : Type                 (* 0.5.8 *)
     := ∑ (a' : A X),
-        ∑ (h : ∏ (x:X), PathOver a a' (s x)),
+        ∑ (h : ∏ (x:X), PathOver (s x) a a'),
          ∏ (x:X), h (1 + x) = cp (ε x) (p * h x).
 
   Lemma iscontr_Q (X: Torsor ℤ) (* 0.5.9 *) :
     iscontr_hProp (Q X).
   Proof.
-    use (hinhuniv _ (torsor_nonempty X)); intros x.
-    use (iscontrweqb (Y := ∑ a', PathOver a a' (s x))).
+    use (hinhuniv _ (torsor_nonempty X)). intros x.
+    use (iscontrweqb (Y := ∑ a', PathOver (s x) a a')).
     2 : { apply PathOverUniqueness. }
     apply weqfibtototal; intros a'.
     exact (ℤTorsorRecursion_weq
@@ -283,7 +283,7 @@ Section A.
     := pr1 (cQ X).
 
   Definition c_tilde (X:Torsor ℤ) (x : X)
-    : PathOver a (c X) (s x)
+    : PathOver (s x) a (c X)
     := pr12 (cQ X) x.
   Arguments c_tilde : clear implicits.
 
@@ -293,11 +293,11 @@ Section A.
   Arguments c_hat : clear implicits.
 
   Definition apd_comparison (X Y : Torsor ℤ) (e : X = Y) (x : X) : (* 0.5.11 *)
-    apd c e = cp (ε' e x) ((c_tilde X x)^-1 * c_tilde Y (transportf elem e x)).
+    apd e c = cp (ε' e x) ((c_tilde X x)^-1 * c_tilde Y (transportf elem e x)).
   Proof.
     induction e.
     change (transportf elem (idpath X) x) with x.
-    change (apd c (idpath X)) with (identityPathOver (c X)).
+    change (apd (idpath X) c) with (identityPathOver (c X)).
     rewrite composePathOverLeftInverse.
     change (ε' (idpath X) x) with (pathsinv0l (s x)).
     rewrite cp_inverse_cp.
@@ -365,6 +365,6 @@ Proof.
   unfold α0. rewrite invrotrot'. change (cp s_compute_0 h0) with (∇ e).
   rewrite inversePathOverIdpath'.
   reflexivity.
-Defined.
+Defined.                        (* too slow *)
 
 Arguments circle_induction : clear implicits.
