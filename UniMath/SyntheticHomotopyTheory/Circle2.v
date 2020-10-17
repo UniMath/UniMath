@@ -104,9 +104,9 @@ Proof.
   set (g' := R' C  pt  loop ); induction g' as [g' [r' e']].
   set (fib := (pt ,, pathsinv0 r) : hfiber g pt').
   transparent assert (v : (pt = g' (g pt))).
-  { refine (r' @ _). apply (maponpaths g'). exact r . }
+  { refine (r' @ _). apply maponpaths. assumption. }
   transparent assert (v' : (pt' = g (g' pt'))).
-  { refine (r  @ _). apply (maponpaths g ). exact r'. }
+  { refine (r  @ _). apply maponpaths. assumption. }
   assert (ie : isweq g).
   { apply (isweq_iso _ g').
     { intros x. apply pathsinv0. generalize x; clear x.
