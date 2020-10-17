@@ -136,6 +136,24 @@ Proof.
   reflexivity.
 Defined.
 
+Lemma composePathPathOverRotate {X:Type} {x' x'':X} {Y : X -> Type} {y y': Y x'} {y'' : Y x''} {p:x'=x''} (q : y = y') (r : PathOver y' y'' p) (s : PathOver y y'' p)
+  : q ⟤ r = s <-> r = (!q) ⟤ s.
+Proof.
+  induction q. simpl. apply isrefl_logeq.
+Defined.
+
+Lemma composePathOverPathRotate {X:Type} {x x':X} {Y : X -> Type} {y : Y x} {y' y'': Y x'} {p:x=x'} (r : PathOver y y' p) (q : y' = y'') (s : PathOver y y'' p)
+  : r ⟥ q = s <-> r = s ⟥ (!q).
+Proof.
+  induction q. simpl. apply isrefl_logeq.
+Defined.
+
+Lemma composePathPathOverPath {X:Type} {x x':X} {Y : X -> Type} {y y' : Y x} {y'' y''': Y x'} {p:x=x'} (q : y = y') (r : PathOver y' y'' p) (s : y'' = y''')
+  : q ⟤ (r ⟥ s) = (q ⟤ r) ⟥ s.
+Proof.
+  now induction q.
+Defined.
+
 Definition composePathOverLeftUnit {X:Type} {x x':X} {Y : X -> Type} (y : Y x) (y' : Y x') (p:x=x') (q:PathOver y y' p) :
   identityPathOver y * q = q.
 Proof.
@@ -448,6 +466,12 @@ Defined.
 (* what a path-over is in a family of equations *)
 Lemma pathOverEquations {X Y:Type} {f g : X -> Y} {x x' : X} (e : f x = g x) (e' : f x' = g x') (p : x = x')
   : PathOver (Y := λ x, f x = g x) e e' p = ( e @ maponpaths g p = maponpaths f p @ e' ).
+Proof.
+  induction p. simpl. apply (maponpaths (λ r, r = e')). apply pathsinv0, pathscomp0rid.
+Defined.
+
+Lemma pathOverEquations1 {X:Type} {f : X -> X} {x x' : X} (e : f x = x) (e' : f x' = x') (p : x = x')
+  : PathOver (Y := λ x, f x = x) e e' p = ( e @ p = maponpaths f p @ e' ).
 Proof.
   induction p. simpl. apply (maponpaths (λ r, r = e')). apply pathsinv0, pathscomp0rid.
 Defined.
