@@ -63,7 +63,7 @@ Arguments CircleRecursion : clear implicits.
 
 Definition CircleInduction (circle : Type) (pt : circle) (loop : pt = pt) :=
   ∏ (X:circle->Type) (x:X pt) (p:PathOver loop x x),
-    ∑ (f:∏ t:circle, X t) (r : x = f pt), r ⟤ apd loop f = p ⟥ r.
+    ∑ (f:∏ t:circle, X t) (r : x = f pt), r ⟤ apd f loop = p ⟥ r.
 
 Arguments CircleInduction : clear implicits.
 
@@ -76,13 +76,13 @@ Lemma CircleInductionToRecursion (circle : Type) (pt : circle) (loop : pt = pt) 
   CircleInduction circle pt loop -> CircleRecursion circle pt loop.
 Proof.
   intros I X x p.
-  set (w := I (λ c, X) x (PathOverConstant_map1 loop p)); simpl in w. induction w as [f [r e]].
-  exists f. exists r.
-  refine (_ @ maponpaths (PathOverConstant_map2 (p:=loop)) e @ _).
+  set (w := I (λ _, X) x (PathOverConstant_map1 _ p)). simpl in w.
+  exists (pr1 w). exists (pr12 w).
+  refine (_ @ maponpaths PathOverConstant_map2 (pr22 w) @ _).
   { apply pathsinv0. refine (PathOverConstant_map2_eq2 _ _ @ _).
     apply maponpaths. apply PathOverConstant_map2_apd. }
   { refine (PathOverConstant_map2_eq1 _ _ @ _).
-    apply (maponpaths (λ t, t @ r)). apply PathOverConstant_map1_map2. }
+    apply (maponpaths (λ t, t @ _)). apply PathOverConstant_map1_map2. }
 Defined.
 
 (** A "circle" is a type with a point and a loop at that point that satisfies the
@@ -90,18 +90,46 @@ Defined.
 
 Definition Circle := ∑ (circle : Type) (pt : circle) (loop : pt = pt), CircleInduction circle pt loop.
 
+Definition CircleInductionMatch (C C' : Type) (pt : C) (pt' : C') (loop : pt = pt) (loop' : pt' = pt')
+           (I : CircleInduction C pt loop) (I' : CircleInduction C' pt' loop')
+           (g : C -> C')
+           (r0 : g pt = pt')
+           (r : r0 @ loop' = maponpaths g loop @ r0)
+  : ∏ (X' : C' → Type) (x' : X' pt') (p' : PathOver loop' x' x'), Type.
+Proof.
+  intros.
+  set (X := X' ∘ g).
+  set (x := pullBackPointOver g r0 x'). change (X' ∘ g) with X in x.
+  set (p := pullBackPathOver g r p'). fold x in p.
+  (* set (J := I X x p). *)
+  set (typeofJ := ∑ (f : ∏ t : C, X t) (r : x = f pt), r ⟤ apd f loop = p ⟥ r).
+  (* Check ( J : typeofJ ). *)
+  assert (J'' : typeofJ).
+  {
+    unfold typeofJ. clear typeofJ.
+    set (J' := I' X' x' p').
+    set (s' := pr1 J').
+    set (s := s' ∘ g). change (∏ x, X x) in (type of s).
+    set (k := pr12 J'). change (pr1 J') with (s') in (type of k).
+    exists s.
+    exists (pullBackPointOverWithSection' g r0 k).
+
+
+
+Defined.
+Abort.
+
 Lemma Circle_isaprop : isaprop Circle.
 Proof.
   apply invproofirrelevance.
   intros [C [pt [loop I]]] [C' [pt' [loop' I']]].
-  (*
-  set (g  := I  (λ c, C') pt' (PathOverConstant_map1 _ loop')); induction g  as [g  [r  e]].
-  set (g' := I' (λ c, C ) pt  (PathOverConstant_map1 _ loop )); induction g' as [g' [r' e']].
-  *)
-  set (R  := CircleInductionToRecursion I ).
-  set (R' := CircleInductionToRecursion I').
-  set (g  := R  C' pt' loop'); induction g  as [g  [r  e]].
-  set (g' := R' C  pt  loop ); induction g' as [g' [r' e']].
+  set (R  := CircleInductionToRecursion I ). set (R' := CircleInductionToRecursion I').
+  set (gre  := R  C' pt' loop').
+  set (g := pr1 gre). set (r := pr12 gre). set (e := pr22 gre).
+  set (gre' := R' C  pt  loop ).
+  set (g' := pr1 gre'). set (r' := pr12 gre'). set (e' := pr22 gre').
+  fold g in r, e; fold g' in r', e'; fold r in e; fold r' in e'.
+  cbn beta in e, e'.
   set (fib := (pt ,, pathsinv0 r) : hfiber g pt').
   transparent assert (v : (pt = g' (g pt))).
   { refine (r' @ _). apply maponpaths. assumption. }
@@ -117,8 +145,10 @@ Proof.
         intermediate_path (v @ maponpaths g' (maponpaths g loop)).
         + apply (maponpaths (λ k, v @ k)). apply pathsinv0, maponpathscomp.
         + rewrite maponpathsidfun. unfold v. rewrite <- path_assoc.
-          rewrite <- maponpathscomp0. rewrite e. rewrite maponpathscomp0.
-          rewrite path_assoc. rewrite e'. rewrite path_assoc. reflexivity. }
+          rewrite <- maponpathscomp0. intermediate_path (r' @ maponpaths g' (loop' @ r)).
+          * apply maponpaths. apply maponpaths. exact e.
+          * rewrite maponpathscomp0. rewrite path_assoc.
+            rewrite e'. rewrite path_assoc. reflexivity. }
     { intros x. apply pathsinv0. generalize x; clear x.
       simple refine (pr1 (I' _ _ _)).
       - simpl. exact v'.
@@ -127,9 +157,18 @@ Proof.
         intermediate_path (v' @ maponpaths g (maponpaths g' loop')).
         + apply (maponpaths (λ k, v' @ k)). apply pathsinv0, maponpathscomp.
         + rewrite maponpathsidfun. unfold v'. rewrite <- path_assoc.
-          rewrite <- maponpathscomp0. rewrite e'. rewrite maponpathscomp0.
-          rewrite path_assoc. rewrite e. rewrite path_assoc. reflexivity. }
-  }
+          rewrite <- maponpathscomp0.
+          intermediate_path (r @ maponpaths g (loop @ r')).
+          * apply maponpaths. apply maponpaths. exact e'.
+          * rewrite maponpathscomp0. rewrite path_assoc.
+            rewrite e. rewrite path_assoc. reflexivity. } }
+  (* We'll use univalence on g to identify C with C'.
+     Then r will provide the match between pt and pt',
+     and e will provide the corresponding match between loop and loop'.
+     The question remains, how will we define matching I with I'?
+   *)
+  unfold CircleInduction in I, I'.
+
 
 Abort.
 

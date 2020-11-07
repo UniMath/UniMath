@@ -29,7 +29,7 @@ Proof.
   intros q. induction p. exists (idpath x). cbn. exact q.
 Defined.
 
-Definition apd {X:Type} {x x':X} (p : x = x') {Y : X -> Type} (s : ∏ x, Y x) :
+Definition apd {X:Type} {Y : X -> Type} (s : ∏ x, Y x) {x x':X} (p : x = x') :
   PathOver p (s x) (s x').
 Proof.
   now induction p.
@@ -284,7 +284,7 @@ Defined.
 Definition PathOverConstant_map2_apd {X:Type}
            {x x':X} {p:x=x'}
            {Z : Type} {f : X -> Z}
-  : PathOverConstant_map2 (apd p f) = maponpaths f p.
+  : PathOverConstant_map2 (apd f p) = maponpaths f p.
 Proof.
   now induction p.
 Defined.
@@ -542,6 +542,91 @@ Definition binopPathOver {X:Type}
 Proof.
   induction p. simpl. intros [] []. reflexivity.
 Defined.
+
+Local Unset Implicit Arguments.
+
+Definition pullBackFamily {X X':Type} (g : X -> X') (Y : X' -> Type)
+  := λ x, Y (g x).
+
+Definition pullBackSection {X X':Type} (g : X -> X') {Y : X' -> Type} (f : ∏ x', Y x')
+  := λ x, f (g x).
+
+Definition pullBackPointOver {X X':Type} (g : X -> X')
+           {x:X} {x':X'} (r : g x = x')
+           {Y : X' -> Type} (y : Y x')
+  : (pullBackFamily g Y) (x).
+Proof.
+  induction r. exact y.
+Defined.
+
+Definition pullBackPointOverWithSection {X X':Type} (g : X -> X')
+           {x:X} {x':X'} (r : g x = x') {Y : X' -> Type} (f : ∏ x', Y x')
+  : pullBackPointOver g r (f x') = pullBackSection g f x.
+Proof.
+   induction r. reflexivity.
+Defined.
+
+Definition pullBackPointOverWithSection' (* redundant? *)
+           {X X':Type} (g : X -> X')
+           {x:X} {x':X'} (r : g x = x')
+           {Y : X' -> Type} {y : Y x'}
+           {f : ∏ x', Y x'} (k : y = f x')
+  : pullBackPointOver g r y = pullBackSection g f x.
+Proof.
+  induction (!k), r. reflexivity.
+Defined.
+
+Definition pullBackPathOverPoint {X X':Type} (g : X -> X')
+           {x:X} {x':X'} (r : g x = x')
+           {Y : X' -> Type} {y y' : Y x'} (t : y = y')
+  : pullBackPointOver g r y = pullBackPointOver g r y'.
+Proof.
+  induction t. reflexivity.
+Defined.
+
+Definition pullBackPathOver {X X':Type} (g : X -> X')
+           {x1 x2:X} {x1' x2':X'} {r1 : g x1 = x1'} {r2 : g x2 = x2'}
+           {s : x1 = x2} {s' : x1' = x2'}
+           (r : r1 @ s' = maponpaths g s @ r2)
+           {Y : X' -> Type}
+           {y1 : Y x1'} {y2 : Y x2'}
+           (q : PathOver s' y1 y2)
+  : PathOver s (pullBackPointOver g r1 y1) (pullBackPointOver g r2 y2).
+Proof.
+  induction r1, r2. simpl in r; simpl.
+  assert (k' : s' = maponpaths g s). { refine (r @ pathscomp0rid _). } clear r.
+  induction (!k'); clear k'. induction s. simpl in q. simpl. exact q.
+Defined.
+
+Definition pullBackPathOverPath {X X':Type} (g : X -> X')
+           {x1 x2:X} {x1' x2':X'} {r1 : g x1 = x1'} {r2 : g x2 = x2'}
+           {s : x1 = x2} {s' : x1' = x2'}
+           (r : r1 @ s' = maponpaths g s @ r2)
+           {Y : X' -> Type}
+           (y1 : Y x1') (y2 y3 : Y x2')
+           (q : PathOver s' y1 y2)
+           (t : y2 = y3)
+  : pullBackPathOver g r (q ⟥ t) = pullBackPathOver g r q ⟥ pullBackPathOverPoint g r2 t.
+Proof.
+  induction t, r1, r2. reflexivity.
+Defined.
+
+Definition pullBackPathPathOver {X X':Type} (g : X -> X')
+           {x1 x2:X} {x1' x2':X'} (r1 : g x1 = x1') (r2 : g x2 = x2')
+           (s : x1 = x2) (s' : x1' = x2')
+           (r : r1 @ s' = maponpaths g s @ r2)
+           {Y : X' -> Type}
+           (y0 y1 : Y x1') (y2 : Y x2')
+           (q : PathOver s' y1 y2)
+           (t : y0 = y1)
+  : pullBackPathOver g r (t ⟤ q) = pullBackPathOverPoint g r1 t ⟤ pullBackPathOver g r q.
+Proof.
+  induction t, r1, r2. reflexivity.
+Defined.
+
+
+
+
 
 Module PathsOverNotations.
 Notation "'Δ' q" := (fromPathOverIdpath q) (at level 10) : pathsover.
