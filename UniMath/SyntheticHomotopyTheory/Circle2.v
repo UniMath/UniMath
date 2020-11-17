@@ -8,17 +8,6 @@
   https://github.com/UniMath/SymmetryBook/blob/master/ZTors.tex, commit
   1ba615fa7625516ad79fe3ad9ef68e1fc001d485.
 
-  The main things proved are these:
-
-  Definition circle := B ℤ.
-  Definition pt := basepoint circle.
-  Theorem loops_circle : ℤ ≃ Ω circle.
-  Definition loop := loops_circle 1 : Ω circle.
-  Definition CircleInduction (circle : Type) (pt : circle) (loop : pt = pt) :=
-    ∏ (X:circle->Type) (x:X pt) (p:PathOver x x loop),
-      ∑ (f:∏ t:circle, X t) (r : x = f pt), r ⟤ apd f loop = p ⟥ r.
-  Theorem circle_induction : CircleInduction circle pt loop.
-
   *)
 
 Require Import UniMath.Foundations.All.
@@ -62,12 +51,6 @@ Definition CircleRecursion (circle : Type) (pt : circle) (loop : pt = pt) :=
 
 Arguments CircleRecursion : clear implicits.
 
-Definition CircleRecursion' (circle : Type) (pt : circle) (loop : pt = pt) :=
-  ∏ (X:Type) (x:X) (p:x=x),
-    ∑ (f:circle -> X) (r : x = f pt), r @ maponpaths f loop = p @ r.
-
-Arguments CircleRecursion' : clear implicits.
-
 Definition CircleInduction (circle : Type) (pt : circle) (loop : pt = pt) :=
   ∏ (X:circle->Type) (x:X pt) (p:PathOver loop x x),
     ∑ (f:∏ t:circle, X t) (r : f pt = x),
@@ -75,47 +58,50 @@ Definition CircleInduction (circle : Type) (pt : circle) (loop : pt = pt) :=
 
 Arguments CircleInduction : clear implicits.
 
+(* the alternative definitions of recursion and induction used earlier: *)
+
+Definition CircleRecursion' (circle : Type) (pt : circle) (loop : pt = pt) :=
+  ∏ (X:Type) (x:X) (p:x=x),
+    ∑ (f:circle -> X) (r : x = f pt), r @ maponpaths f loop = p @ r.
+
+Arguments CircleRecursion' : clear implicits.
+
 Definition CircleInduction' (circle : Type) (pt : circle) (loop : pt = pt) :=
   ∏ (X:circle->Type) (x:X pt) (p:PathOver loop x x),
     ∑ (f:∏ t:circle, X t) (r : x = f pt), r ⟤ apd f loop = p ⟥ r.
 
 Arguments CircleInduction' : clear implicits.
 
+(* the equivalence of the new definitions with the old *)
+
 Lemma CircleRecursionEquiv (circle : Type) (pt : circle) (loop : pt = pt)
   : CircleRecursion circle pt loop ≃ CircleRecursion' circle pt loop.
 Proof.
   unfold CircleRecursion', CircleRecursion.
-  apply weqonsecfibers; intro X.
-  apply weqonsecfibers; intro x.
-  apply weqonsecfibers; intro p.
-  apply weqfibtototal; intro f.
+  apply weqonsecfibers; intro X. apply weqonsecfibers; intro x.
+  apply weqonsecfibers; intro p. apply weqfibtototal; intro f.
   intermediate_weq (∑ r : f pt = x, maponpaths f loop @ r = r @ p).
-  - apply weqfibtototal; intro r.
-    apply eqweqmap.
-    induction r.
-    change (PathOver (idpath (f pt)) (maponpaths f loop) p)
-      with (maponpaths f loop = p).
-    change (idpath (f pt) @ p) with p.
-    apply (maponpaths (λ k, k=p)).
-    apply pathsinv0.
-    apply pathscomp0rid.
+  - apply weqfibtototal; intro r. apply eqweqmap. induction r. cbn.
+    apply (maponpaths (λ k, k=p)). rewrite pathscomp0rid. reflexivity.
   - intermediate_weq (∑ r : f pt = x, (!r) @ maponpaths f loop = p @ (!r)).
-    + apply weqfibtototal; intro r.
-      apply invweq.
-      intermediate_weq (maponpaths f loop = r @ (p @ !r)).
-      * apply hornRotation_ll.
-      * intermediate_weq (maponpaths f loop = (r @ p) @ !r).
-        ++ apply eqweqmap.
-           apply (maponpaths (λ k, maponpaths f loop = k)).
-           apply path_assoc.
-        ++ apply hornRotation_rr.
-    + refine (weqfp (make_weq _ (isweqpathsinv0 (f pt) x)) _).
+    + apply weqfibtototal; intro r. induction r. cbn.
+      rewrite 2 pathscomp0rid. apply idweq.
+    + exact (weqfp (make_weq _ (isweqpathsinv0 (f pt) x)) _).
 Defined.
 
 Lemma CircleInductionEquiv (circle : Type) (pt : circle) (loop : pt = pt)
   : CircleInduction circle pt loop ≃ CircleInduction' circle pt loop.
 Proof.
-Abort.
+  unfold CircleInduction', CircleInduction.
+  apply weqonsecfibers; intro X. apply weqonsecfibers; intro x.
+  apply weqonsecfibers; intro p. apply weqfibtototal; intro f.
+  intermediate_weq (∑ r : f pt = x, !r ⟤ apd f loop = p ⟥ !r).
+  - apply weqfibtototal; intro r.
+    intermediate_weq (PathOver (Y := λ t:X pt, PathOver loop t t) (!r) p (apd f loop)).
+    + apply inversePathOverWeq.
+    + induction r. cbn. apply weqpathsinv0.
+  - exact (weqfp (make_weq _ (isweqpathsinv0 _ _)) _).
+Defined.
 
 Lemma CircleInduction_isaprop (circle : Type) (pt : circle) (loop : pt = pt) :
   isaprop (CircleInduction circle pt loop).
@@ -141,6 +127,13 @@ Defined.
 Definition Circle  := ∑ (circle : Type) (pt : circle) (loop : pt = pt), CircleInduction circle pt loop.
 
 Definition Circle' := ∑ (circle : Type) (pt : circle) (loop : pt = pt), CircleInduction' circle pt loop.
+
+Definition CircleEquiv : Circle ≃ Circle'.
+Proof.
+  apply weqfibtototal; intro circle; apply weqfibtototal; intro pt;
+    apply weqfibtototal; intro loop.
+  apply CircleInductionEquiv.
+Defined.
 
 Definition CircleInductionMatch (C C' : Type) (pt : C) (pt' : C') (loop : pt = pt) (loop' : pt' = pt')
            (I : CircleInduction' C pt loop) (I' : CircleInduction' C' pt' loop')
@@ -171,8 +164,9 @@ Proof.
 
 Abort.
 
-Lemma Circle_isaprop : isaprop Circle'.
+Lemma Circle_isaprop : isaprop Circle.
 Proof.
+  apply (isofhlevelweqb 1 CircleEquiv).
   apply invproofirrelevance.
   intros [C [pt [loop I]]] [C' [pt' [loop' I']]].
   set (R  := CircleInductionToRecursion' I ). set (R' := CircleInductionToRecursion' I').
@@ -228,7 +222,7 @@ Abort.
 
 Definition circle := B ℤ.
 
-Theorem loops_circle : ℤ ≃ Ω circle.
+Lemma loops_circle : ℤ ≃ Ω circle.
 Proof.
   apply loopsBG.
 Defined.
@@ -403,8 +397,9 @@ End A.
 Arguments c_tilde {_ _} _ _ _.
 Arguments c_hat {_ _} _ _ _.
 
-Theorem circle_induction : CircleInduction' circle pt loop.
+Theorem circle_induction : CircleInduction circle pt loop.
 Proof.
+  apply CircleInductionEquiv.
   unfold CircleInduction'. intros A a p.
   set (f := c p). exists f.
   set (h := c_tilde p pt); fold f in h.

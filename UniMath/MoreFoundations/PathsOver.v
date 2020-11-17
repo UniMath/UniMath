@@ -220,6 +220,24 @@ Proof.
   intros q. induction p, q. reflexivity.
 Defined.
 
+Definition inverseInversePathOver1 {X:Type}
+           {x x':X} {p:x=x'}
+           {Y : X -> Type} {y : Y x} {y' : Y x'}
+           (s : PathOver p y y')
+  : inversePathOver' (inversePathOver s) = s.
+Proof.
+  induction p, s. reflexivity.
+Defined.
+
+Definition inverseInversePathOver2 {X:Type}
+           {x x':X} {p:x'=x}
+           {Y : X -> Type} {y : Y x} {y' : Y x'}
+           (s : PathOver (!p) y y')
+  : inversePathOver (inversePathOver' s) = s.
+Proof.
+  induction p, s. reflexivity.
+Defined.
+
 Local Notation "q '^-1'" := (inversePathOver q) : pathsover.
 
 Definition inversePathOverIdpath {X:Type} {x:X} {Y : X -> Type} (y y' : Y x) (e : y = y') :
@@ -239,6 +257,28 @@ Definition inverseInversePathOver {X:Type} {Y : X -> Type} {x:X} {y : Y x} :
   transportf (λ pp, PathOver pp y y') (pathsinv0inv0 p) (q^-1^-1) = q.
 Proof.
   now use inductionPathOver.
+Defined.
+
+Definition inversePathOverWeq {X:Type}
+           {x x':X} {p:x=x'}
+           {Y : X -> Type} {y : Y x} {y' : Y x'}
+  : PathOver p y y' ≃ PathOver (!p) y' y.
+Proof.
+  (* compare with weqpathsinv0 *)
+  exists inversePathOver. intros s. use tpair.
+  - exists (inversePathOver' s). apply inverseInversePathOver2.
+  - cbn. induction p. intros [t []]. induction t. reflexivity.
+Defined.
+
+Lemma inversePathOverWeq' {X:Type}
+           {x x':X} {p:x'=x}
+           {Y : X -> Type} {y : Y x} {y' : Y x'}
+  : PathOver (!p) y y' ≃ PathOver p y' y.
+Proof.
+  (* compare with weqpathsinv0 *)
+  exists inversePathOver'. intros s. use tpair.
+  - exists (inversePathOver s). apply inverseInversePathOver1.
+  - cbn. induction p. intros [t []]. induction t. reflexivity.
 Defined.
 
 (** Paths-over in a constant family *)
