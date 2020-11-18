@@ -1,6 +1,6 @@
 (** Authors Floris van Doorn, December 2017 *)
 
-Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.MoreFoundations.Subtypes.
 Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.

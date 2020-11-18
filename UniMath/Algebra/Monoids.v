@@ -39,8 +39,8 @@ Unset Kernel Term Sharing.
 (** Imports *)
 
 Require Export UniMath.Algebra.BinaryOperations.
-Require Import UniMath.MoreFoundations.All.
-
+Require Import UniMath.MoreFoundations.Subtypes.
+Require Import UniMath.MoreFoundations.Sets.
 
 (** ** Standard Algebraic Structures *)
 

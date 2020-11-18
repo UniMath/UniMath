@@ -1,8 +1,8 @@
 (** * Additional results about univalence *)
 
-Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.UnivalenceAxiom.
+Require Import UniMath.MoreFoundations.PartA.
 
 (** Funextsec and toforallpaths are mutually inverses *)
 Lemma funextsec_toforallpaths {T : UU} {P : T -> UU} {f g : ∏ t : T, P t} :

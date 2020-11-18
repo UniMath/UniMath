@@ -8,17 +8,6 @@
   https://github.com/UniMath/SymmetryBook/blob/master/ZTors.tex, commit
   1ba615fa7625516ad79fe3ad9ef68e1fc001d485.
 
-  The main things proved are these:
-
-  Definition circle := B ℤ.
-  Definition pt := basepoint circle.
-  Theorem loops_circle : ℤ ≃ Ω circle.
-  Definition loop := loops_circle 1 : Ω circle.
-  Definition CircleInduction (circle : Type) (pt : circle) (loop : pt = pt) :=
-    ∏ (X:circle->Type) (x:X pt) (p:PathOver x x loop),
-      ∑ (f:∏ t:circle, X t) (r : x = f pt), apd f loop = !r ⟤ p ⟥ r.
-  Theorem circle_induction : CircleInduction circle pt loop.
-
   *)
 
 Require Import UniMath.Foundations.All.
@@ -57,61 +46,174 @@ Local Notation "ℤ¹" := (trivialTorsor ℤ) : circle.
 
 Definition CircleRecursion (circle : Type) (pt : circle) (loop : pt = pt) :=
   ∏ (X:Type) (x:X) (p:x=x),
-    ∑ (f:circle -> X) (r : x = f pt), maponpaths f loop = !r @ p @ r.
+    ∑ (f:circle -> X) (r : f pt = x),
+      PathOver (Y := λ t:X, t = t) r (maponpaths f loop) p.
 
 Arguments CircleRecursion : clear implicits.
 
 Definition CircleInduction (circle : Type) (pt : circle) (loop : pt = pt) :=
-  ∏ (X:circle->Type) (x:X pt) (p:PathOver x x loop),
-    ∑ (f:∏ t:circle, X t) (r : x = f pt), apd f loop = !r ⟤ p ⟥ r.
+  ∏ (X:circle->Type) (x:X pt) (p:PathOver loop x x),
+    ∑ (f:∏ t:circle, X t) (r : f pt = x),
+      PathOver (Y := λ t:X pt, PathOver loop t t) r (apd f loop) p.
 
 Arguments CircleInduction : clear implicits.
+
+(* the alternative definitions of recursion and induction used earlier: *)
+
+Definition CircleRecursion' (circle : Type) (pt : circle) (loop : pt = pt) :=
+  ∏ (X:Type) (x:X) (p:x=x),
+    ∑ (f:circle -> X) (r : x = f pt), r @ maponpaths f loop = p @ r.
+
+Arguments CircleRecursion' : clear implicits.
+
+Definition CircleInduction' (circle : Type) (pt : circle) (loop : pt = pt) :=
+  ∏ (X:circle->Type) (x:X pt) (p:PathOver loop x x),
+    ∑ (f:∏ t:circle, X t) (r : x = f pt), r ⟤ apd f loop = p ⟥ r.
+
+Arguments CircleInduction' : clear implicits.
+
+(* the equivalence of the new definitions with the old *)
+
+Lemma CircleRecursionEquiv (circle : Type) (pt : circle) (loop : pt = pt)
+  : CircleRecursion circle pt loop ≃ CircleRecursion' circle pt loop.
+Proof.
+  unfold CircleRecursion', CircleRecursion.
+  apply weqonsecfibers; intro X. apply weqonsecfibers; intro x.
+  apply weqonsecfibers; intro p. apply weqfibtototal; intro f.
+  intermediate_weq (∑ r : f pt = x, maponpaths f loop @ r = r @ p).
+  - apply weqfibtototal; intro r. apply eqweqmap. induction r. cbn.
+    apply (maponpaths (λ k, k=p)). rewrite pathscomp0rid. reflexivity.
+  - intermediate_weq (∑ r : f pt = x, (!r) @ maponpaths f loop = p @ (!r)).
+    + apply weqfibtototal; intro r. induction r. cbn.
+      rewrite 2 pathscomp0rid. apply idweq.
+    + exact (weqfp (make_weq _ (isweqpathsinv0 (f pt) x)) _).
+Defined.
+
+Lemma CircleInductionEquiv (circle : Type) (pt : circle) (loop : pt = pt)
+  : CircleInduction circle pt loop ≃ CircleInduction' circle pt loop.
+Proof.
+  unfold CircleInduction', CircleInduction.
+  apply weqonsecfibers; intro X. apply weqonsecfibers; intro x.
+  apply weqonsecfibers; intro p. apply weqfibtototal; intro f.
+  intermediate_weq (∑ r : f pt = x, !r ⟤ apd f loop = p ⟥ !r).
+  - apply weqfibtototal; intro r.
+    intermediate_weq (PathOver (Y := λ t:X pt, PathOver loop t t) (!r) p (apd f loop)).
+    + apply inversePathOverWeq.
+    + induction r. cbn. apply weqpathsinv0.
+  - exact (weqfp (make_weq _ (isweqpathsinv0 _ _)) _).
+Defined.
 
 Lemma CircleInduction_isaprop (circle : Type) (pt : circle) (loop : pt = pt) :
   isaprop (CircleInduction circle pt loop).
 Proof.
 Abort.
 
-Lemma CircleInductionToRecursion (circle : Type) (pt : circle) (loop : pt = pt) :
-  CircleInduction circle pt loop -> CircleRecursion circle pt loop.
+Lemma CircleInductionToRecursion' (circle : Type) (pt : circle) (loop : pt = pt) :
+  CircleInduction' circle pt loop -> CircleRecursion' circle pt loop.
 Proof.
-  intros I X x p.
-  set (w := I (λ c, X) x (PathOverConstant_map1 loop p)); simpl in w. induction w as [f [r e]].
-  exists f. exists r.
-  refine (_ @ maponpaths (PathOverConstant_map2 (p:=loop)) e @ _).
-  { apply pathsinv0, PathOverConstant_map2_apd. }
-  { refine (PathOverConstant_map2_eq1 _ _ @ _). refine (_ @ ! path_assoc _ _ _).
-    apply (maponpaths (λ t, t @ r)). refine (PathOverConstant_map2_eq2 _ _ @ _).
-    apply maponpaths. apply PathOverConstant_map1_map2. }
+  intros I. unfold CircleRecursion'. intros X x p.
+  set (w := I (λ _, X) x (PathOverConstant_map1 _ p)). simpl in w.
+  exists (pr1 w). exists (pr12 w).
+  refine (_ @ maponpaths PathOverConstant_map2 (pr22 w) @ _).
+  { apply pathsinv0. refine (PathOverConstant_map2_eq2 _ _ @ _).
+    apply maponpaths. apply PathOverConstant_map2_apd. }
+  { refine (PathOverConstant_map2_eq1 _ _ @ _).
+    apply (maponpaths (λ t, t @ _)). apply PathOverConstant_map1_map2. }
 Defined.
 
 (** A "circle" is a type with a point and a loop at that point that satisfies the
     induction principle of the circle.  The type of all circles is called "Circle".  *)
 
-Definition Circle := ∑ (circle : Type) (pt : circle) (loop : pt = pt), CircleInduction circle pt loop.
+Definition Circle  := ∑ (circle : Type) (pt : circle) (loop : pt = pt), CircleInduction circle pt loop.
+
+Definition Circle' := ∑ (circle : Type) (pt : circle) (loop : pt = pt), CircleInduction' circle pt loop.
+
+Definition CircleEquiv : Circle ≃ Circle'.
+Proof.
+  apply weqfibtototal; intro circle; apply weqfibtototal; intro pt;
+    apply weqfibtototal; intro loop.
+  apply CircleInductionEquiv.
+Defined.
+
+Definition CircleInductionMatch (C C' : Type) (pt : C) (pt' : C') (loop : pt = pt) (loop' : pt' = pt')
+           (I : CircleInduction' C pt loop) (I' : CircleInduction' C' pt' loop')
+           (g : C -> C')
+           (r0 : g pt = pt')
+           (r : r0 @ loop' = maponpaths g loop @ r0)
+  : ∏ (X' : C' → Type) (x' : X' pt') (p' : PathOver loop' x' x'), Type.
+Proof.
+  intros.
+  set (X := X' ∘ g); cbn beta in X.
+  set (x := pullBackPointOver g r0 x'). change (X' ∘ g) with X in x.
+  set (p := pullBackPathOver g r p'). fold x in p.
+  (* set (J := I X x p). *)
+  set (typeofJ := ∑ (f : ∏ t : C, X t) (r : x = f pt), r ⟤ apd f loop = p ⟥ r).
+  (* Check ( J : typeofJ ). *)
+  assert (J'' : typeofJ).
+  {
+    unfold typeofJ. clear typeofJ.
+    set (J' := I' X' x' p').
+    set (s' := pr1 J').
+    set (s := s' ∘ g); change (∏ x, X x) in (type of s).
+    set (k := pr12 J'); change (pr1 J') with (s') in (type of k).
+    set (ρ := pr22 J'); cbn beta in ρ; fold s k s' in ρ.
+    exists s.
+    exists (pullBackPointOverWithSection' _ _ k).
+    set (kk := pullBackPathOver g r (apd s' loop')).
+
+
+Abort.
 
 Lemma Circle_isaprop : isaprop Circle.
 Proof.
+  apply (isofhlevelweqb 1 CircleEquiv).
   apply invproofirrelevance.
   intros [C [pt [loop I]]] [C' [pt' [loop' I']]].
-  set (g  := I  (λ c, C') pt' (PathOverConstant_map1 _ loop')); induction g  as [g  [r  e]].
-  set (g' := I' (λ c, C ) pt  (PathOverConstant_map1 _ loop )); induction g' as [g' [r' e']].
+  set (R  := CircleInductionToRecursion' I ). set (R' := CircleInductionToRecursion' I').
+  set (gre  := R  C' pt' loop').
+  set (g := pr1 gre). set (r := pr12 gre). set (e := pr22 gre).
+  set (gre' := R' C  pt  loop ).
+  set (g' := pr1 gre'). set (r' := pr12 gre'). set (e' := pr22 gre').
+  fold g in r, e; fold g' in r', e'; fold r in e; fold r' in e'.
+  cbn beta in e, e'.
   set (fib := (pt ,, pathsinv0 r) : hfiber g pt').
-  transparent assert (v : (g' (g pt) = pt)).
-  { refine (_ @ !r'). apply (maponpaths g'). exact (!r). }
-  transparent assert (v' : (g (g' pt') = pt')).
-  { refine (_ @ !r). apply (maponpaths g). exact (!r'). }
-  assert (ie : isEquivalence g). (* try showing it is an adjoint equivalence first *)
-  { unfold isEquivalence.
-    exists g'.
-    simple refine (tpair _ _ _).
-    { simple refine (pr1 (I' _ _ _)).
+  transparent assert (v : (pt = g' (g pt))).
+  { refine (r' @ _). apply maponpaths. assumption. }
+  transparent assert (v' : (pt' = g (g' pt'))).
+  { refine (r  @ _). apply maponpaths. assumption. }
+  assert (ie : isweq g).
+  { apply (isweq_iso _ g').
+    { intros x. apply pathsinv0. generalize x; clear x.
+      simple refine (pr1 (I _ _ _)).
+      - simpl. exact v.
+      - set (Q := ! pathOverEquations (f := idfun _) (g := funcomp g g') v v loop).
+        apply (cast Q); clear Q.
+        intermediate_path (v @ maponpaths g' (maponpaths g loop)).
+        + apply (maponpaths (λ k, v @ k)). apply pathsinv0, maponpathscomp.
+        + rewrite maponpathsidfun. unfold v. rewrite <- path_assoc.
+          rewrite <- maponpathscomp0. intermediate_path (r' @ maponpaths g' (loop' @ r)).
+          * apply maponpaths. apply maponpaths. exact e.
+          * rewrite maponpathscomp0. rewrite path_assoc.
+            rewrite e'. rewrite path_assoc. reflexivity. }
+    { intros x. apply pathsinv0. generalize x; clear x.
+      simple refine (pr1 (I' _ _ _)).
       - simpl. exact v'.
-      - set (PATHOVER := @PathOver).
-
-
-
-
+      - set (Q := ! pathOverEquations (f := idfun _) (g := funcomp g' g) v' v' loop').
+        apply (cast Q); clear Q.
+        intermediate_path (v' @ maponpaths g (maponpaths g' loop')).
+        + apply (maponpaths (λ k, v' @ k)). apply pathsinv0, maponpathscomp.
+        + rewrite maponpathsidfun. unfold v'. rewrite <- path_assoc.
+          rewrite <- maponpathscomp0.
+          intermediate_path (r @ maponpaths g (loop @ r')).
+          * apply maponpaths. apply maponpaths. exact e'.
+          * rewrite maponpathscomp0. rewrite path_assoc.
+            rewrite e. rewrite path_assoc. reflexivity. } }
+  (* We'll use univalence on g to identify C with C'.
+     Then r will provide the match between pt and pt',
+     and e will provide the corresponding match between loop and loop'.
+     The question remains, how will we define matching I with I'?
+   *)
+  unfold CircleInduction' in I, I'.
 
 
 Abort.
@@ -120,7 +222,7 @@ Abort.
 
 Definition circle := B ℤ.
 
-Theorem loops_circle : ℤ ≃ Ω circle.
+Lemma loops_circle : ℤ ≃ Ω circle.
 Proof.
   apply loopsBG.
 Defined.
@@ -231,7 +333,7 @@ Defined.
 
 Definition cp_irrelevance_circle
            (A:=circle) (B:circle->Type) (a1 a2:A) (b1:B a1) (b2:B a2) (p q:a1=a2) (α β: p=q)
-           (v : PathOver b1 b2 p) :
+           (v : PathOver p b1 b2) :
   cp α v = cp β v.
 Proof.
   apply (maponpaths (λ f, pr1weq f v)). apply cp_irrelevance. apply torsor_hlevel.
@@ -240,18 +342,18 @@ Defined.
 Opaque PathOver.                (* see the discussion at https://github.com/UniMath/UniMath/pull/1329 *)
 Section A.
 
-  Context (A : circle -> Type) (a : A pt) (p : PathOver a a loop).
+  Context (A : circle -> Type) (a : A pt) (p : PathOver loop a a).
 
   Definition Q (X: Torsor ℤ) : Type                 (* 0.5.8 *)
     := ∑ (a' : A X),
-        ∑ (h : ∏ (x:X), PathOver a a' (s x)),
+        ∑ (h : ∏ (x:X), PathOver (s x) a a'),
          ∏ (x:X), h (1 + x) = cp (ε x) (p * h x).
 
   Lemma iscontr_Q (X: Torsor ℤ) (* 0.5.9 *) :
     iscontr_hProp (Q X).
   Proof.
-    use (hinhuniv _ (torsor_nonempty X)); intros x.
-    use (iscontrweqb (Y := ∑ a', PathOver a a' (s x))).
+    use (hinhuniv _ (torsor_nonempty X)). intros x.
+    use (iscontrweqb (Y := ∑ a', PathOver (s x) a a')).
     2 : { apply PathOverUniqueness. }
     apply weqfibtototal; intros a'.
     exact (ℤTorsorRecursion_weq
@@ -266,7 +368,7 @@ Section A.
     := pr1 (cQ X).
 
   Definition c_tilde (X:Torsor ℤ) (x : X)
-    : PathOver a (c X) (s x)
+    : PathOver (s x) a (c X)
     := pr12 (cQ X) x.
   Arguments c_tilde : clear implicits.
 
@@ -297,7 +399,8 @@ Arguments c_hat {_ _} _ _ _.
 
 Theorem circle_induction : CircleInduction circle pt loop.
 Proof.
-  unfold CircleInduction. intros A a p.
+  apply CircleInductionEquiv.
+  unfold CircleInduction'. intros A a p.
   set (f := c p). exists f.
   set (h := c_tilde p pt); fold f in h.
   set (h0 := h pt_0).
@@ -308,6 +411,8 @@ Proof.
   set (s1 := s pt_1); unfold pt_1 in s1.
   set (one' := transportf elem loop pt_0); fold pt in one'.
   assert (r := apd_comparison p loop pt_0). fold pt h h0 f one' in r; unfold pt_0 in r.
+  apply (pr2 (composePathPathOverRotate _ _ _)).
+  rewrite composePathPathOverPath.
   refine (r @ _); clear r.
   assert (ss : one' = pt_1).
   { unfold one'.
@@ -346,6 +451,6 @@ Proof.
   unfold α0. rewrite invrotrot'. change (cp s_compute_0 h0) with (∇ e).
   rewrite inversePathOverIdpath'.
   reflexivity.
-Defined.
+Defined.                        (* too slow *)
 
 Arguments circle_induction : clear implicits.

@@ -747,22 +747,37 @@ Section Weqpaths.
   Local Set Implicit Arguments.
   Local Unset Strict Implicit.
 
-  Definition hornRotation {X:Type} {x y z : X} {p : x = z} {q : y = z} {r : x = y} :
+  Definition hornRotation_rr {X:Type} {x y z : X} {p : x = z} {q : y = z} {r : x = y} :
     r = p @ !q ≃ r @ q = p.
   Proof.
-    (* Thanks to Ulrik Buchholtz for this proof. *)
-    induction p, r. cbn. intermediate_weq (idpath x = !!q).
-    - exact (weqonpaths (weqpathsinv0 _ _) _ _).
-    - intermediate_weq ((!!q) = idpath x).
-      + apply weqpathsinv0.
-      + rewrite pathsinv0inv0. apply idweq.
+    induction q, r; cbn. apply eqweqmap.
+    apply (maponpaths (λ k, idpath x = k)). apply pathscomp0rid.
+  Defined.
+
+  Definition hornRotation_lr {X:Type} {x y z : X} {p : x = z} {q : y = z} {r : x = y} :
+    q = (!r) @ p ≃ r @ q = p.
+  Proof.
+    induction p, r; cbn. apply idweq.
+  Defined.
+
+  Definition hornRotation_rl {X:Type} {x y z : X} {p : x = z} {q : y = z} {r : x = y} :
+    p @ !q = r ≃ p = r @ q.
+  Proof.
+    induction q, r; cbn. apply eqweqmap.
+    apply (maponpaths (λ k, k = idpath x)). apply pathscomp0rid.
+  Defined.
+
+  Definition hornRotation_ll {X:Type} {x y z : X} {p : x = z} {q : y = z} {r : x = y} :
+    (!r) @ p = q ≃ p = r @ q.
+  Proof.
+    induction p, r; cbn. apply idweq.
   Defined.
 
   Corollary uniqueFiller (X:Type) (x y z : X) (p : x = z) (q : y = z) :
     ∃! r, r @ q = p.
   Proof.
     refine (@iscontrweqf (∑ r, r = p @ !q) _ _ _).
-    { apply weqfibtototal; intro r. exact hornRotation. }
+    { apply weqfibtototal; intro r. exact hornRotation_rr. }
     { apply iscontrcoconustot. }
   Defined.
 
@@ -770,7 +785,7 @@ Section Weqpaths.
         (r : x = y) (k : r @ q = p) :
     @paths (∑ r, r@q=p)
            (r ,, k)
-           ((p @ !q) ,, hornRotation (idpath _)).
+           ((p @ !q) ,, hornRotation_rr (idpath _)).
   Proof.
     apply proofirrelevance.
     apply isapropifcontr.
@@ -781,7 +796,7 @@ Section Weqpaths.
     isweq (λ e : x = x', e @ e').
   Proof.
     (* make a direct proof of isweqpathscomp0r, without using isweq_iso *)
-    intros p. use tpair. exists (p @ !e'). now apply hornRotation.
+    intros p. use tpair. exists (p @ !e'). now apply hornRotation_rr.
     cbn. intros [q l]. apply fillerEquation.
   Defined.
 
@@ -800,7 +815,7 @@ Section Weqpaths.
   Definition inductionOnFiller {X:Type} {x y z:X} (p:x=z) (q:y=z)
              (S := λ r:x=y, r @ q = p)
              (T : ∏ r (e : S r), Type)
-             (t : T (p @ !q) (hornRotation (idpath _))) :
+             (t : T (p @ !q) (hornRotation_rr (idpath _))) :
     ∏ (r:x=y) (e : r @ q = p), T r e.
   Proof.
     intros.

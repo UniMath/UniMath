@@ -776,7 +776,7 @@ Defined.
 
 (** Associativity of [weqfromcoprodofstn] *)
 
-Definition pr1_eqweqmap (m n : nat) (e: m=n) (i: ⟦m⟧ ) :
+Definition pr1_eqweqmap_stn (m n : nat) (e: m=n) (i: ⟦m⟧ ) :
   pr1 (pr1weq (eqweqmap (maponpaths stn e)) i) = pr1 i.
 Proof.
   intros.
@@ -798,7 +798,7 @@ Proof.
   intros abc.
   rewrite 4? weqcomp_to_funcomp.
   apply (invmaponpathsincl pr1). apply isinclstntonat.
-  rewrite <- funcomp_assoc. unfold funcomp at 1. rewrite pr1_eqweqmap.
+  rewrite <- funcomp_assoc. unfold funcomp at 1. rewrite pr1_eqweqmap_stn.
   induction abc as [[a|b]|c].
   - simpl. apply idpath.
   - simpl. apply idpath.

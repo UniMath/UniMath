@@ -190,7 +190,7 @@ Proof.
   - intros G₁ G₂ F₁ F₂ n pG₁ pG₂ pF₁ pF₂ pn.
     cbn in *.
     refine (!_).
-    apply hornRotation.
+    apply hornRotation_rr.
     refine (!_).
     refine (maponpaths (λ z, _ @ ! z) pn @ _).
     etrans.

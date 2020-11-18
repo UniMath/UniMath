@@ -4,7 +4,7 @@ Auke Booij, December 2017
 *)
 
 Require Import UniMath.Foundations.Sets.
-Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.

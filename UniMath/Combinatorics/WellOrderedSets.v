@@ -4,10 +4,12 @@
 
 (** In this file our goal is to prove Zorn's Lemma and Zermelo's Well-Ordering Theorem. *)
 
-Require Import UniMath.MoreFoundations.All.
-Require Import UniMath.Combinatorics.OrderedSets.
 Require Import UniMath.MoreFoundations.DecidablePropositions.
 Require Import UniMath.MoreFoundations.Propositions.
+Require Import UniMath.MoreFoundations.Subtypes.
+Require Import UniMath.MoreFoundations.Sets.
+Require Import UniMath.MoreFoundations.AxiomOfChoice.
+Require Import UniMath.Combinatorics.OrderedSets.
 
 Local Open Scope logic.
 Local Open Scope prop.
