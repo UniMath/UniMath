@@ -840,10 +840,10 @@ Defined.
 *)
 Section dependent_product.
 
-Context (H : ∏ {c c' : C} (g : C⟦c,c'⟧), is_left_adjoint (base_change_functor g)).
+Context (H : ∏ (c c' : C) (g : C⟦c,c'⟧), is_left_adjoint (base_change_functor g)).
 
 Let dependent_product_functor {c c' : C} (g : C⟦c,c'⟧) :
-  functor (C / c) (C / c') := right_adjoint (H g).
+  functor (C / c) (C / c') := right_adjoint (H c c' g).
 
 Let BPC c : BinProducts (C / c) := @BinProducts_slice_precat C hsC PC c.
 
@@ -868,7 +868,7 @@ use tpair.
                            (dependent_product_functor (pr2 Af))).
 + rewrite const_prod_functor1_slicecat.
   apply are_adjoints_functor_composite.
-  - apply (pr2 (H _)).
+  - apply (pr2 (H _ _ _)).
   - apply are_adjoints_slicecat_functor_base_change.
 Defined.
 
