@@ -840,7 +840,7 @@ Defined.
 *)
 Section dependent_product.
 
-Context (H : ∏ {c c' : C} (g : C⟦c,c'⟧), is_left_adjoint (base_change_functor g)).
+Context (H : ∏ (c c' : C) (g : C⟦c,c'⟧), is_left_adjoint (base_change_functor g)).
 
 Let dependent_product_functor {c c' : C} (g : C⟦c,c'⟧) :
   functor (C / c) (C / c') := right_adjoint (H c c' g).
