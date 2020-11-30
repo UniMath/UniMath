@@ -120,7 +120,7 @@ Proof.
 use make_cocone.
 - intro n.
   apply (pr1 (Pow n) _ z).
-- abstract (intros n m []; clear m; apply Pow_cocone_subproof).
+- abstract (intros n m k; induction k; apply Pow_cocone_subproof).
 Defined.
 
 Local Definition CC_LchnF : ColimCocone LchnF.
