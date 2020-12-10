@@ -3882,7 +3882,7 @@ Proof.
             rewrite <- (pr1 (pr2 xy)).
             pattern (pr1 q) at 1 ;
               rewrite <- (minusNonnegativeRationals_plus_r (c / 2)%NRat (pr1 q)), !isassoc_plusNonnegativeRationals.
-            pattern (pr1 q - c / 2 + c + pr1 eps)%NRat at 0;
+            pattern (pr1 q - c / 2 + c + pr1 eps)%NRat;
               rewrite (isassoc_plusNonnegativeRationals (pr1 q - c / 2)%NRat c (pr1 eps)).
             apply plusNonnegativeRationals_lecompat_l.
             pattern c at 3;
