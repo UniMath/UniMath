@@ -44,7 +44,7 @@ Defined.
 
 Lemma InitialEndo_is_identity {O : Initial} (f : O --> O) : f = identity O.
 Proof.
-now apply proofirrelevance, isapropifcontr, (pr2 O O).
+apply proofirrelevancecontr, (pr2 O O).
 Qed.
 
 Lemma InitialArrowEq {O : Initial} {a : C} (f g : O --> a) : f = g.
