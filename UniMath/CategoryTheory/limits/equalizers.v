@@ -170,8 +170,7 @@ Section def_equalizers.
   Proof.
     set (H1 := tpair ((fun φ' : C⟦E, E⟧ => φ' · _ = _)) φ H).
     assert (H2 : identity_is_EqualizerIn E = H1).
-    - apply proofirrelevance.
-      apply isapropifcontr.
+    - apply proofirrelevancecontr.
       apply (isEqualizer_Equalizer E).
       apply EqualizerEqAr.
     - apply (base_paths _ _ H2).

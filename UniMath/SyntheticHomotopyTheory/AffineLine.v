@@ -594,7 +594,7 @@ Defined.
 
 Lemma affine_line_path {T:Torsor ℤ} (t u:affine_line T) : t = u.
 Proof.
-  intros. apply proofirrelevance, isapropifcontr, iscontr_affine_line.
+  intros. apply proofirrelevancecontr, iscontr_affine_line.
 Defined.
 
 Definition affine_line_map {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) :

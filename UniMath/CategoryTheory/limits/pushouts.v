@@ -173,8 +173,7 @@ Section def_po.
     set (H1 := tpair ((fun hk : Pb --> Pb => dirprod (_ · hk = _)(_ · hk = _)))
                      k (make_dirprod kH1 kH2)).
     assert (H2 : identity_is_Pushout_input Pb = H1).
-    - apply proofirrelevance.
-      apply isapropifcontr.
+    - apply proofirrelevancecontr.
       apply (isPushout_Pushout Pb).
       apply PushoutSqrCommutes.
     - apply (base_paths _ _ H2).

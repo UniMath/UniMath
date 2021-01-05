@@ -121,7 +121,7 @@ Proof.
   intros.
   induction n as [|n IH].
   - refine (transportf (P 0) _ p0).
-    apply proofirrelevance, isapropifcontr, iscontr_vector_0.
+    apply proofirrelevancecontr, iscontr_vector_0.
   - exact (transportf (P _) (drop_and_append_vec vec)
                       (ind _ (vec ∘ dni_lastelement)
                              (vec lastelement)

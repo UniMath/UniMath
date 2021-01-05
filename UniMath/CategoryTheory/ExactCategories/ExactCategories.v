@@ -366,8 +366,8 @@ Section PreAdditive.
   Lemma KernelIsMonic {M:PreAdditive} {x y z:M} (f : x --> y) (g : y --> z) : isKernel' f g -> isMonic f.
   Proof.
     intros [t i] w p q e.
-    set (T := ∑ r : w --> x, r · f = q · f). assert (ic : isProofIrrelevant T).
-    { apply proofirrelevance, isapropifcontr.
+    set (T := ∑ r : w --> x, r · f = q · f). assert (ic : ∏ t1 t2 : T, t1 = t2).
+    { apply proofirrelevancecontr.
       use i. rewrite assoc'. rewrite t. apply zeroRight. }
     set (t1 := (p,,e) : T). set (t2 := (q,,idpath _) : T).
     assert (Q := ic t1 t2). exact (maponpaths pr1 Q).

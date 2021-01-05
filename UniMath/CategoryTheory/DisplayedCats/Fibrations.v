@@ -373,9 +373,7 @@ Proof.
   intros.
   assert (XR := unique_lift f d').
   assert (foo : ((d,,ff) : ∑ d0, d0 -->[f] d') = (d,,ff')).
-  { apply proofirrelevance.
-    apply isapropifcontr. apply XR.
-  }
+  { apply proofirrelevancecontr. apply XR. }
   apply (pair_inj (isaset_fiber_discrete_fibration _ _ ) foo).
 Defined.
 
@@ -404,9 +402,9 @@ Proof.
       set (gg := pr2 (iscontrpr1 (unique_lift g d'))). cbn in gg.
       set (d3 := pr1 (iscontrpr1 (unique_lift g d'))) in *.
       assert (XR : ((d'',, ggff) : ∑ r, r -->[g·f] d) = (db,,hh)).
-      { apply proofirrelevance. apply isapropifcontr. apply (pr2 D). }
+      { apply proofirrelevancecontr. apply (pr2 D). }
       assert (XR1 : ((d'',, ggff) : ∑ r, r -->[g·f] d) = (d3 ,,gg;;ff)).
-      { apply proofirrelevance. apply isapropifcontr. apply (pr2 D). }
+      { apply proofirrelevancecontr. apply (pr2 D). }
       assert (XT := maponpaths pr1 XR). cbn in XT.
       assert (XT1 := maponpaths pr1 XR1). cbn in XT1.
       generalize XR.
@@ -820,7 +818,7 @@ Proof.
                        assert (X0 : (a,,pr2 (iscontrpr1 (unique_lift (g · f) d))) =
                                     (b,,gf')) end.
 
-      { apply proofirrelevance. apply isapropifcontr. apply X. }
+      { apply proofirrelevancecontr. apply X. }
       apply (maponpaths pr1 X0).
     + apply  (disp_mor_unique_disc_fib _ (D,,X)).
   - apply isaset_fiber_discrete_fibration.

@@ -47,15 +47,13 @@ Section def_zero.
 
   Lemma ArrowsToZero (Z : Zero) (b : C) (f g : b --> Z) : f = g.
   Proof.
-    apply proofirrelevance.
-    apply isapropifcontr.
+    apply proofirrelevancecontr.
     apply (pr2 (pr2 Z) _).
   Qed.
 
   Lemma ArrowsFromZero (Z : Zero) (b : C) (f g : Z --> b) : f = g.
   Proof.
-    apply proofirrelevance.
-    apply isapropifcontr.
+    apply proofirrelevancecontr.
     apply (pr1 (pr2 Z) _).
   Qed.
 

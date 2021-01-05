@@ -131,8 +131,7 @@ Section def_cokernels.
   Proof.
     set (H1 := tpair ((fun φ' : C⟦CK, CK⟧ => _ · φ' = _)) φ H).
     assert (H2 : identity_is_CokernelOut CK = H1).
-    - apply proofirrelevance.
-      apply isapropifcontr.
+    - apply proofirrelevancecontr.
       apply (CokernelisCokernel CK).
       apply CokernelCompZero.
     - apply (base_paths _ _ H2).

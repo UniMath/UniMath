@@ -127,8 +127,7 @@ Section def_kernels.
   Proof.
     set (H1 := tpair ((fun φ' : C⟦K, K⟧ => φ' · _ = _)) φ H).
     assert (H2 : identity_is_KernelIn K = H1).
-    - apply proofirrelevance.
-      apply isapropifcontr.
+    - apply proofirrelevancecontr.
       apply (KernelisKernel K).
       apply KernelCompZero.
     - apply (base_paths _ _ H2).
