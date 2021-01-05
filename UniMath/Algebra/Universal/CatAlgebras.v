@@ -18,6 +18,7 @@ Require Import UniMath.Combinatorics.Lists.
 
 Require Import UniMath.Algebra.Universal.Signatures.
 Require Import UniMath.Algebra.Universal.Algebras.
+Require Import UniMath.Algebra.Universal.TermAlgebras.
 
 Section Algebras.
 
@@ -71,7 +72,6 @@ Section Algebras.
 
   Definition shSet_category : category := (shSet_precategory ,, has_homsets_shSet_precategory).
 
-
   Definition algebras_disp : disp_cat shSet_category.
   Proof.
     use disp_cat_from_SIP_data. simpl.
@@ -84,7 +84,7 @@ Section Algebras.
       exact (ishomcomp (make_hom ishomf) (make_hom ishomg)).
   Defined.
 
-    Lemma is_univalent_algebras_disp : is_univalent_disp algebras_disp.
+  Lemma is_univalent_algebras_disp : is_univalent_disp algebras_disp.
   Proof.
     use is_univalent_disp_from_SIP_data.
     - intro A. cbn. use impred_isaset. intro nm. cbn.
@@ -93,11 +93,13 @@ Section Algebras.
       unfold ishom in *. cbn in *. set (H1:= ishomid1 nm vec). (*rewrite vector_map_id in H1*)
       unfold sfun_from_setfun in H1. rewrite staridfun in H1. apply H1.
   Qed.
-Local Open Scope cat.
+
+  Local Open Scope cat.
+
   Lemma aux{A : UU}{B : A → UU}{f g : ∏ a:A, B a}(p : f = g) : ∏ a, f a = g a.
-    Proof. intro a. induction p. apply idpath. Defined. 
+    Proof. intro a. induction p. apply idpath. Defined.
     Search (?a = ?b) "homot".
-    
+
   Lemma iso_fiber {A B : shSet_category} (i : Isos.iso A B): ∏ s, @Isos.iso SET (A s) (B s).
   Proof.
     intro S.
@@ -112,10 +114,6 @@ Local Open Scope cat.
         + set (X:=eqtohomot p S). apply X.
         + set (X:=eqtohomot q S). apply X.
   Defined.
-(*  Lemma isaset_shSet : isaset (shSet (sorts σ)).
-  Proof.
-    unfold shSet.
- *)
 
   Definition functor_eq_from_functor_iso (F G : shSet_category) (H : iso F G) : F = G.
   Proof.
@@ -170,7 +168,7 @@ Local Open Scope cat.
       apply idpath.
   Qed.
 
-   Definition is_univalent_shSet_category : is_univalent shSet_category.
+  Definition is_univalent_shSet_category : is_univalent shSet_category.
   Proof.
     split.
     2: apply has_homsets_shSet_precategory.
@@ -179,123 +177,12 @@ Local Open Scope cat.
     - apply functor_eq_from_functor_iso_idtoiso.
     - apply idtoiso_functor_eq_from_functor_iso.
   Defined.
- 
-  Definition is_univalent_shSet_category_old : is_univalent shSet_category.
-  Proof.
-    split.
-    2: apply has_homsets_shSet_precategory.
-    - intros F G. intro i. Search "contr" "prop". use iscontraprop1.
-      Focus 2.
-      use tpair. use funextfun. intro S.
-      Print z_iso.
-       apply hSet_univalence.
-        Search "iso" "weq" . set (X:= invweq (hset_equiv_weq_iso (F S) (G S))).
-        induction X as [eq _]. use eq. exact (iso_fiber i S).
-    - simpl. use total2_paths_f.
-      2: apply isaprop_is_iso.
-      * induction i as [i isiso]. simpl in *.
-        use funextsec; intro S. use funextfun. intro FS.
-        Check (i S FS). unfold iso_fiber. simpl. unfold all. simpl.
-
-      Search "is_univalent". Search "weq".
-       use gradth.
-      + intro i. use funextfun. intro S. apply hSet_univalence.
-        Search "iso" "weq" . set (X:= invweq (hset_equiv_weq_iso (F S) (G S))).
-        induction X as [eq _]. use eq. exact (iso_fiber i S).
-      + intros e. induction e.
-
-    use total2_paths_f.
-    - use idpath.
-    - use proofirrelevance. use isaprop_is_iso.
-      + simpl. intro p. Search "funspace". Search "is_univalent".
-        Search "shSet".
-        Search "inv" "eq".
-
-
-
-
-
-
-
-
-        use univalence.
-        * exact (F S ≃ G S).
-        *  apply pathsinv0. apply univalence. Search "univ" "hSet".
-        * exact (@Isos.iso SET (F S) (G S)).
-        * apply univalence. set (X:= is_univalent_HSET).
-          unfold is_univalent_HSET in X. simpl in *. induction X as [X _]. simpl in *.
-
-
-         apply  hset_equiv_weq_iso.
-           hset_id_weq_iso.
-
-  (*  - intro A. exact (∏ nm: σ, (λ _, A)* (arity nm) → (λ _, A) (sort nm)).
-    - cbn. intros A B asA asB f.
-      Search "s→".
-      exact (@ishom σ (make_algebra (λ _, A) asA) (make_algebra (λ _, B) asB) (sfun_from_setfun f σ)).
-(*        (∏ (nm: σ) (x: dom (make_algebra (λ _, A) asA) nm), (sfun_from_setfun f σ) (sort nm) ((make_algebra (λ _, A) asA) nm x) = (make_algebra (λ _, B) asB) nm ((sfun_from_setfun f σ)** _ x)).
- *)    - intros A B asA asB f opA opB.
-         apply isapropishom.
-    - cbn. intros A asA. apply ishomid.
-    - cbn. intros A B C opA opB opC. intros f g ishomf ishomg.
-      exact (ishomcomp (make_hom ishomf) (make_hom ishomg)).
-  Defined.
-
-
-(*    - exact (λ A, shSet A).
-    - cbn. intros A B sA sB f.
-
-  Definition algebras_cat : category.
-  Proof.
-    use make_category.
-    - use make_precategory.
-      + use make_precategory_data.
-        * use make_precategory_ob_mor.
-          { exact (algebra σ). }
-          {  intros. exact}
-          { exact (shSet (sorts σ)).  }
-          { intros F G. unfold shSet in *. exact (∑ f : hSet → hSet, f ∘ F = G). }
-        * cbn. intro F. use tpair.
-          { intro A. exact A. }
-          { cbn. apply idpath. }
-        * cbn. intros F G H [α alpha] [β Beta]. use tpair.
-          { exact (β ∘ α). }
-          { simpl in *. Search "assoc" "fun". rewrite <- funcomp_assoc. rewrite alpha. apply Beta. }
-      + unfold is_precategory. simpl. split.
-        * split.
-          { intros F G [α alpha]. apply idpath. }
-          { intros F G [α alpha]. use total2_paths2_f. simpl. apply idpath.
-            simpl.
-            etrans. use (id_right (α,, alpha)).
-          { intro A. exact A. }
-          { cbn.
-
-          Local Open Scope sorted_scope.
-
-    - exact (λ A:hSet, ∏ (nm : names sigma),  Vector A (arity nm) → A).
-    - cbn. intros. exact (@ishom sigma (make_algebra x X) (make_algebra y X0) X1).
-    - intros. apply isapropishom.
-    -  cbn. intros. apply ishomidfun.
-    - cbn. intros A B C opA opB opC. intros f g ishomf ishomg.
-      exact (ishomcomp (make_hom ishomf) (make_hom ishomg)).
-  Defined.*)
-
-  Lemma is_univalent_algebras_disp : is_univalent_disp algebras_disp.
-  Proof.
-    use is_univalent_disp_from_SIP_data.
-    - intro A. cbn. use impred_isaset. intro nm. cbn.
-      use isaset_set_fun_space.
-    - cbn. intros A op1 op2 ishomid1 ishomid2. use funextsec. intro nm. use funextfun. intro vec.
-      unfold ishom in *. cbn in *. set (H1:= ishomid1 nm vec). (*rewrite vector_map_id in H1*)
-      unfold sfun_from_setfun in H1. rewrite staridfun in H1. apply H1.
-  Qed.
 
   Definition category_algebras : category := total_category algebras_disp.
 
   Lemma is_univalent_category_algebras : is_univalent category_algebras.
   Proof.
-    exact (@is_univalent_total_category
-             SET algebras_disp (is_univalent_HSET) is_univalent_algebras_disp).
+    exact (@is_univalent_total_category shSet_category algebras_disp is_univalent_shSet_category is_univalent_algebras_disp).
   Qed.
 
 End Algebras.
