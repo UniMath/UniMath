@@ -29,7 +29,7 @@ Definition nat_functor : functor type_precat type_precat :=
 (** The functor deals with functions from ∅ and unit; these lemmas will come in
     handy in several proofs. *)
 Lemma eqfromempty {X : UU} (f : empty -> X) : f = fromempty.
-Proof. apply proofirrelevance, isapropifcontr, iscontrfunfromempty. Defined.
+Proof. apply proofirrelevancecontr, iscontrfunfromempty. Defined.
 
 Lemma eta_unit {X : UU} (f : unit -> X) : f = λ _, f tt.
 Proof. apply funextfun; intros ?; induction _; reflexivity. Defined.

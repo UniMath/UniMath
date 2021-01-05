@@ -44,7 +44,7 @@ Defined.
 
 Lemma TerminalEndo_is_identity {T : Terminal} (f : T --> T) : f = identity T.
 Proof.
-now apply proofirrelevance, isapropifcontr, (pr2 T T).
+apply proofirrelevancecontr, (pr2 T T).
 Qed.
 
 Lemma TerminalArrowEq {T : Terminal} {a : C} (f g : a --> T) : f = g.

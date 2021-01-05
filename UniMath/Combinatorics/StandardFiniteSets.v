@@ -1513,7 +1513,7 @@ Proof.
       { intro hf.
         destruct hf as [ j e ].
         assert ( ee : j = lastelement ).
-        { apply ( proofirrelevance _ ( isapropifcontr iscontrstn1 ) _ _ ). }
+        { apply proofirrelevancecontr, iscontrstn1. }
         destruct ( nopathstruetofalse ( pathscomp0 ( pathscomp0 ( pathsinv0 e ) ( maponpaths fl ee ) ) ni ) ).
       }
       apply ( weqcomp w' ( weqcomp ( invweq ( weqii2withneg _ g' ) ) w0 )  ).

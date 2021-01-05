@@ -264,8 +264,7 @@ Proof.
   intro H.
   simpl in *.
   apply (eq_equalities_between_pairs _ _ _ _ _ _ H).
-  apply proofirrelevance.
-  apply isapropifcontr.
+  apply proofirrelevancecontr.
   apply isaprop_ConeProp.
 Defined.
 

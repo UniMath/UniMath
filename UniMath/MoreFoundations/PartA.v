@@ -787,9 +787,7 @@ Section Weqpaths.
            (r ,, k)
            ((p @ !q) ,, hornRotation_rr (idpath _)).
   Proof.
-    apply proofirrelevance.
-    apply isapropifcontr.
-    apply uniqueFiller.
+    apply proofirrelevancecontr. apply uniqueFiller.
   Defined.
 
   Corollary isweqpathscomp0r' {X : UU} (x : X) {x' x'' : X} (e' : x' = x'') :

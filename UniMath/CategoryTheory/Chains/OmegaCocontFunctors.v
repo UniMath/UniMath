@@ -501,7 +501,7 @@ Proof.
       apply has_homsets_product_precategory, hsB | ];
     apply funextsec; intros i;
     assert (MM := M i _ (mapcocone (pr_functor I B i) _ cc'));
-    assert (H := proofirrelevance _ (isapropifcontr MM));
+    assert (H := proofirrelevancecontr MM);
     use (maponpaths pr1 (H (pr1 f1 i,,_) (pr1 f2 i,,_)));
       clear MM H; intros v ;
       [ exact (toforallpaths _ _ _ (pr2 f1 v) i) |

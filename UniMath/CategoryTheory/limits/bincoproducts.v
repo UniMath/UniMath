@@ -241,10 +241,7 @@ Proof.
   set (t1 := tpair _ k (make_dirprod H1 H2) : X).
   set (t2 := tpair _ (identity _ ) (make_dirprod (id_right _ ) (id_right _ ) ) : X).
   assert (X' : t1 = t2).
-  { apply proofirrelevance.
-    apply isapropifcontr.
-    apply H'.
-  }
+  { apply proofirrelevancecontr. apply H'. }
   apply pathsinv0.
   apply (base_paths _ _ X').
 Defined.

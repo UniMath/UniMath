@@ -327,7 +327,7 @@ Lemma uniqueExists {A : UU} {P : A -> UU} {a b : A}
   (Hexists : ∃! a, P a) (Ha : P a) (Hb : P b) : a = b.
 Proof.
   assert (H : tpair _ _ Ha = tpair _ _ Hb).
-  { now apply proofirrelevance, isapropifcontr. }
+  { now apply proofirrelevancecontr. }
   exact (base_paths _ _ H).
 Defined.
 

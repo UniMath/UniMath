@@ -883,7 +883,7 @@ Proof.
   clear E.
   set (x := (_,,X) : hfiber (postcomp_with f) f).
   set (y := (_,,Y) : hfiber (postcomp_with f) f).
-  exact (maponpaths pr1 ((proofirrelevance _ (isapropifcontr (i b f))) y x)).
+  exact (maponpaths pr1 (proofirrelevancecontr (i b f) y x)).
 Defined.
 
 Definition iso_to_z_iso {C : precategory} {b c : C} : iso b c -> z_iso b c

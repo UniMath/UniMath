@@ -208,8 +208,7 @@ Lemma PullbackEndo_is_identity {a b c : C}{f : b --> a} {g : c --> a}
 Proof.
   set (H1 := tpair ((fun hk : Pb --> Pb => dirprod (hk · _ = _)(hk · _ = _))) k (make_dirprod kH1 kH2)).
   assert (H2 : identity_is_Pullback_input Pb = H1).
-  - apply proofirrelevance.
-    apply isapropifcontr.
+  - apply proofirrelevancecontr.
     apply (isPullback_Pullback Pb).
     apply PullbackSqrCommutes.
   - apply (base_paths _ _ H2).
@@ -1027,8 +1026,7 @@ Proof.
   intros a f g.
   exists (UnivProductFromPullback c d a f g).
   intro t.
-  apply proofirrelevance,
-        isapropifcontr,
+  apply proofirrelevancecontr,
         isPullback_Pullback,
         TerminalArrowEq.
 Qed.
