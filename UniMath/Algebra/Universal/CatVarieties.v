@@ -13,22 +13,27 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 
 Require Import UniMath.Algebra.Universal.
+Require Import UniMath.Algebra.Universal.HVectors.
+Require Import UniMath.Algebra.Universal.Signatures.
+Require Import UniMath.Algebra.Universal.Algebras.
 Require Import UniMath.Algebra.Universal.Equations.
 Require Import UniMath.Algebra.Universal.CatAlgebras.
 
 Notation "'theory'" := eqsignature. (* isn't it a standard name? *)
-Context (sigma : theory).
+Context (σ : theory).
 
-Definition varieties_disp : disp_cat SET.
+Local Open Scope sorted.
+
+Definition varieties_disp : disp_cat (shSet_category σ).
 Proof.
   use disp_cat_from_SIP_data.
   - cbn; intro A.
-    exact (∑ (op :  ∏ (nm : names sigma),  Vector A (arity nm) → A),
-           ∏ e : eqs sigma, holds (make_algebra A op) (geteq e)).
-  - cbn; intros a b [opa iseqa] [opb iseqb] f.
-    exact (@ishom sigma (make_algebra a opa) (make_algebra b opb) f).
+    exact (∑ ops: (∏ nm: names σ, A ↑ (arity nm) → A (sort nm)),
+            (∏ e : eqs σ, holds (make_algebra A ops) (geteq e))).
+  - cbn. intros a b [opa iseqa] [opb iseqb] f.
+    exact (@ishom σ (make_algebra a opa) (make_algebra b opb) f).
   - intros. apply isapropishom.
-  - cbn. intros. apply ishomidfun.
+  - cbn. intros. apply ishomid.
   - cbn. intros A B C prpA prpB prpC. intros f g ishomf ishomg.
     exact (ishomcomp (make_hom ishomf) (make_hom ishomg)).
 Defined.
@@ -43,8 +48,11 @@ Proof.
   - cbn; intros A [opA iseqA][op'A iseq'A]. intros i i'.
     use total2_paths2_f.
     * use funextsec. intro nm. use funextfun. intro v.
-      unfold ishom in *. cbn in *. set (H1:= i nm v). rewrite vector_map_id in H1.
-      apply H1.
+      unfold ishom in *. cbn in *. set (H1 := i nm v).
+      eapply pathscomp0.
+      exact H1.
+      apply maponpaths.
+      apply staridfun.
     * cbn. apply funextsec; cbn; intro e. apply funextsec; intro f. apply A.
 Qed.
 
@@ -52,6 +60,6 @@ Definition category_varieties : category := total_category varieties_disp.
 
 Lemma is_univalent_category_varieties : is_univalent category_varieties.
 Proof.
-  exact (@is_univalent_total_category
-           SET varieties_disp (is_univalent_HSET) is_univalent_varieties_disp).
+  exact (@is_univalent_total_category (shSet_category σ) varieties_disp 
+           (is_univalent_shSet_category σ) is_univalent_varieties_disp).
 Qed.
