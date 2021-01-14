@@ -38,7 +38,7 @@ Universal/TermAlgebras.v
 Universal/Examples/Tests.v
 Universal/FreeAlgebras.v
 Universal/Equations.v
+Universal/Examples/Tarski.v
 Universal/CatAlgebras.v
 Universal/CatVarieties.v
-Universal/Tarski.v
 Universal.v
