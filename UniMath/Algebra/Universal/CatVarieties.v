@@ -24,6 +24,39 @@ Context (σ : theory).
 
 Local Open Scope sorted.
 
+(* Alternative presetnation *)
+
+(*
+Definition varieties_disp : disp_cat (category_algebras σ).
+Proof.
+  use disp_full_sub.
+  exact (λ A, is_eqalgebra A).
+Defined.
+
+Lemma is_univalent_varieties_disp : is_univalent_disp varieties_disp.
+Proof.
+  use disp_full_sub_univalent.
+  cbn.
+  intros A isT isT'.
+  use impred_isaprop.
+  intro eq.
+  use impred_isaprop.
+  intro eq'.
+  cbn.
+  intros p p'.
+  apply (pr1 A).
+Qed.
+
+Definition category_varieties : category := total_category varieties_disp.
+
+Lemma is_univalent_category_varieties : is_univalent category_varieties.
+Proof.
+  exact (@is_univalent_total_category
+           (category_algebras σ) varieties_disp (is_univalent_category_algebras σ) is_univalent_varieties_disp).
+Qed.
+
+*)
+
 Definition varieties_disp : disp_cat (shSet_category σ).
 Proof.
   use disp_cat_from_SIP_data.
