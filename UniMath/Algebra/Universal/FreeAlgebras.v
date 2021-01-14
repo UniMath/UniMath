@@ -21,6 +21,9 @@ Section Variables.
 
   Definition varspec (σ: signature) := ∑ V: hSet, V → sorts σ.
 
+  Definition make_varspec (σ: signature) (varsupp: hSet) (varsorts: varsupp → sorts σ)
+    : varspec σ := (varsupp,, varsorts).
+
   Coercion varsupp {σ: signature}: varspec σ → hSet := pr1.
 
   Definition varsort {σ: signature} {V: varspec σ}: V → sorts σ := pr2 V.
@@ -40,9 +43,11 @@ Section Variables.
 
   Definition varterm {V: varspec σ} (v: V): vterm σ V (varsort v) := build_term (varname v) [].
 
+  Definition assignment {σ: signature} (A: sUU (sorts σ)) (V: varspec σ) : UU := ∏ v: V, A (varsort v).
+
   Definition fromvterm {A: sUU (sorts σ)} {V: varspec σ}
                        (op : (∏ nm : names σ, A ↑ (arity nm) → A (sort nm)))
-                       (α : ∏ v: V, A (varsort v))
+                       (α : assignment A V)
     : vterm σ V s→ A.
   Proof.
     refine (@fromterm (vsignature σ V) A _).
@@ -53,7 +58,7 @@ Section Variables.
 
   Lemma fromvtermstep {A: sUU (sorts σ)} {V: varspec σ}
                       (op : (∏ nm : names σ, A ↑ (arity nm) → A (sort nm)))
-                      (α : ∏ v: V, A (varsort v))
+                      (α : assignment A V)
                       (nm: names σ) (v:  vterm σ V ↑ (arity nm))
     : fromvterm op α (sort nm) (build_term (namelift nm) v) = op nm (fromvterm op α ↑↑ (arity nm) v).
   Proof.
@@ -67,7 +72,7 @@ Section Variables.
   (** This used to be provable with apply idpath in the single sorted case **)
   Lemma fromvtermstep' {A: sUU (sorts σ)} {V: varspec σ}
                        (op : (∏ nm : names σ, A ↑ (arity nm) → A (sort nm)))
-                       (α : ∏ v: V, A (varsort v))
+                       (α : assignment A V)
                        (v: V)
     : fromvterm op α (varsort v) (build_term (varname v) []) = α v.
   Proof.
@@ -83,7 +88,7 @@ Section FreeAlgebras.
   Definition free_algebra (σ: signature) (V: varspec σ): algebra σ :=
     @make_algebra σ (vtermset σ V) (build_term ∘ namelift).
 
-  Context {σ: signature} (a : algebra σ) {V: varspec σ} (α : ∏ v: V, support a (varsort v)).
+  Context {σ: signature} (a : algebra σ) {V: varspec σ} (α: assignment a V).
 
   Definition veval: free_algebra σ V s→ a := fromvterm (ops a) α.
 
@@ -98,7 +103,7 @@ Section FreeAlgebras.
   Lemma ishomveval: ishom veval.
   Proof.
     red.
-    intros.
+    intros. 
     apply vevalstep.
   Defined.
 
