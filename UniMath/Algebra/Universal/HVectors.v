@@ -1,4 +1,8 @@
-(** * Basic definitions for heterogeneous lists *)
+(** * Basic definitions for heterogeneous vectors. *)
+(**
+If [v] is a vector of types U1 U2 ... Un, then [HVec v] is the product type [U1 × (U2 × ... × Un)]. 
+of the time, [v] is obtained from a different vector [w: Vector A n] trough a [vector_map] operation.
+**)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
@@ -37,7 +41,7 @@ Proof.
   - exact ((f firstelement) ::: (IHn (P ∘ dni_firstelement) (f ∘ dni_firstelement))).
 Defined.  
 
-Definition hhd {A: UU} {n: nat} {v: Vector UU n} (hv: HVec (A ::: v)): A := pr1 hv.  
+Definition hhd {A: UU} {n: nat} {v: Vector UU n} (hv: HVec (A ::: v)): A := pr1 hv.
 
 Definition htl {A: UU} {n: nat} {v: Vector UU n} (hv: HVec (A ::: v)): HVec v := pr2 hv.
 
@@ -54,7 +58,14 @@ Proof.
     + exact (IHxs (htl hv) (make_stn _ i iproof)).
 Defined.
 
-Lemma isofhlevelhvec {m: nat} {n: nat} (v: Vector UU n) (levels: HVec (vector_map (isofhlevel m) v)): isofhlevel m (HVec v).
+Lemma hvcons_paths {A: UU} (x y: A) {n: nat} (v: Vector UU n) (xs ys: HVec v) (p: x = y) (ps: xs = ys)
+  : hvcons x xs = hvcons y ys.
+Proof.
+  apply (map_on_two_paths (λ x xs, @hvcons A x n v xs)) ; assumption.
+Defined.
+
+Lemma isofhlevelhvec {m: nat} {n: nat} (v: Vector UU n) (levels: HVec (vector_map (isofhlevel m) v))
+  : isofhlevel m (HVec v).
 Proof.
   revert n v levels.
   refine (vector_ind _ _ _).
@@ -68,25 +79,16 @@ Proof.
     + apply (IHxs (pr2 levels)).
 Defined.
 
-Lemma hvcons_paths {A: UU} (x y: A) {n: nat} (v: Vector UU n) (xs ys: HVec v) (p: x = y) (ps: xs = ys)
-  : hvcons x xs = hvcons y ys.
-Proof.
-  apply (map_on_two_paths (λ x xs, @hvcons A x n v xs)) ; assumption.
-Defined.
-
 (** ** HVecs of vector_map *)
 
-Lemma hvec_vector_map_const {A: UU} {n: nat} (v: Vector A n) {B: UU}
-  : HVec (vector_map (λ _, B) v) = Vector B n.
+Lemma hvec_vector_fill {A: UU} {n: nat} 
+  : HVec (vector_fill A n)  = Vector A n.
 Proof.
-  revert n v.
-  refine (vector_ind _ _ _).
+  induction n.
   - apply idpath.
   - simpl.
-    intros x n xs IHxs.
-    use map_on_two_paths.
-    + apply idpath.
-    + assumption.
+    apply maponpaths.
+    assumption.
 Defined.
 
 Definition hfoldr {A: UU} {n: nat} {v: Vector A n} {P: A → UU} {B: UU} (comb: ∏ (a: A), P a → B → B)
@@ -171,8 +173,6 @@ Proof.
     + exact (pr1 hpath).
     + exact (IHxs (pr2 hv) (pr2 hpath)).
 Defined.
-
-(** ** HVecs of vector_map *)
 
 Definition hmap_lift {A: UU} {n: nat} {v: Vector A n} {P: A → UU} {Q: ∏ (a: A) (p: P a), UU} (f: ∏ (a: A) (p: P a), Q a p)
                      (hv: HVec (vector_map P v)): HVec (hmap_vector Q hv).

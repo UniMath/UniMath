@@ -50,7 +50,8 @@ Proof.
     induction nm as [nm nmproof].
     induction nm.
     + unfold star.
-      rewrite hvec_vector_map_const.
+      rewrite vector_map_const.
+      rewrite hvec_vector_fill.
       exact (pr1 ops).
     + exact (IHxs (pr2 ops) (nm ,, nmproof)).
 Defined.

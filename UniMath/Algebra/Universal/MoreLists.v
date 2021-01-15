@@ -1,4 +1,4 @@
-(** * Additional definitions, lemmas and notations for lists *)
+(** * Additional definitions, lemmas and notations for lists. *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.Vectors.
@@ -25,7 +25,7 @@ Infix "++" := concatenate: list_scope.
 
 Local Open Scope list_scope.
 
-(** *** Proofs that cons is injective on both arguments *)
+(** *** Proofs that [cons] is injective on both arguments *)
 
 Definition head {A: UU}: list A → maybe A.
 Proof.
@@ -73,7 +73,7 @@ Proof.
   assumption.
 Defined.
 
-(** ** Several properties of the length of a list *)
+(** ** Several properties for the length of a list *)
 
 Lemma length_cons {A: UU} (x: A) (xs: list A)
   : length (cons x xs) = S (length xs).
@@ -181,7 +181,12 @@ Proof.
   assumption.
 Defined.
 
-(** ** The prefix_remove operation and related properties *)
+(** ** The [prefix_remove] operation and related properties. 
+
+If [l2] is a prefix of [l1], then [prefix_remove l1 l2] returns [just l] where [l] is the only list such
+that [l2 ++ l = l1]. Otherwise [prefix_remove l1 l2] returns [nothing]. It is required for [l1] and [l2]
+to be of type [list A] with [A: decSet].
+*)
 
 Definition prefix_remove {A: decSet} (l1 l2: list A): maybe (list A).
 Proof.
@@ -333,6 +338,12 @@ Proof.
     assumption.
 Defined.
 
+(** ** The [drop] operation and related properties. 
+
+If [l] is a list and [n] a natural number, [drop l n] returns the list obtained from l after removing
+the first n elements. If n > length l, then [drop l n = nil].
+*)
+
 Definition drop {A: UU} (l: list A) (n: nat): list A.
 Proof.
   revert l.
@@ -357,7 +368,9 @@ Defined.
 
 Lemma drop_step {A: UU} (x: A) (xs: list A) (n: nat)
   : drop (x :: xs) (S n) = drop xs n.
-Proof. apply idpath. Defined.
+Proof.
+  apply idpath.
+Defined.
 
 Lemma drop_full {A: UU} (l: list A): drop l (length l) = nil.
 Proof.
@@ -406,7 +419,7 @@ Proof.
     rewrite drop_nil.
     induction n.
     + apply idpath.
-    + change ( 0 = 0 - (1+ n)).
+    + change (0 = 0 - (1+ n)).
       rewrite <- natminusminus.
       assumption.
   - intros x xs IH.
