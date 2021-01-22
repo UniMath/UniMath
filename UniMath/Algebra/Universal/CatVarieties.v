@@ -1,9 +1,6 @@
 (** * Displayed category of varieties over a theory *)
 
 Require Import UniMath.Foundations.All.
-
-Require Import UniMath.Combinatorics.Vectors.
-
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
@@ -12,17 +9,13 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 
-Require Import UniMath.Algebra.Universal.
-Require Import UniMath.Algebra.Universal.HVectors.
-Require Import UniMath.Algebra.Universal.Signatures.
-Require Import UniMath.Algebra.Universal.Algebras.
 Require Import UniMath.Algebra.Universal.Equations.
 Require Import UniMath.Algebra.Universal.CatAlgebras.
 
 Notation "'theory'" := eqsignature. (* isn't it a standard name? *)
 Context (σ : theory).
 
-Local Open Scope sorted.
+Local Open Scope sorted_scope.
 
 (* Alternative presetnation *)
 

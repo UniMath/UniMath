@@ -6,16 +6,12 @@
  *)
 
 Require Import UniMath.Foundations.All.
-Require Import UniMath.Combinatorics.Lists.
 
-Require Import UniMath.Algebra.Universal.Signatures.
-Require Import UniMath.Algebra.Universal.HVectors.
-Require Import UniMath.Algebra.Universal.Terms.
-Require Import UniMath.Algebra.Universal.Algebras.
-
-Local Open Scope hom.
+Require Export UniMath.Algebra.Universal.Algebras.
+Require Export UniMath.Algebra.Universal.Terms.
 
 Local Open Scope sorted.
+Local Open Scope hom.
 
 Section Variables.
 
@@ -41,7 +37,7 @@ Section Variables.
 
   Definition varname {V: varspec σ} (v: V): names (vsignature σ V) := inr v.
 
-  Definition varterm {V: varspec σ} (v: V): vterm σ V (varsort v) := build_term (varname v) [].
+  Definition varterm {V: varspec σ} (v: V): vterm σ V (varsort v) := build_term (varname v) [()].
 
   Definition assignment {σ: signature} (A: sUU (sorts σ)) (V: varspec σ) : UU := ∏ v: V, A (varsort v).
 
@@ -65,7 +61,7 @@ Section Variables.
     unfold fromvterm, fromterm.
     rewrite (term_ind_step _ _  (namelift nm)).
     simpl.
-    rewrite hvec_lower_hmap_lift.
+    rewrite h2lower_h1map_h1lift.
     apply idpath.
   Defined.
 
@@ -74,7 +70,7 @@ Section Variables.
                        (op : (∏ nm : names σ, A ↑ (arity nm) → A (sort nm)))
                        (α : assignment A V)
                        (v: V)
-    : fromvterm op α (varsort v) (build_term (varname v) []) = α v.
+    : fromvterm op α (varsort v) (build_term (varname v) [()]) = α v.
   Proof.
     unfold fromvterm, fromterm.
     rewrite (term_ind_step _ _  (varname v)).
@@ -152,7 +148,7 @@ Section FreeAlgebras.
            unfold starfun.
              simpl.
              simpl in IHhv.
-             apply hvcons_paths.
+             apply hcons_paths.
              + exact (pr1 IHhv).
              + exact (IHxs (pr2 hv) (pr2 IHhv)).
       * induction hv.

@@ -16,8 +16,6 @@ Require Import UniMath.Combinatorics.FiniteSets.
 Require Import UniMath.Combinatorics.Vectors.
 Require Import UniMath.Combinatorics.Lists.
 
-Require Import UniMath.Algebra.Universal.Signatures.
-Require Import UniMath.Algebra.Universal.Algebras.
 Require Import UniMath.Algebra.Universal.TermAlgebras.
 
 Section Algebras.

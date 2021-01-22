@@ -6,9 +6,7 @@
 
 Require Import UniMath.Foundations.All.
 
-Require Import UniMath.Algebra.Universal.Signatures.
-Require Import UniMath.Algebra.Universal.Algebras.
-Require Import UniMath.Algebra.Universal.FreeAlgebras.
+Require Export UniMath.Algebra.Universal.FreeAlgebras.
 
 Section Equations.
 

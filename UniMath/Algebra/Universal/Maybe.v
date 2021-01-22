@@ -10,7 +10,7 @@ Definition nothing {A: UU}: maybe A := ii2 tt.
 
 Definition just_injectivity {A: UU}: ∏ (x y: A), just x = just y → x = y := ii1_injectivity.
 
-Theorem isasetmaybe {A: UU} (H: isaset A): isaset (maybe A).
+Lemma isasetmaybe {A: UU} (H: isaset A): isaset (maybe A).
 Proof.
   apply isasetcoprod.
   - exact H.

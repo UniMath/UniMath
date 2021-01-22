@@ -14,6 +14,7 @@ Require Import UniMath.Algebra.Universal.Examples.Bool.
 
 Local Open Scope stn.
 Local Open Scope sorted.
+Local Open Scope hvec.
 
 Section SortedTypes.
 
@@ -70,7 +71,7 @@ Section NatLowLevel.
   Goal Terms.vecoplist2oplist [zero_oplist; one_oplist] = zero_one_oplist.
   Proof. apply idpath. Qed.
  
-  Goal hmap_vector (λ _, term2oplist) (pr1 (Terms.oplist2vecoplist zero_one_oplist (idpath _))) = vcons zero_oplist (vcons one_oplist vnil).
+  Goal h1map_vector (λ _, term2oplist) (pr1 (Terms.oplist2vecoplist zero_one_oplist (idpath _))) = vcons zero_oplist (vcons one_oplist vnil).
   Proof. apply idpath. Qed.
    
   Goal pr1 (Terms.oplist2vecoplist zero_one_oplist (idpath _)) = vcons zero_term (vcons one_term vnil).
@@ -102,10 +103,10 @@ Section Nat.
   Goal princop term_four = nat_succ_op.
   Proof. apply idpath. Qed.
 
-  Goal subterms term_one = [term_zero]%hvec.
+  Goal subterms term_one = [( term_zero )].
   Proof. apply idpath. Qed.
 
-  Goal subterms term_two = [term_one]%hvec.
+  Goal subterms term_two = [( term_one )] .
   Proof. apply idpath. Qed.
 
   Goal build_term (princop term_four) (subterms term_four) = term_four.
@@ -137,7 +138,8 @@ Section NatHom.
   Goal ∏ x: nat, homid nat_algebra tt x = x.
   Proof. apply idpath. Qed.
 
-  Local Definition nat_algebra2 := make_algebra_simple_single_sorted nat_signature natset [ λ _, 1 ;  λ x, S (pr1 x) ].
+  Local Definition nat_algebra2
+    := make_algebra_simple_single_sorted nat_signature natset [( λ _, 1 ;  λ x, S (pr1 x) )].
 
   Local Definition homnats: hom nat_algebra nat_algebra2.
   Proof.
@@ -188,10 +190,10 @@ Section Bool.
   Goal pr2 (Terms.oplistsplit (term2oplist t1) 1) = []%list.
   Proof. apply idpath. Qed.
 
-  Goal subterms t2 = [ t1 ]%hvec.
+  Goal subterms t2 = [( t1 )].
   Proof. apply idpath. Qed.
 
-  Goal subterms t1 = [ t_true ; t_false ]%hvec.
+  Goal subterms t1 = [( t_true ; t_false )].
   Proof. apply idpath. Qed.
 
   Goal depth t2 = 3.

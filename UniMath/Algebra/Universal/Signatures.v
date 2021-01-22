@@ -1,7 +1,6 @@
-(** * Signatures for universal algebra *)
+(** * Signatures for universal algebra.
 
-(**
-This file contains a formalization of multi-sorted signatures defined as a vector of arities.
+This file contains a formalization of multi-sorted signatures.
 *)
 
 Require Import UniMath.MoreFoundations.Notations.
@@ -11,6 +10,11 @@ Require Export UniMath.Algebra.Universal.DecSet.
 Require Import UniMath.Algebra.Universal.MoreLists.
 
 Local Open Scope stn.
+
+(** A _signature_ is given by a decidable set of sorts, a set of of operation symbols and a map
+from operation symbols to pair [(l,, s)] where [l] is the _arity_ (or _domain_) and [s] is
+the _sort_ (or _range_).
+*)
 
 Definition signature : UU := ∑ (S: decSet) (O: hSet), O → list S × S.
 
@@ -24,13 +28,23 @@ Definition arity {σ: signature} (nm: names σ) : list (sorts σ) := pr1 (ar σ 
 
 Definition sort {σ: signature} (nm: names σ) : sorts σ := pr2 (ar σ nm).
 
-Definition make_signature (S: decSet) (O: hSet) (ar: O → list S × S) : signature 
+(** Helper function for creating signatures. *)
+
+Definition make_signature (S: decSet) (O: hSet) (ar: O → list S × S) : signature
   := S ,, (O ,, ar).
 
 Definition make_signature_single_sorted (O: hSet) (ar: O → nat) : signature
   := make_signature (unit,, isdecequnit) O (λ op, fill tt (ar op) ,, tt).
 
-(** ** Some additional types to simplify the definition of signatures *)
+(** A signature may be alternatively specified trough a [signature_simple]. In a simple
+signature, the types for sorts and operation symbols are standard finite sets, and
+the map from operations symbols to domain and range is replaced by a list. In this way,
+the definition of a new signature is made simpler.
+
+We have decided to define new types for simple signatures instead of only defining helper
+functions, since this make it simpler to define simplified means of defining a new algebra,
+too.
+ *)
 
 Definition signature_simple : UU := ∑ (ns: nat), list (list (⟦ ns ⟧) × ⟦ ns ⟧).
 

@@ -2,13 +2,10 @@
 
 Require Import UniMath.Foundations.All.
 
-Require Import UniMath.Algebra.Universal.MoreLists.
-Require Import UniMath.Algebra.Universal.HVectors.
-Require Import UniMath.Algebra.Universal.Signatures.
-Require Import UniMath.Algebra.Universal.Algebras.
-Require Import UniMath.Algebra.Universal.Terms.
+Require Export UniMath.Algebra.Universal.Algebras.
+Require Export UniMath.Algebra.Universal.Terms.
 
-Local Open Scope sorted_scope.
+Local Open Scope sorted.
 Local Open Scope hom.
 
 (** ** The term algebra and the proof it is initial *)
@@ -24,7 +21,7 @@ Section TermAlgebra.
     := @fromterm σ a (ops a).
 
   Lemma evalstep {a: algebra σ} (nm: names σ) (v: term σ ↑ (arity nm)) 
-    : eval a _ (build_term nm v) = ops a nm (hmap (eval a) v).
+    : eval a _ (build_term nm v) = ops a nm (h1map (eval a) v).
   Proof.
     unfold eval.
     apply fromtermstep.
@@ -60,7 +57,7 @@ Section TermAlgebra.
     rewrite evalstep.
     apply maponpaths.
     unfold starfun.
-    apply hmap_path.
+    apply h1map_path.
     exact IH.
   Defined.
 

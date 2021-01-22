@@ -33,14 +33,14 @@ Definition impl   : T → T → T := build_term_curried (inl (●5) : names σ).
 (** Boolean Algebra **)
 
 Definition bool_algebra := make_algebra_simple_single_sorted bool_signature boolset
-  [ 
+  [(
     λ _, false ;
     λ _, true ; 
     λ x, negb (pr1 x) ;
     λ x, andb (pr1 x) (pr12 x) ; 
     λ x, orb (pr1 x) (pr12 x) ;
     λ x, implb (pr1 x) (pr12 x)
-  ].
+  )].
 
 (** Interpretation of propositional formulas **)
 

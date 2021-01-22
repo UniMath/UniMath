@@ -30,11 +30,11 @@ Section GroupAlgebra.
   Context (G: gr).
 
   Definition group_algebra := make_algebra_simple_single_sorted group_signature G
-    [ 
+    [(
       λ p, op (pr1 p) (pr12 p) ; 
       λ _, unel G ; 
       λ p, grinv G (pr1 p)
-    ].
+    )].
 
 End GroupAlgebra.
 

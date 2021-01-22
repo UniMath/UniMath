@@ -25,7 +25,7 @@ Definition cons_op: names list_signature := ●1.
 
 Definition list_algebra (A: hSet) := make_algebra_simple list_signature
     [ A ; listset A ]
-    [ λ _, nil ; λ p, cons (pr1 p) (pr12 p) ].
+    [( λ _, nil ; λ p, cons (pr1 p) (pr12 p) )].
 
 Definition list_nil := build_term_curried nil_op.
 Definition list_const := build_term_curried cons_op.

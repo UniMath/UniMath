@@ -1,7 +1,6 @@
-(** * Decidable sets. *)
+(** * Decidable sets.
 
-(**
-In this file we introduce the type [decSet] of h-sets of decidable sets, i.e., types [X] endowed with the 
+In this file we introduce the type [decSet] of h-sets of decidable sets, i.e., types [X] endowed with the
 property [isdeceq X], just like an [hSet] is a type X endowed with the property [isaset X].
 *)
 

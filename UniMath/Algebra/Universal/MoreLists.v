@@ -7,7 +7,12 @@ Require Export UniMath.Combinatorics.Lists.
 Require Import UniMath.Algebra.Universal.Maybe.
 Require Import UniMath.Algebra.Universal.DecSet.
 
-(** ** Notations for lists *)
+(** ** Notations for lists.
+
+Introduces a new scope, [list_scope], delimited by [list], which adds useful notations for lists.
+A list of elements [x1], [x2], ..., [xn] may be written a [[x1; x2; ...; xn]]. Moreover
+[[]] denotes the empty list, [::] is the cons operator and [++] the list concatenation operator.
+*)
 
 Declare Scope list_scope.
 
@@ -25,7 +30,12 @@ Infix "++" := concatenate: list_scope.
 
 Local Open Scope list_scope.
 
-(** *** Proofs that [cons] is injective on both arguments *)
+(** ** Proofs that [cons] is injective on both arguments.
+
+Introduces the [head] and [tail] operations on lists, using the maybe monad defined in
+[UniMath.Algebra.Universal.Maybe] for dealing with invalid function applications. Then, proves
+that [cons] is injective on both arguments and that there are no paths between [cons] and [nil].
+*)
 
 Definition head {A: UU}: list A → maybe A.
 Proof.
@@ -42,19 +52,19 @@ Proof.
 Defined.
 
 Lemma list_head_cons {A: UU} (x: A) (xs: list A)
-  : head (cons x xs) = ii1 x.
+  : head (x :: xs) = ii1 x.
 Proof.
   apply idpath.
 Defined.
 
 Lemma list_tail_cons {A: UU} (x: A) (xs: list A)
-  : tail (cons x xs) = ii1 xs.
+  : tail (x :: xs) = ii1 xs.
 Proof.
   apply idpath.
 Defined.
 
 Theorem cons_inj1 {A: UU} (a1 a2: A) (r1 r2: list A)
-  : cons a1 r1 = cons a2 r2 → a1 = a2.
+  : a1 :: r1 = a2 :: r2 → a1 = a2.
 Proof.
   intro H.
   apply (maponpaths head) in H.
@@ -64,7 +74,7 @@ Proof.
 Defined.
 
 Theorem cons_inj2 {A: UU} (a1 a2: A) (r1 r2: list A)
-  : cons a1 r1 = cons a2 r2 → r1 = r2.
+  : a1 :: r1 = a2 :: r2 → r1 = r2.
 Proof.
   intro H.
   apply (maponpaths tail) in H.
@@ -73,10 +83,27 @@ Proof.
   assumption.
 Defined.
 
-(** ** Several properties for the length of a list *)
+Lemma negpathsconsnil {A: UU} (a: A) (l: list A): a :: l != [].
+Proof.
+  intro X.
+  apply (maponpaths pr1) in X.
+  cbv in X.
+  apply negpathssx0 in X.
+  assumption.
+Defined.
+
+Lemma negpathsnilcons {A: UU} (a: A) (l: list A): [] != a :: l.
+Proof.
+  intro X.
+  apply pathsinv0 in X.
+  apply negpathsconsnil in X.
+  assumption.
+Defined.
+
+(** ** Several properties for the length of a list. *)
 
 Lemma length_cons {A: UU} (x: A) (xs: list A)
-  : length (cons x xs) = S (length xs).
+  : length (x :: xs) = S (length xs).
 Proof.
   apply idpath.
 Defined.
@@ -87,7 +114,6 @@ Proof.
   refine (list_ind _ _ _).
   - reflexivity.
   - intros x xs _ HP.
-    rewrite length_cons in HP.
     apply negpathssx0 in HP.
     contradiction.
 Defined.
@@ -104,26 +130,26 @@ Proof.
 Defined.
 
 Lemma length_concatenate {A: UU} (l1: list A) (l2: list A)
-  : length (concatenate l1 l2) = length l1 + length l2.
+  : length (l1 ++ l2) = length l1 + length l2.
 Proof.
   revert l1.
   apply list_ind.
   - apply idpath.
   - intros x xs IH.
-    change (S (length (concatenate xs l2)) = S (length xs + length l2)).
+    change (S (length (xs ++ l2)) = S (length xs + length l2)).
     apply maponpaths.
     apply IH.
 Defined.
 
 Lemma length_sublist1 {A: UU} (l1: list A) (l2: list A)
-  : length l1 ≤ length (concatenate l1 l2).
+  : length l1 ≤ length (l1 ++ l2).
 Proof.
   rewrite length_concatenate.
   apply natlehnplusnm.
 Defined.
 
 Lemma length_sublist2 {A: UU} (l1: list A) (l2: list A)
-  : length l2 ≤ length (concatenate l1 l2).
+  : length l2 ≤ length (l1 ++ l2).
 Proof.
   rewrite length_concatenate.
   rewrite natpluscomm.
@@ -136,13 +162,13 @@ Proof.
   apply list_ind.
   - apply idpath.
   - intros x xs HPind.
-    change (map f (x :: xs)) with (cons (f x) (map f xs)).
+    change (map f (x :: xs)) with (f x :: map f xs).
     change (S (length (map f xs)) = S(length xs)).
     apply maponpaths.
     exact HPind.
 Defined.
 
-(** ** Additional lemmas and definitions *)
+(** ** Miscellanea of properties and definitions. *)
 
 Definition listset (A: hSet): hSet := make_hSet (list A) (isofhlevellist 0 (setproperty A)).
 
@@ -164,22 +190,78 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma negpathsconsnil {A: UU} (a: A) (l: list A): cons a l != nil.
+(** ** The [drop] operation and related properties.
+
+If [l] is a list and [n] a natural number, [drop l n] returns the list obtained from [l] after removing
+the first [n] elements. If _n > length l_, then [drop l n = []].
+*)
+
+Definition drop {A: UU} (l: list A) (n: nat): list A.
 Proof.
-  intro X.
-  apply (maponpaths pr1) in X.
-  cbv in X.
-  apply negpathssx0 in X.
-  assumption.
+  revert l.
+  induction n.
+  - exact (idfun _).
+  - apply list_ind.
+    + exact [].
+    + intros x xs _.
+      exact (IHn xs).
 Defined.
 
-Lemma negpathsnilcons {A: UU} (a: A) (l: list A): nil != cons a l.
+Lemma drop_nil {A: UU} {n: nat}: @drop A [] n = [].
 Proof.
-  intro X.
-  apply pathsinv0 in X.
-  apply negpathsconsnil in X.
-  assumption.
+  induction n ; apply idpath.
 Defined.
+
+Lemma drop_zero {A: UU} (l: list A): drop l 0 = l.
+Proof.
+  revert l.
+  apply list_ind; trivial.
+Defined.
+
+Lemma drop_step {A: UU} (x: A) (xs: list A) (n: nat)
+  : drop (x :: xs) (S n) = drop xs n.
+Proof.
+  apply idpath.
+Defined.
+
+Lemma drop_full {A: UU} (l: list A): drop l (length l) = [].
+Proof.
+  revert l; apply list_ind ; trivial.
+Defined.
+
+Lemma drop_concatenate {A: UU} (l1 l2: list A) (n: nat) (nok: n ≤ length l1): drop (l1 ++ l2) n = (drop l1 n) ++ l2.
+Proof.
+  revert l1 nok.
+  induction n.
+  - reflexivity.
+  - refine (list_ind _ _ _).
+    + intros.
+      contradiction (negnatlehsn0 _ nok).
+    + intros x xs _ sok.
+      rewrite concatenateStep.
+      do 2rewrite drop_step.
+      apply (IHn xs sok).
+Defined.
+
+Lemma length_drop {A: UU} (l: list A) (n: nat): length (drop l n) = length l - n.
+Proof.
+  revert l n.
+  refine (list_ind _ _ _).
+  - intro n.
+    rewrite drop_nil.
+    induction n.
+    + apply idpath.
+    + change (0 = 0 - (1+ n)).
+      rewrite <- natminusminus.
+      assumption.
+  - intros x xs IH.
+    induction n.
+    + apply idpath.
+    + rewrite drop_step.
+      rewrite length_cons.
+      apply (IH n).
+Defined.
+
 
 (** ** The [prefix_remove] operation and related properties. 
 
@@ -338,59 +420,6 @@ Proof.
     assumption.
 Defined.
 
-(** ** The [drop] operation and related properties. 
-
-If [l] is a list and [n] a natural number, [drop l n] returns the list obtained from l after removing
-the first n elements. If n > length l, then [drop l n = nil].
-*)
-
-Definition drop {A: UU} (l: list A) (n: nat): list A.
-Proof.
-  revert l.
-  induction n.
-  - exact (idfun _).
-  - apply list_ind.
-    + exact nil.
-    + intros x xs _.
-      exact (IHn xs).
-Defined.
-
-Lemma drop_nil {A: UU} {n: nat}: @drop A [] n = [].
-Proof.
-  induction n ; apply idpath.
-Defined.
-
-Lemma drop_zero {A: UU} (l: list A): drop l 0 = l.
-Proof.
-  revert l.
-  apply list_ind; trivial.
-Defined.
-
-Lemma drop_step {A: UU} (x: A) (xs: list A) (n: nat)
-  : drop (x :: xs) (S n) = drop xs n.
-Proof.
-  apply idpath.
-Defined.
-
-Lemma drop_full {A: UU} (l: list A): drop l (length l) = nil.
-Proof.
-  revert l; apply list_ind ; trivial.
-Defined.
-
-Lemma drop_concatenate {A: UU} (l1 l2: list A) (n: nat) (nok: n ≤ length l1): drop (l1 ++ l2) n = (drop l1 n) ++ l2.
-Proof.
-  revert l1 nok.
-  induction n.
-  - reflexivity.
-  - refine (list_ind _ _ _).
-    + intros.
-      contradiction (negnatlehsn0 _ nok).
-    + intros x xs _ sok.
-      rewrite concatenateStep.
-      do 2rewrite drop_step.
-      apply (IHn xs sok).
-Defined.
-
 Lemma prefix_remove_drop {A: decSet} (l1 l2: list A)
   : prefix_remove l1 l2 != nothing → prefix_remove l1 l2 = just (drop l2 (length l1)).
 Proof.
@@ -409,23 +438,4 @@ Proof.
       * rewrite (prefix_remove_stepneq x1neqx2) in prefixok.
         contradiction prefixok.
         apply idpath.
-Defined.
-
-Lemma length_drop {A: decSet} (l: list A) (n: nat): length (drop l n) = length l - n.
-Proof.
-  revert l n.
-  refine (list_ind _ _ _).
-  - intro n.
-    rewrite drop_nil.
-    induction n.
-    + apply idpath.
-    + change (0 = 0 - (1+ n)).
-      rewrite <- natminusminus.
-      assumption.
-  - intros x xs IH.
-    induction n.
-    + apply idpath.
-    + rewrite drop_step.
-      rewrite length_cons.
-      apply (IH n).
 Defined.

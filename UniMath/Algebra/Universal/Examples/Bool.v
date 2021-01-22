@@ -27,13 +27,13 @@ Definition bool_and_op : names bool_signature := ●3.
 Definition bool_or_op : names bool_signature := ●4.
 
 Definition bool_algebra := make_algebra_simple_single_sorted bool_signature boolset
-  [ 
+  [(
     λ _, false ;
     λ _, true ; 
     λ x, negb (pr1 x) ;
     λ x, andb (pr1 x) (pr12 x) ; 
     λ x, orb (pr1 x) (pr12 x)
-  ].
+  )].
 
 Definition bool_false := build_term_curried bool_false_op.
 Definition bool_true := build_term_curried bool_true_op.
