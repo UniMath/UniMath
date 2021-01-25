@@ -20,7 +20,7 @@ Section SortedTypes.
 
   Local Definition A : sUU bool := bool_ind _ nat unit.
 
-  Goal A ↑ (cons true (cons false (cons true nil))) = (nat × unit × nat × unit).
+  Goal A ⋆ (cons true (cons false (cons true nil))) = (nat × unit × nat × unit).
   Proof. apply idpath. Defined.
 
 End SortedTypes.
@@ -54,7 +54,7 @@ Section NatLowLevel.
   Goal Terms.isaterm nat_sort (nat2term 10).
   Proof. apply idpath. Qed.
 
-  Goal Terms.statusconcatenate (Terms.statusok [nat_sort]) (Terms.statusok [nat_sort ; nat_sort]) 
+  Goal Terms.statusconcatenate (Terms.statusok [nat_sort]) (Terms.statusok [nat_sort ; nat_sort])
     = Terms.statusok [nat_sort ; nat_sort ; nat_sort].
   Proof. apply idpath. Qed.
 
@@ -64,19 +64,19 @@ Section NatLowLevel.
 
   Goal Terms.oplistsplit zero_one_oplist 0 = nil ,, zero_one_oplist.
   Proof. apply idpath. Qed.
-  
+
   Goal Terms.oplistsplit zero_one_oplist 1 = zero_oplist ,, one_oplist.
   Proof. apply idpath. Qed.
 
   Goal Terms.vecoplist2oplist [zero_oplist; one_oplist] = zero_one_oplist.
   Proof. apply idpath. Qed.
- 
+
   Goal h1map_vector (λ _, term2oplist) (pr1 (Terms.oplist2vecoplist zero_one_oplist (idpath _))) = vcons zero_oplist (vcons one_oplist vnil).
   Proof. apply idpath. Qed.
-   
+
   Goal pr1 (Terms.oplist2vecoplist zero_one_oplist (idpath _)) = vcons zero_term (vcons one_term vnil).
   Proof. apply idpath. Qed.
-  
+
   Goal Terms.oplist_build_term nat_succ_op [zero_oplist] = one_oplist.
   Proof. apply idpath. Qed.
 
@@ -121,7 +121,7 @@ Section Nat.
   (* does not terminate: compute is call-by-value, hence it needs to compute
      all the proofs involved in the recursion *)
   (* Eval compute in depth term_four. *)
-  
+
   Goal eval nat_algebra tt term_zero = 0.
   Proof. apply idpath. Qed.
 

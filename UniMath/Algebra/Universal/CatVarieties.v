@@ -54,7 +54,7 @@ Definition varieties_disp : disp_cat (shSet_category σ).
 Proof.
   use disp_cat_from_SIP_data.
   - cbn; intro A.
-    exact (∑ ops: (∏ nm: names σ, A ↑ (arity nm) → A (sort nm)),
+    exact (∑ ops: (∏ nm: names σ, A ⋆ (arity nm) → A (sort nm)),
             (∏ e : eqs σ, holds (make_algebra A ops) (geteq e))).
   - cbn. intros a b [opa iseqa] [opb iseqb] f.
     exact (@ishom σ (make_algebra a opa) (make_algebra b opb) f).
@@ -86,6 +86,6 @@ Definition category_varieties : category := total_category varieties_disp.
 
 Lemma is_univalent_category_varieties : is_univalent category_varieties.
 Proof.
-  exact (@is_univalent_total_category (shSet_category σ) varieties_disp 
+  exact (@is_univalent_total_category (shSet_category σ) varieties_disp
            (is_univalent_shSet_category σ) is_univalent_varieties_disp).
 Qed.

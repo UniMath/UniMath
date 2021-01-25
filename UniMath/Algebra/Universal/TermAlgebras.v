@@ -20,7 +20,7 @@ Section TermAlgebra.
   Definition eval (a: algebra σ): term_algebra σ s→ a
     := @fromterm σ a (ops a).
 
-  Lemma evalstep {a: algebra σ} (nm: names σ) (v: term σ ↑ (arity nm)) 
+  Lemma evalstep {a: algebra σ} (nm: names σ) (v: term σ ⋆ (arity nm))
     : eval a _ (build_term nm v) = ops a nm (h1map (eval a) v).
   Proof.
     unfold eval.
