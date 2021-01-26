@@ -7,11 +7,9 @@
  with a single element and no stack underflow or type errors occur.
 *)
 
-Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Notations.
 
 Require Import UniMath.Algebra.Universal.Maybe.
-Require Import UniMath.Algebra.Universal.MoreLists.
 Require Import UniMath.Algebra.Universal.SortedTypes.
 Require Import UniMath.Algebra.Universal.Signatures.
 

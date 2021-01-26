@@ -1,6 +1,9 @@
-(** * Displayed category of algebras over a signature *)
+(** * The univalent category of algebras over a signature *)
 
-Require Import UniMath.Foundations.All.
+(**
+We use display categories to define the category of algebras and prove its univalence.
+*)
+
 Require Import UniMath.MoreFoundations.Univalence.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Univalence.
@@ -13,8 +16,6 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.Combinatorics.FiniteSets.
-Require Import UniMath.Combinatorics.Vectors.
-Require Import UniMath.Combinatorics.Lists.
 
 Require Import UniMath.Algebra.Universal.TermAlgebras.
 
@@ -24,7 +25,9 @@ Section Algebras.
 
   Definition sfun_from_setfun{A B : hSet}(f : A → B)(σ: signature): (λ s: sorts σ, A) s→ (λ s: sorts σ, B).
   Proof.
-    unfold sfun. intro S. exact f. Defined.
+    unfold sfun. intro S. exact f.
+  Defined.
+
   Context (σ : signature).
 
   Definition shSet_precategory_ob_mor : precategory_ob_mor.
@@ -183,9 +186,9 @@ Section Algebras.
     exact (@is_univalent_total_category shSet_category algebras_disp is_univalent_shSet_category is_univalent_algebras_disp).
   Qed.
 
-End Algebras.
+  Lemma isinitial_termalgebra : Initial (category_algebras).
+  Proof.
+    exact (term_algebra σ ,, iscontrhomsfromterm).
+  Defined.
 
-Lemma isinitial_termalgebra (sigma: signature) : Initial (category_algebras sigma).
-Proof.
-  exact (term_algebra sigma ,, iscontrhomsfromterm).
-Defined.
+End Algebras.

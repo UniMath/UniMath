@@ -1,4 +1,4 @@
-(** * Displayed category of varieties over a theory *)
+(** * The univalent category of varieties over a theory *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -13,11 +13,12 @@ Require Import UniMath.Algebra.Universal.Equations.
 Require Import UniMath.Algebra.Universal.CatAlgebras.
 
 Notation "'theory'" := eqsignature. (* isn't it a standard name? *)
+
 Context (σ : theory).
 
 Local Open Scope sorted_scope.
 
-(* Alternative presetnation *)
+(* Alternative presentation *)
 
 (*
 Definition varieties_disp : disp_cat (category_algebras σ).
@@ -47,7 +48,6 @@ Proof.
   exact (@is_univalent_total_category
            (category_algebras σ) varieties_disp (is_univalent_category_algebras σ) is_univalent_varieties_disp).
 Qed.
-
 *)
 
 Definition varieties_disp : disp_cat (shSet_category σ).

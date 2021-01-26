@@ -1,4 +1,4 @@
-(** * The term algebra and the proof it is initial *)
+(** * The ground term algebra and the proof it is initial. *)
 
 Require Import UniMath.Foundations.All.
 
@@ -7,8 +7,6 @@ Require Export UniMath.Algebra.Universal.Terms.
 
 Local Open Scope sorted.
 Local Open Scope hom.
-
-(** ** The term algebra and the proof it is initial *)
 
 Section TermAlgebra.
 

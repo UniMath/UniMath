@@ -7,7 +7,7 @@ _Universal Algebra for Computer Scientist_, Springer.
 
 Require Import UniMath.Foundations.All.
 
-Require Export UniMath.Combinatorics.Lists.
+Require Export UniMath.Algebra.Universal.MoreLists.
 Require Export UniMath.Algebra.Universal.HVectors.
 
 Declare Scope sorted_scope.
@@ -66,6 +66,7 @@ Defined.
 
 (** If [X: sUU S], then [star X] is the lifting of [X] to the index type [list S], given
 by [X [s1; s2; ...; sn] = [X s1 ; X s2 ; ... ; X sn]. *)
+
 Definition star {S: UU} (X: sUU S): sUU (list S) := λ l: list S, HVec (vector_map X (pr2 l)).
 
 Bind Scope hvec_scope with star.
