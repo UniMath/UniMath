@@ -54,7 +54,7 @@ Definition varieties_disp : disp_cat (shSet_category σ).
 Proof.
   use disp_cat_from_SIP_data.
   - cbn; intro A.
-    exact (∑ ops: (∏ nm: names σ, A ⋆ (arity nm) → A (sort nm)),
+    exact (∑ ops: (∏ nm: names σ, A⋆ (arity nm) → A (sort nm)),
             (∏ e : eqs σ, holds (make_algebra A ops) (geteq e))).
   - cbn. intros a b [opa iseqa] [opb iseqb] f.
     exact (@ishom σ (make_algebra a opa) (make_algebra b opb) f).

@@ -42,7 +42,7 @@ Section Variables.
   Definition assignment {σ: signature} (A: sUU (sorts σ)) (V: varspec σ) : UU := ∏ v: V, A (varsort v).
 
   Definition fromvterm {A: sUU (sorts σ)} {V: varspec σ}
-                       (op : (∏ nm : names σ, A ⋆ (arity nm) → A (sort nm)))
+                       (op : (∏ nm : names σ, A⋆ (arity nm) → A (sort nm)))
                        (α : assignment A V)
     : vterm σ V s→ A.
   Proof.
@@ -53,10 +53,10 @@ Section Variables.
   Defined.
 
   Lemma fromvtermstep {A: sUU (sorts σ)} {V: varspec σ}
-                      (op : (∏ nm : names σ, A ⋆ (arity nm) → A (sort nm)))
+                      (op : (∏ nm : names σ, A⋆ (arity nm) → A (sort nm)))
                       (α : assignment A V)
-                      (nm: names σ) (v:  vterm σ V ⋆ (arity nm))
-    : fromvterm op α (sort nm) (build_term (namelift nm) v) = op nm (fromvterm op α ⋆⋆ (arity nm) v).
+                      (nm: names σ) (v:  (vterm σ V)⋆ (arity nm))
+    : fromvterm op α (sort nm) (build_term (namelift nm) v) = op nm ((fromvterm op α)⋆⋆ (arity nm) v).
   Proof.
     unfold fromvterm, fromterm.
     rewrite (term_ind_step _ _  (namelift nm)).
@@ -67,7 +67,7 @@ Section Variables.
 
   (** This used to be provable with apply idpath in the single sorted case **)
   Lemma fromvtermstep' {A: sUU (sorts σ)} {V: varspec σ}
-                       (op : (∏ nm : names σ, A ⋆ (arity nm) → A (sort nm)))
+                       (op : (∏ nm : names σ, A⋆ (arity nm) → A (sort nm)))
                        (α : assignment A V)
                        (v: V)
     : fromvterm op α (varsort v) (build_term (varname v) [()]) = α v.
@@ -88,8 +88,8 @@ Section FreeAlgebras.
 
   Definition veval: free_algebra σ V s→ a := fromvterm (ops a) α.
 
-  Lemma vevalstep (nm: names σ) (v:  term (vsignature σ V) ⋆ (arity nm))
-    : veval (sort (namelift nm)) (build_term (namelift nm) v) = ops a nm (veval ⋆⋆ (arity nm) v).
+  Lemma vevalstep (nm: names σ) (v:  (term (vsignature σ V))⋆ (arity nm))
+    : veval (sort (namelift nm)) (build_term (namelift nm) v) = ops a nm (veval⋆⋆ (arity nm) v).
   Proof.
     unfold veval.
     change (sort (namelift nm)) with (sort nm).

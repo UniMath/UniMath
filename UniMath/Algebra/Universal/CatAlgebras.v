@@ -73,7 +73,7 @@ Section Algebras.
   Definition algebras_disp : disp_cat shSet_category.
   Proof.
     use disp_cat_from_SIP_data. simpl.
-    - intro A. exact (∏ nm: names σ, A ⋆ (arity nm) → A (sort nm)).
+    - intro A. exact (∏ nm: names σ, A⋆ (arity nm) → A (sort nm)).
     - simpl. intros A B asA asB f. exact (@ishom σ (make_algebra A asA) (make_algebra B asB) f).
     - simpl. intros A B asA asB f opA opB.
       apply isapropishom.

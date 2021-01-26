@@ -10,7 +10,7 @@ Local Open Scope sorted.
 (** ** Algebras for a given signature *)
 
 Definition algebra (σ: signature): UU
-  := ∑ A: shSet (sorts σ), ∏ nm: names σ, A ⋆ (arity nm) → A (sort nm).
+  := ∑ A: shSet (sorts σ), ∏ nm: names σ, A⋆ (arity nm) → A (sort nm).
 
 Definition supportset {σ: signature} (A: algebra σ) := pr1 A.
 
@@ -24,15 +24,15 @@ Definition ops {σ: signature} (A: algebra σ) := pr2 A.
 
 Coercion ops: algebra >-> Funclass.
 
-Definition make_algebra {σ: signature} (A : shSet (sorts σ)) (ops: ∏ nm: names σ, A ⋆ (arity nm) → A (sort nm))
+Definition make_algebra {σ: signature} (A : shSet (sorts σ)) (ops: ∏ nm: names σ, A⋆ (arity nm) → A (sort nm))
   : algebra σ := A ,, ops.
 
-Definition dom {σ: signature} (A: algebra σ) (nm: names σ): UU := A ⋆ (arity nm).
+Definition dom {σ: signature} (A: algebra σ) (nm: names σ): UU := A⋆ (arity nm).
 
 Definition rng {σ: signature} (A: algebra σ) (nm: names σ): UU := support A (sort nm).
 
 Definition make_algebra_simple_single_sorted (σ: signature_simple_single_sorted) (A : hSet)
-                                             (ops: (λ n: nat, Vector A n → A) ⋆ σ): algebra σ.
+                                             (ops: (λ n: nat, Vector A n → A)⋆ σ): algebra σ.
 Proof.
   exists (λ _, A).
   unfold arity.
@@ -52,7 +52,7 @@ Proof.
 Defined.
 
 Definition make_algebra_simple (σ: signature_simple) (A: Vector hSet (pr1 σ))
-                               (ops: (λ a, (el A) ⋆ (dirprod_pr1 a) → el A (dirprod_pr2 a)) ⋆ (pr2 σ))
+                               (ops: (λ a, (el A)⋆ (dirprod_pr1 a) → el A (dirprod_pr2 a))⋆ (pr2 σ))
   : algebra σ.
 Proof.
   exists (el A).

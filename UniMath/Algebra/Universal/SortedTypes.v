@@ -70,27 +70,27 @@ Definition star {S: UU} (X: sUU S): sUU (list S) := λ l: list S, HVec (vector_m
 
 Bind Scope hvec_scope with star.
 
-Notation "A ⋆" := (star A) (at level 10): sorted_scope.
+Notation "A ⋆" := (star A) (at level 3, format "'[ ' A '⋆' ']'"): sorted_scope.
 
 (** If [f] is an indexed mapping between [S]-indexed types [X] and [Y], then [starfun X] is the lifting of
 [f] to a [list S]-indexed mapping between [list S]-indexed sets [star X] and [star Y].
 *)
 
-Definition starfun {S: UU} {X Y: sUU S} (f: sfun X Y): sfun (X⋆) (Y⋆) := λ s: list S, h1map f.
+Definition starfun {S: UU} {X Y: sUU S} (f: sfun X Y) : sfun X⋆ Y⋆ := λ s: list S, h1map f.
 
-Notation "f ⋆⋆" := (starfun f) (at level 10): sorted_scope.
+Notation "f ⋆⋆" := (starfun f) (at level 3, format "'[ ' f '⋆⋆' ']'"): sorted_scope.
 
 (** Here follows the proof that [starfun] is functorial. Compositionality w.r.t. [s∘] is presented as
-[(f s∘ g) ⋆⋆ _ x = f ⋆⋆ _ (g ⋆⋆ _ x)] instead of [(f s∘ g) ⋆⋆ = (f ⋆⋆) s∘ (g ⋆⋆ )] since the former
+[(f s∘ g)⋆⋆ _ x = f⋆⋆ _ (g⋆⋆ _ x)] instead of [(f s∘ g)⋆⋆ = (f⋆⋆) s∘ (g⋆⋆ )] since the former
 does not require function extensionality. *)
 
-Lemma staridfun {S: UU} {X: sUU S} (l: list S) (x: X ⋆ l): (idsfun X)⋆⋆ _ x = idsfun (X ⋆ ) _ x.
+Lemma staridfun {S: UU} {X: sUU S} (l: list S) (x: X⋆ l): (idsfun X)⋆⋆ _ x = idsfun X⋆ _ x.
 Proof.
   apply h1map_idfun.
 Defined.
 
-Lemma starcomp {S: UU} {X Y Z: sUU S} (f: Y s→ Z) (g: X s→ Y) (l: list S) (x: X ⋆ l)
-  : (f s∘ g) ⋆⋆ _ x = f ⋆⋆ _ (g ⋆⋆ _ x).
+Lemma starcomp {S: UU} {X Y Z: sUU S} (f: Y s→ Z) (g: X s→ Y) (l: list S) (x: X⋆ l)
+  : (f s∘ g)⋆⋆ _ x = f⋆⋆ _ (g⋆⋆ _ x).
 Proof.
   unfold starfun.
   apply pathsinv0.

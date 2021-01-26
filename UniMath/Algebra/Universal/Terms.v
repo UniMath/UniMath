@@ -552,7 +552,7 @@ Section Term.
   Local Definition oplist_build_term (nm: names σ) (v: Vector (oplist σ) (length (arity nm)))
     : oplist σ := cons nm (vecoplist2oplist v).
 
-  Local Lemma oplist_build_term_status (nm: names σ) (v: term σ ⋆ (arity nm))
+  Local Lemma oplist_build_term_status (nm: names σ) (v: (term σ)⋆ (arity nm))
     : isaterm (sort nm) (oplist_build_term nm (h1map_vector (λ _, term2oplist) v)).
   Proof.
     unfold oplist_build_term, isaterm.
@@ -567,7 +567,7 @@ Section Term.
   Defined.
 
   Local Definition term_decompose {s: sorts σ} (t: term  σ s):
-    ∑ (nm:names σ) (v: term σ ⋆ (arity nm))
+    ∑ (nm:names σ) (v: (term σ)⋆ (arity nm))
       , (HVec (h1map_vector (λ _ t', hProptoType (length (term2oplist t') < length t)) v))
          × sort nm = s
          × oplist_build_term nm (h1map_vector (λ _, term2oplist) v) = t.
@@ -604,7 +604,7 @@ Section Term.
 
   (* [build_term] builds a term starting from its principal function symbols and its subterms *)
 
-  Definition build_term (nm: names σ) (v: term σ ⋆ (arity nm)): term σ (sort nm).
+  Definition build_term (nm: names σ) (v: (term σ)⋆ (arity nm)): term σ (sort nm).
   Proof.
     exists (oplist_build_term nm (h1map_vector (λ _, term2oplist) v)).
     apply oplist_build_term_status.
@@ -622,7 +622,7 @@ Section Term.
     exact nmsort.
   Defined.
 
-  Definition subterms {s: sorts σ} (t: term σ s):  term σ ⋆ (arity (princop t)).
+  Definition subterms {s: sorts σ} (t: term σ s): (term σ)⋆ (arity (princop t)).
   Proof.
     unfold princop.
     induction (term_decompose t) as [nm [v X]].
@@ -659,7 +659,7 @@ Section Term.
     - apply isapropisaterm.
   Defined.
 
-  Local Lemma princop_build_term (nm: names σ) (v: term σ ⋆ (arity nm))
+  Local Lemma princop_build_term (nm: names σ) (v: (term σ)⋆ (arity nm))
     : princop (build_term nm v) = nm.
   Proof.
     apply idpath.
@@ -696,7 +696,7 @@ Section Term.
         apply (maponpaths (λ l, pr2 l: oplist σ) eq).
   Defined.
 
-  Local Lemma subterms_build_term (nm: names σ) (v:  term σ ⋆ (arity nm))
+  Local Lemma subterms_build_term (nm: names σ) (v: (term σ)⋆ (arity nm))
     : subterms (build_term nm v) = v.
   Proof.
     set (t := build_term nm v).
@@ -740,7 +740,7 @@ Section TermInduction.
 
   Definition term_ind_HP (P: ∏ (s: sorts σ), term σ s → UU) :=
     ∏ (nm: names σ)
-      (v: term σ ⋆ (arity nm))
+      (v: (term σ)⋆ (arity nm))
       (IH: HVec (h1map_vector P v))
     , P (sort nm) (build_term nm v).
 
@@ -767,7 +767,7 @@ Section TermInduction.
 (*
   I would like to prove something like the following:
 
-  Lemma term_ind_onlength_step (P: ∏ (s: sorts σ), term σ s → UU) (R: term_ind_HP P) (nm: names σ) (v:  term σ ⋆ (arity nm))
+  Lemma term_ind_onlength_step (P: ∏ (s: sorts σ), term σ s → UU) (R: term_ind_HP P) (nm: names σ) (v: (term σ)⋆ (arity nm))
     : ∏ (n: nat) (tlehn:  length (build_term nm v) ≤ n),
         term_ind_onlength P R n _ _ tlehn
         =  R nm v (transportf (λ x, HVec (hmap_vector P x))
@@ -816,7 +816,7 @@ Section TermInduction.
      : paths_rect A a P x a (idpath a) = x.
   Proof. apply idpath. Defined.
 
-  Lemma term_ind_step (P: ∏ (s: sorts σ), term σ s → UU) (R: term_ind_HP P) (nm: names σ) (v: term σ ⋆ (arity nm))
+  Lemma term_ind_step (P: ∏ (s: sorts σ), term σ s → UU) (R: term_ind_HP P) (nm: names σ) (v: (term σ)⋆ (arity nm))
     : term_ind P R (build_term nm v) = R nm v (h2map (λ s t q, term_ind P R t) (h1lift v)).
   Proof.
     unfold term_ind.
@@ -857,16 +857,16 @@ Section TermInduction.
 
   Definition depth {s: sorts σ}: term σ s → nat
     := term_ind (λ _ _, nat)
-                (λ (nm: names σ) (v: term σ ⋆ (arity nm)) (depths: HVec (h1map_vector (λ _ _, nat) v)),
+                (λ (nm: names σ) (v: (term σ)⋆ (arity nm)) (depths: HVec (h1map_vector (λ _ _, nat) v)),
                    1 + h2foldr (λ _ _, max) 0 depths).
 
-  Definition fromterm {A: sUU (sorts σ)} (op : ∏ (nm : names σ), A ⋆ (arity nm) → A (sort nm)) {s: sorts σ}
+  Definition fromterm {A: sUU (sorts σ)} (op : ∏ (nm : names σ), A⋆ (arity nm) → A (sort nm)) {s: sorts σ}
     : term σ s → A s
     := term_ind (λ s _, A s) (λ nm v rec, op nm (h2lower rec)).
 
   Lemma fromtermstep {A: sUU (sorts σ)} (nm: names σ)
-                     (op : ∏ (nm : names σ), A ⋆ (arity nm) → A (sort nm))
-                     (v: term σ ⋆ (arity nm))
+                     (op : ∏ (nm : names σ), A⋆ (arity nm) → A (sort nm))
+                     (v: (term σ)⋆ (arity nm))
     : fromterm op (build_term nm v) = op nm (h1map (@fromterm A op) v).
   Proof.
     unfold fromterm.
