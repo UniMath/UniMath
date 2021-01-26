@@ -1,72 +1,55 @@
-(** * Equations and varieties. *)
+(** * Equations over a signature and equational theories *)
 
 (**
-   This file contains a formalization of equation systems and varieties of algebras.
- *)
+This file contains a formalization of equations and equation systems over a signature.
+*)
 
-Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.Notations.
 
-Require Export UniMath.Algebra.Universal.FreeAlgebras.
+Require Export UniMath.Algebra.Universal.VTerms.
 
 Section Equations.
 
-  Definition equation_bare (σ : signature) (V: varspec σ): sUU (sorts σ)
-    := λ s: sorts σ, vterm σ V s × vterm σ V s.
-
-  Definition lhs {σ : signature} {V: varspec σ} {s: sorts σ}
-    : equation_bare σ V s → vterm σ V s := pr1.
-
-  Definition rhs {σ : signature} {V: varspec σ} {s: sorts σ}
-    : equation_bare σ V s → vterm σ V s := pr2.
+  (** An equation is a pair of terms (with variables) of the same sort *)
 
   Definition equation (σ : signature) (V: varspec σ): UU
-    := ∑ s: sorts σ, equation_bare σ V s.
- 
-  Definition eqsort {σ: signature} {V: varspec σ} (e: equation σ V)
-    : sorts σ := pr1 e.
+    := ∑ s: sorts σ, vterm σ V s × vterm σ V s.
 
-  Coercion eqbare {σ: signature} {V: varspec σ} (e: equation σ V)
-    : equation_bare σ V (eqsort e) := pr2 e.
+  Definition eqsort {σ: signature} {V: varspec σ} (eq: equation σ V)
+    : sorts σ := pr1 eq.
 
-  Definition sysequations (σ : signature) (V: varspec σ): UU
-    := ∑ E : hSet, E → equation σ V.
+  Definition lhs {σ : signature} {V: varspec σ} (eq: equation σ V): vterm σ V (eqsort eq) := pr12 eq.
 
-  Definition syseqidx (σ : signature) (V: varspec σ): sysequations σ V → hSet := pr1.
-  Coercion syseqidx : sysequations >-> hSet.
+  Definition rhs {σ : signature} {V: varspec σ} (eq: equation σ V): vterm σ V (eqsort eq) := pr22 eq.
 
-  Definition geteq {σ: signature} {V: varspec σ} {sys : sysequations σ V}: sys → equation σ V
+  (**
+  Since we do not have power types, we define an equation system as a type of equation
+  identifiers endowed with a map from identifiers to equations.
+  *)
+
+  Definition eqsystem (σ : signature) (V: varspec σ): UU
+    := ∑ E : UU, E → equation σ V.
+
+  Definition eqsystemids (σ : signature) (V: varspec σ): eqsystem σ V → UU := pr1.
+
+  Coercion eqsystemids : eqsystem >-> UU.
+
+  Definition geteq {σ: signature} {V: varspec σ} {sys : eqsystem σ V}: sys → equation σ V
     := pr2 sys.
 
-  Definition holds {σ: signature} {V: varspec σ} (a: algebra σ) (e: equation σ V) : UU
-    := ∏ α, veval a α (eqsort e) (lhs e) = veval a α (eqsort e) (rhs e).
+  (**
+  An equational specification is a signature endowed with an equation system (and the
+  necessary variable specification).
+  *)
+
+  Definition eqspec: UU  := ∑ (σ : signature) (V: varspec σ), eqsystem σ V.
+
+  Definition signature_of_eqspec: eqspec → signature := pr1.
+
+  Coercion signature_of_eqspec : eqspec >-> signature.
+
+  Definition variables (σ: eqspec): varspec σ := pr12 σ.
+
+  Definition equations (σ: eqspec): eqsystem σ (variables σ) := pr22 σ.
 
 End Equations.
-
-Section Varieties.
-
-  Definition eqsignature: UU 
-    := ∑ (σ : signature) (V: varspec σ), sysequations σ V.
-
-  Definition eqsign_signature: eqsignature → signature := pr1.
-  Coercion eqsign_signature : eqsignature >-> signature.
-
-  Definition eqsign_variables (σ: eqsignature): varspec σ := pr1 (pr2 σ).
-
-  Definition eqs (σ: eqsignature): sysequations σ (eqsign_variables σ) := pr2 (pr2 σ).
-
-  Definition is_eqalgebra {σ : eqsignature} (a : algebra σ) : UU
-    := ∏ e: eqs σ, holds a (geteq e).
-
-  Definition eqalgebra (σ : eqsignature) : UU
-    := ∑ a : algebra σ, is_eqalgebra a.
-
-  Definition algebra_of_eqalgebra {σ : eqsignature}
-    : eqalgebra σ -> algebra σ
-    := pr1.
-  Coercion algebra_of_eqalgebra : eqalgebra >-> algebra.
-
-  Definition eqalgebra_is_eqalgebra {σ : eqsignature} (a : eqalgebra σ)
-    : is_eqalgebra a
-    := pr2 a.
-
-End Varieties.

@@ -1,17 +1,19 @@
 (** * Terms for a given signature. *)
 (**
- This file contains a formalization of terms over a signature, implemented as a sequence of
- operation symbols. This sequence is though to be executed by a stack machine: each
- symbol of arity _n_ virtually pops _n_ elements from the stack and pushes a new element.
- A sequence of function symbols is a term when the result of the execution is a stack
- with a single element and no stack underflow or type errors occur.
+This file contains a formalization of terms over a signature, implemented as a sequence of
+operation symbols. This sequence is though to be executed by a stack machine: each
+symbol of arity _n_ virtually pops _n_ elements from the stack and pushes a new element.
+A sequence of function symbols is a term when the result of the execution is a stack
+with a single element and no stack underflow or type errors occur.
+
+Here we only define ground terms, while terms with variables will be defined in <<VTerms.v>>.
 *)
 
 Require Import UniMath.MoreFoundations.Notations.
 
 Require Import UniMath.Algebra.Universal.Maybe.
 Require Import UniMath.Algebra.Universal.SortedTypes.
-Require Import UniMath.Algebra.Universal.Signatures.
+Require Export UniMath.Algebra.Universal.Signatures.
 
 Local Open Scope sorted.
 Local Open Scope hvec.
@@ -864,7 +866,7 @@ Section TermInduction.
 
   (**
   [depth] returns the depth of a term, while [fromterm] is the evaluation map from terms
-  to an algebra. Finally, [fromtermstep] is the unfold property for [fromterm].
+  to an algebra. Finally, [fromtermstep] is the unfolding property for [fromterm].
   *)
 
   Definition depth {s: sorts σ}: term σ s → nat

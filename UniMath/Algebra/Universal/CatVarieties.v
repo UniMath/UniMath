@@ -1,4 +1,4 @@
-(** * The univalent category of varieties over a theory *)
+(** * The univalent category of equational algebras over an equational specification. *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -10,11 +10,11 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 
 Require Import UniMath.Algebra.Universal.Equations.
+Require Import UniMath.Algebra.Universal.EqAlgebras.
+
 Require Import UniMath.Algebra.Universal.CatAlgebras.
 
-Notation "'theory'" := eqsignature. (* isn't it a standard name? *)
-
-Context (σ : theory).
+Context (σ : eqspec).
 
 Local Open Scope sorted_scope.
 
@@ -55,7 +55,7 @@ Proof.
   use disp_cat_from_SIP_data.
   - cbn; intro A.
     exact (∑ ops: (∏ nm: names σ, A⋆ (arity nm) → A (sort nm)),
-            (∏ e : eqs σ, holds (make_algebra A ops) (geteq e))).
+            (∏ e : equations σ, holds (make_algebra A ops) (geteq e))).
   - cbn. intros a b [opa iseqa] [opb iseqb] f.
     exact (@ishom σ (make_algebra a opa) (make_algebra b opb) f).
   - intros. apply isapropishom.

@@ -1,4 +1,4 @@
-(** * The univalent category of algebras over a signature *)
+(** * The univalent category of algebras over a signature. *)
 
 (**
 We use display categories to define the category of algebras and prove its univalence.
