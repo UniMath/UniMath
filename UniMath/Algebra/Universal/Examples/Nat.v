@@ -9,8 +9,6 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.Algebra.Universal.MoreLists.
-Require Import UniMath.Algebra.Universal.HVectors.
-Require Import UniMath.Algebra.Universal.Signatures.
 Require Import UniMath.Algebra.Universal.Algebras.
 Require Import UniMath.Algebra.Universal.Terms.
 
@@ -36,7 +34,7 @@ Definition z2_algebra := make_algebra_simple_single_sorted nat_signature boolset
 
 Definition nat_to_z2 : nat_algebra s→ z2_algebra
   := λ s: sorts nat_signature, nat_rect (λ _, bool) false (λ n HP, negb HP).
-  
+
 Goal nat_to_z2 nat_sort 0 = false.
 Proof. apply idpath. Defined.
 

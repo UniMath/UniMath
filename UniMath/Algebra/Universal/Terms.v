@@ -8,6 +8,7 @@
 *)
 
 Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.Notations.
 
 Require Import UniMath.Algebra.Universal.Maybe.
 Require Import UniMath.Algebra.Universal.MoreLists.
@@ -41,13 +42,9 @@ Proof.
   apply setproperty.
 Defined.
 
-Local Definition status (σ: signature): UU := maybe (list (sorts σ)).
+Local Definition stack (σ: signature): UU := maybe (list (sorts σ)).
 
-Local Definition statusok {σ: signature}: list (sorts σ) → status σ := just.
-
-Local Definition statuserror {σ: signature}: status σ := nothing.
-
-Local Lemma isasetstatus (σ: signature): isaset (status σ).
+Local Lemma isasetstack (σ: signature): isaset (stack σ).
 Proof.
   apply isasetmaybe.
   apply isofhlevellist.
@@ -55,37 +52,36 @@ Proof.
   apply decproperty.
 Defined.
 
-Section OplistProps.
+Section Oplists.
 
   Context {σ: signature}.
 
-  (** *** The [statuscons] and [oplist2status] functions *)
+  (** *** The [opexec] and [oplistexec] functions. *)
   (**
-     [statuscons nm] is the stack transformation corresponding to the execution of the
-     operation symbol [nm].
-
-     [oplist2status l] returns the status corresponding to the execution of the oplist [l]
-     from the empty stack, while [isaterm l] holds when the result of [op2liststatus l] is
-     a stack of length one.
+     The function [opexec nm] is the stack transformation corresponding to the execution of
+     the operation symbol [nm], while [oplistexec l] returns the stack corresponding to the
+     execution of the entire oplist [l] starting from the empty stack. The list is executed from the last
+     to the first operation symbol. Finally [isaterm l] holds when the result of [oplistexec l]
+     is a stack of length one.
    *)
 
-  Local Definition statuscons (nm: names σ): status σ → status σ
-    := flatmap (λ ss, statusok (sort nm :: ss)) ∘ flatmap (λ ss, prefix_remove (arity nm) ss).
+  Local Definition opexec (nm: names σ): stack σ → stack σ
+    := flatmap (λ ss, just (sort nm :: ss)) ∘ flatmap (λ ss, prefix_remove (arity nm) ss).
 
-  Local Definition oplist2status (l: oplist σ): status σ := foldr statuscons (statusok []) l.
+  Local Definition oplistexec (l: oplist σ): stack σ := foldr opexec (just []) l.
 
-  Local Definition isaterm (s: sorts σ) (l: oplist σ): UU := oplist2status l = statusok ([s]).
+  Local Definition isaterm (s: sorts σ) (l: oplist σ): UU := oplistexec l = just ([s]).
 
   Local Lemma isapropisaterm (s: sorts σ) (l: oplist σ): isaprop (isaterm s l).
   Proof.
-    apply isasetstatus.
+    apply isasetstack.
   Defined.
 
-  Local Lemma statuscons_dec (nm: names σ) (ss: list (sorts σ))
-    : ((statuscons nm (statusok ss) = statuserror) × (prefix_remove (arity nm) ss = nothing))
-              ⨿  ∑ (ss': list (sorts σ)), (statuscons nm (statusok ss) = statusok ((sort nm) :: ss')) × (prefix_remove (arity nm) ss = statusok ss').
+  Local Lemma opexec_dec (nm: names σ) (ss: list (sorts σ))
+    : ((opexec nm (just ss) = nothing) × (prefix_remove (arity nm) ss = nothing))
+              ⨿  ∑ (ss': list (sorts σ)), (opexec nm (just ss) = just ((sort nm) :: ss')) × (prefix_remove (arity nm) ss = just ss').
   Proof.
-    unfold statuscons, funcomp, statusok.
+    unfold opexec, funcomp, just.
     simpl.
     induction (prefix_remove (arity nm) ss) as [ ss' | error ].
     - apply ii2.
@@ -98,23 +94,22 @@ Section OplistProps.
         apply idpath.
   Defined.
 
- Local Lemma statuscons_statusok_f (nm: names σ) (ss: list (sorts σ)) (arityok: isprefix (arity nm) ss)
-    : ∑ ss': list (sorts σ), statuscons nm (statusok ss) = statusok ((sort nm) :: ss') ×  prefix_remove (arity nm) ss = just ss'.
+  Local Lemma opexec_just_f (nm: names σ) (ss: list (sorts σ)) (arityok: isprefix (arity nm) ss)
+    : ∑ ss': list (sorts σ), opexec nm (just ss) = just ((sort nm) :: ss') ×  prefix_remove (arity nm) ss = just ss'.
   Proof.
-    induction (statuscons_dec nm ss) as [err | ok].
+    induction (opexec_dec nm ss) as [err | ok].
     - induction err as [_  err].
       contradicts arityok err.
     - assumption.
   Defined.
 
-  Local Lemma statuscons_statusok_b (nm: names σ) (st: status σ) (ss: list (sorts σ))
-    : statuscons nm st = statusok ss → ∑ ss', ss = sort nm :: ss' × st = statusok ((arity nm) ++ ss').
+  Local Lemma opexec_just_b (nm: names σ) (st: stack σ) (ss: list (sorts σ))
+    : opexec nm st = just ss → ∑ ss', ss = sort nm :: ss' × st = just ((arity nm) ++ ss').
   Proof.
     intro scons.
     induction st as [stok | sterror].
-    - induction (statuscons_dec nm stok) as [scons_err | scons_ok].
+    - induction (opexec_dec nm stok) as [scons_err | scons_ok].
       + induction scons_err as [scons_err _].
-        unfold statusok, just in scons_err.
         set (H := ! scons @ scons_err).
         contradiction (negpathsii1ii2 _ _ H).
       + induction scons_ok as [ss' [X1 X2]].
@@ -128,11 +123,11 @@ Section OplistProps.
    -  contradiction (negpathsii2ii1 _ _ scons).
   Defined.
 
-  Local Lemma statuscons_zero_b (nm: names σ) (st: status σ)
-    : ¬ (statuscons nm st = statusok nil).
+  Local Lemma opexec_zero_b (nm: names σ) (st: stack σ)
+    : ¬ (opexec nm st = just nil).
   Proof.
     induction st as [stok | sterror].
-    - induction (statuscons_dec nm stok) as [scons_err| scons_ok].
+    - induction (opexec_dec nm stok) as [scons_err| scons_ok].
       + induction scons_err as [scons_err _].
         intro H.
         set (H' :=  (!! scons_err @ H)).
@@ -147,86 +142,93 @@ Section OplistProps.
     - apply negpathsii2ii1.
   Defined.
 
-  Local Lemma oplist2status_nil
-    : oplist2status (nil: oplist σ) = statusok nil.
+  Local Lemma oplistexec_nil
+    : oplistexec (nil: oplist σ) = just nil.
   Proof.
     apply idpath.
   Defined.
 
-  Local Lemma oplist2status_cons (nm: names σ) (l: oplist σ)
-    : oplist2status (nm :: l) = statuscons nm (oplist2status l).
+  Local Lemma oplistexec_cons (nm: names σ) (l: oplist σ)
+    : oplistexec (nm :: l) = opexec nm (oplistexec l).
   Proof.
     apply idpath.
   Defined.
 
-  Local Lemma oplist2status_zero_b (l: oplist σ): oplist2status l = statusok nil → l = nil.
+  Local Lemma oplistexec_zero_b (l: oplist σ): oplistexec l = just nil → l = nil.
   Proof.
     revert l.
     refine (list_ind _ _ _).
     - reflexivity.
-    - intros x xs _ lstatus.
-      apply statuscons_zero_b in lstatus.
+    - intros x xs _ lstack.
+      apply opexec_zero_b in lstack.
       contradiction.
   Defined.
 
-  Local Lemma oplist2status_positive_b (l: oplist σ) (s: sorts σ) (ss: list (sorts σ))
-    : oplist2status l = statusok (s :: ss) → ∑ (x: names σ) (xs: oplist σ), l = x :: xs.
+  Local Lemma oplistexec_positive_b (l: oplist σ) (s: sorts σ) (ss: list (sorts σ))
+    : oplistexec l = just (s :: ss) → ∑ (x: names σ) (xs: oplist σ), l = x :: xs.
   Proof.
     revert l.
     refine (list_ind _ _ _).
-    - intro nilstatus.
-      cbn in nilstatus.
-      apply ii1_injectivity in nilstatus.
-      apply negpathsnilcons in nilstatus.
+    - intro nilstack.
+      cbn in nilstack.
+      apply ii1_injectivity in nilstack.
+      apply negpathsnilcons in nilstack.
       contradiction.
-    - intros x xs _ lstatus.
+    - intros x xs _ lstack.
       exists x.
       exists xs.
       apply idpath.
   Defined.
 
-  Local Definition statusconcatenate (st1 st2: status σ): status σ
-    := flatmap (λ st2', flatmap (λ st1', statusok (st1' ++ st2')) st1) st2.
+  (** *** The [stackconcatenate] function. *)
 
-  Local Lemma statusconcatenate_statuscons (nm: names σ) (st1 st2: status σ)
-    : statuscons nm st1 != statuserror
-       → statusconcatenate (statuscons nm st1) st2 = statuscons nm (statusconcatenate st1 st2).
+  (**
+  [stackconcatenate] simply appends the two lists which make the stacks, possibly propagating
+  erroneous states.
+  *)
+
+  Local Definition stackconcatenate (st1 st2: stack σ): stack σ
+    := flatmap (λ st2', flatmap (λ st1', just (st1' ++ st2')) st1) st2.
+
+  Local Lemma stackconcatenate_opexec (nm: names σ) (st1 st2: stack σ)
+    : opexec nm st1 != nothing
+       → stackconcatenate (opexec nm st1) st2 = opexec nm (stackconcatenate st1 st2).
   Proof.
     induction st1 as [ss1 | ].
     2: contradiction.
     induction st2 as [ss2| ].
     2: reflexivity.
     intro H.
-    induction (statuscons_dec nm ss1) as [Xerr | Xok].
+    induction (opexec_dec nm ss1) as [Xerr | Xok].
     - contradicts H (pr1 Xerr).
     - induction Xok as [tl [scons pref]].
-      unfold statusok, just in scons.
+      unfold just in scons.
       rewrite scons.
       simpl.
       rewrite concatenateStep.
-      unfold statuscons, funcomp.
+      unfold opexec, funcomp.
       simpl.
       erewrite prefix_remove_concatenate.
       * apply idpath.
       * assumption.
   Defined.
 
- Local Lemma oplist2status_concatenate (l1 l2: oplist σ)
-    : oplist2status l1 != statuserror
-      → oplist2status (concatenate l1 l2)
-        = statusconcatenate (oplist2status l1) (oplist2status l2).
+ Local Lemma oplistexec_concatenate (l1 l2: oplist σ)
+    : oplistexec l1 != nothing
+      → oplistexec (concatenate l1 l2)
+        = stackconcatenate (oplistexec l1) (oplistexec l2).
   Proof.
     revert l1.
     refine (list_ind _ _ _).
     - intros.
       change ([] ++ l2) with (l2).
-      induction (oplist2status l2) as [l2ok | l2error].
+      induction (oplistexec l2) as [l2ok | l2error].
       + apply idpath.
       + induction l2error.
         apply idpath.
     - intros x xs IHxs noerror.
-      change (oplist2status (x :: xs)) with (statuscons x (oplist2status xs))  in *.
-      rewrite statusconcatenate_statuscons by (assumption).
+      change (oplistexec (x :: xs)) with (opexec x (oplistexec xs))  in *.
+      rewrite stackconcatenate_opexec by (assumption).
       rewrite <- IHxs.
       + apply idpath.
       + intro error.
@@ -234,10 +236,10 @@ Section OplistProps.
         contradiction.
   Defined.
 
-  (** *** The [oplistsplit] function *)
+  (** *** The [oplistsplit] function. *)
 
   (**
-     [oplistsplit] splits an oplist in an oplist of up to [n] terms and an oplist of the remaining
+     [oplistsplit] splits an oplist into an oplist of up to [n] terms and an oplist of the remaining
      terms.
    *)
 
@@ -273,27 +275,27 @@ Section OplistProps.
   Defined.
 
   Local Lemma oplistsplit_concatenate (l1 l2: oplist σ) (n: nat) (ss: list (sorts σ))
-    : oplist2status l1 = statusok ss → n ≤ length ss
+    : oplistexec l1 = just ss → n ≤ length ss
       → oplistsplit (l1 ++ l2) n
         = make_dirprod (pr1 (oplistsplit l1 n)) (pr2 (oplistsplit l1 n) ++ l2).
   Proof.
     revert l1 ss n.
     refine (list_ind _ _ _).
-    - intros ss n l1status nlehss.
-      apply ii1_injectivity in l1status.
-      rewrite <- l1status in nlehss.
+    - intros ss n l1stack nlehss.
+      apply ii1_injectivity in l1stack.
+      rewrite <- l1stack in nlehss.
       apply natleh0tois0 in nlehss.
       rewrite nlehss.
       rewrite oplistsplit_zero.
       apply idpath.
-    - intros x1 xs1 IHxs1 ss n l1status nlehss.
+    - intros x1 xs1 IHxs1 ss n l1stack nlehss.
       change ((x1 :: xs1) ++ l2) with (x1 :: (xs1 ++ l2)).
       induction n.
       + apply idpath.
-      + change (oplist2status (x1 :: xs1)) with (statuscons x1 (oplist2status xs1)) in l1status.
-        apply statuscons_statusok_b in l1status.
-        induction l1status as [sstail [ssdef xs1status]].
-        eset (IHinst := IHxs1 (arity x1 ++ sstail) (length (arity x1) + n) xs1status _).
+      + change (oplistexec (x1 :: xs1)) with (opexec x1 (oplistexec xs1)) in l1stack.
+        apply opexec_just_b in l1stack.
+        induction l1stack as [sstail [ssdef xs1stack]].
+        eset (IHinst := IHxs1 (arity x1 ++ sstail) (length (arity x1) + n) xs1stack _).
         do 2 rewrite oplistsplit_cons.
         apply pathsdirprod.
         * cbn.
@@ -325,26 +327,26 @@ Section OplistProps.
         apply IHxs.
   Defined.
 
-  Local Lemma oplist2status_oplistsplit (l: oplist σ) {ss: list (sorts σ)} (n: nat)
-    : oplist2status l = statusok ss → n ≤ length ss
+  Local Lemma oplistexec_oplistsplit (l: oplist σ) {ss: list (sorts σ)} (n: nat)
+    : oplistexec l = just ss → n ≤ length ss
       → ∑ t1 t2: list (sorts σ),
           ss = t1 ++ t2
-          × oplist2status (pr1 (oplistsplit l n)) = statusok t1
-          × oplist2status (pr2 (oplistsplit l n)) = statusok t2
+          × oplistexec (pr1 (oplistsplit l n)) = just t1
+          × oplistexec (pr2 (oplistsplit l n)) = just t2
           × length t1 = n.
   Proof.
     revert l ss n.
     refine (list_ind _ _ _).
-    - intros m ss nilstatus nlehss.
+    - intros m ss nilstack nlehss.
       cbn.
-      apply ii1_injectivity in nilstatus.
-      rewrite <- nilstatus in *.
+      apply ii1_injectivity in nilstack.
+      rewrite <- nilstack in *.
       apply natleh0tois0 in nlehss.
       rewrite nlehss.
       exists nil.
       exists nil.
       repeat split.
-    - intros x xs IHxs ss n lstatus nlehss.
+    - intros x xs IHxs ss n lstack nlehss.
       induction n.
       + rewrite oplistsplit_zero.
         exists nil.
@@ -353,10 +355,10 @@ Section OplistProps.
         assumption.
       + rewrite oplistsplit_cons.
         simpl.
-        change (oplist2status (x :: xs)) with (statuscons x (oplist2status xs)) in lstatus.
-        apply statuscons_statusok_b in lstatus.
-        induction lstatus as [sstail [ssdef xsstatus]].
-        eset (IHinst := IHxs (arity x ++ sstail) (length (arity x) + n) xsstatus _).
+        change (oplistexec (x :: xs)) with (opexec x (oplistexec xs)) in lstack.
+        apply opexec_just_b in lstack.
+        induction lstack as [sstail [ssdef xsstack]].
+        eset (IHinst := IHxs (arity x ++ sstail) (length (arity x) + n) xsstack _).
         induction IHinst as  [t1 [ t2 [ t1t2concat [ t1def [ t2def t1len ] ] ] ] ].
         exists ((sort x) :: MoreLists.drop t1 (length (arity x))).
         exists t2.
@@ -370,10 +372,9 @@ Section OplistProps.
              assumption.
           -- rewrite t1len.
              apply natlehnplusnm.
-        * rewrite oplist2status_cons.
+        * rewrite oplistexec_cons.
           rewrite t1def.
-          unfold statuscons.
-          unfold statusok, just, funcomp.
+          unfold opexec, funcomp.
           simpl.
           rewrite prefix_remove_drop.
           -- simpl.
@@ -401,10 +402,10 @@ Section OplistProps.
   Defined.
 
   Local Corollary oplistsplit_self {l: oplist σ} {ss: list (sorts σ)}
-    : oplist2status l = statusok ss → oplistsplit l (length ss) = l ,, nil.
+    : oplistexec l = just ss → oplistsplit l (length ss) = l ,, nil.
   Proof.
-    intro lstatus.
-    set (H := oplist2status_oplistsplit l (length ss) lstatus (isreflnatleh (length ss))).
+    intro lstack.
+    set (H := oplistexec_oplistsplit l (length ss) lstack (isreflnatleh (length ss))).
     induction H as [t1 [t2 [t1t2 [t1def [t2def t1len]]]]].
     set (normalization := concatenate_oplistsplit l (length ss)).
     apply (maponpaths length) in t1t2.
@@ -417,7 +418,7 @@ Section OplistProps.
     rewrite minuseq0' in t1t2.
     apply length_zero_back in t1t2.
     rewrite t1t2 in t2def.
-    apply oplist2status_zero_b in t2def.
+    apply oplistexec_zero_b in t2def.
     rewrite t2def in normalization.
     rewrite concatenate_nil in normalization.
     induction (oplistsplit l (length ss)) as [l1 l2].
@@ -427,19 +428,19 @@ Section OplistProps.
     apply idpath.
   Defined.
 
-End OplistProps.
+End Oplists.
 
 Section Term.
 
   (** ** Terms and related constructors and destructors. *)
 
-  (** A term is an oplist together with the proof it is a term. *)
+  (** A [term] is an oplist together with the proof it is a term. *)
 
   Definition term (σ: signature) (s: sorts σ): UU
     := ∑ t: oplist σ, isaterm s t.
 
-  Definition make_term {σ: signature} {s: sorts σ} {l: oplist σ} (lstatus: isaterm s l)
-    : term σ s := l ,, lstatus.
+  Definition make_term {σ: signature} {s: sorts σ} {l: oplist σ} (lstack: isaterm s l)
+    : term σ s := l ,, lstack.
 
   Coercion term2oplist {σ: signature} {s: sorts σ}: term σ s → oplist σ := pr1.
 
@@ -451,7 +452,7 @@ Section Term.
     - apply isasetoplist.
     - intros.
       apply isasetaprop.
-      apply isasetstatus.
+      apply isasetstack.
   Defined.
 
   Definition termset (σ: signature) (s: sorts σ): hSet
@@ -469,7 +470,7 @@ Section Term.
 
   (** *** The [vecoplist2oplist] and [oplist2vecoplist] functions *)
   (**
-  These functions transform a vector of [n] oplists into an oplists of status [n]
+  These functions transform a vector of [n] oplists into an oplists of stack [n]
   ([vecoplist2oplist]) and viceversa ([oplist2vecoplist]).
   *)
 
@@ -478,184 +479,6 @@ Section Term.
 
   Local Lemma vecoplist2oplist_vcons {n: nat} (x: oplist σ) (v: Vector (oplist σ) n)
     : vecoplist2oplist (x ::: v) = concatenate x (vecoplist2oplist v).
-  Proof.
-    apply idpath.
-  Defined.
-
-  Local Lemma oplist2status_vecoplist2oplist {n: nat} {ar: Vector (sorts σ) n} {v: HVec (vector_map (term σ) ar)}
-    : oplist2status (vecoplist2oplist (h1map_vector (λ _, term2oplist) v)) = statusok (n ,, ar).
-  Proof.
-    revert n ar v.
-    refine (vector_ind _ _ _).
-    - induction v.
-      reflexivity.
-    - intros x n xs IHxs v.
-      induction v as [vx vxs].
-      simpl in *.
-      rewrite oplist2status_concatenate.
-      unfold h1map_vector in IHxs.
-      + rewrite IHxs.
-        rewrite (term2proof vx).
-        apply idpath.
-      + rewrite (term2proof vx).
-        apply negpathsii1ii2.
-  Defined.
-
-  Local Definition oplist2vecoplist {n: nat} {ar: Vector (sorts σ) n} (l: oplist σ) (lstatus: oplist2status l = statusok (n,, ar))
-    : ∑ (v: HVec (vector_map (term σ) ar))
-        , (HVec (h1map_vector (λ _ t, hProptoType (length (term2oplist t) ≤ length l)) v))
-          × vecoplist2oplist (h1map_vector (λ _, term2oplist) v) = l.
-  Proof.
-    revert n ar l lstatus.
-    refine (vector_ind _ _ _).
-    - intros.
-      exists [()].
-      exists [()].
-      apply oplist2status_zero_b in lstatus.
-      rewrite lstatus.
-      apply idpath.
-    - intros x n xs IHxs l lstatus.
-      induction (oplist2status_oplistsplit l 1 lstatus (natleh0n 0))
-         as [firststatus [reststatus [concstatus [firststatusp [reststatusp firstlen]]]]].
-      change (S n,, (x ::: xs)%vector) with (x :: (n ,, xs)) in concstatus.
-      set (first := pr1 (oplistsplit l 1)) in *.
-      set (rest := pr2 (oplistsplit l 1)) in *.
-      apply length_one_back in firstlen.
-      induction firstlen as [a firststatus'].
-      induction (!firststatus').
-      change ((a :: []) ++ reststatus) with (a :: reststatus) in concstatus.
-      pose (concstatus' := concstatus).
-      apply cons_inj1 in concstatus'.
-      apply cons_inj2 in concstatus.
-      induction (!concstatus).
-      induction (!concstatus').
-      induction (IHxs rest reststatusp) as [v [vlen vflatten]].
-      exists ((make_term firststatusp) ::: v).
-      repeat split.
-      + change (length first ≤ length l).
-        rewrite <- (concatenate_oplistsplit l 1).
-        apply length_sublist1.
-      + change (HVec (h1map_vector (λ (s: sorts σ) (t: term σ s), hProptoType (length (term2oplist t) ≤ length l)) v)).
-        eapply (h2map (λ _ _ p, istransnatleh p _) vlen).
-        Unshelve.
-        rewrite <- (concatenate_oplistsplit l 1).
-        apply length_sublist2.
-      + simpl.
-        unfold h1map_vector in vflatten.
-        rewrite vflatten.
-        apply concatenate_oplistsplit.
-  Defined.
-
-  Local Definition oplist_build_term (nm: names σ) (v: Vector (oplist σ) (length (arity nm)))
-    : oplist σ := cons nm (vecoplist2oplist v).
-
-  Local Lemma oplist_build_term_status (nm: names σ) (v: (term σ)⋆ (arity nm))
-    : isaterm (sort nm) (oplist_build_term nm (h1map_vector (λ _, term2oplist) v)).
-  Proof.
-    unfold oplist_build_term, isaterm.
-    rewrite oplist2status_cons.
-    rewrite oplist2status_vecoplist2oplist.
-    change (length (arity nm),, pr2 (arity nm)) with (arity nm).
-    induction (statuscons_statusok_f nm (arity nm) (isprefix_self _)) as [rest [p1 p2]].
-    rewrite prefix_remove_self in p2.
-    apply just_injectivity in p2.
-    induction p2.
-    assumption.
-  Defined.
-
-  Local Definition term_decompose {s: sorts σ} (t: term  σ s):
-    ∑ (nm:names σ) (v: (term σ)⋆ (arity nm))
-      , (HVec (h1map_vector (λ _ t', hProptoType (length (term2oplist t') < length t)) v))
-         × sort nm = s
-         × oplist_build_term nm (h1map_vector (λ _, term2oplist) v) = t.
-  Proof.
-    induction t as [l lstatus].
-    cbv [pr1 term2oplist].
-    revert l lstatus.
-    refine (list_ind _ _ _).
-    - intro lstatus.
-      apply ii1_injectivity in lstatus.
-      apply (maponpaths length) in lstatus.
-      apply negpaths0sx in lstatus.
-      contradiction.
-    - intros x xs IHxs lstatus.
-      exists x.
-      unfold isaterm in lstatus.
-      rewrite oplist2status_cons in lstatus.
-      apply statuscons_statusok_b in lstatus.
-      induction lstatus as [xssort [xsdef statusxs]].
-      pose (xsdef' := xsdef).
-      apply cons_inj1 in xsdef'.
-      apply cons_inj2 in xsdef.
-      induction xsdef'.
-      induction xsdef.
-      rewrite concatenate_nil in statusxs.
-      induction (oplist2vecoplist xs statusxs) as [vtail [vlen vflatten]].
-      exists vtail.
-      repeat split.
-      + exact (h2map (λ _ _ p, natlehtolthsn _ _ p) vlen).
-      + unfold oplist_build_term.
-        rewrite <- vflatten.
-        apply idpath.
-  Defined.
-
-  (** ** Constructors and destuctors. *)
-  (** [build_term] builds a term starting from principal operation symbol and subterms, while
-  [princop] and [subterms] are the corresponding destructors. *)
-
-  Definition build_term (nm: names σ) (v: (term σ)⋆ (arity nm)): term σ (sort nm).
-  Proof.
-    exists (oplist_build_term nm (h1map_vector (λ _, term2oplist) v)).
-    apply oplist_build_term_status.
-  Defined.
-
-  Definition princop {s: sorts σ} (t: term σ s): names σ
-    := pr1 (term_decompose t).
-
-  Definition princop_sort {s: sorts σ} (t: term σ s): sort (princop t) = s.
-  Proof.
-    unfold princop.
-    induction (term_decompose t) as [nm [v [vlen [nmsort normalization]]]].
-    exact nmsort.
-  Defined.
-
-  Definition subterms {s: sorts σ} (t: term σ s): (term σ)⋆ (arity (princop t)).
-  Proof.
-    unfold princop.
-    induction (term_decompose t) as [nm [v X]].
-    exact v.
-  Defined.
-
-  Local Lemma subterms_length {s: sorts σ} (t: term σ s)
-    : HVec (h1map_vector (λ _ t', hProptoType (length (term2oplist t') < length t)) (subterms t)).
-  Proof.
-    unfold subterms, princop.
-    induction (term_decompose t) as [nm [v [vlen X]]].
-    exact vlen.
-  Defined.
-
-  Local Lemma oplist_normalization {s: sorts σ} (t: term σ s)
-     : term2oplist (build_term (princop t) (subterms t)) = t.
-  Proof.
-    unfold princop, subterms, princop_sort.
-    induction (term_decompose t) as [nm [v [vlen [nmsort normalization]]]].
-    assumption.
-  Defined.
-
-  Local Lemma term_normalization {s: sorts σ} (t: term σ s)
-     : transportf (term σ) (princop_sort t) (build_term (princop t) (subterms t)) = t.
-  Proof.
-    unfold princop, subterms, princop_sort.
-    induction (term_decompose t) as [nm [v [vlen [nmsort normalization]]]].
-    induction nmsort.
-    change (build_term nm v = t).
-    apply subtypePairEquality'.
-    - apply normalization.
-    - apply isapropisaterm.
-  Defined.
-
-  Local Lemma princop_build_term (nm: names σ) (v: (term σ)⋆ (arity nm))
-    : princop (build_term nm v) = nm.
   Proof.
     apply idpath.
   Defined.
@@ -691,18 +514,187 @@ Section Term.
         apply (maponpaths (λ l, pr2 l: oplist σ) eq).
   Defined.
 
+  Local Lemma oplistexec_vecoplist2oplist {n: nat} {ar: Vector (sorts σ) n} {v: HVec (vector_map (term σ) ar)}
+    : oplistexec (vecoplist2oplist (h1map_vector (λ _, term2oplist) v)) = just (n ,, ar).
+  Proof.
+    revert n ar v.
+    refine (vector_ind _ _ _).
+    - induction v.
+      reflexivity.
+    - intros x n xs IHxs v.
+      induction v as [vx vxs].
+      simpl in *.
+      rewrite oplistexec_concatenate.
+      unfold h1map_vector in IHxs.
+      + rewrite IHxs.
+        rewrite (term2proof vx).
+        apply idpath.
+      + rewrite (term2proof vx).
+        apply negpathsii1ii2.
+  Defined.
+
+  Local Definition oplist2vecoplist {n: nat} {ar: Vector (sorts σ) n} (l: oplist σ) (lstack: oplistexec l = just (n,, ar))
+    : ∑ (v: HVec (vector_map (term σ) ar))
+        , (HVec (h1map_vector (λ _ t, hProptoType (length (term2oplist t) ≤ length l)) v))
+          × vecoplist2oplist (h1map_vector (λ _, term2oplist) v) = l.
+  Proof.
+    revert n ar l lstack.
+    refine (vector_ind _ _ _).
+    - intros.
+      exists [()].
+      exists [()].
+      apply oplistexec_zero_b in lstack.
+      rewrite lstack.
+      apply idpath.
+    - intros x n xs IHxs l lstack.
+      induction (oplistexec_oplistsplit l 1 lstack (natleh0n 0))
+         as [firststack [reststack [concstack [firststackp [reststackp firstlen]]]]].
+      change (S n,, (x ::: xs)%vector) with (x :: (n ,, xs)) in concstack.
+      set (first := pr1 (oplistsplit l 1)) in *.
+      set (rest := pr2 (oplistsplit l 1)) in *.
+      apply length_one_back in firstlen.
+      induction firstlen as [a firststack'].
+      induction (!firststack').
+      change ((a :: []) ++ reststack) with (a :: reststack) in concstack.
+      pose (concstack' := concstack).
+      apply cons_inj1 in concstack'.
+      apply cons_inj2 in concstack.
+      induction (!concstack).
+      induction (!concstack').
+      induction (IHxs rest reststackp) as [v [vlen vflatten]].
+      exists ((make_term firststackp) ::: v).
+      repeat split.
+      + change (length first ≤ length l).
+        rewrite <- (concatenate_oplistsplit l 1).
+        apply length_sublist1.
+      + change (HVec (h1map_vector (λ (s: sorts σ) (t: term σ s), hProptoType (length (term2oplist t) ≤ length l)) v)).
+        eapply (h2map (λ _ _ p, istransnatleh p _) vlen).
+        Unshelve.
+        rewrite <- (concatenate_oplistsplit l 1).
+        apply length_sublist2.
+      + simpl.
+        unfold h1map_vector in vflatten.
+        rewrite vflatten.
+        apply concatenate_oplistsplit.
+  Defined.
+
+  (** ** Constructors and destuctors. *)
+
+  (** [build_term] builds a term starting from principal operation symbol and subterms, while
+  [princop] and [subterms] are the corresponding destructors. *)
+
+  Local Definition oplist_build (nm: names σ) (v: Vector (oplist σ) (length (arity nm)))
+    : oplist σ := cons nm (vecoplist2oplist v).
+
+  Local Lemma oplist_build_isaterm (nm: names σ) (v: (term σ)⋆ (arity nm))
+    : isaterm (sort nm) (oplist_build nm (h1map_vector (λ _, term2oplist) v)).
+  Proof.
+    unfold oplist_build, isaterm.
+    rewrite oplistexec_cons.
+    rewrite oplistexec_vecoplist2oplist.
+    change (length (arity nm),, pr2 (arity nm)) with (arity nm).
+    induction (opexec_just_f nm (arity nm) (isprefix_self _)) as [rest [p1 p2]].
+    rewrite prefix_remove_self in p2.
+    apply just_injectivity in p2.
+    induction p2.
+    assumption.
+  Defined.
+
+  Definition build_term (nm: names σ) (v: (term σ)⋆ (arity nm)): term σ (sort nm).
+  Proof.
+    exists (oplist_build nm (h1map_vector (λ _, term2oplist) v)).
+    apply oplist_build_isaterm.
+  Defined.
+
+  Local Definition term_decompose {s: sorts σ} (t: term  σ s):
+    ∑ (nm:names σ) (v: (term σ)⋆ (arity nm))
+      , (HVec (h1map_vector (λ _ t', hProptoType (length (term2oplist t') < length t)) v))
+         × sort nm = s
+         × oplist_build nm (h1map_vector (λ _, term2oplist) v) = t.
+  Proof.
+    induction t as [l lstack].
+    cbv [pr1 term2oplist].
+    revert l lstack.
+    refine (list_ind _ _ _).
+    - intro lstack.
+      apply ii1_injectivity in lstack.
+      apply (maponpaths length) in lstack.
+      apply negpaths0sx in lstack.
+      contradiction.
+    - intros x xs IHxs lstack.
+      exists x.
+      unfold isaterm in lstack.
+      rewrite oplistexec_cons in lstack.
+      apply opexec_just_b in lstack.
+      induction lstack as [xssort [xsdef stackxs]].
+      pose (xsdef' := xsdef).
+      apply cons_inj1 in xsdef'.
+      apply cons_inj2 in xsdef.
+      induction xsdef'.
+      induction xsdef.
+      rewrite concatenate_nil in stackxs.
+      induction (oplist2vecoplist xs stackxs) as [vtail [vlen vflatten]].
+      exists vtail.
+      repeat split.
+      + exact (h2map (λ _ _ p, natlehtolthsn _ _ p) vlen).
+      + unfold oplist_build.
+        rewrite <- vflatten.
+        apply idpath.
+  Defined.
+
+  Definition princop {s: sorts σ} (t: term σ s): names σ
+    := pr1 (term_decompose t).
+
+  Definition subterms {s: sorts σ} (t: term σ s): (term σ)⋆ (arity (princop t))
+    := pr12 (term_decompose t).
+
+  Local Definition subterms_length {s: sorts σ} (t: term σ s)
+    : HVec (h1map_vector (λ _ t', hProptoType (length (term2oplist t') < length t)) (subterms t))
+    := pr122 (term_decompose t).
+
+  Local Definition princop_sorteq {s: sorts σ} (t: term σ s): sort (princop t) = s
+    := pr122 (pr2 (term_decompose t)).
+
+  Local Definition oplist_normalization {s: sorts σ} (t: term σ s)
+     : term2oplist (build_term (princop t) (subterms t)) = t
+     := pr222 (pr2 (term_decompose t)).
+
+  (** *** Term normalization *)
+  (**
+    We prove that [princop (build_term nm v) = nm], [subterms (build_term nm v) = v] and
+    [build_term (princop t) (subterms t))] is equal to [t] modulo [transport].
+  *)
+
+  Local Lemma term_normalization {s: sorts σ} (t: term σ s)
+     : transportf (term σ) (princop_sorteq t) (build_term (princop t) (subterms t)) = t.
+  Proof.
+    unfold princop, subterms, princop_sorteq.
+    induction (term_decompose t) as [nm [v [vlen [nmsort normalization]]]].
+    induction nmsort.
+    change (build_term nm v = t).
+    apply subtypePairEquality'.
+    - apply normalization.
+    - apply isapropisaterm.
+  Defined.
+
+  Local Lemma princop_build_term (nm: names σ) (v: (term σ)⋆ (arity nm))
+    : princop (build_term nm v) = nm.
+  Proof.
+    apply idpath.
+  Defined.
+
   Local Lemma subterms_build_term (nm: names σ) (v: (term σ)⋆ (arity nm))
     : subterms (build_term nm v) = v.
   Proof.
     set (t := build_term nm v).
     set (tnorm := term_normalization t).
-    assert (princop_sort_idpath: princop_sort t = idpath (sort nm)).
+    assert (princop_sorteq_idpath: princop_sorteq t = idpath (sort nm)).
     {
       apply proofirrelevance.
       apply isasetifdeceq.
       apply decproperty.
     }
-    rewrite princop_sort_idpath in tnorm.
+    rewrite princop_sorteq_idpath in tnorm.
     change (transportb (term σ) (idpath (sort nm)) t) with t in tnorm.
     set (tnorm_list := maponpaths pr1 tnorm).
     apply cons_inj2 in tnorm_list.
@@ -710,10 +702,12 @@ Section Term.
     exact tnorm_list.
   Defined.
 
+  (** *** Miscellanea properties of terms *)
+
   Local Lemma length_term {s: sorts σ} (t: term σ s): length t > 0.
   Proof.
-    induction t as [l statusl].
-    induction (oplist2status_positive_b _ _ _ statusl) as [x [xs lstruct]].
+    induction t as [l stackl].
+    induction (oplistexec_positive_b _ _ _ stackl) as [x [xs lstruct]].
     induction (! lstruct).
     apply idpath.
   Defined.
@@ -733,7 +727,8 @@ Section TermInduction.
 
   (** ** Term induction. *)
 
-  (** If [P] is a map from terms to properties, then [term_ind_HP P] is the inductive hypothesis for terms:
+  (**
+  If [P] is a map from terms to properties, then [term_ind_HP P] is the inductive hypothesis for terms:
   given an operation symbol [nm], a sequence of terms of type specified by the arity of [nm], a proof of
   the property [P] for eache of the terms in [v], we need a proof of [P] for the term built from [nm] and [v].
   *)
@@ -744,8 +739,10 @@ Section TermInduction.
       (IH: HVec (h1map_vector P v))
     , P (sort nm) (build_term nm v).
 
-  (** The proof of the induction principle for terms proceed [term_ind] by induction on the lenght of the oplist
-  forming the terms [term_ind_onlength]. **)
+  (**
+  The proof of the induction principle [term_ind] for terms proceeds by induction on the lenght of
+  the oplist forming the terms in [term_ind_onlength].
+  *)
 
   Local Lemma term_ind_onlength (P: ∏ (s: sorts σ), term σ s → UU) (R: term_ind_HP P)
     : ∏ (n: nat) (s: sorts σ) (t: term σ s), length t ≤ n →  P s t.
@@ -755,7 +752,7 @@ Section TermInduction.
       exact (term_notnil tlen).
     - intros s t tlen.
       apply (transportf (P s) (term_normalization t)).
-      induction (princop_sort t).
+      induction (princop_sorteq t).
       change (P (sort (princop t)) (build_term (princop t) (subterms t))).
       apply (R (princop t) (subterms t)).
       refine (h2map _ (subterms_length t)).
@@ -839,13 +836,13 @@ Section TermInduction.
     clearbody v0len v0norm.  (* Needed to make induction work *)
     change (princop t) with nm in *.
     induction (! (subterms_build_term nm v: subterms t = v)).
-    assert (princop_sort_idpath: princop_sort t = idpath (sort nm)).
+    assert (princop_sorteq_idpath: princop_sorteq t = idpath (sort nm)).
     {
       apply proofirrelevance.
       apply isasetifdeceq.
       apply decproperty.
     }
-    induction (! princop_sort_idpath).
+    induction (! princop_sorteq_idpath).
     change (build_term nm v = t) in v0norm.
     assert (v0normisid: v0norm = idpath _).
     {
@@ -867,7 +864,8 @@ Section TermInduction.
 
   (** *** Immediate applications of term induction *)
 
-  (** [depth] returns the depth od a term, while [fromterm] is essentially the evaluation map from terms
+  (**
+  [depth] returns the depth of a term, while [fromterm] is the evaluation map from terms
   to an algebra. Finally, [fromtermstep] is the unfold property for [fromterm].
   *)
 

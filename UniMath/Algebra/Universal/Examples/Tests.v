@@ -2,12 +2,8 @@
 
 Require Import UniMath.Foundations.All.
 
-Require Import UniMath.Algebra.Universal.HVectors.
+Require Import UniMath.Algebra.Universal.Maybe.
 Require Import UniMath.Algebra.Universal.MoreLists.
-Require Import UniMath.Algebra.Universal.SortedTypes.
-Require Import UniMath.Algebra.Universal.Signatures.
-Require Import UniMath.Algebra.Universal.Algebras.
-Require Import UniMath.Algebra.Universal.Terms.
 Require Import UniMath.Algebra.Universal.TermAlgebras.
 Require Import UniMath.Algebra.Universal.Examples.Nat.
 Require Import UniMath.Algebra.Universal.Examples.Bool.
@@ -15,6 +11,7 @@ Require Import UniMath.Algebra.Universal.Examples.Bool.
 Local Open Scope stn.
 Local Open Scope sorted.
 Local Open Scope hvec.
+Local Open Scope list.
 
 Section SortedTypes.
 
@@ -27,35 +24,35 @@ End SortedTypes.
 
 Section NatLowLevel.
 
-  Goal Terms.statuscons nat_succ_op (Terms.statusok [nat_sort]) = Terms.statusok [nat_sort].
+  Goal Terms.opexec nat_succ_op (just [nat_sort]) = just [nat_sort].
   Proof. apply idpath. Qed.
 
-  Goal Terms.statuscons nat_succ_op (Terms.statusok []) = Terms.statuserror.
+  Goal Terms.opexec nat_succ_op (just []) = nothing.
   Proof. apply idpath. Qed.
 
   Local Definition zero_one_oplist: Terms.oplist nat_signature := [nat_zero_op ; nat_succ_op ; nat_zero_op].
 
   Local Definition one_oplist: Terms.oplist nat_signature := [nat_succ_op ; nat_zero_op].
 
-  Local Definition zero_oplist: Terms.oplist nat_signature := [nat_zero_op]%list.
+  Local Definition zero_oplist: Terms.oplist nat_signature := [nat_zero_op].
 
-  Goal @Terms.oplist2status nat_signature [] = Terms.statusok [].
+  Goal @Terms.oplistexec nat_signature [] = just [].
   Proof. apply idpath. Qed.
 
-  Goal Terms.oplist2status one_oplist = Terms.statusok [nat_sort].
+  Goal Terms.oplistexec one_oplist = just [nat_sort].
   Proof. apply idpath. Qed.
 
-  Goal Terms.oplist2status zero_one_oplist = Terms.statusok [nat_sort ; nat_sort].
+  Goal Terms.oplistexec zero_one_oplist = just [nat_sort ; nat_sort].
   Proof. apply idpath. Qed.
 
-  Goal Terms.oplist2status [nat_succ_op] = Terms.statuserror.
+  Goal Terms.oplistexec [nat_succ_op] = nothing.
   Proof. apply idpath. Qed.
 
   Goal Terms.isaterm nat_sort (nat2term 10).
   Proof. apply idpath. Qed.
 
-  Goal Terms.statusconcatenate (Terms.statusok [nat_sort]) (Terms.statusok [nat_sort ; nat_sort])
-    = Terms.statusok [nat_sort ; nat_sort ; nat_sort].
+  Goal Terms.stackconcatenate (just [nat_sort]) (just [nat_sort ; nat_sort])
+    = just [nat_sort ; nat_sort ; nat_sort].
   Proof. apply idpath. Qed.
 
   Local Definition one_term : term nat_signature nat_sort := make_term(l:=one_oplist) (idpath _).
@@ -77,7 +74,7 @@ Section NatLowLevel.
   Goal pr1 (Terms.oplist2vecoplist zero_one_oplist (idpath _)) = vcons zero_term (vcons one_term vnil).
   Proof. apply idpath. Qed.
 
-  Goal Terms.oplist_build_term nat_succ_op [zero_oplist] = one_oplist.
+  Goal Terms.oplist_build nat_succ_op [zero_oplist] = one_oplist.
   Proof. apply idpath. Qed.
 
 End NatLowLevel.
@@ -175,10 +172,10 @@ Section Bool.
   Goal princop t1 = bool_and_op.
   Proof. apply idpath. Qed.
 
-  Goal term2oplist t2 = [ bool_not_op ; bool_and_op ; bool_true_op ; bool_false_op ]%list.
+  Goal term2oplist t2 = [ bool_not_op ; bool_and_op ; bool_true_op ; bool_false_op ].
   Proof. apply idpath. Qed.
 
-  Goal pr1 (Terms.oplistsplit (term2oplist t1) 0) =  []%list.
+  Goal pr1 (Terms.oplistsplit (term2oplist t1) 0) =  [].
   Proof. apply idpath. Qed.
 
   Goal pr2 (Terms.oplistsplit (term2oplist t1) 0) = (term2oplist t1).
@@ -187,7 +184,7 @@ Section Bool.
   Goal pr1 (Terms.oplistsplit (term2oplist t1) 1) = (term2oplist t1).
   Proof. apply idpath. Qed.
 
-  Goal pr2 (Terms.oplistsplit (term2oplist t1) 1) = []%list.
+  Goal pr2 (Terms.oplistsplit (term2oplist t1) 1) = [].
   Proof. apply idpath. Qed.
 
   Goal subterms t2 = [( t1 )].

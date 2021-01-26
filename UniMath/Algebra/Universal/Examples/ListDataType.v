@@ -4,8 +4,6 @@ Require Import UniMath.MoreFoundations.Notations.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.Algebra.Universal.MoreLists.
-Require Import UniMath.Algebra.Universal.HVectors.
-Require Import UniMath.Algebra.Universal.Signatures.
 Require Import UniMath.Algebra.Universal.Algebras.
 Require Import UniMath.Algebra.Universal.Terms.
 

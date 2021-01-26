@@ -8,8 +8,6 @@ Require Import UniMath.Combinatorics.FiniteSets.
 
 Require Import UniMath.Algebra.Universal.
 Require Import UniMath.Algebra.Universal.MoreLists.
-Require Import UniMath.Algebra.Universal.HVectors.
-Require Import UniMath.Algebra.Universal.Equations.
 
 Open Scope stn.
 
@@ -35,9 +33,9 @@ Definition impl   : T → T → T := build_term_curried (inl (●5) : names σ).
 Definition bool_algebra := make_algebra_simple_single_sorted bool_signature boolset
   [(
     λ _, false ;
-    λ _, true ; 
+    λ _, true ;
     λ x, negb (pr1 x) ;
-    λ x, andb (pr1 x) (pr12 x) ; 
+    λ x, andb (pr1 x) (pr12 x) ;
     λ x, orb (pr1 x) (pr12 x) ;
     λ x, implb (pr1 x) (pr12 x)
   )].
@@ -83,50 +81,16 @@ Proof.
    apply idpath.
 Qed.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-(** Tests.
-Eval lazy in interp f (conj x top).
-Eval lazy in interp f (conj x y).
-Eval lazy in interp f (disj x y).
-Eval lazy in interp f (disj x (conj y bot)).
-
+(*
 Definition f (n : nat) : bool.
 Proof.
   induction n as [|n Hn].
   - exact true.
   - exact false.
-Defined.**)
+Defined.
+
+Eval lazy in interp f (conj x top).
+Eval lazy in interp f (conj x y).
+Eval lazy in interp f (disj x y).
+Eval lazy in interp f (disj x (conj y bot)).
+*)

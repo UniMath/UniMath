@@ -9,8 +9,6 @@ Require Import UniMath.MoreFoundations.Bool.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.Algebra.Universal.MoreLists.
-Require Import UniMath.Algebra.Universal.HVectors.
-Require Import UniMath.Algebra.Universal.Signatures.
 Require Import UniMath.Algebra.Universal.Algebras.
 Require Import UniMath.Algebra.Universal.Terms.
 
@@ -29,9 +27,9 @@ Definition bool_or_op : names bool_signature := ●4.
 Definition bool_algebra := make_algebra_simple_single_sorted bool_signature boolset
   [(
     λ _, false ;
-    λ _, true ; 
+    λ _, true ;
     λ x, negb (pr1 x) ;
-    λ x, andb (pr1 x) (pr12 x) ; 
+    λ x, andb (pr1 x) (pr12 x) ;
     λ x, orb (pr1 x) (pr12 x)
   )].
 
