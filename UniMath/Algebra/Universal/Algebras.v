@@ -1,4 +1,4 @@
-(** * Basic definitions for universal algebras *)
+(** * Algebra for a given signature. *)
 
 Require Import UniMath.Foundations.All.
 
@@ -7,7 +7,7 @@ Require Export UniMath.Algebra.Universal.Signatures.
 
 Local Open Scope sorted.
 
-(** ** Algebras for a given signature *)
+(** ** Basic definitions. *)
 
 Definition algebra (σ: signature): UU
   := ∑ A: shSet (sorts σ), ∏ nm: names σ, A⋆ (arity nm) → A (sort nm).
@@ -30,6 +30,12 @@ Definition make_algebra {σ: signature} (A : shSet (sorts σ)) (ops: ∏ nm: nam
 Definition dom {σ: signature} (A: algebra σ) (nm: names σ): UU := A⋆ (arity nm).
 
 Definition rng {σ: signature} (A: algebra σ) (nm: names σ): UU := support A (sort nm).
+
+(** ** Helper for building an algebra starting from a simple signature.
+
+A simple signature is either a [signature_simple_single_sorted] for the single-sorted case or
+a [signature_single] for the multi-sorted case.
+*)
 
 Definition make_algebra_simple_single_sorted (σ: signature_simple_single_sorted) (A : hSet)
                                              (ops: (λ n: nat, Vector A n → A)⋆ σ): algebra σ.
@@ -77,7 +83,7 @@ Proof.
     + exact (IHxs ops (nm ,, nmproof)).
 Defined.
 
-(** ** Homomorphisms of algebras *)
+(** ** Homomorphisms of algebras. *)
 
 Definition ishom {σ: signature} {A1 A2: algebra σ} (h: A1 s→ A2) : UU
   := ∏ (nm: names σ) (x: dom A1 nm), h _ (A1 nm x) = A2 nm (h⋆⋆ _ x).
@@ -122,7 +128,7 @@ Proof.
     apply isapropishom.
 Defined.
 
-(** ** Identity and composition of homomorphisms *)
+(** ** Identity and composition of homomorphisms. *)
 
 Lemma ishomid {σ: signature} (A: algebra σ): ishom (idsfun A).
 Proof.
@@ -150,7 +156,7 @@ Defined.
 Definition homcomp {σ: signature} {a1 a2 a3: algebra σ} (h1: a1 ↦ a2) (h2: a2 ↦ a3) : a1 ↦ a3
   := make_hom (ishomcomp h1 h2).
 
-(** ** The unit algebra with a single element and the proof it is final *)
+(** ** The unit algebra and the proof it is final. *)
 
 Definition unitalgebra (σ: signature): algebra σ
   := make_algebra (sunitset (sorts σ)) tosunit.
