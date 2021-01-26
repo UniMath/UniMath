@@ -1,12 +1,11 @@
-(** * Terms for a given signature *)
-
+(** * Terms for a given signature. *)
 (**
-   This file contains a formalization of terms over a signature, implemneted as a sequence of
-   function symbols. This sequence is though to be executed by a stack machine: each
-   symbol of arity n pops n elements from the stack and pushes a new element.
-   A sequence of function symbols is a term when the result of the execution is a stack
-   with a single element and no stack underflow or type errors occur.
- *)
+ This file contains a formalization of terms over a signature, implemented as a sequence of
+ operation symbols. This sequence is though to be executed by a stack machine: each
+ symbol of arity _n_ virtually pops _n_ elements from the stack and pushes a new element.
+ A sequence of function symbols is a term when the result of the execution is a stack
+ with a single element and no stack underflow or type errors occur.
+*)
 
 Require Import UniMath.Foundations.All.
 
@@ -19,50 +18,57 @@ Local Open Scope sorted.
 Local Open Scope hvec.
 Local Open Scope list.
 
-(** ** Definition of oplist (operation list) *)
+(** ** Definition of [oplist] (operations list). *)
 (**
-   An oplist is a list of function symbols, interpreted as commands to be executed by a stack
-   machine: each symbol of arity n pops n elements from the stack and pushes a new element.
-   Therefore, to each oplist is associated a status, which may be either a list of sorts, giving
-   the sorts of elements in the stack after the list is executed, or an error condition, when
-   executing the oplist generates a stack underflow or a type error. A term is an oplist whose status
-   is a list of length one.
- *)
+An [oplist] is a list of operation symbols, interpreted as commands to be executed by a stack
+machine. Elements of the stack are sorts. When an operation symbol is executed  its arity is
+popped out from the stack and replaced by its range. When a stack underflow occurs,
+or when the sorts present in the stack are not the ones expected by the operator, the stack goes into an
+error condition which is propagated by successive operations. A term is an [oplist] that produces
+a stack of length one, when execution starts from the empty stack. Operation symbols are executed in
+order from the last element of the [oplist] to the first.
+*)
 
-Section Oplist.
+Local Definition oplist (σ: signature):= list (names σ).
 
-  Local Definition oplist (σ: signature):= list (names σ).
+Bind Scope list_scope with oplist.
 
-  Identity Coercion oplistislist: oplist >-> list.
+Identity Coercion oplistislist: oplist >-> list.
 
-  Local Corollary isasetoplist (σ: signature): isaset (oplist σ).
-  Proof.
-    apply isofhlevellist.
-    apply setproperty.
-  Defined.
+Local Corollary isasetoplist (σ: signature): isaset (oplist σ).
+Proof.
+  apply isofhlevellist.
+  apply setproperty.
+Defined.
 
-  Local Definition status (σ: signature): UU := maybe (list (sorts σ)).
+Local Definition status (σ: signature): UU := maybe (list (sorts σ)).
 
-  Local Definition statusok {σ: signature}: list (sorts σ) → status σ := just.
+Local Definition statusok {σ: signature}: list (sorts σ) → status σ := just.
 
-  Local Definition statuserror {σ: signature}: status σ := nothing.
+Local Definition statuserror {σ: signature}: status σ := nothing.
 
-  Local Lemma isasetstatus (σ: signature): isaset (status σ).
-  Proof.
-    apply isasetmaybe.
-    apply isofhlevellist.
-    apply isasetifdeceq.
-    apply decproperty.
-  Defined.
+Local Lemma isasetstatus (σ: signature): isaset (status σ).
+Proof.
+  apply isasetmaybe.
+  apply isofhlevellist.
+  apply isasetifdeceq.
+  apply decproperty.
+Defined.
+
+Section OplistProps.
 
   Context {σ: signature}.
 
   (** *** The [statuscons] and [oplist2status] functions *)
   (**
-     [statuscons] returns the status of executing the function symbol [nm] when the current
-     stack status is a list [s]. The [statuserror] status is propagated by [statuscons]. Building
-     over [statuscons], [oplist2status] returns the status corresponding to an oplist.
+     [statuscons nm] is the stack transformation corresponding to the execution of the
+     operation symbol [nm].
+
+     [oplist2status l] returns the status corresponding to the execution of the oplist [l]
+     from the empty stack, while [isaterm l] holds when the result of [op2liststatus l] is
+     a stack of length one.
    *)
+
   Local Definition statuscons (nm: names σ): status σ → status σ
     := flatmap (λ ss, statusok (sort nm :: ss)) ∘ flatmap (λ ss, prefix_remove (arity nm) ss).
 
@@ -74,16 +80,6 @@ Section Oplist.
   Proof.
     apply isasetstatus.
   Defined.
-
-End Oplist.
-
-Bind Scope list_scope with oplist.
-
-Section OplistProps.
-
-  Context {σ: signature}.
-
-  (** **** Properties of [statuscons] and [oplist2status] *)
 
   Local Lemma statuscons_dec (nm: names σ) (ss: list (sorts σ))
     : ((statuscons nm (statusok ss) = statuserror) × (prefix_remove (arity nm) ss = nothing))
@@ -239,6 +235,7 @@ Section OplistProps.
   Defined.
 
   (** *** The [oplistsplit] function *)
+
   (**
      [oplistsplit] splits an oplist in an oplist of up to [n] terms and an oplist of the remaining
      terms.
@@ -432,11 +429,11 @@ Section OplistProps.
 
 End OplistProps.
 
-(** ** Terms and related constructors and destructors *)
-
 Section Term.
 
-  (** A term is an oplist together with the proof it is a term *)
+  (** ** Terms and related constructors and destructors. *)
+
+  (** A term is an oplist together with the proof it is a term. *)
 
   Definition term (σ: signature) (s: sorts σ): UU
     := ∑ t: oplist σ, isaterm s t.
@@ -472,9 +469,9 @@ Section Term.
 
   (** *** The [vecoplist2oplist] and [oplist2vecoplist] functions *)
   (**
-     These functions transform a vector of [n] oplists into an oplists of status [n]
-     ([vecoplist2oplist]) and viceversa ([oplist2vecoplist]).
-   *)
+  These functions transform a vector of [n] oplists into an oplists of status [n]
+  ([vecoplist2oplist]) and viceversa ([oplist2vecoplist]).
+  *)
 
   Local Definition vecoplist2oplist {n: nat} (v: Vector (oplist σ) n): oplist σ
     := vector_foldr concatenate nil v.
@@ -602,15 +599,15 @@ Section Term.
         apply idpath.
   Defined.
 
-  (* [build_term] builds a term starting from its principal function symbols and its subterms *)
+  (** ** Constructors and destuctors. *)
+  (** [build_term] builds a term starting from principal operation symbol and subterms, while
+  [princop] and [subterms] are the corresponding destructors. *)
 
   Definition build_term (nm: names σ) (v: (term σ)⋆ (arity nm)): term σ (sort nm).
   Proof.
     exists (oplist_build_term nm (h1map_vector (λ _, term2oplist) v)).
     apply oplist_build_term_status.
   Defined.
-
-  (** [princop] returns the principal function symbol of a term *)
 
   Definition princop {s: sorts σ} (t: term σ s): names σ
     := pr1 (term_decompose t).
@@ -628,8 +625,6 @@ Section Term.
     induction (term_decompose t) as [nm [v X]].
     exact v.
   Defined.
-
-  (** [subterms] retusn the subterms of a term term *)
 
   Local Lemma subterms_length {s: sorts σ} (t: term σ s)
     : HVec (h1map_vector (λ _ t', hProptoType (length (term2oplist t') < length t)) (subterms t)).
@@ -732,17 +727,25 @@ Section Term.
 
 End Term.
 
-(** ** Term induction and recursion *)
-
 Section TermInduction.
 
   Context {σ: signature}.
+
+  (** ** Term induction. *)
+
+  (** If [P] is a map from terms to properties, then [term_ind_HP P] is the inductive hypothesis for terms:
+  given an operation symbol [nm], a sequence of terms of type specified by the arity of [nm], a proof of
+  the property [P] for eache of the terms in [v], we need a proof of [P] for the term built from [nm] and [v].
+  *)
 
   Definition term_ind_HP (P: ∏ (s: sorts σ), term σ s → UU) :=
     ∏ (nm: names σ)
       (v: (term σ)⋆ (arity nm))
       (IH: HVec (h1map_vector P v))
     , P (sort nm) (build_term nm v).
+
+  (** The proof of the induction principle for terms proceed [term_ind] by induction on the lenght of the oplist
+  forming the terms [term_ind_onlength]. **)
 
   Local Lemma term_ind_onlength (P: ∏ (s: sorts σ), term σ s → UU) (R: term_ind_HP P)
     : ∏ (n: nat) (s: sorts σ) (t: term σ s), length t ≤ n →  P s t.
@@ -780,6 +783,13 @@ Section TermInduction.
   Proof.
     exact (term_ind_onlength P R (length t) s t (isreflnatleh _)).
   Defined.
+
+  (** *** Term induction step *)
+
+  (** In order to use term_induction, we need to prove an unfolding property. For example, for natural
+  number induction the unfolding property is [nat_rect P a IH (S n) = IH n (nat_rect P a IH n)], in our
+  case is given by [term_ind_step].
+  *)
 
   Local Lemma term_ind_onlength_nirrelevant (P: ∏ (s: sorts σ), term σ s → UU) (R: term_ind_HP P)
     : ∏ (n m1 m2: nat)
@@ -855,6 +865,12 @@ Section TermInduction.
       apply x1.
   Defined.
 
+  (** *** Immediate applications of term induction *)
+
+  (** [depth] returns the depth od a term, while [fromterm] is essentially the evaluation map from terms
+  to an algebra. Finally, [fromtermstep] is the unfold property for [fromterm].
+  *)
+
   Definition depth {s: sorts σ}: term σ s → nat
     := term_ind (λ _ _, nat)
                 (λ (nm: names σ) (v: (term σ)⋆ (arity nm)) (depths: HVec (h1map_vector (λ _ _, nat) v)),
@@ -877,17 +893,16 @@ Section TermInduction.
 
 End TermInduction.
 
-(** * Iterated version of [build_term] *)
-(**
-   Defines a curried version of [build_term] which is easier to use in practice.
- **)
+(** * Curried version of [build_term] *)
+
+(** Defines a curried version of [build_term] which is easier to use in practice. **)
 
 Section iterbuild.
 
   (**
-     If [v] is a vector of types of length [n], [iterfun v B] is the curried version of [v → B], i.e.
-     [iterfun v B] =  [(el v 1) → ((el v 2) → ...... → ((el v n) → B)].
-   *)
+    If [v] is a vector of types of length [n], [iterfun v B] is the curried version of [v → B], i.e.
+    [iterfun v B] =  [(el v 1) → ((el v 2) → ...... → ((el v n) → B)].
+  *)
 
   Definition iterfun {n: nat} (v: Vector UU n) (B: UU): UU.
   Proof.
@@ -901,7 +916,7 @@ Section iterbuild.
   (**
      If  [f: HVec v → B], then [itercurry f] is the curried version of [f], which has type
      [iterfun v B].
-   *)
+  *)
 
   Definition itercurry {n: nat} {v: Vector UU n} {B: UU} (f: HVec v → B): iterfun v B.
   Proof.
@@ -915,6 +930,11 @@ Section iterbuild.
       intro a.
       exact (IHxs (λ l, f (a,, l))).
   Defined.
+
+  (**
+    [build_term_curried nm t1 ... tn] builds a term from the operation symbol [nm] and terms (of the
+    correct sort) [t1] ... [tn].
+  *)
 
   Definition build_term_curried {σ: signature} (nm: names σ)
     : iterfun (vector_map (term σ) (pr2 (arity nm))) (term σ (sort nm))
