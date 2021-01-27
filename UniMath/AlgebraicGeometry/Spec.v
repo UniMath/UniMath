@@ -22,29 +22,6 @@ Section spec.
   Definition zariski_topology : (spec_set -> hProp) -> hProp :=
     λ U, ∃ A, U ≡ (λ p, A ⊈ p).
 
-  Lemma union_not_contained_in {X : UU} (U : (X -> hProp) -> hProp) (S : X -> hProp) :
-    union U ⊈ S ⇔ (∃ T, U T ∧ T ⊈ S).
-  Proof.
-    unfold subtype_notContainedIn, union.
-    use make_dirprod; intro H.
-    - use (hinhuniv _ H); intro Hx.
-      induction Hx as [x Hx]. induction Hx as [Hx HSx].
-      use (hinhfun _ Hx); intro HT.
-      induction HT as [T HT].
-      exists T. use make_dirprod.
-      + exact (dirprod_pr1 HT).
-      + apply hinhpr. exists x.
-        exact (make_dirprod (dirprod_pr2 HT) HSx).
-    - use (hinhuniv _ H); intro HT.
-      induction HT as [T HT].
-      use (hinhfun _ (dirprod_pr2 HT)); intro Hx.
-      induction Hx as [x Hx].
-      exists x. use make_dirprod.
-      + apply hinhpr. exists T.
-        exact (make_dirprod (dirprod_pr1 HT) (dirprod_pr1 Hx)).
-      + exact (dirprod_pr2 Hx).
-  Defined.
-
   Lemma zariski_topology_union :
     isSetOfOpen_union zariski_topology.
   Proof.
