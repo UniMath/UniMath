@@ -40,5 +40,4 @@ Universal/VTerms.v
 Universal/FreeAlgebras.v
 Universal/Equations.v
 Universal/EqAlgebras.v
-Universal/Examples/Tarski.v
 Universal.v

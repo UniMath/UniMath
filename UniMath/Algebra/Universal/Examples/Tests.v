@@ -1,6 +1,7 @@
 (** * Several tests for univeral algebra operations *)
 
 Require Import UniMath.Foundations.All.
+Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.Algebra.Universal.Maybe.
 Require Import UniMath.Algebra.Universal.MoreLists.
@@ -163,16 +164,23 @@ Section NatHom.
 End NatHom.
 
 Section Bool.
+  Import UniMath.Algebra.Universal.Examples.Bool.GTerm.
+  Local Open Scope stn.
 
-  Local Definition t_false := bool_false.
-  Local Definition t_true := bool_true.
-  Local Definition t1 := bool_and bool_true bool_false.
-  Local Definition t2 := bool_not t1.
+  Local Definition bot_op  : names bool_signature := ●0.
+  Local Definition top_op  : names bool_signature := ●1.
+  Local Definition neg_op  : names bool_signature := ●2.
+  Local Definition conj_op : names bool_signature := ●3.
+  Local Definition disj_op : names bool_signature := ●4.
+  Local Definition impl_op : names bool_signature := ●5.
 
-  Goal princop t1 = bool_and_op.
+  Local Definition t1 := conj top bot.
+  Local Definition t2 := neg t1.
+
+  Goal princop t1 = conj_op.
   Proof. apply idpath. Qed.
 
-  Goal term2oplist t2 = [ bool_not_op ; bool_and_op ; bool_true_op ; bool_false_op ].
+  Goal term2oplist t2 = [ neg_op ; conj_op ; top_op ; bot_op ].
   Proof. apply idpath. Qed.
 
   Goal pr1 (Terms.oplistsplit (term2oplist t1) 0) =  [].
@@ -190,24 +198,24 @@ Section Bool.
   Goal subterms t2 = [( t1 )].
   Proof. apply idpath. Qed.
 
-  Goal subterms t1 = [( t_true ; t_false )].
+  Goal subterms t1 = [( top ; bot )].
   Proof. apply idpath. Qed.
 
   Goal depth t2 = 3.
   Proof. apply idpath. Qed.
 
-  Definition simple_t := bool_not (bool_and (bool_or bool_true bool_false) (bool_not bool_false)).
+  Definition simple_t := neg (conj (disj top bot) (neg bot)).
 
-  Lemma l1: eval bool_algebra tt bool_true = true.
+  Local Lemma l1: eval bool_algebra tt top = true.
   Proof. apply idpath. Defined.
 
-  Lemma l2: eval bool_algebra tt (bool_not bool_true) = false.
+  Local Lemma l2: eval bool_algebra tt (neg top) = false.
   Proof. apply idpath. Defined.
 
-  Lemma l3: eval bool_algebra tt (bool_and bool_true bool_false) = false.
+  Local Lemma l3: eval bool_algebra tt (conj top bot) = false.
   Proof. apply idpath. Defined.
 
-  Lemma l4: eval bool_algebra tt simple_t = false.
+  Local Lemma l4: eval bool_algebra tt simple_t = false.
   Proof. apply idpath. Defined.
 
 End Bool.
