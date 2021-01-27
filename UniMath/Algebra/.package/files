@@ -41,6 +41,4 @@ Universal/FreeAlgebras.v
 Universal/Equations.v
 Universal/EqAlgebras.v
 Universal/Examples/Tarski.v
-Universal/CatAlgebras.v
-Universal/CatVarieties.v
 Universal.v

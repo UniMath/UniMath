@@ -104,8 +104,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [Universal/Equations.v](Algebra/Universal/Equations.v)
    - [Universal/EqAlgebras.v](Algebra/Universal/EqAlgebras.v)
    - [Universal/Examples/Tarski.v](Algebra/Universal/Examples/Tarski.v)
-   - [Universal/CatAlgebras.v](Algebra/Universal/CatAlgebras.v)
-   - [Universal/CatVarieties.v](Algebra/Universal/CatVarieties.v)
    - [Universal.v](Algebra/Universal.v)
    - [All.v](Algebra/All.v)
 ## Package NumberSystems
@@ -280,6 +278,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [categories/HSET/Structures.v](CategoryTheory/categories/HSET/Structures.v)
    - [categories/HSET/SliceFamEquiv.v](CategoryTheory/categories/HSET/SliceFamEquiv.v)
    - [categories/HSET/All.v](CategoryTheory/categories/HSET/All.v)
+   - [categories/Universal_Algebra/Varieties.v](CategoryTheory/categories/Universal_Algebra/Varieties.v)
+   - [categories/Universal_Algebra/Algebras.v](CategoryTheory/categories/Universal_Algebra/Algebras.v)
    - [SetValuedFunctors.v](CategoryTheory/SetValuedFunctors.v)
    - [categories/FinSet.v](CategoryTheory/categories/FinSet.v)
    - [categories/wosets.v](CategoryTheory/categories/wosets.v)

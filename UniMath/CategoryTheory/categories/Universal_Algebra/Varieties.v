@@ -10,7 +10,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.Algebra.Universal.Equations.
 Require Import UniMath.Algebra.Universal.EqAlgebras.
 
-Require Import UniMath.Algebra.Universal.CatAlgebras.
+Require Import UniMath.CategoryTheory.categories.Universal_Algebra.Algebras.
 
 Context (σ : eqspec).
 
