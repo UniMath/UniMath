@@ -118,7 +118,7 @@ Defined.
 (** ** Prime ideal *)
 
 Section prime.
-  Context {R : rig}.
+  Context {R : commring}.
 
   Definition is_prime (I : ideal R) : hProp :=
     (∀ a b, I (a * b) ⇒ I a ∨ I b) ∧ (∃ x, ¬ I x).
