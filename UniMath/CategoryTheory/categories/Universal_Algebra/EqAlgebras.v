@@ -16,13 +16,13 @@ Context (σ : eqspec).
 
 Local Open Scope sorted_scope.
 
-Definition varieties_disp : disp_cat (category_algebras σ).
+Definition eqalg_disp : disp_cat (category_algebras σ).
 Proof.
   use disp_full_sub.
   exact (λ A, is_eqalgebra A).
 Defined.
 
-Lemma is_univalent_varieties_disp : is_univalent_disp varieties_disp.
+Lemma is_univalent_eqalg_disp : is_univalent_disp eqalg_disp.
 Proof.
   use disp_full_sub_univalent.
   cbn.
@@ -36,12 +36,12 @@ Proof.
   apply (pr1 A).
 Qed.
 
-Definition category_varieties : category := total_category varieties_disp.
+Definition category_eqalgebras : category := total_category eqalg_disp.
 
-Lemma is_univalent_category_varieties : is_univalent category_varieties.
+Lemma is_univalent_category_eqalgebras : is_univalent category_eqalgebras.
 Proof.
   exact (@is_univalent_total_category
-           (category_algebras σ) varieties_disp (is_univalent_category_algebras σ) is_univalent_varieties_disp).
+           (category_algebras σ) eqalg_disp (is_univalent_category_algebras σ) is_univalent_eqalg_disp).
 Qed.
 
 (* Alternative version, kept here for comparison purposes.  *)
@@ -49,7 +49,7 @@ Qed.
 (*
 Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 
-Definition varieties_disp : disp_cat (shSet_category σ).
+Definition eqalg_disp : disp_cat (shSet_category σ).
 Proof.
   use disp_cat_from_SIP_data.
   - cbn; intro A.
@@ -63,7 +63,7 @@ Proof.
     exact (ishomcomp (make_hom ishomf) (make_hom ishomg)).
 Defined.
 
-Lemma is_univalent_varieties_disp : is_univalent_disp varieties_disp.
+Lemma is_univalent_eqalg_disp : is_univalent_disp eqalg_disp.
 Proof.
   use is_univalent_disp_from_SIP_data.
   - cbn; intro A. apply isaset_total2.
@@ -81,11 +81,11 @@ Proof.
     * cbn. apply funextsec; cbn; intro e. apply funextsec; intro f. apply A.
 Qed.
 
-Definition category_varieties : category := total_category varieties_disp.
+Definition category_eqalgebras : category := total_category eqalg_disp.
 
-Lemma is_univalent_category_varieties : is_univalent category_varieties.
+Lemma is_univalent_category_eqalgebras : is_univalent category_eqalgebras.
 Proof.
-  exact (@is_univalent_total_category (shSet_category σ) varieties_disp
-           (is_univalent_shSet_category σ) is_univalent_varieties_disp).
+  exact (@is_univalent_total_category (shSet_category σ) eqalg_disp
+           (is_univalent_shSet_category σ) is_univalent_eqalg_disp).
 Qed. 
 *)
