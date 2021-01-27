@@ -1,13 +1,11 @@
 (** * The univalent category of equational algebras over an equational specification. *)
 
-Require Import UniMath.Foundations.All.
+Require Import UniMath.Foundations.PartA.
+Require Import UniMath.Foundations.PartD.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
-Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 
 Require Import UniMath.Algebra.Universal.Equations.
 Require Import UniMath.Algebra.Universal.EqAlgebras.
@@ -18,9 +16,6 @@ Context (σ : eqspec).
 
 Local Open Scope sorted_scope.
 
-(* Alternative presentation *)
-
-(*
 Definition varieties_disp : disp_cat (category_algebras σ).
 Proof.
   use disp_full_sub.
@@ -48,7 +43,11 @@ Proof.
   exact (@is_univalent_total_category
            (category_algebras σ) varieties_disp (is_univalent_category_algebras σ) is_univalent_varieties_disp).
 Qed.
-*)
+
+(* Alternative version, kept here for comparison purposes.  *)
+
+(*
+Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 
 Definition varieties_disp : disp_cat (shSet_category σ).
 Proof.
@@ -88,4 +87,5 @@ Lemma is_univalent_category_varieties : is_univalent category_varieties.
 Proof.
   exact (@is_univalent_total_category (shSet_category σ) varieties_disp
            (is_univalent_shSet_category σ) is_univalent_varieties_disp).
-Qed.
+Qed. 
+*)
