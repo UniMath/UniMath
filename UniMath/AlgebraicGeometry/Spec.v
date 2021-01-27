@@ -19,11 +19,8 @@ Section spec.
 
   Definition spec_set_is_prime (S : spec_set) : is_prime S := pr2 S.
 
-  Definition D (a : hsubtype R) : hsubtype spec_set :=
-    λ p, a ⊈ p.
-
   Definition zariski_topology : (spec_set -> hProp) -> hProp :=
-    λ U, ∃ A, U ≡ D A.
+    λ U, ∃ A, U ≡ (λ p, A ⊈ p).
 
   Lemma union_not_contained_in {X : UU} (U : (X -> hProp) -> hProp) (S : X -> hProp) :
     union U ⊈ S ⇔ (∃ T, U T ∧ T ⊈ S).
@@ -52,7 +49,7 @@ Section spec.
     isSetOfOpen_union zariski_topology.
   Proof.
     intros O H0. unfold zariski_topology.
-    set (S := λ A, ∃ U, O U ∧ U ≡ D A).
+    set (S := λ A, ∃ U, O U ∧ U ≡ (λ p, A ⊈ p)).
     apply hinhpr. exists (union S). intro p.
     apply issymm_logeq, (logeq_trans (union_not_contained_in S p)).
     unfold union. use make_dirprod; intro H.
@@ -91,7 +88,7 @@ Section spec.
     use (hinhfun _ HV); intros HB.
     induction HA as [A HA]. induction HB as [B HB].
     exists (λ x, ∃ a b, A a × B b × x = (a * b)%ring). intro p.
-    assert (H0 : U p ∧ V p ⇔ D A p ∧ D B p).
+    assert (H0 : U p ∧ V p ⇔ A ⊈ p ∧ B ⊈ p).
     { use make_dirprod; intro H.
       - use make_dirprod.
         + apply (dirprod_pr1 (HA p)), (dirprod_pr1 H).
@@ -99,7 +96,7 @@ Section spec.
       - use make_dirprod.
         + apply (dirprod_pr2 (HA p)), (dirprod_pr1 H).
         + apply (dirprod_pr2 (HB p)), (dirprod_pr2 H). }
-    apply (logeq_trans H0). unfold D, subtype_notContainedIn.
+    apply (logeq_trans H0). unfold subtype_notContainedIn.
     use make_dirprod; intro H.
     - use (hinhuniv _ (dirprod_pr1 H)); intro Ha.
       use (hinhfun _ (dirprod_pr2 H)); intro Hb.
