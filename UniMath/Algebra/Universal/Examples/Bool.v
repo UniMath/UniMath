@@ -77,33 +77,36 @@ Definition x : T := varterm (0: bool_varspec).
 Definition y : T := varterm (1: bool_varspec).
 Definition z : T := varterm (2: bool_varspec).
 
-(* true & false *)
-Eval lazy in
-    interp (λ n, match n with 0 => true | 1 => true | _ => false end)
-           (conj top bot).
+(** Example: evaluation of true & false *)
+Eval lazy in interp (λ n, false) (conj top bot).
 
-(* x & (neg  y & z) *)
-Eval lazy in
-    interp (λ n, match n with 0 => true | 1 => true | _ => false end)
-           (conj x (conj (neg  y) z)).
+(** A simple evaluation function for variables:
+    assign true to x and y (the 0th and 1st variable) and false otherwise.
+*)
 
-(* x & (z -> neg  y) *)
-Eval lazy in
-    interp (λ n, match n with 0 => true | 1 => true | _ => false end)
-           (conj x (impl z (neg  y))).
+Definition v n :=
+  match n with
+    0 => true
+  | 1 => true
+  | _ => false
+  end.
 
-(* Dummett tautology *)
+(** Example: evaluation of x & (neg  y & z) *)
+Eval lazy in
+    interp v (conj x (conj (neg  y) z)).
+
+(** Example: evaluation of x & (z -> neg  y) *)
+Eval lazy in
+    interp v (conj x (impl z (neg  y))).
+
+(** Dummett tautology *)
 Local Lemma Dummett : ∏ i, interp i (disj (impl x y) (impl y x)) = true.
 Proof.
-  intro i.
-  lazy.
-  induction (i 0). induction (i 1).
-  - apply idpath.
-  - apply idpath.
-  - apply idpath.
+  intro i. lazy.
+  induction (i 0); induction (i 1); apply idpath.
 Qed.
 
-(* x or (neg (y & z -> x))*)
+(** x or (neg (y & z -> x))*)
 Local Lemma not_tautology : ∑ i, interp i (disj x (neg (impl (conj y z) x))) = false.
 Proof.
   use tpair.
@@ -112,7 +115,7 @@ Proof.
    apply idpath.
 Qed.
 
-(* Further tests. *)
+(** Further tests. *)
 
 Definition f (n : nat) : bool.
 Proof.
