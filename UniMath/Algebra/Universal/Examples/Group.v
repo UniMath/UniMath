@@ -2,7 +2,7 @@
 
 (**
   This file contains the definition of the signature of groups and the way to turn
-  a group into an algebra.
+  a group (as defined in UniMath.Algebra.Groups) into an algebra.
 *)
 
 Require Import UniMath.MoreFoundations.Notations.
@@ -12,10 +12,19 @@ Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.Universal.MoreLists.
 Require Import UniMath.Algebra.Universal.Algebras.
 Require Import UniMath.Algebra.Universal.Terms.
+Require Import UniMath.Algebra.Universal.VTerms.
+Require Import UniMath.Algebra.Universal.Equations.
+Require Import UniMath.Algebra.Universal.EqAlgebras.
 
 Local Open Scope stn.
 
+(** Algebra of groups *)
+
+(** Group structure without equations. *)
+
 Definition group_signature := make_signature_simple_single_sorted [2; 0; 1].
+
+Module Algebra.
 
 Definition group_sort: sorts group_signature := tt.
 
@@ -39,3 +48,62 @@ End GroupAlgebra.
 Definition group_mul := build_term_curried group_mul_op.
 Definition group_id  := build_term_curried group_id_op.
 Definition group_inv := build_term_curried group_inv_op.
+
+End Algebra.
+
+Module Eqspec.
+
+(** Variety specification and the free algebra of open terms. *)
+Definition group_varspec : varspec group_signature := make_varspec group_signature natset (λ _, tt).
+Definition σ : signature := vsignature group_signature group_varspec.
+Definition G := vterm group_signature group_varspec tt.
+
+Definition group_mul := build_term_curried (inl (●0) : names σ).
+Definition group_id  := build_term_curried (inl (●1) : names σ).
+Definition group_inv := build_term_curried (inl (●2) : names σ).
+
+Definition x : G := varterm (0: group_varspec).
+Definition y : G := varterm (1: group_varspec).
+Definition z : G := varterm (2: group_varspec).
+
+Definition group_equation := equation group_signature group_varspec.
+
+Definition group_mul_assoc : group_equation :=
+  tt,, make_dirprod (group_mul (group_mul x y) z) (group_mul x (group_mul y z)).
+
+Definition group_mul_lid : group_equation := tt,, make_dirprod (group_mul group_id x) x.
+
+Definition group_mul_rid : group_equation := tt,, make_dirprod (group_mul group_id x) x.
+
+Definition group_axioms : eqsystem group_signature group_varspec :=
+  ⟦ 3 ⟧,, three_rec group_mul_assoc group_mul_lid group_mul_rid.
+
+Definition group_eqspec : eqspec.
+Proof.
+  use tpair. { exact group_signature. }
+  use tpair. { exact group_varspec. }
+  exact group_axioms.
+Defined.
+
+Definition group_eqalgebra := eqalgebra group_eqspec.
+
+(** Every group is a group eqalgebra. *)
+
+Section Make_Group_Eqalgebra.
+
+Variable G : gr.
+
+Definition is_eqalgebra_group : is_eqalgebra (σ := group_eqspec) (Algebra.group_algebra G).
+Admitted.
+
+Definition make_group_eqalgebra : group_eqalgebra.
+Proof.
+  use make_eqalgebra.
+  apply (Algebra.group_algebra G).
+  exact is_eqalgebra_group.
+Defined.
+
+End Make_Group_Eqalgebra.
+
+End Eqspec.
+

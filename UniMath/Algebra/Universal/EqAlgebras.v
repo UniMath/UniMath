@@ -29,4 +29,8 @@ Section Varieties.
   Definition eqalgebra_proof {σ : eqspec} (a : eqalgebra σ)
     : is_eqalgebra a := pr2 a.
 
+  Definition make_eqalgebra {σ : eqspec} (a : algebra σ) (H : is_eqalgebra a)
+    : eqalgebra σ
+    := tpair is_eqalgebra a H.
+
 End Varieties.
