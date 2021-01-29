@@ -26,8 +26,6 @@ Definition group_signature := make_signature_simple_single_sorted [2; 0; 1].
 
 Module Algebra.
 
-Definition group_sort: sorts group_signature := tt.
-
 Definition group_mul_op: names group_signature := ●0.
 Definition group_id_op: names group_signature := ●1.
 Definition group_inv_op: names group_signature := ●2.
@@ -86,24 +84,6 @@ Proof.
 Defined.
 
 Definition group_eqalgebra := eqalgebra group_eqspec.
-
-(** Every group is a group eqalgebra. *)
-
-Section Make_Group_Eqalgebra.
-
-Variable G : gr.
-
-Definition is_eqalgebra_group : is_eqalgebra (σ := group_eqspec) (Algebra.group_algebra G).
-Admitted.
-
-Definition make_group_eqalgebra : group_eqalgebra.
-Proof.
-  use make_eqalgebra.
-  apply (Algebra.group_algebra G).
-  exact is_eqalgebra_group.
-Defined.
-
-End Make_Group_Eqalgebra.
 
 End Eqspec.
 
