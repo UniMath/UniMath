@@ -14,7 +14,6 @@ Vectors and matrices defined in March 2018 by Langston Barrett (@siddharthist).
  *)
 
 Require Export UniMath.Combinatorics.FiniteSets.
-Require Export UniMath.Combinatorics.Vectors.
 Require Export UniMath.Combinatorics.Lists.
 
 Require Import UniMath.MoreFoundations.PartA.
@@ -260,7 +259,7 @@ Definition weqListSequence {X} : list X ≃ Sequence X.
 Proof.
   intros.
   apply weqfibtototal; intro n.
-  apply vector_weq_fun.
+  apply weqlistfun.
 Defined.
 
 Definition transport_stn m n i (b:i<m) (p:m=n) :
