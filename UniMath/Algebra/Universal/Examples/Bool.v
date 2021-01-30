@@ -1,4 +1,4 @@
-(** * Example on booleans *)
+(** * Example on boolean. *)
 
 (**
   This file contains the definition of the signature of booleans and the standard boolean algebra.
@@ -10,7 +10,6 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 
 Require Import UniMath.Algebra.Universal.MoreLists.
 Require Import UniMath.Algebra.Universal.Algebras.
-Require Import UniMath.Algebra.Universal.Terms.
 Require Import UniMath.Algebra.Universal.VTerms.
 
 Local Open Scope stn.
@@ -46,7 +45,7 @@ Definition impl : T → T → T := build_term_curried (●5 : names bool_signatu
 
 End GTerm.
 
-(** * Variety of booleans and semantics for boolean formulae. *)
+(** Variety of booleans and semantics for boolean formulae. *)
 
 Module Term.
 

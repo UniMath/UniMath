@@ -1,20 +1,14 @@
-(** * Example on monoids *)
+(** * Example on monoids. *)
 
 (**
   This file contains the definition of the signature of monoids and the way to turn
-  a monoid (as defined in UniMath.Algebra.Groups) into an algebra.
+  a monoid (as defined in [UniMath.Algebra.Monoids]) into an algebra.
 *)
 
 Require Import UniMath.MoreFoundations.Notations.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Algebra.Monoids.
 
-Require Import UniMath.Algebra.Universal.MoreLists.
-Require Import UniMath.Algebra.Universal.HVectors.
-Require Import UniMath.Algebra.Universal.Algebras.
-Require Import UniMath.Algebra.Universal.Terms.
-Require Import UniMath.Algebra.Universal.VTerms.
-Require Import UniMath.Algebra.Universal.Equations.
 Require Import UniMath.Algebra.Universal.EqAlgebras.
 
 Local Open Scope stn.
@@ -34,21 +28,17 @@ Definition monoid_algebra (M: monoid)
     λ _, unel M
   )].
 
-Definition monoid_mul := build_term_curried (●0 : names monoid_signature).
-Definition monoid_id  := build_term_curried (●1 : names monoid_signature).
+Module Eqspec.
 
-(** Variety specification. *)
+(** Free algebra of open terms. *)
 
 Definition monoid_varspec : varspec monoid_signature
   := make_varspec monoid_signature natset (λ _, tt).
 
-Module Eqspec.
-
-(** Free algebra of open terms. *)
 Definition Mon : UU := vterm monoid_signature monoid_varspec tt.
-Definition σ   : signature := vsignature monoid_signature monoid_varspec.
-Definition mul : Mon → Mon → Mon := build_term_curried (inl (●0) : names σ).
-Definition id  : Mon := build_term_curried (inl (●1) : names σ).
+Definition σ: signature := vsignature monoid_signature monoid_varspec.
+Definition mul : Mon → Mon → Mon := build_term_curried (inl (●0): names σ).
+Definition id  : Mon := build_term_curried (inl (●1): names σ). 
 
 Definition x : Mon := varterm (0: monoid_varspec).
 Definition y : Mon := varterm (1: monoid_varspec).
