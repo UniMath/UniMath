@@ -29,7 +29,7 @@ Definition nil_idx: names list_signature := ●0.
 Definition cons_idx: names list_signature := ●1.
 
 Definition list_algebra (A: hSet) := make_algebra_simple list_signature
-  [ A ; listset A ]
+  [( A ; listset A )]
   [( λ _, nil ; λ p, cons (pr1 p) (pr12 p) )].
 
 (** Correspondence between structures and operations in the universal algebra

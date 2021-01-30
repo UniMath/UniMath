@@ -42,11 +42,11 @@ Bind Scope Vector_scope with Vector.
 
 Local Open Scope Vector_scope.
 
-Notation "[]" := vnil (at level 0, format "[]"): Vector_scope.
+Notation "[()]" := vnil (at level 0, format "[()]"): Vector_scope.
 
 Infix ":::" := vcons (at level 60, right associativity) : Vector_scope.
 
-Notation "[ x ; .. ; y ]" := (vcons x .. (vcons y vnil) ..): Vector_scope.
+Notation "[( x ; .. ; y )]" := (vcons x .. (vcons y [()]) ..): Vector_scope.
 
 Section Vectors.
 
@@ -58,7 +58,7 @@ Definition drop {n} (f : ⟦ S n ⟧ → A) (i : ⟦ n ⟧) : A :=
 Definition mk_vector {n} (f : ⟦ n ⟧ → A) : Vector A n.
 Proof.
   induction n as [|m h].
-  - exact vnil.
+  - exact [()].
   - exact ((f firstelement) ::: (h (drop f))).
 Defined.
 
@@ -188,17 +188,19 @@ Defined.
 (** *** Induction. *)
 
 Lemma vector_ind (P : ∏ n, Vector A n → UU) :
-  P 0 vnil
+  P 0 [()]
   → (∏ x n (v : Vector A n), P n v → P (S n) (x ::: v))
   → (∏ n (v : Vector A n), P n v).
 Proof.
   intros Hnil Hcons.
   induction n as [|m H]; intros.
-  - apply (transportb (P 0) (vector0_eq v vnil) Hnil).
+  - apply (transportb (P 0) (vector0_eq v [()]) Hnil).
   - apply Hcons, H.
 Defined.
 
 End Vectors.
+
+(** *** Map, fold and append. *)
 
 Definition vector_map {A B : UU} (f : A → B) {n} (v : Vector A n) : Vector B n.
 Proof.
@@ -250,8 +252,6 @@ Proof.
   apply idpath.
 Defined.
 
-(** *** Iteration. *)
-
 Definition vector_foldr {A B : UU} (f : A -> B -> B) (b : B) {n}
   : Vector A n -> B
   := vector_ind (λ (n : nat) (_ : Vector A n), B) b
@@ -278,23 +278,25 @@ Definition vector_append {A : UU} {m} (u : Vector A m) {n} (v : Vector A n)
 Lemma vector_map_id {A : UU} {n} (v: Vector A n)
   : vector_map (idfun A) v = v.
 Proof.
-  induction n.
-  - induction v.
-    reflexivity.
-  - apply vectorS_eq.
-    + reflexivity.
-    + change (vector_map (idfun A) (tl v) = tl v).
-      apply IHn.
+  revert n v.
+  refine (vector_ind _ _ _).
+  - apply idpath.
+  - intros x n xs HPxs.
+    simpl.
+    apply maponpaths.
+    apply HPxs.
 Defined.
 
 Lemma vector_map_comp {A B C: UU} (f: A → B) (g: B → C) {n: nat} (v: Vector A n) :
   vector_map (funcomp f g) v = (funcomp (vector_map f) (vector_map g)) v.
 Proof.
-  induction n.
-  - reflexivity.
-  - apply vectorS_eq.
+  revert n v.
+  refine (vector_ind _ _ _).
+  - apply idpath.
+  - intros x n xs HPxs.
+    apply vectorS_eq.
     + reflexivity.
-    + apply IHn.
+    + apply HPxs.
 Defined.
 
 Lemma vector_map_mk_vector {A B: UU} {n: nat} (g: ⟦ n ⟧ → A) (f: A → B)
@@ -318,7 +320,7 @@ Defined.
 (** *** Other operations on vectors. *)
 
 Definition vector_fill {A: UU} (a: A): ∏ n: nat, Vector A n
-  := nat_rect (λ n: nat, Vector A n) vnil (λ (n: nat) (v: Vector A n), a ::: v).
+  := nat_rect (λ n: nat, Vector A n) [()] (λ (n: nat) (v: Vector A n), a ::: v).
 
 Lemma vector_map_const {A: UU} {n: nat} {v: Vector A n} {B: UU} (b: B) : vector_map (λ _, b) v = vector_fill b n.
 Proof.
@@ -334,7 +336,7 @@ Defined.
 Definition vector_zip {A B: UU} {n: nat} (v1: Vector A n) (v2: Vector B n): Vector (A × B) n.
 Proof.
   induction n.
-  - exact vnil.
+  - exact [()].
   - induction v1 as [x1 xs1].
     induction v2 as [x2 xs2].
     exact ((x1 ,, x2) ::: IHn xs1 xs2).
