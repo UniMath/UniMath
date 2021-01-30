@@ -1,6 +1,5 @@
-
 ((coq-mode
-  . ((eval .
+  . ((eval . 
 	   (let ((unimath-topdir (expand-file-name (locate-dominating-file buffer-file-name "UniMath"))))
 	     (setq fill-column 100)
 	     (make-local-variable 'coq-use-project-file)
@@ -12,8 +11,6 @@
 		   )
 	     (make-local-variable 'coq-prog-name)
 	     (setq coq-prog-name (concat unimath-topdir "sub/coq/bin/coqtop"))
-	     (make-local-variable 'coq-load-path)
-	     (setq coq-load-path `((recnoimport ,(concat unimath-topdir "UniMath") "UniMath")))
 	     (make-local-variable 'before-save-hook)
 	     (add-hook 'before-save-hook 'delete-trailing-whitespace)
 	     (modify-syntax-entry ?' "w")
