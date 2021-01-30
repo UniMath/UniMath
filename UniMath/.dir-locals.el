@@ -16,8 +16,6 @@
 	     (setq coq-load-path `((recnoimport ,(concat unimath-topdir "UniMath") "UniMath")))
 	     (make-local-variable 'before-save-hook)
 	     (add-hook 'before-save-hook 'delete-trailing-whitespace)
-	     (if (and (file-exists-p (concat unimath-topdir "TAGS")) (functionp 'visit-tags-table))
-		 (visit-tags-table (concat unimath-topdir "TAGS")))
 	     (modify-syntax-entry ?' "w")
 	     (modify-syntax-entry ?_ "w")
 	     (if (not (memq 'agda-input features))
