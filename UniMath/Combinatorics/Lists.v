@@ -344,18 +344,9 @@ Proof.
   exact (make_weq _ (isweqlistfun _)).
 Defined.
 
-Lemma isofhleveliterprod (n : nat) (k : nat) {X : UU} (is1 : isofhlevel n X) : isofhlevel n (Vector X k).
-Proof.
-  induction k as [|k IH].
-  - apply isofhlevelcontr, iscontrunit.
-  - apply isofhleveldirprod.
-    + apply is1.
-    + apply IH.
-Defined.
-
 Lemma isofhlevellist (n : nat) {X : UU} (is1 : isofhlevel (S (S n)) X) : isofhlevel (S (S n)) (list X).
 Proof.
   use isofhleveltotal2.
   - intros m k. apply isofhlevelsnprop, isasetnat.
-  - intro m. apply isofhleveliterprod, is1.
+  - intro m. apply isofhlevel_Vector, is1.
 Defined.

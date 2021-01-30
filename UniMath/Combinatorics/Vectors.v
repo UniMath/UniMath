@@ -181,9 +181,11 @@ Definition vector_weq_fun n : Vector A n ≃ (⟦ n ⟧ -> A)
 Lemma isofhlevel_Vector {n} (is1 : isofhlevel n A) k
   : isofhlevel n (Vector A k).
 Proof.
-  eapply isofhlevelweqb.
-  - apply vector_weq_fun.
-  - apply impredfun, is1.
+  induction k as [|k IH].
+  - apply isofhlevelcontr, iscontrunit.
+  - apply isofhleveldirprod.
+    + apply is1.
+    + apply IH.
 Defined.
 
 (** *** Induction. *)
