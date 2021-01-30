@@ -1,5 +1,5 @@
 (** * Example on monoids. *)
-
+(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 (**
 This file contains the definition of the signature of monoids and the way to turn
 a monoid (as defined in [UniMath.Algebra.Monoids]) into an algebra.

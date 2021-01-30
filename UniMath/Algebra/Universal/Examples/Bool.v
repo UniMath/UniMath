@@ -1,5 +1,5 @@
 (** * Example on booleans. *)
-
+(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 (**
   This file contains the definition of the signature of booleans and the standard boolean algebra.
 *)

@@ -1,5 +1,5 @@
 (** * Varieties. *)
-
+(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 (**
 This file contains a formalization of equational algebras, i.e., algebra which are
 models of an equation system.

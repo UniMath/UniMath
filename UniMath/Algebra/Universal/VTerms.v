@@ -1,5 +1,5 @@
 (** ** Variables and terms with variables *)
-
+(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 (**
 Given a signature σ, a [varspec] (variable specification) is a map from an [hSet] of _variables_
 to the corresponding sort. A signature σ and a variable specification [V] give origin to a new

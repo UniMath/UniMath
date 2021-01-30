@@ -1,8 +1,5 @@
-(* ========================================================================= *)
-(** * Vectors as iterated products.
-
-    Marco Maggesi, April 2019                                                *)
-(* ========================================================================= *)
+(** * Vectors as iterated products. *)
+(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Foundations.NaturalNumbers.
@@ -317,6 +314,8 @@ Proof.
   induction u.
   reflexivity.
 Defined.
+
+(** *** Other operations on vectors. *)
 
 Definition vector_fill {A: UU} (a: A): ∏ n: nat, Vector A n
   := nat_rect (λ n: nat, Vector A n) vnil (λ (n: nat) (v: Vector A n), a ::: v).

@@ -1,5 +1,6 @@
-(** * Signatures for universal algebra.
-
+(** * Signatures for universal algebra. *)
+(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
+(*
 This file contains a formalization of multi-sorted signatures.
 *)
 

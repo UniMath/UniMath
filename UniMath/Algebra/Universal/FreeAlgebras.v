@@ -1,5 +1,5 @@
 (** * Free algebras. *)
-
+(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 (**
 This file contains a formalization of free algebras over a signature (i.e., the algebra
 of terms over a signature and a set of variables.

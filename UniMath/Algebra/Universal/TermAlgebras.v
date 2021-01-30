@@ -1,4 +1,5 @@
 (** * The ground term algebra and the proof it is initial. *)
+(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 
 Require Import UniMath.Foundations.All.
 

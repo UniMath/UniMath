@@ -1,4 +1,5 @@
 (** * Additional definitions, lemmas and notations for lists. *)
+(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.Vectors.
@@ -263,7 +264,7 @@ Proof.
 Defined.
 
 
-(** ** The [prefix_remove] operation and related properties. 
+(** ** The [prefix_remove] operation and related properties.
 
 If [l2] is a prefix of [l1], then [prefix_remove l1 l2] returns [just l] where [l] is the only list such
 that [l2 ++ l = l1]. Otherwise [prefix_remove l1 l2] returns [nothing]. It is required for [l1] and [l2]
@@ -286,7 +287,7 @@ Defined.
 
 Lemma prefix_remove_stepeq {A: decSet} (x: A) (xs1 xs2: list A)
   : prefix_remove (x :: xs1) (x :: xs2) = prefix_remove xs1 xs2.
-Proof. 
+Proof.
   unfold prefix_remove.
   cbn.
   induction (decproperty A x x).
@@ -295,9 +296,9 @@ Proof.
   - contradiction (b (idpath x)).
 Defined.
 
-Lemma prefix_remove_stepneq {A: decSet} {x1 x2: A} (p: x1 != x2) (xs1 xs2: list A) 
+Lemma prefix_remove_stepneq {A: decSet} {x1 x2: A} (p: x1 != x2) (xs1 xs2: list A)
   : prefix_remove (x1 :: xs1) (x2 :: xs2) = nothing.
-Proof. 
+Proof.
   unfold prefix_remove.
   cbn.
   induction (decproperty A x1 x2).
@@ -317,7 +318,7 @@ Defined.
 
 Definition prefix_remove_back {A: decSet} (l1 l2 l3: list A):
   prefix_remove l1 l2 = just l3 → l2 = l1 ++ l3.
-Proof. 
+Proof.
   revert l1 l2.
   refine (list_ind _ _ _).
   - intros l2 prefixnil.
@@ -350,12 +351,12 @@ Proof.
   - intros x xs IH.
     rewrite prefix_remove_stepeq.
     apply IH.
-Defined. 
+Defined.
 
 Definition isprefix {A: decSet} (l1 l2: list A): UU := prefix_remove l1 l2 != nothing.
 
 Lemma isprefix_self {A: decSet} (l: list A): isprefix l l.
-Proof. 
+Proof.
   unfold isprefix.
   rewrite prefix_remove_self.
   apply negpathsii1ii2.

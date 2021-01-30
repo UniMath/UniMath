@@ -1,8 +1,5 @@
-(* ========================================================================= *)
-(** * Tests for vectors as iterated products.
-
-    Marco Maggesi, April 2019                                                *)
-(* ========================================================================= *)
+(** * Tests for vectors as iterated products. *)
+(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Combinatorics.Vectors.

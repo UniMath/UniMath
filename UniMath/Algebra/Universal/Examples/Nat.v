@@ -1,8 +1,8 @@
 (** * Example on natural numbers *)
-
+(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 (**
-  This file contains the definition of the signature of natural numbers with zero and addition, 
-  the algebras of natural numbers and booleans and the morphism between them.
+This file contains the definition of the signature of natural numbers with zero and addition,
+the algebras of natural numbers and booleans and the morphism between them.
 *)
 
 Require Import UniMath.Foundations.All.

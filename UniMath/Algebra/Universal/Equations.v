@@ -1,5 +1,5 @@
 (** * Equations over a signature and equational theories *)
-
+(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 (**
 This file contains a formalization of equations and equation systems over a signature.
 *)

@@ -1,5 +1,5 @@
 (** * Example on groups. *)
-
+(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 (**
   This file contains the definition of the signature of groups and the way to turn
   a group (as defined in [UniMath.Algebra.Groups]) into an algebra.

@@ -1,5 +1,5 @@
 (** * The univalent category of algebras over a signature. *)
-
+(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 (**
 We use display categories to define the category of algebras and prove its univalence.
 *)

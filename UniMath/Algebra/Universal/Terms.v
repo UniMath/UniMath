@@ -1,4 +1,5 @@
 (** * Terms for a given signature. *)
+(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 (**
 This file contains a formalization of terms over a signature, implemented as a sequence of
 operation symbols. This sequence is though to be executed by a stack machine: each

@@ -1,4 +1,5 @@
 (** * Heterogeneous vectors. *)
+(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
@@ -85,7 +86,7 @@ Proof.
     + apply (IHxs (pr2 levels)).
 Defined.
 
-Lemma hvec_vector_fill {A: UU} {n: nat} 
+Lemma hvec_vector_fill {A: UU} {n: nat}
   : HVec (vector_fill A n)  = Vector A n.
 Proof.
   induction n.
@@ -215,7 +216,7 @@ articulate data types
 (** [h2map] is like [h1map] for level-2 hvecs. *)
 
 Definition h2map {A: UU} {n: nat} {v: Vector A n} {P: A → UU} {h1v: HVec (vector_map P v)}
-                 {Q: ∏ (a: A) (p: P a), UU} {R: ∏ (a: A) (p: P a), UU} 
+                 {Q: ∏ (a: A) (p: P a), UU} {R: ∏ (a: A) (p: P a), UU}
                  (f: ∏ (a: A) (p: P a), Q a p → R a p) (h2v: HVec (h1map_vector Q h1v))
   : HVec (h1map_vector R h1v).
 Proof.

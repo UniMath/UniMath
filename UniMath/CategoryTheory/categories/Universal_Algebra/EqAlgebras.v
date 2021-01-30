@@ -1,4 +1,5 @@
 (** * The univalent category of equational algebras over an equational specification. *)
+(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 
 Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.PartD.
