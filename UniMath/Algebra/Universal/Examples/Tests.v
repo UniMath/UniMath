@@ -1,4 +1,4 @@
-(** * Several tests for univeral algebra operations *)
+(** * Several tests for univeral algebra operations. *)
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
@@ -56,9 +56,9 @@ Section NatLowLevel.
     = just [nat_sort ; nat_sort ; nat_sort].
   Proof. apply idpath. Qed.
 
-  Local Definition one_term : term nat_signature nat_sort := make_term(l:=one_oplist) (idpath _).
+  Local Definition one_term : gterm nat_signature nat_sort := make_term(l:=one_oplist) (idpath _).
 
-  Local Definition zero_term : term nat_signature nat_sort := make_term(l:=zero_oplist) (idpath _).
+  Local Definition zero_term : gterm nat_signature nat_sort := make_term(l:=zero_oplist) (idpath _).
 
   Goal Terms.oplistsplit zero_one_oplist 0 = nil ,, zero_one_oplist.
   Proof. apply idpath. Qed.
@@ -107,7 +107,7 @@ Section Nat.
   Goal subterms term_two = [( term_one )] .
   Proof. apply idpath. Qed.
 
-  Goal build_term (princop term_four) (subterms term_four) = term_four.
+  Goal build_gterm (princop term_four) (subterms term_four) = term_four.
   Proof. apply idpath. Qed.
 
   Goal depth term_four = 5.
@@ -120,13 +120,13 @@ Section Nat.
      all the proofs involved in the recursion *)
   (* Eval compute in depth term_four. *)
 
-  Goal eval nat_algebra tt term_zero = 0.
+  Goal geval nat_algebra tt term_zero = 0.
   Proof. apply idpath. Qed.
 
-  Goal eval nat_algebra tt term_one = 1.
+  Goal geval nat_algebra tt term_one = 1.
   Proof. apply idpath. Qed.
 
-  Goal eval nat_algebra tt (nat2term 4) = 4.
+  Goal geval nat_algebra tt (nat2term 4) = 4.
   Proof. apply idpath. Qed.
 
 End Nat.
@@ -206,16 +206,16 @@ Section Bool.
 
   Definition simple_t := neg (conj (disj top bot) (neg bot)).
 
-  Local Lemma l1: eval bool_algebra tt top = true.
+  Local Lemma l1: geval bool_algebra tt top = true.
   Proof. apply idpath. Defined.
 
-  Local Lemma l2: eval bool_algebra tt (neg top) = false.
+  Local Lemma l2: geval bool_algebra tt (neg top) = false.
   Proof. apply idpath. Defined.
 
-  Local Lemma l3: eval bool_algebra tt (conj top bot) = false.
+  Local Lemma l3: geval bool_algebra tt (conj top bot) = false.
   Proof. apply idpath. Defined.
 
-  Local Lemma l4: eval bool_algebra tt simple_t = false.
+  Local Lemma l4: geval bool_algebra tt simple_t = false.
   Proof. apply idpath. Defined.
 
 End Bool.

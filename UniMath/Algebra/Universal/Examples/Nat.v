@@ -1,8 +1,8 @@
 (** * Example on natural numbers *)
 
 (**
-  This file contains the definition of the signature of natural numbers, the standard algebra,
-  the boolean algebra and the morphism between them.
+  This file contains the definition of the signature of natural numbers with zero and addition, 
+  the algebras of natural numbers and booleans and the morphism between them.
 *)
 
 Require Import UniMath.Foundations.All.
@@ -54,12 +54,12 @@ Defined.
 
 Definition natz2 : nat_algebra ↦ z2_algebra := make_hom ishom_nat_to_z2.
 
-Definition nat_zero := build_term_curried nat_zero_op.
-Definition nat_succ := build_term_curried nat_succ_op.
+Definition nat_zero := build_gterm_curried nat_zero_op.
+Definition nat_succ := build_gterm_curried nat_succ_op.
 
-Definition nat2term (n: nat): term nat_signature nat_sort
+Definition nat2term (n: nat): gterm nat_signature nat_sort
   := nat_rect
-       (λ _, term nat_signature nat_sort)
+       (λ _, gterm nat_signature nat_sort)
        nat_zero
-       (λ (n: nat) (tn: term nat_signature nat_sort), nat_succ tn)
+       (λ (n: nat) (tn: gterm nat_signature nat_sort), nat_succ tn)
        n.

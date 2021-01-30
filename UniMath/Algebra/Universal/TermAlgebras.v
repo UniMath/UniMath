@@ -11,34 +11,34 @@ Local Open Scope hom.
 Section TermAlgebra.
 
   Definition term_algebra (σ: signature): algebra σ
-    := make_algebra (termset σ) build_term.
+    := make_algebra (gtermset σ) build_gterm.
 
   Context {σ: signature}.
 
-  Definition eval (a: algebra σ): term_algebra σ s→ a
-    := @fromterm σ a (ops a).
+  Definition geval (a: algebra σ): term_algebra σ s→ a
+    := @fromgterm σ a (ops a).
 
-  Lemma evalstep {a: algebra σ} (nm: names σ) (v: (term σ)⋆ (arity nm))
-    : eval a _ (build_term nm v) = ops a nm (h1map (eval a) v).
+  Lemma gevalstep {a: algebra σ} (nm: names σ) (v: (gterm σ)⋆ (arity nm))
+    : geval a _ (build_gterm nm v) = ops a nm (h1map (geval a) v).
   Proof.
-    unfold eval.
+    unfold geval.
     apply fromtermstep.
   Defined.
 
-  Lemma ishomeval (a: algebra σ): ishom (eval a).
+  Lemma ishomgeval (a: algebra σ): ishom (geval a).
   Proof.
     red.
     intros.
     unfold starfun.
-    apply evalstep.
+    apply gevalstep.
   Defined.
 
-  Definition evalhom (a: algebra σ): term_algebra σ ↦ a
-    := make_hom (ishomeval a).
+  Definition gevalhom (a: algebra σ): term_algebra σ ↦ a
+    := make_hom (ishomgeval a).
 
-  Definition iscontrhomsfromterm (a: algebra σ): iscontr (term_algebra σ ↦ a).
+  Definition iscontrhomsfromgterm (a: algebra σ): iscontr (term_algebra σ ↦ a).
   Proof.
-    exists (evalhom a).
+    exists (gevalhom a).
     intro f.
     induction f as [f fishom].
     apply subtypePairEquality'.
@@ -47,12 +47,12 @@ Section TermAlgebra.
     intro s.
     apply funextfun.
     intro t.
-    apply (term_ind (λ s t, f s t = eval a s t)).
+    apply (term_ind (λ s t, f s t = geval a s t)).
     unfold term_ind_HP.
     intros.
-    change (build_term nm v) with (ops (term_algebra σ) nm v) at 1.
+    change (build_gterm nm v) with (ops (term_algebra σ) nm v) at 1.
     rewrite fishom.
-    rewrite evalstep.
+    rewrite gevalstep.
     apply maponpaths.
     unfold starfun.
     apply h1map_path.

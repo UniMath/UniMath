@@ -434,9 +434,9 @@ Section Term.
 
   (** ** Terms and related constructors and destructors. *)
 
-  (** A [term] is an oplist together with the proof it is a term. *)
+  (**  A [term] is an oplist together with the proof it is a term. *)
 
-  Definition term (σ: signature) (s: sorts σ): UU
+  Local Definition term (σ: signature) (s: sorts σ): UU
     := ∑ t: oplist σ, isaterm s t.
 
   Definition make_term {σ: signature} {s: sorts σ} {l: oplist σ} (lstack: isaterm s l)
@@ -455,7 +455,7 @@ Section Term.
       apply isasetstack.
   Defined.
 
-  Definition termset (σ: signature) (s: sorts σ): hSet
+  Local Definition termset (σ: signature) (s: sorts σ): hSet
     := make_hSet (term σ s) (isasetterm s).
 
   Context {σ: signature}.
@@ -600,7 +600,7 @@ Section Term.
     assumption.
   Defined.
 
-  Definition build_term (nm: names σ) (v: (term σ)⋆ (arity nm)): term σ (sort nm).
+  Local Definition build_term (nm: names σ) (v: (term σ)⋆ (arity nm)): term σ (sort nm).
   Proof.
     exists (oplist_build nm (h1map_vector (λ _, term2oplist) v)).
     apply oplist_build_isaterm.
@@ -702,7 +702,7 @@ Section Term.
     exact tnorm_list.
   Defined.
 
-  (** *** Miscellanea properties of terms *)
+  (** *** Miscellanea properties for terms. *)
 
   Local Lemma length_term {s: sorts σ} (t: term σ s): length t > 0.
   Proof.
@@ -721,17 +721,17 @@ Section Term.
 
 End Term.
 
+(** ** Term induction. *)
+
+(**
+If [P] is a map from terms to properties, then [term_ind_HP P] is the inductive hypothesis for terms:
+given an operation symbol [nm], a sequence of terms of type specified by the arity of [nm], a proof of
+the property [P] for eache of the terms in [v], we need a proof of [P] for the term built from [nm] and [v].
+*)
+
 Section TermInduction.
 
   Context {σ: signature}.
-
-  (** ** Term induction. *)
-
-  (**
-  If [P] is a map from terms to properties, then [term_ind_HP P] is the inductive hypothesis for terms:
-  given an operation symbol [nm], a sequence of terms of type specified by the arity of [nm], a proof of
-  the property [P] for eache of the terms in [v], we need a proof of [P] for the term built from [nm] and [v].
-  *)
 
   Definition term_ind_HP (P: ∏ (s: sorts σ), term σ s → UU) :=
     ∏ (nm: names σ)
@@ -874,7 +874,7 @@ Section TermInduction.
                 (λ (nm: names σ) (v: (term σ)⋆ (arity nm)) (depths: HVec (h1map_vector (λ _ _, nat) v)),
                    1 + h2foldr (λ _ _, max) 0 depths).
 
-  Definition fromterm {A: sUU (sorts σ)} (op : ∏ (nm : names σ), A⋆ (arity nm) → A (sort nm)) {s: sorts σ}
+  Local Definition fromterm {A: sUU (sorts σ)} (op : ∏ (nm : names σ), A⋆ (arity nm) → A (sort nm)) {s: sorts σ}
     : term σ s → A s
     := term_ind (λ s _, A s) (λ nm v rec, op nm (h2lower rec)).
 
@@ -890,6 +890,24 @@ Section TermInduction.
   Defined.
 
 End TermInduction.
+
+(** ** Notations for ground terms. *)
+(**
+Since [term], [termset], [fromterm] and [fromtermstep]  will be redefined in
+[UniMath.Algebra.Universal.VTerms] in their more general form with variables, we introduce
+here notations [gterm], [make_gterm] and similar to make the ground version publically
+available with special names.
+*)
+
+Notation gterm := term.
+
+Notation gtermset := termset.
+
+Notation fromgterm := fromterm.
+
+Notation fromgtermstep := fromtermstep.
+
+Notation build_gterm := build_term.
 
 (** * Curried version of [build_term] *)
 
@@ -934,7 +952,7 @@ Section iterbuild.
     correct sort) [t1] ... [tn].
   *)
 
-  Definition build_term_curried {σ: signature} (nm: names σ)
+  Definition build_gterm_curried {σ: signature} (nm: names σ)
     : iterfun (vector_map (term σ) (pr2 (arity nm))) (term σ (sort nm))
     := itercurry (build_term nm).
 

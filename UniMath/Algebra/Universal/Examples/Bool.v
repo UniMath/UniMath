@@ -1,4 +1,4 @@
-(** * Example on boolean. *)
+(** * Example on booleans. *)
 
 (**
   This file contains the definition of the signature of booleans and the standard boolean algebra.
@@ -16,7 +16,7 @@ Local Open Scope stn.
 
 Definition bool_signature := make_signature_simple_single_sorted [0; 0; 1; 2; 2; 2].
 
-(** Algebra structure over type bool. *)
+(** ** Algebra structure over type bool. *)
 
 Definition bool_algebra := make_algebra_simple_single_sorted bool_signature boolset
   [(
@@ -28,14 +28,37 @@ Definition bool_algebra := make_algebra_simple_single_sorted bool_signature bool
     λ x, implb (pr1 x) (pr12 x)
   )].
 
-(** Booelan ground terms. *)
+(** ** Boolean ground terms. *)
 
 Module GTerm.
 
 (** The type of ground terms. *)
-Definition T := term bool_signature tt.
+
+Definition T := gterm bool_signature tt.
 
 (** Constructors for ground terms. *)
+
+Definition bot  : T         := build_gterm_curried (●0 : names bool_signature).
+Definition top  : T         := build_gterm_curried (●1 : names bool_signature).
+Definition neg  : T → T     := build_gterm_curried (●2 : names bool_signature).
+Definition conj : T → T → T := build_gterm_curried (●3 : names bool_signature).
+Definition disj : T → T → T := build_gterm_curried (●4 : names bool_signature).
+Definition impl : T → T → T := build_gterm_curried (●5 : names bool_signature).
+
+End GTerm.
+
+(** ** Booleans terms and semantics for boolean formulae. *)
+
+Module Term.
+
+Definition bool_varspec := make_varspec bool_signature natset (λ _, tt).
+
+(** Type for boolean (open) terms. *)
+
+Definition T := term bool_signature bool_varspec tt.
+
+(** Constructors for terms. *)
+
 Definition bot  : T         := build_term_curried (●0 : names bool_signature).
 Definition top  : T         := build_term_curried (●1 : names bool_signature).
 Definition neg  : T → T     := build_term_curried (●2 : names bool_signature).
@@ -43,30 +66,10 @@ Definition conj : T → T → T := build_term_curried (●3 : names bool_signatu
 Definition disj : T → T → T := build_term_curried (●4 : names bool_signature).
 Definition impl : T → T → T := build_term_curried (●5 : names bool_signature).
 
-End GTerm.
-
-(** Variety of booleans and semantics for boolean formulae. *)
-
-Module Term.
-
-Definition bool_varspec := make_varspec bool_signature natset (λ _, tt).
-Definition σ := vsignature bool_signature bool_varspec.
-
-(** Type for boolean (open) terms. *)
-Definition T := vterm bool_signature bool_varspec tt.
-
-(** Constructors for terms. *)
-Definition bot  : T         := build_term_curried (inl (●0) : names σ).
-Definition top  : T         := build_term_curried (inl (●1) : names σ).
-Definition neg  : T → T     := build_term_curried (inl (●2) : names σ).
-Definition conj : T → T → T := build_term_curried (inl (●3) : names σ).
-Definition disj : T → T → T := build_term_curried (inl (●4) : names σ).
-Definition impl : T → T → T := build_term_curried (inl (●5) : names σ).
-
 (** Interpretation of propositional formulae. *)
 
 Definition interp (α: assignment bool_algebra bool_varspec) (t: T) : bool :=
-  fromvterm (ops bool_algebra) α tt t.
+  fromterm (ops bool_algebra) α tt t.
 
 (** Computations and interactive proofs. *)
 
@@ -77,6 +80,7 @@ Definition y : T := varterm (1: bool_varspec).
 Definition z : T := varterm (2: bool_varspec).
 
 (** Example: evaluation of true & false *)
+
 Eval lazy in interp (λ n, false) (conj top bot).
 
 (** A simple evaluation function for variables:
@@ -90,22 +94,26 @@ Definition v n :=
   | _ => false
   end.
 
-(** Example: evaluation of x & (neg  y & z) *)
+(** Example: evaluation of x ∧ (¬ y ∧ z) *)
+
 Eval lazy in
     interp v (conj x (conj (neg  y) z)).
 
-(** Example: evaluation of x & (z -> neg  y) *)
+(** Example: evaluation of x ∧ (z → ¬ y) *)
+
 Eval lazy in
     interp v (conj x (impl z (neg  y))).
 
 (** Dummett tautology *)
+
 Local Lemma Dummett : ∏ i, interp i (disj (impl x y) (impl y x)) = true.
 Proof.
   intro i. lazy.
   induction (i 0); induction (i 1); apply idpath.
 Qed.
 
-(** x or (neg (y & z -> x))*)
+(** x ∨ ¬ (y ∧ z → x) *)
+
 Local Lemma not_tautology : ∑ i, interp i (disj x (neg (impl (conj y z) x))) = false.
 Proof.
   use tpair.

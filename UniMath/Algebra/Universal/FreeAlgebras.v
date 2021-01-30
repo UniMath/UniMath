@@ -16,36 +16,36 @@ Local Open Scope hom.
 Section FreeAlgebras.
 
   Definition free_algebra (σ: signature) (V: varspec σ): algebra σ :=
-    @make_algebra σ (vtermset σ V) (build_term ∘ namelift).
+    @make_algebra σ (termset σ V) build_term.
 
   Context {σ: signature} (a : algebra σ) {V: varspec σ} (α: assignment a V).
 
-  Definition veval: free_algebra σ V s→ a := fromvterm (ops a) α.
+  Definition eval: free_algebra σ V s→ a := fromterm (ops a) α.
 
-  Lemma vevalstep (nm: names σ) (v:  (term (vsignature σ V))⋆ (arity nm))
-    : veval (sort (namelift nm)) (build_term (namelift nm) v) = ops a nm (veval⋆⋆ (arity nm) v).
+  Lemma evalstep (nm: names σ) (v:  (term σ V)⋆ (arity nm))
+    : eval (sort nm) (build_term nm v) = ops a nm (eval⋆⋆ (arity nm) v).
   Proof.
-    unfold veval.
-    change (sort (namelift nm)) with (sort nm).
-    apply fromvtermstep.
+    unfold eval.
+    change (sort nm) with (sort nm).
+    apply fromtermstep.
   Defined.
 
-  Lemma ishomveval: ishom veval.
+  Lemma ishomeval: ishom eval.
   Proof.
     red.
     intros.
-    apply vevalstep.
+    apply evalstep.
   Defined.
 
-  Definition vevalhom: free_algebra σ V ↦ a := make_hom ishomveval.
+  Definition evalhom: free_algebra σ V ↦ a := make_hom ishomeval.
 
   Definition universalmap: ∑ h: free_algebra σ V ↦ a, ∏ v: V, h _ (varterm v) = α v.
   Proof.
-    exists vevalhom.
+    exists evalhom.
     intro v.
     simpl.
-    unfold veval, varterm.
-    apply fromvtermstep'.
+    unfold eval, varterm.
+    apply fromtermstep'.
   Defined.
 
   Definition iscontr_universalmap
@@ -67,11 +67,12 @@ Section FreeAlgebras.
       unfold term_ind_HP.
       intros nm hv IHhv.
       induction nm as [nm | v].
-      * change (inl nm) with (namelift(V:=V) nm).
-        change (sort (namelift nm)) with (sort nm) at 2.
-        change (build_term (namelift nm) hv) with (free_algebra σ V nm hv) at 1.
+      * change (inl nm) with (namelift V nm).
+        change (sort (namelift V nm)) with (sort nm).
+        change (build_gterm (namelift V nm) hv) with (free_algebra σ V nm hv) at 1.
+        change (build_gterm (namelift V nm) hv) with (build_term nm hv).
         rewrite hishom.
-        rewrite vevalstep.
+        rewrite evalstep.
         apply maponpaths.
         revert hv IHhv.
         change (@arity (vsignature σ V) (inl nm)) with (arity nm).
@@ -88,9 +89,10 @@ Section FreeAlgebras.
       * induction hv.
         change (inr v) with (varname v).
         change (sort (varname v)) with (varsort v).
+        change (build_gterm (varname v) tt) with (varterm v).
         rewrite honvars.
-        unfold veval.
-        rewrite fromvtermstep'.
+        unfold eval.
+        rewrite fromtermstep'.
         apply idpath.
    - apply impred_isaprop.
      intros.

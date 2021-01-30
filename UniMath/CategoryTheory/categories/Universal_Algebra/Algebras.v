@@ -188,7 +188,7 @@ Section Algebras.
 
   Lemma isinitial_termalgebra : Initial (category_algebras).
   Proof.
-    exact (term_algebra σ ,, iscontrhomsfromterm).
+    exact (term_algebra σ ,, iscontrhomsfromgterm).
   Defined.
 
 End Algebras.

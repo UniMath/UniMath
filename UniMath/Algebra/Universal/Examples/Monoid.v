@@ -1,8 +1,8 @@
 (** * Example on monoids. *)
 
 (**
-  This file contains the definition of the signature of monoids and the way to turn
-  a monoid (as defined in [UniMath.Algebra.Monoids]) into an algebra.
+This file contains the definition of the signature of monoids and the way to turn
+a monoid (as defined in [UniMath.Algebra.Monoids]) into an algebra.
 *)
 
 Require Import UniMath.MoreFoundations.Notations.
@@ -17,8 +17,7 @@ Local Open Scope stn.
 
 Definition monoid_signature := make_signature_simple_single_sorted [2; 0].
 
-(** ** Algebra of monoids
-    Monoid structure without equations. *)
+(** Algebra of monoids without equations. *)
 
 Definition monoid_algebra (M: monoid)
   : algebra monoid_signature
@@ -35,10 +34,9 @@ Module Eqspec.
 Definition monoid_varspec : varspec monoid_signature
   := make_varspec monoid_signature natset (λ _, tt).
 
-Definition Mon : UU := vterm monoid_signature monoid_varspec tt.
-Definition σ: signature := vsignature monoid_signature monoid_varspec.
-Definition mul : Mon → Mon → Mon := build_term_curried (inl (●0): names σ).
-Definition id  : Mon := build_term_curried (inl (●1): names σ). 
+Definition Mon : UU := term monoid_signature monoid_varspec tt.
+Definition mul : Mon → Mon → Mon := build_term_curried (●0: names monoid_signature).
+Definition id  : Mon := build_term_curried (●1: names monoid_signature).
 
 Definition x : Mon := varterm (0: monoid_varspec).
 Definition y : Mon := varterm (1: monoid_varspec).
@@ -77,7 +75,7 @@ Variable M : monoid.
 Lemma holds_monoid_mul_lid : holds (monoid_algebra M) monoid_mul_lid.
 Proof.
   intro. cbn in α.
-  change (fromvterm (monoid_algebra M) α tt (mul id x) = α 0).
+  change (fromterm (monoid_algebra M) α tt (mul id x) = α 0).
   change (op (unel M) (α 0) = α 0).
   apply lunax.
 Qed.

@@ -13,14 +13,14 @@ Section Equations.
   (** An equation is a pair of terms (with variables) of the same sort *)
 
   Definition equation (σ : signature) (V: varspec σ): UU
-    := ∑ s: sorts σ, vterm σ V s × vterm σ V s.
+    := ∑ s: sorts σ, term σ V s × term σ V s.
 
   Definition eqsort {σ: signature} {V: varspec σ} (eq: equation σ V)
     : sorts σ := pr1 eq.
 
-  Definition lhs {σ : signature} {V: varspec σ} (eq: equation σ V): vterm σ V (eqsort eq) := pr12 eq.
+  Definition lhs {σ : signature} {V: varspec σ} (eq: equation σ V): term σ V (eqsort eq) := pr12 eq.
 
-  Definition rhs {σ : signature} {V: varspec σ} (eq: equation σ V): vterm σ V (eqsort eq) := pr22 eq.
+  Definition rhs {σ : signature} {V: varspec σ} (eq: equation σ V): term σ V (eqsort eq) := pr22 eq.
 
   (**
   Since we do not have power types, we define an equation system as a type of equation

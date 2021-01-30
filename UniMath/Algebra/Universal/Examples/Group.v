@@ -1,8 +1,8 @@
-(** * Example on groups *)
+(** * Example on groups. *)
 
 (**
   This file contains the definition of the signature of groups and the way to turn
-  a group (as defined in UniMath.Algebra.Groups) into an algebra.
+  a group (as defined in [UniMath.Algebra.Groups]) into an algebra.
 *)
 
 Require Import UniMath.MoreFoundations.Notations.
@@ -10,19 +10,15 @@ Require Import UniMath.Combinatorics.StandardFiniteSets.
 Require Import UniMath.Algebra.Groups.
 
 Require Import UniMath.Algebra.Universal.MoreLists.
-Require Import UniMath.Algebra.Universal.Algebras.
-Require Import UniMath.Algebra.Universal.Terms.
-Require Import UniMath.Algebra.Universal.VTerms.
-Require Import UniMath.Algebra.Universal.Equations.
 Require Import UniMath.Algebra.Universal.EqAlgebras.
 
 Local Open Scope stn.
 
-(** Algebra of groups *)
-
 (** Group structure without equations. *)
 
 Definition group_signature := make_signature_simple_single_sorted [2; 0; 1].
+
+(** Algebra of groups. *)
 
 Module Algebra.
 
@@ -43,22 +39,22 @@ Section GroupAlgebra.
 
 End GroupAlgebra.
 
-Definition group_mul := build_term_curried group_mul_op.
-Definition group_id  := build_term_curried group_id_op.
-Definition group_inv := build_term_curried group_inv_op.
+Definition group_mul := build_gterm_curried group_mul_op.
+Definition group_id  := build_gterm_curried group_id_op.
+Definition group_inv := build_gterm_curried group_inv_op.
 
 End Algebra.
 
 Module Eqspec.
 
-(** Variety specification and the free algebra of open terms. *)
-Definition group_varspec : varspec group_signature := make_varspec group_signature natset (λ _, tt).
-Definition σ : signature := vsignature group_signature group_varspec.
-Definition G := vterm group_signature group_varspec tt.
+(** Equational specification and the free algebra of open terms. *)
 
-Definition group_mul := build_term_curried (inl (●0) : names σ).
-Definition group_id  := build_term_curried (inl (●1) : names σ).
-Definition group_inv := build_term_curried (inl (●2) : names σ).
+Definition group_varspec : varspec group_signature := make_varspec group_signature natset (λ _, tt).
+Definition G := term group_signature group_varspec tt.
+
+Definition group_mul: G → G → G := build_term_curried (●0 : names group_signature).
+Definition group_id: G := build_term_curried (●1 : names group_signature).
+Definition group_inv: G → G := build_term_curried (●2 : names group_signature).
 
 Definition x : G := varterm (0: group_varspec).
 Definition y : G := varterm (1: group_varspec).
@@ -86,4 +82,3 @@ Defined.
 Definition group_eqalgebra := eqalgebra group_eqspec.
 
 End Eqspec.
-
