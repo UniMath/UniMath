@@ -42,7 +42,7 @@ Section Algebras.
     use make_precategory_data.
     - apply shSet_precategory_ob_mor.
     - intro C. simpl. intros S As. exact As.
-    - simpl. intros F G H. intros f g S. Search "fun" "assoc".
+    - simpl. intros F G H. intros f g S.
       exact ((g S ∘ f S)%functions).
   Defined.
 
@@ -67,7 +67,6 @@ Section Algebras.
   Definition has_homsets_shSet_precategory : has_homsets shSet_precategory.
   Proof.
     intros F G. simpl.
-    Search "isaset" "fun_space".
     use isaset_set_sfun_space.
   Defined.
 
@@ -99,7 +98,6 @@ Section Algebras.
 
   Lemma aux{A : UU}{B : A → UU}{f g : ∏ a:A, B a}(p : f = g) : ∏ a, f a = g a.
     Proof. intro a. induction p. apply idpath. Defined.
-    Search (?a = ?b) "homot".
 
   Lemma iso_fiber {A B : shSet_category} (i : Isos.iso A B): ∏ s, @Isos.iso SET (A s) (B s).
   Proof.
