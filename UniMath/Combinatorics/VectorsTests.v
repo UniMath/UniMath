@@ -17,11 +17,11 @@ Section Tests_el.
   Goal el v (●2) = c. reflexivity. Qed.
   Goal el v (●3) = d. reflexivity. Qed.
 
-  Goal mk_vec (el v) = v. reflexivity. Qed.
+  Goal make_vec (el v) = v. reflexivity. Qed.
 
   Let f : ⟦ 4 ⟧ → A := Eval compute in (el v).
 
-  Goal (el (mk_vec f) = f). reflexivity. Qed.
+  Goal (el (make_vec f) = f). reflexivity. Qed.
 
 End Tests_el.
 

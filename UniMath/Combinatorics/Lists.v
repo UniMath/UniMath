@@ -111,7 +111,7 @@ Defined.
 Definition functionToList n : (stn n -> A) -> list.
 Proof.
   intros f.
-  exact (n ,, mk_vec f).
+  exact (n ,, make_vec f).
 Defined.
 
 Section Test.
@@ -348,5 +348,5 @@ Lemma isofhlevellist (n : nat) {X : UU} (is1 : isofhlevel (S (S n)) X) : isofhle
 Proof.
   use isofhleveltotal2.
   - intros m k. apply isofhlevelsnprop, isasetnat.
-  - intro m. apply isofhlevel_vec, is1.
+  - intro m. apply isofhlevelvec, is1.
 Defined.

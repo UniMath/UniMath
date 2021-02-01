@@ -41,7 +41,7 @@ Notation "[()]" := hnil (at level 0, format "[()]"): hvec_scope.
 
 Infix ":::" := hcons: hvec_scope.
 
-Definition functionTohvec {n: nat} {P: ⟦ n ⟧ → UU} (f: ∏ i: ⟦ n ⟧, P i) : hvec (mk_vec P).
+Definition functionToHVec {n: nat} {P: ⟦ n ⟧ → UU} (f: ∏ i: ⟦ n ⟧, P i) : hvec (make_vec P).
 Proof.
   induction n.
   - exact [()].

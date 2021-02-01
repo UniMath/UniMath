@@ -55,7 +55,7 @@ Context {A : UU}.
 Definition drop {n} (f : ⟦ S n ⟧ → A) (i : ⟦ n ⟧) : A :=
   f (dni_firstelement i).
 
-Definition mk_vec {n} (f : ⟦ n ⟧ → A) : vec A n.
+Definition make_vec {n} (f : ⟦ n ⟧ → A) : vec A n.
 Proof.
   induction n as [|m h].
   - exact [()].
@@ -81,7 +81,7 @@ Defined.
 
 (** *** Some identities for computing [el]. *)
 
-Lemma el_mk_vec {n} (f : ⟦ n ⟧ → A) : el (mk_vec f) ~ f .
+Lemma el_make_vec {n} (f : ⟦ n ⟧ → A) : el (make_vec f) ~ f .
 Proof.
   intro i.
   induction n as [|m meq].
@@ -99,10 +99,10 @@ Proof.
       apply idpath.
 Defined.
 
-Lemma el_mk_vec_fun {n} (f : ⟦ n ⟧ → A) : el (mk_vec f) = f.
+Lemma el_make_vec_fun {n} (f : ⟦ n ⟧ → A) : el (make_vec f) = f.
 Proof.
   apply funextfun.
-  apply el_mk_vec.
+  apply el_make_vec.
 Defined.
 
 Lemma el_vcons_tl {n} (v : vec A n) (x : A) (i : ⟦ n ⟧) :
@@ -159,23 +159,23 @@ Proof.
       apply H.
 Defined.
 
-Lemma mk_vec_el {n} (v : vec A n) : mk_vec (el v) = v.
+Lemma make_vec_el {n} (v : vec A n) : make_vec (el v) = v.
 Proof.
   apply vec_extens.
   intros i.
-  rewrite el_mk_vec.
+  rewrite el_make_vec.
   reflexivity.
 Defined.
 
 (** *** Weak equivalence with functions. *)
 
-Definition isweq_el {n} : isweq (el:vec A n → ⟦ n ⟧ → A)
-  := isweq_iso el mk_vec mk_vec_el el_mk_vec_fun.
+Definition isweqvecfun {n} : isweq (el:vec A n → ⟦ n ⟧ → A)
+  := isweq_iso el make_vec make_vec_el el_make_vec_fun.
 
-Definition vec_weq_fun n : vec A n ≃ (⟦ n ⟧ -> A)
-  := make_weq el isweq_el.
+Definition wqevecfun n : vec A n ≃ (⟦ n ⟧ -> A)
+  := make_weq el isweqvecfun.
 
-Lemma isofhlevel_vec {n} (is1 : isofhlevel n A) k
+Lemma isofhlevelvec {n} (is1 : isofhlevel n A) k
   : isofhlevel n (vec A k).
 Proof.
   induction k as [|k IH].
@@ -242,13 +242,13 @@ Proof.
       reflexivity.
 Defined.
 
-Lemma vec_map_as_mk_vec {A B: UU} (f: A → B) {n} (v: vec A n)
-  : vec_map f v = mk_vec (λ i, f (el v i)).
+Lemma vec_map_as_make_vec {A B: UU} (f: A → B) {n} (v: vec A n)
+  : vec_map f v = make_vec (λ i, f (el v i)).
 Proof.
   apply vec_extens.
   intro i.
   rewrite el_vec_map.
-  rewrite el_mk_vec.
+  rewrite el_make_vec.
   apply idpath.
 Defined.
 
@@ -299,14 +299,14 @@ Proof.
     + apply HPxs.
 Defined.
 
-Lemma vec_map_mk_vec {A B: UU} {n: nat} (g: ⟦ n ⟧ → A) (f: A → B)
-  : vec_map f (mk_vec g) = mk_vec (f ∘ g).
+Lemma vec_map_make_vec {A B: UU} {n: nat} (g: ⟦ n ⟧ → A) (f: A → B)
+  : vec_map f (make_vec g) = make_vec (f ∘ g).
 Proof.
   apply vec_extens.
   intro i.
   rewrite el_vec_map.
-  rewrite el_mk_vec.
-  rewrite el_mk_vec.
+  rewrite el_make_vec.
+  rewrite el_make_vec.
   apply idpath.
 Defined.
 
