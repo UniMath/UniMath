@@ -47,7 +47,7 @@ Section Variables.
   Definition assignment {σ: signature} (A: sUU (sorts σ)) (V: varspec σ) : UU := ∏ v: V, A (varsort v).
 
   Definition build_term_curried {V: varspec σ} (nm: names σ)
-    : iterfun (vector_map (term σ V) (pr2 (arity (namelift V nm)))) (term σ V (sort (namelift V nm)))
+    : iterfun (vec_map (term σ V) (pr2 (arity (namelift V nm)))) (term σ V (sort (namelift V nm)))
     := build_gterm_curried (namelift V nm).
 
   (** Evaluation maps for terms and corresponding unfolding properties *)

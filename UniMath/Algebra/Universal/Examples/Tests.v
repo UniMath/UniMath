@@ -70,7 +70,7 @@ Section NatLowLevel.
   Goal Terms.vecoplist2oplist [( zero_oplist; one_oplist )] = zero_one_oplist.
   Proof. apply idpath. Qed.
 
-  Goal h1map_vector (λ _, term2oplist) (pr1 (Terms.oplist2vecoplist zero_one_oplist (idpath _))) = vcons zero_oplist (vcons one_oplist vnil).
+  Goal h1map_vec (λ _, term2oplist) (pr1 (Terms.oplist2vecoplist zero_one_oplist (idpath _))) = vcons zero_oplist (vcons one_oplist vnil).
   Proof. apply idpath. Qed.
 
   Goal pr1 (Terms.oplist2vecoplist zero_one_oplist (idpath _)) = vcons zero_term (vcons one_term vnil).

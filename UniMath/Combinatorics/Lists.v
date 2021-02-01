@@ -18,7 +18,7 @@ Section lists.
 Context {A : UU}.
 
 (** The type of lists *)
-Definition list : UU := ∑ n, Vector A n.
+Definition list : UU := ∑ n, vec A n.
 
 (** The empty list *)
 Definition nil : list := (0,, vnil).
@@ -74,7 +74,7 @@ Defined.
 
 (** The n-th element of a list *)
 
-Fixpoint nth'' n i : i < n -> Vector A n -> A
+Fixpoint nth'' n i : i < n -> vec A n -> A
   (* eventually figure out how to use "induction" alone to define this *)
   := match n, i with
      |   0,   _ => λ r x, fromempty (nopathsfalsetotrue r)
@@ -82,13 +82,13 @@ Fixpoint nth'' n i : i < n -> Vector A n -> A
      | S n, S i => λ r x, nth'' n i r (pr2 x)
      end.
 
-Definition nth' n : Vector A n -> stn n -> A.
+Definition nth' n : vec A n -> stn n -> A.
 Proof.
   intros x i.
   exact (nth'' n (pr1 i) (pr2 i) x).
 Defined.
 
-Lemma nth'_step n (x : Vector A (S n)) i (I:i<n) :
+Lemma nth'_step n (x : vec A (S n)) i (I:i<n) :
   nth' (S n) x (make_stn (S n) (S i) I) = nth' n (pr2 x) (make_stn n i I).
 Proof.
   reflexivity.
@@ -99,7 +99,7 @@ Proof.
   intros i. exact (nth' (length x) (pr2 x) i).
 Defined.
 
-Definition functionToList' n : (stn n -> A) -> Vector A n.
+Definition functionToList' n : (stn n -> A) -> vec A n.
 Proof.
   intros f.
   induction n as [|n I].
@@ -111,7 +111,7 @@ Defined.
 Definition functionToList n : (stn n -> A) -> list.
 Proof.
   intros f.
-  exact (n ,, mk_vector f).
+  exact (n ,, mk_vec f).
 Defined.
 
 Section Test.
@@ -339,7 +339,7 @@ Proof.
         exact (nth'_step _ (functionToList' _ _) _ _ @ N _ _).
 Defined.
 
-Corollary weqlistfun {A} n : (Vector A n) ≃ (stn n -> A).
+Corollary weqlistfun {A} n : (vec A n) ≃ (stn n -> A).
 Proof.
   exact (make_weq _ (isweqlistfun _)).
 Defined.
@@ -348,5 +348,5 @@ Lemma isofhlevellist (n : nat) {X : UU} (is1 : isofhlevel (S (S n)) X) : isofhle
 Proof.
   use isofhleveltotal2.
   - intros m k. apply isofhlevelsnprop, isasetnat.
-  - intro m. apply isofhlevel_Vector, is1.
+  - intro m. apply isofhlevel_vec, is1.
 Defined.

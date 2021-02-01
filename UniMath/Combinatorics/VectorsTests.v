@@ -17,39 +17,39 @@ Section Tests_el.
   Goal el v (●2) = c. reflexivity. Qed.
   Goal el v (●3) = d. reflexivity. Qed.
 
-  Goal mk_vector (el v) = v. reflexivity. Qed.
+  Goal mk_vec (el v) = v. reflexivity. Qed.
 
   Let f : ⟦ 4 ⟧ → A := Eval compute in (el v).
 
-  Goal (el (mk_vector f) = f). reflexivity. Qed.
+  Goal (el (mk_vec f) = f). reflexivity. Qed.
 
 End Tests_el.
 
-Section Test_vector_foldr.
+Section Test_vec_foldr.
 
   Context {A B : UU} (f : A -> B -> B) (b : B) (p q r : A).
 
   Let v := vcons p (vcons q (vcons r vnil)).
 
-  Eval compute in vector_foldr f b v.
+  Eval compute in vec_foldr f b v.
 
-  Goal vector_foldr f b v = f p (f q (f r b)). reflexivity. Qed.
+  Goal vec_foldr f b v = f p (f q (f r b)). reflexivity. Qed.
 
-End Test_vector_foldr.
+End Test_vec_foldr.
 
-Section Test_vector_foldr1.
+Section Test_vec_foldr1.
 
   Context {A : UU} (f : A -> A -> A)  (p q r t : A).
 
   Let v := vcons p (vcons q (vcons r (vcons t vnil))).
 
-  Eval compute in vector_foldr1 f v.
+  Eval compute in vec_foldr1 f v.
 
-  Goal vector_foldr1 f v = f p (f q (f r t)). reflexivity. Qed.
+  Goal vec_foldr1 f v = f p (f q (f r t)). reflexivity. Qed.
 
-End Test_vector_foldr1.
+End Test_vec_foldr1.
 
-Section Test_vector_append.
+Section Test_vec_append.
 
   Context {A : UU} {a b c d e : A}.
 
@@ -57,8 +57,8 @@ Section Test_vector_append.
   Let v := vcons d (vcons e vnil).
   Let w := vcons a (vcons b (vcons c (vcons d (vcons e vnil)))).
 
-  Eval compute in vector_append u v.
+  Eval compute in vec_append u v.
 
-  Goal vector_append u v = w. reflexivity. Qed.
+  Goal vec_append u v = w. reflexivity. Qed.
 
-End Test_vector_append.
+End Test_vec_append.

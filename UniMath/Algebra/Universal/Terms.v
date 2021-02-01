@@ -471,25 +471,25 @@ Section Term.
 
   (** *** The [vecoplist2oplist] and [oplist2vecoplist] functions *)
   (**
-  These functions transform a vector of [n] oplists into an oplists of stack [n]
+  These functions transform a vec of [n] oplists into an oplists of stack [n]
   ([vecoplist2oplist]) and viceversa ([oplist2vecoplist]).
   *)
 
-  Local Definition vecoplist2oplist {n: nat} (v: Vector (oplist σ) n): oplist σ
-    := vector_foldr concatenate nil v.
+  Local Definition vecoplist2oplist {n: nat} (v: vec (oplist σ) n): oplist σ
+    := vec_foldr concatenate nil v.
 
-  Local Lemma vecoplist2oplist_vcons {n: nat} (x: oplist σ) (v: Vector (oplist σ) n)
+  Local Lemma vecoplist2oplist_vcons {n: nat} (x: oplist σ) (v: vec (oplist σ) n)
     : vecoplist2oplist (x ::: v) = concatenate x (vecoplist2oplist v).
   Proof.
     apply idpath.
   Defined.
 
-  Local Lemma vecoplist2oplist_inj {n: nat} {ar: Vector (sorts σ) n} {v1 v2: HVec (vector_map (term σ) ar)}
-    : vecoplist2oplist (h1map_vector (λ _, term2oplist) v1) = vecoplist2oplist (h1map_vector (λ _, term2oplist) v2)
+  Local Lemma vecoplist2oplist_inj {n: nat} {ar: vec (sorts σ) n} {v1 v2: hvec (vec_map (term σ) ar)}
+    : vecoplist2oplist (h1map_vec (λ _, term2oplist) v1) = vecoplist2oplist (h1map_vec (λ _, term2oplist) v2)
       → v1 = v2.
   Proof.
     revert n ar v1 v2.
-    refine (vector_ind _ _ _).
+    refine (vec_ind _ _ _).
     - intros.
       induction v1.
       induction v2.
@@ -515,18 +515,18 @@ Section Term.
         apply (maponpaths (λ l, pr2 l: oplist σ) eq).
   Defined.
 
-  Local Lemma oplistexec_vecoplist2oplist {n: nat} {ar: Vector (sorts σ) n} {v: HVec (vector_map (term σ) ar)}
-    : oplistexec (vecoplist2oplist (h1map_vector (λ _, term2oplist) v)) = just (n ,, ar).
+  Local Lemma oplistexec_vecoplist2oplist {n: nat} {ar: vec (sorts σ) n} {v: hvec (vec_map (term σ) ar)}
+    : oplistexec (vecoplist2oplist (h1map_vec (λ _, term2oplist) v)) = just (n ,, ar).
   Proof.
     revert n ar v.
-    refine (vector_ind _ _ _).
+    refine (vec_ind _ _ _).
     - induction v.
       reflexivity.
     - intros x n xs IHxs v.
       induction v as [vx vxs].
       simpl in *.
       rewrite oplistexec_concatenate.
-      unfold h1map_vector in IHxs.
+      unfold h1map_vec in IHxs.
       + rewrite IHxs.
         rewrite (term2proof vx).
         apply idpath.
@@ -534,13 +534,13 @@ Section Term.
         apply negpathsii1ii2.
   Defined.
 
-  Local Definition oplist2vecoplist {n: nat} {ar: Vector (sorts σ) n} (l: oplist σ) (lstack: oplistexec l = just (n,, ar))
-    : ∑ (v: HVec (vector_map (term σ) ar))
-        , (HVec (h1map_vector (λ _ t, hProptoType (length (term2oplist t) ≤ length l)) v))
-          × vecoplist2oplist (h1map_vector (λ _, term2oplist) v) = l.
+  Local Definition oplist2vecoplist {n: nat} {ar: vec (sorts σ) n} (l: oplist σ) (lstack: oplistexec l = just (n,, ar))
+    : ∑ (v: hvec (vec_map (term σ) ar))
+        , (hvec (h1map_vec (λ _ t, hProptoType (length (term2oplist t) ≤ length l)) v))
+          × vecoplist2oplist (h1map_vec (λ _, term2oplist) v) = l.
   Proof.
     revert n ar l lstack.
-    refine (vector_ind _ _ _).
+    refine (vec_ind _ _ _).
     - intros.
       exists [()].
       exists [()].
@@ -550,7 +550,7 @@ Section Term.
     - intros x n xs IHxs l lstack.
       induction (oplistexec_oplistsplit l 1 lstack (natleh0n 0))
          as [firststack [reststack [concstack [firststackp [reststackp firstlen]]]]].
-      change (S n,, (x ::: xs)%vector) with (x :: (n ,, xs)) in concstack.
+      change (S n,, (x ::: xs)%vec) with (x :: (n ,, xs)) in concstack.
       set (first := pr1 (oplistsplit l 1)) in *.
       set (rest := pr2 (oplistsplit l 1)) in *.
       apply length_one_back in firstlen.
@@ -568,13 +568,13 @@ Section Term.
       + change (length first ≤ length l).
         rewrite <- (concatenate_oplistsplit l 1).
         apply length_sublist1.
-      + change (HVec (h1map_vector (λ (s: sorts σ) (t: term σ s), hProptoType (length (term2oplist t) ≤ length l)) v)).
+      + change (hvec (h1map_vec (λ (s: sorts σ) (t: term σ s), hProptoType (length (term2oplist t) ≤ length l)) v)).
         eapply (h2map (λ _ _ p, istransnatleh p _) vlen).
         Unshelve.
         rewrite <- (concatenate_oplistsplit l 1).
         apply length_sublist2.
       + simpl.
-        unfold h1map_vector in vflatten.
+        unfold h1map_vec in vflatten.
         rewrite vflatten.
         apply concatenate_oplistsplit.
   Defined.
@@ -584,11 +584,11 @@ Section Term.
   (** [build_term] builds a term starting from principal operation symbol and subterms, while
   [princop] and [subterms] are the corresponding destructors. *)
 
-  Local Definition oplist_build (nm: names σ) (v: Vector (oplist σ) (length (arity nm)))
+  Local Definition oplist_build (nm: names σ) (v: vec (oplist σ) (length (arity nm)))
     : oplist σ := cons nm (vecoplist2oplist v).
 
   Local Lemma oplist_build_isaterm (nm: names σ) (v: (term σ)⋆ (arity nm))
-    : isaterm (sort nm) (oplist_build nm (h1map_vector (λ _, term2oplist) v)).
+    : isaterm (sort nm) (oplist_build nm (h1map_vec (λ _, term2oplist) v)).
   Proof.
     unfold oplist_build, isaterm.
     rewrite oplistexec_cons.
@@ -603,15 +603,15 @@ Section Term.
 
   Local Definition build_term (nm: names σ) (v: (term σ)⋆ (arity nm)): term σ (sort nm).
   Proof.
-    exists (oplist_build nm (h1map_vector (λ _, term2oplist) v)).
+    exists (oplist_build nm (h1map_vec (λ _, term2oplist) v)).
     apply oplist_build_isaterm.
   Defined.
 
   Local Definition term_decompose {s: sorts σ} (t: term  σ s):
     ∑ (nm:names σ) (v: (term σ)⋆ (arity nm))
-      , (HVec (h1map_vector (λ _ t', hProptoType (length (term2oplist t') < length t)) v))
+      , (hvec (h1map_vec (λ _ t', hProptoType (length (term2oplist t') < length t)) v))
          × sort nm = s
-         × oplist_build nm (h1map_vector (λ _, term2oplist) v) = t.
+         × oplist_build nm (h1map_vec (λ _, term2oplist) v) = t.
   Proof.
     induction t as [l lstack].
     cbv [pr1 term2oplist].
@@ -650,7 +650,7 @@ Section Term.
     := pr12 (term_decompose t).
 
   Local Definition subterms_length {s: sorts σ} (t: term σ s)
-    : HVec (h1map_vector (λ _ t', hProptoType (length (term2oplist t') < length t)) (subterms t))
+    : hvec (h1map_vec (λ _ t', hProptoType (length (term2oplist t') < length t)) (subterms t))
     := pr122 (term_decompose t).
 
   Local Definition princop_sorteq {s: sorts σ} (t: term σ s): sort (princop t) = s
@@ -737,7 +737,7 @@ Section TermInduction.
   Definition term_ind_HP (P: ∏ (s: sorts σ), term σ s → UU) :=
     ∏ (nm: names σ)
       (v: (term σ)⋆ (arity nm))
-      (IH: HVec (h1map_vector P v))
+      (IH: hvec (h1map_vec P v))
     , P (sort nm) (build_term nm v).
 
   (**
@@ -771,7 +771,7 @@ Section TermInduction.
   Lemma term_ind_onlength_step (P: ∏ (s: sorts σ), term σ s → UU) (R: term_ind_HP P) (nm: names σ) (v: (term σ)⋆ (arity nm))
     : ∏ (n: nat) (tlehn:  length (build_term nm v) ≤ n),
         term_ind_onlength P R n _ _ tlehn
-        =  R nm v (transportf (λ x, HVec (hmap_vector P x))
+        =  R nm v (transportf (λ x, hvec (hmap_vec P x))
                               (subterms_build_term nm v)
                               (hhmap (subterms_length (build_term nm v)) (λ s t p, term_ind_onlength P R n s t (istransnatleh (natlthtoleh _ _ p) tlehn)))).
 *)
@@ -857,7 +857,7 @@ Section TermInduction.
     rewrite (h1map_h1lift_as_h2map v v0len).
     apply (maponpaths (λ x, h2map x _)).
     repeat (apply funextsec; intro).
-    apply (term_ind_onlength_nirrelevant P R  (pr1 (vecoplist2oplist (h1map_vector (λ x2 : sorts σ, term2oplist) v)))).
+    apply (term_ind_onlength_nirrelevant P R  (pr1 (vecoplist2oplist (h1map_vec (λ x2 : sorts σ, term2oplist) v)))).
     - apply isreflnatleh.
     - apply natlthsntoleh.
       apply x1.
@@ -872,7 +872,7 @@ Section TermInduction.
 
   Definition depth {s: sorts σ}: term σ s → nat
     := term_ind (λ _ _, nat)
-                (λ (nm: names σ) (v: (term σ)⋆ (arity nm)) (depths: HVec (h1map_vector (λ _ _, nat) v)),
+                (λ (nm: names σ) (v: (term σ)⋆ (arity nm)) (depths: hvec (h1map_vec (λ _ _, nat) v)),
                    1 + h2foldr (λ _ _, max) 0 depths).
 
   Local Definition fromterm {A: sUU (sorts σ)} (op : ∏ (nm : names σ), A⋆ (arity nm) → A (sort nm)) {s: sorts σ}
@@ -921,24 +921,24 @@ Section iterbuild.
     [iterfun v B] =  [(el v 1) → ((el v 2) → ...... → ((el v n) → B)].
   *)
 
-  Definition iterfun {n: nat} (v: Vector UU n) (B: UU): UU.
+  Definition iterfun {n: nat} (v: vec UU n) (B: UU): UU.
   Proof.
     revert n v.
-    refine (vector_ind _ _ _).
+    refine (vec_ind _ _ _).
     - exact B.
     - intros x n xs IHxs.
       exact (x → IHxs).
   Defined.
 
   (**
-     If  [f: HVec v → B], then [itercurry f] is the curried version of [f], which has type
+     If  [f: hvec v → B], then [itercurry f] is the curried version of [f], which has type
      [iterfun v B].
   *)
 
-  Definition itercurry {n: nat} {v: Vector UU n} {B: UU} (f: HVec v → B): iterfun v B.
+  Definition itercurry {n: nat} {v: vec UU n} {B: UU} (f: hvec v → B): iterfun v B.
   Proof.
     revert n v f.
-    refine (vector_ind _ _ _).
+    refine (vec_ind _ _ _).
     - intros.
       exact (f tt).
     - intros x n xs IHxs f.
@@ -954,7 +954,7 @@ Section iterbuild.
   *)
 
   Definition build_gterm_curried {σ: signature} (nm: names σ)
-    : iterfun (vector_map (term σ) (pr2 (arity nm))) (term σ (sort nm))
+    : iterfun (vec_map (term σ) (pr2 (arity nm))) (term σ (sort nm))
     := itercurry (build_term nm).
 
 End iterbuild.

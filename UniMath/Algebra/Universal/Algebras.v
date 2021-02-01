@@ -39,7 +39,7 @@ a [signature_single] for the multi-sorted case.
 *)
 
 Definition make_algebra_simple_single_sorted (σ: signature_simple_single_sorted) (A : hSet)
-                                             (ops: (λ n: nat, Vector A n → A)⋆ σ): algebra σ.
+                                             (ops: (λ n: nat, vec A n → A)⋆ σ): algebra σ.
 Proof.
   exists (λ _, A).
   unfold arity.
@@ -58,7 +58,7 @@ Proof.
     + exact (IHxs (pr2 ops) (nm ,, nmproof)).
 Defined.
 
-Definition make_algebra_simple (σ: signature_simple) (A: Vector hSet (pr1 σ))
+Definition make_algebra_simple (σ: signature_simple) (A: vec hSet (pr1 σ))
                                (ops: (λ a, (el A)⋆ (dirprod_pr1 a) → el A (dirprod_pr2 a))⋆ (pr2 σ))
   : algebra σ.
 Proof.

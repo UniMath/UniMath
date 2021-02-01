@@ -16,9 +16,9 @@ Definition stn_extens {n} (i j : ⟦ n ⟧) (p : stntonat _ i = stntonat _ j)
 Definition fromstn0 (i : ⟦ 0 ⟧) {A : UU} : A
   := fromempty (negnatlthn0 (pr1 i) (pr2 i)).
 
-(** ** Vectors *)
+(** ** Vectors. *)
 
-Definition Vector (A : UU) (n : nat) : UU.
+Definition vec (A : UU) (n : nat) : UU.
 Proof.
 induction n as [|n IHn].
 - apply unit.
@@ -27,35 +27,35 @@ Defined.
 
 (** *** Constructors. *)
 
-Definition vnil {A: UU}: Vector A 0 := tt.
+Definition vnil {A: UU}: vec A 0 := tt.
 
-Definition vcons {A: UU} {n} (x : A) (v : Vector A n) : Vector A (S n)
+Definition vcons {A: UU} {n} (x : A) (v : vec A n) : vec A (S n)
   := x,, v.
 
 (** *** Notations. *)
 
-Declare Scope Vector_scope.
+Declare Scope vec_scope.
 
-Delimit Scope Vector_scope with vector.
+Delimit Scope vec_scope with vec.
 
-Bind Scope Vector_scope with Vector.
+Bind Scope vec_scope with vec.
 
-Local Open Scope Vector_scope.
+Local Open Scope vec_scope.
 
-Notation "[()]" := vnil (at level 0, format "[()]"): Vector_scope.
+Notation "[()]" := vnil (at level 0, format "[()]"): vec_scope.
 
-Infix ":::" := vcons (at level 60, right associativity) : Vector_scope.
+Infix ":::" := vcons (at level 60, right associativity) : vec_scope.
 
-Notation "[( x ; .. ; y )]" := (vcons x .. (vcons y [()]) ..): Vector_scope.
+Notation "[( x ; .. ; y )]" := (vcons x .. (vcons y [()]) ..): vec_scope.
 
-Section Vectors.
+Section vecs.
 
 Context {A : UU}.
 
 Definition drop {n} (f : ⟦ S n ⟧ → A) (i : ⟦ n ⟧) : A :=
   f (dni_firstelement i).
 
-Definition mk_vector {n} (f : ⟦ n ⟧ → A) : Vector A n.
+Definition mk_vec {n} (f : ⟦ n ⟧ → A) : vec A n.
 Proof.
   induction n as [|m h].
   - exact [()].
@@ -64,11 +64,11 @@ Defined.
 
 (** *** Projections. *)
 
-Definition hd {n} (v : Vector A (S n)) : A := pr1 v.
+Definition hd {n} (v : vec A (S n)) : A := pr1 v.
 
-Definition tl {n} (v : Vector A (S n)) : Vector A n := pr2 v.
+Definition tl {n} (v : vec A (S n)) : vec A n := pr2 v.
 
-Definition el {n} (v : Vector A n) : ⟦ n ⟧ → A.
+Definition el {n} (v : vec A n) : ⟦ n ⟧ → A.
 Proof.
   induction n as [|m f].
   - apply (λ i, fromstn0 i).
@@ -81,7 +81,7 @@ Defined.
 
 (** *** Some identities for computing [el]. *)
 
-Lemma el_mk_vector {n} (f : ⟦ n ⟧ → A) : el (mk_vector f) ~ f .
+Lemma el_mk_vec {n} (f : ⟦ n ⟧ → A) : el (mk_vec f) ~ f .
 Proof.
   intro i.
   induction n as [|m meq].
@@ -99,13 +99,13 @@ Proof.
       apply idpath.
 Defined.
 
-Lemma el_mk_vector_fun {n} (f : ⟦ n ⟧ → A) : el (mk_vector f) = f.
+Lemma el_mk_vec_fun {n} (f : ⟦ n ⟧ → A) : el (mk_vec f) = f.
 Proof.
   apply funextfun.
-  apply el_mk_vector.
+  apply el_mk_vec.
 Defined.
 
-Lemma el_vcons_tl {n} (v : Vector A n) (x : A) (i : ⟦ n ⟧) :
+Lemma el_vcons_tl {n} (v : vec A n) (x : A) (i : ⟦ n ⟧) :
   el (x ::: v) (dni_firstelement i) = el v i.
 Proof.
   induction n as [|m meq].
@@ -115,20 +115,20 @@ Proof.
     exact (propproperty (pr1 i < S m)).
 Defined.
 
-Lemma el_vcons_hd {n} (v : Vector A n) (x : A) :
+Lemma el_vcons_hd {n} (v : vec A n) (x : A) :
   el (x ::: v) (firstelement) = x.
 Proof.
   reflexivity.
 Defined.
 
-Lemma drop_el {n} (v : Vector A (S n)) (i: ⟦ n ⟧ ) : drop (el v) i = el (tl v) i.
+Lemma drop_el {n} (v : vec A (S n)) (i: ⟦ n ⟧ ) : drop (el v) i = el (tl v) i.
 Proof.
   induction v as (x, u).
   change (drop (el (x ::: u)) i = el u i).
   apply el_vcons_tl.
 Defined.
 
-Lemma el_tl {n} (v : Vector A (S n)) (i : ⟦ n ⟧)
+Lemma el_tl {n} (v : vec A (S n)) (i : ⟦ n ⟧)
   : el (tl v) i = drop (el v) i.
 Proof.
   rewrite drop_el.
@@ -137,21 +137,21 @@ Defined.
 
 (** *** Extensionality. *)
 
-Definition vector0_eq (u v : Vector A 0) : u = v
+Definition vec0_eq (u v : vec A 0) : u = v
   := proofirrelevancecontr iscontrunit u v.
 
-Definition vectorS_eq {n} {u v : Vector A (S n)}
+Definition vecS_eq {n} {u v : vec A (S n)}
            (p : hd u = hd v) (q : tl u = tl v)
   : u = v
   := dirprod_paths p q.
 
-Lemma vector_extens {n} {u v : Vector A n}
+Lemma vec_extens {n} {u v : vec A n}
   : (∏ i : ⟦ n ⟧, el u i = el v i) → u = v.
 Proof.
   intros H.
   induction n as [|m meq].
-  - apply vector0_eq.
-  - apply vectorS_eq.
+  - apply vec0_eq.
+  - apply vecS_eq.
     + exact (H firstelement).
     + apply meq.
       intros.
@@ -159,24 +159,24 @@ Proof.
       apply H.
 Defined.
 
-Lemma mk_vector_el {n} (v : Vector A n) : mk_vector (el v) = v.
+Lemma mk_vec_el {n} (v : vec A n) : mk_vec (el v) = v.
 Proof.
-  apply vector_extens.
+  apply vec_extens.
   intros i.
-  rewrite el_mk_vector.
+  rewrite el_mk_vec.
   reflexivity.
 Defined.
 
 (** *** Weak equivalence with functions. *)
 
-Definition isweq_el {n} : isweq (el:Vector A n → ⟦ n ⟧ → A)
-  := isweq_iso el mk_vector mk_vector_el el_mk_vector_fun.
+Definition isweq_el {n} : isweq (el:vec A n → ⟦ n ⟧ → A)
+  := isweq_iso el mk_vec mk_vec_el el_mk_vec_fun.
 
-Definition vector_weq_fun n : Vector A n ≃ (⟦ n ⟧ -> A)
+Definition vec_weq_fun n : vec A n ≃ (⟦ n ⟧ -> A)
   := make_weq el isweq_el.
 
-Lemma isofhlevel_Vector {n} (is1 : isofhlevel n A) k
-  : isofhlevel n (Vector A k).
+Lemma isofhlevel_vec {n} (is1 : isofhlevel n A) k
+  : isofhlevel n (vec A k).
 Proof.
   induction k as [|k IH].
   - apply isofhlevelcontr, iscontrunit.
@@ -187,22 +187,22 @@ Defined.
 
 (** *** Induction. *)
 
-Lemma vector_ind (P : ∏ n, Vector A n → UU) :
+Lemma vec_ind (P : ∏ n, vec A n → UU) :
   P 0 [()]
-  → (∏ x n (v : Vector A n), P n v → P (S n) (x ::: v))
-  → (∏ n (v : Vector A n), P n v).
+  → (∏ x n (v : vec A n), P n v → P (S n) (x ::: v))
+  → (∏ n (v : vec A n), P n v).
 Proof.
   intros Hnil Hcons.
   induction n as [|m H]; intros.
-  - apply (transportb (P 0) (vector0_eq v [()]) Hnil).
+  - apply (transportb (P 0) (vec0_eq v [()]) Hnil).
   - apply Hcons, H.
 Defined.
 
-End Vectors.
+End vecs.
 
 (** *** Map, fold and append. *)
 
-Definition vector_map {A B : UU} (f : A → B) {n} (v : Vector A n) : Vector B n.
+Definition vec_map {A B : UU} (f : A → B) {n} (v : vec A n) : vec B n.
 Proof.
   induction n as [|m h].
   - exact vnil.
@@ -211,27 +211,27 @@ Proof.
     + exact (h (tl v)).
 Defined.
 
-Lemma hd_vector_map {A B : UU} (f : A → B) {n} (v : Vector A (S n))
-  : hd (vector_map f v) = f (hd v).
+Lemma hd_vec_map {A B : UU} (f : A → B) {n} (v : vec A (S n))
+  : hd (vec_map f v) = f (hd v).
 Proof.
   reflexivity.
 Defined.
 
-Lemma tl_vector_map {A B : UU} (f : A → B) {n} (v : Vector A (S n))
-  : tl (vector_map f v) = vector_map f (tl v).
+Lemma tl_vec_map {A B : UU} (f : A → B) {n} (v : vec A (S n))
+  : tl (vec_map f v) = vec_map f (tl v).
 Proof.
   reflexivity.
 Defined.
 
-Lemma el_vector_map {A B : UU} (f : A → B) {n} (v : Vector A n) (i : ⟦ n ⟧)
-  : el (vector_map f v) i = f (el v i).
+Lemma el_vec_map {A B : UU} (f : A → B) {n} (v : vec A n) (i : ⟦ n ⟧)
+  : el (vec_map f v) i = f (el v i).
 Proof.
   induction n as [|m H].
   - exact (fromstn0 i).
   - induction i as (j, jlt).
     induction j as [|k _].
-    + apply hd_vector_map.
-    + change (el (tl (vector_map f v)) (make_stn _ k jlt) =
+    + apply hd_vec_map.
+    + change (el (tl (vec_map f v)) (make_stn _ k jlt) =
               f (el (tl v) (make_stn _ k jlt))).
       etrans.
       { apply el_tl. }
@@ -242,44 +242,44 @@ Proof.
       reflexivity.
 Defined.
 
-Lemma vector_map_as_mk_vector {A B: UU} (f: A → B) {n} (v: Vector A n)
-  : vector_map f v = mk_vector (λ i, f (el v i)).
+Lemma vec_map_as_mk_vec {A B: UU} (f: A → B) {n} (v: vec A n)
+  : vec_map f v = mk_vec (λ i, f (el v i)).
 Proof.
-  apply vector_extens.
+  apply vec_extens.
   intro i.
-  rewrite el_vector_map.
-  rewrite el_mk_vector.
+  rewrite el_vec_map.
+  rewrite el_mk_vec.
   apply idpath.
 Defined.
 
-Definition vector_foldr {A B : UU} (f : A -> B -> B) (b : B) {n}
-  : Vector A n -> B
-  := vector_ind (λ (n : nat) (_ : Vector A n), B) b
-                (λ (a : A) (m : nat) (_ : Vector A m) (acc : B), f a acc)
+Definition vec_foldr {A B : UU} (f : A -> B -> B) (b : B) {n}
+  : vec A n -> B
+  := vec_ind (λ (n : nat) (_ : vec A n), B) b
+                (λ (a : A) (m : nat) (_ : vec A m) (acc : B), f a acc)
                 n.
 
-Definition vector_foldr1 {A : UU} (f : A -> A -> A) {n} : Vector A (S n) → A
-  := nat_rect (λ n : nat, Vector A (S n) → A)
+Definition vec_foldr1 {A : UU} (f : A -> A -> A) {n} : vec A (S n) → A
+  := nat_rect (λ n : nat, vec A (S n) → A)
               hd
-              (λ (m : nat) (h : Vector A (S m) → A),
-               uncurry (λ (x : A) (u : Vector A (S m)), f x (h u)))
+              (λ (m : nat) (h : vec A (S m) → A),
+               uncurry (λ (x : A) (u : vec A (S m)), f x (h u)))
               n.
 
-Definition vector_append {A : UU} {m} (u : Vector A m) {n} (v : Vector A n)
-  : Vector A (m + n)
-  := vector_ind (λ (p : nat) (_ : Vector A p), Vector A (p + n))
+Definition vec_append {A : UU} {m} (u : vec A m) {n} (v : vec A n)
+  : vec A (m + n)
+  := vec_ind (λ (p : nat) (_ : vec A p), vec A (p + n))
                 v
-                (λ (x : A) (p : nat) (_ : Vector A p) (w : Vector A (p + n)),
+                (λ (x : A) (p : nat) (_ : vec A p) (w : vec A (p + n)),
                  x ::: w)
                 m u.
 
 (** *** Fusion laws. *)
 
-Lemma vector_map_id {A : UU} {n} (v: Vector A n)
-  : vector_map (idfun A) v = v.
+Lemma vec_map_id {A : UU} {n} (v: vec A n)
+  : vec_map (idfun A) v = v.
 Proof.
   revert n v.
-  refine (vector_ind _ _ _).
+  refine (vec_ind _ _ _).
   - apply idpath.
   - intros x n xs HPxs.
     simpl.
@@ -287,53 +287,53 @@ Proof.
     apply HPxs.
 Defined.
 
-Lemma vector_map_comp {A B C: UU} (f: A → B) (g: B → C) {n: nat} (v: Vector A n) :
-  vector_map (funcomp f g) v = (funcomp (vector_map f) (vector_map g)) v.
+Lemma vec_map_comp {A B C: UU} (f: A → B) (g: B → C) {n: nat} (v: vec A n) :
+  vec_map (funcomp f g) v = (funcomp (vec_map f) (vec_map g)) v.
 Proof.
   revert n v.
-  refine (vector_ind _ _ _).
+  refine (vec_ind _ _ _).
   - apply idpath.
   - intros x n xs HPxs.
-    apply vectorS_eq.
+    apply vecS_eq.
     + reflexivity.
     + apply HPxs.
 Defined.
 
-Lemma vector_map_mk_vector {A B: UU} {n: nat} (g: ⟦ n ⟧ → A) (f: A → B)
-  : vector_map f (mk_vector g) = mk_vector (f ∘ g).
+Lemma vec_map_mk_vec {A B: UU} {n: nat} (g: ⟦ n ⟧ → A) (f: A → B)
+  : vec_map f (mk_vec g) = mk_vec (f ∘ g).
 Proof.
-  apply vector_extens.
+  apply vec_extens.
   intro i.
-  rewrite el_vector_map.
-  rewrite el_mk_vector.
-  rewrite el_mk_vector.
+  rewrite el_vec_map.
+  rewrite el_mk_vec.
+  rewrite el_mk_vec.
   apply idpath.
 Defined.
 
-Lemma vector_append_lid {A : UU} (u : Vector A 0) {n}
-  : vector_append u = idfun (Vector A n).
+Lemma vec_append_lid {A : UU} (u : vec A 0) {n}
+  : vec_append u = idfun (vec A n).
 Proof.
   induction u.
   reflexivity.
 Defined.
 
-(** *** Other operations on vectors. *)
+(** *** Other operations on vecs. *)
 
-Definition vector_fill {A: UU} (a: A): ∏ n: nat, Vector A n
-  := nat_rect (λ n: nat, Vector A n) [()] (λ (n: nat) (v: Vector A n), a ::: v).
+Definition vec_fill {A: UU} (a: A): ∏ n: nat, vec A n
+  := nat_rect (λ n: nat, vec A n) [()] (λ (n: nat) (v: vec A n), a ::: v).
 
-Lemma vector_map_const {A: UU} {n: nat} {v: Vector A n} {B: UU} (b: B) : vector_map (λ _, b) v = vector_fill b n.
+Lemma vec_map_const {A: UU} {n: nat} {v: vec A n} {B: UU} (b: B) : vec_map (λ _, b) v = vec_fill b n.
 Proof.
   revert n v.
-  apply vector_ind.
+  apply vec_ind.
   - apply idpath.
   - intros x n xs HPind.
-    change (b ::: vector_map (λ _: A, b) xs = b ::: vector_fill b n).
+    change (b ::: vec_map (λ _: A, b) xs = b ::: vec_fill b n).
     apply maponpaths.
     exact HPind.
 Defined.
 
-Definition vector_zip {A B: UU} {n: nat} (v1: Vector A n) (v2: Vector B n): Vector (A × B) n.
+Definition vec_zip {A B: UU} {n: nat} (v1: vec A n) (v2: vec B n): vec (A × B) n.
 Proof.
   induction n.
   - exact [()].

@@ -173,7 +173,7 @@ Defined.
 
 Definition listset (A: hSet): hSet := make_hSet (list A) (isofhlevellist 0 (setproperty A)).
 
-Definition fill {A: UU} (a: A): nat → list A := λ n, n ,, vector_fill a n.
+Definition fill {A: UU} (a: A): nat → list A := λ n, n ,, vec_fill a n.
 
 Lemma map_const {A B: UU} (b: B) (l: list A): map (λ _, b) l = fill b (length l).
 Proof.
