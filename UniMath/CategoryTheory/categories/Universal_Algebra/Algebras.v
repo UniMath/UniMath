@@ -4,29 +4,22 @@
 We use display categories to define the category of algebras and prove its univalence.
 *)
 
+Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Univalence.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.categories.HSET.Core.
 Require Import UniMath.CategoryTheory.categories.HSET.Univalence.
-Require Import UniMath.CategoryTheory.categories.HSET.MonoEpiIso.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 Require Import UniMath.CategoryTheory.limits.initial.
-Require Import UniMath.Combinatorics.FiniteSets.
 
 Require Import UniMath.Algebra.Universal.TermAlgebras.
 
 Section Algebras.
 
   Local Open Scope sorted_scope.
-
-  Definition sfun_from_setfun{A B : hSet}(f : A → B)(σ: signature): (λ s: sorts σ, A) s→ (λ s: sorts σ, B).
-  Proof.
-    unfold sfun. intro S. exact f.
-  Defined.
 
   Context (σ : signature).
 
@@ -40,21 +33,14 @@ Section Algebras.
   Definition shSet_precategory_data : precategory_data.
   Proof.
     use make_precategory_data.
-    - apply shSet_precategory_ob_mor.
-    - intro C. simpl. intros S As. exact As.
-    - simpl. intros F G H. intros f g S.
-      exact ((g S ∘ f S)%functions).
+    - exact shSet_precategory_ob_mor.
+    - intro C. simpl. apply idsfun.
+    - simpl. intros F G H. intros f g. exact (g s∘ f).
   Defined.
 
-  Definition is_precategory_shSet_precategory_data :  is_precategory shSet_precategory_data.
+  Definition is_precategory_shSet_precategory_data : is_precategory shSet_precategory_data.
   Proof.
-    split; simpl.
-    - split.
-      -- intros F G f. use funextsec. intros S. apply idpath.
-      -- intros F G f. use funextsec. intros S. apply idpath.
-    - split.
-      -- intros F G H I f g h. use funextsec. intro S. apply idpath.
-      -- intros F G H I f g h. use funextsec. intro S. apply idpath.
+    repeat split.
   Defined.
 
   Definition shSet_precategory : precategory.
@@ -89,78 +75,80 @@ Section Algebras.
     use is_univalent_disp_from_SIP_data.
     - intro A. cbn. use impred_isaset. intro nm. cbn.
       use isaset_set_fun_space.
-    - cbn. intros A op1 op2 ishomid1 ishomid2. use funextsec. intro nm. use funextfun. intro vec.
-      unfold ishom in *. cbn in *. set (H1:= ishomid1 nm vec). (*rewrite vector_map_id in H1*)
-      unfold sfun_from_setfun in H1. rewrite staridfun in H1. apply H1.
+    - cbn. intros A op1 op2 ishomid1 _. use funextsec. intro nm. use funextfun. intro vec.
+      unfold ishom in *. cbn in *. set (H1:= ishomid1 nm vec).
+      rewrite staridfun in H1. apply H1.
   Qed.
 
   Local Open Scope cat.
 
-  Lemma aux{A : UU}{B : A → UU}{f g : ∏ a:A, B a}(p : f = g) : ∏ a, f a = g a.
-    Proof. intro a. induction p. apply idpath. Defined.
+  (**
+  Here follows the proof that [shSet_category] is univalent. The proof is obtained by
+  following the example of the proof of univalence of the functor category.
+  *)
 
-  Lemma iso_fiber {A B : shSet_category} (i : Isos.iso A B): ∏ s, @Isos.iso SET (A s) (B s).
+  Lemma shSet_iso_fiber {A B : shSet_category} (i : iso A B): ∏ s, @iso SET (A s) (B s).
   Proof.
-    intro S.
+    intro s.
     apply z_iso_to_iso.
     apply iso_to_z_iso in i.
     induction i as [i [i' [p q]]].
-    - simpl in *.
-      use make_z_iso.
-      * exact (i S).
-      * exact (i' S).
-      * split.
-        + set (X:=eqtohomot p S). apply X.
-        + set (X:=eqtohomot q S). apply X.
+    simpl in *.
+    use make_z_iso.
+    - exact (i s).
+    - exact (i' s).
+    - split.
+      + exact (eqtohomot p s).
+      + exact (eqtohomot q s).
   Defined.
 
-  Definition functor_eq_from_functor_iso (F G : shSet_category) (H : iso F G) : F = G.
+  Definition shSet_eq_from_shSet_iso (F G : shSet_category) (i : iso F G) : F = G.
   Proof.
     apply funextsec.
-    intro S.
+    intro s.
     apply (isotoid HSET is_univalent_HSET).
-    apply iso_fiber.
+    apply shSet_iso_fiber.
     assumption.
   Defined.
 
-  Lemma idtoiso_functorcat_compute_pointwise {A B : shSet_category} (p : A = B) (s: sorts σ):
-    iso_fiber (idtoiso p) s = idtoiso(C:=HSET) (toforallpaths (λ _ , hSet) A B p s).
+  Lemma idtoiso_shSet_category_compute_pointwise {F G : shSet_category} (p : F = G) (s: sorts σ)
+    : shSet_iso_fiber (idtoiso p) s = idtoiso(C:=HSET) (toforallpaths (λ _ , hSet) F G p s).
   Proof.
     induction p.
     apply eq_iso. apply idpath.
   Qed.
 
-  Lemma functor_eq_from_functor_iso_idtoiso  (F G : shSet_category) (p : F = G) :
-    functor_eq_from_functor_iso  F G (idtoiso p) = p.
+  Lemma shSet_eq_from_shSet_iso_idtoiso  (F G : shSet_category) (p : F = G)
+    : shSet_eq_from_shSet_iso F G (idtoiso p) = p.
   Proof.
-    unfold functor_eq_from_functor_iso.
+    unfold shSet_eq_from_shSet_iso.
     apply (invmaponpathsweq (weqtoforallpaths _ _ _ )).
     simpl (pr1weq (weqtoforallpaths (λ _ : sorts σ, hSet) F G)).
     rewrite (toforallpaths_funextsec).
     apply funextsec.
     intro a.
-    rewrite idtoiso_functorcat_compute_pointwise.
-    rewrite  isotoid_idtoiso.
+    rewrite idtoiso_shSet_category_compute_pointwise.
+    rewrite isotoid_idtoiso.
     apply idpath.
   Defined.
 
-  Lemma idtoiso_functor_eq_from_functor_iso (F G : shSet_category) (gamma : iso F G) :
-          idtoiso (functor_eq_from_functor_iso F G gamma) = gamma.
+  Lemma idtoiso_shSet_eq_from_shSet_iso (F G : shSet_category) (i : iso F G)
+    : idtoiso (shSet_eq_from_shSet_iso F G i) = i.
   Proof.
     apply eq_iso.
     apply funextsec.
-    intro a.
-    unfold functor_eq_from_functor_iso.
-    assert (H' := idtoiso_functorcat_compute_pointwise (functor_eq_from_functor_iso F G gamma) a).
+    intro s.
+    unfold shSet_eq_from_shSet_iso.
+    assert (H' := idtoiso_shSet_category_compute_pointwise (shSet_eq_from_shSet_iso F G i) s).
     simpl in *.
     assert (H2 := maponpaths (@pr1 _ _ ) H').
     simpl in H2.
     etrans.
     { apply H2. }
-    intermediate_path (pr1 (idtoiso (isotoid HSET is_univalent_HSET (iso_fiber gamma a)))).
+    intermediate_path (pr1 (idtoiso (isotoid HSET is_univalent_HSET (shSet_iso_fiber i s)))).
     - apply maponpaths.
       apply maponpaths.
-      unfold functor_eq_from_functor_iso.
+      unfold shSet_eq_from_shSet_iso.
       rewrite toforallpaths_funextsec.
       apply idpath.
     - rewrite idtoiso_isotoid.
@@ -172,9 +160,9 @@ Section Algebras.
     split.
     2: apply has_homsets_shSet_precategory.
     intros F G.
-    apply (isweq_iso _ (functor_eq_from_functor_iso F G)).
-    - apply functor_eq_from_functor_iso_idtoiso.
-    - apply idtoiso_functor_eq_from_functor_iso.
+    apply (isweq_iso _ (shSet_eq_from_shSet_iso F G)).
+    - apply shSet_eq_from_shSet_iso_idtoiso.
+    - apply idtoiso_shSet_eq_from_shSet_iso.
   Defined.
 
   Definition category_algebras : category := total_category algebras_disp.

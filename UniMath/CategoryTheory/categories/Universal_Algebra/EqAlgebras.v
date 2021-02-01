@@ -1,8 +1,7 @@
 (** * The univalent category of equational algebras over an equational specification. *)
 (** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 
-Require Import UniMath.Foundations.PartA.
-Require Import UniMath.Foundations.PartD.
+Require Import UniMath.Foundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
@@ -24,14 +23,11 @@ Defined.
 Lemma is_univalent_eqalg_disp : is_univalent_disp eqalg_disp.
 Proof.
   use disp_full_sub_univalent.
-  cbn.
   intros A isT isT'.
   use impred_isaprop.
   intro eq.
   use impred_isaprop.
-  intro eq'.
-  cbn.
-  intros p p'.
+  intros α p p'.
   apply (pr1 A).
 Qed.
 
