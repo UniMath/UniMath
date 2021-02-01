@@ -34,10 +34,10 @@ Section TermAlgebra.
     apply gevalstep.
   Defined.
 
-  Definition gevalhom (a: algebra σ): term_algebra σ ↦ a
+  Definition gevalhom (a: algebra σ): term_algebra σ ↷ a
     := make_hom (ishomgeval a).
 
-  Definition iscontrhomsfromgterm (a: algebra σ): iscontr (term_algebra σ ↦ a).
+  Definition iscontrhomsfromgterm (a: algebra σ): iscontr (term_algebra σ ↷ a).
   Proof.
     exists (gevalhom a).
     intro f.

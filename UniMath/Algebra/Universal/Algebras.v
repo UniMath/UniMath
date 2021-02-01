@@ -93,7 +93,7 @@ Definition hom {σ: signature} (A1 A2: algebra σ): UU := ∑ (h: A1 s→ A2), i
 
 Declare Scope hom_scope.
 
-Notation "a1 ↦ a2" := (hom a1 a2) (at level 80, right associativity): hom_scope.
+Notation "a1 ↷ a2" := (hom a1 a2) (at level 80, right associativity): hom_scope.
 
 Delimit Scope hom_scope with hom.
 
@@ -101,13 +101,13 @@ Bind Scope hom_scope with hom.
 
 Local Open Scope hom.
 
-Definition hom2fun {σ: signature} {A1 A2: algebra σ} (f: A1 ↦ A2): ∏ s: sorts σ, support A1 s → support A2 s:= pr1 f.
+Definition hom2fun {σ: signature} {A1 A2: algebra σ} (f: A1 ↷ A2): ∏ s: sorts σ, support A1 s → support A2 s:= pr1 f.
 
 Coercion hom2fun: hom >-> Funclass.
 
-Definition hom2axiom {σ: signature} {A1 A2: algebra σ} (f: A1 ↦ A2) := pr2 f.
+Definition hom2axiom {σ: signature} {A1 A2: algebra σ} (f: A1 ↷ A2) := pr2 f.
 
-Definition make_hom {σ: signature} {A1 A2: algebra σ} {f: sfun A1 A2} (is: ishom f): A1 ↦ A2 := f ,, is.
+Definition make_hom {σ: signature} {A1 A2: algebra σ} {f: sfun A1 A2} (is: ishom f): A1 ↷ A2 := f ,, is.
 
 Theorem isapropishom {σ: signature} {A1 A2: algebra σ} (f: sfun A1 A2): isaprop (ishom f).
 Proof.
@@ -119,7 +119,7 @@ Proof.
   apply setproperty.
 Defined.
 
-Theorem isasethom {σ: signature} (A1 A2: algebra σ): isaset (A1 ↦ A2).
+Theorem isasethom {σ: signature} (A1 A2: algebra σ): isaset (A1 ↷ A2).
 Proof.
   red.
   apply isaset_total2.
@@ -139,9 +139,9 @@ Proof.
   apply idpath.
 Defined.
 
-Definition homid {σ: signature} (A: algebra σ): A ↦ A := make_hom (ishomid A).
+Definition homid {σ: signature} (A: algebra σ): A ↷ A := make_hom (ishomid A).
 
-Lemma ishomcomp {σ: signature} {A1 A2 A3: algebra σ} (h1: A1 ↦ A2) (h2: A2 ↦ A3): ishom (h2 s∘ h1).
+Lemma ishomcomp {σ: signature} {A1 A2 A3: algebra σ} (h1: A1 ↷ A2) (h2: A2 ↷ A3): ishom (h2 s∘ h1).
 Proof.
   red.
   intros.
@@ -154,7 +154,7 @@ Proof.
   apply idpath.
 Defined.
 
-Definition homcomp {σ: signature} {a1 a2 a3: algebra σ} (h1: a1 ↦ a2) (h2: a2 ↦ a3) : a1 ↦ a3
+Definition homcomp {σ: signature} {a1 a2 a3: algebra σ} (h1: a1 ↷ a2) (h2: a2 ↷ a3) : a1 ↷ a3
   := make_hom (ishomcomp h1 h2).
 
 (** ** The unit algebra and the proof it is final. *)

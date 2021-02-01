@@ -52,7 +52,7 @@ Proof.
   inductive_reflexivity n proofn.
 Defined.
 
-Definition natz2 : nat_algebra ↦ z2_algebra := make_hom ishom_nat_to_z2.
+Definition natz2 : nat_algebra ↷ z2_algebra := make_hom ishom_nat_to_z2.
 
 Definition nat_zero := build_gterm_curried nat_zero_op.
 Definition nat_succ := build_gterm_curried nat_succ_op.

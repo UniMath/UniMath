@@ -37,9 +37,9 @@ Section FreeAlgebras.
     apply evalstep.
   Defined.
 
-  Definition evalhom: free_algebra σ V ↦ a := make_hom ishomeval.
+  Definition evalhom: free_algebra σ V ↷ a := make_hom ishomeval.
 
-  Definition universalmap: ∑ h: free_algebra σ V ↦ a, ∏ v: V, h _ (varterm v) = α v.
+  Definition universalmap: ∑ h: free_algebra σ V ↷ a, ∏ v: V, h _ (varterm v) = α v.
   Proof.
     exists evalhom.
     intro v.
@@ -49,7 +49,7 @@ Section FreeAlgebras.
   Defined.
 
   Definition iscontr_universalmap
-    : iscontr (∑ h: free_algebra σ V ↦ a, ∏ v: V, h (varsort v) (varterm v) = α v).
+    : iscontr (∑ h: free_algebra σ V ↷ a, ∏ v: V, h (varsort v) (varterm v) = α v).
   Proof.
     exists universalmap.
     intro h.
