@@ -24,6 +24,7 @@ PACKAGES += Tactics
 PACKAGES += SubstitutionSystems
 PACKAGES += Folds
 PACKAGES += HomologicalAlgebra
+PACKAGES += AlgebraicGeometry
 PACKAGES += Paradoxes
 PACKAGES += Induction
 ############################################
