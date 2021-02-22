@@ -66,7 +66,7 @@ Proof.
 Defined.
 
 (** If [X: sUU S], then [star X] is the lifting of [X] to the index type [list S], given
-by [X [s1; s2; ...; sn] = [X s1 ; X s2 ; ... ; X sn]. *)
+by [star X [s1; s2; ...; sn] = [X s1 ; X s2 ; ... ; X sn]. *)
 
 Definition star {S: UU} (X: sUU S): sUU (list S) := λ l: list S, hvec (vec_map X (pr2 l)).
 
