@@ -13,7 +13,8 @@ Require Export UniMath.Algebra.Universal.Equations.
 Section Varieties.
 
   Definition holds {σ: signature} {V: varspec σ} (a: algebra σ) (e: equation σ V) : UU
-    := ∏ α, fromterm a α (eqsort e) (lhs e) = fromterm a α (eqsort e) (rhs e).
+    := ∏ α, fromterm (ops a) α (eqsort e) (lhs e) =
+            fromterm (ops a) α (eqsort e) (rhs e).
 
   Definition is_eqalgebra {σ : eqspec} (a : algebra σ) : UU
     := ∏ e: equations σ, holds a (geteq e).

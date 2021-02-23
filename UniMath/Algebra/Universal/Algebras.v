@@ -13,17 +13,13 @@ Local Open Scope sorted.
 Definition algebra (σ: signature): UU
   := ∑ A: shSet (sorts σ), ∏ nm: names σ, A⋆ (arity nm) → A (sort nm).
 
-Definition supportset {σ: signature} (A: algebra σ) := pr1 A.
-
-Coercion supportset: algebra >-> shSet.
+Definition supportset {σ: signature} (A: algebra σ) : shSet (sorts σ) := pr1 A.
 
 Definition support {σ: signature} (A: algebra σ): sUU (sorts σ) := pr1 A.
 
 Coercion support: algebra >-> sUU.
 
 Definition ops {σ: signature} (A: algebra σ) := pr2 A.
-
-Coercion ops: algebra >-> Funclass.
 
 Definition make_algebra {σ: signature} (A : shSet (sorts σ)) (ops: ∏ nm: names σ, A⋆ (arity nm) → A (sort nm))
   : algebra σ := A ,, ops.
@@ -38,8 +34,11 @@ A simple signature is either a [signature_simple_single_sorted] for the single-s
 a [signature_single] for the multi-sorted case.
 *)
 
-Definition make_algebra_simple_single_sorted (σ: signature_simple_single_sorted) (A : hSet)
-                                             (ops: (λ n: nat, vec A n → A)⋆ σ): algebra σ.
+Definition make_algebra_simple_single_sorted
+    (σ : signature_simple_single_sorted)
+    (A : hSet)
+    (ops : (λ n: nat, vec A n → A)⋆ σ)
+  : algebra σ.
 Proof.
   exists (λ _, A).
   unfold arity.
@@ -58,8 +57,10 @@ Proof.
     + exact (IHxs (pr2 ops) (nm ,, nmproof)).
 Defined.
 
-Definition make_algebra_simple (σ: signature_simple) (A: vec hSet (pr1 σ))
-                               (ops: (λ a, (el A)⋆ (dirprod_pr1 a) → el A (dirprod_pr2 a))⋆ (pr2 σ))
+Definition make_algebra_simple
+    (σ: signature_simple)
+    (A: vec hSet (pr1 σ))
+    (ops: (λ a, (el A)⋆ (dirprod_pr1 a) → el A (dirprod_pr2 a))⋆ (pr2 σ))
   : algebra σ.
 Proof.
   exists (el A).
@@ -87,7 +88,7 @@ Defined.
 (** ** Homomorphisms of algebras. *)
 
 Definition ishom {σ: signature} {A1 A2: algebra σ} (h: A1 s→ A2) : UU
-  := ∏ (nm: names σ) (x: dom A1 nm), h _ (A1 nm x) = A2 nm (h⋆⋆ _ x).
+  := ∏ (nm: names σ) (x: dom A1 nm), h _ (ops A1 nm x) = ops A2 nm (h⋆⋆ _ x).
 
 Definition hom {σ: signature} (A1 A2: algebra σ): UU := ∑ (h: A1 s→ A2), ishom h.
 

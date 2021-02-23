@@ -24,10 +24,10 @@ Definition nat_succ_op: names nat_signature := ●1.
 
 Definition nat_algebra := make_algebra_simple_single_sorted nat_signature natset [( λ _, 0 ;  λ x, S (pr1 x) )].
 
-Goal nat_algebra nat_zero_op tt = 0.
+Goal ops nat_algebra nat_zero_op tt = 0.
 Proof. apply idpath. Defined.
 
-Goal nat_algebra nat_succ_op (1 ,, tt) = 2.
+Goal ops nat_algebra nat_succ_op (1 ,, tt) = 2.
 Proof. apply idpath. Defined.
 
 Definition z2_algebra := make_algebra_simple_single_sorted nat_signature boolset [( λ _, false ; λ x, negb (pr1 x) )].

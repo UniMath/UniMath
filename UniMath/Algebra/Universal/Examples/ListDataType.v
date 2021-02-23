@@ -28,19 +28,20 @@ Definition list_signature: signature_simple
 Definition nil_idx: names list_signature := ●0.
 Definition cons_idx: names list_signature := ●1.
 
-Definition list_algebra (A: hSet) := make_algebra_simple list_signature
-  [( A ; listset A )]
-  [( λ _, nil ; λ p, cons (pr1 p) (pr12 p) )].
+Definition list_algebra (A: hSet) : algebra list_signature
+  := make_algebra_simple list_signature
+       [( A ; listset A )]
+       [( λ _, nil ; λ p, cons (pr1 p) (pr12 p) )].
 
 (** Correspondence between structures and operations in the universal algebra
 of lists and standard structures and operations on lists. *)
 
-Lemma elem_sort_id (A: hSet) : supportset (list_algebra A) elem_sort_idx = A.
+Lemma elem_sort_id (A: hSet) : support (list_algebra A) elem_sort_idx = A.
 Proof.
   reflexivity.
 Qed.
 
-Lemma list_sort_id (A: hSet) : supportset (list_algebra A) list_sort_idx = listset A.
+Lemma list_sort_id (A: hSet) : support (list_algebra A) list_sort_idx = listset A.
 Proof.
   reflexivity.
 Qed.

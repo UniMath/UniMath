@@ -69,7 +69,7 @@ Section FreeAlgebras.
       induction nm as [nm | v].
       * change (inl nm) with (namelift V nm).
         change (sort (namelift V nm)) with (sort nm).
-        change (build_gterm (namelift V nm) hv) with (free_algebra σ V nm hv) at 1.
+        change (build_gterm (namelift V nm) hv) with (ops (free_algebra σ V) nm hv) at 1.
         change (build_gterm (namelift V nm) hv) with (build_term nm hv).
         rewrite hishom.
         rewrite evalstep.

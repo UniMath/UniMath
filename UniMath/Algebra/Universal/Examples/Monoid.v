@@ -75,7 +75,7 @@ Variable M : monoid.
 Lemma holds_monoid_mul_lid : holds (monoid_algebra M) monoid_mul_lid.
 Proof.
   intro. cbn in α.
-  change (fromterm (monoid_algebra M) α tt (mul id x) = α 0).
+  change (fromterm (ops (monoid_algebra M)) α tt (mul id x) = α 0).
   change (op (unel M) (α 0) = α 0).
   apply lunax.
 Qed.
