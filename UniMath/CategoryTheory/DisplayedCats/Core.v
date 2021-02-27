@@ -213,7 +213,7 @@ Qed.
 
 Definition assoc_disp {C} {D : disp_precat C}
   {x y z w} {f} {g} {h} {xx : D x} {yy : D y} {zz : D z} {ww : D w}
-  {ff : xx -->[f] yy} {gg : yy -->[g] zz} {hh : zz -->[h] ww}
+  (ff : xx -->[f] yy) (gg : yy -->[g] zz) (hh : zz -->[h] ww)
 : ff ;; (gg ;; hh) = transportb _ (assoc _ _ _) ((ff ;; gg) ;; hh)
 := pr1 (pr2 (pr2 (pr2 D))) _ _ _ _ _ _ _ _ _ _ _ _ _ _.
 
