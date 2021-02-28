@@ -186,12 +186,12 @@ Identity Coercion disp_cat_data_from_disp_cat : disp_cat >-> disp_precat.
 (* TODO: maybe would be better to have a single [pathsinv0_dep] lemma, or something. *)
 
 Definition id_left_disp {C} {D : disp_precat C}
-  {x y} {f : x --> y} {xx : D x} {yy} {ff : xx -->[f] yy}
+  {x y} {f : x --> y} {xx : D x} {yy} (ff : xx -->[f] yy)
 : id_disp _ ;; ff = transportb _ (id_left _) ff
 := pr1 (pr2 D) _ _ _ _ _ _.
 
-Lemma id_left_disp_var {C} {D : disp_precat C}
-  {x y} {f : x --> y} {xx : D x} {yy} {ff : xx -->[f] yy}
+Definition id_left_disp_var {C} {D : disp_precat C}
+  {x y} {f : x --> y} {xx : D x} {yy} (ff : xx -->[f] yy)
 : ff = transportf _ (id_left _) (id_disp _ ;; ff).
 Proof.
   apply transportf_transpose_right.
@@ -199,12 +199,12 @@ Proof.
 Qed.
 
 Definition id_right_disp {C} {D : disp_precat C}
-  {x y} {f : x --> y} {xx : D x} {yy} {ff : xx -->[f] yy}
+  {x y} {f : x --> y} {xx : D x} {yy} (ff : xx -->[f] yy)
   : ff ;; id_disp _ = transportb _ (id_right _) ff
 := pr1 (pr2 (pr2 D)) _ _ _ _ _ _.
 
 Definition id_right_disp_var {C} {D : disp_precat C}
-  {x y} {f : x --> y} {xx : D x} {yy} {ff : xx -->[f] yy}
+  {x y} {f : x --> y} {xx : D x} {yy} (ff : xx -->[f] yy)
   : ff = transportf _ (id_right _) (ff ;; id_disp _).
 Proof.
   apply transportf_transpose_right.
@@ -226,7 +226,7 @@ Proof.
   apply pathsinv0, assoc_disp.
 Defined.
 
-Definition homsets_disp {C} {D : disp_cat C} {x y} {f} {xx : D x} {yy : D y}
+Definition homsets_disp {C} {D : disp_cat C} {x y} (f : x --> y) (xx : D x) (yy : D y)
   : isaset (xx -->[f] yy) := pr2 (pr2 (pr2 (pr2 D))) _ _ _ _ _.
 
 (** ** Utility lemmas *)
@@ -236,9 +236,9 @@ Section Lemmas.
 
 NOTE: as with [etrans_dep], proofs using [etrans_disp] seem to typecheck more slowly than proofs using [etrans] plus other lemmas directly. *)
 Lemma pathscomp0_disp {C} {D : disp_cat C}
-  {x y} {f f' f'' : x --> y} {e : f' = f} {e' : f'' = f'} {e'' : f'' = f}
+  {x y} {f f' f'' : x --> y} (e : f' = f) (e' : f'' = f') (e'' : f'' = f)
   {xx : D x} {yy}
-  {ff : xx -->[f] yy} {ff' : xx -->[f'] yy} {ff'' : xx -->[f''] yy}
+  (ff : xx -->[f] yy) (ff' : xx -->[f'] yy) (ff'' : xx -->[f''] yy)
 : (ff = transportf _ e ff') -> (ff' = transportf _ e' ff'')
   -> ff = transportf _ e'' ff''.
 Proof.
