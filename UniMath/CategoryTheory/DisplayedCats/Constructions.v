@@ -176,13 +176,13 @@ Definition dirprod_disp_cat_axioms
   : disp_cat_axioms _ (dirprod_disp_cat_data D1 D2).
 Proof.
   repeat apply make_dirprod.
-  - intros. apply dirprod_paths; use (id_left_disp @ !_).
+  - intros. apply dirprod_paths; use (id_left_disp _ @ !_).
     + use pr1_transportf.
     + apply pr2_transportf.
-  - intros. apply dirprod_paths; use (id_right_disp @ !_).
+  - intros. apply dirprod_paths; use (id_right_disp _ @ !_).
     + use pr1_transportf.
     + apply pr2_transportf.
-  - intros. apply dirprod_paths; use (assoc_disp @ !_).
+  - intros. apply dirprod_paths; use (assoc_disp _ _ _ @ !_).
     + use pr1_transportf.
     + apply pr2_transportf.
   - intros. apply isaset_dirprod; apply homsets_disp.
@@ -403,18 +403,16 @@ Proof.
   repeat apply tpair.
   - intros. use total2_reassoc_paths'.
     + apply id_left_disp.
-    + etrans. exact (@id_left_disp _ _ _ _ _ _ _ (pr2 ff)).
+    + etrans. exact (id_left_disp (pr2 ff)).
       apply maponpaths_2, homset_property.
   - intros. use total2_reassoc_paths'.
     + apply id_right_disp.
-    + etrans. exact (@id_right_disp _ _ _ _ _ _ _ (pr2 ff)).
+    + etrans. exact (id_right_disp (pr2 ff)).
       apply maponpaths_2, homset_property.
   - intros. use total2_reassoc_paths'.
     + apply assoc_disp.
     + etrans.
-        exact (@assoc_disp _ _
-                 _ _ _ _  _ _ _
-                 _ _ _ _  (pr2 ff) (pr2 gg) (pr2 hh)).
+        exact (assoc_disp (pr2 ff) (pr2 gg) (pr2 hh)).
       apply maponpaths_2, homset_property.
   - intros. apply isaset_total2; intros; apply homsets_disp.
 Qed.
@@ -461,7 +459,7 @@ Lemma pr2_transportf_sigma_disp {x y : C} {f f' : x --> y} (e : f = f')
 Proof.
   destruct e. apply pathsinv0.
   etrans. apply maponpaths_2, maponpaths, maponpaths.
-  apply (homsets_disp _ _ _ (idpath _)).
+  apply (homsets_disp _ _ _ _ _ _ (idpath _)).
   apply idpath.
 Qed.
 
