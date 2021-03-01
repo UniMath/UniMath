@@ -1,12 +1,11 @@
 (** * Additional definitions, lemmas and notations for lists. *)
 (** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 
-Require Import UniMath.Foundations.All.
+Require Import UniMath.Foundations.NaturalNumbers.
 Require Import UniMath.Combinatorics.Vectors.
 Require Export UniMath.Combinatorics.Lists.
-
-Require Import UniMath.Algebra.Universal.Maybe.
-Require Import UniMath.Algebra.Universal.DecSet.
+Require Export UniMath.Combinatorics.DecSet.
+Require Export UniMath.Combinatorics.Maybe.
 
 (** ** Notations for lists.
 

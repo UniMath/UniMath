@@ -7,8 +7,8 @@ _Universal Algebra for Computer Scientist_, Springer.
 *)
 
 Require Import UniMath.Foundations.All.
+Require Export UniMath.Combinatorics.MoreLists.
 
-Require Export UniMath.Algebra.Universal.MoreLists.
 Require Export UniMath.Algebra.Universal.HVectors.
 
 Declare Scope sorted_scope.

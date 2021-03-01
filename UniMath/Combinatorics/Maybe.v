@@ -1,7 +1,7 @@
 (** * A simple implementation of the maybe/option monad which does not require category theory. *)
 (** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
 
-Require Import UniMath.Foundations.All.
+Require Import UniMath.Foundations.PartC.
 
 Definition maybe (A: UU):= A ⨿ unit.
 

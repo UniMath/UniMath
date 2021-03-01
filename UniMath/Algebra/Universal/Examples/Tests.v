@@ -4,8 +4,7 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
-Require Import UniMath.Algebra.Universal.Maybe.
-Require Import UniMath.Algebra.Universal.MoreLists.
+Require Import UniMath.Combinatorics.MoreLists.
 Require Import UniMath.Algebra.Universal.TermAlgebras.
 Require Import UniMath.Algebra.Universal.Examples.Nat.
 Require Import UniMath.Algebra.Universal.Examples.Bool.

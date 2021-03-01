@@ -7,8 +7,8 @@
 Require Import UniMath.MoreFoundations.Notations.
 Require Import UniMath.MoreFoundations.Bool.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
+Require Import UniMath.Combinatorics.MoreLists.
 
-Require Import UniMath.Algebra.Universal.MoreLists.
 Require Import UniMath.Algebra.Universal.Algebras.
 Require Import UniMath.Algebra.Universal.VTerms.
 

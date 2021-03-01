@@ -7,8 +7,8 @@ This file contains a formalization of multi-sorted signatures.
 Require Import UniMath.MoreFoundations.Notations.
 Require Import UniMath.Combinatorics.StandardFiniteSets.
 
-Require Export UniMath.Algebra.Universal.DecSet.
-Require Import UniMath.Algebra.Universal.MoreLists.
+Require Export UniMath.Combinatorics.DecSet.
+Require Import UniMath.Combinatorics.MoreLists.
 
 Local Open Scope stn.
 

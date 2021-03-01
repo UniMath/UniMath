@@ -22,9 +22,6 @@ Modules/Examples.v
 Modules/Quotient.v
 Modules.v
 Matrix.v
-Universal/DecSet.v
-Universal/Maybe.v
-Universal/MoreLists.v
 Universal/HVectors.v
 Universal/SortedTypes.v
 Universal/Signatures.v

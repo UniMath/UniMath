@@ -5,7 +5,7 @@ In this file we introduce the type [decSet] of h-sets of decidable sets, i.e., t
 property [isdeceq X], just like an [hSet] is a type X endowed with the property [isaset X].
 *)
 
-Require Import UniMath.Foundations.All.
+Require Import UniMath.Foundations.PartB.
 
 Definition decSet: UU := ∑ (X: UU), isdeceq X.
 

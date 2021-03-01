@@ -12,7 +12,7 @@ Here we only define ground terms, while terms with variables will be defined in 
 
 Require Import UniMath.MoreFoundations.Notations.
 
-Require Import UniMath.Algebra.Universal.Maybe.
+Require Import UniMath.Combinatorics.Maybe.
 Require Import UniMath.Algebra.Universal.SortedTypes.
 Require Export UniMath.Algebra.Universal.Signatures.
 
