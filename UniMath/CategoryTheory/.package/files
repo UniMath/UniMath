@@ -151,6 +151,10 @@ categories/HSET/Slice.v
 categories/HSET/Structures.v
 categories/HSET/SliceFamEquiv.v
 categories/HSET/All.v
+
+categories/Universal_Algebra/Algebras.v
+categories/Universal_Algebra/EqAlgebras.v
+
 SetValuedFunctors.v
 categories/FinSet.v
 categories/wosets.v
