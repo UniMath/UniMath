@@ -5,6 +5,8 @@ Operations on vectors and matrices.
 Author: Langston Barrett (@siddharthist) (March 2018)
 *)
 
+Require Import UniMath.Combinatorics.StandardFiniteSets.
+
 Require Import UniMath.Foundations.PartA.
 Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.Combinatorics.FiniteSequences.
@@ -39,13 +41,19 @@ Section OneOp.
 
   Definition pointwise_assoc (assocax : isassoc op) : isassoc (pointwise n op).
   Proof.
-    intros ? ? ?; apply funextfun; intro; apply assocax.
+    intros ? ? ?.
+    apply funextfun.
+    intro.
+    apply assocax.
   Defined.
 
   Definition pointwise_lunit (lun : X) (lunax : islunit op lun) :
     islunit (pointwise n op) (const_vec lun).
   Proof.
-    intros ?; apply funextfun; intro; apply lunax.
+    intros ?.
+    apply funextfun.
+    intro.
+    apply lunax.
   Defined.
 
   Definition pointwise_runit (run : X) (runax : isrunit op run) :
@@ -95,7 +103,10 @@ Section TwoOps.
   Definition pointwise_ldistr (isldistrax : isldistr op op') :
     isldistr (pointwise n op) (pointwise n op').
   Proof.
-    intros ? ? ?; apply funextfun; intro; apply isldistrax.
+    intros ? ? ?.
+    apply funextfun.
+    intro.
+    apply isldistrax.
   Defined.
 
   Definition pointwise_rdistr (isrdistrax : isrdistr op op') :
@@ -170,7 +181,10 @@ Section OneOpMat.
 
   Definition entrywise_assoc (assocax : isassoc op) : isassoc (entrywise n m op).
   Proof.
-    intros ? ? ?; apply funextfun; intro; apply pointwise_assoc, assocax.
+    intros ? ? ?.
+    apply funextfun.
+    intro.
+    apply pointwise_assoc, assocax.
   Defined.
 
   Definition entrywise_lunit (lun : X) (lunax : islunit op lun) :
@@ -252,7 +266,16 @@ Section MatrixMult.
     induction (stn_eq_or_neq i j).
     - exact (rigunel2). (* The multiplicative identity *)
     - exact (rigunel1). (* The additive identity *)
+
   Defined.
+
+  (*
+  Lemma inverse {n : nat} : (Matrix R n n).
+  Proof.
+    intros i j.
+    trivial.
+  Defined.
+  *)
 
 End MatrixMult.
 
@@ -308,6 +331,8 @@ Section Weighting.
       (q : nat) (mat3 : Matrix R p q),
     ((mat1 ** mat2) ** mat3) = (mat1 ** (mat2 ** mat3)).
 
+
+
   (** Lemma 1.1.2 in arXiv:1012.5857v3 *)
   Lemma weighting_coweighting_sum {m n : nat} (mat : Matrix R m n)
         (wei : weighting mat) (cowei : coweighting mat)
@@ -331,3 +356,470 @@ Section Weighting.
     Σ (pr1 (dirprod_pr1 has)).
 
 End Weighting.
+
+
+
+Section Toys.
+
+  Context {R : rig}.
+
+  Definition matrix_equal
+  {n m : nat}  (mat1 mat2: Matrix R m n) : UU
+  :=  ∏ (i : ⟦ m ⟧%stn) (j : ⟦ n ⟧%stn),
+      (mat1 i) j = (mat2 i) j.
+
+  Definition vector_equal
+  {n : nat}  (vec1 vec2: Vector R n) : UU
+  :=  ∏ (i : ⟦ n ⟧%stn),
+      vec1 i = vec2 i.
+
+  Definition sum_rows
+  {m n : nat}
+  (mat : Matrix R m n): Vector R m
+  :=  λ (i : (⟦ m ⟧)%stn),
+      Σ (row mat i).
+
+  Definition sum_cols
+  {m n : nat}
+  (mat : Matrix R m n): Vector R n
+  := λ (i : (⟦ n ⟧)%stn),
+     Σ (col mat i).
+
+
+  Definition is_square
+  {m n: nat} (_ : Matrix R m n) : UU := m = n.
+
+
+  Definition matrix_add
+  {m n : nat}
+  (mat1 : Matrix R m n)
+  (mat2 : Matrix R m n)
+  : (Matrix R m n) :=
+    λ i j,
+      op1 ((row mat1 i) j) ((row mat2 i) j).
+
+  Lemma matrix_add_comm:
+  ∏ (m n : nat) (mat1 : Matrix R m n)
+                (mat2 : Matrix R m n),
+  matrix_add mat1 mat2 = matrix_add mat2 mat1.
+  Proof.
+  intros.
+  apply funextfun.
+  intros i.
+  apply funextfun.
+  intros j.
+  apply rigcomm1.
+  Defined.
+
+  Lemma matrix_add_assoc:
+  ∏ (m n : nat) (mat1 : Matrix R m n)
+  (mat2 : Matrix R m n) (mat3 : Matrix R m n),
+    matrix_add (matrix_add mat1 mat2) mat3
+  = matrix_add mat1 (matrix_add mat2 mat3).
+  Proof.
+  intros.
+  apply funextfun.
+  intros i.
+  apply funextfun.
+  intros j.
+  apply rigassoc1.
+  Defined.
+
+
+  (* TODOS *)
+  
+  (* Additive inverse *)
+
+  (* Also, right/left distributivity,
+     Scalar multiplication,
+     Transpose ... *)
+
+  (* Assert existences *)
+
+  Definition scalar_lmult_vec
+  (s : R)
+  {n : nat} (vec: Vector R n)
+  := (const_vec s) ^ vec.
+
+  Definition scalar_rmult_vec
+  (s : R)
+  {n : nat} (vec: Vector R n)
+  := vec ^ (const_vec s).
+
+  Lemma funeq_implies_sumeq :
+  ∏ (n:nat) (f1 f2: (⟦ n ⟧)%stn -> R),
+    (f1 = f2) -> (Σ f1) = (Σ f2).
+  Proof.
+  intros.
+  rewrite <- X.
+  reflexivity.
+  Defined.
+
+  Lemma times_mult :
+    ∏ (n : nat) (vec : Vector R n) (s : R),
+    op2 s (Σ vec) =  Σ ((λ _ : (⟦ n ⟧)%stn, s ) ^ vec).
+  Proof.
+    intros. induction n.
+    + assert (x : ( Σ vec) = 0%rig).
+      - reflexivity.
+      - rewrite x. rewrite -> rigmultx0.
+        unfold iterop_fun. simpl.
+        reflexivity.
+    + rewrite  iterop_fun_step.
+        unfold "∘". rewrite rigldistr.
+        unfold "^". rewrite -> IHn.
+        unfold "^".
+        rewrite -> replace_dni_last.
+        rewrite iterop_fun_step.
+        - unfold "∘". rewrite -> replace_dni_last.
+          reflexivity.
+        - unfold islunit. intros.
+          rewrite riglunax1.
+          reflexivity.
+        - unfold islunit. intros.
+          rewrite riglunax1.
+          reflexivity.
+  Defined.
+
+  Lemma times_mult':
+    ∏ (n : nat) (vec : Vector R n) (s : R),
+    op2 (Σ vec) s =  Σ (vec ^ (λ _ : (⟦ n ⟧)%stn, s )).
+  Proof.
+    intros. induction n.
+    + assert (x : ( Σ vec) = 0%rig).
+      - reflexivity.
+      - rewrite x. rewrite -> rigmult0x.
+        unfold iterop_fun. simpl.
+        reflexivity.
+    + rewrite  iterop_fun_step.
+        unfold "∘". rewrite rigrdistr.
+        unfold "^". rewrite -> IHn.
+        unfold "^".
+        rewrite -> replace_dni_last.
+        rewrite iterop_fun_step.
+        - unfold "∘". rewrite -> replace_dni_last.
+          reflexivity.
+        - unfold islunit. intros.
+          rewrite riglunax1.
+          reflexivity.
+        - unfold islunit. intros.
+          rewrite riglunax1.
+          reflexivity.
+  Defined.
+
+  Lemma exact_ :
+    ∏ (m n : nat) (mat1 : Matrix R m n)
+      (p : nat) (mat2 : Matrix R n p)
+      (q : nat) (mat3 : Matrix R p q)
+      (i : (⟦ m ⟧)%stn)
+      (j : (⟦ q ⟧)%stn),
+  (Σ (λ i0 : (⟦ n ⟧)%stn, (((mat1 i i0) * (Σ (λ i1 : (⟦ p ⟧)%stn, ((mat2 i0 i1) * (mat3 i1 j)))))%rig)))
+  =
+  (Σ (λ i0 : (⟦ n ⟧)%stn, (((Σ (λ i1 : (⟦ p ⟧)%stn, (mat1 i i0) *  ((mat2 i0 i1) * (mat3 i1 j)))))%rig))).
+  Proof.
+  intros.
+  apply funeq_implies_sumeq.
+  apply funextfun.
+  intros k.
+  unfold iterop_fun. unfold nat_rect.
+  apply times_mult.
+  Defined.
+
+  Lemma exact_2 :
+    ∏ (m n : nat) (mat1 : Matrix R m n)
+      (p : nat) (mat2 : Matrix R n p)
+      (q : nat) (mat3 : Matrix R p q)
+      (i : (⟦ m ⟧)%stn)
+      (j : (⟦ q ⟧)%stn),
+  Σ (λ i0 : (⟦ p ⟧)%stn, (Σ (λ i1 : (⟦ n ⟧)%stn, mat1 i i1 * mat2 i1 i0) * mat3 i0 j)%ring)
+  =
+  Σ (λ i0 : (⟦ p ⟧)%stn, (Σ (λ i1 : (⟦ n ⟧)%stn, (mat1 i i1 * mat2 i1 i0) * mat3 i0 j))%ring).
+  Proof.
+  intros.
+  apply funeq_implies_sumeq.
+  apply funextfun.
+  intros k.
+  apply times_mult'.
+  Defined.
+
+
+  (* How can we realize a Lemma by example ? *)
+
+  Lemma zero_function_sums_to_zero:
+  ∏ (n : nat)
+    (f : (⟦ n ⟧)%stn -> R),
+  (λ i : (⟦ n ⟧)%stn, f i) = const_vec 0%rig ->
+  (Σ (λ i : (⟦ n ⟧)%stn, f i) ) = 0%rig.
+  Proof.
+    intros.
+    rewrite X.
+    unfold const_vec.
+    induction n.
+    + reflexivity.
+    + intros. rewrite iterop_fun_step.
+    - rewrite rigrunax1.
+
+      unfold  "∘".
+      rewrite -> IHn with ((λ _ : (⟦ n ⟧)%stn, 0%rig)).
+      reflexivity.
+      reflexivity.
+
+    -  unfold islunit. intros.  rewrite riglunax1. reflexivity.
+  Defined.
+
+  Lemma two_sums_distribute :
+  ∏ (n : nat)
+  (f1 f2 : (⟦ n ⟧)%stn -> R),   (* really a matrix by definition *)
+  op1 (Σ (λ i: (⟦ n ⟧)%stn, f1 i))  (Σ (λ i : (⟦ n ⟧)%stn, f2 i))
+  = Σ (λ i: (⟦ n ⟧)%stn, op1 (f1 i) (f2 i)).
+  Proof.
+    intros.
+    induction n.
+    assert ( sum0 : Σ (λ i : (⟦ 0 ⟧)%stn, f1 i) = 0%rig).
+    reflexivity.
+    assert ( sum0': Σ (λ i : (⟦ 0 ⟧)%stn, f2 i) = 0%rig).
+    reflexivity.
+    + rewrite sum0. rewrite sum0'.
+      rewrite riglunax1.
+      reflexivity.
+    + rewrite iterop_fun_step.
+      rewrite iterop_fun_step.
+      rewrite <- rigassoc1.
+
+      rewrite -> rigcomm1.
+      rewrite -> rigcomm1.
+      rewrite -> rigcomm1.
+      rewrite <- (rigcomm1 _ (f1 lastelement)).
+      rewrite rigassoc1.
+      rewrite IHn.
+
+      unfold  "∘".
+      rewrite iterop_fun_step.
+      unfold  "∘".
+      rewrite <- rigassoc1.
+      rewrite rigcomm1.
+      rewrite (rigcomm1 R (f2 lastelement)  (f1 lastelement)).
+      reflexivity.
+      unfold islunit. intros. rewrite riglunax1. reflexivity.
+      unfold islunit. intros. rewrite riglunax1. reflexivity.
+      unfold islunit. intros. rewrite riglunax1. reflexivity.
+  Defined.
+
+  Lemma interchange_sums_ :
+  ∏ (m n : nat)
+  (f : (⟦ n ⟧)%stn ->  (⟦ m ⟧)%stn -> R),   (* really a matrix by definition *)
+  Σ (λ i: (⟦ m ⟧)%stn, Σ (λ j : (⟦ n ⟧)%stn, f j i) )
+= Σ (λ j: (⟦ n ⟧)%stn, Σ (λ i : (⟦ m ⟧)%stn, (flip f) i j)  ).
+  Proof.
+  intros.
+  assert (x1 : ∏ (i : (⟦ n ⟧)%stn) (j : (⟦ m ⟧)%stn), f i j = flip f j i).
+  + apply flip.
+    reflexivity.
+  + intros.
+    induction n. induction m.
+    - reflexivity.
+    -  assert (x :  (Σ (λ i : (⟦ 0 ⟧)%stn, Σ ((λ j : (⟦ _ ⟧)%stn, flip f j i) ))) = 0%rig).
+      * reflexivity.
+      * rewrite -> x.
+        assert (x' : (∏ i : (⟦S m ⟧)%stn, (Σ (λ j : (⟦ 0 ⟧)%stn, f j i)) = 0%rig)).
+        ++ intros.
+           reflexivity.
+        ++ apply zero_function_sums_to_zero.
+           apply funextfun. intros i.
+           reflexivity.
+    -
+
+      unfold  "∘".
+      unfold flip.
+      unfold flip in IHn.
+      rewrite -> iterop_fun_step.
+      rewrite -> replace_dni_last.
+      unfold  "∘".
+      rewrite <- IHn.
+      rewrite two_sums_distribute.
+      apply funeq_implies_sumeq.
+      apply funextfun.
+      intros i.
+      rewrite -> iterop_fun_step.
+      unfold  "∘".
+      rewrite -> replace_dni_last.
+      reflexivity.
+
+      unfold islunit. intros.
+      rewrite riglunax1.
+      reflexivity.
+
+      reflexivity.
+      unfold islunit. intros.
+      rewrite riglunax1.
+      reflexivity.
+  Defined.
+
+
+
+
+  Notation "x * y" := (op2 x y) : rig_scope.
+
+  Lemma matrix_mult_assocc :
+
+    ∏ (m n : nat) (mat1 : Matrix R m n)
+      (p : nat) (mat2 : Matrix R n p)
+      (q : nat) (mat3 : Matrix R p q),
+    ((mat1 ** mat2) ** mat3) = (mat1 ** (mat2 ** mat3)).
+  Proof.
+  intros.
+  unfold matrix_mult.
+  change (mat1 ** mat2) with (mat1 ** mat2).
+  apply funextfun.
+  intro i.
+  apply funextfun.
+  intro j.
+  unfold row. unfold col. unfold transpose. (*unfold flip.*)
+  unfold pointwise.
+  unfold flip.
+  rewrite -> exact_.
+  rewrite -> exact_2.
+  rewrite interchange_sums_.
+  unfold flip.
+  set (mat1fun := (λ x y, mat1 x y)). simpl in mat1fun.
+  set (mat2fun := (λ x y, mat2 x y)). simpl in mat2fun.
+  set (mat3fun := (λ x y, mat3 x y)). simpl in mat3fun.
+  apply funeq_implies_sumeq.
+  apply funextfun.
+  intros k.
+  apply funeq_implies_sumeq.
+  apply funextfun.
+  intros l.
+  apply rigassoc2.
+  Defined.
+
+  Local Notation "A ++' B" := (matrix_add A B) (at level 80).
+
+
+  (*TODO: write proof *)
+  Lemma sum_distr :
+    ∏ (n : nat) (vec1 vec2 : Vector R n),
+     (Σ (λ i : (⟦ n ⟧)%stn, (op1 (vec1 i)  (vec2 i))))
+  =  (op1 (Σ (λ i : (⟦ n ⟧)%stn, (vec1 i)))  (Σ ( λ i : (⟦ n ⟧)%stn, vec2 i))).
+  Proof.
+  intros.
+  Admitted.
+
+
+  Lemma matrix_mult_ldistr :
+    ∏ (m n : nat) (mat1 : Matrix R m n)
+      (p : nat) (mat2 : Matrix R n p)
+      (q : nat) (mat3 : Matrix R n p),
+    ((mat1 ** (mat2 ++' mat3))) = ((mat1 ** mat2) ++' (mat1 ** mat3)).
+  Proof.
+  intros.
+  unfold "**".
+  unfold matrix_add.
+  unfold row. unfold col. unfold flip. unfold transpose.
+  unfold pointwise. unfold flip.
+  apply funextfun.
+  intros i.
+  apply funextfun.
+  intros j.
+  set (mat1fun := λ i0 : (⟦ n ⟧)%stn, mat1 i i0).
+  set (mat2fun := λ i0 : (⟦ n ⟧)%stn, (mat2 i0) j).
+  set (mat3fun := λ i0 : (⟦ n ⟧)%stn, (mat3 i0) j).
+  assert (distr: (λ i0 : (⟦ n ⟧)%stn, (mat1fun i0 * (mat2 i0 j + mat3 i0 j))%ring)
+               = (λ i0 : (⟦ n ⟧)%stn, op1 (op2 (mat1fun i0) (mat2 i0 j)) (op2 (mat1fun i0) (mat3 i0 j)))%ring).
+  + apply funextfun.
+    intros k.
+    apply rigldistr.
+  + rewrite distr.
+    rewrite  sum_distr.
+    reflexivity.
+  Defined.
+
+  Lemma matrix_mult_rdistr :
+    ∏ (m n p: nat) (mat1 : Matrix R n p)
+      (mat2 : Matrix R n p)
+      (q : nat) (mat3 : Matrix R p q),
+    ((mat1 ++' mat2) ** mat3) = ((mat1 ** mat3) ++' (mat2 ** mat3)).
+  Proof.
+  intros.
+  unfold "**".
+  unfold matrix_add. unfold row. unfold col. unfold flip. unfold transpose.
+  unfold pointwise. unfold flip.
+  apply funextfun.
+  intros i.
+  apply funextfun.
+  intros j.
+  assert (distr: (λ i0 : (⟦ p ⟧)%stn, (op1 (mat1 i i0)  (mat2 i i0)) * mat3 i0 j)%ring
+               = (λ i0 : (⟦ p ⟧)%stn,  op1 (op2 (mat1 i i0) (mat3 i0 j))
+                                           (op2 (mat2 i i0) (mat3 i0 j)))%ring).
+  + apply funextfun.
+    intros k.
+    rewrite rigrdistr.
+    reflexivity.
+  + rewrite -> distr.
+    rewrite sum_distr.
+    reflexivity.
+  Defined.
+
+
+
+  Local Notation Π := (iterop_fun identity_matrix matrix_mult).
+
+  (*
+  Definition nth_pow_mat
+    {m n : nat} (mat : Matrix R m n)
+    (pow : nat) := Π (λ _ : (⟦ pow ⟧)%stn, mat).
+  *)
+
+  (* Gauss should be moved to a separate folder later *)
+
+  (*
+  Definition gauss_add_row :
+    {m n : nat} (mat : Matrix R m n)
+    ( i: (⟦ m ⟧)%stn) (j : (⟦ n ⟧)%stn) :  Matrix R m n.
+    Proof.
+    intros i j.
+    induction (stn_eq_or_neq i j).
+    - exact (rigunel2). (* The multiplicative identity *)
+    - exact (rigunel1). (* The additive identity *)
+
+  Defined.
+  *)
+
+  (* What does this mean precisely ? *)
+
+
+  (*
+  Lemma gauss_add_row {m : nat} {n : nat}
+  { i: (⟦ m ⟧)%stn} {j : (⟦ m ⟧)%stn} (mat: (Matrix R m n) )
+  : (Matrix R m n).
+  Proof.
+    intros k l.
+    induction (stn_eq_or_neq k j).
+    - exact (op1 (mat k i) (mat k j)). (* The multiplicative identity *)
+    - exact (mat (k l)). (* The additive identity *)
+
+  Defined.
+  *)
+
+  (*
+  Lemma gauss_switch_row {m : nat} {n : nat}
+  { i: (⟦ m ⟧)%stn} {j : (⟦ m ⟧)%stn} (mat: (Matrix R m n) )
+  : (Matrix R m n).
+  Proof.
+    intros k l.
+    induction (stn_eq_or_neq k j).
+    - exact (op1 (mat k i) (mat k j)). (* The multiplicative identity *)
+    - exact (mat (k l)). (* The additive identity *)
+
+  Defined.
+  *)
+
+  (* Lemma gauss_scalar_mult {m : nat} {n : nat} *)
+
+
+  (* Not acceptable in Unimath!*) (*
+  Fixpoint determinant {n : nat } (mat : Matrix R n n) : nat :=
+  *)
+
+
+End Toys.
