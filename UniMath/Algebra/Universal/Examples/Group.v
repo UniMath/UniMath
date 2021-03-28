@@ -18,30 +18,22 @@ Local Open Scope stn.
 
 Definition group_signature := make_signature_simple_single_sorted [2; 0; 1].
 
-(** Algebra of groups. *)
-
-Module Algebra.
+Definition group_sort : sorts group_signature := tt.
 
 Definition group_mul_op: names group_signature := ●0.
 Definition group_id_op: names group_signature := ●1.
 Definition group_inv_op: names group_signature := ●2.
 
-Section GroupAlgebra.
+(** Algebra of groups. *)
 
-  Context (G: gr).
+Module Algebra.
 
-  Definition group_algebra := make_algebra_simple_single_sorted group_signature G
-    [(
-      λ p, op (pr1 p) (pr12 p) ;
-      λ _, unel G ;
-      λ p, grinv G (pr1 p)
-    )].
+Definition group_algebra {G: gr}
+ := make_algebra_simple_single_sorted' group_signature G [( op ; unel G; grinv G )].
 
-End GroupAlgebra.
-
-Definition group_mul := build_gterm_curried group_mul_op.
-Definition group_id  := build_gterm_curried group_id_op.
-Definition group_inv := build_gterm_curried group_inv_op.
+Definition group_mul := build_gterm' group_mul_op.
+Definition group_id  := build_gterm' group_id_op.
+Definition group_inv := build_gterm' group_inv_op.
 
 End Algebra.
 
@@ -49,12 +41,12 @@ Module Eqspec.
 
 (** Equational specification and the free algebra of open terms. *)
 
-Definition group_varspec : varspec group_signature := make_varspec group_signature natset (λ _, tt).
-Definition G := term group_signature group_varspec tt.
+Definition group_varspec : varspec group_signature := make_varspec group_signature natset (λ _, group_sort).
+Definition G := term group_signature group_varspec group_sort.
 
-Definition group_mul: G → G → G := build_term_curried (●0 : names group_signature).
-Definition group_id: G := build_term_curried (●1 : names group_signature).
-Definition group_inv: G → G := build_term_curried (●2 : names group_signature).
+Definition group_mul: G → G → G := build_term' group_mul_op.
+Definition group_id: G := build_term' group_id_op.
+Definition group_inv: G → G := build_term' group_inv_op.
 
 Definition x : G := varterm (0: group_varspec).
 Definition y : G := varterm (1: group_varspec).
@@ -63,11 +55,11 @@ Definition z : G := varterm (2: group_varspec).
 Definition group_equation := equation group_signature group_varspec.
 
 Definition group_mul_assoc : group_equation :=
-  tt,, make_dirprod (group_mul (group_mul x y) z) (group_mul x (group_mul y z)).
+  group_sort,, make_dirprod (group_mul (group_mul x y) z) (group_mul x (group_mul y z)).
 
-Definition group_mul_lid : group_equation := tt,, make_dirprod (group_mul group_id x) x.
+Definition group_mul_lid : group_equation := group_sort,, make_dirprod (group_mul group_id x) x.
 
-Definition group_mul_rid : group_equation := tt,, make_dirprod (group_mul group_id x) x.
+Definition group_mul_rid : group_equation := group_sort,, make_dirprod (group_mul group_id x) x.
 
 Definition group_axioms : eqsystem group_signature group_varspec :=
   ⟦ 3 ⟧,, three_rec group_mul_assoc group_mul_lid group_mul_rid.

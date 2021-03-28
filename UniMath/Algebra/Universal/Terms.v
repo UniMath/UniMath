@@ -910,51 +910,8 @@ Notation fromgtermstep := fromtermstep.
 
 Notation build_gterm := build_term.
 
-(** * Curried version of [build_term] *)
+(** *** Helpers for working with curried functions. *)
 
-(** Defines a curried version of [build_term] which is easier to use in practice. **)
-
-Section iterbuild.
-
-  (**
-    If [v] is a vector of types of length [n], [iterfun v B] is the curried version of [v → B], i.e.
-    [iterfun v B] =  [(el v 1) → ((el v 2) → ...... → ((el v n) → B)].
-  *)
-
-  Definition iterfun {n: nat} (v: vec UU n) (B: UU): UU.
-  Proof.
-    revert n v.
-    refine (vec_ind _ _ _).
-    - exact B.
-    - intros x n xs IHxs.
-      exact (x → IHxs).
-  Defined.
-
-  (**
-     If  [f: hvec v → B], then [itercurry f] is the curried version of [f], which has type
-     [iterfun v B].
-  *)
-
-  Definition itercurry {n: nat} {v: vec UU n} {B: UU} (f: hvec v → B): iterfun v B.
-  Proof.
-    revert n v f.
-    refine (vec_ind _ _ _).
-    - intros.
-      exact (f tt).
-    - intros x n xs IHxs f.
-      simpl in f.
-      simpl.
-      intro a.
-      exact (IHxs (λ l, f (a,, l))).
-  Defined.
-
-  (**
-    [build_term_curried nm t1 ... tn] builds a term from the operation symbol [nm] and terms (of the
-    correct sort) [t1] ... [tn].
-  *)
-
-  Definition build_gterm_curried {σ: signature} (nm: names σ)
-    : iterfun (vec_map (term σ) (pr2 (arity nm))) (term σ (sort nm))
-    := itercurry (build_term nm).
-
-End iterbuild.
+Definition build_gterm' {σ: signature} (nm: names σ)
+  : iterfun (vec_map (term σ) (pr2 (arity nm))) (term σ (sort nm))
+  := currify (build_term nm).

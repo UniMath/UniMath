@@ -324,3 +324,53 @@ Proof.
     + exact (pr1 h2path).
     + exact (IHxs (pr2 h1v) (pr2 h2path)).
 Defined.
+
+(** ** Functions from hvecs and their curried variants. *)
+
+(**
+  If [v] is a vector of types of length [n], [iterfun v B] is the curried version of [hvec v → B], i.e.
+  [iterfun v B] =  [(el v 1) → ((el v 2) → ...... → ((el v n) → B)].
+*)
+
+Definition iterfun {n: nat} (v: vec UU n) (B: UU): UU.
+Proof.
+  revert n v.
+  refine (vec_ind _ _ _).
+  - exact B.
+  - intros x n xs IHxs.
+    exact (x → IHxs).
+Defined.
+
+(**
+   If  [f: hvec v → B], then [currify f] is the curried version of [f], which has type
+   [iterfun v B].
+*)
+
+Definition currify {n: nat} {v: vec UU n} {B: UU} (f: hvec v → B): iterfun v B.
+Proof.
+  revert n v f.
+  refine (vec_ind _ _ _).
+  - intros.
+    exact (f tt).
+  - intros x n xs IHxs f.
+    simpl in f.
+    simpl.
+    intro a.
+    exact (IHxs (λ l, f (a,, l))).
+Defined.
+
+(**
+   [uncurrify] is the inverse transformation of [currify].
+*)
+
+Definition uncurrify {n: nat} {v: vec UU n} {B: UU} (f: iterfun v B): hvec v → B.
+Proof.
+  revert n v f.
+  refine (vec_ind _ _ _).
+  - intros.
+    exact f.
+  - intros x n xs IHxs f.
+    simpl in *.
+    intro a.
+    exact (IHxs (f (pr1 a)) (pr2 a)).
+Defined.

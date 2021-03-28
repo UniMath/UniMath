@@ -182,3 +182,32 @@ Proof.
     apply iscontr_sfuntosunit.
   - apply isapropishom.
 Defined.
+
+(** ** Helpers for working with curried functions *)
+
+Definition ops' {σ: signature} (A: algebra σ) (nm: names σ) := currify (ops A nm).
+
+Definition make_algebra'
+    {σ: signature}
+    (A : shSet (sorts σ))
+    (ops: ∏ nm: names σ, iterfun (vec_map (pr1hSet ∘ A) (pr2 (arity nm))) (A (sort nm)))
+  : algebra σ := A ,, λ nm, uncurrify (ops nm).
+
+Definition make_algebra_simple_single_sorted'
+    (σ : signature_simple_single_sorted)
+    (A : hSet)
+    (ops : (λ n: nat, iterfun (vec_fill (pr1hSet A) n) A)⋆ σ)
+  : algebra σ.
+Proof.
+  refine (make_algebra_simple_single_sorted σ A _).
+  refine (h1map _ ops).
+  intro a.
+  induction (@hvec_vec_fill A a).
+  exact uncurrify.
+Defined.
+
+Definition make_algebra_simple'
+    (σ: signature_simple)
+    (A: vec hSet (pr1 σ))
+    (ops: (λ a, iterfun (vec_map (pr1hSet ∘ el A) (pr2 (dirprod_pr1 a))) (el A (dirprod_pr2 a)))⋆ (pr2 σ))
+  : algebra σ := make_algebra_simple σ A (h1map (λ _, uncurrify) ops).

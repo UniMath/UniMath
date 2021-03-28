@@ -17,26 +17,24 @@ Local Open Scope stn.
 
 Definition monoid_signature := make_signature_simple_single_sorted [2; 0].
 
+Definition monoid_sort : sorts monoid_signature := tt.
+
 (** Algebra of monoids without equations. *)
 
 Definition monoid_algebra (M: monoid)
   : algebra monoid_signature
-  := make_algebra_simple_single_sorted monoid_signature M
-  [(
-    λ p, op (pr1 p) (pr12 p) ;
-    λ _, unel M
-  )].
+  := make_algebra_simple_single_sorted' monoid_signature M [( op ; unel M )].
 
 Module Eqspec.
 
 (** Free algebra of open terms. *)
 
 Definition monoid_varspec : varspec monoid_signature
-  := make_varspec monoid_signature natset (λ _, tt).
+  := make_varspec monoid_signature natset (λ _, monoid_sort).
 
 Definition Mon : UU := term monoid_signature monoid_varspec tt.
-Definition mul : Mon → Mon → Mon := build_term_curried (●0: names monoid_signature).
-Definition id  : Mon := build_term_curried (●1: names monoid_signature).
+Definition mul : Mon → Mon → Mon := build_term' (●0: names monoid_signature).
+Definition id  : Mon := build_term' (●1: names monoid_signature).
 
 Definition x : Mon := varterm (0: monoid_varspec).
 Definition y : Mon := varterm (1: monoid_varspec).

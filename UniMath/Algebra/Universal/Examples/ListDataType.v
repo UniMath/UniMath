@@ -29,9 +29,10 @@ Definition nil_idx: names list_signature := ●0.
 Definition cons_idx: names list_signature := ●1.
 
 Definition list_algebra (A: hSet) : algebra list_signature
-  := make_algebra_simple list_signature
+  := make_algebra_simple'
+       list_signature
        [( A ; listset A )]
-       [( λ _, nil ; λ p, cons (pr1 p) (pr12 p) )].
+       [( nil ; cons )].
 
 (** Correspondence between structures and operations in the universal algebra
 of lists and standard structures and operations on lists. *)
@@ -46,24 +47,23 @@ Proof.
   reflexivity.
 Qed.
 
-Definition list_nil (A: hSet) : listset A := ops (list_algebra A) nil_idx tt.
+Definition list_nil (A: hSet) : listset A := ops' (list_algebra A) nil_idx.
 
-Lemma list_nil_id (A: hSet) : list_nil A = @nil A.
+Lemma list_nil_id : list_nil = @nil.
 Proof.
   reflexivity.
 Qed.
 
 Lemma list_cons_dom_id (A: hSet)
-  : dom (list_algebra A) cons_idx = (dirprod A (dirprod (listset A) unit)).
+  : dom (list_algebra A) cons_idx = dirprod A (dirprod (listset A) unit).
 Proof.
   reflexivity.
 Qed.
 
-Definition list_cons (A: hSet) : A × listset A × unit → listset A
-  := ops (list_algebra A) cons_idx.
+Definition list_cons (A: hSet) : A → listset A → listset A
+  := ops' (list_algebra A) cons_idx.
 
-Lemma cons_nil_id (A: hSet) (x: A) (l: listset A)
-  : list_cons A (x,, (l,, tt)) = cons x l.
+Lemma cons_nil_id : list_cons = @cons.
 Proof.
   reflexivity.
 Qed.
