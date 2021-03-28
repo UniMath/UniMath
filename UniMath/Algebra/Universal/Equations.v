@@ -22,6 +22,9 @@ Section Equations.
 
   Definition rhs {σ : signature} {V: varspec σ} (eq: equation σ V): term σ V (eqsort eq) := pr22 eq.
 
+  Definition make_equation {σ: signature} {V: varspec σ} {s: sorts σ} (lhs rhs: term σ V s)
+    : equation σ V :=  s ,, lhs ,, rhs.
+
   (**
   Since we do not have power types, we define an equation system as a type of equation
   identifiers endowed with a map from identifiers to equations.
@@ -53,3 +56,13 @@ Section Equations.
   Definition equations (σ: eqspec): eqsystem σ (variables σ) := pr22 σ.
 
 End Equations.
+
+(** ** Notations for equations *)
+
+Declare Scope eq_scope.
+
+Delimit Scope eq_scope with eq.
+
+Bind Scope eq_scope with equation.
+
+Notation "lhs == rhs" := (make_equation lhs rhs) (at level 95, no associativity): eq_scope.

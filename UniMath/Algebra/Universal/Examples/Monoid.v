@@ -12,6 +12,7 @@ Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Universal.EqAlgebras.
 
 Local Open Scope stn.
+Local Open Scope eq.
 
 (** Signature. *)
 
@@ -40,17 +41,9 @@ Definition x : Mon := varterm (0: monoid_varspec).
 Definition y : Mon := varterm (1: monoid_varspec).
 Definition z : Mon := varterm (2: monoid_varspec).
 
-Definition monoid_equation : UU
-  := equation monoid_signature monoid_varspec.
-
-Definition monoid_mul_assoc : monoid_equation :=
-  tt,, make_dirprod (mul (mul x y) z) (mul x (mul y z)).
-
-Definition monoid_mul_lid : monoid_equation
-  := tt,, make_dirprod (mul id x) x.
-
-Definition monoid_mul_rid : monoid_equation
-  := tt,, make_dirprod (mul x id) x.
+Definition monoid_mul_assoc := mul (mul x y) z == mul x (mul y z).
+Definition monoid_mul_lid := mul id x == x.
+Definition monoid_mul_rid := mul x id == x.
 
 Definition monoid_axioms : eqsystem monoid_signature monoid_varspec
   := ⟦ 3 ⟧,, three_rec monoid_mul_assoc monoid_mul_lid monoid_mul_rid.

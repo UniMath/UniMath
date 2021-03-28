@@ -13,6 +13,7 @@ Require Import UniMath.Algebra.Groups.
 Require Import UniMath.Algebra.Universal.EqAlgebras.
 
 Local Open Scope stn.
+Local Open Scope eq.
 
 (** Group structure without equations. *)
 
@@ -52,14 +53,9 @@ Definition x : G := varterm (0: group_varspec).
 Definition y : G := varterm (1: group_varspec).
 Definition z : G := varterm (2: group_varspec).
 
-Definition group_equation := equation group_signature group_varspec.
-
-Definition group_mul_assoc : group_equation :=
-  group_sort,, make_dirprod (group_mul (group_mul x y) z) (group_mul x (group_mul y z)).
-
-Definition group_mul_lid : group_equation := group_sort,, make_dirprod (group_mul group_id x) x.
-
-Definition group_mul_rid : group_equation := group_sort,, make_dirprod (group_mul group_id x) x.
+Definition group_mul_assoc := group_mul (group_mul x y) z == group_mul x (group_mul y z).
+Definition group_mul_lid := group_mul group_id x == x.
+Definition group_mul_rid := group_mul group_id x == x.
 
 Definition group_axioms : eqsystem group_signature group_varspec :=
   ⟦ 3 ⟧,, three_rec group_mul_assoc group_mul_lid group_mul_rid.
