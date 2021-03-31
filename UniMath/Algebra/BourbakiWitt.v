@@ -22,6 +22,18 @@ Local Open Scope subtype.
 As ever, all these should eventually be upstreamed, and unified with overlapping material upstream where possible. *)
 Section Auxiliary.
 
+Definition lt_to_nleq {P : Poset} {x y : P} : x < y ⇒ ¬ (y ≤ x).
+Proof.
+  intros [leq_xy neq_xy] leq_yx.
+  apply neq_xy.
+  apply isantisymm_posetRelation; assumption.
+Defined.
+
+Definition isrefl'_posetRelation {P : Poset} {x y : P} : x = y ⇒ x ≤ y.
+Proof.
+  intros e; destruct e. apply isrefl_posetRelation.
+Defined.
+
 (* TODO: look for naming convention for similar lemmas *)
 Definition hdisj_monot {p q p' q'} : (p ⇒ p') ⇒ (q ⇒ q') ⇒ (p ∨ q ⇒ p' ∨ q').
 Proof.
@@ -36,15 +48,8 @@ Proof.
   apply hconjtohdisj; split; intro; auto using hdisj_in1, hdisj_in2.
 Defined.
 
-Definition lt_to_nleq {P : Poset}{x y : P} : x < y ⇒ ¬ (y ≤ x).
-Proof.
-  intros [leq_xy neq_xy] leq_yx.
-  apply neq_xy.
-  apply isantisymm_posetRelation; assumption.
-Defined.
-
 (* A restricted-quantifier version of [neghexisttoforallneg] *)
-Definition negexists_to_forallneg_restricted (H_LEM : LEM)
+Definition negexists_to_forallneg_restricted
     {X:UU} {A B : hsubtype X}
   : ¬ (∃ x, A x ∧ B x) ⇒ (∀ x, A x ⇒ ¬ B x).
 Proof.
@@ -60,7 +65,7 @@ Proof.
   intros H_forall. apply (proof_by_contradiction H_LEM).
   intros H_nex.
   use H_forall. intros x A_x. apply (proof_by_contradiction H_LEM).
-  use (negexists_to_forallneg_restricted _ H_nex); assumption.
+  use (negexists_to_forallneg_restricted H_nex); assumption.
 Defined.
 
 Definition subtype_binaryunion {X} (A B : hsubtype X) : hsubtype X
@@ -81,9 +86,9 @@ Notation "A ∪ B" := (subtype_binaryunion A B)
   (* precedence tighter than "⊆", also than "-" [subtype_difference].  *)
   (* in agda-input method, type \cup or ∪ *)
 
-(** ** Progressive maps
+(** ** Classes of maps *)
 
-Progressive maps as also known as ascending, inflationary, and more.
+(** Progressive maps as also known as ascending, inflationary, increasing, and more.
 
 Note these are just endo-_functions_, not “maps” in the sense of morphisms of posets. *)
 
@@ -104,6 +109,14 @@ Definition progressive_property {P} (f : Progressive_map P)
 
 End ProgressiveMaps.
 
+(** Monotone maps are precisely poset morphisms, and [isaposetmorphism] is defined as such in [Foundations.Sets]. *)
+Section MonotoneMaps.
+
+Definition posetmorphism_property {P Q} (f : posetmorphism P Q)
+  : isaposetmorphism f
+:= pr2 f.
+
+End MonotoneMaps.
 
 (** ** Fixpoints of endofunctions *)
 
@@ -117,6 +130,16 @@ Coercion pr1_Fixedpoint {P : Poset} {f : P -> P} : Fixedpoint f -> P
 
 Definition fixedpoint_property  {P : Poset} {f : P -> P} (x : Fixedpoint f)
   : f x = x
+:= pr2 x.
+
+Definition Postfixedpoint {P : Poset} (f : P -> P) : UU
+  := carrier (fun (x:P) => x ≤ (f x)).
+
+Coercion pr1_Postfixedpoint {P : Poset} {f : P -> P} : Postfixedpoint f -> P
+:= pr1carrier _.
+
+Definition postfixedpoint_property  {P : Poset} {f : P -> P} (x : Postfixedpoint f)
+  : x ≤ f x
 := pr2 x.
 
 End Fixpoints.
@@ -272,22 +295,15 @@ Constructively, this may fail, as shown in Bauer–Lumsdaine https://arxiv.org/a
 
 Section Bourbaki_Witt.
 
-(* This is a strong form of the Bourbaki–Witt property, supplying a specific fixed point. *)
 Definition Bourbaki_Witt_property (P : Poset)
   := ∏ (f : Progressive_map P), Fixedpoint f.
 
-(* A weaker form of the Bourbaki–Witt property asserts mere existence of a fixed point. *)
-Definition weak_Bourbaki_Witt_property (P : Poset)
-  := ∏ (f : Progressive_map P), ∥ Fixedpoint f ∥ .
-
-Local Open Scope logic.
-
-(* Proof based on Lang, Algebra (2002), Appendix 2, Thm 2.1 *)
-Theorem classical_Bourbaki_Witt
+(** Theorem traditionally credited to Bourbaki (1949) and Witt (1951). This proof is based on Lang, Algebra (2002), Appendix 2, Thm 2.1. *)
+Theorem Bourbaki_Witt
   : LEM -> ∏ P : Poset, is_chain_complete P -> Bourbaki_Witt_property P.
 Proof.
-(*  Let C be the least subset closed under f and suprema of chains.
-  It suffices to show that C is a chain; then its supremum must be a fixed point. *)
+(* Let C be the least subset closed under f and suprema of chains.
+   We take some time to set up C and its universal property cleanly. *)
   intros H_LEM P P_CC f.
   set (is_f_closed := (fun A => (∀ y, A y ⇒ A (f y)))
     : hsubtype P -> hProp).
@@ -299,105 +315,115 @@ Proof.
     : hsubtype P).
   assert (C_f_closed : is_f_closed C).
   { intros x C_x A A_f_closed A_chain_closed.
-    use A_f_closed. use C_x; assumption.
-  }
+    use A_f_closed. use C_x; assumption. }
   assert (C_chain_closed : is_chain_closed C).
   { intros x C_x A A_f_closed A_chain_closed.
-    use A_chain_closed. intro i; use C_x; assumption.
-  }
+    use A_chain_closed. intro; use C_x; assumption. }
   assert (C_induction : ∀ (A : hsubtype P),
     is_f_closed (A ∩ C) ⇒ is_chain_closed (A ∩ C) ⇒ C ⊆ A).
-  (* TODO: define binary union (and intersection), and upstream to [MoreFoundations.Subtypes]? *)
   { intros A A_chain_closed A_f_closed x Cx.
     apply (Cx (fun x => A x ∧ C x)); assumption. }
+  (* Now, if C is a chain, then its least upper bound will be a fixed point. *)
   assert (C_is_chain : is_chain (pr1carrier C)).
-  2: {  (* Once we know C is a chain, its sup will certainly be is a fixpoint: *)
+  2: {
     set (C_Chain := (C,, C_is_chain) : Chain P).
-    set (x := P_CC C_Chain).
-    exists x.
+    exists (P_CC C_Chain).
     apply isantisymm_posetRelation. 2: { use progressive_property. }
-    refine (least_upper_bound_is_upper_bound x (_,,_)).
+    refine (least_upper_bound_is_upper_bound (P_CC _) (_,,_)).
     use C_f_closed.
     use C_chain_closed.
-    intros [y C_y]; auto.
+    intros [? ?]; assumption.
   }
-  (* It remains just to show C is a chain.
-  For this: say [x ∈ C] is a _bottleneck_ if for all [y ∈ C], if [y < x] then [f y ≤ x]. *)
-  set (is_bottleneck := (fun x => ∀ y, (C y) ⇒ (y < x) ⇒ (f y ≤ x))
+  (* It remains to show C is a chain. This is the hard (and nonconstructive) part.
+  Say [x ∈ C] is a _bottleneck_ if for all y ≤ x in C, either [f y ≤ x] or [y = x].
+  We show, in each case by C-induction:
+  (1) if x is a bottleneck, then for all y in C, y ≤ x or f x ≤ y;
+  (2) every x ∈ C is a bottleneck.
+  It follows that C is a chain.
+  *)
+  set (is_bottleneck := (fun x => ∀ y, C y ⇒ y ≤ x ⇒ (f y ≤ x) ∨ (eqset y x))
     : hsubtype P).
   assert (bottleneck_comparison : ∀ x, C x ⇒ is_bottleneck x
-                                     ⇒ ∀ y, (C y) ⇒ ((y ≤ x) ∨ (f x ≤ y))).
+                                     ⇒ ∀ y, C y ⇒ (y ≤ x) ∨ (f x ≤ y)).
   { intros x C_x x_bottleneck. use C_induction.
     - intros y [y_comp C_y]. split. 2: { use C_f_closed; assumption. }
       refine (hconjtohdisj _ _ _ _ y_comp); split.
-      2: { intros fx_y. apply hdisj_in2.
-           eapply istrans_posetRelation; try apply fx_y.
+      2: { intros leq_fx_y. apply hdisj_in2.
+           eapply istrans_posetRelation; try eassumption.
            use progressive_property. }
-      destruct (H_LEM (eqset y x)) as [ e_yx | ne_yx].
-      + destruct e_yx. intros _. apply hdisj_in2, isrefl_posetRelation.
-      + intros y_x. apply hdisj_in1.
-        use x_bottleneck; try split; assumption.
-    - intros C' IH_C'.
-      split. 2: { use C_chain_closed; intros; apply IH_C'. }
-      destruct (H_LEM (∃ y, C' y ∧ f x ≤ y)) as [C'_above | C'_below ].
+      intros leq_y_x.
+      eapply hdisj_monot. 3: { use (x_bottleneck y); assumption. }
+      + intro; assumption.
+      + intro e_yx; destruct e_yx; apply isrefl_posetRelation.
+    - intros C' IH_C'. split. 2: { use C_chain_closed; intros; apply IH_C'. }
+      destruct (H_LEM (∃ y, C' y ∧ f x ≤ y)) as [C'_passes_fx | C'_notpasses_fx ].
       + apply hdisj_in2.
-        refine (factor_through_squash_hProp _ _ C'_above);
-          intros [y [C'_y fx_y]].
-        eapply istrans_posetRelation. { exact fx_y. }
-        refine (least_upper_bound_is_upper_bound _ (_,,_)); assumption.
+        refine (factor_through_squash_hProp _ _ C'_passes_fx);
+          intros [y [C'_y leq_fx_y]].
+        eapply istrans_posetRelation; try eassumption.
+        use least_upper_bound_subtype_is_upper_bound; assumption.
       + apply hdisj_in1.
         apply least_upper_bound_univ. intros [y C'_y].
         eapply hdisjtoimpl. apply hdisj_comm, IH_C'.
-        intros fx_y. apply C'_below.
-        apply hinhpr; exists y.
-        split; assumption.
+        intros leq_fx_y. apply C'_notpasses_fx.
+        apply hinhpr; exists y. split; assumption.
   }
   assert (all_C_bottleneck : forall x, C x ⇒ is_bottleneck x).
   { use C_induction.
     - intros x [x_bottleneck C_x]. split. 2: { use C_f_closed; assumption. }
-      intros y C_y l_y_fx.
-      assert (le_y_x : y ≤ x).
-      { refine (hdisjtoimpl (hdisj_comm (bottleneck_comparison x _ _ y _)) _);
-          try assumption.
-        apply lt_to_nleq; assumption. }
-      destruct (H_LEM (eqset y x)) as [ e_yx | ne_yx ].
-      + destruct e_yx; apply isrefl_posetRelation.
-      + eapply istrans_posetRelation. 2: { use progressive_property. }
-        use x_bottleneck; try split; assumption.
-    - intros C' IH_C'.
-      split. 2: { use C_chain_closed; intros; apply IH_C'. }
-      intros x C_x lt_x_supC'.
-      assert (C'_passes_x : ∃ y, C' y ∧ ¬ (y ≤ x)).
-      { apply negforall_to_existsneg_restricted; try assumption.
-        refine (negf _ (lt_to_nleq lt_x_supC')).
-        apply least_upper_bound_subtype_univ.
+      intros y C_y le_y_fx.
+      refine (hconjtohdisj _ _ _ _ (bottleneck_comparison x _ _ y _));
+        try assumption; split.
+      2: { intro. apply hdisj_in2, isantisymm_posetRelation; assumption. }
+      intro le_yx. apply hdisj_in1.
+      refine (hconjtohdisj _ _ _ _ (x_bottleneck y _ _)); try assumption; split.
+      + intro. eapply istrans_posetRelation; try eassumption.
+        use progressive_property.
+      + intros e_yx; destruct e_yx. apply isrefl_posetRelation.
+    - intros C' IH_C'. split. 2: { use C_chain_closed; intros; apply IH_C'. }
+      intros x C_x le_x_supC'.
+      destruct (H_LEM (∃ y, C' y ∧ f x ≤ y)) as [ C'_passes_fx | C'_notpasses_fx ].
+      { apply hdisj_in1.
+        refine (factor_through_squash_hProp _ _ C'_passes_fx); intros [y [? ?]].
+        eapply istrans_posetRelation;
+          eauto using least_upper_bound_subtype_is_upper_bound.
       }
-      refine (factor_through_squash_hProp _ _ C'_passes_x);
-        intros [y [C'_y nleq_yx]].
-      assert (leq_fxy : f x ≤ y).
-      { simple refine (pr1 (IH_C' (y,,_)) _ _ _); try assumption.
-        simpl; split.
-        + eapply hdisjtoimpl.
-          { apply hdisj_comm.
-            destruct (IH_C' (y,,C'_y)).
-            use bottleneck_comparison; try assumption.
-          }
-          eapply negf. 2: { apply nleq_yx. }
-          apply istrans_posetRelation. use progressive_property.
-        + eapply negf. 2: { apply nleq_yx. }
-          intros e_yx; destruct e_yx. apply isrefl_posetRelation.
-      }
-      eapply istrans_posetRelation. { apply leq_fxy. }
-      apply least_upper_bound_subtype_is_upper_bound. assumption.
+      apply hdisj_in2.
+      apply isantisymm_posetRelation; try assumption.
+      apply least_upper_bound_subtype_univ. intros y C'_y.
+      destruct (IH_C' (y,,C'_y)) as [y_bottleneck C_y].
+      use (hconjtohdisj _ _ _ _ (bottleneck_comparison y _ _ x _));
+        try assumption; split.
+      2: { intro. eapply istrans_posetRelation; try eassumption.
+           use progressive_property. }
+      intro le_x_y. apply isrefl'_posetRelation, pathsinv0.
+      refine (hdisjtoimpl (y_bottleneck x C_x _) _); try assumption.
+        use (negexists_to_forallneg_restricted C'_notpasses_fx); assumption.
   }
-  (* If all of C satisfies A, then we’re done *)
   intros [x Cx] [y Cy]; simpl pr1carrier.
   assert (comparison : x ≤ y ∨ f y ≤ x).
   { use bottleneck_comparison; try apply all_C_bottleneck; assumption. }
-  refine (hdisj_monot _ _ comparison).
-  { intro; auto. }
-  intro fx_y. eapply istrans_posetRelation; try apply fx_y.
+  refine (hdisj_monot _ _ comparison). { intro; assumption. }
+  intro. eapply istrans_posetRelation; try eassumption.
   use progressive_property.
 Defined.
+
+(** A constructive fixed-point theorem, originally due to Pataria; this proof transmitted via Dacar and Bauer–Lumsdaine (where it is Thm 3.2). *)
+Theorem fixpoint_for_monotone_on_dcpo
+    {P : dcpo} (f : posetmorphism P P) (x : Postfixedpoint f)
+  : ∑ y : Fixedpoint f, x ≤ y.
+Proof.
+  (* Sketch:
+  - restrict attention to the sub-poset Q of post-fixed-points of P
+  - consider the poset of monotone, progressive maps Q -> Q with the pointwise order
+  - show that this is directed-complete
+  - show that this is itself directed, so has a maximal element
+  - values of this maximal element must be fixed points
+
+  Ingredients needed
+  - a good treatment of sub-posets, their induced orders, and completness properties
+  - a good treatment of posets of functions, and more generally, producs of posets, and their completeness properties
+  *)
+Abort.
 
 End Bourbaki_Witt.
