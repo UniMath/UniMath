@@ -111,6 +111,17 @@ Section LeastUpperBounds.
     : isupperbound p x
   := least_suchthat_satisfies x.
 
+  Definition least_upper_bound_univ {I} {p : I -> P}
+             (x : least_upper_bound p) (x' : P)
+    : isupperbound p x' <-> x ≤ x'.
+  Proof.
+    split.
+    - intros H. refine (least_is_least _ x (_,,H)).
+    - intros xx' i.
+      eapply istrans_posetRelation; try eassumption.
+      apply least_upper_bound_is_upper_bound.
+  Defined.
+
 End LeastUpperBounds.
 
 Section Chains.
@@ -199,17 +210,34 @@ Definition weak_Bourbaki_Witt_property (P : Poset)
 
 Local Open Scope logic.
 
+(* TODO: upstream; search for this; look for naming convention for similar lemmas *)
+Definition hdisj_monot {p q p' q'} : (p ⇒ p') ⇒ (q ⇒ q') ⇒ (p ∨ q ⇒ p' ∨ q').
+Proof.
+  intros ? ?.
+  apply hconjtohdisj; split; intro;
+    auto using hdisj_in1, hdisj_in2.
+Defined.
+
+(* TODO: upstream; search for this; look for naming convention for similar lemmas *)
+Definition hdisj_comm {p q} : (p ∨ q) ⇒ (q ∨ p).
+Proof.
+  apply hconjtohdisj; split; intro; auto using hdisj_in1, hdisj_in2.
+Defined.
+
+(* TODO: upstream? *)
+Definition notexists_to_forallnot {X:UU} {A : hsubtype X}
+  : (¬ ∃ x:X, A x) ⇒ (∀ x:X, ¬ A x).
+Proof.
+  intros nex x Ax.
+  use nex. apply hinhpr. exists x. assumption.
+Defined.
+
+(* Proof based on Lang, Algebra (2002), Appendix 2, Thm 2.1 *)
 Theorem classical_Bourbaki_Witt
   : LEM -> ∏ P : Poset, is_chain_complete P -> Bourbaki_Witt_property P.
 Proof.
-  (* Proof outline, based on Lang, Algebra (2002):
-  Let C be the least subset closed under f and suprema of chains.
-  It suffices to show that C is a chain; then its supremum must be a fixed point.
-
-  To see C is a chain:
-  Say x:C is “good” if every element of C is either ≤ or ≥ X.
-  To show all x:C are good, work by “C-induction”: it suffices to show the good elements are closed under f and suprema of chains.
-  Each of these subcases is then again by C-induction, using LEM in the supremum case. *)
+(*  Let C be the least subset closed under f and suprema of chains.
+  It suffices to show that C is a chain; then its supremum must be a fixed point. *)
   intros H_LEM P P_CC f.
   set (is_f_closed := (fun A => (∀ y, A y ⇒ A (f y)))
     : hsubtype P -> hProp).
@@ -227,8 +255,16 @@ Proof.
   { intros x C_x A A_f_closed A_chain_closed.
     use A_chain_closed. intro i; use C_x; assumption.
   }
+  assert (C_induction : ∀ (A : hsubtype P),
+    is_f_closed (fun x => A x ∧ C x)
+    ⇒ is_chain_closed (fun x => A x ∧ C x)
+    ⇒ ∀ x:P, C x ⇒ A x).
+  (* TODO: define binary union (and intersection), and upstream to [MoreFoundations.Subtypes]? *)
+  { intros A A_chain_closed A_f_closed x Cx.
+    apply (Cx (fun x => A x ∧ C x)); assumption. }
+  (* TODO: perhaps also add the strong-infuction as good below. *)
   assert (C_is_chain : is_chain (pr1carrier C)).
-  2: {  (* Once we know C is a chain, it’s easy to show its sup is a fixpoint. *)
+  2: {  (* Once we know C is a chain, its sup will certainly be is a fixpoint: *)
     set (C_Chain := (C,, C_is_chain) : Chain P).
     set (x := P_CC C_Chain).
     exists x.
@@ -238,7 +274,47 @@ Proof.
     use C_chain_closed.
     intros [y C_y]; auto.
   }
-  (* It remains just to show C is a chain. *)
+  (* It remains just to show C is a chain.
+  For this: say [x ∈ C] is an _f-block_ if for all [y ∈ C], if [y < x] then [f y ≤ x]. *)
+  set (is_f_block := (fun x => ∀ y, (C x) ⇒ (y < x) ⇒ (f y ≤ x))
+    : hsubtype P).
+  assert (f_block_comparison : ∀ x, C x ⇒ is_f_block x
+                                     ⇒ ∀ y, (C y) ⇒ ((y ≤ x) ∨ (f x ≤ y))).
+  { intros x C_x x_f_block. use C_induction.
+    - intros y [y_comp C_y]. split. 2: { use C_f_closed; assumption. }
+      refine (hconjtohdisj _ _ _ _ y_comp); split.
+      2: { intros fx_y. apply hdisj_in2.
+           eapply istrans_posetRelation; try apply fx_y.
+           apply isprogressive_Progressive_map. }
+      destruct (H_LEM (eqset y x)) as [ e_yx | ne_yx].
+      + destruct e_yx. intros _. apply hdisj_in2, isrefl_posetRelation.
+      + intros y_x. apply hdisj_in1.
+        use x_f_block; try split; assumption.
+    - intros C' IH_C'.
+      split. 2: { use C_chain_closed; intros; apply IH_C'. }
+      destruct (H_LEM (∃ y, C' y ∧ f x ≤ y)) as [C'_above | C'_below ].
+      + apply hdisj_in2.
+        refine (factor_through_squash_hProp _ _ C'_above);
+          intros [y [C'_y fx_y]].
+        eapply istrans_posetRelation. { exact fx_y. }
+        refine (least_upper_bound_is_upper_bound _ (_,,_)); assumption.
+      + apply hdisj_in1.
+        apply least_upper_bound_univ. intros [y C'_y].
+        eapply hdisjtoimpl. apply hdisj_comm, IH_C'.
+        intros fx_y. apply C'_below.
+        apply hinhpr; exists y.
+        split; assumption.
+  }
+  assert (all_C_f_block : forall x, C x ⇒ is_f_block x).
+  { admit. }
+  (* If all of C satisfies A, then we’re done *)
+  intros [x Cx] [y Cy]; simpl pr1carrier.
+  assert (comparison : x ≤ y ∨ f y ≤ x).
+  { use f_block_comparison; try apply all_C_f_block; assumption. }
+  refine (hdisj_monot _ _ comparison).
+  { intro; auto. }
+  intro fx_y. eapply istrans_posetRelation; try apply fx_y.
+  apply isprogressive_Progressive_map.
 Abort.
 
 
