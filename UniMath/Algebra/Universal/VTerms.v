@@ -15,7 +15,7 @@ Require Export UniMath.Algebra.Universal.Terms.
 
 Local Open Scope sorted.
 
-Section Variables.
+Section VTerms.
 
   Definition varspec (σ: signature) := ∑ V: hSet, V → sorts σ.
 
@@ -90,4 +90,4 @@ Section Variables.
     : iterfun (vec_map (term σ V) (pr2 (arity (namelift V nm)))) (term σ V (sort (namelift V nm)))
     := build_gterm' (namelift V nm).
 
-End Variables.
+End VTerms.
