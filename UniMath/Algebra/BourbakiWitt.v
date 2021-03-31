@@ -104,6 +104,12 @@ Section LeastUpperBounds.
 
   Definition least_upper_bound {I} (p : I -> P)
   := least_suchthat (isupperbound p).
+  Identity Coercion id_least_upper_bound : least_upper_bound >-> least_suchthat.
+
+  Definition least_upper_bound_is_upper_bound {I} {p : I -> P}
+             (x : least_upper_bound p)
+    : isupperbound p x
+  := least_suchthat_satisfies x.
 
 End LeastUpperBounds.
 
@@ -191,21 +197,48 @@ Definition Bourbaki_Witt_property (P : Poset)
 Definition weak_Bourbaki_Witt_property (P : Poset)
   := ∏ (f : Progressive_map P), ∥ Fixedpoint f ∥ .
 
+Local Open Scope logic.
+
 Theorem classical_Bourbaki_Witt
   : LEM -> ∏ P : Poset, is_chain_complete P -> Bourbaki_Witt_property P.
 Proof.
-  (* Proof sketch:
+  (* Proof outline, based on Lang, Algebra (2002):
   Let C be the least subset closed under f and suprema of chains.
   It suffices to show that C is a chain; then its supremum must be a fixed point.
+
   To see C is a chain:
-
   Say x:C is “good” if every element of C is either ≤ or ≥ X.
-
-  To show all x:C are good, it suffices to show the good elements are closed under f and suprema of chains.
-
-  Say x good.  NTS: f(x) good.  Now just need to show: the elements comparable to f(x) are closed under f and suprema of chains.  This is be direct.
-
-  Say X is a chain of good elements.  Now NTS: sup(X) is good.  Again, show the *)
+  To show all x:C are good, work by “C-induction”: it suffices to show the good elements are closed under f and suprema of chains.
+  Each of these subcases is then again by C-induction, using LEM in the supremum case. *)
+  intros H_LEM P P_CC f.
+  set (is_f_closed := (fun A => (∀ y, A y ⇒ A (f y)))
+    : hsubtype P -> hProp).
+  set (is_chain_closed
+      := (fun A => (∀ C' : Chain P, (∏ y:C', A (pr1 y)) ⇒ A (P_CC C')))
+    : hsubtype P -> hProp).
+  set (C := (fun x =>
+      ∀ A : hsubtype P, is_f_closed A ⇒ is_chain_closed A ⇒ A x)
+    : hsubtype P).
+  assert (C_f_closed : is_f_closed C).
+  { intros x C_x A A_f_closed A_chain_closed.
+    use A_f_closed. use C_x; assumption.
+  }
+  assert (C_chain_closed : is_chain_closed C).
+  { intros x C_x A A_f_closed A_chain_closed.
+    use A_chain_closed. intro i; use C_x; assumption.
+  }
+  assert (C_is_chain : is_chain (pr1carrier C)).
+  2: {  (* Once we know C is a chain, it’s easy to show its sup is a fixpoint. *)
+    set (C_Chain := (C,, C_is_chain) : Chain P).
+    set (x := P_CC C_Chain).
+    exists x.
+    apply isantisymm_posetRelation. 2: { apply isprogressive_Progressive_map. }
+    refine (least_upper_bound_is_upper_bound x (_,,_)).
+    use C_f_closed.
+    use C_chain_closed.
+    intros [y C_y]; auto.
+  }
+  (* It remains just to show C is a chain. *)
 Abort.
 
 
