@@ -113,13 +113,30 @@ Section LeastUpperBounds.
 
   Definition least_upper_bound_univ {I} {p : I -> P}
              (x : least_upper_bound p) (x' : P)
-    : isupperbound p x' <-> x ≤ x'.
+    : x ≤ x' <-> isupperbound p x'.
   Proof.
     split.
-    - intros H. refine (least_is_least _ x (_,,H)).
     - intros xx' i.
       eapply istrans_posetRelation; try eassumption.
       apply least_upper_bound_is_upper_bound.
+    - intros H. refine (least_is_least _ x (_,,H)).
+  Defined.
+
+  Definition least_upper_bound_subtype_is_upper_bound {A : hsubtype P}
+      (x : least_upper_bound (pr1carrier A)) {y : P} (A_y : A y)
+    : y ≤ x
+  := least_upper_bound_is_upper_bound x (y,,A_y).
+
+  Definition least_upper_bound_subtype_univ {A : hsubtype P}
+             (x : least_upper_bound (pr1carrier A)) (x' : P)
+    : x ≤ x' <-> (forall y, A y -> y ≤ x').
+  Proof.
+    split.
+    - intros H y A_y.
+      refine (pr1 (least_upper_bound_univ x x') H (_,,_)); assumption.
+    - intros H.
+      apply least_upper_bound_univ.
+      intros [y A_y]; apply H; assumption.
   Defined.
 
 End LeastUpperBounds.
@@ -225,11 +242,32 @@ Proof.
 Defined.
 
 (* TODO: upstream? *)
-Definition notexists_to_forallnot {X:UU} {A : hsubtype X}
-  : (¬ ∃ x:X, A x) ⇒ (∀ x:X, ¬ A x).
+Definition lt_to_nleq {P : Poset}{x y : P} : x < y ⇒ ¬ (y ≤ x).
 Proof.
-  intros nex x Ax.
-  use nex. apply hinhpr. exists x. assumption.
+  intros [leq_xy neq_xy] leq_yx.
+  apply neq_xy.
+  apply isantisymm_posetRelation; assumption.
+Defined.
+
+
+(* A restricted-quantifier version of [neghexisttoforallneg] *)
+Definition negexists_to_forallneg_restricted (H_LEM : LEM)
+    {X:UU} {A B : hsubtype X}
+  : ¬ (∃ x, A x ∧ B x) ⇒ (∀ x, A x ⇒ ¬ B x).
+Proof.
+  intros H_nex x A_x B_x.
+  use H_nex. apply hinhpr. exists x. split; assumption.
+Defined.
+
+(* A restricted-quantifier version of [negforall_to_existsneg] *)
+Definition negforall_to_existsneg_restricted (H_LEM : LEM)
+    {X:UU} {A B : hsubtype X}
+  : ¬ (∀ x, A x ⇒ B x) ⇒ ∃ x, A x ∧ ¬ B x.
+Proof.
+  intros H_forall. apply (proof_by_contradiction H_LEM).
+  intros H_nex.
+  use H_forall. intros x A_x. apply (proof_by_contradiction H_LEM).
+  use (negexists_to_forallneg_restricted _ H_nex); assumption.
 Defined.
 
 (* Proof based on Lang, Algebra (2002), Appendix 2, Thm 2.1 *)
@@ -275,12 +313,12 @@ Proof.
     intros [y C_y]; auto.
   }
   (* It remains just to show C is a chain.
-  For this: say [x ∈ C] is an _f-block_ if for all [y ∈ C], if [y < x] then [f y ≤ x]. *)
-  set (is_f_block := (fun x => ∀ y, (C x) ⇒ (y < x) ⇒ (f y ≤ x))
+  For this: say [x ∈ C] is a _bottleneck_ if for all [y ∈ C], if [y < x] then [f y ≤ x]. *)
+  set (is_bottleneck := (fun x => ∀ y, (C y) ⇒ (y < x) ⇒ (f y ≤ x))
     : hsubtype P).
-  assert (f_block_comparison : ∀ x, C x ⇒ is_f_block x
+  assert (bottleneck_comparison : ∀ x, C x ⇒ is_bottleneck x
                                      ⇒ ∀ y, (C y) ⇒ ((y ≤ x) ∨ (f x ≤ y))).
-  { intros x C_x x_f_block. use C_induction.
+  { intros x C_x x_bottleneck. use C_induction.
     - intros y [y_comp C_y]. split. 2: { use C_f_closed; assumption. }
       refine (hconjtohdisj _ _ _ _ y_comp); split.
       2: { intros fx_y. apply hdisj_in2.
@@ -289,7 +327,7 @@ Proof.
       destruct (H_LEM (eqset y x)) as [ e_yx | ne_yx].
       + destruct e_yx. intros _. apply hdisj_in2, isrefl_posetRelation.
       + intros y_x. apply hdisj_in1.
-        use x_f_block; try split; assumption.
+        use x_bottleneck; try split; assumption.
     - intros C' IH_C'.
       split. 2: { use C_chain_closed; intros; apply IH_C'. }
       destruct (H_LEM (∃ y, C' y ∧ f x ≤ y)) as [C'_above | C'_below ].
@@ -305,17 +343,54 @@ Proof.
         apply hinhpr; exists y.
         split; assumption.
   }
-  assert (all_C_f_block : forall x, C x ⇒ is_f_block x).
-  { admit. }
+  assert (all_C_bottleneck : forall x, C x ⇒ is_bottleneck x).
+  { use C_induction.
+    - intros x [x_bottleneck C_x]. split. 2: { use C_f_closed; assumption. }
+      intros y C_y l_y_fx.
+      assert (le_y_x : y ≤ x).
+      { refine (hdisjtoimpl (hdisj_comm (bottleneck_comparison x _ _ y _)) _);
+          try assumption.
+        apply lt_to_nleq; assumption. }
+      destruct (H_LEM (eqset y x)) as [ e_yx | ne_yx ].
+      + destruct e_yx; apply isrefl_posetRelation.
+      + eapply istrans_posetRelation. 2: { apply isprogressive_Progressive_map. }
+        use x_bottleneck; try split; assumption.
+    - intros C' IH_C'.
+      split. 2: { use C_chain_closed; intros; apply IH_C'. }
+      intros x C_x lt_x_supC'.
+      assert (C'_passes_x : ∃ y, C' y ∧ ¬ (y ≤ x)).
+      { apply negforall_to_existsneg_restricted; try assumption.
+        refine (negf _ (lt_to_nleq lt_x_supC')).
+        apply least_upper_bound_subtype_univ.
+      }
+      refine (factor_through_squash_hProp _ _ C'_passes_x);
+        intros [y [C'_y nleq_yx]].
+      assert (leq_fxy : f x ≤ y).
+      { simple refine (pr1 (IH_C' (y,,_)) _ _ _); try assumption.
+        simpl; split.
+        + eapply hdisjtoimpl.
+          { apply hdisj_comm.
+            destruct (IH_C' (y,,C'_y)).
+            use bottleneck_comparison; try assumption.
+          }
+          eapply negf. 2: { apply nleq_yx. }
+          apply istrans_posetRelation, isprogressive_Progressive_map.
+        + eapply negf. 2: { apply nleq_yx. }
+          intros e_yx; destruct e_yx. apply isrefl_posetRelation.
+      }
+      eapply istrans_posetRelation. { apply leq_fxy. }
+      apply least_upper_bound_subtype_is_upper_bound. assumption.
+  }
   (* If all of C satisfies A, then we’re done *)
   intros [x Cx] [y Cy]; simpl pr1carrier.
   assert (comparison : x ≤ y ∨ f y ≤ x).
-  { use f_block_comparison; try apply all_C_f_block; assumption. }
+  { use bottleneck_comparison; try apply all_C_bottleneck; assumption. }
   refine (hdisj_monot _ _ comparison).
   { intro; auto. }
   intro fx_y. eapply istrans_posetRelation; try apply fx_y.
   apply isprogressive_Progressive_map.
-Abort.
+  (* TODO: probably better to name this [progressive_property]? *)
+Defined.
 
 
 End Bourbaki_Witt.
