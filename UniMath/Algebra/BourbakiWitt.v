@@ -13,8 +13,73 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.Combinatorics.WellOrderedSets.
 Require Import UniMath.Algebra.Dcpo.
 
-Local Open Scope poset. (* So we can write ≤ *)
+Local Open Scope poset. (* for ≤, < *)
+Local Open Scope logic. (* for logic in hProp *)
+Local Open Scope subtype.
 
+(** ** Background material
+
+As ever, all these should eventually be upstreamed, and unified with overlapping material upstream where possible. *)
+Section Auxiliary.
+
+(* TODO: look for naming convention for similar lemmas *)
+Definition hdisj_monot {p q p' q'} : (p ⇒ p') ⇒ (q ⇒ q') ⇒ (p ∨ q ⇒ p' ∨ q').
+Proof.
+  intros ? ?.
+  apply hconjtohdisj; split; intro;
+    auto using hdisj_in1, hdisj_in2.
+Defined.
+
+(* TODO: look for naming convention for similar lemmas *)
+Definition hdisj_comm {p q} : (p ∨ q) ⇒ (q ∨ p).
+Proof.
+  apply hconjtohdisj; split; intro; auto using hdisj_in1, hdisj_in2.
+Defined.
+
+Definition lt_to_nleq {P : Poset}{x y : P} : x < y ⇒ ¬ (y ≤ x).
+Proof.
+  intros [leq_xy neq_xy] leq_yx.
+  apply neq_xy.
+  apply isantisymm_posetRelation; assumption.
+Defined.
+
+(* A restricted-quantifier version of [neghexisttoforallneg] *)
+Definition negexists_to_forallneg_restricted (H_LEM : LEM)
+    {X:UU} {A B : hsubtype X}
+  : ¬ (∃ x, A x ∧ B x) ⇒ (∀ x, A x ⇒ ¬ B x).
+Proof.
+  intros H_nex x A_x B_x.
+  use H_nex. apply hinhpr. exists x. split; assumption.
+Defined.
+
+(* A restricted-quantifier version of [negforall_to_existsneg] *)
+Definition negforall_to_existsneg_restricted (H_LEM : LEM)
+    {X:UU} {A B : hsubtype X}
+  : ¬ (∀ x, A x ⇒ B x) ⇒ ∃ x, A x ∧ ¬ B x.
+Proof.
+  intros H_forall. apply (proof_by_contradiction H_LEM).
+  intros H_nex.
+  use H_forall. intros x A_x. apply (proof_by_contradiction H_LEM).
+  use (negexists_to_forallneg_restricted _ H_nex); assumption.
+Defined.
+
+Definition subtype_binaryunion {X} (A B : hsubtype X) : hsubtype X
+  := fun x => A x ∨ B x.
+
+Definition subtype_binaryintersection {X} (A B : hsubtype X) : hsubtype X
+  := fun x => A x ∧ B x.
+
+End Auxiliary.
+
+Notation "A ∩ B" := (subtype_binaryintersection A B)
+                              (at level 40, left associativity) : subtype.
+  (* precedence tighter than "⊆", also than "-" [subtype_difference].  *)
+  (* in agda-input method, type \cap *)
+
+Notation "A ∪ B" := (subtype_binaryunion A B)
+                              (at level 40, left associativity) : subtype.
+  (* precedence tighter than "⊆", also than "-" [subtype_difference].  *)
+  (* in agda-input method, type \cup or ∪ *)
 
 (** ** Progressive maps
 
@@ -24,24 +89,16 @@ Note these are just endo-_functions_, not “maps” in the sense of morphisms o
 
 Section ProgressiveMaps.
 
-Definition isprogressive {P : Poset} (f : P -> P) : UU
-  := ∏ (x : P), x ≤ f x.
+Definition isprogressive {P : Poset} : hsubtype (P -> P) : UU
+  := fun f => ∀ (x : P), x ≤ f x.
 
-Lemma isaprop_isprogressive {P : Poset} (f : P -> P) : isaprop (isprogressive f).
-Proof.
-  apply impred_isaprop; intro i; apply propproperty.
-Qed.
+Definition Progressive_map (P : Poset) := carrier (@isprogressive P).
 
-(* TODO: refactor to use [hsubtype] & [carrier], to make relevant lemmas applicable? *)
-Definition Progressive_map (P : Poset)
-  := ∑ (f : P -> P), isprogressive f.
-
-Definition pr1_Progressive_map {P : Poset}
-  : Progressive_map P -> (P -> P)
-:= pr1.
+Definition pr1_Progressive_map {P : Poset} : Progressive_map P -> (P -> P)
+:= pr1carrier _.
 Coercion pr1_Progressive_map : Progressive_map >-> Funclass.
 
-Definition isprogressive_Progressive_map {P} (f : Progressive_map P)
+Definition progressive_property {P} (f : Progressive_map P)
   : isprogressive f
 := pr2 f.
 
@@ -52,15 +109,13 @@ End ProgressiveMaps.
 
 Section Fixpoints.
 
-(* TODO: refactor to [hsubtype]? *)
 Definition Fixedpoint {P : Poset} (f : P -> P) : UU
-  := ∑ (x:P), f x = x.
+  := carrier (fun (x:P) => eqset (f x) x).
 
-Coercion pr1_Fixedpoint {P : Poset} {f : P -> P}
-  : Fixedpoint f -> P
-:= pr1.
+Coercion pr1_Fixedpoint {P : Poset} {f : P -> P} : Fixedpoint f -> P
+:= pr1carrier _.
 
-Definition isfixed_Fixedpoint  {P : Poset} {f : P -> P} (x : Fixedpoint f)
+Definition fixedpoint_property  {P : Poset} {f : P -> P} (x : Fixedpoint f)
   : f x = x
 := pr2 x.
 
@@ -227,49 +282,6 @@ Definition weak_Bourbaki_Witt_property (P : Poset)
 
 Local Open Scope logic.
 
-(* TODO: upstream; search for this; look for naming convention for similar lemmas *)
-Definition hdisj_monot {p q p' q'} : (p ⇒ p') ⇒ (q ⇒ q') ⇒ (p ∨ q ⇒ p' ∨ q').
-Proof.
-  intros ? ?.
-  apply hconjtohdisj; split; intro;
-    auto using hdisj_in1, hdisj_in2.
-Defined.
-
-(* TODO: upstream; search for this; look for naming convention for similar lemmas *)
-Definition hdisj_comm {p q} : (p ∨ q) ⇒ (q ∨ p).
-Proof.
-  apply hconjtohdisj; split; intro; auto using hdisj_in1, hdisj_in2.
-Defined.
-
-(* TODO: upstream? *)
-Definition lt_to_nleq {P : Poset}{x y : P} : x < y ⇒ ¬ (y ≤ x).
-Proof.
-  intros [leq_xy neq_xy] leq_yx.
-  apply neq_xy.
-  apply isantisymm_posetRelation; assumption.
-Defined.
-
-
-(* A restricted-quantifier version of [neghexisttoforallneg] *)
-Definition negexists_to_forallneg_restricted (H_LEM : LEM)
-    {X:UU} {A B : hsubtype X}
-  : ¬ (∃ x, A x ∧ B x) ⇒ (∀ x, A x ⇒ ¬ B x).
-Proof.
-  intros H_nex x A_x B_x.
-  use H_nex. apply hinhpr. exists x. split; assumption.
-Defined.
-
-(* A restricted-quantifier version of [negforall_to_existsneg] *)
-Definition negforall_to_existsneg_restricted (H_LEM : LEM)
-    {X:UU} {A B : hsubtype X}
-  : ¬ (∀ x, A x ⇒ B x) ⇒ ∃ x, A x ∧ ¬ B x.
-Proof.
-  intros H_forall. apply (proof_by_contradiction H_LEM).
-  intros H_nex.
-  use H_forall. intros x A_x. apply (proof_by_contradiction H_LEM).
-  use (negexists_to_forallneg_restricted _ H_nex); assumption.
-Defined.
-
 (* Proof based on Lang, Algebra (2002), Appendix 2, Thm 2.1 *)
 Theorem classical_Bourbaki_Witt
   : LEM -> ∏ P : Poset, is_chain_complete P -> Bourbaki_Witt_property P.
@@ -294,19 +306,16 @@ Proof.
     use A_chain_closed. intro i; use C_x; assumption.
   }
   assert (C_induction : ∀ (A : hsubtype P),
-    is_f_closed (fun x => A x ∧ C x)
-    ⇒ is_chain_closed (fun x => A x ∧ C x)
-    ⇒ ∀ x:P, C x ⇒ A x).
+    is_f_closed (A ∩ C) ⇒ is_chain_closed (A ∩ C) ⇒ C ⊆ A).
   (* TODO: define binary union (and intersection), and upstream to [MoreFoundations.Subtypes]? *)
   { intros A A_chain_closed A_f_closed x Cx.
     apply (Cx (fun x => A x ∧ C x)); assumption. }
-  (* TODO: perhaps also add the strong-infuction as good below. *)
   assert (C_is_chain : is_chain (pr1carrier C)).
   2: {  (* Once we know C is a chain, its sup will certainly be is a fixpoint: *)
     set (C_Chain := (C,, C_is_chain) : Chain P).
     set (x := P_CC C_Chain).
     exists x.
-    apply isantisymm_posetRelation. 2: { apply isprogressive_Progressive_map. }
+    apply isantisymm_posetRelation. 2: { use progressive_property. }
     refine (least_upper_bound_is_upper_bound x (_,,_)).
     use C_f_closed.
     use C_chain_closed.
@@ -323,7 +332,7 @@ Proof.
       refine (hconjtohdisj _ _ _ _ y_comp); split.
       2: { intros fx_y. apply hdisj_in2.
            eapply istrans_posetRelation; try apply fx_y.
-           apply isprogressive_Progressive_map. }
+           use progressive_property. }
       destruct (H_LEM (eqset y x)) as [ e_yx | ne_yx].
       + destruct e_yx. intros _. apply hdisj_in2, isrefl_posetRelation.
       + intros y_x. apply hdisj_in1.
@@ -353,7 +362,7 @@ Proof.
         apply lt_to_nleq; assumption. }
       destruct (H_LEM (eqset y x)) as [ e_yx | ne_yx ].
       + destruct e_yx; apply isrefl_posetRelation.
-      + eapply istrans_posetRelation. 2: { apply isprogressive_Progressive_map. }
+      + eapply istrans_posetRelation. 2: { use progressive_property. }
         use x_bottleneck; try split; assumption.
     - intros C' IH_C'.
       split. 2: { use C_chain_closed; intros; apply IH_C'. }
@@ -374,7 +383,7 @@ Proof.
             use bottleneck_comparison; try assumption.
           }
           eapply negf. 2: { apply nleq_yx. }
-          apply istrans_posetRelation, isprogressive_Progressive_map.
+          apply istrans_posetRelation. use progressive_property.
         + eapply negf. 2: { apply nleq_yx. }
           intros e_yx; destruct e_yx. apply isrefl_posetRelation.
       }
@@ -388,9 +397,7 @@ Proof.
   refine (hdisj_monot _ _ comparison).
   { intro; auto. }
   intro fx_y. eapply istrans_posetRelation; try apply fx_y.
-  apply isprogressive_Progressive_map.
-  (* TODO: probably better to name this [progressive_property]? *)
+  use progressive_property.
 Defined.
-
 
 End Bourbaki_Witt.
