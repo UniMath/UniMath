@@ -202,7 +202,7 @@ Section LeastUpperBounds.
     := isupperbound_hprop p x
        ∧ islowerbound (pr1carrier (isupperbound_hprop p)) x.
 
-  Definition mk_least_upper_bound {I} {p : I -> P}
+  Definition make_least_upper_bound {I} {p : I -> P}
       {x:P} (x_lub : is_least_upper_bound p x)
     : least_upper_bound p
   := ((x,, pr1 x_lub),, pr2 x_lub).
@@ -325,7 +325,7 @@ Section Completeness.
 
 End Completeness.
 
-(** *** Upper bounds etc in sub-posets *)
+(** ** Upper bounds, completeness, etc in sub-posets *)
 Section Subposets.
 
   (* TODO: upstream to with subposets? *)
@@ -351,7 +351,7 @@ Section Subposets.
     split.
     - apply is_upper_bound_in_subposet, x_lub.
     - intros [x' x'_ub].
-      apply (least_upper_bound_univ (mk_least_upper_bound x_lub)).
+      apply (least_upper_bound_univ (make_least_upper_bound x_lub)).
       apply is_upper_bound_in_subposet; assumption.
   Defined.
 
@@ -396,14 +396,77 @@ Section Subposets.
     : is_chain_complete A.
   Proof.
     intros C.
-    use mk_least_upper_bound.
+    use make_least_upper_bound.
     { exists (chain_lub P_CC (fmap_chain subposet_incl C)).
       apply A_chain_closed. }
     apply is_least_upper_bound_in_subposet.
     apply least_upper_bound_property.
   Defined.
 
+  (* TODO: add similar treatment of directed-completeness in subsets. *)
+
 End Subposets.
+
+(** ** Function posets
+
+Products of posets, and of classes of functions *)
+
+Section Function_Posets.
+
+  (** The most general poset of functions is just the product of a family of posets.
+
+  We set this up first, and then give other posets of functions (e.g. the poset of poset maps) as subposets of this general one. *)
+(* TODO: possibly some examples upstream could eventually be unified with this,
+e.g. [dcpoofdcpomorphisms]. *)
+  Definition pointwiseorder {X:UU} (P : X -> Poset) : hrel (∏ x, P x)
+  := fun f g => ∀ x, f x ≤ g x.
+
+  Lemma ispartialorder_pointwiseorder {X:UU} (P : X -> Poset)
+    : isPartialOrder (pointwiseorder P).
+  Proof.
+    repeat split.
+    - repeat intro. eapply istrans_posetRelation; auto.
+    - repeat intro. apply isrefl_posetRelation.
+    - intros f g le_f_g le_g_f.
+      use funextsec; intro.
+      apply isantisymm_posetRelation; auto.
+  Defined.
+
+  (** Note: could also be called e.g. [Poset_product], or various other names.
+   This name gives better consistency with the rest of UniMath, but is less natural from a classical mathematical perspective. *)
+  (* TODO: consider naming convention. Are there analogous constructions elsewhere in UniMath that this should fit with? *)
+  Definition forall_Poset {X:UU} (P : X -> Poset) : Poset.
+  Proof.
+    use make_Poset. { exact (forall_hSet P). }
+    use make_PartialOrder. { apply pointwiseorder. }
+    apply ispartialorder_pointwiseorder.
+  Defined.
+
+  Definition isupperbound_pointwise {X:UU} (P : X -> Poset)
+      {I} {f : I -> forall_Poset P}
+      {g : forall_Poset P}
+    : isupperbound f g <-> forall x, isupperbound (fun i => f i x) (g x).
+  Proof.
+    split; intro H; repeat intro; use H.
+  Defined.
+
+  Definition is_least_upper_bound_pointwise {X:UU} (P : X -> Poset)
+      {I} {f : I -> forall_Poset P}
+      {g : forall_Poset P}
+    : (forall x, is_least_upper_bound (fun i => f i x) (g x))
+      -> is_least_upper_bound f g.
+  Proof.
+    intro pointwise_lub.
+    set (g_pwlub := fun x => make_least_upper_bound (pointwise_lub x)).
+    split.
+    - intros i x.
+      apply (least_upper_bound_is_upper_bound (g_pwlub x)).
+    - intros [g' g'_ub] x.
+      apply (least_upper_bound_univ (g_pwlub x)).
+      apply isupperbound_pointwise, g'_ub.
+  Defined.
+
+End Function_Posets.
 
 (** ** Bourbaki-Witt for various classes of posets
 
