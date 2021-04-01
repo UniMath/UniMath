@@ -42,6 +42,20 @@ Proof.
     auto using hdisj_in1, hdisj_in2.
 Defined.
 
+(** This order of arguments is often more convenient to use than the original [hdisj_monot] *)
+(* TODO: consider naming *)
+Definition hdisj_monot' {p q p' q'} : (p ∨ q) ⇒ (p ⇒ p') ⇒ (q ⇒ q') ⇒ (p' ∨ q').
+Proof.
+  intros ? ? ?. eapply hdisj_monot; eassumption.
+Defined.
+
+(** This order of arguments is often more convenient to use than the original [hconjtohdisj] *)
+(* TODO: consider naming *)
+Definition hconjtohdisj' {p q r} : (p ∨ q) ⇒ (p ⇒ r) ⇒ (q ⇒ r) ⇒ r.
+Proof.
+  intros ? ? ?. apply (hconjtohdisj p q r); try split; assumption.
+Defined.
+
 (* TODO: look for naming convention for similar lemmas *)
 Definition hdisj_comm {p q} : (p ∨ q) ⇒ (q ∨ p).
 Proof.
@@ -267,6 +281,23 @@ Section Chains.
   Definition chain_property {P} (C : Chain P) : is_chain C
   := pr2 (pr2 C).
 
+  Definition fmap_is_chain {P Q} (f : posetmorphism P Q)
+      {I : Type} (p : I -> P)
+    : is_chain p -> is_chain (f ∘ p).
+  Proof.
+    intros p_chain x y.
+    apply (hdisj_monot' (p_chain x y));
+    intro; apply posetmorphism_property; assumption.
+  Defined.
+
+  Definition fmap_chain {P Q} (f : posetmorphism P Q)
+    : Chain P -> Chain Q.
+  Proof.
+    apply funfibtototal; intros I. use bandfmap.
+    - apply (fun C => f ∘ C).
+    - apply fmap_is_chain.
+  Defined.
+
   Definition Chain_hsubtype (P : Poset) : UU
   := ∑ A : hsubtype P, is_chain (pr1carrier A).
 
@@ -328,7 +359,7 @@ End Completeness.
 (** ** Upper bounds, completeness, etc in sub-posets *)
 Section Subposets.
 
-  (* TODO: upstream to with subposets? *)
+  (* TODO: upstream to [MoreFoundations.Subposets]? *)
   Definition subposet_incl {P : Poset} {A : Subposet' P} : posetmorphism A P
   := pr1 (pr2 A).
 
@@ -360,27 +391,6 @@ Section Subposets.
     : is_chain p <-> is_chain (subposet_incl ∘ p).
   Proof.
     split; auto.
-  Defined.
-
-  (* TODO: upstream to chains section *)
-  Definition fmap_is_chain {P Q : Poset} (f : posetmorphism P Q)
-      {I : Type} (p : I -> P)
-    : is_chain p -> is_chain (f ∘ p).
-  Proof.
-    intros p_chain x y.
-    (* TODO: change arguments order of [hdisj_monot] to put disjunction first;
-       see if it simplifies usage! *)
-    refine (hdisj_monot _ _ (p_chain x y));
-    intro; apply posetmorphism_property; assumption.
-  Defined.
-
-  (* TODO: upstream to chains section *)
-  Definition fmap_chain {P Q : Poset} (f : posetmorphism P Q)
-    : Chain P -> Chain Q.
-  Proof.
-    apply funfibtototal; intros I. use bandfmap.
-    - apply (fun C => f ∘ C).
-    - apply fmap_is_chain.
   Defined.
 
   (* This lemma can be given in several alternative forms,
@@ -417,7 +427,7 @@ Section Function_Posets.
 
   We set this up first, and then give other posets of functions (e.g. the poset of poset maps) as subposets of this general one. *)
 (* TODO: possibly some examples upstream could eventually be unified with this,
-e.g. [dcpoofdcpomorphisms]. *)
+e.g. [dcpoofdcpomorphisms]? *)
   Definition pointwiseorder {X:UU} (P : X -> Poset) : hrel (∏ x, P x)
   := fun f g => ∀ x, f x ≤ g x.
 
@@ -530,12 +540,12 @@ Proof.
                                      ⇒ ∀ y, C y ⇒ (y ≤ x) ∨ (f x ≤ y)).
   { intros x C_x x_bottleneck. use C_induction.
     - intros y [y_comp C_y]. split. 2: { use C_f_closed; assumption. }
-      refine (hconjtohdisj _ _ _ _ y_comp); split.
+      apply (hconjtohdisj' y_comp).
       2: { intros leq_fx_y. apply hdisj_in2.
            eapply istrans_posetRelation; try eassumption.
            use progressive_property. }
       intros leq_y_x.
-      eapply hdisj_monot. 3: { use (x_bottleneck y); assumption. }
+      use (hdisj_monot' (x_bottleneck y _ _)); try assumption.
       + intro; assumption.
       + intro e_yx; destruct e_yx; apply isrefl_posetRelation.
     - intros C' IH_C'. split. 2: { use C_chain_closed; intros; apply IH_C'. }
@@ -555,11 +565,11 @@ Proof.
   { use C_induction.
     - intros x [x_bottleneck C_x]. split. 2: { use C_f_closed; assumption. }
       intros y C_y le_y_fx.
-      refine (hconjtohdisj _ _ _ _ (bottleneck_comparison x _ _ y _));
-        try assumption; split.
+      use (hconjtohdisj' (bottleneck_comparison x _ _ y _));
+        try assumption.
       2: { intro. apply hdisj_in2, isantisymm_posetRelation; assumption. }
       intro le_yx. apply hdisj_in1.
-      refine (hconjtohdisj _ _ _ _ (x_bottleneck y _ _)); try assumption; split.
+      use (hconjtohdisj' (x_bottleneck y _ _)); try assumption.
       + intro. eapply istrans_posetRelation; try eassumption.
         use progressive_property.
       + intros e_yx; destruct e_yx. apply isrefl_posetRelation.
@@ -575,8 +585,7 @@ Proof.
       apply isantisymm_posetRelation; try assumption.
       apply least_upper_bound_subtype_univ. intros y C'_y.
       destruct (IH_C' (y,,C'_y)) as [y_bottleneck C_y].
-      use (hconjtohdisj _ _ _ _ (bottleneck_comparison y _ _ x _));
-        try assumption; split.
+      use (hconjtohdisj' (bottleneck_comparison y _ _ x _)); try assumption.
       2: { intro. eapply istrans_posetRelation; try eassumption.
            use progressive_property. }
       intro le_x_y. apply isrefl'_posetRelation, pathsinv0.
@@ -586,7 +595,7 @@ Proof.
   intros [x Cx] [y Cy]; simpl pr1carrier.
   assert (comparison : x ≤ y ∨ f y ≤ x).
   { use bottleneck_comparison; try apply all_C_bottleneck; assumption. }
-  refine (hdisj_monot _ _ comparison). { intro; assumption. }
+  apply (hdisj_monot' comparison). { intro; assumption. }
   intro. eapply istrans_posetRelation; try eassumption.
   use progressive_property.
 Defined.
