@@ -1,7 +1,7 @@
 
-(** * The Bourbaki-Witt theorem and variants
+(** * Fixed-point theorems on posets
 
-This file aims to state and develop the Bourbaki-Witt and Tarski fixed-point theorems and their variants, especially constructively provable ones.
+This file aims to state and develop various fixed-point theorems on posets; in particular, the classical Tarski, Bourbaki-Witt, and Knaster–Tarski fixed-point theorems and their variants, especially constructively provable ones.
 
 In particular, it aims to formalise some of the results of Pataraia, Dacar, Bauer, and Lumsdaine, given in https://arxiv.org/abs/1201.0340 .
 
@@ -87,6 +87,54 @@ Definition subtype_binaryunion {X} (A B : hsubtype X) : hsubtype X
 
 Definition subtype_binaryintersection {X} (A B : hsubtype X) : hsubtype X
   := fun x => A x ∧ B x.
+
+(* TODO: surely this must be in the library somewhere, along with its essential properties? *)
+Definition image {X Y : UU} (f : X -> Y) : hsubtype Y
+  := fun y => ∥ hfiber f y ∥.
+
+(** See [image_univ] below for a version that plays better with [apply]. *)
+Definition image_univ
+    {X Y : UU} (f : X -> Y)
+    (A : hsubtype Y )
+  : (∀ x:X, A (f x)) <-> (image f ⊆ A).
+Proof.
+  split.
+  - intros H_A y Hy.
+    refine (factor_through_squash_hProp _ _ Hy);
+      intros [x e_xy]; destruct e_xy.
+    use H_A.
+  - intros H_A x.
+    use H_A. apply hinhpr. exists x. apply idpath.
+Defined.
+
+(** Alias of [image_univ] using explicit “forall” instead of “⊆” or “∀”, for easier use with the [apply] tactic. *)
+Definition image_univ'
+    {X Y : UU} (f : X -> Y)
+    (A : hsubtype Y )
+  : (forall x:X, A (f x)) <-> (forall y:Y, (image f y) -> A y).
+Proof.
+  apply image_univ.
+Defined.
+
+Definition image_carrier_univ
+    {X Y : UU} (f : X -> Y)
+    (A : hsubtype Y )
+  : (∀ x:X, A (f x)) <-> (∀ y : image f, A (pr1 y)).
+Proof.
+  split.
+  - intros H [y im_y]. eapply image_univ'; eassumption.
+  - intros H; cbn. apply image_univ'.
+    intros y im_y. exact (H (y,,im_y)).
+Defined.
+
+(** Like [image_univ'], alias using explicit “forall” instead of “∀”, for easier use with the [apply] tactic. *)
+Definition image_carrier_univ'
+    {X Y : UU} (f : X -> Y)
+    (A : hsubtype Y )
+  : (forall x:X, A (f x)) <-> (forall y : image f, A (pr1 y)).
+Proof.
+  apply image_carrier_univ.
+Defined.
 
 End Auxiliary.
 
@@ -325,27 +373,21 @@ Section Completeness.
       (p : Chain P)
     : least_upper_bound p.
   Proof.
-    set (p_hsubtype := fun x : P => ∥ hfiber p x∥).
-    assert (p_hsubtype_chain : is_chain (pr1carrier p_hsubtype)).
-    { intros [x Hx] [y Hy]. simpl pr1carrier.
+    assert (image_is_chain : is_chain (pr1carrier (image p))).
+    { unfold is_chain.
+      intros [x Hx] [y Hy]. simpl pr1carrier.
       refine (factor_through_squash_hProp _ _ Hx);
         intros [i e_ix]; destruct e_ix.
       refine (factor_through_squash_hProp _ _ Hy);
         intros [j e_jy]; destruct e_jy.
       apply chain_property.
     }
-    set (p_Chain := (p_hsubtype ,, p_hsubtype_chain) : Chain_hsubtype P).
+    set (image_chain := (image p ,, image_is_chain) : Chain_hsubtype P).
     assert (same_upper_bounds
-      : ∏ x:P, isupperbound p x <-> isupperbound (pr1carrier p_hsubtype) x).
-    { intros x; split.
-      - intros x_ub [y Hy].
-        refine (factor_through_squash_hProp _ _ Hy);
-          intros [j e_jy]; destruct e_jy.
-        apply x_ub.
-      - intros x_ub y.
-        refine (x_ub (p y,, hinhpr (y,, idpath _) )).
-    }
-    set (lub_p := P_CC p_Chain).
+      : ∏ x:P, isupperbound p x
+               <-> isupperbound (pr1carrier (image p)) x).
+    { intro. apply (image_carrier_univ' p (fun y => y ≤ _)). }
+    set (lub_p := P_CC image_chain).
     destruct lub_p as [[x x_ub] x_least]. simpl in x_least.
     use tpair. { exists x. apply same_upper_bounds, x_ub. }
     simpl. intros [y y_ub].
