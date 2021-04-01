@@ -5,7 +5,7 @@ This file aims to state and develop the Bourbaki-Witt and Tarski fixed-point the
 
 In particular, it aims to formalise some of the results of Pataraia, Dacar, Bauer, and Lumsdaine, given in https://arxiv.org/abs/1201.0340 .
 
-Note: There is some duplication with material in [Algebra.Dcpo] and [Combinatorics.WellOrderedSets], which should ideally be refactored (as indeed there is some ducplication between between those files).
+Note: There is some duplication with material on posets elsewhere in the library, e.g. [Algebra.Dcpo] and [Combinatorics.WellOrderedSets], which should ideally be refactored. (Indeed, there is some duplication of material also between those files.)
 *)
 
 Require Import UniMath.Foundations.All.
@@ -153,8 +153,8 @@ Section LeastUpperBounds.
 
   Context {P : Poset}.
 
-  Definition islowerbound {I} (p : I -> P) (x : P) : UU
-  := ∏ (i : I), x ≤ p i.
+  Definition islowerbound {I} (p : I -> P) (x : P) : hProp
+  := ∀ i : I, x ≤ p i.
 
   Definition least_of_family {I} (p : I -> P)
   := ∑ i : I, islowerbound p (p i).
@@ -189,6 +189,30 @@ Section LeastUpperBounds.
     : isupperbound p x
   := least_suchthat_satisfies x.
 
+  (* TODO: it would be natural to just refactor [isupperbound] in [Algebra.Dcpo]
+  as an hProp from the start, using [∀] and so on.  However, that turns out
+  to slightly interfere with the use of [apply] on lemmas in that file, espcially
+  bidirectional such as [pointwiselub_islubpointwise]. Is that cosmetic cost
+  worth paying?  Or can it be avoided? *)
+  Definition isupperbound_hprop {P:Poset} {I} (p : I -> P) (x:P) : hProp
+  := make_hProp _ (isaprop_isupperbound p x).
+
+  (** It’s useful to define [least_upper_bound] as above, for interaction with [upper_bound], etc; but also helpful to have a standalone predicate version. *)
+  Definition is_least_upper_bound {I} (p : I -> P) (x : P) : hProp
+    := isupperbound_hprop p x
+       ∧ islowerbound (pr1carrier (isupperbound_hprop p)) x.
+
+  Definition mk_least_upper_bound {I} {p : I -> P}
+      {x:P} (x_lub : is_least_upper_bound p x)
+    : least_upper_bound p
+  := ((x,, pr1 x_lub),, pr2 x_lub).
+
+  Definition least_upper_bound_property {I} {p : I -> P}
+      (x : least_upper_bound p)
+    : is_least_upper_bound p x
+  := (pr2 (pr1 x),, pr2 x).
+
+  (** The universal property of the least upper bound *)
   Definition least_upper_bound_univ {I} {p : I -> P}
              (x : least_upper_bound p) (x' : P)
     : x ≤ x' <-> isupperbound p x'.
@@ -199,6 +223,9 @@ Section LeastUpperBounds.
       apply least_upper_bound_is_upper_bound.
     - intros H. refine (least_is_least _ x (_,,H)).
   Defined.
+
+  (** Specialisation of the above functions to least upper bounds of _subsets_
+   — a common use-case, and the functions are often easier to use in this form. *)
 
   Definition least_upper_bound_subtype_is_upper_bound {A : hsubtype P}
       (x : least_upper_bound (pr1carrier A)) {y : P} (A_y : A y)
@@ -228,42 +255,55 @@ Section Chains.
   := ∏ i j : I, comparable (p i) (p j).
 
   Definition Chain (P : Poset) : UU
+  := ∑ (I : UU), ∑ (p : I -> P), is_chain p.
+
+  Coercion chain_index {P} (C : Chain P) : UU
+  := pr1 C.
+
+  Definition chain_family {P} (C : Chain P) : C -> P
+  := pr1 (pr2 C).
+  Coercion chain_family : Chain >-> Funclass.
+
+  Definition chain_property {P} (C : Chain P) : is_chain C
+  := pr2 (pr2 C).
+
+  Definition Chain_hsubtype (P : Poset) : UU
   := ∑ A : hsubtype P, is_chain (pr1carrier A).
 
-  Coercion Chain_hsubtype {P} : Chain P -> hsubtype P
+  Coercion pr1_Chain_hsubtype {P} : Chain_hsubtype P -> hsubtype P
   := pr1.
 
-  Definition chain_is_chain {P} (C : Chain P) : is_chain (pr1carrier C)
-  := pr2 C.
-
-  Definition chain_family {P} (C : Chain P)
-  := pr1carrier C.
+  Coercion Chain_of_Chain_hsubtype (P : Poset)
+    : Chain_hsubtype P -> Chain P.
+  Proof.
+    intros C. exact (carrier C,, (pr1carrier C,, pr2 C)).
+  Defined.
 
 End Chains.
 
 Section Completeness.
 
   Definition is_chain_complete (P : Poset) : UU
-  := ∏ C : Chain P, least_upper_bound (chain_family C).
+  := ∏ C : Chain_hsubtype P, least_upper_bound (chain_family C).
 
   (* [is_chain_complete] is defined just in terms of hsubtype-chains, to agree with the classical definition and keep its quantification “small”.
 
   However, it implies least upper bounds for arbitarily-indexed chains. *)
 
   Definition chain_lub {P : Poset} (P_CC : is_chain_complete P)
-      {I} (p : I -> P) (p_chain : is_chain p)
+      (p : Chain P)
     : least_upper_bound p.
   Proof.
-    set (p_hsubtype := fun x : P => ∥ hfiber p x ∥).
+    set (p_hsubtype := fun x : P => ∥ hfiber p x∥).
     assert (p_hsubtype_chain : is_chain (pr1carrier p_hsubtype)).
     { intros [x Hx] [y Hy]. simpl pr1carrier.
       refine (factor_through_squash_hProp _ _ Hx);
         intros [i e_ix]; destruct e_ix.
       refine (factor_through_squash_hProp _ _ Hy);
         intros [j e_jy]; destruct e_jy.
-      apply p_chain.
+      apply chain_property.
     }
-    set (p_Chain := (p_hsubtype ,, p_hsubtype_chain) : Chain P).
+    set (p_Chain := (p_hsubtype ,, p_hsubtype_chain) : Chain_hsubtype P).
     assert (same_upper_bounds
       : ∏ x:P, isupperbound p x <-> isupperbound (pr1carrier p_hsubtype) x).
     { intros x; split.
@@ -284,6 +324,86 @@ Section Completeness.
   (* TODO: could we usefully factor out some of the properties of the image used here, e.g. by factoring [image] via [hsubtype], and giving the universal property of the image as such? *)
 
 End Completeness.
+
+(** *** Upper bounds etc in sub-posets *)
+Section Subposets.
+
+  (* TODO: upstream to with subposets? *)
+  Definition subposet_incl {P : Poset} {A : Subposet' P} : posetmorphism A P
+  := pr1 (pr2 A).
+
+  Definition is_upper_bound_in_subposet {P : Poset} {A : Subposet P}
+      {I} {p : I -> A} {x : A}
+    : isupperbound (subposet_incl ∘ p) (subposet_incl x)
+    <-> isupperbound p x.
+  Proof.
+    split; auto.
+  Defined.
+
+  (* TODO: unsure which arguments should be implicit. Revisit this after some use downstream! *)
+  (** Given a chain in a sub-poset with a least upper bound in the ambient poset,
+  if the l.u.b. lies in the sub-poset, then it’s an l.u.b. there. *)
+  Definition is_least_upper_bound_in_subposet {P : Poset} {A : Subposet P}
+      {I} {p : I -> A} {x : A}
+      (x_lub : is_least_upper_bound (subposet_incl ∘ p) (subposet_incl x))
+    : is_least_upper_bound p x.
+  Proof.
+    split.
+    - apply is_upper_bound_in_subposet, x_lub.
+    - intros [x' x'_ub].
+      apply (least_upper_bound_univ (mk_least_upper_bound x_lub)).
+      apply is_upper_bound_in_subposet; assumption.
+  Defined.
+
+  Definition is_chain_in_subposet {P : Poset} {A : Subposet P}
+      {I : Type} (p : I -> A)
+    : is_chain p <-> is_chain (subposet_incl ∘ p).
+  Proof.
+    split; auto.
+  Defined.
+
+  (* TODO: upstream to chains section *)
+  Definition fmap_is_chain {P Q : Poset} (f : posetmorphism P Q)
+      {I : Type} (p : I -> P)
+    : is_chain p -> is_chain (f ∘ p).
+  Proof.
+    intros p_chain x y.
+    (* TODO: change arguments order of [hdisj_monot] to put disjunction first;
+       see if it simplifies usage! *)
+    refine (hdisj_monot _ _ (p_chain x y));
+    intro; apply posetmorphism_property; assumption.
+  Defined.
+
+  (* TODO: upstream to chains section *)
+  Definition fmap_chain {P Q : Poset} (f : posetmorphism P Q)
+    : Chain P -> Chain Q.
+  Proof.
+    apply funfibtototal; intros I. use bandfmap.
+    - apply (fun C => f ∘ C).
+    - apply fmap_is_chain.
+  Defined.
+
+  (* This lemma can be given in several alternative forms,
+  e.g. in terms of the canonical given lubs, or arbitrary lubs;
+  and in terms of chains in [A], or chains in [P] satisfying [A];
+  and in terms of general chains, or subtype-chains.
+
+  TODO: once it’s in use, reconsider which form might be best. *)
+  Definition is_chain_complete_subposet
+      {P : Poset} (P_CC : is_chain_complete P) {A : Subposet P}
+      (A_chain_closed : forall C : Chain_hsubtype A,
+          A (chain_lub P_CC (fmap_chain subposet_incl C)))
+    : is_chain_complete A.
+  Proof.
+    intros C.
+    use mk_least_upper_bound.
+    { exists (chain_lub P_CC (fmap_chain subposet_incl C)).
+      apply A_chain_closed. }
+    apply is_least_upper_bound_in_subposet.
+    apply least_upper_bound_property.
+  Defined.
+
+End Subposets.
 
 (** ** Bourbaki-Witt for various classes of posets
 
@@ -308,7 +428,7 @@ Proof.
   set (is_f_closed := (fun A => (∀ y, A y ⇒ A (f y)))
     : hsubtype P -> hProp).
   set (is_chain_closed
-      := (fun A => (∀ C' : Chain P, (∏ y:C', A (pr1 y)) ⇒ A (P_CC C')))
+      := (fun A => (∀ C' : Chain_hsubtype P, (∏ y:C', A (pr1 y)) ⇒ A (P_CC C')))
     : hsubtype P -> hProp).
   set (C := (fun x =>
       ∀ A : hsubtype P, is_f_closed A ⇒ is_chain_closed A ⇒ A x)
@@ -326,7 +446,7 @@ Proof.
   (* Now, if C is a chain, then its least upper bound will be a fixed point. *)
   assert (C_is_chain : is_chain (pr1carrier C)).
   2: {
-    set (C_Chain := (C,, C_is_chain) : Chain P).
+    set (C_Chain := (C,, C_is_chain) : Chain_hsubtype P).
     exists (P_CC C_Chain).
     apply isantisymm_posetRelation. 2: { use progressive_property. }
     refine (least_upper_bound_is_upper_bound (P_CC _) (_,,_)).
