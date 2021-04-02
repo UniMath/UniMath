@@ -218,6 +218,14 @@ Section LeastUpperBounds.
   Definition islowerbound {I} (p : I -> P) (x : P) : hProp
   := ∀ i : I, x ≤ p i.
 
+  Definition islowerbound_subtype_equiv {A B : hsubtype P}
+    : (A ≡ B)
+    -> islowerbound (pr1carrier A) ≡ islowerbound (pr1carrier B).
+  Proof.
+    intros e_A_B x; split;
+      intros x_ub [y H_y]; refine (x_ub (_,,_)); apply e_A_B; assumption.
+  Defined.
+
   Definition least_of_family {I} (p : I -> P)
   := ∑ i : I, islowerbound p (p i).
 
@@ -260,12 +268,13 @@ Section LeastUpperBounds.
   := make_hProp _ (isaprop_isupperbound p x).
 
   (** It’s useful to define [least_upper_bound] as above, for interaction with [upper_bound], etc; but also helpful to have a standalone predicate version. *)
+  (* TODO: would it be better to factor as [is_least] for a predicate?? *)
   Definition is_least_upper_bound {I} (p : I -> P) (x : P) : hProp
     := isupperbound_hprop p x
        ∧ islowerbound (pr1carrier (isupperbound_hprop p)) x.
 
   Definition make_least_upper_bound {I} {p : I -> P}
-      {x:P} (x_lub : is_least_upper_bound p x)
+      (x:P) (x_lub : is_least_upper_bound p x)
     : least_upper_bound p
   := ((x,, pr1 x_lub),, pr2 x_lub).
 
@@ -306,6 +315,55 @@ Section LeastUpperBounds.
       intros [y A_y]; apply H; assumption.
   Defined.
 
+  (** Comparison of least upper bounds between families and their images *)
+
+  (* TODO:remove this sketch note once proven.
+
+  One approach: show directly, the image has the same upper bounds as the family
+  A alternative: factor a bit.  Show that for two families, if f ≤ image g, then every upper bound of g is an upper bound for f. Thence: the non-image version.  Thence: image has same upper bounds, so same least upper bound. *)
+  Definition is_upper_bound_subfamily {I} (f : I -> P) {J} (g : J -> P)
+      (ff : forall j, (image f) (g j))
+      {x} (x_ub : isupperbound f x)
+    : isupperbound g x.
+  Proof.
+    intros j. refine (factor_through_squash_hProp _ _ (ff j)).
+    intros [i e]; destruct e. apply x_ub.
+  Defined.
+
+  Definition image_same_upper_bounds {I} (f : I -> P) {x : P}
+    : isupperbound f x
+      <-> isupperbound (pr1carrier (image f)) x.
+  Proof.
+    apply (image_carrier_univ' f (fun y => y ≤ _)).
+  Defined.
+
+  (* TODO: upstream; consider naming *)
+  Definition hconj_equiv {X:UU}
+      {A A' B B' : hsubtype X} (e_A : A ≡ A') (e_B : B≡ B')
+    : (A ∩ B) ≡ (A' ∩ B').
+  Proof.
+    intros x; split; intros [? ?]; split;
+      try apply e_A; try apply e_B; assumption.
+  Defined.
+
+  Definition is_least_upper_bound_image {I} (f : I -> P) {x : P}
+    : is_least_upper_bound f x
+      <-> is_least_upper_bound (pr1carrier (image f)) x.
+  Proof.
+    revert x. apply hconj_equiv.
+    - use image_same_upper_bounds.
+    - apply islowerbound_subtype_equiv. use image_same_upper_bounds.
+  Defined.
+
+  (* TODO: upgrade this to an equivalence!
+     easiest if done once refactoring [least_upper_bound] as
+     [carrier is_least_upper_bound]. *)
+  Definition least_upper_bound_image {I} (f : I -> P)
+    : least_upper_bound f <-> least_upper_bound (pr1carrier (image f)).
+  Proof.
+    split; intros x; apply (make_least_upper_bound x);
+      apply is_least_upper_bound_image, least_upper_bound_property.
+  Defined.
 End LeastUpperBounds.
 
 Section Chains.
@@ -313,8 +371,8 @@ Section Chains.
   Definition comparable {P : Poset} (x y : P) : hProp
   := (x ≤ y) ∨ (y ≤ x).
 
-  Definition is_chain {P : Poset} {I} (p : I -> P) : UU
-  := ∏ i j : I, comparable (p i) (p j).
+  Definition is_chain {P : Poset} {I} (p : I -> P) : hProp
+  := ∀ i j : I, comparable (p i) (p j).
 
   Definition Chain (P : Poset) : UU
   := ∑ (I : UU), ∑ (p : I -> P), is_chain p.
@@ -330,7 +388,7 @@ Section Chains.
   := pr2 (pr2 C).
 
   Definition fmap_is_chain {P Q} (f : posetmorphism P Q)
-      {I : Type} (p : I -> P)
+      {I : UU} (p : I -> P)
     : is_chain p -> is_chain (f ∘ p).
   Proof.
     intros p_chain x y.
@@ -358,43 +416,64 @@ Section Chains.
     intros C. exact (carrier C,, (pr1carrier C,, pr2 C)).
   Defined.
 
+  Definition image_is_chain {P:Poset} {I:UU} (p : I -> P)
+    : is_chain p -> is_chain (pr1carrier (image p)).
+  Proof.
+    intros p_chain. unfold is_chain.
+    apply (image_carrier_univ p (fun x => ∀ j, comparable x _)); intros i.
+    apply (image_carrier_univ p); intros j.
+    use p_chain.
+  Defined.
+
+  Definition image_chain {P:Poset}
+      : Chain P -> Chain_hsubtype P.
+  Proof.
+    intros p. exists (image p).
+    apply image_is_chain, chain_property.
+  Defined.
+
 End Chains.
 
 Section Completeness.
 
+  (* TODO: show that completeness is a property,
+     once we’ve shown above that least upper bounds are unique. *)
+
+  Definition is_complete (P : Poset) : UU
+  := ∏ A : hsubtype P, least_upper_bound (pr1carrier A).
+
+  (** [is_complete] is defined just in terms of hsubtypes, to agree with the classical definition and keep its quantification “small”.
+
+  However, it implies completeness for arbitrarily families. *)
+  (* TODO: consider naming! *)
+  Definition family_lub {P:Poset} (P_complete : is_complete P)
+      {I:UU} (f : I -> P)
+    : least_upper_bound f.
+  Proof.
+    apply least_upper_bound_image, P_complete.
+  Defined.
+
   Definition is_chain_complete (P : Poset) : UU
   := ∏ C : Chain_hsubtype P, least_upper_bound (chain_family C).
 
-  (* [is_chain_complete] is defined just in terms of hsubtype-chains, to agree with the classical definition and keep its quantification “small”.
+  (** Like [is_complete], [is_chain_complete] is defined just in terms of hsubtype-chains, to keep quantification small.
 
   However, it implies least upper bounds for arbitarily-indexed chains. *)
-
   Definition chain_lub {P : Poset} (P_CC : is_chain_complete P)
       (p : Chain P)
     : least_upper_bound p.
   Proof.
-    assert (image_is_chain : is_chain (pr1carrier (image p))).
-    { unfold is_chain.
-      intros [x Hx] [y Hy]. simpl pr1carrier.
-      refine (factor_through_squash_hProp _ _ Hx);
-        intros [i e_ix]; destruct e_ix.
-      refine (factor_through_squash_hProp _ _ Hy);
-        intros [j e_jy]; destruct e_jy.
-      apply chain_property.
-    }
-    set (image_chain := (image p ,, image_is_chain) : Chain_hsubtype P).
-    assert (same_upper_bounds
-      : ∏ x:P, isupperbound p x
-               <-> isupperbound (pr1carrier (image p)) x).
-    { intro. apply (image_carrier_univ' p (fun y => y ≤ _)). }
-    set (lub_p := P_CC image_chain).
-    destruct lub_p as [[x x_ub] x_least]. simpl in x_least.
-    use tpair. { exists x. apply same_upper_bounds, x_ub. }
-    simpl. intros [y y_ub].
-    simpl. refine (x_least (y,, _)).
-    apply same_upper_bounds, y_ub.
+    apply least_upper_bound_image.
+    exact (P_CC (image_chain p)).
   Defined.
-  (* TODO: could we usefully factor out some of the properties of the image used here, e.g. by factoring [image] via [hsubtype], and giving the universal property of the image as such? *)
+
+  (** Version with [is_chain] split out, for easier application *)
+  Definition chain_lub' {P : Poset} (P_CC : is_chain_complete P)
+      {I:UU} (p:I->P)
+    : is_chain p -> least_upper_bound p.
+  Proof.
+    intros p_chain. exact (chain_lub P_CC (I,,(p,,p_chain))).
+  Defined.
 
 End Completeness.
 
@@ -424,7 +503,7 @@ Section Subposets.
     split.
     - apply is_upper_bound_in_subposet, x_lub.
     - intros [x' x'_ub].
-      apply (least_upper_bound_univ (make_least_upper_bound x_lub)).
+      apply (least_upper_bound_univ (make_least_upper_bound _ x_lub)).
       apply is_upper_bound_in_subposet; assumption.
   Defined.
 
@@ -509,7 +588,7 @@ e.g. [dcpoofdcpomorphisms]? *)
       -> is_least_upper_bound f g.
   Proof.
     intro pointwise_lub.
-    set (g_pwlub := fun x => make_least_upper_bound (pointwise_lub x)).
+    set (g_pwlub := fun x => make_least_upper_bound _ (pointwise_lub x)).
     split.
     - intros i x.
       apply (least_upper_bound_is_upper_bound (g_pwlub x)).
