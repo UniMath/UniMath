@@ -599,12 +599,47 @@ e.g. [dcpoofdcpomorphisms]? *)
 
 End Function_Posets.
 
-(** ** Bourbaki-Witt for various classes of posets
+
+(** ** The (Knaster–)Tarski fixpoint theorems
+
+This classical theorem is in several forms.  The strong general form, due to Tarski, states that given a monotone endo-map [f] on a complete poset [P], the sub-poset of fixed points of [f] is again complete.  The key lemma for this is the earlier weaker form, due essentially to Knaster and Tarski independently: a monotone endo-map [f] on a complete poset [P] has a least fixed point.
+*)
+Section Tarski.
+
+Theorem Knaster_Tarski_fixpoint {P:Poset} (P_complete : is_complete P)
+    (f : posetmorphism P P)
+  : least_suchthat (fun x:P => f x = x).
+Proof.
+  (* Let C be the least subset closed under f and least upper bounds.
+   We take some time to set up C and its universal property cleanly. *)
+  set (is_f_closed := (fun A => (∀ y, A y ⇒ A (f y)))
+    : hsubtype P -> hProp).
+  set (is_sup_closed
+      := (fun A => ∀ C' : hsubtype P, C' ⊆ A ⇒ A (P_complete C'))
+    : hsubtype P -> hProp).
+  set (C := (fun x =>
+      ∀ A : hsubtype P, is_f_closed A ⇒ is_sup_closed A ⇒ A x)
+    : hsubtype P).
+  assert (C_f_closed : is_f_closed C).
+  { intros x C_x A A_f_closed A_sup_closed.
+    use A_f_closed. use C_x; assumption. }
+  assert (C_sup_closed : is_sup_closed C).
+  { intros X C_X A A_f_closed A_sup_closed.
+    use A_sup_closed; intros ? ?; use C_X; assumption. }
+  assert (C_induction : ∀ (A : hsubtype P),
+    is_f_closed (A ∩ C) ⇒ is_sup_closed (A ∩ C) ⇒ C ⊆ A).
+  { intros A A_sup_closed A_f_closed x Cx.
+    apply (Cx (fun x => A x ∧ C x)); assumption. }
+  (* Sketch: now show that the sup of C is a least fixed point. *)
+Abort.
+
+End Tarski.
+
+(** ** Bourbaki-Witt
 
 The classical Bourbaki–Witt theorem says: Any progressive map on a chain-complete partial order has a fixed point.
 
 Constructively, this may fail, as shown in Bauer–Lumsdaine https://arxiv.org/abs/1201.0340. Here we aim to give both the classical theorem, and some weaker constructively-provable results.
-
 *)
 
 Section Bourbaki_Witt.
@@ -736,6 +771,7 @@ Proof.
   Ingredients needed
   - a good treatment of sub-posets, their induced orders, and completness properties
   - a good treatment of posets of functions, and more generally, producs of posets, and their completeness properties
+  - unify the treatment of least upper bounds here with that in [Algebra.Dcpo].
   *)
 Abort.
 
