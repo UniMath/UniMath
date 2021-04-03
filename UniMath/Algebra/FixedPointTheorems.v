@@ -85,8 +85,44 @@ Defined.
 Definition subtype_binaryunion {X} (A B : hsubtype X) : hsubtype X
   := fun x => A x ∨ B x.
 
+Notation "A ∪ B" := (subtype_binaryunion A B)
+                              (at level 40, left associativity) : subtype.
+  (* precedence tighter than "⊆", also than "-" [subtype_difference].  *)
+  (* in agda-input method, type \cup or ∪ *)
+
 Definition subtype_binaryintersection {X} (A B : hsubtype X) : hsubtype X
   := fun x => A x ∧ B x.
+
+Notation "A ∩ B" := (subtype_binaryintersection A B)
+                              (at level 40, left associativity) : subtype.
+  (* precedence tighter than "⊆", also than "-" [subtype_difference].  *)
+  (* in agda-input method, type \cap *)
+
+Definition subtype_binaryintersection_leq1 {X} (A B : hsubtype X)
+    : A ∩ B ⊆ A
+:= fun x => pr1.
+
+Definition subtype_binaryintersection_leq2 {X} (A B : hsubtype X)
+    : A ∩ B ⊆ B
+:= fun x => pr2.
+
+(* TODO: upstream, and factor out rest of [subtype_containment_isPartialOrder] too? *)
+Definition istrans_subtype_containment {X} {A B C : hsubtype X}
+    (leq_AB : A ⊆ B) (leq_BC : B ⊆ C)
+  : A ⊆ C.
+Proof.
+  cbn in *; auto.
+Defined.
+
+Definition subtype_binaryintersection_univ {X} (A B C : hsubtype X)
+  : C ⊆ A ∩ B <-> C ⊆ A ∧ C ⊆ B.
+Proof.
+  split.
+  - intros C_AB. split; apply (istrans_subtype_containment C_AB).
+    + apply subtype_binaryintersection_leq1.
+    + apply subtype_binaryintersection_leq2.
+  - cbn. intros [? ?]; split; auto.
+Defined.
 
 (* TODO: surely this must be in the library somewhere, along with its essential properties? *)
 Definition image {X Y : UU} (f : X -> Y) : hsubtype Y
@@ -630,8 +666,51 @@ Proof.
     is_f_closed (A ∩ C) ⇒ is_sup_closed (A ∩ C) ⇒ C ⊆ A).
   { intros A A_sup_closed A_f_closed x Cx.
     apply (Cx (fun x => A x ∧ C x)); assumption. }
-  (* Sketch: now show that the sup of C is a least fixed point. *)
-Abort.
+  (* Now establish a few facts about C and (post-)fixed points *)
+  assert (postfix_supclosed : is_sup_closed (fun x => x ≤ f x)).
+  { intros A A_postfix.
+    apply least_upper_bound_subtype_univ. intros x A_x.
+    eapply istrans_posetRelation. { use A_postfix; apply A_x. }
+    apply posetmorphism_property.
+    apply least_upper_bound_subtype_is_upper_bound, A_x.
+  }
+  assert (postfix_C : C ⊆  (fun x => x ≤ f x)).
+  { use C_induction.
+    - intros x [x_postfix C_x]. split. 2: { use C_f_closed; assumption. }
+      apply posetmorphism_property, x_postfix.
+    - intros A IH_A. split.
+      2: { use C_sup_closed;
+           apply (istrans_subtype_containment IH_A),
+                 subtype_binaryintersection_leq2. }
+      use postfix_supclosed.
+      apply (istrans_subtype_containment IH_A).
+      apply subtype_binaryintersection_leq1.
+  }
+  assert (C_below_allfix : forall x, (f x = x) -> C ⊆ (fun y => y ≤ x)).
+  { intros x x_fix.
+    use C_induction.
+    - intros y [le_yx C_y]. split. 2: { use C_f_closed; assumption. }
+      eapply istrans_posetRelation. { apply posetmorphism_property, le_yx. }
+      apply isrefl'_posetRelation, x_fix.
+    - intros A IH_A. split.
+      2: { use C_sup_closed.
+           apply (istrans_subtype_containment IH_A),
+                 subtype_binaryintersection_leq2. }
+      apply least_upper_bound_subtype_univ.
+      apply (istrans_subtype_containment IH_A), subtype_binaryintersection_leq1.
+  }
+  (* From these, it follows that sup C is a least fixed point. *)
+  set (sup_C := P_complete C).
+  assert (C_sup_C : C sup_C). { use C_sup_closed. intros ? ?; assumption. }
+  repeat use tpair.
+  - exact sup_C.
+  - apply isantisymm_posetRelation.
+    + refine (least_upper_bound_is_upper_bound sup_C (_,,_)).
+      use C_f_closed. apply C_sup_C.
+    + use postfix_C. apply C_sup_C.
+  - intros [x x_fix]; simpl.
+    apply least_upper_bound_subtype_univ, C_below_allfix; assumption.
+Defined.
 
 End Tarski.
 
@@ -648,7 +727,7 @@ Definition Bourbaki_Witt_property (P : Poset)
   := ∏ (f : Progressive_map P), Fixedpoint f.
 
 (** Theorem traditionally credited to Bourbaki (1949) and Witt (1951). This proof is based on Lang, Algebra (2002), Appendix 2, Thm 2.1. *)
-Theorem Bourbaki_Witt
+Theorem Bourbaki_Witt_fixpoint
   : LEM -> ∏ P : Poset, is_chain_complete P -> Bourbaki_Witt_property P.
 Proof.
 (* Let C be the least subset closed under f and suprema of chains.
