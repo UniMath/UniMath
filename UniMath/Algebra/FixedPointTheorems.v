@@ -15,6 +15,7 @@ Require Import UniMath.Algebra.Dcpo.
 
 Local Open Scope poset. (* for ≤, < *)
 Local Open Scope logic. (* for logic in hProp *)
+(* TODO: should the scope of hProp-calued “=” be changed to “logic” not “set”? try refactoring! *)
 Local Open Scope subtype.
 
 (** ** Background material
@@ -285,6 +286,12 @@ Section LeastUpperBounds.
   Definition least_suchthat_satisfies {A : P -> UU} (x : least_suchthat A)
       : A x
   := pr2 (least_of_family_index x).
+
+  Definition least_suchthat_is_least {A : P -> UU} (x : least_suchthat A)
+    : ∏ y, A y -> x ≤ y.
+  Proof.
+    intros y A_y. exact (least_is_least _ x (_,,A_y)).
+  Defined.
 
   Definition least_upper_bound {I} (p : I -> P)
   := least_suchthat (isupperbound p).
@@ -638,15 +645,15 @@ End Function_Posets.
 
 (** ** The (Knaster–)Tarski fixpoint theorems
 
-This classical theorem is in several forms.  The strong general form, due to Tarski, states that given a monotone endo-map [f] on a complete poset [P], the sub-poset of fixed points of [f] is again complete.  The key lemma for this is the earlier weaker form, due essentially to Knaster and Tarski independently: a monotone endo-map [f] on a complete poset [P] has a least fixed point.
+This classical theorem is in several forms.  The strong general form, due to Tarski, states that given a monotone endo-map [f] on a complete poset [P], the sub-poset of fixed points of [f] is again complete.  The key lemma for this is close to the earlier weaker form, due essentially to Knaster and Tarski independently: a monotone endo-map [f] on a complete poset [P] has a least fixed point above any post-fixed point.
 *)
 Section Tarski.
 
 Theorem Knaster_Tarski_fixpoint {P:Poset} (P_complete : is_complete P)
-    (f : posetmorphism P P)
-  : least_suchthat (fun x:P => f x = x).
+    (f : posetmorphism P P) {x0} (x0_postfix : x0 ≤ f x0)
+  : least_suchthat (fun x:P => f x = x ∧ x0 ≤ x)%set.
 Proof.
-  (* Let C be the least subset closed under f and least upper bounds.
+  (* Let C be the least subset containing x0 that is closed under f and taking least upper bounds.
    We take some time to set up C and its universal property cleanly. *)
   set (is_f_closed := (fun A => (∀ y, A y ⇒ A (f y)))
     : hsubtype P -> hProp).
@@ -654,18 +661,20 @@ Proof.
       := (fun A => ∀ C' : hsubtype P, C' ⊆ A ⇒ A (P_complete C'))
     : hsubtype P -> hProp).
   set (C := (fun x =>
-      ∀ A : hsubtype P, is_f_closed A ⇒ is_sup_closed A ⇒ A x)
+      ∀ A : hsubtype P, A x0 ⇒ is_f_closed A ⇒ is_sup_closed A ⇒ A x)
     : hsubtype P).
+  assert (C_x0 : C x0).
+  { intros A A_x0 A_f_closed A_sup_closed; assumption. }
   assert (C_f_closed : is_f_closed C).
-  { intros x C_x A A_f_closed A_sup_closed.
+  { intros x C_x A A_x0 A_f_closed A_sup_closed.
     use A_f_closed. use C_x; assumption. }
   assert (C_sup_closed : is_sup_closed C).
-  { intros X C_X A A_f_closed A_sup_closed.
+  { intros X C_X A A_x0 A_f_closed A_sup_closed.
     use A_sup_closed; intros ? ?; use C_X; assumption. }
   assert (C_induction : ∀ (A : hsubtype P),
-    is_f_closed (A ∩ C) ⇒ is_sup_closed (A ∩ C) ⇒ C ⊆ A).
-  { intros A A_sup_closed A_f_closed x Cx.
-    apply (Cx (fun x => A x ∧ C x)); assumption. }
+    A x0 ⇒ is_f_closed (A ∩ C) ⇒ is_sup_closed (A ∩ C) ⇒ C ⊆ A).
+  { intros A A_x0 A_sup_closed A_f_closed x Cx.
+    apply (Cx (fun x => A x ∧ C x)); [ split | | ]; assumption. }
   (* Now establish a few facts about C and (post-)fixed points *)
   assert (postfix_supclosed : is_sup_closed (fun x => x ≤ f x)).
   { intros A A_postfix.
@@ -676,6 +685,7 @@ Proof.
   }
   assert (postfix_C : C ⊆  (fun x => x ≤ f x)).
   { use C_induction.
+    - apply x0_postfix.
     - intros x [x_postfix C_x]. split. 2: { use C_f_closed; assumption. }
       apply posetmorphism_property, x_postfix.
     - intros A IH_A. split.
@@ -686,9 +696,10 @@ Proof.
       apply (istrans_subtype_containment IH_A).
       apply subtype_binaryintersection_leq1.
   }
-  assert (C_below_allfix : forall x, (f x = x) -> C ⊆ (fun y => y ≤ x)).
-  { intros x x_fix.
+  assert (C_below_allfix : ∏ x, (f x = x)%set ⇒ x0 ≤ x ⇒ C ⊆ (fun y => y ≤ x)).
+  { intros x x_fix leq_x0_x.
     use C_induction.
+    - assumption.
     - intros y [le_yx C_y]. split. 2: { use C_f_closed; assumption. }
       eapply istrans_posetRelation. { apply posetmorphism_property, le_yx. }
       apply isrefl'_posetRelation, x_fix.
@@ -702,14 +713,47 @@ Proof.
   (* From these, it follows that sup C is a least fixed point. *)
   set (sup_C := P_complete C).
   assert (C_sup_C : C sup_C). { use C_sup_closed. intros ? ?; assumption. }
-  repeat use tpair.
-  - exact sup_C.
+  simple refine (((sup_C : P),,(_,,_)),,_); simpl.
   - apply isantisymm_posetRelation.
     + refine (least_upper_bound_is_upper_bound sup_C (_,,_)).
       use C_f_closed. apply C_sup_C.
     + use postfix_C. apply C_sup_C.
-  - intros [x x_fix]; simpl.
+  - refine (least_upper_bound_is_upper_bound sup_C (_,,_)); assumption.
+  - intros [x [x_fix leq_x0_x]]; simpl.
     apply least_upper_bound_subtype_univ, C_below_allfix; assumption.
+Defined.
+
+Theorem Tarski_fixpoint_theorem
+    {P:Poset} (P_complete : is_complete P) (f : posetmorphism P P)
+  : is_complete ((fun x:P => f x = x)%set : Subposet P).
+Proof.
+  intros A.
+  set (A_in_P := (fun x :P => ∑ x_fix : (f x = x)%set, A (x,,x_fix))%prop).
+  set (sup_P_A := P_complete A_in_P).
+  assert (sup_fix_A : least_suchthat (fun x:P => f x = x ∧ sup_P_A ≤ x)%set).
+  { apply Knaster_Tarski_fixpoint; try assumption.
+    apply least_upper_bound_subtype_univ.
+    intros y [y_fix A_y].
+    apply (istrans_posetRelation _ _ (f y)).
+    { apply isrefl'_posetRelation, pathsinv0; assumption. }
+    apply posetmorphism_property, least_upper_bound_subtype_is_upper_bound.
+    use tpair; assumption.
+  }
+  assert (sup_A_isfix : f sup_fix_A = sup_fix_A).
+  { apply (least_suchthat_satisfies sup_fix_A). }
+  use make_least_upper_bound.
+  { exists sup_fix_A. assumption. }
+  split.
+  - intros [[x x_fix] A_x]. simpl.
+    apply (istrans_posetRelation _ _ (sup_P_A)).
+    + apply least_upper_bound_subtype_is_upper_bound. use tpair; assumption.
+    + apply (least_suchthat_satisfies sup_fix_A).
+  - intros [[x x_fix] x_ub]. cbn.
+    apply least_suchthat_is_least.
+    split; try assumption.
+    apply least_upper_bound_subtype_univ.
+    intros y [y_fix A_y].
+    use (x_ub ((_,,_),,_)); assumption.
 Defined.
 
 End Tarski.
@@ -835,7 +879,7 @@ Proof.
   use progressive_property.
 Defined.
 
-(** A constructive fixed-point theorem, originally due to Pataria; this proof transmitted via Dacar and Bauer–Lumsdaine (where it is Thm 3.2). *)
+(** A constructive fixed-point theorem, originally due to Pataraia; this proof transmitted via Dacar and Bauer–Lumsdaine (where it is Thm 3.2). *)
 Theorem fixpoint_for_monotone_on_dcpo
     {P : dcpo} (f : posetmorphism P P) (x : Postfixedpoint f)
   : ∑ y : Fixedpoint f, x ≤ y.
