@@ -34,6 +34,8 @@
 
 Require Export UniMath.Foundations.Sets.
 
+Local Open Scope logic.
+
 (** To upstream files *)
 
 
@@ -326,7 +328,7 @@ Proof.
         rewrite e. apply idpath.
     -  apply (is x').
   }
-  assert (is' : ∏ x : X, hexists (λ x0 : X, eqset (opp x0 x) un0)).
+  assert (is' : ∏ x : X, hexists (λ x0 : X, (opp x0 x) = un0)).
   {
     intro x. apply (λ f : _ , hinhuniv f (is x)). intro s1.
     destruct s1 as [ x' eq ]. apply hinhpr. split with x'. simpl.
@@ -350,7 +352,7 @@ Proof.
         rewrite e. apply idpath.
     - apply (is' x').
   }
-  assert (int : ∏ x : X, isaprop (total2 (λ x0 : X, eqset (opp x0 x) un0))).
+  assert (int : ∏ x : X, isaprop (total2 (λ x0 : X, (opp x0 x) = un0))).
   {
     intro x. apply isapropsubtype. intros x1 x2. intros eq1 eq2.
     apply (invmaponpathsincl _ (l1 x)).
@@ -1472,7 +1474,7 @@ Proof.
       use funextfun. intros x1.
       use funextfun. intros x2.
       exact (i x1 x2).
-    + intros e. change (Xop = Yop) in e. intros x1 x2. induction e. use idpath.
+    + intros e. cbn in e. intros x1 x2. induction e. use idpath.
     + use isapropisbinopfun.
     + use isasetbinoponhSet.
 Defined.
@@ -2412,7 +2414,7 @@ Proof.
       * use funextfun. intros x1.
         use funextfun. intros x2.
         exact ((dirprod_pr2 i) x1 x2).
-    + intros e. change (Xop = Yop) in e.
+    + intros e. cbn in e.
       use make_istwobinopfun.
       * intros x1 x2. induction e. use idpath.
       * intros x1 x2. induction e. use idpath.

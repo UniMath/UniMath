@@ -232,7 +232,7 @@ Definition neg (X : UU) : UU := X -> empty.
 Notation "'¬' X" := (neg X).
 (* type this in emacs in agda-input method with \neg *)
 
-Notation "x != y" := (neg (x = y)).
+Notation "x != y" := (neg (x = y)) : type_scope.
 
 Definition negf {X Y : UU} (f : X -> Y) : ¬ Y -> ¬ X := λ phi x, phi (f x).
 
@@ -1225,7 +1225,7 @@ Defined.
 
 Definition weq (X Y : UU) : UU := ∑ f:X->Y, isweq f.
 
-Notation "X ≃ Y" := (weq X Y) : type_scope.
+Notation "X ≃ Y" := (weq X%type Y%type) : type_scope.
 (* written \~- or \simeq in Agda input method *)
 
 Definition pr1weq {X Y : UU} := pr1 : X ≃ Y -> (X -> Y).
