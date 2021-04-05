@@ -708,14 +708,6 @@ Arguments isBinProduct' _ _ _ _ _ : clear implicits.
 
 (** ** Terminal object as the unit (up to isomorphism) of binary products *)
 
-Local Lemma f_equal_2 :
-  forall {A B C : UU} (f : A -> B -> C) (a a' : A) (b b' : B),
-    a = a' -> b = b' -> f a b = f a' b'.
-Proof.
-  do 8 intro; intros eq1 eq2.
-  abstract (now rewrite eq1; rewrite eq2).
-Defined.
-
 (** [T × x ≅ x]*)
 Lemma terminal_binprod_unit_l {C : precategory}
       (T : Terminal C) (BC : BinProducts C) :
@@ -732,7 +724,7 @@ Proof.
     split; [|apply BinProductPr2Commutes].
     refine (precompWithBinProductArrow _ _ _ _ _ @ _).
     refine (_ @ !BinProductArrowEta _ _ _ _ _ (identity _)).
-    apply f_equal_2.
+    apply maponpaths_12.
     + apply TerminalArrowEq.
     + exact (id_right _ @ !id_left _).
 Defined.
@@ -754,7 +746,7 @@ Proof.
     split; [|apply BinProductPr1Commutes].
     refine (precompWithBinProductArrow _ _ _ _ _ @ _).
     refine (_ @ !BinProductArrowEta _ _ _ _ _ (identity _)).
-    apply f_equal_2.
+    apply maponpaths_12.
     + exact (id_right _ @ !id_left _).
     + apply TerminalArrowEq.
 Defined.

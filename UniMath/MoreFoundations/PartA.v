@@ -88,7 +88,6 @@ The following appear to be duplicates/specialisations of [maponpaths_12], found 
 Duplicates:
   [Foundations.PartA.two_arg_paths] — in [Foundations], complete duplicate of [maponpaths_12] and [map_on_two_paths]
   [Foundations.PartA.map_on_two_paths] — in [Foundations], complete duplicate of [maponpaths_12] and [two_arg_paths]
-  [CategoryTheory.binproducts.f_equal_2] — looks like unnecessary duplicate, remove?
 
 Specialisations:
   [Foundations.PartA.pathsdirprod] — in [Foundations], useful specialisation
