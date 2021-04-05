@@ -49,11 +49,27 @@ Definition maponpaths_1234 {W Z Y X A : UU} (f : W -> Z -> Y -> X -> A)
   : f w z y x = f w' z' y' x'
 := maponpaths_123 _ e_z e_y e_x @ maponpaths_4 _ e_w _ _ _.
 
-(* NOTE: some of the lemmas above are provided multiple times elsewhere in the library, including some pure duplicates, and some specialisations (maybe for good reason, maybe not). TODO:
+(* Notes on duplciation issues: *)
+
+(* NOTE: some of the lemmas above are provided multiple times elsewhere in the library, including some pure duplicates, and some specialisations (maybe for good reason, maybe not). TODO: chase them down, unify them where desirable, or document when there’s good reason for the duplication/specialisation.
+
+The following are specialisations of [maponpaths]:
+
+base_paths — [Foundations], see below
+lemmas.pathintotalpr1
+pair_path_in2
+maponpathsPrecategories.total2_paths1
+PathsOver.pullBackPathOverPoint
+cancel_precomposition
+PrecategoriesWithAbgrops.to_apply_inv
+PrecategoriesWithAbgrops.to_rrw
+AffineLine.makeGuidedHomotopy_localPath
+Circle.makeGH_localPath
+coproducts.CoproductOfArrows_eq
+
 
 The following appear to be duplicates/specialisations of [maponpaths_2], found with [Search (?x = ?x' -> ?f ?x ?y = ?f ?x' ?y)] and similar searches (following [Require UniMath.All]):
 
-  PartA.app
   PreAdditive.ropeq
   padics.hzmultrmul
   Integers.hzplusradd
@@ -69,9 +85,9 @@ The following appear to be duplicates/specialisations of [maponpaths_2], found w
 The following appear to be duplicates/specialisations of [maponpaths_12], found with [Search (?x = ?x' -> ?y = ?y' -> ?f ?x ?y = ?f ?x' ?y')] and [Search (?x = ?x' -> forall y y', y = y' -> ?f ?x y = ?f ?x' y')]:
 
 Duplicates:
-  PartA.aptwice
+  Foundations.two_arg_paths
+  MoreFoundations.PartA.aptwice
   binproducts.f_equal_2
-  two_arg_paths
   map_on_two_paths
 Specialisations:
   pathsdirprod
@@ -81,22 +97,18 @@ Specialisations:
   bincoproducts.BinCoproductArrow_eq
   binproducts.BinProductOfArrows_eq
   bincoproducts.BinCoproductOfArrows_eq
-
-The following are specialisations of [maponpaths]:
-
-base_paths — specislisation of
-lemmas.pathintotalpr1
-pair_path_in2
-maponpathsPrecategories.total2_paths1
-PathsOver.pullBackPathOverPoint
-cancel_precomposition
-PrecategoriesWithAbgrops.to_apply_inv
-PrecategoriesWithAbgrops.to_rrw
-AffineLine.makeGuidedHomotopy_localPath
-Circle.makeGH_localPath
-coproducts.CoproductOfArrows_eq
 *)
 
+
+(* [maponpaths_12] is a duplicate of [two_arg_paths] from [Foundations].
+
+Option 1: keep both.  Disadvantage: all the usual problems with duplication, e.g. searchability (even if they’re judgementally equal)
+
+Option 2: make this a notation for that.  Disadvantage: notations that look like identifiers can cause very confusing errors.
+
+Option 3: remove this.  Disadvantage: loses the consistently-named series.
+
+Option 4: rename [two_arg_paths] to [maponpaths_12].  Disadvantage: messing with Foundations. *)
 
 Lemma maponpaths_for_constant_function {T1 T2 : UU} (x : T2) {t1 t2 : T1}
       (e: t1 = t2): maponpaths (fun _: T1 => x) e = idpath x.
@@ -422,12 +434,6 @@ Proof.
   intros e. induction e. induction p. reflexivity.
 Defined.
 
-Definition app {X} {P:X->Type} {x x':X} {e e':x = x'} (q:e = e') (p:P x) :
-  transportf P e p = transportf P e' p.
-Proof.
-  intros. induction q. reflexivity.
-Defined.
-
 (** ** Paths *)
 
 Definition pathsinv0_to_right {X} {x y z:X} (p:y = x) (q:y = z) (r:x = z) :
@@ -540,7 +546,7 @@ Defined.
 
 Definition total2_paths2_comp2 {X} {Y:X->Type} {x} {y:Y x} {x'} {y':Y x'}
            (p:x = x') (q:p#y = y') :
-  ! app (total2_paths2_comp1 p q) y @ fiber_paths (two_arg_paths_f p q) = q.
+  ! maponpaths_2 _ (total2_paths2_comp1 p q) y @ fiber_paths (two_arg_paths_f p q) = q.
 Proof.
   intros. induction p, q. reflexivity.
 Defined.
@@ -574,10 +580,6 @@ Definition evalat {T} {P:T->UU} (t:T) (f:∏ t:T, P t) := f t.
 
 Definition apfun {X Y} {f f':X->Y} (p:f = f') {x x'} (q:x = x') : f x = f' x'.
   intros. induction q. exact (eqtohomot p x).
-Defined.
-
-Definition aptwice {X Y Z} (f:X->Y->Z) {a a' b b'} (p:a = a') (q:b = b') : f a b = f a' b'.
-  intros. exact (apfun (maponpaths f p) q).
 Defined.
 
 Definition fromemptysec { X : empty -> UU } (nothing:empty) : X nothing.
