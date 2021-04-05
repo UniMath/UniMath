@@ -15,7 +15,6 @@ Require Import UniMath.Algebra.Dcpo.
 
 Local Open Scope poset. (* for ≤, < *)
 Local Open Scope logic. (* for logic in hProp *)
-(* TODO: should the scope of hProp-calued “=” be changed to “logic” not “set”? try refactoring! *)
 Local Open Scope subtype.
 
 (** ** Background material
@@ -222,7 +221,7 @@ End MonotoneMaps.
 Section Fixpoints.
 
 Definition Fixedpoint {P : Poset} (f : P -> P) : UU
-  := carrier (fun (x:P) => eqset (f x) x).
+  := carrier (fun (x:P) => f x = x).
 
 Coercion pr1_Fixedpoint {P : Poset} {f : P -> P} : Fixedpoint f -> P
 := pr1carrier _.
@@ -651,7 +650,7 @@ Section Tarski.
 
 Theorem Knaster_Tarski_fixpoint {P:Poset} (P_complete : is_complete P)
     (f : posetmorphism P P) {x0} (x0_postfix : x0 ≤ f x0)
-  : least_suchthat (fun x:P => f x = x ∧ x0 ≤ x)%set.
+  : least_suchthat (fun x:P => f x = x ∧ x0 ≤ x).
 Proof.
   (* Let C be the least subset containing x0 that is closed under f and taking least upper bounds.
    We take some time to set up C and its universal property cleanly. *)
@@ -696,7 +695,7 @@ Proof.
       apply (istrans_subtype_containment IH_A).
       apply subtype_binaryintersection_leq1.
   }
-  assert (C_below_allfix : ∏ x, (f x = x)%set ⇒ x0 ≤ x ⇒ C ⊆ (fun y => y ≤ x)).
+  assert (C_below_allfix : ∏ x, (f x = x) ⇒ x0 ≤ x ⇒ C ⊆ (fun y => y ≤ x)).
   { intros x x_fix leq_x0_x.
     use C_induction.
     - assumption.
@@ -725,12 +724,12 @@ Defined.
 
 Theorem Tarski_fixpoint_theorem
     {P:Poset} (P_complete : is_complete P) (f : posetmorphism P P)
-  : is_complete ((fun x:P => f x = x)%set : Subposet P).
+  : is_complete ((fun x:P => f x = x) : Subposet P).
 Proof.
   intros A.
-  set (A_in_P := (fun x :P => ∑ x_fix : (f x = x)%set, A (x,,x_fix))%prop).
+  set (A_in_P := (fun x:P => ∑ x_fix : (f x = x)%logic, A (x,,x_fix))%prop).
   set (sup_P_A := P_complete A_in_P).
-  assert (sup_fix_A : least_suchthat (fun x:P => f x = x ∧ sup_P_A ≤ x)%set).
+  assert (sup_fix_A : least_suchthat (fun x:P => f x = x ∧ sup_P_A ≤ x)).
   { apply Knaster_Tarski_fixpoint; try assumption.
     apply least_upper_bound_subtype_univ.
     intros y [y_fix A_y].
@@ -813,7 +812,7 @@ Proof.
   (2) every x ∈ C is a bottleneck.
   It follows that C is a chain.
   *)
-  set (is_bottleneck := (fun x => ∀ y, C y ⇒ y ≤ x ⇒ (f y ≤ x) ∨ (eqset y x))
+  set (is_bottleneck := (fun x => ∀ y, C y ⇒ y ≤ x ⇒ (f y ≤ x) ∨ (y = x))
     : hsubtype P).
   assert (bottleneck_comparison : ∀ x, C x ⇒ is_bottleneck x
                                      ⇒ ∀ y, C y ⇒ (y ≤ x) ∨ (f x ≤ y)).
