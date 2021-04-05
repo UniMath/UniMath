@@ -93,7 +93,7 @@ Section elems_slice_equiv.
       use total2_paths_f.
       * reflexivity.
       * rewrite idpath_transportf;
-        now apply eqset.
+        now apply setproperty.
 
     + set (T := ∑ p' : ## P Z, p' = # (pr1 P) (g ∘ f) p : UU).
       set (T' := ∑ p' : ## P Z, (pr1 F) (X ,, p) --> (pr1 F) (Z ,, p') : UU).
@@ -119,7 +119,7 @@ Section elems_slice_equiv.
       use total2_paths_f.
       * reflexivity.
       * rewrite idpath_transportf;
-        now apply eqset.
+        now apply setproperty.
   Qed.
 
   Definition PreShv_to_slice_ob_funct (F : PreShv ∫P) : PreShv C :=
@@ -200,7 +200,7 @@ Section elems_slice_equiv.
       apply funextsec; intro p;
         apply (invmaponpathsincl pr1);
         try (apply isofhlevelfpr1;
-             intros ?; exact (pr2 (eqset _ _))).
+             intros ?; apply setproperty).
     + exact (eqtohomot ((pr1 Qisfunct) x) (pr1 p)).
     + exact (eqtohomot ((pr2 Qisfunct) x y z f g) (pr1 p)).
   Qed.
@@ -229,7 +229,7 @@ Section elems_slice_equiv.
     apply (invmaponpathsincl pr1).
     + apply isofhlevelfpr1.
       intros ?.
-      exact (pr2 (eqset _ _)).
+      apply setproperty.
     + simpl.
       destruct peq.
       unfold hfiber.
@@ -255,7 +255,7 @@ Section elems_slice_equiv.
       apply (invmaponpathsincl pr1);
       try (apply isofhlevelfpr1;
            intros ?;
-                  exact (pr2 (eqset _ _)));
+                  apply setproperty);
       simpl;
       unfold hfiber;
       unfold hfibersgftog; unfold make_hfiber;
@@ -335,7 +335,7 @@ Section elems_slice_equiv.
       apply (invmaponpathsincl pr1).
       apply isofhlevelfpr1;
         intros ?;
-               exact (pr2 (eqset _ _)).
+               apply setproperty.
       induction (!feq).
       apply (total2_paths2_f (idpath _)).
       rewrite idpath_transportf.
@@ -353,7 +353,7 @@ Section elems_slice_equiv.
     apply (invmaponpathsincl pr1).
     apply isofhlevelfpr1;
       intros ?;
-             exact (pr2 (eqset _ _)).
+             apply setproperty.
     simpl. unfold hfiber.
     rewrite transportf_total2; simpl.
     now rewrite transportf_const.
@@ -378,7 +378,7 @@ Section elems_slice_equiv.
                exact (pr2 (@eqset
                              ((slice_to_PreShv_ob_ob (PreShv_to_slice_ob ((F,, Fmor),, Fisfunct)) (X,, p'))) _ _)).
       assert (eq_id : base_paths (p',, x'') (p',, x') (maponpaths pr1 t) = idpath p').
-      { set (c := iscontraprop1 (pr2 (@eqset ((pr1 P) X) p' p')) (idpath p')).
+      { set (c := iscontraprop1 (setproperty _ _ _) (idpath p')).
         exact ((pr2 c) _ @ !((pr2 c) _)).
       }
       set (eq := fiber_paths (maponpaths pr1 t)).

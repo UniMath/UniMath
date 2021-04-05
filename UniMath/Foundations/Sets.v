@@ -87,13 +87,12 @@ Coercion pr1hSet: hSet >-> UU.
 
 Definition eqset {X : hSet} (x x' : X) : hProp
   := make_hProp (x = x') (pr2 X x x').
-Declare Scope set.
-Notation "a = b" := (eqset a b) (at level 70, no associativity) : set.
+
+Notation "a = b" := (eqset a b) (at level 70, no associativity) : logic.
 
 Definition neqset {X : hSet} (x x' : X) : hProp
   := make_hProp (x != x') (isapropneg _). (* uses funextemptyAxiom *)
-Notation "a != b" := (neqset a b) (at level 70, no associativity) : set.
-Delimit Scope set with set.
+Notation "a != b" := (neqset a b) (at level 70, no associativity) : logic.
 
 Definition setproperty (X : hSet) := pr2 X.
 
@@ -121,6 +120,8 @@ Definition total2_hSet {X : hSet} (Y : X -> hSet) : hSet
 Definition hfiber_hSet {X Y : hSet} (f : X → Y) (y : Y) : hSet
   := make_hSet (hfiber f y) (isaset_hfiber f y (pr2 X) (pr2 Y)).
 
+
+Declare Scope set.
 Delimit Scope set with set.
 
 Notation "'∑' x .. y , P" := (total2_hSet (λ x,.. (total2_hSet (λ y, P))..))

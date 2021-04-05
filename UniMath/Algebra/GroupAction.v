@@ -61,7 +61,7 @@ Definition right_mult {G:gr} {X:Action G} (x:X) := λ g, g*x.
 Definition left_mult {G:gr} {X:Action G} (g:G) := λ x:X, g*x.
 
 Definition is_equivariant {G:gr} {X Y:Action G} (f:X->Y) : hProp :=
-  (∀ g x, f (g*x) = g*(f x))%set.
+  (∀ g x, f (g*x) = g*(f x))%logic.
 
 Definition is_equivariant_isaprop {G:gr} {X Y:Action G} (f:X->Y) :
   isaprop (is_equivariant f).

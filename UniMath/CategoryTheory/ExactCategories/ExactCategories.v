@@ -151,7 +151,10 @@ Section MorphismPairs.
 End MorphismPairs.
 
 Section Pullbacks.              (* move upstream *)
-  Definition IsoArrowTo {M : precategory}     {A A' B:M} (g : A --> B) (g' : A' --> B) := ∑ i : z_iso A A', i · g' = g .
+
+  Local Open Scope type.
+
+  Definition IsoArrowTo {M : precategory}     {A A' B:M} (g : A --> B) (g' : A' --> B) := ∑ i : z_iso A A', i · g' = g.
   Coercion IsoArrowTo_pr1 {M : precategory}   {A A' B:M} (g : A --> B) (g' : A' --> B) : IsoArrowTo g g' -> z_iso A A' := pr1.
   Definition IsoArrowFrom {M : precategory}   {A B B':M} (g : A --> B) (g' : A --> B') := ∑ i : z_iso B B', g · i  = g'.
   Coercion IsoArrowFrom_pr1 {M : precategory} {A B B':M} (g : A --> B) (g' : A --> B') : IsoArrowFrom g g' -> z_iso B B' := pr1.
@@ -384,7 +387,9 @@ Section PreAdditive.
     intros im eq ex. exists eq. intros w h e.
     apply iscontraprop1.
     - apply invproofirrelevance; intros [r R] [s S].
-      apply subtypePath_prop; simpl. apply im. exact (R@!S).
+      Unset Printing Notations. Arguments paths _ _ _ : clear implicits.
+      try assumption.
+      refine (@subtypePath_prop _ _ (_,,_) (_,,_) _); simpl. apply im. exact (R@!S).
     - apply ex. exact e.
   Qed.
   Definition makeEpiCokernel {M:PreAdditive} {x y z : M} (f : x --> y) (g : y --> z) :
@@ -1802,7 +1807,7 @@ Section SplitSequences.
     apply makeMonicKernel.
     - apply to_In1_isMonic.
     - exact (to_Unel1 AB).
-    - intros T h e. exists (h · π₁). unfold eqset; cbn. refine (_ @ id_right _).
+    - intros T h e. exists (h · π₁). refine (_ @ id_right _).
       rewrite <- (to_BinOpId AB). rewrite rewrite_op. rewrite rightDistribute.
       rewrite assoc'. rewrite (assoc _ π₂ _). rewrite e. rewrite zeroLeft. rewrite runax. reflexivity.
   Defined.
@@ -1811,7 +1816,7 @@ Section SplitSequences.
     apply makeEpiCokernel.
     - apply to_Pr2_isEpi.
     - exact (to_Unel1 AB).
-    - intros T h e. exists (ι₂ · h). unfold eqset; cbn. refine (_ @ id_left _).
+    - intros T h e. exists (ι₂ · h). refine (_ @ id_left _).
       rewrite <- (to_BinOpId AB). rewrite rewrite_op. rewrite leftDistribute.
       rewrite assoc. rewrite (assoc' _ ι₁ _). rewrite e. rewrite zeroRight. rewrite lunax. reflexivity.
   Defined.
@@ -1840,7 +1845,7 @@ Section SplitSequences.
     apply hinhpr.
     exists (q' · p').
     exists (π₁ · i' · j + π₂ · j').
-    repeat split; unfold eqset; cbn; rewrite ? rewrite_op.
+    repeat split; rewrite ? rewrite_op.
     { rewrite assoc'. rewrite (assoc j). rewrite (to_IdIn1 jq). rewrite id_left.
       rewrite (to_IdIn1 ip). reflexivity. }
     { rewrite rightDistribute, 2 leftDistribute.
