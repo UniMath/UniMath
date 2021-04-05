@@ -71,7 +71,7 @@ The following are specialisations of [maponpaths]:
 
 The following appear to be duplicates/specialisations of [maponpaths_2], found with [Search (?x = ?x' -> ?f ?x ?y = ?f ?x' ?y)] and similar searches (following [Require UniMath.All]):
 
-  [Foundations.PartA.transportf_paths] — in [Foundations], also probably useful
+  [Foundations.PartA.transportf_paths] — in [Foundations], also useful
   [CategoryTheory.PreAdditive.ropeq] — looks like unnecessary specialisation
   [PAdics.padics.hzmultrmul] — looks like unnecessary specialisation?
   [Integers.hzplusradd] — looks like unnecessary specialisation?
@@ -92,7 +92,6 @@ Duplicates:
 Specialisations:
   [Foundations.PartA.pathsdirprod] — in [Foundations], useful specialisation
   [Foundations.PartA.total2_paths2] — in [Foundations], but also dupe of [pathsdirprod]
-  [MoreFoundations.PathsOver.apstar] — possibly unnecessary; investigate
   [CategoriesWithBinOps.to_binop_eq] — looks probably unnecessary
   [CategoryTheory.limits.bincoproducts.BinCoproductArrow_eq]  — looks probably like unnecessary duplicate; investigate, remove?
   [CategoryTheory.limits.binproducts.BinProductOfArrows_eq] — looks probably like unnecessary duplicate; investigate, remove?
