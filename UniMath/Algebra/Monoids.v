@@ -166,7 +166,7 @@ Lemma ismonoidfuncomp {X Y Z : monoid} (f : monoidfun X Y) (g : monoidfun Y Z) :
   ismonoidfun (funcomp (pr1 f) (pr1 g)).
 Proof.
   split with (isbinopfuncomp f g).
-  unfold funcomp. rewrite (pr2 (pr2 f)).
+  simpl. rewrite (pr2 (pr2 f)).
   apply (pr2 (pr2 g)).
 Defined.
 Opaque ismonoidfuncomp.

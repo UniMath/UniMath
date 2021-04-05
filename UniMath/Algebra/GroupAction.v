@@ -83,7 +83,7 @@ Definition is_equivariant_identity {G:gr} {X Y:Action G}
 Proof.
   revert X Y p; intros [X [Xm [Xu Xa]]] [Y [Ym [Yu Ya]]] ? .
   (* should just apply hPropUnivalence at this point, as in Poset_univalence_prelim! *)
-  simpl in p. destruct p; simpl. unfold transportf; simpl. unfold idfun; simpl.
+  simpl in p. destruct p; simpl. unfold transportf; simpl.
   simple refine (make_weq _ _).
   { intros p g x. simpl in x. simpl.
     exact (eqtohomot (eqtohomot (maponpaths act_mult p) g) x). }

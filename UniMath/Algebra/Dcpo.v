@@ -22,6 +22,7 @@ Refactored: January 2019
 *)
 
 Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.PartA.
 
 Local Open Scope poset. (* So we can write ≤ *)
 
@@ -238,7 +239,7 @@ Proof.
   use mkdcpomorphism.
   - exact (λ _, e).
   - intros I u isdirec v islubv. split.
-    + intro i. unfold funcomp; simpl. apply isrefl_posetRelation.
+    + intro i. simpl. apply isrefl_posetRelation.
     + intros d' ineqs. apply (@factor_through_squash I).
       * apply propproperty.
       * intro i. exact (ineqs i).
@@ -509,7 +510,7 @@ Proof.
     eapply dcpomorphism_preserveslub.
     + exact isdirec'.
     + exact islubu'.
-    + intro j; unfold funcomp.
+    + intro j. simpl.
       use factor_through_squash.
       * exact (directeduntruncated F i j).
       * apply propproperty.
@@ -530,7 +531,7 @@ Proof.
   intros n I F isdirec g islubg.
   induction n as [| m IH].
   - split.
-    + intro i. unfold funcomp; simpl. apply dcpowithbottom_isMinimal.
+    + intro i. simpl. apply dcpowithbottom_isMinimal.
     + intros y ineqs. apply dcpowithbottom_isMinimal.
   - simpl. eapply doublelubdirected.
     + exact isdirec.
@@ -601,7 +602,7 @@ Proof.
     eapply dcpomorphism_preserveslub.
     + exact isdirec.
     + apply pointwiselub_islubpointwise.
-    + intro n. unfold funcomp.
+    + intro n. simpl.
       eapply (istrans_posetRelation _ _ (pointwisefamily iter' f (S n)) _).
       * apply isrefl_posetRelation.
       * apply pointwiselub_islubpointwise.
