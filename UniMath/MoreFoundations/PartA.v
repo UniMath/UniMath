@@ -49,66 +49,63 @@ Definition maponpaths_1234 {W Z Y X A : UU} (f : W -> Z -> Y -> X -> A)
   : f w z y x = f w' z' y' x'
 := maponpaths_123 _ e_z e_y e_x @ maponpaths_4 _ e_w _ _ _.
 
-(* Notes on duplciation issues: *)
+(* Notes on duplication issues: *)
 
 (* NOTE: some of the lemmas above are provided multiple times elsewhere in the library, including some pure duplicates, and some specialisations (maybe for good reason, maybe not). TODO: chase them down, unify them where desirable, or document when there’s good reason for the duplication/specialisation.
 
 The following are specialisations of [maponpaths]:
 
-base_paths — [Foundations], see below
-lemmas.pathintotalpr1
-pair_path_in2
-maponpathsPrecategories.total2_paths1
-PathsOver.pullBackPathOverPoint
-cancel_precomposition
-PrecategoriesWithAbgrops.to_apply_inv
-PrecategoriesWithAbgrops.to_rrw
-AffineLine.makeGuidedHomotopy_localPath
-Circle.makeGH_localPath
-coproducts.CoproductOfArrows_eq
+[Foundations.PartA.base_paths] — keep since in [Foundations]
+[Foundations.PartA.pair_path_in2] — in [Foundations], also useful specialisation
+
+[PAdics.lemmas.pathintotalpr1] — duplicate of [base_paths], remove?
+[CategoryTheory.RepresentableFunctors.Precategories.total2_paths1] — duplicate of [pair_path_in2], remove?
+[MoreFoundations.PathsOver.pullBackPathOverPoint] — specialisation of [maponpaths_1], probably useful; investigate
+[CategoryTheory.Core.Categories.cancel_precomposition] — specialisation of [maponpaths_1], previously discussed and decided to keep
+[CategoryTheory.PrecategoriesWithAbgrops.to_apply_inv] — to investigate
+[CategoryTheory.PrecategoriesWithAbgrops.to_rrw] — to investigate
+[SyntheticHomotopyTheory.AffineLine.makeGuidedHomotopy_localPath] — to investigate
+[SyntheticHomotopyTheory.Circle.makeGH_localPath] — to investigate
+[CategoryTheory.limits.coproducts.CoproductOfArrows_eq] — looks probably like unnecessary duplicate; remove?
 
 
 The following appear to be duplicates/specialisations of [maponpaths_2], found with [Search (?x = ?x' -> ?f ?x ?y = ?f ?x' ?y)] and similar searches (following [Require UniMath.All]):
 
-  PreAdditive.ropeq
-  padics.hzmultrmul
-  Integers.hzplusradd
-  cancel_postcomposition
-  PrecategoriesWithAbgrops.to_lrw
-  transportf_paths
-  fps.natsummationpaths
-  nat_trans_eq_pointwise
-  Complexes.MorphismEq'
-  Modification.modcomponent_eq
-  whiskering.cancel_whisker_right
+  [Foundations.PartA.transportf_paths] — in [Foundations], also probably useful
+  [CategoryTheory.PreAdditive.ropeq] — looks like unnecessary specialisation
+  [PAdics.padics.hzmultrmul] — looks like unnecessary specialisation?
+  [Integers.hzplusradd] — looks like unnecessary specialisation?
+  [CategoryTheory.Core.Categories.cancel_postcomposition] — discussed before; probably desirable specialisation
+  [CategoryTheory.PrecategoriesWithAbgrops.to_lrw] — to investigate
+  [PAdics.fps.natsummationpaths] — to investigate
+  [CategoryTheory.Core.NaturalTransformations.nat_trans_eq_pointwise] — clearly useful; keep; perhaps define in terms of [maponpaths_2]?
+  [HomologicalAlgebra.Complexes.MorphismEq'] – to investigate
+  [Bicategories.Modifications.Modification.modcomponent_eq] — to investigate
+  [Bicategories.WkCatEnrichment.whiskering.cancel_whisker_right] — to investigate
 
 The following appear to be duplicates/specialisations of [maponpaths_12], found with [Search (?x = ?x' -> ?y = ?y' -> ?f ?x ?y = ?f ?x' ?y')] and [Search (?x = ?x' -> forall y y', y = y' -> ?f ?x y = ?f ?x' y')]:
 
 Duplicates:
-  Foundations.two_arg_paths
-  MoreFoundations.PartA.aptwice
-  binproducts.f_equal_2
-  map_on_two_paths
+  [Foundations.PartA.two_arg_paths] — in [Foundations], complete duplicate of [maponpaths_12] and [map_on_two_paths]
+  [Foundations.PartA.map_on_two_paths] — in [Foundations], complete duplicate of [maponpaths_12] and [two_arg_paths]
+  [CategoryTheory.binproducts.f_equal_2] — looks like unnecessary duplicate, remove?
+
 Specialisations:
-  pathsdirprod
-  total2_paths2
-  PathsOver.apstar
-  CategoriesWithBinOps.to_binop_eq
-  bincoproducts.BinCoproductArrow_eq
-  binproducts.BinProductOfArrows_eq
-  bincoproducts.BinCoproductOfArrows_eq
+  [Foundations.PartA.pathsdirprod] — in [Foundations], useful specialisation
+  [Foundations.PartA.total2_paths2] — in [Foundations], but also dupe of [pathsdirprod]
+  [MoreFoundations.PathsOver.apstar] — possibly unnecessary; investigate
+  [CategoriesWithBinOps.to_binop_eq] — looks probably unnecessary
+  [CategoryTheory.limits.bincoproducts.BinCoproductArrow_eq]  — looks probably like unnecessary duplicate; investigate, remove?
+  [CategoryTheory.limits.binproducts.BinProductOfArrows_eq] — looks probably like unnecessary duplicate; investigate, remove?
+  [CategoryTheory.limits.bincoproducts.BinCoproductOfArrows_eq] — looks probably like unnecessary duplicate; investigate, remove?
 *)
 
+(* Most awkwardly: [maponpaths_12] is a duplicate of [two_arg_paths] and [map_on_two_paths] from [Foundations].  Currently, [two_arg_paths] seems to be the most used, and with the most lemmas.
 
-(* [maponpaths_12] is a duplicate of [two_arg_paths] from [Foundations].
+How should we deal with this?  Keep all?  Make them notations/synonyms for each other?  Use primarily one throughout the library?
 
-Option 1: keep both.  Disadvantage: all the usual problems with duplication, e.g. searchability (even if they’re judgementally equal)
-
-Option 2: make this a notation for that.  Disadvantage: notations that look like identifiers can cause very confusing errors.
-
-Option 3: remove this.  Disadvantage: loses the consistently-named series.
-
-Option 4: rename [two_arg_paths] to [maponpaths_12].  Disadvantage: messing with Foundations. *)
+Similarly, [total2_paths2] and [pathsdirprod], both from [Foundations], seem to be complete duplicates of each other, both widely used?
+ *)
 
 Lemma maponpaths_for_constant_function {T1 T2 : UU} (x : T2) {t1 t2 : T1}
       (e: t1 = t2): maponpaths (fun _: T1 => x) e = idpath x.
