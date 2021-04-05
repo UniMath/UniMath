@@ -48,6 +48,7 @@ Require Export UniMath.MoreFoundations.Propositions.
 Local Arguments grinv {_}.
 
 Local Open Scope logic.
+Local Open Scope type.
 Local Open Scope cat.
 
 Local Definition hom (C:precategory_data) : ob C -> ob C -> UU := λ c c', precategory_morphisms c c'.
@@ -151,7 +152,7 @@ Section MorphismPairs.
 End MorphismPairs.
 
 Section Pullbacks.              (* move upstream *)
-  Definition IsoArrowTo {M : precategory}     {A A' B:M} (g : A --> B) (g' : A' --> B) := ∑ i : z_iso A A', i · g' = g .
+  Definition IsoArrowTo {M : precategory}     {A A' B:M} (g : A --> B) (g' : A' --> B) := ∑ i : z_iso A A', i · g' = g.
   Coercion IsoArrowTo_pr1 {M : precategory}   {A A' B:M} (g : A --> B) (g' : A' --> B) : IsoArrowTo g g' -> z_iso A A' := pr1.
   Definition IsoArrowFrom {M : precategory}   {A B B':M} (g : A --> B) (g' : A --> B') := ∑ i : z_iso B B', g · i  = g'.
   Coercion IsoArrowFrom_pr1 {M : precategory} {A B B':M} (g : A --> B) (g' : A --> B') : IsoArrowFrom g g' -> z_iso B B' := pr1.
@@ -270,7 +271,7 @@ Section PreAdditive.
   Defined.
 
   Definition isKernel' {M:PreAdditive} {x y z : M} (f : x --> y) (g : y --> z) : hProp :=
-    f · g = 0 ∧ ∀ (w : M) (h : w --> y), h · g = 0 ⇒ ∃! φ : w --> x, φ · f = h.
+    f · g = 0 ∧ ∀ (w : M) (h : w --> y), h · g = 0 ⇒ (∃! φ : w --> x, φ · f = h)%abgrcat%logic.
   Definition hasKernel {M:PreAdditive} {y z : M} (g : y --> z) : hProp :=
     ∃ x (f:x-->y), isKernel' f g.
   Lemma isKernel_iff {M:PreAdditive} {x y z : M} (Z:Zero M) (f : x --> y) (g : y --> z) :
@@ -293,7 +294,7 @@ Section PreAdditive.
     intros co. exists (x,,f). now apply isKernel_iff.
   Defined.
   Definition isCokernel' {M:PreAdditive} {x y z : M} (f : x --> y) (g : y --> z) : hProp :=
-    f · g = 0 ∧ ∀ (w : M) (h : y --> w), f · h = 0 ⇒ ∃! φ : z --> w, g · φ = h.
+    f · g = 0 ∧ ∀ (w : M) (h : y --> w), f · h = 0 ⇒ (∃! φ : z --> w, g · φ = h)%abgrcat%logic.
   Definition hasCokernel {M:PreAdditive} {x y : M} (f : x --> y) : hProp :=
     ∃ z (g:y-->z), isCokernel' f g.
   Lemma isCokernel_iff {M:PreAdditive} {x y z : M} (Z:Zero M) (f : x <-- y) (g : y <-- z) :
@@ -384,7 +385,9 @@ Section PreAdditive.
     intros im eq ex. exists eq. intros w h e.
     apply iscontraprop1.
     - apply invproofirrelevance; intros [r R] [s S].
-      apply subtypePath_prop; simpl. apply im. exact (R@!S).
+      Unset Printing Notations. Arguments paths _ _ _ : clear implicits.
+      try assumption.
+      refine (@subtypePath_prop _ _ (_,,_) (_,,_) _); simpl. apply im. exact (R@!S).
     - apply ex. exact e.
   Qed.
   Definition makeEpiCokernel {M:PreAdditive} {x y z : M} (f : x --> y) (g : y --> z) :

@@ -7,6 +7,7 @@ Delimit Scope subtype with subtype.
 Local Open Scope subtype.
 
 Local Open Scope logic.
+Local Open Scope type.
 
 (** The powerset, or set of all subsets, of a set. *)
 Definition subtype_set X : hSet := make_hSet (hsubtype X) (isasethsubtype X).
@@ -33,8 +34,6 @@ Notation " S ⊈ T " := (subtype_notContainedIn S T) (at level 70) : subtype.
 Definition subtype_smallerThan {X:UU} (S T : hsubtype X) : hProp := (S ⊆ T) ∧ (T ⊈ S).
 
 Notation " S ⊊ T " := (subtype_smallerThan S T) (at level 70) : subtype.
-
-Local Open Scope logic.
 
 Definition subtype_equal {X:UU} (S T : hsubtype X) : hProp := ∀ x, S x ⇔ T x.
 

@@ -11,7 +11,7 @@ Require Export UniMath.Foundations.Sets.
   - Subsets
  *)
 
-Local Open Scope set.
+Local Open Scope logic.
 
 Definition hProp_set : hSet := make_hSet _ isasethProp.
 

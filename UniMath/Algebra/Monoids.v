@@ -382,7 +382,7 @@ Defined.
 Definition trivialsubmonoid (X : monoid) : @submonoid X.
 Proof.
   intros.
-  exists (λ x, x = @unel X)%set.
+  exists (λ x, x = @unel X)%logic.
   split.
   - intros b c.
     induction b as [x p], c as [y q].

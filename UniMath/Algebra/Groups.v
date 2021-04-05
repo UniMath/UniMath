@@ -356,7 +356,7 @@ Defined.
 
 Definition trivialsubgr (X : gr) : subgr X.
 Proof.
-  exists (λ x, x = @unel X)%set.
+  exists (λ x, x = @unel X)%logic.
   split.
   - exact (pr2 (@trivialsubmonoid X)).
   - intro.
