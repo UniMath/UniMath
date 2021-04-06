@@ -645,7 +645,7 @@ Section mapping_cone_of_id.
                       _ _ (hzrminusplus i 1)). cbn beta in tmp.
         exact (! tmp).
       }
-      set (e3 := to_binop_eq e1 e2).
+      set (e3 := maponpaths_12 (to_binop _ _) e1 e2).
       apply (maponpaths (λ gg : _, to_Pr2 DS1 · gg)) in e3.
       apply (maponpaths
                (λ gg : _, to_binop
@@ -824,7 +824,7 @@ Section rotation_mapping_cone.
     rewrite to_assoc. rewrite to_assoc. rewrite (@to_linvax' A (Additive.to_Zero _)).
     rewrite to_runax''. rewrite to_binop_inv_inv. apply maponpaths.
     rewrite to_commax'.
-    use to_binop_eq.
+    use maponpaths_12.
     - apply cancel_postcomposition. rewrite <- PreAdditive_invrcomp.
       rewrite <- PreAdditive_invrcomp. apply maponpaths.
       exact (MComm f (i + 1)).
@@ -1050,7 +1050,7 @@ Section rotation_mapping_cone.
     rewrite (to_IdIn1 DS8). rewrite (to_Unel1' DS8). rewrite id_left.
     rewrite ZeroArrow_comp_left. rewrite to_runax''. rewrite id_left.
     rewrite <- transport_target_to_binop. rewrite <- transport_source_to_binop.
-    use to_binop_eq.
+    use maponpaths_12.
     + rewrite PreAdditive_invlcomp.
       unfold DS2, DS1, DS6, DS5.
       set (tmp := transport_hz_double_section_source_target
@@ -1191,7 +1191,7 @@ Section rotation_mapping_cone.
   Proof.
     use MorphismEq. intros i. cbn.
     apply pathsinv0. use (pathscomp0 _ (RotMorphismIsoEq2'_eq f i)).
-    use to_binop_eq.
+    use maponpaths_12.
     - exact (RotMorphismIsoEq2''_1 f i).
     - unfold RotMorphismIsoHomot.
       unfold MappingConeDiff.
@@ -1215,7 +1215,7 @@ Section rotation_mapping_cone.
       rewrite <- (assoc _ (to_In2 DS4)). rewrite <- (assoc _ (to_In2 DS4)).
       rewrite (to_IdIn2 DS4). rewrite id_right. rewrite id_right.
       rewrite to_postmor_linear'. rewrite <- transport_target_to_binop.
-      use to_binop_eq.
+      use maponpaths_12.
       + exact (RotMorphismIsoEq2''_2 f i).
       + exact (RotMorphismIsoEq2''_3 f i).
   Qed.
@@ -1314,7 +1314,7 @@ Section rotation_mapping_cone.
     set (DS8 := to_BinDirectSums A (C2 (i - 1 + 1)) DS7).
     unfold DiffTranslationComplex.
     rewrite to_premor_linear'. rewrite to_premor_linear'.
-    use to_binop_eq.
+    use maponpaths_12.
     - rewrite <- assoc. apply cancel_precomposition.
       rewrite <- transport_source_precompose. rewrite assoc. rewrite (to_IdIn1 DS8).
       rewrite id_left. induction (hzrminusplus i 1). apply idpath.
@@ -1386,7 +1386,7 @@ Section rotation_mapping_cone.
     rewrite <- (assoc _ _ (to_Pr2 DS3)). rewrite (to_IdIn2 DS3). rewrite id_right.
     rewrite assoc. rewrite assoc.
     rewrite <- (assoc _ _ (to_Pr2 DS3)). rewrite (to_IdIn2 DS3). rewrite id_right.
-    use to_binop_eq.
+    use maponpaths_12.
     - rewrite assoc. apply idpath.
     - rewrite assoc. apply idpath.
   Qed.
@@ -1415,7 +1415,7 @@ Section rotation_mapping_cone.
                                                             (to_BinDirectSums
                                                                A (C1 (i0 + 1)) (C2 i0)))
                                      _ _ (hzrplusminus i 1)) (RotMorphismCommMor2 f i))).
-    - use to_binop_eq.
+    - use maponpaths_12.
       + apply maponpaths. exact (RotMorphismCommHomot1 f i).
       + apply maponpaths. exact (RotMorphismCommHomot2 f i).
     - unfold RotMorphismCommMor1, RotMorphismCommMor2. cbn.
@@ -1460,7 +1460,7 @@ Section rotation_mapping_cone.
                                 (to_binop DS1 DS2
                                           (to_Pr1 DS1 · to_inv (f (i + 1)) · to_In1 DS2)
                                           (to_Pr1 DS1 · to_In1 DS1 · to_In2 DS2))))).
-      use to_binop_eq.
+      use maponpaths_12.
       + rewrite <- PreAdditive_invrcomp. rewrite <- PreAdditive_invlcomp.
         rewrite PreAdditive_invrcomp. rewrite <- to_premor_linear'.
         rewrite <- (ZeroArrow_comp_right _ _ _ _ _ (to_Pr2 DS1 · Diff C2 i)).
@@ -1511,7 +1511,7 @@ Section rotation_mapping_cone.
       + rewrite <- to_binop_inv_inv.
         rewrite <- PreAdditive_invrcomp. rewrite <- PreAdditive_invlcomp. rewrite inv_inv_eq.
         rewrite <- to_assoc. rewrite (to_commax' A (to_In2 DS2)). rewrite to_assoc.
-        use to_binop_eq.
+        use maponpaths_12.
         * apply cancel_precomposition.
           set (tmp := @transport_hz_to_In1
                         A (λ i0 : hz, C2 (i0 + 1))
@@ -1644,7 +1644,7 @@ Section inv_rotation_mapping_cone.
     rewrite <- PreAdditive_invlcomp.
     rewrite <- transport_target_to_inv. rewrite <- to_assoc. rewrite to_commax'.
     rewrite <- (assoc _ (Diff C1 i)). rewrite <- (MComm f i). rewrite assoc.
-    use to_binop_eq.
+    use maponpaths_12.
     - rewrite transport_target_postcompose. rewrite transport_target_postcompose.
       rewrite transport_target_postcompose. rewrite <- transport_target_to_binop.
       rewrite PreAdditive_invrcomp. rewrite PreAdditive_invrcomp.
@@ -1674,7 +1674,7 @@ Section inv_rotation_mapping_cone.
                                           (maponpaths C2 (hzrplusminus i 1)) (to_Pr2 DS1) ·
                                           Diff C2 i)).
       use (pathscomp0 (! tmp)). clear tmp.
-      use to_binop_eq.
+      use maponpaths_12.
       + rewrite transport_compose. rewrite <- assoc. rewrite <- assoc.
         apply cancel_precomposition. rewrite <- transport_target_postcompose.
         rewrite <- transport_target_postcompose. rewrite assoc.
@@ -1744,7 +1744,7 @@ Section inv_rotation_mapping_cone.
       + rewrite to_postmor_linear'. rewrite to_assoc. rewrite to_commax'.
         rewrite <- (@to_runax''
                      A (Additive.to_Zero A) _ _ (ZeroArrow (Additive.to_Zero A) DS1 (C2 (i + 1)))).
-        use to_binop_eq.
+        use maponpaths_12.
         * rewrite <- PreAdditive_invlcomp.
           assert (e : (to_Pr1 DS1 · f (i + 1 - 1 + 1)
                               · transportf (precategory_morphisms (C2 (i + 1 - 1 + 1)))
@@ -1987,7 +1987,7 @@ Section inv_rotation_mapping_cone.
                                          (λ i0 : pr1 hz, to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
                                          _ _ (hzrminusplus i 1)) (to_In2 DS5)))).
     rewrite to_assoc. rewrite to_assoc.
-    use to_binop_eq.
+    use maponpaths_12.
     - rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
       set (tmp := @transport_hz_double_section A C1 C2 f _ _ (! hzrminusplus i 1)).
       rewrite pathsinv0inv0 in tmp. rewrite <- tmp. clear tmp.
@@ -2712,7 +2712,7 @@ Section inv_rotation_mapping_cone.
                                               (maponpaths C2 (hzrplusminus i 1))
                                               (to_In2 DS1) ·
                                               to_In1 DS2))))).
-    use to_binop_eq.
+    use maponpaths_12.
     - rewrite <- transport_compose.
       rewrite transport_source_precompose.
       use (transport_target_path
@@ -2765,7 +2765,7 @@ Section inv_rotation_mapping_cone.
                                                        C1 ((hzrminusplus (i + 1 - 1 + 1) 1)
                                                              @ hzrminusplus (i + 1) 1))
                                                     (to_In1 DS9) · to_In1 DS10)))))).
-      use to_binop_eq.
+      use maponpaths_12.
       + apply idpath.
       + exact (InvRotMorphismIso'_eq2_1 f i).
   Qed.
@@ -2871,7 +2871,7 @@ Section inv_rotation_mapping_cone.
                          (to_Pr2 DS2 · to_In2 DS2)).
     {
       rewrite <- to_assoc.
-      use to_binop_eq.
+      use maponpaths_12.
       - assert (e1 : to_Pr1 DS2 · to_In1 DS2 =
                      to_binop DS2 DS2
                               (to_Pr1 DS2 · to_Pr1 DS1 · to_In1 DS1 · to_In1 DS2)
@@ -2887,11 +2887,11 @@ Section inv_rotation_mapping_cone.
         use (pathscomp0 _ tmp). clear tmp.
         rewrite (to_commax' A (to_Pr1 DS2 · to_Pr1 DS1 · to_In1 DS1 · to_In1 DS2)).
         rewrite <- to_assoc.
-        use to_binop_eq.
+        use maponpaths_12.
         + set (tmp := @to_linvax' A (Additive.to_Zero A) _ _
                                   (to_Pr1 DS2 · to_Pr2 DS1 · to_In2 DS1 · to_In1 DS2)).
           use (pathscomp0 _ tmp). clear tmp.
-          use to_binop_eq.
+          use maponpaths_12.
           * apply maponpaths. apply cancel_postcomposition.
             rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
             rewrite transport_compose'. apply idpath.
@@ -2918,7 +2918,7 @@ Section inv_rotation_mapping_cone.
     rewrite (to_commax' A _ (to_Pr2 DS2 · to_In2 DS2)). rewrite <- to_assoc.
     rewrite (to_commax' A _ (to_Pr2 DS2 · to_In2 DS2)). rewrite to_assoc.
     rewrite to_assoc.
-    use to_binop_eq.
+    use maponpaths_12.
     - apply cancel_precomposition. rewrite transport_source_precompose.
       unfold DS2, DS6. rewrite transport_source_target_comm. unfold DS1, DS5.
       induction (hzrminusplus i 1). cbn. rewrite pathscomp0rid.
@@ -2943,7 +2943,7 @@ Section inv_rotation_mapping_cone.
                                           (C1 i0)) _ _ (hzrplusminus i 1))
                              (to_In1 DS10))).
       rewrite to_assoc.
-      use to_binop_eq.
+      use maponpaths_12.
       + rewrite <- assoc. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
         apply cancel_precomposition. rewrite transport_compose.
         apply cancel_precomposition. rewrite transport_source_precompose.
@@ -3488,13 +3488,13 @@ Section mapping_cone_ext.
     rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_left.
     rewrite id_right. rewrite id_right. rewrite id_right.
     rewrite to_runax''. rewrite to_runax''. rewrite to_runax''. rewrite to_lunax''.
-    use to_binop_eq.
+    use maponpaths_12.
     - apply cancel_postcomposition. rewrite <- assoc. rewrite <- assoc.
       apply cancel_precomposition. rewrite <- PreAdditive_invlcomp.
       rewrite <- PreAdditive_invrcomp. apply maponpaths.
       exact (MComm g1 (i + 1)).
     - rewrite <- to_assoc. rewrite <- to_assoc.
-      use to_binop_eq.
+      use maponpaths_12.
       + rewrite <- to_postmor_linear'. rewrite <- to_postmor_linear'. apply cancel_postcomposition.
         rewrite <- assoc. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
         rewrite <- to_premor_linear'. rewrite <- to_premor_linear'. apply cancel_precomposition.
@@ -3645,9 +3645,9 @@ Section mapping_cone_octa.
     rewrite ZeroArrow_comp_left. rewrite to_lunax''. rewrite id_right.
     (* binop_eq *)
     rewrite to_assoc.
-    use to_binop_eq.
+    use maponpaths_12.
     + apply idpath.
-    + use to_binop_eq.
+    + use maponpaths_12.
       * apply idpath.
       * apply cancel_postcomposition.
         rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
@@ -3722,8 +3722,8 @@ Section mapping_cone_octa.
     rewrite (to_IdIn2 DS4). rewrite (to_Unel2' DS4). rewrite ZeroArrow_comp_right.
     rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_left. rewrite to_lunax''.
     rewrite id_right.
-    (* to_binop_eq *)
-    rewrite to_assoc. use to_binop_eq.
+    (* maponpaths_12 *)
+    rewrite to_assoc. use maponpaths_12.
     - apply cancel_postcomposition. rewrite <- assoc. rewrite <- assoc.
       apply cancel_precomposition. rewrite <- PreAdditive_invlcomp.
       rewrite <- PreAdditive_invrcomp. apply maponpaths.
@@ -3832,7 +3832,7 @@ Section mapping_cone_octa.
     rewrite <- (to_assoc _ _ (to_Pr1 DS1 · f2 (i + 1) · to_In2 DS6 · to_In2 DS7)).
     rewrite (to_commax' _ _ (to_Pr1 DS1 · f2 (i + 1) · to_In2 DS6 · to_In2 DS7)).
     rewrite to_assoc.
-    use to_binop_eq.
+    use maponpaths_12.
     - apply idpath.
     - unfold MappingConeDiff. unfold MappingConeDiff1, MappingConeDiff2, MappingConeDiff3.
       unfold TranslationComplex. unfold DiffTranslationComplex. cbn.
@@ -3847,7 +3847,7 @@ Section mapping_cone_octa.
       rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_left.
       rewrite ZeroArrow_comp_left. rewrite ZeroArrow_comp_left.
       rewrite to_lunax''. rewrite to_lunax''.
-      use to_binop_eq.
+      use maponpaths_12.
       + apply cancel_postcomposition. rewrite <- assoc. rewrite <- assoc.
         rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
         apply cancel_precomposition. rewrite <- PreAdditive_invrcomp.
@@ -4227,7 +4227,7 @@ Section mapping_cone_octa.
                                Diff x (i - 1 + 1 + 1) · to_In1 DS14 · to_In1 DS16)))).
     rewrite to_assoc. rewrite to_assoc.
     (* binop_eq *)
-    use to_binop_eq.
+    use maponpaths_12.
     - rewrite transport_target_postcompose. rewrite <- assoc. rewrite <- assoc.
       rewrite <- assoc. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
       rewrite <- assoc. apply cancel_precomposition. apply cancel_precomposition.
@@ -4261,7 +4261,7 @@ Section mapping_cone_octa.
       rewrite <- to_assoc. rewrite (to_commax' _ _ (transportf (precategory_morphisms DS3) _ _)).
       rewrite <- transport_target_to_binop.
       rewrite to_assoc.
-      use to_binop_eq.
+      use maponpaths_12.
       + rewrite <- transport_target_to_inv. apply maponpaths.
         rewrite transport_target_postcompose. rewrite <- assoc.
         rewrite <- (assoc _ (transportf (λ x' : A, A ⟦ x', DS11 ⟧)
@@ -4300,7 +4300,7 @@ Section mapping_cone_octa.
         rewrite <- (@to_runax'' A (Additive.to_Zero A)
                                _ _ (to_inv (to_Pr2 DS3 · to_Pr1 DS2
                                                    · to_In1 DS2 · to_In2 DS3))).
-        use to_binop_eq.
+        use maponpaths_12.
         * apply maponpaths. rewrite transport_target_postcompose.
           rewrite <- assoc.
           rewrite <- (assoc _ (transportf (λ x' : A, A ⟦ x', x (i - 1 + 1 + 1) ⟧)
@@ -4564,7 +4564,7 @@ Section mapping_cone_octa.
     rewrite <- transport_target_to_binop.
     rewrite to_assoc.
     (* binop_eq *)
-    use to_binop_eq.
+    use maponpaths_12.
     - rewrite <- transport_target_to_inv. apply maponpaths.
       unfold DS4, DS3, DS1. unfold DS13, DS12, DS11. induction (hzrminusplus i 1). cbn.
       apply idpath.
@@ -4574,7 +4574,7 @@ Section mapping_cone_octa.
       rewrite to_assoc.
       rewrite <- (@to_runax'' A (Additive.to_Zero A) _ _
                              (f1 (i + 1) · (to_In2 DS3 · to_In1 DS4))).
-      use to_binop_eq.
+      use maponpaths_12.
       + unfold DS4, DS3, DS1. unfold DS13, DS12, DS11. induction (hzrminusplus i 1). cbn.
         rewrite assoc. apply idpath.
       + rewrite <- PreAdditive_invlcomp.
@@ -4595,7 +4595,7 @@ Section mapping_cone_octa.
                                               (maponpaths x (maponpaths_2 _ (hzrminusplus i 1) _))
                                               (Diff x (i - 1 + 1 + 1)) ·
                                               to_In1 DS12 · to_In1 DS13)))).
-        use to_binop_eq.
+        use maponpaths_12.
         * apply idpath.
         * rewrite <- transport_source_precompose. rewrite <- transport_source_precompose.
           set (tmp := transport_hz_double_section_source_target

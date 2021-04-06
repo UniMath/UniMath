@@ -84,7 +84,6 @@ Specialisations:
   [Foundations.PartA.pathsdirprod] — in [Foundations], useful specialisation
   [Foundations.PartA.total2_paths2] — in [Foundations], but also dupe of [pathsdirprod]!
 
-  [CategoriesWithBinOps.to_binop_eq] — looks probably unnecessary
   [CategoryTheory.limits.bincoproducts.BinCoproductArrow_eq]  — looks probably like unnecessary duplicate; investigate, remove?
   [CategoryTheory.limits.binproducts.BinProductOfArrows_eq] — looks probably like unnecessary duplicate; investigate, remove?
   [CategoryTheory.limits.bincoproducts.BinCoproductOfArrows_eq] — looks probably like unnecessary duplicate; investigate, remove?
