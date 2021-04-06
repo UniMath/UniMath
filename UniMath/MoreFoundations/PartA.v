@@ -2,6 +2,54 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Tactics.
 
+(** * Generalisations of [maponpaths]
+
+The following are a uniformly-named set of lemmas giving how multi-argument (non-dependent) functions act on paths, generalising [maponpaths].
+
+  The naming convention is that e.g. [maponpaths_135] takes paths in the 1st, 3rd, and 5th arguments, counting _backwards_ from the end.  (The “counting backwards” is so that it doesn’t depend on the total number of arguments the function takes.)
+
+  All are defined in terms of [maponpaths], to allow use of lemmas about it for reasoning about these. *)
+Definition maponpaths_1 {X A : UU} (f : X -> A) {x x'} (e : x = x')
+  : f x = f x'
+:= maponpaths f e.
+
+Definition maponpaths_2 {Y X A : UU} (f : Y -> X -> A)
+    {y y'} (e_y : y = y') x
+  : f y x = f y' x
+:= maponpaths (fun y => f y x) e_y.
+
+Definition maponpaths_12 {Y X A : UU} (f : Y -> X -> A)
+    {y y'} (e_y : y = y') {x x'} (e_x : x = x')
+  : f y x = f y' x'
+:= maponpaths_1 _ e_x @ maponpaths_2 f e_y _.
+
+Definition maponpaths_3 {Z Y X A : UU} (f : Z -> Y -> X -> A)
+    {z z'} (e_z : z = z') y x
+  : f z y x = f z' y x
+:= maponpaths (fun z => f z y x) e_z.
+
+Definition maponpaths_123 {Z Y X A : UU} (f : Z -> Y -> X -> A)
+    {z z'} (e_z : z = z') {y y'} (e_y : y = y') {x x'} (e_x : x = x')
+  : f z y x = f z' y' x'
+:= maponpaths_12 _ e_y e_x @ maponpaths_3 f e_z _ _.
+
+Definition maponpaths_13 {Z Y X A : UU} (f : Z -> Y -> X -> A)
+    {z z'} (e_z : z = z') (y:Y) {x x'} (e_x : x = x')
+  : f z y x = f z' y x'
+:= maponpaths_123 _ e_z (idpath y) e_x.
+
+Definition maponpaths_4 {W Z Y X A : UU} (f : W -> Z -> Y -> X -> A)
+    {w w'} (e_w : w = w') z y x
+  : f w z y x = f w' z y x
+:= maponpaths (fun w => f w z y x) e_w.
+
+Definition maponpaths_1234 {W Z Y X A : UU} (f : W -> Z -> Y -> X -> A)
+    {w w'} (e_w : w = w') {z z'} (e_z : z = z')
+    {y y'} (e_y : y = y') {x x'} (e_x : x = x')
+  : f w z y x = f w' z' y' x'
+:= maponpaths_123 _ e_z e_y e_x @ maponpaths_4 _ e_w _ _ _.
+
+(* NOTE: some of the lemmas above have been re-proved independently multiple times elsewhere in the library, including some pure duplicates, and some specialisations (maybe for good reason, maybe not). TODO: chase the duplicates down; work out + document which ones seem justified; and unify the rest. *)
 
 Lemma maponpaths_for_constant_function {T1 T2 : UU} (x : T2) {t1 t2 : T1}
       (e: t1 = t2): maponpaths (fun _: T1 => x) e = idpath x.
@@ -74,10 +122,6 @@ library lemma.
 Definition transportf_pathsinv0 {X} (P:X->UU) {x y:X} (p:x = y) (u:P x) (v:P y) :
   transportf _ (!p) v = u -> transportf _ p u = v.
 Proof. intro e. induction p, e. reflexivity. Defined.
-
-Definition maponpaths_2 {X Y Z : UU} (f : X -> Y -> Z) {x x'} (e : x = x') y
-  : f x y = f x' y
-:= maponpaths (λ x, f x y) e.
 
 Lemma transportf_comp_lemma (X : UU) (B : X -> UU) {A A' A'': X} (e : A = A'') (e' : A' = A'')
   (x : B A) (x' : B A')
