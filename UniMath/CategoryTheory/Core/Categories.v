@@ -14,6 +14,7 @@
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Notations.
 
 (** * Definition of a precategory *)
@@ -264,17 +265,13 @@ Qed.
 Lemma cancel_postcomposition {C : precategory_data} {a b c: C}
    (f f' : a --> b) (g : b --> c) : f = f' -> f · g = f' · g.
 Proof.
-  intro H.
-  induction H.
-  apply idpath.
+  intro; apply maponpaths_2; assumption.
 Defined.
 
 Lemma cancel_precomposition (C : precategory_data) (a b c: C)
    (f f' : b --> c) (g : a --> b) : f = f' -> g · f = g · f'.
 Proof.
-  intro H.
-  induction H.
-  apply idpath.
+  apply maponpaths.
 Defined.
 
 (** Any equality on objects a and b induces a morphism from a to b *)

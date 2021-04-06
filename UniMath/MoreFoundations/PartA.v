@@ -59,21 +59,18 @@ The following are specialisations of [maponpaths]:
 [Foundations.PartA.pair_path_in2] — in [Foundations], also useful specialisation
 
 [CategoryTheory.RepresentableFunctors.Precategories.total2_paths1] — duplicate of [pair_path_in2], remove?
-[MoreFoundations.PathsOver.pullBackPathOverPoint] — specialisation of [maponpaths_1], probably useful; investigate
-[CategoryTheory.Core.Categories.cancel_precomposition] — specialisation of [maponpaths_1], previously discussed and decided to keep
 [CategoryTheory.PrecategoriesWithAbgrops.to_apply_inv] — to investigate
 [CategoryTheory.PrecategoriesWithAbgrops.to_rrw] — to investigate
+[CategoryTheory.limits.coproducts.CoproductOfArrows_eq] — looks probably like unnecessary duplicate; remove?
 [SyntheticHomotopyTheory.AffineLine.makeGuidedHomotopy_localPath] — to investigate
 [SyntheticHomotopyTheory.Circle.makeGH_localPath] — to investigate
-[CategoryTheory.limits.coproducts.CoproductOfArrows_eq] — looks probably like unnecessary duplicate; remove?
 
 
 The following appear to be duplicates/specialisations of [maponpaths_2], found with [Search (?x = ?x' -> ?f ?x ?y = ?f ?x' ?y)] and similar searches (following [Require UniMath.All]):
 
-  [Foundations.PartA.transportf_paths] — in [Foundations], also useful
-  [CategoryTheory.PreAdditive.ropeq] — looks like unnecessary specialisation
+  [Foundations.PartA.transportf_paths] — in [Foundations], and very useful
   [Integers.hzplusradd] — looks like unnecessary specialisation?
-  [CategoryTheory.Core.Categories.cancel_postcomposition] — discussed before; probably desirable specialisation
+  [CategoryTheory.PreAdditive.ropeq] — looks like unnecessary specialisation
   [CategoryTheory.PrecategoriesWithAbgrops.to_lrw] — to investigate
   [CategoryTheory.Core.NaturalTransformations.nat_trans_eq_pointwise] — clearly useful; keep; perhaps define in terms of [maponpaths_2]?
   [HomologicalAlgebra.Complexes.MorphismEq'] – to investigate

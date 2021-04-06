@@ -622,7 +622,7 @@ Definition pullBackPathOverPoint {X X':Type} (g : X -> X')
            {Y : X' -> Type} {y y' : Y x'} (t : y = y')
   : pullBackPointOver g r y = pullBackPointOver g r y'.
 Proof.
-  induction t. reflexivity.
+  apply maponpaths; assumption.
 Defined.
 
 Definition pullBackPathOver {X X':Type} (g : X -> X')
