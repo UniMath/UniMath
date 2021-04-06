@@ -58,7 +58,6 @@ The following are specialisations of [maponpaths]:
 [Foundations.PartA.base_paths] — keep since in [Foundations]
 [Foundations.PartA.pair_path_in2] — in [Foundations], also useful specialisation
 
-[CategoryTheory.RepresentableFunctors.Precategories.total2_paths1] — duplicate of [pair_path_in2], remove?
 [CategoryTheory.PrecategoriesWithAbgrops.to_apply_inv] — to investigate
 [CategoryTheory.PrecategoriesWithAbgrops.to_rrw] — to investigate
 [CategoryTheory.limits.coproducts.CoproductOfArrows_eq] — looks probably like unnecessary duplicate; remove?
