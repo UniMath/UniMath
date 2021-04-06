@@ -49,7 +49,54 @@ Definition maponpaths_1234 {W Z Y X A : UU} (f : W -> Z -> Y -> X -> A)
   : f w z y x = f w' z' y' x'
 := maponpaths_123 _ e_z e_y e_x @ maponpaths_4 _ e_w _ _ _.
 
-(* NOTE: some of the lemmas above have been re-proved independently multiple times elsewhere in the library, including some pure duplicates, and some specialisations (maybe for good reason, maybe not). TODO: chase the duplicates down; work out + document which ones seem justified; and unify the rest. *)
+(* NOTE: some of the lemmas above are provided multiple times elsewhere in the library, including some pure duplicates, and some specialisations (maybe for good reason, maybe not). TODO:
+
+The following appear to be duplicates/specialisations of [maponpaths_2], found with [Search (?x = ?x' -> ?f ?x ?y = ?f ?x' ?y)] and similar searches (following [Require UniMath.All]):
+
+  PartA.app
+  PreAdditive.ropeq
+  padics.hzmultrmul
+  Integers.hzplusradd
+  cancel_postcomposition
+  PrecategoriesWithAbgrops.to_lrw
+  transportf_paths
+  fps.natsummationpaths
+  nat_trans_eq_pointwise
+  Complexes.MorphismEq'
+  Modification.modcomponent_eq
+  whiskering.cancel_whisker_right
+
+The following appear to be duplicates/specialisations of [maponpaths_12], found with [Search (?x = ?x' -> ?y = ?y' -> ?f ?x ?y = ?f ?x' ?y')] and [Search (?x = ?x' -> forall y y', y = y' -> ?f ?x y = ?f ?x' y')]:
+
+Duplicates:
+  PartA.aptwice
+  binproducts.f_equal_2
+  two_arg_paths
+  map_on_two_paths
+Specialisations:
+  pathsdirprod
+  total2_paths2
+  PathsOver.apstar
+  CategoriesWithBinOps.to_binop_eq
+  bincoproducts.BinCoproductArrow_eq
+  binproducts.BinProductOfArrows_eq
+  bincoproducts.BinCoproductOfArrows_eq
+
+The following are specialisations of [maponpaths]:
+
+base_paths — specislisation of
+lemmas.pathintotalpr1
+pair_path_in2
+maponpathsPrecategories.total2_paths1
+PathsOver.pullBackPathOverPoint
+cancel_precomposition
+PrecategoriesWithAbgrops.to_apply_inv
+PrecategoriesWithAbgrops.to_rrw
+AffineLine.makeGuidedHomotopy_localPath
+Circle.makeGH_localPath
+coproducts.CoproductOfArrows_eq
+*)
+
 
 Lemma maponpaths_for_constant_function {T1 T2 : UU} (x : T2) {t1 t2 : T1}
       (e: t1 = t2): maponpaths (fun _: T1 => x) e = idpath x.
