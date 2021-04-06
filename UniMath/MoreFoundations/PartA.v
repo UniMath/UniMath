@@ -59,8 +59,6 @@ The following are specialisations of [maponpaths] or [maponpaths_2]:
   [Foundations.PartA.pair_path_in2] — in [Foundations], also useful specialisation
   [Foundations.PartA.transportf_paths] — in [Foundations], and very useful
 
-  [CategoryTheory.limits.coproducts.CoproductOfArrows_eq] — looks probably like unnecessary duplicate; remove?
-
   [SyntheticHomotopyTheory.AffineLine.makeGuidedHomotopy_localPath] — to investigate
   [SyntheticHomotopyTheory.Circle.makeGH_localPath] — to investigate
 
@@ -76,8 +74,6 @@ Specialisations:
   [Foundations.PartA.total2_paths2] — in [Foundations], but also dupe of [pathsdirprod]!
 
   [CategoryTheory.limits.bincoproducts.BinCoproductArrow_eq]  — looks probably like unnecessary duplicate; investigate, remove?
-  [CategoryTheory.limits.binproducts.BinProductOfArrows_eq] — looks probably like unnecessary duplicate; investigate, remove?
-  [CategoryTheory.limits.bincoproducts.BinCoproductOfArrows_eq] — looks probably like unnecessary duplicate; investigate, remove?
 *)
 
 (* Most awkwardly: [maponpaths_12] is a duplicate of [two_arg_paths] and [map_on_two_paths] from [Foundations].  Currently, [two_arg_paths] seems to be the most used, and with the most lemmas.

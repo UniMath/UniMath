@@ -235,15 +235,6 @@ Proof.
     apply assoc.
 Qed.
 
-Definition BinProductOfArrows_eq (f f' : a --> c) (g g' : b --> d)
-  : f = f' → g = g' →
-      BinProductOfArrows _ _ _ f g = BinProductOfArrows _ (CC _ _) (CC _ _) f' g'.
-Proof.
-  induction 1.
-  induction 1.
-  apply idpath.
-Qed.
-
 End BinProducts.
 
 Section BinProduct_unique.

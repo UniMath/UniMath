@@ -578,15 +578,6 @@ Proof.
     apply assoc.
 Qed.
 
-Definition BinCoproductOfArrows_eq (f f' : a --> c) (g g' : b --> d)
-  : f = f' → g = g' →
-      BinCoproductOfArrows _ _ _ f g = BinCoproductOfArrows _ (CC _ _) (CC _ _) f' g'.
-Proof.
-  induction 1.
-  induction 1.
-  apply idpath.
-Qed.
-
 Lemma precompWithBinCoproductArrow_eq  (CCab : BinCoproduct _ a b)
     (CCcd : BinCoproduct _ c d) (f : a --> c) (g : b --> d)
      (k : c --> x) (h : d --> x) (fk : a --> x) (gh : b --> x):

@@ -155,15 +155,6 @@ rewrite <- assoc, ProductOfArrowsPr.
 now rewrite assoc, ProductOfArrowsPr, assoc.
 Qed.
 
-(* Definition ProductOfArrows_eq (f f' : a --> c) (g g' : b --> d) *)
-(*   : f = f' → g = g' → *)
-(*       ProductOfArrows _ _ _ f g = ProductOfArrows _ (CC _ _) (CC _ _) f' g'. *)
-(* Proof. *)
-(*   induction 1. *)
-(*   induction 1. *)
-(*   apply idpath. *)
-(* Qed. *)
-
 End Products.
 
 Section Product_unique.

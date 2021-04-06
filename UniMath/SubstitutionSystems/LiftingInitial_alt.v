@@ -16,6 +16,7 @@ Set Kernel Term Sharing.
 
 Require Import UniMath.Foundations.PartD.
 
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -206,7 +207,7 @@ rewrite id_left, id_right.
 apply (nat_trans_eq hsC); intro c; simpl.
 unfold coproduct_nat_trans_data; simpl.
 unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
-apply BinCoproductOfArrows_eq; trivial.
+apply (maponpaths_12 (BinCoproductOfArrows _ _ _)); trivial.
 unfold functor_fix_snd_arg_mor; simpl.
 revert c; apply nat_trans_eq_pointwise, maponpaths.
 apply (nat_trans_eq hsC); intro c; simpl.
@@ -429,7 +430,7 @@ rewrite id_left, id_right.
 apply (nat_trans_eq hsC); intro c; simpl.
 unfold coproduct_nat_trans_data; simpl.
 unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
-apply BinCoproductOfArrows_eq; trivial.
+apply (maponpaths_12 (BinCoproductOfArrows _ _ _)); trivial.
 unfold functor_fix_snd_arg_mor; simpl.
 revert c; apply nat_trans_eq_pointwise, maponpaths.
 apply (nat_trans_eq hsC); intro c; simpl.
