@@ -59,8 +59,6 @@ The following are specialisations of [maponpaths] or [maponpaths_2]:
   [Foundations.PartA.pair_path_in2] — in [Foundations], also useful specialisation
   [Foundations.PartA.transportf_paths] — in [Foundations], and very useful
 
-  [Integers.hzplusradd] — looks like unnecessary specialisation?
-
   [CategoryTheory.PrecategoriesWithAbgrops.to_apply_inv] — to investigate
   [CategoryTheory.PrecategoriesWithAbgrops.to_rrw] — to investigate
   [CategoryTheory.PrecategoriesWithAbgrops.to_lrw] — to investigate
