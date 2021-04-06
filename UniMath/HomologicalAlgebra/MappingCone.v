@@ -14,6 +14,8 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.NaturalNumbers.
 
+Require Import UniMath.MoreFoundations.PartA.
+
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids.
 
@@ -1702,7 +1704,7 @@ Section inv_rotation_mapping_cone.
                                      A (C1 (i0 + 1 - 1 + 1 + 1)) (C2 (i0 + 1 - 1 + 1))))
                       _ _ (! (hzrplusminus i 1))).
         cbn in tmp.
-        set (e1 := maponpaths C2 (hzplusradd (i + 1 - 1) i 1 (hzrplusminus i 1))).
+        set (e1 := maponpaths C2 (maponpaths_2 _ (hzrplusminus i 1) _)).
         set (e2 := maponpaths (λ i0 : pr1 hz, C2 (i0 + 1 - 1 + 1)) (! hzrplusminus i 1)).
         cbn in e1, e2.
 
@@ -1711,7 +1713,7 @@ Section inv_rotation_mapping_cone.
                       C2
                       (λ (i0 : hz),
                          to_Pr2 (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
-                      _ _ (hzplusradd (i + 1 - 1) i 1 (hzrplusminus i 1))).
+                      _ _ (maponpaths_2 hzplus (hzrplusminus i 1) 1)).
         cbn in tmp'. unfold e1.
         use (pathscomp0 _ (! tmp')). clear tmp'. unfold DS3.
 
@@ -1728,7 +1730,7 @@ Section inv_rotation_mapping_cone.
                                                                      A (C1 (i0 + 1)) (C2 i0)) _ _
                                  (! (hzrminusplus (i + 1) 1 @ ! hzrplusminus (i + 1) 1))) =
                     @maponpaths hz A (λ i0 : pr1 hz, to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
-                                _ _ (! hzplusradd (i + 1 - 1) i 1 (hzrplusminus i 1))).
+                                _ _ (! maponpaths_2 _ (hzrplusminus i 1) _)).
         {
           set (tmp' := @maponpathscomp0
                          _ _ _ _ _
@@ -2027,8 +2029,8 @@ Section inv_rotation_mapping_cone.
         rewrite transport_compose. apply cancel_precomposition.
         rewrite transport_source_target_comm. unfold DS5. unfold DS1.
         rewrite <- maponpathsinv0.
-        assert (e : maponpaths C1 (! hzplusradd i (i - 1 + 1) 1 (! hzrminusplus i 1)) =
-                    maponpaths C1 (hzplusradd (i - 1 + 1) i 1 (hzrminusplus i 1))).
+        assert (e : maponpaths C1 (! maponpaths_2 hzplus (! hzrminusplus i 1) 1) =
+                    maponpaths C1 (maponpaths_2 hzplus (hzrminusplus i 1) 1)).
         {
           apply maponpaths. apply isasethz.
         }
@@ -2039,7 +2041,7 @@ Section inv_rotation_mapping_cone.
                       (λ i0 : hz, to_In1 (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
                       _ _ (hzrminusplus i 1)). cbn in tmp.
         assert (e : maponpaths (λ i0 : pr1 hz, C1 (i0 + 1)) (hzrminusplus i 1) =
-                    maponpaths C1 (hzplusradd (i - 1 + 1) i 1 (hzrminusplus i 1))).
+                    maponpaths C1 (maponpaths_2 _ (hzrminusplus i 1) _)).
         {
           induction (hzrminusplus i 1). apply idpath.
         }
@@ -2198,7 +2200,7 @@ Section inv_rotation_mapping_cone.
                   (maponpaths C2 (! hzrminusplus (i + 1) 1))).
     use (pathscomp0 _ tmp). clear tmp.
     set (tmp := transport_hz_section A C2 1 (Diff C2) _ _ (! hzrplusminus i 1)).
-    assert (e : maponpaths C2 (hzplusradd i (i + 1 - 1) 1 (! hzrplusminus i 1)) =
+    assert (e : maponpaths C2 (maponpaths_2 _ (! hzrplusminus i 1) _) =
                 maponpaths C2 (! hzrminusplus (i + 1) 1)).
     {
       apply maponpaths. apply isasethz.
@@ -2213,7 +2215,7 @@ Section inv_rotation_mapping_cone.
     cbn in tmp. use (pathscomp0 tmp).
     assert (e : (maponpaths C2 (! (hzrminusplus (i + 1) 1 @ ! hzrplusminus (i + 1) 1))) =
                 (maponpaths
-                   C2 (hzrplusminus (i + 1) 1 @ hzplusradd i (i + 1 - 1) 1 (! hzrplusminus i 1)))).
+                   C2 (hzrplusminus (i + 1) 1 @ maponpaths_2 _ (! hzrplusminus i 1) _))).
     {
       apply maponpaths. apply isasethz.
     }
@@ -2325,11 +2327,10 @@ Section inv_rotation_mapping_cone.
                   A C1 1 (Diff C1) _ _ (! (hzrminusplus (i - 1 + 1) 1 @ hzrminusplus i 1))).
     rewrite pathsinv0inv0 in tmp. cbn in tmp. rewrite <- tmp. clear tmp.
     rewrite transport_compose. rewrite <- assoc. apply cancel_precomposition.
-    assert (e : (! maponpaths C1 (hzplusradd i (i - 1 + 1 - 1 + 1) 1
-                                             (! (hzrminusplus (i - 1 + 1) 1 @
-                                                              hzrminusplus i 1)))) =
-                maponpaths C1 (hzplusradd (i - 1 + 1 - 1 + 1) i 1 (hzrminusplus (i - 1 + 1) 1 @
-                                                                                hzrminusplus i 1))).
+    assert (e : (! maponpaths C1 (maponpaths_2 hzplus
+                      (! (hzrminusplus (i - 1 + 1) 1 @ hzrminusplus i 1)) 1))
+              = maponpaths C1 (maponpaths_2 _
+                          (hzrminusplus (i - 1 + 1) 1 @ hzrminusplus i 1) _)).
     {
       rewrite <- maponpathsinv0. apply maponpaths. apply isasethz.
     }
@@ -2341,11 +2342,10 @@ Section inv_rotation_mapping_cone.
                   (λ i0 : pr1 hz, to_In1 (to_BinDirectSums A (C1 (i0 + 1)) (C2 i0)))
                   _ _ (! (hzrminusplus (i - 1 + 1) 1 @ hzrminusplus i 1))).
     cbn in tmp. unfold DS11. cbn. rewrite pathsinv0inv0 in tmp.
-    assert (e : (maponpaths (λ i0 : pr1 hz, C1 (i0 + 1)) (hzrminusplus (i - 1 + 1) 1
-                                                                       @ hzrminusplus i 1)) =
-                (maponpaths C1 (hzplusradd (i - 1 + 1 - 1 + 1) i 1
-                                           (hzrminusplus (i - 1 + 1) 1
-                                                         @ hzrminusplus i 1)))).
+    assert (e : (maponpaths (λ i0 : pr1 hz, C1 (i0 + 1))
+                            (hzrminusplus (i - 1 + 1) 1 @ hzrminusplus i 1))
+                = maponpaths C1 (maponpaths_2 _
+                         (hzrminusplus (i - 1 + 1) 1 @ hzrminusplus i 1) _)).
     {
       induction (hzrminusplus (i - 1 + 1) 1 @ hzrminusplus i 1).
       apply idpath.
@@ -4358,9 +4358,9 @@ Section mapping_cone_octa.
           rewrite e in tmp. clear e. rewrite <- tmp. clear tmp.
           rewrite transport_compose. apply cancel_precomposition.
           assert (e : (! maponpaths (λ i0 : pr1 hz, x (i0 + 1))
-                         (hzplusradd i (i - 1 + 1) 1 (! hzrminusplus i 1))) =
-                      (maponpaths (λ i0 : pr1 hz, x (i0 + 1))
-                                  (hzplusradd _ _ 1 (hzrminusplus i 1)))).
+                             (maponpaths_2 hzplus (! hzrminusplus i 1) 1))
+                     = maponpaths (λ i0 : pr1 hz, x (i0 + 1))
+                                    (maponpaths_2 _ (hzrminusplus i 1) _)).
           {
             induction (hzrminusplus i 1). apply idpath.
           }
@@ -4381,9 +4381,10 @@ Section mapping_cone_octa.
                                                        (to_BinDirectSums A (x (i0 + 1)) (z i0)))))
                         _ _ (hzrminusplus i 1)).
           cbn in tmp. unfold DS16, DS15, DS14.
-          assert (e : (maponpaths (λ i0 : pr1 hz, x (i0 + 1 + 1)) (hzrminusplus i 1)) =
-                      (maponpaths (λ i0 : pr1 hz, x (i0 + 1))
-                                  (hzplusradd (i - 1 + 1) i 1 (hzrminusplus i 1)))).
+          assert (e : maponpaths (λ i0 : pr1 hz, x (i0 + 1 + 1))
+                                                      (hzrminusplus i 1)
+                      = maponpaths (λ i0 : pr1 hz, x (i0 + 1))
+                                  (maponpaths_2 _ (hzrminusplus i 1) _)).
           {
             induction (hzrminusplus i 1). apply idpath.
           }
@@ -4445,7 +4446,7 @@ Section mapping_cone_octa.
     - use compose.
       + exact (to_BinDirectSums A (x (i - 1 + 1 + 1)) (y (i - 1 + 1))).
       + exact (to_inv (transportf (λ x' : ob A, A⟦x', _⟧)
-                                  (maponpaths x (hzplusradd _ _ 1 (hzrminusplus i 1)))
+                             (maponpaths x (maponpaths_2 _ (hzrminusplus i 1) _))
                                   (to_In1 _))).
       + exact (to_In1 _).
   Defined.
@@ -4558,7 +4559,7 @@ Section mapping_cone_octa.
     rewrite (to_commax'
                _ _ (to_inv
                       (transportf (λ x' : A, A ⟦ x', DS13 ⟧)
-                                  (maponpaths x (hzplusradd (i - 1 + 1) i 1 (hzrminusplus i 1)))
+                         (maponpaths x (maponpaths_2 _ (hzrminusplus i 1) _))
                                   (to_In1 DS11 · to_In2 DS13)))).
     rewrite <- transport_target_to_binop.
     rewrite to_assoc.
@@ -4591,8 +4592,7 @@ Section mapping_cone_octa.
                                                (to_BinDirectSums A (x (i0 + 1)) (z i0))) _ _
                                      (hzrminusplus i 1))
                                   (transportf (λ x' : A, A ⟦ x', x (i - 1 + 1 + 1 + 1) ⟧)
-                                              (maponpaths x (hzplusradd (i - 1 + 1) i 1
-                                                                        (hzrminusplus i 1)))
+                                              (maponpaths x (maponpaths_2 _ (hzrminusplus i 1) _))
                                               (Diff x (i - 1 + 1 + 1)) ·
                                               to_In1 DS12 · to_In1 DS13)))).
         use to_binop_eq.
@@ -4613,7 +4613,7 @@ Section mapping_cone_octa.
                         _ _ (hzrminusplus i 1)).
           cbn in tmp.
           assert (e : (maponpaths (λ i0 : pr1 hz, x (i0 + 1)) (hzrminusplus i 1)) =
-                      (maponpaths x (hzplusradd (i - 1 + 1) i 1 (hzrminusplus i 1)))).
+                      (maponpaths x (maponpaths_2 _ (hzrminusplus i 1) _))).
           {
             induction (hzrminusplus i 1). apply idpath.
           }
@@ -4636,8 +4636,7 @@ Section mapping_cone_octa.
                         _ _ (hzrplusminus i 1)).
           cbn in tmp. use (pathscomp0 tmp). clear tmp. apply maponpaths.
           assert (e : (maponpaths (λ i0 : pr1 hz, x (i0 + 1 + 1)) (hzrplusminus i 1)) =
-                      (maponpaths x (hzplusradd (i + 1 - 1 + 1) (i + 1) 1
-                                                (hzrminusplus (i + 1) 1)))).
+                      (maponpaths x (maponpaths_2 _ (hzrminusplus (i + 1) 1) _))).
           {
             assert (e' : maponpaths (λ i0 : pr1 hz, x (i0 + 1 + 1)) (hzrplusminus i 1) =
                          maponpaths x (maponpaths (λ i0 : pr1 hz, (i0 + 1 + 1))

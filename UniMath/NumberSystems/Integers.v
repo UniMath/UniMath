@@ -131,7 +131,7 @@ Lemma hzplusrcan ( a b c : hz ) ( is : ( a + c ) = ( b + c ) ) : a = b .
 Proof . intros . apply ( @grrcan hzaddabgr a b c is ) .  Defined .
 
 Lemma hzplusradd (a b c : hz) (is : a = b) : (a + c) = (b + c).
-Proof. intros. induction is. apply idpath. Defined.
+Proof. apply maponpaths_2, is. Defined.
 
 Lemma hzplusladd (a b c : hz) (is : a = b) : (c + a) = (c + b).
 Proof. intros. apply maponpaths. apply is. Defined.
