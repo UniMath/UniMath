@@ -58,7 +58,6 @@ The following are specialisations of [maponpaths]:
 [Foundations.PartA.base_paths] — keep since in [Foundations]
 [Foundations.PartA.pair_path_in2] — in [Foundations], also useful specialisation
 
-[PAdics.lemmas.pathintotalpr1] — duplicate of [base_paths], remove?
 [CategoryTheory.RepresentableFunctors.Precategories.total2_paths1] — duplicate of [pair_path_in2], remove?
 [MoreFoundations.PathsOver.pullBackPathOverPoint] — specialisation of [maponpaths_1], probably useful; investigate
 [CategoryTheory.Core.Categories.cancel_precomposition] — specialisation of [maponpaths_1], previously discussed and decided to keep
@@ -73,11 +72,9 @@ The following appear to be duplicates/specialisations of [maponpaths_2], found w
 
   [Foundations.PartA.transportf_paths] — in [Foundations], also useful
   [CategoryTheory.PreAdditive.ropeq] — looks like unnecessary specialisation
-  [PAdics.padics.hzmultrmul] — looks like unnecessary specialisation?
   [Integers.hzplusradd] — looks like unnecessary specialisation?
   [CategoryTheory.Core.Categories.cancel_postcomposition] — discussed before; probably desirable specialisation
   [CategoryTheory.PrecategoriesWithAbgrops.to_lrw] — to investigate
-  [PAdics.fps.natsummationpaths] — to investigate
   [CategoryTheory.Core.NaturalTransformations.nat_trans_eq_pointwise] — clearly useful; keep; perhaps define in terms of [maponpaths_2]?
   [HomologicalAlgebra.Complexes.MorphismEq'] – to investigate
   [Bicategories.Modifications.Modification.modcomponent_eq] — to investigate
