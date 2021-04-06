@@ -216,6 +216,7 @@ Section def_complexes.
     - use proofirrelevance. apply impred_isaprop. intros t. apply to_has_homsets.
   Qed.
 
+  (** Inverse to [MorphismEq] *)
   Lemma MorphismEq' {C1 C2 : Complex} (M1 M2 : Morphism C1 C2) (H : M1 = M2) :
     ∏ i : hz, M1 i = M2 i.
   Proof.

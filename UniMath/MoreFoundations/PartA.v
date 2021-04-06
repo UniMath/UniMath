@@ -59,14 +59,10 @@ The following are specialisations of [maponpaths] or [maponpaths_2]:
   [Foundations.PartA.pair_path_in2] — in [Foundations], also useful specialisation
   [Foundations.PartA.transportf_paths] — in [Foundations], and very useful
 
-  [CategoryTheory.Core.NaturalTransformations.nat_trans_eq_pointwise] — clearly useful; keep; perhaps define in terms of [maponpaths_2]?
   [CategoryTheory.limits.coproducts.CoproductOfArrows_eq] — looks probably like unnecessary duplicate; remove?
 
   [SyntheticHomotopyTheory.AffineLine.makeGuidedHomotopy_localPath] — to investigate
   [SyntheticHomotopyTheory.Circle.makeGH_localPath] — to investigate
-
-  [HomologicalAlgebra.Complexes.MorphismEq'] – to investigate
-  [Bicategories.Modifications.Modification.modcomponent_eq] — to investigate
 
   [Bicategories.WkCatEnrichment.whiskering.cancel_whisker_right] — to investigate
 
