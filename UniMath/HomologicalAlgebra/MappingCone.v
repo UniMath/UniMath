@@ -1478,7 +1478,7 @@ Section rotation_mapping_cone.
                                   (transportf (λ x' : A, A ⟦ x', DS6 ⟧)
                                               (maponpaths
                                                  C2 (hzrminusplus (i + 1) 1)) (to_In1 DS6))))).
-        use to_lrw. apply maponpaths.
+        apply maponpaths_2, maponpaths.
         unfold DS4, DS3, DS6, DS5.
         set (tmp := @transport_hz_to_In1
                       A (λ i0 : hz, C2 (i0 + 1))

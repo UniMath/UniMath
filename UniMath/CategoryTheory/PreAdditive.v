@@ -11,6 +11,8 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 
+Require Import UniMath.MoreFoundations.PartA.
+
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
@@ -174,12 +176,12 @@ Section preadditive_with_zero.
 
   Lemma to_lunax'' {Z : Zero A} (x y : A) (f : x --> y) : to_binop x y (ZeroArrow Z x y) f = f.
   Proof.
-    rewrite <- to_lunax'. use to_lrw. apply pathsinv0. apply PreAdditive_unel_zero.
+    rewrite <- to_lunax'. apply maponpaths_2, pathsinv0, PreAdditive_unel_zero.
   Qed.
 
   Lemma to_runax'' {Z : Zero A} (x y : A) (f : x --> y) : to_binop x y f (ZeroArrow Z x y) = f.
   Proof.
-    rewrite <- to_runax'. use to_rrw. apply pathsinv0. apply PreAdditive_unel_zero.
+    rewrite <- to_runax'. apply maponpaths, pathsinv0, PreAdditive_unel_zero.
   Qed.
 
   Lemma to_linvax' {Z : Zero A} {x y : A} (f : A⟦x, y⟧) :
@@ -362,12 +364,6 @@ Section preadditive_quotient.
   Definition subgrhrel {A : gr} (B : @subgr A) : @hrel A :=
     (λ a1 : A, λ a2 : A, (subgrhrel_hprop B a1 a2)).
 
-  (** Some equalities *)
-  Local Lemma ropeq (X : setwithbinop) (x y z : X) : x = y -> @op X x z = @op X y z.
-  Proof.
-    intros e. induction e. apply idpath.
-  Qed.
-
   (** Let B be a subgroup of A. Then the canonical map A -> A/B is a monoidfun. *)
   Local Lemma abgrquotpr_ismonoidfun {A : abgr} (H : @binopeqrel A) :
     @ismonoidfun A (abgrquot H) (λ a : A, setquotpr H a).
@@ -409,7 +405,7 @@ Section preadditive_quotient.
         * exact (op (pr1 t) (pr1 t0)).
         * exact (pr2subsetswithbinop B t t0).
       + cbn. rewrite p. rewrite p0. rewrite <- (assocax A).
-        apply ropeq. rewrite assocax. rewrite grlinvax. rewrite runax.
+        apply maponpaths_2. rewrite assocax. rewrite grlinvax. rewrite runax.
         apply idpath.
     (* isrefl *)
     - intros x.
