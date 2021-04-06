@@ -53,38 +53,39 @@ Definition maponpaths_1234 {W Z Y X A : UU} (f : W -> Z -> Y -> X -> A)
 
 (* NOTE: some of the lemmas above are provided multiple times elsewhere in the library, including some pure duplicates, and some specialisations (maybe for good reason, maybe not). TODO: chase them down, unify them where desirable, or document when there’s good reason for the duplication/specialisation.
 
-The following are specialisations of [maponpaths]:
+The following are specialisations of [maponpaths] or [maponpaths_2]:
 
-[Foundations.PartA.base_paths] — keep since in [Foundations]
-[Foundations.PartA.pair_path_in2] — in [Foundations], also useful specialisation
-
-[CategoryTheory.PrecategoriesWithAbgrops.to_apply_inv] — to investigate
-[CategoryTheory.PrecategoriesWithAbgrops.to_rrw] — to investigate
-[CategoryTheory.limits.coproducts.CoproductOfArrows_eq] — looks probably like unnecessary duplicate; remove?
-[SyntheticHomotopyTheory.AffineLine.makeGuidedHomotopy_localPath] — to investigate
-[SyntheticHomotopyTheory.Circle.makeGH_localPath] — to investigate
-
-
-The following appear to be duplicates/specialisations of [maponpaths_2], found with [Search (?x = ?x' -> ?f ?x ?y = ?f ?x' ?y)] and similar searches (following [Require UniMath.All]):
-
+  [Foundations.PartA.base_paths] — keep since in [Foundations]
+  [Foundations.PartA.pair_path_in2] — in [Foundations], also useful specialisation
   [Foundations.PartA.transportf_paths] — in [Foundations], and very useful
+
   [Integers.hzplusradd] — looks like unnecessary specialisation?
-  [CategoryTheory.PreAdditive.ropeq] — looks like unnecessary specialisation
+
+  [CategoryTheory.PrecategoriesWithAbgrops.to_apply_inv] — to investigate
+  [CategoryTheory.PrecategoriesWithAbgrops.to_rrw] — to investigate
   [CategoryTheory.PrecategoriesWithAbgrops.to_lrw] — to investigate
+
+  [CategoryTheory.PreAdditive.ropeq] — looks like unnecessary specialisation
   [CategoryTheory.Core.NaturalTransformations.nat_trans_eq_pointwise] — clearly useful; keep; perhaps define in terms of [maponpaths_2]?
+  [CategoryTheory.limits.coproducts.CoproductOfArrows_eq] — looks probably like unnecessary duplicate; remove?
+
+  [SyntheticHomotopyTheory.AffineLine.makeGuidedHomotopy_localPath] — to investigate
+  [SyntheticHomotopyTheory.Circle.makeGH_localPath] — to investigate
+
   [HomologicalAlgebra.Complexes.MorphismEq'] – to investigate
   [Bicategories.Modifications.Modification.modcomponent_eq] — to investigate
+
   [Bicategories.WkCatEnrichment.whiskering.cancel_whisker_right] — to investigate
 
-The following appear to be duplicates/specialisations of [maponpaths_12], found with [Search (?x = ?x' -> ?y = ?y' -> ?f ?x ?y = ?f ?x' ?y')] and [Search (?x = ?x' -> forall y y', y = y' -> ?f ?x y = ?f ?x' y')]:
-
+The following appear to be duplicates/specialisations of [maponpaths_12]:
 Duplicates:
   [Foundations.PartA.two_arg_paths] — in [Foundations], complete duplicate of [maponpaths_12] and [map_on_two_paths]
   [Foundations.PartA.map_on_two_paths] — in [Foundations], complete duplicate of [maponpaths_12] and [two_arg_paths]
 
 Specialisations:
   [Foundations.PartA.pathsdirprod] — in [Foundations], useful specialisation
-  [Foundations.PartA.total2_paths2] — in [Foundations], but also dupe of [pathsdirprod]
+  [Foundations.PartA.total2_paths2] — in [Foundations], but also dupe of [pathsdirprod]!
+
   [CategoriesWithBinOps.to_binop_eq] — looks probably unnecessary
   [CategoryTheory.limits.bincoproducts.BinCoproductArrow_eq]  — looks probably like unnecessary duplicate; investigate, remove?
   [CategoryTheory.limits.binproducts.BinProductOfArrows_eq] — looks probably like unnecessary duplicate; investigate, remove?
