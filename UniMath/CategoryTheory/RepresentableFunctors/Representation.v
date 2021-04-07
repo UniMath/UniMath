@@ -32,7 +32,7 @@ Proof.
   - simpl; intros x. apply weqonsecfibers; intro b. apply weqiff.
     + unshelve refine (twooutof3c_iff_1_homot _ _ _ _ _).
       * exact (pr1 i ◽ opp_ob b).
-      * intro f; unfold funcomp; simpl.
+      * intro f; simpl.
         exact (eqtohomot (nat_trans_ax (pr1 i) _ _ f) x).
       * exact (hset_iso_is_equiv _ _ (I b)).
     + apply isapropisweq.

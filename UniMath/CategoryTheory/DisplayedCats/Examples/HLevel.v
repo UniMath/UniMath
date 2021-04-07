@@ -74,7 +74,7 @@ Proof.
         intros ? ? ?.
         apply subtypePath.
         -- intro. apply isapropunit.
-        -- unfold funcomp; apply funextfun; intro; reflexivity.
+        -- apply funextfun; intro; reflexivity.
     + use make_nat_trans.
       * intros ?; exact (idfun _).
       * intros ? ? ?; apply funextfun; intro; reflexivity.

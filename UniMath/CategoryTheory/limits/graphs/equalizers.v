@@ -61,7 +61,7 @@ Section def_equalizers.
       + exact (h · f).
     - use two_rec_dep; use two_rec_dep.
       + exact (empty_rect _).
-      + intro e. unfold idfun. induction e.
+      + intro e. induction e.
         * apply idpath.
         * apply (! H).
       + exact (empty_rect _).

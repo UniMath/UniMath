@@ -4,6 +4,8 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.UnivalenceAxiom.
 
+Require Import UniMath.MoreFoundations.PartA.
+
 Require Import UniMath.Algebra.BinaryOperations.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -32,8 +34,8 @@ Section BINOPS_precategory.
     binopfuncomp (idbinopfun A) f = f.
   Proof.
     unfold binopfuncomp. unfold idbinopfun.
-    use total2_paths_f. cbn. unfold funcomp. apply maponpaths.
-    apply idpath. apply proofirrelevance. apply isapropisbinopfun.
+    use total2_paths_f. cbn. apply idpath.
+    apply proofirrelevance. apply isapropisbinopfun.
   Defined.
 
 
@@ -41,8 +43,8 @@ Section BINOPS_precategory.
     binopfuncomp f (idbinopfun B) = f.
   Proof.
     unfold binopfuncomp. unfold idbinopfun.
-    use total2_paths_f. cbn. unfold funcomp. apply maponpaths.
-    apply idpath. apply proofirrelevance. apply isapropisbinopfun.
+    use total2_paths_f. cbn. apply idpath.
+    apply proofirrelevance. apply isapropisbinopfun.
   Defined.
 
   Definition binopfuncomp_assoc (A B C D : setwithbinop) (f : binopfun A B)

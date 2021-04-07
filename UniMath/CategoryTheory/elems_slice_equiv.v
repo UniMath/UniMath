@@ -298,7 +298,7 @@ Section elems_slice_equiv.
     apply maponpaths. unfold hfiber.
     rewrite transportf_total2. simpl.
     rewrite transportf_const.
-    now unfold idfun.
+    reflexivity.
   Qed.
 
   Definition slice_counit : slice_to_PreShv ∙ PreShv_to_slice ⟹ functor_identity (PreShv C / P) :=
