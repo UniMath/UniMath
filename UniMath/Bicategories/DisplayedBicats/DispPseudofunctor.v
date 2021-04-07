@@ -577,7 +577,7 @@ Section FiberOfFunctor.
                HD₂_2_1 (idpath _)
                _ _
                (pr22 (pr221 F) c c c (id₁ c) (id₁ c) x y z f g))) as p.
-      cbn in p ; unfold idfun in p.
+      cbn in p.
       rewrite p ; clear p.
       pose (disp_local_iso_cleaving_invertible_2cell
               h₂

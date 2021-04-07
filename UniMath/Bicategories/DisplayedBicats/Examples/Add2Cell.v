@@ -173,7 +173,7 @@ Section Add2Cell.
         (intros x xx yy;
          intros p;
          induction p as [p q];
-         cbn ; unfold idfun;
+         cbn;
          cbn in p, q;
          pose (pstrans_id_alt l) as pl;
          cbn in pl ; rewrite pl in p ; clear pl;

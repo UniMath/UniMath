@@ -522,7 +522,7 @@ Section Algebra.
     intros a b f g p aa bb ff gg.
     induction p.
     apply isweqimplimpl.
-    - cbn ; unfold idfun.
+    - cbn.
       intros x.
       pose (pr1 x) as d.
       cbn in *.
@@ -1100,7 +1100,7 @@ Section Algebra.
     use weqhomot.
     - exact (disp_alg_bicat_adjoint_equivalence_weq HC aa bb ∘ (_ ,, HC _ _ aa bb))%weq.
     - intros p.
-      induction p ; cbn ; unfold idfun.
+      induction p ; cbn.
       use subtypePath.
       + intro ; simpl.
         apply (@isaprop_disp_left_adjoint_equivalence C disp_alg_bicat).

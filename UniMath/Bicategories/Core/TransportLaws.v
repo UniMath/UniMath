@@ -32,7 +32,6 @@ Definition transport_one_cell_FlFr
       ∘ (idtoiso_2_0 _ _ (maponpaths f (!p))).
 Proof.
   induction p ; cbn.
-  unfold idfun.
   exact (linvunitor _ o rinvunitor _).
 Defined.
 
@@ -50,7 +49,6 @@ Definition transport_one_cell_FlFr_inv
       (transportf (λ (z : A), C⟦f z,g z⟧) p h).
 Proof.
   induction p ; cbn.
-  unfold idfun.
   exact (runitor _ o lunitor _).
 Defined.
 
@@ -66,13 +64,11 @@ Proof.
   refine (transport_one_cell_FlFr_inv f g p h ,, _).
   split ; cbn.
   - induction p ; cbn.
-    unfold idfun.
     rewrite <- !vassocr.
     rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)).
     rewrite linvunitor_lunitor, id2_left.
     apply rinvunitor_runitor.
   - induction p ; cbn.
-    unfold idfun.
     rewrite <- !vassocr.
     rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)).
     rewrite runitor_rinvunitor, id2_left.
