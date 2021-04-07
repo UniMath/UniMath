@@ -95,7 +95,7 @@ Proof.
   apply funextfun; intros [i b].
   simpl.
   induction (natlehchoice4 i n b) as [p|p].
-  - unfold funcomp; simpl.
+  - simpl.
     unfold append_vec. simpl.
     induction (natlehchoice4 i n b) as [q|q].
     + simpl. apply maponpaths. apply isinjstntonat; simpl. reflexivity.
@@ -103,7 +103,7 @@ Proof.
   - induction p.
     unfold append_vec; simpl.
     induction (natlehchoice4 i i b) as [r|r].
-    * simpl. unfold funcomp; simpl. apply maponpaths.
+    * simpl. apply maponpaths.
       apply isinjstntonat; simpl. reflexivity.
     * simpl. apply maponpaths. apply isinjstntonat; simpl. reflexivity.
 Defined.
@@ -291,7 +291,7 @@ Proof.
     + apply transportf_fun.
     + apply funextfun. intro x. induction x as [ i b ].
       simple refine (_ @ e_el _ _ _).
-      * unfold funcomp.
+      * simpl.
         apply maponpaths.
         apply transport_stn.
 Defined.
@@ -429,7 +429,7 @@ Lemma append_and_drop_fun {X n} (x : stn n -> X) y :
 Proof.
   intros.
   apply funextsec; intros i.
-  unfold funcomp.
+  simpl.
   unfold append_vec.
   induction (natlehchoice4 (pr1 (dni lastelement i)) n (pr2 (dni lastelement i))) as [I|J].
   - simpl. apply maponpaths. apply subtypePath_prop. simpl. apply di_eq1. exact (stnlt i).
@@ -479,13 +479,13 @@ Proof.
     apply proofirrelevancecontr. apply iscontrunit. }
   induction p as [x y]. induction y as [n y].
   apply (maponpaths (@inr unit (X × Sequence X))).
-  unfold append_vec, lastelement, funcomp; simpl.
+  unfold append_vec, lastelement; simpl.
   unfold append_vec. simpl.
   induction (natlehchoice4 n n (natgthsnn n)) as [e|e].
   { contradicts e (isirreflnatlth n). }
   simpl. apply maponpaths, maponpaths.
   apply funextfun; intro i. clear e. induction i as [i b].
-  unfold funcomp, dni_lastelement; simpl.
+  unfold dni_lastelement; simpl.
   induction (natlehchoice4 i n (natlthtolths i n b)) as [d|d].
   { simpl. apply maponpaths. now apply isinjstntonat. }
   simpl. induction d; contradicts b (isirreflnatlth i).
@@ -559,7 +559,7 @@ Proof.
   - cbn. apply natplusnsm.
   - intros i r s.
     unfold concatenate, concatenate', weqfromcoprodofstn_invmap; cbn.
-    unfold append_vec, coprod_rect, funcomp; cbn.
+    unfold append_vec, coprod_rect; cbn.
     induction (natlthorgeh i m) as [H | H].
     + induction (natlehchoice4 i (m + n) s) as [H1 | H1].
       * reflexivity.
