@@ -147,6 +147,6 @@ Example commring_bimodule (R : commring) : bimodule R R.
   intros x.
   exact (!@rigassoc2 R r s x @ (maponpaths (fun z => z * x) (@ringcomm2 R r s))
                       @ (rigassoc2 R s r x)).
-  Time Defined. (* TODO: this line takes a while, not sure why *)
+  Defined. (* TODO: this line takes a while, not sure why *)
 
 Local Close Scope ring.
