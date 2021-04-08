@@ -1380,14 +1380,14 @@ Lemma homotweqinv  {X Y Z} (f:X->Z) (w:X≃Y) (g:Y->Z) : f ~ g ∘ w -> f ∘ in
 Proof.
   intros p y.
   simple refine (p (invmap w y) @ _); clear p.
-  unfold funcomp. apply maponpaths. apply homotweqinvweq.
+  simpl. apply maponpaths. apply homotweqinvweq.
 Defined.
 
 Lemma homotweqinv' {X Y Z} (f:X->Z) (w:X≃Y) (g:Y->Z) : f ~ g ∘ w <- f ∘ invmap w ~ g.
 Proof.
   intros q x.
   simple refine (_ @ q (w x)).
-  unfold funcomp. apply maponpaths, pathsinv0. apply homotinvweqweq.
+  simpl. apply maponpaths, pathsinv0. apply homotinvweqweq.
 Defined.
 
 Definition isinjinvmap {X Y} (v w:X≃Y) : invmap v ~ invmap w -> v ~ w.
