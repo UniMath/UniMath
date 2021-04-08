@@ -143,7 +143,7 @@ Definition shifted_limit (cocha : cochain type_precat) :
 Proof.
   pose (X := dob cocha); cbn in X.
   pose (π n := (@dmor _ _ cocha (S n) n (idpath _))).
-  unfold standard_limit, shift_cochain, funcomp, idfun; cbn.
+  unfold standard_limit, shift_cochain; cbn.
 
   assert (isc : ∏ x : ∏ v : nat, dob cocha (S v),
                 iscontr (∑ x0 : X 0, (π 0 (x 0)) = x0)).

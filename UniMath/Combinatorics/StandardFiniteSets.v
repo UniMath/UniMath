@@ -1289,7 +1289,7 @@ Proof.
            exact (istransnatlth _ _ _ (stnlt k) G).
         -- apply fromempty. exact (natlthtonegnatgeh _ _ (stnlt j) G').
       * change (invmap (weqoverdnicoprod P) (ii2 k)) with (tpair P lastelement k).
-        unfold coprodf, idfun. unfold weqfromcoprodofstn_map. unfold coprod_rect.
+        simpl.
         unfold weqstnsum_map.
         apply subtypePath_prop.
         induction k as [k K]. simpl.

@@ -246,7 +246,7 @@ Defined.
 Lemma Hom1_Representation {C:category} (c:C) : Representation (Hom1 c).
 Proof.
   exists c. exists (identity c). intro b. apply (isweqhomot (idweq _)).
-  - abstract (intro f; unfold arrow_morphism_composition; unfold Hom1, idfun; simpl;
+  - abstract (intro f; unfold arrow_morphism_composition; unfold Hom1; simpl;
               apply pathsinv0, id_right) using _R_.
   - abstract (apply weqproperty) using _T_.
 Defined.
