@@ -22,7 +22,6 @@ Refactored: January 2019
 *)
 
 Require Import UniMath.Foundations.All.
-Require Import UniMath.MoreFoundations.PartA.
 
 Local Open Scope poset. (* So we can write ≤ *)
 

@@ -18,8 +18,6 @@ numbers from the univalent perspecive. *)
 (** Imports. *)
 
 Require Export UniMath.Foundations.NaturalNumbers.
-Require Import UniMath.MoreFoundations.PartA.
-
 
 (** ** Inductive types [le] with values in [UU].
 

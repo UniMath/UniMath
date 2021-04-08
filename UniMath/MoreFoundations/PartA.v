@@ -2,11 +2,6 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Tactics.
 
-(** Make [simpl], [cbn], etc. unfold [idfun X x] but not [ idfun x ]: *)
-Arguments idfun _ _ / .
-
-(** Make [simpl], [cbn], etc. unfold [ (f ∘ g) x ] but not [ f ∘ g ]: *)
-Arguments funcomp {_ _ _} _ _ _/.
 
 Lemma maponpaths_for_constant_function {T1 T2 : UU} (x : T2) {t1 t2 : T1}
       (e: t1 = t2): maponpaths (fun _: T1 => x) e = idpath x.

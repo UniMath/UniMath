@@ -10,7 +10,6 @@ This file contains main constructions related to the standard finite sets define
 (** Imports. *)
 
 Require Export UniMath.Foundations.NaturalNumbers.
-Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 Require Import UniMath.MoreFoundations.DecidablePropositions.
 Require Import UniMath.MoreFoundations.NegativePropositions.

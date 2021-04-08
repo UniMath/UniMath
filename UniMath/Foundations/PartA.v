@@ -158,7 +158,13 @@ Definition termfun {X : UU} (x : X) : unit -> X := λ _, x.
 
 Definition idfun (T : UU) := λ t:T, t.
 
+(** makes [simpl], [cbn], etc. unfold [idfun X x] but not [ idfun X ]: *)
+Arguments idfun _ _ /.
+
 Definition funcomp {X Y : UU} {Z:Y->UU} (f : X -> Y) (g : ∏ y:Y, Z y) := λ x, g (f x).
+
+(** make [simpl], [cbn], etc. unfold [ (f ∘ g) x ] but not [ f ∘ g ]: *)
+Arguments funcomp {_ _ _} _ _ _/.
 
 Declare Scope functions.
 Delimit Scope functions with functions.

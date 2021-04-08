@@ -33,7 +33,6 @@
 (** Imports *)
 
 Require Export UniMath.Foundations.Sets.
-Require Import UniMath.MoreFoundations.PartA.
 
 Local Open Scope logic.
 
