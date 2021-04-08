@@ -1864,7 +1864,7 @@ Section inv_rotation_mapping_cone.
                                   ! @maponpaths
                                   hz A (λ i0 : pr1 hz, to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
                                   _ _ (hzrminusplus (i + 1) 1 @ ! hzrplusminus (i + 1) 1))).
-          cbn in e1, e2. induction (hzrminusplus (i + 1) 1). cbn. unfold idfun. fold DS5.
+          cbn in e1, e2. induction (hzrminusplus (i + 1) 1). cbn. fold DS5.
           clear e1 e2.
           assert (e : (@maponpaths hz A (λ i0 : pr1 hz, to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
                                    _ _ (! hzrplusminus (i + 1 - 1 + 1) 1) @
@@ -2242,7 +2242,7 @@ Section inv_rotation_mapping_cone.
     rewrite (to_Unel1' DS2). rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_left.
     rewrite to_lunax''. rewrite assoc. rewrite <- (assoc _ (to_In1 DS2)).
     rewrite (to_IdIn1 DS2). rewrite id_right. induction (hzrplusminus i 1).
-    cbn. unfold idfun. exact (to_IdIn2 DS1).
+    cbn. exact (to_IdIn2 DS1).
   Qed.
 
   Definition InvRotMorphismIsoHomot {C1 C2 : Complex A} (f : Morphism C1 C2) :
@@ -2455,7 +2455,7 @@ Section inv_rotation_mapping_cone.
                e
                (to_In1 DS2)).
     - unfold DS10, DS9, DS6, DS5, DS2, DS1. unfold e.
-      induction (hzrminusplus i 1). cbn. unfold idfun.
+      induction (hzrminusplus i 1). cbn.
       apply idpath.
     - unfold DS10, DS9, DS6, DS5, DS2, DS1. unfold e. clear e.
       set (tmp := @transport_hz_to_In1'
@@ -2475,7 +2475,7 @@ Section inv_rotation_mapping_cone.
                  (C1 (i + 1 - 1))).
       + exact (! e).
       + unfold e. rewrite transport_f_f. rewrite transport_f_f.
-        rewrite pathsinv0r. cbn. unfold idfun.
+        rewrite pathsinv0r. cbn.
 
         set (tmp := @transport_hz_to_In1'
                       A (λ i0 : hz, to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
@@ -2723,7 +2723,7 @@ Section inv_rotation_mapping_cone.
                                               A (C1 (i0 + 1 - 1 + 1))
                                               (C2 (i0 + 1 - 1))) (C1 i0))
                        _ _ (hzrminusplus i 1)))).
-      rewrite transport_f_f. rewrite pathsinv0r. cbn. unfold idfun.
+      rewrite transport_f_f. rewrite pathsinv0r. cbn.
       rewrite transport_target_postcompose. rewrite transport_target_postcompose.
       rewrite transport_target_postcompose. rewrite transport_source_precompose.
       set (tmp := @transport_hz_double_section
@@ -2734,11 +2734,11 @@ Section inv_rotation_mapping_cone.
       rewrite transport_source_target_comm.
       rewrite <- maponpathsinv0. rewrite pathsinv0inv0.
       unfold DS11. unfold DS6, DS5, DS2, DS1.
-      induction (hzrminusplus i 1). cbn. unfold idfun.
+      induction (hzrminusplus i 1). cbn.
       fold DS11 DS6 DS5 DS2 DS1.
       rewrite transport_source_precompose. apply cancel_postcomposition.
       rewrite pathscomp0rid. unfold DS11, DS5. induction (hzrplusminus (i - 1 + 1) 1).
-      cbn. unfold idfun. fold DS5. rewrite pathscomp0rid.
+      cbn. fold DS5. rewrite pathscomp0rid.
       set (tmp := @transport_hz_double_section_source_target
                     A (λ i0 : pr1 hz, C2 i0)
                     (λ i0 : pr1 hz, to_BinDirectSums A (C1 (i0 + 1)) (C2 i0))
@@ -2921,8 +2921,8 @@ Section inv_rotation_mapping_cone.
     use to_binop_eq.
     - apply cancel_precomposition. rewrite transport_source_precompose.
       unfold DS2, DS6. rewrite transport_source_target_comm. unfold DS1, DS5.
-      induction (hzrminusplus i 1). cbn. unfold idfun. rewrite pathscomp0rid.
-      induction (hzrminusplus (i - 1 + 1) 1). cbn. unfold idfun.
+      induction (hzrminusplus i 1). cbn. rewrite pathscomp0rid.
+      induction (hzrminusplus (i - 1 + 1) 1). cbn.
       rewrite id_left. apply idpath.
     - fold DS1 DS2. fold DS5 DS6. rewrite <- to_binop_inv_comm_2.
       rewrite to_commax'. rewrite <- to_assoc.
@@ -3080,7 +3080,7 @@ Section inv_rotation_mapping_cone.
     rewrite <- transport_source_precompose. rewrite <- assoc.
     rewrite (to_IdIn1 (to_BinDirectSums
                            A (to_BinDirectSums A (C1 (i + 1 - 1 + 1)) (C2 (i + 1 - 1))) (C1 i))).
-    rewrite id_right. induction (hzrplusminus i 1). cbn. unfold idfun. rewrite id_right.
+    rewrite id_right. induction (hzrplusminus i 1). cbn. rewrite id_right.
     apply idpath.
   Qed.
 
@@ -4566,7 +4566,7 @@ Section mapping_cone_octa.
     use to_binop_eq.
     - rewrite <- transport_target_to_inv. apply maponpaths.
       unfold DS4, DS3, DS1. unfold DS13, DS12, DS11. induction (hzrminusplus i 1). cbn.
-      unfold idfun. apply idpath.
+      apply idpath.
     - rewrite to_postmor_linear'.
       rewrite (to_commax' _ _ (f1 (i - 1 + 1 + 1) · to_In2 DS12 · to_In1 DS13)).
       rewrite <- transport_source_to_binop. rewrite <- transport_target_to_binop.
@@ -4575,7 +4575,7 @@ Section mapping_cone_octa.
                              (f1 (i + 1) · (to_In2 DS3 · to_In1 DS4))).
       use to_binop_eq.
       + unfold DS4, DS3, DS1. unfold DS13, DS12, DS11. induction (hzrminusplus i 1). cbn.
-        unfold idfun. rewrite assoc. apply idpath.
+        rewrite assoc. apply idpath.
       + rewrite <- PreAdditive_invlcomp.
         rewrite <- transport_source_to_inv. rewrite <- transport_target_to_inv.
         rewrite transport_source_precompose. rewrite transport_source_precompose.

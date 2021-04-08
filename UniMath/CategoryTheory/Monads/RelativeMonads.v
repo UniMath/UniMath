@@ -1168,14 +1168,13 @@ Proof.
       apply idfun.
     + simpl.
       apply idisweq.
-  - unfold idfun; split.
+  - simpl; split.
     + intros a b f c h.
-      simpl.
       unfold compose at 1; simpl.
       rewrite <- assoc.
       apply cancel_precomposition.
       apply (r_eta_r_bind R).
-    + intros a b f c k; simpl.
+    + intros a b f c k.
       reflexivity.
 Defined.
 

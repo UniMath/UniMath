@@ -296,7 +296,7 @@ Section BasePseudoFunctor.
       apply funextsec ; intro X.
       use total2_paths_b.
       + reflexivity.
-      + cbn ; unfold idfun.
+      + cbn.
         use subtypePath.
         {
           intro.
@@ -307,7 +307,7 @@ Section BasePseudoFunctor.
     - intros η.
       use total2_paths_b.
       + reflexivity.
-      + cbn ; unfold idfun.
+      + cbn.
         use subtypePath.
         {
           intro.

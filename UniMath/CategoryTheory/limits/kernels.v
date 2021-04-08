@@ -572,7 +572,7 @@ Section transport_kernels.
     KernelIn Z K _ (transportf (λ x' : ob C, precategory_morphisms x' y) e f)
              (transport_source_KernelIn_eq f K e H).
   Proof.
-    induction e. use KernelInsEq. cbn. unfold idfun.
+    induction e. use KernelInsEq. cbn.
     rewrite KernelCommutes. rewrite KernelCommutes.
     apply idpath.
   Qed.

@@ -1651,7 +1651,7 @@ Section def_roofs.
     - use funextsec. intros a.
       use funextsec. intros b.
       use funextsec. intros f.
-      induction T. cbn. unfold idfun.
+      induction T. cbn.
       use (squash_to_prop (pr1 (RoofEqclassIs f))). apply hsD. intros f'. induction f' as [f1 f2].
       rewrite (RoofEqclassEqRoof f f1 f2).
       use (pathscomp0 _ (! (pr2 (pr1 (MorMap_iscontr

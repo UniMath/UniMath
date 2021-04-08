@@ -55,7 +55,6 @@ Proof.
     use total2_paths_f.
     + apply funextfun. intro x.
       unfold compose. cbn.
-      rewrite funcomp_assoc.
       apply idpath.
     + apply isapropismodulefun.
 Defined.
@@ -153,7 +152,6 @@ Proof.
    apply (is_iso_qinv (C:= mod_precategory) _ (make_modulefun (invmoduleiso f) (pr2 (invmoduleiso f)))).
    split; use total2_paths_f.
     + apply funextfun. intro.
-      unfold funcomp, idfun.
       apply homotinvweqweq.
     + apply isapropismodulefun.
     + apply funextfun. intro.

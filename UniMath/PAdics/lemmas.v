@@ -283,7 +283,7 @@ Lemma natcofaceretractisretract ( i : nat ) :
   funcomp ( natcoface i ) ( natcofaceretract i ) = idfun nat.
 Proof.
   simpl. apply funextfun.
-  intro n. unfold funcomp.
+  intro n. simpl.
   set ( c := natlthorgeh n i ). destruct c as [ h | k ].
   - unfold natcoface. rewrite h. unfold natcofaceretract. rewrite h.  apply idpath.
   - assert ( natgtb i n = false ) as f.
@@ -303,7 +303,7 @@ Proof.
   rewrite <- ( natcofaceretractisretract i ).
   change y with ( idfun _ y ).
   rewrite <- ( natcofaceretractisretract i ).
-  unfold funcomp. rewrite p. apply idpath.
+  simpl. rewrite p. apply idpath.
 Defined.
 
 Lemma natlehdecomp ( b a : nat ) :

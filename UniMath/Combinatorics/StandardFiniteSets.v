@@ -796,9 +796,9 @@ Definition coprod_stn_assoc (l m n : nat) : (
 Proof.
   intros.
   intros abc.
-  rewrite 4? weqcomp_to_funcomp.
+  simpl.
   apply (invmaponpathsincl pr1). apply isinclstntonat.
-  rewrite <- funcomp_assoc. unfold funcomp at 1. rewrite pr1_eqweqmap_stn.
+  rewrite pr1_eqweqmap_stn.
   induction abc as [[a|b]|c].
   - simpl. apply idpath.
   - simpl. apply idpath.
@@ -869,23 +869,23 @@ Proof.
   intros. induction n as [|n IHn].
   { change (stnsum _) with 0 at 3. rewrite natplusr0.
     assert (e := ! natplusr0 m).
-    rewrite (transport_stnsum e). apply stnsum_eq; intro i. unfold funcomp.
+    rewrite (transport_stnsum e). apply stnsum_eq; intro i. simpl.
     apply maponpaths. apply pathsinv0. apply stn_left_0. }
   rewrite stnsum_step. assert (e : S (m+n) = m + S n).
   { apply pathsinv0. apply natplusnsm. }
   rewrite (transport_stnsum e).
   rewrite stnsum_step. rewrite <- natplusassoc. apply map_on_two_paths.
   { rewrite IHn; clear IHn. apply map_on_two_paths.
-    { apply stnsum_eq; intro i. unfold funcomp.
+    { apply stnsum_eq; intro i. simpl.
       apply maponpaths. apply subtypePath_prop.
       rewrite stn_left_compute. induction e.
       rewrite idpath_transportf. rewrite dni_last.
       apply idpath. }
-    { apply stnsum_eq; intro i. unfold funcomp.
+    { apply stnsum_eq; intro i. simpl.
       apply maponpaths. apply subtypePath_prop.
       rewrite stn_right_compute. unfold stntonat. induction e.
       rewrite idpath_transportf. rewrite 2? dni_last. apply idpath. } }
-  unfold funcomp. apply maponpaths. apply subtypePath_prop.
+  simpl. apply maponpaths. apply subtypePath_prop.
   induction e. apply idpath.
 Defined.
 
@@ -1037,10 +1037,10 @@ Proof.
     unfold m1 ; clear m1.
     apply two_arg_paths.
     + apply stnsum_eq. intro l.
-      unfold funcomp. apply maponpaths.
+      simpl. apply maponpaths.
       apply subtypePath_prop; simpl.
       apply pathsinv0, di_eq1, stnlt.
-    + unfold funcomp. apply maponpaths. apply subtypePath_prop.
+    + simpl. apply maponpaths. apply subtypePath_prop.
       simpl. apply idpath.
 Defined.
 
@@ -1103,7 +1103,7 @@ Proof.
             stnsum (m ∘ stn_left'' ltS ∘ dni lastelement)) as e. {
       apply stnsum_eq.
       intros k.
-      unfold funcomp. apply maponpaths.
+      simpl. apply maponpaths.
       apply subtypePath_prop. simpl.
       apply pathsinv0, di_eq1.
       apply (stnlt k).
@@ -1111,7 +1111,7 @@ Proof.
     induction e.
     apply natlthandplusl.
     assert ((m ∘ stn_left'' ltS) lastelement = m i) as e. {
-      unfold funcomp. apply maponpaths.
+      simpl. apply maponpaths.
       apply subtypePath_prop, idpath.
     }
     induction e.
@@ -1120,7 +1120,7 @@ Proof.
             stnsum (m ∘ stn_left'' (stnlt i') ∘ stn_left' _ _ lt)) as e. {
       apply stnsum_eq.
       intros k.
-      unfold funcomp. apply maponpaths.
+      simpl. apply maponpaths.
       apply subtypePath_prop, idpath.
     }
     rewrite e.
@@ -1170,7 +1170,7 @@ Proof.
     use tpair.
     + exists (dni_lastelement i). exists j.
       abstract (use (_ @ J); apply (maponpaths (λ x, x+j)); apply stnsum_eq; intro r;
-      unfold m'; unfold funcomp; apply maponpaths; apply subtypePath_prop, idpath).
+      unfold m'; simpl; apply maponpaths; apply subtypePath_prop, idpath).
     + intro t.
       apply partial_sum_prop.
   - clear IH. set (j := l - len').
@@ -1187,7 +1187,7 @@ Proof.
       induction C. exact lt.
     * simpl. intermediate_path (stnsum m' + j).
       -- apply (maponpaths (λ x, x+j)). apply stnsum_eq; intro i.
-         unfold m'. unfold funcomp. apply maponpaths.
+         unfold m'. simpl. apply maponpaths.
          apply subtypePath_prop, idpath.
       -- rewrite natpluscomm. exact K.
 Defined.
@@ -1269,7 +1269,7 @@ Proof.
                                                 (idfun _) c))
             ).
       intros c.
-      unfold funcomp.
+      simpl.
       set (P := λ i, ⟦ f i ⟧).
       change (pr1weq (weqfromcoprodofstn (stnsum (λ x : ⟦ n ⟧, f (dni lastelement x))) (f lastelement)))
       with (weqfromcoprodofstn_map (stnsum (λ x : ⟦ n ⟧, f (dni lastelement x))) (f lastelement)).
@@ -1280,7 +1280,7 @@ Proof.
         unfold weqfromcoprodofstn_map. unfold coprod_rect. unfold weqstnsum_map.
         apply subtypePath_prop.
         induction k as [k K]. simpl.
-        apply (maponpaths (λ x, x+k)). unfold funcomp. unfold stntonat. unfold di.
+        apply (maponpaths (λ x, x+k)). unfold funcomp, stntonat, di.
         clear K k.
         induction (natlthorgeh _ n) as [G|G'].
         -- simpl. apply stnsum_eq; intro k. apply maponpaths.
@@ -1289,14 +1289,14 @@ Proof.
            exact (istransnatlth _ _ _ (stnlt k) G).
         -- apply fromempty. exact (natlthtonegnatgeh _ _ (stnlt j) G').
       * change (invmap (weqoverdnicoprod P) (ii2 k)) with (tpair P lastelement k).
-        unfold coprodf, idfun. unfold weqfromcoprodofstn_map. unfold coprod_rect.
+        simpl.
         unfold weqstnsum_map.
         apply subtypePath_prop.
         induction k as [k K]. simpl.
         apply (maponpaths (λ x, x+k)).
         apply maponpaths.
         apply funextfun; intro i. induction i as [i I].
-        unfold funcomp. apply maponpaths.
+        simpl. apply maponpaths.
         apply subtypePath_prop.
         simpl.
         apply pathsinv0, di_eq1. assumption.
@@ -2163,7 +2163,7 @@ Proof.
     change ((λ i : ⟦ S m ⟧, f i + g i) ∘ dni lastelement)
     with (λ y : ⟦ m ⟧, f (dni lastelement y) + g (dni lastelement y)).
     rewrite I. rewrite natplusassoc.
-    rewrite natplusassoc. unfold funcomp. apply maponpaths. rewrite natpluscomm.
+    rewrite natplusassoc. simpl. apply maponpaths. rewrite natpluscomm.
     rewrite natplusassoc. apply maponpaths. rewrite natpluscomm. apply idpath.
 Defined.
 
@@ -2196,7 +2196,7 @@ Proof.
                      (f firstelement) _ _).
     + apply maponpaths.
       use (_ @ I (f ∘ dni_lastelement) _ @ _).
-      * unfold funcomp. apply stnsum_eq; intros i.
+      * simpl. apply stnsum_eq; intros i.
         rewrite replace_dni_last. apply idpath.
       * intros i j s. unfold funcomp. apply e. apply s.
       * apply idpath.

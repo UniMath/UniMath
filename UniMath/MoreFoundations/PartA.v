@@ -2,6 +2,7 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Tactics.
 
+
 Lemma maponpaths_for_constant_function {T1 T2 : UU} (x : T2) {t1 t2 : T1}
       (e: t1 = t2): maponpaths (fun _: T1 => x) e = idpath x.
 Proof.
@@ -828,8 +829,8 @@ Lemma transportf_paths_FlFr {A B : UU} {f g : A -> B} {x1 x2 : A}
  (p : x1 = x2) (q : f x1 = g x1)
  : transportf (λ x, f x = g x) p q = !maponpaths f p @ q @ maponpaths g p.
 Proof.
- induction p; cbn.
- symmetry.
+ induction p. cbn.
+ apply pathsinv0.
  apply pathscomp0rid.
 Qed.
 

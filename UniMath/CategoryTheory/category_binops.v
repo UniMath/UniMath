@@ -32,8 +32,8 @@ Section BINOPS_precategory.
     binopfuncomp (idbinopfun A) f = f.
   Proof.
     unfold binopfuncomp. unfold idbinopfun.
-    use total2_paths_f. cbn. unfold funcomp. apply maponpaths.
-    apply idpath. apply proofirrelevance. apply isapropisbinopfun.
+    use total2_paths_f. cbn. apply idpath.
+    apply proofirrelevance. apply isapropisbinopfun.
   Defined.
 
 
@@ -41,8 +41,8 @@ Section BINOPS_precategory.
     binopfuncomp f (idbinopfun B) = f.
   Proof.
     unfold binopfuncomp. unfold idbinopfun.
-    use total2_paths_f. cbn. unfold funcomp. apply maponpaths.
-    apply idpath. apply proofirrelevance. apply isapropisbinopfun.
+    use total2_paths_f. cbn. apply idpath.
+    apply proofirrelevance. apply isapropisbinopfun.
   Defined.
 
   Definition binopfuncomp_assoc (A B C D : setwithbinop) (f : binopfun A B)

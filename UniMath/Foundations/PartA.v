@@ -158,7 +158,13 @@ Definition termfun {X : UU} (x : X) : unit -> X := λ _, x.
 
 Definition idfun (T : UU) := λ t:T, t.
 
+(** makes [simpl], [cbn], etc. unfold [idfun X x] but not [ idfun X ]: *)
+Arguments idfun _ _ /.
+
 Definition funcomp {X Y : UU} {Z:Y->UU} (f : X -> Y) (g : ∏ y:Y, Z y) := λ x, g (f x).
+
+(** make [simpl], [cbn], etc. unfold [ (f ∘ g) x ] but not [ f ∘ g ]: *)
+Arguments funcomp {_ _ _} _ _ _/.
 
 Declare Scope functions.
 Delimit Scope functions with functions.
@@ -1374,14 +1380,14 @@ Lemma homotweqinv  {X Y Z} (f:X->Z) (w:X≃Y) (g:Y->Z) : f ~ g ∘ w -> f ∘ in
 Proof.
   intros p y.
   simple refine (p (invmap w y) @ _); clear p.
-  unfold funcomp. apply maponpaths. apply homotweqinvweq.
+  simpl. apply maponpaths. apply homotweqinvweq.
 Defined.
 
 Lemma homotweqinv' {X Y Z} (f:X->Z) (w:X≃Y) (g:Y->Z) : f ~ g ∘ w <- f ∘ invmap w ~ g.
 Proof.
   intros q x.
   simple refine (_ @ q (w x)).
-  unfold funcomp. apply maponpaths, pathsinv0. apply homotinvweqweq.
+  simpl. apply maponpaths, pathsinv0. apply homotinvweqweq.
 Defined.
 
 Definition isinjinvmap {X Y} (v w:X≃Y) : invmap v ~ invmap w -> v ~ w.

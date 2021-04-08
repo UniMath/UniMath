@@ -1093,7 +1093,7 @@ Section complexes_precat.
     induction (isdecrelhzeq i i0) as [T | F].
     - induction T. exact H.
     - induction (isdecrelhzeq (i + 1) i0) as [T' | F'].
-      + induction T'. cbn. unfold idfun. rewrite <- assoc. rewrite <- assoc. rewrite <- MComm.
+      + induction T'. cbn. rewrite <- assoc. rewrite <- assoc. rewrite <- MComm.
         rewrite assoc. rewrite assoc. apply cancel_postcomposition.
         exact H.
       + apply idpath.

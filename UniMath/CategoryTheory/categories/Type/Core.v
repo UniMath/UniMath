@@ -67,11 +67,10 @@ Section HomFunctors.
     use make_dirprod.
     - intro; cbn.
       apply funextsec; intro.
-      unfold idfun.
       refine (id_right _ @ _).
       apply id_left.
-    - intros ? ? ? ? ?; cbn in *.
-      apply funextsec; intro; unfold funcomp.
+    - intros ? ? ? ? ?.
+      apply funextsec; intro; cbn.
       abstract (do 3 rewrite assoc; reflexivity).
   Defined.
 

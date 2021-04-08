@@ -455,14 +455,14 @@ Proof.
       induction e.
       exact (pn,,pl).
   - induction p as [e s].
-    induction e; unfold transportf in s; simpl in s; unfold idfun in s.
+    induction e; unfold transportf in s; simpl in s.
     refine (q _ _); clear q; intro q; simpl in q.
     induction q as [q|q].
     + induction q as [n r].
       apply hdisj_in1; simpl.
       exact (n,,r).
     + induction q as [e' s']. induction e'.
-      unfold transportf in s'; simpl in s'; unfold idfun in s'.
+      unfold transportf in s'; simpl in s'.
       apply hdisj_in2; simpl.
       exists (idpath x).
       exact (Strans x y y' y'' s s').
