@@ -24,6 +24,7 @@ Contents :
 
 
 Require Import UniMath.Foundations.PartD.
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -366,7 +367,7 @@ Proof.
   rewrite <- functor_comp.
   rewrite <- functor_comp.
   simpl.
-  apply BinCoproductArrow_eq.
+  apply maponpaths_12.
   + assert (NN :=  nat_trans_ax (pr2 (pr2 XZ)) _ _ (BinCoproductOfArrows C (CC (TerminalObject terminal) c) (CC (TerminalObject terminal) c')
          (identity (TerminalObject terminal)) f)).
     match goal with |[ H1: _ = ?f·?g |- _ = ?h · _ ] =>
@@ -406,7 +407,7 @@ Focus 2.
   rewrite <- functor_comp.
   rewrite <- functor_comp.
   simpl.
-  apply BinCoproductArrow_eq.
+  apply maponpaths_12.
   + assert (NN :=  nat_trans_ax e _ _ (BinCoproductOfArrows C (CC (TerminalObject terminal) c) (CC (TerminalObject terminal) c')
          (identity (TerminalObject terminal)) f)).
     match goal with |[ H1: _ = ?f·?g |- _ = ?h · _ ] =>
@@ -468,7 +469,7 @@ Proof.
   eapply cancel_postcomposition. apply postcompWithBinCoproductArrow.
 *)
 (*  rewrite postcompWithBinCoproductArrow. *)
-  apply BinCoproductArrow_eq.
+  apply maponpaths_12.
   + rewrite id_left.
     rewrite <- assoc.
     rewrite <- (ptd_mor_commutes _ β).
@@ -522,7 +523,7 @@ Proof.
   2: { eapply pathsinv0.
        apply postcompWithBinCoproductArrow. }
   simpl in *.
-  apply BinCoproductArrow_eq.
+  apply maponpaths_12.
   + rewrite <- assoc.
     assert (NN := nat_trans_ax e' _ _ (e (BinCoproductObject C (CC (TerminalObject terminal) c)))).
     simpl in NN. (* is important for success of the trick *)
