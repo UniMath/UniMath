@@ -8,7 +8,10 @@ The following are a uniformly-named set of lemmas giving how multi-argument (non
 
   The naming convention is that e.g. [maponpaths_135] takes paths in the 1st, 3rd, and 5th arguments, counting _backwards_ from the end.  (The “counting backwards” is so that it doesn’t depend on the total number of arguments the function takes.)
 
-  All are defined in terms of [maponpaths], to allow use of lemmas about it for reasoning about these. *)
+  All are defined in terms of [maponpaths], to allow use of lemmas about it for reasoning about these.
+
+ See below for a note about defining duplicates/special cases of these lemmas downstream. *)
+
 Definition maponpaths_1 {X A : UU} (f : X -> A) {x x'} (e : x = x')
   : f x = f x'
 := maponpaths f e.
@@ -18,6 +21,7 @@ Definition maponpaths_2 {Y X A : UU} (f : Y -> X -> A)
   : f y x = f y' x
 := maponpaths (fun y => f y x) e_y.
 
+(* TODO: should this be defined in terms of [two_arg_paths] or [map_on_two_paths], from [Foundations]?*)
 Definition maponpaths_12 {Y X A : UU} (f : Y -> X -> A)
     {y y'} (e_y : y = y') {x x'} (e_x : x = x')
   : f y x = f y' x'
@@ -49,38 +53,23 @@ Definition maponpaths_1234 {W Z Y X A : UU} (f : W -> Z -> Y -> X -> A)
   : f w z y x = f w' z' y' x'
 := maponpaths_123 _ e_z e_y e_x @ maponpaths_4 _ e_w _ _ _.
 
-(* Notes on duplication issues: *)
+(** Notes on duplication issues:
 
-(* NOTE: some of the lemmas above are provided multiple times elsewhere in the library, including some pure duplicates, and some specialisations (maybe for good reason, maybe not). TODO: chase them down, unify them where desirable, or document when there’s good reason for the duplication/specialisation.
+Duplicates and special cases of these lemmas have been re-written multiple times, in multiple packages, by multiple contributors.
 
-The following are specialisations of [maponpaths] or [maponpaths_2]:
+Sometimes this is intended and useful — e.g. for frequently-used specialisations such as [base_paths], especially when subsequent definitions mention them, like [fiber_paths].
 
-  [Foundations.PartA.base_paths] — keep since in [Foundations]
-  [Foundations.PartA.pair_path_in2] — in [Foundations], also useful specialisation
-  [Foundations.PartA.transportf_paths] — in [Foundations], and very useful
+Other times, it just happens because the contributor hasn’t been aware of the applicable general versions (or they weren’t available at the time of writing).  These cases are code duplication, causing redundancy and inconsistent coding style, and should be avoided/refactored.
 
-  [SyntheticHomotopyTheory.AffineLine.makeGuidedHomotopy_localPath] — to investigate
-  [SyntheticHomotopyTheory.Circle.makeGH_localPath] — to investigate
+To keep these clearly distinguished: if you are defining duplicates or special cases of these lemmas, please (a) define them in terms of the general ones, so that lemmas about these are applicable, and (b) add a comment noting why your definitions are desirable.
 
-  [Bicategories.WkCatEnrichment.whiskering.cancel_whisker_right] — to investigate
+A few direct duplicates remain:
 
-The following appear to be duplicates/specialisations of [maponpaths_12]:
-Duplicates:
-  [Foundations.PartA.two_arg_paths] — in [Foundations], complete duplicate of [maponpaths_12] and [map_on_two_paths]
-  [Foundations.PartA.map_on_two_paths] — in [Foundations], complete duplicate of [maponpaths_12] and [two_arg_paths]
-
-Specialisations:
-  [Foundations.PartA.pathsdirprod] — in [Foundations], useful specialisation
-  [Foundations.PartA.total2_paths2] — in [Foundations], but also dupe of [pathsdirprod]!
-
-*)
-
-(* Most awkwardly: [maponpaths_12] is a duplicate of [two_arg_paths] and [map_on_two_paths] from [Foundations].  Currently, [two_arg_paths] seems to be the most used, and with the most lemmas.
-
-How should we deal with this?  Keep all?  Make them notations/synonyms for each other?  Use primarily one throughout the library?
-
-Similarly, [total2_paths2] and [pathsdirprod], both from [Foundations], seem to be complete duplicates of each other, both widely used?
+- [Foundations.PartA.two_arg_paths] and [Foundations.PartA.map_on_two_paths] are complete duplicates of [maponpaths_12], and of each other (modulo reordering of arguments).
+- [Foundations.PartA.pathsdirprod] and [Foundations.PartA.total2_paths2] are complete duplicates of each other.
  *)
+
+(* TODO: several of the [maponpaths] family could usefully be generalised, to work with functions whose output type is dependent on the arguments that aren’t being varied in the specific lemma. *)
 
 Lemma maponpaths_for_constant_function {T1 T2 : UU} (x : T2) {t1 t2 : T1}
       (e: t1 = t2): maponpaths (fun _: T1 => x) e = idpath x.
