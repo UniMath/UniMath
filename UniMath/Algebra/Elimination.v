@@ -90,8 +90,18 @@ Section Gauss.
 
   (*  This might be a non-trivial property to prove, especially in the current double induction-based formalization.*)
   Definition test_row_switch_statement {m n : nat} (mat : Matrix F m n)
-    (r1 r2 : ⟦ m ⟧%stn) := (gauss_switch_row (gauss_switch_row mat r1 r2) r1 r2) = mat.
-
+    (r1 r2 : ⟦ m ⟧%stn) : (gauss_switch_row (gauss_switch_row mat r1 r2) r1 r2) = mat.
+  Proof.
+    use funextfun; intros i.
+    use funextfun; intros j.
+    unfold gauss_switch_row.
+    destruct (stn_eq_or_neq i r1) as [ e_ir1 | ne_ir1 ]; simpl.
+    - destruct (stn_eq_or_neq r2 r1) as [ e_r1r2 | ne_r1r2 ]; simpl.
+      + destruct e_ir1, e_r1r2. apply idpath.
+      + destruct (stn_eq_or_neq r2 r2) as [ ? | absurd ]; simpl.
+        * destruct e_ir1. apply idpath.
+        * set (H := isirrefl_natneq _ absurd). destruct H.
+  Abort.
 
   (* Do we need to redefine this ? *)
   Definition max_hq (a b : hq) : hq.
