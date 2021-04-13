@@ -105,6 +105,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Universal/Equations.v](Algebra/Universal/Equations.v)
    - [Universal/EqAlgebras.v](Algebra/Universal/EqAlgebras.v)
    - [Universal.v](Algebra/Universal.v)
+   - [Elimination.v](Algebra/Elimination.v)
    - [All.v](Algebra/All.v)
 ## Package NumberSystems
    - [NaturalNumbersAlgebra.v](NumberSystems/NaturalNumbersAlgebra.v)
