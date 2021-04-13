@@ -109,11 +109,6 @@ Section def_precategory_with_abgrops.
     apply (grinvmaponpathsinv (to_abgr x y) H).
   Qed.
 
-  Lemma to_apply_inv {x y : PA} (f g : PA⟦x, y⟧) (H : f = g) : (to_inv f) = (to_inv g).
-  Proof.
-    apply maponpaths. apply H.
-  Qed.
-
   Lemma to_inv_unel {x y : PA} : to_inv (to_unel x y) = to_unel x y.
   Proof.
     unfold to_unel.

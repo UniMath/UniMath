@@ -67,7 +67,7 @@ Proof.
 intros x x' f.
 eapply pathscomp0; [ apply CoproductOfArrows_comp | ].
 eapply pathscomp0; [ | eapply pathsinv0; apply CoproductOfArrows_comp].
-apply CoproductOfArrows_eq, funextsec; intro i.
+apply maponpaths, funextsec; intro i.
 apply (nat_trans_ax (θ1 i (X ⊗ Z))).
 Qed.
 
@@ -84,7 +84,7 @@ apply (nat_trans_eq hsD); intro c.
 eapply pathscomp0; [ | eapply pathsinv0, CoproductOfArrows_comp].
 eapply pathscomp0; [ apply cancel_postcomposition, CoproductOfArrows_comp |].
 eapply pathscomp0; [ apply CoproductOfArrows_comp |].
-apply CoproductOfArrows_eq, funextsec; intro i.
+apply maponpaths, funextsec; intro i.
 apply (nat_trans_eq_pointwise (nat_trans_ax (θ1 i) (X,,Z) (X',,Z') αβ) c).
 Qed.
 
@@ -114,7 +114,7 @@ apply (nat_trans_eq hsD); intro x; simpl; rewrite id_left.
 eapply pathscomp0; [apply CoproductOfArrows_comp|].
 apply pathsinv0.
 eapply pathscomp0; [apply CoproductOfArrows_comp|].
-apply pathsinv0, CoproductOfArrows_eq, funextsec; intro i.
+apply pathsinv0, maponpaths, funextsec; intro i.
 assert (Ha_x := nat_trans_eq_pointwise (S12' i X Z Z') x); simpl in Ha_x.
 rewrite id_left in Ha_x; apply Ha_x.
 Qed.

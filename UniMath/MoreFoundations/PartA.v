@@ -2,6 +2,74 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.Tactics.
 
+(** * Generalisations of [maponpaths]
+
+The following are a uniformly-named set of lemmas giving how multi-argument (non-dependent) functions act on paths, generalising [maponpaths].
+
+  The naming convention is that e.g. [maponpaths_135] takes paths in the 1st, 3rd, and 5th arguments, counting _backwards_ from the end.  (The “counting backwards” is so that it doesn’t depend on the total number of arguments the function takes.)
+
+  All are defined in terms of [maponpaths], to allow use of lemmas about it for reasoning about these.
+
+ See below for a note about defining duplicates/special cases of these lemmas downstream. *)
+
+Definition maponpaths_1 {X A : UU} (f : X -> A) {x x'} (e : x = x')
+  : f x = f x'
+:= maponpaths f e.
+
+Definition maponpaths_2 {Y X A : UU} (f : Y -> X -> A)
+    {y y'} (e_y : y = y') x
+  : f y x = f y' x
+:= maponpaths (fun y => f y x) e_y.
+
+(* TODO: should this be defined in terms of [two_arg_paths] or [map_on_two_paths], from [Foundations]?*)
+Definition maponpaths_12 {Y X A : UU} (f : Y -> X -> A)
+    {y y'} (e_y : y = y') {x x'} (e_x : x = x')
+  : f y x = f y' x'
+:= maponpaths_1 _ e_x @ maponpaths_2 f e_y _.
+
+Definition maponpaths_3 {Z Y X A : UU} (f : Z -> Y -> X -> A)
+    {z z'} (e_z : z = z') y x
+  : f z y x = f z' y x
+:= maponpaths (fun z => f z y x) e_z.
+
+Definition maponpaths_123 {Z Y X A : UU} (f : Z -> Y -> X -> A)
+    {z z'} (e_z : z = z') {y y'} (e_y : y = y') {x x'} (e_x : x = x')
+  : f z y x = f z' y' x'
+:= maponpaths_12 _ e_y e_x @ maponpaths_3 f e_z _ _.
+
+Definition maponpaths_13 {Z Y X A : UU} (f : Z -> Y -> X -> A)
+    {z z'} (e_z : z = z') (y:Y) {x x'} (e_x : x = x')
+  : f z y x = f z' y x'
+:= maponpaths_123 _ e_z (idpath y) e_x.
+
+Definition maponpaths_4 {W Z Y X A : UU} (f : W -> Z -> Y -> X -> A)
+    {w w'} (e_w : w = w') z y x
+  : f w z y x = f w' z y x
+:= maponpaths (fun w => f w z y x) e_w.
+
+Definition maponpaths_1234 {W Z Y X A : UU} (f : W -> Z -> Y -> X -> A)
+    {w w'} (e_w : w = w') {z z'} (e_z : z = z')
+    {y y'} (e_y : y = y') {x x'} (e_x : x = x')
+  : f w z y x = f w' z' y' x'
+:= maponpaths_123 _ e_z e_y e_x @ maponpaths_4 _ e_w _ _ _.
+
+(** Notes on duplication issues:
+
+Duplicates and special cases of these lemmas have been re-written multiple times, in multiple packages, by multiple contributors.
+
+Sometimes this is intended and useful — e.g. for frequently-used specialisations such as [base_paths], especially when subsequent definitions mention them, like [fiber_paths].
+
+Other times, it just happens because the contributor hasn’t been aware of the applicable general versions (or they weren’t available at the time of writing).  These cases are code duplication, causing redundancy and inconsistent coding style, and should be avoided/refactored.
+
+To keep these clearly distinguished: if you are defining duplicates or special cases of these lemmas, please (a) define them in terms of the general ones, so that lemmas about these are applicable, and (b) add a comment noting why your definitions are desirable.
+
+A few direct duplicates remain:
+
+- [Foundations.PartA.two_arg_paths] and [Foundations.PartA.map_on_two_paths] are complete duplicates of [maponpaths_12], and of each other (modulo reordering of arguments).
+- [Foundations.PartA.pathsdirprod] and [Foundations.PartA.total2_paths2] are complete duplicates of each other.
+ *)
+
+(* TODO: several of the [maponpaths] family could usefully be generalised, to work with functions whose output type is dependent on the arguments that aren’t being varied in the specific lemma. *)
 
 Lemma maponpaths_for_constant_function {T1 T2 : UU} (x : T2) {t1 t2 : T1}
       (e: t1 = t2): maponpaths (fun _: T1 => x) e = idpath x.
@@ -74,10 +142,6 @@ library lemma.
 Definition transportf_pathsinv0 {X} (P:X->UU) {x y:X} (p:x = y) (u:P x) (v:P y) :
   transportf _ (!p) v = u -> transportf _ p u = v.
 Proof. intro e. induction p, e. reflexivity. Defined.
-
-Definition maponpaths_2 {X Y Z : UU} (f : X -> Y -> Z) {x x'} (e : x = x') y
-  : f x y = f x' y
-:= maponpaths (λ x, f x y) e.
 
 Lemma transportf_comp_lemma (X : UU) (B : X -> UU) {A A' A'': X} (e : A = A'') (e' : A' = A'')
   (x : B A) (x' : B A')
@@ -331,12 +395,6 @@ Proof.
   intros e. induction e. induction p. reflexivity.
 Defined.
 
-Definition app {X} {P:X->Type} {x x':X} {e e':x = x'} (q:e = e') (p:P x) :
-  transportf P e p = transportf P e' p.
-Proof.
-  intros. induction q. reflexivity.
-Defined.
-
 (** ** Paths *)
 
 Definition pathsinv0_to_right {X} {x y z:X} (p:y = x) (q:y = z) (r:x = z) :
@@ -449,7 +507,7 @@ Defined.
 
 Definition total2_paths2_comp2 {X} {Y:X->Type} {x} {y:Y x} {x'} {y':Y x'}
            (p:x = x') (q:p#y = y') :
-  ! app (total2_paths2_comp1 p q) y @ fiber_paths (two_arg_paths_f p q) = q.
+  ! maponpaths_2 _ (total2_paths2_comp1 p q) y @ fiber_paths (two_arg_paths_f p q) = q.
 Proof.
   intros. induction p, q. reflexivity.
 Defined.
@@ -483,10 +541,6 @@ Definition evalat {T} {P:T->UU} (t:T) (f:∏ t:T, P t) := f t.
 
 Definition apfun {X Y} {f f':X->Y} (p:f = f') {x x'} (q:x = x') : f x = f' x'.
   intros. induction q. exact (eqtohomot p x).
-Defined.
-
-Definition aptwice {X Y Z} (f:X->Y->Z) {a a' b b'} (p:a = a') (q:b = b') : f a b = f a' b'.
-  intros. exact (apfun (maponpaths f p) q).
 Defined.
 
 Definition fromemptysec { X : empty -> UU } (nothing:empty) : X nothing.

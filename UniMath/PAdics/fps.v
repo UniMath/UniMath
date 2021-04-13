@@ -25,13 +25,6 @@ Proof.
   - intros. exact ( IHupper f + f ( S upper ) ).
 Defined.
 
-Lemma natsummationpaths { R : commring } { upper upper' : nat }
-  ( u : upper = upper' ) ( f : nat -> R ) :
-  natsummation0 upper f = natsummation0 upper' f.
-Proof.
-  intros. destruct u. auto.
-Defined.
-
 Lemma natsummationpathsupperfixed { R : commring } { upper : nat }
   ( f f' : nat -> R ) ( p : forall x : nat, natleh x upper -> f x = f' x ):
   natsummation0 upper f = natsummation0 upper f'.

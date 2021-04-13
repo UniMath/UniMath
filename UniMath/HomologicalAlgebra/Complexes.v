@@ -17,6 +17,8 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.NaturalNumbers.
 
+Require Import UniMath.MoreFoundations.PartA.
+
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids.
 Require Import UniMath.Algebra.Groups.
@@ -214,6 +216,7 @@ Section def_complexes.
     - use proofirrelevance. apply impred_isaprop. intros t. apply to_has_homsets.
   Qed.
 
+  (** Inverse to [MorphismEq] *)
   Lemma MorphismEq' {C1 C2 : Complex} (M1 M2 : Morphism C1 C2) (H : M1 = M2) :
     ∏ i : hz, M1 i = M2 i.
   Proof.
@@ -589,7 +592,7 @@ Section transport_section'.
         (i i' : hz) (e1 : i = i') :
     H i' = transportf (λ (x : ob C), C⟦x, f (i' + n)⟧) (maponpaths f e1)
                       (transportf (precategory_morphisms (f i))
-                                  (maponpaths f (hzplusradd i i' n e1)) (H i)).
+                                  (maponpaths f (maponpaths_2 _ e1 _)) (H i)).
   Proof.
     induction e1. apply idpath.
   Qed.
@@ -597,7 +600,7 @@ Section transport_section'.
   Lemma transport_hz_target_source (f : hz -> ob C) (n : hz) (H : ∏ (i : hz), C⟦f i, f (i + n)⟧)
         (i i' : hz) (e1 : i = i') :
     H i' = transportf (precategory_morphisms (f i'))
-                      (maponpaths f (hzplusradd i i' n e1))
+                      (maponpaths f (maponpaths_2 _ e1 _))
                       (transportf (λ (x : ob C), C⟦x, f (i + n)⟧) (maponpaths f e1) (H i)).
   Proof.
     induction e1. apply idpath.
@@ -605,7 +608,7 @@ Section transport_section'.
 
   Lemma transport_hz_section (f : hz -> ob C) (n : hz) (H : ∏ (i : hz), C⟦f i, f (i + n)⟧)
         (i i' : hz) (e1 : i = i') :
-    transportf (precategory_morphisms (f i)) (maponpaths f (hzplusradd i i' n e1)) (H i) =
+    transportf (precategory_morphisms (f i)) (maponpaths f (maponpaths_2 _ e1 _)) (H i) =
     transportf (λ (x : ob C), C⟦x, f (i' + n)⟧) (maponpaths f (! e1)) (H i').
   Proof.
     induction e1. apply idpath.
@@ -938,7 +941,7 @@ Section acyclic_complexes.
     use (transport_target_path _ _ (! maponpaths C (hzrminusplus i 1))).
     rewrite <- transport_target_postcompose. rewrite transport_f_f.
     rewrite pathsinv0r. rewrite transport_target_ZeroArrow.
-    use (transport_target_path _ _ (maponpaths C (hzplusradd _ _ 1 e'))).
+    use (transport_target_path _ _ (maponpaths C (maponpaths_2 _ e' _))).
     rewrite transport_target_ZeroArrow. rewrite transport_f_f. cbn.
     rewrite <- (DSq A C i0). rewrite transport_compose.
     rewrite transport_target_postcompose. apply cancel_precomposition.
@@ -1145,7 +1148,7 @@ Section complexes_precat.
       assert (e : (transportf (precategory_morphisms (C1 i0)) (maponpaths C2 (! T))
                               (MMor (EpiArrow _ E) i0)) · Diff C2 (i - 1) =
                   (Diff C1 i0) · (transportf (precategory_morphisms (C1 (i0 + 1)))
-                                              (maponpaths C2 (hzplusradd i0 (i - 1) 1 (! T)))
+                                              (maponpaths C2 (maponpaths_2 _ (!T) _))
                                               (MMor (EpiArrow _ E) (i0 + 1)))).
       {
         rewrite <- transport_target_postcompose. rewrite <- MComm.
@@ -1157,12 +1160,12 @@ Section complexes_precat.
       rewrite transport_f_f. rewrite <- maponpathscomp0.
       use (@transport_source_path
              A (C1 i) (C1 (i0 + 1)) a _ _
-             (maponpaths C1 (hzplusradd i0 (i - 1) 1 (! T) @ hzrminusplus i 1))).
+             (maponpaths C1 (maponpaths_2 _ (!T) _ @ hzrminusplus i 1))).
       rewrite transport_source_precompose. rewrite transport_source_precompose.
       rewrite transport_source_target_comm.
       set (tmp''' := transport_hz_double_section_source_target
                        A _ _ (MMor (EpiArrow _ E)) _ _
-                       (hzplusradd i0 (i - 1) 1 (! T) @ hzrminusplus i 1)).
+                       (maponpaths_2 _ (! T) _ @ hzrminusplus i 1)).
       cbn in tmp'''. cbn. rewrite <- tmp'''. clear tmp'''.
       exact H.
     - induction (isdecrelhzeq (i - 1 + 1) i0) as [e' | n'].

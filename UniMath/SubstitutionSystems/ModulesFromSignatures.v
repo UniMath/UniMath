@@ -401,7 +401,7 @@ Proof.
   { eapply pathsinv0.
     apply (precompWithBinCoproductArrow C (CP _ _) (CP _ _)
                                         (identity _) (((# H a):nat_trans _ _) (T_func c))). }
-  apply BinCoproductArrow_eq.
+  use (maponpaths_12 (BinCoproductArrow _ _)).
   + apply pathsinv0,id_left.
   + apply pathsinv0.
     etrans;[apply assoc|].
@@ -463,7 +463,7 @@ Proof.
     apply cancel_postcomposition.
     apply BinCoproductArrowEta.
     apply postcompWithBinCoproductArrow. }
-  apply BinCoproductArrow_eq.
+  use maponpaths_12.
   - apply hB1.
   - apply hB2.
 Qed.

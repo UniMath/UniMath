@@ -671,7 +671,7 @@ Proof.
   assert ( make_dirprod q' r' = ( make_dirprod q r ) ) as j
   by (apply pathsdirprod; assumption).
   (* Proof of general path: *)
-  apply pathintotalfiber with ( p0 := j ).
+  apply ( total2_paths2_f j ).
   assert ( iscontr ( n = m * q + r ×
              ( hzleh 0 r ×
                hzlth r ( nattohz ( hzabsval m ) ) ) ) ) as contract.
@@ -1147,7 +1147,7 @@ Proof.
       - apply q.
         assumption.
     }
-    apply pathintotalfiber with ( p0 := f0 ).
+    apply ( total2_paths2_f f0 ).
     assert ( isaprop ( iscommonhzdiv l n m ×
                        forall x : hz, iscommonhzdiv x n m -> hzleh x l ) ) as is.
     { apply isofhleveldirprod.
@@ -1258,7 +1258,7 @@ Proof.
              unfold hzdiv0 in t2.
              assert ( natleh ( hzabsval l ) n ⨿ ( n = 0%nat ) ) as C.
              { apply ( natdivleh ( hzabsval l ) n ( hzabsval k ) ).
-               apply ( isinclisinj isinclnattohz ).
+               apply ( invmaponpathsincl _ isinclnattohz ).
                rewrite nattohzandmult.
                rewrite 2! hzabsvalgeh0.
                ++ assumption.
@@ -1429,7 +1429,7 @@ Proof.
           assumption.
         * exact ( pr2 f ).
   }
-  apply ( pathintotalpr1 x ).
+  apply ( base_paths _ _ x ).
 Defined.
 
 Lemma hzgcdsymm ( m n : hz ) : hzgcd m n = hzgcd n m.
@@ -1463,7 +1463,7 @@ Proof.
         * exact ( pr2 o ).
         * exact ( pr1 o ).
   }
-  apply ( pathintotalpr1 x ).
+  apply ( base_paths _ _ x ).
 Defined.
 
 Lemma hzgcdandminusr ( m n : hz ) : hzgcd m n = hzgcd m ( - n ).
@@ -2233,7 +2233,7 @@ Proof.
                               ( make_dirprod ( isreflhzleh 0 ) ( lemmas.hzabsvalneq0 p x ) ) ) ).
   assert ( e = pr1 ( divalgorithm a p x ) ) as s
   by apply ( pr2 ( divalgorithm a p x ) ).
-  set ( w := pathintotalpr1 ( pathsinv0 s ) ).
+  set ( w := base_paths _ _ ( pathsinv0 s ) ).
   unfold e in w.
   unfold hzremaindermod.
   apply ( maponpaths ( fun z : hz × hz => pr2 z ) w ).

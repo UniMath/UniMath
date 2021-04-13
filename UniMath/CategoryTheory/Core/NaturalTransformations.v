@@ -109,11 +109,13 @@ Section nat_trans_eq.
 
 End nat_trans_eq.
 
+(* Can be given as an instance of general equality lemmas,
+but useful to have specifically defined. *)
 Definition nat_trans_eq_pointwise {C C' : precategory_data}
    {F F' : functor_data C C'} {a a' : nat_trans F F'}:
       a = a' -> ∏ x, a x = a' x.
 Proof.
-  intro; apply toforallpaths, maponpaths; assumption.
+  intro. apply toforallpaths, maponpaths. assumption.
 Qed.
 
 (** a more intuitive variant of [functor_data_eq] *)

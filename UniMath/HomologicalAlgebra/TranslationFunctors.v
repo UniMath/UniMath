@@ -13,6 +13,8 @@ Require Import UniMath.Foundations.Propositions.
 Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.NaturalNumbers.
 
+Require Import UniMath.MoreFoundations.PartA.
+
 Require Import UniMath.Algebra.BinaryOperations.
 Require Import UniMath.Algebra.Monoids.
 
@@ -224,7 +226,7 @@ Section translation_functor.
       unfold tmp in ee. cbn in ee. unfold tmp. cbn. rewrite ee. clear ee. clear tmp.
       induction (hzrplusminus (i - 1 + 1 + 1) 1). cbn. apply idpath.
     }
-    cbn in e1. rewrite e1. clear e1. use to_lrw.
+    cbn in e1. rewrite e1. clear e1. use maponpaths_2.
     (* Show that the first elements of to_binop are the same *)
     set (tmp := @transport_hz_source_target A C2 1 (Diff C2) _ _ (hzrplusminus (i - 1 + 1) 1)).
     rewrite tmp. clear tmp. rewrite transport_compose.
@@ -411,7 +413,7 @@ Section translation_functor.
       }
       rewrite e2. clear e2. apply maponpaths. apply isasethz.
     }
-    cbn in e1. rewrite e1. clear e1. use to_lrw.
+    cbn in e1. rewrite e1. clear e1. use maponpaths_2.
     rewrite <- transport_target_postcompose. rewrite transport_f_f.
     assert (e2 : maponpaths (λ i0 : pr1 hz, C2 (i0 - 1)) (hzrminusplus (i + 1 - 1) 1) =
                  maponpaths C2 (maponpaths (λ i0 : hz, i0 - 1) (hzrminusplus (i + 1 - 1) 1))).
