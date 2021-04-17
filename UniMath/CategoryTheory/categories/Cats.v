@@ -267,8 +267,8 @@ Proof.
   - intro i.
     use morphism_in_full_subcat.
     exact (pr_functor I (pr1 ∘ f) i).
-  - intros other_prod other_proj; cbn in other_proj.
-    unfold funcomp; cbn.
+  - unfold funcomp; cbn.
+    intros other_prod other_proj.
     apply (@iscontrweqf (hfiber functor_into_product_weq (λ i, pr1 (other_proj i)))).
     + unfold hfiber.
       unfold sub_precategory_morphisms, sub_precategory_predicate_morphisms; cbn.

@@ -132,7 +132,7 @@ Proof.
     + intros a b c g h; cbn.
       refine (maponpaths (λ p, transportf _ p _) (maponpathscomp0 _ _ _) @ _).
       refine (!transport_f_f _ (maponpaths f g) (maponpaths f h) _ @ _).
-      abstract (induction h; cbn; unfold idfun; apply pathsinv0; apply id_right).
+      abstract (induction h; cbn; apply pathsinv0; apply id_right).
 Defined.
 
 (** A natural transformation of functors out of a path groupoid is given by any

@@ -710,7 +710,7 @@ Lemma transportf_precompose_disp {C} {D : disp_cat C}
   = transportf _ (id_left _)
     (iso_inv_from_iso_disp (idtoiso_disp (idpath _) (e)) ;; ff).
 Proof.
-  destruct e; cbn; unfold idfun; cbn.
+  destruct e; cbn.
   rewrite (@id_left_disp _ _ _ _ _ cc).
   apply pathsinv0, transportfbinv.
 Qed.

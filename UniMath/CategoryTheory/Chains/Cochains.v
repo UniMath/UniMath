@@ -38,7 +38,7 @@ Proof.
     refine (_ · ars b).
     exact (transportf (λ o, C ⟦ obs o, obs (S b) ⟧) aeqSb (identity _)).
   - exact (λ ars n, ars (S n) n (idpath _)).
-  - intros ars; cbn; unfold idfun.
+  - intros ars; cbn.
     apply funextsec; intro n.
     apply id_left.
   - intros ars.
@@ -47,7 +47,7 @@ Proof.
     apply funextsec; intro b.
     apply funextsec; intro p.
     induction p.
-    cbn; unfold idfun.
+    cbn.
     apply id_left.
 Defined.
 

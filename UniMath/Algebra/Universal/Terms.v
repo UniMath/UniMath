@@ -82,7 +82,7 @@ Section Oplists.
     : ((opexec nm (just ss) = nothing) × (prefix_remove (arity nm) ss = nothing))
               ⨿  ∑ (ss': list (sorts σ)), (opexec nm (just ss) = just ((sort nm) :: ss')) × (prefix_remove (arity nm) ss = just ss').
   Proof.
-    unfold opexec, funcomp, just.
+    unfold opexec, just.
     simpl.
     induction (prefix_remove (arity nm) ss) as [ ss' | error ].
     - apply ii2.
@@ -207,7 +207,7 @@ Section Oplists.
       rewrite scons.
       simpl.
       rewrite concatenateStep.
-      unfold opexec, funcomp.
+      unfold opexec.
       simpl.
       erewrite prefix_remove_concatenate.
       * apply idpath.
@@ -375,7 +375,7 @@ Section Oplists.
              apply natlehnplusnm.
         * rewrite oplistexec_cons.
           rewrite t1def.
-          unfold opexec, funcomp.
+          unfold opexec.
           simpl.
           rewrite prefix_remove_drop.
           -- simpl.

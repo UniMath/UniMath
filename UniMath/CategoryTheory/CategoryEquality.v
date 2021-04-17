@@ -59,7 +59,7 @@ Proof.
     induction C as [C HC].
     induction D as [D HD].
     cbn in *.
-    induction p ; cbn ; unfold idfun.
+    induction p ; cbn.
     refine (_ ∘ total2_paths_equiv _ _ _)%weq.
     use weqfibtototal.
     intros p.
@@ -124,7 +124,7 @@ Proof.
     induction p as [p1 p2] ; cbn in *.
     unfold data_cat_eq_1 in p2.
     induction p1 ; cbn in *.
-    induction p2 ; cbn ; unfold idfun.
+    induction p2 ; cbn.
     use weqdirprodf.
     + use weqimplimpl.
       * intros f a.
