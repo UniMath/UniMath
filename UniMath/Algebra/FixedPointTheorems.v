@@ -36,7 +36,12 @@ Proof.
   intros e; destruct e. apply isrefl_posetRelation.
 Defined.
 
-(* [isaposetmorphism] is defined as in [Foundations.Sets], but lacks access function. *)
+
+(* [isaposetmorphism] is defined as in [Foundations.Sets], but (a) isn’t an hProp, and (b) lacks access function. *)
+
+Definition isaposetmorphism_hProp {P Q : Poset} (f : P -> Q) : hProp
+  := ∀ x x' : P, x ≤ x' ⇒ f x ≤ f x'.
+
 Definition posetmorphism_property {P Q} (f : posetmorphism P Q)
   : isaposetmorphism f
 := pr2 f.
@@ -209,16 +214,64 @@ Notation "A ∪ B" := (subtype_binaryunion A B)
 (** We use the treatment of upper bounds from [Algebra.Dcpo], but give a slightly different treatment of _least_ upper bounds,
  factoring out the general definitions of “greatest/least elements” and “upper/lower bounds”, both of a family, or satisfying some predicate. *)
 
-Section LowerAndUpperBounds.
+Section LowerBounds.
+(* NOTE: this should be kept in sync with [Section UpperBounds] below. *)
 
   Context {P : Poset}.
 
   Definition islowerbound {I} (p : I -> P) (x : P) : hProp
   := ∀ i : I, x ≤ p i.
 
+  Definition islowerbound_subtype (A : hsubtype P) (x : P) : hProp
+  := islowerbound (pr1carrier A) x.
+
   Definition islowerbound_subtype_equiv {A B : hsubtype P}
     : (A ≡ B)
-    -> islowerbound (pr1carrier A) ≡ islowerbound (pr1carrier B).
+    -> islowerbound_subtype A ≡ islowerbound_subtype B.
+  Proof.
+    intros e_A_B x; split;
+      intros x_lb [y H_y]; refine (x_lb (_,,_)); apply e_A_B; assumption.
+  Defined.
+
+  (* NOTE: For an alternative approach to [is_lower_bound_subfamily] and [image_same_lower_bounds], see analogues for upper bounds below. *)
+  Definition is_lower_bound_subfamily {I} (f : I -> P) {J} (g : J -> P)
+      (ff : forall j, (image f) (g j))
+      {x} (x_lb : islowerbound f x)
+    : islowerbound g x.
+  Proof.
+    intros j. refine (factor_through_squash_hProp _ _ (ff j)).
+    intros [i e]; destruct e. use x_lb.
+  Defined.
+
+  Definition image_same_lower_bounds {I} (f : I -> P) {x : P}
+    : islowerbound f x
+      <-> islowerbound_subtype (image f) x.
+  Proof.
+    apply (image_carrier_univ' f (fun y => _ ≤ y)).
+  Defined.
+
+End LowerBounds.
+
+Section UpperBounds.
+(* NOTE: this should be kept in sync with [Section LowerBounds] above. *)
+
+  (* TODO: it would be natural to just refactor [isupperbound] in [Algebra.Dcpo]
+  as an hProp from the start, using [∀] and so on.  However, that turns out
+  to slightly interfere with the use of [apply] on lemmas in that file, espcially
+  bidirectional such as [pointwiselub_islubpointwise]. Is that cosmetic cost
+  worth paying?  Or can it be avoided? *)
+
+  Context {P : Poset}.
+
+  Definition isupperbound_hprop {I} (p : I -> P) (x:P) : hProp
+  := make_hProp _ (isaprop_isupperbound p x).
+
+  Definition isupperbound_subtype (A : hsubtype P) (x : P) : hProp
+  := isupperbound_hprop (pr1carrier A) x.
+
+  Definition isupperbound_subtype_equiv {A B : hsubtype P}
+    : (A ≡ B)
+    -> isupperbound_subtype A ≡ isupperbound_subtype B.
   Proof.
     intros e_A_B x; split;
       intros x_ub [y H_y]; refine (x_ub (_,,_)); apply e_A_B; assumption.
@@ -237,14 +290,15 @@ Section LowerAndUpperBounds.
 
   Definition image_same_upper_bounds {I} (f : I -> P) {x : P}
     : isupperbound f x
-      <-> isupperbound (pr1carrier (image f)) x.
+      <-> isupperbound_subtype (image f) x.
   Proof.
     apply (image_carrier_univ' f (fun y => y ≤ _)).
   Defined.
 
-End LowerAndUpperBounds.
+End UpperBounds.
 
-Section LeastAndGreatest.
+Section Least.
+(* NOTE: this should generally be kept in sync with [Section Greatest] below. *)
 
   Context {P : Poset}.
 
@@ -263,7 +317,6 @@ Section LeastAndGreatest.
     : islowerbound p x
   := pr2 x.
 
-  (* TODO: define [is_least_suchthat], and possibly refactor [least_suchthat]? *)
   Definition least_suchthat (A : P -> UU) : UU
   := least_of_family (pr1 : (∑ x:P, A x) -> P).
 
@@ -279,14 +332,95 @@ Section LeastAndGreatest.
     intros y A_y. exact (least_is_least _ x (_,,A_y)).
   Defined.
 
-End LeastAndGreatest.
+  (** It’s useful to define [least_suchthat] as above, for interaction with [least_of_family], etc; but also helpful to have a standalone predicate version. *)
+  (* TODO: is that really useful? could it be better to refactor [least_suchthat] as [carrier (is_least_suchthat …)]? *)
+  Definition is_least_suchthat (A : P -> hProp) (x : P) : hProp
+  := (A x) ∧ (islowerbound_subtype A x).
+
+  Definition least_suchthat_property {A : P -> hProp} (x : least_suchthat A)
+    : is_least_suchthat A x.
+  Proof.
+    split.
+    - apply @least_suchthat_satisfies.
+    - apply least_is_least.
+  Defined.
+
+  Definition make_least_suchthat {A : P -> hProp}
+      (x : P) (x_least : is_least_suchthat A x)
+    : least_suchthat A.
+  Proof.
+    use tpair.
+    { exists x. apply x_least. }
+    apply x_least.
+  Defined.
+
+End Least.
+
+Section Greatest.
+(* NOTE: this should generally be kept in sync with [Section Least] above. *)
+
+  Context {P : Poset}.
+
+  Definition greatest_of_family {I} (p : I -> P)
+  := ∑ i : I, isupperbound p (p i).
+
+  Definition greatest_of_family_index {I} {p : I -> P}
+    : greatest_of_family p -> I
+  := pr1.
+  (* Would be nice to make [greatest_of_family_index] a coercion, but can’t since its target is an arbitrary type. The best we can do instead is [realise_greatest_of_family]: *)
+  Coercion realise_greatest_of_family {I} (p : I -> P)
+    : greatest_of_family p -> P
+  := fun ih => p (pr1 ih).
+
+  Definition greatest_is_greatest {I}  (p : I -> P) (x : greatest_of_family p)
+    : isupperbound p x
+  := pr2 x.
+
+  Definition greatest_suchthat (A : P -> UU) : UU
+  := greatest_of_family (pr1 : (∑ x:P, A x) -> P).
+
+  Identity Coercion id_greatest_suchthat : greatest_suchthat >-> greatest_of_family.
+
+  Definition greatest_suchthat_satisfies {A : P -> UU} (x : greatest_suchthat A)
+      : A x
+  := pr2 (greatest_of_family_index x).
+
+  Definition greatest_suchthat_is_greatest {A : P -> UU} (x : greatest_suchthat A)
+    : ∏ y, A y -> y ≤ x.
+  Proof.
+    intros y A_y. exact (greatest_is_greatest _ x (_,,A_y)).
+  Defined.
+
+  (** It’s useful to define [greatest_suchthat] as above, for interaction with [greatest_of_family], etc; but also helpful to have a standalone predicate version. *)
+  (* TODO: is that really useful? could it be better to refactor [greatest_suchthat] as [carrier (is_greatest_suchthat …)]? *)
+  Definition is_greatest_suchthat (A : P -> hProp) (x : P) : hProp
+  := (A x) ∧ (isupperbound_subtype A x).
+
+  Definition greatest_suchthat_property {A : P -> hProp} (x : greatest_suchthat A)
+    : is_greatest_suchthat A x.
+  Proof.
+    split.
+    - apply @greatest_suchthat_satisfies.
+    - apply greatest_is_greatest.
+  Defined.
+
+  Definition make_greatest_suchthat {A : P -> hProp}
+      (x : P) (x_greatest : is_greatest_suchthat A x)
+    : greatest_suchthat A.
+  Proof.
+    use tpair.
+    { exists x. apply x_greatest. }
+    apply x_greatest.
+  Defined.
+
+End Greatest.
 
 Section LeastUpperBounds.
 
   Context {P : Poset}.
 
   Definition least_upper_bound {I} (p : I -> P)
-  := least_suchthat (isupperbound p).
+  := least_suchthat (isupperbound_hprop p).
   Identity Coercion id_least_upper_bound : least_upper_bound >-> least_suchthat.
 
   Definition least_upper_bound_is_upper_bound {I} {p : I -> P}
@@ -294,29 +428,19 @@ Section LeastUpperBounds.
     : isupperbound p x
   := least_suchthat_satisfies x.
 
-  (* TODO: it would be natural to just refactor [isupperbound] in [Algebra.Dcpo]
-  as an hProp from the start, using [∀] and so on.  However, that turns out
-  to slightly interfere with the use of [apply] on lemmas in that file, espcially
-  bidirectional such as [pointwiselub_islubpointwise]. Is that cosmetic cost
-  worth paying?  Or can it be avoided? *)
-  Definition isupperbound_hprop {P:Poset} {I} (p : I -> P) (x:P) : hProp
-  := make_hProp _ (isaprop_isupperbound p x).
-
   (** It’s useful to define [least_upper_bound] as above, for interaction with [upper_bound], etc; but also helpful to have a standalone predicate version. *)
-  (* TODO: would it be better to factor as [is_least_suchthat]? *)
   Definition is_least_upper_bound {I} (p : I -> P) (x : P) : hProp
-    := isupperbound_hprop p x
-       ∧ islowerbound (pr1carrier (isupperbound_hprop p)) x.
+    := is_least_suchthat (isupperbound_hprop p) x.
 
   Definition make_least_upper_bound {I} {p : I -> P}
       (x:P) (x_lub : is_least_upper_bound p x)
     : least_upper_bound p
-  := ((x,, pr1 x_lub),, pr2 x_lub).
+  := make_least_suchthat x x_lub.
 
   Definition least_upper_bound_property {I} {p : I -> P}
       (x : least_upper_bound p)
     : is_least_upper_bound p x
-  := (pr2 (pr1 x),, pr2 x).
+  := least_suchthat_property x.
 
   (** The universal property of the least upper bound *)
   Definition least_upper_bound_univ {I} {p : I -> P}
@@ -332,9 +456,17 @@ Section LeastUpperBounds.
 
   (** Specialisation of the above functions to least upper bounds of _subtypes_
    — a common use-case, and the functions are often easier to use in this form. *)
+  Definition is_least_upper_bound_subtype (A : hsubtype P) (x : P) : hProp
+    := is_least_upper_bound (pr1carrier A) x.
+
+  Definition least_upper_bound_subtype (A : hsubtype P) : UU
+    := least_upper_bound (pr1carrier A).
+
+  Identity Coercion id_least_upper_bound_subtype
+    : least_upper_bound_subtype >-> least_upper_bound.
 
   Definition least_upper_bound_subtype_is_upper_bound {A : hsubtype P}
-      (x : least_upper_bound (pr1carrier A)) {y : P} (A_y : A y)
+      (x : least_upper_bound_subtype A) {y : P} (A_y : A y)
     : y ≤ x
   := least_upper_bound_is_upper_bound x (y,,A_y).
 
@@ -361,7 +493,7 @@ Section LeastUpperBounds.
     - apply islowerbound_subtype_equiv. use image_same_upper_bounds.
   Defined.
 
-  (* TODO: upgrade this to an equivalence!
+  (* TODO: upgrade this to an equivalence?
      easiest if done once refactoring [least_upper_bound] as
      [carrier is_least_upper_bound]. *)
   Definition least_upper_bound_image {I} (f : I -> P)
@@ -370,7 +502,10 @@ Section LeastUpperBounds.
     split; intros x; apply (make_least_upper_bound x);
       apply is_least_upper_bound_image, least_upper_bound_property.
   Defined.
+
 End LeastUpperBounds.
+
+(* TODO: give [Section GreatestLowerBounds] analogous to the above section! *)
 
 Section Chains.
 
@@ -914,6 +1049,51 @@ Proof.
   - a good treatment of posets of functions, and more generally, producs of posets, and their completeness properties
   - unify the treatment of least upper bounds here with that in [Algebra.Dcpo].
   *)
+Abort.
+
+(* TODO: upstream within file; consider naming *)
+Lemma greatest_if_sup_satisfies
+  {P : Poset} (A : hsubtype P) (x : P)
+  : A x -> is_least_upper_bound_subtype A x -> is_greatest_suchthat A x.
+Proof.
+  intros A_x x_lub. split.
+  - assumption.
+  - apply (pr1 x_lub).
+Defined.
+
+(** Lemma due to Pataraia: on a DCPO, there is a maximal monotone+progressive endo-map *)
+(* TODO: factor out “function poset” *)
+Lemma maximal_progressive_endomorphism_on_dcpo
+    (P : dcpo)
+  : greatest_suchthat (fun f : forall_Poset (fun _:P => P)
+      => isaposetmorphism_hProp f ∧ isprogressive f).
+Proof.  (* Outline:
+  The monotone progressive maps are closed under pointwise sups.
+  Also, they form a directed set, so have a pointwise sup.
+  So their sup is the maximal one. *)
+  set (mon_prog_maps
+         := (fun f => isaposetmorphism_hProp f ∧ isprogressive f)
+                              : hsubtype (forall_Poset (fun _:P => P))).
+  cut (carrier (is_greatest_suchthat mon_prog_maps)).
+  { intros f. exact (make_greatest_suchthat (pr1 f) (pr2 f)). }
+  use subtype_inc.
+  { exact (mon_prog_maps ∩ is_least_upper_bound_subtype mon_prog_maps). }
+  { intros ? [? ?]. apply greatest_if_sup_satisfies; assumption. }
+  (* TODO: factor out the following definition *)
+  transparent assert (is_pointwise_lub_suchthat
+             : (forall I:UU, hsubtype (I -> P) -> (I -> P) -> hProp)).
+  { intros I A f.
+    exact (∀ i:I, is_least_upper_bound (fun g:A => pr1 g i) (f i)). }
+  use subtype_inc. { exact (is_pointwise_lub_suchthat _ mon_prog_maps). }
+  { intros f f_pw_lub; split.
+    - admit. (* monotone and progressive maps are each closed under sups *)
+    - admit. (* pointwise least upper bounds are least upper bounds *)
+  }
+  (* TODO: factor the following as “a directed set on functions has a pointwise l.u.b.”? *)
+  unfold carrier, is_pointwise_lub_suchthat. simpl.
+  refine (foralltototal _ (fun _ y => is_least_upper_bound _ y) _).
+  intros x.
+  (* Here: reconcile [dcpo] from upstream with the present treatment of least upper bounds *)
 Abort.
 
 End Bourbaki_Witt.
