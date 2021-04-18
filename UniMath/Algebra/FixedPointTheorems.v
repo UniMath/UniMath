@@ -206,10 +206,10 @@ Notation "A ∪ B" := (subtype_binaryunion A B)
 
 (** ** Completeness properties *)
 
-Section LeastUpperBounds.
+(** We use the treatment of upper bounds from [Algebra.Dcpo], but give a slightly different treatment of _least_ upper bounds,
+ factoring out the general definitions of “greatest/least elements” and “upper/lower bounds”, both of a family, or satisfying some predicate. *)
 
-  (* We use the treatment of upper bounds from [Algebra.Dcpo], but give a slightly different treatment of _least_ upper bounds,
-   factoring out the general definition of “least elements” of a family, or satisfying a predicate. *)
+Section LowerAndUpperBounds.
 
   Context {P : Poset}.
 
@@ -223,6 +223,30 @@ Section LeastUpperBounds.
     intros e_A_B x; split;
       intros x_ub [y H_y]; refine (x_ub (_,,_)); apply e_A_B; assumption.
   Defined.
+
+  (* NOTE: An aternative approach alternative to comparing the upper bounds of families and their images: factor a bit.  Show that for two families, if f ≤ image g, then every upper bound of g is an upper bound for f. Thence: the non-image version.  Thence: image has same upper bounds, so same least upper bound. *)
+
+  Definition is_upper_bound_subfamily {I} (f : I -> P) {J} (g : J -> P)
+      (ff : forall j, (image f) (g j))
+      {x} (x_ub : isupperbound f x)
+    : isupperbound g x.
+  Proof.
+    intros j. refine (factor_through_squash_hProp _ _ (ff j)).
+    intros [i e]; destruct e. apply x_ub.
+  Defined.
+
+  Definition image_same_upper_bounds {I} (f : I -> P) {x : P}
+    : isupperbound f x
+      <-> isupperbound (pr1carrier (image f)) x.
+  Proof.
+    apply (image_carrier_univ' f (fun y => y ≤ _)).
+  Defined.
+
+End LowerAndUpperBounds.
+
+Section LeastAndGreatest.
+
+  Context {P : Poset}.
 
   Definition least_of_family {I} (p : I -> P)
   := ∑ i : I, islowerbound p (p i).
@@ -239,6 +263,7 @@ Section LeastUpperBounds.
     : islowerbound p x
   := pr2 x.
 
+  (* TODO: define [is_least_suchthat], and possibly refactor [least_suchthat]? *)
   Definition least_suchthat (A : P -> UU) : UU
   := least_of_family (pr1 : (∑ x:P, A x) -> P).
 
@@ -253,6 +278,12 @@ Section LeastUpperBounds.
   Proof.
     intros y A_y. exact (least_is_least _ x (_,,A_y)).
   Defined.
+
+End LeastAndGreatest.
+
+Section LeastUpperBounds.
+
+  Context {P : Poset}.
 
   Definition least_upper_bound {I} (p : I -> P)
   := least_suchthat (isupperbound p).
@@ -272,7 +303,7 @@ Section LeastUpperBounds.
   := make_hProp _ (isaprop_isupperbound p x).
 
   (** It’s useful to define [least_upper_bound] as above, for interaction with [upper_bound], etc; but also helpful to have a standalone predicate version. *)
-  (* TODO: would it be better to factor as [is_least] for a predicate?? *)
+  (* TODO: would it be better to factor as [is_least_suchthat]? *)
   Definition is_least_upper_bound {I} (p : I -> P) (x : P) : hProp
     := isupperbound_hprop p x
        ∧ islowerbound (pr1carrier (isupperbound_hprop p)) x.
@@ -299,7 +330,7 @@ Section LeastUpperBounds.
     - intros H. refine (least_is_least _ x (_,,H)).
   Defined.
 
-  (** Specialisation of the above functions to least upper bounds of _subsets_
+  (** Specialisation of the above functions to least upper bounds of _subtypes_
    — a common use-case, and the functions are often easier to use in this form. *)
 
   Definition least_upper_bound_subtype_is_upper_bound {A : hsubtype P}
@@ -320,26 +351,6 @@ Section LeastUpperBounds.
   Defined.
 
   (** Comparison of least upper bounds between families and their images *)
-
-  (* TODO:remove this sketch note once proven.
-
-  One approach: show directly, the image has the same upper bounds as the family
-  A alternative: factor a bit.  Show that for two families, if f ≤ image g, then every upper bound of g is an upper bound for f. Thence: the non-image version.  Thence: image has same upper bounds, so same least upper bound. *)
-  Definition is_upper_bound_subfamily {I} (f : I -> P) {J} (g : J -> P)
-      (ff : forall j, (image f) (g j))
-      {x} (x_ub : isupperbound f x)
-    : isupperbound g x.
-  Proof.
-    intros j. refine (factor_through_squash_hProp _ _ (ff j)).
-    intros [i e]; destruct e. apply x_ub.
-  Defined.
-
-  Definition image_same_upper_bounds {I} (f : I -> P) {x : P}
-    : isupperbound f x
-      <-> isupperbound (pr1carrier (image f)) x.
-  Proof.
-    apply (image_carrier_univ' f (fun y => y ≤ _)).
-  Defined.
 
   Definition is_least_upper_bound_image {I} (f : I -> P) {x : P}
     : is_least_upper_bound f x
@@ -622,10 +633,10 @@ End ProgressiveMaps.
 
 Section Fixpoints.
 
-Definition fixedpoint {P : Poset} (f : P -> P) : hsubtype P
+Definition isfixedpoint {P : Poset} (f : P -> P) : hsubtype P
   := fun (x:P) => f x = x.
 
-Definition Fixedpoint {P : Poset} (f : P -> P) : UU := carrier (fixedpoint f).
+Definition Fixedpoint {P : Poset} (f : P -> P) : UU := carrier (isfixedpoint f).
 
 Coercion pr1_Fixedpoint {P : Poset} {f : P -> P} : Fixedpoint f -> P
 := pr1carrier _.
@@ -634,11 +645,11 @@ Definition fixedpoint_property  {P : Poset} {f : P -> P} (x : Fixedpoint f)
   : f x = x
 := pr2 x.
 
-Definition postfixedpoint {P : Poset} (f : P -> P) : hsubtype P
+Definition ispostfixedpoint {P : Poset} (f : P -> P) : hsubtype P
   := fun (x:P) => x ≤ f x.
 
 Definition Postfixedpoint {P : Poset} (f : P -> P) : UU
-  := carrier (postfixedpoint f).
+  := carrier (ispostfixedpoint f).
 
 Coercion pr1_Postfixedpoint {P : Poset} {f : P -> P} : Postfixedpoint f -> P
 := pr1carrier _.
