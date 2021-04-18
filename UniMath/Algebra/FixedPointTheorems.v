@@ -153,6 +153,12 @@ Defined.
 Definition image {X Y : UU} (f : X -> Y) : hsubtype Y
   := fun y => ∥ hfiber f y ∥.
 
+Definition value_in_image {X Y : UU} (f : X -> Y) (x : X) : image f (f x)
+  := hinhpr (x ,, idpath _).
+
+Definition to_image {X Y : UU} (f : X -> Y) (x : X) : image f
+  := (f x,, value_in_image f x).
+
 (** See [image_univ] below for a version that plays better with [apply]. *)
 Definition image_univ
     {X Y : UU} (f : X -> Y)
@@ -165,7 +171,7 @@ Proof.
       intros [x e_xy]; destruct e_xy.
     use H_A.
   - intros H_A x.
-    use H_A. apply hinhpr. exists x. apply idpath.
+    use H_A. apply value_in_image.
 Defined.
 
 (** Alias of [image_univ] using explicit “forall” instead of “⊆” or “∀”, for easier use with the [apply] tactic. *)
@@ -575,6 +581,86 @@ Section Chains.
 
 End Chains.
 
+Section Directed.
+
+  Definition Directed (P : Poset) : UU
+  := ∑ (I : UU), ∑ (p : I -> P), isdirected p.
+
+  Coercion directed_index {P} (C : Directed P) : UU
+  := pr1 C.
+
+  Definition directed_family {P} (C : Directed P) : C -> P
+  := pr1 (pr2 C).
+  Coercion directed_family : Directed >-> Funclass.
+
+  Definition directed_property {P} (C : Directed P) : isdirected C
+  := pr2 (pr2 C).
+
+  (* TODO: upstream; consider naming *)
+  Definition exists_monotone {X:UU} (A B : X -> UU)
+    : (forall x, A x -> B x) -> (∃ x, A x) -> ∃ x, B x.
+  Proof.
+    intros le_A_B.
+    apply hinhfun, totalfun, le_A_B.
+  Defined.
+
+  Definition fmap_is_directed {P Q} (f : posetmorphism P Q)
+      {I : UU} (p : I -> P)
+    : isdirected p -> isdirected (f ∘ p).
+  Proof.
+    intros p_directed; split.
+    - eapply isdirected_inhabited, p_directed.
+    - intros i j.
+      eapply exists_monotone. 2: { exact (isdirected_order p_directed i j). }
+      intros x [le_i_x le_j_x].
+      split; apply posetmorphism_property; assumption.
+  Defined.
+  (* TODO: consider naming of [isdirected_order]? *)
+
+  Definition fmap_directed {P Q} (f : posetmorphism P Q)
+    : Directed P -> Directed Q.
+  Proof.
+    apply funfibtototal; intros I. use bandfmap.
+    - apply (fun C => f ∘ C).
+    - apply fmap_is_directed.
+  Defined.
+
+  Definition Directed_hsubtype (P : Poset) : UU
+  := ∑ A : hsubtype P, isdirected (pr1carrier A).
+
+  Coercion pr1_Directed_hsubtype {P} : Directed_hsubtype P -> hsubtype P
+  := pr1.
+
+  Coercion Directed_of_Directed_hsubtype (P : Poset)
+    : Directed_hsubtype P -> Directed P.
+  Proof.
+    intros C. exact (carrier C,, (pr1carrier C,, pr2 C)).
+  Defined.
+
+  Definition image_is_directed {P:Poset} {I:UU} (p : I -> P)
+    : isdirected p -> isdirected (pr1carrier (image p)).
+  Proof.
+    intros p_directed. split.
+    - apply (squash_to_hProp (isdirected_inhabited p_directed)).
+      intros i; apply hinhpr.
+      apply to_image; assumption.
+    - use (pr1 (image_carrier_univ' p (fun x => ∀ j, ∃ k, x ≤ _ ∧ _))). intros i.
+      use (pr1 (image_carrier_univ' p (fun y => ∃ k, _ ∧ y ≤ _))); intros j.
+      apply (squash_to_hProp (isdirected_order p_directed i j)).
+      intros [k [le_ik le_jk]].
+      apply hinhpr. exists (to_image _ k).
+      split; assumption.
+  Defined.
+
+  Definition image_directed {P:Poset}
+      : Directed P -> Directed_hsubtype P.
+  Proof.
+    intros p. exists (image p).
+    apply image_is_directed, directed_property.
+  Defined.
+
+End Directed.
+
 Section Completeness.
 
   (* TODO: show that completeness is a property,
@@ -595,7 +681,7 @@ Section Completeness.
   Defined.
 
   Definition is_chain_complete (P : Poset) : UU
-  := ∏ C : Chain_hsubtype P, least_upper_bound (chain_family C).
+  := ∏ C : Chain_hsubtype P, least_upper_bound_subtype C.
 
   (** Like [is_complete], [is_chain_complete] is defined just in terms of hsubtype-chains, to keep quantification small.
 
@@ -616,6 +702,21 @@ Section Completeness.
     intros p_chain. exact (chain_lub P_CC (I,,(p,,p_chain))).
   Defined.
 
+  Definition is_directed_complete (P : Poset) : UU
+  := ∏ A : Directed_hsubtype P, least_upper_bound (directed_family A).
+
+  (** Like [is_complete], [is_directed_complete] is defined just in terms of directed subtypes, to keep quantification small.
+
+  However, it implies least upper bounds for arbitary directed families. *)
+  Definition directed_lub {P : Poset} (P_DC : is_directed_complete P)
+      (p : Directed P)
+    : least_upper_bound p.
+  Proof.
+    apply least_upper_bound_image.
+    exact (P_DC (image_directed p)).
+  Defined.
+
+  (* TODO: unify this treatment of directed completeness with that given in [Algebra.Dcpo] *)
 End Completeness.
 
 (** ** Upper bounds, completeness, etc in sub-posets *)
