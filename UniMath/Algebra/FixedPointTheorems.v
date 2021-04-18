@@ -596,6 +596,11 @@ Section Directed.
   Definition directed_property {P} (C : Directed P) : isdirected C
   := pr2 (pr2 C).
 
+  (* TODO: add similar builder function for chains *)
+  Definition make_directed {P:Poset} {I} {p : I -> P} (p_directed : isdirected p)
+    : Directed P
+  := (I,,(p,,p_directed)).
+
   (* TODO: upstream; consider naming *)
   Definition exists_monotone {X:UU} (A B : X -> UU)
     : (forall x, A x -> B x) -> (∃ x, A x) -> ∃ x, B x.
@@ -714,6 +719,13 @@ Section Completeness.
   Proof.
     apply least_upper_bound_image.
     exact (P_DC (image_directed p)).
+  Defined.
+
+  Definition isdirected_lub {P : Poset} (P_DC : is_directed_complete P)
+      {I} (p : I -> P) (p_directed : isdirected p)
+    : least_upper_bound p.
+  Proof.
+    exact (directed_lub P_DC (make_directed p_directed)).
   Defined.
 
   (* TODO: unify this treatment of directed completeness with that given in [Algebra.Dcpo] *)
@@ -1165,10 +1177,11 @@ Defined.
 (** Lemma due to Pataraia: on a DCPO, there is a maximal monotone+progressive endo-map *)
 (* TODO: factor out “function poset” *)
 Lemma maximal_progressive_endomorphism_on_dcpo
-    (P : dcpo)
+    {P : Poset} (P_DC : is_directed_complete P)
   : greatest_suchthat (fun f : forall_Poset (fun _:P => P)
       => isaposetmorphism_hProp f ∧ isprogressive f).
-Proof.  (* Outline:
+Proof.
+  (* Outline:
   The monotone progressive maps are closed under pointwise sups.
   Also, they form a directed set, so have a pointwise sup.
   So their sup is the maximal one. *)
@@ -1177,24 +1190,38 @@ Proof.  (* Outline:
                               : hsubtype (forall_Poset (fun _:P => P))).
   cut (carrier (is_greatest_suchthat mon_prog_maps)).
   { intros f. exact (make_greatest_suchthat (pr1 f) (pr2 f)). }
+  cut (carrier (mon_prog_maps ∩ is_least_upper_bound_subtype mon_prog_maps)).
   use subtype_inc.
-  { exact (mon_prog_maps ∩ is_least_upper_bound_subtype mon_prog_maps). }
   { intros ? [? ?]. apply greatest_if_sup_satisfies; assumption. }
   (* TODO: factor out the following definition *)
   transparent assert (is_pointwise_lub_suchthat
              : (forall I:UU, hsubtype (I -> P) -> (I -> P) -> hProp)).
   { intros I A f.
     exact (∀ i:I, is_least_upper_bound (fun g:A => pr1 g i) (f i)). }
-  use subtype_inc. { exact (is_pointwise_lub_suchthat _ mon_prog_maps). }
+  cut (carrier (is_pointwise_lub_suchthat _ mon_prog_maps)).
+  use subtype_inc.
   { intros f f_pw_lub; split.
-    - admit. (* monotone and progressive maps are each closed under sups *)
+    - admit. (* monotone and progressive maps are each closed under pw sups *)
     - admit. (* pointwise least upper bounds are least upper bounds *)
   }
-  (* TODO: factor the following as “a directed set on functions has a pointwise l.u.b.”? *)
-  unfold carrier, is_pointwise_lub_suchthat. simpl.
+  (* TODO: factor the following as “a directed set of functions has a pointwise l.u.b.”? *)
   refine (foralltototal _ (fun _ y => is_least_upper_bound _ y) _).
   intros x.
-  (* Here: reconcile [dcpo] from upstream with the present treatment of least upper bounds *)
+  cut (least_upper_bound (λ g : mon_prog_maps, pr1 g x)).
+  { intros p. exists p. apply least_upper_bound_property. }
+  apply isdirected_lub; try assumption.
+  split.
+  - apply hinhpr. exists (idfun _).
+    split.
+    + intros ? ? l; exact l. (* TODO: factor out as [isaposetmorphism_idfun] *)
+    + apply isrefl_posetRelation. (* TODO: factor out as [isprogressive_idfun] *)
+  - intros [f [f_mon f_prog]] [g [g_mon g_prog]].
+    apply hinhpr.
+    use tpair.
+    { exists (f ∘ g). admit. (* TODO: composites of monotone, progressive maps *) }
+    split; simpl.
+    + use f_mon; use g_prog.
+    + use f_prog; use g_mon.
 Abort.
 
 End Bourbaki_Witt.
