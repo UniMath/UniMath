@@ -22,6 +22,8 @@ Local Open Scope subtype.
 As ever, all these should eventually be upstreamed, and unified with overlapping material upstream where possible. *)
 Section Auxiliary.
 
+(** *** Partial orders *)
+
 Definition lt_to_nleq {P : Poset} {x y : P} : x < y ⇒ ¬ (y ≤ x).
 Proof.
   intros [leq_xy neq_xy] leq_yx.
@@ -33,6 +35,13 @@ Definition isrefl'_posetRelation {P : Poset} {x y : P} : x = y ⇒ x ≤ y.
 Proof.
   intros e; destruct e. apply isrefl_posetRelation.
 Defined.
+
+(* [isaposetmorphism] is defined as in [Foundations.Sets], but lacks access function. *)
+Definition posetmorphism_property {P Q} (f : posetmorphism P Q)
+  : isaposetmorphism f
+:= pr2 f.
+
+(** *** HProp logic *)
 
 (* TODO: look for naming convention for similar lemmas *)
 Definition hdisj_monot {p q p' q'} : (p ⇒ p') ⇒ (q ⇒ q') ⇒ (p ∨ q ⇒ p' ∨ q').
@@ -60,6 +69,16 @@ Defined.
 Definition hdisj_comm {p q} : (p ∨ q) ⇒ (q ∨ p).
 Proof.
   apply hconjtohdisj; split; intro; auto using hdisj_in1, hdisj_in2.
+Defined.
+
+(** *** Hsubtypes *)
+
+(* TODO: upstream, and factor out rest of [subtype_containment_isPartialOrder] too? *)
+Definition istrans_subtype_containment {X} {A B C : hsubtype X}
+    (leq_AB : A ⊆ B) (leq_BC : B ⊆ C)
+  : A ⊆ C.
+Proof.
+  cbn in *; auto.
 Defined.
 
 (* A restricted-quantifier version of [neghexisttoforallneg] *)
@@ -106,12 +125,13 @@ Definition subtype_binaryintersection_leq2 {X} (A B : hsubtype X)
     : A ∩ B ⊆ B
 := fun x => pr2.
 
-(* TODO: upstream, and factor out rest of [subtype_containment_isPartialOrder] too? *)
-Definition istrans_subtype_containment {X} {A B C : hsubtype X}
-    (leq_AB : A ⊆ B) (leq_BC : B ⊆ C)
-  : A ⊆ C.
+(* TODO: upstream; rename to eg [binaryintersection_equiv]? *)
+Definition hconj_equiv {X:UU}
+    {A A' B B' : hsubtype X} (e_A : A ≡ A') (e_B : B ≡ B')
+  : (A ∩ B) ≡ (A' ∩ B').
 Proof.
-  cbn in *; auto.
+  intros x; split; intros [? ?]; split;
+    try apply e_A; try apply e_B; assumption.
 Defined.
 
 Definition subtype_binaryintersection_univ {X} (A B C : hsubtype X)
@@ -183,64 +203,6 @@ Notation "A ∪ B" := (subtype_binaryunion A B)
                               (at level 40, left associativity) : subtype.
   (* precedence tighter than "⊆", also than "-" [subtype_difference].  *)
   (* in agda-input method, type \cup or ∪ *)
-
-(** ** Classes of maps *)
-
-(** Progressive maps as also known as ascending, inflationary, increasing, and more.
-
-Note these are just endo-_functions_, not “maps” in the sense of morphisms of posets. *)
-
-Section ProgressiveMaps.
-
-Definition isprogressive {P : Poset} : hsubtype (P -> P) : UU
-  := fun f => ∀ (x : P), x ≤ f x.
-
-Definition Progressive_map (P : Poset) := carrier (@isprogressive P).
-
-Definition pr1_Progressive_map {P : Poset} : Progressive_map P -> (P -> P)
-:= pr1carrier _.
-Coercion pr1_Progressive_map : Progressive_map >-> Funclass.
-
-Definition progressive_property {P} (f : Progressive_map P)
-  : isprogressive f
-:= pr2 f.
-
-End ProgressiveMaps.
-
-(** Monotone maps are precisely poset morphisms, and [isaposetmorphism] is defined as such in [Foundations.Sets]. *)
-Section MonotoneMaps.
-
-Definition posetmorphism_property {P Q} (f : posetmorphism P Q)
-  : isaposetmorphism f
-:= pr2 f.
-
-End MonotoneMaps.
-
-(** ** Fixpoints of endofunctions *)
-
-Section Fixpoints.
-
-Definition Fixedpoint {P : Poset} (f : P -> P) : UU
-  := carrier (fun (x:P) => f x = x).
-
-Coercion pr1_Fixedpoint {P : Poset} {f : P -> P} : Fixedpoint f -> P
-:= pr1carrier _.
-
-Definition fixedpoint_property  {P : Poset} {f : P -> P} (x : Fixedpoint f)
-  : f x = x
-:= pr2 x.
-
-Definition Postfixedpoint {P : Poset} (f : P -> P) : UU
-  := carrier (fun (x:P) => x ≤ (f x)).
-
-Coercion pr1_Postfixedpoint {P : Poset} {f : P -> P} : Postfixedpoint f -> P
-:= pr1carrier _.
-
-Definition postfixedpoint_property  {P : Poset} {f : P -> P} (x : Postfixedpoint f)
-  : x ≤ f x
-:= pr2 x.
-
-End Fixpoints.
 
 (** ** Completeness properties *)
 
@@ -377,15 +339,6 @@ Section LeastUpperBounds.
       <-> isupperbound (pr1carrier (image f)) x.
   Proof.
     apply (image_carrier_univ' f (fun y => y ≤ _)).
-  Defined.
-
-  (* TODO: upstream; consider naming *)
-  Definition hconj_equiv {X:UU}
-      {A A' B B' : hsubtype X} (e_A : A ≡ A') (e_B : B≡ B')
-    : (A ∩ B) ≡ (A' ∩ B').
-  Proof.
-    intros x; split; intros [? ?]; split;
-      try apply e_A; try apply e_B; assumption.
   Defined.
 
   Definition is_least_upper_bound_image {I} (f : I -> P) {x : P}
@@ -582,7 +535,7 @@ End Subposets.
 
 (** ** Function posets
 
-Products of posets, and of classes of functions *)
+Products of posets; posets of (classes of) functions *)
 
 Section Function_Posets.
 
@@ -640,6 +593,61 @@ e.g. [dcpoofdcpomorphisms]? *)
   Defined.
 
 End Function_Posets.
+
+
+(** ** Classes of maps *)
+
+(** Progressive maps as also known as ascending, inflationary, increasing, and more.
+
+Note these are just endo-_functions_, not “maps” in the sense of morphisms of posets. *)
+
+Section ProgressiveMaps.
+
+Definition isprogressive {P : Poset} : hsubtype (P -> P) : UU
+  := fun f => ∀ (x : P), x ≤ f x.
+
+Definition Progressive_map (P : Poset) := carrier (@isprogressive P).
+
+Definition pr1_Progressive_map {P : Poset} : Progressive_map P -> (P -> P)
+:= pr1carrier _.
+Coercion pr1_Progressive_map : Progressive_map >-> Funclass.
+
+Definition progressive_property {P} (f : Progressive_map P)
+  : isprogressive f
+:= pr2 f.
+
+End ProgressiveMaps.
+
+(** ** Fixpoints of endofunctions *)
+
+Section Fixpoints.
+
+Definition fixedpoint {P : Poset} (f : P -> P) : hsubtype P
+  := fun (x:P) => f x = x.
+
+Definition Fixedpoint {P : Poset} (f : P -> P) : UU := carrier (fixedpoint f).
+
+Coercion pr1_Fixedpoint {P : Poset} {f : P -> P} : Fixedpoint f -> P
+:= pr1carrier _.
+
+Definition fixedpoint_property  {P : Poset} {f : P -> P} (x : Fixedpoint f)
+  : f x = x
+:= pr2 x.
+
+Definition postfixedpoint {P : Poset} (f : P -> P) : hsubtype P
+  := fun (x:P) => x ≤ f x.
+
+Definition Postfixedpoint {P : Poset} (f : P -> P) : UU
+  := carrier (postfixedpoint f).
+
+Coercion pr1_Postfixedpoint {P : Poset} {f : P -> P} : Postfixedpoint f -> P
+:= pr1carrier _.
+
+Definition postfixedpoint_property  {P : Poset} {f : P -> P} (x : Postfixedpoint f)
+  : x ≤ f x
+:= pr2 x.
+
+End Fixpoints.
 
 
 (** ** The (Knaster–)Tarski fixpoint theorems
