@@ -827,7 +827,7 @@ e.g. [dcpoofdcpomorphisms]? *)
     apply ispartialorder_pointwiseorder.
   Defined.
 
-  Definition isupperbound_pointwise {X:UU} (P : X -> Poset)
+  Definition isupperbound_if_pointwise {X:UU} {P : X -> Poset}
       {I} {f : I -> forall_Poset P}
       {g : forall_Poset P}
     : isupperbound f g <-> forall x, isupperbound (fun i => f i x) (g x).
@@ -835,10 +835,16 @@ e.g. [dcpoofdcpomorphisms]? *)
     split; intro H; repeat intro; use H.
   Defined.
 
-  Definition is_least_upper_bound_pointwise {X:UU} (P : X -> Poset)
+  Definition is_least_upper_bound_pointwise {X:UU} {P : X -> Poset}
+      {I} (f : I -> forall_Poset P)
+      (g : forall_Poset P)
+    : hProp
+  := ∀ x, is_least_upper_bound (fun i => f i x) (g x).
+
+  Definition is_least_upper_bound_if_pointwise {X:UU} {P : X -> Poset}
       {I} {f : I -> forall_Poset P}
       {g : forall_Poset P}
-    : (forall x, is_least_upper_bound (fun i => f i x) (g x))
+    : is_least_upper_bound_pointwise f g
       -> is_least_upper_bound f g.
   Proof.
     intro pointwise_lub.
@@ -848,8 +854,11 @@ e.g. [dcpoofdcpomorphisms]? *)
       apply (least_upper_bound_is_upper_bound (g_pwlub x)).
     - intros [g' g'_ub] x.
       apply (least_upper_bound_univ (g_pwlub x)).
-      apply isupperbound_pointwise, g'_ub.
+      apply isupperbound_if_pointwise, g'_ub.
   Defined.
+
+  Definition arrow_Poset (X:UU) (P : Poset) : Poset
+    := forall_Poset (fun _:X => P).
 
 End Function_Posets.
 
@@ -1175,14 +1184,9 @@ Proof.
 Defined.
 
 (* TODO: upstream *)
-Definition is_pointwise_lub {P : Poset} {X:UU} {I} (f : I -> X -> P) (g : X -> P)
-  : hProp
-:= ∀ x:X, is_least_upper_bound (fun i => f i x) (g x).
-
-(* TODO: upstream *)
 Lemma progressive_pointwise_lub {P : Poset}
     {I} {f : I -> P -> P} (f_prog : forall i, isprogressive (f i))
-    {g} (g_pw_lub : is_pointwise_lub f g)
+    {g} (g_pw_lub : is_least_upper_bound_pointwise f g)
     (I_inhab : ∥ I ∥)
   : isprogressive g.
 Proof.
@@ -1198,7 +1202,7 @@ Defined.
 (* TODO: upstream *)
 Lemma isaposetmorphism_pointwise_lub {P : Poset}
     {I} {f : I -> P -> P} (f_monot : forall i, isaposetmorphism (f i))
-    {g} (g_pw_lub : is_pointwise_lub f g)
+    {g} (g_pw_lub : is_least_upper_bound_pointwise f g)
   : isaposetmorphism g.
 Proof.
   intros x y le_x_y.
@@ -1243,17 +1247,17 @@ Proof.
 Defined.
 
 (** Lemma due to Pataraia: on a DCPO, there is a maximal monotone+progressive endo-map *)
-(* TODO: factor out “function poset” *)
 Lemma maximal_progressive_endomorphism_on_dcpo
     {P : Poset} (P_DC : is_directed_complete P)
-  : greatest_suchthat (fun f : forall_Poset (fun _:P => P)
+  : greatest_suchthat (fun f : arrow_Poset P P
       => isaposetmorphism_hProp f ∧ isprogressive f).
 Proof.
   (* Outline:
-  The monotone progressive maps are closed under pointwise sups.
-  Also, they form a directed set, so have a pointwise sup.
-  So their sup is the maximal such map. *)
-  set (mon_prog_maps := (fun f : forall_Poset (fun _:P => P)
+  The monotone progressive maps form a directed set, so have a pointwise sup.
+  Also, they are closed under (inhabited) sups.
+  So their sup is a maximal such map.
+  The proof follows this outline, but reasoning bottom-up/backwards. *)
+  set (mon_prog_maps := (fun f : arrow_Poset P P
                               => isaposetmorphism_hProp f ∧ isprogressive f)
                                                                  : hsubtype _).
   cut (carrier (is_greatest_suchthat mon_prog_maps)). (* just munging the goal *)
@@ -1261,7 +1265,7 @@ Proof.
   cut (carrier (mon_prog_maps ∩ is_least_upper_bound_subtype mon_prog_maps)).
   { use subtype_inc.
     intros ? [? ?]. apply greatest_if_sup_satisfies; assumption. }
-  cut (carrier (is_pointwise_lub (@pr1carrier _ mon_prog_maps))).
+  cut (carrier (is_least_upper_bound_pointwise (@pr1carrier _ mon_prog_maps))).
   { use subtype_inc.
     intros f f_pw_lub; split; [ split | ].
     - eapply isaposetmorphism_pointwise_lub; try eassumption.
@@ -1271,12 +1275,12 @@ Proof.
       apply hinhpr. exists (idfun _); split.
       + apply isaposetmorphism_idfun.
       + apply isprogressive_idfun.
-    - admit. (* pointwise least upper bounds are least upper bounds *)
+    - apply is_least_upper_bound_if_pointwise; assumption.
   }
-  (* TODO: factor the following as “a directed set of functions has a pointwise l.u.b.”? *)
+  (* TODO: perhaps factor the following as “a directed set of functions has a pointwise l.u.b.”? *)
   use (foralltototal _ (fun _ y => is_least_upper_bound _ y)). (* munge goal again *)
   intros x.
-  cut (least_upper_bound (λ g : mon_prog_maps, pr1 g x)).
+  cut (least_upper_bound (fun g : mon_prog_maps => pr1 g x)).
   { intros p. exists p. apply least_upper_bound_property. }
   apply isdirected_lub; try assumption.
   split.
@@ -1292,7 +1296,7 @@ Proof.
     }
     split; simpl.
     + use f_mon; use g_prog.
-    + use f_prog; use g_mon.
-Abort.
+    + use f_prog.
+Defined.
 
 End Bourbaki_Witt.
