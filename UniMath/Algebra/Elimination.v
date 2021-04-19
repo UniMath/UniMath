@@ -113,8 +113,6 @@ Section Gauss.
   Defined.
 
 
-
-  (*  This might be a non-trivial property to prove, especially in the current double induction-based formalization.*)
   Definition test_row_switch_statement {m n : nat} (mat : Matrix F m n)
     (r1 r2 : ⟦ m ⟧%stn) : (gauss_switch_row (gauss_switch_row mat r1 r2) r1 r2) = mat.
   Proof.
@@ -127,15 +125,37 @@ Section Gauss.
       + destruct (stn_eq_or_neq r2 r2) as [ ? | absurd ]; simpl.
         * destruct e_ir1. apply idpath.
         * set (H := isirrefl_natneq _ absurd). destruct H.
-  Abort.
+    - destruct (stn_eq_or_neq i r2) as [ e_ir2 | ne_ir2 ]; simpl.
+      + destruct e_ir2; simpl.
+        destruct (stn_eq_or_neq r1 r1) as [ ? | absurd ]; simpl.
+        * reflexivity.
+        * destruct (stn_eq_or_neq r1 i) as [ e_ir1 | ne_ir1' ]; simpl.
+        -- rewrite e_ir1. apply idpath.
+        -- set (H := isirrefl_natneq _ absurd). destruct H.
+      + reflexivity.
+  Defined.
+
+
+  Lemma pulse_function_sums_to_point {n : nat } (f : ⟦ n ⟧%stn -> F) :
+    exists (i : ⟦ n ⟧%stn),  f i != 0%hq × ∏ (j : ⟦ n ⟧ % stn), (f j != 0%hq) -> j = i
+    -> Σ f = f i.
+  Proof.
+  Admitted.
 
   (* The following three lemmata test the equivalence of multiplication by elementary matrices
      to swaps of indices. *)
-
   Lemma matrix_scalar_mult_is_elementary_row_op {n : nat} (mat : Matrix F n n) (s : F) (r : ⟦ n ⟧%stn) :
     ((make_scalar_mult_row_matrix s r) ** mat) = gauss_scalar_mult_row mat s r.
   Proof.
-    intros.
+    use funextfun. intros i.
+    use funextfun. intros j.
+    unfold make_scalar_mult_row_matrix. unfold gauss_scalar_mult_row.
+    unfold "**". unfold "^". unfold col. unfold transpose. unfold row. unfold flip.
+    unfold coprod_rect. unfold identity_matrix.
+    destruct (stn_eq_or_neq i r) as [? | ?] ; simpl.
+    - rewrite  p.
+      destruct (stn_eq_or_neq r r) as [? | absurd]; simpl.
+      (*+ apply pulse_function_sums_to_point.*)
   Abort.
 
   (* Order of arguments should be standardized... *)
