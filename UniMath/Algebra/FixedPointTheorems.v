@@ -1210,6 +1210,38 @@ Proof.
   apply f_monot; assumption.
 Defined.
 
+(* TODO: upstream *)
+Lemma isprogressive_idfun {P : Poset} : isprogressive (idfun P).
+Proof.
+  intro; apply isrefl_posetRelation.
+Defined.
+
+(* TODO: upstream *)
+Lemma isaposetmorphism_idfun {P : Poset} : isaposetmorphism (idfun P).
+Proof.
+  intros ? ? ?; assumption.
+Defined.
+
+(* TODO: upstream *)
+Lemma isprogressive_compose {P : Poset}
+    {f g : P -> P} (f_prog : isprogressive f) (g_prog : isprogressive g)
+  : isprogressive (f ∘ g).
+Proof.
+  intros x. eapply istrans_posetRelation.
+  - use g_prog.
+  - use f_prog.
+Defined.
+
+(* TODO: upstream *)
+Lemma isaposetmorphism_compose {P P' P'' : Poset}
+    {f : P -> P'} (f_monot : isaposetmorphism f)
+    {g : P' -> P''} (g_monot : isaposetmorphism g)
+  : isaposetmorphism (g ∘ f).
+Proof.
+  intros x y le_xy.
+  apply g_monot, f_monot, le_xy.
+Defined.
+
 (** Lemma due to Pataraia: on a DCPO, there is a maximal monotone+progressive endo-map *)
 (* TODO: factor out “function poset” *)
 Lemma maximal_progressive_endomorphism_on_dcpo
@@ -1220,40 +1252,44 @@ Proof.
   (* Outline:
   The monotone progressive maps are closed under pointwise sups.
   Also, they form a directed set, so have a pointwise sup.
-  So their sup is the maximal one. *)
-  set (mon_prog_maps
-         := (fun f => isaposetmorphism_hProp f ∧ isprogressive f)
-                              : hsubtype (forall_Poset (fun _:P => P))).
-  cut (carrier (is_greatest_suchthat mon_prog_maps)).
+  So their sup is the maximal such map. *)
+  set (mon_prog_maps := (fun f : forall_Poset (fun _:P => P)
+                              => isaposetmorphism_hProp f ∧ isprogressive f)
+                                                                 : hsubtype _).
+  cut (carrier (is_greatest_suchthat mon_prog_maps)). (* just munging the goal *)
   { intros f. exact (make_greatest_suchthat (pr1 f) (pr2 f)). }
   cut (carrier (mon_prog_maps ∩ is_least_upper_bound_subtype mon_prog_maps)).
-  use subtype_inc.
-  { intros ? [? ?]. apply greatest_if_sup_satisfies; assumption. }
+  { use subtype_inc.
+    intros ? [? ?]. apply greatest_if_sup_satisfies; assumption. }
   cut (carrier (is_pointwise_lub (@pr1carrier _ mon_prog_maps))).
-  use subtype_inc.
-  { intros f f_pw_lub; split; [ split | ].
+  { use subtype_inc.
+    intros f f_pw_lub; split; [ split | ].
     - eapply isaposetmorphism_pointwise_lub; try eassumption.
       intros [g [g_mon g_prog]]; exact g_mon.
     - eapply progressive_pointwise_lub; try eassumption.
-      + intros [g [g_mon g_prog]]; exact g_prog.
-      + apply hinhpr. exists (idfun _). admit. (* as below, [isprogressive_idfun] *)
+      { intros [g [g_mon g_prog]]; exact g_prog. }
+      apply hinhpr. exists (idfun _); split.
+      + apply isaposetmorphism_idfun.
+      + apply isprogressive_idfun.
     - admit. (* pointwise least upper bounds are least upper bounds *)
   }
   (* TODO: factor the following as “a directed set of functions has a pointwise l.u.b.”? *)
-  refine (foralltototal _ (fun _ y => is_least_upper_bound _ y) _).
+  use (foralltototal _ (fun _ y => is_least_upper_bound _ y)). (* munge goal again *)
   intros x.
   cut (least_upper_bound (λ g : mon_prog_maps, pr1 g x)).
   { intros p. exists p. apply least_upper_bound_property. }
   apply isdirected_lub; try assumption.
   split.
-  - apply hinhpr. exists (idfun _).
-    split.
-    + intros ? ? l; exact l. (* TODO: factor out as [isaposetmorphism_idfun] *)
-    + apply isrefl_posetRelation. (* TODO: factor out as [isprogressive_idfun] *)
+  - apply hinhpr. exists (idfun _); split.
+    + apply isaposetmorphism_idfun.
+    + apply isprogressive_idfun.
   - intros [f [f_mon f_prog]] [g [g_mon g_prog]].
     apply hinhpr.
     use tpair.
-    { exists (f ∘ g). admit. (* TODO: composites of monotone, progressive maps *) }
+    { exists (f ∘ g); split.
+      + apply isaposetmorphism_compose; assumption.
+      + apply isprogressive_compose; assumption.
+    }
     split; simpl.
     + use f_mon; use g_prog.
     + use f_prog; use g_mon.
