@@ -1174,6 +1174,42 @@ Proof.
   - apply (pr1 x_lub).
 Defined.
 
+(* TODO: upstream *)
+Definition is_pointwise_lub {P : Poset} {X:UU} {I} (f : I -> X -> P) (g : X -> P)
+  : hProp
+:= ∀ x:X, is_least_upper_bound (fun i => f i x) (g x).
+
+(* TODO: upstream *)
+Lemma progressive_pointwise_lub {P : Poset}
+    {I} {f : I -> P -> P} (f_prog : forall i, isprogressive (f i))
+    {g} (g_pw_lub : is_pointwise_lub f g)
+    (I_inhab : ∥ I ∥)
+  : isprogressive g.
+Proof.
+  intros x. eapply factor_through_squash_hProp. 2: { apply I_inhab. }
+  intros i.
+  eapply istrans_posetRelation. { use f_prog; apply i. }
+  revert i.
+  (* TODO: make version that takes the [is_lub] as separate input *)
+  refine (@least_upper_bound_is_upper_bound _ _ _ (make_least_upper_bound _ _)).
+  use g_pw_lub.
+Defined.
+
+(* TODO: upstream *)
+Lemma isaposetmorphism_pointwise_lub {P : Poset}
+    {I} {f : I -> P -> P} (f_monot : forall i, isaposetmorphism (f i))
+    {g} (g_pw_lub : is_pointwise_lub f g)
+  : isaposetmorphism g.
+Proof.
+  intros x y le_x_y.
+  apply (least_upper_bound_univ (make_least_upper_bound _ (g_pw_lub _))).
+  intros i.
+  eapply istrans_posetRelation.
+  2: { apply (least_upper_bound_is_upper_bound
+                (make_least_upper_bound _ (g_pw_lub _))). }
+  apply f_monot; assumption.
+Defined.
+
 (** Lemma due to Pataraia: on a DCPO, there is a maximal monotone+progressive endo-map *)
 (* TODO: factor out “function poset” *)
 Lemma maximal_progressive_endomorphism_on_dcpo
@@ -1193,15 +1229,14 @@ Proof.
   cut (carrier (mon_prog_maps ∩ is_least_upper_bound_subtype mon_prog_maps)).
   use subtype_inc.
   { intros ? [? ?]. apply greatest_if_sup_satisfies; assumption. }
-  (* TODO: factor out the following definition *)
-  transparent assert (is_pointwise_lub_suchthat
-             : (forall I:UU, hsubtype (I -> P) -> (I -> P) -> hProp)).
-  { intros I A f.
-    exact (∀ i:I, is_least_upper_bound (fun g:A => pr1 g i) (f i)). }
-  cut (carrier (is_pointwise_lub_suchthat _ mon_prog_maps)).
+  cut (carrier (is_pointwise_lub (@pr1carrier _ mon_prog_maps))).
   use subtype_inc.
-  { intros f f_pw_lub; split.
-    - admit. (* monotone and progressive maps are each closed under pw sups *)
+  { intros f f_pw_lub; split; [ split | ].
+    - eapply isaposetmorphism_pointwise_lub; try eassumption.
+      intros [g [g_mon g_prog]]; exact g_mon.
+    - eapply progressive_pointwise_lub; try eassumption.
+      + intros [g [g_mon g_prog]]; exact g_prog.
+      + apply hinhpr. exists (idfun _). admit. (* as below, [isprogressive_idfun] *)
     - admit. (* pointwise least upper bounds are least upper bounds *)
   }
   (* TODO: factor the following as “a directed set of functions has a pointwise l.u.b.”? *)
