@@ -1236,7 +1236,8 @@ Proof.
   use progressive_property.
 Defined.
 
-(** Lemma due to Pataraia: on a DCPO, there is a maximal monotone+progressive endo-map *)
+(** “Pataraia’s Lemma”: on any DCPO, there is a maximal monotone+progressive endo-map.
+ This is the main lemma for Pataraia’s theorem, [fixpoint_for_monotone_on_dcpo]. *)
 Lemma maximal_progressive_endomorphism_on_dcpo
     {P : Poset} (P_DC : is_directed_complete P)
   : greatest_suchthat (fun f : arrow_Poset P P
@@ -1289,40 +1290,54 @@ Proof.
     + use f_prog.
 Defined.
 
-(** A constructive fixed-point theorem, originally due to Pataraia; this proof transmitted via Dacar and Bauer–Lumsdaine (where it is Thm 3.2). *)
+(** A constructive fixed-point theorem, due to Pataraia.
+  This proof transmitted via Dacar and Bauer–Lumsdaine (where it is Thm 3.2). *)
 Theorem fixpoint_for_monotone_on_dcpo
     {P : Poset} (P_dir: is_directed_complete P)
     (f : posetmorphism P P) (x : Postfixedpoint f)
   : ∑ y : Fixedpoint f, x ≤ y.
 Proof.
-  (* Sketch:
-  - restrict attention to the sub-poset Q of post-fixed-points of P
-  - consider the poset of monotone, progressive maps Q -> Q with the pointwise order
-  - show that this is directed-complete
-  - show that this is itself directed, so has a maximal element
-  - values of this maximal element must be fixed points
-
-  Ingredients needed
-  - a good treatment of sub-posets, their induced orders, and completness properties
-  - a good treatment of posets of functions, and more generally, producs of posets, and their completeness properties
-  - unify the treatment of least upper bounds here with that in [Algebra.Dcpo].
+  (* Outline:
+  - restrict attention to the sub-poset of post-fixed-points of P
+  - by Pataraia’s Lemma [maximal_progressive_endomorphism_on_dcpo], there is a maximal monotone progressive map on this sub-poset
+  - note that values of this maximal map are fixed points of f
   *)
   revert x.
   set (postfix_f := (fun x => x ≤ f x) : Subposet P).
   assert (postfix_dc : is_directed_complete postfix_f).
-  {
-    intros [A A_dir].
+  { intros [A A_dir].
     use least_upper_bound_in_subposet.
-    { use (isdirected_lub P_dir).
-      assumption. }
-    (* uncannily, [A_dir] works off the bat, without needing to be converted from
-    directedness in Q to directedness in P! *)
+    { use (isdirected_lub P_dir). assumption. }
+    (* Uncannily, [A_dir] works off the bat, without needing to be converted from
+    directedness in Q to directedness in P!
+    It’s clear that these types are convertible, but impressive that Coq recognises it so easily. *)
     apply least_upper_bound_univ. intros [[x x_postfix] x_A].
     eapply istrans_posetRelation. { apply x_postfix. }
     apply posetmorphism_property.
     refine (least_upper_bound_is_upper_bound _ (_,,_)).
     simple refine (value_in_image _ ((_,,_),,_)); assumption.
   }
-Abort.
+  set (max_monprog_map := maximal_progressive_endomorphism_on_dcpo postfix_dc).
+  destruct max_monprog_map as [[max_map [max_is_mon max_is_prog]] max_is_max].
+  transparent assert (f_restr_postfix : (arrow_Poset postfix_f postfix_f)).
+  { intros x. exists (f (pr1 x)).
+    apply posetmorphism_property, postfixedpoint_property.
+  }
+  assert (max_map_gives_fixedpoints : f_restr_postfix ∘ max_map ~ max_map).
+  { intros x; apply isantisymm_posetRelation.
+    2: { apply postfixedpoint_property. }
+    revert x. refine (max_is_max (_,,_)); split.
+    - refine (@isaposetmorphism_compose _ _ _ max_map _ f_restr_postfix _).
+      { assumption. }
+      intros ? ?; apply (posetmorphism_property f).
+      (* TODO: make argument order consistent on the [_compose] lemmas *)
+    - refine (@isprogressive_compose _ f_restr_postfix max_map _ _).
+      2: { assumption. }
+      intro; apply postfixedpoint_property.
+  }
+  intros x. simple refine ((pr1 (max_map x),,_),,_); simpl.
+  - exact (maponpaths _ (max_map_gives_fixedpoints x)).
+  - use max_is_prog.
+Defined.
 
 End Bourbaki_Witt.
