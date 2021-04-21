@@ -46,6 +46,20 @@ Definition posetmorphism_property {P Q} (f : posetmorphism P Q)
   : isaposetmorphism f
 := pr2 f.
 
+Lemma isaposetmorphism_idfun {P : Poset} : isaposetmorphism (idfun P).
+Proof.
+  intros ? ? ?; assumption.
+Defined.
+
+Lemma isaposetmorphism_compose {P P' P'' : Poset}
+    {f : P -> P'} (f_monot : isaposetmorphism f)
+    {g : P' -> P''} (g_monot : isaposetmorphism g)
+  : isaposetmorphism (g ∘ f).
+Proof.
+  intros x y le_xy.
+  apply g_monot, f_monot, le_xy.
+Defined.
+
 (** *** HProp logic *)
 
 (* TODO: look for naming convention for similar lemmas *)
@@ -75,6 +89,15 @@ Definition hdisj_comm {p q} : (p ∨ q) ⇒ (q ∨ p).
 Proof.
   apply hconjtohdisj; split; intro; auto using hdisj_in1, hdisj_in2.
 Defined.
+
+(* TODO: consider naming *)
+Definition exists_monotone {X:UU} (A B : X -> UU)
+  : (forall x, A x -> B x) -> (∃ x, A x) -> ∃ x, B x.
+Proof.
+  intros le_A_B.
+  apply hinhfun, totalfun, le_A_B.
+Defined.
+
 
 (** *** Hsubtypes *)
 
@@ -509,9 +532,19 @@ Section LeastUpperBounds.
       apply is_least_upper_bound_image, least_upper_bound_property.
   Defined.
 
+  (* A useful miscellaneous lemma *)
+  Lemma greatest_if_contains_sup
+      (A : hsubtype P) (x : P)
+    : A x -> is_least_upper_bound_subtype A x -> is_greatest_suchthat A x.
+  Proof.
+    intros A_x x_lub. split.
+    - assumption.
+    - apply (pr1 x_lub).
+  Defined.
+
 End LeastUpperBounds.
 
-(* TODO: give [Section GreatestLowerBounds] analogous to the above section! *)
+(* TODO: give [Section GreatestLowerBounds] dual to the above section! *)
 
 Section Chains.
 
@@ -600,14 +633,6 @@ Section Directed.
   Definition make_directed {P:Poset} {I} {p : I -> P} (p_directed : isdirected p)
     : Directed P
   := (I,,(p,,p_directed)).
-
-  (* TODO: upstream; consider naming *)
-  Definition exists_monotone {X:UU} (A B : X -> UU)
-    : (forall x, A x -> B x) -> (∃ x, A x) -> ∃ x, B x.
-  Proof.
-    intros le_A_B.
-    apply hinhfun, totalfun, le_A_B.
-  Defined.
 
   Definition fmap_is_directed {P Q} (f : posetmorphism P Q)
       {I : UU} (p : I -> P)
@@ -817,15 +842,19 @@ e.g. [dcpoofdcpomorphisms]? *)
       apply isantisymm_posetRelation; auto.
   Defined.
 
-  (** Note: could also be called e.g. [Poset_product], or various other names.
-   This name gives better consistency with the rest of UniMath, but is less natural from a classical mathematical perspective. *)
-  (* TODO: consider naming convention. Are there analogous constructions elsewhere in UniMath that this should fit with? *)
+  (** Note: could also be called e.g. [Poset_product], or various other names. *)
+  (* TODO: consider naming convention. Are there analogous constructions elsewhere in UniMath that this should fit with?
+  This name fits with type-theoretical lemmas in UniMath, but is less natural from a classical mathematical perspective.
+*)
   Definition forall_Poset {X:UU} (P : X -> Poset) : Poset.
   Proof.
     use make_Poset. { exact (forall_hSet P). }
     use make_PartialOrder. { apply pointwiseorder. }
     apply ispartialorder_pointwiseorder.
   Defined.
+
+  Definition arrow_Poset (X:UU) (P : Poset) : Poset
+    := forall_Poset (fun _:X => P).
 
   Definition isupperbound_if_pointwise {X:UU} {P : X -> Poset}
       {I} {f : I -> forall_Poset P}
@@ -857,8 +886,19 @@ e.g. [dcpoofdcpomorphisms]? *)
       apply isupperbound_if_pointwise, g'_ub.
   Defined.
 
-  Definition arrow_Poset (X:UU) (P : Poset) : Poset
-    := forall_Poset (fun _:X => P).
+Lemma isaposetmorphism_pointwise_lub {P : Poset}
+    {I} {f : I -> P -> P} (f_monot : forall i, isaposetmorphism (f i))
+    {g} (g_pw_lub : is_least_upper_bound_pointwise f g)
+  : isaposetmorphism g.
+Proof.
+  intros x y le_x_y.
+  apply (least_upper_bound_univ (make_least_upper_bound _ (g_pw_lub _))).
+  intros i.
+  eapply istrans_posetRelation.
+  2: { apply (least_upper_bound_is_upper_bound
+                (make_least_upper_bound _ (g_pw_lub _))). }
+  apply f_monot; assumption.
+Defined.
 
 End Function_Posets.
 
@@ -883,6 +923,36 @@ Coercion pr1_Progressive_map : Progressive_map >-> Funclass.
 Definition progressive_property {P} (f : Progressive_map P)
   : isprogressive f
 := pr2 f.
+
+Lemma isprogressive_idfun {P : Poset} : isprogressive (idfun P).
+Proof.
+  intro; apply isrefl_posetRelation.
+Defined.
+
+Lemma isprogressive_compose {P : Poset}
+    {f g : P -> P} (f_prog : isprogressive f) (g_prog : isprogressive g)
+  : isprogressive (f ∘ g).
+Proof.
+  intros x. eapply istrans_posetRelation.
+  - use g_prog.
+  - use f_prog.
+Defined.
+
+
+Lemma progressive_pointwise_lub {P : Poset}
+    {I} {f : I -> P -> P} (f_prog : forall i, isprogressive (f i))
+    {g} (g_pw_lub : is_least_upper_bound_pointwise f g)
+    (I_inhab : ∥ I ∥)
+  : isprogressive g.
+Proof.
+  intros x. eapply factor_through_squash_hProp. 2: { apply I_inhab. }
+  intros i.
+  eapply istrans_posetRelation. { use f_prog; apply i. }
+  revert i.
+  (* TODO: make version that takes the [is_lub] as separate input *)
+  refine (@least_upper_bound_is_upper_bound _ _ _ (make_least_upper_bound _ _)).
+  use g_pw_lub.
+Defined.
 
 End ProgressiveMaps.
 
@@ -1173,79 +1243,6 @@ Proof.
   *)
 Abort.
 
-(* TODO: upstream within file; consider naming *)
-Lemma greatest_if_sup_satisfies
-  {P : Poset} (A : hsubtype P) (x : P)
-  : A x -> is_least_upper_bound_subtype A x -> is_greatest_suchthat A x.
-Proof.
-  intros A_x x_lub. split.
-  - assumption.
-  - apply (pr1 x_lub).
-Defined.
-
-(* TODO: upstream *)
-Lemma progressive_pointwise_lub {P : Poset}
-    {I} {f : I -> P -> P} (f_prog : forall i, isprogressive (f i))
-    {g} (g_pw_lub : is_least_upper_bound_pointwise f g)
-    (I_inhab : ∥ I ∥)
-  : isprogressive g.
-Proof.
-  intros x. eapply factor_through_squash_hProp. 2: { apply I_inhab. }
-  intros i.
-  eapply istrans_posetRelation. { use f_prog; apply i. }
-  revert i.
-  (* TODO: make version that takes the [is_lub] as separate input *)
-  refine (@least_upper_bound_is_upper_bound _ _ _ (make_least_upper_bound _ _)).
-  use g_pw_lub.
-Defined.
-
-(* TODO: upstream *)
-Lemma isaposetmorphism_pointwise_lub {P : Poset}
-    {I} {f : I -> P -> P} (f_monot : forall i, isaposetmorphism (f i))
-    {g} (g_pw_lub : is_least_upper_bound_pointwise f g)
-  : isaposetmorphism g.
-Proof.
-  intros x y le_x_y.
-  apply (least_upper_bound_univ (make_least_upper_bound _ (g_pw_lub _))).
-  intros i.
-  eapply istrans_posetRelation.
-  2: { apply (least_upper_bound_is_upper_bound
-                (make_least_upper_bound _ (g_pw_lub _))). }
-  apply f_monot; assumption.
-Defined.
-
-(* TODO: upstream *)
-Lemma isprogressive_idfun {P : Poset} : isprogressive (idfun P).
-Proof.
-  intro; apply isrefl_posetRelation.
-Defined.
-
-(* TODO: upstream *)
-Lemma isaposetmorphism_idfun {P : Poset} : isaposetmorphism (idfun P).
-Proof.
-  intros ? ? ?; assumption.
-Defined.
-
-(* TODO: upstream *)
-Lemma isprogressive_compose {P : Poset}
-    {f g : P -> P} (f_prog : isprogressive f) (g_prog : isprogressive g)
-  : isprogressive (f ∘ g).
-Proof.
-  intros x. eapply istrans_posetRelation.
-  - use g_prog.
-  - use f_prog.
-Defined.
-
-(* TODO: upstream *)
-Lemma isaposetmorphism_compose {P P' P'' : Poset}
-    {f : P -> P'} (f_monot : isaposetmorphism f)
-    {g : P' -> P''} (g_monot : isaposetmorphism g)
-  : isaposetmorphism (g ∘ f).
-Proof.
-  intros x y le_xy.
-  apply g_monot, f_monot, le_xy.
-Defined.
-
 (** Lemma due to Pataraia: on a DCPO, there is a maximal monotone+progressive endo-map *)
 Lemma maximal_progressive_endomorphism_on_dcpo
     {P : Poset} (P_DC : is_directed_complete P)
@@ -1264,7 +1261,7 @@ Proof.
   { intros f. exact (make_greatest_suchthat (pr1 f) (pr2 f)). }
   cut (carrier (mon_prog_maps ∩ is_least_upper_bound_subtype mon_prog_maps)).
   { use subtype_inc.
-    intros ? [? ?]. apply greatest_if_sup_satisfies; assumption. }
+    intros ? [? ?]. apply greatest_if_contains_sup; assumption. }
   cut (carrier (is_least_upper_bound_pointwise (@pr1carrier _ mon_prog_maps))).
   { use subtype_inc.
     intros f f_pw_lub; split; [ split | ].
