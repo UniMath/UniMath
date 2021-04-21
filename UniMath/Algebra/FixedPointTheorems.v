@@ -786,6 +786,16 @@ Section Subposets.
       apply is_upper_bound_in_subposet; assumption.
   Defined.
 
+  Definition least_upper_bound_in_subposet {P : Poset} {A : Subposet P}
+      {I} {p : I -> A}
+      (x : least_upper_bound (pr1 ∘ p)) (x_A : A x)
+    : least_upper_bound p.
+  Proof.
+    use make_least_upper_bound.
+    { exists x. apply x_A. }
+    apply is_least_upper_bound_in_subposet, least_upper_bound_property.
+  Defined.
+
   Definition is_chain_in_subposet {P : Poset} {A : Subposet P}
       {I : Type} (p : I -> A)
     : is_chain p <-> is_chain (subposet_incl ∘ p).
@@ -959,6 +969,8 @@ End ProgressiveMaps.
 (** ** Fixpoints of endofunctions *)
 
 Section Fixpoints.
+
+(* TODO: this approach to types of fixedpoints doesn’t play well with the setup of subposets. Try refactoring. *)
 
 Definition isfixedpoint {P : Poset} (f : P -> P) : hsubtype P
   := fun (x:P) => f x = x.
@@ -1224,25 +1236,6 @@ Proof.
   use progressive_property.
 Defined.
 
-(** A constructive fixed-point theorem, originally due to Pataraia; this proof transmitted via Dacar and Bauer–Lumsdaine (where it is Thm 3.2). *)
-Theorem fixpoint_for_monotone_on_dcpo
-    {P : dcpo} (f : posetmorphism P P) (x : Postfixedpoint f)
-  : ∑ y : Fixedpoint f, x ≤ y.
-Proof.
-  (* Sketch:
-  - restrict attention to the sub-poset Q of post-fixed-points of P
-  - consider the poset of monotone, progressive maps Q -> Q with the pointwise order
-  - show that this is directed-complete
-  - show that this is itself directed, so has a maximal element
-  - values of this maximal element must be fixed points
-
-  Ingredients needed
-  - a good treatment of sub-posets, their induced orders, and completness properties
-  - a good treatment of posets of functions, and more generally, producs of posets, and their completeness properties
-  - unify the treatment of least upper bounds here with that in [Algebra.Dcpo].
-  *)
-Abort.
-
 (** Lemma due to Pataraia: on a DCPO, there is a maximal monotone+progressive endo-map *)
 Lemma maximal_progressive_endomorphism_on_dcpo
     {P : Poset} (P_DC : is_directed_complete P)
@@ -1295,5 +1288,41 @@ Proof.
     + use f_mon; use g_prog.
     + use f_prog.
 Defined.
+
+(** A constructive fixed-point theorem, originally due to Pataraia; this proof transmitted via Dacar and Bauer–Lumsdaine (where it is Thm 3.2). *)
+Theorem fixpoint_for_monotone_on_dcpo
+    {P : Poset} (P_dir: is_directed_complete P)
+    (f : posetmorphism P P) (x : Postfixedpoint f)
+  : ∑ y : Fixedpoint f, x ≤ y.
+Proof.
+  (* Sketch:
+  - restrict attention to the sub-poset Q of post-fixed-points of P
+  - consider the poset of monotone, progressive maps Q -> Q with the pointwise order
+  - show that this is directed-complete
+  - show that this is itself directed, so has a maximal element
+  - values of this maximal element must be fixed points
+
+  Ingredients needed
+  - a good treatment of sub-posets, their induced orders, and completness properties
+  - a good treatment of posets of functions, and more generally, producs of posets, and their completeness properties
+  - unify the treatment of least upper bounds here with that in [Algebra.Dcpo].
+  *)
+  revert x.
+  set (postfix_f := (fun x => x ≤ f x) : Subposet P).
+  assert (postfix_dc : is_directed_complete postfix_f).
+  {
+    intros [A A_dir].
+    use least_upper_bound_in_subposet.
+    { use (isdirected_lub P_dir).
+      assumption. }
+    (* uncannily, [A_dir] works off the bat, without needing to be converted from
+    directedness in Q to directedness in P! *)
+    apply least_upper_bound_univ. intros [[x x_postfix] x_A].
+    eapply istrans_posetRelation. { apply x_postfix. }
+    apply posetmorphism_property.
+    refine (least_upper_bound_is_upper_bound _ (_,,_)).
+    simple refine (value_in_image _ ((_,,_),,_)); assumption.
+  }
+Abort.
 
 End Bourbaki_Witt.
