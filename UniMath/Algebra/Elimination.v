@@ -30,7 +30,7 @@ Local Definition R := pr1hSet natcommrig.
 Section Gauss.
   (* Gaussian elimination over the field of rationals *)
 
-  Local Definition F := pr1hSet hq.
+  Local Definition F := hq.
 
 
   Definition gauss_add_row {m n : nat} (mat : Matrix F m n)
@@ -42,14 +42,10 @@ Section Gauss.
     - exact (mat r1 j). (* Regular row (ID)*)
   Defined.
 
-
   (* Is stating this as a Lemma more in the style of other UniMath work?*)
   Local Definition identity_matrix {n : nat} : (Matrix F n n).
   Proof.
-    intros i j.
-    induction (stn_eq_or_neq i j).
-    - exact 1%hq.
-    - exact 0%hq.
+    apply (@identity_matrix hq).
   Defined.
 
 
@@ -57,6 +53,7 @@ Section Gauss.
   Local Notation Σ := (iterop_fun 0%hq op1).
   Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
+  (* TODO: replace with upstream version? *)
   Local Definition matrix_mult {m n : nat} (mat1 : Matrix F m n)
     {p : nat} (mat2 : Matrix F n p) : (Matrix F m p) :=
     λ i j, Σ ((row mat1 i) ^ (col mat2 j)).
@@ -137,8 +134,13 @@ Section Gauss.
 
 
   Lemma pulse_function_sums_to_point {n : nat } (f : ⟦ n ⟧%stn -> F) :
-    exists (i : ⟦ n ⟧%stn),  f i != 0%hq × ∏ (j : ⟦ n ⟧ % stn), (f j != 0%hq) -> j = i
+    ∑ (i : ⟦ n ⟧%stn), (f i != 0%hq × ∏ (j : ⟦ n ⟧ % stn), (f j != 0%hq) -> j = i)
     -> Σ f = f i.
+  Proof.
+  Admitted.
+
+  (* TODO: look for other places this can simplify proofs! and upstream? *)
+  Lemma stn_neq_or_neq_refl {n} {i : ⟦ n ⟧%stn} : stn_eq_or_neq i i = inl (idpath i).
   Proof.
   Admitted.
 
@@ -153,9 +155,9 @@ Section Gauss.
     unfold "**". unfold "^". unfold col. unfold transpose. unfold row. unfold flip.
     unfold coprod_rect. unfold identity_matrix.
     destruct (stn_eq_or_neq i r) as [? | ?] ; simpl.
-    - rewrite  p.
-      destruct (stn_eq_or_neq r r) as [? | absurd]; simpl.
-      (*+ apply pulse_function_sums_to_point.*)
+    - rewrite p.
+      rewrite stn_neq_or_neq_refl.
+      (* apply pulse_function_sums_to_point.*)
   Abort.
 
   (* Order of arguments should be standardized... *)
@@ -281,10 +283,10 @@ Section Gauss.
     set (ik := (select_pivot_row mat k pn pn)).
     use tpair. 2: {exact ik. }
     intros i j.
-    induction (natlthorgeh i k) as [LT | GTH]. {exact ((mat i j)). }
+    destruct (natlthorgeh i k) as [LT | GTH]. {exact ((mat i j)). }
     set (mat' := gauss_switch_row mat k ik).
     set (mat'' := gauss_scalar_mult_row mat' ((- 1%hq)%hq * (hqmultinv ( mat' k k )))%hq i%nat).
-    induction (natgtb j k).
+    destruct (natgtb j k).
     - exact (((mat'' i j) + (mat'' i k) * (mat k j))%hq).
     - exact (mat'' i j).
   Defined.
@@ -386,27 +388,23 @@ Section Gauss.
   (* Now, three fixpoint definitions for three subroutines.
      Partial pivoting on "A", defining b according to pivots on A,
      then back-substitution. *)
-  Fixpoint gauss_iterate ( pr1i : nat ) { n : nat } ( current_idx : ⟦ n ⟧%stn) (start_idx : ⟦ n ⟧%stn ) (mat : Matrix F n n) (pivots : Vector (⟦ n ⟧%stn) n) {struct pr1i }: (Matrix F n n) × (Vector (⟦ n ⟧%stn) n) :=
-
-  let current_idx := decrement_stn_by_m start_idx (n - pr1i)  in
-  let idx_nat := pr1 current_idx in
-  let proof   := pr2 current_idx in
-  match pr1i with
-  | 0 => mat,, pivots
-  | S m =>
-            let mat_vec_tup := ((gauss_step current_idx mat)) in
-            let mat' := pr1 mat_vec_tup in
-            let piv  := (pr2 mat_vec_tup) in
-            let pivots' := set_stn_vector_el pivots current_idx piv in
-            gauss_iterate m current_idx start_idx mat' pivots'
-  end.
-
-Fixpoint vec_ops_iterate ( iter : nat ) { n : nat }  ( start_idx : ⟦ n ⟧%stn) (b : Vector F n) ( pivots : Vector (⟦ n ⟧%stn) n) (mat : Matrix F n n) { struct iter }: Vector F n :=
-  let current_idx := decrement_stn_by_m start_idx (n - iter)  in
-  match iter with
-  | 0 => b
-  | S m => vec_ops_iterate m start_idx (vec_row_ops_step current_idx (pivots current_idx) mat b) pivots mat
-  end.
+  Fixpoint gauss_iterate
+     ( pr1i : nat ) { n : nat } ( current_idx : ⟦ n ⟧%stn)
+     (start_idx : ⟦ n ⟧%stn ) (mat : Matrix F n n) (pivots : Vector (⟦ n ⟧%stn) n) {struct pr1i }
+    : (Matrix F n n) × (Vector (⟦ n ⟧%stn) n).
+  Proof.
+    destruct pr1i as [ | m ].
+    { (* pr1i = 0 *) exact (mat,,pivots). }
+    clear current_idx. (* TODO: remove it from parameters? check redundancy here with pr1i *)
+    set (current_idx := decrement_stn_by_m start_idx (n - (S m))).
+    set (idx_nat := pr1 current_idx).
+    set (proof   := pr2 current_idx).
+    set (mat_vec_tup := ((gauss_step current_idx mat))).
+    set (mat' := pr1 mat_vec_tup).
+    set (piv  := (pr2 mat_vec_tup)).
+    set (pivots' := set_stn_vector_el pivots current_idx piv).
+    exact (gauss_iterate m _ current_idx start_idx mat' pivots').
+Defined.
 
 
 Fixpoint back_sub_iterate ( iter : nat ) { n : nat }  ( start_idx : ⟦ n ⟧%stn) (b : Vector F n) ( pivots : Vector (⟦ n ⟧%stn) n) (mat : Matrix F n n) { struct iter }: Vector F n :=
