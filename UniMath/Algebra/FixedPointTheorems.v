@@ -17,6 +17,44 @@ Local Open Scope poset. (* for ≤, < *)
 Local Open Scope logic. (* for logic in hProp *)
 Local Open Scope subtype.
 
+
+(** ** Overview *)
+Section Overview.
+(** The following are the main results of the file (with black boxes for concepts not yet defined).
+
+In [Section Check_Overview] at the end of the file, we confirm that these statements have been proven. *)
+
+  Context (is_complete : Poset -> UU)
+          (is_directed_complete : Poset -> UU)
+          (is_chain_complete : Poset -> UU)
+          (Progressive_map : forall P:Poset, hsubtype (P -> P))
+          (Postfixedpoint : forall P:Poset, (P -> P) -> hsubtype P)
+          (Fixedpoint : forall P:Poset, (P -> P) -> hsubtype P).
+
+  Arguments Postfixedpoint {_} _.
+  Arguments Fixedpoint {_} _.
+
+  (** The master form of the Tarski/Knaster fixed-point theorems:
+  the fixed points of a monotone map on a complete poset
+  are themselves complete. *)
+  Definition Tarski_fixpoint_theorem_statement
+    := forall (P:Poset) (P_complete : is_complete P) (f : posetmorphism P P),
+         is_complete (Fixedpoint f : Subposet P).
+
+  (** A constructive fixed-point theorem, due to Pataraia. *)
+  Definition fixpoint_for_monotone_on_dcpo_statement
+    := forall (P : Poset) (P_dir: is_directed_complete P)
+              (f : posetmorphism P P) (x : Postfixedpoint f),
+         ∑ y : Fixedpoint f, pr1 x ≤ pr1 y.
+
+  (** Classical theorem, usually attrib. Bourbaki (1949) and Witt (1951). *)
+  Definition Bourbaki_Witt_fixpoint_theorem_statement
+    := LEM ->
+     forall (P : Poset) (_ : is_chain_complete P) (f : Progressive_map P),
+       Fixedpoint (pr1 f).
+
+End Overview.
+
 (** ** Background material
 
 As ever, all these should eventually be upstreamed, and unified with overlapping material upstream where possible. *)
@@ -1341,3 +1379,31 @@ Proof.
 Defined.
 
 End Bourbaki_Witt.
+
+
+(** Finally, we check that the promises listed in the overview have been fulfilled. *)
+(* Note: we give these to make sure that the overview stays up to date with any changes in the file, but we make them local since they should probably not be used outside this file. *)
+Section Check_Overview.
+
+  Local Theorem fulfil_Tarski_fixpoint_theorem
+    : Tarski_fixpoint_theorem_statement (is_complete) (@isfixedpoint).
+  Proof.
+    use @Tarski_fixpoint_theorem.
+  Defined.
+
+  Local Theorem fulfil_fixpoint_for_monotone_on_dcpo
+    : fixpoint_for_monotone_on_dcpo_statement
+        (is_directed_complete) (@ispostfixedpoint) (@isfixedpoint).
+  Proof.
+    use @fixpoint_for_monotone_on_dcpo.
+  Defined.
+
+  (** Classical theorem, usually attrbi. Bourbaki (1949) and Witt (1951). *)
+  Local Theorem fulfil_Bourbaki_Witt_fixpoint_theorem
+    : Bourbaki_Witt_fixpoint_theorem_statement
+        (is_chain_complete) (@isprogressive) (@isfixedpoint).
+  Proof.
+    use @Bourbaki_Witt_fixpoint.
+  Defined.
+
+End Check_Overview.
