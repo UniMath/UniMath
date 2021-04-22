@@ -25,27 +25,561 @@ Require Import UniMath.Combinatorics.Vectors.
 
 Require Import UniMath.Foundations.NaturalNumbers.
 
-Local Definition R := pr1hSet natcommrig.
+(*Local Definition R := pr1hSet natcommrig.*)
+Context { R : rig }.
+Local Definition F := hq.
+
+(* The first few sections contain Definitions and Lemmas that
+   should be moved further up the project tree *)
+
+
+
+Local Notation "A ** B" := (matrix_mult A B) (at level 80).
+Local Notation  Σ := (iterop_fun 0%hq op1).
+Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
+
+
+Section Misc.
+
+
+
+  Definition min' (n m : nat) : nat.
+  Proof.
+    induction (natgtb n m).
+    - exact m.
+    - exact n.
+  Defined.
+
+
+End Misc.
+
+
+Section PrelStn.
+
+  Local Definition truncate_pr1 { n : nat } ( f : ⟦ n ⟧%stn → hq) ( k : ⟦ n ⟧%stn ) : ( ⟦ n ⟧%stn → hq).
+  Proof.
+    intros.
+    induction (natgtb X k).
+    - exact (f X).
+    - exact (f k).
+  Defined.
+
+  Lemma stn_implies_nneq0 { n : nat } (i : ⟦ n ⟧%stn) : n ≠ 0.
+  Proof.
+    induction (natchoice0 n) as [T | F].
+    - rewrite <- T in i.
+      apply weqstn0toempty in i. apply fromempty. assumption.
+    - change (0 < n) with (n > 0) in F.
+      destruct n.
+      + apply isirreflnatgth in F. apply fromempty. assumption.
+      + apply natgthtoneq in F. reflexivity.
+  Defined.
+
+  Lemma stn_implies_ngt0 { n : nat} (i : ⟦ n ⟧%stn) : n > 0.
+  Proof.
+    exact (natneq0to0lth n (stn_implies_nneq0 i)).
+  Defined.
+
+  Definition decrement_stn_by_m { n : nat } ( i : (⟦ n ⟧)%stn ) (m : nat) : ⟦ n ⟧%stn. (* (⟦ n ⟧)%stn.*)
+  Proof.
+    induction (natgehchoice m 0).
+    - assert ( p :  ((pr1 i) - m) < n).
+        {  unfold stn in i. set (p0 := pr2 i). assert (pr1 i < n).
+           - exact (pr2 i).
+           - assert ((pr1 i - m <= ( pr1 i))). {apply (natminuslehn ). }
+              apply (natlehlthtrans (pr1 i - m) (pr1 i) ).
+              + assumption.
+              + assumption.
+        }
+      exact (pr1 i - m,, p).
+    - exact i.
+    - reflexivity.
+  Defined.
+
+  Local Definition mltntommin1ltn { n m : nat } (p : m < n) : (m - 1 < n).
+  Proof.
+    apply natlthtolthm1. assumption.
+  Defined.
+
+
+  Definition set_stn_vector_el { n : nat } (vec : Vector (⟦ n ⟧%stn) n) (idx : ⟦ n ⟧%stn) (el : (⟦ n ⟧%stn)) : Vector (⟦ n ⟧%stn) n.
+  Proof.
+  intros i.
+  induction (stn_eq_or_neq i idx).
+  + exact el.
+  + exact (vec i).
+  Defined.
+
+  Definition nat_lt_minmn_to_stnm_stnn {m n : nat} (i : nat) (p : i < min' m n) : ⟦ m ⟧%stn × ⟦ n ⟧%stn.
+  Proof.
+   (* unfold min in p. *)
+    assert (min n n = n).
+      { unfold min.  induction n. reflexivity. unfold natgtb. destruct n. { reflexivity. }
+
+    assert (i < n).
+    (* cbn in p. *)
+    induction (natgehchoice m n) as [MGT | NGE].
+      - unfold min in p.
+
+  Abort.
+
+  (*
+  Definition decrement_stn_by_m { n : nat } ( i : (⟦ n ⟧)%stn ) (m : nat) : ⟦ n ⟧%stn. (* (⟦ n ⟧)%stn.*)
+  Proof.
+    induction (natgehchoice m 0).
+    - assert ( p :  ((pr1 i) - m) < n).
+        {  unfold stn in i. set (p0 := pr2 i). assert (pr1 i < n).
+           - exact (pr2 i).
+           - assert ((pr1 i - m <= ( pr1 i))). {apply (natminuslehn ). }
+              apply (natlehlthtrans (pr1 i - m) (pr1 i) ).
+              + assumption.
+              + assumption.
+        }
+      exact (pr1 i - m,, p).
+    - exact i.
+    - reflexivity.
+  Defined.
+  *)
+
+  Definition stnn_to_stn_sminusn1 { n : nat } ( i : (⟦ n ⟧)%stn ) : ((⟦ S (n - 1) ⟧)%stn).
+  Proof.
+    intros.
+    induction (natgehchoice n 0).
+    3 : { exact (natgehn0 n). }
+    2 : { apply stn_implies_ngt0 in i.
+          apply natgthtoneq in i.
+          rewrite b in i.
+          contradiction i.
+    }
+    assert (e : n = S (n - 1)). (* Small proof taken verbatim from stnsum. *)
+    { change (S (n - 1)) with (1 + (n - 1)). rewrite natpluscomm.
+      apply pathsinv0. apply minusplusnmm. assumption.
+    }
+    rewrite <- e.
+    assumption.
+  Defined.
+
+  (* TODO this should just be a matter of rewriting using above ? *)
+  Definition stn_sminusn1_to_stnn { n : nat }  (i : (⟦ S (n - 1) ⟧)%stn) : (⟦ n ⟧%stn).
+  Proof.
+    intros.
+    induction (natgehchoice (S (n - 1)) 0).
+      3 : { exact (natgehn0 n ). }
+      2 : { rewrite b in i.
+            apply (stn_implies_ngt0) in i.
+            apply isirreflnatgth in i.
+            apply fromempty. assumption.
+      }
+    assert (e : n = S (n - 1)). (* Small proof taken verbatim from stnsum. *)
+    { change (S (n - 1)) with (1 + (n - 1)). rewrite natpluscomm.
+      apply pathsinv0. rewrite minusplusnmm.
+      - apply idpath.
+      - apply natlthsntoleh.
+    Abort.
+
+End PrelStn.
+
+
+
+Section Matrices.
+
+  Definition matunel2 { n : nat } := @identity_matrix R n.
+
+  Local Notation  Σ := (iterop_fun rigunel1 op1).
+
+
+  (* Identical to transport_stnsum but with Σ , R*)
+  Lemma transport_rigsum {m n : nat} (e: m = n) (g: ⟦ n ⟧%stn -> R) :
+     Σ g =  Σ (λ i, g (transportf stn e i)).
+  Proof.
+    intros.
+    induction e.
+    apply idpath.
+  Defined.
+
+
+  (* Is there some tactical way to re-use previous proofs
+     with a few changes? *)
+  Lemma rigsum_eq {n : nat} (f g : ⟦ n ⟧%stn -> R) : f ~ g ->  Σ f =  Σ g.
+  Proof.
+    intros h.
+    induction n as [|n IH].
+    - apply idpath.
+    - rewrite 2? iterop_fun_step. 2: { apply riglunax1. }
+                                  2: { apply riglunax1. }
+      induction (h lastelement).
+      apply (maponpaths (λ i, op1 i (f lastelement))).
+      apply IH.
+      intro x.
+      apply h.
+  Defined.
+
+  Lemma rigsum_step {n : nat} (f : ⟦ S n ⟧%stn -> R) :
+    Σ f = op1 (Σ (f ∘ (dni lastelement))) (f lastelement).
+  Proof.
+    intros.
+    apply iterop_fun_step.
+    apply riglunax1.
+  Defined.
+
+
+  Lemma rigsum_left_right :
+  ∏ (m n : nat) (f : (⟦ m + n ⟧)%stn → R),
+   Σ f =  op1 (Σ (f ∘ stn_left m n)) (Σ (f ∘ stn_right m n)).
+  Proof.
+    intros.
+    induction n as [| n IHn].
+    (*unfold stn_left. unfold stn_right.*)
+    { change (Σ  _) with (@rigunel1 R) at 3.
+      set (a := m + 0). assert (a = m). { apply natplusr0. } (* In the stnsum case,
+                                                                this can affect ⟦ m ⟧
+                                                                and zeroes elsewhere *)
+      assert (e := ! natplusr0 m).
+      rewrite (transport_rigsum e).
+      unfold funcomp.
+      rewrite  rigrunax1.
+      apply maponpaths. apply pathsinv0.
+      apply funextfun. intros i.
+      rewrite <- stn_left_0.
+      reflexivity.
+    }
+    rewrite rigsum_step.
+    assert (e : S (m + n) = m + S n).
+    { apply pathsinv0. apply natplusnsm. }
+    rewrite (transport_rigsum e).
+    rewrite rigsum_step.
+    rewrite <- rigassoc1. apply map_on_two_paths.
+    { rewrite IHn; clear IHn. apply map_on_two_paths.
+      { apply rigsum_eq; intro i. unfold funcomp.
+        apply maponpaths. apply subtypePath_prop.
+        rewrite stn_left_compute. induction e.
+        rewrite idpath_transportf. rewrite dni_last.
+        apply idpath. }
+      { apply rigsum_eq; intro i. unfold funcomp.
+        apply maponpaths. apply subtypePath_prop.
+        rewrite stn_right_compute. unfold stntonat. induction e.   (* we have stn_right instead of stn_left? *)
+        rewrite idpath_transportf. rewrite 2? dni_last.
+        apply idpath. } }
+    unfold funcomp. apply maponpaths. apply subtypePath_prop.
+    induction e. apply idpath.
+  Defined.
+
+  (* stnsum_dni with
+     stnsum -> Σ
+     transport_stnsum -> transport_rigsum
+     stnsum_left_right -> rigsum_left_right
+     natplusassoc -> rigassoc1*)
+  Lemma rigsum_dni {n : nat} (f : ⟦ S n ⟧%stn -> R) (j : ⟦ S n ⟧%stn ) :
+    Σ f = op1 (Σ (f ∘ dni j)) (f j).
+Proof.
+  intros.
+  induction j as [j J].
+  assert (e2 : j + (n - j) = n).
+  { rewrite natpluscomm. apply minusplusnmm. apply natlthsntoleh. exact J. }
+  assert (e : (S j) + (n - j) = S n).
+  { change (S j + (n - j)) with (S (j + (n - j))). apply maponpaths. exact e2. }
+  intermediate_path (Σ  (λ i, f (transportf stn e i))).
+  - apply (transport_rigsum e).
+  - rewrite (rigsum_left_right (S j) (n - j)); unfold funcomp.
+    apply pathsinv0. rewrite (transport_rigsum e2).
+    rewrite (rigsum_left_right j (n-j)); unfold funcomp.
+    rewrite (rigsum_step (λ x, f (transportf stn e _))); unfold funcomp.
+    apply pathsinv0.
+    rewrite rigassoc1. rewrite (@rigcomm1 R (f _) ). rewrite  <- rigassoc1. (* natpluss to @ R ... *)
+    apply map_on_two_paths.
+    + apply map_on_two_paths.
+      * apply rigsum_eq; intro i. induction i as [i I].
+        apply maponpaths. apply subtypePath_prop.
+        induction e. rewrite idpath_transportf. rewrite stn_left_compute.
+        unfold dni,di, stntonat; simpl.
+        induction (natlthorgeh i j) as [R|R].
+        -- unfold stntonat; simpl; rewrite transport_stn; simpl.
+           induction (natlthorgeh i j) as [a|b].
+           ++ apply idpath.
+           ++ contradicts R (natlehneggth b).
+        -- unfold stntonat; simpl; rewrite transport_stn; simpl.
+           induction (natlthorgeh i j) as [V|V].
+           ++ contradicts I (natlehneggth R).
+           ++ apply idpath.
+      * apply rigsum_eq; intro i. induction i as [i I]. apply maponpaths.
+        unfold dni,di, stn_right, stntonat; repeat rewrite transport_stn; simpl.
+        induction (natlthorgeh (j+i) j) as [X|X].
+        -- contradicts (negnatlthplusnmn j i) X.
+        -- apply subtypePath_prop. simpl. apply idpath.
+    + apply maponpaths.
+      rewrite transport_stn; simpl.
+      apply subtypePath_prop.
+      apply idpath.
+Defined.
+
+
+  (* Should be n not S n *)
+  Lemma pulse_function_sums_to_point_rig { n : nat }  (f : ⟦ S n ⟧%stn -> R) :
+  ∏ (i : ⟦ S n ⟧%stn ), (f i != 0%rig) -> (∏ (j : ⟦ S n ⟧%stn), ((i ≠ j) -> (f j = 0%rig))) ->  (Σ f = f i).
+  Proof.
+    intros i. intros f_i_neq_0 j.  (*impj0.*)
+
+    rewrite (rigsum_dni f i).
+    rewrite zero_function_sums_to_zero.
+    { rewrite riglunax1. apply idpath. }
+    apply funextfun.
+    intros k.
+    unfold funcomp.
+
+    replace (const_vec 0%rig k) with (@rigunel1 R). 2: { reflexivity. }
+    assert (i_neq_dni : i ≠ dni i k) . {exact (dni_neq_i i k). }
+    - intros. destruct (stn_eq_or_neq i (dni i k) ).
+        + apply (stnneq_iff_nopath i (dni i k)) in p.
+          apply weqtoempty. intros. apply p. assumption.
+          exact (dni_neq_i i k). (* Move up *)
+        + apply j. exact h.
+   Defined.
+
+  Definition is_pulse_function { n : nat } ( i : ⟦ n ⟧%stn )  (f : ⟦ n ⟧%stn -> R) :=
+
+    ∏ (j: ⟦ n ⟧%stn), (f i != 0%rig) -> (i ≠ j) -> (f j = 0%rig).
+
+  Lemma pulse_function_sums_to_point_rig' { n : nat } ( i : ⟦ n ⟧%stn ) {f : ⟦ n ⟧%stn -> R}
+    (p : is_pulse_function i f) : (Σ f = f i).
+  Proof.
+    unfold is_pulse_function in p.
+    revert p.
+    intros.
+  Admitted. (* Tired ... *)
+  (*
+    rewrite (rigsum_dni f i).
+    apply rigsum_dni.
+    refine p.
+    specialize (p ).
+    revert p.
+
+    apply (pulse_function_sums_to_point_rig).
+    use tpair.
+    apply p.
+    destruct p.
+  Defined.
+  *)
+
+  Lemma id_math_row_is_pf { n : nat }  : ∏ (r : ⟦ n ⟧%stn), (is_pulse_function r (identity_matrix r) ).
+  Proof.
+    unfold is_pulse_function.
+    intros r i rr_neq_0 r_neq_j.
+    unfold identity_matrix.
+    destruct (stn_eq_or_neq r i) as [T | F].
+    - rewrite T in r_neq_j.
+      apply isirrefl_natneq in r_neq_j. apply fromempty. assumption.
+    - rewrite coprod_rect_compute_2.
+      reflexivity.
+  Defined.
+
+    (* Is n ≥ 1 necessary ? *)
+  Definition vector_n_to_vector_snm1 { n : nat } (v : Vector R n) (p : n ≥ 1) : (Vector R (S ( n - 1 ))).
+  Proof.
+    unfold Vector in v.
+    unfold Vector.
+    change (S (n - 1)) with (1 + (n - 1)). rewrite natpluscomm.
+    rewrite minusplusnmm. 2 : {exact p. }
+    exact v.
+  Defined.
+
+
+  (* This should be trivially true but how do we correctly formulate / prove it ? *)
+  Lemma isirrefl_rigunel1_to_empty : (@rigunel1 R != @rigunel1 R ) -> ∅.
+  Admitted.
+
+
+
+  Lemma matlunel2 : ∏ (n : nat) (mat : Matrix R n n),
+    (identity_matrix ** mat) = mat.
+  Proof.
+    intros.
+    apply funextfun. intros i.
+    apply funextfun. intros j.
+
+    - unfold "**". unfold row. unfold "^".
+
+      assert (X: is_pulse_function i (λ i0 : (⟦ n ⟧)%stn, op2 (identity_matrix i i0) (col mat j i0))).
+      { unfold is_pulse_function.
+
+        intros k id_ii_m_neq_0 i_neq_k.
+        unfold identity_matrix.
+        destruct (stn_eq_or_neq i k) as [i_eq_k | i_neq_k'].
+        - rewrite i_eq_k in i_neq_k.
+          apply isirrefl_natneq in i_neq_k.
+          apply fromempty. assumption.
+        - rewrite coprod_rect_compute_2.
+          apply rigmult0x.
+      }
+      set (f :=  (λ i0 : (⟦ n ⟧)%stn, op2 (identity_matrix i i0) (col mat j i0)) ).
+      unfold f.
+      rewrite (pulse_function_sums_to_point_rig' i X).
+      unfold identity_matrix.
+      destruct (stn_eq_or_neq i i).
+      + rewrite coprod_rect_compute_1.
+        apply riglunax2.
+      + (*apply isirrefl_natneq in h. *)
+        rewrite coprod_rect_compute_2.
+        apply isirrefl_natneq in h.
+        apply fromempty. assumption.
+
+  Defined.
+
+  Definition matrix_is_invertible {n : nat} (A : Matrix R n n) :=
+    ∑ (B : Matrix R n n), ((A ** B) = identity_matrix) × ((B ** A) = identity_matrix).
+
+  Definition matrix_is_invertible_left {n : nat} (A : Matrix R n n) :=
+    ∑ (B : Matrix R n n), ((A ** B) = identity_matrix).
+
+  Definition matrix_is_invertible_right {n : nat} (A : Matrix R n n) :=
+    ∑ (B : Matrix R n n), ((B ** A) = identity_matrix).
+
+
+  Lemma inv_matrix_prod_is_inv {n : nat} (A : Matrix R n n)
+    (A' : Matrix R n n) (pa : matrix_is_invertible A) (pb : matrix_is_invertible A') :
+    (matrix_is_invertible (A ** A')).
+  Proof.
+    intros.
+    unfold matrix_is_invertible in pa.
+    unfold matrix_is_invertible in pb.
+    unfold matrix_is_invertible.
+    use tpair. { exact ((pr1 pb) ** (pr1 pa)). }
+    use tpair.
+    - rewrite matrix_mult_assoc.
+      rewrite <- (matrix_mult_assoc A' _ _).
+  (* We need I ** M = M *)
+  Abort.
+
+  Lemma identity_is_inv { n : nat } : matrix_is_invertible (@identity_matrix _ n).
+  Proof.
+    unfold matrix_is_invertible.
+    use tpair. { exact identity_matrix. }
+    set (id := @identity_matrix R n).
+    Abort.
+
+  (*
+  Definition eq_set_invar_by_invmatrix_mm { n : nat } ( A : Matrix R n n )
+    (C : Matrix R n n)
+    (x : Matrix R n 1) (b : Matrix R n 1) : (A ** x) = b -> ((C ** A) ** x) = (C ** b).
+  Proof.
+
+  Abort.
+  *)
+
+End Matrices.
+
+
+Section MatricesF.
+
+
+
+  (* Not really a clamp but setting every element at low indices to zero.  *)
+  Local Definition clamp_f {n : nat} (f : ⟦ n ⟧%stn -> hq) (cutoff : ⟦ n ⟧%stn) : (⟦ n ⟧%stn -> hq).
+    intros i.
+    induction (natlthorgeh i cutoff) as [LT | GTH].
+    - exact 0%hq.
+    - exact (f i).
+  Defined.
+
+
+  Definition zero_vector_hq (n : nat) : ⟦ n ⟧%stn -> hq :=
+    λ i : ⟦ n ⟧%stn, 0%hq.
+
+  Definition zero_vector_nat (n : nat) : ⟦ n ⟧%stn -> nat :=
+    λ i : ⟦ n ⟧%stn, 0%nat.
+
+  (* This is not really a zero vector, it might be [0 1 2 3] ... Serves the purpose of a placeholder however. *)
+  Definition zero_vector_stn (n : nat) : ⟦ n ⟧%stn -> ⟦ n ⟧%stn.
+  Proof.
+    intros i.
+    assumption.
+  Defined.
+
+
+  (* The following definitions set up helper functions on finite sets which are then used in formalizing Gaussian Elimination*)
+
+  Definition max_hq (a b : hq) : hq.
+    induction (hqgthorleh a b).
+    - exact a.
+    - exact b.
+  Defined.
+
+  Definition max_hq_one_arg (a : hq) : hq -> hq := max_hq a.
+
+  (* This should exist somewhere *)
+  Definition tl' { n : nat }  (vec: Vector F n) : Vector F (n - 1).
+    induction (natgtb n 0).
+     assert  ( b: (n - 1 <= n)). { apply (natlehtolehm1 n n). apply isreflnatleh. }
+    + exact (λ i : (⟦ n - 1 ⟧%stn), vec (stnmtostnn (n - 1) n b i)).
+    + exact (λ i : (⟦ n - 1 ⟧%stn), 0%hq). (* ? *)
+  Defined.
+
+
+
+
+  (* We can generalize this to just ordered sets *)
+  Definition max_hq_index { n : nat } (ei ei' : hq × ⟦ n ⟧%stn) : hq × ⟦ n ⟧%stn.
+    induction (hqgthorleh (pr1 ei) (pr1 ei')).
+    - exact ei.
+    - exact ei'.
+  Defined.
+
+  Definition max_hq_index_one_arg { n : nat } (ei : hq × ⟦ n ⟧%stn) : (hq × ⟦ n ⟧%stn) -> (hq × ⟦ n ⟧%stn)
+    := max_hq_index ei.
+
+  (* Some of the following lemmata are very specific and could be better without the general definition form, or we
+     could write these as local definitions *)
+  Definition max_argmax_stnhq {n : nat} (vec : Vector F n) (pn : n > 0) : hq × (⟦ n ⟧)%stn.
+  Proof.
+    set (max_and_idx := (foldleft (0%hq,,(0%nat,,pn)) max_hq_index (λ i : (⟦ n ⟧%stn), (vec i) ,, i))).
+    exact (max_and_idx).
+  Defined.
+
+
+
+  (*TODO: This is mostly a repetition of the rig equivalent. Can we generalize ? *)
+  Lemma zero_function_sums_to_zero_hq:
+    ∏ (n : nat) (f : (⟦ n ⟧)%stn -> F),
+    (λ i : (⟦ n ⟧)%stn, f i) = const_vec 0%hq ->
+    (Σ (λ i : (⟦ n ⟧)%stn, f i) ) = 0%hq.
+  Proof.
+    intros n f X.
+    rewrite X.
+    unfold const_vec.
+    induction n.
+    - reflexivity.
+    - intros. rewrite iterop_fun_step.
+      + rewrite hqplusr0.
+        unfold "∘".
+        rewrite -> IHn with ((λ _ : (⟦ n ⟧)%stn, 0%hq)).
+        reflexivity.
+        reflexivity.
+      + unfold islunit. intros.
+        rewrite hqplusl0.
+        apply idpath.
+  Defined.
+
+
+End MatricesF.
+
+
 
 Section Gauss.
   (* Gaussian elimination over the field of rationals *)
 
-  Local Definition F := hq.
 
-
-  Definition gauss_add_row {m n : nat} (mat : Matrix F m n)
-    (s : F) (r1 r2 : ⟦ m ⟧%stn) : (Matrix F m n).
+  Definition gauss_add_row { m n : nat } ( mat : Matrix F m n )
+    ( s : F ) ( r1 r2 : ⟦ m ⟧%stn ) : ( Matrix F m n ).
   Proof.
     intros i j.
     induction (stn_eq_or_neq i r1).
-    - exact (op1 (mat r1 j)  (op2 s (mat r2 j))). (* Target row *)
-    - exact (mat r1 j). (* Regular row (ID)*)
+    - exact ( op1 ( mat r1 j )  ( op2 s ( mat r2 j ))).
+    - exact ( mat r1 j ).
   Defined.
 
   (* Is stating this as a Lemma more in the style of other UniMath work?*)
-  Local Definition identity_matrix {n : nat} : (Matrix F n n).
+  Local Definition identity_matrix { n : nat } : ( Matrix F n n ).
   Proof.
-    apply (@identity_matrix hq).
+    apply ( @identity_matrix hq ).
   Defined.
 
 
@@ -85,8 +619,6 @@ Section Gauss.
     + exact ((gauss_scalar_mult_row identity_matrix s r) r).
     + exact (identity_matrix r).
   Defined.
-
-
 
   Definition gauss_switch_row {m n : nat} (mat : Matrix F m n)
              (r1 r2 : ⟦ m ⟧%stn) : Matrix F m n.
@@ -133,12 +665,6 @@ Section Gauss.
   Defined.
 
 
-  Lemma pulse_function_sums_to_point {n : nat } (f : ⟦ n ⟧%stn -> F) :
-    ∑ (i : ⟦ n ⟧%stn), (f i != 0%hq × ∏ (j : ⟦ n ⟧ % stn), (f j != 0%hq) -> j = i)
-    -> Σ f = f i.
-  Proof.
-  Admitted.
-
   (* TODO: look for other places this can simplify proofs! and upstream? *)
   Lemma stn_neq_or_neq_refl {n} {i : ⟦ n ⟧%stn} : stn_eq_or_neq i i = inl (idpath i).
   Proof.
@@ -173,10 +699,7 @@ Section Gauss.
     intros.
   Abort.
 
-
-
   (* The following three lemmata test the correctness of elementary row operations, i.e. they do not affect the solution set. *)
-
   Lemma eq_sol_invar_under_scalar_mult {n : nat} (A : Matrix F n n) (x : Matrix F n 1) (b : Matrix F 1 n) (s : F) (r : ⟦ n ⟧%stn) :
     (A ** x) = (transpose b) -> ((make_scalar_mult_row_matrix s r) ** A ** x)  = ((make_scalar_mult_row_matrix s r) ** (transpose b)).
   Proof.
@@ -198,50 +721,6 @@ Section Gauss.
   Abort.
 
 
-  (* The following definitions set up helper functions on finite sets which are then used in formalizing Gaussian Elimination*)
-
-  Definition max_hq (a b : hq) : hq.
-    induction (hqgthorleh a b).
-    - exact a.
-    - exact b.
-  Defined.
-
-  Definition max_hq_one_arg (a : hq) : hq -> hq := max_hq a.
-
-  (* This should exist somewhere *)
-  Definition tl' { n : nat }  (vec: Vector F n) : Vector F (n - 1).
-    induction (natgtb n 0).
-     assert  ( b: (n - 1 <= n)). { apply (natlehtolehm1 n n). apply isreflnatleh. }
-    + exact (λ i : (⟦ n - 1 ⟧%stn), vec (stnmtostnn (n - 1) n b i)).
-    + exact (λ i : (⟦ n - 1 ⟧%stn), 0%hq). (* ? *)
-  Defined.
-
-
-  (* We can generalize this to just ordered sets *)
-  Definition max_hq_index { n : nat } (ei ei' : hq × ⟦ n ⟧%stn) : hq × ⟦ n ⟧%stn.
-    induction (hqgthorleh (pr1 ei) (pr1 ei')).
-    - exact ei.
-    - exact ei'.
-  Defined.
-
-  Definition max_hq_index_one_arg { n : nat } (ei : hq × ⟦ n ⟧%stn) : (hq × ⟦ n ⟧%stn) -> (hq × ⟦ n ⟧%stn)
-    := max_hq_index ei.
-
-  (* Some of the following lemmata are very specific and could be better without the general definition form, or we
-     could write these as local definitions *)
-  Definition max_argmax_stnhq {n : nat} (vec : Vector F n) (pn : n > 0) : hq × (⟦ n ⟧)%stn.
-  Proof.
-    set (max_and_idx := (foldleft (0%hq,,(0%nat,,pn)) max_hq_index (λ i : (⟦ n ⟧%stn), (vec i) ,, i))).
-    exact (max_and_idx).
-  Defined.
-
-  Local Definition truncate_pr1 { n : nat } ( f : ⟦ n ⟧%stn → hq) ( k : ⟦ n ⟧%stn ) : ( ⟦ n ⟧%stn → hq).
-  Proof.
-    intros.
-    induction (natgtb X k).
-    - exact (f X).
-    - exact (f k).
-  Defined.
 
   Definition select_pivot_row {m n : nat} (mat : Matrix F m n) ( k : ⟦ m ⟧%stn ) (pm : m > 0) (pn : n > 0) : ⟦ m ⟧%stn
     := pr2 (max_argmax_stnhq (truncate_pr1  ( λ i : (⟦ m ⟧%stn),  pr1 (max_argmax_stnhq ( ( mat) i) pn)) k ) pm).
@@ -252,22 +731,6 @@ Section Gauss.
     induction b.
     - exact (f mat).
     - exact mat.
-  Defined.
-
-  Lemma stn_implies_nneq0 { n : nat } (i : ⟦ n ⟧%stn) : n ≠ 0.
-  Proof.
-    induction (natchoice0 n) as [T | F].
-    - rewrite <- T in i.
-      apply weqstn0toempty in i. apply fromempty. assumption.
-    - change (0 < n) with (n > 0) in F.
-      destruct n.
-      + apply isirreflnatgth in F. apply fromempty. assumption.
-      + apply natgthtoneq in F. reflexivity.
-  Defined.
-
-  Lemma stn_implies_ngt0 { n : nat} (i : ⟦ n ⟧%stn) : n > 0.
-  Proof.
-    exact (natneq0to0lth n (stn_implies_nneq0 i)).
   Defined.
 
 
@@ -301,26 +764,7 @@ Section Gauss.
     - exact i.
   Defined.
 
-  Definition decrement_stn_by_m { n : nat } ( i : (⟦ n ⟧)%stn ) (m : nat) : ⟦ n ⟧%stn. (* (⟦ n ⟧)%stn.*)
-  Proof.
-    induction (natgehchoice m 0).
-    - assert ( p :  ((pr1 i) - m) < n).
-        {  unfold stn in i. set (p0 := pr2 i). assert (pr1 i < n).
-           - exact (pr2 i).
-           - assert ((pr1 i - m <= ( pr1 i))). {apply (natminuslehn ). }
-              apply (natlehlthtrans (pr1 i - m) (pr1 i) ).
-              + assumption.
-              + assumption.
-        }
-      exact (pr1 i - m,, p).
-    - exact i.
-    - reflexivity.
-  Defined.
 
-  Local Definition mltntommin1ltn { n m : nat } (p : m < n) : (m - 1 < n).
-  Proof.
-    apply natlthtolthm1. assumption.
-  Defined.
 
   Definition switch_vector_els { n : nat } (vec : Vector F n) (e1 e2 : ⟦ n ⟧%stn) : Vector F n.
   Proof.
@@ -343,13 +787,6 @@ Section Gauss.
     exact (  ((((vec' i)) + ((vec' k)) * (mat i k))%hq)).  (* Would like to verify this construction works*)
   Defined.
 
-  (* Not really a clamp but setting every element at low indices to zero.  *)
-  Local Definition clamp_f {n : nat} (f : ⟦ n ⟧%stn -> hq) (cutoff : ⟦ n ⟧%stn) : (⟦ n ⟧%stn -> hq).
-    intros i.
-    induction (natlthorgeh i cutoff) as [LT | GTH].
-    - exact 0%hq.
-    - exact (f i).
-  Defined.
 
   (* This one especially needs to be checked for correctness (use of indices) *)
   Definition back_sub_step { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix F n n) (vec : Vector F n) : Vector F n.
@@ -363,26 +800,7 @@ Section Gauss.
       apply (pr2 iter).
   Defined.
 
-  Definition zero_vector_hq (n : nat) : ⟦ n ⟧%stn -> hq :=
-    λ i : ⟦ n ⟧%stn, 0%hq.
 
-  Definition zero_vector_nat (n : nat) : ⟦ n ⟧%stn -> nat :=
-    λ i : ⟦ n ⟧%stn, 0%nat.
-
-  (* This is not really a zero vector, it might be [0 1 2 3] ... Serves the purpose of a placeholder however. *)
-  Definition zero_vector_stn (n : nat) : ⟦ n ⟧%stn -> ⟦ n ⟧%stn.
-  Proof.
-    intros i.
-    assumption.
-  Defined.
-
-  Definition set_stn_vector_el { n : nat } (vec : Vector (⟦ n ⟧%stn) n) (idx : ⟦ n ⟧%stn) (el : (⟦ n ⟧%stn)) : Vector (⟦ n ⟧%stn) n.
-  Proof.
-  intros i.
-  induction (stn_eq_or_neq i idx).
-  + exact el.
-  + exact (vec i).
-  Defined.
 
 
   (* Now, three fixpoint definitions for three subroutines.
@@ -406,6 +824,12 @@ Section Gauss.
     exact (gauss_iterate m _ current_idx start_idx mat' pivots').
 Defined.
 
+Fixpoint vec_ops_iterate ( iter : nat ) { n : nat }  ( start_idx : ⟦ n ⟧%stn) (b : Vector F n) ( pivots : Vector (⟦ n ⟧%stn) n) (mat : Matrix F n n) { struct iter }: Vector F n :=
+  let current_idx := decrement_stn_by_m start_idx (n - iter)  in
+  match iter with
+  | 0 => b
+  | S m => vec_ops_iterate m start_idx (vec_row_ops_step current_idx (pivots current_idx) mat b) pivots mat
+  end.
 
 Fixpoint back_sub_iterate ( iter : nat ) { n : nat }  ( start_idx : ⟦ n ⟧%stn) (b : Vector F n) ( pivots : Vector (⟦ n ⟧%stn) n) (mat : Matrix F n n) { struct iter }: Vector F n :=
   let current_idx := decrement_stn_by_m start_idx (n - iter)  in
@@ -570,13 +994,6 @@ Section SmithNF.
     ∏ (i : ⟦ m ⟧%stn ) (j : ⟦ n ⟧%stn ),  (stntonat _ i != (stntonat _ j)) -> (mat i j) = 0%rig.
 
 
-  Definition nat_lt_minmn_to_stnm_stnn {m n : nat} (i : nat) (p : i < min m n) : ⟦ m ⟧%stn × ⟦ n ⟧%stn.
-  Proof.
-   (* unfold min in p. *)
-    assert (i < n).
-    (* cbn in p. *)
-    induction (natgehchoice m n) as [MGT | NGE].
-  Abort.
 
   Definition MinAij {m n : nat} (A : Matrix I m n) (s : nat) (p : s < min m n) : I.
   Proof.
