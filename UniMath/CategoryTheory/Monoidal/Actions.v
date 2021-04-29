@@ -198,11 +198,90 @@ Proof.
   exact tt.
 Defined.
 
-Context
-  {U_action_tlaw : action_triangle_eq (A := pr1 U_action_struct)
+Definition U_action_tlaw : action_triangle_eq (A := pr1 U_action_struct)
                                       (pr1 (pr2 U_action_struct))
                                       (pr1 (pr2 (pr2 U_action_struct)))
-                                      (pr1 (pr2 (pr2 (pr2 U_action_struct))))}
+                                      (pr1 (pr2 (pr2 (pr2 U_action_struct)))).
+Proof.
+  red.
+  intros.
+  simpl.
+  pose (ϵ_inv := inv_from_iso (make_iso _ (pr1 (pr2 U)))).
+  unfold nat_trans_from_functor_fix_snd_morphism_arg_data.
+  unfold nat_trans_data_post_whisker_fst_param.
+  simpl.
+  fold ϵ_inv.
+  unfold make_dirprod.
+  rewrite functor_id.
+  pose (μ := pr1 (pr2 (pr2 (pr1 U)))).
+  fold μ.
+  (* UniMath.MoreFoundations.Tactics.show_id_type.
+  unfold functor_fix_snd_arg_ob in TYPE.
+  simpl in TYPE. *)
+  apply pathsinv0.
+  eapply pathscomp0.
+  - rewrite assoc'. apply maponpaths. apply pathsinv0. apply functor_comp.
+  - unfold compose at 2. simpl. unfold make_dirprod. rewrite id_left.
+    rewrite <- (id_left (id U x)).
+    apply pathsinv0.
+    intermediate_path (# tensor_A ((# tensor_A (id a #, ϵ_inv)) #, id U x) · # tensor_A (pr1 ρ_A a #, id U x)).
+    + rewrite <- functor_comp.
+      apply idpath.
+    + pose (ϵ := pr1 (pr2 (pr1 U))).
+      pose (f := # tensor_A (# tensor_A (id a #, ϵ) #, id U x)).
+      apply (pre_comp_with_iso_is_inj _ _ _ _ f).
+      * use is_iso_tensor_iso.
+        -- use is_iso_tensor_iso.
+           ++ exact (identity_is_iso _ _).
+           ++ exact (pr1 (pr2 U)).
+        -- exact (identity_is_iso _ _).
+      * rewrite assoc.
+        intermediate_path (# tensor_A (pr1 ρ_A a #, id U x)).
+        -- apply pathsinv0. eapply pathscomp0.
+           ++ apply (!(id_left _)).
+           ++ apply cancel_postcomposition.
+              unfold f.
+              rewrite <- functor_comp.
+              apply pathsinv0. apply functor_id_id.
+              apply pathsdirprod; simpl.
+              ** eapply pathscomp0.
+                 --- apply pathsinv0. apply functor_comp.
+                 --- apply functor_id_id.
+                     apply pathsdirprod; simpl.
+                     +++ apply id_left.
+                     +++ apply pathsinv0. apply iso_inv_on_left.
+                         rewrite id_left. apply idpath.
+              ** apply id_left.
+        -- (* UniMath.MoreFoundations.Tactics.show_id_type.
+           unfold functor_fix_snd_arg_ob in TYPE. *)
+           rewrite assoc.
+           apply pathsinv0. eapply pathscomp0.
+           ++ apply cancel_postcomposition.
+              apply (nat_trans_ax (pr1 α_A) ((a, I_A), U x) ((a, U I), U x) (make_dirprod (make_dirprod (id a) ϵ) (id U x))).
+           ++ simpl.
+              eapply pathscomp0.
+              ** rewrite assoc'. apply maponpaths. apply pathsinv0.
+                 apply functor_comp.
+              ** unfold compose at 2. simpl. unfold make_dirprod. rewrite id_left.
+                 (* UniMath.MoreFoundations.Tactics.show_id_type.
+                 unfold functor_fix_snd_arg_ob in TYPE. *)
+                 pose (unitality_U := pr2 (pr2 (pr2 (pr2 (pr1 U))))).
+                 rewrite assoc.
+                 eapply pathscomp0.
+                 --- apply maponpaths.
+                     eapply (maponpaths (fun u:pr1 Mon_A⟦I_A ⊗_A (U x), U x⟧ => # (pr1 (pr2 Mon_A)) (id a #, u))).
+                     apply pathsinv0.
+                     apply (pr1 (unitality_U x)).
+                 --- fold λ_A.
+                     (* UniMath.MoreFoundations.Tactics.show_id_type.
+                     unfold functor_fix_snd_arg_ob in TYPE. *)
+                     pose (triangle_A := pr1 (monoidal_precat_eq Mon_A)).
+                     apply pathsinv0.
+                     apply triangle_A.
+Qed.
+
+(** the following is a hole in the development *)
+Context
   {U_action_plaw : action_pentagon_eq (A := pr1 U_action_struct)
                                       (pr1 (pr2 U_action_struct))
                                       (pr1 (pr2 (pr2 (pr2 U_action_struct))))}.
