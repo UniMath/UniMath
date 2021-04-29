@@ -180,6 +180,17 @@ Section Relative_Strength_Is_A_Strength.
   Let pentagon := pr1 (pr2 str).
   Let rectangle := pr2 (pr2 str).
 
+  Let Mon_W' := swapping_of_monoidal_precat Mon_W.
+  Let timesW' := monoidal_precat_tensor Mon_W'.
+  Let Mon_V' := swapping_of_monoidal_precat Mon_V.
+  Let timesV' := monoidal_precat_tensor Mon_V'.
+
+  Let U' := swapping_of_strong_monoidal_functor U.
+
+  (* impossible because of hole in construction of U_action
+  Let UAct := U_action Mon_W' Mon_V' U'.
+   *)
+
 (* TO BE CONTINUED *)
 
 
