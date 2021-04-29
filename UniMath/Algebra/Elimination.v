@@ -41,15 +41,12 @@ Local Notation "R1 ^ R2" := ((pointwise _ op2) R1 R2).
 
 Section Misc.
 
-
-
   Definition min' (n m : nat) : nat.
   Proof.
     induction (natgtb n m).
     - exact m.
     - exact n.
   Defined.
-
 
 End Misc.
 
@@ -313,7 +310,7 @@ Proof.
 Defined.
 
 
-  (* Should be n not S n *)
+(* Should be n not S n *)
   Lemma pulse_function_sums_to_point_rig { n : nat }  (f : ⟦ S n ⟧%stn -> R) :
   ∏ (i : ⟦ S n ⟧%stn ), (f i != 0%rig) -> (∏ (j : ⟦ S n ⟧%stn), ((i ≠ j) -> (f j = 0%rig))) ->  (Σ f = f i).
   Proof.
@@ -334,6 +331,8 @@ Defined.
           exact (dni_neq_i i k). (* Move up *)
         + apply j. exact h.
    Defined.
+
+(* TODO: possibly write special case [v ∧ (pulse j a) = a * (v j)]. *)
 
   Definition is_pulse_function { n : nat } ( i : ⟦ n ⟧%stn )  (f : ⟦ n ⟧%stn -> R) :=
 
@@ -384,10 +383,11 @@ Defined.
 
 
   (* This should be trivially true but how do we correctly formulate / prove it ? *)
-  Lemma isirrefl_rigunel1_to_empty : (@rigunel1 R != @rigunel1 R ) -> ∅.
-  Admitted.
-
-
+  (* TODO: inline? *)
+  Lemma isirrefl_rigunel1_to_empty {X} (x:X) : (x != x) -> ∅.
+  Proof.
+    intros H; apply H, idpath.
+  Defined.
 
   Lemma matlunel2 : ∏ (n : nat) (mat : Matrix R n n),
     (identity_matrix ** mat) = mat.
@@ -427,6 +427,7 @@ Defined.
   Definition matrix_is_invertible {n : nat} (A : Matrix R n n) :=
     ∑ (B : Matrix R n n), ((A ** B) = identity_matrix) × ((B ** A) = identity_matrix).
 
+  (* TODO: name as e.g. [matrix_right_inverse] since gives choice of inverse? and similar vice versa below. *)
   Definition matrix_is_invertible_left {n : nat} (A : Matrix R n n) :=
     ∑ (B : Matrix R n n), ((A ** B) = identity_matrix).
 
@@ -686,6 +687,11 @@ Section Gauss.
       (* apply pulse_function_sums_to_point.*)
   Abort.
 
+  (* TODO: make R paramater/local section variable so that this can be stated *)
+  (*
+  Lemma matrix_scalar_multt_is_invertible { n : nat } (Mat : Matrix F n n) (s : F) (r : ⟦ n ⟧%stn) : matrix_is_invertible (make_scalar_mult_row_matrix s r).
+  *)
+
   (* Order of arguments should be standardized... *)
   Lemma matrix_row_mult_is_elementary_row_op {n : nat} (r1 r2 : ⟦ n ⟧%stn) (mat : Matrix F n n) (s : F) :
     ((make_add_row_matrix r1 r2 s) ** mat) = gauss_add_row mat s r1 r2.
@@ -806,14 +812,14 @@ Section Gauss.
   (* Now, three fixpoint definitions for three subroutines.
      Partial pivoting on "A", defining b according to pivots on A,
      then back-substitution. *)
-  Fixpoint gauss_iterate
-     ( pr1i : nat ) { n : nat } ( current_idx : ⟦ n ⟧%stn)
-     (start_idx : ⟦ n ⟧%stn ) (mat : Matrix F n n) (pivots : Vector (⟦ n ⟧%stn) n) {struct pr1i }
+  Definition gauss_iterate
+     ( pr1i : nat ) { n : nat }
+     (start_idx : ⟦ n ⟧%stn ) (mat : Matrix F n n) (pivots : Vector (⟦ n ⟧%stn) n)
     : (Matrix F n n) × (Vector (⟦ n ⟧%stn) n).
   Proof.
-    destruct pr1i as [ | m ].
+    revert mat pivots.
+    induction pr1i as [ | m gauss_iterate_IH ]; intros mat pivots.
     { (* pr1i = 0 *) exact (mat,,pivots). }
-    clear current_idx. (* TODO: remove it from parameters? check redundancy here with pr1i *)
     set (current_idx := decrement_stn_by_m start_idx (n - (S m))).
     set (idx_nat := pr1 current_idx).
     set (proof   := pr2 current_idx).
@@ -821,8 +827,8 @@ Section Gauss.
     set (mat' := pr1 mat_vec_tup).
     set (piv  := (pr2 mat_vec_tup)).
     set (pivots' := set_stn_vector_el pivots current_idx piv).
-    exact (gauss_iterate m _ current_idx start_idx mat' pivots').
-Defined.
+    exact (gauss_iterate_IH mat' pivots').
+  Defined.
 
 Fixpoint vec_ops_iterate ( iter : nat ) { n : nat }  ( start_idx : ⟦ n ⟧%stn) (b : Vector F n) ( pivots : Vector (⟦ n ⟧%stn) n) (mat : Matrix F n n) { struct iter }: Vector F n :=
   let current_idx := decrement_stn_by_m start_idx (n - iter)  in
@@ -842,7 +848,7 @@ Fixpoint back_sub_iterate ( iter : nat ) { n : nat }  ( start_idx : ⟦ n ⟧%st
   (* The main definition using above Fixpoints, which in turn use stepwise definitions.*)
   Definition gaussian_elimination { n : nat } (mat : Matrix F n n) (b : Vector F n) (pn : n > 0) : Matrix F n n × Vector F n.
   Proof.
-    set (A_and_pivots := gauss_iterate n (0,,pn) (0,,pn) mat (zero_vector_stn n)).
+    set (A_and_pivots := gauss_iterate n (0,,pn) mat (zero_vector_stn n)).
     set (A  := pr1 A_and_pivots).
     set (pv := pr2 A_and_pivots).
     set (b'  := vec_ops_iterate 0 (0,,pn) b pv A).
@@ -868,7 +874,7 @@ Fixpoint back_sub_iterate ( iter : nat ) { n : nat }  ( start_idx : ⟦ n ⟧%st
   Abort.
 
   Lemma A_is_upper_triangular { n : nat} ( temp_proof_0_lt_n : 0 < n ) (mat : Matrix F n n) :
-    is_upper_triangular (pr1 (gauss_iterate 0 (0,, temp_proof_0_lt_n) (0,, temp_proof_0_lt_n) mat (zero_vector_stn n))).
+    is_upper_triangular (pr1 (gauss_iterate 0 (0,, temp_proof_0_lt_n) mat (zero_vector_stn n))).
   Proof.
     intros.
   Abort.
