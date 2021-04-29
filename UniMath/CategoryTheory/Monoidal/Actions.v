@@ -220,71 +220,164 @@ Proof.
   simpl in TYPE. *)
   apply pathsinv0.
   eapply pathscomp0.
-  - rewrite assoc'. apply maponpaths. apply pathsinv0. apply functor_comp.
-  - unfold compose at 2. simpl. unfold make_dirprod. rewrite id_left.
-    rewrite <- (id_left (id U x)).
+  { rewrite assoc'. apply maponpaths. apply pathsinv0. apply functor_comp. }
+  unfold compose at 2. simpl. unfold make_dirprod. rewrite id_left.
+  rewrite <- (id_left (id U x)).
+  apply pathsinv0.
+  intermediate_path (# tensor_A ((# tensor_A (id a #, ϵ_inv)) #, id U x) · # tensor_A (pr1 ρ_A a #, id U x)).
+  { rewrite <- functor_comp.
+    apply idpath. }
+  pose (ϵ := pr1 (pr2 (pr1 U))).
+  pose (f := # tensor_A (# tensor_A (id a #, ϵ) #, id U x)).
+  apply (pre_comp_with_iso_is_inj _ _ _ _ f).
+  { use is_iso_tensor_iso.
+    - use is_iso_tensor_iso.
+      + exact (identity_is_iso _ _).
+      + exact (pr1 (pr2 U)).
+    - exact (identity_is_iso _ _).
+  }
+  rewrite assoc.
+  intermediate_path (# tensor_A (pr1 ρ_A a #, id U x)).
+  { apply pathsinv0. eapply pathscomp0.
+    - apply (!(id_left _)).
+    - apply cancel_postcomposition.
+      unfold f.
+      rewrite <- functor_comp.
+      apply pathsinv0. apply functor_id_id.
+      apply pathsdirprod; simpl.
+      + eapply pathscomp0.
+        * apply pathsinv0. apply functor_comp.
+        * apply functor_id_id.
+          apply pathsdirprod; simpl.
+          -- apply id_left.
+          -- apply pathsinv0. apply iso_inv_on_left.
+             rewrite id_left. apply idpath.
+      + apply id_left.
+  }
+  (* UniMath.MoreFoundations.Tactics.show_id_type.
+     unfold functor_fix_snd_arg_ob in TYPE. *)
+  rewrite assoc.
+  apply pathsinv0. eapply pathscomp0.
+  { apply cancel_postcomposition.
+    apply (nat_trans_ax (pr1 α_A) ((a, I_A), U x) ((a, U I), U x) (make_dirprod (make_dirprod (id a) ϵ) (id U x))). }
+  simpl.
+  eapply pathscomp0.
+  { rewrite assoc'. apply maponpaths. apply pathsinv0.
+    apply functor_comp. }
+  unfold compose at 2. simpl. unfold make_dirprod. rewrite id_left.
+  (* UniMath.MoreFoundations.Tactics.show_id_type.
+     unfold functor_fix_snd_arg_ob in TYPE. *)
+  pose (unitality_U := pr2 (pr2 (pr2 (pr2 (pr1 U))))).
+  rewrite assoc.
+  eapply pathscomp0.
+  - apply maponpaths.
+    eapply (maponpaths (fun u:pr1 Mon_A⟦I_A ⊗_A (U x), U x⟧ => # (pr1 (pr2 Mon_A)) (id a #, u))).
     apply pathsinv0.
-    intermediate_path (# tensor_A ((# tensor_A (id a #, ϵ_inv)) #, id U x) · # tensor_A (pr1 ρ_A a #, id U x)).
-    + rewrite <- functor_comp.
-      apply idpath.
-    + pose (ϵ := pr1 (pr2 (pr1 U))).
-      pose (f := # tensor_A (# tensor_A (id a #, ϵ) #, id U x)).
-      apply (pre_comp_with_iso_is_inj _ _ _ _ f).
-      * use is_iso_tensor_iso.
-        -- use is_iso_tensor_iso.
-           ++ exact (identity_is_iso _ _).
-           ++ exact (pr1 (pr2 U)).
-        -- exact (identity_is_iso _ _).
-      * rewrite assoc.
-        intermediate_path (# tensor_A (pr1 ρ_A a #, id U x)).
-        -- apply pathsinv0. eapply pathscomp0.
-           ++ apply (!(id_left _)).
-           ++ apply cancel_postcomposition.
-              unfold f.
-              rewrite <- functor_comp.
-              apply pathsinv0. apply functor_id_id.
-              apply pathsdirprod; simpl.
-              ** eapply pathscomp0.
-                 --- apply pathsinv0. apply functor_comp.
-                 --- apply functor_id_id.
-                     apply pathsdirprod; simpl.
-                     +++ apply id_left.
-                     +++ apply pathsinv0. apply iso_inv_on_left.
-                         rewrite id_left. apply idpath.
-              ** apply id_left.
-        -- (* UniMath.MoreFoundations.Tactics.show_id_type.
-           unfold functor_fix_snd_arg_ob in TYPE. *)
-           rewrite assoc.
-           apply pathsinv0. eapply pathscomp0.
-           ++ apply cancel_postcomposition.
-              apply (nat_trans_ax (pr1 α_A) ((a, I_A), U x) ((a, U I), U x) (make_dirprod (make_dirprod (id a) ϵ) (id U x))).
-           ++ simpl.
-              eapply pathscomp0.
-              ** rewrite assoc'. apply maponpaths. apply pathsinv0.
-                 apply functor_comp.
-              ** unfold compose at 2. simpl. unfold make_dirprod. rewrite id_left.
-                 (* UniMath.MoreFoundations.Tactics.show_id_type.
-                 unfold functor_fix_snd_arg_ob in TYPE. *)
-                 pose (unitality_U := pr2 (pr2 (pr2 (pr2 (pr1 U))))).
-                 rewrite assoc.
-                 eapply pathscomp0.
-                 --- apply maponpaths.
-                     eapply (maponpaths (fun u:pr1 Mon_A⟦I_A ⊗_A (U x), U x⟧ => # (pr1 (pr2 Mon_A)) (id a #, u))).
-                     apply pathsinv0.
-                     apply (pr1 (unitality_U x)).
-                 --- fold λ_A.
-                     (* UniMath.MoreFoundations.Tactics.show_id_type.
-                     unfold functor_fix_snd_arg_ob in TYPE. *)
-                     pose (triangle_A := pr1 (monoidal_precat_eq Mon_A)).
-                     apply pathsinv0.
-                     apply triangle_A.
+    apply (pr1 (unitality_U x)).
+  - fold λ_A.
+    (* UniMath.MoreFoundations.Tactics.show_id_type.
+       unfold functor_fix_snd_arg_ob in TYPE. *)
+    pose (triangle_A := pr1 (monoidal_precat_eq Mon_A)).
+    apply pathsinv0.
+    apply triangle_A.
 Qed.
 
-(** the following is a hole in the development *)
-Context
-  {U_action_plaw : action_pentagon_eq (A := pr1 U_action_struct)
+Definition U_action_plaw : action_pentagon_eq (A := pr1 U_action_struct)
                                       (pr1 (pr2 U_action_struct))
-                                      (pr1 (pr2 (pr2 (pr2 U_action_struct))))}.
+                                      (pr1 (pr2 (pr2 (pr2 U_action_struct)))).
+Proof.
+  red.
+  intros.
+  simpl.
+  unfold nat_trans_data_post_whisker_fst_param.
+  unfold ob1, ob2.
+  simpl.
+  pose (μ := pr1 (pr2 (pr2 (pr1 U)))).
+  fold μ.
+  rewrite functor_id.
+  apply pathsinv0. eapply pathscomp0.
+  { repeat rewrite assoc'.
+    apply maponpaths.
+    apply maponpaths.
+    apply pathsinv0.
+    apply functor_comp.
+  }
+  unfold compose at 4. simpl. unfold make_dirprod.
+  rewrite id_left.
+  eapply pathscomp0.
+  { rewrite assoc.
+    apply cancel_postcomposition.
+    apply cancel_postcomposition.
+    rewrite <- (id_left (id U z)).
+    intermediate_path (# tensor_A ((pr1 (pr1 α_A) ((a, U x), U y) #, id U z) · (# tensor_A (id a #, pr1 μ (x, y)) #, id U z))).
+    - apply idpath.
+    - apply functor_comp.
+  }
+  eapply pathscomp0.
+  { apply cancel_postcomposition.
+    rewrite assoc'.
+    apply maponpaths.
+    apply (nat_trans_ax (pr1 α_A) ((a, U x ⊗_A U y), U z) ((a, U (x ⊗ y)), U z) (make_dirprod (make_dirprod (id a) (pr1 μ (x, y))) (id U z))).
+  }
+  eapply pathscomp0.
+  { unfold assoc_right. simpl.
+    rewrite assoc'.
+    apply maponpaths.
+    rewrite assoc'.
+    apply maponpaths.
+    apply pathsinv0.
+    apply functor_comp.
+  }
+  unfold compose at 3. simpl. unfold make_dirprod.
+  rewrite id_left.
+  pose (assoc_U := pr1 (pr2 (pr2 (pr2 (pr1 U))))).
+  eapply pathscomp0.
+  { do 2 apply maponpaths.
+    rewrite assoc.
+    (* UniMath.MoreFoundations.Tactics.show_id_type. *)
+    eapply (maponpaths (fun u: A ⟦ (U x ⊗_A U y) ⊗_A U z, U (x ⊗ (y ⊗ z))⟧ => id a  #⊗_A u)).
+    apply assoc_U.
+  }
+  fold α_A. fold tensor_A. fold tensor. fold μ.
+  eapply pathscomp0.
+  { rewrite assoc. apply maponpaths.
+    rewrite assoc'.
+    rewrite <- (id_left (id a)).
+    intermediate_path (# tensor_A ((id a #, pr1 α_A ((pr1 (pr1 U) x, pr1 (pr1 U) y), pr1 (pr1 U) z)) · (id a #, # tensor_A (id pr1 (pr1 U) x #, pr1 μ (y, z)) · pr1 μ (x, y ⊗ z)))).
+    2: { apply functor_comp. }
+    apply idpath.
+  }
+  eapply pathscomp0.
+  { do 2 apply maponpaths.
+    rewrite <- (id_left (id a)).
+    intermediate_path (# tensor_A ((id a #, # tensor_A (id pr1 (pr1 U) x #, pr1 μ (y, z))) · (id a #, pr1 μ (x, y ⊗ z)))).
+    2: { apply functor_comp. }
+    apply idpath.
+  }
+  repeat rewrite assoc.
+  apply cancel_postcomposition.
+  pose (pentagon_A := pr2 (monoidal_precat_eq Mon_A)).
+  eapply pathscomp0.
+  { apply cancel_postcomposition.
+    apply pathsinv0.
+    apply pentagon_A.
+  }
+  change (pr1 α_A ((tensor_A (a, U x), U y), U z) · pr1 α_A ((a, U x), tensor_A (U y, U z))
+  · # tensor_A (id a #, # tensor_A (id U x #, pr1 μ (y, z))) =
+  pr1 α_A ((a ⊗_A U x, U y), U z) · # tensor_A (id (a ⊗_A U x) #, pr1 μ (y, z))
+      · pr1 α_A ((a, U x), U (y ⊗ z))).
+  repeat rewrite assoc'.
+  apply maponpaths.
+  eapply pathscomp0.
+  { apply pathsinv0.
+    apply (nat_trans_ax (pr1 α_A) ((a, U x), U y ⊗_A U z) ((a, U x), U (y ⊗ z)) (make_dirprod (make_dirprod (id a) (id U x)) (pr1 μ (y, z)))).
+  }
+  simpl. unfold make_dirprod.
+  apply cancel_postcomposition.
+  change (# tensor_A (# tensor_A (id (a, U x)) #, pr1 μ (y, z)) = # tensor_A (id (a ⊗_A U x) #, pr1 μ (y, z))).
+  rewrite functor_id.
+  apply idpath.
+Qed.
 
 Definition U_action : action.
   exists (pr1 U_action_struct).

@@ -187,9 +187,8 @@ Section Relative_Strength_Is_A_Strength.
 
   Let U' := swapping_of_strong_monoidal_functor U.
 
-  (* impossible because of hole in construction of U_action
+(* instantiate the new construction U_action including the proofs of the laws *)
   Let UAct := U_action Mon_W' Mon_V' U'.
-   *)
 
 (* TO BE CONTINUED *)
 
