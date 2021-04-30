@@ -2,6 +2,8 @@
   Definition of tensorial strengths between actions over monoidal categories.
 
   Based on the definitions in the paper "Second-Order and Dependently-Sorted Abstract Syntax" by Marcelo Fiore.
+
+  To distinguish this from less general approaches, we will speak of action-based strength.
 **)
 
 Require Import UniMath.Foundations.PartD.
@@ -26,7 +28,7 @@ Let I := monoidal_precat_unit Mon_V.
 Let tensor := monoidal_precat_tensor Mon_V.
 Notation "X ⊗ Y" := (tensor (X , Y)).
 
-Section Strengths_Definition.
+Section ActionBasedStrengths_Definition.
 
 Context (actn actn' : action Mon_V).
 
@@ -40,7 +42,7 @@ Let ϱ' := pr1 (pr2 (pr2 actn')).
 
 Let χ' := pr1 (pr2 (pr2 (pr2 actn'))).
 
-Section Strengths_Natural_Transformation.
+Section ActionBasedStrengths_Natural_Transformation.
 
 Context (F : A ⟶ A').
 
@@ -85,7 +87,7 @@ Definition strength_pentagon_eq_variant2 (ϛ : strength_nat): UU := ∏ (a : A),
   (nat_iso_to_trans_inv χ' ((F a, x), y)) · (pr1 ϛ (a, x)) #⊙' (id y) · (pr1 ϛ (a ⊙ x, y)).
 
 
-End Strengths_Natural_Transformation.
+End ActionBasedStrengths_Natural_Transformation.
 
 Definition strength (F : A ⟶ A'): UU := ∑ (ϛ : strength_nat F),
   (strength_triangle_eq F ϛ) × (strength_pentagon_eq F ϛ).
@@ -97,7 +99,7 @@ Definition strength_variant2 (F : A ⟶ A'): UU := ∑ (ϛ : strength_nat F),
   (strength_triangle_eq F ϛ) × (strength_pentagon_eq_variant2 F ϛ).
 
 
-End Strengths_Definition.
+End ActionBasedStrengths_Definition.
 
 (*
   The standard tensorial strength:
@@ -128,7 +130,7 @@ Section B.
   Let phi := pr1 (pr2 (pr2 (pr1 U))).
   Let phiinv := nat_iso_to_trans_inv (make_nat_iso _ _ phi (pr2 (pr2 U))).
 
-Section Relative_Strengths_Natural_Transformation.
+Section RelativeStrengths_Natural_Transformation.
   Context (F: functor V V).
 
   Notation "X ⊗V Y" := (timesV (X , Y)) (at level 31).
@@ -166,40 +168,38 @@ Section Relative_Strengths_Natural_Transformation.
   (phiinv (w, w') #⊗V (identity (F v))) · (pr1 alpha ((U w, U w'), F v)) ·
                                         ((identity (U w)) #⊗V pr1 ϛ (w', v)) · ( pr1 ϛ (w, U w' ⊗V v)).
 
-End Relative_Strengths_Natural_Transformation.
+End RelativeStrengths_Natural_Transformation.
 
 Definition rel_strength (F : V ⟶ V): UU :=
   ∑ (ϛ : rel_strength_nat F), (rel_strength_pentagon_eq F ϛ) × (rel_strength_rectangle_eq F ϛ).
 
 
-Section Relative_Strength_Is_A_Strength.
+Section RelativeStrength_Is_An_ActionBasedStrength.
 
   Context (F: functor V V).
   Context (str: rel_strength F).
 
-  Let ϛ := pr1 str.
-  Let pentagon := pr1 (pr2 str).
-  Let rectangle := pr2 (pr2 str).
+  Local Definition ϛ := pr1 str.
+  Local Definition pentagon := pr1 (pr2 str).
+  Local Definition rectangle := pr2 (pr2 str).
 
-  Let Mon_W' := swapping_of_monoidal_precat Mon_W.
-  Let timesW' := monoidal_precat_tensor Mon_W'.
-  Let Mon_V' := swapping_of_monoidal_precat Mon_V.
-  Let timesV' := monoidal_precat_tensor Mon_V'.
+  Local Definition Mon_W' := swapping_of_monoidal_precat Mon_W.
+  Local Definition timesW' := monoidal_precat_tensor Mon_W'.
+  Local Definition Mon_V' := swapping_of_monoidal_precat Mon_V.
+  Local Definition timesV' := monoidal_precat_tensor Mon_V'.
 
-  Let U' := swapping_of_strong_monoidal_functor U: strong_monoidal_functor Mon_W' Mon_V'.
+  Local Definition U' := swapping_of_strong_monoidal_functor U: strong_monoidal_functor Mon_W' Mon_V'.
 
-  Let UAct := U_action Mon_W' Mon_V' U': action Mon_W'.
+  Local Definition UAct := U_action Mon_W' Mon_V' U': action Mon_W'.
 
-  Let ϛ' := pre_whisker binswap_pair_functor ϛ.
+  Local Definition ϛ' := pre_whisker binswap_pair_functor ϛ.
 
 Definition strength_from_relative_strength: strength_variant2 Mon_W' UAct UAct F.
 Proof.
   exists ϛ'.
   use tpair.
   - red.
-    simpl.
-    unfold nat_trans_from_functor_fix_snd_morphism_arg_data.
-    unfold make_dirprod.
+    cbn.
     intro v.
     unfold Mon_V'.
     unfold Mon_W'.
@@ -212,28 +212,24 @@ Proof.
     rewrite <- pentagon.
     rewrite assoc'. rewrite functor_comp.
     apply idpath.
-  - simpl.
+  - cbn.
     red.
     intros v w' w.
     unfold ϛ'.
-    unfold Mon_V'.
     unfold Mon_W'.
     unfold swapping_of_monoidal_precat.
-    simpl.
-    unfold nat_trans_data_post_whisker_fst_param.
-    simpl.
+    cbn.
     unfold U'.
 (* we now have to abstract away from knowledge of being iso
-
-
+   U_action_χ_is_nat_iso is opaque!
     unfold swapping_of_strong_monoidal_functor. unfold swapping_of_lax_monoidal_functor.
     simpl.
  *)
-Admitted.
+Abort.
 
 (* TO BE CONTINUED *)
 
 
-End Relative_Strength_Is_A_Strength.
+End RelativeStrength_Is_An_ActionBasedStrength.
 
 End B.
