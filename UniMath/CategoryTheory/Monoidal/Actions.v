@@ -84,7 +84,7 @@ End Actions_Natural_Transformations.
 (* Action over a monoidal category. *)
 Definition action : UU := ∑ A : precategory, ∑ (odot : A ⊠ V ⟶ A), ∑ (ϱ : action_right_unitor odot), ∑ (χ : action_convertor odot), (action_triangle_eq odot ϱ χ) × (action_pentagon_eq odot χ).
 
-Definition action_struct : UU := ∑ A : precategory, ∑ (odot : A ⊠ V ⟶ A), ∑ (ϱ : action_right_unitor odot), ∑ (χ : action_convertor odot), unit.
+(* Definition action_struct : UU := ∑ A : precategory, ∑ (odot : A ⊠ V ⟶ A), ∑ (ϱ : action_right_unitor odot), ∑ (χ : action_convertor odot), unit. *)
 
 End Actions_Definition.
 
@@ -105,14 +105,23 @@ Context (Mon_A : monoidal_precat).
 
 Let A := monoidal_precat_precat Mon_A.
 Let I_A := monoidal_precat_unit Mon_A.
-Let tensor_A := monoidal_precat_tensor Mon_A.
+Local Definition tensor_A := monoidal_precat_tensor Mon_A.
 Notation "X ⊗_A Y" := (tensor_A (X , Y)) (at level 31).
 Notation "f #⊗_A g" := (#tensor_A (f #, g)) (at level 31).
 Let α_A := monoidal_precat_associator Mon_A.
 Let λ_A := monoidal_precat_left_unitor Mon_A.
 Let ρ_A := monoidal_precat_right_unitor Mon_A.
+Local Definition triangle_eq_A := pr1 (monoidal_precat_eq Mon_A).
+Local Definition pentagon_eq_A := pr2 (monoidal_precat_eq Mon_A).
+
 
 Context (U : strong_monoidal_functor Mon_V Mon_A).
+Local Definition ϵ := pr1 (pr2 (pr1 U)).
+Local Definition ϵ_U_is_iso := pr1 (pr2 U).
+Local Definition ϵ_inv := inv_from_iso (make_iso _ ϵ_U_is_iso).
+Local Definition μ := pr1 (pr2 (pr2 (pr1 U))).
+Local Definition unitality_U := pr2 (pr2 (pr2 (pr2 (pr1 U)))).
+Local Definition assoc_U := pr1 (pr2 (pr2 (pr2 (pr1 U)))).
 
 Definition otimes_U_functor : A ⊠ V ⟶ A := functor_composite (pair_functor (functor_identity _) U) tensor_A.
 
@@ -125,7 +134,6 @@ Qed.
 Definition U_action_ρ_nat_trans : odot_I_functor otimes_U_functor ⟹ functor_identity A.
   refine (nat_trans_comp _ _ _ _  (pr1 ρ_A)).
   unfold odot_I_functor.
-  pose (ϵ_inv := inv_from_iso (make_iso _ (pr1 (pr2 U)))).
   set (aux := nat_trans_from_functor_fix_snd_morphism_arg _ _ _ tensor_A _ _ ϵ_inv).
   (* aux is "morally" the result, but types do not fully agree, hence we argue more extensionally *)
   use tpair.
@@ -138,8 +146,7 @@ Definition U_action_ρ_nat_trans : odot_I_functor otimes_U_functor ⟹ functor_i
     exact (pr2 aux a a' f).
 Defined.
 
-Lemma U_action_ρ_nat_trans_ok: nat_trans_data_from_nat_trans U_action_ρ_nat_trans =
- let ϵ_inv := inv_from_iso (make_iso _ (pr1 (pr2 U))) in λ x, id x #⊗_A ϵ_inv · pr1 ρ_A x.
+Lemma U_action_ρ_nat_trans_ok: nat_trans_data_from_nat_trans U_action_ρ_nat_trans = λ x, id x #⊗_A ϵ_inv · pr1 ρ_A x.
 Proof.
   apply idpath.
 Qed.
@@ -160,7 +167,6 @@ Definition U_action_ρ : action_right_unitor otimes_U_functor := make_nat_iso _ 
 Definition U_action_χ_nat_trans : odot_x_odot_y_functor otimes_U_functor ⟹ odot_x_otimes_y_functor otimes_U_functor.
 Proof.
   apply (nat_trans_comp _ _ _ (pre_whisker (pair_functor (pair_functor (functor_identity _) U) U) (pr1 α_A))).
-  pose (μ := pr1 (pr2 (pr2 (pr1 U)))).
   exact (pre_whisker (precategory_binproduct_unassoc _ _ _) (post_whisker_fst_param μ tensor_A)).
 Defined.
 
@@ -188,6 +194,7 @@ Qed.
 Definition U_action_χ : action_convertor otimes_U_functor :=
   make_nat_iso _ _ U_action_χ_nat_trans U_action_χ_is_nat_iso.
 
+(*
 Definition U_action_struct : action_struct.
 Proof.
   exists A.
@@ -197,24 +204,18 @@ Proof.
   exists U_action_χ.
   exact tt.
 Defined.
+*)
 
-Definition U_action_tlaw : action_triangle_eq (A := pr1 U_action_struct)
-                                      (pr1 (pr2 U_action_struct))
-                                      (pr1 (pr2 (pr2 U_action_struct)))
-                                      (pr1 (pr2 (pr2 (pr2 U_action_struct)))).
+Definition U_action_tlaw : action_triangle_eq (A := A) otimes_U_functor U_action_ρ U_action_χ.
 Proof.
   red.
   intros.
   simpl.
-  pose (ϵ_inv := inv_from_iso (make_iso _ (pr1 (pr2 U)))).
   unfold nat_trans_from_functor_fix_snd_morphism_arg_data.
   unfold nat_trans_data_post_whisker_fst_param.
   simpl.
-  fold ϵ_inv.
   unfold make_dirprod.
   rewrite functor_id.
-  pose (μ := pr1 (pr2 (pr2 (pr1 U)))).
-  fold μ.
   (* UniMath.MoreFoundations.Tactics.show_id_type.
   unfold functor_fix_snd_arg_ob in TYPE.
   simpl in TYPE. *)
@@ -227,13 +228,12 @@ Proof.
   intermediate_path (# tensor_A ((# tensor_A (id a #, ϵ_inv)) #, id U x) · # tensor_A (pr1 ρ_A a #, id U x)).
   { rewrite <- functor_comp.
     apply idpath. }
-  pose (ϵ := pr1 (pr2 (pr1 U))).
   pose (f := # tensor_A (# tensor_A (id a #, ϵ) #, id U x)).
   apply (pre_comp_with_iso_is_inj _ _ _ _ f).
   { use is_iso_tensor_iso.
     - use is_iso_tensor_iso.
       + exact (identity_is_iso _ _).
-      + exact (pr1 (pr2 U)).
+      + exact ϵ_U_is_iso.
     - exact (identity_is_iso _ _).
   }
   rewrite assoc.
@@ -267,24 +267,20 @@ Proof.
   unfold compose at 2. simpl. unfold make_dirprod. rewrite id_left.
   (* UniMath.MoreFoundations.Tactics.show_id_type.
      unfold functor_fix_snd_arg_ob in TYPE. *)
-  pose (unitality_U := pr2 (pr2 (pr2 (pr2 (pr1 U))))).
   rewrite assoc.
   eapply pathscomp0.
   - apply maponpaths.
-    eapply (maponpaths (fun u:pr1 Mon_A⟦I_A ⊗_A (U x), U x⟧ => # (pr1 (pr2 Mon_A)) (id a #, u))).
+    eapply (maponpaths (fun u: pr1 Mon_A ⟦I_A ⊗_A (U x), U x⟧ => # tensor_A (id a #, u))).
     apply pathsinv0.
     apply (pr1 (unitality_U x)).
   - fold λ_A.
     (* UniMath.MoreFoundations.Tactics.show_id_type.
        unfold functor_fix_snd_arg_ob in TYPE. *)
-    pose (triangle_A := pr1 (monoidal_precat_eq Mon_A)).
     apply pathsinv0.
-    apply triangle_A.
+    apply triangle_eq_A.
 Qed.
 
-Definition U_action_plaw : action_pentagon_eq (A := pr1 U_action_struct)
-                                      (pr1 (pr2 U_action_struct))
-                                      (pr1 (pr2 (pr2 (pr2 U_action_struct)))).
+Definition U_action_plaw : action_pentagon_eq (A := A) otimes_U_functor U_action_χ.
 Proof.
   red.
   intros.
@@ -292,8 +288,6 @@ Proof.
   unfold nat_trans_data_post_whisker_fst_param.
   unfold ob1, ob2.
   simpl.
-  pose (μ := pr1 (pr2 (pr2 (pr1 U)))).
-  fold μ.
   rewrite functor_id.
   apply pathsinv0. eapply pathscomp0.
   { repeat rewrite assoc'.
@@ -330,12 +324,11 @@ Proof.
   }
   unfold compose at 3. simpl. unfold make_dirprod.
   rewrite id_left.
-  pose (assoc_U := pr1 (pr2 (pr2 (pr2 (pr1 U))))).
   eapply pathscomp0.
   { do 2 apply maponpaths.
     rewrite assoc.
     (* UniMath.MoreFoundations.Tactics.show_id_type. *)
-    eapply (maponpaths (fun u: A ⟦ (U x ⊗_A U y) ⊗_A U z, U (x ⊗ (y ⊗ z))⟧ => id a  #⊗_A u)).
+    eapply (maponpaths (fun u: A ⟦(U x ⊗_A U y) ⊗_A U z, U (x ⊗ (y ⊗ z))⟧ => id a  #⊗_A u)).
     apply assoc_U.
   }
   fold α_A. fold tensor_A. fold tensor. fold μ.
@@ -343,7 +336,7 @@ Proof.
   { rewrite assoc. apply maponpaths.
     rewrite assoc'.
     rewrite <- (id_left (id a)).
-    intermediate_path (# tensor_A ((id a #, pr1 α_A ((pr1 (pr1 U) x, pr1 (pr1 U) y), pr1 (pr1 U) z)) · (id a #, # tensor_A (id pr1 (pr1 U) x #, pr1 μ (y, z)) · pr1 μ (x, y ⊗ z)))).
+    intermediate_path (# tensor_A ((id a #, pr1 α_A ((U x, U y), U z)) · (id a #, # tensor_A (id U x #, pr1 μ (y, z)) · pr1 μ (x, y ⊗ z)))).
     2: { apply functor_comp. }
     apply idpath.
   }
@@ -356,12 +349,12 @@ Proof.
   }
   repeat rewrite assoc.
   apply cancel_postcomposition.
-  pose (pentagon_A := pr2 (monoidal_precat_eq Mon_A)).
   eapply pathscomp0.
   { apply cancel_postcomposition.
     apply pathsinv0.
-    apply pentagon_A.
+    apply pentagon_eq_A.
   }
+  (* the goal has chains up to seven projections *)
   change (pr1 α_A ((tensor_A (a, U x), U y), U z) · pr1 α_A ((a, U x), tensor_A (U y, U z))
   · # tensor_A (id a #, # tensor_A (id U x #, pr1 μ (y, z))) =
   pr1 α_A ((a ⊗_A U x, U y), U z) · # tensor_A (id (a ⊗_A U x) #, pr1 μ (y, z))
@@ -374,16 +367,17 @@ Proof.
   }
   simpl. unfold make_dirprod.
   apply cancel_postcomposition.
+  (* present the identity in the binary product of categories *)
   change (# tensor_A (# tensor_A (id (a, U x)) #, pr1 μ (y, z)) = # tensor_A (id (a ⊗_A U x) #, pr1 μ (y, z))).
   rewrite functor_id.
   apply idpath.
 Qed.
 
 Definition U_action : action.
-  exists (pr1 U_action_struct).
-  exists (pr1 (pr2 U_action_struct)).
-  exists (pr1 (pr2 (pr2 U_action_struct))).
-  exists (pr1 (pr2 (pr2 (pr2 U_action_struct)))).
+  exists A.
+  exists otimes_U_functor.
+  exists U_action_ρ.
+  exists U_action_χ.
   exists U_action_tlaw.
   exact U_action_plaw.
 Defined.
