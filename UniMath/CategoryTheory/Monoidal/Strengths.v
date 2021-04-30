@@ -10,6 +10,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Actions.
@@ -185,10 +186,50 @@ Section Relative_Strength_Is_A_Strength.
   Let Mon_V' := swapping_of_monoidal_precat Mon_V.
   Let timesV' := monoidal_precat_tensor Mon_V'.
 
-  Let U' := swapping_of_strong_monoidal_functor U.
+  Let U' := swapping_of_strong_monoidal_functor U: strong_monoidal_functor Mon_W' Mon_V'.
 
-(* instantiate the new construction U_action including the proofs of the laws *)
-  Let UAct := U_action Mon_W' Mon_V' U'.
+  Let UAct := U_action Mon_W' Mon_V' U': action Mon_W'.
+
+  Let ϛ' := pre_whisker binswap_pair_functor ϛ.
+
+Definition strength_from_relative_strength: strength_variant2 Mon_W' UAct UAct F.
+Proof.
+  exists ϛ'.
+  use tpair.
+  - red.
+    simpl.
+    unfold nat_trans_from_functor_fix_snd_morphism_arg_data.
+    unfold make_dirprod.
+    intro v.
+    unfold Mon_V'.
+    unfold Mon_W'.
+    unfold swapping_of_monoidal_precat.
+    simpl.
+    unfold monoidal_precat_unit, monoidal_precat_right_unitor.
+    simpl.
+    change (pr1 ϛ (E, v) · # F (# timesV (phiIinv #, id v) · pr1 lambda v) =
+            # timesV (phiIinv #, id F v) · pr1 lambda (F v)).
+    rewrite <- pentagon.
+    rewrite assoc'. rewrite functor_comp.
+    apply idpath.
+  - simpl.
+    red.
+    intros v w' w.
+    unfold ϛ'.
+    unfold Mon_V'.
+    unfold Mon_W'.
+    unfold swapping_of_monoidal_precat.
+    simpl.
+    unfold nat_trans_data_post_whisker_fst_param.
+    simpl.
+    unfold U'.
+(* we now have to abstract away from knowledge of being iso
+
+
+    unfold swapping_of_strong_monoidal_functor. unfold swapping_of_lax_monoidal_functor.
+    simpl.
+ *)
+Admitted.
 
 (* TO BE CONTINUED *)
 
