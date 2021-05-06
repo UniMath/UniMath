@@ -168,10 +168,24 @@ Section RelativeStrengths_Natural_Transformation.
   (phiinv (w, w') #⊗V (identity (F v))) · (pr1 alpha ((U w, U w'), F v)) ·
                                         ((identity (U w)) #⊗V pr1 ϛ (w', v)) · ( pr1 ϛ (w, U w' ⊗V v)).
 
+  Definition rel_strength_rectangle_eq_with_given_inverse
+  (gphiinv: monoidal_functor_map_codom Mon_W Mon_V (pr1 (pr1 U))
+                                       ⟹ monoidal_functor_map_dom Mon_W Mon_V (pr1 (pr1 U)))
+  (ϛ : rel_strength_nat): UU := ∏ (w w' : W), ∏ (v : V),
+  ( pr1 ϛ (w •W w', v) ) · (#F (gphiinv (w, w') #⊗V (identity v))) · (#F (pr1 alpha ((U w, U w'), v))) =
+  (gphiinv (w, w') #⊗V (identity (F v))) · (pr1 alpha ((U w, U w'), F v)) ·
+                                        ((identity (U w)) #⊗V pr1 ϛ (w', v)) · ( pr1 ϛ (w, U w' ⊗V v)).
+
 End RelativeStrengths_Natural_Transformation.
 
 Definition rel_strength (F : V ⟶ V): UU :=
   ∑ (ϛ : rel_strength_nat F), (rel_strength_pentagon_eq F ϛ) × (rel_strength_rectangle_eq F ϛ).
+
+Definition rel_strength_with_chosen_inverse (F : V ⟶ V): UU :=
+  ∑ (ϛ : rel_strength_nat F), (rel_strength_pentagon_eq F ϛ) ×
+      ∑ (gphiinv: monoidal_functor_map_codom Mon_W Mon_V (pr1 (pr1 U))
+                                             ⟹ monoidal_functor_map_dom Mon_W Mon_V (pr1 (pr1 U))),
+  (rel_strength_rectangle_eq_with_given_inverse F gphiinv ϛ).
 
 
 Section RelativeStrength_Is_An_ActionBasedStrength.
@@ -189,12 +203,13 @@ Section RelativeStrength_Is_An_ActionBasedStrength.
   Local Definition timesV' := monoidal_precat_tensor Mon_V'.
 
   Local Definition U' := swapping_of_strong_monoidal_functor U: strong_monoidal_functor Mon_W' Mon_V'.
+  Local Definition phiinv' := pre_whisker binswap_pair_functor phiinv.
 
   Local Definition UAct := U_action Mon_W' Mon_V' U': action Mon_W'.
 
   Local Definition ϛ' := pre_whisker binswap_pair_functor ϛ.
 
-Definition strength_from_relative_strength: strength_variant2 Mon_W' UAct UAct F.
+Definition strength_from_relative_strength: strength Mon_W' UAct UAct F.
 Proof.
   exists ϛ'.
   use tpair.
@@ -215,6 +230,8 @@ Proof.
   - cbn.
     red.
     intros v w' w.
+    assert (pr1 (pr1 (pr2 (pr2 (pr2 UAct)))) ((F v, w'), w) = pr1 (pr1 (pr2 (pr2 (pr2 UAct)))) ((F v, w'), w)).
+    cbn. (* where the hell is inv_from_iso in this part? *)
     unfold ϛ'.
     unfold Mon_W'.
     unfold swapping_of_monoidal_precat.
