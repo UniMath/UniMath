@@ -854,7 +854,7 @@ Section DisplayedInserter.
       rewrite !rwhisker_vcomp.
       apply maponpaths.
       exact (!hα).
-      Time Qed.
+  Qed.
 
   Definition disp_inserter_ops_laws
     : disp_prebicat_laws (_ ,, disp_inserter_ops).
@@ -875,4 +875,466 @@ Section DisplayedInserter.
        apply C).
   Defined.
 
+  (** Some properties of the displayed inserter *)
+  Definition disp_inserter_locally_propositional
+    : disp_2cells_isaprop disp_inserter_bicat.
+  Proof.
+    intro ; intros.
+    apply C.
+  Qed.
+
+  Definition disp_inserter_locally_sym
+    : disp_locally_sym disp_inserter_bicat.
+  Proof.
+    intros x y f g α fx fy αf βg hα ; simpl in * ; red in *.
+    use vcomp_move_L_Mp.
+    {
+      is_iso.
+      refine (psfunctor_is_iso G ((_ ^-1) ,, _)).
+      is_iso.
+    }
+    simpl.
+    rewrite !vassocl.
+    use vcomp_move_R_pM.
+    {
+      is_iso.
+      refine (psfunctor_is_iso F ((_ ^-1) ,, _)).
+      is_iso.
+    }
+    simpl.
+    rewrite hα.
+    reflexivity.
+  Qed.
+
+  Definition disp_inserter_locally_groupoidal
+    : disp_locally_groupoid disp_inserter_bicat.
+  Proof.
+    use make_disp_locally_groupoid.
+    - exact disp_inserter_locally_sym.
+    - exact disp_inserter_locally_propositional.
+  Defined.
+
+  (** Local univalence *)
+  Definition disp_inserter_bicat_univalent_2_1
+    : disp_univalent_2_1 disp_inserter_bicat.
+  Proof.
+    apply fiberwise_local_univalent_is_univalent_2_1.
+    intros x y f fx fy αf βg.
+    apply isweqimplimpl.
+    - cbn ; unfold idfun.
+      intro p.
+      pose (pr1 p) as h.
+      cbn in h.
+      unfold disp_inserter_disp_cat_2cell in h.
+      rewrite !psfunctor_id2 in h.
+      rewrite id2_rwhisker, lwhisker_id2 in h.
+      rewrite id2_left, id2_right in h.
+      exact (!h).
+    - cbn -[isaprop] ; unfold idfun.
+      apply C.
+    - apply isaproptotal2.
+      + exact isaprop_is_disp_invertible_2cell.
+      + intros.
+        apply disp_inserter_locally_propositional.
+  Qed.
+
+  (** Global univalence *)
+  Section DispAdjEquivToInv2Cell.
+    Context {x : B}
+            {fx fy : disp_inserter_bicat x}
+            (α : disp_adjoint_equivalence
+                   (internal_adjoint_equivalence_identity x)
+                   fx fy).
+
+    Definition disp_adjequiv_to_inv2cell_cell
+      : fx ==> fy
+      := linvunitor _
+         • (psfunctor_id F x ▹ fx)
+         • pr112 α
+         • (fy ◃ (psfunctor_id G _)^-1)
+         • runitor _.
+
+    Definition disp_adjequiv_to_inv2cell_inv
+      : fy ==> fx
+      := linvunitor _
+         • (psfunctor_id F x ▹ fy)
+         • pr1 α
+         • (fx ◃ (psfunctor_id G _)^-1)
+         • runitor _.
+
+    Definition disp_adjequiv_to_inv2cell_cell_inv
+      : disp_adjequiv_to_inv2cell_cell • disp_adjequiv_to_inv2cell_inv = id2 _.
+    Proof.
+      unfold disp_adjequiv_to_inv2cell_cell, disp_adjequiv_to_inv2cell_inv.
+      rewrite !vassocl.
+      use vcomp_move_R_pM ; is_iso.
+      use vcomp_move_R_pM ; is_iso.
+      {
+        apply psfunctor_id.
+      }
+      cbn -[psfunctor_id psfunctor_comp].
+      rewrite !vassocr.
+      use vcomp_move_R_Mp ; is_iso.
+      use vcomp_move_R_Mp ; is_iso.
+      cbn -[psfunctor_id psfunctor_comp].
+      rewrite !vassocl.
+      rewrite id2_left.
+
+
+
+      pose (pr1 (pr212 α)) as p.
+      cbn -[psfunctor_id psfunctor_comp] in p.
+      unfold disp_inserter_disp_cat_2cell in p.
+      rewrite !vassocr in p.
+      rewrite psfunctor_linvunitor in p.
+      rewrite !rwhisker_vcomp in p.
+      rewrite !vassocl in p.
+      rewrite vcomp_rinv in p.
+      rewrite id2_right in p.
+      rewrite psfunctor_linvunitor in p.
+      rewrite <- lwhisker_vcomp in p.
+      assert (p' := maponpaths (λ z, z • (fx ◃ (psfunctor_comp G _ _)^-1)) p).
+      cbn -[psfunctor_id psfunctor_comp] in p' ; clear p.
+      rewrite !vassocl in p'.
+      rewrite !lwhisker_vcomp in p'.
+      rewrite vcomp_rinv in p'.
+      rewrite lwhisker_id2 in p'.
+      rewrite !id2_right in p'.
+      rewrite <- rwhisker_vcomp in p'.
+      rewrite !vassocl in p'.
+      rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)) in p'.
+      rewrite rwhisker_rwhisker_alt in p'.
+      rewrite !vassocr in p'.
+      rewrite <- linvunitor_assoc in p'.
+      rewrite !vassocl in p'.
+      rewrite !(maponpaths (λ z, _ • z) (vassocr _ _ _)) in p'.
+      rewrite vcomp_whisker in p'.
+      rewrite !vassocl in p'.
+      rewrite !(maponpaths (λ z, _ • (_ • z)) (vassocr _ _ _)) in p'.
+      rewrite <- rwhisker_rwhisker in p'.
+      rewrite !vassocl in p'.
+
+      use (vcomp_rcancel (fx ◃ (linvunitor (# G (id₁ x)) • (psfunctor_id G x ▹ # G (id₁ x))))).
+      {
+        is_iso.
+        apply psfunctor_id.
+      }
+      rewrite !vassocl.
+      rewrite lwhisker_vcomp.
+      refine (_ @ p') ; clear p'.
+      refine (!_).
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite lwhisker_hcomp.
+        rewrite <- linvunitor_natural.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      apply maponpaths.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- vcomp_runitor.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      rewrite !vassocr.
+      rewrite <- vcomp_whisker.
+      rewrite !vassocl.
+      rewrite linvunitor_assoc.
+      rewrite !vassocl.
+      apply maponpaths.
+      refine (!_).
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite rassociator_lassociator.
+        rewrite id2_left.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      rewrite <- runitor_triangle.
+      rewrite !vassocl.
+      refine (!_).
+      etrans.
+      {
+        do 2 apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- vcomp_whisker.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      etrans.
+      {
+        apply maponpaths.
+        rewrite vassocr.
+        rewrite <- rwhisker_rwhisker_alt.
+        apply idpath.
+      }
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite <- vcomp_whisker.
+        apply idpath.
+      }
+      rewrite !vassocl.
+      apply maponpaths.
+      use vcomp_move_R_pM ; is_iso.
+      cbn -[psfunctor_id psfunctor_comp].
+      refine (!_).
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite <- vcomp_whisker.
+        rewrite !vassocl.
+        rewrite <- lwhisker_lwhisker_rassociator.
+        apply idpath.
+      }
+      refine (!_).
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite runitor_triangle.
+        rewrite <- vcomp_runitor.
+        apply idpath.
+      }
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite <- runitor_triangle.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite !lwhisker_vcomp.
+      apply maponpaths.
+
+      rewrite psfunctor_runitor.
+      rewrite !vassocl.
+      refine (_  @ id2_right _).
+      apply maponpaths.
+      use vcomp_move_R_pM.
+      {
+        apply psfunctor_comp.
+      }
+      cbn -[psfunctor_id psfunctor_comp].
+      rewrite id2_right.
+      refine (_  @ id2_left _).
+      use vcomp_move_L_Mp ; is_iso.
+      cbn -[psfunctor_id psfunctor_comp].
+      rewrite !vassocl.
+      rewrite (maponpaths (λ z, _ • z) (vassocr _ _ _)).
+      rewrite <- psfunctor_linvunitor.
+      rewrite <- psfunctor_vcomp.
+      rewrite runitor_lunitor_identity.
+      rewrite lunitor_linvunitor.
+      rewrite psfunctor_id2.
+      apply idpath.
+    Qed.
+
+    Definition disp_adjequiv_to_inv2cell_inv_cell
+      : disp_adjequiv_to_inv2cell_inv • disp_adjequiv_to_inv2cell_cell = id2 _.
+    Proof.
+      unfold disp_adjequiv_to_inv2cell_cell, disp_adjequiv_to_inv2cell_inv.
+
+      pose (pr2 (pr212 α)) as p.
+      cbn -[psfunctor_id psfunctor_comp] in p.
+      unfold disp_inserter_disp_cat_2cell in p.
+      rewrite !vassocr in p.
+
+    Admitted.
+
+    Definition disp_adjequiv_to_inv2cell
+      : invertible_2cell fx fy.
+    Proof.
+      use make_invertible_2cell.
+      - exact disp_adjequiv_to_inv2cell_cell.
+      - use make_is_invertible_2cell.
+        + exact disp_adjequiv_to_inv2cell_inv.
+        + exact disp_adjequiv_to_inv2cell_cell_inv.
+        + exact disp_adjequiv_to_inv2cell_inv_cell.
+    Defined.
+  End DispAdjEquivToInv2Cell.
+
+
+  Definition TODO {A : UU} : A.
+  Admitted.
+
+  Section Inv2CellToDispAdjEquiv.
+    Context {x : B}
+            {fx fy : disp_inserter_bicat x}
+            (α : invertible_2cell fx fy).
+
+    Definition inv2_cell_to_disp_adjequiv_left_adj
+      : # F (id₁ x) · fy ==> fx · # G (id₁ x)
+      := ((psfunctor_id F x)^-1 ▹ fy)
+           • lunitor _
+           • α^-1
+           • rinvunitor _
+           • (_ ◃ psfunctor_id G x).
+
+    Definition inv2_cell_to_disp_adjequiv_right_adj
+      : # F (id₁ x) · fx ==> fy · # G (id₁ x)
+      := ((psfunctor_id F x)^-1 ▹ fx)
+           • lunitor _
+           • α
+           • rinvunitor _
+           • (_ ◃ psfunctor_id G x).
+
+    Definition inv2_cell_to_disp_adjequiv
+      : disp_adjoint_equivalence
+          (internal_adjoint_equivalence_identity x)
+          fx fy.
+    Proof.
+      use tpair.
+      - exact inv2_cell_to_disp_adjequiv_left_adj.
+      - use tpair.
+        + use tpair.
+          * exact inv2_cell_to_disp_adjequiv_right_adj.
+          * split.
+            ** apply TODO.
+            ** apply TODO.
+        + abstract
+            (refine ((_ ,, _) ,, (_ ,, _)) ;
+             try apply C ;
+             apply disp_inserter_locally_groupoidal).
+    Defined.
+  End Inv2CellToDispAdjEquiv.
+
+  Definition inv2_cell_to_disp_adjequiv_weq_left
+             {x : B}
+             {fx fy : disp_inserter_bicat x}
+             (α : invertible_2cell fx fy)
+    : disp_adjequiv_to_inv2cell (inv2_cell_to_disp_adjequiv α) = α.
+  Proof.
+    use subtypePath.
+    {
+      intro.
+      apply isaprop_is_invertible_2cell.
+    }
+    cbn.
+    unfold disp_adjequiv_to_inv2cell_cell ; cbn -[psfunctor_id].
+    unfold inv2_cell_to_disp_adjequiv_right_adj.
+    rewrite !vassocl.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !vassocr.
+      rewrite rwhisker_vcomp.
+      rewrite vcomp_rinv.
+      rewrite id2_rwhisker.
+      rewrite id2_left.
+      apply idpath.
+    }
+    rewrite !vassocr.
+    rewrite linvunitor_lunitor.
+    rewrite id2_left.
+    rewrite !vassocl.
+    etrans.
+    {
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite lwhisker_vcomp.
+        rewrite vcomp_rinv.
+        rewrite lwhisker_id2.
+        apply id2_left.
+      }
+      apply rinvunitor_runitor.
+    }
+    apply id2_right.
+  Qed.
+
+  Definition inv2_cell_to_disp_adjequiv_weq_right
+             (HB : is_univalent_2_1 B)
+             {x : B}
+             {fx fy : disp_inserter_bicat x}
+             (α : disp_adjoint_equivalence
+                    (internal_adjoint_equivalence_identity x)
+                    fx fy)
+    : inv2_cell_to_disp_adjequiv (disp_adjequiv_to_inv2cell α) = α.
+  Proof.
+    use subtypePath.
+    {
+      intro.
+      apply isaprop_disp_left_adjoint_equivalence ; try exact HB.
+      exact disp_inserter_bicat_univalent_2_1.
+    }
+    simpl.
+    unfold disp_adjequiv_to_inv2cell, inv2_cell_to_disp_adjequiv_left_adj
+    ; cbn -[psfunctor_id].
+    unfold disp_adjequiv_to_inv2cell_inv.
+    rewrite !vassocl.
+    etrans.
+    {
+      apply maponpaths.
+      rewrite !vassocr.
+      rewrite lunitor_linvunitor.
+      rewrite id2_left.
+      rewrite !vassocl.
+      apply idpath.
+    }
+    rewrite !vassocr.
+    rewrite rwhisker_vcomp.
+    rewrite vcomp_linv.
+    rewrite id2_rwhisker.
+    rewrite id2_left.
+    rewrite !vassocl.
+    etrans.
+    {
+      do 2 apply maponpaths.
+      rewrite !vassocr.
+      rewrite runitor_rinvunitor.
+      apply id2_left.
+    }
+    rewrite lwhisker_vcomp.
+    rewrite vcomp_linv.
+    rewrite lwhisker_id2.
+    apply id2_right.
+  Qed.
+
+  Definition inv2_cell_to_disp_adjequiv_weq
+             {x : B}
+             (fx fy : disp_inserter_bicat x)
+    : invertible_2cell fx fy
+      ≃
+      disp_adjoint_equivalence
+        (internal_adjoint_equivalence_identity x)
+        fx fy.
+  Proof.
+    use make_weq.
+    - exact inv2_cell_to_disp_adjequiv.
+    - use gradth.
+      + exact disp_adjequiv_to_inv2cell.
+      + exact inv2_cell_to_disp_adjequiv_weq_left.
+      + exact inv2_cell_to_disp_adjequiv_weq_right.
+  Defined.
+
+  Definition disp_inserter_bicat_univalent_2_0
+             (HB : is_univalent_2_1 B)
+             (HC : is_univalent_2_1 C)
+    : disp_univalent_2_0 disp_inserter_bicat.
+  Proof.
+    apply fiberwise_univalent_2_0_to_disp_univalent_2_0.
+    intros x fx fy.
+    cbn ; unfold idfun.
+    use weqhomot.
+    - exact (inv2_cell_to_disp_adjequiv_weq fx fy
+             ∘ make_weq _ (HC (F x) (G x) fx fy))%weq.
+    - intros p.
+      induction p ; cbn.
+      use subtypePath.
+      + intro ; simpl.
+        apply (@isaprop_disp_left_adjoint_equivalence _ disp_inserter_bicat).
+        * exact HB.
+        * exact disp_inserter_bicat_univalent_2_1.
+      + simpl.
+        unfold inv2_cell_to_disp_adjequiv_left_adj.
+        cbn -[psfunctor_id].
+        rewrite !vassocl.
+        rewrite id2_left.
+        reflexivity.
+  Qed.
 End DisplayedInserter.
