@@ -1183,7 +1183,6 @@ Section DisplayedInserter.
         rewrite !vassocr.
         rewrite rwhisker_lwhisker_rassociator.
         rewrite !vassocl.
-        Search rassociator lunitor.
         rewrite lunitor_lwhisker.
         apply idpath.
       }
