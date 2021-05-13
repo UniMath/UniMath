@@ -1136,13 +1136,142 @@ Section DisplayedInserter.
       : disp_adjequiv_to_inv2cell_inv • disp_adjequiv_to_inv2cell_cell = id2 _.
     Proof.
       unfold disp_adjequiv_to_inv2cell_cell, disp_adjequiv_to_inv2cell_inv.
-
       pose (pr2 (pr212 α)) as p.
       cbn -[psfunctor_id psfunctor_comp] in p.
       unfold disp_inserter_disp_cat_2cell in p.
-      rewrite !vassocr in p.
+      rewrite !vassocr.
+      use vcomp_move_R_Mp ; is_iso.
+      use vcomp_move_R_Mp ; is_iso.
+      cbn -[psfunctor_id psfunctor_comp].
+      rewrite id2_left.
+      rewrite !vassocl.
+      use vcomp_move_R_pM ; is_iso.
+      use vcomp_move_R_pM.
+      {
+        is_iso.
+        apply psfunctor_id.
+      }
+      cbn -[psfunctor_id psfunctor_comp].
+      refine (vcomp_lcancel (## F (lunitor (id₁ x)) ▹ fy) _ _).
+      {
+        is_iso.
+        refine (psfunctor_is_iso _ (lunitor _ ,, _)).
+        is_iso.
+      }
+      rewrite !vassocl in p.
+      refine (_ @ !p) ; clear p.
+      rewrite psfunctor_F_lunitor.
+      rewrite <- !rwhisker_vcomp.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite psfunctor_F_lunitor.
+      rewrite lwhisker_vcomp.
+      refine (!_).
+      etrans.
+      {
+        do 5 apply maponpaths.
+        rewrite !vassocr.
+        rewrite vcomp_rinv.
+        rewrite id2_left.
+        apply idpath.
+      }
+      etrans.
+      {
+        do 4 apply maponpaths.
+        rewrite <- lwhisker_vcomp.
+        rewrite !vassocr.
+        rewrite rwhisker_lwhisker_rassociator.
+        rewrite !vassocl.
+        Search rassociator lunitor.
+        rewrite lunitor_lwhisker.
+        apply idpath.
+      }
+      use vcomp_move_R_pM ; is_iso.
+      cbn -[psfunctor_id psfunctor_comp].
+      refine (!_).
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite rwhisker_rwhisker.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite lunitor_triangle.
+        rewrite <- vcomp_lunitor.
+        apply idpath.
+      }
+      rewrite !vassocr.
+      rewrite vcomp_whisker.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite <- lunitor_triangle.
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite <- rwhisker_rwhisker.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      apply maponpaths.
+      rewrite !rwhisker_vcomp.
+      rewrite !vassocr.
+      rewrite rwhisker_vcomp.
+      rewrite !vassocl.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite <- vcomp_runitor.
+        rewrite !vassocr.
+        rewrite <- vcomp_whisker.
+        apply idpath.
+      }
+      rewrite !vassocr.
+      rewrite rwhisker_vcomp.
+      rewrite !vassocr.
+      etrans.
+      {
+        do 2 apply maponpaths_2.
+        apply maponpaths.
+        rewrite !vassocl.
+        etrans.
+        {
+          apply maponpaths.
+          rewrite !vassocr.
+          rewrite lunitor_linvunitor.
+          rewrite id2_left.
+          apply idpath.
+        }
+        rewrite !vassocr.
+        rewrite rwhisker_vcomp.
+        rewrite vcomp_linv.
+        rewrite id2_rwhisker.
+        apply id2_left.
+      }
+      rewrite !vassocl.
+      rewrite <- rwhisker_vcomp.
+      apply maponpaths.
+      rewrite <- rwhisker_vcomp.
 
-    Admitted.
+      rewrite <- lunitor_lwhisker.
+      rewrite <- runitor_triangle.
+      rewrite !vassocr.
+      rewrite <- lwhisker_lwhisker_rassociator.
+      rewrite <- rwhisker_lwhisker_rassociator.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite !lwhisker_vcomp.
+      apply maponpaths.
+      use vcomp_move_R_pM ; is_iso.
+      cbn -[psfunctor_id psfunctor_comp].
+      rewrite !vassocr.
+      rewrite <- vcomp_whisker.
+      rewrite !vassocl.
+      use vcomp_move_L_pM ; is_iso.
+      cbn -[psfunctor_id psfunctor_comp].
+      rewrite vcomp_lunitor, vcomp_runitor.
+      rewrite runitor_lunitor_identity.
+      apply idpath.
+    Qed.
 
     Definition disp_adjequiv_to_inv2cell
       : invertible_2cell fx fy.
@@ -1399,7 +1528,175 @@ Section DisplayedInserter.
         ==>[left_adjoint_counit (internal_adjoint_equivalence_identity x)]
         id_disp fy.
     Proof.
-    Admitted.
+      simpl ; cbn -[psfunctor_id psfunctor_comp] ; unfold disp_inserter_disp_cat_2cell.
+      unfold inv2_cell_to_disp_adjequiv_left_adj, inv2_cell_to_disp_adjequiv_right_adj.
+      cbn in fx, fy.
+      rewrite !vassocl.
+      use vcomp_move_L_pM ; is_iso.
+      cbn -[psfunctor_id psfunctor_comp].
+      refine (!_).
+      etrans.
+      {
+        etrans.
+        {
+          apply maponpaths.
+          apply maponpaths_2.
+          rewrite <- lwhisker_vcomp.
+          apply idpath.
+        }
+        rewrite !vassocr.
+        rewrite rwhisker_lwhisker_rassociator.
+        apply idpath.
+      }
+      rewrite !vassocl.
+      use vcomp_move_R_pM ; is_iso.
+      cbn -[psfunctor_id psfunctor_comp].
+      etrans.
+      {
+        rewrite lwhisker_vcomp.
+        do 3 apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- rwhisker_vcomp.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- rwhisker_lwhisker_rassociator.
+        rewrite !vassocl.
+        rewrite lwhisker_vcomp.
+        rewrite !vassocr.
+        rewrite <- psfunctor_lunitor.
+        apply idpath.
+        }
+      refine (!_).
+      etrans.
+      {
+        do 4 apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- vcomp_lunitor.
+        rewrite !vassocl.
+        rewrite <- vcomp_lunitor.
+        apply idpath.
+      }
+      etrans.
+      {
+        rewrite !vassocr.
+        rewrite !rwhisker_vcomp.
+        apply idpath.
+      }
+      rewrite !vassocl.
+      etrans.
+      {
+        apply maponpaths_2.
+        apply maponpaths.
+        rewrite psfunctor_F_lunitor.
+        etrans.
+        {
+          apply maponpaths.
+          rewrite !vassocr.
+          rewrite vcomp_rinv.
+          rewrite id2_left.
+          apply idpath.
+        }
+        rewrite !vassocl.
+        rewrite <- vcomp_lunitor.
+        rewrite !vassocr.
+        rewrite <- vcomp_whisker.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite lwhisker_vcomp.
+        rewrite vcomp_rinv.
+        rewrite lwhisker_id2.
+        apply id2_left.
+      }
+      rewrite <- rwhisker_vcomp.
+      rewrite !vassocl.
+      refine (!_).
+      etrans.
+      {
+        etrans.
+        {
+          apply maponpaths.
+          etrans.
+          {
+            apply maponpaths.
+            rewrite <- rwhisker_vcomp.
+            rewrite !vassocr.
+            rewrite rwhisker_rwhisker.
+            apply idpath.
+          }
+          rewrite !vassocr.
+          rewrite <- vcomp_whisker.
+          apply idpath.
+        }
+        rewrite !vassocr.
+        rewrite <- rwhisker_rwhisker_alt.
+        apply idpath.
+      }
+      rewrite !vassocl.
+      apply maponpaths.
+      etrans.
+      {
+        rewrite <- lwhisker_vcomp.
+        rewrite !vassocr.
+        rewrite lunitor_lwhisker.
+        rewrite runitor_lunitor_identity.
+        rewrite !vassocl.
+        apply idpath.
+      }
+      apply maponpaths.
+      etrans.
+      {
+        apply maponpaths_2.
+        rewrite !vassocr.
+        rewrite <- vcomp_rinvunitor.
+        rewrite !vassocl.
+        rewrite <- lwhisker_vcomp.
+        apply idpath.
+      }
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite vcomp_whisker.
+      rewrite <- lwhisker_vcomp.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite !vassocr.
+      rewrite rwhisker_lwhisker.
+      rewrite !vassocl.
+      etrans.
+      {
+        apply maponpaths.
+        etrans.
+        {
+          apply maponpaths.
+          rewrite !vassocr.
+          rewrite <- vcomp_lunitor.
+          rewrite !vassocl.
+          rewrite <- rwhisker_vcomp.
+          apply idpath.
+        }
+        rewrite !vassocr.
+        rewrite rwhisker_vcomp, lwhisker_vcomp.
+        rewrite vcomp_linv.
+        rewrite lwhisker_id2, id2_rwhisker.
+        rewrite id2_left.
+        apply idpath.
+      }
+      rewrite <- rwhisker_vcomp.
+      rewrite !vassocr.
+      rewrite <- lunitor_assoc.
+      rewrite !vassocl.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite lunitor_lwhisker.
+        rewrite rwhisker_vcomp.
+        rewrite rinvunitor_runitor.
+        rewrite id2_rwhisker.
+        apply idpath.
+      }
+      apply id2_right.
+    Qed.
 
     Definition inv2_cell_to_disp_adjequiv
       : disp_adjoint_equivalence
