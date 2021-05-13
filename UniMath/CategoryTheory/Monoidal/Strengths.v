@@ -230,13 +230,47 @@ Proof.
   - cbn.
     red.
     intros v w' w.
-    assert (pr1 (pr1 (pr2 (pr2 (pr2 UAct)))) ((F v, w'), w) = pr1 (pr1 (pr2 (pr2 (pr2 UAct)))) ((F v, w'), w)).
-    cbn. (* where the hell is inv_from_iso in this part? *)
+    (* massage the goal a bit - easier roads to it seem blocked - in particular, with the change command that does not terminate! *)
+    (* change (U_action_χ_nat_trans Mon_W' Mon_V' U' ((F v, w'), w)
+  · pr1 ϛ' (v, monoidal_precat_tensor Mon_W' (w', w)) =
+  # (pr1 (pr2 UAct)) (pr1 ϛ' (v, w') #, id w) · pr1 ϛ' (pr1 (pr2 UAct) (v, w'), w)
+  · # F (U_action_χ_nat_trans Mon_W' Mon_V' U' ((v, w'), w))). *)
+    assert (eqaux : (pr1 (pr1 (pr2 (pr2 (pr2 UAct)))) ((F v, w'), w) = pr1 (U_action_χ Mon_W' Mon_V' U') ((F v, w'), w))) by apply idpath.
+    assert (eqaux' : pr1 (U_action_χ Mon_W' Mon_V' U') ((F v, w'), w) = U_action_χ_nat_trans Mon_W' Mon_V' U' ((F v, w'), w)) by apply idpath.
+    etrans. apply cancel_postcomposition.
+    apply eqaux.
+    etrans. apply cancel_postcomposition.
+    apply eqaux'.
+    assert (eqaux1 : (pr1 (pr1 (pr2 (pr2 (pr2 UAct)))) ((v, w'), w) = pr1 (U_action_χ Mon_W' Mon_V' U') ((v, w'), w))) by apply idpath.
+    assert (eqaux1' : pr1 (U_action_χ Mon_W' Mon_V' U') ((v, w'), w) = U_action_χ_nat_trans Mon_W' Mon_V' U' ((v, w'), w)) by apply idpath.
+    apply pathsinv0.
+    etrans. apply maponpaths. apply maponpaths.
+    apply eqaux1.
+    etrans. apply maponpaths. apply maponpaths.
+    apply eqaux1'.
+    apply pathsinv0.
+(* the goal is now a bit better readable *)
+    assert (aux1: U_action_χ_nat_trans Mon_W' Mon_V' U' ((v, w'), w) = U_action_χ_nat_trans Mon_W' Mon_V' U' ((v, w'), w)).
+    { etrans. unfold U_action_χ_nat_trans. unfold nat_trans_comp. cbn beta iota delta.
+      etrans. apply cancel_postcomposition. cbn.
+(* inv_from_iso
+    (make_iso (pr1 (monoidal_precat_associator Mon_V) ((pr1 (pr1 U) w, pr1 (pr1 U) w'), v))
+       (pr2 (monoidal_precat_associator Mon_V) ((pr1 (pr1 U) w, pr1 (pr1 U) w'), v))) =
+
+      apply idpath.
+
+      unfold U_action_χ_nat_trans.
+    unfold nat_trans_comp.
+
+*)
+(*
+other approach:
     unfold ϛ'.
     unfold Mon_W'.
     unfold swapping_of_monoidal_precat.
     cbn.
     unfold U'.
+*)
 (* we now have to abstract away from knowledge of being iso
    U_action_χ_is_nat_iso is opaque!
     unfold swapping_of_strong_monoidal_functor. unfold swapping_of_lax_monoidal_functor.
