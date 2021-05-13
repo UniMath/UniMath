@@ -16,6 +16,7 @@ Require Import UniMath.Bicategories.Core.Adjunctions.
 Require Import UniMath.Bicategories.Core.Univalence.
 Require Import UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
 Require Import UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+Require Import UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.
 
 Local Open Scope cat.
 
@@ -1813,6 +1814,7 @@ Section DisplayedInserter.
   Qed.
 
   Definition inv2_cell_to_disp_adjequiv_weq
+             (HB : is_univalent_2_1 B)
              {x : B}
              (fx fy : disp_inserter_bicat x)
     : invertible_2cell fx fy
@@ -1826,7 +1828,9 @@ Section DisplayedInserter.
     - use gradth.
       + exact disp_adjequiv_to_inv2cell.
       + exact inv2_cell_to_disp_adjequiv_weq_left.
-      + exact inv2_cell_to_disp_adjequiv_weq_right.
+      + intros.
+        apply inv2_cell_to_disp_adjequiv_weq_right.
+        exact HB.
   Defined.
 
   Definition disp_inserter_bicat_univalent_2_0
@@ -1838,7 +1842,7 @@ Section DisplayedInserter.
     intros x fx fy.
     cbn ; unfold idfun.
     use weqhomot.
-    - exact (inv2_cell_to_disp_adjequiv_weq fx fy
+    - exact (inv2_cell_to_disp_adjequiv_weq HB fx fy
              ∘ make_weq _ (HC (F x) (G x) fx fy))%weq.
     - intros p.
       induction p ; cbn.
@@ -1855,3 +1859,64 @@ Section DisplayedInserter.
         reflexivity.
   Qed.
 End DisplayedInserter.
+
+(** Displayed inserters but with pseudo morphisms *)
+Section PseudoMorphism.
+  Context {B C : bicat}
+          (F G : psfunctor B C).
+
+  Definition is_pseudo_morphism
+             {x y : total_bicat (disp_inserter_bicat F G)}
+             (f : x --> y)
+    : UU
+    := is_invertible_2cell (pr2 f).
+
+  Definition identity_pseudo_morphism
+             (x : total_bicat (disp_inserter_bicat F G))
+    : is_pseudo_morphism (id₁ x).
+  Proof.
+    red ; cbn -[psfunctor_id].
+    is_iso ; apply psfunctor_id.
+  Qed.
+
+  Definition comp_pseudo_morphism
+             {x y z : total_bicat (disp_inserter_bicat F G)}
+             {f : x --> y}
+             {g : y --> z}
+             (Hf : is_pseudo_morphism f)
+             (Hg : is_pseudo_morphism g)
+    : is_pseudo_morphism (f · g).
+  Proof.
+    red ; cbn -[psfunctor_comp].
+    is_iso ; apply psfunctor_comp.
+  Qed.
+
+  Definition disp_inserter_bicat_pseudo
+    : disp_bicat (total_bicat (disp_inserter_bicat F G)).
+  Proof.
+    simple refine (disp_sub1cell_bicat _ _ _ _).
+    - exact @is_pseudo_morphism.
+    - exact identity_pseudo_morphism.
+    - exact @comp_pseudo_morphism.
+  Defined.
+
+  Definition disp_inserter_bicat_pseudo_univalent_2_1
+    : disp_univalent_2_1 disp_inserter_bicat_pseudo.
+  Proof.
+    apply disp_sub1cell_univalent_2_1.
+    intros.
+    apply isaprop_is_invertible_2cell.
+  Defined.
+
+  Definition disp_inserter_bicat_pseudo_univalent_2_0
+             (HB : is_univalent_2_1 B)
+    : disp_univalent_2_0 disp_inserter_bicat_pseudo.
+  Proof.
+    apply disp_sub1cell_univalent_2_0.
+    - apply total_is_univalent_2_1.
+      + exact HB.
+      + apply disp_inserter_bicat_univalent_2_1.
+    - intros.
+      apply isaprop_is_invertible_2cell.
+  Defined.
+End PseudoMorphism.
