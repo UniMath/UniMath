@@ -70,6 +70,7 @@ PseudoFunctors/Examples/StrictToPseudo.v
 PseudoFunctors/Examples/Projection.v
 DisplayedBicats/Examples/PointedOneTypes.v
 DisplayedBicats/Examples/DisplayedInserter.v
+DisplayedBicats/Examples/Displayed2Inserter.v
 DisplayedBicats/Examples/Algebras.v
 DisplayedBicats/Examples/Add2Cell.v
 DisplayedBicats/Examples/ContravariantFunctor.v

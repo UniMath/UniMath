@@ -405,6 +405,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [PseudoFunctors/Examples/Projection.v](Bicategories/PseudoFunctors/Examples/Projection.v)
    - [DisplayedBicats/Examples/PointedOneTypes.v](Bicategories/DisplayedBicats/Examples/PointedOneTypes.v)
    - [DisplayedBicats/Examples/DisplayedInserter.v](Bicategories/DisplayedBicats/Examples/DisplayedInserter.v)
+   - [DisplayedBicats/Examples/Displayed2Inserter.v](Bicategories/DisplayedBicats/Examples/Displayed2Inserter.v)
    - [DisplayedBicats/Examples/Algebras.v](Bicategories/DisplayedBicats/Examples/Algebras.v)
    - [DisplayedBicats/Examples/Add2Cell.v](Bicategories/DisplayedBicats/Examples/Add2Cell.v)
    - [DisplayedBicats/Examples/ContravariantFunctor.v](Bicategories/DisplayedBicats/Examples/ContravariantFunctor.v)
