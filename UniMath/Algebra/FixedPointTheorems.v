@@ -20,7 +20,7 @@ Local Open Scope subtype.
 
 (** ** Overview *)
 Section Overview.
-(** The following are the main results of the file (with black boxes for concepts not yet defined).
+(** The following are the main results of the file (stated for now with some black boxes, for concepts not yet defined).
 
 In [Section Check_Overview] at the end of the file, we confirm that these statements have been proven. *)
 
@@ -57,7 +57,9 @@ End Overview.
 
 (** ** Background material
 
-As ever, all these should eventually be upstreamed, and unified with overlapping material upstream where possible. *)
+Material not really belonging to this file.
+
+All could (?should) eventually be upstreamed, and (in a few cases) unified with overlapping material upstream. *)
 Section Auxiliary.
 
 (** *** Partial orders *)
