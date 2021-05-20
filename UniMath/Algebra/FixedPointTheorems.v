@@ -654,22 +654,22 @@ End Chains.
 
 Section Directed.
 
-  Definition Directed (P : Poset) : UU
+  Definition Directed_family (P : Poset) : UU
   := ∑ (I : UU), ∑ (p : I -> P), isdirected p.
 
-  Coercion directed_index {P} (C : Directed P) : UU
+  Coercion directed_index {P} (C : Directed_family P) : UU
   := pr1 C.
 
-  Definition directed_family {P} (C : Directed P) : C -> P
+  Definition directed_family {P} (C : Directed_family P) : C -> P
   := pr1 (pr2 C).
-  Coercion directed_family : Directed >-> Funclass.
+  Coercion directed_family : Directed_family >-> Funclass.
 
-  Definition directed_property {P} (C : Directed P) : isdirected C
+  Definition directed_property {P} (C : Directed_family P) : isdirected C
   := pr2 (pr2 C).
 
   (* TODO: add similar builder function for chains *)
   Definition make_directed {P:Poset} {I} {p : I -> P} (p_directed : isdirected p)
-    : Directed P
+    : Directed_family P
   := (I,,(p,,p_directed)).
 
   Definition fmap_is_directed {P Q} (f : posetmorphism P Q)
@@ -686,7 +686,7 @@ Section Directed.
   (* TODO: consider naming of [isdirected_order]? *)
 
   Definition fmap_directed {P Q} (f : posetmorphism P Q)
-    : Directed P -> Directed Q.
+    : Directed_family P -> Directed_family Q.
   Proof.
     apply funfibtototal; intros I. use bandfmap.
     - apply (fun C => f ∘ C).
@@ -700,7 +700,7 @@ Section Directed.
   := pr1.
 
   Coercion Directed_of_Directed_hsubtype (P : Poset)
-    : Directed_hsubtype P -> Directed P.
+    : Directed_hsubtype P -> Directed_family P.
   Proof.
     intros C. exact (carrier C,, (pr1carrier C,, pr2 C)).
   Defined.
@@ -721,7 +721,7 @@ Section Directed.
   Defined.
 
   Definition image_directed {P:Poset}
-      : Directed P -> Directed_hsubtype P.
+      : Directed_family P -> Directed_hsubtype P.
   Proof.
     intros p. exists (image p).
     apply image_is_directed, directed_property.
@@ -777,7 +777,7 @@ Section Completeness.
 
   However, it implies least upper bounds for arbitary directed families. *)
   Definition directed_lub {P : Poset} (P_DC : is_directed_complete P)
-      (p : Directed P)
+      (p : Directed_family P)
     : least_upper_bound p.
   Proof.
     apply least_upper_bound_image.
@@ -1008,7 +1008,7 @@ End ProgressiveMaps.
 
 Section Fixpoints.
 
-(* TODO: this approach to types of fixedpoints doesn’t play well with the setup of subposets. Try refactoring. *)
+(* TODO: this approach to types of fixedpoints doesn’t play well with the setup of subposets. Perhaps try refactoring? But working with hsubtypes/subposets throughout creates so much extra [pr1] overhead, impacting readability; this approach avoids that nicely. *)
 
 Definition isfixedpoint {P : Poset} (f : P -> P) : hsubtype P
   := fun (x:P) => f x = x.
@@ -1381,8 +1381,9 @@ Defined.
 End Bourbaki_Witt.
 
 
-(** Finally, we check that the promises listed in the overview have been fulfilled. *)
-(* Note: we give these to make sure that the overview stays up to date with any changes in the file, but we make them local since they should probably not be used outside this file. *)
+(** Finally, we check that the promises listed in the overview have been fulfilled.
+
+  Note: we give these here to ensure that the overview always accurately reflects the theorems of the file.  However, we make them local, since they should probably not be used outside this file — the original versions proved above are the versions intended for use. *)
 Section Check_Overview.
 
   Local Theorem fulfil_Tarski_fixpoint_theorem
