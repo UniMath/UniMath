@@ -210,7 +210,9 @@ Proof.
   - cbn. intros [? ?]; split; auto.
 Defined.
 
-(* TODO: surely this must be in the library somewhere, along with its essential properties? *)
+(* *** Images of functions, as hsubtypes *)
+
+(* TODO: surely this must be in the library somewhere, along with its essential properties?? *)
 Definition image {X Y : UU} (f : X -> Y) : hsubtype Y
   := fun y => ∥ hfiber f y ∥.
 
@@ -679,11 +681,11 @@ Section Directed.
     intros p_directed; split.
     - eapply isdirected_inhabited, p_directed.
     - intros i j.
-      eapply exists_monotone. 2: { exact (isdirected_order p_directed i j). }
+      eapply exists_monotone.
+      2: { exact (isdirected_compatible p_directed i j). }
       intros x [le_i_x le_j_x].
       split; apply posetmorphism_property; assumption.
   Defined.
-  (* TODO: consider naming of [isdirected_order]? *)
 
   Definition fmap_directed {P Q} (f : posetmorphism P Q)
     : Directed_family P -> Directed_family Q.
@@ -714,7 +716,7 @@ Section Directed.
       apply to_image; assumption.
     - use (pr1 (image_carrier_univ' p (fun x => ∀ j, ∃ k, x ≤ _ ∧ _))). intros i.
       use (pr1 (image_carrier_univ' p (fun y => ∃ k, _ ∧ y ≤ _))); intros j.
-      apply (squash_to_hProp (isdirected_order p_directed i j)).
+      apply (squash_to_hProp (isdirected_compatible p_directed i j)).
       intros [k [le_ik le_jk]].
       apply hinhpr. exists (to_image _ k).
       split; assumption.
