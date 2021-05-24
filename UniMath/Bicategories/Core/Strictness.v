@@ -529,3 +529,253 @@ Proof.
     apply isaprop_coh_strictness_from_univalence_2_1.
     exact HB.
 Qed.
+
+
+Definition idto2mor
+           (C : two_cat)
+           {x y : pr1 C}
+           {f g : x --> y}
+           (p : f = g)
+  : two_cat_cells (pr1 C) f g.
+Proof.
+  induction p.
+  apply TwoCategories.id2.
+Defined.
+
+Definition test_data
+           (C : two_cat)
+  : prebicat_data.
+Proof.
+  use build_prebicat_data.
+  - apply C.
+  - simpl.
+    intros x y.
+    refine (x --> y).
+  - simpl.
+    intros ? ? f g.
+    exact (two_cat_cells (pr1 C) f g).
+  - simpl.
+    intros.
+    apply identity.
+  - simpl.
+    intros ? ? ? f g.
+    refine (f · g).
+  - simpl.
+    intros.
+    apply TwoCategories.id2.
+  - simpl.
+    intros ? ? ? ? ? α β.
+    exact (TwoCategories.vcomp2 α β).
+  - simpl.
+    intros ? ? ? f g h α.
+    refine (TwoCategories.lwhisker f α).
+  - simpl.
+    intros ? ? ? g h f α.
+    refine (TwoCategories.rwhisker f α).
+  - simpl.
+    intros ? ? f.
+    apply idto2mor.
+    exact (id_left f).
+  - simpl.
+    intros ? ? f.
+    apply idto2mor.
+    exact (!id_left f).
+  - simpl.
+    intros ? ? f.
+    apply idto2mor.
+    exact (id_right f).
+  - simpl.
+    intros ? ? f.
+    apply idto2mor.
+    exact (!id_right f).
+  - simpl.
+    intros ? ? ? ? f g h.
+    apply idto2mor.
+    refine (assoc f g h).
+  - simpl.
+    intros ? ? ? ? f g h.
+    apply idto2mor.
+    refine (assoc' f g h).
+Defined.
+
+(*
+  C : two_cat
+  a, b : test_data C
+  f, g : test_data C ⟦ a, b ⟧
+  x : f ==> g
+  ============================
+  (id₁ a ◃ x) • idto2mor C (id_left g) = idto2mor C (id_left f) • x
+ *)
+
+Definition idto2mor_natural
+           {C : two_cat}
+           (F G : ∏ (c d : pr1 C), c --> d → c --> d)
+           (Fcell : ∏ (c d : pr1 C) (f g : c --> d),
+                    two_cat_cells _ f g
+                    →
+                    two_cat_cells _ (F _ _ f) (F _ _ g))
+           (Gcell : ∏ (c d : pr1 C) (f g : c --> d),
+                    two_cat_cells _ f g
+                    →
+                    two_cat_cells _ (G _ _ f) (G _ _ g))
+           (p : F = G)
+           (q : ∏ (c d : pr1 C) (f g : c --> d) (x : two_cat_cells (pr1 C) f g),
+                TwoCategories.vcomp2
+                  (Fcell c d f g x)
+                  (idto2mor
+                     C
+                     (toforallpaths
+                        _ _ _
+                        (toforallpaths
+                           _ _ _
+                           (toforallpaths
+                              _ _ _
+                              p c)
+                           d)
+                        g))
+                =
+                TwoCategories.vcomp2
+                  (idto2mor
+                     C
+                     (toforallpaths
+                        _ _ _
+                        (toforallpaths
+                           _ _ _
+                           (toforallpaths
+                              _ _ _
+                              p c)
+                           d)
+                        f))
+                  (Gcell c d f g x))
+           {c d : pr1 C}
+           {f g : c --> d}
+           (x : two_cat_cells (pr1 C) f g)
+           {A : UU}
+  : A.
+(*  TwoCategories.vcomp2
+      (Fcell _ _ _ _ x)
+      (idto2mor
+         C
+         (toforallpaths
+            _ _ _
+            (toforallpaths
+               _ _ _
+               (toforallpaths
+                  _ _ _
+                  p _)
+               _)
+            g))
+    =
+    TwoCategories.vcomp2
+      (idto2mor
+         C
+         (toforallpaths
+            _ _ _
+            (toforallpaths
+               _ _ _
+               (toforallpaths
+                  _ _ _
+                  p _)
+               _)
+            f))
+      (Gcell _ _ _ _ x).
+Proof.
+  induction p.
+  simpl in *.
+  apply q.
+Qed.
+ *)
+Admitted.
+
+
+(*
+Add to the definition of two_category
+- the naturality laws for lunitor, right unitor, lassociator
+- Possibly also pentagon and triangle
+
+First as assumptions to this map
+ *)
+
+Definition test_laws
+           (C : two_cat)
+  : prebicat_laws (test_data C).
+Proof.
+  repeat split.
+  - intros.
+    apply TwoCategories.id2_left.
+  - intros.
+    apply TwoCategories.id2_right.
+  - intros.
+    apply TwoCategories.vassocr.
+  - intros.
+    apply TwoCategories.lwhisker_id2.
+  - intros.
+    apply TwoCategories.id2_rwhisker.
+  - intros.
+    apply TwoCategories.lwhisker_vcomp.
+  - intros.
+    apply TwoCategories.rwhisker_vcomp.
+  - intros ? ? ? ? x.
+    unfold lunitor.
+    simpl.
+    cbn.
+    (*
+    refine (idto2mor_natural
+              (λ _ _ h, id₁ _ · h)
+              (λ _ _ h, h)
+              (λ _ _ _ _ x, TwoCategories.lwhisker (id₁ _) x)
+              (λ _ _ _ _ x, x)
+              (funextsec
+                 _ _ _
+                 (λ c,
+                  funextsec
+                    _ _ _
+                    (λ d,
+                     funextsec
+                       _ _ _
+                       (λ h, id_left h))))
+              _
+              x).
+    simpl.
+    intros.
+    rewrite !toforallpaths_funextsec.
+      as q.
+    simpl in q.
+     *)
+
+    admit.
+  - admit.
+  - admit.
+  - admit.
+  - admit.
+  - intros.
+    apply TwoCategories.vcomp_whisker.
+  - intros.
+    unfold lunitor, linvunitor.
+    cbn.
+    admit.
+  - intros.
+    admit.
+  - intros.
+    admit.
+  - intros.
+    admit.
+  - intros.
+    admit.
+  - intros.
+    admit.
+  - admit.
+  - admit.
+Admitted.
+
+Definition test
+           (C : two_cat)
+  : prebicat.
+Proof.
+  use tpair.
+  - apply (test_data C).
+  - apply test_laws.
+Defined.
+
+Definition two_cat_to_prebicat_two_cat
+...

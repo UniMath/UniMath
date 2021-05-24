@@ -8,9 +8,14 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 
 Local Open Scope cat.
 
+(*
+change the category to data and add the category laws to two_cat_laws (including that the 2-cells are a set)
+there should be a coercion from 2-category data to category data
+ *)
+
 Definition two_cat_data
   : UU
-  := ∑ (C : category)
+  := ∑ (C : precategory_data)
        (cells_C : ∏ (x y : C), x --> y → x --> y → UU),
      (∏ (x y : C) (f : x --> y), cells_C _ _ f f)
      × (∏ (x y : C) (f g h : x --> y),
@@ -25,7 +30,7 @@ Definition two_cat_data
         cells_C _ _ f1 f2 → cells_C _ _ (f1 · g) (f2 · g)).
 
 Coercion category_from_two_cat_data (C : two_cat_data)
-  : category
+  : precategory_data
   := pr1 C.
 
 Definition two_cat_cells
