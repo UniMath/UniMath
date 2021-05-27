@@ -203,26 +203,3 @@ Proof.
 Defined.
 
 End DispInvModification.
-
-Lemma make_disp_invmodification
-      {B₁ : bicat} {D₁ : disp_bicat B₁}
-      {B₂ : bicat} {D₂ : disp_bicat B₂}
-      {F₁ F₂ : psfunctor B₁ B₂}
-      {α β : pstrans F₁ F₂}
-      {FF₁ : disp_psfunctor D₁ D₂ F₁}
-      {FF₂ : disp_psfunctor D₁ D₂ F₂}
-      (αα : disp_pstrans FF₁ FF₂ α)
-      (ββ : disp_pstrans FF₁ FF₂ β)
-      (m : modification α β)
-      (Hm : is_invertible_modification m)
-      (mm : disp_modification _ _ _ _ αα ββ m)
-      (Hmm : ∏ x xx, is_disp_invertible_2cell (is_invertible_modcomponent_of m Hm x) (pr1 mm x xx))
-  :
-  disp_invmodification _ _ _ _ αα ββ (m,,Hm).
-Proof.
-  use tpair.
-  - intros x xx. use tpair.
-    + exact (pr1 mm x xx).
-    + simpl. exact (Hmm x xx).
-  - simpl. exact (pr2 mm).
-Defined.
