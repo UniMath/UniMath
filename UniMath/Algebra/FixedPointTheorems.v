@@ -328,7 +328,7 @@ Section UpperBounds.
 
   (* TODO: it would be natural to just refactor [isupperbound] in [Algebra.Dcpo]
   as an hProp from the start, using [∀] and so on.  However, that turns out
-  to slightly interfere with the use of [apply] on lemmas in that file, espcially
+  to slightly interfere with the use of [apply] on lemmas in that file, especially
   bidirectional such as [pointwiselub_islubpointwise]. Is that cosmetic cost
   worth paying?  Or can it be avoided? *)
 
