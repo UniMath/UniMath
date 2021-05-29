@@ -66,6 +66,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [All.v](Combinatorics/All.v)
 ## Package [Algebra](Algebra/README.md)
    - [Dcpo.v](Algebra/Dcpo.v)
+   - [FixedPointTheorems.v](Algebra/FixedPointTheorems.v)
    - [BinaryOperations.v](Algebra/BinaryOperations.v)
    - [Monoids.v](Algebra/Monoids.v)
    - [Groups.v](Algebra/Groups.v)
