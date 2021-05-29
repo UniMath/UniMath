@@ -28,7 +28,7 @@ jobs:
       
       # Install everything needed for building UniMath (and more)
       - name: Install build dependencies
-        run: sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp5 libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib emacs
+        run: sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp5 libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib libnum-ocaml-dev emacs
   
       # Change into UniMath directory and run sanity checks
       - name: Change into UniMath directory and run sanity checks
