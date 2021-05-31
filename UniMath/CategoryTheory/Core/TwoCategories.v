@@ -29,7 +29,7 @@ Definition two_cat_data
           (g : y --> z),
         cells_C _ _ f1 f2 → cells_C _ _ (f1 · g) (f2 · g)).
 
-Coercion category_from_two_cat_data (C : two_cat_data)
+Coercion precategory_from_two_cat_data (C : two_cat_data)
   : precategory_data
   := pr1 C.
 
@@ -76,6 +76,19 @@ Definition hcomp' {C : two_cat_data} {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : 
 
 Local Notation "x ⋆ y" := (hcomp x y) (at level 50, left associativity).
 
+Definition idto2mor
+           {C : two_cat_data}
+           {x y : pr1 C}
+           {f g : x --> y}
+           (p : f = g)
+  : f ==> g.
+Proof.
+  induction p.
+  apply id2.
+Defined.
+
+Check is_precategory.
+
 (* ----------------------------------------------------------------------------------- *)
 (** ** Laws                                                                            *)
 (* ----------------------------------------------------------------------------------- *)
@@ -87,7 +100,23 @@ Local Notation "x ⋆ y" := (hcomp x y) (at level 50, left associativity).
     version of October 7, 2015 10:35:36                                                *)
 (* ----------------------------------------------------------------------------------- *)
 
-Definition two_cat_laws (C : two_cat_data)
+Definition two_cat_category
+  : UU
+  := ∑ (C : two_cat_data), is_precategory C × has_homsets C.
+
+Definition category_from_two_cat_data (C : two_cat_category)
+  : category.
+Proof.
+  use make_category.
+  - use make_precategory.
+    + apply (pr1 C).
+    + exact (pr12 C).
+  - exact (pr22 C).
+Defined.
+
+Coercion category_from_two_cat_data : two_cat_category >-> category.
+
+Definition two_cat_laws (C : two_cat_category)
   : UU
   :=   (** 1a id2_left *)
        (∏ (a b : C) (f g : C⟦a, b⟧) (x : f ==> g), id2 f • x = x)
@@ -108,11 +137,19 @@ Definition two_cat_laws (C : two_cat_data)
         (x ▹ i) • (y ▹ i) = (x • y) ▹ i)
      × (** 6 vcomp_whisker *)
        (∏ (a b c : C) (f g : C⟦a, b⟧) (h i : C⟦b, c⟧) (x : f ==> g) (y : h ==> i),
-        (x ▹ h) • (g ◃ y) = (f ◃ y) • (x ▹ i)).
+        (x ▹ h) • (g ◃ y) = (f ◃ y) • (x ▹ i))
+     × (** 7 naturality of left whiskering *)
+       (∏ (a b :  C) (f g : C⟦a, b⟧) (x : f ==> g),
+        (identity a ◃ x) • idto2mor (id_left g) = idto2mor (id_left f) • x).
 
-Definition two_precat : UU := ∑ C : two_cat_data, two_cat_laws C.
+(*
+law 6 in ncatlab
+also laws 9-11
+*)
 
-Coercion two_cat_data_from_two_cat (C : two_precat) : two_cat_data := pr1 C.
+Definition two_precat : UU := ∑ C : two_cat_category, two_cat_laws C.
+
+Coercion two_cat_category_from_two_cat (C : two_precat) : two_cat_category := pr1 C.
 Coercion two_cat_laws_from_two_cat (C : two_precat) : two_cat_laws C := pr2 C.
 
 (* ----------------------------------------------------------------------------------- *)
@@ -166,7 +203,7 @@ Definition rwhisker_vcomp {a b c : C} {f g h : C⟦a, b⟧}
 Definition vcomp_whisker {a b c : C} {f g : C⟦a, b⟧} {h i : C⟦b, c⟧}
            (x : f ==> g) (y : h ==> i)
   : (x ▹ h) • (g ◃ y) = (f ◃ y) • (x ▹ i)
-  := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))) _ _ _ _ _ _ i x y.
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))) _ _ _ _ _ _ i x y.
 End two_cat_law_projections.
 
 (* ----------------------------------------------------------------------------------- *)
