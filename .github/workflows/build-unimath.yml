@@ -29,20 +29,15 @@ jobs:
       # Install everything needed for building UniMath (and more)
       - name: Install build dependencies
         run: sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp5 libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib libnum-ocaml-dev emacs
-  
-      # Change into UniMath directory and run sanity checks
-      - name: Change into UniMath directory and run sanity checks
-        run: |
-          cd $GITHUB_WORKSPACE
-          time make TIMECMD=time sanity-checks
-         
+
       # Change into UniMath directory and build UniMath
       - name: Build UniMath
         run: |
           cd $GITHUB_WORKSPACE
           time make build-coq BUILD_COQIDE=$BUILD_COQIDE && time make TIMECMD=time
-          
-          
-          
-          
-  
+
+      # Change into UniMath directory and run sanity checks
+      - name: Change into UniMath directory and run sanity checks
+        run: |
+          cd $GITHUB_WORKSPACE
+          time make TIMECMD=time sanity-checks
