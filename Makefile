@@ -45,7 +45,6 @@ all: make-summary-files
 everything: TAGS all html install
 sanity-checks:  check-prescribed-ordering	\
 		check-listing-of-proof-files	\
-		check-travis			\
 		check-for-change-to-Foundations	\
 		check-for-submodule-changes
 other-checks:   check-max-line-length
@@ -387,16 +386,18 @@ endif
 $(DEPFILES): make-summary-files | build/CoqMakefile.make
 	$(MAKE) -f build/CoqMakefile.make $@
 
+
+# The check-travis target is obsolete
 # here we ensure that the travis script checks every package
-check-travis:.check-travis.okay
-clean::; rm -f .check-travis.okay
-.check-travis.okay: Makefile .travis.yml
-	@echo --- checking travis script ---
-	@set -e ;													\
-	for p in $(PACKAGES) ;												\
-	do grep -q "PACKAGES=.*$$p" .travis.yml || ( echo "package $$p not checked by .travis.yml" >&2 ; exit 1 ) ;	\
-	done
-	touch "$@"
+# check-travis:.check-travis.okay
+# clean::; rm -f .check-travis.okay
+# .check-travis.okay: Makefile .travis.yml
+# 	@echo --- checking travis script ---
+# 	@set -e ;													\
+# 	for p in $(PACKAGES) ;												\
+# 	do grep -q "PACKAGES=.*$$p" .travis.yml || ( echo "package $$p not checked by .travis.yml" >&2 ; exit 1 ) ;	\
+# 	done
+# 	touch "$@"
 
 
 # here we ensure that every *.v file F in each package P is listed in the corresponding file UniMath/P/.package/files
