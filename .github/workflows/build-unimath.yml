@@ -34,7 +34,7 @@ jobs:
       - name: Build UniMath
         run: |
           cd $GITHUB_WORKSPACE
-          time make build-coq BUILD_COQIDE=$BUILD_COQIDE && time make TIMECMD=time
+          time make build-coq BUILD_COQIDE=$BUILD_COQIDE && time make -j2 TIMECMD=time
 
       # Change into UniMath directory and run sanity checks
       - name: Change into UniMath directory and run sanity checks
