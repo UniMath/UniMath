@@ -34,7 +34,7 @@ jobs:
       - name: Build UniMath
         run: |
           pushd $GITHUB_WORKSPACE
-          time make build-coq && time make -j2 PACKAGES="Foundations MoreFoundations Combinatorics Algebra NumberSystems CategoryTheory SubstitutionSystems Topology Ktheory PAdics" install
+          time make build-coq && time make PACKAGES="Foundations MoreFoundations Combinatorics Algebra NumberSystems CategoryTheory SubstitutionSystems Topology Ktheory PAdics" install
           export PATH=$PATH:$PWD/sub/coq/bin/
           echo $PATH
           popd
