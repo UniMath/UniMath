@@ -38,13 +38,13 @@ jobs:
           export PATH=$PATH:$PWD/sub/coq/bin/
           echo $PATH
           popd
-	  # build TypeTheory
-	  git clone https://github.com/UniMath/TypeTheory
-	  pushd TypeTheory
-	  make
-	  popd
-	  # build largecatmodules
-	  git clone https://github.com/UniMath/largecatmodules
-	  pushd largecatmodules
-	  make
-	  popd
+          # build TypeTheory
+          git clone https://github.com/UniMath/TypeTheory
+          pushd TypeTheory
+          make
+          popd
+          # build largecatmodules
+          git clone https://github.com/UniMath/largecatmodules
+          pushd largecatmodules
+          make
+          popd
