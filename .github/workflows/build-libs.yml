@@ -52,7 +52,7 @@ jobs:
           popd
           # build SetHITS
           git clone https://github.com/UniMath/SetHITs
-          pushd SetHITS
+          pushd SetHITs
           cd code
           coq_makefile -f _CoqProject -o Makefile
           make
