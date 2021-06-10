@@ -1022,7 +1022,7 @@ Section BinCoproduct_from_iso.
                × (BinCoproductIn2 C BP · inv_from_iso i · y0 = g)) :
     y0 = i · BinCoproductArrow C BP f g.
   Proof.
-    apply (pre_comp_with_iso_is_inj C _ _ w (iso_inv_from_iso i) (pr2 (iso_inv_from_iso i))).
+    apply (pre_comp_with_iso_is_inj _ _ w (iso_inv_from_iso i) (pr2 (iso_inv_from_iso i))).
     rewrite assoc. cbn. rewrite (iso_after_iso_inv i). rewrite id_left.
     apply BinCoproductArrowUnique.
     - rewrite assoc. apply (dirprod_pr1 T).

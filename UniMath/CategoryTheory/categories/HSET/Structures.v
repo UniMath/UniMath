@@ -576,8 +576,8 @@ Proof.
         pose (pbiso := pullbackiso PBC PBO').
 
         use make_hfiber.
-        -- exact (morphism_from_z_iso _ _ _ (pr1 pbiso) (y,, isO)).
-        -- change (pr1 m (morphism_from_z_iso _ _ _ (pr1 pbiso) (y,, isO))) with
+        -- exact (morphism_from_z_iso _ _ (pr1 pbiso) (y,, isO)).
+        -- change (pr1 m (morphism_from_z_iso _ _ (pr1 pbiso) (y,, isO))) with
                   (((pr1 pbiso) · pr1 m) (y,, isO)).
            change (pr1 m) with (PullbackPr1 PBO').
            rewrite (pr1 (pr2 pbiso)).

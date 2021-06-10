@@ -156,14 +156,14 @@ Section def_zero.
       + exact (i · (ZeroArrowFrom Z a)).
       + cbn. intros t.
         apply (pre_comp_with_iso_is_inj
-                 C _ _ a (iso_inv_from_iso i) (pr2 (iso_inv_from_iso i))).
+                 _ _ a (iso_inv_from_iso i) (pr2 (iso_inv_from_iso i))).
         rewrite assoc. cbn. rewrite (iso_after_iso_inv i). rewrite id_left.
         apply ArrowsFromZero.
     - intros a.
       use tpair.
       + exact ((ZeroArrowTo Z a) · (iso_inv_from_iso i)).
       + cbn. intros t.
-        apply (post_comp_with_iso_is_inj C _ _ i (pr2 i)).
+        apply (post_comp_with_iso_is_inj _ _ i (pr2 i)).
         rewrite <- assoc. rewrite (iso_after_iso_inv i). rewrite id_right.
         apply ArrowsToZero.
   Qed.

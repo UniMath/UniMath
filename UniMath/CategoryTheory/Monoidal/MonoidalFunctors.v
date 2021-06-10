@@ -116,7 +116,7 @@ Proof.
   { apply functor_on_is_iso_is_iso.
     apply monoidal_precat_associator.
   }
-  set (Hass_inst' := iso_inv_on_left _ _ _ _ _ (_,, is) _ (! Hass_inst)).
+  set (Hass_inst' := iso_inv_on_left _ _ _ _ (_,, is) _ (! Hass_inst)).
   eapply pathscomp0.
   { exact Hass_inst'. }
   clear Hass_inst Hass_inst'.

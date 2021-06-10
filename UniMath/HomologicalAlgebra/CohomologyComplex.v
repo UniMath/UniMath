@@ -1984,7 +1984,7 @@ Section def_kernel_cokernel_complex.
     cbn in KI12. fold KI12.
     (* Begin to prove the equality *)
     (* Cancel the inv_from_iso *)
-    use (pre_comp_with_iso_is_inj _ _ _ _ _ (CohomologyComplexIso_is_iso_i A hs C i)).
+    use (pre_comp_with_iso_is_inj _ _ _ _ (CohomologyComplexIso_is_iso_i A hs C i)).
     rewrite assoc. rewrite assoc. rewrite assoc.
     assert (e : (CohomologyComplexIso_Mor_i A hs C i)
                   · (inv_from_iso ((CohomologyComplexIso_Mor_i A hs C i)
@@ -1998,7 +1998,7 @@ Section def_kernel_cokernel_complex.
     use (pathscomp0 e). clear e. rewrite id_left.
     (* Cancel the last morphism *)
     use (post_comp_with_iso_is_inj
-           _ _ _ _  (is_iso_inv_from_iso (make_iso _ (CohomologyComplexIso_is_iso_i A hs C i)))).
+           _ _ _  (is_iso_inv_from_iso (make_iso _ (CohomologyComplexIso_is_iso_i A hs C i)))).
     rewrite <- assoc. rewrite <- assoc.
     assert (ee : (CohomologyComplexIso_Mor_i A hs C i)
                    · (inv_from_iso (make_iso _ (CohomologyComplexIso_is_iso_i A hs C i))) =
