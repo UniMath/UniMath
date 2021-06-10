@@ -45,7 +45,6 @@ all: make-summary-files
 everything: TAGS all html install
 sanity-checks:  check-prescribed-ordering	\
 		check-listing-of-proof-files	\
-		check-travis			\
 		check-for-change-to-Foundations	\
 		check-for-submodule-changes
 other-checks:   check-max-line-length
@@ -329,7 +328,7 @@ DEPFILES := $(VDFILE)
 	     for i in $(VFILES:.v=.vo);												    \
 	     do grep "^$$i" $(DEPFILES) ;											    \
 	     done														    \
-	     | sed -E -e 's/[^ ]*\.(glob|v\.beautified|v)([ :]|$$)/\2/g' -e 's/ *: */ /'					    \
+	     | sed -E -e 's/[^ ]*\.(glob|v|vos|vok|required_vo|required_vos|v\.beautified)([ :]|$$)/\2/g' -e 's/ *: */ /'	    \
 	     | while read line ;												    \
 	       do for i in $$line ; do echo $$i ; done										    \
 		  | ( read target ;												    \

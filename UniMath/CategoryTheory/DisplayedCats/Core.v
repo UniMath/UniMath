@@ -463,7 +463,7 @@ Proof.
   use tpair.
   - change ( xx -->[ iso_inv_from_iso (iso_inv_from_iso f)] yy).
     set (XR := transportb (mor_disp xx yy )
-                          (maponpaths pr1 (iso_inv_iso_inv _ _ _ f))).
+                          (maponpaths pr1 (iso_inv_iso_inv _ _ f))).
     apply XR. apply i.
   - cbn.
     split.

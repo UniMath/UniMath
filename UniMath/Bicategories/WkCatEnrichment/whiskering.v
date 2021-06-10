@@ -66,7 +66,7 @@ Lemma whisker_left_inv {C : prebicategory} {a b c : C}
 Proof.
   unfold whisker_left.
   intermediate_path (inv_from_iso (identity_iso f);h;inv_from_iso alpha).
-    set (W := maponpaths pr1 (iso_inv_of_iso_id _ f)).
+    set (W := maponpaths pr1 (iso_inv_of_iso_id f)).
     simpl in W.
     rewrite <- W.
     reflexivity.
@@ -163,7 +163,7 @@ Lemma whisker_right_inv {C : prebicategory} {a b c : C}
 Proof.
   unfold whisker_right.
   intermediate_path (inv_from_iso alpha ;h; inv_from_iso (identity_iso h)).
-    set (W := maponpaths pr1 (iso_inv_of_iso_id _ h)).
+    set (W := maponpaths pr1 (iso_inv_of_iso_id h)).
     simpl in W.
     rewrite <- W.
     reflexivity.
@@ -355,7 +355,7 @@ Local Lemma kelly_left_region_12 :
   =   whisker_left f (associator (identity1 b) g h)
   ;v; whisker_left f (whisker_right (left_unitor g) h).
 Proof.
-  apply (post_comp_with_iso_is_inj _ _ _ (associator f g h) (pr2 (associator f g h))).
+  apply (post_comp_with_iso_is_inj _ _ (associator f g h) (pr2 (associator f g h))).
   unfold whisker_right at 1.
   rewrite <- horizontal_comp_id.
   rewrite <- assoc.
@@ -396,7 +396,7 @@ Lemma left_unitor_on_id {C : prebicategory} {a : C}
   : whisker_left (identity1 a) (left_unitor (identity1 a))
   = left_unitor (identity1 a ;1; identity1 a).
 Proof.
-  apply (post_comp_with_iso_is_inj _ _ _ (left_unitor (identity1 a))).
+  apply (post_comp_with_iso_is_inj _ _ (left_unitor (identity1 a))).
     apply (pr2 (left_unitor (identity1 a))).
   apply left_unitor_naturality.
 Defined.
@@ -406,7 +406,7 @@ Lemma left_unitor_id_is_right_unitor_id {C : prebicategory} {a : C}
   = right_unitor_2mor (identity1 a).
 Proof.
   apply whisker_right_id_inj.
-  apply (pre_comp_with_iso_is_inj _ _ _ _ (associator _ _ _) (pr2 (associator _ _ _))).
+  apply (pre_comp_with_iso_is_inj _ _ _ (associator _ _ _) (pr2 (associator _ _ _))).
   intermediate_path (left_unitor_2mor ((identity1 a) ;1; (identity1 a))).
     apply pathsinv0.
     apply kelly_left.

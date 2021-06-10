@@ -194,7 +194,7 @@ induction n as [|n IHn]; simpl.
 - rewrite <- IHn, functor_comp, <- assoc.
   eapply pathscomp0; [| eapply maponpaths; apply hf].
   rewrite assoc.
-  apply cancel_postcomposition, pathsinv0, (iso_inv_to_right _ _ _ _ _ α).
+  apply cancel_postcomposition, pathsinv0, (iso_inv_to_right _ _ _ _ α).
   rewrite unfold_inv_from_iso_α; apply pathsinv0.
   now eapply pathscomp0; [apply (colimArrowCommutes shiftColimCocone)|].
 Qed.

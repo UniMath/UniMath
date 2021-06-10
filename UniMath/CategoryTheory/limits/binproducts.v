@@ -617,7 +617,7 @@ Section BinProduct_from_iso.
         (T : y0 · (i · BinProductPr1 C BP) = f × y0 · (i · BinProductPr2 C BP) = g) :
     y0 = BinProductArrow C BP f g · iso_inv_from_iso i.
   Proof.
-    apply (post_comp_with_iso_is_inj C _ _ i (pr2 i)).
+    apply (post_comp_with_iso_is_inj _ _ i (pr2 i)).
     rewrite <- assoc. cbn. rewrite (iso_after_iso_inv i). rewrite id_right.
     apply BinProductArrowUnique.
     - rewrite <- assoc. apply (dirprod_pr1 T).

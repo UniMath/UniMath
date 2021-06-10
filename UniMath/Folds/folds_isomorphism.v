@@ -202,7 +202,7 @@ Proof.
     - rewrite H. apply ϕ₁_ϕ₂_id.
     - rewrite H. apply ϕ₂_ϕ₁_id. }
   assert (X : ϕ₂ i (id _ ) = ϕ₂ i' (id _ )).
-  { set (H1:= inverse_unique_precat C' _ _  _ _  _ (ϕ₁_ϕ₂_are_inverse i) H').
+  { set (H1:= inverse_unique_precat _ _  _ _  _ (ϕ₁_ϕ₂_are_inverse i) H').
     assumption.
   }
   rewrite X.
@@ -487,10 +487,10 @@ Proof.
       apply (z_iso_after_z_iso_inv _ _ f).
     + intro H. apply id_identity2.
       set (H':=id_identity2' H); clearbody H'; clear H.
-      set (H2:=z_iso_inv_to_left _ _ _ _ f _ _ H'); clearbody H2.
+      set (H2:=z_iso_inv_to_left _ _ _ f _ _ H'); clearbody H2.
       rewrite id_right in H2.
       transitivity (f □ (inv_from_z_iso f)).
-      * apply (z_iso_inv_on_left C'), pathsinv0, H2.
+      * apply (z_iso_inv_on_left (C:=C')), pathsinv0, H2.
       * apply (z_iso_inv_after_z_iso (C := C')).
 Qed.
 
@@ -526,7 +526,7 @@ Context {a b : C} (i : z_iso (C:=C') a b).
 
 Lemma iso_from_folds_iso_folds_iso_from_iso : iso_from_folds_iso _ _ (folds_iso_from_iso _ _ i) = i.
 Proof.
-  apply eq_z_iso. apply hs.
+  apply (eq_z_iso(C:=C',,hs)).
   apply (@id_left C').
 Qed.
 
