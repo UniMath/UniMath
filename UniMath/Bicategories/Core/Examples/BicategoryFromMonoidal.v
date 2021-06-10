@@ -161,8 +161,8 @@ Proof.
   monoidal category, we need to rewrite the equation in order to apply it. *)
   intros ? ? ? ? ? f g h i.
   cbn.
-  apply (pre_comp_with_iso_is_inj _ _ _ _ (pr1 α ((f, g), h ⊗ i)) (pr2 α _) _ _).
-  apply (pre_comp_with_iso_is_inj _ _ _ _ (pr1 α (((f ⊗ g), h) , i)) (pr2 α _) _ _).
+  apply (pre_comp_with_iso_is_inj _ _ _ (pr1 α ((f, g), h ⊗ i)) (pr2 α _) _ _).
+  apply (pre_comp_with_iso_is_inj _ _ _ (pr1 α (((f ⊗ g), h) , i)) (pr2 α _) _ _).
   apply pathsinv0.
   etrans. exact (maponpaths (fun z => _ · z) (assoc _ _ _)).
   etrans. exact (maponpaths (fun z => _ · (z · _)) (iso_inv_after_iso (pr1 α ((f, g), _) ,, pr2 α _ ))).

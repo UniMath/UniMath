@@ -71,7 +71,7 @@ Context {C : precategory} (hsC : has_homsets C).
 (** Equivalence classes of subobjects defined by identifying monos into c
     with isomorphic source *)
 Definition SubObj (c : C) : HSET :=
-  make_hSet (setquot (iso_eqrel (Subobjectscategory hsC c))) (isasetsetquot _).
+  make_hSet (setquot (iso_eqrel (C:=Subobjectscategory hsC c))) (isasetsetquot _).
 
 (* For f and g monics into c: f <= g := ∃ h, f = h · g *)
 Definition monorel c : hrel (Subobjectscategory hsC c) :=
@@ -99,7 +99,7 @@ exact (istrans_monorel c,,isrefl_monorel c).
 Qed.
 
 Lemma are_isomorphic_monorel {c : C} {x1 y1 x2 y2 : Subobjectscategory hsC c}
-  (h1 : are_isomorphic _ x1 y1) (h2 : are_isomorphic _ x2 y2) :
+  (h1 : are_isomorphic x1 y1) (h2 : are_isomorphic x2 y2) :
   monorel c x1 x2 → monorel c y1 y2.
 Proof.
 apply hinhuniv; intros f.
@@ -130,8 +130,8 @@ use quotrel.
 - intros x1 y1 x2 y2 h1 h2.
   apply hPropUnivalence.
   + apply (are_isomorphic_monorel h1 h2).
-  + apply (are_isomorphic_monorel (eqrelsymm (iso_eqrel _) _ _ h1)
-                                  (eqrelsymm (iso_eqrel _) _ _ h2)).
+  + apply (are_isomorphic_monorel (eqrelsymm (iso_eqrel) _ _ h1)
+                                  (eqrelsymm (iso_eqrel) _ _ h2)).
 Defined.
 
 Lemma istrans_SubObj_rel (c : C) : istrans (SubObj_rel c).
@@ -160,7 +160,7 @@ assert (int : ∏ x1 x2, isaprop (SubObj_rel c x1 x2 → SubObj_rel c x2 x1 -> x
 apply (setquotuniv2prop _ (λ x1 x2, make_hProp _ (int x1 x2))).
 intros x y h1 h2.
 simpl in *. (* This is slow *)
-apply (iscompsetquotpr (iso_eqrel (Subobjectscategory hsC c))).
+apply (iscompsetquotpr (iso_eqrel (C:=Subobjectscategory hsC c))).
 generalize h1; clear h1; apply hinhuniv; intros [h1 Hh1].
 generalize h2; clear h2; apply hinhuniv; intros [h2 Hh2].
 apply hinhpr, (invmap (weq_iso _ (subprecategory_of_monics_ob C hsC c) _ _)).

@@ -26,7 +26,7 @@ Proof.
   apply weqimplimpl.
   - apply is_iso_from_is_z_iso.
   - apply is_z_iso_from_is_iso.
-  - apply isaprop_is_z_isomorphism, C.
+  - apply isaprop_is_z_isomorphism.
   - apply isaprop_is_iso.
 Defined.
 
