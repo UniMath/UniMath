@@ -484,14 +484,14 @@ Proof.
   - simpl. apply logeqweq.
     + intro H. apply id_identity2.
       rewrite (id_identity2' H). rewrite (@id_left C').
-      apply (z_iso_after_z_iso_inv _ _ _ f).
+      apply (z_iso_after_z_iso_inv _ _ f).
     + intro H. apply id_identity2.
       set (H':=id_identity2' H); clearbody H'; clear H.
       set (H2:=z_iso_inv_to_left _ _ _ _ f _ _ H'); clearbody H2.
       rewrite id_right in H2.
       transitivity (f □ (inv_from_z_iso f)).
       * apply (z_iso_inv_on_left C'), pathsinv0, H2.
-      * apply (z_iso_inv_after_z_iso C').
+      * apply (z_iso_inv_after_z_iso (C := C')).
 Qed.
 
 Definition folds_iso_from_iso : folds_iso a b := tpair _ _ folds_iso_data_prop.
