@@ -15,18 +15,32 @@ and under [Arch/Manjaro Linux](#preparing-for-the-installation-under-arch-linux-
 
 ### Preparing for the installation under Mac OS X
 
-NB: The method explained below is recommended for beginners.
-A more flexible, but complex, installation method is given in [INSTALL\_OPAM.md](./INSTALL_OPAM.md).
+NB: The following is a recommended simple approach.
+For more customisation of your installation, see [INSTALL\_OPAM.md](./INSTALL_OPAM.md).
 
-1. Install "Homebrew", available from http://brew.sh/.
-2. Using Homebrew, install ocaml with the following command:
+1. Install OCaml and required libraries, using your preferred package manager.  E.g. using Homebrew (http://brew.sh/), issue the command:
 ```bash
-$ brew install objective-caml ocaml-num camlp5 bash ocaml-findlib
+$ brew install ocaml opam ocaml-num ocaml-findlib
 ```
-3. Install Emacs from https://emacsformacosx.com/.
-  
-Now proceed with [Installation of ProofGeneral](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
+2. If the build script later asks you to switch to a specific OCaml version, and/or install extra packages, you can do this with:
+```bash
+$ opam switch 4.11.0
+$ opam install num ocamlfind
+```
+This should prepare you for [Installing UniMath](#installing-unimath) below.
 
+You will also need an editor.  There are several options for this:
+
+1. We recommend Emacs with ProofGeneral.  A classic Emacs can be installed from https://emacsformacosx.com/; alternatively, Aquamacs (https://aquamacs.org) provides a slightly more native interface, with standard Mac OS keybindings.  Instructions for [installation of ProofGeneral](#installation-of-proofgeneral-all-operating-systems) are below.  
+
+2. A popular newer option is Visual Studio Code, available from https://code.visualstudio.com, with the VSCoq extension.
+
+3. Alternatively, you can use Coq’s own CoqIDE.  For this you will need LablGtk3 and LablGtkSourceView3; these can be installed with:
+```bash
+$ brew install lablgtk gtksourceview3
+$ opam install lablgtk3 lablgtk-sourceview3
+```
+With those installed, follow the instructions in [INSTALL\_COQIDE.md](./INSTALL_COQIDE.md).
 
 ### Preparing for the installation under Ubuntu or Debian (Linux)
 
@@ -50,6 +64,7 @@ shell commands.
  sudo pacman -S emacs
 ```
 Now proceed with [Installation of ProofGeneral](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
+
 ## Installation of ProofGeneral (all operating systems)
 
 You may obtain ProofGeneral from by using the quick installation instructions
