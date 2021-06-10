@@ -31,7 +31,7 @@ This should prepare you for [Installing UniMath](#installing-unimath) below.
 
 You will also need an editor.  There are several options for this:
 
-1. We recommend Emacs with ProofGeneral.  A classic Emacs can be installed from https://emacsformacosx.com/; alternatively, Aquamacs (https://aquamacs.org) provides a slightly more native interface, with standard Mac OS keybindings.  Instructions for [installation of ProofGeneral](#installation-of-proofgeneral-all-operating-systems) are below.  
+1. We recommend Emacs with Proof General.  A classic Emacs can be installed from https://emacsformacosx.com/; alternatively, Aquamacs (https://aquamacs.org) provides a slightly more native interface, with standard Mac OS keybindings.  Instructions for [installation of Proof General](#installation-of-proofgeneral-all-operating-systems) are below.  
 
 2. A popular newer option is Visual Studio Code, available from https://code.visualstudio.com, with the VSCoq extension.
 
@@ -50,7 +50,7 @@ following shell command.
 ```bash
  sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp5 libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib libnum-ocaml-dev emacs
 ```
-Now proceed with [Installation of ProofGeneral](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
+Now proceed with [Installation of Proof General](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
 
 ### Preparing for the installation under Arch Linux or Manjaro Linux
 
@@ -63,13 +63,13 @@ shell commands.
  sudo pacman --sync --needed ocaml camlp5 ocaml-findlib ocaml-num
  sudo pacman -S emacs
 ```
-Now proceed with [Installation of ProofGeneral](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
+Now proceed with [Installation of Proof General](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
 
-## Installation of ProofGeneral (all operating systems)
+## Installation of Proof General (all operating systems)
 
-You may obtain ProofGeneral from by using the quick installation instructions
+You may obtain Proof General from by using the quick installation instructions
 at http://proofgeneral.inf.ed.ac.uk/ or at https://proofgeneral.github.io/.
-Your version of emacs determines which version of ProofGeneral you need,
+Your version of emacs determines which version of Proof General you need,
 roughly, so some experimentation may be required; you may even need the current
 development version if your emacs is recent.
 
@@ -80,13 +80,13 @@ started.
 
 Finally, `RET` means "press Enter".
 
-Hence, the first ProofGeneral installation instruction
+Hence, the first Proof General installation instruction
 ```
 M-x package-refresh-contents RET
 ```
 reads "hold Alt, press x; type package-refresh-contents; press Enter".
 
-Optional: some useful ProofGeneral add-ons are available for installation at
+Optional: some useful Proof General add-ons are available for installation at
 https://github.com/cpitclaudel/company-coq/.
 
 ## Installing UniMath
@@ -224,7 +224,7 @@ The correct version of Coq is built and used automatically by the command
 then follow the instructions in the file build/Makefile-configuration-template.)
 
 The file ```UniMath/.dir-locals.el``` contains code that arranges for
-ProofGeneral to use the Coq programs built by ```make``` when one of the proof
+Proof General to use the Coq programs built by ```make``` when one of the proof
 files of UniMath is opened in emacs; in order to use them more generally, such
 as from the command line,, then add the full path for the directory
 ```./sub/coq/bin``` to your ```PATH``` environment variable, or set the emacs
@@ -234,7 +234,7 @@ The various *.v files are compiled by Coq in such a way that the fully
 qualified name of each identifier begins with UniMath.  For example, the fully
 qualified name of ```maponpaths``` in uu0.v is ```UniMath.Foundations.Basics.PartA.maponpaths```.
 
-The preferred way to interact with the Coq code is with ProofGeneral, running
+The preferred way to interact with the Coq code is with Proof General, running
 in a modern version of emacs.  The file UniMath/.dir-locals.el will set the
 emacs variable ```coq-prog-args``` appropriately.  In particular, it will add the
 directory UniMath to the path, using the ```-R``` option, and it will arrange for
