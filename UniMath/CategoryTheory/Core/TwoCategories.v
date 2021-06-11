@@ -78,7 +78,7 @@ Local Notation "x ⋆ y" := (hcomp x y) (at level 50, left associativity).
 
 Definition idto2mor
            {C : two_cat_data}
-           {x y : pr1 C}
+           {x y : C}
            {f g : x --> y}
            (p : f = g)
   : f ==> g.
@@ -86,8 +86,6 @@ Proof.
   induction p.
   apply id2.
 Defined.
-
-Check is_precategory.
 
 (* ----------------------------------------------------------------------------------- *)
 (** ** Laws                                                                            *)
@@ -139,13 +137,20 @@ Definition two_cat_laws (C : two_cat_category)
        (∏ (a b c : C) (f g : C⟦a, b⟧) (h i : C⟦b, c⟧) (x : f ==> g) (y : h ==> i),
         (x ▹ h) • (g ◃ y) = (f ◃ y) • (x ▹ i))
      × (** 7 naturality of left whiskering *)
-       (∏ (a b :  C) (f g : C⟦a, b⟧) (x : f ==> g),
-        (identity a ◃ x) • idto2mor (id_left g) = idto2mor (id_left f) • x).
-
-(*
-law 6 in ncatlab
-also laws 9-11
-*)
+       (∏ (a b : C) (f g : C⟦a, b⟧) (x : f ==> g),
+        (identity a ◃ x) • idto2mor (id_left g) = idto2mor (id_left f) • x)
+     × (** 8 naturality of right whiskering *)
+       (∏ (a b : C) (f g : C⟦a, b⟧) (x : f ==> g),
+        (x ▹ identity b) • idto2mor (id_right g) = idto2mor (id_right f) • x)
+     × (** 9 left whisker of left whisker *)
+       (∏ (a b c d : C) (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h i : C⟦c, d⟧) (x : h ==> i),
+        (f ◃ (g ◃ x)) • idto2mor (assoc f g i) = idto2mor (assoc f g h) • (f · g ◃ x))
+     × (** 10 right whisker of left whisker *)
+       (∏ (a b c d : C) (f : C⟦a, b⟧) (g h : C⟦b, c⟧) (i : C⟦c, d⟧) (x : g ==> h),
+        (f ◃ (x ▹ i) • idto2mor (assoc f h i) = idto2mor (assoc f g i) • ((f ◃ x) ▹ i)))
+     × (** 11 right whisker of right whisker *)
+       (∏ (a b c d : C) (f g : C⟦a, b⟧) (h : C⟦b, c⟧) (i : C⟦c, d⟧) (x : f ==> g),
+        idto2mor (assoc f h i) • (x ▹ h ▹ i) = (x ▹ h · i) • idto2mor (assoc g h i)).
 
 Definition two_precat : UU := ∑ C : two_cat_category, two_cat_laws C.
 
@@ -198,12 +203,36 @@ Definition rwhisker_vcomp {a b c : C} {f g h : C⟦a, b⟧}
   : (x ▹ i) • (y ▹ i) = (x • y) ▹ i
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))) _ _ _ _ _ _ i x y.
 
-
 (** 6 vcomp_whisker *)
 Definition vcomp_whisker {a b c : C} {f g : C⟦a, b⟧} {h i : C⟦b, c⟧}
            (x : f ==> g) (y : h ==> i)
   : (x ▹ h) • (g ◃ y) = (f ◃ y) • (x ▹ i)
   := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))) _ _ _ _ _ _ i x y.
+
+(** 7 vcomp_lunitor *)
+Definition vcomp_lunitor {a b : C} {f g : C⟦a, b⟧} (x : f ==> g)
+  : (identity a ◃ x) • idto2mor (id_left g) = idto2mor (id_left f) • x
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))) _ _ _ _ x.
+
+(** 8 vcomp_runitor *)
+Definition vcomp_runitor {a b : C} {f g : C⟦a, b⟧} (x : f ==> g)
+  : (x ▹ identity b) • idto2mor (id_right g) = idto2mor (id_right f) • x
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))) _ _ _ _ x.
+
+(** 9 lwhisker_lwhisker *)
+Definition lwhisker_lwhisker {a b c d : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧) {h i : C⟦c, d⟧} (x : h ==> i)
+  : (f ◃ (g ◃ x)) • idto2mor (assoc f g i) = idto2mor (assoc f g h) • (f · g ◃ x)
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C))))))))))) _ _ _ _ _ _ _ _ x.
+
+(** 10 rwhisker_lwhisker *)
+Definition rwhisker_lwhisker {a b c d : C} (f : C⟦a, b⟧) {g h : C⟦b, c⟧} (i : C⟦c, d⟧) (x : g ==> h)
+  : (f ◃ (x ▹ i) • idto2mor (assoc f h i) = idto2mor (assoc f g i) • ((f ◃ x) ▹ i))
+  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))) _ _ _ _ _ _ _ _ x.
+
+(** 11 rwhisker_rwhisker *)
+Definition rwhisker_rwhisker {a b c d : C} {f g : C⟦a, b⟧} (h : C⟦b, c⟧) (i : C⟦c, d⟧) (x : f ==> g)
+  : idto2mor (assoc f h i) • (x ▹ h ▹ i) = (x ▹ h · i) • idto2mor (assoc g h i)
+  := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 C)))))))))))) _ _ _ _ _ _ _ _ x.
 End two_cat_law_projections.
 
 (* ----------------------------------------------------------------------------------- *)
@@ -215,3 +244,53 @@ Definition isaset_cells (C : two_precat) : UU
 
 Definition two_cat : UU
   := ∑ C : two_precat, isaset_cells C.
+
+Coercion two_cat_to_two_precat
+         (C : two_cat)
+  : two_precat
+  := pr1 C.
+
+(* ----------------------------------------------------------------------------------- *)
+(** ** Laws for id to 2 mor                                                            *)
+(* ----------------------------------------------------------------------------------- *)
+
+Section IdTo2MorLaws.
+  Context {C : two_precat}.
+
+  Definition idto2mor_comp
+             {x y : C}
+             {f g h : x --> y}
+             (p : f = g)
+             (q : g = h)
+    : idto2mor p • idto2mor q = idto2mor (p @ q).
+  Proof.
+    induction p, q ; cbn.
+    apply id2_left.
+  Qed.
+
+  Definition idto2mor_lwhisker
+             {x y z : C}
+             (f : x --> y)
+             {g h : y --> z}
+             (p : g = h)
+    : f ◃ idto2mor p
+      =
+      idto2mor (maponpaths (λ q, f · q) p).
+  Proof.
+    induction p ; cbn.
+    apply lwhisker_id2.
+  Qed.
+
+  Definition idto2mor_rwhisker
+             {x y z : C}
+             {f g : x --> y}
+             (h : y --> z)
+             (p : f = g)
+    : idto2mor p ▹ h
+      =
+      idto2mor (maponpaths (λ q, q · h) p).
+  Proof.
+    induction p ; cbn.
+    apply id2_rwhisker.
+  Qed.
+End IdTo2MorLaws.

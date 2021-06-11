@@ -317,9 +317,6 @@ Proof.
       * exact (λ _ _ _ _ _ g α, α ▹ g).
 Defined.
 
-Definition TODO {A : UU} : A.
-Admitted.
-
 Definition strict_bicat_to_two_cat_category
            (B : strict_bicat)
   : two_cat_category.
@@ -357,12 +354,26 @@ Proof.
   - intros ; apply lwhisker_vcomp.
   - intros ; apply rwhisker_vcomp.
   - intros ; apply vcomp_whisker.
-  - simpl.
-    intros.
+  - intros ; cbn.
     rewrite !idto2mor_idtoiso.
-    cbn.
     rewrite !idtoiso_plunitor.
     apply vcomp_lunitor.
+  - intros ; cbn.
+    rewrite !idto2mor_idtoiso.
+    rewrite !idtoiso_prunitor.
+    apply vcomp_runitor.
+  - intros ; cbn.
+    rewrite !idto2mor_idtoiso.
+    rewrite !idtoiso_plassociator.
+    apply lwhisker_lwhisker.
+  - intros ; cbn.
+    rewrite !idto2mor_idtoiso.
+    rewrite !idtoiso_plassociator.
+    apply rwhisker_lwhisker.
+  - intros ; cbn.
+    rewrite !idto2mor_idtoiso.
+    rewrite !idtoiso_plassociator.
+    apply rwhisker_rwhisker.
 Qed.
 
 Definition strict_bicat_to_two_cat
@@ -625,7 +636,7 @@ Proof.
 Qed.
 
 
-Definition test_data
+Definition two_cat_to_prebicat_data
            (C : two_cat)
   : prebicat_data.
 Proof.
@@ -678,133 +689,12 @@ Proof.
   - simpl.
     intros ? ? ? ? f g h.
     apply idto2mor.
-    refine (assoc' (f : pr1 C ⟦ _ , _ ⟧) g h).
+    refine (!assoc (f : pr1 C ⟦ _ , _ ⟧) g h).
 Defined.
 
-(*
-  C : two_cat
-  a, b : test_data C
-  f, g : test_data C ⟦ a, b ⟧
-  x : f ==> g
-  ============================
-  (id₁ a ◃ x) • idto2mor C (id_left g) = idto2mor C (id_left f) • x
-
-
-(id₁ a ◃ x) : id₁ a · f ==> id₁ a · g
-x : f ==> g
-
-(id₁ a ◃ x) • idto2mor C (id_left g) = idto2mor C (id_left f) • x
-
-transportf _ _ (id₁ a ◃ x) = x
-
-A : hSet
-B : A -> hSet
-p : a1 = a2
-x : B a1
-
-transportf B p x =
-
-
-transportf_set
-
- *)
-
-Search transportf isaset.
-
-(*
-Definition idto2mor_natural
-           {C : two_cat}
-           (F G : ∏ (c d : pr1 C), c --> d → c --> d)
-           (Fcell : ∏ (c d : pr1 C) (f g : c --> d),
-                    two_cat_cells _ f g
-                    →
-                    two_cat_cells _ (F _ _ f) (F _ _ g))
-           (Gcell : ∏ (c d : pr1 C) (f g : c --> d),
-                    two_cat_cells _ f g
-                    →
-                    two_cat_cells _ (G _ _ f) (G _ _ g))
-           (p : F = G)
-           (q : ∏ (c d : pr1 C) (f g : c --> d) (x : two_cat_cells (pr1 C) f g),
-                TwoCategories.vcomp2
-                  (Fcell c d f g x)
-                  (idto2mor
-                     C
-                     (toforallpaths
-                        _ _ _
-                        (toforallpaths
-                           _ _ _
-                           (toforallpaths
-                              _ _ _
-                              p c)
-                           d)
-                        g))
-                =
-                TwoCategories.vcomp2
-                  (idto2mor
-                     C
-                     (toforallpaths
-                        _ _ _
-                        (toforallpaths
-                           _ _ _
-                           (toforallpaths
-                              _ _ _
-                              p c)
-                           d)
-                        f))
-                  (Gcell c d f g x))
-           {c d : pr1 C}
-           {f g : c --> d}
-           (x : two_cat_cells (pr1 C) f g)
-           {A : UU}
-  : A.
-(*  TwoCategories.vcomp2
-      (Fcell _ _ _ _ x)
-      (idto2mor
-         C
-         (toforallpaths
-            _ _ _
-            (toforallpaths
-               _ _ _
-               (toforallpaths
-                  _ _ _
-                  p _)
-               _)
-            g))
-    =
-    TwoCategories.vcomp2
-      (idto2mor
-         C
-         (toforallpaths
-            _ _ _
-            (toforallpaths
-               _ _ _
-               (toforallpaths
-                  _ _ _
-                  p _)
-               _)
-            f))
-      (Gcell _ _ _ _ x).
-Proof.
-  induction p.
-  simpl in *.
-  apply q.
-Qed.
- *)
-Admitted.
- *)
-
-
-(*
-Add to the definition of two_category
-- the naturality laws for lunitor, right unitor, lassociator
-- Possibly also pentagon and triangle
-
-First as assumptions to this map
- *)
-
-Definition test_laws
+Definition two_cat_to_prebicat_laws
            (C : two_cat)
-  : prebicat_laws (test_data C).
+  : prebicat_laws (two_cat_to_prebicat_data C).
 Proof.
   repeat split.
   - intros.
@@ -821,78 +711,178 @@ Proof.
     apply TwoCategories.lwhisker_vcomp.
   - intros.
     apply TwoCategories.rwhisker_vcomp.
-  - intros ? ? ? ? x.
-    unfold lunitor.
-    simpl.
-    pose (pr22 (pr222 (pr222 (pr21 C)))).
-    cbn in p.
-    apply p.
-  - admit.
-  - admit.
-  - admit.
-  - admit.
+  - intros.
+    apply TwoCategories.vcomp_lunitor.
+  - intros.
+    apply TwoCategories.vcomp_runitor.
+  - intros.
+    apply TwoCategories.lwhisker_lwhisker.
+  - intros.
+    apply TwoCategories.rwhisker_lwhisker.
+  - intros.
+    apply TwoCategories.rwhisker_rwhisker.
   - intros.
     apply TwoCategories.vcomp_whisker.
-  - intros.
-    unfold lunitor, linvunitor.
-    cbn.
-    admit.
-  - intros.
-    admit.
-  - intros.
-    admit.
-  - intros.
-    admit.
-  - intros.
-    admit.
-  - intros.
-    admit.
-  - intros.
-    cbn.
-    simpl.
-    (* we need some laws on idto2mor. What does it do on composition and on whiskering? Inspiration can be taken from transport_laws *)
-    admit.
-  - admit.
-Admitted.
+  - intros ; cbn.
+    etrans.
+    {
+      apply idto2mor_comp.
+    }
+    rewrite pathsinv0r.
+    apply idpath.
+  - intros ; cbn.
+    etrans.
+    {
+      apply idto2mor_comp.
+    }
+    rewrite pathsinv0l.
+    apply idpath.
+  - intros ; cbn.
+    etrans.
+    {
+      apply idto2mor_comp.
+    }
+    rewrite pathsinv0r.
+    apply idpath.
+  - intros ; cbn.
+    etrans.
+    {
+      apply idto2mor_comp.
+    }
+    rewrite pathsinv0l.
+    apply idpath.
+  - intros ; cbn.
+    etrans.
+    {
+      apply idto2mor_comp.
+    }
+    rewrite pathsinv0r.
+    apply idpath.
+  - intros ; cbn.
+    etrans.
+    {
+      apply idto2mor_comp.
+    }
+    rewrite pathsinv0l.
+    apply idpath.
+  - intros ; cbn.
+    etrans.
+    {
+      apply maponpaths.
+      apply idto2mor_rwhisker.
+    }
+    etrans.
+    {
+      apply idto2mor_comp.
+    }
+    refine (!_).
+    etrans.
+    {
+      apply idto2mor_lwhisker.
+    }
+    refine (!_).
+    apply maponpaths.
+    apply (homset_property C).
+  - intros ; cbn.
+    etrans.
+    {
+      apply maponpaths.
+      apply idto2mor_rwhisker.
+    }
+    etrans.
+    {
+      do 2 apply maponpaths_2.
+      apply idto2mor_lwhisker.
+    }
+    etrans.
+    {
+      apply maponpaths_2.
+      apply idto2mor_comp.
+    }
+    etrans.
+    {
+      apply idto2mor_comp.
+    }
+    refine (!_).
+    etrans.
+    {
+      apply idto2mor_comp.
+    }
+    refine (!_).
+    apply maponpaths.
+    apply (homset_property C).
+Qed.
 
-Definition test
+Definition two_cat_to_prebicat
            (C : two_cat)
   : prebicat.
 Proof.
   use tpair.
-  - apply (test_data C).
-  - apply test_laws.
+  - apply (two_cat_to_prebicat_data C).
+  - apply two_cat_to_prebicat_laws.
 Defined.
-
 
 Definition two_cat_to_bicat
            (C : two_cat)
   : bicat.
 Proof.
   use tpair.
-  - exact (test C).
-  - apply TODO.
+  - exact (two_cat_to_prebicat C).
+  - apply C.
 Defined.
+
+Definition idto2mor_idtoiso_two_cat
+           {C : two_cat}
+           {a b : C}
+           {f g : a --> b}
+           (p : f = g)
+  : pr1 (@idtoiso_2_1 (two_cat_to_bicat C) _ _ _ _ p)
+    =
+    idto2mor p.
+Proof.
+  induction p.
+  apply idpath.
+Qed.
+
+Definition two_cat_is_strict_bicat
+           (C : two_cat)
+  : is_strict_bicat (two_cat_to_bicat C).
+Proof.
+  use make_is_strict_bicat.
+  - apply (homset_property C).
+  - use tpair.
+    + repeat split.
+      * intros a b f.
+        exact (id_left (f : pr1 C ⟦ _ , _ ⟧)).
+      * intros a b f.
+        exact (id_right (f : pr1 C ⟦ _ , _ ⟧)).
+      * intros a b c d f g h.
+        exact (assoc (f : pr1 C ⟦ _ , _ ⟧) g h).
+    + simpl.
+      repeat split ; intros ; apply idto2mor_idtoiso_two_cat.
+Qed.
 
 Definition two_cat_to_strict_bicat
            (C : two_cat)
   : strict_bicat.
 Proof.
-  (* split in two definitions, qed for the second part *)
   use tpair.
   - exact (two_cat_to_bicat C).
-  - use make_is_strict_bicat.
-    + apply TODO.
-    + use tpair.
-      * repeat split.
-        ** intros a b f.
-           exact (id_left (f : pr1 C ⟦ _ , _ ⟧)).
-        ** intros a b f.
-           exact (id_right (f : pr1 C ⟦ _ , _ ⟧)).
-        ** intros a b c d f g h.
-           exact (assoc (f : pr1 C ⟦ _ , _ ⟧) g h).
-      * apply TODO.
+  - exact (two_cat_is_strict_bicat C).
 Defined.
+
+Definition TODO {A : UU} : A.
+Admitted.
+
+Definition isaprop_prebicat_laws
+           (B : prebicat_data)
+           (H : ∏ (a b : B) (f g : B ⟦ a, b ⟧), isaset (f ==> g))
+  : isaprop (prebicat_laws B).
+Proof.
+  repeat (apply isapropdirprod)
+  ; repeat (apply impred ; intro)
+  ; apply H.
+Qed.
 
 Definition strict_bicat_to_two_cat_to_strict_bicat
            (C : strict_bicat)
@@ -906,7 +896,8 @@ Proof.
   use subtypePath.
   {
     intro.
-    apply TODO.
+    do 4 (apply impred ; intro).
+    apply isapropisaset.
   }
   use subtypePath.
   {
@@ -923,15 +914,54 @@ Proof.
       intro y.
       use funextsec.
       intro f.
-      assert ((pr122 (pr111 C)) x y f = lunitor f).
-      {
-        apply idpath.
-      }
-      refine (_ @ !X).
       rewrite !idto2mor_idtoiso.
-      rewrite !idtoiso_plunitor.
-      apply idpath.
-Admitted.
+      apply idtoiso_plunitor.
+    + use funextsec.
+      intro x.
+      use funextsec.
+      intro y.
+      use funextsec.
+      intro f.
+      rewrite !idto2mor_idtoiso.
+      apply idtoiso_prunitor.
+    + use funextsec.
+      intro x.
+      use funextsec.
+      intro y.
+      use funextsec.
+      intro f.
+      rewrite !idto2mor_idtoiso.
+      rewrite idtoiso_2_1_inv.
+      apply TODO.
+    + use funextsec.
+      intro x.
+      use funextsec.
+      intro y.
+      use funextsec.
+      intro f.
+      rewrite !idto2mor_idtoiso.
+      rewrite idtoiso_2_1_inv.
+      apply TODO.
+    + use funextsec ; intro w.
+      use funextsec ; intro x.
+      use funextsec ; intro y.
+      use funextsec ; intro z.
+      use funextsec ; intro f.
+      use funextsec ; intro g.
+      use funextsec ; intro h.
+      rewrite !idto2mor_idtoiso.
+      rewrite idtoiso_2_1_inv.
+      apply TODO.
+    + use funextsec ; intro w.
+      use funextsec ; intro x.
+      use funextsec ; intro y.
+      use funextsec ; intro z.
+      use funextsec ; intro f.
+      use funextsec ; intro g.
+      use funextsec ; intro h.
+      rewrite !idto2mor_idtoiso.
+      apply idtoiso_plassociator.
+Time Qed.
 
 Definition two_cat_to_strict_bicat_to_two_cat
            (C : two_cat)
@@ -940,7 +970,8 @@ Proof.
   use subtypePath.
   {
     intro.
-    apply TODO.
+    do 4 (use impred ; intro).
+    apply isapropisaset.
   }
   use subtypePath.
   {
