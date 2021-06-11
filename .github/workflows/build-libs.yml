@@ -31,13 +31,29 @@ jobs:
         run: sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp5 libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib libnum-ocaml-dev emacs
 
       # Change into UniMath directory and build UniMath
-      - name: Build UniMath
+      - name: Build UniMath and libraries TypeTheory and Largecatmodules
         run: |
-          cd $GITHUB_WORKSPACE
-          time make build-coq BUILD_COQIDE=$BUILD_COQIDE && time make -j2 TIMECMD=time
-
-      # Change into UniMath directory and run sanity checks
-      - name: Change into UniMath directory and run sanity checks
-        run: |
-          cd $GITHUB_WORKSPACE
-          time make TIMECMD=time sanity-checks
+          pushd $GITHUB_WORKSPACE
+          make build-coq
+          make -j2
+          make install
+          export PATH=$PATH:$PWD/sub/coq/bin/
+          echo $PATH
+          popd
+          # build TypeTheory
+          git clone https://github.com/UniMath/TypeTheory
+          pushd TypeTheory
+          make
+          popd
+          # build largecatmodules
+          git clone https://github.com/UniMath/largecatmodules
+          pushd largecatmodules
+          make
+          popd
+          # build SetHITS
+          git clone https://github.com/UniMath/SetHITs
+          pushd SetHITs
+          cd code
+          coq_makefile -f _CoqProject -o Makefile
+          make
+          popd

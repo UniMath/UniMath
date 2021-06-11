@@ -1215,8 +1215,8 @@ Section complexes_precat.
     - use make_Morphism.
       + intros i. exact (iso_inv_from_is_iso _ (H i)).
       + intros i. cbn.
-        use (post_comp_with_iso_is_inj _ _ _ _ (H (i + 1))).
-        use (pre_comp_with_iso_is_inj _ _ _ _ _ (H i)).
+        use (post_comp_with_iso_is_inj _ _ _ (H (i + 1))).
+        use (pre_comp_with_iso_is_inj _ _ _ _ (H i)).
         assert (e0 : MMor f i · inv_from_iso (MMor f i,, H i) = identity _).
         {
           apply (iso_inv_after_iso (make_iso _ (H i))).

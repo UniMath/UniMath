@@ -156,14 +156,14 @@ Proof.
   cbn.
   apply pathsinv0. etrans. apply id_left. etrans. apply (! id_right _ ).
   apply pathsinv0.
-  apply (iso_inv_to_left _ _ _ _  (make_iso _ (Hη _ ))).
+  apply (iso_inv_to_left _ _ _  (make_iso _ (Hη _ ))).
   apply (invmaponpathsweq (make_weq _ (iso_comp_left_isweq (functor_on_iso G (make_iso _ (Hε _ ))) _ ))).
   cbn.
   set (XR := functor_on_iso_is_iso _ _ G _ _ (make_iso _ (Hε x))).
   set (XR' := make_iso (#G (ε x)) XR). cbn in XR'.
   apply pathsinv0. etrans. apply id_left. etrans. apply (! id_right _ ).
   apply pathsinv0.
-  apply (iso_inv_to_left _ _ _  _ XR').
+  apply (iso_inv_to_left _ _  _ XR').
   unfold XR', XR; clear XR' XR.
 
   repeat rewrite assoc.
@@ -340,7 +340,7 @@ Proof.
     (functor_on_iso F (idtoiso (isotoid _ HA g)))) f).
   - generalize (isotoid _ HA g).
     intro p0; destruct p0.
-    rewrite <- functor_on_iso_inv.
+    rewrite <- functor_on_iso_inv. simpl.
     rewrite iso_inv_of_iso_id.
     apply eq_iso.
     simpl; rewrite functor_id.
@@ -366,7 +366,7 @@ Proof.
       repeat rewrite <- assoc.
       rewrite iso_after_iso_inv.
       rewrite id_right.
-      set (H := iso_inv_iso_inv _ _ _ f').
+      set (H := iso_inv_iso_inv _ _ f').
       now apply (base_paths _ _ H).
 Qed.
 

@@ -1271,7 +1271,7 @@ Section def_roofs.
         apply tmp.
       + set (tmp := iso_inv_after_iso iso2). cbn in tmp. rewrite <- tmp. clear tmp.
         rewrite <- assoc. apply cancel_precomposition.
-        apply (post_comp_with_iso_is_inj _ _ _ g H2).
+        apply (post_comp_with_iso_is_inj _ _ g H2).
         set (tmp := iso_after_iso_inv iso2). cbn in tmp. rewrite tmp. clear tmp.
         rewrite <- assoc. set (tmp := iso_after_iso_inv iso1). cbn in tmp. exact tmp.
   Qed.
@@ -1427,10 +1427,10 @@ Section def_roofs.
     apply cancel_postcomposition.
     rewrite <- assoc. rewrite <- assoc. apply cancel_precomposition.
     set (tmp := LocSqr2Comm sqr).
-    apply (pre_comp_with_iso_is_inj D _ _ _ _ (pr2 iso2)). rewrite assoc.
+    apply (pre_comp_with_iso_is_inj (C:=D) _ _ _ _ (pr2 iso2)). rewrite assoc.
     set (tmp2 := iso_inv_after_iso iso2). cbn in tmp2. cbn. rewrite tmp2. clear tmp2.
     rewrite id_left.
-    apply (post_comp_with_iso_is_inj D _ _ _ (pr2 iso4)). cbn. rewrite <- functor_comp.
+    apply (post_comp_with_iso_is_inj (C:=D) _ _ _ (pr2 iso4)). cbn. rewrite <- functor_comp.
     rewrite tmp. clear tmp. rewrite functor_comp. rewrite <- assoc.
     apply cancel_precomposition.
     rewrite <- assoc.
@@ -1668,7 +1668,7 @@ Section def_roofs.
                          (RoofEqclassFromRoof (MorToRoof (RoofMor2 f1))))).
       unfold functor_composite. cbn. apply cancel_postcomposition.
       set (iso1 := make_iso _ (H' f1 a (RoofMor1 f1) (RoofMor1Is f1))).
-      apply (post_comp_with_iso_is_inj _ _ _ _ (pr2 iso1)).
+      apply (post_comp_with_iso_is_inj _ _ _ (pr2 iso1)).
       use (pathscomp0 _ (! (iso_after_iso_inv iso1))).
       unfold iso1. clear iso1. cbn.
       set (tmp := @functor_comp

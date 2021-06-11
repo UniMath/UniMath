@@ -201,7 +201,6 @@ Section Pullbacks.              (* move upstream *)
     - intro. apply homset_property.
     - induction k as [[k K] e], k' as [[k' K'] e']; cbn; cbn in e, e'.
       induction (i A k k' (e @ !e')). apply maponpaths. apply isaprop_is_z_isomorphism.
-      apply homset_property.
   Qed.
   Lemma IsoArrowFrom_isaprop (M : category) {A B B':M} (g : A --> B) (g' : A --> B') :
      isEpi g -> isaprop (IsoArrowFrom g g').
@@ -210,7 +209,7 @@ Section Pullbacks.              (* move upstream *)
     { intros j. apply homset_property. }
     induction k as [[k K] e], k' as [[k' K'] e']; cbn; cbn in e, e'.
     apply subtypePath; cbn.
-    { intros f. apply isaprop_is_z_isomorphism. apply homset_property. }
+    { intros f. apply isaprop_is_z_isomorphism. }
     use i. exact (e @ !e').
   Qed.
 End Pullbacks.
@@ -407,7 +406,7 @@ Section PreAdditive.
     - exact (KernelIsMonic _ _ i).
     - exact (assoc _ _ _ @ maponpaths (postcomp_with _) (pr1 i) @ zeroLeft h).
     - intros w k e. apply (pr2 i).
-      refine (post_comp_with_iso_is_inj _ _ _ h (is_iso_from_is_z_iso h j) _ _ _ _).
+      refine (post_comp_with_iso_is_inj _ _ h (is_iso_from_is_z_iso h j) _ _ _ _).
       refine (! assoc _ _ _ @ e @ ! zeroLeft _).
   Qed.
   Lemma IsoWithCokernel {M:PreAdditive} {x x' y z:M} (f : x --> y) (g : y --> z) (h : x' --> x) :
@@ -1292,7 +1291,7 @@ Section ExactCategoryFacts.
   Lemma MonicAdmEpiIsIso {M : ExactCategory} {A B:M} (p : A ↠ B) : isMonic p -> is_z_isomorphism p.
   Proof.
     induction p as [p E]. cbn. intros I. apply (squash_to_prop E).
-    { apply isaprop_is_z_isomorphism. apply to_has_homsets. }
+    { apply (isaprop_is_z_isomorphism (C:=M)). }
     clear E; intros [K [i E]].
     assert (Q := EC_ExactToKernelCokernel E); clear E.
     induction Q as [ke co];
