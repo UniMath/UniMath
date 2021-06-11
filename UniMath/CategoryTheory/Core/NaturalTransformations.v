@@ -208,7 +208,7 @@ End nat_trans_functor.
 
 (** ** Natural isomorphisms *)
 
-Definition is_nat_iso {C D : precategory} {F G : C ⟶ D} (μ : F ⟹ G) : UU :=
+Definition is_nat_iso {C D : precategory_data} {F G : functor_data C D} (μ : F ⟹ G) : UU :=
 ∏ (c : C), is_iso (μ c).
 
 Definition isaprop_is_nat_iso
@@ -303,6 +303,69 @@ Proof.
     + intros a b f. exact f.
   - repeat split.
 Defined.
+
+
+(* ** analogous development for [z_iso] *)
+
+Definition is_nat_z_iso {C D : precategory_data} {F G : functor_data C D} (μ : F ⟹ G) : UU :=
+∏ (c : C), is_z_isomorphism (μ c).
+
+Definition isaprop_is_nat_z_iso
+           {C D : category}
+           {F G : C ⟶ D}
+           (α : F ⟹ G)
+  : isaprop (is_nat_z_iso α).
+Proof.
+  apply impred.
+  intro.
+  apply isaprop_is_z_isomorphism.
+Defined.
+
+Definition nat_z_iso {C D : precategory} (F G : C ⟶ D) : UU
+:= ∑ (μ : F ⟹ G), is_nat_z_iso μ.
+
+Definition make_nat_z_iso {C D : precategory} (F G : C ⟶ D) (μ : F ⟹ G) (is_z_iso : is_nat_z_iso μ) : nat_z_iso F G.
+Proof.
+  exists μ.
+  exact is_z_iso.
+Defined.
+
+Definition nat_z_iso_to_trans {C D : precategory} {F G : C ⟶ D} (μ : nat_z_iso F G) : F ⟹ G :=
+  pr1 μ.
+
+Coercion nat_z_iso_to_trans : nat_z_iso >-> nat_trans.
+
+(* ⁻¹ *)
+Definition nat_z_iso_to_trans_inv {C D : precategory} {F G : C ⟶ D} (μ : nat_z_iso F G) : G ⟹ F.
+Proof.
+  apply (make_nat_trans G F (fun c => is_z_isomorphism_mor (pr2 μ c))).
+  red.
+  intros c c' f.
+  set (h := μ c,,pr2 μ c : z_iso (F c) (G c)).
+  set (h' := μ c',,pr2 μ c' : z_iso (F c') (G c')).
+  change (# G f · inv_from_z_iso h' = inv_from_z_iso h · # F f).
+  apply pathsinv0.
+  apply z_iso_inv_on_right.
+  rewrite assoc.
+  apply z_iso_inv_on_left.
+  apply pathsinv0.
+  apply (nat_trans_ax μ).
+Defined.
+
+Definition nat_z_iso_inv {C D : precategory} {F G : C ⟶ D} (μ : nat_z_iso F G) : nat_z_iso G F.
+Proof.
+  exists (nat_z_iso_to_trans_inv μ).
+  intro c.
+  red.
+  exists (μ c).
+  red.
+  split.
+  - apply (pr2 (is_z_isomorphism_is_inverse_in_precat (pr2 μ c))).
+  - apply (pr1 (is_z_isomorphism_is_inverse_in_precat (pr2 μ c))).
+Defined.
+
+Definition is_nat_z_iso_id {C D : precategory} {F G : C ⟶ D} (eq : F = G) (ν : nat_z_iso F G) : UU :=
+  ∏ (c : C), nat_comp_to_endo eq (nat_z_iso_to_trans ν c) = identity (F c).
 
 End nat_trans.
 
