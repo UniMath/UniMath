@@ -31,6 +31,7 @@ DisplayedBicats/FiberBicategory/FiberBicategory2.v
 DisplayedBicats/FiberBicategory.v
 DisplayedBicats/Examples/Sigma.v
 DisplayedBicats/Examples/DispBicatOfDispCats.v
+DisplayedBicats/Examples/Sub1Cell.v
 DisplayedBicats/Examples/DisplayedCatToBicat.v
 DisplayedBicats/Examples/Prod.v
 DisplayedBicats/Examples/DispDepProd.v
@@ -68,6 +69,8 @@ PseudoFunctors/Biequivalence.v
 PseudoFunctors/Examples/StrictToPseudo.v
 PseudoFunctors/Examples/Projection.v
 DisplayedBicats/Examples/PointedOneTypes.v
+DisplayedBicats/Examples/DisplayedInserter.v
+DisplayedBicats/Examples/Displayed2Inserter.v
 DisplayedBicats/Examples/Algebras.v
 DisplayedBicats/Examples/Add2Cell.v
 DisplayedBicats/Examples/ContravariantFunctor.v
