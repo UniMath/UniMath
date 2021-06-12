@@ -36,7 +36,7 @@ Notation "X ⊗ Y" := (tensor (X, Y)).
 Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
 
 (* A braiding is a natural isomorphism from (- ⊗ =) to (= ⊗ -). *)
-Definition braiding : UU := nat_iso tensor (tensor □ binswap_pair_functor).
+Definition braiding : UU := nat_z_iso tensor (tensor □ binswap_pair_functor).
 
 (** * Hexagon equations. *)
 Section HexagonEquations.
@@ -44,7 +44,7 @@ Section HexagonEquations.
 Context (braid : braiding).
 Let γ := pr1 braid.
 Let α₁ := pr1 α.
-Let α₂ := pr1 (nat_iso_inv α).
+Let α₂ := pr1 (nat_z_iso_inv α).
 
 Definition first_hexagon_eq : UU :=
   ∏ (a b c : M) ,

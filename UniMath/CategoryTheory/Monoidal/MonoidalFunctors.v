@@ -1,6 +1,6 @@
 (** Monoidal functors *)
 
-(** behaviour w.r.t. to swapped tensor products added by Ralph Matthes in 2019 *)
+(** behaviour w.r.t. to swapped tensor products added by Ralph Matthes in 2019, then iso changed to z_iso in 2021 *)
 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -85,9 +85,9 @@ Definition mk_lax_monoidal_functor (F : C ⟶ D) (ϵ : I_D --> F I_C)
 
 Definition strong_monoidal_functor : UU :=
   ∑ L : lax_monoidal_functor,
-  (is_iso (pr1 (pr2 L))) (* ϵ is an iso *)
+  (is_z_isomorphism (pr1 (pr2 L))) (* ϵ is an iso *)
   ×
-  (is_nat_iso (pr1 (pr2 (pr2 L)))). (* μ is an iso *)
+  (is_nat_z_iso (pr1 (pr2 (pr2 L)))). (* μ is an iso *)
 
 End Monoidal_Functor.
 
@@ -111,19 +111,20 @@ Proof.
   induction Fun as [F [ϵ [μ [Hass Hunit]]]].
   red. intros x y z.
   set (Hass_inst := Hass z y x).
-  apply pathsinv0. rewrite <- assoc. apply iso_inv_on_right.
-  transparent assert (is : (is_iso (# F ((pr1 (monoidal_precat_associator Mon)) ((z, y), x))))).
-  { apply functor_on_is_iso_is_iso.
+  apply pathsinv0. rewrite <- assoc.
+  cbn.
+  set (f := pr1 (monoidal_precat_associator Mon') ((F z, F y), F x),,pr2 (monoidal_precat_associator Mon') ((F z, F y), F x)).
+  apply (z_iso_inv_on_right _ _ _ f).
+  transparent assert (is : (is_z_isomorphism (# F ((pr1 (monoidal_precat_associator Mon)) ((z, y), x))))).
+  { apply functor_on_is_z_isomorphism.
     apply monoidal_precat_associator.
   }
-  set (Hass_inst' := iso_inv_on_left _ _ _ _ (_,, is) _ (! Hass_inst)).
-  eapply pathscomp0.
+  set (Hass_inst' := z_iso_inv_on_left _ _ _ _ (_,, is) _ (! Hass_inst)).
+  etrans.
   { exact Hass_inst'. }
   clear Hass_inst Hass_inst'.
   do 2 rewrite assoc.
   apply cancel_precomposition.
-  eapply pathscomp0.
-  2: { cbn. apply functor_on_inv_from_iso'. }
   apply idpath.
 Qed.
 
@@ -150,7 +151,7 @@ Proof.
   apply (tpair _ (swapping_of_lax_monoidal_functor L)).
   split.
   - exact Hϵ.
-  - exact (pre_whisker_iso_is_iso binswap_pair_functor (pr1 (pr2 (pr2 L))) Hμ).
+  - exact (pre_whisker_on_nat_z_iso binswap_pair_functor (pr1 (pr2 (pr2 L))) Hμ).
 Defined.
 
 End swapped_tensor.

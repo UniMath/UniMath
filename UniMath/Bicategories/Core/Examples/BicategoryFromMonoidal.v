@@ -56,15 +56,17 @@ Proof.
   - split. { intros ? ? f. exact (id f). }
     split. { intros ? ? f. apply l. }
     split. { intros ? ? f. apply ρ. }
-    split. { intros ? ? f. apply (nat_iso_inv l). }
-    split. { intros ? ? f. apply (nat_iso_inv ρ). }
+    split. { intros ? ? f. apply (nat_z_iso_inv l). }
+    split. { intros ? ? f. apply (nat_z_iso_inv ρ). }
     split. { intros ? ? ? ? f g h. apply (pr1 α ((f , g) , h)). }
-    split. { intros ? ? ? ? f g h. apply (pr1 (nat_iso_inv α) ((f , g) , h)). }
+    split. { intros ? ? ? ? f g h. apply (pr1 (nat_z_iso_inv α) ((f , g) , h)). }
     split. { intros ? ? f g h. exact compose. }
     split. { intros ? ? ? f g h. exact (λ u, (id f #⊗ u)). }
              intros ? ? ? f g h. exact (λ u, (u #⊗ id h)).
 Defined.
 
+(** the rest currently not doable with z_iso as notion of iso in monoidal categories *)
+(*
 Definition prebicat_laws_from_monoidal : prebicat_laws (prebicat_data_from_monoidal).
 Proof.
   (* 1. Identities. *)
@@ -192,7 +194,7 @@ Defined.
 
 Definition prebicat_from_monoidal : prebicat :=
   prebicat_data_from_monoidal ,, prebicat_laws_from_monoidal.
-
+*)
 End Prebicat_From_Monoidal_Precat.
 
 (** *** Going into the opposite direction *)
@@ -246,7 +248,8 @@ Proof.
 Defined.
 
 Local Notation tensor := tensor_from_prebicat_and_ob.
-
+(** the rest currently not doable with z_iso as notion of iso in monoidal categories *)
+(*
 Local Definition build_left_unitor: left_unitor tensor (id c0).
 Proof.
   use make_nat_iso.
@@ -300,5 +303,5 @@ Proof.
   - abstract ( intros a b; apply pathsinv0; apply unit_triangle ).
   - abstract ( intros a b c d; apply pathsinv0; apply associativity_pentagon ).
 Defined.
-
+*)
 End Monoidal_Precat_From_Prebicat.
