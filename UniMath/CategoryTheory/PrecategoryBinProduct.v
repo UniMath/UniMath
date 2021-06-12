@@ -182,6 +182,19 @@ Proof.
   - apply iso_inv_after_iso.
 Defined.
 
+Definition is_z_iso_binprod_z_iso {C D : precategory} {c c' : C} {d d' : D} {f : c --> c'} {g : d --> d'} (f_is_z_iso : is_z_isomorphism f)
+  (g_is_z_iso : is_z_isomorphism g) : is_z_isomorphism (f #, g).
+Proof.
+  red.
+  exists (is_z_isomorphism_mor f_is_z_iso,,is_z_isomorphism_mor g_is_z_iso).
+  red.
+  split; apply dirprodeq; cbn.
+  - apply (pr1 (pr2 f_is_z_iso)).
+  - apply (pr1 (pr2 g_is_z_iso)).
+  - apply (pr2 (pr2 f_is_z_iso)).
+  - apply (pr2 (pr2 g_is_z_iso)).
+Defined.
+
 (** Associativity functors *)
 Section assoc.
 

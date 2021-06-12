@@ -660,11 +660,11 @@ Definition z_iso_inv_from_is_z_iso {C : precategory_data} {a b : ob C}
   (f : a --> b) (H : is_z_isomorphism f) : z_iso b a :=
   z_iso_inv_from_z_iso (f,,H).
 
-Definition z_iso_inv_after_z_iso {C : precategory_data} (a b : ob C)
+Definition z_iso_inv_after_z_iso {C : precategory_data} {a b : ob C}
    (f : z_iso a b) : f · inv_from_z_iso f = identity _ :=
       pr1 (pr2 (pr2 f)).
 
-Definition z_iso_after_z_iso_inv {C : precategory_data} (a b : ob C)
+Definition z_iso_after_z_iso_inv {C : precategory_data} {a b : ob C}
    (f : z_iso a b) : inv_from_z_iso f · f = identity _ :=
       pr2 (pr2 (pr2 f)).
 
@@ -770,9 +770,20 @@ Proof.
     - assumption.
     - split.
       + apply z_iso_inv_after_z_iso.
-      + set (h := z_iso_after_z_iso_inv _ _ f).
+      + set (h := z_iso_after_z_iso_inv f).
         apply h.
 Qed.
+
+Lemma inv_z_iso_unique' (C : precategory) (a b : C) (f : z_iso a b) (g : b --> a) :
+  precomp_with f g = identity _ -> g = z_iso_inv_from_z_iso f.
+Proof.
+  intro H.
+  apply (cancel_z_iso' f).
+  unfold precomp_with in H.
+  rewrite H.
+  apply pathsinv0.
+  apply z_iso_inv_after_z_iso.
+Defined.
 
 Lemma z_iso_inv_of_z_iso_comp {C : category} (a b c : ob C)
    (f : z_iso a b) (g : z_iso b c) :
