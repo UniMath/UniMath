@@ -22,14 +22,16 @@ For more customisation of your installation, see [INSTALL\_OPAM.md](./INSTALL_OP
 ```bash
 $ brew install ocaml opam ocaml-num ocaml-findlib
 ```
-2. If the build script later asks you to switch to a specific OCaml version, and/or install extra packages, you can do this with:
+2. If later in the installation you get a message asking for a specific OCaml version, and/or installing extra packages, you can do this with:
 ```bash
-$ opam switch 4.11.0
+$ opam init
+$ eval $(opam env)
+$ opam switch create 4.11.0
 $ opam install num ocamlfind
 ```
-This should prepare you for [Installing UniMath](#installing-unimath) below.
+This should prepare your system for [Installing UniMath](#installing-unimath) below.
 
-You will also need an editor.  There are several options for this:
+You will also need an editor.  There are several options:
 
 1. We recommend Emacs with Proof General.  A classic Emacs can be installed from https://emacsformacosx.com/; alternatively, Aquamacs (https://aquamacs.org) provides a slightly more native interface, with standard Mac OS keybindings.  Instructions for [installation of Proof General](#installation-of-proofgeneral-all-operating-systems) are below.  
 
