@@ -79,12 +79,12 @@ Definition strength_pentagon_eq (ϛ : strength_nat): UU := ∏ (a : A), ∏ (x y
 (** the original notion in Fiore's LICS'08 paper *)
 Definition strength_pentagon_eq_variant1 (ϛ : strength_nat): UU := ∏ (a : A), ∏ (x y : V),
   pr1 ϛ (a, x ⊗ y) =
-  (nat_iso_to_trans_inv χ' ((F a, x), y)) · (pr1 ϛ (a, x)) #⊙' (id y) · (pr1 ϛ (a ⊙ x, y)) · (#F (pr1 χ ((a, x), y))).
+  (nat_z_iso_to_trans_inv χ' ((F a, x), y)) · (pr1 ϛ (a, x)) #⊙' (id y) · (pr1 ϛ (a ⊙ x, y)) · (#F (pr1 χ ((a, x), y))).
 
 (** the notion that fits with the definition of relative strength in the TYPES'15 post-proceedings paper by Ahrens and Matthes *)
 Definition strength_pentagon_eq_variant2 (ϛ : strength_nat): UU := ∏ (a : A), ∏ (x y : V),
-  pr1 ϛ (a, x ⊗ y) · (#F (nat_iso_to_trans_inv χ ((a, x), y))) =
-  (nat_iso_to_trans_inv χ' ((F a, x), y)) · (pr1 ϛ (a, x)) #⊙' (id y) · (pr1 ϛ (a ⊙ x, y)).
+  pr1 ϛ (a, x ⊗ y) · (#F (nat_z_iso_to_trans_inv χ ((a, x), y))) =
+  (nat_z_iso_to_trans_inv χ' ((F a, x), y)) · (pr1 ϛ (a, x)) #⊙' (id y) · (pr1 ϛ (a ⊙ x, y)).
 
 
 End ActionBasedStrengths_Natural_Transformation.
@@ -126,9 +126,9 @@ Section B.
 
   Context (U:strong_monoidal_functor Mon_W Mon_V).
   Let phiI := pr1 (pr2 (pr1 U)).
-  Let phiIinv := inv_from_iso (make_iso phiI (pr1 (pr2 U))).
+  Let phiIinv := inv_from_z_iso (make_z_iso phiI _ (pr1 (pr2 U))).
   Let phi := pr1 (pr2 (pr2 (pr1 U))).
-  Let phiinv := nat_iso_to_trans_inv (make_nat_iso _ _ phi (pr2 (pr2 U))).
+  Let phiinv := nat_z_iso_to_trans_inv (make_nat_z_iso _ _ phi (pr2 (pr2 U))).
 
 Section RelativeStrengths_Natural_Transformation.
   Context (F: functor V V).
