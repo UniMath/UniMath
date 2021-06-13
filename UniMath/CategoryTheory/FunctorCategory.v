@@ -91,7 +91,7 @@ Definition functor_composite_as_ob {C C' C'' : precategory}
 Lemma is_nat_trans_inv_from_pointwise_inv_ext {C : precategory_data} {D : precategory}
   (hs: has_homsets D)
   {F G : functor_data C D} {A : nat_trans F G}
-  (H : forall a : ob C, is_iso (pr1 A a)) :
+  (H : is_nat_iso A) :
   is_nat_trans _ _
      (λ a : ob C, inv_from_iso (tpair _ _ (H a))).
 Proof.
@@ -111,7 +111,7 @@ Qed.
 Lemma is_nat_trans_inv_from_pointwise_inv (C : precategory_data)(D : precategory)
   (hs: has_homsets D)
   (F G : ob [C,D,hs]) (A : F --> G)
-  (H : forall a : ob C, is_iso (pr1 A a)) :
+  (H : is_nat_iso A) :
   is_nat_trans _ _
      (λ a : ob C, inv_from_iso (tpair _ _ (H a))).
 Proof.
@@ -122,20 +122,20 @@ Qed.
 Definition nat_trans_inv_from_pointwise_inv (C : precategory_data)(D : precategory)
   (hs: has_homsets D)
   (F G : ob [C,D,hs]) (A : F --> G)
-  (H : ∏ a : ob C, is_iso (pr1 A a)) :
+  (H : is_nat_iso A) :
     G --> F := tpair _ _ (is_nat_trans_inv_from_pointwise_inv _ _ _ _ _ _ H).
 
 Definition nat_trans_inv_from_pointwise_inv_ext {C : precategory_data}{D : precategory}
   (hs: has_homsets D)
   {F G : functor_data C D} (A : nat_trans F G)
-  (H : forall a : ob C, is_iso (pr1 A a)) :
+  (H : is_nat_iso A) :
     nat_trans G F := tpair _ _ (is_nat_trans_inv_from_pointwise_inv_ext hs H).
 
 Lemma nat_trans_inv_is_iso {C : precategory_data}{D : precategory}
   (hs: has_homsets D)
   {F G : functor_data C D} (A : nat_trans F G)
-  (H : forall a : ob C, is_iso (pr1 A a)) :
-  forall a : ob C, is_iso ((nat_trans_inv_from_pointwise_inv_ext hs A H) a).
+  (H : is_nat_iso A) :
+  is_nat_iso (nat_trans_inv_from_pointwise_inv_ext hs A H).
 Proof.
   intros a.
   apply is_iso_inv_from_iso.
@@ -143,7 +143,7 @@ Defined.
 
 Lemma is_inverse_nat_trans_inv_from_pointwise_inv (C : precategory_data)(C' : precategory) (hs: has_homsets C')
     (F G : [C, C', hs]) (A : F --> G)
-   (H : ∏ a : C, is_iso (pr1 A a)) :
+   (H : is_nat_iso A) :
   is_inverse_in_precat A (nat_trans_inv_from_pointwise_inv C C' _ F G A H).
 Proof.
   simpl; split; simpl.
@@ -161,8 +161,7 @@ Qed.
 Lemma functor_iso_if_pointwise_iso (C : precategory_data) (C' : precategory)
   (hs: has_homsets C')
  (F G : ob [C, C', hs]) (A : F --> G) :
-   (∏ a : ob C, is_iso (pr1 A a)) ->
-           is_iso A .
+   is_nat_iso A -> is_iso A .
 Proof.
   intro H.
   apply (is_iso_qinv _ (nat_trans_inv_from_pointwise_inv _ _ _ _ _ _ H)).
@@ -171,8 +170,7 @@ Defined.
 
 Definition functor_iso_from_pointwise_iso (C : precategory_data)(C' : precategory)
   (hs: has_homsets C')
- (F G : ob [C, C', hs]) (A : F --> G)
-   (H : ∏ a : ob C, is_iso (pr1 A a)) :
+ (F G : ob [C, C', hs]) (A : F --> G) (H : is_nat_iso A) :
      iso F G :=
  tpair _ _ (functor_iso_if_pointwise_iso _ _ _ _ _ _ H).
 
@@ -180,8 +178,7 @@ Definition functor_iso_from_pointwise_iso (C : precategory_data)(C' : precategor
 Lemma is_functor_iso_pointwise_if_iso (C : precategory_data)(C' : precategory)
   (hs: has_homsets C')
  (F G : ob [C, C', hs]) (A : F --> G) :
-  is_iso A ->
-       ∏ a : ob C, is_iso (pr1 A a).
+  is_iso A -> is_nat_iso A.
 Proof.
   intros H a.
   set (T := inv_from_iso (tpair _ A H)).
@@ -224,8 +221,8 @@ Definition functor_iso_pointwise_if_iso (C : precategory_data) (C' : precategory
   (hs: has_homsets C')
  (F G : ob [C, C',hs]) (A : F --> G)
   (H : is_iso A) :
-     ∏ a : ob C,
-       iso (pr1 F a) (pr1 G a) :=
+  ∏ a : ob C,
+        iso (pr1 F a) (pr1 G a) :=
   λ a, tpair _ _ (is_functor_iso_pointwise_if_iso C C' _ F G A H a).
 
 Lemma nat_trans_inv_pointwise_inv_after_p (C : precategory_data) (C' : precategory)
@@ -487,6 +484,24 @@ Proof.
   intro e.
   now induction e.
 Qed.
+
+
+(** a small diversion on [z_iso] for functors *)
+
+Lemma functor_z_iso_if_pointwise_z_iso (C : precategory_data) (C' : precategory)
+  (hs: has_homsets C')
+ (F G : ob [C, C', hs]) (A : F --> G) :
+    is_nat_z_iso A -> is_z_isomorphism A .
+Proof.
+  intro H. (* TODO R.M. *)
+  red.
+  set (Ainv := nat_z_iso_to_trans_inv (make_nat_z_iso _ _ A H)).
+  exists Ainv.
+  split; apply (nat_trans_eq hs); intro c; cbn.
+  - exact (pr1 (pr2 (H c))).
+  - exact (pr2 (pr2 (H c))).
+Defined.
+
 
 Notation "[ C , D , hs ]" := (functor_precategory C D hs) : cat.
 

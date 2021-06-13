@@ -321,24 +321,24 @@ Proof.
   apply isaprop_is_z_isomorphism.
 Defined.
 
-Definition nat_z_iso {C D : precategory} (F G : C ⟶ D) : UU
+Definition nat_z_iso {C D : precategory_data} (F G : C ⟶ D) : UU
 := ∑ (μ : F ⟹ G), is_nat_z_iso μ.
 
-Definition make_nat_z_iso {C D : precategory} (F G : C ⟶ D) (μ : F ⟹ G) (is_z_iso : is_nat_z_iso μ) : nat_z_iso F G.
+Definition make_nat_z_iso {C D : precategory_data} (F G : C ⟶ D) (μ : F ⟹ G) (is_z_iso : is_nat_z_iso μ) : nat_z_iso F G.
 Proof.
   exists μ.
   exact is_z_iso.
 Defined.
 
-Definition nat_z_iso_to_trans {C D : precategory} {F G : C ⟶ D} (μ : nat_z_iso F G) : F ⟹ G :=
+Definition nat_z_iso_to_trans {C D : precategory_data} {F G : C ⟶ D} (μ : nat_z_iso F G) : F ⟹ G :=
   pr1 μ.
 
 Coercion nat_z_iso_to_trans : nat_z_iso >-> nat_trans.
 
-Definition nat_z_iso_pointwise_z_iso {C D : precategory} {F G : C ⟶ D} (μ : nat_z_iso F G) (c: C): z_iso (F c) (G c) := (pr1 μ c,,pr2 μ c).
+Definition nat_z_iso_pointwise_z_iso {C D : precategory_data} {F G : C ⟶ D} (μ : nat_z_iso F G) (c: C): z_iso (F c) (G c) := (pr1 μ c,,pr2 μ c).
 
 (* ⁻¹ *)
-Definition nat_z_iso_to_trans_inv {C D : precategory} {F G : C ⟶ D} (μ : nat_z_iso F G) : G ⟹ F.
+Definition nat_z_iso_to_trans_inv {C : precategory_data} {D : precategory} {F G : C ⟶ D} (μ : nat_z_iso F G) : G ⟹ F.
 Proof.
   apply (make_nat_trans G F (fun c => is_z_isomorphism_mor (pr2 μ c))).
   red.
@@ -354,7 +354,7 @@ Proof.
   apply (nat_trans_ax μ).
 Defined.
 
-Definition nat_z_iso_inv {C D : precategory} {F G : C ⟶ D} (μ : nat_z_iso F G) : nat_z_iso G F.
+Definition nat_z_iso_inv {C : precategory_data} {D : precategory} {F G : C ⟶ D} (μ : nat_z_iso F G) : nat_z_iso G F.
 Proof.
   exists (nat_z_iso_to_trans_inv μ).
   intro c.

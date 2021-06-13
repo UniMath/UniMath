@@ -383,7 +383,7 @@ Variable Fff : fully_faithful F.
 Lemma is_iso_yoneda_functor_precomp : is_iso yoneda_functor_precomp.
 Proof.
   apply functor_iso_if_pointwise_iso.
-  intro. simpl.
+  intro a. simpl.
   set (T:= make_weq _ (Fff a c)).
   set (TA := make_hSet (hom C a c) (hsC _ _ )).
   set (TB := make_hSet (hom D (F a) (F c)) (hsD _ _ )).
