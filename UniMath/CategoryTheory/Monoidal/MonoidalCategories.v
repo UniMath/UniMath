@@ -216,7 +216,7 @@ Proof.
     apply id_left. }
   apply cancel_postcomposition.
   apply pathsinv0.
-  set (f := (pr1 (monoidal_precat_associator M) ((b, monoidal_precat_unit M), a),,pr2 (monoidal_precat_associator M) ((b, monoidal_precat_unit M), a))).
+  set (f := nat_z_iso_pointwise_z_iso (monoidal_precat_associator M)((b, monoidal_precat_unit M), a)).
   apply (z_iso_after_z_iso_inv f).
 Qed.
 
@@ -225,10 +225,10 @@ Proof.
   red. intros a b c d. cbn.
   set (H := pr2 (monoidal_precat_eq M)).
   unfold pentagon_eq in H.
-  set (f := pr1 (monoidal_precat_associator M) ((d, c), tensor (b, a)),,pr2 (monoidal_precat_associator M) ((d, c), tensor (b, a))).
+  set (f := nat_z_iso_pointwise_z_iso (monoidal_precat_associator M) ((d, c), tensor (b, a))).
   apply (z_iso_inv_on_right _ _ _ f).
   apply pathsinv0.
-  set (f' := pr1 (monoidal_precat_associator M) ((tensor (d, c), b), a),,pr2 (monoidal_precat_associator M) ((tensor (d, c), b), a)).
+  set (f' := nat_z_iso_pointwise_z_iso (monoidal_precat_associator M) ((tensor (d, c), b), a)).
   apply (inv_z_iso_unique' _ _ _ f').
   unfold precomp_with.
   rewrite assoc.
@@ -248,21 +248,21 @@ Proof.
   { do 2 apply cancel_postcomposition.
     apply cancel_precomposition.
     apply maponpaths.
-    apply (z_iso_inv_after_z_iso (make_z_iso _ _ (pr2 (monoidal_precat_associator M) ((c, b), a)))). }
+    apply (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso (monoidal_precat_associator M) ((c, b), a))). }
   rewrite functor_id.
   rewrite id_right.
   etrans.
   { apply cancel_postcomposition.
     rewrite <- assoc.
     apply cancel_precomposition.
-    apply (z_iso_inv_after_z_iso (make_z_iso _ _ (pr2 (monoidal_precat_associator M) ((d, tensor (c, b)), a)))). }
+    apply (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso (monoidal_precat_associator M) ((d, tensor (c, b)), a))). }
   rewrite id_right.
   etrans.
   apply pathsinv0.
   apply (functor_comp (functor_fix_snd_arg _ _ _ tensor a)).
   etrans.
   { apply maponpaths.
-    apply (z_iso_inv_after_z_iso (make_z_iso _ _ (pr2 (monoidal_precat_associator M) ((d, c), b)))). }
+    apply (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso (monoidal_precat_associator M) ((d, c), b))). }
   cbn.
   unfold functor_fix_snd_arg_mor.
   use functor_id.

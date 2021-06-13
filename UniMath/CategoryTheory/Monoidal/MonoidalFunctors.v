@@ -113,7 +113,7 @@ Proof.
   set (Hass_inst := Hass z y x).
   apply pathsinv0. rewrite <- assoc.
   cbn.
-  set (f := pr1 (monoidal_precat_associator Mon') ((F z, F y), F x),,pr2 (monoidal_precat_associator Mon') ((F z, F y), F x)).
+  set (f := nat_z_iso_pointwise_z_iso (monoidal_precat_associator Mon') ((F z, F y), F x)).
   apply (z_iso_inv_on_right _ _ _ f).
   transparent assert (is : (is_z_isomorphism (# F ((pr1 (monoidal_precat_associator Mon)) ((z, y), x))))).
   { apply functor_on_is_z_isomorphism.
