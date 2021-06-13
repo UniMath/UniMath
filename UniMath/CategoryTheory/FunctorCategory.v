@@ -493,7 +493,7 @@ Lemma functor_z_iso_if_pointwise_z_iso (C : precategory_data) (C' : precategory)
  (F G : ob [C, C', hs]) (A : F --> G) :
     is_nat_z_iso A -> is_z_isomorphism A .
 Proof.
-  intro H. (* TODO R.M. *)
+  intro H.
   red.
   set (Ainv := nat_z_iso_to_trans_inv (make_nat_z_iso _ _ A H)).
   exists Ainv.
