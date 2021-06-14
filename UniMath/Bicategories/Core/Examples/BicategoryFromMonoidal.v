@@ -161,9 +161,8 @@ Proof.
   monoidal category, we need to rewrite the equation in order to apply it. *)
   intros ? ? ? ? ? f g h i.
   cbn.
-  (* TODO R.M.
-  apply (pre_comp_with_iso_is_inj _ _ _ (pr1 α ((f, g), h ⊗ i)) (pr2 α _) _ _).
-  apply (pre_comp_with_iso_is_inj _ _ _ (pr1 α (((f ⊗ g), h) , i)) (pr2 α _) _ _).
+  apply (pre_comp_with_z_iso_is_inj'(f := pr1 α ((f, g), h ⊗ i)) (pr2 α _)).
+  apply (pre_comp_with_z_iso_is_inj'(f := pr1 α (((f ⊗ g), h) , i)) (pr2 α _)).
   apply pathsinv0.
   etrans. exact (maponpaths (fun z => _ · z) (assoc _ _ _)).
   etrans. exact (maponpaths (fun z => _ · (z · _)) (z_iso_inv_after_z_iso (pr1 α ((f, g), _) ,, pr2 α _ ))).
@@ -190,8 +189,6 @@ Proof.
   etrans. exact (maponpaths (fun z => (z #⊗ _)) (z_iso_inv_after_z_iso (pr1 α ((f,g),h) ,, pr2 α _))).
   apply (functor_id tensor).
 Defined.
-   *)
-  Admitted.
 
 Definition prebicat_from_monoidal : prebicat :=
   prebicat_data_from_monoidal ,, prebicat_laws_from_monoidal.
@@ -257,7 +254,7 @@ Proof.
     * intro c.
       apply lunitor.
     * abstract ( intros a b f; apply lunitor_natural ).
-  + intro c. apply is_z_iso_lunitor.
+  + intro c; apply is_z_iso_lunitor.
 Defined.
 
 Local Definition build_right_unitor: right_unitor tensor (id c0).
