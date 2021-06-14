@@ -871,9 +871,6 @@ Proof.
   - exact (two_cat_is_strict_bicat C).
 Defined.
 
-Definition TODO {A : UU} : A.
-Admitted.
-
 Definition isaprop_prebicat_laws
            (B : prebicat_data)
            (H : ∏ (a b : B) (f g : B ⟦ a, b ⟧), isaset (f ==> g))
@@ -899,69 +896,98 @@ Proof.
     do 4 (apply impred ; intro).
     apply isapropisaset.
   }
-  use subtypePath.
-  {
-    intro.
-    apply TODO.
-  }
   use total2_paths2_f.
-  - apply idpath.
-  - cbn.
-    repeat use pathsdirprod ; try apply idpath.
-    + use funextsec.
-      intro x.
-      use funextsec.
-      intro y.
-      use funextsec.
-      intro f.
-      rewrite !idto2mor_idtoiso.
-      apply idtoiso_plunitor.
-    + use funextsec.
-      intro x.
-      use funextsec.
-      intro y.
-      use funextsec.
-      intro f.
-      rewrite !idto2mor_idtoiso.
-      apply idtoiso_prunitor.
-    + use funextsec.
-      intro x.
-      use funextsec.
-      intro y.
-      use funextsec.
-      intro f.
-      rewrite !idto2mor_idtoiso.
-      rewrite idtoiso_2_1_inv.
-      apply TODO.
-    + use funextsec.
-      intro x.
-      use funextsec.
-      intro y.
-      use funextsec.
-      intro f.
-      rewrite !idto2mor_idtoiso.
-      rewrite idtoiso_2_1_inv.
-      apply TODO.
-    + use funextsec ; intro w.
-      use funextsec ; intro x.
-      use funextsec ; intro y.
-      use funextsec ; intro z.
-      use funextsec ; intro f.
-      use funextsec ; intro g.
-      use funextsec ; intro h.
-      rewrite !idto2mor_idtoiso.
-      rewrite idtoiso_2_1_inv.
-      apply TODO.
-    + use funextsec ; intro w.
-      use funextsec ; intro x.
-      use funextsec ; intro y.
-      use funextsec ; intro z.
-      use funextsec ; intro f.
-      use funextsec ; intro g.
-      use funextsec ; intro h.
-      rewrite !idto2mor_idtoiso.
-      apply idtoiso_plassociator.
-Time Qed.
+  - use total2_paths2_f.
+    + apply idpath.
+    + cbn.
+      repeat use pathsdirprod ; try apply idpath.
+      * use funextsec.
+        intro x.
+        use funextsec.
+        intro y.
+        use funextsec.
+        intro f.
+        rewrite !idto2mor_idtoiso.
+        apply idtoiso_plunitor.
+      * use funextsec.
+        intro x.
+        use funextsec.
+        intro y.
+        use funextsec.
+        intro f.
+        rewrite !idto2mor_idtoiso.
+        apply idtoiso_prunitor.
+      * use funextsec.
+        intro x.
+        use funextsec.
+        intro y.
+        use funextsec.
+        intro f.
+        rewrite !idto2mor_idtoiso.
+        rewrite idtoiso_2_1_inv ; simpl.
+        refine (!(id2_right _) @ _).
+        use vcomp_move_R_pM.
+        { is_iso. }
+        simpl.
+        refine (!_).
+        etrans.
+        {
+          apply maponpaths_2.
+          apply idtoiso_plunitor.
+        }
+        apply lunitor_linvunitor.
+      * use funextsec.
+        intro x.
+        use funextsec.
+        intro y.
+        use funextsec.
+        intro f.
+        rewrite !idto2mor_idtoiso.
+        rewrite idtoiso_2_1_inv ; simpl.
+        refine (!(id2_right _) @ _).
+        use vcomp_move_R_pM.
+        { is_iso. }
+        simpl.
+        refine (!_).
+        etrans.
+        {
+          apply maponpaths_2.
+          apply idtoiso_prunitor.
+        }
+        apply runitor_rinvunitor.
+      * use funextsec ; intro w.
+        use funextsec ; intro x.
+        use funextsec ; intro y.
+        use funextsec ; intro z.
+        use funextsec ; intro f.
+        use funextsec ; intro g.
+        use funextsec ; intro h.
+        rewrite !idto2mor_idtoiso.
+        rewrite idtoiso_2_1_inv ; simpl.
+        refine (!(id2_right _) @ _).
+        use vcomp_move_R_pM.
+        { is_iso. }
+        simpl.
+        refine (!_).
+        etrans.
+        {
+          apply maponpaths_2.
+          apply idtoiso_plassociator.
+        }
+        apply lassociator_rassociator.
+      * use funextsec ; intro w.
+        use funextsec ; intro x.
+        use funextsec ; intro y.
+        use funextsec ; intro z.
+        use funextsec ; intro f.
+        use funextsec ; intro g.
+        use funextsec ; intro h.
+        rewrite !idto2mor_idtoiso.
+        apply idtoiso_plassociator.
+  - apply isaprop_prebicat_laws.
+    intros.
+    apply cellset_property.
+Qed.
 
 Definition two_cat_to_strict_bicat_to_two_cat
            (C : two_cat)
@@ -973,15 +999,24 @@ Proof.
     do 4 (use impred ; intro).
     apply isapropisaset.
   }
-  use subtypePath.
-  {
-    intro.
-    apply TODO.
-  }
-  use subtypePath.
-  {
-    intro.
-    apply TODO.
-  }
-  apply idpath.
+  use total2_paths2_f.
+  - use total2_paths2_f.
+    + apply idpath.
+    + apply isapropdirprod.
+      * apply isaprop_is_precategory.
+        intros x y.
+        apply (pr22 (pr11 C)).
+      * apply isaprop_has_homsets.
+  - apply isaprop_two_cat_laws.
 Qed.
+
+Definition two_cat_equiv_strict_bicat
+  : two_cat ≃ strict_bicat.
+Proof.
+  use make_weq.
+  - exact two_cat_to_strict_bicat.
+  - use gradth.
+    + exact strict_bicat_to_two_cat.
+    + exact two_cat_to_strict_bicat_to_two_cat.
+    + exact strict_bicat_to_two_cat_to_strict_bicat.
+Defined.

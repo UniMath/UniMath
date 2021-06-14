@@ -250,6 +250,16 @@ Coercion two_cat_to_two_precat
   : two_precat
   := pr1 C.
 
+Definition isaprop_two_cat_laws
+           (C : two_cat)
+  : isaprop (two_cat_laws C).
+Proof.
+  unfold two_cat_laws.
+  repeat (apply isapropdirprod)
+  ; repeat (use impred ; intro)
+  ; apply C.
+Qed.
+
 (* ----------------------------------------------------------------------------------- *)
 (** ** Laws for id to 2 mor                                                            *)
 (* ----------------------------------------------------------------------------------- *)
