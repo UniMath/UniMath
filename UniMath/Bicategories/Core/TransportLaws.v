@@ -75,6 +75,19 @@ Proof.
     apply lunitor_linvunitor.
 Defined.
 
+Definition idtoiso_2_1_inv
+           {C : bicat}
+           {a b : C}
+           {f g : a --> b}
+           (p : f = g)
+  : idtoiso_2_1 _ _ (!p)
+    =
+    inv_of_invertible_2cell (idtoiso_2_1 _ _ p).
+Proof.
+  induction p.
+  apply idpath.
+Qed.
+
 Definition idtoiso_2_1_concat
            {C : bicat}
            {a b : C}

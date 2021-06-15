@@ -39,6 +39,8 @@ LIMIT_MEMORY ?= no
 SHOW := $(if $(VERBOSE),@true "",@echo "")
 HIDE := $(if $(VERBOSE),,@)
 ############################################
+export COQBIN
+############################################
 
 .PHONY: all everything install lc lcp wc describe clean distclean build-coq doc build-coqide html
 all: make-summary-files
