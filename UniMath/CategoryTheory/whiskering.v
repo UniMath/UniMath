@@ -69,7 +69,7 @@ Lemma pre_whisker_iso_is_iso {A B C : precategory_data}
 Proof.
   intros a.
   apply X.
-Qed.
+Defined.
 
 Lemma pre_whisker_on_nat_z_iso {A B C : precategory_data}
     (F : functor_data A B)  {G H : functor_data B C} (gamma : nat_trans G H)
@@ -78,7 +78,7 @@ Lemma pre_whisker_on_nat_z_iso {A B C : precategory_data}
 Proof.
   intros a.
   apply X.
-Qed.
+Defined.
 
 (** Postwhiskering *)
 

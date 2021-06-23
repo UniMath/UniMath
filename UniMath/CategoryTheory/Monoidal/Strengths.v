@@ -23,24 +23,24 @@ Section A.
 
 Context (Mon_V : monoidal_precat).
 
-Let V := monoidal_precat_precat Mon_V.
-Let I := monoidal_precat_unit Mon_V.
-Let tensor := monoidal_precat_tensor Mon_V.
+Local Definition V := monoidal_precat_precat Mon_V.
+Local Definition I := monoidal_precat_unit Mon_V.
+Local Definition tensor := monoidal_precat_tensor Mon_V.
 Notation "X ⊗ Y" := (tensor (X , Y)).
 
 Section ActionBasedStrengths_Definition.
 
 Context (actn actn' : action Mon_V).
 
-Let A := pr1 actn.
-Let odot := pr1 (pr2 actn).
-Let ϱ := pr1 (pr2 (pr2 actn)).
-Let χ := pr1 (pr2 (pr2 (pr2 actn))).
-Let A' := pr1 actn'.
-Let odot' := pr1 (pr2 actn').
-Let ϱ' := pr1 (pr2 (pr2 actn')).
+Local Definition A := pr1 actn.
+Local Definition odot := pr1 (pr2 actn).
+Local Definition ϱ := pr1 (pr2 (pr2 actn)).
+Local Definition χ := pr1 (pr2 (pr2 (pr2 actn))).
+Local Definition A' := pr1 actn'.
+Local Definition odot' := pr1 (pr2 actn').
+Local Definition ϱ' := pr1 (pr2 (pr2 actn')).
 
-Let χ' := pr1 (pr2 (pr2 (pr2 actn'))).
+Local Definition χ' := pr1 (pr2 (pr2 (pr2 actn'))).
 
 Section ActionBasedStrengths_Natural_Transformation.
 
@@ -114,24 +114,24 @@ Section B.
 
   Context (Mon_W Mon_V : monoidal_precat).
 
-  Let V := monoidal_precat_precat Mon_V.
-  Let timesV := monoidal_precat_tensor Mon_V.
-  Let I := monoidal_precat_unit Mon_V.
-  Let lambda := monoidal_precat_left_unitor Mon_V.
-  Let alpha := monoidal_precat_associator Mon_V.
+  Local Definition VV := monoidal_precat_precat Mon_V.
+  Local Definition timesV := monoidal_precat_tensor Mon_V.
+  Local Definition II := monoidal_precat_unit Mon_V.
+  Local Definition lambda := monoidal_precat_left_unitor Mon_V.
+  Local Definition alpha := monoidal_precat_associator Mon_V.
 
-  Let W := monoidal_precat_precat Mon_W.
-  Let timesW := monoidal_precat_tensor Mon_W.
-  Let E := monoidal_precat_unit Mon_W.
+  Local Definition W := monoidal_precat_precat Mon_W.
+  Local Definition timesW := monoidal_precat_tensor Mon_W.
+  Local Definition E := monoidal_precat_unit Mon_W.
 
   Context (U:strong_monoidal_functor Mon_W Mon_V).
-  Let phiI := pr1 (pr2 (pr1 U)).
-  Let phiIinv := inv_from_z_iso (make_z_iso phiI _ (pr1 (pr2 U))).
-  Let phi := pr1 (pr2 (pr2 (pr1 U))).
-  Let phiinv := nat_z_iso_to_trans_inv (make_nat_z_iso _ _ phi (pr2 (pr2 U))).
+  Local Definition phiI := pr1 (pr2 (pr1 U)).
+  Local Definition phiIinv := inv_from_z_iso (make_z_iso phiI _ (pr1 (pr2 U))).
+  Local Definition phi := pr1 (pr2 (pr2 (pr1 U))).
+  Local Definition phiinv := nat_z_iso_to_trans_inv (make_nat_z_iso _ _ phi (pr2 (pr2 U))).
 
 Section RelativeStrengths_Natural_Transformation.
-  Context (F: functor V V).
+  Context (F: functor VV VV).
 
   Notation "X ⊗V Y" := (timesV (X , Y)) (at level 31).
   Notation "X •W Y" := (timesW (X , Y)) (at level 31).
@@ -139,7 +139,7 @@ Section RelativeStrengths_Natural_Transformation.
   Notation "f #⊗V g" := (#timesV (f #, g)) (at level 31).
   Notation "f #•W g" := (#timesW (f #, g)) (at level 31).
 
-  Definition rel_strength_dom : W ⊠ V ⟶ V :=
+  Definition rel_strength_dom : W ⊠ VV ⟶ VV :=
     functor_composite (pair_functor U F) timesV.
 
   Lemma rel_strength_dom_ok: functor_on_objects rel_strength_dom = λ ax, U (ob1 ax) ⊗V  F (ob2 ax).
@@ -147,7 +147,7 @@ Section RelativeStrengths_Natural_Transformation.
     apply idpath.
   Qed.
 
-  Definition rel_strength_codom : W ⊠ V ⟶ V :=
+  Definition rel_strength_codom : W ⊠ VV ⟶ VV :=
   functor_composite (functor_composite (pair_functor U (functor_identity _)) timesV) F.
 
   Lemma rel_strength_codom_ok: functor_on_objects rel_strength_codom = λ ax, F (U (ob1 ax) ⊗V ob2 ax).
@@ -159,38 +159,42 @@ Section RelativeStrengths_Natural_Transformation.
 
   (** the following looks like a pentagon but is of the nature of a triangle equation *)
   Definition rel_strength_pentagon_eq (ϛ : rel_strength_nat) :=
-    ∏ (v : V), (pr1 ϛ (E, v)) · (#F (phiIinv #⊗V (identity v))) · (#F (pr1 lambda v))  =
+    ∏ (v : VV), (pr1 ϛ (E, v)) · (#F (phiIinv #⊗V (identity v))) · (#F (pr1 lambda v))  =
                (phiIinv #⊗V (identity (F v))) · (pr1 lambda (F v)).
 
   (** the following looks like a rectangle in the paper but is of the nature of a pentagon equation *)
-  Definition rel_strength_rectangle_eq (ϛ : rel_strength_nat): UU := ∏ (w w' : W), ∏ (v : V),
+  Definition rel_strength_rectangle_eq (ϛ : rel_strength_nat): UU := ∏ (w w' : W), ∏ (v : VV),
   ( pr1 ϛ (w •W w', v) ) · (#F (phiinv (w, w') #⊗V (identity v))) · (#F (pr1 alpha ((U w, U w'), v))) =
   (phiinv (w, w') #⊗V (identity (F v))) · (pr1 alpha ((U w, U w'), F v)) ·
                                         ((identity (U w)) #⊗V pr1 ϛ (w', v)) · ( pr1 ϛ (w, U w' ⊗V v)).
 
+(* the following was part of a desperate try to avoid z_iso
   Definition rel_strength_rectangle_eq_with_given_inverse
   (gphiinv: monoidal_functor_map_codom Mon_W Mon_V (pr1 (pr1 U))
                                        ⟹ monoidal_functor_map_dom Mon_W Mon_V (pr1 (pr1 U)))
-  (ϛ : rel_strength_nat): UU := ∏ (w w' : W), ∏ (v : V),
+  (ϛ : rel_strength_nat): UU := ∏ (w w' : W), ∏ (v : VV),
   ( pr1 ϛ (w •W w', v) ) · (#F (gphiinv (w, w') #⊗V (identity v))) · (#F (pr1 alpha ((U w, U w'), v))) =
   (gphiinv (w, w') #⊗V (identity (F v))) · (pr1 alpha ((U w, U w'), F v)) ·
                                         ((identity (U w)) #⊗V pr1 ϛ (w', v)) · ( pr1 ϛ (w, U w' ⊗V v)).
+*)
 
 End RelativeStrengths_Natural_Transformation.
 
-Definition rel_strength (F : V ⟶ V): UU :=
+Definition rel_strength (F : VV ⟶ VV): UU :=
   ∑ (ϛ : rel_strength_nat F), (rel_strength_pentagon_eq F ϛ) × (rel_strength_rectangle_eq F ϛ).
 
-Definition rel_strength_with_chosen_inverse (F : V ⟶ V): UU :=
+(* the following was part of a desperate try to avoid z_iso
+Definition rel_strength_with_chosen_inverse (F : VV ⟶ VV): UU :=
   ∑ (ϛ : rel_strength_nat F), (rel_strength_pentagon_eq F ϛ) ×
       ∑ (gphiinv: monoidal_functor_map_codom Mon_W Mon_V (pr1 (pr1 U))
                                              ⟹ monoidal_functor_map_dom Mon_W Mon_V (pr1 (pr1 U))),
   (rel_strength_rectangle_eq_with_given_inverse F gphiinv ϛ).
+*)
 
 
 Section RelativeStrength_Is_An_ActionBasedStrength.
 
-  Context (F: functor V V).
+  Context (F: functor VV VV).
   Context (str: rel_strength F).
 
   Local Definition ϛ := pr1 str.
@@ -216,16 +220,11 @@ Proof.
   - red.
     cbn.
     intro v.
-    unfold Mon_V'.
-    unfold Mon_W'.
-    unfold swapping_of_monoidal_precat.
-    simpl.
-    unfold monoidal_precat_unit, monoidal_precat_right_unitor.
-    simpl.
     change (pr1 ϛ (E, v) · # F (# timesV (phiIinv #, id v) · pr1 lambda v) =
             # timesV (phiIinv #, id F v) · pr1 lambda (F v)).
     rewrite <- pentagon.
     rewrite assoc'. rewrite functor_comp.
+    fold ϛ.
     apply idpath.
   - cbn.
     red.
@@ -235,13 +234,13 @@ Proof.
   · pr1 ϛ' (v, monoidal_precat_tensor Mon_W' (w', w)) =
   # (pr1 (pr2 UAct)) (pr1 ϛ' (v, w') #, id w) · pr1 ϛ' (pr1 (pr2 UAct) (v, w'), w)
   · # F (U_action_χ_nat_trans Mon_W' Mon_V' U' ((v, w'), w))). *)
-    assert (eqaux : (pr1 (pr1 (pr2 (pr2 (pr2 UAct)))) ((F v, w'), w) = pr1 (U_action_χ Mon_W' Mon_V' U') ((F v, w'), w))) by apply idpath.
+    assert (eqaux : (pr1 (χ' Mon_W' UAct) ((F v, w'), w) = pr1 (U_action_χ Mon_W' Mon_V' U') ((F v, w'), w))) by apply idpath.
     assert (eqaux' : pr1 (U_action_χ Mon_W' Mon_V' U') ((F v, w'), w) = U_action_χ_nat_trans Mon_W' Mon_V' U' ((F v, w'), w)) by apply idpath.
     etrans. apply cancel_postcomposition.
     apply eqaux.
     etrans. apply cancel_postcomposition.
     apply eqaux'.
-    assert (eqaux1 : (pr1 (pr1 (pr2 (pr2 (pr2 UAct)))) ((v, w'), w) = pr1 (U_action_χ Mon_W' Mon_V' U') ((v, w'), w))) by apply idpath.
+    assert (eqaux1 : (pr1 (χ Mon_W' UAct) ((v, w'), w) = pr1 (U_action_χ Mon_W' Mon_V' U') ((v, w'), w))) by apply idpath.
     assert (eqaux1' : pr1 (U_action_χ Mon_W' Mon_V' U') ((v, w'), w) = U_action_χ_nat_trans Mon_W' Mon_V' U' ((v, w'), w)) by apply idpath.
     apply pathsinv0.
     etrans. apply maponpaths. apply maponpaths.
@@ -249,7 +248,36 @@ Proof.
     etrans. apply maponpaths. apply maponpaths.
     apply eqaux1'.
     apply pathsinv0.
-(* the goal is now a bit better readable *)
+    (* the goal is now a bit better readable *)
+    unfold ϛ', Mon_W', Mon_V', U', odot'.
+    simpl.
+    unfold is_z_isomorphism_mor.
+    unfold nat_trans_data_post_whisker_fst_param.
+    simpl.
+    set (Hyp := rectangle w w' v).
+    fold ϛ in Hyp.
+    (* the following fails
+    rewrite (swapping_of_strong_monoidal_functor_on_objects U w).
+    Therefore brute force: *)
+    change (pr1
+    (pr2 (monoidal_precat_associator Mon_V)
+       ((U w, U w'), F v))
+  · # (monoidal_precat_tensor Mon_V) (pr1 (pr1 (pr2 (pr2 (pr1 U)))) (w, w') #, id F v)
+  · pr1 ϛ (monoidal_precat_tensor Mon_W (w, w'), v) =
+  # (monoidal_precat_tensor Mon_V) (# U' (id w) #, pr1 ϛ (w', v))
+  · pr1 ϛ (w, monoidal_precat_tensor Mon_V (U' w', v))
+  · # F
+      (pr1
+         (pr2 (monoidal_precat_associator Mon_V)
+            ((U w, U w'), v))
+       · # (monoidal_precat_tensor Mon_V) (pr1 (pr1 (pr2 (pr2 (pr1 U)))) (w, w') #, id v))).
+    fold phi.
+    rewrite functor_id.
+    fold alpha.
+    fold timesV.
+    (* one can now finally start with the mathematics *)
+
+    (* further tinkering *)
     assert (aux1: U_action_χ_nat_trans Mon_W' Mon_V' U' ((v, w'), w) = U_action_χ_nat_trans Mon_W' Mon_V' U' ((v, w'), w)).
     { etrans. unfold U_action_χ_nat_trans. unfold nat_trans_comp. cbn beta iota delta.
       etrans. apply cancel_postcomposition. cbn.

@@ -154,4 +154,9 @@ Proof.
   - exact (pre_whisker_on_nat_z_iso binswap_pair_functor (pr1 (pr2 (pr2 L))) Hμ).
 Defined.
 
+Lemma swapping_of_strong_monoidal_functor_on_objects (Fun: strong_monoidal_functor Mon Mon')(a: C): swapping_of_strong_monoidal_functor Fun a = Fun a.
+Proof.
+  apply idpath.
+Qed.
+
 End swapped_tensor.
