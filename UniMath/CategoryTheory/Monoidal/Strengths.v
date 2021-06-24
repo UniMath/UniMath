@@ -4,6 +4,8 @@
   Based on the definitions in the paper "Second-Order and Dependently-Sorted Abstract Syntax" by Marcelo Fiore.
 
   To distinguish this from less general approaches, we will speak of action-based strength.
+
+  Added by Ralph Matthes in 2021: relative strength of Ahrens and Matthes defined and shown to be an instance of action-based strength
 **)
 
 Require Import UniMath.Foundations.PartD.
@@ -86,6 +88,7 @@ Definition strength_pentagon_eq_variant2 (ϛ : strength_nat): UU := ∏ (a : A),
   pr1 ϛ (a, x ⊗ y) · (#F (nat_z_iso_to_trans_inv χ ((a, x), y))) =
   (nat_z_iso_to_trans_inv χ' ((F a, x), y)) · (pr1 ϛ (a, x)) #⊙' (id y) · (pr1 ϛ (a ⊙ x, y)).
 
+(** as expected, the notions are logically equivalent *)
 Lemma strength_pentagon_eq_tovariant1 (ϛ : strength_nat): strength_pentagon_eq ϛ -> strength_pentagon_eq_variant1 ϛ.
 Proof.
   intros Heq ? ? ?.
@@ -153,14 +156,6 @@ End ActionBasedStrengths_Natural_Transformation.
 
 Definition strength (F : A ⟶ A'): UU := ∑ (ϛ : strength_nat F),
   (strength_triangle_eq F ϛ) × (strength_pentagon_eq F ϛ).
-
-(*
-Definition strength_variant1 (F : A ⟶ A'): UU := ∑ (ϛ : strength_nat F),
-  (strength_triangle_eq F ϛ) × (strength_pentagon_eq_variant1 F ϛ).
-
-Definition strength_variant2 (F : A ⟶ A'): UU := ∑ (ϛ : strength_nat F),
-  (strength_triangle_eq F ϛ) × (strength_pentagon_eq_variant2 F ϛ).
-*)
 
 End ActionBasedStrengths_Definition.
 
@@ -231,29 +226,10 @@ Section RelativeStrengths_Natural_Transformation.
   (phiinv (w, w') #⊗V (identity (F v))) · (pr1 alpha ((U w, U w'), F v)) ·
                                         ((identity (U w)) #⊗V pr1 ϛ (w', v)) · ( pr1 ϛ (w, U w' ⊗V v)).
 
-(* the following was part of a desperate try to avoid z_iso
-  Definition rel_strength_rectangle_eq_with_given_inverse
-  (gphiinv: monoidal_functor_map_codom Mon_W Mon_V (pr1 (pr1 U))
-                                       ⟹ monoidal_functor_map_dom Mon_W Mon_V (pr1 (pr1 U)))
-  (ϛ : rel_strength_nat): UU := ∏ (w w' : W), ∏ (v : VV),
-  ( pr1 ϛ (w •W w', v) ) · (#F (gphiinv (w, w') #⊗V (identity v))) · (#F (pr1 alpha ((U w, U w'), v))) =
-  (gphiinv (w, w') #⊗V (identity (F v))) · (pr1 alpha ((U w, U w'), F v)) ·
-                                        ((identity (U w)) #⊗V pr1 ϛ (w', v)) · ( pr1 ϛ (w, U w' ⊗V v)).
-*)
-
 End RelativeStrengths_Natural_Transformation.
 
 Definition rel_strength (F : VV ⟶ VV): UU :=
   ∑ (ϛ : rel_strength_nat F), (rel_strength_pentagon_eq F ϛ) × (rel_strength_rectangle_eq F ϛ).
-
-(* the following was part of a desperate try to avoid z_iso
-Definition rel_strength_with_chosen_inverse (F : VV ⟶ VV): UU :=
-  ∑ (ϛ : rel_strength_nat F), (rel_strength_pentagon_eq F ϛ) ×
-      ∑ (gphiinv: monoidal_functor_map_codom Mon_W Mon_V (pr1 (pr1 U))
-                                             ⟹ monoidal_functor_map_dom Mon_W Mon_V (pr1 (pr1 U))),
-  (rel_strength_rectangle_eq_with_given_inverse F gphiinv ϛ).
-*)
-
 
 Section RelativeStrength_Is_An_ActionBasedStrength.
 
@@ -290,89 +266,28 @@ Proof.
     fold ϛ.
     apply idpath.
   - cbn.
-    (* apply strength_pentagon_eq_fromvariant1.
-    apply strength_pentagon_eq_variant2variant1. *)
+    apply strength_pentagon_eq_fromvariant1.
+    apply strength_pentagon_eq_variant2variant1.
     red.
     intros v w' w.
-    (* massage the goal a bit - easier roads to it seem blocked - in particular, with the change command that does not terminate! *)
-    (* change (U_action_χ_nat_trans Mon_W' Mon_V' U' ((F v, w'), w)
-  · pr1 ϛ' (v, monoidal_precat_tensor Mon_W' (w', w)) =
-  # (pr1 (pr2 UAct)) (pr1 ϛ' (v, w') #, id w) · pr1 ϛ' (pr1 (pr2 UAct) (v, w'), w)
-  · # F (U_action_χ_nat_trans Mon_W' Mon_V' U' ((v, w'), w))). *)
-    assert (eqaux : (pr1 (χ' Mon_W' UAct) ((F v, w'), w) = pr1 (U_action_χ Mon_W' Mon_V' U') ((F v, w'), w))) by apply idpath.
-    assert (eqaux' : pr1 (U_action_χ Mon_W' Mon_V' U') ((F v, w'), w) = U_action_χ_nat_trans Mon_W' Mon_V' U' ((F v, w'), w)) by apply idpath.
-    etrans. apply cancel_postcomposition.
-    apply eqaux.
-    etrans. apply cancel_postcomposition.
-    apply eqaux'.
-    assert (eqaux1 : (pr1 (χ Mon_W' UAct) ((v, w'), w) = pr1 (U_action_χ Mon_W' Mon_V' U') ((v, w'), w))) by apply idpath.
-    assert (eqaux1' : pr1 (U_action_χ Mon_W' Mon_V' U') ((v, w'), w) = U_action_χ_nat_trans Mon_W' Mon_V' U' ((v, w'), w)) by apply idpath.
-    apply pathsinv0.
-    etrans. apply maponpaths. apply maponpaths.
-    apply eqaux1.
-    etrans. apply maponpaths. apply maponpaths.
-    apply eqaux1'.
-    apply pathsinv0.
-    (* the goal is now a bit better readable *)
     unfold ϛ', Mon_W', Mon_V', U', odot'.
-    simpl.
-    unfold is_z_isomorphism_mor.
-    unfold nat_trans_data_post_whisker_fst_param.
-    simpl.
+    cbn.
+    unfold is_z_isomorphism_mor, pre_whisker_on_nat_z_iso.
+    cbn.
     set (Hyp := rectangle w w' v).
     fold ϛ in Hyp.
-    (* the following fails
-    rewrite (swapping_of_strong_monoidal_functor_on_objects U w).
-    Therefore brute force: *)
-    change (pr1
-    (pr2 (monoidal_precat_associator Mon_V)
-       ((U w, U w'), F v))
-  · # (monoidal_precat_tensor Mon_V) (pr1 (pr1 (pr2 (pr2 (pr1 U)))) (w, w') #, id F v)
-  · pr1 ϛ (monoidal_precat_tensor Mon_W (w, w'), v) =
-  # (monoidal_precat_tensor Mon_V) (# U' (id w) #, pr1 ϛ (w', v))
-  · pr1 ϛ (w, monoidal_precat_tensor Mon_V (U' w', v))
-  · # F
-      (pr1
-         (pr2 (monoidal_precat_associator Mon_V)
-            ((U w, U w'), v))
-       · # (monoidal_precat_tensor Mon_V) (pr1 (pr1 (pr2 (pr2 (pr1 U)))) (w, w') #, id v))).
-    fold phi.
-    rewrite functor_id.
-    fold alpha.
     fold timesV.
-    (* one can now finally start with the mathematics *)
-
-    (* further tinkering *)
-    assert (aux1: U_action_χ_nat_trans Mon_W' Mon_V' U' ((v, w'), w) = U_action_χ_nat_trans Mon_W' Mon_V' U' ((v, w'), w)).
-    { etrans. unfold U_action_χ_nat_trans. unfold nat_trans_comp. cbn beta iota delta.
-      etrans. apply cancel_postcomposition. cbn.
-(* inv_from_iso
-    (make_iso (pr1 (monoidal_precat_associator Mon_V) ((pr1 (pr1 U) w, pr1 (pr1 U) w'), v))
-       (pr2 (monoidal_precat_associator Mon_V) ((pr1 (pr1 U) w, pr1 (pr1 U) w'), v))) =
-
-      apply idpath.
-
-      unfold U_action_χ_nat_trans.
-    unfold nat_trans_comp.
-
-*)
-(*
-other approach:
-    unfold ϛ'.
-    unfold Mon_W'.
-    unfold swapping_of_monoidal_precat.
-    cbn.
-    unfold U'.
-*)
-(* we now have to abstract away from knowledge of being iso
-   U_action_χ_is_nat_iso is opaque!
-    unfold swapping_of_strong_monoidal_functor. unfold swapping_of_lax_monoidal_functor.
-    simpl.
- *)
-Abort.
-
-(* TO BE CONTINUED *)
-
+    fold timesW.
+    fold alpha.
+    change (pr1 ϛ (timesW (w, w'), v)
+  · # F (# timesV (pr1 (pr2 (pr2 U) (w, w')) #, id v) · pr1 alpha ((U w, U w'), v)) =
+  # timesV (pr1 (pr2 (pr2 U) (w, w')) #, id F v) · pr1 alpha ((U w, U w'), F v)
+  · # timesV (# (pr1 (pr1 U)) (id w) #, pr1 ϛ (w', v)) · pr1 ϛ (w, timesV (U w', v))).
+    rewrite functor_id.
+    rewrite functor_comp.
+    rewrite assoc.
+    assumption.
+Defined.
 
 End RelativeStrength_Is_An_ActionBasedStrength.
 

@@ -189,7 +189,7 @@ Proof.
   - use is_z_iso_tensor_z_iso.
     + use identity_is_z_iso.
     + exact (pr2 (pr2 U) (k', k'')).
-Qed.
+Defined.
 
 Definition U_action_χ : action_convertor otimes_U_functor :=
   make_nat_z_iso _ _ U_action_χ_nat_trans U_action_χ_is_nat_z_iso.
