@@ -4,6 +4,7 @@
   Based on an implementation by Anthony Bordg.
 
   Behaviour w.r.t. to swapped tensor product added by Ralph Matthes in 2019
+  Isos replaced by z_isos in 2021
 *)
 
 Require Import UniMath.Foundations.PartD.
@@ -48,7 +49,13 @@ Defined.
 Definition is_iso_tensor_iso {X Y X' Y' : C} {f : X --> Y} {g : X' --> Y'}
            (f_is_iso : is_iso f) (g_is_iso : is_iso g) : is_iso (f #⊗ g).
 Proof.
-  exact (functor_on_is_iso_is_iso (is_iso_binprod_iso f_is_iso g_is_iso)).
+  exact (functor_on_is_iso_is_iso _ (is_iso_binprod_iso f_is_iso g_is_iso)).
+Defined.
+
+Definition is_z_iso_tensor_z_iso {X Y X' Y' : C} {f : X --> Y} {g : X' --> Y'}
+           (f_is_z_iso : is_z_isomorphism f) (g_is_z_iso : is_z_isomorphism g) : is_z_isomorphism (f #⊗ g).
+Proof.
+  exact (functor_on_is_z_isomorphism _ (is_z_iso_binprod_z_iso f_is_z_iso g_is_z_iso)).
 Defined.
 
 (* I ⊗ - *)
@@ -61,7 +68,7 @@ Qed.
 
 (* λ *)
 Definition left_unitor : UU :=
-  nat_iso I_pretensor (functor_identity C).
+  nat_z_iso I_pretensor (functor_identity C).
 
 (* - ⊗ I *)
 Definition I_posttensor : C ⟶ C := functor_fix_snd_arg _ _ _ tensor I.
@@ -73,7 +80,7 @@ Qed.
 
 (* ρ *)
 Definition right_unitor : UU :=
-  nat_iso I_posttensor (functor_identity C).
+  nat_z_iso I_posttensor (functor_identity C).
 
 (* (- ⊗ =) ⊗ ≡ *)
 Definition assoc_left : (C ⊠ C) ⊠ C ⟶ C :=
@@ -99,7 +106,7 @@ Qed.
 
 (* α *)
 Definition associator : UU :=
-  nat_iso assoc_left assoc_right.
+  nat_z_iso assoc_left assoc_right.
 (* This definition goes in the opposite direction of that by Mac Lane (CWM 2nd ed., p.162)
    but conforms to the def. on Wikipedia. *)
 
@@ -113,7 +120,7 @@ Definition pentagon_eq (α' : associator) : UU :=
 Definition is_strict (eq_λ : I_pretensor = functor_identity C) (λ' : left_unitor)
            (eq_ρ : I_posttensor = functor_identity C) (ρ' : right_unitor)
            (eq_α : assoc_left = assoc_right) (α' : associator) : UU :=
-  (is_nat_iso_id eq_λ λ') × (is_nat_iso_id eq_ρ ρ') × (is_nat_iso_id eq_α α').
+  (is_nat_z_iso_id eq_λ λ') × (is_nat_z_iso_id eq_ρ ρ') × (is_nat_z_iso_id eq_α α').
 
 End Monoidal_Precat.
 
@@ -174,22 +181,22 @@ Section swapped_tensor.
 
   Context (M : monoidal_precat).
 
-  Let C := monoidal_precat_precat M.
-  Let tensor := monoidal_precat_tensor M.
+  Local Definition C := monoidal_precat_precat M.
+  Local Definition tensor := monoidal_precat_tensor M.
 
 Definition swapping_of_tensor: C ⊠ C ⟶ C := functor_composite binswap_pair_functor tensor.
 
 Definition associator_swapping_of_tensor: associator swapping_of_tensor.
 Proof.
   set (α := monoidal_precat_associator M).
-  set (α' := nat_iso_to_trans_inv α).
+  set (α' := nat_z_iso_to_trans_inv α).
   red.
   set (trafo := (pre_whisker reverse_three_args α'): (assoc_left swapping_of_tensor) ⟹ (assoc_right swapping_of_tensor)).
-  assert (tisiso: is_nat_iso trafo).
-  { red. intro c. set (aux := pr2 (nat_iso_inv α)).
-    apply (pre_whisker_iso_is_iso reverse_three_args α' aux).
+  assert (tisziso: is_nat_z_iso trafo).
+  { red. intro c. set (aux := pr2 (nat_z_iso_inv α)).
+    apply (pre_whisker_on_nat_z_iso reverse_three_args α' aux).
   }
-  exact (trafo,, tisiso).
+  exact (trafo,, tisziso).
 Defined.
 
 Lemma triangle_eq_swapping_of_tensor: triangle_eq swapping_of_tensor (monoidal_precat_unit M)
@@ -198,18 +205,19 @@ Proof.
   red. intros a b. cbn.
   set (H := pr1 (monoidal_precat_eq M)).
   unfold triangle_eq in H.
-  eapply pathscomp0.
+  etrans.
   2: { apply cancel_precomposition.
        apply pathsinv0.
        apply H. }
   clear H.
   rewrite assoc.
-  eapply pathscomp0.
+  etrans.
   { apply pathsinv0.
     apply id_left. }
   apply cancel_postcomposition.
   apply pathsinv0.
-  apply iso_after_iso_inv.
+  set (f := nat_z_iso_pointwise_z_iso (monoidal_precat_associator M)((b, monoidal_precat_unit M), a)).
+  apply (z_iso_after_z_iso_inv f).
 Qed.
 
 Lemma pentagon_eq_swapping_of_tensor: pentagon_eq swapping_of_tensor associator_swapping_of_tensor.
@@ -217,42 +225,46 @@ Proof.
   red. intros a b c d. cbn.
   set (H := pr2 (monoidal_precat_eq M)).
   unfold pentagon_eq in H.
-  apply iso_inv_on_right.
+  set (f := nat_z_iso_pointwise_z_iso (monoidal_precat_associator M) ((d, c), tensor (b, a))).
+  apply (z_iso_inv_on_right _ _ _ f).
   apply pathsinv0.
-  apply inv_iso_unique'.
+  set (f' := nat_z_iso_pointwise_z_iso (monoidal_precat_associator M) ((tensor (d, c), b), a)).
+  apply (inv_z_iso_unique' _ _ _ f').
   unfold precomp_with.
   rewrite assoc.
-  eapply pathscomp0.
+  etrans.
   { apply cancel_postcomposition.
     apply H. }
   clear H.
   repeat rewrite assoc.
-  eapply pathscomp0.
+  etrans.
   { do 2 apply cancel_postcomposition.
     rewrite <- assoc.
     apply cancel_precomposition.
     apply pathsinv0.
     apply (functor_comp (functor_fix_fst_arg _ _ _ tensor d)).
   }
-  eapply pathscomp0.
+  etrans.
   { do 2 apply cancel_postcomposition.
     apply cancel_precomposition.
     apply maponpaths.
-    apply (iso_inv_after_iso (make_iso _ (pr2 (monoidal_precat_associator M) ((c, b), a)))). }
+    apply (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso (monoidal_precat_associator M) ((c, b), a))). }
   rewrite functor_id.
   rewrite id_right.
-  eapply pathscomp0.
+  etrans.
   { apply cancel_postcomposition.
     rewrite <- assoc.
     apply cancel_precomposition.
-    apply (iso_inv_after_iso (make_iso _ (pr2 (monoidal_precat_associator M) ((d, tensor (c, b)), a)))). }
+    apply (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso (monoidal_precat_associator M) ((d, tensor (c, b)), a))). }
   rewrite id_right.
-  eapply pathscomp0.
+  etrans.
   apply pathsinv0.
   apply (functor_comp (functor_fix_snd_arg _ _ _ tensor a)).
-  eapply pathscomp0.
+  etrans.
   { apply maponpaths.
-    apply (iso_inv_after_iso (make_iso _ (pr2 (monoidal_precat_associator M) ((d, c), b)))). }
+    apply (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso (monoidal_precat_associator M) ((d, c), b))). }
+  cbn.
+  unfold functor_fix_snd_arg_mor.
   use functor_id.
 Qed.
 

@@ -107,7 +107,7 @@ Section Accessors.
         (functor_composite F (right_adjoint  (pr1 HF))).
   Proof.
     exists (unit_from_left_adjoint (pr1 HF)).
-    apply functor_iso_if_pointwise_iso.
+    apply functor_iso_if_pointwise_iso. intro c.
     apply (pr1 (pr2 HF)).
   Defined.
 
@@ -116,7 +116,7 @@ Section Accessors.
         (functor_identity B).
   Proof.
     exists (counit_from_left_adjoint (pr1 HF)).
-    apply functor_iso_if_pointwise_iso.
+    apply functor_iso_if_pointwise_iso. intro c.
     apply (pr2 (pr2 HF)).
   Defined.
 End Accessors.
@@ -198,14 +198,14 @@ Let G : functor D C := right_functor E.
 Let ηntiso : iso (C:= [C,C,homset_property _ ]) (functor_identity _ ) (F ∙ G).
 Proof.
   use functor_iso_from_pointwise_iso.
-  use (adjunit E).
+  use (adjunit E). intro c.
   apply (pr1 (pr2 E)).
 Defined.
 
 Let εntiso : iso (C:= [D,D,homset_property _ ]) (G ∙ F) (functor_identity _ ).
 Proof.
   use functor_iso_from_pointwise_iso.
-  use (adjcounit E).
+  use (adjcounit E). intro c.
   apply (pr2 (pr2 E)).
 Defined.
 

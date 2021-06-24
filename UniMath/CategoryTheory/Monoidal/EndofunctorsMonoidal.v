@@ -2,7 +2,7 @@
 
 Ralph Matthes
 
-2019
+2019, change to [z_iso] as base notion in 2021
 *)
 
 (** **********************************************************
@@ -49,17 +49,16 @@ Qed.
 
 Definition left_unitor_of_endofunctors: left_unitor (functorial_composition C C C hs hs) (functor_identity C).
 Proof.
-  use make_nat_iso.
+  use make_nat_z_iso.
   + use make_nat_trans.
     * intro F. apply λ_functor.
     * apply is_nat_trans_left_unitor_data.
-    + red. intro F.
-      use functor_iso_if_pointwise_iso.
-      intro c.
-      apply Isos.is_iso_from_is_z_iso.
-      use tpair.
-      * exact (identity (pr1 F c)).
-      * abstract ( apply Isos.is_inverse_in_precat_identity ).
+  + red. intro F. cbn.
+    use functor_z_iso_if_pointwise_z_iso.
+    intro c.
+    use tpair.
+    * exact (identity (pr1 F c)).
+    * abstract ( apply Isos.is_inverse_in_precat_identity ).
 Defined.
 
 Lemma is_nat_trans_right_unitor_data: is_nat_trans (I_posttensor (functorial_composition C C C hs hs) (functor_identity C))
@@ -75,14 +74,13 @@ Qed.
 
 Definition right_unitor_of_endofunctors: right_unitor (functorial_composition C C C hs hs) (functor_identity C).
 Proof.
-  use make_nat_iso.
+  use make_nat_z_iso.
   + use make_nat_trans.
     * intro F. apply ρ_functor.
     * apply is_nat_trans_right_unitor_data.
-  + red. intro F.
-    use functor_iso_if_pointwise_iso.
+  + red. intro F. cbn.
+    use functor_z_iso_if_pointwise_z_iso.
     intro c.
-    apply Isos.is_iso_from_is_z_iso.
     use tpair.
     * exact (identity (pr1 F c)).
     * abstract ( apply Isos.is_inverse_in_precat_identity ).
@@ -106,11 +104,11 @@ Qed.
 
 Definition associator_of_endofunctors: associator (functorial_composition C C C hs hs).
 Proof.
-  use make_nat_iso.
+  use make_nat_z_iso.
   + use make_nat_trans.
     * intro F. apply α_functor.
     * apply is_nat_trans_associator_data.
-  + intro F; use functor_iso_if_pointwise_iso; intro c; apply Isos.is_iso_from_is_z_iso.
+  + intro F; use functor_z_iso_if_pointwise_z_iso; intro c.
     use tpair.
     * apply α_functor_inv.
     * abstract ( apply Isos.is_inverse_in_precat_identity ).

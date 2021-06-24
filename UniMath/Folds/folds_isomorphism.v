@@ -484,7 +484,7 @@ Proof.
   - simpl. apply logeqweq.
     + intro H. apply id_identity2.
       rewrite (id_identity2' H). rewrite (@id_left C').
-      apply (z_iso_after_z_iso_inv _ _ f).
+      apply (z_iso_after_z_iso_inv f).
     + intro H. apply id_identity2.
       set (H':=id_identity2' H); clearbody H'; clear H.
       set (H2:=z_iso_inv_to_left _ _ _ f _ _ H'); clearbody H2.

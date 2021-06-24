@@ -56,10 +56,10 @@ Proof.
   - split. { intros ? ? f. exact (id f). }
     split. { intros ? ? f. apply l. }
     split. { intros ? ? f. apply ρ. }
-    split. { intros ? ? f. apply (nat_iso_inv l). }
-    split. { intros ? ? f. apply (nat_iso_inv ρ). }
+    split. { intros ? ? f. apply (nat_z_iso_inv l). }
+    split. { intros ? ? f. apply (nat_z_iso_inv ρ). }
     split. { intros ? ? ? ? f g h. apply (pr1 α ((f , g) , h)). }
-    split. { intros ? ? ? ? f g h. apply (pr1 (nat_iso_inv α) ((f , g) , h)). }
+    split. { intros ? ? ? ? f g h. apply (pr1 (nat_z_iso_inv α) ((f , g) , h)). }
     split. { intros ? ? f g h. exact compose. }
     split. { intros ? ? ? f g h. exact (λ u, (id f #⊗ u)). }
              intros ? ? ? f g h. exact (λ u, (u #⊗ id h)).
@@ -102,7 +102,7 @@ Proof.
   split. {
     intros ? ? ? ? f g h i x.
     etrans.
-    exact (pr21 (nat_iso_inv α) _ _ ((id f #, id g) #, x)).
+    exact (pr21 (nat_z_iso_inv α) _ _ ((id f #, id g) #, x)).
     exact (maponpaths (fun z => _ · (z #⊗ _)) (functor_id tensor (f , g))).
   }
 
@@ -110,7 +110,7 @@ Proof.
   split. {
     intros ? ? ? ? f g h i x.
     etrans.
-    exact (pr21 (nat_iso_inv α) _ _ ((id f #, x) #, id i)).
+    exact (pr21 (nat_z_iso_inv α) _ _ ((id f #, x) #, id i)).
     apply idpath.
   }
 
@@ -118,7 +118,7 @@ Proof.
   split. {
     intros ? ? ? ? f g h i x.
     etrans.
-    exact (!(pr21 (nat_iso_inv α) _ _ ((x #, id h) #, id i))).
+    exact (!(pr21 (nat_z_iso_inv α) _ _ ((x #, id h) #, id i))).
     exact (maponpaths (fun z => (_ #⊗ z) · _) (functor_id tensor (h , i))).
   }
 
@@ -136,23 +136,23 @@ Proof.
   }
 
   (* 12. Left unitor invertible. *)
-  split. { intros ? ? f. exact (iso_inv_after_iso (pr1 l f,, pr2 l f)). }
-  split. { intros ? ? f. exact (iso_after_iso_inv (pr1 l f,, pr2 l f)). }
+  split. { intros ? ? f. exact (z_iso_inv_after_z_iso (pr1 l f,, pr2 l f)). }
+  split. { intros ? ? f. exact (z_iso_after_z_iso_inv (pr1 l f,, pr2 l f)). }
 
   (* 13. Right unitor invertible. *)
-  split. { intros ? ? f. exact (iso_inv_after_iso (pr1 ρ f,, pr2 ρ f)). }
-  split. { intros ? ? f. exact (iso_after_iso_inv (pr1 ρ f,, pr2 ρ f)). }
+  split. { intros ? ? f. exact (z_iso_inv_after_z_iso (pr1 ρ f,, pr2 ρ f)). }
+  split. { intros ? ? f. exact (z_iso_after_z_iso_inv (pr1 ρ f,, pr2 ρ f)). }
 
   (* 14. Associator invertible. *)
-  split. { intros ? ? ? ? f g h. exact (iso_after_iso_inv ( pr1 α ((f, g), h) ,, pr2 α ((f, g), h) )). }
-  split. { intros ? ? ? ? f g h. exact (iso_inv_after_iso ( pr1 α ((f, g), h) ,, pr2 α ((f, g), h) )). }
+  split. { intros ? ? ? ? f g h. exact (z_iso_after_z_iso_inv ( pr1 α ((f, g), h) ,, pr2 α ((f, g), h) )). }
+  split. { intros ? ? ? ? f g h. exact (z_iso_inv_after_z_iso ( pr1 α ((f, g), h) ,, pr2 α ((f, g), h) )). }
 
   (* 15. Right unitor whiskering. *)
   split. {
     intros ? ? ? f g.
     etrans. exact (maponpaths (fun z => _ · z) (triangle_equality _ _)).
     etrans. exact (assoc _ _ _).
-    etrans. exact (maponpaths (fun z => z · _) (iso_after_iso_inv ( pr1 α ((f, I), g) ,, pr2 α ((f, I), g) ))).
+    etrans. exact (maponpaths (fun z => z · _) (z_iso_after_z_iso_inv ( pr1 α ((f, I), g) ,, pr2 α ((f, I), g) ))).
     exact (id_left _).
   }
 
@@ -161,13 +161,13 @@ Proof.
   monoidal category, we need to rewrite the equation in order to apply it. *)
   intros ? ? ? ? ? f g h i.
   cbn.
-  apply (pre_comp_with_iso_is_inj _ _ _ (pr1 α ((f, g), h ⊗ i)) (pr2 α _) _ _).
-  apply (pre_comp_with_iso_is_inj _ _ _ (pr1 α (((f ⊗ g), h) , i)) (pr2 α _) _ _).
+  apply (pre_comp_with_z_iso_is_inj'(f := pr1 α ((f, g), h ⊗ i)) (pr2 α _)).
+  apply (pre_comp_with_z_iso_is_inj'(f := pr1 α (((f ⊗ g), h) , i)) (pr2 α _)).
   apply pathsinv0.
   etrans. exact (maponpaths (fun z => _ · z) (assoc _ _ _)).
-  etrans. exact (maponpaths (fun z => _ · (z · _)) (iso_inv_after_iso (pr1 α ((f, g), _) ,, pr2 α _ ))).
+  etrans. exact (maponpaths (fun z => _ · (z · _)) (z_iso_inv_after_z_iso (pr1 α ((f, g), _) ,, pr2 α _ ))).
   etrans. exact (maponpaths (fun z => _ · z) (id_left _)).
-  etrans. exact (iso_inv_after_iso (pr1 α ((f ⊗ g, h), _) ,, pr2 α _ )).
+  etrans. exact (z_iso_inv_after_z_iso (pr1 α ((f ⊗ g, h), _) ,, pr2 α _ )).
   apply pathsinv0.
   etrans. exact (assoc _ _ _).
   etrans. exact (assoc _ _ _).
@@ -176,17 +176,17 @@ Proof.
   etrans. exact (maponpaths (fun z => (_ · z · _)) (assoc _ _ _)).
   etrans. exact (maponpaths (fun z => (_ · (z · _) · _)) (!(functor_comp tensor _ _))). cbn.
   etrans. exact (maponpaths (fun z => (_ · ((z #⊗ _) · _) · _)) (id_left _)).
-  etrans. exact (maponpaths (fun z => (_ · ((_ #⊗ z) · _) · _)) (iso_inv_after_iso (pr1 α ((g, h), i) ,, pr2 α _))).
+  etrans. exact (maponpaths (fun z => (_ · ((_ #⊗ z) · _) · _)) (z_iso_inv_after_z_iso (pr1 α ((g, h), i) ,, pr2 α _))).
   assert (aux: # tensor (id (f, (assoc_left (pr12 M)) ((g, h), i))) = id (f ⊗ (assoc_left (pr12 M)) ((g, h), i))) by
   exact (functor_id tensor ( f , (assoc_left (pr12 M)) ((g, h), i))).
   etrans. exact (maponpaths (fun z => (_ · (z · _) · _)) aux).
   etrans. exact (maponpaths (fun z => (_ · z · _)) (id_left _)).
   etrans. exact (maponpaths (fun z => (z · _)) (!(assoc _ _ _))).
-  etrans. exact (maponpaths (fun z => (_ · z · _)) (iso_inv_after_iso (pr1 α ((f,g ⊗ h),i) ,, pr2 α _))).
+  etrans. exact (maponpaths (fun z => (_ · z · _)) (z_iso_inv_after_z_iso (pr1 α ((f,g ⊗ h),i) ,, pr2 α _))).
   etrans. exact (maponpaths (fun z => (z · _)) (id_right _)).
   etrans. exact (!(functor_comp tensor _ _)).
   etrans. exact (maponpaths (fun z => (_ #⊗ z)) (id_right _)).
-  etrans. exact (maponpaths (fun z => (z #⊗ _)) (iso_inv_after_iso (pr1 α ((f,g),h) ,, pr2 α _))).
+  etrans. exact (maponpaths (fun z => (z #⊗ _)) (z_iso_inv_after_z_iso (pr1 α ((f,g),h) ,, pr2 α _))).
   apply (functor_id tensor).
 Defined.
 
@@ -249,22 +249,22 @@ Local Notation tensor := tensor_from_prebicat_and_ob.
 
 Local Definition build_left_unitor: left_unitor tensor (id c0).
 Proof.
-  use make_nat_iso.
+  use make_nat_z_iso.
   + use make_nat_trans.
     * intro c.
       apply lunitor.
     * abstract ( intros a b f; apply lunitor_natural ).
-  + intro c; apply is_iso_lunitor.
+  + intro c; apply is_z_iso_lunitor.
 Defined.
 
 Local Definition build_right_unitor: right_unitor tensor (id c0).
 Proof.
-  use make_nat_iso.
+  use make_nat_z_iso.
   + use make_nat_trans.
     * intro c.
       apply runitor.
     * abstract ( intros a b f; apply runitor_natural ).
-  + intro c; apply is_iso_runitor.
+  + intro c; apply is_z_iso_runitor.
 Defined.
 
 Definition nat_trans_associator: assoc_left tensor ⟹ assoc_right tensor.
@@ -289,9 +289,9 @@ Defined.
 
 Local Definition build_associator: associator tensor.
 Proof.
-  use make_nat_iso.
+  use make_nat_z_iso.
   - exact nat_trans_associator.
-  - intro c; apply is_iso_rassociator.
+  - intro c; apply is_z_iso_rassociator.
 Defined.
 
 Definition monoidal_precat_from_prebicat_and_ob: monoidal_precat.

@@ -1,6 +1,6 @@
 (** Monoidal functors *)
 
-(** behaviour w.r.t. to swapped tensor products added by Ralph Matthes in 2019 *)
+(** behaviour w.r.t. to swapped tensor products added by Ralph Matthes in 2019, then iso changed to z_iso in 2021 *)
 
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -17,23 +17,23 @@ Section Monoidal_Functor.
 
 Context (Mon_C Mon_D : monoidal_precat).
 
-Let C := monoidal_precat_precat Mon_C.
-Let tensor_C := monoidal_precat_tensor Mon_C.
+Local Definition C := monoidal_precat_precat Mon_C.
+Local Definition tensor_C := monoidal_precat_tensor Mon_C.
 Notation "X ⊗_C Y" := (tensor_C (X , Y)) (at level 31).
 Notation "f #⊗_C g" := (# tensor_C (f #, g)) (at level 31).
-Let I_C := monoidal_precat_unit Mon_C.
-Let α_C := monoidal_precat_associator Mon_C.
-Let λ_C := monoidal_precat_left_unitor Mon_C.
-Let ρ_C := monoidal_precat_right_unitor Mon_C.
+Local Definition I_C := monoidal_precat_unit Mon_C.
+Local Definition α_C := monoidal_precat_associator Mon_C.
+Local Definition λ_C := monoidal_precat_left_unitor Mon_C.
+Local Definition ρ_C := monoidal_precat_right_unitor Mon_C.
 
-Let D := monoidal_precat_precat Mon_D.
-Let tensor_D := monoidal_precat_tensor Mon_D.
+Local Definition D := monoidal_precat_precat Mon_D.
+Local Definition tensor_D := monoidal_precat_tensor Mon_D.
 Notation "X ⊗_D Y" := (tensor_D (X , Y)) (at level 31).
 Notation "f #⊗_D g" := (# tensor_D (f #, g)) (at level 31).
-Let I_D := monoidal_precat_unit Mon_D.
-Let α_D := monoidal_precat_associator Mon_D.
-Let λ_D := monoidal_precat_left_unitor Mon_D.
-Let ρ_D := monoidal_precat_right_unitor Mon_D.
+Local Definition I_D := monoidal_precat_unit Mon_D.
+Local Definition α_D := monoidal_precat_associator Mon_D.
+Local Definition λ_D := monoidal_precat_left_unitor Mon_D.
+Local Definition ρ_D := monoidal_precat_right_unitor Mon_D.
 
 Section Monoidal_Functor_Conditions.
 
@@ -85,9 +85,9 @@ Definition mk_lax_monoidal_functor (F : C ⟶ D) (ϵ : I_D --> F I_C)
 
 Definition strong_monoidal_functor : UU :=
   ∑ L : lax_monoidal_functor,
-  (is_iso (pr1 (pr2 L))) (* ϵ is an iso *)
+  (is_z_isomorphism (pr1 (pr2 L))) (* ϵ is an iso *)
   ×
-  (is_nat_iso (pr1 (pr2 (pr2 L)))). (* μ is an iso *)
+  (is_nat_z_iso (pr1 (pr2 (pr2 L)))). (* μ is an iso *)
 
 End Monoidal_Functor.
 
@@ -98,10 +98,10 @@ Section swapped_tensor.
 
   Context {Mon Mon' : monoidal_precat}.
 
-  Let C := monoidal_precat_precat Mon.
-  Let C' := monoidal_precat_precat Mon'.
-  Let tensor := monoidal_precat_tensor Mon.
-  Let tensor' := monoidal_precat_tensor Mon'.
+  Local Definition CC := monoidal_precat_precat Mon.
+  Local Definition C' := monoidal_precat_precat Mon'.
+  Local Definition tensor := monoidal_precat_tensor Mon.
+  Local Definition tensor' := monoidal_precat_tensor Mon'.
 
 Lemma swapping_of_lax_monoidal_functor_assoc (Fun: lax_monoidal_functor Mon Mon'):
     let F := pr1 Fun in let μ := pr1 (pr2 (pr2 Fun)) in
@@ -111,19 +111,20 @@ Proof.
   induction Fun as [F [ϵ [μ [Hass Hunit]]]].
   red. intros x y z.
   set (Hass_inst := Hass z y x).
-  apply pathsinv0. rewrite <- assoc. apply iso_inv_on_right.
-  transparent assert (is : (is_iso (# F ((pr1 (monoidal_precat_associator Mon)) ((z, y), x))))).
-  { apply functor_on_is_iso_is_iso.
+  apply pathsinv0. rewrite <- assoc.
+  cbn.
+  set (f := nat_z_iso_pointwise_z_iso (monoidal_precat_associator Mon') ((F z, F y), F x)).
+  apply (z_iso_inv_on_right _ _ _ f).
+  transparent assert (is : (is_z_isomorphism (# F ((pr1 (monoidal_precat_associator Mon)) ((z, y), x))))).
+  { apply functor_on_is_z_isomorphism.
     apply monoidal_precat_associator.
   }
-  set (Hass_inst' := iso_inv_on_left _ _ _ _ (_,, is) _ (! Hass_inst)).
-  eapply pathscomp0.
+  set (Hass_inst' := z_iso_inv_on_left _ _ _ _ (_,, is) _ (! Hass_inst)).
+  etrans.
   { exact Hass_inst'. }
   clear Hass_inst Hass_inst'.
   do 2 rewrite assoc.
   apply cancel_precomposition.
-  eapply pathscomp0.
-  2: { cbn. apply functor_on_inv_from_iso'. }
   apply idpath.
 Qed.
 
@@ -150,7 +151,12 @@ Proof.
   apply (tpair _ (swapping_of_lax_monoidal_functor L)).
   split.
   - exact Hϵ.
-  - exact (pre_whisker_iso_is_iso binswap_pair_functor (pr1 (pr2 (pr2 L))) Hμ).
+  - exact (pre_whisker_on_nat_z_iso binswap_pair_functor (pr1 (pr2 (pr2 L))) Hμ).
 Defined.
+
+Lemma swapping_of_strong_monoidal_functor_on_objects (Fun: strong_monoidal_functor Mon Mon')(a: CC): swapping_of_strong_monoidal_functor Fun a = Fun a.
+Proof.
+  apply idpath.
+Qed.
 
 End swapped_tensor.
