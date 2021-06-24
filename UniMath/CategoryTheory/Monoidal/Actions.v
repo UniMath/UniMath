@@ -20,14 +20,14 @@ Section A.
 
 Context (Mon_V : monoidal_precat).
 
-Let V := monoidal_precat_precat Mon_V.
-Let I := monoidal_precat_unit Mon_V.
-Let tensor := monoidal_precat_tensor Mon_V.
+Local Definition V := monoidal_precat_precat Mon_V.
+Local Definition I := monoidal_precat_unit Mon_V.
+Local Definition tensor := monoidal_precat_tensor Mon_V.
 Notation "X ⊗ Y" := (tensor (X , Y)).
 Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
-Let α' := monoidal_precat_associator Mon_V.
-Let λ' := monoidal_precat_left_unitor Mon_V.
-Let ρ' := monoidal_precat_right_unitor Mon_V.
+Local Definition α' := monoidal_precat_associator Mon_V.
+Local Definition λ' := monoidal_precat_left_unitor Mon_V.
+Local Definition ρ' := monoidal_precat_right_unitor Mon_V.
 
 Section Actions_Definition.
 
@@ -103,14 +103,14 @@ Section Strong_Monoidal_Functor_Action.
 
 Context (Mon_A : monoidal_precat).
 
-Let A := monoidal_precat_precat Mon_A.
-Let I_A := monoidal_precat_unit Mon_A.
+Local Definition A := monoidal_precat_precat Mon_A.
+Local Definition I_A := monoidal_precat_unit Mon_A.
 Local Definition tensor_A := monoidal_precat_tensor Mon_A.
 Notation "X ⊗_A Y" := (tensor_A (X , Y)) (at level 31).
 Notation "f #⊗_A g" := (#tensor_A (f #, g)) (at level 31).
-Let α_A := monoidal_precat_associator Mon_A.
-Let λ_A := monoidal_precat_left_unitor Mon_A.
-Let ρ_A := monoidal_precat_right_unitor Mon_A.
+Local Definition α_A := monoidal_precat_associator Mon_A.
+Local Definition λ_A := monoidal_precat_left_unitor Mon_A.
+Local Definition ρ_A := monoidal_precat_right_unitor Mon_A.
 Local Definition triangle_eq_A := pr1 (monoidal_precat_eq Mon_A).
 Local Definition pentagon_eq_A := pr2 (monoidal_precat_eq Mon_A).
 

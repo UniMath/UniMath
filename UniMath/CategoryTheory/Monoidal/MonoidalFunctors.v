@@ -17,23 +17,23 @@ Section Monoidal_Functor.
 
 Context (Mon_C Mon_D : monoidal_precat).
 
-Let C := monoidal_precat_precat Mon_C.
-Let tensor_C := monoidal_precat_tensor Mon_C.
+Local Definition C := monoidal_precat_precat Mon_C.
+Local Definition tensor_C := monoidal_precat_tensor Mon_C.
 Notation "X ⊗_C Y" := (tensor_C (X , Y)) (at level 31).
 Notation "f #⊗_C g" := (# tensor_C (f #, g)) (at level 31).
-Let I_C := monoidal_precat_unit Mon_C.
-Let α_C := monoidal_precat_associator Mon_C.
-Let λ_C := monoidal_precat_left_unitor Mon_C.
-Let ρ_C := monoidal_precat_right_unitor Mon_C.
+Local Definition I_C := monoidal_precat_unit Mon_C.
+Local Definition α_C := monoidal_precat_associator Mon_C.
+Local Definition λ_C := monoidal_precat_left_unitor Mon_C.
+Local Definition ρ_C := monoidal_precat_right_unitor Mon_C.
 
-Let D := monoidal_precat_precat Mon_D.
-Let tensor_D := monoidal_precat_tensor Mon_D.
+Local Definition D := monoidal_precat_precat Mon_D.
+Local Definition tensor_D := monoidal_precat_tensor Mon_D.
 Notation "X ⊗_D Y" := (tensor_D (X , Y)) (at level 31).
 Notation "f #⊗_D g" := (# tensor_D (f #, g)) (at level 31).
-Let I_D := monoidal_precat_unit Mon_D.
-Let α_D := monoidal_precat_associator Mon_D.
-Let λ_D := monoidal_precat_left_unitor Mon_D.
-Let ρ_D := monoidal_precat_right_unitor Mon_D.
+Local Definition I_D := monoidal_precat_unit Mon_D.
+Local Definition α_D := monoidal_precat_associator Mon_D.
+Local Definition λ_D := monoidal_precat_left_unitor Mon_D.
+Local Definition ρ_D := monoidal_precat_right_unitor Mon_D.
 
 Section Monoidal_Functor_Conditions.
 
@@ -98,10 +98,10 @@ Section swapped_tensor.
 
   Context {Mon Mon' : monoidal_precat}.
 
-  Let C := monoidal_precat_precat Mon.
-  Let C' := monoidal_precat_precat Mon'.
-  Let tensor := monoidal_precat_tensor Mon.
-  Let tensor' := monoidal_precat_tensor Mon'.
+  Local Definition CC := monoidal_precat_precat Mon.
+  Local Definition C' := monoidal_precat_precat Mon'.
+  Local Definition tensor := monoidal_precat_tensor Mon.
+  Local Definition tensor' := monoidal_precat_tensor Mon'.
 
 Lemma swapping_of_lax_monoidal_functor_assoc (Fun: lax_monoidal_functor Mon Mon'):
     let F := pr1 Fun in let μ := pr1 (pr2 (pr2 Fun)) in
@@ -154,7 +154,7 @@ Proof.
   - exact (pre_whisker_on_nat_z_iso binswap_pair_functor (pr1 (pr2 (pr2 L))) Hμ).
 Defined.
 
-Lemma swapping_of_strong_monoidal_functor_on_objects (Fun: strong_monoidal_functor Mon Mon')(a: C): swapping_of_strong_monoidal_functor Fun a = Fun a.
+Lemma swapping_of_strong_monoidal_functor_on_objects (Fun: strong_monoidal_functor Mon Mon')(a: CC): swapping_of_strong_monoidal_functor Fun a = Fun a.
 Proof.
   apply idpath.
 Qed.

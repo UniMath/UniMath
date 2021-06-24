@@ -181,8 +181,8 @@ Section swapped_tensor.
 
   Context (M : monoidal_precat).
 
-  Let C := monoidal_precat_precat M.
-  Let tensor := monoidal_precat_tensor M.
+  Local Definition C := monoidal_precat_precat M.
+  Local Definition tensor := monoidal_precat_tensor M.
 
 Definition swapping_of_tensor: C ⊠ C ⟶ C := functor_composite binswap_pair_functor tensor.
 

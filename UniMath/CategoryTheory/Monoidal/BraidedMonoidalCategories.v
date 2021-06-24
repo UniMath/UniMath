@@ -28,9 +28,9 @@ Section Braiding.
 
 (** In this section, fix a monoidal category. *)
 Context (MonM : monoidal_precat).
-Let M        := monoidal_precat_precat MonM.
-Let tensor   := monoidal_precat_tensor MonM.
-Let α        := monoidal_precat_associator MonM.
+Local Definition M        := monoidal_precat_precat MonM.
+Local Definition tensor   := monoidal_precat_tensor MonM.
+Local Definition α        := monoidal_precat_associator MonM.
 
 Notation "X ⊗ Y" := (tensor (X, Y)).
 Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
@@ -42,9 +42,9 @@ Definition braiding : UU := nat_z_iso tensor (tensor □ binswap_pair_functor).
 Section HexagonEquations.
 
 Context (braid : braiding).
-Let γ := pr1 braid.
-Let α₁ := pr1 α.
-Let α₂ := pr1 (nat_z_iso_inv α).
+Local Definition γ := pr1 braid.
+Local Definition α₁ := pr1 α.
+Local Definition α₂ := pr1 (nat_z_iso_inv α).
 
 Definition first_hexagon_eq : UU :=
   ∏ (a b c : M) ,

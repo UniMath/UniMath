@@ -91,7 +91,7 @@ Definition strength_pentagon_eq_variant2 (ϛ : strength_nat): UU := ∏ (a : A),
 (** as expected, the notions are logically equivalent *)
 Lemma strength_pentagon_eq_tovariant1 (ϛ : strength_nat): strength_pentagon_eq ϛ -> strength_pentagon_eq_variant1 ϛ.
 Proof.
-  intros Heq ? ? ?.
+  intros Heq a x y.
   red in Heq.
   apply pathsinv0.
   unfold nat_z_iso_to_trans_inv; cbn.
@@ -106,7 +106,7 @@ Qed.
 
 Lemma strength_pentagon_eq_fromvariant1 (ϛ : strength_nat): strength_pentagon_eq_variant1 ϛ -> strength_pentagon_eq ϛ.
 Proof.
-  intros Heq ? ? ?.
+  intros Heq a x y.
   red in Heq.
   unfold nat_z_iso_to_trans_inv in Heq; cbn in Heq.
   unfold is_z_isomorphism_mor in Heq.
@@ -120,7 +120,7 @@ Qed.
 
 Lemma strength_pentagon_eq_variant1variant2 (ϛ : strength_nat): strength_pentagon_eq_variant1 ϛ -> strength_pentagon_eq_variant2 ϛ.
 Proof.
-  intros Heq ? ? ?.
+  intros Heq a x y.
   red in Heq.
   etrans.
   { unfold nat_z_iso_to_trans_inv.  cbn.
@@ -137,7 +137,7 @@ Qed.
 
 Lemma strength_pentagon_eq_variant2variant1 (ϛ : strength_nat): strength_pentagon_eq_variant2 ϛ -> strength_pentagon_eq_variant1 ϛ.
 Proof.
-  intros Heq ? ? ?.
+  intros Heq a x y.
   red in Heq.
   apply pathsinv0.
   apply (z_iso_inv_to_right _ _ _ _ (make_z_iso (# F (pr1 χ ((a, x), y)))
