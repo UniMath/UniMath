@@ -369,6 +369,14 @@ Defined.
 Definition is_nat_z_iso_id {C D : precategory} {F G : C ⟶ D} (eq : F = G) (ν : nat_z_iso F G) : UU :=
   ∏ (c : C), nat_comp_to_endo eq (nat_z_iso_to_trans ν c) = identity (F c).
 
+
+Lemma is_nat_z_iso_nat_trans_id {C D : precategory} (F : C ⟶ D): is_nat_z_iso (nat_trans_id F).
+Proof.
+  intro c.
+  exists (identity (F c)).
+  split; apply id_right.
+Defined.
+
 End nat_trans.
 
 Notation "F ⟹ G" := (nat_trans F G) (at level 39) : cat.

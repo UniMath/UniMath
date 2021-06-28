@@ -27,6 +27,8 @@ Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
+Require Import UniMath.CategoryTheory.Monoidal.EndofunctorsMonoidal.
 
 Local Open Scope cat.
 
@@ -231,6 +233,31 @@ Proof.
   - exact associator_of_pointedfunctors.
   - exact triangle_eq_of_pointedfunctors.
   - exact pentagon_eq_of_pointedfunctors.
+Defined.
+
+Definition forgetful_functor_from_ptd_as_strong_monoidal_functor: strong_monoidal_functor monoidal_precat_of_pointedfunctors (monoidal_precat_of_endofunctors hs).
+Proof.
+  use tpair.
+  - apply (mk_lax_monoidal_functor monoidal_precat_of_pointedfunctors (monoidal_precat_of_endofunctors hs) (functor_ptd_forget C hs) (nat_trans_id _) (nat_trans_id _)).
+    + intros PF1 PF2 PF3.
+      apply nat_trans_eq; try assumption.
+      intro c.
+      cbn.
+      do 3 rewrite functor_id.
+      rewrite assoc.
+      apply idpath.
+    + intro PF.
+      split; apply nat_trans_eq; try assumption; intro c; cbn.
+      * rewrite functor_id.
+        do 3 rewrite id_right.
+        apply idpath.
+      * do 3 rewrite id_right.
+        apply idpath.
+  - abstract ( split; [apply (functor_z_iso_if_pointwise_z_iso C C hs);
+                       apply is_nat_z_iso_nat_trans_id
+                      | apply (is_nat_z_iso_nat_trans_id ((functor_composite
+          (PrecategoryBinProduct.pair_functor (functor_ptd_forget C hs) (functor_ptd_forget C hs))
+          (functorial_composition C C C hs hs))))] ).
 Defined.
 
 End PointedFunctors_as_monoidal_category.
