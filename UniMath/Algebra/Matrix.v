@@ -352,9 +352,20 @@ End Weighting.
 
 
 
-Section Toys.
+Section Applications.
 
   Context {R : rig}.
+
+  Definition matrix_mult_unf  {m n : nat} (mat1 : Matrix R m n)
+    {p : nat} (mat2 : Matrix R n p) : (Matrix R m p) :=
+    λ i j, Σ (λ k, (mat1 i k * mat2 k j))%rig.
+
+  Lemma matrix_mult_eq {m n : nat} (mat1 : Matrix R m n)
+    {p : nat} (mat2 : Matrix R n p) :
+    matrix_mult mat1 mat2 = matrix_mult_unf mat1 mat2.
+  Proof.
+    reflexivity.
+  Defined.
 
   Definition matrix_equal
   {n m : nat}  (mat1 mat2: Matrix R m n) : UU
@@ -421,6 +432,7 @@ Section Toys.
   {n : nat} (vec: Vector R n)
   := vec ^ (const_vec s).
 
+  (* This signature can be improved *)
   Lemma zero_function_sums_to_zero:
     ∏ (n : nat)
       (f : (⟦ n ⟧)%stn -> R),
@@ -434,7 +446,7 @@ Section Toys.
     - reflexivity.
     - intros. rewrite iterop_fun_step.
       + rewrite rigrunax1.
-        unfold "∘".
+        unfold funcomp.
         rewrite -> IHn with ((λ _ : (⟦ n ⟧)%stn, 0%rig)).
         reflexivity.
         reflexivity.
@@ -443,7 +455,7 @@ Section Toys.
 
   Lemma sum_is_ldistr :
     ∏ (n : nat) (vec : Vector R n) (s : R),
-    op2 s (Σ vec) =  Σ ((λ _ : (⟦ n ⟧)%stn, s ) ^ vec).
+    op2 s (Σ vec) =  Σ ((λ _ : (⟦ n ⟧)%stn, s ) ^ vec). (* This should be const_vec *)
   Proof.
     intros. induction n.
     - change (Σ vec) with (@rigunel1 R).
@@ -490,13 +502,13 @@ Section Toys.
     - intros.
       rewrite iterop_fun_step. 2 : {apply riglunax1. }
       rewrite rigrunax1.
-      unfold "∘".
+      unfold funcomp.
       rewrite -> IHn with ((λ _ : (⟦ n ⟧)%stn, 0%rig)).
       + reflexivity.
       + reflexivity.
   Defined.
 
-  Lemma eqlen_sums_mergeable :
+  Lemma eqlen_sums_mergeable : (* there is a better, existing name for a corresponding lemma *)
     ∏ (n : nat) (f1 f2 : (⟦ n ⟧)%stn -> R),
     op1 (Σ (λ i: (⟦ n ⟧)%stn, f1 i))  (Σ (λ i : (⟦ n ⟧)%stn, f2 i))
     = Σ (λ i: (⟦ n ⟧)%stn, op1 (f1 i) (f2 i)).
@@ -584,7 +596,7 @@ Section Toys.
         apply fromempty; use weqstn0toempty.
         assumption.
     - do 3 try rewrite iterop_fun_step; try apply riglunax1.
-      do 3 unfold "∘"; rewrite replace_dni_last.
+      do 3 unfold funcomp; rewrite replace_dni_last.
       + do 2 rewrite <- rigassoc1;
         do 2 rewrite <- (rigcomm1 _ (vec2 lastelement)).
         do 2 rewrite <- (rigcomm1 _ (vec1 lastelement)).
@@ -594,8 +606,6 @@ Section Toys.
         reflexivity.
   Defined.
 
-  (* TODO: We are unfolding the matrix multiplication excessively.
-           Can we restate this better without unfolding rows, cols ... ?*)
   Lemma matrix_mult_ldistr :
     ∏ (m n : nat) (mat1 : Matrix R m n)
       (p : nat) (mat2 : Matrix R n p)
@@ -603,8 +613,8 @@ Section Toys.
     ((mat1 ** (mat2 ++' mat3))) = ((mat1 ** mat2) ++' (mat1 ** mat3)).
   Proof.
     intros.
-    unfold "**". unfold "++'". unfold row. unfold col.
-    unfold transpose.  unfold pointwise. unfold flip.
+    rewrite matrix_mult_eq.
+    unfold matrix_mult_unf, matrix_add.
     apply funextfun. intros i.
     apply funextfun. intros j.
     etrans. {
@@ -615,7 +625,7 @@ Section Toys.
     apply eqlen_vec_sums_mergeable.
   Defined.
 
-  (*TODO again, many unfolds ...*)
+
   Lemma matrix_mult_rdistr :
     ∏ (m n p: nat) (mat1 : Matrix R n p)
       (mat2 : Matrix R n p)
@@ -623,8 +633,8 @@ Section Toys.
     ((mat1 ++' mat2) ** mat3) = ((mat1 ** mat3) ++' (mat2 ** mat3)).
   Proof.
     intros.
-    unfold "**". unfold "++'". unfold row. unfold col.
-    unfold transpose.  unfold pointwise. unfold flip.
+    rewrite matrix_mult_eq.
+    unfold matrix_mult_unf, matrix_add.
     apply funextfun. intros i.
     apply funextfun. intros j.
     etrans. {
@@ -635,4 +645,4 @@ Section Toys.
     apply eqlen_vec_sums_mergeable.
   Defined.
 
-End Toys.
+End Applications.
