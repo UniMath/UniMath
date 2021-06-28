@@ -11,7 +11,7 @@ Require Export UniMath.Foundations.Sets.
   - Subsets
  *)
 
-Local Open Scope set.
+Local Open Scope logic.
 
 Definition hProp_set : hSet := make_hSet _ isasethProp.
 
@@ -23,7 +23,7 @@ Proof.
 Defined.
 
 Definition isconst_2 {X Y:UU} {Z:hSet} (f : X -> Y -> Z) : hProp :=
-  (∀ x x' y y', f x y = f x' y')%set.
+  ∀ x x' y y', f x y = f x' y'.
 
 Definition squash_to_hSet_2 {X Y : UU} {Z : hSet} (f : X -> Y -> Z) :
   isconst_2 f -> ∥ X ∥ -> ∥ Y ∥ -> Z.
@@ -40,11 +40,9 @@ Proof.
 Defined.
 
 Definition isconst_2' {X Y:UU} {Z:hSet} (f : X -> Y -> Z) : hProp :=
-  (
     (∀ x x' y, f x y = f x' y)
     ∧
-    (∀ x y y', f x y = f x y')
-  )%set.
+    (∀ x y y', f x y = f x y').
 
 Definition squash_to_hSet_2' {X Y : UU} {Z : hSet} (f : X -> Y -> Z) :
   isconst_2' f -> ∥ X ∥ -> ∥ Y ∥ -> Z.
@@ -60,7 +58,7 @@ Proof.
     induction e. change ( f x y = f x' y ). exact (c x x' y). }
 Defined.
 
-Definition eqset_to_path {X:hSet} (x y:X) : eqset x y -> x = y := λ e, e.
+Definition eqset_to_path {X:hSet} (x y:X) : eqset x y -> paths x y := λ e, e.
 
 Lemma isapropiscomprelfun {X : UU} {Y : hSet} (R : hrel X) (f : X -> Y) : isaprop (iscomprelfun R f).
 Proof.
@@ -118,7 +116,7 @@ Definition same_fiber_eqrel {X Y : hSet} (f : X → Y) : eqrel X.
 Proof.
   use make_eqrel.
   - intros x y.
-    exact (eqset (f x) (f y)).
+    exact ((f x) = (f y)).
   - use iseqrelconstr.
     + intros ? ? ? xy yz; exact (xy @ yz).
     + intro; reflexivity.

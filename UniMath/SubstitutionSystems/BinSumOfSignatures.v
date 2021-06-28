@@ -19,6 +19,7 @@ Contents:
 ************************************************************)
 
 Require Import UniMath.Foundations.PartD.
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -88,7 +89,7 @@ Proof.
   intros x x' f.
   eapply pathscomp0; [ apply BinCoproductOfArrows_comp | ].
   eapply pathscomp0; [ | eapply pathsinv0; apply BinCoproductOfArrows_comp].
-  apply BinCoproductOfArrows_eq.
+  apply maponpaths_12.
   * apply (nat_trans_ax (θ1 (X ⊗ Z))).
   * apply (nat_trans_ax (θ2 (X ⊗ Z))).
 Qed.
@@ -117,7 +118,7 @@ Proof.
     eapply pathscomp0; [ | eapply pathsinv0; apply BinCoproductOfArrows_comp].
     eapply pathscomp0. apply cancel_postcomposition. apply BinCoproductOfArrows_comp.
     eapply pathscomp0. apply BinCoproductOfArrows_comp.
-    apply BinCoproductOfArrows_eq.
+    apply maponpaths_12.
     + apply (nat_trans_eq_pointwise Hyp1 c).
     + apply (nat_trans_eq_pointwise Hyp2 c).
 Qed.
@@ -160,7 +161,7 @@ Proof.
   eapply pathscomp0. apply cancel_postcomposition. simpl. apply BinCoproductOfArrows_comp.
   eapply pathscomp0. apply BinCoproductOfArrows_comp.
   apply pathsinv0.
-  apply BinCoproductOfArrows_eq.
+  apply maponpaths_12.
   - assert (Ha:=S12 X Z Z' Y α).
     simpl in Ha.
     assert (Ha_x := nat_trans_eq_pointwise Ha x).
@@ -204,7 +205,7 @@ Proof.
   apply pathsinv0.
   eapply pathscomp0. apply BinCoproductOfArrows_comp.
   apply pathsinv0.
-  apply BinCoproductOfArrows_eq.
+  apply maponpaths_12.
   - assert (Ha:=S12' X Z Z').
     simpl in Ha.
     assert (Ha_x := nat_trans_eq_pointwise Ha x).

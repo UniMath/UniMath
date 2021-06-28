@@ -12,6 +12,7 @@ Written by Anders Mörtberg, 2016 (adapted from SumOfSignatures.v)
 ************************************************************)
 
 Require Import UniMath.Foundations.PartD.
+Require Import UniMath.MoreFoundations.PartA.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
@@ -78,7 +79,7 @@ Proof.
   intros x x' f.
   eapply pathscomp0; [ apply BinProductOfArrows_comp | ].
   eapply pathscomp0; [ | eapply pathsinv0; apply BinProductOfArrows_comp].
-  apply BinProductOfArrows_eq.
+  apply maponpaths_12.
   * apply (nat_trans_ax (θ1 (X ⊗ Z))).
   * apply (nat_trans_ax (θ2 (X ⊗ Z))).
 Qed.
@@ -99,7 +100,7 @@ Proof.
   eapply pathscomp0; [ | eapply pathsinv0, BinProductOfArrows_comp].
   eapply pathscomp0; [ apply cancel_postcomposition, BinProductOfArrows_comp |].
   eapply pathscomp0; [ apply BinProductOfArrows_comp |].
-  apply BinProductOfArrows_eq.
+  apply maponpaths_12.
   + exact (nat_trans_eq_pointwise (nat_trans_ax θ1 _ _ (α,,β)) c).
   + exact (nat_trans_eq_pointwise (nat_trans_ax θ2 _ _ (α,,β)) c).
 Qed.
@@ -134,7 +135,7 @@ Proof.
   apply pathsinv0.
   eapply pathscomp0; [ apply cancel_postcomposition; simpl; apply BinProductOfArrows_comp|].
   eapply pathscomp0; [ apply BinProductOfArrows_comp|].
-  apply pathsinv0, BinProductOfArrows_eq.
+  apply pathsinv0, maponpaths_12.
   - assert (Ha := S12 X Z Z' Y α); simpl in Ha.
     apply (nat_trans_eq_pointwise Ha x).
   - assert (Ha := S22 X Z Z' Y α); simpl in Ha.
@@ -168,7 +169,7 @@ Proof.
   eapply pathscomp0; [apply BinProductOfArrows_comp|].
   apply pathsinv0.
   eapply pathscomp0; [apply BinProductOfArrows_comp|].
-  apply pathsinv0, BinProductOfArrows_eq.
+  apply pathsinv0, maponpaths_12.
   - assert (Ha_x := nat_trans_eq_pointwise (S12' X Z Z') x).
     simpl in Ha_x; rewrite id_left in Ha_x.
     exact Ha_x.

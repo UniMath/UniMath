@@ -4,9 +4,7 @@ Require Export UniMath.Foundations.All.
 
 Notation "A ⇒ B" := (himpl A B) : logic.
 
-Local Open Scope logic.
-
-Definition hequiv (P Q:hProp) : hProp := (P ⇒ Q) ∧ (Q ⇒ P).
+Definition hequiv (P Q:hProp) : hProp := ((P ⇒ Q) ∧ (Q ⇒ P))%logic.
 
 Notation "A ⇔ B" := (hequiv A B) (at level 95, no associativity) : logic.
 

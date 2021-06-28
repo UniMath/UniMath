@@ -94,7 +94,7 @@ Proof.
       apply idpath.
     + etrans.
       { apply meq. }
-      unfold funcomp, drop.
+      unfold drop.
       apply maponpaths.
       apply idpath.
 Defined.
@@ -341,4 +341,3 @@ Proof.
     induction v2 as [x2 xs2].
     exact ((x1 ,, x2) ::: IHn xs1 xs2).
 Defined.
-

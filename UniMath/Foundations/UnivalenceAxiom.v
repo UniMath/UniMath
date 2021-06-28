@@ -128,7 +128,7 @@ Proof.
     set ( g := totalfun _ _ ( λ XY : UU × UU,  weqtopaths (pr1 XY) (pr2 XY) ) : Z2 -> Z1 ) .
     assert (efg : funcomp g f ~ idfun _) .
     - intro z2 . induction z2 as [ XY e ] .
-      unfold funcomp . unfold idfun . unfold g . unfold f . unfold totalfun . simpl .
+      unfold g . unfold f . unfold totalfun . simpl .
       apply ( maponpaths ( fun w : ( pr1 XY) ≃ (pr2 XY) =>  tpair P2 XY w )
                        ( weqpathsweq ( pr1 XY ) ( pr2 XY ) e )) .
     - set ( h := λ a1 : Z1,  pr1 ( pr1 a1 ) ) .

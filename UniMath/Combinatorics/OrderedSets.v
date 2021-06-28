@@ -12,32 +12,29 @@ Definition isTotalOrder {X : hSet} (R : hrel X) : hProp
   := make_hProp (isPartialOrder R × istotal R)
                (isapropdirprod _ _ (isaprop_isPartialOrder R) (isaprop_istotal R)).
 
-Section A.
+Local Open Scope logic.
 
-  Open Scope logic.
+Lemma tot_nge_to_le {X:hSet} (R:hrel X) : istotal R -> ∏ x y, ¬ (R x y) ->  R y x.
+Proof.
+  intros tot ? ? nle.
+  now apply (hdisjtoimpl (tot x y)).
+Defined.
 
-  Lemma tot_nge_to_le {X:hSet} (R:hrel X) : istotal R -> ∏ x y, ¬ (R x y) ->  R y x.
-  Proof.
-    intros tot ? ? nle.
-    now apply (hdisjtoimpl (tot x y)).
-  Defined.
+Lemma tot_nle_iff_gt {X:hSet} (R:hrel X) :
+  isTotalOrder R -> ∏ x y, ¬ (R x y)  <->  R y x ∧ ¬ (y = x).
+(** if [R x y] is [x ≤ y], then this shows the equivalence of two definitions for [y < x] *)
+Proof.
+  intros i.
+  assert (tot := pr2 i); simpl in tot.
+  assert (refl := pr2 (pr1 (pr1 i))); simpl in refl.
+  assert (anti := pr2 (pr1 i)); simpl in anti.
+  split.
+  { intros nle. split.
+    - now apply tot_nge_to_le.
+    - intros ne. induction ne. exact (nle (refl y)). }
+  { intros yltx xley. induction yltx as [ylex neq]. exact (neq (anti _ _ ylex xley)). }
+Defined.
 
-  Lemma tot_nle_iff_gt {X:hSet} (R:hrel X) :
-    isTotalOrder R -> ∏ x y, ¬ (R x y)  <->  R y x ∧ ¬ (y = x).
-  (** if [R x y] is [x ≤ y], then this shows the equivalence of two definitions for [y < x] *)
-  Proof.
-    intros i.
-    assert (tot := pr2 i); simpl in tot.
-    assert (refl := pr2 (pr1 (pr1 i))); simpl in refl.
-    assert (anti := pr2 (pr1 i)); simpl in anti.
-    split.
-    { intros nle. split.
-      - now apply tot_nge_to_le.
-      - intros ne. induction ne. exact (nle (refl y)). }
-    { intros yltx xley. induction yltx as [ylex neq]. exact (neq (anti _ _ ylex xley)). }
-  Defined.
-
-End A.
 
 Definition isSmallest {X : Poset} (x : X) : UU := ∏ y, x ≤ y.
 
@@ -69,7 +66,7 @@ Local Arguments isPosetEquivalence : clear implicits.
 Local Arguments isaposetmorphism : clear implicits.
 
 Lemma posetStructureIdentity {X:hSet} (R S:PartialOrder X) :
-  @isPosetEquivalence (X,,R) (X,,S) (idweq X) <-> R=S.
+  @isPosetEquivalence (X,,R) (X,,S) (idweq X) <-> (R=S)%type.
 Proof.
   intros. split.
   { intros e.
@@ -324,7 +321,7 @@ Definition FiniteOrderedSetDecidableOrdering (X:FiniteOrderedSet) : DecidableRel
   λ (x y:X), decidable_to_DecidableProposition (FiniteOrderedSet_isdec_ordering x y).
 
 Definition FiniteOrderedSetDecidableEquality (X:FiniteOrderedSet) : DecidableRelation X :=
-  λ (x y:X), @decidable_to_DecidableProposition (eqset x y) (FiniteOrderedSet_isdeceq x y).
+  λ (x y:X), @decidable_to_DecidableProposition (x = y) (FiniteOrderedSet_isdeceq x y).
 
 Definition FiniteOrderedSetDecidableInequality (X:FiniteOrderedSet) : DecidableRelation X.
   intros x y.
@@ -458,14 +455,14 @@ Proof.
       induction e.
       exact (pn,,pl).
   - induction p as [e s].
-    induction e; unfold transportf in s; simpl in s; unfold idfun in s.
+    induction e; unfold transportf in s; simpl in s.
     refine (q _ _); clear q; intro q; simpl in q.
     induction q as [q|q].
     + induction q as [n r].
       apply hdisj_in1; simpl.
       exact (n,,r).
     + induction q as [e' s']. induction e'.
-      unfold transportf in s'; simpl in s'; unfold idfun in s'.
+      unfold transportf in s'; simpl in s'.
       apply hdisj_in2; simpl.
       exists (idpath x).
       exact (Strans x y y' y'' s s').
@@ -604,8 +601,6 @@ Abort.
 (* Here we abstract from Chapter 11 of the HoTT book just the order
    properties of the real numbers, as constructed there. *)
 
-Local Open Scope logic.
-
 Definition isLattice {X:hSet} (le:hrel X) (min max:binop X) :=
   ∑ po : isPartialOrder le,
   ∑ lub : ∏ x y z, le x z ∧ le y z <-> le (max x y) z,
@@ -643,8 +638,6 @@ Section OtherProperties.
 
   Let le x y := ¬ lt y x.
   Let apart x y := lt y x ∨ lt x y.
-  Let eq x y := @eqset X x y.
-  Let ne x y := hneg (eq x y).
 
   Local Lemma apart_isirrefl : isirrefl apart.
   Proof.
@@ -664,7 +657,7 @@ Section OtherProperties.
     exact (irrefl _ n).
   Defined.
 
-  Local Lemma apart_implies_ne x y : apart x y -> ne x y.
+  Local Lemma apart_implies_ne x y : apart x y -> x != y.
   Proof.
     expand ic.
     intros a e.
@@ -681,7 +674,7 @@ Section OtherProperties.
     - intro e. induction e. apply apart_isirrefl.
   Defined.
 
-  Local Lemma ne_implies_dnegapart x y : ne x y -> ¬¬ apart x y.
+  Local Lemma ne_implies_dnegapart x y : x != y -> ¬¬ apart x y.
   Proof.
     intros n m.
     refine (n _); clear n.
@@ -692,17 +685,17 @@ Section OtherProperties.
 
     Variable lem:LEM.
 
-    Local Lemma ne_implies_apart x y : ne x y -> apart x y.
+    Local Lemma ne_implies_apart x y : x != y -> apart x y.
     Proof.
       intros a.
       apply (dneg_LEM _ lem).
       now apply ne_implies_dnegapart.
     Defined.
 
-    Local Lemma trichotomy x y : lt x y ∨ eq x y ∨ lt y x.
+    Local Lemma trichotomy x y : lt x y ∨ x = y ∨ lt y x.
     Proof.
       intros.
-      induction (lem (eq x y)) as [a|b].
+      induction (lem (x = y)) as [a|b].
       - apply hdisj_in2; apply hdisj_in1; exact a.
       - assert (l := ne_implies_apart _ _ b); clear b.
         unfold apart in l.

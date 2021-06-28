@@ -463,7 +463,7 @@ Proof.
   use tpair.
   - change ( xx -->[ iso_inv_from_iso (iso_inv_from_iso f)] yy).
     set (XR := transportb (mor_disp xx yy )
-                          (maponpaths pr1 (iso_inv_iso_inv _ _ _ f))).
+                          (maponpaths pr1 (iso_inv_iso_inv _ _ f))).
     apply XR. apply i.
   - cbn.
     split.
@@ -710,7 +710,7 @@ Lemma transportf_precompose_disp {C} {D : disp_cat C}
   = transportf _ (id_left _)
     (iso_inv_from_iso_disp (idtoiso_disp (idpath _) (e)) ;; ff).
 Proof.
-  destruct e; cbn; unfold idfun; cbn.
+  destruct e; cbn.
   rewrite (@id_left_disp _ _ _ _ _ cc).
   apply pathsinv0, transportfbinv.
 Qed.

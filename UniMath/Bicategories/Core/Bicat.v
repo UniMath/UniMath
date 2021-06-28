@@ -1150,44 +1150,68 @@ Section Associators_Unitors_Iso.
 
 Context {C : prebicat}.
 
-Lemma is_iso_lassociator {a b c d : C} (f : hom a b) (g : hom b c) (h : hom c d)
-  : is_iso (lassociator f g h : (hom a d) ⟦ f · (g · h), (f · g) · h ⟧).
+Lemma is_z_iso_lassociator {a b c d : C} (f : hom a b) (g : hom b c) (h : hom c d)
+  : is_z_isomorphism (lassociator f g h : (hom a d) ⟦ f · (g · h), (f · g) · h ⟧).
 Proof.
-  apply is_iso_from_is_z_iso.
   exists (rassociator f g h).
   split.
   - apply lassociator_rassociator.
   - apply rassociator_lassociator.
 Defined.
 
-Lemma is_iso_rassociator {a b c d : C} (f : hom a b) (g : hom b c) (h : hom c d)
-  : is_iso (rassociator f g h : (hom a d) ⟦ (f · g) · h, f · (g · h) ⟧).
+Lemma is_iso_lassociator {a b c d : C} (f : hom a b) (g : hom b c) (h : hom c d)
+  : is_iso (lassociator f g h : (hom a d) ⟦ f · (g · h), (f · g) · h ⟧).
 Proof.
   apply is_iso_from_is_z_iso.
+  apply is_z_iso_lassociator.
+Defined.
+
+Lemma is_z_iso_rassociator {a b c d : C} (f : hom a b) (g : hom b c) (h : hom c d)
+  : is_z_isomorphism (rassociator f g h : (hom a d) ⟦ (f · g) · h, f · (g · h) ⟧).
+Proof.
   exists (lassociator f g h).
   split.
   - apply rassociator_lassociator.
   - apply lassociator_rassociator.
 Defined.
 
-Lemma is_iso_lunitor {a b : C} (f : hom a b)
-  : is_iso (lunitor f : (hom a b) ⟦ identity a · f, f ⟧).
+Lemma is_iso_rassociator {a b c d : C} (f : hom a b) (g : hom b c) (h : hom c d)
+  : is_iso (rassociator f g h : (hom a d) ⟦ (f · g) · h, f · (g · h) ⟧).
 Proof.
   apply is_iso_from_is_z_iso.
+  apply is_z_iso_rassociator.
+Defined.
+
+Lemma is_z_iso_lunitor {a b : C} (f : hom a b)
+  : is_z_isomorphism (lunitor f : (hom a b) ⟦ identity a · f, f ⟧).
+Proof.
   exists (linvunitor f).
   split.
   - apply lunitor_linvunitor.
   - apply linvunitor_lunitor.
 Defined.
 
-Lemma is_iso_runitor {a b : C} (f : hom a b)
-  : is_iso (runitor f : (hom a b) ⟦ f · identity b, f ⟧).
+Lemma is_iso_lunitor {a b : C} (f : hom a b)
+  : is_iso (lunitor f : (hom a b) ⟦ identity a · f, f ⟧).
 Proof.
   apply is_iso_from_is_z_iso.
+  apply is_z_iso_lunitor.
+Defined.
+
+Lemma is_z_iso_runitor {a b : C} (f : hom a b)
+  : is_z_isomorphism (runitor f : (hom a b) ⟦ f · identity b, f ⟧).
+Proof.
   exists (rinvunitor f).
   split.
   - apply runitor_rinvunitor.
   - apply rinvunitor_runitor.
+Defined.
+
+Lemma is_iso_runitor {a b : C} (f : hom a b)
+  : is_iso (runitor f : (hom a b) ⟦ f · identity b, f ⟧).
+Proof.
+  apply is_iso_from_is_z_iso.
+  apply is_z_iso_runitor.
 Defined.
 
 End Associators_Unitors_Iso.

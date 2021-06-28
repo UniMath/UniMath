@@ -1004,7 +1004,7 @@ Proof.
                   t t' is is'
                   (recompl T t (coprodf w (λ x0 : unit, x0)
                                         (invmap (weqrecompl T t is) x)))).
-      unfold funcomp,idfun in e.
+      simpl in e.
       rewrite e. unfold recompl, coprodf, invmap; simpl. unfold invrecompl.
       induction (is x) as [ etx | netx' ].
       * induction (netx etx).

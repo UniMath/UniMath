@@ -442,8 +442,7 @@ Definition linearfun_islinear {R} {M N : module R} (f : linearfun M N) :
 Lemma islinearfuncomp {R : ring} {M N P : module R} (f : linearfun M N) (g : linearfun N P) :
   islinear (funcomp f g).
 Proof.
-  intros r x.
-  unfold funcomp.
+  intros r x; simpl.
   rewrite (linearfun_islinear f).
   rewrite (linearfun_islinear g).
   apply idpath.

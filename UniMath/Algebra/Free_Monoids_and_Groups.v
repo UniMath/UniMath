@@ -94,7 +94,7 @@ Lemma free_monoid_extend_funcomp {X Y : hSet} {Z : monoid} (f : X → Y) (g : Y 
 Proof.
   unfold homot. simpl. apply list_ind.
     + reflexivity.
-    + intros x xs IH. unfold funcomp in *. now rewrite !map_cons, !iterop_list_mon_step, IH.
+    + intros x xs IH. now rewrite !map_cons, !iterop_list_mon_step, IH.
 Defined.
 
 (** Functoriality of the [free_monoidfun] *)

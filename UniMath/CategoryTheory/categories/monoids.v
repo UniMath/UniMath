@@ -257,7 +257,7 @@ Proof.
   apply list_ind.
   - apply pathsinv0, monoidfununel.
   - intros x xs H.
-    unfold funcomp in *.
+    simpl in *.
     refine (maponpaths iterop_list_mon (map_cons _ _ _) @ _).
     refine (iterop_list_mon_step _ _ @ _).
     refine (_ @ !maponpaths _ (iterop_list_mon_step _ _)).
@@ -303,14 +303,13 @@ Proof.
   split; intro.
   - apply monoidfun_paths.
     apply funextfun.
-    simpl; unfold funcomp.
+    simpl.
     unfold homot; apply list_ind; [reflexivity|].
     intros x xs ?.
-    unfold funcomp.
+    simpl.
     rewrite map_cons.
     (* For some reason, the unifier needs a lot of help here... *)
-    refine (iterop_list_mon_step ((cons _ _) : pr1hSet (free_monoid _))
-                                  (map singleton xs) @ _).
+    refine (iterop_list_mon_step (_ : pr1hSet (free_monoid _)) _ @ _).
     apply maponpaths; assumption.
   - reflexivity.
 Qed.

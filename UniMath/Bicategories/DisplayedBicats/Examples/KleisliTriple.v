@@ -458,7 +458,7 @@ Proof.
     pose (pr2 (invertible_2cell_to_nat_iso
                  _ _
                  (inv_of_invertible_2cell x)) (pr1 aa X)) as q.
-    apply (iso_inv_to_right _ _ _ _ _ (_ ,, q)).
+    apply (iso_inv_to_right _ _ _ _ (_ ,, q)).
     apply disp_locally_groupoid_kleisli_help.
     exact xx.
   - exact disp_2cells_isaprop_kleisli.

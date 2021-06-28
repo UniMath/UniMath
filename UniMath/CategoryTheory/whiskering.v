@@ -64,12 +64,21 @@ Defined.
 
 Lemma pre_whisker_iso_is_iso {A B C : precategory_data}
     (F : functor_data A B)  {G H : functor_data B C} (gamma : nat_trans G H)
-    (X : (forall b : B, is_iso (gamma b)))
-  : (forall a : A, is_iso (pre_whisker F gamma a)).
+    (X : is_nat_iso gamma)
+  : is_nat_iso (pre_whisker F gamma).
 Proof.
   intros a.
   apply X.
-Qed.
+Defined.
+
+Lemma pre_whisker_on_nat_z_iso {A B C : precategory_data}
+    (F : functor_data A B)  {G H : functor_data B C} (gamma : nat_trans G H)
+    (X : is_nat_z_iso gamma)
+  : is_nat_z_iso (pre_whisker F gamma).
+Proof.
+  intros a.
+  apply X.
+Defined.
 
 (** Postwhiskering *)
 
@@ -100,8 +109,8 @@ Defined.
 Lemma post_whisker_iso_is_iso {B C D : precategory}
    {G H : functor_data B C} (gamma : nat_trans G H)
    (K : functor C D)
-   (X : (forall b : B, is_iso (gamma b)))
-  : (forall b : B, is_iso (post_whisker gamma K b)).
+   (X : is_nat_iso gamma)
+  : is_nat_iso (post_whisker gamma K).
 Proof.
   intros b.
   unfold post_whisker.

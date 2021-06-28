@@ -182,7 +182,7 @@ Section eqv_inv.
       refine (_ @ triangle_id_right_ad (pr2 (pr1 adEquivF)) b).
 
       (** Transform it by precomposing with the inverse isos *)
-      apply (pre_comp_with_iso_is_inj _ _ _ _
+      apply (pre_comp_with_iso_is_inj _ _ _
                                       (#G (nat_iso_to_pointwise_iso εiso b)));
         [apply (functor_is_iso_is_iso G), iso_is_iso |].
 
@@ -198,7 +198,7 @@ Section eqv_inv.
       rewrite assoc.
 
       (** Again, precompose with the inverse iso *)
-      apply (pre_comp_with_iso_is_inj _ _ _ _
+      apply (pre_comp_with_iso_is_inj _ _ _
                                       ((nat_iso_to_pointwise_iso ηiso (G b))));
         [apply iso_is_iso; rewrite iso_inv_after_iso|].
       rewrite (nat_iso_inv_after_nat_iso ηiso).
@@ -213,14 +213,14 @@ Section eqv_inv.
       intro a.
       refine (_ @ triangle_id_left_ad (pr2 (pr1 adEquivF)) a).
 
-      apply (pre_comp_with_iso_is_inj _ _ _ _
+      apply (pre_comp_with_iso_is_inj _ _ _
                                       ((nat_iso_to_pointwise_iso εiso (F a))));
         [apply iso_is_iso; rewrite iso_inv_after_iso|].
       rewrite assoc.
       rewrite (nat_iso_inv_after_nat_iso εiso).
       rewrite id_left.
 
-      apply (pre_comp_with_iso_is_inj _ _ _ _ (#F (nat_iso_to_pointwise_iso ηiso a)));
+      apply (pre_comp_with_iso_is_inj _ _ _ (#F (nat_iso_to_pointwise_iso ηiso a)));
         [apply (functor_is_iso_is_iso F), iso_is_iso |].
       unfold adjunit; unfold adjcounit.
       unfold right_functor.

@@ -32,7 +32,7 @@ Proof.
   - simpl; intros x. apply weqonsecfibers; intro b. apply weqiff.
     + unshelve refine (twooutof3c_iff_1_homot _ _ _ _ _).
       * exact (pr1 i ◽ opp_ob b).
-      * intro f; unfold funcomp; simpl.
+      * intro f; simpl.
         exact (eqtohomot (nat_trans_ax (pr1 i) _ _ f) x).
       * exact (hset_iso_is_equiv _ _ (I b)).
     + apply isapropisweq.
@@ -246,7 +246,7 @@ Defined.
 Lemma Hom1_Representation {C:category} (c:C) : Representation (Hom1 c).
 Proof.
   exists c. exists (identity c). intro b. apply (isweqhomot (idweq _)).
-  - abstract (intro f; unfold arrow_morphism_composition; unfold Hom1, idfun; simpl;
+  - abstract (intro f; unfold arrow_morphism_composition; unfold Hom1; simpl;
               apply pathsinv0, id_right) using _R_.
   - abstract (apply weqproperty) using _T_.
 Defined.

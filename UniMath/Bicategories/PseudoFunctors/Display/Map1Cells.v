@@ -346,7 +346,7 @@ Section Map1Cells.
     apply fiberwise_local_univalent_is_univalent_2_1.
     intros F G η F₁ G₁ η₁ η₁'.
     use isweqimplimpl.
-    - intro m ; cbn in * ; unfold idfun.
+    - intro m ; cbn in *.
       apply funextsec ; intro X.
       apply funextsec ; intro Y.
       apply funextsec ; intro f.
@@ -625,7 +625,7 @@ Section Map1Cells.
       apply funextsec ; intro f.
       apply subtypePath.
       { intro ; apply isaprop_is_invertible_2cell. }
-      cbn ; unfold idfun.
+      cbn.
       rewrite id2_right.
       reflexivity.
   Defined.

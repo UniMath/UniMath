@@ -32,6 +32,8 @@ Require Import UniMath.MoreFoundations.Subtypes.
 Require Export UniMath.Algebra.BinaryOperations.
 Require Export UniMath.Algebra.Monoids.
 
+Local Open Scope logic.
+
 (** ** Groups *)
 
 (** *** Basic definitions *)
@@ -356,7 +358,7 @@ Defined.
 
 Definition trivialsubgr (X : gr) : subgr X.
 Proof.
-  exists (λ x, x = @unel X)%set.
+  exists (λ x, x = @unel X)%logic.
   split.
   - exact (pr2 (@trivialsubmonoid X)).
   - intro.
@@ -423,18 +425,12 @@ Lemma isinvongrquot {X : gr} (R : binopeqrel X) :
 Proof.
   split.
   - unfold islinv.
-    apply (setquotunivprop
-             R (λ x : setwithbinopquot R, eqset
-                                             (@op (setwithbinopquot R) (invongrquot R x) x)
-                                             (setquotpr R (unel X)))).
+    apply (setquotunivprop R (λ x, _ = _)).
     intro x.
     apply (@maponpaths _ _ (setquotpr R) (@op X (grinv X x) x) (unel X)).
     apply (grlinvax X).
   - unfold isrinv.
-    apply (setquotunivprop
-             R (λ x : setwithbinopquot R, eqset
-                                             (@op (setwithbinopquot R) x (invongrquot R x))
-                                             (setquotpr R (unel X)))).
+    apply (setquotunivprop R (λ x, _ = _)).
     intro x.
     apply (@maponpaths _ _ (setquotpr R) (@op X x (grinv X x)) (unel X)).
     apply (grrinvax X).
@@ -979,8 +975,7 @@ Proof.
   assert (isl : islinv (@op (abgrdiffcarrier X)) (unel (abgrdiffcarrier X)) (abgrdiffinv X)).
   {
     unfold islinv.
-    apply (setquotunivprop
-             R (λ x : abgrdiffcarrier X, eqset (abgrdiffinv X x + x) (unel (abgrdiffcarrier X)))).
+    apply (setquotunivprop R (λ x, _ = _)).
     intro xs.
     set (x := pr1 xs). set (s := pr2 xs).
     apply (iscompsetquotpr R (@op (abmonoiddirprod X X) (abgrdiffinvint X xs) xs) (unel _)).

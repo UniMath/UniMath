@@ -314,15 +314,6 @@ Variable C : precategory.
 Variable CC : BinCoproducts C.
 Variables a b c d x y : C.
 
-Lemma BinCoproductArrow_eq (f f' : a --> c) (g g' : b --> c)
-  : f = f' → g = g' →
-      BinCoproductArrow _ (CC _ _) f g = BinCoproductArrow _ _ f' g'.
-Proof.
-  induction 1.
-  induction 1.
-  apply idpath.
-Qed.
-
 Lemma BinCoproductArrow_eq_cor (f f' : BinCoproductObject C (CC a b) --> c)
   : BinCoproductIn1 _ _· f = BinCoproductIn1 _ _· f' → BinCoproductIn2 _ _· f = BinCoproductIn2 _ _· f' →
       f = f' .
@@ -330,7 +321,7 @@ Proof.
   intros Hyp1 Hyp2.
   rewrite (BinCoproductArrowEta _ _ _ _ _ f).
   rewrite (BinCoproductArrowEta _ _ _ _ _ f').
-  apply BinCoproductArrow_eq; assumption.
+  apply maponpaths_12; assumption.
 Qed.
 
 (** specialized versions of beta rules for coproducts *)
@@ -576,15 +567,6 @@ Proof.
     rewrite <- assoc.
     rewrite BinCoproductOfArrowsIn2.
     apply assoc.
-Qed.
-
-Definition BinCoproductOfArrows_eq (f f' : a --> c) (g g' : b --> d)
-  : f = f' → g = g' →
-      BinCoproductOfArrows _ _ _ f g = BinCoproductOfArrows _ (CC _ _) (CC _ _) f' g'.
-Proof.
-  induction 1.
-  induction 1.
-  apply idpath.
 Qed.
 
 Lemma precompWithBinCoproductArrow_eq  (CCab : BinCoproduct _ a b)
@@ -1040,7 +1022,7 @@ Section BinCoproduct_from_iso.
                × (BinCoproductIn2 C BP · inv_from_iso i · y0 = g)) :
     y0 = i · BinCoproductArrow C BP f g.
   Proof.
-    apply (pre_comp_with_iso_is_inj C _ _ w (iso_inv_from_iso i) (pr2 (iso_inv_from_iso i))).
+    apply (pre_comp_with_iso_is_inj _ _ w (iso_inv_from_iso i) (pr2 (iso_inv_from_iso i))).
     rewrite assoc. cbn. rewrite (iso_after_iso_inv i). rewrite id_left.
     apply BinCoproductArrowUnique.
     - rewrite assoc. apply (dirprod_pr1 T).

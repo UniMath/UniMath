@@ -890,7 +890,7 @@ Proof.
   - cbn. intro t. apply subtypePath ; [
         intros ?; apply isapropdirprod; apply hsD | cbn ].
     destruct t as [t [Htx Hty]]; cbn.
-    apply (pre_comp_with_iso_is_inj _ _ _ _ i (pr2 i)).
+    apply (pre_comp_with_iso_is_inj _ _ _ i (pr2 i)).
     rewrite assoc. rewrite iso_inv_after_iso.
     rewrite id_left.
     apply (invmaponpathsweq (invweq (FF _ _ ))).

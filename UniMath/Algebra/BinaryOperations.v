@@ -34,6 +34,8 @@
 
 Require Export UniMath.Foundations.Sets.
 
+Local Open Scope logic.
+
 (** To upstream files *)
 
 
@@ -326,7 +328,7 @@ Proof.
         rewrite e. apply idpath.
     -  apply (is x').
   }
-  assert (is' : ∏ x : X, hexists (λ x0 : X, eqset (opp x0 x) un0)).
+  assert (is' : ∏ x : X, hexists (λ x0 : X, (opp x0 x) = un0)).
   {
     intro x. apply (λ f : _ , hinhuniv f (is x)). intro s1.
     destruct s1 as [ x' eq ]. apply hinhpr. split with x'. simpl.
@@ -350,7 +352,7 @@ Proof.
         rewrite e. apply idpath.
     - apply (is' x').
   }
-  assert (int : ∏ x : X, isaprop (total2 (λ x0 : X, eqset (opp x0 x) un0))).
+  assert (int : ∏ x : X, isaprop (total2 (λ x0 : X, (opp x0 x) = un0))).
   {
     intro x. apply isapropsubtype. intros x1 x2. intros eq1 eq2.
     apply (invmaponpathsincl _ (l1 x)).
@@ -1383,7 +1385,7 @@ Lemma isbinopfuncomp {X Y Z : setwithbinop} (f : binopfun X Y) (g : binopfun Y Z
   isbinopfun (funcomp (pr1 f) (pr1 g)).
 Proof.
   set (axf := pr2 f). set (axg := pr2 g).
-  intros a b. unfold funcomp.
+  intros a b. simpl.
   rewrite (axf a b). rewrite (axg (pr1 f a) (pr1 f b)).
   apply idpath.
 Defined.
@@ -1472,7 +1474,7 @@ Proof.
       use funextfun. intros x1.
       use funextfun. intros x2.
       exact (i x1 x2).
-    + intros e. change (Xop = Yop) in e. intros x1 x2. induction e. use idpath.
+    + intros e. cbn in e. intros x1 x2. induction e. use idpath.
     + use isapropisbinopfun.
     + use isasetbinoponhSet.
 Defined.
@@ -1525,7 +1527,7 @@ Proof.
   apply (isincltwooutof3a (λ x0 : X, op x x0) f (pr2 (pr1 f))).
   assert (h : homot (funcomp f (λ y0 : Y, op (f x) y0)) (funcomp (λ x0 : X, op x x0) f)).
   {
-    intro x0. unfold funcomp. apply (pathsinv0 ((pr2 f) x x0)).
+    intro x0; simpl. apply (pathsinv0 ((pr2 f) x x0)).
   }
   apply (isinclhomot _ _ h).
   apply (isinclcomp f (make_incl _ is)).
@@ -1538,7 +1540,7 @@ Proof.
   apply (isincltwooutof3a (λ x0 : X, op x0 x) f (pr2 (pr1 f))).
   assert (h : homot (funcomp f (λ y0 : Y, op y0 (f x))) (funcomp (λ x0 : X, op x0 x) f)).
   {
-    intro x0. unfold funcomp. apply (pathsinv0 ((pr2 f) x0 x)).
+    intro x0; simpl. apply (pathsinv0 ((pr2 f) x0 x)).
   }
   apply (isinclhomot _ _ h). apply (isinclcomp f (make_incl _ is)).
 Defined.
@@ -1559,7 +1561,7 @@ Proof.
   unfold islinvertible. apply (twooutof3a (λ x0 : X, op x x0) f).
   - assert (h : homot (funcomp f (λ y0 : Y, op (f x) y0)) (funcomp (λ x0 : X, op x x0) f)).
     {
-      intro x0. unfold funcomp. apply (pathsinv0 ((pr2 f) x x0)).
+      intro x0; simpl. apply (pathsinv0 ((pr2 f) x x0)).
     }
     apply (isweqhomot _ _ h). apply (pr2 (weqcomp f (make_weq _ is))).
   - apply (pr2 (pr1 f)).
@@ -1571,7 +1573,7 @@ Proof.
   unfold islinvertible. apply (twooutof3a (λ x0 : X, op x0 x) f).
   - assert (h : homot (funcomp f (λ y0 : Y, op y0 (f x))) (funcomp (λ x0 : X, op x0 x) f)).
     {
-      intro x0. unfold funcomp. apply (pathsinv0 ((pr2 f) x0 x)).
+      intro x0; simpl. apply (pathsinv0 ((pr2 f) x0 x)).
     }
     apply (isweqhomot _ _ h). apply (pr2 (weqcomp f (make_weq _ is))).
   - apply (pr2 (pr1 f)).
@@ -1590,7 +1592,7 @@ Proof.
   - apply (pr2 (pr1 f)).
   - assert (h : homot (funcomp (λ x0 : X, op x x0) f) (λ x0 : X, op (f x) (f x0))).
     {
-      intro x0. unfold funcomp. apply (pr2 f x x0).
+      intro x0; simpl. apply (pr2 f x x0).
     }
     apply (isweqhomot _ _ h). apply (pr2 (weqcomp (make_weq _ is) f)).
 Defined.
@@ -1602,7 +1604,7 @@ Proof.
   - apply (pr2 (pr1 f)).
   - assert (h : homot (funcomp (λ x0 : X, op x0 x) f) (λ x0 : X, op (f x0) (f x))).
     {
-      intro x0. unfold funcomp. apply (pr2 f x0 x).
+      intro x0; simpl. apply (pr2 f x0 x).
     }
     apply (isweqhomot _ _ h). apply (pr2 (weqcomp (make_weq _ is) f)).
 Defined.
@@ -1686,7 +1688,7 @@ Lemma isinvisof {X Y : setwithbinop} (f : binopiso X Y) (unx : X) (invx : X -> X
   isinv (@op Y) (pr1 f unx) (funcomp (invmap (pr1 f)) (funcomp invx (pr1 f))).
 Proof.
   set (axf := pr2 f). set (axinvf := pr2 (invbinopiso f)).
-  simpl in axf. simpl in axinvf. unfold funcomp. split.
+  simpl in axf, axinvf. split.
   - intro a. apply (invmaponpathsweq (pr1 (invbinopiso f))).
     simpl. rewrite (axinvf ((pr1 f) (invx (invmap (pr1 f) a))) a).
     rewrite (homotinvweqweq (pr1 f) unx).
@@ -2289,10 +2291,10 @@ Proof.
   set (ax1f := pr1 (pr2 f)). set (ax2f := pr2 (pr2 f)).
   set (ax1g := pr1 (pr2 g)). set (ax2g := pr2 (pr2 g)).
   split.
-  - intros a b. unfold funcomp.
+  - intros a b. simpl.
     rewrite (ax1f a b). rewrite (ax1g (pr1 f a) (pr1 f b)).
     apply idpath.
-  - intros a b. unfold funcomp.
+  - intros a b. simpl.
     rewrite (ax2f a b). rewrite (ax2g (pr1 f a) (pr1 f b)).
     apply idpath.
 Defined.
@@ -2412,7 +2414,7 @@ Proof.
       * use funextfun. intros x1.
         use funextfun. intros x2.
         exact ((dirprod_pr2 i) x1 x2).
-    + intros e. change (Xop = Yop) in e.
+    + intros e. cbn in e.
       use make_istwobinopfun.
       * intros x1 x2. induction e. use idpath.
       * intros x1 x2. induction e. use idpath.

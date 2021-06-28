@@ -666,7 +666,7 @@ Proof.
       * cbn. intros c c' x y f H.
         set (XR := pr2 (iscontrpr1 (unique_lift f y))). cbn in XR.
         apply (transportf (λ t, t -->[f] y) H XR).
-    + abstract (split; cbn; unfold idfun; intros; apply  disp_mor_unique_disc_fib).
+    + abstract (split; cbn; intros; apply  disp_mor_unique_disc_fib).
   - abstract (intros c c' f; apply eq_discrete_fib_mor; intros; apply idpath).
 Defined.
 
@@ -682,7 +682,6 @@ Proof.
       * cbn. intro c; apply idfun.
       * abstract (
             intros c c' x y f H; cbn;
-            unfold idfun;
             apply pathsinv0; apply path_to_ctr; apply H
           ).
     + abstract (

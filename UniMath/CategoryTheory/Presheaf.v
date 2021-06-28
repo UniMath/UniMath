@@ -405,8 +405,8 @@ Proof.
       * abstract (intros X Y α;
                   apply nat_trans_eq; [ apply homset_property|];
                   intro x; simpl;
-                  apply pathsinv0, (iso_inv_on_left _ _ _ _ _ (set_iso Y x));
-                  rewrite <- assoc; apply pathsinv0, iso_inv_on_right;
+                  apply pathsinv0, (iso_inv_on_left _ _ _ _ (set_iso Y x));
+                  rewrite <- assoc; apply pathsinv0, (iso_inv_on_right (C:=SET));
                   exact (eqtohomot (maponpaths pr1 (nat_in_X X Y α)) x)).
     + abstract (use make_is_inverse_in_precat;
                 [ apply nat_trans_eq; [ apply homset_property |]; intro X;

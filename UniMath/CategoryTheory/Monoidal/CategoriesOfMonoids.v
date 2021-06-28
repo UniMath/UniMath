@@ -13,14 +13,14 @@ Section Precategory_of_Monoids.
 
 Context (Mon : monoidal_precat).
 
-Let C := monoidal_precat_precat Mon.
-Let tensor := monoidal_precat_tensor Mon.
+Local Definition C := monoidal_precat_precat Mon.
+Local Definition tensor := monoidal_precat_tensor Mon.
 Notation "X ⊗ Y" := (tensor (X , Y)).
 Notation "f #⊗ g" := (# tensor (f #, g)) (at level 31).
-Let I := monoidal_precat_unit Mon.
-Let α' := monoidal_precat_associator Mon.
-Let λ' := monoidal_precat_left_unitor Mon.
-Let ρ' := monoidal_precat_right_unitor Mon.
+Local Definition I := monoidal_precat_unit Mon.
+Local Definition α' := monoidal_precat_associator Mon.
+Local Definition λ' := monoidal_precat_left_unitor Mon.
+Local Definition ρ' := monoidal_precat_right_unitor Mon.
 
 Definition monoid_ob_data : UU :=
   ∑ X : C, (X ⊗ X --> X) × (I --> X).
@@ -123,19 +123,11 @@ Defined.
 Lemma is_precategory_precategory_monoid_data (hs : has_homsets C)
   : is_precategory precategory_monoid_data.
 Proof.
-  repeat split; intros; simpl.
-  - apply monoid_mor_eq.
-    + apply hs.
-    + apply id_left.
-  - apply monoid_mor_eq.
-    + apply hs.
-    + apply id_right.
-  - apply monoid_mor_eq.
-    + apply hs.
-    + apply assoc.
-  - apply monoid_mor_eq.
-    + apply hs.
-    + apply assoc'.
+  repeat split; intros; simpl; apply monoid_mor_eq; try apply hs.
+  - apply id_left.
+  - apply id_right.
+  - apply assoc.
+  - apply assoc'.
 Defined.
 
 Definition precategory_monoid (hs : has_homsets C)

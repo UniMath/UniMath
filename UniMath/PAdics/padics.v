@@ -17,28 +17,6 @@ Require Import UniMath.NumberSystems.Integers.
 
 Unset Kernel Term Sharing. (** crucial for timely proof-checking, otherwise unbearable *)
 
-Section Upstream.
-  (* these lemmas are only used for pointing to a problem but could be worth
-     integrating into upstream *)
-Local Open Scope hz_scope.
-
-Lemma hzmultrmul (a b c : hz) (is : a = b) : a * c = b * c.
-Proof.
-  intros.
-  induction is.
-  apply idpath.
-Defined.
-
-Lemma hzmultlmul (a b c : hz) (is : a = b) : c * a = c * b.
-Proof.
-  intros.
-  apply maponpaths.
-  apply is.
-Defined.
-
-Close Scope hz_scope.
-End Upstream.
-
 (** * I. Several basic lemmas *)
 
 Local Open Scope hz_scope.
@@ -205,14 +183,7 @@ Proof.
       rewrite hzmultx0.
       rewrite hzplusl0.
       rewrite hzremaindermoditerated.
-      (* Coq hangs on this command on Oct. 29, 2017: apply idpath. Solution by Benedikt Ahrens : *)
-      exact (idpath _).
-(* a less pleasing solution was the following - together with interesting observations:
-      apply hzplusladd.
-      Fail (apply hzmultlmul).
-      Fail (apply hzmultrmul).
       apply idpath.
-*)
     }
     rewrite h.
     apply idpath.

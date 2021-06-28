@@ -107,7 +107,7 @@ Section Accessors.
         (functor_composite F (right_adjoint  (pr1 HF))).
   Proof.
     exists (unit_from_left_adjoint (pr1 HF)).
-    apply functor_iso_if_pointwise_iso.
+    apply functor_iso_if_pointwise_iso. intro c.
     apply (pr1 (pr2 HF)).
   Defined.
 
@@ -116,7 +116,7 @@ Section Accessors.
         (functor_identity B).
   Proof.
     exists (counit_from_left_adjoint (pr1 HF)).
-    apply functor_iso_if_pointwise_iso.
+    apply functor_iso_if_pointwise_iso. intro c.
     apply (pr2 (pr2 HF)).
   Defined.
 End Accessors.
@@ -156,14 +156,14 @@ Proof.
   cbn.
   apply pathsinv0. etrans. apply id_left. etrans. apply (! id_right _ ).
   apply pathsinv0.
-  apply (iso_inv_to_left _ _ _ _  (make_iso _ (Hη _ ))).
+  apply (iso_inv_to_left _ _ _  (make_iso _ (Hη _ ))).
   apply (invmaponpathsweq (make_weq _ (iso_comp_left_isweq (functor_on_iso G (make_iso _ (Hε _ ))) _ ))).
   cbn.
   set (XR := functor_on_iso_is_iso _ _ G _ _ (make_iso _ (Hε x))).
   set (XR' := make_iso (#G (ε x)) XR). cbn in XR'.
   apply pathsinv0. etrans. apply id_left. etrans. apply (! id_right _ ).
   apply pathsinv0.
-  apply (iso_inv_to_left _ _ _  _ XR').
+  apply (iso_inv_to_left _ _  _ XR').
   unfold XR', XR; clear XR' XR.
 
   repeat rewrite assoc.
@@ -198,14 +198,14 @@ Let G : functor D C := right_functor E.
 Let ηntiso : iso (C:= [C,C,homset_property _ ]) (functor_identity _ ) (F ∙ G).
 Proof.
   use functor_iso_from_pointwise_iso.
-  use (adjunit E).
+  use (adjunit E). intro c.
   apply (pr1 (pr2 E)).
 Defined.
 
 Let εntiso : iso (C:= [D,D,homset_property _ ]) (G ∙ F) (functor_identity _ ).
 Proof.
   use functor_iso_from_pointwise_iso.
-  use (adjcounit E).
+  use (adjcounit E). intro c.
   apply (pr2 (pr2 E)).
 Defined.
 
@@ -340,7 +340,7 @@ Proof.
     (functor_on_iso F (idtoiso (isotoid _ HA g)))) f).
   - generalize (isotoid _ HA g).
     intro p0; destruct p0.
-    rewrite <- functor_on_iso_inv.
+    rewrite <- functor_on_iso_inv. simpl.
     rewrite iso_inv_of_iso_id.
     apply eq_iso.
     simpl; rewrite functor_id.
@@ -366,7 +366,7 @@ Proof.
       repeat rewrite <- assoc.
       rewrite iso_after_iso_inv.
       rewrite id_right.
-      set (H := iso_inv_iso_inv _ _ _ f').
+      set (H := iso_inv_iso_inv _ _ f').
       now apply (base_paths _ _ H).
 Qed.
 

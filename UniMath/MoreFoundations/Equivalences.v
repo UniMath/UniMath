@@ -330,7 +330,7 @@ Proof.
     apply (maponpaths pathsinv0).
     assert (r := ! maponpaths_fun_fun_fun_natl q (funcomp f g) q (g y)); simpl in r.
     rewrite maponpathsidfun in r. repeat rewrite <- (maponpathscomp f g) in r.
-    unfold funcomp in r; simpl in r. repeat rewrite path_assoc.
+    simpl in r. repeat rewrite path_assoc.
     rewrite r. maponpaths_pre_post_cat. clear r.
     assert (r := ! maponpaths_fun_fun_fun_natl p g q y); simpl in r.
     rewrite maponpathsidfun in r. rewrite (maponpathscomp f).
@@ -364,7 +364,7 @@ Proof.
     apply pathsinv0. repeat rewrite <- (maponpathscomp0 g).
     apply (maponpaths (maponpaths g)). rewrite h.
     assert (r := ! maponpaths_fun_fun_natl p p (f (g y))); simpl in r.
-    rewrite maponpathsidfun in r. unfold funcomp in *; simpl in *.
+    rewrite maponpathsidfun in r. simpl in *.
     repeat rewrite <- (maponpathscomp g f) in r.
     repeat rewrite (path_assoc _ _ (p y)). rewrite r.
     repeat rewrite <- (path_assoc _ _ (p y)). apply (maponpaths pre_cat). clear r.

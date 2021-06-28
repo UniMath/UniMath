@@ -67,6 +67,8 @@ Unset Kernel Term Sharing.
 
 Require Export UniMath.Algebra.Monoids.
 
+Local Open Scope logic.
+
 (** To upstream files *)
 
 
@@ -1595,10 +1597,7 @@ Definition rigtoringop2 (X : rig) : binop (rigtoringcarrier X) :=
 Lemma rigtoringassoc2 (X : rig) : isassoc (rigtoringop2 X).
 Proof.
   unfold isassoc.
-  apply (setquotuniv3prop (eqrelrigtoring X)
-                          (λ x x' x'' : rigtoringcarrier X,
-                             eqset (rigtoringop2 X (rigtoringop2 X x x') x'')
-                                   (rigtoringop2 X x (rigtoringop2 X x' x'')))).
+  apply (setquotuniv3prop _ (λ x x' x'', _ = _)).
   intros x x' x''.
   change (paths (setquotpr (eqrelrigtoring X) (rigtoringop2int X (rigtoringop2int X x x') x''))
                 (setquotpr (eqrelrigtoring X) (rigtoringop2int X x (rigtoringop2int X x' x'')))).
@@ -1637,9 +1636,7 @@ Definition rigtoringunel2 (X : rig) : rigtoringcarrier X :=
 Lemma rigtoringlunit2 (X : rig) : islunit (rigtoringop2 X) (rigtoringunel2 X).
 Proof.
   unfold islunit.
-  apply (setquotunivprop
-           (eqrelrigtoring X) (λ x : rigtoringcarrier X,
-                                eqset (rigtoringop2 X (rigtoringunel2 X) x) x)).
+  apply (setquotunivprop _ (λ x, _ = _)).
   intro x.
   change (paths (setquotpr (eqrelrigtoring X) (rigtoringop2int X (rigtoringunel2int X) x))
                 (setquotpr (eqrelrigtoring X) x)).
@@ -1655,9 +1652,7 @@ Opaque rigtoringlunit2.
 Lemma rigtoringrunit2 (X : rig) : isrunit (rigtoringop2 X) (rigtoringunel2 X).
 Proof.
   unfold isrunit.
-  apply (setquotunivprop
-           (eqrelrigtoring X) (λ x : rigtoringcarrier X,
-                                eqset (rigtoringop2 X x (rigtoringunel2 X)) x)).
+  apply (setquotunivprop _ (λ x, _ = _)).
   intro x.
   change (paths (setquotpr (eqrelrigtoring X) (rigtoringop2int X x (rigtoringunel2int X)))
                 (setquotpr (eqrelrigtoring X) x)).
@@ -1683,11 +1678,7 @@ Definition rigtoringismonoidop2 (X : rig) : ismonoidop (rigtoringop2 X) :=
 Lemma rigtoringldistr (X : rig) : isldistr (rigtoringop1 X) (rigtoringop2 X).
 Proof.
   unfold isldistr.
-  apply (setquotuniv3prop
-           (eqrelrigtoring X) (λ x x' x'' : rigtoringcarrier X,
-                                eqset (rigtoringop2 X x'' (rigtoringop1 X x x'))
-                                      (rigtoringop1 X (rigtoringop2 X x'' x)
-                                                   (rigtoringop2 X x'' x')))).
+  apply (setquotuniv3prop _ (λ x x' x'', _ = _)).
   intros x x' x''.
   change (paths (setquotpr (eqrelrigtoring X) (rigtoringop2int X x'' (rigtoringop1int X x x')))
                 (setquotpr (eqrelrigtoring X) (rigtoringop1int X (rigtoringop2int X x'' x)
@@ -1707,11 +1698,7 @@ Opaque rigtoringldistr.
 Lemma rigtoringrdistr (X : rig) : isrdistr (rigtoringop1 X) (rigtoringop2 X).
 Proof.
   unfold isrdistr.
-  apply (setquotuniv3prop
-           (eqrelrigtoring X) (λ x x' x'' : rigtoringcarrier X,
-                                eqset (rigtoringop2 X (rigtoringop1 X x x') x'')
-                                      (rigtoringop1 X (rigtoringop2 X x x'')
-                                                   (rigtoringop2 X x' x'')))).
+  apply (setquotuniv3prop _ (λ x x' x'', _ = _)).
   intros x x' x''.
   change (paths (setquotpr (eqrelrigtoring X) (rigtoringop2int X (rigtoringop1int X x x') x''))
                 (setquotpr (eqrelrigtoring X)
@@ -2110,9 +2097,7 @@ Local Open Scope rig_scope.
 Lemma commrigtocommringcomm2 (X : commrig) : iscomm (rigtoringop2 X).
 Proof.
   unfold iscomm.
-  apply (setquotuniv2prop
-           (eqrelrigtoring X)
-           (λ x x' : rigtoringcarrier X,  eqset (rigtoringop2 X x x') (rigtoringop2 X x' x))).
+  apply (setquotuniv2prop _ (λ x x', _ = _)).
   intros x x'.
   change (paths (setquotpr (eqrelrigtoring X) (rigtoringop2int X x x'))
                 (setquotpr (eqrelrigtoring X) (rigtoringop2int X x' x))).
@@ -2267,9 +2252,7 @@ Proof.
   - apply (invmaponpathsincl _ (isinclpr1carrier (pr1 S))).
     unfold pr1carrier. simpl. set (assoc2 := ringassoc2 X).
     apply (assoc2 (pr1 (pr2 xs)) (pr1 (pr2 xs')) (pr1 (pr2 xs''))).
-  - apply (setquotuniv3prop R (λ x x' x'' : setquotinset R,
-                                 @eqset (setquotinset R) (add1 (add1 x x') x'')
-                                        (add1 x (add1 x' x''))) int).
+  - apply (setquotuniv3prop R (λ x x' x'', _ = _)), int.
 Defined.
 Opaque commringfracassoc1.
 
@@ -2281,8 +2264,7 @@ Proof.
   set (add1int := commringfracop1int X S).
   set (add1 := commringfracop1 X S).
   unfold iscomm.
-  apply (setquotuniv2prop R (λ x x' : setquotinset R ,
-                               @eqset (setquotinset R) (add1 x x') (add1 x' x))).
+  apply (setquotuniv2prop _ (λ x x', _ = _)).
   intros xs xs'.
   apply (@maponpaths _ _ (setquotpr R) (add1int xs xs') (add1int xs' xs)).
   unfold add1int. unfold commringfracop1int.
@@ -2339,8 +2321,7 @@ Proof.
     set (qunel1 := commringfracunel1 X S).
     set (assoc2 := ringassoc2 X).
     unfold islinv.
-    apply (setquotunivprop
-             R (λ x : setquotinset R, @eqset (setquotinset R) (add1 (inv1 x) x) qunel1)).
+    apply (setquotunivprop _ (λ x, _ = _)).
     intro xs.
     apply (iscompsetquotpr R  (add1int (inv1int xs) xs) qunel1int).
     simpl. apply hinhpr. split with (unel S).
@@ -2364,7 +2345,7 @@ Proof.
   set (R := eqrelcommringfrac X S). set (add1int := commringfracop1int X S).
   set (add1 := commringfracop1 X S). set (un1 := commringfracunel1 X S).
   unfold islunit.
-  apply (setquotunivprop R (λ x : _, @eqset (setquotinset R) (add1 un1 x) x)).
+  apply (setquotunivprop R (λ x, _ = _)).
   intro xs.
   assert (e0 : paths (add1int (commringfracunel1int X S) xs) xs).
   {
@@ -2416,10 +2397,7 @@ Proof.
   set (add1int := commringfracop1int X S).
   set (add1 := commringfracop1 X S).
   unfold isldistr.
-  apply (setquotuniv3prop
-           R (λ x x' x'' : setquotinset R,
-                @eqset (setquotinset R) (mult1 x'' (add1 x x'))
-                       (add1 (mult1 x'' x) (mult1  x'' x')))).
+  apply (setquotuniv3prop _ (λ x x' x'', _ = _)).
   intros xs xs' xs''.
   apply (iscompsetquotpr R (mult1int xs'' (add1int xs xs'))
                          (add1int (mult1int xs'' xs) (mult1int xs'' xs'))).
@@ -2580,7 +2558,7 @@ Definition isringfuntocommringfrac (X : commring) (S : @subabmonoid (ringmultabm
 
 Definition hrelcommringfrac0 (X : commring) (S : @submonoid (ringmultabmonoid X)) :
   hrel (X × S) :=
-  λ xa yb : setdirprod X S, eqset ((pr1 xa) * (pr1 (pr2 yb))) ((pr1 yb) * (pr1 (pr2 xa))).
+  λ xa yb : setdirprod X S, (pr1 xa) * (pr1 (pr2 yb)) = (pr1 yb) * (pr1 (pr2 xa)).
 
 Lemma weqhrelhrel0commringfrac (X : commring) (S : @submonoid (ringmultabmonoid X))
       (iscanc : ∏ a : S, isrcancelable (@op2 X) (pr1carrier _ a)) (xa xa' : dirprod X S) :
@@ -2588,7 +2566,7 @@ Lemma weqhrelhrel0commringfrac (X : commring) (S : @submonoid (ringmultabmonoid 
 Proof.
   intros. unfold eqrelabmonoidfrac. unfold hrelabmonoidfrac. simpl.
   apply weqimplimpl.
-  - apply (@hinhuniv _ (eqset (pr1 xa * pr1 (pr2 xa')) (pr1 xa' * pr1 (pr2 xa)))).
+  - apply (@hinhuniv _ (_ = _)).
     intro ae. destruct ae as [ a eq ].
     apply (invmaponpathsincl _ (iscanc a) _ _ eq).
   - intro eq. apply hinhpr. split with (unel S).
@@ -2625,7 +2603,7 @@ Proof.
   apply (isdecpropweqb (weqhrelhrel0commringfrac X S iscanc xa xa')).
   apply isdecpropif. unfold isaprop. simpl.
   set (int := setproperty X (pr1 xa * pr1 (pr2 xa')) (pr1 xa' * pr1 (pr2 xa))).
-  simpl in int. apply int. unfold hrelcommringfrac0. unfold eqset.
+  simpl in int. apply int. unfold hrelcommringfrac0.
   simpl. apply (is _ _).
 Defined.
 

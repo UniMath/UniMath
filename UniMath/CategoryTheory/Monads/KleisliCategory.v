@@ -180,7 +180,7 @@ Proof.
   use tpair.
   - intros a b; cbn.
     apply idweq.
-  - cbn; unfold idfun; split.
+  - cbn; split.
     + intros.
       rewrite <- assoc.
       apply cancel_precomposition.
@@ -218,7 +218,7 @@ Proof.
            apply bind_comp_η.
         -- cbn.
            rewrite transportf_const.
-           unfold idfun.
+           cbn.
            apply funextsec; intro c.
            apply bind_identity.
       * cbn.

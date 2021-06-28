@@ -65,7 +65,7 @@ Proof.
     + intro b.
       apply (p b (make_hProp _ (hsC _ _ _ _))).
       intro t; induction t as [a f]; simpl.
-      apply (pre_comp_with_iso_is_inj _ _ _ _ (# F f)
+      apply (pre_comp_with_iso_is_inj _ _ _ (# F f)
          (functor_on_iso_is_iso _ _ _ _ _ f)).
       rewrite 2 nat_trans_ax.
       apply cancel_postcomposition.

@@ -26,6 +26,7 @@ Set Kernel Term Sharing.
 
 Require Import UniMath.Foundations.PartD.
 
+Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
@@ -132,7 +133,7 @@ Proof.
   eapply pathscomp0; [apply BinCoproductOfArrows_comp |].
   eapply pathscomp0.
   2: { eapply pathsinv0. apply BinCoproductOfArrows_comp. }
-  apply BinCoproductOfArrows_eq.
+  apply maponpaths_12.
   - eapply pathscomp0. apply id_left.
     apply pathsinv0.
     apply id_right.
@@ -176,7 +177,7 @@ Proof.
   eapply pathscomp0. apply BinCoproductOfArrows_comp.
   eapply pathscomp0.
   2: { eapply pathsinv0. apply BinCoproductOfArrows_comp. }
-  apply BinCoproductOfArrows_eq.
+  apply maponpaths_12.
   - rewrite id_right.
     apply pathsinv0.
     apply id_right.
@@ -226,7 +227,7 @@ Proof.
   intro c; simpl.
   unfold coproduct_nat_trans_data; simpl.
   unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
-  apply BinCoproductOfArrows_eq.
+  apply (maponpaths_12 (BinCoproductOfArrows _ _ _)).
   + apply idpath.
   + unfold functor_fix_snd_arg_mor; simpl.
     revert c.
@@ -570,7 +571,7 @@ Proof.
   intro c; simpl.
   unfold coproduct_nat_trans_data; simpl.
   unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
-  apply BinCoproductOfArrows_eq.
+  apply (maponpaths_12 (BinCoproductOfArrows _ _ _)).
   - apply idpath.
   - unfold functor_fix_snd_arg_mor; simpl.
     revert c.

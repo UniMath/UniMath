@@ -104,7 +104,7 @@ Lemma p1types_disp_univalent_2_0 : disp_univalent_2_0 p1types_disp.
 Proof.
   apply fiberwise_univalent_2_0_to_disp_univalent_2_0.
   intros X x x'. cbn in *.
-  use gradth; unfold idfun.
+  use gradth.
   - intros f. apply f.
   - intro p.
     induction p.

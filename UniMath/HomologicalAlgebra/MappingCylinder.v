@@ -395,7 +395,7 @@ Section mapping_cylinder_KA_iso.
     rewrite <- (assoc _ _ (to_Pr1 DS4)). rewrite (to_Unel2' DS4).
     rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_left. rewrite to_lunax''.
     rewrite <- (assoc _ _ (to_Pr2 DS4)). rewrite (to_IdIn2 DS4). rewrite id_right.
-    rewrite <- assoc. rewrite (MComm f i). rewrite assoc. use to_rrw.
+    rewrite <- assoc. rewrite (MComm f i). rewrite assoc. apply maponpaths.
     rewrite <- assoc. rewrite <- assoc. rewrite <- assoc. rewrite <- to_premor_linear'.
     apply cancel_precomposition.
     unfold MappingConeDiff. unfold MappingConeDiff1.
@@ -577,7 +577,7 @@ Section mapping_cylinder_KA_iso.
       unfold tmp'' in tmp'.
       rewrite tmp'. unfold tmp. apply idpath.
     }
-    cbn in e1. cbn. rewrite <- e1. clear e1. use to_rrw.
+    cbn in e1. cbn. rewrite <- e1. clear e1. apply maponpaths.
     (* The first term of to_binop are equal, cancel them *)
     rewrite <- to_binop_inv_inv. rewrite transport_target_to_inv. rewrite transport_source_to_inv.
     rewrite <- PreAdditive_invlcomp. rewrite <- PreAdditive_invlcomp. rewrite inv_inv_eq.
@@ -609,7 +609,7 @@ Section mapping_cylinder_KA_iso.
       unfold tmp'' in tmp'.
       rewrite tmp'. unfold tmp. apply idpath.
     }
-    rewrite <- e1. clear e1. use to_rrw.
+    rewrite <- e1. clear e1. apply maponpaths.
     (* Solve the rest *)
     cbn. unfold DS2, DS1, DS6, DS5.
     set (tmp := λ i0 : hz, BinDirectSumOb
@@ -732,7 +732,7 @@ Section mapping_cylinder_KA_iso.
       }
       rewrite <- e2. apply idpath.
     }
-    cbn in e1. cbn. rewrite <- e1. clear e1. use to_rrw.
+    cbn in e1. cbn. rewrite <- e1. clear e1. apply maponpaths.
     (* Use similar technique as above *)
     rewrite transport_target_postcompose. rewrite <- assoc. rewrite <- assoc. rewrite <- assoc.
     rewrite <- assoc. apply cancel_precomposition.
@@ -782,11 +782,11 @@ Section mapping_cylinder_KA_iso.
     unfold MappingCylinderIsoHomot_mor1. unfold MappingCylinderIsoHomot_mor2.
     cbn. fold DS1 DS2. cbn. rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
     rewrite assoc. rewrite assoc. rewrite assoc. rewrite assoc.
-    rewrite to_assoc. rewrite to_assoc. use to_rrw. rewrite to_commax'.
+    rewrite to_assoc. rewrite to_assoc. apply maponpaths. rewrite to_commax'.
     rewrite (to_commax'
                _ _ ((to_Pr1 DS2) · (to_inv (MMor f i)) · (to_In2 DS1) · (to_In2 DS2))).
     rewrite to_assoc. rewrite <- PreAdditive_invrcomp. rewrite <- PreAdditive_invlcomp.
-    rewrite <- PreAdditive_invlcomp. use to_rrw. rewrite <- to_assoc.
+    rewrite <- PreAdditive_invlcomp. apply maponpaths. rewrite <- to_assoc.
     rewrite <- PreAdditive_invrcomp. rewrite <- PreAdditive_invlcomp.
     rewrite <- PreAdditive_invlcomp. rewrite (@to_rinvax' A (Additive.to_Zero A)).
     rewrite to_lunax''. apply idpath.

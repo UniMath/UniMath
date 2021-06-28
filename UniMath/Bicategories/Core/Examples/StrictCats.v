@@ -256,7 +256,7 @@ Proof.
       apply idpath.
 Qed.
 
-Definition two_cat_of_strict_cats
+Definition strict_bicat_of_strict_cats
   : strict_bicat.
 Proof.
   use tpair.

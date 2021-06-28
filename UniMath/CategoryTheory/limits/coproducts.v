@@ -178,12 +178,6 @@ rewrite assoc, CoproductOfArrowsIn.
 now rewrite <- assoc, CoproductOfArrowsIn, assoc.
 Qed.
 
-Definition CoproductOfArrows_eq (a c : I -> C) (f f' : ∏ i, a i --> c i) : f = f' ->
-  CoproductOfArrows _ _ _ _ f = CoproductOfArrows _ _ (CC _) (CC _) f'.
-Proof.
-now induction 1.
-Qed.
-
 End Coproducts.
 
 Section functors.

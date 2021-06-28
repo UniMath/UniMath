@@ -175,7 +175,7 @@ Section fix_a_category.
     apply fiberwise_local_univalent_is_univalent_2_1.
     intros C D F CD FC α β.
     use isweqimplimpl.
-    - intro p ; cbn in * ; unfold idfun in *.
+    - intro p ; cbn in *.
       apply nat_trans_eq.
       { apply K. }
       intro x.

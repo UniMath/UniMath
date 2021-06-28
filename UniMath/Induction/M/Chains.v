@@ -68,7 +68,7 @@ Lemma cochain_dmor_paths_type {ver1 ver2 ver3 : vertex conat_graph}
 Proof.
   intro v1; cbn in *.
   induction q1.
-  cbn; unfold idfun.
+  cbn.
   exact (toforallpaths _ _ _ (cochain_dmor_paths cochn p1 p2) v1).
 Defined.
 
@@ -143,7 +143,7 @@ Definition shifted_limit (cocha : cochain type_precat) :
 Proof.
   pose (X := dob cocha); cbn in X.
   pose (π n := (@dmor _ _ cocha (S n) n (idpath _))).
-  unfold standard_limit, shift_cochain, funcomp, idfun; cbn.
+  unfold standard_limit, shift_cochain; cbn.
 
   assert (isc : ∏ x : ∏ v : nat, dob cocha (S v),
                 iscontr (∑ x0 : X 0, (π 0 (x 0)) = x0)).
@@ -240,7 +240,7 @@ Proof.
           xs (S u)).
     + apply (@weqsecovercontr_uncurried
                nat (λ n, (S u) = n) (λ _ _, _ _ = xs (S u)) (iscontr_paths_from _)).
-    + cbn; unfold funcomp, idfun.
+    + cbn.
       apply invweq.
       apply (@weqsecovercontr_uncurried
                nat (λ n, (S (S u)) = n) (λ _ _, _ = xs (S u)) (iscontr_paths_from _)).

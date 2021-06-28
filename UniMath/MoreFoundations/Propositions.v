@@ -4,6 +4,7 @@ Require Export UniMath.MoreFoundations.Tactics.
 Require Export UniMath.MoreFoundations.DecidablePropositions.
 
 Local Open Scope logic.
+Local Open Scope type.
 
 Lemma ishinh_irrel {X:UU} (x:X) (x':∥X∥) : hinhpr x = x'.
 Proof.
@@ -118,7 +119,7 @@ Abort.
 
 (* here's another version *)
 Goal ∏ (X:Type)
-     (P := λ x':∥X∥, ∃ x, x' = hinhpr x)
+     (P := λ x':∥X∥, ∃ x, (x' = hinhpr x))
      (h := λ x, (hinhpr (x,,idpath _) : P (hinhpr x)))
      (x:X),
   squash_rec _ h (hinhpr x) = h x.

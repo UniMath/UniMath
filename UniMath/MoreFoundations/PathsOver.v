@@ -524,11 +524,12 @@ Proof.
   now induction α.
 Defined.
 
+(* a frequently-useful specialisation of [maponpaths_12] *)
 Definition apstar               (* 0.2.7 *)
            (A:Type) (a1 a2 a3:A) (p p':a1=a2) (q q':a2=a3) :
   p=p' -> q=q' -> p @ q = p' @ q'.
 Proof.
-  intros α β. induction α, p. exact β.
+  intros; apply maponpaths_12; assumption.
 Defined.
 
 Definition cp_apstar
@@ -621,7 +622,7 @@ Definition pullBackPathOverPoint {X X':Type} (g : X -> X')
            {Y : X' -> Type} {y y' : Y x'} (t : y = y')
   : pullBackPointOver g r y = pullBackPointOver g r y'.
 Proof.
-  induction t. reflexivity.
+  apply maponpaths; assumption.
 Defined.
 
 Definition pullBackPathOver {X X':Type} (g : X -> X')

@@ -214,7 +214,7 @@ Proof.
   apply functor_id.
 Qed.
 
-Lemma functor_on_is_iso_is_iso {C C' : precategory} {F : functor C C'}
+Lemma functor_on_is_iso_is_iso {C C' : precategory} (F : functor C C')
       {a b : ob C} {f : a --> b} (H : is_iso f)  : is_iso (#F f).
 Proof.
   apply (is_iso_qinv _ (#F (inv_from_iso (make_iso _ H)))).
@@ -250,7 +250,7 @@ Defined.
 
 Lemma functor_on_inv_from_iso' {C C' : precategory} (F : functor C C')
       {a b : ob C} {f : a --> b} (H : is_iso f) :
-  inv_from_iso (make_iso _ (functor_on_is_iso_is_iso H)) = # F (inv_from_iso (make_iso _ H)).
+  inv_from_iso (make_iso _ (functor_on_is_iso_is_iso F H)) = # F (inv_from_iso (make_iso _ H)).
 Proof.
   apply pathsinv0. use inv_iso_unique'. cbn. unfold precomp_with.
   rewrite <- functor_comp. set (tmp := iso_inv_after_iso (make_iso _ H)). cbn in tmp.
@@ -1020,6 +1020,13 @@ Section functors_on_iso_with_inv.
     - exact (# F (z_iso_inv_mor f)).
     - exact (functor_on_is_inverse_in_precat F f).
   Defined.
+
+  Lemma functor_on_inv_from_z_iso' {C C' : precategory} (F : functor C C')
+      {a b : ob C} {f : a --> b} (H : is_z_isomorphism f) :
+  inv_from_z_iso (make_z_iso _ _ (functor_on_is_z_isomorphism F H)) = # F (inv_from_z_iso (make_z_iso _ _ H)).
+  Proof.
+    apply idpath.
+  Qed.
 
 End functors_on_iso_with_inv.
 

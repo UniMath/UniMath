@@ -71,7 +71,7 @@ Proof.
   simple refine (_ @ w).
   unfold iterop_fun_mon.
   apply maponpaths. rewrite weqcomp_to_funcomp. apply funextfun; intro i.
-  unfold funcomp. apply maponpaths. exact (! homotweqinvweq x' (x i)).
+  simpl. apply maponpaths. exact (! homotweqinvweq x' (x i)).
 Defined.
 
 (** *** [nat] as a commutative rig *)

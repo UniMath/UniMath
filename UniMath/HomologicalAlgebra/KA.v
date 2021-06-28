@@ -101,7 +101,7 @@ Section complexes_homotopies.
                              (H i · Diff C2 (i - 1)) ·
                              Diff C2 i) = ZeroArrow (Additive.to_Zero A) _ _).
     {
-      induction (hzrminusplus i 1). cbn. unfold idfun. rewrite <- assoc.
+      induction (hzrminusplus i 1). cbn. rewrite <- assoc.
       rewrite (@DSq A C2 (i - 1)). apply ZeroArrow_comp_right.
     }
     rewrite e0. clear e0.
@@ -242,7 +242,7 @@ Section complexes_homotopies.
                                         (maponpaths C2 (hzrminusplus i 1))
                                         (homot i · Diff C2 (i - 1)))).
         {
-          unfold to_inv. cbn. induction (hzrminusplus i 1). cbn. unfold idfun.
+          unfold to_inv. cbn. induction (hzrminusplus i 1). cbn.
           set (tmp := @PreAdditive_invlcomp A (C1 i) (C2 (i - 1)) (C2 (i - 1 + 1))
                                             (homot i) (Diff C2 (i - 1))).
           apply pathsinv0. unfold to_inv in tmp.

@@ -32,7 +32,7 @@ Section StandardLimits.
     use make_cone; cbn.
     - exact (λ n l, pr1 l n).
     - intros u v f.
-      apply funextsec; intro l; unfold funcomp; cbn.
+      apply funextsec; intro l; cbn.
       apply (pr2 l).
   Defined.
 
@@ -61,7 +61,7 @@ Section StandardLimitHomot.
                 @ pr2 x _ _ ed
                 @ toforallpaths _ _ _ p v).
     {
-      intros p; induction p; cbn; unfold idfun.
+      intros p; induction p; cbn.
       do 3 (apply funextsec; intro).
       exact (!(pathscomp0rid _)).
     }
@@ -126,7 +126,7 @@ Section StandardLimitUP.
     - intros f.
       apply funextfun; intro xcone.
       use total2_paths_f; cbn; [reflexivity|].
-      cbn; unfold idfun.
+      cbn.
       apply funextsec; intro ver1.
       apply funextsec; intro ver2.
       apply funextsec; intro ed.
@@ -139,7 +139,7 @@ Section StandardLimitUP.
       + apply funextsec; intro ver1.
         apply funextsec; intro ver2.
         apply funextsec; intro ed.
-        unfold funcomp; cbn; unfold idfun.
+        cbn.
         rewrite toforallpaths_funextsec; cbn.
         rewrite funextsec_toforallpaths.
         reflexivity.
@@ -185,7 +185,7 @@ Section CochainLimit.
     - intros v cochain_limit_element.
       apply (pr1 cochain_limit_element).
     - intros u v e.
-      apply funextsec; intro l; unfold funcomp; cbn.
+      apply funextsec; intro l; cbn.
       refine (_ @ pr2 l _).
       unfold dmor, π', π.
       apply simplify_cochain_step.

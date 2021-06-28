@@ -263,7 +263,7 @@ Lemma pathsrecomplfxtoy {X Y : UU} (x : X) (y : Y) (isx : isisolated X x)
       (f : compl X x -> compl Y y) : (recomplf x y isx f x) = y.
 Proof.
   intros. unfold recomplf. unfold weqrecompl. unfold invmap. simpl.
-  unfold invrecompl. unfold funcomp. induction (isx x) as [ i1 | i2 ].
+  unfold invrecompl. induction (isx x) as [ i1 | i2 ].
   - simpl. apply idpath.
   - induction (i2 (idpath _)).
 Defined.
@@ -278,10 +278,10 @@ Proof.
   set (e := homotinvweqweq (weqrecompl Y y isy)
                            (coprodf f (idfun unit)
                                     (invmap (weqrecompl X x isx) x'))).
-  unfold funcomp. simpl in e. simpl. rewrite e.
+  simpl in e. simpl. rewrite e.
   set (e' := homotcoprodfcomp f (idfun unit) g (idfun unit)
                               (invmap (weqrecompl X x isx) x')).
-  unfold funcomp in e'. rewrite e'. apply idpath.
+  simpl in e'. rewrite e'. apply idpath.
 Defined.
 
 
@@ -289,7 +289,7 @@ Definition homotrecomplfidfun {X : UU} (x : X) (isx : isisolated X x) :
   homot (recomplf x x isx (idfun (compl X x))) (idfun _).
 Proof.
   intros. intro x'. unfold recomplf. unfold weqrecompl. unfold invmap. simpl.
-  unfold invrecompl. unfold funcomp. induction (isx x') as [ e | ne ].
+  unfold invrecompl. induction (isx x') as [ e | ne ].
   - simpl. apply e.
   - simpl. apply idpath.
 Defined.
@@ -303,7 +303,7 @@ Proof.
   intros. induction x'n as [ x' nexx' ]. induction y'n as [ y' neyy' ].
   simpl in e . apply (invmaponpathsincl _ (isinclpr1compl _ _)). simpl.
   rewrite (pathsinv0 e). unfold recomplf. unfold invmap. unfold coprodf.
-  simpl. unfold funcomp. unfold invrecompl.
+  simpl. unfold invrecompl.
   induction (isx x') as [ exx' | nexx'' ].
   - induction (nexx' exx').
   - simpl. assert (ee : nexx' = nexx'').
@@ -330,7 +330,7 @@ Definition homottranspos0t2t1t1t2 {T : UU} (t1 t2 : T)
            (is1 : isisolated T t1) (is2 : isisolated T t2) :
   funtranspos0 t2 t1 is1 ∘ funtranspos0 t1 t2 is2 ~ idfun _.
 Proof.
-  intros. intro x. unfold funtranspos0. unfold funcomp.
+  intros. intro x. unfold funtranspos0. simpl.
        induction x as [ t net1 ]; simpl.
        induction (is2 t) as [ et2 | net2 ].
        - induction (is2 t1) as [ et2t1 | net2t1 ].
@@ -406,7 +406,7 @@ Lemma pathsfuntransposoft2 {T : UU} (t1 t2 : T) (is1 : isisolated T t1)
   paths (funtranspos (tpair _ t1 is1) (tpair _ t2 is2) t2) t1.
 Proof.
   intros. unfold funtranspos. simpl. unfold funtranspos0.
-  unfold recomplf. unfold funcomp. unfold coprodf. unfold invmap.
+  unfold recomplf. unfold coprodf. unfold invmap.
   unfold weqrecompl. unfold recompl. simpl. unfold invrecompl.
   induction (is1 t2) as [ et1t2 | net1t2 ].
   - apply (pathsinv0 et1t2).
@@ -423,7 +423,7 @@ Lemma pathsfuntransposofnet1t2 {T : UU} (t1 t2 : T) (is1 : isisolated T t1)
   paths (funtranspos (tpair _ t1 is1) (tpair _ t2 is2) t) t.
 Proof.
   intros. unfold funtranspos. simpl. unfold funtranspos0. unfold recomplf.
-  unfold funcomp. unfold coprodf. unfold invmap. unfold weqrecompl.
+  unfold coprodf. unfold invmap. unfold weqrecompl.
   unfold recompl. simpl. unfold invrecompl.
   induction (is1 t) as [ et1t | net1t' ].
   - induction (net1t et1t).
@@ -436,7 +436,7 @@ Lemma homotfuntranspos2 {T : UU} (t1 t2 : T) (is1 : isisolated T t1)
   homot (funcomp (funtranspos (tpair _ t1 is1) (tpair _ t2 is2))
                  (funtranspos (tpair _ t1 is1) (tpair _ t2 is2))) (idfun _).
 Proof.
-  intros. intro t. unfold funcomp. unfold idfun.
+  intros. intro t. simpl.
   induction (is1 t) as [ et1t | net1t ].
   - rewrite (pathsinv0 et1t). rewrite (pathsfuntransposoft1 _ _).
     rewrite (pathsfuntransposoft2 _ _). apply idpath.

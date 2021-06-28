@@ -821,7 +821,7 @@ Section abgr_monics_and_epis.
                             monoidfuncomp (nat_nat_prod_abmonoid_monoidfun a2) f.
   Proof.
     use monoidfun_paths. use funextfun. intros x. induction x as [x1 x2]. cbn.
-    unfold funcomp. unfold nataddabmonoid_nataddabmonoid_to_monoid_fun.
+    unfold nataddabmonoid_nataddabmonoid_to_monoid_fun.
     unfold nat_nat_to_monoid_fun. Opaque nat_to_monoid_fun. cbn.
     use (pathscomp0 (binopfunisbinopfun f _ _)).
     use (pathscomp0 _ (! (binopfunisbinopfun f _ _))). cbn.

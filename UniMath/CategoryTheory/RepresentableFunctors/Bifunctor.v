@@ -191,7 +191,7 @@ Definition θ_1 {B C:category} (F : [B, C]) (X : [B, [C^op, SET]]) : hSet
 
 Definition θ_2 {B C:category} (F : [B, C]) (X : [B, [C^op, SET]])
            (x : θ_1 F X) : hSet
-  := (∏ (b' b:B) (f:b'-->b), hProp_to_hSet (x b ⟲ F ▭ f = X ▭ f ⟳ x b' )) % set.
+  := hProp_to_hSet (∀ (b' b:B) (f:b'-->b), (x b ⟲ F ▭ f = X ▭ f ⟳ x b' )) % logic.
 
 Definition θ {B C:category} (F : [B, C]) (X : [B, [C^op, SET]]) : hSet
   := ( ∑ x : θ_1 F X, θ_2 F X x ) % set.

@@ -431,22 +431,6 @@ Proof.
   unshelve refine (total2_paths_f _ _); reflexivity.
 Qed.
 
-(*  *)
-
-Lemma total2_paths1 {A : UU} {B : A -> UU} (a:A) {b b':B a} :
-  b=b' -> tpair B a b = tpair B a b'.
-Proof.
-  intro e. induction e. reflexivity.
-Defined.
-
-Goal ∏ A : UU, ∏ B : A -> UU, ∏ p : (∑ a, B a), p = tpair B (pr1 p) (pr2 p).
-  induction p as [a b]. reflexivity.
-Defined.
-
-Goal ∏ X Y (f:X->Y), f = λ x, f x.
-  reflexivity.
-Defined.
-
 (* new categories from old *)
 
 Definition categoryWithStructure (C:category) (P:ob C -> UU) : category.

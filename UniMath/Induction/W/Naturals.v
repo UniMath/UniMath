@@ -121,8 +121,7 @@ Definition make_nat_functor_algebra_mor {X Y : algebra_ob nat_functor} :
 Proof.
   intros X' Y' f p.
   apply from_nat_functor_eq.
-  + unfold funcomp.
-    refine (_ @ !maponpaths _ (nat_functor_arr_true f _)).
+  + refine (_ @ !maponpaths _ (nat_functor_arr_true f _)).
     refine (pr1 p @ _).
     apply (maponpaths (pr2 Y)), maponpaths.
     reflexivity.
