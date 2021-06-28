@@ -201,7 +201,7 @@ Monoidal/EndofunctorsMonoidal.v
 Monoidal/MonoidalFunctors.v
 Monoidal/CategoriesOfMonoids.v
 Monoidal/Actions.v
-Monoidal/Strengths.v
+Monoidal/ActionBasedStrength.v
 Monoidal/BraidedMonoidalCategories.v
 
 SkewMonoidal/SkewMonoidalCategories.v

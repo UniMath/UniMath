@@ -322,7 +322,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monoidal/MonoidalFunctors.v](CategoryTheory/Monoidal/MonoidalFunctors.v)
    - [Monoidal/CategoriesOfMonoids.v](CategoryTheory/Monoidal/CategoriesOfMonoids.v)
    - [Monoidal/Actions.v](CategoryTheory/Monoidal/Actions.v)
-   - [Monoidal/Strengths.v](CategoryTheory/Monoidal/Strengths.v)
+   - [Monoidal/ActionBasedStrength.v](CategoryTheory/Monoidal/ActionBasedStrength.v)
    - [Monoidal/BraidedMonoidalCategories.v](CategoryTheory/Monoidal/BraidedMonoidalCategories.v)
    - [SkewMonoidal/SkewMonoidalCategories.v](CategoryTheory/SkewMonoidal/SkewMonoidalCategories.v)
    - [SkewMonoidal/CategoriesOfMonoids.v](CategoryTheory/SkewMonoidal/CategoriesOfMonoids.v)
