@@ -35,7 +35,7 @@ Section Endofunctors_as_monoidal_category.
 (** The category of endofunctors on [C] *)
 Local Notation "'EndC'":= ([C, C, hs]) .
 
-Lemma is_nat_trans_left_unitor_data: is_nat_trans (I_pretensor (functorial_composition C C C hs hs) (functor_identity C))
+Local Lemma is_nat_trans_left_unitor_data: is_nat_trans (I_pretensor (functorial_composition C C C hs hs) (functor_identity C))
   (functor_identity [C, C, hs]) (λ F : [C, C, hs], λ_functor ((functor_identity [C, C, hs]) F)).
 Proof.
   intros F F' m.
@@ -61,7 +61,7 @@ Proof.
     * abstract ( apply Isos.is_inverse_in_precat_identity ).
 Defined.
 
-Lemma is_nat_trans_right_unitor_data: is_nat_trans (I_posttensor (functorial_composition C C C hs hs) (functor_identity C))
+Local Lemma is_nat_trans_right_unitor_data: is_nat_trans (I_posttensor (functorial_composition C C C hs hs) (functor_identity C))
   (functor_identity [C, C, hs]) (λ F : [C, C, hs], ρ_functor ((functor_identity [C, C, hs]) F)).
 Proof.
   intros F F' m.
@@ -86,7 +86,7 @@ Proof.
     * abstract ( apply Isos.is_inverse_in_precat_identity ).
 Defined.
 
-Lemma is_nat_trans_associator_data: is_nat_trans (assoc_left (functorial_composition C C C hs hs))
+Local Lemma is_nat_trans_associator_data: is_nat_trans (assoc_left (functorial_composition C C C hs hs))
                                                  (assoc_right (functorial_composition C C C hs hs))
   (λ F : (C ⟶ C × C ⟶ C) × C ⟶ C, α_functor (pr1 (pr1 F)) (pr2 (pr1 F)) (pr2 F)).
 Proof.
