@@ -48,8 +48,7 @@ Proof.
       induction PF1PF2 as [PF1 PF2].
       exact (ptd_composite C hs PF1 PF2).
     + intros PF1PF2 PF1'PF2' α1α2.
-      induction PF1PF2 as [PF1 PF2]; induction PF1'PF2' as [PF1' PF2'];
-        induction α1α2 as [α1 α2].
+      induction α1α2 as [α1 α2].
       cbn in *.
       exists (horcomp α1 α2).
       red; intro c.
@@ -253,7 +252,7 @@ Proof.
         apply idpath.
       * do 3 rewrite id_right.
         apply idpath.
-  - split; [apply (functor_z_iso_if_pointwise_z_iso C C hs);
+  - split; [apply (nat_trafo_z_iso_if_pointwise_z_iso C C hs);
                        apply is_nat_z_iso_nat_trans_id
                       | apply (is_nat_z_iso_nat_trans_id ((functor_composite
           (PrecategoryBinProduct.pair_functor (functor_ptd_forget C hs) (functor_ptd_forget C hs))
