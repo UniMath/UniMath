@@ -34,7 +34,11 @@ Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
+Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrength.
+Require Import UniMath.CategoryTheory.Monoidal.EndofunctorsMonoidal.
+Require Import UniMath.CategoryTheory.Monoidal.PointedFunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.Notation.
+
 Local Open Scope subsys.
 
 (** Goal: define signatures as pairs of a rank-2 functor and a "strength" *)
@@ -250,18 +254,21 @@ Lemma θ_nat_1_pointwise (X X' : [C, D', hsD']) (α : X --> X') (Z : Ptd) (c : C
   :  pr1 (# H α) ((pr1 Z) c) · pr1 (θ (X' ⊗ Z)) c =
        pr1 (θ (X ⊗ Z)) c · pr1 (# H (α ∙∙ nat_trans_id (pr1 Z))) c.
 Proof.
-  set (t := θ_nat_1 _ _ α Z).
-  set (t' := nat_trans_eq_weq hsD _ _ t c);
-  clearbody t';  cbn in t'.
-  assert (H' := functor_id (H X') (pr1 (pr1 Z) c));
-  cbn in H'.
-  match goal with |[H1 : ?f · _ · ?g = _ , H2 : ?x = _ |- _ ] =>
-                        intermediate_path (f · x · g) end.
-  - repeat rewrite <- assoc.
+  assert (t := θ_nat_1 _ _ α Z).
+  assert (t' := nat_trans_eq_weq hsD _ _ t c).
+  clear t.
+  cbn in t'.
+  etrans.
+  2: exact t'.
+  clear t'.
+  apply pathsinv0.
+  etrans.
+  { apply cancel_postcomposition.
     apply maponpaths.
-    rewrite H'.
-    apply pathsinv0, id_left.
-  - apply t'.
+    apply functor_id. }
+  rewrite <- assoc.
+  rewrite id_left.
+  apply idpath.
 Qed.
 
 Lemma θ_nat_2 (X : [C, D', hsD']) (Z Z' : Ptd) (f : Z --> Z')
@@ -313,6 +320,103 @@ Definition Sig_strength_law2 (H : Signature) : θ_Strength2_int _ _ := pr2 (pr2 
 
 End fix_a_category.
 
+Section homogeneous_case.
+
+Variable C : precategory.
+Variable hs : has_homsets C.
+Variable H : functor [C, C, hs] [C, C, hs].
+
+Section relative_strength_instantiates_to_strength.
+
+  Local Definition ptd := monoidal_precat_of_pointedfunctors hs.
+  Local Definition endo := monoidal_precat_of_endofunctors hs.
+  Local Definition forget := forgetful_functor_from_ptd_as_strong_monoidal_functor hs.
+
+  Variable rs : rel_strength ptd endo forget H.
+
+  Local Definition ϛ : rel_strength_nat ptd endo forget H := pr1 rs.
+
+  Local Definition ϛ_pentagon_eq : rel_strength_pentagon_eq ptd endo forget H ϛ
+    := pr1 (pr2 rs).
+
+  Local Definition ϛ_rectangle_eq : rel_strength_rectangle_eq ptd endo forget H ϛ
+    := pr2 (pr2 rs).
+
+  Local Definition θ : θ_source C hs C hs C hs H ⟹ θ_target C hs C hs C hs H
+    := pre_whisker binswap_pair_functor ϛ.
+
+  Definition signature_from_rel_strength : Signature C hs C hs C hs.
+  Proof.
+    exists H. exists θ.
+    split; red.
+    - intro X.
+      cbn.
+      apply nat_trans_eq; try assumption; intro c.
+      cbn.
+      assert (Hyp := nat_trans_eq_weq hs _ _ (ϛ_pentagon_eq X) c).
+      cbn in Hyp.
+      rewrite functor_id in Hyp.
+      do 2 rewrite id_left in Hyp.
+      etrans.
+      2: exact Hyp.
+      clear Hyp.
+      rewrite <- assoc.
+      apply maponpaths.
+      etrans.
+      apply pathsinv0.
+      apply id_left.
+      apply cancel_postcomposition.
+      apply pathsinv0.
+      (* abstract away from object argument c *)
+      assert (Hypwoc : # H
+    (nat_trans_id (pr1 X)
+     ∙∙ nat_z_iso_to_trans_inv
+          (make_nat_z_iso (functor_identity C) (functor_identity C) (nat_trans_id (functor_identity C))
+                          (is_nat_z_iso_nat_trans_id (functor_identity C)))) =
+                       identity (H (functor_identity C ∙ X))).
+      { clear c.
+        apply functor_id_id.
+        apply nat_trans_eq; try assumption; intro c.
+        cbn.
+        rewrite id_left.
+        apply functor_id.
+      }
+      apply (nat_trans_eq_weq hs _ _ Hypwoc c).
+    - intros X Z Z'.
+      cbn.
+      apply nat_trans_eq; try assumption; intro c.
+      cbn.
+      rewrite id_left.
+      assert (Hyp := nat_trans_eq_weq hs _ _ (ϛ_rectangle_eq Z Z' X) c).
+      cbn in Hyp.
+      do 2 rewrite functor_id in Hyp.
+      do 3 rewrite id_left in Hyp.
+      rewrite id_right in Hyp.
+      etrans.
+      2: exact Hyp.
+      clear Hyp.
+      apply cancel_postcomposition.
+      etrans.
+      apply pathsinv0.
+      apply id_right.
+      apply maponpaths.
+      apply pathsinv0.
+      (* abstract away from object argument c *)
+      assert (Hypwoc : # H (nat_trans_id (pr1 X) ∙∙ nat_trans_id (functor_composite (pr1 Z) (pr1 Z'))) =
+  identity (H (((pr1 Z) ∙ (pr1 Z')) ∙ X))).
+      { clear c.
+        apply functor_id_id.
+        apply nat_trans_eq; try assumption; intro c.
+        cbn.
+        rewrite id_left.
+        apply functor_id.
+      }
+      apply (nat_trans_eq_weq hs _ _ Hypwoc c).
+  Defined.
+
+End relative_strength_instantiates_to_strength.
+
+End homogeneous_case.
 
 
 Arguments theta {_ _ _ _ _ _} _ .
