@@ -34,7 +34,7 @@ Local Open Scope cat.
 
 Section PointedFunctors_as_monoidal_category.
 
-  Context {C : category}.
+  Context {C : precategory}.
   Variable hs : has_homsets C.
 
   Local Notation "'Ptd'" := (precategory_Ptd C hs).
@@ -253,11 +253,11 @@ Proof.
         apply idpath.
       * do 3 rewrite id_right.
         apply idpath.
-  - abstract ( split; [apply (functor_z_iso_if_pointwise_z_iso C C hs);
+  - split; [apply (functor_z_iso_if_pointwise_z_iso C C hs);
                        apply is_nat_z_iso_nat_trans_id
                       | apply (is_nat_z_iso_nat_trans_id ((functor_composite
           (PrecategoryBinProduct.pair_functor (functor_ptd_forget C hs) (functor_ptd_forget C hs))
-          (functorial_composition C C C hs hs))))] ).
+          (functorial_composition C C C hs hs))))].
 Defined.
 
 End PointedFunctors_as_monoidal_category.

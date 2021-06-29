@@ -29,7 +29,7 @@ Local Open Scope cat.
 
 Section Endofunctors_as_monoidal_category.
 
-  Context {C : category}.
+  Context {C : precategory}.
   Variable hs : has_homsets C.
 
 (** The category of endofunctors on [C] *)
