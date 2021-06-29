@@ -233,8 +233,7 @@ Definition rel_strength (F : VV ⟶ VV): UU :=
 
 Section RelativeStrength_Is_An_ActionBasedStrength.
 
-  Context (F: functor VV VV).
-  Context (str: rel_strength F).
+  Context (F: functor VV VV) (str: rel_strength F).
 
   Local Definition ϛ := pr1 str.
   Local Definition pentagon := pr1 (pr2 str).
@@ -255,7 +254,7 @@ Section RelativeStrength_Is_An_ActionBasedStrength.
 Definition strength_from_relative_strength: strength Mon_W' UAct UAct F.
 Proof.
   exists ϛ'.
-  use tpair.
+  split.
   - red.
     cbn.
     intro v.
@@ -274,7 +273,7 @@ Proof.
     cbn.
     unfold is_z_isomorphism_mor, pre_whisker_on_nat_z_iso.
     cbn.
-    set (Hyp := rectangle w w' v).
+    assert (Hyp := rectangle w w' v).
     fold ϛ in Hyp.
     fold timesV.
     fold timesW.
@@ -286,9 +285,49 @@ Proof.
     rewrite functor_id.
     rewrite functor_comp.
     rewrite assoc.
-    assumption.
+    exact Hyp.
 Defined.
 
 End RelativeStrength_Is_An_ActionBasedStrength.
+
+Section ActionBasedStrength_Instantiates_To_RelativeStrength.
+
+  Context (F: functor VV VV) (ab_str: strength Mon_W' UAct UAct F).
+
+  Local Definition θ := pr1 ab_str.
+  Local Definition θ' : rel_strength_nat F := pre_whisker binswap_pair_functor θ.
+  Local Definition triangle_eq := pr1 (pr2 ab_str).
+  Local Definition pentagon_eq := pr2 (pr2 ab_str).
+
+  Definition relative_strength_from_strength: rel_strength F.
+  Proof.
+    exists θ'.
+    split.
+    - red.
+      cbn.
+      intro v.
+      assert (Hyp := triangle_eq v).
+      cbn in Hyp. fold θ E timesV in Hyp.
+      etrans.
+      2: exact Hyp.
+      clear Hyp.
+      rewrite <- assoc.
+      apply maponpaths.
+      apply pathsinv0.
+      apply functor_comp.
+    - red. cbn. intros w w' v.
+      assert (Hyp := strength_pentagon_eq_variant1variant2 _ _ _ _ θ
+                      (strength_pentagon_eq_tovariant1 _ _ _ _ θ pentagon_eq) v w' w).
+      cbn in Hyp.
+      unfold is_z_isomorphism_mor, pre_whisker_on_nat_z_iso in Hyp.
+      cbn in Hyp.
+      unfold is_z_isomorphism_mor.
+      rewrite functor_id in Hyp.
+      rewrite functor_comp in Hyp.
+      rewrite assoc in Hyp.
+      exact Hyp.
+  Defined.
+
+End ActionBasedStrength_Instantiates_To_RelativeStrength.
 
 End B.
