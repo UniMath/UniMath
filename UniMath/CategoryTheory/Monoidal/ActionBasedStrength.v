@@ -53,43 +53,43 @@ Notation "f #⊙ g" := (#odot (f #, g)) (at level 31).
 Notation "X ⊙' Y" := (odot' (X , Y)) (at level 31).
 Notation "f #⊙' g" := (#odot' (f #, g)) (at level 31).
 
-Definition strength_dom : A ⊠ V ⟶ A' :=
+Definition actionbased_strength_dom : A ⊠ V ⟶ A' :=
   functor_composite (pair_functor F (functor_identity _)) odot'.
 
-Lemma strength_dom_ok: functor_on_objects strength_dom = λ ax, F (ob1 ax) ⊙' (ob2 ax).
+Lemma actionbased_strength_dom_ok: functor_on_objects actionbased_strength_dom = λ ax, F (ob1 ax) ⊙' (ob2 ax).
 Proof.
   apply idpath.
 Qed.
 
-Definition strength_codom : A ⊠ V ⟶ A' :=
+Definition actionbased_strength_codom : A ⊠ V ⟶ A' :=
   functor_composite odot F.
 
-Lemma strength_codom_ok: functor_on_objects strength_codom = λ ax, F (ob1 ax ⊙ ob2 ax).
+Lemma actionbased_strength_codom_ok: functor_on_objects actionbased_strength_codom = λ ax, F (ob1 ax ⊙ ob2 ax).
 Proof.
   apply idpath.
 Qed.
 
-Definition strength_nat : UU := nat_trans strength_dom strength_codom.
+Definition actionbased_strength_nat : UU := nat_trans actionbased_strength_dom actionbased_strength_codom.
 
-Definition strength_triangle_eq (ϛ : strength_nat) :=
+Definition actionbased_strength_triangle_eq (ϛ : actionbased_strength_nat) :=
   ∏ (a : A), (pr1 ϛ (a, I)) · (#F (pr1 ϱ a)) = pr1 ϱ' (F a).
 
-Definition strength_pentagon_eq (ϛ : strength_nat): UU := ∏ (a : A), ∏ (x y : V),
+Definition actionbased_strength_pentagon_eq (ϛ : actionbased_strength_nat): UU := ∏ (a : A), ∏ (x y : V),
   (pr1 χ' ((F a, x), y)) · pr1 ϛ (a, x ⊗ y) =
   (pr1 ϛ (a, x)) #⊙' (id y) · (pr1 ϛ (a ⊙ x, y)) · (#F (pr1 χ ((a, x), y))).
 
 (** the original notion in Fiore's LICS'08 paper *)
-Definition strength_pentagon_eq_variant1 (ϛ : strength_nat): UU := ∏ (a : A), ∏ (x y : V),
+Definition actionbased_strength_pentagon_eq_variant1 (ϛ : actionbased_strength_nat): UU := ∏ (a : A), ∏ (x y : V),
   pr1 ϛ (a, x ⊗ y) =
   (nat_z_iso_to_trans_inv χ' ((F a, x), y)) · (pr1 ϛ (a, x)) #⊙' (id y) · (pr1 ϛ (a ⊙ x, y)) · (#F (pr1 χ ((a, x), y))).
 
 (** the notion that fits with the definition of relative strength in the TYPES'15 post-proceedings paper by Ahrens and Matthes *)
-Definition strength_pentagon_eq_variant2 (ϛ : strength_nat): UU := ∏ (a : A), ∏ (x y : V),
+Definition actionbased_strength_pentagon_eq_variant2 (ϛ : actionbased_strength_nat): UU := ∏ (a : A), ∏ (x y : V),
   pr1 ϛ (a, x ⊗ y) · (#F (nat_z_iso_to_trans_inv χ ((a, x), y))) =
   (nat_z_iso_to_trans_inv χ' ((F a, x), y)) · (pr1 ϛ (a, x)) #⊙' (id y) · (pr1 ϛ (a ⊙ x, y)).
 
 (** as expected, the notions are logically equivalent *)
-Lemma strength_pentagon_eq_tovariant1 (ϛ : strength_nat): strength_pentagon_eq ϛ -> strength_pentagon_eq_variant1 ϛ.
+Lemma actionbased_strength_pentagon_eq_tovariant1 (ϛ : actionbased_strength_nat): actionbased_strength_pentagon_eq ϛ -> actionbased_strength_pentagon_eq_variant1 ϛ.
 Proof.
   intros Heq a x y.
   red in Heq.
@@ -104,7 +104,7 @@ Proof.
   apply Heq.
 Qed.
 
-Lemma strength_pentagon_eq_fromvariant1 (ϛ : strength_nat): strength_pentagon_eq_variant1 ϛ -> strength_pentagon_eq ϛ.
+Lemma actionbased_strength_pentagon_eq_fromvariant1 (ϛ : actionbased_strength_nat): actionbased_strength_pentagon_eq_variant1 ϛ -> actionbased_strength_pentagon_eq ϛ.
 Proof.
   intros Heq a x y.
   red in Heq.
@@ -118,7 +118,7 @@ Proof.
   apply Heq.
 Qed.
 
-Lemma strength_pentagon_eq_variant1variant2 (ϛ : strength_nat): strength_pentagon_eq_variant1 ϛ -> strength_pentagon_eq_variant2 ϛ.
+Lemma actionbased_strength_pentagon_eq_variant1variant2 (ϛ : actionbased_strength_nat): actionbased_strength_pentagon_eq_variant1 ϛ -> actionbased_strength_pentagon_eq_variant2 ϛ.
 Proof.
   intros Heq a x y.
   red in Heq.
@@ -135,7 +135,7 @@ Proof.
   apply Heq.
 Qed.
 
-Lemma strength_pentagon_eq_variant2variant1 (ϛ : strength_nat): strength_pentagon_eq_variant2 ϛ -> strength_pentagon_eq_variant1 ϛ.
+Lemma actionbased_strength_pentagon_eq_variant2variant1 (ϛ : actionbased_strength_nat): actionbased_strength_pentagon_eq_variant2 ϛ -> actionbased_strength_pentagon_eq_variant1 ϛ.
 Proof.
   intros Heq a x y.
   red in Heq.
@@ -154,8 +154,8 @@ Qed.
 
 End ActionBasedStrengths_Natural_Transformation.
 
-Definition strength (F : A ⟶ A'): UU := ∑ (ϛ : strength_nat F),
-  (strength_triangle_eq F ϛ) × (strength_pentagon_eq F ϛ).
+Definition actionbased_strength (F : A ⟶ A'): UU := ∑ (ϛ : actionbased_strength_nat F),
+  (actionbased_strength_triangle_eq F ϛ) × (actionbased_strength_pentagon_eq F ϛ).
 
 End ActionBasedStrengths_Definition.
 
@@ -163,7 +163,7 @@ End ActionBasedStrengths_Definition.
   The standard tensorial strength:
   F(A) ⊗ B --> F(A ⊗ B)
 *)
-Definition tensorial_strength := strength (tensorial_action Mon_V) (tensorial_action Mon_V).
+Definition tensorial_strength := actionbased_strength (tensorial_action Mon_V) (tensorial_action Mon_V).
 
 End A.
 
@@ -251,7 +251,7 @@ Section RelativeStrength_Is_An_ActionBasedStrength.
 
   Local Definition ϛ' := pre_whisker binswap_pair_functor ϛ.
 
-Definition strength_from_relative_strength: strength Mon_W' UAct UAct F.
+Definition actionbased_strength_from_relative_strength: actionbased_strength Mon_W' UAct UAct F.
 Proof.
   exists ϛ'.
   split.
@@ -265,8 +265,8 @@ Proof.
     fold ϛ.
     apply idpath.
   - cbn.
-    apply strength_pentagon_eq_fromvariant1.
-    apply strength_pentagon_eq_variant2variant1.
+    apply actionbased_strength_pentagon_eq_fromvariant1.
+    apply actionbased_strength_pentagon_eq_variant2variant1.
     red.
     intros v w' w.
     unfold ϛ', Mon_W', Mon_V', U', odot'.
@@ -292,14 +292,14 @@ End RelativeStrength_Is_An_ActionBasedStrength.
 
 Section ActionBasedStrength_Instantiates_To_RelativeStrength.
 
-  Context (F: functor VV VV) (ab_str: strength Mon_W' UAct UAct F).
+  Context (F: functor VV VV) (ab_str: actionbased_strength Mon_W' UAct UAct F).
 
   Local Definition θ := pr1 ab_str.
   Local Definition θ' : rel_strength_nat F := pre_whisker binswap_pair_functor θ.
   Local Definition triangle_eq := pr1 (pr2 ab_str).
   Local Definition pentagon_eq := pr2 (pr2 ab_str).
 
-  Definition relative_strength_from_strength: rel_strength F.
+  Definition relative_strength_from_actionbased_strength: rel_strength F.
   Proof.
     exists θ'.
     split.
@@ -316,8 +316,8 @@ Section ActionBasedStrength_Instantiates_To_RelativeStrength.
       apply pathsinv0.
       apply functor_comp.
     - red. cbn. intros w w' v.
-      assert (Hyp := strength_pentagon_eq_variant1variant2 _ _ _ _ θ
-                      (strength_pentagon_eq_tovariant1 _ _ _ _ θ pentagon_eq) v w' w).
+      assert (Hyp := actionbased_strength_pentagon_eq_variant1variant2 _ _ _ _ θ
+                      (actionbased_strength_pentagon_eq_tovariant1 _ _ _ _ θ pentagon_eq) v w' w).
       cbn in Hyp.
       unfold is_z_isomorphism_mor, pre_whisker_on_nat_z_iso in Hyp.
       cbn in Hyp.
