@@ -47,21 +47,18 @@ Local Open Scope subsys.
 
 Section fix_a_category.
 
-Variable C : precategory.
-Variable hs : has_homsets C.
+Context (C : precategory) (hs : has_homsets C).
 
 (** in the original definition, this second category was the same as the first one *)
-Variable D : precategory.
-Variable hsD : has_homsets D.
+Context (D : precategory) (hsD : has_homsets D).
 
 (** we do not yet have a use of this third category being different from the very first one *)
-Variable D' : precategory.
-Variable hsD' : has_homsets D'.
+Context (D' : precategory) (hsD' : has_homsets D').
 
 Section about_signatures.
 
 (** [H] is a rank-2 functor: a functor between functor categories *)
-Variable H : functor [C, D', hsD'] [C, D, hsD].
+Context (H : functor [C, D', hsD'] [C, D, hsD]).
 
 (** The precategory of pointed endofunctors on [C] *)
 Local Notation "'Ptd'" := (precategory_Ptd C hs).
@@ -322,8 +319,7 @@ End fix_a_category.
 
 Section homogeneous_case.
 
-Variable C : precategory.
-Variable hs : has_homsets C.
+Context (C : precategory) (hs : has_homsets C).
 
 Local Definition ptd := monoidal_precat_of_pointedfunctors hs.
 Local Definition endo := monoidal_precat_of_endofunctors hs.
@@ -358,9 +354,8 @@ Qed.
 
 Section relative_strength_instantiates_to_signature.
 
-  Variable H : functor [C, C, hs] [C, C, hs].
-
-  Variable rs : rel_strength ptd endo forget H.
+  Context (H : functor [C, C, hs] [C, C, hs])
+          (rs : rel_strength ptd endo forget H).
 
   Local Definition ϛ : rel_strength_nat ptd endo forget H := pr1 rs.
 
@@ -422,7 +417,7 @@ End relative_strength_instantiates_to_signature.
 
 Section strength_in_signature_is_a_relative_strength.
 
-  Variable sig : Signature C hs C hs C hs.
+  Context (sig : Signature C hs C hs C hs).
 
   Local Definition H := pr1 sig.
   Local Definition θ' := pr1 (pr2 sig).
