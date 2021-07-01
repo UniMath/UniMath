@@ -383,6 +383,18 @@ Section Initial.
     apply (isotoid_2_1 C_is_univalent_2_1).
     apply Hf.
   Qed.
+
+  Definition biinitial_weq_biinitial'
+             (X : C)
+    : is_biinitial X ≃ is_biinitial' X.
+  Proof.
+    use weqiff.
+    - split.
+      + exact (is_biinitial_to_is_biinitial' X).
+      + exact (is_biinitial'_to_is_biinitial X).
+    - apply isaprop_is_biinitial.
+    - apply isaprop_is_biinitial'.
+  Defined.
 End Initial.
 
 Definition make_is_biinitial

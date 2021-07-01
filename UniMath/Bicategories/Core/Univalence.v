@@ -199,7 +199,6 @@ Section IsoInvertible2Cells.
       apply i.
   Defined.
 
-
   Definition iso_to_inv2cell {a b : C} (f g : hom a b) : iso f g → invertible_2cell f g.
   Proof.
     intro i.
@@ -249,6 +248,52 @@ Section IsoInvertible2Cells.
   Defined.
 End IsoInvertible2Cells.
 
+Definition is_univ_hom
+           {C : bicat}
+           (C_is_univalent_2_1 : is_univalent_2_1 C)
+           (X Y : C)
+  : is_univalent (hom X Y).
+Proof.
+  split.
+  - apply idtoiso_weq.
+    exact C_is_univalent_2_1.
+  - exact (pr2 C X Y).
+Defined.
+
+Definition is_univalent_2_1_if_hom_is_univ
+           {C : bicat}
+           (C_local_univalent : ∏ (X Y : C), is_univalent (hom X Y))
+  : is_univalent_2_1 C.
+Proof.
+  intros a b f g.
+  use weqhomot.
+  - exact (invweq (inv2cell_to_iso_weq f g)
+           ∘ make_weq idtoiso (pr1 (C_local_univalent _ _) _ _))%weq.
+  - intro p.
+    induction p.
+    use subtypePath.
+    {
+      intro ; apply isaprop_is_invertible_2cell.
+    }
+    apply idpath.
+Defined.
+
+Definition is_univalent_2_1_weq_local_univ
+           (C : bicat)
+  : is_univalent_2_1 C
+    ≃
+    (∏ (X Y : C), is_univalent (hom X Y)).
+Proof.
+  use weqiff.
+  - split.
+    + exact is_univ_hom.
+    + exact is_univalent_2_1_if_hom_is_univ.
+  - apply isaprop_is_univalent_2_1.
+  - use impred ; intro.
+    use impred ; intro.
+    apply isaprop_is_univalent.
+Defined.
+
 Definition univ_hom
            {C : bicat}
            (C_is_univalent_2_1 : is_univalent_2_1 C)
@@ -257,10 +302,7 @@ Definition univ_hom
 Proof.
   use make_univalent_category.
   - exact (hom X Y).
-  - split.
-    + apply idtoiso_weq.
-      exact C_is_univalent_2_1.
-    + exact (pr2 C X Y).
+  - exact (is_univ_hom C_is_univalent_2_1 X Y).
 Defined.
 
 Definition idtoiso_2_1_isotoid_2_1
