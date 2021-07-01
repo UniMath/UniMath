@@ -198,6 +198,7 @@ DisplayedCats/ComprehensionC.v
 
 Monoidal/MonoidalCategories.v
 Monoidal/EndofunctorsMonoidal.v
+Monoidal/PointedFunctorsMonoidal.v
 Monoidal/MonoidalFunctors.v
 Monoidal/CategoriesOfMonoids.v
 Monoidal/Actions.v

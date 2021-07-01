@@ -486,17 +486,16 @@ Proof.
 Qed.
 
 
-(** a small diversion on [z_iso] for functors *)
+(** a small diversion on [z_iso] for natural transformations *)
 
-Lemma functor_z_iso_if_pointwise_z_iso (C : precategory_data) (C' : precategory)
-  (hs: has_homsets C')
- (F G : ob [C, C', hs]) (A : F --> G) :
-    is_nat_z_iso A -> is_z_isomorphism A .
+Lemma nat_trafo_z_iso_if_pointwise_z_iso (C : precategory_data) (C' : precategory)
+  (hs: has_homsets C') (F G : ob [C, C', hs]) (α : F --> G) :
+    is_nat_z_iso α -> is_z_isomorphism α .
 Proof.
   intro H.
   red.
-  set (Ainv := nat_z_iso_to_trans_inv (make_nat_z_iso _ _ A H)).
-  exists Ainv.
+  set (αinv := nat_z_iso_to_trans_inv (make_nat_z_iso _ _ α H)).
+  exists αinv.
   split; apply (nat_trans_eq hs); intro c; cbn.
   - exact (pr1 (pr2 (H c))).
   - exact (pr2 (pr2 (H c))).

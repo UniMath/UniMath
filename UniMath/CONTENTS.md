@@ -319,6 +319,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/ComprehensionC.v](CategoryTheory/DisplayedCats/ComprehensionC.v)
    - [Monoidal/MonoidalCategories.v](CategoryTheory/Monoidal/MonoidalCategories.v)
    - [Monoidal/EndofunctorsMonoidal.v](CategoryTheory/Monoidal/EndofunctorsMonoidal.v)
+   - [Monoidal/PointedFunctorsMonoidal.v](CategoryTheory/Monoidal/PointedFunctorsMonoidal.v)
    - [Monoidal/MonoidalFunctors.v](CategoryTheory/Monoidal/MonoidalFunctors.v)
    - [Monoidal/CategoriesOfMonoids.v](CategoryTheory/Monoidal/CategoriesOfMonoids.v)
    - [Monoidal/Actions.v](CategoryTheory/Monoidal/Actions.v)

@@ -34,7 +34,11 @@ Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
+Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrength.
+Require Import UniMath.CategoryTheory.Monoidal.EndofunctorsMonoidal.
+Require Import UniMath.CategoryTheory.Monoidal.PointedFunctorsMonoidal.
 Require Import UniMath.SubstitutionSystems.Notation.
+
 Local Open Scope subsys.
 
 (** Goal: define signatures as pairs of a rank-2 functor and a "strength" *)
@@ -43,21 +47,18 @@ Local Open Scope subsys.
 
 Section fix_a_category.
 
-Variable C : precategory.
-Variable hs : has_homsets C.
+Context (C : precategory) (hs : has_homsets C).
 
 (** in the original definition, this second category was the same as the first one *)
-Variable D : precategory.
-Variable hsD : has_homsets D.
+Context (D : precategory) (hsD : has_homsets D).
 
 (** we do not yet have a use of this third category being different from the very first one *)
-Variable D' : precategory.
-Variable hsD' : has_homsets D'.
+Context (D' : precategory) (hsD' : has_homsets D').
 
 Section about_signatures.
 
 (** [H] is a rank-2 functor: a functor between functor categories *)
-Variable H : functor [C, D', hsD'] [C, D, hsD].
+Context (H : functor [C, D', hsD'] [C, D, hsD]).
 
 (** The precategory of pointed endofunctors on [C] *)
 Local Notation "'Ptd'" := (precategory_Ptd C hs).
@@ -250,18 +251,21 @@ Lemma θ_nat_1_pointwise (X X' : [C, D', hsD']) (α : X --> X') (Z : Ptd) (c : C
   :  pr1 (# H α) ((pr1 Z) c) · pr1 (θ (X' ⊗ Z)) c =
        pr1 (θ (X ⊗ Z)) c · pr1 (# H (α ∙∙ nat_trans_id (pr1 Z))) c.
 Proof.
-  set (t := θ_nat_1 _ _ α Z).
-  set (t' := nat_trans_eq_weq hsD _ _ t c);
-  clearbody t';  cbn in t'.
-  assert (H' := functor_id (H X') (pr1 (pr1 Z) c));
-  cbn in H'.
-  match goal with |[H1 : ?f · _ · ?g = _ , H2 : ?x = _ |- _ ] =>
-                        intermediate_path (f · x · g) end.
-  - repeat rewrite <- assoc.
+  assert (t := θ_nat_1 _ _ α Z).
+  assert (t' := nat_trans_eq_weq hsD _ _ t c).
+  clear t.
+  cbn in t'.
+  etrans.
+  2: exact t'.
+  clear t'.
+  apply pathsinv0.
+  etrans.
+  { apply cancel_postcomposition.
     apply maponpaths.
-    rewrite H'.
-    apply pathsinv0, id_left.
-  - apply t'.
+    apply functor_id. }
+  rewrite <- assoc.
+  rewrite id_left.
+  apply idpath.
 Qed.
 
 Lemma θ_nat_2 (X : [C, D', hsD']) (Z Z' : Ptd) (f : Z --> Z')
@@ -313,6 +317,162 @@ Definition Sig_strength_law2 (H : Signature) : θ_Strength2_int _ _ := pr2 (pr2 
 
 End fix_a_category.
 
+Section homogeneous_case.
+
+Context (C : precategory) (hs : has_homsets C).
+
+Local Definition ptd := monoidal_precat_of_pointedfunctors hs.
+Local Definition endo := monoidal_precat_of_endofunctors hs.
+Local Definition forget := forgetful_functor_from_ptd_as_strong_monoidal_functor hs.
+
+Local Lemma auxH1 (H : functor [C, C, hs] [C, C, hs]) (X : functor C C) :
+  # H
+    (nat_trans_id (pr1 X)
+        ∙∙ nat_z_iso_to_trans_inv
+        (make_nat_z_iso (functor_identity C) (functor_identity C) (nat_trans_id (functor_identity C))
+                    (is_nat_z_iso_nat_trans_id (functor_identity C)))) =
+  identity (H (functor_identity C ∙ X)).
+Proof.
+  apply functor_id_id.
+  apply nat_trans_eq; try assumption; intro c.
+  cbn.
+  rewrite id_left.
+  apply functor_id.
+Qed.
+
+Local Lemma auxH2 (H : functor [C, C, hs] [C, C, hs]) (X : functor C C)
+      (Z Z': precategory_Ptd C hs) :
+  # H (nat_trans_id (pr1 X) ∙∙ nat_trans_id (functor_composite (pr1 Z) (pr1 Z'))) =
+  identity (H (((pr1 Z) ∙ (pr1 Z')) ∙ X)).
+Proof.
+  apply functor_id_id.
+  apply nat_trans_eq; try assumption; intro c.
+  cbn.
+  rewrite id_left.
+  apply functor_id.
+Qed.
+
+Section relative_strength_instantiates_to_signature.
+
+  Context (H : functor [C, C, hs] [C, C, hs])
+          (rs : rel_strength ptd endo forget H).
+
+  Local Definition ϛ : rel_strength_nat ptd endo forget H := pr1 rs.
+
+  Local Definition ϛ_pentagon_eq : rel_strength_pentagon_eq ptd endo forget H ϛ
+    := pr1 (pr2 rs).
+
+  Local Definition ϛ_rectangle_eq : rel_strength_rectangle_eq ptd endo forget H ϛ
+    := pr2 (pr2 rs).
+
+  Local Definition θ : θ_source C hs C hs C hs H ⟹ θ_target C hs C hs C hs H
+    := pre_whisker binswap_pair_functor ϛ.
+
+  Definition signature_from_rel_strength : Signature C hs C hs C hs.
+  Proof.
+    exists H. exists θ.
+    split; red.
+    - intro X.
+      cbn.
+      apply nat_trans_eq; try assumption; intro c.
+      cbn.
+      assert (Hyp := nat_trans_eq_weq hs _ _ (ϛ_pentagon_eq X) c).
+      cbn in Hyp.
+      rewrite functor_id in Hyp.
+      do 2 rewrite id_left in Hyp.
+      etrans.
+      2: exact Hyp.
+      clear Hyp.
+      rewrite <- assoc.
+      apply maponpaths.
+      etrans.
+      apply pathsinv0.
+      apply id_left.
+      apply cancel_postcomposition.
+      apply pathsinv0.
+      apply (nat_trans_eq_weq hs _ _ (auxH1 H X) c).
+    - intros X Z Z'.
+      cbn.
+      apply nat_trans_eq; try assumption; intro c.
+      cbn.
+      rewrite id_left.
+      assert (Hyp := nat_trans_eq_weq hs _ _ (ϛ_rectangle_eq Z Z' X) c).
+      cbn in Hyp.
+      do 2 rewrite functor_id in Hyp.
+      do 3 rewrite id_left in Hyp.
+      rewrite id_right in Hyp.
+      etrans.
+      2: exact Hyp.
+      clear Hyp.
+      apply cancel_postcomposition.
+      etrans.
+      apply pathsinv0.
+      apply id_right.
+      apply maponpaths.
+      apply pathsinv0.
+      apply (nat_trans_eq_weq hs _ _ (auxH2 H X Z Z') c).
+  Defined.
+
+End relative_strength_instantiates_to_signature.
+
+Section strength_in_signature_is_a_relative_strength.
+
+  Context (sig : Signature C hs C hs C hs).
+
+  Local Definition H := pr1 sig.
+  Local Definition θ' := pr1 (pr2 sig).
+  Local Definition ϛ' : rel_strength_nat ptd endo forget H := pre_whisker binswap_pair_functor θ'.
+
+  Local Definition θ'_strength_law1 := Sig_strength_law1 _ _ _ _ _ _ sig.
+  Local Definition θ'_strength_law2 := Sig_strength_law2 _ _ _ _ _ _ sig.
+
+  Definition rel_strength_from_signature : rel_strength ptd endo forget H.
+  Proof.
+    exists ϛ'.
+    split.
+    - intro X.
+      apply nat_trans_eq; try assumption; intro c.
+      cbn.
+      assert (Hyp := nat_trans_eq_weq hs _ _ (θ'_strength_law1 X) c).
+      cbn in Hyp.
+      fold θ' H in Hyp.
+      rewrite functor_id.
+      do 2 rewrite id_left.
+      etrans.
+      2: exact Hyp.
+      clear Hyp.
+      rewrite <- assoc.
+      apply maponpaths.
+      apply pathsinv0.
+      etrans.
+      apply pathsinv0.
+      apply id_left.
+      apply cancel_postcomposition.
+      apply pathsinv0.
+      apply (nat_trans_eq_weq hs _ _ (auxH1 H X) c).
+    - intros Z Z' X.
+      apply nat_trans_eq; try assumption; intro c.
+      cbn.
+      assert (Hyp := nat_trans_eq_weq hs _ _ (θ'_strength_law2 X Z Z') c).
+      cbn in Hyp.
+      fold θ' H in Hyp.
+      do 2 rewrite functor_id.
+      do 3 rewrite id_left.
+      rewrite id_right.
+      rewrite id_left in Hyp.
+      etrans.
+      2: exact Hyp.
+      clear Hyp.
+      apply cancel_postcomposition.
+      etrans.
+      2: apply id_right.
+      apply maponpaths.
+      apply (nat_trans_eq_weq hs _ _ (auxH2 H X Z Z') c).
+Defined.
+
+End strength_in_signature_is_a_relative_strength.
+
+End homogeneous_case.
 
 
 Arguments theta {_ _ _ _ _ _} _ .
