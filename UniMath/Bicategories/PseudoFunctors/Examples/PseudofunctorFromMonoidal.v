@@ -133,11 +133,14 @@ Proof.
     exists (psfunctor_id psF c0).
     use tpair.
     + use make_nat_trans.
-      * red. cbn. intro x. induction x as [f g].
-        exact (psfunctor_comp psF f g).
-      * red. cbn. intros x x' f. induction x as [g h]; induction x' as [g' h'].
-        red in f. cbn in f. induction f as [α β].
-        cbn. apply pathsinv0. apply (psfunctor_comp_natural psF).
+      * red. cbn. intro fg.
+        exact (psfunctor_comp psF (pr1 fg) (pr2 fg)).
+      * red. cbn. intros gh gh' αβ.
+        red in αβ. cbn in αβ.
+        change (## psF (pr2 αβ) ⋆⋆ ## psF (pr1 αβ) • psfunctor_comp psF (pr1 gh') (pr2 gh') =
+                psfunctor_comp psF (pr1 gh) (pr2 gh) • ## psF (pr2 αβ ⋆⋆ pr1 αβ)).
+        apply pathsinv0.
+        apply (psfunctor_comp_natural psF).
     + split.
       * red. cbn. intros x y z. unfold rassociator_fun'. cbn.
         assert (Hyp := psfunctor_rassociator psF x y z).
@@ -145,27 +148,20 @@ Proof.
                   • ## psF (rassociator x y z) =
                 (rassociator (# psF x) (# psF y) (# psF z) •  psfunctor_comp psF y z ⋆⋆ id₂ (# psF x))
                   •  psfunctor_comp psF x (y · z)).
-        unfold hcomp. unfold hcomp in Hyp.
-        rewrite lwhisker_id2.
-        rewrite id2_rwhisker.
-        rewrite id2_left.
-        rewrite id2_right.
+        rewrite hcomp_identity_right.
+        rewrite hcomp_identity_left.
         exact Hyp.
       * red. cbn. intro x.
         split.
         -- change (lunitor (# psF x) =
                    (id₂ (# psF x) ⋆⋆ psfunctor_id psF c0 • psfunctor_comp psF (id₁ c0) x)
                      • ## psF (lunitor x)).
-           unfold hcomp.
-           rewrite lwhisker_id2.
-           rewrite id2_right.
+           rewrite hcomp_identity_right.
            apply psfunctor_lunitor.
         -- change (runitor (# psF x) =
                    (psfunctor_id psF c0 ⋆⋆ id₂ (# psF x) • psfunctor_comp psF x (id₁ c0))
                      • ## psF (runitor x)).
-           unfold hcomp.
-           rewrite id2_rwhisker.
-           rewrite id2_left.
+           rewrite hcomp_identity_left.
            apply psfunctor_runitor.
 Defined.
 
