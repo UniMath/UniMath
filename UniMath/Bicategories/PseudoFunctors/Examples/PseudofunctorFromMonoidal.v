@@ -17,6 +17,7 @@ Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.Examples.BicategoryFromMonoidal.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+Import PseudoFunctor.Notations.
 
 Local Open Scope cat.
 
@@ -96,3 +97,85 @@ Proof.
 Defined.
 
 End monoidal_functor_to_psfunctor.
+
+(** *** Going into the opposite direction *)
+(** We fix two bicategories and a pseudofunctor between them and an object in the domain bicategory.
+    This gives rise to a strong monoidal functor between the associated monoidal categories of endomorphisms
+    for the fixed object and its image.
+*)
+
+Section psfunctor_to_monoidal_functor.
+
+Local Open Scope bicategory_scope.
+Import Bicat.Notations.
+
+Context {C : bicat}.
+Context (c0: ob C).
+Context {D : bicat}.
+Context (psF: psfunctor C D).
+
+Local Definition d0 := psF c0.
+Local Definition M := monoidal_precat_from_prebicat_and_ob c0.
+Local Definition N := monoidal_precat_from_prebicat_and_ob d0.
+
+Definition psfunctor_to_lax_monoidal_functor: lax_monoidal_functor M N.
+Proof.
+  use tpair.
+  - use make_functor.
+    + use make_functor_data.
+      * cbn. intro f. exact (# psF f).
+      * intros a b f. red in f. cbn in f.
+        cbn. exact (##psF f).
+    + split; red; cbn.
+      * intros a. apply psF.
+      * intros a b c f g. apply psF.
+  - cbn.
+    exists (psfunctor_id psF c0).
+    use tpair.
+    + use make_nat_trans.
+      * red. cbn. intro x. induction x as [f g].
+        exact (psfunctor_comp psF f g).
+      * red. cbn. intros x x' f. induction x as [g h]; induction x' as [g' h'].
+        red in f. cbn in f. induction f as [α β].
+        cbn. apply pathsinv0. apply (psfunctor_comp_natural psF).
+    + split.
+      * red. cbn. intros x y z. unfold rassociator_fun'. cbn.
+        assert (Hyp := psfunctor_rassociator psF x y z).
+        change ((id₂ (# psF z) ⋆⋆  psfunctor_comp psF x y • psfunctor_comp psF (x · y) z)
+                  • ## psF (rassociator x y z) =
+                (rassociator (# psF x) (# psF y) (# psF z) •  psfunctor_comp psF y z ⋆⋆ id₂ (# psF x))
+                  •  psfunctor_comp psF x (y · z)).
+        unfold hcomp. unfold hcomp in Hyp.
+        rewrite lwhisker_id2.
+        rewrite id2_rwhisker.
+        rewrite id2_left.
+        rewrite id2_right.
+        exact Hyp.
+      * red. cbn. intro x.
+        split.
+        -- change (lunitor (# psF x) =
+                   (id₂ (# psF x) ⋆⋆ psfunctor_id psF c0 • psfunctor_comp psF (id₁ c0) x)
+                     • ## psF (lunitor x)).
+           unfold hcomp.
+           rewrite lwhisker_id2.
+           rewrite id2_right.
+           apply psfunctor_lunitor.
+        -- change (runitor (# psF x) =
+                   (psfunctor_id psF c0 ⋆⋆ id₂ (# psF x) • psfunctor_comp psF x (id₁ c0))
+                     • ## psF (runitor x)).
+           unfold hcomp.
+           rewrite id2_rwhisker.
+           rewrite id2_left.
+           apply psfunctor_runitor.
+Defined.
+
+Definition psfunctor_to_monoidal_functor: strong_monoidal_functor M N.
+Proof.
+  exists psfunctor_to_lax_monoidal_functor.
+  split.
+  - exact (pr2 (psfunctor_id psF c0)).
+  - intro c. exact (pr2 (psfunctor_comp psF (pr1 c) (pr2 c))).
+Defined.
+
+
+End psfunctor_to_monoidal_functor.
