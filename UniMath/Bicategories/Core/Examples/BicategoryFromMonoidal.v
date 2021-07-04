@@ -193,6 +193,13 @@ Defined.
 Definition prebicat_from_monoidal : prebicat :=
   prebicat_data_from_monoidal ,, prebicat_laws_from_monoidal.
 
+Definition bicat_from_monoidal (hs : has_homsets pM) : bicat.
+  use build_bicategory.
+  - exact prebicat_data_from_monoidal.
+  - exact prebicat_laws_from_monoidal.
+  - red. intros. apply hs.
+Defined.
+
 End Prebicat_From_Monoidal_Precat.
 
 (** *** Going into the opposite direction *)
@@ -208,7 +215,7 @@ Local Open Scope bicategory_scope.
 Import Bicat.Notations.
 
 Context {C : prebicat}.
-Variable (c0: ob C).
+Context (c0: ob C).
 
 Definition precategory_data_from_prebicat_and_ob: precategory_data.
 Proof.
@@ -302,3 +309,16 @@ Proof.
 Defined.
 
 End Monoidal_Precat_From_Prebicat.
+
+Section AddHomsets.
+
+Context {C : bicat}.
+Context (c0: ob C).
+
+Lemma precategory_from_prebicat_and_ob_has_homsets: has_homsets (precategory_from_prebicat_and_ob c0).
+Proof.
+  red. intros.
+  apply (cellset_property(C:=C)).
+Qed.
+
+End AddHomsets.
