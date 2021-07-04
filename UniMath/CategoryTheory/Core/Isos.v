@@ -271,6 +271,12 @@ Proof.
   apply X.
 Qed.
 
+Lemma cancel_precomposition_iso {C : precategory_data} {a b c : C}
+    (f : iso a b) (g h : b --> c) : f · g = f · h -> g = h.
+Proof.
+  apply (pre_comp_with_iso_is_inj _ _ _ (pr1 f) (pr2 f)).
+Qed.
+
 Lemma post_comp_with_iso_is_inj {C : precategory} (b c : ob C)
      (h : b --> c) (H : is_iso h)
    (a : ob C) (f g : a --> b) : f · h = g · h -> f = g.
@@ -285,6 +291,11 @@ Proof.
     apply id_right.
 Qed.
 
+Lemma cancel_postcomposition_iso {C : precategory} {a b c : C}
+    (h : iso b c) (f g : a --> b) : f · h = g · h -> f = g.
+Proof.
+  apply (post_comp_with_iso_is_inj _ _ (pr1 h) (pr2 h)).
+Qed.
 
 Lemma iso_comp_right_isweq {C : precategory_data} {a b : ob C} (h : iso a b) (c : C) :
   isweq (fun f : b --> c => h · f).

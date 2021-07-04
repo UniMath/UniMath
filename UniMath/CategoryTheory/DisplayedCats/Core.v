@@ -1034,24 +1034,6 @@ Proof.
   apply (is_iso_total (pr1 f,, pr1 ff) (pr2 f) (pr2 ff)).
 Defined.
 
-(* TODO: look more for this in library.  If doesn’t exist, upstream it? *)
-Lemma cancel_precomposition_iso {C' : precategory} {x y z : C'}
-    (f : iso x y) (g1 g2 : y --> z)
-  : (f ;; g1 = f ;; g2 -> g1 = g2)%cat_deprecated.
-Proof.
-  intros e.
-  apply @pathscomp0 with (inv_from_iso f · (f · g1)).
-  apply @pathsinv0.
-  - etrans. apply assoc.
-    etrans. apply maponpaths_2, iso_after_iso_inv.
-    apply id_left.
-  - etrans. apply maponpaths, e.
-    etrans. apply assoc.
-    etrans. apply maponpaths_2, iso_after_iso_inv.
-    apply id_left.
-Qed.
-
-
 Lemma inv_mor_total_iso {C : precategory} {D : disp_precat C} {xx yy : total_precategory D}
   (f : iso (pr1 xx) (pr1 yy)) (ff : iso_disp f (pr2 xx) (pr2 yy))
   : inv_from_iso (total_iso f ff)
