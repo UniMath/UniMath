@@ -391,6 +391,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [PseudoFunctors/Examples/Constant.v](Bicategories/PseudoFunctors/Examples/Constant.v)
    - [PseudoFunctors/Examples/ApFunctor.v](Bicategories/PseudoFunctors/Examples/ApFunctor.v)
    - [PseudoFunctors/Examples/OpFunctor.v](Bicategories/PseudoFunctors/Examples/OpFunctor.v)
+   - [PseudoFunctors/Examples/PseudofunctorFromMonoidal.v](Bicategories/PseudoFunctors/Examples/PseudofunctorFromMonoidal.v)
    - [Transformations/PseudoTransformation.v](Bicategories/Transformations/PseudoTransformation.v)
    - [Transformations/Examples/Whiskering.v](Bicategories/Transformations/Examples/Whiskering.v)
    - [Transformations/Examples/Unitality.v](Bicategories/Transformations/Examples/Unitality.v)
