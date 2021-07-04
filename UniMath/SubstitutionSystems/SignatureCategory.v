@@ -132,16 +132,15 @@ Defined.
 Lemma is_precategory_Signature_precategory_data :
   is_precategory Signature_precategory_data.
 Proof.
-repeat split; simpl.
+  apply is_precategory_one_assoc_to_two.
+  repeat split; simpl.
 - intros Ht Ht' F; apply SignatureMor_eq; simpl.
   apply (nat_trans_eq (functor_category_has_homsets _ _ hsD)); intros X; apply id_left.
 - intros Ht Ht' F; apply SignatureMor_eq; simpl.
   apply (nat_trans_eq (functor_category_has_homsets _ _ hsD)); intros X; apply id_right.
 - intros Ht1 Ht2 Ht3 Ht4 F1 F2 F3; apply SignatureMor_eq; simpl.
   apply (nat_trans_eq (functor_category_has_homsets _ _ hsD)); intros X; apply assoc.
-- intros Ht1 Ht2 Ht3 Ht4 F1 F2 F3; apply SignatureMor_eq; simpl.
-  apply (nat_trans_eq (functor_category_has_homsets _ _ hsD)); intros X; apply assoc'.
-Defined.
+Qed.
 
 Definition Signature_precategory : precategory :=
  (Signature_precategory_data,,is_precategory_Signature_precategory_data).

@@ -622,6 +622,7 @@ Defined.
 
 Lemma is_precategory_hss : is_precategory hss_precategory_data.
 Proof.
+  apply is_precategory_one_assoc_to_two.
   repeat split; intros.
   - apply (invmap (hssMor_eq _ _ _ _ )).
     apply (@id_left EndC).
@@ -629,8 +630,6 @@ Proof.
     apply (@id_right EndC).
   - apply (invmap (hssMor_eq _ _ _ _ )).
     apply (@assoc EndC).
-  - apply (invmap (hssMor_eq _ _ _ _ )).
-    apply (@assoc' EndC).
 Qed.
 
 Definition hss_precategory : precategory := tpair _ _ is_precategory_hss.
