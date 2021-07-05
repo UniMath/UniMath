@@ -50,6 +50,11 @@ Qed.
 
 Definition action_right_unitor : UU := nat_z_iso odot_I_functor (functor_identity A).
 
+Definition action_right_unitor_funclass (μ : action_right_unitor):
+  ∏ x : ob A, odot_I_functor x -->  x
+  := pr1 (nat_z_iso_to_trans μ).
+Coercion action_right_unitor_funclass : action_right_unitor >-> Funclass.
+
 Definition odot_x_odot_y_functor : (A ⊠ V) ⊠ V ⟶ A :=
   functor_composite (pair_functor odot (functor_identity _)) odot.
 
@@ -71,13 +76,17 @@ Qed.
 
 Definition action_convertor : UU := nat_z_iso odot_x_odot_y_functor odot_x_otimes_y_functor.
 
+Definition action_convertor_funclass (χ : action_convertor):
+  ∏ x : ob ((A ⊠ V) ⊠ V), odot_x_odot_y_functor x --> odot_x_otimes_y_functor x
+  := pr1 (nat_z_iso_to_trans χ).
+Coercion action_convertor_funclass : action_convertor >-> Funclass.
+
 Definition action_triangle_eq (ϱ : action_right_unitor) (χ : action_convertor) := ∏ (a : A), ∏ (x : V),
-  (pr1 ϱ a) #⊙ (id x) = (pr1 χ ((a, I), x)) · (id a) #⊙ (pr1 λ' x).
+  (ϱ a) #⊙ (id x) = (χ ((a, I), x)) · (id a) #⊙ (λ' x).
 
 Definition action_pentagon_eq (χ : action_convertor) := ∏ (a : A), ∏ (x y z : V),
-  (pr1 χ ((a ⊙ x, y), z)) · (pr1 χ ((a, x), y ⊗ z)) =
-  (pr1 χ ((a, x), y)) #⊙ (id z) · (pr1 χ ((a, x ⊗ y), z)) ·
-                                  (id a) #⊙ (pr1 α' ((x, y), z)).
+  (χ ((a ⊙ x, y), z)) · (χ ((a, x), y ⊗ z)) =
+  (χ ((a, x), y)) #⊙ (id z) · (χ ((a, x ⊗ y), z)) · (id a) #⊙ (α' ((x, y), z)).
 
 End Actions_Natural_Transformations.
 
@@ -146,7 +155,7 @@ Definition U_action_ρ_nat_trans : odot_I_functor otimes_U_functor ⟹ functor_i
     exact (pr2 aux a a' f).
 Defined.
 
-Lemma U_action_ρ_nat_trans_ok: nat_trans_data_from_nat_trans U_action_ρ_nat_trans = λ x, id x #⊗_A ϵ_inv · pr1 ρ_A x.
+Lemma U_action_ρ_nat_trans_ok: nat_trans_data_from_nat_trans U_action_ρ_nat_trans = λ x, id x #⊗_A ϵ_inv · ρ_A x.
 Proof.
   apply idpath.
 Qed.
@@ -175,7 +184,7 @@ Lemma U_action_χ_nat_trans_ok: nat_trans_data_from_nat_trans U_action_χ_nat_tr
   λ x, let k   := ob1 (ob1 x) in
        let k'  := ob2 (ob1 x) in
        let k'' := ob2 x in
-       pr1 α_A ((k, U k'), U k'') · id k #⊗_A pr1 μ (k', k'').
+       α_A ((k, U k'), U k'') · id k #⊗_A (μ (k', k'')).
 Proof.
   apply idpath.
 Qed.
@@ -210,22 +219,20 @@ Definition U_action_tlaw : action_triangle_eq (A := A) otimes_U_functor U_action
 Proof.
   red.
   intros.
-  simpl.
+  cbn.
   unfold nat_trans_from_functor_fix_snd_morphism_arg_data.
   unfold nat_trans_data_post_whisker_fst_param.
-  simpl.
+  cbn.
   unfold make_dirprod.
   rewrite functor_id.
-  (* UniMath.MoreFoundations.Tactics.show_id_type.
-  unfold functor_fix_snd_arg_ob in TYPE.
-  simpl in TYPE. *)
+  (* UniMath.MoreFoundations.Tactics.show_id_type. *)
   apply pathsinv0.
   etrans.
   { rewrite assoc'. apply maponpaths. apply pathsinv0. apply functor_comp. }
   unfold compose at 2. simpl. unfold make_dirprod. rewrite id_left.
   rewrite <- (id_left (id U x)).
   apply pathsinv0.
-  intermediate_path (# tensor_A ((# tensor_A (id a #, ϵ_inv)) #, id U x) · # tensor_A (pr1 ρ_A a #, id U x)).
+  intermediate_path (# tensor_A ((# tensor_A (id a #, ϵ_inv)) #, id U x) · # tensor_A (ρ_A a #, id U x)).
   { rewrite <- functor_comp.
     apply idpath. }
   pose (f := # tensor_A (# tensor_A (id a #, ϵ) #, id U x)).
@@ -237,7 +244,7 @@ Proof.
     - exact (identity_is_z_iso _ ).
   }
   rewrite assoc.
-  intermediate_path (# tensor_A (pr1 ρ_A a #, id U x)).
+  intermediate_path (# tensor_A (ρ_A a #, id U x)).
   { apply pathsinv0. etrans.
     - apply (!(id_left _)).
     - apply cancel_postcomposition.
@@ -284,10 +291,10 @@ Definition U_action_plaw : action_pentagon_eq (A := A) otimes_U_functor U_action
 Proof.
   red.
   intros.
-  simpl.
+  cbn.
   unfold nat_trans_data_post_whisker_fst_param.
   unfold ob1, ob2.
-  simpl.
+  cbn.
   rewrite functor_id.
   apply pathsinv0. etrans.
   { repeat rewrite assoc'.
@@ -296,14 +303,14 @@ Proof.
     apply pathsinv0.
     apply functor_comp.
   }
-  unfold compose at 4. simpl. unfold make_dirprod.
+  unfold compose at 4. cbn. unfold make_dirprod.
   rewrite id_left.
   etrans.
   { rewrite assoc.
     apply cancel_postcomposition.
     apply cancel_postcomposition.
     rewrite <- (id_left (id U z)).
-    intermediate_path (# tensor_A ((pr1 (pr1 α_A) ((a, U x), U y) #, id U z) · (# tensor_A (id a #, pr1 μ (x, y)) #, id U z))).
+    intermediate_path (# tensor_A ((α_A ((a, U x), U y) #, id U z) · (# tensor_A (id a #, μ (x, y)) #, id U z))).
     - apply idpath.
     - apply functor_comp.
   }
@@ -311,10 +318,10 @@ Proof.
   { apply cancel_postcomposition.
     rewrite assoc'.
     apply maponpaths.
-    apply (nat_trans_ax (pr1 α_A) ((a, U x ⊗_A U y), U z) ((a, U (x ⊗ y)), U z) (make_dirprod (make_dirprod (id a) (pr1 μ (x, y))) (id U z))).
+    apply (nat_trans_ax (pr1 α_A) ((a, U x ⊗_A U y), U z) ((a, U (x ⊗ y)), U z) (make_dirprod (make_dirprod (id a) (μ (x, y))) (id U z))).
   }
   etrans.
-  { unfold assoc_right. simpl.
+  { unfold assoc_right. cbn.
     rewrite assoc'.
     apply maponpaths.
     rewrite assoc'.
@@ -322,7 +329,7 @@ Proof.
     apply pathsinv0.
     apply functor_comp.
   }
-  unfold compose at 3. simpl. unfold make_dirprod.
+  unfold compose at 3. cbn. unfold make_dirprod.
   rewrite id_left.
   etrans.
   { do 2 apply maponpaths.
@@ -336,14 +343,14 @@ Proof.
   { rewrite assoc. apply maponpaths.
     rewrite assoc'.
     rewrite <- (id_left (id a)).
-    intermediate_path (# tensor_A ((id a #, pr1 α_A ((U x, U y), U z)) · (id a #, # tensor_A (id U x #, pr1 μ (y, z)) · pr1 μ (x, y ⊗ z)))).
+    intermediate_path (# tensor_A ((id a #, α_A ((U x, U y), U z)) · (id a #, # tensor_A (id U x #, μ (y, z)) · μ (x, y ⊗ z)))).
     2: { apply functor_comp. }
     apply idpath.
   }
   etrans.
   { do 2 apply maponpaths.
     rewrite <- (id_left (id a)).
-    intermediate_path (# tensor_A ((id a #, # tensor_A (id pr1 (pr1 U) x #, pr1 μ (y, z))) · (id a #, pr1 μ (x, y ⊗ z)))).
+    intermediate_path (# tensor_A ((id a #, # tensor_A (id pr1 (pr1 U) x #, μ (y, z))) · (id a #, μ (x, y ⊗ z)))).
     2: { apply functor_comp. }
     apply idpath.
   }
@@ -355,20 +362,20 @@ Proof.
     apply pentagon_eq_A.
   }
   (* the goal has chains up to seven projections *)
-  change (pr1 α_A ((tensor_A (a, U x), U y), U z) · pr1 α_A ((a, U x), tensor_A (U y, U z))
-  · # tensor_A (id a #, # tensor_A (id U x #, pr1 μ (y, z))) =
-  pr1 α_A ((a ⊗_A U x, U y), U z) · # tensor_A (id (a ⊗_A U x) #, pr1 μ (y, z))
-      · pr1 α_A ((a, U x), U (y ⊗ z))).
+  change (α_A ((tensor_A (a, U x), U y), U z) · α_A ((a, U x), tensor_A (U y, U z))
+  · # tensor_A (id a #, # tensor_A (id U x #, μ (y, z))) =
+  α_A ((a ⊗_A U x, U y), U z) · # tensor_A (id (a ⊗_A U x) #, μ (y, z))
+      · α_A ((a, U x), U (y ⊗ z))).
   repeat rewrite assoc'.
   apply maponpaths.
   etrans.
   { apply pathsinv0.
-    apply (nat_trans_ax (pr1 α_A) ((a, U x), U y ⊗_A U z) ((a, U x), U (y ⊗ z)) (make_dirprod (make_dirprod (id a) (id U x)) (pr1 μ (y, z)))).
+    apply (nat_trans_ax (pr1 α_A) ((a, U x), U y ⊗_A U z) ((a, U x), U (y ⊗ z)) (make_dirprod (make_dirprod (id a) (id U x)) (μ (y, z)))).
   }
-  simpl. unfold make_dirprod.
+  cbn. unfold make_dirprod.
   apply cancel_postcomposition.
   (* present the identity in the binary product of categories *)
-  change (# tensor_A (# tensor_A (id (a, U x)) #, pr1 μ (y, z)) = # tensor_A (id (a ⊗_A U x) #, pr1 μ (y, z))).
+  change (# tensor_A (# tensor_A (id (a, U x)) #, μ (y, z)) = # tensor_A (id (a ⊗_A U x) #, μ (y, z))).
   rewrite functor_id.
   apply idpath.
 Qed.

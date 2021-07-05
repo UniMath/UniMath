@@ -71,22 +71,27 @@ Qed.
 
 Definition actionbased_strength_nat : UU := nat_trans actionbased_strength_dom actionbased_strength_codom.
 
+Definition actionbased_strength_nat_funclass (ϛ : actionbased_strength_nat):
+  ∏ x : ob (A ⊠ V), actionbased_strength_dom x --> actionbased_strength_codom x
+  := pr1 ϛ.
+Coercion actionbased_strength_nat_funclass : actionbased_strength_nat >-> Funclass.
+
 Definition actionbased_strength_triangle_eq (ϛ : actionbased_strength_nat) :=
-  ∏ (a : A), (pr1 ϛ (a, I)) · (#F (pr1 ϱ a)) = pr1 ϱ' (F a).
+  ∏ (a : A), (ϛ (a, I)) · (#F (ϱ a)) = ϱ' (F a).
 
 Definition actionbased_strength_pentagon_eq (ϛ : actionbased_strength_nat): UU := ∏ (a : A), ∏ (x y : V),
-  (pr1 χ' ((F a, x), y)) · pr1 ϛ (a, x ⊗ y) =
-  (pr1 ϛ (a, x)) #⊙' (id y) · (pr1 ϛ (a ⊙ x, y)) · (#F (pr1 χ ((a, x), y))).
+  (χ' ((F a, x), y)) · ϛ (a, x ⊗ y) =
+  (ϛ (a, x)) #⊙' (id y) · (ϛ (a ⊙ x, y)) · (#F (χ ((a, x), y))).
 
 (** the original notion in Fiore's LICS'08 paper *)
 Definition actionbased_strength_pentagon_eq_variant1 (ϛ : actionbased_strength_nat): UU := ∏ (a : A), ∏ (x y : V),
-  pr1 ϛ (a, x ⊗ y) =
-  (nat_z_iso_to_trans_inv χ' ((F a, x), y)) · (pr1 ϛ (a, x)) #⊙' (id y) · (pr1 ϛ (a ⊙ x, y)) · (#F (pr1 χ ((a, x), y))).
+  ϛ (a, x ⊗ y) =
+  (nat_z_iso_to_trans_inv χ' ((F a, x), y)) · (ϛ (a, x)) #⊙' (id y) · (ϛ (a ⊙ x, y)) · (#F (χ ((a, x), y))).
 
 (** the notion that fits with the definition of relative strength in the TYPES'15 post-proceedings paper by Ahrens and Matthes *)
 Definition actionbased_strength_pentagon_eq_variant2 (ϛ : actionbased_strength_nat): UU := ∏ (a : A), ∏ (x y : V),
-  pr1 ϛ (a, x ⊗ y) · (#F (nat_z_iso_to_trans_inv χ ((a, x), y))) =
-  (nat_z_iso_to_trans_inv χ' ((F a, x), y)) · (pr1 ϛ (a, x)) #⊙' (id y) · (pr1 ϛ (a ⊙ x, y)).
+  ϛ (a, x ⊗ y) · (#F (nat_z_iso_to_trans_inv χ ((a, x), y))) =
+  (nat_z_iso_to_trans_inv χ' ((F a, x), y)) · (ϛ (a, x)) #⊙' (id y) · (ϛ (a ⊙ x, y)).
 
 (** as expected, the notions are logically equivalent *)
 Lemma actionbased_strength_pentagon_eq_tovariant1 (ϛ : actionbased_strength_nat): actionbased_strength_pentagon_eq ϛ -> actionbased_strength_pentagon_eq_variant1 ϛ.
@@ -129,7 +134,7 @@ Proof.
     apply functor_on_inv_from_z_iso'.
   }
   apply pathsinv0.
-  apply (z_iso_inv_on_left _ _ _ _ (make_z_iso (# F (pr1 χ ((a, x), y)))
+  apply (z_iso_inv_on_left _ _ _ _ (make_z_iso (# F (χ ((a, x), y)))
          (is_z_isomorphism_mor (functor_on_is_z_isomorphism F (pr2 χ ((a, x), y))))
          (functor_on_is_z_isomorphism F (pr2 χ ((a, x), y))))).
   apply Heq.
@@ -140,7 +145,7 @@ Proof.
   intros Heq a x y.
   red in Heq.
   apply pathsinv0.
-  apply (z_iso_inv_to_right _ _ _ _ (make_z_iso (# F (pr1 χ ((a, x), y)))
+  apply (z_iso_inv_to_right _ _ _ _ (make_z_iso (# F (χ ((a, x), y)))
          (is_z_isomorphism_mor (functor_on_is_z_isomorphism F (pr2 χ ((a, x), y))))
          (functor_on_is_z_isomorphism F (pr2 χ ((a, x), y))))).
   etrans.
@@ -215,16 +220,21 @@ Section RelativeStrengths_Natural_Transformation.
 
   Definition rel_strength_nat : UU := nat_trans rel_strength_dom rel_strength_codom.
 
+  Definition rel_strength_nat_funclass (ϛ : rel_strength_nat):
+  ∏ x : ob (W ⊠ VV), rel_strength_dom x --> rel_strength_codom x
+  := pr1 ϛ.
+  Coercion rel_strength_nat_funclass : rel_strength_nat >-> Funclass.
+
   (** the following looks like a pentagon but is of the nature of a triangle equation *)
   Definition rel_strength_pentagon_eq (ϛ : rel_strength_nat) :=
-    ∏ (v : VV), (pr1 ϛ (E, v)) · (#F (phiIinv #⊗V (identity v))) · (#F (pr1 lambda v))  =
-               (phiIinv #⊗V (identity (F v))) · (pr1 lambda (F v)).
+    ∏ (v : VV), (ϛ (E, v)) · (#F (phiIinv #⊗V (identity v))) · (#F (lambda v))  =
+               (phiIinv #⊗V (identity (F v))) · (lambda (F v)).
 
   (** the following looks like a rectangle in the paper but is of the nature of a pentagon equation *)
   Definition rel_strength_rectangle_eq (ϛ : rel_strength_nat): UU := ∏ (w w' : W), ∏ (v : VV),
-  ( pr1 ϛ (w •W w', v) ) · (#F (phiinv (w, w') #⊗V (identity v))) · (#F (pr1 alpha ((U w, U w'), v))) =
-  (phiinv (w, w') #⊗V (identity (F v))) · (pr1 alpha ((U w, U w'), F v)) ·
-                                        ((identity (U w)) #⊗V pr1 ϛ (w', v)) · ( pr1 ϛ (w, U w' ⊗V v)).
+  (ϛ (w •W w', v) ) · (#F (phiinv (w, w') #⊗V (identity v))) · (#F (alpha ((U w, U w'), v))) =
+  (phiinv (w, w') #⊗V (identity (F v))) · (alpha ((U w, U w'), F v)) ·
+                                        ((identity (U w)) #⊗V ϛ (w', v)) · (ϛ (w, U w' ⊗V v)).
 
 End RelativeStrengths_Natural_Transformation.
 
@@ -258,8 +268,8 @@ Proof.
   - red.
     cbn.
     intro v.
-    change (pr1 ϛ (E, v) · # F (# timesV (phiIinv #, id v) · pr1 lambda v) =
-            # timesV (phiIinv #, id F v) · pr1 lambda (F v)).
+    change (ϛ (E, v) · # F (# timesV (phiIinv #, id v) · lambda v) =
+            # timesV (phiIinv #, id F v) · lambda (F v)).
     rewrite <- pentagon.
     rewrite assoc'. rewrite functor_comp.
     fold ϛ.
@@ -278,10 +288,10 @@ Proof.
     fold timesV.
     fold timesW.
     fold alpha.
-    change (pr1 ϛ (timesW (w, w'), v)
-  · # F (# timesV (pr1 (pr2 (pr2 U) (w, w')) #, id v) · pr1 alpha ((U w, U w'), v)) =
-  # timesV (pr1 (pr2 (pr2 U) (w, w')) #, id F v) · pr1 alpha ((U w, U w'), F v)
-  · # timesV (# (pr1 (pr1 U)) (id w) #, pr1 ϛ (w', v)) · pr1 ϛ (w, timesV (U w', v))).
+    change (ϛ (timesW (w, w'), v)
+  · # F (# timesV (pr1 (pr2 (pr2 U) (w, w')) #, id v) · alpha ((U w, U w'), v)) =
+  # timesV (pr1 (pr2 (pr2 U) (w, w')) #, id F v) · alpha ((U w, U w'), F v)
+  · # timesV (# (pr1 (pr1 U)) (id w) #, ϛ (w', v)) · ϛ (w, timesV (U w', v))).
     rewrite functor_id.
     rewrite functor_comp.
     rewrite assoc.

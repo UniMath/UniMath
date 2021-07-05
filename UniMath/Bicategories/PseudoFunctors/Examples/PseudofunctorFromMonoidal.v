@@ -47,7 +47,7 @@ Proof.
   - intros a b f g. cbn.
     exact (functor_on_morphisms F).
   - intros a. cbn. exact ε_F.
-  - intros a b c f g. cbn. apply (pr1 μ_F (f,g)).
+  - intros a b c f g. cbn. apply (μ_F (f,g)).
 Defined.
 
 Definition monoidal_functor_to_psfunctor_map_laws: psfunctor_laws monoidal_functor_to_psfunctor_map_data.
@@ -69,13 +69,13 @@ Proof.
     apply F_associative.
   - intros H0 H1 H2 a b1 b2 g. red in g.
     apply pathsinv0.
-    assert (Heq := nat_trans_ax (μ_F) (a,,b1) (a,,b2) (id a,,g)).
+    assert (Heq := nat_trans_ax μ_F (a,,b1) (a,,b2) (id a,,g)).
     cbn in Heq.
     rewrite functor_id in Heq.
     exact Heq.
   - intros H0 H1 H2 a1 a2 b f.
     apply pathsinv0.
-    assert (Heq := nat_trans_ax (μ_F) (a1,,b) (a2,,b) (f,,id b)).
+    assert (Heq := nat_trans_ax μ_F (a1,,b) (a2,,b) (f,,id b)).
     cbn in Heq.
     rewrite functor_id in Heq.
     exact Heq.
