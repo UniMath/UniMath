@@ -26,6 +26,7 @@ Section Action_From_Precomposition.
 Context {C : bicat}.
 Context (c0 d0: ob C).
 
+(* swapping is needed in the following due to the unconventional argument order of the action functor in the def. of actions *)
 Local Definition Mon_endo: monoidal_precat := swapping_of_monoidal_precat (monoidal_precat_from_prebicat_and_ob c0).
 
 Local Definition homprecat : precategory := hom c0 d0.

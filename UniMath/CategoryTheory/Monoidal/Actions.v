@@ -3,7 +3,7 @@
 
   This notion is found in G. Janelidze and G.M. Kelly: A Note on Actions of a Monoidal Category, Theory and Applications of Categories, Vol. 9, 2001, No. 4, pp 61-91.
 
-  The presentation is based on the definitions in the paper "Second-Order and Dependently-Sorted Abstract Syntax" by Marcelo Fiore.
+  The presentation is based on the definitions in the paper "Second-Order and Dependently-Sorted Abstract Syntax" by Marcelo Fiore. It seems that the order of the arguments of the action functor has been chosen differently there.
 **)
 
 Require Import UniMath.Foundations.PartD.
