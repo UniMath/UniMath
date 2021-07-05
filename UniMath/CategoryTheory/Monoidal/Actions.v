@@ -42,6 +42,12 @@ Context {A : precategory} (odot : functor (precategory_binproduct A V) A).
 Notation "X ⊙ Y" := (odot (X , Y)) (at level 31).
 Notation "f #⊙ g" := (# odot (f #, g)) (at level 31).
 
+Definition is_z_iso_odot_z_iso {X Y : A} { X' Y' : V} {f : X --> Y} {g : X' --> Y'}
+           (f_is_z_iso : is_z_isomorphism f) (g_is_z_iso : is_z_isomorphism g) : is_z_isomorphism (f #⊙ g).
+Proof.
+  exact (functor_on_is_z_isomorphism _ (is_z_iso_binprod_z_iso f_is_z_iso g_is_z_iso)).
+Defined.
+
 Definition odot_I_functor : functor A A := functor_fix_snd_arg _ _ _ odot I.
 
 Lemma odot_I_functor_ok: functor_on_objects odot_I_functor =
@@ -171,7 +177,7 @@ Proof.
     + exact (identity_is_z_iso _ ).
     + apply (is_z_iso_inv_from_z_iso _ _ (make_z_iso _ _ ϵ_U_is_z_iso)).
   - exact (pr2 ρ_A c).
-Qed.
+Defined.
 
 Definition U_action_ρ : action_right_unitor otimes_U_functor := make_nat_z_iso _ _ U_action_ρ_nat_trans U_action_ρ_is_nat_z_iso.
 
@@ -217,7 +223,7 @@ Proof.
 Defined.
 *)
 
-Definition U_action_tlaw : action_triangle_eq (A := A) otimes_U_functor U_action_ρ U_action_χ.
+Lemma U_action_tlaw : action_triangle_eq (A := A) otimes_U_functor U_action_ρ U_action_χ.
 Proof.
   red.
   intros.
@@ -289,7 +295,7 @@ Proof.
     apply triangle_eq_A.
 Qed.
 
-Definition U_action_plaw : action_pentagon_eq (A := A) otimes_U_functor U_action_χ.
+Lemma U_action_plaw : action_pentagon_eq (A := A) otimes_U_functor U_action_χ.
 Proof.
   red.
   intros.
