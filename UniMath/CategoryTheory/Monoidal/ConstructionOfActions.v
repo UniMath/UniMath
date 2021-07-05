@@ -47,7 +47,7 @@ Defined.
 
 Section Action_Lifting_Through_Strong_Monoidal_Functor.
 
-Context (Mon_A : monoidal_precat).
+Context {Mon_A : monoidal_precat}.
 
 Local Definition A := monoidal_precat_precat Mon_A.
 Local Definition I_A := monoidal_precat_unit Mon_A.
@@ -306,5 +306,35 @@ Defined.
 
 End Action_Lifting_Through_Strong_Monoidal_Functor.
 
-
 End A.
+
+Section Strong_Monoidal_Functor_Action_Reloaded.
+
+  Context {Mon_V Mon_A : monoidal_precat}.
+  Context (U : strong_monoidal_functor Mon_V Mon_A).
+
+  Definition U_action_alt : action Mon_V := lifted_action Mon_V U (action_on_itself Mon_A).
+
+  Lemma U_action_alt_ok1: pr1 U_action_alt = pr1(U_action _ _ U).
+  Proof.
+    apply idpath.
+  Qed.
+
+  Lemma U_action_alt_ok2: pr1(pr2 U_action_alt) = pr1(pr2(U_action _ _ U)).
+  Proof.
+    apply idpath.
+  Qed.
+
+  Lemma U_action_alt_ok3: pr1(pr22 U_action_alt) = pr1(pr22(U_action _ _ U)).
+  Proof.
+    apply idpath.
+  Qed.
+
+  Lemma U_action_alt_ok4: pr1(pr222 U_action_alt) = pr1(pr222(U_action _ _ U)).
+  Proof.
+    apply idpath.
+  Qed.
+
+(** however, the proofs of the equations are not convertible *)
+
+End Strong_Monoidal_Functor_Action_Reloaded.

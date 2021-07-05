@@ -393,8 +393,9 @@ Definition U_action : action.
   exists otimes_U_functor.
   exists U_action_ρ.
   exists U_action_χ.
-  exists U_action_tlaw.
-  exact U_action_plaw.
+  split.
+  - exact U_action_tlaw.
+  - exact U_action_plaw.
 Defined.
 
 End Strong_Monoidal_Functor_Action.
