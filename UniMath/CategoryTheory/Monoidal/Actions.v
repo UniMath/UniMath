@@ -1,7 +1,9 @@
 (**
   Generalisation of the concept of actions, over monoidal categories.
 
-  Based on the definitions in the paper "Second-Order and Dependently-Sorted Abstract Syntax" by Marcelo Fiore.
+  This notion is found in G. Janelidze and G.M. Kelly: A Note on Actions of a Monoidal Category, Theory and Applications of Categories, Vol. 9, 2001, No. 4, pp 61-91.
+
+  The presentation is based on the definitions in the paper "Second-Order and Dependently-Sorted Abstract Syntax" by Marcelo Fiore.
 **)
 
 Require Import UniMath.Foundations.PartD.
