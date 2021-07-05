@@ -324,6 +324,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monoidal/CategoriesOfMonoids.v](CategoryTheory/Monoidal/CategoriesOfMonoids.v)
    - [Monoidal/Actions.v](CategoryTheory/Monoidal/Actions.v)
    - [Monoidal/ConstructionOfActions.v](CategoryTheory/Monoidal/ConstructionOfActions.v)
+   - [Monoidal/ActionOfEndomorphismsInBicat.v](CategoryTheory/Monoidal/ActionOfEndomorphismsInBicat.v)
    - [Monoidal/ActionBasedStrength.v](CategoryTheory/Monoidal/ActionBasedStrength.v)
    - [Monoidal/BraidedMonoidalCategories.v](CategoryTheory/Monoidal/BraidedMonoidalCategories.v)
    - [SkewMonoidal/SkewMonoidalCategories.v](CategoryTheory/SkewMonoidal/SkewMonoidalCategories.v)
