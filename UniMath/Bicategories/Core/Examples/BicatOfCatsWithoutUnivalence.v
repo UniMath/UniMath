@@ -12,21 +12,10 @@ a variant by Ralph Matthes in 2021 without asking for univalence of the object
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
-Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.catiso.
-Require Import UniMath.CategoryTheory.CategoryEquality.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Adjunctions.Core.
-Require Import UniMath.CategoryTheory.Equivalences.Core.
-Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
-Require Import UniMath.Bicategories.Core.Adjunctions.
-Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
-Require Import UniMath.Bicategories.Core.AdjointUnique.
-Require Import UniMath.Bicategories.Core.Univalence.
 
 Local Open Scope cat.
 
