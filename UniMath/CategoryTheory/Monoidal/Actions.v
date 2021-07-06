@@ -118,7 +118,7 @@ Defined.
 (* The action induced by a strong monoidal functor U. *)
 Section Strong_Monoidal_Functor_Action.
 
-Context (Mon_A : monoidal_precat).
+Context {Mon_A : monoidal_precat}.
 
 Local Definition A := monoidal_precat_precat Mon_A.
 Local Definition I_A := monoidal_precat_unit Mon_A.

@@ -316,28 +316,28 @@ Section Strong_Monoidal_Functor_Action_Reloaded.
   Definition U_action_alt : action Mon_V := lifted_action Mon_V U (action_on_itself Mon_A).
 
 (* the two actions are even convertible - thanks to definedness of the proofs of the equations *)
-  Lemma U_action_alt_ok: U_action_alt = U_action _ _ U.
+  Lemma U_action_alt_ok: U_action_alt = U_action _ U.
   Proof.
     apply idpath.
   Qed.
 
 (* the following lemmas work even when the equational proofs are opaque *)
-  Lemma U_action_alt_ok1: pr1 U_action_alt = pr1(U_action _ _ U).
+  Lemma U_action_alt_ok1: pr1 U_action_alt = pr1(U_action _ U).
   Proof.
     apply idpath.
   Qed.
 
-  Lemma U_action_alt_ok2: pr1(pr2 U_action_alt) = pr1(pr2(U_action _ _ U)).
+  Lemma U_action_alt_ok2: pr1(pr2 U_action_alt) = pr1(pr2(U_action _ U)).
   Proof.
     apply idpath.
   Qed.
 
-  Lemma U_action_alt_ok3: pr1(pr22 U_action_alt) = pr1(pr22(U_action _ _ U)).
+  Lemma U_action_alt_ok3: pr1(pr22 U_action_alt) = pr1(pr22(U_action _ U)).
   Proof.
     apply idpath.
   Qed.
 
-  Lemma U_action_alt_ok4: pr1(pr222 U_action_alt) = pr1(pr222(U_action _ _ U)).
+  Lemma U_action_alt_ok4: pr1(pr222 U_action_alt) = pr1(pr222(U_action _ U)).
   Proof.
     apply idpath.
   Qed.

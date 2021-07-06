@@ -63,7 +63,7 @@ Context (H : functor [C, D', hsD'] [C, D, hsD]).
 (** The precategory of pointed endofunctors on [C] *)
 Local Notation "'Ptd'" := (precategory_Ptd C hs).
 (** The category of endofunctors on [C] *)
-Local Notation "'EndC'":= ([C, C, hs]) .
+Local Notation "'EndC'":= ([C, C, hs]).
 
 
 (** ** Source and target of the natural transformation [θ] *)
@@ -355,14 +355,14 @@ Qed.
 Section relative_strength_instantiates_to_signature.
 
   Context (H : functor [C, C, hs] [C, C, hs])
-          (rs : rel_strength ptd endo forget H).
+          (rs : rel_strength forget H).
 
-  Local Definition ϛ : rel_strength_nat ptd endo forget H := pr1 rs.
+  Local Definition ϛ : rel_strength_nat forget H := pr1 rs.
 
-  Local Definition ϛ_pentagon_eq : rel_strength_pentagon_eq ptd endo forget H ϛ
+  Local Definition ϛ_pentagon_eq : rel_strength_pentagon_eq forget H ϛ
     := pr1 (pr2 rs).
 
-  Local Definition ϛ_rectangle_eq : rel_strength_rectangle_eq ptd endo forget H ϛ
+  Local Definition ϛ_rectangle_eq : rel_strength_rectangle_eq forget H ϛ
     := pr2 (pr2 rs).
 
   Local Definition θ : θ_source C hs C hs C hs H ⟹ θ_target C hs C hs C hs H
@@ -421,12 +421,12 @@ Section strength_in_signature_is_a_relative_strength.
 
   Local Definition H := pr1 sig.
   Local Definition θ' := pr1 (pr2 sig).
-  Local Definition ϛ' : rel_strength_nat ptd endo forget H := pre_whisker binswap_pair_functor θ'.
+  Local Definition ϛ' : rel_strength_nat forget H := pre_whisker binswap_pair_functor θ'.
 
   Local Definition θ'_strength_law1 := Sig_strength_law1 _ _ _ _ _ _ sig.
   Local Definition θ'_strength_law2 := Sig_strength_law2 _ _ _ _ _ _ sig.
 
-  Definition rel_strength_from_signature : rel_strength ptd endo forget H.
+  Definition rel_strength_from_signature : rel_strength forget H.
   Proof.
     exists ϛ'.
     split.

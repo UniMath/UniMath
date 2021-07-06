@@ -175,7 +175,7 @@ End A.
 Section B.
 (** following the TYPES'15 post-proceedings paper by Ahrens and Matthes - will be identified as an instance of the previous *)
 
-  Context (Mon_W Mon_V : monoidal_precat).
+  Context {Mon_W Mon_V : monoidal_precat}.
 
   Local Definition VV := monoidal_precat_precat Mon_V.
   Local Definition timesV := monoidal_precat_tensor Mon_V.
@@ -257,7 +257,7 @@ Section RelativeStrength_Is_An_ActionBasedStrength.
   Local Definition U' := swapping_of_strong_monoidal_functor U: strong_monoidal_functor Mon_W' Mon_V'.
   Local Definition phiinv' := pre_whisker binswap_pair_functor phiinv.
 
-  Local Definition UAct := U_action Mon_W' Mon_V' U': action Mon_W'.
+  Local Definition UAct := U_action Mon_W' U': action Mon_W'.
 
   Local Definition ϛ' := pre_whisker binswap_pair_functor ϛ.
 
