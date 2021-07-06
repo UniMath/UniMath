@@ -293,7 +293,7 @@ Proof.
        unfold functor_fix_snd_arg_ob in TYPE. *)
     apply pathsinv0.
     apply triangle_eq_A.
-Qed.
+Defined.
 
 Lemma U_action_plaw : action_pentagon_eq (A := A) otimes_U_functor U_action_χ.
 Proof.
@@ -386,7 +386,7 @@ Proof.
   change (# tensor_A (# tensor_A (id (a, U x)) #, μ (y, z)) = # tensor_A (id (a ⊗_A U x) #, μ (y, z))).
   rewrite functor_id.
   apply idpath.
-Qed.
+Defined.
 
 Definition U_action : action.
   exists A.

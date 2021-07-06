@@ -197,7 +197,7 @@ Proof.
        unfold functor_fix_snd_arg_ob in TYPE. *)
     apply pathsinv0.
     apply (pr12(pr222 actA)).
-Qed.
+Defined.
 
 Lemma lifted_action_plaw : action_pentagon_eq (A := C) Mon_V
                              lifted_odot lifted_action_convertor.
@@ -291,7 +291,7 @@ Proof.
   change (# odotA (# odotA (id (a, U x)) #, μ (y, z)) = # odotA (id (odotA (a, U x)) #, μ (y, z))).
   rewrite functor_id.
   apply idpath.
-Qed.
+Defined.
 
 Definition lifted_action: action Mon_V.
 Proof.
@@ -315,6 +315,13 @@ Section Strong_Monoidal_Functor_Action_Reloaded.
 
   Definition U_action_alt : action Mon_V := lifted_action Mon_V U (action_on_itself Mon_A).
 
+(* the two actions are even convertible - thanks to definedness of the proofs of the equations *)
+  Lemma U_action_alt_ok: U_action_alt = U_action _ _ U.
+  Proof.
+    apply idpath.
+  Qed.
+
+(* the following lemmas work even when the equational proofs are opaque *)
   Lemma U_action_alt_ok1: pr1 U_action_alt = pr1(U_action _ _ U).
   Proof.
     apply idpath.
@@ -334,7 +341,5 @@ Section Strong_Monoidal_Functor_Action_Reloaded.
   Proof.
     apply idpath.
   Qed.
-
-(** however, the proofs of the equations are not convertible *)
 
 End Strong_Monoidal_Functor_Action_Reloaded.
