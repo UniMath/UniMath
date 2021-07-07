@@ -34,7 +34,7 @@ Under Ubuntu or Debian, you may install ocaml with the
 following shell command.
 
 ```bash
- sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp5 libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib libnum-ocaml-dev emacs
+ sudo apt-get install build-essential git ocaml ocaml-nox ocaml-native-compilers camlp5 libgtk2.0 libgtksourceview2.0 liblablgtk-extras-ocaml-dev ocaml-findlib libnum-ocaml-dev libzarith-ocaml-dev emacs
 ```
 Now proceed with [Installation of ProofGeneral](#installation-of-proofgeneral-all-operating-systems) and [Installing UniMath](#installing-unimath) below.
 
