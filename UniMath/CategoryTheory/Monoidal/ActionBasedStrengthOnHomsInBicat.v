@@ -9,6 +9,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.whiskering.
@@ -23,6 +24,7 @@ Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrength.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.Examples.BicategoryFromMonoidal.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCatsWithoutUnivalence.
+Require Import UniMath.SubstitutionSystems.Signatures.
 
 Import Bicat.Notations.
 
@@ -91,6 +93,7 @@ Proof.
   apply idpath.
 Qed.
 
+
 (** the variables chosen in the following make the link with the notion of signature in the TYPES'15 paper by Ahrens and Matthes more visible - but Z is written insted of (Z,e), and likewise for Z' *)
 Lemma pentagon_eq_nice: pentagon_eq <->
   ∏ (X : C ⟦ c0, d0' ⟧) (Z' Z : monoidal_precat_precat Mon_M),
@@ -118,6 +121,81 @@ Proof.
     do 2 rewrite hcomp_identity_right.
     rewrite hcomp_identity_left.
     apply Heq.
+Qed.
+(* very slow verification *)
+
+Definition μ_UZ'Zinv (Z' Z : monoidal_precat_precat Mon_M):=
+  nat_z_iso_to_trans_inv (μ_U,,pr22 U) (Z',,Z).
+
+Lemma pentagon_eq_nicer: pentagon_eq <->
+  ∏ (X : C ⟦ c0, d0' ⟧) (Z' Z : monoidal_precat_precat Mon_M),
+                         (lassociator (U Z) (U Z') (F X) • (μ_U (Z',, Z) ▹ F X)) •
+                         θ (X,, monoidal_precat_tensor Mon_M (Z', Z)) •
+                         # F ((μ_UZ'Zinv Z' Z ▹ X) • rassociator (U Z) (U Z') X) =
+                         ((F_U Z ◃ θ (X,, Z')) • θ (F_U Z' · X,, Z)).
+Proof.
+  split.
+  - intro Heq.
+    assert (Heq' := pr1 pentagon_eq_nice Heq).
+    clear Heq.
+    intros X Z' Z.
+    assert (Heqinst := Heq' X Z' Z).
+    clear Heq'.
+    rewrite Heqinst.
+    clear Heqinst.
+    etrans.
+    2: { apply id2_right. }
+    rewrite <- vassocr.
+    apply maponpaths.
+    apply pathsinv0.
+    etrans.
+    2: { apply (functor_comp(C:=hom c0 d0')(C':=hom c0 d0)). }
+    apply pathsinv0.
+    apply (functor_id_id (hom c0 d0') (hom c0 d0)).
+    cbn.
+    rewrite <- vassocr.
+    apply (lhs_left_invert_cell _ _ _ (is_invertible_2cell_lassociator _ _ _)).
+    rewrite id2_right.
+    rewrite vassocr.
+    etrans.
+    2: { apply id2_left. }
+    apply maponpaths_2.
+    rewrite rwhisker_vcomp.
+    etrans.
+    { apply maponpaths.
+      apply (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso (μ_U,,pr22 U) (Z',,Z))).
+    }
+    apply id2_rwhisker.
+  - intro Heq.
+    apply (pr2 pentagon_eq_nice).
+    intros X Z' Z.
+    assert (Heqinst := Heq X Z' Z).
+    clear Heq.
+    etrans.
+    2: { apply maponpaths_2.
+         exact Heqinst. }
+    clear Heqinst.
+    repeat rewrite <- vassocr.
+    do 2 apply maponpaths.
+    etrans.
+    { apply pathsinv0. apply id2_right. }
+    apply maponpaths.
+    etrans.
+    2: { apply (functor_comp(C:=hom c0 d0')(C':=hom c0 d0)). }
+    apply pathsinv0.
+    apply (functor_id_id (hom c0 d0') (hom c0 d0)).
+    cbn.
+    rewrite vassocr.
+    etrans.
+    { apply maponpaths_2. apply vassocl. }
+    rewrite rassociator_lassociator.
+    rewrite id2_right.
+    rewrite rwhisker_vcomp.
+    etrans.
+    { apply maponpaths.
+      apply (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso (μ_U,,pr22 U) (Z',,Z))).
+    }
+    apply id2_rwhisker.
 Qed.
 (* very slow verification *)
 
@@ -184,6 +262,100 @@ Lemma same_I : pr222 monprecat1 = pr222 monprecat2.
 
 Definition ab_strength_for_functors_and_pointed_functors : UU := ab_strength_on_homs_in_bicat(C:=bicat_of_cats_nouniv) (C,,hs) (D,,hsD) (D',,hsD') forget H.
 
-(** TODO: compare with def. in Signatures.v *)
+Section Signature_From_ActionBased_Strength.
+
+  Context (ab_str : ab_strength_for_functors_and_pointed_functors).
+
+  Local Definition θ' := pr1 ab_str.
+
+  (* adapt typing of [θ'] for use in [Signature] *)
+  Definition θ_for_signature : θ_source(hs:=hs) H ⟹ θ_target H.
+  Proof.
+    use make_nat_trans.
+    - intro x. exact (θ' x).
+    - intros x x' f.
+      (* UniMath.MoreFoundations.Tactics.show_id_type. *)
+      apply nat_trans_eq; try assumption.
+      intro c.
+      cbn.
+      assert (Heq := nat_trans_ax θ' x x' f).
+      assert (Heqc := nat_trans_eq_weq hsD _ _ Heq c).
+      clear Heq.
+      cbn in Heqc.
+      (* term precomposed with θ' x' c in goal and [Heqc]: *)
+      assert (Heq0 : pr1(# H (pr1 f)) ((pr12 x) c) · # (pr1(H (pr1 x'))) ((pr12 f) c) =
+                     # (pr1 (H (pr1 x))) ((pr112 f) c) · pr1 (# H (pr1 f)) (pr1 (pr12 x') c)).
+      { apply pathsinv0. apply nat_trans_ax. }
+      etrans.
+      { apply cancel_postcomposition. exact Heq0. }
+      clear Heq0.
+      etrans.
+      { exact Heqc. }
+      apply maponpaths.
+      generalize c.
+      apply nat_trans_eq_pointwise.
+      apply maponpaths.
+      apply pathsinv0.
+      apply HorizontalComposition.horcomp_post_pre.
+  Defined.
+
+  Definition signature_from_ab_strength : Signature C hs D hsD D' hsD'.
+  Proof.
+    exists H.
+    exists θ_for_signature.
+    split.
+    - red. intro X.
+      apply nat_trans_eq; try assumption.
+      intro c.
+      cbn.
+      assert (HypX := pr1 (triangle_eq_nice _ _ _ _ _ _) (pr12 ab_str) X).
+      unfold θ in HypX. fold θ' in HypX.
+      assert (Heqc := nat_trans_eq_weq hsD _ _ HypX c).
+      cbn in Heqc.
+      rewrite (functor_id (H X)) in Heqc.
+      rewrite id_left in Heqc.
+      etrans.
+      2: { exact Heqc. }
+      clear HypX Heqc.
+      apply maponpaths.
+      apply nat_trans_eq_pointwise.
+      clear c.
+      apply maponpaths.
+      apply nat_trans_eq; try assumption.
+      intro c.
+      cbn.
+      apply pathsinv0.
+      rewrite id_right.
+      apply functor_id.
+    - red. intros X Z Z'.
+      apply nat_trans_eq; try assumption.
+      intro c.
+      cbn.
+      rewrite id_left.
+      assert (HypX := pr1 (pentagon_eq_nicer _ _ _ _ _ _) (pr22 ab_str) X Z' Z).
+      unfold θ in HypX. fold θ' in HypX.
+      assert (Heqc := nat_trans_eq_weq hsD _ _ HypX c).
+      clear HypX.
+      cbn in Heqc.
+      rewrite (functor_id (H X)) in Heqc.
+      do 2 rewrite id_left in Heqc.
+      etrans.
+      2: { exact Heqc. }
+      clear Heqc.
+      apply maponpaths.
+      apply nat_trans_eq_pointwise.
+      clear c.
+      apply maponpaths.
+      apply nat_trans_eq; try assumption.
+      intro c.
+      cbn.
+      rewrite id_right.
+      apply pathsinv0.
+      apply functor_id.
+  Defined.
+
+
+  (** TODO: the other direction *)
+End Signature_From_ActionBased_Strength.
 
 End Instantiation_To_FunctorCategory_And_PointedEndofunctors.
