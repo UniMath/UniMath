@@ -63,7 +63,8 @@ Definition precategory_id_comp (C : precategory_ob_mor) : UU
       ×
     (∏ a b c : C, a --> b -> b --> c -> a --> c). (* composition *)
 
-Definition precategory_data : UU := ∑ X, precategory_id_comp X.
+Definition precategory_data : UU
+  := ∑ C : precategory_ob_mor, precategory_id_comp C.
 
 Definition make_precategory_data (C : precategory_ob_mor)
     (id : ∏ c : C, c --> c)

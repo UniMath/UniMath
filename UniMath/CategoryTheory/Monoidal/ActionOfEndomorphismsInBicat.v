@@ -9,13 +9,16 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Actions.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.Examples.BicategoryFromMonoidal.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfCatsWithoutUnivalence.
 
 Import Bicat.Notations.
 
@@ -83,3 +86,35 @@ Defined.
 
 
 End Action_From_Precomposition.
+
+Section Instantiation_To_Bicategory_Of_Categories.
+
+  Context (C : precategory) (hs : has_homsets C).
+  Context (D : precategory) (hsD : has_homsets D).
+
+  Local Definition actfromprecomp : action (Mon_endo(C:=bicat_of_cats_nouniv) (C,,hs))
+    := action_from_precomp(C:=bicat_of_cats_nouniv) (C,,hs) (D,,hsD).
+
+  Lemma actfromprecomp_precategory_data_ok : pr11 actfromprecomp = pr1 [C, D, hsD].
+  Proof.
+    (* UniMath.MoreFoundations.Tactics.show_id_type. *)
+    cbn.
+    apply idpath.
+  Qed.
+
+  (* the following is not possible since the notions for functor the functor are not precise instances of the bicategorical ones:
+  Lemma actfromprecomp_odot_ok : pr12 actfromprecomp = binswap_pair_functor ∙ (functorial_composition C C D hs hsD).
+  Proof.
+    UniMath.MoreFoundations.Tactics.show_id_type.
+    cbn.
+    unfold precomp_odot.
+    apply idpath.
+   *)
+
+  Lemma actfromprecomp_odot_pointwise_ok (g : functor C D) (f: functor C C) : pr12 actfromprecomp (g,,f) = (binswap_pair_functor ∙ (functorial_composition C C D hs hsD)) (g,,f).
+  Proof.
+    cbn.
+    apply idpath.
+  Qed.
+
+End Instantiation_To_Bicategory_Of_Categories.
