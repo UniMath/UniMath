@@ -30,7 +30,9 @@ Require Import UniMath.MoreFoundations.Tactics.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 
 Local Open Scope cat.
 
@@ -80,7 +82,12 @@ Definition α_functor_inv (X : functor C D)(Y : functor D E)(Z : functor E F) :
   nat_trans (functor_composite X (functor_composite Y Z))
             (functor_composite (functor_composite X Y) Z) := α_functor X Y Z.
 
-
+Lemma α_functor_pointwise_is_z_iso (hsF: has_homsets F)(X : functor C D)(Y : functor D E)(Z : functor E F) :
+  is_z_isomorphism(C:= functor_precategory C F hsF) (α_functor X Y Z).
+Proof.
+  exists (α_functor_inv X Y Z).
+  split; apply nat_trans_eq; try assumption; intro c; apply id_left.
+Defined.
 
 (** as a motivation, we show here that, propositionally, both functors are equal, for each
     of the three pairs of functors; the extra assumption on having homsets is only used in order
