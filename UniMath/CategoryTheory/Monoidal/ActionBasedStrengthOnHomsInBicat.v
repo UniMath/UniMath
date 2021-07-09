@@ -95,34 +95,51 @@ Qed.
 
 
 (** the variables chosen in the following make the link with the notion of signature in the TYPES'15 paper by Ahrens and Matthes more visible - but Z is written insted of (Z,e), and likewise for Z' *)
+
 Lemma pentagon_eq_nice: pentagon_eq <->
   ∏ (X : C ⟦ c0, d0' ⟧) (Z' Z : monoidal_precat_precat Mon_M),
     (lassociator (U Z) (U Z') (F X) • (μ_U (Z',, Z) ▹ F X)) • θ (X,, monoidal_precat_tensor Mon_M (Z', Z)) =
     ((F_U Z ◃ θ (X,, Z')) • θ (F_U Z' · X,, Z)) • # F (lassociator (U Z) (U Z') X • (μ_U (Z',, Z) ▹ X)).
 Proof.
   split.
-  - intro Heq.
-    intros X Z' Z.
+  - intros Heq X Z' Z.
     assert (Heqinst := Heq X Z' Z).
     clear Heq.
     revert Heqinst.
-    cbn.
+    simpl.
     rewrite (functor_id (pr11 U)).
-    do 2 rewrite hcomp_identity_right.
-    unfold identity. cbn.
-    rewrite hcomp_identity_left.
     intro Heqinst.
-    assumption.
-  - intro Heq.
-    intros X Z' Z.
-    cbn.
+    refine (!_ @ Heqinst @ _).
+    + cbn.
+      apply maponpaths_2.
+      apply maponpaths.
+      exact (hcomp_identity_right _ _ (F X) (ConstructionOfActions.μ Mon_M U (Z',, Z))).
+    + etrans.
+      {
+        do 2 apply maponpaths_2.
+        apply hcomp_identity_left.
+      }
+      cbn.
+      do 3 apply maponpaths.
+      apply hcomp_identity_right.
+  - intros Heq X Z' Z.
+    simpl.
     rewrite (functor_id (pr11 U)).
-    unfold identity. cbn.
-    do 2 rewrite hcomp_identity_right.
-    rewrite hcomp_identity_left.
-    apply Heq.
+    refine (_ @ Heq _ _ _ @ _).
+    + cbn.
+      apply maponpaths_2.
+      apply maponpaths.
+      apply hcomp_identity_right.
+    + refine (!_).
+      etrans.
+      {
+        do 2 apply maponpaths_2.
+        apply hcomp_identity_left.
+      }
+      cbn.
+      do 3 apply maponpaths.
+      apply hcomp_identity_right.
 Qed.
-(* very slow verification *)
 
 Definition μ_UZ'Zinv (Z' Z : monoidal_precat_precat Mon_M):=
   nat_z_iso_to_trans_inv (μ_U,,pr22 U) (Z',,Z).
@@ -398,44 +415,69 @@ Section ActionBased_Strength_From_Signature.
     apply idpath.
   Defined.
 
-  Definition θ_for_ab_strength : actionbased_strength_dom
-    (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
-    (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
-    (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget')
-    H
-    ⟹ actionbased_strength_codom
+  Definition θ_for_ab_strength_data
+    : nat_trans_data
+        (actionbased_strength_dom
+           (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
+           (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
+           (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget')
+           H)
+        (actionbased_strength_codom
+           (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
+           (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
+           (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget')
+           H).
+  Proof.
+    intro x.
+    exact (eqweqmap (!aux0 x) (θ'' x)).
+  Defined.
+
+  Definition θ_for_ab_strength_ax
+    : is_nat_trans _ _ θ_for_ab_strength_data.
+  Proof.
+    intros x x' f.
+    apply nat_trans_eq; try assumption.
+    intro c.
+    assert (Heq := nat_trans_ax θ'' x x' f).
+    assert (Heqc := nat_trans_eq_weq hsD _ _ Heq c).
+    clear Heq.
+    (* term precomposed with [θ'' x' c] in [Heqc] and goal: *)
+    assert (Heq0 : pr1(# H (pr1 f)) ((pr12 x) c) · # (pr1(H (pr1 x'))) ((pr12 f) c) =
+                   # (pr1 (H (pr1 x))) ((pr112 f) c) · pr1 (# H (pr1 f)) (pr1 (pr12 x') c)).
+    { apply pathsinv0. apply nat_trans_ax. }
+    etrans.
+    { apply cancel_postcomposition. apply pathsinv0. exact Heq0. }
+    clear Heq0.
+    cbn in Heqc.
+    cbn.
+    etrans.
+    {
+      exact Heqc. (* does not work when aux0 is opaque *)
+    }
+    apply maponpaths.
+    generalize c.
+    apply nat_trans_eq_pointwise.
+    apply maponpaths.
+    apply (HorizontalComposition.horcomp_post_pre _ _ _ _ _ _ _ (pr12 f) (pr1 f)).
+  Qed.
+
+  Definition θ_for_ab_strength :
+    actionbased_strength_dom
+      (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
+      (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
+      (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget')
+      H
+    ⟹
+    actionbased_strength_codom
       (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
       (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
       (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget')
       H.
   Proof.
     use make_nat_trans.
-    - intro x. rewrite (aux0 x). (* we do this in place of cbn - makes no difference if aux0 is transparent *)
-      exact (θ'' x).
-    - intros x x' f.
-      apply nat_trans_eq; try assumption.
-      intro c.
-      assert (Heq := nat_trans_ax θ'' x x' f).
-      assert (Heqc := nat_trans_eq_weq hsD _ _ Heq c).
-      clear Heq.
-      cbn in Heqc.
-      fold H in Heqc.
-      (* term precomposed with [θ'' x' c] in [Heqc] and goal: *)
-      assert (Heq0 : pr1(# H (pr1 f)) ((pr12 x) c) · # (pr1(H (pr1 x'))) ((pr12 f) c) =
-                     # (pr1 (H (pr1 x))) ((pr112 f) c) · pr1 (# H (pr1 f)) (pr1 (pr12 x') c)).
-      { apply pathsinv0. apply nat_trans_ax. }
-      etrans.
-      { apply cancel_postcomposition. apply pathsinv0. exact Heq0. }
-      clear Heq0.
-      etrans.
-      { exact Heqc. (* does not work when aux0 is opaque *) }
-      cbn.
-      apply maponpaths.
-      generalize c.
-      apply nat_trans_eq_pointwise.
-      apply maponpaths.
-      apply (HorizontalComposition.horcomp_post_pre _ _ _ _ _ _ _ (pr12 f) (pr1 f)).
-  Defined. (* practically not terminating *)
+    - exact θ_for_ab_strength_data.
+    - exact θ_for_ab_strength_ax.
+  Defined.
 
   Definition ab_strength_from_signature : ab_strength_for_functors_and_pointed_functors.
   Proof.
