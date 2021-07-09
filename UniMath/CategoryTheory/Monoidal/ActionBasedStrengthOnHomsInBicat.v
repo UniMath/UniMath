@@ -30,9 +30,6 @@ Import Bicat.Notations.
 
 Local Open Scope cat.
 
-Definition TODO {A : UU} : A.
-Admitted.
-
 Section ActionBased_Strength_Between_Homs_In_Bicat.
 
 Context {C : bicat}.
