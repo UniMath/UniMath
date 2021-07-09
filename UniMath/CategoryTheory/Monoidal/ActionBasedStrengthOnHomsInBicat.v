@@ -354,8 +354,92 @@ Section Signature_From_ActionBased_Strength.
       apply functor_id.
   Defined.
 
-
-  (** TODO: the other direction *)
 End Signature_From_ActionBased_Strength.
-
 End Instantiation_To_FunctorCategory_And_PointedEndofunctors.
+
+Section ActionBased_Strength_From_Signature.
+
+  Context (C : precategory) (hs : has_homsets C).
+  Context (D : precategory) (hsD : has_homsets D).
+  Context (D' : precategory) (hsD' : has_homsets D').
+  Context (sig : Signature C hs D hsD D' hsD').
+
+  Local Definition forget' := swapping_of_strong_monoidal_functor(forgetful_functor_from_ptd_as_strong_monoidal_functor_alt hs).
+  Local Definition H := pr1 sig.
+  Local Definition θ'' := pr12 sig.
+
+  (* the following lemma cannot be stated:
+  Lemma θ_for_ab_strength_aux : is_nat_trans
+    (actionbased_strength_dom (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
+       (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
+       (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget') H)
+    (actionbased_strength_codom (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
+       (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
+       (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget') H)
+    (λ x : ActionBasedStrength.A (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
+             (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
+           ⊠ ActionBasedStrength.V (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs)), θ'' x).
+   *)
+
+  Lemma aux0 (x : ActionBasedStrength.A (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
+        (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
+        ⊠ ActionBasedStrength.V (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))) :
+ ActionBasedStrength.A' (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
+    (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget')
+  ⟦ actionbased_strength_dom (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
+      (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
+      (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget') H x,
+  actionbased_strength_codom (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
+    (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
+    (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget') H x ⟧
+  =
+  functor_composite_data (pr12 x) (pr1 (H (pr1 x))) ⟹  pr1 (pr11  H (pr12 x ∙ pr1 x)).
+  Proof.
+    apply idpath.
+  Defined.
+
+  Definition θ_for_ab_strength : actionbased_strength_dom
+    (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
+    (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
+    (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget')
+    H
+    ⟹ actionbased_strength_codom
+      (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
+      (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
+      (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget')
+      H.
+  Proof.
+    use make_nat_trans.
+    - intro x. rewrite (aux0 x). (* we do this in place of cbn - makes no difference if aux0 is transparent *)
+      exact (θ'' x).
+    - intros x x' f.
+      apply nat_trans_eq; try assumption.
+      intro c.
+      assert (Heq := nat_trans_ax θ'' x x' f).
+      assert (Heqc := nat_trans_eq_weq hsD _ _ Heq c).
+      clear Heq.
+      cbn in Heqc.
+      fold H in Heqc.
+      (* term precomposed with [θ'' x' c] in [Heqc] and goal: *)
+      assert (Heq0 : pr1(# H (pr1 f)) ((pr12 x) c) · # (pr1(H (pr1 x'))) ((pr12 f) c) =
+                     # (pr1 (H (pr1 x))) ((pr112 f) c) · pr1 (# H (pr1 f)) (pr1 (pr12 x') c)).
+      { apply pathsinv0. apply nat_trans_ax. }
+      etrans.
+      { apply cancel_postcomposition. apply pathsinv0. exact Heq0. }
+      clear Heq0.
+      etrans.
+      { exact Heqc. (* does not work when aux0 is opaque *) }
+      cbn.
+      apply maponpaths.
+      generalize c.
+      apply nat_trans_eq_pointwise.
+      apply maponpaths.
+      apply (HorizontalComposition.horcomp_post_pre _ _ _ _ _ _ _ (pr12 f) (pr1 f)).
+  Defined. (* practically not terminating *)
+
+  Definition ab_strength_from_signature : ab_strength_for_functors_and_pointed_functors.
+  Proof.
+    exists θ_for_ab_strength.
+ Abort.
+
+End ActionBased_Strength_From_Signature.
