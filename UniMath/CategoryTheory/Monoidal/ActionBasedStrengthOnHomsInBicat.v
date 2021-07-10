@@ -510,26 +510,6 @@ Section ActionBased_Strength_From_Signature.
   Time Qed. (* 5.172 seconds *)
   (* slow verification *)
 
-  Print actionbased_strength_pentagon_eq.
-
-  Definition test
-             (Mon_V : monoidal_precat)
-             (actn actn' : action Mon_V)
-             (F : ActionBasedStrength.A Mon_V actn ⟶ ActionBasedStrength.A' Mon_V actn')
-             (z : actionbased_strength_nat Mon_V actn actn' F)
-             (p : ∏ (X : ActionBasedStrength.A Mon_V actn)
-                    (Y HX : ActionBasedStrength.V Mon_V),
-                  ActionBasedStrength.χ' Mon_V actn' ((F X, Y), HX)
-                  · z (X, ActionBasedStrength.tensor Mon_V (Y, HX))
-                  =
-                  # (ActionBasedStrength.odot' Mon_V actn') (z (X, Y) #, id₁ HX)
-                  · z (ActionBasedStrength.odot Mon_V actn (X, Y), HX)
-                  · # F (ActionBasedStrength.χ Mon_V actn ((X, Y), HX)))
-    : actionbased_strength_pentagon_eq Mon_V actn actn' F z.
-  Proof.
-    exact p.
-  Qed.
-
   Lemma θ_for_ab_strength_law2
     : actionbased_strength_pentagon_eq
         (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))

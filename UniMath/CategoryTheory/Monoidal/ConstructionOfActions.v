@@ -107,7 +107,6 @@ Proof.
     + exact (identity_is_z_iso _ ).
     + apply (is_z_iso_inv_from_z_iso _ _ (make_z_iso _ _ ϵ_U_is_z_iso)).
 Defined.
-
 Definition lifted_action_convertor_nat_trans:
   odot_x_odot_y_functor _ lifted_odot ⟹ odot_x_otimes_y_functor _ lifted_odot.
 Proof.
@@ -198,7 +197,7 @@ Proof.
        unfold functor_fix_snd_arg_ob in TYPE. *)
     apply pathsinv0.
     apply (pr12(pr222 actA)).
-Qed.
+Defined.
 
 Lemma lifted_action_plaw : action_pentagon_eq (A := C) Mon_V
                              lifted_odot lifted_action_convertor.
@@ -292,7 +291,7 @@ Proof.
   change (# odotA (# odotA (id (a, U x)) #, μ (y, z)) = # odotA (id (odotA (a, U x)) #, μ (y, z))).
   rewrite functor_id.
   apply idpath.
-Qed.
+Defined.
 
 Definition lifted_action: action Mon_V.
 Proof.
@@ -308,7 +307,6 @@ Defined.
 End Action_Lifting_Through_Strong_Monoidal_Functor.
 
 End A.
-
 (*
 Section Strong_Monoidal_Functor_Action_Reloaded.
 
