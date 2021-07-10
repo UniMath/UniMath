@@ -88,11 +88,12 @@ Proof.
   use tpair.
   - intro a.
     apply (pr1 aux a).
-  - cbn; red.
-    intros a a' f.
-    cbn.
-    rewrite functor_id.
-    exact (pr2 aux a a' f).
+  - abstract
+      (cbn; red ;
+       intros a a' f ;
+       cbn ;
+       rewrite functor_id ;
+       exact (pr2 aux a a' f)).
 Defined.
 
 Definition lifted_action_right_unitor: action_right_unitor Mon_V lifted_odot.
@@ -197,7 +198,7 @@ Proof.
        unfold functor_fix_snd_arg_ob in TYPE. *)
     apply pathsinv0.
     apply (pr12(pr222 actA)).
-Defined.
+Qed.
 
 Lemma lifted_action_plaw : action_pentagon_eq (A := C) Mon_V
                              lifted_odot lifted_action_convertor.
@@ -291,7 +292,7 @@ Proof.
   change (# odotA (# odotA (id (a, U x)) #, μ (y, z)) = # odotA (id (odotA (a, U x)) #, μ (y, z))).
   rewrite functor_id.
   apply idpath.
-Defined.
+Qed.
 
 Definition lifted_action: action Mon_V.
 Proof.
@@ -308,6 +309,7 @@ End Action_Lifting_Through_Strong_Monoidal_Functor.
 
 End A.
 
+(*
 Section Strong_Monoidal_Functor_Action_Reloaded.
 
   Context {Mon_V Mon_A : monoidal_precat}.
@@ -316,10 +318,12 @@ Section Strong_Monoidal_Functor_Action_Reloaded.
   Definition U_action_alt : action Mon_V := lifted_action Mon_V U (action_on_itself Mon_A).
 
 (* the two actions are even convertible - thanks to definedness of the proofs of the equations *)
+  (*
   Lemma U_action_alt_ok: U_action_alt = U_action _ U.
   Proof.
-    apply idpath.
+    do 2 (use total2_paths_f ; [ apply idpath | ] ; cbn).
   Qed.
+   *)
 
 (* the following lemmas work even when the equational proofs are opaque *)
   Lemma U_action_alt_ok1: pr1 U_action_alt = pr1(U_action _ U).
@@ -343,3 +347,4 @@ Section Strong_Monoidal_Functor_Action_Reloaded.
   Qed.
 
 End Strong_Monoidal_Functor_Action_Reloaded.
+ *)

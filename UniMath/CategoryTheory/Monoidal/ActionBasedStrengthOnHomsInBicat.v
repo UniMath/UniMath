@@ -507,35 +507,98 @@ Section ActionBased_Strength_From_Signature.
     cbn.
     do 2 rewrite id_right.
     apply functor_id.
-  Qed.
+  Time Qed. (* 5.172 seconds *)
   (* slow verification *)
 
-  Lemma θ_for_ab_strength_law2 : actionbased_strength_pentagon_eq (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
-      (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') (forget C hs))
-      (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) (forget C hs)) H θ_for_ab_strength.
+  Print actionbased_strength_pentagon_eq.
+
+  Definition test
+             (Mon_V : monoidal_precat)
+             (actn actn' : action Mon_V)
+             (F : ActionBasedStrength.A Mon_V actn ⟶ ActionBasedStrength.A' Mon_V actn')
+             (z : actionbased_strength_nat Mon_V actn actn' F)
+             (p : ∏ (X : ActionBasedStrength.A Mon_V actn)
+                    (Y HX : ActionBasedStrength.V Mon_V),
+                  ActionBasedStrength.χ' Mon_V actn' ((F X, Y), HX)
+                  · z (X, ActionBasedStrength.tensor Mon_V (Y, HX))
+                  =
+                  # (ActionBasedStrength.odot' Mon_V actn') (z (X, Y) #, id₁ HX)
+                  · z (ActionBasedStrength.odot Mon_V actn (X, Y), HX)
+                  · # F (ActionBasedStrength.χ Mon_V actn ((X, Y), HX)))
+    : actionbased_strength_pentagon_eq Mon_V actn actn' F z.
   Proof.
-    red. intros X Z Z'.
-    (* unfold ActionBasedStrength.χ', θ_for_ab_strength, ActionBasedStrength.odot', ActionBasedStrength.χ. *)
-    simpl.
+    exact p.
+  Qed.
+
+  Lemma θ_for_ab_strength_law2
+    : actionbased_strength_pentagon_eq
+        (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
+        (ab_strength_domain_action
+           (C:=bicat_of_cats_nouniv)
+           (C ,, hs) (D' ,, hsD')
+           (forget C hs))
+        (ab_strength_target_action
+           (C:=bicat_of_cats_nouniv)
+           (C ,, hs) (D ,, hsD)
+           (forget C hs))
+        H
+        θ_for_ab_strength.
+  Proof.
+    intros X Z' Z.
+    cbn.
     apply nat_trans_eq; try (exact hsD).
     intro c.
     simpl.
-    assert (HypX := pr1 (θ_Strength2_int_nicer _ _ _ _ _ _ _ _) (Sig_strength_law2 _ _ _ _ _ _ sig) X Z' Z).
+    assert (HypX := pr1 (θ_Strength2_int_nicer _ _ _ _ _ _ _ _)
+                        (Sig_strength_law2 _ _ _ _ _ _ sig) X Z Z').
     fold θ'' in HypX.
     fold H in HypX.
     assert (Heqc := nat_trans_eq_weq hsD _ _ HypX c).
     clear HypX.
     cbn in Heqc.
     etrans.
-    { rewrite id_left. rewrite id_right.
-      rewrite (functor_id (H X)). apply id_left. }
-    rewrite id_left in Heqc.
-    rewrite functor_id.
-    rewrite (functor_id (H X)).
-    rewrite id_left.
+    {
+      apply maponpaths_2.
+      etrans.
+      {
+        apply maponpaths.
+        apply id_right.
+      }
+      apply id_left.
+    }
     etrans.
-    { exact Heqc. }
+    {
+      etrans.
+      {
+        apply maponpaths_2.
+        apply functor_id.
+      }
+      apply id_left.
+    }
+    refine (!_).
+    etrans.
+    {
+      do 2 apply maponpaths_2.
+      etrans.
+      {
+        apply maponpaths_2.
+        etrans.
+        {
+          apply maponpaths.
+          apply functor_id.
+        }
+        apply functor_id.
+      }
+      apply id_left.
+    }
+    refine (!_).
+    refine (Heqc @ _).
     clear Heqc.
+    etrans.
+    {
+      do 2 apply maponpaths_2.
+      apply id_left.
+    }
     apply maponpaths.
     apply nat_trans_eq_pointwise.
     clear c.
@@ -547,7 +610,7 @@ Section ActionBased_Strength_From_Signature.
     rewrite id_left.
     apply pathsinv0.
     apply functor_id.
-  Qed.
+  Time Qed. (* *)
   (* potentially non-terminating verification on certain Coq installations *)
 
   Definition ab_strength_from_signature : ab_strength_for_functors_and_pointed_functors C hs D hsD D' hsD' H.
