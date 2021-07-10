@@ -37,10 +37,10 @@ Local Definition homprecat : precategory := hom c0 d0.
 Definition precomp_odot : homprecat ⊠ Actions.V Mon_endo ⟶ homprecat
   := functor_composite binswap_pair_functor hcomp_functor.
 
-Definition precomp_right_unitor_nat_trans : odot_I_functor Mon_endo precomp_odot ⟹ functor_identity homprecat
+Definition precomp_right_unitor_nat_trans : odot_I_functor Mon_endo homprecat precomp_odot ⟹ functor_identity homprecat
   := lunitor_transf c0 d0.
 
-Definition precomp_right_unitor : action_right_unitor Mon_endo precomp_odot.
+Definition precomp_right_unitor : action_right_unitor Mon_endo homprecat precomp_odot.
 Proof.
   exists precomp_right_unitor_nat_trans.
   intro f. apply is_z_iso_lunitor.
@@ -48,7 +48,7 @@ Defined.
 
 (* I would like to know how to use the library results better, but there are problems with the order of arguments *)
 Definition precomp_convertor_nat_trans :
-  odot_x_odot_y_functor Mon_endo precomp_odot ⟹ odot_x_otimes_y_functor Mon_endo precomp_odot.
+  odot_x_odot_y_functor Mon_endo homprecat precomp_odot ⟹ odot_x_otimes_y_functor Mon_endo homprecat precomp_odot.
 Proof.
    use make_nat_trans.
    - intro x. cbn.
@@ -60,16 +60,15 @@ Proof.
      apply hcomp_lassoc.
 Defined.
 
-Definition precomp_convertor : action_convertor Mon_endo precomp_odot.
+Definition precomp_convertor : action_convertor Mon_endo homprecat precomp_odot.
 Proof.
   exists precomp_convertor_nat_trans.
   intro x.
   apply is_z_iso_lassociator.
 Defined.
 
-Definition action_from_precomp : action Mon_endo.
+Definition action_from_precomp : action Mon_endo homprecat.
 Proof.
-  exists homprecat.
   exists precomp_odot.
   exists precomp_right_unitor.
   exists precomp_convertor.
@@ -93,17 +92,12 @@ Section Instantiation_To_Bicategory_Of_Categories.
   Context (D : precategory) (hsD : has_homsets D).
 
   Local Definition actfromprecomp : action (Mon_endo(C:=bicat_of_cats_nouniv) (C,,hs))
+                                           (homprecat(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD))
     := action_from_precomp(C:=bicat_of_cats_nouniv) (C,,hs) (D,,hsD).
 
-  Lemma actfromprecomp_precategory_data_ok : pr11 actfromprecomp = pr1 [C, D, hsD].
-  Proof.
-    (* UniMath.MoreFoundations.Tactics.show_id_type. *)
-    cbn.
-    apply idpath.
-  Qed.
 
   (* the following is not possible since the notions for functor the functor are not precise instances of the bicategorical ones:
-  Lemma actfromprecomp_odot_ok : pr12 actfromprecomp = binswap_pair_functor ∙ (functorial_composition C C D hs hsD).
+  Lemma actfromprecomp_odot_ok : pr1 actfromprecomp = binswap_pair_functor ∙ (functorial_composition C C D hs hsD).
   Proof.
     UniMath.MoreFoundations.Tactics.show_id_type.
     cbn.
@@ -111,7 +105,7 @@ Section Instantiation_To_Bicategory_Of_Categories.
     apply idpath.
    *)
 
-  Lemma actfromprecomp_odot_pointwise_ok (g : functor C D) (f: functor C C) : pr12 actfromprecomp (g,,f) = (binswap_pair_functor ∙ (functorial_composition C C D hs hsD)) (g,,f).
+  Lemma actfromprecomp_odot_pointwise_ok (g : functor C D) (f: functor C C) : pr1 actfromprecomp (g,,f) = (binswap_pair_functor ∙ (functorial_composition C C D hs hsD)) (g,,f).
   Proof.
     cbn.
     apply idpath.

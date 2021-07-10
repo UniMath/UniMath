@@ -36,9 +36,8 @@ Local Definition α' := monoidal_precat_associator Mon_V.
 Local Definition λ' := monoidal_precat_left_unitor Mon_V.
 Local Definition ρ' := monoidal_precat_right_unitor Mon_V.
 
-Definition action_on_itself: action Mon_V.
+Definition action_on_itself: action Mon_V V.
 Proof.
-  exists V.
   exists tensor.
   exists ρ'.
   exists α'.
@@ -69,18 +68,17 @@ Local Definition μ := pr1 (pr2 (pr2 (pr1 U))).
 Local Definition unitality_U := pr2 (pr2 (pr2 (pr2 (pr1 U)))).
 Local Definition assoc_U := pr1 (pr2 (pr2 (pr2 (pr1 U)))).
 
-Context (actA : action Mon_A).
+Context {C : precategory} (actA : action Mon_A C).
 
-Local Definition C : precategory := pr1 actA.
-Local Definition odotA := pr12 actA.
-Local Definition ρA : action_right_unitor Mon_A odotA := pr122 actA.
-Local Definition αA : action_convertor Mon_A odotA := pr1(pr222 actA).
+Local Definition odotA := pr1 actA.
+Local Definition ρA : action_right_unitor Mon_A C odotA := pr12 actA.
+Local Definition αA : action_convertor Mon_A C odotA := pr122 actA.
 
 Definition lifted_odot : C ⊠ V ⟶ C :=
   functor_composite (pair_functor (functor_identity _) (pr11 U)) odotA.
 
 Definition lifted_action_right_unitor_nat_trans:
-  odot_I_functor Mon_V lifted_odot ⟹ functor_identity C.
+  odot_I_functor Mon_V C lifted_odot ⟹ functor_identity C.
 Proof.
   cbn.
   refine (nat_trans_comp _ _ _ _  (pr1 ρA)).
@@ -95,7 +93,7 @@ Proof.
     exact (pr2 aux a a' f).
 Defined.
 
-Definition lifted_action_right_unitor: action_right_unitor Mon_V lifted_odot.
+Definition lifted_action_right_unitor: action_right_unitor Mon_V C lifted_odot.
 Proof.
   exists lifted_action_right_unitor_nat_trans.
   intro.
@@ -106,14 +104,15 @@ Proof.
     + exact (identity_is_z_iso _ ).
     + apply (is_z_iso_inv_from_z_iso _ _ (make_z_iso _ _ ϵ_U_is_z_iso)).
 Defined.
+
 Definition lifted_action_convertor_nat_trans:
-  odot_x_odot_y_functor _ lifted_odot ⟹ odot_x_otimes_y_functor _ lifted_odot.
+  odot_x_odot_y_functor _ C lifted_odot ⟹ odot_x_otimes_y_functor _ C lifted_odot.
 Proof.
   apply (nat_trans_comp _ _ _ (pre_whisker (pair_functor (pair_functor (functor_identity _) U) U) (pr1 αA))).
   exact (pre_whisker (precategory_binproduct_unassoc _ _ _) (post_whisker_fst_param μ odotA)).
 Defined.
 
-Definition lifted_action_convertor: action_convertor Mon_V lifted_odot.
+Definition lifted_action_convertor: action_convertor Mon_V C lifted_odot.
 Proof.
   exists lifted_action_convertor_nat_trans.
   intro x.
@@ -125,7 +124,7 @@ Proof.
     + exact (pr2 (pr2 U) (k', k'')).
 Defined.
 
-Lemma lifted_action_tlaw : action_triangle_eq (A := C) Mon_V
+Lemma lifted_action_tlaw : action_triangle_eq Mon_V C
         lifted_odot lifted_action_right_unitor lifted_action_convertor.
 Proof.
   red.
@@ -195,10 +194,10 @@ Proof.
     (* UniMath.MoreFoundations.Tactics.show_id_type.
        unfold functor_fix_snd_arg_ob in TYPE. *)
     apply pathsinv0.
-    apply (pr12(pr222 actA)).
+    apply (pr12(pr22 actA)).
 Defined.
 
-Lemma lifted_action_plaw : action_pentagon_eq (A := C) Mon_V
+Lemma lifted_action_plaw : action_pentagon_eq Mon_V C
                              lifted_odot lifted_action_convertor.
 Proof.
   red.
@@ -271,7 +270,7 @@ Proof.
   etrans.
   { apply cancel_postcomposition.
     apply pathsinv0.
-    apply (pr22(pr222 actA)).
+    apply (pr22(pr22 actA)).
   }
   fold odotA.
   change (αA ((odotA (a, U x), U y), U z) · αA ((a, U x), tensor_A (U y, U z))
@@ -292,9 +291,8 @@ Proof.
   apply idpath.
 Defined.
 
-Definition lifted_action: action Mon_V.
+Definition lifted_action: action Mon_V C.
 Proof.
-  exists C.
   exists lifted_odot.
   exists lifted_action_right_unitor.
   exists lifted_action_convertor.
@@ -311,8 +309,9 @@ Section Strong_Monoidal_Functor_Action_Reloaded.
 
   Context {Mon_V Mon_A : monoidal_precat}.
   Context (U : strong_monoidal_functor Mon_V Mon_A).
+  Context (C : precategory).
 
-  Definition U_action_alt : action Mon_V := lifted_action Mon_V U (action_on_itself Mon_A).
+  Definition U_action_alt : action Mon_V (monoidal_precat_precat Mon_A) := lifted_action Mon_V U (action_on_itself Mon_A).
 
 (* the two actions are even convertible - thanks to definedness of the proofs of the equations *)
   Lemma U_action_alt_ok: U_action_alt = U_action _ U.

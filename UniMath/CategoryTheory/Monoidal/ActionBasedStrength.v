@@ -9,6 +9,7 @@
 **)
 
 Require Import UniMath.Foundations.PartD.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
@@ -32,17 +33,16 @@ Notation "X ⊗ Y" := (tensor (X , Y)).
 
 Section ActionBasedStrengths_Definition.
 
-Context (actn actn' : action Mon_V).
+Context {A A': precategory}.
+Context (actn : action Mon_V A)(actn' : action Mon_V A').
 
-Local Definition A := pr1 actn.
-Local Definition odot := pr1 (pr2 actn).
-Local Definition ϱ := pr1 (pr2 (pr2 actn)).
-Local Definition χ := pr1 (pr2 (pr2 (pr2 actn))).
-Local Definition A' := pr1 actn'.
-Local Definition odot' := pr1 (pr2 actn').
-Local Definition ϱ' := pr1 (pr2 (pr2 actn')).
+Local Definition odot := pr1 actn.
+Local Definition ϱ := pr12 actn.
+Local Definition χ := pr122 actn.
+Local Definition odot' := pr1 actn'.
+Local Definition ϱ' := pr12 actn'.
 
-Local Definition χ' := pr1 (pr2 (pr2 (pr2 actn'))).
+Local Definition χ' := pr122 actn'.
 
 Section ActionBasedStrengths_Natural_Transformation.
 
@@ -160,15 +160,18 @@ Qed.
 End ActionBasedStrengths_Natural_Transformation.
 
 Definition actionbased_strength (F : A ⟶ A'): UU := ∑ (ϛ : actionbased_strength_nat F),
-  (actionbased_strength_triangle_eq F ϛ) × (actionbased_strength_pentagon_eq F ϛ).
+   (actionbased_strength_triangle_eq F ϛ) × (actionbased_strength_pentagon_eq F ϛ).
 
 End ActionBasedStrengths_Definition.
+
+Definition actionbased_strong_functor {A A' : precategory} (actn : action Mon_V A)(actn' : action Mon_V A') : UU
+  := ∑ (F : A ⟶ A'), actionbased_strength actn actn' F.
 
 (*
   The standard tensorial strength:
   F(A) ⊗ B --> F(A ⊗ B)
 *)
-Definition tensorial_strength := actionbased_strength (tensorial_action Mon_V) (tensorial_action Mon_V).
+Definition tensorial_strength : functor V V → UU:= actionbased_strength (tensorial_action Mon_V) (tensorial_action Mon_V).
 
 End A.
 
@@ -257,7 +260,7 @@ Section RelativeStrength_Is_An_ActionBasedStrength.
   Local Definition U' := swapping_of_strong_monoidal_functor U: strong_monoidal_functor Mon_W' Mon_V'.
   Local Definition phiinv' := pre_whisker binswap_pair_functor phiinv.
 
-  Local Definition UAct := U_action Mon_W' U': action Mon_W'.
+  Local Definition UAct := U_action Mon_W' U': action Mon_W' ( monoidal_precat_precat Mon_V').
 
   Local Definition ϛ' := pre_whisker binswap_pair_functor ϛ.
 

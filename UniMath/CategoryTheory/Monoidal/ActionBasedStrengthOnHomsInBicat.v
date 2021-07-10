@@ -45,8 +45,8 @@ Context (U: strong_monoidal_functor Mon_M Mon_endo).
 Local Definition F_U := pr11 U.
 Local Definition ϵ_U := pr112 U.
 Local Definition μ_U := pr122 (pr1 U).
-Local Definition ab_strength_domain_action : action Mon_M :=  lifted_action Mon_M U (action_from_precomp c0 d0').
-Local Definition ab_strength_target_action : action Mon_M :=  lifted_action Mon_M U (action_from_precomp c0 d0).
+Local Definition ab_strength_domain_action : action Mon_M homprecat' :=  lifted_action Mon_M U (action_from_precomp c0 d0').
+Local Definition ab_strength_target_action : action Mon_M homprecat :=  lifted_action Mon_M U (action_from_precomp c0 d0).
 
 Context (F: homprecat' ⟶ homprecat).
 
@@ -385,20 +385,9 @@ Section ActionBased_Strength_From_Signature.
   Local Definition H := pr1 sig.
   Local Definition θ'' := pr12 sig.
 
-  (* the following lemma cannot be stated:
-  Lemma θ_for_ab_strength_aux : is_nat_trans
-    (actionbased_strength_dom (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
-       (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
-       (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget') H)
-    (actionbased_strength_codom (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
-       (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
-       (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget') H)
-    (λ x : ActionBasedStrength.A (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
-             (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
-           ⊠ ActionBasedStrength.V (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs)), θ'' x).
-   *)
 
-  Lemma aux0 (x : ActionBasedStrength.A (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
+  Lemma aux0 ( x : [C, D', hsD'] ⊠ ActionBasedStrength.V (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))) :
+(* (x : ActionBasedStrength.A (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
         (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
         ⊠ ActionBasedStrength.V (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))) :
  ActionBasedStrength.A' (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
@@ -409,6 +398,14 @@ Section ActionBased_Strength_From_Signature.
   actionbased_strength_codom (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
     (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
     (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget') H x ⟧
+*)
+
+homprecat(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD)
+  ⟦ actionbased_strength_dom (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
+      (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) (forget C hs)) H x,
+  actionbased_strength_codom (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
+    (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') (forget C hs)) H x ⟧
+
   =
   functor_composite_data (pr12 x) (pr1 (H (pr1 x))) ⟹  pr1 (pr11  H (pr12 x ∙ pr1 x)).
   Proof.
@@ -416,7 +413,7 @@ Section ActionBased_Strength_From_Signature.
   Defined.
 
   Definition θ_for_ab_strength_data
-    : nat_trans_data
+    : (* nat_trans_data
         (actionbased_strength_dom
            (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
            (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
@@ -426,7 +423,12 @@ Section ActionBased_Strength_From_Signature.
            (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
            (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
            (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget')
-           H).
+           H). *)
+nat_trans_data
+    (actionbased_strength_dom (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
+       (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) (forget C hs)) H)
+    (actionbased_strength_codom (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
+       (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') (forget C hs)) H).
   Proof.
     intro x.
     exact (eqweqmap (!aux0 x) (θ'' x)).
@@ -458,11 +460,12 @@ Section ActionBased_Strength_From_Signature.
     generalize c.
     apply nat_trans_eq_pointwise.
     apply maponpaths.
-    apply (HorizontalComposition.horcomp_post_pre _ _ _ _ _ _ _ (pr12 f) (pr1 f)).
+    induction f as [f1 f2].
+    apply (HorizontalComposition.horcomp_post_pre _ _ (D',,hsD') _ _ _ _ (pr1 f2) f1).
   Qed.
 
   Definition θ_for_ab_strength :
-    actionbased_strength_dom
+    (* actionbased_strength_dom
       (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
       (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
       (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget')
@@ -472,7 +475,10 @@ Section ActionBased_Strength_From_Signature.
       (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
       (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
       (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget')
-      H.
+      H. *)
+    actionbased_strength_nat (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
+    (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') (forget C hs))
+    (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) (forget C hs)) H.
   Proof.
     use make_nat_trans.
     - exact θ_for_ab_strength_data.

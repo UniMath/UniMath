@@ -33,11 +33,12 @@ Local Definition ρ' := monoidal_precat_right_unitor Mon_V.
 
 Section Actions_Definition.
 
-(* A ⊙ I --> A *)
+Context (A : precategory).
 
 Section Actions_Natural_Transformations.
 
-Context {A : precategory} (odot : functor (precategory_binproduct A V) A).
+(* A ⊙ I --> A *)
+Context (odot : functor (precategory_binproduct A V) A).
 
 Notation "X ⊙ Y" := (odot (X , Y)) (at level 31).
 Notation "f #⊙ g" := (# odot (f #, g)) (at level 31).
@@ -99,16 +100,13 @@ Definition action_pentagon_eq (χ : action_convertor) := ∏ (a : A), ∏ (x y z
 End Actions_Natural_Transformations.
 
 (* Action over a monoidal category. *)
-Definition action : UU := ∑ A : precategory, ∑ (odot : A ⊠ V ⟶ A), ∑ (ϱ : action_right_unitor odot), ∑ (χ : action_convertor odot), (action_triangle_eq odot ϱ χ) × (action_pentagon_eq odot χ).
-
-(* Definition action_struct : UU := ∑ A : precategory, ∑ (odot : A ⊠ V ⟶ A), ∑ (ϱ : action_right_unitor odot), ∑ (χ : action_convertor odot), unit. *)
+Definition action : UU := ∑ (odot : A ⊠ V ⟶ A), ∑ (ϱ : action_right_unitor odot), ∑ (χ : action_convertor odot), (action_triangle_eq odot ϱ χ) × (action_pentagon_eq odot χ).
 
 End Actions_Definition.
 
 (* The canonical tensorial action on a monoidal category. *)
-Definition tensorial_action : action.
+Definition tensorial_action : action V.
 Proof.
-  exists V.
   exists tensor.
   exists ρ'.
   exists α'.
@@ -148,7 +146,7 @@ Proof.
   apply idpath.
 Qed.
 
-Definition U_action_ρ_nat_trans : odot_I_functor otimes_U_functor ⟹ functor_identity A.
+Definition U_action_ρ_nat_trans : odot_I_functor A otimes_U_functor ⟹ functor_identity A.
   refine (nat_trans_comp _ _ _ _  (pr1 ρ_A)).
   unfold odot_I_functor.
   set (aux := nat_trans_from_functor_fix_snd_morphism_arg _ _ _ tensor_A _ _ ϵ_inv).
@@ -179,9 +177,9 @@ Proof.
   - exact (pr2 ρ_A c).
 Defined.
 
-Definition U_action_ρ : action_right_unitor otimes_U_functor := make_nat_z_iso _ _ U_action_ρ_nat_trans U_action_ρ_is_nat_z_iso.
+Definition U_action_ρ : action_right_unitor A otimes_U_functor := make_nat_z_iso _ _ U_action_ρ_nat_trans U_action_ρ_is_nat_z_iso.
 
-Definition U_action_χ_nat_trans : odot_x_odot_y_functor otimes_U_functor ⟹ odot_x_otimes_y_functor otimes_U_functor.
+Definition U_action_χ_nat_trans : odot_x_odot_y_functor A otimes_U_functor ⟹ odot_x_otimes_y_functor A otimes_U_functor.
 Proof.
   apply (nat_trans_comp _ _ _ (pre_whisker (pair_functor (pair_functor (functor_identity _) U) U) (pr1 α_A))).
   exact (pre_whisker (precategory_binproduct_unassoc _ _ _) (post_whisker_fst_param μ tensor_A)).
@@ -208,7 +206,7 @@ Proof.
     + exact (pr2 (pr2 U) (k', k'')).
 Defined.
 
-Definition U_action_χ : action_convertor otimes_U_functor :=
+Definition U_action_χ : action_convertor A otimes_U_functor :=
   make_nat_z_iso _ _ U_action_χ_nat_trans U_action_χ_is_nat_z_iso.
 
 (*
@@ -223,7 +221,7 @@ Proof.
 Defined.
 *)
 
-Lemma U_action_tlaw : action_triangle_eq (A := A) otimes_U_functor U_action_ρ U_action_χ.
+Lemma U_action_tlaw : action_triangle_eq A otimes_U_functor U_action_ρ U_action_χ.
 Proof.
   red.
   intros.
@@ -295,7 +293,7 @@ Proof.
     apply triangle_eq_A.
 Defined.
 
-Lemma U_action_plaw : action_pentagon_eq (A := A) otimes_U_functor U_action_χ.
+Lemma U_action_plaw : action_pentagon_eq A otimes_U_functor U_action_χ.
 Proof.
   red.
   intros.
@@ -388,8 +386,7 @@ Proof.
   apply idpath.
 Defined.
 
-Definition U_action : action.
-  exists A.
+Definition U_action : action A.
   exists otimes_U_functor.
   exists U_action_ρ.
   exists U_action_χ.
