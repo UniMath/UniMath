@@ -479,65 +479,83 @@ Section ActionBased_Strength_From_Signature.
     - exact θ_for_ab_strength_ax.
   Defined.
 
+  Lemma θ_for_ab_strength_law1 : actionbased_strength_triangle_eq (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
+    (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') (forget C hs))
+    (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) (forget C hs)) H θ_for_ab_strength.
+  Proof.
+    red. intro X.
+    assert (HypX := Sig_strength_law1 _ _ _ _ _ _ sig X).
+    fold θ'' in HypX.
+    fold H in HypX.
+    apply nat_trans_eq; try assumption.
+    intro c.
+    cbn.
+    rewrite (functor_id (H X)).
+    do 2 rewrite id_left.
+    assert (Heqc := nat_trans_eq_weq hsD _ _ HypX c).
+    clear HypX.
+    cbn in Heqc.
+    etrans.
+    2: { exact Heqc. }
+    clear Heqc.
+    apply maponpaths.
+    apply nat_trans_eq_pointwise.
+    clear c.
+    apply maponpaths.
+    apply nat_trans_eq; try assumption.
+    intro c.
+    cbn.
+    do 2 rewrite id_right.
+    apply functor_id.
+  Qed.
+  (* slow verification *)
+
+  Lemma θ_for_ab_strength_law2 : actionbased_strength_pentagon_eq (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
+      (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') (forget C hs))
+      (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) (forget C hs)) H θ_for_ab_strength.
+  Proof.
+    red. intros X Z Z'.
+    (* unfold ActionBasedStrength.χ', θ_for_ab_strength, ActionBasedStrength.odot', ActionBasedStrength.χ. *)
+    simpl.
+    apply nat_trans_eq; try (exact hsD).
+    intro c.
+    simpl.
+    assert (HypX := pr1 (θ_Strength2_int_nicer _ _ _ _ _ _ _ _) (Sig_strength_law2 _ _ _ _ _ _ sig) X Z' Z).
+    fold θ'' in HypX.
+    fold H in HypX.
+    assert (Heqc := nat_trans_eq_weq hsD _ _ HypX c).
+    clear HypX.
+    cbn in Heqc.
+    etrans.
+    { rewrite id_left. rewrite id_right.
+      rewrite (functor_id (H X)). apply id_left. }
+    rewrite id_left in Heqc.
+    rewrite functor_id.
+    rewrite (functor_id (H X)).
+    rewrite id_left.
+    etrans.
+    { exact Heqc. }
+    clear Heqc.
+    apply maponpaths.
+    apply nat_trans_eq_pointwise.
+    clear c.
+    apply maponpaths.
+    apply nat_trans_eq; try (exact hsD').
+    intro c.
+    cbn.
+    rewrite id_right.
+    rewrite id_left.
+    apply pathsinv0.
+    apply functor_id.
+  Qed.
+  (* potentially non-terminating verification on certain Coq installations *)
+
   Definition ab_strength_from_signature : ab_strength_for_functors_and_pointed_functors C hs D hsD D' hsD' H.
   Proof.
     exists θ_for_ab_strength.
     split.
-    - red. intro X.
-      assert (HypX := Sig_strength_law1 _ _ _ _ _ _ sig X).
-      fold θ'' in HypX.
-      fold H in HypX.
-      apply nat_trans_eq; try assumption.
-      intro c.
-      cbn.
-      rewrite (functor_id (H X)).
-      do 2 rewrite id_left.
-      assert (Heqc := nat_trans_eq_weq hsD _ _ HypX c).
-      clear HypX.
-      cbn in Heqc.
-      etrans.
-      2: { exact Heqc. }
-      clear Heqc.
-      apply maponpaths.
-      apply nat_trans_eq_pointwise.
-      clear c.
-      apply maponpaths.
-      apply nat_trans_eq; try assumption.
-      intro c.
-      cbn.
-      do 2 rewrite id_right.
-      apply functor_id.
-    - red. intros X Z Z'.
-      cbn.
-      apply nat_trans_eq; try assumption.
-      intro c.
-      cbn.
-      assert (HypX := pr1 (θ_Strength2_int_nicer _ _ _ _ _ _ _ _) (Sig_strength_law2 _ _ _ _ _ _ sig) X Z' Z).
-      fold θ'' in HypX.
-      fold H in HypX.
-      assert (Heqc := nat_trans_eq_weq hsD _ _ HypX c).
-      clear HypX.
-      cbn in Heqc.
-      rewrite (functor_id (H X)).
-      do 3 rewrite id_left.
-      rewrite id_left in Heqc.
-      etrans.
-      { exact Heqc. }
-      clear Heqc.
-      rewrite functor_id.
-      rewrite (functor_id (H X)).
-      rewrite id_left.
-      apply maponpaths.
-      apply nat_trans_eq_pointwise.
-      clear c.
-      apply maponpaths.
-      apply nat_trans_eq; try assumption.
-      intro c.
-      cbn.
-      rewrite id_right.
-      rewrite id_left.
-      apply pathsinv0.
-      apply functor_id.
+    - exact θ_for_ab_strength_law1.
+    - exact θ_for_ab_strength_law2.
 Defined.
 
 End ActionBased_Strength_From_Signature.
