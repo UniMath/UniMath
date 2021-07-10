@@ -106,7 +106,6 @@ Proof.
     + exact (identity_is_z_iso _ ).
     + apply (is_z_iso_inv_from_z_iso _ _ (make_z_iso _ _ ϵ_U_is_z_iso)).
 Defined.
-
 Definition lifted_action_convertor_nat_trans:
   odot_x_odot_y_functor _ lifted_odot ⟹ odot_x_otimes_y_functor _ lifted_odot.
 Proof.
