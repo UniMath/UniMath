@@ -79,7 +79,7 @@ Proof.
     cbn in Heq.
     rewrite functor_id in Heq.
     exact Heq.
-Defined.
+Qed.
 
 Definition monoidal_functor_to_psfunctor: psfunctor M_as_bicat N_as_bicat.
 Proof.
@@ -118,51 +118,83 @@ Local Definition d0 := psF c0.
 Local Definition M := monoidal_precat_from_prebicat_and_ob c0.
 Local Definition N := monoidal_precat_from_prebicat_and_ob d0.
 
-Definition psfunctor_to_lax_monoidal_functor: lax_monoidal_functor M N.
+Definition psfunctor_to_lax_monoidal_functor_data: functor_data (MonoidalFunctors.C M) (MonoidalFunctors.D N).
 Proof.
-  use tpair.
-  - use make_functor.
-    + use make_functor_data.
-      * cbn. intro f. exact (# psF f).
-      * intros a b f. red in f. cbn in f.
-        cbn. exact (##psF f).
-    + split; red; cbn.
-      * intros a. apply psF.
-      * intros a b c f g. apply psF.
-  - cbn.
+  use make_functor_data.
+  - cbn. intro f. exact (# psF f).
+  - intros a b f. red in f. cbn in f.
+    cbn. exact (##psF f).
+Defined.
+
+Lemma psfunctor_to_lax_monoidal_functor_data_is_functor : is_functor psfunctor_to_lax_monoidal_functor_data.
+Proof.
+  split; red; cbn.
+  - intros a. apply psF.
+  - intros a b c f g. apply psF.
+Qed.
+
+Definition psfunctor_to_lax_monoidal_functor_functor : MonoidalFunctors.C M ⟶ MonoidalFunctors.D N.
+Proof.
+  use make_functor.
+  - exact psfunctor_to_lax_monoidal_functor_data.
+  - exact psfunctor_to_lax_monoidal_functor_data_is_functor.
+Defined.
+
+Local Definition auxμ : nat_trans_data (monoidal_functor_map_dom M N psfunctor_to_lax_monoidal_functor_functor)
+                                       (monoidal_functor_map_codom M N psfunctor_to_lax_monoidal_functor_functor).
+Proof.
+  red. cbn. intro fg.
+  exact (psfunctor_comp psF (pr1 fg) (pr2 fg)).
+Defined.
+
+Local Lemma auxμ_is_nat_trans: is_nat_trans _ _ auxμ.
+Proof.
+  red. cbn. intros gh gh' αβ.
+  red in αβ. cbn in αβ.
+  change (## psF (pr2 αβ) ⋆⋆ ## psF (pr1 αβ) • psfunctor_comp psF (pr1 gh') (pr2 gh') =
+          psfunctor_comp psF (pr1 gh) (pr2 gh) • ## psF (pr2 αβ ⋆⋆ pr1 αβ)).
+  apply pathsinv0.
+  apply (psfunctor_comp_natural psF).
+Qed.
+
+Local Definition μ : monoidal_functor_map M N psfunctor_to_lax_monoidal_functor_functor
+  := (auxμ,, auxμ_is_nat_trans).
+
+Lemma psfunctor_to_lax_monoidal_functor_laws :
+  monoidal_functor_associativity M N psfunctor_to_lax_monoidal_functor_functor μ
+  × monoidal_functor_unitality M N psfunctor_to_lax_monoidal_functor_functor (pr1(psfunctor_id psF c0)) μ.
+Proof.
+  split.
+  * red. cbn. intros x y z. unfold rassociator_fun'. cbn.
+    assert (Hyp := psfunctor_rassociator psF x y z).
+    change ((id₂ (# psF z) ⋆⋆  psfunctor_comp psF x y • psfunctor_comp psF (x · y) z)
+              • ## psF (rassociator x y z) =
+            (rassociator (# psF x) (# psF y) (# psF z) •  psfunctor_comp psF y z ⋆⋆ id₂ (# psF x))
+              •  psfunctor_comp psF x (y · z)).
+    rewrite hcomp_identity_right.
+    rewrite hcomp_identity_left.
+    exact Hyp.
+  * red. cbn. intro x.
+    split.
+    -- change (lunitor (# psF x) =
+               (id₂ (# psF x) ⋆⋆ psfunctor_id psF c0 • psfunctor_comp psF (id₁ c0) x)
+                 • ## psF (lunitor x)).
+       rewrite hcomp_identity_right.
+       apply psfunctor_lunitor.
+    -- change (runitor (# psF x) =
+               (psfunctor_id psF c0 ⋆⋆ id₂ (# psF x) • psfunctor_comp psF x (id₁ c0))
+                 • ## psF (runitor x)).
+       rewrite hcomp_identity_left.
+       apply psfunctor_runitor.
+Qed.
+
+  Definition psfunctor_to_lax_monoidal_functor: lax_monoidal_functor M N.
+Proof.
+  exists psfunctor_to_lax_monoidal_functor_functor.
+  cbn.
     exists (psfunctor_id psF c0).
-    use tpair.
-    + use make_nat_trans.
-      * red. cbn. intro fg.
-        exact (psfunctor_comp psF (pr1 fg) (pr2 fg)).
-      * red. cbn. intros gh gh' αβ.
-        red in αβ. cbn in αβ.
-        change (## psF (pr2 αβ) ⋆⋆ ## psF (pr1 αβ) • psfunctor_comp psF (pr1 gh') (pr2 gh') =
-                psfunctor_comp psF (pr1 gh) (pr2 gh) • ## psF (pr2 αβ ⋆⋆ pr1 αβ)).
-        apply pathsinv0.
-        apply (psfunctor_comp_natural psF).
-    + split.
-      * red. cbn. intros x y z. unfold rassociator_fun'. cbn.
-        assert (Hyp := psfunctor_rassociator psF x y z).
-        change ((id₂ (# psF z) ⋆⋆  psfunctor_comp psF x y • psfunctor_comp psF (x · y) z)
-                  • ## psF (rassociator x y z) =
-                (rassociator (# psF x) (# psF y) (# psF z) •  psfunctor_comp psF y z ⋆⋆ id₂ (# psF x))
-                  •  psfunctor_comp psF x (y · z)).
-        rewrite hcomp_identity_right.
-        rewrite hcomp_identity_left.
-        exact Hyp.
-      * red. cbn. intro x.
-        split.
-        -- change (lunitor (# psF x) =
-                   (id₂ (# psF x) ⋆⋆ psfunctor_id psF c0 • psfunctor_comp psF (id₁ c0) x)
-                     • ## psF (lunitor x)).
-           rewrite hcomp_identity_right.
-           apply psfunctor_lunitor.
-        -- change (runitor (# psF x) =
-                   (psfunctor_id psF c0 ⋆⋆ id₂ (# psF x) • psfunctor_comp psF x (id₁ c0))
-                     • ## psF (runitor x)).
-           rewrite hcomp_identity_left.
-           apply psfunctor_runitor.
+    exists μ.
+    exact psfunctor_to_lax_monoidal_functor_laws.
 Defined.
 
 Definition psfunctor_to_monoidal_functor: strong_monoidal_functor M N.

@@ -224,28 +224,29 @@ Proof.
   intro c; apply idpath.
 Qed.
 
-Lemma θ_Strength2_int_nicer : θ_Strength2_int <-> ∏ (X : [C, D', hsD']) (Z Z' : Ptd),
+Definition θ_Strength2_int_nicer : UU := ∏ (X : [C, D', hsD']) (Z Z' : Ptd),
       θ (X ⊗ (Z p• Z'))  =
       (α_functor (U Z) (U Z') (H X) : [C, D, hsD] ⟦ functor_compose hs hsD (functor_composite (U Z) (U Z')) (H X), functor_composite (U Z) (functor_composite (U Z') (H X)) ⟧) ·
       θ (X ⊗ Z') •• (U Z) · θ ((functor_compose hs hsD' (U Z') X) ⊗ Z) · #H (α_functor_inv (U Z) (U Z') X ).
+
+
+Lemma θ_Strength2_int_implies_θ_Strength2_int_nicer: θ_Strength2_int -> θ_Strength2_int_nicer.
 Proof.
-  split.
-  - intro Hyp.
-    intros X Z Z'.
-    assert (HypX := Hyp X Z Z').
-    set (auxiso := functor_on_z_iso H (_,,(α_functor_pointwise_is_z_iso hsD' (U Z) (U Z') X))).
-    apply pathsinv0 in HypX. apply (z_iso_inv_on_left _ _ _ _ auxiso) in HypX.
-    etrans.
-    { exact HypX. }
-    apply idpath.
-  - intro Hyp.
-    intros X Z Z'.
-    assert (HypX := Hyp X Z Z').
-    set (auxiso := functor_on_z_iso H (_,,(α_functor_pointwise_is_z_iso hsD' (U Z) (U Z') X))).
-    apply (z_iso_inv_to_right _ _ _ _ auxiso).
-    etrans.
-    { exact HypX. }
-    apply idpath.
+  intro Hyp.
+  intros X Z Z'.
+  assert (HypX := Hyp X Z Z').
+  set (auxiso := functor_on_z_iso H (_,,(α_functor_pointwise_is_z_iso hsD' (U Z) (U Z') X))).
+  apply pathsinv0 in HypX. apply (z_iso_inv_on_left _ _ _ _ auxiso) in HypX.
+  assumption.
+Qed.
+
+Lemma θ_Strength2_int_nicer_implies_θ_Strength2_int: θ_Strength2_int_nicer -> θ_Strength2_int.
+  intro Hyp.
+  intros X Z Z'.
+  assert (HypX := Hyp X Z Z').
+  set (auxiso := functor_on_z_iso H (_,,(α_functor_pointwise_is_z_iso hsD' (U Z) (U Z') X))).
+  apply (z_iso_inv_to_right _ _ _ _ auxiso).
+  assumption.
 Qed.
 
 End Strength_law_2_intensional.

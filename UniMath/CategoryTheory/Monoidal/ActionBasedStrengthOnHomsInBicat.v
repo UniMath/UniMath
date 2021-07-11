@@ -535,7 +535,7 @@ nat_trans_data
     apply nat_trans_eq; try (exact hsD).
     intro c.
     simpl.
-    assert (HypX := pr1 (θ_Strength2_int_nicer _ _ _ _ _ _ _ _)
+    assert (HypX := θ_Strength2_int_implies_θ_Strength2_int_nicer
                         (Sig_strength_law2 _ _ _ _ _ _ sig) X Z Z').
     fold θ'' in HypX.
     fold H in HypX.
