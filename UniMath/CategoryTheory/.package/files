@@ -205,6 +205,7 @@ Monoidal/Actions.v
 Monoidal/ConstructionOfActions.v
 Monoidal/ActionOfEndomorphismsInBicat.v
 Monoidal/ActionBasedStrength.v
+Monoidal/ActionBasedStrongFunctorCategory.v
 Monoidal/ActionBasedStrengthOnHomsInBicat.v
 Monoidal/BraidedMonoidalCategories.v
 
