@@ -7,9 +7,7 @@ Require Import UniMath.Foundations.PartD.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
-Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
@@ -23,19 +21,12 @@ Section Strong_Functor_Category.
 Context (Mon_V : monoidal_precat).
 
 Local Definition V := monoidal_precat_precat Mon_V.
-Local Definition I := monoidal_precat_unit Mon_V.
-Local Definition tensor := monoidal_precat_tensor Mon_V.
-Notation "X ⊗ Y" := (tensor (X , Y)).
 
 Context {A A': precategory}.
 Context (actn : action Mon_V A)(actn' : action Mon_V A').
 
 Local Definition odot := pr1 actn.
-Local Definition ϱ := pr12 actn.
-Local Definition χ := pr122 actn.
 Local Definition odot' := pr1 actn'.
-Local Definition ϱ' := pr12 actn'.
-Local Definition χ' := pr122 actn'.
 
 Notation "X ⊙ Y" := (odot (X , Y)) (at level 31).
 Notation "f #⊙ g" := (#odot (f #, g)) (at level 31).
@@ -108,7 +99,8 @@ Proof.
   (Strong_Functor_Category_Mor_id,, Strong_Functor_Category_Mor_comp).
 Defined.
 
-Lemma is_precategory_Strong_Functor_precategory_data (hsA': has_homsets A') : is_precategory Strong_Functor_precategory_data.
+Lemma is_precategory_Strong_Functor_precategory_data (hsA': has_homsets A') :
+  is_precategory Strong_Functor_precategory_data.
 Proof.
   apply is_precategory_one_assoc_to_two.
   repeat split.
@@ -123,7 +115,8 @@ Qed.
 Definition Strong_Functor_precategory (hsA': has_homsets A') : precategory :=
   (Strong_Functor_precategory_data,, is_precategory_Strong_Functor_precategory_data hsA').
 
-Lemma has_homsets_Strong_Functor_precategory (hsA': has_homsets A') : has_homsets (Strong_Functor_precategory hsA').
+Lemma has_homsets_Strong_Functor_precategory (hsA': has_homsets A') :
+  has_homsets (Strong_Functor_precategory hsA').
 Proof.
   intros FF GG.
   apply (isofhleveltotal2 2).
@@ -144,7 +137,8 @@ use tpair.
 - abstract (now split).
 Defined.
 
-Lemma SignatureForgetfulFunctorFaithful (hsA': has_homsets A') : faithful (Strong_FunctorForgetfulFunctor hsA').
+Lemma SignatureForgetfulFunctorFaithful (hsA': has_homsets A') :
+  faithful (Strong_FunctorForgetfulFunctor hsA').
 Proof.
   intros FF GG.
   apply isinclbetweensets.
