@@ -12,6 +12,7 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.PointedFunctors.
+Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
@@ -21,10 +22,13 @@ Require Import UniMath.CategoryTheory.Monoidal.Actions.
 Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActions.
 Require Import UniMath.CategoryTheory.Monoidal.ActionOfEndomorphismsInBicat.
 Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrength.
+Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrongFunctorCategory.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.Examples.BicategoryFromMonoidal.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCatsWithoutUnivalence.
 Require Import UniMath.SubstitutionSystems.Signatures.
+Require Import UniMath.SubstitutionSystems.SignatureCategory.
+
 
 Import Bicat.Notations.
 
@@ -37,18 +41,16 @@ Context (c0 d0 d0': ob C).
 Context {Mon_M : monoidal_precat}.
 
 Local Definition Mon_endo: monoidal_precat := swapping_of_monoidal_precat (monoidal_precat_from_prebicat_and_ob c0).
-Local Definition homprecat : precategory := hom c0 d0.
-Local Definition homprecat' : precategory := hom c0 d0'.
 
 Context (U: strong_monoidal_functor Mon_M Mon_endo).
 
 Local Definition F_U := pr11 U.
 Local Definition ϵ_U := pr112 U.
 Local Definition μ_U := pr122 (pr1 U).
-Local Definition ab_strength_domain_action : action Mon_M homprecat' :=  lifted_action Mon_M U (action_from_precomp c0 d0').
-Local Definition ab_strength_target_action : action Mon_M homprecat :=  lifted_action Mon_M U (action_from_precomp c0 d0).
+Local Definition ab_strength_domain_action : action Mon_M (hom c0 d0') :=  lifted_action Mon_M U (action_from_precomp c0 d0').
+Local Definition ab_strength_target_action : action Mon_M (hom c0 d0) :=  lifted_action Mon_M U (action_from_precomp c0 d0).
 
-Context (F: homprecat' ⟶ homprecat).
+Context (F: hom c0 d0' ⟶ hom c0 d0).
 
 Definition ab_strength_on_homs_in_bicat: UU := actionbased_strength Mon_M ab_strength_domain_action ab_strength_target_action F.
 
@@ -260,7 +262,7 @@ Proof.
     cbn.
   (* The goal is then: pr2 x ∙ pr1 = pr2 x ∙ pr1 x *)
     apply idpath.
-  - intros C1 C2 f. cbn. unfold HorizontalComposition.horcomp.
+  - intros C1 C2 f. cbn. unfold horcomp.
     induction f as [f g].
     cbn.
     (* UniMath.MoreFoundations.Tactics.show_id_type. *)
@@ -286,40 +288,43 @@ Section Signature_From_ActionBased_Strength.
   Local Definition θ' := pr1 ab_str.
 
   (* adapt typing of [θ'] for use in [Signature] *)
-  Definition θ_for_signature : θ_source(hs:=hs) H ⟹ θ_target H.
+  Definition θ_for_signature_nat_trans_data : nat_trans_data (θ_source(hs:=hs) H) (θ_target H).
   Proof.
-    use make_nat_trans.
-    - intro x. exact (θ' x).
-    - intros x x' f.
-      (* UniMath.MoreFoundations.Tactics.show_id_type. *)
-      apply nat_trans_eq; try assumption.
-      intro c.
-      cbn.
-      assert (Heq := nat_trans_ax θ' x x' f).
-      assert (Heqc := nat_trans_eq_weq hsD _ _ Heq c).
-      clear Heq.
-      cbn in Heqc.
-      (* term precomposed with θ' x' c in goal and [Heqc]: *)
-      assert (Heq0 : pr1(# H (pr1 f)) ((pr12 x) c) · # (pr1(H (pr1 x'))) ((pr12 f) c) =
-                     # (pr1 (H (pr1 x))) ((pr112 f) c) · pr1 (# H (pr1 f)) (pr1 (pr12 x') c)).
-      { apply pathsinv0. apply nat_trans_ax. }
-      etrans.
-      { apply cancel_postcomposition. exact Heq0. }
-      clear Heq0.
-      etrans.
-      { exact Heqc. }
-      apply maponpaths.
-      generalize c.
-      apply nat_trans_eq_pointwise.
-      apply maponpaths.
-      apply pathsinv0.
-      apply HorizontalComposition.horcomp_post_pre.
+    intro x. exact (θ' x).
   Defined.
 
-  Definition signature_from_ab_strength : Signature C hs D hsD D' hsD'.
+  Lemma θ_for_signature_is_nat_trans : is_nat_trans _ _ θ_for_signature_nat_trans_data.
   Proof.
-    exists H.
-    exists θ_for_signature.
+    intros x x' f.
+    (* UniMath.MoreFoundations.Tactics.show_id_type. *)
+    apply nat_trans_eq; try assumption.
+    intro c.
+    cbn.
+    assert (Heq := nat_trans_ax θ' x x' f).
+    assert (Heqc := nat_trans_eq_weq hsD _ _ Heq c).
+    clear Heq.
+    cbn in Heqc.
+    (* term precomposed with θ' x' c in goal and [Heqc]: *)
+    assert (Heq0 : pr1(# H (pr1 f)) ((pr12 x) c) · # (pr1(H (pr1 x'))) ((pr12 f) c) =
+                     # (pr1 (H (pr1 x))) ((pr112 f) c) · pr1 (# H (pr1 f)) (pr1 (pr12 x') c)).
+    { apply pathsinv0. apply nat_trans_ax. }
+    etrans.
+    { apply cancel_postcomposition. exact Heq0. }
+    clear Heq0.
+    etrans.
+    { exact Heqc. }
+    apply maponpaths.
+    generalize c.
+    apply nat_trans_eq_pointwise.
+    apply maponpaths.
+    apply pathsinv0.
+    apply horcomp_post_pre.
+  Qed.
+
+  Definition θ_for_signature : θ_source(hs:=hs) H ⟹ θ_target H
+    := (θ_for_signature_nat_trans_data,,θ_for_signature_is_nat_trans).
+
+  Lemma signature_from_ab_strength_laws : θ_Strength1_int θ_for_signature × θ_Strength2_int θ_for_signature.
     split.
     - red. intro X.
       apply nat_trans_eq; try assumption.
@@ -369,6 +374,13 @@ Section Signature_From_ActionBased_Strength.
       rewrite id_right.
       apply pathsinv0.
       apply functor_id.
+  Qed.
+
+  Definition signature_from_ab_strength : Signature C hs D hsD D' hsD'.
+  Proof.
+    exists H.
+    exists θ_for_signature.
+    exact signature_from_ab_strength_laws.
   Defined.
 
 End Signature_From_ActionBased_Strength.
@@ -379,63 +391,37 @@ Section ActionBased_Strength_From_Signature.
   Context (C : precategory) (hs : has_homsets C).
   Context (D : precategory) (hsD : has_homsets D).
   Context (D' : precategory) (hsD' : has_homsets D').
-  Context (sig : Signature C hs D hsD D' hsD').
 
-  Local Definition forget' := swapping_of_strong_monoidal_functor(forgetful_functor_from_ptd_as_strong_monoidal_functor_alt hs).
+  Local Definition Mon_endo': monoidal_precat := swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs).
+  Local Definition domain_action : action Mon_endo' (hom(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD'))
+    := ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') (forget C hs).
+  Local Definition target_action : action Mon_endo' (hom(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD))
+    := ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) (forget C hs).
+
+Section IndividualSignatures.
+
+  Context (sig : Signature C hs D hsD D' hsD').
   Local Definition H := pr1 sig.
   Local Definition θ'' := pr12 sig.
 
-
-  Lemma aux0 ( x : [C, D', hsD'] ⊠ ActionBasedStrength.V (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))) :
-(* (x : ActionBasedStrength.A (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
-        (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
-        ⊠ ActionBasedStrength.V (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))) :
- ActionBasedStrength.A' (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
-    (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget')
-  ⟦ actionbased_strength_dom (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
-      (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
-      (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget') H x,
-  actionbased_strength_codom (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
-    (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
-    (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget') H x ⟧
-*)
-
-homprecat(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD)
-  ⟦ actionbased_strength_dom (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
-      (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) (forget C hs)) H x,
-  actionbased_strength_codom (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
-    (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') (forget C hs)) H x ⟧
-
-  =
-  functor_composite_data (pr12 x) (pr1 (H (pr1 x))) ⟹  pr1 (pr11  H (pr12 x ∙ pr1 x)).
+  Local Lemma aux0 ( x : [C, D', hsD'] ⊠ ActionBasedStrength.V Mon_endo') :
+    hom(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD)
+       ⟦ actionbased_strength_dom Mon_endo' target_action H x,
+         actionbased_strength_codom Mon_endo' domain_action H x ⟧
+    = functor_composite_data (pr12 x) (pr1 (H (pr1 x))) ⟹  pr1 (pr11  H (pr12 x ∙ pr1 x)).
   Proof.
     apply idpath.
   Defined.
 
   Definition θ_for_ab_strength_data
-    : (* nat_trans_data
-        (actionbased_strength_dom
-           (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
-           (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
-           (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget')
-           H)
-        (actionbased_strength_codom
-           (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
-           (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
-           (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget')
-           H). *)
-nat_trans_data
-    (actionbased_strength_dom (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
-       (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) (forget C hs)) H)
-    (actionbased_strength_codom (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
-       (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') (forget C hs)) H).
+    : nat_trans_data (actionbased_strength_dom Mon_endo' target_action H)
+                     (actionbased_strength_codom Mon_endo' domain_action H).
   Proof.
     intro x.
     exact (eqweqmap (!aux0 x) (θ'' x)).
   Defined.
 
-  Definition θ_for_ab_strength_ax
-    : is_nat_trans _ _ θ_for_ab_strength_data.
+  Definition θ_for_ab_strength_ax : is_nat_trans _ _ θ_for_ab_strength_data.
   Proof.
     intros x x' f.
     apply nat_trans_eq; try assumption.
@@ -461,33 +447,19 @@ nat_trans_data
     apply nat_trans_eq_pointwise.
     apply maponpaths.
     induction f as [f1 f2].
-    apply (HorizontalComposition.horcomp_post_pre _ _ (D',,hsD') _ _ _ _ (pr1 f2) f1).
+    apply (horcomp_post_pre _ _ (D',,hsD') _ _ _ _ (pr1 f2) f1).
   Qed.
 
-  Definition θ_for_ab_strength :
-    (* actionbased_strength_dom
-      (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
-      (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
-      (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget')
-      H
-    ⟹
-    actionbased_strength_codom
-      (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
-      (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget')
-      (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget')
-      H. *)
-    actionbased_strength_nat (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
-    (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') (forget C hs))
-    (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) (forget C hs)) H.
+  Definition θ_for_ab_strength : actionbased_strength_nat Mon_endo' domain_action target_action H.
   Proof.
     use make_nat_trans.
     - exact θ_for_ab_strength_data.
     - exact θ_for_ab_strength_ax.
   Defined.
+  (* very slow verification *)
 
-  Lemma θ_for_ab_strength_law1 : actionbased_strength_triangle_eq (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
-    (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') (forget C hs))
-    (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) (forget C hs)) H θ_for_ab_strength.
+  Lemma θ_for_ab_strength_law1 :
+    actionbased_strength_triangle_eq Mon_endo' domain_action target_action H θ_for_ab_strength.
   Proof.
     red. intro X.
     assert (HypX := Sig_strength_law1 _ _ _ _ _ _ sig X).
@@ -517,18 +489,7 @@ nat_trans_data
   (* slow verification *)
 
   Lemma θ_for_ab_strength_law2
-    : actionbased_strength_pentagon_eq
-        (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
-        (ab_strength_domain_action
-           (C:=bicat_of_cats_nouniv)
-           (C ,, hs) (D' ,, hsD')
-           (forget C hs))
-        (ab_strength_target_action
-           (C:=bicat_of_cats_nouniv)
-           (C ,, hs) (D ,, hsD)
-           (forget C hs))
-        H
-        θ_for_ab_strength.
+    : actionbased_strength_pentagon_eq Mon_endo' domain_action target_action H θ_for_ab_strength.
   Proof.
     intros X Z' Z.
     cbn.
@@ -596,15 +557,113 @@ nat_trans_data
     rewrite id_left.
     apply pathsinv0.
     apply functor_id.
-  Time Qed. (* *)
-  (* potentially non-terminating verification on certain Coq installations *)
+  Time Qed. (* 78.153 secs *)
 
-  Definition ab_strength_from_signature : ab_strength_for_functors_and_pointed_functors C hs D hsD D' hsD' H.
+
+  Definition ab_strength_from_signature :
+    ab_strength_for_functors_and_pointed_functors C hs D hsD D' hsD' H.
   Proof.
     exists θ_for_ab_strength.
     split.
     - exact θ_for_ab_strength_law1.
     - exact θ_for_ab_strength_law2.
+  Defined.
+
+  Definition ab_strong_functor_from_signature :
+    actionbased_strong_functor Mon_endo' domain_action target_action
+    := (H,,ab_strength_from_signature).
+
+End IndividualSignatures.
+
+Section Morphisms.
+
+  Context {sig1 sig2 : Signature C hs D hsD D' hsD'}.
+  Context (f : SignatureMor (C,,hs) (D,,hsD) (D',,hsD') sig1 sig2).
+
+  Lemma ab_strength_mor_from_signature_mor_is_nat_trans : is_nat_trans _ _ (pr1 f).
+  Proof.
+    red.
+    intros F F' g.
+    cbn.
+    assert (Hyp := pr21 f F F' g).
+    exact Hyp.
+  Qed.
+
+  Definition ab_strength_mor_from_signature_mor_nat_trans :
+    ActionBasedStrongFunctorCategory.F Mon_endo' domain_action target_action
+                                       (ab_strong_functor_from_signature sig1)
+    ⟹ ActionBasedStrongFunctorCategory.F Mon_endo' domain_action target_action
+                                       (ab_strong_functor_from_signature sig2).
+  Proof.
+    exists (pr1 f).
+    exact ab_strength_mor_from_signature_mor_is_nat_trans.
+  Defined.
+
+  Lemma ab_strength_mor_from_signature_mor_diagram
+        (a : hom(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD'))
+        (v : ActionBasedStrongFunctorCategory.V Mon_endo') :
+   Strong_Functor_Category_mor_diagram Mon_endo' domain_action target_action
+    (ab_strong_functor_from_signature sig1)
+    (ab_strong_functor_from_signature sig2)
+    ab_strength_mor_from_signature_mor_nat_trans a v.
+  Proof.
+    red.
+    cbn.
+    assert (Hyp := pr2 f a v).
+    red in Hyp. cbn in Hyp.
+    etrans.
+    { exact Hyp. }
+    clear Hyp.
+    apply maponpaths_2.
+    apply (horcomp_post_pre _ _ (D,,hsD)).
+  Qed.
+
+  Definition ab_strength_mor_from_signature_mor : Strong_Functor_Category_Mor
+    Mon_endo' domain_action target_action
+    (ab_strong_functor_from_signature sig1)
+    (ab_strong_functor_from_signature sig2).
+  Proof.
+    exists ab_strength_mor_from_signature_mor_nat_trans.
+    intros a v; apply ab_strength_mor_from_signature_mor_diagram.
+  Defined.
+
+End Morphisms.
+
+Definition SignatureCategoryToActionBasedStrongFunctorCategory_data :
+  functor_data (Signature_precategory (C,,hs) (D,,hsD) (D',,hsD'))
+               (Strong_Functor_precategory Mon_endo' domain_action target_action
+                                           (functor_category_has_homsets _ _ hsD)).
+Proof.
+  use make_functor_data.
+  - intro sig. exact (ab_strong_functor_from_signature sig).
+  - intros sig1 sig2 f. exact (ab_strength_mor_from_signature_mor f).
 Defined.
+
+Lemma SignatureCategoryToActionBasedStrongFunctorCategory_is_functor :
+  is_functor SignatureCategoryToActionBasedStrongFunctorCategory_data.
+Proof.
+  split.
+  - intro H.
+    apply Strong_Functor_Category_Mor_eq; try apply (functor_category_has_homsets _ _ hsD).
+    apply nat_trans_eq; try apply (functor_category_has_homsets _ _ hsD).
+    intro X.
+    apply nat_trans_eq; try assumption.
+    intro c.
+    apply idpath.
+  - intros F G H f g.
+    apply Strong_Functor_Category_Mor_eq; try apply (functor_category_has_homsets _ _ hsD).
+    apply nat_trans_eq; try apply (functor_category_has_homsets _ _ hsD).
+    intro X.
+    apply nat_trans_eq; try assumption.
+    intro c.
+    apply idpath.
+Qed.
+
+Definition SignatureCategoryToActionBasedStrongFunctorCategory : functor
+  (Signature_precategory (C,,hs) (D,,hsD) (D',,hsD'))
+  (Strong_Functor_precategory Mon_endo' domain_action target_action
+                              (functor_category_has_homsets _ _ hsD))
+  := (_,,SignatureCategoryToActionBasedStrongFunctorCategory_is_functor).
+
 
 End ActionBased_Strength_From_Signature.
