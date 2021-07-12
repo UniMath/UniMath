@@ -226,13 +226,11 @@ Context (C : precategory) (hs : has_homsets C).
 Context (D : precategory) (hsD : has_homsets D).
 Context (D' : precategory) (hsD' : has_homsets D').
 
-Context (H : functor [C, D', hsD'] [C, D, hsD]).
-
 Local Definition forget := swapping_of_strong_monoidal_functor(forgetful_functor_from_ptd_as_strong_monoidal_functor_alt hs).
 
+
 (* the following in order to understand why [forgetful_functor_from_ptd_as_strong_monoidal_functor_alt] is needed here *)
-Local Definition monprecat1 := swapping_of_monoidal_precat
-                        (EndofunctorsMonoidal.monoidal_precat_of_endofunctors hs).
+Local Definition monprecat1 : monoidal_precat := swapping_of_monoidal_precat (EndofunctorsMonoidal.monoidal_precat_of_endofunctors hs).
 Local Definition monprecat2 := Mon_endo (C:=bicat_of_cats_nouniv) (C,,hs).
 
 (*
@@ -277,11 +275,23 @@ Qed.
 
 (* cannot be typechecked any longer
 Lemma same_I : pr222 monprecat1 = pr222 monprecat2.
-*)
+ *)
 
-Definition ab_strength_for_functors_and_pointed_functors : UU := ab_strength_on_homs_in_bicat(C:=bicat_of_cats_nouniv) (C,,hs) (D,,hsD) (D',,hsD') forget H.
+Local Definition Mon_endo': monoidal_precat := swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs).
+Local Definition domain_action : action Mon_endo' (hom(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD'))
+    := ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget.
+Local Definition target_action : action Mon_endo' (hom(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD))
+    := ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget.
+
 
 Section Signature_From_ActionBased_Strength.
+
+Section IndividualStrongFunctors.
+
+  Context (H : functor [C, D', hsD'] [C, D, hsD]).
+
+
+  Definition ab_strength_for_functors_and_pointed_functors : UU := ab_strength_on_homs_in_bicat(C:=bicat_of_cats_nouniv) (C,,hs) (D,,hsD) (D',,hsD') forget H.
 
   Context (ab_str : ab_strength_for_functors_and_pointed_functors).
 
@@ -383,20 +393,16 @@ Section Signature_From_ActionBased_Strength.
     exact signature_from_ab_strength_laws.
   Defined.
 
+End IndividualStrongFunctors.
+
+
+
 End Signature_From_ActionBased_Strength.
-End Instantiation_To_FunctorCategory_And_PointedEndofunctors.
+
 
 Section ActionBased_Strength_From_Signature.
 
-  Context (C : precategory) (hs : has_homsets C).
-  Context (D : precategory) (hsD : has_homsets D).
-  Context (D' : precategory) (hsD' : has_homsets D').
 
-  Local Definition Mon_endo': monoidal_precat := swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs).
-  Local Definition domain_action : action Mon_endo' (hom(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD'))
-    := ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') (forget C hs).
-  Local Definition target_action : action Mon_endo' (hom(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD))
-    := ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) (forget C hs).
 
 Section IndividualSignatures.
 
@@ -456,7 +462,7 @@ Section IndividualSignatures.
     - exact θ_for_ab_strength_data.
     - exact θ_for_ab_strength_ax.
   Defined.
-  (* very slow verification *)
+  (* very slow processing of both steps then verification *)
 
   Lemma θ_for_ab_strength_law1 :
     actionbased_strength_triangle_eq Mon_endo' domain_action target_action H θ_for_ab_strength.
@@ -561,7 +567,7 @@ Section IndividualSignatures.
 
 
   Definition ab_strength_from_signature :
-    ab_strength_for_functors_and_pointed_functors C hs D hsD D' hsD' H.
+    ab_strength_for_functors_and_pointed_functors H.
   Proof.
     exists θ_for_ab_strength.
     split.
@@ -667,3 +673,5 @@ Definition SignatureCategoryToActionBasedStrongFunctorCategory : functor
 
 
 End ActionBased_Strength_From_Signature.
+
+End Instantiation_To_FunctorCategory_And_PointedEndofunctors.
