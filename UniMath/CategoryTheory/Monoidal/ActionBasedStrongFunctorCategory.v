@@ -127,6 +127,9 @@ Proof.
     apply hsA'.
 Qed.
 
+Definition Strong_Functor_category (hsA': has_homsets A') : category :=
+  (Strong_Functor_precategory hsA',, has_homsets_Strong_Functor_precategory hsA').
+
 Definition Strong_FunctorForgetfulFunctor (hsA': has_homsets A') :
   functor (Strong_Functor_precategory hsA') (functor_precategory A A' hsA').
 Proof.

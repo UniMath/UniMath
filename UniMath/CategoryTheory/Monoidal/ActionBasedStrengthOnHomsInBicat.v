@@ -745,4 +745,103 @@ Definition SignatureCategoryToActionBasedStrongFunctorCategory : functor
 
 End ActionBased_Strength_From_Signature.
 
+Lemma roundtrip1_ob (sig : Signature C hs D hsD D' hsD') : signature_from_strong_functor (ab_strong_functor_from_signature sig) = sig.
+Proof.
+  use total2_paths_f.
+  - apply idpath.
+  - cbn.
+    use total2_paths_f.
+    + apply nat_trans_eq; try apply (functor_category_has_homsets _ _ hsD).
+      intro x; apply idpath.
+    + apply dirprodeq.
+      * apply isaprop_θ_Strength1_int.
+      * apply isaprop_θ_Strength2_int.
+Defined.
+
+Lemma roundtrip2_ob (FF : actionbased_strong_functor Mon_endo' domain_action target_action) : ab_strong_functor_from_signature (signature_from_strong_functor FF) = FF.
+Proof.
+  use total2_paths_f.
+  - apply idpath.
+  - cbn.
+    use total2_paths_f.
+    + apply nat_trans_eq; try apply (functor_category_has_homsets _ _ hsD).
+      intro x; apply idpath.
+    + apply dirprodeq.
+      * apply isaprop_actionbased_strength_triangle_eq.
+        apply (functor_category_has_homsets _ _ hsD).
+      * apply isaprop_actionbased_strength_pentagon_eq.
+        apply (functor_category_has_homsets _ _ hsD).
+Qed.
+
+Lemma roundtrip1_mor {sig1 sig2 : Signature C hs D hsD D' hsD'}
+      (f : SignatureMor (C,,hs) (D,,hsD) (D',,hsD') sig1 sig2) :
+  Univalence.double_transport(C:=(Signature C hs D hsD D' hsD',, SignatureMor (C,, hs) (D,, hsD) (D',, hsD')))
+      (roundtrip1_ob sig1) (roundtrip1_ob sig2)
+      (signature_mor_from_ab_strength_mor (ab_strength_mor_from_signature_mor f)) = f.
+Proof.
+  apply SignatureMor_eq.
+  apply nat_trans_eq; try apply (functor_category_has_homsets _ _ hsD).
+  intro X.
+  apply nat_trans_eq; try apply hsD.
+  intro c.
+  UniMath.MoreFoundations.Tactics.show_id_type.
+Admitted.
+(* We are left with two morphisms of category D to be shown equal:
+  pr1
+    (Univalence.double_transport (roundtrip1_ob sig1) (roundtrip1_ob sig2)
+       (signature_mor_from_ab_strength_mor (ab_strength_mor_from_signature_mor f))) X c =
+  pr1 f X c
+*)
+
+Lemma roundtrip2_mor {FF GG : actionbased_strong_functor Mon_endo' domain_action target_action}
+      (sη : Strong_Functor_Category_Mor Mon_endo' domain_action target_action FF GG) :
+  Univalence.double_transport(C:=(actionbased_strong_functor Mon_endo' domain_action target_action,,
+                                  Strong_Functor_Category_Mor Mon_endo' domain_action target_action))
+      (roundtrip2_ob FF) (roundtrip2_ob GG)
+      (ab_strength_mor_from_signature_mor (signature_mor_from_ab_strength_mor sη)) = sη.
+Proof.
+  apply Strong_Functor_Category_Mor_eq; try apply (functor_category_has_homsets _ _ hsD).
+  apply nat_trans_eq; try apply (functor_category_has_homsets _ _ hsD).
+  intro X.
+  apply nat_trans_eq; try apply hsD.
+  intro c.
+  UniMath.MoreFoundations.Tactics.show_id_type.
+Admitted.
+(* We are left with two morphisms of category D to be shown equal:
+  pr1
+    (Univalence.double_transport (roundtrip2_ob FF) (roundtrip2_ob GG)
+       (ab_strength_mor_from_signature_mor (signature_mor_from_ab_strength_mor sη))) X c =
+  pr1 sη X c
+ *)
+
+Lemma SignatureCategoryAndActionBasedStrongFunctorCategory_z_iso_law :
+  is_inverse_in_precat(C:=bicat_of_cats_nouniv)
+                      (a:=Signature_category (C,,hs) (D,,hsD) (D',,hsD'))
+                      (b:=Strong_Functor_category Mon_endo' domain_action target_action
+                                                  (functor_category_has_homsets _ _ hsD))
+                      SignatureCategoryToActionBasedStrongFunctorCategory
+                      ActionBasedStrongFunctorCategoryToSignatureCategory.
+Proof.
+  split.
+  - apply functor_eq; try exact (has_homsets_Signature_precategory (C,,hs) (D,,hsD) (D',,hsD')).
+    use functor_data_eq.
+    + exact roundtrip1_ob.
+    + intros sig1 sig2 f. exact (roundtrip1_mor f).
+  - apply functor_eq; try exact (pr2 (Strong_Functor_category Mon_endo' domain_action target_action
+                                                              (functor_category_has_homsets _ _ hsD))).
+    use functor_data_eq.
+    + exact roundtrip2_ob.
+    + intros FF GG sη. exact (roundtrip2_mor sη).
+Qed.
+
+Definition SignatureCategoryAndActionBasedStrongFunctorCategory_z_iso :
+  z_iso(C:=bicat_of_cats_nouniv) (Signature_category (C,,hs) (D,,hsD) (D',,hsD'))
+                      (Strong_Functor_category Mon_endo' domain_action target_action
+                                               (functor_category_has_homsets _ _ hsD)).
+Proof.
+  exists SignatureCategoryToActionBasedStrongFunctorCategory.
+  exists ActionBasedStrongFunctorCategoryToSignatureCategory.
+  exact SignatureCategoryAndActionBasedStrongFunctorCategory_z_iso_law.
+Defined.
+
 End Instantiation_To_FunctorCategory_And_PointedEndofunctors.

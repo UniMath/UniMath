@@ -156,6 +156,9 @@ apply (isofhleveltotal2 2).
   apply functor_category_has_homsets.
 Qed.
 
+Definition Signature_category : category :=
+ (Signature_precategory,,has_homsets_Signature_precategory).
+
 Definition SignatureForgetfulFunctor : functor Signature_precategory [[C,D'],[C,D]].
 Proof.
 use tpair.

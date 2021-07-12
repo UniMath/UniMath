@@ -157,6 +157,20 @@ Proof.
   apply (functor_on_inv_from_z_iso' _ (pr2 χ ((a, x), y))).
 Qed.
 
+Lemma isaprop_actionbased_strength_triangle_eq (ϛ : actionbased_strength_nat) (hsA' : has_homsets A') : isaprop (actionbased_strength_triangle_eq ϛ).
+Proof.
+  apply impred; intros a.
+  apply hsA'.
+Qed.
+
+Lemma isaprop_actionbased_strength_pentagon_eq (ϛ : actionbased_strength_nat) (hsA' : has_homsets A') : isaprop (actionbased_strength_pentagon_eq ϛ).
+Proof.
+  apply impred; intros a.
+  apply impred; intros v.
+  apply impred; intros w.
+  apply hsA'.
+Qed.
+
 End ActionBasedStrengths_Natural_Transformation.
 
 Definition actionbased_strength (F : A ⟶ A'): UU := ∑ (ϛ : actionbased_strength_nat F),

@@ -114,7 +114,13 @@ Section Strength_law_1_intensional.
 (** needs the heterogeneous formulation of the monoidal operation to type-check *)
 Definition θ_Strength1_int : UU
   := ∏ X : [C, D', hsD'],
-     θ (X ⊗ (id_Ptd C hs)) · # H (λ_functor _) = λ_functor _.
+           θ (X ⊗ (id_Ptd C hs)) · # H (λ_functor _) = λ_functor _.
+
+Lemma isaprop_θ_Strength1_int: isaprop θ_Strength1_int.
+Proof.
+  apply impred; intros X x x'.
+  apply isaset_nat_trans; try exact hsD.
+Qed.
 
 Lemma θ_Strength1_int_implies_θ_Strength1 : θ_Strength1_int → θ_Strength1.
 Proof.
@@ -157,6 +163,7 @@ Definition θ_Strength2 : UU := ∏ (X : [C, D', hsD']) (Z Z' : Ptd) (Y : [C, D'
     θ (X ⊗ Z') •• (U Z) · θ ((functor_compose hs hsD' (U Z') X) ⊗ Z) ·
        # H (α : functor_compose hs hsD' (U Z) (X • (U Z')) --> Y).
 
+
 Section Strength_law_2_intensional.
  (* does not typecheck in the heterogeneous formulation *)
 Definition θ_Strength2_int : UU
@@ -165,6 +172,14 @@ Definition θ_Strength2_int : UU
       (α_functor (U Z) (U Z') (H X) : [C, D, hsD] ⟦ functor_compose hs hsD (functor_composite (U Z) (U Z')) (H X), functor_composite (U Z) (functor_composite (U Z') (H X)) ⟧
       ) ·
       θ (X ⊗ Z') •• (U Z) · θ ((functor_compose hs hsD' (U Z') X) ⊗ Z) .
+
+Lemma isaprop_θ_Strength2_int: isaprop θ_Strength2_int.
+Proof.
+  apply impred; intros X.
+  apply impred; intros Z.
+  apply impred; intros Z'.
+  apply isaset_nat_trans; try exact hsD.
+Qed.
 
 Lemma θ_Strength2_int_implies_θ_Strength2 : θ_Strength2_int → θ_Strength2.
 Proof.
