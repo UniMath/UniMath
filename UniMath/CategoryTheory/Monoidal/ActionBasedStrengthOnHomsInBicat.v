@@ -286,7 +286,7 @@ Local Definition target_action : action Mon_endo' (hom(C:=bicat_of_cats_nouniv) 
 
 Section Signature_From_ActionBased_Strength.
 
-Section IndividualStrongFunctors.
+Section IndividualFunctorsWithABStrength.
 
   Context (H : functor [C, D', hsD'] [C, D, hsD]).
 
@@ -393,16 +393,87 @@ Section IndividualStrongFunctors.
     exact signature_from_ab_strength_laws.
   Defined.
 
+End IndividualFunctorsWithABStrength.
+
+Section IndividualStrongFunctors.
+
+  Context (FF : actionbased_strong_functor Mon_endo' domain_action target_action).
+
+  Definition signature_from_strong_functor : Signature C hs D hsD D' hsD' :=
+    signature_from_ab_strength (pr1 FF) (pr2 FF).
+
 End IndividualStrongFunctors.
 
+Section Morphisms.
 
+  Context {FF GG : actionbased_strong_functor Mon_endo' domain_action target_action}.
+  Context (sη : Strong_Functor_Category_Mor Mon_endo' domain_action target_action FF GG).
+
+  Lemma signature_mor_from_ab_strength_mor_diagram (X : [C, D', hsD']) (Y : precategory_Ptd C hs) :
+    Signature_category_mor_diagram (C,, hs) (D,, hsD) (D',, hsD')
+      (signature_from_strong_functor FF) (signature_from_strong_functor GG) (pr1 sη) X Y.
+  Proof.
+    red.
+    cbn.
+    assert (Hyp := pr2 sη X Y).
+    red in Hyp. cbn in Hyp.
+    etrans.
+    { exact Hyp. }
+    clear Hyp.
+    apply maponpaths_2.
+    apply pathsinv0.
+    apply (horcomp_post_pre _ _ (D,,hsD)).
+  Qed.
+
+  Definition signature_mor_from_ab_strength_mor :
+    SignatureMor (C,,hs) (D,,hsD) (D',,hsD') (signature_from_strong_functor FF) (signature_from_strong_functor GG).
+  Proof.
+    exists (pr1 sη).
+    exact signature_mor_from_ab_strength_mor_diagram.
+  Defined.
+
+End Morphisms.
+
+Definition ActionBasedStrongFunctorCategoryToSignatureCategory_data : functor_data
+   (Strong_Functor_precategory Mon_endo' domain_action target_action
+                               (functor_category_has_homsets _ _ hsD))
+   (Signature_precategory (C,,hs) (D,,hsD) (D',,hsD')).
+Proof.
+  use make_functor_data.
+  - exact signature_from_strong_functor.
+  - intros FF GG sη. exact (signature_mor_from_ab_strength_mor sη).
+Defined.
+
+Lemma ActionBasedStrongFunctorCategoryToSignatureCategory_is_functor :
+  is_functor ActionBasedStrongFunctorCategoryToSignatureCategory_data.
+Proof.
+  split.
+  - intro FF.
+    apply SignatureMor_eq; try apply (functor_category_has_homsets _ _ hsD).
+    apply nat_trans_eq; try apply (functor_category_has_homsets _ _ hsD).
+    intro H.
+    apply nat_trans_eq; try assumption.
+    intro c.
+    apply idpath.
+  - intros FF GG HH sη sη'.
+    apply SignatureMor_eq; try apply (functor_category_has_homsets _ _ hsD).
+    apply nat_trans_eq; try apply (functor_category_has_homsets _ _ hsD).
+    intro H.
+    apply nat_trans_eq; try assumption.
+    intro c.
+    apply idpath.
+Qed.
+
+Definition ActionBasedStrongFunctorCategoryToSignatureCategory : functor
+   (Strong_Functor_precategory Mon_endo' domain_action target_action
+                               (functor_category_has_homsets _ _ hsD))
+   (Signature_precategory (C,,hs) (D,,hsD) (D',,hsD'))
+  := (_,,ActionBasedStrongFunctorCategoryToSignatureCategory_is_functor).
 
 End Signature_From_ActionBased_Strength.
 
 
 Section ActionBased_Strength_From_Signature.
-
-
 
 Section IndividualSignatures.
 
@@ -630,7 +701,7 @@ Section Morphisms.
     (ab_strong_functor_from_signature sig2).
   Proof.
     exists ab_strength_mor_from_signature_mor_nat_trans.
-    intros a v; apply ab_strength_mor_from_signature_mor_diagram.
+    exact ab_strength_mor_from_signature_mor_diagram.
   Defined.
 
 End Morphisms.
