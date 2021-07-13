@@ -775,23 +775,45 @@ Qed.
 
 Lemma roundtrip1_mor {sig1 sig2 : Signature C hs D hsD D' hsD'}
       (f : SignatureMor (C,,hs) (D,,hsD) (D',,hsD') sig1 sig2) :
-  Univalence.double_transport(C:=(Signature C hs D hsD D' hsD',, SignatureMor (C,, hs) (D,, hsD) (D',, hsD')))
+  Univalence.double_transport(C:=Signature_precategory (C,,hs) (D,,hsD) (D',,hsD'))
       (roundtrip1_ob sig1) (roundtrip1_ob sig2)
       (signature_mor_from_ab_strength_mor (ab_strength_mor_from_signature_mor f)) = f.
 Proof.
   apply SignatureMor_eq.
   apply nat_trans_eq; try apply (functor_category_has_homsets _ _ hsD).
   intro X.
+  rewrite (Univalence.double_transport_idtoiso (Signature_precategory (C,,hs) (D,,hsD) (D',,hsD')) _ _ _ _ _ _ (signature_mor_from_ab_strength_mor (ab_strength_mor_from_signature_mor f))).
   apply nat_trans_eq; try apply hsD.
   intro c.
+  (* UniMath.MoreFoundations.Tactics.show_id_type. *)
+  induction sig1 as [H1 θ1]; induction sig2 as [H2 θ2]; induction f as [η η_ok].
+  simpl.
+  set (i := Univalence.idtoiso(C:=Signature_precategory (C,,hs) (D,,hsD) (D',,hsD')) (roundtrip1_ob (H1,, θ1))).
+  set (pr1i := functor_on_iso (SignatureForgetfulFunctor (C,,hs) (D,,hsD) (D',,hsD')) i).
+  cbn in  pr1i. (* unfold functor_on_iso in pr1i. cbn in pr1i. *)
+  set (pr1iX := nat_iso_pointwise_iso (iso_to_nat_iso(C:= functor_category C (D',,hsD'))(D:= functor_category C (D,,hsD)) _ _ pr1i) X).
+  set (pr1iXc := nat_iso_pointwise_iso (iso_to_nat_iso(C:=(C,,hs))(D:=(D,,hsD)) _ _ pr1iX) c).
+  rewrite <- assoc.
+  (* apply (iso_inv_on_right _ _ _ pr1iXc). *)
+  apply (pre_comp_with_iso_is_inj _ _ _ (pr1 pr1iXc) (pr2 pr1iXc)).
+  rewrite assoc.
+  etrans.
+  { apply cancel_postcomposition. intermediate_path (id (pr1(H1 X) c)).
+    UniMath.MoreFoundations.Tactics.show_id_type.
+    assert (Hyp := iso_inv_after_iso i).
+    assert (Hyp' : # (SignatureForgetfulFunctor (C,, hs) (D,, hsD) (D',, hsD'))(i · inv_from_iso i) = # (SignatureForgetfulFunctor (C,, hs) (D,, hsD) (D',, hsD')) (identity(C:=Signature_precategory (C,,hs) (D,,hsD) (D',,hsD')) (signature_from_strong_functor (ab_strong_functor_from_signature (H1,, θ1))))).
+    { apply maponpaths. exact Hyp. }
+    rewrite functor_comp in Hyp'. rewrite functor_id in Hyp'. cbn in Hyp'.
+    assert (Hyp'X := nat_trans_eq_pointwise Hyp' X).
+    assert (Hyp'Xc := nat_trans_eq_pointwise Hyp'X c).
+    exact Hyp'Xc.
+    apply idpath.
+  }
+  rewrite id_left.
+  unfold pr1iXc. unfold nat_iso_pointwise_iso, iso_to_nat_iso, pr1iX. simpl. unfold i.
   UniMath.MoreFoundations.Tactics.show_id_type.
 Admitted.
-(* We are left with two morphisms of category D to be shown equal:
-  pr1
-    (Univalence.double_transport (roundtrip1_ob sig1) (roundtrip1_ob sig2)
-       (signature_mor_from_ab_strength_mor (ab_strength_mor_from_signature_mor f))) X c =
-  pr1 f X c
-*)
+(* We are still left with two morphisms of category D to be shown equal. *)
 
 Lemma roundtrip2_mor {FF GG : actionbased_strong_functor Mon_endo' domain_action target_action}
       (sη : Strong_Functor_Category_Mor Mon_endo' domain_action target_action FF GG) :

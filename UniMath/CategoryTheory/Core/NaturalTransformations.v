@@ -234,6 +234,9 @@ Proof.
   exact is_iso.
 Defined.
 
+Definition nat_iso_pointwise_iso {C D : precategory} {F G : C ⟶ D} (μ : nat_iso F G) (c: C): iso (F c) (G c) := (pr1 μ c,,pr2 μ c).
+
+
 Definition iso_inv_after_iso' {C : precategory} {a b : C} (f : a --> b) (f' : iso a b) (deref : pr1 f' = f) : f · inv_from_iso f' = identity _.
 Proof.
   rewrite <- deref.
