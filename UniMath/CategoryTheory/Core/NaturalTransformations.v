@@ -310,13 +310,13 @@ Defined.
 
 (* ** analogous development for [z_iso] *)
 
-Definition is_nat_z_iso {C D : precategory_data} {F G : functor_data C D} (μ : F ⟹ G) : UU :=
+Definition is_nat_z_iso {C D : precategory_data} {F G : functor_data C D} (μ : nat_trans_data F G) : UU :=
 ∏ (c : C), is_z_isomorphism (μ c).
 
 Definition isaprop_is_nat_z_iso
            {C D : category}
            {F G : C ⟶ D}
-           (α : F ⟹ G)
+           (α : nat_trans_data F G)
   : isaprop (is_nat_z_iso α).
 Proof.
   apply impred.

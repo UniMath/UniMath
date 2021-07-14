@@ -107,7 +107,7 @@ Section PointedFunctors_as_monoidal_category.
     use tpair.
     - use tpair.
       apply nat_z_iso_to_trans_inv.
-      + exact (_ ,, Hyp).
+      + exact (pr1 α ,, Hyp).
       + abstract
           (cbn ; red; intro c ;
            cbn ;

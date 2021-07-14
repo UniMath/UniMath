@@ -490,7 +490,7 @@ Qed.
 
 Lemma nat_trafo_z_iso_if_pointwise_z_iso (C : precategory_data) (C' : precategory)
   (hs: has_homsets C') (F G : ob [C, C', hs]) (α : F --> G) :
-    is_nat_z_iso α -> is_z_isomorphism α .
+    is_nat_z_iso (pr1 α) -> is_z_isomorphism α .
 Proof.
   intro H.
   red.

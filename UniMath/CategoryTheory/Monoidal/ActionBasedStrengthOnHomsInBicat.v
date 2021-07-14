@@ -23,11 +23,14 @@ Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActions.
 Require Import UniMath.CategoryTheory.Monoidal.ActionOfEndomorphismsInBicat.
 Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrength.
 Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrongFunctorCategory.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.Examples.BicategoryFromMonoidal.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCatsWithoutUnivalence.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SignatureCategory.
+
 
 
 Import Bicat.Notations.
@@ -745,7 +748,8 @@ Definition SignatureCategoryToActionBasedStrongFunctorCategory : functor
 
 End ActionBased_Strength_From_Signature.
 
-Lemma roundtrip1_ob (sig : Signature C hs D hsD D' hsD') : signature_from_strong_functor (ab_strong_functor_from_signature sig) = sig.
+(* the following lemma cannot be used later *)
+Lemma roundtrip1_ob_as_equality (sig : Signature C hs D hsD D' hsD') : signature_from_strong_functor (ab_strong_functor_from_signature sig) = sig.
 Proof.
   use total2_paths_f.
   - apply idpath.
@@ -758,7 +762,105 @@ Proof.
       * apply isaprop_θ_Strength2_int.
 Defined.
 
-Lemma roundtrip2_ob (FF : actionbased_strong_functor Mon_endo' domain_action target_action) : ab_strong_functor_from_signature (signature_from_strong_functor FF) = FF.
+Definition roundtrip1_ob_nat_trans_data : nat_trans_data
+  (functor_identity (Signature_precategory (C,, hs) (D,, hsD) (D',, hsD')))
+  (SignatureCategoryToActionBasedStrongFunctorCategory ∙ ActionBasedStrongFunctorCategoryToSignatureCategory).
+Proof.
+  intro sig. cbn.
+  use tpair.
+  - use make_nat_trans.
+    + intro X. exact (identity (pr1 sig X)).
+    + intros X1 X2 f.
+      etrans.
+      { apply id_right. }
+      etrans.
+      2: { apply pathsinv0. apply id_left. }
+      apply idpath.
+  - intros X Y. red.
+    apply nat_trans_eq; try (exact hsD).
+    intro c.
+    etrans.
+    { apply id_right. }
+    etrans.
+    2: { apply cancel_postcomposition.
+         cbn.
+         apply pathsinv0.
+         apply id_left.
+    }
+    etrans.
+    2: { apply cancel_postcomposition.
+         apply pathsinv0.
+         apply (functor_id(H sig X)).
+    }
+    apply pathsinv0.
+    apply id_left.
+Defined.
+
+Definition roundtrip1_ob_nat_trans_data_pointwise_inv (sig : Signature_precategory (C,, hs) (D,, hsD) (D',, hsD')) :
+  SignatureMor (C,, hs) (D,, hsD) (D',, hsD')
+               (signature_from_strong_functor (ab_strong_functor_from_signature sig)) sig.
+Proof.
+  use tpair.
+  - use make_nat_trans.
+    + intro X. exact (identity (pr1 sig X)).
+    + intros X1 X2 f.
+      etrans.
+      { apply id_right. }
+      etrans.
+      2: { apply pathsinv0. apply id_left. }
+      apply idpath.
+  - intros X Y. red.
+    apply nat_trans_eq; try (exact hsD).
+    intro c.
+    etrans.
+    { apply id_right. }
+    etrans.
+    2: { apply cancel_postcomposition.
+         cbn.
+         apply pathsinv0.
+         apply id_left.
+    }
+    etrans.
+    2: { apply cancel_postcomposition.
+         apply pathsinv0.
+         apply (functor_id(H sig X)).
+    }
+    apply pathsinv0.
+    apply id_left.
+Defined.
+
+Definition roundtrip1_ob_data_is_nat_z_iso : is_nat_z_iso roundtrip1_ob_nat_trans_data.
+Proof.
+  intro sig.
+  exists (roundtrip1_ob_nat_trans_data_pointwise_inv sig).
+  abstract (split; apply SignatureMor_eq;
+    apply nat_trans_eq; try apply (functor_category_has_homsets _ _ hsD);
+    intro X;
+    cbn;
+    apply (id_left(C:=[C, D, hsD]))).
+Defined.
+
+Lemma roundtrip1_ob_data_is_nat_trans : is_nat_trans _ _ roundtrip1_ob_nat_trans_data.
+Proof.
+  intros sig1 sig2 f.
+  apply SignatureMor_eq; try apply (functor_category_has_homsets C D hsD).
+  apply nat_trans_eq; try apply (functor_category_has_homsets _ _ hsD).
+  intro X.
+  etrans.
+  { cbn. apply (id_right(C:=[C, D, hsD])). }
+  etrans.
+  2: { cbn. apply pathsinv0. apply (id_left(C:=[C, D, hsD])). }
+  apply idpath.
+Qed.
+
+Definition roundtrip1_ob_nat_trans :
+  (functor_identity (Signature_precategory (C,, hs) (D,, hsD) (D',, hsD'))) ⟹
+  SignatureCategoryToActionBasedStrongFunctorCategory ∙ ActionBasedStrongFunctorCategoryToSignatureCategory
+  := (roundtrip1_ob_nat_trans_data,,roundtrip1_ob_data_is_nat_trans).
+
+
+(* the following lemma cannot be used later *)
+Lemma roundtrip2_ob_as_equality (FF : actionbased_strong_functor Mon_endo' domain_action target_action) : ab_strong_functor_from_signature (signature_from_strong_functor FF) = FF.
 Proof.
   use total2_paths_f.
   - apply idpath.
@@ -773,69 +875,133 @@ Proof.
         apply (functor_category_has_homsets _ _ hsD).
 Qed.
 
-Lemma roundtrip1_mor {sig1 sig2 : Signature C hs D hsD D' hsD'}
-      (f : SignatureMor (C,,hs) (D,,hsD) (D',,hsD') sig1 sig2) :
-  Univalence.double_transport(C:=Signature_precategory (C,,hs) (D,,hsD) (D',,hsD'))
-      (roundtrip1_ob sig1) (roundtrip1_ob sig2)
-      (signature_mor_from_ab_strength_mor (ab_strength_mor_from_signature_mor f)) = f.
+Definition roundtrip2_ob_nat_trans_data : nat_trans_data
+  (ActionBasedStrongFunctorCategoryToSignatureCategory ∙ SignatureCategoryToActionBasedStrongFunctorCategory)
+  (functor_identity (Strong_Functor_precategory Mon_endo' domain_action target_action (functor_category_has_homsets C D hsD))).
 Proof.
-  apply SignatureMor_eq.
+  intro FF. cbn.
+  use tpair.
+  - use make_nat_trans.
+    + intro X. exact (identity (pr1 FF X)).
+    + intros X1 X2 f.
+      etrans.
+      { apply id_right. }
+      etrans.
+      2: { apply pathsinv0. apply id_left. }
+      apply idpath.
+  - intros X Y. red.
+    apply nat_trans_eq; try (exact hsD).
+    intro c.
+    etrans.
+    { apply id_right. }
+    etrans.
+    2: { apply cancel_postcomposition.
+         cbn.
+         apply pathsinv0.
+         apply id_right.
+    }
+    etrans.
+    2: { apply cancel_postcomposition.
+         apply pathsinv0.
+         apply (functor_id(pr1 FF X)).
+    }
+    apply pathsinv0.
+    apply id_left.
+Defined.
+
+Definition roundtrip2_ob_nat_trans_data_pointwise_inv
+           (FF : Strong_Functor_precategory Mon_endo' domain_action target_action
+                                            (functor_category_has_homsets C D hsD)) :
+  Strong_Functor_Category_Mor Mon_endo' domain_action target_action FF
+                              (ab_strong_functor_from_signature (signature_from_strong_functor FF)).
+Proof.
+  use tpair.
+  - use make_nat_trans.
+    + intro X. exact (identity (pr1 FF X)).
+    + intros X1 X2 f.
+      etrans.
+      { apply id_right. }
+      etrans.
+      2: { apply pathsinv0. apply id_left. }
+      apply idpath.
+  - intros X Y. red.
+    apply nat_trans_eq; try (exact hsD).
+    intro c.
+    etrans.
+    { apply id_right. }
+    etrans.
+    2: { apply cancel_postcomposition.
+         cbn.
+         apply pathsinv0.
+         apply id_right.
+    }
+    etrans.
+    2: { apply cancel_postcomposition.
+         apply pathsinv0.
+         apply (functor_id(pr1 FF X)).
+    }
+    apply pathsinv0.
+    apply id_left.
+Defined.
+
+Definition roundtrip2_ob_data_is_nat_z_iso : is_nat_z_iso roundtrip2_ob_nat_trans_data.
+Proof.
+  intro FF.
+  exists (roundtrip2_ob_nat_trans_data_pointwise_inv FF).
+  abstract (split; apply Strong_Functor_Category_Mor_eq; try apply (functor_category_has_homsets _ _ hsD);
+    apply nat_trans_eq; try apply (functor_category_has_homsets _ _ hsD);
+    intro X;
+    cbn;
+    apply (id_left(C:=[C, D, hsD]))).
+Defined.
+
+Lemma roundtrip2_ob_data_is_nat_trans : is_nat_trans _ _ roundtrip2_ob_nat_trans_data.
+Proof.
+  intros FF GG sη.
+  apply Strong_Functor_Category_Mor_eq; try apply (functor_category_has_homsets C D hsD).
   apply nat_trans_eq; try apply (functor_category_has_homsets _ _ hsD).
   intro X.
-  rewrite (Univalence.double_transport_idtoiso (Signature_precategory (C,,hs) (D,,hsD) (D',,hsD')) _ _ _ _ _ _ (signature_mor_from_ab_strength_mor (ab_strength_mor_from_signature_mor f))).
-  apply nat_trans_eq; try apply hsD.
-  intro c.
-  (* UniMath.MoreFoundations.Tactics.show_id_type. *)
-  induction sig1 as [H1 θ1]; induction sig2 as [H2 θ2]; induction f as [η η_ok].
-  simpl.
-  set (i := Univalence.idtoiso(C:=Signature_precategory (C,,hs) (D,,hsD) (D',,hsD')) (roundtrip1_ob (H1,, θ1))).
-  set (pr1i := functor_on_iso (SignatureForgetfulFunctor (C,,hs) (D,,hsD) (D',,hsD')) i).
-  cbn in  pr1i. (* unfold functor_on_iso in pr1i. cbn in pr1i. *)
-  set (pr1iX := nat_iso_pointwise_iso (iso_to_nat_iso(C:= functor_category C (D',,hsD'))(D:= functor_category C (D,,hsD)) _ _ pr1i) X).
-  set (pr1iXc := nat_iso_pointwise_iso (iso_to_nat_iso(C:=(C,,hs))(D:=(D,,hsD)) _ _ pr1iX) c).
-  rewrite <- assoc.
-  (* apply (iso_inv_on_right _ _ _ pr1iXc). *)
-  apply (pre_comp_with_iso_is_inj _ _ _ (pr1 pr1iXc) (pr2 pr1iXc)).
-  rewrite assoc.
   etrans.
-  { apply cancel_postcomposition. intermediate_path (id (pr1(H1 X) c)).
-    UniMath.MoreFoundations.Tactics.show_id_type.
-    assert (Hyp := iso_inv_after_iso i).
-    assert (Hyp' : # (SignatureForgetfulFunctor (C,, hs) (D,, hsD) (D',, hsD'))(i · inv_from_iso i) = # (SignatureForgetfulFunctor (C,, hs) (D,, hsD) (D',, hsD')) (identity(C:=Signature_precategory (C,,hs) (D,,hsD) (D',,hsD')) (signature_from_strong_functor (ab_strong_functor_from_signature (H1,, θ1))))).
-    { apply maponpaths. exact Hyp. }
-    rewrite functor_comp in Hyp'. rewrite functor_id in Hyp'. cbn in Hyp'.
-    assert (Hyp'X := nat_trans_eq_pointwise Hyp' X).
-    assert (Hyp'Xc := nat_trans_eq_pointwise Hyp'X c).
-    exact Hyp'Xc.
-    apply idpath.
-  }
-  rewrite id_left.
-  unfold pr1iXc. unfold nat_iso_pointwise_iso, iso_to_nat_iso, pr1iX. simpl. unfold i.
-  UniMath.MoreFoundations.Tactics.show_id_type.
-Admitted.
-(* We are still left with two morphisms of category D to be shown equal. *)
+  { cbn. apply (id_right(C:=[C, D, hsD])). }
+  etrans.
+  2: { cbn. apply pathsinv0. apply (id_left(C:=[C, D, hsD])). }
+  apply idpath.
+Qed.
 
-Lemma roundtrip2_mor {FF GG : actionbased_strong_functor Mon_endo' domain_action target_action}
-      (sη : Strong_Functor_Category_Mor Mon_endo' domain_action target_action FF GG) :
-  Univalence.double_transport(C:=(actionbased_strong_functor Mon_endo' domain_action target_action,,
-                                  Strong_Functor_Category_Mor Mon_endo' domain_action target_action))
-      (roundtrip2_ob FF) (roundtrip2_ob GG)
-      (ab_strength_mor_from_signature_mor (signature_mor_from_ab_strength_mor sη)) = sη.
+Definition roundtrip2_ob_nat_trans :
+  ActionBasedStrongFunctorCategoryToSignatureCategory ∙ SignatureCategoryToActionBasedStrongFunctorCategory
+  ⟹ functor_identity
+  (Strong_Functor_precategory Mon_endo' domain_action target_action (functor_category_has_homsets C D hsD))
+  := (roundtrip2_ob_nat_trans_data,,roundtrip2_ob_data_is_nat_trans).
+
+Definition EquivalenceSignaturesABStrongFunctors:
+  adj_equivalence_of_precats SignatureCategoryToActionBasedStrongFunctorCategory.
 Proof.
-  apply Strong_Functor_Category_Mor_eq; try apply (functor_category_has_homsets _ _ hsD).
-  apply nat_trans_eq; try apply (functor_category_has_homsets _ _ hsD).
-  intro X.
-  apply nat_trans_eq; try apply hsD.
-  intro c.
-  UniMath.MoreFoundations.Tactics.show_id_type.
-Admitted.
-(* We are left with two morphisms of category D to be shown equal:
-  pr1
-    (Univalence.double_transport (roundtrip2_ob FF) (roundtrip2_ob GG)
-       (ab_strength_mor_from_signature_mor (signature_mor_from_ab_strength_mor sη))) X c =
-  pr1 sη X c
- *)
+  use make_adj_equivalence_of_precats.
+  - exact ActionBasedStrongFunctorCategoryToSignatureCategory.
+  - exact roundtrip1_ob_nat_trans.
+  - exact roundtrip2_ob_nat_trans.
+  - split.
+    + intro sig. cbn.
+      apply Strong_Functor_Category_Mor_eq; try apply (functor_category_has_homsets C D hsD).
+      apply nat_trans_eq; try apply (functor_category_has_homsets _ _ hsD).
+      intro X.
+      cbn.
+      apply (id_left(C:=[C, D, hsD])).
+    + intro FF. cbn.
+      apply SignatureMor_eq; try apply (functor_category_has_homsets C D hsD).
+      apply nat_trans_eq; try apply (functor_category_has_homsets _ _ hsD).
+      intro X.
+      cbn.
+      apply (id_left(C:=[C, D, hsD])).
+  - split.
+    + intro sig.
+      apply (z_iso_to_iso (_,,roundtrip1_ob_data_is_nat_z_iso sig)).
+    + intro FF.
+      apply (z_iso_to_iso (_,,roundtrip2_ob_data_is_nat_z_iso FF)).
+Defined.
 
+ (* the following lemma can only come from univalence of the involved categories *)
 Lemma SignatureCategoryAndActionBasedStrongFunctorCategory_z_iso_law :
   is_inverse_in_precat(C:=bicat_of_cats_nouniv)
                       (a:=Signature_category (C,,hs) (D,,hsD) (D',,hsD'))
@@ -844,18 +1010,9 @@ Lemma SignatureCategoryAndActionBasedStrongFunctorCategory_z_iso_law :
                       SignatureCategoryToActionBasedStrongFunctorCategory
                       ActionBasedStrongFunctorCategoryToSignatureCategory.
 Proof.
-  split.
-  - apply functor_eq; try exact (has_homsets_Signature_precategory (C,,hs) (D,,hsD) (D',,hsD')).
-    use functor_data_eq.
-    + exact roundtrip1_ob.
-    + intros sig1 sig2 f. exact (roundtrip1_mor f).
-  - apply functor_eq; try exact (pr2 (Strong_Functor_category Mon_endo' domain_action target_action
-                                                              (functor_category_has_homsets _ _ hsD))).
-    use functor_data_eq.
-    + exact roundtrip2_ob.
-    + intros FF GG sη. exact (roundtrip2_mor sη).
-Qed.
+Abort.
 
+(*
 Definition SignatureCategoryAndActionBasedStrongFunctorCategory_z_iso :
   z_iso(C:=bicat_of_cats_nouniv) (Signature_category (C,,hs) (D,,hsD) (D',,hsD'))
                       (Strong_Functor_category Mon_endo' domain_action target_action
@@ -865,5 +1022,6 @@ Proof.
   exists ActionBasedStrongFunctorCategoryToSignatureCategory.
   exact SignatureCategoryAndActionBasedStrongFunctorCategory_z_iso_law.
 Defined.
+*)
 
 End Instantiation_To_FunctorCategory_And_PointedEndofunctors.
