@@ -343,10 +343,12 @@ Section Strength_laws.
 
 End Strength_laws.
 
+
+Definition StrengthForSignature (H : [C, D', hsD'] ⟶ [C, D, hsD] ) : UU :=
+  ∑ θ : nat_trans (θ_source H) (θ_target H) , θ_Strength1_int H θ × θ_Strength2_int H θ.
+
 Definition Signature : UU
-  :=
-  ∑ H : [C, D', hsD'] ⟶ [C, D, hsD] ,
-     ∑ θ : nat_trans (θ_source H) (θ_target H) , θ_Strength1_int H θ × θ_Strength2_int H θ.
+  := ∑ H : [C, D', hsD'] ⟶ [C, D, hsD] , StrengthForSignature H.
 
 Coercion Signature_Functor (S : Signature) : functor _ _ := pr1 S.
 
@@ -355,6 +357,16 @@ Definition theta (H : Signature) : (θ_source H) ⟹ (θ_target H) := pr1 (pr2 H
 Definition Sig_strength_law1 (H : Signature) : θ_Strength1_int _ _ := pr1 (pr2 (pr2 H)).
 
 Definition Sig_strength_law2 (H : Signature) : θ_Strength2_int _ _ := pr2 (pr2 (pr2 H)).
+
+Lemma StrengthForSignature_eq (H : [C, D', hsD'] ⟶ [C, D, hsD] ) (sθ1 sθ2 : StrengthForSignature H) :
+  pr1 sθ1 = pr1 sθ2 -> sθ1 = sθ2.
+Proof.
+  intro Heq.
+  apply subtypePath; trivial.
+  intro θ. apply isapropdirprod.
+  + apply isaprop_θ_Strength1_int.
+  + apply isaprop_θ_Strength2_int.
+Qed.
 
 End fix_a_category.
 
