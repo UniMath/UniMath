@@ -51,7 +51,7 @@ Definition creates_limit
 Definition creates_limits {C : category} (D : disp_cat C) : UU
 :=
   ∏ (J : graph) (F : diagram J (total_category D))
-    {x : C} (L : cone (mapdiagram (pr1_category D) F)  x)
+    (x : C) (L : cone (mapdiagram (pr1_category D) F)  x)
     (isL : isLimCone _ x L),
   creates_limit _ _ _ isL.
 

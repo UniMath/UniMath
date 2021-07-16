@@ -753,7 +753,7 @@ End Utilities.
 Section Univalent_Categories.
 
 Definition is_univalent_disp {C} (D : disp_cat C)
-  := forall x x' (e : x = x') {xx : D x} {xx' : D x'},
+  := ∏ x x' (e : x = x') (xx : D x) (xx' : D x'),
        isweq (λ ee, @idtoiso_disp _ _ _ _ e xx xx' ee).
 
 Definition is_univalent_in_fibers {C} (D : disp_cat C) : UU
