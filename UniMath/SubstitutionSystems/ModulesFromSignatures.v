@@ -475,9 +475,7 @@ Let τT := τ_lmodule_mor T.
     It is exactly the 'H' part of the Id + H algebra morphism diagram *)
 Lemma j_mor_rep x : τT x · j_mor x = (# H j_mor:nat_trans _ _) x · τ_M x.
 Proof.
-  etrans.
-  { eapply pathsinv0.
-    apply assoc. }
+  etrans;[apply assoc'|].
   etrans.
   { apply cancel_precomposition.
     apply (nat_trans_eq_pointwise (algebra_mor_commutes _ _ _ j) x). }
@@ -485,7 +483,7 @@ Proof.
   etrans.
   { apply cancel_postcomposition.
     apply BinCoproductIn2Commutes. }
-  etrans;[eapply pathsinv0; apply assoc|].
+  etrans;[apply assoc'|].
   apply cancel_precomposition.
   apply BinCoproductIn2Commutes.
 Qed.
@@ -495,9 +493,7 @@ Qed.
 Lemma j_mon_η :   ∏ a : C, (Monads.η T_mon) a · j_mor a = (Monads.η M) a.
 Proof.
   intro a.
-  etrans.
-  { eapply pathsinv0.
-    apply assoc. }
+  etrans;[apply assoc'|].
   etrans.
   { apply cancel_precomposition.
     apply (nat_trans_eq_pointwise (algebra_mor_commutes _ _ _ j) a). }
@@ -505,7 +501,7 @@ Proof.
   etrans.
   { apply cancel_postcomposition.
     apply BinCoproductIn1Commutes. }
-  etrans;[eapply pathsinv0;apply assoc|].
+  etrans;[apply assoc'|].
   etrans.
   { apply cancel_precomposition.
     apply BinCoproductIn1Commutes. }
@@ -539,8 +535,8 @@ Proof.
     etrans.
     { apply cancel_postcomposition.
       apply (LModule_Mor_σ _  τT). }
-    etrans;[eapply pathsinv0;apply assoc|].
-    etrans;[eapply pathsinv0;apply assoc|].
+    etrans;[apply assoc'|].
+    etrans;[apply assoc'|].
     etrans; [| apply assoc].
     apply cancel_precomposition.
     rewrite functor_comp.

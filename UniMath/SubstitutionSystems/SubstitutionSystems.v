@@ -586,8 +586,7 @@ Proof.
   unfold ishssMor.
   unfold isbracketMor.
   intros Z f.
-  eapply pathscomp0.
-    apply assoc.
+  eapply pathscomp0; [apply assoc|].
   (* match goal with | [|- ?l = _ ] => assert (Hyp : l = fbracket T f· pr1 β· pr1 γ) end. *)
   eapply pathscomp0.
     apply cancel_postcomposition.
