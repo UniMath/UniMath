@@ -14,6 +14,10 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Actions.
 Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrength.
 
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
+Require Import UniMath.CategoryTheory.Core.Univalence.
+
 Local Open Scope cat.
 
 Section Strong_Functor_Category.
@@ -140,7 +144,7 @@ use tpair.
 - abstract (now split).
 Defined.
 
-Lemma SignatureForgetfulFunctorFaithful (hsA': has_homsets A') :
+Lemma Strong_FunctorForgetfulFunctorFaithful (hsA': has_homsets A') :
   faithful (Strong_FunctorForgetfulFunctor hsA').
 Proof.
   intros FF GG.
@@ -150,4 +154,90 @@ Proof.
   + apply Strong_Functor_Category_Mor_eq; try assumption.
 Qed.
 
+Section AsDisplayedCategory.
+
+  Context (hsA': has_homsets A').
+
+  Definition Strong_Functor_precategory_displayed : disp_cat (functor_category A (A',,hsA')).
+  Proof.
+    use disp_cat_from_SIP_data.
+    - intro F.
+      exact (actionbased_strength Mon_V actn actn' F).
+    - intros F1 F2 FF1 FF2 η.
+      exact (∏ a v, Strong_Functor_Category_mor_diagram (F1,,FF1) (F2,,FF2) η a v).
+    - intros F1 F2 FF1 FF2 η.
+      do 2 (apply impred; intro).
+      apply hsA'.
+    - intros F FF a v.
+      apply Strong_Functor_Category_Mor_id_subproof.
+    - intros F G H FF GG HH η η' ηmor η'mor a v. simpl in ηmor, η'mor.
+      exact (Strong_Functor_Category_Mor_comp_subproof (F,,FF) (G,,GG) (H,,HH) (η,,ηmor) (η',,η'mor) a v).
+  Defined.
+
+  Definition Strong_Functor_precategory' : precategory := total_category Strong_Functor_precategory_displayed.
+
+  (*
+  Lemma test : pr11 Strong_Functor_precategory' = pr11(Strong_Functor_precategory hsA').
+  Proof.
+    apply idpath.
+  Qed.
+   *)
+
+  Lemma Strong_Functor_precategory_Pisset (F : [A, A',, hsA']) : isaset (actionbased_strength Mon_V actn actn' F).
+  Proof.
+    change isaset with (isofhlevel 2).
+    apply isofhleveltotal2.
+    apply (functor_category_has_homsets (A ⊠ ActionBasedStrength.V Mon_V) _ hsA').
+    intro ϛ.
+    apply isasetaprop.
+    apply isapropdirprod.
+    + apply isaprop_actionbased_strength_triangle_eq, hsA'.
+    + apply isaprop_actionbased_strength_pentagon_eq, hsA'.
+  Qed.
+
+  Lemma Strong_Functor_precategory_Hstandard (F : [A, A',, hsA']) (sη sη' : actionbased_strength Mon_V actn actn' F) :
+    (∏ (a : A) (v : V), Strong_Functor_Category_mor_diagram (F,,sη) (F,,sη') (id F) a v)
+  → (∏ (a : A) (v : V), Strong_Functor_Category_mor_diagram (F,,sη') (F,,sη) (id F) a v) → sη = sη'.
+  Proof.
+    intros leq geq.
+    apply (actionbased_strength_eq _ _ _ hsA').
+    apply (nat_trans_eq hsA').
+    intro av.
+    assert (leqinst := leq (pr1 av) (pr2 av)).
+    (* assert (geqinst := geq (pr1 av) (pr2 av)). *)
+    clear leq geq.
+    etrans.
+    { apply pathsinv0.
+      apply id_right. }
+    etrans.
+    { exact leqinst. }
+    clear leqinst.
+    etrans.
+    2: { apply id_left. }
+    apply cancel_postcomposition.
+    show_id_type.
+    change (# odot' (id (pr1 F (pr1 av), pr2 av)) = id actionbased_strength_dom Mon_V actn' F av).
+    rewrite functor_id.
+    apply idpath.
+  Qed.
+
+  Definition is_univalent_Strong_Functor_precategory_displayed : is_univalent_disp Strong_Functor_precategory_displayed.
+  Proof.
+    use is_univalent_disp_from_SIP_data.
+    - exact Strong_Functor_precategory_Pisset.
+    - exact Strong_Functor_precategory_Hstandard.
+  Defined.
+
+End AsDisplayedCategory.
+
 End Strong_Functor_Category.
+
+Definition is_univalent_Strong_Functor_precategory' (Mon_V : monoidal_precat) (A : precategory)
+           (A' : univalent_category) (actn : action Mon_V A) (actn' : action Mon_V A') :
+  is_univalent (Strong_Functor_precategory' Mon_V actn actn' (homset_property A')).
+Proof.
+  apply SIP.
+  - exact (is_univalent_functor_category A _ (pr2 A')).
+  - apply Strong_Functor_precategory_Pisset.
+  - apply Strong_Functor_precategory_Hstandard.
+Defined.

@@ -176,6 +176,16 @@ End ActionBasedStrengths_Natural_Transformation.
 Definition actionbased_strength (F : A ⟶ A'): UU := ∑ (ϛ : actionbased_strength_nat F),
    (actionbased_strength_triangle_eq F ϛ) × (actionbased_strength_pentagon_eq F ϛ).
 
+Lemma actionbased_strength_eq (hsA' : has_homsets A') {F : A ⟶ A'} (sη sη': actionbased_strength F) :
+  pr1 sη = pr1 sη' -> sη = sη'.
+Proof.
+  intro Heq.
+  apply subtypePath; trivial.
+  intro ϛ. apply isapropdirprod.
+  + apply isaprop_actionbased_strength_triangle_eq, hsA'.
+  + apply isaprop_actionbased_strength_pentagon_eq, hsA'.
+Qed.
+
 End ActionBasedStrengths_Definition.
 
 Definition actionbased_strong_functor {A A' : precategory} (actn : action Mon_V A)(actn' : action Mon_V A') : UU
