@@ -60,8 +60,8 @@ Variable H : Signature C hs C hs C hs.
 
 Let θ := theta H.
 
-Let θ_strength1_int := Sig_strength_law1 _ _ _ _ _ _ H.
-Let θ_strength2_int := Sig_strength_law2 _ _ _ _ _ _ H.
+Let θ_strength1_int := Sig_strength_law1 H.
+Let θ_strength2_int := Sig_strength_law2 H.
 
 Let Id_H
 : functor EndC EndC

@@ -67,8 +67,8 @@ Variable H : Signature C hs C hs C hs.
 
 Let θ := theta H.
 
-Let θ_strength1_int := Sig_strength_law1 _ _ _ _ _ _ H.
-Let θ_strength2_int := Sig_strength_law2 _ _ _ _ _ _ H.
+Let θ_strength1_int := Sig_strength_law1 H.
+Let θ_strength2_int := Sig_strength_law2 H.
 
 Let Id_H
 : functor EndC EndC
@@ -124,7 +124,7 @@ Proof.
   - apply nat_trans_eq; try assumption.
     intro c. simpl.
     rewrite id_right.
-    assert (H':= θ_Strength1_int_implies_θ_Strength1 _ _ _ _ _ _ _ _ θ_strength1_int).
+    assert (H':= θ_Strength1_int_implies_θ_Strength1 _ θ_strength1_int).
     red in H'. simpl in H'.
     assert (H2 := H' (`T)).
     assert (H3 := nat_trans_eq_pointwise H2 c).
@@ -446,7 +446,7 @@ Proof.
                      pr1 (θ (( ((`T) • (`T) : [_, _, hs])) ⊗ (ptd_from_alg T))) c·
                      pr1 (# H (α : functor_compose hs hs (`T) (functor_composite (`T) (` T))--> _)) c       ).
       { (intro α;
-          assert (HA := θ_Strength2_int_implies_θ_Strength2 _ _ _ _ _ _ _ _ θ_strength2_int);
+          assert (HA := θ_Strength2_int_implies_θ_Strength2 _ θ_strength2_int);
           assert (HA':= HA (`T) (ptd_from_alg T) (ptd_from_alg T) _ α); clear HA;
           assert (HA2 := nat_trans_eq_pointwise HA' c ); clear HA';
           simpl in HA2; apply HA2 ).

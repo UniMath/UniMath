@@ -535,3 +535,9 @@ Arguments θ_Strength1 {_ _ _ _ _ _ _ } _ .
 Arguments θ_Strength2 {_ _ _ _ _ _ _ } _ .
 Arguments θ_Strength1_int {_ _ _ _ _ _ _} _ .
 Arguments θ_Strength2_int {_ _ _ _ _ _ _} _ .
+Arguments Sig_strength_law1 {_ _ _ _ _ _} _.
+Arguments Sig_strength_law2 {_ _ _ _ _ _} _.
+Arguments Signature_Functor {_ _ _ _ _ _} _.
+Arguments θ_Strength1_int_implies_θ_Strength1 {_ _ _ _ _ _ _} _ _.
+Arguments θ_Strength2_int_implies_θ_Strength2 {_ _ _ _ _ _ _} _ _.
+Arguments θ_Strength2_int_implies_θ_Strength2_int_nicer {_ _ _ _ _ _ _} _ _.

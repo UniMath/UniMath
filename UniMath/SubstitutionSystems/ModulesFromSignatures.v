@@ -104,7 +104,7 @@ Definition ptd_mor_from_μ : ptd_mor _ T2 (p T) := (_ ,, is_ptd_mor_μ).
 
 Let strength_law1_pw M x :=
   nat_trans_eq_pointwise
-    (θ_Strength1_int_implies_θ_Strength1 _ _ _ _ _ _ _ _ (Sig_strength_law1 _ _ _ _ _ _ H ) M) x.
+    (θ_Strength1_int_implies_θ_Strength1 _ (Sig_strength_law1 H ) M) x.
 
 (** A pointwise version of the second strength law with only one identity instead
     of two α_functor *)
@@ -122,8 +122,8 @@ Proof.
   intros X Z Z' x.
   etrans; revgoals.
   { apply (nat_trans_eq_pointwise
-             (θ_Strength2_int_implies_θ_Strength2 _ _ _ _ _ _ _ _
-                                                  (Sig_strength_law2 _ _ _ _ _ _ H) X Z Z'
+             (θ_Strength2_int_implies_θ_Strength2 _
+                                                  (Sig_strength_law2 H) X Z Z'
                                                   _
                                                   (identity _) ) x). }
   etrans;[eapply pathsinv0;apply id_right|].

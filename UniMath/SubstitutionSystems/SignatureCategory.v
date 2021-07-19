@@ -58,8 +58,8 @@ Section Signature_category_mor.
 
 Variables (Ht Ht' : Signature C hsC D hsD D' hsD').
 
-Let H := Signature_Functor _ _ _ _ _ _ Ht.
-Let H' := Signature_Functor _ _ _ _ _ _ Ht'.
+Let H := Signature_Functor Ht.
+Let H' := Signature_Functor Ht'.
 Let θ : nat_trans (θ_source Ht) (θ_target Ht) := theta Ht.
 Let θ' : nat_trans (θ_source Ht') (θ_target Ht') := theta Ht'.
 
@@ -168,7 +168,7 @@ Definition SignatureForgetfulFunctor : functor Signature_precategory [[C,D'],[C,
 Proof.
 use tpair.
 - use tpair.
-  + intros F; apply(Signature_Functor _ _ _ _ _ _ F).
+  + intros F; apply(Signature_Functor F).
   + intros F G α; apply α.
 - abstract (now split).
 Defined.

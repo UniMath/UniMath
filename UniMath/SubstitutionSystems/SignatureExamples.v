@@ -556,10 +556,10 @@ Local Notation "'Ptd'" := (precategory_Ptd C hsC).
 Local Notation "'EndC'":= ([C, C, hsC]) .
 
 Variable S: Signature C hsC D hsD D' hsD'.
-Let H : functor [C, D', hsD'] [C, D, hsD] := Signature_Functor _ _ _ _ _ _ S.
+Let H : functor [C, D', hsD'] [C, D, hsD] := Signature_Functor S.
 Let θ : nat_trans (θ_source H) (θ_target H) := theta S.
-Let θ_strength1 := Sig_strength_law1 _ _ _ _ _ _ S.
-Let θ_strength2 := Sig_strength_law2 _ _ _ _ _ _ S.
+Let θ_strength1 := Sig_strength_law1 S.
+Let θ_strength2 := Sig_strength_law2 S.
 Variable G : functor D E.
 
 Let GH : functor [C, D', hsD'] [C, E, hsE] := functor_composite H (post_composition_functor _ _ _ _ _ G).

@@ -542,7 +542,7 @@ Section IndividualSignatures.
     actionbased_strength_triangle_eq Mon_endo' domain_action target_action H θ_for_ab_strength.
   Proof.
     red. intro X.
-    assert (HypX := Sig_strength_law1 _ _ _ _ _ _ sig X).
+    assert (HypX := Sig_strength_law1 sig X).
     fold θ'' in HypX.
     fold H in HypX.
     apply nat_trans_eq; try assumption.
@@ -576,8 +576,8 @@ Section IndividualSignatures.
     apply nat_trans_eq; try (exact hsD).
     intro c.
     simpl.
-    assert (HypX := θ_Strength2_int_implies_θ_Strength2_int_nicer _ _ _ _ _ _ _ _
-                        (Sig_strength_law2 _ _ _ _ _ _ sig) X Z Z').
+    assert (HypX := θ_Strength2_int_implies_θ_Strength2_int_nicer _
+                        (Sig_strength_law2 sig) X Z Z').
     fold θ'' in HypX.
     fold H in HypX.
     assert (Heqc := nat_trans_eq_weq hsD _ _ HypX c).
