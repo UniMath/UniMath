@@ -1,3 +1,8 @@
+(** ** Contents
+
+- Zariski topology
+ *)
+
 Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.RigsAndRings.Ideals.
 Require Import UniMath.MoreFoundations.Subtypes.
@@ -6,20 +11,13 @@ Require Import UniMath.Topology.Topology.
 Local Open Scope logic.
 Local Open Scope subtype.
 
+
+(** ** Zariski topology *)
+
 Section spec.
   Context {R : commring}.
 
-  Definition spec_set : UU := ∑ p : ideal R, is_prime p.
-
-  Definition make_spec_set (p : ideal R) (isp : is_prime p) : spec_set :=
-    p ,, isp.
-
-  Definition spec_set_ideal (S : spec_set) : ideal R := pr1 S.
-  Coercion spec_set_ideal : spec_set >-> ideal.
-
-  Definition spec_set_is_prime (S : spec_set) : is_prime S := pr2 S.
-
-  Definition zariski_topology : (spec_set -> hProp) -> hProp :=
+  Definition zariski_topology : (prime_ideal R -> hProp) -> hProp :=
     λ U, ∃ A, U ≡ (λ p, A ⊈ p).
 
   Lemma zariski_topology_union :
@@ -50,8 +48,7 @@ Section spec.
   Proof.
     apply hinhpr. exists (λ x, htrue). intro p.
     use make_dirprod; intro H.
-    - set (Hx := is_prime_ax2 (spec_set_is_prime p)).
-      use (hinhfun _ Hx); intro Hx'.
+    - use (hinhfun _ (prime_ideal_ax2 p)); intro Hx'.
       induction Hx' as [x Hx'].
       exists x. exact (make_dirprod tt Hx').
     - exact tt.
@@ -83,7 +80,7 @@ Section spec.
         exact (make_dirprod (dirprod_pr1 Ha)
                             (make_dirprod (dirprod_pr1 Hb) (idpath _))).
       + apply (@negf _ (p a ∨ p b)).
-        * exact (is_prime_ax1 (spec_set_is_prime p) a b).
+        * exact (prime_ideal_ax1 _ a b).
         * apply toneghdisj.
           exact (make_dirprod (dirprod_pr2 Ha) (dirprod_pr2 Hb)).
     - use (hinhuniv _ H); intro Hx.
@@ -105,11 +102,11 @@ Section spec.
   Defined.
 
   Definition spec_top : TopologicalSet :=
-    mkTopologicalSet spec_set
+    mkTopologicalSet (prime_ideal R)
                      zariski_topology
                      zariski_topology_union
                      zariski_topology_htrue
                      zariski_topology_and.
 End spec.
 
-Arguments spec_set _ : clear implicits.
+Arguments spec_top _ : clear implicits.

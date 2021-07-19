@@ -11,7 +11,9 @@ Author: Langston Barrett (@siddharthist)
   - Two-sided ideals ([ideal])
   - The above notions coincide for commutative rigs
 - Kernel ideal
+- Unit ideal
 - Prime ideal
+- Localization at a prime ideal
  *)
 
 Require Import UniMath.Algebra.RigsAndRings.
@@ -115,17 +117,73 @@ Proof.
     abstract (rewrite ss; refine (rigmult0x _ (pr1 f r) @ _); reflexivity).
 Defined.
 
+(** ** Unit ideal *)
+
+Lemma ideal_rigunel2 {R : rig} (I : ideal R) : I 1 -> forall x, I x.
+Proof.
+  intros H x.
+  apply (transportf (λ x, I x) (rigrunax2 _ x)).
+  exact (ideal_isl _ _ _ H).
+Defined.
+
 (** ** Prime ideal *)
 
 Section prime.
   Context {R : commring}.
 
-  Definition is_prime (I : ideal R) : hProp :=
-    (∀ a b, I (a * b) ⇒ I a ∨ I b) ∧ (∃ x, ¬ I x).
+  Definition prime_ideal : UU := ∑ p : ideal R, (∀ a b, p (a * b) ⇒ p a ∨ p b) ∧ (∃ x, ¬ p x).
 
-  Definition is_prime_ax1 {I : ideal R} (H : is_prime I) :
-    ∀ a b, I (a * b) ⇒ I a ∨ I b := dirprod_pr1 H.
+  Definition make_prime_ideal (p : ideal R) (H1 : ∀ a b, p (a * b) ⇒ p a ∨ p b) (H2 : ∃ x, ¬ p x) :
+    prime_ideal := p ,, (make_dirprod H1 H2).
 
-  Definition is_prime_ax2 {I : ideal R} (H : is_prime I) :
-    ∃ x, ¬ I x := dirprod_pr2 H.
+  Definition prime_ideal_ideal (p : prime_ideal) : ideal R := pr1 p.
+  Coercion prime_ideal_ideal : prime_ideal >-> ideal.
+
+  Definition prime_ideal_ax1 (p : prime_ideal) : ∀ a b, p (a * b) ⇒ p a ∨ p b := pr12 p.
+
+  Definition prime_ideal_ax2 (p : prime_ideal) : ∃ x, ¬ p x := pr22 p.
 End prime.
+
+Arguments prime_ideal _ : clear implicits.
+
+Section prime_facts.
+  Context {R : commring} (p : prime_ideal R).
+
+  Definition prime_ideal_ax1_contraposition :
+    ∀ a b : R, ¬ p a ⇒ ¬ p b ⇒ ¬ p (a * b).
+  Proof.
+    intros a b Ha Hb.
+    apply (negf (prime_ideal_ax1 p a b)), toneghdisj.
+    exact (make_dirprod Ha Hb).
+  Defined.
+
+  Lemma prime_ideal_rigunel2 : ¬ p 1.
+  Proof.
+    intro H.
+    apply (hexistsnegtonegforall _ (prime_ideal_ax2 p)).
+    exact (ideal_rigunel2 _ H).
+  Defined.
+End prime_facts.
+
+(** ** Localization at a prime ideal *)
+
+Section localization.
+  Context {R : commring}.
+
+  Definition prime_ideal_complement (p : prime_ideal R) :
+    subabmonoid (ringmultabmonoid R).
+  Proof.
+    use make_submonoid.
+    - intro x. exact (¬ p x).
+    - use make_issubmonoid.
+      + intros a b.
+        exact (prime_ideal_ax1_contraposition _ _ _ (pr2 a) (pr2 b)).
+      + exact (prime_ideal_rigunel2 p).
+  Defined.
+
+  Definition localization_at (p : prime_ideal R) : commring :=
+    commringfrac _ (prime_ideal_complement p).
+
+  Definition quotient {p : prime_ideal R} (a : R) (b : prime_ideal_complement p) :
+    localization_at p := prcommringfrac _ _ a b.
+End localization.
