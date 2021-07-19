@@ -1,6 +1,7 @@
 (** ** Contents
 
 - Zariski topology
+- Structure sheaf
  *)
 
 Require Import UniMath.Algebra.RigsAndRings.
@@ -110,3 +111,37 @@ Section spec.
 End spec.
 
 Arguments spec_top _ : clear implicits.
+
+
+(** ** Structure sheaf *)
+
+(** For each prime ideal p of R, let R_p be the localization of R at p. For an open set U from the
+    spectrum of R, we define [section U] to be the family of functions s : ∏ p, R_p, such that s is
+    locally a quotient of elements of R: to be precise, we require that for each p in U there is a
+    neighborhood V of p, contained in U, and elements f, g in R, such that for each q in V, g not in
+    q, and s q = f/g. *)
+
+Section section.
+  Context {R : commring} {U : @Open (spec_top R)}.
+
+  Definition is_quotient_on (V : Open)
+                            (s : ∏ q : carrier U, localization_at (pr1 q)) : UU :=
+    ∑ (f g : R), ∏ q : carrier U,
+        V (pr1 q) -> ∑ Hg : ¬ (pr1 q : prime_ideal R) g, s q = quotient f (g ,, Hg).
+
+  Definition is_section (s : ∏ p : carrier U, localization_at (pr1 p)) : hProp :=
+    ∀ p : carrier U, ∃ V : Open, V (pr1 p) × V ⊆ U × is_quotient_on V s.
+
+  Definition section : UU :=
+    ∑ s : (∏ p : carrier U, localization_at (pr1 p)), is_section s.
+
+  Definition make_section (s : ∏ p : carrier U, localization_at (pr1 p)) (H : is_section s) :
+    section := s ,, H.
+
+  Definition section_map (s : section) : ∏ p : carrier U, localization_at (pr1 p) := pr1 s.
+  Coercion section_map : section >-> Funclass.
+
+  Definition section_prop (s : section) : is_section s := pr2 s.
+End section.
+
+Arguments section {_} _.
