@@ -47,18 +47,24 @@ Proof.
 Defined.
 
 (* I would like to know how to use the library results better, but there are problems with the order of arguments *)
-Definition precomp_convertor_nat_trans :
-  odot_x_odot_y_functor Mon_endo homprecat precomp_odot ⟹ odot_x_otimes_y_functor Mon_endo homprecat precomp_odot.
+Definition precomp_convertor_nat_trans_data : nat_trans_data (odot_x_odot_y_functor Mon_endo homprecat precomp_odot) (odot_x_otimes_y_functor Mon_endo homprecat precomp_odot).
 Proof.
-   use make_nat_trans.
-   - intro x. cbn.
-     induction x as [x12 x3]. induction x12 as [x1 x2]. cbn.
-     apply lassociator.
-   - red. intros x x' f.
-     unfold odot_x_odot_y_functor, odot_x_otimes_y_functor, precomp_odot.
-     cbn.
-     apply hcomp_lassoc.
+  intro x.
+  induction x as [x12 x3]. induction x12 as [x1 x2].
+  apply lassociator.
 Defined.
+
+Lemma precomp_convertor_data_is_nat_trans : is_nat_trans _ _ precomp_convertor_nat_trans_data.
+Proof.
+  red. intros x x' f.
+  unfold odot_x_odot_y_functor, odot_x_otimes_y_functor, precomp_odot.
+  cbn.
+  apply hcomp_lassoc.
+Qed.
+
+Definition precomp_convertor_nat_trans :
+  odot_x_odot_y_functor Mon_endo homprecat precomp_odot ⟹ odot_x_otimes_y_functor Mon_endo homprecat precomp_odot
+  := (precomp_convertor_nat_trans_data,,precomp_convertor_data_is_nat_trans).
 
 Definition precomp_convertor : action_convertor Mon_endo homprecat precomp_odot.
 Proof.
@@ -67,11 +73,10 @@ Proof.
   apply is_z_iso_lassociator.
 Defined.
 
-Definition action_from_precomp : action Mon_endo homprecat.
+Lemma action_from_precomp_laws :
+  action_triangle_eq Mon_endo homprecat precomp_odot precomp_right_unitor precomp_convertor
+                     × action_pentagon_eq Mon_endo homprecat precomp_odot precomp_convertor.
 Proof.
-  exists precomp_odot.
-  exists precomp_right_unitor.
-  exists precomp_convertor.
   split.
   - red. cbn. intros a x.
     rewrite hcomp_identity_right.
@@ -81,8 +86,15 @@ Proof.
     rewrite hcomp_identity_left.
     rewrite hcomp_identity_right.
     apply pathsinv0. apply lassociator_lassociator.
-Defined.
+Qed.
 
+Definition action_from_precomp : action Mon_endo homprecat.
+Proof.
+  exists precomp_odot.
+  exists precomp_right_unitor.
+  exists precomp_convertor.
+  exact action_from_precomp_laws.
+Defined.
 
 End Action_From_Precomposition.
 

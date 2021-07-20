@@ -161,8 +161,10 @@ Proof.
     apply hcomp_identity_right.
 Qed.
 
-Definition μ_UZ'Zinv (Z' Z : monoidal_precat_precat Mon_M):=
-  nat_z_iso_to_trans_inv (μ_U,,pr22 U) (Z',,Z).
+Definition μ_UZ'Zinv (Z' Z : monoidal_precat_precat Mon_M) :
+  hom c0 c0 ⟦ monoidal_functor_map_codom Mon_M Mon_endo (pr11 U) (Z',, Z),
+              monoidal_functor_map_dom Mon_M Mon_endo (pr11 U) (Z',, Z) ⟧
+  := nat_z_iso_to_trans_inv (μ_U,,pr22 U) (Z',,Z).
 
 Definition pentagon_eq_nicer : UU :=
   ∏ (X : C ⟦ c0, d0' ⟧) (Z' Z : monoidal_precat_precat Mon_M),
