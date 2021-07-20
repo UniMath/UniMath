@@ -65,7 +65,7 @@ Proof.
              intros ? ? ? f g h. exact (λ u, (u #⊗ id h)).
 Defined.
 
-Definition prebicat_laws_from_monoidal : prebicat_laws (prebicat_data_from_monoidal).
+Lemma prebicat_laws_from_monoidal : prebicat_laws (prebicat_data_from_monoidal).
 Proof.
   (* 1. Identities. *)
   split. { intros. apply id_left. }
@@ -188,7 +188,7 @@ Proof.
   etrans. exact (maponpaths (fun z => (_ #⊗ z)) (id_right _)).
   etrans. exact (maponpaths (fun z => (z #⊗ _)) (z_iso_inv_after_z_iso (α ((f,g),h) ,, pr2 α _))).
   apply (functor_id tensor).
-Defined.
+Qed.
 
 Definition prebicat_from_monoidal : prebicat :=
   prebicat_data_from_monoidal ,, prebicat_laws_from_monoidal.

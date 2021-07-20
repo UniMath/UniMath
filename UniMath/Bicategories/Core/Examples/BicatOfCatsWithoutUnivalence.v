@@ -40,7 +40,7 @@ Proof.
   - exact (λ _ _ _ _ _ _ _, nat_trans_id _).
 Defined.
 
-Definition cat_prebicat_nouniv_laws : prebicat_laws cat_prebicat_nouniv_data.
+Lemma cat_prebicat_nouniv_laws : prebicat_laws cat_prebicat_nouniv_data.
 Proof.
   repeat split; cbn.
   - intros C D F G η.
@@ -57,14 +57,14 @@ Proof.
     apply assoc.
   - intros C₁ C₂ C₃ F G.
     apply nat_trans_eq; try apply C₃.
-    reflexivity.
+    intro; apply idpath.
   - intros C₁ C₂ C₃ F G.
     apply nat_trans_eq; try apply C₃.
     intros ; cbn.
     apply functor_id.
   - intros C₁ C₂ C₃ F G₁ G₂ G₃ α β.
     apply nat_trans_eq; try apply C₃.
-    reflexivity.
+    intro; apply idpath.
   - intros C₁ C₂ C₃ F₁ F₂ F₃ G α β.
     apply nat_trans_eq; try apply C₃.
     intros ; cbn.
@@ -73,27 +73,27 @@ Proof.
     apply nat_trans_eq; try apply D.
     intros ; cbn.
     rewrite id_left, id_right.
-    reflexivity.
+    apply idpath.
   - intros C D F G α.
     apply nat_trans_eq; try apply D.
     intros ; cbn.
     rewrite id_left, id_right.
-    reflexivity.
+    apply idpath.
   - intros C₁ C₂ C₃ C₄ F G H₁ H₂ α.
     apply nat_trans_eq; try apply C₄.
     intros ; cbn.
     rewrite id_left, id_right.
-    reflexivity.
+    apply idpath.
   - intros C₁ C₂ C₃ C₄ F G₁ G₂ H α.
     apply nat_trans_eq; try apply C₄.
     intros ; cbn.
     rewrite id_left, id_right.
-    reflexivity.
+    apply idpath.
   - intros C₁ C₂ C₃ C₄ F₁ F₂ G H α.
     apply nat_trans_eq; try apply C₄.
     intros ; cbn.
     rewrite id_left, id_right.
-    reflexivity.
+    apply idpath.
   - intros C₁ C₂ C₃ F₁ F₂ G₁ H₂ α β.
     apply nat_trans_eq; try apply C₃.
     intros ; cbn.
