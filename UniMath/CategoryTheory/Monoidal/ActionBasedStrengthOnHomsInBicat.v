@@ -61,8 +61,10 @@ Context (ab_str : ab_strength_on_homs_in_bicat).
 
 Local Definition θ := pr1 ab_str.
 
-Definition triangle_eq := actionbased_strength_triangle_eq Mon_M ab_strength_domain_action ab_strength_target_action F (pr1 ab_str).
-Definition pentagon_eq := actionbased_strength_pentagon_eq Mon_M ab_strength_domain_action ab_strength_target_action F (pr1 ab_str).
+Definition triangle_eq := actionbased_strength_triangle_eq Mon_M
+  ab_strength_domain_action ab_strength_target_action F (pr1 ab_str).
+Definition pentagon_eq := actionbased_strength_pentagon_eq Mon_M
+  ab_strength_domain_action ab_strength_target_action F (pr1 ab_str).
 
 Lemma triangle_eq_readable: triangle_eq =
   ∏ a : C ⟦ c0, d0' ⟧, θ (a,, monoidal_precat_unit Mon_M) • # F (id₂ a ⋆⋆  ϵ_U • lunitor a) =
@@ -71,21 +73,27 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma triangle_eq_nice: triangle_eq <->
-  ∏ X : C ⟦ c0, d0' ⟧, θ (X,, monoidal_precat_unit Mon_M) • # F ((ϵ_U ▹ X) • lunitor X) = (ϵ_U ▹ F X) • lunitor (F X).
+Definition triangle_eq_nice : UU :=
+  ∏ X : C ⟦ c0, d0' ⟧, θ (X,, monoidal_precat_unit Mon_M) • # F ((ϵ_U ▹ X) • lunitor X) =
+                       (ϵ_U ▹ F X) • lunitor (F X).
+
+Lemma triangle_eq_implies_triangle_eq_nice : triangle_eq -> triangle_eq_nice.
 Proof.
-  split.
-  - intro Heq.
-    intro X.
-    set (HeqX := Heq X).
-    cbn in HeqX.
-    do 2 rewrite hcomp_identity_right in HeqX.
-    assumption.
-  - intro Heq.
-    intro X.
-    cbn.
-    do 2 rewrite hcomp_identity_right.
-    apply Heq.
+  intro Heq.
+  intro X.
+  set (HeqX := Heq X).
+  cbn in HeqX.
+  do 2 rewrite hcomp_identity_right in HeqX.
+  assumption.
+Qed.
+
+Lemma triangle_eq_nice_implies_triangle_eq : triangle_eq_nice -> triangle_eq.
+Proof.
+  intro Heq.
+  intro X.
+  cbn.
+  do 2 rewrite hcomp_identity_right.
+  apply Heq.
 Qed.
 
 Lemma pentagon_eq_readable: pentagon_eq =
@@ -99,127 +107,138 @@ Proof.
 Qed.
 
 
-(** the variables chosen in the following make the link with the notion of signature in the TYPES'15 paper by Ahrens and Matthes more visible - but Z is written insted of (Z,e), and likewise for Z' *)
+(** the variables chosen in the following make the link with the notion of signature
+    in the TYPES'15 paper by Ahrens and Matthes more visible - but Z is written insted
+    of (Z,e), and likewise for Z' *)
 
-Lemma pentagon_eq_nice: pentagon_eq <->
+Definition pentagon_eq_nice : UU :=
   ∏ (X : C ⟦ c0, d0' ⟧) (Z' Z : monoidal_precat_precat Mon_M),
     (lassociator (U Z) (U Z') (F X) • (μ_U (Z',, Z) ▹ F X)) • θ (X,, monoidal_precat_tensor Mon_M (Z', Z)) =
     ((F_U Z ◃ θ (X,, Z')) • θ (F_U Z' · X,, Z)) • # F (lassociator (U Z) (U Z') X • (μ_U (Z',, Z) ▹ X)).
+
+Lemma pentagon_eq_implies_pentagon_eq_nice : pentagon_eq -> pentagon_eq_nice.
 Proof.
-  split.
-  - intros Heq X Z' Z.
-    assert (Heqinst := Heq X Z' Z).
-    clear Heq.
-    revert Heqinst.
-    simpl.
-    rewrite (functor_id (pr11 U)).
-    intro Heqinst.
-    refine (!_ @ Heqinst @ _).
-    + cbn.
-      apply maponpaths_2.
-      apply maponpaths.
-      exact (hcomp_identity_right _ _ (F X) (ConstructionOfActions.μ Mon_M U (Z',, Z))).
-    + etrans.
-      {
-        do 2 apply maponpaths_2.
-        apply hcomp_identity_left.
-      }
-      cbn.
-      do 3 apply maponpaths.
-      apply hcomp_identity_right.
-  - intros Heq X Z' Z.
-    simpl.
-    rewrite (functor_id (pr11 U)).
-    refine (_ @ Heq _ _ _ @ _).
-    + cbn.
-      apply maponpaths_2.
-      apply maponpaths.
-      apply hcomp_identity_right.
-    + refine (!_).
-      etrans.
-      {
-        do 2 apply maponpaths_2.
-        apply hcomp_identity_left.
-      }
-      cbn.
-      do 3 apply maponpaths.
-      apply hcomp_identity_right.
+  intros Heq X Z' Z.
+  assert (Heqinst := Heq X Z' Z).
+  clear Heq.
+  revert Heqinst.
+  simpl.
+  rewrite (functor_id (pr11 U)).
+  intro Heqinst.
+  refine (!_ @ Heqinst @ _).
+  - cbn.
+    apply maponpaths_2.
+    apply maponpaths.
+    exact (hcomp_identity_right _ _ (F X) (ConstructionOfActions.μ Mon_M U (Z',, Z))).
+  - etrans.
+    {
+      do 2 apply maponpaths_2.
+      apply hcomp_identity_left.
+    }
+    cbn.
+    do 3 apply maponpaths.
+    apply hcomp_identity_right.
+Qed.
+
+Lemma pentagon_eq_nice_implies_pentagon_eq : pentagon_eq_nice -> pentagon_eq.
+Proof.
+  intros Heq X Z' Z.
+  simpl.
+  rewrite (functor_id (pr11 U)).
+  refine (_ @ Heq _ _ _ @ _).
+  - cbn.
+    apply maponpaths_2.
+    apply maponpaths.
+    apply hcomp_identity_right.
+  - refine (!_).
+    etrans.
+    {
+      do 2 apply maponpaths_2.
+      apply hcomp_identity_left.
+    }
+    cbn.
+    do 3 apply maponpaths.
+    apply hcomp_identity_right.
 Qed.
 
 Definition μ_UZ'Zinv (Z' Z : monoidal_precat_precat Mon_M):=
   nat_z_iso_to_trans_inv (μ_U,,pr22 U) (Z',,Z).
 
-Lemma pentagon_eq_nicer: pentagon_eq <->
+Definition pentagon_eq_nicer : UU :=
   ∏ (X : C ⟦ c0, d0' ⟧) (Z' Z : monoidal_precat_precat Mon_M),
                          (lassociator (U Z) (U Z') (F X) • (μ_U (Z',, Z) ▹ F X)) •
                          θ (X,, monoidal_precat_tensor Mon_M (Z', Z)) •
                          # F ((μ_UZ'Zinv Z' Z ▹ X) • rassociator (U Z) (U Z') X) =
                          ((F_U Z ◃ θ (X,, Z')) • θ (F_U Z' · X,, Z)).
+
+Lemma pentagon_eq_nice_implies_pentagon_eq_nicer : pentagon_eq_nice -> pentagon_eq_nicer.
 Proof.
-  split.
-  - intro Heq.
-    assert (Heq' := pr1 pentagon_eq_nice Heq).
-    clear Heq.
-    intros X Z' Z.
-    assert (Heqinst := Heq' X Z' Z).
-    clear Heq'.
-    rewrite Heqinst.
-    clear Heqinst.
-    etrans.
-    2: { apply id2_right. }
-    rewrite <- vassocr.
-    apply maponpaths.
-    apply pathsinv0.
-    etrans.
-    2: { apply (functor_comp(C:=hom c0 d0')(C':=hom c0 d0)). }
-    apply pathsinv0.
-    apply (functor_id_id (hom c0 d0') (hom c0 d0)).
-    cbn.
-    rewrite <- vassocr.
-    apply (lhs_left_invert_cell _ _ _ (is_invertible_2cell_lassociator _ _ _)).
-    rewrite id2_right.
-    rewrite vassocr.
-    etrans.
-    2: { apply id2_left. }
-    apply maponpaths_2.
-    rewrite rwhisker_vcomp.
-    etrans.
-    { apply maponpaths.
-      apply (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso (μ_U,,pr22 U) (Z',,Z))).
-    }
-    apply id2_rwhisker.
-  - intro Heq.
-    apply (pr2 pentagon_eq_nice).
-    intros X Z' Z.
-    assert (Heqinst := Heq X Z' Z).
-    clear Heq.
-    etrans.
-    2: { apply maponpaths_2.
-         exact Heqinst. }
-    clear Heqinst.
-    repeat rewrite <- vassocr.
-    do 2 apply maponpaths.
-    etrans.
-    { apply pathsinv0. apply id2_right. }
-    apply maponpaths.
-    etrans.
-    2: { apply (functor_comp(C:=hom c0 d0')(C':=hom c0 d0)). }
-    apply pathsinv0.
-    apply (functor_id_id (hom c0 d0') (hom c0 d0)).
-    cbn.
-    rewrite vassocr.
-    etrans.
-    { apply maponpaths_2. apply vassocl. }
-    rewrite rassociator_lassociator.
-    rewrite id2_right.
-    rewrite rwhisker_vcomp.
-    etrans.
-    { apply maponpaths.
-      apply (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso (μ_U,,pr22 U) (Z',,Z))).
-    }
-    apply id2_rwhisker.
+  intro Heq'.
+  intros X Z' Z.
+  assert (Heqinst := Heq' X Z' Z).
+  clear Heq'.
+  rewrite Heqinst.
+  clear Heqinst.
+  etrans.
+  2: { apply id2_right. }
+  rewrite <- vassocr.
+  apply maponpaths.
+  apply pathsinv0.
+  etrans.
+  2: { apply (functor_comp(C:=hom c0 d0')(C':=hom c0 d0)). }
+  apply pathsinv0.
+  apply (functor_id_id (hom c0 d0') (hom c0 d0)).
+  cbn.
+  rewrite <- vassocr.
+  apply (lhs_left_invert_cell _ _ _ (is_invertible_2cell_lassociator _ _ _)).
+  rewrite id2_right.
+  rewrite vassocr.
+  etrans.
+  2: { apply id2_left. }
+  apply maponpaths_2.
+  rewrite rwhisker_vcomp.
+  etrans.
+  { apply maponpaths.
+    apply (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso (μ_U,,pr22 U) (Z',,Z))).
+  }
+  apply id2_rwhisker.
 Qed.
-(* very slow verification *)
+
+
+Lemma pentagon_eq_nicer_implies_pentagon_eq_nice : pentagon_eq_nicer -> pentagon_eq_nice.
+Proof.
+  intro Heq.
+  intros X Z' Z.
+  assert (Heqinst := Heq X Z' Z).
+  clear Heq.
+  etrans.
+  2: { apply maponpaths_2.
+       exact Heqinst. }
+  clear Heqinst.
+  repeat rewrite <- vassocr.
+  do 2 apply maponpaths.
+  etrans.
+  { apply pathsinv0. apply id2_right. }
+  apply maponpaths.
+  etrans.
+  2: { apply (functor_comp(C:=hom c0 d0')(C':=hom c0 d0)). }
+  apply pathsinv0.
+  apply (functor_id_id (hom c0 d0') (hom c0 d0)).
+  cbn.
+  rewrite vassocr.
+  etrans.
+  { apply maponpaths_2. apply vassocl. }
+  rewrite rassociator_lassociator.
+  rewrite id2_right.
+  rewrite rwhisker_vcomp.
+  etrans.
+  { apply maponpaths.
+    apply (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso (μ_U,,pr22 U) (Z',,Z))).
+  }
+  apply id2_rwhisker.
+Qed.
+(* slow verification *)
+
 
 End ActionBased_Strength_Between_Homs_In_Bicat.
 
@@ -343,7 +362,7 @@ Section IndividualFunctorsWithABStrength.
       apply nat_trans_eq; try assumption.
       intro c.
       cbn.
-      assert (HypX := pr1 (triangle_eq_nice _ _ _ _ _ _) (pr12 ab_str) X).
+      assert (HypX := triangle_eq_implies_triangle_eq_nice _ _ _ _ _ _ (pr12 ab_str) X).
       unfold θ in HypX. fold θ' in HypX.
       assert (Heqc := nat_trans_eq_weq hsD _ _ HypX c).
       cbn in Heqc.
@@ -367,7 +386,8 @@ Section IndividualFunctorsWithABStrength.
       intro c.
       cbn.
       rewrite id_left.
-      assert (HypX := pr1 (pentagon_eq_nicer _ _ _ _ _ _) (pr22 ab_str) X Z' Z).
+      assert (HypX := pentagon_eq_nice_implies_pentagon_eq_nicer _ _ _ _ _ _
+                      (pentagon_eq_implies_pentagon_eq_nice _ _ _ _ _ _ (pr22 ab_str)) X Z' Z).
       unfold θ in HypX. fold θ' in HypX.
       assert (Heqc := nat_trans_eq_weq hsD _ _ HypX c).
       clear HypX.
