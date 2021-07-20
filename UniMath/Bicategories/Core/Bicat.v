@@ -734,7 +734,7 @@ Lemma hcomp_hcomp' {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
   : hcomp η φ = hcomp' η φ.
 Proof.
   apply vcomp_whisker.
-Defined.
+Qed.
 
 Lemma hcomp_lassoc {a b c d : C}
       {f1 g1 : C ⟦ a, b ⟧} {f2 g2 : C ⟦ b, c ⟧} {f3 g3 : C ⟦ c, d ⟧}
@@ -755,7 +755,7 @@ Proof.
   rewrite <- vassocr.
   apply maponpaths.
   apply rwhisker_vcomp.
-Defined.
+Qed.
 
 Lemma is_invertible_2cell_lunitor {a b : C} (f : C ⟦ a, b ⟧)
   : is_invertible_2cell (lunitor f).
@@ -842,14 +842,14 @@ Proof.
   rewrite vassocr.
   rewrite vcomp_whisker.
   transitivity (((f1 ◃ x2) • ((x1 ▹ g2) • (y1 ▹ g2))) • (h1 ◃ y2)).
-  2: repeat rewrite vassocr; reflexivity.
+  2: repeat rewrite vassocr; apply idpath.
   rewrite rwhisker_vcomp.
   rewrite <- vcomp_whisker.
   rewrite <- vassocr.
   rewrite lwhisker_vcomp.
   unfold hcomp.
-  reflexivity.
-Defined.
+  apply idpath.
+Qed.
 
 
 Lemma rwhisker_lwhisker_rassociator
@@ -1006,7 +1006,7 @@ Proof.
   - intros f g. apply id2_left.
   - intros f g. apply id2_right.
   - intros f g h i. apply vassocr.
-Defined.
+Qed.
 
 Definition hom
   : precategory
@@ -1063,7 +1063,7 @@ Proof.
   - cbn; repeat (use tpair); cbn; intros; exact tt.
 Defined.
 
-Definition chaotic_prebicat_laws : prebicat_laws chaotic_prebicat_data.
+Lemma chaotic_prebicat_laws : prebicat_laws chaotic_prebicat_data.
 Proof.
   repeat apply make_dirprod; intros; apply isProofIrrelevantUnit.
 Qed.
@@ -1108,7 +1108,7 @@ Proof.
     + intros. apply (maponpaths_2). assumption.
 Defined.
 
-Definition discrete_prebicat_laws : prebicat_laws discrete_prebicat_data.
+Lemma discrete_prebicat_laws : prebicat_laws discrete_prebicat_data.
 Proof.
   repeat (use tpair); cbn.
   - intros. apply idpath.
