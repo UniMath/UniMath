@@ -332,7 +332,7 @@ Proof.
   - intro c; simpl.
     assert (H':=nat_trans_ax (tau_from_alg T)).
     simpl in H'.
-    eapply pathscomp0. 2: apply (!assoc _ _ _ ).
+    eapply pathscomp0. 2: apply assoc'.
     eapply pathscomp0.
     2: { apply cancel_postcomposition. apply H'. }
     clear H'.

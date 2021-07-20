@@ -479,7 +479,7 @@ Proof.
 
       eapply pathscomp0. apply maponpaths. apply cancel_postcomposition. apply BinCoproductIn1Commutes.
 
-      eapply pathscomp0. apply maponpaths. apply (!assoc _ _ _ ).
+      eapply pathscomp0. apply maponpaths. apply assoc'.
       simpl. apply maponpaths. apply maponpaths.
       apply BinCoproductIn1Commutes.
 Qed.

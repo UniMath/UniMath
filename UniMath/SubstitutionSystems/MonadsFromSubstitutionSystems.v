@@ -354,8 +354,8 @@ Proof.
       simpl in *.
       match goal with |[H3 : _ = ?f |- ?e · _ · _ · _  = _ ] =>
          intermediate_path (e · f) end.
-      * eapply pathscomp0. apply (!assoc _ _ _).
-        eapply pathscomp0. apply (!assoc _ _ _ ).
+      * eapply pathscomp0. apply assoc'.
+        eapply pathscomp0. apply assoc'.
         apply maponpaths.
         eapply pathscomp0. 2: apply H3.
         apply assoc.
@@ -365,7 +365,7 @@ Proof.
         assert (H1 := nat_trans_ax (τ T )).
         unfold tau_from_alg in H1.
         eapply pathscomp0; [ | apply H1]; clear H1.
-        apply pathsinv0, assoc.
+        apply assoc'.
 Qed.
 
 Local Notation "'T•T²'" := (functor_compose hs hs (functor_composite (`T) (`T)) (`T) : [C, C, hs]).
@@ -403,7 +403,7 @@ Proof.
     simpl.
     transitivity (identity _ · μ_2 c).
     + apply pathsinv0, id_left.
-    + eapply pathscomp0; [ | apply (!assoc _ _ _ ) ].
+    + eapply pathscomp0; [ | apply assoc' ].
       apply cancel_postcomposition.
       assert (H1 := Monad_law_1_from_hss (pr1 (`T) c)).
       apply (!H1).
@@ -453,7 +453,7 @@ Proof.
       }
       eapply pathscomp0. apply (Strength_2 F).
       clear Strength_2.
-      eapply pathscomp0. apply (!assoc _ _ _).
+      eapply pathscomp0. apply assoc'.
       apply maponpaths.
       apply maponpaths.
       match goal with |[ |- _ = ?pr1 (# ?G ?g) _ ] =>
