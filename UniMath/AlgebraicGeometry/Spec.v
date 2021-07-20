@@ -49,9 +49,8 @@ Section spec.
   Proof.
     apply hinhpr. exists (λ x, htrue). intro p.
     use make_dirprod; intro H.
-    - use (hinhfun _ (prime_ideal_ax2 p)); intro Hx'.
-      induction Hx' as [x Hx'].
-      exists x. exact (make_dirprod tt Hx').
+    - apply hinhpr. exists rigunel2.
+      exact (make_dirprod tt (prime_ideal_ax2 p)).
     - exact tt.
   Defined.
 
