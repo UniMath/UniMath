@@ -336,9 +336,8 @@ Section ActionBasedStrength_Instantiates_To_RelativeStrength.
   Local Definition triangle_eq := pr1 (pr2 ab_str).
   Local Definition pentagon_eq := pr2 (pr2 ab_str).
 
-  Definition relative_strength_from_actionbased_strength: rel_strength F.
+  Lemma relative_strength_from_actionbased_strength_laws : rel_strength_pentagon_eq F θ' × rel_strength_rectangle_eq F θ'.
   Proof.
-    exists θ'.
     split.
     - red.
       cbn.
@@ -363,6 +362,12 @@ Section ActionBasedStrength_Instantiates_To_RelativeStrength.
       rewrite functor_comp in Hyp.
       rewrite assoc in Hyp.
       exact Hyp.
+  Qed.
+
+  Definition relative_strength_from_actionbased_strength: rel_strength F.
+  Proof.
+    exists θ'.
+    exact relative_strength_from_actionbased_strength_laws.
   Defined.
 
 End ActionBasedStrength_Instantiates_To_RelativeStrength.

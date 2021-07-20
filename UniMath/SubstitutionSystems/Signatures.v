@@ -421,9 +421,9 @@ Section relative_strength_instantiates_to_signature.
   Local Definition θ : θ_source C hs C hs C hs H ⟹ θ_target C hs C hs C hs H
     := pre_whisker binswap_pair_functor ϛ.
 
-  Definition signature_from_rel_strength : Signature C hs C hs C hs.
+  Lemma signature_from_rel_strength_laws : θ_Strength1_int C hs C hs C hs H θ ×
+                                           θ_Strength2_int C hs C hs C hs H θ.
   Proof.
-    exists H. exists θ.
     split; red.
     - intro X.
       cbn.
@@ -464,6 +464,12 @@ Section relative_strength_instantiates_to_signature.
       apply maponpaths.
       apply pathsinv0.
       apply (nat_trans_eq_weq hs _ _ (auxH2 H X Z Z') c).
+  Qed.
+
+  Definition signature_from_rel_strength : Signature C hs C hs C hs.
+  Proof.
+    exists H. exists θ.
+    exact signature_from_rel_strength_laws.
   Defined.
 
 End relative_strength_instantiates_to_signature.
@@ -479,9 +485,9 @@ Section strength_in_signature_is_a_relative_strength.
   Local Definition θ'_strength_law1 := Sig_strength_law1 _ _ _ _ _ _ sig.
   Local Definition θ'_strength_law2 := Sig_strength_law2 _ _ _ _ _ _ sig.
 
-  Definition rel_strength_from_signature : rel_strength forget H.
+  Lemma rel_strength_from_signature_laws : rel_strength_pentagon_eq forget H ϛ' ×
+                                           rel_strength_rectangle_eq forget H ϛ'.
   Proof.
-    exists ϛ'.
     split.
     - intro X.
       apply nat_trans_eq; try assumption; intro c.
@@ -521,7 +527,9 @@ Section strength_in_signature_is_a_relative_strength.
       2: apply id_right.
       apply maponpaths.
       apply (nat_trans_eq_weq hs _ _ (auxH2 H X Z Z') c).
-Defined.
+  Qed.
+
+  Definition rel_strength_from_signature : rel_strength forget H := (ϛ',,rel_strength_from_signature_laws).
 
 End strength_in_signature_is_a_relative_strength.
 
