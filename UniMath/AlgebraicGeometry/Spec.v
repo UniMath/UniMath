@@ -1,3 +1,9 @@
+(** ** Contents
+
+- Zariski topology
+- Structure sheaf
+ *)
+
 Require Import UniMath.Algebra.RigsAndRings.
 Require Import UniMath.Algebra.RigsAndRings.Ideals.
 Require Import UniMath.MoreFoundations.Subtypes.
@@ -6,20 +12,13 @@ Require Import UniMath.Topology.Topology.
 Local Open Scope logic.
 Local Open Scope subtype.
 
+
+(** ** Zariski topology *)
+
 Section spec.
   Context {R : commring}.
 
-  Definition spec_set : UU := ∑ p : ideal R, is_prime p.
-
-  Definition make_spec_set (p : ideal R) (isp : is_prime p) : spec_set :=
-    p ,, isp.
-
-  Definition spec_set_ideal (S : spec_set) : ideal R := pr1 S.
-  Coercion spec_set_ideal : spec_set >-> ideal.
-
-  Definition spec_set_is_prime (S : spec_set) : is_prime S := pr2 S.
-
-  Definition zariski_topology : (spec_set -> hProp) -> hProp :=
+  Definition zariski_topology : (prime_ideal R -> hProp) -> hProp :=
     λ U, ∃ A, U ≡ (λ p, A ⊈ p).
 
   Lemma zariski_topology_union :
@@ -50,10 +49,8 @@ Section spec.
   Proof.
     apply hinhpr. exists (λ x, htrue). intro p.
     use make_dirprod; intro H.
-    - set (Hx := is_prime_ax2 (spec_set_is_prime p)).
-      use (hinhfun _ Hx); intro Hx'.
-      induction Hx' as [x Hx'].
-      exists x. exact (make_dirprod tt Hx').
+    - apply hinhpr. exists rigunel2.
+      exact (make_dirprod tt (prime_ideal_ax2 p)).
     - exact tt.
   Defined.
 
@@ -83,7 +80,7 @@ Section spec.
         exact (make_dirprod (dirprod_pr1 Ha)
                             (make_dirprod (dirprod_pr1 Hb) (idpath _))).
       + apply (@negf _ (p a ∨ p b)).
-        * exact (is_prime_ax1 (spec_set_is_prime p) a b).
+        * exact (prime_ideal_ax1 _ a b).
         * apply toneghdisj.
           exact (make_dirprod (dirprod_pr2 Ha) (dirprod_pr2 Hb)).
     - use (hinhuniv _ H); intro Hx.
@@ -105,11 +102,45 @@ Section spec.
   Defined.
 
   Definition spec_top : TopologicalSet :=
-    mkTopologicalSet spec_set
+    mkTopologicalSet (prime_ideal R)
                      zariski_topology
                      zariski_topology_union
                      zariski_topology_htrue
                      zariski_topology_and.
 End spec.
 
-Arguments spec_set _ : clear implicits.
+Arguments spec_top _ : clear implicits.
+
+
+(** ** Structure sheaf *)
+
+(** For each prime ideal p of R, let R_p be the localization of R at p. For an open set U from the
+    spectrum of R, we define [section U] to be the family of functions s : ∏ p, R_p, such that s is
+    locally a quotient of elements of R: to be precise, we require that for each p in U there is a
+    neighborhood V of p, contained in U, and elements f, g in R, such that for each q in V, g not in
+    q, and s q = f/g. *)
+
+Section section.
+  Context {R : commring} {U : @Open (spec_top R)}.
+
+  Definition is_quotient_on (V : Open)
+                            (s : ∏ q : carrier U, localization_at (pr1 q)) : UU :=
+    ∑ (f g : R), ∏ q : carrier U,
+        V (pr1 q) -> ∑ Hg : ¬ (pr1 q : prime_ideal R) g, s q = quotient f (g ,, Hg).
+
+  Definition is_section (s : ∏ p : carrier U, localization_at (pr1 p)) : hProp :=
+    ∀ p : carrier U, ∃ V : Open, V (pr1 p) × V ⊆ U × is_quotient_on V s.
+
+  Definition section : UU :=
+    ∑ s : (∏ p : carrier U, localization_at (pr1 p)), is_section s.
+
+  Definition make_section (s : ∏ p : carrier U, localization_at (pr1 p)) (H : is_section s) :
+    section := s ,, H.
+
+  Definition section_map (s : section) : ∏ p : carrier U, localization_at (pr1 p) := pr1 s.
+  Coercion section_map : section >-> Funclass.
+
+  Definition section_prop (s : section) : is_section s := pr2 s.
+End section.
+
+Arguments section {_} _.
