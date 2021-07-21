@@ -2594,76 +2594,117 @@ Section Gauss.
 
   (* Need to think of a proper naming for this *)
   (* And actually this one needs to iterate from 0 -> n ? *)
+  (* DEPRECATED — uses wrong order of iteration. TODO: remove. *)
   (* [gauss_clear_multiple_column_segments n k mat]:
-     clear all columns of [mat] from [k] onwards,
+     clear all columns of [mat] from [n-1] backwards to [k] ,
      return the result *)
-  Definition gauss_clear_multiple_column_segments { n : nat }
+  Definition gauss_clear_multiple_column_segments_backwards { n : nat }
              (k : (⟦ n ⟧%stn))
              (mat : Matrix F n n) : Matrix F n n.
   Proof.
-    destruct k as [pr1_k pr2_k].
+    destruct k as [k lt_k_n].
     (*induction (natlthorgeh (S k) n) as [ | ? ?].*)
     (* set (mat' := gauss_clear_column pr1_k pr2_k k mat). *)
     destruct (natchoice0 n) as [? | gt].
-    { exact mat. }
-    assert (pr2' : n - 1 < n).
-    { apply (natminus1lthn _ gt) . }
-    induction (pr1_k) as [ | m gauss_call_IH].
-    - assert (pr2_0 : 0 < n). {exact pr2_k. }
-      set (k := make_stn n 0 pr2_k).
+    (* case n = 0 *)  { exact mat. }
+    (* case 0 < n *)
+    assert (pr2' : n - 1 < n). { apply (natminus1lthn _ gt) . }
+    induction k as [ | m gauss_call_IH].
+    - assert (pr2_0 : 0 < n). { exact lt_k_n. }
+      set (k := make_stn n 0 lt_k_n).
       (* exact (gauss_clear_column 0 pr2_0 k mat). *)  (*(gauss_clear_column 0 pr2_0 k mat').*)
       exact (gauss_clear_column (n - 1) pr2' k mat).
-    - assert (pr2_sm: S m < n). {assumption. }
+    - assert (pr2_sm: S m < n). { assumption. }
       assert (pr2_m: m < n). { apply natlehsntolth. (*clear mat' k.*) apply natlthtoleh. (*in pr2_k.*) assumption. }
-      set (k' := make_stn n (S m) pr2_k).
-      exact (gauss_clear_column (*(S m) pr2_sm*) (n - 1) pr2'  k' (gauss_call_IH  pr2_m)). (* In the current formulation,
-                                                                           we should be using S m ?
-                                                                           The use should be standardized. *)
+      set (k' := make_stn n (S m) lt_k_n).
+      exact (gauss_clear_column (n - 1) pr2'  k' (gauss_call_IH  pr2_m)).
+  (* In the current formulation, we should be using S m ?
+     The use should be standardized. *)
   Defined.
 
-  (* Reverse order of iteration *)
+
+  (* [gauss_clear_multiple_column_segments n k mat]:
+     clear all columns of [mat] from [n-1] backwards to [n-k],
+     return the result *)
+  (* TODO: should go forwards not backwards!  fix or replace *)
   Definition gauss_clear_multiple_column_segments'  { n : nat }
-             (pr1_k : nat) (pr2_k : pr1_k < n)
+             (k : (⟦ n ⟧%stn))
              (mat : Matrix F n n) : Matrix F n n.
   Proof.
-    (*induction (natlthorgeh (S k) n) as [ | ? ?].*)
-    (* set (mat' := gauss_clear_column pr1_k pr2_k k mat). *)
-    destruct (natchoice0 n) as [? | gt].
-    { exact mat. }
-    assert (pr2' : n - 1 < n).
-    { apply (natminus1lthn _ gt) . }
-    set( hmm := pr1_k).
-    set (hmm2 := n - pr1_k).
-    set (memory := pr1_k).
-    induction ((*n - pr1_k*) pr1_k) as [ | m gauss_call_IH].
-    -
-      exact mat.
+    assert (gt_n_0 : 0 < n ). { apply stn_implies_ngt0; assumption. }
+    assert (pr2' : n - 1 < n). { apply natminus1lthn; assumption. }
+    destruct k as [k lt_k_n].
+    induction k as [ | m gauss_call_IH].
+    - exact mat.
     -(*
       destruct (natlehchoice (n - pr1_k) n) as [leq | eq] .
       + apply natminuslehn. *)
-      (*+ *)
-      assert (obv : n - (S m) < n). {apply  natminuslthn.
-                                     - exact gt.
-                                     - reflexivity. }
-      (* assert (obv2 : n - m < n). { apply natminuslthn. *)
-      set (k' := make_stn n (n -  (S m)) obv).
+      (* + *)
+      assert (obv : n - (S m) < n). { apply natminuslthn; try reflexivity; assumption. }
+      set (k' := make_stn n (n - (S m)) obv).
 
-        assert (follows : m < n). {apply natlehsntolth.  apply natlthtoleh in pr2_k. assumption. }
-        exact (gauss_clear_column  (n - 1) pr2'  k' (gauss_call_IH follows )).
-      (*+ exact mat.*)
+        assert (follows : m < n). {apply natlehsntolth.  apply natlthtoleh in lt_k_n. assumption. }
+      exact (gauss_clear_column (n - 1) pr2'  k' (gauss_call_IH follows )).
+      (* + exact mat.*)
         (*assert (pr2_0 : 0 < n). {exact gt. }
         set (k := make_stn n 0 pr2_0).
         exact (gauss_clear_column (n - 1) pr2' k mat). (*mat *) (*gauss_call_IH. *) (* Is this right ? *)*)
   Defined.
+(*  with
+  gcmcs (S m) mat = gcc (n-1) (n - (S k)) (gcmcs k mat),
+    gives roughly:
+  gcmcs 0 mat == mat'
+  gcmcs 1 mat == gcc (n–1) (n–1) (gcmcs 0 mat)
+              == gcc (n-1) (n-1) mat
+  gcmcs 2 mat == gcc (n–1) (n–2) (gcmcs 1 mat)
+              == gcc (n-1) (n-2) $ gcc (n-1) (n-1) mat
+  gcmcs 3 mat == gcc (n–1) (n–3) (gcmcs 2 mat)
+              == gcc (n-1) (n-3) $ gcc (n-1) (n-2) $ gcc (n-1) (n-1) mat
+
+fixes:
+
+  keep “intention” that [gmcs k mat] clears from [n–k] forwards to [n–1],
+  and define the successor case as
+  gcmcs (S m) mat = gcmcs k (gcc (n-1) (n - (S k)) mat)
+
+  alternative ([gauss_clear_columns_up_to] below):
+  change “intention” to: [gcmcs k mat] clears columns from [0] up to (below) [k]
+  and define successor step as
+  gcmcs (S m) mat = gcc (n-1) m (gcmcs k mat),
+
+ *)
+
+(* [gauss_clear_columns_up_to k mat]:
+clear all columns [i] of [mat] for 0 ≤ i < k;
+return the result *)
+Definition gauss_clear_columns_up_to { n : nat }
+             (k : (⟦ S n ⟧%stn))
+             (mat : Matrix F n n) : Matrix F n n.
+Proof.
+  destruct k as [k lt_k_n].
+  induction k as [ | k' gauss_clear_earlier_columns].
+  - exact mat.
+  - refine (gauss_clear_column (n - 1) _ (k',,_) (gauss_clear_earlier_columns _)).
+    + admit.
+    + admit.
+    + admit.
+Admitted.
+
+Definition gauss_clear_all_columns { n : nat } (mat : Matrix F n n) : Matrix F n n.
+Proof.
+  refine (gauss_clear_columns_up_to (n,,_) mat).
+  admit.
+Admitted.
 
 
   (* Inputting a matrix and transforming it int o an upper-triangular matrix by
      elementary matrix operations or equivalent *)
+  (* TODO: redefine to use [gauss_clear_columns_up_to], or replace with [gauss_clear_all_columns] above *)
   Definition gauss_clear_all_column_segments { n : nat } (mat : Matrix F n n) : Matrix F n n.
   Proof.
     induction (natchoice0 n) as [n_eq_0 | n_gt_0].
     - exact mat.
-    - exact (gauss_clear_multiple_column_segments' (n - 1) (natminus1lthn n n_gt_0 )  mat).
+    - exact (gauss_clear_multiple_column_segments' (n - 1,, natminus1lthn n n_gt_0)  mat).
   Defined.
 
 
@@ -3349,17 +3390,17 @@ Section Gauss.
   (* Opaque gauss_clear_column. *)
 
   Lemma gauss_clear_multiple_column_segments_inv0
-        { n : nat }  (mat : Matrix F n n) (p: diagonal_filled mat) (k : (⟦ n ⟧%stn))
-        (n' : nat) (p' : n' < n) (p'' : n - 1 < n ):
+        { n : nat } (mat : Matrix F n n) (p : diagonal_filled mat)
+        (n' : ⟦n⟧%stn) :
         ∏ i j : ⟦ n ⟧%stn,
         i > j ->  (* n' ≥ j -> *) n' ≤ j ->
-        (gauss_clear_multiple_column_segments' n' p' mat) i j = 0%hq. (*
-        gauss_clear_column (n - 1) p'' j (* (n' ,, p) *) mat i j. *)
+        (gauss_clear_multiple_column_segments' n' mat) i j = 0%hq. (*
+        gauss_clear_column (n - 1) p'' j (* (n' ,, p) *) = mat i j. *)
   Proof.
     unfold gauss_clear_multiple_column_segments'.
     destruct (natchoice0 n).
     { admit. }
-    induction n'.
+    destruct n' as [n' lt_n'_n]. induction n'.
     { simpl.
       admit. }
     intros i j i_gt_j sn'_leq_j.
@@ -3370,9 +3411,7 @@ Section Gauss.
     {admit. }
     2 : {   replace j with ((make_stn n (n - S n') (natminuslthn n (S n') h (idpath true)))).
             2 : {              admit . }
-            apply gauss_clear_column_inv1.
-            3 : {admit. }
-            2 : {admit. }
+            try apply gauss_clear_column_inv1.
             admit.
     }
     simpl.
@@ -3384,9 +3423,8 @@ Section Gauss.
     - unfold gauss_columns_cleared.
       intros i' j'.
       intros i'_gt_k' j'_lt_k'.
-      apply IHn'.
-      + apply (istransnatlth _ _ _ j'_lt_k' i'_gt_k').
-      + admit. (* Not necessarily true ? What went wrong? *)
+      (* apply IHn'. *) (* application fails to unify for some reason? *)
+      admit.
     - admit. (*Also not true *)
     - admit. (* Has to be added as an invariant for clearing a column *)
     - admit.
@@ -3398,7 +3436,7 @@ Section Gauss.
     @is_upper_triangular F n n (gauss_clear_all_column_segments mat ).
   Proof.
     intros i j i_gt_j.
-    unfold gauss_clear_multiple_column_segments.
+    unfold gauss_clear_multiple_column_segments'.
     destruct (natchoice0 n) as [n0 | n_gt_0].
     { simpl. clear i_gt_j. generalize i. rewrite <- n0 in i. apply (fromstn0 i). }
     simpl.
