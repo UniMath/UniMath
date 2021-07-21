@@ -863,6 +863,8 @@ Proof.
     + simpl.
       repeat split ; intros ; apply idto2mor_idtoiso_two_cat.
 Qed.
+(* it is remarkable that this can be opaque although [strictness_structure_data]
+   is being constructed under the first + item *)
 
 Definition two_cat_to_strict_bicat
            (C : two_cat)
