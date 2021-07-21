@@ -2702,10 +2702,14 @@ Section Gauss.
 
   (* Need to think of a proper naming for this *)
   (* And actually this one needs to iterate from 0 -> n ? *)
-  Definition gauss_clear_multiple_column_segments  { n : nat }
-             (pr1_k : nat) (pr2_k : pr1_k < n)
+  (* [gauss_clear_multiple_column_segments n k mat]:
+     clear all columns of [mat] from [k] onwards,
+     return the result *)
+  Definition gauss_clear_multiple_column_segments { n : nat }
+             (k : (⟦ n ⟧%stn))
              (mat : Matrix F n n) : Matrix F n n.
   Proof.
+    destruct k as [pr1_k pr2_k].
     (*induction (natlthorgeh (S k) n) as [ | ? ?].*)
     (* set (mat' := gauss_clear_column pr1_k pr2_k k mat). *)
     induction (pr1_k) as [ | m gauss_call_IH].
@@ -2735,7 +2739,8 @@ Section Gauss.
   Proof.
     induction (natchoice0 n) as [n_eq_0 | n_gt_0].
     - exact mat.
-    - exact (gauss_clear_multiple_column_segments (n - 1) (natminus1lthn n n_gt_0 )  mat).
+    - exact (gauss_clear_multiple_column_segments
+               (n - 1,, natminus1lthn _ n_gt_0)  mat).
   Defined.
 
 
@@ -3180,15 +3185,14 @@ Section Gauss.
   Admitted.
 
   Lemma gauss_clear_multiple_column_segments_inv0
-        { n : nat }  (mat : Matrix F n n) (k i j : (⟦ n ⟧%stn))
-        (n' : nat) (p : n' < n) :
-        i > j -> n' ≥ j ->
-        (gauss_clear_multiple_column_segments n' p mat) i j =
+        { n : nat }  (mat : Matrix F n n) (k i j n' : (⟦ n ⟧%stn))
+      : i > j -> n' ≥ j ->
+        (gauss_clear_multiple_column_segments n' mat) i j =
         gauss_clear_column_step n j (* (n' ,, p) *) i mat i j.
   Proof.
     intros i_lt_j n'_gt_j.
     unfold gauss_clear_multiple_column_segments.
-    induction n'.
+    destruct n' as [n' lt_n'_n]. induction n'.
     - simpl.  admit.
     - rewrite nat_rect_step.
   Admitted.
