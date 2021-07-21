@@ -294,7 +294,7 @@ Proof.
   - exact (λ _ _ _ _ f g h, plassociator (pr22 B) f g h).
   - exact (λ _ _ _ _ f g h, prassociator (pr22 B) f g h).
 Defined.
-(* the definition is exploited further down *)
+(* the definition is exploited further down in Lemma [strict_bicat_to_two_cat_laws] *)
 
 
 Lemma strict_bicat_to_precategory_has_homsets
