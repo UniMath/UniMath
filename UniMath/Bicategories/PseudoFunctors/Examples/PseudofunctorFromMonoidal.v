@@ -1,6 +1,10 @@
 (**
 
-Construction of a pseudofunctor from a strong monoidal functor - between the bicategories (trivially) generated from the monoidal categories.
+- Construction of a pseudofunctor from a strong monoidal functor - between the bicategories (trivially)
+  generated from the monoidal categories.
+- And the opposite direction: We fix two bicategories and a pseudofunctor between them and an object in
+  the domain bicategory. This gives rise to a strong monoidal functor between the associated monoidal
+  categories of endomorphisms for the fixed object and its image.
 
 Author: Ralph Matthes 2021
 
@@ -99,10 +103,7 @@ Defined.
 End monoidal_functor_to_psfunctor.
 
 (** *** Going into the opposite direction *)
-(** We fix two bicategories and a pseudofunctor between them and an object in the domain bicategory.
-    This gives rise to a strong monoidal functor between the associated monoidal categories of endomorphisms
-    for the fixed object and its image.
-*)
+(** see the description in the file header *)
 
 Section psfunctor_to_monoidal_functor.
 
