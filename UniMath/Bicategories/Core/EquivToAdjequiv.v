@@ -18,7 +18,7 @@ Require Import UniMath.Bicategories.Core.Adjunctions.
 Require Import UniMath.Bicategories.Core.Univalence.
 Local Open Scope bicategory_scope.
 
-Definition representable_faithful
+Lemma representable_faithful
            {C : bicat}
            {X Y Z : C}
            {f : C⟦X,Y⟧} {g : C⟦Y,X⟧}
@@ -31,8 +31,9 @@ Proof.
   intros Hαβ.
   rewrite (whisker_l_iso_id₁ η _ _ α Hη).
   rewrite (whisker_l_iso_id₁ η _ _ β Hη).
-  rewrite (whisker_l_eq k₁ k₂ α β Hαβ).
-  reflexivity.
+  do 2 apply maponpaths.
+  apply (maponpaths (fun z => _ o z)).
+  apply (whisker_l_eq k₁ k₂ α β Hαβ).
 Qed.
 
 Definition representable_full
@@ -55,7 +56,7 @@ Proof.
   apply runitor.
 Defined.
 
-Definition full_spec
+Lemma full_spec
            {C : bicat}
            {X Y Z : C}
            {f : C⟦X,Y⟧} {g : C⟦Y,X⟧}
@@ -86,7 +87,7 @@ Proof.
   { is_iso. }
   rewrite <- !vassocr.
   rewrite <- (whisker_l_iso_id₁ η k₁ k₂ (representable_full η θ Hη k₁ k₂ α) Hη).
-  reflexivity.
+  apply idpath.
 Qed.
 
 Section EquivToAdjEquiv.
@@ -125,7 +126,7 @@ Section EquivToAdjEquiv.
     - exact ε.
   Defined.
 
-  Local Definition first_triangle_law
+  Local Lemma first_triangle_law
     : (lunitor g)
         o g ◅ ε
         o lassociator g f g
@@ -146,8 +147,7 @@ Section EquivToAdjEquiv.
     rewrite vcomp_rinv.
     rewrite lwhisker_id2.
     rewrite id2_right.
-    rewrite rinvunitor_runitor.
-    reflexivity.
+    apply rinvunitor_runitor.
   Qed.
 
   Local Definition whisker_ηg_type
@@ -158,7 +158,7 @@ Section EquivToAdjEquiv.
     is_iso.
   Defined.
 
-  Local Definition whisker_ηg
+  Local Lemma whisker_ηg
     : whisker_ηg_type.
   Proof.
     use vcomp_move_L_Mp.
@@ -175,7 +175,7 @@ Section EquivToAdjEquiv.
     apply first_triangle_law.
   Qed.
 
-  Local Definition η_natural
+  Local Lemma η_natural
     : η ▻ (g ∘ f) o rinvunitor (g ∘ f) o η
       =
       (g ∘ f) ◅ η o linvunitor (g ∘ f) o η.
@@ -187,8 +187,9 @@ Section EquivToAdjEquiv.
     rewrite lwhisker_hcomp, rwhisker_hcomp.
     rewrite <- !interchange.
     rewrite !id2_left, !id2_right.
-    rewrite lunitor_V_id_is_left_unit_V_id.
-    reflexivity.
+    apply (maponpaths (fun z => z • _)).
+    apply pathsinv0.
+    apply lunitor_V_id_is_left_unit_V_id.
   Qed.
 
   Local Definition η_natural_help
@@ -197,28 +198,28 @@ Section EquivToAdjEquiv.
       (g ∘ f) ◅ η o linvunitor (g ∘ f)
     := vcomp_lcancel η ηiso η_natural.
 
-  Local Definition η_whisker_l_hcomp
+  Local Lemma η_whisker_l_hcomp
     : (g ∘ f) ◅ η = rassociator (g ∘ f) f g o g ◅ (f ◅ η) o lassociator (id₁ X) f g.
   Proof.
     rewrite !vassocr.
     use vcomp_move_L_Mp.
     { is_iso. }
     cbn.
-    rewrite rwhisker_rwhisker.
-    reflexivity.
+    apply pathsinv0.
+    apply rwhisker_rwhisker.
   Qed.
 
-  Local Definition η_whisker_r_hcomp
+  Local Lemma η_whisker_r_hcomp
     : η ▻ (g ∘ f) = lassociator f g(g ∘ f) o η ▻ g ▻ f o rassociator f g (id₁ X).
   Proof.
     use vcomp_move_L_pM.
     { is_iso. }
     cbn.
-    rewrite lwhisker_lwhisker.
-    reflexivity.
+    apply pathsinv0.
+    apply lwhisker_lwhisker.
   Qed.
 
-  Local Definition help1
+  Local Lemma help1
     : lassociator f g (g ∘ f) o (η ▻ g o rinvunitor _) ▻ f
       =
       (rassociator (g ∘ f) f g)
@@ -237,7 +238,7 @@ Section EquivToAdjEquiv.
     exact η_natural_help.
   Qed.
 
-  Local Definition help2
+  Local Lemma help2
     : g ◅ (lassociator f g f o εiso^-1 ▻ f o rinvunitor _)
       =
       g ◅ (f ◅ η o linvunitor f).
@@ -273,10 +274,10 @@ Section EquivToAdjEquiv.
     refine (_ @ p) ; clear p.
     cbn.
     rewrite !vassocr, !lwhisker_hcomp, !rwhisker_hcomp.
-    reflexivity.
+    apply idpath.
   Qed.
 
-  Local Definition help3
+  Local Lemma help3
     : lassociator f g f o εiso^-1 ▻ f o rinvunitor f
       =
       f ◅ η o linvunitor f.
@@ -287,7 +288,7 @@ Section EquivToAdjEquiv.
     - is_iso.
   Qed.
 
-  Definition equiv_to_adjequiv_isadj : left_adjoint_axioms equiv_to_adjequiv_d.
+  Lemma equiv_to_adjequiv_isadj : left_adjoint_axioms equiv_to_adjequiv_d.
   Proof.
     split ; cbn.
     - refine (maponpaths (fun z => ((z • _) • _) • _) (!help3) @ _).
@@ -303,7 +304,7 @@ Section EquivToAdjEquiv.
       reflexivity.
     - rewrite <- !vassocr.
       exact first_triangle_law.
-  Defined.
+  Qed.
 
   Definition equiv_to_isadjequiv : left_adjoint_equivalence f.
   Proof.
@@ -319,6 +320,7 @@ Section EquivToAdjEquiv.
 
   Definition equiv_to_adjequiv : adjoint_equivalence X Y
     := (f ,, equiv_to_isadjequiv).
+
 End EquivToAdjEquiv.
 
 Section CompositionEquivalence.
@@ -381,6 +383,7 @@ Section CompositionEquivalence.
       * exact comp_unit_isiso.
       * exact comp_counit_isiso.
   Defined.
+
 End CompositionEquivalence.
 
 Definition comp_adjequiv

@@ -926,7 +926,7 @@ Definition maps_pb_square_to_pb_square
 
 Definition maps_pb_squares_to_pb_squares :=
    ∏ (a b c d : C)
-     {f : C ⟦b, a⟧} {g : C ⟦c, a⟧} {h : C⟦d, b⟧} {k : C⟦d,c⟧}
+     (f : C ⟦b, a⟧) (g : C ⟦c, a⟧) (h : C⟦d, b⟧) (k : C⟦d,c⟧)
      (H : h · f = k · g),
      maps_pb_square_to_pb_square H.
 

@@ -734,7 +734,7 @@ Lemma hcomp_hcomp' {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
   : hcomp η φ = hcomp' η φ.
 Proof.
   apply vcomp_whisker.
-Defined.
+Qed.
 
 Lemma hcomp_lassoc {a b c d : C}
       {f1 g1 : C ⟦ a, b ⟧} {f2 g2 : C ⟦ b, c ⟧} {f3 g3 : C ⟦ c, d ⟧}
@@ -755,7 +755,7 @@ Proof.
   rewrite <- vassocr.
   apply maponpaths.
   apply rwhisker_vcomp.
-Defined.
+Qed.
 
 Lemma is_invertible_2cell_lunitor {a b : C} (f : C ⟦ a, b ⟧)
   : is_invertible_2cell (lunitor f).
@@ -798,16 +798,31 @@ Proof.
   use lhs_left_invert_cell.
   apply is_invertible_2cell_rassociator.
   apply hcomp_lassoc.
-Defined.
+Qed.
+
+
+Lemma hcomp_identity_left {a b c : C} (f : C ⟦ a, b ⟧)(g1 g2 : C ⟦ b, c ⟧) (y : g1 ==> g2)
+  : id2 f ⋆ y = lwhisker f y.
+Proof.
+  unfold hcomp.
+  rewrite id2_rwhisker.
+  apply id2_left.
+Qed.
+
+Lemma hcomp_identity_right {a b c : C} (f1 f2 : C ⟦ a, b ⟧)(g : C ⟦ b, c ⟧) (x : f1 ==> f2)
+  : x ⋆ id2 g = rwhisker g x.
+Proof.
+  unfold hcomp.
+  rewrite lwhisker_id2.
+  apply id2_right.
+Qed.
 
 Lemma hcomp_identity {a b c : C} (f1 : C ⟦ a, b ⟧) (f2 : C ⟦ b, c ⟧)
   : id2 f1 ⋆ id2 f2 = id2 (f1 · f2).
 Proof.
-  unfold hcomp.
-  rewrite id2_rwhisker.
-  rewrite id2_left.
+  rewrite hcomp_identity_left.
   apply lwhisker_id2.
-Defined.
+Qed.
 
 
 (* ----------------------------------------------------------------------------------- *)
@@ -827,14 +842,14 @@ Proof.
   rewrite vassocr.
   rewrite vcomp_whisker.
   transitivity (((f1 ◃ x2) • ((x1 ▹ g2) • (y1 ▹ g2))) • (h1 ◃ y2)).
-  2: repeat rewrite vassocr; reflexivity.
+  2: repeat rewrite vassocr; apply idpath.
   rewrite rwhisker_vcomp.
   rewrite <- vcomp_whisker.
   rewrite <- vassocr.
   rewrite lwhisker_vcomp.
   unfold hcomp.
-  reflexivity.
-Defined.
+  apply idpath.
+Qed.
 
 
 Lemma rwhisker_lwhisker_rassociator
@@ -991,7 +1006,7 @@ Proof.
   - intros f g. apply id2_left.
   - intros f g. apply id2_right.
   - intros f g h i. apply vassocr.
-Defined.
+Qed.
 
 Definition hom
   : precategory
@@ -1048,7 +1063,7 @@ Proof.
   - cbn; repeat (use tpair); cbn; intros; exact tt.
 Defined.
 
-Definition chaotic_prebicat_laws : prebicat_laws chaotic_prebicat_data.
+Lemma chaotic_prebicat_laws : prebicat_laws chaotic_prebicat_data.
 Proof.
   repeat apply make_dirprod; intros; apply isProofIrrelevantUnit.
 Qed.
@@ -1093,7 +1108,7 @@ Proof.
     + intros. apply (maponpaths_2). assumption.
 Defined.
 
-Definition discrete_prebicat_laws : prebicat_laws discrete_prebicat_data.
+Lemma discrete_prebicat_laws : prebicat_laws discrete_prebicat_data.
 Proof.
   repeat (use tpair); cbn.
   - intros. apply idpath.

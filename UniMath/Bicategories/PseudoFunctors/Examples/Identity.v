@@ -1,5 +1,5 @@
 (**
-The identity pseudo functor on a bicategoy.
+The identity pseudo functor on a bicategory.
 
 Authors: Dan Frumin, Niels van der Weide
 

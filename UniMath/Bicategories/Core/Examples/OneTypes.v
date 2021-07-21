@@ -51,20 +51,20 @@ Proof.
     exact (homotcomp p q).
   - cbn ; intros X Y Z f g h p. exact (funhomotsec f p).
   - cbn ; intros X Y Z f g h p. exact (homotfun p h).
-  - intros. intro. reflexivity.
-  - intros. intro. reflexivity.
-  - intros. intro. reflexivity.
-  - intros. intro. reflexivity.
-  - intros. intro. reflexivity.
-  - intros. intro. reflexivity.
+  - intros. intro. apply idpath.
+  - intros. intro. apply idpath.
+  - intros. intro. apply idpath.
+  - intros. intro. apply idpath.
+  - intros. intro. apply idpath.
+  - intros. intro. apply idpath.
 Defined.
 
-Definition one_type_bicat_laws
+Lemma one_type_bicat_laws
   : prebicat_laws one_type_bicat_data.
 Proof.
   repeat (use tpair).
   - intros X Y f g p ; cbn in *.
-    reflexivity.
+    apply idpath.
   - intros X Y f g p ; cbn in *.
     unfold homotcomp, homotrefl.
     apply funextsec. intro x.
@@ -72,11 +72,11 @@ Proof.
   - intros X Y f g h k p q r.
     apply funextsec. intro x.
     apply path_assoc.
-  - reflexivity.
-  - reflexivity.
+  - intros; apply idpath.
+  - intros; apply idpath.
   - intros X Y Z f g h i p q ; cbn in *.
     apply funextsec. intro x.
-    reflexivity.
+    apply idpath.
   - intros X Y Z f g h i p q ; cbn in *.
     apply funextsec. intro x.
     unfold homotcomp, homotfun. simpl.
@@ -106,15 +106,15 @@ Proof.
     apply funextsec. intro x.
     unfold homotcomp, homotfun, funhomotsec.
     induction (p x). apply (! pathscomp0rid _).
-  - reflexivity.
-  - reflexivity.
-  - reflexivity.
-  - reflexivity.
-  - reflexivity.
-  - reflexivity.
-  - reflexivity.
+  - intros; apply idpath.
+  - intros; apply idpath.
+  - intros; apply idpath.
+  - intros; apply idpath.
+  - intros; apply idpath.
+  - intros; apply idpath.
+  - intros; apply idpath.
   - intros V W X Y Z f g h i ; cbn in *.
-    reflexivity.
+    apply idpath.
 Qed.
 
 Definition one_types
@@ -159,7 +159,7 @@ Proof.
       unfold idtoiso_2_1, toforallpaths. cbn.
       apply funextsec. intro x.
       induction (funextsec _ f g (pr1 α)).
-      reflexivity.
+      apply idpath.
 Defined.
 
 Definition adjoint_equivalence_is_weq
@@ -221,7 +221,7 @@ Proof.
     induction p ; cbn.
     apply path_internal_adjoint_equivalence.
     + apply one_types_is_univalent_2_1.
-    + reflexivity.
+    + apply idpath.
 Defined.
 
 Definition one_types_is_univalent_2

@@ -48,7 +48,7 @@ Proof.
   - exact (λ _ _ _ _ _ _ _, nat_trans_id _).
 Defined.
 
-Definition cat_prebicat_laws : prebicat_laws cat_prebicat_data.
+Lemma cat_prebicat_laws : prebicat_laws cat_prebicat_data.
 Proof.
   repeat split; cbn.
   - intros C D F G η.
@@ -65,14 +65,14 @@ Proof.
     apply assoc.
   - intros C₁ C₂ C₃ F G.
     apply nat_trans_eq; try apply C₃.
-    reflexivity.
+    intro; apply idpath.
   - intros C₁ C₂ C₃ F G.
     apply nat_trans_eq; try apply C₃.
     intros ; cbn.
     apply functor_id.
   - intros C₁ C₂ C₃ F G₁ G₂ G₃ α β.
     apply nat_trans_eq; try apply C₃.
-    reflexivity.
+    intros; apply idpath.
   - intros C₁ C₂ C₃ F₁ F₂ F₃ G α β.
     apply nat_trans_eq; try apply C₃.
     intros ; cbn.
@@ -81,27 +81,27 @@ Proof.
     apply nat_trans_eq; try apply D.
     intros ; cbn.
     rewrite id_left, id_right.
-    reflexivity.
+    apply idpath.
   - intros C D F G α.
     apply nat_trans_eq; try apply D.
     intros ; cbn.
     rewrite id_left, id_right.
-    reflexivity.
+    apply idpath.
   - intros C₁ C₂ C₃ C₄ F G H₁ H₂ α.
     apply nat_trans_eq; try apply C₄.
     intros ; cbn.
     rewrite id_left, id_right.
-    reflexivity.
+    apply idpath.
   - intros C₁ C₂ C₃ C₄ F G₁ G₂ H α.
     apply nat_trans_eq; try apply C₄.
     intros ; cbn.
     rewrite id_left, id_right.
-    reflexivity.
+    apply idpath.
   - intros C₁ C₂ C₃ C₄ F₁ F₂ G H α.
     apply nat_trans_eq; try apply C₄.
     intros ; cbn.
     rewrite id_left, id_right.
-    reflexivity.
+    apply idpath.
   - intros C₁ C₂ C₃ F₁ F₂ G₁ H₂ α β.
     apply nat_trans_eq; try apply C₃.
     intros ; cbn.
@@ -224,12 +224,12 @@ Proof.
       use subtypePath.
       * intro.
         apply isaprop_is_nat_iso.
-      * reflexivity.
+      * apply idpath.
     + intros X.
       use subtypePath.
       * intro.
         apply isaprop_is_invertible_2cell.
-      * reflexivity.
+      * apply idpath.
 Defined.
 
 Definition adj_equiv_to_equiv_cat
@@ -310,17 +310,17 @@ Proof.
         ** apply bicat_of_cats.
         ** apply isaprop_is_invertible_2cell.
         ** apply isaprop_is_invertible_2cell.
-      * reflexivity.
+      * apply idpath.
     + intros A.
       use subtypePath.
       * intro.
         apply isapropdirprod ; apply impred ; intro ; apply isaprop_is_iso.
       * use total2_paths_b.
-        ** reflexivity.
+        ** apply idpath.
         ** use subtypePath.
            *** intro ; simpl.
                apply (@isaprop_form_adjunction (pr1 C ,, _) (pr1 D ,, _)).
-           *** reflexivity.
+           *** apply idpath.
 Defined.
 
 Definition univalent_cat_idtoiso_2_1
@@ -347,7 +347,7 @@ Proof.
       apply isaprop_is_invertible_2cell.
     + apply nat_trans_eq.
       { apply D. }
-      reflexivity.
+      intros; apply idpath.
 Defined.
 
 Definition path_univalent_cat
@@ -438,7 +438,7 @@ Section CatIso_To_LeftAdjEquiv.
         }
         rewrite pathsinv0l ; cbn.
         rewrite id_right.
-        reflexivity.
+        apply idpath.
     - intros X.
       apply (idtoiso (homotweqinvweq (catiso_ob_weq (F ,, HF)) X)).
   Defined.
@@ -479,6 +479,7 @@ Section CatIso_To_LeftAdjEquiv.
           intro X ; cbn.
           apply iso_after_iso_inv.
   Qed.
+
 End CatIso_To_LeftAdjEquiv.
 
 Definition left_adjoint_equivalence_to_is_catiso
@@ -529,7 +530,7 @@ Proof.
         rewrite <- functor_comp.
         refine (maponpaths (λ z, # L z · _) (ηinvη Y) @ _).
         rewrite functor_id, id_left.
-        reflexivity.
+        apply idpath.
       }
       etrans.
       {
@@ -611,7 +612,7 @@ Proof.
     induction p.
     apply path_internal_adjoint_equivalence.
     + apply univalent_cat_is_univalent_2_1.
-    + reflexivity.
+    + apply idpath.
 Defined.
 
 Definition univalent_cat_is_univalent_2

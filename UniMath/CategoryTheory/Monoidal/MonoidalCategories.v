@@ -70,6 +70,11 @@ Qed.
 Definition left_unitor : UU :=
   nat_z_iso I_pretensor (functor_identity C).
 
+Definition left_unitor_funclass (λ' : left_unitor):
+  ∏ x : ob C, I_pretensor x -->  x
+  := pr1 (nat_z_iso_to_trans λ').
+Coercion left_unitor_funclass : left_unitor >-> Funclass.
+
 (* - ⊗ I *)
 Definition I_posttensor : C ⟶ C := functor_fix_snd_arg _ _ _ tensor I.
 
@@ -81,6 +86,11 @@ Qed.
 (* ρ *)
 Definition right_unitor : UU :=
   nat_z_iso I_posttensor (functor_identity C).
+
+Definition right_unitor_funclass (ρ' : right_unitor):
+  ∏ x : ob C, I_posttensor x -->  x
+  := pr1 (nat_z_iso_to_trans ρ').
+Coercion right_unitor_funclass : right_unitor >-> Funclass.
 
 (* (- ⊗ =) ⊗ ≡ *)
 Definition assoc_left : (C ⊠ C) ⊠ C ⟶ C :=
@@ -109,6 +119,11 @@ Definition associator : UU :=
   nat_z_iso assoc_left assoc_right.
 (* This definition goes in the opposite direction of that by Mac Lane (CWM 2nd ed., p.162)
    but conforms to the def. on Wikipedia. *)
+
+Definition associator_funclass (α' : associator):
+  ∏ x : ob ((C ⊠ C) ⊠ C), assoc_left x -->  assoc_right x
+  := pr1 (nat_z_iso_to_trans α').
+Coercion associator_funclass : associator >-> Funclass.
 
 Definition triangle_eq (λ' : left_unitor) (ρ' : right_unitor) (α' : associator) : UU :=
   ∏ (a b : C), pr1 ρ' a #⊗ id b = pr1 α' ((a, I), b) · id a #⊗ pr1 λ' b.

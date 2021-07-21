@@ -13,7 +13,6 @@ Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.DisplayedCats.Auxiliary.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
-Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
 
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
@@ -84,13 +83,14 @@ Definition base_category
 - Morphisms: naturality of transformations
 
   The univalence of this displayed category can be expressed as a
-  concrete case of the Structure Identity Principle.
+  concrete case of the Structure Identity Principle (however,
+  UniMath.CategoryTheory.DisplayedCats.SIP is not employed).
 *)
 
 Definition disp_morph : disp_cat_data (base_precategory_data C D).
 Proof.
   use tpair.
-  - exists (λ F₀, ∏ {a b : C}, C ⟦a, b⟧ → D ⟦F₀ a, F₀ b⟧).
+  - exists (λ F₀, ∏ (a b : C), C ⟦a, b⟧ → D ⟦F₀ a, F₀ b⟧).
     cbn. intros F₀ G₀ F₁ G₁ γ.
     exact (∏ (a b : C) (f : C ⟦a, b⟧), F₁ _ _ f · γ b = γ a · G₁ _ _ f).
   - repeat use tpair; cbn.
@@ -160,7 +160,7 @@ Definition step1_total : category
 
 (** ** Step 2
 
-- Objects: functors preserver identities
+- Objects: functors preserve identities
 - Morphisms: unit
 *)
 
@@ -172,7 +172,7 @@ Definition step2_disp : disp_cat step1_total :=
 
 (** ** Step 3
 
-- Objects: functors preserver composition
+- Objects: functors preserve composition
 - Morphisms: unit
 *)
 
@@ -240,9 +240,9 @@ Proof.
   exists (base_category_iso_to_iso_fam F₀ G₀).
   use gradth.
   - apply base_category_iso_fam_to_iso.
-  - intros x. apply eq_iso. reflexivity.
+  - intros x. apply eq_iso. apply idpath.
   - intros x. apply funextsec. intros y.
-    apply eq_iso. reflexivity.
+    apply eq_iso. apply idpath.
 Defined.
 
 Definition base_category_iso_fam_weq (F₀ G₀ : base_category) :
@@ -275,7 +275,7 @@ Proof.
   use isweqhomot.
   - apply base_category_iso_weq_aux, HD.
   - intros p. induction p. simpl.
-    apply eq_iso. reflexivity.
+    apply eq_iso. apply idpath.
   - apply base_category_iso_weq_aux.
 Defined.
 

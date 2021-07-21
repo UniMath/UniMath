@@ -633,7 +633,7 @@ Proof.
       assumption
         |
       simpl ; intros ? ;
-      apply pathsinv0, assoc ]).
+      apply assoc' ]).
 Defined.
 
 Lemma ishssMor_InitAlg (T' : hss CP H) :

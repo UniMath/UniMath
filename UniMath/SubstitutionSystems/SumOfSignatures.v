@@ -128,8 +128,8 @@ use tpair.
   apply (S i).
 - exists (θ (λ i, S i) (λ i, theta (S i))).
   split.
-  + apply SumStrength1'; intro i; apply (Sig_strength_law1 _ _ _ _ _ _ (S i)).
-  + apply SumStrength2'; intro i; apply (Sig_strength_law2 _ _ _ _ _ _ (S i)).
+  + apply SumStrength1'; intro i; apply (Sig_strength_law1 (S i)).
+  + apply SumStrength2'; intro i; apply (Sig_strength_law2 (S i)).
 Defined.
 
 Lemma is_omega_cocont_Sum_of_Signatures (S : I -> Signature C hsC D hsD D' hsD')

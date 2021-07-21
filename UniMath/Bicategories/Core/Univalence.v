@@ -28,7 +28,7 @@ Section Idtoiso.
     exact (linvunitor (identity a),, lunitor (identity a)).
   Defined.
 
-  Definition is_internal_adjunction_identity (a : C)
+  Lemma is_internal_adjunction_identity (a : C)
     : left_adjoint_axioms (internal_adjunction_data_identity a).
   Proof.
     split.
@@ -103,6 +103,7 @@ Section Idtoiso.
   Proof.
     induction 1. apply id2_invertible_2cell.
   Defined.
+
 End Idtoiso.
 
 Definition is_univalent_2_1 (C : bicat) : UU
@@ -114,27 +115,27 @@ Definition is_univalent_2_0 (C : bicat) : UU
 Definition is_univalent_2 (C : bicat) : UU
   := is_univalent_2_0 C × is_univalent_2_1 C.
 
-Definition isaprop_is_univalent_2_1 (C : bicat)
+Lemma isaprop_is_univalent_2_1 (C : bicat)
   : isaprop (is_univalent_2_1 C).
 Proof.
   do 4 (apply impred ; intro).
   apply isapropisweq.
-Defined.
+Qed.
 
-Definition isaprop_is_univalent_2_0 (C : bicat)
+Lemma isaprop_is_univalent_2_0 (C : bicat)
   : isaprop (is_univalent_2_0 C).
 Proof.
   do 2 (apply impred ; intro).
   apply isapropisweq.
-Defined.
+Qed.
 
-Definition isaprop_is_univalent_2 (C : bicat)
+Lemma isaprop_is_univalent_2 (C : bicat)
   : isaprop (is_univalent_2 C).
 Proof.
   apply isapropdirprod.
   apply isaprop_is_univalent_2_0.
   apply isaprop_is_univalent_2_1.
-Defined.
+Qed.
 
 Definition isotoid_2_1
            {C : bicat}
@@ -246,6 +247,7 @@ Section IsoInvertible2Cells.
       induction p.
       apply idpath.
   Defined.
+
 End IsoInvertible2Cells.
 
 Definition is_univ_hom
@@ -439,7 +441,7 @@ Section J20.
   Proof.
     induction s.
     exact (idpath _).
-  Defined.
+  Qed.
 
   Definition J_2_0
              {a b : B}
@@ -447,7 +449,7 @@ Section J20.
     : Y a b f
     := transportf (Y a b) (idtoiso_2_0_isotoid_2_0 HB f) (J'_2_0 (isotoid_2_0 HB f)).
 
-  Definition J_2_0_comp
+  Lemma J_2_0_comp
              {a : B}
     : J_2_0 (internal_adjoint_equivalence_identity a) = r a.
   Proof.
@@ -457,7 +459,7 @@ Section J20.
     + rewrite (functtransportf (idtoiso_2_0 a a) (Y a a)).
       apply maponpaths_2.
       exact (homotweqinvweqweq (make_weq (idtoiso_2_0 a a) (HB a a)) (idpath a)).
-  Defined.
+  Qed.
 End J20.
 
 (* ----------------------------------------------------------------------------------- *)
@@ -482,7 +484,7 @@ Section AdjointEquivPregroupoid.
     : adjoint_equivalence b a
     := J_2_0 HB (λ a b _, adjoint_equivalence b a) internal_adjoint_equivalence_identity f.
 
-  Definition adjoint_equivalence_lid
+  Lemma adjoint_equivalence_lid
              (a b : B)
              (f : adjoint_equivalence a b)
     : comp_adjoint_equivalence a a b (internal_adjoint_equivalence_identity a) f = f.
@@ -492,9 +494,9 @@ Section AdjointEquivPregroupoid.
     unfold comp_adjoint_equivalence.
     rewrite J_2_0_comp.
     apply idpath.
-  Defined.
+  Qed.
 
-  Definition adjoint_equivalence_rid
+  Lemma adjoint_equivalence_rid
              (a b : B)
              (f : adjoint_equivalence a b)
     : comp_adjoint_equivalence a b b f (internal_adjoint_equivalence_identity b) = f.
@@ -504,9 +506,9 @@ Section AdjointEquivPregroupoid.
     unfold comp_adjoint_equivalence.
     rewrite J_2_0_comp.
     apply idpath.
-  Defined.
+  Qed.
 
-  Definition adjoint_equivalence_assoc
+  Lemma adjoint_equivalence_assoc
              (a b c d : B)
              (f : adjoint_equivalence a b)
              (g : adjoint_equivalence b c)
@@ -523,9 +525,9 @@ Section AdjointEquivPregroupoid.
     apply maponpaths_2.
     rewrite adjoint_equivalence_lid.
     exact (idpath _).
-  Defined.
+  Qed.
 
-  Definition adjoint_equivalence_linv
+  Lemma adjoint_equivalence_linv
              (a b : B)
              (f : adjoint_equivalence a b)
     : comp_adjoint_equivalence b a b (inv_adjoint_equivalence a b f) f =
@@ -539,9 +541,9 @@ Section AdjointEquivPregroupoid.
     unfold inv_adjoint_equivalence.
     rewrite J_2_0_comp.
     exact (idpath _).
-  Defined.
+  Qed.
 
-  Definition adjoint_equivalence_rinv
+  Lemma adjoint_equivalence_rinv
              (a b : B)
              (f : adjoint_equivalence a b)
     : comp_adjoint_equivalence a b a f (inv_adjoint_equivalence a b f) =
@@ -555,7 +557,7 @@ Section AdjointEquivPregroupoid.
     unfold inv_adjoint_equivalence.
     rewrite J_2_0_comp.
     exact (idpath _).
-  Defined.
+  Qed.
 
   Definition adjoint_equivalence_precategory_data : precategory_data.
   Proof.
@@ -567,7 +569,7 @@ Section AdjointEquivPregroupoid.
     - exact comp_adjoint_equivalence.
   Defined.
 
-  Definition adjoint_equivalence_is_precategory
+  Lemma adjoint_equivalence_is_precategory
     : is_precategory adjoint_equivalence_precategory_data.
   Proof.
     use make_is_precategory_one_assoc.
@@ -592,7 +594,7 @@ Section AdjointEquivPregroupoid.
     - split.
       + exact (adjoint_equivalence_rinv a b f).
       + exact (adjoint_equivalence_linv a b f).
-  Qed.
+  Defined.
 
   Definition adjoint_equivalence_pregroupoid : pregroupoid.
   Proof.
@@ -610,7 +612,7 @@ Definition left_adjequiv_invertible_2cell
            (f g : a --> b)
            (α : invertible_2cell f g)
   : left_adjoint_equivalence f → left_adjoint_equivalence g
-  :=J_2_1 HD
+  := J_2_1 HD
           (λ a b f g α, left_adjoint_equivalence f → left_adjoint_equivalence g)
           (λ _ _ _ p, p)
           α.

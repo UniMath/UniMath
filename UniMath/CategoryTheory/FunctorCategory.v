@@ -398,19 +398,8 @@ Proof.
   apply idtoiso_functor_eq_from_functor_iso.
 Defined.
 
-Lemma is_univalent_functor_category (C : precategory_data) (D : precategory) (H : is_univalent D) :
-   is_univalent [C, D, (pr2 H)].
-Proof.
-  split.
-  - intros F G.
-    apply isweq_idtoiso_functorcat.
-  - intros a b.
-    apply isaset_nat_trans.
-    apply (pr2 H).
-Defined.
 
-
-Lemma functor_category_has_homsets (C D : precategory) (hs: has_homsets D):
+Lemma functor_category_has_homsets (C : precategory_data) (D : precategory) (hs: has_homsets D):
   has_homsets [C, D, hs].
 Proof.
   intros F G.
@@ -418,6 +407,14 @@ Proof.
   apply hs.
 Qed.
 
+Lemma is_univalent_functor_category (C : precategory_data) (D : precategory) (H : is_univalent D) :
+   is_univalent [C, D, (pr2 H)].
+Proof.
+  split.
+  - intros F G.
+    apply isweq_idtoiso_functorcat.
+  - apply functor_category_has_homsets.
+Defined.
 
 Definition functor_category (C : precategory) (D : category) : category.
 Proof.
@@ -490,7 +487,7 @@ Qed.
 
 Lemma nat_trafo_z_iso_if_pointwise_z_iso (C : precategory_data) (C' : precategory)
   (hs: has_homsets C') (F G : ob [C, C', hs]) (α : F --> G) :
-    is_nat_z_iso α -> is_z_isomorphism α .
+    is_nat_z_iso (pr1 α) -> is_z_isomorphism α .
 Proof.
   intro H.
   red.

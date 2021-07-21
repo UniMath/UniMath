@@ -45,7 +45,7 @@ Section Final_Bicategory.
   Definition final_prebicat : prebicat
     := final_prebicat_data,, final_bicat_laws.
 
-  Definition cellset_final_prebicat
+  Lemma cellset_final_prebicat
     : isaset_cells final_prebicat.
   Proof.
     red. cbn. intros. exact isasetunit.

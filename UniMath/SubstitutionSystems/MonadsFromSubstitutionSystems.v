@@ -67,8 +67,8 @@ Variable H : Signature C hs C hs C hs.
 
 Let θ := theta H.
 
-Let θ_strength1_int := Sig_strength_law1 _ _ _ _ _ _ H.
-Let θ_strength2_int := Sig_strength_law2 _ _ _ _ _ _ H.
+Let θ_strength1_int := Sig_strength_law1 H.
+Let θ_strength2_int := Sig_strength_law2 H.
 
 Let Id_H
 : functor EndC EndC
@@ -124,7 +124,7 @@ Proof.
   - apply nat_trans_eq; try assumption.
     intro c. simpl.
     rewrite id_right.
-    assert (H':= θ_Strength1_int_implies_θ_Strength1 _ _ _ _ _ _ _ _ θ_strength1_int).
+    assert (H':= θ_Strength1_int_implies_θ_Strength1 _ θ_strength1_int).
     red in H'. simpl in H'.
     assert (H2 := H' (`T)).
     assert (H3 := nat_trans_eq_pointwise H2 c).
@@ -354,8 +354,8 @@ Proof.
       simpl in *.
       match goal with |[H3 : _ = ?f |- ?e · _ · _ · _  = _ ] =>
          intermediate_path (e · f) end.
-      * eapply pathscomp0. apply (!assoc _ _ _).
-        eapply pathscomp0. apply (!assoc _ _ _ ).
+      * eapply pathscomp0. apply assoc'.
+        eapply pathscomp0. apply assoc'.
         apply maponpaths.
         eapply pathscomp0. 2: apply H3.
         apply assoc.
@@ -365,7 +365,7 @@ Proof.
         assert (H1 := nat_trans_ax (τ T )).
         unfold tau_from_alg in H1.
         eapply pathscomp0; [ | apply H1]; clear H1.
-        apply pathsinv0, assoc.
+        apply assoc'.
 Qed.
 
 Local Notation "'T•T²'" := (functor_compose hs hs (functor_composite (`T) (`T)) (`T) : [C, C, hs]).
@@ -403,7 +403,7 @@ Proof.
     simpl.
     transitivity (identity _ · μ_2 c).
     + apply pathsinv0, id_left.
-    + eapply pathscomp0; [ | apply (!assoc _ _ _ ) ].
+    + eapply pathscomp0; [ | apply assoc' ].
       apply cancel_postcomposition.
       assert (H1 := Monad_law_1_from_hss (pr1 (`T) c)).
       apply (!H1).
@@ -446,14 +446,14 @@ Proof.
                      pr1 (θ (( ((`T) • (`T) : [_, _, hs])) ⊗ (ptd_from_alg T))) c·
                      pr1 (# H (α : functor_compose hs hs (`T) (functor_composite (`T) (` T))--> _)) c       ).
       { (intro α;
-          assert (HA := θ_Strength2_int_implies_θ_Strength2 _ _ _ _ _ _ _ _ θ_strength2_int);
+          assert (HA := θ_Strength2_int_implies_θ_Strength2 _ θ_strength2_int);
           assert (HA':= HA (`T) (ptd_from_alg T) (ptd_from_alg T) _ α); clear HA;
           assert (HA2 := nat_trans_eq_pointwise HA' c ); clear HA';
           simpl in HA2; apply HA2 ).
       }
       eapply pathscomp0. apply (Strength_2 F).
       clear Strength_2.
-      eapply pathscomp0. apply (!assoc _ _ _).
+      eapply pathscomp0. apply assoc'.
       apply maponpaths.
       apply maponpaths.
       match goal with |[ |- _ = ?pr1 (# ?G ?g) _ ] =>

@@ -10,7 +10,7 @@ Local Open Scope cat.
 Section laws.
   Context {C : bicat}.
 
-  Definition triangle_r
+  Lemma triangle_r
              {X Y Z : C}
              (g : C⟦Y,Z⟧)
              (f : C⟦X,Y⟧)
@@ -30,7 +30,7 @@ Section laws.
             apply id2_left.
   Qed.
 
-  Definition interchange
+  Lemma interchange
              {X Y Z : C}
              {f₁ g₁ h₁ : C⟦Y,Z⟧}
              {f₂ g₂ h₂ : C⟦X,Y⟧}
@@ -41,7 +41,7 @@ Section laws.
     apply hcomp_vcomp.
   Qed.
 
-  Definition rinvunitor_natural
+  Lemma rinvunitor_natural
              {X Y : C}
              {f g : C⟦X, Y⟧}
              (η : f ==> g)
@@ -59,7 +59,7 @@ Section laws.
     apply (! runitor_natural _ _ _ _ _ ).
   Qed.
 
-  Definition linvunitor_natural
+  Lemma linvunitor_natural
              {X Y : C}
              {f g : C⟦X, Y⟧}
              (η : f ==> g)
@@ -77,33 +77,27 @@ Section laws.
     apply (! lunitor_natural _ _ _ _ _ ).
   Qed.
 
-  Definition lwhisker_hcomp
+  Lemma lwhisker_hcomp
              {X Y Z : C}
              {f g : C⟦Y,Z⟧}
              (h : C⟦X, Y⟧)
              (α : f ==> g)
     : h ◃ α = id₂ h ⋆ α.
   Proof.
-    unfold hcomp.
-    rewrite id2_rwhisker.
-    rewrite id2_left.
-    reflexivity.
+    apply pathsinv0. apply hcomp_identity_left.
   Qed.
 
-  Definition rwhisker_hcomp
+  Lemma rwhisker_hcomp
              {X Y Z : C}
              {f g : C⟦X,Y⟧}
              (h : C⟦Y,Z⟧)
              (α : f ==> g)
     : α ▹ h = α ⋆ id₂ h.
   Proof.
-    unfold hcomp.
-    rewrite lwhisker_id2.
-    rewrite id2_right.
-    reflexivity.
+    apply pathsinv0. apply hcomp_identity_right.
   Qed.
 
-  Definition inverse_pentagon
+  Lemma inverse_pentagon
              {V W X Y Z : C}
              (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)
              (g : C⟦W,X⟧) (f : C⟦V,W⟧)
@@ -118,7 +112,7 @@ Section laws.
     - cbn. rewrite <- !vassocr. apply pentagon.
   Qed.
 
-  Definition inverse_pentagon_2
+  Lemma inverse_pentagon_2
              {V W X Y Z : C}
              (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)
              (g : C⟦W,X⟧) (f : C⟦V,W⟧)
@@ -150,7 +144,7 @@ Section laws.
     exact p.
   Qed.
 
-  Definition inverse_pentagon_3
+  Lemma inverse_pentagon_3
              {V W X Y Z : C}
              (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)
              (g : C⟦W,X⟧) (f : C⟦V,W⟧)
@@ -166,7 +160,7 @@ Section laws.
     apply inverse_pentagon.
   Qed.
 
-  Definition inverse_pentagon_4
+  Lemma inverse_pentagon_4
              {V W X Y Z : C}
              (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)
              (g : C⟦W,X⟧) (f : C⟦V,W⟧)
@@ -192,7 +186,7 @@ Section laws.
     symmetry ; apply pentagon.
   Qed.
 
-  Definition inverse_pentagon_5
+  Lemma inverse_pentagon_5
              {V W X Y Z : C}
              (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)
              (g : C⟦W,X⟧) (f : C⟦V,W⟧)
@@ -214,7 +208,7 @@ Section laws.
     apply pentagon.
   Qed.
 
-  Definition inverse_pentagon_6
+  Lemma inverse_pentagon_6
              {V W X Y Z : C}
              (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)
              (g : C⟦W,X⟧) (f : C⟦V,W⟧)
@@ -233,7 +227,7 @@ Section laws.
     apply inverse_pentagon.
   Qed.
 
-  Definition pentagon_2
+  Lemma pentagon_2
              {V W X Y Z : C}
              (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)
              (g : C⟦W,X⟧) (f : C⟦V,W⟧)
@@ -251,7 +245,7 @@ Section laws.
     symmetry ; apply pentagon.
   Qed.
 
-  Definition triangle_r_inv
+  Lemma triangle_r_inv
              {X Y Z : C}
              (g : C ⟦ Y, Z ⟧) (f : C ⟦ X, Y ⟧)
     : linvunitor g ⋆⋆ id₂ f
@@ -264,7 +258,7 @@ Section laws.
     - cbn. apply triangle_r.
   Qed.
 
-  Definition triangle_l
+  Lemma triangle_l
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
     : lunitor g ⋆⋆ id₂ f o rassociator _ _ _ = id₂ g ⋆⋆ runitor f.
@@ -274,10 +268,10 @@ Section laws.
     rewrite <- inverse_of_assoc.
     rewrite vcomp_linv.
     rewrite id2_left.
-    reflexivity.
+    apply idpath.
   Qed.
 
-  Definition whisker_l_hcomp
+  Lemma whisker_l_hcomp
              {W X Y Z : C}
              {f : C⟦X,Y⟧} {g : C⟦Y,Z⟧}
              (k₁ k₂ : C⟦W,X⟧)
@@ -288,7 +282,7 @@ Section laws.
     apply rwhisker_rwhisker.
   Qed.
 
-  Definition whisker_r_hcomp
+  Lemma whisker_r_hcomp
              {W X Y Z : C}
              {f : C⟦X,Y⟧} {g : C⟦Y,Z⟧}
              (k₁ k₂ : C⟦Z,W⟧)
@@ -310,7 +304,7 @@ Section laws.
     apply @lwhisker_lwhisker.
   Qed.
 
-  Definition whisker_l_natural
+  Lemma whisker_l_natural
              {X Y : C}
              {f : C⟦X,X⟧}
              (η : id₁ X ==> f)
@@ -326,10 +320,10 @@ Section laws.
     rewrite rwhisker_hcomp.
     rewrite <- !interchange.
     rewrite !id2_right, !id2_left.
-    reflexivity.
+    apply idpath.
   Qed.
 
-  Definition whisker_r_natural
+  Lemma whisker_r_natural
              {X Y : C}
              {f : C⟦X,X⟧}
              (η : id₁ X ==> f)
@@ -345,10 +339,10 @@ Section laws.
     rewrite lwhisker_hcomp.
     rewrite <- !interchange.
     rewrite !id2_right, !id2_left.
-    reflexivity.
+    apply idpath.
   Qed.
 
-  Definition whisker_l_iso_id₁
+  Lemma whisker_l_iso_id₁
              {X Y : C}
              {f : C⟦X,X⟧}
              (η : id₁ X ==> f)
@@ -370,7 +364,7 @@ Section laws.
     exact (whisker_r_natural η k₁ k₂ α).
   Qed.
 
-  Definition whisker_r_iso_id₁
+  Lemma whisker_r_iso_id₁
              {X Y : C}
              {f : C⟦X,X⟧}
              (η : id₁ X ==> f)
@@ -392,7 +386,7 @@ Section laws.
     exact (whisker_l_natural η k₁ k₂ α).
   Qed.
 
-  Definition whisker_l_eq
+  Lemma whisker_l_eq
              {W X Y Z : C}
              {f : C⟦X,Y⟧} {g : C⟦Y,Z⟧}
              (k₁ k₂ : C⟦W,X⟧)
@@ -409,10 +403,10 @@ Section laws.
     }
     rewrite !hcomp_lassoc.
     rewrite Hαβ.
-    reflexivity.
+    apply idpath.
   Qed.
 
-  Definition whisker_r_eq
+  Lemma whisker_r_eq
              {W X Y Z : C}
              {f : C⟦Y,Z⟧} {g : C⟦X,Y⟧}
              (k₁ k₂ : C⟦Z,W⟧)
@@ -429,10 +423,10 @@ Section laws.
     }
     rewrite <- !hcomp_lassoc.
     rewrite Hαβ.
-    reflexivity.
+    apply idpath.
   Qed.
 
-  Definition left_unit_assoc
+  Lemma left_unit_assoc
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
     : (runitor g) ▻ f = runitor (g ∘ f) o lassociator f g (id₁ Z).
@@ -442,10 +436,10 @@ Section laws.
     rewrite vassocr.
     rewrite lassociator_rassociator.
     rewrite id2_left.
-    reflexivity.
+    apply idpath.
   Qed.
 
-  Definition left_unit_inv_assoc
+  Lemma left_unit_inv_assoc
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
     : (rinvunitor g) ▻ f = rassociator _ _ _ o rinvunitor (g ∘ f).
@@ -454,10 +448,10 @@ Section laws.
     rewrite <- vassocr.
     rewrite lassociator_rassociator.
     rewrite id2_right.
-    reflexivity.
+    apply idpath.
   Qed.
 
-  Definition lunitor_assoc
+  Lemma lunitor_assoc
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
     : lunitor (g ∘ f) = g ◅ (lunitor f) o lassociator (id₁ X) f g.
@@ -467,7 +461,7 @@ Section laws.
   Qed.
 
 
-  Definition linvunitor_assoc
+  Lemma linvunitor_assoc
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
     : linvunitor (g ∘ f) = rassociator (id₁ X) f g o (g ◅ (linvunitor f)).
@@ -485,10 +479,10 @@ Section laws.
     rewrite vassocr.
     rewrite rassociator_lassociator.
     rewrite id2_left.
-    reflexivity.
+    apply idpath.
   Qed.
 
-  Definition lunitor_id_is_left_unit_id
+  Lemma lunitor_id_is_left_unit_id
              (X : C)
     : lunitor (id₁ X) = runitor (id₁ X).
   Proof.
@@ -496,7 +490,7 @@ Section laws.
   Qed.
 
 
-  Definition lunitor_V_id_is_left_unit_V_id
+  Lemma lunitor_V_id_is_left_unit_V_id
              (X : C)
     : linvunitor (id₁ X) = rinvunitor (id₁ X).
   Proof.
@@ -506,7 +500,7 @@ Section laws.
     - cbn. apply lunitor_runitor_identity.
   Qed.
 
-  Definition left_unit_inv_assoc₂
+  Lemma left_unit_inv_assoc₂
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
     : rinvunitor (g ∘ f) = lassociator f g (id₁ Z) o (rinvunitor g ▻ f).
@@ -515,10 +509,10 @@ Section laws.
     rewrite <- !vassocr.
     rewrite rassociator_lassociator.
     rewrite id2_right.
-    reflexivity.
+    apply idpath.
   Qed.
 
-  Definition triangle_l_inv
+  Lemma triangle_l_inv
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
     : lassociator f (id₁ Y) g o linvunitor g ⋆⋆ id₂ f = id₂ g ⋆⋆ rinvunitor f.

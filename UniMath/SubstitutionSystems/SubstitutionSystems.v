@@ -60,8 +60,8 @@ Variable H : Signature C hs C hs C hs.
 
 Let θ := theta H.
 
-Let θ_strength1_int := Sig_strength_law1 _ _ _ _ _ _ H.
-Let θ_strength2_int := Sig_strength_law2 _ _ _ _ _ _ H.
+Let θ_strength1_int := Sig_strength_law1 H.
+Let θ_strength2_int := Sig_strength_law2 H.
 
 Let Id_H
 : functor EndC EndC
@@ -332,7 +332,7 @@ Proof.
   - intro c; simpl.
     assert (H':=nat_trans_ax (tau_from_alg T)).
     simpl in H'.
-    eapply pathscomp0. 2: apply (!assoc _ _ _ ).
+    eapply pathscomp0. 2: apply assoc'.
     eapply pathscomp0.
     2: { apply cancel_postcomposition. apply H'. }
     clear H'.
@@ -586,8 +586,7 @@ Proof.
   unfold ishssMor.
   unfold isbracketMor.
   intros Z f.
-  eapply pathscomp0.
-    apply assoc.
+  eapply pathscomp0; [apply assoc|].
   (* match goal with | [|- ?l = _ ] => assert (Hyp : l = fbracket T f· pr1 β· pr1 γ) end. *)
   eapply pathscomp0.
     apply cancel_postcomposition.
@@ -622,6 +621,7 @@ Defined.
 
 Lemma is_precategory_hss : is_precategory hss_precategory_data.
 Proof.
+  apply is_precategory_one_assoc_to_two.
   repeat split; intros.
   - apply (invmap (hssMor_eq _ _ _ _ )).
     apply (@id_left EndC).
@@ -629,8 +629,6 @@ Proof.
     apply (@id_right EndC).
   - apply (invmap (hssMor_eq _ _ _ _ )).
     apply (@assoc EndC).
-  - apply (invmap (hssMor_eq _ _ _ _ )).
-    apply (@assoc' EndC).
 Qed.
 
 Definition hss_precategory : precategory := tpair _ _ is_precategory_hss.

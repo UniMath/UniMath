@@ -474,7 +474,7 @@ use tpair.
 - abstract (intros ? ? ?; simpl; apply funextsec; intro;
             unfold yoneda_objects_ob; simpl; unfold compose; simpl;
             apply (nat_trans_eq hsC); simpl; intros ?;
-            apply pathsinv0, assoc).
+            apply assoc').
 Defined.
 
 Let IA := colimAlgInitial hsEndC InitialEndC is_omega_cocont_Id_H (Colims_of_shape_nat_graph_EndC _).

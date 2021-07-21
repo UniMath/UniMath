@@ -104,7 +104,7 @@ Definition ptd_mor_from_μ : ptd_mor _ T2 (p T) := (_ ,, is_ptd_mor_μ).
 
 Let strength_law1_pw M x :=
   nat_trans_eq_pointwise
-    (θ_Strength1_int_implies_θ_Strength1 _ _ _ _ _ _ _ _ (Sig_strength_law1 _ _ _ _ _ _ H ) M) x.
+    (θ_Strength1_int_implies_θ_Strength1 _ (Sig_strength_law1 H ) M) x.
 
 (** A pointwise version of the second strength law with only one identity instead
     of two α_functor *)
@@ -122,8 +122,8 @@ Proof.
   intros X Z Z' x.
   etrans; revgoals.
   { apply (nat_trans_eq_pointwise
-             (θ_Strength2_int_implies_θ_Strength2 _ _ _ _ _ _ _ _
-                                                  (Sig_strength_law2 _ _ _ _ _ _ H) X Z Z'
+             (θ_Strength2_int_implies_θ_Strength2 _
+                                                  (Sig_strength_law2 H) X Z Z'
                                                   _
                                                   (identity _) ) x). }
   etrans;[eapply pathsinv0;apply id_right|].
@@ -475,9 +475,7 @@ Let τT := τ_lmodule_mor T.
     It is exactly the 'H' part of the Id + H algebra morphism diagram *)
 Lemma j_mor_rep x : τT x · j_mor x = (# H j_mor:nat_trans _ _) x · τ_M x.
 Proof.
-  etrans.
-  { eapply pathsinv0.
-    apply assoc. }
+  etrans;[apply assoc'|].
   etrans.
   { apply cancel_precomposition.
     apply (nat_trans_eq_pointwise (algebra_mor_commutes _ _ _ j) x). }
@@ -485,7 +483,7 @@ Proof.
   etrans.
   { apply cancel_postcomposition.
     apply BinCoproductIn2Commutes. }
-  etrans;[eapply pathsinv0; apply assoc|].
+  etrans;[apply assoc'|].
   apply cancel_precomposition.
   apply BinCoproductIn2Commutes.
 Qed.
@@ -495,9 +493,7 @@ Qed.
 Lemma j_mon_η :   ∏ a : C, (Monads.η T_mon) a · j_mor a = (Monads.η M) a.
 Proof.
   intro a.
-  etrans.
-  { eapply pathsinv0.
-    apply assoc. }
+  etrans;[apply assoc'|].
   etrans.
   { apply cancel_precomposition.
     apply (nat_trans_eq_pointwise (algebra_mor_commutes _ _ _ j) a). }
@@ -505,7 +501,7 @@ Proof.
   etrans.
   { apply cancel_postcomposition.
     apply BinCoproductIn1Commutes. }
-  etrans;[eapply pathsinv0;apply assoc|].
+  etrans;[apply assoc'|].
   etrans.
   { apply cancel_precomposition.
     apply BinCoproductIn1Commutes. }
@@ -539,8 +535,8 @@ Proof.
     etrans.
     { apply cancel_postcomposition.
       apply (LModule_Mor_σ _  τT). }
-    etrans;[eapply pathsinv0;apply assoc|].
-    etrans;[eapply pathsinv0;apply assoc|].
+    etrans;[apply assoc'|].
+    etrans;[apply assoc'|].
     etrans; [| apply assoc].
     apply cancel_precomposition.
     rewrite functor_comp.

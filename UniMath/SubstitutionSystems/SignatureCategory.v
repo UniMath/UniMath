@@ -29,6 +29,11 @@ Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 Require Import UniMath.SubstitutionSystems.Signatures.
+
+Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Require Import UniMath.CategoryTheory.DisplayedCats.SIP.
+Require Import UniMath.CategoryTheory.Core.Univalence.
+
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 
@@ -53,8 +58,8 @@ Section Signature_category_mor.
 
 Variables (Ht Ht' : Signature C hsC D hsD D' hsD').
 
-Let H := Signature_Functor _ _ _ _ _ _ Ht.
-Let H' := Signature_Functor _ _ _ _ _ _ Ht'.
+Let H := Signature_Functor Ht.
+Let H' := Signature_Functor Ht'.
 Let θ : nat_trans (θ_source Ht) (θ_target Ht) := theta Ht.
 Let θ' : nat_trans (θ_source Ht') (θ_target Ht') := theta Ht'.
 
@@ -132,16 +137,15 @@ Defined.
 Lemma is_precategory_Signature_precategory_data :
   is_precategory Signature_precategory_data.
 Proof.
-repeat split; simpl.
+  apply is_precategory_one_assoc_to_two.
+  repeat split; simpl.
 - intros Ht Ht' F; apply SignatureMor_eq; simpl.
   apply (nat_trans_eq (functor_category_has_homsets _ _ hsD)); intros X; apply id_left.
 - intros Ht Ht' F; apply SignatureMor_eq; simpl.
   apply (nat_trans_eq (functor_category_has_homsets _ _ hsD)); intros X; apply id_right.
 - intros Ht1 Ht2 Ht3 Ht4 F1 F2 F3; apply SignatureMor_eq; simpl.
   apply (nat_trans_eq (functor_category_has_homsets _ _ hsD)); intros X; apply assoc.
-- intros Ht1 Ht2 Ht3 Ht4 F1 F2 F3; apply SignatureMor_eq; simpl.
-  apply (nat_trans_eq (functor_category_has_homsets _ _ hsD)); intros X; apply assoc'.
-Defined.
+Qed.
 
 Definition Signature_precategory : precategory :=
  (Signature_precategory_data,,is_precategory_Signature_precategory_data).
@@ -157,11 +161,14 @@ apply (isofhleveltotal2 2).
   apply functor_category_has_homsets.
 Qed.
 
+Definition Signature_category : category :=
+ (Signature_precategory,,has_homsets_Signature_precategory).
+
 Definition SignatureForgetfulFunctor : functor Signature_precategory [[C,D'],[C,D]].
 Proof.
 use tpair.
 - use tpair.
-  + intros F; apply(Signature_Functor _ _ _ _ _ _ F).
+  + intros F; apply(Signature_Functor F).
   + intros F G α; apply α.
 - abstract (now split).
 Defined.
@@ -175,7 +182,92 @@ apply isinclbetweensets.
 + apply SignatureMor_eq.
 Qed.
 
+Section AsDisplayedCategory.
+
+  Definition Signature_precategory_displayed : disp_cat [[C,D'],[C,D]].
+  Proof.
+    use disp_cat_from_SIP_data.
+    - intro H.
+      exact (StrengthForSignature C hsC D hsD D' hsD' H).
+    - intros H1 H2 str1 str2 α.
+      exact (∏ X Y, Signature_category_mor_diagram (H1,,str1) (H2,,str2) α X Y).
+    - intros H1 H2 str1 str2 α.
+      do 2 (apply impred; intro).
+      apply functor_category_has_homsets.
+    - intros H a X Z.
+      apply SignatureMor_id_subproof.
+    - intros H1 H2 H3 str1 str2 str3 a1 a2 a1mor a2mor. simpl in a1mor, a2mor.
+      simpl.
+      exact (SignatureMor_comp_subproof (H1,,str1) (H2,,str2) (H3,,str3) (a1,,a1mor) (a2,,a2mor)).
+  Defined.
+
+  Definition Signature_precategory' : precategory := total_category Signature_precategory_displayed.
+
+  Lemma Signature_precategory_Pisset (H : [[C, D'], [C, D]]) : isaset (StrengthForSignature C hsC D hsD D' hsD' H).
+  Proof.
+    change isaset with (isofhlevel 2).
+    apply isofhleveltotal2.
+    apply (functor_category_has_homsets ([C, D', hsD'] ⊠ precategory_Ptd C hsC) ([C, D]) (functor_category_has_homsets _ _ hsD)).
+    intro θ.
+    apply isasetaprop.
+    apply isapropdirprod.
+    + apply isaprop_θ_Strength1_int.
+    + apply isaprop_θ_Strength2_int.
+  Qed.
+
+  Lemma Signature_precategory_Hstandard (H : [[C, D'], [C, D]]) (a a' : StrengthForSignature C hsC D hsD D' hsD' H) :
+ (∏ (X : [C, D']) (Y : precategory_Ptd C hsC),
+  Signature_category_mor_diagram (H,, a) (H,, a') (identity H) X Y)
+ → (∏ (X : [C, D']) (Y : precategory_Ptd C hsC),
+    Signature_category_mor_diagram (H,, a') (H,, a) (identity H) X Y)
+ → a = a'.
+  Proof.
+    intros leq geq.
+    apply StrengthForSignature_eq.
+    apply (nat_trans_eq (functor_category_has_homsets _ _ hsD)).
+    intro XZ.
+    assert (leqinst := leq (pr1 XZ) (pr2 XZ)).
+    (* assert (geqinst := geq (pr1 XZ) (pr2 XZ)). *)
+    clear leq geq.
+    red in leqinst.
+    unfold theta in leqinst.
+    etrans.
+    { apply pathsinv0.
+      apply id_right. }
+    etrans.
+    { exact leqinst. }
+    clear leqinst.
+    etrans.
+    2: { apply id_left. }
+    apply cancel_postcomposition.
+    apply nat_trans_eq; try exact hsD.
+    intro c.
+    cbn.
+    rewrite id_left.
+    apply functor_id.
+  Qed.
+
+  Definition is_univalent_Signature_precategory_displayed : is_univalent_disp Signature_precategory_displayed.
+  Proof.
+    use is_univalent_disp_from_SIP_data.
+    - exact Signature_precategory_Pisset.
+    - exact Signature_precategory_Hstandard.
+  Defined.
+
+End AsDisplayedCategory.
+
 End SignatureCategory.
+
+Definition is_univalent_Signature_precategory' (C : category) (D: univalent_category) (D' : category) :
+  is_univalent (Signature_precategory' C D D').
+Proof.
+  apply SIP.
+  - exact (is_univalent_functor_category [C, D'] _ (is_univalent_functor_category C D (pr2 D))).
+  - apply Signature_precategory_Pisset.
+  - apply Signature_precategory_Hstandard.
+Defined.
+
+
 
 (** * Binary products in the category of signatures *)
 Section BinProducts.

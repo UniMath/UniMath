@@ -666,7 +666,7 @@ Definition Lam_Sig: Signature C hs C hs C hs :=
 
 Lemma is_omega_cocont_Lam
   (hE : ∏ x, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C CP hs) x))
-  (LC : Colims_of_shape nat_graph C) : is_omega_cocont (Signature_Functor _ _ _ _ _ _ Lam_Sig).
+  (LC : Colims_of_shape nat_graph C) : is_omega_cocont (Signature_Functor Lam_Sig).
 Proof.
 apply is_omega_cocont_BinCoproduct_of_functors.
 - apply functor_category_has_homsets.

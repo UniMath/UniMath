@@ -26,6 +26,7 @@ Require Import UniMath.Foundations.PartD.
 
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Local Open Scope cat.
 Require Import UniMath.CategoryTheory.whiskering.
@@ -63,7 +64,7 @@ Context (H : functor [C, D', hsD'] [C, D, hsD]).
 (** The precategory of pointed endofunctors on [C] *)
 Local Notation "'Ptd'" := (precategory_Ptd C hs).
 (** The category of endofunctors on [C] *)
-Local Notation "'EndC'":= ([C, C, hs]) .
+Local Notation "'EndC'":= ([C, C, hs]).
 
 
 (** ** Source and target of the natural transformation [θ] *)
@@ -113,7 +114,13 @@ Section Strength_law_1_intensional.
 (** needs the heterogeneous formulation of the monoidal operation to type-check *)
 Definition θ_Strength1_int : UU
   := ∏ X : [C, D', hsD'],
-     θ (X ⊗ (id_Ptd C hs)) · # H (λ_functor _) = λ_functor _.
+           θ (X ⊗ (id_Ptd C hs)) · # H (λ_functor _) = λ_functor _.
+
+Lemma isaprop_θ_Strength1_int: isaprop θ_Strength1_int.
+Proof.
+  apply impred; intros X x x'.
+  apply isaset_nat_trans; try exact hsD.
+Qed.
 
 Lemma θ_Strength1_int_implies_θ_Strength1 : θ_Strength1_int → θ_Strength1.
 Proof.
@@ -156,6 +163,7 @@ Definition θ_Strength2 : UU := ∏ (X : [C, D', hsD']) (Z Z' : Ptd) (Y : [C, D'
     θ (X ⊗ Z') •• (U Z) · θ ((functor_compose hs hsD' (U Z') X) ⊗ Z) ·
        # H (α : functor_compose hs hsD' (U Z) (X • (U Z')) --> Y).
 
+
 Section Strength_law_2_intensional.
  (* does not typecheck in the heterogeneous formulation *)
 Definition θ_Strength2_int : UU
@@ -164,6 +172,14 @@ Definition θ_Strength2_int : UU
       (α_functor (U Z) (U Z') (H X) : [C, D, hsD] ⟦ functor_compose hs hsD (functor_composite (U Z) (U Z')) (H X), functor_composite (U Z) (functor_composite (U Z') (H X)) ⟧
       ) ·
       θ (X ⊗ Z') •• (U Z) · θ ((functor_compose hs hsD' (U Z') X) ⊗ Z) .
+
+Lemma isaprop_θ_Strength2_int: isaprop θ_Strength2_int.
+Proof.
+  apply impred; intros X.
+  apply impred; intros Z.
+  apply impred; intros Z'.
+  apply isaset_nat_trans; try exact hsD.
+Qed.
 
 Lemma θ_Strength2_int_implies_θ_Strength2 : θ_Strength2_int → θ_Strength2.
 Proof.
@@ -221,6 +237,31 @@ Proof.
   apply maponpaths.
   apply nat_trans_eq; try assumption;
   intro c; apply idpath.
+Qed.
+
+Definition θ_Strength2_int_nicer : UU := ∏ (X : [C, D', hsD']) (Z Z' : Ptd),
+      θ (X ⊗ (Z p• Z'))  =
+      (α_functor (U Z) (U Z') (H X) : [C, D, hsD] ⟦ functor_compose hs hsD (functor_composite (U Z) (U Z')) (H X), functor_composite (U Z) (functor_composite (U Z') (H X)) ⟧) ·
+      θ (X ⊗ Z') •• (U Z) · θ ((functor_compose hs hsD' (U Z') X) ⊗ Z) · #H (α_functor_inv (U Z) (U Z') X ).
+
+
+Lemma θ_Strength2_int_implies_θ_Strength2_int_nicer: θ_Strength2_int -> θ_Strength2_int_nicer.
+Proof.
+  intro Hyp.
+  intros X Z Z'.
+  assert (HypX := Hyp X Z Z').
+  set (auxiso := functor_on_z_iso H (_,,(α_functor_pointwise_is_z_iso hsD' (U Z) (U Z') X))).
+  apply pathsinv0 in HypX. apply (z_iso_inv_on_left _ _ _ _ auxiso) in HypX.
+  assumption.
+Qed.
+
+Lemma θ_Strength2_int_nicer_implies_θ_Strength2_int: θ_Strength2_int_nicer -> θ_Strength2_int.
+  intro Hyp.
+  intros X Z Z'.
+  assert (HypX := Hyp X Z Z').
+  set (auxiso := functor_on_z_iso H (_,,(α_functor_pointwise_is_z_iso hsD' (U Z) (U Z') X))).
+  apply (z_iso_inv_to_right _ _ _ _ auxiso).
+  assumption.
 Qed.
 
 End Strength_law_2_intensional.
@@ -302,10 +343,12 @@ Section Strength_laws.
 
 End Strength_laws.
 
+
+Definition StrengthForSignature (H : [C, D', hsD'] ⟶ [C, D, hsD] ) : UU :=
+  ∑ θ : nat_trans (θ_source H) (θ_target H) , θ_Strength1_int H θ × θ_Strength2_int H θ.
+
 Definition Signature : UU
-  :=
-  ∑ H : [C, D', hsD'] ⟶ [C, D, hsD] ,
-     ∑ θ : nat_trans (θ_source H) (θ_target H) , θ_Strength1_int H θ × θ_Strength2_int H θ.
+  := ∑ H : [C, D', hsD'] ⟶ [C, D, hsD] , StrengthForSignature H.
 
 Coercion Signature_Functor (S : Signature) : functor _ _ := pr1 S.
 
@@ -314,6 +357,16 @@ Definition theta (H : Signature) : (θ_source H) ⟹ (θ_target H) := pr1 (pr2 H
 Definition Sig_strength_law1 (H : Signature) : θ_Strength1_int _ _ := pr1 (pr2 (pr2 H)).
 
 Definition Sig_strength_law2 (H : Signature) : θ_Strength2_int _ _ := pr2 (pr2 (pr2 H)).
+
+Lemma StrengthForSignature_eq (H : [C, D', hsD'] ⟶ [C, D, hsD] ) (sθ1 sθ2 : StrengthForSignature H) :
+  pr1 sθ1 = pr1 sθ2 -> sθ1 = sθ2.
+Proof.
+  intro Heq.
+  apply subtypePath; trivial.
+  intro θ. apply isapropdirprod.
+  + apply isaprop_θ_Strength1_int.
+  + apply isaprop_θ_Strength2_int.
+Qed.
 
 End fix_a_category.
 
@@ -355,22 +408,22 @@ Qed.
 Section relative_strength_instantiates_to_signature.
 
   Context (H : functor [C, C, hs] [C, C, hs])
-          (rs : rel_strength ptd endo forget H).
+          (rs : rel_strength forget H).
 
-  Local Definition ϛ : rel_strength_nat ptd endo forget H := pr1 rs.
+  Local Definition ϛ : rel_strength_nat forget H := pr1 rs.
 
-  Local Definition ϛ_pentagon_eq : rel_strength_pentagon_eq ptd endo forget H ϛ
+  Local Definition ϛ_pentagon_eq : rel_strength_pentagon_eq forget H ϛ
     := pr1 (pr2 rs).
 
-  Local Definition ϛ_rectangle_eq : rel_strength_rectangle_eq ptd endo forget H ϛ
+  Local Definition ϛ_rectangle_eq : rel_strength_rectangle_eq forget H ϛ
     := pr2 (pr2 rs).
 
   Local Definition θ : θ_source C hs C hs C hs H ⟹ θ_target C hs C hs C hs H
     := pre_whisker binswap_pair_functor ϛ.
 
-  Definition signature_from_rel_strength : Signature C hs C hs C hs.
+  Lemma signature_from_rel_strength_laws : θ_Strength1_int C hs C hs C hs H θ ×
+                                           θ_Strength2_int C hs C hs C hs H θ.
   Proof.
-    exists H. exists θ.
     split; red.
     - intro X.
       cbn.
@@ -411,6 +464,12 @@ Section relative_strength_instantiates_to_signature.
       apply maponpaths.
       apply pathsinv0.
       apply (nat_trans_eq_weq hs _ _ (auxH2 H X Z Z') c).
+  Qed.
+
+  Definition signature_from_rel_strength : Signature C hs C hs C hs.
+  Proof.
+    exists H. exists θ.
+    exact signature_from_rel_strength_laws.
   Defined.
 
 End relative_strength_instantiates_to_signature.
@@ -421,14 +480,14 @@ Section strength_in_signature_is_a_relative_strength.
 
   Local Definition H := pr1 sig.
   Local Definition θ' := pr1 (pr2 sig).
-  Local Definition ϛ' : rel_strength_nat ptd endo forget H := pre_whisker binswap_pair_functor θ'.
+  Local Definition ϛ' : rel_strength_nat forget H := pre_whisker binswap_pair_functor θ'.
 
   Local Definition θ'_strength_law1 := Sig_strength_law1 _ _ _ _ _ _ sig.
   Local Definition θ'_strength_law2 := Sig_strength_law2 _ _ _ _ _ _ sig.
 
-  Definition rel_strength_from_signature : rel_strength ptd endo forget H.
+  Lemma rel_strength_from_signature_laws : rel_strength_pentagon_eq forget H ϛ' ×
+                                           rel_strength_rectangle_eq forget H ϛ'.
   Proof.
-    exists ϛ'.
     split.
     - intro X.
       apply nat_trans_eq; try assumption; intro c.
@@ -468,7 +527,9 @@ Section strength_in_signature_is_a_relative_strength.
       2: apply id_right.
       apply maponpaths.
       apply (nat_trans_eq_weq hs _ _ (auxH2 H X Z Z') c).
-Defined.
+  Qed.
+
+  Definition rel_strength_from_signature : rel_strength forget H := (ϛ',,rel_strength_from_signature_laws).
 
 End strength_in_signature_is_a_relative_strength.
 
@@ -482,3 +543,9 @@ Arguments θ_Strength1 {_ _ _ _ _ _ _ } _ .
 Arguments θ_Strength2 {_ _ _ _ _ _ _ } _ .
 Arguments θ_Strength1_int {_ _ _ _ _ _ _} _ .
 Arguments θ_Strength2_int {_ _ _ _ _ _ _} _ .
+Arguments Sig_strength_law1 {_ _ _ _ _ _} _.
+Arguments Sig_strength_law2 {_ _ _ _ _ _} _.
+Arguments Signature_Functor {_ _ _ _ _ _} _.
+Arguments θ_Strength1_int_implies_θ_Strength1 {_ _ _ _ _ _ _} _ _.
+Arguments θ_Strength2_int_implies_θ_Strength2 {_ _ _ _ _ _ _} _ _.
+Arguments θ_Strength2_int_implies_θ_Strength2_int_nicer {_ _ _ _ _ _ _} _ _.

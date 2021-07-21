@@ -60,17 +60,22 @@ Qed.
 Definition monoidal_functor_map :=
   monoidal_functor_map_dom ⟹ monoidal_functor_map_codom.
 
+Definition monoidal_functor_map_funclass (μ : monoidal_functor_map):
+  ∏ x : ob (C ⊠ C),  monoidal_functor_map_dom x -->  monoidal_functor_map_codom x
+  := pr1 μ.
+Coercion monoidal_functor_map_funclass : monoidal_functor_map >-> Funclass.
+
 Definition monoidal_functor_associativity (μ : monoidal_functor_map) :=
   ∏ (x y z : C),
-  pr1 μ (x, y) #⊗_D id F(z) · pr1 μ (x ⊗_C y, z) · #F (pr1 α_C ((x, y), z))
+  μ (x, y) #⊗_D id F(z) · μ (x ⊗_C y, z) · #F (α_C ((x, y), z))
   =
-  pr1 α_D ((F x, F y), F z) · id (F x) #⊗_D pr1 μ (y, z) · pr1 μ (x, y ⊗_C z).
+  α_D ((F x, F y), F z) · id (F x) #⊗_D μ (y, z) · μ (x, y ⊗_C z).
 
 Definition monoidal_functor_unitality (ϵ : I_D --> F I_C) (μ : monoidal_functor_map) :=
   ∏ (x : C),
-  (pr1 λ_D (F x) = ϵ #⊗_D (id (F x)) · pr1 μ (I_C, x) · #F (pr1 λ_C x))
+  (λ_D (F x) = ϵ #⊗_D (id (F x)) · μ (I_C, x) · #F (λ_C x))
   ×
-  (pr1 ρ_D (F x) = (id (F x)) #⊗_D ϵ · pr1 μ (x, I_C) · #F (pr1 ρ_C x)).
+  (ρ_D (F x) = (id (F x)) #⊗_D ϵ · μ (x, I_C) · #F (ρ_C x)).
 
 End Monoidal_Functor_Conditions.
 
@@ -115,7 +120,7 @@ Proof.
   cbn.
   set (f := nat_z_iso_pointwise_z_iso (monoidal_precat_associator Mon') ((F z, F y), F x)).
   apply (z_iso_inv_on_right _ _ _ f).
-  transparent assert (is : (is_z_isomorphism (# F ((pr1 (monoidal_precat_associator Mon)) ((z, y), x))))).
+  transparent assert (is : (is_z_isomorphism (# F (monoidal_precat_associator Mon ((z, y), x))))).
   { apply functor_on_is_z_isomorphism.
     apply monoidal_precat_associator.
   }

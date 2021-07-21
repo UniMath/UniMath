@@ -130,7 +130,7 @@ Defined.
 
 (* will not be used, is just a confirmation of proper construction *)
 Local Lemma functor_in_precomp_option_iter_Signature_ok  (BCC : BinCoproducts C)
-      (TC : Terminal C) (n : nat) : Signature_Functor _ _ _ _ _ _ (precomp_option_iter_Signature BCC TC n) = precomp_option_iter BCC TC n.
+      (TC : Terminal C) (n : nat) : Signature_Functor (precomp_option_iter_Signature BCC TC n) = precomp_option_iter BCC TC n.
 Proof.
 apply idpath.
 Qed.
