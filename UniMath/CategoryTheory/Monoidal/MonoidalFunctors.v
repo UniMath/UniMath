@@ -88,16 +88,45 @@ Definition mk_lax_monoidal_functor (F : C ⟶ D) (ϵ : I_D --> F I_C)
   (Hunit: monoidal_functor_unitality F ϵ μ): lax_monoidal_functor :=
   (F,, (ϵ,, (μ,, (Hass,, Hunit)))).
 
+Definition lax_monoidal_functor_functor (lmF : lax_monoidal_functor) : C ⟶ D := pr1  lmF.
+Coercion lax_monoidal_functor_functor : lax_monoidal_functor >-> functor.
+
+Definition lax_monoidal_functor_ϵ (lmF : lax_monoidal_functor) :
+  I_D -->  lax_monoidal_functor_functor lmF I_C
+  := pr1 (pr2 lmF).
+
+Definition lax_monoidal_functor_μ (lmF : lax_monoidal_functor) :
+  monoidal_functor_map (lax_monoidal_functor_functor lmF)
+  := pr1 (pr2 (pr2 lmF)).
+
+Definition lax_monoidal_functor_assoc (lmF : lax_monoidal_functor) :
+  monoidal_functor_associativity (lax_monoidal_functor_functor lmF) (lax_monoidal_functor_μ lmF)
+  := pr1 (pr2 (pr2 (pr2 lmF))).
+
+Definition lax_monoidal_functor_unital (lmF : lax_monoidal_functor) :
+  monoidal_functor_unitality (lax_monoidal_functor_functor lmF) (lax_monoidal_functor_ϵ lmF) (lax_monoidal_functor_μ lmF)
+  := pr2 (pr2 (pr2 (pr2 lmF))).
+
+
 Definition strong_monoidal_functor : UU :=
-  ∑ L : lax_monoidal_functor,
-  (is_z_isomorphism (pr1 (pr2 L))) (* ϵ is an iso *)
+  ∑ lmF : lax_monoidal_functor,
+  (is_z_isomorphism (lax_monoidal_functor_ϵ lmF)) (* ϵ is an iso *)
   ×
-  (is_nat_z_iso (pr1 (pr2 (pr2 L)))). (* μ is an iso *)
+  (is_nat_z_iso (lax_monoidal_functor_μ lmF)). (* μ is an iso *)
+
+Definition strong_monoidal_functor_lax_monoidal_functor (smF : strong_monoidal_functor) : lax_monoidal_functor
+  := pr1 smF.
+Coercion strong_monoidal_functor_lax_monoidal_functor : strong_monoidal_functor >-> lax_monoidal_functor.
+
+Definition strong_monoidal_functor_ϵ_is_z_iso (smF : strong_monoidal_functor) :
+  is_z_isomorphism (lax_monoidal_functor_ϵ smF)
+  := pr1 (pr2 smF).
+
+Definition strong_monoidal_functor_μ_is_nat_z_iso (smF : strong_monoidal_functor) :
+  is_nat_z_iso (lax_monoidal_functor_μ smF)
+  := pr2 (pr2 smF).
 
 End Monoidal_Functor.
-
-Definition strong_monoidal_functor_functor {Mon Mon' : monoidal_precat} (U : strong_monoidal_functor Mon Mon') := pr1 (pr1 U).
-Coercion strong_monoidal_functor_functor : strong_monoidal_functor >-> functor.
 
 Section swapped_tensor.
 
@@ -108,12 +137,11 @@ Section swapped_tensor.
   Local Definition tensor := monoidal_precat_tensor Mon.
   Local Definition tensor' := monoidal_precat_tensor Mon'.
 
-Lemma swapping_of_lax_monoidal_functor_assoc (Fun: lax_monoidal_functor Mon Mon'):
-    let F := pr1 Fun in let μ := pr1 (pr2 (pr2 Fun)) in
-  monoidal_functor_associativity (swapping_of_monoidal_precat Mon) (swapping_of_monoidal_precat Mon') F
-                                 (pre_whisker binswap_pair_functor μ).
+Lemma swapping_of_lax_monoidal_functor_assoc (lmF: lax_monoidal_functor Mon Mon'):
+  monoidal_functor_associativity (swapping_of_monoidal_precat Mon) (swapping_of_monoidal_precat Mon') lmF
+                                 (pre_whisker binswap_pair_functor (lax_monoidal_functor_μ _ _ lmF)).
 Proof.
-  induction Fun as [F [ϵ [μ [Hass Hunit]]]].
+  induction lmF as [F [ϵ [μ [Hass Hunit]]]].
   red. intros x y z.
   set (Hass_inst := Hass z y x).
   apply pathsinv0. rewrite <- assoc.
@@ -137,8 +165,8 @@ Definition swapping_of_lax_monoidal_functor: lax_monoidal_functor Mon Mon' ->
   lax_monoidal_functor (swapping_of_monoidal_precat Mon)
                        (swapping_of_monoidal_precat Mon').
 Proof.
-  intro Fun.
-  induction Fun as [F [ϵ [μ [Hass Hunit]]]].
+  intro lmF.
+  induction lmF as [F [ϵ [μ [Hass Hunit]]]].
   use mk_lax_monoidal_functor.
   - exact F.
   - exact ϵ.
@@ -151,15 +179,15 @@ Definition swapping_of_strong_monoidal_functor: strong_monoidal_functor Mon Mon'
   strong_monoidal_functor (swapping_of_monoidal_precat Mon)
                           (swapping_of_monoidal_precat Mon').
 Proof.
-  intro Fun.
-  induction Fun as [L [Hϵ Hμ]].
-  apply (tpair _ (swapping_of_lax_monoidal_functor L)).
+  intro smF.
+  induction smF as [lmF [Hϵ Hμ]].
+  apply (tpair _ (swapping_of_lax_monoidal_functor lmF)).
   split.
   - exact Hϵ.
-  - exact (pre_whisker_on_nat_z_iso binswap_pair_functor (pr1 (pr2 (pr2 L))) Hμ).
+  - exact (pre_whisker_on_nat_z_iso binswap_pair_functor (lax_monoidal_functor_μ _ _ lmF) Hμ).
 Defined.
 
-Lemma swapping_of_strong_monoidal_functor_on_objects (Fun: strong_monoidal_functor Mon Mon')(a: CC): swapping_of_strong_monoidal_functor Fun a = Fun a.
+Lemma swapping_of_strong_monoidal_functor_on_objects (smF: strong_monoidal_functor Mon Mon')(a: CC): swapping_of_strong_monoidal_functor smF a = smF a.
 Proof.
   apply idpath.
 Qed.

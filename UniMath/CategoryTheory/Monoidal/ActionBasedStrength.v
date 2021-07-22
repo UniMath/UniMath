@@ -214,11 +214,11 @@ Section B.
   Local Definition timesW := monoidal_precat_tensor Mon_W.
   Local Definition E := monoidal_precat_unit Mon_W.
 
-  Context (U:strong_monoidal_functor Mon_W Mon_V).
-  Local Definition phiI := pr1 (pr2 (pr1 U)).
-  Local Definition phiIinv := inv_from_z_iso (make_z_iso phiI _ (pr1 (pr2 U))).
-  Local Definition phi := pr1 (pr2 (pr2 (pr1 U))).
-  Local Definition phiinv := nat_z_iso_to_trans_inv (make_nat_z_iso _ _ phi (pr2 (pr2 U))).
+  Context (U : strong_monoidal_functor Mon_W Mon_V).
+  Local Definition phiI := lax_monoidal_functor_ϵ _ _ U.
+  Local Definition phiIinv := inv_from_z_iso (make_z_iso phiI _ (strong_monoidal_functor_ϵ_is_z_iso _ _ U)).
+  Local Definition phi := lax_monoidal_functor_μ _ _ U.
+  Local Definition phiinv := nat_z_iso_to_trans_inv (make_nat_z_iso _ _ phi (strong_monoidal_functor_μ_is_nat_z_iso _ _ U)).
 
 Section RelativeStrengths_Natural_Transformation.
   Context (F: functor VV VV).
@@ -316,9 +316,9 @@ Proof.
     fold timesW.
     fold alpha.
     change (ϛ (timesW (w, w'), v)
-  · # F (# timesV (pr1 (pr2 (pr2 U) (w, w')) #, id v) · alpha ((U w, U w'), v)) =
-  # timesV (pr1 (pr2 (pr2 U) (w, w')) #, id F v) · alpha ((U w, U w'), F v)
-  · # timesV (# (pr1 (pr1 U)) (id w) #, ϛ (w', v)) · ϛ (w, timesV (U w', v))).
+  · # F (# timesV (pr1 (strong_monoidal_functor_μ_is_nat_z_iso _ _ U (w, w')) #, id v) · alpha ((U w, U w'), v)) =
+  # timesV (pr1 (strong_monoidal_functor_μ_is_nat_z_iso _ _ U (w, w')) #, id F v) · alpha ((U w, U w'), F v)
+  · # timesV (# U (id w) #, ϛ (w', v)) · ϛ (w, timesV (U w', v))).
     rewrite functor_id.
     rewrite functor_comp.
     rewrite assoc.

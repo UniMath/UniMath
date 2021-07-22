@@ -22,14 +22,14 @@ Section A.
 
 Context (Mon_V : monoidal_precat).
 
-Local Definition V := monoidal_precat_precat Mon_V.
-Local Definition I := monoidal_precat_unit Mon_V.
-Local Definition tensor := monoidal_precat_tensor Mon_V.
+Local Definition V : precategory := monoidal_precat_precat Mon_V.
+Local Definition I : V := monoidal_precat_unit Mon_V.
+Local Definition tensor : V ⊠ V ⟶ V := monoidal_precat_tensor Mon_V.
 Notation "X ⊗ Y" := (tensor (X , Y)).
 Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
-Local Definition α' := monoidal_precat_associator Mon_V.
-Local Definition λ' := monoidal_precat_left_unitor Mon_V.
-Local Definition ρ' := monoidal_precat_right_unitor Mon_V.
+Local Definition α' : associator tensor := monoidal_precat_associator Mon_V.
+Local Definition λ' : left_unitor tensor I := monoidal_precat_left_unitor Mon_V.
+Local Definition ρ' : right_unitor tensor I := monoidal_precat_right_unitor Mon_V.
 
 Section Actions_Definition.
 
@@ -118,25 +118,23 @@ Section Strong_Monoidal_Functor_Action.
 
 Context {Mon_A : monoidal_precat}.
 
-Local Definition A := monoidal_precat_precat Mon_A.
-Local Definition I_A := monoidal_precat_unit Mon_A.
-Local Definition tensor_A := monoidal_precat_tensor Mon_A.
+Local Definition A : precategory := monoidal_precat_precat Mon_A.
+Local Definition I_A : A := monoidal_precat_unit Mon_A.
+Local Definition tensor_A : A ⊠ A ⟶ A := monoidal_precat_tensor Mon_A.
 Notation "X ⊗_A Y" := (tensor_A (X , Y)) (at level 31).
 Notation "f #⊗_A g" := (#tensor_A (f #, g)) (at level 31).
-Local Definition α_A := monoidal_precat_associator Mon_A.
-Local Definition λ_A := monoidal_precat_left_unitor Mon_A.
-Local Definition ρ_A := monoidal_precat_right_unitor Mon_A.
-Local Definition triangle_eq_A := pr1 (monoidal_precat_eq Mon_A).
-Local Definition pentagon_eq_A := pr2 (monoidal_precat_eq Mon_A).
+Local Definition α_A : associator tensor_A := monoidal_precat_associator Mon_A.
+Local Definition λ_A : left_unitor tensor_A I_A := monoidal_precat_left_unitor Mon_A.
+Local Definition ρ_A : right_unitor tensor_A I_A := monoidal_precat_right_unitor Mon_A.
+Local Definition triangle_eq_A : triangle_eq tensor_A I_A λ_A ρ_A α_A := pr1 (monoidal_precat_eq Mon_A).
+Local Definition pentagon_eq_A : pentagon_eq tensor_A α_A := pr2 (monoidal_precat_eq Mon_A).
 
 
 Context (U : strong_monoidal_functor Mon_V Mon_A).
-Local Definition ϵ := pr1 (pr2 (pr1 U)).
-Local Definition ϵ_U_is_z_iso := pr1 (pr2 U).
+Local Definition ϵ := lax_monoidal_functor_ϵ _ _ U.
+Local Definition ϵ_U_is_z_iso := strong_monoidal_functor_ϵ_is_z_iso _ _ U.
 Local Definition ϵ_inv := inv_from_z_iso (make_z_iso _ _ ϵ_U_is_z_iso).
-Local Definition μ := pr1 (pr2 (pr2 (pr1 U))).
-Local Definition unitality_U := pr2 (pr2 (pr2 (pr2 (pr1 U)))).
-Local Definition assoc_U := pr1 (pr2 (pr2 (pr2 (pr1 U)))).
+Local Definition μ := lax_monoidal_functor_μ _ _ U.
 
 Definition otimes_U_functor : A ⊠ V ⟶ A := functor_composite (pair_functor (functor_identity _) U) tensor_A.
 
@@ -186,7 +184,6 @@ Proof.
 Defined.
 
 Lemma U_action_χ_nat_trans_ok: nat_trans_data_from_nat_trans U_action_χ_nat_trans =
-  let μ := pr1 (pr2 (pr2 (pr1 U))) in
   λ x, let k   := ob1 (ob1 x) in
        let k'  := ob2 (ob1 x) in
        let k'' := ob2 x in
@@ -203,7 +200,7 @@ Proof.
   - exact (pr2 α_A ((k, U k'), U k'')).
   - use is_z_iso_tensor_z_iso.
     + use identity_is_z_iso.
-    + exact (pr2 (pr2 U) (k', k'')).
+    + exact (strong_monoidal_functor_μ_is_nat_z_iso _ _  U (k', k'')).
 Defined.
 
 Definition U_action_χ : action_convertor A otimes_U_functor :=
@@ -285,7 +282,7 @@ Proof.
   - apply maponpaths.
     eapply (maponpaths (fun u: pr1 Mon_A ⟦I_A ⊗_A (U x), U x⟧ => # tensor_A (id a #, u))).
     apply pathsinv0.
-    apply (pr1 (unitality_U x)).
+    apply (lax_monoidal_functor_unital _ _ U x).
   - fold λ_A.
     (* UniMath.MoreFoundations.Tactics.show_id_type.
        unfold functor_fix_snd_arg_ob in TYPE. *)
@@ -342,7 +339,7 @@ Proof.
     rewrite assoc.
     (* UniMath.MoreFoundations.Tactics.show_id_type. *)
     eapply (maponpaths (fun u: A ⟦(U x ⊗_A U y) ⊗_A U z, U (x ⊗ (y ⊗ z))⟧ => id a  #⊗_A u)).
-    apply assoc_U.
+    apply (lax_monoidal_functor_assoc _ _ U).
   }
   fold α_A. fold tensor_A. fold tensor. fold μ.
   etrans.
@@ -356,7 +353,7 @@ Proof.
   etrans.
   { do 2 apply maponpaths.
     rewrite <- (id_left (id a)).
-    intermediate_path (# tensor_A ((id a #, # tensor_A (id pr1 (pr1 U) x #, μ (y, z))) · (id a #, μ (x, y ⊗ z)))).
+    intermediate_path (# tensor_A ((id a #, # tensor_A (id U x #, μ (y, z))) · (id a #, μ (x, y ⊗ z)))).
     2: { apply functor_comp. }
     apply idpath.
   }

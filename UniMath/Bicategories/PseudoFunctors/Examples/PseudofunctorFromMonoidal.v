@@ -34,22 +34,19 @@ Section monoidal_functor_to_psfunctor.
   Local Definition M_as_bicat := bicat_from_monoidal M hsM.
   Local Definition N_as_bicat := bicat_from_monoidal N hsN.
 
-  Context (strF : strong_monoidal_functor M N).
+  Context (smF : strong_monoidal_functor M N).
 
-  Local Definition F : functor (monoidal_precat_precat M) (monoidal_precat_precat N) := pr11 strF.
-  Local Definition ε_F := pr121 strF.
-  Local Definition μ_F : monoidal_functor_map M N F := pr1(pr2(pr2(pr1 strF))).
-  Local Definition F_unital := pr2(pr2(pr2(pr1 strF))).
-  Local Definition F_associative := pr1(pr2(pr2(pr2(pr1 strF)))).
+  Local Definition ε_F := lax_monoidal_functor_ϵ _ _ smF.
+  Local Definition μ_F : monoidal_functor_map M N smF := lax_monoidal_functor_μ _ _ smF.
 
 Definition monoidal_functor_to_psfunctor_map_data: psfunctor_data M_as_bicat N_as_bicat.
 Proof.
   use make_psfunctor_data.
   - cbn. exact (fun x => x).
   - intros a b. cbn.
-    exact (functor_on_objects F).
+    exact (functor_on_objects smF).
   - intros a b f g. cbn.
-    exact (functor_on_morphisms F).
+    exact (functor_on_morphisms smF).
   - intros a. cbn. exact ε_F.
   - intros a b c f g. cbn. apply (μ_F (f,g)).
 Defined.
@@ -59,18 +56,18 @@ Proof.
   repeat split; red; cbn.
   - intros H0 H1 a. apply functor_id.
   - intros H0 H1 a b c f g. apply functor_comp.
-  - intros H0 H1 a. apply (pr2 F_unital).
-  - intros H0 H1 a. apply (pr2 F_unital a).
+  - intros H0 H1 a. apply lax_monoidal_functor_unital.
+  - intros H0 H1 a. apply (lax_monoidal_functor_unital _ _ smF a).
   - intros H0 H1 H2 H3 a b c.
     do 2 rewrite <- assoc. apply pathsinv0.
-    apply (z_iso_inv_on_right _ _ _ (nat_z_iso_pointwise_z_iso (monoidal_precat_associator N) ((F a, F b), F c))).
+    apply (z_iso_inv_on_right _ _ _ (nat_z_iso_pointwise_z_iso (monoidal_precat_associator N) ((smF a, smF b), smF c))).
     do 2 rewrite assoc.
     etrans.
     2: { apply maponpaths. apply functor_on_inv_from_z_iso'. }
     apply z_iso_inv_on_left.
     cbn.
     apply pathsinv0.
-    apply F_associative.
+    apply lax_monoidal_functor_assoc.
   - intros H0 H1 H2 a b1 b2 g. red in g.
     apply pathsinv0.
     assert (Heq := nat_trans_ax μ_F (a,,b1) (a,,b2) (id a,,g)).
@@ -92,12 +89,12 @@ Proof.
     - exact (monoidal_functor_to_psfunctor_map_laws).
     - split ; red; cbn.
       + intros H0. unfold two_cells_from_monoidal.
-        exists (inv_from_z_iso (_,,pr12 strF)).
+        exists (inv_from_z_iso (_,,strong_monoidal_functor_ϵ_is_z_iso _ _ smF)).
         fold ε_F.
-        exact (pr2 (pr12 strF)).
+        exact (pr2 (strong_monoidal_functor_ϵ_is_z_iso _ _ smF)).
       + intros H0 H1 H2 a b. unfold two_cells_from_monoidal.
-        exists (nat_z_iso_to_trans_inv (make_nat_z_iso _ _ μ_F (pr22 strF)) (a,,b)).
-        exact (pr2 (pr22 strF (a,,b))).
+        exists (nat_z_iso_to_trans_inv (make_nat_z_iso _ _ μ_F (strong_monoidal_functor_μ_is_nat_z_iso _ _ smF)) (a,,b)).
+        exact (pr2 (strong_monoidal_functor_μ_is_nat_z_iso _ _ smF (a,,b))).
 Defined.
 
 End monoidal_functor_to_psfunctor.

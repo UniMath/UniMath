@@ -47,9 +47,8 @@ Local Definition Mon_endo: monoidal_precat := swapping_of_monoidal_precat (monoi
 
 Context (U: strong_monoidal_functor Mon_M Mon_endo).
 
-Local Definition F_U := pr11 U.
-Local Definition ϵ_U := pr112 U.
-Local Definition μ_U := pr122 (pr1 U).
+Local Definition ϵ_U : pr1 Mon_endo ⟦ pr1 U (MonoidalFunctors.I_C Mon_M), MonoidalFunctors.I_D Mon_endo ⟧ := pr1 (strong_monoidal_functor_ϵ_is_z_iso _ _ U).
+Local Definition μ_U : monoidal_functor_map Mon_M Mon_endo U := lax_monoidal_functor_μ _ _ U.
 Local Definition ab_strength_domain_action : action Mon_M (hom c0 d0') :=  lifted_action Mon_M U (action_from_precomp c0 d0').
 Local Definition ab_strength_target_action : action Mon_M (hom c0 d0) :=  lifted_action Mon_M U (action_from_precomp c0 d0).
 
@@ -100,7 +99,7 @@ Lemma pentagon_eq_readable: pentagon_eq =
   ∏ (a : C ⟦ c0, d0' ⟧) (x y : monoidal_precat_precat Mon_M),
                         (lassociator (U y) (U x) (F a) • id₂ (F a) ⋆⋆ μ_U (x,, y))
                           • θ (a,, monoidal_precat_tensor Mon_M (x, y)) =
-                        (θ (a,, x) ⋆⋆ # F_U (id₁ y) • θ (F_U x · a,, y))
+                        (θ (a,, x) ⋆⋆ # U (id₁ y) • θ (U x · a,, y))
                           • # F (lassociator (U y) (U x) a • id₂ a ⋆⋆ μ_U (x,, y)).
 Proof.
   apply idpath.
@@ -114,7 +113,7 @@ Qed.
 Definition pentagon_eq_nice : UU :=
   ∏ (X : C ⟦ c0, d0' ⟧) (Z' Z : monoidal_precat_precat Mon_M),
     (lassociator (U Z) (U Z') (F X) • (μ_U (Z',, Z) ▹ F X)) • θ (X,, monoidal_precat_tensor Mon_M (Z', Z)) =
-    ((F_U Z ◃ θ (X,, Z')) • θ (F_U Z' · X,, Z)) • # F (lassociator (U Z) (U Z') X • (μ_U (Z',, Z) ▹ X)).
+    ((U Z ◃ θ (X,, Z')) • θ (U Z' · X,, Z)) • # F (lassociator (U Z) (U Z') X • (μ_U (Z',, Z) ▹ X)).
 
 Lemma pentagon_eq_implies_pentagon_eq_nice : pentagon_eq -> pentagon_eq_nice.
 Proof.
@@ -144,7 +143,7 @@ Lemma pentagon_eq_nice_implies_pentagon_eq : pentagon_eq_nice -> pentagon_eq.
 Proof.
   intros Heq X Z' Z.
   simpl.
-  rewrite (functor_id (pr11 U)).
+  rewrite (functor_id U).
   refine (_ @ Heq _ _ _ @ _).
   - cbn.
     apply maponpaths_2.
@@ -162,16 +161,16 @@ Proof.
 Qed.
 
 Definition μ_UZ'Zinv (Z' Z : monoidal_precat_precat Mon_M) :
-  hom c0 c0 ⟦ monoidal_functor_map_codom Mon_M Mon_endo (pr11 U) (Z',, Z),
-              monoidal_functor_map_dom Mon_M Mon_endo (pr11 U) (Z',, Z) ⟧
-  := nat_z_iso_to_trans_inv (μ_U,,pr22 U) (Z',,Z).
+  hom c0 c0 ⟦ monoidal_functor_map_codom Mon_M Mon_endo U (Z',, Z),
+              monoidal_functor_map_dom Mon_M Mon_endo U (Z',, Z) ⟧
+  := nat_z_iso_to_trans_inv (μ_U,,strong_monoidal_functor_μ_is_nat_z_iso _ _ U) (Z',,Z).
 
 Definition pentagon_eq_nicer : UU :=
   ∏ (X : C ⟦ c0, d0' ⟧) (Z' Z : monoidal_precat_precat Mon_M),
                          (lassociator (U Z) (U Z') (F X) • (μ_U (Z',, Z) ▹ F X)) •
                          θ (X,, monoidal_precat_tensor Mon_M (Z', Z)) •
                          # F ((μ_UZ'Zinv Z' Z ▹ X) • rassociator (U Z) (U Z') X) =
-                         ((F_U Z ◃ θ (X,, Z')) • θ (F_U Z' · X,, Z)).
+                         ((U Z ◃ θ (X,, Z')) • θ (U Z' · X,, Z)).
 
 Lemma pentagon_eq_nice_implies_pentagon_eq_nicer : pentagon_eq_nice -> pentagon_eq_nicer.
 Proof.
@@ -201,7 +200,7 @@ Proof.
   rewrite rwhisker_vcomp.
   etrans.
   { apply maponpaths.
-    apply (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso (μ_U,,pr22 U) (Z',,Z))).
+    apply (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso (μ_U,,strong_monoidal_functor_μ_is_nat_z_iso _ _ U) (Z',,Z))).
   }
   apply id2_rwhisker.
 Qed.
@@ -235,7 +234,7 @@ Proof.
   rewrite rwhisker_vcomp.
   etrans.
   { apply maponpaths.
-    apply (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso (μ_U,,pr22 U) (Z',,Z))).
+    apply (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso (μ_U,,strong_monoidal_functor_μ_is_nat_z_iso _ _ U) (Z',,Z))).
   }
   apply id2_rwhisker.
 Qed.
@@ -315,7 +314,8 @@ Section IndividualFunctorsWithABStrength.
   Context (H : functor [C, D', hsD'] [C, D, hsD]).
 
 
-  Definition ab_strength_for_functors_and_pointed_functors : UU := ab_strength_on_homs_in_bicat(C:=bicat_of_cats_nouniv) (C,,hs) (D,,hsD) (D',,hsD') forget H.
+  Definition ab_strength_for_functors_and_pointed_functors : UU
+    := ab_strength_on_homs_in_bicat(C:=bicat_of_cats_nouniv) (C,,hs) (D,,hsD) (D',,hsD') forget H.
 
   Context (ab_str : ab_strength_for_functors_and_pointed_functors).
 

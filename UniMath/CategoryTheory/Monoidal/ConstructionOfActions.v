@@ -61,12 +61,10 @@ Local Definition pentagon_eq_A := pr2 (monoidal_precat_eq Mon_A).
 
 
 Context (U : strong_monoidal_functor Mon_V Mon_A).
-Local Definition ϵ := pr1 (pr2 (pr1 U)).
-Local Definition ϵ_U_is_z_iso := pr1 (pr2 U).
+Local Definition ϵ := lax_monoidal_functor_ϵ _ _ U.
+Local Definition ϵ_U_is_z_iso := strong_monoidal_functor_ϵ_is_z_iso _ _ U.
 Local Definition ϵ_inv := inv_from_z_iso (make_z_iso _ _ ϵ_U_is_z_iso).
-Local Definition μ := pr1 (pr2 (pr2 (pr1 U))).
-Local Definition unitality_U := pr2 (pr2 (pr2 (pr2 (pr1 U)))).
-Local Definition assoc_U := pr1 (pr2 (pr2 (pr2 (pr1 U)))).
+Local Definition μ := lax_monoidal_functor_μ _ _ U.
 
 Context {C : precategory} (actA : action Mon_A C).
 
@@ -75,7 +73,7 @@ Local Definition ρA : action_right_unitor Mon_A C odotA := pr12 actA.
 Local Definition αA : action_convertor Mon_A C odotA := pr122 actA.
 
 Definition lifted_odot : C ⊠ V ⟶ C :=
-  functor_composite (pair_functor (functor_identity _) (pr11 U)) odotA.
+  functor_composite (pair_functor (functor_identity _) U) odotA.
 
 Definition lifted_action_right_unitor_nat_trans:
   odot_I_functor Mon_V C lifted_odot ⟹ functor_identity C.
@@ -121,7 +119,7 @@ Proof.
   - exact (pr2 αA ((k, U k'), U k'')).
   - use is_z_iso_odot_z_iso.
     + use identity_is_z_iso.
-    + exact (pr2 (pr2 U) (k', k'')).
+    + exact (strong_monoidal_functor_μ_is_nat_z_iso _ _  U (k', k'')).
 Defined.
 
 Lemma lifted_action_tlaw : action_triangle_eq Mon_V C
@@ -140,7 +138,7 @@ Proof.
   etrans.
   { rewrite assoc'. apply maponpaths. apply pathsinv0. apply functor_comp. }
   unfold compose at 2. simpl. unfold make_dirprod. rewrite id_left.
-  rewrite <- (id_left (id (pr11 U) x)).
+  rewrite <- (id_left (id U x)).
   apply pathsinv0.
   intermediate_path (# odotA ((# odotA (id a #, ϵ_inv)) #, id U x) · # odotA (ρA a #, id U x)).
   { rewrite <- functor_comp.
@@ -176,7 +174,7 @@ Proof.
   rewrite assoc.
   apply pathsinv0. etrans.
   { apply cancel_postcomposition.
-    apply (nat_trans_ax (pr1 αA) ((a, I_A), U x) ((a, U I), U x) (make_dirprod (make_dirprod (id a) ϵ) (id U x))). }
+    apply (nat_trans_ax (pr1 αA) ((a, I_A), U x) ((a, U I), U x) ((id a ,, ϵ) ,, id U x)). }
   simpl.
   etrans.
   { rewrite assoc'. apply maponpaths. apply pathsinv0.
@@ -189,7 +187,7 @@ Proof.
   - apply maponpaths.
     eapply (maponpaths (fun u: pr1 Mon_A ⟦I_A ⊗_A (U x), U x⟧ => # odotA (id a #, u))).
     apply pathsinv0.
-    apply (pr1 (unitality_U x)).
+    apply (lax_monoidal_functor_unital _ _ U x).
   - fold λ_A.
     (* UniMath.MoreFoundations.Tactics.show_id_type.
        unfold functor_fix_snd_arg_ob in TYPE. *)
@@ -220,7 +218,7 @@ Proof.
   { rewrite assoc.
     apply cancel_postcomposition.
     apply cancel_postcomposition.
-    rewrite <- (id_left (id (pr11 U) z)).
+    rewrite <- (id_left (id U z)).
     intermediate_path (# odotA ((αA ((a, U x), U y) #, id U z) · (# odotA (id a #, μ (x, y)) #, id U z))).
     - apply idpath.
     - apply functor_comp.
@@ -229,7 +227,7 @@ Proof.
   { apply cancel_postcomposition.
     rewrite assoc'.
     apply maponpaths.
-    apply (nat_trans_ax (pr1 αA) ((a, U x ⊗_A U y), U z) ((a, U (x ⊗ y)), U z) (make_dirprod (make_dirprod (id a) (μ (x, y))) (id U z))).
+    apply (nat_trans_ax (pr1 αA) ((a, U x ⊗_A U y), U z) ((a, U (x ⊗ y)), U z) ((id a ,, μ (x, y)) ,, id U z)).
   }
   etrans.
   { unfold assoc_right. cbn.
@@ -247,7 +245,7 @@ Proof.
     rewrite assoc.
     (* UniMath.MoreFoundations.Tactics.show_id_type. *)
     eapply (maponpaths (fun u: A ⟦(U x ⊗_A U y) ⊗_A U z, U (x ⊗ (y ⊗ z))⟧ => # odotA (id a #, u))).
-    apply assoc_U.
+    apply (lax_monoidal_functor_assoc _ _ U).
   }
   fold αA. fold μ.
   etrans.
@@ -281,9 +279,9 @@ Proof.
   apply maponpaths.
   etrans.
   { apply pathsinv0.
-    apply (nat_trans_ax (pr1 αA) ((a, U x), U y ⊗_A U z) ((a, U x), U (y ⊗ z)) (make_dirprod (make_dirprod (id a) (id U x)) (μ (y, z)))).
+    apply (nat_trans_ax (pr1 αA) ((a, U x), U y ⊗_A U z) ((a, U x), U (y ⊗ z)) ((id a ,, id U x) ,, μ (y, z))).
   }
-  cbn. unfold make_dirprod.
+  cbn.
   apply cancel_postcomposition.
   (* present the identity in the binary product of categories *)
   change (# odotA (# odotA (id (a, U x)) #, μ (y, z)) = # odotA (id (odotA (a, U x)) #, μ (y, z))).
