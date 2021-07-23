@@ -28,7 +28,7 @@ Section Braiding.
 
 (** In this section, fix a monoidal category. *)
 Context (MonM : monoidal_precat).
-Local Definition M        := monoidal_precat_precat MonM.
+
 Local Definition tensor   := monoidal_precat_tensor MonM.
 Local Definition α        := monoidal_precat_associator MonM.
 
@@ -47,12 +47,12 @@ Local Definition α₁ := pr1 α.
 Local Definition α₂ := pr1 (nat_z_iso_inv α).
 
 Definition first_hexagon_eq : UU :=
-  ∏ (a b c : M) ,
+  ∏ (a b c : MonM) ,
   (α₁ ((a , b) , c)) · (γ (a , (b ⊗ c))) · (α₁ ((b , c) , a))  =
   (γ (a , b) #⊗ (id c)) · (α₁ ((b , a) , c)) · ((id b) #⊗ γ (a , c)).
 
 Definition second_hexagon_eq : UU :=
-  ∏ (a b c : M) ,
+  ∏ (a b c : MonM) ,
   α₂ ((a , b) , c) · (γ (a ⊗ b , c)) · α₂ ((c , a) , b)  =
   ((id a) #⊗ γ (b , c)) · α₂ ((a , c) , b) · (γ (a , c) #⊗ (id b)).
 

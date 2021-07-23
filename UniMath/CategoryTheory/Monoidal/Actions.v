@@ -22,9 +22,8 @@ Section A.
 
 Context (Mon_V : monoidal_precat).
 
-Local Definition V : precategory := monoidal_precat_precat Mon_V.
-Local Definition I : V := monoidal_precat_unit Mon_V.
-Local Definition tensor : V ⊠ V ⟶ V := monoidal_precat_tensor Mon_V.
+Local Definition I : Mon_V := monoidal_precat_unit Mon_V.
+Local Definition tensor : Mon_V ⊠ Mon_V ⟶ Mon_V := monoidal_precat_tensor Mon_V.
 Notation "X ⊗ Y" := (tensor (X , Y)).
 Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
 Local Definition α' : associator tensor := monoidal_precat_associator Mon_V.
@@ -38,12 +37,12 @@ Context (A : precategory).
 Section Actions_Natural_Transformations.
 
 (* A ⊙ I --> A *)
-Context (odot : functor (precategory_binproduct A V) A).
+Context (odot : functor (precategory_binproduct A Mon_V) A).
 
 Notation "X ⊙ Y" := (odot (X , Y)) (at level 31).
 Notation "f #⊙ g" := (# odot (f #, g)) (at level 31).
 
-Definition is_z_iso_odot_z_iso {X Y : A} { X' Y' : V} {f : X --> Y} {g : X' --> Y'}
+Definition is_z_iso_odot_z_iso {X Y : A} { X' Y' : Mon_V} {f : X --> Y} {g : X' --> Y'}
            (f_is_z_iso : is_z_isomorphism f) (g_is_z_iso : is_z_isomorphism g) : is_z_isomorphism (f #⊙ g).
 Proof.
   exact (functor_on_is_z_isomorphism _ (is_z_iso_binprod_z_iso f_is_z_iso g_is_z_iso)).
@@ -68,7 +67,7 @@ Definition action_right_unitor_to_nat_trans (μ : action_right_unitor) : nat_tra
   := nat_z_iso_to_trans μ.
 Coercion action_right_unitor_to_nat_trans: action_right_unitor >-> nat_trans.
 
-Definition odot_x_odot_y_functor : (A ⊠ V) ⊠ V ⟶ A :=
+Definition odot_x_odot_y_functor : (A ⊠ Mon_V) ⊠ Mon_V ⟶ A :=
   functor_composite (pair_functor odot (functor_identity _)) odot.
 
 Lemma odot_x_odot_y_functor_ok: functor_on_objects odot_x_odot_y_functor =
@@ -77,7 +76,7 @@ Proof.
   apply idpath.
 Qed.
 
-Definition odot_x_otimes_y_functor : (A ⊠ V) ⊠ V ⟶ A :=
+Definition odot_x_otimes_y_functor : (A ⊠ Mon_V) ⊠ Mon_V ⟶ A :=
   functor_composite (precategory_binproduct_unassoc _ _ _)
                     (functor_composite (pair_functor (functor_identity _) tensor) odot).
 
@@ -90,7 +89,7 @@ Qed.
 Definition action_convertor : UU := nat_z_iso odot_x_odot_y_functor odot_x_otimes_y_functor.
 
 Definition action_convertor_funclass (χ : action_convertor):
-  ∏ x : ob ((A ⊠ V) ⊠ V), odot_x_odot_y_functor x --> odot_x_otimes_y_functor x
+  ∏ x : ob ((A ⊠ Mon_V) ⊠ Mon_V), odot_x_odot_y_functor x --> odot_x_otimes_y_functor x
   := pr1 (nat_z_iso_to_trans χ).
 Coercion action_convertor_funclass : action_convertor >-> Funclass.
 
@@ -99,22 +98,22 @@ Definition action_convertor_to_nat_trans (χ : action_convertor) :
   := nat_z_iso_to_trans χ.
 Coercion action_convertor_to_nat_trans: action_convertor >-> nat_trans.
 
-Definition action_triangle_eq (ϱ : action_right_unitor) (χ : action_convertor) := ∏ (a : A), ∏ (x : V),
+Definition action_triangle_eq (ϱ : action_right_unitor) (χ : action_convertor) := ∏ (a : A), ∏ (x : Mon_V),
   (ϱ a) #⊙ (id x) = (χ ((a, I), x)) · (id a) #⊙ (λ' x).
 
-Definition action_pentagon_eq (χ : action_convertor) := ∏ (a : A), ∏ (x y z : V),
+Definition action_pentagon_eq (χ : action_convertor) := ∏ (a : A), ∏ (x y z : Mon_V),
   (χ ((a ⊙ x, y), z)) · (χ ((a, x), y ⊗ z)) =
   (χ ((a, x), y)) #⊙ (id z) · (χ ((a, x ⊗ y), z)) · (id a) #⊙ (α' ((x, y), z)).
 
 End Actions_Natural_Transformations.
 
 (* Action over a monoidal category. *)
-Definition action : UU := ∑ (odot : A ⊠ V ⟶ A), ∑ (ϱ : action_right_unitor odot), ∑ (χ : action_convertor odot), (action_triangle_eq odot ϱ χ) × (action_pentagon_eq odot χ).
+Definition action : UU := ∑ (odot : A ⊠ Mon_V ⟶ A), ∑ (ϱ : action_right_unitor odot), ∑ (χ : action_convertor odot), (action_triangle_eq odot ϱ χ) × (action_pentagon_eq odot χ).
 
 End Actions_Definition.
 
 (* The canonical tensorial action on a monoidal category. *)
-Definition tensorial_action : action V.
+Definition tensorial_action : action Mon_V.
 Proof.
   exists tensor.
   exists ρ'.
@@ -127,9 +126,8 @@ Section Strong_Monoidal_Functor_Action.
 
 Context {Mon_A : monoidal_precat}.
 
-Local Definition A : precategory := monoidal_precat_precat Mon_A.
-Local Definition I_A : A := monoidal_precat_unit Mon_A.
-Local Definition tensor_A : A ⊠ A ⟶ A := monoidal_precat_tensor Mon_A.
+Local Definition I_A : Mon_A := monoidal_precat_unit Mon_A.
+Local Definition tensor_A : Mon_A ⊠ Mon_A ⟶ Mon_A := monoidal_precat_tensor Mon_A.
 Notation "X ⊗_A Y" := (tensor_A (X , Y)) (at level 31).
 Notation "f #⊗_A g" := (#tensor_A (f #, g)) (at level 31).
 Local Definition α_A : associator tensor_A := monoidal_precat_associator Mon_A.
@@ -141,7 +139,7 @@ Local Definition pentagon_eq_A : pentagon_eq tensor_A α_A := pr2 (monoidal_prec
 
 Context (U : strong_monoidal_functor Mon_V Mon_A).
 
-Definition otimes_U_functor : A ⊠ V ⟶ A := functor_composite (pair_functor (functor_identity _) U) tensor_A.
+Definition otimes_U_functor : Mon_A ⊠ Mon_V ⟶ Mon_A := functor_composite (pair_functor (functor_identity _) U) tensor_A.
 
 Lemma otimes_U_functor_ok: functor_on_objects otimes_U_functor =
   λ av, ob1 av ⊗_A U (ob2 av).
@@ -149,7 +147,7 @@ Proof.
   apply idpath.
 Qed.
 
-Definition U_action_ρ_nat_trans : odot_I_functor A otimes_U_functor ⟹ functor_identity A.
+Definition U_action_ρ_nat_trans : odot_I_functor Mon_A otimes_U_functor ⟹ functor_identity Mon_A.
   refine (nat_trans_comp _ _ _ _  ρ_A).
   unfold odot_I_functor.
   set (aux := nat_trans_from_functor_fix_snd_morphism_arg _ _ _ tensor_A _ _ (strong_monoidal_functor_ϵ_inv U)).
@@ -180,9 +178,9 @@ Proof.
   - exact (pr2 ρ_A c).
 Defined.
 
-Definition U_action_ρ : action_right_unitor A otimes_U_functor := make_nat_z_iso _ _ U_action_ρ_nat_trans U_action_ρ_is_nat_z_iso.
+Definition U_action_ρ : action_right_unitor Mon_A otimes_U_functor := make_nat_z_iso _ _ U_action_ρ_nat_trans U_action_ρ_is_nat_z_iso.
 
-Definition U_action_χ_nat_trans : odot_x_odot_y_functor A otimes_U_functor ⟹ odot_x_otimes_y_functor A otimes_U_functor.
+Definition U_action_χ_nat_trans : odot_x_odot_y_functor Mon_A otimes_U_functor ⟹ odot_x_otimes_y_functor Mon_A otimes_U_functor.
 Proof.
   apply (nat_trans_comp _ _ _ (pre_whisker (pair_functor (pair_functor (functor_identity _) U) U) α_A)).
   exact (pre_whisker (precategory_binproduct_unassoc _ _ _) (post_whisker_fst_param (lax_monoidal_functor_μ U) tensor_A)).
@@ -208,13 +206,13 @@ Proof.
     + exact (strong_monoidal_functor_μ_is_nat_z_iso U (k', k'')).
 Defined.
 
-Definition U_action_χ : action_convertor A otimes_U_functor :=
+Definition U_action_χ : action_convertor Mon_A otimes_U_functor :=
   make_nat_z_iso _ _ U_action_χ_nat_trans U_action_χ_is_nat_z_iso.
 
 (*
 Definition U_action_struct : action_struct.
 Proof.
-  exists A.
+  exists Mon_A.
   exists otimes_U_functor.
   (* K ⊗ U I_C -- (1_K ⊗ ϵ^{-1} · λ_D K) --> K *)
   exists U_action_ρ.
@@ -223,7 +221,7 @@ Proof.
 Defined.
 *)
 
-Lemma U_action_tlaw : action_triangle_eq A otimes_U_functor U_action_ρ U_action_χ.
+Lemma U_action_tlaw : action_triangle_eq Mon_A otimes_U_functor U_action_ρ U_action_χ.
 Proof.
   red.
   intros.
@@ -295,7 +293,7 @@ Proof.
     apply triangle_eq_A.
 Defined.
 
-Lemma U_action_plaw : action_pentagon_eq A otimes_U_functor U_action_χ.
+Lemma U_action_plaw : action_pentagon_eq Mon_A otimes_U_functor U_action_χ.
 Proof.
   red.
   intros.
@@ -343,7 +341,7 @@ Proof.
   { do 2 apply maponpaths.
     rewrite assoc.
     (* UniMath.MoreFoundations.Tactics.show_id_type. *)
-    eapply (maponpaths (fun u: A ⟦(U x ⊗_A U y) ⊗_A U z, U (x ⊗ (y ⊗ z))⟧ => id a  #⊗_A u)).
+    eapply (maponpaths (fun u: Mon_A ⟦(U x ⊗_A U y) ⊗_A U z, U (x ⊗ (y ⊗ z))⟧ => id a  #⊗_A u)).
     apply (lax_monoidal_functor_assoc U).
   }
   fold α_A. fold tensor_A. fold tensor.
@@ -388,7 +386,7 @@ Proof.
   apply idpath.
 Defined.
 
-Definition U_action : action A.
+Definition U_action : action Mon_A.
   exists otimes_U_functor.
   exists U_action_ρ.
   exists U_action_χ.

@@ -34,7 +34,7 @@ Local Definition Mon_endo: monoidal_precat := swapping_of_monoidal_precat (monoi
 
 Local Definition homprecat : precategory := hom c0 d0.
 
-Definition precomp_odot : homprecat ⊠ Actions.V Mon_endo ⟶ homprecat
+Definition precomp_odot : homprecat ⊠ Mon_endo ⟶ homprecat
   := functor_composite binswap_pair_functor hcomp_functor.
 
 Definition precomp_right_unitor_nat_trans : odot_I_functor Mon_endo homprecat precomp_odot ⟹ functor_identity homprecat
