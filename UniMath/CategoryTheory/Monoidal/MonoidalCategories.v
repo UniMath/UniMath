@@ -180,19 +180,26 @@ Coercion monoidal_precat_precat : monoidal_precat >-> precategory.
 
 Section Monoidal_Precat_Accessors.
 
-Context (M : monoidal_precat).
+  Context (M : monoidal_precat).
 
-Definition monoidal_precat_tensor := pr1 (pr2 M).
+  (** it is important that no new coercions are used in the given types in the following projections *)
 
-Definition monoidal_precat_unit := pr1 (pr2 (pr2 M)).
+Definition monoidal_precat_tensor : pr1 M ⊠ pr1 M ⟶ pr1 M := pr1 (pr2 M).
 
-Definition monoidal_precat_left_unitor := pr1 (pr2 (pr2 (pr2 M))).
+Definition monoidal_precat_unit : pr1 M := pr1 (pr2 (pr2 M)).
 
-Definition monoidal_precat_right_unitor := pr1 (pr2 (pr2 (pr2 (pr2 M)))).
+Definition monoidal_precat_left_unitor : left_unitor (pr1 (pr2 M)) (pr1 (pr2 (pr2 M))) := pr1 (pr2 (pr2 (pr2 M))).
 
-Definition monoidal_precat_associator := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 M))))).
+Definition monoidal_precat_right_unitor : right_unitor (pr1 (pr2 M)) (pr1 (pr2 (pr2 M))) := pr1 (pr2 (pr2 (pr2 (pr2 M)))).
 
-Definition monoidal_precat_eq := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M))))).
+Definition monoidal_precat_associator : associator (pr1 (pr2 M)) := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 M))))).
+
+Definition monoidal_precat_eq :
+  (λ α' : associator (pr1 (pr2 M)),
+          triangle_eq (pr1 (pr2 M)) (pr1 (pr2 (pr2 M))) (pr1 (pr2 (pr2 (pr2 M)))) (pr1 (pr2 (pr2 (pr2 (pr2 M))))) α'
+                      × pentagon_eq (pr1 (pr2 M)) α')
+    (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 M))))))
+  := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M))))).
 
 End Monoidal_Precat_Accessors.
 
