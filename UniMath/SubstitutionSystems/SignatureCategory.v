@@ -216,7 +216,7 @@ Section AsDisplayedCategory.
   Qed.
 
   Lemma Signature_precategory_Hstandard (H : [[C, D'], [C, D]]) (a a' : StrengthForSignature C hsC D hsD D' hsD' H) :
- (∏ (X : [C, D']) (Y : precategory_Ptd C hsC),
+  (∏ (X : [C, D']) (Y : precategory_Ptd C hsC),
   Signature_category_mor_diagram (H,, a) (H,, a') (identity H) X Y)
  → (∏ (X : [C, D']) (Y : precategory_Ptd C hsC),
     Signature_category_mor_diagram (H,, a') (H,, a) (identity H) X Y)

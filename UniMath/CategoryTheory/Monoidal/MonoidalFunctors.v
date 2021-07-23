@@ -58,7 +58,7 @@ Qed.
 Definition monoidal_functor_map :=
   monoidal_functor_map_dom ⟹ monoidal_functor_map_codom.
 
-Definition monoidal_functor_map_funclass (μ : monoidal_functor_map):
+Definition monoidal_functor_map_funclass (μ : monoidal_functor_map) :
   ∏ x : ob (Mon_C ⊠ Mon_C), monoidal_functor_map_dom x -->  monoidal_functor_map_codom x
   := pr1 μ.
 Coercion monoidal_functor_map_funclass : monoidal_functor_map >-> Funclass.

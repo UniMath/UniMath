@@ -178,7 +178,7 @@ Section PointedFunctors_as_monoidal_category.
       apply identity_is_z_iso.
   Defined.
 
-  Definition associator_of_pointedfunctors: associator tensor_pointedfunctors.
+  Definition associator_of_pointedfunctors : associator tensor_pointedfunctors.
   Proof.
     use make_nat_z_iso.
     + use make_nat_trans.
@@ -208,7 +208,7 @@ Section PointedFunctors_as_monoidal_category.
       apply identity_is_z_iso.
   Defined.
 
-  Lemma triangle_eq_of_pointedfunctors:
+  Lemma triangle_eq_of_pointedfunctors :
     triangle_eq tensor_pointedfunctors (id_Ptd C hs)
                 left_unitor_of_pointedfunctors
                 right_unitor_of_pointedfunctors
@@ -224,7 +224,7 @@ Section PointedFunctors_as_monoidal_category.
     apply idpath.
   Qed.
 
-  Lemma pentagon_eq_of_pointedfunctors:
+  Lemma pentagon_eq_of_pointedfunctors :
     pentagon_eq tensor_pointedfunctors associator_of_pointedfunctors.
   Proof.
     intros PF1 PF2 PF3 PF4.
@@ -237,7 +237,7 @@ Section PointedFunctors_as_monoidal_category.
     apply idpath.
   Qed.
 
-  Definition monoidal_precat_of_pointedfunctors: monoidal_precat.
+  Definition monoidal_precat_of_pointedfunctors : monoidal_precat.
   Proof.
     use mk_monoidal_precat.
     - exact Ptd.
