@@ -182,7 +182,7 @@ Proof.
        apply psfunctor_runitor.
 Qed.
 
-  Definition psfunctor_to_lax_monoidal_functor: lax_monoidal_functor M N.
+Definition psfunctor_to_lax_monoidal_functor: lax_monoidal_functor M N.
 Proof.
   exists psfunctor_to_lax_monoidal_functor_functor.
   cbn.

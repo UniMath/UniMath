@@ -67,7 +67,7 @@ Definition triangle_eq := actionbased_strength_triangle_eq Mon_M
 Definition pentagon_eq := actionbased_strength_pentagon_eq Mon_M
   ab_strength_domain_action ab_strength_target_action F (pr1 ab_str).
 
-Lemma triangle_eq_readable: triangle_eq =
+Lemma triangle_eq_readable : triangle_eq =
   ∏ a : C ⟦ c0, d0' ⟧, θ (a,, monoidal_precat_unit Mon_M) • # F (id₂ a ⋆⋆ (strong_monoidal_functor_ϵ_inv U) • lunitor a) =
                        id₂ (F a) ⋆⋆ (strong_monoidal_functor_ϵ_inv U) • lunitor (F a).
 Proof.
@@ -97,7 +97,7 @@ Proof.
   apply Heq.
 Qed.
 
-Lemma pentagon_eq_readable: pentagon_eq =
+Lemma pentagon_eq_readable : pentagon_eq =
   ∏ (a : C ⟦ c0, d0' ⟧) (x y : Mon_M),
                         (lassociator (U y) (U x) (F a) • id₂ (F a) ⋆⋆ lax_monoidal_functor_μ U (x,, y))
                           • θ (a,, monoidal_precat_tensor Mon_M (x, y)) =
@@ -302,7 +302,7 @@ Qed.
 Lemma same_I : pr222 monprecat1 = pr222 monprecat2.
  *)
 
-Local Definition Mon_endo': monoidal_precat := swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs).
+Local Definition Mon_endo' : monoidal_precat := swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs).
 Local Definition domain_action : action Mon_endo' (hom(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD'))
     := ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget.
 Local Definition target_action : action Mon_endo' (hom(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD))
@@ -357,7 +357,7 @@ Section IndividualFunctorsWithABStrength.
     apply horcomp_post_pre.
   Qed.
 
-  Definition θ_for_signature : θ_source(hs:=hs) H ⟹ θ_target H
+  Definition θ_for_signature : θ_source (hs:=hs) H ⟹ θ_target H
     := (θ_for_signature_nat_trans_data,,θ_for_signature_is_nat_trans).
 
   Lemma signature_from_ab_strength_law1 : θ_Strength1_int θ_for_signature.

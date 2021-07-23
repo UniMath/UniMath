@@ -99,14 +99,14 @@ Proof.
     + apply (is_z_iso_inv_from_z_iso _ _ (strong_monoidal_functor_ϵ U)).
 Defined.
 
-Definition lifted_action_convertor_nat_trans:
+Definition lifted_action_convertor_nat_trans :
   odot_x_odot_y_functor _ C lifted_odot ⟹ odot_x_otimes_y_functor _ C lifted_odot.
 Proof.
   apply (nat_trans_comp _ _ _ (pre_whisker (pair_functor (pair_functor (functor_identity _) U) U) αA)).
   exact (pre_whisker (precategory_binproduct_unassoc _ _ _) (post_whisker_fst_param (lax_monoidal_functor_μ U) odotA)).
 Defined.
 
-Definition lifted_action_convertor: action_convertor Mon_V C lifted_odot.
+Definition lifted_action_convertor : action_convertor Mon_V C lifted_odot.
 Proof.
   exists lifted_action_convertor_nat_trans.
   intro x.
