@@ -360,64 +360,113 @@ Section IndividualFunctorsWithABStrength.
   Definition θ_for_signature : θ_source(hs:=hs) H ⟹ θ_target H
     := (θ_for_signature_nat_trans_data,,θ_for_signature_is_nat_trans).
 
-  Lemma signature_from_ab_strength_laws : θ_Strength1_int θ_for_signature × θ_Strength2_int θ_for_signature.
-    split.
-    - red. intro X.
-      apply nat_trans_eq; try assumption.
-      intro c.
-      cbn.
-      assert (HypX := triangle_eq_implies_triangle_eq_nice _ _ _ _ _ _ (pr12 ab_str) X).
-      unfold θ in HypX. fold θ' in HypX.
-      assert (Heqc := nat_trans_eq_weq hsD _ _ HypX c).
-      cbn in Heqc.
-      rewrite (functor_id (H X)) in Heqc.
-      rewrite id_left in Heqc.
-      etrans.
-      2: { exact Heqc. }
-      clear HypX Heqc.
-      apply maponpaths.
-      apply nat_trans_eq_pointwise.
-      clear c.
-      apply maponpaths.
-      apply nat_trans_eq; try assumption.
-      intro c.
-      cbn.
-      apply pathsinv0.
-      rewrite id_right.
-      apply functor_id.
-    - red. intros X Z Z'.
-      apply nat_trans_eq; try assumption.
-      intro c.
-      cbn.
-      rewrite id_left.
-      assert (HypX := pentagon_eq_nice_implies_pentagon_eq_nicer _ _ _ _ _ _
-                      (pentagon_eq_implies_pentagon_eq_nice _ _ _ _ _ _ (pr22 ab_str)) X Z' Z).
-      unfold θ in HypX. fold θ' in HypX.
-      assert (Heqc := nat_trans_eq_weq hsD _ _ HypX c).
-      clear HypX.
-      cbn in Heqc.
-      rewrite (functor_id (H X)) in Heqc.
-      do 2 rewrite id_left in Heqc.
-      etrans.
-      2: { exact Heqc. }
-      clear Heqc.
-      apply maponpaths.
-      apply nat_trans_eq_pointwise.
-      clear c.
-      apply maponpaths.
-      apply nat_trans_eq; try assumption.
-      intro c.
-      cbn.
-      rewrite id_right.
-      apply pathsinv0.
-      apply functor_id.
-  Qed.
+  Lemma signature_from_ab_strength_law1 : θ_Strength1_int θ_for_signature.
+    red. intro X.
+    apply nat_trans_eq; try assumption.
+    intro c.
+    cbn.
+    assert (HypX := triangle_eq_implies_triangle_eq_nice _ _ _ _ _ _ (pr12 ab_str) X).
+    unfold θ in HypX. fold θ' in HypX.
+    assert (Heqc := nat_trans_eq_weq hsD _ _ HypX c).
+    cbn in Heqc.
+    rewrite (functor_id (H X)) in Heqc.
+    rewrite id_left in Heqc.
+    etrans.
+    2: { exact Heqc. }
+    clear HypX Heqc.
+    apply maponpaths.
+    apply nat_trans_eq_pointwise.
+    clear c.
+    apply maponpaths.
+    apply nat_trans_eq; try assumption.
+    intro c.
+    cbn.
+    apply pathsinv0.
+    rewrite id_right.
+    apply functor_id.
+  Time Qed.
+
+
+ Lemma signature_from_ab_strength_law2 : θ_Strength2_int θ_for_signature.
+    intros X Z Z'.
+    apply nat_trans_eq; try (apply hsD).
+    intro c.
+    assert (HypX := pentagon_eq_nice_implies_pentagon_eq_nicer _ _ _ _ _ _
+                    (pentagon_eq_implies_pentagon_eq_nice _ _ _ _ _ _ (pr22 ab_str)) X Z' Z).
+    unfold θ in HypX. fold θ' in HypX.
+    assert (Heqc := nat_trans_eq_weq hsD _ _ HypX c).
+    clear HypX.
+    etrans.
+    2: { apply assoc. }
+    etrans.
+    2: { apply maponpaths.
+         simpl in Heqc.
+         exact Heqc. }
+    clear Heqc.
+    etrans.
+    2: { apply pathsinv0. apply id_left. }
+    etrans.
+    2: { apply cancel_postcomposition.
+         apply pathsinv0.
+         apply remove_id_left.
+         - etrans.
+           { apply id_left. }
+           apply functor_id.
+         - apply idpath.
+    }
+    simpl.
+    apply maponpaths.
+    apply nat_trans_eq_pointwise.
+    clear c.
+    apply maponpaths.
+    apply nat_trans_eq; try (apply hsD').
+    intro c.
+    etrans.
+    2: { apply pathsinv0.
+         apply id_right. }
+    apply pathsinv0.
+    simpl.
+    apply functor_id.
+ Time Qed.
+
+(* extremely slow - more than 10min, I never saw the end
+  Lemma signature_from_ab_strength_law2 : θ_Strength2_int θ_for_signature.
+    intros X Z Z'.
+    apply nat_trans_eq; try (apply hsD).
+    intro c.
+    cbn.
+    rewrite id_left.
+    assert (HypX := pentagon_eq_nice_implies_pentagon_eq_nicer _ _ _ _ _ _
+                    (pentagon_eq_implies_pentagon_eq_nice _ _ _ _ _ _ (pr22 ab_str)) X Z' Z).
+    unfold θ in HypX. fold θ' in HypX.
+    assert (Heqc := nat_trans_eq_weq hsD _ _ HypX c).
+    clear HypX.
+    cbn in Heqc.
+    rewrite (functor_id (H X)) in Heqc.
+    do 2 rewrite id_left in Heqc.
+    etrans.
+    2: { exact Heqc. }
+    clear Heqc.
+    apply maponpaths.
+    apply nat_trans_eq_pointwise.
+    clear c.
+    apply maponpaths.
+    apply nat_trans_eq; try (apply hsD').
+    intro c.
+    cbn.
+    rewrite id_right.
+    apply pathsinv0.
+    apply functor_id.
+  Time Qed.
+*)
 
   Definition signature_from_ab_strength : Signature C hs D hsD D' hsD'.
   Proof.
     exists H.
     exists θ_for_signature.
-    exact signature_from_ab_strength_laws.
+    split.
+    - exact signature_from_ab_strength_law1.
+    - exact signature_from_ab_strength_law2.
   Defined.
 
 End IndividualFunctorsWithABStrength.
