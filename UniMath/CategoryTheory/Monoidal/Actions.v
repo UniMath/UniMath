@@ -64,6 +64,10 @@ Definition action_right_unitor_funclass (μ : action_right_unitor):
   := pr1 (nat_z_iso_to_trans μ).
 Coercion action_right_unitor_funclass : action_right_unitor >-> Funclass.
 
+Definition action_right_unitor_to_nat_trans (μ : action_right_unitor) : nat_trans odot_I_functor (functor_identity A)
+  := nat_z_iso_to_trans μ.
+Coercion action_right_unitor_to_nat_trans: action_right_unitor >-> nat_trans.
+
 Definition odot_x_odot_y_functor : (A ⊠ V) ⊠ V ⟶ A :=
   functor_composite (pair_functor odot (functor_identity _)) odot.
 
@@ -89,6 +93,11 @@ Definition action_convertor_funclass (χ : action_convertor):
   ∏ x : ob ((A ⊠ V) ⊠ V), odot_x_odot_y_functor x --> odot_x_otimes_y_functor x
   := pr1 (nat_z_iso_to_trans χ).
 Coercion action_convertor_funclass : action_convertor >-> Funclass.
+
+Definition action_convertor_to_nat_trans (χ : action_convertor) :
+  nat_trans odot_x_odot_y_functor odot_x_otimes_y_functor
+  := nat_z_iso_to_trans χ.
+Coercion action_convertor_to_nat_trans: action_convertor >-> nat_trans.
 
 Definition action_triangle_eq (ϱ : action_right_unitor) (χ : action_convertor) := ∏ (a : A), ∏ (x : V),
   (ϱ a) #⊙ (id x) = (χ ((a, I), x)) · (id a) #⊙ (λ' x).
@@ -141,13 +150,13 @@ Proof.
 Qed.
 
 Definition U_action_ρ_nat_trans : odot_I_functor A otimes_U_functor ⟹ functor_identity A.
-  refine (nat_trans_comp _ _ _ _  (pr1 ρ_A)).
+  refine (nat_trans_comp _ _ _ _  ρ_A).
   unfold odot_I_functor.
   set (aux := nat_trans_from_functor_fix_snd_morphism_arg _ _ _ tensor_A _ _ (strong_monoidal_functor_ϵ_inv U)).
   (* aux is "morally" the result, but types do not fully agree, hence we argue more extensionally *)
   use tpair.
   - intro a.
-    apply (pr1 aux a).
+    apply (aux a).
   - cbn; red.
     intros a a' f.
     cbn.
@@ -175,7 +184,7 @@ Definition U_action_ρ : action_right_unitor A otimes_U_functor := make_nat_z_is
 
 Definition U_action_χ_nat_trans : odot_x_odot_y_functor A otimes_U_functor ⟹ odot_x_otimes_y_functor A otimes_U_functor.
 Proof.
-  apply (nat_trans_comp _ _ _ (pre_whisker (pair_functor (pair_functor (functor_identity _) U) U) (pr1 α_A))).
+  apply (nat_trans_comp _ _ _ (pre_whisker (pair_functor (pair_functor (functor_identity _) U) U) α_A)).
   exact (pre_whisker (precategory_binproduct_unassoc _ _ _) (post_whisker_fst_param (lax_monoidal_functor_μ U) tensor_A)).
 Defined.
 
@@ -265,7 +274,7 @@ Proof.
   rewrite assoc.
   apply pathsinv0. etrans.
   { apply cancel_postcomposition.
-    apply (nat_trans_ax (pr1 α_A) ((a, I_A), U x) ((a, U I), U x) ((id a ,, lax_monoidal_functor_ϵ U) ,, id U x)). }
+    apply (nat_trans_ax α_A ((a, I_A), U x) ((a, U I), U x) ((id a ,, lax_monoidal_functor_ϵ U) ,, id U x)). }
   simpl.
   etrans.
   { rewrite assoc'. apply maponpaths. apply pathsinv0.
@@ -317,7 +326,7 @@ Proof.
   { apply cancel_postcomposition.
     rewrite assoc'.
     apply maponpaths.
-    apply (nat_trans_ax (pr1 α_A) ((a, U x ⊗_A U y), U z) ((a, U (x ⊗ y)), U z) ((id a ,, lax_monoidal_functor_μ U (x, y)) ,, id U z)).
+    apply (nat_trans_ax α_A ((a, U x ⊗_A U y), U z) ((a, U (x ⊗ y)), U z) ((id a ,, lax_monoidal_functor_μ U (x, y)) ,, id U z)).
   }
   etrans.
   { unfold assoc_right. cbn.
@@ -369,7 +378,7 @@ Proof.
   apply maponpaths.
   etrans.
   { apply pathsinv0.
-    apply (nat_trans_ax (pr1 α_A) ((a, U x), U y ⊗_A U z) ((a, U x), U (y ⊗ z)) ((id a ,, id U x) ,, lax_monoidal_functor_μ U (y, z))).
+    apply (nat_trans_ax α_A ((a, U x), U y ⊗_A U z) ((a, U x), U (y ⊗ z)) ((id a ,, id U x) ,, lax_monoidal_functor_μ U (y, z))).
   }
   cbn. unfold make_dirprod.
   apply cancel_postcomposition.

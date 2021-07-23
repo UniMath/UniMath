@@ -75,6 +75,10 @@ Definition left_unitor_funclass (λ' : left_unitor):
   := pr1 (nat_z_iso_to_trans λ').
 Coercion left_unitor_funclass : left_unitor >-> Funclass.
 
+Definition left_unitor_to_nat_trans (λ' : left_unitor): nat_trans I_pretensor (functor_identity C)
+  := nat_z_iso_to_trans λ'.
+Coercion left_unitor_to_nat_trans: left_unitor >-> nat_trans.
+
 (* - ⊗ I *)
 Definition I_posttensor : C ⟶ C := functor_fix_snd_arg _ _ _ tensor I.
 
@@ -91,6 +95,10 @@ Definition right_unitor_funclass (ρ' : right_unitor):
   ∏ x : ob C, I_posttensor x -->  x
   := pr1 (nat_z_iso_to_trans ρ').
 Coercion right_unitor_funclass : right_unitor >-> Funclass.
+
+Definition right_unitor_to_nat_trans (ρ' : right_unitor): nat_trans I_posttensor (functor_identity C)
+  := nat_z_iso_to_trans ρ'.
+Coercion right_unitor_to_nat_trans: right_unitor >-> nat_trans.
 
 (* (- ⊗ =) ⊗ ≡ *)
 Definition assoc_left : (C ⊠ C) ⊠ C ⟶ C :=
@@ -124,6 +132,10 @@ Definition associator_funclass (α' : associator):
   ∏ x : ob ((C ⊠ C) ⊠ C), assoc_left x -->  assoc_right x
   := pr1 (nat_z_iso_to_trans α').
 Coercion associator_funclass : associator >-> Funclass.
+
+Definition associator_to_nat_trans (α' : associator): nat_trans assoc_left assoc_right
+  := nat_z_iso_to_trans α'.
+Coercion associator_to_nat_trans: associator >-> nat_trans.
 
 Definition triangle_eq (λ' : left_unitor) (ρ' : right_unitor) (α' : associator) : UU :=
   ∏ (a b : C), pr1 ρ' a #⊗ id b = pr1 α' ((a, I), b) · id a #⊗ pr1 λ' b.

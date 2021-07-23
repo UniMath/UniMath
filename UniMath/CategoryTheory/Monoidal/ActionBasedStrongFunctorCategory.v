@@ -34,14 +34,13 @@ Notation "f #⊙ g" := (#odot (f #, g)) (at level 31).
 Notation "X ⊙' Y" := (odot' (X , Y)) (at level 31).
 Notation "f #⊙' g" := (#odot' (f #, g)) (at level 31).
 
-Local Definition F (FF : actionbased_strong_functor Mon_V actn actn') : A ⟶ A' := pr1 FF.
 Local Definition ζ (FF : actionbased_strong_functor Mon_V actn actn') := pr12 FF.
 
 Section Strong_Functor_Category_mor.
 
   Context (FF GG : actionbased_strong_functor Mon_V actn actn').
 
-  Context (η : F FF ⟹ F GG).
+  Context (η : FF ⟹ GG).
 
   Definition Strong_Functor_Category_mor_diagram (a: A) (v: Mon_V) : UU :=
     ζ FF (a,v) · η (a ⊙ v) = η a #⊙' id v · ζ GG (a,v).
@@ -49,7 +48,7 @@ Section Strong_Functor_Category_mor.
 End Strong_Functor_Category_mor.
 
 Definition Strong_Functor_Category_Mor (FF GG : actionbased_strong_functor Mon_V actn actn'): UU :=
-  ∑ (η : F FF ⟹ F GG), ∏ a v, Strong_Functor_Category_mor_diagram FF GG η a v.
+  ∑ (η : FF ⟹ GG), ∏ a v, Strong_Functor_Category_mor_diagram FF GG η a v.
 
 Lemma Strong_Functor_Category_Mor_eq (hsA': has_homsets A') (FF GG : actionbased_strong_functor Mon_V actn actn')
       (sη sη' : Strong_Functor_Category_Mor FF GG) :
@@ -61,16 +60,16 @@ now intros α; repeat (apply impred; intro); apply hsA'.
 Qed.
 
 Local Lemma Strong_Functor_Category_Mor_id_subproof (FF : actionbased_strong_functor Mon_V actn actn') a v :
-  Strong_Functor_Category_mor_diagram FF FF (nat_trans_id (F FF)) a v.
+  Strong_Functor_Category_mor_diagram FF FF (nat_trans_id FF) a v.
 Proof.
   red.
-  change (ζ FF (a, v) · nat_trans_id (F FF) (a ⊙ v) = # odot' (id (F FF a, v)) · ζ FF (a, v)).
+  change (ζ FF (a, v) · nat_trans_id FF (a ⊙ v) = # odot' (id (FF a, v)) · ζ FF (a, v)).
   rewrite functor_id.
   now rewrite id_left, id_right.
 Qed.
 
 Definition Strong_Functor_Category_Mor_id (FF : actionbased_strong_functor Mon_V actn actn') :
-  Strong_Functor_Category_Mor FF FF := (nat_trans_id (F FF),,Strong_Functor_Category_Mor_id_subproof FF).
+  Strong_Functor_Category_Mor FF FF := (nat_trans_id FF,,Strong_Functor_Category_Mor_id_subproof FF).
 
 Local Lemma Strong_Functor_Category_Mor_comp_subproof (FF GG HH : actionbased_strong_functor Mon_V actn actn')
       (sη : Strong_Functor_Category_Mor FF GG) (sη' : Strong_Functor_Category_Mor GG HH) a v :
@@ -136,7 +135,7 @@ Definition Strong_FunctorForgetfulFunctor (hsA': has_homsets A') :
 Proof.
 use tpair.
 - use tpair.
-  + intros FF; apply(F FF).
+  + intros FF; apply FF.
   + intros FF GG η; apply η.
 - abstract (now split).
 Defined.

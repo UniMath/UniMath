@@ -190,6 +190,9 @@ End ActionBasedStrengths_Definition.
 Definition actionbased_strong_functor {A A' : precategory} (actn : action Mon_V A)(actn' : action Mon_V A') : UU
   := ∑ (F : A ⟶ A'), actionbased_strength actn actn' F.
 
+Definition actionbased_strong_functor_to_functor (A A' : precategory) (actn : action Mon_V A)(actn' : action Mon_V A') (FF : actionbased_strong_functor actn actn') : A ⟶ A' := pr1 FF.
+Coercion actionbased_strong_functor_to_functor : actionbased_strong_functor >-> functor.
+
 (*
   The standard tensorial strength:
   F(A) ⊗ B --> F(A ⊗ B)

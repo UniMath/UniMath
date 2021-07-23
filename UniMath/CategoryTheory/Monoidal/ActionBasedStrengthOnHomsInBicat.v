@@ -124,7 +124,7 @@ Proof.
   clear Heq.
   revert Heqinst.
   simpl.
-  rewrite (functor_id (pr11 U)).
+  rewrite (functor_id U).
   intro Heqinst.
   refine (!_ @ Heqinst @ _).
   - cbn.
@@ -427,7 +427,7 @@ Section IndividualStrongFunctors.
   Context (FF : actionbased_strong_functor Mon_endo' domain_action target_action).
 
   Definition signature_from_strong_functor : Signature C hs D hsD D' hsD' :=
-    signature_from_ab_strength (pr1 FF) (pr2 FF).
+    signature_from_ab_strength FF (pr2 FF).
 
 End IndividualStrongFunctors.
 
@@ -694,10 +694,7 @@ Section Morphisms.
   Qed.
 
   Definition ab_strength_mor_from_signature_mor_nat_trans :
-    ActionBasedStrongFunctorCategory.F Mon_endo' domain_action target_action
-                                       (ab_strong_functor_from_signature sig1)
-    ⟹ ActionBasedStrongFunctorCategory.F Mon_endo' domain_action target_action
-                                       (ab_strong_functor_from_signature sig2).
+     ab_strong_functor_from_signature sig1 ⟹ ab_strong_functor_from_signature sig2.
   Proof.
     exists (pr1 f).
     exact ab_strength_mor_from_signature_mor_is_nat_trans.
@@ -927,7 +924,7 @@ Proof.
     etrans.
     2: { apply cancel_postcomposition.
          apply pathsinv0.
-         apply (functor_id(pr1 FF X)).
+         apply (functor_id (pr1 FF X)).
     }
     apply pathsinv0.
     apply id_left.
@@ -962,7 +959,7 @@ Proof.
     etrans.
     2: { apply cancel_postcomposition.
          apply pathsinv0.
-         apply (functor_id(pr1 FF X)).
+         apply (functor_id (pr1 FF X)).
     }
     apply pathsinv0.
     apply id_left.
