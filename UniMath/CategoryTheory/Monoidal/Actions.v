@@ -131,10 +131,6 @@ Local Definition pentagon_eq_A : pentagon_eq tensor_A α_A := pr2 (monoidal_prec
 
 
 Context (U : strong_monoidal_functor Mon_V Mon_A).
-Local Definition ϵ := lax_monoidal_functor_ϵ _ _ U.
-Local Definition ϵ_U_is_z_iso := strong_monoidal_functor_ϵ_is_z_iso _ _ U.
-Local Definition ϵ_inv := inv_from_z_iso (make_z_iso _ _ ϵ_U_is_z_iso).
-Local Definition μ := lax_monoidal_functor_μ _ _ U.
 
 Definition otimes_U_functor : A ⊠ V ⟶ A := functor_composite (pair_functor (functor_identity _) U) tensor_A.
 
@@ -147,7 +143,7 @@ Qed.
 Definition U_action_ρ_nat_trans : odot_I_functor A otimes_U_functor ⟹ functor_identity A.
   refine (nat_trans_comp _ _ _ _  (pr1 ρ_A)).
   unfold odot_I_functor.
-  set (aux := nat_trans_from_functor_fix_snd_morphism_arg _ _ _ tensor_A _ _ ϵ_inv).
+  set (aux := nat_trans_from_functor_fix_snd_morphism_arg _ _ _ tensor_A _ _ (strong_monoidal_functor_ϵ_inv U)).
   (* aux is "morally" the result, but types do not fully agree, hence we argue more extensionally *)
   use tpair.
   - intro a.
@@ -159,7 +155,7 @@ Definition U_action_ρ_nat_trans : odot_I_functor A otimes_U_functor ⟹ functor
     exact (pr2 aux a a' f).
 Defined.
 
-Lemma U_action_ρ_nat_trans_ok: nat_trans_data_from_nat_trans U_action_ρ_nat_trans = λ x, id x #⊗_A ϵ_inv · ρ_A x.
+Lemma U_action_ρ_nat_trans_ok: nat_trans_data_from_nat_trans U_action_ρ_nat_trans = λ x, id x #⊗_A (strong_monoidal_functor_ϵ_inv U) · ρ_A x.
 Proof.
   apply idpath.
 Qed.
@@ -171,7 +167,7 @@ Proof.
   use is_z_iso_comp_of_is_z_isos.
   - use is_z_iso_tensor_z_iso.
     + exact (identity_is_z_iso _ ).
-    + apply (is_z_iso_inv_from_z_iso _ _ (make_z_iso _ _ ϵ_U_is_z_iso)).
+    + apply (is_z_iso_inv_from_z_iso _ _ (make_z_iso _ _ (strong_monoidal_functor_ϵ_is_z_iso U))).
   - exact (pr2 ρ_A c).
 Defined.
 
@@ -180,14 +176,14 @@ Definition U_action_ρ : action_right_unitor A otimes_U_functor := make_nat_z_is
 Definition U_action_χ_nat_trans : odot_x_odot_y_functor A otimes_U_functor ⟹ odot_x_otimes_y_functor A otimes_U_functor.
 Proof.
   apply (nat_trans_comp _ _ _ (pre_whisker (pair_functor (pair_functor (functor_identity _) U) U) (pr1 α_A))).
-  exact (pre_whisker (precategory_binproduct_unassoc _ _ _) (post_whisker_fst_param μ tensor_A)).
+  exact (pre_whisker (precategory_binproduct_unassoc _ _ _) (post_whisker_fst_param (lax_monoidal_functor_μ U) tensor_A)).
 Defined.
 
 Lemma U_action_χ_nat_trans_ok: nat_trans_data_from_nat_trans U_action_χ_nat_trans =
   λ x, let k   := ob1 (ob1 x) in
        let k'  := ob2 (ob1 x) in
        let k'' := ob2 x in
-       α_A ((k, U k'), U k'') · id k #⊗_A (μ (k', k'')).
+       α_A ((k, U k'), U k'') · id k #⊗_A (lax_monoidal_functor_μ U (k', k'')).
 Proof.
   apply idpath.
 Qed.
@@ -200,7 +196,7 @@ Proof.
   - exact (pr2 α_A ((k, U k'), U k'')).
   - use is_z_iso_tensor_z_iso.
     + use identity_is_z_iso.
-    + exact (strong_monoidal_functor_μ_is_nat_z_iso _ _  U (k', k'')).
+    + exact (strong_monoidal_functor_μ_is_nat_z_iso U (k', k'')).
 Defined.
 
 Definition U_action_χ : action_convertor A otimes_U_functor :=
@@ -235,15 +231,15 @@ Proof.
   unfold compose at 2. simpl. unfold make_dirprod. rewrite id_left.
   rewrite <- (id_left (id U x)).
   apply pathsinv0.
-  intermediate_path (# tensor_A ((# tensor_A (id a #, ϵ_inv)) #, id U x) · # tensor_A (ρ_A a #, id U x)).
+  intermediate_path (# tensor_A ((# tensor_A (id a #, strong_monoidal_functor_ϵ_inv U)) #, id U x) · # tensor_A (ρ_A a #, id U x)).
   { rewrite <- functor_comp.
     apply idpath. }
-  pose (f := # tensor_A (# tensor_A (id a #, ϵ) #, id U x)).
+  pose (f := # tensor_A (# tensor_A (id a #, lax_monoidal_functor_ϵ U) #, id U x)).
   apply (pre_comp_with_z_iso_is_inj'(f:=f)).
   { use is_z_iso_tensor_z_iso.
     - use is_z_iso_tensor_z_iso.
       + exact (identity_is_z_iso _).
-      + exact ϵ_U_is_z_iso.
+      + exact (strong_monoidal_functor_ϵ_is_z_iso U).
     - exact (identity_is_z_iso _ ).
   }
   rewrite assoc.
@@ -269,7 +265,7 @@ Proof.
   rewrite assoc.
   apply pathsinv0. etrans.
   { apply cancel_postcomposition.
-    apply (nat_trans_ax (pr1 α_A) ((a, I_A), U x) ((a, U I), U x) (make_dirprod (make_dirprod (id a) ϵ) (id U x))). }
+    apply (nat_trans_ax (pr1 α_A) ((a, I_A), U x) ((a, U I), U x) ((id a ,, lax_monoidal_functor_ϵ U) ,, id U x)). }
   simpl.
   etrans.
   { rewrite assoc'. apply maponpaths. apply pathsinv0.
@@ -280,9 +276,9 @@ Proof.
   rewrite assoc.
   etrans.
   - apply maponpaths.
-    eapply (maponpaths (fun u: pr1 Mon_A ⟦I_A ⊗_A (U x), U x⟧ => # tensor_A (id a #, u))).
+    eapply (maponpaths (fun u: Mon_A ⟦I_A ⊗_A (U x), U x⟧ => # tensor_A (id a #, u))).
     apply pathsinv0.
-    apply (lax_monoidal_functor_unital _ _ U x).
+    apply (lax_monoidal_functor_unital U x).
   - fold λ_A.
     (* UniMath.MoreFoundations.Tactics.show_id_type.
        unfold functor_fix_snd_arg_ob in TYPE. *)
@@ -313,7 +309,7 @@ Proof.
     apply cancel_postcomposition.
     apply cancel_postcomposition.
     rewrite <- (id_left (id U z)).
-    intermediate_path (# tensor_A ((α_A ((a, U x), U y) #, id U z) · (# tensor_A (id a #, μ (x, y)) #, id U z))).
+    intermediate_path (# tensor_A ((α_A ((a, U x), U y) #, id U z) · (# tensor_A (id a #, lax_monoidal_functor_μ U (x, y)) #, id U z))).
     - apply idpath.
     - apply functor_comp.
   }
@@ -321,7 +317,7 @@ Proof.
   { apply cancel_postcomposition.
     rewrite assoc'.
     apply maponpaths.
-    apply (nat_trans_ax (pr1 α_A) ((a, U x ⊗_A U y), U z) ((a, U (x ⊗ y)), U z) (make_dirprod (make_dirprod (id a) (μ (x, y))) (id U z))).
+    apply (nat_trans_ax (pr1 α_A) ((a, U x ⊗_A U y), U z) ((a, U (x ⊗ y)), U z) ((id a ,, lax_monoidal_functor_μ U (x, y)) ,, id U z)).
   }
   etrans.
   { unfold assoc_right. cbn.
@@ -339,21 +335,21 @@ Proof.
     rewrite assoc.
     (* UniMath.MoreFoundations.Tactics.show_id_type. *)
     eapply (maponpaths (fun u: A ⟦(U x ⊗_A U y) ⊗_A U z, U (x ⊗ (y ⊗ z))⟧ => id a  #⊗_A u)).
-    apply (lax_monoidal_functor_assoc _ _ U).
+    apply (lax_monoidal_functor_assoc U).
   }
-  fold α_A. fold tensor_A. fold tensor. fold μ.
+  fold α_A. fold tensor_A. fold tensor.
   etrans.
   { rewrite assoc. apply maponpaths.
     rewrite assoc'.
     rewrite <- (id_left (id a)).
-    intermediate_path (# tensor_A ((id a #, α_A ((U x, U y), U z)) · (id a #, # tensor_A (id U x #, μ (y, z)) · μ (x, y ⊗ z)))).
+    intermediate_path (# tensor_A ((id a #, α_A ((U x, U y), U z)) · (id a #, # tensor_A (id U x #, lax_monoidal_functor_μ U (y, z)) · lax_monoidal_functor_μ U (x, y ⊗ z)))).
     2: { apply functor_comp. }
     apply idpath.
   }
   etrans.
   { do 2 apply maponpaths.
     rewrite <- (id_left (id a)).
-    intermediate_path (# tensor_A ((id a #, # tensor_A (id U x #, μ (y, z))) · (id a #, μ (x, y ⊗ z)))).
+    intermediate_path (# tensor_A ((id a #, # tensor_A (id U x #, lax_monoidal_functor_μ U (y, z))) · (id a #, lax_monoidal_functor_μ U (x, y ⊗ z)))).
     2: { apply functor_comp. }
     apply idpath.
   }
@@ -366,19 +362,19 @@ Proof.
   }
   (* the goal has chains up to seven projections *)
   change (α_A ((tensor_A (a, U x), U y), U z) · α_A ((a, U x), tensor_A (U y, U z))
-  · # tensor_A (id a #, # tensor_A (id U x #, μ (y, z))) =
-  α_A ((a ⊗_A U x, U y), U z) · # tensor_A (id (a ⊗_A U x) #, μ (y, z))
+  · # tensor_A (id a #, # tensor_A (id U x #, lax_monoidal_functor_μ U (y, z))) =
+  α_A ((a ⊗_A U x, U y), U z) · # tensor_A (id (a ⊗_A U x) #, lax_monoidal_functor_μ U (y, z))
       · α_A ((a, U x), U (y ⊗ z))).
   repeat rewrite assoc'.
   apply maponpaths.
   etrans.
   { apply pathsinv0.
-    apply (nat_trans_ax (pr1 α_A) ((a, U x), U y ⊗_A U z) ((a, U x), U (y ⊗ z)) (make_dirprod (make_dirprod (id a) (id U x)) (μ (y, z)))).
+    apply (nat_trans_ax (pr1 α_A) ((a, U x), U y ⊗_A U z) ((a, U x), U (y ⊗ z)) ((id a ,, id U x) ,, lax_monoidal_functor_μ U (y, z))).
   }
   cbn. unfold make_dirprod.
   apply cancel_postcomposition.
   (* present the identity in the binary product of categories *)
-  change (# tensor_A (# tensor_A (id (a, U x)) #, μ (y, z)) = # tensor_A (id (a ⊗_A U x) #, μ (y, z))).
+  change (# tensor_A (# tensor_A (id (a, U x)) #, lax_monoidal_functor_μ U (y, z)) = # tensor_A (id (a ⊗_A U x) #, lax_monoidal_functor_μ U (y, z))).
   rewrite functor_id.
   apply idpath.
 Defined.

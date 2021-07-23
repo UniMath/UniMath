@@ -23,8 +23,6 @@ Section Strong_Functor_Category.
 
 Context (Mon_V : monoidal_precat).
 
-Local Definition V := monoidal_precat_precat Mon_V.
-
 Context {A A': precategory}.
 Context (actn : action Mon_V A)(actn' : action Mon_V A').
 
@@ -45,7 +43,7 @@ Section Strong_Functor_Category_mor.
 
   Context (η : F FF ⟹ F GG).
 
-  Definition Strong_Functor_Category_mor_diagram (a: A) (v: V) : UU :=
+  Definition Strong_Functor_Category_mor_diagram (a: A) (v: Mon_V) : UU :=
     ζ FF (a,v) · η (a ⊙ v) = η a #⊙' id v · ζ GG (a,v).
 
 End Strong_Functor_Category_mor.
@@ -186,7 +184,7 @@ Section AsDisplayedCategory.
   Proof.
     change isaset with (isofhlevel 2).
     apply isofhleveltotal2.
-    apply (functor_category_has_homsets (A ⊠ ActionBasedStrength.V Mon_V) _ hsA').
+    apply (functor_category_has_homsets (A ⊠ Mon_V) _ hsA').
     intro ϛ.
     apply isasetaprop.
     apply isapropdirprod.
@@ -195,8 +193,8 @@ Section AsDisplayedCategory.
   Qed.
 
   Lemma Strong_Functor_precategory_Hstandard (F : [A, A',, hsA']) (sη sη' : actionbased_strength Mon_V actn actn' F) :
-    (∏ (a : A) (v : V), Strong_Functor_Category_mor_diagram (F,,sη) (F,,sη') (id F) a v)
-  → (∏ (a : A) (v : V), Strong_Functor_Category_mor_diagram (F,,sη') (F,,sη) (id F) a v) → sη = sη'.
+    (∏ (a : A) (v : Mon_V), Strong_Functor_Category_mor_diagram (F,,sη) (F,,sη') (id F) a v)
+  → (∏ (a : A) (v : Mon_V), Strong_Functor_Category_mor_diagram (F,,sη') (F,,sη) (id F) a v) → sη = sη'.
   Proof.
     intros leq geq.
     apply (actionbased_strength_eq _ _ _ hsA').

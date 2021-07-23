@@ -28,16 +28,13 @@ Local Open Scope cat.
 Section monoidal_functor_to_psfunctor.
 
   Context (M N : monoidal_precat).
-  Context (hsM : has_homsets (monoidal_precat_precat M)).
-  Context (hsN : has_homsets (monoidal_precat_precat N)).
+  Context (hsM : has_homsets M).
+  Context (hsN : has_homsets N).
 
   Local Definition M_as_bicat := bicat_from_monoidal M hsM.
   Local Definition N_as_bicat := bicat_from_monoidal N hsN.
 
   Context (smF : strong_monoidal_functor M N).
-
-  Local Definition ε_F := lax_monoidal_functor_ϵ _ _ smF.
-  Local Definition μ_F : monoidal_functor_map M N smF := lax_monoidal_functor_μ _ _ smF.
 
 Definition monoidal_functor_to_psfunctor_map_data: psfunctor_data M_as_bicat N_as_bicat.
 Proof.
@@ -47,8 +44,8 @@ Proof.
     exact (functor_on_objects smF).
   - intros a b f g. cbn.
     exact (functor_on_morphisms smF).
-  - intros a. cbn. exact ε_F.
-  - intros a b c f g. cbn. apply (μ_F (f,g)).
+  - intros a. cbn. exact (lax_monoidal_functor_ϵ smF).
+  - intros a b c f g. cbn. apply (lax_monoidal_functor_μ smF (f,g)).
 Defined.
 
 Definition monoidal_functor_to_psfunctor_map_laws: psfunctor_laws monoidal_functor_to_psfunctor_map_data.
@@ -57,7 +54,7 @@ Proof.
   - intros H0 H1 a. apply functor_id.
   - intros H0 H1 a b c f g. apply functor_comp.
   - intros H0 H1 a. apply lax_monoidal_functor_unital.
-  - intros H0 H1 a. apply (lax_monoidal_functor_unital _ _ smF a).
+  - intros H0 H1 a. apply (lax_monoidal_functor_unital smF a).
   - intros H0 H1 H2 H3 a b c.
     do 2 rewrite <- assoc. apply pathsinv0.
     apply (z_iso_inv_on_right _ _ _ (nat_z_iso_pointwise_z_iso (monoidal_precat_associator N) ((smF a, smF b), smF c))).
@@ -70,13 +67,13 @@ Proof.
     apply lax_monoidal_functor_assoc.
   - intros H0 H1 H2 a b1 b2 g. red in g.
     apply pathsinv0.
-    assert (Heq := nat_trans_ax μ_F (a,,b1) (a,,b2) (id a,,g)).
+    assert (Heq := nat_trans_ax (lax_monoidal_functor_μ smF) (a,,b1) (a,,b2) (id a,,g)).
     cbn in Heq.
     rewrite functor_id in Heq.
     exact Heq.
   - intros H0 H1 H2 a1 a2 b f.
     apply pathsinv0.
-    assert (Heq := nat_trans_ax μ_F (a1,,b) (a2,,b) (f,,id b)).
+    assert (Heq := nat_trans_ax (lax_monoidal_functor_μ smF) (a1,,b) (a2,,b) (f,,id b)).
     cbn in Heq.
     rewrite functor_id in Heq.
     exact Heq.
@@ -89,12 +86,11 @@ Proof.
     - exact (monoidal_functor_to_psfunctor_map_laws).
     - split ; red; cbn.
       + intros H0. unfold two_cells_from_monoidal.
-        exists (inv_from_z_iso (_,,strong_monoidal_functor_ϵ_is_z_iso _ _ smF)).
-        fold ε_F.
-        exact (pr2 (strong_monoidal_functor_ϵ_is_z_iso _ _ smF)).
+        exists (strong_monoidal_functor_ϵ_inv smF).
+        exact (pr2 (strong_monoidal_functor_ϵ_is_z_iso smF)).
       + intros H0 H1 H2 a b. unfold two_cells_from_monoidal.
-        exists (nat_z_iso_to_trans_inv (make_nat_z_iso _ _ μ_F (strong_monoidal_functor_μ_is_nat_z_iso _ _ smF)) (a,,b)).
-        exact (pr2 (strong_monoidal_functor_μ_is_nat_z_iso _ _ smF (a,,b))).
+        exists (strong_monoidal_functor_μ_inv smF (a,,b)).
+        exact (pr2 (strong_monoidal_functor_μ_is_nat_z_iso smF (a,,b))).
 Defined.
 
 End monoidal_functor_to_psfunctor.
@@ -116,7 +112,7 @@ Local Definition d0 := psF c0.
 Local Definition M := monoidal_precat_from_prebicat_and_ob c0.
 Local Definition N := monoidal_precat_from_prebicat_and_ob d0.
 
-Definition psfunctor_to_lax_monoidal_functor_data: functor_data (MonoidalFunctors.C M) (MonoidalFunctors.D N).
+Definition psfunctor_to_lax_monoidal_functor_data: functor_data M N.
 Proof.
   use make_functor_data.
   - cbn. intro f. exact (# psF f).
@@ -131,7 +127,7 @@ Proof.
   - intros a b c f g. apply psF.
 Qed.
 
-Definition psfunctor_to_lax_monoidal_functor_functor : MonoidalFunctors.C M ⟶ MonoidalFunctors.D N.
+Definition psfunctor_to_lax_monoidal_functor_functor : M ⟶ N.
 Proof.
   use make_functor.
   - exact psfunctor_to_lax_monoidal_functor_data.

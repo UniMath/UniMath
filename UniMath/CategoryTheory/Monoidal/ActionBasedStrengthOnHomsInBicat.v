@@ -43,18 +43,20 @@ Context {C : bicat}.
 Context (c0 d0 d0': ob C).
 Context {Mon_M : monoidal_precat}.
 
-Local Definition Mon_endo: monoidal_precat := swapping_of_monoidal_precat (monoidal_precat_from_prebicat_and_ob c0).
+Local Definition Mon_endo: monoidal_precat
+  := swapping_of_monoidal_precat (monoidal_precat_from_prebicat_and_ob c0).
 
 Context (U: strong_monoidal_functor Mon_M Mon_endo).
 
-Local Definition ϵ_U : pr1 Mon_endo ⟦ pr1 U (MonoidalFunctors.I_C Mon_M), MonoidalFunctors.I_D Mon_endo ⟧ := pr1 (strong_monoidal_functor_ϵ_is_z_iso _ _ U).
-Local Definition μ_U : monoidal_functor_map Mon_M Mon_endo U := lax_monoidal_functor_μ _ _ U.
-Local Definition ab_strength_domain_action : action Mon_M (hom c0 d0') :=  lifted_action Mon_M U (action_from_precomp c0 d0').
-Local Definition ab_strength_target_action : action Mon_M (hom c0 d0) :=  lifted_action Mon_M U (action_from_precomp c0 d0).
+Local Definition ab_strength_domain_action : action Mon_M (hom c0 d0')
+  := lifted_action Mon_M U (action_from_precomp c0 d0').
+Local Definition ab_strength_target_action : action Mon_M (hom c0 d0)
+  := lifted_action Mon_M U (action_from_precomp c0 d0).
 
 Context (F: hom c0 d0' ⟶ hom c0 d0).
 
-Definition ab_strength_on_homs_in_bicat: UU := actionbased_strength Mon_M ab_strength_domain_action ab_strength_target_action F.
+Definition ab_strength_on_homs_in_bicat: UU
+  := actionbased_strength Mon_M ab_strength_domain_action ab_strength_target_action F.
 
 Context (ab_str : ab_strength_on_homs_in_bicat).
 
@@ -66,15 +68,15 @@ Definition pentagon_eq := actionbased_strength_pentagon_eq Mon_M
   ab_strength_domain_action ab_strength_target_action F (pr1 ab_str).
 
 Lemma triangle_eq_readable: triangle_eq =
-  ∏ a : C ⟦ c0, d0' ⟧, θ (a,, monoidal_precat_unit Mon_M) • # F (id₂ a ⋆⋆  ϵ_U • lunitor a) =
-                       id₂ (F a) ⋆⋆ ϵ_U • lunitor (F a).
+  ∏ a : C ⟦ c0, d0' ⟧, θ (a,, monoidal_precat_unit Mon_M) • # F (id₂ a ⋆⋆ (strong_monoidal_functor_ϵ_inv U) • lunitor a) =
+                       id₂ (F a) ⋆⋆ (strong_monoidal_functor_ϵ_inv U) • lunitor (F a).
 Proof.
   apply idpath.
 Qed.
 
 Definition triangle_eq_nice : UU :=
-  ∏ X : C ⟦ c0, d0' ⟧, θ (X,, monoidal_precat_unit Mon_M) • # F ((ϵ_U ▹ X) • lunitor X) =
-                       (ϵ_U ▹ F X) • lunitor (F X).
+  ∏ X : C ⟦ c0, d0' ⟧, θ (X,, monoidal_precat_unit Mon_M) • # F (strong_monoidal_functor_ϵ_inv U ▹ X • lunitor X) =
+                       strong_monoidal_functor_ϵ_inv U ▹ F X • lunitor (F X).
 
 Lemma triangle_eq_implies_triangle_eq_nice : triangle_eq -> triangle_eq_nice.
 Proof.
@@ -96,11 +98,11 @@ Proof.
 Qed.
 
 Lemma pentagon_eq_readable: pentagon_eq =
-  ∏ (a : C ⟦ c0, d0' ⟧) (x y : monoidal_precat_precat Mon_M),
-                        (lassociator (U y) (U x) (F a) • id₂ (F a) ⋆⋆ μ_U (x,, y))
+  ∏ (a : C ⟦ c0, d0' ⟧) (x y : Mon_M),
+                        (lassociator (U y) (U x) (F a) • id₂ (F a) ⋆⋆ lax_monoidal_functor_μ U (x,, y))
                           • θ (a,, monoidal_precat_tensor Mon_M (x, y)) =
-                        (θ (a,, x) ⋆⋆ # U (id₁ y) • θ (U x · a,, y))
-                          • # F (lassociator (U y) (U x) a • id₂ a ⋆⋆ μ_U (x,, y)).
+                        θ (a,, x) ⋆⋆ # U (id₁ y) • θ (U x · a,, y)
+                          • # F (lassociator (U y) (U x) a • id₂ a ⋆⋆ lax_monoidal_functor_μ U (x,, y)).
 Proof.
   apply idpath.
 Qed.
@@ -111,9 +113,9 @@ Qed.
     of (Z,e), and likewise for Z' *)
 
 Definition pentagon_eq_nice : UU :=
-  ∏ (X : C ⟦ c0, d0' ⟧) (Z' Z : monoidal_precat_precat Mon_M),
-    (lassociator (U Z) (U Z') (F X) • (μ_U (Z',, Z) ▹ F X)) • θ (X,, monoidal_precat_tensor Mon_M (Z', Z)) =
-    ((U Z ◃ θ (X,, Z')) • θ (U Z' · X,, Z)) • # F (lassociator (U Z) (U Z') X • (μ_U (Z',, Z) ▹ X)).
+  ∏ (X : C ⟦ c0, d0' ⟧) (Z' Z : Mon_M),
+    lassociator (U Z) (U Z') (F X) • (lax_monoidal_functor_μ U (Z',, Z) ▹ F X) • θ (X,, monoidal_precat_tensor Mon_M (Z', Z)) =
+    U Z ◃ θ (X,, Z') • θ (U Z' · X,, Z) • # F (lassociator (U Z) (U Z') X • (lax_monoidal_functor_μ U (Z',, Z) ▹ X)).
 
 Lemma pentagon_eq_implies_pentagon_eq_nice : pentagon_eq -> pentagon_eq_nice.
 Proof.
@@ -128,7 +130,7 @@ Proof.
   - cbn.
     apply maponpaths_2.
     apply maponpaths.
-    exact (hcomp_identity_right _ _ (F X) (ConstructionOfActions.μ Mon_M U (Z',, Z))).
+    exact (hcomp_identity_right _ _ (F X) (lax_monoidal_functor_μ U (Z',, Z))).
   - etrans.
     {
       do 2 apply maponpaths_2.
@@ -160,17 +162,17 @@ Proof.
     apply hcomp_identity_right.
 Qed.
 
-Definition μ_UZ'Zinv (Z' Z : monoidal_precat_precat Mon_M) :
+Definition μ_UZ'Zinv (Z' Z : Mon_M) :
   hom c0 c0 ⟦ monoidal_functor_map_codom Mon_M Mon_endo U (Z',, Z),
               monoidal_functor_map_dom Mon_M Mon_endo U (Z',, Z) ⟧
-  := nat_z_iso_to_trans_inv (μ_U,,strong_monoidal_functor_μ_is_nat_z_iso _ _ U) (Z',,Z).
+  := strong_monoidal_functor_μ_inv U (Z',,Z).
 
 Definition pentagon_eq_nicer : UU :=
-  ∏ (X : C ⟦ c0, d0' ⟧) (Z' Z : monoidal_precat_precat Mon_M),
-                         (lassociator (U Z) (U Z') (F X) • (μ_U (Z',, Z) ▹ F X)) •
+  ∏ (X : C ⟦ c0, d0' ⟧) (Z' Z : Mon_M),
+                         lassociator (U Z) (U Z') (F X) • (lax_monoidal_functor_μ U (Z',, Z) ▹ F X) •
                          θ (X,, monoidal_precat_tensor Mon_M (Z', Z)) •
                          # F ((μ_UZ'Zinv Z' Z ▹ X) • rassociator (U Z) (U Z') X) =
-                         ((U Z ◃ θ (X,, Z')) • θ (U Z' · X,, Z)).
+                         U Z ◃ θ (X,, Z') • θ (U Z' · X,, Z).
 
 Lemma pentagon_eq_nice_implies_pentagon_eq_nicer : pentagon_eq_nice -> pentagon_eq_nicer.
 Proof.
@@ -200,7 +202,7 @@ Proof.
   rewrite rwhisker_vcomp.
   etrans.
   { apply maponpaths.
-    apply (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso (μ_U,,strong_monoidal_functor_μ_is_nat_z_iso _ _ U) (Z',,Z))).
+    apply (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso (strong_monoidal_functor_μ U) (Z',,Z))).
   }
   apply id2_rwhisker.
 Qed.
@@ -234,7 +236,7 @@ Proof.
   rewrite rwhisker_vcomp.
   etrans.
   { apply maponpaths.
-    apply (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso (μ_U,,strong_monoidal_functor_μ_is_nat_z_iso _ _ U) (Z',,Z))).
+    apply (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso (strong_monoidal_functor_μ U) (Z',,Z))).
   }
   apply id2_rwhisker.
 Qed.
@@ -506,7 +508,7 @@ Section IndividualSignatures.
   Local Definition H := pr1 sig.
   Local Definition θ'' := pr12 sig.
 
-  Local Lemma aux0 ( x : [C, D', hsD'] ⊠ ActionBasedStrength.V Mon_endo') :
+  Local Lemma aux0 ( x : [C, D', hsD'] ⊠ Mon_endo') :
     hom(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD)
        ⟦ actionbased_strength_dom Mon_endo' target_action H x,
          actionbased_strength_codom Mon_endo' domain_action H x ⟧
@@ -703,7 +705,7 @@ Section Morphisms.
 
   Lemma ab_strength_mor_from_signature_mor_diagram
         (a : hom(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD'))
-        (v : ActionBasedStrongFunctorCategory.V Mon_endo') :
+        (v : Mon_endo') :
    Strong_Functor_Category_mor_diagram Mon_endo' domain_action target_action
     (ab_strong_functor_from_signature sig1)
     (ab_strong_functor_from_signature sig2)

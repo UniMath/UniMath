@@ -166,7 +166,7 @@ Section Monoidal_Precat_Accessors.
 
 Context (M : monoidal_precat).
 
-Definition monoidal_precat_precat := pr1 M.
+Definition monoidal_precat_precat : precategory := pr1 M.
 
 Definition monoidal_precat_tensor := pr1 (pr2 M).
 
@@ -182,6 +182,8 @@ Definition monoidal_precat_eq := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M))))).
 
 End Monoidal_Precat_Accessors.
 
+Coercion monoidal_precat_precat : monoidal_precat >-> precategory.
+
 Definition strict_monoidal_precat : UU :=
   ∑ M : monoidal_precat,
   ∏ (eq_λ : I_pretensor (monoidal_precat_tensor M) (monoidal_precat_unit M) =
@@ -196,10 +198,9 @@ Section swapped_tensor.
 
   Context (M : monoidal_precat).
 
-  Local Definition C := monoidal_precat_precat M.
   Local Definition tensor := monoidal_precat_tensor M.
 
-Definition swapping_of_tensor: C ⊠ C ⟶ C := functor_composite binswap_pair_functor tensor.
+Definition swapping_of_tensor: M ⊠ M ⟶ M := functor_composite binswap_pair_functor tensor.
 
 Definition associator_swapping_of_tensor: associator swapping_of_tensor.
 Proof.
@@ -285,7 +286,7 @@ Qed.
 
 Definition swapping_of_monoidal_precat: monoidal_precat.
 Proof.
-  use (mk_monoidal_precat C swapping_of_tensor).
+  use (mk_monoidal_precat M swapping_of_tensor).
   - exact (monoidal_precat_unit M).
   - apply monoidal_precat_right_unitor.
   - apply monoidal_precat_left_unitor.
