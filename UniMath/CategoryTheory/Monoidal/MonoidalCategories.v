@@ -182,27 +182,17 @@ Section Monoidal_Precat_Accessors.
 
 Context (M : monoidal_precat).
 
-Definition monoidal_precat_tensor : M ⊠ M ⟶ M := pr1 (pr2 M).
+Definition monoidal_precat_tensor := pr1 (pr2 M).
 
-Definition monoidal_precat_unit : M := pr1 (pr2 (pr2 M)).
+Definition monoidal_precat_unit := pr1 (pr2 (pr2 M)).
 
-Definition monoidal_precat_left_unitor :
-  nat_z_iso (I_pretensor monoidal_precat_tensor monoidal_precat_unit) (functor_identity M)
-  := pr1 (pr2 (pr2 (pr2 M))).
+Definition monoidal_precat_left_unitor := pr1 (pr2 (pr2 (pr2 M))).
 
-Definition monoidal_precat_right_unitor :
-  nat_z_iso (I_posttensor monoidal_precat_tensor monoidal_precat_unit) (functor_identity M)
-  := pr1 (pr2 (pr2 (pr2 (pr2 M)))).
+Definition monoidal_precat_right_unitor := pr1 (pr2 (pr2 (pr2 (pr2 M)))).
 
-Definition monoidal_precat_associator :
-  nat_z_iso (assoc_left monoidal_precat_tensor) (assoc_right monoidal_precat_tensor)
-  := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 M))))).
+Definition monoidal_precat_associator := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 M))))).
 
-Definition monoidal_precat_eq :
-  (triangle_eq monoidal_precat_tensor monoidal_precat_unit monoidal_precat_left_unitor
-               monoidal_precat_right_unitor monoidal_precat_associator) ×
-  (pentagon_eq monoidal_precat_tensor monoidal_precat_associator)
-  := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M))))).
+Definition monoidal_precat_eq := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M))))).
 
 End Monoidal_Precat_Accessors.
 
