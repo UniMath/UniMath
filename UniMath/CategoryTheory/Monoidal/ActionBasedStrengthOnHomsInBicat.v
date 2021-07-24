@@ -58,25 +58,26 @@ Context (F: hom c0 d0' ⟶ hom c0 d0).
 Definition ab_strength_on_homs_in_bicat: UU
   := actionbased_strength Mon_M ab_strength_domain_action ab_strength_target_action F.
 
+Identity Coercion ab_strength_on_homs_in_bicat_to_actionbased_strength :
+  ab_strength_on_homs_in_bicat  >-> actionbased_strength.
+
 Context (ab_str : ab_strength_on_homs_in_bicat).
 
-Local Definition θ := pr1 ab_str.
-
 Definition triangle_eq := actionbased_strength_triangle_eq Mon_M
-  ab_strength_domain_action ab_strength_target_action F (pr1 ab_str).
+  ab_strength_domain_action ab_strength_target_action F ab_str.
 Definition pentagon_eq := actionbased_strength_pentagon_eq Mon_M
-  ab_strength_domain_action ab_strength_target_action F (pr1 ab_str).
+  ab_strength_domain_action ab_strength_target_action F ab_str.
 
-Lemma triangle_eq_readable : triangle_eq =
-  ∏ a : C ⟦ c0, d0' ⟧, θ (a,, monoidal_precat_unit Mon_M) • # F (id₂ a ⋆⋆ (strong_monoidal_functor_ϵ_inv U) • lunitor a) =
-                       id₂ (F a) ⋆⋆ (strong_monoidal_functor_ϵ_inv U) • lunitor (F a).
+Lemma triangle_eq_readable : triangle_eq = ∏ a : C ⟦ c0, d0' ⟧,
+  ab_str (a,, monoidal_precat_unit Mon_M) • # F (id₂ a ⋆⋆ (strong_monoidal_functor_ϵ_inv U) • lunitor a) =
+  id₂ (F a) ⋆⋆ (strong_monoidal_functor_ϵ_inv U) • lunitor (F a).
 Proof.
   apply idpath.
 Qed.
 
-Definition triangle_eq_nice : UU :=
-  ∏ X : C ⟦ c0, d0' ⟧, θ (X,, monoidal_precat_unit Mon_M) • # F (strong_monoidal_functor_ϵ_inv U ▹ X • lunitor X) =
-                       strong_monoidal_functor_ϵ_inv U ▹ F X • lunitor (F X).
+Definition triangle_eq_nice : UU := ∏ X : C ⟦ c0, d0' ⟧,
+  ab_str (X,, monoidal_precat_unit Mon_M) • # F (strong_monoidal_functor_ϵ_inv U ▹ X • lunitor X) =
+  strong_monoidal_functor_ϵ_inv U ▹ F X • lunitor (F X).
 
 Lemma triangle_eq_implies_triangle_eq_nice : triangle_eq -> triangle_eq_nice.
 Proof.
@@ -100,8 +101,8 @@ Qed.
 Lemma pentagon_eq_readable : pentagon_eq =
   ∏ (a : C ⟦ c0, d0' ⟧) (x y : Mon_M),
                         (lassociator (U y) (U x) (F a) • id₂ (F a) ⋆⋆ lax_monoidal_functor_μ U (x,, y))
-                          • θ (a,, monoidal_precat_tensor Mon_M (x, y)) =
-                        θ (a,, x) ⋆⋆ # U (id₁ y) • θ (U x · a,, y)
+                          • ab_str (a,, monoidal_precat_tensor Mon_M (x, y)) =
+                        ab_str (a,, x) ⋆⋆ # U (id₁ y) • ab_str (U x · a,, y)
                           • # F (lassociator (U y) (U x) a • id₂ a ⋆⋆ lax_monoidal_functor_μ U (x,, y)).
 Proof.
   apply idpath.
@@ -114,8 +115,8 @@ Qed.
 
 Definition pentagon_eq_nice : UU :=
   ∏ (X : C ⟦ c0, d0' ⟧) (Z' Z : Mon_M),
-    lassociator (U Z) (U Z') (F X) • (lax_monoidal_functor_μ U (Z',, Z) ▹ F X) • θ (X,, monoidal_precat_tensor Mon_M (Z', Z)) =
-    U Z ◃ θ (X,, Z') • θ (U Z' · X,, Z) • # F (lassociator (U Z) (U Z') X • (lax_monoidal_functor_μ U (Z',, Z) ▹ X)).
+    lassociator (U Z) (U Z') (F X) • (lax_monoidal_functor_μ U (Z',, Z) ▹ F X) • ab_str (X,, monoidal_precat_tensor Mon_M (Z', Z)) =
+    U Z ◃ ab_str (X,, Z') • ab_str (U Z' · X,, Z) • # F (lassociator (U Z) (U Z') X • (lax_monoidal_functor_μ U (Z',, Z) ▹ X)).
 
 Lemma pentagon_eq_implies_pentagon_eq_nice : pentagon_eq -> pentagon_eq_nice.
 Proof.
@@ -170,9 +171,9 @@ Definition μ_UZ'Zinv (Z' Z : Mon_M) :
 Definition pentagon_eq_nicer : UU :=
   ∏ (X : C ⟦ c0, d0' ⟧) (Z' Z : Mon_M),
                          lassociator (U Z) (U Z') (F X) • (lax_monoidal_functor_μ U (Z',, Z) ▹ F X) •
-                         θ (X,, monoidal_precat_tensor Mon_M (Z', Z)) •
+                         ab_str (X,, monoidal_precat_tensor Mon_M (Z', Z)) •
                          # F ((μ_UZ'Zinv Z' Z ▹ X) • rassociator (U Z) (U Z') X) =
-                         U Z ◃ θ (X,, Z') • θ (U Z' · X,, Z).
+                         U Z ◃ ab_str (X,, Z') • ab_str (U Z' · X,, Z).
 
 Lemma pentagon_eq_nice_implies_pentagon_eq_nicer : pentagon_eq_nice -> pentagon_eq_nicer.
 Proof.
@@ -319,14 +320,21 @@ Section IndividualFunctorsWithABStrength.
   Definition ab_strength_for_functors_and_pointed_functors : UU
     := ab_strength_on_homs_in_bicat(C:=bicat_of_cats_nouniv) (C,,hs) (D,,hsD) (D',,hsD') forget H.
 
+  Definition ab_strength_for_functors_and_pointed_functors_to_actionbased_strength
+             (ab_str : ab_strength_for_functors_and_pointed_functors) :
+    actionbased_strength (swapping_of_monoidal_precat (monoidal_precat_of_pointedfunctors hs))
+                         (ab_strength_domain_action(C:=bicat_of_cats_nouniv) (C,, hs) (D',, hsD') forget)
+                         (ab_strength_target_action(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD) forget) H
+    := ab_str.
+  Coercion ab_strength_for_functors_and_pointed_functors_to_actionbased_strength :
+    ab_strength_for_functors_and_pointed_functors >-> actionbased_strength.
+
   Context (ab_str : ab_strength_for_functors_and_pointed_functors).
 
-  Local Definition θ' := pr1 ab_str.
-
-  (* adapt typing of [θ'] for use in [Signature] *)
+  (* adapt typing of [pr1 ab_str] for use in [Signature] *)
   Definition θ_for_signature_nat_trans_data : nat_trans_data (θ_source(hs:=hs) H) (θ_target H).
   Proof.
-    intro x. exact (θ' x).
+    intro x. exact (ab_str x).
   Defined.
 
   Lemma θ_for_signature_is_nat_trans : is_nat_trans _ _ θ_for_signature_nat_trans_data.
@@ -336,26 +344,26 @@ Section IndividualFunctorsWithABStrength.
     apply nat_trans_eq; try assumption.
     intro c.
     cbn.
-    assert (Heq := nat_trans_ax θ' x x' f).
+    assert (Heq := nat_trans_ax ab_str x x' f).
     assert (Heqc := nat_trans_eq_weq hsD _ _ Heq c).
     clear Heq.
     cbn in Heqc.
     (* term precomposed with θ' x' c in goal and [Heqc]: *)
-    assert (Heq0 : pr1(# H (pr1 f)) ((pr12 x) c) · # (pr1(H (pr1 x'))) ((pr12 f) c) =
-                     # (pr1 (H (pr1 x))) ((pr112 f) c) · pr1 (# H (pr1 f)) (pr1 (pr12 x') c)).
+    assert (Heq0 : pr1(# H (pr1 f)) (pr12 x c) · # (pr1(H (pr1 x'))) (pr12 f c) =
+                     # (pr1 (H (pr1 x))) (pr12 f c) · pr1(# H (pr1 f)) (pr12 x' c)).
     { apply pathsinv0. apply nat_trans_ax. }
     etrans.
     { apply cancel_postcomposition. exact Heq0. }
     clear Heq0.
     etrans.
     { exact Heqc. }
+    clear Heqc.
     apply maponpaths.
-    generalize c.
     apply nat_trans_eq_pointwise.
     apply maponpaths.
     apply pathsinv0.
     apply horcomp_post_pre.
-  Qed.
+  Time Qed. (* very slow verification *)
 
   Definition θ_for_signature : θ_source (hs:=hs) H ⟹ θ_target H
     := (θ_for_signature_nat_trans_data,,θ_for_signature_is_nat_trans).
@@ -365,12 +373,14 @@ Section IndividualFunctorsWithABStrength.
     apply nat_trans_eq; try assumption.
     intro c.
     cbn.
-    assert (HypX := triangle_eq_implies_triangle_eq_nice _ _ _ _ _ _ (pr12 ab_str) X).
-    unfold θ in HypX. fold θ' in HypX.
+    assert (HypX := triangle_eq_implies_triangle_eq_nice _ _ _ _ _ _ (ab_strength_triangle _ ab_str) X).
     assert (Heqc := nat_trans_eq_weq hsD _ _ HypX c).
     cbn in Heqc.
-    rewrite (functor_id (H X)) in Heqc.
-    rewrite id_left in Heqc.
+    intermediate_path (# (pr1 (H X)) (id₁ c) · id₁ (pr1(pr1 H X) c)).
+    2: {  etrans.
+          { apply id_right. }
+          apply (functor_id (H X)).
+    }
     etrans.
     2: { exact Heqc. }
     clear HypX Heqc.
@@ -382,18 +392,18 @@ Section IndividualFunctorsWithABStrength.
     intro c.
     cbn.
     apply pathsinv0.
-    rewrite id_right.
+    etrans.
+    { apply id_right. }
     apply functor_id.
-  Time Qed.
-
+  Qed.
 
  Lemma signature_from_ab_strength_law2 : θ_Strength2_int θ_for_signature.
     intros X Z Z'.
     apply nat_trans_eq; try (apply hsD).
     intro c.
     assert (HypX := pentagon_eq_nice_implies_pentagon_eq_nicer _ _ _ _ _ _
-                    (pentagon_eq_implies_pentagon_eq_nice _ _ _ _ _ _ (pr22 ab_str)) X Z' Z).
-    unfold θ in HypX. fold θ' in HypX.
+                    (pentagon_eq_implies_pentagon_eq_nice _ _ _ _ _ _
+                     (ab_strength_pentagon _ ab_str)) X Z' Z).
     assert (Heqc := nat_trans_eq_weq hsD _ _ HypX c).
     clear HypX.
     etrans.
@@ -429,37 +439,6 @@ Section IndividualFunctorsWithABStrength.
     apply functor_id.
  Time Qed.
 
-(* extremely slow - more than 10min, I never saw the end
-  Lemma signature_from_ab_strength_law2 : θ_Strength2_int θ_for_signature.
-    intros X Z Z'.
-    apply nat_trans_eq; try (apply hsD).
-    intro c.
-    cbn.
-    rewrite id_left.
-    assert (HypX := pentagon_eq_nice_implies_pentagon_eq_nicer _ _ _ _ _ _
-                    (pentagon_eq_implies_pentagon_eq_nice _ _ _ _ _ _ (pr22 ab_str)) X Z' Z).
-    unfold θ in HypX. fold θ' in HypX.
-    assert (Heqc := nat_trans_eq_weq hsD _ _ HypX c).
-    clear HypX.
-    cbn in Heqc.
-    rewrite (functor_id (H X)) in Heqc.
-    do 2 rewrite id_left in Heqc.
-    etrans.
-    2: { exact Heqc. }
-    clear Heqc.
-    apply maponpaths.
-    apply nat_trans_eq_pointwise.
-    clear c.
-    apply maponpaths.
-    apply nat_trans_eq; try (apply hsD').
-    intro c.
-    cbn.
-    rewrite id_right.
-    apply pathsinv0.
-    apply functor_id.
-  Time Qed.
-*)
-
   Definition signature_from_ab_strength : Signature C hs D hsD D' hsD'.
   Proof.
     exists H.
@@ -487,7 +466,7 @@ Section Morphisms.
 
   Lemma signature_mor_from_ab_strength_mor_diagram (X : [C, D', hsD']) (Y : precategory_Ptd C hs) :
     Signature_category_mor_diagram (C,, hs) (D,, hsD) (D',, hsD')
-      (signature_from_strong_functor FF) (signature_from_strong_functor GG) (pr1 sη) X Y.
+      (signature_from_strong_functor FF) (signature_from_strong_functor GG) sη X Y.
   Proof.
     red.
     cbn.
@@ -504,7 +483,7 @@ Section Morphisms.
   Definition signature_mor_from_ab_strength_mor :
     SignatureMor (C,,hs) (D,,hsD) (D',,hsD') (signature_from_strong_functor FF) (signature_from_strong_functor GG).
   Proof.
-    exists (pr1 sη).
+    exists sη.
     exact signature_mor_from_ab_strength_mor_diagram.
   Defined.
 
@@ -554,21 +533,21 @@ Section ActionBased_Strength_From_Signature.
 Section IndividualSignatures.
 
   Context (sig : Signature C hs D hsD D' hsD').
-  Local Definition H := pr1 sig.
+
   Local Definition θ'' := pr12 sig.
 
   Local Lemma aux0 ( x : [C, D', hsD'] ⊠ Mon_endo') :
     hom(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD)
-       ⟦ actionbased_strength_dom Mon_endo' target_action H x,
-         actionbased_strength_codom Mon_endo' domain_action H x ⟧
-    = functor_composite_data (pr12 x) (pr1 (H (pr1 x))) ⟹  pr1 (pr11  H (pr12 x ∙ pr1 x)).
+       ⟦ actionbased_strength_dom Mon_endo' target_action sig x,
+         actionbased_strength_codom Mon_endo' domain_action sig x ⟧
+    = functor_composite_data (pr12 x) (pr1 (sig (pr1 x))) ⟹  pr1 (pr11  sig (pr12 x ∙ pr1 x)).
   Proof.
     apply idpath.
   Defined.
 
   Definition θ_for_ab_strength_data
-    : nat_trans_data (actionbased_strength_dom Mon_endo' target_action H)
-                     (actionbased_strength_codom Mon_endo' domain_action H).
+    : nat_trans_data (actionbased_strength_dom Mon_endo' target_action sig)
+                     (actionbased_strength_codom Mon_endo' domain_action sig).
   Proof.
     intro x.
     exact (eqweqmap (!aux0 x) (θ'' x)).
@@ -583,8 +562,8 @@ Section IndividualSignatures.
     assert (Heqc := nat_trans_eq_weq hsD _ _ Heq c).
     clear Heq.
     (* term precomposed with [θ'' x' c] in [Heqc] and goal: *)
-    assert (Heq0 : pr1(# H (pr1 f)) ((pr12 x) c) · # (pr1(H (pr1 x'))) ((pr12 f) c) =
-                   # (pr1 (H (pr1 x))) ((pr112 f) c) · pr1 (# H (pr1 f)) (pr1 (pr12 x') c)).
+    assert (Heq0 : pr1(# sig (pr1 f)) (pr12 x c) · # (pr1(sig (pr1 x'))) (pr12 f c) =
+                   # (pr1 (sig (pr1 x))) (pr12 f c) · pr1 (# sig (pr1 f)) (pr12 x' c)).
     { apply pathsinv0. apply nat_trans_ax. }
     etrans.
     { apply cancel_postcomposition. apply pathsinv0. exact Heq0. }
@@ -603,7 +582,7 @@ Section IndividualSignatures.
     apply (horcomp_post_pre _ _ (D',,hsD') _ _ _ _ (pr1 f2) f1).
   Qed.
 
-  Definition θ_for_ab_strength : actionbased_strength_nat Mon_endo' domain_action target_action H.
+  Definition θ_for_ab_strength : actionbased_strength_nat Mon_endo' domain_action target_action sig.
   Proof.
     use make_nat_trans.
     - exact θ_for_ab_strength_data.
@@ -612,17 +591,22 @@ Section IndividualSignatures.
   (* very slow processing of both steps then verification *)
 
   Lemma θ_for_ab_strength_law1 :
-    actionbased_strength_triangle_eq Mon_endo' domain_action target_action H θ_for_ab_strength.
+    actionbased_strength_triangle_eq Mon_endo' domain_action target_action sig θ_for_ab_strength.
   Proof.
     red. intro X.
     assert (HypX := Sig_strength_law1 sig X).
     fold θ'' in HypX.
-    fold H in HypX.
     apply nat_trans_eq; try assumption.
     intro c.
     cbn.
-    rewrite (functor_id (H X)).
-    do 2 rewrite id_left.
+    etrans.
+    2: { apply pathsinv0.
+         etrans.
+         { apply id_right. }
+         etrans.
+         { apply id_right. }
+         apply (functor_id (sig X)).
+    }
     assert (Heqc := nat_trans_eq_weq hsD _ _ HypX c).
     clear HypX.
     cbn in Heqc.
@@ -642,7 +626,7 @@ Section IndividualSignatures.
   (* slow verification *)
 
   Lemma θ_for_ab_strength_law2
-    : actionbased_strength_pentagon_eq Mon_endo' domain_action target_action H θ_for_ab_strength.
+    : actionbased_strength_pentagon_eq Mon_endo' domain_action target_action sig θ_for_ab_strength.
   Proof.
     intros X Z' Z.
     cbn.
@@ -652,7 +636,6 @@ Section IndividualSignatures.
     assert (HypX := θ_Strength2_int_implies_θ_Strength2_int_nicer _
                         (Sig_strength_law2 sig) X Z Z').
     fold θ'' in HypX.
-    fold H in HypX.
     assert (Heqc := nat_trans_eq_weq hsD _ _ HypX c).
     clear HypX.
     cbn in Heqc.
@@ -714,7 +697,7 @@ Section IndividualSignatures.
 
 
   Definition ab_strength_from_signature :
-    ab_strength_for_functors_and_pointed_functors H.
+    ab_strength_for_functors_and_pointed_functors sig.
   Proof.
     exists θ_for_ab_strength.
     split.
@@ -724,7 +707,7 @@ Section IndividualSignatures.
 
   Definition ab_strong_functor_from_signature :
     actionbased_strong_functor Mon_endo' domain_action target_action
-    := (H,,ab_strength_from_signature).
+    := (pr1 sig,,ab_strength_from_signature).
 
 End IndividualSignatures.
 
@@ -818,7 +801,7 @@ Definition SignatureCategoryToActionBasedStrongFunctorCategory : functor
 
 End ActionBased_Strength_From_Signature.
 
-(* the following lemma cannot be used later *)
+(* the following lemma cannot be used in the construction of the equivalence of precategories *)
 Lemma roundtrip1_ob_as_equality (sig : Signature C hs D hsD D' hsD') : signature_from_strong_functor (ab_strong_functor_from_signature sig) = sig.
 Proof.
   use total2_paths_f.
@@ -860,7 +843,7 @@ Proof.
     etrans.
     2: { apply cancel_postcomposition.
          apply pathsinv0.
-         apply (functor_id(H sig X)).
+         apply (functor_id (pr1 sig X)).
     }
     apply pathsinv0.
     apply id_left.
@@ -893,7 +876,7 @@ Proof.
     etrans.
     2: { apply cancel_postcomposition.
          apply pathsinv0.
-         apply (functor_id(H sig X)).
+         apply (functor_id (pr1 sig X)).
     }
     apply pathsinv0.
     apply id_left.
@@ -929,7 +912,7 @@ Definition roundtrip1_ob_nat_trans :
   := (roundtrip1_ob_nat_trans_data,,roundtrip1_ob_data_is_nat_trans).
 
 
-(* the following lemma cannot be used later *)
+(* the following lemma cannot be used in the construction of the equivalence of precategories *)
 Lemma roundtrip2_ob_as_equality (FF : actionbased_strong_functor Mon_endo' domain_action target_action) : ab_strong_functor_from_signature (signature_from_strong_functor FF) = FF.
 Proof.
   use total2_paths_f.
