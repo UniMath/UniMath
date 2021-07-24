@@ -534,13 +534,11 @@ Section IndividualSignatures.
 
   Context (sig : Signature C hs D hsD D' hsD').
 
-  Local Definition θ'' := pr12 sig.
-
   Local Lemma aux0 ( x : [C, D', hsD'] ⊠ Mon_endo') :
     hom(C:=bicat_of_cats_nouniv) (C,, hs) (D,, hsD)
        ⟦ actionbased_strength_dom Mon_endo' target_action sig x,
          actionbased_strength_codom Mon_endo' domain_action sig x ⟧
-    = functor_composite_data (pr12 x) (pr1 (sig (pr1 x))) ⟹  pr1 (pr11  sig (pr12 x ∙ pr1 x)).
+    = functor_composite_data (pr12 x) (pr1 (sig (pr1 x))) ⟹  pr1 (sig (pr12 x ∙ pr1 x)).
   Proof.
     apply idpath.
   Defined.
@@ -550,7 +548,7 @@ Section IndividualSignatures.
                      (actionbased_strength_codom Mon_endo' domain_action sig).
   Proof.
     intro x.
-    exact (eqweqmap (!aux0 x) (θ'' x)).
+    exact (eqweqmap (!aux0 x) (theta sig x)).
   Defined.
 
   Definition θ_for_ab_strength_ax : is_nat_trans _ _ θ_for_ab_strength_data.
@@ -558,10 +556,10 @@ Section IndividualSignatures.
     intros x x' f.
     apply nat_trans_eq; try assumption.
     intro c.
-    assert (Heq := nat_trans_ax θ'' x x' f).
+    assert (Heq := nat_trans_ax (theta sig) x x' f).
     assert (Heqc := nat_trans_eq_weq hsD _ _ Heq c).
     clear Heq.
-    (* term precomposed with [θ'' x' c] in [Heqc] and goal: *)
+    (* term precomposed with [theta sig x' c] in [Heqc] and goal: *)
     assert (Heq0 : pr1(# sig (pr1 f)) (pr12 x c) · # (pr1(sig (pr1 x'))) (pr12 f c) =
                    # (pr1 (sig (pr1 x))) (pr12 f c) · pr1 (# sig (pr1 f)) (pr12 x' c)).
     { apply pathsinv0. apply nat_trans_ax. }
@@ -595,7 +593,6 @@ Section IndividualSignatures.
   Proof.
     red. intro X.
     assert (HypX := Sig_strength_law1 sig X).
-    fold θ'' in HypX.
     apply nat_trans_eq; try assumption.
     intro c.
     cbn.
@@ -635,7 +632,6 @@ Section IndividualSignatures.
     simpl.
     assert (HypX := θ_Strength2_int_implies_θ_Strength2_int_nicer _
                         (Sig_strength_law2 sig) X Z Z').
-    fold θ'' in HypX.
     assert (Heqc := nat_trans_eq_weq hsD _ _ HypX c).
     clear HypX.
     cbn in Heqc.

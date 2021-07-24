@@ -64,9 +64,7 @@ Context (U : strong_monoidal_functor Mon_V Mon_A).
 
 Context {C : precategory} (actA : action Mon_A C).
 
-Local Definition odotA := pr1 actA.
-Local Definition ρA : action_right_unitor Mon_A C odotA := pr12 actA.
-Local Definition αA : action_convertor Mon_A C odotA := pr122 actA.
+Local Definition odotA := act_odot actA.
 
 Definition lifted_odot : C ⊠ V ⟶ C :=
   functor_composite (pair_functor (functor_identity _) U) odotA.
@@ -75,7 +73,7 @@ Definition lifted_action_right_unitor_nat_trans:
   odot_I_functor Mon_V C lifted_odot ⟹ functor_identity C.
 Proof.
   cbn.
-  refine (nat_trans_comp _ _ _ _  ρA).
+  refine (nat_trans_comp _ _ _ _  (act_ϱ actA)).
   set (aux := nat_trans_from_functor_fix_snd_morphism_arg _ _ _ odotA _ _ (strong_monoidal_functor_ϵ_inv U)).
   use tpair.
   - intro a.
@@ -93,7 +91,7 @@ Proof.
   intro.
   cbn.
   use is_z_iso_comp_of_is_z_isos.
-  2: { exact (pr2 ρA c). }
+  2: { exact (pr2 (act_ϱ actA) c). }
   - use is_z_iso_odot_z_iso.
     + exact (identity_is_z_iso _ ).
     + apply (is_z_iso_inv_from_z_iso _ _ (strong_monoidal_functor_ϵ U)).
@@ -102,7 +100,7 @@ Defined.
 Definition lifted_action_convertor_nat_trans :
   odot_x_odot_y_functor _ C lifted_odot ⟹ odot_x_otimes_y_functor _ C lifted_odot.
 Proof.
-  apply (nat_trans_comp _ _ _ (pre_whisker (pair_functor (pair_functor (functor_identity _) U) U) αA)).
+  apply (nat_trans_comp _ _ _ (pre_whisker (pair_functor (pair_functor (functor_identity _) U) U) (act_χ actA))).
   exact (pre_whisker (precategory_binproduct_unassoc _ _ _) (post_whisker_fst_param (lax_monoidal_functor_μ U) odotA)).
 Defined.
 
@@ -112,7 +110,7 @@ Proof.
   intro x.
   pose (k := ob1 (ob1 x)); pose (k' := ob2 (ob1 x)); pose (k'' := ob2 x).
   use is_z_iso_comp_of_is_z_isos.
-  - exact (pr2 αA ((k, U k'), U k'')).
+  - exact (pr2 (act_χ actA) ((k, U k'), U k'')).
   - use is_z_iso_odot_z_iso.
     + use identity_is_z_iso.
     + exact (strong_monoidal_functor_μ_is_nat_z_iso U (k', k'')).
@@ -136,7 +134,7 @@ Proof.
   unfold compose at 2. simpl. unfold make_dirprod. rewrite id_left.
   rewrite <- (id_left (id U x)).
   apply pathsinv0.
-  intermediate_path (# odotA ((# odotA (id a #, strong_monoidal_functor_ϵ_inv U)) #, id U x) · # odotA (ρA a #, id U x)).
+  intermediate_path (# odotA ((# odotA (id a #, strong_monoidal_functor_ϵ_inv U)) #, id U x) · # odotA (act_ϱ actA a #, id U x)).
   { rewrite <- functor_comp.
     apply idpath. }
   pose (f := # odotA (# odotA (id a #, lax_monoidal_functor_ϵ U) #, id U x)).
@@ -148,7 +146,7 @@ Proof.
     - exact (identity_is_z_iso _ ).
   }
   rewrite assoc.
-  intermediate_path (# odotA (ρA a #, id U x)).
+  intermediate_path (# odotA (act_ϱ actA a #, id U x)).
   { apply pathsinv0. etrans.
     - apply (!(id_left _)).
     - apply cancel_postcomposition.
@@ -170,7 +168,7 @@ Proof.
   rewrite assoc.
   apply pathsinv0. etrans.
   { apply cancel_postcomposition.
-    apply (nat_trans_ax αA ((a, I_A), U x) ((a, U I), U x) ((id a ,, lax_monoidal_functor_ϵ U) ,, id U x)). }
+    apply (nat_trans_ax (act_χ actA) ((a, I_A), U x) ((a, U I), U x) ((id a ,, lax_monoidal_functor_ϵ U) ,, id U x)). }
   simpl.
   etrans.
   { rewrite assoc'. apply maponpaths. apply pathsinv0.
@@ -188,7 +186,7 @@ Proof.
     (* UniMath.MoreFoundations.Tactics.show_id_type.
        unfold functor_fix_snd_arg_ob in TYPE. *)
     apply pathsinv0.
-    apply (pr12(pr22 actA)).
+    apply (act_triangle actA).
 Qed.
 
 Lemma lifted_action_plaw : action_pentagon_eq Mon_V C
@@ -215,7 +213,7 @@ Proof.
     apply cancel_postcomposition.
     apply cancel_postcomposition.
     rewrite <- (id_left (id U z)).
-    intermediate_path (# odotA ((αA ((a, U x), U y) #, id U z) · (# odotA (id a #, lax_monoidal_functor_μ U (x, y)) #, id U z))).
+    intermediate_path (# odotA ((act_χ actA ((a, U x), U y) #, id U z) · (# odotA (id a #, lax_monoidal_functor_μ U (x, y)) #, id U z))).
     - apply idpath.
     - apply functor_comp.
   }
@@ -223,7 +221,7 @@ Proof.
   { apply cancel_postcomposition.
     rewrite assoc'.
     apply maponpaths.
-    apply (nat_trans_ax αA ((a, U x ⊗_A U y), U z) ((a, U (x ⊗ y)), U z) ((id a ,, lax_monoidal_functor_μ U (x, y)) ,, id U z)).
+    apply (nat_trans_ax (act_χ actA) ((a, U x ⊗_A U y), U z) ((a, U (x ⊗ y)), U z) ((id a ,, lax_monoidal_functor_μ U (x, y)) ,, id U z)).
   }
   etrans.
   { unfold assoc_right. cbn.
@@ -263,18 +261,18 @@ Proof.
   etrans.
   { apply cancel_postcomposition.
     apply pathsinv0.
-    apply (pr22(pr22 actA)).
+    apply (act_pentagon actA).
   }
   fold odotA.
-  change (αA ((odotA (a, U x), U y), U z) · αA ((a, U x), tensor_A (U y, U z))
+  change (act_χ actA ((odotA (a, U x), U y), U z) · act_χ actA ((a, U x), tensor_A (U y, U z))
   · # odotA (id a #, # tensor_A (id U x #, lax_monoidal_functor_μ U (y, z))) =
-  αA ((odotA (a , U x), U y), U z) · # odotA (id (odotA (a , U x)) #, lax_monoidal_functor_μ U (y, z))
-      · αA ((a, U x), U (y ⊗ z))).
+  act_χ actA ((odotA (a , U x), U y), U z) · # odotA (id (odotA (a , U x)) #, lax_monoidal_functor_μ U (y, z))
+      · act_χ actA ((a, U x), U (y ⊗ z))).
   repeat rewrite assoc'.
   apply maponpaths.
   etrans.
   { apply pathsinv0.
-    apply (nat_trans_ax αA ((a, U x), U y ⊗_A U z) ((a, U x), U (y ⊗ z)) ((id a ,, id U x) ,, lax_monoidal_functor_μ U (y, z))).
+    apply (nat_trans_ax (act_χ actA) ((a, U x), U y ⊗_A U z) ((a, U x), U (y ⊗ z)) ((id a ,, id U x) ,, lax_monoidal_functor_μ U (y, z))).
   }
   cbn.
   apply cancel_postcomposition.
