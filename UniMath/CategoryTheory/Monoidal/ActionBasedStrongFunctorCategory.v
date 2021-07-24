@@ -26,15 +26,12 @@ Context (Mon_V : monoidal_precat).
 Context {A A': precategory}.
 Context (actn : action Mon_V A)(actn' : action Mon_V A').
 
-Local Definition odot := pr1 actn.
-Local Definition odot' := pr1 actn'.
+Notation "X ⊙ Y" := (act_odot actn (X , Y)) (at level 31).
+Notation "f #⊙ g" := (#(act_odot actn) (f #, g)) (at level 31).
+Notation "X ⊙' Y" := (act_odot actn' (X , Y)) (at level 31).
+Notation "f #⊙' g" := (#(act_odot actn') (f #, g)) (at level 31).
 
-Notation "X ⊙ Y" := (odot (X , Y)) (at level 31).
-Notation "f #⊙ g" := (#odot (f #, g)) (at level 31).
-Notation "X ⊙' Y" := (odot' (X , Y)) (at level 31).
-Notation "f #⊙' g" := (#odot' (f #, g)) (at level 31).
-
-Local Definition ζ (FF : actionbased_strong_functor Mon_V actn actn') := pr12 FF.
+Local Definition ζ (FF : actionbased_strong_functor Mon_V actn actn') := ab_strong_functor_strength _ FF.
 
 Section Strong_Functor_Category_mor.
 
@@ -59,11 +56,16 @@ apply subtypePath; trivial.
 now intros α; repeat (apply impred; intro); apply hsA'.
 Qed.
 
+Definition Strong_Functor_Category_to_nat_trans {FF GG : actionbased_strong_functor Mon_V actn actn'}
+           (sη : Strong_Functor_Category_Mor FF GG) : FF ⟹ GG
+  := pr1 sη.
+Coercion Strong_Functor_Category_to_nat_trans : Strong_Functor_Category_Mor >-> nat_trans.
+
 Local Lemma Strong_Functor_Category_Mor_id_subproof (FF : actionbased_strong_functor Mon_V actn actn') a v :
   Strong_Functor_Category_mor_diagram FF FF (nat_trans_id FF) a v.
 Proof.
   red.
-  change (ζ FF (a, v) · nat_trans_id FF (a ⊙ v) = # odot' (id (FF a, v)) · ζ FF (a, v)).
+  change (ζ FF (a, v) · nat_trans_id FF (a ⊙ v) = #(act_odot actn') (id (FF a, v)) · ζ FF (a, v)).
   rewrite functor_id.
   now rewrite id_left, id_right.
 Qed.
@@ -73,13 +75,13 @@ Definition Strong_Functor_Category_Mor_id (FF : actionbased_strong_functor Mon_V
 
 Local Lemma Strong_Functor_Category_Mor_comp_subproof (FF GG HH : actionbased_strong_functor Mon_V actn actn')
       (sη : Strong_Functor_Category_Mor FF GG) (sη' : Strong_Functor_Category_Mor GG HH) a v :
-  Strong_Functor_Category_mor_diagram FF HH (nat_trans_comp _ _ _ (pr1 sη) (pr1 sη')) a v.
+  Strong_Functor_Category_mor_diagram FF HH (nat_trans_comp _ _ _ sη sη') a v.
 Proof.
   induction sη as [η ηisstrong]; induction sη' as [η' η'isstrong].
   red.
   cbn.
   rewrite <- (id_left (id v)).
-  change (ζ FF (a, v) · (η (a ⊙ v) · η' (a ⊙ v)) = # odot' ((η a #, id v) · (η' a #, id v))  · ζ HH (a, v)).
+  change (ζ FF (a, v) · (η (a ⊙ v) · η' (a ⊙ v)) = #(act_odot actn') ((η a #, id v) · (η' a #, id v))  · ζ HH (a, v)).
   rewrite functor_comp.
   etrans.
   { rewrite assoc. apply cancel_postcomposition. apply ηisstrong. }
@@ -91,7 +93,7 @@ Qed.
 Definition Strong_Functor_Category_Mor_comp  (FF GG HH : actionbased_strong_functor Mon_V actn actn')
            (sη : Strong_Functor_Category_Mor FF GG) (sη' : Strong_Functor_Category_Mor GG HH) :
   Strong_Functor_Category_Mor FF HH :=
-  (nat_trans_comp _ _ _ (pr1 sη) (pr1 sη'),, Strong_Functor_Category_Mor_comp_subproof FF GG HH sη sη').
+  (nat_trans_comp _ _ _ sη sη',, Strong_Functor_Category_Mor_comp_subproof FF GG HH sη sη').
 
 Definition Strong_Functor_precategory_data : precategory_data.
 Proof.
@@ -212,7 +214,7 @@ Section AsDisplayedCategory.
     2: { apply id_left. }
     apply cancel_postcomposition.
     show_id_type.
-    change (# odot' (id (pr1 F (pr1 av), pr2 av)) = id actionbased_strength_dom Mon_V actn' F av).
+    change (#(act_odot actn') (id (pr1 F (pr1 av), pr2 av)) = id actionbased_strength_dom Mon_V actn' F av).
     rewrite functor_id.
     apply idpath.
   Qed.
