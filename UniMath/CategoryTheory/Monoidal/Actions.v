@@ -110,6 +110,18 @@ End Actions_Natural_Transformations.
 (* Action over a monoidal category. *)
 Definition action : UU := ∑ (odot : A ⊠ Mon_V ⟶ A), ∑ (ϱ : action_right_unitor odot), ∑ (χ : action_convertor odot), (action_triangle_eq odot ϱ χ) × (action_pentagon_eq odot χ).
 
+Section Projections.
+
+  Context (actn : action).
+
+  Definition act_odot : A ⊠ Mon_V ⟶ A := pr1 actn.
+  Definition act_ϱ : action_right_unitor act_odot := pr1 (pr2 actn).
+  Definition act_χ : action_convertor act_odot := pr1 (pr2 (pr2 actn)).
+  Definition act_triangle :  action_triangle_eq act_odot act_ϱ act_χ := pr1 (pr2 (pr2 (pr2 actn))).
+  Definition act_pentagon :  action_pentagon_eq act_odot act_χ := pr2 (pr2 (pr2 (pr2 actn))).
+
+End Projections.
+
 End Actions_Definition.
 
 (* The canonical tensorial action on a monoidal category. *)
@@ -398,3 +410,9 @@ Defined.
 End Strong_Monoidal_Functor_Action.
 
 End A.
+
+Arguments act_odot {_ _} _.
+Arguments act_ϱ {_ _} _.
+Arguments act_χ {_ _} _.
+Arguments act_triangle {_ _} _.
+Arguments act_pentagon {_ _} _.

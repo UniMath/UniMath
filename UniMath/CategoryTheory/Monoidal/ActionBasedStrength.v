@@ -35,25 +35,22 @@ Section ActionBasedStrengths_Definition.
 Context {A A': precategory}.
 Context (actn : action Mon_V A)(actn' : action Mon_V A').
 
-Local Definition odot := pr1 actn.
-Local Definition ϱ := pr12 actn.
-Local Definition χ := pr122 actn.
-Local Definition odot' := pr1 actn'.
-Local Definition ϱ' := pr12 actn'.
-
-Local Definition χ' := pr122 actn'.
+Local Definition ϱ := act_ϱ actn.
+Local Definition χ := act_χ actn.
+Local Definition ϱ' := act_ϱ actn'.
+Local Definition χ' := act_χ actn'.
 
 Section ActionBasedStrengths_Natural_Transformation.
 
 Context (F : A ⟶ A').
 
-Notation "X ⊙ Y" := (odot (X , Y)) (at level 31).
-Notation "f #⊙ g" := (#odot (f #, g)) (at level 31).
-Notation "X ⊙' Y" := (odot' (X , Y)) (at level 31).
-Notation "f #⊙' g" := (#odot' (f #, g)) (at level 31).
+Notation "X ⊙ Y" := (act_odot actn (X , Y)) (at level 31).
+Notation "f #⊙ g" := (#(act_odot actn) (f #, g)) (at level 31).
+Notation "X ⊙' Y" := (act_odot actn' (X , Y)) (at level 31).
+Notation "f #⊙' g" := (#(act_odot actn') (f #, g)) (at level 31).
 
 Definition actionbased_strength_dom : A ⊠ Mon_V ⟶ A' :=
-  functor_composite (pair_functor F (functor_identity _)) odot'.
+  functor_composite (pair_functor F (functor_identity _)) (act_odot actn').
 
 Lemma actionbased_strength_dom_ok: functor_on_objects actionbased_strength_dom = λ ax, F (ob1 ax) ⊙' (ob2 ax).
 Proof.
@@ -61,7 +58,7 @@ Proof.
 Qed.
 
 Definition actionbased_strength_codom : A ⊠ Mon_V ⟶ A' :=
-  functor_composite odot F.
+  functor_composite (act_odot actn) F.
 
 Lemma actionbased_strength_codom_ok: functor_on_objects actionbased_strength_codom = λ ax, F (ob1 ax ⊙ ob2 ax).
 Proof.
@@ -185,6 +182,27 @@ Proof.
   + apply isaprop_actionbased_strength_pentagon_eq, hsA'.
 Qed.
 
+Definition actionbased_strength_to_nat {F : A ⟶ A'} (FF : actionbased_strength F) :
+  actionbased_strength_nat F
+  := pr1 FF.
+Coercion actionbased_strength_to_nat : actionbased_strength >-> actionbased_strength_nat.
+
+(*
+Definition actionbased_strength_to_nat_trans {F : A ⟶ A'} (FF : actionbased_strength F) :
+  nat_trans (actionbased_strength_dom F) (actionbased_strength_codom F)
+  := pr1 FF.
+Coercion actionbased_strength_to_nat_trans : actionbased_strength >-> nat_trans.
+ *)
+Identity Coercion actionbased_strength_nat_to_nat_trans : actionbased_strength_nat >-> nat_trans.
+
+Definition ab_strength_triangle {F : A ⟶ A'} (FF : actionbased_strength F) :
+  actionbased_strength_triangle_eq F FF
+  := pr1 (pr2 FF).
+
+Definition ab_strength_pentagon {F : A ⟶ A'} (FF : actionbased_strength F) :
+  actionbased_strength_pentagon_eq F FF
+  := pr2 (pr2 FF).
+
 End ActionBasedStrengths_Definition.
 
 Definition actionbased_strong_functor {A A' : precategory} (actn : action Mon_V A)(actn' : action Mon_V A') : UU
@@ -192,6 +210,10 @@ Definition actionbased_strong_functor {A A' : precategory} (actn : action Mon_V 
 
 Definition actionbased_strong_functor_to_functor (A A' : precategory) (actn : action Mon_V A)(actn' : action Mon_V A') (FF : actionbased_strong_functor actn actn') : A ⟶ A' := pr1 FF.
 Coercion actionbased_strong_functor_to_functor : actionbased_strong_functor >-> functor.
+
+Definition ab_strong_functor_strength {A A' : precategory} (actn : action Mon_V A)(actn' : action Mon_V A')
+           (FF : actionbased_strong_functor actn actn') : actionbased_strength_nat actn actn' FF
+  := pr1 (pr2 FF).
 
 (*
   The standard tensorial strength:
@@ -207,12 +229,10 @@ Section B.
   Context {Mon_W Mon_V : monoidal_precat}.
 
   Local Definition timesV := monoidal_precat_tensor Mon_V.
-  Local Definition II := monoidal_precat_unit Mon_V.
   Local Definition lambda := monoidal_precat_left_unitor Mon_V.
   Local Definition alpha := monoidal_precat_associator Mon_V.
 
   Local Definition timesW := monoidal_precat_tensor Mon_W.
-  Local Definition E := monoidal_precat_unit Mon_W.
 
   Context (U : strong_monoidal_functor Mon_W Mon_V).
 
@@ -250,7 +270,7 @@ Section RelativeStrengths_Natural_Transformation.
 
   (** the following looks like a pentagon but is of the nature of a triangle equation *)
   Definition rel_strength_pentagon_eq (ϛ : rel_strength_nat) :=
-    ∏ (v : Mon_V), ϛ (E, v) · #F (strong_monoidal_functor_ϵ_inv U #⊗V identity v) · #F (lambda v)  =
+    ∏ (v : Mon_V), ϛ (monoidal_precat_unit Mon_W, v) · #F (strong_monoidal_functor_ϵ_inv U #⊗V identity v) · #F (lambda v)  =
                strong_monoidal_functor_ϵ_inv U #⊗V identity (F v) · lambda (F v).
 
   (** the following looks like a rectangle in the paper but is of the nature of a pentagon equation *)
@@ -264,13 +284,33 @@ End RelativeStrengths_Natural_Transformation.
 Definition rel_strength (F : Mon_V ⟶ Mon_V): UU :=
   ∑ (ϛ : rel_strength_nat F), (rel_strength_pentagon_eq F ϛ) × (rel_strength_rectangle_eq F ϛ).
 
+
+Definition rel_strength_to_rel_strength_nat {F : Mon_V ⟶ Mon_V} (str : rel_strength F) :
+  rel_strength_nat F
+  := pr1 str.
+Coercion rel_strength_to_rel_strength_nat : rel_strength >-> rel_strength_nat.
+
+(* Definition rel_strength_to_nat_trans {F : Mon_V ⟶ Mon_V} (str : rel_strength F) :
+  nat_trans (rel_strength_dom F) (rel_strength_codom F)
+  := pr1 str.
+Coercion rel_strength_to_nat_trans : rel_strength >-> nat_trans. *)
+
+Identity Coercion rel_strength_nat_to_nat_trans : rel_strength_nat >-> nat_trans.
+
+Definition rel_strength_pentagon {F : Mon_V ⟶ Mon_V} (str : rel_strength F) :
+  rel_strength_pentagon_eq F str
+  := pr1 (pr2 str).
+
+Definition rel_strength_rectangle {F : Mon_V ⟶ Mon_V} (str : rel_strength F) :
+  rel_strength_rectangle_eq F str
+  := pr2 (pr2 str).
+
 Section RelativeStrength_Is_An_ActionBasedStrength.
 
   Context (F: Mon_V ⟶ Mon_V) (str: rel_strength F).
 
-  Local Definition ϛ := pr1 str.
-  Local Definition pentagon := pr1 (pr2 str).
-  Local Definition rectangle := pr2 (pr2 str).
+  Local Definition pentagon := rel_strength_pentagon str.
+  Local Definition rectangle := rel_strength_rectangle str.
 
   Local Definition Mon_W' := swapping_of_monoidal_precat Mon_W.
   Local Definition timesW' := monoidal_precat_tensor Mon_W'.
@@ -282,7 +322,7 @@ Section RelativeStrength_Is_An_ActionBasedStrength.
 
   Local Definition UAct := U_action Mon_W' U': action Mon_W' Mon_V'.
 
-  Local Definition ϛ' := pre_whisker binswap_pair_functor ϛ.
+  Local Definition ϛ' := pre_whisker binswap_pair_functor str.
 
 Definition actionbased_strength_from_relative_strength: actionbased_strength Mon_W' UAct UAct F.
 Proof.
@@ -291,30 +331,28 @@ Proof.
   - red.
     cbn.
     intro v.
-    change (ϛ (E, v) · # F (# timesV (strong_monoidal_functor_ϵ_inv U #, id v) · lambda v) =
+    change (str (monoidal_precat_unit Mon_W, v) · # F (# timesV (strong_monoidal_functor_ϵ_inv U #, id v) · lambda v) =
             # timesV (strong_monoidal_functor_ϵ_inv U #, id F v) · lambda (F v)).
     rewrite <- pentagon.
     rewrite assoc'. rewrite functor_comp.
-    fold ϛ.
     apply idpath.
   - cbn.
     apply actionbased_strength_pentagon_eq_fromvariant1.
     apply actionbased_strength_pentagon_eq_variant2variant1.
     red.
     intros v w' w.
-    unfold ϛ', Mon_W', Mon_V', U', odot'.
+    unfold ϛ', Mon_W', Mon_V', U'.
     cbn.
     unfold is_z_isomorphism_mor, pre_whisker_on_nat_z_iso.
     cbn.
     assert (Hyp := rectangle w w' v).
-    fold ϛ in Hyp.
     fold timesV.
     fold timesW.
     fold alpha.
-    change (ϛ (timesW (w, w'), v)
+    change (str (timesW (w, w'), v)
   · # F (# timesV (strong_monoidal_functor_μ_inv U (w, w') #, id v) · alpha ((U w, U w'), v)) =
   # timesV (strong_monoidal_functor_μ_inv U (w, w') #, id F v) · alpha ((U w, U w'), F v)
-  · # timesV (# U (id w) #, ϛ (w', v)) · ϛ (w, timesV (U w', v))).
+  · # timesV (# U (id w) #, str (w', v)) · str (w, timesV (U w', v))).
     rewrite functor_id.
     rewrite functor_comp.
     rewrite assoc.
@@ -327,10 +365,7 @@ Section ActionBasedStrength_Instantiates_To_RelativeStrength.
 
   Context (F: Mon_V ⟶ Mon_V) (ab_str: actionbased_strength Mon_W' UAct UAct F).
 
-  Local Definition θ := pr1 ab_str.
-  Local Definition θ' : rel_strength_nat F := pre_whisker binswap_pair_functor θ.
-  Local Definition triangle_eq := pr1 (pr2 ab_str).
-  Local Definition pentagon_eq := pr2 (pr2 ab_str).
+  Local Definition θ' : rel_strength_nat F := pre_whisker binswap_pair_functor ab_str.
 
   Lemma relative_strength_from_actionbased_strength_laws : rel_strength_pentagon_eq F θ' × rel_strength_rectangle_eq F θ'.
   Proof.
@@ -338,8 +373,8 @@ Section ActionBasedStrength_Instantiates_To_RelativeStrength.
     - red.
       cbn.
       intro v.
-      assert (Hyp := triangle_eq v).
-      cbn in Hyp. fold θ E timesV in Hyp.
+      assert (Hyp := ab_strength_triangle _ _ _ ab_str v).
+      cbn in Hyp. fold timesV in Hyp.
       etrans.
       2: exact Hyp.
       clear Hyp.
@@ -348,8 +383,9 @@ Section ActionBasedStrength_Instantiates_To_RelativeStrength.
       apply pathsinv0.
       apply functor_comp.
     - red. cbn. intros w w' v.
-      assert (Hyp := actionbased_strength_pentagon_eq_variant1variant2 _ _ _ _ θ
-                      (actionbased_strength_pentagon_eq_tovariant1 _ _ _ _ θ pentagon_eq) v w' w).
+      assert (Hyp := actionbased_strength_pentagon_eq_variant1variant2 _ _ _ _ ab_str
+                     (actionbased_strength_pentagon_eq_tovariant1 _ _ _ _ ab_str
+                                              (ab_strength_pentagon _ _ _ ab_str)) v w' w).
       cbn in Hyp.
       unfold is_z_isomorphism_mor, pre_whisker_on_nat_z_iso in Hyp.
       cbn in Hyp.
@@ -369,3 +405,7 @@ Section ActionBasedStrength_Instantiates_To_RelativeStrength.
 End ActionBasedStrength_Instantiates_To_RelativeStrength.
 
 End B.
+
+Arguments ab_strength_triangle {_ _ _ _ _} _.
+Arguments ab_strength_pentagon {_ _ _ _ _} _.
+Arguments ab_strong_functor_strength {_ _ _ _} _.
