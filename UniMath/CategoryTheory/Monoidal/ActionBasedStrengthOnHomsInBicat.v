@@ -483,7 +483,7 @@ Section Morphisms.
   Definition signature_mor_from_ab_strength_mor :
     SignatureMor (C,,hs) (D,,hsD) (D',,hsD') (signature_from_strong_functor FF) (signature_from_strong_functor GG).
   Proof.
-    exists sη.
+    exists (pr1 sη).
     exact signature_mor_from_ab_strength_mor_diagram.
   Defined.
 
@@ -712,7 +712,7 @@ Section Morphisms.
   Context {sig1 sig2 : Signature C hs D hsD D' hsD'}.
   Context (f : SignatureMor (C,,hs) (D,,hsD) (D',,hsD') sig1 sig2).
 
-  Lemma ab_strength_mor_from_signature_mor_is_nat_trans : is_nat_trans _ _ (pr1 f).
+  Lemma ab_strength_mor_from_signature_mor_is_nat_trans : is_nat_trans _ _ (pr11 f).
   Proof.
     red.
     intros F F' g.
@@ -724,7 +724,7 @@ Section Morphisms.
   Definition ab_strength_mor_from_signature_mor_nat_trans :
      ab_strong_functor_from_signature sig1 ⟹ ab_strong_functor_from_signature sig2.
   Proof.
-    exists (pr1 f).
+    exists (pr11 f).
     exact ab_strength_mor_from_signature_mor_is_nat_trans.
   Defined.
 
@@ -818,12 +818,12 @@ Proof.
   intro sig. cbn.
   use tpair.
   - use make_nat_trans.
-    + intro X. exact (identity (pr1 sig X)).
+    + intro X. exact (identity (pr1(pr1 sig) X)).
     + intros X1 X2 f.
       etrans.
-      { apply id_right. }
+      { apply (id_right (# (pr11 sig) f)). }
       etrans.
-      2: { apply pathsinv0. apply id_left. }
+      2: { apply pathsinv0. apply (id_left (# (pr11 sig) f)). }
       apply idpath.
   - intros X Y. red.
     apply nat_trans_eq; try (exact hsD).
@@ -839,7 +839,7 @@ Proof.
     etrans.
     2: { apply cancel_postcomposition.
          apply pathsinv0.
-         apply (functor_id (pr1 sig X)).
+         apply (functor_id (pr11 sig X)).
     }
     apply pathsinv0.
     apply id_left.
@@ -851,7 +851,7 @@ Definition roundtrip1_ob_nat_trans_data_pointwise_inv (sig : Signature_precatego
 Proof.
   use tpair.
   - use make_nat_trans.
-    + intro X. exact (identity (pr1 sig X)).
+    + intro X. exact (identity (pr11 sig X)).
     + intros X1 X2 f.
       etrans.
       { apply id_right. }
@@ -872,7 +872,7 @@ Proof.
     etrans.
     2: { apply cancel_postcomposition.
          apply pathsinv0.
-         apply (functor_id (pr1 sig X)).
+         apply (functor_id (pr11 sig X)).
     }
     apply pathsinv0.
     apply id_left.
@@ -1037,8 +1037,9 @@ Proof.
       intro X.
       cbn.
       apply (id_left(C:=[C, D, hsD])).
-    + intro FF. cbn.
+    + intro FF.
       apply SignatureMor_eq; try apply (functor_category_has_homsets C D hsD).
+      cbn.
       apply nat_trans_eq; try apply (functor_category_has_homsets _ _ hsD).
       intro X.
       cbn.
