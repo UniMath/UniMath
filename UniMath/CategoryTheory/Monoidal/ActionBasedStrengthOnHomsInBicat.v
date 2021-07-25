@@ -30,7 +30,7 @@ Require Import UniMath.Bicategories.Core.Examples.BicategoryFromMonoidal.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCatsWithoutUnivalence.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SignatureCategory.
-
+Require Import UniMath.CategoryTheory.Core.Univalence.
 
 
 Import Bicat.Notations.
@@ -1054,6 +1054,26 @@ Proof.
       apply (z_iso_to_iso (_,,roundtrip2_ob_data_is_nat_z_iso FF)).
 Defined.
 
+(* some hopeless efforts *)
+Lemma BothCategoriesUnivalent (univD : is_univalent D) :
+  is_univalent (Signature_category (C,,hs) (D,,hsD) (D',,hsD')) ×
+  is_univalent (Strong_Functor_category Mon_endo' domain_action target_action
+                                        (functor_category_has_homsets _ _ hsD)).
+Proof.
+  set (univalentD := make_univalent_category D (make_is_univalent (pr1 univD) hsD)).
+  split.
+  - exact (is_univalent_Signature_precategory (C,, hs) univalentD (D',, hsD')).
+  - set (univalentA' := make_univalent_category [C, D, hsD] (make_is_univalent (pr1(is_univalent_functor_category C D (pr1 univD,,hsD))) (functor_category_has_homsets _ _ hsD))).
+    change (is_univalent
+              (Strong_Functor_category Mon_endo' domain_action target_action (homset_property univalentA'))).
+    assert (target_action' := target_action).
+    change (action Mon_endo' (hom(C:=bicat_of_cats_nouniv) (C,, hs) (univalent_category_to_category univalentD))) in target_action'.
+Abort.
+(*
+    exact (is_univalent_Strong_Functor_precategory Mon_endo' [C, D', hsD'] univalentA' domain_action target_action').
+*)
+
+
  (* the following lemma can only come from univalence of the involved categories *)
 Lemma SignatureCategoryAndActionBasedStrongFunctorCategory_z_iso_law :
   is_inverse_in_precat(C:=bicat_of_cats_nouniv)
@@ -1064,7 +1084,6 @@ Lemma SignatureCategoryAndActionBasedStrongFunctorCategory_z_iso_law :
                       ActionBasedStrongFunctorCategoryToSignatureCategory.
 Proof.
 Abort.
-
 (*
 Definition SignatureCategoryAndActionBasedStrongFunctorCategory_z_iso :
   z_iso(C:=bicat_of_cats_nouniv) (Signature_category (C,,hs) (D,,hsD) (D',,hsD'))
@@ -1076,5 +1095,65 @@ Proof.
   exact SignatureCategoryAndActionBasedStrongFunctorCategory_z_iso_law.
 Defined.
 *)
-
 End Instantiation_To_FunctorCategory_And_PointedEndofunctors.
+
+Section Instantiation_To_FunctorCategory_And_PointedEndofunctors_Univalence.
+  Context (C : category) (D : univalent_category) (D' : category).
+  Definition BothCategoriesUnivalent:
+  is_univalent (Signature_category C D D') ×
+               is_univalent (Strong_Functor_category (Mon_endo' C (homset_property C))
+                                                     (domain_action C (homset_property C) D' (homset_property D'))
+                                                     (target_action C (homset_property C) D (homset_property D))
+                                                     (functor_category_has_homsets _ _ (homset_property D))).
+  Proof.
+    split.
+    - exact (is_univalent_Signature_precategory C D D').
+    - set (univalentA' := make_univalent_category [C, D, homset_property D]
+                           (is_univalent_functor_category C D (univalent_category_is_univalent D))).
+      change (is_univalent (Strong_Functor_category (Mon_endo' C (homset_property C))
+                                                    (domain_action C (homset_property C) D' (homset_property D'))
+                                                    (target_action C (homset_property C) D (homset_property D))
+                                                    (homset_property univalentA'))).
+      (* for checking purposes: *)
+      assert (target := target_action C (homset_property C) D (homset_property D)).
+      (* the following works but does not help in the sequel:
+      change (action (Mon_endo' C (homset_property C)) (hom(C:=bicat_of_cats_nouniv) C (univalent_category_to_category D))) in target. *)
+      assert (test1 : pr1 univalentA' = [C, D, homset_property D]).
+      { apply idpath. }
+      clear test1.
+      set (test2 := pr22 univalentA').
+      cbn in test2. unfold functor_category_has_homsets in test2.
+      set (test3 := pr2 bicat_of_cats_nouniv C (univalent_category_to_category D)).
+      cbn in test3. unfold isaset_cells_prebicat_of_cats_nouniv in test3.
+      assert (test4 : test3 = test2).
+      { apply idpath. } (* okay thanks to changes in UniMath/Bicategories/Core/Examples/BicatOfCatsWithoutUnivalence.v
+       and UniMath/CategoryTheory/FunctorCategory.v  *)
+      clear test2 test3 test4.
+      (* does not terminate:
+      change (action (Mon_endo' C (homset_property C)) (univalentA')) in target. *)
+
+      (*
+      assert (Hyp: action (Mon_endo' C (homset_property C)) (hom(C:=bicat_of_cats_nouniv) C (univalent_category_to_category D)) <->
+                   action (Mon_endo' C (homset_property C)) (univalentA')).
+      { split.
+        intro act.
+        induction act as [odot [ρ [χ [triangle pentagon]]]].
+        exists odot.
+        exists ρ.
+        (* does not terminate: exists χ. *)
+      }
+*)
+      set (what_we_want_without_last_argument := is_univalent_Strong_Functor_precategory (Mon_endo' C (homset_property C))
+                                                     (hom(C:=bicat_of_cats_nouniv) C D')
+                                                     univalentA'
+                                                     (domain_action C (homset_property C) D' (homset_property D'))).
+      (* does not terminate
+      set (what_we_want :=  what_we_want_without_last_argument (target_action C (homset_property C) D (homset_property D))).
+       *)
+      Abort.
+                                     (*
+      exact what_we_want.
+  Defined.*)
+
+
+  End Instantiation_To_FunctorCategory_And_PointedEndofunctors_Univalence.

@@ -405,7 +405,7 @@ Proof.
   intros F G.
   apply isaset_nat_trans.
   apply hs.
-Qed.
+Defined.
 
 Lemma is_univalent_functor_category (C : precategory_data) (D : precategory) (H : is_univalent D) :
    is_univalent [C, D, (pr2 H)].

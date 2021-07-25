@@ -140,7 +140,7 @@ Proof.
   intros a b f g.
   apply isaset_nat_trans.
   apply homset_property.
-Qed.
+Defined.
 
 Definition bicat_of_cats_nouniv : bicat
   := (prebicat_of_cats_nouniv,, isaset_cells_prebicat_of_cats_nouniv).
