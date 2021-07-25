@@ -462,11 +462,12 @@ End IndividualStrongFunctors.
 Section Morphisms.
 
   Context {FF GG : actionbased_strong_functor Mon_endo' domain_action target_action}.
-  Context (sη : Strong_Functor_Category_Mor Mon_endo' domain_action target_action FF GG).
+  Context (sη : Strong_Functor_Category_Mor Mon_endo' domain_action target_action
+                                            (functor_category_has_homsets _ _ hsD) FF GG).
 
   Lemma signature_mor_from_ab_strength_mor_diagram (X : [C, D', hsD']) (Y : precategory_Ptd C hs) :
     Signature_category_mor_diagram (C,, hs) (D,, hsD) (D',, hsD')
-      (signature_from_strong_functor FF) (signature_from_strong_functor GG) sη X Y.
+      (signature_from_strong_functor FF) (signature_from_strong_functor GG) (pr1 sη) X Y.
   Proof.
     red.
     cbn.
@@ -749,6 +750,7 @@ Section Morphisms.
 
   Definition ab_strength_mor_from_signature_mor : Strong_Functor_Category_Mor
     Mon_endo' domain_action target_action
+    (functor_category_has_homsets _ _ hsD)
     (ab_strong_functor_from_signature sig1)
     (ab_strong_functor_from_signature sig2).
   Proof.
@@ -931,12 +933,12 @@ Proof.
   intro FF. cbn.
   use tpair.
   - use make_nat_trans.
-    + intro X. exact (identity (pr1 FF X)).
+    + intro X. exact (identity (pr1 (pr1 FF) X)).
     + intros X1 X2 f.
       etrans.
-      { apply id_right. }
+      { apply (id_right (#(pr11 FF) f)). }
       etrans.
-      2: { apply pathsinv0. apply id_left. }
+      2: { apply pathsinv0. apply (id_left (#(pr11 FF) f)). }
       apply idpath.
   - intros X Y. red.
     apply nat_trans_eq; try (exact hsD).
@@ -952,7 +954,7 @@ Proof.
     etrans.
     2: { apply cancel_postcomposition.
          apply pathsinv0.
-         apply (functor_id (pr1 FF X)).
+         apply (functor_id (pr11 FF X)).
     }
     apply pathsinv0.
     apply id_left.
@@ -961,12 +963,12 @@ Defined.
 Definition roundtrip2_ob_nat_trans_data_pointwise_inv
            (FF : Strong_Functor_precategory Mon_endo' domain_action target_action
                                             (functor_category_has_homsets C D hsD)) :
-  Strong_Functor_Category_Mor Mon_endo' domain_action target_action FF
+  Strong_Functor_Category_Mor Mon_endo' domain_action target_action (functor_category_has_homsets C D hsD) FF
                               (ab_strong_functor_from_signature (signature_from_strong_functor FF)).
 Proof.
   use tpair.
   - use make_nat_trans.
-    + intro X. exact (identity (pr1 FF X)).
+    + intro X. exact (identity (pr11 FF X)).
     + intros X1 X2 f.
       etrans.
       { apply id_right. }
@@ -987,7 +989,7 @@ Proof.
     etrans.
     2: { apply cancel_postcomposition.
          apply pathsinv0.
-         apply (functor_id (pr1 FF X)).
+         apply (functor_id (pr11 FF X)).
     }
     apply pathsinv0.
     apply id_left.
@@ -1031,8 +1033,9 @@ Proof.
   - exact roundtrip1_ob_nat_trans.
   - exact roundtrip2_ob_nat_trans.
   - split.
-    + intro sig. cbn.
+    + intro sig.
       apply Strong_Functor_Category_Mor_eq; try apply (functor_category_has_homsets C D hsD).
+      cbn.
       apply nat_trans_eq; try apply (functor_category_has_homsets _ _ hsD).
       intro X.
       cbn.

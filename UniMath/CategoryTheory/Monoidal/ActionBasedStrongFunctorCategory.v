@@ -26,12 +26,15 @@ Context (Mon_V : monoidal_precat).
 Context {A A': precategory}.
 Context (actn : action Mon_V A)(actn' : action Mon_V A').
 
-Notation "X ⊙ Y" := (act_odot actn (X , Y)) (at level 31).
-Notation "f #⊙ g" := (#(act_odot actn) (f #, g)) (at level 31).
-Notation "X ⊙' Y" := (act_odot actn' (X , Y)) (at level 31).
-Notation "f #⊙' g" := (#(act_odot actn') (f #, g)) (at level 31).
+Local Definition odot := pr1 actn.
+Local Definition odot' := pr1 actn'.
 
-Local Definition ζ (FF : actionbased_strong_functor Mon_V actn actn') := ab_strong_functor_strength _ FF.
+Notation "X ⊙ Y" := (odot (X , Y)) (at level 31).
+Notation "f #⊙ g" := (#odot (f #, g)) (at level 31).
+Notation "X ⊙' Y" := (odot' (X , Y)) (at level 31).
+Notation "f #⊙' g" := (#odot' (f #, g)) (at level 31).
+
+Local Definition ζ (FF : actionbased_strong_functor Mon_V actn actn') := pr12 FF.
 
 Section Strong_Functor_Category_mor.
 
@@ -42,114 +45,37 @@ Section Strong_Functor_Category_mor.
   Definition Strong_Functor_Category_mor_diagram (a: A) (v: Mon_V) : UU :=
     ζ FF (a,v) · η (a ⊙ v) = η a #⊙' id v · ζ GG (a,v).
 
+  Definition quantified_strong_functor_category_mor_diagram : UU :=
+    ∏ (a: A) (v: Mon_V), Strong_Functor_Category_mor_diagram a v.
+
 End Strong_Functor_Category_mor.
 
-Definition Strong_Functor_Category_Mor (FF GG : actionbased_strong_functor Mon_V actn actn'): UU :=
-  ∑ (η : FF ⟹ GG), ∏ a v, Strong_Functor_Category_mor_diagram FF GG η a v.
-
-Lemma Strong_Functor_Category_Mor_eq (hsA': has_homsets A') (FF GG : actionbased_strong_functor Mon_V actn actn')
-      (sη sη' : Strong_Functor_Category_Mor FF GG) :
-  pr1 sη = pr1 sη' -> sη = sη'.
-Proof.
-intros H.
-apply subtypePath; trivial.
-now intros α; repeat (apply impred; intro); apply hsA'.
-Qed.
-
-Definition Strong_Functor_Category_to_nat_trans {FF GG : actionbased_strong_functor Mon_V actn actn'}
-           (sη : Strong_Functor_Category_Mor FF GG) : FF ⟹ GG
-  := pr1 sη.
-Coercion Strong_Functor_Category_to_nat_trans : Strong_Functor_Category_Mor >-> nat_trans.
 
 Local Lemma Strong_Functor_Category_Mor_id_subproof (FF : actionbased_strong_functor Mon_V actn actn') a v :
   Strong_Functor_Category_mor_diagram FF FF (nat_trans_id FF) a v.
 Proof.
   red.
-  change (ζ FF (a, v) · nat_trans_id FF (a ⊙ v) = #(act_odot actn') (id (FF a, v)) · ζ FF (a, v)).
+  change (ζ FF (a, v) · nat_trans_id FF (a ⊙ v) = # odot' (id (FF a, v)) · ζ FF (a, v)).
   rewrite functor_id.
   now rewrite id_left, id_right.
 Qed.
 
-Definition Strong_Functor_Category_Mor_id (FF : actionbased_strong_functor Mon_V actn actn') :
-  Strong_Functor_Category_Mor FF FF := (nat_trans_id FF,,Strong_Functor_Category_Mor_id_subproof FF).
-
 Local Lemma Strong_Functor_Category_Mor_comp_subproof (FF GG HH : actionbased_strong_functor Mon_V actn actn')
-      (sη : Strong_Functor_Category_Mor FF GG) (sη' : Strong_Functor_Category_Mor GG HH) a v :
-  Strong_Functor_Category_mor_diagram FF HH (nat_trans_comp _ _ _ sη sη') a v.
+      (η : FF ⟹ GG) (η': GG ⟹ HH):
+  quantified_strong_functor_category_mor_diagram FF GG η ->
+  quantified_strong_functor_category_mor_diagram GG HH η' ->
+  quantified_strong_functor_category_mor_diagram FF HH (nat_trans_comp _ _ _ η η').
 Proof.
-  induction sη as [η ηisstrong]; induction sη' as [η' η'isstrong].
-  red.
-  cbn.
+  intros ηisstrong η'isstrong.
+  red. intros a v. red.
   rewrite <- (id_left (id v)).
-  change (ζ FF (a, v) · (η (a ⊙ v) · η' (a ⊙ v)) = #(act_odot actn') ((η a #, id v) · (η' a #, id v))  · ζ HH (a, v)).
+  change (ζ FF (a, v) · (η (a ⊙ v) · η' (a ⊙ v)) = # odot' ((η a #, id v) · (η' a #, id v))  · ζ HH (a, v)).
   rewrite functor_comp.
   etrans.
   { rewrite assoc. apply cancel_postcomposition. apply ηisstrong. }
   do 2 rewrite <- assoc.
   apply maponpaths.
   apply η'isstrong.
-Qed.
-
-Definition Strong_Functor_Category_Mor_comp  (FF GG HH : actionbased_strong_functor Mon_V actn actn')
-           (sη : Strong_Functor_Category_Mor FF GG) (sη' : Strong_Functor_Category_Mor GG HH) :
-  Strong_Functor_Category_Mor FF HH :=
-  (nat_trans_comp _ _ _ sη sη',, Strong_Functor_Category_Mor_comp_subproof FF GG HH sη sη').
-
-Definition Strong_Functor_precategory_data : precategory_data.
-Proof.
-  apply (tpair _ (actionbased_strong_functor Mon_V actn actn',, Strong_Functor_Category_Mor)),
-  (Strong_Functor_Category_Mor_id,, Strong_Functor_Category_Mor_comp).
-Defined.
-
-Lemma is_precategory_Strong_Functor_precategory_data (hsA': has_homsets A') :
-  is_precategory Strong_Functor_precategory_data.
-Proof.
-  apply is_precategory_one_assoc_to_two.
-  repeat split.
-  - intros FF GG η; apply Strong_Functor_Category_Mor_eq; try assumption.
-    apply (id_left(C:= functor_precategory A A' hsA')).
-- intros FF GG η; apply Strong_Functor_Category_Mor_eq; try assumption.
-    apply (id_right(C:= functor_precategory A A' hsA')).
-- intros FF GG HH II η η' η''; apply Strong_Functor_Category_Mor_eq; try assumption.
-  apply (assoc(C:= functor_precategory A A' hsA')).
-Qed.
-
-Definition Strong_Functor_precategory (hsA': has_homsets A') : precategory :=
-  (Strong_Functor_precategory_data,, is_precategory_Strong_Functor_precategory_data hsA').
-
-Lemma has_homsets_Strong_Functor_precategory (hsA': has_homsets A') :
-  has_homsets (Strong_Functor_precategory hsA').
-Proof.
-  intros FF GG.
-  apply (isofhleveltotal2 2).
-  * apply isaset_nat_trans, hsA'.
-  * intros η.
-    apply isasetaprop.
-    apply impred; intros a; apply impred; intros v.
-    apply hsA'.
-Qed.
-
-Definition Strong_Functor_category (hsA': has_homsets A') : category :=
-  (Strong_Functor_precategory hsA',, has_homsets_Strong_Functor_precategory hsA').
-
-Definition Strong_FunctorForgetfulFunctor (hsA': has_homsets A') :
-  functor (Strong_Functor_precategory hsA') (functor_precategory A A' hsA').
-Proof.
-use tpair.
-- use tpair.
-  + intros FF; apply FF.
-  + intros FF GG η; apply η.
-- abstract (now split).
-Defined.
-
-Lemma Strong_FunctorForgetfulFunctorFaithful (hsA': has_homsets A') :
-  faithful (Strong_FunctorForgetfulFunctor hsA').
-Proof.
-  intros FF GG.
-  apply isinclbetweensets.
-  + apply has_homsets_Strong_Functor_precategory; try assumption.
-  + apply functor_category_has_homsets.
-  + apply Strong_Functor_Category_Mor_eq; try assumption.
 Qed.
 
 Section AsDisplayedCategory.
@@ -169,17 +95,74 @@ Section AsDisplayedCategory.
     - intros F FF a v.
       apply Strong_Functor_Category_Mor_id_subproof.
     - intros F G H FF GG HH η η' ηmor η'mor a v. simpl in ηmor, η'mor.
-      exact (Strong_Functor_Category_Mor_comp_subproof (F,,FF) (G,,GG) (H,,HH) (η,,ηmor) (η',,η'mor) a v).
+      exact (Strong_Functor_Category_Mor_comp_subproof (F,,FF) (G,,GG) (H,,HH) η η' ηmor η'mor a v).
   Defined.
 
-  Definition Strong_Functor_precategory' : precategory := total_category Strong_Functor_precategory_displayed.
+  Definition Strong_Functor_precategory : precategory := total_category Strong_Functor_precategory_displayed.
 
-  (*
-  Lemma test : pr11 Strong_Functor_precategory' = pr11(Strong_Functor_precategory hsA').
+  Lemma Strong_Functor_precategory_ob_ok :
+    ob Strong_Functor_precategory = actionbased_strong_functor Mon_V actn actn'.
   Proof.
     apply idpath.
   Qed.
-   *)
+
+  Definition Strong_Functor_Category_Mor :
+    actionbased_strong_functor Mon_V actn actn' -> actionbased_strong_functor Mon_V actn actn' -> UU.
+  Proof.
+    exact (pr2 (precategory_ob_mor_from_precategory_data Strong_Functor_precategory)).
+  Defined.
+
+  Lemma Strong_Functor_Category_Mor_ok (FF GG: actionbased_strong_functor Mon_V actn actn') :
+    Strong_Functor_Category_Mor FF GG = total2 (quantified_strong_functor_category_mor_diagram FF GG).
+  Proof.
+    apply idpath.
+  Qed.
+
+  Lemma Strong_Functor_Category_Mor_eq (FF GG : actionbased_strong_functor Mon_V actn actn')
+        (sη sη' : Strong_Functor_Category_Mor FF GG) :
+    pr1 sη = pr1 sη' -> sη = sη'.
+  Proof.
+    intros H.
+    apply subtypePath; trivial.
+    now intros α; repeat (apply impred; intro); apply hsA'.
+  Qed.
+
+  (* a "manual proof" - should this not follow later from the general method to obtain univalence? *)
+  Lemma has_homsets_Strong_Functor_precategory: has_homsets Strong_Functor_precategory.
+  Proof.
+  intros FF GG.
+  apply (isofhleveltotal2 2).
+  * apply isaset_nat_trans, hsA'.
+  * intros η.
+    apply isasetaprop.
+    apply impred; intros a; apply impred; intros v.
+    apply hsA'.
+  Qed.
+
+  Definition Strong_Functor_category : category :=
+  (Strong_Functor_precategory,, has_homsets_Strong_Functor_precategory).
+
+  Definition Strong_FunctorForgetfulFunctor:
+    functor Strong_Functor_precategory (functor_precategory A A' hsA').
+  Proof.
+    use tpair.
+    - use tpair.
+      + intros FF; apply FF.
+      + intros FF GG η; apply η.
+    - abstract (now split).
+  Defined.
+
+  Lemma Strong_FunctorForgetfulFunctorFaithful:
+    faithful Strong_FunctorForgetfulFunctor.
+  Proof.
+    intros FF GG.
+    apply isinclbetweensets.
+    + apply has_homsets_Strong_Functor_precategory; try assumption.
+    + apply functor_category_has_homsets.
+    + apply Strong_Functor_Category_Mor_eq; try assumption.
+  Qed.
+
+(** towards univalence *)
 
   Lemma Strong_Functor_precategory_Pisset (F : [A, A',, hsA']) : isaset (actionbased_strength Mon_V actn actn' F).
   Proof.
@@ -214,7 +197,7 @@ Section AsDisplayedCategory.
     2: { apply id_left. }
     apply cancel_postcomposition.
     show_id_type.
-    change (#(act_odot actn') (id (pr1 F (pr1 av), pr2 av)) = id actionbased_strength_dom Mon_V actn' F av).
+    change (# odot' (id (pr1 F (pr1 av), pr2 av)) = id actionbased_strength_dom Mon_V actn' F av).
     rewrite functor_id.
     apply idpath.
   Qed.
@@ -230,9 +213,9 @@ End AsDisplayedCategory.
 
 End Strong_Functor_Category.
 
-Definition is_univalent_Strong_Functor_precategory' (Mon_V : monoidal_precat) (A : precategory)
+Definition is_univalent_Strong_Functor_precategory (Mon_V : monoidal_precat) (A : precategory)
            (A' : univalent_category) (actn : action Mon_V A) (actn' : action Mon_V A') :
-  is_univalent (Strong_Functor_precategory' Mon_V actn actn' (homset_property A')).
+  is_univalent (Strong_Functor_precategory Mon_V actn actn' (homset_property A')).
 Proof.
   apply SIP.
   - exact (is_univalent_functor_category A _ (pr2 A')).
