@@ -141,6 +141,13 @@ Qed.
     apply idpath.
   Qed.
 
+  (* what would be the right source class for the following coercion?
+  Definition Signature_precategory_ob_to_functor_data (sig : Signature_precategory) :
+    functor_data [C, D', hsD'] [C, D, hsD]
+    := pr1 (pr1 sig).
+  Coercion Signature_precategory_ob_to_functor_data : Signature_precategory >-> functor_data.
+*)
+
   Definition SignatureMor : Signature C hsC D hsD D' hsD' → Signature C hsC D hsD D' hsD' → UU.
   Proof.
     exact (pr2 (precategory_ob_mor_from_precategory_data Signature_precategory)).
@@ -151,6 +158,14 @@ Qed.
   Proof.
     apply idpath.
   Qed.
+
+  Definition SignatureMor_to_nat_trans (Ht Ht' : Signature C hsC D hsD D' hsD') :
+    SignatureMor Ht Ht' -> Ht ⟹ Ht'.
+  Proof.
+    intro f.
+    exact (pr1 f).
+  Defined.
+  Coercion SignatureMor_to_nat_trans : SignatureMor >-> nat_trans.
 
   (* a "manual proof" - should this not follow later from the general method to obtain univalence? *)
   Lemma has_homsets_Signature_precategory : has_homsets Signature_precategory.

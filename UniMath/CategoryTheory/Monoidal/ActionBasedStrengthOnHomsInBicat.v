@@ -467,7 +467,7 @@ Section Morphisms.
 
   Lemma signature_mor_from_ab_strength_mor_diagram (X : [C, D', hsD']) (Y : precategory_Ptd C hs) :
     Signature_category_mor_diagram (C,, hs) (D,, hsD) (D',, hsD')
-      (signature_from_strong_functor FF) (signature_from_strong_functor GG) (pr1 sη) X Y.
+      (signature_from_strong_functor FF) (signature_from_strong_functor GG) sη X Y.
   Proof.
     red.
     cbn.
@@ -484,7 +484,7 @@ Section Morphisms.
   Definition signature_mor_from_ab_strength_mor :
     SignatureMor (C,,hs) (D,,hsD) (D',,hsD') (signature_from_strong_functor FF) (signature_from_strong_functor GG).
   Proof.
-    exists (pr1 sη).
+    exists (pr1 sη). (* better not first cbn and then omission of pr1 - for the sake of efficiency *)
     exact signature_mor_from_ab_strength_mor_diagram.
   Defined.
 
@@ -713,7 +713,8 @@ Section Morphisms.
   Context {sig1 sig2 : Signature C hs D hsD D' hsD'}.
   Context (f : SignatureMor (C,,hs) (D,,hsD) (D',,hsD') sig1 sig2).
 
-  Lemma ab_strength_mor_from_signature_mor_is_nat_trans : is_nat_trans _ _ (pr11 f).
+  Lemma ab_strength_mor_from_signature_mor_is_nat_trans :
+    is_nat_trans _ _ (pr11 f).
   Proof.
     red.
     intros F F' g.
@@ -1054,21 +1055,30 @@ Proof.
       apply (z_iso_to_iso (_,,roundtrip2_ob_data_is_nat_z_iso FF)).
 Defined.
 
+(* source and target category of the functors are deemed to be univalent if parameter category D is *)
+Definition Signature_category_is_univalent (univD : is_univalent D) :
+  is_univalent (Signature_category (C,,hs) (D,,hsD) (D',,hsD')).
+Proof.
+  set (univalentD := make_univalent_category D (make_is_univalent (pr1 univD) hsD)).
+  exact (is_univalent_Signature_precategory (C,, hs) univalentD (D',, hsD')).
+Defined.
+
+(** the remainder of this file documents failing efforts *)
+
+(*
+
 (* some hopeless efforts *)
-Lemma BothCategoriesUnivalent (univD : is_univalent D) :
-  is_univalent (Signature_category (C,,hs) (D,,hsD) (D',,hsD')) ×
+Lemma Strong_Functor_category_is_univalent (univD : is_univalent D) :
   is_univalent (Strong_Functor_category Mon_endo' domain_action target_action
                                         (functor_category_has_homsets _ _ hsD)).
 Proof.
   set (univalentD := make_univalent_category D (make_is_univalent (pr1 univD) hsD)).
-  split.
-  - exact (is_univalent_Signature_precategory (C,, hs) univalentD (D',, hsD')).
-  - set (univalentA' := make_univalent_category [C, D, hsD] (make_is_univalent (pr1(is_univalent_functor_category C D (pr1 univD,,hsD))) (functor_category_has_homsets _ _ hsD))).
-    change (is_univalent
+  set (univalentA' := make_univalent_category [C, D, hsD] (make_is_univalent (pr1(is_univalent_functor_category C D (pr1 univD,,hsD))) (functor_category_has_homsets _ _ hsD))).
+  change (is_univalent
               (Strong_Functor_category Mon_endo' domain_action target_action (homset_property univalentA'))).
-    assert (target_action' := target_action).
-    change (action Mon_endo' (hom(C:=bicat_of_cats_nouniv) (C,, hs) (univalent_category_to_category univalentD))) in target_action'.
-Abort.
+  assert (target_action' := target_action).
+  change (action Mon_endo' (hom(C:=bicat_of_cats_nouniv) (C,, hs) (univalent_category_to_category univalentD))) in target_action'.
+
 (*
     exact (is_univalent_Strong_Functor_precategory Mon_endo' [C, D', hsD'] univalentA' domain_action target_action').
 *)
@@ -1083,7 +1093,7 @@ Lemma SignatureCategoryAndActionBasedStrongFunctorCategory_z_iso_law :
                       SignatureCategoryToActionBasedStrongFunctorCategory
                       ActionBasedStrongFunctorCategoryToSignatureCategory.
 Proof.
-Abort.
+
 (*
 Definition SignatureCategoryAndActionBasedStrongFunctorCategory_z_iso :
   z_iso(C:=bicat_of_cats_nouniv) (Signature_category (C,,hs) (D,,hsD) (D',,hsD'))
@@ -1094,9 +1104,13 @@ Proof.
   exists ActionBasedStrongFunctorCategoryToSignatureCategory.
   exact SignatureCategoryAndActionBasedStrongFunctorCategory_z_iso_law.
 Defined.
+ *)
+
+
 *)
 End Instantiation_To_FunctorCategory_And_PointedEndofunctors.
 
+(*
 Section Instantiation_To_FunctorCategory_And_PointedEndofunctors_Univalence.
   Context (C : category) (D : univalent_category) (D' : category).
   Definition BothCategoriesUnivalent:
@@ -1150,10 +1164,11 @@ Section Instantiation_To_FunctorCategory_And_PointedEndofunctors_Univalence.
       (* does not terminate
       set (what_we_want :=  what_we_want_without_last_argument (target_action C (homset_property C) D (homset_property D))).
        *)
-      Abort.
+
                                      (*
       exact what_we_want.
   Defined.*)
 
 
   End Instantiation_To_FunctorCategory_And_PointedEndofunctors_Univalence.
+*)
