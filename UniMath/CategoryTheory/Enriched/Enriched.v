@@ -21,7 +21,7 @@ Section A.
 
 (** For the whole file, fix a monoidal category. *)
 Context (Mon_V : monoidal_precat).
-Let V        := monoidal_precat_precat Mon_V.
+
 Let I        := monoidal_precat_unit Mon_V.
 Let tensor   := monoidal_precat_tensor Mon_V.
 Let α        := monoidal_precat_associator Mon_V.
@@ -40,7 +40,7 @@ Section Def.
 
   Definition enriched_precat_data : UU :=
     ∑ C : UU,                                     (* Type of objects *)
-    ∑ mor : C -> C -> ob V,                         (* Object of morphisms *)
+    ∑ mor : C -> C -> ob Mon_V,                     (* Object of morphisms *)
     dirprod
       (∏ x : C, I --> mor x x)                      (* Identities *)
       (∏ x y z : C, mor y z ⊗ mor x y --> mor x z). (* Composition morphism *)
@@ -48,7 +48,7 @@ Section Def.
   (** Accessors *)
   Definition enriched_cat_ob    (d : enriched_precat_data) : UU := pr1 d.
   Definition enriched_cat_mor   {d : enriched_precat_data} :
-    enriched_cat_ob d -> enriched_cat_ob d -> ob V := pr1 (pr2 d).
+    enriched_cat_ob d -> enriched_cat_ob d -> ob Mon_V := pr1 (pr2 d).
   Definition enriched_cat_id    {d : enriched_precat_data} :
     ∏ x : enriched_cat_ob d, I --> enriched_cat_mor x x := pr1 (pr2 (pr2 d)).
   Definition enriched_cat_comp {d : enriched_precat_data} (x y z : enriched_cat_ob d) :
@@ -56,7 +56,7 @@ Section Def.
     pr2 (pr2 (pr2 d)) x y z.
 
   (** Constructor. Use like so: [use make_enriched_cat_data] *)
-  Definition make_enriched_precat_data (C : UU) (mor : ∏ x y : C, ob V)
+  Definition make_enriched_precat_data (C : UU) (mor : ∏ x y : C, ob Mon_V)
              (ids : ∏ x : C, I --> mor x x)
              (assoc : ∏ x y z : C, mor y z ⊗ mor x y --> mor x z) :
     enriched_precat_data.
@@ -92,7 +92,7 @@ Section Def.
           · enriched_cat_comp _ _ _).
 
     Lemma isaprop_enriched_assoc_ax :
-      has_homsets V -> isaprop (enriched_assoc_ax).
+      has_homsets Mon_V -> isaprop (enriched_assoc_ax).
     Proof.
       intro hsV; do 4 (apply impred; intro); apply hsV.
     Defined.
@@ -138,12 +138,12 @@ Section Functors.
   Definition enriched_functor_data : UU :=
     ∑ F : enriched_cat_ob D -> enriched_cat_ob E,
       ∏ x y : enriched_cat_ob D,
-        V⟦enriched_cat_mor x y, enriched_cat_mor (F x) (F y)⟧.
+        Mon_V⟦enriched_cat_mor x y, enriched_cat_mor (F x) (F y)⟧.
 
   Definition make_enriched_functor_data
     (F : enriched_cat_ob D -> enriched_cat_ob E)
     (mor : ∏ x y : enriched_cat_ob D,
-       V⟦enriched_cat_mor x y, enriched_cat_mor (F x) (F y)⟧)
+       Mon_V⟦enriched_cat_mor x y, enriched_cat_mor (F x) (F y)⟧)
     : enriched_functor_data :=
     tpair _ F mor.
 
@@ -153,7 +153,7 @@ Section Functors.
   Coercion enriched_functor_on_objects : enriched_functor_data >-> Funclass.
   Definition enriched_functor_on_morphisms (F : enriched_functor_data) :
     ∏ x y : enriched_cat_ob D,
-      V⟦enriched_cat_mor x y, enriched_cat_mor (F x) (F y)⟧ := pr2 F.
+      Mon_V⟦enriched_cat_mor x y, enriched_cat_mor (F x) (F y)⟧ := pr2 F.
 
   Notation "# F"  := (enriched_functor_on_morphisms F) : enriched.
 

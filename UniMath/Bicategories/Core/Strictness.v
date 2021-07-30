@@ -101,7 +101,7 @@ Definition strictness_structure
   := ∑ (S : strictness_structure_data B), strictness_structure_laws S.
 
 (** The laws form a proposition *)
-Definition isPredicate_strictness_structure_laws
+Lemma isPredicate_strictness_structure_laws
            (B : bicat)
   : isPredicate (@strictness_structure_laws B).
 Proof.
@@ -179,7 +179,7 @@ Coercion pr_strictness_structure
   := pr1 S.
 
 (** Being coherent is a proposition *)
-Definition isPredicate_is_coh_strictness_structure
+Lemma isPredicate_is_coh_strictness_structure
            {B : bicat}
            (HB : is_univalent_2_1 B)
   : isPredicate (@is_coh_strictness_structure B).
@@ -224,7 +224,7 @@ Proof.
     + abstract (simpl ; intros ; apply HB).
 Defined.
 
-Definition isPredicate_is_coh_strictness_structure_from_locally_strict
+Lemma isPredicate_is_coh_strictness_structure_from_locally_strict
            {B : bicat}
            (HB : locally_strict B)
   : isPredicate (@is_coh_strictness_structure B).
@@ -239,7 +239,7 @@ Proof.
     apply (isasetaprop (HB _ _ _ _)).
 Qed.
 
-Definition isaprop_is_strict_bicat
+Lemma isaprop_is_strict_bicat
            (B : bicat)
   : isaprop (is_strict_bicat B).
 Proof.
@@ -294,8 +294,10 @@ Proof.
   - exact (λ _ _ _ _ f g h, plassociator (pr22 B) f g h).
   - exact (λ _ _ _ _ f g h, prassociator (pr22 B) f g h).
 Defined.
+(* the definition is exploited further down in Lemma [strict_bicat_to_two_cat_laws] *)
 
-Definition strict_bicat_to_precategory_has_homsets
+
+Lemma strict_bicat_to_precategory_has_homsets
            (B : strict_bicat)
   : has_homsets (strict_bicat_to_precategory_data B).
 Proof.
@@ -328,7 +330,7 @@ Proof.
     + exact (strict_bicat_to_precategory_has_homsets B).
 Defined.
 
-Definition idto2mor_idtoiso
+Lemma idto2mor_idtoiso
            {B : strict_bicat}
            {a b : B}
            {f g : a --> b}
@@ -341,7 +343,7 @@ Proof.
   apply idpath.
 Qed.
 
-Definition strict_bicat_to_two_cat_laws
+Lemma strict_bicat_to_two_cat_laws
            (B : strict_bicat)
   : two_cat_laws (strict_bicat_to_two_cat_category B).
 Proof.
@@ -389,7 +391,7 @@ Proof.
 Defined.
 
 (** Univalent 2-categories *)
-Definition univalent_two_cat_2cells_are_prop
+Lemma univalent_two_cat_2cells_are_prop
            (B : strict_bicat)
            (HB : is_univalent_2_1 B)
            {a b : B}
@@ -398,7 +400,7 @@ Definition univalent_two_cat_2cells_are_prop
 Proof.
   refine (isofhlevelweqf 1 (make_weq _ (HB _ _ f g)) _).
   exact (pr12 B _ _ f g).
-Defined.
+Qed.
 
 (** Univalent categories do not form a 2-category *)
 Definition diag_set
@@ -432,7 +434,7 @@ Proof.
       * apply idpath.
 Defined.
 
-Definition cat_not_a_two_cat
+Lemma cat_not_a_two_cat
   : ¬ (is_strict_bicat bicat_of_cats).
 Proof.
   intro H.
@@ -486,7 +488,7 @@ Proof.
        apply idpath).
 Defined.
 
-Definition is_coh_strictness_from_univalent_2_1
+Lemma is_coh_strictness_from_univalent_2_1
            {B : bicat}
            (HB : is_univalent_2_1 B)
   : is_coh_strictness_structure (strictness_from_univalent_2_1 HB).
@@ -524,7 +526,7 @@ Proof.
   - exact (is_coh_strictness_from_univalent_2_1 HB).
 Defined.
 
-Definition isaprop_coh_strictness_from_univalence_2_1
+Lemma isaprop_coh_strictness_from_univalence_2_1
            (B : bicat)
            (HB : is_univalent_2_1 B)
   : isaprop (coh_strictness_structure B).
@@ -582,11 +584,11 @@ Proof.
   - intro.
     apply isaprop_coh_strictness_from_univalence_2_1.
     exact HB.
-Qed.
+Defined.
 
 
 
-Definition idto2mor_transport
+Lemma idto2mor_transport
            (C : two_cat)
            {x y : pr1 C}
            {f g : x --> y}
@@ -597,7 +599,7 @@ Proof.
   apply idpath.
 Qed.
 
-Definition precomp_transportf
+Lemma precomp_transportf
            (C : two_cat)
            {x y : pr1 C}
            {f g h: x --> y}
@@ -616,7 +618,7 @@ Proof.
   apply idpath.
 Qed.
 
-Definition postcomp_transportf
+Lemma postcomp_transportf
            (C : two_cat)
            {x y : pr1 C}
            {f g h: x --> y}
@@ -692,7 +694,7 @@ Proof.
     refine (!assoc (f : pr1 C ⟦ _ , _ ⟧) g h).
 Defined.
 
-Definition two_cat_to_prebicat_laws
+Lemma two_cat_to_prebicat_laws
            (C : two_cat)
   : prebicat_laws (two_cat_to_prebicat_data C).
 Proof.
@@ -831,7 +833,7 @@ Proof.
   - apply C.
 Defined.
 
-Definition idto2mor_idtoiso_two_cat
+Lemma idto2mor_idtoiso_two_cat
            {C : two_cat}
            {a b : C}
            {f g : a --> b}
@@ -844,7 +846,7 @@ Proof.
   apply idpath.
 Qed.
 
-Definition two_cat_is_strict_bicat
+Lemma two_cat_is_strict_bicat
            (C : two_cat)
   : is_strict_bicat (two_cat_to_bicat C).
 Proof.
@@ -861,6 +863,8 @@ Proof.
     + simpl.
       repeat split ; intros ; apply idto2mor_idtoiso_two_cat.
 Qed.
+(* it is remarkable that this can be opaque although [strictness_structure_data]
+   is being constructed under the first + item *)
 
 Definition two_cat_to_strict_bicat
            (C : two_cat)
@@ -871,7 +875,7 @@ Proof.
   - exact (two_cat_is_strict_bicat C).
 Defined.
 
-Definition isaprop_prebicat_laws
+Lemma isaprop_prebicat_laws
            (B : prebicat_data)
            (H : ∏ (a b : B) (f g : B ⟦ a, b ⟧), isaset (f ==> g))
   : isaprop (prebicat_laws B).
@@ -881,7 +885,7 @@ Proof.
   ; apply H.
 Qed.
 
-Definition strict_bicat_to_two_cat_to_strict_bicat
+Lemma strict_bicat_to_two_cat_to_strict_bicat
            (C : strict_bicat)
   : two_cat_to_strict_bicat (strict_bicat_to_two_cat C) = C.
 Proof.
@@ -989,7 +993,7 @@ Proof.
     apply cellset_property.
 Qed.
 
-Definition two_cat_to_strict_bicat_to_two_cat
+Lemma two_cat_to_strict_bicat_to_two_cat
            (C : two_cat)
   : strict_bicat_to_two_cat (two_cat_to_strict_bicat C) = C.
 Proof.

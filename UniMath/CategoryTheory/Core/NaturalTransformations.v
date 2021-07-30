@@ -234,6 +234,9 @@ Proof.
   exact is_iso.
 Defined.
 
+Definition nat_iso_pointwise_iso {C D : precategory} {F G : C ⟶ D} (μ : nat_iso F G) (c: C): iso (F c) (G c) := (pr1 μ c,,pr2 μ c).
+
+
 Definition iso_inv_after_iso' {C : precategory} {a b : C} (f : a --> b) (f' : iso a b) (deref : pr1 f' = f) : f · inv_from_iso f' = identity _.
 Proof.
   rewrite <- deref.
@@ -307,13 +310,13 @@ Defined.
 
 (* ** analogous development for [z_iso] *)
 
-Definition is_nat_z_iso {C D : precategory_data} {F G : functor_data C D} (μ : F ⟹ G) : UU :=
+Definition is_nat_z_iso {C D : precategory_data} {F G : functor_data C D} (μ : nat_trans_data F G) : UU :=
 ∏ (c : C), is_z_isomorphism (μ c).
 
 Definition isaprop_is_nat_z_iso
            {C D : category}
            {F G : C ⟶ D}
-           (α : F ⟹ G)
+           (α : nat_trans_data F G)
   : isaprop (is_nat_z_iso α).
 Proof.
   apply impred.

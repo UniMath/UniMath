@@ -70,6 +70,15 @@ Qed.
 Definition left_unitor : UU :=
   nat_z_iso I_pretensor (functor_identity C).
 
+Definition left_unitor_funclass (λ' : left_unitor):
+  ∏ x : ob C, I_pretensor x -->  x
+  := pr1 (nat_z_iso_to_trans λ').
+Coercion left_unitor_funclass : left_unitor >-> Funclass.
+
+Definition left_unitor_to_nat_trans (λ' : left_unitor): nat_trans I_pretensor (functor_identity C)
+  := nat_z_iso_to_trans λ'.
+Coercion left_unitor_to_nat_trans: left_unitor >-> nat_trans.
+
 (* - ⊗ I *)
 Definition I_posttensor : C ⟶ C := functor_fix_snd_arg _ _ _ tensor I.
 
@@ -81,6 +90,15 @@ Qed.
 (* ρ *)
 Definition right_unitor : UU :=
   nat_z_iso I_posttensor (functor_identity C).
+
+Definition right_unitor_funclass (ρ' : right_unitor):
+  ∏ x : ob C, I_posttensor x -->  x
+  := pr1 (nat_z_iso_to_trans ρ').
+Coercion right_unitor_funclass : right_unitor >-> Funclass.
+
+Definition right_unitor_to_nat_trans (ρ' : right_unitor): nat_trans I_posttensor (functor_identity C)
+  := nat_z_iso_to_trans ρ'.
+Coercion right_unitor_to_nat_trans: right_unitor >-> nat_trans.
 
 (* (- ⊗ =) ⊗ ≡ *)
 Definition assoc_left : (C ⊠ C) ⊠ C ⟶ C :=
@@ -110,6 +128,15 @@ Definition associator : UU :=
 (* This definition goes in the opposite direction of that by Mac Lane (CWM 2nd ed., p.162)
    but conforms to the def. on Wikipedia. *)
 
+Definition associator_funclass (α' : associator):
+  ∏ x : ob ((C ⊠ C) ⊠ C), assoc_left x -->  assoc_right x
+  := pr1 (nat_z_iso_to_trans α').
+Coercion associator_funclass : associator >-> Funclass.
+
+Definition associator_to_nat_trans (α' : associator): nat_trans assoc_left assoc_right
+  := nat_z_iso_to_trans α'.
+Coercion associator_to_nat_trans: associator >-> nat_trans.
+
 Definition triangle_eq (λ' : left_unitor) (ρ' : right_unitor) (α' : associator) : UU :=
   ∏ (a b : C), pr1 ρ' a #⊗ id b = pr1 α' ((a, I), b) · id a #⊗ pr1 λ' b.
 
@@ -131,7 +158,7 @@ Definition monoidal_precat : UU :=
   ∑ α' : associator tensor,
          (triangle_eq tensor I λ' ρ' α') × (pentagon_eq tensor α').
 
-
+(*
 Definition monoidal_precat_struct : UU :=
   ∑ C : precategory, ∑ tensor : C ⊠ C ⟶ C, ∑ I : C,
   ∑ λ' : left_unitor tensor I,
@@ -141,31 +168,41 @@ Definition monoidal_precat_struct : UU :=
 Definition mk_monoidal_precat_struct (C: precategory)(tensor: C ⊠ C ⟶ C)(I: C)
   (λ': left_unitor tensor I)(ρ': right_unitor tensor I)(α': associator tensor): monoidal_precat_struct :=
   (C,, (tensor,, (I,, (λ',, (ρ',, (α',, tt)))))).
+*)
 
 Definition mk_monoidal_precat (C: precategory)(tensor: C ⊠ C ⟶ C)(I: C)
   (λ': left_unitor tensor I)(ρ': right_unitor tensor I)(α': associator tensor)
   (eq1: triangle_eq tensor I λ' ρ' α')(eq2: pentagon_eq tensor α'): monoidal_precat :=
   (C,, (tensor,, (I,, (λ',, (ρ',, (α',, (eq1,, eq2))))))).
 
+Definition monoidal_precat_precat (M : monoidal_precat) : precategory := pr1 M.
+Coercion monoidal_precat_precat : monoidal_precat >-> precategory.
+
 Section Monoidal_Precat_Accessors.
 
-Context (M : monoidal_precat).
+  Context (M : monoidal_precat).
 
-Definition monoidal_precat_precat := pr1 M.
+  (** it is important that no new coercions are used in the given types in the following projections *)
 
-Definition monoidal_precat_tensor := pr1 (pr2 M).
+Definition monoidal_precat_tensor : pr1 M ⊠ pr1 M ⟶ pr1 M := pr1 (pr2 M).
 
-Definition monoidal_precat_unit := pr1 (pr2 (pr2 M)).
+Definition monoidal_precat_unit : pr1 M := pr1 (pr2 (pr2 M)).
 
-Definition monoidal_precat_left_unitor := pr1 (pr2 (pr2 (pr2 M))).
+Definition monoidal_precat_left_unitor : left_unitor (pr1 (pr2 M)) (pr1 (pr2 (pr2 M))) := pr1 (pr2 (pr2 (pr2 M))).
 
-Definition monoidal_precat_right_unitor := pr1 (pr2 (pr2 (pr2 (pr2 M)))).
+Definition monoidal_precat_right_unitor : right_unitor (pr1 (pr2 M)) (pr1 (pr2 (pr2 M))) := pr1 (pr2 (pr2 (pr2 (pr2 M)))).
 
-Definition monoidal_precat_associator := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 M))))).
+Definition monoidal_precat_associator : associator (pr1 (pr2 M)) := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 M))))).
 
-Definition monoidal_precat_eq := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M))))).
+Definition monoidal_precat_eq :
+  (λ α' : associator (pr1 (pr2 M)),
+          triangle_eq (pr1 (pr2 M)) (pr1 (pr2 (pr2 M))) (pr1 (pr2 (pr2 (pr2 M)))) (pr1 (pr2 (pr2 (pr2 (pr2 M))))) α'
+                      × pentagon_eq (pr1 (pr2 M)) α')
+    (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 M))))))
+  := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 M))))).
 
 End Monoidal_Precat_Accessors.
+
 
 Definition strict_monoidal_precat : UU :=
   ∑ M : monoidal_precat,
@@ -179,12 +216,9 @@ Definition strict_monoidal_precat : UU :=
 
 Section swapped_tensor.
 
-  Context (M : monoidal_precat).
+Context (M : monoidal_precat).
 
-  Local Definition C := monoidal_precat_precat M.
-  Local Definition tensor := monoidal_precat_tensor M.
-
-Definition swapping_of_tensor: C ⊠ C ⟶ C := functor_composite binswap_pair_functor tensor.
+Definition swapping_of_tensor: M ⊠ M ⟶ M := functor_composite binswap_pair_functor (monoidal_precat_tensor M).
 
 Definition associator_swapping_of_tensor: associator swapping_of_tensor.
 Proof.
@@ -225,10 +259,10 @@ Proof.
   red. intros a b c d. cbn.
   set (H := pr2 (monoidal_precat_eq M)).
   unfold pentagon_eq in H.
-  set (f := nat_z_iso_pointwise_z_iso (monoidal_precat_associator M) ((d, c), tensor (b, a))).
+  set (f := nat_z_iso_pointwise_z_iso (monoidal_precat_associator M) ((d, c), monoidal_precat_tensor M (b, a))).
   apply (z_iso_inv_on_right _ _ _ f).
   apply pathsinv0.
-  set (f' := nat_z_iso_pointwise_z_iso (monoidal_precat_associator M) ((tensor (d, c), b), a)).
+  set (f' := nat_z_iso_pointwise_z_iso (monoidal_precat_associator M) ((monoidal_precat_tensor M (d, c), b), a)).
   apply (inv_z_iso_unique' _ _ _ f').
   unfold precomp_with.
   rewrite assoc.
@@ -242,7 +276,7 @@ Proof.
     rewrite <- assoc.
     apply cancel_precomposition.
     apply pathsinv0.
-    apply (functor_comp (functor_fix_fst_arg _ _ _ tensor d)).
+    apply (functor_comp (functor_fix_fst_arg _ _ _ (monoidal_precat_tensor M) d)).
   }
   etrans.
   { do 2 apply cancel_postcomposition.
@@ -255,11 +289,11 @@ Proof.
   { apply cancel_postcomposition.
     rewrite <- assoc.
     apply cancel_precomposition.
-    apply (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso (monoidal_precat_associator M) ((d, tensor (c, b)), a))). }
+    apply (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso (monoidal_precat_associator M) ((d, monoidal_precat_tensor M (c, b)), a))). }
   rewrite id_right.
   etrans.
   apply pathsinv0.
-  apply (functor_comp (functor_fix_snd_arg _ _ _ tensor a)).
+  apply (functor_comp (functor_fix_snd_arg _ _ _ (monoidal_precat_tensor M) a)).
   etrans.
   { apply maponpaths.
     apply (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso (monoidal_precat_associator M) ((d, c), b))). }
@@ -270,7 +304,7 @@ Qed.
 
 Definition swapping_of_monoidal_precat: monoidal_precat.
 Proof.
-  use (mk_monoidal_precat C swapping_of_tensor).
+  use (mk_monoidal_precat M swapping_of_tensor).
   - exact (monoidal_precat_unit M).
   - apply monoidal_precat_right_unitor.
   - apply monoidal_precat_left_unitor.

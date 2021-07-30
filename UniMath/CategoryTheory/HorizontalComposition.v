@@ -130,3 +130,20 @@ Proof.
   intros;
     apply idpath.
 Qed.
+
+(* the other view as composition is not by definition but follows from naturality *)
+Lemma horcomp_post_pre
+      (C D:precategory) ( E : category) (F F' : functor C D) (G G' : functor D E) (f:nat_trans F F')
+      (g:nat_trans G G') :
+  horcomp f g = compose (C:=functor_category C E) (a:= (G □ F)) (b:= (G □ F')) (c:= (G' □ F'))
+                        (post_whisker f G)
+                        (pre_whisker F' g).
+Proof.
+  intros.
+  apply nat_trans_eq; try apply homset_property.
+  intro x.
+  unfold horcomp.
+  cbn.
+  apply pathsinv0.
+  apply nat_trans_ax.
+Qed.

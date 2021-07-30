@@ -557,16 +557,32 @@ Definition binswap_pair_functor {C D : precategory} : (C × D) ⟶ (D × C) :=
   pair_functor (pr2_functor C D) (pr1_functor C D) □ bindelta_functor (C × D).
 
 (* Reversing the order of three arguments *)
-Definition reverse_three_args {C: precategory}: ((C × C) × C) ⟶ ((C × C) × C).
+Definition reverse_three_args {C D E : precategory} : ((C × D) × E) ⟶ ((E × D) × C).
 Proof.
   use (functor_composite (precategory_binproduct_unassoc _ _ _)).
   use (functor_composite binswap_pair_functor).
   exact (pair_functor binswap_pair_functor (functor_identity _)).
 Defined.
 
-Lemma reverse_three_args_ok {C: precategory}: functor_on_objects (reverse_three_args(C := C)) = λ c, ((pr2 c, pr2 (pr1 c)), pr1 (pr1 c)).
+Lemma reverse_three_args_ok {C D E : precategory} :
+  functor_on_objects (reverse_three_args(C:=C)(D:=D)(E:=E)) = λ c, ((pr2 c, pr2 (pr1 c)), pr1 (pr1 c)).
 Proof.
   apply idpath.
+Qed.
+
+Lemma reverse_three_args_idempotent {C D E : category} :
+  functor_composite (reverse_three_args(C:=C)(D:=D)(E:=E))(reverse_three_args(C:=E)(D:=D)(E:=C))
+  = functor_identity _.
+Proof.
+  apply functor_eq.
+  - repeat (apply has_homsets_precategory_binproduct; try apply homset_property).
+  - use functor_data_eq.
+    + cbn.
+      intro cde.
+      apply idpath.
+    + intros cde1 cde2 f.
+      cbn.
+      apply idpath.
 Qed.
 
 End functors.
