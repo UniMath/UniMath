@@ -2947,7 +2947,7 @@ return the result *)
         unfold const_vec; rewrite k_eq_j.
         rewrite (@rigrunax2 F); rewrite <- k_eq_j.
         rewrite (hqisrinvmultinv (mat k k)). 2 : {exact p'. }
-        assert (∏ (x : hq), x + (-x) = x - x)%hq. {intros. rewrite hqrminus. rewrite hqpluscomm. apply hqlminus.}
+        assert (∏ (x : hq), x + (-x) = x - x)%hq. {intros. rewrite hqrminus. rewrite hqpluscomm. apply hqlminus. }
         rewrite (@ringrinvax1 hq).
         rewrite (@rigmult0x hq).
         rewrite (@riglunax1 F).   (* TODO two things here. Use ring lemmas more, generalize field *)
@@ -4013,6 +4013,7 @@ return the result *)
   Abort.
 
 
+
   Lemma gauss_iterate_as_matrix_invertible  { n : nat } (iter : ⟦ S n ⟧%stn)
     (mat : Matrix F n n) (pivots : Vector (⟦ n ⟧%stn) n) : @matrix_is_invertible
     hq _ (@gauss_iterate_as_matrix  n  iter  mat pivots).
@@ -4034,6 +4035,12 @@ return the result *)
           admit.
         * apply IHpr1_.
   Admitted.
+
+  Lemma gauss_iterate_as_matrix_eq  { n : nat } (iter : ⟦ S n ⟧%stn)
+    (mat : Matrix F n n) (pivots : Vector (⟦ n ⟧%stn) n) :
+    (@gauss_iterate_as_matrix  n  iter  mat pivots) = (pr1 (gauss_iterate' iter mat pivots)).
+  Proof.
+  Abort.
 
   Definition back_sub' { n : nat } (iter : nat) (p : iter < n)  (mat : Matrix F n n) (vec : Vector F n) : Vector F n.
   Proof.
@@ -4061,7 +4068,13 @@ return the result *)
     exact (A' ,, x).
   Defined.
 
-  Lemma gaussian_elimination
+
+  (* The full procedure returns A', x s..t A' ** x = b    or a witness to dim(col) < n. *)
+  Lemma gaussian_elimination_inv0 {n : nat} (A : Matrix hq n n) (b : Vector hq n)
+    : coprod (((pr1 (gaussian_elimination A b)) ** (col_vec (pr2 (gaussian_elimination A b)))) = (col_vec b))
+       (∑ (i : ⟦ n ⟧%stn), (transpose (pr1 (gaussian_elimination A b)) i = const_vec 0%hq)).
+  Proof.
+  Abort.
 
 
   Definition gauss_solution_invar : True.
@@ -4147,16 +4160,6 @@ Section SmithNF.
   Definition MinAij {m n : nat} (A : Matrix I m n) (s : nat) (p : s < min m n) : I.
   Proof.
   Abort.
-
-  Definition snf_rowop_1
-
-
-  Definition snf_rowop_2
-
-
-  Definition snf_colop_1
-
-  Definition snf_colop_2
 
 
 
