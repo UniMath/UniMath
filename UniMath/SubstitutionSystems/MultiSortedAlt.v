@@ -70,7 +70,7 @@ Variables (sort : UU) (eq : isdeceq sort). (* Can we eliminate this assumption? 
 Variables (C : category) (BP : BinProducts C) (BC : BinCoproducts C) (TC : Terminal C)
           (CC : forall (I : UU), Coproducts I C).
 
-(* TODO: don't need all the assumption above now *)
+(* TODO: don't need all the assumption above now, but probable won't need this either... *)
 Variables (LC : Lims C).
 
 (** Define the discrete category of sorts *)
@@ -92,8 +92,6 @@ apply (BinProducts_functor_precat _ _ BP).
 Defined.
 
 (* TODO: do something about these assumptions *)
-Variable (hat_functor : sort → functor C sortToC).
-Variable (is_left_adjoint_hat : forall (s : sort), is_left_adjoint (hat_functor s)).
 Variable (foo : Exponentials (BinProducts_functor_precat sortToC C BP (homset_property C))).
 
 
@@ -105,7 +103,7 @@ use tpair.
 + use tpair.
   - intro f; apply (pr1 f d).
   - simpl; intros a b f; apply (f d).
-+ abstract (split; [intro f; apply idpath|intros f g h fg gh; apply idpath]).
++ abstract (split; intros f *; apply idpath).
 Defined.
 
 Local Definition proj_gen {D : precategory} {E : category} : functor D [[D,E],E].
@@ -235,7 +233,64 @@ apply (is_left_adjoint_iso _ _ _ (_,,is_iso_nat_trans_projSortToC s)).
 apply is_left_adjoint_projSortToC'.
 Defined.
 
+Definition nat_trans_functor_path_pregroupoid
+           {X : UU} {D : precategory} {f g : X → ob D} (hsD : has_homsets D)
+           (F : ∏ x : X, f x --> g x)
+  : nat_trans (functor_path_pregroupoid f) (functor_path_pregroupoid g).
+Proof.
+use make_nat_trans.
+- intros z; apply (F z).
+- apply (is_nat_trans_discrete_precategory hsD).
+Defined.
 
+Definition hat_functor (t : sort) : functor C sortToC.
+Proof.
+use tpair.
++ use tpair.
+  - intros A.
+    use make_sortToC; intros s.
+    exact (CoproductObject (t = s) C (CC _ (λ _, A))).
+  - intros a b f.
+    apply (nat_trans_functor_path_pregroupoid hsC); intros s.
+    apply CoproductOfArrows; intros p; apply f.
+(* TODO: might be useful to generalize the above so that we don't have the repeat the below proof when redifing the option_functor... *)
++ split.
+  - abstract (intros x; apply (nat_trans_eq hsC); intros s;
+    apply pathsinv0, CoproductArrowUnique; intros p;
+    now rewrite id_left, id_right).
+  - abstract (intros x y z f g; apply (nat_trans_eq hsC); intros s;
+    apply pathsinv0, CoproductArrowUnique; intros p; cbn;
+    now rewrite assoc, (CoproductOfArrowsIn _ _ (CC (t = s) (λ _ : t = s, x))),
+            <- !assoc, (CoproductOfArrowsIn _ _ (CC (t = s) (λ _ : t = s, y)))).
+Defined.
+
+Lemma is_left_adjoint_hat (s : sort) : is_left_adjoint (hat_functor s).
+Proof.
+exists (projSortToC s).
+use make_are_adjoints.
+- use make_nat_trans.
+  + intros A.
+    exact (CoproductIn _ _ (CC (s = s) (λ _ : s = s, A)) (idpath _)).
+  + abstract (now intros A B f; cbn; rewrite (CoproductOfArrowsIn _ _ (CC _ (λ _ : s = s, A)))).
+- use make_nat_trans.
+  + intros A.
+    use make_nat_trans.
+    * intros t; apply CoproductArrow; intros p.
+      exact (transportf (λ z, C ⟦ pr1 A s , z ⟧) (maponpaths (pr1 A) p) (identity _)).
+    * abstract (intros a b []; now rewrite id_left, (functor_id A), id_right).
+  + abstract (intros A B F;
+    apply (nat_trans_eq hsC); intros t; cbn;
+    rewrite precompWithCoproductArrow, postcompWithCoproductArrow;
+    apply CoproductArrowUnique; intros []; cbn;
+    now rewrite id_left, (CoproductInCommutes _ _ _ (CC _ (λ _, pr1 A s))), id_right).
+- use make_form_adjunction.
+  + intros c; apply (nat_trans_eq hsC); intros t; cbn.
+    rewrite precompWithCoproductArrow.
+    apply pathsinv0, CoproductArrowUnique; intros [].
+    now rewrite !id_right.
+  + intros A; cbn.
+    now rewrite (CoproductInCommutes _ _ _ (CC _ (λ _, pr1 A s))).
+Qed.
 
 (* Code for option as a function, below is the definition as a functor *)
 Local Definition option_fun : sort -> sortToC -> sortToC.
