@@ -66,18 +66,27 @@ Arguments Sum_of_Signatures _ {_ _ _ _} _ _.
 (** * Definition of multisorted binding signatures *)
 Section MBindingSig.
 
-Variables (sort : UU) (eq : isdeceq sort). (* Can we eliminate this assumption? *)
-Variables (C : category) (BP : BinProducts C) (BC : BinCoproducts C) (TC : Terminal C)
-          (CC : forall (I : UU), Coproducts I C) (PC : forall (I : UU), Products I C).
+Variables (sort : UU) (C : category).
+Variables (TC : Terminal C)
+          (BP : BinProducts C) (BC : BinCoproducts C)
+          (PC : forall (I : UU), Products I C) (CC : forall (I : UU), Coproducts I C).
+(* TODO: we can get Bin(Co)Products for (Co)Products... *)
 
+Let hsC : has_homsets C := homset_property C.
+
+Local Notation "'1'" := (TerminalObject TC).
+Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)).
 
 (** Define the discrete category of sorts *)
 Let sort_cat : precategory := path_pregroupoid sort.
 
-Let hsC : has_homsets C := homset_property C.
-
 (** This represents "sort → C" *)
 Let sortToC : category := [sort_cat,C].
+
+(* TODO: what to do about this assumption? *)
+Variable (expSortToCC : Exponentials (BinProducts_functor_precat sortToC C BP hsC)).
+(* It says that [sortToC,C] has exponentials... Can we reduce it to
+exponentials of C? Or maybe get rid of it completely? *)
 
 Local Lemma hs : has_homsets sortToC.
 Proof.
@@ -89,9 +98,6 @@ Proof.
 apply (BinProducts_functor_precat _ _ BP).
 Defined.
 
-(* TODO: do something about these assumptions *)
-Variable (foo : Exponentials (BinProducts_functor_precat sortToC C BP (homset_property C))).
-
 Local Definition make_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid f.
 
 Local Definition proj_gen_fun (D : precategory) (E : category) (d : D) : functor [D,E] E.
@@ -102,21 +108,6 @@ use tpair.
   - simpl; intros a b f; apply (f d).
 + abstract (split; intros f *; apply idpath).
 Defined.
-
-(* Local Definition proj_gen {D : precategory} {E : category} : functor D [[D,E],E]. *)
-(* Proof. *)
-(* use tpair. *)
-(* + use tpair. *)
-(*   - apply proj_gen_fun. *)
-(*   - intros d1 d2 f. *)
-(*     use tpair. *)
-(*     * red; simpl; intro F; apply (# F f). *)
-(*     * abstract (intros F G α; simpl in *; apply pathsinv0, (nat_trans_ax α d1 d2 f)). *)
-(* + abstract (split; *)
-(*   [ intros F; simpl; apply nat_trans_eq; [apply homset_property|]; intro G; simpl; apply functor_id *)
-(*   | intros F G H α β; simpl; apply nat_trans_eq; [apply homset_property|]; *)
-(*     intro γ; simpl; apply functor_comp ]). *)
-(* Defined. *)
 
 (** Given a sort s this applies the sortToC to s and returns C *)
 Definition projSortToC (s : sort) : functor sortToC C.
@@ -150,7 +141,6 @@ use tpair.
   - abstract (intros x; apply (nat_trans_eq hsC); intros s;
     apply pathsinv0, ProductArrowUnique; intros p;
     now rewrite id_left, id_right).
-    Search ProductOfArrows.
   - abstract(intros x y z f g; apply (nat_trans_eq hsC); intros s; cbn;
     now rewrite ProductOfArrows_comp).
 Defined.
@@ -192,7 +182,6 @@ use tpair.
   - intros a b f.
     apply (nat_trans_functor_path_pregroupoid hsC); intros s.
     apply CoproductOfArrows; intros p; apply f.
-(* TODO: might be useful to generalize the above so that we don't have the repeat the below proof when redifing the option_functor... *)
 + split.
   - abstract (intros x; apply (nat_trans_eq hsC); intros s;
     apply pathsinv0, CoproductArrowUnique; intros p;
@@ -232,47 +221,38 @@ use make_are_adjoints.
 Qed.
 
 
+(* The option functor (without decidable equality) *)
 
-Local Notation "'1'" := (TerminalObject TC).
-Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)).
-
-(* Code for option as a function, below is the definition as a functor *)
-Local Definition option_fun : sort -> sortToC -> sortToC.
+Definition option_fun : sort → sortToC → sortToC.
 Proof.
-intros s f.
+intros s A.
 apply make_sortToC; intro t.
-induction (eq s t) as [H|H].
-- apply (pr1 f t ⊕ 1).
-- apply (pr1 f t).
+(* Instead of an if-then-else we use a coproduct over "s = t". This lets us
+avoid assuming decidable equality for sort *)
+exact (pr1 A t ⊕ CoproductObject (t = s) C (CC _ (λ _, 1))).
 Defined.
 
-(* The function part of Definition 3 *)
-Local Definition option_functor_data  (s : sort) : functor_data sortToC sortToC.
+Definition option_functor_data  (s : sort) : functor_data sortToC sortToC.
 Proof.
-use tpair.
-+ apply (option_fun s).
-+ cbn. intros F G α.
-  use tpair.
-  * red; simpl; intro t.
-    induction (eq s t) as [p|p]; simpl; clear p.
-    { apply (BinCoproductOfArrows _ _ _ (α t) (identity _)). }
-    { apply α. }
-  * abstract (now intros t1 t2 []; cbn; induction (eq s t1); simpl; rewrite id_left, id_right).
-Defined. (* plenty of match in the term *)
+use make_functor_data.
++ exact (option_fun s).
++ intros F G α.
+  use make_nat_trans.
+  * intro t; apply (BinCoproductOfArrows _ _ _ (pr1 α t) (identity _)).
+  * abstract (now intros a b []; rewrite id_left, id_right).
+Defined.
 
-Local Lemma is_functor_option_functor s : is_functor (option_functor_data s).
+Lemma is_functor_option_functor s : is_functor (option_functor_data s).
 Proof.
 split.
 + intros F; apply (nat_trans_eq hsC); intro t; simpl.
-  induction (eq s t) as [p|p]; trivial; simpl; clear p.
   now apply pathsinv0, BinCoproductArrowUnique; rewrite id_left, id_right.
 + intros F G H αFG αGH; apply (nat_trans_eq hsC); intro t; simpl.
-  induction (eq s t) as [p|p]; trivial; simpl; clear p.
   apply pathsinv0; eapply pathscomp0; [apply precompWithBinCoproductArrow|].
   rewrite !id_left; apply BinCoproductArrowUnique.
   * now rewrite BinCoproductIn1Commutes, assoc.
   * now rewrite BinCoproductIn2Commutes, id_left.
-Qed. (* match expressions in the term *)
+Qed.
 
 (* This is Definition 3 (sorted context extension) from the note *)
 Local Definition option_functor (s : sort) : functor sortToC sortToC :=
@@ -394,7 +374,7 @@ induction xs as [[|n] xs].
     apply is_omega_cocont_BinProduct_of_functors; try apply homset_property.
     * apply BinProducts_functor_precat, BinProducts_functor_precat, BP.
     * apply is_omega_cocont_constprod_functor1; try apply functor_category_has_homsets.
-      apply foo.
+      apply expSortToCC.
     * apply is_omega_cocont_exp_functor, H.
     * apply (IHn (k,,xs)).
 Defined.
@@ -428,6 +408,72 @@ Defined.
 End MBindingSig.
 
 
+(* Old version of option using decidable equality:
+
+Variable (eq : isdeceq sort).
+
+(* Code for option as a function, below is the definition as a functor *)
+Local Definition option_fun : sort -> sortToC -> sortToC.
+Proof.
+intros s f.
+apply make_sortToC; intro t.
+induction (eq s t) as [H|H].
+- apply (pr1 f t ⊕ 1).
+- apply (pr1 f t).
+Defined.
+
+(* The function part of Definition 3 *)
+Local Definition option_functor_data  (s : sort) : functor_data sortToC sortToC.
+Proof.
+use tpair.
++ apply (option_fun s).
++ cbn. intros F G α.
+  use tpair.
+  * red; simpl; intro t.
+    induction (eq s t) as [p|p]; simpl; clear p.
+    { apply (BinCoproductOfArrows _ _ _ (α t) (identity _)). }
+    { apply α. }
+  * abstract (now intros t1 t2 []; cbn; induction (eq s t1); simpl; rewrite id_left, id_right).
+Defined. (* plenty of match in the term *)
+
+Local Lemma is_functor_option_functor s : is_functor (option_functor_data s).
+Proof.
+split.
++ intros F; apply (nat_trans_eq hsC); intro t; simpl.
+  induction (eq s t) as [p|p]; trivial; simpl; clear p.
+  now apply pathsinv0, BinCoproductArrowUnique; rewrite id_left, id_right.
++ intros F G H αFG αGH; apply (nat_trans_eq hsC); intro t; simpl.
+  induction (eq s t) as [p|p]; trivial; simpl; clear p.
+  apply pathsinv0; eapply pathscomp0; [apply precompWithBinCoproductArrow|].
+  rewrite !id_left; apply BinCoproductArrowUnique.
+  * now rewrite BinCoproductIn1Commutes, assoc.
+  * now rewrite BinCoproductIn2Commutes, id_left.
+Qed. (* match expressions in the term *)
+
+(* This is Definition 3 (sorted context extension) from the note *)
+Local Definition option_functor (s : sort) : functor sortToC sortToC :=
+  tpair _ _ (is_functor_option_functor s).
+
+*)
+
+
+
+
+(* This is not needed for anything? *)
+(* Local Definition proj_gen {D : precategory} {E : category} : functor D [[D,E],E]. *)
+(* Proof. *)
+(* use tpair. *)
+(* + use tpair. *)
+(*   - apply proj_gen_fun. *)
+(*   - intros d1 d2 f. *)
+(*     use tpair. *)
+(*     * red; simpl; intro F; apply (# F f). *)
+(*     * abstract (intros F G α; simpl in *; apply pathsinv0, (nat_trans_ax α d1 d2 f)). *)
+(* + abstract (split; *)
+(*   [ intros F; simpl; apply nat_trans_eq; [apply homset_property|]; intro G; simpl; apply functor_id *)
+(*   | intros F G H α β; simpl; apply nat_trans_eq; [apply homset_property|]; *)
+(*     intro γ; simpl; apply functor_comp ]). *)
+(* Defined. *)
 
 
 
