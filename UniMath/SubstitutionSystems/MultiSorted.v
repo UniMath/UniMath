@@ -73,13 +73,6 @@ Require Import UniMath.SubstitutionSystems.SignatureExamples.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
 Require Import UniMath.SubstitutionSystems.MonadsMultiSorted.
 
-Require Import UniMath.CategoryTheory.RightKanExtension.
-Require Import UniMath.CategoryTheory.categories.StandardCategories.
-Require Import UniMath.CategoryTheory.Adjunctions.Examples.
-Require Import UniMath.CategoryTheory.Groupoids.
-
-
-
 Local Open Scope cat.
 
 Local Notation "C / X" := (slicecat_ob C X).

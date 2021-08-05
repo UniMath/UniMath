@@ -70,8 +70,6 @@ Variables (sort : UU) (eq : isdeceq sort). (* Can we eliminate this assumption? 
 Variables (C : category) (BP : BinProducts C) (BC : BinCoproducts C) (TC : Terminal C)
           (CC : forall (I : UU), Coproducts I C) (PC : forall (I : UU), Products I C).
 
-(* TODO: don't need all the assumption above now, but probable won't need this either... *)
-Variables (LC : Lims C).
 
 (** Define the discrete category of sorts *)
 Let sort_cat : precategory := path_pregroupoid sort.
