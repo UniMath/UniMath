@@ -430,9 +430,8 @@ induction xs as [[|n] xs].
       apply H.
     * apply is_omega_cocont_post_comp_projSortToC.
   + induction xs as [m k]; simpl.
-    use is_omega_cocont_functor_composite.
-    (* use (@is_omega_cocont_functor_composite _ _ _ _ (ℓ (option_list _))). *)
-    * apply functor_category_has_homsets.
+    use (@is_omega_cocont_functor_composite _ [sortToC,_,_]).
+    * apply (functor_category_has_homsets sortToC C hsC).
     * exact (is_omega_cocont_pre_composition_functor (option_list (cons m (S n,,k))) hs hs H).
     * apply is_omega_cocont_post_comp_projSortToC.
 Defined.

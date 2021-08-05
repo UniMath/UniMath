@@ -60,7 +60,6 @@ Require Import UniMath.CategoryTheory.categories.HSET.Slice.
 Require Import UniMath.CategoryTheory.categories.HSET.Structures.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.slicecat.
-Require Import UniMath.CategoryTheory.RightKanExtension.
 
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
@@ -73,6 +72,13 @@ Local Open Scope subsys.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
 Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
 Require Import UniMath.SubstitutionSystems.MonadsMultiSorted.
+
+Require Import UniMath.CategoryTheory.RightKanExtension.
+Require Import UniMath.CategoryTheory.categories.StandardCategories.
+Require Import UniMath.CategoryTheory.Adjunctions.Examples.
+Require Import UniMath.CategoryTheory.Groupoids.
+
+
 
 Local Open Scope cat.
 
