@@ -68,7 +68,7 @@ Section MBindingSig.
 
 Variables (sort : UU) (eq : isdeceq sort). (* Can we eliminate this assumption? *)
 Variables (C : category) (BP : BinProducts C) (BC : BinCoproducts C) (TC : Terminal C)
-          (CC : forall (I : UU), Coproducts I C).
+          (CC : forall (I : UU), Coproducts I C) (PC : forall (I : UU), Products I C).
 
 (* TODO: don't need all the assumption above now, but probable won't need this either... *)
 Variables (LC : Lims C).
@@ -94,7 +94,6 @@ Defined.
 (* TODO: do something about these assumptions *)
 Variable (foo : Exponentials (BinProducts_functor_precat sortToC C BP (homset_property C))).
 
-
 Local Definition make_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid f.
 
 Local Definition proj_gen_fun (D : precategory) (E : category) (d : D) : functor [D,E] E.
@@ -106,20 +105,20 @@ use tpair.
 + abstract (split; intros f *; apply idpath).
 Defined.
 
-Local Definition proj_gen {D : precategory} {E : category} : functor D [[D,E],E].
-Proof.
-use tpair.
-+ use tpair.
-  - apply proj_gen_fun.
-  - intros d1 d2 f.
-    use tpair.
-    * red; simpl; intro F; apply (# F f).
-    * abstract (intros F G α; simpl in *; apply pathsinv0, (nat_trans_ax α d1 d2 f)).
-+ abstract (split;
-  [ intros F; simpl; apply nat_trans_eq; [apply homset_property|]; intro G; simpl; apply functor_id
-  | intros F G H α β; simpl; apply nat_trans_eq; [apply homset_property|];
-    intro γ; simpl; apply functor_comp ]).
-Defined.
+(* Local Definition proj_gen {D : precategory} {E : category} : functor D [[D,E],E]. *)
+(* Proof. *)
+(* use tpair. *)
+(* + use tpair. *)
+(*   - apply proj_gen_fun. *)
+(*   - intros d1 d2 f. *)
+(*     use tpair. *)
+(*     * red; simpl; intro F; apply (# F f). *)
+(*     * abstract (intros F G α; simpl in *; apply pathsinv0, (nat_trans_ax α d1 d2 f)). *)
+(* + abstract (split; *)
+(*   [ intros F; simpl; apply nat_trans_eq; [apply homset_property|]; intro G; simpl; apply functor_id *)
+(*   | intros F G H α β; simpl; apply nat_trans_eq; [apply homset_property|]; *)
+(*     intro γ; simpl; apply functor_comp ]). *)
+(* Defined. *)
 
 (** Given a sort s this applies the sortToC to s and returns C *)
 Definition projSortToC (s : sort) : functor sortToC C.
@@ -127,112 +126,7 @@ Proof.
 apply proj_gen_fun, s.
 Defined.
 
-Local Notation "'1'" := (TerminalObject TC).
-Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)).
-
-
-Let one_cat : precategory := path_pregroupoid unit.
-
-(* t : 1 → C *)
-Definition t_fun (s : sort) : functor one_cat sort_cat.
-Proof.
-use make_functor.
-- use make_functor_data; [intros _; exact s|intros x y H; apply idpath].
-- abstract (split; intros x *; apply idpath).
-Defined.
-
-Definition C_one_to_C : [one_cat, C] ⟶ C.
-Proof.
-    use make_functor.
-    + use make_functor_data.
-      * intros f; apply f; exact tt.
-      * intros a b h; apply h.
-    + abstract (split; [intros x; apply idpath|intros x *; apply idpath]).
-Defined.
-
-Definition projSortToC' (s : sort) : functor sortToC C.
-Proof.
-  use functor_composite; [use [one_cat,C] | | ].
-  - use pre_composition_functor.
-    + abstract (apply has_homsets_path_pregroupoid, hlevelntosn, isasetifdeceq, eq).
-    + apply t_fun, s.
-  - apply C_one_to_C.
-Defined.
-
-Lemma is_left_adjoint_projSortToC' (s : sort) : is_left_adjoint (projSortToC' s).
-Proof.
-  apply is_left_adjoint_functor_composite.
-  + apply (RightKanExtension_from_limits (t_fun s)), LC.
-  + use tpair.
-    - use make_functor.
-      * use make_functor_data.
-        use make_functor.
-        use make_functor_data.
-        intros x.
-        use make_functor.
-        use make_functor_data; [intros _; exact x|intros a b f; apply identity].
-        abstract (split; intros a *; [apply idpath | apply pathsinv0, id_left]).
-        intros a b f.
-        use make_nat_trans.
-        intros x; apply f.
-        abstract (now intros x y g; rewrite id_left, id_right).
-        split.
-        abstract (now intros x; use nat_trans_eq; [apply homset_property|]).
-        abstract (now intros x y z f g; use nat_trans_eq; [apply homset_property|]).
-        intros a b f.
-        use make_nat_trans; [intros x; apply f|].
-        abstract (now intros a1 y g; rewrite id_left, id_right).
-      * split.
-        abstract (now intros x; use nat_trans_eq; [apply homset_property|]).
-        abstract (now intros x y z f g; use nat_trans_eq; [apply homset_property|]).
-    - use tpair.
-      * split.
-        use make_nat_trans.
-        intros x.
-        use make_nat_trans.
-        intros []; apply identity.
-        abstract (intros [] [] f;
-        rewrite id_left, id_right; cbn; rewrite <- (functor_id x);
-        apply maponpaths, isasetunit).
-        abstract (now intros a b f; apply nat_trans_eq; [apply homset_property|];
-        intros []; cbn; rewrite id_left, id_right).
-        use tpair.
-        intros x; apply identity.
-        abstract (now intros a b f; rewrite id_left, id_right).
-      * cbn; use tpair; intros x.
-        abstract (cbn; now rewrite id_left).
-        cbn.
-        use nat_trans_eq; [apply homset_property|]; intros [].
-        cbn.
-        now rewrite id_left.
-Defined.
-
-
-Local Lemma nat_trans_projSortToC (s : sort) : nat_trans (projSortToC' s) (projSortToC s).
-Proof.
-use make_nat_trans.
-- simpl; intros x; apply identity.
-- abstract (now intros x y f; rewrite id_left, id_right).
-Defined.
-
-Local Lemma is_iso_nat_trans_projSortToC (s : sort) :
-  @is_iso [_,_] _ _ (nat_trans_projSortToC s).
-Proof.
-  use is_iso_qinv.
-  + use make_nat_trans.
-    - simpl; intros x; apply identity.
-    - abstract (now intros x y f; rewrite id_left, id_right).
-  + split.
-    - abstract (apply nat_trans_eq; [apply homset_property|]; intros x; apply id_right).
-    - abstract (apply nat_trans_eq; [apply homset_property|]; intros x; apply id_right).
-Defined.
-
-Local Lemma is_left_adjoint_projSortToC (s : sort) : is_left_adjoint (projSortToC s).
-Proof.
-apply (is_left_adjoint_iso _ _ _ (_,,is_iso_nat_trans_projSortToC s)).
-apply is_left_adjoint_projSortToC'.
-Defined.
-
+(* TODO: upstream *)
 Definition nat_trans_functor_path_pregroupoid
            {X : UU} {D : precategory} {f g : X → ob D} (hsD : has_homsets D)
            (F : ∏ x : X, f x --> g x)
@@ -243,6 +137,53 @@ use make_nat_trans.
 - apply (is_nat_trans_discrete_precategory hsD).
 Defined.
 
+(* Direct definition of the right adjoint to projSortToC *)
+Definition projSortToC_rad (t : sort) : functor C sortToC.
+Proof.
+use tpair.
++ use tpair.
+  - intros A.
+    use make_sortToC; intros s.
+    exact (ProductObject (t = s) C (PC _ (λ _, A))).
+  - intros a b f.
+    apply (nat_trans_functor_path_pregroupoid hsC); intros s.
+    apply ProductOfArrows; intros p; apply f.
++ split.
+  - abstract (intros x; apply (nat_trans_eq hsC); intros s;
+    apply pathsinv0, ProductArrowUnique; intros p;
+    now rewrite id_left, id_right).
+    Search ProductOfArrows.
+  - abstract(intros x y z f g; apply (nat_trans_eq hsC); intros s; cbn;
+    now rewrite ProductOfArrows_comp).
+Defined.
+
+Lemma is_left_adjoint_projSortToC (s : sort) : is_left_adjoint (projSortToC s).
+Proof.
+exists (projSortToC_rad s).
+use make_are_adjoints.
+- use make_nat_trans.
+  + intros A.
+    use make_nat_trans.
+    * intros t; apply ProductArrow; intros p; induction p; apply identity.
+    * abstract (now intros a b []; rewrite id_right, (functor_id A), id_left).
+  + abstract (intros A B F; apply (nat_trans_eq hsC); intros t; cbn;
+    rewrite precompWithProductArrow, postcompWithProductArrow;
+    apply ProductArrowUnique; intros []; cbn;
+    now rewrite (ProductPrCommutes _ _ _ (PC _ (λ _, pr1 B s))), id_left, id_right).
+- use make_nat_trans.
+  + intros A.
+    exact (ProductPr _ _ (PC _ (λ _, A)) (idpath _)).
+  + abstract (now intros a b f; cbn; rewrite (ProductOfArrowsPr _ _ (PC _ (λ _, b)))).
+- use make_form_adjunction.
+  + intros A; cbn.
+    now rewrite (ProductPrCommutes _ _ _ (PC _ (λ _, pr1 A s))).
+  + intros c; apply (nat_trans_eq hsC); intros t; cbn.
+    rewrite postcompWithProductArrow.
+    apply pathsinv0, ProductArrowUnique; intros [].
+    now rewrite !id_left.
+Qed.
+
+(* The left adjoint to projSortToC *)
 Definition hat_functor (t : sort) : functor C sortToC.
 Proof.
 use tpair.
@@ -291,6 +232,11 @@ use make_are_adjoints.
   + intros A; cbn.
     now rewrite (CoproductInCommutes _ _ _ (CC _ (λ _, pr1 A s))).
 Qed.
+
+
+
+Local Notation "'1'" := (TerminalObject TC).
+Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)).
 
 (* Code for option as a function, below is the definition as a functor *)
 Local Definition option_fun : sort -> sortToC -> sortToC.
@@ -482,3 +428,112 @@ intros op; apply is_omega_cocont_hat_exp_functor_list, H.
 Defined.
 
 End MBindingSig.
+
+
+
+
+
+
+(* Old proof that projSortToC is a left adjoint *)
+
+(* Let one_cat : precategory := path_pregroupoid unit. *)
+
+(* (* t : 1 → C *) *)
+(* Definition t_fun (s : sort) : functor one_cat sort_cat. *)
+(* Proof. *)
+(* use make_functor. *)
+(* - use make_functor_data; [intros _; exact s|intros x y H; apply idpath]. *)
+(* - abstract (split; intros x *; apply idpath). *)
+(* Defined. *)
+
+(* Definition C_one_to_C : [one_cat, C] ⟶ C. *)
+(* Proof. *)
+(*     use make_functor. *)
+(*     + use make_functor_data. *)
+(*       * intros f; apply f; exact tt. *)
+(*       * intros a b h; apply h. *)
+(*     + abstract (split; [intros x; apply idpath|intros x *; apply idpath]). *)
+(* Defined. *)
+
+(* Definition projSortToC' (s : sort) : functor sortToC C. *)
+(* Proof. *)
+(*   use functor_composite; [use [one_cat,C] | | ]. *)
+(*   - use pre_composition_functor. *)
+(*     + abstract (apply has_homsets_path_pregroupoid, hlevelntosn, isasetifdeceq, eq). *)
+(*     + apply t_fun, s. *)
+(*   - apply C_one_to_C. *)
+(* Defined. *)
+
+(* Lemma is_left_adjoint_projSortToC' (s : sort) : is_left_adjoint (projSortToC' s). *)
+(* Proof. *)
+(*   apply is_left_adjoint_functor_composite. *)
+(*   + apply (RightKanExtension_from_limits (t_fun s)), LC. *)
+(*   + use tpair. *)
+(*     - use make_functor. *)
+(*       * use make_functor_data. *)
+(*         use make_functor. *)
+(*         use make_functor_data. *)
+(*         intros x. *)
+(*         use make_functor. *)
+(*         use make_functor_data; [intros _; exact x|intros a b f; apply identity]. *)
+(*         abstract (split; intros a *; [apply idpath | apply pathsinv0, id_left]). *)
+(*         intros a b f. *)
+(*         use make_nat_trans. *)
+(*         intros x; apply f. *)
+(*         abstract (now intros x y g; rewrite id_left, id_right). *)
+(*         split. *)
+(*         abstract (now intros x; use nat_trans_eq; [apply homset_property|]). *)
+(*         abstract (now intros x y z f g; use nat_trans_eq; [apply homset_property|]). *)
+(*         intros a b f. *)
+(*         use make_nat_trans; [intros x; apply f|]. *)
+(*         abstract (now intros a1 y g; rewrite id_left, id_right). *)
+(*       * split. *)
+(*         abstract (now intros x; use nat_trans_eq; [apply homset_property|]). *)
+(*         abstract (now intros x y z f g; use nat_trans_eq; [apply homset_property|]). *)
+(*     - use tpair. *)
+(*       * split. *)
+(*         use make_nat_trans. *)
+(*         intros x. *)
+(*         use make_nat_trans. *)
+(*         intros []; apply identity. *)
+(*         abstract (intros [] [] f; *)
+(*         rewrite id_left, id_right; cbn; rewrite <- (functor_id x); *)
+(*         apply maponpaths, isasetunit). *)
+(*         abstract (now intros a b f; apply nat_trans_eq; [apply homset_property|]; *)
+(*         intros []; cbn; rewrite id_left, id_right). *)
+(*         use tpair. *)
+(*         intros x; apply identity. *)
+(*         abstract (now intros a b f; rewrite id_left, id_right). *)
+(*       * cbn; use tpair; intros x. *)
+(*         abstract (cbn; now rewrite id_left). *)
+(*         cbn. *)
+(*         use nat_trans_eq; [apply homset_property|]; intros []. *)
+(*         cbn. *)
+(*         now rewrite id_left. *)
+(* Defined. *)
+
+
+(* Local Lemma nat_trans_projSortToC (s : sort) : nat_trans (projSortToC' s) (projSortToC s). *)
+(* Proof. *)
+(* use make_nat_trans. *)
+(* - simpl; intros x; apply identity. *)
+(* - abstract (now intros x y f; rewrite id_left, id_right). *)
+(* Defined. *)
+
+(* Local Lemma is_iso_nat_trans_projSortToC (s : sort) : *)
+(*   @is_iso [_,_] _ _ (nat_trans_projSortToC s). *)
+(* Proof. *)
+(*   use is_iso_qinv. *)
+(*   + use make_nat_trans. *)
+(*     - simpl; intros x; apply identity. *)
+(*     - abstract (now intros x y f; rewrite id_left, id_right). *)
+(*   + split. *)
+(*     - abstract (apply nat_trans_eq; [apply homset_property|]; intros x; apply id_right). *)
+(*     - abstract (apply nat_trans_eq; [apply homset_property|]; intros x; apply id_right). *)
+(* Defined. *)
+
+(* Local Lemma is_left_adjoint_projSortToC (s : sort) : is_left_adjoint (projSortToC s). *)
+(* Proof. *)
+(* apply (is_left_adjoint_iso _ _ _ (_,,is_iso_nat_trans_projSortToC s)). *)
+(* apply is_left_adjoint_projSortToC'. *)
+(* Defined. *)
