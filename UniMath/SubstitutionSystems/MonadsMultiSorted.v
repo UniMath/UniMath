@@ -408,25 +408,28 @@ Proof.
 Qed.
 
 
-(* we were heading for the following lemma that presents the result in terms of the application domain and not category theory:
+(* (* we were heading for the following lemma that presents the result in terms of the application domain and not category theory: *)
+(* *) *)
+(* Lemma subst_interchange_law_slice {Γ : SET_over_sort} *)
+(*       (L : wellsorted_in Γ) *)
+(*       (N : wellsorted_in (sorted_option_functor (sort_in L) Γ)) *)
+(*       (M : wellsorted_in (sorted_option_functor (sort_in N) (sorted_option_functor (sort_in L) Γ))) : *)
+(*   subst_slice L (subst_slice N M) = *)
+(*   subst_slice_eqn (subst_slice L N) *)
+(*                   (subst_slice_eqn (mweak_slice _ _ L) (mexch_slice M) (mweak_slice_ok _ L)) *)
+(*                   (subst_slice_ok L N). *)
+(* Proof. *)
+(*   set (ls := subst_slice L (subst_slice N M)). *)
+(*   set (rs1 := subst_slice_eqn (mweak_slice _ _ L) (mexch_slice M) (mweak_slice_ok _ L)). *)
+(*   set (rs2 := subst_slice L N). *)
+(*   simpl in rs1. *)
+(*   (* *)
 
-Lemma subst_interchange_law_slice {Γ : SET_over_sort}
-      (L : wellsorted_in Γ)
-      (N : wellsorted_in (sorted_option_functor (sort_in L) Γ))
-      (M : wellsorted_in (sorted_option_functor (sort_in N) (sorted_option_functor (sort_in L) Γ))) :
-  subst_slice L (subst_slice N M) =
-  subst_slice_eqn (subst_slice L N)
-                  (subst_slice_eqn (mweak_slice _ L) (mexch_slice M) (mweak_slice_ok _ L))
-                  (subst_slice_ok L N).
-Proof.
-  set (ls := subst_slice L (subst_slice N M)).
-  set (rs1 := subst_slice_eqn (mweak_slice _ L) (mexch_slice M) (mweak_slice_ok _ L)).
-  set (rs2 := subst_slice L N).
-  simpl in rs1.
 
-Problem: mweak_slice is not an instance of bind_slice, and rewriting is not possible since also
-mweak_slice_ok appears in the term.
-*)
+(* Problem: mweak_slice is not an instance of bind_slice, and rewriting is not possible since also *)
+(* mweak_slice_ok appears in the term. *)
+(* *) *)
+(* Admitted. *)
 
 Context {Γ : SET_over_sort}
       (L : wellsorted_in Γ)
@@ -452,12 +455,12 @@ Proof.
   apply mexch_slice_ok.
 Qed.
 
-(*
 Lemma subst_interchange_law_slice: LHS = RHS.
 Proof.
-  unfold LHS.
-  unfold subst_slice.
-  rewrite bind_bind_slice_inst.
+   unfold LHS.
+   do 2 rewrite <- subst_slice_as_bind_slice_agrees.
+   unfold subst_slice_as_bind_slice.
+   rewrite bind_bind_slice_inst.
 
 
 (* first treat the question of having the right sort *)
@@ -484,20 +487,7 @@ Proof.
 (* end of verifying the right sort *)
 
    (* the left-hand side is now of the form bind_slice f' H' M *)
-*)
-
-(*
-Lemma subst_interchange_law_slice: LHS = RHS.
-Proof.
-   unfold RHS.
-   unfold subst_slice_eqn at 1.
-   rewrite <- mexch_slice_as_bind_slice_agrees.
-   unfold mexch_slice_as_bind_slice at 1.
-   unfold subst_slice, subst_slice_eqn, mweak_slice_as_bind_slice.
-   unfold subst_slice.
-   simpl.
-
-*)
+   Admitted.
 
 
 
