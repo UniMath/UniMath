@@ -157,6 +157,17 @@ Proof.
   - apply pathsinv0. apply id_right.
 Qed.
 
+Definition nat_trans_functor_path_pregroupoid
+           {X : UU} {D : precategory} {f g : X → ob D} (hsD : has_homsets D)
+           (F : ∏ x : X, f x --> g x)
+  : nat_trans (functor_path_pregroupoid f) (functor_path_pregroupoid g).
+Proof.
+use make_nat_trans.
+- intros z; apply (F z).
+- apply (is_nat_trans_discrete_precategory hsD).
+Defined.
+
+
 (** *** Characterization of discrete categories *)
 
 (** Discrete categories are isomorphic to the path groupoid on their set of objects.
