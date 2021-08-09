@@ -240,7 +240,6 @@ Proof.
 (* If the list is empty we output the constant functor *)
 set (T := constant_functor [sortToC,sortToC] [sortToC,C]
                            (constant_functor sortToC C TC)).
-(* TODO: Maybe use indexed finite products instead of a fold? *)
 set (XS := map exp_functor xs).
 (* This should be foldr1 in order to avoid composing with the
    constant functor in the base case *)
@@ -268,9 +267,97 @@ End functor.
       multisorted signature *)
 Section strength.
 
-  (* TODO: finish this! *)
-  Definition MultiSortedSigToSignature (M : MultiSortedSig) : Signature _ hs _ hs _ hs.
-  Admitted.
+(* The DL for sorted_option_functor *)
+Local Definition DL_sorted_option_functor (s : sort) :
+  DistributiveLaw _ hs (option_functor s).
+Admitted.
+(* genoption_DistributiveLaw _ hs (constHSET_slice s)(BinCoproducts_HSET_slice sort). *)
+
+(* The DL for option_list *)
+Local Definition DL_option_list (xs : list sort) :
+  DistributiveLaw _ hs (option_list xs).
+Proof.
+induction xs as [[|n] xs].
++ induction xs.
+  apply DL_id.
++ induction n as [|n IH].
+  * induction xs as [m []].
+    apply DL_sorted_option_functor.
+  * induction xs as [m [k xs]].
+    apply (DL_comp (DL_sorted_option_functor m) (IH (k,,xs))).
+Defined.
+
+(* The signature for exp_functor *)
+Local Definition Sig_exp_functor (lt : list sort × sort) :
+  Signature _ hs _ hsC _ hs.
+Proof.
+exists (exp_functor lt).
+induction lt as [l t].
+induction l as [[|n] xs].
++ induction xs.
+  exact (pr2 (Gθ_Signature _ _ (IdSignature _ _ _ _) (projSortToC t))).
++ induction n as [|n IH].
+  * induction xs as [m []].
+    set (Sig_option_list := θ_from_δ_Signature (DL_option_list (cons m (0,,tt)))).
+    exact (pr2 (Gθ_Signature _ _ Sig_option_list (projSortToC t))).
+  * induction xs as [m xs].
+    set (Sig_option_list := θ_from_δ_Signature (DL_option_list (cons m (S n,,xs)))).
+    exact (pr2 (Gθ_Signature _ _ Sig_option_list (projSortToC t))).
+Defined.
+
+Local Lemma functor_in_Sig_exp_functor_ok (lt : list sort × sort) :
+  Signature_Functor _ _ (Sig_exp_functor lt) = exp_functor lt.
+Proof.
+apply idpath.
+Qed.
+
+(* The signature for exp_functor_list *)
+Local Definition Sig_exp_functor_list (xs : list (list sort × sort)) :
+  Signature _ hs _ hsC _ hs.
+Proof.
+exists (exp_functor_list xs).
+induction xs as [[|n] xs].
+- induction xs.
+  exact (pr2 (ConstConstSignature _ _ _ _)).
+- induction n as [|n IH].
+  + induction xs as [m []].
+    exact (pr2 (Sig_exp_functor m)).
+  + induction xs as [m [k xs]].
+    exact (pr2 (BinProduct_of_Signatures _ _ _ (Sig_exp_functor _) (tpair _ _ (IH (k,,xs))))).
+Defined.
+
+Local Lemma functor_in_Sig_exp_functor_list_ok (xs : list (list sort × sort)) :
+  Signature_Functor _ _ (Sig_exp_functor_list xs) = exp_functor_list xs.
+Proof.
+apply idpath.
+Qed.
+
+(* the signature for hat_exp_functor_list *)
+Local Definition Sig_hat_exp_functor_list (xst : list (list sort × sort) × sort) :
+  Signature _ hs _ hs _ hs.
+Proof.
+apply (Gθ_Signature _ _ (Sig_exp_functor_list (pr1 xst)) (hat_functor (pr2 xst))).
+Defined.
+
+Local Lemma functor_in_Sig_hat_exp_functor_list_ok (xst : list (list sort × sort) × sort) :
+  Signature_Functor _ _ (Sig_hat_exp_functor_list xst) = hat_exp_functor_list xst.
+Proof.
+apply idpath.
+Qed.
+
+(* The signature for MultiSortedSigToFunctor *)
+Definition MultiSortedSigToSignature (M : MultiSortedSig) : Signature _ hs _ hs _ hs.
+Proof.
+set (Hyps := λ (op : ops M), Sig_hat_exp_functor_list (arity M op)).
+use (Sum_of_Signatures (ops M) _ _ _ Hyps).
+apply Coproducts_functor_precat, CC, setproperty.
+Defined.
+
+Local Lemma functor_in_MultiSortedSigToSignature_ok (M : MultiSortedSig) :
+  Signature_Functor _ _ (MultiSortedSigToSignature M) = MultiSortedSigToFunctor M.
+Proof.
+apply idpath.
+Qed.
 
 End strength.
 
@@ -422,6 +509,12 @@ apply is_omega_cocont_coproduct_of_functors; try apply homset_property.
 intros op; apply is_omega_cocont_hat_exp_functor_list.
 Defined.
 
+Lemma is_omega_cocont_MultiSortedSigToSignature (M : MultiSortedSig) :
+  is_omega_cocont (MultiSortedSigToSignature M).
+Proof.
+apply is_omega_cocont_MultiSortedSigToFunctor.
+Defined.
+
 End omega_cocont.
 
 
@@ -458,16 +551,15 @@ Proof.
 apply SignatureToHSS.
 + apply Initial_functor_precat, IC.
 + apply ColimsFunctorCategory_of_shape, HC.
-+ admit. (* apply is_omega_cocont_MultiSortedSigToSignature. *)
-Admitted.
++ apply is_omega_cocont_MultiSortedSigToSignature.
+Defined.
 
 (* The above HSS is initial *)
 Definition MultiSortedSigToHSSisInitial (sig : MultiSortedSig) :
   isInitial _ (MultiSortedSigToHSS sig).
-Admitted.
-(* Proof. *)
-(* now unfold MultiSortedSigToHSS, SignatureToHSS; destruct InitialHSS. *)
-(* Qed. *)
+Proof.
+now unfold MultiSortedSigToHSS, SignatureToHSS; destruct InitialHSS.
+Qed.
 
 (** ** Function from multisorted binding signatures to monads *)
 Definition MultiSortedSigToMonad (sig : MultiSortedSig) : Monad sortToC.
