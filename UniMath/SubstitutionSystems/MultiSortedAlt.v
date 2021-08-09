@@ -264,7 +264,7 @@ Defined.
 
 End functor.
 
-(** * Construction of the strength for the endofunctor on [SET/sort,SET/sort] derived from a
+(** * Construction of the strength for the endofunctor on [C^sort,C^sort] derived from a
       multisorted signature *)
 Section strength.
 
