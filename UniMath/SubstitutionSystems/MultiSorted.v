@@ -9,7 +9,7 @@ This file contains a fomalization of multisorted binding signatures:
   signature ([MultiSortedSigToSignature])
 - Proof that the functor obtained from a multisorted binding signature
   is omega-cocontinuous ([is_omega_cocont_MultiSortedSigToFunctor])
-- Construction of a monad on Set/sort from a multisorterd signature
+- Construction of a monad on Set/sort from a multisorted signature
   ([MultiSortedSigToMonad])
 
 
@@ -19,13 +19,7 @@ discussions with them and Vladimir Voevodsky.
 
 Strength calculation added by Ralph Matthes, 2017.
 
-
-In the end of the file there is a module with an alternative version
-using [X,SET] instead of SET/X. There is no proof that the
-functor we obtain using this approach is omega-cocontinuous yet.
-
 *)
-
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Sets.
 
