@@ -166,7 +166,24 @@ use tpair.
             <- !assoc, (CoproductOfArrowsIn _ _ (CC _ (Hsort t s) (λ _, y)))).
 Defined.
 
+
 (* The option functor (without decidable equality) *)
+Section Sorted_Option_Functor.
+
+  Context (s: sort).
+
+Local Definition option_fun_summand : sortToC.
+Proof.
+apply make_sortToC; intro t.
+(* Instead of an if-then-else we use a coproduct over "s = t". This lets us
+avoid assuming decidable equality for sort *)
+exact (CoproductObject (t = s) C (CC _ (Hsort t s) (λ _, 1))).
+Defined.
+
+Local Definition option_functor : functor sortToC sortToC := constcoprod_functor1 (BinCoproducts_functor_precat _ _ BC hsC) option_fun_summand.
+
+(*
+
 Definition option_fun : sort → sortToC → sortToC.
 Proof.
 intros s A.
@@ -200,6 +217,18 @@ Qed.
 
 Local Definition option_functor (s : sort) : functor sortToC sortToC :=
   tpair _ _ (is_functor_option_functor s).
+*)
+
+(** the following two definitions are currently not used *)
+
+Local Definition Some_option_functor : functor_identity sortToC ⟹ option_functor :=
+  BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ (BinCoproducts_functor_precat _ _ BC hsC) hs (constant_functor sortToC sortToC option_fun_summand) (functor_identity sortToC)).
+
+Local Definition None_option_functor : constant_functor sortToC sortToC option_fun_summand ⟹ option_functor :=
+  BinCoproductIn1 _ (BinCoproducts_functor_precat _ _ (BinCoproducts_functor_precat _ _ BC hsC) hs (constant_functor sortToC sortToC option_fun_summand) (functor_identity sortToC)).
+
+End Sorted_Option_Functor.
+
 
 (** Sorted option functor for lists *)
 Local Definition option_list (xs : list sort) : functor sortToC sortToC.
@@ -267,11 +296,10 @@ End functor.
       multisorted signature *)
 Section strength.
 
-(* The DL for sorted_option_functor *)
-Local Definition DL_sorted_option_functor (s : sort) :
-  DistributiveLaw _ hs (option_functor s).
-Admitted.
-(* genoption_DistributiveLaw _ hs (constHSET_slice s)(BinCoproducts_HSET_slice sort). *)
+
+  (* The distributive law for sorted_option_functor *)
+Local Definition DL_sorted_option_functor (s : sort) : DistributiveLaw sortToC hs (option_functor s) :=
+  genoption_DistributiveLaw sortToC hs (option_fun_summand s) (BinCoproducts_functor_precat _ _ BC hsC).
 
 (* The DL for option_list *)
 Local Definition DL_option_list (xs : list sort) :

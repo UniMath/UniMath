@@ -167,6 +167,15 @@ use make_nat_trans.
 - apply (is_nat_trans_discrete_precategory hsD).
 Defined.
 
+Definition nat_trans_functor_path_pregroupoid'
+           {X : UU} {D : precategory} {F G : functor (path_pregroupoid X) D} (hsD : has_homsets D)
+           (ϕ : ∏ x : X, F x --> G x) : nat_trans F G.
+Proof.
+use make_nat_trans.
+- intros z; apply (ϕ z).
+- apply (is_nat_trans_discrete_precategory hsD).
+Defined.
+
 
 (** *** Characterization of discrete categories *)
 
