@@ -1,6 +1,6 @@
 (**
 
-This file contains a fomalization of multisorted binding signatures:
+This file contains a formalization of multisorted binding signatures:
 
 - Definition of multisorted binding signatures ([MultiSortedSig])
 - Construction of a functor from a multisorted binding signature
@@ -86,14 +86,16 @@ Arguments Sum_of_Signatures _ {_ _ _ _} _ _.
 (** * Definition of multisorted binding signatures *)
 Section MBindingSig.
 
-(* Interestingly we only need that Hsort is a 1-type *)
+(* Interestingly we only need that [sort] is a 1-type *)
 Variables (sort : UU) (Hsort : isofhlevel 3 sort) (C : category).
 
-(* Assumptions on C used to construct the functor *)
+(* Assumptions on [C] used to construct the functor *)
+(* Note that there is some redundancy in the assumptions *)
 Variables (TC : Terminal C) (IC : Initial C)
           (BP : BinProducts C) (BC : BinCoproducts C)
+
+          (* TODO: check that these Products/Coproducts are OK *)
           (PC : forall (I : UU), Products I C) (CC : forall (I : UU), isaset I → Coproducts I C).
-(* Note that there is some redundancy in the assumptions *)
 
 Local Notation "'1'" := (TerminalObject TC).
 Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)).
@@ -121,7 +123,7 @@ Variables (expSortToCC : Exponentials (BinProducts_functor_precat sortToC C BP h
 *)
 
 
-(** Definition of multi sorted signatures *)
+(** Definition of multisorted signatures *)
 Definition MultiSortedSig : UU :=
   ∑ (I : hSet), I → list (list sort × sort) × sort.
 
@@ -181,43 +183,6 @@ exact (CoproductObject (t = s) C (CC _ (Hsort t s) (λ _, 1))).
 Defined.
 
 Local Definition option_functor : functor sortToC sortToC := constcoprod_functor1 (BinCoproducts_functor_precat _ _ BC hsC) option_fun_summand.
-
-(*
-
-Definition option_fun : sort → sortToC → sortToC.
-Proof.
-intros s A.
-apply make_sortToC; intro t.
-(* Instead of an if-then-else we use a coproduct over "s = t". This lets us
-avoid assuming decidable equality for sort *)
-exact (pr1 A t ⊕ CoproductObject (t = s) C (CC _ (Hsort t s) (λ _, 1))).
-Defined.
-
-Definition option_functor_data  (s : sort) : functor_data sortToC sortToC.
-Proof.
-use make_functor_data.
-+ exact (option_fun s).
-+ intros F G α.
-  use make_nat_trans.
-  * intro t; apply (BinCoproductOfArrows _ _ _ (pr1 α t) (identity _)).
-  * abstract (now intros a b []; rewrite id_left, id_right).
-Defined.
-
-Lemma is_functor_option_functor s : is_functor (option_functor_data s).
-Proof.
-split.
-+ intros F; apply (nat_trans_eq hsC); intro t; simpl.
-  now apply pathsinv0, BinCoproductArrowUnique; rewrite id_left, id_right.
-+ intros F G H αFG αGH; apply (nat_trans_eq hsC); intro t; simpl.
-  apply pathsinv0; eapply pathscomp0; [apply precompWithBinCoproductArrow|].
-  rewrite !id_left; apply BinCoproductArrowUnique.
-  * now rewrite BinCoproductIn1Commutes, assoc.
-  * now rewrite BinCoproductIn2Commutes, id_left.
-Qed.
-
-Local Definition option_functor (s : sort) : functor sortToC sortToC :=
-  tpair _ _ (is_functor_option_functor s).
-*)
 
 (** the following two definitions are currently not used *)
 
