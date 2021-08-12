@@ -407,29 +407,26 @@ Proof.
   apply subst_interchange_law_gen.
 Qed.
 
-
-(* (* we were heading for the following lemma that presents the result in terms of the application domain and not category theory: *)
-(* *) *)
-(* Lemma subst_interchange_law_slice {Γ : SET_over_sort} *)
-(*       (L : wellsorted_in Γ) *)
-(*       (N : wellsorted_in (sorted_option_functor (sort_in L) Γ)) *)
-(*       (M : wellsorted_in (sorted_option_functor (sort_in N) (sorted_option_functor (sort_in L) Γ))) : *)
-(*   subst_slice L (subst_slice N M) = *)
-(*   subst_slice_eqn (subst_slice L N) *)
-(*                   (subst_slice_eqn (mweak_slice _ _ L) (mexch_slice M) (mweak_slice_ok _ L)) *)
-(*                   (subst_slice_ok L N). *)
-(* Proof. *)
-(*   set (ls := subst_slice L (subst_slice N M)). *)
-(*   set (rs1 := subst_slice_eqn (mweak_slice _ _ L) (mexch_slice M) (mweak_slice_ok _ L)). *)
-(*   set (rs2 := subst_slice L N). *)
-(*   simpl in rs1. *)
-(*   (* *)
-
+(*
+(* we were heading for the following lemma that presents the result in terms of the application domain and not category theory: *)
+Lemma subst_interchange_law_slice {Γ : SET_over_sort}
+      (L : wellsorted_in Γ)
+      (N : wellsorted_in (sorted_option_functor (sort_in L) Γ))
+      (M : wellsorted_in (sorted_option_functor (sort_in N) (sorted_option_functor (sort_in L) Γ))) :
+  subst_slice L (subst_slice N M) =
+  subst_slice_eqn (subst_slice L N)
+                  (subst_slice_eqn (mweak_slice _ _ L) (mexch_slice M) (mweak_slice_ok _ L))
+                  (subst_slice_ok L N).
+Proof.
+  set (ls := subst_slice L (subst_slice N M)).
+  set (rs1 := subst_slice_eqn (mweak_slice _ _ L) (mexch_slice M) (mweak_slice_ok _ L)).
+  set (rs2 := subst_slice L N).
+  simpl in rs1.
 
 (* Problem: mweak_slice is not an instance of bind_slice, and rewriting is not possible since also *)
 (* mweak_slice_ok appears in the term. *)
-(* *) *)
-(* Admitted. *)
+Admitted.
+*)
 
 Context {Γ : SET_over_sort}
       (L : wellsorted_in Γ)
@@ -455,6 +452,7 @@ Proof.
   apply mexch_slice_ok.
 Qed.
 
+(*
 Lemma subst_interchange_law_slice: LHS = RHS.
 Proof.
    unfold LHS.
@@ -488,7 +486,7 @@ Proof.
 
    (* the left-hand side is now of the form bind_slice f' H' M *)
    Admitted.
-
+*)
 
 
 
