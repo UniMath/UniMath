@@ -158,16 +158,6 @@ Proof.
 Qed.
 
 Definition nat_trans_functor_path_pregroupoid
-           {X : UU} {D : precategory} {f g : X → ob D} (hsD : has_homsets D)
-           (F : ∏ x : X, f x --> g x)
-  : nat_trans (functor_path_pregroupoid f) (functor_path_pregroupoid g).
-Proof.
-use make_nat_trans.
-- intros z; apply (F z).
-- apply (is_nat_trans_discrete_precategory hsD).
-Defined.
-
-Definition nat_trans_functor_path_pregroupoid'
            {X : UU} {D : precategory} {F G : functor (path_pregroupoid X) D} (hsD : has_homsets D)
            (ϕ : ∏ x : X, F x --> G x) : nat_trans F G.
 Proof.
