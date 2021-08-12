@@ -162,7 +162,7 @@ Defined.
 (* The option functor (without decidable equality) *)
 Section Sorted_Option_Functor.
 
-  Context (s: sort).
+Context (s : sort).
 
 Local Definition option_fun_summand : sortToC.
 Proof.
@@ -257,8 +257,7 @@ End functor.
       multisorted signature *)
 Section strength.
 
-
-  (* The distributive law for sorted_option_functor *)
+(* The distributive law for sorted_option_functor *)
 Local Definition DL_sorted_option_functor (s : sort) : DistributiveLaw sortToC hs (option_functor s) :=
   genoption_DistributiveLaw sortToC hs (option_fun_summand s) BCsortToC.
 
