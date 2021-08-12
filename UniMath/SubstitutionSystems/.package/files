@@ -22,5 +22,6 @@ MLTT79.v
 FromBindingSigsToMonads_Summary.v
 MonadsMultiSorted.v
 MultiSorted.v
+MultiSortedAlt.v
 STLC.v
 CCS.v
