@@ -109,7 +109,7 @@ Let make_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid f.
 
 Let hsC : has_homsets C := homset_property C.
 Let hs : has_homsets sortToC := homset_property sortToC.
-
+Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC hsC.
 
 (* Assumptions needed to prove ω-cocontinuity of the functor *)
 Variables (expSortToCC : Exponentials (BinProducts_functor_precat sortToC C BP hsC))
@@ -182,15 +182,21 @@ avoid assuming decidable equality for sort *)
 exact (CoproductObject (t = s) C (CC _ (Hsort t s) (λ _, 1))).
 Defined.
 
-Local Definition option_functor : functor sortToC sortToC := constcoprod_functor1 (BinCoproducts_functor_precat _ _ BC hsC) option_fun_summand.
+Local Definition option_functor : functor sortToC sortToC :=
+  constcoprod_functor1 BCsortToC option_fun_summand.
 
 (** the following two definitions are currently not used *)
 
 Local Definition Some_option_functor : functor_identity sortToC ⟹ option_functor :=
-  BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ (BinCoproducts_functor_precat _ _ BC hsC) hs (constant_functor sortToC sortToC option_fun_summand) (functor_identity sortToC)).
+  BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ BCsortToC hs
+                                                  (constant_functor _ _ option_fun_summand)
+                                                  (functor_identity sortToC)).
 
-Local Definition None_option_functor : constant_functor sortToC sortToC option_fun_summand ⟹ option_functor :=
-  BinCoproductIn1 _ (BinCoproducts_functor_precat _ _ (BinCoproducts_functor_precat _ _ BC hsC) hs (constant_functor sortToC sortToC option_fun_summand) (functor_identity sortToC)).
+
+Local Definition None_option_functor : constant_functor _ _ option_fun_summand ⟹ option_functor :=
+  BinCoproductIn1 _ (BinCoproducts_functor_precat _ _ BCsortToC hs
+                                                  (constant_functor _ _ option_fun_summand)
+                                                  (functor_identity sortToC)).
 
 End Sorted_Option_Functor.
 
@@ -264,7 +270,7 @@ Section strength.
 
   (* The distributive law for sorted_option_functor *)
 Local Definition DL_sorted_option_functor (s : sort) : DistributiveLaw sortToC hs (option_functor s) :=
-  genoption_DistributiveLaw sortToC hs (option_fun_summand s) (BinCoproducts_functor_precat _ _ BC hsC).
+  genoption_DistributiveLaw sortToC hs (option_fun_summand s) BCsortToC.
 
 (* The DL for option_list *)
 Local Definition DL_option_list (xs : list sort) :
@@ -514,7 +520,6 @@ End omega_cocont.
 (** * Construction of a monad from a multisorted signature *)
 Section monad.
 
-Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat sort_cat _ BC hsC.
 Let Id_H := Id_H sortToC hs BCsortToC.
 
 Local Lemma has_homsets_SetSort2 : has_homsets [sortToC,sortToC].
