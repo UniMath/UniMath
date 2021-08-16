@@ -30,7 +30,6 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
-
 Require Import UniMath.CategoryTheory.limits.graphs.colimits.
 Require Import UniMath.CategoryTheory.limits.binproducts.
 Require Import UniMath.CategoryTheory.limits.products.
@@ -172,18 +171,18 @@ avoid assuming decidable equality for sort *)
 exact (CoproductObject (t = s) C (CC _ (Hsort t s) (λ _, 1))).
 Defined.
 
-Local Definition option_functor : functor sortToC sortToC :=
+Definition sorted_option_functor : functor sortToC sortToC :=
   constcoprod_functor1 BCsortToC option_fun_summand.
 
 (** the following two definitions are currently not used *)
 
-Local Definition Some_option_functor : functor_identity sortToC ⟹ option_functor :=
+Local Definition Some_sorted_option_functor : functor_identity sortToC ⟹ sorted_option_functor :=
   BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ BCsortToC hs
                                                   (constant_functor _ _ option_fun_summand)
                                                   (functor_identity sortToC)).
 
 
-Local Definition None_option_functor : constant_functor _ _ option_fun_summand ⟹ option_functor :=
+Local Definition None_sorted_option_functor : constant_functor _ _ option_fun_summand ⟹ sorted_option_functor :=
   BinCoproductIn1 _ (BinCoproducts_functor_precat _ _ BCsortToC hs
                                                   (constant_functor _ _ option_fun_summand)
                                                   (functor_identity sortToC)).
@@ -196,13 +195,13 @@ Local Definition option_list (xs : list sort) : functor sortToC sortToC.
 Proof.
 (* This should be foldr1 in order to avoid composing with the
    identity functor in the base case *)
-use (foldr1 (λ F G, F ∙ G) (functor_identity _) (map option_functor xs)).
+use (foldr1 (λ F G, F ∙ G) (functor_identity _) (map sorted_option_functor xs)).
 Defined.
 
 
 (** Define a functor
 
-F^(l,t)(X) := projSortToC(t) ∘ X ∘ option_functor(l)
+F^(l,t)(X) := projSortToC(t) ∘ X ∘ sorted_option_functor(l)
 
 if l is nonempty and
 
@@ -258,8 +257,9 @@ End functor.
 Section strength.
 
 (* The distributive law for sorted_option_functor *)
-Local Definition DL_sorted_option_functor (s : sort) : DistributiveLaw sortToC hs (option_functor s) :=
-  genoption_DistributiveLaw sortToC hs (option_fun_summand s) BCsortToC.
+Local Definition DL_sorted_option_functor (s : sort) :
+  DistributiveLaw sortToC hs (sorted_option_functor s) :=
+    genoption_DistributiveLaw sortToC hs (option_fun_summand s) BCsortToC.
 
 (* The DL for option_list *)
 Local Definition DL_option_list (xs : list sort) :

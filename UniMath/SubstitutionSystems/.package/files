@@ -24,4 +24,5 @@ MonadsMultiSorted.v
 MultiSorted.v
 MultiSorted_alt.v
 STLC.v
+STLC_alt.v
 CCS.v
