@@ -1,11 +1,11 @@
 (**
 
-Syntax of the simply typed lambda calculus as a multisorted signature.
+Syntax of the simply typed lambda calculus as a
+multisorted signature.
 
-Written by: Anders Mörtberg, 2017
+Written by: Anders Mörtberg, 2021 (adapted from STLC.v)
 
 *)
-
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Sets.
 
@@ -53,21 +53,38 @@ Section Lam.
 
 Variable (sort : hSet) (arr : sort → sort → sort).
 
+Local Lemma hsort : isofhlevel 3 sort.
+Proof.
+exact (isofhlevelssnset 1 sort (setproperty sort)).
+Defined.
+
 (** A lot of notations, upstream? *)
 Local Infix "::" := (@cons _).
 Local Notation "[]" := (@nil _) (at level 0, format "[]").
 Local Notation "a + b" := (setcoprod a b) : set.
 
 Let sortToSet : category := [path_pregroupoid sort,SET].
+Let hs : has_homsets sortToSet := homset_property sortToSet.
 
-Let hsSortToSet : has_homsets sortToSet := homset_property sortToSet.
+Lemma BinCoprodSortToSet : BinCoproducts sortToSet.
+Proof.
+apply BinCoproducts_functor_precat, BinCoproductsHSET.
+Defined.
+
+Local Lemma BinProd : BinProducts [sortToSet,SET].
+Proof.
+apply BinProducts_functor_precat, BinProductsHSET.
+Defined.
+
+Local Notation "'1'" := (functor_identity _).
 
 Let sortToSet2 := [sortToSet,sortToSet].
+Let hs2 : has_homsets sortToSet2 := homset_property sortToSet2.
 
-Local Lemma hs2 : has_homsets sortToSet2.
+Local Lemma BinCoprodSortToSet2 : BinCoproducts sortToSet2.
 Proof.
-apply functor_category_has_homsets.
-Qed.
+apply BinCoproducts_functor_precat, BinCoprodSortToSet.
+Defined.
 
 (** The signature of the simply typed lambda calculus *)
 Definition STLC_Sig : MultiSortedSig sort.
@@ -80,35 +97,15 @@ use mkMultiSortedSig.
 Defined.
 
 (** The signature with strength for the simply typed lambda calculus *)
-Definition STLC_Signature : Signature _ hsSortToSet _ hsSortToSet _ hsSortToSet.
-Proof.
-use MultiSortedSigToSignature.
-- apply isofhlevelssnset, setproperty.
-- apply TerminalHSET.
-- apply BinProductsHSET.
-- apply BinCoproductsHSET.
-- apply CoproductsHSET.
-- exact STLC_Sig.
-Defined.
+Definition STLC_Signature : Signature sortToSet hs _ hs _ hs :=
+  MultiSortedSigToSignatureSet _ STLC_Sig.
 
-Lemma CSortToSet : BinCoproducts sortToSet.
-Proof.
-  apply BinCoproducts_functor_precat, BinCoproductsHSET.
-Defined.
-
-Lemma CSortToSet2 : BinCoproducts sortToSet2.
-Proof.
-  apply BinCoproducts_functor_precat, BinCoproducts_functor_precat, BinCoproductsHSET.
-Defined.
-
-Definition STLC_Functor : functor [sortToSet,sortToSet] [sortToSet,sortToSet].
-Proof.
-exact (Id_H _ _ CSortToSet STLC_Signature).
-Defined.
+Definition STLC_Functor : functor [sortToSet,sortToSet] [sortToSet,sortToSet] :=
+  Id_H _ _ BinCoprodSortToSet STLC_Signature.
 
 Lemma STLC_Functor_Initial : Initial (FunctorAlg STLC_Functor hs2).
 Proof.
-apply SignatureInitialAlgebraSetSort.
+apply SignatureInitialAlgebra.
 - apply InitialHSET.
 - apply ColimsHSET_of_shape.
 - apply is_omega_cocont_MultiSortedSigToSignature.
@@ -121,104 +118,70 @@ Definition STLC_Monad : Monad sortToSet :=
   MultiSortedSigToMonadSet sort STLC_Sig.
 
 (** Extract the constructors of the STLC from the initial algebra *)
-Definition STLC : sortToSet2 := alg_carrier _ (InitialObject STLC_Functor_Initial).
+Definition STLC : sortToSet2 :=
+  alg_carrier _ (InitialObject STLC_Functor_Initial).
 
 Let STLC_mor : sortToSet2⟦STLC_Functor STLC,STLC⟧ :=
   alg_map _ (InitialObject STLC_Functor_Initial).
 
-Let STLC_alg : algebra_ob STLC_Functor := InitialObject STLC_Functor_Initial.
-
-
-Local Lemma BP : BinProducts [sortToSet,SET].
-Proof.
-apply BinProducts_functor_precat, BinProductsHSET.
-Defined.
-
-Local Notation "'1'" := (functor_identity sortToSet).
-Local Notation "x ⊗ y" := (BinProductObject _ (BP x y)).
+Let STLC_alg : algebra_ob STLC_Functor :=
+  InitialObject STLC_Functor_Initial.
 
 (** The variables *)
-Definition var_map : sortToSet2⟦1,STLC⟧.
-Proof.
-exact (BinCoproductIn1 _ (CSortToSet2 _ _) · STLC_mor).
-Defined.
-  (* BinCoproductIn1 _ (BinCoproducts_functor_precat _ _ _ _ _ _) · STLC_mor. *)
+Definition var_map : sortToSet2⟦1,STLC⟧ :=
+  BinCoproductIn1 _ (BinCoprodSortToSet2 _ _) · STLC_mor.
 
-Definition hat_functor' : sort → SET ⟶ sortToSet.
-Proof.
-use hat_functor.
-- apply isofhlevelssnset, setproperty.
-- apply CoproductsHSET.
-Defined.
 
-Definition sorted_option_functor' : sort → sortToSet ⟶ sortToSet.
-Proof.
-use sorted_option_functor.
-- apply isofhlevelssnset, setproperty.
-- apply TerminalHSET.
-- apply BinCoproductsHSET.
-- apply CoproductsHSET.
-Defined.
+(* TODO: upstream? *)
+Definition post_comp_functor {A : precategory} {B : category} {C : category} :
+  [B, C] → [A, B] ⟶ [A, C] :=
+    post_composition_functor (homset_property B) (homset_property C).
+
+Definition pre_comp_functor {A : precategory} {B : category} {C : category} :
+  [A, B] → [B, C] ⟶ [A, C] :=
+    pre_composition_functor (homset_property B) (homset_property C).
+
+Local Notation "F ⊗ G" := (BinProduct_of_functors BinProd F G).
 
 (** The source of the application constructor *)
-Definition app_source (s t : sort) : functor sortToSet2 sortToSet2.
-Proof.
-  set (F := (BinProduct_of_functors BP (post_composition_functor (homset_property _) (homset_property _) (projSortToC sort _ (arr s t))) (post_composition_functor (homset_property _) _ (projSortToC sort _ s)))).
-  apply (F ∙ post_composition_functor _ (homset_property _) (hat_functor' t)).
-(* use (functor_composite ((X ∙ projSortToC sort _ (arr s t)) ⊗ (X ∙ projSortToC sort _ s)) *)
-(*                        (hat_functor' t)). *)
-(* use (((X ∙ projSortToC sort _ (arr s t)) ⊗ (X ∙ projSortToC sort s)) ∙ hat_functor sort t). *)
-Defined.
+Definition app_source (s t : sort) : functor sortToSet2 sortToSet2 :=
+    (post_comp_functor (projSortToSet sort (arr s t)) ⊗ post_comp_functor (projSortToSet sort s))
+  ∙ (post_comp_functor (hat_functorSet sort t)).
 
 (** The application constructor *)
-Definition app_map (s t : sort) : sortToSet2⟦app_source s t STLC,STLC⟧.
-Proof.
-exact (CoproductIn _ _
-   (Coproducts_functor_precat _ sortToSet sortToSet
-     (Coproducts_functor_precat _ (path_pregroupoid sort) SET
-        (CoproductsHSET _ _) _) _ _) (ii1 (s,, t)) · BinCoproductIn2 _ (CSortToSet2 _ _) · STLC_mor).
-Defined.
+Definition app_map (s t : sort) : sortToSet2⟦app_source s t STLC,STLC⟧ :=
+    CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _ (λ _, _)) (ii1 (s,,t))
+  · BinCoproductIn2 _ (BinCoprodSortToSet2 _ _)
+  · STLC_mor.
 
 (** The source of the lambda constructor *)
-Definition lam_source (s t : sort) : functor sortToSet2 sortToSet2.
-Proof.
-exact (((pre_composition_functor (homset_property _) (homset_property _) (sorted_option_functor' s)) ∙ (post_composition_functor (homset_property _) _ (projSortToC sort _ t))) ∙ post_composition_functor (homset_property _) (homset_property _) (hat_functor' (arr s t))).
-(* use (functor_composite _ (hat_functor' (arr s t))). *)
-(* use (functor_composite (functor_composite (sorted_option_functor' s) X) (projSortToC sort _ t)). *)
-(* use ((sorted_option_functor sort s ∙ X ∙ proj_functor sort t) ∙ hat_functor sort (arr s t)). *)
-Defined.
+Definition lam_source (s t : sort) : functor sortToSet2 sortToSet2 :=
+    pre_comp_functor (sorted_option_functorSet sort s)
+  ∙ post_comp_functor (projSortToC sort _ t)
+  ∙ post_comp_functor (hat_functorSet sort (arr s t)).
 
-Definition lam_map (s t : sort) : sortToSet2⟦lam_source s t STLC,STLC⟧.
-Proof.
-exact (CoproductIn _ _ (Coproducts_functor_precat _ sortToSet sortToSet
-     (Coproducts_functor_precat _ (path_pregroupoid sort) SET
-        (CoproductsHSET _ _) _) _ _) (ii2 (s,,t)) · BinCoproductIn2 _ (CSortToSet2 _ _) · STLC_mor).
-Defined.
+Definition lam_map (s t : sort) : sortToSet2⟦lam_source s t STLC,STLC⟧ :=
+    CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _ (λ _, _)) (ii2 (s,,t))
+  · BinCoproductIn2 _ (BinCoprodSortToSet2 _ _)
+  · STLC_mor.
 
 Definition make_STLC_Algebra X (fvar : sortToSet2⟦1,X⟧)
   (fapp : ∏ s t, sortToSet2⟦app_source s t X,X⟧)
   (flam : ∏ s t, sortToSet2⟦lam_source s t X,X⟧) :
     algebra_ob STLC_Functor.
 Proof.
-apply (tpair _ X).
-use (BinCoproductArrow _ _ fvar).
-use CoproductArrow.
-intro b; induction b as [st|st]; induction st as [s t].
-- apply (fapp s t).
-- apply (flam s t).
+apply (tpair _ X), (BinCoproductArrow _ _ fvar), CoproductArrow; intros b.
+induction b as [st|st]; induction st as [s t].
+- exact (fapp s t).
+- exact (flam s t).
 Defined.
 
 (** The recursor for the stlc *)
 Definition foldr_map X (fvar : sortToSet2⟦1,X⟧)
-  (fapp : ∏ s t, sortToSet2⟦app_source s t X,X⟧)
-  (flam : ∏ s t, sortToSet2⟦lam_source s t X,X⟧) :
-  algebra_mor _ STLC_alg (make_STLC_Algebra X fvar fapp flam).
-Proof.
-apply (InitialArrow STLC_Functor_Initial (make_STLC_Algebra X fvar fapp flam)).
-Defined.
-
-
-(* TODO: the following are quite slow and the proofs are not so nice *)
+                       (fapp : ∏ s t, sortToSet2⟦app_source s t X,X⟧)
+                       (flam : ∏ s t, sortToSet2⟦lam_source s t X,X⟧) :
+                        algebra_mor _ STLC_alg (make_STLC_Algebra X fvar fapp flam) :=
+  InitialArrow STLC_Functor_Initial (make_STLC_Algebra X fvar fapp flam).
 
 (** The equation for variables *)
 Lemma foldr_var X (fvar : sortToSet2⟦1,X⟧)
@@ -226,16 +189,12 @@ Lemma foldr_var X (fvar : sortToSet2⟦1,X⟧)
   (flam : ∏ s t, sortToSet2⟦lam_source s t X,X⟧) :
   var_map · foldr_map X fvar fapp flam = fvar.
 Proof.
-assert (F := maponpaths (λ x, BinCoproductIn1 _ (BinCoproducts_functor_precat _ _ _ _ _ _) · x)
-                        (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
-rewrite assoc in F.
-eapply pathscomp0; [apply F|].
-rewrite assoc.
-eapply pathscomp0; [eapply cancel_postcomposition, BinCoproductOfArrowsIn1|].
-rewrite <- assoc.
-eapply pathscomp0; [eapply maponpaths, BinCoproductIn1Commutes|].
-apply id_left.
-Defined.
+unfold var_map.
+rewrite <- assoc, (algebra_mor_commutes _ _ _ (foldr_map _ _ _ _)), assoc.
+etrans; [eapply cancel_postcomposition, BinCoproductOfArrowsIn1|].
+rewrite id_left.
+apply BinCoproductIn1Commutes.
+Qed.
 
 Lemma foldr_app X (fvar : sortToSet2⟦1,X⟧)
   (fapp : ∏ s t, sortToSet2⟦app_source s t X,X⟧)
@@ -244,30 +203,19 @@ Lemma foldr_app X (fvar : sortToSet2⟦1,X⟧)
   app_map s t · foldr_map X fvar fapp flam =
   # (pr1 (app_source s t)) (foldr_map X fvar fapp flam) · fapp s t.
 Proof.
-  assert (p := algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam)).
-  set (A I h x := (Coproducts_functor_precat I sortToSet sortToSet
-     (Coproducts_functor_precat _ (path_pregroupoid sort) SET
-        (CoproductsHSET _ h) _) (homset_property _) x)).
-set (F := maponpaths (λ x, CoproductIn _ _
-   (A _ _ _) (ii1 (s,, t)) · BinCoproductIn2 _ (CSortToSet2 _ _) · x) p).
-rewrite assoc in F.
-eapply pathscomp0; [apply F|].
-rewrite assoc.
-eapply pathscomp0.
-  eapply cancel_postcomposition.
-  rewrite <- assoc.
-  eapply maponpaths, BinCoproductOfArrowsIn2.
-rewrite assoc.
-eapply pathscomp0.
-eapply @cancel_postcomposition.
-eapply @cancel_postcomposition.
-use (CoproductOfArrowsIn _ _ (A _ _ (λ _, _))).
+unfold app_map.
 rewrite <- assoc.
-eapply pathscomp0; [eapply maponpaths, BinCoproductIn2Commutes|].
+etrans; [apply maponpaths, (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))|].
+rewrite assoc.
+etrans; [eapply cancel_postcomposition; rewrite <- assoc;
+         apply maponpaths, BinCoproductOfArrowsIn2|].
+rewrite <- !assoc.
+etrans; [apply maponpaths, maponpaths, BinCoproductIn2Commutes|].
+rewrite assoc.
+etrans; [apply cancel_postcomposition; use (CoproductOfArrowsIn _ _ (Coproducts_functor_precat _ _ _ _ _ (λ _, _)))|].
 rewrite <- assoc.
-eapply pathscomp0; eapply maponpaths.
-  exact (CoproductInCommutes _ _ _ _ _ _ (ii1 (s,,t))).
-apply idpath.
+apply maponpaths.
+exact (CoproductInCommutes _ _ _ _ _ _ (inl (s,,t))).
 Qed.
 
 Lemma foldr_lam X (fvar : sortToSet2⟦1,X⟧)
@@ -277,30 +225,19 @@ Lemma foldr_lam X (fvar : sortToSet2⟦1,X⟧)
   lam_map s t · foldr_map X fvar fapp flam =
   # (pr1 (lam_source s t)) (foldr_map X fvar fapp flam) · flam s t.
 Proof.
-  assert (p := algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam)).
-  set (A I h x := (Coproducts_functor_precat I sortToSet sortToSet
-     (Coproducts_functor_precat _ (path_pregroupoid sort) SET
-        (CoproductsHSET _ h) _) (homset_property _) x)).
-set (F := maponpaths (λ x, CoproductIn _ _
-   (A _ _ _) (ii2 (s,, t)) · BinCoproductIn2 _ (CSortToSet2 _ _) · x) p).
-rewrite assoc in F.
-eapply pathscomp0; [apply F|].
-rewrite assoc.
-eapply pathscomp0.
-  eapply cancel_postcomposition.
-  rewrite <- assoc.
-  eapply maponpaths, BinCoproductOfArrowsIn2.
-rewrite assoc.
-eapply pathscomp0.
-eapply @cancel_postcomposition.
-eapply @cancel_postcomposition.
-use (CoproductOfArrowsIn _ _ (A _ _ (λ _, _))).
+unfold lam_map.
 rewrite <- assoc.
-eapply pathscomp0; [eapply maponpaths, BinCoproductIn2Commutes|].
+etrans; [apply maponpaths, (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))|].
+rewrite assoc.
+etrans; [eapply cancel_postcomposition; rewrite <- assoc;
+         apply maponpaths, BinCoproductOfArrowsIn2|].
+rewrite <- !assoc.
+etrans; [apply maponpaths, maponpaths, BinCoproductIn2Commutes|].
+rewrite assoc.
+etrans; [apply cancel_postcomposition; use (CoproductOfArrowsIn _ _ (Coproducts_functor_precat _ _ _ _ _ (λ _, _)))|].
 rewrite <- assoc.
-eapply pathscomp0; eapply maponpaths.
-  exact (CoproductInCommutes _ _ _ _ _ _ (ii2 (s,,t))).
-apply idpath.
+apply maponpaths.
+exact (CoproductInCommutes _ _ _ _ _ _ (inr (s,,t))).
 Qed.
 
 End Lam.

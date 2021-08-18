@@ -163,7 +163,7 @@ Section Sorted_Option_Functor.
 
 Context (s : sort).
 
-Local Definition option_fun_summand : sortToC.
+Definition option_fun_summand : sortToC.
 Proof.
 apply make_sortToC; intro t.
 (* Instead of an if-then-else we use a coproduct over "s = t". This lets us
@@ -191,7 +191,7 @@ End Sorted_Option_Functor.
 
 
 (** Sorted option functor for lists *)
-Local Definition option_list (xs : list sort) : functor sortToC sortToC.
+Definition option_list (xs : list sort) : functor sortToC sortToC.
 Proof.
 (* This should be foldr1 in order to avoid composing with the
    identity functor in the base case *)
@@ -223,7 +223,7 @@ Defined.
 
 (** This defines F^lts where lts is a list of (l,t). Outputs a product of
     functors if the list is nonempty and otherwise the constant functor. *)
-Local Definition exp_functor_list (xs : list (list sort × sort)) :
+Definition exp_functor_list (xs : list (list sort × sort)) :
   functor [sortToC,sortToC] [sortToC,C].
 Proof.
 (* If the list is empty we output the constant functor *)
@@ -236,7 +236,7 @@ use (foldr1 (λ F G, BinProduct_of_functors _ F G) T XS).
 apply BinProducts_functor_precat, BP.
 Defined.
 
-Local Definition hat_exp_functor_list (xst : list (list sort × sort) × sort) :
+Definition hat_exp_functor_list (xst : list (list sort × sort) × sort) :
   functor [sortToC,sortToC] [sortToC,sortToC] :=
     exp_functor_list (pr1 xst) ∙ post_composition_functor _ _ (hat_functor (pr2 xst)).
 
@@ -257,12 +257,12 @@ End functor.
 Section strength.
 
 (* The distributive law for sorted_option_functor *)
-Local Definition DL_sorted_option_functor (s : sort) :
+Definition DL_sorted_option_functor (s : sort) :
   DistributiveLaw sortToC hs (sorted_option_functor s) :=
     genoption_DistributiveLaw sortToC hs (option_fun_summand s) BCsortToC.
 
 (* The DL for option_list *)
-Local Definition DL_option_list (xs : list sort) :
+Definition DL_option_list (xs : list sort) :
   DistributiveLaw _ hs (option_list xs).
 Proof.
 induction xs as [[|n] xs].
@@ -276,7 +276,7 @@ induction xs as [[|n] xs].
 Defined.
 
 (* The signature for exp_functor *)
-Local Definition Sig_exp_functor (lt : list sort × sort) :
+Definition Sig_exp_functor (lt : list sort × sort) :
   Signature _ hs _ hsC _ hs.
 Proof.
 exists (exp_functor lt).
@@ -300,7 +300,7 @@ apply idpath.
 Qed.
 
 (* The signature for exp_functor_list *)
-Local Definition Sig_exp_functor_list (xs : list (list sort × sort)) :
+Definition Sig_exp_functor_list (xs : list (list sort × sort)) :
   Signature _ hs _ hsC _ hs.
 Proof.
 exists (exp_functor_list xs).
@@ -321,7 +321,7 @@ apply idpath.
 Qed.
 
 (* the signature for hat_exp_functor_list *)
-Local Definition Sig_hat_exp_functor_list (xst : list (list sort × sort) × sort) :
+Definition Sig_hat_exp_functor_list (xst : list (list sort × sort) × sort) :
   Signature _ hs _ hs _ hs.
 Proof.
 apply (Gθ_Signature _ _ (Sig_exp_functor_list (pr1 xst)) (hat_functor (pr2 xst))).
@@ -519,7 +519,7 @@ Defined.
 Let FunctorAlg F := FunctorAlg F has_homsets_SetSort2.
 
 (* ** Construction of initial algebra for a signature with strength on C^sort *)
-Definition SignatureInitialAlgebraSetSort
+Definition SignatureInitialAlgebra
   (H : Signature _ hs _ hs _ hs) (Hs : is_omega_cocont H) :
   Initial (FunctorAlg (Id_H H)).
 Proof.
@@ -567,6 +567,27 @@ Section MBindingSigMonadHSET.
 Variable (sort : hSet).
 
 Let sortToSet : category := [path_pregroupoid sort,SET].
+Let hs : has_homsets sortToSet := homset_property sortToSet.
+
+Definition projSortToSet : sort → functor sortToSet SET :=
+  projSortToC sort SET.
+
+Definition hat_functorSet : sort → SET ⟶ sortToSet :=
+  hat_functor sort (isofhlevelssnset 1 _ (setproperty sort)) SET CoproductsHSET.
+
+Definition sorted_option_functorSet : sort → sortToSet ⟶ sortToSet :=
+  sorted_option_functor _ (isofhlevelssnset 1 _ (setproperty sort)) SET
+                        TerminalHSET BinCoproductsHSET CoproductsHSET.
+
+Definition MultiSortedSigToSignatureSet : MultiSortedSig sort → Signature _ hs _ hs _ hs.
+Proof.
+use MultiSortedSigToSignature.
+- apply isofhlevelssnset, setproperty.
+- apply TerminalHSET.
+- apply BinProductsHSET.
+- apply BinCoproductsHSET.
+- apply CoproductsHSET.
+Defined.
 
 Definition MultiSortedSigToMonadSet (ms : MultiSortedSig sort) :
   Monad sortToSet.
