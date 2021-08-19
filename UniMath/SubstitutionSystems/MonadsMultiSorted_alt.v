@@ -1,6 +1,6 @@
 (**
 
-    Monads in [sort,SET]
+    Monads in [sort,C]
 
 
 Written by Anders Mörtberg, 2021 (adapted from MonadsMultiSorted.v)
@@ -32,10 +32,7 @@ Require Import UniMath.CategoryTheory.exponentials.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Chains.All.
 Require Import UniMath.CategoryTheory.Monads.Monads.
-Require Import UniMath.CategoryTheory.categories.HSET.Core.
-Require Import UniMath.CategoryTheory.categories.HSET.Colimits.
-Require Import UniMath.CategoryTheory.categories.HSET.Limits.
-Require Import UniMath.CategoryTheory.categories.HSET.Structures.
+
 Require Import UniMath.CategoryTheory.categories.StandardCategories.
 Require Import UniMath.CategoryTheory.Groupoids.
 
@@ -43,42 +40,41 @@ Local Open Scope cat.
 
 Section MonadInSortToSet.
 
-Variables (sort : hSet).
+Variables (sort : hSet) (C : category).
 
-Let sortToSet : category := [path_pregroupoid sort,SET].
-Let hs : has_homsets sortToSet := homset_property sortToSet.
+Let sortToC : category := [path_pregroupoid sort,C].
+Let hs : has_homsets sortToC := homset_property sortToC.
 
-Local Lemma BinCoprodSortToSet : BinCoproducts sortToSet.
-Proof.
-apply BinCoproducts_functor_precat, BinCoproductsHSET.
-Defined.
+(* Local Lemma BinCoprodSortToSet : BinCoproducts sortToC. *)
+(* Proof. *)
+(* apply BinCoproducts_functor_precat, BinCoproductsHSET. *)
+(* Defined. *)
 
-Context {M : Monad sortToSet}.
+Context {M : Monad sortToC}.
 
-Definition toSortToSetFun {X Y : sortToSet} (f : forall t, SET⟦pr1 X t,pr1 Y t⟧) : sortToSet⟦X,Y⟧ :=
+Definition toSortToSetFun {X Y : sortToC} (f : forall t, C⟦pr1 X t,pr1 Y t⟧) : sortToC⟦X,Y⟧ :=
   nat_trans_functor_path_pregroupoid (homset_property _) f.
 
-Definition bind_fun {X Y : sortToSet}
-           (f : forall t, SET⟦pr1 X t,pr1 (M Y) t⟧) : forall t, SET⟦pr1 (M X) t,pr1 (M Y) t⟧ :=
+Definition bind_fun {X Y : sortToC}
+           (f : forall t, C⟦pr1 X t,pr1 (M Y) t⟧) : forall t, C⟦pr1 (M X) t,pr1 (M Y) t⟧ :=
   λ t, pr1 (bind (toSortToSetFun f)) t.
 
-Definition η_fun {X : sortToSet} (t : sort) : SET⟦pr1 X t,pr1 (M X) t⟧ :=
+Definition η_fun {X : sortToC} (t : sort) : C⟦pr1 X t,pr1 (M X) t⟧ :=
   pr1 (η M X) t.
 
-Lemma η_bind_fun {X Y : sortToSet} (f : forall t, SET⟦pr1 X t,pr1 (M Y) t⟧) (t : sort) :
+Lemma η_bind_fun {X Y : sortToC} (f : forall t, C⟦pr1 X t,pr1 (M Y) t⟧) (t : sort) :
   η_fun t · bind_fun f t = f t.
 Proof.
 exact (nat_trans_eq_pointwise (η_bind (toSortToSetFun f)) t).
 Qed.
 
-Lemma bind_η_fun {X : sortToSet} (t : sort) :
+Lemma bind_η_fun {X : sortToC} (t : sort) :
   bind_fun η_fun t = pr1 (identity (M X)) t.
 Proof.
-etrans; [|apply (nat_trans_eq_pointwise (@bind_η _ M X) t)].
-apply funextfun; intros x; cbn; apply maponpaths.
+etrans; [|apply (nat_trans_eq_pointwise (@bind_η _ M X) t)]; apply cancel_postcomposition.
 assert (H2 : toSortToSetFun η_fun = η M X).
-{ apply nat_trans_eq; trivial; apply homset_property. }
-exact (eqtohomot (nat_trans_eq_pointwise (maponpaths (λ a, # M a) H2) t) x).
+{ now apply nat_trans_eq; [apply homset_property|]. }
+exact (nat_trans_eq_pointwise (maponpaths (λ a, # M a) H2) t).
 Qed.
 
 
