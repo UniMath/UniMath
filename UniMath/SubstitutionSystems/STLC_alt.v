@@ -100,7 +100,7 @@ Defined.
 Definition STLC_Signature : Signature sortToSet hs _ hs _ hs :=
   MultiSortedSigToSignatureSet _ STLC_Sig.
 
-Definition STLC_Functor : functor [sortToSet,sortToSet] [sortToSet,sortToSet] :=
+Definition STLC_Functor : functor sortToSet2 sortToSet2 :=
   Id_H _ _ BinCoprodSortToSet STLC_Signature.
 
 Lemma STLC_Functor_Initial : Initial (FunctorAlg STLC_Functor hs2).
