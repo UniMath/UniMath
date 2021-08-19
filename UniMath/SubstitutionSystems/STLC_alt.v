@@ -66,7 +66,7 @@ Local Notation "a + b" := (setcoprod a b) : set.
 Let sortToSet : category := [path_pregroupoid sort,SET].
 Let hs : has_homsets sortToSet := homset_property sortToSet.
 
-Lemma BinCoprodSortToSet : BinCoproducts sortToSet.
+Local Lemma BinCoprodSortToSet : BinCoproducts sortToSet.
 Proof.
 apply BinCoproducts_functor_precat, BinCoproductsHSET.
 Defined.
