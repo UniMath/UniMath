@@ -2,11 +2,9 @@
 
     Monads in [sort,C]
 
-
 Written by Anders Mörtberg, 2021 (adapted from MonadsMultiSorted.v)
 
 *)
-
 Require Import UniMath.Foundations.PartA.
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Sets.
@@ -38,96 +36,60 @@ Require Import UniMath.CategoryTheory.Groupoids.
 
 Local Open Scope cat.
 
-Section MonadInSortToSet.
+Section MonadInSortToC.
 
 Variables (sort : hSet) (C : category).
 
 Let sortToC : category := [path_pregroupoid sort,C].
 Let hs : has_homsets sortToC := homset_property sortToC.
 
-(* Local Lemma BinCoprodSortToSet : BinCoproducts sortToC. *)
+(* Local Lemma BinCoprodSortToC : BinCoproducts sortToC. *)
 (* Proof. *)
 (* apply BinCoproducts_functor_precat, BinCoproductsHSET. *)
 (* Defined. *)
 
 Context {M : Monad sortToC}.
 
-Definition toSortToSetFun {X Y : sortToC} (f : forall t, C⟦pr1 X t,pr1 Y t⟧) : sortToC⟦X,Y⟧ :=
+Definition sortToC_fun {X Y : sortToC} (f : ∏ t, C⟦pr1 X t,pr1 Y t⟧) : sortToC⟦X,Y⟧ :=
   nat_trans_functor_path_pregroupoid (homset_property _) f.
 
-Definition bind_fun {X Y : sortToC}
-           (f : forall t, C⟦pr1 X t,pr1 (M Y) t⟧) : forall t, C⟦pr1 (M X) t,pr1 (M Y) t⟧ :=
-  λ t, pr1 (bind (toSortToSetFun f)) t.
+Definition bind_fun {X Y : sortToC} (f : ∏ t, C⟦pr1 X t,pr1 (M Y) t⟧) :
+  ∏ t, C⟦pr1 (M X) t,pr1 (M Y) t⟧ :=
+    λ t, pr1 (bind (sortToC_fun f)) t.
 
 Definition η_fun {X : sortToC} (t : sort) : C⟦pr1 X t,pr1 (M X) t⟧ :=
   pr1 (η M X) t.
 
-Lemma η_bind_fun {X Y : sortToC} (f : forall t, C⟦pr1 X t,pr1 (M Y) t⟧) (t : sort) :
+Lemma η_bind_fun {X Y : sortToC} (f : ∏ t, C⟦pr1 X t,pr1 (M Y) t⟧) (t : sort) :
   η_fun t · bind_fun f t = f t.
 Proof.
-exact (nat_trans_eq_pointwise (η_bind (toSortToSetFun f)) t).
+exact (nat_trans_eq_pointwise (η_bind (sortToC_fun f)) t).
 Qed.
 
 Lemma bind_η_fun {X : sortToC} (t : sort) :
   bind_fun η_fun t = pr1 (identity (M X)) t.
 Proof.
-etrans; [|apply (nat_trans_eq_pointwise (@bind_η _ M X) t)]; apply cancel_postcomposition.
-assert (H2 : toSortToSetFun η_fun = η M X).
+etrans; [|apply (nat_trans_eq_pointwise (@bind_η _ M X) t)].
+apply cancel_postcomposition.
+assert (H : sortToC_fun η_fun = η M X).
 { now apply nat_trans_eq; [apply homset_property|]. }
-exact (nat_trans_eq_pointwise (maponpaths (λ a, # M a) H2) t).
+exact (nat_trans_eq_pointwise (maponpaths (λ a, # M a) H) t).
 Qed.
 
-
-(* TODO: continue from here *)
-
-
-
-Lemma bind_η_slice_inst {A1:hSet}{f1:A1->sort}(M: wellsorted_in (A1,,f1)) :
-  bind_slice (η_slice(Γ:=(A1,,f1))) (η_slice_ok(Γ:=(A1,,f1))) M = M.
+Lemma bind_bind_fun {X Y Z : sortToC}
+                    (f : ∏ t, C⟦pr1 X t,pr1 (M Y) t⟧)
+                    (g : ∏ t, C⟦pr1 Y t, pr1 (M Z) t ⟧)
+                    (t : sort) :
+  bind_fun f t · bind_fun g t = bind_fun (λ s, f s · bind_fun g s) t.
 Proof.
-  apply bind_η_slice.
-Qed.
-(** would rather be used from right to left *)
-
-
-Lemma bind_bind_slice {A1:hSet}{f1:A1->sort}{A2:hSet}{f2:A2->sort}{Γ3:SET_over_sort}
-  (f : A1->wellsorted_in (A2,,f2))(H1: forall a1:A1, sort_in (f a1) = f1 a1)
-  (g : A2->wellsorted_in Γ3)(H2: forall a2:A2, sort_in (g a2) = f2 a2)
-  (HH: forall a1:A1, sort_in (bind_slice g H2 (f a1)) = f1 a1)
-  (M: wellsorted_in (A1,,f1)) :
-    bind_slice g H2 (bind_slice f H1 M) = bind_slice (λ a1:A1, bind_slice g H2 (f a1)) HH M.
-Proof.
-  unfold bind_slice.
-  intermediate_path (pr1 (bind_instantiated (aux_fh f H1) · bind_instantiated (aux_fh g H2)) M).
-  + apply idpath.
-  + apply (maponpaths (λ f, f M)).
-    apply maponpaths.
-    unfold bind_instantiated.
-    rewrite bind_bind.
-    apply maponpaths.
-    now apply eq_mor_slicecat.
+  etrans.
+  apply (nat_trans_eq_pointwise (bind_bind (sortToC_fun f) (sortToC_fun g)) t).
+  apply cancel_postcomposition.
+  assert (H : sortToC_fun f · bind (sortToC_fun g) = sortToC_fun (λ s, f s · bind_fun g s)).
+  { now apply nat_trans_eq; [apply homset_property|]. }
+  exact (nat_trans_eq_pointwise (maponpaths (λ a, # M a) H) t).
 Qed.
 
-Local Definition HH_bind_bind_slice {A1:hSet}{f1:A1->sort}{A2:hSet}{f2:A2->sort}{Γ3:SET_over_sort}
-  (f : A1->wellsorted_in (A2,,f2))(H1: forall a1:A1, sort_in (f a1) = f1 a1)
-  (g : A2->wellsorted_in Γ3)(H2: forall a2:A2, sort_in (g a2) = f2 a2)(a1:A1) :
-  sort_in (bind_slice g H2 (f a1)) = f1 a1.
-Proof.
-  eapply pathscomp0.
-  + apply (bind_slice_ok g H2).
-  + apply H1.
-Defined.
-
-Lemma bind_bind_slice_inst {A1:hSet}{f1:A1->sort}{A2:hSet}{f2:A2->sort}{Γ3:SET_over_sort}
-  (f : A1->wellsorted_in (A2,,f2))(H1: forall a1:A1, sort_in (f a1) = f1 a1)
-  (g : A2->wellsorted_in Γ3)(H2: forall a2:A2, sort_in (g a2) = f2 a2)
-  (HH: forall a1:A1, sort_in (bind_slice g H2 (f a1)) = f1 a1)
-  (M: wellsorted_in (A1,,f1)) :
-  bind_slice g H2 (bind_slice f H1 M) =
-  bind_slice (λ a1:A1, bind_slice g H2 (f a1)) (HH_bind_bind_slice f H1 g H2) M.
-Proof.
-  apply bind_bind_slice.
-Qed.
 
 (** now we only substitute a single sorted variable *)
 
