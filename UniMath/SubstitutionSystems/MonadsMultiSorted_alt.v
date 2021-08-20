@@ -38,15 +38,17 @@ Local Open Scope cat.
 
 Section MonadInSortToC.
 
-Variables (sort : hSet) (C : category).
+Variables (sort : hSet) (C : category) (BC : BinCoproducts C).
 
 Let sortToC : category := [path_pregroupoid sort,C].
 Let hs : has_homsets sortToC := homset_property sortToC.
 
-(* Local Lemma BinCoprodSortToC : BinCoproducts sortToC. *)
-(* Proof. *)
-(* apply BinCoproducts_functor_precat, BinCoproductsHSET. *)
-(* Defined. *)
+Local Lemma BinCoproductsSortToC : BinCoproducts sortToC.
+Proof.
+apply BinCoproducts_functor_precat, BC.
+Defined.
+
+Local Notation "a ⊕ b" := (BinCoproductObject _ (BinCoproductsSortToC a b)).
 
 Context {M : Monad sortToC}.
 
@@ -93,47 +95,26 @@ Qed.
 
 (** now we only substitute a single sorted variable *)
 
-Definition aux_inject_N {Γ:SET_over_sort}(N : wellsorted_in Γ):
-  SET_over_sort⟦constHSET_slice (sort_in N),T Γ⟧.
-Proof.
-  use tpair.
-  + exact (fun _=> N).
-  + now apply funextsec.
-Defined.
 
-(* first approach not instantiating from the general situation of a monad:
-Definition subst_slice {Γ:SET_over_sort}(N : wellsorted_in Γ)
-           (M : wellsorted_in (sorted_option_functor (sort_in N) Γ)): wellsorted_in Γ.
-Proof.
-  set (aux0 := (CategoryTheory.Monads.η T Γ)).
-  set (auxf := BinCoproductArrow _ (BC _ _) (aux_inject_N N) (CategoryTheory.Monads.η T Γ)).
-  refine (bind_slice (pr1 auxf) _ M).
-  intro a.
-  simpl in a.
-  induction a as [a | a].
-  + now idtac.
-  + generalize (ii2(A:=unit) a).
-    clear a.
-    apply toforallpaths.
-(*    intermediate_path ((BinCoproductArrow HSET (BinCoproductsHSET 1%CS (pr1 Γ))
-                         (λ _ : unit, N) (pr1 ((Monads.η T) Γ))) ·  (sort_in T)).*)
-    change ((BinCoproductArrow HSET (BinCoproductsHSET 1%CS (pr1 Γ))
-                                    (λ _ : unit, N) (pr1 ((Monads.η T) Γ))) ·  sort_in =
-                 BinCoproductArrow HSET (BinCoproductsHSET 1%CS (pr1 Γ))
-                                    (λ _ : unit, sort_in N) (pr2 Γ)).
-    rewrite postcompWithBinCoproductArrow.
-    apply map_on_two_paths.
-    - apply idpath.
-    - set (aux1 := pr2 ((Monads.η T) Γ)).
-      apply pathsinv0.
-      now (etrans; try eapply aux1).
-Defined.
- *)
 
-Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)).
+(* Definition aux_inject_N {Γ:SET_over_sort}(N : wellsorted_in Γ): *)
+(*   SET_over_sort⟦constHSET_slice (sort_in N),T Γ⟧. *)
+(* Proof. *)
+(*   use tpair. *)
+(*   + exact (fun _=> N). *)
+(*   + now apply funextsec. *)
+(* Defined. *)
 
-Local Definition monadSubstGen_instantiated {T:Monad (SET / sort)}{Γ2 : SET_over_sort}(Γ1: SET_over_sort) (e : SET_over_sort⟦Γ2,T Γ1⟧) :
-  SET_over_sort⟦T (Γ2 ⊕ Γ1),T Γ1⟧ := monadSubstGen T BC Γ1 e.
+Definition monadSubstGen_instantiated {X Y : sortToC} :
+  sortToC⟦X,M Y⟧ → sortToC⟦M (X ⊕ Y),M Y⟧ := monadSubstGen M BinCoproductsSortToC Y.
+
+
+Definition monadSubstGen_instantiated_fun {X Y : sortToC}
+           (e : ∏ s, C⟦pr1 X s,pr1 (M Y) s⟧) (t : sort) : C⟦pr1 (M (X ⊕ Y)) t, pr1 (M Y) t⟧ :=
+  pr1 (monadSubstGen_instantiated (sortToC_fun e)) t.
+
+
+(*
 
 Definition subst_slice {Γ:SET_over_sort}(N : wellsorted_in Γ)
   (M : wellsorted_in (sorted_option_functor (sort_in N) Γ)): wellsorted_in Γ :=
@@ -148,43 +129,7 @@ Proof.
   now rewrite H1.
 Qed.
 
-Definition subst_slice_as_bind_slice {Γ:SET_over_sort}(N : wellsorted_in Γ)
-  (M : wellsorted_in (sorted_option_functor (sort_in N) Γ)): wellsorted_in Γ.
-Proof.
-  use (bind_slice (BinCoproductArrow _ (BinCoproductsHSET _ _) (λ _, N) (η_slice(Γ:=Γ))) _ M).
-  abstract(intro a1; induction a1 as [u | a1];
-           [apply idpath | unfold BinCoproductArrow; simpl; now rewrite η_slice_ok]).
-Defined.
 
-Lemma subst_slice_as_bind_slice_agrees {Γ:SET_over_sort}(N : wellsorted_in Γ)
-      (M : wellsorted_in (sorted_option_functor (sort_in N) Γ)) :
-  subst_slice_as_bind_slice N M =subst_slice N M.
-Proof.
-  unfold subst_slice_as_bind_slice, subst_slice.
-  unfold bind_slice, monadSubstGen_instantiated.
-  apply (maponpaths (λ f, f M)).
-  apply maponpaths.
-  unfold monadSubstGen, bind_instantiated.
-  apply maponpaths.
-  now apply eq_mor_slicecat.
-Qed.
-
-
-Definition subst_slice_eqn {Γ:SET_over_sort}(N : wellsorted_in Γ){s : sort}
-           (M : wellsorted_in (sorted_option_functor s Γ))(H: sort_in N = s) : wellsorted_in Γ.
-Proof.
-  apply (subst_slice N).
-  now rewrite <- H in M.
-Defined.
-
-Lemma subst_slice_eqn_ok {Γ:SET_over_sort}(N : wellsorted_in Γ){s : sort}
-      (M : wellsorted_in (sorted_option_functor s Γ))(H: sort_in N = s) :
-      sort_in (subst_slice_eqn N M H) = sort_in M.
-Proof.
-  unfold subst_slice_eqn.
-  rewrite subst_slice_ok.
-  now rewrite H.
-Qed.
 
 
 Local Definition mweak_instantiated (Γ1 : SET_over_sort){Γ2 : SET_over_sort} :
@@ -391,7 +336,7 @@ Proof.
 
 
 
+*)
 
 
-
-End MonadsInSET_over_sort.
+End MonadInSortToC.
