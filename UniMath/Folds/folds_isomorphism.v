@@ -51,8 +51,8 @@ Local Notation "'id' a" := (identity (C:=C') a) (at level 30).
 
 
 Definition folds_iso_data (a b : C) : UU :=
-  ((∏ {x : C}, (x ⇒ a) ≃ (x ⇒ b))
- × (∏ {z : C}, (a ⇒ z) ≃ (b ⇒ z)))
+  ((∏ (x : C), (x ⇒ a) ≃ (x ⇒ b))
+ × (∏ (z : C), (a ⇒ z) ≃ (b ⇒ z)))
 ×             ((a ⇒ a) ≃ (b ⇒ b)).
 
 Definition ϕ₁ {a b : C} (f : folds_iso_data a b) {x : C} : (x ⇒ a) ≃ (x ⇒ b) :=

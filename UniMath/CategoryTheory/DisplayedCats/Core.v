@@ -74,7 +74,7 @@ Definition disp_cat' (C : precategory) : UU :=
                   comp_disp ff (comp_disp gg hh)
                   = transportb (λ k, mor_disp k _ _) (assoc _ _ _)
                                (comp_disp (comp_disp ff gg) hh)),
-  (* homsets_disp : *) ∏ {x y} {f : x --> y} {xx} {yy}, isaset (mor_disp f xx yy).
+  (* homsets_disp : *) ∏ x y (f : x --> y) xx yy, isaset (mor_disp f xx yy).
 
 (** ** Definition *)
 

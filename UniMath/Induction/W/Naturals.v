@@ -182,7 +182,7 @@ Defined.
     and a function from each X n to X (S n).
  *)
 Definition fibered_algebra_nat :
-  fibered_alg nat_alg_z ≃ ∑ (X : ∏ n : ℕ, UU), (X 0) × (∏ {n}, X n → X (S n)).
+  fibered_alg nat_alg_z ≃ ∑ (X : ∏ n : ℕ, UU), (X 0) × (∏ n, X n → X (S n)).
 Proof.
   apply weqfibtototal; intro X; cbn in X.
   use weq_iso.
