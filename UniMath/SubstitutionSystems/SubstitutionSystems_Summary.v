@@ -105,7 +105,7 @@ Qed.
 
 Lemma fbracket_natural
      : ∏ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C)
-       (H : Signature C hs C hs C hs) (T : hss CP H) (Z Z' : precategory_Ptd C hs)
+       (H : Presignature C hs C hs C hs) (T : hss CP H) (Z Z' : precategory_Ptd C hs)
        (f : precategory_Ptd C hs ⟦ Z, Z' ⟧)
        (g : precategory_Ptd C hs ⟦ Z', ptd_from_alg T ⟧),
        (`T ∘ # U f : [C,C,hs] ⟦ `T • U Z , `T • U Z' ⟧) · ⦃ g ⦄ = ⦃ f · g ⦄ .
@@ -115,7 +115,7 @@ Qed.
 
 Lemma compute_fbracket
      : ∏ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C)
-       (H : Signature C hs C hs C hs) (T : hss CP H) (Z : precategory_Ptd C hs)
+       (H : Presignature C hs C hs C hs) (T : hss CP H) (Z : precategory_Ptd C hs)
        (f : precategory_Ptd C hs ⟦ Z, ptd_from_alg T ⟧),
        ⦃ f ⦄ = (`T ∘ # U f : [C,C,hs] ⟦ `T • U Z , `T • U _ ⟧) · ⦃ identity (ptd_from_alg T) ⦄.
 Proof.
@@ -165,7 +165,7 @@ Defined.
 Definition bracket_for_initial_algebra
  : ∏ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C),
      (∏ Z : precategory_Ptd C hs, GlobalRightKanExtensionExists C C (U Z) C hs hs)
-       → ∏ (H : Signature C hs C hs C hs)
+       → ∏ (H : Presignature C hs C hs C hs)
            (IA : Initial (FunctorAlg (Id_H C hs CP H) (functor_category_has_homsets C C hs)))
            (Z : precategory_Ptd C hs),
            precategory_Ptd C hs ⟦ Z, ptd_from_alg (InitAlg C hs CP H IA) ⟧
@@ -179,7 +179,7 @@ Lemma bracket_Thm15_ok_η
      : ∏ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C)
        (KanExt : ∏ Z : precategory_Ptd C hs,
                  GlobalRightKanExtensionExists C C (U Z) C hs hs)
-       (H : Signature C hs C hs C hs)
+       (H : Presignature C hs C hs C hs)
        (IA : Initial (FunctorAlg (Id_H C hs CP H) (functor_category_has_homsets C C hs)))
        (Z : precategory_Ptd C hs)
        (f : precategory_Ptd C hs ⟦ Z, ptd_from_alg (InitAlg C hs CP H IA)⟧),
@@ -193,7 +193,7 @@ Qed.
 Lemma bracket_Thm15_ok_τ
   : ∏ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C)
       (KanExt : ∏ Z : precategory_Ptd C hs, GlobalRightKanExtensionExists C C (U Z) C hs hs)
-      (H : Signature C hs C hs C hs)
+      (H : Presignature C hs C hs C hs)
       (IA : Initial (FunctorAlg (Id_H C hs CP H) (functor_category_has_homsets C C hs)))
       (Z : precategory_Ptd C hs)
       (f : precategory_Ptd C hs ⟦ Z, ptd_from_alg (InitAlg C hs CP H IA) ⟧),
@@ -213,7 +213,7 @@ Definition Initial_HSS :
    ∏ (C : precategory) (hs : has_homsets C) (CP : BinCoproducts C),
      (∏ Z : precategory_Ptd C hs,
          GlobalRightKanExtensionExists C C (U Z) C hs hs)
-     → ∏ H : Signature C hs C hs C hs,
+     → ∏ H : Presignature C hs C hs C hs,
        Initial (FunctorAlg (Id_H C hs CP H) (functor_category_has_homsets C C hs))
        → Initial (hss_precategory CP H).
 Proof.

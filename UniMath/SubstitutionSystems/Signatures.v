@@ -343,16 +343,29 @@ Section Strength_laws.
 
 End Strength_laws.
 
+Definition PrestrengthForSignature (H : [C, D', hsD'] ⟶ [C, D, hsD]) : UU := (θ_source H) ⟹ (θ_target H).
+
+Definition nat_trans_data_from_PrestrengthForSignature_funclass {H : [C, D', hsD'] ⟶ [C, D, hsD]}
+           (θ: PrestrengthForSignature H) : ∏ x, (θ_source H) x --> (θ_target H) x := pr1 θ.
+Coercion nat_trans_data_from_PrestrengthForSignature_funclass: PrestrengthForSignature >-> Funclass.
 
 Definition StrengthForSignature (H : [C, D', hsD'] ⟶ [C, D, hsD] ) : UU :=
-  ∑ θ : nat_trans (θ_source H) (θ_target H) , θ_Strength1_int H θ × θ_Strength2_int H θ.
+  ∑ θ : PrestrengthForSignature H , θ_Strength1_int H θ × θ_Strength2_int H θ.
+
+Coercion Strength_Prestrength {H : [C, D', hsD'] ⟶ [C, D, hsD]} (θwithlaws: StrengthForSignature H) :
+  PrestrengthForSignature H := pr1 θwithlaws.
+
+Definition Presignature : UU
+  := ∑ H : [C, D', hsD'] ⟶ [C, D, hsD] , PrestrengthForSignature H.
 
 Definition Signature : UU
   := ∑ H : [C, D', hsD'] ⟶ [C, D, hsD] , StrengthForSignature H.
 
+Coercion Presignature_Functor (S : Presignature) : functor _ _ := pr1 S.
 Coercion Signature_Functor (S : Signature) : functor _ _ := pr1 S.
+Coercion Presignature_Signature (S : Signature) : Presignature := Signature_Functor S ,, Strength_Prestrength(pr2 S).
 
-Definition theta (H : Signature) : (θ_source H) ⟹ (θ_target H) := pr1 (pr2 H).
+Definition theta (H : Presignature) : PrestrengthForSignature H := pr2 H.
 
 Definition Sig_strength_law1 (H : Signature) : θ_Strength1_int _ _ := pr1 (pr2 (pr2 H)).
 
@@ -535,7 +548,9 @@ End strength_in_signature_is_a_relative_strength.
 
 End homogeneous_case.
 
-
+Arguments PrestrengthForSignature {_ _ _ _ _ _} _ .
+Arguments StrengthForSignature {_ _ _ _ _ _} _ .
+Arguments Presignature_Signature {_ _ _ _ _ _} _ .
 Arguments theta {_ _ _ _ _ _} _ .
 Arguments θ_source {_ _ _ _ _ _ } _ .
 Arguments θ_target {_ _ _ _ _ _ } _ .

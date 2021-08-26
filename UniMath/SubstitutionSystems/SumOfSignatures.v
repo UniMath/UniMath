@@ -88,7 +88,7 @@ apply maponpaths, funextsec; intro i.
 apply (nat_trans_eq_pointwise (nat_trans_ax (θ1 i) (X,,Z) (X',,Z') αβ) c).
 Qed.
 
-Local Definition θ : θ_source H ⟹ θ_target H := tpair _ _ is_nat_trans_θ_ob.
+Local Definition θ : PrestrengthForSignature H := tpair _ _ is_nat_trans_θ_ob.
 
 (** * Proof of the strength laws of the sum of two signatures *)
 

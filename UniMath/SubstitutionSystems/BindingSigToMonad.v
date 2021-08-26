@@ -196,7 +196,7 @@ Let FunctorAlg F := FunctorAlg F has_homsets_C2.
 (** ** Construction of initial algebra for a signature with strength *)
 Definition SignatureInitialAlgebra
   (IC : Initial C) (CLC : Colims_of_shape nat_graph C)
-  (H : Signature C hsC C hsC C hsC) (Hs : is_omega_cocont H) :
+  (H : Presignature C hsC C hsC C hsC) (Hs : is_omega_cocont H) :
   Initial (FunctorAlg (Id_H H)).
 Proof.
 use colimAlgInitial.
@@ -221,7 +221,7 @@ Let HSS := @hss_precategory C hsC BCC.
 (* Redefine this here so that it uses the arguments above *)
 Let InitialHSS
   (IC : Initial C) (CLC : Colims_of_shape nat_graph C)
-  (H : Signature C hsC C hsC C hsC) (Hs : is_omega_cocont H) :
+  (H : Presignature C hsC C hsC C hsC) (Hs : is_omega_cocont H) :
   Initial (HSS H).
 Proof.
 apply InitialHSS; assumption.
@@ -230,7 +230,7 @@ Defined.
 (** ** Signature with strength and initial algebra to a HSS *)
 Definition SignatureToHSS
   (IC : Initial C) (CLC : Colims_of_shape nat_graph C)
-  (H : Signature C hsC C hsC C hsC) (Hs : is_omega_cocont H) :
+  (H : Presignature C hsC C hsC C hsC) (Hs : is_omega_cocont H) :
   HSS H.
 Proof.
 now apply InitialHSS; assumption.
@@ -239,7 +239,7 @@ Defined.
 (** The above HSS is initial *)
 Definition SignatureToHSSisInitial
   (IC : Initial C) (CLC : Colims_of_shape nat_graph C)
-  (H : Signature C hsC C hsC C hsC) (Hs : is_omega_cocont H) :
+  (H : Presignature C hsC C hsC C hsC) (Hs : is_omega_cocont H) :
   isInitial _ (SignatureToHSS IC CLC H Hs).
 Proof.
 now unfold SignatureToHSS; destruct InitialHSS.

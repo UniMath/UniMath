@@ -52,7 +52,7 @@ Section category_Algebra.
 
 Variables (C : precategory) (hsC : has_homsets C) (CP : BinCoproducts C).
 Variables (IC : Initial C) (CC : Colims_of_shape nat_graph C).
-Variables (H : Signature C hsC C hsC C hsC) (HH : is_omega_cocont H).
+Variables (H : Presignature C hsC C hsC C hsC) (HH : is_omega_cocont H).
 
 Local Notation "'EndC'":= ([C, C, hsC]) .
 Local Notation "'Ptd'" := (precategory_Ptd C hsC).
@@ -90,6 +90,8 @@ Defined.
 
 Definition InitAlg : Alg :=
   InitialObject (colimAlgInitial hsEndC InitialEndC is_omega_cocont_Id_H (Colims_of_shape_nat_graph_EndC _)).
+
+Definition ptdInitAlg : Ptd := ptd_from_alg InitAlg.
 
 Lemma isInitial_pre_comp (Z : Ptd) : isInitial [C, C, hsC] (ℓ (U Z) InitialEndC).
 Proof.
@@ -241,7 +243,7 @@ Definition θ'_Thm15 (Z: Ptd)
    (identity (constant_functor EndC _ (U Z): functor_precategory EndC EndC hsEndC))
    (θ_in_first_arg Z).
 
-Definition ρ_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧)
+Definition ρ_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptdInitAlg ⟧)
   : [C, C, hsC] ⟦ BinCoproductObject [C, C, hsC] (CPEndC (U Z) (H `InitAlg)), `InitAlg ⟧
   := @BinCoproductArrow
    EndC _ _  (CPEndC (U Z)
@@ -390,7 +392,7 @@ exists (λ _, m).
 abstract (intros ? ? ?; intermediate_path m; [ apply id_left | apply pathsinv0, id_right]).
 Defined.
 
-Definition thetahat_0 (Z : Ptd) (f : Z --> ptd_from_alg InitAlg) :
+Definition thetahat_0 (Z : Ptd) (f : Z --> ptdInitAlg) :
   EndEndC
   ⟦ BinCoproductObject EndEndC
       (CPEndEndC (constant_functor [C, C, hsC] [C, C, hsC] (U Z))
@@ -451,7 +453,7 @@ use tpair.
 - exact (is_nat_trans_iso2' Z).
 Defined.
 
-Definition thetahat (Z : Ptd) (f : Z --> ptd_from_alg InitAlg)
+Definition thetahat (Z : Ptd) (f : Z --> ptdInitAlg)
            : EndEndC ⟦ functor_composite Id_H (ℓ (U Z)),
                        functor_composite (ℓ (U Z)) (Ghat) ⟧.
 Proof.

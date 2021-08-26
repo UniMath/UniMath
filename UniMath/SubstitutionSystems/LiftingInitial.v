@@ -76,7 +76,7 @@ Let CPEndEndC:= BinCoproducts_functor_precat _ _ CPEndC hsEndC: BinCoproducts En
 
 Variable KanExt : ∏ Z : Ptd, GlobalRightKanExtensionExists _ _ (U Z) _ hs hs.
 
-Variable H : Signature C hs C hs C hs.
+Variable H : Presignature C hs C hs C hs.
 Let θ := theta H.
 
 Definition Const_plus_H (X : EndC) : functor EndC EndC
@@ -110,6 +110,7 @@ Definition θ_in_first_arg (Z: Ptd)
 
 Definition InitAlg : Alg := InitialObject IA.
 
+Definition ptdInitAlg : Ptd := ptd_from_alg InitAlg.
 
 Local Lemma aux_iso_1_is_nat_trans (Z : Ptd) :
    is_nat_trans
@@ -268,7 +269,7 @@ Definition θ'_Thm15 (Z: Ptd)
    (identity (constant_functor EndC _ (U Z): functor_precategory EndC EndC hsEndC))
    (θ_in_first_arg Z).
 
-Definition ρ_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧)
+Definition ρ_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptdInitAlg ⟧)
   : [C, C, hs] ⟦ BinCoproductObject [C, C, hs] (CPEndC (U Z) (H `InitAlg)), `InitAlg ⟧
   := @BinCoproductArrow
    EndC _ _  (CPEndC (U Z)
@@ -525,7 +526,7 @@ Proof.
   apply id_right] ).
 Defined.
 
-Definition thetahat_0 (Z : Ptd) (f : Z --> ptd_from_alg  InitAlg):
+Definition thetahat_0 (Z : Ptd) (f : Z --> ptdInitAlg):
 EndEndC
 ⟦ BinCoproductObject EndEndC
     (CPEndEndC (constant_functor [C, C, hs] [C, C, hs] (U Z))
@@ -598,7 +599,7 @@ Proof.
   - exact (is_nat_trans_iso2' Z).
 Defined.
 
-Definition thetahat (Z : Ptd)  (f : Z --> ptd_from_alg  InitAlg)
+Definition thetahat (Z : Ptd)  (f : Z --> ptdInitAlg)
            : EndEndC ⟦ functor_composite Id_H
                                         (ℓ (U Z)),
                      functor_composite (ℓ (U Z)) (Ghat) ⟧.
