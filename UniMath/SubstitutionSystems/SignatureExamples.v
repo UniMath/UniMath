@@ -186,8 +186,7 @@ eapply pathscomp0.
 now rewrite <- assoc, <- functor_comp.
 Qed.
 
-Definition θ_from_δ : θ_source precompG ⟹ θ_target precompG :=
-  tpair _ _ is_nat_trans_θ_from_δ_mor.
+Definition θ_from_δ : PrestrengthForSignature precompG := tpair _ _ is_nat_trans_θ_from_δ_mor.
 
 Lemma θ_Strength1_int_from_δ : θ_Strength1_int θ_from_δ.
 Proof.
@@ -198,7 +197,6 @@ eapply pathscomp0;
   [eapply maponpaths, (nat_trans_eq_pointwise (distributive_law1 G DL) c)|].
 apply functor_id.
 Qed.
-
 
 Lemma θ_Strength2_int_from_δ : θ_Strength2_int θ_from_δ.
 Proof.
@@ -212,9 +210,8 @@ eapply pathscomp0;
 apply functor_comp.
 Qed.
 
-Definition θ_precompG : ∑ θ : θ_source precompG ⟹ θ_target precompG,
-                              θ_Strength1_int θ × θ_Strength2_int θ :=
-  tpair _ θ_from_δ (θ_Strength1_int_from_δ,,θ_Strength2_int_from_δ).
+Definition θ_precompG : StrengthForSignature precompG :=
+  tpair _ θ_from_δ (θ_Strength1_int_from_δ ,, θ_Strength2_int_from_δ).
 
 Definition θ_from_δ_Signature : Signature C hsC C hsC C hsC :=
   tpair _ precompG θ_precompG.
@@ -230,7 +227,7 @@ Section δ_mul.
   Variable DL2 : DistributiveLaw G2.
 
 Definition δ_comp_mor (Ze : ptd_obj C) :
-       functor_composite_data (pr1 Ze) (functor_composite_data G1 G2)
+  functor_composite_data (pr1 Ze) (functor_composite_data G1 G2)
    ⟹ functor_composite_data (functor_composite_data G1 G2) (pr1 Ze).
 Proof.
 set (Z := pr1 Ze).
@@ -256,6 +253,7 @@ eapply pathscomp0.
   simpl; rewrite id_left, functor_id, id_right; intro H1.
   apply H1.
 rewrite functor_comp, <- assoc.
+
 eapply pathscomp0.
   eapply maponpaths.
   generalize (nat_trans_eq_pointwise (nat_trans_ax (δ G2 DL2) (Z,,e) (Z',, e') (α,,X)) (G1 c)).
@@ -311,9 +309,9 @@ End δ_mul.
 (** Construct the δ when G is generalized option *)
 Section genoption_sig.
 
-Variables (A : C) (CC : BinCoproducts C).
+  Variables (A : C) (CC : BinCoproducts C).
 
-Let genopt := constcoprod_functor1 CC A.
+  Let genopt := constcoprod_functor1 CC A.
 
 Definition δ_genoption_mor (Ze : Ptd) (c : C) :  C ⟦ BinCoproductObject C (CC A (pr1 Ze c)),
                                                   pr1 Ze (BinCoproductObject C (CC A c)) ⟧.
@@ -428,22 +426,19 @@ Defined.
 Definition precomp_genoption_Signature : Signature C hsC C hsC C hsC :=
   θ_from_δ_Signature genopt genoption_DistributiveLaw.
 
-
 End genoption_sig.
-
 
 (** trivially instantiate previous section to option functor *)
 Section option_sig.
 
   Variables (TC : Terminal C) (CC : BinCoproducts C).
+
   Let opt := option_functor CC TC.
+
   Definition δ_option: δ_source opt ⟹ δ_target opt :=
     δ_genoption TC CC.
-
   Definition δ_law1_option :=  δ_law1_genoption TC CC.
   Definition δ_law2_option :=  δ_law2_genoption TC CC.
-
-
   Definition option_DistributiveLaw : DistributiveLaw opt :=
     genoption_DistributiveLaw TC CC.
   Definition precomp_option_Signature : Signature C hsC C hsC C hsC :=
@@ -475,12 +470,10 @@ Section id_signature.
   Variable (C : precategory) (hsC : has_homsets C).
   Variable (D : precategory) (hsD : has_homsets D).
 
-  Definition θ_functor_identity : ∑
-  θ : θ_source (functor_identity [C,D,hsD]) ⟹ θ_target (functor_identity [C,D,hsD]),
-  θ_Strength1_int θ × θ_Strength2_int (hs := hsC) θ.
+  Definition θ_functor_identity : StrengthForSignature(hs:=hsC) (functor_identity [C,D,hsD]).
 Proof.
-use tpair; simpl.
-+ use tpair; simpl.
+use tpair.
++ use tpair.
   * intro x.
     { use tpair.
       - intro y; simpl; apply identity.
@@ -495,8 +488,6 @@ Defined.
 (** Signature for the Id functor *)
 Definition IdSignature : Signature C hsC D hsD D hsD :=
   tpair _ (functor_identity _) θ_functor_identity.
-
-
 (** an alternative approach would be to go through θ_from_δ_Signature, based on the
 observation that functor_identity [C,C,hsC] and
 pre_composition_functor _ _ _ hsC hsC (functor_identity C) are isomorphic;
@@ -511,8 +502,7 @@ Section constantly_constant_signature.
 
   Let H := constant_functor (functor_category C D') (functor_category C D) (constant_functor C D d).
 
-  Definition θ_const_const : ∑
-  θ : θ_source H  ⟹ θ_target H, θ_Strength1_int θ × θ_Strength2_int (hs := homset_property C) θ.
+  Definition θ_const_const : StrengthForSignature (hs := homset_property C) H.
 Proof.
 use tpair; simpl.
 + use tpair; simpl.
@@ -529,12 +519,11 @@ Defined.
 Definition ConstConstSignature : Signature _ (homset_property C) _ (homset_property D) _ (homset_property D') :=
   tpair _ H θ_const_const.
 
-  End constantly_constant_signature.
+End constantly_constant_signature.
 
 (** Transform a signature with strength θ with underlying functor H into
     a signature with strength Gθ for the functor that comes from
     post-composition of all HX with a functor G
-
     G need not be an endofunctor, which is why the strength concept had
     to be given more heterogeneously than only on endofunctors on
     endofunctor categories
@@ -556,6 +545,7 @@ Local Notation "'Ptd'" := (precategory_Ptd C hsC).
 Local Notation "'EndC'":= ([C, C, hsC]) .
 
 Variable S: Signature C hsC D hsD D' hsD'.
+
 Let H : functor [C, D', hsD'] [C, D, hsD] := Signature_Functor S.
 Let θ : nat_trans (θ_source H) (θ_target H) := theta S.
 Let θ_strength1 := Sig_strength_law1 S.
@@ -564,8 +554,7 @@ Variable G : functor D E.
 
 Let GH : functor [C, D', hsD'] [C, E, hsE] := functor_composite H (post_composition_functor _ _ _ _ _ G).
 
-Definition Gθ_mor (XZe : [C, D', hsD'] ⊠ Ptd) :
-  [C, E, hsE] ⟦ θ_source GH XZe, θ_target GH XZe ⟧.
+Definition Gθ_mor (XZe : [C, D', hsD'] ⊠ Ptd) : [C, E, hsE] ⟦ θ_source GH XZe, θ_target GH XZe ⟧.
 Proof.
 set (X := pr1 XZe); set (Z := pr1 (pr2 XZe)).
 set (F1 := α_functor_inv Z (H X) G).
@@ -594,9 +583,7 @@ eapply pathscomp0.
         apply Hyp.
 Qed.
 
-Definition Gθ : θ_source GH ⟹ θ_target GH :=
-  tpair _ _ is_nat_trans_Gθ_mor.
-
+Definition Gθ : PrestrengthForSignature GH := tpair _ _ is_nat_trans_Gθ_mor.
 
 Lemma Gθ_Strength1_int : θ_Strength1_int Gθ.
 Proof.
@@ -631,13 +618,10 @@ eapply pathscomp0.
       apply pathsinv0, Hyp.
 Qed.
 
-
-Definition Gθ_with_laws : ∑ θ : θ_source GH ⟹ θ_target GH,
-                              θ_Strength1_int θ × θ_Strength2_int θ :=
-  tpair _ Gθ (Gθ_Strength1_int,,Gθ_Strength2_int).
+Definition Gθ_with_laws : StrengthForSignature GH :=
+  tpair _ Gθ (Gθ_Strength1_int ,, Gθ_Strength2_int).
 
 Definition Gθ_Signature : Signature C hsC E hsE D' hsD' :=
   tpair _ GH Gθ_with_laws.
-
 
 End θ_for_postcomposition.

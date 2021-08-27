@@ -370,7 +370,7 @@ Definition DatatypeOfBindingSig :
     (_ : ∏ (F : functor_precategory C C hsC),
             is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C BPC hsC) F))
     (sig : BindingSig) (CC : Coproducts (BindingSigIndex sig) C),
-  Initial (FunctorAlg (Id_H C hsC BCC (BindingSigToSignature hsC BPC BCC TC sig CC))
+  Initial (FunctorAlg (Id_H C hsC BCC (UniMath.SubstitutionSystems.Signatures.Presignature_Signature (BindingSigToSignature hsC BPC BCC TC sig CC)))
                       (BindingSigToMonad.has_homsets_C2 hsC)).
 Proof.
 exact @UniMath.SubstitutionSystems.BindingSigToMonad.DatatypeOfBindingSig.
@@ -380,14 +380,14 @@ Defined.
 Definition InitHSS :
   ∏ (C : precategory) (hsC : has_homsets C) (CP : BinCoproducts C),
   Initial C → Colims_of_shape nat_graph C →
-  ∏ H : Signature C hsC C hsC C hsC, is_omega_cocont (pr1 H) → hss_precategory CP H.
+  ∏ H : UniMath.SubstitutionSystems.Signatures.Presignature C hsC C hsC C hsC, is_omega_cocont (pr1 H) → hss_precategory CP H.
 Proof.
 exact @UniMath.SubstitutionSystems.LiftingInitial_alt.InitHSS.
 Defined.
 
 Lemma isInitial_InitHSS :
   ∏ (C : precategory) (hsC : has_homsets C) (CP : BinCoproducts C)
-  (IC : Initial C) (CC : Colims_of_shape nat_graph C) (H : Signature C hsC C hsC C hsC)
+  (IC : Initial C) (CC : Colims_of_shape nat_graph C) (H : UniMath.SubstitutionSystems.Signatures.Presignature C hsC C hsC C hsC)
   (HH : is_omega_cocont (pr1 H)),
   isInitial (hss_precategory CP H) (InitHSS C hsC CP IC CC H HH).
 Proof.

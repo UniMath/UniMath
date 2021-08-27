@@ -121,7 +121,7 @@ Qed.
   Proof.
     use disp_cat_from_SIP_data.
     - intro H.
-      exact (StrengthForSignature C hsC D hsD D' hsD' H).
+      exact (@StrengthForSignature C hsC D hsD D' hsD' H).
     - intros H1 H2 str1 str2 α.
       exact (quantified_signature_category_mor_diagram (H1,,str1) (H2,,str2) α).
     - intros H1 H2 str1 str2 α.
@@ -210,7 +210,7 @@ Qed.
 
 (** towards univalence *)
 
-  Lemma Signature_precategory_Pisset (H : [[C, D'], [C, D]]) : isaset (StrengthForSignature C hsC D hsD D' hsD' H).
+  Lemma Signature_precategory_Pisset (H : [[C, D'], [C, D]]) : isaset (@StrengthForSignature C hsC D hsD D' hsD' H).
   Proof.
     change isaset with (isofhlevel 2).
     apply isofhleveltotal2.
@@ -222,7 +222,7 @@ Qed.
     + apply isaprop_θ_Strength2_int.
   Qed.
 
-  Lemma Signature_precategory_Hstandard (H : [[C, D'], [C, D]]) (a a' : StrengthForSignature C hsC D hsD D' hsD' H) :
+  Lemma Signature_precategory_Hstandard (H : [[C, D'], [C, D]]) (a a' : @StrengthForSignature C hsC D hsD D' hsD' H) :
   (∏ (X : [C, D']) (Y : precategory_Ptd C hsC),
   Signature_category_mor_diagram (H,, a) (H,, a') (identity H) X Y)
  → (∏ (X : [C, D']) (Y : precategory_Ptd C hsC),

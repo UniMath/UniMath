@@ -203,7 +203,7 @@ Definition MLTT79Signature : SigHSET := BindingSigToSignatureHSET MLTT79Sig.
 
 Let Id_H := Id_H _ has_homsets_HSET BinCoproductsHSET.
 
-Definition MLTT79Functor : functor HSET2 HSET2 := Id_H MLTT79Signature.
+Definition MLTT79Functor : functor HSET2 HSET2 := Id_H (Presignature_Signature MLTT79Signature).
 
 Definition MLTT79Monad : Monad HSET := BindingSigToMonadHSET MLTT79Sig.
 

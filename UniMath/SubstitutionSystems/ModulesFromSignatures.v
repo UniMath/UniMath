@@ -296,7 +296,7 @@ Variables (IC : Initial C)
 
 Let T := InitHSS _ _ CP IC CC H HH.
 
-Local Notation T_alg := (alg_from_hss _ _ _ _ T).
+Local Notation T_alg := (alg_from_hetsubst _ _ _ _ (hetsubst_from_hss _ _ _ _ T)).
 Local Notation T_mon := (Monad_from_hss _ _ _ _ T).
 Local Notation T_func := (T_mon : functor _ _).
 Local Notation T_hss := (T:hss _ _).

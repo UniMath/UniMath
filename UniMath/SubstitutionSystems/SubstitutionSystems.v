@@ -38,6 +38,7 @@ Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
+Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
@@ -56,12 +57,9 @@ Local Notation "'EndC'":= ([C, C, hs]) .
 Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
 Let CPEndC : BinCoproducts EndC := BinCoproducts_functor_precat _ _ CP hs.
 
-Variable H : Signature C hs C hs C hs.
+Variable H : Presignature C hs C hs C hs.
 
 Let θ := theta H.
-
-Let θ_strength1_int := Sig_strength_law1 H.
-Let θ_strength2_int := Sig_strength_law2 H.
 
 Let Id_H
 : functor EndC EndC
@@ -242,10 +240,69 @@ Qed.
   ∏ (X : UU) (P Q : X → UU),
   (∏ x : X, P x ≃ Q x) → (∏ x : X, P x) ≃ (∏ x : X, Q x)] *)
 
+(** the notion one would be looking for: an algebra and a substitution operation that does lookup on
+variables and behaves homomorphically elsewhere, as instructed by the pre-strength *)
+Definition heterogeneous_substitution : UU := ∑ (T: algebra_ob Id_H), bracket_at T (identity _).
 
-Definition hss : UU := ∑ T, bracket T.
+Definition bracket_property_parts_identity_nicer (T : algebra_ob Id_H) (h : `T • `T  --> `T) : UU
+  := (ρ_functor _ = η T •• `T · h) × (θ (`T ⊗ p T) · #H h · τ T  = τ T •• `T ·  h).
+(** [ρ_functor] is a monoidal unitor, which is pointwise the identity *)
 
-Coercion alg_from_hss (T : hss) : algebra_ob Id_H := pr1 T.
+Lemma bracket_property_parts_identity_nicer_impl1 (T : algebra_ob Id_H) (h : `T • `T  --> `T):
+  bracket_property_parts T (identity _) h -> bracket_property_parts_identity_nicer T h.
+Proof.
+  intro Hyp. induction Hyp as [Hyp1 Hyp2].
+  split.
+  - etrans.
+    2: { exact Hyp1. }
+    apply nat_trans_eq; try apply hs.
+    intro c.
+    apply idpath.
+  - etrans.
+    { exact Hyp2. }
+    apply idpath.
+Qed.
+
+(** basically the same proof *)
+Lemma bracket_property_parts_identity_nicer_impl2 (T : algebra_ob Id_H) (h : `T • `T  --> `T):
+  bracket_property_parts_identity_nicer T h -> bracket_property_parts T (identity _) h.
+  intro Hyp. induction Hyp as [Hyp1 Hyp2].
+  split.
+  - etrans.
+    2: { exact Hyp1. }
+    apply nat_trans_eq; try apply hs.
+    intro c.
+    apply idpath.
+  - etrans.
+    { exact Hyp2. }
+    apply idpath.
+Qed.
+
+Coercion alg_from_hetsubst (T : heterogeneous_substitution) : algebra_ob Id_H := pr1 T.
+
+Definition join_from_hetsubst (T : heterogeneous_substitution) : `T • `T --> `T
+  := pr1 (pr1 (pr2 T)).
+
+Lemma join_from_hetsubst_η (T : heterogeneous_substitution) :
+  ρ_functor _ = η T •• `T · (join_from_hetsubst T).
+Proof.
+  refine (pr1 (bracket_property_parts_identity_nicer_impl1 _ _ _)).
+  apply parts_from_whole.
+  exact (pr2 (pr1 (pr2 T))).
+Qed.
+
+Lemma join_from_hetsubst_τ (T : heterogeneous_substitution) :
+  θ (`T ⊗ p T) · #H (join_from_hetsubst T) · τ T  = τ T •• `T ·  (join_from_hetsubst T).
+Proof.
+  refine (pr2 (bracket_property_parts_identity_nicer_impl1 _ _ _)).
+  apply parts_from_whole.
+  exact (pr2 (pr1 (pr2 T))).
+Qed.
+
+(** the notion of a heterogeneous substitution system that asks for more operations to uniquely exist *)
+Definition hss : UU := ∑ (T: algebra_ob Id_H), bracket T.
+
+Coercion hetsubst_from_hss (T : hss) : heterogeneous_substitution := pr1 T,, pr2 T _ (identity _).
 
 
 Definition fbracket (T : hss) {Z : Ptd} (f : Z --> ptd_from_alg T)
@@ -385,7 +442,75 @@ Proof.
   apply idpath.
 Qed.
 
-
+(** the operations of an hss can be obtained through this formula from
+    just a heterogeneous substitution *)
+Lemma heterogeneous_substitution_into_bracket {T: heterogeneous_substitution}
+      {Z : Ptd} (f : Z --> ptd_from_alg T) :
+  bracket_property T f ((` T ∘ # U f : EndC ⟦ `T • U Z , `T • U (p T) ⟧) · join_from_hetsubst T).
+Proof.
+  apply whole_from_parts.
+  split.
+  - apply nat_trans_eq; try exact hs.
+    intro c.
+    induction f as [f pt].
+    simpl.
+    assert (alg_map_nat := nat_trans_ax (alg_map Id_H T) _ _ (pr1 f c)).
+    etrans.
+    2: { rewrite <- assoc. apply maponpaths. rewrite assoc.
+         apply cancel_postcomposition.
+         exact alg_map_nat.
+    }
+    clear alg_map_nat.
+    etrans.
+    2: { do 2 rewrite assoc. do 2 apply cancel_postcomposition.
+         apply pathsinv0. unfold Id_H. simpl. apply BinCoproductIn1Commutes. }
+    simpl.
+    etrans.
+    { apply pathsinv0.
+      apply id_right.
+    }
+    do 2 rewrite <- assoc.
+    apply maponpaths.
+    rewrite assoc.
+    assert (join_ok := join_from_hetsubst_η T).
+    apply (maponpaths pr1) in join_ok.
+    apply toforallpaths in join_ok.
+    apply join_ok.
+  - rewrite functor_comp.
+    apply nat_trans_eq; try exact hs.
+    intro c.
+    induction f as [f pt].
+    simpl.
+    assert (alg_map_nat := nat_trans_ax (alg_map Id_H T) _ _ (pr1 f c)).
+    etrans.
+    2: { rewrite <- assoc. apply maponpaths. rewrite assoc.
+         apply cancel_postcomposition.
+         exact alg_map_nat.
+    }
+    etrans.
+    2: { do 2 rewrite assoc. do 2 apply cancel_postcomposition.
+         apply pathsinv0. unfold Id_H. simpl. apply BinCoproductIn2Commutes. }
+    assert (join_ok := join_from_hetsubst_τ T).
+    apply (maponpaths pr1) in join_ok.
+    apply toforallpaths in join_ok.
+    assert (join_ok_inst := join_ok c).
+    simpl in join_ok_inst.
+    etrans.
+    { repeat rewrite assoc. do 3 apply cancel_postcomposition.
+      apply pathsinv0.
+      assert (theta_nat_2 := θ_nat_2_pointwise _ _ _ _ _ _ H θ `T _ _ (f,,pt) c).
+      rewrite horcomp_id_postwhisker in theta_nat_2; try exact hs.
+      apply theta_nat_2.
+    }
+    etrans.
+    { repeat rewrite <- assoc. apply maponpaths.
+      rewrite assoc.
+      exact join_ok_inst.
+    }
+    clear join_ok join_ok_inst.
+    repeat rewrite assoc.
+    apply idpath.
+Qed.
 
 (** ** Morphisms of heterogeneous substitution systems *)
 
