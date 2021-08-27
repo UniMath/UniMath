@@ -200,7 +200,7 @@ Proof.
   intro c.
   intermediate_path (μ_1 c).
   - unfold μ_1.
-    assert (H':= @fbracket_unique_target_pointwise _ _  _ _ T).
+    assert (H':= @fbracket_unique_target_pointwise _ _ _ _ T).
     assert (H1:= H'  _ μ_0_ptd).
     set (x:= post_whisker μ_0 (`T)
              : EndC ⟦ `T • functor_identity _  , `T • `T ⟧).
@@ -317,7 +317,7 @@ Lemma μ_3_T_μ_2_μ_2 : μ_3 =
                       (`T ∘ μ_2 : EndC ⟦ `T • _  , `T • `T ⟧ ) · μ_2.
 Proof.
   apply pathsinv0.
-  apply (fbracket_unique T  μ_2_ptd).
+  apply (fbracket_unique T μ_2_ptd).
   split.
   - apply nat_trans_eq; try assumption.
     intro c.

@@ -43,7 +43,7 @@ Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 
-Section def_hss.
+Section fix_a_category.
 
 (** ** Some variables and assumptions *)
 
@@ -57,21 +57,21 @@ Local Notation "'EndC'":= ([C, C, hs]) .
 Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
 Let CPEndC : BinCoproducts EndC := BinCoproducts_functor_precat _ _ CP hs.
 
-Variable H : Presignature C hs C hs C hs.
-
-Let θ := theta H.
-
-Let Id_H
-: functor EndC EndC
-  := BinCoproduct_of_functors _ _ CPEndC
-                       (constant_functor _ _ (functor_identity _ : EndC))
-                       H.
-
 (** The precategory of pointed endofunctors on [C] *)
 Local Notation "'Ptd'" := (precategory_Ptd C hs).
 (** The category of endofunctors on [C] *)
 Local Notation "'EndC'":= ([C, C, hs]) .
 
+(** preparations for the definition of hss based on a functor [H] *)
+Section prep_hss.
+
+Variable H : functor [C, C, hs] [C, C, hs].
+
+Definition Id_H
+: functor EndC EndC
+  := BinCoproduct_of_functors _ _ CPEndC
+                       (constant_functor _ _ (functor_identity _ : EndC))
+                       H.
 
 (* An Id_H algebra is a pointed functor *)
 
@@ -94,51 +94,43 @@ Proof.
 Defined.
 Local Notation τ := tau_from_alg.
 
-Local Notation "'p' T" := (ptd_from_alg T) (at level 3).
-
 (*
 Coercion functor_from_algebra_ob (X : algebra_ob _ Id_H) : functor C C  := pr1 X.
 *)
 
 Local Notation "f ⊕ g" := (BinCoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) f g).
 
+(** analysis of the "bracket operation" individually for each pointed functor *)
+Section fix_a_pointed_functor.
 
-Definition bracket_property (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_alg T)
+  Context {Z: Ptd}.
+  Context (θ : @PrestrengthForSignatureAtPoint C hs C hs C hs H Z).
+
+
+Definition bracket_property (T : algebra_ob Id_H) (f : Z --> ptd_from_alg T)
            (h : `T • (U Z)  --> `T) : UU
   :=
     alg_map _ T •• (U Z) · h =
-          (identity (U Z) ⊕ θ (`T ⊗ Z)) ·
+          (identity (U Z) ⊕ θ `T) ·
           (identity (U Z) ⊕ #H h) ·
           (BinCoproductArrow _ (CPEndC _ _ ) (#U f) (tau_from_alg T)).
 
-Definition bracket_at (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_alg T): UU :=
+Definition bracket_at (T : algebra_ob Id_H) (f : Z --> ptd_from_alg T): UU :=
   ∃! h : `T • (U Z)  --> `T, bracket_property T f h.
 
-Definition bracket (T : algebra_ob Id_H) : UU
-  := ∏ (Z : Ptd) (f : Z --> ptd_from_alg T), bracket_at T f.
 
-Lemma isaprop_bracket (T : algebra_ob Id_H) : isaprop (bracket T).
-Proof.
-  apply impred_isaprop; intro Z.
-  apply impred_isaprop; intro f.
-  apply isapropiscontr.
-Qed.
-
-Definition bracket_property_parts (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_alg T)
+Definition bracket_property_parts (T : algebra_ob Id_H) (f : Z --> ptd_from_alg T)
            (h : `T • (U Z)  --> `T) : UU
   :=
     (#U f = η T •• (U Z) · h) ×
-     (θ (`T ⊗ Z) · #H h · τ T  = τ T •• (U Z) ·  h).
+     (θ `T · #H h · τ T  = τ T •• (U Z) ·  h).
 
-Definition bracket_parts_at (T : algebra_ob Id_H) {Z : Ptd} (f : Z --> ptd_from_alg T) : UU :=
+Definition bracket_parts_at (T : algebra_ob Id_H) (f : Z --> ptd_from_alg T) : UU :=
    ∃! h : `T • (U Z)  --> `T, bracket_property_parts T f h.
-
-Definition bracket_parts (T : algebra_ob Id_H) : UU
-  := ∏ (Z : Ptd) (f : Z --> ptd_from_alg T), bracket_parts_at T f.
 
 (* show that for any h of suitable type, the following are equivalent *)
 
-Lemma parts_from_whole (T : algebra_ob Id_H) (Z : Ptd) (f : Z --> ptd_from_alg T)
+Lemma parts_from_whole (T : algebra_ob Id_H) (f : Z --> ptd_from_alg T)
       (h :  `T • (U Z)  --> `T) :
   bracket_property T f h → bracket_property_parts T f h.
 Proof.
@@ -193,7 +185,7 @@ Proof.
       apply idpath.
 Qed.
 
-Lemma whole_from_parts (T : algebra_ob Id_H) (Z : Ptd) (f : Z --> ptd_from_alg T)
+Lemma whole_from_parts (T : algebra_ob Id_H) (f : Z --> ptd_from_alg T)
       (h :  `T • (U Z)  --> `T) :
   bracket_property_parts T f h → bracket_property T f h.
 Proof.
@@ -240,16 +232,19 @@ Qed.
   ∏ (X : UU) (P Q : X → UU),
   (∏ x : X, P x ≃ Q x) → (∏ x : X, P x) ≃ (∏ x : X, Q x)] *)
 
-(** the notion one would be looking for: an algebra and a substitution operation that does lookup on
-variables and behaves homomorphically elsewhere, as instructed by the pre-strength *)
-Definition heterogeneous_substitution : UU := ∑ (T: algebra_ob Id_H), bracket_at T (identity _).
+End fix_a_pointed_functor.
 
-Definition bracket_property_parts_identity_nicer (T : algebra_ob Id_H) (h : `T • `T  --> `T) : UU
-  := (ρ_functor _ = η T •• `T · h) × (θ (`T ⊗ p T) · #H h · τ T  = τ T •• `T ·  h).
+Section instantiate_with_identity.
+
+    Context (T : algebra_ob Id_H).
+    Context (θ : @PrestrengthForSignatureAtPoint C hs C hs C hs H (ptd_from_alg T)).
+
+Definition bracket_property_parts_identity_nicer (h : `T • `T  --> `T) : UU
+  := (ρ_functor _ = η T •• `T · h) × (θ `T · #H h · τ T  = τ T •• `T ·  h).
 (** [ρ_functor] is a monoidal unitor, which is pointwise the identity *)
 
-Lemma bracket_property_parts_identity_nicer_impl1 (T : algebra_ob Id_H) (h : `T • `T  --> `T):
-  bracket_property_parts T (identity _) h -> bracket_property_parts_identity_nicer T h.
+Lemma bracket_property_parts_identity_nicer_impl1 (h : `T • `T  --> `T):
+  bracket_property_parts θ T (identity _) h -> bracket_property_parts_identity_nicer h.
 Proof.
   intro Hyp. induction Hyp as [Hyp1 Hyp2].
   split.
@@ -264,8 +259,8 @@ Proof.
 Qed.
 
 (** basically the same proof *)
-Lemma bracket_property_parts_identity_nicer_impl2 (T : algebra_ob Id_H) (h : `T • `T  --> `T):
-  bracket_property_parts_identity_nicer T h -> bracket_property_parts T (identity _) h.
+Lemma bracket_property_parts_identity_nicer_impl2 (h : `T • `T  --> `T):
+  bracket_property_parts_identity_nicer h -> bracket_property_parts θ T (identity _) h.
   intro Hyp. induction Hyp as [Hyp1 Hyp2].
   split.
   - etrans.
@@ -278,31 +273,77 @@ Lemma bracket_property_parts_identity_nicer_impl2 (T : algebra_ob Id_H) (h : `T 
     apply idpath.
 Qed.
 
+End instantiate_with_identity.
+
+(** the notion one would be looking for: an algebra and a substitution operation that does lookup on
+variables and behaves homomorphically elsewhere, as instructed by the pre-strength at that point *)
+Definition heterogeneous_substitution : UU := ∑ (T: algebra_ob Id_H),
+  ∑ (θ : @PrestrengthForSignatureAtPoint C hs C hs C hs H (ptd_from_alg T)), bracket_at θ T (identity _).
+
 Coercion alg_from_hetsubst (T : heterogeneous_substitution) : algebra_ob Id_H := pr1 T.
+Definition θ_from_hetsubst (T : heterogeneous_substitution) : @PrestrengthForSignatureAtPoint C hs C hs C hs H (ptd_from_alg T)
+  := pr1 (pr2 T).
 
 Definition join_from_hetsubst (T : heterogeneous_substitution) : `T • `T --> `T
-  := pr1 (pr1 (pr2 T)).
+  := pr1 (pr1 (pr2 (pr2 T))).
 
 Lemma join_from_hetsubst_η (T : heterogeneous_substitution) :
   ρ_functor _ = η T •• `T · (join_from_hetsubst T).
 Proof.
-  refine (pr1 (bracket_property_parts_identity_nicer_impl1 _ _ _)).
+  refine (pr1 (bracket_property_parts_identity_nicer_impl1 T (θ_from_hetsubst T) _ _)).
   apply parts_from_whole.
-  exact (pr2 (pr1 (pr2 T))).
+  exact (pr2 (pr1 (pr2 (pr2 T)))).
 Qed.
 
 Lemma join_from_hetsubst_τ (T : heterogeneous_substitution) :
-  θ (`T ⊗ p T) · #H (join_from_hetsubst T) · τ T  = τ T •• `T ·  (join_from_hetsubst T).
+  θ_from_hetsubst T `T · #H (join_from_hetsubst T) · τ T  = τ T •• `T ·  (join_from_hetsubst T).
 Proof.
-  refine (pr2 (bracket_property_parts_identity_nicer_impl1 _ _ _)).
+  refine (pr2 (bracket_property_parts_identity_nicer_impl1 T (θ_from_hetsubst T) _ _)).
   apply parts_from_whole.
-  exact (pr2 (pr1 (pr2 T))).
+  exact (pr2 (pr1 (pr2 (pr2 T)))).
 Qed.
 
-(** the notion of a heterogeneous substitution system that asks for more operations to uniquely exist *)
-Definition hss : UU := ∑ (T: algebra_ob Id_H), bracket T.
+Section fix_a_prestrength.
 
-Coercion hetsubst_from_hss (T : hss) : heterogeneous_substitution := pr1 T,, pr2 T _ (identity _).
+  Context (θ :  @PrestrengthForSignature C hs C hs C hs H).
+
+Definition bracket (T : algebra_ob Id_H) : UU
+  := ∏ (Z : Ptd) (f : Z --> ptd_from_alg T), bracket_at (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) T f.
+
+Lemma isaprop_bracket (T : algebra_ob Id_H) : isaprop (bracket T).
+Proof.
+  apply impred_isaprop; intro Z.
+  apply impred_isaprop; intro f.
+  apply isapropiscontr.
+Qed.
+
+Definition bracket_parts (T : algebra_ob Id_H) : UU
+  := ∏ (Z : Ptd) (f : Z --> ptd_from_alg T), bracket_parts_at (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) T f.
+
+End fix_a_prestrength.
+
+End prep_hss.
+
+Arguments ptd_from_alg {_} _ .
+Arguments join_from_hetsubst {_} _ .
+Arguments join_from_hetsubst_η {_} _ .
+Arguments join_from_hetsubst_τ {_} _ .
+Arguments bracket_parts {_} _ _ .
+
+  Section def_hss.
+
+  Context (H : Presignature C hs C hs C hs).
+
+  Local Notation η := (eta_from_alg H).
+  Local Notation τ := (tau_from_alg H).
+
+  Let θ : PrestrengthForSignature H := theta H.
+  Let Id_H := Id_H H.
+
+(** the notion of a heterogeneous substitution system that asks for more operations to uniquely exist *)
+Definition hss : UU := ∑ (T: algebra_ob Id_H), bracket H θ T.
+
+Coercion hetsubst_from_hss (T : hss) : heterogeneous_substitution H := pr1 T,, (nat_trans_fix_snd_arg _ _ _ _ _ θ (ptd_from_alg (pr1 T)) ,, pr2 T _ (identity _)).
 
 
 Definition fbracket (T : hss) {Z : Ptd} (f : Z --> ptd_from_alg T)
@@ -325,13 +366,13 @@ Proof.
   apply path_to_ctr.
   apply whole_from_parts.
   split.
-  - apply nat_trans_eq; try assumption.
-  - apply nat_trans_eq; assumption.
+  - apply nat_trans_eq; try exact hs; try assumption.
+  - apply nat_trans_eq; try exact hs; assumption.
 Qed.
 
 Definition fbracket_unique (T : hss) {Z : Ptd} (f : Z --> ptd_from_alg T)
 : ∏ α : (*functor_composite (C:=C)*) `T • (U Z)  --> `T,
-    bracket_property_parts T f α
+    bracket_property_parts H (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) T f α
    →
    α = ⦃f⦄.
 Proof.
@@ -343,7 +384,7 @@ Qed.
 
 Definition fbracket_unique_target_pointwise (T : hss) {Z : Ptd} (f : Z --> ptd_from_alg T)
   : ∏ α : `T • U Z --> `T,
-        bracket_property_parts T f α
+        bracket_property_parts H (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) T f α
    →
    ∏ c, pr1 α c =  pr1 ⦃ f ⦄ c.
 Proof.
@@ -359,7 +400,7 @@ Lemma fbracket_η (T : hss) : ∏ {Z : Ptd} (f : Z --> ptd_from_alg T),
 Proof.
   intros Z f.
   (* assert (H' := parts_from_whole T Z f (fbracket _ f)) . *)
-  exact (pr1 (parts_from_whole _ _ _ _  (pr2 (pr1 (pr2 T Z f))))).
+  exact (pr1 (parts_from_whole _ _ _ _ _ (pr2 (pr1 (pr2 T Z f))))).
 Qed.
 
 Lemma fbracket_τ (T : hss) : ∏ {Z : Ptd} (f : Z --> ptd_from_alg T),
@@ -368,7 +409,7 @@ Lemma fbracket_τ (T : hss) : ∏ {Z : Ptd} (f : Z --> ptd_from_alg T),
     τ T •• U Z · ⦃f⦄.
 Proof.
   intros Z f.
-  exact (pr2 (parts_from_whole _ _ _ _ (pr2 (pr1 (pr2 T Z f))))).
+  exact (pr2 (parts_from_whole _ _ _ _ _ (pr2 (pr1 (pr2 T Z f))))).
 Qed.
 
 (** [fbracket] is also natural *)
@@ -379,7 +420,7 @@ Proof.
   apply fbracket_unique_pointwise.
   - simpl. intro c.
     rewrite assoc.
-    pose proof (nat_trans_ax (eta_from_alg T)) as H'.
+    pose proof (nat_trans_ax (η T)) as H'.
     simpl in H'.
     rewrite <- H'; clear H'.
     rewrite <- assoc.
@@ -387,7 +428,7 @@ Proof.
     pose proof (nat_trans_eq_weq hs _ _  (fbracket_η T g)) as X.
     simpl in X. exact (X _ ).
   - intro c; simpl.
-    assert (H':=nat_trans_ax (tau_from_alg T)).
+    assert (H':=nat_trans_ax (τ T)).
     simpl in H'.
     eapply pathscomp0. 2: apply assoc'.
     eapply pathscomp0.
@@ -400,7 +441,7 @@ Proof.
     rewrite  <- assoc.
     rewrite  <- assoc.
     transitivity (  # (pr1 (H ((`T)))) (pr1 (pr1 f) c) ·
-                     (pr1 (θ ((`T) ⊗ Z')) c)· pr1 (# H (fbracket T g)) c· pr1 (tau_from_alg T) c).
+                     (pr1 (θ ((`T) ⊗ Z')) c)· pr1 (# H (fbracket T g)) c· pr1 (τ T) c).
     2: { rewrite <- assoc.
          rewrite <- assoc.
          apply maponpaths.
@@ -431,7 +472,7 @@ Qed.
 (** As a consequence of naturality, we can compute [fbracket f] from [fbracket identity] *)
 
 Lemma compute_fbracket (T : hss) : ∏ {Z : Ptd} (f : Z --> ptd_from_alg T),
-    ⦃ f ⦄ = (` T ∘ # U f : EndC ⟦ `T • U Z , `T • U (p T) ⟧) · ⦃ identity p T ⦄.
+    ⦃ f ⦄ = (` T ∘ # U f : EndC ⟦ `T • U Z , `T • U (ptd_from_alg T) ⟧) · ⦃ identity (ptd_from_alg T) ⦄.
 Proof.
   intros Z f.
   assert (A : f = f · identity _ ).
@@ -442,11 +483,17 @@ Proof.
   apply idpath.
 Qed.
 
+Section from_identity_to_hss.
 (** the operations of an hss can be obtained through this formula from
     just a heterogeneous substitution *)
-Lemma heterogeneous_substitution_into_bracket {T: heterogeneous_substitution}
-      {Z : Ptd} (f : Z --> ptd_from_alg T) :
-  bracket_property T f ((` T ∘ # U f : EndC ⟦ `T • U Z , `T • U (p T) ⟧) · join_from_hetsubst T).
+
+  Context (T : algebra_ob Id_H) (join : bracket_at H (nat_trans_fix_snd_arg _ _ _ _ _ θ (ptd_from_alg T)) T (identity _)).
+
+  Let T0 : heterogeneous_substitution H := T ,, (nat_trans_fix_snd_arg _ _ _ _ _ θ (ptd_from_alg T) ,, join).
+
+Lemma heterogeneous_substitution_into_bracket {Z : Ptd} (f : Z --> ptd_from_alg T0) :
+  bracket_property H (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) T0 f
+                   ((` T0 ∘ # U f : EndC ⟦ `T0 • U Z , `T0 • U (ptd_from_alg T0) ⟧) · join_from_hetsubst T0).
 Proof.
   apply whole_from_parts.
   split.
@@ -454,7 +501,7 @@ Proof.
     intro c.
     induction f as [f pt].
     simpl.
-    assert (alg_map_nat := nat_trans_ax (alg_map Id_H T) _ _ (pr1 f c)).
+    assert (alg_map_nat := nat_trans_ax (alg_map Id_H T0) _ _ (pr1 f c)).
     etrans.
     2: { rewrite <- assoc. apply maponpaths. rewrite assoc.
          apply cancel_postcomposition.
@@ -472,7 +519,7 @@ Proof.
     do 2 rewrite <- assoc.
     apply maponpaths.
     rewrite assoc.
-    assert (join_ok := join_from_hetsubst_η T).
+    assert (join_ok := join_from_hetsubst_η T0).
     apply (maponpaths pr1) in join_ok.
     apply toforallpaths in join_ok.
     apply join_ok.
@@ -481,7 +528,7 @@ Proof.
     intro c.
     induction f as [f pt].
     simpl.
-    assert (alg_map_nat := nat_trans_ax (alg_map Id_H T) _ _ (pr1 f c)).
+    assert (alg_map_nat := nat_trans_ax (alg_map Id_H T0) _ _ (pr1 f c)).
     etrans.
     2: { rewrite <- assoc. apply maponpaths. rewrite assoc.
          apply cancel_postcomposition.
@@ -490,7 +537,7 @@ Proof.
     etrans.
     2: { do 2 rewrite assoc. do 2 apply cancel_postcomposition.
          apply pathsinv0. unfold Id_H. simpl. apply BinCoproductIn2Commutes. }
-    assert (join_ok := join_from_hetsubst_τ T).
+    assert (join_ok := join_from_hetsubst_τ T0).
     apply (maponpaths pr1) in join_ok.
     apply toforallpaths in join_ok.
     assert (join_ok_inst := join_ok c).
@@ -498,7 +545,7 @@ Proof.
     etrans.
     { repeat rewrite assoc. do 3 apply cancel_postcomposition.
       apply pathsinv0.
-      assert (theta_nat_2 := θ_nat_2_pointwise _ _ _ _ _ _ H θ `T _ _ (f,,pt) c).
+      assert (theta_nat_2 := θ_nat_2_pointwise _ _ _ _ _ _ H θ `T0 _ _ (f,,pt) c).
       rewrite horcomp_id_postwhisker in theta_nat_2; try exact hs.
       apply theta_nat_2.
     }
@@ -511,6 +558,8 @@ Proof.
     repeat rewrite assoc.
     apply idpath.
 Qed.
+
+End from_identity_to_hss.
 
 (** ** Morphisms of heterogeneous substitution systems *)
 
@@ -760,22 +809,24 @@ Definition hss_precategory : precategory := tpair _ _ is_precategory_hss.
 
 End def_hss.
 
-Arguments hss {_ _} _  _ .
+End fix_a_category.
+
+Arguments hss {_ _} _ _ .
 Arguments hssMor {_ _ _ _ } _ _ .
-Arguments fbracket {_ _ _ _ } _ {_} _ .
-Arguments fbracket_η {_ _ _ _ } _ {_} _ .
+Arguments fbracket {_ _ _ _} _ {_} _ .
+Arguments fbracket_η {_ _ _ _} _ {_} _ .
 Arguments fbracket_τ {_ _ _ _} _ {_} _ .
-Arguments fbracket_unique_target_pointwise {_ _ _ _ } _ {_ _ _} _ _  .
-Arguments fbracket_unique {_ _ _ _ } _ {_} _ _ _  .
+Arguments fbracket_unique_target_pointwise {_ _ _ _ } _ {_ _ _} _ _.
+Arguments fbracket_unique {_ _ _ _ } _ {_} _ {_} _ .
 (* Arguments Alg {_ _} _. *)
 Arguments hss_precategory {_ _} _ _ .
 Arguments eta_from_alg {_ _ _ _} _.
 Arguments tau_from_alg {_ _ _ _} _.
 Arguments ptd_from_alg {_ _ _ _} _.
 Arguments ptd_from_alg_functor {_ _} _ _ .
-Arguments bracket_property {_ _ _ _ _ _} _ _ .
-Arguments bracket_property_parts {_ _ _ _ _ _} _ _ .
-Arguments bracket {_ _ _ _} _.
+Arguments bracket_property {_ _ _ _ _ } _ _ _ _ .
+Arguments bracket_property_parts {_ _ _ _ _} _ _ _ _ .
+Arguments bracket {_ _ _ _} _ _.
 
 Notation τ := tau_from_alg.
 Notation η := eta_from_alg.

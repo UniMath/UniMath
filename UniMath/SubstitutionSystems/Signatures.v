@@ -48,7 +48,12 @@ Local Open Scope subsys.
 
 Section fix_a_category.
 
-Context (C : precategory) (hs : has_homsets C).
+  Context (C : precategory) (hs : has_homsets C).
+
+(** The precategory of pointed endofunctors on [C] *)
+Local Notation "'Ptd'" := (precategory_Ptd C hs).
+(** The category of endofunctors on [C] *)
+Local Notation "'EndC'":= ([C, C, hs]).
 
 (** in the original definition, this second category was the same as the first one *)
 Context (D : precategory) (hsD : has_homsets D).
@@ -60,11 +65,6 @@ Section about_signatures.
 
 (** [H] is a rank-2 functor: a functor between functor categories *)
 Context (H : functor [C, D', hsD'] [C, D, hsD]).
-
-(** The precategory of pointed endofunctors on [C] *)
-Local Notation "'Ptd'" := (precategory_Ptd C hs).
-(** The category of endofunctors on [C] *)
-Local Notation "'EndC'":= ([C, C, hs]).
 
 
 (** ** Source and target of the natural transformation [θ] *)
@@ -97,7 +97,9 @@ Proof.
   apply idpath.
 Qed.
 
-(** * Two alternative versions of the strength laws *)
+Section fix_a_θ.
+
+(** * Two alternative versions of the strength laws are defined and seen as equivalent *)
 
 
 (** We assume a suitable (bi)natural transformation [θ] *)
@@ -336,24 +338,34 @@ Proof.
   exact t'.
 Qed.
 
-End about_signatures.
+End fix_a_θ.
 
-Section Strength_laws.
-(** define strength laws *)
+(** * Definition of encapsulations of strength (locally/globally, with/without laws *)
 
-End Strength_laws.
+Definition PrestrengthForSignatureAtPoint (Z: Ptd) : UU :=
+  functor_fix_snd_arg [C, D',hsD'] Ptd [C, D, hsD] θ_source Z ⟹
+  functor_fix_snd_arg [C, D', hsD'] Ptd [C, D, hsD] θ_target Z.
 
-Definition PrestrengthForSignature (H : [C, D', hsD'] ⟶ [C, D, hsD]) : UU := (θ_source H) ⟹ (θ_target H).
+Definition PrestrengthForSignature : UU := θ_source ⟹ θ_target.
 
-Definition nat_trans_data_from_PrestrengthForSignature_funclass {H : [C, D', hsD'] ⟶ [C, D, hsD]}
-           (θ: PrestrengthForSignature H) : ∏ x, (θ_source H) x --> (θ_target H) x := pr1 θ.
+
+Definition nat_trans_data_from_PrestrengthForSignature_funclass (θ: PrestrengthForSignature) :
+  ∏ x, θ_source x --> θ_target x := pr1 θ.
 Coercion nat_trans_data_from_PrestrengthForSignature_funclass: PrestrengthForSignature >-> Funclass.
 
-Definition StrengthForSignature (H : [C, D', hsD'] ⟶ [C, D, hsD] ) : UU :=
-  ∑ θ : PrestrengthForSignature H , θ_Strength1_int H θ × θ_Strength2_int H θ.
+Definition nat_trans_data_from_PrestrengthForSignatureAtPoint_funclass (Z: Ptd)(θ: PrestrengthForSignatureAtPoint Z) :
+  ∏ x, functor_fix_snd_arg [C, D',hsD'] Ptd [C, D, hsD] θ_source Z x -->
+       functor_fix_snd_arg [C, D', hsD'] Ptd [C, D, hsD] θ_target Z x := pr1 θ.
+Coercion nat_trans_data_from_PrestrengthForSignatureAtPoint_funclass: PrestrengthForSignatureAtPoint >-> Funclass.
 
-Coercion Strength_Prestrength {H : [C, D', hsD'] ⟶ [C, D, hsD]} (θwithlaws: StrengthForSignature H) :
-  PrestrengthForSignature H := pr1 θwithlaws.
+
+Definition StrengthForSignature : UU :=
+  ∑ θ : PrestrengthForSignature, θ_Strength1_int θ × θ_Strength2_int θ.
+
+Coercion Strength_Prestrength (θwithlaws: StrengthForSignature) : PrestrengthForSignature := pr1 θwithlaws.
+
+
+End about_signatures.
 
 Definition Presignature : UU
   := ∑ H : [C, D', hsD'] ⟶ [C, D, hsD] , PrestrengthForSignature H.
@@ -363,7 +375,7 @@ Definition Signature : UU
 
 Coercion Presignature_Functor (S : Presignature) : functor _ _ := pr1 S.
 Coercion Signature_Functor (S : Signature) : functor _ _ := pr1 S.
-Coercion Presignature_Signature (S : Signature) : Presignature := Signature_Functor S ,, Strength_Prestrength(pr2 S).
+Coercion Presignature_Signature (S : Signature) : Presignature := Signature_Functor S ,, Strength_Prestrength _ (pr2 S).
 
 Definition theta (H : Presignature) : PrestrengthForSignature H := pr2 H.
 
