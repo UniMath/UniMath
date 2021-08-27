@@ -62,8 +62,8 @@ Variables (Ht Ht' : Signature C hsC D hsD D' hsD').
 
 Let H := Signature_Functor Ht.
 Let H' := Signature_Functor Ht'.
-Let θ : nat_trans (θ_source Ht) (θ_target Ht) := theta Ht.
-Let θ' : nat_trans (θ_source Ht') (θ_target Ht') := theta Ht'.
+Let θ : PrestrengthForSignature Ht := theta Ht.
+Let θ' : PrestrengthForSignature Ht' := theta Ht'.
 
 Variables (α : nat_trans H H').
 
