@@ -240,7 +240,7 @@ Section instantiate_with_identity.
     Context (θ : @PrestrengthForSignatureAtPoint C hs C hs C hs H (ptd_from_alg T)).
 
 Definition bracket_property_parts_identity_nicer (h : `T • `T  --> `T) : UU
-  := (ρ_functor _ = η T •• `T · h) × (θ `T · #H h · τ T  = τ T •• `T ·  h).
+  := (identity `T = η T •• `T · h) × (θ `T · #H h · τ T  = τ T •• `T ·  h).
 (** [ρ_functor] is a monoidal unitor, which is pointwise the identity *)
 
 Lemma bracket_property_parts_identity_nicer_impl1 (h : `T • `T  --> `T):
@@ -288,7 +288,7 @@ Definition join_from_hetsubst (T : heterogeneous_substitution) : `T • `T --> `
   := pr1 (pr1 (pr2 (pr2 T))).
 
 Lemma join_from_hetsubst_η (T : heterogeneous_substitution) :
-  ρ_functor _ = η T •• `T · (join_from_hetsubst T).
+  identity `T = η T •• `T · (join_from_hetsubst T).
 Proof.
   refine (pr1 (bracket_property_parts_identity_nicer_impl1 T (θ_from_hetsubst T) _ _)).
   apply parts_from_whole.

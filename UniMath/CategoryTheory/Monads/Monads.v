@@ -64,8 +64,45 @@ Definition Monad_laws {C : precategory_data} (T : Monad_data C) : UU :=
       (∏ c : C, η T (T c) · μ T c = identity (T c))
         ×
       (∏ c : C, #T (η T c) · μ T c = identity (T c)))
-      ×
-    (∏ c : C, #T (μ T c) · μ T c = μ T (T c) · μ T c).
+        ×
+      (∏ c : C, #T (μ T c) · μ T c = μ T (T c) · μ T c).
+
+Section pointfree.
+
+  Context {C : precategory} (hs : has_homsets C) (T : Monad_data C).
+
+  Let EndC := [C, C, hs].
+
+  Let η := η T.
+  Let μ := μ T.
+  Let T0 := functor_from_functor_with_μ C T.
+
+Definition Monad_laws_pointfree : UU :=
+    (
+      (nat_trans_comp _ _ _ (pre_whisker T0 η) μ = identity(C:=EndC) T0)
+        ×
+      (nat_trans_comp _ _ _ (post_whisker η T0) μ = identity(C:=EndC) T0))
+        ×
+      (nat_trans_comp _ _ _ (post_whisker μ T0) μ = nat_trans_comp _ _ _ (pre_whisker T0 μ) μ).
+
+Lemma pointfree_is_equiv: Monad_laws_pointfree <-> Monad_laws T.
+Proof.
+  split.
+  - intro H. induction H as [[H1 H2] H3].
+    split.
+    + split.
+      * intro c. apply (maponpaths pr1) in H1. apply toforallpaths in H1. apply H1.
+      * intro c. apply (maponpaths pr1) in H2. apply toforallpaths in H2. apply H2.
+    + intro c. apply (maponpaths pr1) in H3. apply toforallpaths in H3. apply H3.
+  - intro H. induction H as [[H1 H2] H3].
+    split.
+    + split.
+      * apply nat_trans_eq; try exact hs. exact H1.
+      * apply nat_trans_eq; try exact hs. exact H2.
+    + apply nat_trans_eq; try exact hs. exact H3.
+Qed.
+
+End pointfree.
 
 Lemma isaprop_Monad_laws (C : precategory_data) (hs : has_homsets C) (T : Monad_data C) :
    isaprop (Monad_laws T).
