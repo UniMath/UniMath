@@ -102,6 +102,33 @@ Proof.
     + apply nat_trans_eq; try exact hs. exact H3.
 Qed.
 
+Let T0' := (functor_from_functor_with_μ C T): EndC.
+Let η' := η: EndC⟦functor_identity C, T0'⟧.
+Let μ' := μ: EndC⟦functor_compose _ _ T0' T0', T0'⟧.
+
+Definition Monad_laws_pointfree_in_functor_category : UU :=
+    (
+      (#(pre_composition_functor _ _ _ _ _ T0') η' · μ' = identity(C:=EndC) T0')
+        ×
+      (#(post_composition_functor _ _ _ _ _ T0') η' · μ' = identity(C:=EndC) T0'))
+        ×
+      (#(post_composition_functor _ _ _ _ _ T0') μ' · μ' = (#(pre_composition_functor _ _ _ _ _ T0') μ') · μ').
+
+(** we check the types of left-hand side and right-hand side of the last equation *)
+Goal
+  [C, C, hs] ⟦ post_composition_functor C C C hs hs T0' (functor_compose hs hs T0' T0'), T0' ⟧ =
+  [C, C, hs] ⟦ pre_composition_functor C C C hs hs T0' (functor_compose hs hs T0' T0'), T0' ⟧ .
+Proof.
+  apply idpath.
+Qed.
+
+(** the last variant of the laws is convertible with the one before *)
+Goal
+  Monad_laws_pointfree = Monad_laws_pointfree_in_functor_category.
+Proof.
+  apply idpath.
+Qed.
+
 End pointfree.
 
 Lemma isaprop_Monad_laws (C : precategory_data) (hs : has_homsets C) (T : Monad_data C) :
