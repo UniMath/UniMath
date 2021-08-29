@@ -184,7 +184,7 @@ Defined.
 
 *)
 Definition Flat_H_ob (X: EndC): functor C C := functor_composite X X.
-Definition Flat_H_mor (X X': EndC)(α: X --> X'): (Flat_H_ob X: EndC) --> Flat_H_ob X' := α ∙∙ α.
+Definition Flat_H_mor (X X': EndC)(α: X --> X'): (Flat_H_ob X: EndC) --> Flat_H_ob X' := α ⋆ α.
 Definition Flat_H_functor_data: functor_data EndC EndC.
 Proof.
   exists Flat_H_ob.
@@ -560,8 +560,8 @@ Proof.
 (*  destruct XZ as [X [Z e]].
   simpl.
 *)
-  set (h:= nat_trans_comp (λ_functor_inv (pr1 XZ)) ((nat_trans_id _) ∙∙ (pr2 (pr2 XZ)))).
-  exact (nat_trans_comp (α_functor_inv (pr1 (pr2 XZ)) (pr1 XZ) (pr1 XZ)) (h ∙∙ (nat_trans_id (functor_composite (pr1 (pr2 XZ)) (pr1 XZ))))).
+  set (h:= nat_trans_comp (λ_functor_inv (pr1 XZ)) ((nat_trans_id _) ⋆ (pr2 (pr2 XZ)))).
+  exact (nat_trans_comp (α_functor_inv (pr1 (pr2 XZ)) (pr1 XZ) (pr1 XZ)) (h ⋆ (nat_trans_id (functor_composite (pr1 (pr2 XZ)) (pr1 XZ))))).
 Defined.
 
 Lemma is_nat_trans_Flat_θ_data: is_nat_trans _ _ Flat_θ_data.

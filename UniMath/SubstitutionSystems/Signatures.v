@@ -272,8 +272,8 @@ End Strength_law_2_intensional.
     naturality in each component here *)
 
 Lemma θ_nat_1 (X X' : [C, D', hsD']) (α : X --> X') (Z : Ptd)
-  : compose (C := [C, D, hsD]) (# H α ∙∙ nat_trans_id (pr1 (U Z))) (θ (X' ⊗ Z)) =
-        θ (X ⊗ Z) · # H (α ∙∙ nat_trans_id (pr1 (U Z))).
+  : compose (C := [C, D, hsD]) (# H α ⋆ nat_trans_id (pr1 (U Z))) (θ (X' ⊗ Z)) =
+        θ (X ⊗ Z) · # H (α ⋆ nat_trans_id (pr1 (U Z))).
 Proof.
   set (t := nat_trans_ax θ).
   set (t' := t (X ⊗ Z) (X' ⊗ Z)).
@@ -292,7 +292,7 @@ Abort.
 
 Lemma θ_nat_1_pointwise (X X' : [C, D', hsD']) (α : X --> X') (Z : Ptd) (c : C)
   :  pr1 (# H α) ((pr1 Z) c) · pr1 (θ (X' ⊗ Z)) c =
-       pr1 (θ (X ⊗ Z)) c · pr1 (# H (α ∙∙ nat_trans_id (pr1 Z))) c.
+       pr1 (θ (X ⊗ Z)) c · pr1 (# H (α ⋆ nat_trans_id (pr1 Z))) c.
 Proof.
   assert (t := θ_nat_1 _ _ α Z).
   assert (t' := nat_trans_eq_weq hsD _ _ t c).
@@ -312,8 +312,8 @@ Proof.
 Qed.
 
 Lemma θ_nat_2 (X : [C, D', hsD']) (Z Z' : Ptd) (f : Z --> Z')
-  : compose (C := [C, D, hsD]) (identity (H X) ∙∙ pr1 f) (θ (X ⊗ Z')) =
-       θ (X ⊗ Z) · # H (identity X ∙∙ pr1 f).
+  : compose (C := [C, D, hsD]) (identity (H X) ⋆ pr1 f) (θ (X ⊗ Z')) =
+       θ (X ⊗ Z) · # H (identity X ⋆ pr1 f).
 Proof.
   set (t := nat_trans_ax θ).
   set (t' := t (X ⊗ Z) (X ⊗ Z') (precatbinprodmor (identity _ ) f)).
@@ -328,7 +328,7 @@ Qed.
 
 Lemma θ_nat_2_pointwise (X : [C, D', hsD']) (Z Z' : Ptd) (f : Z --> Z') (c : C)
   :  # (pr1 (H X)) ((pr1 f) c) · pr1 (θ (X ⊗ Z')) c =
-       pr1 (θ (X ⊗ Z)) c · pr1 (# H (identity X ∙∙ pr1 f)) c .
+       pr1 (θ (X ⊗ Z)) c · pr1 (# H (identity X ⋆ pr1 f)) c .
 Proof.
   set (t := θ_nat_2 X _ _ f).
   set (t' := nat_trans_eq_weq hsD _ _ t c).
@@ -406,7 +406,7 @@ Local Definition forget := forgetful_functor_from_ptd_as_strong_monoidal_functor
 Local Lemma auxH1 (H : functor [C, C, hs] [C, C, hs]) (X : functor C C) :
   # H
     (nat_trans_id (pr1 X)
-        ∙∙ nat_z_iso_to_trans_inv
+        ⋆ nat_z_iso_to_trans_inv
         (make_nat_z_iso (functor_identity C) (functor_identity C) (nat_trans_id (functor_identity C))
                     (is_nat_z_iso_nat_trans_id (functor_identity C)))) =
   identity (H (functor_identity C ∙ X)).
@@ -420,7 +420,7 @@ Qed.
 
 Local Lemma auxH2 (H : functor [C, C, hs] [C, C, hs]) (X : functor C C)
       (Z Z': precategory_Ptd C hs) :
-  # H (nat_trans_id (pr1 X) ∙∙ nat_trans_id (functor_composite (pr1 Z) (pr1 Z'))) =
+  # H (nat_trans_id (pr1 X) ⋆ nat_trans_id (functor_composite (pr1 Z) (pr1 Z'))) =
   identity (H (((pr1 Z) ∙ (pr1 Z')) ∙ X)).
 Proof.
   apply functor_id_id.
