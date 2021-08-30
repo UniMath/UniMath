@@ -129,7 +129,7 @@ Section PointedFunctors_as_monoidal_category.
     use make_nat_z_iso.
     + use make_nat_trans.
       * intro PF.
-        exists (λ_functor (pr1 PF)).
+        exists (λ_functors (pr1 PF)).
         abstract
           (red; intro c ;
            cbn ;
@@ -158,7 +158,7 @@ Section PointedFunctors_as_monoidal_category.
     use make_nat_z_iso.
     + use make_nat_trans.
       * intro PF.
-        exists (ρ_functor (pr1 PF)).
+        exists (ρ_functors (pr1 PF)).
         abstract
           (red; intro c ;
            cbn ;
@@ -184,7 +184,7 @@ Section PointedFunctors_as_monoidal_category.
     + use make_nat_trans.
       * intro PFtriple.
         induction PFtriple as [[PF1 PF2] PF3].
-        exists (α_functor (pr1 PF1) (pr1 PF2) (pr1 PF3)).
+        exists (α_functors (pr1 PF1) (pr1 PF2) (pr1 PF3)).
         abstract
           (red; intro c ;
            cbn ;

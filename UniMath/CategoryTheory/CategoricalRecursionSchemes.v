@@ -66,10 +66,10 @@ Definition comp_distr_laws {C C' C'' D D' D'' : precategory}{F : functor C D}{F'
   DistrLaw F F'' (H' ∙ H ) (K' ∙ K).
 Proof.
   red.
-  apply (nat_trans_comp _ _ _ (α_functor _ _ _)).
-  use (nat_trans_comp _ _ _ _ (α_functor _ _ _)).
+  apply (nat_trans_comp _ _ _ (α_functors _ _ _)).
+  use (nat_trans_comp _ _ _ _ (α_functors _ _ _)).
   apply (nat_trans_comp _ _ _ (pre_whisker H' lambda)).
-  apply (nat_trans_comp _ _ _ (α_functor_inv _ _ _)).
+  apply (nat_trans_comp _ _ _ (α_functors_inv _ _ _)).
   exact (post_whisker lambda' K).
 Defined.
 
@@ -79,8 +79,8 @@ Definition id_distr_law  {C D : precategory} (F : functor C D) :
   DistrLaw F F (functor_identity C) (functor_identity D).
 Proof.
   red.
-  apply (nat_trans_comp _ _ _ (λ_functor _)).
-  apply ρ_functor_inv.
+  apply (nat_trans_comp _ _ _ (λ_functors _)).
+  apply ρ_functors_inv.
 Defined.
 
 Lemma comp_distr_laws_assoc {C C' C'' C''' D D' D'' D''' : precategory} {F : functor C D}

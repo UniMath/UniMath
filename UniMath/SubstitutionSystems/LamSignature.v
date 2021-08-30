@@ -283,14 +283,14 @@ Proof.
   apply pathsinv0.
   apply BinProductArrowUnique.
   + rewrite id_left.
-    unfold UnitorsAndAssociatorsForEndofunctors.λ_functor.
-    unfold UnitorsAndAssociatorsForEndofunctors.ρ_functor.
+    unfold UnitorsAndAssociatorsForEndofunctors.λ_functors.
+    unfold UnitorsAndAssociatorsForEndofunctors.ρ_functors.
     simpl.
     rewrite id_right.
     apply idpath.
   + rewrite id_left.
-    unfold UnitorsAndAssociatorsForEndofunctors.λ_functor.
-    unfold UnitorsAndAssociatorsForEndofunctors.ρ_functor.
+    unfold UnitorsAndAssociatorsForEndofunctors.λ_functors.
+    unfold UnitorsAndAssociatorsForEndofunctors.ρ_functors.
     simpl.
     rewrite id_right.
     apply idpath.
@@ -312,12 +312,12 @@ Proof.
   apply pathsinv0.
   apply BinProductArrowUnique.
   + rewrite id_left.
-    unfold UnitorsAndAssociatorsForEndofunctors.α_functor.
+    unfold UnitorsAndAssociatorsForEndofunctors.α_functors.
     simpl.
     rewrite id_right.
     apply idpath.
   + rewrite id_left.
-    unfold UnitorsAndAssociatorsForEndofunctors.α_functor.
+    unfold UnitorsAndAssociatorsForEndofunctors.α_functors.
     simpl.
     rewrite id_right.
     apply idpath.
@@ -560,8 +560,8 @@ Proof.
 (*  destruct XZ as [X [Z e]].
   simpl.
 *)
-  set (h:= nat_trans_comp (λ_functor_inv (pr1 XZ)) ((nat_trans_id _) ⋆ (pr2 (pr2 XZ)))).
-  exact (nat_trans_comp (α_functor_inv (pr1 (pr2 XZ)) (pr1 XZ) (pr1 XZ)) (h ⋆ (nat_trans_id (functor_composite (pr1 (pr2 XZ)) (pr1 XZ))))).
+  set (h:= nat_trans_comp (λ_functors_inv (pr1 XZ)) ((nat_trans_id _) ⋆ (pr2 (pr2 XZ)))).
+  exact (nat_trans_comp (α_functors_inv (pr1 (pr2 XZ)) (pr1 XZ) (pr1 XZ)) (h ⋆ (nat_trans_id (functor_composite (pr1 (pr2 XZ)) (pr1 XZ))))).
 Defined.
 
 Lemma is_nat_trans_Flat_θ_data: is_nat_trans _ _ Flat_θ_data.

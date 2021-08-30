@@ -175,8 +175,7 @@ Context {A B C D : precategory}.
 Definition nat_trans_functor_id_right (F : functor A B) :
   nat_trans (functor_composite F (functor_identity B)) F.
 Proof.
-exists (λ x, identity _).
-abstract (now intros a b f; rewrite id_left, id_right).
+  apply nat_trans_id.
 Defined.
 
 Definition nat_trans_functor_id_right_inv (F : functor A B) :
@@ -195,8 +194,7 @@ Definition nat_trans_functor_assoc (F1 : functor A B) (F2 : functor B C) (F3 : f
   nat_trans (functor_composite (functor_composite F1 F2) F3)
             (functor_composite F1 (functor_composite F2 F3)).
 Proof.
-exists (λ x, identity _).
-abstract (now intros a b f; rewrite id_right, id_left).
+  apply nat_trans_id.
 Defined.
 
 Definition nat_trans_functor_assoc_inv (F1 : functor A B) (F2 : functor B C) (F3 : functor C D) :
