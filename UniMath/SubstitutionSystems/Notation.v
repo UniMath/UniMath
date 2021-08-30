@@ -45,7 +45,7 @@ Arguments nat_trans_comp {_ _ _ _ _} _ _ .
 Declare Scope subsys.
 Delimit Scope subsys with subsys.
 Notation "G • F" := (functor_composite F G : [ _ , _ , _ ]) (at level 35) : subsys.
-Notation "α ∙∙ β" := (horcomp β α) (at level 20) : subsys.
+Notation "α ⋆ β" := (horcomp β α) (at level 20) : subsys.
 
 Notation "α 'ø' Z" := (pre_whisker Z α)  (at level 25) : subsys.
 Notation "Z ∘ α" := (post_whisker α Z) : subsys.

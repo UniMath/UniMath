@@ -184,7 +184,7 @@ Defined.
 
 *)
 Definition Flat_H_ob (X: EndC): functor C C := functor_composite X X.
-Definition Flat_H_mor (X X': EndC)(α: X --> X'): (Flat_H_ob X: EndC) --> Flat_H_ob X' := α ∙∙ α.
+Definition Flat_H_mor (X X': EndC)(α: X --> X'): (Flat_H_ob X: EndC) --> Flat_H_ob X' := α ⋆ α.
 Definition Flat_H_functor_data: functor_data EndC EndC.
 Proof.
   exists Flat_H_ob.
@@ -265,7 +265,7 @@ Proof.
     apply idpath.
 Qed.
 
-Definition App_θ: nat_trans (θ_source App_H) (θ_target App_H) :=
+Definition App_θ: PrestrengthForSignature App_H :=
   tpair _ _ is_nat_trans_App_θ_data.
 
 Lemma App_θ_strength1_int: θ_Strength1_int App_θ.
@@ -479,7 +479,7 @@ Proof.
     apply (nat_trans_ax β).
 Qed.
 
-Definition Abs_θ: nat_trans (θ_source Abs_H) (θ_target Abs_H) :=
+Definition Abs_θ: PrestrengthForSignature Abs_H :=
   tpair _ _ is_nat_trans_Abs_θ_data.
 
 Lemma Abs_θ_strength1_int: θ_Strength1_int Abs_θ.
@@ -560,8 +560,8 @@ Proof.
 (*  destruct XZ as [X [Z e]].
   simpl.
 *)
-  set (h:= nat_trans_comp (λ_functor_inv (pr1 XZ)) ((nat_trans_id _) ∙∙ (pr2 (pr2 XZ)))).
-  exact (nat_trans_comp (α_functor_inv (pr1 (pr2 XZ)) (pr1 XZ) (pr1 XZ)) (h ∙∙ (nat_trans_id (functor_composite (pr1 (pr2 XZ)) (pr1 XZ))))).
+  set (h:= nat_trans_comp (λ_functor_inv (pr1 XZ)) ((nat_trans_id _) ⋆ (pr2 (pr2 XZ)))).
+  exact (nat_trans_comp (α_functor_inv (pr1 (pr2 XZ)) (pr1 XZ) (pr1 XZ)) (h ⋆ (nat_trans_id (functor_composite (pr1 (pr2 XZ)) (pr1 XZ))))).
 Defined.
 
 Lemma is_nat_trans_Flat_θ_data: is_nat_trans _ _ Flat_θ_data.
@@ -596,7 +596,7 @@ Proof.
   apply idpath.
 Qed.
 
-Definition Flat_θ: nat_trans (θ_source Flat_H) (θ_target Flat_H) :=
+Definition Flat_θ: PrestrengthForSignature Flat_H :=
   tpair _ _ is_nat_trans_Flat_θ_data.
 
 Lemma Flat_θ_strength1_int: θ_Strength1_int Flat_θ.

@@ -210,7 +210,7 @@ Definition DatatypeOfBindingSig
   (IC : Initial C) (TC : Terminal C) (CLC : Colims_of_shape nat_graph C)
   (HF : ∏ (F : [C,C]), is_omega_cocont (constprod_functor1 F))
   (sig : BindingSig) (CC : Coproducts (BindingSigIndex sig) C) :
-  Initial (FunctorAlg (Id_H (BindingSigToSignature TC sig CC))).
+  Initial (FunctorAlg (Id_H (Presignature_Signature(BindingSigToSignature TC sig CC)))).
 Proof.
 apply SignatureInitialAlgebra; trivial.
 now apply is_omega_cocont_BindingSigToSignature.
@@ -298,7 +298,7 @@ intro i; apply is_omega_cocont_Arity_to_Signature.
 Defined.
 
 (** ** Construction of initial algebra for a signature with strength for HSET *)
-Definition SignatureInitialAlgebraHSET (s : Signature HSET has_homsets_HSET _ _ _ _) (Hs : is_omega_cocont s) :
+Definition SignatureInitialAlgebraHSET (s : Presignature HSET has_homsets_HSET _ _ _ _) (Hs : is_omega_cocont s) :
   Initial (FunctorAlg (Id_H _ _ BinCoproductsHSET s) has_homsets_HSET2).
 Proof.
 apply SignatureInitialAlgebra; try assumption.

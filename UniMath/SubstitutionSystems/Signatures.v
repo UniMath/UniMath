@@ -48,7 +48,12 @@ Local Open Scope subsys.
 
 Section fix_a_category.
 
-Context (C : precategory) (hs : has_homsets C).
+  Context (C : precategory) (hs : has_homsets C).
+
+(** The precategory of pointed endofunctors on [C] *)
+Local Notation "'Ptd'" := (precategory_Ptd C hs).
+(** The category of endofunctors on [C] *)
+Local Notation "'EndC'":= ([C, C, hs]).
 
 (** in the original definition, this second category was the same as the first one *)
 Context (D : precategory) (hsD : has_homsets D).
@@ -60,11 +65,6 @@ Section about_signatures.
 
 (** [H] is a rank-2 functor: a functor between functor categories *)
 Context (H : functor [C, D', hsD'] [C, D, hsD]).
-
-(** The precategory of pointed endofunctors on [C] *)
-Local Notation "'Ptd'" := (precategory_Ptd C hs).
-(** The category of endofunctors on [C] *)
-Local Notation "'EndC'":= ([C, C, hs]).
 
 
 (** ** Source and target of the natural transformation [θ] *)
@@ -97,7 +97,9 @@ Proof.
   apply idpath.
 Qed.
 
-(** * Two alternative versions of the strength laws *)
+Section fix_a_θ.
+
+(** * Two alternative versions of the strength laws are defined and seen as equivalent *)
 
 
 (** We assume a suitable (bi)natural transformation [θ] *)
@@ -270,8 +272,8 @@ End Strength_law_2_intensional.
     naturality in each component here *)
 
 Lemma θ_nat_1 (X X' : [C, D', hsD']) (α : X --> X') (Z : Ptd)
-  : compose (C := [C, D, hsD]) (# H α ∙∙ nat_trans_id (pr1 (U Z))) (θ (X' ⊗ Z)) =
-        θ (X ⊗ Z) · # H (α ∙∙ nat_trans_id (pr1 (U Z))).
+  : compose (C := [C, D, hsD]) (# H α ⋆ nat_trans_id (pr1 (U Z))) (θ (X' ⊗ Z)) =
+        θ (X ⊗ Z) · # H (α ⋆ nat_trans_id (pr1 (U Z))).
 Proof.
   set (t := nat_trans_ax θ).
   set (t' := t (X ⊗ Z) (X' ⊗ Z)).
@@ -290,7 +292,7 @@ Abort.
 
 Lemma θ_nat_1_pointwise (X X' : [C, D', hsD']) (α : X --> X') (Z : Ptd) (c : C)
   :  pr1 (# H α) ((pr1 Z) c) · pr1 (θ (X' ⊗ Z)) c =
-       pr1 (θ (X ⊗ Z)) c · pr1 (# H (α ∙∙ nat_trans_id (pr1 Z))) c.
+       pr1 (θ (X ⊗ Z)) c · pr1 (# H (α ⋆ nat_trans_id (pr1 Z))) c.
 Proof.
   assert (t := θ_nat_1 _ _ α Z).
   assert (t' := nat_trans_eq_weq hsD _ _ t c).
@@ -310,8 +312,8 @@ Proof.
 Qed.
 
 Lemma θ_nat_2 (X : [C, D', hsD']) (Z Z' : Ptd) (f : Z --> Z')
-  : compose (C := [C, D, hsD]) (identity (H X) ∙∙ pr1 f) (θ (X ⊗ Z')) =
-       θ (X ⊗ Z) · # H (identity X ∙∙ pr1 f).
+  : compose (C := [C, D, hsD]) (identity (H X) ⋆ pr1 f) (θ (X ⊗ Z')) =
+       θ (X ⊗ Z) · # H (identity X ⋆ pr1 f).
 Proof.
   set (t := nat_trans_ax θ).
   set (t' := t (X ⊗ Z) (X ⊗ Z') (precatbinprodmor (identity _ ) f)).
@@ -326,7 +328,7 @@ Qed.
 
 Lemma θ_nat_2_pointwise (X : [C, D', hsD']) (Z Z' : Ptd) (f : Z --> Z') (c : C)
   :  # (pr1 (H X)) ((pr1 f) c) · pr1 (θ (X ⊗ Z')) c =
-       pr1 (θ (X ⊗ Z)) c · pr1 (# H (identity X ∙∙ pr1 f)) c .
+       pr1 (θ (X ⊗ Z)) c · pr1 (# H (identity X ⋆ pr1 f)) c .
 Proof.
   set (t := θ_nat_2 X _ _ f).
   set (t' := nat_trans_eq_weq hsD _ _ t c).
@@ -336,24 +338,34 @@ Proof.
   exact t'.
 Qed.
 
-End about_signatures.
+End fix_a_θ.
 
-Section Strength_laws.
-(** define strength laws *)
+(** * Definition of encapsulations of strength (locally/globally, with/without laws *)
 
-End Strength_laws.
+Definition PrestrengthForSignatureAtPoint (Z: Ptd) : UU :=
+  functor_fix_snd_arg [C, D',hsD'] Ptd [C, D, hsD] θ_source Z ⟹
+  functor_fix_snd_arg [C, D', hsD'] Ptd [C, D, hsD] θ_target Z.
 
-Definition PrestrengthForSignature (H : [C, D', hsD'] ⟶ [C, D, hsD]) : UU := (θ_source H) ⟹ (θ_target H).
+Definition PrestrengthForSignature : UU := θ_source ⟹ θ_target.
 
-Definition nat_trans_data_from_PrestrengthForSignature_funclass {H : [C, D', hsD'] ⟶ [C, D, hsD]}
-           (θ: PrestrengthForSignature H) : ∏ x, (θ_source H) x --> (θ_target H) x := pr1 θ.
+
+Definition nat_trans_data_from_PrestrengthForSignature_funclass (θ: PrestrengthForSignature) :
+  ∏ x, θ_source x --> θ_target x := pr1 θ.
 Coercion nat_trans_data_from_PrestrengthForSignature_funclass: PrestrengthForSignature >-> Funclass.
 
-Definition StrengthForSignature (H : [C, D', hsD'] ⟶ [C, D, hsD] ) : UU :=
-  ∑ θ : PrestrengthForSignature H , θ_Strength1_int H θ × θ_Strength2_int H θ.
+Definition nat_trans_data_from_PrestrengthForSignatureAtPoint_funclass (Z: Ptd)(θ: PrestrengthForSignatureAtPoint Z) :
+  ∏ x, functor_fix_snd_arg [C, D',hsD'] Ptd [C, D, hsD] θ_source Z x -->
+       functor_fix_snd_arg [C, D', hsD'] Ptd [C, D, hsD] θ_target Z x := pr1 θ.
+Coercion nat_trans_data_from_PrestrengthForSignatureAtPoint_funclass: PrestrengthForSignatureAtPoint >-> Funclass.
 
-Coercion Strength_Prestrength {H : [C, D', hsD'] ⟶ [C, D, hsD]} (θwithlaws: StrengthForSignature H) :
-  PrestrengthForSignature H := pr1 θwithlaws.
+
+Definition StrengthForSignature : UU :=
+  ∑ θ : PrestrengthForSignature, θ_Strength1_int θ × θ_Strength2_int θ.
+
+Coercion Strength_Prestrength (θwithlaws: StrengthForSignature) : PrestrengthForSignature := pr1 θwithlaws.
+
+
+End about_signatures.
 
 Definition Presignature : UU
   := ∑ H : [C, D', hsD'] ⟶ [C, D, hsD] , PrestrengthForSignature H.
@@ -363,7 +375,7 @@ Definition Signature : UU
 
 Coercion Presignature_Functor (S : Presignature) : functor _ _ := pr1 S.
 Coercion Signature_Functor (S : Signature) : functor _ _ := pr1 S.
-Coercion Presignature_Signature (S : Signature) : Presignature := Signature_Functor S ,, Strength_Prestrength(pr2 S).
+Coercion Presignature_Signature (S : Signature) : Presignature := Signature_Functor S ,, Strength_Prestrength _ (pr2 S).
 
 Definition theta (H : Presignature) : PrestrengthForSignature H := pr2 H.
 
@@ -394,7 +406,7 @@ Local Definition forget := forgetful_functor_from_ptd_as_strong_monoidal_functor
 Local Lemma auxH1 (H : functor [C, C, hs] [C, C, hs]) (X : functor C C) :
   # H
     (nat_trans_id (pr1 X)
-        ∙∙ nat_z_iso_to_trans_inv
+        ⋆ nat_z_iso_to_trans_inv
         (make_nat_z_iso (functor_identity C) (functor_identity C) (nat_trans_id (functor_identity C))
                     (is_nat_z_iso_nat_trans_id (functor_identity C)))) =
   identity (H (functor_identity C ∙ X)).
@@ -408,7 +420,7 @@ Qed.
 
 Local Lemma auxH2 (H : functor [C, C, hs] [C, C, hs]) (X : functor C C)
       (Z Z': precategory_Ptd C hs) :
-  # H (nat_trans_id (pr1 X) ∙∙ nat_trans_id (functor_composite (pr1 Z) (pr1 Z'))) =
+  # H (nat_trans_id (pr1 X) ⋆ nat_trans_id (functor_composite (pr1 Z) (pr1 Z'))) =
   identity (H (((pr1 Z) ∙ (pr1 Z')) ∙ X)).
 Proof.
   apply functor_id_id.

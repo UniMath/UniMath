@@ -370,7 +370,7 @@ Definition DatatypeOfBindingSig :
     (_ : ∏ (F : functor_precategory C C hsC),
             is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C BPC hsC) F))
     (sig : BindingSig) (CC : Coproducts (BindingSigIndex sig) C),
-  Initial (FunctorAlg (Id_H C hsC BCC (UniMath.SubstitutionSystems.Signatures.Presignature_Signature (BindingSigToSignature hsC BPC BCC TC sig CC)))
+  Initial (FunctorAlg (Id_H C hsC BCC (pr1 (BindingSigToSignature hsC BPC BCC TC sig CC)))
                       (BindingSigToMonad.has_homsets_C2 hsC)).
 Proof.
 exact @UniMath.SubstitutionSystems.BindingSigToMonad.DatatypeOfBindingSig.

@@ -225,16 +225,16 @@ Defined.
 Lemma bracket_property_for_LamE_algebra_on_Lam (Z : Ptd)
   (f : Ptd ⟦ Z, ptd_from_alg LamE_algebra_on_Lam ⟧)
  :
-   bracket_property f (fbracket_for_LamE_algebra_on_Lam Z f).
+   bracket_property (nat_trans_fix_snd_arg _ _ _ _ _ (theta LamE_S) Z) _ f (fbracket_for_LamE_algebra_on_Lam Z f).
 Proof.
   (* Could we have this in a more declarative style? *)
-  assert (Hyp := pr2 (pr1 (pr2 LamHSS _ (f· bla)))).
+  assert (Hyp := pr2 (pr1 (pr2 LamHSS _ (f · bla)))).
   apply parts_from_whole in Hyp.
   apply whole_from_parts.
   split.
   - (* the "easy" eta part *)
     apply pr1 in Hyp.
-    apply (maponpaths (λ x, x· #U (inv_from_iso bla))) in Hyp.
+    apply (maponpaths (λ x, x · #U (inv_from_iso bla))) in Hyp.
     rewrite <- functor_comp in Hyp.
     rewrite <- assoc in Hyp.
     rewrite iso_inv_after_iso in Hyp.
@@ -422,14 +422,14 @@ Lemma bracket_for_LamE_algebra_on_Lam_unique (Z : Ptd)
            ⟦ functor_composite (U Z)
                (` LamE_algebra_on_Lam),
            `LamE_algebra_on_Lam ⟧,
-       bracket_property f h,
+       bracket_property (nat_trans_fix_snd_arg _ _ _ _ _ (theta LamE_S) Z) _ f h,
    t =
    tpair
      (λ h : [C, C, hs]
             ⟦ functor_composite (U Z)
                 (` LamE_algebra_on_Lam),
             `LamE_algebra_on_Lam ⟧,
-      bracket_property f h)
+      bracket_property (nat_trans_fix_snd_arg _ _ _ _ _ (theta LamE_S) Z) _ f h)
      (fbracket_for_LamE_algebra_on_Lam Z f) (bracket_property_for_LamE_algebra_on_Lam Z f).
 Proof.
   intro t.
@@ -488,7 +488,7 @@ Qed.
 Definition bracket_for_LamE_algebra_on_Lam_at (Z : Ptd)
   (f : Ptd ⟦ Z, ptd_from_alg LamE_algebra_on_Lam ⟧)
   :
-    bracket_at C hs CC LamE_S LamE_algebra_on_Lam f.
+    bracket_at C hs CC LamE_S (nat_trans_fix_snd_arg _ _ _ _ _ (theta LamE_S) Z) LamE_algebra_on_Lam f.
 Proof.
   use tpair.
   - exists (fbracket_for_LamE_algebra_on_Lam Z f).
@@ -496,7 +496,7 @@ Proof.
   - simpl; apply bracket_for_LamE_algebra_on_Lam_unique.
 Defined.
 
-Definition bracket_for_LamE_algebra_on_Lam : bracket LamE_algebra_on_Lam.
+Definition bracket_for_LamE_algebra_on_Lam : bracket (theta LamE_S) LamE_algebra_on_Lam.
 Proof.
   intros Z f.
   simpl.

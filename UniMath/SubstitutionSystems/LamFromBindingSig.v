@@ -92,7 +92,7 @@ Definition LamFunctor : functor HSET2 HSET2 := Id_H LamSignature.
 
 Lemma lambdaFunctor_Initial : Initial (FunctorAlg LamFunctor has_homsets_HSET2).
 Proof.
-apply SignatureInitialAlgebraHSET, is_omega_cocont_BindingSigToSignatureHSET.
+apply (SignatureInitialAlgebraHSET (Presignature_Signature LamSignature)), is_omega_cocont_BindingSigToSignatureHSET.
 Defined.
 
 Definition LamMonad : Monad HSET := BindingSigToMonadHSET LamSig.

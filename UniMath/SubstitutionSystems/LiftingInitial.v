@@ -404,7 +404,7 @@ Proof.
 Qed.
 
 Lemma bracket_Thm15_ok (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧):
- bracket_property_parts f ⦃f⦄.
+ bracket_property_parts (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) _ f ⦃f⦄.
 Proof.
   split.
   + exact (bracket_Thm15_ok_part1 Z f).
@@ -412,7 +412,7 @@ Proof.
 Qed.
 
 Lemma bracket_Thm15_ok_cor (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧):
- bracket_property f (bracket_Thm15 Z f).
+ bracket_property (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) _ f (bracket_Thm15 Z f).
 Proof.
   apply whole_from_parts.
   apply bracket_Thm15_ok.
@@ -421,14 +421,14 @@ Qed.
 Local Lemma foo' (Z : Ptd) (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :
  ∏ t : ∑ h : [C, C, hs] ⟦ functor_composite (U Z) (pr1  InitAlg),
                          pr1 InitAlg ⟧,
-       bracket_property f h,
+       bracket_property (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) _ f h,
    t
    =
    tpair
      (λ h : [C, C, hs]
             ⟦ functor_composite (U Z) (pr1 InitAlg),
               pr1 InitAlg ⟧,
-       bracket_property f h)
+       bracket_property (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) _ f h)
       ⦃f⦄ (bracket_Thm15_ok_cor Z f).
 Proof.
   intros [h' h'_eq].
@@ -484,7 +484,7 @@ Proof.
       apply BinCoproductIn2Commutes.
 Qed.
 
-Definition bracket_for_InitAlg : bracket InitAlg.
+Definition bracket_for_InitAlg : bracket θ InitAlg.
 Proof.
   intros Z f.
   use tpair.
@@ -807,7 +807,7 @@ Proof.
         apply maponpaths.
         rewrite assoc.
         eapply pathsinv0.
-        assert (fbracket_τ_inst := fbracket_τ T' (f· ptd_from_alg_mor _ hs CP H β0)).
+        assert (fbracket_τ_inst := fbracket_τ T' (f · ptd_from_alg_mor _ hs CP H β0)).
         assert (fbracket_τ_inst_c := nat_trans_eq_pointwise fbracket_τ_inst c); clear fbracket_τ_inst.
         apply fbracket_τ_inst_c.
       simpl.
@@ -818,11 +818,11 @@ Proof.
       assert (Hyp:
                  ((# (pr1 (ℓ(U Z))) (# H β))·
                  (theta H) ((alg_carrier _  T') ⊗ Z)·
-                 # H (fbracket T' (f· ptd_from_alg_mor C hs CP H β0))
+                 # H (fbracket T' (f · ptd_from_alg_mor C hs CP H β0))
                  =
                  θ (tpair (λ _ : functor C C, ptd_obj C) (alg_carrier _ (InitialObject IA)) Z) ·
                  # H (# (pr1 (ℓ(U Z))) β ·
-                 fbracket T' (f· ptd_from_alg_mor C hs CP H β0)))).
+                 fbracket T' (f · ptd_from_alg_mor C hs CP H β0)))).
       2: { assert (Hyp_c := nat_trans_eq_pointwise Hyp c); clear Hyp.
            exact Hyp_c. }
       clear c. clear X. clear rhohat.
@@ -837,15 +837,9 @@ Proof.
       clear θ_nat_1_pointwise_inst.
       simpl.
       apply maponpaths.
-      assert (Hyp: # H (β ∙∙ nat_trans_id (pr1 Z)) = # H (# (pr1 (ℓ(U Z))) β)).
-      { apply maponpaths.
-        apply nat_trans_eq; try (exact hs).
-        intro c'.
-        simpl.
-        rewrite functor_id.
-        apply id_right. }
-      apply (nat_trans_eq_pointwise Hyp c).
-Qed.
+      rewrite horcomp_id_prewhisker; try exact hs.
+      apply idpath.
+ Qed.
 
 Definition hss_InitMor : ∏ T' : hss CP H, hssMor InitHSS T'.
 Proof.
@@ -858,7 +852,7 @@ Lemma hss_InitMor_unique (T' : hss_precategory CP H):
   ∏ t : hss_precategory CP H ⟦ InitHSS, T' ⟧, t = hss_InitMor T'.
 Proof.
   intro t.
-  apply (invmap (hssMor_eq1 _ _ _ _ _ _ _ _ )).
+  apply (invmap (hssMor_eq1 _ _ _ _ _ _ _ _)).
   apply (@InitialArrowUnique _ IA (pr1 T') (pr1 t)).
 Qed.
 

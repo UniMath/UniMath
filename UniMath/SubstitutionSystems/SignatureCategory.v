@@ -62,8 +62,8 @@ Variables (Ht Ht' : Signature C hsC D hsD D' hsD').
 
 Let H := Signature_Functor Ht.
 Let H' := Signature_Functor Ht'.
-Let θ : nat_trans (θ_source Ht) (θ_target Ht) := theta Ht.
-Let θ' : nat_trans (θ_source Ht') (θ_target Ht') := theta Ht'.
+Let θ : PrestrengthForSignature Ht := theta Ht.
+Let θ' : PrestrengthForSignature Ht' := theta Ht'.
 
 Variables (α : nat_trans H H').
 
@@ -73,7 +73,7 @@ Variables (X : [C,D']) (Y : Ptd).
 Let f1 : [C,D] ⟦H X • U Y,H (X • U Y)⟧ := θ (X,,Y).
 Let f2 : [C,D] ⟦H (X • U Y),H' (X • U Y)⟧ := α (X • U Y).
 
-Let g1 : [C,D] ⟦H X • U Y,H' X • U Y⟧ := α X ∙∙ identity (U Y).
+Let g1 : [C,D] ⟦H X • U Y,H' X • U Y⟧ := α X ⋆ identity (U Y).
 Let g2 : [C,D] ⟦H' X • U Y,H' (X • U Y)⟧ := θ' (X,,Y).
 
 Definition Signature_category_mor_diagram : UU := f1 · f2 = g1 · g2.
@@ -112,7 +112,7 @@ Proof.
   rewrite (assoc ((theta Ht1) (X,,Y))).
   etrans; [apply (cancel_postcomposition ((theta Ht1) (X,,Y) · _)), Hα|].
   rewrite <- assoc; etrans; [apply maponpaths, Hβ|].
-  rewrite assoc; apply (cancel_postcomposition (C:=[C,D]) _  (_ ∙∙ identity (U Y))).
+  rewrite assoc; apply (cancel_postcomposition (C:=[C,D]) _  (_ ⋆ identity (U Y))).
   apply (nat_trans_eq hsD); intro c; simpl.
   now rewrite assoc, !functor_id, !id_right.
 Qed.
