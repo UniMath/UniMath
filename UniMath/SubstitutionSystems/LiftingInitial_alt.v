@@ -137,7 +137,7 @@ Local Lemma aux_iso_1_is_nat_trans :
       BinCoproductOfArrows [C, C, hsC]
         (CPEndC (functor_composite (U Z) (functor_identity C))
            ((θ_source H) (X ⊗ Z))) (CPEndC (U Z) ((θ_source H) (X ⊗ Z)))
-        (ρ_functor (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
+        (ρ_functors (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
 Proof.
 intros X X' α.
 apply (nat_trans_eq hsC); intro c; simpl.
@@ -155,7 +155,7 @@ Definition aux_iso_1
 Proof.
 use tpair.
 - intro X.
-  exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (ρ_functor (U Z))
+  exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (ρ_functors (U Z))
            (nat_trans_id (θ_source H (X⊗Z):functor C C))).
 - exact aux_iso_1_is_nat_trans.
 Defined.
@@ -170,7 +170,7 @@ Local Lemma aux_iso_1_inv_is_nat_trans :
       BinCoproductOfArrows [C, C, hsC]
         (CPEndC (functor_composite (functor_identity C) (U Z))
            ((θ_source H) (X ⊗ Z))) (CPEndC (U Z) ((θ_source H) (X ⊗ Z)))
-        (λ_functor (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
+        (λ_functors (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
 Proof.
 intros X X' α.
 apply (nat_trans_eq hsC); intro c; simpl.
@@ -188,7 +188,7 @@ Local Definition aux_iso_1_inv
 Proof.
 use tpair.
 - intro X.
-  exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (λ_functor (U Z))
+  exact (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (λ_functors (U Z))
          (nat_trans_id (θ_source H (X⊗Z):functor C C))).
 - exact aux_iso_1_inv_is_nat_trans.
 Defined.

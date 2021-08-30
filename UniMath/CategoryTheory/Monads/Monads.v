@@ -114,14 +114,6 @@ Definition Monad_laws_pointfree_in_functor_category : UU :=
         ×
       (#(post_composition_functor _ _ _ _ _ T0') μ' · μ' = (#(pre_composition_functor _ _ _ _ _ T0') μ') · μ').
 
-(** we check the types of left-hand side and right-hand side of the last equation *)
-Goal
-  [C, C, hs] ⟦ post_composition_functor C C C hs hs T0' (functor_compose hs hs T0' T0'), T0' ⟧ =
-  [C, C, hs] ⟦ pre_composition_functor C C C hs hs T0' (functor_compose hs hs T0' T0'), T0' ⟧ .
-Proof.
-  apply idpath.
-Qed.
-
 (** the last variant of the laws is convertible with the one before *)
 Goal
   Monad_laws_pointfree = Monad_laws_pointfree_in_functor_category.

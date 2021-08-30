@@ -36,7 +36,7 @@ Section Endofunctors_as_monoidal_category.
 Local Notation "'EndC'":= ([C, C, hs]) .
 
 Local Lemma is_nat_trans_left_unitor_data: is_nat_trans (I_pretensor (functorial_composition C C C hs hs) (functor_identity C))
-  (functor_identity [C, C, hs]) (λ F : [C, C, hs], λ_functor ((functor_identity [C, C, hs]) F)).
+  (functor_identity [C, C, hs]) (λ F : [C, C, hs], λ_functors ((functor_identity [C, C, hs]) F)).
 Proof.
   intros F F' m.
   apply nat_trans_eq; try assumption.
@@ -51,7 +51,7 @@ Definition left_unitor_of_endofunctors: left_unitor (functorial_composition C C 
 Proof.
   use make_nat_z_iso.
   + use make_nat_trans.
-    * intro F. apply λ_functor.
+    * intro F. apply λ_functors.
     * apply is_nat_trans_left_unitor_data.
   + red. intro F. cbn.
     use nat_trafo_z_iso_if_pointwise_z_iso.
@@ -62,7 +62,7 @@ Proof.
 Defined.
 
 Local Lemma is_nat_trans_right_unitor_data: is_nat_trans (I_posttensor (functorial_composition C C C hs hs) (functor_identity C))
-  (functor_identity [C, C, hs]) (λ F : [C, C, hs], ρ_functor ((functor_identity [C, C, hs]) F)).
+  (functor_identity [C, C, hs]) (λ F : [C, C, hs], ρ_functors ((functor_identity [C, C, hs]) F)).
 Proof.
   intros F F' m.
   apply nat_trans_eq; try assumption.
@@ -76,7 +76,7 @@ Definition right_unitor_of_endofunctors: right_unitor (functorial_composition C 
 Proof.
   use make_nat_z_iso.
   + use make_nat_trans.
-    * intro F. apply ρ_functor.
+    * intro F. apply ρ_functors.
     * apply is_nat_trans_right_unitor_data.
   + red. intro F. cbn.
     use nat_trafo_z_iso_if_pointwise_z_iso.
@@ -88,7 +88,7 @@ Defined.
 
 Local Lemma is_nat_trans_associator_data: is_nat_trans (assoc_left (functorial_composition C C C hs hs))
                                                  (assoc_right (functorial_composition C C C hs hs))
-  (λ F : (C ⟶ C × C ⟶ C) × C ⟶ C, α_functor (pr1 (pr1 F)) (pr2 (pr1 F)) (pr2 F)).
+  (λ F : (C ⟶ C × C ⟶ C) × C ⟶ C, α_functors (pr1 (pr1 F)) (pr2 (pr1 F)) (pr2 F)).
 Proof.
   cbn. intros F F' m.
   apply nat_trans_eq; try assumption.
@@ -106,11 +106,11 @@ Definition associator_of_endofunctors: associator (functorial_composition C C C 
 Proof.
   use make_nat_z_iso.
   + use make_nat_trans.
-    * intro F. apply α_functor.
+    * intro F. apply α_functors.
     * apply is_nat_trans_associator_data.
   + intro F; use nat_trafo_z_iso_if_pointwise_z_iso; intro c.
     use tpair.
-    * apply α_functor_inv.
+    * apply α_functors_inv.
     * abstract ( apply Isos.is_inverse_in_precat_identity ).
 Defined.
 
