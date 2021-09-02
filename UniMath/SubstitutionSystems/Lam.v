@@ -141,7 +141,7 @@ Defined.
 Definition Lam_Flatten :
   [C, C, hs] ⟦ (Flat_H C hs) `Lam , `Lam ⟧.
 Proof.
-  exact (fbracket LamHSS (identity _ )).
+  exact (prejoin_from_hetsubst (hetsubst_from_hss _ _ _ _ LamHSS)).
 Defined.
 
 

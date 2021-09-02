@@ -241,7 +241,6 @@ Section instantiate_with_identity.
 
 Definition bracket_property_parts_identity_nicer (h : `T • `T  --> `T) : UU
   := (identity `T = η T •• `T · h) × (θ `T · #H h · τ T  = τ T •• `T ·  h).
-(** [ρ_functor] is a monoidal unitor, which is pointwise the identity *)
 
 Lemma bracket_property_parts_identity_nicer_impl1 (h : `T • `T  --> `T):
   bracket_property_parts θ T (identity _) h -> bracket_property_parts_identity_nicer h.
@@ -284,19 +283,20 @@ Coercion alg_from_hetsubst (T : heterogeneous_substitution) : algebra_ob Id_H :=
 Definition θ_from_hetsubst (T : heterogeneous_substitution) : @PrestrengthForSignatureAtPoint C hs C hs C hs H (ptd_from_alg T)
   := pr1 (pr2 T).
 
-Definition join_from_hetsubst (T : heterogeneous_substitution) : `T • `T --> `T
+(** we write prejoin as a warning that the monad laws are not necessarily fulfilled *)
+Definition prejoin_from_hetsubst (T : heterogeneous_substitution) : `T • `T --> `T
   := pr1 (pr1 (pr2 (pr2 T))).
 
-Lemma join_from_hetsubst_η (T : heterogeneous_substitution) :
-  identity `T = η T •• `T · (join_from_hetsubst T).
+Lemma prejoin_from_hetsubst_η (T : heterogeneous_substitution) :
+  identity `T = η T •• `T · (prejoin_from_hetsubst T).
 Proof.
   refine (pr1 (bracket_property_parts_identity_nicer_impl1 T (θ_from_hetsubst T) _ _)).
   apply parts_from_whole.
   exact (pr2 (pr1 (pr2 (pr2 T)))).
 Qed.
 
-Lemma join_from_hetsubst_τ (T : heterogeneous_substitution) :
-  θ_from_hetsubst T `T · #H (join_from_hetsubst T) · τ T  = τ T •• `T ·  (join_from_hetsubst T).
+Lemma prejoin_from_hetsubst_τ (T : heterogeneous_substitution) :
+  θ_from_hetsubst T `T · #H (prejoin_from_hetsubst T) · τ T  = τ T •• `T ·  (prejoin_from_hetsubst T).
 Proof.
   refine (pr2 (bracket_property_parts_identity_nicer_impl1 T (θ_from_hetsubst T) _ _)).
   apply parts_from_whole.
@@ -325,9 +325,9 @@ End fix_a_prestrength.
 End prep_hss.
 
 Arguments ptd_from_alg {_} _ .
-Arguments join_from_hetsubst {_} _ .
-Arguments join_from_hetsubst_η {_} _ .
-Arguments join_from_hetsubst_τ {_} _ .
+Arguments prejoin_from_hetsubst {_} _ .
+Arguments prejoin_from_hetsubst_η {_} _ .
+Arguments prejoin_from_hetsubst_τ {_} _ .
 Arguments bracket_parts {_} _ _ .
 
   Section def_hss.
@@ -487,13 +487,15 @@ Section from_identity_to_hss.
 (** the operations of an hss can be obtained through this formula from
     just a heterogeneous substitution *)
 
-  Context (T : algebra_ob Id_H) (join : bracket_at H (nat_trans_fix_snd_arg _ _ _ _ _ θ (ptd_from_alg T)) T (identity _)).
+  Context (T : algebra_ob Id_H).
+  Context (prejoin : bracket_at H (nat_trans_fix_snd_arg _ _ _ _ _ θ (ptd_from_alg T)) T (identity _)).
 
-  Let T0 : heterogeneous_substitution H := T ,, (nat_trans_fix_snd_arg _ _ _ _ _ θ (ptd_from_alg T) ,, join).
+  Let T0 : heterogeneous_substitution H :=
+    T ,, (nat_trans_fix_snd_arg _ _ _ _ _ θ (ptd_from_alg T) ,, prejoin).
 
 Lemma heterogeneous_substitution_into_bracket {Z : Ptd} (f : Z --> ptd_from_alg T0) :
   bracket_property H (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) T0 f
-                   ((` T0 ∘ # U f : EndC ⟦ `T0 • U Z , `T0 • U (ptd_from_alg T0) ⟧) · join_from_hetsubst T0).
+    ((` T0 ∘ # U f : EndC ⟦ `T0 • U Z , `T0 • U (ptd_from_alg T0) ⟧) · prejoin_from_hetsubst T0).
 Proof.
   apply whole_from_parts.
   split.
@@ -519,10 +521,10 @@ Proof.
     do 2 rewrite <- assoc.
     apply maponpaths.
     rewrite assoc.
-    assert (join_ok := join_from_hetsubst_η T0).
-    apply (maponpaths pr1) in join_ok.
-    apply toforallpaths in join_ok.
-    apply join_ok.
+    assert (prejoin_ok := prejoin_from_hetsubst_η T0).
+    apply (maponpaths pr1) in prejoin_ok.
+    apply toforallpaths in prejoin_ok.
+    apply prejoin_ok.
   - rewrite functor_comp.
     apply nat_trans_eq; try exact hs.
     intro c.
@@ -537,11 +539,11 @@ Proof.
     etrans.
     2: { do 2 rewrite assoc. do 2 apply cancel_postcomposition.
          apply pathsinv0. unfold Id_H. simpl. apply BinCoproductIn2Commutes. }
-    assert (join_ok := join_from_hetsubst_τ T0).
-    apply (maponpaths pr1) in join_ok.
-    apply toforallpaths in join_ok.
-    assert (join_ok_inst := join_ok c).
-    simpl in join_ok_inst.
+    assert (prejoin_ok := prejoin_from_hetsubst_τ T0).
+    apply (maponpaths pr1) in prejoin_ok.
+    apply toforallpaths in prejoin_ok.
+    assert (prejoin_ok_inst := prejoin_ok c).
+    simpl in prejoin_ok_inst.
     etrans.
     { repeat rewrite assoc. do 3 apply cancel_postcomposition.
       apply pathsinv0.
@@ -552,9 +554,9 @@ Proof.
     etrans.
     { repeat rewrite <- assoc. apply maponpaths.
       rewrite assoc.
-      exact join_ok_inst.
+      exact prejoin_ok_inst.
     }
-    clear join_ok join_ok_inst.
+    clear prejoin_ok prejoin_ok_inst.
     repeat rewrite assoc.
     apply idpath.
 Qed.
@@ -582,7 +584,8 @@ Lemma τ_part_of_alg_mor  (T T' : @algebra_ob [C, C, hs] Id_H)
 Proof.
   assert (β_is_alg_mor := pr2 β).
   simpl in β_is_alg_mor.
-  assert (β_is_alg_mor_inst := maponpaths (fun m:EndC⟦_,_⟧ => (BinCoproductIn2 EndC (CPEndC _ _))· m) β_is_alg_mor); clear β_is_alg_mor.
+  assert (β_is_alg_mor_inst := maponpaths (fun m:EndC⟦_,_⟧ => (BinCoproductIn2 EndC (CPEndC _ _))· m)
+                                          β_is_alg_mor); clear β_is_alg_mor.
   simpl in β_is_alg_mor_inst.
   apply nat_trans_eq; try (exact hs).
   intro c.
@@ -827,6 +830,9 @@ Arguments ptd_from_alg_functor {_ _} _ _ .
 Arguments bracket_property {_ _ _ _ _ } _ _ _ _ .
 Arguments bracket_property_parts {_ _ _ _ _} _ _ _ _ .
 Arguments bracket {_ _ _ _} _ _.
+Arguments prejoin_from_hetsubst {_ _ _ _} _ .
+Arguments prejoin_from_hetsubst_η {_ _ _ _} _ .
+Arguments prejoin_from_hetsubst_τ {_ _ _ _} _ .
 
 Notation τ := tau_from_alg.
 Notation η := eta_from_alg.
