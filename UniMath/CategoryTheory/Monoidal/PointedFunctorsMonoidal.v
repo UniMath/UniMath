@@ -28,8 +28,6 @@ Require Import UniMath.CategoryTheory.PointedFunctors.
 Require Import UniMath.CategoryTheory.PointedFunctorsComposition.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
 Require Import UniMath.CategoryTheory.Monoidal.EndofunctorsMonoidal.
-Require Import UniMath.Bicategories.Core.Examples.BicategoryFromMonoidal.
-Require Import UniMath.Bicategories.Core.Examples.BicatOfCatsWithoutUnivalence.
 
 Local Open Scope cat.
 
@@ -289,58 +287,4 @@ Section PointedFunctors_as_monoidal_category.
                        (functorial_composition C C C hs hs))))].
   Defined.
 
-  (** formally, we also need this functor with a different target category *)
-  Definition functor_ptd_forget_alt
-    : precategory_Ptd C hs
-      ⟶
-      precategory_from_prebicat_and_ob(C:=pr1 bicat_of_cats_nouniv) (C,, hs).
-  Proof.
-    use make_functor.
-    - exists (λ a, pr1 a).
-      exact (λ a b f, pr1 f).
-    - abstract (split; intros; red; intros; apply idpath).
-  Defined.
-
-  Local Definition aux : monoidal_functor_map monoidal_precat_of_pointedfunctors
-                                              (monoidal_precat_from_prebicat_and_ob(C:=pr1 bicat_of_cats_nouniv) (C,, hs)) functor_ptd_forget_alt.
-  Proof.
-    red.
-    use make_nat_trans.
-    - intro x. cbn. apply nat_trans_id.
-    - abstract
-        (red ; intros ; apply nat_trans_eq; try assumption ;
-         intro y ; cbn ; rewrite id_left ; rewrite id_right ; apply nat_trans_ax).
-  Defined.
-
-  Definition forgetful_functor_from_ptd_as_strong_monoidal_functor_alt: strong_monoidal_functor monoidal_precat_of_pointedfunctors (monoidal_precat_from_prebicat_and_ob(C:=pr1 bicat_of_cats_nouniv) (C,,hs)).
-  Proof.
-    use tpair.
-    - apply (mk_lax_monoidal_functor monoidal_precat_of_pointedfunctors (monoidal_precat_from_prebicat_and_ob(C:=pr1 bicat_of_cats_nouniv) (C,, hs)) functor_ptd_forget_alt (nat_trans_id _) aux).
-      + abstract
-          (intros PF1 PF2 PF3 ;
-           apply nat_trans_eq; try assumption ;
-           intro c ;
-           cbn ;
-           do 2 rewrite functor_id ;
-           repeat rewrite id_right ;
-           apply functor_id).
-      + abstract
-          (intro PF ;
-           split; apply nat_trans_eq; try assumption; intro c; cbn ;
-             [ do 3 rewrite id_right ;
-               apply pathsinv0 ;
-               apply functor_id
-             | do 3 rewrite id_right ;
-               apply idpath]).
-    - split ;
-        [ apply (nat_trafo_z_iso_if_pointwise_z_iso C C hs);
-          apply is_nat_z_iso_nat_trans_id
-        | red ; intro c ;
-          exists (nat_trans_id _) ;
-          split; cbn ;
-          [ apply nat_trans_eq; try assumption; intro c'; cbn ;
-            apply id_left
-          | apply nat_trans_eq; try assumption; intro c'; cbn ;
-            apply id_left ]].
-  Defined.
 End PointedFunctors_as_monoidal_category.
