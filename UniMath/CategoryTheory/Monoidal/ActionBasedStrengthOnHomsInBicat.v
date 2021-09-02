@@ -274,10 +274,14 @@ Section a_different_type_for_the_forgetful_functor_from_ptd.
          intro y ; cbn ; rewrite id_left ; rewrite id_right ; apply nat_trans_ax).
   Defined.
 
-  Definition forgetful_functor_from_ptd_as_strong_monoidal_functor_alt: strong_monoidal_functor (monoidal_precat_of_pointedfunctors hs) (monoidal_precat_from_prebicat_and_ob(C:=pr1 bicat_of_cats_nouniv) (C,,hs)).
+  Definition forgetful_functor_from_ptd_as_strong_monoidal_functor_alt
+   : strong_monoidal_functor (monoidal_precat_of_pointedfunctors hs)      
+                                              (monoidal_precat_from_prebicat_and_ob (C:=pr1 bicat_of_cats_nouniv) (C,,hs)).
   Proof.
     use tpair.
-    - apply (mk_lax_monoidal_functor (monoidal_precat_of_pointedfunctors hs) (monoidal_precat_from_prebicat_and_ob(C:=pr1 bicat_of_cats_nouniv) (C,, hs)) functor_ptd_forget_alt (nat_trans_id _) aux).
+    - apply (mk_lax_monoidal_functor (monoidal_precat_of_pointedfunctors hs)
+                       (monoidal_precat_from_prebicat_and_ob (C:=pr1 bicat_of_cats_nouniv) (C,, hs)) 
+                       functor_ptd_forget_alt (nat_trans_id _) aux).
       + abstract
           (intros PF1 PF2 PF3 ;
            apply nat_trans_eq; try assumption ;
