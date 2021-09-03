@@ -131,6 +131,12 @@ Definition is_omega_cocont : UU :=
   ∏ (c : chain C) (L : C) (cc : cocone c L),
   preserves_colimit F c L cc.
 
+Lemma isaprop_is_omega_cocont: isaprop is_omega_cocont.
+Proof.
+  do 3 (apply impred; intro).
+  apply isaprop_preserves_colimit.
+Qed.
+
 Definition is_omega_cont {C D : precategory} (F : functor C D) : UU :=
   ∏ (c : chain C) (L : C) (cc : cone c L),
   preserves_limit F c L cc.
