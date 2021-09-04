@@ -64,11 +64,19 @@ Section Definitions.
   Definition ideal_isl (I : ideal) : is_lideal I := pr12 I.
 
   Definition ideal_isr (I : ideal) : is_rideal I := pr22 I.
+
+  Lemma isaset_ideal : isaset ideal.
+  Proof.
+    apply isaset_total2.
+    - apply isaset_submonoid.
+    - intro S. apply isasetaprop, propproperty.
+  Qed.
 End Definitions.
 
 Arguments lideal _ : clear implicits.
 Arguments rideal _ : clear implicits.
 Arguments ideal _ : clear implicits.
+Arguments isaset_ideal _ : clear implicits.
 
 (** *** The above notions for commutative rigs *)
 
@@ -152,7 +160,14 @@ Arguments prime_ideal _ : clear implicits.
 Section prime_facts.
   Context {R : commring} (p : prime_ideal R).
 
-  Definition prime_ideal_ax1_contraposition :
+  Lemma isaset_prime_ideal : isaset (prime_ideal R).
+  Proof.
+    apply isaset_total2.
+    - apply isaset_ideal.
+    - intro I. apply isasetaprop, propproperty.
+  Qed.
+
+  Lemma prime_ideal_ax1_contraposition :
     ∀ a b : R, ¬ p a ⇒ ¬ p b ⇒ ¬ p (a * b).
   Proof.
     intros a b Ha Hb.
