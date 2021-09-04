@@ -28,6 +28,9 @@ Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 
+Require Import UniMath.CategoryTheory.Subcategory.Core.
+Require Import UniMath.CategoryTheory.Subcategory.Full.
+
 Local Open Scope cat.
 
 (** Definition of graphs and diagrams *)
@@ -701,6 +704,41 @@ Section Creates.
     ∏ (g : graph), creates_colimit_data_of_shape g.
 
 End Creates.
+
+Section CreatesInFullSubcategory.
+
+  Context {C : precategory } (C': hsubtype (ob C)).
+
+  Local Definition catC' := full_sub_precategory C'.
+  Local Definition incl := sub_precategory_inclusion _ catC'.
+
+  Local Definition lift_cocone_through_inclusion {g : graph} {d : diagram g catC'} (c : C) (cok : C' c):
+    cocone (mapdiagram incl d) c -> cocone d (c,,cok).
+  Proof.
+    intro cc.
+    set (f := (λ v : vertex g, (pr1 cc v,, tt)) :
+                           (∏ v : vertex g, catC' ⟦ dob d v, c,, cok ⟧)).
+    exists f.
+    set (fok := (λ (u v0 : vertex g) (e : edge u v0), pathsdirprod (pr2 cc u v0 e) (idpath tt)) : (∏ (u v : vertex g) (e : edge u v), dmor d e · f v = f u)).
+    exact fok.
+  Defined.
+
+  Lemma when_full_sub_precategory_inclusion_creates_colimit_data {g : graph} (d : diagram g catC')
+        (CC : ColimCocone (mapdiagram incl d)) : C' (colim CC) -> ColimCocone d.
+  Proof.
+    induction CC as [[L ccL] isColimCocone].
+    intro LinC'.
+    use tpair.
+    - use tpair.
+      + exact (L ,, LinC').
+      + apply lift_cocone_through_inclusion; exact ccL.
+    - change (colimits.isColimCocone d (L,, LinC') (lift_cocone_through_inclusion L LinC' ccL)).
+      assert (Href := fully_faithful_reflects_all_colimits incl (fully_faithful_sub_precategory_inclusion C C') g d (L ,, LinC')).
+      apply Href.
+      exact isColimCocone.
+  Qed.
+
+End CreatesInFullSubcategory.
 
 Section mapcocone_functor_composite.
 

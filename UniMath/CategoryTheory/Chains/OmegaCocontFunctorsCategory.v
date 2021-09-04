@@ -72,27 +72,11 @@ Section cat_def.
 
   Lemma forget_omegacocont_creates_all_colimit_data: creates_all_colimit_data forget_omegacocont.
   Proof.
-    intros g d CC. induction CC as [[L ccL] isColimCocone].
-    cbn in isColimCocone.
-    assert (Lisomegacocont : is_omega_cocont L).
-    2: { use tpair.
-         - use tpair.
-           + exact (L ,, Lisomegacocont).
-           + set (f := (λ v : vertex g, (pr1 ccL v,, tt)) :
-                           (∏ v : vertex g, omegacocont_precat ⟦ dob d v, L,, Lisomegacocont ⟧)).
-             exists f.
-             set (fok := (λ (u v0 : vertex g) (e : edge u v0), pathsdirprod (pr2 ccL u v0 e) (idpath tt)) : (∏ (u v : vertex g) (e : edge u v), dmor d e · f v = f u)).
-             exact fok.
-         -  change (colimits.isColimCocone d (L,, Lisomegacocont)
-                        (let f := (λ v : vertex g, (pr1 ccL v,, tt)) :
-                                  (∏ v : vertex g, omegacocont_precat ⟦ dob d v, L,, Lisomegacocont ⟧)
-                         in (make_cocone f ((λ (u v0 : vertex g) (e : edge u v0), pathsdirprod (pr2 ccL u v0 e) (idpath tt)) :
-                                              (∏ (u v : vertex g) (e : edge u v), dmor d e · f v = f u))))).
-            assert (Href := forget_omegacocont_reflects_all_colimits g d (L ,, Lisomegacocont)).
-            apply Href.
-            clear Href.
-            apply isColimCocone.
-    }
+    intros g d CC.
+    use when_full_sub_precategory_inclusion_creates_colimit_data.
+    - exact CC.
+    - change (is_omega_cocont (colim CC)).
+
     (** hence, for the data creation part, it remains to prove that the colimiting tip is "automatically" omega-cocontinuous (no "other" colimiting tip is to be found) *)
   Abort.
 
