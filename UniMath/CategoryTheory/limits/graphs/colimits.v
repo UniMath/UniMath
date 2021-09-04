@@ -649,6 +649,44 @@ Defined.
 
 End map.
 
+Section Reflects.
+
+  Context {C D : precategory} (F : functor C D).
+
+  Definition reflects_colimits_of_shape (g : graph) : UU :=
+    ∏ (d : diagram g C) (L : ob C) cc,
+      isColimCocone (mapdiagram F d) (F L) (mapcocone F d cc) ->
+        isColimCocone d L cc.
+
+  Definition reflects_all_colimits : UU :=
+    ∏ (g : graph), reflects_colimits_of_shape g.
+
+  Lemma fully_faithful_reflects_all_colimits (fff : fully_faithful F) :
+    reflects_all_colimits.
+  Proof.
+    intros g d L cc isColimCoconeImL.
+    unfold isColimCocone in *.
+    intros L' cc'.
+    apply (@iscontrweqf
+             (∑ x : D ⟦ F L, F L' ⟧,
+              ∏ v : vertex g,
+                    coconeIn (mapcocone F d cc) v · x = coconeIn (mapcocone F d cc') v)).
+    - apply (@weqcomp _ (∑ x : C ⟦ L, L' ⟧, ∏ v : vertex g,
+                           coconeIn (mapcocone F d cc) v · # F x = coconeIn (mapcocone F d cc') v)).
+      + apply invweq.
+        apply (weqfp (weq_from_fully_faithful fff _ _)
+                     (λ f, ∏ v, coconeIn (mapcocone F d cc) v · f = coconeIn (mapcocone F d cc') v)).
+      + apply weqfibtototal; intro f.
+        apply weqonsecfibers; intro v.
+        unfold mapcocone; cbn.
+        apply invweq.
+        apply fully_faithful_commutative_triangle_weq.
+        exact fff.
+    - apply isColimCoconeImL.
+  Qed.
+
+End Reflects.
+
 Section mapcocone_functor_composite.
 
 Context {A B C : precategory} (hsC : has_homsets C)

@@ -65,12 +65,10 @@ Section cat_def.
     apply fully_faithful_sub_precategory_inclusion.
   Defined.
 
-  Lemma forget_omegacocont_reflects_all_limits: reflects_all_limits forget_omegacocont.
+  Lemma forget_omegacocont_reflects_all_colimits: reflects_all_colimits forget_omegacocont.
   Proof.
-    apply fully_faithful_reflects_all_limits, fully_faithful_forget_omegacocont.
+    apply fully_faithful_reflects_all_colimits, fully_faithful_forget_omegacocont.
   Qed.
-
-  (* it should also reflect all colimits by going through the opposite category, but this does not seem to have been formalized, it will be certainly easier to dualize Lemma [fully_faithful_reflects_all_limits]. *)
 
 
 End cat_def.
