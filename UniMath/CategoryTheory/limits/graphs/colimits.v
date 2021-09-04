@@ -719,8 +719,11 @@ Section CreatesInFullSubcategory.
     set (f := (λ v : vertex g, (pr1 cc v,, tt)) :
                            (∏ v : vertex g, catC' ⟦ dob d v, c,, cok ⟧)).
     exists f.
-    set (fok := (λ (u v0 : vertex g) (e : edge u v0), pathsdirprod (pr2 cc u v0 e) (idpath tt)) : (∏ (u v : vertex g) (e : edge u v), dmor d e · f v = f u)).
-    exact fok.
+    intros u v e.
+    unfold f; cbn. unfold compose.
+    use pathsdirprod.
+    - apply (coconeInCommutes cc).
+    - apply idpath.
   Defined.
 
   Lemma when_full_sub_precategory_inclusion_creates_colimit_data {g : graph} (d : diagram g catC')
