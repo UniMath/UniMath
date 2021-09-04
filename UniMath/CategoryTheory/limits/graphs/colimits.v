@@ -654,7 +654,7 @@ Section Reflects.
   Context {C D : precategory} (F : functor C D).
 
   Definition reflects_colimits_of_shape (g : graph) : UU :=
-    ∏ (d : diagram g C) (L : ob C) cc,
+    ∏ (d : diagram g C) (L : ob C) (cc : cocone d L),
       isColimCocone (mapdiagram F d) (F L) (mapcocone F d cc) ->
         isColimCocone d L cc.
 
@@ -686,6 +686,21 @@ Section Reflects.
   Qed.
 
 End Reflects.
+
+Section Creates.
+
+  Context {C D : precategory} (F : functor C D).
+
+  Definition creates_colimit_data {g : graph} (d : diagram g C) : UU :=
+    ColimCocone (mapdiagram F d) -> ColimCocone d.
+
+  Definition creates_colimit_data_of_shape (g : graph) : UU :=
+    ∏ (d : diagram g C), creates_colimit_data d.
+
+  Definition creates_all_colimit_data : UU :=
+    ∏ (g : graph), creates_colimit_data_of_shape g.
+
+End Creates.
 
 Section mapcocone_functor_composite.
 

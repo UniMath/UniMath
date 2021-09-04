@@ -537,7 +537,7 @@ Section Reflects.
   Context {C D : precategory} (F : functor C D).
 
   Definition reflects_limits_of_shape (g : graph) : UU :=
-    ∏ (d : diagram g C) (L : ob C) cc,
+    ∏ (d : diagram g C) (L : ob C) (cc: cone d L),
       isLimCone (mapdiagram F d) (F L) (mapcone F d cc) ->
         isLimCone d L cc.
 
