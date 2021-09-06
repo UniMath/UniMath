@@ -422,7 +422,7 @@ use tpair.
       apply (pr1 (pr1 (ccL HcL ccHcL))).
   + abstract (
     destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
-    simpl; intro n; unfold constcoprod_functor; cbn;unfold BinCoproduct_of_functors_mor in *;
+    simpl; intro n; unfold constcoprod_functor; cbn; unfold BinCoproduct_of_functors_mor in *;
     etrans; [apply precompWithBinCoproductArrow |]; apply pathsinv0, BinCoproductArrowUnique; red in hf;
     [ rewrite id_left; induction n as [|n IHn]; [apply idpath|];
       etrans; [| apply IHn]; unfold constant_functor; simpl; rewrite <- (hf n _ (idpath _)), assoc;

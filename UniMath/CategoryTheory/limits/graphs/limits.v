@@ -34,13 +34,17 @@ Section lim_def.
 
 Context {C : precategory} (hsC : has_homsets C).
 
+Definition forms_cone {g : graph} (d : diagram g C)
+    {c : C} (f : ∏ (v : vertex g), C⟦c, dob d v⟧) : UU
+  := ∏ (u v : vertex g) (e : edge u v), f u · dmor d e = f v.
+
+(** better not the following: [Coercion coneOut : cone >-> Funclass.] *)
+
 Definition cone {g : graph} (d : diagram g C) (c : C) : UU :=
-  ∑ (f : ∏ (v : vertex g), C⟦c,dob d v⟧),
-    ∏ (u v : vertex g) (e : edge u v), f u · dmor d e = f v.
+  ∑ (f : ∏ (v : vertex g), C⟦c,dob d v⟧), forms_cone d f.
 
 Definition make_cone {g : graph} {d : diagram g C} {c : C}
-  (f : ∏ v, C⟦c, dob d v⟧) (Hf : ∏ u v (e : edge u v), f u · dmor d e = f v) :
-  cone d c
+  (f : ∏ v, C⟦c, dob d v⟧) (Hf : forms_cone d f) : cone d c
   := tpair _ f Hf.
 
 (** The injections to c in the cocone *)
@@ -48,14 +52,18 @@ Definition coneOut {g : graph} {d : diagram g C} {c : C} (cc : cone d c) :
   ∏ v, C⟦c, dob d v⟧ := pr1 cc.
 
 Lemma coneOutCommutes {g : graph} {d : diagram g C} {c : C} (cc : cone d c) :
-  ∏ u v (e : edge u v), coneOut cc u · dmor d e = coneOut cc v.
+  forms_cone d (coneOut cc).
 Proof.
 apply (pr2 cc).
 Qed.
 
+Definition is_cone_mor {g : graph} {d : diagram g C} {c1 : C}
+           (cc1 : cone d c1) {c2 : C} (cc2 : cone d c2) (x : c1 --> c2) : UU :=
+  ∏ (v : vertex g), x · coneOut cc2 v = coneOut cc1 v.
+
 Definition isLimCone {g : graph} (d : diagram g C) (c0 : C)
   (cc0 : cone d c0) : UU := ∏ (c : C) (cc : cone d c),
-    iscontr (∑ x : C⟦c,c0⟧, ∏ v, x · coneOut cc0 v = coneOut cc v).
+    iscontr (∑ x : C⟦c,c0⟧, is_cone_mor cc cc0 x).
 
 Definition LimCone {g : graph} (d : diagram g C) : UU :=
    ∑ (A : (∑ l, cone d l)), isLimCone d (pr1 A) (pr2 A).
@@ -75,8 +83,7 @@ Definition limOut {g : graph} {d : diagram g C} (CC : LimCone d) :
   ∏ (v : vertex g), C⟦lim CC, dob d v⟧ := coneOut (limCone CC).
 
 Lemma limOutCommutes {g : graph} {d : diagram g C}
-  (CC : LimCone d) : ∏ (u v : vertex g) (e : edge u v),
-   limOut CC u · dmor d e = limOut CC v.
+  (CC : LimCone d) : forms_cone d (limOut CC).
 Proof.
 exact (coneOutCommutes (limCone CC)).
 Qed.
@@ -116,7 +123,7 @@ Lemma limArrowUnique {g : graph} {d : diagram g C} (CC : LimCone d)
   (Hk : ∏ (u : vertex g), k · limOut CC u = coneOut cc u) :
   k = limArrow CC c cc.
 Proof.
-now apply path_to_ctr, Hk.
+apply path_to_ctr. red. apply Hk.
 Qed.
 
 Lemma Cone_precompose {g : graph} {d : diagram g C}
@@ -353,7 +360,7 @@ apply subtypePath.
 - intro; apply isaprop_isLimCone.
 - apply (total2_paths_f (isotoid _ H (iso_from_lim_to_lim Hccx Hccy))).
   set (B c := ∏ v, C⟦c,dob cc v⟧).
-  set (C' (c : C) f := ∏ u v (e : edge u v), @compose _ c _ _ (f u) (dmor cc e) = f v).
+  set (C' (c : C) f := forms_cone(c:=c) cc f).
   rewrite (@transportf_total2 _ B C').
   apply subtypePath.
   + intro; repeat (apply impred; intro); apply univalent_category_has_homsets.
@@ -604,7 +611,7 @@ Definition make_cocone {g : graph} {d : diagram g C} {c : C}
 *)
 
 Definition make_cone {g : graph} {d : diagram g C^op} {c : C}
-  (f : ∏ v, C⟦c, dob d v⟧) (Hf : ∏ u v (e : edge u v) , f v · dmor d e  = f u) :
+           (f : ∏ v, C⟦c, dob d v⟧) (Hf : ∏ u v (e : edge u v) , f v · dmor d e  = f u) :
   cone d c
   := tpair _ f Hf.
 

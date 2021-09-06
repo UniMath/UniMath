@@ -366,7 +366,7 @@ Proof.
       apply ((#F)%cat (coneOut L j )).
       cbn. exact (pr2 (dob D j)).
     - abstract (
-      intros; cbn;
+      red; intros; cbn;
       assert (XR := pr2 (dmor D e)); cbn in XR;
       etrans; [eapply pathsinv0; apply assoc |];
       etrans; [apply maponpaths, (!XR) |];
