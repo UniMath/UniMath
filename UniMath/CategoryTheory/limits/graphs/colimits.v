@@ -72,27 +72,31 @@ Section colim_def.
 Context {C : precategory} (hsC : has_homsets C).
 
 (** A cocone with tip c over a diagram d *)
+Definition forms_cocone {g : graph} (d : diagram g C) {c : C} (f : ∏ (v : vertex g), C⟦dob d v, c⟧) : UU
+  := ∏ (u v : vertex g) (e : edge u v), dmor d e · f v = f u.
+
 Definition cocone {g : graph} (d : diagram g C) (c : C) : UU :=
-  ∑ (f : ∏ (v : vertex g), C⟦dob d v,c⟧),
-    ∏ (u v : vertex g) (e : edge u v), dmor d e · f v = f u.
+  ∑ (f : ∏ (v : vertex g), C⟦dob d v,c⟧), forms_cocone d f.
 
 Definition make_cocone {g : graph} {d : diagram g C} {c : C}
-  (f : ∏ v, C⟦dob d v,c⟧) (Hf : ∏ u v e, dmor d e · f v = f u) :
+  (f : ∏ v, C⟦dob d v,c⟧) (Hf : forms_cocone d f) :
   cocone d c := tpair _ f Hf.
 
 (** The injections to c in the cocone *)
 Definition coconeIn {g : graph} {d : diagram g C} {c : C} (cc : cocone d c) :
   ∏ v, C⟦dob d v,c⟧ := pr1 cc.
 
+(** not recommended! [Coercion coconeIn : cocone >-> Funclass.] *)
+
 Lemma coconeInCommutes {g : graph} {d : diagram g C} {c : C} (cc : cocone d c) :
-  ∏ u v (e : edge u v), dmor d e · coconeIn cc v = coconeIn cc u.
+  forms_cocone d (coconeIn cc).
 Proof.
 exact (pr2 cc).
 Qed.
 
-Definition cocone_paths {g : graph}{d:  diagram g C}{x : C}
+Definition cocone_paths {g : graph} {d : diagram g C} {x : C}
            (cc1 cc2 : cocone d x)
-           (eqin : ∏ g, coconeIn cc1 g = coconeIn cc2 g)  : cc1 = cc2.
+           (eqin : ∏ g, coconeIn cc1 g = coconeIn cc2 g): cc1 = cc2.
 Proof.
   use subtypePath'.
   - apply funextsec.
@@ -101,12 +105,16 @@ Proof.
     apply hsC.
 Defined.
 
+Definition is_cocone_mor {g : graph} {d : diagram g C} {c1 : C}
+           (cc1 : cocone d c1) {c2 : C} (cc2 : cocone d c2) (x : c1 --> c2) : UU :=
+  ∏ (v : vertex g), coconeIn cc1 v · x = coconeIn cc2 v.
+
 (** cc0 is a colimit cocone if for any other cocone cc over the same
    diagram there is a unique morphism from the tip of cc0 to the tip
    of cc *)
 Definition isColimCocone {g : graph} (d : diagram g C) (c0 : C)
   (cc0 : cocone d c0) : UU := ∏ (c : C) (cc : cocone d c),
-    iscontr (∑ x : C⟦c0,c⟧, ∏ v, coconeIn cc0 v · x = coconeIn cc v).
+    iscontr (∑ x : C⟦c0,c⟧, is_cocone_mor cc0 cc x).
 
 (* Definition isColim {g : graph} (d : diagram g C) (L : C) := *)
 (*   ∑ c : cocone d L, isColimCocone d L c. *)
@@ -132,8 +140,7 @@ Definition colimIn {g : graph} {d : diagram g C} (CC : ColimCocone d) :
   ∏ (v : vertex g), C⟦dob d v,colim CC⟧ := coconeIn (colimCocone CC).
 
 Lemma colimInCommutes {g : graph} {d : diagram g C}
-  (CC : ColimCocone d) : ∏ (u v : vertex g) (e : edge u v),
-   dmor d e · colimIn CC v = colimIn CC u.
+  (CC : ColimCocone d) : forms_cocone d (colimIn CC).
 Proof.
 exact (coconeInCommutes (colimCocone CC)).
 Qed.
@@ -171,7 +178,7 @@ Lemma colimArrowUnique {g : graph} {d : diagram g C} (CC : ColimCocone d)
   (Hk : ∏ (u : vertex g), colimIn CC u · k = coconeIn cc u) :
   k = colimArrow CC c cc.
 Proof.
-now apply path_to_ctr, Hk.
+apply path_to_ctr. red. apply Hk.
 Qed.
 
 Lemma Cocone_postcompose {g : graph} {d : diagram g C}
@@ -274,21 +281,21 @@ Qed.
 Definition Cocone_by_postcompose {g : graph} (D : diagram g C)
  (c : C) (cc : cocone D c) (d : C) (k : C⟦c,d⟧) : cocone D d.
 Proof.
-now exists (λ u, coconeIn cc u · k); apply Cocone_postcompose.
+exists (λ u, coconeIn cc u · k). red; apply Cocone_postcompose.
 Defined.
 
 Lemma isColim_weq_subproof1 {g : graph} (D : diagram g C)
-  (c : C) (cc : cocone D c) (d : C) (k : C⟦c,d⟧) :
-  ∏ u, coconeIn cc u · k = pr1 (Cocone_by_postcompose D c cc d k) u.
+      (c : C) (cc : cocone D c) (d : C) (k : C⟦c,d⟧) :
+  ∏ u, coconeIn cc u · k = coconeIn (Cocone_by_postcompose D c cc d k) u.
 Proof.
 now intro u.
 Qed.
 
 Lemma isColim_weq_subproof2 (g : graph) (D : diagram g C)
   (c : C) (cc : cocone D c) (H : ∏ d, isweq (Cocone_by_postcompose D c cc d))
-  (d : C) (cd : cocone D d) (u : vertex g) :
-    coconeIn cc u · invmap (make_weq _ (H d)) cd = coconeIn cd u.
+  (d : C) (cd : cocone D d) : is_cocone_mor cc cd (invmap (make_weq _ (H d)) cd).
 Proof.
+intro u.
 rewrite (isColim_weq_subproof1 D c cc d (invmap (make_weq _ (H d)) _) u).
 set (p := homotweqinvweq (make_weq _ (H d)) cd); simpl in p.
 now rewrite p.
@@ -409,7 +416,7 @@ apply subtypePath.
 - intro; apply isaprop_isColimCocone.
 - apply (total2_paths_f (isotoid _ H (iso_from_colim_to_colim Hccx Hccy))).
   set (B c := ∏ v, C⟦dob cc v,c⟧).
-  set (C' (c : C) f := ∏ u v (e : edge u v), @compose _ _ _ c (dmor cc e) (f v) = f u).
+  set (C' (c : C) f := forms_cocone(c:=c) cc f).
   rewrite (@transportf_total2 _ B C').
   apply subtypePath.
   + intro; repeat (apply impred; intro); apply univalent_category_has_homsets.
