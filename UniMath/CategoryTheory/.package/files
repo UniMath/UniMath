@@ -173,6 +173,7 @@ Chains/Chains.v
 Chains/Cochains.v
 Chains/Adamek.v
 Chains/OmegaCocontFunctors.v
+Chains/OmegaCocontFunctorsCategory.v
 Chains/All.v
 Inductives/Lists.v
 Inductives/Trees.v

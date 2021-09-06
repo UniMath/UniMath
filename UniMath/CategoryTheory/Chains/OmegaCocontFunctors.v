@@ -128,7 +128,7 @@ use make_cocone.
 Defined.
 
 Lemma αinv_f_commutes y (ccGy : cocone (mapdiagram G d) y) (f : D⟦F L,y⟧)
-       (Hf : ∏ v,coconeIn (mapcocone F d cc) v · f = coconeIn (ccFy y ccGy) v) :
+      (Hf : is_cocone_mor (mapcocone F d cc) (ccFy y ccGy) f) :
        ∏ v, # G (coconeIn cc v) · (pr1 αinv L · f) = coconeIn ccGy v.
 Proof.
 intro v; rewrite assoc.
@@ -141,17 +141,15 @@ now rewrite id_left.
 Qed.
 
 Lemma αinv_f_unique y (ccGy : cocone (mapdiagram G d) y) (f : D⟦F L,y⟧)
-     (Hf : ∏ v,coconeIn (mapcocone F d cc) v · f = coconeIn (ccFy y ccGy) v)
-     (HHf : ∏ t : ∑ x, ∏ v, coconeIn (mapcocone F d cc) v · x = coconeIn _ v, t = f,, Hf)
+     (Hf : is_cocone_mor (mapcocone F d cc) (ccFy y ccGy) f)
+     (HHf : ∏ t : ∑ x, is_cocone_mor (mapcocone F d cc) (ccFy y ccGy) x, t = f,, Hf)
       f' (Hf' : ∏ v, # G (coconeIn cc v) · f' = coconeIn ccGy v) :
       f' = pr1 αinv L · f.
 Proof.
-transparent assert (HH : (∑ x : D ⟦ F L, y ⟧,
-            ∏ v : vertex g,
-            coconeIn (mapcocone F d cc) v · x = coconeIn (ccFy y ccGy) v)).
+transparent assert (HH : (∑ x : D ⟦ F L, y ⟧, is_cocone_mor (mapcocone F d cc) (ccFy y ccGy) x)).
 { use tpair.
   - apply (pr1 α L · f').
-  - cbn. abstract (intro v; rewrite <- Hf', !assoc; apply cancel_postcomposition, nat_trans_ax).
+  - unfold is_cocone_mor; cbn. abstract (intro v; rewrite <- Hf', !assoc; apply cancel_postcomposition, nat_trans_ax).
 }
 apply pathsinv0.
 generalize (maponpaths pr1 (HHf HH)); intro Htemp; simpl in *.
@@ -169,7 +167,7 @@ set (H := HF HccL y (ccFy y ccGy)).
 set (f := pr1 (pr1 H)); set (Hf := pr2 (pr1 H)); set (HHf := pr2 H).
 use unique_exists.
 - apply (pr1 αinv L · f).
-- simpl; apply (αinv_f_commutes y ccGy f Hf).
+- unfold is_cocone_mor; simpl; apply (αinv_f_commutes y ccGy f Hf).
 - abstract (intro; apply impred; intro; apply hsD).
 - abstract (simpl in *; intros f' Hf'; apply (αinv_f_unique y ccGy f Hf); trivial;
             intro t; rewrite (HHf t); reflexivity).
@@ -446,7 +444,7 @@ transparent assert (cGBY : (cocone (mapdiagram G (mapdiagram (pr2_functor A B) c
 }
 destruct (HF _ _ _ (isColimCocone_pr1_functor cAB ml ccml Hccml) _ cFAX) as [[f hf1] hf2].
 destruct (HG _ _ _ (isColimCocone_pr2_functor cAB ml ccml Hccml) _ cGBY) as [[g hg1] hg2].
-simpl in *.
+unfold is_cocone_mor in *. simpl in *.
 use tpair.
 - apply (tpair _ (f,,g)).
   abstract (intro n; unfold precatbinprodmor, compose; simpl;
@@ -1095,9 +1093,8 @@ Proof.
 Qed.
 
 (* Define a cocone over K from the A_i * M chain *)
-Local Lemma ccAiM_K_subproof : ∏ u v (e : edge u v),
-   dmor (mapdiagram (constprod_functor2 PC M) cA) e ·
-   colimArrow (CCAiB v) K (ccAiB_K v) = colimArrow (CCAiB u) K (ccAiB_K u).
+Local Lemma ccAiM_K_subproof : forms_cocone (mapdiagram (constprod_functor2 PC M) cA)
+                                            (fun u => colimArrow (CCAiB u) K (ccAiB_K u)).
 Proof.
   intros i j e; destruct e; simpl.
   generalize (AiM_chain_eq i); simpl; intro H; rewrite <- H; clear H; simpl.
@@ -1232,7 +1229,8 @@ End omega_cocont_binproduct.
 
 Lemma is_omega_cocont_binproduct_functor : is_omega_cocont (binproduct_functor PC).
 Proof.
-intros cAB LM ccLM HccLM K ccK; simpl in *.
+  intros cAB LM ccLM HccLM K ccK; simpl in *.
+  cbn.
 apply isColimProductOfColims, HccLM.
 Defined.
 

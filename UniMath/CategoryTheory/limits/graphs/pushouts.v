@@ -87,7 +87,7 @@ Section def_po.
      iscontr (total2 (fun hk : C⟦d, e⟧ => dirprod (i1 · hk = h)(i2 · hk = k)))) →
     isPushout f g i1 i2 H.
   Proof.
-    intros H' x cx; simpl in *.
+    intros H' x cx. unfold is_cocone_mor; simpl in *.
     set (H1 := H' x (coconeIn cx Two) (coconeIn cx Three)).
     use (let p : f · coconeIn cx Two = g · coconeIn cx Three
                        := _ in _ ).

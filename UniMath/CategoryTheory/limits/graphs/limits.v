@@ -537,7 +537,7 @@ Section Reflects.
   Context {C D : precategory} (F : functor C D).
 
   Definition reflects_limits_of_shape (g : graph) : UU :=
-    ∏ (d : diagram g C) (L : ob C) cc,
+    ∏ (d : diagram g C) (L : ob C) (cc: cone d L),
       isLimCone (mapdiagram F d) (F L) (mapcone F d cc) ->
         isLimCone d L cc.
 
@@ -877,13 +877,13 @@ set (iinv := z_iso_inv_from_is_z_iso _ (is_z_iso_from_is_iso _ H)).
 intros x cx.
 use tpair.
 - use tpair.
-  + exact (limArrow CC x cx·iinv).
+  + exact (limArrow CC x cx · iinv).
   + simpl; intro u.
-    assert (XR:=limArrowCommutes CC x cx u).
+    assert (XR := limArrowCommutes CC x cx u).
     eapply pathscomp0; [| apply XR].
-    eapply pathscomp0; [ apply (!assoc _ _ _ ) |].
-    apply maponpaths.
-    apply z_iso_inv_on_right.
+    etrans. { use assoc. }
+    apply (maponpaths (fun f => compose(C:=C^op) f (limArrow CC x cx))).
+    apply (z_iso_inv_on_right(C:=C)).
     apply pathsinv0, limArrowCommutes.
 - intros p; destruct p as [f Hf].
   apply subtypePath.
@@ -893,7 +893,7 @@ use tpair.
     cbn in *.
     eapply pathscomp0; [| apply Hf].
     eapply pathscomp0. apply (!assoc _ _ _ ).
-    apply maponpaths.
+    apply (maponpaths (fun f' => compose(C:=C^op) f' f)).
     apply limArrowCommutes.
 Defined.
 
