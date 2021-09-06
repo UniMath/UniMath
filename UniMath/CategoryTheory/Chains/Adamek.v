@@ -163,7 +163,7 @@ Proof.
 apply colimArrow.
 use make_cocone.
 - apply cocone_over_alg.
-- apply isCoconeOverAlg.
+- red; apply isCoconeOverAlg.
 Defined.
 
 Lemma ad_is_algebra_mor : is_algebra_mor _ α_alg Aa ad.
