@@ -387,7 +387,7 @@ use tpair.
                                 hset_fun_space x HcL⟧ := _ in _);
     [ simpl; apply flip, (curry (Z := λ _,_)), t
     | rewrite <- (colimArrowUnique _ _ _ g); [apply idpath | ];
-      destruct cc as [f hf]; simpl in *;
+      destruct cc as [f hf]; unfold is_cocone_mor in p; simpl in *;
       now intro n; simpl; rewrite <- (p n) ]
   ]).
 Defined.
@@ -413,33 +413,40 @@ use tpair.
     * use (let ccHcL : cocone hF HcL := _ in _).
       { use make_cocone.
         - intros n; exact (BinCoproductIn2 _ (PC x (dob hF n)) · pr1 cc n).
-        - abstract (
+        -   abstract (
             intros m n e; destruct e; simpl;
             destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
             rewrite <- (hf m _ (idpath _)), !assoc; apply cancel_postcomposition;
-            now unfold BinCoproduct_of_functors_mor; rewrite BinCoproductOfArrowsIn2). }
+            unfold constcoprod_functor; cbn; unfold BinCoproduct_of_functors_mor;
+            apply pathsinv0; etrans; [apply BinCoproductOfArrowsIn2|]; apply idpath). }
       apply (pr1 (pr1 (ccL HcL ccHcL))).
   + abstract (
     destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
-    simpl; intro n; unfold BinCoproduct_of_functors_mor in *;
-    rewrite precompWithBinCoproductArrow; apply pathsinv0, BinCoproductArrowUnique;
+    simpl; intro n; unfold constcoprod_functor; cbn; unfold BinCoproduct_of_functors_mor in *;
+    etrans; [apply precompWithBinCoproductArrow |]; apply pathsinv0, BinCoproductArrowUnique; red in hf;
     [ rewrite id_left; induction n as [|n IHn]; [apply idpath|];
-      now rewrite <- IHn, <- (hf n _ (idpath _)), assoc,
-                  BinCoproductOfArrowsIn1, id_left
+      etrans; [| apply IHn]; unfold constant_functor; simpl; rewrite <- (hf n _ (idpath _)), assoc;
+      unfold constant_functor; simpl; unfold BinCoproduct_of_functors_mor; apply pathsinv0;
+      etrans; [apply cancel_postcomposition; apply BinCoproductOfArrowsIn1 |]; now rewrite id_left
     | rewrite <- (hf n _ (idpath _)); destruct ccL as [t p]; destruct t as [t p0]; simpl in *;
-      rewrite p0; apply maponpaths, hf]).
+      rewrite p0; simpl; now apply maponpaths, hf]).
 - abstract (
-  destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
-  intro t; apply subtypePath; simpl;
-  [ intro g; apply impred; intro; apply hsC
-  | destruct t as [t p]; destruct ccL as [t0 p0]; unfold BinCoproduct_of_functors_mor in *; destruct t0 as [t0 p1]; simpl;
-    apply BinCoproductArrowUnique;
-    [ now rewrite <- (p 0), assoc, BinCoproductOfArrowsIn1, id_left
-    | use (let temp : ∑ x0 : C ⟦ c, HcL ⟧, ∏ v : nat,
-         coconeIn L v · x0 = BinCoproductIn2 C (PC x (dob hF v)) · f v := _ in _);
-         [ apply (tpair _ (BinCoproductIn2 C (PC x c) · t));
-          now intro n; rewrite <- (p n), !assoc, BinCoproductOfArrowsIn2|];
-      apply (maponpaths pr1 (p0 temp))]]).
+      destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
+      intro t; apply subtypePath; simpl;
+      [  intro g; apply impred; intro; apply hsC
+       | destruct t as [t p]; destruct ccL as [t0 p0]; unfold is_cocone_mor in *;
+         unfold constcoprod_functor, BinCoproduct_of_functors_mor in *; destruct t0 as [t0 p1]; simpl;
+         apply BinCoproductArrowUnique;
+         [  unfold coconeIn in p; simpl in p;
+            rewrite <- (p 0), assoc; unfold BinCoproduct_of_functors_mor;
+            apply cancel_postcomposition; apply pathsinv0; etrans; [apply  BinCoproductOfArrowsIn1 |]; apply id_left
+         |  use (let temp : ∑ x0 : C ⟦ c, HcL ⟧, ∏ v : nat,
+                                coconeIn L v · x0 = BinCoproductIn2 C (PC x (dob hF v)) · f v := _ in _);
+            [ apply (tpair _ (BinCoproductIn2 C (PC x c) · t));
+              intro n; unfold coconeIn in p; simpl in p; rewrite <- (p n), !assoc;
+              apply cancel_postcomposition; apply pathsinv0; etrans; [apply  BinCoproductOfArrowsIn2 |];
+              apply idpath|];
+            apply (maponpaths pr1 (p0 temp))]]).
 Defined.
 
 End constcoprod_functor.
