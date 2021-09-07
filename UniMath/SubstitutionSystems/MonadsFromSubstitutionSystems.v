@@ -88,7 +88,7 @@ Local Notation "'EndC'":= ([C, C, hs]) .
 (** ** Definition of algebra structure [τ] of a pointed functor *)
 
 
-(** ** Derivation of the monad laws from a heterogeneous substitution system *)
+(** ** Derivation of the monad laws from a heterogeneous substitution system for signature with strength [H] *)
 
 Section mu_from_fbracket.
 
