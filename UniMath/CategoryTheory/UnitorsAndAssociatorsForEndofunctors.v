@@ -72,6 +72,13 @@ Proof.
   apply idpath.
 Qed.
 
+Goal ∏ X : C ⟶ D, functor_composite (functor_identity C) X = X.
+Proof.
+  intros.
+  apply idpath.
+Qed.
+
+(** trivially, this observed convertibility implies the following three convertibilities *)
 Goal ∏ X Y : C ⟶ D, functor_composite (functor_identity C) X ⟹ Y = (X ⟹ Y).
 Proof.
   intros X Y.
@@ -84,6 +91,24 @@ Proof.
   intros X Y.
   apply idpath.
 Qed.
+
+Goal ∏ (E: precategory)(hs: has_homsets D)(H: functor [C,D,hs] E) (X: C ⟶ D),
+         H(functor_composite (functor_identity C) X) = H X.
+Proof.
+  intros.
+  apply idpath.
+Qed.
+(** end of implied convertibilities *)
+
+(** the last convertibility fails for the composition with the identity as second argument *)
+Goal ∏ (E: precategory)(hs: has_homsets D)(H: functor [C,D,hs] E) (X: C ⟶ D),
+         H(functor_composite X (functor_identity D)) = H X.
+Proof.
+  intros.
+  Fail (apply idpath).
+Abort.
+(** in particular, there is no convertibility between the arguments to [H] *)
+
 
 Definition ρ_functors (X : functor C D) :
   nat_trans (functor_composite X (functor_identity D)) X := nat_trans_id X.

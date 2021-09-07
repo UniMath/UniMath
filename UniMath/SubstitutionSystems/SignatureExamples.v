@@ -114,6 +114,38 @@ Let D' Ze Ze' :=
                  (α_functors G (pr1 Ze) (pr1 Ze'))))).
 Definition δ_law2 : UU := ∏ Ze Ze', δ (Ze p• Ze') = D' Ze Ze'.
 
+(** the following variant is more suitable for communication about the results *)
+Definition δ_law2_nicer : UU := ∏ Ze Ze', δ (Ze p• Ze') =
+  nat_trans_comp (pre_whisker (pr1 Ze) (δ Ze')) (post_whisker (δ Ze) (pr1 Ze')).
+
+Lemma δ_law2_implies_δ_law2_nicer: δ_law2 -> δ_law2_nicer.
+Proof.
+  intros Hyp Ze Ze'.
+  assert (Hypinst := Hyp Ze Ze').
+  etrans. { exact Hypinst. }
+  unfold D'.
+  apply nat_trans_eq; try exact hsC.
+  intro c.
+  cbn.
+  do 2 rewrite id_left.
+  rewrite id_right.
+  apply idpath.
+Qed.
+
+Lemma δ_law2_nicer_implies_δ_law2: δ_law2_nicer -> δ_law2.
+Proof.
+  intros Hyp Ze Ze'.
+  assert (Hypinst := Hyp Ze Ze').
+  etrans. { exact Hypinst. }
+  unfold D'.
+  apply nat_trans_eq; try exact hsC.
+  intro c.
+  cbn.
+  do 2 rewrite id_left.
+  rewrite id_right.
+  apply idpath.
+Qed.
+
 End δ_laws.
 
 Definition DistributiveLaw : UU :=
