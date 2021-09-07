@@ -118,6 +118,36 @@ Definition θ_Strength1_int : UU
   := ∏ X : [C, D', hsD'],
            θ (X ⊗ (id_Ptd C hs)) · # H (λ_functors _) = λ_functors _.
 
+(** the following naturally-looking definition is often not suitable to work with *)
+Definition θ_Strength1_int_nicer : UU
+  := ∏ X : [C, D', hsD'],
+           θ (X ⊗ (id_Ptd C hs)) = nat_trans_id ((H X): functor C D).
+
+Lemma θ_Strength1_int_nicer_implies_θ_Strength1_int : θ_Strength1_int_nicer → θ_Strength1_int.
+Proof.
+  intros T X.
+  rewrite T.
+  etrans.
+  { apply maponpaths.
+    unfold λ_functors.
+    apply (functor_id H X). }
+  apply id_right.
+Qed.
+
+Lemma θ_Strength1_int_implies_θ_Strength1_int_nicer : θ_Strength1_int → θ_Strength1_int_nicer.
+Proof.
+  intros T X.
+  etrans. 2: { apply T. }
+  etrans.
+  2: { apply pathsinv0.
+       apply maponpaths.
+       unfold λ_functors.
+       apply (functor_id H X). }
+  apply pathsinv0.
+  apply id_right.
+Qed.
+
+
 Lemma isaprop_θ_Strength1_int: isaprop θ_Strength1_int.
 Proof.
   apply impred; intros X x x'.
@@ -155,7 +185,6 @@ Proof.
   apply T2.
 Qed.
 
-
 End Strength_law_1_intensional.
 
 
@@ -167,7 +196,7 @@ Definition θ_Strength2 : UU := ∏ (X : [C, D', hsD']) (Z Z' : Ptd) (Y : [C, D'
 
 
 Section Strength_law_2_intensional.
- (* does not typecheck in the heterogeneous formulation *)
+
 Definition θ_Strength2_int : UU
   := ∏ (X : [C, D', hsD']) (Z Z' : Ptd),
       θ (X ⊗ (Z p• Z')) · #H (α_functors (U Z) (U Z') X )  =
