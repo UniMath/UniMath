@@ -102,7 +102,8 @@ Local Notation "C × D" := (precategory_binproduct C D) (at level 75, right asso
 
 
 Goal ∏ (C D:precategory), (C × D)^op = (C^op × D^op).
-  reflexivity.
+  intros.
+  apply idpath.
 Qed.
 
 
@@ -120,15 +121,15 @@ Definition precatbinprodmor {C D : precategory} {X X' : C} {Z Z' : D} (α : X --
 Local Notation "( f #, g )" := (precatbinprodmor f g).
 
 (* Some useful facts about product precategories *)
-Definition binprod_id {C D : precategory} (c : C) (d : D) : (identity c #, identity d) = identity (c, d).
+Lemma binprod_id {C D : precategory} (c : C) (d : D) : (identity c #, identity d) = identity (c, d).
 Proof.
   apply idpath.
-Defined.
+Qed.
 
-Definition binprod_comp {C D : precategory} (c c' c'' : C) (d d' d'' : D) (f : c --> c') (f' : c' --> c'') (g : d --> d') (g' : d' --> d'') : (f · f' #, g · g') = (f #, g) · (f' #, g').
+Lemma binprod_comp {C D : precategory} (c c' c'' : C) (d d' d'' : D) (f : c --> c') (f' : c' --> c'') (g : d --> d') (g' : d' --> d'') : (f · f' #, g · g') = (f #, g) · (f' #, g').
 Proof.
   apply idpath.
-Defined.
+Qed.
 
 Lemma is_iso_binprod_iso_aux {C D : precategory} {c c' : C} {d d' : D} {f : c --> c'} {g : d --> d'} (f_is_iso : is_iso f)
   (g_is_iso : is_iso g) : is_inverse_in_precat (f #, g)
@@ -655,3 +656,130 @@ Definition post_whisker_snd_param {B C D P: precategory}
   make_nat_trans _ _ _ (is_nat_trans_post_whisker_snd_param γ K).
 
 End whiskering.
+
+Section Currying.
+  (** we will "Curry away" the first argument - for our intended use with actions *)
+
+  Context {C D E : precategory} (hs: has_homsets E).
+
+Section Def_Curry.
+  Context (F: (C × D) ⟶ E).
+
+  Definition curry_functor_data: functor_data D [C, E, hs].
+  Proof.
+    use make_functor_data.
+    - intro d.
+      exact (functor_fix_snd_arg C D E F d).
+    - intros d d' f.
+      exact (nat_trans_from_functor_fix_snd_morphism_arg C D E F d d' f).
+  Defined.
+
+  Lemma curry_functor_data_is_functor: is_functor curry_functor_data.
+  Proof.
+    split.
+    - intro d.
+      apply nat_trans_eq; try exact hs.
+      intro c.
+      cbn.
+      unfold nat_trans_from_functor_fix_snd_morphism_arg_data.
+      etrans.
+      { apply maponpaths. apply binprod_id. }
+      apply functor_id.
+    - intros d1 d2 d3 f g.
+      apply nat_trans_eq; try exact hs.
+      intro c.
+      cbn.
+      unfold nat_trans_from_functor_fix_snd_morphism_arg_data.
+      etrans.
+      2: { apply functor_comp. }
+      apply maponpaths.
+      apply dirprodeq; cbn.
+      + apply pathsinv0. apply id_left.
+      + apply idpath.
+  Qed.
+
+  Definition curry_functor: D ⟶ [C, E, hs] := make_functor curry_functor_data curry_functor_data_is_functor.
+
+End Def_Curry.
+
+Section Def_Uncurry.
+
+  Context (G: D ⟶ [C, E, hs]).
+
+  Definition uncurry_functor_data: functor_data (C × D) E.
+  Proof.
+    use make_functor_data.
+    - intro cd. induction cd as [c d].
+      exact (pr1 (G d) c).
+    - intros cd cd' ff'.
+      induction cd as [c d]. induction cd' as [c' d']. induction ff' as [f f'].
+      cbn in *.
+      exact (#(G d: functor C E) f · pr1 (#G f') c').
+  Defined.
+
+  Lemma uncurry_functor_data_is_functor: is_functor uncurry_functor_data.
+  Proof.
+    split.
+    - intro cd. induction cd as [c d].
+      cbn.
+      rewrite functor_id.
+      rewrite id_left.
+      assert (H := functor_id G d).
+      apply (maponpaths (fun f => pr1 f c)) in H.
+      exact H.
+    - intros cd1 cd2 cd3 ff' gg'.
+      induction cd1 as [c1 d1]. induction cd2 as [c2 d2]. induction cd3 as [c3 d3]. induction ff' as [f f']. induction gg' as [g g'].
+      cbn in *.
+      rewrite functor_comp.
+      assert (H := functor_comp G f' g').
+      apply (maponpaths (fun f => pr1 f c3)) in H.
+      etrans.
+      { apply maponpaths.
+        exact H. }
+      cbn.
+      repeat rewrite assoc.
+      apply cancel_postcomposition.
+      repeat rewrite <- assoc.
+      apply maponpaths.
+      apply nat_trans_ax.
+  Qed.
+
+  Definition uncurry_functor: (C × D) ⟶ E := make_functor uncurry_functor_data uncurry_functor_data_is_functor.
+
+End Def_Uncurry.
+
+Lemma uncurry_after_curry (F: (C × D) ⟶ E): uncurry_functor (curry_functor F) = F.
+Proof.
+  apply functor_eq; try exact hs.
+  (* UniMath.MoreFoundations.Tactics.show_id_type. *)
+  use functor_data_eq.
+  - intro cd; apply idpath.
+  - cbn. intros cd cd' ff'.
+    induction cd as [c d]. induction cd' as [c' d']. induction ff' as [f f'].
+    cbn in *.
+    unfold functor_fix_snd_arg_mor, nat_trans_from_functor_fix_snd_morphism_arg_data.
+    etrans.
+    { apply pathsinv0. apply functor_comp. }
+    unfold compose. cbn.
+    rewrite id_left, id_right.
+    apply idpath.
+Qed.
+
+Lemma curry_after_uncurry_pointwise (G: D ⟶ [C, E, hs]) (d: D) : pr1 (curry_functor (uncurry_functor G)) d = pr1 G d.
+Proof.
+  (* UniMath.MoreFoundations.Tactics.show_id_type. *)
+  apply functor_eq; try exact hs.
+  use functor_data_eq.
+  - intro c.
+    apply idpath.
+  - cbn.
+    intros c c' f.
+    assert (H := functor_id G d).
+    apply (maponpaths (fun f => pr1 f c')) in H.
+    etrans.
+    { apply maponpaths. exact H. }
+    apply id_right.
+Qed.
+
+
+End Currying.

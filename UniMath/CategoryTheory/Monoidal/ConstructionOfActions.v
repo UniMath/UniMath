@@ -304,7 +304,7 @@ Section Strong_Monoidal_Functor_Action_Reloaded.
 
   Definition U_action_alt : action Mon_V (monoidal_precat_precat Mon_A) := lifted_action Mon_V U (action_on_itself Mon_A).
 
-(* the two actions would even be convertible - if one would ask for definedness of the proofs of the equations [lifted_action_tlaw] and [lifted_action_plaw]
+(* the two actions would even be convertible - if one would ask for definedness of the proofs of the equations [lifted_action_tlaw] and [lifted_action_plaw] and also [U_action_tlaw] and [U_action_plaw]
   Lemma U_action_alt_ok: U_action_alt = U_action _ U.
   Proof.
     apply idpath.

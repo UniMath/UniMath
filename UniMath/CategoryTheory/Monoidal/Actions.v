@@ -11,10 +11,12 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
+Require Import UniMath.CategoryTheory.Monoidal.EndofunctorsMonoidal.
 
 Local Open Scope cat.
 
@@ -121,6 +123,56 @@ Section Projections.
   Definition act_pentagon :  action_pentagon_eq act_odot act_χ := pr2 (pr2 (pr2 (pr2 actn))).
 
 End Projections.
+
+Section Alternative_Definition.
+
+  Context (hsA : has_homsets A).
+  Let Mon_EndA : monoidal_precat := monoidal_precat_of_endofunctors hsA.
+
+  Context (FF: strong_monoidal_functor Mon_V Mon_EndA).
+
+  (* Let FF0 := lax_monoidal_functor_functor _ _ FF. *)
+  Let ϵ : functor_identity A ⟹ (FF I: functor A A)
+    := lax_monoidal_functor_ϵ FF.
+  Let ϵ_inv : (FF I: functor A A) ⟹ functor_identity A := strong_monoidal_functor_ϵ_inv FF.
+  Let μ := lax_monoidal_functor_μ FF.
+  Let ϵ_is_z_iso := strong_monoidal_functor_ϵ_is_z_iso FF.
+  Let μ_is_nat_z_iso := strong_monoidal_functor_μ_is_nat_z_iso FF.
+
+  Local Definition odot: functor (precategory_binproduct A Mon_V) A := uncurry_functor hsA FF.
+
+  Local Definition auxρ : nat_z_iso (odot_I_functor odot) (FF I: functor A A).
+  Proof.
+    use make_nat_z_iso.
+    - use tpair.
+      + intro F. apply identity.
+      + cbn. intros F F' α.
+        unfold functor_fix_snd_arg_data. cbn.
+        rewrite id_left, id_right.
+        assert (H := functor_id FF I).
+        apply (maponpaths (fun f => pr1 f F')) in H.
+        etrans.
+        { apply maponpaths. exact H. }
+        apply id_right.
+    - intro F.
+      use make_is_z_isomorphism.
+      + apply identity.
+      + split; apply id_left.
+  Defined.
+
+  Local Definition ϱ : action_right_unitor odot.
+  Proof.
+    eapply nat_z_iso_comp.
+    - exact auxρ.
+    - use make_nat_z_iso.
+      + exact ϵ_inv.
+      + apply nat_trafo_pointwise_z_iso_if_z_iso.
+        apply is_z_isomorphism_inv.
+  Defined.
+
+  (* TODO: just continue this work *)
+
+End Alternative_Definition.
 
 End Actions_Definition.
 
@@ -303,7 +355,7 @@ Proof.
        unfold functor_fix_snd_arg_ob in TYPE. *)
     apply pathsinv0.
     apply triangle_eq_A.
-Defined.
+Qed.
 
 Lemma U_action_plaw : action_pentagon_eq Mon_A otimes_U_functor U_action_χ.
 Proof.
@@ -379,11 +431,11 @@ Proof.
     apply pathsinv0.
     apply pentagon_eq_A.
   }
-  (* the goal has chains up to seven projections *)
+(*
   change (α_A ((tensor_A (a, U x), U y), U z) · α_A ((a, U x), tensor_A (U y, U z))
   · # tensor_A (id a #, # tensor_A (id U x #, lax_monoidal_functor_μ U (y, z))) =
   α_A ((a ⊗_A U x, U y), U z) · # tensor_A (id (a ⊗_A U x) #, lax_monoidal_functor_μ U (y, z))
-      · α_A ((a, U x), U (y ⊗ z))).
+      · α_A ((a, U x), U (y ⊗ z))). *)
   repeat rewrite assoc'.
   apply maponpaths.
   etrans.
@@ -396,7 +448,7 @@ Proof.
   change (# tensor_A (# tensor_A (id (a, U x)) #, lax_monoidal_functor_μ U (y, z)) = # tensor_A (id (a ⊗_A U x) #, lax_monoidal_functor_μ U (y, z))).
   rewrite functor_id.
   apply idpath.
-Defined.
+Qed.
 
 Definition U_action : action Mon_A.
   exists otimes_U_functor.
