@@ -128,6 +128,7 @@ Section Alternative_Definition.
 
   Context (hsA : has_homsets A).
   Let Mon_EndA : monoidal_precat := monoidal_precat_of_endofunctors hsA.
+  (* Let hsMon_EndA : has_homsets Mon_EndA := functor_category_has_homsets _ _ hsA. *)
 
   Context (FF: strong_monoidal_functor Mon_V Mon_EndA).
 
@@ -139,7 +140,7 @@ Section Alternative_Definition.
   Let ϵ_is_z_iso := strong_monoidal_functor_ϵ_is_z_iso FF.
   Let μ_is_nat_z_iso := strong_monoidal_functor_μ_is_nat_z_iso FF.
 
-  Local Definition odot: functor (precategory_binproduct A Mon_V) A := uncurry_functor hsA FF.
+  Local Definition odot : functor (precategory_binproduct A Mon_V) A := uncurry_functor hsA FF.
 
   Local Definition auxρ : nat_z_iso (odot_I_functor odot) (FF I: functor A A).
   Proof.
@@ -168,6 +169,26 @@ Section Alternative_Definition.
       + exact ϵ_inv.
       + apply nat_trafo_pointwise_z_iso_if_z_iso.
         apply is_z_isomorphism_inv.
+  Defined.
+
+  Local Definition auxχ_dom : nat_z_iso (odot_x_odot_y_functor odot) (functor_composite (precategory_binproduct_unassoc A Mon_V Mon_V) (uncurry_functor hsA (monoidal_functor_map_dom Mon_V Mon_EndA FF))).
+  Proof.
+  Admitted.
+
+  Local Definition auxχ_codom : nat_z_iso (functor_composite (precategory_binproduct_unassoc A Mon_V Mon_V)
+            (uncurry_functor hsA (monoidal_functor_map_codom Mon_V Mon_EndA FF))) (odot_x_otimes_y_functor odot).
+  Proof.
+  Admitted.
+
+  Local Definition χ : action_convertor odot.
+  Proof.
+    refine (nat_z_iso_comp auxχ_dom _).
+    refine (nat_z_iso_comp _ auxχ_codom).
+    use make_nat_z_iso.
+    - exact (pre_whisker (precategory_binproduct_unassoc _ _ _) (uncurry_nattrans hsA μ)).
+    - intro auv. induction auv as [[a u] v].
+      unfold pre_whisker. cbn.
+      exact (nat_trafo_pointwise_z_iso_if_z_iso _ _ _ _ _ _ (μ_is_nat_z_iso (u,,v)) a).
   Defined.
 
   (* TODO: just continue this work *)

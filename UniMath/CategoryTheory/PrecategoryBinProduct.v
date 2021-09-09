@@ -662,7 +662,7 @@ Section Currying.
 
   Context {C D E : precategory} (hs: has_homsets E).
 
-Section Def_Curry.
+Section Def_Curry_Ob.
   Context (F: (C × D) ⟶ E).
 
   Definition curry_functor_data: functor_data D [C, E, hs].
@@ -700,9 +700,29 @@ Section Def_Curry.
 
   Definition curry_functor: D ⟶ [C, E, hs] := make_functor curry_functor_data curry_functor_data_is_functor.
 
-End Def_Curry.
+End Def_Curry_Ob.
 
-Section Def_Uncurry.
+Section Def_Curry_Mor.
+
+  Context {F G: (C × D) ⟶ E} (α: F ⟹ G).
+
+  Definition curry_nattrans : curry_functor F ⟹ curry_functor G.
+  Proof.
+    use make_nat_trans.
+    - intro d.
+      exact (nat_trans_fix_snd_arg _ _ _ _ _ α d).
+    - intros d d' f.
+      apply nat_trans_eq; try exact hs.
+      intro c.
+      cbn.
+      unfold nat_trans_from_functor_fix_snd_morphism_arg_data, nat_trans_fix_snd_arg_data.
+      apply nat_trans_ax.
+  Defined.
+
+End Def_Curry_Mor.
+
+
+Section Def_Uncurry_Ob.
 
   Context (G: D ⟶ [C, E, hs]).
 
@@ -746,7 +766,37 @@ Section Def_Uncurry.
 
   Definition uncurry_functor: (C × D) ⟶ E := make_functor uncurry_functor_data uncurry_functor_data_is_functor.
 
-End Def_Uncurry.
+End Def_Uncurry_Ob.
+
+Section Def_Uncurry_Mor.
+
+  Context {F G: D ⟶ [C, E, hs]} (α: F ⟹ G).
+
+  Definition uncurry_nattrans : uncurry_functor F ⟹ uncurry_functor G.
+  Proof.
+    use make_nat_trans.
+    - intro cd.
+      cbn.
+      exact (pr1 (α (pr2 cd)) (pr1 cd)).
+    - intros cd cd' fg.
+      induction cd as [c d]. induction cd' as [c' d']. induction fg as [f g].
+      cbn in *.
+      assert (aux := nat_trans_ax α d d' g).
+      apply (maponpaths pr1) in aux.
+      apply toforallpaths in aux.
+      assert (auxinst := aux c').
+      rewrite <- assoc.
+      etrans.
+      { apply maponpaths. exact auxinst. }
+      clear aux auxinst.
+      cbn.
+      do 2 rewrite assoc.
+      apply cancel_postcomposition.
+      apply nat_trans_ax.
+  Defined.
+
+End Def_Uncurry_Mor.
+
 
 Lemma uncurry_after_curry (F: (C × D) ⟶ E): uncurry_functor (curry_functor F) = F.
 Proof.
@@ -781,5 +831,25 @@ Proof.
     apply id_right.
 Qed.
 
-
 End Currying.
+
+
+Section Evaluation.
+(** functor evaluation would be the counit of the emerging biadjunction behind currying and uncurrying *)
+
+  Context {C D : precategory}.
+  Context {hsD : has_homsets D}.
+
+Definition evaluation_functor: (C × [C, D, hsD]) ⟶  D.
+Proof.
+  apply (uncurry_functor hsD).
+  exact (functor_identity _).
+Defined.
+
+Goal ∏ (c: C) (F: C ⟶ D), evaluation_functor (c,, F) = F c.
+Proof.
+  intros.
+  apply idpath.
+Qed.
+
+End Evaluation.
