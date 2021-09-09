@@ -118,6 +118,43 @@ Definition θ_Strength1_int : UU
   := ∏ X : [C, D', hsD'],
            θ (X ⊗ (id_Ptd C hs)) · # H (λ_functors _) = λ_functors _.
 
+(** the following naturally-looking definition is often not suitable to work with *)
+Definition θ_Strength1_int_nicer : UU
+  := ∏ X : [C, D', hsD'],
+           θ (X ⊗ (id_Ptd C hs)) = nat_trans_id ((H X): functor C D).
+
+(*
+Section Test.
+Context (X : [C, D', hsD']).
+Check (nat_trans_id ((H X): functor C D) : (θ_source (X ⊗ (id_Ptd C hs)): functor C D) ⟹ (θ_target (X ⊗ (id_Ptd C hs)): functor C D)).
+End Test.
+*)
+
+Lemma θ_Strength1_int_nicer_implies_θ_Strength1_int : θ_Strength1_int_nicer → θ_Strength1_int.
+Proof.
+  intros T X.
+  rewrite T.
+  etrans.
+  { apply maponpaths.
+    unfold λ_functors.
+    apply (functor_id H X). }
+  apply id_right.
+Qed.
+
+Lemma θ_Strength1_int_implies_θ_Strength1_int_nicer : θ_Strength1_int → θ_Strength1_int_nicer.
+Proof.
+  intros T X.
+  etrans. 2: { apply T. }
+  etrans.
+  2: { apply pathsinv0.
+       apply maponpaths.
+       unfold λ_functors.
+       apply (functor_id H X). }
+  apply pathsinv0.
+  apply id_right.
+Qed.
+
+
 Lemma isaprop_θ_Strength1_int: isaprop θ_Strength1_int.
 Proof.
   apply impred; intros X x x'.
@@ -155,7 +192,6 @@ Proof.
   apply T2.
 Qed.
 
-
 End Strength_law_1_intensional.
 
 
@@ -167,7 +203,7 @@ Definition θ_Strength2 : UU := ∏ (X : [C, D', hsD']) (Z Z' : Ptd) (Y : [C, D'
 
 
 Section Strength_law_2_intensional.
- (* does not typecheck in the heterogeneous formulation *)
+
 Definition θ_Strength2_int : UU
   := ∏ (X : [C, D', hsD']) (Z Z' : Ptd),
       θ (X ⊗ (Z p• Z')) · #H (α_functors (U Z) (U Z') X )  =
@@ -264,6 +300,40 @@ Lemma θ_Strength2_int_nicer_implies_θ_Strength2_int: θ_Strength2_int_nicer ->
   set (auxiso := functor_on_z_iso H (_,,(α_functors_pointwise_is_z_iso hsD' (U Z) (U Z') X))).
   apply (z_iso_inv_to_right _ _ _ _ auxiso).
   assumption.
+Qed.
+
+Definition θ_Strength2_int_nicest : UU := ∏ (X : [C, D', hsD']) (Z Z' : Ptd),
+      θ (X ⊗ (Z p• Z'))  =
+      θ (X ⊗ Z') •• (U Z) ·
+        θ ((functor_compose hs hsD' (U Z') X) ⊗ Z) ·
+        #H (α_functors_inv (U Z) (U Z') X ).
+
+Lemma θ_Strength2_int_nicest_implies_θ_Strength2_int_nicer: θ_Strength2_int_nicest -> θ_Strength2_int_nicer.
+Proof.
+  intro Hyp.
+  intros X Z Z'.
+  assert (HypX := Hyp X Z Z').
+  do 2 rewrite <- assoc.
+  etrans.
+  2: { apply maponpaths.
+       rewrite assoc.
+       exact HypX. }
+  apply pathsinv0.
+  unfold α_functors.
+  apply (id_left(a:=functor_compose hs hsD (U Z ∙ U Z') (H X))).
+Qed.
+
+Lemma θ_Strength2_int_nicer_implies_θ_Strength2_int_nicest: θ_Strength2_int_nicer -> θ_Strength2_int_nicest.
+Proof.
+  intro Hyp.
+  intros X Z Z'.
+  assert (HypX := Hyp X Z Z').
+  etrans. { exact HypX. }
+  etrans.
+  { do 2 apply cancel_postcomposition.
+    unfold α_functors.
+    apply (id_left(a:=functor_compose hs hsD (U Z ∙ U Z') (H X))). }
+  apply idpath.
 Qed.
 
 End Strength_law_2_intensional.
