@@ -4,6 +4,8 @@
   This notion is found in G. Janelidze and G.M. Kelly: A Note on Actions of a Monoidal Category, Theory and Applications of Categories, Vol. 9, 2001, No. 4, pp 61-91.
 
   The presentation is based on the definitions in the paper "Second-Order and Dependently-Sorted Abstract Syntax" by Marcelo Fiore. It seems that the order of the arguments of the action functor has been chosen differently there.
+
+  Author of nearly all of the proof lines: Ralph Matthes 2021
 **)
 
 Require Import UniMath.Foundations.PartD.
@@ -125,6 +127,8 @@ Section Projections.
 End Projections.
 
 Section Alternative_Definition.
+  (** we are following the introductory pages of Janelidze and Kelly,
+      A note on actions of a monoidal category, Theory and Applications of Categories, Vol. 9, No. 4, 2001, pp. 61–91. *)
 
   Context (hsA : has_homsets A).
   Let Mon_EndA : monoidal_precat := monoidal_precat_of_endofunctors hsA.
@@ -139,6 +143,8 @@ Section Alternative_Definition.
   Let μ := lax_monoidal_functor_μ FF.
   Let ϵ_is_z_iso := strong_monoidal_functor_ϵ_is_z_iso FF.
   Let μ_is_nat_z_iso := strong_monoidal_functor_μ_is_nat_z_iso FF.
+  Let FFunital := lax_monoidal_functor_unital FF.
+  Let FFassoc := lax_monoidal_functor_assoc FF.
 
   Local Definition odot : functor (precategory_binproduct A Mon_V) A := uncurry_functor hsA FF.
 
@@ -173,12 +179,39 @@ Section Alternative_Definition.
 
   Local Definition auxχ_dom : nat_z_iso (odot_x_odot_y_functor odot) (functor_composite (precategory_binproduct_unassoc A Mon_V Mon_V) (uncurry_functor hsA (monoidal_functor_map_dom Mon_V Mon_EndA FF))).
   Proof.
-  Admitted.
+    use make_nat_z_iso.
+    - use make_nat_trans.
+      + intro auv.
+        apply identity.
+      + intros auv auv' fgg'.
+        rewrite id_left, id_right.
+        cbn.
+        rewrite functor_comp.
+        rewrite <- assoc.
+        apply maponpaths.
+        cbn.
+        apply nat_trans_ax.
+    - intro auv.
+      use make_is_z_isomorphism.
+      + apply identity.
+      + split; apply id_left.
+  Defined.
 
   Local Definition auxχ_codom : nat_z_iso (functor_composite (precategory_binproduct_unassoc A Mon_V Mon_V)
             (uncurry_functor hsA (monoidal_functor_map_codom Mon_V Mon_EndA FF))) (odot_x_otimes_y_functor odot).
   Proof.
-  Admitted.
+    use make_nat_z_iso.
+    - use make_nat_trans.
+      + intro auv.
+        apply identity.
+      + intros auv auv' fgg'.
+        rewrite id_left, id_right.
+        apply idpath.
+    - intro auv.
+      use make_is_z_isomorphism.
+      + apply identity.
+      + split; apply id_left.
+  Defined.
 
   Local Definition χ : action_convertor odot.
   Proof.
@@ -191,7 +224,77 @@ Section Alternative_Definition.
       exact (nat_trafo_pointwise_z_iso_if_z_iso _ _ _ _ _ _ (μ_is_nat_z_iso (u,,v)) a).
   Defined.
 
-  (* TODO: just continue this work *)
+  Lemma action_triangle_eq_from_alt: action_triangle_eq odot ϱ χ.
+  Proof.
+    intros a v.
+    cbn.
+    unfold functor_fix_fst_arg_ob.
+    rewrite id_left.
+    rewrite functor_id.
+    do 2 rewrite id_left.
+    rewrite id_right.
+    assert (Hunital1 := pr1 (FFunital v)).
+    apply (maponpaths pr1) in Hunital1.
+    apply toforallpaths in Hunital1.
+    assert (Hunital1inst := Hunital1 a).
+    cbn in Hunital1inst.
+    rewrite id_left in Hunital1inst.
+    unfold MonoidalFunctors.λ_C in Hunital1inst.
+    apply pathsinv0.
+    transparent assert (aux: (is_z_isomorphism (# (FF v: functor A A) (ϵ_inv a)))).
+    { apply functor_on_is_z_isomorphism.
+      transparent assert (aux1: (is_nat_z_iso ϵ_inv)).
+      { apply nat_trafo_pointwise_z_iso_if_z_iso.
+        apply is_z_iso_inv_from_z_iso. }
+      apply aux1.
+    }
+    apply (z_iso_inv_to_left(C:=A) _ _ _ (# (FF v: functor A A) (ϵ_inv a),,aux)).
+    unfold inv_from_z_iso.
+    cbn.
+    rewrite assoc.
+    apply pathsinv0.
+    etrans.
+    2: { exact Hunital1inst. }
+    assert (aux2 := functor_id FF v).
+    apply (maponpaths pr1) in aux2.
+    apply toforallpaths in aux2.
+    exact (aux2 a).
+  Qed.
+
+  Lemma action_pentagon_eq_from_alt: action_pentagon_eq odot χ.
+  Proof.
+    intros a x y z.
+    cbn.
+    rewrite functor_id.
+    do 5 rewrite id_left.
+    do 4 rewrite id_right.
+    assert (aux := functor_id FF z).
+    apply (maponpaths pr1) in aux.
+    apply toforallpaths in aux.
+    rewrite aux.
+    cbn.
+    rewrite id_right.
+    assert (Hassoc := FFassoc x y z).
+    apply (maponpaths pr1) in Hassoc.
+    apply toforallpaths in Hassoc.
+    assert (Hassocinst := Hassoc a).
+    clear Hassoc.
+    cbn in Hassocinst.
+    do 2 rewrite id_left in Hassocinst.
+    rewrite functor_id in Hassocinst.
+    rewrite id_right in Hassocinst.
+    apply pathsinv0.
+    exact Hassocinst.
+  Qed.
+
+  Definition action_from_alt: action.
+  Proof.
+    exists odot. exists ϱ. exists χ. exact (action_triangle_eq_from_alt ,, action_pentagon_eq_from_alt).
+  Defined.
+
+  (** one might also consider the other direction: that an action gives rise to a strong
+      monoidal functor from [Mon_V] to [Mon_EndA], showing that the "concrete" action definition
+      adhered to in the further development is also complete w.r.t. that "generic" definition *)
 
 End Alternative_Definition.
 

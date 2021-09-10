@@ -5,7 +5,7 @@
 
   To distinguish this from less general approaches, we will speak of action-based strength.
 
-  Added by Ralph Matthes in 2021: relative strength of Ahrens and Matthes defined and shown to be an instance of action-based strength
+  Added by Ralph Matthes in 2021: relative strength of Ahrens and Matthes defined and shown to be an instance of action-based strength, another general definition in the spirit of Janelidze and Kelly
 **)
 
 Require Import UniMath.Foundations.PartD.
@@ -15,9 +15,11 @@ Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
+Require Import UniMath.CategoryTheory.Monoidal.EndofunctorsMonoidal.
 Require Import UniMath.CategoryTheory.Monoidal.Actions.
 
 Local Open Scope cat.
@@ -220,6 +222,118 @@ Definition ab_strong_functor_strength {A A' : precategory} (actn : action Mon_V 
   F(A) ⊗ B --> F(A ⊗ B)
 *)
 Definition tensorial_strength : Mon_V ⟶ Mon_V → UU := actionbased_strength (tensorial_action Mon_V) (tensorial_action Mon_V).
+
+Section Alternative_Definition.
+(** we continue in the spirit of the definition of actions given by Janelidze and Kelly, however we are not aware
+    of this definition in the literature *)
+
+  Context {A A' : precategory} (hsA: has_homsets A) (hsA' : has_homsets A').
+
+  Let Mon_EndA : monoidal_precat := monoidal_precat_of_endofunctors hsA.
+  Let Mon_EndA' : monoidal_precat := monoidal_precat_of_endofunctors hsA'.
+
+  Context (FA: strong_monoidal_functor Mon_V Mon_EndA).
+  Context (FA': strong_monoidal_functor Mon_V Mon_EndA').
+
+  Context (F : functor A A').
+
+  (** a parameterized form of distributivity as strength *)
+  Definition param_distributivity_dom : functor Mon_V [A, A', hsA'].
+  Proof.
+    use make_functor.
+    - use make_functor_data.
+      + intro v. exact (functor_composite F (FA' v)).
+      + intros v v' f.
+        exact (pre_whisker F (# FA' f)).
+    - split.
+      + intro v.
+        (* UniMath.MoreFoundations.Tactics.show_id_type. *)
+        apply nat_trans_eq; try exact hsA'.
+        intro a.
+        cbn.
+        assert (aux := functor_id FA' v).
+        apply (maponpaths pr1) in aux.
+        apply toforallpaths in aux.
+        rewrite aux.
+        apply idpath.
+      + intros v1 v2 v3 f g.
+        apply nat_trans_eq; try exact hsA'.
+        intro a.
+        cbn.
+        assert (aux := functor_comp FA' f g).
+        apply (maponpaths pr1) in aux.
+        apply toforallpaths in aux.
+        apply aux.
+  Defined.
+
+  Definition param_distributivity_codom : functor Mon_V [A, A', hsA'].
+    Proof.
+    use make_functor.
+    - use make_functor_data.
+      + intro v. exact (functor_composite (FA v) F).
+      + intros v v' f.
+        exact (post_whisker (# FA f) F).
+    - split.
+      + intro v.
+        apply nat_trans_eq; try exact hsA'.
+        intro a.
+        cbn.
+        assert (aux := functor_id FA v).
+        apply (maponpaths pr1) in aux.
+        apply toforallpaths in aux.
+        rewrite aux.
+        apply functor_id.
+      + intros v1 v2 v3 f g.
+        apply nat_trans_eq; try exact hsA'.
+        intro a.
+        cbn.
+        assert (aux := functor_comp FA f g).
+        apply (maponpaths pr1) in aux.
+        apply toforallpaths in aux.
+        rewrite aux.
+        apply functor_comp.
+    Defined.
+
+    Definition parameterized_distributivity : UU := param_distributivity_dom ⟹ param_distributivity_codom.
+
+    Definition parameterized_distributivity_funclass (δ : parameterized_distributivity):
+      ∏ x : ob (Mon_V), param_distributivity_dom x --> param_distributivity_codom x
+      := pr1 δ.
+    Coercion parameterized_distributivity_funclass : parameterized_distributivity >-> Funclass.
+
+Section The_Laws.
+
+    Context (δ : parameterized_distributivity).
+
+    Definition param_distr_triangle_eq : UU :=
+      nat_trans_comp _ _ _ (pre_whisker F (lax_monoidal_functor_ϵ FA')) (δ I) =
+      post_whisker (lax_monoidal_functor_ϵ FA) F.
+
+    Definition param_distr_pentagon_eq_body (x y : Mon_V) : UU :=
+      nat_trans_comp _ _ _ (pre_whisker F (lax_monoidal_functor_μ FA' (x,,y))) (δ (x ⊗ y)) =
+      nat_trans_comp _ _ _ (nat_trans_comp _ _ _ (post_whisker (δ x) (FA' y))
+                                           (pre_whisker (FA x: functor A A) (δ y)))
+                     (post_whisker (lax_monoidal_functor_μ FA (x,,y)) F).
+
+(*
+      set (aux1 := pre_whisker F (lax_monoidal_functor_μ FA' (x,,y))).
+      set (aux2 := δ (x ⊗ y)).
+      set (auxl := nat_trans_comp _ _ _ aux1 aux2).
+      set (aux3 := post_whisker (δ x) (FA' y)).
+      set (aux4 := pre_whisker (FA x: functor A A) (δ y)).
+      set (aux5 := post_whisker (lax_monoidal_functor_μ FA (x,,y)) F).
+      set (auxr1 := nat_trans_comp _ _ _ aux3 aux4).
+      set (auxr := nat_trans_comp _ _ _ auxr1 aux5).
+*)
+
+    Definition param_distr_pentagon_eq : UU := ∏ (x y : Mon_V), param_distr_pentagon_eq_body x y.
+
+End The_Laws.
+
+(* TODO: just continue *)
+
+
+End Alternative_Definition.
 
 End A.
 
