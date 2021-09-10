@@ -235,6 +235,8 @@ Section Alternative_Definition.
   Context (FA: strong_monoidal_functor Mon_V Mon_EndA).
   Context (FA': strong_monoidal_functor Mon_V Mon_EndA').
 
+Section Param_Distr.
+
   Context (F : functor A A').
 
   (** a parameterized form of distributivity as strength *)
@@ -294,20 +296,82 @@ Section Alternative_Definition.
         apply functor_comp.
     Defined.
 
-    Definition parameterized_distributivity : UU := param_distributivity_dom ⟹ param_distributivity_codom.
+    Definition parameterized_distributivity_nat : UU := param_distributivity_dom ⟹ param_distributivity_codom.
 
-    Definition parameterized_distributivity_funclass (δ : parameterized_distributivity):
+    Definition parameterized_distributivity_nat_funclass (δ : parameterized_distributivity_nat):
       ∏ x : ob (Mon_V), param_distributivity_dom x --> param_distributivity_codom x
       := pr1 δ.
-    Coercion parameterized_distributivity_funclass : parameterized_distributivity >-> Funclass.
+    Coercion parameterized_distributivity_nat_funclass : parameterized_distributivity_nat >-> Funclass.
 
-Section The_Laws.
+    Section The_Laws.
 
-    Context (δ : parameterized_distributivity).
+    Context (δ : parameterized_distributivity_nat).
 
     Definition param_distr_triangle_eq : UU :=
       nat_trans_comp _ _ _ (pre_whisker F (lax_monoidal_functor_ϵ FA')) (δ I) =
       post_whisker (lax_monoidal_functor_ϵ FA) F.
+
+    Definition param_distr_triangle_eq_variant : UU :=
+      nat_trans_comp _ _ _ (δ I) (post_whisker (strong_monoidal_functor_ϵ_inv FA) F)  =
+      pre_whisker F (strong_monoidal_functor_ϵ_inv FA').
+
+
+    Definition aux1_param_distr_triangle_eq_variant : z_iso (functor_compose hsA hsA' (FA I: functor A A) F)(functor_composite (MonoidalFunctors.I_D Mon_EndA) F).
+    Proof.
+      use tpair.
+      - exact (post_whisker (strong_monoidal_functor_ϵ_inv FA) F).
+      - cbn.
+        apply nat_trafo_z_iso_if_pointwise_z_iso.
+        apply post_whisker_z_iso_is_z_iso.
+        apply (nat_trafo_pointwise_z_iso_if_z_iso _ _ _ _ _ (pr1 (strong_monoidal_functor_ϵ_is_z_iso FA))).
+        apply is_z_isomorphism_inv.
+    Defined.
+
+    Definition aux2_param_distr_triangle_eq_variant : z_iso (functor_compose hsA' hsA' F (FA' (MonoidalFunctors.I_C Mon_V)))(functor_composite F (MonoidalFunctors.I_D Mon_EndA')).
+    Proof.
+      use tpair.
+      - exact (pre_whisker F (strong_monoidal_functor_ϵ_inv FA')).
+      - cbn.
+        apply nat_trafo_z_iso_if_pointwise_z_iso.
+        apply pre_whisker_on_nat_z_iso.
+        apply (nat_trafo_pointwise_z_iso_if_z_iso _ _ _ _ _ (pr1 (strong_monoidal_functor_ϵ_is_z_iso FA'))).
+        apply is_z_isomorphism_inv.
+    Defined.
+
+    Lemma param_distr_triangle_eq_variant_follows :
+      param_distr_triangle_eq -> param_distr_triangle_eq_variant.
+    Proof.
+      intro Hyp.
+      red.
+      apply (z_iso_inv_to_right _ _ _ _ aux1_param_distr_triangle_eq_variant).
+      apply (z_iso_inv_to_left _ _ _ aux2_param_distr_triangle_eq_variant).
+      cbn.
+      apply nat_trans_eq; try exact hsA'.
+      intro a.
+      cbn.
+      red in Hyp.
+      apply (maponpaths pr1) in Hyp.
+      apply toforallpaths in Hyp.
+      apply Hyp.
+    Qed.
+
+    Lemma param_distr_triangle_eq_variant_implies :
+      param_distr_triangle_eq_variant -> param_distr_triangle_eq.
+    Proof.
+      intro Hyp.
+      red in Hyp.
+      apply pathsinv0 in Hyp.
+      apply (z_iso_inv_on_left _ _ _ _ aux1_param_distr_triangle_eq_variant) in Hyp.
+      apply (z_iso_inv_on_right _ _ _ aux2_param_distr_triangle_eq_variant) in Hyp.
+      red.
+      apply nat_trans_eq; try exact hsA'.
+      intro a.
+      cbn.
+      apply (maponpaths pr1) in Hyp.
+      apply toforallpaths in Hyp.
+      apply Hyp.
+    Qed.
+
 
     Definition param_distr_pentagon_eq_body (x y : Mon_V) : UU :=
       nat_trans_comp _ _ _ (pre_whisker F (lax_monoidal_functor_μ FA' (x,,y))) (δ (x ⊗ y)) =
@@ -329,6 +393,12 @@ Section The_Laws.
     Definition param_distr_pentagon_eq : UU := ∏ (x y : Mon_V), param_distr_pentagon_eq_body x y.
 
 End The_Laws.
+End Param_Distr.
+
+   Definition parameterized_distributivity (F : A ⟶ A') : UU := ∑ (δ : parameterized_distributivity_nat F),
+     (param_distr_triangle_eq F δ) × (param_distr_pentagon_eq F δ).
+
+
 
 (* TODO: just continue *)
 
