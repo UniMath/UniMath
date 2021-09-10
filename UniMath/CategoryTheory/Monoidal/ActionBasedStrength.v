@@ -231,6 +231,8 @@ Section Alternative_Definition.
 
   Let Mon_EndA : monoidal_precat := monoidal_precat_of_endofunctors hsA.
   Let Mon_EndA' : monoidal_precat := monoidal_precat_of_endofunctors hsA'.
+  Let hsMon_EndA : has_homsets Mon_EndA := functor_category_has_homsets _ _ hsA.
+  Let hsMon_EndA' : has_homsets Mon_EndA' := functor_category_has_homsets _ _ hsA'.
 
   Context (FA: strong_monoidal_functor Mon_V Mon_EndA).
   Context (FA': strong_monoidal_functor Mon_V Mon_EndA').
@@ -303,7 +305,7 @@ Section Param_Distr.
       := pr1 δ.
     Coercion parameterized_distributivity_nat_funclass : parameterized_distributivity_nat >-> Funclass.
 
-    Section The_Laws.
+Section The_Laws.
 
     Context (δ : parameterized_distributivity_nat).
 
@@ -392,16 +394,133 @@ Section Param_Distr.
 
     Definition param_distr_pentagon_eq : UU := ∏ (x y : Mon_V), param_distr_pentagon_eq_body x y.
 
+    Lemma isaprop_param_distr_triangle_eq : isaprop param_distr_triangle_eq.
+    Proof.
+      apply (functor_category_has_homsets _ _ hsA').
+    Qed.
+
+    Lemma isaprop_param_distr_pentagon_eq : isaprop param_distr_pentagon_eq.
+    Proof.
+      red.
+      apply impred; intros x.
+      apply impred; intros y.
+      apply isaset_nat_trans; exact hsA'.
+    Qed.
+
 End The_Laws.
+
+   Definition parameterized_distributivity : UU := ∑ (δ : parameterized_distributivity_nat),
+     (param_distr_triangle_eq δ) × (param_distr_pentagon_eq δ).
+
+   Lemma parameterized_distributivity_eq (sδ sδ': parameterized_distributivity) :
+     pr1 sδ = pr1 sδ' -> sδ = sδ'.
+   Proof.
+     intro Heq.
+     apply subtypePath; trivial.
+     intro δ. apply isapropdirprod.
+     - apply isaprop_param_distr_triangle_eq.
+     - apply isaprop_param_distr_pentagon_eq.
+   Qed.
+
+Definition parameterized_distributivity_to_nat (sδ : parameterized_distributivity) :
+  parameterized_distributivity_nat
+  := pr1 sδ.
+Coercion parameterized_distributivity_to_nat : parameterized_distributivity >-> parameterized_distributivity_nat.
+
+Identity Coercion parameterized_distributivity_nat_to_nat_trans : parameterized_distributivity_nat >-> nat_trans.
+
+
+   Context (sδ : parameterized_distributivity).
+
+   Let δ_triangle_eq := pr1 (pr2 sδ).
+   Let δ_pentagon_eq := pr2 (pr2 sδ).
+   Let actionA := action_from_alt Mon_V A hsA FA.
+   Let actionA' := action_from_alt Mon_V A' hsA' FA'.
+
+   Definition strength_nat_from_alt_aux_dom :
+     actionbased_strength_dom actionA' F ⟹ uncurry_functor hsA' param_distributivity_dom.
+   Proof.
+     use make_nat_trans.
+     - intro av.
+       apply identity.
+     - intros av av' fg.
+       cbn.
+       rewrite id_left, id_right.
+       apply idpath.
+   Defined.
+
+   Definition strength_nat_from_alt_aux_codom :
+     uncurry_functor hsA' param_distributivity_codom ⟹ actionbased_strength_codom actionA F.
+   Proof.
+     use make_nat_trans.
+     - intro av.
+       apply identity.
+     - intros av av' fg.
+       cbn.
+       rewrite id_left, id_right.
+       apply pathsinv0.
+       apply functor_comp.
+   Defined.
+
+   Definition strength_nat_from_alt : actionbased_strength_nat actionA actionA' F.
+   Proof.
+     red.
+     refine (nat_trans_comp _ _ _ strength_nat_from_alt_aux_dom _).
+     refine (nat_trans_comp _ _ _ _ strength_nat_from_alt_aux_codom).
+     exact (uncurry_nattrans hsA' sδ).
+   Defined.
+
+   Lemma triangle_eq_from_alt : actionbased_strength_triangle_eq actionA actionA' F strength_nat_from_alt.
+   Proof.
+     red.
+     intro a.
+     apply param_distr_triangle_eq_variant_follows in δ_triangle_eq.
+     red in δ_triangle_eq.
+     apply (maponpaths pr1) in δ_triangle_eq.
+     apply toforallpaths in δ_triangle_eq.
+     assert (δ_triangle_eq_inst := δ_triangle_eq a).
+     clear δ_triangle_eq δ_pentagon_eq.
+     cbn in δ_triangle_eq_inst.
+     unfold strength_nat_from_alt, actionA, actionA'.
+     cbn.
+     do 3 rewrite id_left.
+     rewrite id_right.
+     exact δ_triangle_eq_inst.
+   Qed.
+
+   Lemma pentagon_eq_from_alt : actionbased_strength_pentagon_eq actionA actionA' F strength_nat_from_alt.
+   Proof.
+     red.
+     intros a x y.
+     clear δ_triangle_eq.
+     assert (Hyp := δ_pentagon_eq x y).
+     red in Hyp.
+     apply (maponpaths pr1) in Hyp.
+     apply toforallpaths in Hyp.
+     assert (Hypinst := Hyp a).
+     clear Hyp.
+     cbn in Hypinst.
+     unfold strength_nat_from_alt, actionA, actionA'.
+     cbn.
+     do 5 rewrite id_left.
+     do 5 rewrite id_right.
+     assert (aux := functor_id FA' y).
+     apply (maponpaths pr1) in aux.
+     apply toforallpaths in aux.
+     rewrite aux.
+     rewrite id_right.
+     exact Hypinst.
+   Qed.
+
+   Definition actionbased_strong_functor_from_alt : actionbased_strong_functor actionA actionA'.
+   Proof.
+     exists F. exists strength_nat_from_alt.
+     split.
+     - exact triangle_eq_from_alt.
+     - exact pentagon_eq_from_alt.
+   Defined.
+
 End Param_Distr.
-
-   Definition parameterized_distributivity (F : A ⟶ A') : UU := ∑ (δ : parameterized_distributivity_nat F),
-     (param_distr_triangle_eq F δ) × (param_distr_pentagon_eq F δ).
-
-
-
-(* TODO: just continue *)
-
 
 End Alternative_Definition.
 
