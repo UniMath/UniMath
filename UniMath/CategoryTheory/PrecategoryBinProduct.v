@@ -835,21 +835,39 @@ End Currying.
 
 
 Section Evaluation.
-(** functor evaluation would be the counit of the emerging biadjunction behind currying and uncurrying *)
+(** functor evaluation would be the pointwise counit of the emerging biadjunction behind currying and uncurrying
+
+    for the indended use, we need to switch the order of arguments
+*)
 
   Context {C D : precategory}.
   Context {hsD : has_homsets D}.
 
-Definition evaluation_functor: (C × [C, D, hsD]) ⟶  D.
+Definition evaluation_functor: ([C, D, hsD] × C) ⟶  D.
 Proof.
+  apply (functor_composite (@binswap_pair_functor _ _)).
   apply (uncurry_functor hsD).
   exact (functor_identity _).
 Defined.
 
-Goal ∏ (c: C) (F: C ⟶ D), evaluation_functor (c,, F) = F c.
+Goal ∏ (F: C ⟶ D) (c: C), evaluation_functor (F ,, c) = F c.
 Proof.
   intros.
   apply idpath.
 Qed.
 
 End Evaluation.
+
+Section Coevaluation.
+  (** for completeness, we also define the pointwise unit of that biadjunction *)
+
+  Context {C D : precategory}.
+  Context {hsC : has_homsets C} {hsD : has_homsets D}.
+
+  Definition coevaluation_functor: C ⟶  [D, C × D, has_homsets_precategory_binproduct _ _ hsC hsD].
+  Proof.
+    apply curry_functor.
+    apply binswap_pair_functor.
+  Defined.
+
+End Coevaluation.
