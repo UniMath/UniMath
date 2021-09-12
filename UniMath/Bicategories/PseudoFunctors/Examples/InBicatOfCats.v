@@ -17,6 +17,11 @@ Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCatsWithoutUnivalence.
 Require Import UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
 Require Import UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+Require Import UniMath.Bicategories.PseudoFunctors.Biadjunction.
+Require Import UniMath.Bicategories.Transformations.PseudoTransformation.
+Require Import UniMath.Bicategories.PseudoFunctors.Examples.Composition.
+Require Import UniMath.Bicategories.PseudoFunctors.Examples.Identity.
+Require Import UniMath.Bicategories.Modifications.Modification.
 
 Import Bicat.Notations.
 
@@ -34,7 +39,7 @@ End Upstream.
 
 Local Definition CAT : bicat := bicat_of_cats_nouniv.
 
-Section SomePseudoFunctors.
+Section ThePseudoFunctors.
 
 Section ProductWithFixedSecondArgument.
 
@@ -264,4 +269,251 @@ Defined.
 
 End FunctorCategoryWithFixedSource.
 
-End SomePseudoFunctors.
+End ThePseudoFunctors.
+
+Section Currying.
+
+  Context (B0 : ob CAT).
+
+  Let L := binproductleft_psfunctor B0.
+  Let R := functorcategoryright_psfunctor B0.
+
+(* to observe the type of the goal: match goal with | |- ?f => set (goal := f) end. *)
+
+
+  Definition coevaluation_pstrans_data: pstrans_data (id_psfunctor CAT) (comp_psfunctor R L).
+  Proof.
+    use make_pstrans_data.
+      + intro A. apply coevaluation_functor.
+      + intros A A' F.
+        use make_invertible_2cell.
+        * { use make_nat_trans.
+            - intro a.
+              cbn in a. cbn.
+              + use make_nat_trans.
+                * intro b. apply identity.
+                * intros b b' f. cbn.
+                  apply pathsdirprod.
+                  -- do 2 rewrite id_right. apply functor_id.
+                  -- rewrite id_left. apply id_right.
+            -  intros a a' g. cbn.
+               apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
+               cbn. intro b.
+               apply pathsdirprod.
+               + rewrite id_left. apply id_right.
+               + apply idpath.
+          }
+        * use make_is_invertible_2cell.
+          -- { use make_nat_trans.
+               - intro a.
+                 cbn in a. cbn.
+                 + use make_nat_trans.
+                   * intro b. apply identity.
+                   * intros b b' f. cbn.
+                     apply pathsdirprod.
+                     -- do 2 rewrite id_left. apply pathsinv0, functor_id.
+                     -- rewrite id_left. apply id_right.
+               -  intros a a' g. cbn.
+                  apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
+                  cbn. intro b.
+                  apply pathsdirprod.
+                  + rewrite id_left. apply id_right.
+                  + apply idpath.
+             }
+          -- apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
+             intro a. cbn.
+             apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
+             intro b. cbn. apply pathsdirprod; apply id_left.
+          -- apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
+             intro a. cbn.
+             apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
+             intro b. cbn. apply pathsdirprod; apply id_left.
+  Defined.
+
+  Lemma coevaluation_is_pstrans: is_pstrans coevaluation_pstrans_data.
+  Proof.
+    repeat split.
+    - intros A A' F F' α.
+      apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
+      intro a.
+      apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
+      intro b. cbn.
+      apply pathsdirprod.
+      + rewrite id_left. apply id_right.
+      + apply idpath.
+    - intro A.
+      apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
+      intro a.
+      apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
+      intro b. cbn. apply idpath.
+    - intros A1 A2 A3 F G.
+      apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
+      intro a.
+      apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
+      intro b. cbn.
+      apply pathsdirprod.
+      + do 6 rewrite id_right. rewrite id_left. apply pathsinv0, functor_id.
+      + etrans.
+        2: { do 3 rewrite id_right. apply idpath. }
+        apply idpath.
+  Qed.
+
+  Definition coevaluation_pstrans: pstrans (id_psfunctor CAT) (comp_psfunctor R L).
+  Proof.
+    use make_pstrans.
+    - exact coevaluation_pstrans_data.
+    - exact coevaluation_is_pstrans.
+  Defined.
+
+
+  Definition evaluation_pstrans_data: pstrans_data (comp_psfunctor L R) (id_psfunctor CAT).
+  Proof.
+    use make_pstrans_data.
+    - intro A. apply evaluation_functor.
+    - intros A A' F.
+      use make_invertible_2cell.
+      + use make_nat_trans.
+        * intro Gb. apply identity.
+        * intros Gb Gb' βg. induction Gb as [G b]. induction Gb' as [G' b']. induction βg as [β g].
+          simpl in *.
+          rewrite id_left, id_right.
+          apply functor_comp.
+      + use make_is_invertible_2cell.
+        * use make_nat_trans.
+          -- intro Gb. apply identity.
+          -- intros Gb Gb' βg. induction Gb as [G b]. induction Gb' as [G' b']. induction βg as [β g].
+             simpl in *.
+             rewrite id_left, id_right.
+             apply pathsinv0, functor_comp.
+        * apply nat_trans_eq; try exact (homset_property A').
+          intro Gb. cbn. apply id_left.
+        * apply nat_trans_eq; try exact (homset_property A').
+          intro Gb. cbn. apply id_left.
+  Defined.
+
+  Lemma evaluation_is_pstrans: is_pstrans evaluation_pstrans_data.
+  Proof.
+    repeat split.
+    - intros A A' F F' α.
+      apply nat_trans_eq; try exact (homset_property A').
+      intro Gb. induction Gb as [G b]. cbn.
+      do 2 rewrite functor_id. do 2 rewrite id_left. apply id_right.
+    - intro A.
+      apply nat_trans_eq; try exact (homset_property A).
+      intro Gb. induction Gb as [G b]. cbn.
+      do 5 rewrite id_left. rewrite id_right. apply pathsinv0, functor_id.
+    - intros A1 A2 A3 F H.
+      apply nat_trans_eq; try exact (homset_property A3).
+      intro Gb. induction Gb as [G b]. cbn.
+      do 7 rewrite id_right.
+      do 3 rewrite functor_id.
+      rewrite id_left, id_right. apply pathsinv0, functor_id.
+  Qed.
+
+  Definition evaluation_pstrans: pstrans (comp_psfunctor L R) (id_psfunctor CAT).
+  Proof.
+    use make_pstrans.
+    - exact evaluation_pstrans_data.
+    - exact evaluation_is_pstrans.
+  Defined.
+
+  Definition currying_biajd_unit_counit: left_biadj_unit_counit L.
+  Proof.
+    use (make_biadj_unit_counit R).
+    - exact coevaluation_pstrans.
+    - exact evaluation_pstrans.
+  Defined.
+
+  Definition currying_biajd_triangle_l_law: biadj_triangle_l_law currying_biajd_unit_counit.
+  Proof.
+    red.
+    use make_invertible_modification.
+    - intro A.
+      use make_invertible_2cell.
+      + use make_nat_trans.
+        * intro ab. apply identity.
+        * intros ab ab' fg.
+          cbn.
+          apply pathsdirprod.
+          -- rewrite id_right. apply idpath.
+          -- rewrite id_left. rewrite id_right. apply id_right.
+      + use make_is_invertible_2cell.
+        -- use make_nat_trans.
+           ++ intro ab. apply identity.
+           ++ intros ab ab' fg.
+              cbn.
+              apply pathsdirprod.
+              ** do 2 rewrite id_left. apply id_right.
+              ** rewrite id_left. apply idpath.
+        -- apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
+           intro ab. cbn.
+           apply pathsdirprod; apply id_left.
+        -- apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
+           intro ab. cbn.
+           do 2 rewrite id_left. apply idpath.
+    - intros A A' F.
+      apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
+      intro ab. cbn.
+      apply pathsdirprod.
+      + rewrite functor_id. repeat rewrite id_left. apply idpath.
+      + repeat rewrite id_left. apply idpath.
+  Defined.
+
+  Definition currying_biajd_triangle_r_law: biadj_triangle_r_law currying_biajd_unit_counit.
+  Proof.
+    red.
+    use make_invertible_modification.
+    - intro A.
+      use make_invertible_2cell.
+      + use make_nat_trans.
+        * intro G. cbn in G.
+          use make_nat_trans.
+          -- intro b. apply identity.
+          -- intros b b' g.
+             cbn. rewrite id_left, id_right. apply id_right.
+        * intros G G' β.
+          apply nat_trans_eq; try exact (homset_property A).
+          intro b.
+          cbn. rewrite id_right. apply cancel_postcomposition. apply functor_id.
+      + use make_is_invertible_2cell.
+        -- use make_nat_trans.
+           ++ intro G.
+              use make_nat_trans.
+              ** intro b. apply identity.
+              ** intros b b' g.
+                 cbn. rewrite id_left. apply idpath.
+           ++ intros G G' β.
+              apply nat_trans_eq; try exact (homset_property A).
+              intro b.
+              cbn. rewrite id_left. rewrite functor_id. rewrite id_left. apply id_right.
+        -- apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
+           intro G.
+           apply nat_trans_eq; try exact (homset_property A).
+           intro b.
+           cbn. apply id_left.
+        -- apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
+           intro G.
+           apply nat_trans_eq; try exact (homset_property A).
+           intro b.
+           cbn. apply id_left.
+    - intros A A' F.
+      apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
+      intro G. cbn.
+      apply nat_trans_eq; try exact (homset_property A').
+      intro b.
+      cbn.
+      repeat rewrite id_left.
+      repeat rewrite functor_id.
+      repeat rewrite id_left.
+      rewrite id_right. apply pathsinv0, functor_id.
+  Defined.
+
+  Definition currying_biajd: left_biadj_data L.
+  Proof.
+    use make_biadj_data.
+    - exact currying_biajd_unit_counit.
+    - exact currying_biajd_triangle_l_law.
+    - exact currying_biajd_triangle_r_law.
+  Defined.
+
+End Currying.

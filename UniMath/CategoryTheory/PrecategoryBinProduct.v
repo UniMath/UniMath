@@ -835,7 +835,7 @@ End Currying.
 
 
 Section Evaluation.
-(** functor evaluation would be the pointwise counit of the emerging biadjunction behind currying and uncurrying
+(** functor evaluation is the pointwise counit of the biadjunction behind currying and uncurrying
 
     for the indended use, we need to switch the order of arguments
 *)
