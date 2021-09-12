@@ -15,6 +15,7 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 
 Local Open Scope cat.
@@ -144,3 +145,82 @@ Defined.
 
 Definition bicat_of_cats_nouniv : bicat
   := (prebicat_of_cats_nouniv,, isaset_cells_prebicat_of_cats_nouniv).
+
+Definition is_invertible_2cell_to_is_nat_iso
+           {C D : bicat_of_cats_nouniv}
+           {F G : C --> D}
+           (η : F ==> G)
+  : is_invertible_2cell η → is_nat_iso η.
+Proof.
+  intros Hη X.
+  use is_iso_qinv.
+  - apply (Hη^-1).
+  - split ; cbn.
+    + exact (nat_trans_eq_pointwise (vcomp_rinv Hη) X).
+    + exact (nat_trans_eq_pointwise (vcomp_linv Hη) X).
+Defined.
+
+Definition invertible_2cell_to_nat_iso
+           {C D : bicat_of_cats_nouniv}
+           (F G : C --> D)
+  : invertible_2cell F G → nat_iso F G.
+Proof.
+  intros η.
+  use make_nat_iso.
+  - exact (cell_from_invertible_2cell η).
+  - apply is_invertible_2cell_to_is_nat_iso.
+    apply η.
+Defined.
+
+Definition is_nat_iso_to_is_invertible_2cell
+           {C D : bicat_of_cats_nouniv}
+           {F G : C --> D}
+           (η : F ==> G)
+  : is_nat_iso η → is_invertible_2cell η.
+Proof.
+  intros Hη.
+  use tpair.
+  - apply (nat_iso_inv (η ,, Hη)).
+  - split.
+    + apply nat_trans_eq.
+      { apply D. }
+      intros X ; cbn.
+      exact (iso_inv_after_iso (pr1 η X ,, _)).
+    + apply nat_trans_eq.
+      { apply D. }
+      intros X ; cbn.
+      exact (iso_after_iso_inv (pr1 η X ,, _)).
+Defined.
+
+Definition nat_iso_to_invertible_2cell
+           {C D : bicat_of_cats_nouniv}
+           (F G : C --> D)
+  : nat_iso F G → invertible_2cell F G.
+Proof.
+  intros η.
+  use tpair.
+  - apply η.
+  - apply is_nat_iso_to_is_invertible_2cell.
+    apply η.
+Defined.
+
+Definition invertible_2cell_is_nat_iso
+           {C D : bicat_of_cats_nouniv}
+           (F G : C --> D)
+  : nat_iso F G ≃ invertible_2cell F G.
+Proof.
+  use make_weq.
+  - exact (nat_iso_to_invertible_2cell F G).
+  - use isweq_iso.
+    + exact (invertible_2cell_to_nat_iso F G).
+    + intros X.
+      use subtypePath.
+      * intro.
+        apply isaprop_is_nat_iso.
+      * apply idpath.
+    + intros X.
+      use subtypePath.
+      * intro.
+        apply isaprop_is_invertible_2cell.
+      * apply idpath.
+Defined.

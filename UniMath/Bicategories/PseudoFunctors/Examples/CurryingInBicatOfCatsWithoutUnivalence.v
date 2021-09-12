@@ -8,6 +8,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.FunctorCategory.
@@ -286,48 +287,31 @@ Section Currying.
     use make_pstrans_data.
       + intro A. apply coevaluation_functor.
       + intros A A' F.
-        use make_invertible_2cell.
-        * { use make_nat_trans.
-            - intro a.
-              cbn in a. cbn.
-              + use make_nat_trans.
-                * intro b. apply identity.
-                * intros b b' f. cbn.
-                  apply pathsdirprod.
-                  -- do 2 rewrite id_right. apply functor_id.
-                  -- rewrite id_left. apply id_right.
-            -  intros a a' g. cbn.
-               apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
-               cbn. intro b.
-               apply pathsdirprod.
-               + rewrite id_left. apply id_right.
-               + apply idpath.
-          }
-        * use make_is_invertible_2cell.
-          -- { use make_nat_trans.
-               - intro a.
-                 cbn in a. cbn.
-                 + use make_nat_trans.
-                   * intro b. apply identity.
-                   * intros b b' f. cbn.
-                     apply pathsdirprod.
-                     -- do 2 rewrite id_left. apply pathsinv0, functor_id.
-                     -- rewrite id_left. apply id_right.
-               -  intros a a' g. cbn.
-                  apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
-                  cbn. intro b.
-                  apply pathsdirprod.
-                  + rewrite id_left. apply id_right.
-                  + apply idpath.
-             }
-          -- apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
-             intro a. cbn.
-             apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
-             intro b. cbn. apply pathsdirprod; apply id_left.
-          -- apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
-             intro a. cbn.
-             apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
-             intro b. cbn. apply pathsdirprod; apply id_left.
+        apply nat_iso_to_invertible_2cell.
+        use make_nat_iso.
+        * use make_nat_trans.
+          -- intro a.
+             cbn in a. cbn.
+             ++ use make_nat_trans.
+                ** intro b. apply identity.
+                ** intros b b' f. cbn.
+                   apply pathsdirprod.
+                   --- do 2 rewrite id_right. apply functor_id.
+                   --- rewrite id_left. apply id_right.
+          --  intros a a' g. cbn.
+              apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
+              cbn. intro b.
+              apply pathsdirprod.
+              ++ rewrite id_left. apply id_right.
+              ++ apply idpath.
+        * intro a.
+          apply is_iso_from_is_z_iso.
+          apply nat_trafo_z_iso_if_pointwise_z_iso.
+          intro b. cbn.
+          cbn in F, a.
+          set (aux := identity(C:=category_binproduct _ _) (make_dirprod (F a) b)).
+          change (is_z_isomorphism aux).
+          apply identity_is_z_iso.
   Defined.
 
   Lemma coevaluation_is_pstrans: is_pstrans coevaluation_pstrans_data.
@@ -371,24 +355,18 @@ Section Currying.
     use make_pstrans_data.
     - intro A. apply evaluation_functor.
     - intros A A' F.
-      use make_invertible_2cell.
+      apply nat_iso_to_invertible_2cell.
+      use make_nat_iso.
       + use make_nat_trans.
         * intro Gb. apply identity.
         * intros Gb Gb' βg. induction Gb as [G b]. induction Gb' as [G' b']. induction βg as [β g].
           simpl in *.
           rewrite id_left, id_right.
           apply functor_comp.
-      + use make_is_invertible_2cell.
-        * use make_nat_trans.
-          -- intro Gb. apply identity.
-          -- intros Gb Gb' βg. induction Gb as [G b]. induction Gb' as [G' b']. induction βg as [β g].
-             simpl in *.
-             rewrite id_left, id_right.
-             apply pathsinv0, functor_comp.
-        * apply nat_trans_eq; try exact (homset_property A').
-          intro Gb. cbn. apply id_left.
-        * apply nat_trans_eq; try exact (homset_property A').
-          intro Gb. cbn. apply id_left.
+      + intro a.
+        apply is_iso_from_is_z_iso.
+        cbn.
+        apply identity_is_z_iso.
   Defined.
 
   Lemma evaluation_is_pstrans: is_pstrans evaluation_pstrans_data.
@@ -429,7 +407,8 @@ Section Currying.
     red.
     use make_invertible_modification.
     - intro A.
-      use make_invertible_2cell.
+      apply nat_iso_to_invertible_2cell.
+      use make_nat_iso.
       + use make_nat_trans.
         * intro ab. apply identity.
         * intros ab ab' fg.
@@ -437,20 +416,12 @@ Section Currying.
           apply pathsdirprod.
           -- rewrite id_right. apply idpath.
           -- rewrite id_left. rewrite id_right. apply id_right.
-      + use make_is_invertible_2cell.
-        -- use make_nat_trans.
-           ++ intro ab. apply identity.
-           ++ intros ab ab' fg.
-              cbn.
-              apply pathsdirprod.
-              ** do 2 rewrite id_left. apply id_right.
-              ** rewrite id_left. apply idpath.
-        -- apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
-           intro ab. cbn.
-           apply pathsdirprod; apply id_left.
-        -- apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
-           intro ab. cbn.
-           do 2 rewrite id_left. apply idpath.
+      + intro ab.
+        apply is_iso_from_is_z_iso.
+        cbn.
+        set (aux := identity(C:=category_binproduct _ _) ab).
+        change (is_z_isomorphism aux).
+        apply identity_is_z_iso.
     - intros A A' F.
       apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
       intro ab. cbn.
@@ -464,7 +435,8 @@ Section Currying.
     red.
     use make_invertible_modification.
     - intro A.
-      use make_invertible_2cell.
+      apply nat_iso_to_invertible_2cell.
+      use make_nat_iso.
       + use make_nat_trans.
         * intro G. cbn in G.
           use make_nat_trans.
@@ -475,27 +447,11 @@ Section Currying.
           apply nat_trans_eq; try exact (homset_property A).
           intro b.
           cbn. rewrite id_right. apply cancel_postcomposition. apply functor_id.
-      + use make_is_invertible_2cell.
-        -- use make_nat_trans.
-           ++ intro G.
-              use make_nat_trans.
-              ** intro b. apply identity.
-              ** intros b b' g.
-                 cbn. rewrite id_left. apply idpath.
-           ++ intros G G' β.
-              apply nat_trans_eq; try exact (homset_property A).
-              intro b.
-              cbn. rewrite id_left. rewrite functor_id. rewrite id_left. apply id_right.
-        -- apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
-           intro G.
-           apply nat_trans_eq; try exact (homset_property A).
-           intro b.
-           cbn. apply id_left.
-        -- apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
-           intro G.
-           apply nat_trans_eq; try exact (homset_property A).
-           intro b.
-           cbn. apply id_left.
+      + intro G.
+        apply is_iso_from_is_z_iso.
+        apply nat_trafo_z_iso_if_pointwise_z_iso.
+        intro b. cbn.
+        apply identity_is_z_iso.
     - intros A A' F.
       apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
       intro G. cbn.
