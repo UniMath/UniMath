@@ -432,7 +432,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Colimits/Initial.v](Bicategories/Colimits/Initial.v)
    - [Colimits/Final.v](Bicategories/Colimits/Final.v)
    - [PseudoFunctors/Biadjunction.v](Bicategories/PseudoFunctors/Biadjunction.v)
-   - [PseudoFunctors/Examples/InBicatOfCats.v](Bicategories/PseudoFunctors/Examples/InBicatOfCats.v)
+   - [PseudoFunctors/Examples/CurryingInBicatOfCatsWithoutUnivalence.v](Bicategories/PseudoFunctors/Examples/CurryingInBicatOfCatsWithoutUnivalence.v)
    - [DisplayedBicats/DispBiadjunction.v](Bicategories/DisplayedBicats/DispBiadjunction.v)
    - [PseudoFunctors/Examples/PathGroupoid.v](Bicategories/PseudoFunctors/Examples/PathGroupoid.v)
    - [DisplayedBicats/DispToFiberEquivalence.v](Bicategories/DisplayedBicats/DispToFiberEquivalence.v)
