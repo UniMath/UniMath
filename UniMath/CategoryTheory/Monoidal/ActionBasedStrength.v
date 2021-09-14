@@ -77,30 +77,30 @@ Coercion actionbased_strength_nat_funclass : actionbased_strength_nat >-> Funcla
 Definition actionbased_strength_triangle_eq (ϛ : actionbased_strength_nat) :=
   ∏ (a : A), (ϛ (a, I)) · (#F (ϱ a)) = ϱ' (F a).
 
-Definition actionbased_strength_pentagon_eq (ϛ : actionbased_strength_nat): UU := ∏ (a : A), ∏ (x y : Mon_V),
-  (χ' ((F a, x), y)) · ϛ (a, x ⊗ y) =
-  (ϛ (a, x)) #⊙' (id y) · (ϛ (a ⊙ x, y)) · (#F (χ ((a, x), y))).
+Definition actionbased_strength_pentagon_eq (ϛ : actionbased_strength_nat): UU := ∏ (a : A), ∏ (v w : Mon_V),
+  (χ' ((F a, v), w)) · ϛ (a, v ⊗ w) =
+  (ϛ (a, v)) #⊙' (id w) · (ϛ (a ⊙ v, w)) · (#F (χ ((a, v), w))).
 
 (** the original notion in Fiore's LICS'08 paper *)
-Definition actionbased_strength_pentagon_eq_variant1 (ϛ : actionbased_strength_nat): UU := ∏ (a : A), ∏ (x y : Mon_V),
-  ϛ (a, x ⊗ y) =
-  (nat_z_iso_to_trans_inv χ' ((F a, x), y)) · (ϛ (a, x)) #⊙' (id y) · (ϛ (a ⊙ x, y)) · (#F (χ ((a, x), y))).
+Definition actionbased_strength_pentagon_eq_variant1 (ϛ : actionbased_strength_nat): UU := ∏ (a : A), ∏ (v w : Mon_V),
+  ϛ (a, v ⊗ w) =
+  (nat_z_iso_to_trans_inv χ' ((F a, v), w)) · (ϛ (a, v)) #⊙' (id w) · (ϛ (a ⊙ v, w)) · (#F (χ ((a, v), w))).
 
 (** the notion that fits with the definition of relative strength in the TYPES'15 post-proceedings paper by Ahrens and Matthes *)
-Definition actionbased_strength_pentagon_eq_variant2 (ϛ : actionbased_strength_nat): UU := ∏ (a : A), ∏ (x y : Mon_V),
-  ϛ (a, x ⊗ y) · (#F (nat_z_iso_to_trans_inv χ ((a, x), y))) =
-  (nat_z_iso_to_trans_inv χ' ((F a, x), y)) · (ϛ (a, x)) #⊙' (id y) · (ϛ (a ⊙ x, y)).
+Definition actionbased_strength_pentagon_eq_variant2 (ϛ : actionbased_strength_nat): UU := ∏ (a : A), ∏ (v w : Mon_V),
+  ϛ (a, v ⊗ w) · (#F (nat_z_iso_to_trans_inv χ ((a, v), w))) =
+  (nat_z_iso_to_trans_inv χ' ((F a, v), w)) · (ϛ (a, v)) #⊙' (id w) · (ϛ (a ⊙ v, w)).
 
 (** as expected, the notions are logically equivalent *)
 Lemma actionbased_strength_pentagon_eq_tovariant1 (ϛ : actionbased_strength_nat): actionbased_strength_pentagon_eq ϛ -> actionbased_strength_pentagon_eq_variant1 ϛ.
 Proof.
-  intros Heq a x y.
+  intros Heq a v w.
   red in Heq.
   apply pathsinv0.
   unfold nat_z_iso_to_trans_inv; cbn.
   unfold is_z_isomorphism_mor.
   do 2 rewrite <- assoc.
-  apply (z_iso_inv_on_right _ _ _ (make_z_iso _ _ (pr2 χ' ((F a, x), y)))).
+  apply (z_iso_inv_on_right _ _ _ (make_z_iso _ _ (pr2 χ' ((F a, v), w)))).
   apply pathsinv0.
   rewrite assoc.
   cbn.
@@ -109,12 +109,12 @@ Qed.
 
 Lemma actionbased_strength_pentagon_eq_fromvariant1 (ϛ : actionbased_strength_nat): actionbased_strength_pentagon_eq_variant1 ϛ -> actionbased_strength_pentagon_eq ϛ.
 Proof.
-  intros Heq a x y.
+  intros Heq a v w.
   red in Heq.
   unfold nat_z_iso_to_trans_inv in Heq; cbn in Heq.
   unfold is_z_isomorphism_mor in Heq.
   apply pathsinv0.
-  apply (z_iso_inv_to_left _ _ _ (make_z_iso _ _ (pr2 χ' ((F a, x), y)))).
+  apply (z_iso_inv_to_left _ _ _ (make_z_iso _ _ (pr2 χ' ((F a, v), w)))).
   cbn.
   apply pathsinv0.
   do 2 rewrite assoc.
@@ -123,7 +123,7 @@ Qed.
 
 Lemma actionbased_strength_pentagon_eq_variant1variant2 (ϛ : actionbased_strength_nat): actionbased_strength_pentagon_eq_variant1 ϛ -> actionbased_strength_pentagon_eq_variant2 ϛ.
 Proof.
-  intros Heq a x y.
+  intros Heq a v w.
   red in Heq.
   etrans.
   { unfold nat_z_iso_to_trans_inv.  cbn.
@@ -132,27 +132,27 @@ Proof.
     apply functor_on_inv_from_z_iso'.
   }
   apply pathsinv0.
-  apply (z_iso_inv_on_left _ _ _ _ (make_z_iso (# F (χ ((a, x), y)))
-         (is_z_isomorphism_mor (functor_on_is_z_isomorphism F (pr2 χ ((a, x), y))))
-         (functor_on_is_z_isomorphism F (pr2 χ ((a, x), y))))).
+  apply (z_iso_inv_on_left _ _ _ _ (make_z_iso (# F (χ ((a, v), w)))
+         (is_z_isomorphism_mor (functor_on_is_z_isomorphism F (pr2 χ ((a, v), w))))
+         (functor_on_is_z_isomorphism F (pr2 χ ((a, v), w))))).
   apply Heq.
 Qed.
 
 Lemma actionbased_strength_pentagon_eq_variant2variant1 (ϛ : actionbased_strength_nat): actionbased_strength_pentagon_eq_variant2 ϛ -> actionbased_strength_pentagon_eq_variant1 ϛ.
 Proof.
-  intros Heq a x y.
+  intros Heq a v w.
   red in Heq.
   apply pathsinv0.
-  apply (z_iso_inv_to_right _ _ _ _ (make_z_iso (# F (χ ((a, x), y)))
-         (is_z_isomorphism_mor (functor_on_is_z_isomorphism F (pr2 χ ((a, x), y))))
-         (functor_on_is_z_isomorphism F (pr2 χ ((a, x), y))))).
+  apply (z_iso_inv_to_right _ _ _ _ (make_z_iso (# F (χ ((a, v), w)))
+         (is_z_isomorphism_mor (functor_on_is_z_isomorphism F (pr2 χ ((a, v), w))))
+         (functor_on_is_z_isomorphism F (pr2 χ ((a, v), w))))).
   etrans.
   { apply pathsinv0.
     apply Heq. }
   clear Heq.
   apply maponpaths.
   apply pathsinv0.
-  apply (functor_on_inv_from_z_iso' _ (pr2 χ ((a, x), y))).
+  apply (functor_on_inv_from_z_iso' _ (pr2 χ ((a, v), w))).
 Qed.
 
 Lemma isaprop_actionbased_strength_triangle_eq (ϛ : actionbased_strength_nat) (hsA' : has_homsets A') : isaprop (actionbased_strength_triangle_eq ϛ).
@@ -301,7 +301,7 @@ Section Param_Distr.
     Definition parameterized_distributivity_nat : UU := param_distributivity_dom ⟹ param_distributivity_codom.
 
     Definition parameterized_distributivity_nat_funclass (δ : parameterized_distributivity_nat):
-      ∏ x : ob (Mon_V), param_distributivity_dom x --> param_distributivity_codom x
+      ∏ v : ob (Mon_V), param_distributivity_dom v --> param_distributivity_codom v
       := pr1 δ.
     Coercion parameterized_distributivity_nat_funclass : parameterized_distributivity_nat >-> Funclass.
 
@@ -375,24 +375,24 @@ Section The_Laws.
     Qed.
 
 
-    Definition param_distr_pentagon_eq_body (x y : Mon_V) : UU :=
-      nat_trans_comp _ _ _ (pre_whisker F (lax_monoidal_functor_μ FA' (x,,y))) (δ (x ⊗ y)) =
-      nat_trans_comp _ _ _ (nat_trans_comp _ _ _ (post_whisker (δ x) (FA' y))
-                                           (pre_whisker (FA x: functor A A) (δ y)))
-                     (post_whisker (lax_monoidal_functor_μ FA (x,,y)) F).
+    Definition param_distr_pentagon_eq_body (v w : Mon_V) : UU :=
+      nat_trans_comp _ _ _ (pre_whisker F (lax_monoidal_functor_μ FA' (v,,w))) (δ (v ⊗ w)) =
+      nat_trans_comp _ _ _ (nat_trans_comp _ _ _ (post_whisker (δ v) (FA' w))
+                                           (pre_whisker (FA v: functor A A) (δ w)))
+                     (post_whisker (lax_monoidal_functor_μ FA (v,,w)) F).
 
 (*
-      set (aux1 := pre_whisker F (lax_monoidal_functor_μ FA' (x,,y))).
-      set (aux2 := δ (x ⊗ y)).
+      set (aux1 := pre_whisker F (lax_monoidal_functor_μ FA' (v,,w))).
+      set (aux2 := δ (v ⊗ w)).
       set (auxl := nat_trans_comp _ _ _ aux1 aux2).
-      set (aux3 := post_whisker (δ x) (FA' y)).
-      set (aux4 := pre_whisker (FA x: functor A A) (δ y)).
-      set (aux5 := post_whisker (lax_monoidal_functor_μ FA (x,,y)) F).
+      set (aux3 := post_whisker (δ v) (FA' w)).
+      set (aux4 := pre_whisker (FA v: functor A A) (δ w)).
+      set (aux5 := post_whisker (lax_monoidal_functor_μ FA (v,,w)) F).
       set (auxr1 := nat_trans_comp _ _ _ aux3 aux4).
       set (auxr := nat_trans_comp _ _ _ auxr1 aux5).
 *)
 
-    Definition param_distr_pentagon_eq : UU := ∏ (x y : Mon_V), param_distr_pentagon_eq_body x y.
+    Definition param_distr_pentagon_eq : UU := ∏ (v w : Mon_V), param_distr_pentagon_eq_body v w.
 
     Lemma isaprop_param_distr_triangle_eq : isaprop param_distr_triangle_eq.
     Proof.
@@ -402,8 +402,8 @@ Section The_Laws.
     Lemma isaprop_param_distr_pentagon_eq : isaprop param_distr_pentagon_eq.
     Proof.
       red.
-      apply impred; intros x.
-      apply impred; intros y.
+      apply impred; intros v.
+      apply impred; intros w.
       apply isaset_nat_trans; exact hsA'.
     Qed.
 
@@ -491,9 +491,9 @@ Identity Coercion parameterized_distributivity_nat_to_nat_trans : parameterized_
    Lemma pentagon_eq_from_alt : actionbased_strength_pentagon_eq actionA actionA' F strength_nat_from_alt.
    Proof.
      red.
-     intros a x y.
+     intros a v w.
      clear δ_triangle_eq.
-     assert (Hyp := δ_pentagon_eq x y).
+     assert (Hyp := δ_pentagon_eq v w).
      red in Hyp.
      apply (maponpaths pr1) in Hyp.
      apply toforallpaths in Hyp.
@@ -504,7 +504,7 @@ Identity Coercion parameterized_distributivity_nat_to_nat_trans : parameterized_
      cbn.
      do 5 rewrite id_left.
      do 5 rewrite id_right.
-     assert (aux := functor_id FA' y).
+     assert (aux := functor_id FA' w).
      apply (maponpaths pr1) in aux.
      apply toforallpaths in aux.
      rewrite aux.
