@@ -203,6 +203,7 @@ Monoidal/MonoidalFunctors.v
 Monoidal/CategoriesOfMonoids.v
 Monoidal/Actions.v
 Monoidal/ConstructionOfActions.v
+Monoidal/MonoidalFromBicategory.v
 Monoidal/ActionOfEndomorphismsInBicat.v
 Monoidal/ActionBasedStrength.v
 Monoidal/ActionBasedStrongFunctorCategory.v

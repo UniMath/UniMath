@@ -16,8 +16,8 @@ Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
 Require Import UniMath.CategoryTheory.Monoidal.Actions.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalFromBicategory.
 Require Import UniMath.Bicategories.Core.Bicat.
-Require Import UniMath.Bicategories.Core.Examples.BicategoryFromMonoidal.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCatsWithoutUnivalence.
 
 Import Bicat.Notations.
