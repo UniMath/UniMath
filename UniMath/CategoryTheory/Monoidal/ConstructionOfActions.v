@@ -120,7 +120,7 @@ Lemma lifted_action_tlaw : action_triangle_eq Mon_V C
         lifted_odot lifted_action_right_unitor lifted_action_convertor.
 Proof.
   red.
-  intros.
+  intros a x.
   cbn.
   unfold nat_trans_from_functor_fix_snd_morphism_arg_data.
   unfold nat_trans_data_post_whisker_fst_param.
@@ -193,7 +193,7 @@ Lemma lifted_action_plaw : action_pentagon_eq Mon_V C
                              lifted_odot lifted_action_convertor.
 Proof.
   red.
-  intros.
+  intros a x y z.
   cbn.
   unfold nat_trans_data_post_whisker_fst_param.
   unfold ob1, ob2.

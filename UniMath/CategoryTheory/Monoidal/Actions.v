@@ -102,12 +102,18 @@ Definition action_convertor_to_nat_trans (χ : action_convertor) :
   := nat_z_iso_to_trans χ.
 Coercion action_convertor_to_nat_trans: action_convertor >-> nat_trans.
 
-Definition action_triangle_eq (ϱ : action_right_unitor) (χ : action_convertor) := ∏ (a : A), ∏ (x : Mon_V),
-  (ϱ a) #⊙ (id x) = (χ ((a, I), x)) · (id a) #⊙ (λ' x).
+Definition action_triangle_eq (ϱ : action_right_unitor) (χ : action_convertor) := ∏ (a : A), ∏ (v : Mon_V),
+  (ϱ a) #⊙ (id v) = (χ ((a, I), v)) · (id a) #⊙ (λ' v).
 
-Definition action_pentagon_eq (χ : action_convertor) := ∏ (a : A), ∏ (x y z : Mon_V),
-  (χ ((a ⊙ x, y), z)) · (χ ((a, x), y ⊗ z)) =
-  (χ ((a, x), y)) #⊙ (id z) · (χ ((a, x ⊗ y), z)) · (id a) #⊙ (α' ((x, y), z)).
+(** the original definition by Pareigis has a second triangle equation that is redundant in the
+    context of [action_triangle_eq] and [action_pentagon_eq] (see Janelidze and Kelly 2001 for this claim) *)
+Definition action_second_triangle_eq (ϱ : action_right_unitor) (χ : action_convertor) :=
+  ∏ (a : A), ∏ (v : Mon_V), ϱ (a ⊙ v) = (χ ((a, v), I)) · (id a) #⊙ (ρ' v).
+
+
+Definition action_pentagon_eq (χ : action_convertor) := ∏ (a : A), ∏ (u v w : Mon_V),
+  (χ ((a ⊙ u, v), w)) · (χ ((a, u), v ⊗ w)) =
+  (χ ((a, u), v)) #⊙ (id w) · (χ ((a, u ⊗ v), w)) · (id a) #⊙ (α' ((u, v), w)).
 
 End Actions_Natural_Transformations.
 
@@ -412,7 +418,7 @@ Defined.
 Lemma U_action_tlaw : action_triangle_eq Mon_A otimes_U_functor U_action_ρ U_action_χ.
 Proof.
   red.
-  intros.
+  intros a x.
   cbn.
   unfold nat_trans_from_functor_fix_snd_morphism_arg_data.
   unfold nat_trans_data_post_whisker_fst_param.
@@ -484,7 +490,7 @@ Qed.
 Lemma U_action_plaw : action_pentagon_eq Mon_A otimes_U_functor U_action_χ.
 Proof.
   red.
-  intros.
+  intros a x y z.
   cbn.
   unfold nat_trans_data_post_whisker_fst_param.
   unfold ob1, ob2.
