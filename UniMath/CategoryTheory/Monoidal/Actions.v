@@ -1,9 +1,11 @@
 (**
   Generalisation of the concept of actions, over monoidal categories.
 
-  This notion is found in G. Janelidze and G.M. Kelly: A Note on Actions of a Monoidal Category, Theory and Applications of Categories, Vol. 9, 2001, No. 4, pp 61-91.
+  Originally introduced under the name C-categories (for C a monoidal category) by Bodo Pareigis (1977).
 
-  The presentation is based on the definitions in the paper "Second-Order and Dependently-Sorted Abstract Syntax" by Marcelo Fiore. It seems that the order of the arguments of the action functor has been chosen differently there.
+  This notion is found in G. Janelidze and G.M. Kelly: A Note on Actions of a Monoidal Category, Theory and Applications of Categories, Vol. 9, 2001, No. 4, pp 61-91, who remark that one triangle equation of Pareigis is redundant.
+
+  The presentation is close to the definitions in the paper "Second-Order and Dependently-Sorted Abstract Syntax" by Marcelo Fiore (2008). The order of the arguments of the action functor has been chosen differently from Janelidze & Kelly, but as in Pareigis.
 
   Author of nearly all of the proof lines: Ralph Matthes 2021
 **)

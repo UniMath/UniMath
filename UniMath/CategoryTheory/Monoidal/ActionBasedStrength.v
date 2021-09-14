@@ -1,7 +1,8 @@
 (**
-  Definition of tensorial strengths between actions over monoidal categories.
+  Definition of tensorial strength between actions over monoidal categories, as introduced
+  under the name C-categories and C-functors (for C a monoidal category) by Bodo Pareigis (1977).
 
-  Based on the definitions in the paper "Second-Order and Dependently-Sorted Abstract Syntax" by Marcelo Fiore.
+  The concrete definition is close to the paper "Second-Order and Dependently-Sorted Abstract Syntax" by Marcelo Fiore (2008). Notably, the strength itself is not required to be an isomorphism.
 
   To distinguish this from less general approaches, we will speak of action-based strength.
 
