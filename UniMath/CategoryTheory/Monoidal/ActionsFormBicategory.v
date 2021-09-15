@@ -22,8 +22,6 @@ Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCatsWithoutUnivalence.
 Require Import UniMath.Bicategories.DisplayedBicats.DispBicat.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
-Require Import UniMath.SubstitutionSystems.Signatures.
-Require Import UniMath.SubstitutionSystems.SignatureCategory.
 
 
 Import Bicat.Notations.
@@ -87,15 +85,10 @@ Qed.
 Definition actions_disp_prebicat_1_id_comp_cells : disp_prebicat_1_id_comp_cells CAT :=
   actions_disp_cat_data ,, actions_disp_2cell_struct.
 
-Lemma actions_has_disp_cellprop {A A' : CAT}
-  {F F' : CAT ⟦ A, A' ⟧}
-  (η : F ==> F')
-  {actn : actions_disp_cat_data A}
-  {actn' : actions_disp_cat_data A'}
-  (ζ : actn -->[ F] actn')
-  (ζ' : actn -->[ F'] actn'):
-  isaprop (@disp_2cells _ actions_disp_prebicat_1_id_comp_cells A A' F F' η actn actn' ζ ζ').
+Lemma actions_disp_2cells_isaprop : disp_2cells_isaprop actions_disp_prebicat_1_id_comp_cells.
 Proof.
+  red.
+  intros A A'. intros.
   apply impred; intros a; apply impred; intros v.
   apply (homset_property A').
 Qed.
@@ -202,9 +195,11 @@ Qed.
 Definition actions_disp_prebicat_data : disp_prebicat_data CAT :=
   actions_disp_prebicat_1_id_comp_cells ,, actions_disp_prebicat_ops.
 
+(** the laws are all trivial since the 2-cells do not come with data on top of the natural transformations
+    of the base bicategory CAT - this shows the benefits of the displayed approach *)
 Lemma actions_disp_prebicat_laws : disp_prebicat_laws actions_disp_prebicat_data.
 Proof.
-  repeat split; red; intros; apply actions_has_disp_cellprop.
+  repeat split; red; intros; apply actions_disp_2cells_isaprop.
 Qed.
 
 Definition actions_disp_prebicat : disp_prebicat CAT :=
@@ -216,7 +211,7 @@ Proof.
   intros A A'. intros.
   cbn.
   apply isasetaprop.
-  apply actions_has_disp_cellprop.
+  apply actions_disp_2cells_isaprop.
 Qed.
 
 Definition actions_disp_bicat : disp_bicat CAT :=

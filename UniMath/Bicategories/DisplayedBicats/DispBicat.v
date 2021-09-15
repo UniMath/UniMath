@@ -1332,7 +1332,7 @@ Defined.
 (* ----------------------------------------------------------------------------------- *)
 
 Definition disp_2cells_isaprop
-           {B : bicat} (D : disp_bicat B)
+           {B : bicat} (D : disp_prebicat_1_id_comp_cells B)
   := ∏ (a b : B) (f g : a --> b) (x : f ==> g)
        (aa : D a) (bb : D b) (ff : aa -->[f] bb) (gg : aa -->[g] bb),
      isaprop (disp_2cells x ff gg).
