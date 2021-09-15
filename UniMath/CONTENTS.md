@@ -328,6 +328,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Monoidal/ActionOfEndomorphismsInBicat.v](CategoryTheory/Monoidal/ActionOfEndomorphismsInBicat.v)
    - [Monoidal/ActionBasedStrength.v](CategoryTheory/Monoidal/ActionBasedStrength.v)
    - [Monoidal/ActionBasedStrongFunctorCategory.v](CategoryTheory/Monoidal/ActionBasedStrongFunctorCategory.v)
+   - [Monoidal/ActionsFormBicategory.v](CategoryTheory/Monoidal/ActionsFormBicategory.v)
    - [Monoidal/ActionBasedStrengthOnHomsInBicat.v](CategoryTheory/Monoidal/ActionBasedStrengthOnHomsInBicat.v)
    - [Monoidal/BraidedMonoidalCategories.v](CategoryTheory/Monoidal/BraidedMonoidalCategories.v)
    - [SkewMonoidal/SkewMonoidalCategories.v](CategoryTheory/SkewMonoidal/SkewMonoidalCategories.v)

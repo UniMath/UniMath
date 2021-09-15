@@ -18,6 +18,7 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
 Require Import UniMath.CategoryTheory.Monoidal.EndofunctorsMonoidal.
@@ -207,6 +208,90 @@ Definition ab_strength_pentagon {F : A ⟶ A'} (FF : actionbased_strength F) :
   := pr2 (pr2 FF).
 
 End ActionBasedStrengths_Definition.
+
+Definition ab_strength_identity_functor {A : precategory} (actn : action Mon_V A) :
+  actionbased_strength actn actn (functor_identity A).
+Proof.
+  use tpair.
+  - use make_nat_trans.
+    + intro av. apply identity.
+    + intros av av' fg.
+      cbn. rewrite id_left. apply id_right.
+  - split.
+    + intro a. cbn. apply id_left.
+    + intros a v w. cbn. rewrite binprod_id. do 2 rewrite id_right.
+      etrans.
+      2: {apply cancel_postcomposition. apply pathsinv0, functor_id. }
+      apply pathsinv0, id_left.
+Defined.
+
+Definition ab_strength_composition {A1 A2 A3 : precategory}
+           {actn1 : action Mon_V A1} {actn2 : action Mon_V A2} {actn3 : action Mon_V A3}
+           {F : A1 ⟶ A2} {F' : A2 ⟶ A3} :
+  actionbased_strength actn1 actn2 F -> actionbased_strength actn2 actn3 F' ->
+  actionbased_strength actn1 actn3 (F ∙ F').
+Proof.
+  intros ζ ζ'.
+  use tpair.
+  - use make_nat_trans.
+    + intro av. induction av as [a v].
+      exact (ζ' (F a,, v) · # F' (ζ (a,, v))).
+    + intros av av' fg. induction av as [a v]. induction av' as [a' v']. induction fg as [f g].
+      cbn.
+      assert (ζisnatinst := nat_trans_ax ζ (a,, v) (a',, v') (f,, g)).
+      assert (ζ'isnatinst := nat_trans_ax ζ' (F a,, v) (F a',, v') (# F f,, g)).
+      rewrite assoc.
+      etrans.
+      { apply cancel_postcomposition.
+        apply ζ'isnatinst. }
+      do 2 rewrite <- assoc.
+      apply maponpaths.
+      cbn.
+      do 2 rewrite <- functor_comp.
+      apply maponpaths.
+      apply ζisnatinst.
+  - split.
+    + intro a. cbn.
+      assert (ζtriangleeqinst := ab_strength_triangle _ _ ζ a).
+      assert (ζ'triangleeqinst := ab_strength_triangle _ _ ζ' (F a)).
+      rewrite <- assoc.
+      rewrite <- functor_comp.
+      etrans.
+      { do 2 apply maponpaths. exact ζtriangleeqinst. }
+      exact ζ'triangleeqinst.
+    + intros a v w. cbn.
+      assert (ζpentagoneqinst := ab_strength_pentagon _ _ ζ a v w).
+      assert (ζ'pentagoneqinst := ab_strength_pentagon _ _ ζ' (F a) v w).
+      etrans.
+      { rewrite assoc. apply cancel_postcomposition. exact ζ'pentagoneqinst. }
+      clear ζ'pentagoneqinst.
+      etrans.
+      2: { rewrite <- (id_right (id w)).
+           rewrite binprod_comp.
+           do 2 apply cancel_postcomposition.
+           apply pathsinv0, functor_comp. }
+      repeat rewrite <- assoc.
+      apply maponpaths.
+      etrans.
+      { apply maponpaths.
+        apply pathsinv0.
+        apply (functor_comp F' (χ actn2 ((F a, v), w)) (ζ (a,, v ⊗ w))).
+      }
+      etrans.
+      { do 2 apply maponpaths. apply ζpentagoneqinst. }
+      clear ζpentagoneqinst.
+      etrans.
+      { do 2 rewrite functor_comp. repeat rewrite assoc. apply idpath. }
+      repeat rewrite assoc.
+      do 2 apply cancel_postcomposition.
+      assert (ζ'natinst := nat_trans_ax ζ' (act_odot actn2 (F a, v),, w)
+                                        (F(act_odot actn1 (a, v)),, w)
+                                        (ζ (a,, v),, id w)).
+      cbn in ζ'natinst.
+      etrans.
+      2 : { apply pathsinv0, ζ'natinst. }
+      apply idpath.
+Defined.
 
 Definition actionbased_strong_functor {A A' : precategory} (actn : action Mon_V A)(actn' : action Mon_V A') : UU
   := ∑ (F : A ⟶ A'), actionbased_strength actn actn' F.
