@@ -485,8 +485,8 @@ Qed.
 
 (** a small diversion on [z_iso] for natural transformations *)
 
-Lemma nat_trafo_z_iso_if_pointwise_z_iso (C : precategory_data) (C' : precategory)
-  (hs: has_homsets C') (F G : ob [C, C', hs]) (α : F --> G) :
+Lemma nat_trafo_z_iso_if_pointwise_z_iso {C : precategory_data} {C' : precategory}
+  (hs: has_homsets C') {F G : ob [C, C', hs]} (α : F --> G) :
     is_nat_z_iso (pr1 α) -> is_z_isomorphism α .
 Proof.
   intro H.
@@ -498,9 +498,14 @@ Proof.
   - exact (pr2 (pr2 (H c))).
 Defined.
 
+Definition z_iso_from_z_nat_iso {C : precategory_data} {C' : precategory}
+  (hs: has_homsets C') {F G : ob [C, C', hs]} (α : nat_z_iso F G) : z_iso F G
+  := pr1 α ,, nat_trafo_z_iso_if_pointwise_z_iso hs (pr1 α) (pr2 α).
+
+
 (** the other direction is even more basic since the homset requirement is not used in the proof *)
-Lemma nat_trafo_pointwise_z_iso_if_z_iso (C : precategory_data) (C' : precategory)
-  (hs: has_homsets C') (F G : ob [C, C', hs]) (α : F --> G) :
+Lemma nat_trafo_pointwise_z_iso_if_z_iso {C : precategory_data} {C' : precategory}
+  (hs: has_homsets C') {F G : ob [C, C', hs]} (α : F --> G) :
     is_z_isomorphism α -> is_nat_z_iso (pr1 α).
 Proof.
   intro H.
@@ -519,6 +524,10 @@ Proof.
     + apply HH1.
     + apply HH2.
 Defined.
+
+Definition z_nat_iso_from_z_iso  {C : precategory_data} {C' : precategory}
+           (hs: has_homsets C') {F G : ob [C, C', hs]} (α : z_iso F G) : nat_z_iso F G
+  := pr1 α ,, nat_trafo_pointwise_z_iso_if_z_iso hs (pr1 α) (pr2 α).
 
 Notation "[ C , D , hs ]" := (functor_precategory C D hs) : cat.
 

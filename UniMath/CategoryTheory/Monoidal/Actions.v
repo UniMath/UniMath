@@ -229,7 +229,7 @@ Section Alternative_Definition.
     - exact (pre_whisker (precategory_binproduct_unassoc _ _ _) (uncurry_nattrans hsA μ)).
     - intro auv. induction auv as [[a u] v].
       unfold pre_whisker. cbn.
-      exact (nat_trafo_pointwise_z_iso_if_z_iso _ _ _ _ _ _ (μ_is_nat_z_iso (u,,v)) a).
+      exact (nat_trafo_pointwise_z_iso_if_z_iso _ _ (μ_is_nat_z_iso (u,,v)) a).
   Defined.
 
   Lemma action_triangle_eq_from_alt: action_triangle_eq odot ϱ χ.

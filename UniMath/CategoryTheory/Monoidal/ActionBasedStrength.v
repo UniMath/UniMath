@@ -411,7 +411,7 @@ Section The_Laws.
       - cbn.
         apply nat_trafo_z_iso_if_pointwise_z_iso.
         apply post_whisker_z_iso_is_z_iso.
-        apply (nat_trafo_pointwise_z_iso_if_z_iso _ _ _ _ _ (pr1 (strong_monoidal_functor_ϵ_is_z_iso FA))).
+        apply (nat_trafo_pointwise_z_iso_if_z_iso _ (pr1 (strong_monoidal_functor_ϵ_is_z_iso FA))).
         apply is_z_isomorphism_inv.
     Defined.
 
@@ -422,7 +422,7 @@ Section The_Laws.
       - cbn.
         apply nat_trafo_z_iso_if_pointwise_z_iso.
         apply pre_whisker_on_nat_z_iso.
-        apply (nat_trafo_pointwise_z_iso_if_z_iso _ _ _ _ _ (pr1 (strong_monoidal_functor_ϵ_is_z_iso FA'))).
+        apply (nat_trafo_pointwise_z_iso_if_z_iso _ (pr1 (strong_monoidal_functor_ϵ_is_z_iso FA'))).
         apply is_z_isomorphism_inv.
     Defined.
 

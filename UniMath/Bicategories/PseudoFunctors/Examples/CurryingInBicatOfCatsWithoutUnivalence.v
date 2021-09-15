@@ -28,16 +28,6 @@ Import Bicat.Notations.
 
 Local Open Scope cat.
 
-Section Upstream.
-
-  Context (A B : category).
-
-  Definition category_binproduct : category :=
-    precategory_binproduct A B ,, has_homsets_precategory_binproduct A B (homset_property A) (homset_property B).
-
-
-End Upstream.
-
 Local Definition CAT : bicat := bicat_of_cats_nouniv.
 
 Section ThePseudoFunctors.
@@ -46,10 +36,13 @@ Section ProductWithFixedSecondArgument.
 
   Context (B0 : ob CAT).
 
+  Local Definition productwithfixedelement (A: ob CAT) : ob CAT := category_binproduct (pr1 A) (pr1 B0) (homset_property A) (homset_property B0).
+
+
 Definition binproductleft_map_data: psfunctor_data CAT CAT.
 Proof.
   use make_psfunctor_data.
-  - exact (fun A =>  category_binproduct A B0).
+  - exact productwithfixedelement.
   - intros A A' F.
     exact (pair_functor F (functor_identity (pr1 B0))).
   - intros A A' F G α. cbn.
@@ -82,40 +75,40 @@ Definition binproductleft_map_laws: psfunctor_laws binproductleft_map_data.
 Proof.
   repeat split; red; cbn.
   - intros A A' F.
-    apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
+    apply nat_trans_eq; try exact (homset_property (productwithfixedelement _)).
     intro ab. cbn. apply idpath.
   - intros A A' F1 F2 F3 α β.
-    apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
+    apply nat_trans_eq; try exact (homset_property (productwithfixedelement _)).
     intro ab. cbn.
     apply pathsdirprod.
     * apply idpath.
     * apply pathsinv0, id_left.
   - intros A B F.
-    apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
+    apply nat_trans_eq; try exact (homset_property (productwithfixedelement _)).
     intro ab. cbn.
     apply pathsdirprod.
     * do 2 rewrite id_right. apply pathsinv0, functor_id.
     * do 2 rewrite id_right. apply idpath.
   - intros A B F.
-    apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
+    apply nat_trans_eq; try exact (homset_property (productwithfixedelement _)).
     intro ab. cbn.
     apply pathsdirprod; do 2 rewrite id_right; apply idpath.
   - intros A1 A2 A3 A4 F G H.
-    apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
+    apply nat_trans_eq; try exact (homset_property (productwithfixedelement _)).
     intro a1b. cbn.
     apply pathsdirprod.
     * do 3 rewrite id_left. rewrite id_right.
       apply pathsinv0, functor_id.
     * apply idpath.
   - intros A1 A2 A3 F G1 G2 β.
-    apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
+    apply nat_trans_eq; try exact (homset_property (productwithfixedelement _)).
     intro a1b. cbn.
     apply pathsdirprod.
     * rewrite id_left, id_right.
       apply idpath.
     * apply idpath.
   - intros A1 A2 A3 F1 F2 G α.
-    apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
+    apply nat_trans_eq; try exact (homset_property (productwithfixedelement _)).
     intro a1b. cbn.
     apply pathsdirprod.
     * rewrite id_left, id_right.
@@ -136,7 +129,7 @@ Proof.
         -- intros ab ab' fg.
            cbn.
            apply pathsdirprod; rewrite id_left; apply id_right.
-      * split; apply nat_trans_eq; try exact (homset_property (category_binproduct _ _));
+      * split; apply nat_trans_eq; try exact (homset_property (productwithfixedelement _));
           intro ab; cbn; apply pathsdirprod; apply id_left.
     + intros A1 A2 A3 F G.
       use tpair.
@@ -145,7 +138,7 @@ Proof.
         -- intros a1b a1b' fg.
            cbn.
            apply pathsdirprod; rewrite id_left; apply id_right.
-      * split; apply nat_trans_eq; try exact (homset_property (category_binproduct _ _));
+      * split; apply nat_trans_eq; try exact (homset_property (productwithfixedelement _));
           intro a1b; cbn; apply pathsdirprod; apply id_left.
 Defined.
 
@@ -299,7 +292,7 @@ Section Currying.
                    --- do 2 rewrite id_right. apply functor_id.
                    --- rewrite id_left. apply id_right.
           --  intros a a' g. cbn.
-              apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
+              apply nat_trans_eq; try exact (homset_property (productwithfixedelement _ _)).
               cbn. intro b.
               apply pathsdirprod.
               ++ rewrite id_left. apply id_right.
@@ -309,7 +302,7 @@ Section Currying.
           apply nat_trafo_z_iso_if_pointwise_z_iso.
           intro b. cbn.
           cbn in F, a.
-          set (aux := identity(C:=category_binproduct _ _) (make_dirprod (F a) b)).
+          set (aux := identity(C:=pr1(productwithfixedelement _ _)) (make_dirprod (F a) b)).
           change (is_z_isomorphism aux).
           apply identity_is_z_iso.
   Defined.
@@ -320,7 +313,7 @@ Section Currying.
     - intros A A' F F' α.
       apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
       intro a.
-      apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
+      apply nat_trans_eq; try exact (homset_property (productwithfixedelement _ _)).
       intro b. cbn.
       apply pathsdirprod.
       + rewrite id_left. apply id_right.
@@ -328,12 +321,12 @@ Section Currying.
     - intro A.
       apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
       intro a.
-      apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
+      apply nat_trans_eq; try exact (homset_property (productwithfixedelement _ _)).
       intro b. cbn. apply idpath.
     - intros A1 A2 A3 F G.
       apply nat_trans_eq; try exact (homset_property (functor_category _ _)).
       intro a.
-      apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
+      apply nat_trans_eq; try exact (homset_property (productwithfixedelement _ _)).
       intro b. cbn.
       apply pathsdirprod.
       + do 6 rewrite id_right. rewrite id_left. apply pathsinv0, functor_id.
@@ -419,14 +412,14 @@ Section Currying.
       + intro ab.
         apply is_iso_from_is_z_iso.
         cbn.
-        set (aux := identity(C:=category_binproduct _ _) ab).
+        set (aux := identity(C:=pr1(productwithfixedelement _ _)) ab).
         change (is_z_isomorphism aux).
         apply identity_is_z_iso.
     - intros A A' F.
-      apply nat_trans_eq; try exact (homset_property (category_binproduct _ _)).
+      apply nat_trans_eq; try exact (homset_property (productwithfixedelement _ _)).
       intro ab. cbn.
       apply pathsdirprod.
-      + rewrite functor_id. repeat rewrite id_left. apply idpath.
+      + do 2 rewrite functor_id. repeat rewrite id_left. apply idpath.
       + repeat rewrite id_left. apply idpath.
   Defined.
 

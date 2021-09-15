@@ -87,6 +87,9 @@ Proof.
   - apply hsD.
 Qed.
 
+Definition category_binproduct (hsC : has_homsets C) (hsD : has_homsets D) : category :=
+    precategory_binproduct,, has_homsets_precategory_binproduct hsC hsD.
+
 Definition ob1 (x : precategory_binproduct) : C := pr1 x.
 Definition ob2 (x : precategory_binproduct) : D := pr2 x.
 Definition mor1 (x x' : precategory_binproduct) (f : _ ⟦x, x'⟧) : _ ⟦ob1 x, ob1 x'⟧ := pr1 f.
@@ -195,6 +198,10 @@ Proof.
   - apply (pr2 (pr2 f_is_z_iso)).
   - apply (pr2 (pr2 g_is_z_iso)).
 Defined.
+
+Definition precatbinprod_z_iso {C D : precategory} {X X' : C} {Z Z' : D} (α : z_iso X X') (β : z_iso Z Z')
+  : z_iso (X ⊗ Z) (X' ⊗ Z') := (pr1 α,, pr1 β) ,, is_z_iso_binprod_z_iso (pr2 α)(pr2 β).
+
 
 (** Associativity functors *)
 Section assoc.

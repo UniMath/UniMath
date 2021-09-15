@@ -299,7 +299,7 @@ Section a_different_type_for_the_forgetful_functor_from_ptd.
              | do 3 rewrite id_right ;
                apply idpath]).
     - split ;
-        [ apply (nat_trafo_z_iso_if_pointwise_z_iso C C hs);
+        [ apply (nat_trafo_z_iso_if_pointwise_z_iso hs);
           apply is_nat_z_iso_nat_trans_id
         | red ; intro c ;
           exists (nat_trans_id _) ;

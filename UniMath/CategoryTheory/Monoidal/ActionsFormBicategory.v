@@ -11,6 +11,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
@@ -196,7 +197,7 @@ Definition actions_disp_prebicat_data : disp_prebicat_data CAT :=
   actions_disp_prebicat_1_id_comp_cells ,, actions_disp_prebicat_ops.
 
 (** the laws are all trivial since the 2-cells do not come with data on top of the natural transformations
-    of the base bicategory CAT - this shows the benefits of the displayed approach *)
+    of the base bicategory [CAT] - this shows the benefits of the displayed approach *)
 Lemma actions_disp_prebicat_laws : disp_prebicat_laws actions_disp_prebicat_data.
 Proof.
   repeat split; red; intros; apply actions_disp_2cells_isaprop.
@@ -216,6 +217,29 @@ Qed.
 
 Definition actions_disp_bicat : disp_bicat CAT :=
   actions_disp_prebicat ,, actions_has_disp_cellset.
+
+Definition actions_disp_locally_groupoid : disp_locally_groupoid actions_disp_bicat.
+Proof.
+  red.
+  intros A A' F F' invertibleη actn actn' ζ ζ' Hypη.
+  use tpair.
+  - intros a v.
+    red.
+    assert (Hypηinst := Hypη a v).
+    red in Hypηinst.
+    apply pathsinv0.
+    set (η_z_nat_iso := z_nat_iso_from_z_iso (homset_property A') invertibleη).
+    set (η_z_nat_iso_inst1 := nat_z_iso_pointwise_z_iso η_z_nat_iso (ActionBasedStrongFunctorCategory.odot Mon_V actn (a, v))).
+    apply (z_iso_inv_on_left _ _ _ _ η_z_nat_iso_inst1).
+    rewrite <- assoc.
+    set (η_z_nat_iso_inst2 := nat_z_iso_pointwise_z_iso η_z_nat_iso a).
+    set (aux1_z_iso := precatbinprod_z_iso η_z_nat_iso_inst2 (identity_z_iso v)).
+    set (aux2_z_iso := functor_on_z_iso (ActionBasedStrongFunctorCategory.odot' Mon_V actn') aux1_z_iso).
+    apply pathsinv0.
+    apply (z_iso_inv_on_right _ _ _ aux2_z_iso).
+    exact Hypηinst.
+  - split; apply actions_disp_2cells_isaprop.
+Defined.
 
 Definition actions_bicat : bicat := total_bicat actions_disp_bicat.
 
