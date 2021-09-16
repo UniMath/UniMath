@@ -127,12 +127,12 @@ Local Notation "( f #, g )" := (precatbinprodmor f g).
 Lemma binprod_id {C D : precategory} (c : C) (d : D) : (identity c #, identity d) = identity (c, d).
 Proof.
   apply idpath.
-Qed.
+Defined. (** this seems useful since one often has to tell Coq explicitly to make that conversion *)
 
 Lemma binprod_comp {C D : precategory} (c c' c'' : C) (d d' d'' : D) (f : c --> c') (f' : c' --> c'') (g : d --> d') (g' : d' --> d'') : (f · f' #, g · g') = (f #, g) · (f' #, g').
 Proof.
   apply idpath.
-Qed.
+Defined. (** idem concerning Defined vs. Qed *)
 
 Lemma is_iso_binprod_iso_aux {C D : precategory} {c c' : C} {d d' : D} {f : c --> c'} {g : d --> d'} (f_is_iso : is_iso f)
   (g_is_iso : is_iso g) : is_inverse_in_precat (f #, g)
