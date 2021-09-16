@@ -22,11 +22,11 @@ Require Import UniMath.CategoryTheory.Monoidal.Actions.
 Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActions.
 Require Import UniMath.CategoryTheory.Monoidal.ActionOfEndomorphismsInBicat.
 Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrength.
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalFromBicategory.
 Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrongFunctorCategory.
 Require Import UniMath.CategoryTheory.Adjunctions.Core.
 Require Import UniMath.CategoryTheory.Equivalences.Core.
 Require Import UniMath.Bicategories.Core.Bicat.
-Require Import UniMath.Bicategories.Core.Examples.BicategoryFromMonoidal.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCatsWithoutUnivalence.
 Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SignatureCategory.
@@ -275,12 +275,12 @@ Section a_different_type_for_the_forgetful_functor_from_ptd.
   Defined.
 
   Definition forgetful_functor_from_ptd_as_strong_monoidal_functor_alt
-   : strong_monoidal_functor (monoidal_precat_of_pointedfunctors hs)      
+   : strong_monoidal_functor (monoidal_precat_of_pointedfunctors hs)
                                               (monoidal_precat_from_prebicat_and_ob (C:=pr1 bicat_of_cats_nouniv) (C,,hs)).
   Proof.
     use tpair.
     - apply (mk_lax_monoidal_functor (monoidal_precat_of_pointedfunctors hs)
-                       (monoidal_precat_from_prebicat_and_ob (C:=pr1 bicat_of_cats_nouniv) (C,, hs)) 
+                       (monoidal_precat_from_prebicat_and_ob (C:=pr1 bicat_of_cats_nouniv) (C,, hs))
                        functor_ptd_forget_alt (nat_trans_id _) aux).
       + abstract
           (intros PF1 PF2 PF3 ;
@@ -299,7 +299,7 @@ Section a_different_type_for_the_forgetful_functor_from_ptd.
              | do 3 rewrite id_right ;
                apply idpath]).
     - split ;
-        [ apply (nat_trafo_z_iso_if_pointwise_z_iso C C hs);
+        [ apply (nat_trafo_z_iso_if_pointwise_z_iso hs);
           apply is_nat_z_iso_nat_trans_id
         | red ; intro c ;
           exists (nat_trans_id _) ;

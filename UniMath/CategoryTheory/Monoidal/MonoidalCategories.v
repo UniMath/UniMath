@@ -31,20 +31,17 @@ Context {C : precategory} (tensor : C ⊠ C ⟶ C) (I : C).
 Notation "X ⊗ Y" := (tensor (X, Y)).
 Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
 
-Definition tensor_id {X Y : C} : id X #⊗ id Y = id (X ⊗ Y).
+Lemma tensor_id {X Y : C} : id X #⊗ id Y = id (X ⊗ Y).
 Proof.
-  rewrite binprod_id.
-  rewrite (functor_id tensor).
-  apply idpath.
-Defined.
+  apply (functor_id tensor).
+Qed.
 
-Definition tensor_comp {X Y Z X' Y' Z' : C} (f : X --> Y) (g : Y --> Z) (f' : X' --> Y') (g' : Y' --> Z') :
+Lemma tensor_comp {X Y Z X' Y' Z' : C} (f : X --> Y) (g : Y --> Z) (f' : X' --> Y') (g' : Y' --> Z') :
   (f · g) #⊗ (f' · g') = f #⊗ f' · g #⊗ g'.
 Proof.
   rewrite binprod_comp.
-  rewrite (functor_comp tensor).
-  apply idpath.
-Defined.
+  apply (functor_comp tensor).
+Qed.
 
 Definition is_iso_tensor_iso {X Y X' Y' : C} {f : X --> Y} {g : X' --> Y'}
            (f_is_iso : is_iso f) (g_is_iso : is_iso g) : is_iso (f #⊗ g).

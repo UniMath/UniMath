@@ -119,6 +119,18 @@ Proof.
   apply (functor_on_iso_is_iso C D K _ _ gammab).
 Defined.
 
+Lemma post_whisker_z_iso_is_z_iso {B C D : precategory}
+   {G H : functor_data B C} (gamma : nat_trans G H)
+   (K : functor C D)
+   (X : is_nat_z_iso gamma)
+  : is_nat_z_iso (post_whisker gamma K).
+Proof.
+  intros b.
+  unfold post_whisker.
+  simpl.
+  apply (functor_on_is_z_isomorphism K (X b)).
+Defined.
+
 (** Precomposition with a functor is functorial *)
 
 Definition pre_composition_functor_data (A B C : precategory)

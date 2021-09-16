@@ -120,7 +120,7 @@ Lemma lifted_action_tlaw : action_triangle_eq Mon_V C
         lifted_odot lifted_action_right_unitor lifted_action_convertor.
 Proof.
   red.
-  intros.
+  intros a x.
   cbn.
   unfold nat_trans_from_functor_fix_snd_morphism_arg_data.
   unfold nat_trans_data_post_whisker_fst_param.
@@ -193,7 +193,7 @@ Lemma lifted_action_plaw : action_pentagon_eq Mon_V C
                              lifted_odot lifted_action_convertor.
 Proof.
   red.
-  intros.
+  intros a x y z.
   cbn.
   unfold nat_trans_data_post_whisker_fst_param.
   unfold ob1, ob2.
@@ -304,7 +304,7 @@ Section Strong_Monoidal_Functor_Action_Reloaded.
 
   Definition U_action_alt : action Mon_V (monoidal_precat_precat Mon_A) := lifted_action Mon_V U (action_on_itself Mon_A).
 
-(* the two actions would even be convertible - if one would ask for definedness of the proofs of the equations [lifted_action_tlaw] and [lifted_action_plaw]
+(* the two actions would even be convertible - if one would ask for definedness of the proofs of the equations [lifted_action_tlaw] and [lifted_action_plaw] and also [U_action_tlaw] and [U_action_plaw]
   Lemma U_action_alt_ok: U_action_alt = U_action _ U.
   Proof.
     apply idpath.

@@ -367,6 +367,23 @@ Proof.
   - apply (pr1 (is_z_isomorphism_is_inverse_in_precat (pr2 μ c))).
 Defined.
 
+Definition is_nat_z_iso_comp {C : precategory_data} {D : precategory} {F G H: C ⟶ D} {μ : F ⟹ G} {ν : G ⟹ H}
+           (isμ: is_nat_z_iso μ) (isν: is_nat_z_iso ν) : is_nat_z_iso (nat_trans_comp F G H μ ν).
+Proof.
+  intro c.
+  use make_is_z_isomorphism.
+  - exact (is_z_isomorphism_mor (isν c) · is_z_isomorphism_mor (isμ c)).
+  - exact (is_inverse_in_precat_comp (pr2 (isμ c)) (pr2 (isν c))).
+Defined.
+
+Definition nat_z_iso_comp {C : precategory_data} {D : precategory} {F G H: C ⟶ D}
+           (μ: nat_z_iso F G) (ν: nat_z_iso  G H) : nat_z_iso F H.
+Proof.
+  use make_nat_z_iso.
+  - exact (nat_trans_comp F G H μ ν).
+  - exact (is_nat_z_iso_comp (pr2 μ) (pr2 ν)).
+Defined.
+
 Definition is_nat_z_iso_id {C D : precategory} {F G : C ⟶ D} (eq : F = G) (ν : nat_z_iso F G) : UU :=
   ∏ (c : C), nat_comp_to_endo eq (nat_z_iso_to_trans ν c) = identity (F c).
 
