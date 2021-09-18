@@ -399,12 +399,30 @@ Section The_Laws.
       nat_trans_comp _ _ _ (pre_whisker F (lax_monoidal_functor_ϵ FA')) (δ I) =
       post_whisker (lax_monoidal_functor_ϵ FA) F.
 
+    (** the type of the following def. is the same as that of [δ I], as seen from the definition that comes
+        directly afterwards *)
+    Definition param_distr_triangle_eq_variant0_RHS :=
+      nat_trans_comp _ _ _ (pre_whisker F (strong_monoidal_functor_ϵ_inv FA'))
+                                 (post_whisker (lax_monoidal_functor_ϵ FA) F).
+
+    Definition param_distr_triangle_eq_variant0 : UU := δ I = param_distr_triangle_eq_variant0_RHS.
+
     Definition param_distr_triangle_eq_variant : UU :=
       nat_trans_comp _ _ _ (δ I) (post_whisker (strong_monoidal_functor_ϵ_inv FA) F)  =
       pre_whisker F (strong_monoidal_functor_ϵ_inv FA').
 
+    Definition postwhisker_with_ϵ_z_iso : z_iso (functor_compose hsA hsA' (MonoidalFunctors.I_D Mon_EndA) F) (functor_compose hsA hsA' (FA I: functor A A) F).
+    Proof.
+      use tpair.
+      - exact (post_whisker (lax_monoidal_functor_ϵ FA) F).
+      - cbn.
+        apply nat_trafo_z_iso_if_pointwise_z_iso.
+        apply post_whisker_z_iso_is_z_iso.
+        apply (nat_trafo_pointwise_z_iso_if_z_iso _ (lax_monoidal_functor_ϵ FA)).
+        exact (strong_monoidal_functor_ϵ_is_z_iso FA).
+    Defined.
 
-    Definition aux1_param_distr_triangle_eq_variant : z_iso (functor_compose hsA hsA' (FA I: functor A A) F)(functor_composite (MonoidalFunctors.I_D Mon_EndA) F).
+    Definition postwhisker_with_ϵ_inv_z_iso : z_iso (functor_compose hsA hsA' (FA I: functor A A) F) (functor_composite (MonoidalFunctors.I_D Mon_EndA) F).
     Proof.
       use tpair.
       - exact (post_whisker (strong_monoidal_functor_ϵ_inv FA) F).
@@ -415,7 +433,7 @@ Section The_Laws.
         apply is_z_isomorphism_inv.
     Defined.
 
-    Definition aux2_param_distr_triangle_eq_variant : z_iso (functor_compose hsA' hsA' F (FA' (MonoidalFunctors.I_C Mon_V)))(functor_composite F (MonoidalFunctors.I_D Mon_EndA')).
+    Definition prewhisker_with_ϵ_inv_z_iso : z_iso (functor_compose hsA' hsA' F (FA' (MonoidalFunctors.I_C Mon_V))) (functor_composite F (MonoidalFunctors.I_D Mon_EndA')).
     Proof.
       use tpair.
       - exact (pre_whisker F (strong_monoidal_functor_ϵ_inv FA')).
@@ -426,13 +444,47 @@ Section The_Laws.
         apply is_z_isomorphism_inv.
     Defined.
 
+    Lemma param_distr_triangle_eq_variant0_follows :
+      param_distr_triangle_eq -> param_distr_triangle_eq_variant0.
+    Proof.
+      intro Hyp.
+      red.
+      change (δ I = prewhisker_with_ϵ_inv_z_iso · postwhisker_with_ϵ_z_iso).
+      apply pathsinv0 in Hyp.
+      apply (z_iso_inv_to_left _ _ _ prewhisker_with_ϵ_inv_z_iso).
+      apply pathsinv0.
+      cbn.
+      apply nat_trans_eq; try exact hsA'.
+      intro a.
+      cbn.
+      apply (maponpaths pr1) in Hyp.
+      apply toforallpaths in Hyp.
+      apply Hyp.
+    Qed.
+
+    Lemma param_distr_triangle_eq_variant0_implies :
+      param_distr_triangle_eq_variant0 -> param_distr_triangle_eq.
+    Proof.
+      intro Hyp.
+      red in Hyp.
+      change (δ I = prewhisker_with_ϵ_inv_z_iso · postwhisker_with_ϵ_z_iso) in Hyp.
+      apply (z_iso_inv_on_right _ _ _ prewhisker_with_ϵ_inv_z_iso) in Hyp.
+      red.
+      apply nat_trans_eq; try exact hsA'.
+      intro a.
+      cbn.
+      apply (maponpaths pr1) in Hyp.
+      apply toforallpaths in Hyp.
+      apply Hyp.
+    Qed.
+
     Lemma param_distr_triangle_eq_variant_follows :
       param_distr_triangle_eq -> param_distr_triangle_eq_variant.
     Proof.
       intro Hyp.
       red.
-      apply (z_iso_inv_to_right _ _ _ _ aux1_param_distr_triangle_eq_variant).
-      apply (z_iso_inv_to_left _ _ _ aux2_param_distr_triangle_eq_variant).
+      apply (z_iso_inv_to_right _ _ _ _ postwhisker_with_ϵ_inv_z_iso).
+      apply (z_iso_inv_to_left _ _ _ prewhisker_with_ϵ_inv_z_iso).
       cbn.
       apply nat_trans_eq; try exact hsA'.
       intro a.
@@ -449,8 +501,8 @@ Section The_Laws.
       intro Hyp.
       red in Hyp.
       apply pathsinv0 in Hyp.
-      apply (z_iso_inv_on_left _ _ _ _ aux1_param_distr_triangle_eq_variant) in Hyp.
-      apply (z_iso_inv_on_right _ _ _ aux2_param_distr_triangle_eq_variant) in Hyp.
+      apply (z_iso_inv_on_left _ _ _ _ postwhisker_with_ϵ_inv_z_iso) in Hyp.
+      apply (z_iso_inv_on_right _ _ _ prewhisker_with_ϵ_inv_z_iso) in Hyp.
       red.
       apply nat_trans_eq; try exact hsA'.
       intro a.
@@ -479,6 +531,78 @@ Section The_Laws.
 *)
 
     Definition param_distr_pentagon_eq : UU := ∏ (v w : Mon_V), param_distr_pentagon_eq_body v w.
+
+
+    Definition param_distr_pentagon_eq_body_variant_RHS (v w : Mon_V)
+               (dv: [A, A', hsA'] ⟦ param_distributivity_dom v, param_distributivity_codom v ⟧)
+               (dw: [A, A', hsA'] ⟦ param_distributivity_dom w, param_distributivity_codom w ⟧) :
+      [A, A', hsA'] ⟦ param_distributivity_dom (v ⊗ w), param_distributivity_codom (v ⊗ w) ⟧ :=
+      nat_trans_comp _ _ _ (pre_whisker F (strong_monoidal_functor_μ_inv FA' (v,,w)))
+                           (nat_trans_comp _ _ _ (nat_trans_comp _ _ _ (post_whisker dv (FA' w))
+                                   (pre_whisker (FA v: functor A A) dw))
+                                   (post_whisker (lax_monoidal_functor_μ FA (v,,w)) F)).
+
+    Definition param_distr_pentagon_eq_body_variant (v w : Mon_V): UU :=
+      δ (v ⊗ w) = param_distr_pentagon_eq_body_variant_RHS v w (δ v) (δ w).
+
+    Definition prewhisker_with_μ_inv_z_iso (v w : Mon_V):
+      z_iso (functor_compose hsA' hsA' F (monoidal_functor_map_codom Mon_V Mon_EndA' FA' (v,, w)))
+            (functor_compose hsA' hsA' F (monoidal_functor_map_dom Mon_V Mon_EndA' FA' (v,, w))).
+    Proof.
+      use tpair.
+      - exact (pre_whisker F (strong_monoidal_functor_μ_inv FA' (v,,w))).
+      - cbn.
+        apply nat_trafo_z_iso_if_pointwise_z_iso.
+        apply pre_whisker_on_nat_z_iso.
+        apply (nat_trafo_pointwise_z_iso_if_z_iso _ (pr1 (strong_monoidal_functor_μ_is_nat_z_iso FA' (v,,w)))).
+        apply is_z_isomorphism_inv.
+    Defined.
+
+    Local Definition aux_second_factor (v w : Mon_V): [A, A', hsA']
+        ⟦ functor_compose hsA' hsA' F (monoidal_functor_map_dom Mon_V Mon_EndA' FA' (v,, w)),
+          functor_compose hsA hsA' (monoidal_functor_map_codom Mon_V Mon_EndA FA (v,, w)) F ⟧ :=
+      nat_trans_comp _ _ _ (nat_trans_comp _ _ _ (post_whisker (δ v) (FA' w))
+                                   (pre_whisker (FA v: functor A A) (δ w)))
+                                    (post_whisker (lax_monoidal_functor_μ FA (v,,w)) F).
+
+    Lemma param_distr_pentagon_eq_body_variant_follows (v w : Mon_V):
+      param_distr_pentagon_eq_body v w -> param_distr_pentagon_eq_body_variant v w.
+    Proof.
+      intro Hyp.
+      red.
+      unfold param_distr_pentagon_eq_body_variant_RHS.
+     (* set (second := nat_trans_comp _ _ _ (nat_trans_comp _ _ _ (post_whisker (δ v) (FA' w))
+                                   (pre_whisker (FA v: functor A A) (δ w)))
+                                    (post_whisker (lax_monoidal_functor_μ FA (v,,w)) F):
+          [A, A', hsA'] ⟦ functor_compose hsA' hsA' F (monoidal_functor_map_dom Mon_V Mon_EndA' FA' (v,, w)),
+                         functor_compose hsA hsA' (monoidal_functor_map_codom Mon_V Mon_EndA FA (v,, w)) F ⟧).*)
+      change (δ (v ⊗ w) = (prewhisker_with_μ_inv_z_iso v w) · (aux_second_factor v w)).
+      apply (z_iso_inv_to_left _ _ _ (prewhisker_with_μ_inv_z_iso v w)).
+      red in Hyp.
+      apply nat_trans_eq; try exact hsA'.
+      intro a.
+      cbn.
+      apply (maponpaths pr1) in Hyp.
+      apply toforallpaths in Hyp.
+      apply Hyp.
+    Qed.
+
+    Lemma param_distr_pentagon_eq_body_variant_implies (v w : Mon_V):
+      param_distr_pentagon_eq_body_variant v w -> param_distr_pentagon_eq_body v w.
+    Proof.
+      intro Hyp.
+      red in Hyp.
+      change (δ (v ⊗ w) = (prewhisker_with_μ_inv_z_iso v w) · (aux_second_factor v w)) in Hyp.
+      apply (z_iso_inv_on_right _ _ _ (prewhisker_with_μ_inv_z_iso v w)) in Hyp.
+      red.
+      apply nat_trans_eq; try exact hsA'.
+      intro a.
+      cbn.
+      apply (maponpaths pr1) in Hyp.
+      apply toforallpaths in Hyp.
+      apply Hyp.
+    Qed.
+
 
     Lemma isaprop_param_distr_triangle_eq : isaprop param_distr_triangle_eq.
     Proof.
