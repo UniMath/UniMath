@@ -465,18 +465,119 @@ Proof.
         apply functor_id.
       * cbn.
         (* show_id_type. *)
-        assert (Hhomset : isaset ([A,A',hsA']⟦functor_compose hsA' hsA' G (FA' (pr11 vηwπ ⊗ pr12 vηwπ)),functor_compose _ _ (FA (pr11 vηwπ ⊗ pr12 vηwπ)) G⟧)).
-        { apply (functor_category_has_homsets _ _ hsA'). }
-        apply Hhomset.
+        apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (pr11 vηwπ ⊗ pr12 vηwπ)))
+                                            (functor_compose _ _ (FA (pr11 vηwπ ⊗ pr12 vηwπ)) G)).
     + red. intros vηwπ1 vηwπ2 vηwπ3 fgHyps fgHyps'.
       use total2_paths_f.
       * cbn.
         etrans.
         { apply maponpaths. apply binprod_comp. }
         apply functor_comp.
-      * assert (Hhomset : isaset ([A,A',hsA']⟦functor_compose hsA' hsA' G (FA' (pr11 vηwπ1 ⊗ pr12 vηwπ1)),functor_compose _ _ (FA (pr11 vηwπ3 ⊗ pr12 vηwπ3)) G⟧)).
-        { apply (functor_category_has_homsets _ _ hsA'). }
-        apply Hhomset.
+      * apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (pr11 vηwπ1 ⊗ pr12 vηwπ1)))
+                                            (functor_compose _ _ (FA (pr11 vηwπ3 ⊗ pr12 vηwπ3)) G)).
 Defined.
+
+Definition montrafotarget_monprecat: monoidal_precat.
+Proof.
+  use (mk_monoidal_precat montrafotarget_precat montrafotarget_tensor montrafotarget_unit).
+  - use make_nat_z_iso.
+    + use make_nat_trans.
+      * intro vη.
+        exists (monoidal_precat_left_unitor Mon_V (pr1 vη)).
+        (* another reasoning in functorial calculus needed *)
+        admit.
+      * intros vη vη' fg.
+        use total2_paths_f.
+        -- cbn. apply (nat_trans_ax (monoidal_precat_left_unitor Mon_V)).
+        -- apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (I ⊗ pr1 vη)))
+                                               (functor_compose _ _ (FA (pr1 vη')) G)).
+    + intro vη.
+      use make_is_z_isomorphism.
+      * exists (pr1 (pr2 (monoidal_precat_left_unitor Mon_V) (pr1 vη))).
+        (* another reasoning in functorial calculus needed *)
+        admit.
+      * split.
+        -- use total2_paths_f.
+           ++ cbn. apply (pr2 (pr2 (monoidal_precat_left_unitor Mon_V) (pr1 vη))).
+           ++ (* show_id_type. *)
+             apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (I ⊗ pr1 vη)))
+                                                 (functor_compose hsA hsA' (FA (I ⊗ pr1 vη)) G)).
+        -- use total2_paths_f.
+           ++ cbn. apply (pr2 (pr2 (monoidal_precat_left_unitor Mon_V) (pr1 vη))).
+           ++ (* show_id_type. *)
+             apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (pr1 vη)))
+                                                 (functor_compose _ _ (FA (pr1 vη)) G)).
+  - (* the right unitor is analogous *) use make_nat_z_iso.
+    + use make_nat_trans.
+      * intro vη.
+        exists (monoidal_precat_right_unitor Mon_V (pr1 vη)).
+        (* another reasoning in functorial calculus needed *)
+        admit.
+      * intros vη vη' fg.
+        use total2_paths_f.
+        -- cbn. apply (nat_trans_ax (monoidal_precat_right_unitor Mon_V)).
+        -- apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (pr1 vη ⊗ I)))
+                                               (functor_compose _ _ (FA (pr1 vη')) G)).
+    + intro vη.
+      use make_is_z_isomorphism.
+      * exists (pr1 (pr2 (monoidal_precat_right_unitor Mon_V) (pr1 vη))).
+        (* another reasoning in functorial calculus needed *)
+        admit.
+      * split.
+        -- use total2_paths_f.
+           ++ cbn. apply (pr2 (pr2 (monoidal_precat_right_unitor Mon_V) (pr1 vη))).
+           ++ (* show_id_type. *)
+             apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (pr1 vη ⊗ I)))
+                                                 (functor_compose hsA hsA' (FA (pr1 vη ⊗ I)) G)).
+        -- use total2_paths_f.
+           ++ cbn. apply (pr2 (pr2 (monoidal_precat_right_unitor Mon_V) (pr1 vη))).
+           ++ (* show_id_type. *)
+             apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (pr1 vη)))
+                                                 (functor_compose _ _ (FA (pr1 vη)) G)).
+  - use make_nat_z_iso.
+    + use make_nat_trans.
+      * intro vηs. induction vηs as [[vη1 vη2] vη3].
+        exists (monoidal_precat_associator Mon_V ((pr1 vη1,,pr1 vη2),,pr1 vη3)).
+        (* another reasoning in functorial calculus needed *)
+        admit.
+      * intros vηs vηs' fgs.
+        use total2_paths_f.
+        cbn. exact (pr21 (monoidal_precat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs)
+                         ((pr111 vηs',, pr121 vηs'),, pr12 vηs') ((pr111 fgs,, pr121 fgs),, pr12 fgs)).
+        (* show_id_type. *)
+        apply (functor_category_has_homsets _ _ hsA'
+                             (functor_compose hsA' hsA' G (FA' (pr111 vηs ⊗ pr121 vηs ⊗ pr12 vηs)))
+                             (functor_compose _ _ (FA (pr111 vηs' ⊗ (pr121 vηs' ⊗ pr12 vηs'))) G)).
+    + intro vηs.
+      use make_is_z_isomorphism.
+      * exists (pr1 (pr2 (monoidal_precat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs))).
+        (* another reasoning in functorial calculus needed *)
+        admit.
+      * split.
+        -- use total2_paths_f.
+           ++ cbn. apply (pr2 (pr2 (monoidal_precat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs))).
+           ++ (* show_id_type. *)
+              apply (functor_category_has_homsets _ _ hsA'
+                              (functor_compose hsA' hsA' G (FA' (pr111 vηs ⊗ pr121 vηs ⊗ pr12 vηs)))
+                              (functor_compose _ _ (FA (pr111 vηs ⊗ pr121 vηs ⊗ pr12 vηs)) G)).
+        --  use total2_paths_f.
+           ++ cbn. apply (pr2 (pr2 (monoidal_precat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs))).
+           ++ (* show_id_type. *)
+              apply (functor_category_has_homsets _ _ hsA'
+                              (functor_compose hsA' hsA' G (FA' (pr111 vηs ⊗ (pr121 vηs ⊗ pr12 vηs))))
+                              (functor_compose _ _ (FA (pr111 vηs ⊗ (pr121 vηs ⊗ pr12 vηs))) G)).
+  - intros vη wη'.
+    use total2_paths_f.
+    + cbn. assert (triangleinst := pr1 (monoidal_precat_eq Mon_V) (pr1 vη) (pr1 wη')).
+      exact triangleinst.
+    + cbn. show_id_type.
+      apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (pr1 vη ⊗ I ⊗ pr1 wη'))) (functor_compose _ _ (FA (pr1 vη ⊗ pr1 wη')) G)).
+  - intros vη1 vη2 vη3 vη4.
+    use total2_paths_f.
+    + cbn. assert (pentagoninst := pr2 (monoidal_precat_eq Mon_V) (pr1 vη1) (pr1 vη2) (pr1 vη3) (pr1 vη4)).
+      exact pentagoninst.
+    + cbn. show_id_type.
+      apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (pr1 vη1 ⊗ pr1 vη2 ⊗ pr1 vη3 ⊗ pr1 vη4))) (functor_compose _ _ (FA (pr1 vη1 ⊗ (pr1 vη2 ⊗ (pr1 vη3 ⊗ pr1 vη4)))) G)).
+Admitted.
 
 End Main.
