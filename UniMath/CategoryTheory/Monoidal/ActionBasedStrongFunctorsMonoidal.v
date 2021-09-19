@@ -382,38 +382,35 @@ Local Notation "LL[ F0 ',' F1 ]" := ([A, A', hsA'] ⟦functor_compose hsA hsA' F
 Local Notation "RR[ F0 ',' F1 ]" := ([A, A', hsA'] ⟦functor_compose hsA' hsA' G F0, functor_compose hsA' hsA' G F1⟧) (at level 25).
 
 
-Definition montrafotarget_tensor: montrafotarget_precat ⊠ montrafotarget_precat ⟶ montrafotarget_precat.
+Lemma montrafotarget_tensor_comp_aux (v w v' w': Mon_V) (f: Mon_V⟦v,v'⟧) (g: Mon_V⟦w,w'⟧)
+      (η : trafotarget_disp hsA' H H' v) (π : trafotarget_disp hsA' H H' w)
+      (η' : trafotarget_disp hsA' H H' v') (π' : trafotarget_disp hsA' H H' w')
+      (Hyp: η  -->[ f] η') (Hyp': π -->[ g] π'):
+  (param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v w η π:
+     pr1 (trafotarget_disp hsA' H H') (v ⊗ w))
+    -->[ # tensor (f,, g : pr1 Mon_V ⊠ pr1 Mon_V ⟦ v,, w, v',, w' ⟧)]
+    param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v' w' η' π'.
 Proof.
-  use make_functor.
-  - use make_functor_data.
-    + intro vηwπ.
-      induction vηwπ as [[v η] [w π]].
-      exists (v ⊗ w).
-      cbn in η, π. cbn.
-      exact (param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v w η π).
-    + cbn. intros vηwπ vηwπ' fgHyps. induction vηwπ as [[v η] [w π]]. induction vηwπ' as [[v' η'] [w' π']].
-      induction fgHyps as [[f Hyp] [g Hyp']].
-      use tpair.
-      * cbn in *. exact (# tensor ((f,,g): pr1 Mon_V ⊠ pr1 Mon_V ⟦ (v,,w), (v',,w') ⟧)).
-      * cbn in *.
-        change (RL[ FA' v, FA v]) in η.
-        change (RL[ FA' w, FA w]) in π.
-        change (RL[ FA' v', FA v']) in η'.
-        change (RL[ FA' w', FA w']) in π'.
-        change (η · (post_whisker (# FA f) G: LL[ FA v, FA v']) = (pre_whisker G (# FA' f): RR[FA' v,FA' v']) · η') in Hyp.
-        change (π · (post_whisker (# FA g) G: LL[ FA w, FA w']) = (pre_whisker G (# FA' g): RR[FA' w,FA' w']) · π') in Hyp'.
-        change param_distr_pentagon_eq_body_variant_RHS with param_distr_pentagon_eq_body_variant_RHS_in_steps.
-        match goal with | [ |- _ = ?RHS ] => set (rhs := RHS) end.
-        change ((param_distr_pentagon_eq_body_variant_RHS_in_steps Mon_V hsA hsA' FA FA' G v w η π) · (post_whisker (# FA (# tensor ((f,, g): pr1 Mon_V ⊠ pr1 Mon_V ⟦ (v,,w), (v',,w') ⟧))) G:LL[FA (tensor (v,, w)),FA (tensor (v',, w'))]) = rhs).
-        match goal with | [ |- ?LHS = _ ] => set (lhs := LHS) end.
-        change (lhs = (pre_whisker G (# FA' (# tensor ((f,, g): pr1 Mon_V ⊠ pr1 Mon_V ⟦ (v,,w), (v',,w') ⟧))): RR[FA' (tensor (v,, w)),FA' (tensor (v',, w'))]) · (param_distr_pentagon_eq_body_variant_RHS_in_steps Mon_V hsA hsA' FA FA' G v' w' η' π')).
-        unfold lhs.
-        unfold param_distr_pentagon_eq_body_variant_RHS_in_steps.
-        unfold param_distr_pentagon_eq_body_RHS_in_steps.
-        clear rhs lhs.
-        match goal with |- @paths ?ID _ _ => set (typeofeq := ID); simpl in typeofeq end.
-        assert (typeofeqok: typeofeq = RL[ FA' (tensor (v,,w)), FA (tensor (v',,w'))]) by apply idpath.
-(* goal presented as:
+  change (RL[ FA' v, FA v]) in η.
+  change (RL[ FA' w, FA w]) in π.
+  change (RL[ FA' v', FA v']) in η'.
+  change (RL[ FA' w', FA w']) in π'.
+  change (η · (post_whisker (# FA f) G: LL[ FA v, FA v']) = (pre_whisker G (# FA' f): RR[FA' v,FA' v']) · η') in Hyp.
+  change (π · (post_whisker (# FA g) G: LL[ FA w, FA w']) = (pre_whisker G (# FA' g): RR[FA' w,FA' w']) · π') in Hyp'.
+  change param_distr_pentagon_eq_body_variant_RHS with param_distr_pentagon_eq_body_variant_RHS_in_steps.
+  unfold mor_disp.
+  hnf.
+  match goal with | [ |- _ = ?RHS ] => set (rhs := RHS) end.
+  change ((param_distr_pentagon_eq_body_variant_RHS_in_steps Mon_V hsA hsA' FA FA' G v w η π) · (post_whisker (# FA (# tensor ((f,, g): pr1 Mon_V ⊠ pr1 Mon_V ⟦ (v,,w), (v',,w') ⟧))) G:LL[FA (tensor (v,, w)),FA (tensor (v',, w'))]) = rhs).
+  match goal with | [ |- ?LHS = _ ] => set (lhs := LHS) end.
+  change (lhs = (pre_whisker G (# FA' (# tensor ((f,, g): pr1 Mon_V ⊠ pr1 Mon_V ⟦ (v,,w), (v',,w') ⟧))): RR[FA' (tensor (v,, w)),FA' (tensor (v',, w'))]) · (param_distr_pentagon_eq_body_variant_RHS_in_steps Mon_V hsA hsA' FA FA' G v' w' η' π')).
+  unfold lhs.
+  unfold param_distr_pentagon_eq_body_variant_RHS_in_steps.
+  unfold param_distr_pentagon_eq_body_RHS_in_steps.
+  clear rhs lhs.
+  match goal with |- @paths ?ID _ _ => set (typeofeq := ID); simpl in typeofeq end.
+  assert (typeofeqok: typeofeq = RL[ FA' (tensor (v,,w)), FA (tensor (v',,w'))]) by apply idpath.
+  (* goal presented as:
 pre_whisker G (strong_monoidal_functor_μ_inv FA' (v,, w))
   · (post_whisker η (FA' w) · pre_whisker (FA v) π · post_whisker (lax_monoidal_functor_μ FA (v,, w)) G)
   · post_whisker (# FA (# tensor (f,, g))) G =
@@ -426,10 +423,38 @@ Hyp' : π · post_whisker (# FA g) G = pre_whisker G (# FA' g) · π'
  *)
         set (vw := v,,w). set (vw' := v',,w'). set (fg := f,,g).
 (* I have a lengthy proof on paper. *)
+        match goal with | [ |- ?Hαinv · (?Hγ · ?Hδ · ?Hβ) · ?Hε = _ ] => set (αinv := Hαinv);
+           set (γ := Hγ); set (δ:= Hδ); set (β := Hβ); set (ε1 := Hε) end.
+        match goal with | [ |- _ = ?Hε · (?Hαinv · (?Hγ · ?Hδ · ?Hβ)) ] => set (αinv' := Hαinv);
+           set (γ' := Hγ); set (δ':= Hδ); set (β' := Hβ); set (ε2 := Hε) end.
+(* all these natural transformations have wrong types: they are transformations between functor_data,
+   not elements of the functor category. *)
+        set (αinviso := prewhisker_with_μ_inv_z_iso Mon_V hsA' FA' G v w).
+        transparent assert (αinvisook : (pr1 αinviso = αinv)).
+        { apply idpath. }
+        rewrite <- assoc.
+        apply pathsinv0.
+        rewrite <- αinvisook.
+        (* one has to reconstruct all the constituents as morphisms of the functor category
+        set (help := z_iso_inv_to_left(C:=[A, A', hsA']) _ _ _ αinviso (γ · δ · β · ε1:[A, A', hsA']⟦_,_⟧) (ε2 · (αinv' · (γ' · δ' · β')))).
+       *)
+Admitted.
 
-
-
-        admit.
+Definition montrafotarget_tensor: montrafotarget_precat ⊠ montrafotarget_precat ⟶ montrafotarget_precat.
+Proof.
+  use make_functor.
+  - use make_functor_data.
+    + intro vηwπ.
+      induction vηwπ as [[v η] [w π]].
+      exists (v ⊗ w).
+      cbn in η, π. cbn.
+      exact (param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v w η π).
+    + intros vηwπ vηwπ' fgHyps. induction vηwπ as [[v η] [w π]]. induction vηwπ' as [[v' η'] [w' π']].
+      induction fgHyps as [[f Hyp] [g Hyp']].
+      use tpair.
+      * exact (# tensor ((f,,g): pr1 Mon_V ⊠ pr1 Mon_V ⟦ (v,,w), (v',,w') ⟧)).
+      * change ((param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v w η π: pr1 (trafotarget_disp hsA' H H') (v⊗w)) -->[(# tensor (f,, g : pr1 Mon_V ⊠ pr1 Mon_V ⟦ v,, w, v',, w' ⟧))] (param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v' w' η' π')).
+        apply montrafotarget_tensor_comp_aux; [exact Hyp | exact Hyp'].
   - split.
     + red. intro vηwπ.
       (* show_id_type. *)
@@ -452,7 +477,6 @@ Hyp' : π · post_whisker (# FA g) G = pre_whisker G (# FA' g) · π'
       * assert (Hhomset : isaset ([A,A',hsA']⟦functor_compose hsA' hsA' G (FA' (pr11 vηwπ1 ⊗ pr12 vηwπ1)),functor_compose _ _ (FA (pr11 vηwπ3 ⊗ pr12 vηwπ3)) G⟧)).
         { apply (functor_category_has_homsets _ _ hsA'). }
         apply Hhomset.
-
-        Abort.
+Defined.
 
 End Main.
