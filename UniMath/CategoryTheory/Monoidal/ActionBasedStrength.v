@@ -519,16 +519,40 @@ Section The_Laws.
                                            (pre_whisker (FA v: functor A A) (δ w)))
                      (post_whisker (lax_monoidal_functor_μ FA (v,,w)) F).
 
-(*
-      set (aux1 := pre_whisker F (lax_monoidal_functor_μ FA' (v,,w))).
+    (** we also abstract over the constituent distributivities *)
+    Definition param_distr_pentagon_eq_body_RHS_in_steps (v w : Mon_V)
+               (dv: [A, A', hsA'] ⟦ param_distributivity_dom v, param_distributivity_codom v ⟧)
+               (dw: [A, A', hsA'] ⟦ param_distributivity_dom w, param_distributivity_codom w ⟧) :
+      [A, A', hsA']
+        ⟦ functor_compose hsA' hsA' F (monoidal_functor_map_dom Mon_V Mon_EndA' FA' (v,, w)),
+          functor_compose hsA hsA' (monoidal_functor_map_codom Mon_V Mon_EndA FA (v,, w)) F ⟧.
+    Proof.
+      set (aux1 := post_whisker dv (FA' w):
+              [A, A', hsA']⟦functor_compose hsA' hsA' (param_distributivity_dom v) (FA' w),
+                            functor_compose hsA' hsA' (param_distributivity_codom v) (FA' w)⟧).
+      set (aux2 := pre_whisker (FA v: functor A A) dw:
+          [A, A', hsA']⟦functor_compose hsA hsA' (FA v : A ⟶ A) (param_distributivity_dom w),
+                        functor_compose hsA hsA' (FA v : A ⟶ A) (param_distributivity_codom w)⟧).
+      set (aux3 := post_whisker (lax_monoidal_functor_μ FA (v,,w)) F:
+      [A, A', hsA']⟦functor_compose hsA hsA' (monoidal_functor_map_dom Mon_V Mon_EndA FA (v,, w)) F,
+                    functor_compose hsA hsA' (monoidal_functor_map_codom Mon_V Mon_EndA FA (v,, w)) F⟧).
+      set (auxr := aux1 · aux2).
+      exact (auxr · aux3).
+    Defined.
+
+    Definition param_distr_pentagon_eq_body_in_steps (v w : Mon_V) : UU.
+    Proof.
+      set (aux1 := pre_whisker F (lax_monoidal_functor_μ FA' (v,,w)):
+           [A, A', hsA']⟦functor_compose hsA' hsA' F (monoidal_functor_map_dom Mon_V Mon_EndA' FA' (v,, w)),
+                         functor_compose hsA' hsA' F (monoidal_functor_map_codom Mon_V Mon_EndA' FA' (v,, w))⟧).
       set (aux2 := δ (v ⊗ w)).
-      set (auxl := nat_trans_comp _ _ _ aux1 aux2).
-      set (aux3 := post_whisker (δ v) (FA' w)).
-      set (aux4 := pre_whisker (FA v: functor A A) (δ w)).
-      set (aux5 := post_whisker (lax_monoidal_functor_μ FA (v,,w)) F).
-      set (auxr1 := nat_trans_comp _ _ _ aux3 aux4).
-      set (auxr := nat_trans_comp _ _ _ auxr1 aux5).
-*)
+      exact (aux1 · aux2 = param_distr_pentagon_eq_body_RHS_in_steps v w (δ v) (δ w)).
+    Defined.
+
+    Goal param_distr_pentagon_eq_body = param_distr_pentagon_eq_body_in_steps.
+    Proof.
+       apply idpath.
+    Qed.
 
     Definition param_distr_pentagon_eq : UU := ∏ (v w : Mon_V), param_distr_pentagon_eq_body v w.
 
@@ -540,7 +564,23 @@ Section The_Laws.
       nat_trans_comp _ _ _ (pre_whisker F (strong_monoidal_functor_μ_inv FA' (v,,w)))
                            (nat_trans_comp _ _ _ (nat_trans_comp _ _ _ (post_whisker dv (FA' w))
                                    (pre_whisker (FA v: functor A A) dw))
-                                   (post_whisker (lax_monoidal_functor_μ FA (v,,w)) F)).
+                                           (post_whisker (lax_monoidal_functor_μ FA (v,,w)) F)).
+
+    Definition param_distr_pentagon_eq_body_variant_RHS_in_steps (v w : Mon_V)
+               (dv: [A, A', hsA'] ⟦ param_distributivity_dom v, param_distributivity_codom v ⟧)
+               (dw: [A, A', hsA'] ⟦ param_distributivity_dom w, param_distributivity_codom w ⟧) :
+      [A, A', hsA'] ⟦ param_distributivity_dom (v ⊗ w), param_distributivity_codom (v ⊗ w) ⟧.
+    Proof.
+      set (aux1inv := pre_whisker F (strong_monoidal_functor_μ_inv FA' (v,,w)):
+           [A, A', hsA']⟦functor_compose hsA' hsA' F (monoidal_functor_map_codom Mon_V Mon_EndA' FA' (v,, w)),
+                         functor_compose hsA' hsA' F (monoidal_functor_map_dom Mon_V Mon_EndA' FA' (v,, w))⟧).
+      exact (aux1inv · (param_distr_pentagon_eq_body_RHS_in_steps v w dv dw)).
+    Defined.
+
+    Goal param_distr_pentagon_eq_body_variant_RHS = param_distr_pentagon_eq_body_variant_RHS_in_steps.
+    Proof.
+      apply idpath.
+    Qed.
 
     Definition param_distr_pentagon_eq_body_variant (v w : Mon_V): UU :=
       δ (v ⊗ w) = param_distr_pentagon_eq_body_variant_RHS v w (δ v) (δ w).
@@ -558,25 +598,13 @@ Section The_Laws.
         apply is_z_isomorphism_inv.
     Defined.
 
-    Local Definition aux_second_factor (v w : Mon_V): [A, A', hsA']
-        ⟦ functor_compose hsA' hsA' F (monoidal_functor_map_dom Mon_V Mon_EndA' FA' (v,, w)),
-          functor_compose hsA hsA' (monoidal_functor_map_codom Mon_V Mon_EndA FA (v,, w)) F ⟧ :=
-      nat_trans_comp _ _ _ (nat_trans_comp _ _ _ (post_whisker (δ v) (FA' w))
-                                   (pre_whisker (FA v: functor A A) (δ w)))
-                                    (post_whisker (lax_monoidal_functor_μ FA (v,,w)) F).
-
     Lemma param_distr_pentagon_eq_body_variant_follows (v w : Mon_V):
       param_distr_pentagon_eq_body v w -> param_distr_pentagon_eq_body_variant v w.
     Proof.
       intro Hyp.
       red.
-      unfold param_distr_pentagon_eq_body_variant_RHS.
-     (* set (second := nat_trans_comp _ _ _ (nat_trans_comp _ _ _ (post_whisker (δ v) (FA' w))
-                                   (pre_whisker (FA v: functor A A) (δ w)))
-                                    (post_whisker (lax_monoidal_functor_μ FA (v,,w)) F):
-          [A, A', hsA'] ⟦ functor_compose hsA' hsA' F (monoidal_functor_map_dom Mon_V Mon_EndA' FA' (v,, w)),
-                         functor_compose hsA hsA' (monoidal_functor_map_codom Mon_V Mon_EndA FA (v,, w)) F ⟧).*)
-      change (δ (v ⊗ w) = (prewhisker_with_μ_inv_z_iso v w) · (aux_second_factor v w)).
+      change param_distr_pentagon_eq_body_variant_RHS with param_distr_pentagon_eq_body_variant_RHS_in_steps.
+      unfold param_distr_pentagon_eq_body_variant_RHS_in_steps.
       apply (z_iso_inv_to_left _ _ _ (prewhisker_with_μ_inv_z_iso v w)).
       red in Hyp.
       apply nat_trans_eq; try exact hsA'.
@@ -592,7 +620,8 @@ Section The_Laws.
     Proof.
       intro Hyp.
       red in Hyp.
-      change (δ (v ⊗ w) = (prewhisker_with_μ_inv_z_iso v w) · (aux_second_factor v w)) in Hyp.
+      change param_distr_pentagon_eq_body_variant_RHS with param_distr_pentagon_eq_body_variant_RHS_in_steps in Hyp.
+      unfold param_distr_pentagon_eq_body_variant_RHS_in_steps in Hyp.
       apply (z_iso_inv_on_right _ _ _ (prewhisker_with_μ_inv_z_iso v w)) in Hyp.
       red.
       apply nat_trans_eq; try exact hsA'.
