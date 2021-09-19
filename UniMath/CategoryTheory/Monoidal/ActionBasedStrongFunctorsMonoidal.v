@@ -21,6 +21,7 @@ Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
 Require Import UniMath.CategoryTheory.Monoidal.EndofunctorsMonoidal.
 Require Import UniMath.CategoryTheory.Monoidal.Actions.
+Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrength.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
 Local Open Scope cat.
@@ -353,6 +354,105 @@ Local Definition tensor := monoidal_precat_tensor Mon_V.
 Notation "X ⊗ Y" := (tensor (X , Y)).
 
 Context {A A': precategory}.
+Context (hsA : has_homsets A) (hsA' : has_homsets A').
 
+Context (FA: strong_monoidal_functor Mon_V (monoidal_precat_of_endofunctors hsA)).
+Context (FA': strong_monoidal_functor Mon_V (monoidal_precat_of_endofunctors hsA')).
+
+Context (G : A ⟶ A').
+
+Let H := param_distributivity_dom Mon_V hsA' FA' G.
+Let H' := param_distributivity_codom Mon_V hsA hsA' FA G.
+
+Definition montrafotarget_precat: precategory := trafotarget_precat hsA' H H'.
+
+Definition montrafotarget_unit: montrafotarget_precat.
+Proof.
+  exists I.
+  red. cbn.
+  exact (param_distr_triangle_eq_variant0_RHS Mon_V hsA hsA' FA FA' G).
+Defined.
+
+(* the following let mechanism does not help in the intended use for helping the type-checker
+Let nat_trans_type_RL (F0: A'⟶A') (F1: A⟶A): UU:= [A, A', hsA'] ⟦functor_compose hsA' hsA' G F0, functor_compose hsA hsA' F1 G⟧.
+Let nat_trans_type_LL (F0 F1: A⟶A): UU:= [A, A', hsA'] ⟦functor_compose hsA hsA' F0 G, functor_compose hsA hsA' F1 G⟧.
+ *)
+Local Notation "RL[ F0 ',' F1 ]" := ([A, A', hsA'] ⟦functor_compose hsA' hsA' G F0, functor_compose hsA hsA' F1 G⟧) (at level 25).
+Local Notation "LL[ F0 ',' F1 ]" := ([A, A', hsA'] ⟦functor_compose hsA hsA' F0 G, functor_compose hsA hsA' F1 G⟧) (at level 25).
+Local Notation "RR[ F0 ',' F1 ]" := ([A, A', hsA'] ⟦functor_compose hsA' hsA' G F0, functor_compose hsA' hsA' G F1⟧) (at level 25).
+
+
+Definition montrafotarget_tensor: montrafotarget_precat ⊠ montrafotarget_precat ⟶ montrafotarget_precat.
+Proof.
+  use make_functor.
+  - use make_functor_data.
+    + intro vηwπ.
+      induction vηwπ as [[v η] [w π]].
+      exists (v ⊗ w).
+      cbn in η, π. cbn.
+      exact (param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v w η π).
+    + cbn. intros vηwπ vηwπ' fgHyps. induction vηwπ as [[v η] [w π]]. induction vηwπ' as [[v' η'] [w' π']].
+      induction fgHyps as [[f Hyp] [g Hyp']].
+      use tpair.
+      * cbn in *. exact (# tensor ((f,,g): pr1 Mon_V ⊠ pr1 Mon_V ⟦ (v,,w), (v',,w') ⟧)).
+      * cbn in *.
+        change (RL[ FA' v, FA v]) in η.
+        change (RL[ FA' w, FA w]) in π.
+        change (RL[ FA' v', FA v']) in η'.
+        change (RL[ FA' w', FA w']) in π'.
+        change (η · (post_whisker (# FA f) G: LL[ FA v, FA v']) = (pre_whisker G (# FA' f): RR[FA' v,FA' v']) · η') in Hyp.
+        change (π · (post_whisker (# FA g) G: LL[ FA w, FA w']) = (pre_whisker G (# FA' g): RR[FA' w,FA' w']) · π') in Hyp'.
+        change param_distr_pentagon_eq_body_variant_RHS with param_distr_pentagon_eq_body_variant_RHS_in_steps.
+        match goal with | [ |- _ = ?RHS ] => set (rhs := RHS) end.
+        change ((param_distr_pentagon_eq_body_variant_RHS_in_steps Mon_V hsA hsA' FA FA' G v w η π) · (post_whisker (# FA (# tensor ((f,, g): pr1 Mon_V ⊠ pr1 Mon_V ⟦ (v,,w), (v',,w') ⟧))) G:LL[FA (tensor (v,, w)),FA (tensor (v',, w'))]) = rhs).
+        match goal with | [ |- ?LHS = _ ] => set (lhs := LHS) end.
+        change (lhs = (pre_whisker G (# FA' (# tensor ((f,, g): pr1 Mon_V ⊠ pr1 Mon_V ⟦ (v,,w), (v',,w') ⟧))): RR[FA' (tensor (v,, w)),FA' (tensor (v',, w'))]) · (param_distr_pentagon_eq_body_variant_RHS_in_steps Mon_V hsA hsA' FA FA' G v' w' η' π')).
+        unfold lhs.
+        unfold param_distr_pentagon_eq_body_variant_RHS_in_steps.
+        unfold param_distr_pentagon_eq_body_RHS_in_steps.
+        clear rhs lhs.
+        match goal with |- @paths ?ID _ _ => set (typeofeq := ID); simpl in typeofeq end.
+        assert (typeofeqok: typeofeq = RL[ FA' (tensor (v,,w)), FA (tensor (v',,w'))]) by apply idpath.
+(* goal presented as:
+pre_whisker G (strong_monoidal_functor_μ_inv FA' (v,, w))
+  · (post_whisker η (FA' w) · pre_whisker (FA v) π · post_whisker (lax_monoidal_functor_μ FA (v,, w)) G)
+  · post_whisker (# FA (# tensor (f,, g))) G =
+  pre_whisker G (# FA' (# tensor (f,, g)))
+  · (pre_whisker G (strong_monoidal_functor_μ_inv FA' (v',, w'))
+     · (post_whisker η' (FA' w') · pre_whisker (FA v') π' · post_whisker (lax_monoidal_functor_μ FA (v',, w')) G))
+with abbreviated hypotheses:
+Hyp : η · post_whisker (# FA f) G = pre_whisker G (# FA' f) · η'
+Hyp' : π · post_whisker (# FA g) G = pre_whisker G (# FA' g) · π'
+ *)
+        set (vw := v,,w). set (vw' := v',,w'). set (fg := f,,g).
+(* I have a lengthy proof on paper. *)
+
+
+
+        admit.
+  - split.
+    + red. intro vηwπ.
+      (* show_id_type. *)
+      use total2_paths_f.
+      * cbn.
+        etrans.
+        { apply maponpaths. apply binprod_id. }
+        apply functor_id.
+      * cbn.
+        (* show_id_type. *)
+        assert (Hhomset : isaset ([A,A',hsA']⟦functor_compose hsA' hsA' G (FA' (pr11 vηwπ ⊗ pr12 vηwπ)),functor_compose _ _ (FA (pr11 vηwπ ⊗ pr12 vηwπ)) G⟧)).
+        { apply (functor_category_has_homsets _ _ hsA'). }
+        apply Hhomset.
+    + red. intros vηwπ1 vηwπ2 vηwπ3 fgHyps fgHyps'.
+      use total2_paths_f.
+      * cbn.
+        etrans.
+        { apply maponpaths. apply binprod_comp. }
+        apply functor_comp.
+      * assert (Hhomset : isaset ([A,A',hsA']⟦functor_compose hsA' hsA' G (FA' (pr11 vηwπ1 ⊗ pr12 vηwπ1)),functor_compose _ _ (FA (pr11 vηwπ3 ⊗ pr12 vηwπ3)) G⟧)).
+        { apply (functor_category_has_homsets _ _ hsA'). }
+        apply Hhomset.
+
+        Abort.
 
 End Main.
