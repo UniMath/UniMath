@@ -106,6 +106,9 @@ Definition monadSubstGen_fun {X Y : sortToC} (f : ∏ s, C⟦pr1 X s,pr1 (M Y) s
   ∏ t, C⟦pr1 (M (X ⊕ Y)) t,pr1 (M Y) t⟧ :=
     λ t, pr1 (monadSubstGen_instantiated (sortToC_fun f)) t.
 
+Definition monadSubst_instantiated {X : sortToC} (f : sortToC⟦1,M X⟧) :
+  sortToC⟦M (1 ⊕ X),M X⟧ := monadSubst M BinCoproductsSortToC TerminalSortToC X f.
+
 Definition mweak_instantiated {X Y : sortToC} :
   sortToC⟦M Y,M (X ⊕ Y)⟧ := mweak M BinCoproductsSortToC _ _.
 
@@ -122,13 +125,13 @@ Proof.
 apply subst_interchange_law_gen.
 Qed.
 
-Lemma subst_interchange_law_instantiated {X Y Z : sortToC}
-      (f : sortToC⟦1,M (1 ⊕ Z)⟧) (g : sortToC⟦1,M Z⟧) :
-  monadSubstGen_instantiated f · monadSubstGen_instantiated g =
-  mexch_instantiated · monadSubstGen_instantiated (g · mweak_instantiated)
-                     · monadSubstGen_instantiated (f · monadSubstGen_instantiated g).
+Lemma subst_interchange_law_instantiated {X : sortToC}
+      (f : sortToC⟦1,M (1 ⊕ X)⟧) (g : sortToC⟦1,M X⟧) :
+  monadSubst_instantiated f · monadSubst_instantiated g =
+  mexch_instantiated · monadSubst_instantiated (g · mweak_instantiated)
+                     · monadSubst_instantiated (f · monadSubst_instantiated g).
 Proof.
-use subst_interchange_law.
+apply subst_interchange_law.
 Qed.
 
 End MonadInSortToC.
