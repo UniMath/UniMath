@@ -270,9 +270,8 @@ Proof.
 apply subst_interchange_law_gen_instantiated.
 Qed.
 
-End Lam.
-
-
+(* We could also unfold these as statements about sort-indexed sets, but
+   this quickly gets very cumbersome: *)
 (* Definition psubst {X Y : sort → hSet} (f : ∏ t, X t → STLC Y t) (t : sort) : *)
 (*   STLC (λ t, (X t + Y t)%set) t → STLC Y t. *)
 (* Proof. *)
@@ -282,6 +281,7 @@ End Lam.
 (* transparent assert (Y' : (sortToSet)). *)
 (* { use (functor_path_pregroupoid _); apply Y. } *)
 (* transparent assert (f' : (sortToSet⟦ X' , STLC_Monad Y' ⟧)). *)
-(* { use nat_trans_functor_path_pregroupoid. apply homset_property. *)
-(*   use f. } *)
+(* { use nat_trans_functor_path_pregroupoid; apply homset_property; use f. } *)
 (* use (pr1 (@monadSubstGen_instantiated sort SET BinCoproductsHSET STLC_Monad X' Y' f') t). *)
+
+End Lam.

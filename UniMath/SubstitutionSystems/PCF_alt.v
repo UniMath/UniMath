@@ -140,13 +140,13 @@ Proof.
 use mkMultiSortedSig.
 - exact ((nat,,isasetnat) + (stn 6,,isasetstn 6))%set.
 - induction 1 as [n|i].
-  + exact ([],,Nat).      (* Nat *)
+  + exact ([],,Nat).                                   (* Nat (one for each nat) *)
   + apply (six_rec i).
-    * exact ([],,Bool).   (* True *)
-    * exact ([],,Bool).   (* False *)
-    * exact ([],,arr Nat Nat). (* Succ *)
-    * exact ([],,Nat). (* Zero *)
-    * exact ([],,arr Bool (arr Nat (arr Nat Nat))). (* CondN *)
+    * exact ([],,Bool).                                (* True *)
+    * exact ([],,Bool).                                (* False *)
+    * exact ([],,arr Nat Nat).                         (* Succ *)
+    * exact ([],,Nat).                                 (* Zero *)
+    * exact ([],,arr Bool (arr Nat (arr Nat Nat))).    (* CondN *)
     * exact ([],,arr Bool (arr Bool (arr Bool Bool))). (* CondB *)
 Defined.
 
