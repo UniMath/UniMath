@@ -46,6 +46,7 @@ Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
 Require Import UniMath.SubstitutionSystems.MultiSorted_alt.
 Require Import UniMath.SubstitutionSystems.MonadsMultiSorted_alt.
+Require Import UniMath.SubstitutionSystems.STLC_alt.
 
 Local Open Scope cat.
 
@@ -100,6 +101,7 @@ Local Notation "'Id'" := (functor_identity _).
 Local Notation "a ⊕ b" := (BinCoproductObject _ (BinCoprodTypeToSet a b)).
 Local Notation "'1'" := (TerminalObject TerminalTypeToSet).
 Local Notation "F ⊗ G" := (BinProduct_of_functors BinProd F G).
+Infix "++" := (SumMultiSortedSig _).
 
 (**
 
@@ -150,19 +152,31 @@ use mkMultiSortedSig.
     * exact ([],,arr Bool (arr Bool (arr Bool Bool))). (* CondB *)
 Defined.
 
-Definition PCF : MultiSortedSig type.
+(* We could define PCF as follows, but we instead get App and Lam from the STLC signature *)
+(* Definition PCF : MultiSortedSig type. *)
+(* Proof. *)
+(* use mkMultiSortedSig. *)
+(* - apply (type + (type × type) + (type × type) + type)%set. *)
+(* - intros [[[t|[t s]]|[t s]]|t]. *)
+(*   * exact ([],,t).                                  (* Bottom *) *)
+(*   * exact ((([],,(arr s t)) :: ([],,s) :: nil),,t). (* App *) *)
+(*   * exact (((cons t [],,s) :: []),,(arr t s)).      (* Lam *) *)
+(*   * exact ((([],,(arr t t)) :: nil),,t).            (* Y *) *)
+(* Defined. *)
+
+Definition PCF_Bot_Y : MultiSortedSig type.
 Proof.
 use mkMultiSortedSig.
-- apply (type + (type × type) + (type × type) + type)%set.
-- intros [[[t|[t s]]|[t s]]|t].
+- apply (type + type)%set.
+- intros [t|t].
   * exact ([],,t).                                  (* Bottom *)
-  * exact ((([],,(arr s t)) :: ([],,s) :: nil),,t). (* App *)
-  * exact (((cons t [],,s) :: []),,(arr t s)).      (* Lam *)
   * exact ((([],,(arr t t)) :: nil),,t).            (* Y *)
 Defined.
 
+Definition PCF_App_Lam : MultiSortedSig type := STLC_Sig type arr.
+
 Definition PCF_Sig : MultiSortedSig type :=
-  SumMultiSortedSig type PCF_Consts PCF.
+  PCF_Consts ++ PCF_Bot_Y ++ PCF_App_Lam.
 
 Definition PCF_Signature : Signature typeToSet _ _ _ _ _ :=
   MultiSortedSigToSignatureSet type PCF_Sig.
