@@ -61,8 +61,6 @@ Require Import UniMath.SubstitutionSystems.BindingSigToMonad.
 Local Open Scope cat.
 
 (* These should be global *)
-Arguments post_composition_functor {_ _ _} _ _ _.
-Arguments pre_composition_functor {_ _ _} _ _ _.
 Arguments Gθ_Signature {_ _ _ _ _ _} _ _.
 Arguments Signature_Functor {_ _ _ _} _.
 Arguments BinProduct_of_functors {_ _} _ _ _.
@@ -191,7 +189,7 @@ End Sorted_Option_Functor.
 
 
 (** Sorted option functor for lists *)
-Definition option_list (xs : list sort) : functor sortToC sortToC.
+Definition option_list (xs : list sort) : [sortToC,sortToC].
 Proof.
 (* This should be foldr1 in order to avoid composing with the
    identity functor in the base case *)
@@ -214,11 +212,9 @@ Proof.
 induction lt as [l t].
 (* use list_ind to do a case on whether l is empty or not *)
 use (list_ind _ _ _ l); clear l.
-- exact (post_composition_functor _ _ (projSortToC t)).
-- intros s l _; simpl.
-  eapply functor_composite.
-  + exact (pre_composition_functor hs hs (option_list (cons s l))).
-  + exact (post_composition_functor _ hsC (projSortToC t)).
+- exact (post_comp_functor (projSortToC t)).
+- intros s l _.
+  exact (pre_comp_functor (option_list (cons s l)) ∙ post_comp_functor (projSortToC t)).
 Defined.
 
 (** This defines F^lts where lts is a list of (l,t). Outputs a product of
@@ -238,7 +234,7 @@ Defined.
 
 Definition hat_exp_functor_list (xst : list (list sort × sort) × sort) :
   functor [sortToC,sortToC] [sortToC,sortToC] :=
-    exp_functor_list (pr1 xst) ∙ post_composition_functor _ _ (hat_functor (pr2 xst)).
+    exp_functor_list (pr1 xst) ∙ post_comp_functor (hat_functor (pr2 xst)).
 
 (** The function from multisorted signatures to functors *)
 Definition MultiSortedSigToFunctor (M : MultiSortedSig) :
@@ -399,7 +395,7 @@ use make_are_adjoints.
 Qed.
 
 Local Lemma is_omega_cocont_post_comp_projSortToC (s : sort) :
-  is_omega_cocont (@post_composition_functor sortToC _ _ hs hsC (projSortToC s)).
+  is_omega_cocont (post_comp_functor (A := sortToC) (projSortToC s)).
 Proof.
 apply is_omega_cocont_post_composition_functor.
 apply is_left_adjoint_projSortToC.
@@ -474,8 +470,7 @@ use make_are_adjoints.
 Qed.
 
 Local Lemma is_omega_cocont_post_comp_hat_functor (s : sort) :
-  is_omega_cocont (@post_composition_functor sortToC  _ _
-       hsC hs (hat_functor s)).
+  is_omega_cocont (post_comp_functor (A := sortToC) (hat_functor s)).
 Proof.
 apply is_omega_cocont_post_composition_functor, is_left_adjoint_hat.
 Defined.

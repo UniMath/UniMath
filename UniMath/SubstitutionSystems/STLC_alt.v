@@ -131,16 +131,6 @@ Let STLC_alg : algebra_ob STLC_Functor :=
 Definition var_map : sortToSet2⟦1,STLC⟧ :=
   BinCoproductIn1 _ (BinCoprodSortToSet2 _ _) · STLC_mor.
 
-
-(* TODO: upstream? *)
-Definition post_comp_functor {A : precategory} {B : category} {C : category} :
-  [B, C] → [A, B] ⟶ [A, C] :=
-    post_composition_functor (homset_property B) (homset_property C).
-
-Definition pre_comp_functor {A : precategory} {B : category} {C : category} :
-  [A, B] → [B, C] ⟶ [A, C] :=
-    pre_composition_functor (homset_property B) (homset_property C).
-
 Local Notation "F ⊗ G" := (BinProduct_of_functors BinProd F G).
 
 (** The source of the application constructor *)
