@@ -1,7 +1,7 @@
 (**
 
 Syntax of the calculus of constructions as in Streicher
-"Semantics of Type Theory" formalized as a multisorted
+"Semantics of Type Theory" formalized as a 2-sorted
 binding signature.
 
 Written by: Anders Mörtberg, 2021 (adapted from CCS.v)
@@ -120,8 +120,8 @@ t ::= x                       variable
     | (∀x:E) t                universal quantification
 >>
 
-We refer to the first syntactic class as ty and the second as el. We first reformulate the rules as
-follows:
+We refer to the first syntactic class as ty and the second as el.
+We first reformulate the rules as follows:
 
 <<
 A,B ::= Π(A,x.B)              product of types
@@ -134,8 +134,9 @@ t,u ::= x                     variable
       | ∀(A,x.t)              universal quantification
 >>
 
-This grammar then gives 6 operations, to the left as Vladimir's restricted 2-sorted signature (where
-el is 0 and ty is 1) and to the right as a multisorted signature:
+This grammar then gives 6 operations, to the left as Vladimir's restricted
+2-sorted signature (where el is 0 and ty is 1) and to the right as a
+ multisorted signature:
 
 ((0, 1), (1, 1), 1)                 = (([],ty), ([el], ty), ty)
 (1)                                 = ([],ty)
@@ -209,36 +210,33 @@ Definition Prop_source : functor sortToSet2 sortToSet2.
 Proof.
 set (T := constant_functor [sortToSet,sortToSet] [sortToSet,SET]
                            (constant_functor sortToSet SET (TerminalObject TerminalHSET))).
-use (T ∙ post_comp_functor (hat_functorSet sort ty)).
+exact (T ∙ post_comp_functor (hat_functorSet sort ty)).
 Defined.
-(* use (functor_composite _ (post_comp_functor (hat_functorSet sort ty))). *)
-(* use (constant_functor sortToSet2 [sortToSet,SET] (constant_functor sortToSet SET 1%CS)). *)
-(* Defined. *)
 
 Definition Prop_map : sortToSet2⟦Prop_source CCS_M,CCS_M⟧ :=
-  (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _ _) (● 1)%stn)
-    · (BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _))
-    · CCS_M_mor.
+    (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _ _) (● 1%nat)%stn)
+  · (BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _))
+  · CCS_M_mor.
 
 Definition Proof_source : functor sortToSet2 sortToSet2 :=
   post_comp_functor (projSortToSet sort el) ∙ post_comp_functor (hat_functorSet sort ty).
 
 (** The Proof constructor *)
 Definition Proof_map : sortToSet2⟦Proof_source CCS_M,CCS_M⟧ :=
-  (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _ _) (● 2)%stn)
-    · (BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _))
-    · CCS_M_mor.
+    (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _ _) (● 2)%stn)
+  · (BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _))
+  · CCS_M_mor.
 
 Definition lam_source : functor sortToSet2 sortToSet2 :=
-  ( post_comp_functor (projSortToSet sort ty) ⊗ ( pre_comp_functor (sorted_option_functorSet sort el)
-                                                 ∙ post_comp_functor (projSortToC sort _ el)))
+  (post_comp_functor (projSortToSet sort ty) ⊗ (pre_comp_functor (sorted_option_functorSet sort el)
+   ∙ post_comp_functor (projSortToC sort _ el)))
   ∙ (post_comp_functor (hat_functorSet sort el)).
 
 (** The lambda constructor *)
 Definition lam_map : sortToSet2⟦lam_source CCS_M,CCS_M⟧ :=
-  (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _ _) (● 3)%stn)
-    · (BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _))
-    · CCS_M_mor.
+    (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _ _) (● 3)%stn)
+  · (BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _))
+  · CCS_M_mor.
 
 Definition app_source : functor sortToSet2 sortToSet2 :=
   ((post_comp_functor (projSortToSet sort ty)) ⊗
@@ -254,13 +252,15 @@ Definition app_map : sortToSet2⟦app_source CCS_M,CCS_M⟧ :=
     · CCS_M_mor.
 
 Definition forall_source : functor sortToSet2 sortToSet2 :=
-  ((post_comp_functor (projSortToSet sort ty)) ⊗ (pre_comp_functor (sorted_option_functorSet sort el) ∙ post_comp_functor (projSortToSet sort el))) ∙ post_comp_functor (hat_functorSet sort el).
+  ((post_comp_functor (projSortToSet sort ty)) ⊗
+   (pre_comp_functor (sorted_option_functorSet sort el) ∙ post_comp_functor (projSortToSet sort el)))
+  ∙ post_comp_functor (hat_functorSet sort el).
 
 (** The ∀ constructor *)
 Definition forall_map : sortToSet2⟦forall_source CCS_M,CCS_M⟧ :=
-  (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _ _) (● 5)%stn)
-    · (BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _))
-    · CCS_M_mor.
+    (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _ _) (● 5)%stn)
+  · (BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _))
+  · CCS_M_mor.
 
 Definition make_CCS_Algebra X
   (fvar    : sortToSet2⟦Id,X⟧)
@@ -295,7 +295,7 @@ Definition foldr_map X
   (flam    : sortToSet2⟦lam_source X,X⟧)
   (fapp    : sortToSet2⟦app_source X,X⟧)
   (fforall : sortToSet2⟦forall_source X,X⟧) :
-  algebra_mor _ CCS_alg (make_CCS_Algebra X fvar fPi fProp fProof flam fapp fforall).
+  algebra_mor _ CCS_M_alg (make_CCS_Algebra X fvar fPi fProp fProof flam fapp fforall).
 Proof.
 apply (InitialArrow CCS_Functor_Initial (make_CCS_Algebra X fvar fPi fProp fProof flam fapp fforall)).
 Defined.
