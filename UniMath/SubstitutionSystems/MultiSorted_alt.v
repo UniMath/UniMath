@@ -121,6 +121,17 @@ Definition arity (M : MultiSortedSig) : ops M → list (list sort × sort) × so
 Definition mkMultiSortedSig {I : hSet}
   (ar : I → list (list sort × sort) × sort) : MultiSortedSig := (I,,ar).
 
+(** Sum of multisorted binding signatures *)
+Definition SumMultiSortedSig : MultiSortedSig → MultiSortedSig → MultiSortedSig.
+Proof.
+intros s1 s2.
+use tpair.
+- apply (setcoprod (ops s1) (ops s2)).
+- induction 1 as [i|i].
+  + apply (arity s1 i).
+  + apply (arity s2 i).
+Defined.
+
 (** * Construction of an endofunctor on [C^sort,C^sort] from a multisorted signature *)
 Section functor.
 
