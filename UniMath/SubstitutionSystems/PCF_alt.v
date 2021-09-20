@@ -117,7 +117,7 @@ Inductive PCF_consts : TY -> Type :=
  | tt : PCF_consts Bool
  | ff : PCF_consts Bool
  | succ : PCF_consts (arrow Nat Nat)
- | zero : PCF_consts Nat
+ | is_zero : PCF_consts (arr Nat Bool)
  | condN: PCF_consts (arrow Bool (arrow Nat (arrow Nat Nat)))
  | condB: PCF_consts (arrow Bool (arrow Bool (arrow Bool Bool))).
 
@@ -145,7 +145,7 @@ use mkMultiSortedSig.
     * exact ([],,Bool).                                (* True *)
     * exact ([],,Bool).                                (* False *)
     * exact ([],,arr Nat Nat).                         (* Succ *)
-    * exact ([],,Nat).                                 (* Zero *)
+    * exact ([],,arr Nat Bool).                        (* is_zero *)
     * exact ([],,arr Bool (arr Nat (arr Nat Nat))).    (* CondN *)
     * exact ([],,arr Bool (arr Bool (arr Bool Bool))). (* CondB *)
 Defined.
