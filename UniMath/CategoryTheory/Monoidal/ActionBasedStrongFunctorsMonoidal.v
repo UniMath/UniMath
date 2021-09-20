@@ -3,6 +3,13 @@
 This means that the requirement on strength is that it behaves as a ``homomorphism'' w.r.t. the
 monoidal structures.
 
+Work in progress: the characterization in the non-monoidal case seems to need more 2-categorical knowledge
+(instead of bicategorical one), and the monoidal case will only extend this problem, which is why there is now only
+a construction of a strong monoidal functor from a parameterized distributivity and no construction in the
+other direction; also that construction depends on 7 unproven equations between natural transformations
+(one in the construction of the tensor functor, 6 more in the construction of the unitors and associator
+of the monoidal functor)
+
 Author: Ralph Matthes 2021
 
  *)
@@ -440,144 +447,453 @@ Hyp' : π · post_whisker (# FA g) G = pre_whisker G (# FA' g) · π'
        *)
 Admitted.
 
-Definition montrafotarget_tensor: montrafotarget_precat ⊠ montrafotarget_precat ⟶ montrafotarget_precat.
+Definition montrafotarget_tensor_data: functor_data (montrafotarget_precat ⊠ montrafotarget_precat) montrafotarget_precat.
 Proof.
-  use make_functor.
-  - use make_functor_data.
-    + intro vηwπ.
-      induction vηwπ as [[v η] [w π]].
-      exists (v ⊗ w).
-      cbn in η, π. cbn.
-      exact (param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v w η π).
-    + intros vηwπ vηwπ' fgHyps. induction vηwπ as [[v η] [w π]]. induction vηwπ' as [[v' η'] [w' π']].
-      induction fgHyps as [[f Hyp] [g Hyp']].
-      use tpair.
-      * exact (# tensor ((f,,g): pr1 Mon_V ⊠ pr1 Mon_V ⟦ (v,,w), (v',,w') ⟧)).
-      * change ((param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v w η π: pr1 (trafotarget_disp hsA' H H') (v⊗w)) -->[(# tensor (f,, g : pr1 Mon_V ⊠ pr1 Mon_V ⟦ v,, w, v',, w' ⟧))] (param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v' w' η' π')).
-        apply montrafotarget_tensor_comp_aux; [exact Hyp | exact Hyp'].
-  - split.
-    + red. intro vηwπ.
-      (* show_id_type. *)
-      use total2_paths_f.
-      * cbn.
-        etrans.
-        { apply maponpaths. apply binprod_id. }
-        apply functor_id.
-      * cbn.
-        (* show_id_type. *)
-        apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (pr11 vηwπ ⊗ pr12 vηwπ)))
-                                            (functor_compose _ _ (FA (pr11 vηwπ ⊗ pr12 vηwπ)) G)).
-    + red. intros vηwπ1 vηwπ2 vηwπ3 fgHyps fgHyps'.
-      use total2_paths_f.
-      * cbn.
-        etrans.
-        { apply maponpaths. apply binprod_comp. }
-        apply functor_comp.
-      * apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (pr11 vηwπ1 ⊗ pr12 vηwπ1)))
-                                            (functor_compose _ _ (FA (pr11 vηwπ3 ⊗ pr12 vηwπ3)) G)).
+  use make_functor_data.
+  + intro vηwπ.
+    induction vηwπ as [[v η] [w π]].
+    exists (v ⊗ w).
+    cbn in η, π. cbn.
+    exact (param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v w η π).
+  + intros vηwπ vηwπ' fgHyps. induction vηwπ as [[v η] [w π]]. induction vηwπ' as [[v' η'] [w' π']].
+    induction fgHyps as [[f Hyp] [g Hyp']].
+    use tpair.
+    * exact (# tensor ((f,,g): pr1 Mon_V ⊠ pr1 Mon_V ⟦ (v,,w), (v',,w') ⟧)).
+    * change ((param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v w η π: pr1 (trafotarget_disp hsA' H H') (v⊗w)) -->[(# tensor (f,, g : pr1 Mon_V ⊠ pr1 Mon_V ⟦ v,, w, v',, w' ⟧))] (param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v' w' η' π')).
+      apply montrafotarget_tensor_comp_aux; [exact Hyp | exact Hyp'].
 Defined.
 
-Definition montrafotarget_monprecat: monoidal_precat.
+Lemma montrafotarget_tensor_data_is_functor: is_functor montrafotarget_tensor_data.
 Proof.
-  use (mk_monoidal_precat montrafotarget_precat montrafotarget_tensor montrafotarget_unit).
-  - use make_nat_z_iso.
-    + use make_nat_trans.
-      * intro vη.
-        exists (monoidal_precat_left_unitor Mon_V (pr1 vη)).
-        (* another reasoning in functorial calculus needed *)
-        admit.
-      * intros vη vη' fg.
-        use total2_paths_f.
-        -- cbn. apply (nat_trans_ax (monoidal_precat_left_unitor Mon_V)).
-        -- apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (I ⊗ pr1 vη)))
+  split.
+  + red. intro vηwπ.
+    (* show_id_type. *)
+    use total2_paths_f.
+    * cbn.
+      etrans.
+      { apply maponpaths. apply binprod_id. }
+      apply functor_id.
+    * cbn.
+      (* show_id_type. *)
+      apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (pr11 vηwπ ⊗ pr12 vηwπ)))
+                                            (functor_compose _ _ (FA (pr11 vηwπ ⊗ pr12 vηwπ)) G)).
+  + red. intros vηwπ1 vηwπ2 vηwπ3 fgHyps fgHyps'.
+    use total2_paths_f.
+    * cbn.
+      etrans.
+      { apply maponpaths. apply binprod_comp. }
+      apply functor_comp.
+    * apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (pr11 vηwπ1 ⊗ pr12 vηwπ1)))
+                                            (functor_compose _ _ (FA (pr11 vηwπ3 ⊗ pr12 vηwπ3)) G)).
+Qed.
+
+
+Definition montrafotarget_tensor: montrafotarget_precat ⊠ montrafotarget_precat ⟶ montrafotarget_precat :=
+  montrafotarget_tensor_data ,, montrafotarget_tensor_data_is_functor.
+
+Lemma montrafotarget_monprecat_left_unitor_aux1 (vη : montrafotarget_precat):
+  pr2 (I_pretensor montrafotarget_tensor montrafotarget_unit vη)
+      -->[monoidal_precat_left_unitor Mon_V (pr1 vη)]
+  pr2 (functor_identity montrafotarget_precat vη).
+Admitted.
+
+Lemma montrafotarget_monprecat_left_unitor_aux2 (vη : montrafotarget_precat):
+  pr2 (functor_identity montrafotarget_precat vη)
+      -->[pr1 (pr2 (monoidal_precat_left_unitor Mon_V) (pr1 vη))]
+  pr2 (I_pretensor montrafotarget_tensor montrafotarget_unit vη).
+Admitted.
+
+Lemma montrafotarget_monprecat_right_unitor_aux1 (vη : montrafotarget_precat):
+  pr2 (I_posttensor montrafotarget_tensor montrafotarget_unit vη)
+      -->[monoidal_precat_right_unitor Mon_V (pr1 vη)]
+      pr2 (functor_identity montrafotarget_precat vη).
+Admitted.
+
+Lemma montrafotarget_monprecat_right_unitor_aux2 (vη : montrafotarget_precat):
+  pr2 (functor_identity montrafotarget_precat vη)
+      -->[pr1 (pr2 (monoidal_precat_right_unitor Mon_V) (pr1 vη))]
+      pr2 (I_posttensor montrafotarget_tensor montrafotarget_unit vη).
+Admitted.
+
+Lemma montrafotarget_monprecat_associator_aux1 (vηs : (montrafotarget_precat ⊠ montrafotarget_precat) ⊠ montrafotarget_precat):
+  pr2 (assoc_left montrafotarget_tensor vηs)
+      -->[monoidal_precat_associator Mon_V ((pr111 vηs,, pr121 vηs),, pr12 vηs)]
+      pr2 (assoc_right montrafotarget_tensor vηs).
+Admitted.
+
+Lemma montrafotarget_monprecat_associator_aux2 (vηs : (montrafotarget_precat ⊠ montrafotarget_precat) ⊠ montrafotarget_precat):
+  pr2 (assoc_right montrafotarget_tensor vηs)
+      -->[pr1 (pr2 (monoidal_precat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs))]
+      pr2 (assoc_left montrafotarget_tensor vηs).
+Admitted.
+
+Definition montrafotarget_monprecat_left_unitor: left_unitor montrafotarget_tensor montrafotarget_unit.
+Proof.
+  use make_nat_z_iso.
+  + use make_nat_trans.
+    * intro vη.
+      exists (monoidal_precat_left_unitor Mon_V (pr1 vη)).
+      (* another reasoning in functorial calculus needed *)
+      apply montrafotarget_monprecat_left_unitor_aux1.
+    * intros vη vη' fg.
+      use total2_paths_f.
+      -- cbn. apply (nat_trans_ax (monoidal_precat_left_unitor Mon_V)).
+      -- apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (I ⊗ pr1 vη)))
                                                (functor_compose _ _ (FA (pr1 vη')) G)).
-    + intro vη.
-      use make_is_z_isomorphism.
-      * exists (pr1 (pr2 (monoidal_precat_left_unitor Mon_V) (pr1 vη))).
-        (* another reasoning in functorial calculus needed *)
-        admit.
-      * split.
-        -- use total2_paths_f.
-           ++ cbn. apply (pr2 (pr2 (monoidal_precat_left_unitor Mon_V) (pr1 vη))).
-           ++ (* show_id_type. *)
-             apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (I ⊗ pr1 vη)))
+  + intro vη.
+    use make_is_z_isomorphism.
+    * exists (pr1 (pr2 (monoidal_precat_left_unitor Mon_V) (pr1 vη))).
+      (* another reasoning in functorial calculus needed *)
+      apply montrafotarget_monprecat_left_unitor_aux2.
+    * split.
+      -- use total2_paths_f.
+         ++ cbn. apply (pr2 (pr2 (monoidal_precat_left_unitor Mon_V) (pr1 vη))).
+         ++ (* show_id_type. *)
+           apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (I ⊗ pr1 vη)))
                                                  (functor_compose hsA hsA' (FA (I ⊗ pr1 vη)) G)).
-        -- use total2_paths_f.
-           ++ cbn. apply (pr2 (pr2 (monoidal_precat_left_unitor Mon_V) (pr1 vη))).
-           ++ (* show_id_type. *)
-             apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (pr1 vη)))
+      -- use total2_paths_f.
+         ++ cbn. apply (pr2 (pr2 (monoidal_precat_left_unitor Mon_V) (pr1 vη))).
+         ++ (* show_id_type. *)
+           apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (pr1 vη)))
                                                  (functor_compose _ _ (FA (pr1 vη)) G)).
-  - (* the right unitor is analogous *) use make_nat_z_iso.
-    + use make_nat_trans.
-      * intro vη.
-        exists (monoidal_precat_right_unitor Mon_V (pr1 vη)).
-        (* another reasoning in functorial calculus needed *)
-        admit.
-      * intros vη vη' fg.
-        use total2_paths_f.
-        -- cbn. apply (nat_trans_ax (monoidal_precat_right_unitor Mon_V)).
-        -- apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (pr1 vη ⊗ I)))
+Defined.
+
+(* the right unitor is analogous *)
+Definition montrafotarget_monprecat_right_unitor: right_unitor montrafotarget_tensor montrafotarget_unit.
+Proof.
+  use make_nat_z_iso.
+  + use make_nat_trans.
+    * intro vη.
+      exists (monoidal_precat_right_unitor Mon_V (pr1 vη)).
+      (* another reasoning in functorial calculus needed *)
+      apply montrafotarget_monprecat_right_unitor_aux1.
+    * intros vη vη' fg.
+      use total2_paths_f.
+      -- cbn. apply (nat_trans_ax (monoidal_precat_right_unitor Mon_V)).
+      -- apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (pr1 vη ⊗ I)))
                                                (functor_compose _ _ (FA (pr1 vη')) G)).
-    + intro vη.
-      use make_is_z_isomorphism.
-      * exists (pr1 (pr2 (monoidal_precat_right_unitor Mon_V) (pr1 vη))).
-        (* another reasoning in functorial calculus needed *)
-        admit.
-      * split.
-        -- use total2_paths_f.
-           ++ cbn. apply (pr2 (pr2 (monoidal_precat_right_unitor Mon_V) (pr1 vη))).
-           ++ (* show_id_type. *)
-             apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (pr1 vη ⊗ I)))
+  + intro vη.
+    use make_is_z_isomorphism.
+    * exists (pr1 (pr2 (monoidal_precat_right_unitor Mon_V) (pr1 vη))).
+      (* another reasoning in functorial calculus needed *)
+      apply montrafotarget_monprecat_right_unitor_aux2.
+    * split.
+      -- use total2_paths_f.
+         ++ cbn. apply (pr2 (pr2 (monoidal_precat_right_unitor Mon_V) (pr1 vη))).
+         ++ (* show_id_type. *)
+           apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (pr1 vη ⊗ I)))
                                                  (functor_compose hsA hsA' (FA (pr1 vη ⊗ I)) G)).
-        -- use total2_paths_f.
-           ++ cbn. apply (pr2 (pr2 (monoidal_precat_right_unitor Mon_V) (pr1 vη))).
-           ++ (* show_id_type. *)
-             apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (pr1 vη)))
+      -- use total2_paths_f.
+         ++ cbn. apply (pr2 (pr2 (monoidal_precat_right_unitor Mon_V) (pr1 vη))).
+         ++ (* show_id_type. *)
+           apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (pr1 vη)))
                                                  (functor_compose _ _ (FA (pr1 vη)) G)).
-  - use make_nat_z_iso.
-    + use make_nat_trans.
-      * intro vηs. induction vηs as [[vη1 vη2] vη3].
-        exists (monoidal_precat_associator Mon_V ((pr1 vη1,,pr1 vη2),,pr1 vη3)).
-        (* another reasoning in functorial calculus needed *)
-        admit.
-      * intros vηs vηs' fgs.
-        use total2_paths_f.
-        cbn. exact (pr21 (monoidal_precat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs)
+Defined.
+
+Definition montrafotarget_monprecat_associator: associator montrafotarget_tensor.
+Proof.
+  use make_nat_z_iso.
+  + use make_nat_trans.
+    * intro vηs.
+      exists (monoidal_precat_associator Mon_V ((pr111 vηs,,pr121 vηs),,pr12 vηs)).
+      (* another reasoning in functorial calculus needed *)
+      apply montrafotarget_monprecat_associator_aux1.
+    * intros vηs vηs' fgs.
+      use total2_paths_f.
+      cbn. exact (pr21 (monoidal_precat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs)
                          ((pr111 vηs',, pr121 vηs'),, pr12 vηs') ((pr111 fgs,, pr121 fgs),, pr12 fgs)).
-        (* show_id_type. *)
-        apply (functor_category_has_homsets _ _ hsA'
+      (* show_id_type. *)
+      apply (functor_category_has_homsets _ _ hsA'
                              (functor_compose hsA' hsA' G (FA' (pr111 vηs ⊗ pr121 vηs ⊗ pr12 vηs)))
                              (functor_compose _ _ (FA (pr111 vηs' ⊗ (pr121 vηs' ⊗ pr12 vηs'))) G)).
-    + intro vηs.
-      use make_is_z_isomorphism.
-      * exists (pr1 (pr2 (monoidal_precat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs))).
-        (* another reasoning in functorial calculus needed *)
-        admit.
-      * split.
-        -- use total2_paths_f.
-           ++ cbn. apply (pr2 (pr2 (monoidal_precat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs))).
-           ++ (* show_id_type. *)
-              apply (functor_category_has_homsets _ _ hsA'
+  + intro vηs.
+    use make_is_z_isomorphism.
+    * exists (pr1 (pr2 (monoidal_precat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs))).
+      (* another reasoning in functorial calculus needed *)
+      apply montrafotarget_monprecat_associator_aux2.
+    * split.
+      -- use total2_paths_f.
+         ++ cbn. apply (pr2 (pr2 (monoidal_precat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs))).
+         ++ (* show_id_type. *)
+           apply (functor_category_has_homsets _ _ hsA'
                               (functor_compose hsA' hsA' G (FA' (pr111 vηs ⊗ pr121 vηs ⊗ pr12 vηs)))
                               (functor_compose _ _ (FA (pr111 vηs ⊗ pr121 vηs ⊗ pr12 vηs)) G)).
-        --  use total2_paths_f.
-           ++ cbn. apply (pr2 (pr2 (monoidal_precat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs))).
-           ++ (* show_id_type. *)
-              apply (functor_category_has_homsets _ _ hsA'
+      --  use total2_paths_f.
+          ++ cbn. apply (pr2 (pr2 (monoidal_precat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs))).
+          ++ (* show_id_type. *)
+            apply (functor_category_has_homsets _ _ hsA'
                               (functor_compose hsA' hsA' G (FA' (pr111 vηs ⊗ (pr121 vηs ⊗ pr12 vηs))))
                               (functor_compose _ _ (FA (pr111 vηs ⊗ (pr121 vηs ⊗ pr12 vηs))) G)).
-  - intros vη wη'.
-    use total2_paths_f.
-    + cbn. assert (triangleinst := pr1 (monoidal_precat_eq Mon_V) (pr1 vη) (pr1 wη')).
-      exact triangleinst.
+Defined.
+
+Lemma montrafotarget_monprecat_triangle_eq: triangle_eq montrafotarget_tensor montrafotarget_unit
+   montrafotarget_monprecat_left_unitor montrafotarget_monprecat_right_unitor montrafotarget_monprecat_associator.
+Proof.
+  intros vη wη'.
+  use total2_paths_f.
+  + cbn. assert (triangleinst := pr1 (monoidal_precat_eq Mon_V) (pr1 vη) (pr1 wη')).
+    exact triangleinst.
+  + cbn. (* show_id_type. *)
+    apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (pr1 vη ⊗ I ⊗ pr1 wη')))
+                                        (functor_compose _ _ (FA (pr1 vη ⊗ pr1 wη')) G)).
+Qed.
+
+Lemma montrafotarget_monprecat_pentagon_eq: pentagon_eq montrafotarget_tensor montrafotarget_monprecat_associator.
+Proof.
+  intros vη1 vη2 vη3 vη4.
+  use total2_paths_f.
+  + cbn. assert (pentagoninst := pr2 (monoidal_precat_eq Mon_V) (pr1 vη1) (pr1 vη2) (pr1 vη3) (pr1 vη4)).
+    exact pentagoninst.
+  + cbn. (* show_id_type. *)
+    apply (functor_category_has_homsets _ _ hsA'
+                                        (functor_compose hsA' hsA' G (FA' (pr1 vη1 ⊗ pr1 vη2 ⊗ pr1 vη3 ⊗ pr1 vη4)))
+                                        (functor_compose _ _ (FA (pr1 vη1 ⊗ (pr1 vη2 ⊗ (pr1 vη3 ⊗ pr1 vη4)))) G)).
+Qed.
+
+Definition montrafotarget_monprecat: monoidal_precat := mk_monoidal_precat montrafotarget_precat
+               montrafotarget_tensor montrafotarget_unit montrafotarget_monprecat_left_unitor
+               montrafotarget_monprecat_right_unitor montrafotarget_monprecat_associator
+               montrafotarget_monprecat_triangle_eq montrafotarget_monprecat_pentagon_eq.
+
+Section IntoMonoidalFunctor.
+
+  Context (δ: parameterized_distributivity_nat Mon_V hsA hsA' FA FA' G)
+          (δtr_eq: param_distr_triangle_eq Mon_V hsA hsA' FA FA' G δ)
+          (δpe_eq: param_distr_pentagon_eq Mon_V hsA hsA' FA FA' G δ).
+
+Definition lmf_from_param_distr_functor: Mon_V ⟶ montrafotarget_monprecat.
+Proof.
+  apply (nat_trafo_to_functor hsA' H H' δ).
+Defined.
+
+Definition lmf_from_param_distr_ε: pr1 montrafotarget_monprecat ⟦ MonoidalFunctors.I_D montrafotarget_monprecat,
+                                             lmf_from_param_distr_functor (MonoidalFunctors.I_C Mon_V) ⟧.
+Proof.
+  exists (identity _).
+  (** we come to an important element of the whole construction - the triangle law enters here *)
+  cbn.
+  rewrite (functor_id FA'). rewrite (functor_id FA).
+  rewrite pre_whisker_identity; try exact hsA'.
+  rewrite post_whisker_identity; try exact hsA'.
+  apply param_distr_triangle_eq_variant0_follows in δtr_eq.
+  red in δtr_eq.
+  unfold MonoidalFunctors.I_C. unfold ActionBasedStrength.I in δtr_eq.
+  etrans.
+  2: { apply maponpaths. apply pathsinv0. exact δtr_eq. }
+  apply nat_trans_eq; try exact hsA'.
+  intro a. cbn. rewrite id_left. apply id_right.
+Defined.
+
+(** we come to the crucial element of the whole construction - the pentagon law enters here *)
+Lemma lmf_from_param_distr_μ_aux (vw : Mon_V ⊠ Mon_V):
+  pr2 (monoidal_functor_map_dom Mon_V montrafotarget_monprecat lmf_from_param_distr_functor vw)
+      -->[id pr1 (monoidal_functor_map_dom Mon_V montrafotarget_monprecat lmf_from_param_distr_functor vw)]
+  pr2 (monoidal_functor_map_codom Mon_V montrafotarget_monprecat lmf_from_param_distr_functor vw).
+Proof.
+  cbn.
+  red in δpe_eq.
+  rewrite (functor_id FA'). rewrite (functor_id FA).
+  rewrite pre_whisker_identity; try exact hsA'.
+  rewrite post_whisker_identity; try exact hsA'.
+  assert (δpe_eqinst := δpe_eq (pr1 vw) (pr2 vw)).
+  apply param_distr_pentagon_eq_body_variant_follows in δpe_eqinst.
+  unfold param_distr_pentagon_eq_body_variant in δpe_eqinst.
+  unfold MonoidalFunctors.tensor_C. unfold ActionBasedStrength.tensor in δpe_eqinst.
+  induction vw as [v w]. cbn in δpe_eqinst.
+  etrans.
+  2: { apply maponpaths. apply pathsinv0. exact δpe_eqinst. }
+  apply nat_trans_eq; try exact hsA'.
+  intro a. cbn. rewrite id_left. apply id_right.
+Qed.
+
+Definition lmf_from_param_distr_μ_data: nat_trans_data
+    (monoidal_functor_map_dom Mon_V montrafotarget_monprecat lmf_from_param_distr_functor)
+    (monoidal_functor_map_codom Mon_V montrafotarget_monprecat lmf_from_param_distr_functor).
+Proof.
+  intro vw.
+  exists (identity _).
+  apply lmf_from_param_distr_μ_aux.
+Defined.
+
+Lemma lmf_from_param_distr_μ_data_is_nat: is_nat_trans _ _ lmf_from_param_distr_μ_data.
+Proof.
+  intros vw vw' fg.
+  use total2_paths_f.
+  - cbn. rewrite id_left. apply id_right.
+  - (* show_id_type. *)
+    apply (functor_category_has_homsets _ _ hsA'
+                   (functor_compose hsA' hsA' G (FA' (pr1 vw ⊗ pr2 vw)))
+                   (functor_compose _ _ (FA (MonoidalFunctors.tensor_C Mon_V vw')) G)).
+Qed.
+
+Definition lmf_from_param_distr_μ: monoidal_functor_map Mon_V montrafotarget_monprecat lmf_from_param_distr_functor :=
+  lmf_from_param_distr_μ_data ,, lmf_from_param_distr_μ_data_is_nat.
+
+Lemma lmf_from_param_distr_assoc: monoidal_functor_associativity Mon_V
+                              montrafotarget_monprecat lmf_from_param_distr_functor lmf_from_param_distr_μ.
+Proof.
+  intros u v w.
+  use total2_paths_f.
+  * cbn. do 2 rewrite id_right.
+    etrans.
+    { apply cancel_postcomposition. apply maponpaths.
+      exact (binprod_id (u ⊗ v) w). }
+    rewrite (functor_id tensor).
+    etrans.
+    2: { do 2 apply maponpaths. apply pathsinv0, binprod_id. }
+    rewrite (functor_id tensor).
+    rewrite id_right. apply id_left.
+  * cbn. (* show_id_type. *)
+    apply (functor_category_has_homsets _ _ hsA'
+                              (functor_compose hsA' hsA' G (FA' (u ⊗ v ⊗ w)))
+                              (functor_compose _ _ (FA ((pr12 Mon_V) (u, (pr12 Mon_V) (v,, w)))) G)).
+Qed.
+
+Lemma lmf_from_param_distr_unital: monoidal_functor_unitality Mon_V montrafotarget_monprecat
+              lmf_from_param_distr_functor lmf_from_param_distr_ε lmf_from_param_distr_μ.
+Proof.
+  intro v. split.
+  - use total2_paths_f.
+    + cbn.
+      rewrite id_right.
+      etrans.
+      2: { apply cancel_postcomposition. apply maponpaths. apply pathsinv0, binprod_id. }
+      rewrite (functor_id tensor).
+      apply pathsinv0, id_left.
+    + cbn. (* show_id_type. *)
+      apply (functor_category_has_homsets _ _ hsA'
+                              (functor_compose hsA' hsA' G (FA'(I ⊗ v)))
+                              (functor_compose _ _ (FA v) G)).
+  - use total2_paths_f.
+    + cbn.
+      rewrite id_right.
+      etrans.
+      2: { apply cancel_postcomposition. apply maponpaths. apply pathsinv0, binprod_id. }
+      rewrite (functor_id tensor).
+      apply pathsinv0, id_left.
+    + cbn. (* show_id_type. *)
+      apply (functor_category_has_homsets _ _ hsA'
+                              (functor_compose hsA' hsA' G (FA'(v ⊗ I)))
+                              (functor_compose _ _ (FA v) G)).
+Qed.
+
+Definition lmf_from_param_distr: lax_monoidal_functor Mon_V montrafotarget_monprecat :=
+  mk_lax_monoidal_functor _ _ lmf_from_param_distr_functor lmf_from_param_distr_ε lmf_from_param_distr_μ
+                          lmf_from_param_distr_assoc lmf_from_param_distr_unital.
+
+(* now unpleasant similar but not identical code to above for triangle *)
+Lemma smf_from_param_distr_is_strong1_aux: pr2 (lmf_from_param_distr (MonoidalFunctors.I_C Mon_V)) -->[id I]
+                                           pr2 (MonoidalFunctors.I_D montrafotarget_monprecat).
+Proof.
+  cbn.
+  rewrite (functor_id FA'). rewrite (functor_id FA).
+  rewrite pre_whisker_identity; try exact hsA'.
+  rewrite post_whisker_identity; try exact hsA'.
+  apply param_distr_triangle_eq_variant0_follows in δtr_eq.
+  red in δtr_eq.
+  unfold MonoidalFunctors.I_C. unfold ActionBasedStrength.I in δtr_eq.
+  intermediate_path (δ (monoidal_precat_unit Mon_V)).
+  { apply nat_trans_eq; try exact hsA'.
+    intro a. cbn. apply id_right. }
+  rewrite δtr_eq.
+  apply nat_trans_eq; try exact hsA'.
+  intro a. cbn. rewrite id_left. apply idpath.
+Qed.
+
+Definition smf_from_param_distr_is_strong1_inv: pr1 montrafotarget_monprecat
+   ⟦ lmf_from_param_distr (MonoidalFunctors.I_C Mon_V), MonoidalFunctors.I_D montrafotarget_monprecat ⟧.
+Proof.
+  exists (identity I).
+  apply smf_from_param_distr_is_strong1_aux.
+Defined.
+
+Lemma smf_from_param_distr_is_strong1_inv_ok: is_inverse_in_precat (lax_monoidal_functor_ϵ lmf_from_param_distr)
+                                                                        smf_from_param_distr_is_strong1_inv.
+Proof.
+  split.
+  - use total2_paths_f.
+    + cbn. apply id_right.
+    + cbn. (* show_id_type. *)
+      apply (functor_category_has_homsets _ _ hsA'
+                              (functor_compose hsA' hsA' G (FA' I))
+                              (functor_compose _ _ (FA I) G)).
+  - use total2_paths_f.
+    + cbn. apply id_right.
+    + cbn. (* show_id_type. *)
+      apply (functor_category_has_homsets _ _ hsA'
+                              (functor_compose hsA' hsA' G (FA' I))
+                              (functor_compose _ _ (FA I) G)).
+Qed.
+
+Definition smf_from_param_distr_is_strong1: is_z_isomorphism (lax_monoidal_functor_ϵ lmf_from_param_distr) :=
+  smf_from_param_distr_is_strong1_inv ,, smf_from_param_distr_is_strong1_inv_ok.
+
+
+(* now unpleasant similar but not identical code to above for pentagon *)
+Lemma smf_from_param_distr_is_strong2_aux (vw : Mon_V ⊠ Mon_V):
+  pr2 (monoidal_functor_map_codom Mon_V montrafotarget_monprecat lmf_from_param_distr vw)
+      -->[id pr1 (monoidal_functor_map_codom Mon_V montrafotarget_monprecat lmf_from_param_distr vw)]
+  pr2 (monoidal_functor_map_dom Mon_V montrafotarget_monprecat lmf_from_param_distr vw).
+Proof.
+  cbn.
+  rewrite (functor_id FA'). rewrite (functor_id FA).
+  rewrite pre_whisker_identity; try exact hsA'.
+  rewrite post_whisker_identity; try exact hsA'.
+  assert (δpe_eqinst := δpe_eq (pr1 vw) (pr2 vw)).
+  apply param_distr_pentagon_eq_body_variant_follows in δpe_eqinst.
+  unfold param_distr_pentagon_eq_body_variant in δpe_eqinst.
+  unfold MonoidalFunctors.tensor_C. unfold ActionBasedStrength.tensor in δpe_eqinst.
+  induction vw as [v w]. cbn in δpe_eqinst.
+  intermediate_path (δ (monoidal_precat_tensor Mon_V (v,,w))).
+  { apply nat_trans_eq; try exact hsA'.
+    intro a. cbn. apply id_right. }
+  etrans.
+  { exact δpe_eqinst. }
+  apply nat_trans_eq; try exact hsA'.
+  intro a. cbn. rewrite id_left. apply idpath.
+Qed.
+
+Definition smf_from_param_distr_is_strong2_inv (vw : Mon_V ⊠ Mon_V): montrafotarget_monprecat
+   ⟦ monoidal_functor_map_codom Mon_V montrafotarget_monprecat lmf_from_param_distr vw,
+     monoidal_functor_map_dom Mon_V montrafotarget_monprecat lmf_from_param_distr vw ⟧.
+Proof.
+  exists (identity _).
+  apply smf_from_param_distr_is_strong2_aux.
+Defined.
+
+Lemma smf_from_param_distr_is_strong2_inv_ok (vw : Mon_V ⊠ Mon_V): is_inverse_in_precat
+   (lax_monoidal_functor_μ lmf_from_param_distr vw) (smf_from_param_distr_is_strong2_inv vw).
+Proof.
+  split.
+  - use total2_paths_f.
+    + cbn. apply id_right.
+    + cbn. (* show_id_type. *)
+      apply (functor_category_has_homsets _ _ hsA'
+                              (functor_compose hsA' hsA' G (FA' (pr1 vw ⊗ pr2 vw)))
+                              (functor_compose _ _ (FA (pr1 vw ⊗ pr2 vw)) G)).
+  - use total2_paths_f.
+    + cbn. apply id_right.
     + cbn. show_id_type.
-      apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (pr1 vη ⊗ I ⊗ pr1 wη'))) (functor_compose _ _ (FA (pr1 vη ⊗ pr1 wη')) G)).
-  - intros vη1 vη2 vη3 vη4.
-    use total2_paths_f.
-    + cbn. assert (pentagoninst := pr2 (monoidal_precat_eq Mon_V) (pr1 vη1) (pr1 vη2) (pr1 vη3) (pr1 vη4)).
-      exact pentagoninst.
-    + cbn. show_id_type.
-      apply (functor_category_has_homsets _ _ hsA' (functor_compose hsA' hsA' G (FA' (pr1 vη1 ⊗ pr1 vη2 ⊗ pr1 vη3 ⊗ pr1 vη4))) (functor_compose _ _ (FA (pr1 vη1 ⊗ (pr1 vη2 ⊗ (pr1 vη3 ⊗ pr1 vη4)))) G)).
-Admitted.
+      apply (functor_category_has_homsets _ _ hsA'
+                              (functor_compose hsA' hsA' G (FA' (MonoidalFunctors.tensor_C Mon_V vw)))
+                              (functor_compose _ _ (FA (MonoidalFunctors.tensor_C Mon_V vw)) G)).
+Qed.
+
+
+Definition smf_from_param_distr_is_strong2: is_nat_z_iso (lax_monoidal_functor_μ lmf_from_param_distr) :=
+  fun vw => (smf_from_param_distr_is_strong2_inv vw ,, smf_from_param_distr_is_strong2_inv_ok vw).
+
+Definition smf_from_param_distr_parts: strong_monoidal_functor Mon_V montrafotarget_monprecat :=
+  lmf_from_param_distr,, (smf_from_param_distr_is_strong1 ,, smf_from_param_distr_is_strong2).
+
+End IntoMonoidalFunctor.
+
+Definition smf_from_param_distr:
+  parameterized_distributivity Mon_V hsA hsA' FA FA' G -> strong_monoidal_functor Mon_V montrafotarget_monprecat.
+Proof.
+  intro δs.
+  induction δs as [δ [δtr_eq δpe_eq]].
+  exact (smf_from_param_distr_parts δ δtr_eq δpe_eq).
+Defined.
 
 End Main.
