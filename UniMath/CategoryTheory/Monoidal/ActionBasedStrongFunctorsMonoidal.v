@@ -44,36 +44,29 @@ Section Upstream.
   Definition trafotarget_disp_cat_ob_mor: disp_cat_ob_mor C.
   Proof.
     use make_disp_cat_ob_mor.
-    - intro c. exact (nat_trans (H c : A ⟶ A') (H' c : A ⟶ A')).
+    - intro c. exact ([A, A', hs]⟦(H c : A ⟶ A'), (H' c : A ⟶ A')⟧).
     - intros c c' α β f.
-      exact (nat_trans_comp _ _ _ α (# H' f) = nat_trans_comp _ _ _ (# H f) β).
+      exact (α · (# H' f) = (# H f) · β).
   Defined.
 
   Lemma trafotarget_disp_cat_id_comp: disp_cat_id_comp C trafotarget_disp_cat_ob_mor.
   Proof.
     split.
     - intros c α.
-      red. cbn. rewrite (functor_id H). rewrite (functor_id H').
-      apply nat_trans_eq; try exact hs.
-      intro a. cbn. rewrite id_left. apply id_right.
+      red. unfold trafotarget_disp_cat_ob_mor, make_disp_cat_ob_mor. hnf.
+      do 2 rewrite functor_id.
+      rewrite id_left. apply id_right.
     - intros c1 c2 c3 f g α1 α2 α3 Hypf Hypg.
-      red. cbn. rewrite (functor_comp H). rewrite (functor_comp H').
-      apply nat_trans_eq; try exact hs.
-      intro a.
-      cbn.
-      apply (maponpaths pr1) in Hypf.
-      apply toforallpaths in Hypf.
-      assert (Hypfinst := Hypf a).
-      apply (maponpaths pr1) in Hypg.
-      apply toforallpaths in Hypg.
-      assert (Hypginst := Hypg a).
-      cbn in Hypfinst, Hypginst.
+      red. red in Hypf, Hypg.
+      unfold trafotarget_disp_cat_ob_mor, make_disp_cat_ob_mor in Hypf, Hypg |- *.
+      hnf in Hypf, Hypg |- *.
+      do 2 rewrite functor_comp.
       rewrite assoc.
-      rewrite Hypfinst.
+      rewrite Hypf.
       rewrite <- assoc.
-      rewrite Hypginst.
+      rewrite Hypg.
       apply assoc.
-  Qed.
+   Qed.
 
   Definition trafotarget_disp_cat_data: disp_cat_data C :=
     trafotarget_disp_cat_ob_mor ,, trafotarget_disp_cat_id_comp.
@@ -82,7 +75,7 @@ Section Upstream.
         (xx : trafotarget_disp_cat_data x) (yy : trafotarget_disp_cat_data y):
     isaprop (xx -->[ f] yy).
   Proof.
-    cbn. intros Hyp Hyp'.
+    intros Hyp Hyp'.
     apply (functor_category_has_homsets _ _ hs).
   Qed.
 
@@ -118,18 +111,16 @@ Section Upstream.
           exact (c ,, η c).
         + intros c c' f.
           exists f.
-          cbn.
-          assert (Hyp := nat_trans_ax η _ _ f).
-          apply pathsinv0.
-          exact Hyp.
+          red. unfold trafotarget_disp. hnf.
+          apply pathsinv0, nat_trans_ax.
       - split; red.
-        + intro c. cbn.
+        + intro c.
           use total2_paths_f.
-          * apply idpath.
+          * cbn. apply idpath.
           * apply (functor_category_has_homsets _ _ hs).
-        + intros c1 c2 c3 f f'. cbn.
+        + intros c1 c2 c3 f f'.
           use total2_paths_f.
-          * apply idpath.
+          * cbn. apply idpath.
           * apply (functor_category_has_homsets _ _ hs).
     Defined.
 
@@ -173,14 +164,12 @@ Section Upstream.
   Definition nat_trafo_to_functor_with_iso (η: H ⟹ H'): trafotarget_with_iso.
   Proof.
     exists (nat_trafo_to_functor η).
-    cbn.
     use tpair.
     - use make_nat_trans.
       + intro c. apply identity.
       + intros c c' f. cbn. rewrite id_left. apply id_right.
-    - cbn.
-      + intro c.
-        apply is_z_isomorphism_identity.
+    - intro c.
+      apply is_z_isomorphism_identity.
   Defined.
 
   Definition functor_to_nat_trafo_with_iso (Ne: trafotarget_with_iso): H ⟹ H'.
@@ -376,7 +365,6 @@ Definition montrafotarget_precat: precategory := trafotarget_precat hsA' H H'.
 Definition montrafotarget_unit: montrafotarget_precat.
 Proof.
   exists I.
-  red. cbn.
   exact (param_distr_triangle_eq_variant0_RHS Mon_V hsA hsA' FA FA' G).
 Defined.
 
@@ -432,6 +420,7 @@ Hyp' : π · post_whisker (# FA g) G = pre_whisker G (# FA' g) · π'
 (* I have a lengthy proof on paper. *)
         match goal with | [ |- ?Hαinv · (?Hγ · ?Hδ · ?Hβ) · ?Hε = _ ] => set (αinv := Hαinv);
            set (γ := Hγ); set (δ:= Hδ); set (β := Hβ); set (ε1 := Hε) end.
+        (** this operation makes the infos of belonging to homsets of a functor category disappear *)
         match goal with | [ |- _ = ?Hε · (?Hαinv · (?Hγ · ?Hδ · ?Hβ)) ] => set (αinv' := Hαinv);
            set (γ' := Hγ); set (δ':= Hδ); set (β' := Hβ); set (ε2 := Hε) end.
 (* all these natural transformations have wrong types: they are transformations between functor_data,
@@ -453,28 +442,27 @@ Proof.
   + intro vηwπ.
     induction vηwπ as [[v η] [w π]].
     exists (v ⊗ w).
-    cbn in η, π. cbn.
     exact (param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v w η π).
   + intros vηwπ vηwπ' fgHyps. induction vηwπ as [[v η] [w π]]. induction vηwπ' as [[v' η'] [w' π']].
     induction fgHyps as [[f Hyp] [g Hyp']].
     use tpair.
     * exact (# tensor ((f,,g): pr1 Mon_V ⊠ pr1 Mon_V ⟦ (v,,w), (v',,w') ⟧)).
-    * change ((param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v w η π: pr1 (trafotarget_disp hsA' H H') (v⊗w)) -->[(# tensor (f,, g : pr1 Mon_V ⊠ pr1 Mon_V ⟦ v,, w, v',, w' ⟧))] (param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v' w' η' π')).
+    * cbv beta in |- *.
+      unfold pr2.
       apply montrafotarget_tensor_comp_aux; [exact Hyp | exact Hyp'].
 Defined.
 
 Lemma montrafotarget_tensor_data_is_functor: is_functor montrafotarget_tensor_data.
 Proof.
   split.
-  + red. intro vηwπ.
-    (* show_id_type. *)
+  + intro vηwπ.
     use total2_paths_f.
     * cbn.
       etrans.
       { apply maponpaths. apply binprod_id. }
       apply functor_id.
     * apply (isaset_nat_trans hsA').
-  + red. intros vηwπ1 vηwπ2 vηwπ3 fgHyps fgHyps'.
+  + intros vηwπ1 vηwπ2 vηwπ3 fgHyps fgHyps'.
     use total2_paths_f.
     * cbn.
       etrans.
@@ -490,13 +478,13 @@ Definition montrafotarget_tensor: montrafotarget_precat ⊠ montrafotarget_preca
 Lemma montrafotarget_monprecat_left_unitor_aux1 (vη : montrafotarget_precat):
   pr2 (I_pretensor montrafotarget_tensor montrafotarget_unit vη)
       -->[monoidal_precat_left_unitor Mon_V (pr1 vη)]
-  pr2 (functor_identity montrafotarget_precat vη).
+      pr2 (functor_identity montrafotarget_precat vη).
 Admitted.
 
 Lemma montrafotarget_monprecat_left_unitor_aux2 (vη : montrafotarget_precat):
   pr2 (functor_identity montrafotarget_precat vη)
       -->[pr1 (pr2 (monoidal_precat_left_unitor Mon_V) (pr1 vη))]
-  pr2 (I_pretensor montrafotarget_tensor montrafotarget_unit vη).
+      pr2 (I_pretensor montrafotarget_tensor montrafotarget_unit vη).
 Admitted.
 
 Lemma montrafotarget_monprecat_right_unitor_aux1 (vη : montrafotarget_precat):
@@ -643,17 +631,16 @@ Definition lmf_from_param_distr_ε: pr1 montrafotarget_monprecat ⟦ MonoidalFun
 Proof.
   exists (identity _).
   (** we come to an important element of the whole construction - the triangle law enters here *)
+  unfold mor_disp. unfold trafotarget_disp. hnf.
+  do 2 rewrite functor_id.
+  rewrite id_right. rewrite id_left.
   cbn.
-  rewrite (functor_id FA'). rewrite (functor_id FA).
-  rewrite pre_whisker_identity; try exact hsA'.
-  rewrite post_whisker_identity; try exact hsA'.
   apply param_distr_triangle_eq_variant0_follows in δtr_eq.
   red in δtr_eq.
   unfold MonoidalFunctors.I_C. unfold ActionBasedStrength.I in δtr_eq.
   etrans.
-  2: { apply maponpaths. apply pathsinv0. exact δtr_eq. }
-  apply nat_trans_eq; try exact hsA'.
-  intro a. cbn. rewrite id_left. apply id_right.
+  2: { apply pathsinv0. exact δtr_eq. }
+  apply idpath.
 Defined.
 
 (** we come to the crucial element of the whole construction - the pentagon law enters here *)
@@ -662,20 +649,17 @@ Lemma lmf_from_param_distr_μ_aux (vw : Mon_V ⊠ Mon_V):
       -->[id pr1 (monoidal_functor_map_dom Mon_V montrafotarget_monprecat lmf_from_param_distr_functor vw)]
   pr2 (monoidal_functor_map_codom Mon_V montrafotarget_monprecat lmf_from_param_distr_functor vw).
 Proof.
-  cbn.
+  unfold mor_disp. unfold trafotarget_disp. hnf.
   red in δpe_eq.
-  rewrite (functor_id FA'). rewrite (functor_id FA).
-  rewrite pre_whisker_identity; try exact hsA'.
-  rewrite post_whisker_identity; try exact hsA'.
+  do 2 rewrite functor_id.
+  rewrite id_left, id_right.
+  cbn.
   assert (δpe_eqinst := δpe_eq (pr1 vw) (pr2 vw)).
   apply param_distr_pentagon_eq_body_variant_follows in δpe_eqinst.
   unfold param_distr_pentagon_eq_body_variant in δpe_eqinst.
   unfold MonoidalFunctors.tensor_C. unfold ActionBasedStrength.tensor in δpe_eqinst.
-  induction vw as [v w]. cbn in δpe_eqinst.
-  etrans.
-  2: { apply maponpaths. apply pathsinv0. exact δpe_eqinst. }
-  apply nat_trans_eq; try exact hsA'.
-  intro a. cbn. rewrite id_left. apply id_right.
+  change (pr1 vw, pr2 vw) with vw in δpe_eqinst.
+  apply pathsinv0. exact δpe_eqinst.
 Qed.
 
 Definition lmf_from_param_distr_μ_data: nat_trans_data
@@ -745,19 +729,14 @@ Definition lmf_from_param_distr: lax_monoidal_functor Mon_V montrafotarget_monpr
 Lemma smf_from_param_distr_is_strong1_aux: pr2 (lmf_from_param_distr (MonoidalFunctors.I_C Mon_V)) -->[id I]
                                            pr2 (MonoidalFunctors.I_D montrafotarget_monprecat).
 Proof.
+  unfold mor_disp. unfold trafotarget_disp. hnf.
+  do 2 rewrite functor_id.
+  rewrite id_right. rewrite id_left.
   cbn.
-  rewrite (functor_id FA'). rewrite (functor_id FA).
-  rewrite pre_whisker_identity; try exact hsA'.
-  rewrite post_whisker_identity; try exact hsA'.
   apply param_distr_triangle_eq_variant0_follows in δtr_eq.
   red in δtr_eq.
   unfold MonoidalFunctors.I_C. unfold ActionBasedStrength.I in δtr_eq.
-  intermediate_path (δ (monoidal_precat_unit Mon_V)).
-  { apply nat_trans_eq; try exact hsA'.
-    intro a. cbn. apply id_right. }
-  rewrite δtr_eq.
-  apply nat_trans_eq; try exact hsA'.
-  intro a. cbn. rewrite id_left. apply idpath.
+  exact δtr_eq.
 Qed.
 
 Definition smf_from_param_distr_is_strong1_inv: pr1 montrafotarget_monprecat
@@ -789,22 +768,17 @@ Lemma smf_from_param_distr_is_strong2_aux (vw : Mon_V ⊠ Mon_V):
       -->[id pr1 (monoidal_functor_map_codom Mon_V montrafotarget_monprecat lmf_from_param_distr vw)]
   pr2 (monoidal_functor_map_dom Mon_V montrafotarget_monprecat lmf_from_param_distr vw).
 Proof.
+  unfold mor_disp. unfold trafotarget_disp. hnf.
+  red in δpe_eq.
+  do 2 rewrite functor_id.
+  rewrite id_left, id_right.
   cbn.
-  rewrite (functor_id FA'). rewrite (functor_id FA).
-  rewrite pre_whisker_identity; try exact hsA'.
-  rewrite post_whisker_identity; try exact hsA'.
   assert (δpe_eqinst := δpe_eq (pr1 vw) (pr2 vw)).
   apply param_distr_pentagon_eq_body_variant_follows in δpe_eqinst.
   unfold param_distr_pentagon_eq_body_variant in δpe_eqinst.
   unfold MonoidalFunctors.tensor_C. unfold ActionBasedStrength.tensor in δpe_eqinst.
-  induction vw as [v w]. cbn in δpe_eqinst.
-  intermediate_path (δ (monoidal_precat_tensor Mon_V (v,,w))).
-  { apply nat_trans_eq; try exact hsA'.
-    intro a. cbn. apply id_right. }
-  etrans.
-  { exact δpe_eqinst. }
-  apply nat_trans_eq; try exact hsA'.
-  intro a. cbn. rewrite id_left. apply idpath.
+  change (pr1 vw, pr2 vw) with vw in δpe_eqinst.
+  exact δpe_eqinst.
 Qed.
 
 Definition smf_from_param_distr_is_strong2_inv (vw : Mon_V ⊠ Mon_V): montrafotarget_monprecat
