@@ -58,10 +58,11 @@ Proof.
 exact (isofhlevelssnset 1 sort (setproperty sort)).
 Defined.
 
-(** A lot of notations, upstream? *)
+(** Some notations *)
 Local Infix "::" := (@cons _).
 Local Notation "[]" := (@nil _) (at level 0, format "[]").
 Local Notation "a + b" := (setcoprod a b) : set.
+Local Notation "s ⇒ t" := (arr s t).
 
 Let sortToSet : category := [path_pregroupoid sort,SET].
 Let hs : has_homsets sortToSet := homset_property sortToSet.
@@ -92,8 +93,8 @@ Proof.
 use mkMultiSortedSig.
 - apply ((sort × sort) + (sort × sort))%set.
 - intros H; induction H as [st|st]; induction st as [s t].
-  + exact ((([],,arr s t) :: ([],,s) :: nil),,t).
-  + exact (((cons s [],,t) :: []),,arr s t).
+  + exact ((([],,(s ⇒ t)) :: ([],,s) :: nil),,t).
+  + exact (((cons s [],,t) :: []),,(s ⇒ t)).
 Defined.
 
 (** The signature with strength for the simply typed lambda calculus *)
@@ -135,7 +136,7 @@ Local Notation "F ⊗ G" := (BinProduct_of_functors BinProd F G).
 
 (** The source of the application constructor *)
 Definition app_source (s t : sort) : functor sortToSet2 sortToSet2 :=
-    (post_comp_functor (projSortToSet sort (arr s t)) ⊗ post_comp_functor (projSortToSet sort s))
+    (post_comp_functor (projSortToSet sort (s ⇒ t)) ⊗ post_comp_functor (projSortToSet sort s))
   ∙ (post_comp_functor (hat_functorSet sort t)).
 
 (** The application constructor *)
@@ -148,7 +149,7 @@ Definition app_map (s t : sort) : sortToSet2⟦app_source s t STLC,STLC⟧ :=
 Definition lam_source (s t : sort) : functor sortToSet2 sortToSet2 :=
     pre_comp_functor (sorted_option_functorSet sort s)
   ∙ post_comp_functor (projSortToC sort _ t)
-  ∙ post_comp_functor (hat_functorSet sort (arr s t)).
+  ∙ post_comp_functor (hat_functorSet sort (s ⇒ t)).
 
 Definition lam_map (s t : sort) : sortToSet2⟦lam_source s t STLC,STLC⟧ :=
     CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _ (λ _, _)) (ii2 (s,,t))
