@@ -54,11 +54,6 @@ Section Lam.
 
 Variable (sort : hSet) (arr : sort → sort → sort).
 
-Local Lemma hsort : isofhlevel 3 sort.
-Proof.
-exact (isofhlevelssnset 1 sort (setproperty sort)).
-Defined.
-
 Let sortToSet : category := [path_pregroupoid sort,SET].
 Let hs : has_homsets sortToSet := homset_property sortToSet.
 
@@ -290,8 +285,3 @@ End Lam.
 (* { use nat_trans_functor_path_pregroupoid. apply homset_property. *)
 (*   use f. } *)
 (* use (pr1 (@monadSubstGen_instantiated sort SET BinCoproductsHSET STLC_Monad X' Y' f') t). *)
-(* use u. *)
-(* simpl. *)
-(* cbn. *)
-
-(* use u. *)
