@@ -6,9 +6,8 @@ monoidal structures.
 Work in progress: the characterization in the non-monoidal case seems to need more 2-categorical knowledge
 (instead of bicategorical one), and the monoidal case will only extend this problem, which is why there is now only
 a construction of a strong monoidal functor from a parameterized distributivity and no construction in the
-other direction; also that construction depends on 7 unproven equations between natural transformations
-(one in the construction of the tensor functor, 6 more in the construction of the unitors and associator
-of the monoidal functor)
+other direction; also that construction depends on 6 unproven equations between natural transformations
+(all in the construction of the unitors and associator of the monoidal target category)
 
 Author: Ralph Matthes 2021
 
@@ -172,11 +171,10 @@ Section Upstream.
       apply is_z_isomorphism_identity.
   Defined.
 
-  Definition functor_to_nat_trafo_with_iso (Ne: trafotarget_with_iso): H ⟹ H'.
-  Proof.
-    induction Ne as [N HypN].
-    use make_nat_trans.
-    - intro c.
+    Definition functor_to_nat_trafo_with_iso_data (N : C ⟶ trafotarget_precat)
+               (HypN : nat_z_iso (N ∙ forget_from_trafotarget) (functor_identity C)): nat_trans_data H H'.
+    Proof.
+      intro c.
       set (trans := pr2 (N c)).
       induction HypN as [τ Hτ].
       set (Hτinst := Hτ c).
@@ -186,9 +184,15 @@ Section Upstream.
       induction Hτinst as [τ'c [H1 H2]].
       cbn in τ'c.
       refine (nat_trans_comp _ _ _ _ (nat_trans_comp _ _ _ trans _)).
-      + exact (# H τ'c).
-      + exact (# H' τinst).
-    - intros c c' f.
+      - exact (# H τ'c).
+      - exact (# H' τinst).
+    Defined.
+
+    Lemma functor_to_nat_trafo_with_iso_data_is_nat_trans (N : C ⟶ trafotarget_precat)
+          (HypN : nat_z_iso (N ∙ forget_from_trafotarget) (functor_identity C)):
+      is_nat_trans _ _ (functor_to_nat_trafo_with_iso_data N HypN).
+    Proof.
+      intros c c' f.
       cbn.
       unfold nat_trans_comp. cbn.
       apply nat_trans_eq; try exact hs.
@@ -240,19 +244,25 @@ Section Upstream.
       assert (Nnatinst := pr2 (# N f)).
       apply pathsinv0.
       exact Nnatinst.
+  Qed.
+
+  Definition functor_to_nat_trafo_with_iso (Ne: trafotarget_with_iso): H ⟹ H'.
+  Proof.
+    induction Ne as [N HypN].
+    exact (functor_to_nat_trafo_with_iso_data N HypN,,
+                                              functor_to_nat_trafo_with_iso_data_is_nat_trans N HypN).
   Defined.
 
   Local Lemma roundtrip1 (η: H ⟹ H'): functor_to_nat_trafo_with_iso (nat_trafo_to_functor_with_iso η) = η.
   Proof.
     apply nat_trans_eq; try exact (functor_category_has_homsets _ _ hs).
     intro c.
-    cbn.
-    rewrite (functor_id H).
-    rewrite (functor_id H').
     apply nat_trans_eq; try exact hs.
     intro a.
     cbn.
-    rewrite id_right. apply id_left.
+    rewrite (functor_id H).
+    rewrite (functor_id H').
+     rewrite id_right. apply id_left.
   Qed.
 
   (* the following lemma cannot hold with the weak assumption of having an iso only, we should rather watch out
@@ -630,6 +640,9 @@ Qed.
 Definition montrafotarget_tensor: montrafotarget_precat ⊠ montrafotarget_precat ⟶ montrafotarget_precat :=
   montrafotarget_tensor_data ,, montrafotarget_tensor_data_is_functor.
 
+(** we have the definition of the tensor product, but there are also six pending statements for the justification
+    of the operations of the monoidal category - this does not concern their laws but their built-in proofs *)
+
 Lemma montrafotarget_monprecat_left_unitor_aux1 (vη : montrafotarget_precat):
   pr2 (I_pretensor montrafotarget_tensor montrafotarget_unit vη)
       -->[monoidal_precat_left_unitor Mon_V (pr1 vη)]
@@ -789,11 +802,12 @@ Proof.
   apply (nat_trafo_to_functor hsA' H H' δ).
 Defined.
 
-Definition lmf_from_param_distr_ε: pr1 montrafotarget_monprecat ⟦ MonoidalFunctors.I_D montrafotarget_monprecat,
-                                             lmf_from_param_distr_functor (MonoidalFunctors.I_C Mon_V) ⟧.
+(** we come to an important element of the whole construction - the triangle law enters here *)
+Lemma lmf_from_param_distr_ε_aux:
+    pr2 (MonoidalFunctors.I_D montrafotarget_monprecat)
+    -->[ id pr1 (MonoidalFunctors.I_D montrafotarget_monprecat)]
+    pr2 (lmf_from_param_distr_functor (MonoidalFunctors.I_C Mon_V)).
 Proof.
-  exists (identity _).
-  (** we come to an important element of the whole construction - the triangle law enters here *)
   unfold mor_disp. unfold trafotarget_disp. hnf.
   do 2 rewrite functor_id.
   rewrite id_right. rewrite id_left.
@@ -804,7 +818,12 @@ Proof.
   etrans.
   2: { apply pathsinv0. exact δtr_eq. }
   apply idpath.
-Defined.
+Qed.
+
+Definition lmf_from_param_distr_ε:
+    pr1 montrafotarget_monprecat ⟦ MonoidalFunctors.I_D montrafotarget_monprecat,
+                       lmf_from_param_distr_functor (MonoidalFunctors.I_C Mon_V) ⟧ :=
+  (identity _),, lmf_from_param_distr_ε_aux.
 
 (** we come to the crucial element of the whole construction - the pentagon law enters here *)
 Lemma lmf_from_param_distr_μ_aux (vw : Mon_V ⊠ Mon_V):
