@@ -371,93 +371,6 @@ Proof.
   exact (param_distr_triangle_eq_variant0_RHS Mon_V hsA hsA' FA FA' G).
 Defined.
 
-(* the following let mechanism does not help in the intended use for helping the type-checker
-Let nat_trans_type_RL (F0: A'⟶A') (F1: A⟶A): UU:= [A, A', hsA'] ⟦functor_compose hsA' hsA' G F0, functor_compose hsA hsA' F1 G⟧.
-Let nat_trans_type_LL (F0 F1: A⟶A): UU:= [A, A', hsA'] ⟦functor_compose hsA hsA' F0 G, functor_compose hsA hsA' F1 G⟧.
- *)
-
-Local Notation "RL[ F0 ',' F1 ]" := ([A, A', hsA'] ⟦precompG F0, postcompG F1⟧) (at level 25).
-Local Notation "LL[ F0 ',' F1 ]" := ([A, A', hsA'] ⟦postcompG F0, postcompG F1⟧) (at level 25).
-Local Notation "RR[ F0 ',' F1 ]" := ([A, A', hsA'] ⟦precompG F0, precompG F1⟧) (at level 25).
-
-
-Lemma montrafotarget_tensor_comp_aux_obsolete (v w v' w': Mon_V) (f: Mon_V⟦v,v'⟧) (g: Mon_V⟦w,w'⟧)
-      (η : trafotarget_disp hsA' H H' v) (π : trafotarget_disp hsA' H H' w)
-      (η' : trafotarget_disp hsA' H H' v') (π' : trafotarget_disp hsA' H H' w')
-      (Hyp: η  -->[ f] η') (Hyp': π -->[ g] π'):
-  (param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v w η π:
-     pr1 (trafotarget_disp hsA' H H') (v ⊗ w))
-    -->[ # tensor (f,, g : pr1 Mon_V ⊠ pr1 Mon_V ⟦ v,, w, v',, w' ⟧)]
-    param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v' w' η' π'.
-Proof.
-  change (RL[ FA' v, FA v]) in η.
-  change (RL[ FA' w, FA w]) in π.
-  change (RL[ FA' v', FA v']) in η'.
-  change (RL[ FA' w', FA w']) in π'.
-  change (η · (# postcompG (# FA f): LL[ FA v, FA v']) = (# precompG (# FA' f): RR[FA' v,FA' v']) · η') in Hyp.
-  change (π · (# postcompG (# FA g): LL[ FA w, FA w']) = (# precompG (# FA' g): RR[FA' w,FA' w']) · π') in Hyp'.
-  unfold param_distr_pentagon_eq_body_variant_RHS.
-  unfold mor_disp.
-  hnf.
-  match goal with | [ |- _ = ?RHS ] => set (rhs := RHS) end.
-  change ((param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v w η π) · (# postcompG (# FA (# tensor ((f,, g): pr1 Mon_V ⊠ pr1 Mon_V ⟦ (v,,w), (v',,w') ⟧))): LL[FA (tensor (v,, w)),FA (tensor (v',, w'))]) = rhs).
-  match goal with | [ |- ?LHS = _ ] => set (lhs := LHS) end.
-  change (lhs = (# precompG (# FA' (# tensor ((f,, g): pr1 Mon_V ⊠ pr1 Mon_V ⟦ (v,,w), (v',,w') ⟧))): RR[FA' (tensor (v,, w)),FA' (tensor (v',, w'))]) · (param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v' w' η' π')).
-  unfold lhs.
-  unfold param_distr_pentagon_eq_body_variant_RHS.
-  unfold param_distr_pentagon_eq_body_RHS.
-  clear rhs lhs.
-  match goal with |- @paths ?ID _ _ => set (typeofeq := ID) end.
-  assert (typeofeqok: typeofeq = RL[ FA' (tensor (v,,w)), FA (tensor (v',,w'))]) by apply idpath.
-  (* goal used to be presented as:
-pre_whisker G (strong_monoidal_functor_μ_inv FA' (v,, w))
-  · (post_whisker η (FA' w) · pre_whisker (FA v) π · post_whisker (lax_monoidal_functor_μ FA (v,, w)) G)
-  · post_whisker (# FA (# tensor (f,, g))) G =
-  pre_whisker G (# FA' (# tensor (f,, g)))
-  · (pre_whisker G (strong_monoidal_functor_μ_inv FA' (v',, w'))
-     · (post_whisker η' (FA' w') · pre_whisker (FA v') π' · post_whisker (lax_monoidal_functor_μ FA (v',, w')) G))
-with abbreviated hypotheses:
-Hyp : η · post_whisker (# FA f) G = pre_whisker G (# FA' f) · η'
-Hyp' : π · post_whisker (# FA g) G = pre_whisker G (# FA' g) · π'*)
-  change (ActionBasedStrength.precompF hsA' G) with precompG.
-  change (ActionBasedStrength.postcompF hsA hsA' G) with (postcompG(C:=A)).
-  (*
-Now it looks like follows:
-# precompG (strong_monoidal_functor_μ_inv FA' (v,, w))
-  · (# (post_composition_functor A A' A' hsA' hsA' (FA' w)) η · # (pre_composition_functor A A A' hsA hsA' (FA v)) π
-     · # postcompG (lax_monoidal_functor_μ FA (v,, w))) · # postcompG (# FA (# tensor (f,, g))) =
-  # precompG (# FA' (# tensor (f,, g)))
-  · (# precompG (strong_monoidal_functor_μ_inv FA' (v',, w'))
-     · (# (post_composition_functor A A' A' hsA' hsA' (FA' w')) η'
-        · # (pre_composition_functor A A A' hsA hsA' (FA v')) π' · # postcompG (lax_monoidal_functor_μ FA (v',, w'))))
-with abbreviated hypotheses
-Hyp : η · # postcompG (# FA f) = # precompG (# FA' f) · η'
-Hyp' : π · # postcompG (# FA g) = # precompG (# FA' g) · π'
- *)
-        set (vw := v,,w). set (vw' := v',,w'). set (fg := f,,g).
-(* I have a lengthy proof on paper. *)
-        match goal with | [ |- ?Hαinv · (?Hγ · ?Hδ · ?Hβ) · ?Hε = _ ] => set (αinv := Hαinv);
-           set (γ := Hγ); set (δ:= Hδ); set (β := Hβ); set (ε1 := Hε) end.
-        (** this operation used to make the infos of belonging to homsets of a functor category disappear,
-            but now there is simplyno choice for falling back to the primitive notions (i.e., not in
-            a functor category *)
-        match goal with | [ |- _ = ?Hε · (?Hαinv · (?Hγ · ?Hδ · ?Hβ)) ] => set (αinv' := Hαinv);
-           set (γ' := Hγ); set (δ':= Hδ); set (β' := Hβ); set (ε2 := Hε) end.
-(* all these natural transformations have wrong types: they are transformations between functor_data,
-   not elements of the functor category. *)
-        set (αinviso := prewhisker_with_μ_inv_z_iso Mon_V hsA' FA' G v w).
-     (*   transparent assert (αinvisook : (pr1 αinviso = αinv)).
-        { apply idpath. } *)
-        rewrite <- assoc.
-        apply pathsinv0.
-     (*   rewrite <- αinvisook. *)
-        (* one has to reconstruct all the constituents as morphisms of the functor category
-        set (help := z_iso_inv_to_left(C:=[A, A', hsA']) _ _ _ αinviso (γ · δ · β · ε1:[A, A', hsA']⟦_,_⟧) (ε2 · (αinv' · (γ' · δ' · β')))).
-         *)
-        apply (z_iso_inv_to_left _ _ _ αinviso).
-(* now, one can work reasonably, to be continued *)
-Abort.
-
 Lemma montrafotarget_tensor_comp_aux (v w v' w': Mon_V) (f: Mon_V⟦v,v'⟧) (g: Mon_V⟦w,w'⟧)
       (η : trafotarget_disp hsA' H H' v) (π : trafotarget_disp hsA' H H' w)
       (η' : trafotarget_disp hsA' H H' v') (π' : trafotarget_disp hsA' H H' w')
@@ -489,7 +402,194 @@ Proof.
   assert (μFAnatinst := nat_trans_ax (lax_monoidal_functor_μ FA) _ _ fg).
   simpl in μFAnatinst.
   (* I have a lengthy but very natural proof on paper. *)
-Admitted.
+  change (# (functorial_composition _ _ _ hsA hsA) (# FA f,, # FA g:
+           [A, A, hsA] ⊠ [A, A, hsA] ⟦(FA v,,FA w),(FA v',,FA w')⟧) · lax_monoidal_functor_μ FA vw' =
+          lax_monoidal_functor_μ FA vw · # FA (# (MonoidalFunctors.tensor_C Mon_V) fg)) in μFAnatinst.
+  change (# (functorial_composition _ _ _ hsA' hsA') (# FA' f,, # FA' g:
+           [A', A', hsA'] ⊠ [A', A', hsA'] ⟦(FA' v,,FA' w),(FA' v',,FA' w')⟧) · lax_monoidal_functor_μ FA' vw' =
+          lax_monoidal_functor_μ FA' vw · # FA' (# (MonoidalFunctors.tensor_C Mon_V) fg)) in μFA'natinst.
+  set (ε2better := # precompG (# (functor_composite tensor FA') fg)).
+  transparent assert (ε2betterok : (ε2 = ε2better)).
+  { apply idpath. }
+  rewrite ε2betterok.
+  rewrite assoc.
+  apply (maponpaths (# precompG)) in μFA'natinst.
+  apply pathsinv0 in μFA'natinst.
+  do 2 rewrite functor_comp in μFA'natinst.
+  etrans.
+  { apply cancel_postcomposition.
+    exact μFA'natinst. }
+  clear ε2 μFA'natinst ε2better ε2betterok.
+  rewrite <- assoc.
+  etrans.
+  { apply maponpaths.
+    rewrite assoc.
+    apply cancel_postcomposition.
+    unfold αinv'.
+    apply pathsinv0.
+    apply (functor_comp precompG). }
+  etrans.
+  { apply maponpaths.
+    apply cancel_postcomposition.
+    apply maponpaths.
+    set (μFA'pointwise := nat_z_iso_pointwise_z_iso (strong_monoidal_functor_μ FA') vw').
+    apply (z_iso_inv_after_z_iso μFA'pointwise). }
+  clear αinv αinv' αinviso α.
+  rewrite functor_id.
+  rewrite id_left.
+  match goal with | [ |- ?Hσ · _ = _ ] => set (σ' := Hσ) end.
+  match goal with | [ |- _ = ?Hrhs ] => set (rhs := Hrhs) end.
+  assert (rhsmadebetter: rhs = (γ · δ) · (β · ε1)).
+  { (* why do we need pointwise reasoning? *)
+    apply nat_trans_eq; try exact hsA'.
+    intro a.
+    unfold rhs.
+    cbn.
+    repeat rewrite assoc.
+    apply idpath.
+  }
+  rewrite rhsmadebetter.
+  set (ε1better := # postcompG (# (functor_composite tensor FA) fg)).
+  transparent assert (ε1betterok : (ε1 = ε1better)).
+  { apply idpath. }
+  rewrite ε1betterok.
+  apply (maponpaths (# postcompG)) in μFAnatinst.
+  do 2 rewrite functor_comp in μFAnatinst.
+  etrans.
+  2: { apply maponpaths.
+       unfold β, ε1better.
+       exact μFAnatinst. }
+  clear β μFAnatinst ε1 rhs rhsmadebetter ε1better ε1betterok.
+  match goal with | [ |- _ = _ · (_ · ?Hβ'twin) ] => set (β'twin := Hβ'twin) end.
+  transparent assert (β'twinok: (β'twin = β')).
+  { apply idpath. }
+  rewrite β'twinok.
+  unfold σ'.
+  rewrite functorial_composition_pre_post.
+  clear σ'.
+  rewrite functor_comp.
+  match goal with | [ |- (?Hσ'1 · ?Hσ'2) · _ = _ · (?Hσ · _) ] => set (σ'1 := Hσ'1); set (σ'2 := Hσ'2); set (σ := Hσ) end.
+  apply (maponpaths (# (post_composition_functor A A' A' hsA' hsA' ((FA' w'): [A', A', hsA'])))) in Hyp.
+  do 2 rewrite functor_comp in Hyp.
+  apply pathsinv0 in Hyp.
+  assert (Hypvariant: σ'2 · γ' = # (post_composition_functor A A' A' hsA' hsA' (FA' w')) η
+                       · # (post_composition_functor A A' A' hsA' hsA' (FA' w')) (# H' f)).
+  { etrans.
+    2: { exact Hyp. }
+    unfold σ'2, γ'. unfold H.
+    apply nat_trans_eq; try exact hsA'.
+    intro a.
+    apply idpath.
+  }
+  clear Hyp.
+  intermediate_path (σ'1 · (σ'2 · γ') · (δ' · β')).
+  { repeat rewrite <- assoc.
+    apply idpath. }
+  rewrite Hypvariant.
+  clear σ'2 γ' Hypvariant.
+  unfold H', param_distributivity_codom.
+  change (ActionBasedStrength.postcompF hsA hsA' G) with (postcompG(C:=A)).
+  match goal with | [ |- _ · (?Hγw' · ?Hι') · _ = _ ] => set (γw' := Hγw'); set (ι' := Hι')  end.
+  intermediate_path (((σ'1 · γw') · ι') · (δ' · β')).
+  { repeat rewrite <- assoc.
+    apply maponpaths.
+    apply nat_trans_eq; try exact hsA'.
+    intro a.
+    cbn.
+    repeat rewrite <- assoc.
+    apply idpath. }
+  etrans.
+  { do 2 apply cancel_postcomposition.
+    apply pathsinv0.
+    assert (auxhorcomp := functorial_composition_pre_post _ _ _ hsA' hsA' _ _ _ _ η (# FA' g)).
+    assert (σ'1ok : σ'1 = # (pre_composition_functor A A' A' hsA' hsA' (H v)) (# FA' g)).
+    { unfold σ'1, H, param_distributivity_dom.
+      apply nat_trans_eq; try exact hsA'.
+      intro a.
+      cbn.
+      apply idpath. }
+    rewrite σ'1ok. unfold γw'. apply auxhorcomp. }
+  rewrite functorial_composition_post_pre.
+  clear σ'1 γw'.
+  change (# (post_composition_functor A A' A' hsA' hsA' (FA' w)) η) with γ.
+  repeat rewrite <- assoc.
+  match goal with | [ |- _ · ?Hν' · _ = _ ] => set (ν' := Hν')  end.
+  set (ν'better := # (pre_composition_functor A A' A' hsA' hsA' (H' v)) (# FA' g)).
+  assert (ν'betterok : ν' = ν'better).
+  { unfold ν', ν'better, H', param_distributivity_codom.
+    apply nat_trans_eq; try exact hsA'.
+    intro a.
+    cbn.
+    apply idpath. }
+  rewrite ν'betterok.
+  clear ν' ν'betterok.
+  unfold σ. rewrite functorial_composition_pre_post.
+  clear σ.
+  rewrite functor_comp.
+  do 2 rewrite assoc.
+  match goal with | [ |- _ = _ · (?Hσ1 · ?Hσ2 · _) ] => set (σ1 := Hσ1); set (σ2 := Hσ2) end.
+  apply (maponpaths (# (pre_composition_functor A A A' hsA hsA' ((FA v): [A, A, hsA])))) in Hyp'.
+  do 2 rewrite functor_comp in Hyp'.
+  assert (Hypvariant: δ · σ1 = # (pre_composition_functor A A A' hsA hsA' (FA v)) (# H g)
+       · # (pre_composition_functor A A A' hsA hsA' (FA v)) π').
+  { etrans.
+    2: { exact Hyp'. }
+    unfold δ, σ1. unfold H'.
+    apply nat_trans_eq; try exact hsA'.
+    intro a.
+    apply idpath.
+  }
+  clear Hyp'.
+  intermediate_path (γ · (δ · σ1) · σ2 · β').
+  2: { repeat rewrite <- assoc. apply maponpaths.
+       apply nat_trans_eq; try exact hsA'.
+       intro a.
+       cbn.
+       repeat rewrite <- assoc.
+       apply idpath. }
+  rewrite Hypvariant.
+  clear δ σ1 Hypvariant.
+  repeat rewrite <- assoc.
+  match goal with | [ |- _ = _ · (?Hν'variant · ?Hδ'π'  · _) ] => set (ν'variant := Hν'variant); set (δ'π' := Hδ'π') end.
+  assert (ν'variantok: ν'variant = ν'better).
+  { unfold ν'variant, ν'better.
+    apply nat_trans_eq; try exact hsA'.
+    intro a.
+    apply idpath.
+  }
+  rewrite ν'variantok.
+  clear ν'variant ν'variantok.
+  assert (auxhorcomp' := functorial_composition_pre_post _ _ _ hsA hsA' _ _ _ _ (# FA f) π').
+  rewrite functorial_composition_post_pre in auxhorcomp'.
+  change (# (pre_composition_functor A A A' hsA hsA' (FA v')) π') with δ' in auxhorcomp'.
+  change (# (pre_composition_functor A A A' hsA hsA' (FA v)) π') with δ'π' in auxhorcomp'.
+  assert (ι'ok: ι' = # (post_composition_functor A A A' hsA hsA' (H w')) (# FA f)).
+  { unfold ι', H, param_distributivity_dom.
+    apply nat_trans_eq; try exact hsA'.
+       intro a.
+       cbn.
+       apply idpath. }
+  assert (σ2ok: σ2 = # (post_composition_functor A A A' hsA hsA' (H' w')) (# FA f)).
+  { unfold σ2, H', param_distributivity_codom.
+    apply nat_trans_eq; try exact hsA'.
+    intro a.
+    cbn.
+    apply idpath. }
+  rewrite ι'ok, σ2ok.
+  apply (cancel_postcomposition _ _ β') in auxhorcomp'.
+  apply (maponpaths pr1) in auxhorcomp'.
+  apply nat_trans_eq; try exact hsA'.
+  intro a.
+  apply toforallpaths in auxhorcomp'.
+  assert (auxhorcomp'inst := auxhorcomp' a).
+  apply (maponpaths (fun x => pr1(γ · ν'better) a · x)) in auxhorcomp'inst.
+  cbn in auxhorcomp'inst |- *.
+  repeat rewrite assoc in auxhorcomp'inst |- *.
+  etrans.
+  { exact auxhorcomp'inst. }
+  do 2 apply cancel_postcomposition.
+  apply assoc'.
+Qed.
 
 Definition montrafotarget_tensor_data: functor_data (montrafotarget_precat ⊠ montrafotarget_precat) montrafotarget_precat.
 Proof.
