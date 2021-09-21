@@ -357,6 +357,9 @@ Context (FA': strong_monoidal_functor Mon_V (monoidal_precat_of_endofunctors hsA
 
 Context (G : A ⟶ A').
 
+Local Definition precompG := pre_composition_functor _ _ _ hsA' hsA' G.
+Local Definition postcompG {C: precategory} := post_composition_functor C _ _ hsA hsA' G.
+
 Let H := param_distributivity_dom Mon_V hsA' FA' G.
 Let H' := param_distributivity_codom Mon_V hsA hsA' FA G.
 
@@ -372,12 +375,13 @@ Defined.
 Let nat_trans_type_RL (F0: A'⟶A') (F1: A⟶A): UU:= [A, A', hsA'] ⟦functor_compose hsA' hsA' G F0, functor_compose hsA hsA' F1 G⟧.
 Let nat_trans_type_LL (F0 F1: A⟶A): UU:= [A, A', hsA'] ⟦functor_compose hsA hsA' F0 G, functor_compose hsA hsA' F1 G⟧.
  *)
-Local Notation "RL[ F0 ',' F1 ]" := ([A, A', hsA'] ⟦functor_compose hsA' hsA' G F0, functor_compose hsA hsA' F1 G⟧) (at level 25).
-Local Notation "LL[ F0 ',' F1 ]" := ([A, A', hsA'] ⟦functor_compose hsA hsA' F0 G, functor_compose hsA hsA' F1 G⟧) (at level 25).
-Local Notation "RR[ F0 ',' F1 ]" := ([A, A', hsA'] ⟦functor_compose hsA' hsA' G F0, functor_compose hsA' hsA' G F1⟧) (at level 25).
+
+Local Notation "RL[ F0 ',' F1 ]" := ([A, A', hsA'] ⟦precompG F0, postcompG F1⟧) (at level 25).
+Local Notation "LL[ F0 ',' F1 ]" := ([A, A', hsA'] ⟦postcompG F0, postcompG F1⟧) (at level 25).
+Local Notation "RR[ F0 ',' F1 ]" := ([A, A', hsA'] ⟦precompG F0, precompG F1⟧) (at level 25).
 
 
-Lemma montrafotarget_tensor_comp_aux (v w v' w': Mon_V) (f: Mon_V⟦v,v'⟧) (g: Mon_V⟦w,w'⟧)
+Lemma montrafotarget_tensor_comp_aux_obsolete (v w v' w': Mon_V) (f: Mon_V⟦v,v'⟧) (g: Mon_V⟦w,w'⟧)
       (η : trafotarget_disp hsA' H H' v) (π : trafotarget_disp hsA' H H' w)
       (η' : trafotarget_disp hsA' H H' v') (π' : trafotarget_disp hsA' H H' w')
       (Hyp: η  -->[ f] η') (Hyp': π -->[ g] π'):
@@ -390,22 +394,22 @@ Proof.
   change (RL[ FA' w, FA w]) in π.
   change (RL[ FA' v', FA v']) in η'.
   change (RL[ FA' w', FA w']) in π'.
-  change (η · (post_whisker (# FA f) G: LL[ FA v, FA v']) = (pre_whisker G (# FA' f): RR[FA' v,FA' v']) · η') in Hyp.
-  change (π · (post_whisker (# FA g) G: LL[ FA w, FA w']) = (pre_whisker G (# FA' g): RR[FA' w,FA' w']) · π') in Hyp'.
-  change param_distr_pentagon_eq_body_variant_RHS with param_distr_pentagon_eq_body_variant_RHS_in_steps.
+  change (η · (# postcompG (# FA f): LL[ FA v, FA v']) = (# precompG (# FA' f): RR[FA' v,FA' v']) · η') in Hyp.
+  change (π · (# postcompG (# FA g): LL[ FA w, FA w']) = (# precompG (# FA' g): RR[FA' w,FA' w']) · π') in Hyp'.
+  unfold param_distr_pentagon_eq_body_variant_RHS.
   unfold mor_disp.
   hnf.
   match goal with | [ |- _ = ?RHS ] => set (rhs := RHS) end.
-  change ((param_distr_pentagon_eq_body_variant_RHS_in_steps Mon_V hsA hsA' FA FA' G v w η π) · (post_whisker (# FA (# tensor ((f,, g): pr1 Mon_V ⊠ pr1 Mon_V ⟦ (v,,w), (v',,w') ⟧))) G:LL[FA (tensor (v,, w)),FA (tensor (v',, w'))]) = rhs).
+  change ((param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v w η π) · (# postcompG (# FA (# tensor ((f,, g): pr1 Mon_V ⊠ pr1 Mon_V ⟦ (v,,w), (v',,w') ⟧))): LL[FA (tensor (v,, w)),FA (tensor (v',, w'))]) = rhs).
   match goal with | [ |- ?LHS = _ ] => set (lhs := LHS) end.
-  change (lhs = (pre_whisker G (# FA' (# tensor ((f,, g): pr1 Mon_V ⊠ pr1 Mon_V ⟦ (v,,w), (v',,w') ⟧))): RR[FA' (tensor (v,, w)),FA' (tensor (v',, w'))]) · (param_distr_pentagon_eq_body_variant_RHS_in_steps Mon_V hsA hsA' FA FA' G v' w' η' π')).
+  change (lhs = (# precompG (# FA' (# tensor ((f,, g): pr1 Mon_V ⊠ pr1 Mon_V ⟦ (v,,w), (v',,w') ⟧))): RR[FA' (tensor (v,, w)),FA' (tensor (v',, w'))]) · (param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v' w' η' π')).
   unfold lhs.
-  unfold param_distr_pentagon_eq_body_variant_RHS_in_steps.
-  unfold param_distr_pentagon_eq_body_RHS_in_steps.
+  unfold param_distr_pentagon_eq_body_variant_RHS.
+  unfold param_distr_pentagon_eq_body_RHS.
   clear rhs lhs.
-  match goal with |- @paths ?ID _ _ => set (typeofeq := ID); simpl in typeofeq end.
+  match goal with |- @paths ?ID _ _ => set (typeofeq := ID) end.
   assert (typeofeqok: typeofeq = RL[ FA' (tensor (v,,w)), FA (tensor (v',,w'))]) by apply idpath.
-  (* goal presented as:
+  (* goal used to be presented as:
 pre_whisker G (strong_monoidal_functor_μ_inv FA' (v,, w))
   · (post_whisker η (FA' w) · pre_whisker (FA v) π · post_whisker (lax_monoidal_functor_μ FA (v,, w)) G)
   · post_whisker (# FA (# tensor (f,, g))) G =
@@ -414,26 +418,77 @@ pre_whisker G (strong_monoidal_functor_μ_inv FA' (v,, w))
      · (post_whisker η' (FA' w') · pre_whisker (FA v') π' · post_whisker (lax_monoidal_functor_μ FA (v',, w')) G))
 with abbreviated hypotheses:
 Hyp : η · post_whisker (# FA f) G = pre_whisker G (# FA' f) · η'
-Hyp' : π · post_whisker (# FA g) G = pre_whisker G (# FA' g) · π'
+Hyp' : π · post_whisker (# FA g) G = pre_whisker G (# FA' g) · π'*)
+  change (ActionBasedStrength.precompF hsA' G) with precompG.
+  change (ActionBasedStrength.postcompF hsA hsA' G) with (postcompG(C:=A)).
+  (*
+Now it looks like follows:
+# precompG (strong_monoidal_functor_μ_inv FA' (v,, w))
+  · (# (post_composition_functor A A' A' hsA' hsA' (FA' w)) η · # (pre_composition_functor A A A' hsA hsA' (FA v)) π
+     · # postcompG (lax_monoidal_functor_μ FA (v,, w))) · # postcompG (# FA (# tensor (f,, g))) =
+  # precompG (# FA' (# tensor (f,, g)))
+  · (# precompG (strong_monoidal_functor_μ_inv FA' (v',, w'))
+     · (# (post_composition_functor A A' A' hsA' hsA' (FA' w')) η'
+        · # (pre_composition_functor A A A' hsA hsA' (FA v')) π' · # postcompG (lax_monoidal_functor_μ FA (v',, w'))))
+with abbreviated hypotheses
+Hyp : η · # postcompG (# FA f) = # precompG (# FA' f) · η'
+Hyp' : π · # postcompG (# FA g) = # precompG (# FA' g) · π'
  *)
         set (vw := v,,w). set (vw' := v',,w'). set (fg := f,,g).
 (* I have a lengthy proof on paper. *)
         match goal with | [ |- ?Hαinv · (?Hγ · ?Hδ · ?Hβ) · ?Hε = _ ] => set (αinv := Hαinv);
            set (γ := Hγ); set (δ:= Hδ); set (β := Hβ); set (ε1 := Hε) end.
-        (** this operation makes the infos of belonging to homsets of a functor category disappear *)
+        (** this operation used to make the infos of belonging to homsets of a functor category disappear,
+            but now there is simplyno choice for falling back to the primitive notions (i.e., not in
+            a functor category *)
         match goal with | [ |- _ = ?Hε · (?Hαinv · (?Hγ · ?Hδ · ?Hβ)) ] => set (αinv' := Hαinv);
            set (γ' := Hγ); set (δ':= Hδ); set (β' := Hβ); set (ε2 := Hε) end.
 (* all these natural transformations have wrong types: they are transformations between functor_data,
    not elements of the functor category. *)
         set (αinviso := prewhisker_with_μ_inv_z_iso Mon_V hsA' FA' G v w).
-        transparent assert (αinvisook : (pr1 αinviso = αinv)).
-        { apply idpath. }
+     (*   transparent assert (αinvisook : (pr1 αinviso = αinv)).
+        { apply idpath. } *)
         rewrite <- assoc.
         apply pathsinv0.
-        rewrite <- αinvisook.
+     (*   rewrite <- αinvisook. *)
         (* one has to reconstruct all the constituents as morphisms of the functor category
         set (help := z_iso_inv_to_left(C:=[A, A', hsA']) _ _ _ αinviso (γ · δ · β · ε1:[A, A', hsA']⟦_,_⟧) (ε2 · (αinv' · (γ' · δ' · β')))).
-       *)
+         *)
+        apply (z_iso_inv_to_left _ _ _ αinviso).
+(* now, one can work reasonably, to be continued *)
+Abort.
+
+Lemma montrafotarget_tensor_comp_aux (v w v' w': Mon_V) (f: Mon_V⟦v,v'⟧) (g: Mon_V⟦w,w'⟧)
+      (η : trafotarget_disp hsA' H H' v) (π : trafotarget_disp hsA' H H' w)
+      (η' : trafotarget_disp hsA' H H' v') (π' : trafotarget_disp hsA' H H' w')
+      (Hyp: η  -->[ f] η') (Hyp': π -->[ g] π'):
+  (param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v w η π:
+     pr1 (trafotarget_disp hsA' H H') (v ⊗ w))
+    -->[ # tensor (f,, g : pr1 Mon_V ⊠ pr1 Mon_V ⟦ v,, w, v',, w' ⟧)]
+    param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v' w' η' π'.
+Proof.
+  unfold mor_disp in Hyp, Hyp' |- *.
+  hnf in Hyp, Hyp' |- *.
+  unfold param_distr_pentagon_eq_body_variant_RHS, param_distr_pentagon_eq_body_RHS.
+  change (ActionBasedStrength.precompF hsA' G) with precompG.
+  change (ActionBasedStrength.postcompF hsA hsA' G) with (postcompG(C:=A)).
+  match goal with | [ |- ?Hαinv · (?Hγ · ?Hδ · ?Hβ) · ?Hε = _ ] => set (αinv := Hαinv);
+     set (γ := Hγ); set (δ:= Hδ); set (β := Hβ); set (ε1 := Hε) end.
+  match goal with | [ |- _ = ?Hε · (?Hαinv · (?Hγ · ?Hδ · ?Hβ)) ] => set (αinv' := Hαinv);
+           set (γ' := Hγ); set (δ':= Hδ); set (β' := Hβ); set (ε2 := Hε) end.
+  set (αinviso := prewhisker_with_μ_inv_z_iso Mon_V hsA' FA' G v w).
+  rewrite <- assoc.
+  apply pathsinv0.
+  apply (z_iso_inv_to_left _ _ _ αinviso).
+  unfold inv_from_z_iso.
+  set (α := # precompG (lax_monoidal_functor_μ FA' (v,, w))).
+  change (pr12 αinviso) with α.
+  set (vw := v,,w: Mon_V ⊠ Mon_V). set (vw' := v',,w': Mon_V ⊠ Mon_V). set (fg := f,,g: Mon_V ⊠ Mon_V ⟦ vw, vw' ⟧).
+  assert (μFA'natinst := nat_trans_ax (lax_monoidal_functor_μ FA') _ _ fg).
+  simpl in μFA'natinst.
+  assert (μFAnatinst := nat_trans_ax (lax_monoidal_functor_μ FA) _ _ fg).
+  simpl in μFAnatinst.
+  (* I have a lengthy but very natural proof on paper. *)
 Admitted.
 
 Definition montrafotarget_tensor_data: functor_data (montrafotarget_precat ⊠ montrafotarget_precat) montrafotarget_precat.
@@ -479,6 +534,14 @@ Lemma montrafotarget_monprecat_left_unitor_aux1 (vη : montrafotarget_precat):
   pr2 (I_pretensor montrafotarget_tensor montrafotarget_unit vη)
       -->[monoidal_precat_left_unitor Mon_V (pr1 vη)]
       pr2 (functor_identity montrafotarget_precat vη).
+Proof.
+  unfold mor_disp. unfold trafotarget_disp. hnf.
+  induction vη as [v η].
+  unfold trafotarget_disp in η. change ([A, A', hsA']⟦H v, H' v⟧) in η.
+  etrans.
+  2: { apply maponpaths. cbn. apply idpath. }
+  simpl. (* not cbn! *)
+  unfold param_distr_pentagon_eq_body_variant_RHS, param_distr_triangle_eq_variant0_RHS, param_distr_pentagon_eq_body_RHS.
 Admitted.
 
 Lemma montrafotarget_monprecat_left_unitor_aux2 (vη : montrafotarget_precat):
@@ -634,7 +697,7 @@ Proof.
   unfold mor_disp. unfold trafotarget_disp. hnf.
   do 2 rewrite functor_id.
   rewrite id_right. rewrite id_left.
-  cbn.
+  simpl. (* not cbn! *)
   apply param_distr_triangle_eq_variant0_follows in δtr_eq.
   red in δtr_eq.
   unfold MonoidalFunctors.I_C. unfold ActionBasedStrength.I in δtr_eq.
@@ -653,7 +716,7 @@ Proof.
   red in δpe_eq.
   do 2 rewrite functor_id.
   rewrite id_left, id_right.
-  cbn.
+  simpl. (* not cbn! *)
   assert (δpe_eqinst := δpe_eq (pr1 vw) (pr2 vw)).
   apply param_distr_pentagon_eq_body_variant_follows in δpe_eqinst.
   unfold param_distr_pentagon_eq_body_variant in δpe_eqinst.
@@ -725,7 +788,7 @@ Definition lmf_from_param_distr: lax_monoidal_functor Mon_V montrafotarget_monpr
   mk_lax_monoidal_functor _ _ lmf_from_param_distr_functor lmf_from_param_distr_ε lmf_from_param_distr_μ
                           lmf_from_param_distr_assoc lmf_from_param_distr_unital.
 
-(* now unpleasant similar but not identical code to above for triangle *)
+(* now similar but not identical code to above for triangle *)
 Lemma smf_from_param_distr_is_strong1_aux: pr2 (lmf_from_param_distr (MonoidalFunctors.I_C Mon_V)) -->[id I]
                                            pr2 (MonoidalFunctors.I_D montrafotarget_monprecat).
 Proof.
@@ -762,7 +825,7 @@ Definition smf_from_param_distr_is_strong1: is_z_isomorphism (lax_monoidal_funct
   smf_from_param_distr_is_strong1_inv ,, smf_from_param_distr_is_strong1_inv_ok.
 
 
-(* now unpleasant similar but not identical code to above for pentagon *)
+(* now similar but not identical code to above for pentagon *)
 Lemma smf_from_param_distr_is_strong2_aux (vw : Mon_V ⊠ Mon_V):
   pr2 (monoidal_functor_map_codom Mon_V montrafotarget_monprecat lmf_from_param_distr vw)
       -->[id pr1 (monoidal_functor_map_codom Mon_V montrafotarget_monprecat lmf_from_param_distr vw)]
@@ -772,7 +835,7 @@ Proof.
   red in δpe_eq.
   do 2 rewrite functor_id.
   rewrite id_left, id_right.
-  cbn.
+  simpl.
   assert (δpe_eqinst := δpe_eq (pr1 vw) (pr2 vw)).
   apply param_distr_pentagon_eq_body_variant_follows in δpe_eqinst.
   unfold param_distr_pentagon_eq_body_variant in δpe_eqinst.
