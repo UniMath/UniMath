@@ -27,3 +27,5 @@ MultiSorted_alt.v
 STLC.v
 STLC_alt.v
 CCS.v
+CCS_alt.v
+PCF_alt.v
