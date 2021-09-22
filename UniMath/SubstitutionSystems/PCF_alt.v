@@ -212,6 +212,6 @@ Let PCF_M_alg : algebra_ob PCF_Functor :=
 Definition var_map : typeToSet2⟦Id,PCF_M⟧ :=
   BinCoproductIn1 _ (BinCoproducts_functor_precat _ _ _ _ _ _) · PCF_M_mor.
 
-(* TODO: extract the other constructors *)
+(* We can also extract the other constructors *)
 
 End pcf.
