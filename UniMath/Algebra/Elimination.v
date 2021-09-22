@@ -4366,7 +4366,7 @@ Section Gauss.
       { rewrite is_right_inv. reflexivity.  }
       rewrite contr in id.
       assert (contr' : (@stdb_vector hq n x) x = 0%hq).
-      { rewrite <- id. reflexivity.}
+      { rewrite <- id. reflexivity. }
       assert (contr'' : (@stdb_vector hq n x) x = 1%hq).
       { unfold stdb_vector. destruct (stn_eq_or_neq _ _) as [? | neq].
         {apply idpath. }
@@ -4652,59 +4652,6 @@ Section Gauss.
         apply idpath.
   Defined.
 
-
-  (*Lemma gauss_iterate_as_matrix_invertible  { n : nat } (iter : ⟦ S n ⟧%stn)
-    (mat : Matrix F n n) (pivots : Vector (⟦ n ⟧%stn) n) : @matrix_inverse
-    hq _ (@gauss_iterate_as_matrix  n  iter  mat pivots).
-  Proof.
-    unfold gauss_iterate_as_matrix.
-    (* destruct (natchoice0 n). {apply identity_is_inv. } *)
-    destruct iter as [pr1_ pr2_].
-    induction pr1_.
-    - simpl; apply identity_matrix_is_inv.
-    - rewrite nat_rect_step.
-      destruct (select_pivot_row_easy mat (pr1_,, pr2_) (n,, natgthsnn n)).
-      2 :
-        {refine ( inv_matrix_prod_is_inv _ _ _ _).
-         - apply identity_matrix_is_inv.
-
-         - apply IHpr1_.
-      }
-      refine ( inv_matrix_prod_is_inv _ _ _ _).
-      + apply clear_column_matrix_invertible.
-        apply inv_matrix_prod_is_inv.
-        apply switch_row_matrix_is_inv. {exact (mat s s). } (* TODO ?? *)
-        apply IHpr1_.
-      + refine (inv_matrix_prod_is_inv _ _ _ _).
-        * set (todo := (@select_pivot_row_correct2 n)). (* TODO use this or similar *)
-          refine ( switch_row_matrix_is_inv _ _ _).
-          exact (mat s s). (* TODO Huh ? *)
-        * apply IHpr1_.
-  Defined.*)
-
-  (* (* Deprecated. We want to prove this for  gauss_clear_columns_up_to. *)
-  Lemma gauss_iterate_as_matrix_eq  { n : nat } (iter : ⟦ S n ⟧%stn)
-    (mat : Matrix F n n) (pivots : Vector (⟦ n ⟧%stn) n) :
-    (@gauss_iterate_as_matrix  n  iter  mat pivots) = ( (gauss_iterate' iter mat pivots)).
-  Proof.
-    intros.
-    set (x := 1).
-    unfold gauss_iterate_as_matrix, gauss_iterate'.
-    destruct (natchoice0 n).
-    { apply funextfun. intros i. apply fromempty. rewrite <- p in i. apply fromstn0; assumption. }
-    destruct iter as [pr1_ pr2_].
-    induction pr1_.
-    - simpl. admit. (*Wrong! identity_matrix = mat. What went wrong? *)
-    - do 2 rewrite nat_rect_step.
-      rewrite IHpr1_.
-      destruct (select_pivot_row_easy mat (pr1_,, pr2_) (n,, natgthsnn n)).
-      + rewrite clear_column_eq_matrix_def .
-        rewrite switch_row_mat_elementary. (*TODO rename*)
-        (*rewrite <- gauss_clear_column_eq.*)
-        admit.
-      + rewrite matlunax2.
-        reflexivity.
-  Admitted. *)
 
 
   Lemma gauss_clear_columns_up_to_as_matrix_eq  { n : nat } (iter : ⟦ S n ⟧%stn)
