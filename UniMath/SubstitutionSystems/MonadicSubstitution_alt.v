@@ -17,6 +17,8 @@ Require Import UniMath.MoreFoundations.PartA.
 Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Require Import UniMath.CategoryTheory.FunctorCategory.
+Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.Monads.Monads.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.initial.
@@ -72,6 +74,9 @@ Let Id_H : functor [C, C, hsC] [C, C, hsC]
 Definition TermHSS : hss_precategory CP (Presignature_Signature (H,,θ)) :=
   InitHSS C hsC CP IC CC (Presignature_Signature (H,,θ)) HH.
 
+Definition TermHetSubst: heterogeneous_substitution C hsC CP H
+  := hetsubst_from_hss C hsC CP (Presignature_Signature (H,,θ)) TermHSS.
+
 Definition Terms: [C, C, hsC] := pr1 (pr1 TermHSS).
 Definition TermAlgebra: FunctorAlg Id_H hsEndC:= pr1 TermHSS.
 
@@ -88,11 +93,45 @@ Defined.
 
 Definition TermMonad: Monad C := Monad_from_hss C hsC CP (H,,θ) TermHSS.
 
-Definition join: functor_composite Terms Terms ⟹ pr1 Terms := prejoin_from_hetsubst (hetsubst_from_hss C hsC CP (Presignature_Signature (H,,θ)) TermHSS).
+Definition VarTerms: [C, C, hsC] ⟦ functor_identity C, Terms ⟧:= eta_from_alg TermAlgebra.
+
+Definition ConstrTerms: [C, C, hsC] ⟦ H Terms, Terms ⟧ := tau_from_alg TermAlgebra.
+
+Goal ConstrTerms = τ TermHetSubst.
+Proof.
+  apply idpath.
+Qed.
+
+Definition join: [C, C, hsC] ⟦ functor_compose hsC hsC Terms Terms, Terms ⟧ := prejoin_from_hetsubst TermHetSubst.
 
 Goal join = μ TermMonad.
 Proof.
   apply idpath.
 Qed.
+
+Definition joinLookup:
+  ∏ c : C, pr1 VarTerms (pr1 Terms c) · pr1 join c = identity (pr1 Terms c)
+  := @Monad_law1 C TermMonad.
+
+Definition θforTerms := θ_from_hetsubst C hsC CP H TermHetSubst Terms.
+
+Goal θforTerms = PrecategoryBinProduct.nat_trans_fix_snd_arg_data [C, C, hsC] Ptd [C, C, hsC]
+         (θ_source H) (θ_target H) (pr1 θ) (ptd_from_alg (InitAlg C hsC CP IC CC H HH)) Terms.
+Proof.
+  apply idpath.
+Qed.
+
+Definition joinHomomorphic: θforTerms · # H join · ConstrTerms =
+                  #(pre_composition_functor _ _ _ hsC hsC Terms) ConstrTerms  · join
+  := prejoin_from_hetsubst_τ TermHetSubst.
+
+Definition joinHasEtaLaw:
+  ∏ c : C, # (pr1 Terms) (pr1 VarTerms c) · pr1 join c = identity (pr1 Terms c)
+  := @Monad_law2 C TermMonad.
+
+Definition joinHasPermutationLaw:
+  ∏ c : C, # (pr1 Terms) (pr1 join c) · pr1 join c = pr1 join (pr1 Terms c) · pr1 join c
+  := @Monad_law3 C TermMonad.
+
 
 End MainResult.
