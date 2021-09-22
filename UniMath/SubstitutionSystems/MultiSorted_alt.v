@@ -202,7 +202,7 @@ End Sorted_Option_Functor.
 Definition option_list (xs : list sort) : [sortToC,sortToC].
 Proof.
 (* This should be foldr1 in order to avoid composing with the
-   constant functor on the right in the base case *)
+   identity functor on the right in the base case *)
 use (foldr1 (λ F G, F ∙ G) (functor_identity _) (map sorted_option_functor xs)).
 Defined.
 
