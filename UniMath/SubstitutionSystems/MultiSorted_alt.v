@@ -97,9 +97,10 @@ Let make_sortToC (f : sort → C) : sortToC := functor_path_pregroupoid f.
 Let hsC : has_homsets C := homset_property C.
 Let hs : has_homsets sortToC := homset_property sortToC.
 Let BCsortToC : BinCoproducts sortToC := BinCoproducts_functor_precat _ _ BC hsC.
+Let BPC : BinProducts [sortToC,C] := BinProducts_functor_precat sortToC C BP hsC.
 
 (* Assumptions needed to prove ω-cocontinuity of the functor *)
-Variables (expSortToCC : Exponentials (BinProducts_functor_precat sortToC C BP hsC))
+Variables (expSortToCC : Exponentials BPC)
           (HC : Colims_of_shape nat_graph C).
 (* The expSortToCC assumption says that [sortToC,C] has exponentials. It
    could be reduced to exponentials in C, but we only have the case
@@ -202,9 +203,7 @@ End Sorted_Option_Functor.
 (** Sorted option functor for lists *)
 Definition option_list (xs : list sort) : [sortToC,sortToC].
 Proof.
-(* This should be foldr1 in order to avoid composing with the
-   identity functor in the base case *)
-use (foldr1 (λ F G, F ∙ G) (functor_identity _) (map sorted_option_functor xs)).
+use (foldr (λ F G, F ∙ G) (functor_identity _) (map sorted_option_functor xs)).
 Defined.
 
 
@@ -239,8 +238,7 @@ set (T := constant_functor [sortToC,sortToC] [sortToC,C]
 set (XS := map exp_functor xs).
 (* This should be foldr1 in order to avoid composing with the
    constant functor in the base case *)
-use (foldr1 (λ F G, BinProduct_of_functors _ F G) T XS).
-apply BinProducts_functor_precat, BP.
+exact (foldr1 (λ F G, BinProduct_of_functors BPC F G) T XS).
 Defined.
 
 Definition hat_exp_functor_list (xst : list (list sort × sort) × sort) :
@@ -259,8 +257,8 @@ Defined.
 
 End functor.
 
-(** * Construction of the strength for the endofunctor on [C^sort,C^sort] derived from a
-      multisorted signature *)
+(** * Construction of the strength for the endofunctor on [C^sort,C^sort]
+      derived from a multisorted signature *)
 Section strength.
 
 (* The distributive law for sorted_option_functor *)
@@ -269,17 +267,12 @@ Definition DL_sorted_option_functor (s : sort) :
     genoption_DistributiveLaw sortToC hs (option_fun_summand s) BCsortToC.
 
 (* The DL for option_list *)
-Definition DL_option_list (xs : list sort) :
-  DistributiveLaw _ hs (option_list xs).
+Definition DL_option_list : ∏ (xs : list sort), DistributiveLaw _ hs (option_list xs).
 Proof.
-induction xs as [[|n] xs].
-+ induction xs.
-  apply DL_id.
-+ induction n as [|n IH].
-  * induction xs as [m []].
-    apply DL_sorted_option_functor.
-  * induction xs as [m [k xs]].
-    apply (DL_comp (DL_sorted_option_functor m) (IH (k,,xs))).
+use list_ind.
++ apply DL_id.
++ intros x xs.
+  apply (DL_comp (DL_sorted_option_functor _)).
 Defined.
 
 (* The signature for exp_functor *)
@@ -287,17 +280,12 @@ Definition Sig_exp_functor (lt : list sort × sort) :
   Signature _ hs _ hsC _ hs.
 Proof.
 exists (exp_functor lt).
-induction lt as [l t].
-induction l as [[|n] xs].
-+ induction xs.
-  exact (pr2 (Gθ_Signature _ _ (IdSignature _ _ _ _) (projSortToC t))).
-+ induction n as [|n IH].
-  * induction xs as [m []].
-    set (Sig_option_list := θ_from_δ_Signature (DL_option_list (cons m (0,,tt)))).
-    exact (pr2 (Gθ_Signature _ _ Sig_option_list (projSortToC t))).
-  * induction xs as [m xs].
-    set (Sig_option_list := θ_from_δ_Signature (DL_option_list (cons m (S n,,xs)))).
-    exact (pr2 (Gθ_Signature _ _ Sig_option_list (projSortToC t))).
+induction lt as [l t]; revert l.
+use list_ind.
++ exact (pr2 (Gθ_Signature _ _ (IdSignature _ _ _ _) (projSortToC t))).
++ intros x xs H; simpl.
+  set (Sig_option_list := θ_from_δ_Signature (DL_option_list (cons x xs))).
+  apply (pr2 (Gθ_Signature _ _ Sig_option_list (projSortToC t))).
 Defined.
 
 Local Lemma functor_in_Sig_exp_functor_ok (lt : list sort × sort) :
