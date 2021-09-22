@@ -187,8 +187,12 @@ Proof.
   apply pre_composition_is_functor.
 Defined.
 
-(** Postcomposition with a functor is functorial *)
+(* Variation with more implicit arguments *)
+Definition pre_comp_functor {A : precategory} {B : category} {C : category} :
+  [A, B] → [B, C] ⟶ [A, C] :=
+    pre_composition_functor _ _ _ (homset_property B) (homset_property C).
 
+(** Postcomposition with a functor is functorial *)
 
 Definition post_composition_functor_data (A B C : precategory)
   (hsB: has_homsets B) (hsC: has_homsets C)
@@ -244,3 +248,8 @@ Proof.
   exists (post_composition_functor_data A B C hsB hsC H).
   apply post_composition_is_functor.
 Defined.
+
+(* Variation with more implicit arguments *)
+Definition post_comp_functor {A : precategory} {B : category} {C : category} :
+  [B, C] → [A, B] ⟶ [A, C] :=
+    post_composition_functor _ _ _ (homset_property B) (homset_property C).
