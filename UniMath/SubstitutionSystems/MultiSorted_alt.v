@@ -80,8 +80,6 @@ Variables (sort : UU) (Hsort : isofhlevel 3 sort) (C : category).
 (* Note that there is some redundancy in the assumptions *)
 Variables (TC : Terminal C) (IC : Initial C)
           (BP : BinProducts C) (BC : BinCoproducts C)
-
-          (* TODO: check that these Products/Coproducts are OK *)
           (PC : forall (I : UU), Products I C) (CC : forall (I : UU), isaset I → Coproducts I C).
 
 Local Notation "'1'" := (TerminalObject TC).
@@ -203,7 +201,9 @@ End Sorted_Option_Functor.
 (** Sorted option functor for lists *)
 Definition option_list (xs : list sort) : [sortToC,sortToC].
 Proof.
-use (foldr (λ F G, F ∙ G) (functor_identity _) (map sorted_option_functor xs)).
+(* This should be foldr1 in order to avoid composing with the
+   constant functor on the right in the base case *)
+use (foldr1 (λ F G, F ∙ G) (functor_identity _) (map sorted_option_functor xs)).
 Defined.
 
 
@@ -267,12 +267,16 @@ Definition DL_sorted_option_functor (s : sort) :
     genoption_DistributiveLaw sortToC hs (option_fun_summand s) BCsortToC.
 
 (* The DL for option_list *)
-Definition DL_option_list : ∏ (xs : list sort), DistributiveLaw _ hs (option_list xs).
+Definition DL_option_list (xs : list sort) : DistributiveLaw _ hs (option_list xs).
 Proof.
-use list_ind.
-+ apply DL_id.
-+ intros x xs.
-  apply (DL_comp (DL_sorted_option_functor _)).
+induction xs as [[|n] xs].
++ induction xs.
+  apply DL_id.
++ induction n as [|n IH].
+  * induction xs as [m []].
+    apply DL_sorted_option_functor.
+  * induction xs as [m [k xs]].
+    apply (DL_comp (DL_sorted_option_functor m) (IH (k,,xs))).
 Defined.
 
 (* The signature for exp_functor *)
@@ -403,22 +407,15 @@ Defined.
 Local Lemma is_omega_cocont_exp_functor (a : list sort × sort) :
   is_omega_cocont (exp_functor a).
 Proof.
-induction a as [xs t].
-induction xs as [[|n] xs].
-- induction xs.
-  apply is_omega_cocont_post_comp_projSortToC.
-- induction n as [|n].
-  + induction xs as [m []].
-    use is_omega_cocont_functor_composite.
-    * apply functor_category_has_homsets.
-    * now apply is_omega_cocont_pre_composition_functor, ColimsFunctorCategory_of_shape.
-    * apply is_omega_cocont_post_comp_projSortToC.
-  + induction xs as [m k]; simpl.
-    use (@is_omega_cocont_functor_composite _ [sortToC,_,_]).
-    * apply (functor_category_has_homsets sortToC C hsC).
-    * apply (is_omega_cocont_pre_composition_functor (option_list (cons m (S n,,k))) hs hs).
-      now use ColimsFunctorCategory_of_shape.
-    * apply is_omega_cocont_post_comp_projSortToC.
+induction a as [xs t]; revert xs.
+use list_ind.
+- apply is_omega_cocont_post_comp_projSortToC.
+- intros x xs H; simpl.
+  apply is_omega_cocont_functor_composite.
+  + apply functor_category_has_homsets.
+  + apply (is_omega_cocont_pre_composition_functor (option_list _)).
+    apply (ColimsFunctorCategory_of_shape nat_graph sort_cat _ (homset_property C) HC).
+  + apply is_omega_cocont_post_comp_projSortToC.
 Defined.
 
 Local Lemma is_omega_cocont_exp_functor_list (xs : list (list sort × sort)) :
