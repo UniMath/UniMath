@@ -411,7 +411,6 @@ Proof.
   simpl in μFA'natinst.
   assert (μFAnatinst := nat_trans_ax (lax_monoidal_functor_μ FA) _ _ fg).
   simpl in μFAnatinst.
-  (* I have a lengthy but very natural proof on paper. *)
   change (# (functorial_composition _ _ _ hsA hsA) (# FA f,, # FA g:
            [A, A, hsA] ⊠ [A, A, hsA] ⟦(FA v,,FA w),(FA v',,FA w')⟧) · lax_monoidal_functor_μ FA vw' =
           lax_monoidal_functor_μ FA vw · # FA (# (MonoidalFunctors.tensor_C Mon_V) fg)) in μFAnatinst.
@@ -448,17 +447,8 @@ Proof.
   rewrite functor_id.
   rewrite id_left.
   match goal with | [ |- ?Hσ · _ = _ ] => set (σ' := Hσ) end.
-  match goal with | [ |- _ = ?Hrhs ] => set (rhs := Hrhs) end.
-  assert (rhsmadebetter: rhs = (γ · δ) · (β · ε1)).
-  { (* why do we need pointwise reasoning? *)
-    apply nat_trans_eq; try exact hsA'.
-    intro a.
-    unfold rhs.
-    cbn.
-    repeat rewrite assoc.
-    apply idpath.
-  }
-  rewrite rhsmadebetter.
+  etrans.
+  2: { use assoc. (* apply assoc does not work here *) }
   set (ε1better := # postcompG (# (functor_composite tensor FA) fg)).
   transparent assert (ε1betterok : (ε1 = ε1better)).
   { apply idpath. }
@@ -469,16 +459,21 @@ Proof.
   2: { apply maponpaths.
        unfold β, ε1better.
        exact μFAnatinst. }
-  clear β μFAnatinst ε1 rhs rhsmadebetter ε1better ε1betterok.
+  clear β μFAnatinst ε1 ε1better ε1betterok.
   match goal with | [ |- _ = _ · (_ · ?Hβ'twin) ] => set (β'twin := Hβ'twin) end.
-  transparent assert (β'twinok: (β'twin = β')).
-  { apply idpath. }
-  rewrite β'twinok.
+  change β'twin with β'.
+  clear β'twin.
+  etrans.
+  2: { apply pathsinv0. use assoc. (* apply assoc does not work here *) }
+  etrans.
+  { use assoc. (* apply assoc does not work here *) }
+  use cancel_postcomposition. (* apply cancel_postcomposition does not work here *)
+  clear β'.
   unfold σ'.
   rewrite functorial_composition_pre_post.
   clear σ'.
   rewrite functor_comp.
-  match goal with | [ |- (?Hσ'1 · ?Hσ'2) · _ = _ · (?Hσ · _) ] => set (σ'1 := Hσ'1); set (σ'2 := Hσ'2); set (σ := Hσ) end.
+  match goal with | [ |- ?Hσ'1 · ?Hσ'2 · _  = _ · ?Hσ ] => set (σ'1 := Hσ'1); set (σ'2 := Hσ'2); set (σ := Hσ) end.
   apply (maponpaths (# (post_composition_functor A A' A' hsA' hsA' ((FA' w'): [A', A', hsA'])))) in Hyp.
   do 2 rewrite functor_comp in Hyp.
   apply pathsinv0 in Hyp.
@@ -486,13 +481,15 @@ Proof.
                        · # (post_composition_functor A A' A' hsA' hsA' (FA' w')) (# H' f)).
   { etrans.
     2: { exact Hyp. }
-    unfold σ'2, γ'. unfold H.
+    use cancel_postcomposition. (* apply cancel_postcomposition does not work here *)
+    unfold σ'2. unfold H.
+    (* resort to pointwise reasoning *)
     apply nat_trans_eq; try exact hsA'.
     intro a.
     apply idpath.
   }
   clear Hyp.
-  intermediate_path (σ'1 · (σ'2 · γ') · (δ' · β')).
+  intermediate_path (σ'1 · (σ'2 · γ') · δ').
   { repeat rewrite <- assoc.
     apply idpath. }
   rewrite Hypvariant.
@@ -500,20 +497,18 @@ Proof.
   unfold H', param_distributivity_codom.
   change (ActionBasedStrength.postcompF hsA hsA' G) with (postcompG(C:=A)).
   match goal with | [ |- _ · (?Hγw' · ?Hι') · _ = _ ] => set (γw' := Hγw'); set (ι' := Hι')  end.
-  intermediate_path (((σ'1 · γw') · ι') · (δ' · β')).
+  intermediate_path (((σ'1 · γw') · ι') · δ').
   { repeat rewrite <- assoc.
     apply maponpaths.
-    apply nat_trans_eq; try exact hsA'.
-    intro a.
-    cbn.
-    repeat rewrite <- assoc.
-    apply idpath. }
+    apply pathsinv0.
+    use assoc. (* apply assoc does not work here *) }
   etrans.
   { do 2 apply cancel_postcomposition.
     apply pathsinv0.
     assert (auxhorcomp := functorial_composition_pre_post _ _ _ hsA' hsA' _ _ _ _ η (# FA' g)).
     assert (σ'1ok : σ'1 = # (pre_composition_functor A A' A' hsA' hsA' (H v)) (# FA' g)).
     { unfold σ'1, H, param_distributivity_dom.
+      (* resort to pointwise reasoning *)
       apply nat_trans_eq; try exact hsA'.
       intro a.
       cbn.
@@ -522,22 +517,22 @@ Proof.
   rewrite functorial_composition_post_pre.
   clear σ'1 γw'.
   change (# (post_composition_functor A A' A' hsA' hsA' (FA' w)) η) with γ.
-  repeat rewrite <- assoc.
+  rewrite <- assoc.
   match goal with | [ |- _ · ?Hν' · _ = _ ] => set (ν' := Hν')  end.
+  intermediate_path (γ · (ν' · (ι' · δ'))).
+  { apply pathsinv0.
+    use assoc. (* apply assoc does not work here *) }
+  intermediate_path (γ · (δ · σ)).
+  2: { use assoc. (* apply assoc does not work here *) }
+  apply maponpaths.
   set (ν'better := # (pre_composition_functor A A' A' hsA' hsA' (H' v)) (# FA' g)).
-  assert (ν'betterok : ν' = ν'better).
-  { unfold ν', ν'better, H', param_distributivity_codom.
-    apply nat_trans_eq; try exact hsA'.
-    intro a.
-    cbn.
-    apply idpath. }
-  rewrite ν'betterok.
-  clear ν' ν'betterok.
+  change ν' with ν'better.
+  clear ν'.
   unfold σ. rewrite functorial_composition_pre_post.
   clear σ.
   rewrite functor_comp.
-  do 2 rewrite assoc.
-  match goal with | [ |- _ = _ · (?Hσ1 · ?Hσ2 · _) ] => set (σ1 := Hσ1); set (σ2 := Hσ2) end.
+  rewrite assoc.
+  match goal with | [ |- _ = _ · (?Hσ1 · ?Hσ2) ] => set (σ1 := Hσ1); set (σ2 := Hσ2) end.
   apply (maponpaths (# (pre_composition_functor A A A' hsA hsA' ((FA v): [A, A, hsA])))) in Hyp'.
   do 2 rewrite functor_comp in Hyp'.
   assert (Hypvariant: δ · σ1 = # (pre_composition_functor A A A' hsA hsA' (FA v)) (# H g)
@@ -545,60 +540,52 @@ Proof.
   { etrans.
     2: { exact Hyp'. }
     unfold δ, σ1. unfold H'.
+    (* resort to pointwise reasoning *)
     apply nat_trans_eq; try exact hsA'.
     intro a.
     apply idpath.
   }
   clear Hyp'.
-  intermediate_path (γ · (δ · σ1) · σ2 · β').
-  2: { repeat rewrite <- assoc. apply maponpaths.
-       apply nat_trans_eq; try exact hsA'.
-       intro a.
-       cbn.
-       repeat rewrite <- assoc.
-       apply idpath. }
+  intermediate_path (δ · σ1 · σ2).
+  2: { apply pathsinv0. use assoc. (* apply assoc does not work here *) }
   rewrite Hypvariant.
   clear δ σ1 Hypvariant.
-  repeat rewrite <- assoc.
-  match goal with | [ |- _ = _ · (?Hν'variant · ?Hδ'π'  · _) ] => set (ν'variant := Hν'variant); set (δ'π' := Hδ'π') end.
+  match goal with | [ |- _ = ?Hν'variant · ?Hδ'π' · _] => set (ν'variant := Hν'variant); set (δ'π' := Hδ'π') end.
   assert (ν'variantok: ν'variant = ν'better).
   { unfold ν'variant, ν'better.
+    (* resort to pointwise reasoning *)
     apply nat_trans_eq; try exact hsA'.
     intro a.
     apply idpath.
   }
   rewrite ν'variantok.
   clear ν'variant ν'variantok.
+  rewrite <- assoc.
+  intermediate_path (ν'better · (δ'π' · σ2)).
+  2: { use assoc. (* apply assoc does not work here *) }
+  apply maponpaths.
+  clear ν'better.
   assert (auxhorcomp' := functorial_composition_pre_post _ _ _ hsA hsA' _ _ _ _ (# FA f) π').
   rewrite functorial_composition_post_pre in auxhorcomp'.
   change (# (pre_composition_functor A A A' hsA hsA' (FA v')) π') with δ' in auxhorcomp'.
   change (# (pre_composition_functor A A A' hsA hsA' (FA v)) π') with δ'π' in auxhorcomp'.
   assert (ι'ok: ι' = # (post_composition_functor A A A' hsA hsA' (H w')) (# FA f)).
   { unfold ι', H, param_distributivity_dom.
+    (* resort to pointwise reasoning *)
     apply nat_trans_eq; try exact hsA'.
        intro a.
        cbn.
        apply idpath. }
   assert (σ2ok: σ2 = # (post_composition_functor A A A' hsA hsA' (H' w')) (# FA f)).
   { unfold σ2, H', param_distributivity_codom.
+    (* resort to pointwise reasoning *)
     apply nat_trans_eq; try exact hsA'.
     intro a.
     cbn.
     apply idpath. }
   rewrite ι'ok, σ2ok.
-  apply (cancel_postcomposition _ _ β') in auxhorcomp'.
-  apply (maponpaths pr1) in auxhorcomp'.
-  apply nat_trans_eq; try exact hsA'.
-  intro a.
-  apply toforallpaths in auxhorcomp'.
-  assert (auxhorcomp'inst := auxhorcomp' a).
-  apply (maponpaths (fun x => pr1(γ · ν'better) a · x)) in auxhorcomp'inst.
-  cbn in auxhorcomp'inst |- *.
-  repeat rewrite assoc in auxhorcomp'inst |- *.
-  etrans.
-  { exact auxhorcomp'inst. }
-  do 2 apply cancel_postcomposition.
-  apply assoc'.
+  clear ι' σ2 ι'ok σ2ok.
+  exact auxhorcomp'.
 Qed.
 
 Definition montrafotarget_tensor_data: functor_data (montrafotarget_precat ⊠ montrafotarget_precat) montrafotarget_precat.
