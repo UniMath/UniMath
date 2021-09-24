@@ -32,6 +32,92 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
 Local Open Scope cat.
 
+Section UpstreamAux.
+  (** this section presents auxiliary results that are even more abstracted from the situation at hand *)
+
+  Context {C A1 A2 A3 A4 : precategory}.
+  Context (hsA2 : has_homsets A2).
+  Context (hsA3 : has_homsets A3).
+  Context (hsA4 : has_homsets A4).
+
+  Lemma assoc_precomp_precomp_mor (G : A1 ⟶ A2)(G' : A2 ⟶ A3)(H1 H2 : A3 ⟶ A4)(η: H1 ⟹ H2):
+    # (pre_composition_functor _ _ _ hsA2 hsA4 G)
+      (# (pre_composition_functor _ _ _ hsA3 hsA4 G') η) =
+      # (pre_composition_functor _ _ _ hsA3 hsA4
+                                 (pre_composition_functor _ _ _ hsA2 hsA3 G G')) η.
+  Proof.
+    cbn.
+    apply nat_trans_eq; try exact hsA4.
+    intro a.
+    apply idpath.
+  Qed.
+
+  Corollary assoc_precomp_precomp_mor_special (G : A1 ⟶ A2)(G' : A2 ⟶ A3)(F : C ⟶ [A3, A4, hsA4])
+            (c c': C) (f: C⟦c,c'⟧):
+    # (pre_composition_functor _ _ _ hsA2 hsA4 G)
+      (# (pre_composition_functor _ _ _ hsA3 hsA4 G') (# F f)) =
+      # (pre_composition_functor _ _ _ hsA3 hsA4
+                                 (pre_composition_functor _ _ _ hsA2 hsA3 G G'))
+        (# F f).
+  Proof.
+    apply assoc_precomp_precomp_mor.
+  Qed.
+
+
+  Lemma assoc_postcomp_postcomp_mor (H1 H2 : A1 ⟶ A2)(η: H1 ⟹ H2)(G : A2 ⟶ A3)(G' : A3 ⟶ A4):
+    # (post_composition_functor _ _ _ hsA3 hsA4 G')
+      (# (post_composition_functor _ _ _ hsA2 hsA3 G) η) =
+      # (post_composition_functor _ _ _ hsA2 hsA4
+                                  (post_composition_functor _ _ _ hsA3 hsA4 G' G)) η.
+    Proof.
+    cbn.
+    apply nat_trans_eq; try exact hsA4.
+    intro a.
+    apply idpath.
+  Qed.
+
+
+  Lemma exchange_postcomp_precomp_mor (G : A1 ⟶ A2)(H1 H2 : A2 ⟶ A3)(η: H1 ⟹ H2)(G' : A3 ⟶ A4):
+    # (post_composition_functor _ _ _ hsA3 hsA4 G')
+      (# (pre_composition_functor _ _ _ hsA2 hsA3 G) η) =
+      # (pre_composition_functor _ _ _ hsA2 hsA4 G)
+        (# (post_composition_functor _ _ _ hsA3 hsA4 G') η).
+  Proof.
+    cbn.
+    apply nat_trans_eq; try exact hsA4.
+    intro a.
+    apply idpath.
+  Qed.
+
+  Corollary exchange_postcomp_precomp_mor_special (G : A1 ⟶ A2)(F : C ⟶ [A2, A3, hsA3])(G' : A3 ⟶ A4)
+            (c c' : C)(f : C ⟦ c, c' ⟧):
+    # (pre_composition_functor A1 A2 A4 hsA2 hsA4 G)
+      (# (post_composition_functor A2 A3 A4 hsA3 hsA4 G') (# F f)) =
+      # (post_composition_functor A1 A3 A4 hsA3 hsA4 G')
+        (# (pr1
+              (functor_compose (functor_category_has_homsets A2 A3 hsA3)
+                               (functor_category_has_homsets A1 A3 hsA3) F
+                               (pre_composition_functor A1 A2 A3 hsA2 hsA3 G))) f).
+  Proof.
+    intros.
+    apply pathsinv0.
+    apply exchange_postcomp_precomp_mor.
+  Qed.
+
+(** as background information only: *)
+  Lemma exchange_postcomp_precomp_ob_special (G : A1 ⟶ A2)(F : C ⟶ [A2, A3, hsA3])(G' : A3 ⟶ A4) (c: C):
+    (pre_composition_functor _ _ _ hsA2 hsA4 G) (post_composition_functor _ _ _ hsA3 hsA4 G' (F c)) =
+      (post_composition_functor _ _ _ hsA3 hsA4 G')
+        (pr1(functor_compose (functor_category_has_homsets A2 A3 hsA3)
+                                (functor_category_has_homsets A1 A3 hsA3)
+                                F (pre_composition_functor _ _ _  hsA2 hsA3 G)) c).
+  Proof.
+    cbn.
+    apply pathsinv0, functor_assoc.
+  Qed.
+
+End UpstreamAux.
+
 Section Upstream.
   (** this section has nothing to do with monoidal categories but is dictated by the aims of this file *)
 
@@ -482,12 +568,7 @@ Proof.
   { etrans.
     2: { exact Hyp. }
     use cancel_postcomposition. (* apply cancel_postcomposition does not work here *)
-    unfold σ'2. unfold H.
-    (* resort to pointwise reasoning *)
-    apply nat_trans_eq; try exact hsA'.
-    intro a.
-    apply idpath.
-  }
+    apply exchange_postcomp_precomp_mor_special. }
   clear Hyp.
   intermediate_path (σ'1 · (σ'2 · γ') · δ').
   { repeat rewrite <- assoc.
@@ -507,12 +588,7 @@ Proof.
     apply pathsinv0.
     assert (auxhorcomp := functorial_composition_pre_post _ _ _ hsA' hsA' _ _ _ _ η (# FA' g)).
     assert (σ'1ok : σ'1 = # (pre_composition_functor A A' A' hsA' hsA' (H v)) (# FA' g)).
-    { unfold σ'1, H, param_distributivity_dom.
-      (* resort to pointwise reasoning *)
-      apply nat_trans_eq; try exact hsA'.
-      intro a.
-      cbn.
-      apply idpath. }
+    { apply assoc_precomp_precomp_mor. }
     rewrite σ'1ok. unfold γw'. apply auxhorcomp. }
   rewrite functorial_composition_post_pre.
   clear σ'1 γw'.
@@ -539,12 +615,10 @@ Proof.
        · # (pre_composition_functor A A A' hsA hsA' (FA v)) π').
   { etrans.
     2: { exact Hyp'. }
-    unfold δ, σ1. unfold H'.
-    (* resort to pointwise reasoning *)
-    apply nat_trans_eq; try exact hsA'.
-    intro a.
-    apply idpath.
-  }
+    apply maponpaths.
+    change (σ1 = # (pre_composition_functor A A A' hsA hsA' (FA v))
+                   (# (post_composition_functor A A A' hsA hsA' G) (# FA g))).
+    apply exchange_postcomp_precomp_mor. }
   clear Hyp'.
   intermediate_path (δ · σ1 · σ2).
   2: { apply pathsinv0. use assoc. (* apply assoc does not work here *) }
@@ -552,11 +626,9 @@ Proof.
   clear δ σ1 Hypvariant.
   match goal with | [ |- _ = ?Hν'variant · ?Hδ'π' · _] => set (ν'variant := Hν'variant); set (δ'π' := Hδ'π') end.
   assert (ν'variantok: ν'variant = ν'better).
-  { unfold ν'variant, ν'better.
-    (* resort to pointwise reasoning *)
-    apply nat_trans_eq; try exact hsA'.
-    intro a.
-    apply idpath.
+  { change (# (pre_composition_functor A A A' hsA hsA' (FA v)) (# (pre_composition_functor A A' A' hsA' hsA' G) (# FA' g)) =
+           # (pre_composition_functor A A' A' hsA' hsA' (pre_composition_functor A A A' hsA hsA' (FA v) G)) (# FA' g)).
+    apply assoc_precomp_precomp_mor.
   }
   rewrite ν'variantok.
   clear ν'variant ν'variantok.
@@ -570,19 +642,17 @@ Proof.
   change (# (pre_composition_functor A A A' hsA hsA' (FA v')) π') with δ' in auxhorcomp'.
   change (# (pre_composition_functor A A A' hsA hsA' (FA v)) π') with δ'π' in auxhorcomp'.
   assert (ι'ok: ι' = # (post_composition_functor A A A' hsA hsA' (H w')) (# FA f)).
-  { unfold ι', H, param_distributivity_dom.
-    (* resort to pointwise reasoning *)
-    apply nat_trans_eq; try exact hsA'.
-       intro a.
-       cbn.
-       apply idpath. }
+  { change (# (post_composition_functor A A' A' hsA' hsA' (FA' w'))
+              (# (post_composition_functor A A A' hsA hsA' G) (# FA f)) =
+              # (post_composition_functor A A A' hsA hsA'
+                                          (post_composition_functor A A' A' hsA' hsA' (FA' w') G))
+                (# FA f)).
+    apply assoc_postcomp_postcomp_mor.
+  }
   assert (σ2ok: σ2 = # (post_composition_functor A A A' hsA hsA' (H' w')) (# FA f)).
-  { unfold σ2, H', param_distributivity_codom.
-    (* resort to pointwise reasoning *)
-    apply nat_trans_eq; try exact hsA'.
-    intro a.
-    cbn.
-    apply idpath. }
+  { change (σ2 = # (post_composition_functor A A A' hsA hsA'
+                                             (post_composition_functor _ _ _ hsA hsA' G (FA w'))) (# FA f)).
+    apply assoc_postcomp_postcomp_mor . }
   rewrite ι'ok, σ2ok.
   clear ι' σ2 ι'ok σ2ok.
   exact auxhorcomp'.
