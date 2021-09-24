@@ -170,3 +170,81 @@ Proof.
   cbn.
   apply pathsinv0, nat_trans_ax.
 Qed.
+
+
+(** ** currying functorial composition *)
+
+(** we define the two possible curried forms anew for better applicability *)
+
+Definition pre_composition_as_a_functor_data (A B C: precategory) (hsB: has_homsets B) (hsC: has_homsets C):
+  functor_data [A , B, hsB] [[B, C, hsC], [A, C, hsC], functor_category_has_homsets A C hsC].
+Proof.
+  use make_functor_data.
+  - apply pre_composition_functor.
+  - intros H1 H2 η.
+    use make_nat_trans.
+    + intro G.
+      cbn.
+      exact (# (post_composition_functor _ _ _ hsB hsC G) η).
+    + intros G G' β.
+      etrans.
+      apply pathsinv0, functorial_composition_pre_post.
+      apply functorial_composition_post_pre.
+Defined.
+
+Lemma pre_composition_as_a_functor_data_is_fun (A B C : precategory) (hsB: has_homsets B) (hsC: has_homsets C):
+  is_functor (pre_composition_as_a_functor_data A B C hsB hsC).
+Proof.
+  split.
+  - intro H.
+    apply nat_trans_eq; try apply (functor_category_has_homsets A C hsC).
+    intro G.
+    cbn.
+    apply post_whisker_identity; exact hsC.
+  - intros H1 H2 H3 β β'.
+    apply nat_trans_eq; try apply (functor_category_has_homsets A C hsC).
+    intro G.
+    cbn.
+    apply post_whisker_composition; exact hsC.
+Qed.
+
+Definition pre_composition_as_a_functor (A B C : precategory) (hsB: has_homsets B) (hsC: has_homsets C):
+  functor [A , B, hsB] [[B, C, hsC], [A, C, hsC], functor_category_has_homsets A C hsC] :=
+  _ ,, pre_composition_as_a_functor_data_is_fun A B C hsB hsC.
+
+
+Definition post_composition_as_a_functor_data (A B C : precategory) (hsB: has_homsets B) (hsC: has_homsets C):
+  functor_data [B, C, hsC] [[A, B, hsB], [A, C, hsC], functor_category_has_homsets A C hsC].
+Proof.
+  use make_functor_data.
+  - apply post_composition_functor.
+  - intros H1 H2 η.
+    use make_nat_trans.
+    + intro G.
+      cbn.
+      exact (# (pre_composition_functor _ _ _ hsB hsC G) η).
+    + intros G G' β.
+      etrans.
+      2: { apply functorial_composition_pre_post. }
+      apply pathsinv0, functorial_composition_post_pre.
+Defined.
+
+Definition post_composition_as_a_functor_data_is_fun (A B C : precategory) (hsB: has_homsets B) (hsC: has_homsets C):
+  is_functor (post_composition_as_a_functor_data A B C hsB hsC).
+Proof.
+  split.
+  - intro H.
+    apply nat_trans_eq; try apply (functor_category_has_homsets A C hsC).
+    intro G.
+    cbn.
+    apply pre_whisker_identity; exact hsC.
+  - intros H1 H2 H3 β β'.
+    apply nat_trans_eq; try apply (functor_category_has_homsets A C hsC).
+    intro G.
+    cbn.
+    apply pre_whisker_composition; exact hsC.
+Qed.
+
+Definition post_composition_as_a_functor (A B C : precategory) (hsB: has_homsets B) (hsC: has_homsets C):
+  functor [B, C, hsC] [[A, B, hsB], [A, C, hsC], functor_category_has_homsets A C hsC] :=
+  _ ,, post_composition_as_a_functor_data_is_fun A B C hsB hsC.
