@@ -707,41 +707,170 @@ Lemma montrafotarget_monprecat_left_unitor_aux1 (vη : montrafotarget_precat):
 Proof.
   unfold mor_disp. unfold trafotarget_disp. hnf.
   induction vη as [v η].
-  unfold trafotarget_disp in η. change ([A, A', hsA']⟦H v, H' v⟧) in η.
+  change ([A, A', hsA']⟦H v, H' v⟧) in η.
   etrans.
   2: { apply maponpaths. cbn. apply idpath. }
   simpl. (* not cbn! *)
   unfold param_distr_pentagon_eq_body_variant_RHS, param_distr_triangle_eq_variant0_RHS, param_distr_pentagon_eq_body_RHS.
+  rewrite functor_comp.
+  match goal with | [ |- ?Hl1 · (?Hl2 · ?Hl3 · ?Hl4 · ?Hl5) · ?Hl6 = ?Hr1 · _] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (r1 := Hr1) end.
 Admitted.
 
 Lemma montrafotarget_monprecat_left_unitor_aux2 (vη : montrafotarget_precat):
   pr2 (functor_identity montrafotarget_precat vη)
       -->[pr1 (pr2 (monoidal_precat_left_unitor Mon_V) (pr1 vη))]
       pr2 (I_pretensor montrafotarget_tensor montrafotarget_unit vη).
+Proof.
+  unfold mor_disp. unfold trafotarget_disp. hnf.
+  induction vη as [v η].
+  change ([A, A', hsA']⟦H v, H' v⟧) in η.
+  etrans.
+  { apply cancel_postcomposition. cbn. apply idpath. }
+  simpl. (* not cbn! *)
+  unfold param_distr_pentagon_eq_body_variant_RHS, param_distr_triangle_eq_variant0_RHS, param_distr_pentagon_eq_body_RHS.
+  rewrite functor_comp.
+  apply pathsinv0.
+  match goal with | [ |- ?Hl1 · (?Hl2 · (?Hl3 · ?Hl4 · ?Hl5 · ?Hl6)) = _ · ?Hr2] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (r2 := Hr2) end.
 Admitted.
 
 Lemma montrafotarget_monprecat_right_unitor_aux1 (vη : montrafotarget_precat):
   pr2 (I_posttensor montrafotarget_tensor montrafotarget_unit vη)
       -->[monoidal_precat_right_unitor Mon_V (pr1 vη)]
       pr2 (functor_identity montrafotarget_precat vη).
+Proof.
+  unfold mor_disp. unfold trafotarget_disp. hnf.
+  induction vη as [v η].
+  change ([A, A', hsA']⟦H v, H' v⟧) in η.
+  etrans.
+  2: { apply maponpaths. cbn. apply idpath. }
+  simpl. (* not cbn! *)
+  unfold param_distr_pentagon_eq_body_variant_RHS, param_distr_triangle_eq_variant0_RHS, param_distr_pentagon_eq_body_RHS.
+  rewrite functor_comp.
+  match goal with | [ |- ?Hl1 · (?Hl2 · (?Hl3 · ?Hl4) · ?Hl5) · ?Hl6 = ?Hr1 · _] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (r1 := Hr1) end.
 Admitted.
 
 Lemma montrafotarget_monprecat_right_unitor_aux2 (vη : montrafotarget_precat):
   pr2 (functor_identity montrafotarget_precat vη)
       -->[pr1 (pr2 (monoidal_precat_right_unitor Mon_V) (pr1 vη))]
       pr2 (I_posttensor montrafotarget_tensor montrafotarget_unit vη).
+Proof.
+  unfold mor_disp. unfold trafotarget_disp. hnf.
+  induction vη as [v η].
+  change ([A, A', hsA']⟦H v, H' v⟧) in η.
+  etrans.
+  { apply cancel_postcomposition. cbn. apply idpath. }
+  simpl. (* not cbn! *)
+  unfold param_distr_pentagon_eq_body_variant_RHS, param_distr_triangle_eq_variant0_RHS, param_distr_pentagon_eq_body_RHS.
+  rewrite functor_comp.
+  apply pathsinv0.
+  match goal with | [ |- ?Hl1 · (?Hl2 · (?Hl3 · (?Hl4 · ?Hl5) · ?Hl6)) = _ · ?Hr2] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (r2 := Hr2) end.
 Admitted.
 
 Lemma montrafotarget_monprecat_associator_aux1 (vηs : (montrafotarget_precat ⊠ montrafotarget_precat) ⊠ montrafotarget_precat):
   pr2 (assoc_left montrafotarget_tensor vηs)
       -->[monoidal_precat_associator Mon_V ((pr111 vηs,, pr121 vηs),, pr12 vηs)]
       pr2 (assoc_right montrafotarget_tensor vηs).
+Proof.
+  unfold mor_disp. unfold trafotarget_disp. hnf.
+  induction vηs as [[[v1 η1] [v2 η2]] [v3 η3]].
+  change ([A, A', hsA']⟦H v1, H' v1⟧) in η1.
+  change ([A, A', hsA']⟦H v2, H' v2⟧) in η2.
+  change ([A, A', hsA']⟦H v3, H' v3⟧) in η3.
+  simpl. (* not cbn! *)
+  unfold param_distr_pentagon_eq_body_variant_RHS, param_distr_triangle_eq_variant0_RHS, param_distr_pentagon_eq_body_RHS.
+  do 2 rewrite functor_comp.
+  match goal with | [ |- _ · (_ · ?Hlpart · _ · _) · _  = _] => set (lpart := Hlpart) end.
+  set (lpartbetter :=
+         # (post_composition_functor A A' A' hsA' hsA' (FA' v3))
+           (# (post_composition_functor A A' A' hsA' hsA' (FA' v2)) η1) ·
+           # (post_composition_functor A A' A' hsA' hsA' (FA' v3))
+           (# (pre_composition_functor A A A' hsA hsA' (FA v1)) η2) ·
+           # (post_composition_functor A A' A' hsA' hsA' (FA' v3))
+           (# (ActionBasedStrength.postcompF hsA hsA' G) (lax_monoidal_functor_μ FA (v1,, v2)))).
+  assert (lpartbetterok: lpart = lpartbetter).
+  { unfold lpart, lpartbetter.
+    etrans.
+    { use functor_comp. }
+    use cancel_postcomposition. (* does not work with apply *)
+(* earlier attempt:
+   match goal with | [ |- ?Hlpart1 · ?Hlpart2 = _ · ?Hrpart3] => set (lpart1 := Hlpart1); set (lpart2 := Hlpart2); set (rpart3 := Hrpart3) end.
+    change rpart3 with lpart2. clear rpart3.
+    use (cancel_postcomposition _ _ lpart2). *)
+    use functor_comp.
+  }
+  rewrite lpartbetterok. unfold lpartbetter. clear lpart lpartbetter lpartbetterok.
+  match goal with | [ |- _ = _ · (_ · (_ · (_ · ?Hrpart) · _)) ] => set (rpart := Hrpart) end.
+  set (rpartbetter :=
+         # (pre_composition_functor A A A' hsA hsA' (FA v1))
+           (# (post_composition_functor A A' A' hsA' hsA' (FA' v3)) η2) ·
+           # (pre_composition_functor A A A' hsA hsA' (FA v1))
+           (# (pre_composition_functor A A A' hsA hsA' (FA v2)) η3) ·
+           # (pre_composition_functor A A A' hsA hsA' (FA v1))
+           (# (ActionBasedStrength.postcompF hsA hsA' G) (lax_monoidal_functor_μ FA (v2,, v3)))).
+  assert (rpartbetterok: rpart = rpartbetter).
+  { unfold rpart, rpartbetter.
+    etrans.
+    { use functor_comp. }
+    use cancel_postcomposition.
+    use functor_comp.
+  }
+  rewrite rpartbetterok. unfold rpartbetter. clear rpart rpartbetter rpartbetterok.
+  match goal with | [ |- ?Hl1 · (?Hl2 · (?Hl3 · ?Hl4 · ?Hl5) · ?Hl6 · ?Hl7) · ?Hl8  = _] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (l7 := Hl7); set (l8 := Hl8) end.
+  match goal with | [ |- _ = ?Hr1 · (?Hr2 · (?Hr3 · (?Hr4 · (?Hr5 · ?Hr6 · ?Hr7)) · ?Hr8))] => set (r1 := Hr1); set (r2 := Hr2); set (r3 := Hr3); set (r4 := Hr4); set (r5 := Hr5); set (r6 := Hr6); set (r7 := Hr7); set (r8 := Hr8) end.
 Admitted.
 
 Lemma montrafotarget_monprecat_associator_aux2 (vηs : (montrafotarget_precat ⊠ montrafotarget_precat) ⊠ montrafotarget_precat):
   pr2 (assoc_right montrafotarget_tensor vηs)
       -->[pr1 (pr2 (monoidal_precat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs))]
       pr2 (assoc_left montrafotarget_tensor vηs).
+Proof.
+  unfold mor_disp. unfold trafotarget_disp. hnf.
+  induction vηs as [[[v1 η1] [v2 η2]] [v3 η3]].
+  change ([A, A', hsA']⟦H v1, H' v1⟧) in η1.
+  change ([A, A', hsA']⟦H v2, H' v2⟧) in η2.
+  change ([A, A', hsA']⟦H v3, H' v3⟧) in η3.
+  simpl. (* not cbn! *)
+  unfold param_distr_pentagon_eq_body_variant_RHS, param_distr_triangle_eq_variant0_RHS, param_distr_pentagon_eq_body_RHS.
+  do 2 rewrite functor_comp.
+  match goal with | [ |- _ · (_ · (_ · ?Hlpart) · _) · _  = _] => set (lpart := Hlpart) end.
+  set (lpartbetter :=
+         # (pre_composition_functor A A A' hsA hsA' (FA v1))
+           (# (post_composition_functor A A' A' hsA' hsA' (FA' v3)) η2) ·
+           # (pre_composition_functor A A A' hsA hsA' (FA v1))
+           (# (pre_composition_functor A A A' hsA hsA' (FA v2)) η3) ·
+           # (pre_composition_functor A A A' hsA hsA' (FA v1))
+           (# (ActionBasedStrength.postcompF hsA hsA' G) (lax_monoidal_functor_μ FA (v2,, v3)))).
+  assert (lpartbetterok: lpart = lpartbetter).
+  { unfold lpart, lpartbetter.
+    etrans.
+    { use functor_comp. }
+    use cancel_postcomposition. (* does not work with apply *)
+    use functor_comp.
+  }
+  rewrite lpartbetterok. unfold lpartbetter. clear lpart lpartbetter lpartbetterok.
+  match goal with | [ |- _ = _ · (_ · (_ · ?Hrpart · _ · _)) ] => set (rpart := Hrpart) end.
+  set (rpartbetter :=
+         # (post_composition_functor A A' A' hsA' hsA' (FA' v3))
+           (# (post_composition_functor A A' A' hsA' hsA' (FA' v2)) η1) ·
+           # (post_composition_functor A A' A' hsA' hsA' (FA' v3))
+           (# (pre_composition_functor A A A' hsA hsA' (FA v1)) η2) ·
+           # (post_composition_functor A A' A' hsA' hsA' (FA' v3))
+           (# (ActionBasedStrength.postcompF hsA hsA' G) (lax_monoidal_functor_μ FA (v1,, v2)))).
+  assert (rpartbetterok: rpart = rpartbetter).
+  { unfold rpart, rpartbetter.
+    etrans.
+    { use functor_comp. }
+    use cancel_postcomposition.
+    use functor_comp.
+  }
+  rewrite rpartbetterok. unfold rpartbetter. clear rpart rpartbetter rpartbetterok.
+  match goal with | [ |- ?Hl1 · (?Hl2 · (?Hl3 · (?Hl4 · ?Hl5 · ?Hl6)) · ?Hl7) · ?Hl8  = _] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (l7 := Hl7); set (l8 := Hl8) end.
+  match goal with | [ |- _ = ?Hr1 · (?Hr2 · (?Hr3 · (?Hr4 · ?Hr5 · ?Hr6) · ?Hr7 · ?Hr8))] => set (r1 := Hr1); set (r2 := Hr2); set (r3 := Hr3); set (r4 := Hr4); set (r5 := Hr5); set (r6 := Hr6); set (r7 := Hr7); set (r8 := Hr8) end.
+  (* an unhelpful test:
+  apply nat_trans_eq; try exact hsA'.
+  intro a.
+  cbn.
+  show_id_type. *)
 Admitted.
 
 Definition montrafotarget_monprecat_left_unitor: left_unitor montrafotarget_tensor montrafotarget_unit.
