@@ -74,10 +74,10 @@ Proof.
 
     (* To show two natural transformations are equal, suffices to
        check components *)
-    apply nat_trans_eq. exact hsD.
+    apply (nat_trans_eq hsD).
     intros oba.
 
-    simpl.
+    simpl. do 2 (unfold horcomp_data; simpl).
 
     (* Now assoc is just identity *)
     rewrite id_right.
@@ -86,7 +86,7 @@ Proof.
     (* And the order we do f, g, h doesn't matter *)
     rewrite functor_comp.
     rewrite assoc.
-    reflexivity.
+    apply idpath.
 Defined.
 
 Definition Catlike_associator_is_iso ( a b c d : precategory )
@@ -126,15 +126,15 @@ Proof.
        as natural transformations. *)
 
     (* Again just check components *)
-    apply nat_trans_eq. exact hsB.
+    apply (nat_trans_eq hsB).
     intros oba.
 
-    simpl.
+    simpl. unfold horcomp_data; simpl.
     rewrite id_right.
     rewrite id_left.
     rewrite functor_id.
     rewrite id_right.
-    reflexivity.
+    apply idpath.
 Defined.
 
 Definition Catlike_left_unitor_is_iso (a b : precategory)
@@ -163,13 +163,13 @@ Proof.
     exact (id_right _ @ !(id_left _)).
 
   - intros F F' f.
-    apply nat_trans_eq. exact hsB.
+    apply (nat_trans_eq hsB).
     intros oba.
 
-    simpl.
+    simpl. unfold horcomp_data; simpl.
     rewrite (id_right _).
     rewrite (id_left _).
-    reflexivity.
+    apply idpath.
 Defined.
 
 Definition Catlike_right_unitor_is_iso (a b : precategory) (hsB : has_homsets b) :
@@ -204,15 +204,15 @@ Definition Catlike_pentagon ( a b c d e : precategory )
         (identity f)).
 Proof.
   intros k h g f.
-  apply nat_trans_eq. exact hsE.
+  apply (nat_trans_eq hsE).
 
   intros oba.
-  simpl.
+  simpl. unfold horcomp_data; simpl.
 
   (* Everything boils down to the identity *)
   repeat rewrite functor_id.
   repeat rewrite (id_left _).
-  reflexivity.
+  apply idpath.
 Defined.
 
 Definition Catlike_triangle ( a b c : precategory )
@@ -226,12 +226,12 @@ Definition Catlike_triangle ( a b c : precategory )
                            (precatbinprodmor (Catlike_right_unitor a b _ f) (identity g)).
 Proof.
   intros f g.
-  apply nat_trans_eq. exact hsC.
+  apply (nat_trans_eq hsC).
   intros oba.
-  simpl.
+  simpl. unfold horcomp_data; simpl.
   repeat rewrite functor_id.
   repeat rewrite (id_left _).
-  reflexivity.
+  apply idpath.
 Defined.
 
 (******************************************************************************)

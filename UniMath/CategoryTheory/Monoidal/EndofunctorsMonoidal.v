@@ -39,8 +39,8 @@ Local Lemma is_nat_trans_left_unitor_data: is_nat_trans (I_pretensor (functorial
   (functor_identity [C, C, hs]) (λ F : [C, C, hs], λ_functors ((functor_identity [C, C, hs]) F)).
 Proof.
   intros F F' m.
-  apply nat_trans_eq; try assumption.
-  intro c. cbn.
+  apply (nat_trans_eq hs).
+  intro c. cbn. unfold horcomp_data; cbn.
   rewrite functor_id.
   rewrite id_left.
   do 2 rewrite id_right.
@@ -65,8 +65,8 @@ Local Lemma is_nat_trans_right_unitor_data: is_nat_trans (I_posttensor (functori
   (functor_identity [C, C, hs]) (λ F : [C, C, hs], ρ_functors ((functor_identity [C, C, hs]) F)).
 Proof.
   intros F F' m.
-  apply nat_trans_eq; try assumption.
-  intro c. cbn.
+  apply (nat_trans_eq hs).
+  intro c. cbn. unfold horcomp_data; cbn.
   rewrite id_left.
   rewrite id_right.
   apply idpath.
@@ -92,7 +92,7 @@ Local Lemma is_nat_trans_associator_data: is_nat_trans (assoc_left (functorial_c
 Proof.
   cbn. intros F F' m.
   apply nat_trans_eq; try assumption.
-  intro c. cbn.
+  intro c. cbn. do 2 (unfold horcomp_data; cbn).
   rewrite id_left.
   rewrite id_right.
   rewrite <- assoc.
@@ -119,9 +119,9 @@ Lemma triangle_eq_of_endofunctors: triangle_eq (functorial_composition C C C hs 
 Proof.
   red; cbn.
   intros F G.
-  apply nat_trans_eq; try assumption.
+  apply (nat_trans_eq hs).
   intro c.
-  cbn.
+  cbn. unfold horcomp_data; cbn.
   do 3 rewrite id_left.
   apply idpath.
 Qed.
@@ -130,9 +130,9 @@ Lemma pentagon_eq_of_endofunctors: pentagon_eq (functorial_composition C C C hs 
 Proof.
   red; cbn.
   intros F G H I.
-  apply nat_trans_eq; try assumption.
+  apply (nat_trans_eq hs).
   intro c.
-  cbn.
+  cbn. unfold horcomp_data; cbn.
   do 4 rewrite functor_id.
   do 5 rewrite id_left.
   apply idpath.

@@ -142,3 +142,5 @@ Qed.
 Definition functor_ptd_forget : functor _ _ := tpair _ _ is_functor_ptd_forget.
 
 End def_ptd.
+
+Arguments eq_ptd_mor { _ } _ { _ _ } .

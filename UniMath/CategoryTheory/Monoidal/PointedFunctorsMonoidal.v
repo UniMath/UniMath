@@ -38,46 +38,44 @@ Section PointedFunctors_as_monoidal_category.
 
   Local Notation "'Ptd'" := (precategory_Ptd C hs).
 
-  Definition tensor_pointedfunctor_data
-    : functor_data (Ptd ⊠ Ptd) Ptd.
+  Definition tensor_pointedfunctor_data: functor_data (Ptd ⊠ Ptd) Ptd.
   Proof.
     use make_functor_data.
     - intros PF1PF2.
       exact (ptd_composite C hs (pr1 PF1PF2) (pr2 PF1PF2)).
     - intros PF1PF2 PF'PF2' α1α2.
       induction α1α2 as [α1 α2].
-      cbn in *.
-      simple refine (horcomp α1 α2 ,, _).
+      cbn in α1, α2 |- *.
+      exists (horcomp α1 α2).
       abstract
-        (intro c ; cbn ;
-         rewrite assoc ;
-         refine (maponpaths (λ z, z · _) _ @ _) ;
-           [ rewrite <- assoc ;
-             rewrite nat_trans_ax ;
-             rewrite assoc ;
-             apply cancel_postcomposition ;
+        (intro c; cbn; unfold horcomp_data; cbn;
+         rewrite assoc;
+         refine (maponpaths (λ z, z · _) _ @ _);
+           [ rewrite <- assoc;
+             rewrite nat_trans_ax;
+             rewrite assoc;
+             apply cancel_postcomposition;
              apply ptd_mor_commutes
-           | rewrite <- assoc ;
-             rewrite <- functor_comp ;
-             do 2 apply maponpaths ;
+           | rewrite <- assoc;
+             rewrite <- functor_comp;
+             do 2 apply maponpaths;
              apply ptd_mor_commutes ]).
   Defined.
 
-  Definition tensor_pointedfunctor_is_functor
-    : is_functor tensor_pointedfunctor_data.
+  Definition tensor_pointedfunctor_is_functor: is_functor tensor_pointedfunctor_data.
   Proof.
     split.
-    - intro PF1PF2 ; cbn.
+    - intro PF1PF2; cbn.
       (* UniMath.MoreFoundations.Tactics.show_id_type. *)
-      apply eq_ptd_mor; try assumption.
+      apply (eq_ptd_mor hs).
       cbn.
-      apply nat_trans_eq; try assumption; intro c.
+      apply (nat_trans_eq hs); intro c.
       apply horcomp_id_left.
     - intros PF1PF2 PF1'PF2' PF1''PF2'' α1α2 α1'α2'.
-      apply eq_ptd_mor; try assumption.
+      apply (eq_ptd_mor hs).
       cbn.
-      apply nat_trans_eq; try assumption; intro c.
-      cbn.
+      apply (nat_trans_eq hs); intro c.
+      cbn. unfold horcomp_data; cbn.
       repeat rewrite <- assoc.
       apply maponpaths.
       rewrite functor_comp.
@@ -87,10 +85,8 @@ Section PointedFunctors_as_monoidal_category.
       apply nat_trans_ax.
   Qed.
 
-  Definition tensor_pointedfunctors
-    : precategory_Ptd C hs ⊠ precategory_Ptd C hs
-      ⟶
-      precategory_Ptd C hs.
+  Definition tensor_pointedfunctors:
+    precategory_Ptd C hs ⊠ precategory_Ptd C hs ⟶ precategory_Ptd C hs.
   Proof.
     use make_functor.
     - exact tensor_pointedfunctor_data.
@@ -99,7 +95,7 @@ Section PointedFunctors_as_monoidal_category.
 
   (** a preparation for the lemma afterwards *)
   Lemma ptd_mor_z_iso_from_underlying_mor {F G : Ptd} (α : ptd_mor C F G):
-    is_nat_z_iso(pr1 α) -> is_z_isomorphism(C:=Ptd) α.
+    is_nat_z_iso (pr1 α) -> is_z_isomorphism(C:=Ptd) α.
   Proof.
     intro Hyp.
     use tpair.
@@ -107,16 +103,15 @@ Section PointedFunctors_as_monoidal_category.
       apply nat_z_iso_to_trans_inv.
       + exact (pr1 α ,, Hyp).
       + abstract
-          (cbn ; red; intro c ;
-           cbn ;
-           apply pathsinv0 ;
-           apply (z_iso_inv_on_left _ _ _ _ (make_z_iso _ _ (Hyp c))) ;
-           cbn ;
-           apply pathsinv0 ;
+          (cbn; red; intro c;
+           cbn;
+           apply pathsinv0;
+           apply (z_iso_inv_on_left _ _ _ _ (make_z_iso _ _ (Hyp c)));
+           cbn;
+           apply pathsinv0;
            apply ptd_mor_commutes).
     - abstract
-        (red; split; apply eq_ptd_mor; try assumption; apply nat_trans_eq;
-         try assumption; intro c; cbn ;
+        (red; split; apply (eq_ptd_mor hs); apply (nat_trans_eq hs); intro c; cbn ;
          [ apply (z_iso_inv_after_z_iso (make_z_iso _ _ (Hyp c)))
           | apply (z_iso_after_z_iso_inv (make_z_iso _ _ (Hyp c))) ]).
   Defined.
@@ -129,19 +124,19 @@ Section PointedFunctors_as_monoidal_category.
       * intro PF.
         exists (λ_functors (pr1 PF)).
         abstract
-          (red; intro c ;
-           cbn ;
-           rewrite functor_id ;
-           rewrite id_right ;
+          (red; intro c;
+           cbn; unfold horcomp_data; cbn;
+           rewrite functor_id;
+           rewrite id_right;
            apply id_right).
       * abstract
-          (intros PF PF' α ;
-           apply eq_ptd_mor; try assumption ;
-           apply nat_trans_eq; try assumption ;
-           intro c ; cbn ;
-           rewrite functor_id ;
-           rewrite id_left ;
-           do 2 rewrite id_right ;
+          (intros PF PF' α;
+           apply (eq_ptd_mor hs);
+           apply (nat_trans_eq hs);
+           intro c ; cbn ; unfold horcomp_data; cbn;
+           rewrite functor_id;
+           rewrite id_left;
+           do 2 rewrite id_right;
            apply idpath).
     + red. intro PF. cbn.
       apply ptd_mor_z_iso_from_underlying_mor.
@@ -158,16 +153,16 @@ Section PointedFunctors_as_monoidal_category.
       * intro PF.
         exists (ρ_functors (pr1 PF)).
         abstract
-          (red; intro c ;
-           cbn ;
-           rewrite id_right ;
+          (red; intro c;
+           cbn; unfold horcomp_data; cbn;
+           rewrite id_right;
            apply id_left).
       * abstract
-          (intros PF PF' α ;
-           apply eq_ptd_mor; try assumption ;
-           apply nat_trans_eq; try assumption ;
-           intro c ; cbn ;
-           do 2 rewrite id_left ;
+          (intros PF PF' α;
+           apply (eq_ptd_mor hs);
+           apply (nat_trans_eq hs);
+           intro c; cbn; unfold horcomp_data; cbn;
+           do 2 rewrite id_left;
            apply id_right).
     + red. intro PF. cbn.
       apply ptd_mor_z_iso_from_underlying_mor.
@@ -184,20 +179,20 @@ Section PointedFunctors_as_monoidal_category.
         induction PFtriple as [[PF1 PF2] PF3].
         exists (α_functors (pr1 PF1) (pr1 PF2) (pr1 PF3)).
         abstract
-          (red; intro c ;
-           cbn ;
-           rewrite id_right ;
-           rewrite functor_comp ;
+          (red; intro c;
+           cbn; do 2 (unfold horcomp_data; cbn);
+           rewrite id_right;
+           rewrite functor_comp;
            apply assoc).
       * abstract
-          (intros PFtriple PFtriple' αtriple ;
-           apply eq_ptd_mor; try assumption ;
-           apply nat_trans_eq; try assumption ;
-           intro c ; cbn ;
-           rewrite id_right ;
-           rewrite id_left ;
-           rewrite functor_comp ;
-           rewrite <- assoc ;
+          (intros PFtriple PFtriple' αtriple;
+           apply (eq_ptd_mor hs);
+           apply (nat_trans_eq hs);
+           intro c; cbn; do 2 (unfold horcomp_data; cbn);
+           rewrite id_right;
+           rewrite id_left;
+           rewrite functor_comp;
+           rewrite <- assoc;
            apply idpath).
     + red. intro PFtriple. cbn.
       apply ptd_mor_z_iso_from_underlying_mor.
@@ -213,11 +208,11 @@ Section PointedFunctors_as_monoidal_category.
                 associator_of_pointedfunctors.
   Proof.
     intros PF1 PF2.
-    apply eq_ptd_mor; try assumption.
+    apply (eq_ptd_mor hs).
     (* UniMath.MoreFoundations.Tactics.show_id_type. *)
-    apply nat_trans_eq; try assumption.
+    apply (nat_trans_eq hs).
     intro c.
-    cbn.
+    cbn. unfold horcomp_data; cbn.
     do 3 rewrite id_left.
     apply idpath.
   Qed.
@@ -226,10 +221,10 @@ Section PointedFunctors_as_monoidal_category.
     pentagon_eq tensor_pointedfunctors associator_of_pointedfunctors.
   Proof.
     intros PF1 PF2 PF3 PF4.
-    apply eq_ptd_mor; try assumption.
-    apply nat_trans_eq; try assumption.
+    apply (eq_ptd_mor hs).
+    apply (nat_trans_eq hs).
     intro c.
-    cbn.
+    cbn. unfold horcomp_data; cbn.
     do 4 rewrite functor_id.
     do 5 rewrite id_left.
     apply idpath.
@@ -261,20 +256,20 @@ Section PointedFunctors_as_monoidal_category.
                (nat_trans_id _)
                (nat_trans_id _)).
       + abstract
-          (intros PF1 PF2 PF3 ;
-           apply nat_trans_eq; try assumption ;
-           intro c ;
-           cbn ;
-           do 3 rewrite functor_id ;
-           rewrite assoc ;
+          (intros PF1 PF2 PF3;
+           apply (nat_trans_eq hs);
+           intro c;
+           cbn; unfold horcomp_data; cbn;
+           do 3 rewrite functor_id;
+           rewrite assoc;
            apply idpath).
       + abstract
-          (intro PF ;
-           split; apply nat_trans_eq; try assumption; intro c; cbn ;
-           [ rewrite functor_id ;
-             do 3 rewrite id_right ;
+          (intro PF;
+           split; apply (nat_trans_eq hs); intro c; cbn; unfold horcomp_data; cbn;
+           [ rewrite functor_id;
+             do 3 rewrite id_right;
              apply idpath
-           | do 3 rewrite id_right ;
+           | do 3 rewrite id_right;
              apply idpath]).
     - split;
         [ apply (nat_trafo_z_iso_if_pointwise_z_iso hs);

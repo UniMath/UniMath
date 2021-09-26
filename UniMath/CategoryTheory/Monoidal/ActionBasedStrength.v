@@ -83,7 +83,7 @@ Definition actionbased_strength_pentagon_eq (ϛ : actionbased_strength_nat): UU 
   (χ' ((F a, v), w)) · ϛ (a, v ⊗ w) =
   (ϛ (a, v)) #⊙' (id w) · (ϛ (a ⊙ v, w)) · (#F (χ ((a, v), w))).
 
-(** the original notion in Fiore's LICS'08 paper *)
+(** the notion in Fiore's LICS'08 paper *)
 Definition actionbased_strength_pentagon_eq_variant1 (ϛ : actionbased_strength_nat): UU := ∏ (a : A), ∏ (v w : Mon_V),
   ϛ (a, v ⊗ w) =
   (nat_z_iso_to_trans_inv χ' ((F a, v), w)) · (ϛ (a, v)) #⊙' (id w) · (ϛ (a ⊙ v, w)) · (#F (χ ((a, v), w))).

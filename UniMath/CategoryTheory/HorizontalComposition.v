@@ -31,10 +31,12 @@ Variables G G' : functor D E.
 Variable α : F ⟹ F'.
 Variable β : G ⟹ G'.
 
-Lemma is_nat_trans_horcomp : is_nat_trans (G □ F) (G' □ F')
-  (λ c : C, β (F c) · #G' (α _ )).
+
+Definition horcomp_data : nat_trans_data (G □ F) (G' □ F') := λ c : C, β (F c) · #G' (α c).
+
+Lemma is_nat_trans_horcomp : is_nat_trans _ _ horcomp_data.
 Proof.
-  intros c d f; simpl.
+  intros c d f; unfold horcomp_data; simpl.
   rewrite assoc, nat_trans_ax, <- !assoc; apply maponpaths.
   now rewrite <- !functor_comp, nat_trans_ax.
 Qed.
@@ -49,22 +51,20 @@ Lemma horcomp_id_prewhisker {C D E : precategory} (hsE : has_homsets E)
   (X : functor C D) (Z Z' : functor D E) (f : nat_trans Z Z') :
   horcomp (nat_trans_id X) f = pre_whisker _ f.
 Proof.
-apply (nat_trans_eq hsE); simpl; intro x.
-now rewrite functor_id, id_right.
+apply (nat_trans_eq hsE); intro x; simpl; unfold horcomp_data; simpl. now rewrite functor_id, id_right.
 Qed.
 
-Lemma horcomp_id_left (C D : precategory) (X : functor C C) (Z Z' : functor C D)(f : nat_trans Z Z')
-  :
+Lemma horcomp_id_left (C D : precategory) (X : functor C C) (Z Z' : functor C D)(f : nat_trans Z Z') :
   ∏ c : C, horcomp (nat_trans_id X) f c = f (X c).
 Proof.
-  intro c; simpl.
+  intro c; simpl. unfold horcomp_data; simpl.
   now rewrite functor_id, id_right.
 Qed.
 
 Lemma horcomp_id_postwhisker (A B C : precategory)
    (hsB : has_homsets B) (hsC : has_homsets C) (X X' : [A, B, hsB]) (α : X --> X')
-   (Z : [B ,C, hsC])
-  : horcomp α (nat_trans_id _ ) = post_whisker α Z.
+   (Z : [B ,C, hsC]) :
+  horcomp α (nat_trans_id _ ) = post_whisker α Z.
 Proof.
   apply (nat_trans_eq hsC); intro a; apply id_left.
 Qed.
@@ -75,35 +75,27 @@ Definition functorial_composition_data (A B C : precategory) (hsB: has_homsets B
 Proof.
   exists (λ FG, functor_composite (pr1 FG) (pr2 FG)).
   intros a b αβ.
-  induction αβ as [α β].
-  exact (horcomp α β).
+  exact (horcomp (pr1 αβ) (pr2 αβ)).
 Defined.
 
 Lemma is_functor_functorial_composition_data (A B C : precategory) (hsB: has_homsets B) (hsC: has_homsets C) : is_functor (functorial_composition_data A B C hsB hsC).
 Proof.
   split.
-  - unfold functor_idax.
-    intros FG.
-    apply nat_trans_eq.
-    apply hsC.
+  - red. intros FG.
+    apply (nat_trans_eq hsC).
     intros x.
     apply remove_id_left.
-    reflexivity.
-    simpl.
-    exact (functor_id (pr2 FG) ((pr1 (pr1 FG)) x)).
-  - unfold functor_compax.
-    intros FG1 FG2 FG3 αβ1 αβ2.
+    + apply idpath.
+    + exact (functor_id (pr2 FG) ((pr1 (pr1 FG)) x)).
+  - red. intros FG1 FG2 FG3 αβ1 αβ2.
     induction αβ1 as [α1 β1].
     induction αβ2 as [α2 β2].
-
-    apply nat_trans_eq.
-    apply hsC.
+    apply (nat_trans_eq hsC).
     intros a.
-
-    simpl.
+    simpl. unfold horcomp_data; simpl.
     rewrite <- ?assoc.
     apply cancel_precomposition.
-    rewrite (functor_comp _).
+    rewrite functor_comp.
     rewrite -> ?assoc.
     apply cancel_postcomposition.
     apply pathsinv0.
@@ -125,10 +117,8 @@ Lemma horcomp_pre_post
                         (post_whisker f G').
 Proof.
   intros.
-  apply nat_trans_eq.
-  apply homset_property.
-  intros;
-    apply idpath.
+  apply (nat_trans_eq (homset_property E)).
+  intros; apply idpath.
 Qed.
 
 (* the other view as composition is not by definition but follows from naturality *)
@@ -140,9 +130,9 @@ Lemma horcomp_post_pre
                         (pre_whisker F' g).
 Proof.
   intros.
-  apply nat_trans_eq; try apply homset_property.
+  apply (nat_trans_eq (homset_property E)).
   intro x.
-  unfold horcomp.
+  unfold horcomp, horcomp_data.
   cbn.
   apply pathsinv0.
   apply nat_trans_ax.
@@ -155,7 +145,7 @@ Lemma functorial_composition_pre_post (C D E: precategory) (hsD : has_homsets D)
   # (functorial_composition _ _ _ hsD hsE) (f,, g:precategory_binproduct [C, D, hsD] [D, E, hsE] ⟦(F,,G), (F',,G')⟧) =
   # (pre_composition_functor _ _ _ hsD hsE F) g · # (post_composition_functor _ _ _ hsD hsE G') f.
 Proof.
-  apply nat_trans_eq; try exact hsE.
+  apply (nat_trans_eq hsE).
   intro c.
   apply idpath.
 Qed.
@@ -165,7 +155,7 @@ Lemma functorial_composition_post_pre (C D E: precategory) (hsD : has_homsets D)
   # (functorial_composition _ _ _ hsD hsE) (f,, g:precategory_binproduct [C, D, hsD] [D, E, hsE] ⟦(F,,G), (F',,G')⟧) =
   # (post_composition_functor _ _ _ hsD hsE G) f · # (pre_composition_functor _ _ _ hsD hsE F') g.
 Proof.
-  apply nat_trans_eq; try exact hsE.
+  apply (nat_trans_eq hsE).
   intro c.
   cbn.
   apply pathsinv0, nat_trans_ax.
@@ -197,12 +187,12 @@ Lemma pre_composition_as_a_functor_data_is_fun (A B C : precategory) (hsB: has_h
 Proof.
   split.
   - intro H.
-    apply nat_trans_eq; try apply (functor_category_has_homsets A C hsC).
+    apply (nat_trans_eq (functor_category_has_homsets A C hsC)).
     intro G.
     cbn.
     apply post_whisker_identity; exact hsC.
   - intros H1 H2 H3 β β'.
-    apply nat_trans_eq; try apply (functor_category_has_homsets A C hsC).
+    apply (nat_trans_eq (functor_category_has_homsets A C hsC)).
     intro G.
     cbn.
     apply post_whisker_composition; exact hsC.
@@ -234,12 +224,12 @@ Definition post_composition_as_a_functor_data_is_fun (A B C : precategory) (hsB:
 Proof.
   split.
   - intro H.
-    apply nat_trans_eq; try apply (functor_category_has_homsets A C hsC).
+    apply (nat_trans_eq (functor_category_has_homsets A C hsC)).
     intro G.
     cbn.
     apply pre_whisker_identity; exact hsC.
   - intros H1 H2 H3 β β'.
-    apply nat_trans_eq; try apply (functor_category_has_homsets A C hsC).
+    apply (nat_trans_eq (functor_category_has_homsets A C hsC)).
     intro G.
     cbn.
     apply pre_whisker_composition; exact hsC.

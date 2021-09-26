@@ -88,13 +88,13 @@ Lemma is_omega_cocont_App_H
   (hE : ∏ x, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C CP hs) x)) :
   is_omega_cocont App_H.
 Proof.
-unfold App_H, square_functor.
-apply is_omega_cocont_BinProduct_of_functors; try assumption.
-- apply (BinProducts_functor_precat _ _ CP).
-- apply functor_category_has_homsets.
-- apply functor_category_has_homsets.
-- apply (is_omega_cocont_functor_identity (functor_category_has_homsets _ _ hs)).
-- apply (is_omega_cocont_functor_identity (functor_category_has_homsets _ _ hs)).
+  unfold App_H, square_functor.
+  apply is_omega_cocont_BinProduct_of_functors; try assumption.
+  - apply (BinProducts_functor_precat _ _ CP).
+  - apply functor_category_has_homsets.
+  - apply functor_category_has_homsets.
+  - apply (is_omega_cocont_functor_identity (functor_category_has_homsets _ _ hs)).
+  - apply (is_omega_cocont_functor_identity (functor_category_has_homsets _ _ hs)).
 Defined.
 
 (**
@@ -168,8 +168,8 @@ Definition Abs_H : functor [C, C, hs] [C, C, hs] :=
 
 Lemma is_omega_cocont_Abs_H (CLC : Colims_of_shape nat_graph C) : is_omega_cocont Abs_H.
 Proof.
-unfold Abs_H.
-apply (is_omega_cocont_pre_composition_functor _ _ _ CLC).
+  unfold Abs_H.
+  apply (is_omega_cocont_pre_composition_functor _ _ _ CLC).
 Defined.
 
 
@@ -199,18 +199,18 @@ Proof.
     unfold Flat_H_functor_data.
     simpl.
     unfold Flat_H_mor.
-    apply nat_trans_eq; try assumption.
+    apply (nat_trans_eq hs).
     intro c.
-    simpl.
+    simpl. unfold HorizontalComposition.horcomp_data; simpl.
     rewrite id_left.
     apply functor_id.
   + intros X X' X'' α β.
     unfold Flat_H_functor_data.
     simpl.
     unfold Flat_H_mor.
-    apply nat_trans_eq; try assumption.
+    apply (nat_trans_eq hs).
     intro c.
-    simpl.
+    simpl. unfold HorizontalComposition.horcomp_data; simpl.
     rewrite functor_comp.
     repeat rewrite <- assoc.
     apply maponpaths.
@@ -242,18 +242,17 @@ Proof.
   (* destruct XZ' as [X' Z']; *)
   (* destruct αβ as [α β]; *)
   (* simpl in *. *)
-  apply nat_trans_eq; try assumption.
+  apply (nat_trans_eq hs).
   intro c.
-  simpl.
+  simpl. unfold HorizontalComposition.horcomp_data; simpl.
   rewrite id_left.
   rewrite id_right.
   unfold binproduct_nat_trans_data, BinProduct_of_functors_mor.
   unfold BinProductOfArrows.
-  eapply pathscomp0.
-  apply precompWithBinProductArrow.
+  etrans; [ apply precompWithBinProductArrow |].
   simpl.
   unfold binproduct_nat_trans_pr1_data. unfold binproduct_nat_trans_pr2_data.
-  simpl.
+  simpl. unfold HorizontalComposition.horcomp_data; simpl.
   apply BinProductArrowUnique.
   + rewrite BinProductPr1Commutes.
     repeat rewrite assoc.
@@ -275,7 +274,7 @@ Proof.
   unfold App_θ, App_H.
   simpl.
   unfold App_θ_data.
-  apply nat_trans_eq; try assumption.
+  apply (nat_trans_eq hs).
   intro c.
   simpl.
   rewrite id_left.
@@ -284,13 +283,11 @@ Proof.
   apply BinProductArrowUnique.
   + rewrite id_left.
     unfold UnitorsAndAssociatorsForEndofunctors.λ_functors.
-    unfold UnitorsAndAssociatorsForEndofunctors.ρ_functors.
     simpl.
     rewrite id_right.
     apply idpath.
   + rewrite id_left.
     unfold UnitorsAndAssociatorsForEndofunctors.λ_functors.
-    unfold UnitorsAndAssociatorsForEndofunctors.ρ_functors.
     simpl.
     rewrite id_right.
     apply idpath.
@@ -304,7 +301,7 @@ Proof.
   unfold App_θ, App_H.
   simpl.
   unfold App_θ_data.
-  apply nat_trans_eq; try assumption.
+  apply (nat_trans_eq hs).
   intro c.
   simpl.
   do 3 rewrite id_left.
@@ -331,25 +328,22 @@ Proof.
   destruct XZ as [X Z].
 *)
   simpl.
-  intro A.
+  intro c.
   apply (functor_on_morphisms (functor_data_from_functor _ _ (pr1 XZ))).
   unfold BinCoproduct_of_functors_ob.
   unfold constant_functor.
-  simpl.
 (*
   destruct Z as [Z e].
 *)
   simpl.
   apply BinCoproductArrow.
   + exact (BinCoproductIn1 _ _ ·
-           nat_trans_data_from_nat_trans (pr2 (pr2 XZ)) (BinCoproductObject C (CC (TerminalObject terminal) A))).
-  + exact (# (pr1 (pr2 XZ)) (BinCoproductIn2 _ (CC (TerminalObject terminal) A))).
+           nat_trans_data_from_nat_trans (pr2 (pr2 XZ)) (BinCoproductObject C (CC (TerminalObject terminal) c))).
+  + exact (# (pr1 (pr2 XZ)) (BinCoproductIn2 _ (CC (TerminalObject terminal) c))).
 Defined.
 
-Lemma is_nat_trans_Abs_θ_data_data: ∏ XZ, is_nat_trans _ _ (Abs_θ_data_data XZ).
+Lemma is_nat_trans_Abs_θ_data_data (XZ: [C, C, hs] ⊠ precategory_Ptd C hs): is_nat_trans _ _ (Abs_θ_data_data XZ).
 Proof.
-
-  intro XZ.
   intros c c' f.
   unfold Abs_θ_data_data.
   simpl.
@@ -357,16 +351,14 @@ Proof.
   rewrite <- functor_comp.
   apply maponpaths.
   unfold BinCoproduct_of_functors_mor.
-  eapply pathscomp0.
-  apply precompWithBinCoproductArrow.
-  eapply pathscomp0.
-  2: apply (!(postcompWithBinCoproductArrow _ _ _ _ _)).
+  etrans.
+  { apply precompWithBinCoproductArrow. }
+  etrans; [| apply (!(postcompWithBinCoproductArrow _ _ _ _ _)) ].
   simpl.
   rewrite id_left.
   rewrite <- assoc.
   rewrite <- functor_comp.
   rewrite <- functor_comp.
-  simpl.
   apply maponpaths_12.
   + assert (NN :=  nat_trans_ax (pr2 (pr2 XZ)) _ _ (BinCoproductOfArrows C (CC (TerminalObject terminal) c) (CC (TerminalObject terminal) c')
          (identity (TerminalObject terminal)) f)).
@@ -382,8 +374,7 @@ Proof.
       apply idpath.
     * apply idpath.
   + apply maponpaths.
-    eapply pathscomp0.
-    2: apply (!(BinCoproductOfArrowsIn2 _ _ _ _ _ )).
+    etrans; [| apply (!(BinCoproductOfArrowsIn2 _ _ _ _ _ )) ].
     apply idpath.
 
 
@@ -430,9 +421,8 @@ Focus 2.
 Qed.
 
 
-Definition Abs_θ_data: ∏ XZ, (θ_source(hs := hs) Abs_H)XZ --> (θ_target Abs_H)XZ.
+Definition Abs_θ_data (XZ: [C, C, hs] ⊠ precategory_Ptd C hs): (θ_source(hs := hs) Abs_H)XZ --> (θ_target Abs_H)XZ.
 Proof.
-  intro XZ.
   exact (tpair _ _ (is_nat_trans_Abs_θ_data_data XZ)).
 Defined.
 
@@ -444,10 +434,9 @@ Proof.
   destruct XZ' as [X' [Z' e']].
   destruct αβ as [α β].
   simpl in *.
-  apply nat_trans_eq; try assumption.
+  apply (nat_trans_eq hs).
   intro c.
-  simpl.
-  simpl in *.
+  simpl. unfold HorizontalComposition.horcomp_data; simpl.
   unfold constant_functor.
   unfold BinCoproduct_of_functors_ob.
   simpl.
@@ -460,9 +449,9 @@ Proof.
   apply maponpaths.
   unfold BinCoproduct_of_functors_mor, constant_functor_data.
   simpl.
-  eapply pathscomp0. apply precompWithBinCoproductArrow.
+  etrans; [ apply precompWithBinCoproductArrow |].
 (*  rewrite precompWithBinCoproductArrow. *)
-  eapply pathscomp0.
+  etrans.
   2: { eapply pathsinv0.
        apply postcompWithBinCoproductArrow. }
 (*
@@ -474,7 +463,7 @@ Proof.
     rewrite <- assoc.
     rewrite <- (ptd_mor_commutes _ β).
     apply idpath.
-  + simpl in *.
+  + simpl.
     apply pathsinv0.
     apply (nat_trans_ax β).
 Qed.
@@ -489,7 +478,7 @@ Proof.
   unfold Abs_θ, Abs_H.
   simpl.
   unfold Abs_θ_data.
-  apply nat_trans_eq; try assumption.
+  apply (nat_trans_eq hs).
   intro c.
   simpl.
   rewrite id_right.
@@ -507,7 +496,7 @@ Proof.
   unfold Abs_θ, Abs_H.
   simpl.
   unfold Abs_θ_data.
-  apply nat_trans_eq; try assumption.
+  apply (nat_trans_eq hs).
   intro c.
   simpl.
   rewrite id_left.
@@ -516,13 +505,10 @@ Proof.
   rewrite <- functor_comp.
   apply maponpaths.
   clear X.
-  destruct Z as [Z e];
-  destruct Z' as [Z' e'];
-  simpl.
-  eapply pathscomp0.
+  destruct Z as [Z e]; destruct Z' as [Z' e']; etrans.
   2: { eapply pathsinv0.
        apply postcompWithBinCoproductArrow. }
-  simpl in *.
+  simpl.
   apply maponpaths_12.
   + rewrite <- assoc.
     assert (NN := nat_trans_ax e' _ _ (e (BinCoproductObject C (CC (TerminalObject terminal) c)))).
@@ -547,16 +533,15 @@ Proof.
       - apply idpath.
   + rewrite <- functor_comp.
     apply maponpaths.
-    eapply pathscomp0.
+    etrans.
     2: { eapply pathsinv0.
          apply BinCoproductIn2Commutes. }
     apply idpath.
 Qed.
 
 
-Definition Flat_θ_data: ∏ XZ, (θ_source(hs := hs) Flat_H)XZ --> (θ_target Flat_H)XZ.
+Definition Flat_θ_data (XZ: [C, C, hs] ⊠ precategory_Ptd C hs): θ_source(hs := hs) Flat_H XZ --> θ_target Flat_H XZ.
 Proof.
-  intro XZ.
 (*  destruct XZ as [X [Z e]].
   simpl.
 *)
@@ -568,9 +553,9 @@ Lemma is_nat_trans_Flat_θ_data: is_nat_trans _ _ Flat_θ_data.
 Proof.
   red.
   intros XZ XZ' αβ.
-  apply nat_trans_eq; try assumption.
+  apply (nat_trans_eq hs).
   intro c.
-  simpl.
+  simpl. do 2 (unfold HorizontalComposition.horcomp_data; simpl).
   destruct XZ as [X [Z e]];
   destruct XZ' as [X' [Z' e']];
   destruct αβ as [α β];
@@ -591,8 +576,7 @@ Proof.
   simpl in β_is_pointed.
   rewrite β_is_pointed.
   simpl.
-  eapply pathscomp0.
-  2: apply (nat_trans_ax e').
+  etrans; [| apply (nat_trans_ax e') ].
   apply idpath.
 Qed.
 
@@ -605,9 +589,9 @@ Proof.
   intro.
   unfold Flat_θ, Flat_H.
   simpl.
-  apply nat_trans_eq; try assumption.
+  apply (nat_trans_eq hs).
   intro c.
-  simpl.
+  simpl. do 2 (unfold HorizontalComposition.horcomp_data; simpl).
   repeat rewrite id_left.
   repeat rewrite functor_id.
   repeat rewrite id_left.
@@ -621,9 +605,9 @@ Proof.
   destruct Z as [Z e];
   destruct Z' as [Z' e'];
   simpl.
-  apply nat_trans_eq; try assumption.
+  apply (nat_trans_eq hs).
   intro c.
-  simpl.
+  simpl. do 3 (unfold HorizontalComposition.horcomp_data; simpl).
   repeat rewrite id_left.
   repeat rewrite <- functor_comp.
   apply maponpaths.
@@ -668,10 +652,10 @@ Lemma is_omega_cocont_Lam
   (hE : ∏ x, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C CP hs) x))
   (LC : Colims_of_shape nat_graph C) : is_omega_cocont (Signature_Functor Lam_Sig).
 Proof.
-apply is_omega_cocont_BinCoproduct_of_functors.
-- apply functor_category_has_homsets.
-- apply (is_omega_cocont_App_H hE).
-- apply (is_omega_cocont_Abs_H LC).
+  apply is_omega_cocont_BinCoproduct_of_functors.
+  - apply functor_category_has_homsets.
+  - apply (is_omega_cocont_App_H hE).
+  - apply (is_omega_cocont_Abs_H LC).
 Defined.
 
 Definition LamE_Sig: Signature C hs C hs C hs :=

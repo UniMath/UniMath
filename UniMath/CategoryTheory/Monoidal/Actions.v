@@ -245,7 +245,7 @@ Section Alternative_Definition.
     apply (maponpaths pr1) in Hunital1.
     apply toforallpaths in Hunital1.
     assert (Hunital1inst := Hunital1 a).
-    cbn in Hunital1inst.
+    cbn in Hunital1inst. unfold HorizontalComposition.horcomp_data in Hunital1inst.
     rewrite id_left in Hunital1inst.
     unfold MonoidalFunctors.λ_C in Hunital1inst.
     apply pathsinv0.
@@ -287,7 +287,7 @@ Section Alternative_Definition.
     apply toforallpaths in Hassoc.
     assert (Hassocinst := Hassoc a).
     clear Hassoc.
-    cbn in Hassocinst.
+    cbn in Hassocinst. unfold HorizontalComposition.horcomp_data in Hassocinst. cbn in Hassocinst.
     do 2 rewrite id_left in Hassocinst.
     rewrite functor_id in Hassocinst.
     rewrite id_right in Hassocinst.

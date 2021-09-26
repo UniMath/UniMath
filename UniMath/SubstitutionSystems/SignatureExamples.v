@@ -69,9 +69,9 @@ Proof.
 split; simpl.
 - intro Ze.
   apply (nat_trans_eq hsC).
-  now intro c; simpl; rewrite functor_id, id_right.
+  now intro c; simpl; unfold horcomp_data; simpl; rewrite functor_id, id_right.
 - intros H1 H2 H3 H4 H5; induction H1 as [Z e]; induction H2 as [Z' e']; induction H3 as [Z'' e'']; induction H4 as [α a]; induction H5 as [β b].
-  apply (nat_trans_eq hsC); intro c; simpl in *.
+  apply (nat_trans_eq hsC); intro c; simpl in *. unfold horcomp_data; simpl.
   now rewrite !id_left, functor_comp.
 Qed.
 
@@ -92,9 +92,9 @@ Proof.
 split; simpl.
 - intro Ze.
   apply (nat_trans_eq hsC).
-  now intro c; simpl; rewrite functor_id, id_right.
+  now intro c; simpl; unfold horcomp_data; simpl; rewrite functor_id, id_right.
 - intros H1 H2 H3 H4 H5; induction H1 as [Z e]; induction H2 as [Z' e']; induction H3 as [Z'' e'']; induction H4 as [α a]; induction H5 as [β b].
-  apply (nat_trans_eq hsC); intro c; simpl in *.
+  apply (nat_trans_eq hsC); intro c; simpl in *. unfold horcomp_data; simpl.
   now rewrite !functor_id, !id_right.
 Qed.
 
@@ -138,7 +138,7 @@ Proof.
   assert (Hypinst := Hyp Ze Ze').
   etrans. { exact Hypinst. }
   unfold D'.
-  apply nat_trans_eq; try exact hsC.
+  apply (nat_trans_eq hsC).
   intro c.
   cbn.
   do 2 rewrite id_left.
@@ -171,7 +171,7 @@ use tpair; simpl.
       - abstract (now intros y y' f; rewrite id_left, id_right).
     }
   * abstract (now intros y y' f; apply (nat_trans_eq hsC); intro z;
-                  simpl; rewrite id_left, id_right, id_left, functor_id, id_right; apply idpath).
+                  simpl; unfold horcomp_data; simpl; rewrite id_left, id_right, id_left, functor_id, id_right; apply idpath).
 + split.
   * apply (nat_trans_eq hsC); intro c; simpl; apply idpath.
   * intros Ze Ze'; apply (nat_trans_eq hsC); intro c; simpl. do 3 rewrite id_left. rewrite id_right. apply pathsinv0. apply functor_id.
@@ -192,54 +192,52 @@ Let precompG := (pre_composition_functor _ _ _ hsC hsC G).
 Definition θ_from_δ_mor (XZe : [C, C, hsC] ⊠ Ptd) :
   [C, C, hsC] ⟦ θ_source precompG XZe, θ_target precompG XZe ⟧.
 Proof.
-set (X := pr1 XZe); set (Z := pr1 (pr2 XZe)).
-set (F1 := α_functors G Z X).
-set (F2 := post_whisker (δ G DL (pr2 XZe)) X).
-set (F3 := α_functors_inv Z G X).
-apply (nat_trans_comp F3 (nat_trans_comp F2 F1)).
+  set (X := pr1 XZe); set (Z := pr1 (pr2 XZe)).
+  set (F1 := α_functors G Z X).
+  set (F2 := post_whisker (δ G DL (pr2 XZe)) X).
+  set (F3 := α_functors_inv Z G X).
+  apply (nat_trans_comp F3 (nat_trans_comp F2 F1)).
 Defined.
 
 Lemma is_nat_trans_θ_from_δ_mor :
    is_nat_trans (θ_source precompG) (θ_target precompG) θ_from_δ_mor.
 Proof.
-intros H1 H2 H3; induction H1 as [F1 X1]; induction H2 as [F2 X2];induction H3 as [α X]; simpl in *.
-apply (nat_trans_eq hsC); intro c; simpl; rewrite !id_right, !id_left.
-generalize (nat_trans_eq_pointwise (nat_trans_ax (δ G DL) X1 X2 X) c); simpl.
-rewrite id_left, functor_id, id_right.
-intros H.
-rewrite <- assoc.
-eapply pathscomp0.
-  eapply maponpaths, pathsinv0, functor_comp.
-eapply pathscomp0.
-  eapply maponpaths, maponpaths, H.
-rewrite assoc; apply pathsinv0.
-eapply pathscomp0.
-  eapply cancel_postcomposition, nat_trans_ax.
-now rewrite <- assoc, <- functor_comp.
+  intros H1 H2 H3; induction H1 as [F1 X1]; induction H2 as [F2 X2];induction H3 as [α X]; simpl in *.
+  apply (nat_trans_eq hsC); intro c; simpl; rewrite !id_right, !id_left.
+  generalize (nat_trans_eq_pointwise (nat_trans_ax (δ G DL) X1 X2 X) c); simpl. unfold horcomp_data; simpl.
+  rewrite id_left, functor_id, id_right.
+  intros H.
+  rewrite <- assoc.
+  etrans.
+  { eapply maponpaths, pathsinv0, functor_comp. }
+  etrans.
+  { eapply maponpaths, maponpaths, H. }
+  rewrite assoc; apply pathsinv0.
+  etrans.
+  { eapply cancel_postcomposition, nat_trans_ax. }
+  now rewrite <- assoc, <- functor_comp.
 Qed.
 
 Definition θ_from_δ : PrestrengthForSignature precompG := tpair _ _ is_nat_trans_θ_from_δ_mor.
 
 Lemma θ_Strength1_int_from_δ : θ_Strength1_int θ_from_δ.
 Proof.
-intro F.
-apply (nat_trans_eq hsC); intro c; simpl.
-rewrite id_left, !id_right.
-eapply pathscomp0;
-  [eapply maponpaths, (nat_trans_eq_pointwise (distributive_law1 G DL) c)|].
-apply functor_id.
+  intro F.
+  apply (nat_trans_eq hsC); intro c; simpl.
+  rewrite id_left, !id_right.
+  etrans; [eapply maponpaths, (nat_trans_eq_pointwise (distributive_law1 G DL) c)|].
+  apply functor_id.
 Qed.
 
 Lemma θ_Strength2_int_from_δ : θ_Strength2_int θ_from_δ.
 Proof.
-intros F Ze Ze'; simpl.
-set (Z := pr1 Ze); set (Z' := pr1 Ze').
-apply (nat_trans_eq hsC); intro c; simpl.
-generalize (nat_trans_eq_pointwise (distributive_law2 G DL Ze Ze') c); simpl.
-rewrite !id_left, !id_right; intro H.
-eapply pathscomp0;
-  [eapply maponpaths, H|].
-apply functor_comp.
+  intros F Ze Ze'; simpl.
+  set (Z := pr1 Ze); set (Z' := pr1 Ze').
+  apply (nat_trans_eq hsC); intro c; simpl.
+  generalize (nat_trans_eq_pointwise (distributive_law2 G DL Ze Ze') c); simpl.
+  rewrite !id_left, !id_right; intro H.
+  etrans; [eapply maponpaths, H|].
+  apply functor_comp.
 Qed.
 
 Definition θ_precompG : StrengthForSignature precompG :=
@@ -262,36 +260,37 @@ Definition δ_comp_mor (Ze : ptd_obj C) :
   functor_composite_data (pr1 Ze) (functor_composite_data G1 G2)
    ⟹ functor_composite_data (functor_composite_data G1 G2) (pr1 Ze).
 Proof.
-set (Z := pr1 Ze).
-set (F1 := α_functors_inv Z G1 G2).
-set (F2 := post_whisker (δ G1 DL1 Ze) G2).
-set (F3 := α_functors G1 Z G2).
-set (F4 := pre_whisker G1 (δ G2 DL2 Ze)).
-set (F5 := α_functors_inv G1 G2 Z).
-exact (nat_trans_comp F1 (nat_trans_comp F2 (nat_trans_comp F3 (nat_trans_comp F4 F5)))).
+  set (Z := pr1 Ze).
+  set (F1 := α_functors_inv Z G1 G2).
+  set (F2 := post_whisker (δ G1 DL1 Ze) G2).
+  set (F3 := α_functors G1 Z G2).
+  set (F4 := pre_whisker G1 (δ G2 DL2 Ze)).
+  set (F5 := α_functors_inv G1 G2 Z).
+  exact (nat_trans_comp F1 (nat_trans_comp F2 (nat_trans_comp F3 (nat_trans_comp F4 F5)))).
 Defined.
 
 Lemma is_nat_trans_δ_comp_mor : is_nat_trans (δ_source (G2 • G1 : [C,C,hsC]))
                                              (δ_target (G2 • G1 : [C,C,hsC])) δ_comp_mor.
 Proof.
-intros Ze Z'e' αX; induction Ze as [Z e]; induction Z'e' as [Z' e']; induction αX as [α X]; simpl in *.
-apply (nat_trans_eq hsC); intro c; simpl; rewrite functor_id, !id_right, !id_left.
-eapply pathscomp0.
-  rewrite assoc.
-  eapply cancel_postcomposition, pathsinv0, functor_comp.
-eapply pathscomp0.
-  eapply cancel_postcomposition, maponpaths.
-  generalize (nat_trans_eq_pointwise (nat_trans_ax (δ G1 DL1) (Z,,e) (Z',, e') (α,,X)) c).
-  simpl; rewrite id_left, functor_id, id_right; intro H1.
-  apply H1.
-rewrite functor_comp, <- assoc.
-
-eapply pathscomp0.
-  eapply maponpaths.
-  generalize (nat_trans_eq_pointwise (nat_trans_ax (δ G2 DL2) (Z,,e) (Z',, e') (α,,X)) (G1 c)).
-  simpl; rewrite id_left, functor_id, id_right; intro H2.
-  apply H2.
-now rewrite assoc.
+  intros Ze Z'e' αX; induction Ze as [Z e]; induction Z'e' as [Z' e']; induction αX as [α X]; simpl in *.
+  apply (nat_trans_eq hsC); intro c; simpl; unfold horcomp_data; simpl; rewrite functor_id, !id_right, !id_left.
+  etrans.
+  { rewrite assoc.
+    eapply cancel_postcomposition, pathsinv0, functor_comp. }
+  etrans.
+  { eapply cancel_postcomposition, maponpaths.
+    generalize (nat_trans_eq_pointwise (nat_trans_ax (δ G1 DL1) (Z,,e) (Z',, e') (α,,X)) c).
+    simpl; unfold horcomp_data; simpl; rewrite id_left, functor_id, id_right; intro H1.
+    apply H1.
+  }
+  rewrite functor_comp, <- assoc.
+  etrans.
+  { eapply maponpaths.
+    generalize (nat_trans_eq_pointwise (nat_trans_ax (δ G2 DL2) (Z,,e) (Z',, e') (α,,X)) (G1 c)).
+    simpl; unfold horcomp_data; simpl; rewrite id_left, functor_id, id_right; intro H2.
+    apply H2.
+  }
+  now rewrite assoc.
 Qed.
 
 Definition δ_comp : δ_source (G2 • G1 : [C,C,hsC]) ⟹ δ_target (G2 • G1 : [C,C,hsC]) :=
@@ -299,32 +298,32 @@ Definition δ_comp : δ_source (G2 • G1 : [C,C,hsC]) ⟹ δ_target (G2 • G1 
 
 Lemma δ_comp_law1 : δ_law1 (G2 • G1 : [C,C,hsC]) δ_comp.
 Proof.
-apply (nat_trans_eq hsC); intro c; simpl; rewrite !id_left, id_right.
-eapply pathscomp0.
-  eapply maponpaths, (nat_trans_eq_pointwise (distributive_law1 G2 DL2) (G1 c)).
-eapply pathscomp0.
-  eapply cancel_postcomposition, maponpaths, (nat_trans_eq_pointwise (distributive_law1  G1 DL1) c).
-now rewrite id_right; apply functor_id.
+  apply (nat_trans_eq hsC); intro c; simpl; rewrite !id_left, id_right.
+  etrans.
+  { eapply maponpaths, (nat_trans_eq_pointwise (distributive_law1 G2 DL2) (G1 c)). }
+  etrans.
+  { eapply cancel_postcomposition, maponpaths, (nat_trans_eq_pointwise (distributive_law1  G1 DL1) c). }
+  now rewrite id_right; apply functor_id.
 Qed.
 
 Lemma δ_comp_law2 : δ_law2 (G2 • G1 : [C,C,hsC]) δ_comp.
 Proof.
-intros Ze Ze'.
-apply (nat_trans_eq hsC); intro c; simpl; rewrite !id_left, !id_right.
-eapply pathscomp0.
-  eapply cancel_postcomposition, maponpaths, (nat_trans_eq_pointwise (distributive_law2 G1 DL1 Ze Ze') c).
-eapply pathscomp0.
-  eapply maponpaths, (nat_trans_eq_pointwise (distributive_law2 G2 DL2 Ze Ze') (G1 c)).
-simpl; rewrite !id_left, !id_right.
-eapply pathscomp0.
-  eapply cancel_postcomposition, functor_comp.
-rewrite <- !assoc.
-apply maponpaths.
-rewrite assoc.
-eapply pathscomp0.
-  eapply cancel_postcomposition, (nat_trans_ax (δ G2 DL2 Ze') _ _ (pr1 (δ G1 DL1 Ze) c)).
-simpl; rewrite <- !assoc.
-now apply maponpaths, pathsinv0, functor_comp.
+  intros Ze Ze'.
+  apply (nat_trans_eq hsC); intro c; simpl; rewrite !id_left, !id_right.
+  etrans.
+  { eapply cancel_postcomposition, maponpaths, (nat_trans_eq_pointwise (distributive_law2 G1 DL1 Ze Ze') c). }
+  etrans.
+  { eapply maponpaths, (nat_trans_eq_pointwise (distributive_law2 G2 DL2 Ze Ze') (G1 c)). }
+  simpl; rewrite !id_left, !id_right.
+  etrans.
+  { eapply cancel_postcomposition, functor_comp. }
+  rewrite <- !assoc.
+  apply maponpaths.
+  rewrite assoc.
+  etrans.
+  { eapply cancel_postcomposition, (nat_trans_ax (δ G2 DL2 Ze') _ _ (pr1 (δ G1 DL1 Ze) c)). }
+  simpl; rewrite <- !assoc.
+  now apply maponpaths, pathsinv0, functor_comp.
 Qed.
 
 Definition DL_comp : DistributiveLaw (G2 • G1 : [C,C,hsC]).
@@ -348,111 +347,111 @@ Section genoption_sig.
 Definition δ_genoption_mor (Ze : Ptd) (c : C) :  C ⟦ BinCoproductObject C (CC A (pr1 Ze c)),
                                                   pr1 Ze (BinCoproductObject C (CC A c)) ⟧.
 Proof.
-apply (@BinCoproductArrow _ _ _ (CC A (pr1 Ze c)) (pr1 Ze (BinCoproductObject C (CC A c)))).
-- apply (BinCoproductIn1 _ (CC A c) · pr2 Ze (BinCoproductObject _ (CC A c))).
-- apply (# (pr1 Ze) (BinCoproductIn2 _ (CC A c))).
+  apply (@BinCoproductArrow _ _ _ (CC A (pr1 Ze c)) (pr1 Ze (BinCoproductObject C (CC A c)))).
+  - apply (BinCoproductIn1 _ (CC A c) · pr2 Ze (BinCoproductObject _ (CC A c))).
+  - apply (# (pr1 Ze) (BinCoproductIn2 _ (CC A c))).
 Defined.
 
 Lemma is_nat_trans_δ_genoption_mor (Ze : Ptd) :
   is_nat_trans (δ_source genopt Ze : functor C C) (δ_target genopt Ze : functor C C)
      (δ_genoption_mor Ze).
 Proof.
-intros a b f; simpl.
-induction Ze as [Z e].
-unfold BinCoproduct_of_functors_mor; simpl.
-eapply pathscomp0.
-  apply precompWithBinCoproductArrow.
-rewrite id_left.
-apply pathsinv0, BinCoproductArrowUnique.
-- eapply pathscomp0.
-    rewrite assoc.
-    eapply cancel_postcomposition, BinCoproductIn1Commutes.
-  rewrite <- assoc.
-  eapply pathscomp0.
-    eapply maponpaths, pathsinv0, (nat_trans_ax e).
-  simpl; rewrite assoc.
-  apply cancel_postcomposition.
-  eapply pathscomp0.
-    apply BinCoproductOfArrowsIn1.
-  now rewrite id_left.
-- rewrite assoc.
-  eapply pathscomp0.
-    eapply cancel_postcomposition, BinCoproductIn2Commutes.
-  rewrite <- !functor_comp.
-  now apply maponpaths, BinCoproductOfArrowsIn2.
+  intros a b f; simpl.
+  induction Ze as [Z e].
+  unfold BinCoproduct_of_functors_mor; simpl.
+  etrans.
+  { apply precompWithBinCoproductArrow. }
+  rewrite id_left.
+  apply pathsinv0, BinCoproductArrowUnique.
+  - etrans.
+    { rewrite assoc.
+      eapply cancel_postcomposition, BinCoproductIn1Commutes. }
+    rewrite <- assoc.
+    etrans.
+    { eapply maponpaths, pathsinv0, (nat_trans_ax e). }
+    simpl; rewrite assoc.
+    apply cancel_postcomposition.
+    etrans.
+    { apply BinCoproductOfArrowsIn1. }
+    now rewrite id_left.
+  - rewrite assoc.
+    etrans.
+    { eapply cancel_postcomposition, BinCoproductIn2Commutes. }
+    rewrite <- !functor_comp.
+    now apply maponpaths, BinCoproductOfArrowsIn2.
 Qed.
 
 Lemma is_nat_trans_δ_genoption_mor_nat_trans : is_nat_trans (δ_source_functor_data genopt)
      (δ_target_functor_data genopt)
      (λ Ze : Ptd, δ_genoption_mor Ze,, is_nat_trans_δ_genoption_mor Ze).
 Proof.
-intro Ze; induction Ze as [Z e]; intro Z'e'; induction Z'e' as [Z' e']; intro αX; induction αX as [α X]; simpl in *.
-apply (nat_trans_eq hsC); intro c; simpl.
-rewrite id_left, functor_id, id_right.
-unfold BinCoproduct_of_functors_mor, BinCoproduct_of_functors_ob, δ_genoption_mor; simpl.
-rewrite precompWithBinCoproductArrow.
-apply pathsinv0, BinCoproductArrowUnique.
-- rewrite id_left, assoc.
-  eapply pathscomp0.
-    eapply cancel_postcomposition, BinCoproductIn1Commutes.
-  rewrite <- assoc.
-  now apply maponpaths, X.
-- rewrite assoc.
-  eapply pathscomp0.
-    eapply cancel_postcomposition, BinCoproductIn2Commutes.
-  now apply nat_trans_ax.
+  intro Ze; induction Ze as [Z e]; intro Z'e'; induction Z'e' as [Z' e']; intro αX; induction αX as [α X]; simpl in *.
+  apply (nat_trans_eq hsC); intro c; simpl. unfold horcomp_data; simpl.
+  rewrite id_left, functor_id, id_right.
+  unfold BinCoproduct_of_functors_mor, BinCoproduct_of_functors_ob, δ_genoption_mor; simpl.
+  rewrite precompWithBinCoproductArrow.
+  apply pathsinv0, BinCoproductArrowUnique.
+  - rewrite id_left, assoc.
+    etrans.
+    { eapply cancel_postcomposition, BinCoproductIn1Commutes. }
+    rewrite <- assoc.
+    now apply maponpaths, X.
+  - rewrite assoc.
+    etrans.
+    { eapply cancel_postcomposition, BinCoproductIn2Commutes. }
+    now apply nat_trans_ax.
 Qed.
 
 Definition δ_genoption : δ_source genopt ⟹ δ_target genopt.
 Proof.
-use tpair.
-- intro Ze.
-  apply (tpair _ (δ_genoption_mor Ze) (is_nat_trans_δ_genoption_mor Ze)).
-- apply is_nat_trans_δ_genoption_mor_nat_trans.
+  use tpair.
+  - intro Ze.
+    apply (tpair _ (δ_genoption_mor Ze) (is_nat_trans_δ_genoption_mor Ze)).
+  - apply is_nat_trans_δ_genoption_mor_nat_trans.
 Defined.
 
 Lemma δ_law1_genoption : δ_law1 genopt δ_genoption.
 Proof.
-apply (nat_trans_eq hsC); intro c; simpl.
-unfold δ_genoption_mor, BinCoproduct_of_functors_ob; simpl.
-rewrite id_right.
-apply pathsinv0, BinCoproduct_endo_is_identity.
-- apply BinCoproductIn1Commutes.
-- apply BinCoproductIn2Commutes.
+  apply (nat_trans_eq hsC); intro c; simpl.
+  unfold δ_genoption_mor, BinCoproduct_of_functors_ob; simpl.
+  rewrite id_right.
+  apply pathsinv0, BinCoproduct_endo_is_identity.
+  - apply BinCoproductIn1Commutes.
+  - apply BinCoproductIn2Commutes.
 Qed.
 
 Lemma δ_law2_genoption : δ_law2 genopt δ_genoption.
 Proof.
-intros Ze Z'e'; induction Ze as [Z e]; induction Z'e' as [Z' e'].
-apply (nat_trans_eq hsC); intro c; simpl.
-unfold δ_genoption_mor, BinCoproduct_of_functors_ob; simpl.
-rewrite !id_left, id_right.
-apply pathsinv0, BinCoproductArrowUnique.
+  intros Ze Z'e'; induction Ze as [Z e]; induction Z'e' as [Z' e'].
+  apply (nat_trans_eq hsC); intro c; simpl.
+  unfold δ_genoption_mor, BinCoproduct_of_functors_ob; simpl.
+  rewrite !id_left, id_right.
+  apply pathsinv0, BinCoproductArrowUnique.
 - rewrite assoc.
-  eapply pathscomp0.
-    eapply cancel_postcomposition, BinCoproductIn1Commutes.
+  etrans.
+  { eapply cancel_postcomposition, BinCoproductIn1Commutes. }
   rewrite <- assoc.
-  eapply pathscomp0.
-    eapply maponpaths, pathsinv0, (nat_trans_ax e').
+  etrans.
+  { eapply maponpaths, pathsinv0, (nat_trans_ax e'). }
   simpl; rewrite assoc.
-  eapply pathscomp0.
-    eapply cancel_postcomposition, BinCoproductIn1Commutes.
+  etrans.
+  { eapply cancel_postcomposition, BinCoproductIn1Commutes. }
   rewrite <- !assoc.
   now apply maponpaths, (nat_trans_ax e').
 - rewrite assoc.
-  eapply pathscomp0.
-    eapply cancel_postcomposition, BinCoproductIn2Commutes.
-  eapply pathscomp0.
-    eapply pathsinv0, functor_comp.
+  etrans.
+  { eapply cancel_postcomposition, BinCoproductIn2Commutes. }
+  etrans.
+  { eapply pathsinv0, functor_comp. }
   now apply maponpaths, BinCoproductIn2Commutes.
 Qed.
 
 Definition genoption_DistributiveLaw : DistributiveLaw genopt.
 Proof.
-exists δ_genoption.
-    split.
-    * exact δ_law1_genoption.
-    * exact δ_law2_genoption.
+  exists δ_genoption.
+  split.
+  - exact δ_law1_genoption.
+  - exact δ_law2_genoption.
 Defined.
 
 Definition precomp_genoption_Signature : Signature C hsC C hsC C hsC :=
@@ -486,11 +485,11 @@ Variable DL : DistributiveLaw G.
 
 Definition DL_iter_functor1 (n: nat) : DistributiveLaw (iter_functor1 G n).
 Proof.
-induction n as [|n IHn].
-- exact DL.
-- apply DL_comp.
-  + apply IHn.
-  + exact DL.
+  induction n as [|n IHn].
+  - exact DL.
+  - apply DL_comp.
+    + apply IHn.
+    + exact DL.
 Defined.
 
 End iter1_dl.
@@ -502,19 +501,19 @@ Section id_signature.
   Variable (C : precategory) (hsC : has_homsets C).
   Variable (D : precategory) (hsD : has_homsets D).
 
-  Definition θ_functor_identity : StrengthForSignature(hs:=hsC) (functor_identity [C,D,hsD]).
+Definition θ_functor_identity : StrengthForSignature(hs:=hsC) (functor_identity [C,D,hsD]).
 Proof.
-use tpair.
-+ use tpair.
-  * intro x.
-    { use tpair.
-      - intro y; simpl; apply identity.
-      - abstract (now intros y y' f; rewrite id_left, id_right).
-    }
-  * abstract (now intros y y' f; apply (nat_trans_eq hsD); intro z;
-                  simpl; rewrite id_left, id_right).
-(* If this part is abstract the eval cbn for the LC doesn't reduce properly *)
-+ now split; intros x; intros; apply (nat_trans_eq hsD); intro c; simpl; rewrite !id_left.
+  use tpair.
+  + use tpair.
+    * intro x.
+      { use tpair.
+        - intro y; simpl; apply identity.
+        - abstract (now intros y y' f; rewrite id_left, id_right).
+      }
+    * abstract (now intros y y' f; apply (nat_trans_eq hsD); intro z;
+                simpl; rewrite id_left, id_right).
+  (* If this part is abstract the eval cbn for the LC doesn't reduce properly *)
+  + now split; intros x; intros; apply (nat_trans_eq hsD); intro c; simpl; rewrite !id_left.
 Defined.
 
 (** Signature for the Id functor *)
@@ -534,18 +533,18 @@ Section constantly_constant_signature.
 
   Let H := constant_functor (functor_category C D') (functor_category C D) (constant_functor C D d).
 
-  Definition θ_const_const : StrengthForSignature (hs := homset_property C) H.
+Definition θ_const_const : StrengthForSignature (hs := homset_property C) H.
 Proof.
-use tpair; simpl.
-+ use tpair; simpl.
-  * intro x.
-    { use tpair.
-      - intro y; simpl; apply identity.
-      - abstract (now intros y y' f; rewrite id_left, id_right).
-    }
-  * abstract (now intros y y' f; apply (nat_trans_eq (homset_property D)); intro z;
-                  simpl; rewrite id_left, id_right).
-+ now split; intros x; intros; apply (nat_trans_eq (homset_property D)); intro c; simpl; rewrite !id_left.
+  use tpair; simpl.
+  + use tpair; simpl.
+    * intro x.
+      { use tpair.
+        - intro y; simpl; apply identity.
+        - abstract (now intros y y' f; rewrite id_left, id_right).
+      }
+    * abstract (now intros y y' f; apply (nat_trans_eq (homset_property D)); intro z;
+                simpl; unfold horcomp_data; simpl; rewrite id_left, id_right).
+  + now split; intros x; intros; apply (nat_trans_eq (homset_property D)); intro c; simpl; rewrite !id_left.
 Defined.
 
 Definition ConstConstSignature : Signature _ (homset_property C) _ (homset_property D) _ (homset_property D') :=
@@ -588,66 +587,66 @@ Let GH : functor [C, D', hsD'] [C, E, hsE] := functor_composite H (post_composit
 
 Definition Gθ_mor (XZe : [C, D', hsD'] ⊠ Ptd) : [C, E, hsE] ⟦ θ_source GH XZe, θ_target GH XZe ⟧.
 Proof.
-set (X := pr1 XZe); set (Z := pr1 (pr2 XZe)).
-set (F1 := α_functors_inv Z (H X) G).
-set (F2 := post_whisker (θ XZe) G).
-apply (nat_trans_comp F1 F2).
+  set (X := pr1 XZe); set (Z := pr1 (pr2 XZe)).
+  set (F1 := α_functors_inv Z (H X) G).
+  set (F2 := post_whisker (θ XZe) G).
+  apply (nat_trans_comp F1 F2).
 Defined.
 
 Lemma is_nat_trans_Gθ_mor :
    is_nat_trans (θ_source GH) (θ_target GH) Gθ_mor.
 Proof.
-intros H1 H2 H3; induction H1 as [F1 X1]; induction H2 as [F2 X2]; induction H3 as [α X]; simpl in *.
-apply (nat_trans_eq hsE); intro c; simpl.
-do 2 rewrite <- assoc.
-do 2 rewrite id_left.
-eapply pathscomp0.
-  + eapply maponpaths, pathsinv0, functor_comp.
-  + eapply pathscomp0.
-    - eapply pathsinv0, functor_comp.
-    - apply pathsinv0. eapply pathscomp0.
-      * eapply pathsinv0, functor_comp.
-      * eapply maponpaths.
-        apply pathsinv0.
-        rewrite assoc.
-        generalize (nat_trans_eq_pointwise (nat_trans_ax θ (F1,,X1)(F2,,X2)(α,,X)) c); simpl.
-        intro Hyp.
-        apply Hyp.
+  intros H1 H2 H3; induction H1 as [F1 X1]; induction H2 as [F2 X2]; induction H3 as [α X]; simpl in *.
+  apply (nat_trans_eq hsE); intro c; simpl; unfold horcomp_data; simpl.
+  do 2 rewrite <- assoc.
+  do 2 rewrite id_left.
+  etrans.
+  { eapply maponpaths, pathsinv0, functor_comp. }
+  etrans.
+  { eapply pathsinv0, functor_comp. }
+  apply pathsinv0; etrans.
+  { eapply pathsinv0, functor_comp. }
+  eapply maponpaths.
+  apply pathsinv0.
+  rewrite assoc.
+  generalize (nat_trans_eq_pointwise (nat_trans_ax θ (F1,,X1)(F2,,X2)(α,,X)) c); simpl; unfold horcomp_data; simpl.
+  intro Hyp.
+  apply Hyp.
 Qed.
 
 Definition Gθ : PrestrengthForSignature GH := tpair _ _ is_nat_trans_Gθ_mor.
 
 Lemma Gθ_Strength1_int : θ_Strength1_int Gθ.
 Proof.
-intro F.
-apply (nat_trans_eq hsE); intro c; simpl.
-rewrite <- assoc.
-rewrite id_left.
-eapply pathscomp0.
-  + eapply pathsinv0, functor_comp.
-  + apply pathsinv0. eapply pathscomp0.
-    * eapply pathsinv0, functor_id.
-    * eapply maponpaths.
-      generalize (nat_trans_eq_pointwise (θ_strength1 F) c); simpl.
-      intro Hyp.
-      apply pathsinv0, Hyp.
+  intro F.
+  apply (nat_trans_eq hsE); intro c; simpl.
+  rewrite <- assoc.
+  rewrite id_left.
+  etrans.
+  { eapply pathsinv0, functor_comp. }
+  apply pathsinv0; etrans.
+  { eapply pathsinv0, functor_id. }
+  eapply maponpaths.
+  generalize (nat_trans_eq_pointwise (θ_strength1 F) c); simpl.
+  intro Hyp.
+  apply pathsinv0, Hyp.
 Qed.
 
 Lemma Gθ_Strength2_int : θ_Strength2_int Gθ.
 Proof.
-intros F Ze Ze'; simpl.
-set (Z := pr1 Ze); set (Z' := pr1 Ze').
-apply (nat_trans_eq hsE); intro c; simpl.
-do 4 rewrite id_left.
-eapply pathscomp0.
-  + eapply pathsinv0, functor_comp.
-  + apply pathsinv0. eapply pathscomp0.
-    * eapply pathsinv0, functor_comp.
-    * eapply maponpaths.
-      generalize (nat_trans_eq_pointwise (θ_strength2 F Ze Ze') c); simpl.
-      rewrite id_left.
-      intro Hyp.
-      apply pathsinv0, Hyp.
+  intros F Ze Ze'; simpl.
+  set (Z := pr1 Ze); set (Z' := pr1 Ze').
+  apply (nat_trans_eq hsE); intro c; simpl.
+  do 4 rewrite id_left.
+  etrans.
+  { eapply pathsinv0, functor_comp. }
+  apply pathsinv0; etrans.
+  { eapply pathsinv0, functor_comp. }
+  eapply maponpaths.
+  generalize (nat_trans_eq_pointwise (θ_strength2 F Ze Ze') c); simpl.
+  rewrite id_left.
+  intro Hyp.
+  apply pathsinv0, Hyp.
 Qed.
 
 Definition Gθ_with_laws : StrengthForSignature GH :=

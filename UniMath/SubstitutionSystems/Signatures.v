@@ -144,7 +144,7 @@ Qed.
 Lemma θ_Strength1_int_implies_θ_Strength1_int_nicer : θ_Strength1_int → θ_Strength1_int_nicer.
 Proof.
   intros T X.
-  etrans. 2: { apply T. }
+  etrans; [| apply T].
   etrans.
   2: { apply pathsinv0.
        apply maponpaths.
@@ -158,7 +158,7 @@ Qed.
 Lemma isaprop_θ_Strength1_int: isaprop θ_Strength1_int.
 Proof.
   apply impred; intros X x x'.
-  apply isaset_nat_trans; try exact hsD.
+  apply (isaset_nat_trans hsD).
 Qed.
 
 Lemma θ_Strength1_int_implies_θ_Strength1 : θ_Strength1_int → θ_Strength1.
@@ -166,12 +166,12 @@ Proof.
   unfold θ_Strength1_int, θ_Strength1.
   intros T X.
   assert (TX := T X).
-  apply nat_trans_eq; try assumption.
+  apply (nat_trans_eq hsD).
   intro c; cbn.
   assert (T2 := nat_trans_eq_pointwise TX c).
   cbn in *.
   assert (X0 : λ_functors X = identity (X : [C, D', hsD'])).
-  { apply nat_trans_eq; try assumption; intros; apply idpath. }
+  { apply (nat_trans_eq hsD'); intros; apply idpath. }
   rewrite X0 in T2.
   apply T2.
 Qed.
@@ -182,12 +182,12 @@ Proof.
   unfold θ_Strength1_int, θ_Strength1.
   intros T X.
   assert (TX := T X).
-  apply nat_trans_eq; try assumption.
+  apply (nat_trans_eq hsD).
   intro c; cbn.
   assert (T2 := nat_trans_eq_pointwise TX c).
   cbn in *.
   assert (X0 : λ_functors X = identity (X : [C, D', hsD'])).
-  { apply nat_trans_eq; try assumption; intros; apply idpath. }
+  { apply (nat_trans_eq hsD'); intros; apply idpath. }
   rewrite X0.
   apply T2.
 Qed.
@@ -207,7 +207,9 @@ Section Strength_law_2_intensional.
 Definition θ_Strength2_int : UU
   := ∏ (X : [C, D', hsD']) (Z Z' : Ptd),
       θ (X ⊗ (Z p• Z')) · #H (α_functors (U Z) (U Z') X )  =
-      (α_functors (U Z) (U Z') (H X) : [C, D, hsD] ⟦ functor_compose hs hsD (functor_composite (U Z) (U Z')) (H X), functor_composite (U Z) (functor_composite (U Z') (H X)) ⟧
+        (α_functors (U Z) (U Z') (H X) :
+          [C, D, hsD] ⟦ functor_compose hs hsD (functor_composite (U Z) (U Z')) (H X),
+                        functor_composite (U Z) (functor_composite (U Z') (H X)) ⟧
       ) ·
       θ (X ⊗ Z') •• (U Z) · θ ((functor_compose hs hsD' (U Z') X) ⊗ Z) .
 
@@ -216,16 +218,15 @@ Proof.
   apply impred; intros X.
   apply impred; intros Z.
   apply impred; intros Z'.
-  apply isaset_nat_trans; try exact hsD.
+  apply (isaset_nat_trans hsD).
 Qed.
 
 Lemma θ_Strength2_int_implies_θ_Strength2 : θ_Strength2_int → θ_Strength2.
 Proof.
   unfold θ_Strength2_int, θ_Strength2.
   intros T X Z Z' Y a.
-  apply nat_trans_eq; try assumption.
+  apply (nat_trans_eq hsD).
   intro c.
-
   assert (TXZZ' := T X Z Z').
   assert (TXZZ'c := nat_trans_eq_pointwise TXZZ' c).
   cbn in TXZZ'c.
@@ -238,13 +239,12 @@ Proof.
            (a : functor_compose hs hsD' (U Z) (functor_composite (U Z') X) --> Y)).
   assert (functor_comp_H_c := nat_trans_eq_pointwise functor_comp_H c).
   cbn in functor_comp_H_c.
-  eapply pathscomp0.
-  2: { apply functor_comp_H_c. }
+  etrans; [| apply functor_comp_H_c ].
   clear functor_comp_H functor_comp_H_c.
   revert c.
   apply nat_trans_eq_pointwise.
   apply maponpaths.
-  apply nat_trans_eq; try assumption.
+  apply (nat_trans_eq hsD').
   intro c; apply pathsinv0, id_left.
 Qed.
 
@@ -258,29 +258,32 @@ Proof.
   eapply pathscomp0.
   { apply TXZZ'_inst. }
   clear T TXZZ'_inst.
-  apply nat_trans_eq; try assumption.
+  apply (nat_trans_eq hsD).
   intro c.
   cbn.
   rewrite id_left.
   rewrite <- assoc.
   apply maponpaths.
-  eapply pathscomp0; [| apply id_right].
+  etrans; [| apply id_right].
   apply maponpaths.
   assert (functor_id_H := functor_id H (functor_compose hs hsD' (pr1 Z) (functor_composite (pr1 Z') X))).
   assert (functor_id_H_c := nat_trans_eq_pointwise functor_id_H c).
-  eapply pathscomp0; [| apply functor_id_H_c].
+  etrans; [| apply functor_id_H_c].
   clear functor_id_H functor_id_H_c.
   revert c.
   apply nat_trans_eq_pointwise.
   apply maponpaths.
-  apply nat_trans_eq; try assumption;
+  apply (nat_trans_eq hsD').
   intro c; apply idpath.
 Qed.
 
 Definition θ_Strength2_int_nicer : UU := ∏ (X : [C, D', hsD']) (Z Z' : Ptd),
       θ (X ⊗ (Z p• Z'))  =
-      (α_functors (U Z) (U Z') (H X) : [C, D, hsD] ⟦ functor_compose hs hsD (functor_composite (U Z) (U Z')) (H X), functor_composite (U Z) (functor_composite (U Z') (H X)) ⟧) ·
-      θ (X ⊗ Z') •• (U Z) · θ ((functor_compose hs hsD' (U Z') X) ⊗ Z) · #H (α_functors_inv (U Z) (U Z') X ).
+        (α_functors (U Z) (U Z') (H X) :
+          [C, D, hsD] ⟦ functor_compose hs hsD (functor_composite (U Z) (U Z')) (H X),
+                        functor_composite (U Z) (functor_composite (U Z') (H X)) ⟧) ·
+             θ (X ⊗ Z') •• (U Z) · θ ((functor_compose hs hsD' (U Z') X) ⊗ Z) ·
+             #H (α_functors_inv (U Z) (U Z') X ).
 
 
 Lemma θ_Strength2_int_implies_θ_Strength2_int_nicer: θ_Strength2_int -> θ_Strength2_int_nicer.
@@ -367,9 +370,8 @@ Proof.
   assert (t := θ_nat_1 _ _ α Z).
   assert (t' := nat_trans_eq_weq hsD _ _ t c).
   clear t.
-  cbn in t'.
-  etrans.
-  2: exact t'.
+  cbn in t'. unfold horcomp_data in t'.
+  etrans; [| exact t' ].
   clear t'.
   apply pathsinv0.
   etrans.
@@ -403,7 +405,7 @@ Proof.
   set (t := θ_nat_2 X _ _ f).
   set (t' := nat_trans_eq_weq hsD _ _ t c).
   clearbody t'; clear t.
-  cbn in t'.
+  cbn in t'. unfold horcomp_data in t'.
   rewrite id_left in t'.
   exact t'.
 Qed.
@@ -482,8 +484,8 @@ Local Lemma auxH1 (H : functor [C, C, hs] [C, C, hs]) (X : functor C C) :
   identity (H (functor_identity C ∙ X)).
 Proof.
   apply functor_id_id.
-  apply nat_trans_eq; try assumption; intro c.
-  cbn.
+  apply (nat_trans_eq hs); intro c.
+  cbn. unfold horcomp_data.
   rewrite id_left.
   apply functor_id.
 Qed.
@@ -494,8 +496,8 @@ Local Lemma auxH2 (H : functor [C, C, hs] [C, C, hs]) (X : functor C C)
   identity (H (((pr1 Z) ∙ (pr1 Z')) ∙ X)).
 Proof.
   apply functor_id_id.
-  apply nat_trans_eq; try assumption; intro c.
-  cbn.
+  apply (nat_trans_eq hs); intro c.
+  cbn. unfold horcomp_data.
   rewrite id_left.
   apply functor_id.
 Qed.
@@ -522,14 +524,13 @@ Section relative_strength_instantiates_to_signature.
     split; red.
     - intro X.
       cbn.
-      apply nat_trans_eq; try assumption; intro c.
+      apply (nat_trans_eq hs); intro c.
       cbn.
       assert (Hyp := nat_trans_eq_weq hs _ _ (ϛ_pentagon_eq X) c).
-      cbn in Hyp.
+      cbn in Hyp. unfold horcomp_data in Hyp. cbn in Hyp.
       rewrite functor_id in Hyp.
       do 2 rewrite id_left in Hyp.
-      etrans.
-      2: exact Hyp.
+      etrans; [| exact Hyp].
       clear Hyp.
       rewrite <- assoc.
       apply maponpaths.
@@ -541,16 +542,15 @@ Section relative_strength_instantiates_to_signature.
       apply (nat_trans_eq_weq hs _ _ (auxH1 H X) c).
     - intros X Z Z'.
       cbn.
-      apply nat_trans_eq; try assumption; intro c.
+      apply (nat_trans_eq hs); intro c.
       cbn.
       rewrite id_left.
       assert (Hyp := nat_trans_eq_weq hs _ _ (ϛ_rectangle_eq Z Z' X) c).
-      cbn in Hyp.
+      cbn in Hyp. unfold horcomp_data in Hyp. cbn in Hyp.
       do 2 rewrite functor_id in Hyp.
       do 3 rewrite id_left in Hyp.
       rewrite id_right in Hyp.
-      etrans.
-      2: exact Hyp.
+      etrans; [| exact Hyp ].
       clear Hyp.
       apply cancel_postcomposition.
       etrans.
@@ -585,28 +585,27 @@ Section strength_in_signature_is_a_relative_strength.
   Proof.
     split.
     - intro X.
-      apply nat_trans_eq; try assumption; intro c.
-      cbn.
+      apply (nat_trans_eq hs); intro c.
+      cbn. unfold horcomp_data. cbn.
       assert (Hyp := nat_trans_eq_weq hs _ _ (θ'_strength_law1 X) c).
       cbn in Hyp.
       fold θ' H in Hyp.
       rewrite functor_id.
       do 2 rewrite id_left.
-      etrans.
-      2: exact Hyp.
+      etrans; [| exact Hyp ].
       clear Hyp.
       rewrite <- assoc.
       apply maponpaths.
       apply pathsinv0.
       etrans.
-      apply pathsinv0.
-      apply id_left.
+      { apply pathsinv0.
+        apply id_left. }
       apply cancel_postcomposition.
       apply pathsinv0.
       apply (nat_trans_eq_weq hs _ _ (auxH1 H X) c).
     - intros Z Z' X.
-      apply nat_trans_eq; try assumption; intro c.
-      cbn.
+      apply (nat_trans_eq hs); intro c.
+      cbn. unfold horcomp_data. cbn.
       assert (Hyp := nat_trans_eq_weq hs _ _ (θ'_strength_law2 X Z Z') c).
       cbn in Hyp.
       fold θ' H in Hyp.
@@ -614,12 +613,10 @@ Section strength_in_signature_is_a_relative_strength.
       do 3 rewrite id_left.
       rewrite id_right.
       rewrite id_left in Hyp.
-      etrans.
-      2: exact Hyp.
+      etrans; [| exact Hyp ].
       clear Hyp.
       apply cancel_postcomposition.
-      etrans.
-      2: apply id_right.
+      etrans; [| apply id_right ].
       apply maponpaths.
       apply (nat_trans_eq_weq hs _ _ (auxH2 H X Z Z') c).
   Qed.
