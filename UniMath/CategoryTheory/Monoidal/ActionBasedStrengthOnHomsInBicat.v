@@ -208,10 +208,6 @@ Proof.
   apply id2_rwhisker.
 Qed.
 
-Definition TODO {A : UU} : A.
-Admitted.
-
-
 Lemma pentagon_eq_nicer_implies_pentagon_eq_nice : pentagon_eq_nicer -> pentagon_eq_nice.
 Proof.
   intro Heq.
