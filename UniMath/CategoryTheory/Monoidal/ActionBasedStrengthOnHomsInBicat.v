@@ -475,12 +475,11 @@ Section IndividualFunctorsWithABStrength.
     simpl.
     apply maponpaths_12.
     - unfold PointedFunctorsComposition.ptd_composite, PointedFunctorsComposition.ptd_compose.
-      cbn.
       rewrite (horcomp_post_pre _ _ (C,,hs)). (* needed because of a mismatch of definitions *)
       apply idpath.
     - apply nat_trans_eq_pointwise.
       clear c.
-      apply maponpaths. cbn.
+      apply maponpaths.
       apply (nat_trans_eq hsD').
       intro c.
       etrans.
