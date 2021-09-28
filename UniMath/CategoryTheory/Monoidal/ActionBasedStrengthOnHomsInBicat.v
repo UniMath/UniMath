@@ -475,11 +475,11 @@ Section IndividualFunctorsWithABStrength.
   Proof.
     unfold test.
     simpl.
-    (*
     assert (HypX := pentagon_eq_nice_implies_pentagon_eq_nicer _ _ _ _ _ _
                     (pentagon_eq_implies_pentagon_eq_nice _ _ _ _ _ _
                      (ab_strength_pentagon _ ab_str)) X Z' Z).
-    exact (nat_trans_eq_pointwise HypX c).
+    (*
+      exact (nat_trans_eq_pointwise HypX c).
      *)
     apply TODO.
   Time Qed.
