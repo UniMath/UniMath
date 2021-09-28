@@ -139,7 +139,7 @@ Proof.
   split; intros; red; intros; apply idpath.
 Qed.
 
-Definition functor_ptd_forget : functor _ _ := tpair _ _ is_functor_ptd_forget.
+Definition functor_ptd_forget : functor precategory_Ptd [C, C, hs] := tpair _ _ is_functor_ptd_forget.
 
 End def_ptd.
 

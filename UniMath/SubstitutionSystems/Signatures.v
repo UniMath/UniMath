@@ -194,7 +194,7 @@ Qed.
 
 End Strength_law_1_intensional.
 
-
+(** we are using [Z p• Z'] for compatibility with legacy code - instead of [ptd_compose] *)
 Definition θ_Strength2 : UU := ∏ (X : [C, D', hsD']) (Z Z' : Ptd) (Y : [C, D', hsD'])
            (α : functor_compose hs hsD' (functor_composite (U Z) (U Z')) X --> Y),
     θ (X ⊗ (Z p• Z' : Ptd)) · # H α =
@@ -344,6 +344,24 @@ End Strength_law_2_intensional.
 (** Not having a general theory of binatural transformations, we isolate
     naturality in each component here *)
 
+(** an experiment *)
+Lemma θ_nat_1_pointfree (X X' : [C, D', hsD']) (α : X --> X') (Z : Ptd)
+  : compose (C := [C, D, hsD])
+            (# (functorial_composition hs hsD) ((nat_trans_id (pr1 (U Z)),,# H α):
+                                                 [C, C, hs] ⊠ [C, D, hsD] ⟦(U Z,, H X), (U Z,, H X') ⟧))
+            (θ (X' ⊗ Z)) =
+      θ (X ⊗ Z) · # H (
+          # (functorial_composition hs hsD') ((nat_trans_id (pr1 (U Z)),, α):
+                                               [C, C, hs] ⊠ [C, D', hsD'] ⟦(U Z,, X), (U Z,, X') ⟧)
+        ).
+Proof.
+  set (t := nat_trans_ax θ).
+  set (t' := t (X ⊗ Z) (X' ⊗ Z)).
+  set (t'' := t' (precatbinprodmor α (identity _ ))).
+  cbn in t''.
+  exact t''.
+Qed.
+
 Lemma θ_nat_1 (X X' : [C, D', hsD']) (α : X --> X') (Z : Ptd)
   : compose (C := [C, D, hsD]) (# H α ⋆ nat_trans_id (pr1 (U Z))) (θ (X' ⊗ Z)) =
         θ (X ⊗ Z) · # H (α ⋆ nat_trans_id (pr1 (U Z))).
@@ -351,6 +369,8 @@ Proof.
   set (t := nat_trans_ax θ).
   set (t' := t (X ⊗ Z) (X' ⊗ Z)).
   set (t'' := t' (precatbinprodmor α (identity _ ))).
+  rewrite (@horcomp_post_pre _ _ (D,,hsD)).
+  rewrite (@horcomp_post_pre _ _ (D',,hsD')).
   cbn in t''.
   exact t''.
 Qed.
@@ -389,6 +409,8 @@ Lemma θ_nat_2 (X : [C, D', hsD']) (Z Z' : Ptd) (f : Z --> Z')
 Proof.
   set (t := nat_trans_ax θ).
   set (t' := t (X ⊗ Z) (X ⊗ Z') (precatbinprodmor (identity _ ) f)).
+  rewrite (@horcomp_post_pre _ _ (D,,hsD)).
+  rewrite (@horcomp_post_pre _ _ (D',,hsD')).
   cbn in t'.
   unfold precatbinprodmor in t'.
   cbn in t'.
@@ -477,28 +499,31 @@ Local Definition forget := forgetful_functor_from_ptd_as_strong_monoidal_functor
 
 Local Lemma auxH1 (H : functor [C, C, hs] [C, C, hs]) (X : functor C C) :
   # H
-    (nat_trans_id (pr1 X)
-        ⋆ nat_z_iso_to_trans_inv
-        (make_nat_z_iso (functor_identity C) (functor_identity C) (nat_trans_id (functor_identity C))
-                    (is_nat_z_iso_nat_trans_id (functor_identity C)))) =
+    (nat_trans_comp
+       (X
+        ∘ nat_z_iso_to_trans_inv
+            (make_nat_z_iso (functor_identity C) (functor_identity C)
+               (nat_trans_id (functor_identity_data C))
+               (is_nat_z_iso_nat_trans_id (functor_identity C))))
+       (nat_trans_id (pr1 X) ø functor_identity_data C)) =
   identity (H (functor_identity C ∙ X)).
 Proof.
   apply functor_id_id.
   apply (nat_trans_eq hs); intro c.
-  cbn. unfold horcomp_data.
-  rewrite id_left.
+  cbn.
+  rewrite id_right.
   apply functor_id.
 Qed.
 
-Local Lemma auxH2 (H : functor [C, C, hs] [C, C, hs]) (X : functor C C)
-      (Z Z': precategory_Ptd C hs) :
-  # H (nat_trans_id (pr1 X) ⋆ nat_trans_id (functor_composite (pr1 Z) (pr1 Z'))) =
-  identity (H (((pr1 Z) ∙ (pr1 Z')) ∙ X)).
+Local Lemma auxH2aux (X : functor C C) (Z Z': precategory_Ptd C hs):
+  nat_trans_comp
+       (X ∘ identity (functor_compose hs hs (pr1 Z) (pr1 Z')))
+       (identity(C:=[C, C, hs]) (X) ø (pr1 (functor_compose hs hs (pr1 Z) (pr1 Z')))) =
+    identity (functor_compose hs hs (functor_compose hs hs (pr1 Z) (pr1 Z')) X).
 Proof.
-  apply functor_id_id.
   apply (nat_trans_eq hs); intro c.
-  cbn. unfold horcomp_data.
-  rewrite id_left.
+  cbn.
+  rewrite id_right.
   apply functor_id.
 Qed.
 
@@ -527,8 +552,8 @@ Section relative_strength_instantiates_to_signature.
       apply (nat_trans_eq hs); intro c.
       cbn.
       assert (Hyp := nat_trans_eq_weq hs _ _ (ϛ_pentagon_eq X) c).
-      cbn in Hyp. unfold horcomp_data in Hyp. cbn in Hyp.
-      rewrite functor_id in Hyp.
+      cbn in Hyp.
+      rewrite (functor_id (H X)) in Hyp.
       do 2 rewrite id_left in Hyp.
       etrans; [| exact Hyp].
       clear Hyp.
@@ -546,19 +571,29 @@ Section relative_strength_instantiates_to_signature.
       cbn.
       rewrite id_left.
       assert (Hyp := nat_trans_eq_weq hs _ _ (ϛ_rectangle_eq Z Z' X) c).
-      cbn in Hyp. unfold horcomp_data in Hyp. cbn in Hyp.
+      cbn in Hyp.
       do 2 rewrite functor_id in Hyp.
-      do 3 rewrite id_left in Hyp.
-      rewrite id_right in Hyp.
+      rewrite (functor_id (H X)) in Hyp.
+      do 2 rewrite id_right in Hyp.
+      do 2 rewrite id_left in Hyp.
       etrans; [| exact Hyp ].
       clear Hyp.
       apply cancel_postcomposition.
       etrans.
-      apply pathsinv0.
-      apply id_right.
+      { apply pathsinv0. apply id_right. }
+      unfold PointedFunctorsComposition.ptd_composite.
+      rewrite (@horcomp_post_pre _ _ (C,,hs)).
+      unfold PointedFunctorsComposition.ptd_compose.
+      rewrite functorial_composition_post_pre.
+      cbn.
       apply maponpaths.
       apply pathsinv0.
-      apply (nat_trans_eq_weq hs _ _ (auxH2 H X Z Z') c).
+      etrans.
+      use (maponpaths (fun x => pr1 (# H x) c)).
+      + exact (identity (functor_compose hs hs (functor_compose hs hs (pr1 Z) (pr1 Z')) X)).
+      + apply auxH2aux.
+      + rewrite functor_id.
+        apply idpath.
   Qed.
 
   Definition signature_from_rel_strength : Signature C hs C hs C hs.
@@ -586,11 +621,11 @@ Section strength_in_signature_is_a_relative_strength.
     split.
     - intro X.
       apply (nat_trans_eq hs); intro c.
-      cbn. unfold horcomp_data. cbn.
+      cbn.
       assert (Hyp := nat_trans_eq_weq hs _ _ (θ'_strength_law1 X) c).
       cbn in Hyp.
       fold θ' H in Hyp.
-      rewrite functor_id.
+      rewrite (functor_id (H X)).
       do 2 rewrite id_left.
       etrans; [| exact Hyp ].
       clear Hyp.
@@ -605,20 +640,31 @@ Section strength_in_signature_is_a_relative_strength.
       apply (nat_trans_eq_weq hs _ _ (auxH1 H X) c).
     - intros Z Z' X.
       apply (nat_trans_eq hs); intro c.
-      cbn. unfold horcomp_data. cbn.
+      cbn.
+      unfold PointedFunctorsComposition.ptd_compose.
+      rewrite functorial_composition_post_pre.
       assert (Hyp := nat_trans_eq_weq hs _ _ (θ'_strength_law2 X Z Z') c).
       cbn in Hyp.
       fold θ' H in Hyp.
+      unfold PointedFunctorsComposition.ptd_composite in Hyp.
+      rewrite (@horcomp_post_pre _ _ (C,,hs)) in Hyp.
       do 2 rewrite functor_id.
-      do 3 rewrite id_left.
-      rewrite id_right.
+      do 2 rewrite id_right.
+      rewrite (functor_id (H X)).
+      do 2 rewrite id_left.
       rewrite id_left in Hyp.
       etrans; [| exact Hyp ].
       clear Hyp.
       apply cancel_postcomposition.
       etrans; [| apply id_right ].
       apply maponpaths.
-      apply (nat_trans_eq_weq hs _ _ (auxH2 H X Z Z') c).
+      (** now identical reasoning as in [signature_from_rel_strength_laws] *)
+      etrans.
+      use (maponpaths (fun x => pr1 (# H x) c)).
+      + exact (identity (functor_compose hs hs (functor_compose hs hs (pr1 Z) (pr1 Z')) X)).
+      + apply auxH2aux.
+      + rewrite functor_id.
+        apply idpath.
   Qed.
 
   Definition rel_strength_from_signature : rel_strength forget H := (ϛ',,rel_strength_from_signature_laws).

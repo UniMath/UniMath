@@ -124,14 +124,11 @@ Local Lemma aux_iso_1_is_nat_trans (Z : Ptd) :
            ((θ_source H) (X ⊗ Z))) (CPEndC (U Z) ((θ_source H) (X ⊗ Z)))
         (ρ_functors (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
 Proof.
-  unfold is_nat_trans; simpl.
   intros X X' α.
   apply (nat_trans_eq hs).
   intro c.
   simpl.
-  unfold coproduct_nat_trans_data; simpl.
-  unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
-  unfold horcomp_data; simpl.
+  unfold coproduct_nat_trans_data, coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
   etrans; [apply BinCoproductOfArrows_comp |].
   etrans.
   2: { eapply pathsinv0. apply BinCoproductOfArrows_comp. }
@@ -139,8 +136,9 @@ Proof.
   - etrans; [ apply id_left |].
     apply pathsinv0.
     apply id_right.
-  - rewrite functor_id.
-    do 2 rewrite id_right.
+  - rewrite id_right.
+    rewrite id_left.
+    rewrite (functor_id (H X)).
     apply pathsinv0, id_left.
 Qed.
 
@@ -170,13 +168,10 @@ Local Lemma aux_iso_1_inv_is_nat_trans (Z : Ptd) :
            ((θ_source H) (X ⊗ Z))) (CPEndC (U Z) ((θ_source H) (X ⊗ Z)))
         (λ_functors (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
 Proof.
-  unfold is_nat_trans;
   intros X X' α.
   apply (nat_trans_eq hs).
   intro c; simpl.
-  unfold coproduct_nat_trans_data; simpl.
-  unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
-  unfold horcomp_data; simpl.
+  unfold coproduct_nat_trans_data, coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
   etrans; [apply BinCoproductOfArrows_comp |].
   etrans.
   2: { eapply pathsinv0. apply BinCoproductOfArrows_comp. }
@@ -184,10 +179,9 @@ Proof.
   - rewrite id_right.
     apply pathsinv0.
     apply id_right.
-  - rewrite functor_id.
-    do 2 rewrite id_right.
-    apply pathsinv0.
-    apply id_left.
+  - rewrite (functor_id (H X)).
+    do 2 rewrite id_left.
+    apply id_right.
 Qed.
 
 Local Definition aux_iso_1_inv (Z: Ptd)
@@ -222,14 +216,12 @@ Local Lemma aux_iso_2_inv_is_nat_trans (Z : Ptd) :
         (BinCoproductObject [C, C, hs] (CPEndC (U Z) ((θ_target H) (X ⊗ Z)))
          :functor C C)).
 Proof.
-  unfold is_nat_trans; simpl.
   intros X X' α.
   rewrite (@id_left EndC).
   rewrite (@id_right EndC).
   apply (nat_trans_eq hs).
   intro c; simpl.
-  unfold coproduct_nat_trans_data; simpl.
-  unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
+  unfold coproduct_nat_trans_data, coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
   apply (maponpaths_12 (BinCoproductOfArrows _ _ _)).
   + apply idpath.
   + unfold functor_fix_snd_arg_mor; simpl.
@@ -238,9 +230,8 @@ Proof.
     apply maponpaths.
     apply (nat_trans_eq hs).
     intro c.
-    simpl. unfold horcomp_data; simpl.
-    rewrite <- (nat_trans_ax α).
-    rewrite functor_id.
+    simpl.
+    rewrite (functor_id X).
     apply id_left.
 Qed.
 
@@ -566,14 +557,12 @@ Local Lemma is_nat_trans_iso2' (Z : Ptd) :
               ((θ_target H) (X ⊗ Z)))
          :functor C C)).
 Proof.
-  unfold is_nat_trans; simpl.
   intros X X' α.
   rewrite (@id_left EndC).
   rewrite (@id_right EndC).
   apply (nat_trans_eq hs).
   intro c; simpl.
-  unfold coproduct_nat_trans_data; simpl.
-  unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
+  unfold coproduct_nat_trans_data, coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
   apply (maponpaths_12 (BinCoproductOfArrows _ _ _)).
   - apply idpath.
   - unfold functor_fix_snd_arg_mor; simpl.
@@ -582,9 +571,8 @@ Proof.
     apply maponpaths.
     apply (nat_trans_eq hs).
     intro c.
-    simpl. unfold horcomp_data; simpl.
-    rewrite <- (nat_trans_ax α).
-    rewrite functor_id.
+    simpl.
+    rewrite (functor_id X).
     apply id_left.
 Qed.
 

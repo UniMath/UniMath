@@ -315,27 +315,25 @@ Proof.
        after some opacification, at least *)
       Opaque fbracket.
       Opaque LamHSS.
-      set (X:= f · bla).
+      set (X := f · bla).
 
       assert (TT := compute_fbracket C hs CC Lam_S LamHSS(Z:=Z)).
-      simpl in *. do 2 (unfold HorizontalComposition.horcomp_data; simpl).
+      simpl in *.
       assert (T3 := TT  X); clear TT.
       unfold X; unfold X in T3; clear X.
-      do 3 rewrite id_left.
+      do 2 rewrite id_left.
 
       Local Notation "⦃ f ⦄" := (fbracket _ f)(at level 0).
       (* written '\{{' and '\}}', respectively *)
 
       set (Tη := ptd_from_alg _ ).
 
-      do 2 rewrite functor_id.
-      rewrite id_right.
       destruct Z as [Z e]. simpl in *.
       set (T := ` Lam).
 
       (* now we want to rewrite with T3 in 3 places *)
 
-      assert (T3':= nat_trans_eq_pointwise T3 c).
+      assert (T3' := nat_trans_eq_pointwise T3 c).
       simpl in *.
       match goal with |[ T3' : _ = ?f |- ?a · _ = _ ] => transitivity (a · f) end.
       { apply maponpaths. apply T3'. }
@@ -344,53 +342,68 @@ Proof.
 (*
     apply cancel_postcomposition. (* that's a bad idea, because it fucks up use of third monad law and
                                       leads to something that is generally false *)
-*)
-
-      match goal with |[ T3' : _ = ?f |- _ = ?a · ?b · _ · ?d  ] => transitivity (a · b · #T f · d) end.
-      2: { apply cancel_postcomposition. do 2 apply maponpaths. apply (!T3'). }
+ *)
+      etrans.
+      2: { do 2 apply cancel_postcomposition. do 3 apply maponpaths. apply pathsinv0, T3'. }
       clear T3'.
       apply pathsinv0.
 
-      assert (T3':= nat_trans_eq_pointwise T3 (T (Z c))).
-
-      etrans. { do 2 apply cancel_postcomposition. apply maponpaths. apply T3'. }
+      assert (T3':= nat_trans_eq_pointwise T3 (T c)).
+      simpl in T3'. rewrite id_right in T3'.
+      etrans. { apply cancel_postcomposition. apply maponpaths. exact T3'. }
       clear T3'.
+
       apply pathsinv0.
       destruct f as [f fptdmor]. simpl in *.
-      do 2 rewrite id_right.
 
       repeat rewrite assoc.
 
-      assert (X := fptdmor (T (Z c))). clear T3 fptdmor.
-      assert (X' := maponpaths (#T) X); clear X.
-      rewrite functor_comp in X'.
+      rewrite <- (functor_comp T).
+      repeat rewrite <- assoc.
+      etrans.
+      2: { apply cancel_postcomposition. apply maponpaths. apply (nat_trans_ax e). }
+      repeat rewrite assoc.
+      rewrite <- (functor_comp T).
+
+      assert (X := fptdmor (T c)). clear T3 fptdmor.
+      unfold functor_identity_data. simpl.
 
       apply pathsinv0.
-      etrans. { do 3 apply cancel_postcomposition. apply X'. }
-      clear X'.
+      etrans. { do 2 apply cancel_postcomposition. apply maponpaths. repeat rewrite <- assoc.
+      do 2 apply maponpaths. apply X. }
+      clear X.
 
-      assert (X := Monad_law_2_from_hss _ _ CC Lam_S LamHSS (T (Z c))).
+      assert (X := Monad_law_2_from_hss _ _ CC Lam_S LamHSS (T c)).
       unfold μ_0 in X. unfold μ_2 in X.
 
-      match goal with |[ X : ?e = _ |- ?a · ?b · _ · _  = _ ] =>
-                     assert (X' : e = a · b) end.
-      { apply cancel_postcomposition. apply maponpaths.
-        apply pathsinv0, BinCoproductIn1Commutes.
-      }
+      change (pr1 ⦃ identity (ptd_from_alg (pr1 LamHSS)) ⦄ c) with (prejoin_from_hetsubst LamHSS c).
+      (* does not do anything *)
 
+      etrans.
+      { do 2 apply cancel_postcomposition. apply maponpaths. apply assoc. }
+      rewrite (functor_comp T).
+      repeat rewrite <- assoc.
+
+      match goal with |[ X : ?e = _ |- _ · (?a · (?b · _))  = _ ] =>
+                         assert (X' : e = a · b) end.
+      { apply cancel_postcomposition. apply maponpaths.
+        cbn. apply pathsinv0, BinCoproductIn1Commutes. }
       rewrite X' in X. clear X'.
 
-      etrans. { do 2 apply cancel_postcomposition. apply X. }
+      etrans. { apply maponpaths. rewrite assoc. apply cancel_postcomposition. apply X. }
       clear X.
 
       rewrite id_left.
 
       assert (μ_2_nat := nat_trans_ax (μ_2 C hs CC Lam_S LamHSS)).
-      assert (X := μ_2_nat _ _ (f c)).
+      assert (X := μ_2_nat _ _ (f c · identity (pr1 `Lam c))).
       unfold μ_2 in X.
 
-      etrans. 2: { apply cancel_postcomposition. apply X. }
+      etrans. 2: { rewrite assoc. apply cancel_postcomposition. apply X. }
       clear X.
+
+
+
       rewrite functor_comp.
       repeat rewrite <- assoc.
       apply maponpaths.

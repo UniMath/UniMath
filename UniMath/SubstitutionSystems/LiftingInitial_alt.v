@@ -142,8 +142,11 @@ Proof.
   intros X X' α.
   apply (nat_trans_eq hsC); intro c; simpl.
   etrans; [ apply BinCoproductOfArrows_comp |].
-  etrans; [| eapply pathsinv0, BinCoproductOfArrows_comp ]; simpl. unfold horcomp_data; simpl.
-  now rewrite functor_id, !id_left, !id_right.
+  etrans; [| eapply pathsinv0, BinCoproductOfArrows_comp ]; simpl.
+  repeat rewrite id_right.
+  rewrite (functor_id (H X)).
+  do 2 rewrite id_left.
+  apply idpath.
 Qed.
 
 Definition aux_iso_1
@@ -175,8 +178,11 @@ Proof.
   intros X X' α.
   apply (nat_trans_eq hsC); intro c; simpl.
   etrans; [ apply BinCoproductOfArrows_comp |].
-  etrans; [| eapply pathsinv0, BinCoproductOfArrows_comp ]; simpl. unfold horcomp_data; simpl.
-  now rewrite functor_id, !id_left, !id_right.
+  etrans; [| eapply pathsinv0, BinCoproductOfArrows_comp ]; simpl.
+  repeat rewrite id_right.
+  rewrite (functor_id (H X)).
+  repeat rewrite id_left.
+  apply idpath.
 Qed.
 
 Local Definition aux_iso_1_inv
@@ -213,8 +219,9 @@ unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
 apply (maponpaths_12 (BinCoproductOfArrows _ _ _)); trivial.
 unfold functor_fix_snd_arg_mor; simpl.
 revert c; apply nat_trans_eq_pointwise, maponpaths.
-apply (nat_trans_eq hsC); intro c; simpl. unfold horcomp_data; simpl.
-now rewrite <- (nat_trans_ax α), functor_id, id_left.
+apply (nat_trans_eq hsC); intro c; simpl.
+rewrite (functor_id X).
+apply id_left.
 Qed.
 
 Local Definition aux_iso_2_inv
@@ -446,9 +453,9 @@ unfold coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; simpl.
 apply (maponpaths_12 (BinCoproductOfArrows _ _ _)); trivial.
 unfold functor_fix_snd_arg_mor; simpl.
 revert c; apply nat_trans_eq_pointwise, maponpaths.
-apply (nat_trans_eq hsC); intro c; simpl. unfold horcomp_data; simpl.
-rewrite <- (nat_trans_ax α), functor_id.
-now apply id_left.
+apply (nat_trans_eq hsC); intro c; simpl.
+rewrite (functor_id X).
+apply id_left.
 Qed.
 
 Local Definition iso2' (Z : Ptd) : EndEndC ⟦

@@ -269,9 +269,8 @@ Section a_different_type_for_the_forgetful_functor_from_ptd.
     red.
     use make_nat_trans.
     - intro x. cbn. apply nat_trans_id.
-    - abstract
-        (red ; intros ; apply nat_trans_eq; try assumption ;
-         intro y ; cbn ; rewrite id_left ; rewrite id_right ; apply nat_trans_ax).
+    - abstract ( intros xy xy' fg; apply (nat_trans_eq hs);
+                 intro c; cbn; rewrite id_left, id_right; apply idpath ).
   Defined.
 
   Definition forgetful_functor_from_ptd_as_strong_monoidal_functor_alt
@@ -350,17 +349,7 @@ Proof.
     cbn.
   (* The goal is then: pr2 x ∙ pr1 = pr2 x ∙ pr1 x *)
     apply idpath.
-  - intros C1 C2 f. cbn. unfold horcomp.
-    induction f as [f g].
-    cbn.
-    (* UniMath.MoreFoundations.Tactics.show_id_type. *)
-    apply nat_trans_eq; try assumption.
-    intros. cbn.
-    induction C1 as [C1 C1']. induction C2 as [C2 C2']. cbn in f, g.
-    cbn.
-    change (f (pr1 C1' x) · # (pr1 C2) (g x) = # (pr1 C1) (g x) · f (pr1 C2' x)).
-    apply pathsinv0.
-    apply nat_trans_ax.
+  - intros C1 C2 f. cbn. apply idpath.
 Qed.
 
 (* cannot be typechecked any longer
@@ -398,10 +387,13 @@ Section IndividualFunctorsWithABStrength.
   (* adapt typing of [pr1 ab_str] for use in [Signature] *)
   Definition θ_for_signature_nat_trans_data : nat_trans_data (θ_source(hs:=hs) H) (θ_target H).
   Proof.
-    intro x. exact (ab_str x).
-  Defined.
+    intro x.
+    set (result :=  ab_str x).
+    simpl in result.
+    exact result.
+  Time Defined. (** this does not terminate on Debian 10 (and Ocaml 4.10.0) *)
 
-  Lemma θ_for_signature_is_nat_trans : is_nat_trans _ _ θ_for_signature_nat_trans_data.
+  Lemma θ_for_signature_is_nat_trans : is_nat_trans (θ_source(hs:=hs) H) (θ_target H) θ_for_signature_nat_trans_data.
   Proof.
     intros x x' f.
     (* UniMath.MoreFoundations.Tactics.show_id_type. *)

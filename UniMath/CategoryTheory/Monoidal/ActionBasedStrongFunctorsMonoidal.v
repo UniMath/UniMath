@@ -497,10 +497,10 @@ Proof.
   simpl in μFA'natinst.
   assert (μFAnatinst := nat_trans_ax (lax_monoidal_functor_μ FA) _ _ fg).
   simpl in μFAnatinst.
-  change (# (functorial_composition _ _ _ hsA hsA) (# FA f,, # FA g:
+  change (# (functorial_composition hsA hsA) (# FA f,, # FA g:
            [A, A, hsA] ⊠ [A, A, hsA] ⟦(FA v,,FA w),(FA v',,FA w')⟧) · lax_monoidal_functor_μ FA vw' =
           lax_monoidal_functor_μ FA vw · # FA (# (MonoidalFunctors.tensor_C Mon_V) fg)) in μFAnatinst.
-  change (# (functorial_composition _ _ _ hsA' hsA') (# FA' f,, # FA' g:
+  change (# (functorial_composition hsA' hsA') (# FA' f,, # FA' g:
            [A', A', hsA'] ⊠ [A', A', hsA'] ⟦(FA' v,,FA' w),(FA' v',,FA' w')⟧) · lax_monoidal_functor_μ FA' vw' =
           lax_monoidal_functor_μ FA' vw · # FA' (# (MonoidalFunctors.tensor_C Mon_V) fg)) in μFA'natinst.
   set (ε2better := # precompG (# (functor_composite tensor FA') fg)).

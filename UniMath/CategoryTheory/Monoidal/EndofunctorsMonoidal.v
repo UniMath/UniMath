@@ -35,19 +35,17 @@ Section Endofunctors_as_monoidal_category.
 (** The category of endofunctors on [C] *)
 Local Notation "'EndC'":= ([C, C, hs]) .
 
-Local Lemma is_nat_trans_left_unitor_data: is_nat_trans (I_pretensor (functorial_composition C C C hs hs) (functor_identity C))
-  (functor_identity [C, C, hs]) (λ F : [C, C, hs], λ_functors ((functor_identity [C, C, hs]) F)).
+Local Lemma is_nat_trans_left_unitor_data: is_nat_trans (I_pretensor (functorial_composition hs hs) (functor_identity C)) (functor_identity [C, C, hs]) (@λ_functors C C).
 Proof.
   intros F F' m.
   apply (nat_trans_eq hs).
-  intro c. cbn. unfold horcomp_data; cbn.
-  rewrite functor_id.
-  rewrite id_left.
-  do 2 rewrite id_right.
-  apply idpath.
+  intro c. cbn.
+  rewrite (functor_id F).
+  do 2 rewrite id_left.
+  apply id_right.
 Qed.
 
-Definition left_unitor_of_endofunctors: left_unitor (functorial_composition C C C hs hs) (functor_identity C).
+Definition left_unitor_of_endofunctors: left_unitor (functorial_composition hs hs) (functor_identity C).
 Proof.
   use make_nat_z_iso.
   + use make_nat_trans.
@@ -61,18 +59,18 @@ Proof.
     * abstract ( apply Isos.is_inverse_in_precat_identity ).
 Defined.
 
-Local Lemma is_nat_trans_right_unitor_data: is_nat_trans (I_posttensor (functorial_composition C C C hs hs) (functor_identity C))
-  (functor_identity [C, C, hs]) (λ F : [C, C, hs], ρ_functors ((functor_identity [C, C, hs]) F)).
+Local Lemma is_nat_trans_right_unitor_data: is_nat_trans (I_posttensor (functorial_composition hs hs) (functor_identity C))
+  (functor_identity [C, C, hs]) (@ρ_functors C C).
 Proof.
   intros F F' m.
   apply (nat_trans_eq hs).
-  intro c. cbn. unfold horcomp_data; cbn.
+  intro c. cbn.
   rewrite id_left.
   rewrite id_right.
-  apply idpath.
+  apply id_right.
 Qed.
 
-Definition right_unitor_of_endofunctors: right_unitor (functorial_composition C C C hs hs) (functor_identity C).
+Definition right_unitor_of_endofunctors: right_unitor (functorial_composition hs hs) (functor_identity C).
 Proof.
   use make_nat_z_iso.
   + use make_nat_trans.
@@ -86,56 +84,31 @@ Proof.
     * abstract ( apply Isos.is_inverse_in_precat_identity ).
 Defined.
 
-Local Lemma is_nat_trans_associator_data: is_nat_trans (assoc_left (functorial_composition C C C hs hs))
-                                                 (assoc_right (functorial_composition C C C hs hs))
-  (λ F : (C ⟶ C × C ⟶ C) × C ⟶ C, α_functors (pr1 (pr1 F)) (pr2 (pr1 F)) (pr2 F)).
-Proof.
-  cbn. intros F F' m.
-  apply nat_trans_eq; try assumption.
-  intro c. cbn. do 2 (unfold horcomp_data; cbn).
-  rewrite id_left.
-  rewrite id_right.
-  rewrite <- assoc.
-  apply maponpaths.
-  eapply pathscomp0.
-  { apply functor_comp. }
-  apply idpath.
-Qed.
+Definition associator_of_endofunctors: associator (functorial_composition hs hs) :=
+    associativity_as_nat_z_iso(C:=C) hs hs hs.
 
-Definition associator_of_endofunctors: associator (functorial_composition C C C hs hs).
-Proof.
-  use make_nat_z_iso.
-  + use make_nat_trans.
-    * intro F. apply α_functors.
-    * apply is_nat_trans_associator_data.
-  + intro F; use nat_trafo_z_iso_if_pointwise_z_iso; intro c.
-    use tpair.
-    * apply α_functors_inv.
-    * abstract ( apply Isos.is_inverse_in_precat_identity ).
-Defined.
-
-Lemma triangle_eq_of_endofunctors: triangle_eq (functorial_composition C C C hs hs) (functor_identity C)
+Lemma triangle_eq_of_endofunctors: triangle_eq (functorial_composition hs hs) (functor_identity C)
   left_unitor_of_endofunctors right_unitor_of_endofunctors associator_of_endofunctors.
 Proof.
-  red; cbn.
   intros F G.
   apply (nat_trans_eq hs).
   intro c.
-  cbn. unfold horcomp_data; cbn.
-  do 3 rewrite id_left.
-  apply idpath.
+  cbn.
+  rewrite functor_id.
+  do 3 rewrite id_right.
+  apply functor_id.
 Qed.
 
-Lemma pentagon_eq_of_endofunctors: pentagon_eq (functorial_composition C C C hs hs) associator_of_endofunctors.
+Lemma pentagon_eq_of_endofunctors: pentagon_eq (functorial_composition hs hs) associator_of_endofunctors.
 Proof.
-  red; cbn.
   intros F G H I.
   apply (nat_trans_eq hs).
   intro c.
-  cbn. unfold horcomp_data; cbn.
-  do 4 rewrite functor_id.
-  do 5 rewrite id_left.
-  apply idpath.
+  cbn.
+  do 4 rewrite id_right.
+  do 3 rewrite functor_id.
+  rewrite id_right.
+  apply pathsinv0, functor_id.
 Qed.
 
 Definition monoidal_precat_of_endofunctors: monoidal_precat.
