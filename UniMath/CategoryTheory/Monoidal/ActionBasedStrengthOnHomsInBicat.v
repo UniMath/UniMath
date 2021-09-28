@@ -388,45 +388,32 @@ Section IndividualFunctorsWithABStrength.
   Definition θ_for_signature_nat_trans_data : nat_trans_data (θ_source(hs:=hs) H) (θ_target H).
   Proof.
     intro x.
-    set (result :=  ab_str x).
-    simpl in result.
+    set (result :=  ab_str x : functor_composite_data (pr12 x) (pr1 (pr1 H (pr1 x))) ⟹ pr1 (pr1 H (functor_compose hs hsD' (pr12 x) (pr1 x)))). (** this typing is crucial for termination of type-checking *)
     exact result.
-  Time Defined. (** this does not terminate on Debian 10 (and Ocaml 4.10.0) *)
+  Defined.
 
   Lemma θ_for_signature_is_nat_trans : is_nat_trans (θ_source(hs:=hs) H) (θ_target H) θ_for_signature_nat_trans_data.
   Proof.
     intros x x' f.
     (* UniMath.MoreFoundations.Tactics.show_id_type. *)
-    apply nat_trans_eq; try assumption.
+    apply (nat_trans_eq hsD).
     intro c.
     cbn.
     assert (Heq := nat_trans_ax ab_str x x' f).
     assert (Heqc := nat_trans_eq_weq hsD _ _ Heq c).
     clear Heq.
     cbn in Heqc.
-    (* term precomposed with θ' x' c in goal and [Heqc]: *)
-    assert (Heq0 : pr1(# H (pr1 f)) (pr12 x c) · # (pr1(H (pr1 x'))) (pr12 f c) =
-                     # (pr1 (H (pr1 x))) (pr12 f c) · pr1(# H (pr1 f)) (pr12 x' c)).
-    { apply pathsinv0. apply nat_trans_ax. }
-    etrans.
-    { apply cancel_postcomposition. exact Heq0. }
-    clear Heq0.
-    etrans.
-    { exact Heqc. }
-    clear Heqc.
-    apply maponpaths.
-    apply nat_trans_eq_pointwise.
-    apply maponpaths.
-    apply pathsinv0.
-    apply horcomp_post_pre.
-  Time Qed. (* very slow verification *)
+    unfold θ_for_signature_nat_trans_data.
+    exact Heqc.
+  Qed.
 
   Definition θ_for_signature : θ_source (hs:=hs) H ⟹ θ_target H
     := (θ_for_signature_nat_trans_data,,θ_for_signature_is_nat_trans).
 
   Lemma signature_from_ab_strength_law1 : θ_Strength1_int θ_for_signature.
+  Proof.
     red. intro X.
-    apply nat_trans_eq; try assumption.
+    apply (nat_trans_eq hsD).
     intro c.
     cbn.
     assert (HypX := triangle_eq_implies_triangle_eq_nice _ _ _ _ _ _ (ab_strength_triangle _ ab_str) X).
@@ -444,7 +431,7 @@ Section IndividualFunctorsWithABStrength.
     apply nat_trans_eq_pointwise.
     clear c.
     apply maponpaths.
-    apply nat_trans_eq; try assumption.
+    apply (nat_trans_eq hsD').
     intro c.
     cbn.
     apply pathsinv0.
@@ -453,9 +440,10 @@ Section IndividualFunctorsWithABStrength.
     apply functor_id.
   Qed.
 
- Lemma signature_from_ab_strength_law2 : θ_Strength2_int θ_for_signature.
+  Lemma signature_from_ab_strength_law2 : θ_Strength2_int θ_for_signature.
+  Proof.
     intros X Z Z'.
-    apply nat_trans_eq; try (apply hsD).
+    apply (nat_trans_eq hsD).
     intro c.
     assert (HypX := pentagon_eq_nice_implies_pentagon_eq_nicer _ _ _ _ _ _
                     (pentagon_eq_implies_pentagon_eq_nice _ _ _ _ _ _
@@ -481,19 +469,23 @@ Section IndividualFunctorsWithABStrength.
          - apply idpath.
     }
     simpl.
-    apply maponpaths.
-    apply nat_trans_eq_pointwise.
-    clear c.
-    apply maponpaths.
-    apply nat_trans_eq; try (apply hsD').
-    intro c.
-    etrans.
-    2: { apply pathsinv0.
+    apply maponpaths_12.
+    - unfold PointedFunctorsComposition.ptd_composite, PointedFunctorsComposition.ptd_compose.
+      cbn.
+      rewrite (horcomp_post_pre _ _ (C,,hs)). (* needed because of a mismatch of definitions *)
+      apply idpath.
+    - apply nat_trans_eq_pointwise.
+      clear c.
+      apply maponpaths. cbn.
+      apply (nat_trans_eq hsD').
+      intro c.
+      etrans.
+      2: { apply pathsinv0.
          apply id_right. }
-    apply pathsinv0.
-    simpl.
-    apply functor_id.
- Time Qed.
+      apply pathsinv0.
+      simpl.
+      apply functor_id.
+ Time Qed. (* long verification *)
 
   Definition signature_from_ab_strength : Signature C hs D hsD D' hsD'.
   Proof.
