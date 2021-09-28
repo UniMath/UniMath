@@ -208,17 +208,15 @@ Proof.
   apply id2_rwhisker.
 Qed.
 
-
 Lemma pentagon_eq_nicer_implies_pentagon_eq_nice : pentagon_eq_nicer -> pentagon_eq_nice.
 Proof.
   intro Heq.
   intros X Z' Z.
-  assert (Heqinst := Heq X Z' Z).
-  clear Heq.
+  specialize (Heq X Z' Z).
   etrans.
   2: { apply maponpaths_2.
-       exact Heqinst. }
-  clear Heqinst.
+       exact Heq. }
+  clear Heq.
   repeat rewrite <- vassocr.
   do 2 apply maponpaths.
   etrans.
@@ -228,12 +226,19 @@ Proof.
   2: { apply (functor_comp(C:=hom c0 d0')(C':=hom c0 d0)). }
   apply pathsinv0.
   apply (functor_id_id (hom c0 d0') (hom c0 d0)).
-  cbn.
-  rewrite vassocr.
+  refine (vassocr _ _ _ @ _).
   etrans.
   { apply maponpaths_2. apply vassocl. }
-  rewrite rassociator_lassociator.
-  rewrite id2_right.
+  etrans.
+  {
+    apply maponpaths_2.
+    etrans.
+    {
+      apply maponpaths.
+      apply rassociator_lassociator.
+    }
+    apply id2_right.
+  }
   rewrite rwhisker_vcomp.
   etrans.
   { apply maponpaths.
@@ -241,7 +246,6 @@ Proof.
   }
   apply id2_rwhisker.
 Qed.
-(* slow verification *)
 
 
 End ActionBased_Strength_Between_Homs_In_Bicat.
