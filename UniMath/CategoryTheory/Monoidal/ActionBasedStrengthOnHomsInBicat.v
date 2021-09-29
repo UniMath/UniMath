@@ -444,9 +444,6 @@ Section IndividualFunctorsWithABStrength.
     apply functor_id.
   Qed.
 
-  Definition TODO {A : UU} : A.
-  Admitted.
-
   Definition test
              (X : [C, D', hsD'])
              (Z Z' : precategory_Ptd C hs)
@@ -478,11 +475,9 @@ Section IndividualFunctorsWithABStrength.
     assert (HypX := pentagon_eq_nice_implies_pentagon_eq_nicer _ _ _ _ _ _
                     (pentagon_eq_implies_pentagon_eq_nice _ _ _ _ _ _
                      (ab_strength_pentagon _ ab_str)) X Z' Z).
-    (*
-      exact (nat_trans_eq_pointwise HypX c).
-     *)
-    apply TODO.
-  Time Qed.
+    simpl in HypX.
+    exact (nat_trans_eq_pointwise HypX c).
+  Qed.
 
   Lemma signature_from_ab_strength_law2 : θ_Strength2_int θ_for_signature.
   Proof.
@@ -524,42 +519,6 @@ Section IndividualFunctorsWithABStrength.
       simpl.
       apply functor_id.
     Time Qed.
-  (*etrans.
-    2: { apply maponpaths.
-         simpl in Heqc.
-         exact Heqc. }
-    apply TODO.
-    Time Qed.
-  clear Heqc.
-    etrans.
-    2: { apply pathsinv0. apply id_left. }
-    etrans.
-    2: { apply cancel_postcomposition.
-         apply pathsinv0.
-         apply remove_id_left.
-         - etrans.
-           { apply id_left. }
-           apply functor_id.
-         - apply idpath.
-    }
-    simpl.
-    apply maponpaths_12.
-    - unfold PointedFunctorsComposition.ptd_composite, PointedFunctorsComposition.ptd_compose.
-      rewrite (horcomp_post_pre _ _ (C,,hs)). (* needed because of a mismatch of definitions *)
-      apply idpath.
-    - apply nat_trans_eq_pointwise.
-      clear c.
-      apply maponpaths.
-      apply (nat_trans_eq hsD').
-      intro c.
-      etrans.
-      2: { apply pathsinv0.
-         apply id_right. }
-      apply pathsinv0.
-      simpl.
-      apply functor_id.
- Time Qed. (* long verification *)
-   *)
 
   Definition signature_from_ab_strength : Signature C hs D hsD D' hsD'.
   Proof.
