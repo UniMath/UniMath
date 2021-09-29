@@ -4096,7 +4096,7 @@ Section Gauss.
         apply maponpaths_12; try apply subtypePath_prop; try reflexivity.
   Defined.
 
-  Lemma upper_triangular_iff_inverse_lower_triangular
+  Lemma upper_triangular_iff_transpose_lower_triangular
     { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix F n n)
     :
     (@is_upper_triangular hq n n mat)
@@ -4163,9 +4163,8 @@ Section Gauss.
         assumption.
   Defined.
 
-
   (* Updating vec/b "in place"  *)
-  Definition back_sub_step { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix F n n) (b : Vector F n) (vec : Vector F n): Vector F n.
+  Definition back_sub_step { n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix F n n) (b : Vector F n) (vec : Vector F n) : Vector F n.
   Proof.
     intros i.
     set ( m := pr1 i ).
@@ -4443,6 +4442,8 @@ Section Gauss.
         * apply p'.
   Admitted.
 
+
+  (* TODO: document what this is meant to do? *)
   (* TODO fix signature *)
   Definition back_sub_internal
     { n : nat }  (mat : Matrix F n n) (b : Vector F n) (vec : Vector F n) (iter : ⟦ S n ⟧%stn)
@@ -5015,7 +5016,8 @@ Section Gauss.
   Admitted.
 
 
-
+  (* output: a solution [x] to [mat ** x = vec] (if one exists?) *)
+  (* TODO: what conditions on [mat] are needed to ensure this is a solution? *)
   Definition back_sub { n : nat } (mat : Matrix F n n) (vec : Vector F n) : Vector F n.
   Proof.
     intros.
