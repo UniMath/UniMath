@@ -444,23 +444,53 @@ Section IndividualFunctorsWithABStrength.
     apply functor_id.
   Qed.
 
+  Definition test
+             (X : [C, D', hsD'])
+             (Z Z' : precategory_Ptd C hs)
+             (c : C)
+    : UU.
+  Proof.
+    refine (id₁ _
+                   · # (pr1 (H X)) (id₁ _)
+                   · pr1 (ab_str (X,, PointedFunctorsComposition.ptd_compose C hs Z Z')) c
+                   · pr1 (# H _) c
+                   =
+                   pr1 (θ_for_signature_nat_trans_data (X, Z')) ((pr111 Z) c)
+                       · pr1 (θ_for_signature_nat_trans_data
+                                (functor_compose hs hsD' (pr1 Z') X, Z))
+                       c).
+           exact (nat_trans_comp
+                    (post_whisker (nat_trans_id _) _)
+                    (nat_trans_id _)).
+  Defined.
+
+  Definition test'
+             (X : [C, D', hsD'])
+             (Z Z' : precategory_Ptd C hs)
+             (c : C)
+    : test X Z Z' c.
+  Proof.
+    unfold test.
+    simpl.
+    assert (HypX := pentagon_eq_nice_implies_pentagon_eq_nicer _ _ _ _ _ _
+                    (pentagon_eq_implies_pentagon_eq_nice _ _ _ _ _ _
+                     (ab_strength_pentagon _ ab_str)) X Z' Z).
+    simpl in HypX.
+    exact (nat_trans_eq_pointwise HypX c).
+  Qed.
+
   Lemma signature_from_ab_strength_law2 : θ_Strength2_int θ_for_signature.
   Proof.
     intros X Z Z'.
     apply (nat_trans_eq hsD).
     intro c.
-    assert (HypX := pentagon_eq_nice_implies_pentagon_eq_nicer _ _ _ _ _ _
-                    (pentagon_eq_implies_pentagon_eq_nice _ _ _ _ _ _
-                     (ab_strength_pentagon _ ab_str)) X Z' Z).
-    assert (Heqc := nat_trans_eq_weq hsD _ _ HypX c).
-    clear HypX.
     etrans.
     2: { apply assoc. }
     etrans.
     2: { apply maponpaths.
-         simpl in Heqc.
-         exact Heqc. }
-    clear Heqc.
+         exact (test' X Z Z' c).
+    }
+    simpl.
     etrans.
     2: { apply pathsinv0. apply id_left. }
     etrans.
@@ -488,7 +518,7 @@ Section IndividualFunctorsWithABStrength.
       apply pathsinv0.
       simpl.
       apply functor_id.
- Time Qed. (* long verification *)
+    Time Qed.
 
   Definition signature_from_ab_strength : Signature C hs D hsD D' hsD'.
   Proof.
