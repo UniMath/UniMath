@@ -633,7 +633,7 @@ Section IndividualSignatures.
     exact (eqweqmap (!aux0 x) (theta sig x)).
   Defined.
 
-  Definition θ_for_ab_strength_ax : is_nat_trans _ _ θ_for_ab_strength_data.
+  Lemma θ_for_ab_strength_ax : is_nat_trans _ _ θ_for_ab_strength_data.
   Proof.
     intros x x' f.
     apply nat_trans_eq; try assumption.
@@ -641,25 +641,12 @@ Section IndividualSignatures.
     assert (Heq := nat_trans_ax (theta sig) x x' f).
     assert (Heqc := nat_trans_eq_weq hsD _ _ Heq c).
     clear Heq.
-    (* term precomposed with [theta sig x' c] in [Heqc] and goal: *)
-    assert (Heq0 : pr1(# sig (pr1 f)) (pr12 x c) · # (pr1(sig (pr1 x'))) (pr12 f c) =
-                   # (pr1 (sig (pr1 x))) (pr12 f c) · pr1 (# sig (pr1 f)) (pr12 x' c)).
-    { apply pathsinv0. apply nat_trans_ax. }
+    simpl in Heqc.
+    simpl.
     etrans.
-    { apply cancel_postcomposition. apply pathsinv0. exact Heq0. }
-    clear Heq0.
-    cbn in Heqc.
-    cbn.
-    etrans.
-    {
-      exact Heqc. (* does not work when aux0 is opaque *)
-    }
-    apply maponpaths.
-    generalize c.
-    apply nat_trans_eq_pointwise.
-    apply maponpaths.
-    induction f as [f1 f2].
-    apply (horcomp_post_pre _ _ (D',,hsD') _ _ _ _ (pr1 f2) f1).
+    { exact Heqc. }
+    clear Heqc.
+    apply idpath.
   Qed.
 
   Definition θ_for_ab_strength : actionbased_strength_nat Mon_endo' domain_action target_action sig.
@@ -708,8 +695,7 @@ Section IndividualSignatures.
     : actionbased_strength_pentagon_eq Mon_endo' domain_action target_action sig θ_for_ab_strength.
   Proof.
     intros X Z' Z.
-    cbn.
-    apply nat_trans_eq; try (exact hsD).
+    apply (nat_trans_eq hsD).
     intro c.
     simpl.
     assert (HypX := θ_Strength2_int_implies_θ_Strength2_int_nicer _
@@ -717,6 +703,8 @@ Section IndividualSignatures.
     assert (Heqc := nat_trans_eq_weq hsD _ _ HypX c).
     clear HypX.
     cbn in Heqc.
+    unfold PointedFunctorsComposition.ptd_composite in Heqc; unfold PointedFunctorsComposition.ptd_compose.
+    rewrite (horcomp_post_pre _ _ (C,,hs)) in Heqc. (* needed because of a mismatch of definitions *)
     etrans.
     {
       apply maponpaths_2.
@@ -764,7 +752,7 @@ Section IndividualSignatures.
     apply nat_trans_eq_pointwise.
     clear c.
     apply maponpaths.
-    apply nat_trans_eq; try (exact hsD').
+    apply (nat_trans_eq hsD').
     intro c.
     cbn.
     rewrite id_right.
