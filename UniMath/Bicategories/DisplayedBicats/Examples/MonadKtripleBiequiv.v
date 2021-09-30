@@ -254,7 +254,6 @@ Definition Ktriple_to_Monad
 Proof.
   use make_disp_psfunctor.
   - apply disp_2cells_isaprop_monad.
-    apply univalent_cat_is_univalent_2.
   - exact (disp_locally_groupoid_monad
              bicat_of_cats
              univalent_cat_is_univalent_2).
@@ -544,8 +543,7 @@ Definition Monad_biequiv_Ktriple_unit
 Proof.
   use make_disp_pstrans.
   - exact (disp_2cells_isaprop_monad
-             bicat_of_cats
-             univalent_cat_is_univalent_2).
+             bicat_of_cats).
   - exact (disp_locally_groupoid_monad
              bicat_of_cats
              univalent_cat_is_univalent_2).
@@ -685,8 +683,7 @@ Definition Monad_biequiv_Ktriple_unit_inv
 Proof.
   use make_disp_pstrans.
   - exact (disp_2cells_isaprop_monad
-             bicat_of_cats
-             univalent_cat_is_univalent_2).
+             bicat_of_cats).
   - exact (disp_locally_groupoid_monad
              bicat_of_cats
              univalent_cat_is_univalent_2).
@@ -794,8 +791,7 @@ Proof.
   - exact Monad_biequiv_Ktriple_counit_inv.
   - use make_disp_invmodification.
     + exact (disp_2cells_isaprop_monad
-               bicat_of_cats
-               univalent_cat_is_univalent_2).
+               bicat_of_cats).
     + exact (disp_locally_groupoid_monad
                bicat_of_cats
                univalent_cat_is_univalent_2).
@@ -809,8 +805,7 @@ Proof.
          exact (!(id_left _))).
   - use make_disp_invmodification.
     + exact (disp_2cells_isaprop_monad
-               bicat_of_cats
-               univalent_cat_is_univalent_2).
+               bicat_of_cats).
     + exact (disp_locally_groupoid_monad
                bicat_of_cats
                univalent_cat_is_univalent_2).
