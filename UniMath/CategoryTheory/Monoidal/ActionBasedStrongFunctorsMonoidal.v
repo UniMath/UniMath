@@ -209,6 +209,23 @@ Section Upstream.
           * apply (functor_category_has_homsets _ _ hs).
     Defined.
 
+    (** we can also use the infrastructure of displayed categories *)
+    Definition nat_trafo_to_functor_through_section (hsC: has_homsets C)(η: H ⟹ H'): C ⟶ trafotarget_precat.
+    Proof.
+      apply (@lifted_functor (C,,hsC) (C,,hsC) trafotarget_disp (functor_identity C)).
+      use tpair.
+      - use tpair.
+        + intro c. exact (η c).
+        + intros c c' f.
+          red. unfold reindex_disp_cat, trafotarget_disp. hnf.
+          apply pathsinv0, nat_trans_ax.
+      - split.
+        + intro c.
+          apply (functor_category_has_homsets _ _ hs).
+        + intros c1 c2 c3 f f'.
+          apply (functor_category_has_homsets _ _ hs).
+    Defined.
+
 
   Definition nat_trafo_to_functor_with_eq (η: H ⟹ H'): trafotarget_with_eq.
   Proof.
@@ -256,6 +273,8 @@ Section Upstream.
     - intro c.
       apply is_z_isomorphism_identity.
   Defined.
+
+    (** the other direction *)
 
     Definition functor_to_nat_trafo_with_iso_data (N : C ⟶ trafotarget_precat)
                (HypN : nat_z_iso (N ∙ forget_from_trafotarget) (functor_identity C)): nat_trans_data H H'.
