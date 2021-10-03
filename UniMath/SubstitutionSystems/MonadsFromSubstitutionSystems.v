@@ -263,7 +263,7 @@ Qed.
 
 (** [T_squared] is [T∙T, η∙η], that is, the selfcomposition of [T] as a pointed functor *)
 
-Definition T_squared : Ptd := ptd_composite _ _ (p T) (p T).
+Definition T_squared : Ptd := ptd_compose _ _ (p T) (p T).
 
 (** [μ_2] is not just a natural transformation from [T∙T] to [T], but also compatible with
     the pointed structure given by [η] *)
@@ -273,15 +273,17 @@ Lemma μ_2_is_ptd_mor :
 Proof.
   intro c.
   unfold μ_2.
-  unfold T_squared. simpl.
+  unfold T_squared.
+  unfold ptd_compose. rewrite functorial_composition_pre_post.
+  simpl.
   assert (H' := Monad_law_2_from_hss c).
   simpl in H'.
   intermediate_path (pr1 (η T) c · identity _ ).
-  - unfold eta_from_alg; simpl. unfold horcomp_data; simpl.
+  - unfold eta_from_alg; simpl.
     repeat rewrite <- assoc.
     apply maponpaths.
     apply maponpaths.
-    apply H'.
+    exact H'.
   - apply id_right.
 Qed.
 

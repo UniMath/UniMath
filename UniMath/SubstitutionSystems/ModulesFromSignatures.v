@@ -86,13 +86,13 @@ Local Notation Mf := (M : functor _ _).
 Local Notation "'p' T" := (ptd_from_mon hsC T) (at level 3).
 
 (** The pointed functor TT *)
-Let  T2 := (ptd_composite _ hsC (p T) (p T)) .
+Let  T2 := (ptd_compose _ hsC (p T) (p T)) .
 
 (** The multiplication of a monad is a morphism of pointed endofunctors *)
 Lemma is_ptd_mor_μ : is_ptd_mor _ (F:= T2) (G:=p T)  (μ T).
 Proof.
-  intro c.
-  cbn. unfold horcomp_data.
+  intro c. unfold T2. unfold ptd_compose. rewrite functorial_composition_pre_post.
+  cbn.
   rewrite <- assoc.
   etrans; [|apply id_right].
   apply cancel_precomposition.

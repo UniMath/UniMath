@@ -55,7 +55,7 @@ Notation "α •• Z" :=  (# (pre_composition_functor_data _ _ _ _ _ Z) α) (at
 Notation "A ⊗ B" := (make_precatbinprod A B) : subsys.
 Notation "A ⊠ B" := (precategory_binproduct A B) (at level 38) : subsys.
 Notation "'ℓ'" := (pre_composition_functor(*_data*) _ _ _ _ _ ) : subsys.
-Notation "Z 'p•' Z'" := (ptd_composite _ _ Z Z') (at level 25) : subsys.
+Notation "Z 'p•' Z'" := (ptd_compose _ _ Z Z') (at level 25) : subsys. (** used to stand for (ptd_composite _ _ Z Z') *)
 
 (** The forgetful functor from pointed endofunctors to endofunctors *)
 Notation "'U'" := (functor_ptd_forget _ _ ) : subsys.

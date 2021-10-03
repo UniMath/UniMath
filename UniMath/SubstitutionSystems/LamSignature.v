@@ -475,10 +475,8 @@ Proof.
     simpl in NN. (* is important for success of the trick *)
     match goal with |[ H1: _ = ?f·?g |- ?h · _ = _ ] =>
          intermediate_path (h·(f·g)) end.
-    * apply idpath.
-    * simpl. rewrite <- NN.
-      clear NN.
-      assert (NNN := nat_trans_ax e' _ _ (BinCoproductArrow C (CC (TerminalObject terminal) (Z c))
+    * apply maponpaths, NN.
+    * assert (NNN := nat_trans_ax e' _ _ (BinCoproductArrow C (CC (TerminalObject terminal) (Z c))
          (BinCoproductIn1 C (CC (TerminalObject terminal) c)·
           e (BinCoproductObject C (CC (TerminalObject terminal) c)))
          (# Z (BinCoproductIn2 C (CC (TerminalObject terminal) c))))).
@@ -489,7 +487,8 @@ Proof.
         clear NNN.
         do 2 rewrite assoc.
         rewrite BinCoproductIn1Commutes.
-        apply idpath.
+        do 2 rewrite <- assoc.
+        apply maponpaths, pathsinv0, NN.
       - apply idpath.
   + rewrite <- functor_comp.
     apply maponpaths.
@@ -579,13 +578,18 @@ Proof.
   intros ? ? ?.
   apply (nat_trans_eq hs).
   intro c.
-  simpl. unfold horcomp_data; simpl.
+  cbn.
   repeat rewrite id_left.
   rewrite id_right.
   repeat rewrite <- functor_comp.
   apply maponpaths.
   repeat rewrite functor_id.
   rewrite id_right.
+  set (c' := pr1 X (pr1 Z' (pr1 Z c))).
+  change (pr1 (ptd_pt C Z) c' · pr1 (ptd_pt C Z') (pr1 (pr1 (pr1 Z)) c') =
+            pr1 (pr2 Z') c' · # (pr1 Z') (pr1 (pr2 Z) c')).
+  etrans.
+  2: { apply (nat_trans_ax (pr2 Z')). }
   apply idpath.
 Qed.
 

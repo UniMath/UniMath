@@ -504,9 +504,7 @@ Section IndividualFunctorsWithABStrength.
     }
     simpl.
     apply maponpaths_12.
-    - unfold PointedFunctorsComposition.ptd_composite, PointedFunctorsComposition.ptd_compose.
-      rewrite (horcomp_post_pre _ _ (C,,hs)). (* needed because of a mismatch of definitions *)
-      apply idpath.
+    - apply idpath.
     - apply nat_trans_eq_pointwise.
       clear c.
       apply maponpaths.
@@ -518,7 +516,7 @@ Section IndividualFunctorsWithABStrength.
       apply pathsinv0.
       simpl.
       apply functor_id.
-    Time Qed.
+  Qed.
 
   Definition signature_from_ab_strength : Signature C hs D hsD D' hsD'.
   Proof.
@@ -703,8 +701,6 @@ Section IndividualSignatures.
     assert (Heqc := nat_trans_eq_weq hsD _ _ HypX c).
     clear HypX.
     cbn in Heqc.
-    unfold PointedFunctorsComposition.ptd_composite in Heqc; unfold PointedFunctorsComposition.ptd_compose.
-    rewrite (horcomp_post_pre _ _ (C,,hs)) in Heqc. (* needed because of a mismatch of definitions *)
     etrans.
     {
       apply maponpaths_2.

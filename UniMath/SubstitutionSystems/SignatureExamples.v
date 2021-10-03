@@ -410,7 +410,7 @@ Proof.
   etrans.
   { apply cancel_postcomposition, BinCoproductIn1Commutes. }
   rewrite <- !assoc.
-  now apply maponpaths, (nat_trans_ax e').
+  now apply maponpaths.
 - rewrite assoc.
   etrans.
   { apply cancel_postcomposition, BinCoproductIn2Commutes. }
@@ -610,7 +610,7 @@ Qed.
 
 Lemma Gθ_Strength2_int : θ_Strength2_int Gθ.
 Proof.
-  intros F Ze Ze'; simpl.
+  intros F Ze Ze'.
   set (Z := pr1 Ze); set (Z' := pr1 Ze').
   apply (nat_trans_eq hsE); intro c; simpl.
   do 4 rewrite id_left.

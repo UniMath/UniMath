@@ -581,11 +581,6 @@ Section relative_strength_instantiates_to_signature.
       apply cancel_postcomposition.
       etrans.
       { apply pathsinv0. apply id_right. }
-      unfold PointedFunctorsComposition.ptd_composite.
-      rewrite (@horcomp_post_pre _ _ (C,,hs)).
-      unfold PointedFunctorsComposition.ptd_compose.
-      rewrite functorial_composition_post_pre.
-      cbn.
       apply maponpaths.
       apply pathsinv0.
       etrans.
@@ -646,8 +641,6 @@ Section strength_in_signature_is_a_relative_strength.
       assert (Hyp := nat_trans_eq_weq hs _ _ (θ'_strength_law2 X Z Z') c).
       cbn in Hyp.
       fold θ' H in Hyp.
-      unfold PointedFunctorsComposition.ptd_composite in Hyp.
-      rewrite (@horcomp_post_pre _ _ (C,,hs)) in Hyp.
       do 2 rewrite functor_id.
       do 2 rewrite id_right.
       rewrite (functor_id (H X)).
