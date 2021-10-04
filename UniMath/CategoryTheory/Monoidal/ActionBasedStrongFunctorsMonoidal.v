@@ -553,7 +553,8 @@ Proof.
   rewrite id_left.
   match goal with | [ |- ?Hσ · _ = _ ] => set (σ' := Hσ) end.
   etrans.
-  2: { use assoc. (* apply assoc does not work here *) }
+  2: { (* Fail apply assoc. *)
+    use assoc. }
   set (ε1better := # postcompG (# (functor_composite tensor FA) fg)).
   transparent assert (ε1betterok : (ε1 = ε1better)).
   { apply idpath. }
@@ -569,10 +570,10 @@ Proof.
   change β'twin with β'.
   clear β'twin.
   etrans.
-  2: { apply pathsinv0. use assoc. (* apply assoc does not work here *) }
+  2: { apply pathsinv0. (* Fail apply assoc. *) use assoc. }
   etrans.
-  { use assoc. (* apply assoc does not work here *) }
-  use cancel_postcomposition. (* apply cancel_postcomposition does not work here *)
+  { (* Fail apply assoc. *) use assoc. }
+  (* Fail apply cancel_postcomposition. *) use cancel_postcomposition.
   clear β'.
   unfold σ'.
   rewrite functorial_composition_pre_post.
@@ -586,7 +587,7 @@ Proof.
                        · # (post_composition_functor A A' A' hsA' hsA' (FA' w')) (# H' f)).
   { etrans.
     2: { exact Hyp. }
-    use cancel_postcomposition. (* apply cancel_postcomposition does not work here *)
+    (* Fail apply cancel_postcomposition. *) use cancel_postcomposition.
     apply exchange_postcomp_precomp_mor_special. }
   clear Hyp.
   intermediate_path (σ'1 · (σ'2 · γ') · δ').
@@ -601,7 +602,7 @@ Proof.
   { repeat rewrite <- assoc.
     apply maponpaths.
     apply pathsinv0.
-    use assoc. (* apply assoc does not work here *) }
+    (* Fail apply assoc. *) use assoc. }
   etrans.
   { do 2 apply cancel_postcomposition.
     apply pathsinv0.
@@ -616,9 +617,9 @@ Proof.
   match goal with | [ |- _ · ?Hν' · _ = _ ] => set (ν' := Hν')  end.
   intermediate_path (γ · (ν' · (ι' · δ'))).
   { apply pathsinv0.
-    use assoc. (* apply assoc does not work here *) }
+    (* Fail apply assoc. *) use assoc. }
   intermediate_path (γ · (δ · σ)).
-  2: { use assoc. (* apply assoc does not work here *) }
+  2: { (* Fail apply assoc. *) use assoc. }
   apply maponpaths.
   set (ν'better := # (pre_composition_functor A A' A' hsA' hsA' (H' v)) (# FA' g)).
   change ν' with ν'better.
@@ -640,7 +641,7 @@ Proof.
     apply exchange_postcomp_precomp_mor. }
   clear Hyp'.
   intermediate_path (δ · σ1 · σ2).
-  2: { apply pathsinv0. use assoc. (* apply assoc does not work here *) }
+  2: { apply pathsinv0. (* Fail apply assoc. *) use assoc. }
   rewrite Hypvariant.
   clear δ σ1 Hypvariant.
   match goal with | [ |- _ = ?Hν'variant · ?Hδ'π' · _] => set (ν'variant := Hν'variant); set (δ'π' := Hδ'π') end.
@@ -653,7 +654,7 @@ Proof.
   clear ν'variant ν'variantok.
   rewrite <- assoc.
   intermediate_path (ν'better · (δ'π' · σ2)).
-  2: { use assoc. (* apply assoc does not work here *) }
+  2: { (* Fail apply assoc. *) use assoc. }
   apply maponpaths.
   clear ν'better.
   assert (auxhorcomp' := functorial_composition_pre_post _ _ _ hsA hsA' _ _ _ _ (# FA f) π').
@@ -671,7 +672,7 @@ Proof.
   assert (σ2ok: σ2 = # (post_composition_functor A A A' hsA hsA' (H' w')) (# FA f)).
   { change (σ2 = # (post_composition_functor A A A' hsA hsA'
                                              (post_composition_functor _ _ _ hsA hsA' G (FA w'))) (# FA f)).
-    apply assoc_postcomp_postcomp_mor . }
+    apply assoc_postcomp_postcomp_mor. }
   rewrite ι'ok, σ2ok.
   clear ι' σ2 ι'ok σ2ok.
   exact auxhorcomp'.
@@ -733,6 +734,7 @@ Proof.
   unfold param_distr_pentagon_eq_body_variant_RHS, param_distr_triangle_eq_variant0_RHS, param_distr_pentagon_eq_body_RHS.
   rewrite functor_comp.
   match goal with | [ |- ?Hl1 · (?Hl2 · ?Hl3 · ?Hl4 · ?Hl5) · ?Hl6 = ?Hr1 · _] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (r1 := Hr1) end.
+  (* l6 and r1 are not recognized as morphisms in the functor category *)
 Admitted.
 
 Lemma montrafotarget_monprecat_left_unitor_aux2 (vη : montrafotarget_precat):
@@ -750,6 +752,7 @@ Proof.
   rewrite functor_comp.
   apply pathsinv0.
   match goal with | [ |- ?Hl1 · (?Hl2 · (?Hl3 · ?Hl4 · ?Hl5 · ?Hl6)) = _ · ?Hr2] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (r2 := Hr2) end.
+  (* l1 and r2 are not recognized as morphisms in the functor category *)
 Admitted.
 
 Lemma montrafotarget_monprecat_right_unitor_aux1 (vη : montrafotarget_precat):
@@ -766,6 +769,7 @@ Proof.
   unfold param_distr_pentagon_eq_body_variant_RHS, param_distr_triangle_eq_variant0_RHS, param_distr_pentagon_eq_body_RHS.
   rewrite functor_comp.
   match goal with | [ |- ?Hl1 · (?Hl2 · (?Hl3 · ?Hl4) · ?Hl5) · ?Hl6 = ?Hr1 · _] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (r1 := Hr1) end.
+  (* l6 and r1 are not recognized as morphisms in the functor category *)
 Admitted.
 
 Lemma montrafotarget_monprecat_right_unitor_aux2 (vη : montrafotarget_precat):
@@ -783,6 +787,7 @@ Proof.
   rewrite functor_comp.
   apply pathsinv0.
   match goal with | [ |- ?Hl1 · (?Hl2 · (?Hl3 · (?Hl4 · ?Hl5) · ?Hl6)) = _ · ?Hr2] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (r2 := Hr2) end.
+  (* l1 and r2 are not recognized as morphisms in the functor category *)
 Admitted.
 
 Lemma montrafotarget_monprecat_associator_aux1 (vηs : (montrafotarget_precat ⊠ montrafotarget_precat) ⊠ montrafotarget_precat):
@@ -836,6 +841,7 @@ Proof.
   rewrite rpartbetterok. unfold rpartbetter. clear rpart rpartbetter rpartbetterok.
   match goal with | [ |- ?Hl1 · (?Hl2 · (?Hl3 · ?Hl4 · ?Hl5) · ?Hl6 · ?Hl7) · ?Hl8  = _] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (l7 := Hl7); set (l8 := Hl8) end.
   match goal with | [ |- _ = ?Hr1 · (?Hr2 · (?Hr3 · (?Hr4 · (?Hr5 · ?Hr6 · ?Hr7)) · ?Hr8))] => set (r1 := Hr1); set (r2 := Hr2); set (r3 := Hr3); set (r4 := Hr4); set (r5 := Hr5); set (r6 := Hr6); set (r7 := Hr7); set (r8 := Hr8) end.
+  (* l8 and r1 are not recognized as morphisms in the functor category *)
 Admitted.
 
 Lemma montrafotarget_monprecat_associator_aux2 (vηs : (montrafotarget_precat ⊠ montrafotarget_precat) ⊠ montrafotarget_precat):
@@ -885,6 +891,7 @@ Proof.
   rewrite rpartbetterok. unfold rpartbetter. clear rpart rpartbetter rpartbetterok.
   match goal with | [ |- ?Hl1 · (?Hl2 · (?Hl3 · (?Hl4 · ?Hl5 · ?Hl6)) · ?Hl7) · ?Hl8  = _] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (l7 := Hl7); set (l8 := Hl8) end.
   match goal with | [ |- _ = ?Hr1 · (?Hr2 · (?Hr3 · (?Hr4 · ?Hr5 · ?Hr6) · ?Hr7 · ?Hr8))] => set (r1 := Hr1); set (r2 := Hr2); set (r3 := Hr3); set (r4 := Hr4); set (r5 := Hr5); set (r6 := Hr6); set (r7 := Hr7); set (r8 := Hr8) end.
+  (* l8 and r1 are not recognized as morphisms in the functor category *)
   (* an unhelpful test:
   apply nat_trans_eq; try exact hsA'.
   intro a.
