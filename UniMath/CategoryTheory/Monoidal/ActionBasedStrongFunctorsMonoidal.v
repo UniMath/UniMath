@@ -186,7 +186,17 @@ Section Upstream.
 
     Definition trafotarget_with_eq: UU := ∑ N: C ⟶ trafotarget_precat,
       functor_data_from_functor _ _ (functor_composite N forget_from_trafotarget) =
-      functor_data_from_functor _ _ (functor_identity C).
+        functor_data_from_functor _ _ (functor_identity C).
+
+    (** the following lemma has too strong conditions *)
+    Lemma trafotarget_with_eq_eq (hsC: has_homsets C) (hs'C: isaset C)  (Ne Ne': trafotarget_with_eq): pr1 Ne = pr1 Ne' -> Ne = Ne'.
+    Proof.
+      intro Hyp.
+      use total2_paths_f.
+      - exact Hyp.
+      - (* show_id_type. *)
+        apply (functor_data_isaset _ _ hsC hs'C).
+    Qed.
 
     Definition nat_trafo_to_functor (η: H ⟹ H'): C ⟶ trafotarget_precat.
     Proof.
@@ -233,32 +243,60 @@ Section Upstream.
     apply idpath.
   Defined.
 
-  (*
-  Definition functor_to_nat_trafo (Ne: trafotarget_with_eq): H ⟹ H'.
+  Definition nat_trafo_to_functor_through_section_with_eq (hsC: has_homsets C) (η: H ⟹ H'): trafotarget_with_eq.
   Proof.
-    induction Ne as [N HypN].
+    exists (nat_trafo_to_functor_through_section hsC η).
+    apply idpath.
+  Defined.
+
+(** the other direction *)
+
+  Definition functor_to_nat_trafo_aux (N: C ⟶ trafotarget_precat): (functor_composite (functor_composite N forget_from_trafotarget) H) ⟹ (functor_composite (functor_composite N forget_from_trafotarget) H').
+  Proof.
     use make_nat_trans.
-    - intro c.
-      set (trans := pr2 (N c)).
-      apply (maponpaths pr1) in HypN.
-      apply toforallpaths in HypN.
-      assert (HypNinst := HypN c).
-      cbn in HypNinst.
-      cbn in trans.
-      rewrite <- HypNinst.
-      exact trans.
+    - intro c. exact (pr2 (N c)).
     - intros c c' f.
       cbn.
       assert (Ninst := pr2 (# N f)).
       cbn in Ninst.
-      set  (HypNc := toforallpaths (λ _ : C, C) (λ a : C, pr1 (N a)) (λ a : C, a) (maponpaths pr1 HypN) c).
-      set  (HypNc' := toforallpaths (λ _ : C, C) (λ a : C, pr1 (N a)) (λ a : C, a) (maponpaths pr1 HypN) c').
-      assert (HypN2 := HypN).
-      show_id_type.
-      match goal with | [ H1: @paths ?ID _ _ |- _ ]  => set (TYPE' := ID)  ; simpl in TYPE' end.
-      assert (HypN2' := fiber_paths HypN2).
-*)
-      (* no hope for progress *)
+      apply pathsinv0, Ninst.
+  Defined.
+
+  Definition functor_to_nat_trafo_with_eq (Ne: trafotarget_with_eq): H ⟹ H'.
+  Proof.
+    induction Ne as [N HypN].
+    set (aux := functor_to_nat_trafo_aux N).
+    change (functor_composite (functor_identity C) H ⟹ functor_composite (functor_identity C) H').
+    cbn.
+    cbn in HypN.
+    rewrite <- HypN.
+    exact aux.
+  Defined.
+
+    Local Lemma roundtrip1_with_eq (η: H ⟹ H'):
+      functor_to_nat_trafo_with_eq (nat_trafo_to_functor_with_eq η) = η.
+  Proof.
+    apply (nat_trans_eq (functor_category_has_homsets _ _ hs)).
+    intro c.
+    apply (nat_trans_eq hs).
+    intro a.
+    cbn.
+    apply idpath.
+  Qed.
+
+    Local Lemma roundtrip2_with_eq (hsC: has_homsets C) (hs'C: isaset C) (Ne: trafotarget_with_eq):
+      nat_trafo_to_functor_with_eq (functor_to_nat_trafo_with_eq Ne) = Ne.
+    Proof.
+      apply (trafotarget_with_eq_eq hsC hs'C).
+      induction Ne as [N HypN].
+      cbn.
+      apply functor_eq.
+      - apply (has_homsets_trafotarget_precat hsC).
+      - use functor_data_eq.
+        + intro c. cbn. (* I do not know how to deal with this. *)
+ Abort.
+
+    (* a variant of the whole approach without type-level rewriting *)
 
    Definition trafotarget_with_iso: UU := ∑ N: C ⟶ trafotarget_precat,
       nat_z_iso (functor_composite N forget_from_trafotarget) (functor_identity C).

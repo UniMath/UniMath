@@ -1259,7 +1259,14 @@ Qed.
 Definition lifted_functor {C C' : category} {D : disp_cat C}
   {F : functor C' C} (FF : functor_lifting D F)
   : functor C' (total_category D)
-:= (_ ,, lifted_functor_axioms FF).
+  := (_ ,, lifted_functor_axioms FF).
+
+Lemma from_lifted_functor {C C' : category} {D : disp_cat C}
+      {F : functor C' C} (FF : functor_lifting D F):
+  functor_composite (lifted_functor FF) (pr1_category D) = F.
+Proof.
+  use (functor_eq _ _ (homset_property C)). apply idpath.
+Qed.
 
 End Functor_Lifting.
 
