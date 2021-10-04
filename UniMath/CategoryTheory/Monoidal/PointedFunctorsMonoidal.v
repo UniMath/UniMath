@@ -79,7 +79,7 @@ Section PointedFunctors_as_monoidal_category.
       (* UniMath.MoreFoundations.Tactics.show_id_type. *)
       apply (eq_ptd_mor hs).
       unfold tensor_pointedfunctor_data.
-      simpl.
+      simpl. unfold post_whisker_in_funcat, pre_whisker_in_funcat.
       rewrite pre_whisker_identity; try exact hs.
       rewrite post_whisker_identity; try exact hs.
       apply (nat_trans_eq hs); intro c.
@@ -88,7 +88,7 @@ Section PointedFunctors_as_monoidal_category.
     - intros PF1PF2 PF1'PF2' PF1''PF2'' α1α2 α1'α2'.
       apply (eq_ptd_mor hs).
       unfold tensor_pointedfunctor_data.
-      simpl.
+      simpl. unfold post_whisker_in_funcat, pre_whisker_in_funcat.
       rewrite (post_whisker_composition _ _ _ hs).
       rewrite (pre_whisker_composition _ _ _ hs).
       cbn.

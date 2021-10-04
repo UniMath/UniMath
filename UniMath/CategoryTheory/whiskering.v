@@ -80,6 +80,13 @@ Proof.
   apply X.
 Defined.
 
+Definition pre_whisker_in_funcat {A B C : precategory} (hsB: has_homsets B) (hsC: has_homsets C)
+           (F : [A, B, hsB]) {G H : [B, C, hsC]} (γ : [B, C, hsC]⟦G, H⟧) :
+  [A, C, hsC]⟦functor_compose hsB hsC F G, functor_compose hsB hsC F H⟧.
+Proof.
+  exact (pre_whisker (F: A ⟶ B) γ).
+Defined.
+
 (** Postwhiskering *)
 
 Lemma is_nat_trans_post_whisker (B C D : precategory_data)
@@ -131,6 +138,13 @@ Proof.
   apply (functor_on_is_z_isomorphism K (X b)).
 Defined.
 
+Definition post_whisker_in_funcat {B C D : precategory} (hsC: has_homsets C) (hsD: has_homsets D)
+            {G H : [B, C, hsC]} (γ : [B, C, hsC]⟦G, H⟧) (K : [C, D, hsD]) :
+  [B, D, hsD]⟦functor_compose hsC hsD G K, functor_compose hsC hsD H K⟧.
+Proof.
+  exact (post_whisker γ (K: C ⟶ D)).
+Defined.
+
 (** Precomposition with a functor is functorial *)
 
 Definition pre_composition_functor_data (A B C : precategory)
@@ -138,7 +152,7 @@ Definition pre_composition_functor_data (A B C : precategory)
       (H : ob [A, B, hsB]) : functor_data [B,C,hsC] [A,C,hsC].
 Proof.
   exists (λ G, functor_compose _ _ H G).
-  exact (λ a b gamma, pre_whisker (pr1 H)  gamma).
+  exact (λ a b gamma, pre_whisker_in_funcat hsB hsC H gamma).
 Defined.
 
 
@@ -199,7 +213,7 @@ Definition post_composition_functor_data (A B C : precategory)
       (H : ob [B, C, hsC]) : functor_data [A,B,hsB] [A,C,hsC].
 Proof.
   exists (λ G, functor_compose _ _ G H).
-  exact (λ a b gamma, post_whisker gamma H).
+  exact (λ a b gamma, post_whisker_in_funcat hsB hsC gamma H).
 Defined.
 
 

@@ -734,7 +734,7 @@ Proof.
   unfold param_distr_pentagon_eq_body_variant_RHS, param_distr_triangle_eq_variant0_RHS, param_distr_pentagon_eq_body_RHS.
   rewrite functor_comp.
   match goal with | [ |- ?Hl1 · (?Hl2 · ?Hl3 · ?Hl4 · ?Hl5) · ?Hl6 = ?Hr1 · _] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (r1 := Hr1) end.
-  (* l6 and r1 are not recognized as morphisms in the functor category *)
+  (* repeat rewrite <- assoc. still cannot incorporate l6 *)
 Admitted.
 
 Lemma montrafotarget_monprecat_left_unitor_aux2 (vη : montrafotarget_precat):
@@ -752,7 +752,7 @@ Proof.
   rewrite functor_comp.
   apply pathsinv0.
   match goal with | [ |- ?Hl1 · (?Hl2 · (?Hl3 · ?Hl4 · ?Hl5 · ?Hl6)) = _ · ?Hr2] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (r2 := Hr2) end.
-  (* l1 and r2 are not recognized as morphisms in the functor category *)
+  (* repeat rewrite assoc. yields  l1 · (l2 · (l3 · l4 · l5 · l6)) to the left *)
 Admitted.
 
 Lemma montrafotarget_monprecat_right_unitor_aux1 (vη : montrafotarget_precat):
@@ -769,7 +769,7 @@ Proof.
   unfold param_distr_pentagon_eq_body_variant_RHS, param_distr_triangle_eq_variant0_RHS, param_distr_pentagon_eq_body_RHS.
   rewrite functor_comp.
   match goal with | [ |- ?Hl1 · (?Hl2 · (?Hl3 · ?Hl4) · ?Hl5) · ?Hl6 = ?Hr1 · _] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (r1 := Hr1) end.
-  (* l6 and r1 are not recognized as morphisms in the functor category *)
+  (* repeat rewrite assoc. and repeat rewrite <- assoc. work incompletely *)
 Admitted.
 
 Lemma montrafotarget_monprecat_right_unitor_aux2 (vη : montrafotarget_precat):
@@ -787,7 +787,7 @@ Proof.
   rewrite functor_comp.
   apply pathsinv0.
   match goal with | [ |- ?Hl1 · (?Hl2 · (?Hl3 · (?Hl4 · ?Hl5) · ?Hl6)) = _ · ?Hr2] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (r2 := Hr2) end.
-  (* l1 and r2 are not recognized as morphisms in the functor category *)
+  (* same comment on assoc as before *)
 Admitted.
 
 Lemma montrafotarget_monprecat_associator_aux1 (vηs : (montrafotarget_precat ⊠ montrafotarget_precat) ⊠ montrafotarget_precat):
@@ -841,7 +841,7 @@ Proof.
   rewrite rpartbetterok. unfold rpartbetter. clear rpart rpartbetter rpartbetterok.
   match goal with | [ |- ?Hl1 · (?Hl2 · (?Hl3 · ?Hl4 · ?Hl5) · ?Hl6 · ?Hl7) · ?Hl8  = _] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (l7 := Hl7); set (l8 := Hl8) end.
   match goal with | [ |- _ = ?Hr1 · (?Hr2 · (?Hr3 · (?Hr4 · (?Hr5 · ?Hr6 · ?Hr7)) · ?Hr8))] => set (r1 := Hr1); set (r2 := Hr2); set (r3 := Hr3); set (r4 := Hr4); set (r5 := Hr5); set (r6 := Hr6); set (r7 := Hr7); set (r8 := Hr8) end.
-  (* l8 and r1 are not recognized as morphisms in the functor category *)
+  (* same comment on assoc as before *)
 Admitted.
 
 Lemma montrafotarget_monprecat_associator_aux2 (vηs : (montrafotarget_precat ⊠ montrafotarget_precat) ⊠ montrafotarget_precat):
@@ -891,7 +891,7 @@ Proof.
   rewrite rpartbetterok. unfold rpartbetter. clear rpart rpartbetter rpartbetterok.
   match goal with | [ |- ?Hl1 · (?Hl2 · (?Hl3 · (?Hl4 · ?Hl5 · ?Hl6)) · ?Hl7) · ?Hl8  = _] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (l7 := Hl7); set (l8 := Hl8) end.
   match goal with | [ |- _ = ?Hr1 · (?Hr2 · (?Hr3 · (?Hr4 · ?Hr5 · ?Hr6) · ?Hr7 · ?Hr8))] => set (r1 := Hr1); set (r2 := Hr2); set (r3 := Hr3); set (r4 := Hr4); set (r5 := Hr5); set (r6 := Hr6); set (r7 := Hr7); set (r8 := Hr8) end.
-  (* l8 and r1 are not recognized as morphisms in the functor category *)
+  (* same comment on assoc as before *)
   (* an unhelpful test:
   apply nat_trans_eq; try exact hsA'.
   intro a.
