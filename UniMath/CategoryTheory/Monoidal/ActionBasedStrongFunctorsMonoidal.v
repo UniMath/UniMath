@@ -502,6 +502,18 @@ Local Definition I := monoidal_precat_unit Mon_V.
 Local Definition tensor := monoidal_precat_tensor Mon_V.
 Notation "X ⊗ Y" := (tensor (X , Y)).
 
+Section Action.
+
+Context {A: precategory}.
+Context (hsA : has_homsets A).
+
+Context (FA: strong_monoidal_functor Mon_V (monoidal_precat_of_endofunctors hsA)).
+
+
+End Action.
+
+Section Functor.
+
 Context {A A': precategory}.
 Context (hsA : has_homsets A) (hsA' : has_homsets A').
 
@@ -549,17 +561,15 @@ Proof.
   unfold inv_from_z_iso.
   set (α := # precompG (lax_monoidal_functor_μ FA' (v,, w))).
   change (pr12 αinviso) with α.
-  set (vw := v,,w: Mon_V ⊠ Mon_V). set (vw' := v',,w': Mon_V ⊠ Mon_V). set (fg := f,,g: Mon_V ⊠ Mon_V ⟦ vw, vw' ⟧).
+  set (fg := (f #, g)).
   assert (μFA'natinst := nat_trans_ax (lax_monoidal_functor_μ FA') _ _ fg).
   simpl in μFA'natinst.
   assert (μFAnatinst := nat_trans_ax (lax_monoidal_functor_μ FA) _ _ fg).
   simpl in μFAnatinst.
-  change (# (functorial_composition hsA hsA) (# FA f,, # FA g:
-           [A, A, hsA] ⊠ [A, A, hsA] ⟦(FA v,,FA w),(FA v',,FA w')⟧) · lax_monoidal_functor_μ FA vw' =
-          lax_monoidal_functor_μ FA vw · # FA (# (MonoidalFunctors.tensor_C Mon_V) fg)) in μFAnatinst.
-  change (# (functorial_composition hsA' hsA') (# FA' f,, # FA' g:
-           [A', A', hsA'] ⊠ [A', A', hsA'] ⟦(FA' v,,FA' w),(FA' v',,FA' w')⟧) · lax_monoidal_functor_μ FA' vw' =
-          lax_monoidal_functor_μ FA' vw · # FA' (# (MonoidalFunctors.tensor_C Mon_V) fg)) in μFA'natinst.
+  change (# (functorial_composition hsA hsA) (# FA f #, # FA g) · lax_monoidal_functor_μ FA (v',, w') =
+          lax_monoidal_functor_μ FA (v,, w) · # FA (# (MonoidalFunctors.tensor_C Mon_V) fg)) in μFAnatinst.
+  change (# (functorial_composition hsA' hsA') (# FA' f #, # FA' g) · lax_monoidal_functor_μ FA' (v',, w') =
+            lax_monoidal_functor_μ FA' (v,, w) · # FA' (# (MonoidalFunctors.tensor_C Mon_V) fg)) in μFA'natinst.
   set (ε2better := # precompG (# (functor_composite tensor FA') fg)).
   transparent assert (ε2betterok : (ε2 = ε2better)).
   { apply idpath. }
@@ -584,7 +594,7 @@ Proof.
   { apply maponpaths.
     apply cancel_postcomposition.
     apply maponpaths.
-    set (μFA'pointwise := nat_z_iso_pointwise_z_iso (strong_monoidal_functor_μ FA') vw').
+    set (μFA'pointwise := nat_z_iso_pointwise_z_iso (strong_monoidal_functor_μ FA') (v',, w')).
     apply (z_iso_inv_after_z_iso μFA'pointwise). }
   clear αinv αinv' αinviso α.
   rewrite functor_id.
@@ -726,7 +736,7 @@ Proof.
   + intros vηwπ vηwπ' fgHyps. induction vηwπ as [[v η] [w π]]. induction vηwπ' as [[v' η'] [w' π']].
     induction fgHyps as [[f Hyp] [g Hyp']].
     use tpair.
-    * exact (# tensor ((f,,g): pr1 Mon_V ⊠ pr1 Mon_V ⟦ (v,,w), (v',,w') ⟧)).
+    * exact (# tensor (f #, g)).
     * cbv beta in |- *.
       unfold pr2.
       apply montrafotarget_tensor_comp_aux; [exact Hyp | exact Hyp'].
@@ -1249,5 +1259,8 @@ Proof.
   induction δs as [δ [δtr_eq δpe_eq]].
   exact (smf_from_param_distr_parts δ δtr_eq δpe_eq).
 Defined.
+
+End Functor.
+
 
 End Main.
