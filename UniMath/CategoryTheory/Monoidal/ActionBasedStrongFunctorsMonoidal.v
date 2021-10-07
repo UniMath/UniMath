@@ -184,20 +184,12 @@ Section Upstream.
 
   Section TheEquivalence.
 
+    (** a naive specification of the target of the bijection *)
     Definition trafotarget_with_eq: UU := ∑ N: C ⟶ trafotarget_precat,
       functor_data_from_functor _ _ (functor_composite N forget_from_trafotarget) =
         functor_data_from_functor _ _ (functor_identity C).
 
-    (** the following lemma has too strong conditions *)
-    Lemma trafotarget_with_eq_eq (hsC: has_homsets C) (hs'C: isaset C)  (Ne Ne': trafotarget_with_eq): pr1 Ne = pr1 Ne' -> Ne = Ne'.
-    Proof.
-      intro Hyp.
-      use total2_paths_f.
-      - exact Hyp.
-      - (* show_id_type. *)
-        apply (functor_data_isaset _ _ hsC hs'C).
-    Qed.
-
+    (** a "pedestrian" definition *)
     Definition nat_trafo_to_functor (η: H ⟹ H'): C ⟶ trafotarget_precat.
     Proof.
       use make_functor.
@@ -219,10 +211,18 @@ Section Upstream.
           * apply (functor_category_has_homsets _ _ hs).
     Defined.
 
-    (** we can also use the infrastructure of displayed categories *)
-    Definition nat_trafo_to_functor_through_section (hsC: has_homsets C)(η: H ⟹ H'): C ⟶ trafotarget_precat.
+    (** an immediate consequence *)
+    Definition nat_trafo_to_functor_with_eq (η: H ⟹ H'): trafotarget_with_eq.
     Proof.
-      apply (@lifted_functor (C,,hsC) (C,,hsC) trafotarget_disp (functor_identity C)).
+      exists (nat_trafo_to_functor η).
+      apply idpath.
+    Defined.
+
+    (** we can also use the infrastructure of displayed categories given homsets
+        (is that inherently necessary or only a limitation of the library?) *)
+    Definition nat_trafo_to_section_v1 (hsC: has_homsets C)(η: H ⟹ H'):
+      @functor_lifting (C,,hsC) (C,,hsC) trafotarget_disp (functor_identity C).
+    Proof.
       use tpair.
       - use tpair.
         + intro c. exact (η c).
@@ -236,22 +236,39 @@ Section Upstream.
           apply (functor_category_has_homsets _ _ hs).
     Defined.
 
+    Definition nat_trafo_to_section (hsC: has_homsets C)(η: H ⟹ H'):
+      @section_disp (C,,hsC) trafotarget_disp.
+    Proof.
+      use tpair.
+      - use tpair.
+        + intro c. exact (η c).
+        + intros c c' f.
+          red. unfold reindex_disp_cat, trafotarget_disp. hnf.
+          apply pathsinv0, nat_trans_ax.
+      - split.
+        + intro c.
+          apply (functor_category_has_homsets _ _ hs).
+        + intros c1 c2 c3 f f'.
+          apply (functor_category_has_homsets _ _ hs).
+    Defined.
 
-  Definition nat_trafo_to_functor_with_eq (η: H ⟹ H'): trafotarget_with_eq.
-  Proof.
-    exists (nat_trafo_to_functor η).
-    apply idpath.
-  Defined.
+    Definition nat_trafo_to_functor_through_section_v1 (hsC: has_homsets C)(η: H ⟹ H'): C ⟶ trafotarget_precat :=
+      @lifted_functor (C,,hsC) (C,,hsC) trafotarget_disp (functor_identity C) (nat_trafo_to_section_v1 hsC η).
 
-  Definition nat_trafo_to_functor_through_section_with_eq (hsC: has_homsets C) (η: H ⟹ H'): trafotarget_with_eq.
-  Proof.
-    exists (nat_trafo_to_functor_through_section hsC η).
-    apply idpath.
-  Defined.
+    Definition nat_trafo_to_functor_through_section (hsC: has_homsets C)(η: H ⟹ H'): C ⟶ trafotarget_precat :=
+      @section_functor (C,,hsC) trafotarget_disp (nat_trafo_to_section hsC η).
 
-(** the other direction *)
+    (** the analogous immediate consequence *)
+    Definition nat_trafo_to_functor_through_section_with_eq (hsC: has_homsets C) (η: H ⟹ H'): trafotarget_with_eq.
+    Proof.
+      exists (nat_trafo_to_functor_through_section hsC η).
+      apply idpath.
+    Defined.
 
-  Definition functor_to_nat_trafo_aux (N: C ⟶ trafotarget_precat): (functor_composite (functor_composite N forget_from_trafotarget) H) ⟹ (functor_composite (functor_composite N forget_from_trafotarget) H').
+    (** the other direction in naive form *)
+    Definition functor_to_nat_trafo_aux (N: C ⟶ trafotarget_precat):
+      (functor_composite (functor_composite N forget_from_trafotarget) H) ⟹
+      (functor_composite (functor_composite N forget_from_trafotarget) H').
   Proof.
     use make_nat_trans.
     - intro c. exact (pr2 (N c)).
@@ -262,6 +279,7 @@ Section Upstream.
       apply pathsinv0, Ninst.
   Defined.
 
+    (** correct the typing by rewriting *)
   Definition functor_to_nat_trafo_with_eq (Ne: trafotarget_with_eq): H ⟹ H'.
   Proof.
     induction Ne as [N HypN].
@@ -284,36 +302,61 @@ Section Upstream.
     apply idpath.
   Qed.
 
+    (** what we do NOT get:
     Local Lemma roundtrip2_with_eq (hsC: has_homsets C) (hs'C: isaset C) (Ne: trafotarget_with_eq):
       nat_trafo_to_functor_with_eq (functor_to_nat_trafo_with_eq Ne) = Ne.
+*)
+
+    (** *** using sections in the framework display categories *)
+    Definition section_to_nat_trafo (hsC: has_homsets C):
+      @section_disp (C,,hsC) trafotarget_disp -> H ⟹ H'.
     Proof.
-      apply (trafotarget_with_eq_eq hsC hs'C).
-      induction Ne as [N HypN].
+      intro sd.
+      induction sd as [[sdob sdmor] [sdid sdcomp]].
+      use make_nat_trans.
+      - intro c. exact (sdob c).
+      - intros c c' f.
+        assert (aux := sdmor c c' f). apply pathsinv0. exact aux.
+    Defined.
+
+    Local Lemma roundtrip1_with_sections (hsC: has_homsets C) (η: H ⟹ H'):
+      section_to_nat_trafo hsC (nat_trafo_to_section hsC η) = η.
+    Proof.
+      apply (nat_trans_eq (functor_category_has_homsets _ _ hs)).
+      intro c.
+      apply idpath.
+    Qed.
+
+    Local Lemma roundtrip2_with_sections (hsC: has_homsets C) (sd: @section_disp (C,,hsC) trafotarget_disp):
+      nat_trafo_to_section hsC (section_to_nat_trafo hsC sd) = sd.
+    Proof.
+      induction sd as [[sdob sdmor] [sdid sdcomp]].
+      unfold nat_trafo_to_section, section_to_nat_trafo.
       cbn.
-      apply functor_eq.
-      - apply (has_homsets_trafotarget_precat hsC).
-      - use functor_data_eq.
-        + intro c. cbn. (* I do not know how to deal with this. *)
- Abort.
+      use total2_paths_f; simpl.
+      - use total2_paths_f; simpl.
+        + apply idpath.
+        + cbn.
+          assert (Hyp: ∏ c c' f, ! (! sdmor c c' f) = sdmor c c' f).
+          * intros.
+    Abort. (* hopefully only for lack of time *)
 
-    (* a variant of the whole approach without type-level rewriting *)
+    (** *** a "pedestrian" variant of the whole approach without type-level rewriting *)
+    Definition trafotarget_with_iso: UU := ∑ N: C ⟶ trafotarget_precat,
+          nat_z_iso (functor_composite N forget_from_trafotarget) (functor_identity C).
 
-   Definition trafotarget_with_iso: UU := ∑ N: C ⟶ trafotarget_precat,
-      nat_z_iso (functor_composite N forget_from_trafotarget) (functor_identity C).
+    Definition nat_trafo_to_functor_with_iso (η: H ⟹ H'): trafotarget_with_iso.
+    Proof.
+      exists (nat_trafo_to_functor η).
+      use tpair.
+      - use make_nat_trans.
+        + intro c. apply identity.
+        + intros c c' f. cbn. rewrite id_left. apply id_right.
+      - intro c.
+        apply is_z_isomorphism_identity.
+    Defined.
 
-  Definition nat_trafo_to_functor_with_iso (η: H ⟹ H'): trafotarget_with_iso.
-  Proof.
-    exists (nat_trafo_to_functor η).
-    use tpair.
-    - use make_nat_trans.
-      + intro c. apply identity.
-      + intros c c' f. cbn. rewrite id_left. apply id_right.
-    - intro c.
-      apply is_z_isomorphism_identity.
-  Defined.
-
-    (** the other direction *)
-
+    (** and the other direction *)
     Definition functor_to_nat_trafo_with_iso_data (N : C ⟶ trafotarget_precat)
                (HypN : nat_z_iso (N ∙ forget_from_trafotarget) (functor_identity C)): nat_trans_data H H'.
     Proof.
