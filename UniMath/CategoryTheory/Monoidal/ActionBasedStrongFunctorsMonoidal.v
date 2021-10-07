@@ -337,9 +337,22 @@ Section Upstream.
       - use total2_paths_f; simpl.
         + apply idpath.
         + cbn.
-          assert (Hyp: ∏ c c' f, ! (! sdmor c c' f) = sdmor c c' f).
-          * intros.
-    Abort. (* hopefully only for lack of time *)
+          do 3 (apply funextsec; intro).
+          apply pathsinv0inv0.
+      - match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
+        assert (Hprop: isaprop goaltype).
+        2: { apply Hprop. }
+        apply isapropdirprod.
+        + apply impred. intro c.
+          (* assert (aux := sdmor c c (id c)).
+          cbn in aux.
+          match goal with [H: @paths ?ID _ _ |- _ ] => set (auxtype := ID); simpl in auxtype end. *)
+          apply hlevelntosn.
+          apply (functor_category_has_homsets _ _ hs).
+        + do 5 (apply impred; intro).
+          apply hlevelntosn.
+          apply (functor_category_has_homsets _ _ hs).
+    Qed.
 
     (** *** a "pedestrian" variant of the whole approach without type-level rewriting *)
     Definition trafotarget_with_iso: UU := ∑ N: C ⟶ trafotarget_precat,
