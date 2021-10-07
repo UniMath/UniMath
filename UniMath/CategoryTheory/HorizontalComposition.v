@@ -207,7 +207,7 @@ Qed.
 
 Lemma functorial_composition_pre_post (C D E: precategory) (hsD : has_homsets D) (hsE : has_homsets E)
       (F F' : [C, D, hsD]) (G G' : [D, E, hsE]) (f: [C, D, hsD]⟦F, F'⟧) (g: [D, E, hsE]⟦G, G'⟧) :
-# (functorial_composition hsD hsE) (precatbinprodmor f g) =
+  # (functorial_composition hsD hsE) (f,, g:precategory_binproduct [C, D, hsD] [D, E, hsE] ⟦(F,,G), (F',,G')⟧) =
   # (pre_composition_functor _ _ _ hsD hsE F) g · # (post_composition_functor _ _ _ hsD hsE G') f.
 Proof.
   apply (nat_trans_eq hsE).
@@ -218,7 +218,7 @@ Qed.
 
 Lemma functorial_composition_post_pre (C D E: precategory) (hsD : has_homsets D) (hsE : has_homsets E)
       (F F' : [C, D, hsD]) (G G' : [D, E, hsE]) (f: [C, D, hsD]⟦F, F'⟧) (g: [D, E, hsE]⟦G, G'⟧) :
-  # (functorial_composition hsD hsE) (precatbinprodmor f g) =
+  # (functorial_composition hsD hsE) (f,, g:precategory_binproduct [C, D, hsD] [D, E, hsE] ⟦(F,,G), (F',,G')⟧) =
   # (post_composition_functor _ _ _ hsD hsE G) f · # (pre_composition_functor _ _ _ hsD hsE F') g.
 Proof.
   apply idpath.
