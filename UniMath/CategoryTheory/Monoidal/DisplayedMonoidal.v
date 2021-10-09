@@ -25,10 +25,23 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Local Open Scope cat.
 
 
+(* TODO: factor out proof, upstream the definition *)
+Definition categoryBinProduct (C C' : category) : category.
+Proof.
+  exists (C ⊠ C').
+  intros a b. apply isasetdirprod.
+  - apply C.
+  - apply C'.
+Defined.
+
+Notation "C ⊠ C'" := (categoryBinProduct C C').
 
 Section DispCartProdOfCats.
 
-  Context (C C' : category)
+
+(* TODO: give definitions with minimal hypotheses, e.g., only with disp_cat_ob_mor *)
+
+  Context {C C' : category}
           (D : disp_cat C)
           (D' : disp_cat C').
 
@@ -137,7 +150,66 @@ Section DispCartProdOfCats.
       * apply D'.
   Qed.
 
+  Definition disp_binprod : disp_cat (C ⊠ C')
+    :=  disp_binprod_data ,,  disp_binprod_axioms.
+
 End DispCartProdOfCats.
+
+Notation "D ⊠⊠ D'" := (disp_binprod D D') (at level 60).
+
+Definition displayed_tensor {C : category}
+           (tensor : C ⊠ C ⟶ C)
+           (D : disp_cat C)
+  : UU
+  := disp_functor tensor (disp_binprod D D) D.
+
+
+Section FixDispTensor.
+
+  Context {C : category}
+          (tensor : C ⊠ C ⟶ C)
+          {D : disp_cat C}
+          (disp_tensor : displayed_tensor tensor D).
+
+  Let al : functor _ _ := assoc_left tensor.
+
+  (* TODO: Instead of constructing by hand, better to build from components like pair_disp_functor and composition of displayed functors *)
+
+  Definition disp_assoc_left : @disp_functor ((C ⊠ C) ⊠ C) C al  ((D ⊠⊠ D) ⊠⊠ D) D .
+  Proof.
+    use tpair.
+    - use tpair.
+      + intros x r.
+        apply disp_tensor.
+        cbn.
+        simpl in r.
+        use make_dirprod.
+        * apply disp_tensor.
+          apply (pr1 r).
+        * apply (pr2 r).
+      + cbn in *.
+        intros.
+
+
+    (C ⊠ C) ⊠ C ⟶ C :=
+  functor_composite (pair_functor tensor (functor_identity _)) tensor.
+
+
+End FixDispTensor.
+
+Section DisplayedMonoidal.
+
+  Definition DispMonoidalCat (V : monoidal_precat) : UU := unit.
+
+
+End DisplayedMonoidal.
+
+
+
+
+
+
+
 
 
 (* This is not a good approach. In the very least, one could use different categories
