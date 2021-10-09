@@ -23,6 +23,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
 
 Local Open Scope cat.
+Local Open Scope mor_disp_scope.
 
 
 (* TODO: factor out proof, upstream the definition *)
@@ -156,6 +157,81 @@ Section DispCartProdOfCats.
 End DispCartProdOfCats.
 
 Notation "D ⊠⊠ D'" := (disp_binprod D D') (at level 60).
+
+
+Lemma disp_binprod_transportf (C C' : category) (D : disp_cat C) (D' : disp_cat C')
+      (a b : C) (a' b' : C') (f g : a --> b) (f' g' : a' --> b')
+      (x : D a) (y : D b) (x' : D' a') (y' : D' b')
+      (ff : x -->[f] y) (ff' : x' -->[f'] y')
+      (e : (f,,f') = (g,, g'))
+  : transportf (@mor_disp (C ⊠ C') (disp_binprod D D') (a,,a') (b,,b') (x,,x') (y,,y')) e (ff,, ff')  =
+      transportf (mor_disp _ _ ) (maponpaths pr1 e) ff ,, transportf (mor_disp _ _ )  (maponpaths (dirprod_pr2) e) ff'.
+Proof.
+  induction e.
+  apply idpath.
+Qed.
+
+Section DispCartProfOfFunctors.
+
+  Context {A A' C C' : category}
+          {F : functor A C}
+          {F' : functor A' C'}
+          {D : disp_cat A}
+          {D' : disp_cat A'}
+          {E : disp_cat C}
+          {E' : disp_cat C'}
+          (G : disp_functor F D E)
+          (G' : disp_functor F' D' E').
+
+  Definition disp_pair_functor_data
+    : disp_functor_data (pair_functor F F') (D ⊠⊠ D') (E ⊠⊠ E').
+  Proof.
+    use tpair.
+    - intros aa' dd'.
+      use tpair.
+      + use G. apply (pr1 dd').
+      + use G'. apply (pr2 dd').
+    - cbn. intros aa' aa'' xx' yy' ff' gg'.
+      use tpair.
+      + apply #G. apply (pr1 gg').
+      +  apply #G'. apply (pr2 gg').
+  Defined.
+
+  Lemma disp_pair_functor_axioms :
+    @disp_functor_axioms (A ⊠ A') (C ⊠ C') (pair_functor F F') _ _ disp_pair_functor_data.
+  Proof.
+    split.
+    - intros [a a'] [d d'].
+      apply pathsinv0.
+      etrans. { apply disp_binprod_transportf. }
+      cbn.
+      apply dirprodeq; cbn.
+      + apply pathsinv0.
+        etrans. apply disp_functor_id.
+        apply transportf_paths. apply C.
+      + apply pathsinv0.
+        etrans. apply disp_functor_id.
+        apply transportf_paths. apply C'.
+    - intros [a a'] [b b'] [c c'] [w w'] [x x'] [y y'] [f f'] [g g'] [ff ff'] [gg gg'].
+      cbn in *.
+      apply pathsinv0.
+      etrans. { apply disp_binprod_transportf. }
+      apply pathsinv0.
+      apply dirprodeq; cbn.
+      + etrans. apply disp_functor_comp.
+        apply transportf_paths. apply C.
+      + etrans. apply disp_functor_comp.
+        apply transportf_paths. apply C'.
+  Qed.
+
+  Definition disp_pair_functor :
+    @disp_functor (A ⊠ A') (C ⊠ C')  (pair_functor F F') (D ⊠⊠ D') (E ⊠⊠ E')
+    :=  disp_pair_functor_data ,, disp_pair_functor_axioms.
+
+End DispCartProfOfFunctors.
+
+
+
 
 Definition displayed_tensor {C : category}
            (tensor : C ⊠ C ⟶ C)
