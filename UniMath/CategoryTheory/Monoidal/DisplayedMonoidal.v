@@ -1,8 +1,6 @@
-(** Constructs the bicategory of actions, strong action-based functors and their natural transformations
+(** Displayed monoidal categories
 
-The construction goes through a displayed bicategory over the bicategoy of (small) categories.
-
-Author: Ralph Matthes 2021
+Author: Benedikt Ahrens 2021
 
  *)
 
@@ -35,7 +33,7 @@ Proof.
   - apply C'.
 Defined.
 
-Notation "C ⊠ C'" := (categoryBinProduct C C').
+Local Notation "C ⊠ C'" := (categoryBinProduct C C').
 
 Section DispCartProdOfCats.
 
@@ -58,11 +56,11 @@ Section DispCartProdOfCats.
   Proof.
     use tpair.
     - intros x xx.
-      use tpair.
+      use make_dirprod.
       * apply id_disp.
       * apply id_disp.
     - intros aa' bb' cc' ff' gg'  xx' yy' zz' hh' ii'.
-      use tpair.
+      use make_dirprod.
       * apply (comp_disp (pr1 hh') (pr1 ii')).
       * apply (comp_disp (pr2 hh') (pr2 ii')).
   Defined.
@@ -109,12 +107,14 @@ Section DispCartProdOfCats.
       * simpl in *.
         etrans.
         apply id_left_disp.
-        etrans. 2: { apply disp_binprod_transportf_pr1. }.
+        etrans.
+        2: { apply disp_binprod_transportf_pr1. }
         apply transportf_paths.
         apply C.
       * simpl in *.
         etrans. apply id_left_disp.
-        etrans. 2: { apply disp_binprod_transportf_pr2. }.
+        etrans.
+        2: { apply disp_binprod_transportf_pr2. }
         apply transportf_paths.
         apply C'.
     - intros [a a'] [b b'] [f f'] [x x'] [y y'] [ff ff'].
@@ -123,12 +123,14 @@ Section DispCartProdOfCats.
       * simpl in *.
         etrans.
         apply id_right_disp.
-        etrans. 2: { apply disp_binprod_transportf_pr1. }.
+        etrans.
+        2: { apply disp_binprod_transportf_pr1. }
         apply transportf_paths.
         apply C.
       * simpl in *.
         etrans. apply id_right_disp.
-        etrans. 2: { apply disp_binprod_transportf_pr2. }.
+        etrans.
+        2: { apply disp_binprod_transportf_pr2. }
         apply transportf_paths.
         apply C'.
     - intros [a a'] [b b'] [c c'] [d d'] [f f'] [g g'] [h h'] [x x'] [y y'] [z z']
@@ -137,12 +139,14 @@ Section DispCartProdOfCats.
       apply dirprodeq.
       * simpl.
         etrans. apply assoc_disp.
-        etrans. 2: { apply disp_binprod_transportf_pr1. }.
+        etrans.
+        2: { apply disp_binprod_transportf_pr1. }
         apply transportf_paths.
         apply C.
       * simpl.
         etrans. apply assoc_disp.
-        etrans. 2: { apply disp_binprod_transportf_pr2. }.
+        etrans.
+        2: { apply disp_binprod_transportf_pr2. }
         apply transportf_paths.
         apply C'.
     - intros.
@@ -188,11 +192,11 @@ Section DispCartProfOfFunctors.
   Proof.
     use tpair.
     - intros aa' dd'.
-      use tpair.
+      use make_dirprod.
       + use G. apply (pr1 dd').
       + use G'. apply (pr2 dd').
     - cbn. intros aa' aa'' xx' yy' ff' gg'.
-      use tpair.
+      use make_dirprod.
       + apply #G. apply (pr1 gg').
       +  apply #G'. apply (pr2 gg').
   Defined.
@@ -265,17 +269,18 @@ Section FixDispTensor.
         * apply (pr2 r).
       + cbn in *.
         intros.
-
+(*
 
     (C ⊠ C) ⊠ C ⟶ C :=
   functor_composite (pair_functor tensor (functor_identity _)) tensor.
-
+ *)
+        Abort.
 
 End FixDispTensor.
 
 Section DisplayedMonoidal.
 
-  Definition DispMonoidalCat (V : monoidal_precat) : UU := unit.
+(*  Definition DispMonoidalCat (V : monoidal_precat) : UU := unit. *)
 
 
 End DisplayedMonoidal.
@@ -297,10 +302,10 @@ Section FixATensor.
   Context (C : category).
   Context (tensor : C ⊠ C ⟶ C).
   Context (D : disp_cat C).
-  Notation "X ⊗ Y" := (tensor (X , Y)).
-  Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
+  Local Notation "X ⊗ Y" := (tensor (X , Y)).
+  Local Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
 
-
+(*
   Definition disp_tensor_data : UU :=
     ∑ dmon_ob : ∏ (a b : C) (x : D a) (y : D b), D (a ⊗ b),
         ∏ (a b a' b' : C) (f : a --> a') (g : b --> b')
@@ -318,6 +323,7 @@ Section FixATensor.
     : disp_tensor_data_ob X x y -->[ f #⊗ g ] disp_tensor_data_ob X x' y'
     := pr2 X _ _ _ _ _ _ _ _ _ _ ff gg.
 
+*)
 (*
   Definition disp_tensor_axioms (X : disp_tensor_data) : UU
     :=
@@ -332,6 +338,7 @@ Section FixAMonoidalCategory.
   Context (Mon_V : monoidal_precat).
 
 Local Definition I : Mon_V := monoidal_precat_unit Mon_V.
+(*
 Local Definition tensor : Mon_V ⊠ Mon_V ⟶ Mon_V := monoidal_precat_tensor Mon_V.
 Notation "X ⊗ Y" := (tensor (X , Y)).
 Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
@@ -351,7 +358,7 @@ Local Definition ρ' : right_unitor tensor I := monoidal_precat_right_unitor Mon
           (x : D a) (y : D b) (x' : D a') (y' : D b')
           (ff : x -->[f] x') (gg : y -->[g] y'),
         dmon_ob _ _ x y -->[ f #⊗ g ] dmon_ob _ _ x' y'.
-
+*)
 
 
 End FixAMonoidalCategory.
