@@ -25,6 +25,7 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
+Require Import UniMath.CategoryTheory.Monoidal.DisplayedMonoidal.
 Require Import UniMath.CategoryTheory.Monoidal.EndofunctorsMonoidal.
 Require Import UniMath.CategoryTheory.Monoidal.Actions.
 Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrength.
@@ -552,7 +553,8 @@ End Upstream.
 
 Section Main.
 
-Context (Mon_V : monoidal_precat).
+  Context (Mon_V : monoidal_precat).
+  Context (hsV : has_homsets Mon_V).
 
 Local Definition I := monoidal_precat_unit Mon_V.
 Local Definition tensor := monoidal_precat_tensor Mon_V.
@@ -584,6 +586,7 @@ Local Definition postcompG {C: precategory} := post_composition_functor C _ _ hs
 Let H := param_distributivity_dom Mon_V hsA' FA' G.
 Let H' := param_distributivity_codom Mon_V hsA hsA' FA G.
 
+Definition montrafotarget_disp: disp_precat Mon_V := trafotarget_disp hsA' H H'.
 Definition montrafotarget_precat: precategory := trafotarget_precat hsA' H H'.
 
 Definition montrafotarget_unit: montrafotarget_precat.
@@ -782,7 +785,51 @@ Proof.
   exact auxhorcomp'.
 Qed.
 
-Definition montrafotarget_tensor_data: functor_data (montrafotarget_precat ⊠ montrafotarget_precat) montrafotarget_precat.
+
+Definition montrafotarget_disp_tensor: displayed_tensor (tensor: categoryBinProduct (pr1 Mon_V,,hsV) (pr1 Mon_V,,hsV) ⟶ Mon_V) montrafotarget_disp.
+Proof.
+  use tpair.
+  - use tpair.
+    + intros [v w] [η π].
+      exact (param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v w η π).
+    + intros [v w] [v' w'] [η π] [η' π'] [f g] [Hyp Hyp'].
+      apply montrafotarget_tensor_comp_aux; [exact Hyp | exact Hyp'].
+  - cbv beta in |- *.
+    split; intros; apply (isaset_nat_trans hsA').
+Defined.
+
+Definition montrafotarget_tensor_aux := total_functor montrafotarget_disp_tensor.
+
+(** unfortunately, the data has to be reorganized, but this is independent of the concrete situation *)
+Definition montrafotarget_tensor: montrafotarget_precat ⊠ montrafotarget_precat ⟶ montrafotarget_precat.
+Proof.
+  use make_functor.
+  - use make_functor_data.
+    + intros [[v η] [w π]].
+      apply montrafotarget_tensor_aux.
+      exists (v,,w). exact (η,,π).
+    + intros [[v η] [w π]] [[v' η'] [w' π']] [[f Hyp] [g Hyp']].
+      apply (# montrafotarget_tensor_aux).
+      exists (f,,g). exact (Hyp,,Hyp').
+  - split.
+    + intros [[v η] [w π]].
+      use total2_paths_f.
+      * cbn.
+        etrans.
+        { apply maponpaths. apply binprod_id. }
+        apply functor_id.
+      * apply (isaset_nat_trans hsA'). (** cheating: this depends on the precise situation *)
+    + intros [[v1 η1] [w1 π1]] [[v2 η2] [w2 π2]] [[v3 η3] [w3 π3]] [[f Hyp1] [g Hyp2]] [[f' Hyp1'] [g' Hyp2']].
+      use total2_paths_f.
+      * cbn.
+        etrans.
+        { apply maponpaths. apply binprod_comp. }
+        apply functor_comp.
+      * apply (isaset_nat_trans hsA'). (** cheating: this depends on the precise situation *)
+Defined.
+
+(** alternative "manual" definition *)
+Definition montrafotarget_tensor_alt_data: functor_data (montrafotarget_precat ⊠ montrafotarget_precat) montrafotarget_precat.
 Proof.
   use make_functor_data.
   + intro vηwπ.
@@ -798,7 +845,7 @@ Proof.
       apply montrafotarget_tensor_comp_aux; [exact Hyp | exact Hyp'].
 Defined.
 
-Lemma montrafotarget_tensor_data_is_functor: is_functor montrafotarget_tensor_data.
+Lemma montrafotarget_tensor_alt_data_is_functor: is_functor montrafotarget_tensor_alt_data.
 Proof.
   split.
   + intro vηwπ.
@@ -818,8 +865,8 @@ Proof.
 Qed.
 
 
-Definition montrafotarget_tensor: montrafotarget_precat ⊠ montrafotarget_precat ⟶ montrafotarget_precat :=
-  montrafotarget_tensor_data ,, montrafotarget_tensor_data_is_functor.
+Definition montrafotarget_tensor_alt: montrafotarget_precat ⊠ montrafotarget_precat ⟶ montrafotarget_precat :=
+  montrafotarget_tensor_alt_data ,, montrafotarget_tensor_alt_data_is_functor.
 
 (** we have the definition of the tensor product, but there are also six pending statements for the justification
     of the operations of the monoidal category - this does not concern their laws but their built-in proofs *)
