@@ -244,7 +244,7 @@ Section Upstream.
       - use tpair.
         + intro c. exact (η c).
         + intros c c' f.
-          red. unfold reindex_disp_cat, trafotarget_disp. hnf.
+          red. unfold trafotarget_disp. hnf.
           apply pathsinv0, nat_trans_ax.
       - split.
         + intro c.
@@ -337,8 +337,10 @@ Section Upstream.
       use total2_paths_f; simpl.
       - use total2_paths_f; simpl.
         + apply idpath.
-        + cbn.
+        + (* a bit of an overkill: a real proof of equality *)
+          cbn.
           do 3 (apply funextsec; intro).
+          (* show_id_type. *)
           apply pathsinv0inv0.
       - match goal with |- @paths ?ID _ _ => set (goaltype := ID); simpl in goaltype end.
         assert (Hprop: isaprop goaltype).
