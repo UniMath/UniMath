@@ -31,6 +31,12 @@ Require Import UniMath.CategoryTheory.Monoidal.Actions.
 Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrength.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalFromBicategory.
+Require Import UniMath.Bicategories.Core.Bicat.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfCatsWithoutUnivalence.
+
+Import Bicat.Notations.
+
 Local Open Scope cat.
 
 Section UpstreamAux.
@@ -553,6 +559,72 @@ Section Upstream.
 
 End Upstream.
 
+  Section SameInBicat.
+
+Context {C0 : precategory}.
+Context {C : bicat}.
+Context (a a' : ob C).
+
+Context (H H' : C0 ⟶ hom a a').
+
+  Definition trafotargetbicat_disp_cat_ob_mor: disp_cat_ob_mor C0.
+  Proof.
+    use make_disp_cat_ob_mor.
+    - intro c. exact (H c ==> H' c).
+    - intros c c' α β f.
+      exact (α · (# H' f) = (# H f) · β).
+  Defined.
+
+  Lemma trafotargetbicat_disp_cat_id_comp: disp_cat_id_comp C0 trafotargetbicat_disp_cat_ob_mor.
+  Proof.
+    split.
+    - intros c α.
+      red. unfold trafotargetbicat_disp_cat_ob_mor, make_disp_cat_ob_mor. hnf.
+      do 2 rewrite functor_id.
+      rewrite id_left. apply id_right.
+    - intros c1 c2 c3 f g α1 α2 α3 Hypf Hypg.
+      red. red in Hypf, Hypg.
+      unfold trafotargetbicat_disp_cat_ob_mor, make_disp_cat_ob_mor in Hypf, Hypg |- *.
+      hnf in Hypf, Hypg |- *.
+      do 2 rewrite functor_comp.
+      rewrite assoc.
+      rewrite Hypf.
+      rewrite <- assoc.
+      rewrite Hypg.
+      apply assoc.
+   Qed.
+
+  Definition trafotargetbicat_disp_cat_data: disp_cat_data C0 :=
+    trafotargetbicat_disp_cat_ob_mor ,, trafotargetbicat_disp_cat_id_comp.
+
+  Lemma trafotargetbicat_disp_cells_isaprop (x y : C0) (f : C0 ⟦ x, y ⟧)
+        (xx : trafotargetbicat_disp_cat_data x) (yy : trafotargetbicat_disp_cat_data y):
+    isaprop (xx -->[ f] yy).
+  Proof.
+    intros Hyp Hyp'.
+    apply (homset_property (hom_category a a')).
+  Qed.
+
+  Lemma trafotargetbicat_disp_cat_axioms: disp_cat_axioms C0 trafotargetbicat_disp_cat_data.
+  Proof.
+    repeat split; intros; try apply trafotargetbicat_disp_cells_isaprop.
+    apply isasetaprop.
+    apply trafotargetbicat_disp_cells_isaprop.
+  Qed.
+
+  Definition trafotargetbicat_disp: disp_precat C0 := trafotargetbicat_disp_cat_data ,, trafotargetbicat_disp_cat_axioms.
+
+  Definition trafotargetbicat_precat: precategory := total_precategory trafotargetbicat_disp.
+
+  Definition has_homsets_trafotargetbicat_precat (hsC0: has_homsets C0): has_homsets trafotargetbicat_precat.
+  Proof.
+    apply (total_category_has_homsets(C:=C0,,hsC0) trafotargetbicat_disp).
+  Defined.
+
+  Definition forget_from_trafotargetbicat: trafotargetbicat_precat ⟶ C0 := pr1_category trafotargetbicat_disp.
+
+  End SameInBicat.
+
 Section Main.
 
   Context (Mon_V : monoidal_precat).
@@ -562,15 +634,47 @@ Local Definition I := monoidal_precat_unit Mon_V.
 Local Definition tensor := monoidal_precat_tensor Mon_V.
 Notation "X ⊗ Y" := (tensor (X , Y)).
 
-Section Action.
+Section ActionViaBicat.
 
-Context {A: precategory}.
-Context (hsA : has_homsets A).
+Context {C : bicat}.
+Context (a0 : ob C).
 
-Context (FA: strong_monoidal_functor Mon_V (monoidal_precat_of_endofunctors hsA)).
+Context (FA: strong_monoidal_functor Mon_V (monoidal_precat_from_prebicat_and_ob a0)).
 
+End ActionViaBicat.
 
-End Action.
+Section FunctorViaBicat.
+
+Context {C : bicat}.
+Context {a0 a0' : ob C}.
+
+Context (FA: strong_monoidal_functor Mon_V (monoidal_precat_from_prebicat_and_ob a0)).
+Context (FA': strong_monoidal_functor Mon_V (monoidal_precat_from_prebicat_and_ob a0')).
+
+Context (G : hom a0 a0').
+
+Definition H : functor Mon_V (hom a0 a0') :=
+  functor_compose (homset_property (hom_category a0' a0')) (homset_property (hom_category a0 a0'))
+                  (pr11 FA') (functor_fix_fst_arg _ _ _ hcomp_functor G).
+
+Definition H' : functor Mon_V (hom a0 a0') :=
+  functor_compose (homset_property (hom_category a0 a0)) (homset_property (hom_category a0 a0'))
+                  (pr11 FA) (functor_fix_snd_arg _ _ _ hcomp_functor G).
+
+Definition montrafotargetbicat_disp: disp_precat Mon_V := trafotargetbicat_disp a0 a0' H H'.
+Definition montrafotargetbicat_precat: precategory := trafotargetbicat_precat a0 a0' H H'.
+
+(*
+Definition montrafotargetbicat_unit: montrafotargetbicat_precat.
+Proof.
+  exists I.
+  set (t1 := lwhisker G (strong_monoidal_functor_ϵ_inv FA')).
+  set (t2 := rwhisker G (lax_monoidal_functor_ϵ FA)).
+  exact (vcomp2 t1 t2). -- not type-correct, needs correcting terms
+Defined.
+*)
+
+End FunctorViaBicat.
 
 Section Functor.
 
