@@ -227,8 +227,29 @@ Section DispCartProdOfFunctors.
 
 End DispCartProdOfFunctors.
 
+Section DispAssocFunctors.
 
+  Context (A B C : category)
+          (DA : disp_cat A)
+          (DB : disp_cat B)
+          (DC : disp_cat C).
 
+  Definition disp_assoc_data :
+    disp_functor_data (precategory_binproduct_assoc A B C)
+                      (DA ⊠⊠ (DB ⊠⊠ DC))
+                      ((DA ⊠⊠ DB) ⊠⊠ DC).
+  Proof.
+    use tpair.
+    - intros abc dabc.
+      exact ( (pr1 dabc,,pr12 dabc) ,, pr22 dabc).
+    - intros abc abc' xx yy f g.
+      exact ( (pr1 g,,pr12 g) ,, pr22 g).
+  Defined.
+
+  (* Type error - due to precategory vs category?
+  Lemma disp_assoc_axioms : disp_functor_axioms disp_assoc_data.
+  Abort.
+   *)
 
 Definition displayed_tensor {C : category}
            (tensor : C ⊠ C ⟶ C)
@@ -245,7 +266,7 @@ Section FixDispTensor.
           (disp_tensor : displayed_tensor tensor D).
 
   Let al : functor _ _ := assoc_left tensor.
-  Let ar : functor _ _ := assoc_right tensor. (* Problem: this one is the same as [al]! *)
+  Let ar : functor _ _ := assoc_right tensor.
 
   Definition disp_assoc_left : @disp_functor ((C ⊠ C) ⊠ C) C al  ((D ⊠⊠ D) ⊠⊠ D) D .
   Proof.
@@ -256,6 +277,12 @@ Section FixDispTensor.
       + use disp_functor_identity.
     - use disp_tensor.
   Defined.
+
+
+  (* TODO: why unassoc? *)
+  Definition disp_category_binproduct_unassoc
+
+
 
   (* Should work modulo changes in proof once [ar] is correct.
   Definition disp_assoc_right : @disp_functor (C ⊠ (C ⊠ C)) C ar  (D ⊠⊠ (D ⊠⊠ D)) D .
