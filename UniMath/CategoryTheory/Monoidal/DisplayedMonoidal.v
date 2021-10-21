@@ -39,9 +39,6 @@ Notation "C ⊠ C'" := (categoryBinProduct C C').
 
 Section DispCartProdOfCats.
 
-
-(* TODO: give definitions with minimal hypotheses, e.g., only with disp_cat_ob_mor *)
-
   Context {C C' : category}
           (D : disp_cat C)
           (D' : disp_cat C').
@@ -171,7 +168,7 @@ Proof.
   apply idpath.
 Qed.
 
-Section DispCartProfOfFunctors.
+Section DispCartProdOfFunctors.
 
   Context {A A' C C' : category}
           {F : functor A C}
@@ -228,7 +225,7 @@ Section DispCartProfOfFunctors.
     @disp_functor (A ⊠ A') (C ⊠ C')  (pair_functor F F') (D ⊠⊠ D') (E ⊠⊠ E')
     :=  disp_pair_functor_data ,, disp_pair_functor_axioms.
 
-End DispCartProfOfFunctors.
+End DispCartProdOfFunctors.
 
 
 
@@ -248,110 +245,30 @@ Section FixDispTensor.
           (disp_tensor : displayed_tensor tensor D).
 
   Let al : functor _ _ := assoc_left tensor.
-
-  (* TODO: Instead of constructing by hand, better to build from components like pair_disp_functor and composition of displayed functors *)
+  Let ar : functor _ _ := assoc_right tensor. (* Problem: this one is the same as [al]! *)
 
   Definition disp_assoc_left : @disp_functor ((C ⊠ C) ⊠ C) C al  ((D ⊠⊠ D) ⊠⊠ D) D .
   Proof.
-    use tpair.
-    - use tpair.
-      + intros x r.
-        apply disp_tensor.
-        cbn.
-        simpl in r.
-        use make_dirprod.
-        * apply disp_tensor.
-          apply (pr1 r).
-        * apply (pr2 r).
-      + cbn in *.
-        intros.
+    use disp_functor_composite.
+    - use (disp_binprod D D).
+    - use disp_pair_functor.
+      + use disp_tensor.
+      + use disp_functor_identity.
+    - use disp_tensor.
+  Defined.
 
+  (* Should work modulo changes in proof once [ar] is correct.
+  Definition disp_assoc_right : @disp_functor (C ⊠ (C ⊠ C)) C ar  (D ⊠⊠ (D ⊠⊠ D)) D .
+  Proof.
+    use disp_functor_composite.
+    - use (disp_binprod D D).
+    - use disp_pair_functor.
+      + use disp_tensor.
+      + use disp_functor_identity.
+    - use disp_tensor.
+  Defined.
+*)
 
-    (C ⊠ C) ⊠ C ⟶ C :=
-  functor_composite (pair_functor tensor (functor_identity _)) tensor.
 
 
 End FixDispTensor.
-
-Section DisplayedMonoidal.
-
-  Definition DispMonoidalCat (V : monoidal_precat) : UU := unit.
-
-
-End DisplayedMonoidal.
-
-
-
-
-
-
-
-
-
-(* This is not a good approach. In the very least, one could use different categories
-   C, D, E in as in C ⊠ D ⟶ E
-*)
-
-Section FixATensor.
-
-  Context (C : category).
-  Context (tensor : C ⊠ C ⟶ C).
-  Context (D : disp_cat C).
-  Notation "X ⊗ Y" := (tensor (X , Y)).
-  Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
-
-
-  Definition disp_tensor_data : UU :=
-    ∑ dmon_ob : ∏ (a b : C) (x : D a) (y : D b), D (a ⊗ b),
-        ∏ (a b a' b' : C) (f : a --> a') (g : b --> b')
-          (x : D a) (y : D b) (x' : D a') (y' : D b')
-          (ff : x -->[f] x') (gg : y -->[g] y'),
-        dmon_ob _ _ x y -->[ f #⊗ g ] dmon_ob _ _ x' y'.
-
-  Definition disp_tensor_data_ob (X : disp_tensor_data) {a b : C} x y
-    : D (a ⊗ b) := pr1 X a b x y.
-
-  Definition disp_tensor_data_mor (X : disp_tensor_data)
-             {a b a' b' : C} {f : a --> a'} {g : b --> b'}
-             {x : D a} {y : D b} {x' : D a'} {y' : D b'}
-             {ff : x -->[f] x'} {gg : y -->[g] y'}
-    : disp_tensor_data_ob X x y -->[ f #⊗ g ] disp_tensor_data_ob X x' y'
-    := pr2 X _ _ _ _ _ _ _ _ _ _ ff gg.
-
-(*
-  Definition disp_tensor_axioms (X : disp_tensor_data) : UU
-    :=
-    ∏ (a : C) (x : D a)
-*)
-
-End FixATensor.
-
-
-Section FixAMonoidalCategory.
-
-  Context (Mon_V : monoidal_precat).
-
-Local Definition I : Mon_V := monoidal_precat_unit Mon_V.
-Local Definition tensor : Mon_V ⊠ Mon_V ⟶ Mon_V := monoidal_precat_tensor Mon_V.
-Notation "X ⊗ Y" := (tensor (X , Y)).
-Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
-Local Definition α' : associator tensor := monoidal_precat_associator Mon_V.
-Local Definition λ' : left_unitor tensor I := monoidal_precat_left_unitor Mon_V.
-Local Definition ρ' : right_unitor tensor I := monoidal_precat_right_unitor Mon_V.
-
-
-
-
-
-  Context (D : disp_precat Mon_V).
-
-  Definition disp_monoidal_data_ob_mor : UU :=
-    ∑ dmon_ob : ∏ (a b : Mon_V) (x : D a) (y : D b), D (a ⊗ b),
-        ∏ (a b a' b' : Mon_V) (f : a --> a') (g : b --> b')
-          (x : D a) (y : D b) (x' : D a') (y' : D b')
-          (ff : x -->[f] x') (gg : y -->[g] y'),
-        dmon_ob _ _ x y -->[ f #⊗ g ] dmon_ob _ _ x' y'.
-
-
-
-End FixAMonoidalCategory.
