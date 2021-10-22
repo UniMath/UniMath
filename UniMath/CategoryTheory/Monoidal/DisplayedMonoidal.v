@@ -14,9 +14,6 @@ Require Import UniMath.CategoryTheory.FunctorCategory.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
-Require Import UniMath.CategoryTheory.Monoidal.Actions.
-Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrength.
-Require Import UniMath.CategoryTheory.Monoidal.ActionBasedStrongFunctorCategory.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 
 
@@ -261,6 +258,7 @@ Definition displayed_tensor {C : category}
   : UU
   := disp_functor tensor (disp_binprod D D) D.
 
+End DispAssocFunctors.
 
 Section FixDispTensor.
 
@@ -283,10 +281,6 @@ Section FixDispTensor.
   Defined.
 
 
-  (* TODO: why unassoc? *)
-  Definition disp_category_binproduct_unassoc
-
-
 
   (* Should work modulo changes in proof once [ar] is correct.
   Definition disp_assoc_right : @disp_functor (C ⊠ (C ⊠ C)) C ar  (D ⊠⊠ (D ⊠⊠ D)) D .
@@ -302,4 +296,3 @@ Section FixDispTensor.
 
 
 End FixDispTensor.
-
