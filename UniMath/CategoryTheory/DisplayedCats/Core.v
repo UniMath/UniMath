@@ -1259,7 +1259,44 @@ Qed.
 Definition lifted_functor {C C' : category} {D : disp_cat C}
   {F : functor C' C} (FF : functor_lifting D F)
   : functor C' (total_category D)
-:= (_ ,, lifted_functor_axioms FF).
+  := (_ ,, lifted_functor_axioms FF).
+
+Lemma from_lifted_functor {C C' : category} {D : disp_cat C}
+      {F : functor C' C} (FF : functor_lifting D F):
+  functor_composite (lifted_functor FF) (pr1_category D) = F.
+Proof.
+  use (functor_eq _ _ (homset_property C)). apply idpath.
+Qed.
+
+(** redo the development for the special case that F is the identity *)
+Definition section_functor_data {C : category} {D : disp_cat C} (sd : section_disp D)
+  : functor_data C (total_category D).
+Proof.
+  exists (λ x, (x ,, sd x)).
+  intros x y f. exists f. exact (section_disp_on_morphisms sd f).
+Defined.
+
+Definition section_functor_axioms {C : category} {D : disp_cat C} (sd : section_disp D)
+  : is_functor (section_functor_data sd).
+Proof.
+  split.
+  - intro x. use total2_paths_f; simpl.
+    + apply idpath.
+    + apply (section_disp_id sd).
+  - intros x y z f g. use total2_paths_f; simpl.
+    + apply idpath.
+    + apply (section_disp_comp sd).
+Qed.
+
+Definition section_functor {C : category} {D : disp_cat C} (sd : section_disp D):
+  functor C (total_category D) :=
+  section_functor_data sd,, section_functor_axioms sd.
+
+Lemma from_section_functor {C : category} {D : disp_cat C} (sd : section_disp D):
+  functor_composite (section_functor sd) (pr1_category D) = functor_identity C.
+Proof.
+  use (functor_eq _ _ (homset_property C)). apply idpath.
+Qed.
 
 End Functor_Lifting.
 

@@ -83,7 +83,7 @@ Definition actionbased_strength_pentagon_eq (ϛ : actionbased_strength_nat): UU 
   (χ' ((F a, v), w)) · ϛ (a, v ⊗ w) =
   (ϛ (a, v)) #⊙' (id w) · (ϛ (a ⊙ v, w)) · (#F (χ ((a, v), w))).
 
-(** the original notion in Fiore's LICS'08 paper *)
+(** the notion in Fiore's LICS'08 paper *)
 Definition actionbased_strength_pentagon_eq_variant1 (ϛ : actionbased_strength_nat): UU := ∏ (a : A), ∏ (v w : Mon_V),
   ϛ (a, v ⊗ w) =
   (nat_z_iso_to_trans_inv χ' ((F a, v), w)) · (ϛ (a, v)) #⊙' (id w) · (ϛ (a ⊙ v, w)) · (#F (χ ((a, v), w))).
@@ -325,64 +325,31 @@ Section Alternative_Definition.
 
 Section Param_Distr.
 
-  Context (F : functor A A').
+  Context (F : [A, A', hsA']).
+
+  Local Definition precompF := pre_composition_functor _ _ _ hsA' hsA' F.
+  Local Definition postcompF {C: precategory} := post_composition_functor C _ _ hsA hsA' F.
 
   (** a parameterized form of distributivity as strength *)
-  Definition param_distributivity_dom : functor Mon_V [A, A', hsA'].
-  Proof.
-    use make_functor.
-    - use make_functor_data.
-      + intro v. exact (functor_composite F (FA' v)).
-      + intros v v' f.
-        exact (pre_whisker F (# FA' f)).
-    - split.
-      + intro v.
-        (* UniMath.MoreFoundations.Tactics.show_id_type. *)
-        apply nat_trans_eq; try exact hsA'.
-        intro a.
-        cbn.
-        assert (aux := functor_id FA' v).
-        apply (maponpaths pr1) in aux.
-        apply toforallpaths in aux.
-        rewrite aux.
-        apply idpath.
-      + intros v1 v2 v3 f g.
-        apply nat_trans_eq; try exact hsA'.
-        intro a.
-        cbn.
-        assert (aux := functor_comp FA' f g).
-        apply (maponpaths pr1) in aux.
-        apply toforallpaths in aux.
-        apply aux.
-  Defined.
+  Definition param_distributivity_dom : functor Mon_V [A, A', hsA'] :=
+    functor_compose (functor_category_has_homsets _ _ hsA')
+                    (functor_category_has_homsets _ _ hsA') (pr11 FA') precompF.
 
-  Definition param_distributivity_codom : functor Mon_V [A, A', hsA'].
-    Proof.
-    use make_functor.
-    - use make_functor_data.
-      + intro v. exact (functor_composite (FA v) F).
-      + intros v v' f.
-        exact (post_whisker (# FA f) F).
-    - split.
-      + intro v.
-        apply nat_trans_eq; try exact hsA'.
-        intro a.
-        cbn.
-        assert (aux := functor_id FA v).
-        apply (maponpaths pr1) in aux.
-        apply toforallpaths in aux.
-        rewrite aux.
-        apply functor_id.
-      + intros v1 v2 v3 f g.
-        apply nat_trans_eq; try exact hsA'.
-        intro a.
-        cbn.
-        assert (aux := functor_comp FA f g).
-        apply (maponpaths pr1) in aux.
-        apply toforallpaths in aux.
-        rewrite aux.
-        apply functor_comp.
-    Defined.
+  Goal ∏ v, param_distributivity_dom v = functor_compose hsA' hsA' F (FA' v).
+  Proof.
+    intro v.
+    apply idpath.
+  Qed.
+
+  Definition param_distributivity_codom : functor Mon_V [A, A', hsA'] :=
+    functor_compose (functor_category_has_homsets _ _ hsA)
+                    (functor_category_has_homsets _ _ hsA') (pr11 FA) postcompF.
+
+  Goal ∏ v, param_distributivity_codom v = functor_compose hsA hsA' (FA v) F.
+  Proof.
+    intro v.
+    apply idpath.
+  Qed.
 
     Definition parameterized_distributivity_nat : UU := param_distributivity_dom ⟹ param_distributivity_codom.
 
@@ -393,54 +360,73 @@ Section Param_Distr.
 
 Section The_Laws.
 
-    Context (δ : parameterized_distributivity_nat).
+  Context (δ : parameterized_distributivity_nat).
 
-    Definition param_distr_triangle_eq : UU :=
-      nat_trans_comp _ _ _ (pre_whisker F (lax_monoidal_functor_ϵ FA')) (δ I) =
-      post_whisker (lax_monoidal_functor_ϵ FA) F.
+  Definition param_distr_triangle_eq : UU :=
+      # precompF (lax_monoidal_functor_ϵ FA') · (δ I) = # postcompF (lax_monoidal_functor_ϵ FA).
+
+    (** the type of the following def. is the same as that of [δ I], as seen from the definition that comes
+        directly afterwards *)
+    Definition param_distr_triangle_eq_variant0_RHS :=
+      # precompF (strong_monoidal_functor_ϵ_inv FA') · # postcompF (lax_monoidal_functor_ϵ FA).
+
+    Definition param_distr_triangle_eq_variant0 : UU := δ I = param_distr_triangle_eq_variant0_RHS.
 
     Definition param_distr_triangle_eq_variant : UU :=
-      nat_trans_comp _ _ _ (δ I) (post_whisker (strong_monoidal_functor_ϵ_inv FA) F)  =
-      pre_whisker F (strong_monoidal_functor_ϵ_inv FA').
+      (δ I) · (# postcompF (strong_monoidal_functor_ϵ_inv FA))  =
+      # precompF (strong_monoidal_functor_ϵ_inv FA').
 
-
-    Definition aux1_param_distr_triangle_eq_variant : z_iso (functor_compose hsA hsA' (FA I: functor A A) F)(functor_composite (MonoidalFunctors.I_D Mon_EndA) F).
+    Definition postwhisker_with_ϵ_inv_z_iso :
+      z_iso (postcompF (FA (MonoidalFunctors.I_C Mon_V))) (postcompF (MonoidalFunctors.I_D Mon_EndA)).
     Proof.
+      apply functor_on_z_iso.
       use tpair.
-      - exact (post_whisker (strong_monoidal_functor_ϵ_inv FA) F).
-      - cbn.
-        apply nat_trafo_z_iso_if_pointwise_z_iso.
-        apply post_whisker_z_iso_is_z_iso.
-        apply (nat_trafo_pointwise_z_iso_if_z_iso _ (pr1 (strong_monoidal_functor_ϵ_is_z_iso FA))).
+      - exact (strong_monoidal_functor_ϵ_inv FA).
+      - cbn beta in |- *.
         apply is_z_isomorphism_inv.
     Defined.
 
-    Definition aux2_param_distr_triangle_eq_variant : z_iso (functor_compose hsA' hsA' F (FA' (MonoidalFunctors.I_C Mon_V)))(functor_composite F (MonoidalFunctors.I_D Mon_EndA')).
+    Definition prewhisker_with_ϵ_inv_z_iso :
+      z_iso (precompF (FA' (MonoidalFunctors.I_C Mon_V))) (precompF (MonoidalFunctors.I_D Mon_EndA')).
     Proof.
+      apply functor_on_z_iso.
       use tpair.
-      - exact (pre_whisker F (strong_monoidal_functor_ϵ_inv FA')).
-      - cbn.
-        apply nat_trafo_z_iso_if_pointwise_z_iso.
-        apply pre_whisker_on_nat_z_iso.
-        apply (nat_trafo_pointwise_z_iso_if_z_iso _ (pr1 (strong_monoidal_functor_ϵ_is_z_iso FA'))).
+      - exact (strong_monoidal_functor_ϵ_inv FA').
+      - cbn beta in |- *.
         apply is_z_isomorphism_inv.
     Defined.
+
+    Lemma param_distr_triangle_eq_variant0_follows :
+      param_distr_triangle_eq -> param_distr_triangle_eq_variant0.
+    Proof.
+      intro Hyp.
+      red.
+      unfold param_distr_triangle_eq_variant0_RHS.
+      apply pathsinv0 in Hyp.
+      apply (z_iso_inv_to_left _ _ _ prewhisker_with_ϵ_inv_z_iso).
+      apply pathsinv0.
+      exact Hyp.
+    Qed.
+
+    Lemma param_distr_triangle_eq_variant0_implies :
+      param_distr_triangle_eq_variant0 -> param_distr_triangle_eq.
+    Proof.
+      intro Hyp.
+      red in Hyp.
+      unfold param_distr_triangle_eq_variant0_RHS in Hyp.
+      apply (z_iso_inv_on_right _ _ _ prewhisker_with_ϵ_inv_z_iso) in Hyp.
+      red.
+      exact Hyp.
+    Qed.
 
     Lemma param_distr_triangle_eq_variant_follows :
       param_distr_triangle_eq -> param_distr_triangle_eq_variant.
     Proof.
       intro Hyp.
       red.
-      apply (z_iso_inv_to_right _ _ _ _ aux1_param_distr_triangle_eq_variant).
-      apply (z_iso_inv_to_left _ _ _ aux2_param_distr_triangle_eq_variant).
-      cbn.
-      apply nat_trans_eq; try exact hsA'.
-      intro a.
-      cbn.
-      red in Hyp.
-      apply (maponpaths pr1) in Hyp.
-      apply toforallpaths in Hyp.
-      apply Hyp.
+      apply (z_iso_inv_to_right _ _ _ _ postwhisker_with_ϵ_inv_z_iso).
+      apply (z_iso_inv_to_left _ _ _ prewhisker_with_ϵ_inv_z_iso).
+      exact Hyp.
     Qed.
 
     Lemma param_distr_triangle_eq_variant_implies :
@@ -449,36 +435,77 @@ Section The_Laws.
       intro Hyp.
       red in Hyp.
       apply pathsinv0 in Hyp.
-      apply (z_iso_inv_on_left _ _ _ _ aux1_param_distr_triangle_eq_variant) in Hyp.
-      apply (z_iso_inv_on_right _ _ _ aux2_param_distr_triangle_eq_variant) in Hyp.
-      red.
-      apply nat_trans_eq; try exact hsA'.
-      intro a.
-      cbn.
-      apply (maponpaths pr1) in Hyp.
-      apply toforallpaths in Hyp.
-      apply Hyp.
+      apply (z_iso_inv_on_left _ _ _ _ postwhisker_with_ϵ_inv_z_iso) in Hyp.
+      apply (z_iso_inv_on_right _ _ _ prewhisker_with_ϵ_inv_z_iso) in Hyp.
+      exact Hyp.
     Qed.
 
+    (** we also abstract over the constituent distributivities *)
+    Definition param_distr_pentagon_eq_body_RHS (v w : Mon_V)
+               (dv: [A, A', hsA'] ⟦ param_distributivity_dom v, param_distributivity_codom v ⟧)
+               (dw: [A, A', hsA'] ⟦ param_distributivity_dom w, param_distributivity_codom w ⟧) :
+      [A, A', hsA']
+        ⟦ precompF (monoidal_functor_map_dom Mon_V Mon_EndA' FA' (v,, w)),
+          postcompF (monoidal_functor_map_codom Mon_V Mon_EndA FA (v,, w))⟧.
+    Proof.
+      set (aux1 := # (post_composition_functor _ _ _ hsA' hsA' (FA' w)) dv).
+      set (aux2 := # (pre_composition_functor _ _ _ hsA hsA' (FA v)) dw).
+      set (aux3 := # postcompF (lax_monoidal_functor_μ FA (v,,w))).
+      set (auxr := aux1 · aux2).
+      exact (auxr · aux3).
+    Defined.
 
-    Definition param_distr_pentagon_eq_body (v w : Mon_V) : UU :=
-      nat_trans_comp _ _ _ (pre_whisker F (lax_monoidal_functor_μ FA' (v,,w))) (δ (v ⊗ w)) =
-      nat_trans_comp _ _ _ (nat_trans_comp _ _ _ (post_whisker (δ v) (FA' w))
-                                           (pre_whisker (FA v: functor A A) (δ w)))
-                     (post_whisker (lax_monoidal_functor_μ FA (v,,w)) F).
-
-(*
-      set (aux1 := pre_whisker F (lax_monoidal_functor_μ FA' (v,,w))).
-      set (aux2 := δ (v ⊗ w)).
-      set (auxl := nat_trans_comp _ _ _ aux1 aux2).
-      set (aux3 := post_whisker (δ v) (FA' w)).
-      set (aux4 := pre_whisker (FA v: functor A A) (δ w)).
-      set (aux5 := post_whisker (lax_monoidal_functor_μ FA (v,,w)) F).
-      set (auxr1 := nat_trans_comp _ _ _ aux3 aux4).
-      set (auxr := nat_trans_comp _ _ _ auxr1 aux5).
-*)
+    Definition param_distr_pentagon_eq_body (v w : Mon_V) : UU.
+    Proof.
+      set (aux := # precompF (lax_monoidal_functor_μ FA' (v,,w))).
+      exact (aux · δ (v ⊗ w) = param_distr_pentagon_eq_body_RHS v w (δ v) (δ w)).
+    Defined.
 
     Definition param_distr_pentagon_eq : UU := ∏ (v w : Mon_V), param_distr_pentagon_eq_body v w.
+
+    Definition param_distr_pentagon_eq_body_variant_RHS (v w : Mon_V)
+               (dv: [A, A', hsA'] ⟦ param_distributivity_dom v, param_distributivity_codom v ⟧)
+               (dw: [A, A', hsA'] ⟦ param_distributivity_dom w, param_distributivity_codom w ⟧) :
+      [A, A', hsA'] ⟦ param_distributivity_dom (v ⊗ w), param_distributivity_codom (v ⊗ w) ⟧.
+    Proof.
+      set (aux1inv := # precompF (strong_monoidal_functor_μ_inv FA' (v,,w))).
+      exact (aux1inv · (param_distr_pentagon_eq_body_RHS v w dv dw)).
+    Defined.
+
+    Definition param_distr_pentagon_eq_body_variant (v w : Mon_V): UU :=
+      δ (v ⊗ w) = param_distr_pentagon_eq_body_variant_RHS v w (δ v) (δ w).
+
+    Definition prewhisker_with_μ_inv_z_iso (v w : Mon_V):
+      z_iso (precompF (monoidal_functor_map_codom Mon_V Mon_EndA' FA' (v,, w)))
+            (precompF (monoidal_functor_map_dom Mon_V Mon_EndA' FA' (v,, w))).
+    Proof.
+      use tpair.
+      - exact (# precompF (strong_monoidal_functor_μ_inv FA' (v,,w))).
+      - cbn beta in |- *.
+        apply functor_on_is_z_isomorphism.
+        apply is_z_isomorphism_inv.
+    Defined.
+
+    Lemma param_distr_pentagon_eq_body_variant_follows (v w : Mon_V):
+      param_distr_pentagon_eq_body v w -> param_distr_pentagon_eq_body_variant v w.
+    Proof.
+      intro Hyp.
+      red.
+      unfold param_distr_pentagon_eq_body_variant_RHS.
+      apply (z_iso_inv_to_left _ _ _ (prewhisker_with_μ_inv_z_iso v w)).
+      exact Hyp.
+    Qed.
+
+    Lemma param_distr_pentagon_eq_body_variant_implies (v w : Mon_V):
+      param_distr_pentagon_eq_body_variant v w -> param_distr_pentagon_eq_body v w.
+    Proof.
+      intro Hyp.
+      red in Hyp.
+      unfold param_distr_pentagon_eq_body_variant_RHS in Hyp.
+      apply (z_iso_inv_on_right _ _ _ (prewhisker_with_μ_inv_z_iso v w)) in Hyp.
+      exact Hyp.
+    Qed.
+
 
     Lemma isaprop_param_distr_triangle_eq : isaprop param_distr_triangle_eq.
     Proof.
