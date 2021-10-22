@@ -1014,6 +1014,8 @@ Definition hom
 
 End Hom_Spaces.
 
+Definition hom_category {C : bicat} (a b : C) : category := hom a b ,, @cellset_property C a b.
+
 (* ----------------------------------------------------------------------------------- *)
 (** ** Functor structure on horizontal composition.                                    *)
 (* ----------------------------------------------------------------------------------- *)

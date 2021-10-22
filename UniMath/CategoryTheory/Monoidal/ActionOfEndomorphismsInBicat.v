@@ -117,7 +117,7 @@ Section Instantiation_To_Bicategory_Of_Categories.
     apply idpath.
    *)
 
-  Lemma actfromprecomp_odot_pointwise_ok (g : functor C D) (f: functor C C) : pr1 actfromprecomp (g,,f) = (binswap_pair_functor ∙ (functorial_composition C C D hs hsD)) (g,,f).
+  Lemma actfromprecomp_odot_pointwise_ok (g : functor C D) (f: functor C C) : pr1 actfromprecomp (g,,f) = (binswap_pair_functor ∙ (functorial_composition hs hsD)) (g,,f).
   Proof.
     cbn.
     apply idpath.

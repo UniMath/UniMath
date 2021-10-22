@@ -652,13 +652,13 @@ Proof.
     intro T.
     (* match goal with | [ |- ?l = _ ] => let ty:= (type of l) in idtac ty end. *)
     apply (invmap (eq_ptd_mor_precat _ hs _ _)).
-    apply (invmap (eq_ptd_mor _ hs _ _)).
+    apply (invmap (eq_ptd_mor hs _ _)).
     (* match goal with | [ |- ?l = _ ] => let ty:= (type of l) in idtac ty end. *)
     apply idpath.
   + unfold functor_compax.
     intros T T' T'' β β'.
     apply (invmap (eq_ptd_mor_precat _ hs _ _)).
-    apply (invmap (eq_ptd_mor _ hs _ _)).
+    apply (invmap (eq_ptd_mor hs _ _)).
     apply idpath.
 Qed.
 

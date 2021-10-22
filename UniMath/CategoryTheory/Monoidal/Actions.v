@@ -196,9 +196,7 @@ Section Alternative_Definition.
         cbn.
         rewrite functor_comp.
         rewrite <- assoc.
-        apply maponpaths.
-        cbn.
-        apply nat_trans_ax.
+        apply idpath.
     - intro auv.
       use make_is_z_isomorphism.
       + apply identity.
@@ -246,7 +244,7 @@ Section Alternative_Definition.
     apply toforallpaths in Hunital1.
     assert (Hunital1inst := Hunital1 a).
     cbn in Hunital1inst.
-    rewrite id_left in Hunital1inst.
+    rewrite id_right in Hunital1inst.
     unfold MonoidalFunctors.λ_C in Hunital1inst.
     apply pathsinv0.
     transparent assert (aux: (is_z_isomorphism (# (FF v: functor A A) (ϵ_inv a)))).
@@ -288,9 +286,9 @@ Section Alternative_Definition.
     assert (Hassocinst := Hassoc a).
     clear Hassoc.
     cbn in Hassocinst.
-    do 2 rewrite id_left in Hassocinst.
-    rewrite functor_id in Hassocinst.
-    rewrite id_right in Hassocinst.
+    rewrite id_right, id_left in Hassocinst.
+    do 2 rewrite functor_id in Hassocinst.
+    rewrite id_left in Hassocinst.
     apply pathsinv0.
     exact Hassocinst.
   Qed.

@@ -1,8 +1,6 @@
-(** Constructs the bicategory of actions, strong action-based functors and their natural transformations
+(** Displayed monoidal categories
 
-The construction goes through a displayed bicategory over the bicategoy of (small) categories.
-
-Author: Ralph Matthes 2021
+Author: Benedikt Ahrens 2021
 
  *)
 
@@ -35,7 +33,7 @@ Proof.
   - apply C'.
 Defined.
 
-Notation "C ⊠ C'" := (categoryBinProduct C C').
+Local Notation "C ⊠ C'" := (categoryBinProduct C C').
 
 Section DispCartProdOfCats.
 
@@ -55,11 +53,11 @@ Section DispCartProdOfCats.
   Proof.
     use tpair.
     - intros x xx.
-      use tpair.
+      use make_dirprod.
       * apply id_disp.
       * apply id_disp.
     - intros aa' bb' cc' ff' gg'  xx' yy' zz' hh' ii'.
-      use tpair.
+      use make_dirprod.
       * apply (comp_disp (pr1 hh') (pr1 ii')).
       * apply (comp_disp (pr2 hh') (pr2 ii')).
   Defined.
@@ -106,12 +104,14 @@ Section DispCartProdOfCats.
       * simpl in *.
         etrans.
         apply id_left_disp.
-        etrans. 2: { apply disp_binprod_transportf_pr1. }.
+        etrans.
+        2: { apply disp_binprod_transportf_pr1. }
         apply transportf_paths.
         apply C.
       * simpl in *.
         etrans. apply id_left_disp.
-        etrans. 2: { apply disp_binprod_transportf_pr2. }.
+        etrans.
+        2: { apply disp_binprod_transportf_pr2. }
         apply transportf_paths.
         apply C'.
     - intros [a a'] [b b'] [f f'] [x x'] [y y'] [ff ff'].
@@ -120,12 +120,14 @@ Section DispCartProdOfCats.
       * simpl in *.
         etrans.
         apply id_right_disp.
-        etrans. 2: { apply disp_binprod_transportf_pr1. }.
+        etrans.
+        2: { apply disp_binprod_transportf_pr1. }
         apply transportf_paths.
         apply C.
       * simpl in *.
         etrans. apply id_right_disp.
-        etrans. 2: { apply disp_binprod_transportf_pr2. }.
+        etrans.
+        2: { apply disp_binprod_transportf_pr2. }
         apply transportf_paths.
         apply C'.
     - intros [a a'] [b b'] [c c'] [d d'] [f f'] [g g'] [h h'] [x x'] [y y'] [z z']
@@ -134,12 +136,14 @@ Section DispCartProdOfCats.
       apply dirprodeq.
       * simpl.
         etrans. apply assoc_disp.
-        etrans. 2: { apply disp_binprod_transportf_pr1. }.
+        etrans.
+        2: { apply disp_binprod_transportf_pr1. }
         apply transportf_paths.
         apply C.
       * simpl.
         etrans. apply assoc_disp.
-        etrans. 2: { apply disp_binprod_transportf_pr2. }.
+        etrans.
+        2: { apply disp_binprod_transportf_pr2. }
         apply transportf_paths.
         apply C'.
     - intros.
@@ -185,11 +189,11 @@ Section DispCartProdOfFunctors.
   Proof.
     use tpair.
     - intros aa' dd'.
-      use tpair.
+      use make_dirprod.
       + use G. apply (pr1 dd').
       + use G'. apply (pr2 dd').
     - cbn. intros aa' aa'' xx' yy' ff' gg'.
-      use tpair.
+      use make_dirprod.
       + apply #G. apply (pr1 gg').
       +  apply #G'. apply (pr2 gg').
   Defined.
@@ -297,5 +301,5 @@ Section FixDispTensor.
 *)
 
 
-
 End FixDispTensor.
+

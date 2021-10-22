@@ -88,6 +88,7 @@ UnitorsAndAssociatorsForEndofunctors.v
 CategoricalRecursionSchemes.v
 PointedFunctors.v
 HorizontalComposition.v
+CATAsInstanceOfBicat.v
 PointedFunctorsComposition.v
 CommaCategories.v
 ArrowCategory.v
@@ -200,9 +201,11 @@ Monoidal/MonoidalCategories.v
 Monoidal/EndofunctorsMonoidal.v
 Monoidal/PointedFunctorsMonoidal.v
 Monoidal/MonoidalFunctors.v
+Monoidal/DisplayedMonoidal.v
 Monoidal/CategoriesOfMonoids.v
 Monoidal/Actions.v
 Monoidal/ConstructionOfActions.v
+Monoidal/ActionBasedStrongFunctorsMonoidal.v
 Monoidal/MonoidalFromBicategory.v
 Monoidal/ActionOfEndomorphismsInBicat.v
 Monoidal/ActionBasedStrength.v

@@ -204,6 +204,50 @@ Definition nat_trans_functor_assoc_inv (F1 : functor A B) (F2 : functor B C) (F3
 
 End nat_trans_functor.
 
+(** Reasoning about composition of natural transformations *)
+Section nat_trans_comp_laws.
+
+  Context {A B: precategory} (hs: has_homsets B).
+
+Definition nat_trans_comp_id_right (F G : functor A B) (α: nat_trans F G):
+  nat_trans_comp _ _ _ α (nat_trans_id G) = α.
+Proof.
+  apply nat_trans_eq; try exact hs.
+  intro a.
+  simpl.
+  apply id_right.
+Qed.
+
+Definition nat_trans_comp_id_left (F G : functor A B) (α: nat_trans F G):
+  nat_trans_comp _ _ _ (nat_trans_id F) α = α.
+Proof.
+  apply nat_trans_eq; try exact hs.
+  intro a.
+  simpl.
+  apply id_left.
+Qed.
+
+Definition nat_trans_comp_assoc (F1 F2 F3 F4 : functor A B)
+           (α: nat_trans F1 F2) (β: nat_trans F2 F3) (γ: nat_trans F3 F4):
+  nat_trans_comp _ _ _ α (nat_trans_comp _ _ _ β γ) = nat_trans_comp _ _ _ (nat_trans_comp _ _ _ α β) γ.
+Proof.
+  apply nat_trans_eq; try exact hs.
+  intro a.
+  simpl.
+  apply assoc.
+Qed.
+
+(** analogously to [assoc'], for convenience *)
+Definition nat_trans_comp_assoc' (F1 F2 F3 F4 : functor A B)
+           (α: nat_trans F1 F2) (β: nat_trans F2 F3) (γ: nat_trans F3 F4):
+  nat_trans_comp _ _ _ (nat_trans_comp _ _ _ α β) γ = nat_trans_comp _ _ _ α (nat_trans_comp _ _ _ β γ).
+Proof.
+  apply pathsinv0, nat_trans_comp_assoc.
+Qed.
+
+End nat_trans_comp_laws.
+
+
 (** ** Natural isomorphisms *)
 
 Definition is_nat_iso {C D : precategory_data} {F G : functor_data C D} (μ : F ⟹ G) : UU :=

@@ -198,13 +198,13 @@ Proof.
   exists bla'_inv.
   abstract (
    split; [
-    apply (invmap (eq_ptd_mor _ hs _ _));
+    apply (invmap (eq_ptd_mor hs _ _));
     apply nat_trans_eq; try (exact hs) ;
     intro c ;
     apply id_left
                    |
     apply eq_ptd_mor_precat; (* idem *)
-    apply (invmap (eq_ptd_mor _ hs _ _)) ;
+    apply (invmap (eq_ptd_mor hs _ _)) ;
     apply nat_trans_eq; try (exact hs) ;
     intro c ;
     apply id_left ]
@@ -239,13 +239,13 @@ Proof.
     rewrite <- assoc in Hyp.
     rewrite iso_inv_after_iso in Hyp.
     rewrite id_right in Hyp.
-    eapply pathscomp0. exact Hyp.
+    etrans; [ exact Hyp |].
     clear Hyp.
     fold (fbracket LamHSS (f · bla)).
     unfold fbracket_for_LamE_algebra_on_Lam.
     match goal with |[ |- _· _ · ?h = _  ] =>
          assert (idness : h = nat_trans_id _) end.
-    { apply nat_trans_eq; try (exact hs).
+    { apply (nat_trans_eq hs).
       intro c.
       unfold functor_ptd_forget.
       apply id_left.
@@ -268,7 +268,7 @@ Proof.
    :[C, C] hs, LamHSS ⟧)
 *)
 *)
-    apply nat_trans_eq; try (exact hs).
+    apply (nat_trans_eq hs).
     intro c.
     apply cancel_postcomposition.
     apply BinCoproductIn1Commutes_right_dir.
@@ -278,15 +278,15 @@ Proof.
     destruct Hyp as [_ Hyp2].
     fold (fbracket LamHSS (f · bla)) in Hyp2.
     unfold fbracket_for_LamE_algebra_on_Lam.
-    apply nat_trans_eq; try (exact hs).
+    apply (nat_trans_eq hs).
     intro c.
 
     (* from here slightly interesting, because it is crucial to see that
        the τ considered here is a BinCoproduct arrow *)
 
     rewrite τ_LamE_algebra_on_Lam.
-    eapply pathscomp0; [apply cancel_postcomposition ; apply BinCoproductOfArrows_comp | ].
-    eapply pathscomp0. apply precompWithBinCoproductArrow.
+    etrans; [ apply cancel_postcomposition ; apply BinCoproductOfArrows_comp |].
+    etrans; [ apply precompWithBinCoproductArrow |].
     apply pathsinv0.
 
     (* showing that a diagram of coproduct arrows splits into two is slightly cumbersome,
@@ -296,8 +296,8 @@ Proof.
        each branch; this gives precisely what we want *)
 
     apply BinCoproductArrowUnique.
-    + eapply pathscomp0. apply assoc.
-      eapply pathscomp0. apply cancel_postcomposition. apply BinCoproductIn1Commutes.
+    + etrans; [ apply assoc |].
+      etrans. { apply cancel_postcomposition. apply BinCoproductIn1Commutes. }
       assert (T:= nat_trans_eq_pointwise Hyp2 c).
       clear Hyp2.
       apply pathsinv0.
@@ -307,38 +307,33 @@ Proof.
        one where one has a quantification over maps 'f', no? *)
 
     + clear Hyp2.
-      eapply pathscomp0. apply assoc.
-      eapply pathscomp0. apply cancel_postcomposition. apply BinCoproductIn2Commutes.
+      etrans; [ apply assoc |].
+      etrans. { apply cancel_postcomposition. apply BinCoproductIn2Commutes. }
       unfold Lam_Flatten.
 
     (* from here on 'simpl' is feasible
        after some opacification, at least *)
       Opaque fbracket.
       Opaque LamHSS.
-      set (X:= f · bla).
+      set (X := f · bla).
 
-      assert (TT:=compute_fbracket C hs CC Lam_S LamHSS(Z:=Z)).
+      assert (TT := compute_fbracket C hs CC Lam_S LamHSS(Z:=Z)).
       simpl in *.
       assert (T3 := TT  X); clear TT.
       unfold X; unfold X in T3; clear X.
-      rewrite id_left.
-      rewrite id_left.
-      rewrite id_left.
+      do 2 rewrite id_left.
 
       Local Notation "⦃ f ⦄" := (fbracket _ f)(at level 0).
       (* written '\{{' and '\}}', respectively *)
 
       set (Tη := ptd_from_alg _ ).
 
-      rewrite functor_id.
-      rewrite functor_id.
-      rewrite id_right.
       destruct Z as [Z e]. simpl in *.
       set (T := ` Lam).
 
       (* now we want to rewrite with T3 in 3 places *)
 
-      assert (T3':= nat_trans_eq_pointwise T3 c).
+      assert (T3' := nat_trans_eq_pointwise T3 c).
       simpl in *.
       match goal with |[ T3' : _ = ?f |- ?a · _ = _ ] => transitivity (a · f) end.
       { apply maponpaths. apply T3'. }
@@ -347,54 +342,68 @@ Proof.
 (*
     apply cancel_postcomposition. (* that's a bad idea, because it fucks up use of third monad law and
                                       leads to something that is generally false *)
-*)
-
-      match goal with |[ T3' : _ = ?f |- _ = ?a · ?b · _ · ?d  ] => transitivity (a · b · #T f · d) end.
-      2: { apply cancel_postcomposition. apply maponpaths. apply maponpaths. apply (!T3'). }
+ *)
+      etrans.
+      2: { do 2 apply cancel_postcomposition. do 3 apply maponpaths. apply pathsinv0, T3'. }
       clear T3'.
       apply pathsinv0.
 
-      assert (T3':= nat_trans_eq_pointwise T3 (T (Z c))).
-
-      eapply pathscomp0. apply cancel_postcomposition. apply cancel_postcomposition. apply maponpaths. apply T3'.
+      assert (T3':= nat_trans_eq_pointwise T3 (T c)).
+      simpl in T3'. rewrite id_right in T3'.
+      etrans. { apply cancel_postcomposition. apply maponpaths. exact T3'. }
       clear T3'.
+
       apply pathsinv0.
       destruct f as [f fptdmor]. simpl in *.
-      rewrite id_right.
-      rewrite id_right.
 
       repeat rewrite assoc.
 
-      assert (X := fptdmor (T (Z c))). clear T3 fptdmor.
-      assert (X' := maponpaths (#T) X); clear X.
-      rewrite functor_comp in X'.
+      rewrite <- (functor_comp T).
+      repeat rewrite <- assoc.
+      etrans.
+      2: { apply cancel_postcomposition. apply maponpaths. apply (nat_trans_ax e). }
+      repeat rewrite assoc.
+      rewrite <- (functor_comp T).
+
+      assert (X := fptdmor (T c)). clear T3 fptdmor.
+      unfold functor_identity_data. simpl.
 
       apply pathsinv0.
-      eapply pathscomp0. apply cancel_postcomposition. apply cancel_postcomposition.
-                       apply cancel_postcomposition. apply X'.
-                       clear X'.
+      etrans. { do 2 apply cancel_postcomposition. apply maponpaths. repeat rewrite <- assoc.
+      do 2 apply maponpaths. apply X. }
+      clear X.
 
-      assert (X := Monad_law_2_from_hss _ _ CC Lam_S LamHSS (T (Z c))).
+      assert (X := Monad_law_2_from_hss _ _ CC Lam_S LamHSS (T c)).
       unfold μ_0 in X. unfold μ_2 in X.
 
-      match goal with |[ X : ?e = _ |- ?a · ?b · _ · _  = _ ] =>
-                     assert (X' : e = a · b) end.
-      { apply cancel_postcomposition. apply maponpaths.
-        apply pathsinv0, BinCoproductIn1Commutes.
-      }
+      change (pr1 ⦃ identity (ptd_from_alg (pr1 LamHSS)) ⦄ c) with (prejoin_from_hetsubst LamHSS c).
+      (* does not do anything *)
 
+      etrans.
+      { do 2 apply cancel_postcomposition. apply maponpaths. apply assoc. }
+      rewrite (functor_comp T).
+      repeat rewrite <- assoc.
+
+      match goal with |[ X : ?e = _ |- _ · (?a · (?b · _))  = _ ] =>
+                         assert (X' : e = a · b) end.
+      { apply cancel_postcomposition. apply maponpaths.
+        cbn. apply pathsinv0, BinCoproductIn1Commutes. }
       rewrite X' in X. clear X'.
 
-      eapply pathscomp0. apply cancel_postcomposition. apply cancel_postcomposition. apply X. clear X.
+      etrans. { apply maponpaths. rewrite assoc. apply cancel_postcomposition. apply X. }
+      clear X.
 
       rewrite id_left.
 
       assert (μ_2_nat := nat_trans_ax (μ_2 C hs CC Lam_S LamHSS)).
-      assert (X := μ_2_nat _ _ (f c)).
+      assert (X := μ_2_nat _ _ (f c · identity (pr1 `Lam c))).
       unfold μ_2 in X.
 
-      eapply pathscomp0. 2: { apply cancel_postcomposition. apply X. }
+      etrans. 2: { rewrite assoc. apply cancel_postcomposition. apply X. }
       clear X.
+
+
+
       rewrite functor_comp.
       repeat rewrite <- assoc.
       apply maponpaths.
@@ -403,7 +412,7 @@ Proof.
       assert (X' := nat_trans_eq_pointwise X). clear X.
       simpl in X'.
 
-      eapply pathscomp0. apply X'.
+      etrans; [ apply X' |].
       clear X'. apply cancel_postcomposition. apply id_left.
 Qed.
 
@@ -434,23 +443,23 @@ Lemma bracket_for_LamE_algebra_on_Lam_unique (Z : Ptd)
 Proof.
   intro t.
   apply subtypePath.
-  - intro; apply isaset_nat_trans. apply hs.
+  - intro; apply (isaset_nat_trans hs).
   - simpl.
     destruct t as [t Ht]; simpl.
     unfold fbracket_for_LamE_algebra_on_Lam.
     apply (fbracket_unique LamHSS).
     split.
     + apply parts_from_whole in Ht. destruct Ht as [H1 _].
-      apply nat_trans_eq; try assumption.
+      apply (nat_trans_eq hs).
       intro c.
-      assert (HT:=nat_trans_eq_pointwise H1 c).
+      assert (HT := nat_trans_eq_pointwise H1 c).
       simpl.
       rewrite id_right.
-      eapply pathscomp0. apply HT.
+      etrans; [ apply HT |].
       simpl. repeat rewrite assoc. apply cancel_postcomposition.
       apply BinCoproductIn1Commutes.
     + apply parts_from_whole in Ht. destruct Ht as [_ H2].
-      apply nat_trans_eq; try assumption.
+      apply (nat_trans_eq hs).
       intro c.
       assert (HT := nat_trans_eq_pointwise H2 c).
       match goal with |[H2 : ?e = ?f |- _ ] =>
@@ -460,7 +469,7 @@ Proof.
 
       match goal with |[X : _ = ?f |- _ ] => transitivity f end.
        2: { rewrite τ_LamE_algebra_on_Lam.
-            eapply pathscomp0. apply assoc.
+            etrans; [apply assoc |].
             apply cancel_postcomposition. apply BinCoproductIn1Commutes.
        }
       match goal with |[X : ?e = _ |- _ ] => transitivity e end.
@@ -469,18 +478,18 @@ Proof.
       rewrite τ_LamE_algebra_on_Lam.
 
       apply pathsinv0.
-      eapply pathscomp0. apply assoc.
-      eapply pathscomp0. apply cancel_postcomposition. apply assoc.
-      eapply pathscomp0. apply cancel_postcomposition. apply cancel_postcomposition.
-      apply BinCoproductIn1Commutes.
+      etrans; [ apply assoc |].
+      etrans. { apply cancel_postcomposition. apply assoc. }
+      etrans. { apply cancel_postcomposition. apply cancel_postcomposition.
+                apply BinCoproductIn1Commutes. }
 
       repeat rewrite <- assoc.
-      eapply pathscomp0. apply maponpaths. apply assoc.
+      etrans. { apply maponpaths. apply assoc. }
 
-      eapply pathscomp0. apply maponpaths. apply cancel_postcomposition. apply BinCoproductIn1Commutes.
+      etrans. { apply maponpaths. apply cancel_postcomposition. apply BinCoproductIn1Commutes. }
 
-      eapply pathscomp0. apply maponpaths. apply assoc'.
-      simpl. apply maponpaths. apply maponpaths.
+      etrans. { apply maponpaths. apply assoc'. }
+      simpl. do 2 apply maponpaths.
       apply BinCoproductIn1Commutes.
 Qed.
 

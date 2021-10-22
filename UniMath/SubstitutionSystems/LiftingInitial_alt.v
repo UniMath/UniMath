@@ -139,11 +139,14 @@ Local Lemma aux_iso_1_is_nat_trans :
            ((θ_source H) (X ⊗ Z))) (CPEndC (U Z) ((θ_source H) (X ⊗ Z)))
         (ρ_functors (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
 Proof.
-intros X X' α.
-apply (nat_trans_eq hsC); intro c; simpl.
-eapply pathscomp0; [apply BinCoproductOfArrows_comp |].
-eapply pathscomp0; [|eapply pathsinv0, BinCoproductOfArrows_comp]; simpl.
-now rewrite functor_id, !id_left, !id_right.
+  intros X X' α.
+  apply (nat_trans_eq hsC); intro c; simpl.
+  etrans; [ apply BinCoproductOfArrows_comp |].
+  etrans; [| eapply pathsinv0, BinCoproductOfArrows_comp ]; simpl.
+  repeat rewrite id_right.
+  rewrite (functor_id (H X)).
+  do 2 rewrite id_left.
+  apply idpath.
 Qed.
 
 Definition aux_iso_1
@@ -172,11 +175,14 @@ Local Lemma aux_iso_1_inv_is_nat_trans :
            ((θ_source H) (X ⊗ Z))) (CPEndC (U Z) ((θ_source H) (X ⊗ Z)))
         (λ_functors (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
 Proof.
-intros X X' α.
-apply (nat_trans_eq hsC); intro c; simpl.
-eapply pathscomp0;[apply BinCoproductOfArrows_comp|].
-eapply pathscomp0;[|eapply pathsinv0, BinCoproductOfArrows_comp]; simpl.
-now rewrite functor_id, !id_left, !id_right.
+  intros X X' α.
+  apply (nat_trans_eq hsC); intro c; simpl.
+  etrans; [ apply BinCoproductOfArrows_comp |].
+  etrans; [| eapply pathsinv0, BinCoproductOfArrows_comp ]; simpl.
+  repeat rewrite id_right.
+  rewrite (functor_id (H X)).
+  repeat rewrite id_left.
+  apply idpath.
 Qed.
 
 Local Definition aux_iso_1_inv
@@ -214,7 +220,8 @@ apply (maponpaths_12 (BinCoproductOfArrows _ _ _)); trivial.
 unfold functor_fix_snd_arg_mor; simpl.
 revert c; apply nat_trans_eq_pointwise, maponpaths.
 apply (nat_trans_eq hsC); intro c; simpl.
-now rewrite <- (nat_trans_ax α), functor_id, id_left.
+rewrite (functor_id X).
+apply id_left.
 Qed.
 
 Local Definition aux_iso_2_inv
@@ -343,17 +350,17 @@ intros [h' h'_eq]; apply subtypePath; [intro; apply (isaset_nat_trans hsC)|].
 simpl; apply parts_from_whole in h'_eq.
 apply path_to_ctr, (nat_trans_eq hsC); intro c.
 simpl; rewrite !(@id_left EndC), id_right, <- !assoc.
-eapply pathscomp0; [| eapply pathsinv0, postcompWithBinCoproductArrow].
+etrans; [| eapply pathsinv0, postcompWithBinCoproductArrow ].
 apply BinCoproductArrowUnique.
 + destruct h'_eq as [h'_eq1 _]; simpl.
   rewrite id_left, assoc.
-  eapply pathscomp0; [eapply pathsinv0, (nat_trans_eq_pointwise h'_eq1 c)|].
+  etrans; [ eapply pathsinv0, (nat_trans_eq_pointwise h'_eq1 c) |].
   now apply BinCoproductIn1Commutes_right_in_ctx_dir,
             BinCoproductIn1Commutes_right_in_ctx_dir,
             BinCoproductIn1Commutes_right_dir.
 + destruct h'_eq as [_ h'_eq2].
   rewrite assoc.
-  eapply pathscomp0; [eapply pathsinv0, (nat_trans_eq_pointwise h'_eq2 c)|].
+  etrans; [ eapply pathsinv0, (nat_trans_eq_pointwise h'_eq2 c) |].
   apply BinCoproductIn2Commutes_right_in_ctx_dir.
   apply BinCoproductIn2Commutes_right_in_double_ctx_dir.
   simpl; rewrite <- !assoc.
@@ -447,8 +454,8 @@ apply (maponpaths_12 (BinCoproductOfArrows _ _ _)); trivial.
 unfold functor_fix_snd_arg_mor; simpl.
 revert c; apply nat_trans_eq_pointwise, maponpaths.
 apply (nat_trans_eq hsC); intro c; simpl.
-rewrite <- (nat_trans_ax α), functor_id.
-now apply id_left.
+rewrite (functor_id X).
+apply id_left.
 Qed.
 
 Local Definition iso2' (Z : Ptd) : EndEndC ⟦
@@ -515,7 +522,7 @@ intermediate_path (pr1 (pr1 X)).
   set (Φ := (Phi_fusion Z T' β)).
   set (T5 := T4 Φ).
   intermediate_path (Φ _ (fbracket InitHSS f)); trivial.
-  eapply pathscomp0; [|apply T5]; clear TT T2 T3 T4 T5 X.
+  etrans; [| apply T5 ]; clear TT T2 T3 T4 T5 X.
   * now apply cancel_postcomposition.
   * (* hypothesis of fusion law *)
     apply funextsec; intro t.
@@ -545,14 +552,14 @@ intermediate_path (pr1 (pr1 X)).
       apply maponpaths, BinCoproductIn2Commutes_left_in_ctx_dir, BinCoproductIn2Commutes_right_in_ctx_dir.
       simpl.
       rewrite <- !assoc.
-      eapply pathscomp0;
+      etrans;
         [| eapply pathsinv0, cancel_postcomposition,
-           (nat_trans_eq_pointwise (functor_comp H t β) c)].
+           (nat_trans_eq_pointwise (functor_comp H t β) c) ].
       simpl; rewrite <- assoc.
       apply maponpaths, BinCoproductIn2Commutes_left_in_ctx_dir.
       assert (Hyp_c := nat_trans_eq_pointwise (τ_part_of_alg_mor _ hsC CP _ _ _ (InitialArrow IA (pr1 T'))) c).
       simpl in Hyp_c.
-      eapply pathscomp0; [eapply pathsinv0, Hyp_c|].
+      etrans; [ eapply pathsinv0, Hyp_c |].
       now apply maponpaths, pathsinv0, BinCoproductIn2Commutes.
   - apply pathsinv0, path_to_ctr.
     (* now a lot of serious verification work to be done *)
@@ -566,12 +573,12 @@ intermediate_path (pr1 (pr1 X)).
       simpl; rewrite id_left.
       apply BinCoproductIn1Commutes_right_in_ctx_dir.
       simpl; rewrite <- assoc.
-      eapply pathscomp0;
+      etrans;
         [| apply maponpaths, BinCoproductIn1Commutes_right_in_ctx_dir; simpl;
-           rewrite id_left; apply BinCoproductIn1Commutes_right_dir, idpath].
+           rewrite id_left; apply BinCoproductIn1Commutes_right_dir, idpath ].
       rewrite !assoc.
       assert (fbracket_η_inst_c := nat_trans_eq_pointwise (fbracket_η T' (f · ptd_from_alg_mor _ hsC CP H β0)) c).
-      eapply pathscomp0; [| apply (!fbracket_η_inst_c)].
+      etrans; [| apply (!fbracket_η_inst_c) ].
       apply cancel_postcomposition, (ptd_mor_commutes _ (ptd_from_alg_mor _ hsC CP H β0) ((pr1 Z) c)).
     + (* now the difficult case *)
       repeat rewrite <- assoc.
@@ -584,7 +591,7 @@ intermediate_path (pr1 (pr1 X)).
       simpl.
       unfold coproduct_nat_trans_in2_data.
       repeat rewrite <- assoc.
-      eapply pathscomp0.
+      etrans.
       2: { apply maponpaths.
            apply BinCoproductIn2Commutes_right_in_ctx_dir.
            rewrite <- assoc.
@@ -593,24 +600,26 @@ intermediate_path (pr1 (pr1 X)).
            apply idpath.
       }
       do 2 rewrite assoc.
-      eapply pathscomp0.
-        apply cancel_postcomposition.
+      etrans.
+      { apply cancel_postcomposition.
         eapply pathsinv0.
         assert (τ_part_of_alg_mor_inst := τ_part_of_alg_mor _ hsC CP H _ _ β0).
         assert (τ_part_of_alg_mor_inst_Zc :=
                   nat_trans_eq_pointwise τ_part_of_alg_mor_inst ((pr1 Z) c));
           clear τ_part_of_alg_mor_inst.
         apply τ_part_of_alg_mor_inst_Zc.
+      }
       simpl.
       unfold coproduct_nat_trans_in2_data.
       repeat rewrite <- assoc.
-      eapply pathscomp0.
-        apply maponpaths.
+      etrans.
+      { apply maponpaths.
         rewrite assoc.
         eapply pathsinv0.
         assert (fbracket_τ_inst := fbracket_τ T' (f · ptd_from_alg_mor _ hsC CP H β0)).
         assert (fbracket_τ_inst_c := nat_trans_eq_pointwise fbracket_τ_inst c); clear fbracket_τ_inst.
         apply fbracket_τ_inst_c.
+      }
       simpl.
       unfold coproduct_nat_trans_in2_data.
       repeat rewrite assoc.
@@ -632,11 +641,11 @@ intermediate_path (pr1 (pr1 X)).
       apply cancel_postcomposition.
       apply (nat_trans_eq hsC); intro c.
       assert (θ_nat_1_pointwise_inst := θ_nat_1_pointwise _ hsC _ hsC _ hsC H θ _ _ β Z c).
-      eapply pathscomp0 ; [exact θ_nat_1_pointwise_inst | ].
+      etrans; [ exact θ_nat_1_pointwise_inst |].
       clear θ_nat_1_pointwise_inst.
       simpl.
       apply maponpaths.
-      rewrite horcomp_id_prewhisker; try exact hsC.
+      rewrite (horcomp_id_prewhisker hsC).
       apply idpath.
 Qed.
 
