@@ -977,11 +977,16 @@ Definition montrafotarget_tensor_alt: montrafotarget_precat ⊠ montrafotarget_p
 (** we have the definition of the tensor product, but there are also six pending statements for the justification
     of the operations of the monoidal category - this does not concern their laws but their built-in proofs *)
 
-Lemma montrafotarget_monprecat_left_unitor_aux1 (vη : montrafotarget_precat):
+
+Definition montrafotarget_monprecat_left_unitor_aux1_statement: UU :=
+  ∏ (vη : montrafotarget_precat),
   pr2 (I_pretensor montrafotarget_tensor montrafotarget_unit vη)
       -->[monoidal_precat_left_unitor Mon_V (pr1 vη)]
       pr2 (functor_identity montrafotarget_precat vη).
+
+Lemma montrafotarget_monprecat_left_unitor_aux1: montrafotarget_monprecat_left_unitor_aux1_statement.
 Proof.
+  intros ?.
   unfold mor_disp. unfold trafotarget_disp. hnf.
   induction vη as [v η].
   change ([A, A', hsA']⟦H v, H' v⟧) in η.
@@ -992,13 +997,17 @@ Proof.
   rewrite functor_comp.
   match goal with | [ |- ?Hl1 · (?Hl2 · ?Hl3 · ?Hl4 · ?Hl5) · ?Hl6 = ?Hr1 · _] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (r1 := Hr1) end.
   (* repeat rewrite <- assoc. still cannot incorporate l6 *)
-Admitted.
+Abort.
 
-Lemma montrafotarget_monprecat_left_unitor_aux2 (vη : montrafotarget_precat):
+Definition montrafotarget_monprecat_left_unitor_aux2_statement: UU :=
+  ∏ (vη : montrafotarget_precat),
   pr2 (functor_identity montrafotarget_precat vη)
       -->[pr1 (pr2 (monoidal_precat_left_unitor Mon_V) (pr1 vη))]
       pr2 (I_pretensor montrafotarget_tensor montrafotarget_unit vη).
+
+Lemma montrafotarget_monprecat_left_unitor_aux2: montrafotarget_monprecat_left_unitor_aux2_statement.
 Proof.
+  intros ?.
   unfold mor_disp. unfold trafotarget_disp. hnf.
   induction vη as [v η].
   change ([A, A', hsA']⟦H v, H' v⟧) in η.
@@ -1010,13 +1019,18 @@ Proof.
   apply pathsinv0.
   match goal with | [ |- ?Hl1 · (?Hl2 · (?Hl3 · ?Hl4 · ?Hl5 · ?Hl6)) = _ · ?Hr2] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (r2 := Hr2) end.
   (* repeat rewrite assoc. yields  l1 · (l2 · (l3 · l4 · l5 · l6)) to the left *)
-Admitted.
+Abort.
 
-Lemma montrafotarget_monprecat_right_unitor_aux1 (vη : montrafotarget_precat):
+
+Definition montrafotarget_monprecat_right_unitor_aux1_statement: UU :=
+  ∏ (vη : montrafotarget_precat),
   pr2 (I_posttensor montrafotarget_tensor montrafotarget_unit vη)
       -->[monoidal_precat_right_unitor Mon_V (pr1 vη)]
       pr2 (functor_identity montrafotarget_precat vη).
+
+Lemma montrafotarget_monprecat_right_unitor_aux1: montrafotarget_monprecat_right_unitor_aux1_statement.
 Proof.
+  intros ?.
   unfold mor_disp. unfold trafotarget_disp. hnf.
   induction vη as [v η].
   change ([A, A', hsA']⟦H v, H' v⟧) in η.
@@ -1027,13 +1041,17 @@ Proof.
   rewrite functor_comp.
   match goal with | [ |- ?Hl1 · (?Hl2 · (?Hl3 · ?Hl4) · ?Hl5) · ?Hl6 = ?Hr1 · _] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (r1 := Hr1) end.
   (* repeat rewrite assoc. and repeat rewrite <- assoc. work incompletely *)
-Admitted.
+Abort.
 
-Lemma montrafotarget_monprecat_right_unitor_aux2 (vη : montrafotarget_precat):
+Definition montrafotarget_monprecat_right_unitor_aux2_statement: UU :=
+  ∏ (vη : montrafotarget_precat),
   pr2 (functor_identity montrafotarget_precat vη)
       -->[pr1 (pr2 (monoidal_precat_right_unitor Mon_V) (pr1 vη))]
       pr2 (I_posttensor montrafotarget_tensor montrafotarget_unit vη).
+
+Lemma montrafotarget_monprecat_right_unitor_aux2: montrafotarget_monprecat_right_unitor_aux2_statement.
 Proof.
+  intros ?.
   unfold mor_disp. unfold trafotarget_disp. hnf.
   induction vη as [v η].
   change ([A, A', hsA']⟦H v, H' v⟧) in η.
@@ -1045,13 +1063,17 @@ Proof.
   apply pathsinv0.
   match goal with | [ |- ?Hl1 · (?Hl2 · (?Hl3 · (?Hl4 · ?Hl5) · ?Hl6)) = _ · ?Hr2] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (r2 := Hr2) end.
   (* same comment on assoc as before *)
-Admitted.
+Abort.
 
-Lemma montrafotarget_monprecat_associator_aux1 (vηs : (montrafotarget_precat ⊠ montrafotarget_precat) ⊠ montrafotarget_precat):
+Definition montrafotarget_monprecat_associator_aux1_statement: UU :=
+  ∏ (vηs : (montrafotarget_precat ⊠ montrafotarget_precat) ⊠ montrafotarget_precat),
   pr2 (assoc_left montrafotarget_tensor vηs)
       -->[monoidal_precat_associator Mon_V ((pr111 vηs,, pr121 vηs),, pr12 vηs)]
       pr2 (assoc_right montrafotarget_tensor vηs).
+
+Lemma montrafotarget_monprecat_associator_aux1: montrafotarget_monprecat_associator_aux1_statement.
 Proof.
+  intros ?.
   unfold mor_disp. unfold trafotarget_disp. hnf.
   induction vηs as [[[v1 η1] [v2 η2]] [v3 η3]].
   change ([A, A', hsA']⟦H v1, H' v1⟧) in η1.
@@ -1099,13 +1121,17 @@ Proof.
   match goal with | [ |- ?Hl1 · (?Hl2 · (?Hl3 · ?Hl4 · ?Hl5) · ?Hl6 · ?Hl7) · ?Hl8  = _] => set (l1 := Hl1); set (l2 := Hl2); set (l3 := Hl3); set (l4 := Hl4); set (l5 := Hl5); set (l6 := Hl6); set (l7 := Hl7); set (l8 := Hl8) end.
   match goal with | [ |- _ = ?Hr1 · (?Hr2 · (?Hr3 · (?Hr4 · (?Hr5 · ?Hr6 · ?Hr7)) · ?Hr8))] => set (r1 := Hr1); set (r2 := Hr2); set (r3 := Hr3); set (r4 := Hr4); set (r5 := Hr5); set (r6 := Hr6); set (r7 := Hr7); set (r8 := Hr8) end.
   (* same comment on assoc as before *)
-Admitted.
+Abort.
 
-Lemma montrafotarget_monprecat_associator_aux2 (vηs : (montrafotarget_precat ⊠ montrafotarget_precat) ⊠ montrafotarget_precat):
+Definition montrafotarget_monprecat_associator_aux2_statement: UU :=
+  ∏ (vηs : (montrafotarget_precat ⊠ montrafotarget_precat) ⊠ montrafotarget_precat),
   pr2 (assoc_right montrafotarget_tensor vηs)
       -->[pr1 (pr2 (monoidal_precat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs))]
       pr2 (assoc_left montrafotarget_tensor vηs).
+
+Lemma montrafotarget_monprecat_associator_aux2: montrafotarget_monprecat_associator_aux2_statement.
 Proof.
+  intros ?.
   unfold mor_disp. unfold trafotarget_disp. hnf.
   induction vηs as [[[v1 η1] [v2 η2]] [v3 η3]].
   change ([A, A', hsA']⟦H v1, H' v1⟧) in η1.
@@ -1154,7 +1180,18 @@ Proof.
   intro a.
   cbn.
   show_id_type. *)
-Admitted.
+Abort.
+
+(** the following assumptions are mathematically justified, and detailed proofs for three
+    representatives of the pairs of closely related statements exist on paper, however the
+    bicategorical generalization of the approach seems to be needed to make the formalization
+    tractable *)
+Context (Ax1 : montrafotarget_monprecat_left_unitor_aux1_statement)
+        (Ax2 : montrafotarget_monprecat_left_unitor_aux2_statement)
+        (Ax3 : montrafotarget_monprecat_right_unitor_aux1_statement)
+        (Ax4 : montrafotarget_monprecat_right_unitor_aux2_statement)
+        (Ax5 : montrafotarget_monprecat_associator_aux1_statement)
+        (Ax6 : montrafotarget_monprecat_associator_aux2_statement).
 
 Definition montrafotarget_monprecat_left_unitor: left_unitor montrafotarget_tensor montrafotarget_unit.
 Proof.
@@ -1163,7 +1200,7 @@ Proof.
     * intro vη.
       exists (monoidal_precat_left_unitor Mon_V (pr1 vη)).
       (* another reasoning in functorial calculus needed *)
-      apply montrafotarget_monprecat_left_unitor_aux1.
+      apply Ax1.
     * intros vη vη' fg.
       use total2_paths_f.
       -- cbn. apply (nat_trans_ax (monoidal_precat_left_unitor Mon_V)).
@@ -1172,7 +1209,7 @@ Proof.
     use make_is_z_isomorphism.
     * exists (pr1 (pr2 (monoidal_precat_left_unitor Mon_V) (pr1 vη))).
       (* another reasoning in functorial calculus needed *)
-      apply montrafotarget_monprecat_left_unitor_aux2.
+      apply Ax2.
     * split.
       -- use total2_paths_f.
          ++ cbn. apply (pr2 (pr2 (monoidal_precat_left_unitor Mon_V) (pr1 vη))).
@@ -1190,7 +1227,7 @@ Proof.
     * intro vη.
       exists (monoidal_precat_right_unitor Mon_V (pr1 vη)).
       (* another reasoning in functorial calculus needed *)
-      apply montrafotarget_monprecat_right_unitor_aux1.
+      apply Ax3.
     * intros vη vη' fg.
       use total2_paths_f.
       -- cbn. apply (nat_trans_ax (monoidal_precat_right_unitor Mon_V)).
@@ -1199,7 +1236,7 @@ Proof.
     use make_is_z_isomorphism.
     * exists (pr1 (pr2 (monoidal_precat_right_unitor Mon_V) (pr1 vη))).
       (* another reasoning in functorial calculus needed *)
-      apply montrafotarget_monprecat_right_unitor_aux2.
+      apply Ax4.
     * split.
       -- use total2_paths_f.
          ++ cbn. apply (pr2 (pr2 (monoidal_precat_right_unitor Mon_V) (pr1 vη))).
@@ -1216,7 +1253,7 @@ Proof.
     * intro vηs.
       exists (monoidal_precat_associator Mon_V ((pr111 vηs,,pr121 vηs),,pr12 vηs)).
       (* another reasoning in functorial calculus needed *)
-      apply montrafotarget_monprecat_associator_aux1.
+      apply Ax5.
     * intros vηs vηs' fgs.
       use total2_paths_f.
       -- cbn. exact (pr21 (monoidal_precat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs)
@@ -1226,7 +1263,7 @@ Proof.
     use make_is_z_isomorphism.
     * exists (pr1 (pr2 (monoidal_precat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs))).
       (* another reasoning in functorial calculus needed *)
-      apply montrafotarget_monprecat_associator_aux2.
+      apply Ax6.
     * split.
       -- use total2_paths_f.
          ++ cbn. apply (pr2 (pr2 (monoidal_precat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs))).
