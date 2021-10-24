@@ -261,7 +261,7 @@ Qed.
 
 Section functors_and_idtoiso.
 
-Variables C D : precategory.
+Variables C D : category.
 Variable F : functor C D.
 
 Lemma maponpaths_idtoiso (a b : C) (e : a = b)
@@ -282,7 +282,7 @@ Lemma maponpaths_isotoid (a b : C) (i : iso a b)
   =
   isotoid _ HD (functor_on_iso F i).
 Proof.
-  apply (invmaponpathsweq (make_weq (idtoiso) (pr1 HD _ _ ))).
+  apply (invmaponpathsweq (make_weq (idtoiso) (HD _ _ ))).
   simpl.
   rewrite maponpaths_idtoiso.
   repeat rewrite idtoiso_isotoid.
@@ -641,7 +641,7 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma ff_is_inclusion_on_objects {C D : precategory}
+Lemma ff_is_inclusion_on_objects {C D : category}
       (HC : is_univalent C) (HD : is_univalent D)
       (F : functor C D) (HF : fully_faithful F)
       : isofhlevelf 1 (functor_on_objects F).

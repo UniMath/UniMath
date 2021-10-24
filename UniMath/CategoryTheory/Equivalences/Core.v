@@ -297,13 +297,13 @@ Defined.
 (** * Equivalence of categories yields equivalence of object types *)
 (**  Fundamentally needed that both source and target are categories *)
 
-Lemma adj_equiv_of_cats_is_weq_of_objects (A B : precategory)
-   (HA : is_univalent A) (HB : is_univalent B) (F : [A, B, pr2 HB ])
+Lemma adj_equiv_of_cats_is_weq_of_objects (A B : category)
+   (HA : is_univalent A) (HB : is_univalent B) (F : [A, B, B ])
    (HF : adj_equivalence_of_precats F) : isweq (pr1 (pr1 F)).
 Proof.
   set (G := right_adjoint (pr1 HF)).
-  set (et := unit_iso_from_adj_equivalence_of_precats HF (pr2 HA)).
-  set (ep := counit_iso_from_adj_equivalence_of_precats HF (pr2 HB)).
+  set (et := unit_iso_from_adj_equivalence_of_precats HF A).
+  set (ep := counit_iso_from_adj_equivalence_of_precats HF B).
   set (AAcat := is_univalent_functor_category A _ HA).
   set (BBcat := is_univalent_functor_category B _ HB).
   set (Et := isotoid _ AAcat et).
@@ -313,8 +313,8 @@ Proof.
   now apply (toforallpaths _ _ _ (base_paths _ _ (base_paths _ _ Ep))).
 Defined.
 
-Definition weq_on_objects_from_adj_equiv_of_cats (A B : precategory)
-   (HA : is_univalent A) (HB : is_univalent B) (F : ob [A, B, pr2 HB])
+Definition weq_on_objects_from_adj_equiv_of_cats (A B : category)
+   (HA : is_univalent A) (HB : is_univalent B) (F : ob [A, B, B])
    (HF : adj_equivalence_of_precats F) : weq
           (ob A) (ob B).
 Proof.
@@ -326,7 +326,7 @@ Defined.
 (** If the source precategory is a univalent_category, then being split
     essentially surjective is a proposition *)
 
-Lemma isaprop_sigma_iso (A B : precategory) (HA : is_univalent A)
+Lemma isaprop_sigma_iso (A B : category) (HA : is_univalent A)
      (F : functor A B) (HF : fully_faithful F) :
      ∏ b : ob B, isaprop (∑ a : ob A, iso (F a) b).
 Proof.
@@ -370,7 +370,7 @@ Proof.
       now apply (base_paths _ _ H).
 Qed.
 
-Lemma isaprop_split_essentially_surjective (A B : precategory) (HA : is_univalent A)
+Lemma isaprop_split_essentially_surjective (A B : category) (HA : is_univalent A)
       (F : functor A B) (HF : fully_faithful F) :
   isaprop (split_essentially_surjective F).
 Proof.
@@ -381,7 +381,7 @@ Qed.
 (** If the source precategory is a univalent_category, then essential
     surjectivity of a fully faithful functor implies split essential
     surjectivity. *)
-Lemma ff_essentially_surjective_to_split (A B : precategory) (HA : is_univalent A)
+Lemma ff_essentially_surjective_to_split (A B : category) (HA : is_univalent A)
       (F : functor A B) (HF : fully_faithful F) (HF' : essentially_surjective F) :
   split_essentially_surjective F.
 Proof.
@@ -400,7 +400,7 @@ Defined.
 
 Section from_fully_faithful_and_ess_surj_to_equivalence.
 
-Variables A B : precategory.
+Variables A B : category.
 Hypothesis HA : is_univalent A.
 Variable F : functor A B.
 Hypothesis HF : fully_faithful F.
@@ -468,7 +468,7 @@ Proof.
   apply idpath.
 Qed.
 
-Definition rad : ob [B, A, pr2 HA].
+Definition rad : ob [B, A, A].
 Proof.
   exists rad_functor_data.
   apply rad_is_functor.

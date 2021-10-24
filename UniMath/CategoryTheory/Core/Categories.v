@@ -168,7 +168,7 @@ Definition category := ∑ C:precategory, has_homsets C.
 Definition make_category C h : category := C,,h.
 Definition category_to_precategory : category -> precategory := pr1.
 Coercion category_to_precategory : category >-> precategory.
-Definition homset_property (C : category) : has_homsets C := pr2 C.
+Coercion homset_property (C : category) : has_homsets C := pr2 C.
 
 Definition makecategory
     (obj : UU)

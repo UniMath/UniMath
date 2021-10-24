@@ -76,12 +76,24 @@ Definition iso_Initials (O O' : Initial) : iso O O' :=
 
 Definition hasInitial := ishinh Initial.
 
+End def_initial.
+
+Arguments Initial : clear implicits.
+Arguments isInitial : clear implicits.
+Arguments InitialObject {_} _.
+Arguments InitialArrow {_} _ _.
+Arguments InitialArrowUnique {_} _ _ _.
+Arguments make_isInitial {_} _ _ _.
+Arguments make_Initial {_} _ _.
+
+
 (** * Being initial is a property in a (saturated/univalent) category *)
 Section Initial_Unique.
 
-Hypothesis H : is_univalent C.
+  Variable C : category.
+  Hypothesis H : is_univalent C.
 
-Lemma isaprop_Initial : isaprop Initial.
+Lemma isaprop_Initial : isaprop (Initial C).
 Proof.
   apply invproofirrelevance.
   intros O O'.
@@ -94,15 +106,6 @@ Qed.
 
 End Initial_Unique.
 
-End def_initial.
-
-Arguments Initial : clear implicits.
-Arguments isInitial : clear implicits.
-Arguments InitialObject {_} _.
-Arguments InitialArrow {_} _ _.
-Arguments InitialArrowUnique {_} _ _ _.
-Arguments make_isInitial {_} _ _ _.
-Arguments make_Initial {_} _ _.
 
 Section Initial_and_EmptyCoprod.
 

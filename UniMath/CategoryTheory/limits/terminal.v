@@ -75,11 +75,23 @@ Definition iso_Terminals (T T' : Terminal) : iso T T' :=
 
 Definition hasTerminal := ishinh Terminal.
 
+End def_terminal.
+
+Arguments Terminal : clear implicits.
+Arguments isTerminal : clear implicits.
+Arguments TerminalObject {_} _.
+Arguments TerminalArrow {_} _ _.
+Arguments TerminalArrowUnique {_} _ _ _.
+Arguments make_isTerminal {_} _ _ _.
+Arguments make_Terminal {_} _ _.
+
+
 Section Terminal_Unique.
 
+Variable C : category.
 Hypothesis H : is_univalent C.
 
-Lemma isaprop_Terminal : isaprop Terminal.
+Lemma isaprop_Terminal : isaprop (Terminal C).
 Proof.
   apply invproofirrelevance.
   intros T T'.
@@ -92,15 +104,6 @@ Qed.
 
 End Terminal_Unique.
 
-End def_terminal.
-
-Arguments Terminal : clear implicits.
-Arguments isTerminal : clear implicits.
-Arguments TerminalObject {_} _.
-Arguments TerminalArrow {_} _ _.
-Arguments TerminalArrowUnique {_} _ _ _.
-Arguments make_isTerminal {_} _ _ _.
-Arguments make_Terminal {_} _ _.
 
 Section Terminal_and_EmptyProd.
 

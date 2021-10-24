@@ -200,11 +200,20 @@ Proof.
      apply idpath.
 Qed.
 
+End bincoproduct_def.
+
+Arguments BinCoproductCocone [_] _ _.
+Arguments BinCoproductObject [_ _ _] _ .
+Arguments BinCoproductArrow [_ _ _] _ [_] _ _.
+Arguments BinCoproductIn1 [_ _ _] _.
+Arguments BinCoproductIn2 [_ _ _] _.
+
 
 (** * Proof that coproducts are unique when the precategory [C] is a univalent_category *)
 
 Section coproduct_unique.
 
+Variable C : category.
 Hypothesis H : is_univalent C.
 
 Variables a b : C.
@@ -291,7 +300,6 @@ Qed.
 *)
 
 End coproduct_unique.
-End bincoproduct_def.
 
 Definition limits_isBinCoproductCocone_from_isBinCoproduct {C : precategory}(hsC : has_homsets C) { a b c}
            (u : C ⟦ a, c⟧)(v : C ⟦ b, c⟧) :
@@ -307,7 +315,7 @@ Proof.
   intros x f g.
   (* set (CCfg := (bincoproducts.BinCoproductArrow C CC f g)). *)
   use unique_exists; simpl.
-  - apply (bincoproducts.BinCoproductArrow C CC f g).
+  - apply (bincoproducts.BinCoproductArrow CC f g).
   - abstract (split;
               [ apply (bincoproducts.BinCoproductIn1Commutes  _ _ _ CC)
               | apply (bincoproducts.BinCoproductIn2Commutes  _ _ _ CC)]).

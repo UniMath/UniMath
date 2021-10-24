@@ -282,24 +282,29 @@ Proof.
   - apply isaprop_is_iso.
 Defined.
 
-Definition op_is_univalent (C : univalent_category)
-  : is_univalent (C^op).
+Definition has_homsets_op (C : category) : has_homsets (C^op).
 Proof.
-  split.
-  - intros X Y.
-    use weqhomot.
-    + exact ((op_iso_is_cat_iso X Y)
-               ∘ make_weq (@idtoiso C Y X) (pr1(pr2 C) Y X)
-               ∘ weqpathsinv0 _ _)%weq.
-    + intros p.
-      induction p ; cbn.
-      apply subtypePath.
-      * intro ; apply isaprop_is_iso.
-      * reflexivity.
-  - intros X Y ; cbn.
-    apply C.
+  intros a b.
+  apply C.
+Qed.
+
+Definition op_category (C : category) : category := make_category C^op (has_homsets_op C).
+
+Definition op_is_univalent (C : univalent_category)
+  : is_univalent (op_category C).
+Proof.
+  intros X Y.
+  use weqhomot.
+  + exact ((op_iso_is_cat_iso X Y)
+             ∘ make_weq (@idtoiso C Y X) (pr2( C) Y X)
+             ∘ weqpathsinv0 _ _)%weq.
+  + intros p.
+    induction p ; cbn.
+    apply subtypePath.
+    * intro ; apply isaprop_is_iso.
+    * reflexivity.
 Defined.
 
 Definition op_unicat (C : univalent_category)
   : univalent_category
-  := (C^op ,, op_is_univalent C).
+  := (op_category C ,, op_is_univalent C).

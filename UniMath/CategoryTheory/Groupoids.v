@@ -99,18 +99,16 @@ Qed.
 (** The alternative characterization implies the normal one.
     Note that the other implication is missing, it should be completed
     if possible. *)
-Lemma is_univalent_pregroupoid_is_univalent {pgpd : pregroupoid} :
+Lemma is_univalent_pregroupoid_is_univalent {pgpd : groupoid} :
   is_univalent_pregroupoid pgpd -> is_univalent pgpd.
 Proof.
   intros ig.
-  split.
-  - intros a b.
-    use (isofhlevelff 0 idtoiso morphism_from_iso).
-    + use (isweqhomot (idtomor _ _)).
-      * intro p; destruct p; reflexivity.
-      * apply ig.
-    + apply (morphism_from_iso_is_incl (pr1 pgpd,, pr2 ig)).
-  - exact (pr2 ig).
+  intros a b.
+  use (isofhlevelff 0 idtoiso morphism_from_iso).
+  + use (isweqhomot (idtomor _ _)).
+    * intro p; destruct p; reflexivity.
+    * apply ig.
+  + apply (morphism_from_iso_is_incl pgpd).
 Qed.
 
 (** ** Lemmas *)
@@ -214,12 +212,12 @@ Abort.
     Why? In this case, all arrows must be identities: every arrow has an inverse,
     and isos induce equality (by univalence).
  *)
-Definition is_discrete (C : precategory) :=
+Definition is_discrete (C : category) :=
   (is_setcategory C × is_pregroupoid C × is_univalent C).
 
-Definition discrete_category : UU := ∑ C : precategory, is_discrete C.
+Definition discrete_category : UU := ∑ C : category, is_discrete C.
 Definition make_discrete_category :
-  ∏ C : precategory, is_discrete C → discrete_category := tpair is_discrete.
+  ∏ C : category, is_discrete C → discrete_category := tpair is_discrete.
 Definition discrete_category_to_univalent_groupoid :
   discrete_category -> univalent_groupoid :=
   λ disc, make_univalent_groupoid
@@ -232,7 +230,7 @@ Definition discrete_category_is_discrete :
 Definition discrete_category_is_setcategory :
   ∏ C : discrete_category, is_setcategory C := λ C, dirprod_pr1 (pr2 C).
 
-Lemma isaprop_is_discrete (C : precategory) : isaprop (is_discrete C).
+Lemma isaprop_is_discrete (C : category) : isaprop (is_discrete C).
 Proof.
   apply isapropdirprod; [|apply isapropdirprod].
   - apply isaprop_is_setcategory.

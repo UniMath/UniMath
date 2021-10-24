@@ -213,22 +213,8 @@ Proof.
 Qed.
 
 
-(** * Proof that coproducts are unique when the precategory [C] is a univalent_category *)
 
-Section coproduct_unique.
-
-Hypothesis H : is_univalent C.
-
-Variables a b : C.
-
-Definition from_BinCoproduct_to_BinCoproduct (CC CC' : BinCoproduct a b)
-  : BinCoproductObject CC --> BinCoproductObject CC'.
-Proof.
-  apply (BinCoproductArrow CC  (BinCoproductIn1 _ ) (BinCoproductIn2 _ )).
-Defined.
-
-
-Lemma BinCoproduct_endo_is_identity (CC : BinCoproduct a b)
+Lemma BinCoproduct_endo_is_identity {a b : C} (CC : BinCoproduct a b)
   (k : BinCoproductObject CC --> BinCoproductObject CC)
   (H1 : BinCoproductIn1 CC · k = BinCoproductIn1 CC)
   (H2 : BinCoproductIn2 CC · k = BinCoproductIn2 CC)
@@ -246,8 +232,14 @@ Proof.
   apply (base_paths _ _ X').
 Defined.
 
+Definition from_BinCoproduct_to_BinCoproduct {a b : C} (CC CC' : BinCoproduct a b)
+  : BinCoproductObject CC --> BinCoproductObject CC'.
+Proof.
+  apply (BinCoproductArrow CC  (BinCoproductIn1 _ ) (BinCoproductIn2 _ )).
+Defined.
 
-Lemma is_iso_from_BinCoproduct_to_BinCoproduct (CC CC' : BinCoproduct a b)
+
+Lemma is_iso_from_BinCoproduct_to_BinCoproduct {a b : C} (CC CC' : BinCoproduct a b)
   : is_iso (from_BinCoproduct_to_BinCoproduct CC CC').
 Proof.
   apply is_iso_from_is_z_iso.
@@ -271,10 +263,29 @@ Proof.
       repeat rewrite BinCoproductIn2Commutes; apply idpath.
 Defined.
 
-Definition iso_from_BinCoproduct_to_BinCoproduct (CC CC' : BinCoproduct a b)
+Definition iso_from_BinCoproduct_to_BinCoproduct {a b : C} (CC CC' : BinCoproduct a b)
   : iso (BinCoproductObject CC) (BinCoproductObject CC')
   := make_iso _ (is_iso_from_BinCoproduct_to_BinCoproduct CC CC').
 
+
+End coproduct_def.
+
+Arguments BinCoproduct [_] _ _.
+Arguments BinCoproductObject [_ _ _] _ .
+Arguments BinCoproductArrow [_ _ _] _ [_] _ _.
+Arguments BinCoproductIn1 [_ _ _] _.
+Arguments BinCoproductIn2 [_ _ _] _.
+
+(** * Proof that coproducts are unique when the precategory [C] is a univalent_category *)
+
+Section coproduct_unique.
+
+  Variable C : category.
+Hypothesis H : is_univalent C.
+
+Variables a b : C.
+
+(* TODO: upstream *)
 Lemma transportf_isotoid' (c d d': C) (p : iso d d') (f : c --> d) :
   transportf (λ a0 : C, c --> a0) (isotoid C H p) f = f · p .
 Proof.
@@ -290,7 +301,7 @@ Proof.
   apply subtypePath.
   + intros.
     intro. do 3 (apply impred; intro); apply isapropiscontr.
-  + apply (total2_paths_f (isotoid _ H (iso_from_BinCoproduct_to_BinCoproduct CC CC'))).
+  + apply (total2_paths_f (isotoid _ H (iso_from_BinCoproduct_to_BinCoproduct _ CC CC'))).
     rewrite transportf_dirprod.
     rewrite transportf_isotoid'. simpl.
     rewrite transportf_isotoid'.
@@ -305,7 +316,7 @@ Proof.
 Qed.
 
 End coproduct_unique.
-End coproduct_def.
+
 
 
 Section BinCoproducts.
@@ -314,8 +325,8 @@ Variable C : precategory.
 Variable CC : BinCoproducts C.
 Variables a b c d x y : C.
 
-Lemma BinCoproductArrow_eq_cor (f f' : BinCoproductObject C (CC a b) --> c)
-  : BinCoproductIn1 _ _· f = BinCoproductIn1 _ _· f' → BinCoproductIn2 _ _· f = BinCoproductIn2 _ _· f' →
+Lemma BinCoproductArrow_eq_cor (f f' : BinCoproductObject (CC a b) --> c)
+  : BinCoproductIn1 _· f = BinCoproductIn1 _· f' → BinCoproductIn2 _· f = BinCoproductIn2 _· f' →
       f = f' .
 Proof.
   intros Hyp1 Hyp2.
@@ -412,7 +423,7 @@ Qed.
 
 (* optimized versions in direct style *)
 Lemma BinCoproductIn1Commutes_right_dir (f : a --> c) (g : b --> c) (h : a --> c) :
-  h = f -> h = BinCoproductIn1 C (CC _ _) · BinCoproductArrow C (CC _ _) f g.
+  h = f -> h = BinCoproductIn1 (CC _ _) · BinCoproductArrow (CC _ _) f g.
 Proof.
   intro Hyp.
   rewrite Hyp.
@@ -421,7 +432,7 @@ Proof.
 Qed.
 
 Lemma BinCoproductIn2Commutes_right_dir (f : a --> c) (g : b --> c) (h : b --> c) :
-  h = g -> h = BinCoproductIn2 C (CC _ _) · BinCoproductArrow C (CC _ _) f g.
+  h = g -> h = BinCoproductIn2 (CC _ _) · BinCoproductArrow (CC _ _) f g.
 Proof.
   intro Hyp.
   rewrite Hyp.
@@ -430,7 +441,7 @@ Proof.
 Qed.
 
 Lemma BinCoproductIn1Commutes_right_in_ctx_dir (f : a --> c) (g : b --> c) (h : c --> d) (h' : a --> d) :
-  h' = f · h -> h' = BinCoproductIn1 C (CC _ _) · (BinCoproductArrow C (CC _ _) f g · h).
+  h' = f · h -> h' = BinCoproductIn1 (CC _ _) · (BinCoproductArrow (CC _ _) f g · h).
 Proof.
   intro Hyp.
   rewrite Hyp.
@@ -440,7 +451,7 @@ Proof.
 Qed.
 
 Lemma BinCoproductIn2Commutes_right_in_ctx_dir (f : a --> c) (g : b --> c) (h : c --> d) (h' : b --> d) :
-  h' = g · h -> h' = BinCoproductIn2 C (CC _ _) · (BinCoproductArrow C (CC _ _) f g · h).
+  h' = g · h -> h' = BinCoproductIn2 (CC _ _) · (BinCoproductArrow (CC _ _) f g · h).
 Proof.
   intro Hyp.
   rewrite Hyp.
@@ -450,7 +461,7 @@ Proof.
 Qed.
 
 Lemma BinCoproductIn1Commutes_left_dir (f : a --> c) (g : b --> c) (h : a --> c) :
-  f = h -> BinCoproductIn1 C (CC _ _) · BinCoproductArrow C (CC _ _) f g = h.
+  f = h -> BinCoproductIn1 (CC _ _) · BinCoproductArrow (CC _ _) f g = h.
 Proof.
   intro Hyp.
   rewrite Hyp.
@@ -458,7 +469,7 @@ Proof.
 Qed.
 
 Lemma BinCoproductIn2Commutes_left_dir (f : a --> c) (g : b --> c) (h : b --> c) :
-  g = h -> BinCoproductIn2 C (CC _ _) · BinCoproductArrow C (CC _ _) f g = h.
+  g = h -> BinCoproductIn2 (CC _ _) · BinCoproductArrow (CC _ _) f g = h.
 Proof.
   intro Hyp.
   rewrite Hyp.
@@ -467,7 +478,7 @@ Qed.
 
 Lemma BinCoproductIn1Commutes_left_in_ctx_dir (f : a --> c) (g : b --> c)
   (h : c --> d) (h' : a --> d) :
-  f · h = h' -> BinCoproductIn1 C (CC _ _) · (BinCoproductArrow C (CC _ _) f g · h) = h'.
+  f · h = h' -> BinCoproductIn1 (CC _ _) · (BinCoproductArrow (CC _ _) f g · h) = h'.
 Proof.
   intro Hyp.
   rewrite <- Hyp.
@@ -478,7 +489,7 @@ Qed.
 
 Lemma BinCoproductIn2Commutes_left_in_ctx_dir (f : a --> c) (g : b --> c)
   (h : c --> d) (h' : b --> d) :
-  g · h = h' -> BinCoproductIn2 C (CC _ _) · (BinCoproductArrow C (CC _ _) f g · h) = h'.
+  g · h = h' -> BinCoproductIn2 (CC _ _) · (BinCoproductArrow (CC _ _) f g · h) = h'.
 Proof.
   intro Hyp.
   rewrite <- Hyp.
@@ -489,7 +500,7 @@ Qed.
 
 Lemma BinCoproductIn1Commutes_right_in_double_ctx_dir (g0 : x --> a) (f : a --> c) (g : b --> c)
   (h : c --> d) (h' : x --> d) : h' = g0 · f · h ->
-  h' = g0 · BinCoproductIn1 C (CC _ _) · (BinCoproductArrow C (CC _ _) f g · h).
+  h' = g0 · BinCoproductIn1 (CC _ _) · (BinCoproductArrow (CC _ _) f g · h).
 Proof.
   intro Hyp.
   rewrite Hyp.
@@ -502,7 +513,7 @@ Qed.
 
 Lemma BinCoproductIn2Commutes_right_in_double_ctx_dir (g0 : x --> b) (f : a --> c) (g : b --> c)
   (h : c --> d) (h' : x --> d) : h' = g0 · g · h ->
-  h' = g0 · BinCoproductIn2 C (CC _ _) · (BinCoproductArrow C (CC _ _) f g · h).
+  h' = g0 · BinCoproductIn2 (CC _ _) · (BinCoproductArrow (CC _ _) f g · h).
 Proof.
   intro Hyp.
   rewrite Hyp.
@@ -569,12 +580,12 @@ Proof.
     apply assoc.
 Qed.
 
-Lemma precompWithBinCoproductArrow_eq  (CCab : BinCoproduct _ a b)
-    (CCcd : BinCoproduct _ c d) (f : a --> c) (g : b --> d)
+Lemma precompWithBinCoproductArrow_eq  (CCab : BinCoproduct a b)
+    (CCcd : BinCoproduct c d) (f : a --> c) (g : b --> d)
      (k : c --> x) (h : d --> x) (fk : a --> x) (gh : b --> x):
       fk = f · k → gh = g · h →
-        BinCoproductOfArrows _ CCab CCcd f g · BinCoproductArrow _ CCcd k h =
-         BinCoproductArrow _ CCab (fk) (gh).
+        BinCoproductOfArrows _ CCab CCcd f g · BinCoproductArrow CCcd k h =
+         BinCoproductArrow CCab (fk) (gh).
 Proof.
   intros H H'.
   rewrite H.
@@ -654,23 +665,28 @@ Definition bincoproduct_functor_data {C : precategory} (PC : BinCoproducts C) :
 Proof.
 use tpair.
 - intros p.
-  apply (BinCoproductObject _ (PC (pr1 p) (pr2 p))).
+  apply (BinCoproductObject (PC (pr1 p) (pr2 p))).
 - simpl; intros p q f.
   apply (BinCoproductOfArrows _ (PC (pr1 p) (pr2 p))
                              (PC (pr1 q) (pr2 q)) (pr1 f) (pr2 f)).
 Defined.
 
 (* The binary coproduct functor: C * C -> C *)
-Definition bincoproduct_functor {C : precategory} (PC : BinCoproducts C) :
-  functor (precategory_binproduct C C) C.
+
+Lemma is_functor_bincoproduct_functor_data {C : precategory} (PC : BinCoproducts C)
+  : is_functor (bincoproduct_functor_data PC).
 Proof.
-apply (tpair _ (bincoproduct_functor_data PC)).
-abstract (split;
-  [ intro x; simpl; apply pathsinv0, BinCoproduct_endo_is_identity;
-    [ now rewrite BinCoproductOfArrowsIn1, id_left
-    | now rewrite BinCoproductOfArrowsIn2, id_left ]
-  | now intros x y z f g; simpl; rewrite BinCoproductOfArrows_comp ]).
-Defined.
+  split.
+  - intro x; simpl; apply pathsinv0.
+    use BinCoproduct_endo_is_identity.
+    + now rewrite BinCoproductOfArrowsIn1, id_left.
+    + now rewrite BinCoproductOfArrowsIn2, id_left.
+  -  now intros x y z f g; simpl; rewrite BinCoproductOfArrows_comp.
+Qed.
+
+Definition bincoproduct_functor {C : precategory} (PC : BinCoproducts C)
+  : functor (precategory_binproduct C C) C
+  := make_functor _ (is_functor_bincoproduct_functor_data PC).
 
 (* Defines the copropuct of two functors *)
 Definition BinCoproduct_of_functors_alt {C D : precategory}
@@ -699,8 +715,8 @@ Section BinCoproduct_zeroarrow.
   Variable C : precategory.
   Variable Z : Zero C.
 
-  Lemma BinCoproductArrowZero {x y z: C} {BP : BinCoproduct C x y} (f : x --> z) (g : y --> z) :
-    f = ZeroArrow Z _ _ -> g = ZeroArrow Z _ _ -> BinCoproductArrow C BP f g = ZeroArrow Z _ _ .
+  Lemma BinCoproductArrowZero {x y z: C} {BP : BinCoproduct x y} (f : x --> z) (g : y --> z) :
+    f = ZeroArrow Z _ _ -> g = ZeroArrow Z _ _ -> BinCoproductArrow BP f g = ZeroArrow Z _ _ .
   Proof.
     intros X X0. apply pathsinv0.
     use BinCoproductArrowUnique.
@@ -723,7 +739,7 @@ Section BinCoproduct_of_functors.
 
 Variables F G : functor C D.
 
-Local Notation "c ⊗ d" := (BinCoproductObject _ (HD c d)).
+Local Notation "c ⊗ d" := (BinCoproductObject (HD c d)).
 
 Definition BinCoproduct_of_functors_ob (c : C) : D := F c ⊗ G c.
 
@@ -802,7 +818,7 @@ now apply (functor_eq _ _ hsD).
 Defined.
 
 Definition coproduct_nat_trans_in1_data : ∏ c, F c --> BinCoproduct_of_functors c
-  := λ c : C, BinCoproductIn1 _ (HD (F c) (G c)).
+  := λ c : C, BinCoproductIn1 (HD (F c) (G c)).
 
 Lemma is_nat_trans_coproduct_nat_trans_in1_data
   : is_nat_trans _ _ coproduct_nat_trans_in1_data.
@@ -823,7 +839,7 @@ Definition coproduct_nat_trans_in1 : nat_trans _ _
   := tpair _ _ is_nat_trans_coproduct_nat_trans_in1_data.
 
 Definition coproduct_nat_trans_in2_data : ∏ c, G c --> BinCoproduct_of_functors c
-  := λ c : C, BinCoproductIn2 _ (HD (F c) (G c)).
+  := λ c : C, BinCoproductIn2 (HD (F c) (G c)).
 
 Lemma is_nat_trans_coproduct_nat_trans_in2_data
   : is_nat_trans _ _ coproduct_nat_trans_in2_data.
@@ -945,7 +961,7 @@ Qed.
 
 
 Definition functor_precat_coproduct_cocone
-  : BinCoproduct [C, D, hsD] F G.
+  : @BinCoproduct [C, D, hsD] F G.
 Proof.
   use make_BinCoproduct.
   - apply BinCoproduct_of_functors.
@@ -1002,10 +1018,10 @@ Section BinCoproduct_from_iso.
   Variable C : precategory.
   Hypothesis hs : has_homsets C.
 
-  Local Lemma iso_to_isBinCoproduct_comm {x y z : C} (BP : BinCoproduct C x y)
-        (i : iso z (BinCoproductObject C BP)) (w : C) (f : x --> w) (g : y --> w) :
-    (BinCoproductIn1 C BP · inv_from_iso i · (i · BinCoproductArrow C BP f g) = f)
-      × (BinCoproductIn2 C BP · inv_from_iso i · (i · BinCoproductArrow C BP f g) = g).
+  Local Lemma iso_to_isBinCoproduct_comm {x y z : C} (BP : BinCoproduct x y)
+        (i : iso z (BinCoproductObject BP)) (w : C) (f : x --> w) (g : y --> w) :
+    (BinCoproductIn1 BP · inv_from_iso i · (i · BinCoproductArrow BP f g) = f)
+      × (BinCoproductIn2 BP · inv_from_iso i · (i · BinCoproductArrow BP f g) = g).
   Proof.
     split.
     - rewrite <- assoc. rewrite (assoc _ i).
@@ -1016,11 +1032,11 @@ Section BinCoproduct_from_iso.
       apply BinCoproductIn2Commutes.
   Qed.
 
-  Local Lemma iso_to_isBinCoproduct_unique {x y z : C} (BP : BinCoproduct C x y)
-        (i : iso z (BinCoproductObject C BP)) (w : C) (f : x --> w) (g : y --> w) (y0 : C ⟦ z, w ⟧)
-        (T : (BinCoproductIn1 C BP · inv_from_iso i · y0 = f)
-               × (BinCoproductIn2 C BP · inv_from_iso i · y0 = g)) :
-    y0 = i · BinCoproductArrow C BP f g.
+  Local Lemma iso_to_isBinCoproduct_unique {x y z : C} (BP : BinCoproduct x y)
+        (i : iso z (BinCoproductObject BP)) (w : C) (f : x --> w) (g : y --> w) (y0 : C ⟦ z, w ⟧)
+        (T : (BinCoproductIn1 BP · inv_from_iso i · y0 = f)
+               × (BinCoproductIn2 BP · inv_from_iso i · y0 = g)) :
+    y0 = i · BinCoproductArrow BP f g.
   Proof.
     apply (pre_comp_with_iso_is_inj _ _ w (iso_inv_from_iso i) (pr2 (iso_inv_from_iso i))).
     rewrite assoc. cbn. rewrite (iso_after_iso_inv i). rewrite id_left.
@@ -1029,16 +1045,16 @@ Section BinCoproduct_from_iso.
     - rewrite assoc. apply (dirprod_pr2 T).
   Qed.
 
-  Lemma iso_to_isBinCoproduct {x y z : C} (BP : BinCoproduct C x y)
-        (i : iso z (BinCoproductObject C BP)) :
+  Lemma iso_to_isBinCoproduct {x y z : C} (BP : BinCoproduct x y)
+        (i : iso z (BinCoproductObject BP)) :
     isBinCoproduct C _ _ z
-                         ((BinCoproductIn1 C BP) · (iso_inv_from_iso i))
-                         ((BinCoproductIn2 C BP) · (iso_inv_from_iso i)).
+                         ((BinCoproductIn1 BP) · (iso_inv_from_iso i))
+                         ((BinCoproductIn2 BP) · (iso_inv_from_iso i)).
   Proof.
     intros w f g.
     use unique_exists.
     (* The arrow *)
-    - exact (i · (BinCoproductArrow C BP f g)).
+    - exact (i · (BinCoproductArrow BP f g)).
     (* Commutativity *)
     - exact (iso_to_isBinCoproduct_comm BP i w f g).
     (* Equality on equalities of morphisms. *)
@@ -1048,12 +1064,12 @@ Section BinCoproduct_from_iso.
   Defined.
   Opaque iso_to_isBinCoproduct.
 
-  Definition iso_to_BinCoproduct {x y z : C} (BP : BinCoproduct C x y)
-             (i : iso z (BinCoproductObject C BP)) :
-    BinCoproduct C x y := make_BinCoproduct
+  Definition iso_to_BinCoproduct {x y z : C} (BP : BinCoproduct x y)
+             (i : iso z (BinCoproductObject BP)) :
+    BinCoproduct x y := make_BinCoproduct
                                   C _ _ z
-                                  ((BinCoproductIn1 C BP) · (iso_inv_from_iso i))
-                                  ((BinCoproductIn2 C BP) · (iso_inv_from_iso i))
+                                  ((BinCoproductIn1 BP) · (iso_inv_from_iso i))
+                                  ((BinCoproductIn2 BP) · (iso_inv_from_iso i))
                                   (iso_to_isBinCoproduct BP i).
 
 End BinCoproduct_from_iso.

@@ -297,7 +297,7 @@ Proof.
 
 Section full_sub_cat.
 
-Variable C : precategory.
+Variable C : category.
 
 Variable C' : hsubtype (ob C).
 
@@ -417,12 +417,17 @@ Defined.
 
 (** ** Proof of the targeted theorem: full subcats of cats are cats *)
 
-Lemma is_univalent_full_subcat (H : is_univalent C) : is_univalent (full_sub_precategory C').
+Lemma has_homsets_full_sub_precategory : has_homsets (full_sub_precategory C').
+Proof.
+  intros H x y. apply is_set_sub_precategory_morphisms. apply C.
+Qed.
+
+Definition full_sub_category : category := make_category _ has_homsets_full_sub_precategory.
+
+Lemma is_univalent_full_subcat (H : is_univalent C) : is_univalent full_sub_category.
 Proof.
   unfold is_univalent.
-  split.
-  - intros; apply isweq_sub_precat_paths_to_iso; assumption.
-  - intros x y. apply is_set_sub_precategory_morphisms. apply (pr2 H).
+  intros; apply isweq_sub_precat_paths_to_iso; assumption.
 Defined.
 
 End full_sub_cat.
@@ -436,7 +441,7 @@ Proof.
   - apply is_univalent_full_subcat, univalent_category_is_univalent.
 Defined.
 
-Lemma functor_full_img_essentially_surjective (A B : precategory)
+Lemma functor_full_img_essentially_surjective (A B : category)
      (F : functor A B) :
   essentially_surjective (functor_full_img F).
 Proof.
