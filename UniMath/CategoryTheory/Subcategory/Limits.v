@@ -222,7 +222,7 @@ Defined.
 
 Lemma bin_coproducts_in_full_subcategory {C : category} (C' : hsubtype (ob C))
       (BPC : BinCoproducts C)
-      (all : ∏ c1 c2 : ob C, C' c1 -> C' c2 -> C' (BinCoproductObject _ (BPC c1 c2))) :
+      (all : ∏ c1 c2 : ob C, C' c1 -> C' c2 -> C' (BinCoproductObject (BPC c1 c2))) :
   BinCoproducts (full_sub_precategory C').
 Proof.
   intros c1' c2'.
@@ -230,7 +230,7 @@ Proof.
   pose (c2'_in_C := (precategory_object_from_sub_precategory_object _ _ c2')).
   use tpair; [use tpair|]; [|use make_dirprod|].
   - use precategory_object_in_subcat.
-    + apply (BinCoproductObject _ (BPC c1'_in_C c2'_in_C)).
+    + apply (BinCoproductObject (BPC c1'_in_C c2'_in_C)).
     + apply all.
       * exact (pr2 c1').
       * exact (pr2 c2').

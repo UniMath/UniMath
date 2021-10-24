@@ -23,14 +23,14 @@ Local Open Scope cat.
 Definition subobject_classifier {C : precategory} (T : Terminal C) : UU :=
   ∑ (O : ob C) (true : C⟦T, O⟧), ∏ (X Y : ob C) (m : Monic _ X Y),
     ∃! chi : C⟦Y, O⟧,
-      ∑ (H : m · chi = TerminalArrow _ _ · true), isPullback _ _ _ _ H.
+      ∑ (H : m · chi = TerminalArrow _ _ · true), isPullback H.
 
 Definition make_subobject_classifier {C : precategory} {T : Terminal C}
            (O : ob C) (true : C⟦T, O⟧) :
   (∏ (X Y : ob C) (m : Monic _ X Y),
     iscontr (∑ (chi : C⟦Y, O⟧)
                (H : m · chi = TerminalArrow _ _ · true),
-               isPullback _ _ _ _ H)) -> subobject_classifier T.
+               isPullback H)) -> subobject_classifier T.
 Proof.
   intros.
   use tpair; [exact O|].
@@ -60,7 +60,7 @@ Section Accessors.
   Definition subobject_classifier_universal_property {X Y} (m : Monic _ X Y) :
     iscontr (∑ (chi : C⟦Y, subobject_classifier_object⟧)
                (H : m · chi = TerminalArrow _ _ · true'),
-               isPullback _ _ _ _ H) := pr2 (pr2 O) X Y m.
+               isPullback H) := pr2 (pr2 O) X Y m.
 
   Definition characteristic_morphism {X Y} (m : Monic _ X Y) :
     C⟦Y, subobject_classifier_object⟧ :=

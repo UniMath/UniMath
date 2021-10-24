@@ -190,7 +190,7 @@ Section def_bindirectsums.
 
   (** Construction of BinCoproduct and BinProduct from BinDirectSum. *)
   Definition BinDirectSum_BinCoproduct {a b : A} (B : BinDirectSum a b) :
-    BinCoproduct A a b.
+    BinCoproduct a b.
   Proof.
     use (make_BinCoproduct A a b B (to_In1 B) (to_In2 B)).
     exact (to_isBinCoproduct B).
@@ -207,7 +207,7 @@ Section def_bindirectsums.
              (g : c --> b) : A⟦c, B⟧ := BinProductArrow A (BinDirectSum_BinProduct B) f g.
 
   Definition FromBinDirectSum {a b : A} (B : BinDirectSum a b) {c : A} (f : a --> c)
-             (g : b --> c) : A⟦B, c⟧ := BinCoproductArrow A (BinDirectSum_BinCoproduct B) f g.
+             (g : b --> c) : A⟦B, c⟧ := BinCoproductArrow (BinDirectSum_BinCoproduct B) f g.
 
   (** Commutativity of BinDirectSum. *)
   Definition BinDirectSumIn1Commutes {a b : A} (B : BinDirectSum a b) :

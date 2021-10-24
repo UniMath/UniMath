@@ -340,18 +340,18 @@ Section MonadsUsingCoproducts.
 
 Context {C : precategory} (T : Monad C) (BC : BinCoproducts C).
 
-Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)).
+Local Notation "a ⊕ b" := (BinCoproductObject (BC a b)).
 
 (** operation of weakening in a monad *)
-Definition mweak (a b: C): C⟦T b, T (a ⊕ b)⟧ := bind (BinCoproductIn2 _ (BC _ _) · (η T _)).
+Definition mweak (a b: C): C⟦T b, T (a ⊕ b)⟧ := bind (BinCoproductIn2 (BC _ _) · (η T _)).
 
 (** operation of exchange in a monad *)
 Definition mexch (a b c:C): C⟦T (a ⊕ (b ⊕ c)), T (b ⊕ (a ⊕ c))⟧.
 Proof.
-  set (a1 := BinCoproductIn1 _ (BC _ _) · BinCoproductIn2 _ (BC _ _): C⟦a, b ⊕ (a ⊕ c)⟧).
-  set (a21 := BinCoproductIn1 _ (BC _ _): C⟦b, b ⊕ (a ⊕ c)⟧).
-  set (a22 := BinCoproductIn2 _ (BC _ _) · BinCoproductIn2 _ (BC _ _): C⟦c, b ⊕ (a ⊕ c)⟧).
-  exact (bind ((BinCoproductArrow _ _ a1 (BinCoproductArrow _ _ a21 a22)) · (η T _))).
+  set (a1 := BinCoproductIn1 (BC _ _) · BinCoproductIn2 (BC _ _): C⟦a, b ⊕ (a ⊕ c)⟧).
+  set (a21 := BinCoproductIn1 (BC _ _): C⟦b, b ⊕ (a ⊕ c)⟧).
+  set (a22 := BinCoproductIn2 (BC _ _) · BinCoproductIn2 (BC _ _): C⟦c, b ⊕ (a ⊕ c)⟧).
+  exact (bind ((BinCoproductArrow _ a1 (BinCoproductArrow _ a21 a22)) · (η T _))).
 Defined.
 
 (** * Substitution operation for monads *)
@@ -359,7 +359,7 @@ Section MonadSubst.
 
 
 Definition monadSubstGen {b:C} (a : C) (e : C⟦b,T a⟧) : C⟦T (b ⊕ a), T a⟧ :=
-  bind (BinCoproductArrow _ _ e (η T a)).
+  bind (BinCoproductArrow _ e (η T a)).
 
 Lemma subst_interchange_law_gen (c b a : C) (e : C⟦c,T (b ⊕ a)⟧) (f : C⟦b,T a⟧):
   (monadSubstGen _ e) · (monadSubstGen _ f) =
