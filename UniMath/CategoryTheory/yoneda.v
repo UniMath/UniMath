@@ -141,7 +141,7 @@ Qed.
 
 
 Definition yoneda (C : precategory) (hs: has_homsets C) :
-  functor C [C^op, HSET, has_homsets_HSET] :=
+  functor C (functor_category C^op hset_category) :=
    tpair _ _ (is_functor_yoneda C hs).
 
 (* Notation "'ob' F" := (precategory_ob_mor_fun_objects F)(at level 4). *)

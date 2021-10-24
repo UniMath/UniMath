@@ -284,7 +284,7 @@ apply subtypePath.
   set (C' (c : C) f := ∏ u v (e : J⟦u,v⟧), @compose _ c _ _ (f u) (# F e) = f v).
   rewrite (@transportf_total2 _ B C').
   apply subtypePath.
-  + intro; repeat (apply impred; intro); apply (pr2 H).
+  + intro; repeat (apply impred; intro). apply (homset_property C).
   + abstract (now simpl; eapply pathscomp0; [apply transportf_isotoid_dep'|];
               apply funextsec; intro v; rewrite inv_isotoid, idtoiso_isotoid;
               cbn; unfold precomp_with; rewrite id_right; apply limArrowCommutes).

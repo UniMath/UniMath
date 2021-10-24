@@ -294,9 +294,6 @@ Section def_po.
 
   End pushout_lemma.
 
-  Section Universal_Unique.
-
-    Hypothesis H : is_univalent C.
 
     Lemma inv_from_iso_iso_from_Pushout (a b c : C) (f : C⟦a, b⟧) (g : C⟦a, c⟧)
           (Po : Pushout f g) (Po' : Pushout f g):
@@ -307,8 +304,6 @@ Section def_po.
       set (T := are_inverses_from_Pushout_to_Pushout Po Po').
       apply (pr1 T).
     Qed.
-
-  End Universal_Unique.
 
 
   (** ** Connections to other colimits *)

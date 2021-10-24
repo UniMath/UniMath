@@ -61,6 +61,18 @@ Definition morphism_in_full_subcat {C : precategory} {C' : hsubtype (ob C)}
    {a b : ob (full_sub_precategory C')} (f : pr1 a --> pr1 b) :
     precategory_morphisms a b := precategory_morphisms_in_subcat f tt.
 
+Lemma has_homsets_full_sub_precategory (C : category)
+         (C':hsubtype (ob C)) : has_homsets (full_sub_precategory C').
+Proof.
+  intros H x y. apply is_set_sub_precategory_morphisms. apply C.
+Qed.
+
+Definition full_sub_category (C : category)
+           (C':hsubtype (ob C))
+  : category
+  := make_category _ (has_homsets_full_sub_precategory C C').
+
+
 (** ** The inclusion of a full subcategory is fully faithful *)
 
 Section FullyFaithful.
@@ -104,6 +116,14 @@ End FullyFaithful.
 Definition full_img_sub_precategory {C D : precategory}(F : functor C D) :
     sub_precategories D :=
        full_sub_precategory (sub_img_functor F).
+
+Lemma has_homsets_full_img_sub_precategory {C : precategory} {D : category} (F : functor C D)
+  : has_homsets (full_img_sub_precategory F).
+Proof.
+  apply  has_homsets_full_sub_precategory.
+Qed.
+
+
 
 (** ** Given a functor F : C -> D, we obtain a functor F : C -> Img(F) *)
 
@@ -417,14 +437,8 @@ Defined.
 
 (** ** Proof of the targeted theorem: full subcats of cats are cats *)
 
-Lemma has_homsets_full_sub_precategory : has_homsets (full_sub_precategory C').
-Proof.
-  intros H x y. apply is_set_sub_precategory_morphisms. apply C.
-Qed.
 
-Definition full_sub_category : category := make_category _ has_homsets_full_sub_precategory.
-
-Lemma is_univalent_full_subcat (H : is_univalent C) : is_univalent full_sub_category.
+Lemma is_univalent_full_subcat (H : is_univalent C) : is_univalent (full_sub_category C C').
 Proof.
   unfold is_univalent.
   intros; apply isweq_sub_precat_paths_to_iso; assumption.

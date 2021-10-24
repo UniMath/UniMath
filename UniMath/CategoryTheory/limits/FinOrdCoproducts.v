@@ -93,12 +93,12 @@ Section FinOrdCoproduct_criteria.
     set (Cone2In := CoproductIn _ _ Cone2).
     set (BinCone := BinCoprods (CoproductObject (stn n) C Cone1)
                                (CoproductObject (stn 1) C Cone2)).
-    set (in1 := BinCoproductIn1 _ BinCone).
-    set (in2 := BinCoproductIn2 _ BinCone).
+    set (in1 := BinCoproductIn1 BinCone).
+    set (in2 := BinCoproductIn2 BinCone).
     set (m1 := λ i1 : stn n, (Cone1In i1) · in1).
     set (m2 := λ i2 : stn 1, (Cone2In i2) · in2).
 
-    use (make_Coproduct (stn (S n)) C a (BinCoproductObject _ BinCone) _).
+    use (make_Coproduct (stn (S n)) C a (BinCoproductObject BinCone) _).
 
     (* Construction of the arrows from a i to BinCone *)
     intros i. induction (natlehchoice4 (pr1 i) _ (pr2 i)) as [a0|b].
@@ -124,7 +124,7 @@ Section FinOrdCoproduct_criteria.
     use (unique_exists).
 
     (* Construction of the unique arrow from BinCone to c. *)
-    use (BinCoproductArrow _ BinCone).
+    use (BinCoproductArrow BinCone).
     use (CoproductArrow _ _ Cone1). intros i. exact (g (dni_lastelement i)).
     use (CoproductArrow _ _ Cone2). intros i. exact (g lastelement).
 

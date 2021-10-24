@@ -77,7 +77,7 @@ Defined.
 
 Local Open Scope cat.
 
-Definition sSet := [ precatDelta^op , HSET, pr2 is_univalent_HSET ] .
+Definition sSet := functor_category precatDelta^op category_HSET.
 (* V.V. with Sasha Vishik, Nov. 23, 2014 *)
 
 

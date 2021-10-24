@@ -244,24 +244,32 @@ Section def_po.
              (Pb Pb': Pushout f g) : iso Pb Pb' :=
     tpair _ _ (isiso_from_Pushout_to_Pushout Pb Pb').
 
-  Section Universal_Unique.
 
-    Hypothesis H : is_univalent C.
-
-
-    Lemma inv_from_iso_iso_from_Pushout (a b c : C) (f : a --> b) (g : a --> c)
-          (Pb : Pushout f g) (Pb' : Pushout f g):
+  Lemma inv_from_iso_iso_from_Pushout (a b c : C) (f : a --> b) (g : a --> c)
+        (Pb : Pushout f g) (Pb' : Pushout f g):
       inv_from_iso (iso_from_Pushout_to_Pushout Pb Pb')
       = from_Pushout_to_Pushout Pb' Pb.
-    Proof.
+  Proof.
       apply pathsinv0.
       apply inv_iso_unique'.
       set (T:= are_inverses_from_Pushout_to_Pushout Pb' Pb).
       apply (pr1 T).
-    Qed.
+  Qed.
 
 
-    Lemma isaprop_Pushouts: isaprop Pushouts.
+End def_po.
+
+(** Make the C not implicit for Pushouts *)
+Arguments Pushouts : clear implicits.
+
+
+Section Universal_Unique.
+
+  Variable C : category.
+  Hypothesis H : is_univalent C.
+
+
+    Lemma isaprop_Pushouts: isaprop (Pushouts C).
     Proof.
       apply impred; intro a; apply impred; intro b; apply impred; intro c;
         apply impred; intro p1; apply impred; intro p2;
@@ -269,7 +277,7 @@ Section def_po.
       intros Pb Pb'.
       apply subtypePath.
       - intro; apply isofhleveltotal2.
-        + apply hsC.
+        + apply C.
         + intros; apply isaprop_isPushout.
       - apply (total2_paths_f
                  (isotoid _ H (iso_from_Pushout_to_Pushout Pb Pb' ))).
@@ -294,12 +302,8 @@ Section def_po.
         apply idpath.
     Qed.
 
-  End Universal_Unique.
+End Universal_Unique.
 
-End def_po.
-
-(** Make the C not implicit for Pushouts *)
-Arguments Pushouts : clear implicits.
 
 (** In this section we prove that the pushout of an epimorphism is an
   epimorphism. *)
@@ -345,22 +349,22 @@ Section po_criteria.
   Hypothesis hs : has_homsets C.
 
   Definition Pushout_from_Coequalizer_BinCoproduct_eq (X Y Z : C)
-             (f : Z --> X) (g : Z --> Y) (BinCoprod : BinCoproduct C X Y)
-             (CEq : Coequalizer (f · (BinCoproductIn1 C BinCoprod))
-                                (g · (BinCoproductIn2 C BinCoprod))) :
-    f · ((BinCoproductIn1 C BinCoprod) · CoequalizerArrow CEq)
-    = g · ((BinCoproductIn2 C BinCoprod) · CoequalizerArrow CEq).
+             (f : Z --> X) (g : Z --> Y) (BinCoprod : BinCoproduct X Y)
+             (CEq : Coequalizer (f · (BinCoproductIn1 BinCoprod))
+                                (g · (BinCoproductIn2 BinCoprod))) :
+    f · ((BinCoproductIn1 BinCoprod) · CoequalizerArrow CEq)
+    = g · ((BinCoproductIn2 BinCoprod) · CoequalizerArrow CEq).
   Proof.
     repeat rewrite assoc. apply CoequalizerEqAr.
   Qed.
 
 
   Definition Pushout_from_Coequalizer_BinCoproduct_isPushout (X Y Z : C)
-             (f : Z --> X) (g : Z --> Y) (BinCoprod : BinCoproduct C X Y)
-             (CEq : Coequalizer (f · (BinCoproductIn1 C BinCoprod))
-                                (g · (BinCoproductIn2 C BinCoprod))) :
-    isPushout f g (BinCoproductIn1 C BinCoprod · CoequalizerArrow CEq)
-               (BinCoproductIn2 C BinCoprod · CoequalizerArrow CEq)
+             (f : Z --> X) (g : Z --> Y) (BinCoprod : BinCoproduct X Y)
+             (CEq : Coequalizer (f · (BinCoproductIn1 BinCoprod))
+                                (g · (BinCoproductIn2 BinCoprod))) :
+    isPushout f g (BinCoproductIn1 BinCoprod · CoequalizerArrow CEq)
+               (BinCoproductIn2 BinCoprod · CoequalizerArrow CEq)
                (Pushout_from_Coequalizer_BinCoproduct_eq
                   X Y Z f g BinCoprod CEq).
   Proof.
@@ -396,16 +400,16 @@ Section po_criteria.
   Qed.
 
   Definition Pushout_from_Coequalizer_BinCoproduct (X Y Z : C)
-             (f : Z --> X) (g : Z --> Y) (BinCoprod : BinCoproduct C X Y)
-             (CEq : Coequalizer (f · (BinCoproductIn1 C BinCoprod))
-                                (g · (BinCoproductIn2 C BinCoprod))) :
+             (f : Z --> X) (g : Z --> Y) (BinCoprod : BinCoproduct X Y)
+             (CEq : Coequalizer (f · (BinCoproductIn1 BinCoprod))
+                                (g · (BinCoproductIn2 BinCoprod))) :
     Pushout f g.
   Proof.
-    use (make_Pushout f g CEq ((BinCoproductIn1 C BinCoprod)
+    use (make_Pushout f g CEq ((BinCoproductIn1 BinCoprod)
                                · CoequalizerArrow CEq)
-                    ((BinCoproductIn2 C BinCoprod) · CoequalizerArrow CEq)).
-    apply Pushout_from_Coequalizer_BinCoproduct_eq.
-    apply Pushout_from_Coequalizer_BinCoproduct_isPushout.
+                    ((BinCoproductIn2 BinCoprod) · CoequalizerArrow CEq)).
+    - apply Pushout_from_Coequalizer_BinCoproduct_eq.
+    - apply Pushout_from_Coequalizer_BinCoproduct_isPushout.
   Defined.
 
   Definition Pushouts_from_Coequalizers_BinCoproducts
