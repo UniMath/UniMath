@@ -195,7 +195,7 @@ End TerminalFunctorCat.
 (** Morphisms from the terminal object are monic *)
 Section monics_terminal.
 
-Context {C : precategory} (TC : Terminal C).
+Context {C : category} (TC : Terminal C).
 
 Lemma from_terminal_isMonic (a : C) (f : C⟦TC,a⟧) : isMonic f.
 Proof.

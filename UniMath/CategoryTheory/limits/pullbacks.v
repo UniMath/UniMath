@@ -402,7 +402,7 @@ Arguments Pullbacks : clear implicits.
   monomorphism. *)
 Section monic_pb.
 
-  Variable C : precategory.
+  Variable C : category.
 
   (** The pullback of a Monic is isMonic. *)
   Lemma MonicPullbackisMonic {a b c : C} (M : Monic _ b a) (g : c --> a)
@@ -440,8 +440,8 @@ Arguments glueSquares {_ _ _ _ _ _ _ _ _ _ _ _ _ _ } _ _ .
 (** * Criteria for existence of pullbacks. *)
 Section pb_criteria.
 
-  Variable C : precategory.
-  Hypothesis hs : has_homsets C.
+  Variable C : category.
+  Let hs : has_homsets C := homset_property C.
 
   Definition Pullback_from_Equalizer_BinProduct_eq (X Y Z : C)
              (f : X --> Z) (g : Y --> Z) (BinProd : BinProduct C X Y)
