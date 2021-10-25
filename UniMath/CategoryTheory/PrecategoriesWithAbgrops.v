@@ -28,8 +28,10 @@ Section def_precategory_with_abgrops.
     ∑ PA : (∑ PB : precategoryWithBinOps, has_homsets PB),
            categoryWithAbgropsData (pr1 PA) (pr2 PA).
 
+
   Definition categoryWithAbgrops_precategoryWithBinOps (PB : categoryWithAbgrops) :
     precategoryWithBinOps := pr1 (pr1 PB).
+
   Coercion categoryWithAbgrops_precategoryWithBinOps :
     categoryWithAbgrops >-> precategoryWithBinOps.
 
@@ -37,7 +39,7 @@ Section def_precategory_with_abgrops.
   Definition categoryWithAbgrops_category (PWA : categoryWithAbgrops) : category.
   Proof.
     use tpair.
-    - exact PWA.
+    - exact (pr1 (pr1 PWA)).
     - exact (pr2 (pr1 PWA)).
   Defined.
   Coercion categoryWithAbgrops_category : categoryWithAbgrops >-> category.

@@ -149,10 +149,12 @@ Section monics_subcategory.
     exact hs.
   Qed.
 
-  Definition subprecategory_of_monics_ob (c : C) : ob (subprecategory_of_monics) := tpair _ c tt.
+  Definition subcategory_of_monics : category := make_category _ has_homsets_subprecategory_of_monics.
+
+  Definition subprecategory_of_monics_ob (c : C) : ob (subcategory_of_monics) := tpair _ c tt.
 
   Definition subprecategory_of_monics_mor {c' c : C} (f : c' --> c) (isM : isMonic f) :
-    subprecategory_of_monics⟦subprecategory_of_monics_ob c', subprecategory_of_monics_ob c⟧ :=
+    subcategory_of_monics⟦subprecategory_of_monics_ob c', subprecategory_of_monics_ob c⟧ :=
     tpair _ f isM.
 
 End monics_subcategory.

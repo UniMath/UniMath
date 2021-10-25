@@ -255,8 +255,8 @@ End def_equalizers.
   coincides with the direct definition. *)
 Section equalizers_coincide.
 
-  Variable C : precategory.
-  Variable hs: has_homsets C.
+  Variable C : category.
+  Let hs: has_homsets C := homset_property C.
 
 
   (** ** isEqualizers *)
