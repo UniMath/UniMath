@@ -32,7 +32,8 @@ Local Open Scope cat.
 (** * Definition of the category of subobjects (monos) of c *)
 Section def_subobjects.
 
-  Context {C : precategory} (hsC : has_homsets C).
+  Context (C : category).
+  Let hsC : has_homsets C := homset_property C.
 
   Definition Subobjectscategory (c : C) : precategory :=
     slice_precat (subprecategory_of_monics C hsC)

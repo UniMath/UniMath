@@ -309,14 +309,14 @@ Qed.
 
 (** The generic property of "reflecting" a property of a morphism. *)
 
-Definition reflects_morphism {C D : precategory} (F : functor C D)
-           (P : ∏ (C : precategory) (a b : ob C), C⟦a, b⟧ → UU) : UU :=
+Definition reflects_morphism {C D : category} (F : functor C D)
+           (P : ∏ (C : category) (a b : ob C), C⟦a, b⟧ → UU) : UU :=
   ∏ a b f, P D (F a) (F b) (# F f) → P C a b f.
 
 (** These are functors that reflect isomorphisms. F : C ⟶ D is conservative
     if whenever # F f is an iso, so is f. *)
 
-Definition conservative {C D : precategory} (F : functor C D) : UU :=
+Definition conservative {C D : category} (F : functor C D) : UU :=
   reflects_morphism F (@is_iso).
 
 (** ** Composition of functors, identity functors *)
@@ -518,7 +518,7 @@ Proof.
 Defined.
 
 (** A slight restatement of the above: fully faithful functors are conservative. *)
-Lemma fully_faithful_conservative {C D : precategory} (F : functor C D)
+Lemma fully_faithful_conservative {C D : category} (F : functor C D)
       (FF : fully_faithful F) : conservative F.
 Proof.
   unfold conservative.
