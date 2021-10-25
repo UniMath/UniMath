@@ -291,7 +291,7 @@ Section abelian_monic_pullbacks.
              (ker : Kernel (to_Zero A) (BinProductArrow
                                           A BinProd (CokernelArrow (to_Cokernels A x z M1))
                                           (CokernelArrow (to_Cokernels A y z M2)))) :
-    isPullback M1 M2 (KernelIn (to_Zero A) (MonicToKernel M1) ker (KernelArrow ker)
+    @isPullback _ _ _ _ _ M1 M2 (KernelIn (to_Zero A) (MonicToKernel M1) ker (KernelArrow ker)
                                (monics_Pullback_eq1 M1 M2 BinProd ker))
                (KernelIn (to_Zero A) (MonicToKernel M2) ker (KernelArrow ker)
                          (monics_Pullback_eq2 M1 M2 BinProd ker))
@@ -383,7 +383,7 @@ Section abelian_monic_pullbacks.
     set (ar := BinProductArrow A BinProd (CokernelArrow (to_Cokernels A x z M1))
                                (CokernelArrow (to_Cokernels A y z M2))).
     set (ker := to_Kernels A _ _ ar).
-    use (make_Pullback M1 M2 ker
+    use (@make_Pullback _ _ _ _ M1 M2 ker
            (KernelIn (to_Zero A) ker1 ker (KernelArrow ker) (monics_Pullback_eq1 M1 M2 BinProd ker))
            (KernelIn (to_Zero A) ker2 ker (KernelArrow ker) (monics_Pullback_eq2 M1 M2 BinProd ker))
            (monics_Pullback_eq3 M1 M2 BinProd ker) (monics_Pullback_isPullback M1 M2 BinProd ker)).
@@ -394,9 +394,9 @@ Section abelian_monic_pullbacks.
 
   Definition epis_Pushout_eq1 {x y z : A} (E1 : Epi A x y) (E2 : Epi A x z)
              (BinCoprod : BinCoproduct
-                            A (to_Kernels A x y E1) (to_Kernels A x z E2))
+                            (*A*) (to_Kernels A x y E1) (to_Kernels A x z E2))
              (coker : Cokernel (to_Zero A) (BinCoproductArrow
-                                          A BinCoprod (KernelArrow (to_Kernels A x y E1))
+                                          (*A*) BinCoprod (KernelArrow (to_Kernels A x y E1))
                                           (KernelArrow (to_Kernels A x z E2))))  :
     (KernelArrow (to_Kernels A x y E1)) · CokernelArrow coker =
     ZeroArrow (to_Zero A) (to_Kernels A x y E1) coker.
@@ -412,9 +412,9 @@ Section abelian_monic_pullbacks.
 
   Definition epis_Pushout_eq2 {x y z : A} (E1 : Epi A x y) (E2 : Epi A x z)
              (BinCoprod : BinCoproduct
-                            A (to_Kernels A x y E1) (to_Kernels A x z E2))
+                            (*A*) (to_Kernels A x y E1) (to_Kernels A x z E2))
              (coker : Cokernel (to_Zero A) (BinCoproductArrow
-                                          A BinCoprod (KernelArrow (to_Kernels A x y E1))
+                                          (*A*) BinCoprod (KernelArrow (to_Kernels A x y E1))
                                           (KernelArrow (to_Kernels A x z E2)))) :
     (KernelArrow (to_Kernels A x z E2)) · CokernelArrow coker =
     ZeroArrow (to_Zero A) (to_Kernels A x z E2) coker.
@@ -430,9 +430,9 @@ Section abelian_monic_pullbacks.
 
   Definition epis_Pushout_eq3 {x y z : A} (E1 : Epi A x y) (E2 : Epi A x z)
              (BinCoprod : BinCoproduct
-                            A (to_Kernels A x y E1) (to_Kernels A x z E2))
+                            (*A*) (to_Kernels A x y E1) (to_Kernels A x z E2))
              (coker : Cokernel (to_Zero A) (BinCoproductArrow
-                                          A BinCoprod (KernelArrow (to_Kernels A x y E1))
+                                          (*A*) BinCoprod (KernelArrow (to_Kernels A x y E1))
                                           (KernelArrow (to_Kernels A x z E2)))) :
     E1 · (CokernelOut (to_Zero A) (EpiToCokernel E1) coker (CokernelArrow coker)
                        (epis_Pushout_eq1 E1 E2 BinCoprod coker)) =
@@ -446,9 +446,9 @@ Section abelian_monic_pullbacks.
 
   Definition epis_Pushout_isPushout {x y z : A} (E1 : Epi A x y) (E2 : Epi A x z)
              (BinCoprod : BinCoproduct
-                            A (to_Kernels A x y E1) (to_Kernels A x z E2))
+                            (*A*) (to_Kernels A x y E1) (to_Kernels A x z E2))
              (coker : Cokernel (to_Zero A) (BinCoproductArrow
-                                          A BinCoprod (KernelArrow (to_Kernels A x y E1))
+                                          (*A*) BinCoprod (KernelArrow (to_Kernels A x y E1))
                                           (KernelArrow (to_Kernels A x z E2)))) :
     isPushout E1 E2 (CokernelOut (to_Zero A) (EpiToCokernel E1) coker (CokernelArrow coker)
                                  (epis_Pushout_eq1 E1 E2 BinCoprod coker))
@@ -459,7 +459,7 @@ Section abelian_monic_pullbacks.
     set (coker1 := EpiToCokernel E1).
     set (coker2 := EpiToCokernel E2).
     set (ar := BinCoproductArrow
-                 A BinCoprod (KernelArrow (to_Kernels A x y E1))
+                 (*A*) BinCoprod (KernelArrow (to_Kernels A x y E1))
                  (KernelArrow (to_Kernels A x z E2))).
     assert (com1 : E1 · (CokernelOut (to_Zero A) coker1 coker (CokernelArrow coker)
                                       (epis_Pushout_eq1 E1 E2 BinCoprod coker)) =
@@ -547,7 +547,7 @@ Section abelian_monic_pullbacks.
     set (coker1 := EpiToCokernel E1).
     set (coker2 := EpiToCokernel E2).
     set (BinCoprod := to_BinCoproducts A (to_Kernels A x y E1) (to_Kernels A x z E2)).
-    set (ar := BinCoproductArrow A BinCoprod (KernelArrow (to_Kernels A x y E1))
+    set (ar := BinCoproductArrow (*A*) BinCoprod (KernelArrow (to_Kernels A x y E1))
                                  (KernelArrow (to_Kernels A x z E2))).
     set (coker := to_Cokernels A _ _ ar).
     use (make_Pushout E1 E2 coker
@@ -686,11 +686,11 @@ Section abelian_equalizers.
   (** ** Coequalizers *)
 
   Definition Coequalizer_isEpi {x y : A} (f : y --> x) :
-    isEpi (BinCoproductArrow A (to_BinCoproducts A x y) (identity x) f).
+    isEpi (BinCoproductArrow (*A*) (to_BinCoproducts A x y) (identity x) f).
   Proof.
     set (BinCoprod := to_BinCoproducts A x y).
     intros z h1 h2 H.
-    apply (maponpaths (λ f : _, (BinCoproductIn1 A BinCoprod) · f)) in H.
+    apply (maponpaths (λ f : _, (BinCoproductIn1 (*A*) BinCoprod) · f)) in H.
     rewrite assoc in H. rewrite assoc in H.
     set (com1 := BinCoproductIn1Commutes A _ _ BinCoprod x (identity x) f).
     rewrite com1 in H. clear com1.
@@ -699,20 +699,20 @@ Section abelian_equalizers.
   Qed.
 
   Definition Coequalizer_Pushout {x y : A} (f1 f2 : y --> x) :
-    Pushout (BinCoproductArrow A (to_BinCoproducts A x y) (identity x) f1)
-            (BinCoproductArrow A (to_BinCoproducts A x y) (identity x) f2) :=
+    Pushout (BinCoproductArrow (*A*) (to_BinCoproducts A x y) (identity x) f1)
+            (BinCoproductArrow (*A*) (to_BinCoproducts A x y) (identity x) f2) :=
     epis_Pushout A hs (make_Epi A _ (Coequalizer_isEpi f1)) (make_Epi A _ (Coequalizer_isEpi f2)).
 
   Definition Coequalizer_eq1 {x y : A} (f1 f2 : y --> x) :
     PushoutIn1 (Coequalizer_Pushout f1 f2) = PushoutIn2 (Coequalizer_Pushout f1 f2).
   Proof.
     set (BinCoprod := to_BinCoproducts A x y).
-    set (ar1 := BinCoproductArrow A BinCoprod (identity x) f1).
-    set (ar2 := BinCoproductArrow A BinCoprod (identity x) f2).
+    set (ar1 := BinCoproductArrow (*A*) BinCoprod (identity x) f1).
+    set (ar2 := BinCoproductArrow (*A*) BinCoprod (identity x) f2).
     set (Po := Coequalizer_Pushout f1 f2).
-    assert (H1 : (BinCoproductIn1 A BinCoprod) · ar1 = identity x) by
+    assert (H1 : (BinCoproductIn1 (*A*) BinCoprod) · ar1 = identity x) by
         apply BinCoproductIn1Commutes.
-    assert (H2 : (BinCoproductIn1 A BinCoprod) · ar2 = identity x) by
+    assert (H2 : (BinCoproductIn1 (*A*) BinCoprod) · ar2 = identity x) by
         apply BinCoproductIn1Commutes.
     use (pathscomp0 (!(id_left (PushoutIn1 Po)))).
     use (pathscomp0 (!(maponpaths (λ h : _, h · PushoutIn1 Po) H1))).
@@ -726,8 +726,8 @@ Section abelian_equalizers.
     f1 · PushoutIn1 (Coequalizer_Pushout f1 f2) = f2 · PushoutIn1 (Coequalizer_Pushout f1 f2).
   Proof.
     set (BinCoprod := to_BinCoproducts A x y).
-    set (ar1 := BinCoproductArrow A BinCoprod (identity x) f1).
-    set (ar2 := BinCoproductArrow A BinCoprod (identity x) f2).
+    set (ar1 := BinCoproductArrow (*A*) BinCoprod (identity x) f1).
+    set (ar2 := BinCoproductArrow (*A*) BinCoprod (identity x) f2).
     set (H := Coequalizer_eq1 f1 f2).
     set (Pb := Coequalizer_Pushout f1 f2).
     rewrite <- (BinCoproductIn2Commutes A _ _ BinCoprod _ (identity x) f1).
@@ -741,12 +741,12 @@ Section abelian_equalizers.
     isCoequalizer f1 f2 (PushoutIn1 (Coequalizer_Pushout f1 f2)) (Coequalizer_eq2 f1 f2).
   Proof.
     set (BinCoprod := to_BinCoproducts A x y).
-    set (ar1 := BinCoproductArrow A BinCoprod (identity x) f1).
-    set (ar2 := BinCoproductArrow A BinCoprod (identity x) f2).
+    set (ar1 := BinCoproductArrow (*A*) BinCoprod (identity x) f1).
+    set (ar2 := BinCoproductArrow (*A*) BinCoprod (identity x) f2).
     set (H := Coequalizer_eq1 f1 f2).
     use make_isCoequalizer.
     intros w h HH.
-    assert (HH' : ar1 · h = BinCoproductArrow A BinCoprod h (f1 · h)).
+    assert (HH' : ar1 · h = BinCoproductArrow (*A*) BinCoprod h (f1 · h)).
     {
       use (BinCoproductArrowUnique A _ _ BinCoprod).
       - rewrite assoc.
@@ -756,7 +756,7 @@ Section abelian_equalizers.
         set (com2 := BinCoproductIn2Commutes A _ _ BinCoprod x (identity x) f1).
         fold ar1 in com2. rewrite com2. apply idpath.
     }
-    assert (HH'' : ar2 · h = BinCoproductArrow A BinCoprod h (f1 · h)).
+    assert (HH'' : ar2 · h = BinCoproductArrow BinCoprod h (f1 · h)).
     {
       apply (BinCoproductArrowUnique A _ _ BinCoprod).
       - rewrite assoc.

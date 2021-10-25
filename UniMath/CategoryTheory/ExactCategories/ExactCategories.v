@@ -85,7 +85,7 @@ Section Categories.
   Definition isPullback' {M:category} {a b c d : M} (f : b --> a) (g : c --> a)
              (p1 : d --> b) (p2 : d --> c) : hProp.
   Proof.
-    exists (∑ (H : p1 · f = p2· g), isPullback f g p1 p2 H).
+    exists (∑ (H : p1 · f = p2· g), isPullback (*f g p1 p2*) H).
     exact (_P_ (oppositeCategory M) a b c d f g p1 p2).
   Defined.
   Lemma isPullback'_up_to_z_iso {M:category} {a b c d d' : M}
@@ -163,11 +163,11 @@ Section Pullbacks.              (* move upstream *)
   Definition pullbackiso1 {M : precategory} {A B C:M} {f : A --> C} {g : B --> C}
         (pb : Pullback f g) (pb' : Pullback f g)
     : IsoArrowTo (PullbackPr1 pb) (PullbackPr1 pb')
-    := pr1 (pullbackiso pb pb'),,pr12 (pullbackiso pb pb').
+    := pr1 (pullbackiso _ pb pb'),,pr12 (pullbackiso _ pb pb').
   Definition pullbackiso2 {M : precategory} {A B C:M} {f : A --> C} {g : B --> C}
         (pb : Pullback f g) (pb' : Pullback f g)
     : IsoArrowTo (PullbackPr2 pb) (PullbackPr2 pb')
-    := pr1 (pullbackiso pb pb'),,pr22 (pullbackiso pb pb').
+    := pr1 (pullbackiso _ pb pb'),,pr22 (pullbackiso _ pb pb').
   Section OppositeIsoArrows.
     Definition opposite_IsoArrowTo {M:precategory} {A A' B:M} {g : A --> B} {g' : A' --> B} :
       IsoArrowTo g g' -> IsoArrowFrom (M:=M^op) g' g.
@@ -1158,7 +1158,7 @@ Section ExactCategoryFacts.
     isPullback' (M:=M) f g h k -> isAdmissibleEpimorphism f -> isAdmissibleEpimorphism k.
   (* dual needed *)
   Proof.
-    intros pb. exact (PullbackEpiIsEpi f g (make_Pullback _ _ _ _ _ _ (pr2 pb))).
+    intros pb. exact (PullbackEpiIsEpi f g (make_Pullback _ (pr2 pb))).
   Qed.
   Lemma IsIsoIsMono {M : ExactCategory} {A B:M} (f:A-->B) :
     is_z_isomorphism f -> isAdmissibleMonomorphism f.
@@ -1497,7 +1497,7 @@ Section ExactCategoryFacts.
   Qed.
   Lemma MapPlusIdentityToPullback {M:ExactCategory} {A B:M} (f:A-->B) (C:M)
         (AC : BinDirectSum A C) (BC : BinDirectSum B C) :
-    isPullback _ _ _ _ (MapPlusIdentityToCommSq f C AC BC).
+    isPullback (MapPlusIdentityToCommSq f C AC BC).
   Proof.
     intros T g h e. apply iscontraprop1.
     - apply invproofirrelevance. intros [p [P P']] [q [Q Q']].
