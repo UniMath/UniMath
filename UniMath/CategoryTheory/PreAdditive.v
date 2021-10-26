@@ -261,19 +261,20 @@ Section def_additive_kernel_cokernel.
     rewrite to_lunax'. apply idpath.
   Qed.
 
-  Lemma KernelInOp {x y z : A} (f1 f2 : A⟦x, y⟧) (g : A⟦y, z⟧) (K : Kernel Z g)
+  (*
+  Lemma KernelInOp {x y z : A} (f1 f2 : A⟦x, y⟧) (g : A⟦y, z⟧) (K : Kernel (C:= categoryWithAbgrops_category _ )Z g)
         (H1 : f1 · g = ZeroArrow Z _ _) (H2 : f2 · g = ZeroArrow Z _ _) :
-    KernelIn Z K _ (to_binop _ _ f1 f2) (KernelInOp_Eq f1 f2 g H1 H2) =
-    to_binop _ _ (KernelIn Z K _ f1 H1) (KernelIn Z K _ f2 H2).
+    KernelIn (C:= categoryWithAbgrops_category _) Z K _ (to_binop _ _ f1 f2) (KernelInOp_Eq f1 f2 g H1 H2) =
+    to_binop _ _ (KernelIn (C:= categoryWithAbgrops_category _) Z K _ f1 H1) (KernelIn (C:= categoryWithAbgrops_category _) Z K _ f2 H2).
   Proof.
     use KernelInsEq.
     rewrite KernelCommutes.
-    rewrite to_postmor_linear'.
-    rewrite KernelCommutes.
+    rewrite (to_postmor_linear' (A:=A)).
+    rewrite (KernelCommutes (C:= categoryWithAbgrops_category _)).
     rewrite KernelCommutes.
     apply idpath.
   Qed.
-
+*)
   Local Lemma CokernelOutOp_Eq {x y z : A} (f1 f2 : A⟦y, z⟧) (g : A⟦x, y⟧)
         (H1 : g · f1 = ZeroArrow Z _ _) (H2 : g · f2 = ZeroArrow Z _ _) :
     g · (to_binop _ _ f1 f2) = ZeroArrow Z _ _.
@@ -303,11 +304,11 @@ Section monics_and_epis_in_preadditive.
 
   Variable PA : PreAdditive.
 
-  Lemma to_inv_isMonic {x y : PA} (f : x --> y) (isM : isMonic f) : isMonic (to_inv f).
+  Lemma to_inv_isMonic {x y : PA} (f : x --> y) (isM : isMonic (C:= categoryWithAbgrops_category _)f) : isMonic (C:= categoryWithAbgrops_category _)(to_inv f).
   Proof.
     use make_isMonic.
     intros x0 g h X.
-    rewrite <- PreAdditive_invrcomp in X. rewrite <- PreAdditive_invrcomp in X.
+    rewrite <- (PreAdditive_invrcomp PA) in X. rewrite <- (PreAdditive_invrcomp PA) in X.
     apply cancel_inv in X. use isM. exact X.
   Qed.
 

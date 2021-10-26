@@ -19,8 +19,8 @@ Require Import UniMath.CategoryTheory.limits.kernels.
 (** * Definition of kernels in terms of limits *)
 Section def_kernels.
 
-  Variable C : precategory.
-  Variable hs: has_homsets C.
+  Variable C : category.
+  Let hs: has_homsets C := homset_property C.
   Variable Z : Zero C.
 
   Definition Kernel {a b : C} (f : C⟦a, b⟧) := Equalizer C f (ZeroArrow Z a b).
@@ -79,7 +79,7 @@ Section def_kernels.
   Lemma equiv_Kernel2_isEqualizer {a b : C} (f : C⟦a, b⟧) (K : Kernel f) :
     isKernel (equiv_Zero2 Z) (EqualizerArrow C K) f (equiv_Kernel2_eq f K).
   Proof.
-    use (make_isKernel hs).
+    use (make_isKernel).
     intros w h H.
     use unique_exists.
     (* Construction of the morphism *)

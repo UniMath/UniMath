@@ -438,20 +438,38 @@ Section bindirectsums_monics_and_epis.
 
   Variable A : PreAdditive.
 
-  Lemma to_In1_isMonic {a b : A} (B : BinDirectSum a b) : isMonic (to_In1 B).
+  Lemma to_In1_isMonic {a b : A} (B : BinDirectSum a b) : isMonic (C:= categoryWithAbgrops_category _) (to_In1 B).
   Proof.
     intros z f g H.
     apply (maponpaths (λ h : _, h · (to_Pr1 B))) in H.
-    repeat rewrite <- assoc in H. rewrite (to_IdIn1 B) in H.
-    repeat rewrite id_right in H. apply H.
+    repeat rewrite <- assoc in H.
+    set (X:= to_IdIn1 (A:=A) B).
+    assert (X1 : to_In1 B · to_Pr1 B = 1%abgrcat).
+    { apply X. }
+    apply (@pathscomp0 _ _ ( f · (to_In1 B · to_Pr1 B)) _).
+    apply pathsinv0.
+    etrans. apply maponpaths. apply X1.
+    apply id_right.
+    etrans. apply H.
+    etrans. apply maponpaths. apply X1.
+    apply id_right.
   Qed.
 
-  Lemma to_In2_isMonic {a b : A} (B : BinDirectSum a b) : isMonic (to_In2 B).
+  Lemma to_In2_isMonic {a b : A} (B : BinDirectSum a b) : isMonic (C:= categoryWithAbgrops_category _) (to_In2 B).
   Proof.
     intros z f g H.
     apply (maponpaths (λ h : _, h · (to_Pr2 B))) in H.
-    repeat rewrite <- assoc in H. rewrite (to_IdIn2 B) in H.
-    repeat rewrite id_right in H. apply H.
+    repeat rewrite <- assoc in H.
+    set (X:= to_IdIn2 (A:=A) B).
+    assert (X1 : to_In2 B · to_Pr2 B = 1%abgrcat).
+    { apply X. }
+    apply (@pathscomp0 _ _ ( f · (to_In2 B · to_Pr2 B)) _).
+    apply pathsinv0.
+    etrans. apply maponpaths. apply X1.
+    apply id_right.
+    etrans. apply H.
+    etrans. apply maponpaths. apply X1.
+    apply id_right.
   Qed.
 
   Lemma to_Pr1_isEpi {a b : A} (B : BinDirectSum a b) : isEpi (to_Pr1 B).

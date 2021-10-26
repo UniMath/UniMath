@@ -66,17 +66,17 @@ Section def_abelian.
      - Binary direct coproducts
    *)
 
-  Definition Data1 (C : precategory) : UU := Zero C × (BinProducts C) × (BinCoproducts C).
+  Definition Data1 (C : category) : UU := Zero C × (BinProducts C) × (BinCoproducts C).
 
-  Definition make_Data1 {C : precategory} (H1 : Zero C) (H2 : BinProducts C) (H3 : BinCoproducts C) :
+  Definition make_Data1 {C : category} (H1 : Zero C) (H2 : BinProducts C) (H3 : BinCoproducts C) :
     Data1 C := (H1,,(H2,,H3)).
 
-  Definition to_Zero {C : precategory} (D : Data1 C) : Zero C := dirprod_pr1 D.
+  Definition to_Zero {C : category} (D : Data1 C) : Zero C := dirprod_pr1 D.
 
-  Definition to_BinProducts {C : precategory} (D : Data1 C) : BinProducts C :=
+  Definition to_BinProducts {C : category} (D : Data1 C) : BinProducts C :=
     dirprod_pr1 (dirprod_pr2 D).
 
-  Definition to_BinCoproducts {C : precategory} (D : Data1 C) : BinCoproducts C :=
+  Definition to_BinCoproducts {C : category} (D : Data1 C) : BinCoproducts C :=
     dirprod_pr2 (dirprod_pr2 D).
 
   (** ** Data2
@@ -84,26 +84,26 @@ Section def_abelian.
      - Cokernels
    *)
 
-  Definition Data2 (C : precategory) (D1 : Data1 C) : UU :=
+  Definition Data2 (C : category) (D1 : Data1 C) : UU :=
     (Kernels (to_Zero D1)) × (Cokernels (to_Zero D1)).
 
-  Definition make_Data2 {C : precategory} (D1 : Data1 C) (H1 : Kernels (to_Zero D1))
+  Definition make_Data2 {C : category} (D1 : Data1 C) (H1 : Kernels (to_Zero D1))
              (H2 : Cokernels (to_Zero D1)) : Data2 C D1 := make_dirprod H1 H2.
 
-  Definition to_Kernels {C : precategory} {D1 : Data1 C} (D2 : Data2 C D1) :
+  Definition to_Kernels {C : category} {D1 : Data1 C} (D2 : Data2 C D1) :
     Kernels (to_Zero D1) := dirprod_pr1 D2.
 
-  Definition to_Cokernels {C : precategory} {D1 : Data1 C} (D2 : Data2 C D1) :
+  Definition to_Cokernels {C : category} {D1 : Data1 C} (D2 : Data2 C D1) :
     Cokernels (to_Zero D1) := dirprod_pr2 D2.
 
   (** ** Every monic is kernel of its cokernel *)
 
-  Definition MonicsAreKernels (C : precategory) (D1 : Data1 C) (D2 : Data2 C D1) : UU :=
+  Definition MonicsAreKernels (C : category) (D1 : Data1 C) (D2 : Data2 C D1) : UU :=
     ∏ (x y : C) (M : Monic C x y),
     isKernel (pr1 D1) M (CokernelArrow (to_Cokernels D2 x y M))
              (CokernelCompZero (to_Zero D1) (to_Cokernels D2 x y M)).
 
-  Definition make_MonicsAreKernels {C : precategory} (D1 : Data1 C) (D2 : Data2 C D1)
+  Definition make_MonicsAreKernels {C : category} (D1 : Data1 C) (D2 : Data2 C D1)
              (H : ∏ (x y : C) (M : Monic C x y),
                   isKernel (pr1 D1) M (CokernelArrow (to_Cokernels D2 x y M))
                            (CokernelCompZero (to_Zero D1) (to_Cokernels D2 x y M))) :
@@ -111,12 +111,12 @@ Section def_abelian.
 
   (** ** Every epi is a cokernel of its kernel *)
 
-  Definition EpisAreCokernels (C : precategory) (D1 : Data1 C) (D2 : Data2 C D1) : UU :=
+  Definition EpisAreCokernels (C : category) (D1 : Data1 C) (D2 : Data2 C D1) : UU :=
     ∏ (x y : C) (E : Epi C x y),
     isCokernel (pr1 D1) (KernelArrow (to_Kernels D2 x y E)) E
                (KernelCompZero (to_Zero D1) (to_Kernels D2 x y E)).
 
-  Definition make_EpisAreCokernels {C : precategory} (D1 : Data1 C) (D2 : Data2 C D1)
+  Definition make_EpisAreCokernels {C : category} (D1 : Data1 C) (D2 : Data2 C D1)
              (H : ∏ (x y : C) (E : Epi C x y),
                   isCokernel (pr1 D1) (KernelArrow (to_Kernels D2 x y E)) E
                              (KernelCompZero (to_Zero D1) (to_Kernels D2 x y E))) :
@@ -128,21 +128,21 @@ Section def_abelian.
      - EpisAreCokernels
    *)
 
-  Definition AbelianData (C : precategory) (D1 : Data1 C) : UU :=
+  Definition AbelianData (C : category) (D1 : Data1 C) : UU :=
     ∑ D2 : Data2 C D1, (MonicsAreKernels C D1 D2) × (EpisAreCokernels C D1 D2).
 
-  Definition make_AbelianData {C : precategory} {D1 : Data1 C} (D2 : Data2 C D1)
+  Definition make_AbelianData {C : category} {D1 : Data1 C} (D2 : Data2 C D1)
              (H1 : MonicsAreKernels C D1 D2) (H2 : EpisAreCokernels C D1 D2) :
     AbelianData C D1 := tpair _ D2 (make_dirprod H1 H2).
 
   (** ** Abelian categories *)
 
-  Definition AbelianPreCat : UU := ∑ A : (∑ C : precategory, Data1 C), AbelianData (pr1 A) (pr2 A).
+  Definition AbelianPreCat : UU := ∑ A : (∑ C : category, Data1 C), AbelianData (pr1 A) (pr2 A).
 
-  Definition precategory_of_AbelianPreCat (A : AbelianPreCat) : precategory := pr1 (pr1 A).
-  Coercion precategory_of_AbelianPreCat : AbelianPreCat >-> precategory.
+  Definition precategory_of_AbelianPreCat (A : AbelianPreCat) : category := pr1 (pr1 A).
+  Coercion precategory_of_AbelianPreCat : AbelianPreCat >-> category.
 
-  Definition make_Abelian (C : precategory) (AD1 : Data1 C) (AD : AbelianData C AD1) :
+  Definition make_Abelian (C : category) (AD1 : Data1 C) (AD : AbelianData C AD1) :
     AbelianPreCat := tpair _ (tpair _ C AD1) AD.
 
   Definition to_Data1 (A : AbelianPreCat) : Data1 A := pr2 (pr1 A).
@@ -180,7 +180,7 @@ Delimit Scope abelian_precat_scope with precategory.
 Section abelian_monic_epi_iso.
 
   Variable A : AbelianPreCat.
-  Hypothesis hs : has_homsets A.
+  Let hs : has_homsets A := homset_property A.
 
   Local Lemma monic_epi_is_iso_eq {x y : A} {f : x --> y} (iM : isMonic f) (iE : isEpi f) :
     identity y · (CokernelArrow (to_Cokernels A x y (make_Monic _ _ iM))) =
@@ -234,7 +234,7 @@ End abelian_monic_epi_iso.
 Section abelian_monic_pullbacks.
 
   Variable A : AbelianPreCat.
-  Hypothesis hs : has_homsets A.
+  Let hs : has_homsets A := homset_property A.
 
   (** ** Pullbacks of monics *)
 
@@ -567,8 +567,7 @@ End abelian_monic_pullbacks.
 Section abelian_equalizers.
 
   Variable A : AbelianPreCat.
-  Hypothesis hs : has_homsets A.
-
+  Let hs : has_homsets A := homset_property A.
 
   (** ** Equalizers *)
 
@@ -588,7 +587,7 @@ Section abelian_equalizers.
   Definition Equalizer_Pullback {x y : A} (f1 f2 : x --> y) :
     Pullback (BinProductArrow A (to_BinProducts A x y) (identity x) f1)
              (BinProductArrow A (to_BinProducts A x y) (identity x) f2) :=
-    monics_Pullback A hs (make_Monic A _ (Equalizer_isMonic f1))
+    monics_Pullback A (make_Monic A _ (Equalizer_isMonic f1))
                     (make_Monic A _ (Equalizer_isMonic f2)).
 
   Definition Equalizer_eq1 {x y : A} (f1 f2 : x --> y) :
@@ -701,7 +700,7 @@ Section abelian_equalizers.
   Definition Coequalizer_Pushout {x y : A} (f1 f2 : y --> x) :
     Pushout (BinCoproductArrow (*A*) (to_BinCoproducts A x y) (identity x) f1)
             (BinCoproductArrow (*A*) (to_BinCoproducts A x y) (identity x) f2) :=
-    epis_Pushout A hs (make_Epi A _ (Coequalizer_isEpi f1)) (make_Epi A _ (Coequalizer_isEpi f2)).
+    epis_Pushout A (make_Epi A _ (Coequalizer_isEpi f1)) (make_Epi A _ (Coequalizer_isEpi f2)).
 
   Definition Coequalizer_eq1 {x y : A} (f1 f2 : y --> x) :
     PushoutIn1 (Coequalizer_Pushout f1 f2) = PushoutIn2 (Coequalizer_Pushout f1 f2).
@@ -802,20 +801,20 @@ End abelian_equalizers.
 Section abelian_pushouts.
 
   Variable A : AbelianPreCat.
-  Hypothesis hs : has_homsets A.
+  Let hs : has_homsets A := homset_property A.
 
   Definition Pullbacks : @Pullbacks A.
   Proof.
-    apply (@Pullbacks_from_Equalizers_BinProducts A hs).
+    apply (@Pullbacks_from_Equalizers_BinProducts A).
     apply (to_BinProducts A).
-    apply (Equalizers A hs).
+    apply (Equalizers A).
   Defined.
 
   Definition Pushouts : @Pushouts A.
   Proof.
     apply (@Pushouts_from_Coequalizers_BinCoproducts A hs).
     apply (to_BinCoproducts A).
-    apply (Coequalizers A hs).
+    apply (Coequalizers A).
   Defined.
 
 End abelian_pushouts.
@@ -837,7 +836,7 @@ Section abelian_MonicToKernels.
   isKernel (to_Zero A) (ZeroArrowFrom x) M
            (ArrowsFromZero A (to_Zero A) y (ZeroArrowFrom x · M) (ZeroArrow (to_Zero A) _ _)).
   Proof.
-    use (make_isKernel hs).
+    use (make_isKernel).
     intros w h X. rewrite <- (ZeroArrow_comp_left _ _ _ _ _ M) in X.
     apply (MonicisMonic _ M) in X.
     use unique_exists.
@@ -901,7 +900,7 @@ Section abelian_MonicToKernels.
         (isK : isKernel (to_Zero A) (ZeroArrow (to_Zero A) _ _) f H) : isMonic f.
   Proof.
     intros w u v H'.
-    set (Coeq := Coequalizer A hs u v).
+    set (Coeq := Coequalizer A u v).
     set (Coeqar := CoequalizerOut Coeq z f H').
     set (Coeqar_epi := CoequalizerArrowEpi Coeq).
     set (Coeq_coker := EpiToCokernel Coeqar_epi).
@@ -978,7 +977,7 @@ Section abelian_MonicToKernels.
              (isCK : isCokernel (to_Zero A) f (ZeroArrow (to_Zero A) _ _) H) : isEpi f.
   Proof.
     intros w u v H'.
-    set (Eq := Equalizer A hs u v).
+    set (Eq := Equalizer A u v).
     set (Eqar := EqualizerIn Eq x f H').
     set (Eqar_monic := EqualizerArrowMonic Eq).
     set (Eq_ker := MonicToKernel Eqar_monic).
@@ -1016,7 +1015,7 @@ Section abelian_MonicToKernels.
     assert (e5 : is_iso (EqualizerArrow Eq)).
     {
       set (ker2 := CokernelZeroEpi_kernel e4 Eq_ker).
-      apply (is_iso_qinv _ _ (KernelofZeroArrow_is_iso hs (to_Zero A) ker2)).
+      apply (is_iso_qinv _ _ (KernelofZeroArrow_is_iso (to_Zero A) ker2)).
     }
     set (isoar := make_iso (EqualizerArrow Eq) e5).
     set (Eq_eq := EqualizerEqAr Eq).
@@ -1122,7 +1121,7 @@ Section abelian_factorization.
     (* isMonic *)
     - use (isMonic_postcomp A _ (KernelArrow (Image f))).
       intros z g1 g2 H.
-      set (q := Coequalizer A hs g1 g2).
+      set (q := Coequalizer A g1 g2).
       set (ar := CoIm_to_Im f · KernelArrow (Image f)).
       set (ar1 := CoequalizerOut q _ ar).
       set (com1 := CoequalizerCommutes q _ _ H).
@@ -1203,7 +1202,7 @@ Section abelian_factorization.
     (* isEpi *)
     - use (isEpi_precomp A (CokernelArrow (CoImage f)) _).
       intros z g1 g2 H.
-      set (q := Equalizer A hs g1 g2).
+      set (q := Equalizer A g1 g2).
       set (ar := CokernelArrow (CoImage f) · CoIm_to_Im f).
       set (ar1 := EqualizerIn q _ ar).
       set (com1 := EqualizerCommutes q _ _ H).
@@ -1345,10 +1344,10 @@ Section abelian_factorization.
   Qed.
 
 End abelian_factorization.
-Arguments factorization1 [A] _ [x] [y] _.
-Arguments factorization1_is_epi [A] _ [x] [y] _ _ _ _ _.
-Arguments factorization2 [A] _ [x] [y] _.
-Arguments factorization2_is_monic [A] _ [x] [y] _ _ _ _ _.
+Arguments factorization1 [A] [x] [y] _.
+Arguments factorization1_is_epi [A] [x] [y] _ _ _ _ _.
+Arguments factorization2 [A] [x] [y] _.
+Arguments factorization2_is_monic [A] [x] [y] _ _ _ _ _.
 Arguments CoIm_to_Im [A] [x] [y] _.
 Arguments Kernel [A] [x] [y] _.
 Arguments Cokernel [A] [x] [y] _.
@@ -1363,7 +1362,7 @@ Section abelian_kernel_cokernel.
 
   Definition MonicToKernel' {x y : A} (M : Monic A x y) (CK : cokernels.Cokernel (to_Zero A) M) :
     kernels.Kernel (to_Zero A) (CokernelArrow CK) :=
-    @Kernel_up_to_iso2 A hs (to_Zero A) _ _ _ (CokernelArrow (Cokernel M)) (CokernelArrow CK)
+    @Kernel_up_to_iso2 A (to_Zero A) _ _ _ (CokernelArrow (Cokernel M)) (CokernelArrow CK)
                        (iso_from_Cokernel_to_Cokernel (to_Zero A) (Cokernel M) CK)
                        (CokernelCommutes _ _ _ _ _) (MonicToKernel M).
 
@@ -1379,10 +1378,10 @@ End abelian_kernel_cokernel.
 (** * A Abelian -> A^op Abelian, [Abelian_opp] *)
 Section opp_abelian.
 
-  Variable C : precategory.
-  Hypothesis hs : has_homsets C.
+  Variable C : category.
+  Let hs : has_homsets C := homset_property C.
 
-  Definition AbelianData1_opp (AD1 : Data1 C) : @Data1 C^op.
+  Definition AbelianData1_opp (AD1 : Data1 C) : @Data1 (op_category C).
   Proof.
     use make_Data1.
     - exact (Zero_opp C (pr1 AD1)).
@@ -1391,19 +1390,19 @@ Section opp_abelian.
   Defined.
 
   Definition AbelianData2_opp {AD1 : Data1 C} (AD2 : Data2 C AD1) :
-    @Data2 C^op (AbelianData1_opp AD1).
+    @Data2 (op_category C) (AbelianData1_opp AD1).
   Proof.
     use make_Data2.
-    - exact (Cokernels_opp C hs (pr1 AD1) (pr2 AD2)).
-    - exact (Kernels_opp C hs (pr1 AD1) (pr1 AD2)).
+    - exact (Cokernels_opp C (pr1 AD1) (pr2 AD2)).
+    - exact (Kernels_opp C (pr1 AD1) (pr1 AD2)).
   Defined.
 
   Local Opaque ZeroArrow.
 
   Lemma MonicsAreKernels_opp_eq {D1 : Data1 C} {D2 : Data2 C D1}
-        (AMKD : MonicsAreKernels C D1 D2) (y z : C^op) (E : Epi (opp_precat C) y z) :
+        (AMKD : MonicsAreKernels C D1 D2) (y z : C^op) (E : Epi (op_category C) y z) :
     @compose C _ _ _ E (CokernelArrow ((to_Cokernels D2) z y (opp_Epi C E)))
-    = @ZeroArrow (opp_precat C) (Zero_opp C (to_Zero D1)) _ _.
+    = @ZeroArrow (op_category C) (Zero_opp C (to_Zero D1)) _ _.
   Proof.
     rewrite <- ZeroArrow_opp.
     set (tmp := KernelCompZero (to_Zero D1) (make_Kernel _ _ _ _ (AMKD z y (opp_Epi C E)))).
@@ -1411,8 +1410,9 @@ Section opp_abelian.
     apply ZerosArrowEq.
   Qed.
 
+  (*
   Lemma MonicsAreKernels_opp_isCokernel {D1 : Data1 C} {D2 : Data2 C D1}
-        (AMKD : MonicsAreKernels C D1 D2) (y z : C^op) (E : Epi (opp_precat C) y z) :
+        (AMKD : MonicsAreKernels C D1 D2) (y z : C^op) (E : Epi (op_category C) y z) :
     isCokernel (Zero_opp C (pr1 D1)) (CokernelArrow (pr2 D2 z y (opp_Epi C E))) E
                (MonicsAreKernels_opp_eq AMKD y z E).
   Proof.
@@ -1421,19 +1421,22 @@ Section opp_abelian.
     - exact (CokernelCompZero _ (to_Cokernels D2 z y (opp_Epi C E))).
     - exact (AMKD _ _ (opp_Epi C E)).
   Qed.
+   *)
 
+  (*
   Definition MonicsAreKernels_opp {D1 : Data1 C} {D2 : Data2 C D1}
              (AMKD : MonicsAreKernels C D1 D2) :
-    EpisAreCokernels (C^op) (AbelianData1_opp D1) (AbelianData2_opp D2).
+    EpisAreCokernels (op_category C) (AbelianData1_opp D1) (AbelianData2_opp D2).
   Proof.
     use make_EpisAreCokernels.
     intros y z E.
     exact (MonicsAreKernels_opp_isCokernel AMKD y z E).
   Defined.
+  *)
 
   Lemma EpisAreCokernels_opp_eq {D1 : Data1 C} {D2 : Data2 C D1}
         (AECD : EpisAreCokernels C D1 D2) (y z : C^op)
-        (M : Monic (opp_precat C) y z) :
+        (M : Monic (op_category C) y z) :
     (KernelArrow (pr1 D2 z y (opp_Monic C M))) · M =
     ZeroArrow (Zero_opp C (to_Zero D1)) y (to_Kernels D2 z y (opp_Monic C M)).
   Proof.
@@ -1441,8 +1444,9 @@ Section opp_abelian.
     apply (KernelCompZero (to_Zero D1) (to_Kernels D2 z y (opp_Monic C M))).
   Qed.
 
+  (*
   Lemma EpisAreCokernels_opp_isKernel {D1 : Data1 C} {D2 : Data2 C D1}
-        (AECD : EpisAreCokernels C D1 D2) (y z : C^op) (M : Monic (opp_precat C) y z) :
+        (AECD : EpisAreCokernels C D1 D2) (y z : C^op) (M : Monic (op_category C) y z) :
     isKernel (Zero_opp C (to_Zero D1)) M (KernelArrow (to_Kernels D2 z y (opp_Monic C M)))
              (EpisAreCokernels_opp_eq AECD y z M).
   Proof.
@@ -1451,33 +1455,38 @@ Section opp_abelian.
     - exact (KernelCompZero _ (to_Kernels D2 z y (opp_Monic C M))).
     - exact (AECD _ _ (opp_Monic C M)).
   Qed.
+*)
 
+  (*
   Definition EpisAreCokernels_opp {D1 : Data1 C} {D2 : Data2 C D1}
              (AECD : EpisAreCokernels C D1 D2) :
-    MonicsAreKernels (C^op) (AbelianData1_opp D1) (AbelianData2_opp D2).
+    MonicsAreKernels (op_category C) (AbelianData1_opp D1) (AbelianData2_opp D2).
   Proof.
     use make_MonicsAreKernels.
     intros y z M.
     exact (EpisAreCokernels_opp_isKernel AECD y z M).
   Defined.
+   *)
 
+  (*
   Definition AbelianData_opp {AD1 : Data1 C} (AD : AbelianData C AD1) :
-    AbelianData (C^op) (AbelianData1_opp AD1).
+    AbelianData (op_category C) (AbelianData1_opp AD1).
   Proof.
     use make_AbelianData.
     - exact (AbelianData2_opp (pr1 AD)).
     - exact (EpisAreCokernels_opp (pr2 (pr2 AD))).
     - exact (MonicsAreKernels_opp (pr1 (pr2 AD))).
   Defined.
-
+   *)
   (* Need to remove C from context *)
 End opp_abelian.
 Section opp_abelian'.
 
-  Definition Abelian_opp (A : AbelianPreCat) (hs : has_homsets A) : AbelianPreCat.
+  (*
+  Definition Abelian_opp (A : AbelianPreCat) : AbelianPreCat.
   Proof.
     use make_Abelian.
-    - exact (opp_precat (pr1 (pr1 A))).
+    - exact (op_category (pr1 (pr1 A))).
     - exact (AbelianData1_opp _ (pr2 (pr1 A))).
     - exact (AbelianData_opp _ hs (pr2 A)).
   Defined.
@@ -1487,5 +1496,5 @@ Section opp_abelian'.
   Proof.
     exact (has_homsets_opp hs).
   Qed.
-
+*)
 End opp_abelian'.

@@ -20,12 +20,12 @@ Local Open Scope cat.
 
 (** ** Definition *)
 
-Definition subobject_classifier {C : precategory} (T : Terminal C) : UU :=
+Definition subobject_classifier {C : category} (T : Terminal C) : UU :=
   ∑ (O : ob C) (true : C⟦T, O⟧), ∏ (X Y : ob C) (m : Monic _ X Y),
     ∃! chi : C⟦Y, O⟧,
       ∑ (H : m · chi = TerminalArrow _ _ · true), isPullback H.
 
-Definition make_subobject_classifier {C : precategory} {T : Terminal C}
+Definition make_subobject_classifier {C : category} {T : Terminal C}
            (O : ob C) (true : C⟦T, O⟧) :
   (∏ (X Y : ob C) (m : Monic _ X Y),
     iscontr (∑ (chi : C⟦Y, O⟧)
@@ -41,7 +41,7 @@ Qed.
 (** ** Accessors *)
 
 Section Accessors.
-  Context {C : precategory} {T : Terminal C} (O : subobject_classifier T).
+  Context {C : category} {T : Terminal C} (O : subobject_classifier T).
 
   Definition subobject_classifier_object : ob C :=  pr1 O.
 
@@ -81,11 +81,10 @@ Section Accessors.
     - apply (pr2 (pr2 (iscontrpr1 (subobject_classifier_universal_property m)))).
   Defined.
 
-  Definition subobject_classifier_pullback_sym {hsC : has_homsets C} {X Y} (m : Monic _ X Y) :
+  Definition subobject_classifier_pullback_sym  {X Y} (m : Monic _ X Y) :
     Pullback true (characteristic_morphism m).
   Proof.
-    refine (@switchPullback (C,, _) _ _ _ _ _ (subobject_classifier_pullback m)).
-    assumption.
+    refine (@switchPullback C _ _ _ _ _ (subobject_classifier_pullback m)).
   Defined.
 
 End Accessors.
@@ -94,6 +93,6 @@ Coercion subobject_classifier_object : subobject_classifier >-> ob.
 Coercion true : subobject_classifier >-> Monic.
 
 (** The arrow Goldblatt calls [true! := (! : X -> T) · true] *)
-Definition const_true {C : precategory} {T : Terminal C} {X : ob C}
+Definition const_true {C : category} {T : Terminal C} {X : ob C}
            (O : subobject_classifier T) : X --> subobject_classifier_object O :=
   TerminalArrow T X · true O.

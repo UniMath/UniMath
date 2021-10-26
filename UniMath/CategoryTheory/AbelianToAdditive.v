@@ -39,7 +39,7 @@ Local Open Scope cat.
 Section abelian_is_additive.
 
   Variable A : AbelianPreCat.
-  Hypothesis hs : has_homsets A.
+  Let hs : has_homsets A := homset_property A.
 
   (** ** Preliminaries *)
 
@@ -146,7 +146,7 @@ Section abelian_is_additive.
   Lemma KernelOfPr1_isKernel {X : A} (BinProd : BinProduct A X X) :
     isKernel (to_Zero A) (ZeroIdMap BinProd) (BinProductPr1 A BinProd) (KernelOfPr1_Eq BinProd).
   Proof.
-    use (make_isKernel hs).
+    use (make_isKernel).
     intros w h H'.
     unfold ZeroIdMap.
     use unique_exists.
@@ -202,7 +202,7 @@ Section abelian_is_additive.
   Definition KernelOfPr2_isKernel {X : A} (BinProd : BinProduct A X X) :
     isKernel (to_Zero A) (IdZeroMap BinProd) (BinProductPr2 A BinProd) (KernelOfPr2_Eq BinProd).
   Proof.
-    use (make_isKernel hs).
+    use (make_isKernel).
     intros w h H'.
     unfold IdZeroMap.
     use unique_exists.
@@ -253,7 +253,7 @@ Section abelian_is_additive.
     use monic_epi_is_iso.
     (* isMonic *)
     - use (@KernelZeroisMonic A hs (to_Zero A) _ _ _ (ZeroArrow_comp_left _ _ _ _ _ _)).
-      use (make_isKernel hs).
+      use (make_isKernel).
       intros w h H'.
       use unique_exists.
       (* The arrow *)
@@ -282,7 +282,7 @@ Section abelian_is_additive.
       (* Uniqueness *)
       + intros y H. apply ArrowsToZero.
     (* isEpi *)
-    - use (@CokernelZeroisEpi A hs _ _ (to_Zero A) _ (ZeroArrow_comp_right _ _ _ _ _ _)).
+    - use (@CokernelZeroisEpi A _ _ (to_Zero A) _ (ZeroArrow_comp_right _ _ _ _ _ _)).
       use (make_isCokernel hs).
       intros w h H'.
       use unique_exists.
