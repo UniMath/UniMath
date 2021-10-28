@@ -90,7 +90,7 @@ Section Cofunctormaps.
     apply tpair.
     - intros (C, (ty, tm)) p.
       apply nat_trans_eq.
-      + apply K.
+      + apply homset_property.
       + cbn. intros. etrans.
         * apply id_right.
         * apply pathsinv0. apply id_left.
@@ -105,7 +105,7 @@ Section Cofunctormaps.
       cbn in *.
       intros eq1 eq2.
       apply nat_trans_eq.
-      + apply K.
+      + apply homset_property.
       + cbn. intros x.
         set (h1 := nat_trans_eq_pointwise eq1 x).
         set (h2 := nat_trans_eq_pointwise eq2 (f x)).
@@ -141,7 +141,7 @@ Section Cofunctormaps.
     apply disp_cell_unit_bicat_univalent_2_1.
     intros F G η x y ; simpl in *.
     apply isaset_nat_trans.
-    apply K.
+    apply homset_property.
   Qed.
 
   Definition morphisms_of_presheaves_univalent_2_1
@@ -162,14 +162,14 @@ Section Cofunctormaps.
       * exact disp_two_presheaves_is_univalent_2_1.
     + intros F G η x y ; simpl in *.
       apply isaset_nat_trans.
-      apply K.
+      apply homset_property.
     + intros a ; simpl.
       apply isaset_nat_trans.
-      apply K.
+      apply homset_property.
     + intros F α₁ α₂ X ; cbn in *.
       induction X as [X1 X2] ; cbn in *.
       apply nat_trans_eq.
-      { apply K. }
+      { apply homset_property. }
       intros x ; cbn in *.
       pose (nat_trans_eq_pointwise X1 x) as p1.
       cbn in *.

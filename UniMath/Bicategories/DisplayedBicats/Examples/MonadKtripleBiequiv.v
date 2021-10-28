@@ -288,9 +288,8 @@ Proof.
       (simpl;
        intros x y z f g kx ky kz kf kg;
        refine ((_,, (tt,, tt)),, tt);
-       use nat_trans_eq; try apply z;
+       use nat_trans_eq; try apply homset_property;
        intro a; cbn;
-       change (ob x) in a;
        rewrite !id_left;
        rewrite !id_right;
        rewrite assoc';

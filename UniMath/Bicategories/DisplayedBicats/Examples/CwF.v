@@ -140,7 +140,7 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma forall_isotid (A : precategory) (a_is : is_univalent A)
+Lemma forall_isotid (A : category) (a_is : is_univalent A)
       (a a' : A) (P : iso a a' -> UU)
   : (∏ e, P (idtoiso e)) → ∏ i, P i.
 Proof.
@@ -150,7 +150,7 @@ Proof.
 Defined.
 
 Lemma transportf_isotoid_functor
-      (A X : precategory) (H : is_univalent A)
+      (A X : category) (H : is_univalent A)
       (K : functor A X)
       (a a' : A) (p : iso a a') (b : X) (f : K a --> b)
   : transportf (fun a0 => K a0 --> b) (isotoid _ H p) f = (#K)%cat (inv_from_iso p) · f.
@@ -203,7 +203,7 @@ Section CwFRepresentation.
              {Γ:C} {A : Ty Γ : hSet}
              (ΓAπt : cwf_fiber_rep_data A) : UU
     := ∑ (H : pp _ (pr2 (pr2 ΓAπt)) = (#Ty)%cat (pr1 (pr2 ΓAπt)) A),
-       isPullback _ _ _ _ (cwf_square_comm H).
+       isPullback (cwf_square_comm H).
 
   Definition cwf_fiber_representation {Γ:C} (A : Ty Γ : hSet) : UU
     := ∑ ΓAπt : cwf_fiber_rep_data A, cwf_fiber_rep_ax ΓAπt.
@@ -226,8 +226,8 @@ Section CwFRepresentation.
     destruct H as [H isP].
     destruct H' as [H' isP'].
     use (total2_paths_f).
-    - set (T1 := make_Pullback _ _ _ _ _ _ isP).
-      set (T2 := make_Pullback _ _ _ _ _ _ isP').
+    - set (T1 := make_Pullback _ isP).
+      set (T2 := make_Pullback _ isP').
       set (i := iso_from_Pullback_to_Pullback T1 T2). cbn in i.
       set (i' := invmap (weq_ff_functor_on_iso (yoneda_fully_faithful _ _ ) _ _ ) i ).
       set (TT := isotoid _ isC i').
@@ -271,8 +271,14 @@ Section CwFRepresentation.
         match goal with |[|- transportf _ (_ _ _ (_ _ ?ii)) _ = _ ] => set (i:=ii) end.
         simpl in i.
         apply (invmaponpathsweq (@yy _ (homset_property _ ) Tm ΓA')).
-        etrans. apply transportf_yy.
-        etrans. apply transportf_isotoid_functor.
+        etrans.
+        {
+          apply transportf_yy.
+        }
+        etrans.
+        {
+          apply (transportf_isotoid_functor C (functor_category _ SET)).
+        }
         rewrite inv_from_iso_iso_from_fully_faithful_reflection.
         assert (XX:=homotweqinvweq (weq_from_fully_faithful
                                       (yoneda_fully_faithful _ (homset_property C)) ΓA' ΓA )).
@@ -324,9 +330,7 @@ Section Projections.
     := pr12 (R Γ A).
 
   Definition pullback
-    : isPullback (yy A) pp
-                 (functor_on_morphisms (yoneda C (homset_property C)) π)
-                 (yy var) (cwf_square_comm pp comm)
+    : isPullback (cwf_square_comm pp comm)
     := pr2 (pr2 (R Γ A)).
 End Projections.
 

@@ -33,7 +33,7 @@ Section set_slice_fam_equiv.
 
   Variable X : hSet.
 
-  Local Definition slice (A : hSet) : precategory := slice_precat HSET A has_homsets_HSET.
+  Local Definition slice (A : hSet) : precategory := slice_cat SET A.
   Local Definition discrete (A : hSet) : discrete_category := discrete_category_hset A.
   Local Definition discrete_has_homsets (A : hSet) :
     has_homsets (discrete_category_hset A) := homset_property _.
@@ -140,7 +140,7 @@ Section set_slice_fam_equiv.
   Qed.
 
   Definition slice_unit := nat_trans_inv_from_pointwise_inv _ _
-                                                            (has_homsets_slice_precat has_homsets_HSET X) _ _
+                                                            (has_homsets_slice_precat SET X) _ _
                                                             slice_counit slice_all_iso.
 
   Definition fam_unit_fun_fun (f : fam X) (x : X) :

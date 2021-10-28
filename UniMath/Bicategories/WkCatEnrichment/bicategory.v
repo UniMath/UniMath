@@ -28,5 +28,5 @@ Proof.
   intro a.
   apply impred.
   intro b.
-  apply (isaprop_is_univalent (a -1-> b)).
+  apply isaprop_is_univalent.
 Qed.

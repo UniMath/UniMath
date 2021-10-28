@@ -88,16 +88,19 @@ Defined.
 Lemma is_univalent_path_groupoid (X:UU) (i : isofhlevel 3 X) :
   is_univalent (path_groupoid X i).
 Proof.
-  intros; split.
-  - apply is_univalent_pregroupoid_is_univalent,
+  apply is_univalent_pregroupoid_is_univalent,
           is_univalent_path_pregroupoid; assumption.
-  - apply i.
 Defined.
 
-Definition path_univalent_groupoid {X : UU} (i3 : isofhlevel 3 X) :
-  univalent_groupoid :=
-  make_univalent_groupoid (make_univalent_category _ (is_univalent_path_groupoid X i3))
-                        (groupoid_is_pregroupoid _).
+Definition path_univalent_groupoid
+           {X : UU}
+           (i3 : isofhlevel 3 X)
+  : univalent_groupoid.
+Proof.
+  use make_univalent_groupoid.
+  - exact (make_univalent_category _ (is_univalent_path_groupoid X i3)).
+  - apply (groupoid_is_pregroupoid _).
+Defined.
 
 Definition path_groupoid_hset (X : hSet) : univalent_groupoid :=
   (path_univalent_groupoid (isofhlevelssnset 1 _ (setproperty X))).
