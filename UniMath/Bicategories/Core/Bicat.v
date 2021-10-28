@@ -1008,13 +1008,14 @@ Proof.
   - intros f g h i. apply vassocr.
 Qed.
 
-Definition hom
+Definition hom_precategory
   : precategory
   := make_precategory hom_data is_precategory_hom.
 
 End Hom_Spaces.
 
-Definition hom_category {C : bicat} (a b : C) : category := hom a b ,, @cellset_property C a b.
+Definition hom {C : bicat} (a b : C) : category
+  := hom_precategory a b ,, @cellset_property C a b.
 
 (* ----------------------------------------------------------------------------------- *)
 (** ** Functor structure on horizontal composition.                                    *)
@@ -1022,7 +1023,7 @@ Definition hom_category {C : bicat} (a b : C) : category := hom a b ,, @cellset_
 
 Section hcomp_functor.
 
-Context {C : prebicat} {a b c : C}.
+Context {C : bicat} {a b c : C}.
 
 Definition hcomp_functor_data
   : functor_data (precategory_binproduct (hom a b) (hom b c)) (hom a c).
@@ -1165,7 +1166,7 @@ Qed.
 
 Section Associators_Unitors_Iso.
 
-Context {C : prebicat}.
+Context {C : bicat}.
 
 Lemma is_z_iso_lassociator {a b c d : C} (f : hom a b) (g : hom b c) (h : hom c d)
   : is_z_isomorphism (lassociator f g h : (hom a d) ⟦ f · (g · h), (f · g) · h ⟧).
@@ -1239,7 +1240,7 @@ End Associators_Unitors_Iso.
 
 Section Associators_Unitors_Natural.
 
-Context {C : prebicat}.
+Context {C : bicat}.
 
 (* -----------------------------------------------------------------------------------*)
 (** Left unitor                                                                       *)
