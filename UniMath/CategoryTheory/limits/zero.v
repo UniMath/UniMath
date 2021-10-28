@@ -13,7 +13,7 @@ Require Import UniMath.CategoryTheory.limits.terminal.
 
 Section def_zero.
 
-  Variable C : precategory.
+  Variable C : category.
 
   Definition isZero (b : C) : UU :=
     (∏ a : C, iscontr (b --> a)) × (∏ a : C, iscontr (a --> b)).
@@ -157,7 +157,7 @@ End Zero_Unique.
 
 Section facts.
 
-  Variable C : precategory.
+  Variable C : category.
 
   Lemma ZeroIffInitialAndTerminal (b : C) :
     isZero b <-> (isInitial C b) × (isTerminal C b).
@@ -202,6 +202,6 @@ Section facts.
   Qed.
 
 
-Definition zero_lifts (M:precategory) {X:Type} (j : X -> ob M) := ∃ z, isZero (j z).
+Definition zero_lifts (M:category) {X:Type} (j : X -> ob M) := ∃ z, isZero (j z).
 
 End facts.

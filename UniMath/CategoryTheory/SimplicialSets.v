@@ -77,7 +77,16 @@ Defined.
 
 Local Open Scope cat.
 
-Definition sSet := functor_category precatDelta^op category_HSET.
+Definition has_homsets_precatDelta : has_homsets precatDelta.
+Proof.
+  intros a b.
+  cbn.
+  apply isasetmonfunstn.
+Qed.
+
+Definition catDelta : category := make_category precatDelta has_homsets_precatDelta.
+
+Definition sSet := functor_category catDelta^op category_HSET.
 (* V.V. with Sasha Vishik, Nov. 23, 2014 *)
 
 

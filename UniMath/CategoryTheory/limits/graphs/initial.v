@@ -16,7 +16,7 @@ Local Open Scope cat.
 
 Section def_initial.
 
-Context {C : precategory}.
+Context {C : category}.
 
 Definition empty_graph : graph.
 Proof.
@@ -31,8 +31,8 @@ intros u; induction u.
 Defined.
 
 (** All diagrams over the empty graph are equal *)
-Lemma empty_graph_eq_diag (hsC : has_homsets C)(d d' : diagram empty_graph C) :
-  eq_diag (C := make_category C hsC) d d'.
+Lemma empty_graph_eq_diag (d d' : diagram empty_graph C) :
+  eq_diag d d'.
 Proof.
   use tpair; use empty_rect.
 Defined.
@@ -184,7 +184,7 @@ End def_initial.
 Arguments Initial : clear implicits.
 Arguments isInitial : clear implicits.
 
-Lemma Initial_from_Colims (C : precategory) :
+Lemma Initial_from_Colims (C : category) :
   Colims_of_shape empty_graph C -> Initial C.
 Proof.
 now intros H; apply H.

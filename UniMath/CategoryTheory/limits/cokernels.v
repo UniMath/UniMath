@@ -22,7 +22,7 @@ Local Open Scope cat.
 (** * Definition of cokernels *)
 Section def_cokernels.
 
-  Context (C : category).
+  Context {C : category}.
   Let hs : has_homsets C := homset_property C.
   Hypothesis Z : Zero C.
 
@@ -490,7 +490,7 @@ Section cokernels_epis.
       + intros y0. apply hs.
       + intros y0 X.
         apply pathsinv0. cbn in X.
-        use (EpiisEpi C (make_Epi _ _ (CokernelArrowisEpi _ Z CK))). cbn.
+        use (EpiisEpi C (make_Epi _ _ (CokernelArrowisEpi Z CK))). cbn.
         rewrite CokernelCommutes. apply pathsinv0. apply X.
   Qed.
 

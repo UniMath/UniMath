@@ -146,7 +146,6 @@ Section monics_subcategory.
   Proof.
     intros a b.
     apply is_set_sub_precategory_morphisms.
-    exact hs.
   Qed.
 
   Definition subcategory_of_monics : category := make_category _ has_homsets_subprecategory_of_monics.

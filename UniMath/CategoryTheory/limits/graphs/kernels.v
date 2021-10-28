@@ -36,7 +36,7 @@ Section def_kernels.
         (K : limits.kernels.Kernel (equiv_Zero2 Z) f) :
     isEqualizer C f (ZeroArrow Z a b) K (KernelArrow K) (equiv_Kernel1_eq f K).
   Proof.
-    use (make_isEqualizer _ hs).
+    use (make_isEqualizer _ ).
     intros e h' H'.
     use unique_exists.
     (* Construction of the morphism *)

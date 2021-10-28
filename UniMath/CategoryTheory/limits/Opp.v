@@ -169,7 +169,6 @@ Section def_opposites.
   Proof.
     set (K := make_Kernel _ _ _ _ K').
     use make_isCokernel.
-    - exact hs.
     - intros w h H'.
       rewrite <- (ZerosArrowEq C (opp_Zero Z) Z' z w) in H'.
       rewrite <- opp_ZeroArrow in H'.
@@ -193,7 +192,6 @@ Section def_opposites.
     isCokernel (opp_Zero Z) f (KernelArrow K) (opp_Kernel_eq f Z K).
   Proof.
     use make_isCokernel.
-    - exact hs.
     - intros w h H'. rewrite <- opp_ZeroArrow in H'.
       use unique_exists.
       + exact (KernelIn Z K w h H').
@@ -213,7 +211,7 @@ Section def_opposites.
     - exact (opp_Kernel_isCokernel f Z K).
   Defined.
 
-  Lemma opp_isKernel {x y z : C^op} {f : (C^op)⟦x, y⟧} {g : C^op⟦y, z⟧} {Z : Zero (C^op)}
+  Lemma opp_isKernel {x y z : op_category C} {f : (C^op)⟦x, y⟧} {g : C^op⟦y, z⟧} {Z : Zero (C^op)}
         {H : f · g = ZeroArrow Z _ _} (CK' : isCokernel Z f g H) {Z' : Zero C} :
     isKernel Z' (g : C⟦z, y⟧) (f : C⟦y, x⟧) (opp_isCokernel_eq f g Z H Z').
   Proof.
@@ -461,7 +459,6 @@ Section def_opposites'.
   Proof.
     set (K := make_Kernel _ _ _ _ K').
     use make_isCokernel.
-    - exact (has_homsets_opp hs).
     - intros w h H'. cbn in H'.
       set (XXX := (ZerosArrowEq C^op (Zero_opp Z) Z' z w)).
       use unique_exists.
@@ -486,7 +483,6 @@ Section def_opposites'.
     isCokernel (Zero_opp Z) f (KernelArrow K) (Kernel_opp_eq f Z K).
   Proof.
     use make_isCokernel.
-    - exact (has_homsets_opp hs).
     - intros w h H'. cbn in H'.
       use unique_exists.
       + rewrite <- ZeroArrow_opp in H'. exact (KernelIn Z K w h H').
@@ -611,7 +607,7 @@ Section def_opposites'.
 End def_opposites'.
 
 Definition opp_zero_lifts {C:category} {X:Type} (j : X -> ob C) :
-  zero_lifts C j -> zero_lifts (opp_precat C) j.
+  zero_lifts C j -> zero_lifts C^op j.
 Proof.
   apply hinhfun; intros [z iz]. exists z. exact (isZero_opp C iz).
 Defined.

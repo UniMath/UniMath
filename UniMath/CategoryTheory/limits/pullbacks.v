@@ -1023,7 +1023,7 @@ End pullbacks_pointwise.
 (** * Construction of binary products from pullbacks *)
 Section binproduct_from_pullback.
 
-Context {C : precategory} (Pb : Pullbacks C) (T : Terminal C).
+Context {C : category} (Pb : Pullbacks C) (T : Terminal C).
 
 Definition UnivProductFromPullback (c d a : C) (f : a --> c) (g : a --> d):
   ∑ fg : a --> Pb T c d (TerminalArrow T c) (TerminalArrow T d),

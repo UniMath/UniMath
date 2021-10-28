@@ -25,7 +25,7 @@ Local Open Scope cat.
 
 Section def_terminal.
 
-Context {C : precategory}.
+Context {C : category}.
 
 Definition isTerminal (b : C) : UU := ∏ a : C, iscontr (a --> b).
 
@@ -108,7 +108,7 @@ End Terminal_Unique.
 Section Terminal_and_EmptyProd.
 
   (** Construct Terminal from empty arbitrary product. *)
-  Definition terminal_from_empty_product (C : precategory) :
+  Definition terminal_from_empty_product (C : category) :
     Product empty C fromempty -> Terminal C.
   Proof.
     intros X.
@@ -168,9 +168,9 @@ End Terminal_and_EmptyProd.
 (** * Construction of terminal object in a functor category *)
 Section TerminalFunctorCat.
 
-Variables (C D : precategory) (ID : Terminal D) (hsD : has_homsets D).
+Variables (C D : category) (ID : Terminal D).
 
-Definition Terminal_functor_precat : Terminal [C,D,hsD].
+Definition Terminal_functor_precat : Terminal [C,D].
 Proof.
 use make_Terminal.
 - use make_functor.
@@ -187,7 +187,7 @@ use make_Terminal.
     * intros a b f; simpl.
       rewrite (TerminalEndo_is_identity (TerminalArrow ID ID)), id_right.
       apply TerminalArrowUnique.
-  + abstract (intros α; apply (nat_trans_eq hsD); intro a; apply TerminalArrowUnique).
+  + abstract (intros α; apply (nat_trans_eq D); intro a; apply TerminalArrowUnique).
 Defined.
 
 End TerminalFunctorCat.

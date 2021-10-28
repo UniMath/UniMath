@@ -16,8 +16,7 @@ Local Open Scope cat.
 
 Section def_pb.
 
-Variable C : precategory.
-Variable hs: has_homsets C.
+Variable C : category.
 
 Local Open Scope stn.
 Definition One : three := ● 0.
@@ -108,7 +107,7 @@ Proof.
       apply (coneOutCommutes cx One Two tt).
     * apply (pr2 (pr2 (pr1 H2))).
   + abstract (intro t; apply subtypePath;
-              [ intro; apply impred; intro; apply hs
+              [ intro; apply impred; intro; apply C
               | destruct t as [t p0];
                 apply path_to_ctr; split; [ apply (p0 One) | apply (p0 Three) ]]).
 Defined.
@@ -227,7 +226,7 @@ Proof.
       * apply PullbackArrow_PullbackPr2.
   - intro t.
     apply subtypePath.
-    + intro. apply isapropdirprod; apply hs.
+    + intro. apply isapropdirprod; apply C.
     + destruct t as [t p]. simpl.
       use (PullbackArrowUnique _ _ P).
       * apply e.
@@ -270,7 +269,7 @@ Proof.
   - abstract (
     intro t;
     apply subtypePath;
-    [intro; apply impred; intro; apply hs |];
+    [intro; apply impred; intro; apply C |];
     simpl; destruct t as [t HH];  simpl in *;
     apply limits.pullbacks.PullbackArrowUnique;
     [ apply (HH One) | apply (HH Three)] ).
@@ -315,7 +314,7 @@ Proof.
     + apply (PullbackArrow_PullbackPr2 XR).
   - abstract (
     intro t; apply subtypePath;
-    [ intro; apply isapropdirprod; apply hs |] ;
+    [ intro; apply isapropdirprod; apply C |] ;
     induction t as [x Hx]; simpl in * ;
     use (PullbackArrowUnique _ _ XR);
     [apply R | apply (pr1 Hx) | apply (pr2 Hx) ]
@@ -536,7 +535,7 @@ Qed.
 
 End def_pb.
 
-Lemma Pullbacks_from_Lims (C : precategory) :
+Lemma Pullbacks_from_Lims (C : category) :
   Lims C -> Pullbacks C.
 Proof.
   intros H a b c f g; apply H.

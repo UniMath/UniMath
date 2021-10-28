@@ -639,19 +639,19 @@ End BinCoproducts_from_Colims.
 (** * Coproducts over bool from binary coproducts *)
 Section CoproductsBool.
 
-Lemma CoproductsBool {C : precategory} (hsC : has_homsets C)
+Lemma CoproductsBool {C : category}
   (HC : BinCoproducts C) : Coproducts bool C.
 Proof.
 intros H.
 use make_Coproduct.
 - apply (HC (H true) (H false)).
 - induction i; apply (pr1 (HC (H true) (H false))).
-- use (make_isCoproduct _ _ hsC); intros c f.
+- use (make_isCoproduct _ _ C); intros c f.
   induction (pr2 (HC (H true) (H false)) c (f true) (f false)) as [[x1 [x2 x3]] x4].
   use unique_exists.
   + apply x1.
   + cbn; induction i; assumption.
-  + intros x; apply impred; intros; apply hsC.
+  + intros x; apply impred; intros; apply C.
   + intros h1 h2.
     apply (maponpaths pr1 (x4 (h1,,(h2 true,,h2 false)))).
 Defined.
@@ -689,10 +689,10 @@ Definition bincoproduct_functor {C : precategory} (PC : BinCoproducts C)
   := make_functor _ (is_functor_bincoproduct_functor_data PC).
 
 (* Defines the copropuct of two functors *)
-Definition BinCoproduct_of_functors_alt {C D : precategory}
-  (hsD : has_homsets D) (HD : BinCoproducts D) (F G : C ⟶ D) : C ⟶ D :=
+Definition BinCoproduct_of_functors_alt {C D : category}
+           (HD : BinCoproducts D) (F G : C ⟶ D) : C ⟶ D :=
     tuple_functor (λ b, bool_rect (λ _, C ⟶ D) F G b) ∙
-    coproduct_functor bool (CoproductsBool hsD HD).
+    coproduct_functor bool (CoproductsBool HD).
 
 (* Defines the copropuct of two functors by:
     x -> (x,x) -> (F x,G x) -> F x + G x
@@ -701,7 +701,7 @@ Definition BinCoproduct_of_functors_alt {C D : precategory}
 
   Above is a slightly simpler definition
 *)
-Definition BinCoproduct_of_functors_alt2 {C D : precategory}
+Definition BinCoproduct_of_functors_alt2 {C D : category}
   (HD : BinCoproducts D) (F G : functor C D) : functor C D :=
     bindelta_functor C ∙ (pair_functor F G ∙ bincoproduct_functor HD).
 
@@ -712,7 +712,7 @@ End functors.
     zero morphism. *)
 Section BinCoproduct_zeroarrow.
 
-  Variable C : precategory.
+  Variable C : category.
   Variable Z : Zero C.
 
   Lemma BinCoproductArrowZero {x y z: C} {BP : BinCoproduct x y} (f : x --> z) (g : y --> z) :
@@ -731,9 +731,8 @@ End BinCoproduct_zeroarrow.
 
 Section def_functor_pointwise_coprod.
 
-Variable C D : precategory.
+Variable C D : category.
 Variable HD : BinCoproducts D.
-Variable hsD : has_homsets D.
 
 Section BinCoproduct_of_functors.
 
@@ -802,19 +801,19 @@ Definition BinCoproduct_of_functors : functor C D :=
 Lemma BinCoproduct_of_functors_alt2_eq_BinCoproduct_of_functors :
   BinCoproduct_of_functors_alt2 HD F G = BinCoproduct_of_functors.
 Proof.
-now apply (functor_eq _ _ hsD).
+now apply (functor_eq _ _ D).
 Defined.
 
 Lemma BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors :
-  BinCoproduct_of_functors_alt hsD HD F G = BinCoproduct_of_functors.
+  BinCoproduct_of_functors_alt HD F G = BinCoproduct_of_functors.
 Proof.
-now apply (functor_eq _ _ hsD).
+now apply (functor_eq _ _ D).
 Defined.
 
 Lemma BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors_alt2 :
-  BinCoproduct_of_functors_alt hsD HD F G = BinCoproduct_of_functors_alt2 HD F G.
+  BinCoproduct_of_functors_alt  HD F G = BinCoproduct_of_functors_alt2 HD F G.
 Proof.
-now apply (functor_eq _ _ hsD).
+now apply (functor_eq _ _ D).
 Defined.
 
 Definition coproduct_nat_trans_in1_data : ∏ c, F c --> BinCoproduct_of_functors c
@@ -903,7 +902,7 @@ Lemma coproduct_nat_trans_In1Commutes :
   nat_trans_comp _ _ _ coproduct_nat_trans_in1 coproduct_nat_trans = f.
 Proof.
   apply nat_trans_eq.
-  - apply hsD.
+  - apply D.
   - intro c; simpl.
     apply BinCoproductIn1Commutes.
 Qed.
@@ -912,7 +911,7 @@ Lemma coproduct_nat_trans_In2Commutes :
   nat_trans_comp _ _ _ coproduct_nat_trans_in2 coproduct_nat_trans = g.
 Proof.
   apply nat_trans_eq.
-  - apply hsD.
+  - apply D.
   - intro c; simpl.
     apply BinCoproductIn2Commutes.
 Qed.
@@ -920,19 +919,19 @@ Qed.
 End vertex.
 
 
-Lemma coproduct_nat_trans_univ_prop (A : [C, D, hsD])
-  (f : (F : [C,D,hsD]) --> A) (g : (G : [C,D,hsD]) --> A) :
+Lemma coproduct_nat_trans_univ_prop (A : [C, D])
+  (f : (F : [C,D]) --> A) (g : (G : [C,D]) --> A) :
    ∏
-   t : ∑ fg : (BinCoproduct_of_functors:[C,D,hsD]) --> A,
-       (coproduct_nat_trans_in1 : (F:[C,D,hsD]) --> BinCoproduct_of_functors)· fg = f
+   t : ∑ fg : (BinCoproduct_of_functors:[C,D]) --> A,
+       (coproduct_nat_trans_in1 : (F:[C,D]) --> BinCoproduct_of_functors)· fg = f
       ×
-       (coproduct_nat_trans_in2: (G : [C,D,hsD]) --> BinCoproduct_of_functors)· fg = g,
+       (coproduct_nat_trans_in2: (G : [C,D]) --> BinCoproduct_of_functors)· fg = g,
    t =
    tpair
-     (λ fg : (BinCoproduct_of_functors:[C,D,hsD]) --> A,
-      (coproduct_nat_trans_in1 : (F:[C,D,hsD]) --> BinCoproduct_of_functors)· fg = f
+     (λ fg : (BinCoproduct_of_functors:[C,D]) --> A,
+      (coproduct_nat_trans_in1 : (F:[C,D]) --> BinCoproduct_of_functors)· fg = f
    ×
-      (coproduct_nat_trans_in2 : (G:[C,D,hsD]) --> BinCoproduct_of_functors) · fg = g)
+      (coproduct_nat_trans_in2 : (G:[C,D]) --> BinCoproduct_of_functors) · fg = g)
      (coproduct_nat_trans A f g)
      (make_dirprod (coproduct_nat_trans_In1Commutes A f g)
         (coproduct_nat_trans_In2Commutes A f g)).
@@ -945,10 +944,10 @@ Proof.
   - intro.
     apply isapropdirprod;
     apply isaset_nat_trans;
-    apply hsD.
+    apply D.
   - simpl.
     apply nat_trans_eq.
-    + apply hsD.
+    + apply D.
     + intro c.
       unfold coproduct_nat_trans.
       simpl.
@@ -961,7 +960,7 @@ Qed.
 
 
 Definition functor_precat_coproduct_cocone
-  : @BinCoproduct [C, D, hsD] F G.
+  : @BinCoproduct [C, D] F G.
 Proof.
   use make_BinCoproduct.
   - apply BinCoproduct_of_functors.
@@ -979,7 +978,7 @@ Defined.
 
 End BinCoproduct_of_functors.
 
-Definition BinCoproducts_functor_precat : BinCoproducts [C, D, hsD].
+Definition BinCoproducts_functor_precat : BinCoproducts [C, D].
 Proof.
   intros F G.
   apply functor_precat_coproduct_cocone.
@@ -990,7 +989,7 @@ End def_functor_pointwise_coprod.
 
 Section generalized_option_functors.
 
-Context {C : precategory} (CC : BinCoproducts C).
+Context {C : category} (CC : BinCoproducts C).
 
 (* The functors "a + _" and "_ + a" *)
 Definition constcoprod_functor1 (a : C) : functor C C :=

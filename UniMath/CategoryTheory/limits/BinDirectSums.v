@@ -586,7 +586,7 @@ Section bindirectsums_criteria.
              (P : BinProduct A X Y) :
     isBinProduct A X Y (BinProductObject A P) (BinProductPr1 A P) (BinProductPr2 A P).
   Proof.
-    use (make_isBinProduct _ hs).
+    use (make_isBinProduct _ ).
     intros c f g.
     use unique_exists.
     - exact (BinProductArrow A P f g).
@@ -705,7 +705,6 @@ Section bindirectsums_in_quot.
                      (to_quot_mor A PAS (to_Pr2 (BD x y))).
   Proof.
     use make_isBinProduct.
-    - apply has_homsets_Quotcategory.
     - intros c f g.
       set (f'' := @issurjsetquotpr (@to_abgr A c x) (binopeqrel_subgr_eqrel (PAS c x)) f).
       use (squash_to_prop f''). apply isapropiscontr. intros f'. clear f''.

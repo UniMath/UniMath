@@ -32,7 +32,7 @@ Local Open Scope cat.
 (** * Definition of limits *)
 Section lim_def.
 
-Context (C : category).
+Context {C : category}.
 
 Definition forms_cone {g : graph} (d : diagram g C)
     {c : C} (f : ∏ (v : vertex g), C⟦c, dob d v⟧) : UU
@@ -360,9 +360,9 @@ apply impred; intro g; apply impred; intro cc.
 apply invproofirrelevance; intros Hccx Hccy.
 apply subtypePath.
 - intro; apply isaprop_isLimCone.
-- apply (total2_paths_f (isotoid _ H (iso_from_lim_to_lim _ Hccx Hccy))).
+- apply (total2_paths_f (isotoid _ H (iso_from_lim_to_lim Hccx Hccy))).
   set (B c := ∏ v, C⟦c,dob cc v⟧).
-  set (C' (c : C) f := forms_cone(c:=c) _ cc f).
+  set (C' (c : C) f := forms_cone(c:=c) cc f).
   rewrite (@transportf_total2 _ B C').
   apply subtypePath.
   + intro; repeat (apply impred; intro); apply univalent_category_has_homsets.
@@ -381,7 +381,7 @@ Context {A C : category} {g : graph} (D : diagram g [A, C]).
 
 Variable (HCg : ∏ (a : A), LimCone (diagram_pointwise C D a)).
 
-Definition LimFunctor_ob (a : A) : C := lim _ (HCg a).
+Definition LimFunctor_ob (a : A) : C := lim (HCg a).
 
 Definition LimFunctor_mor (a a' : A) (f : A⟦a, a'⟧) :
   C⟦LimFunctor_ob a,LimFunctor_ob a'⟧.
@@ -415,34 +415,34 @@ Definition LimFunctor : functor A C := tpair _ _ is_functor_LimFunctor_data.
 Definition lim_nat_trans_in_data v : [A, C] ⟦ LimFunctor, dob D v ⟧.
 Proof.
 use tpair.
-- intro a; exact (limOut _ (HCg a) v).
-- abstract (intros a a' f; apply (limOfArrowsOut _ _ _ (HCg a) (HCg a'))).
+- intro a; exact (limOut (HCg a) v).
+- abstract (intros a a' f; apply (limOfArrowsOut _ _ (HCg a) (HCg a'))).
 Defined.
 
-Definition cone_pointwise (F : [A,C]) (cc : cone _ D F) a :
-  cone _ (diagram_pointwise _ D a) (pr1 F a).
+Definition cone_pointwise (F : [A,C]) (cc : cone D F) a :
+  cone (diagram_pointwise _ D a) (pr1 F a).
 Proof.
 use make_cone.
-- now intro v; apply (pr1 (coneOut _ cc v) a).
+- now intro v; apply (pr1 (coneOut cc v) a).
 - abstract (intros u v e;
-    now apply (nat_trans_eq_pointwise (coneOutCommutes _ cc u v e))).
+    now apply (nat_trans_eq_pointwise (coneOutCommutes cc u v e))).
 Defined.
 
-Lemma LimFunctor_unique (F : [A, C]) (cc : cone _ D F) :
+Lemma LimFunctor_unique (F : [A, C]) (cc : cone D F) :
   iscontr (∑ x : [A, C] ⟦ F, LimFunctor ⟧,
-            ∏ v, x · lim_nat_trans_in_data v = coneOut _ cc v).
+            ∏ v, x · lim_nat_trans_in_data v = coneOut cc v).
 Proof.
 use tpair.
 - use tpair.
-  + apply (tpair _ (λ a, limArrow _ (HCg a) _ (cone_pointwise F cc a))).
+  + apply (tpair _ (λ a, limArrow (HCg a) _ (cone_pointwise F cc a))).
     abstract (intros a a' f; simpl; apply pathsinv0; eapply pathscomp0;
-    [ apply (postCompWithLimOfArrows _ _ _ (HCg a))
+    [ apply (postCompWithLimOfArrows _ _ (HCg a))
     | apply pathsinv0; eapply pathscomp0;
       [ apply postCompWithLimArrow
       | apply limArrowUnique; intro u; eapply pathscomp0;
       [ now apply limArrowCommutes | now use nat_trans_ax]]]).
   + abstract (intro u; apply (nat_trans_eq C); simpl; intro a;
-              now apply (limArrowCommutes _ (HCg a))).
+              now apply (limArrowCommutes (HCg a))).
 - abstract (intro t; destruct t as [t1 t2];
             apply subtypePath; simpl;
               [ intro; apply impred; intro u; apply functor_category_has_homsets
@@ -458,18 +458,18 @@ use make_LimCone.
 - use make_cone.
   + now apply lim_nat_trans_in_data.
   + abstract (now intros u v e; apply (nat_trans_eq C);
-                  intro a; apply (limOutCommutes _ (HCg a))).
+                  intro a; apply (limOutCommutes (HCg a))).
 - now intros F cc; simpl; apply (LimFunctor_unique _ cc).
 Defined.
 
 
 Definition isLimFunctor_is_pointwise_Lim
-  (X : [A,C]) (R : cone _ D X) (H : isLimCone _ D X R)
-  : ∏ a, isLimCone _ (diagram_pointwise C D a) _ (cone_pointwise X R a).
+  (X : [A,C]) (R : cone D X) (H : isLimCone D X R)
+  : ∏ a, isLimCone (diagram_pointwise C D a) _ (cone_pointwise X R a).
 Proof.
   intro a.
-  apply (is_iso_isLim _ _ (HCg a)).
-  set (XR := isLim_is_iso _ D LimFunctorCone X R H).
+  apply (is_iso_isLim _ (HCg a)).
+  set (XR := isLim_is_iso D LimFunctorCone X R H).
   apply  (is_functor_iso_pointwise_if_iso _ _ _ _ _ _ XR).
 Defined.
 
@@ -493,34 +493,34 @@ Section map.
 Context {C D : category} (F : functor C D).
 
 Definition mapcone {g : graph} (d : diagram g C) {x : C}
-  (dx : cone _ d x) : cone _ (mapdiagram F d) (F x).
+  (dx : cone d x) : cone (mapdiagram F d) (F x).
 Proof.
 use make_cone.
 - simpl; intro n.
-  exact (#F (coneOut _ dx n)).
+  exact (#F (coneOut dx n)).
 - abstract (intros u v e; simpl; rewrite <- functor_comp;
-            apply maponpaths, (coneOutCommutes _ dx _ _ e)).
+            apply maponpaths, (coneOutCommutes dx _ _ e)).
 Defined.
 
 Definition preserves_limit {g : graph} (d : diagram g C) (L : C)
-  (cc : cone _ d L) : UU :=
-  isLimCone _ d L cc -> isLimCone _ (mapdiagram F d) (F L) (mapcone d cc).
+  (cc : cone d L) : UU :=
+  isLimCone d L cc -> isLimCone (mapdiagram F d) (F L) (mapcone d cc).
 
 (** ** Right adjoints preserve limits *)
 Lemma right_adjoint_preserves_limit (HF : is_right_adjoint F)
-      {g : graph} (d : diagram g C) (L : C) (ccL : cone _ d L) : preserves_limit d L ccL.
+      {g : graph} (d : diagram g C) (L : C) (ccL : cone d L) : preserves_limit d L ccL.
 Proof.
 intros HccL M ccM.
 set (G := left_adjoint HF).
 set (H := pr2 HF : are_adjoints G F).
 apply (@iscontrweqb _ (∑ y : C ⟦ G M, L ⟧,
-    ∏ i, y · coneOut _ ccL i = φ_adj_inv H (coneOut _ ccM i))).
+    ∏ i, y · coneOut ccL i = φ_adj_inv H (coneOut ccM i))).
 - eapply (weqcomp (Y := ∑ y : C ⟦ G M, L ⟧,
-    ∏ i, φ_adj H y · # F (coneOut _ ccL i) = coneOut _ ccM i)).
+    ∏ i, φ_adj H y · # F (coneOut ccL i) = coneOut ccM i)).
   + apply invweq, (weqbandf (adjunction_hom_weq H M L)); simpl; intro f.
     abstract (now apply weqiff; try (apply impred; intro; apply D)).
   + eapply (weqcomp (Y := ∑ y : C ⟦ G M, L ⟧,
-      ∏ i, φ_adj H (y · coneOut _ ccL i) = coneOut _ ccM i)).
+      ∏ i, φ_adj H (y · coneOut ccL i) = coneOut ccM i)).
     * apply weqfibtototal; simpl; intro f.
       abstract (apply weqiff; try (apply impred; intro; apply D); split; intros HH i;
                [ now rewrite φ_adj_natural_postcomp; apply HH
@@ -530,11 +530,11 @@ apply (@iscontrweqb _ (∑ y : C ⟦ G M, L ⟧,
       split; intros HH i;
         [ now rewrite <- (HH i), φ_adj_inv_after_φ_adj
         | now rewrite (HH i),  φ_adj_after_φ_adj_inv ]).
-- transparent assert (X : (cone _ d (G M))).
+- transparent assert (X : (cone d (G M))).
   { use make_cone.
-    + intro v; apply (φ_adj_inv H (coneOut _ ccM v)).
+    + intro v; apply (φ_adj_inv H (coneOut ccM v)).
     + intros m n e; simpl.
-      rewrite <- (coneOutCommutes _ ccM m n e); simpl.
+      rewrite <- (coneOutCommutes ccM m n e); simpl.
       now rewrite φ_adj_inv_natural_postcomp.
   }
   apply (HccL (G M) X).
@@ -547,8 +547,8 @@ Section Reflects.
 
   Definition reflects_limits_of_shape (g : graph) : UU :=
     ∏ (d : diagram g C) (L : ob C) cc,
-      isLimCone _ (mapdiagram F d) (F L) (mapcone F d cc) ->
-        isLimCone _ d L cc.
+      isLimCone (mapdiagram F d) (F L) (mapcone F d cc) ->
+        isLimCone d L cc.
 
   Definition reflects_all_limits : UU :=
     ∏ (g : graph), reflects_limits_of_shape g.
@@ -564,11 +564,11 @@ Section Reflects.
     apply (@iscontrweqf
              (∑ x : D ⟦ F L', F L ⟧,
               ∏ v : vertex g,
-                x · coneOut _ (mapcone F d cc) v = coneOut _ (mapcone F d cc') v)).
-    - apply (@weqcomp _ (∑ x : C ⟦ L', L ⟧, ∏ v : vertex g, # F x · coneOut _ (mapcone F d cc) v = coneOut _ (mapcone F d cc') v)).
+                x · coneOut (mapcone F d cc) v = coneOut (mapcone F d cc') v)).
+    - apply (@weqcomp _ (∑ x : C ⟦ L', L ⟧, ∏ v : vertex g, # F x · coneOut (mapcone F d cc) v = coneOut (mapcone F d cc') v)).
       + apply invweq.
         apply (weqfp (weq_from_fully_faithful fff _ _)
-                     (λ f, ∏ v, f · coneOut _ (mapcone F d cc) v = coneOut _ (mapcone F d cc') v)).
+                     (λ f, ∏ v, f · coneOut (mapcone F d cc) v = coneOut (mapcone F d cc') v)).
       + apply weqfibtototal; intro f.
         apply weqonsecfibers; intro v.
         unfold mapcone; cbn.

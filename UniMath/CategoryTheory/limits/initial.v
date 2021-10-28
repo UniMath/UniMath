@@ -25,7 +25,7 @@ Local Open Scope cat.
 
 Section def_initial.
 
-Context {C : precategory}.
+Context {C : category}.
 
 Definition isInitial (a : C) : UU := ∏ b : C, iscontr (a --> b).
 
@@ -110,7 +110,7 @@ End Initial_Unique.
 Section Initial_and_EmptyCoprod.
 
   (** Construct Initial from empty arbitrary coproduct. *)
-  Definition initial_from_empty_coproduct (C : precategory):
+  Definition initial_from_empty_coproduct (C : category):
     Coproduct empty C fromempty -> Initial C.
   Proof.
     intros X.
@@ -166,9 +166,9 @@ End Initial_and_EmptyCoprod.
 (** * Construction of initial object in a functor category *)
 Section InitialFunctorCat.
 
-Variables (C D : precategory) (ID : Initial D) (hsD : has_homsets D).
+Variables (C D : category) (ID : Initial D).
 
-Definition Initial_functor_precat : Initial [C, D, hsD].
+Definition Initial_functor_precat : Initial [C, D].
 Proof.
 use make_Initial.
 - use make_functor.
@@ -185,7 +185,7 @@ use make_Initial.
     * intros a b f; simpl.
       rewrite (InitialEndo_is_identity (InitialArrow ID ID)), id_left.
       now apply pathsinv0, InitialArrowUnique.
-  + abstract (intros α; apply (nat_trans_eq hsD); intro a; apply InitialArrowUnique).
+  + abstract (intros α; apply (nat_trans_eq D); intro a; apply InitialArrowUnique).
 Defined.
 
 End InitialFunctorCat.
@@ -193,7 +193,7 @@ End InitialFunctorCat.
 (** Morphisms to the initial object are epis *)
 Section epis_initial.
 
-Context {C : precategory} (IC : Initial C).
+Context {C : category} (IC : Initial C).
 
 Lemma to_initial_isEpi (a : C) (f : C⟦a,IC⟧) : isEpi f.
 Proof.
