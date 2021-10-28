@@ -453,7 +453,8 @@ Section def_opposites'.
     exact (ZerosArrowEq C^op (Zero_opp Z) Z' z x).
   Qed.
 
-  (*
+
+
   Lemma isCokernel_opp {x y z : C} {f : C⟦x, y⟧} {g : C⟦y, z⟧} {Z : Zero C}
         {H : f · g = ZeroArrow Z _ _} (K' : isKernel Z f g H) {Z' : Zero C^op} :
     isCokernel Z' (g : C^op⟦z, y⟧) (f : C^op⟦y, x⟧) (isCokernel_opp_eq f g Z H Z').
@@ -462,17 +463,18 @@ Section def_opposites'.
     use make_isCokernel.
     - exact (has_homsets_opp hs).
     - intros w h H'. cbn in H'.
-      set (X:= (ZerosArrowEq C^op (Zero_opp Z) Z' z w)).
-      (*
-      rewrite <- (ZerosArrowEq C^op (Zero_opp Z) Z' z w) in H'.
-       *)
+      set (XXX := (ZerosArrowEq C^op (Zero_opp Z) Z' z w)).
       use unique_exists.
-      + rewrite <- ZeroArrow_opp in H'. exact (KernelIn Z K w h H').
+      + use (KernelIn Z K w h _).
+        rewrite ZeroArrow_opp.
+        rewrite XXX.
+        apply H'.
       + cbn. use (KernelCommutes Z K).
       + intros y0. apply (has_homsets_opp hs).
       + cbn. intros y0 X. use (KernelInsEq Z K). rewrite KernelCommutes. exact X.
   Qed.
-*)
+
+
 
   Local Lemma Kernel_opp_eq {y z : C} (f : C⟦y, z⟧) (Z : Zero C) (K : @Kernel C Z y z f) :
     @compose C^op _ _ _ f (KernelArrow K) = ZeroArrow (Zero_opp Z) z K.

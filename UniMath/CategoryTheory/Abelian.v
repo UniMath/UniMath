@@ -1410,20 +1410,19 @@ Section opp_abelian.
     apply ZerosArrowEq.
   Qed.
 
-  (*
+
   Lemma MonicsAreKernels_opp_isCokernel {D1 : Data1 C} {D2 : Data2 C D1}
         (AMKD : MonicsAreKernels C D1 D2) (y z : C^op) (E : Epi (op_category C) y z) :
     isCokernel (Zero_opp C (pr1 D1)) (CokernelArrow (pr2 D2 z y (opp_Epi C E))) E
                (MonicsAreKernels_opp_eq AMKD y z E).
   Proof.
-    use (isCokernel_opp _ hs).
+    use (isCokernel_opp _ ).
     - exact (to_Zero D1).
     - exact (CokernelCompZero _ (to_Cokernels D2 z y (opp_Epi C E))).
     - exact (AMKD _ _ (opp_Epi C E)).
   Qed.
-   *)
 
-  (*
+
   Definition MonicsAreKernels_opp {D1 : Data1 C} {D2 : Data2 C D1}
              (AMKD : MonicsAreKernels C D1 D2) :
     EpisAreCokernels (op_category C) (AbelianData1_opp D1) (AbelianData2_opp D2).
@@ -1432,7 +1431,7 @@ Section opp_abelian.
     intros y z E.
     exact (MonicsAreKernels_opp_isCokernel AMKD y z E).
   Defined.
-  *)
+
 
   Lemma EpisAreCokernels_opp_eq {D1 : Data1 C} {D2 : Data2 C D1}
         (AECD : EpisAreCokernels C D1 D2) (y z : C^op)
@@ -1444,20 +1443,17 @@ Section opp_abelian.
     apply (KernelCompZero (to_Zero D1) (to_Kernels D2 z y (opp_Monic C M))).
   Qed.
 
-  (*
   Lemma EpisAreCokernels_opp_isKernel {D1 : Data1 C} {D2 : Data2 C D1}
         (AECD : EpisAreCokernels C D1 D2) (y z : C^op) (M : Monic (op_category C) y z) :
     isKernel (Zero_opp C (to_Zero D1)) M (KernelArrow (to_Kernels D2 z y (opp_Monic C M)))
              (EpisAreCokernels_opp_eq AECD y z M).
   Proof.
-    use (isKernel_opp _ hs).
+    use (isKernel_opp _).
     - exact (to_Zero D1).
     - exact (KernelCompZero _ (to_Kernels D2 z y (opp_Monic C M))).
     - exact (AECD _ _ (opp_Monic C M)).
   Qed.
-*)
 
-  (*
   Definition EpisAreCokernels_opp {D1 : Data1 C} {D2 : Data2 C D1}
              (AECD : EpisAreCokernels C D1 D2) :
     MonicsAreKernels (op_category C) (AbelianData1_opp D1) (AbelianData2_opp D2).
@@ -1466,9 +1462,8 @@ Section opp_abelian.
     intros y z M.
     exact (EpisAreCokernels_opp_isKernel AECD y z M).
   Defined.
-   *)
 
-  (*
+
   Definition AbelianData_opp {AD1 : Data1 C} (AD : AbelianData C AD1) :
     AbelianData (op_category C) (AbelianData1_opp AD1).
   Proof.
@@ -1477,20 +1472,20 @@ Section opp_abelian.
     - exact (EpisAreCokernels_opp (pr2 (pr2 AD))).
     - exact (MonicsAreKernels_opp (pr1 (pr2 AD))).
   Defined.
-   *)
+
   (* Need to remove C from context *)
 End opp_abelian.
 Section opp_abelian'.
 
-  (*
   Definition Abelian_opp (A : AbelianPreCat) : AbelianPreCat.
   Proof.
     use make_Abelian.
     - exact (op_category (pr1 (pr1 A))).
     - exact (AbelianData1_opp _ (pr2 (pr1 A))).
-    - exact (AbelianData_opp _ hs (pr2 A)).
+    - exact (AbelianData_opp _  (pr2 A)).
   Defined.
 
+(*
   Lemma has_homsets_Abelian_opp {A : AbelianPreCat} (hs : has_homsets A) :
     has_homsets (Abelian_opp A hs).
   Proof.
