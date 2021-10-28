@@ -62,7 +62,7 @@ If f is an Epi, then pr2 is an Epi, [AbelianPushoutEpi2], and if g is an Epi, th
 Section pushout_monic_pullback_epi.
 
   Context {A : AbelianPreCat}.
-  Variable hs : has_homsets A.
+  Let hs : has_homsets A := homset_property A.
 
   Local Opaque Abelian.Equalizer.
   Local Opaque Abelian.Coequalizer.
@@ -75,11 +75,11 @@ Section pushout_monic_pullback_epi.
   Lemma AbelianPushoutMonic2 {x y z : A} (f : Monic A x y) (g : x --> z) (Po : Pushout f g) :
     Monics.isMonic (PushoutIn2 Po).
   Proof.
-    set (DS := to_BinDirectSums (AbelianToAdditive A hs) y z).
+    set (DS := to_BinDirectSums (AbelianToAdditive A) y z).
     set (Po' := Pushout_from_Coequalizer_BinCoproduct
                   A hs _ _ _ f g (BinDirectSum_BinCoproduct _ DS)
                   (Abelian.Coequalizer
-                     A hs
+                     A
                      (f · (to_In1 DS))
                      (g · (to_In2 DS)))).
     (* Transform the statement to a statement about other pushout *)
@@ -91,9 +91,9 @@ Section pushout_monic_pullback_epi.
                Po _ (PushoutIn1 Po') (PushoutIn2 Po')
                (PushoutSqrCommutes Po')).
     (* Prove that the arrow isMonic *)
-    set (CE := Coequalizer A hs (f · to_In1 (A:=AbelianToPreAdditive A hs) DS)
-                           (g · to_In2 (A:=AbelianToPreAdditive A hs) DS)).
-    set (CK := AdditiveCoequalizerToCokernel (AbelianToAdditive A hs) _ _ CE).
+    set (CE := Coequalizer A (f · to_In1 (A:=AbelianToPreAdditive A) DS)
+                           (g · to_In2 (A:=AbelianToPreAdditive A) DS)).
+    set (CK := AdditiveCoequalizerToCokernel (AbelianToAdditive A) _ _ CE).
     set (M1 := @isMonic_to_binop_BinDirectSum1' (AbelianToAdditive A hs) x y z f g DS).
     set (K := MonicToKernel' A hs (make_Monic _ _ M1) CK).
     use (@to_isMonic (AbelianToAdditive A hs)).

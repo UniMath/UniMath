@@ -369,12 +369,13 @@ Defined.
 
 
 (** inherit the univalence result from [precategory_RelMonad] *)
-Lemma is_univalent_precategory_Kleisli {C : precategory}
+(*
+Lemma is_univalent_precategory_Kleisli {C : category}
       (H: is_univalent C) (R R': KleisliMonad C)
-  : is_univalent (precategory_Kleisli C (pr2 H)).
+  : is_univalent (category_Kleisli C).
 Proof.
   exact (is_univalent_RelMonad H (functor_identity C) R R').
 Qed.
-
+*)
 
 End Kleisli_precategory.
