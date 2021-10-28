@@ -49,8 +49,8 @@ Section rezk.
 
 Definition category_Rezk_completion : category.
 Proof.
-  exists (full_img_sub_precategory (yoneda A hsA)).
-  exact (has_homsets_full_img_sub_precategory (yoneda A hsA)).
+  exists (full_img_sub_precategory (yoneda A)).
+  exact (has_homsets_full_img_sub_precategory (yoneda A)).
 Defined.
 
 
@@ -63,18 +63,18 @@ Defined.
 
 Definition Rezk_eta : functor A Rezk_completion.
 Proof.
-  apply (functor_full_img (yoneda A hsA)).
+  apply (functor_full_img (yoneda A)).
 Defined.
 
 Lemma Rezk_eta_fully_faithful : fully_faithful Rezk_eta.
 Proof.
-  apply (functor_full_img_fully_faithful_if_fun_is _ _ (yoneda A hsA)).
+  apply (functor_full_img_fully_faithful_if_fun_is _ _ (yoneda A)).
   apply yoneda_fully_faithful.
 Defined.
 
 Lemma Rezk_eta_essentially_surjective : essentially_surjective Rezk_eta.
 Proof.
-  apply (functor_full_img_essentially_surjective _ _ (yoneda A hsA)).
+  apply (functor_full_img_essentially_surjective _ _ (yoneda A)).
 Defined.
 
 End rezk.

@@ -32,7 +32,7 @@ Local Open Scope cat.
 (** * Definition of limits *)
 Section lim_def.
 
-Context {C : precategory} (hsC : has_homsets C).
+Context (C : category).
 
 Definition forms_cone {g : graph} (d : diagram g C)
     {c : C} (f : ∏ (v : vertex g), C⟦c, dob d v⟧) : UU
@@ -258,7 +258,7 @@ use tpair.
     apply pathsinv0, limArrowCommutes.
 - intros p; destruct p as [f Hf].
   apply subtypePath.
-  + intro a; apply impred; intro u; apply hsC.
+  + intro a; apply impred; intro u; apply C.
   + simpl; apply  z_iso_inv_on_left; simpl.
     apply pathsinv0, limArrowUnique; intro u.
     cbn in *.
@@ -336,14 +336,16 @@ Defined.
 
 End lim_def.
 
+Arguments LimCone [_] {_} _.
+
 Section Lims.
 
-Definition Lims (C : precategory) : UU := ∏ (g : graph) (d : diagram g C), LimCone d.
-Definition hasLims (C : precategory) : UU  :=
+Definition Lims (C : category) : UU := ∏ (g : graph) (d : diagram g C), LimCone d.
+Definition hasLims (C : category) : UU  :=
   ∏ (g : graph) (d : diagram g C), ishinh (LimCone d).
 
 (** Limits of a specific shape *)
-Definition Lims_of_shape (g : graph) (C : precategory) : UU :=
+Definition Lims_of_shape (g : graph) (C : category) : UU :=
   ∏ (d : diagram g C), LimCone d.
 
 Section Universal_Unique.
@@ -358,9 +360,9 @@ apply impred; intro g; apply impred; intro cc.
 apply invproofirrelevance; intros Hccx Hccy.
 apply subtypePath.
 - intro; apply isaprop_isLimCone.
-- apply (total2_paths_f (isotoid _ H (iso_from_lim_to_lim Hccx Hccy))).
+- apply (total2_paths_f (isotoid _ H (iso_from_lim_to_lim _ Hccx Hccy))).
   set (B c := ∏ v, C⟦c,dob cc v⟧).
-  set (C' (c : C) f := forms_cone(c:=c) cc f).
+  set (C' (c : C) f := forms_cone(c:=c) _ cc f).
   rewrite (@transportf_total2 _ B C').
   apply subtypePath.
   + intro; repeat (apply impred; intro); apply univalent_category_has_homsets.
@@ -375,11 +377,11 @@ End Lims.
 (** * Limits in functor categories *)
 Section LimFunctor.
 
-Context {A C : precategory} (hsC : has_homsets C) {g : graph} (D : diagram g [A, C, hsC]).
+Context {A C : category} {g : graph} (D : diagram g [A, C]).
 
-Variable (HCg : ∏ (a : A), LimCone (diagram_pointwise hsC D a)).
+Variable (HCg : ∏ (a : A), LimCone (diagram_pointwise C D a)).
 
-Definition LimFunctor_ob (a : A) : C := lim (HCg a).
+Definition LimFunctor_ob (a : A) : C := lim _ (HCg a).
 
 Definition LimFunctor_mor (a a' : A) (f : A⟦a, a'⟧) :
   C⟦LimFunctor_ob a,LimFunctor_ob a'⟧.
@@ -410,41 +412,41 @@ Qed.
 
 Definition LimFunctor : functor A C := tpair _ _ is_functor_LimFunctor_data.
 
-Definition lim_nat_trans_in_data v : [A, C, hsC] ⟦ LimFunctor, dob D v ⟧.
+Definition lim_nat_trans_in_data v : [A, C] ⟦ LimFunctor, dob D v ⟧.
 Proof.
 use tpair.
-- intro a; exact (limOut (HCg a) v).
-- abstract (intros a a' f; apply (limOfArrowsOut _ _ (HCg a) (HCg a'))).
+- intro a; exact (limOut _ (HCg a) v).
+- abstract (intros a a' f; apply (limOfArrowsOut _ _ _ (HCg a) (HCg a'))).
 Defined.
 
-Definition cone_pointwise (F : [A,C,hsC]) (cc : cone D F) a :
-  cone (diagram_pointwise _ D a) (pr1 F a).
+Definition cone_pointwise (F : [A,C]) (cc : cone _ D F) a :
+  cone _ (diagram_pointwise _ D a) (pr1 F a).
 Proof.
 use make_cone.
-- now intro v; apply (pr1 (coneOut cc v) a).
+- now intro v; apply (pr1 (coneOut _ cc v) a).
 - abstract (intros u v e;
-    now apply (nat_trans_eq_pointwise (coneOutCommutes cc u v e))).
+    now apply (nat_trans_eq_pointwise (coneOutCommutes _ cc u v e))).
 Defined.
 
-Lemma LimFunctor_unique (F : [A, C, hsC]) (cc : cone D F) :
-  iscontr (∑ x : [A, C, hsC] ⟦ F, LimFunctor ⟧,
-            ∏ v, x · lim_nat_trans_in_data v = coneOut cc v).
+Lemma LimFunctor_unique (F : [A, C]) (cc : cone _ D F) :
+  iscontr (∑ x : [A, C] ⟦ F, LimFunctor ⟧,
+            ∏ v, x · lim_nat_trans_in_data v = coneOut _ cc v).
 Proof.
 use tpair.
 - use tpair.
-  + apply (tpair _ (λ a, limArrow (HCg a) _ (cone_pointwise F cc a))).
+  + apply (tpair _ (λ a, limArrow _ (HCg a) _ (cone_pointwise F cc a))).
     abstract (intros a a' f; simpl; apply pathsinv0; eapply pathscomp0;
-    [ apply (postCompWithLimOfArrows _ _ (HCg a))
+    [ apply (postCompWithLimOfArrows _ _ _ (HCg a))
     | apply pathsinv0; eapply pathscomp0;
       [ apply postCompWithLimArrow
       | apply limArrowUnique; intro u; eapply pathscomp0;
       [ now apply limArrowCommutes | now use nat_trans_ax]]]).
-  + abstract (intro u; apply (nat_trans_eq hsC); simpl; intro a;
-              now apply (limArrowCommutes (HCg a))).
+  + abstract (intro u; apply (nat_trans_eq C); simpl; intro a;
+              now apply (limArrowCommutes _ (HCg a))).
 - abstract (intro t; destruct t as [t1 t2];
             apply subtypePath; simpl;
               [ intro; apply impred; intro u; apply functor_category_has_homsets
-              | apply (nat_trans_eq hsC); simpl; intro a;
+              | apply (nat_trans_eq C); simpl; intro a;
                 apply limArrowUnique; intro u;
                 now apply (nat_trans_eq_pointwise (t2 u))]).
 Defined.
@@ -455,84 +457,84 @@ use make_LimCone.
 - exact LimFunctor.
 - use make_cone.
   + now apply lim_nat_trans_in_data.
-  + abstract (now intros u v e; apply (nat_trans_eq hsC);
-                  intro a; apply (limOutCommutes (HCg a))).
+  + abstract (now intros u v e; apply (nat_trans_eq C);
+                  intro a; apply (limOutCommutes _ (HCg a))).
 - now intros F cc; simpl; apply (LimFunctor_unique _ cc).
 Defined.
 
 
 Definition isLimFunctor_is_pointwise_Lim
-  (X : [A,C,hsC]) (R : cone D X) (H : isLimCone D X R)
-  : ∏ a, isLimCone (diagram_pointwise hsC D a) _ (cone_pointwise X R a).
+  (X : [A,C]) (R : cone _ D X) (H : isLimCone _ D X R)
+  : ∏ a, isLimCone _ (diagram_pointwise C D a) _ (cone_pointwise X R a).
 Proof.
   intro a.
-  apply (is_iso_isLim hsC _ (HCg a)).
-  set (XR := isLim_is_iso D LimFunctorCone X R H).
+  apply (is_iso_isLim _ _ (HCg a)).
+  set (XR := isLim_is_iso _ D LimFunctorCone X R H).
   apply  (is_functor_iso_pointwise_if_iso _ _ _ _ _ _ XR).
 Defined.
 
 
 End LimFunctor.
 
-Lemma LimsFunctorCategory (A C : precategory) (hsC : has_homsets C)
-  (HC : Lims C) : Lims [A,C,hsC].
+Lemma LimsFunctorCategory (A C : category)
+  (HC : Lims C) : Lims [A,C].
 Proof.
 now intros g d; apply LimFunctorCone.
 Defined.
 
-Lemma LimsFunctorCategory_of_shape (g : graph) (A C : precategory) (hsC : has_homsets C)
-  (HC : Lims_of_shape g C) : Lims_of_shape g [A,C,hsC].
+Lemma LimsFunctorCategory_of_shape (g : graph) (A C : category)
+  (HC : Lims_of_shape g C) : Lims_of_shape g [A,C].
 Proof.
 now intros d; apply LimFunctorCone.
 Defined.
 
 Section map.
 
-Context {C D : precategory} (F : functor C D).
+Context {C D : category} (F : functor C D).
 
 Definition mapcone {g : graph} (d : diagram g C) {x : C}
-  (dx : cone d x) : cone (mapdiagram F d) (F x).
+  (dx : cone _ d x) : cone _ (mapdiagram F d) (F x).
 Proof.
 use make_cone.
 - simpl; intro n.
-  exact (#F (coneOut dx n)).
+  exact (#F (coneOut _ dx n)).
 - abstract (intros u v e; simpl; rewrite <- functor_comp;
-            apply maponpaths, (coneOutCommutes dx _ _ e)).
+            apply maponpaths, (coneOutCommutes _ dx _ _ e)).
 Defined.
 
 Definition preserves_limit {g : graph} (d : diagram g C) (L : C)
-  (cc : cone d L) : UU :=
-  isLimCone d L cc -> isLimCone (mapdiagram F d) (F L) (mapcone d cc).
+  (cc : cone _ d L) : UU :=
+  isLimCone _ d L cc -> isLimCone _ (mapdiagram F d) (F L) (mapcone d cc).
 
 (** ** Right adjoints preserve limits *)
-Lemma right_adjoint_preserves_limit (HF : is_right_adjoint F) (hsC : has_homsets C) (hsD : has_homsets D)
-      {g : graph} (d : diagram g C) (L : C) (ccL : cone d L) : preserves_limit d L ccL.
+Lemma right_adjoint_preserves_limit (HF : is_right_adjoint F)
+      {g : graph} (d : diagram g C) (L : C) (ccL : cone _ d L) : preserves_limit d L ccL.
 Proof.
 intros HccL M ccM.
 set (G := left_adjoint HF).
 set (H := pr2 HF : are_adjoints G F).
 apply (@iscontrweqb _ (∑ y : C ⟦ G M, L ⟧,
-    ∏ i, y · coneOut ccL i = φ_adj_inv H (coneOut ccM i))).
+    ∏ i, y · coneOut _ ccL i = φ_adj_inv H (coneOut _ ccM i))).
 - eapply (weqcomp (Y := ∑ y : C ⟦ G M, L ⟧,
-    ∏ i, φ_adj H y · # F (coneOut ccL i) = coneOut ccM i)).
+    ∏ i, φ_adj H y · # F (coneOut _ ccL i) = coneOut _ ccM i)).
   + apply invweq, (weqbandf (adjunction_hom_weq H M L)); simpl; intro f.
-    abstract (now apply weqiff; try (apply impred; intro; apply hsD)).
+    abstract (now apply weqiff; try (apply impred; intro; apply D)).
   + eapply (weqcomp (Y := ∑ y : C ⟦ G M, L ⟧,
-      ∏ i, φ_adj H (y · coneOut ccL i) = coneOut ccM i)).
+      ∏ i, φ_adj H (y · coneOut _ ccL i) = coneOut _ ccM i)).
     * apply weqfibtototal; simpl; intro f.
-      abstract (apply weqiff; try (apply impred; intro; apply hsD); split; intros HH i;
+      abstract (apply weqiff; try (apply impred; intro; apply D); split; intros HH i;
                [ now rewrite φ_adj_natural_postcomp; apply HH
                | now rewrite <- φ_adj_natural_postcomp; apply HH ]).
     * apply weqfibtototal; simpl; intro f.
-      abstract (apply weqiff; [ | apply impred; intro; apply hsD | apply impred; intro; apply hsC ];
+      abstract (apply weqiff; [ | apply impred; intro; apply D | apply impred; intro; apply C ];
       split; intros HH i;
         [ now rewrite <- (HH i), φ_adj_inv_after_φ_adj
         | now rewrite (HH i),  φ_adj_after_φ_adj_inv ]).
-- transparent assert (X : (cone d (G M))).
+- transparent assert (X : (cone _ d (G M))).
   { use make_cone.
-    + intro v; apply (φ_adj_inv H (coneOut ccM v)).
+    + intro v; apply (φ_adj_inv H (coneOut _ ccM v)).
     + intros m n e; simpl.
-      rewrite <- (coneOutCommutes ccM m n e); simpl.
+      rewrite <- (coneOutCommutes _ ccM m n e); simpl.
       now rewrite φ_adj_inv_natural_postcomp.
   }
   apply (HccL (G M) X).
@@ -541,12 +543,12 @@ Defined.
 End map.
 
 Section Reflects.
-  Context {C D : precategory} (F : functor C D).
+  Context {C D : category} (F : functor C D).
 
   Definition reflects_limits_of_shape (g : graph) : UU :=
     ∏ (d : diagram g C) (L : ob C) cc,
-      isLimCone (mapdiagram F d) (F L) (mapcone F d cc) ->
-        isLimCone d L cc.
+      isLimCone _ (mapdiagram F d) (F L) (mapcone F d cc) ->
+        isLimCone _ d L cc.
 
   Definition reflects_all_limits : UU :=
     ∏ (g : graph), reflects_limits_of_shape g.
@@ -562,11 +564,11 @@ Section Reflects.
     apply (@iscontrweqf
              (∑ x : D ⟦ F L', F L ⟧,
               ∏ v : vertex g,
-                x · coneOut (mapcone F d cc) v = coneOut (mapcone F d cc') v)).
-    - apply (@weqcomp _ (∑ x : C ⟦ L', L ⟧, ∏ v : vertex g, # F x · coneOut (mapcone F d cc) v = coneOut (mapcone F d cc') v)).
+                x · coneOut _ (mapcone F d cc) v = coneOut _ (mapcone F d cc') v)).
+    - apply (@weqcomp _ (∑ x : C ⟦ L', L ⟧, ∏ v : vertex g, # F x · coneOut _ (mapcone F d cc) v = coneOut _ (mapcone F d cc') v)).
       + apply invweq.
         apply (weqfp (weq_from_fully_faithful fff _ _)
-                     (λ f, ∏ v, f · coneOut (mapcone F d cc) v = coneOut (mapcone F d cc') v)).
+                     (λ f, ∏ v, f · coneOut _ (mapcone F d cc) v = coneOut _ (mapcone F d cc') v)).
       + apply weqfibtototal; intro f.
         apply weqonsecfibers; intro v.
         unfold mapcone; cbn.
@@ -590,7 +592,7 @@ Import UniMath.CategoryTheory.opp_precat.
 
 Section lim_def.
 
-Context {C : precategory} (hsC : has_homsets C).
+Context (C : category).
 
 (* A cone with tip c over a diagram d *)
 (*
@@ -894,7 +896,7 @@ use tpair.
     apply pathsinv0, limArrowCommutes.
 - intros p; destruct p as [f Hf].
   apply subtypePath.
-  + intro a; apply impred; intro u; apply hsC.
+  + intro a; apply impred; intro u; apply C.
   + simpl; apply  z_iso_inv_on_left; simpl.
     apply pathsinv0, limArrowUnique; intro u.
     cbn in *.
@@ -911,9 +913,9 @@ Arguments Lims : clear implicits.
 
 Section LimFunctor.
 
-Definition get_diagram (A C : precategory) (hsC : has_homsets C)
-  (g : graph) (D : diagram g [A, C, hsC]^op) :
-    diagram g [A^op, C^op, has_homsets_opp hsC].
+Definition get_diagram (A C : category)
+  (g : graph) (D : diagram g [A, C]^op) :
+    diagram g [A^op, C^op].
 Proof.
 apply (tpair _ (λ u, from_opp_to_opp_opp _ _ _ (pr1 D u))).
 intros u v e; simpl.
@@ -922,28 +924,28 @@ use tpair; simpl.
   + abstract (intros a b f; apply pathsinv0, (pr2 (pr2 D u v e) b a f)).
 Defined.
 
-Definition get_cocone  (A C : precategory) (hsC : has_homsets C)
-  (g : graph) (D : diagram g [A, C, hsC]^op) (F : functor A C) (ccF : cocone D F) :
-  cocone (get_diagram A C hsC g D) (functor_opp F).
+Definition get_cocone  (A C : category)
+  (g : graph) (D : diagram g [A, C]^op) (F : functor A C) (ccF : cocone D F) :
+  cocone (get_diagram A C  g D) (functor_opp F).
 Proof.
 destruct ccF as [t p]. (* If I remove this destruct the Qed for LimsFunctorCategory
                  takes twice as long *)
 use make_cocone.
 - intro u; apply (tpair _ (pr1 (t u))).
   abstract (intros a b f; apply pathsinv0, (pr2 (t u) b a f)).
-- abstract (intros u v e; apply (nat_trans_eq (has_homsets_opp hsC));
+- abstract (intros u v e; apply (nat_trans_eq C^op );
             now intro a; simpl; rewrite <- (p u v e)).
 Defined.
 
-Lemma LimFunctorCone (A C : precategory) (hsC : has_homsets C)
+Lemma LimFunctorCone (A C : category)
   (g : graph)
-  (D : diagram g [A, C, hsC]^op)
+  (D : diagram g [A, C]^op)
   (HC : ∏ a : A^op,
-            LimCone
-              (diagram_pointwise (has_homsets_opp hsC) (get_diagram A C hsC g D) a))
-  : LimCone D.
+            LimCone _
+              (diagram_pointwise _ (get_diagram A C g D) a))
+  : LimCone _ D.
 Proof.
-set (HColim := ColimFunctorCocone (has_homsets_opp hsC) (get_diagram _ _ _ _ D) HC).
+set (HColim := ColimFunctorCocone (has_homsets_opp C) (get_diagram _ _ _ D) HC).
 destruct HColim as [pr1x pr2x].
 destruct pr1x as [pr1pr1x pr2pr1x].
 destruct pr2pr1x as [pr1pr2pr1x pr2pr2pr1x].
@@ -954,10 +956,10 @@ use (make_ColimCocone _ (from_opp_opp_to_opp _ _ _ pr1pr1x)).
     use tpair.
     * intro a; apply (pr1pr2pr1x v a).
     * abstract (intros a b f; apply pathsinv0, (nat_trans_ax (pr1pr2pr1x v) (*b a f*))).
-  + abstract (intros u v e; apply (nat_trans_eq hsC); simpl; intro a;
+  + abstract (intros u v e; apply (nat_trans_eq C); simpl; intro a;
               now rewrite <- (pr2pr2pr1x u v e)).
 - intros F ccF.
-  set (H := pr2x (from_opp_to_opp_opp _ _ _ F) (get_cocone _ _ _ _ _ _ ccF)).
+  set (H := pr2x (from_opp_to_opp_opp _ _ _ F) (get_cocone  _ _ _ _ _ ccF)).
   destruct H as [H1 H2].
   destruct H1 as [α Hα].
   simpl in *.
@@ -965,11 +967,11 @@ use (make_ColimCocone _ (from_opp_opp_to_opp _ _ _ pr1pr1x)).
   + use tpair.
     * exists α.
       abstract (intros a b f; simpl; now apply pathsinv0, (nat_trans_ax α b a f)).
-    * abstract (intro u; apply (nat_trans_eq hsC); intro a;
+    * abstract (intro u; apply (nat_trans_eq C); intro a;
         destruct ccF as [t p]; apply (toforallpaths _ _ _ (maponpaths pr1 (Hα u)) a)).
   + intro H; destruct H as [f Hf]; apply subtypePath.
     * abstract (intro β; repeat (apply impred; intro);
-        now apply (has_homsets_opp (functor_category_has_homsets A C hsC))).
+        now apply (has_homsets_opp (functor_category_has_homsets A C C))).
     * match goal with |[ H2 : ∏ _ : ?TT ,  _ = _ ,,_   |- _ ] =>
                        transparent assert (T : TT) end.
       (*
@@ -981,11 +983,11 @@ use (make_ColimCocone _ (from_opp_opp_to_opp _ _ _ pr1pr1x)).
       *)
       { use (tpair _ (tpair _ (pr1 f) _)); simpl.
         - abstract (intros x y fxy; apply pathsinv0, (pr2 f y x fxy)).
-        - abstract (intro u; apply (nat_trans_eq (has_homsets_opp hsC)); intro x;
+        - abstract (intro u; apply (nat_trans_eq (has_homsets_opp C)); intro x;
             destruct ccF as [t p]; apply (toforallpaths _ _ _ (maponpaths pr1 (Hf u)) x)).
       }
       set (T' := maponpaths pr1 (H2 T)); simpl in T'.
-      apply (nat_trans_eq hsC); intro a; simpl.
+      apply (nat_trans_eq C); intro a; simpl.
       now rewrite <- T'.
 Defined.
 

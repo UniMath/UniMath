@@ -45,7 +45,7 @@ Definition is_precat_opp_precat_data (C : precategory) : is_precategory (opp_pre
 Definition opp_precat (C : precategory) : precategory :=
   tpair _ (opp_precat_data C) (is_precat_opp_precat_data C).
 
-Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op") : cat.
+Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op") : cat.
 
 Goal ∏ C:precategory, C^op^op = C. reflexivity. Qed.
 
@@ -308,3 +308,5 @@ Defined.
 Definition op_unicat (C : univalent_category)
   : univalent_category
   := (op_category C ,, op_is_univalent C).
+
+ Notation "C '^op'" := (op_category C) (at level 3, format "C ^op") : cat.

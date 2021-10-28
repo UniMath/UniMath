@@ -19,8 +19,8 @@ Require Import UniMath.CategoryTheory.limits.cokernels.
 (** * Definition of cokernels in terms of colimits *)
 Section def_cokernels.
 
-  Variable C : precategory.
-  Variable hs: has_homsets C.
+  Variable C : category.
+  Let hs: has_homsets C := homset_property C.
   Variable Z : Zero C.
 
   Definition Cokernel {a b : C} (f : C⟦a, b⟧) := Coequalizer C f (ZeroArrow Z a b).
