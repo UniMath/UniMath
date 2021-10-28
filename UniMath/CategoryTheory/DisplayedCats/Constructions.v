@@ -1156,9 +1156,8 @@ Defined.
 
 Lemma is_univalent_fiber : is_univalent fiber_category.
 Proof.
-  split.
-  - apply is_univalent_fiber_cat.
-  - apply has_homsets_fiber_category.
+  intros a b.
+  apply is_univalent_fiber_cat.
 Defined.
 
 End Fiber.
@@ -1177,7 +1176,7 @@ Proof.
   apply is_univalent_disp_from_fibers.
   intros c xx xx'.
   specialize (H c).
-  set (w := make_weq _ (pr1 H xx xx')).
+  set (w := make_weq _ (H xx xx')).
   set (w' := weqcomp w (iso_disp_iso_fiber D _ xx xx')).
   apply (weqhomot _ w').
   intro e. induction e.
