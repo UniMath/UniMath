@@ -52,90 +52,90 @@ Lemma cat_prebicat_laws : prebicat_laws cat_prebicat_data.
 Proof.
   repeat split; cbn.
   - intros C D F G η.
-    apply nat_trans_eq; try apply D.
+    apply nat_trans_eq; try apply homset_property.
     intros ; cbn.
     apply id_left.
   - intros C D F G η.
-    apply nat_trans_eq; try apply D.
+    apply nat_trans_eq; try apply homset_property.
     intros ; cbn.
     apply id_right.
   - intros C D F₁ F₂ F₃ F₄ α β γ.
-    apply nat_trans_eq; try apply D.
+    apply nat_trans_eq; try apply homset_property.
     intros ; cbn.
     apply assoc.
   - intros C₁ C₂ C₃ F G.
-    apply nat_trans_eq; try apply C₃.
+    apply nat_trans_eq; try apply homset_property.
     intro; apply idpath.
   - intros C₁ C₂ C₃ F G.
-    apply nat_trans_eq; try apply C₃.
+    apply nat_trans_eq; try apply homset_property.
     intros ; cbn.
     apply functor_id.
   - intros C₁ C₂ C₃ F G₁ G₂ G₃ α β.
-    apply nat_trans_eq; try apply C₃.
+    apply nat_trans_eq; try apply homset_property.
     intros; apply idpath.
   - intros C₁ C₂ C₃ F₁ F₂ F₃ G α β.
-    apply nat_trans_eq; try apply C₃.
+    apply nat_trans_eq; try apply homset_property.
     intros ; cbn.
     exact (!(functor_comp G _ _)).
   - intros C D F G α.
-    apply nat_trans_eq; try apply D.
+    apply nat_trans_eq; try apply homset_property.
     intros ; cbn.
     rewrite id_left, id_right.
     apply idpath.
   - intros C D F G α.
-    apply nat_trans_eq; try apply D.
+    apply nat_trans_eq; try apply homset_property.
     intros ; cbn.
     rewrite id_left, id_right.
     apply idpath.
   - intros C₁ C₂ C₃ C₄ F G H₁ H₂ α.
-    apply nat_trans_eq; try apply C₄.
+    apply nat_trans_eq; try apply homset_property.
     intros ; cbn.
     rewrite id_left, id_right.
     apply idpath.
   - intros C₁ C₂ C₃ C₄ F G₁ G₂ H α.
-    apply nat_trans_eq; try apply C₄.
+    apply nat_trans_eq; try apply homset_property.
     intros ; cbn.
     rewrite id_left, id_right.
     apply idpath.
   - intros C₁ C₂ C₃ C₄ F₁ F₂ G H α.
-    apply nat_trans_eq; try apply C₄.
+    apply nat_trans_eq; try apply homset_property.
     intros ; cbn.
     rewrite id_left, id_right.
     apply idpath.
   - intros C₁ C₂ C₃ F₁ F₂ G₁ H₂ α β.
-    apply nat_trans_eq; try apply C₃.
+    apply nat_trans_eq; try apply homset_property.
     intros ; cbn.
     exact ((nat_trans_ax β _ _ _)).
   - intros C D F.
-    apply nat_trans_eq; try apply D.
+    apply nat_trans_eq; try apply homset_property.
     intros ; cbn.
     apply id_left.
   - intros C D F.
-    apply nat_trans_eq; try apply D.
+    apply nat_trans_eq; try apply homset_property.
     intros ; cbn.
     apply id_left.
   - intros C D F.
-    apply nat_trans_eq; try apply D.
+    apply nat_trans_eq; try apply homset_property.
     intros ; cbn.
     apply id_left.
   - intros C D F.
-    apply nat_trans_eq; try apply D.
+    apply nat_trans_eq; try apply homset_property.
     intros ; cbn.
     apply id_left.
   - intros C₁ C₂ C₃ C₄ F₁ F₂ F₃.
-    apply nat_trans_eq; try apply C₄.
+    apply nat_trans_eq; try apply homset_property.
     intros ; cbn.
     apply id_left.
   - intros C₁ C₂ C₃ C₄ F₁ F₂ F₃.
-    apply nat_trans_eq; try apply C₄.
+    apply nat_trans_eq; try apply homset_property.
     intros ; cbn.
     apply id_left.
   - intros C₁ C₂ C₃ F G.
-    apply nat_trans_eq; try apply C₃.
+    apply nat_trans_eq; try apply homset_property.
     intros ; cbn.
     exact (id_left _ @ functor_id G _).
   - intros C₁ C₂ C₃ C₄ C₅ F₁ F₂ F₃ F₄.
-    apply nat_trans_eq; try apply C₅.
+    apply nat_trans_eq; try apply homset_property.
     intros ; cbn.
     rewrite !id_left.
     exact (functor_id F₄ _).
@@ -190,11 +190,11 @@ Proof.
   - apply (nat_iso_inv (η ,, Hη)).
   - split.
     + apply nat_trans_eq.
-      { apply D. }
+      { apply (pr1 D). }
       intros X ; cbn.
       exact (iso_inv_after_iso (pr1 η X ,, _)).
     + apply nat_trans_eq.
-      { apply D. }
+      { apply homset_property. }
       intros X ; cbn.
       exact (iso_after_iso_inv (pr1 η X ,, _)).
 Defined.
@@ -276,12 +276,12 @@ Proof.
       * exact (pr2(pr1(pr2(pr1 A)))).
   - split ; split.
     + apply nat_trans_eq.
-      { apply D. }
+      { apply homset_property. }
       intro X ; cbn.
       rewrite id_left, !id_right.
       apply (pr2(pr2(pr1 A))).
     + apply nat_trans_eq.
-      { apply C. }
+      { apply homset_property. }
       intro X ; cbn.
       rewrite id_left, !id_right.
       apply (pr2(pr2(pr1 A))).
@@ -319,7 +319,7 @@ Proof.
         ** apply idpath.
         ** use subtypePath.
            *** intro ; simpl.
-               apply (@isaprop_form_adjunction (pr1 C ,, _) (pr1 D ,, _)).
+               apply (@isaprop_form_adjunction (pr1 C) (pr1 D)).
            *** apply idpath.
 Defined.
 
@@ -331,7 +331,8 @@ Proof.
   refine ((invertible_2cell_is_nat_iso F G)
             ∘ iso_is_nat_iso F G
             ∘ make_weq (@idtoiso (functor_category C D) F G) _)%weq.
-  exact (pr1 (is_univalent_functor_category C D _) F G).
+  refine (is_univalent_functor_category C D _ F G).
+  apply D.
 Defined.
 
 Definition univalent_cat_is_univalent_2_1
@@ -346,7 +347,7 @@ Proof.
     + intro.
       apply isaprop_is_invertible_2cell.
     + apply nat_trans_eq.
-      { apply D. }
+      { apply homset_property. }
       intros; apply idpath.
 Defined.
 
@@ -357,6 +358,15 @@ Proof.
   apply path_sigma_hprop.
   simpl.
   apply isaprop_is_univalent.
+Defined.
+
+Definition path_cat
+           (C D : category)
+  : C = D ≃ pr1 C = pr1 D.
+Proof.
+  apply path_sigma_hprop.
+  simpl.
+  apply isaprop_has_homsets.
 Defined.
 
 Section CatIso_To_LeftAdjEquiv.
@@ -457,13 +467,13 @@ Section CatIso_To_LeftAdjEquiv.
       + use tpair ; try split.
         * apply (nat_iso_inv cat_iso_unit).
         * apply nat_trans_eq.
-          { apply C. }
+          { apply homset_property. }
           intro X ; cbn.
           rewrite idtoiso_inv ; cbn ; unfold precomp_with.
           rewrite id_right.
           apply iso_after_iso_inv.
         * apply nat_trans_eq.
-          { apply C. }
+          { apply homset_property. }
           intro X ; cbn.
           rewrite idtoiso_inv ; cbn ; unfold precomp_with.
           rewrite id_right.
@@ -471,11 +481,11 @@ Section CatIso_To_LeftAdjEquiv.
       + use tpair ; try split.
         * apply (nat_iso_inv cat_iso_counit).
         * apply nat_trans_eq.
-          { apply D. }
+          { apply homset_property. }
           intro X ; cbn.
           apply iso_inv_after_iso.
         * apply nat_trans_eq.
-          { apply D. }
+          { apply homset_property. }
           intro X ; cbn.
           apply iso_after_iso_inv.
   Qed.
@@ -598,9 +608,10 @@ Defined.
 Definition idtoiso_2_0_univalent_cat
            (C D : bicat_of_cats)
   : C = D ≃ adjoint_equivalence C D
-  := ((cat_iso_to_adjequiv C D)
-        ∘ catiso_is_path_precat (pr1 C) (pr1 D) (pr2(pr2 D))
-        ∘ path_univalent_cat C D)%weq.
+  := (cat_iso_to_adjequiv C D
+      ∘ catiso_is_path_precat (pr11 C) (pr11 D) (pr21 D)
+      ∘ path_cat (pr1 C) (pr1 D)
+      ∘ path_univalent_cat C D)%weq.
 
 Definition univalent_cat_is_univalent_2_0
   : is_univalent_2_0 bicat_of_cats.
