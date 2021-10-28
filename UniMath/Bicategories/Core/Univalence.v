@@ -256,10 +256,10 @@ Definition is_univ_hom
            (X Y : C)
   : is_univalent (hom X Y).
 Proof.
-  split.
-  - apply idtoiso_weq.
-    exact C_is_univalent_2_1.
-  - exact (pr2 C X Y).
+  unfold is_univalent.
+  intros a b.
+  apply idtoiso_weq.
+  exact C_is_univalent_2_1.
 Defined.
 
 Definition is_univalent_2_1_if_hom_is_univ
@@ -270,7 +270,7 @@ Proof.
   intros a b f g.
   use weqhomot.
   - exact (invweq (inv2cell_to_iso_weq f g)
-           ∘ make_weq idtoiso (pr1 (C_local_univalent _ _) _ _))%weq.
+           ∘ make_weq idtoiso (C_local_univalent _ _ _ _))%weq.
   - intro p.
     induction p.
     use subtypePath.
