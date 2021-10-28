@@ -192,27 +192,27 @@ Defined.
 (** ** Binary coproducs [BinCoproductsHSET] *)
 
 (* rules for coproducts in HSET *)
-Lemma BinCoproductIn1CommutesHSET (A B : HSET) (CC : BinCoproduct HSET A B)(C : HSET)
+Lemma BinCoproductIn1CommutesHSET (A B : SET) (CC : BinCoproduct A B)(C : HSET)
       (f : A --> C)(g: B --> C) (a:pr1 A):
-  BinCoproductArrow HSET CC f g (BinCoproductIn1 HSET CC a)  = f a.
+  BinCoproductArrow CC f g (BinCoproductIn1 CC a)  = f a.
 Proof.
   set (H1 := BinCoproductIn1Commutes _ _ _ CC _ f g).
   apply toforallpaths in H1.
   now apply H1.
 Qed.
 
-Lemma BinCoproductIn2CommutesHSET (A B : HSET) (CC : BinCoproduct HSET A B)(C : HSET)
+Lemma BinCoproductIn2CommutesHSET (A B : HSET) (CC : BinCoproduct A B)(C : HSET)
       (f : A --> C)(g: B --> C) (b:pr1 B):
-  BinCoproductArrow HSET CC f g (BinCoproductIn2 HSET CC b)  = g b.
+  BinCoproductArrow CC f g (BinCoproductIn2 CC b)  = g b.
 Proof.
   set (H1 := BinCoproductIn2Commutes _ _ _ CC _ f g).
   apply toforallpaths in H1.
   now apply H1.
 Qed.
 
-Lemma postcompWithBinCoproductArrowHSET {A B : HSET} (CCAB : BinCoproduct HSET A B) {C : HSET}
+Lemma postcompWithBinCoproductArrowHSET {A B : HSET} (CCAB : BinCoproduct A B) {C : HSET}
     (f : A --> C) (g : B --> C) {X : HSET} (k : C --> X) z:
-       k (BinCoproductArrow _ CCAB f g z) = BinCoproductArrow _ CCAB (f · k) (g · k) z.
+       k (BinCoproductArrow CCAB f g z) = BinCoproductArrow CCAB (f · k) (g · k) z.
 Proof.
   set (H1 := postcompWithBinCoproductArrow _ CCAB f g k).
   apply toforallpaths in H1.
