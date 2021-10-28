@@ -115,7 +115,7 @@ Section fix_a_category.
   Proof.
     repeat split; intro;
       intros;
-      apply isaset_nat_trans; apply K.
+      apply isaset_nat_trans; apply homset_property.
   Qed.
 
   Definition disp_presheaf_prebicat : disp_prebicat ∁ :=
@@ -130,7 +130,7 @@ Section fix_a_category.
     apply isasetaprop.
     cbn in *.
     apply isaset_nat_trans.
-    apply K.
+    apply homset_property.
   Qed.
 
   Definition disp_presheaf_bicat : disp_bicat ∁
@@ -149,7 +149,7 @@ Section fix_a_category.
   Proof.
     use tpair.
     - apply nat_trans_eq.
-      { apply K. }
+      { apply homset_property. }
       intro x.
       refine (!_).
       refine (maponpaths (λ z, z · _) (nat_trans_eq_pointwise p x) @ _).
@@ -166,7 +166,7 @@ Section fix_a_category.
         apply (functor_id FC).
       }
       apply id_right.
-    - split ; apply isaset_nat_trans ; apply K.
+    - split ; apply isaset_nat_trans ; apply homset_property.
   Qed.
 
   Definition disp_presheaves_is_univalent_2_1
@@ -177,7 +177,7 @@ Section fix_a_category.
     use isweqimplimpl.
     - intro p ; cbn in *.
       apply nat_trans_eq.
-      { apply K. }
+      { apply homset_property. }
       intro x.
       pose (nat_trans_eq_pointwise (pr1 p) x) as q.
       cbn in q.
@@ -185,10 +185,10 @@ Section fix_a_category.
       rewrite (functor_id FC), id_right.
       reflexivity.
     - apply isaset_nat_trans.
-      apply K.
+      apply homset_property.
     - apply isofhleveltotal2.
       + apply isaset_nat_trans.
-        apply K.
+        apply homset_property.
       + intro.
         apply isaprop_is_disp_invertible_2cell.
   Qed.
@@ -205,16 +205,16 @@ Section fix_a_category.
     - use tpair.
       + use tpair.
         * apply α.
-        * split ; apply nat_trans_eq ; try (apply K) ; intro x ; cbn.
+        * split ; apply nat_trans_eq ; try (apply homset_property) ; intro x ; cbn.
           ** rewrite (functor_id FC), id_right.
              exact (!(nat_trans_eq_pointwise (pr122 α) x)).
           ** rewrite (functor_id FC'), id_left.
              exact (nat_trans_eq_pointwise (pr222 α) x).
       + split ; split.
         * apply isaset_nat_trans.
-          apply K.
+          apply homset_property.
         * apply isaset_nat_trans.
-          apply K.
+          apply homset_property.
         * apply disp_presheaves_all_invertible.
         * apply disp_presheaves_all_invertible.
   Defined.
@@ -232,14 +232,14 @@ Section fix_a_category.
       + apply α.
       + split.
         * apply nat_trans_eq.
-          { apply K. }
+          { apply homset_property. }
           intro x ; cbn.
           pose (nat_trans_eq_pointwise (pr1(pr212 α)) x) as p.
           cbn in p.
           rewrite (functor_id FC), id_right in p.
           exact (!p).
         * apply nat_trans_eq.
-          { apply K. }
+          { apply homset_property. }
           intro x ; cbn.
           pose (nat_trans_eq_pointwise (pr2(pr212 α)) x) as p.
           cbn in p.
@@ -311,7 +311,7 @@ Section fix_a_category.
   Proof.
     intro; intros.
     apply isaset_nat_trans.
-    apply K.
+    apply homset_property.
   Qed.
 
   Definition disp_locally_groupoid_presheaf
