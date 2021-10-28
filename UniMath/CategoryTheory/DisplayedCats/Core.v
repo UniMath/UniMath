@@ -1078,7 +1078,6 @@ Lemma is_univalent_total_category {C : category} {D : disp_cat C}
       (CC : is_univalent C) (DD : is_univalent_disp D) :
   is_univalent (total_category D).
 Proof.
-  split. 2: apply homset_property.
   intros xs ys.
   set (x := pr1 xs). set (xx := pr2 xs).
   set (y := pr1 ys). set (yy := pr2 ys).
