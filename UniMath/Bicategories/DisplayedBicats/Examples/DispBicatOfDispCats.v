@@ -75,7 +75,7 @@ Proof.
       etrans.
       * apply RR.
       * apply maponpaths_2. apply uip.
-        apply C₃.
+        apply homset_property.
   - intros C₁ C₂ C₃ ? ? ? ? ? ? ? ? ? ? rr.
     use tpair.
     + cbn. red. intros A AA.
@@ -85,10 +85,10 @@ Proof.
     + red. cbn. intros A B F AA BB FF.
       etrans.
       apply pathsinv0.
-      apply (@disp_functor_comp_var (pr1 C₂ ,, _) (pr1 C₃ ,, _)).
+      apply (@disp_functor_comp_var (pr1 C₂) (pr1 C₃)).
       etrans.
       2: { apply maponpaths.
-           apply (@disp_functor_comp_var (pr1 C₂ ,, _) (pr1 C₃ ,, _)). }
+           apply (@disp_functor_comp_var (pr1 C₂) (pr1 C₃)). }
       apply pathsinv0.
       etrans.
       apply transport_f_f.
@@ -99,26 +99,26 @@ Proof.
         apply RR.
       * etrans.
         apply maponpaths.
-        apply (@disp_functor_transportf (pr1 C₂ ,, _) (pr1 C₃ ,, _)).
+        apply (@disp_functor_transportf (pr1 C₂) (pr1 C₃)).
         etrans.
         apply transport_f_f.
-        apply maponpaths_2. apply uip. apply C₃.
+        apply maponpaths_2. apply uip. apply homset_property.
 Defined.
 
 Lemma DispBicatOfDispCats_laws : disp_prebicat_laws disp_prebicat_of_disp_cats_data.
 Proof.
   repeat split ; red
   ; try (intros C₁ C₂ ; cbn in C₁, C₂ ; intros
-         ; apply (@disp_nat_trans_eq (pr1 C₁ ,, _) (pr1 C₂ ,, _))
+         ; apply (@disp_nat_trans_eq (pr1 C₁) (pr1 C₂))
          ; intros ; apply pathsinv0; unfold transportb)
   ; try (intros C₁ C₂ C₃ ; cbn in C₁, C₂, C₃ ; intros
-         ; apply (@disp_nat_trans_eq (pr1 C₁ ,, _) (pr1 C₃ ,, _))
+         ; apply (@disp_nat_trans_eq (pr1 C₁) (pr1 C₃))
          ; intros ; apply pathsinv0; unfold transportb)
   ; try (intros C₁ C₂ C₃ C₄ ; cbn in C₁, C₂, C₃, C₄ ; intros
-         ; apply (@disp_nat_trans_eq (pr1 C₁ ,, _) (pr1 C₄ ,, _))
+         ; apply (@disp_nat_trans_eq (pr1 C₁) (pr1 C₄))
          ; intros ; apply pathsinv0; unfold transportb)
   ; try (intros C₁ C₂ C₃ C₄ C₅ ; cbn in C₁, C₂, C₃, C₄, C₅ ; intros
-         ; apply (@disp_nat_trans_eq (pr1 C₁ ,, _) (pr1 C₅ ,, _))
+         ; apply (@disp_nat_trans_eq (pr1 C₁) (pr1 C₅))
          ; intros ; apply pathsinv0; unfold transportb).
   - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
     etrans; [
@@ -169,7 +169,7 @@ Proof.
       apply (@disp_functor_comp C₂ C₃).
     }
     etrans. apply transport_f_f.
-    apply transportf_set. apply C₃.
+    apply transportf_set. apply homset_property.
   - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
       etrans; [
         apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
@@ -230,7 +230,7 @@ Proof.
     set (RR := @disp_nat_trans_ax_var _ _ _ _ _ _ _ _ _ φφ).
     etrans. apply maponpaths. apply RR.
     etrans. apply transport_f_f.
-    apply transportf_set. apply C₃.
+    apply transportf_set. apply homset_property.
   - match goal with |[ |-  (_ (_ ?E _ ))  _ _  = _ ] => set (XYZ := E) end;
       etrans; [
         apply (disp_nat_trans_transportf _ _ _ _ _ _ _ _  XYZ) | ].
@@ -298,7 +298,7 @@ Proof.
     apply pathsinv0.
     etrans. apply maponpaths. apply (@id_left_disp C₅).
     etrans. apply transport_f_f.
-    apply maponpaths_2. apply C₅.
+    apply maponpaths_2. apply homset_property.
 Qed.
 
 
