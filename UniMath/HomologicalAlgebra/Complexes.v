@@ -1103,7 +1103,7 @@ Section complexes_precat.
       + apply idpath.
   Qed.
 
-  (*
+
   Lemma ComplexMonicIndexMonic {C1 C2 : Complex A} (M : Monic ComplexCat C1 C2) :
     ∏ i : hz, isMonic (@MMor A C1 C2 (MonicArrow _ M) i).
   Proof.
@@ -1115,8 +1115,7 @@ Section complexes_precat.
     rewrite (isdecrelhzeqi i) in tmp.
     exact tmp.
   Qed.
-   *)
-  (*
+
   Lemma ComplexMonicIndexMonic' {C1 C2 : Complex A} (f : Morphism C1 C2)
         (H : ∏ i : hz, isMonic (f i)) : isMonic (f : ComplexCat⟦_, _⟧).
   Proof.
@@ -1126,7 +1125,7 @@ Section complexes_precat.
     set (tmp := MorphismEq' A _ _ X i). cbn in tmp. apply (H i) in tmp.
     exact tmp.
   Qed.
-   *)
+
   (** ** Epi of complexes is indexwise epi *)
 
   Local Lemma ComplexEpiIndexEpi_eq {C1 C2 : Complex A} (E : Epi ComplexCat C1 C2) (i : hz)
@@ -1707,7 +1706,7 @@ Section complexes_abelian.
   Proof.
     set (H' := MorphismEq' _ _ _ H i). cbn in H'. cbn. rewrite H'. apply ZeroArrowEq.
   Qed.
-(*
+
   Local Lemma ComplexMonicKernelIn_Complex_Comm {x y w : Complex (AbelianToAdditive A)}
         (M : Monic (ComplexCat (AbelianToAdditive A)) x y)
         (h : (ComplexCat (AbelianToAdditive A))⟦w, y⟧) (i : hz)
@@ -1733,9 +1732,8 @@ Section complexes_abelian.
     rewrite assoc. apply cancel_postcomposition.
     apply (KernelCommutes _ (MonicToKernel (make_Monic A _ (isM i))) (w i) (MMor h i)).
   Qed.
- *)
 
-  (*
+
   Definition ComplexMonicKernelIn {x y : Complex (AbelianToAdditive A)}
              (M : Monic (ComplexCat (AbelianToAdditive A)) x y)
              {w : ComplexCat (AbelianToAdditive A)}
@@ -1752,7 +1750,6 @@ Section complexes_abelian.
                       (ComplexMonicKernelInComm M h i H')).
     - intros i. exact (ComplexMonicKernelIn_Complex_Comm M h i H').
   Defined.
-   *)
 
   Local Lemma KernelMorphism_eq' {x y : ComplexPreCat_Additive (AbelianToAdditive A)}
         (M : Monic (ComplexCat (AbelianToAdditive A)) x y)
@@ -1764,7 +1761,7 @@ Section complexes_abelian.
   Qed.
 
 
-  (*
+
   Definition ComplexPreCatAbelianMonicKernelsData_isKernel
              {x y : Complex (AbelianToAdditive A)}
              (M : Monic (ComplexCat (AbelianToAdditive A)) x y)
@@ -1774,7 +1771,7 @@ Section complexes_abelian.
               (CokernelCompZero Z (ComplexPreCat_Cokernels _ _ (MonicArrow _ M))).
   Proof.
     set (isM := ComplexMonicIndexMonic _ M).
-    use (make_isKernel (has_homsets_ComplexCat (AbelianToAdditive A hs))).
+    use (make_isKernel).
     intros w h H'.
     use unique_exists.
     - apply (ComplexMonicKernelIn M h H').
@@ -1789,13 +1786,11 @@ Section complexes_abelian.
       apply pathsinv0. clear tmp.
       apply (KernelCommutes _ (MonicToKernel (make_Monic A _ (isM i))) _ (MMor h i)).
   Qed.
-*)
+
 
   (** ** Epis are Cokernels of kernels *)
 
 
-
-  (*
   Local Lemma ComplexPreCat_Epi_Cokernel_Complex_comm
         {x y : ComplexPreCat_Additive (AbelianToAdditive A)}
         (E : Epi (ComplexPreCat_Additive (AbelianToAdditive A)) x y) (i : hz) :
@@ -1805,9 +1800,7 @@ Section complexes_abelian.
     rewrite <- assoc. rewrite <- (MComm (EpiArrow _ E)). rewrite assoc.
     rewrite KernelCompZero. apply ZeroArrow_comp_left.
   Qed.
-   *)
 
-  (*
   Local Lemma ComplexPreCat_Epi_Cokernel_Complex_comp
         {x y : ComplexPreCat_Additive (AbelianToAdditive A)}
         (E : Epi (ComplexPreCat_Additive (AbelianToAdditive A)) x y) (i : hz) :
@@ -1827,9 +1820,8 @@ Section complexes_abelian.
     rewrite ZeroArrow_comp_right. rewrite ZeroArrow_comp_left.
     apply idpath.
   Qed.
-   *)
 
-  (*
+
   Definition ComplexPreCat_Epi_Cokernel_Complex
              {x y : ComplexPreCat_Additive (AbelianToAdditive A)}
              (E : Epi (ComplexPreCat_Additive (AbelianToAdditive A)) x y) :
@@ -1843,7 +1835,6 @@ Section complexes_abelian.
       + apply ComplexPreCat_Epi_Cokernel_Complex_comm.
     - intros i. exact (ComplexPreCat_Epi_Cokernel_Complex_comp E i).
   Defined.
-*)
 
   Definition CokernelMorphism_eq {x y : ComplexPreCat_Additive (AbelianToAdditive A)}
              (E : Epi (ComplexPreCat_Additive (AbelianToAdditive A)) x y)
@@ -1947,7 +1938,7 @@ Section complexes_abelian.
   (** ** Complexes over Abelian is Abelian *)
 
 
-  (*
+
   Definition ComplexPreCat_AbelianPreCat : AbelianPreCat.
   Proof.
     use make_Abelian.
@@ -1967,14 +1958,13 @@ Section complexes_abelian.
         intros x y E. cbn.
         exact (ComplexPreCatAbelianEpiCokernelsData_isCokernel E).
   Defined.
-   *)
 
-  (*
+
   Lemma has_homsets_ComplexPreCat_AbelianPreCat : has_homsets ComplexPreCat_AbelianPreCat.
   Proof.
     apply has_homsets_ComplexPreCat.
   Qed.
-   *)
+
 End complexes_abelian.
 
 

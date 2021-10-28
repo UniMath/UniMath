@@ -317,7 +317,7 @@ Section def_cohomology'_complex.
   Proof.
     use (MonicisMonic A (factorization2_monic A (Diff C i))).
     rewrite <- assoc.
-    set (tmp := factorization1 hs (Diff C i)). cbn in tmp. cbn. rewrite <- assoc in tmp.
+    set (tmp := factorization1 (Diff C i)). cbn in tmp. cbn. rewrite <- assoc in tmp.
     rewrite <- tmp. clear tmp. rewrite ZeroArrow_comp_left.
     exact (CohomologyComplex_KernelIn_eq A C i).
   Qed.
@@ -504,7 +504,7 @@ Section def_cohomology'_complex.
   Proof.
     intros φ1 φ2 K1.
     rewrite assoc. unfold K1. unfold φ1. rewrite KernelCommutes.
-    set (f1 := factorization1 hs (transportf (precategory_morphisms (C (i - 1)))
+    set (f1 := factorization1 (transportf (precategory_morphisms (C (i - 1)))
                                              (maponpaths C (hzrminusplus i 1))
                                              (Diff C (i - 1)))).
     set (CK2 := CokernelPath A (to_Zero A) f1 (Cokernel _)).
