@@ -139,6 +139,7 @@ Section def_additive.
       + cbn. exact (pr2 S').
   Defined.
 
+(*
   Lemma induced_opposite_Additive {M:AdditiveCategory}
         {X:Type} (j : X -> ob M) (su : sums_lift M j) :
     oppositeAdditiveCategory (induced_Additive M j su) =
@@ -148,7 +149,7 @@ Section def_additive.
     apply (total2_paths2_f (induced_opposite_PreAdditive j)).
     apply propproperty.
   Defined.
-
+*)
 End def_additive.
 
 
@@ -361,7 +362,7 @@ Section additive_minus_monic.
 
   Variable A : CategoryWithAdditiveStructure.
 
-  (*
+
   Lemma isMonic_to_binop_BinDirectSum1 {x y z : A} (f : Monic A x y) (g : x --> z)
         (DS : BinDirectSum y z) :
     isMonic (C:= categoryWithAbgrops_category _ ) (to_binop _ _ (f · to_In1 DS) (g · to_In2 DS)).
@@ -389,9 +390,9 @@ Section additive_minus_monic.
     rewrite to_runax'' in e. exact e.
   Qed.
 
-*)
 
-  (*
+
+
   (** This version is used in AbelianPushoutPullback *)
   Lemma isMonic_to_binop_BinDirectSum1' {x y z : A} (f : Monic A x y) (g : x --> z)
         (DS : BinDirectSum y z) :
@@ -399,9 +400,8 @@ Section additive_minus_monic.
   Proof.
     rewrite PreAdditive_invlcomp. use isMonic_to_binop_BinDirectSum1.
   Qed.
-   *)
 
-  (*
+
   Lemma isMonic_to_binop_BinDirectSum2 {x y z : A} (f : x --> y) (g : Monic A x z)
         (DS : BinDirectSum y z) :
     isMonic (C:= categoryWithAbgrops_category _ ) (to_binop _ _ (f · to_In1 DS) (g · to_In2 DS)).
@@ -420,7 +420,7 @@ Section additive_minus_monic.
     rewrite id_right in e. use (MonicisMonic A g).
     rewrite to_lunax'' in e. exact e.
   Qed.
-   *)
+
 
   Lemma isEpi_to_binop_BinDirectSum1 {x y z : A} (f : Epi A y x) (g : z --> x)
         (DS : BinDirectSum y z) :

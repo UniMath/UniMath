@@ -862,14 +862,15 @@ Section preadditive_quotient.
         rewrite assoc'. apply idpath.
   Defined.
 
-  Definition Quotcategory : precategory :=
+  Definition Quotprecategory : precategory :=
     tpair _ _ is_precategory_Quotcategory_data.
 
-  Lemma has_homsets_Quotcategory : has_homsets Quotcategory.
+  Lemma has_homsets_Quotcategory : has_homsets Quotprecategory.
   Proof.
     intros a b. apply isasetsetquot.
   Qed.
 
+  Definition Quotcategory : category := make_category Quotprecategory has_homsets_Quotcategory.
 
   (** ** Quotient precategory of PreAdditive is PreAdditive *)
 
@@ -1044,6 +1045,8 @@ Proof.
   - exact (λ a b c, @to_postmor_monoid (pr1 M) (pr2 M) (j a) (j b) (j c)).
 Defined.
 
+
+(*
 Lemma induced_opposite_PreAdditive {M:PreAdditive} {X:Type} (j : X -> ob M) :
   oppositePreAdditive (induced_PreAdditive M j) =
   induced_PreAdditive (oppositePreAdditive M) (λ a, opp_ob (j a)).
@@ -1052,6 +1055,7 @@ Proof.
   compute.                    (* the following line bogs down without this one *)
   reflexivity.                (* but the computation may make this proof fragile *)
 Defined.
+*)
 
 Section RewritingAids.
   Local Open Scope abgrcat.
