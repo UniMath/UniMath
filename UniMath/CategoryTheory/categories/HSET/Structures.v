@@ -55,7 +55,7 @@ Local Open Scope cat.
 
 (** ** Natural numbers object ([NNO_HSET]) *)
 
-Lemma isNNO_nat : isNNO TerminalHSET natHSET (λ _, 0) S.
+Lemma isNNO_nat : isNNO TerminalSET natHSET (λ _, 0) S.
 Proof.
   intros X z s.
   use unique_exists.
@@ -72,7 +72,7 @@ Proof.
     * cbn in *; now rewrite (toforallpaths _ _ _ hq2 n), IH.
 Qed.
 
-Definition NNO_HSET : NNO TerminalHSET.
+Definition NNO_HSET : NNO TerminalSET.
 Proof.
   use make_NNO.
   - exact natHSET.
@@ -259,15 +259,15 @@ End exponentials_functor_cat.
 (** ** Kernel pairs ([kernel_pair_HSET]) *)
 
 (* proof by Peter, copied from TypeTheory.Auxiliary.Auxiliary *)
-Lemma pullback_HSET_univprop_elements {P A B C : HSET}
+Lemma pullback_HSET_univprop_elements {P A B C : SET}
     {p1 : HSET ⟦ P, A ⟧} {p2 : HSET ⟦ P, B ⟧}
     {f : HSET ⟦ A, C ⟧} {g : HSET ⟦ B, C ⟧}
     (ep : p1 · f = p2 · g)
-    (pb : isPullback f g p1 p2 ep)
+    (pb : isPullback ep)
   : (∏ a b (e : f a = g b), ∃! ab, p1 ab = a × p2 ab = b).
 Proof.
   intros a b e.
-  set (Pb := (make_Pullback _ _ _ _ _ _ pb)).
+  set (Pb := (make_Pullback _ pb)).
   apply iscontraprop1.
   - apply invproofirrelevance; intros [ab [ea eb]] [ab' [ea' eb']].
     apply subtypePath; simpl.
@@ -371,7 +371,7 @@ Qed.
 
 (** ** Forgetful [functor] to [type_precat] *)
 
-Definition forgetful_HSET : functor HSET type_precat.
+Definition forgetful_HSET : functor SET type_precat.
 Proof.
   use make_functor.
   - use make_functor_data.
@@ -384,6 +384,18 @@ Defined.
 
 (** This functor is conservative; it reflects isomorphisms. *)
 
+(**
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+               This statement seems problematic. This conservativity
+               statement is for precategories, but now it is only for
+               categories in the library
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 Lemma conservative_forgetful_HSET : conservative forgetful_HSET.
 Proof.
   unfold conservative.
@@ -392,9 +404,11 @@ Proof.
   apply (type_iso_is_equiv _ _ (make_iso _ is_iso_forget_f)).
 Defined.
 
+*)
+
 (** ** Subobject classifier *)
 
-Lemma isaprop_hfiber_monic {A B : hSet} (f : HSET⟦A, B⟧) (isM : isMonic f) :
+Lemma isaprop_hfiber_monic {A B : hSet} (f : SET⟦A, B⟧) (isM : isMonic f) :
   isPredicate (hfiber f).
 Proof.
   intro; apply incl_injectivity, MonosAreInjective_HSET; assumption.
@@ -423,11 +437,11 @@ Qed.
     >>
     Uniqueness proven below.
   *)
-Definition subobject_classifier_HSET_pullback {X Y : HSET}
-  (m : Monic HSET X Y) :
+Definition subobject_classifier_HSET_pullback {X Y : SET}
+  (m : Monic SET X Y) :
     ∑ (chi : HSET ⟦ Y, hProp_set ⟧)
-    (H : m · chi = TerminalArrow TerminalHSET X · const_htrue),
-      isPullback chi const_htrue m (TerminalArrow TerminalHSET X) H.
+    (H : m · chi = TerminalArrow TerminalSET X · const_htrue),
+      isPullback H.
 Proof.
   exists (fun z => (hfiber (pr1 m) z,, isaprop_hfiber_monic (pr1 m) (pr2 m) z)).
   use tpair.
@@ -483,7 +497,7 @@ Proof.
   use make_Pullback.
   - exact (carrier_subset chi).
   - exact (pr1carrier _).
-  - exact (TerminalArrow TerminalHSET _).
+  - exact (TerminalArrow TerminalSET _).
   - apply funextfun; intro yy.
     apply hProp_eq_unit; cbn.
     apply (pr2 yy).
@@ -516,7 +530,7 @@ Proof.
   - reflexivity.
 Defined.
 
-Definition subobject_classifier_HSET : subobject_classifier TerminalHSET.
+Definition subobject_classifier_HSET : subobject_classifier TerminalSET.
 Proof.
   exists hProp_set.
   exists const_htrue.
@@ -571,17 +585,17 @@ Proof.
             >>
          *)
 
-        pose (PBO' := make_Pullback (pr1 O') (@const_htrue unitHSET) X m (TerminalArrow TerminalHSET X) (pr1 (pr2 O')) (pr2 (pr2 O'))).
+        pose (PBO' := make_Pullback (pr1 (pr2 O')) (pr2 (pr2 O'))).
         pose (PBC := carrier_Pullback (pr1 O')).
-        pose (pbiso := pullbackiso PBC PBO').
+        pose (pbiso := pullbackiso _ PBC PBO').
 
         use make_hfiber.
         -- exact (morphism_from_z_iso _ _ (pr1 pbiso) (y,, isO)).
         -- change (pr1 m (morphism_from_z_iso _ _ (pr1 pbiso) (y,, isO))) with
                   (((pr1 pbiso) · pr1 m) (y,, isO)).
            change (pr1 m) with (PullbackPr1 PBO').
-           rewrite (pr1 (pr2 pbiso)).
-           reflexivity.
+           pose (pr1 (pr2 pbiso)) as p.
+           exact (maponpaths (λ z, z _) p).
       * intros fib.
         apply (eqweqmap (maponpaths pr1 (maponpaths (pr1 O') (pr2 fib)))).
         apply (eqweqmap (maponpaths pr1 (eq (hfiberpr1 _ _ fib)))).

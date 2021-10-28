@@ -193,7 +193,7 @@ Defined.
 
 (** ** Terminal object [TerminalHSET] *)
 
-Lemma TerminalHSET : Terminal HSET.
+Lemma TerminalSET : Terminal SET.
 Proof.
   apply (make_Terminal unitHSET).
   apply make_isTerminal; intro a.
@@ -266,7 +266,7 @@ Defined.
 
 (** A translation of [weqfunfromunit] into the language of category theory,
     to make the statement of the next lemmas more concise. *)
-Lemma weqfunfromunit_HSET (X : hSet) : HSET⟦TerminalHSET, X⟧ ≃ X.
+Lemma weqfunfromunit_HSET (X : hSet) : HSET⟦TerminalSET, X⟧ ≃ X.
 Proof.
   apply weqfunfromunit.
 Defined.
@@ -291,7 +291,7 @@ Local Definition hfiber_hSet_pr1 {X Y : hSet} (f : HSET⟦X, Y⟧) (y : Y) :
 Lemma hfiber_is_pullback {X Y : hSet} (f : HSET⟦X, Y⟧)
       (y : Y) (y' := invweq (weqfunfromunit_HSET _) y) :
   ∑ H, @isPullback _ _ _ _ _ f y' (hfiber_hSet_pr1 f y)
-                       (TerminalArrow TerminalHSET _) H.
+                       (TerminalArrow TerminalSET _) H.
 Proof.
   use tpair.
   - apply funextfun; intro.
@@ -309,7 +309,7 @@ Proof.
       use make_iscontr.
       * apply proofirrelevance.
         apply hlevelntosn.
-        apply (pr2 TerminalHSET). (** TODO: should be an accessor *)
+        apply (pr2 TerminalSET). (** TODO: should be an accessor *)
       * intro; apply proofirrelevance; apply setproperty.
     + unfold hfiber_hSet, hfiber; cbn.
       use make_iscontr.
