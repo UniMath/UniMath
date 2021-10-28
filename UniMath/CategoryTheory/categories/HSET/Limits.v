@@ -290,7 +290,7 @@ Local Definition hfiber_hSet_pr1 {X Y : hSet} (f : HSET⟦X, Y⟧) (y : Y) :
 
 Lemma hfiber_is_pullback {X Y : hSet} (f : HSET⟦X, Y⟧)
       (y : Y) (y' := invweq (weqfunfromunit_HSET _) y) :
-  ∑ H, isPullback f y' (hfiber_hSet_pr1 f y)
+  ∑ H, @isPullback _ _ _ _ _ f y' (hfiber_hSet_pr1 f y)
                        (TerminalArrow TerminalHSET _) H.
 Proof.
   use tpair.
@@ -348,7 +348,7 @@ Section HSET_Structures.
   Definition HSET_Pullbacks : @limits.pullbacks.Pullbacks HSET :=
     equiv_Pullbacks_2 HSET has_homsets_HSET PullbacksHSET_from_Lims.
 
-  Definition HSET_Equalizers: @limits.equalizers.Equalizers HSET :=
-    equiv_Equalizers2 HSET has_homsets_HSET EqualizersHSET_from_Lims.
+  Definition HSET_Equalizers: @limits.equalizers.Equalizers SET :=
+    equiv_Equalizers2 SET EqualizersHSET_from_Lims.
 
 End HSET_Structures.
