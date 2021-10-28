@@ -401,6 +401,7 @@ Proof.
   unfold has_homcats.
   intros a b.
   apply is_univalent_functor_category.
+  apply b.
 Defined.
 
 (* TODO: "Should be easy" *)
