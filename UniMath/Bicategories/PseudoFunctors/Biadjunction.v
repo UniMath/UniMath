@@ -438,14 +438,7 @@ Section BiadjunctionHom.
   Definition biadj_hom_equiv
     : adj_equivalence_of_precats biadj_left_hom.
   Proof.
-    refine (@adjointificiation
-              (make_category (hom X (R Y)) _)
-              (make_category (hom (L X) Y) _)
-              biadj_hom_equivalence).
-    - intros x y.
-      apply B₁.
-    - intros x y.
-      apply B₂.
+    exact (adjointificiation biadj_hom_equivalence).
   Defined.
 End BiadjunctionHom.
 
