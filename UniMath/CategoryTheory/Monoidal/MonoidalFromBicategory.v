@@ -24,7 +24,7 @@ Section Monoidal_Precat_From_Prebicat.
 Local Open Scope bicategory_scope.
 Import Bicat.Notations.
 
-Context {C : prebicat}.
+Context {C : bicat}.
 Context (c0: ob C).
 
 Definition precategory_data_from_prebicat_and_ob: precategory_data.
