@@ -438,7 +438,7 @@ Section bindirectsums_monics_and_epis.
 
   Variable A : PreAdditive.
 
-  Lemma to_In1_isMonic {a b : A} (B : BinDirectSum a b) : isMonic (C:= categoryWithAbgrops_category _) (to_In1 B).
+  Lemma to_In1_isMonic {a b : A} (B : BinDirectSum a b) : isMonic (to_In1 B).
   Proof.
     intros z f g H.
     apply (maponpaths (λ h : _, h · (to_Pr1 B))) in H.
@@ -455,7 +455,7 @@ Section bindirectsums_monics_and_epis.
     apply id_right.
   Qed.
 
-  Lemma to_In2_isMonic {a b : A} (B : BinDirectSum a b) : isMonic (C:= categoryWithAbgrops_category _) (to_In2 B).
+  Lemma to_In2_isMonic {a b : A} (B : BinDirectSum a b) : isMonic (to_In2 B).
   Proof.
     intros z f g H.
     apply (maponpaths (λ h : _, h · (to_Pr2 B))) in H.

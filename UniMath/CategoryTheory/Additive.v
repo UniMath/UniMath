@@ -120,7 +120,7 @@ Section def_additive.
   Definition opp_sums_lift (M:AdditiveCategory) {X:Type} (j : X -> ob M) :
     sums_lift M j -> sums_lift (oppositeAdditiveCategory M) j.
   Proof.
-    intros [hz su]. exists (opp_zero_lifts (C:= categoryWithAbgrops_category _ ) j hz).
+    intros [hz su]. exists (opp_zero_lifts j hz).
     intros a b S. generalize (su a b (oppositeBinDirectSum S)). apply hinhfun.
     intros [s t]. exists s. exact (z_iso_inv (opp_z_iso t)).
   Defined.
@@ -186,19 +186,18 @@ Section additive_kernel_equalizers.
   Variable A : CategoryWithAdditiveStructure.
 
   Lemma AdditiveKernelToEqualizer_eq1 {x y : ob A} (f g : x --> y)
-        (K : Kernel (C:= categoryWithAbgrops_category _ ) (to_Zero A) (to_binop _ _ f (to_inv g))) :
+        (K : Kernel (to_Zero A) (to_binop _ _ f (to_inv g))) :
     KernelArrow K · f = KernelArrow K · g.
   Proof.
     use (to_rcan A (KernelArrow K · (to_inv g))).
     rewrite <- to_premor_linear'. rewrite <- to_premor_linear'.
-    set (X:= KernelCompZero(C:= categoryWithAbgrops_category A )).
-    rewrite X.
+    rewrite KernelCompZero.
     rewrite (@to_rinvax' A (to_Zero A)). rewrite ZeroArrow_comp_right.
     apply idpath.
   Qed.
 
   Lemma AdditiveKernelToEqualizer_isEqualizer {x y : ob A} (f g : x --> y)
-             (K : Kernel (C:= categoryWithAbgrops_category _ )(to_Zero A) (to_binop _ _ f (to_inv g))) :
+             (K : Kernel (to_Zero A) (to_binop _ _ f (to_inv g))) :
     isEqualizer (*C:= categoryWithAbgrops_category _ *)f g (KernelArrow K) (AdditiveKernelToEqualizer_eq1 f g K).
   Proof.
     use make_isEqualizer.
@@ -220,12 +219,12 @@ Section additive_kernel_equalizers.
       use (KernelArrowisMonic _ K).
       etrans.
         2 : { apply pathsinv0. apply KernelCommutes.
-
-      rewrite KernelCommutes. exact X.
+        }
+        exact X.
   Qed.
 
   Definition AdditiveKernelToEqualizer {x y : ob A} (f g : x --> y)
-             (K : Kernel (C:= categoryWithAbgrops_category _ ) (to_Zero A) (to_binop _ _ f (to_inv g))) : Equalizer (C:= categoryWithAbgrops_category _ ) f g.
+             (K : Kernel (to_Zero A) (to_binop _ _ f (to_inv g))) : Equalizer f g.
   Proof.
     use make_Equalizer.
     - exact K.
@@ -234,7 +233,7 @@ Section additive_kernel_equalizers.
     - exact (AdditiveKernelToEqualizer_isEqualizer f g K).
   Defined.
 
-  Lemma AdditiveEqualizerToKernel_eq1 {x y : ob A} (f g : x --> y) (E : Equalizer (C:= categoryWithAbgrops_category _ ) f g) :
+  Lemma AdditiveEqualizerToKernel_eq1 {x y : ob A} (f g : x --> y) (E : Equalizer f g) :
     EqualizerArrow E · to_binop x y f (to_inv g) = ZeroArrow (to_Zero A) E y.
   Proof.
     set (X:= @to_premor_linear' A).
@@ -244,8 +243,8 @@ Section additive_kernel_equalizers.
     rewrite ZeroArrow_comp_right. rewrite to_runax''. apply (EqualizerEqAr E).
   Qed.
 
-  Lemma AdditiveEqualizerToKernel_isKernel {x y : ob A} (f g : x --> y) (E : Equalizer (C:= categoryWithAbgrops_category _ ) f g) :
-    isKernel (C:= categoryWithAbgrops_category _ ) (to_Zero A) (EqualizerArrow E) (to_binop x y f (to_inv g))
+  Lemma AdditiveEqualizerToKernel_isKernel {x y : ob A} (f g : x --> y) (E : Equalizer f g) :
+    isKernel (to_Zero A) (EqualizerArrow E) (to_binop x y f (to_inv g))
              (AdditiveEqualizerToKernel_eq1 f g E).
   Proof.
     use make_isKernel.
@@ -264,8 +263,8 @@ Section additive_kernel_equalizers.
         exact X.
   Qed.
 
-  Definition AdditiveEqualizerToKernel {x y : ob A} (f g : x --> y) (E : Equalizer (C:= categoryWithAbgrops_category _ ) f g) :
-    Kernel (C:= categoryWithAbgrops_category _ ) (to_Zero A) (to_binop _ _ f (to_inv g)).
+  Definition AdditiveEqualizerToKernel {x y : ob A} (f g : x --> y) (E : Equalizer f g) :
+    Kernel (to_Zero A) (to_binop _ _ f (to_inv g)).
   Proof.
     use make_Kernel.
     - exact E.
@@ -332,7 +331,6 @@ Section additive_kernel_equalizers.
                (AdditiveCoequalizerToCokernel_eq1 f g CE).
   Proof.
     use make_isCokernel.
-    - apply to_has_homsets.
     - intros w h H'.
       use unique_exists.
       + use CoequalizerOut.
@@ -369,7 +367,7 @@ Section additive_minus_monic.
 
   Lemma isMonic_to_binop_BinDirectSum1 {x y z : A} (f : Monic A x y) (g : x --> z)
         (DS : BinDirectSum y z) :
-    isMonic (C:= categoryWithAbgrops_category _ ) (to_binop _ _ (f · to_In1 DS) (g · to_In2 DS)).
+    isMonic (to_binop _ _ (f · to_In1 DS) (g · to_In2 DS)).
   Proof.
     use make_isMonic.
     intros x0 g0 h X.
@@ -400,7 +398,7 @@ Section additive_minus_monic.
   (** This version is used in AbelianPushoutPullback *)
   Lemma isMonic_to_binop_BinDirectSum1' {x y z : A} (f : Monic A x y) (g : x --> z)
         (DS : BinDirectSum y z) :
-    isMonic (C:= categoryWithAbgrops_category _ ) (to_binop _ _ (f · to_In1 DS) (to_inv (g · to_In2 DS))).
+    isMonic (to_binop _ _ (f · to_In1 DS) (to_inv (g · to_In2 DS))).
   Proof.
     rewrite PreAdditive_invlcomp. use isMonic_to_binop_BinDirectSum1.
   Qed.
@@ -408,7 +406,7 @@ Section additive_minus_monic.
 
   Lemma isMonic_to_binop_BinDirectSum2 {x y z : A} (f : x --> y) (g : Monic A x z)
         (DS : BinDirectSum y z) :
-    isMonic (C:= categoryWithAbgrops_category _ ) (to_binop _ _ (f · to_In1 DS) (g · to_In2 DS)).
+    isMonic (to_binop _ _ (f · to_In1 DS) (g · to_In2 DS)).
   Proof.
     use make_isMonic.
     intros x0 g0 h X.
@@ -478,7 +476,7 @@ Section monics_and_epis_in_additive.
 
   Lemma to_isMonic {x y : ob A} (f : x --> y)
         (H : ∏ (z : ob A) (g : z --> x) (H : g · f = ZeroArrow (to_Zero A) _ _),
-             g = ZeroArrow (to_Zero A) _ _ ) : isMonic (C:= categoryWithAbgrops_category _ ) f.
+             g = ZeroArrow (to_Zero A) _ _ ) : isMonic f.
   Proof.
     use make_isMonic.
     intros x0 g h X.
