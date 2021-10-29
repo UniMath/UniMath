@@ -3,6 +3,7 @@
 Operations on vectors and matrices.
 
 Author: Langston Barrett (@siddharthist) (March 2018)
+Additions : Skantz (@skantz) (July 2018)
 *)
 
 Require Import UniMath.Combinatorics.StandardFiniteSets.
