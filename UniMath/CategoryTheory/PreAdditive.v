@@ -1051,8 +1051,10 @@ Lemma induced_opposite_PreAdditive {M:PreAdditive} {X:Type} (j : X -> ob M) :
   induced_PreAdditive (oppositePreAdditive M) (λ a, opp_ob (j a)).
 Proof.
   intros.
-  compute.                    (* the following line bogs down without this one *)
-  reflexivity.                (* but the computation may make this proof fragile *)
+  apply subtypePath'.
+  - apply subtype
+    compute.                    (* the following line bogs down without this one *)
+    apply idpath.                (* but the computation may make this proof fragile *)
 Defined.
 *)
 

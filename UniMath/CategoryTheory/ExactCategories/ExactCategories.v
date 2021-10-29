@@ -154,22 +154,28 @@ Section Pullbacks.              (* move upstream *)
 
   Local Open Scope type.
 
-  Definition IsoArrowTo {M : precategory}     {A A' B:M} (g : A --> B) (g' : A' --> B) := ∑ i : z_iso A A', i · g' = g.
-  Coercion IsoArrowTo_pr1 {M : precategory}   {A A' B:M} (g : A --> B) (g' : A' --> B) : IsoArrowTo g g' -> z_iso A A' := pr1.
-  Definition IsoArrowFrom {M : precategory}   {A B B':M} (g : A --> B) (g' : A --> B') := ∑ i : z_iso B B', g · i  = g'.
-  Coercion IsoArrowFrom_pr1 {M : precategory} {A B B':M} (g : A --> B) (g' : A --> B') : IsoArrowFrom g g' -> z_iso B B' := pr1.
+  Definition IsoArrowTo {M : category}     {A A' B:M} (g : A --> B) (g' : A' --> B) := ∑ i : z_iso A A', i · g' = g.
+  Coercion IsoArrowTo_pr1 {M : category}   {A A' B:M} (g : A --> B) (g' : A' --> B) : IsoArrowTo g g' -> z_iso A A' := pr1.
+
+  Definition IsoArrowFrom {M : category}   {A B B':M} (g : A --> B) (g' : A --> B') := ∑ i : z_iso B B', g · i  = g'.
+  Coercion IsoArrowFrom_pr1 {M : category} {A B B':M} (g : A --> B) (g' : A --> B') : IsoArrowFrom g g' -> z_iso B B' := pr1.
   (* this definition of IsoArrow is asymmetric *)
-  Definition IsoArrow {M : precategory}       {A A' B B':M} (g : A --> B) (g' : A' --> B') := ∑ (i : z_iso A A') (j : z_iso B B'), i · g' = g · j.
-  Definition pullbackiso1 {M : precategory} {A B C:M} {f : A --> C} {g : B --> C}
+
+  Definition IsoArrow {M : category}       {A A' B B':M} (g : A --> B) (g' : A' --> B') := ∑ (i : z_iso A A') (j : z_iso B B'), i · g' = g · j.
+
+  Definition pullbackiso1 {M : category} {A B C:M} {f : A --> C} {g : B --> C}
         (pb : Pullback f g) (pb' : Pullback f g)
     : IsoArrowTo (PullbackPr1 pb) (PullbackPr1 pb')
     := pr1 (pullbackiso _ pb pb'),,pr12 (pullbackiso _ pb pb').
-  Definition pullbackiso2 {M : precategory} {A B C:M} {f : A --> C} {g : B --> C}
+
+  Definition pullbackiso2 {M : category} {A B C:M} {f : A --> C} {g : B --> C}
         (pb : Pullback f g) (pb' : Pullback f g)
     : IsoArrowTo (PullbackPr2 pb) (PullbackPr2 pb')
     := pr1 (pullbackiso _ pb pb'),,pr22 (pullbackiso _ pb pb').
+
   Section OppositeIsoArrows.
-    Definition opposite_IsoArrowTo {M:precategory} {A A' B:M} {g : A --> B} {g' : A' --> B} :
+
+    Definition opposite_IsoArrowTo {M:category} {A A' B:M} {g : A --> B} {g' : A' --> B} :
       IsoArrowTo g g' -> IsoArrowFrom (M:=M^op) g' g.
     Proof.
       intros i.
@@ -178,14 +184,14 @@ Section Pullbacks.              (* move upstream *)
       - exact (opp_z_iso (pr1 i)).
       - cbn. exact (pr2 i).
     Defined.
-    Definition opposite_IsoArrowFrom {M:precategory} {A B B':M} {g : A --> B} {g' : A --> B'} :
+    Definition opposite_IsoArrowFrom {M:category} {A B B':M} {g : A --> B} {g' : A --> B'} :
       IsoArrowFrom g g' -> IsoArrowTo (M:=M^op) g' g.
     Proof.
       intros i. use tpair.
       - exact (opp_z_iso (pr1 i)).
       - cbn. exact (pr2 i).
     Defined.
-    Definition opposite_IsoArrow {M:precategory} {A A' B B':M} (g : A --> B) (g' : A' --> B') :
+    Definition opposite_IsoArrow {M:category} {A A' B B':M} (g : A --> B) (g' : A' --> B') :
       IsoArrow g g' -> IsoArrow (M:=M^op) (opp_mor g') (opp_mor g).
     Proof.
       intros i.
@@ -332,15 +338,16 @@ Section PreAdditive.
            (category_to_precategory (categoryWithAbgrops_category _))
            (precategoryWithBinOps_precategory (categoryWithAbgrops_precategoryWithBinOps _))
          *)
-        Fail rewrite e.
-        unfold categoryWithAbgrops_category, category_to_precategory, pr1 in e.
         rewrite e.
+(*        unfold  category_to_precategory, pr1 in e.
+        rewrite e.
+*)
         rewrite assoc. rewrite b. apply zeroLeft.
       - intros T h v. rewrite assoc' in v.
         assert (Q := co T (j·h) v); cbn in Q. generalize Q; clear Q.
         apply iscontrweqb. use make_weq.
-        + intros [k w]; exists (j'·k); abstract (rewrite assoc; unfold categoryWithAbgrops_category, category_to_precategory, pr1 in e; rewrite <- e; rewrite assoc';
-          rewrite w; reflexivity) using _L_.
+        + intros [k w]; exists (j'·k). rewrite assoc. rewrite <- e. rewrite assoc'.
+          rewrite w. reflexivity.
         + cbn beta. intros [l w]; unfold hfiber. assert (PO := po T h l (!w)); clear po.
           generalize PO; clear PO. apply iscontrweqb.
           refine (weqcomp (weqtotal2asstor _ _) _). apply weqfibtototal; intros m. cbn.
@@ -1622,6 +1629,9 @@ Section ExactCategoryFacts.
       - exact e3.
     Defined.
   End Tmp.
+
+
+  (*
   Lemma KernelSequence {M:ExactCategory} {A B C P R:M}
         (i : B --> A) (j : C --> B) (p : P --> B) (q : R --> C) :
     isExact2 p i -> isExact2 q j ->
@@ -1630,6 +1640,9 @@ Section ExactCategoryFacts.
   Proof.
     exact (CokernelSequence (M := oppositeExactCategory M) i j p q).
   Defined.
+   *)
+
+
   Lemma ExactIso3 {M:ExactCategory} {A B C C':M} (i:A-->B) (p:B-->C) (t:z_iso C C') :
     isExact2 i p -> isExact2 i (p·t).
   Proof.

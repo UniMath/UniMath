@@ -139,7 +139,7 @@ Section def_additive.
       + cbn. exact (pr2 S').
   Defined.
 
-(*
+
   Lemma induced_opposite_Additive {M:AdditiveCategory}
         {X:Type} (j : X -> ob M) (su : sums_lift M j) :
     oppositeAdditiveCategory (induced_Additive M j su) =

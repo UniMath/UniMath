@@ -827,7 +827,6 @@ End abelian_pushouts.
 Section abelian_MonicToKernels.
 
   Variable A : AbelianPreCat.
-  Hypothesis hs : has_homsets A.
 
 
   (** ** KernelArrow of Monic x --> y = (to_Zero A) --> x *)
@@ -845,7 +844,7 @@ Section abelian_MonicToKernels.
     (* Commutativity *)
     - cbn. rewrite X. apply ZeroArrow_comp_left.
     (* Equality of equalities of morphisms *)
-    - intros y0. apply hs.
+    - intros y0. apply (homset_property A).
     (* Uniqueness *)
     - intros y0 Y. apply ArrowsToZero.
   Qed.
@@ -862,7 +861,7 @@ Section abelian_MonicToKernels.
                (ArrowsToZero A (to_Zero A) y (E · ZeroArrowTo z)
                              (ZeroArrow (to_Zero A) y (to_Zero A))).
   Proof.
-    use (make_isCokernel hs).
+    use make_isCokernel.
     intros w h X. rewrite <- (ZeroArrow_comp_right A (to_Zero A) y z w E) in X.
     apply (EpiisEpi _ E) in X.
     use unique_exists.
@@ -871,7 +870,7 @@ Section abelian_MonicToKernels.
     (* Commutativity *)
     - cbn. rewrite X. apply ZeroArrow_comp_right.
     (* Equality of equalities of morphisms *)
-    - intros y0. apply hs.
+    - intros y0. apply (homset_property A).
     (* Uniqueness *)
     - intros y0 Y. apply ArrowsFromZero.
   Qed.
@@ -937,7 +936,7 @@ Section abelian_MonicToKernels.
     assert (e5 : is_iso (CoequalizerArrow Coeq)).
     {
       set (coker2 := KernelZeroMonic_cokernel e4 Coeq_coker).
-      apply (is_iso_qinv _ _ (CokernelofZeroArrow_is_iso hs (to_Zero A) coker2)).
+      apply (is_iso_qinv _ _ (CokernelofZeroArrow_is_iso (to_Zero A) coker2)).
     }
     set (isoar := make_iso (CoequalizerArrow Coeq) e5).
     set (coeq_eq := CoequalizerEqAr Coeq).
@@ -1045,7 +1044,6 @@ End abelian_MonicToKernels.
 Section abelian_factorization.
 
   Variable A : AbelianPreCat.
-  Hypothesis hs : has_homsets A.
 
   (** ** Kernels, Cokernels, CoImage, and Image *)
 
@@ -1358,7 +1356,6 @@ Arguments CoImage [A] [x] [y] _.
 Section abelian_kernel_cokernel.
 
   Variable A : AbelianPreCat.
-  Hypothesis hs : has_homsets A.
 
   Definition MonicToKernel' {x y : A} (M : Monic A x y) (CK : cokernels.Cokernel (to_Zero A) M) :
     kernels.Kernel (to_Zero A) (CokernelArrow CK) :=
@@ -1368,7 +1365,7 @@ Section abelian_kernel_cokernel.
 
   Definition EpiToCokernel' {x y : A} (E : Epi A x y) (K : kernels.Kernel (to_Zero A) E) :
     cokernels.Cokernel (to_Zero A) (KernelArrow K) :=
-    Cokernel_up_to_iso2 A hs (to_Zero A) (KernelArrow (Kernel E)) (KernelArrow K)
+    Cokernel_up_to_iso2 A (to_Zero A) (KernelArrow (Kernel E)) (KernelArrow K)
                         (iso_from_Kernel_to_Kernel (to_Zero A) K (Kernel E))
                         (KernelCommutes _ _ _ _ _) (EpiToCokernel E).
 
