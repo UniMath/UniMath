@@ -40,7 +40,7 @@ An effective epimorphism p: A -> B is a morphism which has a kernel pair and whi
 is the coequalizer of its kernel pair.
 *)
 Section EffectiveEpi.
-  Context {C:precategory} {A B:C}.
+  Context {C:category} {A B:C}.
   Variable (f: C ⟦A,B⟧).
 
   Definition kernel_pair := Pullback  f f.
@@ -51,7 +51,7 @@ Section EffectiveEpi.
                         (PullbackPr2 g) f (PullbackSqrCommutes g)).
 End EffectiveEpi.
 
-Definition EpisAreEffective (C:precategory) :=
+Definition EpisAreEffective (C:category) :=
   ∏ (A B:C) (f:C⟦A,B⟧), isEpi f -> isEffective f.
 
 
@@ -60,7 +60,7 @@ Definition EpisAreEffective (C:precategory) :=
 (** Let f be a natural transformation. If f is pointwise effective, then f is effective *)
 Section IsEffectivePw.
 
-  Context {C : precategory} {D : category} .
+  Context {C : category} {D : category} .
 
   Local Notation CD := (functor_category C D).
 
@@ -103,12 +103,12 @@ Section IsEffectivePw.
     intros h.
     red.
     transparent assert (f:(kernel_pair (C:=CD) a)).
-    { apply equiv_Pullback_2;[apply homset_property|].
+    { apply equiv_Pullback_2.
       apply LimFunctorCone.
       intro c.
       specialize (h c).
       set (f := pr1 h).
-      apply equiv_Pullback_1 in f;[|apply homset_property].
+      apply equiv_Pullback_1 in f.
       use (eq_diag_liftlimcone _  _  f).
       apply eq_pb_pw.
     }

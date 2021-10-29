@@ -199,7 +199,7 @@ Section additive_kernel_equalizers.
 
   Lemma AdditiveKernelToEqualizer_isEqualizer {x y : ob A} (f g : x --> y)
              (K : Kernel (C:= categoryWithAbgrops_category _ )(to_Zero A) (to_binop _ _ f (to_inv g))) :
-    isEqualizer (C:= categoryWithAbgrops_category _ )f g (KernelArrow K) (AdditiveKernelToEqualizer_eq1 f g K).
+    isEqualizer (*C:= categoryWithAbgrops_category _ *)f g (KernelArrow K) (AdditiveKernelToEqualizer_eq1 f g K).
   Proof.
     use make_isEqualizer.
     intros w h H'.
@@ -217,7 +217,11 @@ Section additive_kernel_equalizers.
     - cbn. use KernelCommutes.
     - intros y0. apply to_has_homsets.
     - intros y0 X. cbn in X.
-      use (KernelArrowisMonic _ K). rewrite KernelCommutes. exact X.
+      use (KernelArrowisMonic _ K).
+      etrans.
+        2 : { apply pathsinv0. apply KernelCommutes.
+
+      rewrite KernelCommutes. exact X.
   Qed.
 
   Definition AdditiveKernelToEqualizer {x y : ob A} (f g : x --> y)
