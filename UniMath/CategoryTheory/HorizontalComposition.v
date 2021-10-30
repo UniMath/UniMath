@@ -118,7 +118,7 @@ Definition functorial_composition_data (A B C : category) :
 Proof.
   exists (λ FG, functor_composite (pr1 FG) (pr2 FG)).
   intros F G αβ.
-  exact (# (post_composition_functor _ _ _   _ _ (pr2 F)) (pr1 αβ) · # (pre_composition_functor _ _ _   _ _ (pr1 G)) (pr2 αβ)).
+  exact (# (post_composition_functor _ _ _ (pr2 F)) (pr1 αβ) · # (pre_composition_functor _ _ _ (pr1 G)) (pr2 αβ)).
 Defined.
 
 Lemma is_functor_functorial_composition_data (A B C : category) : is_functor (functorial_composition_data A B C).
@@ -128,8 +128,8 @@ Proof.
     unfold functorial_composition_data.
     unfold functor_on_morphisms.
     unfold pr2.
-    change (# (post_composition_functor _ _ _ _ _ (pr2 FG)) (identity (pr1 FG)) ·
-              # (pre_composition_functor _ _ _ _ _ (pr1 FG)) (identity (pr2 FG)) =
+    change (# (post_composition_functor _ _ _ (pr2 FG)) (identity (pr1 FG)) ·
+              # (pre_composition_functor _ _ _ (pr1 FG)) (identity (pr2 FG)) =
               identity _).
     do 2 rewrite functor_id.
     apply id_left.
@@ -139,12 +139,12 @@ Proof.
     unfold functorial_composition_data.
     unfold functor_on_morphisms.
     unfold pr2.
-    change (# (post_composition_functor _ _ _ _ _ (pr2 FG1)) (α1 · α2) ·
-              # (pre_composition_functor _ _ _ _ _ (pr1 FG3)) (β1 · β2) =
-              # (post_composition_functor _ _ _ _ _ (pr2 FG1)) α1 ·
-               # (pre_composition_functor _ _ _ _ _ (pr1 FG2)) β1 ·
-              (# (post_composition_functor _ _ _ _ _ (pr2 FG2)) α2 ·
-                 # (pre_composition_functor _ _ _ _ _ (pr1 FG3)) β2)).
+    change (# (post_composition_functor _ _ _ (pr2 FG1)) (α1 · α2) ·
+              # (pre_composition_functor _ _ _ (pr1 FG3)) (β1 · β2) =
+              # (post_composition_functor _ _ _ (pr2 FG1)) α1 ·
+               # (pre_composition_functor _ _ _ (pr1 FG2)) β1 ·
+              (# (post_composition_functor _ _ _ (pr2 FG2)) α2 ·
+                 # (pre_composition_functor _ _ _ (pr1 FG3)) β2)).
     repeat rewrite functor_comp.
     repeat rewrite <- assoc.
     apply maponpaths.
@@ -168,8 +168,8 @@ Goal ∏ (A B C : category)
       (F G : precategory_binproduct_data [A, B] [B, C])
       (αβ : precategory_binproduct_data [A, B] [B, C] ⟦ F, G ⟧),
   # (functorial_composition _ _ _ ) αβ =
-    # (post_composition_functor _ _ _ _ _ (pr2 F)) (pr1 αβ) ·
-      # (pre_composition_functor _ _ _ _ _ (pr1 G)) (pr2 αβ).
+    # (post_composition_functor _ _ _ (pr2 F)) (pr1 αβ) ·
+      # (pre_composition_functor _ _ _ (pr1 G)) (pr2 αβ).
 Proof.
   intros.
   apply idpath.
@@ -209,7 +209,7 @@ Qed.
 Lemma functorial_composition_pre_post (C D E: category)
       (F F' : [C, D]) (G G' : [D, E]) (f: [C, D]⟦F, F'⟧) (g: [D, E]⟦G, G'⟧) :
   # (functorial_composition _ _ _) (f,, g:precategory_binproduct [C, D] [D, E] ⟦(F,,G), (F',,G')⟧) =
-  # (pre_composition_functor _ _ _  _ _ F) g · # (post_composition_functor _ _ _  _ _ G') f.
+  # (pre_composition_functor _ _ _ F) g · # (post_composition_functor _ _ _ G') f.
 Proof.
   apply (nat_trans_eq E).
   intro c.
@@ -220,7 +220,7 @@ Qed.
 Lemma functorial_composition_post_pre (C D E : category)
       (F F' : [C, D]) (G G' : [D, E]) (f: [C, D]⟦F, F'⟧) (g: [D, E]⟦G, G'⟧) :
   # (functorial_composition _ _ _) (f,, g:precategory_binproduct [C, D] [D, E] ⟦(F,,G), (F',,G')⟧) =
-  # (post_composition_functor _ _ _  _ _ G) f · # (pre_composition_functor _ _ _ _ _ F') g.
+  # (post_composition_functor _ _ _ G) f · # (pre_composition_functor _ _ _ F') g.
 Proof.
   apply idpath.
 Defined. (* this seems justified not to be ended with Qed *)
@@ -251,7 +251,7 @@ Proof.
     use make_nat_trans.
     + intro G.
       cbn.
-      exact (# (post_composition_functor _ _ _  _ _ G) η).
+      exact (# (post_composition_functor _ _ _ G) η).
     + intros G G' β.
       etrans.
       apply pathsinv0, functorial_composition_pre_post.
@@ -288,7 +288,7 @@ Proof.
     use make_nat_trans.
     + intro G.
       cbn.
-      exact (# (pre_composition_functor _ _ _  _ _ G) η).
+      exact (# (pre_composition_functor _ _ _ G) η).
     + intros G G' β.
       etrans.
       2: { apply functorial_composition_pre_post. }
@@ -359,20 +359,20 @@ End associativity.
 
 Section leftunit.
 
-  Context {C D: precategory} (hsC: has_homsets C) (hsD: has_homsets D).
+  Context (C D: category).
 
-  Definition lunit_left_gen : [C, D, hsD] ⟶ [C, D, hsD] := pre_composition_functor _ _ _ hsC hsD (functor_identity C).
+  Definition lunit_left_gen : [C, D] ⟶ [C, D] := pre_composition_functor _ _ _ (functor_identity C).
 
-  Local Lemma is_nat_trans_l_functors: is_nat_trans lunit_left_gen (functor_identity [C, D, hsD]) (@λ_functors C D).
+  Local Lemma is_nat_trans_l_functors: is_nat_trans lunit_left_gen (functor_identity [C, D]) (@λ_functors C D).
 Proof.
   intros F F' m.
-  apply (nat_trans_eq hsD).
+  apply (nat_trans_eq (homset_property D)).
   intro c. cbn.
   rewrite id_left.
   apply id_right.
 Qed.
 
-  Definition left_unit_as_nat_z_iso: nat_z_iso lunit_left_gen (functor_identity [C, D, hsD]).
+  Definition left_unit_as_nat_z_iso: nat_z_iso lunit_left_gen (functor_identity [C, D]).
   Proof.
     use make_nat_z_iso.
     + use make_nat_trans.
