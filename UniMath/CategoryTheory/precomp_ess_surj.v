@@ -52,7 +52,7 @@ Section precomp_w_ess_surj_ff_is_ess_surj.
 
 (** ** Section variables *)
 
-  Variables A B : precategory.
+  Variables A B : category.
   Variable C : category.
 Hypothesis Ccat : is_univalent C.
 Variable H : functor A B.
@@ -865,8 +865,8 @@ End essentially_surjective.
 (** Abstracting from [F] by closing the previous section,
     we can prove essential surjectivity of [_ O H]. *)
 
-Lemma pre_composition_essentially_surjective (hsB: has_homsets B) :
-       essentially_surjective (pre_composition_functor A B C hsB C H).
+Lemma pre_composition_essentially_surjective :
+       essentially_surjective (pre_composition_functor A B C H).
 Proof.
   intros F p' f.
   apply f.
