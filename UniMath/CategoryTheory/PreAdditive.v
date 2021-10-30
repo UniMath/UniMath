@@ -160,7 +160,8 @@ Section preadditive_with_zero.
   Proof.
     unfold ZeroArrow.
     rewrite <- (id_left (ZeroArrowFrom y)).
-    assert (X : identity Z = to_unel Z Z) by apply ZeroEndo_is_identity.
+    assert (X : identity Z = to_unel Z Z).
+    { apply ZeroEndo_is_identity. }
     rewrite -> X. clear X.
 
     set (Y := to_postmor_unel A Z (@ZeroArrowFrom A Z y)).
@@ -1045,12 +1046,26 @@ Proof.
 Defined.
 
 
-(*
+(** This lemma used to be proved by
+  compute; apply idpath.
+
+Now the proof that something has homsets gets in the middle of it all, and prevents this proof from working.
+*)
 Lemma induced_opposite_PreAdditive {M:PreAdditive} {X:Type} (j : X -> ob M) :
   oppositePreAdditive (induced_PreAdditive M j) =
   induced_PreAdditive (oppositePreAdditive M) (λ a, opp_ob (j a)).
 Proof.
   intros.
+  compute.
+  use @total2_paths2_f.
+  - use @total2_paths2_f.
+    + use @total2_paths2_f.
+      * use @total2_paths2_f.
+        -- apply idpath.
+        -- apply proofirrelevance.
+      (* apply isaprop_has_homsets. *)
+      (* Morally, this is it, but it gets unfolded too much because "has_homsets *)
+      *
   apply subtypePath'.
   - apply subtype
     compute.                    (* the following line bogs down without this one *)

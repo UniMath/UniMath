@@ -140,7 +140,7 @@ Proof.
 Defined.
 
 Lemma has_homsets_opp {C : precategory} (hsC : has_homsets C) : has_homsets C^op.
-Proof. intros a b; apply hsC. Qed.
+Proof. intros a b; apply hsC. Defined.
 
 Definition op_cat (c : category) : category := (opp_precat c,, has_homsets_opp (homset_property c) ).
 
@@ -286,7 +286,7 @@ Definition has_homsets_op (C : category) : has_homsets (C^op).
 Proof.
   intros a b.
   apply C.
-Qed.
+Defined.
 
 Definition op_category (C : category) : category := make_category C^op (has_homsets_op C).
 
