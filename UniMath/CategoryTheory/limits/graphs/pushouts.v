@@ -22,8 +22,7 @@ Local Open Scope cat.
 (** * Definition of pushouts in terms of colimits *)
 Section def_po.
 
-  Variable C : precategory.
-  Variable hs: has_homsets C.
+  Variable C : category.
 
   Local Open Scope stn.
   Definition One : three := ● 0.
@@ -104,7 +103,7 @@ Section def_po.
       * abstract ( apply (pr1 (pr2 (pr1 H2)))).
       * abstract (now use (pathscomp0 _ (pr2 (pr2 (pr1 H2))))).
     + abstract (intro t; apply subtypePath;
-               [ intro; apply impred; intro; apply hs
+               [ intro; apply impred; intro; apply C
                | destruct t as [t p0];
                  apply path_to_ctr; split; [ apply (p0 Two) | apply (p0 Three) ]]).
   Defined.
@@ -188,7 +187,7 @@ Section def_po.
         * apply PushoutArrow_PushoutIn2.
     - intro t.
       apply subtypePath.
-      + intro. apply isapropdirprod; apply hs.
+      + intro. apply isapropdirprod; apply C.
       + destruct t as [t p]. simpl.
         use (PushoutArrowUnique _ _ P).
         * apply e.
@@ -321,8 +320,7 @@ End def_po.
   with the direct definition. *)
 Section pushout_coincide.
 
-  Variable C : precategory.
-  Variable hs: has_homsets C.
+  Variable C : category.
 
 
   (** ** isPushout *)
@@ -345,7 +343,7 @@ Section pushout_coincide.
         apply (coconeInCommutes cc One Two tt).
       - apply (limits.pushouts.PushoutArrow_PushoutIn1 XR).
       - apply (limits.pushouts.PushoutArrow_PushoutIn2 XR).
-    + intros y; apply impred_isaprop; intros t; apply hs.
+    + intros y; apply impred_isaprop; intros t; apply C.
     + intros y T.
       use limits.pushouts.PushoutArrowUnique.
       - apply (T Two).
@@ -366,7 +364,7 @@ Section pushout_coincide.
     + split.
       - exact (PushoutArrow_PushoutIn1 C XR R k h HH).
       - exact (PushoutArrow_PushoutIn2 C XR R k h HH).
-    + intros y; apply isapropdirprod; apply hs.
+    + intros y; apply isapropdirprod; apply C.
     + intros y T.
       use (PushoutArrowUnique C _ _ XR).
       - exact R.
@@ -399,7 +397,7 @@ Section pushout_coincide.
              (PushoutIn1 C X)
              (PushoutIn2 C X)
              (PushoutSqrCommutes C X)
-             (equiv_isPushout2 _ _ _ _ _ (isPushout_Pushout C hs X))).
+             (equiv_isPushout2 _ _ _ _ _ (isPushout_Pushout C X))).
   Defined.
 
 End pushout_coincide.

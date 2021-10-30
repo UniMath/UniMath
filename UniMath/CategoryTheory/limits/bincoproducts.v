@@ -598,7 +598,7 @@ End BinCoproducts.
 (** * Binary coproducts from colimits *)
 Section BinCoproducts_from_Colims.
 
-Variables (C : precategory) (hsC : has_homsets C).
+Variables (C : category).
 
 Definition two_graph : graph := (bool,,λ _ _,empty).
 
@@ -624,13 +624,13 @@ use make_BinCoproduct.
 + apply (colim CC).
 + apply (colimIn CC true).
 + apply (colimIn CC false).
-+ apply (make_isBinCoproduct _ hsC); simpl; intros c f g.
++ apply (make_isBinCoproduct _ C); simpl; intros c f g.
   use unique_exists; simpl.
   - apply colimArrow, (BinCoprod f g).
   - abstract (split;
       [ apply (colimArrowCommutes CC c (BinCoprod f g) true)
       | apply (colimArrowCommutes CC c (BinCoprod f g) false) ]).
-  - abstract (intros h; apply isapropdirprod; apply hsC).
+  - abstract (intros h; apply isapropdirprod; apply C).
   - abstract (now intros h [H1 H2]; apply colimArrowUnique; intro x; induction x).
 Defined.
 

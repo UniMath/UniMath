@@ -290,6 +290,10 @@ Defined.
 
 Definition op_category (C : category) : category := make_category C^op (has_homsets_op C).
 
+Definition from_op_op_to_op (A C : category)
+  : functor [op_category A, op_category C] (op_category [A,C])
+  := tpair _ _ (is_functor_from_opp_opp_to_opp A C C).
+
 Definition op_is_univalent (C : univalent_category)
   : is_univalent (op_category C).
 Proof.

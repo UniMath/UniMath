@@ -40,21 +40,21 @@ Definition edge {g : graph} : vertex g -> vertex g -> UU := pr2 g.
 
 Definition make_graph (D : UU) (e : D → D → UU) : graph := tpair _ D e.
 
-Definition diagram (g : graph) (C : precategory) : UU :=
+Definition diagram (g : graph) (C : category) : UU :=
   ∑ (f : vertex g -> C), ∏ (a b : vertex g), edge a b -> C⟦f a, f b⟧.
 
-Definition dob {g : graph} {C : precategory} (d : diagram g C) : vertex g -> C :=
+Definition dob {g : graph} {C : category} (d : diagram g C) : vertex g -> C :=
   pr1 d.
 
-Definition dmor {g : graph} {C : precategory} (d : diagram g C) :
+Definition dmor {g : graph} {C : category} (d : diagram g C) :
   ∏ {a b}, edge a b -> C⟦dob d a,dob d b⟧ := pr2 d.
 
 Section diagram_from_functor.
 
-Variables (J C : precategory).
+Variables (J C : category).
 Variable (F : functor J C).
 
-Definition graph_from_precategory : graph := pr1 (pr1 J).
+Definition graph_from_precategory : graph :=  pr1 (pr1 (pr1 J)).
 
 Definition diagram_from_functor : diagram graph_from_precategory C :=
   tpair _ _ (pr2 (pr1 F)).
@@ -63,13 +63,13 @@ End diagram_from_functor.
 
 End diagram_def.
 
-Coercion graph_from_precategory : precategory >-> graph.
+Coercion graph_from_precategory : category >-> graph.
 
 
 (** * Definition of colimits *)
 Section colim_def.
 
-Context {C : precategory} (hsC : has_homsets C).
+Context {C : category}.
 
 (** A cocone with tip c over a diagram d *)
 Definition forms_cocone {g : graph} (d : diagram g C) {c : C} (f : ∏ (v : vertex g), C⟦dob d v, c⟧) : UU
@@ -102,7 +102,7 @@ Proof.
   - apply funextsec.
     exact eqin.
   - repeat (apply impred_isaprop; intro).
-    apply hsC.
+    apply C.
 Defined.
 
 Definition is_cocone_mor {g : graph} {d : diagram g C} {c1 : C}
@@ -313,7 +313,7 @@ split.
               now apply pathsinv0, (colimArrowEta (make_ColimCocone D c cc H))).
   + abstract (simpl; intro k;
               apply subtypePath;
-                [ intro; now repeat (apply impred; intro); apply hsC
+                [ intro; now repeat (apply impred; intro); apply C
                 | destruct k as [k Hk]; simpl; apply funextsec; intro u;
                   now apply (colimArrowCommutes (make_ColimCocone D c cc H))]).
 - intros H d cd.
@@ -321,11 +321,11 @@ split.
   + exists (invmap (make_weq _ (H d)) cd).
     abstract (intro u; now apply isColim_weq_subproof2).
   + abstract (intro t; apply subtypePath;
-                [ intro; now apply impred; intro; apply hsC
+                [ intro; now apply impred; intro; apply C
                 | destruct t as [t Ht]; simpl;
                   apply (invmaponpathsweq (make_weq _ (H d))); simpl;
                   apply subtypePath;
-                    [ intro; now repeat (apply impred; intro); apply hsC
+                    [ intro; now repeat (apply impred; intro); apply C
                     | simpl; apply pathsinv0, funextsec; intro u; rewrite Ht;
                       now apply isColim_weq_subproof2]]).
 Defined.
@@ -372,7 +372,7 @@ use tpair.
     apply cancel_postcomposition, pathsinv0, z_iso_inv_on_left, pathsinv0, colimArrowCommutes.
 - intros p; destruct p as [f Hf].
   apply subtypePath.
-  + intro a; apply impred; intro u; apply hsC.
+  + intro a; apply impred; intro u; apply C.
   + simpl; apply pathsinv0, z_iso_inv_on_right; simpl.
     apply pathsinv0, colimArrowUnique; intro u.
     now rewrite <- (Hf u), assoc, colimArrowCommutes.
@@ -393,12 +393,12 @@ End colim_def.
 
 Section Colims.
 
-Definition Colims (C : precategory) : UU := ∏ (g : graph) (d : diagram g C), ColimCocone d.
-Definition hasColims (C : precategory) : UU  :=
+Definition Colims (C : category) : UU := ∏ (g : graph) (d : diagram g C), ColimCocone d.
+Definition hasColims (C : category) : UU  :=
   ∏ (g : graph) (d : diagram g C), ∥ ColimCocone d ∥.
 
 (** Colimits of a specific shape *)
-Definition Colims_of_shape (g : graph) (C : precategory) : UU :=
+Definition Colims_of_shape (g : graph) (C : category) : UU :=
   ∏ (d : diagram g C), ColimCocone d.
 
 (** If C is a univalent_category then Colims is a prop *)
@@ -431,7 +431,7 @@ End Colims.
 (** * Defines colimits in functor categories when the target has colimits *)
 Section ColimFunctor.
 
-Context {A C : precategory} (hsC : has_homsets C) {g : graph} (D : diagram g [A, C, hsC]).
+Context {A C : category} {g : graph} (D : diagram g [A, C]).
 (* Variable HC : Colims C. *) (* Too strong! *)
 
 Definition diagram_pointwise (a : A) : diagram g C.
@@ -472,7 +472,7 @@ Qed.
 
 Definition ColimFunctor : functor A C := tpair _ _ is_functor_ColimFunctor_data.
 
-Definition colim_nat_trans_in_data v : [A, C, hsC] ⟦ dob D v, ColimFunctor ⟧.
+Definition colim_nat_trans_in_data v : [A, C] ⟦ dob D v, ColimFunctor ⟧.
 Proof.
 use tpair.
 - intro a; exact (colimIn (HCg a) v).
@@ -480,7 +480,7 @@ use tpair.
             now apply pathsinv0, (colimOfArrowsIn _ _ (HCg a) (HCg a'))).
 Defined.
 
-Definition cocone_pointwise (F : [A,C,hsC]) (cc : cocone D F) a :
+Definition cocone_pointwise (F : [A,C]) (cc : cocone D F) a :
   cocone (diagram_pointwise a) (pr1 F a).
 Proof.
 use make_cocone.
@@ -489,8 +489,8 @@ use make_cocone.
     now apply (nat_trans_eq_pointwise (coconeInCommutes cc u v e))).
 Defined.
 
-Lemma ColimFunctor_unique (F : [A, C, hsC]) (cc : cocone D F) :
-  iscontr (∑ x : [A, C, hsC] ⟦ ColimFunctor, F ⟧,
+Lemma ColimFunctor_unique (F : [A, C]) (cc : cocone D F) :
+  iscontr (∑ x : [A, C] ⟦ ColimFunctor, F ⟧,
             ∏ v : vertex g, colim_nat_trans_in_data v · x = coconeIn cc v).
 Proof.
 use tpair.
@@ -505,12 +505,12 @@ use tpair.
                     eapply pathscomp0;
                       [ now apply colimArrowCommutes
                       | apply pathsinv0; now use nat_trans_ax ]]]).
-  + abstract (intro u; apply (nat_trans_eq hsC); simpl; intro a;
+  + abstract (intro u; apply (nat_trans_eq C); simpl; intro a;
               now apply (colimArrowCommutes (HCg a))).
 - abstract (intro t; destruct t as [t1 t2];
             apply subtypePath; simpl;
               [ intro; apply impred; intro u; apply functor_category_has_homsets
-              | apply (nat_trans_eq hsC); simpl; intro a;
+              | apply (nat_trans_eq C); simpl; intro a;
                 apply colimArrowUnique; intro u;
                 now apply (nat_trans_eq_pointwise (t2 u))]).
 Defined.
@@ -521,46 +521,45 @@ use make_ColimCocone.
 - exact ColimFunctor.
 - use make_cocone.
   + now apply colim_nat_trans_in_data.
-  + abstract (now intros u v e; apply (nat_trans_eq hsC);
+  + abstract (now intros u v e; apply (nat_trans_eq C);
                   intro a; apply (colimInCommutes (HCg a))).
 - now intros F cc; simpl; apply (ColimFunctor_unique _ cc).
 Defined.
 
 
 Definition isColimFunctor_is_pointwise_Colim
-  (X : [A,C,hsC]) (R : cocone D X) (H : isColimCocone D X R)
+  (X : [A,C]) (R : cocone D X) (H : isColimCocone D X R)
   : ∏ a, isColimCocone (diagram_pointwise a) _ (cocone_pointwise X R a).
 Proof.
   intro a.
-  apply (is_iso_isColim hsC _ (HCg a)).
+  apply (is_iso_isColim  _ (HCg a)).
   set (XR := isColim_is_iso D ColimFunctorCocone X R H).
   apply  (is_functor_iso_pointwise_if_iso _ _ _ _ _ _ XR).
 Defined.
 
 End ColimFunctor.
 
-Lemma ColimsFunctorCategory (A C : precategory) (hsC : has_homsets C)
-  (HC : Colims C) : Colims [A,C,hsC].
+Lemma ColimsFunctorCategory (A C : category)
+  (HC : Colims C) : Colims [A,C].
 Proof.
 now intros g d; apply ColimFunctorCocone.
 Defined.
 
-Lemma ColimsFunctorCategory_of_shape (g : graph) (A C : precategory) (hsC : has_homsets C)
-  (HC : Colims_of_shape g C) : Colims_of_shape g [A,C,hsC].
+Lemma ColimsFunctorCategory_of_shape (g : graph) (A C : category)
+  (HC : Colims_of_shape g C) : Colims_of_shape g [A,C].
 Proof.
 now intros d; apply ColimFunctorCocone.
 Defined.
 
 Lemma pointwise_Colim_is_isColimFunctor
-  {A C : precategory} (hsC: has_homsets C) {g : graph}
-  (d : diagram g [A,C,hsC]) (G : [A,C,hsC]) (ccG : cocone d G)
-  (H : ∏ a, isColimCocone _ _ (cocone_pointwise hsC d G ccG a)) :
+  {A C : category} {g : graph}
+  (d : diagram g [A,C]) (G : [A,C]) (ccG : cocone d G)
+  (H : ∏ a, isColimCocone _ _ (cocone_pointwise d G ccG a)) :
   isColimCocone d G ccG.
 Proof.
 set (CC a := make_ColimCocone _ _ _ (H a)).
-set (D' := ColimFunctorCocone _ _ CC).
+set (D' := ColimFunctorCocone _ CC).
 use is_iso_isColim.
-- apply functor_category_has_homsets.
 - apply D'.
 - use is_iso_qinv.
   + use tpair.
@@ -569,17 +568,17 @@ use is_iso_isColim.
                 apply (colimArrowUnique (CC a)); intro u; cbn;
                 now rewrite <- (nat_trans_ax (coconeIn ccG u))).
   + abstract (split;
-    [ apply (nat_trans_eq hsC); intros x; simpl; rewrite id_right;
+    [ apply (nat_trans_eq C); intros x; simpl; rewrite id_right;
       apply pathsinv0, colimArrowUnique; intros v;
       now rewrite id_right
-    | apply (nat_trans_eq hsC); intros x; simpl; rewrite id_left;
+    | apply (nat_trans_eq C); intros x; simpl; rewrite id_left;
       apply pathsinv0, (colimArrowUnique (CC x)); intro u;
       now rewrite id_right]).
 Defined.
 
 Section map.
 
-Context {C D : precategory} (F : functor C D).
+Context {C D : category} (F : functor C D).
 
 Definition mapdiagram {g : graph} (d : diagram g C) : diagram g D.
 Proof.
@@ -651,14 +650,14 @@ End map.
 
 Section mapcocone_functor_composite.
 
-Context {A B C : precategory} (hsC : has_homsets C)
+Context {A B C : category}
         (F : functor A B) (G : functor B C).
 
 Lemma mapcocone_functor_composite {g : graph} {D : diagram g A} {a : A} (cc : cocone D a) :
   mapcocone (functor_composite F G) _ cc = mapcocone G _ (mapcocone F _ cc).
 Proof.
   apply subtypePath.
-  - intros x. repeat (apply impred_isaprop; intro). apply hsC.
+  - intros x. repeat (apply impred_isaprop; intro). apply C.
   - reflexivity.
 Qed.
 
