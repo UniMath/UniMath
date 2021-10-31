@@ -24,7 +24,7 @@ Local Open Scope cat.
 
 Section def_po.
 
-  Context {C : precategory} (hsC : has_homsets C).
+  Context {C : category}.
 
   Definition isPushout {a b c d : C} (f : a --> b) (g : a --> c)
              (in1 : b --> d) (in2 : c --> d) (H : f · in1 = g · in2) : UU :=
@@ -309,7 +309,7 @@ End Universal_Unique.
   epimorphism. *)
 Section epi_po.
 
-  Variable C : precategory.
+  Variable C : category.
 
   (** The pushout of an epimorphism is an epimorphism. *)
   Lemma EpiPushoutisEpi {a b c : C} (E : Epi _ a b) (g : a --> c) (PB : Pushout E g) :
@@ -345,8 +345,7 @@ End epi_po.
 (** Criteria for existence of pushouts. *)
 Section po_criteria.
 
-  Variable C : precategory.
-  Hypothesis hs : has_homsets C.
+  Variable C : category.
 
   Definition Pushout_from_Coequalizer_BinCoproduct_eq (X Y Z : C)
              (f : Z --> X) (g : Z --> Y) (BinCoprod : BinCoproduct X Y)
@@ -386,7 +385,7 @@ Section po_criteria.
     exact (BinCoproductIn2Commutes C _ _ BinCoprod _ h k).
 
     (* Equality on equalities of morphisms. *)
-    intros y. apply isapropdirprod. apply hs. apply hs.
+    intros y. apply isapropdirprod. apply C. apply C.
 
     (* Uniqueness *)
     intros y H. induction H as [t p]. apply CoequalizerOutsEq.
@@ -426,7 +425,7 @@ End po_criteria.
 
 Section lemmas_on_pushouts.
 
-  Context {C : precategory} (hsC : has_homsets C).
+  Context {C : category}.
   Context {a b c d : C}.
   Context {f : C ⟦a, b⟧} {g : C ⟦a, c⟧} {h : C⟦b, d⟧} {k : C⟦c, d⟧}.
   Variable H : f · h = g · k.
@@ -448,8 +447,8 @@ Section lemmas_on_pushouts.
       + apply (PushoutArrow_PushoutIn2 Po).
       + apply (PushoutArrow_PushoutIn1 Po).
     - intros y0. apply isapropdirprod.
-      + apply hsC.
-      + apply hsC.
+      + apply C.
+      + apply C.
     - intros y0. intros X. cbn in X.
       use PushoutArrowUnique.
       + exact (dirprod_pr2 X).
@@ -461,8 +460,7 @@ End lemmas_on_pushouts.
 
 Section pushout_up_to_iso.
 
-  Context {C : precategory}.
-  Context {hs : has_homsets C}.
+  Context {C : category}.
 
   Local Lemma isPushout_up_to_iso_eq {a a' b c d : C} (f : a --> b) (g : a --> c)
         (in1 : b --> d) (in2 : c --> d) (H : f · in1 = g · in2) (i : iso a' a) :
@@ -488,8 +486,8 @@ Section pushout_up_to_iso.
       + exact (PushoutArrow_PushoutIn1 Po e h k (isPushout_up_to_iso_eq f g h k Hk i)).
       + exact (PushoutArrow_PushoutIn2 Po e h k (isPushout_up_to_iso_eq f g h k Hk i)).
     - intros y. apply isapropdirprod.
-      + apply hs.
-      + apply hs.
+      + apply C.
+      + apply C.
     - intros y X. cbn in X.
       use PushoutArrowUnique.
       + exact (dirprod_pr1 X).
@@ -501,8 +499,7 @@ End pushout_up_to_iso.
 
 Section pushout_paths.
 
-  Context {C : precategory}.
-  Context {hs : has_homsets C}.
+  Context {C : category}.
 
   Lemma isPushout_mor_paths {a b c d : C} {f1 f2 : a --> b} {g1 g2 : a --> c} {in11 in21 : b --> d}
         {in12 in22 : c --> d} (e1 : f1 = f2) (e2 : g1 = g2) (e3 : in11 = in21) (e4 : in12 = in22)
@@ -510,7 +507,7 @@ Section pushout_paths.
         (iPo : isPushout f1 g1 in11 in12 H1) : isPushout f2 g2 in21 in22 H2.
   Proof.
     induction e1, e2, e3, e4.
-    assert (e5 : H1 = H2) by apply hs.
+    assert (e5 : H1 = H2) by apply C.
     induction e5.
     exact iPo.
   Qed.
@@ -560,8 +557,8 @@ Section EpiPushoutId.
 
 End EpiPushoutId.
 
-Lemma induced_precategory_reflects_pushouts {M : precategory} {X:Type} (j : X -> ob M)
-      {a b c d : induced_precategory M j}
+Lemma induced_precategory_reflects_pushouts {M : category} {X : Type} (j : X -> ob M)
+      {a b c d : induced_category M j}
       (f : b <-- a) (g : c <-- a) (p1 : d <-- b) (p2 : d <-- c)
       (H : p1 ∘ f = p2 ∘ g) :
   isPushout (# (induced_precategory_incl j) f)

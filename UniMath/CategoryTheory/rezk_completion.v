@@ -103,8 +103,8 @@ Variable C : category.
 Hypothesis Ccat : is_univalent C.
 
 Lemma pre_comp_rezk_eta_is_fully_faithful :
-    fully_faithful (pre_composition_functor A (Rezk_completion A) C
-                ( ((Rezk_completion A))) (C) ((Rezk_eta A ))).
+  fully_faithful
+    (@pre_composition_functor A (Rezk_completion A) C (Rezk_eta A)).
 Proof.
   apply pre_composition_with_ess_surj_and_fully_faithful_is_fully_faithful.
   apply Rezk_eta_essentially_surjective.
@@ -112,9 +112,7 @@ Proof.
 Defined.
 
 Lemma pre_comp_rezk_eta_is_ess_surj :
-   essentially_surjective (pre_composition_functor A (Rezk_completion A) C
-   (Rezk_completion A) C
-   (Rezk_eta A )).
+  essentially_surjective (@pre_composition_functor A (Rezk_completion A) C (Rezk_eta A)).
 Proof.
   apply pre_composition_essentially_surjective.
   - apply Ccat.
@@ -123,9 +121,7 @@ Proof.
 Defined.
 
 Definition Rezk_adj_equiv : adj_equivalence_of_precats
-  (@pre_comp_functor A (Rezk_completion A) C
-                     (*(Rezk_completion A) C*)
-       (Rezk_eta A)).
+  (@pre_comp_functor A (Rezk_completion A) C (Rezk_eta A)).
 Proof.
   apply (@rad_equivalence_of_precats
            (functor_category (Rezk_completion A) C)
@@ -140,8 +136,7 @@ Defined.
 Theorem Rezk_eta_Universal_Property :
   isweq (@pre_comp_functor A (Rezk_completion A)
                            C
-                           (* (Rezk_completion A) C *)
-                           (Rezk_eta A )).
+                           (Rezk_eta A)).
 Proof.
   apply adj_equiv_of_cats_is_weq_of_objects.
   - apply is_univalent_functor_category;
@@ -201,7 +196,7 @@ Hypothesis Ccat : is_univalent C.
 Lemma pre_comp_rezk_eta_opp_is_fully_faithful :
     fully_faithful
        (pre_composition_functor A^op (Rezk_completion A)^op C
-                hsRAop C (functor_opp (Rezk_eta A))).
+                (functor_opp (Rezk_eta A))).
 Proof.
   apply pre_composition_with_ess_surj_and_fully_faithful_is_fully_faithful.
   - apply opp_functor_essentially_surjective.
@@ -213,7 +208,7 @@ Defined.
 Lemma pre_comp_rezk_eta_opp_is_ess_surj :
    essentially_surjective
       (@pre_comp_functor (op_category A) (op_category (Rezk_completion A)) C
-           (*hsRAop*) (*C*) (functor_opp (Rezk_eta A))).
+                         (functor_opp (Rezk_eta A))).
 Proof.
   apply pre_composition_essentially_surjective.
   - apply Ccat.

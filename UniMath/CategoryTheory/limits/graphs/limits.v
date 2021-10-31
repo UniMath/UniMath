@@ -379,7 +379,7 @@ Section LimFunctor.
 
 Context {A C : category} {g : graph} (D : diagram g [A, C]).
 
-Variable (HCg : ∏ (a : A), LimCone (diagram_pointwise C D a)).
+Variable (HCg : ∏ (a : A), LimCone (diagram_pointwise D a)).
 
 Definition LimFunctor_ob (a : A) : C := lim (HCg a).
 
@@ -420,7 +420,7 @@ use tpair.
 Defined.
 
 Definition cone_pointwise (F : [A,C]) (cc : cone D F) a :
-  cone (diagram_pointwise _ D a) (pr1 F a).
+  cone (diagram_pointwise D a) (pr1 F a).
 Proof.
 use make_cone.
 - now intro v; apply (pr1 (coneOut cc v) a).
@@ -465,7 +465,7 @@ Defined.
 
 Definition isLimFunctor_is_pointwise_Lim
   (X : [A,C]) (R : cone D X) (H : isLimCone D X R)
-  : ∏ a, isLimCone (diagram_pointwise C D a) _ (cone_pointwise X R a).
+  : ∏ a, isLimCone (diagram_pointwise D a) _ (cone_pointwise X R a).
 Proof.
   intro a.
   apply (is_iso_isLim _ (HCg a)).
@@ -942,15 +942,15 @@ Lemma LimFunctorCone (A C : category)
   (D : diagram g [A, C]^op)
   (HC : ∏ a : A^op,
             LimCone _
-              (diagram_pointwise _ (get_diagram A C g D) a))
+              (diagram_pointwise (get_diagram A C g D) a))
   : LimCone _ D.
 Proof.
-set (HColim := ColimFunctorCocone (has_homsets_opp C) (get_diagram _ _ _ D) HC).
+set (HColim := ColimFunctorCocone (get_diagram _ _ _ D) HC).
 destruct HColim as [pr1x pr2x].
 destruct pr1x as [pr1pr1x pr2pr1x].
 destruct pr2pr1x as [pr1pr2pr1x pr2pr2pr1x].
 simpl in *.
-use (make_ColimCocone _ (from_opp_opp_to_opp _ _ _ pr1pr1x)).
+use (make_ColimCocone _ (from_op_op_to_op  _ _ pr1pr1x)).
 - use make_cocone.
   + simpl; intros.
     use tpair.

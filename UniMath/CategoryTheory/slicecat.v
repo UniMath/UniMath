@@ -393,7 +393,7 @@ Section slicecat_functor_def.
 
 Context {C : category} {x y : C} (f : C⟦x,y⟧).
 
-Local Notation "C / X" := (slice_precat C X).
+Local Notation "C / X" := (slice_cat C X).
 
 Definition slicecat_functor_ob (af : C / x) : C / y :=
   (pr1 af,,pr2 af · f).
@@ -506,7 +506,7 @@ Section slicecat_colimits.
 
 Context (g : graph) (C : category) (x : C).
 
-Local Notation "C / X" := (slice_precat C X).
+Local Notation "C / X" := (slice_cat C X).
 
 Let U : functor (C / x) C := slicecat_to_cat C x.
 
@@ -571,13 +571,13 @@ End slicecat_colimits.
 
 Lemma slice_precat_colims_of_shape (C : category)
   {g : graph} (x : C) (CC : Colims_of_shape g C) :
-  Colims_of_shape g (slice_precat C x).
+  Colims_of_shape g (slice_cat C x).
 Proof.
 intros y; apply slice_precat_ColimCocone, CC.
 Defined.
 
 Lemma slice_precat_colims (C : category) (x : C) (CC : Colims C) :
-  Colims (slice_precat C x).
+  Colims (slice_cat C x).
 Proof.
 intros g d; apply slice_precat_ColimCocone, CC.
 Defined.
@@ -587,7 +587,7 @@ Section slicecat_binproducts.
 
 Context (C : category).
 
-Local Notation "C / X" := (slice_precat C X).
+Local Notation "C / X" := (slice_cat C X).
 
 Definition pullback_to_slice_binprod {A B Z : C} {f : A --> Z} {g : B --> Z} :
   Pullback f g -> BinProduct (C / Z) (A ,, f) (B ,, g).
@@ -638,7 +638,7 @@ Section slicecat_bincoproducts.
 
 Context (C : category) (BC : BinCoproducts C).
 
-Local Notation "C / X" := (slice_precat C X).
+Local Notation "C / X" := (slice_cat C X).
 
 Lemma BinCoproducts_slice_precat (x : C) : BinCoproducts (C / x).
 Proof.
@@ -671,7 +671,7 @@ Section slicecat_coproducts.
 
 Context (C : category) (I : UU) (BC : Coproducts I C).
 
-Local Notation "C / X" := (slice_precat C X).
+Local Notation "C / X" := (slice_cat C X).
 
 Lemma Coproducts_slice_precat (x : C) : Coproducts I (C / x).
 Proof.
@@ -701,7 +701,7 @@ Section slicecat_initial.
 
 Context (C : category) (IC : Initial C).
 
-Local Notation "C / X" := (slice_precat C X).
+Local Notation "C / X" := (slice_cat C X).
 
 Lemma Initial_slice_precat (x : C) : Initial (C / x).
 Proof.
@@ -723,7 +723,7 @@ Section slicecat_terminal.
 
 Context (C : category).
 
-Local Notation "C / X" := (slice_precat C X).
+Local Notation "C / X" := (slice_cat C X).
 
 Lemma Terminal_slice_precat (x : C) : Terminal (C / x).
 Proof.
@@ -746,7 +746,7 @@ Section base_change.
 
 Context (C : category) (PC : Pullbacks C).
 
-Local Notation "C / X" := (slice_precat C X).
+Local Notation "C / X" := (slice_cat C X).
 
 Definition base_change_functor_data {c c' : C} (g : C⟦c,c'⟧) : functor_data (C / c') (C / c).
 Proof.

@@ -1050,7 +1050,10 @@ Defined.
   compute; apply idpath.
 
 Now the proof that something has homsets gets in the middle of it all, and prevents this proof from working.
-*)
+ *)
+
+
+(*
 Lemma induced_opposite_PreAdditive {M:PreAdditive} {X:Type} (j : X -> ob M) :
   oppositePreAdditive (induced_PreAdditive M j) =
   induced_PreAdditive (oppositePreAdditive M) (λ a, opp_ob (j a)).

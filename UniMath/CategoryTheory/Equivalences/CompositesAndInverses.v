@@ -27,7 +27,7 @@ Local Open Scope cat_deprecated.
 
 (** ** Preliminaries *)
 
-Lemma is_iso_comp_is_iso {C : precategory} {a b c : ob C}
+Lemma is_iso_comp_is_iso {C : category} {a b c : ob C}
   (f : C⟦a, b⟧) (g : C⟦b, c⟧)
   : is_iso f -> is_iso g -> is_iso (f ;; g).
 Proof.
@@ -35,20 +35,20 @@ Proof.
   apply (is_iso_comp_of_isos (make_iso f Hf) (make_iso g Hg)).
 Defined.
 
-Lemma functor_is_iso_is_iso {C C' : precategory} (F : functor C C')
+Lemma functor_is_iso_is_iso {C C' : category} (F : functor C C')
     {a b : ob C} (f : C ⟦a,b⟧) (fH : is_iso f) : is_iso (#F f).
 Proof.
   apply (functor_on_iso_is_iso _ _ F _ _ (make_iso f fH)).
 Defined.
 
-Coercion left_adj_from_adj_equiv (X Y : precategory) (K : functor X Y)
+Coercion left_adj_from_adj_equiv (X Y : category) (K : functor X Y)
          (HK : adj_equivalence_of_precats K) : is_left_adjoint K := pr1 HK.
 
 (** ** Equivalences *)
 
 Section A.
 
-Variables D1 D2 : precategory.
+Variables D1 D2 : category.
 Variable F : functor D1 D2.
 Variable GG : adj_equivalence_of_precats F.
 
@@ -116,10 +116,7 @@ End A.
 
 Section eqv_comp.
 
-  Context {A B C : precategory}
-          {hsA : has_homsets A}
-          {hsB : has_homsets B}
-          {hsC : has_homsets C}
+  Context {A B C : category}
           {F : functor A B}
           {F' : functor B C}.
 
@@ -154,16 +151,16 @@ End eqv_comp.
 
 Section eqv_inv.
 
-  Local Definition nat_iso_to_pointwise_iso {A B : precategory} {F G : functor A B}
+  Local Definition nat_iso_to_pointwise_iso {A B : category} {F G : functor A B}
     (n : nat_iso F G) (x : ob A) : iso (F x) (G x) := make_iso _ (pr2 n x).
 
-  Local Lemma nat_iso_inv_after_nat_iso {A B : precategory} {F G : functor A B}
+  Local Lemma nat_iso_inv_after_nat_iso {A B : category} {F G : functor A B}
     (n : nat_iso F G) : ∏ x, (nat_iso_to_pointwise_iso n) x · (nat_iso_inv n) x = identity _.
   Proof.
     intro; apply iso_inv_after_iso.
   Qed.
 
-  Context {A B : precategory} {F : functor A B}
+  Context {A B : category} {F : functor A B}
           (adEquivF : adj_equivalence_of_precats F).
 
   Local Notation η := (unit_from_left_adjoint adEquivF).

@@ -29,7 +29,7 @@ Section pullbacks_slice_products_equiv.
   Definition some_pullback (C : category) (Z : C) : UU :=
     ∑ A B (f : A --> Z) (g : B --> Z) , Pullback f g.
 
-  Definition some_binprod (C : precategory) : UU :=
+  Definition some_binprod (C : category) : UU :=
     ∑ A B , BinProduct C A B.
 
   Context (C : category).

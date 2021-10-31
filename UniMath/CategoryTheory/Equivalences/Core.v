@@ -33,11 +33,11 @@ Local Open Scope cat.
 
 (** * Sloppy equivalence of (pre)categories *)
 
-Definition forms_equivalence {A B : precategory} (X : adjunction_data A B)
+Definition forms_equivalence {A B : category} (X : adjunction_data A B)
   (η := adjunit X) (ε := adjcounit X) : UU
   := (∏ a, is_iso (η a)) × (∏ b, is_iso (ε b)).
 
-Definition equivalence_of_precats (A B : precategory) : UU
+Definition equivalence_of_precats (A B : category) : UU
   := ∑ (X : adjunction_data A B), forms_equivalence X.
 
 Coercion adjunction_data_from_equivalence_of_precats {A B}
@@ -45,14 +45,14 @@ Coercion adjunction_data_from_equivalence_of_precats {A B}
 
 (** * Equivalence of (pre)categories *)
 
-Definition adj_equivalence_of_precats {A B : precategory} (F : functor A B) : UU :=
+Definition adj_equivalence_of_precats {A B : category} (F : functor A B) : UU :=
    ∑ (H : is_left_adjoint F), forms_equivalence H.
 
-Definition adj_from_equiv (D1 D2 : precategory) (F : functor D1 D2):
+Definition adj_from_equiv (D1 D2 : category) (F : functor D1 D2):
     adj_equivalence_of_precats F → is_left_adjoint F := λ x, pr1 x.
 Coercion adj_from_equiv : adj_equivalence_of_precats >-> is_left_adjoint.
 
-Definition make_adj_equivalence_of_precats {A B : precategory} (F : functor A B)
+Definition make_adj_equivalence_of_precats {A B : category} (F : functor A B)
            (G : functor B A) η ε
            (H1 : form_adjunction F G η ε)
            (H2 : forms_equivalence ((F,,G,,η,,ε)))
@@ -63,14 +63,14 @@ Proof.
   - apply H2.
 Defined.
 
-Definition adj_equivalence_inv {A B : precategory}
+Definition adj_equivalence_inv {A B : category}
   {F : functor A B} (HF : adj_equivalence_of_precats F) : functor B A :=
     right_adjoint (pr1 HF).
 
 Local Notation "HF ^^-1" := (adj_equivalence_inv  HF)(at level 3).
 
 Section Accessors.
-  Context {A B : precategory} {F : functor A B} (HF : adj_equivalence_of_precats F).
+  Context {A B : category} {F : functor A B} (HF : adj_equivalence_of_precats F).
 
   Definition unit_pointwise_iso_from_adj_equivalence :
       ∏ a, iso a (HF^^-1 (F a)).
@@ -209,22 +209,22 @@ Proof.
   apply (pr2 (pr2 E)).
 Defined.
 
-Let FF : functor [D,D,homset_property _ ] [C, D, homset_property _ ]
-  := (pre_composition_functor _ _ _ (homset_property _ ) (homset_property _ ) F).
+Let FF : functor [D,D] [C, D]
+  := (pre_composition_functor _ _ _  F).
 
-Let GG : functor [C,D,homset_property _ ] [D, D, homset_property _ ]
-  := (pre_composition_functor _ _ _ (homset_property _ ) (homset_property _ ) G).
+Let GG : functor [C, D] [D, D]
+  := (pre_composition_functor _ _ _ G).
 
 
-Definition ε'ntiso : iso (C:= [D,D,homset_property _ ]) (G ∙ F) (functor_identity _ ).
+Definition ε'ntiso : iso (C:= [D,D]) (G ∙ F) (functor_identity _ ).
 Proof.
   eapply iso_comp.
     set (XR := functor_on_iso GG (functor_on_iso FF εntiso)).
     set (XR':= iso_inv_from_iso XR). apply XR'.
   eapply iso_comp.
      2: apply εntiso.
-  set (XR := functor_on_iso (pre_composition_functor _ _ _ (homset_property _) (homset_property _ ) G) (iso_inv_from_iso ηntiso)).
-  set (XR':= functor_on_iso (post_composition_functor _ _ _ (homset_property _ )(homset_property _ ) F) XR).
+  set (XR := functor_on_iso (pre_composition_functor _ _ _ G) (iso_inv_from_iso ηntiso)).
+  set (XR':= functor_on_iso (post_composition_functor _ _ _  F) XR).
   apply XR'.
 Defined.
 
@@ -286,7 +286,7 @@ End adjointification.
 
 (** * Identity functor is an adjoint equivalence *)
 
-Lemma identity_functor_is_adj_equivalence {A : precategory} :
+Lemma identity_functor_is_adj_equivalence {A : category} :
   adj_equivalence_of_precats (functor_identity A).
 Proof.
   use tpair.

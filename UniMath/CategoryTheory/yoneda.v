@@ -392,8 +392,9 @@ Defined.
 End fix_object.
 
 
-Let A := functor_composite F (yoneda D).
-Let B := pre_composition_functor _ _ HSET (has_homsets_opp D) (has_homsets_HSET)  (functor_opp F).
+Let A : C ⟶ [D^op, HSET] := functor_composite F (yoneda D).
+Let B : [D^op, HSET] ⟶ [C^op, HSET]
+    := pre_composition_functor _ _ HSET (functor_opp F : [C^op, D^op]).
 
 Definition yoneda_functor_precomp_nat_trans :
     @nat_trans

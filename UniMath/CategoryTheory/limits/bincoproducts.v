@@ -45,7 +45,7 @@ Local Open Scope cat.
 (** * Definition of binary coproduct of objects in a precategory *)
 Section coproduct_def.
 
-Variable C : precategory.
+Variable C : category.
 
 Definition isBinCoproduct (a b co : C) (ia : a --> co) (ib : b --> co) :=
   ∏ (c : C) (f : a --> c) (g : b --> c),
@@ -321,7 +321,7 @@ End coproduct_unique.
 
 Section BinCoproducts.
 
-Variable C : precategory.
+Variable C : category.
 Variable CC : BinCoproducts C.
 Variables a b c d x y : C.
 
@@ -598,7 +598,7 @@ End BinCoproducts.
 (** * Binary coproducts from colimits *)
 Section BinCoproducts_from_Colims.
 
-Variables (C : precategory) (hsC : has_homsets C).
+Variables (C : category).
 
 Definition two_graph : graph := (bool,,λ _ _,empty).
 
@@ -624,13 +624,13 @@ use make_BinCoproduct.
 + apply (colim CC).
 + apply (colimIn CC true).
 + apply (colimIn CC false).
-+ apply (make_isBinCoproduct _ hsC); simpl; intros c f g.
++ apply (make_isBinCoproduct _ C); simpl; intros c f g.
   use unique_exists; simpl.
   - apply colimArrow, (BinCoprod f g).
   - abstract (split;
       [ apply (colimArrowCommutes CC c (BinCoprod f g) true)
       | apply (colimArrowCommutes CC c (BinCoprod f g) false) ]).
-  - abstract (intros h; apply isapropdirprod; apply hsC).
+  - abstract (intros h; apply isapropdirprod; apply C).
   - abstract (now intros h [H1 H2]; apply colimArrowUnique; intro x; induction x).
 Defined.
 
@@ -660,8 +660,8 @@ End CoproductsBool.
 
 Section functors.
 
-Definition bincoproduct_functor_data {C : precategory} (PC : BinCoproducts C) :
-  functor_data (precategory_binproduct C C) C.
+Definition bincoproduct_functor_data {C : category} (PC : BinCoproducts C) :
+  functor_data (category_binproduct C C) C.
 Proof.
 use tpair.
 - intros p.
@@ -673,7 +673,7 @@ Defined.
 
 (* The binary coproduct functor: C * C -> C *)
 
-Lemma is_functor_bincoproduct_functor_data {C : precategory} (PC : BinCoproducts C)
+Lemma is_functor_bincoproduct_functor_data {C : category} (PC : BinCoproducts C)
   : is_functor (bincoproduct_functor_data PC).
 Proof.
   split.
@@ -684,8 +684,8 @@ Proof.
   -  now intros x y z f g; simpl; rewrite BinCoproductOfArrows_comp.
 Qed.
 
-Definition bincoproduct_functor {C : precategory} (PC : BinCoproducts C)
-  : functor (precategory_binproduct C C) C
+Definition bincoproduct_functor {C : category} (PC : BinCoproducts C)
+  : functor (category_binproduct C C) C
   := make_functor _ (is_functor_bincoproduct_functor_data PC).
 
 (* Defines the copropuct of two functors *)
@@ -1014,8 +1014,7 @@ End generalized_option_functors.
 (** ** Construction of isBinCoproduct from an isomorphism to BinCoproduct. *)
 Section BinCoproduct_from_iso.
 
-  Variable C : precategory.
-  Hypothesis hs : has_homsets C.
+  Variable C : category.
 
   Local Lemma iso_to_isBinCoproduct_comm {x y z : C} (BP : BinCoproduct x y)
         (i : iso z (BinCoproductObject BP)) (w : C) (f : x --> w) (g : y --> w) :
@@ -1057,7 +1056,7 @@ Section BinCoproduct_from_iso.
     (* Commutativity *)
     - exact (iso_to_isBinCoproduct_comm BP i w f g).
     (* Equality on equalities of morphisms. *)
-    - intros y0. apply isapropdirprod. apply hs. apply hs.
+    - intros y0. apply isapropdirprod. apply C. apply C.
     (* Uniqueness *)
     - intros y0 T. exact (iso_to_isBinCoproduct_unique BP i w f g y0 T).
   Defined.
@@ -1079,7 +1078,7 @@ End BinCoproduct_from_iso.
  *)
 
 Section EquivalentDefinition.
-  Context {C : precategory} {a b co : ob C} (i1 : a --> co) (i2 : b --> co) .
+  Context {C : category} {a b co : ob C} (i1 : a --> co) (i2 : b --> co) .
 
   Definition precomp_with_injections (c : ob C) (f : co --> c) : (a --> c) × (b --> c) :=
     make_dirprod (i1 · f)  (i2 · f).

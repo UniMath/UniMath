@@ -18,7 +18,7 @@ Require Import UniMath.CategoryTheory.Adjunctions.Core.
 
 Section Def.
 
-  Context {C : precategory}.
+  Context {C : category}.
 
   Definition is_reflective (D : hsubtype C) :=
     is_right_adjoint (sub_precategory_inclusion C (full_sub_precategory D)).
