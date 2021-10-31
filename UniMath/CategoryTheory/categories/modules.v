@@ -200,11 +200,15 @@ Proof.
    - apply weqproperty.
 Defined.
 
-Definition is_univalent_mod : is_univalent mod_precategory :=
-  make_is_univalent mod_precategory_idtoisweq_iso has_homsets_mod.
+
+Definition is_univalent_mod : is_univalent mod_category.
+Proof.
+  intros ? ? .
+  apply mod_precategory_idtoisweq_iso.
+Defined.
 
 Definition univalent_category_mod_precategory : univalent_category
-  := make_univalent_category mod_precategory is_univalent_mod.
+  := make_univalent_category mod_category is_univalent_mod.
 
 (** * Abelian structure *)
 

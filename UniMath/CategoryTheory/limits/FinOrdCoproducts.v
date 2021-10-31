@@ -18,7 +18,7 @@ Local Open Scope cat.
 (** Definition of finite ordered coproducts. *)
 Section def_FinOrdCoproducts.
 
-  Variable C : precategory.
+  Variable C : category.
 
   Definition FinOrdCoproducts : UU :=
     ∏ (n : nat) (a : stn n -> C), Coproduct (stn n) C a.
@@ -31,8 +31,7 @@ End def_FinOrdCoproducts.
 (** Construction of FinOrdCoproducts from Initial and BinCoproducts. *)
 Section FinOrdCoproduct_criteria.
 
-  Variable C : precategory.
-  Hypothesis hs : has_homsets C.
+  Variable C : category.
 
   (** Case n = 0 of the theorem. *)
   Lemma InitialToCoproduct (I : Initial C):
@@ -41,12 +40,12 @@ Section FinOrdCoproduct_criteria.
     intros a.
     use (make_Coproduct _ _ _ I
                             (λ i : stn 0, fromempty (weqstn0toempty i))).
-    use (make_isCoproduct _ _ hs).
+    use (make_isCoproduct _ _ C).
     intros c g. use unique_exists.
 
     apply (InitialArrow I c).
     intros i. apply (fromempty (weqstn0toempty i)).
-    intros y. apply impred_isaprop. intros t. apply hs.
+    intros y. apply impred_isaprop. intros t. apply C.
     intros y X. apply InitialArrowUnique.
   Defined.
 
@@ -60,7 +59,7 @@ Section FinOrdCoproduct_criteria.
     intros i. exact (idtoiso (! (maponpaths a (isconnectedstn1 stn1ob i)))).
 
     (* isCoproductcocone *)
-    use (make_isCoproduct _ _ hs).
+    use (make_isCoproduct _ _ C).
     intros c g.
     use (unique_exists (g stn1ob)).
 
@@ -68,7 +67,7 @@ Section FinOrdCoproduct_criteria.
     intros i. rewrite <- (isconnectedstn1 stn1ob i). apply id_left.
 
     (* Equality of equalities of morphisms. *)
-    intros y. apply impred_isaprop. intros t. apply hs.
+    intros y. apply impred_isaprop. intros t. apply C.
 
     (* Uniqueness. *)
     intros y X. rewrite <- (X stn1ob). apply pathsinv0. apply id_left.
@@ -108,7 +107,7 @@ Section FinOrdCoproduct_criteria.
                    ·  m2 (invweq(weqstn1tounit) tt)).
 
     (* Construction of isCoproduct. *)
-    use (make_isCoproduct _ _ hs).
+    use (make_isCoproduct _ _ C).
 
     intros c g.
     set (g1 := λ i : stn n, g(dni_lastelement i)).
@@ -149,7 +148,7 @@ Section FinOrdCoproduct_criteria.
 
 
     (* Equality on equalities of morphisms. *)
-    intros y. apply impred_isaprop. intros t. apply hs.
+    intros y. apply impred_isaprop. intros t. apply C.
 
     (* Uniqueness *)
     unfold coprod_rect. intros k X.

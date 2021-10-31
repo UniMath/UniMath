@@ -16,7 +16,7 @@ Local Open Scope cat.
 
 Section Coalgebra_Definition.
 
-Context {C : precategory} (F : functor C C).
+Context {C : category} (F : functor C C).
 
 Definition coalgebra : UU := ∑ X : C, X --> F X.
 
@@ -45,14 +45,14 @@ Definition is_coalgebra_homo {X Y : coalgebra} (f : C ⟦X, Y⟧) : UU
 
 Definition coalgebra_homo (X Y : coalgebra) := ∑ f : C ⟦X, Y⟧, is_coalgebra_homo f.
 
-Definition isaset_coalgebra_homo {X Y : coalgebra} (hasHom : has_homsets C)
+Definition isaset_coalgebra_homo {X Y : coalgebra}
            : isaset (coalgebra_homo X Y).
 Proof.
   apply (isofhleveltotal2 2).
-  - apply hasHom.
+  - apply C.
   - intro f.
     apply isasetaprop.
-    apply hasHom.
+    apply C.
 Defined.
 
 Definition mor_from_coalgebra_homo (X Y : coalgebra) (f : coalgebra_homo X Y)
@@ -105,49 +105,49 @@ Definition CoAlg_precategory_data: precategory_data :=
                         coalgebra_homo_id
                         coalgebra_homo_comp.
 
-Lemma CoAlg_is_precategory (hasHom : has_homsets C)
+Lemma CoAlg_is_precategory
   : is_precategory CoAlg_precategory_data.
 Proof.
   split.
   - split.
     + intros. apply coalgebra_homo_eq.
-      * apply hasHom.
+      * apply C.
       * apply id_left.
     + intros. apply coalgebra_homo_eq.
-      * apply hasHom.
+      * apply C.
       * apply id_right.
   - { split.
       - intros.
         apply coalgebra_homo_eq.
-        + apply hasHom.
+        + apply C.
         + apply assoc.
       - intros.
         apply coalgebra_homo_eq.
-        + apply hasHom.
+        + apply C.
         + apply assoc'. }
 Defined.
 
-Definition CoAlg_precategory (hasHom : has_homsets C) : precategory
-  := make_precategory CoAlg_precategory_data
-                   (CoAlg_is_precategory hasHom).
+Definition CoAlg_precategory : precategory
+  := make_precategory CoAlg_precategory_data CoAlg_is_precategory.
 
-Lemma has_homsets_coalgebra (hasHom : has_homsets C)
-  : has_homsets (CoAlg_precategory hasHom).
+Lemma has_homsets_coalgebra : has_homsets CoAlg_precategory.
 Proof.
   intros f g.
   apply isaset_coalgebra_homo.
-  exact hasHom.
 Defined.
+
+Definition CoAlg_category : category := make_category _ has_homsets_coalgebra.
 
 End Coalgebra_Definition.
 
 Section Lambek_dual.
 (** Dual of Lambeks Lemma : If (A,α) is terminal F-coalgebra, then α is an iso *)
 
-Context (C : precategory) (hasHomC : has_homsets C)
-        (F : functor C C) (X : coalgebra F).
+Context (C : category)
+        (F : functor C C)
+        (X : coalgebra F).
 
-Local Notation F_CoAlg := (CoAlg_precategory F hasHomC).
+Local Notation F_CoAlg := (CoAlg_category F).
 
 Context (isTerminalX : isTerminal F_CoAlg X).
 
