@@ -49,7 +49,7 @@ Local Open Scope cat.
 
 Section set_slicecat.
 
-Local Notation "HSET / X" := (slice_cat SET X) (only parsing).
+Local Notation "HSET / X" := (slice_cat HSET X) (only parsing).
 
 (** *** Terminal object ([Terminal_HSET_slice]) *)
 
@@ -156,12 +156,12 @@ Proof.
       - abstract (now apply funextsec).
       }
   + split.
-    - intros x; apply (eq_mor_slicecat SET); simpl.
+    - intros x; apply (eq_mor_slicecat HSET); simpl.
       apply funextsec; intros [y hy].
       use total2_paths_f; [ apply idpath |].
       apply funextsec; intros w; apply subtypePath; [|apply idpath].
       now intros XX; apply setproperty.
-    - intros x y z g h; apply (eq_mor_slicecat SET); simpl.
+    - intros x y z g h; apply (eq_mor_slicecat HSET); simpl.
       apply funextsec; intros [w hw].
       use total2_paths_f; [ apply idpath |].
       apply funextsec; intros w'.
@@ -182,7 +182,7 @@ Proof.
       abstract (now apply (pr2 fgy)).
     * abstract (now apply funextsec).
   + intros [g Hg] [h Hh] [w Hw].
-    apply (eq_mor_slicecat SET), funextsec; intro x1.
+    apply (eq_mor_slicecat HSET), funextsec; intro x1.
     apply (two_arg_paths_f (!toforallpaths _ _ _ Hw x1)), funextsec; intro y.
     repeat (apply subtypePath; [intros x; apply setproperty|]); cbn in *.
     now induction (! toforallpaths _ _ (λ x : g, Hh (w x)) _ _).
@@ -199,7 +199,7 @@ Proof.
     * abstract (cbn; apply funextsec; intros [[x1 [x2 x3]] x4]; simpl in *;
                 now rewrite (pr2 (x3 (x1,,x4))), x4).
   + intros g h w; simpl.
-    apply (eq_mor_slicecat SET), funextsec; intro x1; cbn.
+    apply (eq_mor_slicecat HSET), funextsec; intro x1; cbn.
     now repeat apply maponpaths; apply setproperty.
 Defined.
 
@@ -236,7 +236,7 @@ Defined.
 (** ** The forgetful functor [HSET/X --> HSET] is a left adjoint *)
 
 Lemma is_left_adjoint_slicecat_to_cat_HSET (X : HSET) :
-  is_left_adjoint (slicecat_to_cat SET X).
+  is_left_adjoint (slicecat_to_cat HSET X).
 Proof.
 apply is_left_adjoint_slicecat_to_cat, BinProductsHSET.
 Defined.
