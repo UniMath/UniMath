@@ -313,4 +313,13 @@ Definition op_unicat (C : univalent_category)
   : univalent_category
   := (op_category C ,, op_is_univalent C).
 
- Notation "C '^op'" := (op_category C) (at level 3, format "C ^op") : cat.
+Notation "C '^op'" := (op_category C) (at level 3, format "C ^op") : cat.
+
+
+Definition op_ob {C : category} (c : ob C) : ob C^op := c.
+
+Definition rm_op_ob {C : category} (cop : ob C^op) : ob C := cop.
+
+Definition op_mor {C : category} {b c : C} (f : C⟦b, c⟧) : C^op⟦c, b⟧ := f.
+
+Definition rm_op_mor {C : category} {b c : C} (f : C^op⟦c, b⟧) : C⟦b, c⟧ := f.
