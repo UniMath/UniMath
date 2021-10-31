@@ -109,7 +109,7 @@ use tpair.
     * intros X fx; apply (pr1 fx (pr2 fx)).
     * abstract (intros x y f; apply idpath).
 - abstract (use tpair;
-  [ intro x; simpl; apply funextfun; intro ax; reflexivity
+  [ intro x; simpl; apply funextfun; intro ax; apply idpath
   | intro b; apply funextfun; intro f; apply idpath]).
 Defined.
 
@@ -126,7 +126,7 @@ use tpair.
     * intros x xf; simpl in *; apply (pr2 xf (pr1 xf)).
     * abstract (intros x y f; apply idpath).
 - abstract (use tpair;
-  [ now intro x; simpl; apply funextfun; intro ax; reflexivity
+  [ now intro x; simpl; apply funextfun; intro ax; apply idpath
   | now intro b; apply funextfun; intro f]).
 Defined.
 
@@ -143,10 +143,10 @@ http://mathoverflow.net/questions/104152/exponentials-in-functor-categories
 *)
 Section exponentials_functor_cat.
 
-Variable (C : precategory) (hsC : has_homsets C).
+Context (C : category).
 
-Let CP := BinProducts_functor_precat C _ BinProductsHSET has_homsets_HSET.
-Let cy := covyoneda _ hsC.
+Let CP := BinProducts_functor_precat C _ BinProductsHSET.
+Let cy := covyoneda C.
 
 (* Defined Q^P *)
 Local Definition exponential_functor_cat (P Q : functor C HSET) : functor C HSET.
@@ -259,7 +259,7 @@ End exponentials_functor_cat.
 (** ** Kernel pairs ([kernel_pair_HSET]) *)
 
 (* proof by Peter, copied from TypeTheory.Auxiliary.Auxiliary *)
-Lemma pullback_HSET_univprop_elements {P A B C : SET}
+Lemma pullback_HSET_univprop_elements {P A B C : HSET}
     {p1 : HSET ⟦ P, A ⟧} {p2 : HSET ⟦ P, B ⟧}
     {f : HSET ⟦ A, C ⟧} {g : HSET ⟦ B, C ⟧}
     (ep : p1 · f = p2 · g)
@@ -291,7 +291,7 @@ Defined.
 
 Section kernel_pair_Set.
 
-  Context  {A B:HSET}.
+  Context  {A B: HSET}.
   Variable (f: HSET ⟦A,B⟧).
 
 
@@ -304,13 +304,13 @@ Section kernel_pair_Set.
 
   (** Formulation in the categorical language of the universal property
       enjoyed by surjections (univ_surj) *)
-  Lemma isCoeqKernelPairSet (hf:issurjective f) :
+  Lemma isCoeqKernelPairSet (hf: issurjective f) :
     isCoequalizer _ _ _ (PullbackSqrCommutes g).
   Proof.
     intros.
     red.
     intros C u equ.
-    assert (hcompat :   ∏ x y : pr1 A, f x = f y → u x = u y).
+    assert (hcompat : ∏ x y : pr1 A, f x = f y → u x = u y).
     {
       intros x y eqfxy.
       assert (hpb:=pullback_HSET_univprop_elements
@@ -342,6 +342,7 @@ Section kernel_pair_Set.
       apply toforallpaths in X.
       exact X.
   Qed.
+
 End kernel_pair_Set.
 
 (** ** Effective epis ([EffectiveEpis_HSET]) *)
@@ -371,15 +372,15 @@ Qed.
 
 (** ** Forgetful [functor] to [type_precat] *)
 
-Definition forgetful_HSET : functor SET type_precat.
+Definition forgetful_HSET : functor HSET type_precat.
 Proof.
   use make_functor.
   - use make_functor_data.
     + exact pr1.
     + exact (λ _ _, idfun _).
   - split.
-    + intro; reflexivity.
-    + intros ? ? ? ? ?; reflexivity.
+    + intro; apply idpath.
+    + intros ? ? ? ? ?; apply idpath.
 Defined.
 
 (** This functor is conservative; it reflects isomorphisms. *)
@@ -408,7 +409,7 @@ Defined.
 
 (** ** Subobject classifier *)
 
-Lemma isaprop_hfiber_monic {A B : hSet} (f : SET⟦A, B⟧) (isM : isMonic f) :
+Lemma isaprop_hfiber_monic {A B : hSet} (f : HSET⟦A, B⟧) (isM : isMonic f) :
   isPredicate (hfiber f).
 Proof.
   intro; apply incl_injectivity, MonosAreInjective_HSET; assumption.
@@ -437,8 +438,8 @@ Qed.
     >>
     Uniqueness proven below.
   *)
-Definition subobject_classifier_HSET_pullback {X Y : SET}
-  (m : Monic SET X Y) :
+Definition subobject_classifier_HSET_pullback {X Y : HSET}
+  (m : Monic HSET X Y) :
     ∑ (chi : HSET ⟦ Y, hProp_set ⟧)
     (H : m · chi = TerminalArrow TerminalSET X · const_htrue),
       isPullback H.
@@ -449,7 +450,7 @@ Proof.
     apply hProp_eq_unit; cbn.
     use make_hfiber.
     * assumption.
-    * reflexivity.
+    * apply idpath.
   + (** The aforementioned square is a pullback *)
     cbn beta.
     unfold isPullback; cbn.
@@ -511,14 +512,14 @@ Proof.
         -- apply toforallpaths in H; cbn.
            specialize (H p); cbn in H.
            abstract (rewrite H; exact tt).
-      * split; [reflexivity|].
+      * split; [apply idpath|].
         apply proofirrelevance, hlevelntosn, iscontrfuntounit.
     + intro t.
       apply subtypePath; [intro; apply isapropdirprod; apply setproperty|].
       apply funextfun; intro.
       apply subtypePath; [intro; apply propproperty|].
       refine (_ @ toforallpaths _ _ _ (pr1 (pr2 t)) x).
-      reflexivity.
+      apply idpath.
 Defined.
 
 Lemma hfiber_in_hfiber :
@@ -527,7 +528,7 @@ Proof.
   intros.
   use make_hfiber.
   - exact (hfiberpr1 _ _ z).
-  - reflexivity.
+  - apply idpath.
 Defined.
 
 Definition subobject_classifier_HSET : subobject_classifier TerminalSET.

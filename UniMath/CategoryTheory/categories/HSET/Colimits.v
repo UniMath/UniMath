@@ -192,7 +192,7 @@ Defined.
 (** ** Binary coproducs [BinCoproductsHSET] *)
 
 (* rules for coproducts in HSET *)
-Lemma BinCoproductIn1CommutesHSET (A B : SET) (CC : BinCoproduct A B)(C : HSET)
+Lemma BinCoproductIn1CommutesHSET (A B : HSET) (CC : BinCoproduct A B)(C : HSET)
       (f : A --> C)(g: B --> C) (a:pr1 A):
   BinCoproductArrow CC f g (BinCoproductIn1 CC a)  = f a.
 Proof.
@@ -227,7 +227,7 @@ Proof.
   - apply (setcoprod A B).
   - simpl in *; apply ii1.
   - simpl in *; intros x; apply (ii2 x).
-  - apply (make_isBinCoproduct _ has_homsets_HSET).
+  - apply (make_isBinCoproduct _ HSET).
     intros C f g; simpl in *.
     use tpair.
     * exists (sumofmaps f g); abstract (split; apply idpath).
@@ -248,7 +248,7 @@ Proof.
   - exists (∑ i, pr1 (A i)).
     apply (isaset_total2 _ HI); intro i; apply setproperty.
   - simpl; apply tpair.
-  - apply (make_isCoproduct _ _ has_homsets_HSET).
+  - apply (make_isCoproduct _ _ HSET).
     intros C f; simpl in *.
     use tpair.
     * exists (λ X, f (pr1 X) (pr2 X)); abstract (intro i; apply idpath).
