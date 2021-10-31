@@ -320,7 +320,7 @@ Section binproduct_functor.
 Context {C : category} (PC : BinProducts C).
 
 Definition binproduct_functor_data :
-  functor_data (precategory_binproduct C C) C.
+  functor_data (category_binproduct C C) C.
 Proof.
 use tpair.
 - intros p.
@@ -330,7 +330,7 @@ use tpair.
                            (PC (pr1 p) (pr2 p)) (pr1 f) (pr2 f)).
 Defined.
 
-Definition binproduct_functor : functor (precategory_binproduct C C) C.
+Definition binproduct_functor : functor (category_binproduct C C) C.
 Proof.
 apply (tpair _ binproduct_functor_data).
 abstract (split;
