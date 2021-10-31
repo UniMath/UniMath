@@ -53,17 +53,13 @@ Section monad_from_hss.
 
 (** ** Some variables and assumptions *)
 
-(** Assume having a precategory [C] whose hom-types are sets *)
-Variable C : precategory.
-Variable hs : has_homsets C.
+Context (C : category).
+Context (CP : BinCoproducts C).
 
-Variable CP : BinCoproducts C.
+Local Notation "'EndC'":= ([C, C]) .
+Let CPEndC : BinCoproducts EndC := BinCoproducts_functor_precat _ _ CP.
 
-Local Notation "'EndC'":= ([C, C, hs]) .
-Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
-Let CPEndC : BinCoproducts EndC := BinCoproducts_functor_precat _ _ CP hs.
-
-Variable H : Signature C hs C hs C hs.
+Variable H : Signature C C C.
 
 Let θ := theta H.
 
@@ -77,15 +73,10 @@ Let Id_H
                        H.
 
 
-(** The precategory of pointed endofunctors on [C] *)
-Local Notation "'Ptd'" := (precategory_Ptd C hs).
+(** The category of pointed endofunctors on [C] *)
+Local Notation "'Ptd'" := (category_Ptd C).
 (** The category of endofunctors on [C] *)
-Local Notation "'EndC'":= ([C, C, hs]) .
-(** The product of two precategories *)
-
-
-
-(** ** Definition of algebra structure [τ] of a pointed functor *)
+Local Notation "'EndC'":= ([C, C]) .
 
 
 (** ** Derivation of the monad laws from a heterogeneous substitution system for signature with strength [H] *)
@@ -103,14 +94,14 @@ Local Notation "f ⊕ g" := (BinCoproductOfArrows _ (CPEndC _ _ ) (CPEndC _ _ ) 
 Definition μ_0 : functor_identity C ⟹ functor_data_from_functor _ _ `T := η T. (*ptd_pt _ (pr1 (pr1 T)).*)
 
 (** [η T] as pointed morphism *)
-Definition μ_0_ptd : id_Ptd C hs --> p T.
+Definition μ_0_ptd : id_Ptd C --> p T.
 Proof.
   exists μ_0.
   intro c. simpl. apply id_left.
 Defined.
 
 (** the bracket of the "degenerate" argument [η T] *)
-Definition μ_1 : functor_composite (U (id_Ptd C hs)) (`T) ⟹ functor_data_from_functor _ _ `T
+Definition μ_1 : functor_composite (U (id_Ptd C)) (`T) ⟹ functor_data_from_functor _ _ `T
   := fbracket _ μ_0_ptd.
 
 (** using uniqueness of bracket for [η T] *)
@@ -119,11 +110,11 @@ Proof.
   apply pathsinv0.
   apply fbracket_unique.
   split.
-  - apply nat_trans_eq; try exact hs.
+  - apply nat_trans_eq_alt.
     intros; simpl.
     rewrite id_right.
     apply idpath.
-  - apply nat_trans_eq; try exact hs.
+  - apply nat_trans_eq_alt.
     intro c. simpl.
     rewrite id_right.
     assert (H':= θ_Strength1_int_implies_θ_Strength1 _ θ_strength1_int).
@@ -184,7 +175,7 @@ Proof.
   intro c.
   unfold μ_0.
   set (H' := prejoin_from_hetsubst_η T).
-  set (H2:= nat_trans_eq_weq hs _ _ H').
+  set (H2:= nat_trans_eq_weq (homset_property C) _ _ H').
   apply pathsinv0.
   apply H2.
 Qed.
@@ -198,7 +189,7 @@ Proof.
   intro c.
   intermediate_path (μ_1 c).
   - unfold μ_1.
-    assert (H' := @fbracket_unique_target_pointwise _ _ _ _ T).
+    assert (H' := @fbracket_unique_target_pointwise _ _ _ T).
     assert (H1 := H'  _ μ_0_ptd).
     set (x := post_whisker μ_0 (`T)
              : EndC ⟦ `T • functor_identity _  , `T • `T ⟧).
@@ -209,7 +200,7 @@ Proof.
     unfold x; clear x.
     clear H1. clear H'. clear c.
     split.
-    + apply nat_trans_eq; try apply hs.
+    + apply nat_trans_eq_alt.
       intro c.
       assert (H' := nat_trans_ax (η T)).
       simpl in H'.
@@ -217,13 +208,13 @@ Proof.
       cbn.
       rewrite <- H'; clear H'.
       assert (H' := prejoin_from_hetsubst_η T).
-      assert (H2 := nat_trans_eq_weq hs _ _ H').
+      assert (H2 := nat_trans_eq_weq (homset_property C) _ _ H').
       simpl in H2.
       rewrite <- assoc.
       rewrite <- H2.
       apply pathsinv0. apply id_right.
     + rewrite functor_comp.
-      apply (nat_trans_eq hs).
+      apply nat_trans_eq_alt.
       intro c.
       rewrite <- horcomp_id_postwhisker.
       do 2 rewrite assoc.
@@ -233,14 +224,14 @@ Proof.
       * unfold tau_from_alg; cbn.
         do 2 rewrite assoc.
         do 3 apply cancel_postcomposition.
-        assert (H' := θ_nat_2 _ _ _ _ _ _ H θ).
+        assert (H' := θ_nat_2 _ _ _ H θ).
         assert (H2 := H' (`T) _ _ μ_0_ptd); clear H'.
-        assert (H3 := nat_trans_eq_weq hs _ _ H2 c); clear H2.
+        assert (H3 := nat_trans_eq_weq (homset_property C) _ _ H2 c); clear H2.
         simpl in H3. unfold horcomp_data in H3; simpl in H3.
         rewrite id_left in H3.
         apply (!H3).
       * assert (H' := prejoin_from_hetsubst_τ T).
-        assert (H2 := nat_trans_eq_weq hs _ _ H' c); clear H'.
+        assert (H2 := nat_trans_eq_weq (homset_property C) _ _ H' c); clear H'.
         simpl in *.
         do 2 rewrite <- assoc.
         {
@@ -263,7 +254,7 @@ Qed.
 
 (** [T_squared] is [T∙T, η∙η], that is, the selfcomposition of [T] as a pointed functor *)
 
-Definition T_squared : Ptd := ptd_compose _ _ (p T) (p T).
+Definition T_squared : Ptd := ptd_compose _ (p T) (p T).
 
 (** [μ_2] is not just a natural transformation from [T∙T] to [T], but also compatible with
     the pointed structure given by [η] *)
@@ -307,7 +298,7 @@ Proof.
   apply pathsinv0.
   apply (fbracket_unique T μ_2_ptd).
   split.
-  - apply (nat_trans_eq hs).
+  - apply nat_trans_eq_alt.
     intro c.
     assert (H2 := nat_trans_ax (η T)); simpl in H2.
     rewrite assoc.
@@ -317,7 +308,7 @@ Proof.
     + etrans; [| apply assoc ].
       apply maponpaths. apply pathsinv0. apply Monad_law_1_from_hss.
   - rewrite functor_comp.
-    assert (H1 := θ_nat_2 _ _ _ _ _ _ H θ (`T) _ _ μ_2_ptd).
+    assert (H1 := θ_nat_2 _ _ _ H θ (`T) _ _ μ_2_ptd).
     simpl in H1.
     repeat rewrite assoc.
     match goal with |[H1 : ?g = _ |- _ · _ · ?f · ?h = _ ] =>
@@ -328,10 +319,10 @@ Proof.
       clear H1.
       do 2 apply maponpaths.
       assert (H3 := horcomp_id_postwhisker).
-      assert (H4 := H3 _ _ _ hs hs _ _ μ_2 (`T)); clear H3.
+      assert (H4 := H3 _ _ _ _ _ μ_2 (`T)); clear H3.
       apply H4.
     + clear H1.
-      apply (nat_trans_eq hs).
+      apply nat_trans_eq_alt.
       intro c; simpl. unfold horcomp_data; simpl.
       rewrite id_left.
       assert (H2 := prejoin_from_hetsubst_τ T).
@@ -353,25 +344,17 @@ Proof.
         apply assoc'.
 Qed.
 
-Local Notation "'T•T²'" := (functor_compose hs hs (functor_composite (`T) (`T)) (`T) : [C, C, hs]).
-(*
-Definition TtimesTthenT': [C, C] hs := functor_compose hs hs (functor_composite (`T) (`T)) (`T).
-*)
+Local Notation "'T•T²'" := (functor_compose _ _ _ (functor_composite (`T) (`T)) (`T) : [C, C]).
 
 
 Local Notation "'T²∙T'" := (@functor_composite C C C
                     (@functor_composite C C C (`T)
                                               (` T))
                     (` T) : functor C C).
-(*
-Definition TtimesTthenT: functor C C := @functor_composite C C C
-                    (@functor_composite C C C ((functor_ptd_forget C hs) T)
-                                              ((functor_ptd_forget C hs) T))
-                    ((functor_ptd_forget C hs) T).
- *)
+
 (** using uniqueness of bracket for the prejoin also here *)
 Lemma μ_3_μ_2_T_μ_2 :  (
-    @compose (functor_precategory C C hs)
+    @compose (functor_category C C)
                  (* TtimesTthenT *) T²∙T _ _
                  (* (@functor_composite C C C ((functor_ptd_forget C hs) T)
                     ((functor_ptd_forget C hs) T))
@@ -385,7 +368,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
 Proof.
   apply (fbracket_unique (*_pointwise*) T μ_2_ptd).
   split.
-  - apply (nat_trans_eq hs); intro c.
+  - apply nat_trans_eq_alt; intro c.
     simpl.
     intermediate_path (identity _ · μ_2 c).
     + apply pathsinv0, id_left.
@@ -400,14 +383,14 @@ Proof.
     etrans.
     { apply cancel_postcomposition. apply maponpaths. apply H3. }
     clear H3.
-    apply (nat_trans_eq hs).
+    apply nat_trans_eq_alt.
     intro c.
     simpl.
     match goal with | [ |- ?a · _ · _ = _ ] => set (Ac := a) end.
     simpl in Ac.
     simpl in *.
     unfold functor_compose in *.
-    assert (HX := θ_nat_1 _ _ _ _ _ _ H θ _ _ μ_2).  (* it may be tested with the primed version *)
+    assert (HX := θ_nat_1 _ _ _ H θ _ _ μ_2).  (* it may be tested with the primed version *)
     assert (HX1 := HX (ptd_from_alg T)); clear HX.
     simpl in HX1.
     assert (HXX := nat_trans_eq_pointwise HX1 c); clear HX1.
@@ -425,11 +408,11 @@ Proof.
       2: { apply maponpaths. apply (!HXX). }
       clear HXX.
       assert (Strength_2 :
-                ∏ α : functor_compose hs hs (functor_composite (`T) (`T))(`T) --> functor_composite (` T) (`T),
+                ∏ α : functor_compose _ _ _ (functor_composite (`T) (`T))(`T) --> functor_composite (` T) (`T),
                      pr1 (θ (`T ⊗ T_squared)) c · pr1 (# H α) c =
                      pr1 (θ ((`T) ⊗ (ptd_from_alg T))) ((pr1 (pr1 (pr1 T))) c)·
-                     pr1 (θ (( ((`T) • (`T) : [_, _, hs])) ⊗ (ptd_from_alg T))) c·
-                     pr1 (# H (α : functor_compose hs hs (`T) (functor_composite (`T) (` T))--> _)) c ).
+                     pr1 (θ (( ((`T) • (`T) : [_, _])) ⊗ (ptd_from_alg T))) c·
+                     pr1 (# H (α : functor_compose _ _ _ (`T) (functor_composite (`T) (` T))--> _)) c ).
       { intro α;
           assert (HA := θ_Strength2_int_implies_θ_Strength2 _ θ_strength2_int);
           assert (HA' := HA (`T) (ptd_from_alg T) (ptd_from_alg T) _ α); clear HA;
@@ -442,7 +425,7 @@ Proof.
       do 2 apply maponpaths.
       match goal with |[ |- _ = ?pr1 (# ?G ?g) _ ] =>
               assert (X : F = g) end.
-      { apply (nat_trans_eq hs).
+      { apply nat_trans_eq; try apply homset_property.
         intros. unfold F.
         simpl. unfold horcomp_data; simpl.
         rewrite functor_id.
@@ -479,14 +462,14 @@ Section third_monad_law_with_assoc.
 Lemma third_monad_law_from_hss :
   (`T ∘ μ_2 : EndC ⟦ functor_composite (functor_composite `T `T) `T , `T • `T ⟧) · μ_2
   =
-  (α_functors _ _ _ : functor_compose hs hs _ _  --> _) · (μ_2 •• `T) · μ_2.
+  (α_functors _ _ _ : functor_compose _ _ _ _ _  --> _) · (μ_2 •• `T) · μ_2.
 Proof.
   intermediate_path μ_3; [apply pathsinv0, μ_3_T_μ_2_μ_2 | ].
   apply pathsinv0.
   (** we only aim at a proof alternative to [μ_3_μ_2_T_μ_2] *)
   apply (fbracket_unique (*_pointwise*) T  μ_2_ptd).
   split.
-  - apply (nat_trans_eq hs); intro c.
+  - apply nat_trans_eq_alt; intro c.
     simpl.
     rewrite assoc.
     intermediate_path (identity _ · μ_2 c).
@@ -499,7 +482,7 @@ Proof.
   - do 2 rewrite functor_comp.
     do 4 rewrite assoc.
     unfold T_squared.
-    apply (nat_trans_eq hs).
+    apply nat_trans_eq_alt.
     intro c; simpl.
     assert (HTT := θ_strength2_int).
     assert (HX := HTT (`T) (ptd_from_alg T) (ptd_from_alg T)); clear HTT.
@@ -512,7 +495,7 @@ Proof.
     + clear HX'.
       rewrite id_left.
       rewrite id_right.
-      assert (HX :=θ_nat_1 _ _ _ _ _ _ H θ _ _ μ_2).
+      assert (HX :=θ_nat_1 _ _ _ H θ _ _ μ_2).
       assert (HX1 := HX (ptd_from_alg T)); clear HX.
       simpl in HX1.
       assert (HXX := nat_trans_eq_pointwise HX1 c); clear HX1.
@@ -529,7 +512,7 @@ Proof.
              match goal with | [ |- _  ?a ?x = _  ?b ?y ] => assert (TTT : a = b) end.
              {
                match goal with | [ |- _ ?a = _ ?b ] => assert (TTTT : a = b) end.
-               { apply (nat_trans_eq hs).
+               { apply nat_trans_eq_alt.
                  intros. simpl. unfold horcomp_data; simpl. rewrite functor_id. apply pathsinv0, id_right.
                }
                apply maponpaths. apply TTTT.
@@ -580,10 +563,10 @@ Proof.
     intro c.
     intermediate_path (pr1 μ_3 c).
     + set (H1 := μ_3_T_μ_2_μ_2).
-      set (H2 := nat_trans_eq_weq hs _ _ H1).
+      set (H2 := nat_trans_eq_weq (homset_property C) _ _ H1).
       apply pathsinv0, H2.
     + set (H1 :=  μ_3_μ_2_T_μ_2).
-      set (H2 := nat_trans_eq_weq hs _ _ H1).
+      set (H2 := nat_trans_eq_weq (homset_property C) _ _ H1).
       apply pathsinv0, H2.
 Qed.
 
@@ -605,10 +588,10 @@ Proof.
   repeat split; simpl.
   - intro c.
     unfold μ_2. simpl.
-    set (H' := isbracketMor_hssMor _ _ _ _ β).
+    set (H' := isbracketMor_hssMor _ _ _ β).
     unfold isbracketMor in H'.
     set (H2 := H' _ (identity _ )).
-    set (H3 := nat_trans_eq_weq hs _ _ H2).
+    set (H3 := nat_trans_eq_weq (homset_property C) _ _ H2).
     rewrite id_left in H3.
     simpl in H3.
     rewrite H3; clear H3 H2 H'.
@@ -619,7 +602,7 @@ Proof.
     apply idpath.
   - unfold μ_0.
     intro c.
-    set (H' := ptd_mor_commutes _ (ptd_from_alg_mor _ _ _ _ β)).
+    set (H' := ptd_mor_commutes _ (ptd_from_alg_mor _ _ _ β)).
     apply H'.
 Qed.
 
@@ -628,7 +611,7 @@ Definition Monad_Mor_from_hssMor {T T' : hss CP H}(β : hssMor T T')
   := tpair _ _ (Monad_Mor_laws_from_hssMor T T' β).
 
 
-Definition hss_to_monad_functor_data : functor_data (hss_precategory CP H) (precategory_Monad C hs).
+Definition hss_to_monad_functor_data : functor_data (hss_precategory CP H) (category_Monad C).
 Proof.
   exists Monad_from_hss.
   exact @Monad_Mor_from_hssMor.
@@ -638,10 +621,10 @@ Lemma is_functor_hss_to_monad : is_functor hss_to_monad_functor_data.
 Proof.
   split; simpl.
   - intro a.
-    apply (invmap (Monad_Mor_equiv hs _ _ )).
+    apply (invmap (Monad_Mor_equiv _ _ _ )).
     apply idpath.
   - intros a b c f g.
-    apply (invmap (Monad_Mor_equiv hs _ _ )).
+    apply (invmap (Monad_Mor_equiv _ _ _ )).
     apply idpath.
 Qed.
 
@@ -650,9 +633,9 @@ Definition hss_to_monad_functor : functor _ _ := tpair _ _ is_functor_hss_to_mon
 Lemma isaset_Monad_Mor (T T' : Monad C) : isaset (Monad_Mor T T').
 Proof.
   intros β β'.
-  apply (isofhlevelweqb _ (Monad_Mor_equiv hs  _ _)).
+  apply (isofhlevelweqb _ (Monad_Mor_equiv _ _ _)).
   apply isaset_nat_trans.
-  apply hs.
+  apply homset_property.
 Qed.
 
 Definition hssMor_Monad_Mor_eq {T T' : hss CP H} (β β' : hssMor T T')
@@ -662,7 +645,6 @@ Proof.
   - apply hssMor_eq.
   - apply invweq.
     apply Monad_Mor_equiv.
-    apply hs.
 Defined.
 
 (** *** The functor from hss to monads is faithful, i.e. forgets at most structure *)
