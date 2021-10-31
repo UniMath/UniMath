@@ -35,21 +35,20 @@ Require Import UniMath.CategoryTheory.HorizontalComposition.
 
 Section def_ptd.
 
-Variable C : precategory.
-Variable hs : has_homsets C.
+Variable C : category.
 
-Definition ptd_composite (Z Z' : ptd_obj C) : precategory_Ptd C hs.
+Definition ptd_composite (Z Z' : ptd_obj C) : category_Ptd C.
 Proof.
   exists (functor_composite Z Z').
   apply (horcomp (ptd_pt _ Z) (ptd_pt _ Z')).
 Defined.
 
-Definition ptd_compose (Z Z' : ptd_obj C) : precategory_Ptd C hs.
+Definition ptd_compose (Z Z' : ptd_obj C) : category_Ptd C.
 Proof.
-  exists (functor_compose hs hs (pr1 Z:[C, C, hs]) (pr1 Z':[C, C, hs])).
-  apply (# (functorial_composition hs hs) (((ptd_pt _ Z: [C, C, hs]⟦functor_identity C,pr1 Z⟧) ,,
-                                            (ptd_pt _ Z': [C, C, hs]⟦functor_identity C,pr1 Z'⟧))
-  : precategory_binproduct [C, C, hs] [C, C, hs] ⟦(functor_identity C,,functor_identity C),(pr1 Z,,pr1 Z')⟧)).
+  exists (functor_compose _ _ _ (pr1 Z:[C, C]) (pr1 Z':[C, C])).
+  apply (# (functorial_composition _ _ _) (((ptd_pt _ Z: [C, C]⟦functor_identity C,pr1 Z⟧) ,,
+                                            (ptd_pt _ Z': [C, C]⟦functor_identity C,pr1 Z'⟧))
+  : category_binproduct [C, C] [C, C] ⟦(functor_identity C,,functor_identity C),(pr1 Z,,pr1 Z')⟧)).
 Defined.
 
 Lemma ptd_composite_compose (Z Z' : ptd_obj C): ptd_composite Z Z' = ptd_compose Z Z'.
@@ -57,8 +56,8 @@ Proof.
   use total2_paths_f.
   - apply idpath.
   - cbn.
-    rewrite (@horcomp_post_pre _ _ (C,,hs)).
-    apply (nat_trans_eq hs).
+    rewrite (@horcomp_post_pre _ _ C).
+    apply (nat_trans_eq (homset_property C)).
     intro c. apply idpath.
 Qed.
 
