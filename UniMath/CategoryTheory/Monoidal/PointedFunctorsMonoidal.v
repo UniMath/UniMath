@@ -34,24 +34,23 @@ Local Open Scope cat.
 
 Section PointedFunctors_as_monoidal_category.
 
-  Context {C : precategory}.
-  Variable hs : has_homsets C.
+  Context (C : category).
 
-  Local Notation "'Ptd'" := (precategory_Ptd C hs).
+  Local Notation "'Ptd'" := (category_Ptd C).
 
   Definition tensor_pointedfunctor_data: functor_data (Ptd ⊠ Ptd) Ptd.
   Proof.
     use make_functor_data.
     - intros PF1PF2.
-      exact (ptd_compose C hs (pr1 PF1PF2) (pr2 PF1PF2)).
+      exact (ptd_compose C (pr1 PF1PF2) (pr2 PF1PF2)).
     - intros PF1PF2 PF1PF2' α1α2.
       induction α1α2 as [α1 α2].
       induction PF1PF2 as [PF1 PF2]. induction PF1PF2' as [PF1' PF2'].
       cbn in α1, α2 |- *.
       set (α1' := pr1 α1).
       set (α2' := pr1 α2).
-      exists (# (functorial_composition hs hs) (α1',,α2':
-                 [C, C, hs] ⊠ [C, C, hs]⟦(pr1 PF1,,pr1 PF2),(pr1 PF1',,pr1 PF2')⟧)).
+      exists (# (functorial_composition _ _ _) (α1',,α2':
+                 [C, C] ⊠ [C, C]⟦(pr1 PF1,,pr1 PF2),(pr1 PF1',,pr1 PF2')⟧)).
       abstract ( intro c;
                  assert (α1commutes := ptd_mor_commutes _ α1);
                  assert (α2commutes := ptd_mor_commutes _ α2);
@@ -77,22 +76,22 @@ Section PointedFunctors_as_monoidal_category.
     split.
     - intro PF1PF2.
       (* UniMath.MoreFoundations.Tactics.show_id_type. *)
-      apply (eq_ptd_mor hs).
+      apply eq_ptd_mor.
       unfold tensor_pointedfunctor_data.
       simpl. unfold post_whisker_in_funcat, pre_whisker_in_funcat.
-      rewrite pre_whisker_identity; try exact hs.
-      rewrite post_whisker_identity; try exact hs.
-      apply (nat_trans_eq hs); intro c.
+      rewrite pre_whisker_identity.
+      rewrite post_whisker_identity.
+      apply nat_trans_eq; try apply homset_property. intro c.
       cbn.
       apply id_right.
     - intros PF1PF2 PF1'PF2' PF1''PF2'' α1α2 α1'α2'.
-      apply (eq_ptd_mor hs).
+      apply eq_ptd_mor.
       unfold tensor_pointedfunctor_data.
       simpl. unfold post_whisker_in_funcat, pre_whisker_in_funcat.
-      rewrite (post_whisker_composition _ _ _ hs).
-      rewrite (pre_whisker_composition _ _ _ hs).
+      rewrite (post_whisker_composition _ _ _).
+      rewrite (pre_whisker_composition _ _ _).
       cbn.
-      apply (nat_trans_eq hs); intro c.
+      apply nat_trans_eq; try apply homset_property. intro c.
       cbn.
       repeat rewrite <- assoc.
       apply maponpaths.
@@ -102,7 +101,7 @@ Section PointedFunctors_as_monoidal_category.
   Qed.
 
   Definition tensor_pointedfunctors:
-    precategory_Ptd C hs ⊠ precategory_Ptd C hs ⟶ precategory_Ptd C hs.
+    category_Ptd C ⊠ category_Ptd C ⟶ category_Ptd C.
   Proof.
     use make_functor.
     - exact tensor_pointedfunctor_data.
@@ -127,13 +126,13 @@ Section PointedFunctors_as_monoidal_category.
            apply pathsinv0;
            apply ptd_mor_commutes).
     - abstract
-        (red; split; apply (eq_ptd_mor hs); apply (nat_trans_eq hs); intro c; cbn ;
+        (red; split; apply eq_ptd_mor; apply (nat_trans_eq (homset_property C)); intro c; cbn ;
          [ apply (z_iso_inv_after_z_iso (make_z_iso _ _ (Hyp c)))
           | apply (z_iso_after_z_iso_inv (make_z_iso _ _ (Hyp c))) ]).
   Defined.
 
   Definition left_unitor_of_pointedfunctors:
-    left_unitor tensor_pointedfunctors (id_Ptd C hs).
+    left_unitor tensor_pointedfunctors (id_Ptd C).
   Proof.
     use make_nat_z_iso.
     + use make_nat_trans.
@@ -141,8 +140,8 @@ Section PointedFunctors_as_monoidal_category.
         exists (λ_functors (pr1 PF)).
         abstract ( intro c; cbn; rewrite id_right; apply id_left ).
       * abstract ( intros PF PF' α;
-                   apply (eq_ptd_mor hs);
-                   apply (nat_trans_eq hs); intro c; cbn;
+                   apply eq_ptd_mor;
+                   apply (nat_trans_eq (homset_property C)); intro c; cbn;
                    rewrite id_left;
                    rewrite id_right;
                    etrans; [apply cancel_postcomposition, functor_id | apply id_left] ).
@@ -154,7 +153,7 @@ Section PointedFunctors_as_monoidal_category.
   Defined.
 
   Definition right_unitor_of_pointedfunctors:
-    right_unitor tensor_pointedfunctors (id_Ptd C hs).
+    right_unitor tensor_pointedfunctors (id_Ptd C).
   Proof.
     use make_nat_z_iso.
     + use make_nat_trans.
@@ -165,8 +164,8 @@ Section PointedFunctors_as_monoidal_category.
                    rewrite id_right;
                    apply id_right ).
       * abstract ( intros PF PF' α;
-                   apply (eq_ptd_mor hs);
-                   apply (nat_trans_eq hs);
+                   apply eq_ptd_mor;
+                   apply (nat_trans_eq (homset_property C));
                    intro c; cbn;
                    rewrite id_left;
                    rewrite id_right;
@@ -190,8 +189,8 @@ Section PointedFunctors_as_monoidal_category.
                    rewrite id_right;
                    apply pathsinv0, assoc ).
       * abstract ( intros PFtriple PFtriple' αtriple;
-                   apply (eq_ptd_mor hs);
-                   apply (nat_trans_eq hs);
+                   apply eq_ptd_mor;
+                   apply (nat_trans_eq (homset_property C));
                    intro c; cbn;
                    rewrite id_right;
                    rewrite id_left;
@@ -206,15 +205,15 @@ Section PointedFunctors_as_monoidal_category.
   Defined.
 
   Lemma triangle_eq_of_pointedfunctors :
-    triangle_eq tensor_pointedfunctors (id_Ptd C hs)
+    triangle_eq tensor_pointedfunctors (id_Ptd C)
                 left_unitor_of_pointedfunctors
                 right_unitor_of_pointedfunctors
                 associator_of_pointedfunctors.
   Proof.
     intros PF1 PF2.
-    apply (eq_ptd_mor hs).
+    apply eq_ptd_mor.
     (* UniMath.MoreFoundations.Tactics.show_id_type. *)
-    apply (nat_trans_eq hs).
+    apply (nat_trans_eq (homset_property C)).
     intro c.
     cbn.
     do 2 rewrite id_right.
@@ -225,8 +224,8 @@ Section PointedFunctors_as_monoidal_category.
     pentagon_eq tensor_pointedfunctors associator_of_pointedfunctors.
   Proof.
     intros PF1 PF2 PF3 PF4.
-    apply (eq_ptd_mor hs).
-    apply (nat_trans_eq hs).
+    apply eq_ptd_mor.
+    apply nat_trans_eq_alt.
     intro c.
     cbn.
     do 3 rewrite functor_id.
@@ -234,9 +233,9 @@ Section PointedFunctors_as_monoidal_category.
     apply pathsinv0, functor_id.
   Qed.
 
-  Definition monoidal_precat_of_pointedfunctors : monoidal_precat.
+  Definition monoidal_cat_of_pointedfunctors : monoidal_cat.
   Proof.
-    use mk_monoidal_precat.
+    use mk_monoidal_cat.
     - exact Ptd.
     - apply tensor_pointedfunctors.
     - apply id_Ptd.
@@ -249,35 +248,35 @@ Section PointedFunctors_as_monoidal_category.
 
   Definition forgetful_functor_from_ptd_as_strong_monoidal_functor
     : strong_monoidal_functor
-        monoidal_precat_of_pointedfunctors
-        (monoidal_precat_of_endofunctors hs).
+        monoidal_cat_of_pointedfunctors
+        (monoidal_cat_of_endofunctors C).
   Proof.
     use tpair.
     - apply (mk_lax_monoidal_functor
-               monoidal_precat_of_pointedfunctors
-               (monoidal_precat_of_endofunctors hs)
-               (functor_ptd_forget C hs)
+               monoidal_cat_of_pointedfunctors
+               (monoidal_cat_of_endofunctors C)
+               (functor_ptd_forget C)
                (nat_trans_id _)
                (nat_trans_id _)).
       + abstract ( intros PF1 PF2 PF3;
-                   apply (nat_trans_eq hs);
+                   apply nat_trans_eq_alt;
                    intro c;
                    cbn;
                    do 2 rewrite functor_id;
                    repeat rewrite id_right;
                    apply functor_id ).
       + abstract ( intro PF;
-                   split; apply (nat_trans_eq hs); intro c; cbn; do 3 rewrite id_right;
+                   split; apply nat_trans_eq_alt; intro c; cbn; do 3 rewrite id_right;
                    [ apply pathsinv0, functor_id | apply idpath ] ).
     - split;
-        [ apply (nat_trafo_z_iso_if_pointwise_z_iso hs);
+        [ apply (nat_trafo_z_iso_if_pointwise_z_iso C);
           apply is_nat_z_iso_nat_trans_id
         | apply (is_nat_z_iso_nat_trans_id
                    ((functor_composite
                        (PrecategoryBinProduct.pair_functor
-                          (functor_ptd_forget C hs)
-                          (functor_ptd_forget C hs))
-                       (functorial_composition hs hs))))].
+                          (functor_ptd_forget C)
+                          (functor_ptd_forget C))
+                       (functorial_composition _ _ _))))].
   Defined.
 
 End PointedFunctors_as_monoidal_category.
