@@ -64,12 +64,11 @@ Proof.
   now rewrite functor_id, id_right.
 Qed.
 
-Lemma horcomp_id_postwhisker (A B C : category)
-   (hsB : has_homsets B) (hsC : has_homsets C) (X X' : [A, B, hsB]) (α : X --> X')
-   (Z : [B ,C, hsC]) :
+Lemma horcomp_id_postwhisker (A B C : category) (X X' : [A, B]) (α : X --> X')
+   (Z : [B, C]) :
   horcomp α (nat_trans_id _ ) = post_whisker α Z.
 Proof.
-  apply (nat_trans_eq hsC); intro a; apply id_left.
+  apply nat_trans_eq_alt; intro a; apply id_left.
 Qed.
 
 Definition functorial_composition_legacy_data (A B C : category) :
