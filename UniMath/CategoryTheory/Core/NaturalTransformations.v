@@ -91,6 +91,12 @@ Proof.
   apply (total2_paths_f H'), proofirrelevance, isaprop_is_nat_trans, hs.
 Qed.
 
+Lemma nat_trans_eq_alt {C C' : category} (F F' : functor C C') (a a' : nat_trans F F'):
+  (∏ x, a x = a' x) -> a = a'.
+Proof.
+  apply nat_trans_eq.
+  apply homset_property.
+Qed.
 
 Section nat_trans_eq.
 

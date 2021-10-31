@@ -15,29 +15,29 @@ Local Open Scope cat.
 
 Section Monoidal_Functor.
 
-Context (Mon_C Mon_D : monoidal_precat).
+Context (Mon_C Mon_D : monoidal_cat).
 
-Local Definition tensor_C := monoidal_precat_tensor Mon_C.
+Local Definition tensor_C := monoidal_cat_tensor Mon_C.
 Notation "X ⊗_C Y" := (tensor_C (X , Y)) (at level 31).
 Notation "f #⊗_C g" := (# tensor_C (f #, g)) (at level 31).
-Local Definition I_C := monoidal_precat_unit Mon_C.
-Local Definition α_C := monoidal_precat_associator Mon_C.
-Local Definition λ_C := monoidal_precat_left_unitor Mon_C.
-Local Definition ρ_C := monoidal_precat_right_unitor Mon_C.
+Local Definition I_C := monoidal_cat_unit Mon_C.
+Local Definition α_C := monoidal_cat_associator Mon_C.
+Local Definition λ_C := monoidal_cat_left_unitor Mon_C.
+Local Definition ρ_C := monoidal_cat_right_unitor Mon_C.
 
-Local Definition tensor_D := monoidal_precat_tensor Mon_D.
+Local Definition tensor_D := monoidal_cat_tensor Mon_D.
 Notation "X ⊗_D Y" := (tensor_D (X , Y)) (at level 31).
 Notation "f #⊗_D g" := (# tensor_D (f #, g)) (at level 31).
-Local Definition I_D := monoidal_precat_unit Mon_D.
-Local Definition α_D := monoidal_precat_associator Mon_D.
-Local Definition λ_D := monoidal_precat_left_unitor Mon_D.
-Local Definition ρ_D := monoidal_precat_right_unitor Mon_D.
+Local Definition I_D := monoidal_cat_unit Mon_D.
+Local Definition α_D := monoidal_cat_associator Mon_D.
+Local Definition λ_D := monoidal_cat_left_unitor Mon_D.
+Local Definition ρ_D := monoidal_cat_right_unitor Mon_D.
 
 Section Monoidal_Functor_Conditions.
 
 Context (F : Mon_C ⟶ Mon_D).
 
-Definition monoidal_functor_map_dom : precategory_binproduct Mon_C Mon_C ⟶ Mon_D :=
+Definition monoidal_functor_map_dom : category_binproduct Mon_C Mon_C ⟶ Mon_D :=
   functor_composite (pair_functor F F) tensor_D.
 
 Lemma monoidal_functor_map_dom_ok: functor_on_objects monoidal_functor_map_dom =
@@ -46,7 +46,7 @@ Proof.
   apply idpath.
 Qed.
 
-Definition monoidal_functor_map_codom : precategory_binproduct Mon_C Mon_C ⟶ Mon_D :=
+Definition monoidal_functor_map_codom : category_binproduct Mon_C Mon_C ⟶ Mon_D :=
   functor_composite tensor_C F.
 
 Lemma monoidal_functor_map_codom_ok: functor_on_objects monoidal_functor_map_codom =
@@ -157,13 +157,13 @@ Arguments strong_monoidal_functor_μ_inv {_ _} _ .
 
 Section swapped_tensor.
 
-  Context {Mon Mon' : monoidal_precat}.
+  Context {Mon Mon' : monoidal_cat}.
 
-  Local Definition tensor := monoidal_precat_tensor Mon.
-  Local Definition tensor' := monoidal_precat_tensor Mon'.
+  Local Definition tensor := monoidal_cat_tensor Mon.
+  Local Definition tensor' := monoidal_cat_tensor Mon'.
 
 Lemma swapping_of_lax_monoidal_functor_assoc (lmF: lax_monoidal_functor Mon Mon'):
-  monoidal_functor_associativity (swapping_of_monoidal_precat Mon) (swapping_of_monoidal_precat Mon') lmF
+  monoidal_functor_associativity (swapping_of_monoidal_cat Mon) (swapping_of_monoidal_cat Mon') lmF
                                  (pre_whisker binswap_pair_functor (lax_monoidal_functor_μ lmF)).
 Proof.
   induction lmF as [F [ϵ [μ [Hass Hunit]]]].
@@ -171,11 +171,11 @@ Proof.
   set (Hass_inst := Hass z y x).
   apply pathsinv0. rewrite <- assoc.
   cbn.
-  set (f := nat_z_iso_pointwise_z_iso (monoidal_precat_associator Mon') ((F z, F y), F x)).
+  set (f := nat_z_iso_pointwise_z_iso (monoidal_cat_associator Mon') ((F z, F y), F x)).
   apply (z_iso_inv_on_right _ _ _ f).
-  transparent assert (is : (is_z_isomorphism (# F (monoidal_precat_associator Mon ((z, y), x))))).
+  transparent assert (is : (is_z_isomorphism (# F (monoidal_cat_associator Mon ((z, y), x))))).
   { apply functor_on_is_z_isomorphism.
-    apply monoidal_precat_associator.
+    apply monoidal_cat_associator.
   }
   set (Hass_inst' := z_iso_inv_on_left _ _ _ _ (_,, is) _ (! Hass_inst)).
   etrans.
@@ -187,8 +187,8 @@ Proof.
 Qed.
 
 Definition swapping_of_lax_monoidal_functor: lax_monoidal_functor Mon Mon' ->
-  lax_monoidal_functor (swapping_of_monoidal_precat Mon)
-                       (swapping_of_monoidal_precat Mon').
+  lax_monoidal_functor (swapping_of_monoidal_cat Mon)
+                       (swapping_of_monoidal_cat Mon').
 Proof.
   intro lmF.
   induction lmF as [F [ϵ [μ [Hass Hunit]]]].
@@ -201,8 +201,8 @@ Proof.
 Defined.
 
 Definition swapping_of_strong_monoidal_functor: strong_monoidal_functor Mon Mon' ->
-  strong_monoidal_functor (swapping_of_monoidal_precat Mon)
-                          (swapping_of_monoidal_precat Mon').
+  strong_monoidal_functor (swapping_of_monoidal_cat Mon)
+                          (swapping_of_monoidal_cat Mon').
 Proof.
   intro smF.
   induction smF as [lmF [Hϵ Hμ]].

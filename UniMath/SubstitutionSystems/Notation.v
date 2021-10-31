@@ -52,8 +52,8 @@ Notation "Z ∘ α" := (post_whisker α Z) : subsys.
 
 Notation "` T" := (alg_carrier _ T) (at level 3, format "` T") : subsys.
 Notation "α •• Z" :=  (# (pre_composition_functor_data _ _ _ _ _ Z) α) (at level 25) : subsys.
-Notation "A ⊗ B" := (make_precatbinprod A B) : subsys.
-Notation "A ⊠ B" := (precategory_binproduct A B) (at level 38) : subsys.
+Notation "A ⊗ B" := (make_catbinprod A B) : subsys.
+Notation "A ⊠ B" := (category_binproduct A B) (at level 38) : subsys.
 Notation "'ℓ'" := (pre_composition_functor(*_data*) _ _ _ _ _ ) : subsys.
 Notation "Z 'p•' Z'" := (ptd_compose _ _ Z Z') (at level 25) : subsys. (** used to stand for (ptd_composite _ _ Z Z') *)
 

@@ -26,24 +26,24 @@ Local Open Scope cat.
 
 Section A.
 
-Context (Mon_V : monoidal_precat).
+Context (Mon_V : monoidal_cat).
 
-Local Definition I : Mon_V := monoidal_precat_unit Mon_V.
-Local Definition tensor : Mon_V ⊠ Mon_V ⟶ Mon_V := monoidal_precat_tensor Mon_V.
+Local Definition I : Mon_V := monoidal_cat_unit Mon_V.
+Local Definition tensor : Mon_V ⊠ Mon_V ⟶ Mon_V := monoidal_cat_tensor Mon_V.
 Notation "X ⊗ Y" := (tensor (X , Y)).
 Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
-Local Definition α' : associator tensor := monoidal_precat_associator Mon_V.
-Local Definition λ' : left_unitor tensor I := monoidal_precat_left_unitor Mon_V.
-Local Definition ρ' : right_unitor tensor I := monoidal_precat_right_unitor Mon_V.
+Local Definition α' : associator tensor := monoidal_cat_associator Mon_V.
+Local Definition λ' : left_unitor tensor I := monoidal_cat_left_unitor Mon_V.
+Local Definition ρ' : right_unitor tensor I := monoidal_cat_right_unitor Mon_V.
 
 Section Actions_Definition.
 
-Context (A : precategory).
+Context (A : category).
 
 Section Actions_Natural_Transformations.
 
 (* A ⊙ I --> A *)
-Context (odot : functor (precategory_binproduct A Mon_V) A).
+Context (odot : functor (category_binproduct A Mon_V) A).
 
 Notation "X ⊙ Y" := (odot (X , Y)) (at level 31).
 Notation "f #⊙ g" := (# odot (f #, g)) (at level 31).
@@ -138,9 +138,7 @@ Section Alternative_Definition.
   (** we are following the introductory pages of Janelidze and Kelly,
       A note on actions of a monoidal category, Theory and Applications of Categories, Vol. 9, No. 4, 2001, pp. 61–91. *)
 
-  Context (hsA : has_homsets A).
-  Let Mon_EndA : monoidal_precat := monoidal_precat_of_endofunctors hsA.
-  (* Let hsMon_EndA : has_homsets Mon_EndA := functor_category_has_homsets _ _ hsA. *)
+  Let Mon_EndA : monoidal_cat := monoidal_cat_of_endofunctors A.
 
   Context (FF: strong_monoidal_functor Mon_V Mon_EndA).
 
@@ -154,7 +152,7 @@ Section Alternative_Definition.
   Let FFunital := lax_monoidal_functor_unital FF.
   Let FFassoc := lax_monoidal_functor_assoc FF.
 
-  Local Definition odot : functor (precategory_binproduct A Mon_V) A := uncurry_functor hsA FF.
+  Local Definition odot : functor (category_binproduct A Mon_V) A := uncurry_functor _ _ _ FF.
 
   Local Definition auxρ : nat_z_iso (odot_I_functor odot) (FF I: functor A A).
   Proof.
@@ -185,7 +183,7 @@ Section Alternative_Definition.
         apply is_z_isomorphism_inv.
   Defined.
 
-  Local Definition auxχ_dom : nat_z_iso (odot_x_odot_y_functor odot) (functor_composite (precategory_binproduct_unassoc A Mon_V Mon_V) (uncurry_functor hsA (monoidal_functor_map_dom Mon_V Mon_EndA FF))).
+  Local Definition auxχ_dom : nat_z_iso (odot_x_odot_y_functor odot) (functor_composite (precategory_binproduct_unassoc A Mon_V Mon_V) (uncurry_functor _ _ _ (monoidal_functor_map_dom Mon_V Mon_EndA FF))).
   Proof.
     use make_nat_z_iso.
     - use make_nat_trans.
@@ -204,7 +202,7 @@ Section Alternative_Definition.
   Defined.
 
   Local Definition auxχ_codom : nat_z_iso (functor_composite (precategory_binproduct_unassoc A Mon_V Mon_V)
-            (uncurry_functor hsA (monoidal_functor_map_codom Mon_V Mon_EndA FF))) (odot_x_otimes_y_functor odot).
+            (uncurry_functor _ _ _ (monoidal_functor_map_codom Mon_V Mon_EndA FF))) (odot_x_otimes_y_functor odot).
   Proof.
     use make_nat_z_iso.
     - use make_nat_trans.
@@ -224,7 +222,7 @@ Section Alternative_Definition.
     refine (nat_z_iso_comp auxχ_dom _).
     refine (nat_z_iso_comp _ auxχ_codom).
     use make_nat_z_iso.
-    - exact (pre_whisker (precategory_binproduct_unassoc _ _ _) (uncurry_nattrans hsA μ)).
+    - exact (pre_whisker (precategory_binproduct_unassoc _ _ _) (uncurry_nattrans _ _ _ μ)).
     - intro auv. induction auv as [[a u] v].
       unfold pre_whisker. cbn.
       exact (nat_trafo_pointwise_z_iso_if_z_iso _ _ (μ_is_nat_z_iso (u,,v)) a).
@@ -312,23 +310,23 @@ Proof.
   exists tensor.
   exists ρ'.
   exists α'.
-  exact (monoidal_precat_eq Mon_V).
+  exact (monoidal_cat_eq Mon_V).
 Defined.
 
 (* The action induced by a strong monoidal functor U. *)
 Section Strong_Monoidal_Functor_Action.
 
-Context {Mon_A : monoidal_precat}.
+Context {Mon_A : monoidal_cat}.
 
-Local Definition I_A : Mon_A := monoidal_precat_unit Mon_A.
-Local Definition tensor_A : Mon_A ⊠ Mon_A ⟶ Mon_A := monoidal_precat_tensor Mon_A.
+Local Definition I_A : Mon_A := monoidal_cat_unit Mon_A.
+Local Definition tensor_A : Mon_A ⊠ Mon_A ⟶ Mon_A := monoidal_cat_tensor Mon_A.
 Notation "X ⊗_A Y" := (tensor_A (X , Y)) (at level 31).
 Notation "f #⊗_A g" := (#tensor_A (f #, g)) (at level 31).
-Local Definition α_A : associator tensor_A := monoidal_precat_associator Mon_A.
-Local Definition λ_A : left_unitor tensor_A I_A := monoidal_precat_left_unitor Mon_A.
-Local Definition ρ_A : right_unitor tensor_A I_A := monoidal_precat_right_unitor Mon_A.
-Local Definition triangle_eq_A : triangle_eq tensor_A I_A λ_A ρ_A α_A := pr1 (monoidal_precat_eq Mon_A).
-Local Definition pentagon_eq_A : pentagon_eq tensor_A α_A := pr2 (monoidal_precat_eq Mon_A).
+Local Definition α_A : associator tensor_A := monoidal_cat_associator Mon_A.
+Local Definition λ_A : left_unitor tensor_A I_A := monoidal_cat_left_unitor Mon_A.
+Local Definition ρ_A : right_unitor tensor_A I_A := monoidal_cat_right_unitor Mon_A.
+Local Definition triangle_eq_A : triangle_eq tensor_A I_A λ_A ρ_A α_A := pr1 (monoidal_cat_eq Mon_A).
+Local Definition pentagon_eq_A : pentagon_eq tensor_A α_A := pr2 (monoidal_cat_eq Mon_A).
 
 
 Context (U : strong_monoidal_functor Mon_V Mon_A).
