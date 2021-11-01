@@ -44,10 +44,26 @@ Definition disp_prop : disp_precat type_precat := disp_hlevel 1.
 
 Definition disp_HSET : disp_precat type_precat := disp_hlevel 2.
 
+Definition total_precategory_HSET : precategory := total_precategory disp_HSET.
+
+Lemma has_homsets_total_precategory_HSET : has_homsets total_precategory_HSET.
+Proof.
+  intros a b.
+  Search (isaset (_ → _ )).
+  apply (isofhleveltotal2 2).
+  - use (Propositions.funspace_isaset).
+    apply b.
+  - intros. do 2 apply hlevelntosn.
+    apply iscontrunit.
+Qed.
+
+Definition total_category_HSET : category := make_category _ has_homsets_total_precategory_HSET.
+
+
 (** ** Equivalence of the total category of [disp_HSET] with [HSET_univalent_category] *)
 
 Definition disp_HSET_equiv_HSET_adjunction_data :
-  adjunction_data (total_precategory disp_HSET) HSET_univalent_category.
+  adjunction_data total_category_HSET HSET_univalent_category.
 Proof.
   use tpair; [|use tpair].
   - use make_functor.
