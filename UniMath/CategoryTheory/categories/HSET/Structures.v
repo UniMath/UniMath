@@ -55,7 +55,7 @@ Local Open Scope cat.
 
 (** ** Natural numbers object ([NNO_HSET]) *)
 
-Lemma isNNO_nat : isNNO TerminalSET natHSET (λ _, 0) S.
+Lemma isNNO_nat : isNNO TerminalHSET natHSET (λ _, 0) S.
 Proof.
   intros X z s.
   use unique_exists.
@@ -72,7 +72,7 @@ Proof.
     * cbn in *; now rewrite (toforallpaths _ _ _ hq2 n), IH.
 Qed.
 
-Definition NNO_HSET : NNO TerminalSET.
+Definition NNO_HSET : NNO TerminalHSET.
 Proof.
   use make_NNO.
   - exact natHSET.
@@ -441,7 +441,7 @@ Qed.
 Definition subobject_classifier_HSET_pullback {X Y : HSET}
   (m : Monic HSET X Y) :
     ∑ (chi : HSET ⟦ Y, hProp_set ⟧)
-    (H : m · chi = TerminalArrow TerminalSET X · const_htrue),
+    (H : m · chi = TerminalArrow TerminalHSET X · const_htrue),
       isPullback H.
 Proof.
   exists (fun z => (hfiber (pr1 m) z,, isaprop_hfiber_monic (pr1 m) (pr2 m) z)).
@@ -498,7 +498,7 @@ Proof.
   use make_Pullback.
   - exact (carrier_subset chi).
   - exact (pr1carrier _).
-  - exact (TerminalArrow TerminalSET _).
+  - exact (TerminalArrow TerminalHSET _).
   - apply funextfun; intro yy.
     apply hProp_eq_unit; cbn.
     apply (pr2 yy).
@@ -531,7 +531,7 @@ Proof.
   - apply idpath.
 Defined.
 
-Definition subobject_classifier_HSET : subobject_classifier TerminalSET.
+Definition subobject_classifier_HSET : subobject_classifier TerminalHSET.
 Proof.
   exists hProp_set.
   exists const_htrue.
