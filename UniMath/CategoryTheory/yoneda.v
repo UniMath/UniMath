@@ -408,7 +408,7 @@ Proof.
     apply yoneda_functor_precomp.
   - abstract (
         intros c c' f;
-        apply nat_trans_eq; try apply (has_homsets_HSET);
+        apply nat_trans_eq; [apply (has_homsets_HSET) |];
         intro d; apply funextsec; intro t;
         cbn;
         apply functor_comp).

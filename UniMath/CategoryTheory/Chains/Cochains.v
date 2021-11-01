@@ -29,7 +29,7 @@ Notation "'cochain'" := (diagram conat_graph).
 (** A diagram for a cochain is what it should be, a collection of objects and
     arrows arranged so: X₀ ⟵ X₁ ⟵ ⋯. This can be used to easily construct
     cochains, see e.g. [termCochain]. *)
-Definition cochain_weq {C : precategory} :
+Definition cochain_weq {C : category} :
   (∑ (obs : ∏ n : nat, ob C), (∏ n : nat, obs (S n) --> obs n)) ≃ cochain C.
 Proof.
   use weqfibtototal; intro obs; cbn.
@@ -51,11 +51,11 @@ Proof.
     apply id_left.
 Defined.
 
-Definition mapcochain {C D : precategory} (F : functor C D)
+Definition mapcochain {C D : category} (F : functor C D)
            (c : cochain C) : cochain D := mapdiagram F c.
 
 (** Any j > i gives a morphism in the cochain via composition *)
-Definition cochain_mor {C : precategory} (c : cochain C) {i j} :
+Definition cochain_mor {C : category} (c : cochain C) {i j} :
   i < j -> C⟦dob c j, dob c i⟧.
 Proof.
 induction j as [|j IHj].
@@ -73,7 +73,7 @@ Defined.
      1 <----- F 1 <------ F^2 1 <-------- F^3 1 <--- ...
 >>
 *)
-Definition termCochain {C : precategory} (TermC : Terminal C) (F : functor C C) :
+Definition termCochain {C : category} (TermC : Terminal C) (F : functor C C) :
   cochain C.
 Proof.
   use cochain_weq; use tpair.

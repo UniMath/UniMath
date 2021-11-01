@@ -197,7 +197,7 @@ use left_adjoint_from_partial.
 
   use tpair.
   + apply (tpair _ (tpair _ σ is_nat_trans_σ)).
-    apply nat_trans_eq; try apply homset_property; intro n; cbn.
+    apply nat_trans_eq; [apply homset_property | intro n; cbn].
     generalize (limArrowCommutes (LA (K n ↓ K) (QT T (K n))) _ (cc _) (Kid n)); simpl.
     now rewrite functor_id, id_left.
   + intro x.

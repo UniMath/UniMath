@@ -858,7 +858,7 @@ Lemma const_prod_functor1_slicecat c (Af : C / c) :
   constprod_functor1 (BPC c) Af =
   functor_composite (base_change_functor (pr2 Af)) (slicecat_functor (pr2 Af)).
 Proof.
-apply functor_eq; try apply has_homsets_slice_precat.
+apply functor_eq; [apply has_homsets_slice_precat |].
 use functor_data_eq.
 - intro x; apply idpath.
 - intros x y f; apply (eq_mor_slicecat C); simpl.

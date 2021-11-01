@@ -81,7 +81,7 @@ Section PointedFunctors_as_monoidal_category.
       simpl. unfold post_whisker_in_funcat, pre_whisker_in_funcat.
       rewrite pre_whisker_identity.
       rewrite post_whisker_identity.
-      apply nat_trans_eq; try apply homset_property. intro c.
+      apply nat_trans_eq; [apply homset_property | intro c].
       cbn.
       apply id_right.
     - intros PF1PF2 PF1'PF2' PF1''PF2'' α1α2 α1'α2'.
@@ -91,7 +91,7 @@ Section PointedFunctors_as_monoidal_category.
       rewrite (post_whisker_composition _ _ _).
       rewrite (pre_whisker_composition _ _ _).
       cbn.
-      apply nat_trans_eq; try apply homset_property. intro c.
+      apply nat_trans_eq; [apply homset_property | intro c].
       cbn.
       repeat rewrite <- assoc.
       apply maponpaths.
