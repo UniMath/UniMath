@@ -191,7 +191,6 @@ DisplayedCats/Projection.v
 DisplayedCats/SIP.v
 DisplayedCats/Limits.v
 DisplayedCats/Examples.v
-DisplayedCats/Examples/HLevel.v
 DisplayedCats/Examples/UnitalBinop.v
 DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v

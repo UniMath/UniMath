@@ -1068,8 +1068,7 @@ End binproduct_from_pullback.
     We construct pullbacks in the functor category [D, C, hs] from pullbacks of C. *)
 Section pullbacks_functor_category.
 
-  Variable D C : precategory.
-  Hypothesis hs : has_homsets C.
+  Variable D C : category.
   Hypothesis hpb : @Pullbacks C.
 
   Local Lemma FunctorcategoryPullbacks_eq (F G H : functor D C) (α : nat_trans G F)
@@ -1202,11 +1201,11 @@ Section pullbacks_functor_category.
     nat_trans_comp _ _ _ (FunctorcategoryPullbacks_nat_trans1 F G H α β) α =
     nat_trans_comp _ _ _ (FunctorcategoryPullbacks_nat_trans2 F G H α β) β.
   Proof.
-    use (nat_trans_eq hs). intros x.
+    use (nat_trans_eq_alt ). intros x.
     apply (PullbackSqrCommutes (hpb (F x) (G x) (H x) (α x) (β x))).
   Qed.
 
-  Definition FunctorcategoryPullbacks : @Pullbacks (functor_precategory D C hs).
+  Definition FunctorcategoryPullbacks : @Pullbacks (functor_category D C).
   Proof.
     intros F G H α β. cbn in F, G, H, α, β.
     use make_Pullback.
