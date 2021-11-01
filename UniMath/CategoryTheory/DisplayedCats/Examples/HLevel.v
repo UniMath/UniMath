@@ -33,12 +33,12 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 
 (** *** [disp_hlevel]: The displayed category of types of [hlevel] n *)
 
-Definition disp_hlevel (n : nat) : disp_precat type_precat :=
-  disp_full_sub type_precat (isofhlevel n).
+Definition disp_hlevel (n : nat) : disp_precat HSET :=
+  disp_full_sub HSET (λ X, isofhlevel n (pr1 X)).
 
 (** *** [disp_prop]: The displayed category of propositions *)
 
-Definition disp_prop : disp_precat type_precat := disp_hlevel 1.
+Definition disp_prop : disp_precat HSET := disp_hlevel 1.
 
 (** *** [disp_HSET]: The displayed category of sets *)
 
