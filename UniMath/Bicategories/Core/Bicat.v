@@ -1023,12 +1023,12 @@ Definition hom {C : bicat} (a b : C) : category
 
 Section hcomp_functor.
 
-Context {C : prebicat} {a b c : C}.
+Context {C : bicat} {a b c : C}.
 
 Definition hcomp_functor_data
   : functor_data
-      (precategory_binproduct (hom_precategory a b) (hom_precategory b c))
-      (hom_precategory a c).
+      (category_binproduct (hom a b) (hom b c))
+      (hom a c).
 Proof.
   exists (λ p : (a-->b) × (b-->c), pr1 p · pr2 p).
   unfold hom_ob_mor. simpl. intros (f1, f2) (g1, g2).
@@ -1046,10 +1046,10 @@ Proof.
 Qed.
 
 Definition hcomp_functor
-  : precategory_binproduct
-      (hom_precategory a b) (hom_precategory b c)
+  : category_binproduct
+      (hom a b) (hom b c)
     ⟶
-    hom_precategory a c
+    hom a c
   := make_functor hcomp_functor_data is_functor_hcomp.
 
 End hcomp_functor.
@@ -1275,6 +1275,7 @@ Proof.
   rewrite vassocr. apply maponpaths_2.
   rewrite id2_rwhisker. apply id2_left.
 Qed.
+
 (*
 
 Definition lunitor_transf (a b : C)
@@ -1433,6 +1434,121 @@ Definition rassociator_transf' (a b c d : C)
   := rassociator_fun',, rassociator_fun'_natural.
  *)
 End Associators_Unitors_Natural.
+
+Section Associators_Unitors_Natural_bicat.
+
+  Context {C : bicat}.
+
+  Definition lunitor_transf (a b : C)
+  : bindelta_pair_functor
+      (constant_functor (hom a b) (hom a a) (identity a))
+      (functor_identity (hom a b)) ∙
+    hcomp_functor
+    ⟹
+    functor_identity (hom a b)
+  := lunitor,, lunitor_natural a b.
+
+  Definition runitor_transf (a b : C)
+  : bindelta_pair_functor
+       (functor_identity (hom a b))
+       (constant_functor (hom a b) (hom b b) (identity b)) ∙
+    hcomp_functor
+    ⟹
+    functor_identity (hom a b).
+Proof.
+  exists runitor. red. apply runitor_natural.
+Defined.
+
+Lemma lassociator_fun_natural {a b c d : C}
+  : is_nat_trans
+      (pair_functor (functor_identity (hom a b)) hcomp_functor ∙ hcomp_functor)
+      (precategory_binproduct_assoc
+         (hom a b)
+         (hom b c)
+         (hom c d) ∙
+       pair_functor hcomp_functor (functor_identity _) ∙
+       hcomp_functor)
+      lassociator_fun.
+Proof.
+  red; cbn. intros (f1, (f2, f3)) (g1, (g2, g3)).
+  unfold precategory_binproduct_mor, hom_ob_mor. cbn.
+  unfold precategory_binproduct_mor, hom_ob_mor. cbn.
+  intros (x1, (x2, x3)). cbn.
+  unfold lassociator_fun. cbn.
+  apply hcomp_lassoc.
+Qed.
+
+Definition lassociator_transf (a b c d : C)
+  : pair_functor (functor_identity (hom a b)) hcomp_functor ∙ hcomp_functor
+    ⟹
+    precategory_binproduct_assoc
+      (hom a b)
+      (hom b c)
+      (hom c d) ∙
+    pair_functor hcomp_functor (functor_identity _) ∙
+    hcomp_functor
+  := lassociator_fun,, lassociator_fun_natural.
+
+  Lemma rassociator_fun_natural {a b c d : C}
+  : is_nat_trans
+      (precategory_binproduct_assoc
+         (hom a b)
+         (hom b c)
+         (hom c d) ∙
+       pair_functor hcomp_functor (functor_identity _) ∙
+       hcomp_functor)
+      (pair_functor (functor_identity _) hcomp_functor ∙ hcomp_functor)
+      rassociator_fun.
+Proof.
+  red; cbn. intros (f1, (f2, f3)) (g1, (g2, g3)).
+  unfold precategory_binproduct_mor, hom_ob_mor. cbn.
+  unfold precategory_binproduct_mor, hom_ob_mor. cbn.
+  intros (x1, (x2, x3)). cbn.
+  unfold rassociator_fun. cbn.
+  apply hcomp_rassoc.
+Qed.
+
+Definition rassociator_transf (a b c d : C)
+  : precategory_binproduct_assoc
+      (hom a b)
+      (hom b c)
+      (hom c d) ∙
+    pair_functor hcomp_functor (functor_identity _) ∙
+    hcomp_functor
+    ⟹
+    pair_functor (functor_identity _) hcomp_functor ∙ hcomp_functor
+  := rassociator_fun,, rassociator_fun_natural.
+
+Lemma rassociator_fun'_natural {a b c d : C}
+  : is_nat_trans
+      (pair_functor hcomp_functor (functor_identity _) ∙ hcomp_functor)
+      (precategory_binproduct_unassoc
+         (hom a b)
+         (hom b c)
+         (hom c d) ∙
+       pair_functor (functor_identity _) hcomp_functor ∙ hcomp_functor)
+      rassociator_fun'.
+Proof.
+  red; cbn. intros ((f1, f2), f3) ((g1, g2), g3).
+  unfold precategory_binproduct_mor, hom_ob_mor. cbn.
+  unfold precategory_binproduct_mor, hom_ob_mor. cbn.
+  intros ((x1, x2), x3). cbn.
+  unfold rassociator_fun. cbn.
+  apply hcomp_rassoc.
+Qed.
+
+Definition rassociator_transf' (a b c d : C)
+  : pair_functor hcomp_functor (functor_identity _) ∙
+    hcomp_functor
+    ⟹
+    precategory_binproduct_unassoc
+      (hom a b)
+      (hom b c)
+      (hom c d) ∙
+    pair_functor (functor_identity _) hcomp_functor ∙ hcomp_functor
+  := rassociator_fun',, rassociator_fun'_natural.
+
+End Associators_Unitors_Natural_bicat.
 
 (* -----------------------------------------------------------------------------------*)
 (** ** Notations.                                                                     *)
