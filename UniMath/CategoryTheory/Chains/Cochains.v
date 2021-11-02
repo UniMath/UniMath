@@ -73,7 +73,7 @@ Defined.
      1 <----- F 1 <------ F^2 1 <-------- F^3 1 <--- ...
 >>
 *)
-Definition termCochain {C : category} (TermC : Terminal C) (F : functor C C) :
+Definition termCochain {C : precategory} (TermC : Terminal C) (F : functor C C) :
   cochain C.
 Proof.
   use cochain_weq; use tpair.
