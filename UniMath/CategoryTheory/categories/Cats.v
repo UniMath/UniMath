@@ -182,7 +182,10 @@ Defined.
  *)
 (*
 Definition setcat_cat : category := make_category _ has_homsets_setcat_precat.
-*)
+ *)
+
+
+(*
 (** ** Colimits *)
 
 (** *** Initial objects *)
@@ -312,5 +315,5 @@ Proof.
         }
   + apply weqproperty.
 Defined.
-
+*)
 (** *)
