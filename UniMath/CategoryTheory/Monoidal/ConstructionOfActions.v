@@ -25,44 +25,44 @@ Local Open Scope cat.
 
 Section A.
 
-Context (Mon_V : monoidal_precat).
+Context (Mon_V : monoidal_cat).
 
-Local Definition V := monoidal_precat_precat Mon_V.
-Local Definition I := monoidal_precat_unit Mon_V.
-Local Definition tensor := monoidal_precat_tensor Mon_V.
+Local Definition V := monoidal_cat_cat Mon_V.
+Local Definition I := monoidal_cat_unit Mon_V.
+Local Definition tensor := monoidal_cat_tensor Mon_V.
 Notation "X ⊗ Y" := (tensor (X , Y)).
 Notation "f #⊗ g" := (#tensor (f #, g)) (at level 31).
-Local Definition α' := monoidal_precat_associator Mon_V.
-Local Definition λ' := monoidal_precat_left_unitor Mon_V.
-Local Definition ρ' := monoidal_precat_right_unitor Mon_V.
+Local Definition α' := monoidal_cat_associator Mon_V.
+Local Definition λ' := monoidal_cat_left_unitor Mon_V.
+Local Definition ρ' := monoidal_cat_right_unitor Mon_V.
 
 Definition action_on_itself: action Mon_V V.
 Proof.
   exists tensor.
   exists ρ'.
   exists α'.
-  apply monoidal_precat_eq.
+  apply monoidal_cat_eq.
 Defined.
 
 Section Action_Lifting_Through_Strong_Monoidal_Functor.
 
-Context {Mon_A : monoidal_precat}.
+Context {Mon_A : monoidal_cat}.
 
-Local Definition A := monoidal_precat_precat Mon_A.
-Local Definition I_A := monoidal_precat_unit Mon_A.
-Local Definition tensor_A := monoidal_precat_tensor Mon_A.
+Local Definition A := monoidal_cat_cat Mon_A.
+Local Definition I_A := monoidal_cat_unit Mon_A.
+Local Definition tensor_A := monoidal_cat_tensor Mon_A.
 Notation "X ⊗_A Y" := (tensor_A (X , Y)) (at level 31).
 Notation "f #⊗_A g" := (#tensor_A (f #, g)) (at level 31).
-Local Definition α_A := monoidal_precat_associator Mon_A.
-Local Definition λ_A := monoidal_precat_left_unitor Mon_A.
-Local Definition ρ_A := monoidal_precat_right_unitor Mon_A.
-Local Definition triangle_eq_A := pr1 (monoidal_precat_eq Mon_A).
-Local Definition pentagon_eq_A := pr2 (monoidal_precat_eq Mon_A).
+Local Definition α_A := monoidal_cat_associator Mon_A.
+Local Definition λ_A := monoidal_cat_left_unitor Mon_A.
+Local Definition ρ_A := monoidal_cat_right_unitor Mon_A.
+Local Definition triangle_eq_A := pr1 (monoidal_cat_eq Mon_A).
+Local Definition pentagon_eq_A := pr2 (monoidal_cat_eq Mon_A).
 
 
 Context (U : strong_monoidal_functor Mon_V Mon_A).
 
-Context {C : precategory} (actA : action Mon_A C).
+Context {C : category} (actA : action Mon_A C).
 
 Local Definition odotA := act_odot actA.
 
@@ -298,11 +298,11 @@ End A.
 
 Section Strong_Monoidal_Functor_Action_Reloaded.
 
-  Context {Mon_V Mon_A : monoidal_precat}.
+  Context {Mon_V Mon_A : monoidal_cat}.
   Context (U : strong_monoidal_functor Mon_V Mon_A).
   Context (C : precategory).
 
-  Definition U_action_alt : action Mon_V (monoidal_precat_precat Mon_A) := lifted_action Mon_V U (action_on_itself Mon_A).
+  Definition U_action_alt : action Mon_V (monoidal_cat_cat Mon_A) := lifted_action Mon_V U (action_on_itself Mon_A).
 
 (* the two actions would even be convertible - if one would ask for definedness of the proofs of the equations [lifted_action_tlaw] and [lifted_action_plaw] and also [U_action_tlaw] and [U_action_plaw]
   Lemma U_action_alt_ok: U_action_alt = U_action _ U.
