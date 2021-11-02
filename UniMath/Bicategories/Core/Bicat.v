@@ -1014,6 +1014,11 @@ Definition hom_precategory
 
 End Hom_Spaces.
 
+Lemma has_homsets_hom_data {C : bicat} (a b : C): has_homsets (hom_data a b).
+Proof.
+  exact (@cellset_property C a b).
+Qed.
+
 Definition hom {C : bicat} (a b : C) : category
   := hom_precategory a b ,, @cellset_property C a b.
 
