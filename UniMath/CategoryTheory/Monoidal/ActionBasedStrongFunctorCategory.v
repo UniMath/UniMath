@@ -21,9 +21,9 @@ Local Open Scope cat.
 
 Section Strong_Functor_Category.
 
-Context (Mon_V : monoidal_precat).
+Context (Mon_V : monoidal_cat).
 
-Context {A A': precategory}.
+Context {A A': category}.
 Context (actn : action Mon_V A)(actn' : action Mon_V A').
 
 Local Definition odot := pr1 actn.
@@ -80,9 +80,7 @@ Qed.
 
 Section AsDisplayedCategory.
 
-  Context (hsA': has_homsets A').
-
-  Definition Strong_Functor_precategory_displayed : disp_cat (functor_category A (A',,hsA')).
+  Definition Strong_Functor_precategory_displayed : disp_cat (functor_category A A').
   Proof.
     use disp_cat_from_SIP_data.
     - intro F.
@@ -91,7 +89,7 @@ Section AsDisplayedCategory.
       exact (∏ a v, Strong_Functor_Category_mor_diagram (F1,,FF1) (F2,,FF2) η a v).
     - intros F1 F2 FF1 FF2 η.
       do 2 (apply impred; intro).
-      apply hsA'.
+      apply homset_property.
     - intros F FF a v.
       apply Strong_Functor_Category_Mor_id_subproof.
     - intros F G H FF GG HH η η' ηmor η'mor a v. simpl in ηmor, η'mor.
@@ -132,7 +130,7 @@ Section AsDisplayedCategory.
   Proof.
     intros H.
     apply subtypePath; trivial.
-    now intros α; repeat (apply impred; intro); apply hsA'.
+    now intros α; repeat (apply impred; intro); apply homset_property.
   Qed.
 
   (* a "manual proof" - should this not follow later from the general method to obtain univalence? *)
@@ -140,18 +138,18 @@ Section AsDisplayedCategory.
   Proof.
   intros FF GG.
   apply (isofhleveltotal2 2).
-  * apply isaset_nat_trans, hsA'.
+  * apply isaset_nat_trans, homset_property.
   * intros η.
     apply isasetaprop.
     apply impred; intros a; apply impred; intros v.
-    apply hsA'.
+    apply homset_property.
   Qed.
 
   Definition Strong_Functor_category : category :=
   (Strong_Functor_precategory,, has_homsets_Strong_Functor_precategory).
 
   Definition Strong_FunctorForgetfulFunctor:
-    functor Strong_Functor_precategory (functor_precategory A A' hsA').
+    functor Strong_Functor_precategory (functor_category A A').
   Proof.
     use tpair.
     - use tpair.
@@ -165,32 +163,32 @@ Section AsDisplayedCategory.
   Proof.
     intros FF GG.
     apply isinclbetweensets.
-    + apply has_homsets_Strong_Functor_precategory; try assumption.
+    + apply has_homsets_Strong_Functor_precategory.
     + apply functor_category_has_homsets.
-    + apply Strong_Functor_Category_Mor_eq; try assumption.
+    + apply Strong_Functor_Category_Mor_eq.
   Qed.
 
 (** towards univalence *)
 
-  Lemma Strong_Functor_precategory_Pisset (F : [A, A',, hsA']) : isaset (actionbased_strength Mon_V actn actn' F).
+  Lemma Strong_Functor_precategory_Pisset (F : [A, A']) : isaset (actionbased_strength Mon_V actn actn' F).
   Proof.
     change isaset with (isofhlevel 2).
     apply isofhleveltotal2.
-    apply (functor_category_has_homsets (A ⊠ Mon_V) _ hsA').
-    intro ϛ.
-    apply isasetaprop.
-    apply isapropdirprod.
-    + apply isaprop_actionbased_strength_triangle_eq, hsA'.
-    + apply isaprop_actionbased_strength_pentagon_eq, hsA'.
+    - use (functor_category_has_homsets (A ⊠ Mon_V)). apply homset_property.
+    - intro ϛ.
+      apply isasetaprop.
+      apply isapropdirprod.
+      + apply isaprop_actionbased_strength_triangle_eq.
+      + apply isaprop_actionbased_strength_pentagon_eq.
   Qed.
 
-  Lemma Strong_Functor_precategory_Hstandard (F : [A, A',, hsA']) (sη sη' : actionbased_strength Mon_V actn actn' F) :
+  Lemma Strong_Functor_precategory_Hstandard (F : [A, A']) (sη sη' : actionbased_strength Mon_V actn actn' F) :
     (∏ (a : A) (v : Mon_V), Strong_Functor_Category_mor_diagram (F,,sη) (F,,sη') (id F) a v)
   → (∏ (a : A) (v : Mon_V), Strong_Functor_Category_mor_diagram (F,,sη') (F,,sη) (id F) a v) → sη = sη'.
   Proof.
     intros leq geq.
-    apply (actionbased_strength_eq _ _ _ hsA').
-    apply (nat_trans_eq hsA').
+    apply actionbased_strength_eq.
+    apply nat_trans_eq_alt.
     intro av.
     assert (leqinst := leq (pr1 av) (pr2 av)).
     (* assert (geqinst := geq (pr1 av) (pr2 av)). *)
@@ -221,9 +219,9 @@ End AsDisplayedCategory.
 
 End Strong_Functor_Category.
 
-Definition is_univalent_Strong_Functor_precategory (Mon_V : monoidal_precat) (A : precategory)
+Definition is_univalent_Strong_Functor_precategory (Mon_V : monoidal_cat) (A : category)
            (A' : univalent_category) (actn : action Mon_V A) (actn' : action Mon_V A') :
-  is_univalent (Strong_Functor_precategory Mon_V actn actn' (homset_property A')).
+  is_univalent (Strong_Functor_category Mon_V actn actn').
 Proof.
   apply SIP.
   - exact (is_univalent_functor_category A _ (pr2 A')).

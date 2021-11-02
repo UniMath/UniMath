@@ -20,17 +20,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
-
-(* TODO: factor out proof, upstream the definition *)
-Definition categoryBinProduct (C C' : category) : category.
-Proof.
-  exists (C ⊠ C').
-  intros a b. apply isasetdirprod.
-  - apply C.
-  - apply C'.
-Defined.
-
-Local Notation "C ⊠ C'" := (categoryBinProduct C C').
+Local Notation "C ⊠ C'" := (category_binproduct C C').
 
 Section DispCartProdOfCats.
 
@@ -68,7 +58,7 @@ Section DispCartProdOfCats.
         (a' b' : C') (f' g' : a' --> b')
         (x : D a) (y : D b) (x' : D' a') (y' : D' b')
         (ff : x -->[f] y) (ff' : x' -->[f'] y')
-        (e : precatbinprodmor f f' = precatbinprodmor g g')
+        (e : catbinprodmor f f' = catbinprodmor g g')
     : transportf (mor_disp _ _) (maponpaths pr1 e) ff
       =
       pr1 (transportf (@mor_disp _ disp_binprod_data (a,,a') _ (x,, x') (_,, _)) e (ff,, ff')) .
@@ -82,7 +72,7 @@ Section DispCartProdOfCats.
         (a' b' : C') (f' g' : a' --> b')
         (x : D a) (y : D b) (x' : D' a') (y' : D' b')
         (ff : x -->[f] y) (ff' : x' -->[f'] y')
-        (e : precatbinprodmor f f' = precatbinprodmor g g')
+        (e : catbinprodmor f f' = catbinprodmor g g')
     : transportf (mor_disp _ _) (maponpaths (dirprod_pr2) e) ff'
       =
       pr2 (transportf (@mor_disp _ disp_binprod_data (a,,a') _ (x,, x') (_,, _)) e (ff,, ff')) .
