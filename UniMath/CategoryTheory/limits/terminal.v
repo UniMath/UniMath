@@ -25,7 +25,7 @@ Local Open Scope cat.
 
 Section def_terminal.
 
-Context {C : category}.
+Context {C : precategory}.
 
 Definition isTerminal (b : C) : UU := ∏ a : C, iscontr (a --> b).
 
