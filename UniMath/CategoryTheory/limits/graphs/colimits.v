@@ -40,21 +40,21 @@ Definition edge {g : graph} : vertex g -> vertex g -> UU := pr2 g.
 
 Definition make_graph (D : UU) (e : D → D → UU) : graph := tpair _ D e.
 
-Definition diagram (g : graph) (C : category) : UU :=
+Definition diagram (g : graph) (C : precategory) : UU :=
   ∑ (f : vertex g -> C), ∏ (a b : vertex g), edge a b -> C⟦f a, f b⟧.
 
-Definition dob {g : graph} {C : category} (d : diagram g C) : vertex g -> C :=
+Definition dob {g : graph} {C : precategory} (d : diagram g C) : vertex g -> C :=
   pr1 d.
 
-Definition dmor {g : graph} {C : category} (d : diagram g C) :
+Definition dmor {g : graph} {C : precategory} (d : diagram g C) :
   ∏ {a b}, edge a b -> C⟦dob d a,dob d b⟧ := pr2 d.
 
 Section diagram_from_functor.
 
-Variables (J C : category).
+Variables (J C : precategory).
 Variable (F : functor J C).
 
-Definition graph_from_precategory : graph :=  pr1 (pr1 (pr1 J)).
+Definition graph_from_precategory : graph :=  (pr1 (pr1 J)).
 
 Definition diagram_from_functor : diagram graph_from_precategory C :=
   tpair _ _ (pr2 (pr1 F)).
@@ -63,38 +63,36 @@ End diagram_from_functor.
 
 End diagram_def.
 
-Coercion graph_from_precategory : category >-> graph.
+Coercion graph_from_precategory : precategory >-> graph.
 
 
 (** * Definition of colimits *)
 Section colim_def.
 
-Context {C : category}.
-
 (** A cocone with tip c over a diagram d *)
-Definition forms_cocone {g : graph} (d : diagram g C) {c : C} (f : ∏ (v : vertex g), C⟦dob d v, c⟧) : UU
+Definition forms_cocone {C : precategory} {g : graph} (d : diagram g C) {c : C} (f : ∏ (v : vertex g), C⟦dob d v, c⟧) : UU
   := ∏ (u v : vertex g) (e : edge u v), dmor d e · f v = f u.
 
-Definition cocone {g : graph} (d : diagram g C) (c : C) : UU :=
+Definition cocone {C : precategory} {g : graph} (d : diagram g C) (c : C) : UU :=
   ∑ (f : ∏ (v : vertex g), C⟦dob d v,c⟧), forms_cocone d f.
 
-Definition make_cocone {g : graph} {d : diagram g C} {c : C}
+Definition make_cocone {C : precategory} {g : graph} {d : diagram g C} {c : C}
   (f : ∏ v, C⟦dob d v,c⟧) (Hf : forms_cocone d f) :
   cocone d c := tpair _ f Hf.
 
 (** The injections to c in the cocone *)
-Definition coconeIn {g : graph} {d : diagram g C} {c : C} (cc : cocone d c) :
+Definition coconeIn {C : precategory} {g : graph} {d : diagram g C} {c : C} (cc : cocone d c) :
   ∏ v, C⟦dob d v,c⟧ := pr1 cc.
 
 (** not recommended! [Coercion coconeIn : cocone >-> Funclass.] *)
 
-Lemma coconeInCommutes {g : graph} {d : diagram g C} {c : C} (cc : cocone d c) :
+Lemma coconeInCommutes {C : precategory} {g : graph} {d : diagram g C} {c : C} (cc : cocone d c) :
   forms_cocone d (coconeIn cc).
 Proof.
 exact (pr2 cc).
 Qed.
 
-Definition cocone_paths {g : graph} {d : diagram g C} {x : C}
+Definition cocone_paths {C : category} {g : graph} {d : diagram g C} {x : C}
            (cc1 cc2 : cocone d x)
            (eqin : ∏ g, coconeIn cc1 g = coconeIn cc2 g): cc1 = cc2.
 Proof.
@@ -105,75 +103,75 @@ Proof.
     apply C.
 Defined.
 
-Definition is_cocone_mor {g : graph} {d : diagram g C} {c1 : C}
+Definition is_cocone_mor {C : precategory} {g : graph} {d : diagram g C} {c1 : C}
            (cc1 : cocone d c1) {c2 : C} (cc2 : cocone d c2) (x : c1 --> c2) : UU :=
   ∏ (v : vertex g), coconeIn cc1 v · x = coconeIn cc2 v.
 
 (** cc0 is a colimit cocone if for any other cocone cc over the same
    diagram there is a unique morphism from the tip of cc0 to the tip
    of cc *)
-Definition isColimCocone {g : graph} (d : diagram g C) (c0 : C)
+Definition isColimCocone {C : precategory} {g : graph} (d : diagram g C) (c0 : C)
   (cc0 : cocone d c0) : UU := ∏ (c : C) (cc : cocone d c),
     iscontr (∑ x : C⟦c0,c⟧, is_cocone_mor cc0 cc x).
 
 (* Definition isColim {g : graph} (d : diagram g C) (L : C) := *)
 (*   ∑ c : cocone d L, isColimCocone d L c. *)
 
-Definition ColimCocone {g : graph} (d : diagram g C) : UU :=
+Definition ColimCocone {C : precategory} {g : graph} (d : diagram g C) : UU :=
   ∑ (A : (∑ c0 : C, cocone d c0)), isColimCocone d (pr1 A) (pr2 A).
 
-Definition make_ColimCocone {g : graph} (d : diagram g C)
+Definition make_ColimCocone {C : precategory} {g : graph} (d : diagram g C)
   (c : C) (cc : cocone d c) (isCC : isColimCocone d c cc) : ColimCocone d :=
     tpair _ (tpair _ c cc) isCC.
 
 (** colim is the tip of the colim cocone *)
-Definition colim {g : graph} {d : diagram g C} (CC : ColimCocone d) : C :=
+Definition colim {C : precategory} {g : graph} {d : diagram g C} (CC : ColimCocone d) : C :=
   pr1 (pr1 CC).
 
-Definition colimCocone {g : graph} {d : diagram g C} (CC : ColimCocone d) :
+Definition colimCocone {C : precategory} {g : graph} {d : diagram g C} (CC : ColimCocone d) :
   cocone d (colim CC) := pr2 (pr1 CC).
 
-Definition isColimCocone_from_ColimCocone {g : graph} {d : diagram g C} (CC : ColimCocone d) :
+Definition isColimCocone_from_ColimCocone {C : precategory} {g : graph} {d : diagram g C} (CC : ColimCocone d) :
   isColimCocone d (colim CC) _ := pr2 CC.
 
-Definition colimIn {g : graph} {d : diagram g C} (CC : ColimCocone d) :
+Definition colimIn {C : precategory} {g : graph} {d : diagram g C} (CC : ColimCocone d) :
   ∏ (v : vertex g), C⟦dob d v,colim CC⟧ := coconeIn (colimCocone CC).
 
-Lemma colimInCommutes {g : graph} {d : diagram g C}
+Lemma colimInCommutes {C : precategory} {g : graph} {d : diagram g C}
   (CC : ColimCocone d) : forms_cocone d (colimIn CC).
 Proof.
 exact (coconeInCommutes (colimCocone CC)).
 Qed.
 
-Lemma colimUnivProp {g : graph} {d : diagram g C}
+Lemma colimUnivProp {C : precategory} {g : graph} {d : diagram g C}
   (CC : ColimCocone d) : ∏ (c : C) (cc : cocone d c),
   iscontr (∑ x : C⟦colim CC,c⟧, ∏ (v : vertex g), colimIn CC v · x = coconeIn cc v).
 Proof.
 exact (pr2 CC).
 Qed.
 
-Lemma isaprop_isColimCocone {g : graph} (d : diagram g C) (c0 : C)
+Lemma isaprop_isColimCocone {C : precategory} {g : graph} (d : diagram g C) (c0 : C)
   (cc0 : cocone d c0) : isaprop (isColimCocone d c0 cc0).
 Proof.
 repeat (apply impred; intro).
 apply isapropiscontr.
 Qed.
 
-Definition isColimCocone_ColimCocone {g : graph} {d : diagram g C}
+Definition isColimCocone_ColimCocone {C : precategory} {g : graph} {d : diagram g C}
   (CC : ColimCocone d) :
   isColimCocone d (colim CC) (tpair _ (colimIn CC) (colimInCommutes CC)) := pr2 CC.
 
-Definition colimArrow {g : graph} {d : diagram g C} (CC : ColimCocone d)
+Definition colimArrow {C : precategory} {g : graph} {d : diagram g C} (CC : ColimCocone d)
   (c : C) (cc : cocone d c) : C⟦colim CC,c⟧ := pr1 (pr1 (isColimCocone_ColimCocone CC c cc)).
 
-Lemma colimArrowCommutes {g : graph} {d : diagram g C} (CC : ColimCocone d)
+Lemma colimArrowCommutes {C : precategory} {g : graph} {d : diagram g C} (CC : ColimCocone d)
   (c : C) (cc : cocone d c) (u : vertex g) :
   colimIn CC u · colimArrow CC c cc = coconeIn cc u.
 Proof.
 exact ((pr2 (pr1 (isColimCocone_ColimCocone CC _ cc))) u).
 Qed.
 
-Lemma colimArrowUnique {g : graph} {d : diagram g C} (CC : ColimCocone d)
+Lemma colimArrowUnique {C : precategory} {g : graph} {d : diagram g C} (CC : ColimCocone d)
   (c : C) (cc : cocone d c) (k : C⟦colim CC,c⟧)
   (Hk : ∏ (u : vertex g), colimIn CC u · k = coconeIn cc u) :
   k = colimArrow CC c cc.
@@ -181,14 +179,14 @@ Proof.
 apply path_to_ctr. red. apply Hk.
 Qed.
 
-Lemma Cocone_postcompose {g : graph} {d : diagram g C}
+Lemma Cocone_postcompose {C : precategory} {g : graph} {d : diagram g C}
   {c : C} (cc : cocone d c) (x : C) (f : C⟦c,x⟧) :
     ∏ u v (e : edge u v), dmor d e · (coconeIn cc v · f) = coconeIn cc u · f.
 Proof.
 now intros u v e; rewrite assoc, coconeInCommutes.
 Qed.
 
-Lemma colimArrowEta {g : graph} {d : diagram g C} (CC : ColimCocone d)
+Lemma colimArrowEta {C : precategory} {g : graph} {d : diagram g C} (CC : ColimCocone d)
   (c : C) (f : C⟦colim CC,c⟧) :
   f = colimArrow CC c (tpair _ (λ u, colimIn CC u · f)
                  (Cocone_postcompose (colimCocone CC) c f)).
@@ -196,7 +194,7 @@ Proof.
 now apply colimArrowUnique.
 Qed.
 
-Lemma colimArrowUnique'
+Lemma colimArrowUnique' {C : precategory}
       {g : graph} {d : diagram g C} (CC : ColimCocone d)
       {c} (k k' : C ⟦ colim CC, c ⟧):
   (∏ u : vertex g, colimIn CC u · k = colimIn CC u · k') → k = k'.
@@ -211,7 +209,7 @@ Proof.
   exact eq.
 Qed.
 
-Definition colimOfArrows {g : graph} {d1 d2 : diagram g C}
+Definition colimOfArrows {C : precategory} {g : graph} {d1 d2 : diagram g C}
   (CC1 : ColimCocone d1) (CC2 : ColimCocone d2)
   (f : ∏ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
   (fNat : ∏ u v (e : edge u v), dmor d1 e · f v = f u · dmor d2 e) :
@@ -223,7 +221,7 @@ apply colimArrow; use make_cocone.
             now rewrite assoc, fNat, <- assoc, colimInCommutes).
 Defined.
 
-Lemma colimOfArrowsIn {g : graph} (d1 d2 : diagram g C)
+Lemma colimOfArrowsIn {C : precategory} {g : graph} (d1 d2 : diagram g C)
   (CC1 : ColimCocone d1) (CC2 : ColimCocone d2)
   (f : ∏ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
   (fNat : ∏ u v (e : edge u v), dmor d1 e · f v = f u · dmor d2 e) :
@@ -233,7 +231,7 @@ Proof.
 now unfold colimOfArrows; intro u; rewrite colimArrowCommutes.
 Qed.
 
-Lemma preCompWithColimOfArrows_subproof {g : graph} {d1 d2 : diagram g C}
+Lemma preCompWithColimOfArrows_subproof {C : precategory} {g : graph} {d1 d2 : diagram g C}
   (CC1 : ColimCocone d1) (CC2 : ColimCocone d2)
   (f : ∏ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
   (fNat : ∏ u v (e : edge u v), dmor d1 e · f v = f u · dmor d2 e)
@@ -243,7 +241,7 @@ Proof.
   now rewrite <- (coconeInCommutes cc u v e), !assoc, fNat.
 Qed.
 
-Lemma precompWithColimOfArrows {g : graph} (d1 d2 : diagram g C)
+Lemma precompWithColimOfArrows {C : precategory} {g : graph} (d1 d2 : diagram g C)
   (CC1 : ColimCocone d1) (CC2 : ColimCocone d2)
   (f : ∏ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
   (fNat : ∏ u v (e : edge u v), dmor d1 e · f v = f u · dmor d2 e)
@@ -256,7 +254,7 @@ apply colimArrowUnique.
 now intro u; rewrite assoc, colimOfArrowsIn, <- assoc, colimArrowCommutes.
 Qed.
 
-Lemma postcompWithColimArrow {g : graph} (D : diagram g C)
+Lemma postcompWithColimArrow {C : precategory} {g : graph} (D : diagram g C)
  (CC : ColimCocone D) (c : C) (cc : cocone D c) (d : C) (k : C⟦c,d⟧) :
    colimArrow CC c cc · k =
    colimArrow CC d (make_cocone (λ u, coconeIn cc u · k)
@@ -266,7 +264,7 @@ apply colimArrowUnique.
 now intro u; rewrite assoc, colimArrowCommutes.
 Qed.
 
-Lemma colim_endo_is_identity {g : graph} (D : diagram g C)
+Lemma colim_endo_is_identity {C : precategory} {g : graph} (D : diagram g C)
   (CC : ColimCocone D) (k : colim CC --> colim CC)
   (H : ∏ u, colimIn CC u · k = colimIn CC u) :
   identity _ = k.
@@ -278,20 +276,20 @@ use (uniqueExists (colimUnivProp CC _ _)).
 - simpl; now apply H.
 Qed.
 
-Definition Cocone_by_postcompose {g : graph} (D : diagram g C)
+Definition Cocone_by_postcompose {C : precategory} {g : graph} (D : diagram g C)
  (c : C) (cc : cocone D c) (d : C) (k : C⟦c,d⟧) : cocone D d.
 Proof.
 exists (λ u, coconeIn cc u · k). red; apply Cocone_postcompose.
 Defined.
 
-Lemma isColim_weq_subproof1 {g : graph} (D : diagram g C)
+Lemma isColim_weq_subproof1 {C : precategory} {g : graph} (D : diagram g C)
       (c : C) (cc : cocone D c) (d : C) (k : C⟦c,d⟧) :
   ∏ u, coconeIn cc u · k = coconeIn (Cocone_by_postcompose D c cc d k) u.
 Proof.
 now intro u.
 Qed.
 
-Lemma isColim_weq_subproof2 (g : graph) (D : diagram g C)
+Lemma isColim_weq_subproof2 {C : precategory} (g : graph) (D : diagram g C)
   (c : C) (cc : cocone D c) (H : ∏ d, isweq (Cocone_by_postcompose D c cc d))
   (d : C) (cd : cocone D d) : is_cocone_mor cc cd (invmap (make_weq _ (H d)) cd).
 Proof.
@@ -301,7 +299,7 @@ set (p := homotweqinvweq (make_weq _ (H d)) cd); simpl in p.
 now rewrite p.
 Qed.
 
-Lemma isColim_weq {g : graph} (D : diagram g C) (c : C) (cc : cocone D c) :
+Lemma isColim_weq {C : category} {g : graph} (D : diagram g C) (c : C) (cc : cocone D c) :
   isColimCocone D c cc <-> ∏ d, isweq (Cocone_by_postcompose D c cc d).
 Proof.
 split.
@@ -330,7 +328,7 @@ split.
                       now apply isColim_weq_subproof2]]).
 Defined.
 
-Lemma isColim_is_iso {g : graph} (D : diagram g C) (CC : ColimCocone D) (d : C) (cd : cocone D d) :
+Lemma isColim_is_iso {C : precategory} {g : graph} (D : diagram g C) (CC : ColimCocone D) (d : C) (cd : cocone D d) :
   isColimCocone D d cd -> is_iso (colimArrow CC d cd).
 Proof.
 intro H.
@@ -348,7 +346,7 @@ abstract (split;
       apply colimArrowCommutes ]).
 Defined.
 
-Lemma inv_isColim_is_iso {g : graph} (D : diagram g C) (CC : ColimCocone D) (d : C)
+Lemma inv_isColim_is_iso {C : precategory} {g : graph} (D : diagram g C) (CC : ColimCocone D) (d : C)
   (cd : cocone D d) (H : isColimCocone D d cd) :
   inv_from_iso (make_iso _ (isColim_is_iso D CC d cd H)) =
   colimArrow (make_ColimCocone D d cd H) _ (colimCocone CC).
@@ -358,7 +356,7 @@ unfold precomp_with.
 apply id_right.
 Qed.
 
-Lemma is_iso_isColim {g : graph} (D : diagram g C) (CC : ColimCocone D) (d : C) (cd : cocone D d) :
+Lemma is_iso_isColim {C : category} {g : graph} (D : diagram g C) (CC : ColimCocone D) (d : C) (cd : cocone D d) :
   is_iso (colimArrow CC d cd) -> isColimCocone D d cd.
 Proof.
 intro H.
@@ -378,7 +376,7 @@ use tpair.
     now rewrite <- (Hf u), assoc, colimArrowCommutes.
 Defined.
 
-Definition iso_from_colim_to_colim {g : graph} {d : diagram g C}
+Definition iso_from_colim_to_colim {C : precategory} {g : graph} {d : diagram g C}
   (CC CC' : ColimCocone d) : iso (colim CC) (colim CC').
 Proof.
 use make_iso.
