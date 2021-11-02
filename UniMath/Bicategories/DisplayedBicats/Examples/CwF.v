@@ -54,15 +54,15 @@ Local Open Scope mor_disp_scope.
 
 Local Notation "'SET'" := HSET_univalent_category.
 Local Notation "'PreShv' C" := [C^op,SET] (at level 4) : cat.
-Local Notation "'Yo'" := (yoneda _ (homset_property _) : functor _ (PreShv _)).
+Local Notation "'Yo'" := (yoneda _ : functor _ (PreShv _)).
 
 Section Yoneda.
 
-  Context {C : precategory} {hsC : has_homsets C}.
+  Context {C : category} {hsC : has_homsets C}.
 
   Definition yy {F : PreShv C} {c : C}
     : ((F : C^op ⟶ SET) c : hSet) ≃
-      [C^op, HSET, has_homsets_HSET] ⟦ yoneda C hsC c, F⟧.
+      [C^op, HSET, has_homsets_HSET] ⟦ yoneda C c, F⟧.
   Proof.
     apply invweq. apply yoneda_weq.
   Defined.
@@ -71,9 +71,9 @@ Section Yoneda.
         (A : (F : C^op ⟶ SET) c : hSet)
         c' (f : C⟦c', c⟧)
     : yy (functor_on_morphisms (F : C^op ⟶ SET) f A) =
-      functor_on_morphisms (yoneda C hsC) f · yy A.
+      functor_on_morphisms (yoneda C) f · yy A.
   Proof.
-    assert (XTT := is_natural_yoneda_iso_inv _ hsC F _ _ f).
+    assert (XTT := is_natural_yoneda_iso_inv _ F _ _ f).
     apply (toforallpaths _ _ _ XTT).
   Qed.
 
@@ -130,11 +130,12 @@ End Representation.
 *)
 
 Lemma transportf_yy
-      {C : precategory} {hsC : has_homsets C}
+      {C : category}
       (F : opp_precat_data C ⟶ SET) (c c' : C) (A : (F : functor _ _ ) c : hSet)
       (e : c = c')
-  : yy (transportf (fun d => (F : functor _ _ ) d : hSet) e A) =
-    transportf (fun d => nat_trans (yoneda _ hsC d : functor _ _) F) e (yy A).
+  : yy (transportf (fun d => (F : functor _ _ ) d : hSet) e A)
+    =
+    transportf (fun d => nat_trans (yoneda _ d : functor _ _) F) e (yy A).
 Proof.
   induction e.
   apply idpath.
@@ -229,7 +230,7 @@ Section CwFRepresentation.
     - set (T1 := make_Pullback _ isP).
       set (T2 := make_Pullback _ isP').
       set (i := iso_from_Pullback_to_Pullback T1 T2). cbn in i.
-      set (i' := invmap (weq_ff_functor_on_iso (yoneda_fully_faithful _ _ ) _ _ ) i ).
+      set (i' := invmap (weq_ff_functor_on_iso (yoneda_fully_faithful _) _ _ ) i ).
       set (TT := isotoid _ isC i').
       apply TT.
     - cbn.
@@ -270,7 +271,7 @@ Section CwFRepresentation.
         match goal with |[|- transportf ?r  _ _ = _ ] => set (P:=r) end.
         match goal with |[|- transportf _ (_ _ _ (_ _ ?ii)) _ = _ ] => set (i:=ii) end.
         simpl in i.
-        apply (invmaponpathsweq (@yy _ (homset_property _ ) Tm ΓA')).
+        apply (invmaponpathsweq (@yy _ Tm ΓA')).
         etrans.
         {
           apply transportf_yy.
@@ -281,7 +282,7 @@ Section CwFRepresentation.
         }
         rewrite inv_from_iso_iso_from_fully_faithful_reflection.
         assert (XX:=homotweqinvweq (weq_from_fully_faithful
-                                      (yoneda_fully_faithful _ (homset_property C)) ΓA' ΓA )).
+                                      (yoneda_fully_faithful _) ΓA' ΓA )).
         etrans. apply maponpaths_2. apply XX.
         clear XX.
         etrans. apply maponpaths_2. apply id_right.

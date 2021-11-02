@@ -1275,6 +1275,7 @@ Proof.
   rewrite vassocr. apply maponpaths_2.
   rewrite id2_rwhisker. apply id2_left.
 Qed.
+(*
 
 Definition lunitor_transf (a b : C)
   : bindelta_pair_functor
@@ -1284,6 +1285,7 @@ Definition lunitor_transf (a b : C)
     ⟹
     functor_identity (hom_precategory a b)
   := lunitor,, lunitor_natural a b.
+ *)
 
 (* -----------------------------------------------------------------------------------*)
 (** Right unitor                                                                      *)
@@ -1301,6 +1303,7 @@ Proof.
   rewrite lwhisker_id2. apply id2_left.
 Qed.
 
+(*
 Definition runitor_transf (a b : C)
   : bindelta_pair_functor
        (functor_identity (hom_precategory a b))
@@ -1311,6 +1314,7 @@ Definition runitor_transf (a b : C)
 Proof.
   exists runitor. red. apply runitor_natural.
 Defined.
+ *)
 
 (* -----------------------------------------------------------------------------------*)
 (** Left associator.                                                                  *)
@@ -1321,6 +1325,7 @@ Definition lassociator_fun {a b c d : C}
   :  pr1 x · (pr12 x · pr22 x) ==> (pr1 x · pr12 x) · pr22 x
   := lassociator (pr1 x) (pr12 x) (pr22 x).
 
+(*
 Lemma lassociator_fun_natural {a b c d : C}
   : is_nat_trans
       (pair_functor (functor_identity (hom_precategory a b)) hcomp_functor ∙ hcomp_functor)
@@ -1350,7 +1355,7 @@ Definition lassociator_transf (a b c d : C)
     pair_functor hcomp_functor (functor_identity _) ∙
     hcomp_functor
   := lassociator_fun,, lassociator_fun_natural.
-
+ *)
 (* -----------------------------------------------------------------------------------*)
 (** Right associator.                                                                 *)
 (* -----------------------------------------------------------------------------------*)
@@ -1360,6 +1365,7 @@ Definition rassociator_fun {a b c d : C}
   : (pr1 x · pr12 x) · pr22 x ==> pr1 x · (pr12 x · pr22 x)
   := rassociator (pr1 x) (pr12 x) (pr22 x).
 
+(*
 Lemma rassociator_fun_natural {a b c d : C}
   : is_nat_trans
       (precategory_binproduct_assoc
@@ -1389,12 +1395,14 @@ Definition rassociator_transf (a b c d : C)
     ⟹
     pair_functor (functor_identity _) hcomp_functor ∙ hcomp_functor
   := rassociator_fun,, rassociator_fun_natural.
+ *)
 
 Definition rassociator_fun' {a b c d : C}
            (x : (C⟦a,b⟧ × C⟦b,c⟧) × C⟦c,d⟧)
   : (pr11 x · pr21 x) · pr2 x ==> pr11 x · (pr21 x · pr2 x)
   := rassociator (pr11 x) (pr21 x) (pr2 x).
 
+(*
 Lemma rassociator_fun'_natural {a b c d : C}
   : is_nat_trans
       (pair_functor hcomp_functor (functor_identity _) ∙ hcomp_functor)
@@ -1423,7 +1431,7 @@ Definition rassociator_transf' (a b c d : C)
       (hom_precategory c d) ∙
     pair_functor (functor_identity _) hcomp_functor ∙ hcomp_functor
   := rassociator_fun',, rassociator_fun'_natural.
-
+ *)
 End Associators_Unitors_Natural.
 
 (* -----------------------------------------------------------------------------------*)

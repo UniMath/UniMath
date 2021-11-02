@@ -26,6 +26,7 @@ Import PseudoFunctor.Notations.
 
 Local Open Scope cat.
 
+(*
 Section monoidal_functor_to_psfunctor.
 
   Context (M N : monoidal_precat).
@@ -202,3 +203,4 @@ Defined.
 
 
 End psfunctor_to_monoidal_functor.
+*)
