@@ -11,7 +11,6 @@ Require Import UniMath.Bicategories.Core.Bicat.
 
 Local Open Scope cat.
 
-(*
 (* Defines a prebicategory from a monoidal precategory. *)
 Section Prebicat_From_Monoidal_Precat.
 
@@ -202,4 +201,3 @@ Definition bicat_from_monoidal (hs : has_homsets pM) : bicat.
 Defined.
 
 End Prebicat_From_Monoidal_Precat.
-*)
