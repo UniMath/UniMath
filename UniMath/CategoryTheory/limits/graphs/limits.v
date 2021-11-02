@@ -32,93 +32,92 @@ Local Open Scope cat.
 (** * Definition of limits *)
 Section lim_def.
 
-Context {C : category}.
 
-Definition forms_cone {g : graph} (d : diagram g C)
+Definition forms_cone {C : precategory} {g : graph} (d : diagram g C)
     {c : C} (f : ∏ (v : vertex g), C⟦c, dob d v⟧) : UU
   := ∏ (u v : vertex g) (e : edge u v), f u · dmor d e = f v.
 
 (** better not the following: [Coercion coneOut : cone >-> Funclass.] *)
 
-Definition cone {g : graph} (d : diagram g C) (c : C) : UU :=
+Definition cone {C : precategory} {g : graph} (d : diagram g C) (c : C) : UU :=
   ∑ (f : ∏ (v : vertex g), C⟦c,dob d v⟧), forms_cone d f.
 
-Definition make_cone {g : graph} {d : diagram g C} {c : C}
+Definition make_cone {C : precategory} {g : graph} {d : diagram g C} {c : C}
   (f : ∏ v, C⟦c, dob d v⟧) (Hf : forms_cone d f) : cone d c
   := tpair _ f Hf.
 
 (** The injections to c in the cocone *)
-Definition coneOut {g : graph} {d : diagram g C} {c : C} (cc : cone d c) :
+Definition coneOut {C : precategory} {g : graph} {d : diagram g C} {c : C} (cc : cone d c) :
   ∏ v, C⟦c, dob d v⟧ := pr1 cc.
 
-Lemma coneOutCommutes {g : graph} {d : diagram g C} {c : C} (cc : cone d c) :
+Lemma coneOutCommutes {C : precategory} {g : graph} {d : diagram g C} {c : C} (cc : cone d c) :
   forms_cone d (coneOut cc).
 Proof.
 apply (pr2 cc).
 Qed.
 
-Definition is_cone_mor {g : graph} {d : diagram g C} {c1 : C}
+Definition is_cone_mor {C : precategory} {g : graph} {d : diagram g C} {c1 : C}
            (cc1 : cone d c1) {c2 : C} (cc2 : cone d c2) (x : c1 --> c2) : UU :=
   ∏ (v : vertex g), x · coneOut cc2 v = coneOut cc1 v.
 
-Definition isLimCone {g : graph} (d : diagram g C) (c0 : C)
+Definition isLimCone {C : precategory} {g : graph} (d : diagram g C) (c0 : C)
   (cc0 : cone d c0) : UU := ∏ (c : C) (cc : cone d c),
     iscontr (∑ x : C⟦c,c0⟧, is_cone_mor cc cc0 x).
 
-Definition LimCone {g : graph} (d : diagram g C) : UU :=
+Definition LimCone {C : precategory} {g : graph} (d : diagram g C) : UU :=
    ∑ (A : (∑ l, cone d l)), isLimCone d (pr1 A) (pr2 A).
 
-Definition make_LimCone {g : graph} (d : diagram g C)
+Definition make_LimCone {C : precategory} {g : graph} (d : diagram g C)
   (c : C) (cc : cone d c) (isCC : isLimCone d c cc) : LimCone d
   := tpair _ (tpair _ c cc) isCC.
 
 (** [lim] is the tip of the [LimCone] *)
-Definition lim {g : graph} {d : diagram g C} (CC : LimCone d) : C
+Definition lim {C : precategory} {g : graph} {d : diagram g C} (CC : LimCone d) : C
   := pr1 (pr1 CC).
 
-Definition limCone {g : graph} {d : diagram g C} (CC : LimCone d) :
+Definition limCone {C : precategory} {g : graph} {d : diagram g C} (CC : LimCone d) :
   cone d (lim CC) := pr2 (pr1 CC).
 
-Definition limOut {g : graph} {d : diagram g C} (CC : LimCone d) :
+Definition limOut {C : precategory} {g : graph} {d : diagram g C} (CC : LimCone d) :
   ∏ (v : vertex g), C⟦lim CC, dob d v⟧ := coneOut (limCone CC).
 
-Lemma limOutCommutes {g : graph} {d : diagram g C}
+Lemma limOutCommutes {C : precategory} {g : graph} {d : diagram g C}
   (CC : LimCone d) : forms_cone d (limOut CC).
 Proof.
 exact (coneOutCommutes (limCone CC)).
 Qed.
 
-Lemma limUnivProp {g : graph} {d : diagram g C}
+Lemma limUnivProp {C : precategory} {g : graph} {d : diagram g C}
   (CC : LimCone d) : ∏ (c : C) (cc : cone d c),
   iscontr (∑ x : C⟦c, lim CC⟧, ∏ (v : vertex g), x · limOut CC v = coneOut cc v).
 Proof.
 apply (pr2 CC).
 Qed.
 
-Lemma isaprop_isLimCone {g : graph} {d : diagram g C} (c0 : C)
+Lemma isaprop_isLimCone {C : precategory} {g : graph} {d : diagram g C} (c0 : C)
   (cc0 : cone d c0) : isaprop (isLimCone d c0 cc0).
 Proof.
 repeat (apply impred; intro).
 apply isapropiscontr.
 Qed.
 
-Definition isLimCone_LimCone {g : graph} {d : diagram g C}
+Definition isLimCone_LimCone {C : precategory} {g : graph} {d : diagram g C}
     (CC : LimCone d)
   : isLimCone d (lim CC) (tpair _ (limOut CC) (limOutCommutes CC))
   := pr2 CC.
 
-Definition limArrow {g : graph} {d : diagram g C} (CC : LimCone d)
+Definition limArrow {C : precategory} {g : graph} {d : diagram g C} (CC : LimCone d)
   (c : C) (cc : cone d c) : C⟦c, lim CC⟧ :=
   pr1 (pr1 (isLimCone_LimCone CC c cc)).
 
-Lemma limArrowCommutes {g : graph} {d : diagram g C} (CC : LimCone d)
+Lemma limArrowCommutes {C : precategory} {g : graph} {d : diagram g C} (CC : LimCone d)
   (c : C) (cc : cone d c) (u : vertex g) :
    limArrow CC c cc · limOut CC u = coneOut cc u.
 Proof.
 exact ((pr2 (pr1 (isLimCone_LimCone CC _ cc))) u).
 Qed.
 
-Lemma limArrowUnique {g : graph} {d : diagram g C} (CC : LimCone d)
+Lemma limArrowUnique {C : precategory} {g : graph} {d : diagram g C} (CC : LimCone d)
   (c : C) (cc : cone d c) (k : C⟦c, lim CC⟧)
   (Hk : ∏ (u : vertex g), k · limOut CC u = coneOut cc u) :
   k = limArrow CC c cc.
@@ -126,14 +125,14 @@ Proof.
 apply path_to_ctr. red. apply Hk.
 Qed.
 
-Lemma Cone_precompose {g : graph} {d : diagram g C}
+Lemma Cone_precompose {C : precategory} {g : graph} {d : diagram g C}
   {c : C} (cc : cone d c) (x : C) (f : C⟦x,c⟧) :
     ∏ u v (e : edge u v), (f · coneOut cc u) · dmor d e = f · coneOut cc v.
 Proof.
 now intros u v e; rewrite <- assoc, coneOutCommutes.
 Qed.
 
-Lemma limArrowEta {g : graph} {d : diagram g C} (CC : LimCone d)
+Lemma limArrowEta {C : precategory} {g : graph} {d : diagram g C} (CC : LimCone d)
   (c : C) (f : C⟦c, lim CC⟧) :
   f = limArrow CC c (tpair _ (λ u, f · limOut CC u)
                  (Cone_precompose (limCone CC) c f)).
@@ -141,7 +140,7 @@ Proof.
 now apply limArrowUnique.
 Qed.
 
-Definition limOfArrows {g : graph} {d1 d2 : diagram g C}
+Definition limOfArrows {C : precategory} {g : graph} {d1 d2 : diagram g C}
   (CC1 : LimCone d1) (CC2 : LimCone d2)
   (f : ∏ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
   (fNat : ∏ u v (e : edge u v), f u · dmor d2 e = dmor d1 e · f v) :
@@ -153,7 +152,7 @@ apply limArrow; use make_cone.
             now rewrite <- assoc, fNat, assoc, limOutCommutes).
 Defined.
 
-Lemma limOfArrowsOut {g : graph} (d1 d2 : diagram g C)
+Lemma limOfArrowsOut {C : precategory} {g : graph} (d1 d2 : diagram g C)
   (CC1 : LimCone d1) (CC2 : LimCone d2)
   (f : ∏ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
   (fNat : ∏ u v (e : edge u v), f u · dmor d2 e = dmor d1 e · f v) :
@@ -163,7 +162,7 @@ Proof.
 now unfold limOfArrows; intro u; rewrite limArrowCommutes.
 Qed.
 
-Lemma postCompWithLimOfArrows_subproof {g : graph} {d1 d2 : diagram g C}
+Lemma postCompWithLimOfArrows_subproof {C : precategory} {g : graph} {d1 d2 : diagram g C}
   (CC1 : LimCone d1) (CC2 : LimCone d2)
   (f : ∏ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
   (fNat : ∏ u v (e : edge u v), f u · dmor d2 e = dmor d1 e · f v)
@@ -173,7 +172,7 @@ Proof.
 now rewrite <- (coneOutCommutes cc u v e), <- assoc, fNat, assoc.
 Defined.
 
-Lemma postCompWithLimOfArrows {g : graph} (d1 d2 : diagram g C)
+Lemma postCompWithLimOfArrows {C : precategory} {g : graph} (d1 d2 : diagram g C)
   (CC1 : LimCone d1) (CC2 : LimCone d2)
   (f : ∏ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
   (fNat : ∏ u v (e : edge u v), f u · dmor d2 e = dmor d1 e · f v)
@@ -186,7 +185,7 @@ apply limArrowUnique; intro u.
 now rewrite <- assoc, limOfArrowsOut, assoc, limArrowCommutes.
 Qed.
 
-Lemma postCompWithLimArrow {g : graph} (D : diagram g C)
+Lemma postCompWithLimArrow {C : precategory} {g : graph} (D : diagram g C)
  (CC : LimCone D) (c : C) (cc : cone D c) (d : C) (k : C⟦d,c⟧) :
    k · limArrow CC c cc  =
    limArrow CC d (make_cone (λ u, k · coneOut cc u)
@@ -196,7 +195,7 @@ Proof.
   now intro u; rewrite <- assoc, limArrowCommutes.
 Qed.
 
-Lemma lim_endo_is_identity {g : graph} (D : diagram g C)
+Lemma lim_endo_is_identity {C : precategory} {g : graph} (D : diagram g C)
   (CC : LimCone D) (k : lim CC --> lim CC)
   (H : ∏ u, k · limOut CC u = limOut CC u) :
   identity _ = k.
@@ -210,7 +209,7 @@ use (uniqueExists (limUnivProp CC _ _)).
 Qed.
 
 
-Lemma isLim_is_iso {g : graph} (D : diagram g C) (CC : LimCone D) (d : C) (cd : cone D d) :
+Lemma isLim_is_iso {C : precategory} {g : graph} (D : diagram g C) (CC : LimCone D) (d : C) (cd : cone D d) :
   isLimCone D d cd -> is_iso (limArrow CC d cd).
 Proof.
 intro H.
@@ -231,7 +230,7 @@ split.
 Defined.
 
 
-Lemma inv_isLim_is_iso {g : graph} (D : diagram g C) (CC : LimCone D) (d : C)
+Lemma inv_isLim_is_iso {C : precategory} {g : graph} (D : diagram g C) (CC : LimCone D) (d : C)
   (cd : cone D d) (H : isLimCone D d cd) :
   inv_from_iso (make_iso _ (isLim_is_iso D CC d cd H)) =
   limArrow (make_LimCone D d cd H) _ (limCone CC).
@@ -240,7 +239,7 @@ cbn. unfold precomp_with.
 apply id_right.
 Qed.
 
-Lemma is_iso_isLim {g : graph} (D : diagram g C) (CC : LimCone D) (d : C) (cd : cone D d) :
+Lemma is_iso_isLim {C : category} {g : graph} (D : diagram g C) (CC : LimCone D) (d : C) (cd : cone D d) :
   is_iso (limArrow CC d cd) -> isLimCone D d cd.
 Proof.
 intro H.
@@ -323,7 +322,7 @@ split.
 Defined.
 *)
 
-Definition iso_from_lim_to_lim {g : graph} {d : diagram g C}
+Definition iso_from_lim_to_lim {C : precategory} {g : graph} {d : diagram g C}
   (CC CC' : LimCone d) : iso (lim CC) (lim CC').
 Proof.
 use make_iso.
@@ -340,12 +339,12 @@ Arguments LimCone [_] {_} _.
 
 Section Lims.
 
-Definition Lims (C : category) : UU := ∏ (g : graph) (d : diagram g C), LimCone d.
-Definition hasLims (C : category) : UU  :=
+Definition Lims (C : precategory) : UU := ∏ (g : graph) (d : diagram g C), LimCone d.
+Definition hasLims (C : precategory) : UU  :=
   ∏ (g : graph) (d : diagram g C), ishinh (LimCone d).
 
 (** Limits of a specific shape *)
-Definition Lims_of_shape (g : graph) (C : category) : UU :=
+Definition Lims_of_shape (g : graph) (C : precategory) : UU :=
   ∏ (d : diagram g C), LimCone d.
 
 Section Universal_Unique.
