@@ -51,7 +51,7 @@ Proof.
     apply id_left.
 Defined.
 
-Definition mapcochain {C D : category} (F : functor C D)
+Definition mapcochain {C D : precategory} (F : functor C D)
            (c : cochain C) : cochain D := mapdiagram F c.
 
 (** Any j > i gives a morphism in the cochain via composition *)

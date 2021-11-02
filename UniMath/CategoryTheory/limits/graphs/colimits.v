@@ -576,7 +576,7 @@ Defined.
 
 Section map.
 
-Context {C D : category} (F : functor C D).
+Context {C D : precategory} (F : functor C D).
 
 Definition mapdiagram {g : graph} (d : diagram g C) : diagram g D.
 Proof.
@@ -603,9 +603,14 @@ Definition preserves_colimit {g : graph} (d : diagram g C) (L : C)
 Definition preserves_colimits_of_shape (g : graph) : UU :=
   ∏ (d : diagram g C) (L : C)(cc : cocone d L), preserves_colimit d L cc.
 
+End map.
+
+
+
+
 (** ** Left adjoints preserve colimits *)
-Lemma left_adjoint_preserves_colimit (HF : is_left_adjoint F) (hsC : has_homsets C) (hsD : has_homsets D)
-      {g : graph} (d : diagram g C) (L : C) (ccL : cocone d L) : preserves_colimit d L ccL.
+Lemma left_adjoint_preserves_colimit {C D : category} (F : functor C D) (HF : is_left_adjoint F)
+      {g : graph} (d : diagram g C) (L : C) (ccL : cocone d L) : preserves_colimit F d L ccL.
 Proof.
 intros HccL M ccM.
 set (G := right_adjoint HF).
@@ -615,18 +620,18 @@ apply (@iscontrweqb _ (∑ y : C ⟦ L, G M ⟧,
 - eapply (weqcomp (Y := ∑ y : C ⟦ L, G M ⟧,
     ∏ i, # F (coconeIn ccL i) · φ_adj_inv H y = coconeIn ccM i)).
   + apply (weqbandf (adjunction_hom_weq H L M)); simpl; intro f.
-    abstract (apply weqiff; try (apply impred; intro; apply hsD);
+    abstract (apply weqiff; try (apply impred; intro; apply D);
     now rewrite φ_adj_inv_after_φ_adj).
   + eapply (weqcomp (Y := ∑ y : C ⟦ L, G M ⟧,
       ∏ i, φ_adj_inv H (coconeIn ccL i · y) = coconeIn ccM i)).
     * apply weqfibtototal; simpl; intro f.
-    abstract (apply weqiff; try (apply impred; intro; apply hsD); split;
+    abstract (apply weqiff; try (apply impred; intro; apply D); split;
       [ intros HH i; rewrite φ_adj_inv_natural_precomp; apply HH
       | intros HH i; rewrite <- φ_adj_inv_natural_precomp; apply HH ]).
       (* apply weqonsecfibers; intro i. *)
       (* rewrite φ_adj_inv_natural_precomp; apply idweq. *)
     * apply weqfibtototal; simpl; intro f.
-    abstract (apply weqiff; [ | apply impred; intro; apply hsD | apply impred; intro; apply hsC ];
+    abstract (apply weqiff; [ | apply impred; intro; apply D | apply impred; intro; apply C ];
       split; intros HH i;
         [ now rewrite <- (HH i), φ_adj_after_φ_adj_inv
         | now rewrite (HH i),  φ_adj_inv_after_φ_adj ]).
@@ -644,7 +649,7 @@ apply (@iscontrweqb _ (∑ y : C ⟦ L, G M ⟧,
   apply (HccL (G M) X).
 Defined.
 
-End map.
+
 
 Section mapcocone_functor_composite.
 

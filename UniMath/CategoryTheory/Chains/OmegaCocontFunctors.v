@@ -98,10 +98,9 @@ Section cocont_functors.
 Lemma left_adjoint_cocont (C D : category) (F : functor C D)
   (H : is_left_adjoint F) : is_cocont F.
 Proof.
-  intros g d L ccL. apply left_adjoint_preserves_colimit.
-  - assumption.
-  - apply homset_property.
-  - apply homset_property.
+  intros g d L ccL.
+  apply left_adjoint_preserves_colimit.
+  exact H.
 Defined.
 
 (* Print Assumptions left_adjoint_cocont. *)
@@ -1392,8 +1391,6 @@ Lemma preserves_colimit_slicecat_to_cat_HSET (X : HSET)
 Proof.
   apply left_adjoint_preserves_colimit.
   - apply is_left_adjoint_slicecat_to_cat_HSET.
-  - apply has_homsets_slice_precat.
-  - apply has_homsets_HSET.
 Defined.
 
 Lemma is_cocont_slicecat_to_cat_HSET (X : HSET) :

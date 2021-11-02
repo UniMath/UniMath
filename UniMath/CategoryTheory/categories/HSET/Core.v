@@ -67,6 +67,7 @@ End HSET_precategory.
 
 (* Notation "'HSET'" := hset_precategory : cat. *)
 Notation "'HSET'" := hset_category : cat.
+Notation "'SET'" := hset_category : cat.
 
 (** ** Some particular HSETs *)
 
