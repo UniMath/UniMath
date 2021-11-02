@@ -25,56 +25,54 @@ Local Open Scope cat.
 
 Section def_initial.
 
-Context {C : category}.
+Definition isInitial {C : precategory} (a : C) : UU := ∏ b : C, iscontr (a --> b).
 
-Definition isInitial (a : C) : UU := ∏ b : C, iscontr (a --> b).
+Definition Initial (C : precategory) : UU := ∑ a, @isInitial C a.
 
-Definition Initial : UU := ∑ a, isInitial a.
-
-Definition InitialObject (O : Initial) : C := pr1 O.
+Definition InitialObject {C : precategory} (O : Initial C) : C := pr1 O.
 Coercion InitialObject : Initial >-> ob.
 
-Definition InitialArrow (O : Initial) (b : C) : O --> b := pr1 (pr2 O b).
+Definition InitialArrow {C : precategory} (O : Initial C) (b : C) : O --> b := pr1 (pr2 O b).
 
-Lemma InitialArrowUnique {I : Initial} {a : C} (f : C⟦InitialObject I,a⟧) :
+Lemma InitialArrowUnique {C : precategory} {I : Initial C} {a : C} (f : C⟦InitialObject I,a⟧) :
   f = InitialArrow I _.
 Proof.
 exact (pr2 (pr2 I _ ) _ ).
 Defined.
 
-Lemma InitialEndo_is_identity {O : Initial} (f : O --> O) : f = identity O.
+Lemma InitialEndo_is_identity {C : precategory} {O : Initial C} (f : O --> O) : f = identity O.
 Proof.
 apply proofirrelevancecontr, (pr2 O O).
 Qed.
 
-Lemma InitialArrowEq {O : Initial} {a : C} (f g : O --> a) : f = g.
+Lemma InitialArrowEq {C : precategory} {O : Initial C} {a : C} (f g : O --> a) : f = g.
 Proof.
 now rewrite (InitialArrowUnique f), (InitialArrowUnique g).
 Qed.
 
-Definition make_Initial (a : C) (H : isInitial a) : Initial.
+Definition make_Initial {C : precategory} (a : C) (H : isInitial a) : Initial C.
 Proof.
   exists a.
   exact H.
 Defined.
 
-Definition make_isInitial (a : C) (H : ∏ (b : C), iscontr (a --> b)) :
+Definition make_isInitial {C : precategory} (a : C) (H : ∏ (b : C), iscontr (a --> b)) :
   isInitial a.
 Proof.
   exact H.
 Defined.
 
-Lemma isiso_from_Initial_to_Initial (O O' : Initial) :
+Lemma isiso_from_Initial_to_Initial {C : precategory} (O O' : Initial C) :
    is_iso (InitialArrow O O').
 Proof.
   apply (is_iso_qinv _ (InitialArrow O' O)).
   split; apply InitialEndo_is_identity.
 Defined.
 
-Definition iso_Initials (O O' : Initial) : iso O O' :=
+Definition iso_Initials {C : precategory} (O O' : Initial C) : iso O O' :=
    (InitialArrow O O',,isiso_from_Initial_to_Initial O O').
 
-Definition hasInitial := ishinh Initial.
+Definition hasInitial {C : precategory} : UU := ishinh (Initial C).
 
 End def_initial.
 
@@ -193,7 +191,7 @@ End InitialFunctorCat.
 (** Morphisms to the initial object are epis *)
 Section epis_initial.
 
-Context {C : category} (IC : Initial C).
+Context {C : precategory} (IC : Initial C).
 
 Lemma to_initial_isEpi (a : C) (f : C⟦a,IC⟧) : isEpi f.
 Proof.

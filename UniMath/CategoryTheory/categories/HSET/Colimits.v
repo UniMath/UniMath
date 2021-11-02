@@ -122,7 +122,9 @@ Proof.
   destruct H as [f Hf].
   generalize (toforallpaths _ _ _ (coconeInCommutes cc (pr1 a) (pr1 b) f) (pr2 a)).
   unfold compose, from_cobase; simpl; intro H.
-  now rewrite <- H, Hf.
+  rewrite <- H.
+  rewrite <- Hf.
+  apply idpath.
 Qed.
 
 Lemma rel_impl a b (Hab : rel a b) : from_cobase_eqrel a b.

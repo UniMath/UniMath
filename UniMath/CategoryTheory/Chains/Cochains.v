@@ -29,7 +29,7 @@ Notation "'cochain'" := (diagram conat_graph).
 (** A diagram for a cochain is what it should be, a collection of objects and
     arrows arranged so: X₀ ⟵ X₁ ⟵ ⋯. This can be used to easily construct
     cochains, see e.g. [termCochain]. *)
-Definition cochain_weq {C : category} :
+Definition cochain_weq {C : precategory} :
   (∑ (obs : ∏ n : nat, ob C), (∏ n : nat, obs (S n) --> obs n)) ≃ cochain C.
 Proof.
   use weqfibtototal; intro obs; cbn.
