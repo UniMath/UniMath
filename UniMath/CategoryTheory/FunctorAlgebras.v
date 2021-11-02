@@ -44,7 +44,7 @@ Local Open Scope cat.
 
 Section Algebra_Definition.
 
-Context {C : category} (F : functor C C).
+Context {C : precategory} (F : functor C C).
 
 Definition algebra_ob : UU := ∑ X : C, F X --> X.
 
@@ -77,22 +77,6 @@ Definition algebra_mor (X Y : algebra_ob) : UU :=
 
 Coercion mor_from_algebra_mor (X Y : algebra_ob) (f : algebra_mor X Y) : X --> Y := pr1 f.
 
-Definition isaset_algebra_mor (X Y : algebra_ob) : isaset (algebra_mor X Y).
-Proof.
-  apply (isofhleveltotal2 2).
-  - apply C.
-  - intro f.
-    apply isasetaprop.
-    apply C.
-Qed.
-
-Definition algebra_mor_eq {X Y : algebra_ob} {f g : algebra_mor X Y}
-  : (f : X --> Y) = g ≃ f = g.
-Proof.
-  apply invweq.
-  apply subtypeInjectivity.
-  intro a. apply C.
-Defined.
 
 Lemma algebra_mor_commutes (X Y : algebra_ob) (f : algebra_mor X Y)
   : alg_map X · f = #F f · alg_map Y.
@@ -136,8 +120,30 @@ Proof.
   exact algebra_mor_comp.
 Defined.
 
-Lemma is_precategory_precategory_alg_data
-  : is_precategory precategory_alg_data.
+
+End Algebra_Definition.
+
+Definition isaset_algebra_mor {C : category} (F : functor C C) (X Y : algebra_ob F) : isaset (algebra_mor F X Y).
+Proof.
+  apply (isofhleveltotal2 2).
+  - apply C.
+  - intro f.
+    apply isasetaprop.
+    apply C.
+Qed.
+
+Definition algebra_mor_eq {C : category} (F : functor C C) {X Y : algebra_ob F} {f g : algebra_mor F X Y}
+  : (f : alg_carrier F X --> alg_carrier F Y) = g ≃ f = g.
+Proof.
+  apply invweq.
+  apply subtypeInjectivity.
+  intro a. apply C.
+Defined.
+
+
+
+Lemma is_precategory_precategory_alg_data {C : category} (F : functor C C)
+  : is_precategory (precategory_alg_data F).
 Proof.
   repeat split; intros; simpl.
   - apply algebra_mor_eq.
@@ -150,45 +156,49 @@ Proof.
     apply assoc'.
 Qed.
 
-Definition precategory_FunctorAlg
-  : precategory := tpair _ _ is_precategory_precategory_alg_data.
+Definition precategory_FunctorAlg {C : category} (F : functor C C)
+  : precategory := tpair _ _ (is_precategory_precategory_alg_data F).
 
-Lemma has_homsets_FunctorAlg
-  : has_homsets precategory_FunctorAlg.
+Lemma has_homsets_FunctorAlg {C : category} (F : functor C C)
+  : has_homsets (precategory_FunctorAlg F).
 Proof.
   intros f g.
   apply isaset_algebra_mor.
 Qed.
 
-Definition category_FunctorAlg : category
-  := make_category  precategory_FunctorAlg has_homsets_FunctorAlg.
+Definition category_FunctorAlg {C : category} (F : functor C C) : category
+  := make_category  (precategory_FunctorAlg F) (has_homsets_FunctorAlg F).
 
-Local Notation FunctorAlg := category_FunctorAlg.
+Notation FunctorAlg := category_FunctorAlg.
 
+
+Section fixacategory.
+
+  Context {C : category}
+          (F : functor C C).
 
 
 (** forgetful functor from FunctorAlg to its underlying category *)
 
 (* first step of definition *)
-Definition forget_algebras_data : functor_data FunctorAlg C.
+Definition forget_algebras_data : functor_data (FunctorAlg F) C.
 Proof.
-  set (onobs := fun alg : FunctorAlg => alg_carrier alg).
+  set (onobs := fun alg : FunctorAlg F => alg_carrier F alg).
   apply (make_functor_data onobs).
   intros alg1 alg2 m.
   simpl in m.
-  exact (mor_from_algebra_mor _ _ m).
+  exact (mor_from_algebra_mor _ _ _ m).
 Defined.
 
 (* the forgetful functor *)
-Definition forget_algebras : functor FunctorAlg C.
+Definition forget_algebras : functor (FunctorAlg F) C.
 Proof.
   apply (make_functor forget_algebras_data).
   abstract ( split; [intro alg; apply idpath | intros alg1 alg2 alg3 m n; apply idpath] ).
 Defined.
 
-End Algebra_Definition.
+End fixacategory.
 
-Notation FunctorAlg := category_FunctorAlg.
 
 (** ** This category is saturated if the base category is  *)
 
