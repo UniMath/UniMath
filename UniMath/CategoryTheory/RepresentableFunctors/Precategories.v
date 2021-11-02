@@ -150,13 +150,13 @@ Definition functor_mor_application {B C:category} {b b':B} (F:[B,C]) :
   := λ f, # (F:_⟶_) f.
 Notation "F ▭ f" := (functor_mor_application F f) : cat.
 
-Definition arrow {C:category} (c : C) (X : [C^op,SET]) : hSet := X ◾ c.
+Definition arrow {C:category} (c : C) (X : [C^op,HSET]) : hSet := X ◾ c.
 Notation "c ⇒ X" := (arrow c X) : cat. (* \r= *)
 
-Definition arrow' {C:category} (c : C) (X : [C^op^op,SET]) : hSet := X ◾ c.
+Definition arrow' {C:category} (c : C) (X : [C^op^op,HSET]) : hSet := X ◾ c.
 Notation "X ⇐ c" := (arrow' c X) : cat. (* \l= *)
 
-Definition arrow_morphism_composition {C:category} {c' c:C} {X:[C^op,SET]} :
+Definition arrow_morphism_composition {C:category} {c' c:C} {X:[C^op,HSET]} :
   c'-->c -> c⇒X -> c'⇒X
   := λ f x, # (X:_⟶_) f x.
 Notation "x ⟲ f" := (arrow_morphism_composition f x) (at level 50, left associativity) : cat.
@@ -164,7 +164,7 @@ Notation "x ⟲ f" := (arrow_morphism_composition f x) (at level 50, left associ
 (* motivation for the notation:
    the morphisms of C act on the right of the elements of X *)
 
-Definition nattrans_arrow_composition {C:category} {X X':[C^op,SET]} {c:C} :
+Definition nattrans_arrow_composition {C:category} {X X':[C^op,HSET]} {c:C} :
   c⇒X -> X-->X' -> c⇒X'
   := λ x q, (q:_ ⟹ _) c (x:(X:_⟶_) c:hSet).
 Notation "q ⟳ x" := (nattrans_arrow_composition x q) (at level 50, left associativity) : cat.
@@ -179,11 +179,11 @@ Definition nattrans_object_application {B C:category} {F F' : [B,C]} (b:B) :
 Notation "p ◽ b" := (nattrans_object_application b p) : cat.
 (* agda input : \sqw3 *)
 
-Definition arrow_mor_id {C:category} {c:C} {X:[C^op,SET]} (x:c⇒X) :
+Definition arrow_mor_id {C:category} {c:C} {X:[C^op,HSET]} (x:c⇒X) :
   x ⟲ identity c = x
   := eqtohomot (functor_id X c) x.
 
-Definition arrow_mor_mor_assoc {C:category} {c c' c'':C} {X:[C^op,SET]}
+Definition arrow_mor_mor_assoc {C:category} {c c' c'':C} {X:[C^op,HSET]}
            (g:c''-->c') (f:c'-->c) (x:c⇒X) :
   x ⟲ (f ∘ g) = (x ⟲ f) ⟲ g
   := eqtohomot (functor_comp X f g) x.
@@ -199,16 +199,16 @@ Proof.
   reflexivity.
 Defined.
 
-Definition nattrans_arrow_mor_assoc {C:category} {c' c:C} {X X':[C^op,SET]}
+Definition nattrans_arrow_mor_assoc {C:category} {c' c:C} {X X':[C^op,HSET]}
            (g:c'-->c) (x:c⇒X) (p:X-->X') :
   p ⟳ (x ⟲ g) = (p ⟳ x) ⟲ g
   := eqtohomot (nat_trans_ax p _ _ g) x.
 
-Definition nattrans_arrow_id {C:category} {c:C} {X:[C^op,SET]} (x:c⇒X) :
+Definition nattrans_arrow_id {C:category} {c:C} {X:[C^op,HSET]} (x:c⇒X) :
   nat_trans_id _ ⟳ x = x
   := idpath _.
 
-Definition nattrans_nattrans_arrow_assoc {C:category} {c:C} {X X' X'':[C^op,SET]}
+Definition nattrans_nattrans_arrow_assoc {C:category} {c:C} {X X' X'':[C^op,HSET]}
            (x:c⇒X) (p:X-->X') (q:X'-->X'') :
   q ⟳ (p ⟳ x) = (q ∘ p) ⟳ x
   := idpath _.
@@ -273,7 +273,7 @@ Proof.
   rewrite assoc. rewrite (pr2 I). rewrite id_left. reflexivity.
 Defined.
 
-Lemma weq_iff_iso_SET {X Y:SET} (f:X-->Y) : is_iso f <-> isweq f.
+Lemma weq_iff_iso_SET {X Y:HSET} (f:X-->Y) : is_iso f <-> isweq f.
 Proof.
   split.
   - intro i. set (F := make_iso f i).
@@ -283,7 +283,7 @@ Proof.
   - exact (λ i Z, weqproperty (weqbfun (Z:hSet) (make_weq f i))).
 Defined.
 
-Lemma weq_to_iso_SET {X Y:SET} : iso X Y ≃ ((X:hSet) ≃ (Y:hSet)).
+Lemma weq_to_iso_SET {X Y:HSET} : iso X Y ≃ ((X:hSet) ≃ (Y:hSet)).
 (* same as hset_iso_equiv_weq *)
 Proof.
   intros. apply weqfibtototal; intro f. apply weqiff.
@@ -472,12 +472,12 @@ Proof.
   - abstract (intros b b' b'' f g; simpl; apply functor_comp) using _L_.
 Defined.
 
-Lemma identityFunction : ∏ (T:SET) (f:T-->T) (t:T:hSet), f = identity T -> f t = t.
+Lemma identityFunction : ∏ (T:HSET) (f:T-->T) (t:T:hSet), f = identity T -> f t = t.
 Proof.
   intros ? ? ? e. exact (eqtohomot e t).
 Defined.
 
-Lemma identityFunction' : ∏ (T:SET) (t:T:hSet), identity T t = t.
+Lemma identityFunction' : ∏ (T:HSET) (t:T:hSet), identity T t = t.
 Proof.
   reflexivity.
 Defined.

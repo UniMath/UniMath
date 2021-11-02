@@ -342,7 +342,10 @@ Local Definition cocone_pr1_functor {g : graph} (cAB : diagram g (category_binpr
 Proof.
 use make_cocone.
 - simpl; intro n; apply (mor1 (coconeIn ccab n)).
-- abstract (simpl; intros m n e; now rewrite <- (coconeInCommutes ccab m n e)).
+- simpl; intros m n e.
+  set (X:= coconeInCommutes ccab m n e).
+  etrans. 2: { apply maponpaths. apply X. }
+  apply idpath.
 Defined.
 
 Local Lemma isColimCocone_pr1_functor {g : graph} (cAB : diagram g (category_binproduct A B))
@@ -386,7 +389,9 @@ Local Definition cocone_pr2_functor {g : graph} (cAB : diagram g (category_binpr
 Proof.
 use make_cocone.
 - simpl; intro n; apply (pr2 (coconeIn ccab n)).
-- abstract (simpl; intros m n e; now rewrite <- (coconeInCommutes ccab m n e)).
+- simpl; intros m n e.
+  etrans. 2: { apply maponpaths. apply (coconeInCommutes ccab m n e). }
+  apply idpath.
 Defined.
 
 Local Lemma isColimCocone_pr2_functor {g : graph} (cAB : diagram g (category_binproduct A B))
@@ -1198,7 +1203,12 @@ Proof.
         eapply pathscomp0; [apply BinProductOfArrows_comp|].
         apply pathsinv0.
         eapply pathscomp0; [apply BinProductOfArrows_comp|].
-        now rewrite !id_left, id_right, <- (chain_mor_coconeIn cAB LM ccLM _ _ h0). }
+        rewrite !id_left, id_right.
+        set (X := (chain_mor_coconeIn cAB LM ccLM _ _ h0)).
+        apply maponpaths.
+        etrans. 2: { apply maponpaths. apply X. }
+              apply idpath.
+      }
       { destruct p0.
         rewrite <- (p i), assoc.
         apply cancel_postcomposition.
