@@ -22,6 +22,9 @@ Require Import UniMath.CategoryTheory.Equivalences.Core.
 
 Local Open Scope cat.
 
+
+(*
+
 (******************************************************************************)
 (* Definition of a prebicategory *)
 
@@ -358,3 +361,4 @@ Proof.
   apply pathsinv0.
   apply triangle_axiom.
 Qed.
+ *)

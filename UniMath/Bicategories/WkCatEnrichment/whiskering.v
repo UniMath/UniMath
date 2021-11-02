@@ -18,6 +18,7 @@ Require Import UniMath.Bicategories.WkCatEnrichment.Notations.
 (******************************************************************************)
 (* Whiskering *)
 
+(*
 Definition whisker_left {C : prebicategory} {a b c : C}
            (f : a -1-> b) {g h : b -1-> c} (alpha : g -2-> h)
   : (f ;1; g) -2-> (f ;1; h)
@@ -415,3 +416,4 @@ Proof.
     apply left_unitor_on_id.
   apply (triangle_axiom (identity1 a) (identity1 a)).
 Defined.
+ *)

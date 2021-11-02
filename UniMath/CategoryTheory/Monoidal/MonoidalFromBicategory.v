@@ -18,6 +18,7 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.Bicategories.Core.Bicat.
 
 Local Open Scope cat.
+(*
 
 Section Monoidal_Precat_From_Prebicat.
 
@@ -132,3 +133,4 @@ Proof.
 Qed.
 
 End AddHomsets.
+ *)

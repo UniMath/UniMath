@@ -585,6 +585,7 @@ Section AdjointEquivPregroupoid.
     - exact adjoint_equivalence_is_precategory.
   Defined.
 
+  (*
   Definition adjoint_equivalence_is_pregroupoid
     : is_pregroupoid adjoint_equivalence_precategory.
   Proof.
@@ -602,6 +603,7 @@ Section AdjointEquivPregroupoid.
     - exact adjoint_equivalence_precategory.
     - exact adjoint_equivalence_is_pregroupoid.
   Defined.
+   *)
 
 End AdjointEquivPregroupoid.
 

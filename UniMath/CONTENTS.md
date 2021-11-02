@@ -313,7 +313,6 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedCats/SIP.v](CategoryTheory/DisplayedCats/SIP.v)
    - [DisplayedCats/Limits.v](CategoryTheory/DisplayedCats/Limits.v)
    - [DisplayedCats/Examples.v](CategoryTheory/DisplayedCats/Examples.v)
-   - [DisplayedCats/Examples/HLevel.v](CategoryTheory/DisplayedCats/Examples/HLevel.v)
    - [DisplayedCats/Examples/UnitalBinop.v](CategoryTheory/DisplayedCats/Examples/UnitalBinop.v)
    - [DisplayedCats/FunctorCategory.v](CategoryTheory/DisplayedCats/FunctorCategory.v)
    - [DisplayedCats/Adjunctions.v](CategoryTheory/DisplayedCats/Adjunctions.v)
