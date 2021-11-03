@@ -55,10 +55,10 @@ Local Arguments isBinDirectSum {_ _ _ _}.
 
 Require Import UniMath.CategoryTheory.ExactCategories.ExactCategories.
 
-Goal ∏ (C:precategory) (a b:C) (f: a --> b), isMonic (C:=C) f = isEpi (C:=C^op) f.
+Goal ∏ (C:category) (a b:C) (f: a --> b), isMonic (C:=C) f = isEpi (C:=C^op) f.
   reflexivity.
 Defined.
-Goal ∏ (C:precategory) (a b:C) (f: a --> b), isEpi (C:=C) f = isMonic (C:=C^op) f.
+Goal ∏ (C:category) (a b:C) (f: a --> b), isEpi (C:=C) f = isMonic (C:=C^op) f.
   reflexivity.
 Defined.
 (** Here's why we prefer to use z_iso instead of iso : *)
@@ -68,11 +68,11 @@ Defined.
 Goal ∏ (C:precategory) (a b:C) (f:z_iso (C:=C) a b), opp_z_iso (opp_z_iso f) = f.
   reflexivity.
 Defined.
-Goal ∏ (C:precategory) (a b:C) (f:z_iso (C:=C^op) b a), opp_z_iso (opp_z_iso f) = f.
+Goal ∏ (C:category) (a b:C) (f:z_iso (C:=C^op) b a), opp_z_iso (opp_z_iso f) = f.
   reflexivity.
 Defined.
-Goal ∏ (M : precategory) {X:Type} (j : X -> ob M),
-  induced_precategory M^op j = (induced_precategory M j)^op.
+Goal ∏ (M : category) {X:Type} (j : X -> ob M),
+  induced_precategory M^op j = (induced_category M j)^op.
 Proof.
   reflexivity.
 Defined.
@@ -80,32 +80,37 @@ Goal ∏ (M:precategory) (P:MorphismPair M), MorphismPair_opp (MorphismPair_opp 
 Proof.
   reflexivity.
 Qed.
-Goal ∏ {M : precategory} (A B C:M) (f : A --> C) (g : B --> C), Pullback f g = Pushout (C:=M^op) f g.
+Goal ∏ {M : category} (A B C:M) (f : A --> C) (g : B --> C), Pullback f g = Pushout (C:=M^op) f g.
   reflexivity.
 Defined.
-Goal ∏ {M : precategory} (A B C:M) (f : A --> C) (g : A --> C), Pushout f g = Pullback (C:=M^op) f g.
+Goal ∏ {M : category} (A B C:M) (f : A --> C) (g : A --> C), Pushout f g = Pullback (C:=M^op) f g.
   reflexivity.
 Defined.
 Goal ∏ (M : precategoryWithBinOps), oppositePrecategoryWithBinOps (oppositePrecategoryWithBinOps M) = M.
 Proof.
   reflexivity.
 Defined.
+
+(*
 Goal ∏ {M:precategoryWithBinOps} {X:Type} (j : X -> ob M),
   oppositePrecategoryWithBinOps (induced_precategoryWithBinOps M j) =
   induced_precategoryWithBinOps (oppositePrecategoryWithBinOps M) j.
 Proof.
   reflexivity.           (* 0.038 secs *)
 Qed.
+*)
 Goal ∏ (M : categoryWithAbgrops), oppositeCategoryWithAbgrops (oppositeCategoryWithAbgrops M) = M.
 Proof.
   reflexivity.
 Defined.
+(*
 Goal ∏ {M:categoryWithAbgrops} {X:Type} (j : X -> ob M),
   oppositeCategoryWithAbgrops (induced_categoryWithAbgrops M j) =
   induced_categoryWithAbgrops (oppositeCategoryWithAbgrops M) j.
 Proof.
   reflexivity.           (* 0.183 secs *)
 Qed.
+*)
 Goal ∏ (M : PreAdditive), oppositePreAdditive (oppositePreAdditive M) = M.
 Proof.
   reflexivity.
@@ -146,15 +151,15 @@ Goal ∏ (M:precategory) (P:MorphismPair M), MorphismPair_opp (MorphismPair_opp 
 Proof.
   reflexivity.
 Qed.
-Goal ∏ (M:precategory) (p:MorphismPair (M^op)), MorphismPair M.
+Goal ∏ (M:category) (p:MorphismPair (M^op)), MorphismPair M.
   intros. exact (MorphismPair_opp p).
 Qed.
-Goal ∏ (M:precategory) (P Q : MorphismPair M^op) (f:MorphismPairIsomorphism P Q),
+Goal ∏ (M:category) (P Q : MorphismPair M^op) (f:MorphismPairIsomorphism P Q),
   opp_MorphismPairIsomorphism (opp_MorphismPairIsomorphism f) = f.
 Proof.
   reflexivity.
 Qed.
-Goal ∏ (M:precategory) (P Q : MorphismPair M^op),
+Goal ∏ (M:category) (P Q : MorphismPair M^op),
  MorphismPairIsomorphism (C:=M^op) P Q ->
  MorphismPairIsomorphism (C:=M) (MorphismPair_opp Q) (MorphismPair_opp P).
 Proof.
@@ -220,19 +225,19 @@ Defined.
 
 (** Exact category tests *)
 
-Goal ∏ (M:precategory) (A A' B:M) (g : A --> B) (g' : A' --> B) (i:IsoArrowTo g g'),
+Goal ∏ (M:category) (A A' B:M) (g : A --> B) (g' : A' --> B) (i:IsoArrowTo g g'),
   opposite_IsoArrowFrom (opposite_IsoArrowTo i) = i.
 Proof.
   reflexivity.
 Defined.
-Goal ∏ (M:precategory) (A B B':M) (g : A --> B) (g' : A --> B') (i:IsoArrowFrom g g'),
+Goal ∏ (M:category) (A B B':M) (g : A --> B) (g' : A --> B') (i:IsoArrowFrom g g'),
   opposite_IsoArrowTo (opposite_IsoArrowFrom i) = i.
 Proof.
   reflexivity.
 Defined.
 
-Goal ∏ {M:precategory} {X:Type} (j : X -> ob M) (hz : zero_lifts M j),
-  opp_zero_lifts (C:=opp_precat M) j (opp_zero_lifts (C:=M) j hz) = hz.
+Goal ∏ {M:category} {X:Type} (j : X -> ob M) (hz : zero_lifts M j),
+  opp_zero_lifts (C:= M^op) j (opp_zero_lifts (C:=M) j hz) = hz.
 Proof.
   reflexivity.
 Defined.
@@ -254,12 +259,12 @@ Goal ∏ {M:category} {a b c d : M} (f : a --> b) (g : a --> c)
 Proof.
   reflexivity.
 Defined.
-Goal ∏ (M:precategory) (A A' B:M) (g : A --> B) (g' : A' --> B) (i:IsoArrowTo g g'),
+Goal ∏ (M:category) (A A' B:M) (g : A --> B) (g' : A' --> B) (i:IsoArrowTo g g'),
   opposite_IsoArrowFrom (opposite_IsoArrowTo i) = i.
 Proof.
   reflexivity.
 Defined.
-Goal ∏ (M:precategory) (A B B':M) (g : A --> B) (g' : A --> B') (i:IsoArrowFrom g g'),
+Goal ∏ (M:category) (A B B':M) (g : A --> B) (g' : A --> B') (i:IsoArrowFrom g g'),
   opposite_IsoArrowTo (opposite_IsoArrowFrom i) = i.
 Proof.
   reflexivity.
