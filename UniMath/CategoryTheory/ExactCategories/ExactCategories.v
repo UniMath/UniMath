@@ -1631,7 +1631,7 @@ Section ExactCategoryFacts.
   End Tmp.
 
 
-  (*
+
   Lemma KernelSequence {M:ExactCategory} {A B C P R:M}
         (i : B --> A) (j : C --> B) (p : P --> B) (q : R --> C) :
     isExact2 p i -> isExact2 q j ->
@@ -1640,7 +1640,6 @@ Section ExactCategoryFacts.
   Proof.
     exact (CokernelSequence (M := oppositeExactCategory M) i j p q).
   Defined.
-   *)
 
 
   Lemma ExactIso3 {M:ExactCategory} {A B C C':M} (i:A-->B) (p:B-->C) (t:z_iso C C') :
@@ -2028,6 +2027,8 @@ Section InducedExactCategory.
     apply funextsec; intro S.
     apply isapropishinh.
   Qed.
+
+  (*
   Goal ∏ {M:ExactCategory} {X:Type} (j : X -> ob M) (ce : exts_lift M j),
     oppositeExactCategoryData (induced_ExactCategoryData j ce) =
     induced_ExactCategoryData (M:=oppositeExactCategory M) j (opp_exts_lift j ce).
@@ -2042,6 +2043,8 @@ Section InducedExactCategory.
       + intros ex. admit.
       + intros ex. admit.
   Abort.
+   *)
+
   Definition induced_ExactCategoryProperties {M:ExactCategory} {X:Type}
              (j : X -> ob M) (ce : exts_lift M j) :
     ExactCategoryProperties (induced_ExactCategoryData j ce).
