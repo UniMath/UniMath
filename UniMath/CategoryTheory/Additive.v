@@ -378,13 +378,8 @@ Section additive_minus_monic.
       apply idpath.
     }
     rewrite <- assoc in e. rewrite <- assoc in e.
-    set (XX:= @to_postmor_linear' A).
-    rewrite XX in e.
+    rewrite (@to_postmor_linear' A) in e.
     rewrite <- assoc in e. rewrite <- assoc in e.
-    set (XXX := @to_IdIn1 A).
-
-
-
     rewrite (to_IdIn1 DS) in e.
     rewrite (to_Unel2' DS) in e. rewrite ZeroArrow_comp_right in e.
     rewrite id_right in e. use (MonicisMonic A f).
