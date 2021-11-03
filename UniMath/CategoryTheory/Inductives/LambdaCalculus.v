@@ -95,8 +95,7 @@ Local Notation "'_' 'o' 'option'" :=
 (** The lambda calculus functor with one component for variables, one for application and one for
     abstraction/lambda *)
 Definition lambdaOmegaFunctor : omega_cocont_functor HSET2 HSET2 :=
-  omega_cocont_BinCoproduct_of_functors BinCoproductsHSET2
-                                        (omega_cocont_constant_functor (C:= [_,_]) (D:=[_,_])(functor_identity HSET))
+  omega_cocont_constant_functor (C:= [_,_]) (D:=[_,_])(functor_identity HSET) +
                                         (Id * Id + _ o option).
 
 
