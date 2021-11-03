@@ -104,7 +104,7 @@ Qed.
 
 Let T0' := (functor_from_functor_with_μ C T): EndC.
 Let η' := η: EndC⟦functor_identity C, T0'⟧.
-Let μ' := μ: EndC⟦functor_compose _ _ _ T0' T0', T0'⟧.
+Let μ' := μ: EndC⟦functor_compose T0' T0', T0'⟧.
 
 Definition Monad_laws_pointfree_in_functor_category : UU :=
     (

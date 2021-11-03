@@ -196,10 +196,10 @@ End Strength_law_1_intensional.
 
 (** we are using [Z p• Z'] for compatibility with legacy code - instead of [ptd_compose] *)
 Definition θ_Strength2 : UU := ∏ (X : [C, D']) (Z Z' : Ptd) (Y : [C, D'])
-           (α : functor_compose _ _ _ (functor_composite (U Z) (U Z')) X --> Y),
+           (α : functor_compose (functor_composite (U Z) (U Z')) X --> Y),
     θ (X ⊗ (Z p• Z' : Ptd)) · # H α =
-    θ (X ⊗ Z') •• (U Z) · θ ((functor_compose _ _ _ (U Z') X) ⊗ Z) ·
-       # H (α : functor_compose _ _ _ (U Z) (X • (U Z')) --> Y).
+    θ (X ⊗ Z') •• (U Z) · θ ((functor_compose (U Z') X) ⊗ Z) ·
+       # H (α : functor_compose (U Z) (X • (U Z')) --> Y).
 
 
 Section Strength_law_2_intensional.
@@ -208,10 +208,10 @@ Definition θ_Strength2_int : UU
   := ∏ (X : [C, D']) (Z Z' : Ptd),
       θ (X ⊗ (Z p• Z')) · #H (α_functors (U Z) (U Z') X )  =
         (α_functors (U Z) (U Z') (H X) :
-          [C, D] ⟦ functor_compose _ _ _ (functor_composite (U Z) (U Z')) (H X),
+          [C, D] ⟦ functor_compose (functor_composite (U Z) (U Z')) (H X),
                         functor_composite (U Z) (functor_composite (U Z') (H X)) ⟧
       ) ·
-      θ (X ⊗ Z') •• (U Z) · θ ((functor_compose _ _ _ (U Z') X) ⊗ Z) .
+      θ (X ⊗ Z') •• (U Z) · θ ((functor_compose (U Z') X) ⊗ Z) .
 
 Lemma isaprop_θ_Strength2_int: isaprop θ_Strength2_int.
 Proof.
@@ -236,7 +236,7 @@ Proof.
   rewrite <- assoc.
   apply maponpaths.
   assert (functor_comp_H := functor_comp H (α_functors (pr1 Z) (pr1 Z') X)
-           (a : functor_compose _ _ _ (U Z) (functor_composite (U Z') X) --> Y)).
+           (a : functor_compose (U Z) (functor_composite (U Z') X) --> Y)).
   assert (functor_comp_H_c := nat_trans_eq_pointwise functor_comp_H c).
   cbn in functor_comp_H_c.
   etrans; [| apply functor_comp_H_c ].
@@ -253,7 +253,7 @@ Lemma θ_Strength2_implies_θ_Strength2_int : θ_Strength2 → θ_Strength2_int.
 Proof.
   unfold θ_Strength2_int, θ_Strength2.
   intros T X Z Z'.
-  assert (TXZZ'_inst := T X Z Z' (functor_compose _ _ _ (U Z)
+  assert (TXZZ'_inst := T X Z Z' (functor_compose (U Z)
           (functor_composite (U Z') X)) (α_functors (pr1 Z) (pr1 Z') X)).
   eapply pathscomp0.
   { apply TXZZ'_inst. }
@@ -266,7 +266,7 @@ Proof.
   apply maponpaths.
   etrans; [| apply id_right].
   apply maponpaths.
-  assert (functor_id_H := functor_id H (functor_compose _ _ _ (pr1 Z) (functor_composite (pr1 Z') X))).
+  assert (functor_id_H := functor_id H (functor_compose (pr1 Z) (functor_composite (pr1 Z') X))).
   assert (functor_id_H_c := nat_trans_eq_pointwise functor_id_H c).
   etrans; [| apply functor_id_H_c].
   clear functor_id_H functor_id_H_c.
@@ -280,9 +280,9 @@ Qed.
 Definition θ_Strength2_int_nicer : UU := ∏ (X : [C, D']) (Z Z' : Ptd),
       θ (X ⊗ (Z p• Z'))  =
         (α_functors (U Z) (U Z') (H X) :
-          [C, D] ⟦ functor_compose _ _ _ (functor_composite (U Z) (U Z')) (H X),
+          [C, D] ⟦ functor_compose (functor_composite (U Z) (U Z')) (H X),
                         functor_composite (U Z) (functor_composite (U Z') (H X)) ⟧) ·
-             θ (X ⊗ Z') •• (U Z) · θ ((functor_compose _ _ _ (U Z') X) ⊗ Z) ·
+             θ (X ⊗ Z') •• (U Z) · θ ((functor_compose (U Z') X) ⊗ Z) ·
              #H (α_functors_inv (U Z) (U Z') X ).
 
 
@@ -308,7 +308,7 @@ Qed.
 Definition θ_Strength2_int_nicest : UU := ∏ (X : [C, D']) (Z Z' : Ptd),
       θ (X ⊗ (Z p• Z'))  =
       θ (X ⊗ Z') •• (U Z) ·
-        θ ((functor_compose _ _ _ (U Z') X) ⊗ Z) ·
+        θ ((functor_compose (U Z') X) ⊗ Z) ·
         #H (α_functors_inv (U Z) (U Z') X ).
 
 Lemma θ_Strength2_int_nicest_implies_θ_Strength2_int_nicer: θ_Strength2_int_nicest -> θ_Strength2_int_nicer.
@@ -323,7 +323,7 @@ Proof.
        exact HypX. }
   apply pathsinv0.
   unfold α_functors.
-  apply (id_left(a:=functor_compose _ _ _ (U Z ∙ U Z') (H X))).
+  apply (id_left(a:=functor_compose (U Z ∙ U Z') (H X))).
 Qed.
 
 Lemma θ_Strength2_int_nicer_implies_θ_Strength2_int_nicest: θ_Strength2_int_nicer -> θ_Strength2_int_nicest.
@@ -335,7 +335,7 @@ Proof.
   etrans.
   { do 2 apply cancel_postcomposition.
     unfold α_functors.
-    apply (id_left(a:=functor_compose _ _ _ (U Z ∙ U Z') (H X))). }
+    apply (id_left(a:=functor_compose (U Z ∙ U Z') (H X))). }
   apply idpath.
 Qed.
 
@@ -509,9 +509,9 @@ Qed.
 
 Local Lemma auxH2aux (X : functor C C) (Z Z': precategory_Ptd C):
   nat_trans_comp
-       (X ∘ identity (functor_compose _ _ _ (pr1 Z) (pr1 Z')))
-       (identity(C:=[C, C]) (X) ø (pr1 (functor_compose _ _ _ (pr1 Z) (pr1 Z')))) =
-    identity (functor_compose _ _ _ (functor_compose _ _ _ (pr1 Z) (pr1 Z')) X).
+       (X ∘ identity (functor_compose (pr1 Z) (pr1 Z')))
+       (identity(C:=[C, C]) (X) ø (pr1 (functor_compose (pr1 Z) (pr1 Z')))) =
+    identity (functor_compose (functor_compose (pr1 Z) (pr1 Z')) X).
 Proof.
   apply nat_trans_eq; try apply homset_property; intro c.
   cbn.
@@ -577,7 +577,7 @@ Section relative_strength_instantiates_to_signature.
       apply pathsinv0.
       etrans.
       use (maponpaths (fun x => pr1 (# H x) c)).
-      + exact (identity (functor_compose _ _ _ (functor_compose _ _ _ (pr1 Z) (pr1 Z')) X)).
+      + exact (identity (functor_compose (functor_compose (pr1 Z) (pr1 Z')) X)).
       + apply auxH2aux.
       + rewrite functor_id.
         apply idpath.
@@ -646,7 +646,7 @@ Section strength_in_signature_is_a_relative_strength.
       (** now identical reasoning as in [signature_from_rel_strength_laws] *)
       etrans.
       use (maponpaths (fun x => pr1 (# H x) c)).
-      + exact (identity (functor_compose _ _ _ (functor_compose _ _ _ (pr1 Z) (pr1 Z')) X)).
+      + exact (identity (functor_compose (functor_compose (pr1 Z) (pr1 Z')) X)).
       + apply auxH2aux.
       + rewrite functor_id.
         apply idpath.

@@ -101,7 +101,7 @@ Proof.
   apply idpath.
 Qed.
 
-Definition join: [C, C] ⟦ functor_compose _ _ _ Terms Terms, Terms ⟧ := prejoin_from_hetsubst TermHetSubst.
+Definition join: [C, C] ⟦ functor_compose Terms Terms, Terms ⟧ := prejoin_from_hetsubst TermHetSubst.
 
 Goal join = μ TermMonad.
 Proof.

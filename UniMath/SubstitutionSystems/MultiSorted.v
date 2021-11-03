@@ -75,8 +75,6 @@ Local Notation "C / X" := (slice_cat C X).
 Local Notation "C / X ⟦ a , b ⟧" := (slicecat_mor C X a b) (at level 50, format "C / X ⟦ a , b ⟧").
 
 (* These should be global *)
-Arguments post_composition_functor {_ _ _} _.
-Arguments pre_composition_functor {_ _ _} _.
 Arguments Gθ_Signature {_ _ _ _} _ _.
 Arguments Signature_Functor {_ _ _} _.
 Arguments BinProduct_of_functors {_ _} _ _ _.
@@ -179,11 +177,11 @@ Proof.
 induction lt as [l t].
 (* use list_ind to do a case on whether l is empty or not *)
 use (list_ind _ _ _ l); clear l.
-- exact (post_composition_functor (proj_functor t)).
+- exact (post_comp_functor (proj_functor t)).
 - intros s l _.
   eapply functor_composite.
-  + exact (pre_composition_functor (option_list (cons s l))).
-  + exact (post_composition_functor (proj_functor t)).
+  + exact (pre_comp_functor (option_list (cons s l))).
+  + exact (post_comp_functor (proj_functor t)).
 Defined.
 
 (** This defines F^lts where lts is a list of (l,t). Outputs a product of
@@ -204,7 +202,7 @@ Defined.
 
 Local Definition hat_exp_functor_list (xst : list (list sort × sort) × sort) :
   functor [HSET_over_sort,HSET_over_sort] [HSET_over_sort,HSET_over_sort] :=
-    exp_functor_list (pr1 xst) ∙ post_composition_functor (hat_functor (pr2 xst)).
+    exp_functor_list (pr1 xst) ∙ post_comp_functor (hat_functor (pr2 xst)).
 
 (** The function from multisorted signatures to functors *)
 Definition MultiSortedSigToFunctor (M : MultiSortedSig) :

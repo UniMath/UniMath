@@ -502,13 +502,13 @@ Proof.
 *)
   set (h:= nat_trans_comp (λ_functors_inv (pr1 XZ)) ((nat_trans_id _) ⋆ (pr2 (pr2 XZ)))).
   set (F1' := pr1 (pr2 (left_unit_as_nat_z_iso _ _) (pr1 XZ))).
-  set (F2' := # (post_composition_functor _ _ _ (pr1 XZ)) (pr2 (pr2 XZ))).
+  set (F2' := # (post_comp_functor (pr1 XZ)) (pr2 (pr2 XZ))).
   set (h' :=  F1' · F2').
   set (obsolete := nat_trans_comp (α_functors_inv (pr1 (pr2 XZ)) (pr1 XZ) (pr1 XZ)) (h ⋆ (nat_trans_id (functor_composite (pr1 (pr2 XZ)) (pr1 XZ))))).
   set (F3' := pr1 (pr2 (associator_of_endofunctors _) ((pr1 (pr2 XZ),, pr1 XZ),, pr1 XZ))).
   unfold MonoidalCategories.assoc_right, MonoidalCategories.assoc_left in F3'.
   unfold precategory_binproduct_unassoc, pair_functor, functorial_composition in F3'.
-  set (F4' := # (pre_composition_functor _ _ _  (functor_compose _ _ _ (pr1 (pr2 XZ)) (pr1 XZ))) h').
+  set (F4' := # (pre_comp_functor (functor_compose (pr1 (pr2 XZ)) (pr1 XZ))) h').
   exact (F3' · F4').
 Defined.
 

@@ -45,10 +45,7 @@ Section UpstreamAux.
   Context {C A1 A2 A3 A4 : category}.
 
   Lemma assoc_precomp_precomp_mor (G : A1 ⟶ A2)(G' : A2 ⟶ A3)(H1 H2 : A3 ⟶ A4)(η: H1 ⟹ H2):
-    # (pre_composition_functor _ _ _ G)
-      (# (pre_composition_functor _ _ _ G') η) =
-      # (pre_composition_functor _ _ _
-                                 (pre_composition_functor _ _ _ G G')) η.
+    # (pre_comp_functor G) (# (pre_comp_functor G') η) = # (pre_comp_functor (pre_comp_functor G G')) η.
   Proof.
     cbn.
     apply nat_trans_eq; [apply (homset_property A4) |].
@@ -58,21 +55,15 @@ Section UpstreamAux.
 
   Corollary assoc_precomp_precomp_mor_special (G : A1 ⟶ A2)(G' : A2 ⟶ A3)(F : C ⟶ [A3, A4])
             (c c': C) (f: C⟦c,c'⟧):
-    # (pre_composition_functor _ _ _ G)
-      (# (pre_composition_functor _ _ _ G') (# F f)) =
-      # (pre_composition_functor _ _ _
-                                 (pre_composition_functor _ _ _ G G'))
-        (# F f).
+    # (pre_comp_functor G) (# (pre_comp_functor G') (# F f)) =
+      # (pre_comp_functor (pre_comp_functor G G')) (# F f).
   Proof.
     apply assoc_precomp_precomp_mor.
   Qed.
 
 
   Lemma assoc_postcomp_postcomp_mor (H1 H2 : A1 ⟶ A2)(η: H1 ⟹ H2)(G : A2 ⟶ A3)(G' : A3 ⟶ A4):
-    # (post_composition_functor _ _ _ G')
-      (# (post_composition_functor _ _ _ G) η) =
-      # (post_composition_functor _ _ _
-                                  (post_composition_functor _ _ _ G' G)) η.
+    # (post_comp_functor G') (# (post_comp_functor G) η) = # (post_comp_functor (post_comp_functor G' G)) η.
     Proof.
     cbn.
     apply nat_trans_eq; [apply (homset_property A4) |].
@@ -82,10 +73,7 @@ Section UpstreamAux.
 
 
   Lemma exchange_postcomp_precomp_mor (G : A1 ⟶ A2)(H1 H2 : A2 ⟶ A3)(η: H1 ⟹ H2)(G' : A3 ⟶ A4):
-    # (post_composition_functor _ _ _ G')
-      (# (pre_composition_functor _ _ _ G) η) =
-      # (pre_composition_functor _ _ _ G)
-        (# (post_composition_functor _ _ _ G') η).
+    # (post_comp_functor G') (# (pre_comp_functor G) η) = # (pre_comp_functor G) (# (post_comp_functor G') η).
   Proof.
     cbn.
     apply nat_trans_eq; [apply (homset_property A4) |].
@@ -95,12 +83,9 @@ Section UpstreamAux.
 
   Corollary exchange_postcomp_precomp_mor_special (G : A1 ⟶ A2)(F : C ⟶ [A2, A3])(G' : A3 ⟶ A4)
             (c c' : C)(f : C ⟦ c, c' ⟧):
-    # (pre_composition_functor A1 A2 A4 G)
-      (# (post_composition_functor A2 A3 A4 G') (# F f)) =
+    # (pre_composition_functor A1 A2 A4 G) (# (post_composition_functor A2 A3 A4 G') (# F f)) =
       # (post_composition_functor A1 A3 A4 G')
-        (# (pr1
-              (functor_compose _ _ _ F
-                               (pre_composition_functor A1 A2 A3 G))) f).
+        (# (pr1 (functor_compose F (pre_composition_functor A1 A2 A3 G))) f).
   Proof.
     intros.
     apply pathsinv0.
@@ -109,10 +94,8 @@ Section UpstreamAux.
 
 (** as background information only: *)
   Lemma exchange_postcomp_precomp_ob_special (G : A1 ⟶ A2)(F : C ⟶ [A2, A3])(G' : A3 ⟶ A4) (c: C):
-    (pre_composition_functor _ _ _ G) (post_composition_functor _ _ _ G' (F c)) =
-      (post_composition_functor _ _ _ G')
-        (pr1(functor_compose _ _ _
-                                F (pre_composition_functor _ _ _  G)) c).
+    pre_comp_functor G (post_comp_functor G' (F c)) =
+      post_comp_functor G' (pr1(functor_compose F (pre_comp_functor  G)) c).
   Proof.
     cbn.
     apply pathsinv0, functor_assoc.
@@ -650,10 +633,10 @@ Context (FA': strong_monoidal_functor Mon_V (monoidal_cat_from_bicat_and_ob a0')
 Context (G : hom a0 a0').
 
 Definition H : functor Mon_V (hom a0 a0') :=
-  functor_compose _ _ _ (pr11 FA') (functor_fix_fst_arg _ _ _ hcomp_functor G).
+  functor_compose (pr11 FA') (functor_fix_fst_arg _ _ _ hcomp_functor G).
 
 Definition H' : functor Mon_V (hom a0 a0') :=
-  functor_compose _ _ _ (pr11 FA) (functor_fix_snd_arg _ _ _ hcomp_functor G).
+  functor_compose (pr11 FA) (functor_fix_snd_arg _ _ _ hcomp_functor G).
 
 Definition montrafotargetbicat_disp: disp_precat Mon_V := trafotargetbicat_disp a0 a0' H H'.
 Definition montrafotargetbicat_precat: precategory := trafotargetbicat_cat a0 a0' H H'.
@@ -871,13 +854,11 @@ Proof.
   { change (# (post_composition_functor A A' A' (FA' w'))
               (# (post_composition_functor A A A' G) (# FA f)) =
               # (post_composition_functor A A A'
-                                          (post_composition_functor A A' A' (FA' w') G))
-                (# FA f)).
+                       (post_composition_functor A A' A' (FA' w') G)) (# FA f)).
     apply assoc_postcomp_postcomp_mor.
   }
   assert (σ2ok: σ2 = # (post_composition_functor A A A' (H' w')) (# FA f)).
-  { change (σ2 = # (post_composition_functor A A A'
-                                             (post_composition_functor _ _ _ G (FA w'))) (# FA f)).
+  { change (σ2 = # (post_composition_functor A A A' (post_comp_functor G (FA w'))) (# FA f)).
     apply assoc_postcomp_postcomp_mor. }
   rewrite ι'ok, σ2ok.
   clear ι' σ2 ι'ok σ2ok.
@@ -885,7 +866,7 @@ Proof.
 Qed.
 
 
-Definition montrafotarget_disp_tensor: displayed_tensor (tensor: category_binproduct Mon_V Mon_V ⟶ Mon_V) montrafotarget_disp.
+Definition montrafotarget_disp_tensor: displayed_tensor tensor montrafotarget_disp.
 Proof.
   use tpair.
   - use tpair.
