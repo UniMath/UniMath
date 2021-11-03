@@ -148,9 +148,8 @@ Lemma has_homsets_induced_precategory (M : category) {X:Type} (j : X -> ob M)
   : has_homsets (induced_precategory M j).
 Proof.
   intros a b.
-  cbn.
   apply M.
-Qed.
+Defined.
 
 Definition induced_category (M : category) {X:Type} (j : X -> ob M) : category
   := make_category _ (has_homsets_induced_precategory M j).

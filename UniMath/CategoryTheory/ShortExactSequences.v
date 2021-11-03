@@ -883,7 +883,6 @@ morphism.
 Section shortshortexact_iskernel_iscokernel.
 
   Variable A : AbelianPreCat.
-  Variable hs : has_homsets A.
 
   Lemma make_ShortShortExact_isKernel_isKernel (SSED : ShortShortExactData A (to_Zero A))
         (H : isKernel

@@ -2028,7 +2028,7 @@ Section InducedExactCategory.
     apply isapropishinh.
   Qed.
 
-  (*
+
   Goal ∏ {M:ExactCategory} {X:Type} (j : X -> ob M) (ce : exts_lift M j),
     oppositeExactCategoryData (induced_ExactCategoryData j ce) =
     induced_ExactCategoryData (M:=oppositeExactCategory M) j (opp_exts_lift j ce).
@@ -2043,7 +2043,6 @@ Section InducedExactCategory.
       + intros ex. admit.
       + intros ex. admit.
   Abort.
-   *)
 
   Definition induced_ExactCategoryProperties {M:ExactCategory} {X:Type}
              (j : X -> ob M) (ce : exts_lift M j) :

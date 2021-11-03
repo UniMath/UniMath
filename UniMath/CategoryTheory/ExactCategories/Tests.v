@@ -91,26 +91,25 @@ Proof.
   reflexivity.
 Defined.
 
-(*
 Goal ∏ {M:precategoryWithBinOps} {X:Type} (j : X -> ob M),
   oppositePrecategoryWithBinOps (induced_precategoryWithBinOps M j) =
   induced_precategoryWithBinOps (oppositePrecategoryWithBinOps M) j.
 Proof.
   reflexivity.           (* 0.038 secs *)
 Qed.
-*)
+
 Goal ∏ (M : categoryWithAbgrops), oppositeCategoryWithAbgrops (oppositeCategoryWithAbgrops M) = M.
 Proof.
   reflexivity.
 Defined.
-(*
+
 Goal ∏ {M:categoryWithAbgrops} {X:Type} (j : X -> ob M),
   oppositeCategoryWithAbgrops (induced_categoryWithAbgrops M j) =
   induced_categoryWithAbgrops (oppositeCategoryWithAbgrops M) j.
 Proof.
   reflexivity.           (* 0.183 secs *)
 Qed.
-*)
+
 Goal ∏ (M : PreAdditive), oppositePreAdditive (oppositePreAdditive M) = M.
 Proof.
   reflexivity.
