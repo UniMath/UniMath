@@ -108,8 +108,8 @@ Context {D : bicat}.
 Context (psF: psfunctor C D).
 
 Local Definition d0 : D := psF c0.
-Local Definition M : monoidal_precat := monoidal_precat_from_prebicat_and_ob c0.
-Local Definition N : monoidal_precat := monoidal_precat_from_prebicat_and_ob d0.
+Local Definition M : monoidal_cat := monoidal_cat_from_bicat_and_ob c0.
+Local Definition N : monoidal_cat := monoidal_cat_from_bicat_and_ob d0.
 
 Definition psfunctor_to_lax_monoidal_functor_data: functor_data M N.
 Proof.
