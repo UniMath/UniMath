@@ -268,7 +268,6 @@ End def_cohomology_complex.
 Section def_cohomology'_complex.
 
   Variable A : AbelianPreCat.
-  Variable hs : has_homsets A.
 
   Definition CohomologyComplex' (C : (ComplexPreCat_AbelianPreCat A)) :
     (ComplexPreCat_AbelianPreCat A).
@@ -522,14 +521,13 @@ Section def_cohomology'_complex.
     isKernel (to_Zero A) K1 (φ1 · φ2) (CohomologyComplexIso_isKernel_Eq C i).
   Proof.
     intros φ1 φ2 K1.
-    set (f1 := factorization1 hs (transportf (precategory_morphisms (C (i - 1)))
+    set (f1 := factorization1 (transportf (precategory_morphisms (C (i - 1)))
                                              (maponpaths C (hzrminusplus i 1))
                                              (Diff C (i - 1)))).
     set (CK2 := CokernelPath A (to_Zero A) f1 (Cokernel _)).
     set (CK2' := CokernelEpiComp A (to_Zero A) _ _ CK2).
     set (K3 := MonicToKernel' A _ CK2').
     use make_isKernel.
-    - exact hs.
     - intros w h H'. rewrite assoc in H'.
       use unique_exists.
       + exact (KernelIn (to_Zero A) K3 _ (h · φ1) H').
@@ -538,7 +536,7 @@ Section def_cohomology'_complex.
         rewrite <- assoc. rewrite KernelCommutes.
         fold φ1. rewrite <- (KernelCommutes (to_Zero A) K3 _ _ H').
         apply cancel_precomposition. apply idpath.
-      + intros y. apply hs.
+      + intros y. apply homset_property.
       + intros y X. cbn beta in X. apply (CohomologyComplexIso_isMonic C i). fold K1. rewrite X.
         use (KernelArrowisMonic (to_Zero A) (Kernel (Diff C i))). unfold K1.
         rewrite <- assoc. rewrite KernelCommutes.
@@ -576,7 +574,7 @@ Section def_cohomology'_complex.
   Proof.
     intros φ1 φ2 CK1.
     unfold CK1. unfold φ2. rewrite <- assoc. rewrite CokernelCommutes.
-    set (f2 := factorization2 hs (Diff C i)).
+    set (f2 := factorization2 (Diff C i)).
     set (K2 := KernelPath A (to_Zero A) f2 (Kernel _)).
     set (K2' := KernelCompMonic A (to_Zero A) _ _ K2).
     set (CK3 := EpiToCokernel' A _ K2').
@@ -596,12 +594,11 @@ Section def_cohomology'_complex.
     isCokernel (to_Zero A) (φ1 · φ2) CK1 (CohomologyComplexIso_isCokernel_Eq C i).
   Proof.
     intros φ1 φ2 CK1.
-    set (f2 := factorization2 hs (Diff C i)).
+    set (f2 := factorization2 (Diff C i)).
     set (K2 := KernelPath A (to_Zero A) f2 (Kernel _)).
     set (K2' := KernelCompMonic A (to_Zero A) _ _ K2).
     set (CK3 := EpiToCokernel' A _ K2').
     use make_isCokernel.
-    - exact hs.
     - intros w h H'. rewrite <- assoc in H'.
       use unique_exists.
       + exact (CokernelOut (to_Zero A) CK3 _ (φ2 · h) H').
@@ -613,7 +610,7 @@ Section def_cohomology'_complex.
         unfold CK1. rewrite assoc. rewrite CokernelCommutes. fold φ2.
         rewrite <- (CokernelCommutes (to_Zero A) CK3 _ _ H').
         apply cancel_postcomposition. apply idpath.
-      + intros y. apply hs.
+      + intros y. apply homset_property.
       + intros y X. cbn beta in X. apply (CohomologyComplexIso_isEpi C i). fold CK1. rewrite X.
         use (CokernelArrowisEpi
                (to_Zero A) (Cokernel (transportf (precategory_morphisms (C (i - 1)))
@@ -763,10 +760,10 @@ Section def_cohomology'_complex.
     (* The idea is to pre- and postcompose with morphisms to reach inverse of
        [CoIm_to_Im_is_iso]. *)
     (* Change source and target by compose and postcompose with isomorphisms *)
-    set (f1 := factorization1 hs (transportf (precategory_morphisms (C (i - 1)))
+    set (f1 := factorization1 (transportf (precategory_morphisms (C (i - 1)))
                                              (maponpaths C (hzrminusplus i 1))
                                              (Diff C (i - 1)))).
-    set (f2 := factorization2 hs (Diff C i)).
+    set (f2 := factorization2 (Diff C i)).
     set (K1 := KernelIn (to_Zero A) (Kernel (Diff C i)) _ _ (CohomologyComplexIso_eq1 C i)).
     set (CK1 := CokernelOut (to_Zero A) (Cokernel (transportf (precategory_morphisms (C (i - 1)))
                                                           (maponpaths C (hzrminusplus i 1))
@@ -889,7 +886,6 @@ End def_cohomology'_complex.
 Section def_quasi_isomorphisms.
 
   Variable A : AbelianPreCat.
-  Variable hs : has_homsets A.
 
   Definition isQIS {C1 C2 : (ComplexPreCat_AbelianPreCat A)}
              (f : (ComplexPreCat_AbelianPreCat A)⟦C1, C2⟧) : UU :=
@@ -926,7 +922,6 @@ End def_quasi_isomorphisms.
 Section def_cohomology_functor_additive.
 
   Variable A : AbelianPreCat.
-  Variable hs : has_homsets A.
 
   Local Lemma CohomologyFunctor_isAdditive :
     @isAdditiveFunctor (ComplexPreCat_Additive (AbelianToAdditive A)) (ComplexPreCat_Additive (AbelianToAdditive A))
@@ -1031,7 +1026,6 @@ End def_cohomology_functor_additive.
 Section def_cohomology_homotopy.
 
   Variable A : AbelianPreCat.
-  Variable hs : has_homsets A.
 
 
   (** ** Homotopic maps are mapped to equal morphisms by the cohomology functor C(A) -> C(A) *)
@@ -1400,7 +1394,6 @@ End def_cohomology_homotopy.
 Section def_kernel_cokernel_complex.
 
   Variable A : AbelianPreCat.
-  Variable hs : has_homsets A.
 
   (** ** Construction of kernel and cokernel complexes *)
   (** *** Complex of kernels *)
@@ -1630,8 +1623,8 @@ Section def_kernel_cokernel_complex.
         cbn in e1. rewrite e1. clear e1. rewrite <- t21.
         rewrite KernelCommutes. apply idpath.
     - apply proofirrelevance. apply isapropdirprod.
-      + apply hs.
-      + apply hs.
+      + apply homset_property.
+      + apply homset_property.
   Qed.
 
   Definition CokernelKernelMorphism (C : Complex (AbelianToAdditive A)) (i : hz) :

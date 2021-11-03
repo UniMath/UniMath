@@ -1260,7 +1260,6 @@ Section complexes_additive.
   Proof.
     use make_categoryWithAbgrops.
     - exact ComplexPreCat_precategoryWithBinOps.
-    - exact (has_homsets_ComplexPreCat A).
     - intros x y. exact (MorphismOp_isabgrop A x y).
   Defined.
 
@@ -1601,7 +1600,7 @@ Section complexes_abelian.
     isCokernel _ g (ComplexPreCat_CokernelArrow g) (ComplexPreCat_Cokernels_Comp g).
   Proof.
     intros Z0.
-    use (make_isCokernel (has_homsets_ComplexPreCat (AbelianToAdditive A))).
+    use make_isCokernel.
     intros w h H'.
     use unique_exists.
     - use make_Morphism.
@@ -1918,8 +1917,7 @@ Section complexes_abelian.
     @isCokernel Add _ _ _ _ (KernelArrow (ComplexPreCat_Kernels _ _ E)) E (CokernelMorphism_eq' E).
   Proof.
     set (isE := ComplexEpiIndexEpi (AbelianToAdditive A) E).
-    use (make_isCokernel).
-    apply homset_property.
+    use make_isCokernel.
     intros w0 h H'.
     use unique_exists.
     - apply (ComplexPreCatCokernelOut E h H').

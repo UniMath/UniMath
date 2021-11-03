@@ -1034,23 +1034,23 @@ Section left_right_shortexact_and_pullbacks_pushouts.
         * exact (f · to_In1 DS).
         * exact (@to_inv PA _ _ (g · to_In2 DS)).
       + exact (CoequalizerArrow CE).
-    - cbn. exact (AdditiveCoequalizerToCokernel_eq1 (AbelianToAdditive A hs) _ _ CE).
+    - cbn. exact (AdditiveCoequalizerToCokernel_eq1 (AbelianToAdditive A) _ _ CE).
   Defined.
 
   Definition RightShortExact_Coequalizer_ShortShortExact {x y1 y2 : ob A} (f : x --> y1)
-             (g : x --> y2) : ShortShortExact hs.
+             (g : x --> y2) : ShortShortExact A.
   Proof.
-    set (DS := to_BinDirectSums (AbelianToAdditive A hs) y1 y2).
-    set (CE := Abelian.Coequalizer A hs (f · to_In1 DS) (g · to_In2 DS)).
+    set (DS := to_BinDirectSums (AbelianToAdditive A) y1 y2).
+    set (CE := Abelian.Coequalizer A (f · to_In1 DS) (g · to_In2 DS)).
     use make_ShortShortExact.
     - exact (RightShortExact_Coequalizer_ShortShortExactData f g).
     - cbn. cbn in CE. fold DS. fold CE.
       use make_ShortShortExact_isCokernel_isKernel.
-      exact (AdditiveCoequalizerToCokernel_isCokernel (AbelianToAdditive A hs) _ _ CE).
+      exact (AdditiveCoequalizerToCokernel_isCokernel (AbelianToAdditive A) _ _ CE).
   Defined.
 
   Definition RightShortExact_Coequalizer {x y1 y2 : ob A} (f : x --> y1) (g : x --> y2) :
-    RightShortExact hs.
+    RightShortExact A.
   Proof.
     use make_RightShortExact.
     - exact (RightShortExact_Coequalizer_ShortShortExact f g).
