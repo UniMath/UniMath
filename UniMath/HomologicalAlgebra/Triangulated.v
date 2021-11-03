@@ -1281,7 +1281,7 @@ Section short_short_exact_sequences.
     isKernel (Abelian.to_Zero abgr_Abelian)
              (KernelArrow (Image (ShortShortExactData_from_object D X)))
              (Mor2 (ShortShortExactData_from_object D X))
-             (@Image_Eq abgr_Abelian has_homsets_abgr (ShortShortExactData_from_object D X)).
+             (@Image_Eq abgr_Abelian (ShortShortExactData_from_object D X)).
   Proof.
     use abgr_isKernel_Criteria.
     - intros D0. induction D0 as [y yH].
@@ -1300,13 +1300,13 @@ Section short_short_exact_sequences.
       use hinhpr.
       use tpair.
       + exact (((factorization1_epi
-                   abgr_Abelian has_homsets_abgr
+                   abgr_Abelian
                    (Mor1 (ShortShortExactData_from_object D X)) : abgr_Abelian⟦_, _⟧) :
                   monoidfun _ _)
                  (MPMor1 Mor)).
       + cbn beta. set (comm1 := MPComm1 Mor). rewrite id_left in comm1.
         use (pathscomp0 _ comm1). clear comm1.
-        set (tmp := @factorization1 abgr_Abelian has_homsets_abgr _ _
+        set (tmp := @factorization1 abgr_Abelian _ _
                                     (Mor1 (ShortShortExactData_from_object D X))).
         apply base_paths in tmp.
         exact (! (toforallpaths _ _ _ tmp (MPMor1 Mor))).
@@ -1314,7 +1314,7 @@ Section short_short_exact_sequences.
   Qed.
 
   Definition ShortShortExact_from_object (D : @DTri PT) (X : ob PT) :
-    @ShortShortExact abgr_Abelian has_homsets_abgr.
+    @ShortShortExact abgr_Abelian.
   Proof.
     use make_ShortShortExact.
     - exact (ShortShortExactData_from_object D X).
@@ -1354,7 +1354,7 @@ Section short_short_exact_sequences.
     isKernel (Abelian.to_Zero abgr_Abelian)
              (KernelArrow (Image (ShortShortExactData_to_object D X)))
              (Mor2 (ShortShortExactData_to_object D X))
-             (@Image_Eq abgr_Abelian has_homsets_abgr
+             (@Image_Eq abgr_Abelian
                        (ShortShortExactData_to_object D X)).
   Proof.
     use abgr_isKernel_Criteria.
@@ -1373,12 +1373,12 @@ Section short_short_exact_sequences.
       use hinhpr.
       use tpair.
       + exact (((factorization1_epi
-                   abgr_Abelian has_homsets_abgr
+                   abgr_Abelian
                    (Mor1 (ShortShortExactData_to_object D X)) : abgr_Abelian⟦_, _⟧) : monoidfun _ _)
                  (MPMor3 Mor)).
       + cbn beta. set (comm2 := MPComm2 Mor). rewrite id_right in comm2.
         use (pathscomp0 _ (! comm2)). clear comm2.
-        set (tmp := @factorization1 abgr_Abelian has_homsets_abgr _ _
+        set (tmp := @factorization1 abgr_Abelian _ _
                                     (Mor1 (ShortShortExactData_to_object D X))).
         apply base_paths in tmp.
         exact (! (toforallpaths _ _ _ tmp (MPMor3 Mor))).
@@ -1386,7 +1386,7 @@ Section short_short_exact_sequences.
   Qed.
 
   Definition ShortShortExact_to_object (D : @DTri PT) (X : ob PT) :
-    @ShortShortExact abgr_Abelian has_homsets_abgr.
+    @ShortShortExact abgr_Abelian.
   Proof.
     use make_ShortShortExact.
     - exact (ShortShortExactData_to_object D X).
@@ -1452,7 +1452,7 @@ Section triangulated_five_lemma.
   Qed.
 
   Definition TriangulatedRowExacts_from_object (D : @DTri PT) (X : ob PT) :
-    @FiveRowExacts abgr_Abelian has_homsets_abgr _ _ (TriangulatedRowDiffsEq_from_object D X).
+    @FiveRowExacts abgr_Abelian  _ _ (TriangulatedRowDiffsEq_from_object D X).
   Proof.
     use make_FiveRowExacts.
     - unfold isExact. exact_op (@ShortShortExact_isKernel_from_object PT D X).
@@ -1462,7 +1462,7 @@ Section triangulated_five_lemma.
   Qed.
 
   Definition TriangulatedRow_from_object (D : @DTri PT) (X : ob PT) :
-    @FiveRow abgr_Abelian has_homsets_abgr.
+    @FiveRow abgr_Abelian.
   Proof.
     use make_FiveRow.
     - exact (TriangulatedRowObs_from_object D X).
@@ -1472,7 +1472,7 @@ Section triangulated_five_lemma.
   Defined.
 
   Definition TriangulatedRowMors_from_object {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
-    @FiveRowMors abgr_Abelian has_homsets_abgr
+    @FiveRowMors abgr_Abelian
                  (TriangulatedRow_from_object D1 X) (TriangulatedRow_from_object D2 X).
   Proof.
     use make_FiveRowMors.
@@ -1484,7 +1484,7 @@ Section triangulated_five_lemma.
   Defined.
 
   Definition TriangulatedMorsComm_from_object {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
-    @FiveRowMorsComm abgr_Abelian has_homsets_abgr _ _ (TriangulatedRowMors_from_object M X).
+    @FiveRowMorsComm abgr_Abelian _ _ (TriangulatedRowMors_from_object M X).
   Proof.
     use make_FiveRowMorsComm.
     - use monoidfun_paths. use funextfun. intros x. cbn. unfold to_postmor.
@@ -1501,7 +1501,7 @@ Section triangulated_five_lemma.
   Qed.
 
   Definition TriangulatedMorphism_from_object {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
-    @FiveRowMorphism abgr_Abelian has_homsets_abgr
+    @FiveRowMorphism abgr_Abelian
                      (TriangulatedRow_from_object D1 X) (TriangulatedRow_from_object D2 X).
   Proof.
     use make_FiveRowMorphism.
@@ -1551,7 +1551,7 @@ Section triangulated_five_lemma.
   Qed.
 
   Definition TriangulatedRowExacts_to_object (D : @DTri PT) (X : ob PT) :
-    @FiveRowExacts abgr_Abelian has_homsets_abgr _ _ (TriangulatedRowDiffsEq_to_object D X).
+    @FiveRowExacts abgr_Abelian _ _ (TriangulatedRowDiffsEq_to_object D X).
   Proof.
     use make_FiveRowExacts.
     - unfold isExact.
@@ -1561,7 +1561,7 @@ Section triangulated_five_lemma.
   Qed.
 
   Definition TriangulatedRow_to_object (D : @DTri PT) (X : ob PT) :
-    @FiveRow abgr_Abelian has_homsets_abgr.
+    @FiveRow abgr_Abelian.
   Proof.
     use make_FiveRow.
     - exact (TriangulatedRowObs_to_object D X).
@@ -1571,7 +1571,7 @@ Section triangulated_five_lemma.
   Defined.
 
   Definition TriangulatedRowMors_to_object {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
-    @FiveRowMors abgr_Abelian has_homsets_abgr
+    @FiveRowMors abgr_Abelian 
                  (TriangulatedRow_to_object D2 X) (TriangulatedRow_to_object D1 X).
   Proof.
     use make_FiveRowMors.
@@ -1583,7 +1583,7 @@ Section triangulated_five_lemma.
   Defined.
 
   Definition TriangulatedMorsComm_to_object {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
-    @FiveRowMorsComm abgr_Abelian has_homsets_abgr _ _ (TriangulatedRowMors_to_object M X).
+    @FiveRowMorsComm abgr_Abelian _ _ (TriangulatedRowMors_to_object M X).
   Proof.
     use make_FiveRowMorsComm.
     - use monoidfun_paths. use funextfun. intros x. cbn. unfold to_premor.
@@ -1604,7 +1604,7 @@ Section triangulated_five_lemma.
   Qed.
 
   Definition TriangulatedMorphism_to_object {D1 D2 : @DTri PT} (M : TriMor D1 D2) (X : ob PT) :
-    @FiveRowMorphism abgr_Abelian has_homsets_abgr
+    @FiveRowMorphism abgr_Abelian 
                      (TriangulatedRow_to_object D2 X) (TriangulatedRow_to_object D1 X) .
   Proof.
     use make_FiveRowMorphism.
@@ -1618,7 +1618,7 @@ Section triangulated_five_lemma.
   Proof.
     set (Mor1 := TriangulatedMorphism_from_object M (Ob3 D2)).
     set (Mor2 := TriangulatedMorphism_to_object M (Ob3 D1)).
-    assert (e1 : is_z_isomorphism (@FMor3 abgr_Abelian has_homsets_abgr _ _ Mor1)).
+    assert (e1 : is_z_isomorphism (@FMor3 abgr_Abelian _ _ Mor1)).
     {
       use FiveLemma.
       - exact (@abgr_Additive_is_iso_postmor PT _ _ _ _ H1).
@@ -1628,7 +1628,7 @@ Section triangulated_five_lemma.
       - exact (abgr_Additive_is_iso_postmor
                  (Ob3 D2) _ _ (functor_on_is_z_isomorphism (AddEquiv1 (@Trans PT)) H2)).
     }
-    assert (e2 : is_z_isomorphism (@FMor3 abgr_Abelian has_homsets_abgr _ _ Mor2)).
+    assert (e2 : is_z_isomorphism (@FMor3 abgr_Abelian _ _ Mor2)).
     {
       use FiveLemma.
       - exact (abgr_Additive_is_iso_premor
