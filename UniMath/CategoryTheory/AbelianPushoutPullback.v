@@ -77,7 +77,7 @@ Section pushout_monic_pullback_epi.
   Proof.
     set (DS := to_BinDirectSums (AbelianToAdditive A) y z).
     set (Po' := Pushout_from_Coequalizer_BinCoproduct
-                  A hs _ _ _ f g (BinDirectSum_BinCoproduct _ DS)
+                  A _ _ _ f g (BinDirectSum_BinCoproduct _ DS)
                   (Abelian.Coequalizer
                      A
                      (f · (to_In1 DS))
@@ -131,7 +131,7 @@ Section pushout_monic_pullback_epi.
   Lemma AbelianPushoutMonic1 {x y z : A} (f : x --> y) (g : Monic A x z) (Po : Pushout f g) :
     Monics.isMonic (PushoutIn1 Po).
   Proof.
-    set (Po' := make_Pushout _ _ _ _ _ _ (is_symmetric_isPushout hs _ (isPushout_Pushout Po))).
+    set (Po' := make_Pushout _ _ _ _ _ _ (is_symmetric_isPushout _ (isPushout_Pushout Po))).
     use (AbelianPushoutMonic2 g f Po').
   Qed.
 
@@ -141,12 +141,12 @@ Section pushout_monic_pullback_epi.
         {e : A} {h : A ⟦ e, y ⟧} {k : A ⟦ e, z ⟧}
         (Hk : let DS := to_BinDirectSums (AbelianToAdditive A) y z in
               let Po' := Pushout_from_Coequalizer_BinCoproduct
-                           A hs _ _ _ f g (BinDirectSum_BinCoproduct _ DS)
+                           A _ _ _ f g (BinDirectSum_BinCoproduct _ DS)
                            (Abelian.Coequalizer A (f · (to_In1 DS)) (g · (to_In2 DS))) in
               h · PushoutIn1 Po' = k · PushoutIn2 Po') :
     let DS := to_BinDirectSums (AbelianToAdditive A) y z in
     let Po' := Pushout_from_Coequalizer_BinCoproduct
-                 A hs _ _ _ f g (BinDirectSum_BinCoproduct _ DS)
+                 A _ _ _ f g (BinDirectSum_BinCoproduct _ DS)
                  (Abelian.Coequalizer A (f · (to_In1 DS)) (g · (to_In2 DS))) in
     h · CokernelArrow (Abelian.Cokernel f) = ZeroArrow (to_Zero A) e (Abelian.Cokernel f).
   Proof.
@@ -167,7 +167,7 @@ Section pushout_monic_pullback_epi.
   Proof.
     set (DS := to_BinDirectSums (AbelianToAdditive A) y z).
     set (Po' := Pushout_from_Coequalizer_BinCoproduct
-                  A hs _ _ _ f g (BinDirectSum_BinCoproduct _ DS)
+                  A _ _ _ f g (BinDirectSum_BinCoproduct _ DS)
                   (Abelian.Coequalizer
                      A
                      (f · (to_In1 DS))
@@ -220,7 +220,7 @@ Section pushout_monic_pullback_epi.
   Lemma AbelianPushoutMonicisPullback2 {x y z : A} (f : x --> y) (g : Monic A x z)
         (Po : Pushout f g) : isPullback (*(PushoutIn1 Po) (PushoutIn2 Po) f g*) (PushoutSqrCommutes Po).
   Proof.
-    set (Po' := make_Pushout _ _ _ _ _ _ (is_symmetric_isPushout hs _ (isPushout_Pushout Po))).
+    set (Po' := make_Pushout _ _ _ _ _ _ (is_symmetric_isPushout _ (isPushout_Pushout Po))).
     use is_symmetric_isPullback.
     - exact hs.
     - exact (! (PushoutSqrCommutes _ )).
@@ -251,7 +251,7 @@ Section pushout_monic_pullback_epi.
     set (E := Equalizer A ((to_Pr1 DS) · f) ((to_Pr2 DS) · g)).
     set (K := AdditiveEqualizerToKernel (AbelianToAdditive A) _ _ E).
     set (E1 := @isEpi_to_binop_BinDirectSum1' (AbelianToAdditive A) x y z f g DS).
-    set (CK := EpiToCokernel' A hs (make_Epi _ _ E1) K).
+    set (CK := EpiToCokernel' A (make_Epi _ _ E1) K).
     use (@to_isEpi (AbelianToAdditive A)).
     intros z0 g0 H. cbn in H. cbn. rewrite <- assoc in H.
     set (φ := CokernelOut _ CK z0 (to_Pr2 DS · g0) H).
@@ -327,11 +327,9 @@ Section pushout_monic_pullback_epi.
                   (Abelian.Equalizer A ((to_Pr1 DS) · f) ((to_Pr2 DS) · g))).
     set (i := iso_from_Pullback_to_Pullback Pb' Pb).
     use isPushout_up_to_iso.
-    - exact hs.
     - exact Pb'.
     - exact i.
     - use isPushout_mor_paths.
-      + exact hs.
       + exact (PullbackPr1 Pb').
       + exact (PullbackPr2 Pb').
       + exact f.
@@ -375,7 +373,6 @@ Section pushout_monic_pullback_epi.
   Proof.
     set (Pb' := make_Pullback  _ (is_symmetric_isPullback hs _ (isPullback_Pullback Pb))).
     use is_symmetric_isPushout.
-    - exact hs.
     - exact (! (PullbackSqrCommutes _ )).
     - exact (AbelianPullbackEpiisPushout1 g f Pb').
   Qed.
