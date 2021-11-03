@@ -1472,21 +1472,31 @@ End cocont_functors.
 Declare Scope cocont_functor_hset_scope.
 Delimit Scope cocont_functor_hset_scope with CS.
 
-Notation "' x" := (omega_cocont_constant_functor has_homsets_HSET x)
+Notation "' x" := (omega_cocont_constant_functor x)
                     (at level 10) : cocont_functor_hset_scope.
 
-Notation "'Id'" := (omega_cocont_functor_identity has_homsets_HSET) :
+Notation "'Id'" := (omega_cocont_functor_identity _) :
                      cocont_functor_hset_scope.
 
 Notation "F * G" :=
   (omega_cocont_BinProduct_of_functors_alt BinProductsHSET _
-     has_homsets_HSET has_homsets_HSET
-     (is_omega_cocont_constprod_functor1 _ has_homsets_HSET Exponentials_HSET)
+     (is_omega_cocont_constprod_functor1 _ Exponentials_HSET)
      F G) : cocont_functor_hset_scope.
 
 Notation "F + G" :=
   (omega_cocont_BinCoproduct_of_functors_alt2
-     BinCoproductsHSET has_homsets_HSET has_homsets_HSET BinProductsHSET F G) : cocont_functor_hset_scope.
+     BinCoproductsHSET BinProductsHSET F G) : cocont_functor_hset_scope.
 
 Notation "1" := (unitHSET) : cocont_functor_hset_scope.
 Notation "0" := (emptyHSET) : cocont_functor_hset_scope.
+
+
+Section NotationTest.
+Variable A : HSET.
+
+Local Open Scope cocont_functor_hset_scope.
+
+(** F(X) = 1 + (A * X) *)
+Definition L_A : omega_cocont_functor HSET HSET := '1 + 'A * Id.
+
+End NotationTest.
