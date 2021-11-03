@@ -228,14 +228,14 @@ Section abelian_is_additive.
   Definition CokernelOfKernelOfPr1 {X : A} (BinProd : BinProduct A X X) :
     cokernels.Cokernel (to_Zero A) (KernelArrow (KernelOfPr1 BinProd)).
   Proof.
-    exact (EpiToCokernel' A hs (make_Epi A _ (BinProductPr1_isEpi BinProd))
+    exact (EpiToCokernel' A (make_Epi A _ (BinProductPr1_isEpi BinProd))
                           (KernelOfPr1 BinProd)).
   Defined.
 
   Definition CokernelOfKernelOfPr2 {X : A} (BinProd : BinProduct A X X) :
     cokernels.Cokernel (to_Zero A) (KernelArrow (KernelOfPr2 BinProd)).
   Proof.
-    exact (EpiToCokernel' A hs (make_Epi A _ (BinProductPr2_isEpi BinProd))
+    exact (EpiToCokernel' A (make_Epi A _ (BinProductPr2_isEpi BinProd))
                           (KernelOfPr2 BinProd)).
   Defined.
 
@@ -252,7 +252,7 @@ Section abelian_is_additive.
     set (ker := MonicToKernel M).
     use monic_epi_is_iso.
     (* isMonic *)
-    - use (@KernelZeroisMonic A hs (to_Zero A) _ _ _ (ZeroArrow_comp_left _ _ _ _ _ _)).
+    - use (@KernelZeroisMonic A (to_Zero A) _ _ _ (ZeroArrow_comp_left _ _ _ _ _ _)).
       use (make_isKernel).
       intros w h H'.
       use unique_exists.
@@ -283,7 +283,7 @@ Section abelian_is_additive.
       + intros y H. apply ArrowsToZero.
     (* isEpi *)
     - use (@CokernelZeroisEpi A _ _ (to_Zero A) _ (ZeroArrow_comp_right _ _ _ _ _ _)).
-      use (make_isCokernel hs).
+      use make_isCokernel.
       intros w h H'.
       use unique_exists.
       (* The arrow *)
@@ -316,7 +316,7 @@ Section abelian_is_additive.
     cokernels.Cokernel (to_Zero A) (DiagonalMap BinProd).
   Proof.
     set (X0 := z_iso_inv (make_z_iso _ _ (CokernelOfDiagonal_is_iso BinProd))).
-    exact (Cokernel_up_to_iso A hs (to_Zero A) _
+    exact (Cokernel_up_to_iso A (to_Zero A) _
                               (CokernelArrow (Cokernel (DiagonalMap BinProd)) · X0)
                               (Cokernel (DiagonalMap BinProd)) X0 (idpath _)).
   Defined.
@@ -710,7 +710,7 @@ Section abelian_is_additive.
   Qed.
 
   Definition AbelianTocategoryWithAbgropsData :
-    categoryWithAbgropsData AbelianToprecategoryWithBinops hs.
+    categoryWithAbgropsData AbelianToprecategoryWithBinops.
   Proof.
     unfold categoryWithAbgropsData.
     intros x y.
@@ -734,8 +734,8 @@ Section abelian_is_additive.
   (** We prove that Abelian_precategories are PrecategoriesWithAbgrops. *)
   Definition AbelianTocategoryWithAbgrops :
     categoryWithAbgrops := make_categoryWithAbgrops
-                                AbelianToprecategoryWithBinops  hs
-                                AbelianTocategoryWithAbgropsData.
+                             AbelianToprecategoryWithBinops
+                             AbelianTocategoryWithAbgropsData.
 
   (** Hide isPreAdditive behind Qed. *)
   Lemma AbelianToisPreAdditive :

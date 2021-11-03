@@ -1067,7 +1067,7 @@ Proof.
         -- apply idpath.
         -- apply proofirrelevance.
       (* apply isaprop_has_homsets. *)
-      (* Morally, this is it, but it gets unfolded too much because "has_homsets *)
+      (* Morally, this is it, but it gets unfolded too much because "has_homsets" *)
       *
   apply subtypePath'.
   - apply subtype

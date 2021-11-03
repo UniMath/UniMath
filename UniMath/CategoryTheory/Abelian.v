@@ -812,7 +812,7 @@ Section abelian_pushouts.
 
   Definition Pushouts : @Pushouts A.
   Proof.
-    apply (@Pushouts_from_Coequalizers_BinCoproducts A hs).
+    apply (@Pushouts_from_Coequalizers_BinCoproducts A).
     apply (to_BinCoproducts A).
     apply (Coequalizers A).
   Defined.
