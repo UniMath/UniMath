@@ -445,14 +445,15 @@ Section bindirectsums_monics_and_epis.
     repeat rewrite <- assoc in H.
     set (X:= to_IdIn1 (A:=A) B).
     assert (X1 : to_In1 B · to_Pr1 B = 1%abgrcat).
-    { apply X. }
+    { apply (to_IdIn1 (A:=A) B). }
     apply (@pathscomp0 _ _ ( f · (to_In1 B · to_Pr1 B)) _).
-    apply pathsinv0.
-    etrans. apply maponpaths. apply X1.
-    apply id_right.
-    etrans. apply H.
-    etrans. apply maponpaths. apply X1.
-    apply id_right.
+    - apply pathsinv0.
+      etrans. { apply maponpaths.
+                apply X1. }
+      apply id_right.
+    -  etrans. { apply H. }
+      etrans. { apply maponpaths. apply X1. }
+      apply id_right.
   Qed.
 
   Lemma to_In2_isMonic {a b : A} (B : BinDirectSum a b) : isMonic (to_In2 B).
@@ -464,12 +465,12 @@ Section bindirectsums_monics_and_epis.
     assert (X1 : to_In2 B · to_Pr2 B = 1%abgrcat).
     { apply X. }
     apply (@pathscomp0 _ _ ( f · (to_In2 B · to_Pr2 B)) _).
-    apply pathsinv0.
-    etrans. apply maponpaths. apply X1.
-    apply id_right.
-    etrans. apply H.
-    etrans. apply maponpaths. apply X1.
-    apply id_right.
+    - apply pathsinv0.
+      etrans. { apply maponpaths. apply X1. }
+      apply id_right.
+    -  etrans. { apply H. }
+      etrans. { apply maponpaths. apply X1. }
+      apply id_right.
   Qed.
 
   Lemma to_Pr1_isEpi {a b : A} (B : BinDirectSum a b) : isEpi (to_Pr1 B).
