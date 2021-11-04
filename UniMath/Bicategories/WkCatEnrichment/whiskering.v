@@ -18,7 +18,7 @@ Require Import UniMath.Bicategories.WkCatEnrichment.Notations.
 (******************************************************************************)
 (* Whiskering *)
 
-(*
+
 Definition whisker_left {C : prebicategory} {a b c : C}
            (f : a -1-> b) {g h : b -1-> c} (alpha : g -2-> h)
   : (f ;1; g) -2-> (f ;1; h)
@@ -38,7 +38,7 @@ Lemma whisker_left_id_2mor {C : prebicategory} {a b c : C}
   : whisker_left f (identity g) = identity (f ;1; g).
 Proof.
   intermediate_path (functor_on_morphisms (compose_functor a b c)
-                                (identity (make_precatbinprod f g))).
+                                (identity (make_catbinprod f g))).
   reflexivity.
   apply functor_id.
 Defined.
@@ -136,7 +136,7 @@ Lemma whisker_right_id_2mor {C : prebicategory} {a b c : C}
   : whisker_right (identity f) g = identity (f ;1; g).
 Proof.
   intermediate_path (functor_on_morphisms (compose_functor a b c)
-                                (identity (make_precatbinprod f g))).
+                                (identity (make_catbinprod f g))).
   reflexivity.
   apply functor_id.
 Defined.
@@ -266,7 +266,7 @@ Proof.
             (functor_composite
               (pair_functor (functor_identity _) (compose_functor b c d))
               (compose_functor a b d))
-           (precatbinprodmor alpha (precatbinprodmor beta gamma)))
+           (catbinprodmor alpha (catbinprodmor beta gamma)))
            ;v; associator f' g' h'
           ).
     reflexivity.
@@ -278,9 +278,9 @@ Proof.
               (functor_composite
                 (pair_functor (compose_functor a b c) (functor_identity _))
                 (compose_functor a c d)))
-            (precatbinprodmor alpha (precatbinprodmor beta gamma)))).
+            (catbinprodmor alpha (catbinprodmor beta gamma)))).
     apply (nat_trans_ax (associator_trans a b c d) _ _
-                        (precatbinprodmor alpha (precatbinprodmor beta gamma))).
+                        (catbinprodmor alpha (catbinprodmor beta gamma))).
 
   reflexivity.
 Defined.
@@ -416,4 +416,3 @@ Proof.
     apply left_unitor_on_id.
   apply (triangle_axiom (identity1 a) (identity1 a)).
 Defined.
- *)
