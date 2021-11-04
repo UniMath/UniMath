@@ -35,16 +35,6 @@ Section def_precategory_with_abgrops.
   Coercion categoryWithAbgrops_precategoryWithBinOps :
     categoryWithAbgrops >-> precategoryWithBinOps.
 
-(*  (* category with abgrops to category *)
-  Definition categoryWithAbgrops_category (PWA : categoryWithAbgrops) : category.
-  Proof.
-    use tpair.
-    - exact (pr1 (pr1 PWA)).
-    - exact (pr2 (pr1 PWA)).
-  Defined.
-  Coercion categoryWithAbgrops_category : categoryWithAbgrops >-> category.
-*)
-
   Definition make_categoryWithAbgrops (PB : precategoryWithBinOps)
              (H : categoryWithAbgropsData PB) : categoryWithAbgrops.
   Proof.
