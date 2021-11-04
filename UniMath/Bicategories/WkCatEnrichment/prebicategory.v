@@ -23,7 +23,7 @@ Require Import UniMath.CategoryTheory.Equivalences.Core.
 Local Open Scope cat.
 
 
-(*
+
 
 (******************************************************************************)
 (* Definition of a prebicategory *)
@@ -49,14 +49,14 @@ Local Open Scope cat.
    each hom type itself has the structure of a precategory, together with appropriate
    axioms. *)
 
-Local Notation "C  'c×'  D" := (precategory_binproduct C D)
+Local Notation "C  'c×'  D" := (category_binproduct C D)
  (at level 75, right associativity).
 
-Definition prebicategory_ob_hom : UU := ∑ C : UU, ∏ a b : C, precategory.
+Definition prebicategory_ob_hom : UU := ∑ C : UU, ∏ a b : C, category.
 
 Coercion bicat_ob (C : prebicategory_ob_hom) : UU := pr1 C.
 
-Definition homprecat {C : prebicategory_ob_hom} (a b : C) : precategory := pr2 C a b.
+Definition homprecat {C : prebicategory_ob_hom} (a b : C) : category := pr2 C a b.
 
 Local Notation "a  '-1->'  b" := (homprecat a b) (at level 50, left associativity).
 
@@ -94,7 +94,7 @@ Definition compose2h {C : prebicategory_id_comp} {a b c : C}
   : (f ;1; g) -2-> (f' ;1; g').
 Proof.
   apply functor_on_morphisms.
-  exact (precatbinprodmor alpha beta).
+  exact (catbinprodmor alpha beta).
 Defined.
 
 Local Notation "alpha  ';h;'  beta" := (compose2h alpha beta) (at level 50, left associativity).
@@ -161,7 +161,7 @@ Definition associator_2mor {C : prebicategory_data} {a b c d : C}
            (g : b -1-> c)
            (h : c -1-> d)
   : (f ;1; (g ;1; h)) -2-> ((f ;1; g) ;1; h)
-  := associator_trans a b c d (make_precatbinprod f (make_precatbinprod g h)).
+  := associator_trans a b c d (make_catbinprod f (make_catbinprod g h)).
 
 Definition left_unitor_trans {C : prebicategory_data} (a b : C)
   : bindelta_pair_functor
@@ -311,7 +311,7 @@ Lemma horizontal_comp_id {C : prebicategory_id_comp} {a b c : C}
 Proof.
   unfold compose2h.
   intermediate_path (functor_on_morphisms (compose_functor a b c)
-            (identity (make_precatbinprod f g))).
+            (identity (make_catbinprod f g))).
     reflexivity.
   apply functor_id.
 Defined.
@@ -337,8 +337,8 @@ Lemma interchange {C : prebicategory} {a b c : C}
   : (a1 ;v; a2) ;h; (b1 ;v; b2) = (a1 ;h; b1) ;v; (a2 ;h; b2).
 Proof.
   unfold compose2h.
-  assert (X : precatbinprodmor a1 b1 · precatbinprodmor a2 b2
-            = precatbinprodmor (a1 ;v; a2) (b1 ;v; b2)) by reflexivity.
+  assert (X : catbinprodmor a1 b1 · catbinprodmor a2 b2
+            = catbinprodmor (a1 ;v; a2) (b1 ;v; b2)) by reflexivity.
   rewrite <- X.
   apply functor_comp.
 Qed.
@@ -361,4 +361,3 @@ Proof.
   apply pathsinv0.
   apply triangle_axiom.
 Qed.
- *)
