@@ -45,7 +45,7 @@ Defined.
 
 Definition ptd_compose (Z Z' : ptd_obj C) : category_Ptd C.
 Proof.
-  exists (functor_compose _ _ _ (pr1 Z:[C, C]) (pr1 Z':[C, C])).
+  exists (functor_compose (pr1 Z:[C, C]) (pr1 Z':[C, C])).
   apply (# (functorial_composition _ _ _) (((ptd_pt _ Z: [C, C]⟦functor_identity C,pr1 Z⟧) ,,
                                             (ptd_pt _ Z': [C, C]⟦functor_identity C,pr1 Z'⟧))
   : category_binproduct [C, C] [C, C] ⟦(functor_identity C,,functor_identity C),(pr1 Z,,pr1 Z')⟧)).

@@ -210,10 +210,10 @@ Proof.
 Defined.
 
 Let FF : functor [D,D] [C, D]
-  := (pre_composition_functor _ _ _  F).
+  := (pre_comp_functor F).
 
 Let GG : functor [C, D] [D, D]
-  := (pre_composition_functor _ _ _ G).
+  := (pre_comp_functor G).
 
 
 Definition ε'ntiso : iso (C:= [D,D]) (G ∙ F) (functor_identity _ ).
@@ -223,8 +223,8 @@ Proof.
     set (XR':= iso_inv_from_iso XR). apply XR'.
   eapply iso_comp.
      2: apply εntiso.
-  set (XR := functor_on_iso (pre_composition_functor _ _ _ G) (iso_inv_from_iso ηntiso)).
-  set (XR':= functor_on_iso (post_composition_functor _ _ _  F) XR).
+  set (XR := functor_on_iso (pre_comp_functor G) (iso_inv_from_iso ηntiso)).
+  set (XR':= functor_on_iso (post_comp_functor F) XR).
   apply XR'.
 Defined.
 

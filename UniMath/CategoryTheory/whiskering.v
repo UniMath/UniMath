@@ -27,7 +27,7 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.FunctorCategory.
 Local Open Scope cat.
 
-Definition functor_compose (A B C : category) (F : ob [A, B])
+Definition functor_compose {A B C : category} (F : ob [A, B])
       (G : ob [B , C]) : ob [A , C] :=
    functor_composite F G.
 
@@ -81,7 +81,7 @@ Defined.
 
 Definition pre_whisker_in_funcat (A B C : category)
            (F : [A, B]) {G H : [B, C]} (γ : [B, C]⟦G, H⟧) :
-  [A, C]⟦functor_compose _ _ _ F G, functor_compose _ _ _ F H⟧.
+  [A, C]⟦functor_compose F G, functor_compose F H⟧.
 Proof.
   exact (pre_whisker (F: A ⟶ B) γ).
 Defined.
@@ -139,7 +139,7 @@ Defined.
 
 Definition post_whisker_in_funcat (B C D : category)
             {G H : [B, C]} (γ : [B, C]⟦G, H⟧) (K : [C, D]) :
-  [B, D]⟦functor_compose _ _ _ G K, functor_compose _ _ _ H K⟧.
+  [B, D]⟦functor_compose G K, functor_compose H K⟧.
 Proof.
   exact (post_whisker γ (K: C ⟶ D)).
 Defined.
@@ -149,7 +149,7 @@ Defined.
 Definition pre_composition_functor_data (A B C : category)
       (H : ob [A, B]) : functor_data [B, C] [A, C].
 Proof.
-  exists (λ G, functor_compose _ _ _ H G).
+  exists (λ G, functor_compose H G).
   exact (λ a b gamma, pre_whisker_in_funcat _ _ _ H gamma).
 Defined.
 
@@ -204,7 +204,7 @@ Definition pre_comp_functor {A B C: category} :
 Definition post_composition_functor_data (A B C : category)
       (H : ob [B, C]) : functor_data [A, B] [A, C].
 Proof.
-  exists (λ G, functor_compose _ _ _ G H).
+  exists (λ G, functor_compose G H).
   exact (λ a b gamma, post_whisker_in_funcat _ _ _ gamma H).
 Defined.
 

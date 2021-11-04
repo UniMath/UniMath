@@ -390,7 +390,7 @@ Section IndividualFunctorsWithABStrength.
   Definition θ_for_signature_nat_trans_data : nat_trans_data (θ_source H) (θ_target H).
   Proof.
     intro x.
-    set (result :=  ab_str x : functor_composite_data (pr12 x) (pr1 (pr1 H (pr1 x))) ⟹ pr1 (pr1 H (functor_compose _ _ _ (pr12 x) (pr1 x)))). (** this typing is crucial for termination of type-checking *)
+    set (result :=  ab_str x : functor_composite_data (pr12 x) (pr1 (pr1 H (pr1 x))) ⟹ pr1 (pr1 H (functor_compose (pr12 x) (pr1 x)))). (** this typing is crucial for termination of type-checking *)
     exact result.
   Defined.
 
@@ -455,7 +455,7 @@ Section IndividualFunctorsWithABStrength.
                    =
                    pr1 (θ_for_signature_nat_trans_data (X, Z')) ((pr111 Z) c)
                        · pr1 (θ_for_signature_nat_trans_data
-                                (functor_compose _ _ _ (pr1 Z') X, Z))
+                                (functor_compose (pr1 Z') X, Z))
                        c).
            exact (nat_trans_comp
                     (post_whisker (nat_trans_id _) _)
@@ -1116,7 +1116,7 @@ Proof.
   exact (is_univalent_Signature_category C univalentD D').
 Defined.
 
-(** the remainder of this file documents failing efforts *)
+(** the remainder of this file documents failing efforts - these problems ought to be gone after merging PR #1402 *)
 
 (*
 
