@@ -56,13 +56,9 @@ Section PolynomialFunctors.
   Definition polynomial_alg_uncurried : UU :=
     ∑ (X : ob type_precat), ∏ (a : A), (B a → X) → X.
 
-  Definition prealgebra_ob {C : precategory} (F : (C ⟶ C)%Cat) : UU
-    := ∑ X : C, (C ⟦ F X, X ⟧)%Cat.
-
-
   (** The uncurried and curried versions are equivalent *)
   Lemma polynomial_alg_uncurried_equiv :
-    polynomial_alg_uncurried ≃ (prealgebra_ob polynomial_functor).
+    polynomial_alg_uncurried ≃ (algebra_ob polynomial_functor).
   Proof.
     apply (weq_iso (λ p, (pr1 p,, uncurry (pr2 p)))
                    (λ p, (pr1 p,, curry (pr2 p))));
