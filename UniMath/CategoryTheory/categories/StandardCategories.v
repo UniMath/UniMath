@@ -37,9 +37,11 @@ Proof. intros. exact (compose f g). Defined.
 (** ** The path/fundamental groupoid of a type *)
 
 (** The pregroupoid with points in X as objects and paths as morphisms *)
-Definition path_pregroupoid (X:UU) : pregroupoid.
+Definition path_pregroupoid (X:UU) (iobj : isofhlevel 3 X) : pregroupoid.
   use make_pregroupoid.
-  - use make_precategory_one_assoc; use tpair.
+  - use tpair.
+    {
+    use make_precategory_one_assoc; use tpair.
     + exact (X,, λ x y, x = y).
     + use make_dirprod.
       * exact (λ _, idpath _).
@@ -48,6 +50,9 @@ Definition path_pregroupoid (X:UU) : pregroupoid.
       * reflexivity.
       * intros; apply pathscomp0rid.
     + intros ? ? ? ? ? ?; apply path_assoc.
+    }
+    intros ? ? ? ? ? ?.
+    apply iobj.
   - intros x y path.
     use (is_iso_qinv path); cbn in *.
     + exact (!path).
@@ -58,24 +63,23 @@ Defined.
 
 (** If X [isofhlevel] 3, then in particular, its path types are sets *)
 Definition has_homsets_path_pregroupoid {X : UU} (iobj : isofhlevel 3 X) :
-  has_homsets (path_pregroupoid X).
+  has_homsets (path_pregroupoid X iobj).
 Proof.
-  intros ? ? ? ? ? ?.
-  apply iobj.
+  apply homset_property.
 Defined.
 
 Definition path_groupoid (X : UU) (iobj : isofhlevel 3 X) : groupoid.
 Proof.
   use make_groupoid.
   - use make_category.
-    + exact (path_pregroupoid X).
+    + exact (path_pregroupoid X iobj).
     + apply (has_homsets_path_pregroupoid); assumption.
-  - apply (pregroupoid_is_pregroupoid (path_pregroupoid X)).
+  - apply (pregroupoid_is_pregroupoid (path_pregroupoid X iobj)).
 Defined.
 
 (** In this case, the path pregroupoid is further univalent. *)
 Lemma is_univalent_path_pregroupoid (X : UU) (iobj : isofhlevel 3 X) :
-  is_univalent_pregroupoid (path_pregroupoid X).
+  is_univalent_pregroupoid (path_pregroupoid X iobj).
 Proof.
   split.
   - intros a b.
@@ -88,16 +92,19 @@ Defined.
 Lemma is_univalent_path_groupoid (X:UU) (i : isofhlevel 3 X) :
   is_univalent (path_groupoid X i).
 Proof.
-  intros; split.
-  - apply is_univalent_pregroupoid_is_univalent,
+  apply is_univalent_pregroupoid_is_univalent,
           is_univalent_path_pregroupoid; assumption.
-  - apply i.
 Defined.
 
-Definition path_univalent_groupoid {X : UU} (i3 : isofhlevel 3 X) :
-  univalent_groupoid :=
-  make_univalent_groupoid (make_univalent_category _ (is_univalent_path_groupoid X i3))
-                        (groupoid_is_pregroupoid _).
+Definition path_univalent_groupoid
+           {X : UU}
+           (i3 : isofhlevel 3 X)
+  : univalent_groupoid.
+Proof.
+  use make_univalent_groupoid.
+  - exact (make_univalent_category _ (is_univalent_path_groupoid X i3)).
+  - apply (groupoid_is_pregroupoid _).
+Defined.
 
 Definition path_groupoid_hset (X : hSet) : univalent_groupoid :=
   (path_univalent_groupoid (isofhlevelssnset 1 _ (setproperty X))).
@@ -119,8 +126,8 @@ Definition discrete_category_hset (X : hSet) : discrete_category :=
 (** To define a functor out of a path pregroupoid, it suffices to give
     its values on objects. Compare to [functor_discrete_categories]. *)
 Lemma functor_path_pregroupoid
-      {X : UU} {D : precategory} (f : X → ob D) :
-  functor (path_pregroupoid X) D.
+      {X : UU} {D : category} (i : isofhlevel 3 X) (f : X → ob D) :
+  functor (path_pregroupoid X i) D.
 Proof.
   use make_functor.
   - use make_functor_data.
@@ -138,8 +145,8 @@ Defined.
 (** A natural transformation of functors out of a path groupoid is given by any
     family of morphisms *)
 Definition is_nat_trans_discrete_precategory
-           {X : UU} {D : precategory} (Dhom : has_homsets D)
-           {f g : functor_precategory (path_pregroupoid X) D Dhom}
+           {X : UU} {i : isofhlevel 3 X}  {D : category}
+           {f g : functor_category (path_pregroupoid X i) D}
            (F : ∏ x : X, (pr1 f) x --> (pr1 g) x)
   : is_nat_trans (pr1 f) (pr1 g) F.
 Proof.
@@ -158,12 +165,12 @@ Proof.
 Qed.
 
 Definition nat_trans_functor_path_pregroupoid
-           {X : UU} {D : precategory} {F G : functor (path_pregroupoid X) D} (hsD : has_homsets D)
+           {X : UU} {i : isofhlevel 3 X} {D : category} {F G : functor (path_pregroupoid X i) D}
            (ϕ : ∏ x : X, F x --> G x) : nat_trans F G.
 Proof.
 use make_nat_trans.
 - intros z; apply (ϕ z).
-- apply (is_nat_trans_discrete_precategory hsD).
+- apply (is_nat_trans_discrete_precategory).
 Defined.
 
 

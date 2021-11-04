@@ -29,6 +29,8 @@ Proof.
   exact iscontrfuntounit.
 Defined.
 
+
+(*
 (** ** Binary products ([BinProductsType]) *)
 
 (** The precategory of types has binary products. *)
@@ -40,3 +42,4 @@ Proof.
   - apply isBinProduct'_to_isBinProduct.
     intro; apply (weqfuntoprodtoprod _ X Y).
 Defined.
+*)

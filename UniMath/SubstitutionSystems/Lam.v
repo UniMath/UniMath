@@ -54,43 +54,39 @@ Local Open Scope cat.
 
 Section Lambda.
 
-Variable C : precategory.
-Variable hs : has_homsets C.
+Context (C : category).
 
 (** The category of endofunctors on [C] *)
-Local Notation "'EndC'":= ([C, C, hs]) .
+Local Notation "'EndC'":= ([C, C]) .
 
 Variable terminal : Terminal C.
 
 Variable CC : BinCoproducts C.
 Variable CP : BinProducts C.
 
-Local Notation "'EndC'":= ([C, C, hs]) .
-Local Notation "'Ptd'" := (precategory_Ptd C hs).
+Local Notation "'Ptd'" := (category_Ptd C).
 
-Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hs.
-Let CPEndC : BinCoproducts EndC := BinCoproducts_functor_precat _ _ CC hs.
-Let EndEndC := [EndC, EndC, hsEndC].
-Let CPEndEndC:= BinCoproducts_functor_precat _ _ CPEndC hsEndC: BinCoproducts EndEndC.
+Let CPEndC : BinCoproducts EndC := BinCoproducts_functor_precat _ _ CC.
+Let EndEndC := [EndC, EndC].
+Let CPEndEndC:= BinCoproducts_functor_precat _ _ CPEndC: BinCoproducts EndEndC.
 
 
 
 
 Let one : C :=  @TerminalObject C terminal.
 
-Variable KanExt : ∏ Z : precategory_Ptd C hs,
+Variable KanExt : ∏ Z : precategory_Ptd C,
    RightKanExtension.GlobalRightKanExtensionExists C C
-     (U Z) C hs hs.
+     (U Z) C.
 
 
-Let Lam_S : Signature _ _ _ _ _ _ := Lam_Sig C hs terminal CC CP.
-Let LamE_S : Signature _ _ _ _ _ _ := LamE_Sig C hs terminal CC CP.
+Let Lam_S : Signature _ _ _ := Lam_Sig C terminal CC CP.
+Let LamE_S : Signature _ _ _ := LamE_Sig C terminal CC CP.
 
 (* assume initial algebra for signature Lam *)
 
 Variable Lam_Initial : Initial
-     (@precategory_FunctorAlg [C, C, hs]
-                             (Id_H C hs CC Lam_S) hsEndC).
+     (@category_FunctorAlg [C, C] (Id_H C CC Lam_S)).
 
 Let Lam := InitialObject Lam_Initial.
 
@@ -99,7 +95,7 @@ Let Lam := InitialObject Lam_Initial.
 
 (** bracket for Lam from the initial hss obtained via theorem 15+ *)
 
-Definition LamHSS_Initial : Initial (hss_precategory CC Lam_S).
+Definition LamHSS_Initial : Initial (hss_category CC Lam_S).
 Proof.
   apply InitialHSS.
   - apply KanExt.
@@ -112,26 +108,26 @@ Let LamHSS := InitialObject LamHSS_Initial.
 
 Definition Lam_Var : EndC ⟦functor_identity C, `Lam ⟧.
 Proof.
-  exact (BinCoproductIn1 _ (BinCoproducts_functor_precat _ _ _ _ _ _)  · alg_map _ Lam).
+  exact (BinCoproductIn1 (BinCoproducts_functor_precat _ _ _ _ _)  · alg_map _ Lam).
 Defined.
 
 (* we later prefer leaving App and Abs bundled in the definition of LamE_algebra_on_Lam *)
 
-Definition Lam_App : [C, C, hs] ⟦ (App_H C hs CP) `Lam , `Lam ⟧.
+Definition Lam_App : [C, C] ⟦ (App_H C CP) `Lam , `Lam ⟧.
 Proof.
-  exact (BinCoproductIn1 _ (BinCoproducts_functor_precat _ _ _ _ _ _) · (BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _) · alg_map _ Lam)).
+  exact (BinCoproductIn1 (BinCoproducts_functor_precat _ _ _ _ _) · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _) · alg_map _ Lam)).
 Defined.
 
-Definition Lam_Abs : [C, C, hs] ⟦ (Abs_H C hs terminal CC) `Lam, `Lam ⟧.
+Definition Lam_Abs : [C, C] ⟦ (Abs_H C terminal CC) `Lam, `Lam ⟧.
 Proof.
-  exact (BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _) · (BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _) · alg_map _ Lam)).
+  exact (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _) · (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _) · alg_map _ Lam)).
 Defined.
 
 
-Definition Lam_App_Abs :  [C, C, hs]
-   ⟦ (H C C hs C hs CC (App_H C hs CP) (Abs_H C hs terminal CC)) `Lam , `Lam ⟧.
+Definition Lam_App_Abs :  [C, C]
+   ⟦ (H C C C CC (App_H C CP) (Abs_H C terminal CC)) `Lam , `Lam ⟧.
 Proof.
-  exact (BinCoproductIn2 _ (BinCoproducts_functor_precat _ _ _ _ _ _) · alg_map _ Lam).
+  exact (BinCoproductIn2 (BinCoproducts_functor_precat _ _ _ _ _) · alg_map _ Lam).
 Defined.
 
 (** * Definition of a "model" of the flattening arity in pure lambda calculus *)
@@ -139,26 +135,26 @@ Defined.
 (** we need a flattening in order to get a model for LamE *)
 
 Definition Lam_Flatten :
-  [C, C, hs] ⟦ (Flat_H C hs) `Lam , `Lam ⟧.
+  [C, C] ⟦ (Flat_H C) `Lam , `Lam ⟧.
 Proof.
-  exact (prejoin_from_hetsubst (hetsubst_from_hss _ _ _ _ LamHSS)).
+  exact (prejoin_from_hetsubst (hetsubst_from_hss _ _ _ LamHSS)).
 Defined.
 
 
 (** now get a LamE-algebra *)
 
-Definition LamE_algebra_on_Lam : FunctorAlg (Id_H _ _ CC LamE_S) hsEndC.
+Definition LamE_algebra_on_Lam : FunctorAlg (Id_H _ CC LamE_S).
 Proof.
   exists ((*ob_from_algebra_ob _ _*) `Lam).
-  use (BinCoproductArrow _ (CPEndC _ _ )).
+  use (BinCoproductArrow (CPEndC _ _ )).
   + exact Lam_Var.
-  + use (BinCoproductArrow _ (CPEndC _ _ )).
+  + use (BinCoproductArrow (CPEndC _ _ )).
     * apply Lam_App_Abs. (* do NOT destruct and reassemble more, use App_Abs directly *)
     * apply Lam_Flatten.
 Defined.
 
 Lemma τ_LamE_algebra_on_Lam : τ LamE_algebra_on_Lam =
-                              BinCoproductArrow _ (CPEndC _ _ ) Lam_App_Abs Lam_Flatten.
+                              BinCoproductArrow (CPEndC _ _ ) Lam_App_Abs Lam_Flatten.
 Proof.
   apply BinCoproductIn2Commutes.
 Defined.
@@ -198,14 +194,14 @@ Proof.
   exists bla'_inv.
   abstract (
    split; [
-    apply (invmap (eq_ptd_mor hs _ _));
-    apply nat_trans_eq; try (exact hs) ;
+    apply (invmap (eq_ptd_mor _ _));
+    apply nat_trans_eq; [apply homset_property |] ;
     intro c ;
     apply id_left
                    |
-    apply eq_ptd_mor_precat; (* idem *)
-    apply (invmap (eq_ptd_mor hs _ _)) ;
-    apply nat_trans_eq; try (exact hs) ;
+    apply eq_ptd_mor_cat; (* idem *)
+    apply (invmap (eq_ptd_mor _ _)) ;
+    apply nat_trans_eq; [apply homset_property |];
     intro c ;
     apply id_left ]
            ).
@@ -214,8 +210,7 @@ Defined.
 
 Definition fbracket_for_LamE_algebra_on_Lam (Z : Ptd)
    (f : Ptd ⟦ Z, ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam ⟧ ) :
-   [C, C, hs]
-   ⟦ functor_composite (U Z) `LamE_algebra_on_Lam, `LamE_algebra_on_Lam ⟧ .
+   [C, C]⟦ functor_composite (U Z) `LamE_algebra_on_Lam, `LamE_algebra_on_Lam ⟧ .
 Proof.
   exact (fbracket LamHSS (f · bla)).
 Defined.
@@ -245,7 +240,7 @@ Proof.
     unfold fbracket_for_LamE_algebra_on_Lam.
     match goal with |[ |- _· _ · ?h = _  ] =>
          assert (idness : h = nat_trans_id _) end.
-    { apply (nat_trans_eq hs).
+    { apply nat_trans_eq_alt.
       intro c.
       unfold functor_ptd_forget.
       apply id_left.
@@ -268,7 +263,7 @@ Proof.
    :[C, C] hs, LamHSS ⟧)
 *)
 *)
-    apply (nat_trans_eq hs).
+    apply nat_trans_eq_alt.
     intro c.
     apply cancel_postcomposition.
     apply BinCoproductIn1Commutes_right_dir.
@@ -278,7 +273,7 @@ Proof.
     destruct Hyp as [_ Hyp2].
     fold (fbracket LamHSS (f · bla)) in Hyp2.
     unfold fbracket_for_LamE_algebra_on_Lam.
-    apply (nat_trans_eq hs).
+    apply nat_trans_eq_alt.
     intro c.
 
     (* from here slightly interesting, because it is crucial to see that
@@ -317,7 +312,7 @@ Proof.
       Opaque LamHSS.
       set (X := f · bla).
 
-      assert (TT := compute_fbracket C hs CC Lam_S LamHSS(Z:=Z)).
+      assert (TT := compute_fbracket C CC Lam_S LamHSS(Z:=Z)).
       simpl in *.
       assert (T3 := TT  X); clear TT.
       unfold X; unfold X in T3; clear X.
@@ -373,7 +368,7 @@ Proof.
       do 2 apply maponpaths. apply X. }
       clear X.
 
-      assert (X := Monad_law_2_from_hss _ _ CC Lam_S LamHSS (T c)).
+      assert (X := Monad_law_2_from_hss _ CC Lam_S LamHSS (T c)).
       unfold μ_0 in X. unfold μ_2 in X.
 
       change (pr1 ⦃ identity (ptd_from_alg (pr1 LamHSS)) ⦄ c) with (prejoin_from_hetsubst LamHSS c).
@@ -395,7 +390,7 @@ Proof.
 
       rewrite id_left.
 
-      assert (μ_2_nat := nat_trans_ax (μ_2 C hs CC Lam_S LamHSS)).
+      assert (μ_2_nat := nat_trans_ax (μ_2 C CC Lam_S LamHSS)).
       assert (X := μ_2_nat _ _ (f c · identity (pr1 `Lam c))).
       unfold μ_2 in X.
 
@@ -408,7 +403,7 @@ Proof.
       repeat rewrite <- assoc.
       apply maponpaths.
 
-      assert (X := third_monad_law_from_hss _ _ CC Lam_S LamHSS).
+      assert (X := third_monad_law_from_hss _ CC Lam_S LamHSS).
       assert (X' := nat_trans_eq_pointwise X). clear X.
       simpl in X'.
 
@@ -427,14 +422,14 @@ Lemma bracket_for_LamE_algebra_on_Lam_unique (Z : Ptd)
  :
    ∏
    t : ∑
-       h : [C, C, hs]
+       h : [C, C]
            ⟦ functor_composite (U Z)
                (` LamE_algebra_on_Lam),
            `LamE_algebra_on_Lam ⟧,
        bracket_property (nat_trans_fix_snd_arg _ _ _ _ _ (theta LamE_S) Z) _ f h,
    t =
    tpair
-     (λ h : [C, C, hs]
+     (λ h : [C, C]
             ⟦ functor_composite (U Z)
                 (` LamE_algebra_on_Lam),
             `LamE_algebra_on_Lam ⟧,
@@ -443,14 +438,14 @@ Lemma bracket_for_LamE_algebra_on_Lam_unique (Z : Ptd)
 Proof.
   intro t.
   apply subtypePath.
-  - intro; apply (isaset_nat_trans hs).
+  - intro; apply (isaset_nat_trans (homset_property C)).
   - simpl.
     destruct t as [t Ht]; simpl.
     unfold fbracket_for_LamE_algebra_on_Lam.
     apply (fbracket_unique LamHSS).
     split.
     + apply parts_from_whole in Ht. destruct Ht as [H1 _].
-      apply (nat_trans_eq hs).
+      apply nat_trans_eq_alt.
       intro c.
       assert (HT := nat_trans_eq_pointwise H1 c).
       simpl.
@@ -459,11 +454,11 @@ Proof.
       simpl. repeat rewrite assoc. apply cancel_postcomposition.
       apply BinCoproductIn1Commutes.
     + apply parts_from_whole in Ht. destruct Ht as [_ H2].
-      apply (nat_trans_eq hs).
+      apply nat_trans_eq_alt.
       intro c.
       assert (HT := nat_trans_eq_pointwise H2 c).
       match goal with |[H2 : ?e = ?f |- _ ] =>
-                         assert (X: BinCoproductIn1 _ _ · e = BinCoproductIn1 _ _ · f) end.
+                         assert (X: BinCoproductIn1 _ · e = BinCoproductIn1 _ · f) end.
       { apply maponpaths . assumption. }
       clear HT. clear H2.
 
@@ -497,7 +492,7 @@ Qed.
 Definition bracket_for_LamE_algebra_on_Lam_at (Z : Ptd)
   (f : Ptd ⟦ Z, ptd_from_alg LamE_algebra_on_Lam ⟧)
   :
-    bracket_at C hs CC LamE_S (nat_trans_fix_snd_arg _ _ _ _ _ (theta LamE_S) Z) LamE_algebra_on_Lam f.
+    bracket_at C CC LamE_S (nat_trans_fix_snd_arg _ _ _ _ _ (theta LamE_S) Z) LamE_algebra_on_Lam f.
 Proof.
   use tpair.
   - exists (fbracket_for_LamE_algebra_on_Lam Z f).
@@ -521,11 +516,11 @@ Defined.
 (* assume initial algebra for signature LamE *)
 
 Variable  LamE_Initial : Initial
-     (@precategory_FunctorAlg [C, C, hs]
-        (Id_H C hs CC LamE_S) hsEndC).
+     (@category_FunctorAlg [C, C]
+        (Id_H C CC LamE_S)).
 
 
-Definition LamEHSS_Initial : Initial (hss_precategory CC LamE_S).
+Definition LamEHSS_Initial : Initial (hss_category CC LamE_S).
 Proof.
   apply  InitialHSS.
   - apply KanExt.
@@ -535,7 +530,7 @@ Let LamEHSS := InitialObject LamEHSS_Initial.
 
 (** * Specification of a morphism from lambda calculus with flattening to pure lambda calculus *)
 
-Definition FLATTEN : (hss_precategory CC LamE_S) ⟦LamEHSS, LamE_model_on_Lam⟧
+Definition FLATTEN : (hss_category CC LamE_S) ⟦LamEHSS, LamE_model_on_Lam⟧
   := InitialArrow _ _ .
 
 End Lambda.

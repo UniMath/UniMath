@@ -23,6 +23,8 @@ Require Import UniMath.CategoryTheory.FunctorCategory.
 Local Open Scope cat.
 Require Import UniMath.Bicategories.WkCatEnrichment.prebicategory.
 
+(*
+
 (******************************************************************************)
 (* Lemmas for use in PreCat and Cat *)
 
@@ -401,6 +403,7 @@ Proof.
   unfold has_homcats.
   intros a b.
   apply is_univalent_functor_category.
+  apply b.
 Defined.
 
 (* TODO: "Should be easy" *)
@@ -416,3 +419,5 @@ Defined.
 (*   - exact Cat_has_homcats. *)
 (*   - exact Cat_is_lt2saturated. *)
 (* Defined. *)
+
+ *)

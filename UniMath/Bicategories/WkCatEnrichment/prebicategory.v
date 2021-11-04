@@ -22,6 +22,9 @@ Require Import UniMath.CategoryTheory.Equivalences.Core.
 
 Local Open Scope cat.
 
+
+(*
+
 (******************************************************************************)
 (* Definition of a prebicategory *)
 
@@ -235,8 +238,15 @@ Definition prebicategory_has_2mor_sets {C : prebicategory} (a b : C)
   : has_homsets (a -1-> b)
   := (pr1 (pr2 C)) a b.
 
+Definition homcat {C : prebicategory} (a b : C) : category.
+Proof.
+  use make_category.
+  - exact (a -1-> b).
+  - apply prebicategory_has_2mor_sets.
+Defined.
+
 Definition has_homcats (C : prebicategory) : UU
-  := ∏ a b : C, is_univalent (a -1-> b).
+  := ∏ a b : C, is_univalent (homcat a b).
 
 Definition associator {C : prebicategory} {a b c d : C}
     (f : a -1-> b) (g : b -1-> c) (h : c -1-> d)
@@ -351,3 +361,4 @@ Proof.
   apply pathsinv0.
   apply triangle_axiom.
 Qed.
+ *)

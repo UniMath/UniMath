@@ -186,20 +186,20 @@ End Working.
 
 (** bifunctors related to representable functors  *)
 
-Definition θ_1 {B C:category} (F : [B, C]) (X : [B, [C^op, SET]]) : hSet
+Definition θ_1 {B C:category} (F : [B, C]) (X : [B, [C^op, HSET]]) : hSet
   := (∏ b, F ◾ b ⇒ X ◾ b) % set.
 
-Definition θ_2 {B C:category} (F : [B, C]) (X : [B, [C^op, SET]])
+Definition θ_2 {B C:category} (F : [B, C]) (X : [B, [C^op, HSET]])
            (x : θ_1 F X) : hSet
   := hProp_to_hSet (∀ (b' b:B) (f:b'-->b), (x b ⟲ F ▭ f = X ▭ f ⟳ x b' )) % logic.
 
-Definition θ {B C:category} (F : [B, C]) (X : [B, [C^op, SET]]) : hSet
+Definition θ {B C:category} (F : [B, C]) (X : [B, [C^op, HSET]]) : hSet
   := ( ∑ x : θ_1 F X, θ_2 F X x ) % set.
 
 Local Notation "F ⟹ X" := (θ F X) (at level 39) : cat.
 (* to input: type "\==>" with Agda input method *)
 
-Definition θ_subset {B C:category} {F : [B, C]} {X : [B, [C^op, SET]]}
+Definition θ_subset {B C:category} {F : [B, C]} {X : [B, [C^op, HSET]]}
            (t u : F ⟹ X) :
   pr1 t = pr1 u -> t = u.
 Proof.
@@ -208,11 +208,11 @@ Proof.
   apply setproperty.
 Defined.
 
-Definition θ_map_1 {B C:category} {F' F:[B, C]} {X : [B, [C^op, SET]]} :
+Definition θ_map_1 {B C:category} {F' F:[B, C]} {X : [B, [C^op, HSET]]} :
   F' --> F -> F ⟹ X -> θ_1 F' X
   := λ p xe b, pr1 xe b ⟲ p ◽ b.
 
-Definition θ_map_2 {B C:category} {F' F:[B, C]} {X : [B, [C^op, SET]]}
+Definition θ_map_2 {B C:category} {F' F:[B, C]} {X : [B, [C^op, HSET]]}
   (p : F' --> F) (xe : F ⟹ X) : θ_2 F' X (θ_map_1 p xe).
 Proof.
   induction xe as [x e]. unfold θ_map_1; unfold θ_1 in x; unfold θ_2 in e.
@@ -225,17 +225,17 @@ Proof.
   reflexivity.
 Qed.
 
-Definition θ_map {B C:category} {F' F:[B, C]} {X : [B, [C^op, SET]]} :
+Definition θ_map {B C:category} {F' F:[B, C]} {X : [B, [C^op, HSET]]} :
   F' --> F -> F ⟹ X -> F' ⟹ X
   := λ p xe, θ_map_1 p xe ,, θ_map_2 p xe.
 
 Notation "xe ⟲⟲ p" := (θ_map p xe) (at level 50, left associativity) : cat.
 
-Definition φ_map_1 {B C:category} {F:[B, C]} {X' X: [B, [C^op, SET]]} :
+Definition φ_map_1 {B C:category} {F:[B, C]} {X' X: [B, [C^op, HSET]]} :
   F ⟹ X -> X --> X' -> θ_1 F X'
   := λ x p b, p ◽ b ⟳ pr1 x b.
 
-Definition φ_map_2 {B C:category} {F:[B, C]} {X' X: [B, [C^op, SET]]}
+Definition φ_map_2 {B C:category} {F:[B, C]} {X' X: [B, [C^op, HSET]]}
   (x : F ⟹ X) (p : X --> X') : θ_2 F X' (φ_map_1 x p).
 Proof.
   induction x as [x e]. unfold φ_map_1; unfold θ_1 in x; unfold θ_2 in e; unfold θ_2.
@@ -246,11 +246,11 @@ Proof.
   exact (maponpaths (λ k, k ⟳ x b) (nattrans_naturality p f)).
 Qed.
 
-Definition φ_map {B C:category} {F:[B, C]} {X' X: [B, [C^op, SET]]} :
+Definition φ_map {B C:category} {F:[B, C]} {X' X: [B, [C^op, HSET]]} :
   F ⟹ X -> X --> X' -> F ⟹ X'
   := λ x p, φ_map_1 x p,, φ_map_2 x p.
 
-Definition bifunctor_assoc {B C:category} : [B, [C^op,SET]] ⟶ [[B,C]^op,SET].
+Definition bifunctor_assoc {B C:category} : [B, [C^op,HSET]] ⟶ [[B,C]^op,HSET].
 Proof.
   unshelve refine (makeFunctor _ _ _ _).
   { intros X.
@@ -282,7 +282,7 @@ Proof.
   { abstract( simpl;
     intro F;
     apply nat_trans_eq;
-    [ exact (homset_property SET)
+    [ exact (homset_property HSET)
     | intro G;
       simpl;
       unfold φ_map; simpl; unfold φ_map_1; simpl;
@@ -298,7 +298,7 @@ Proof.
   { abstract (intros F F' F'' p q;
               simpl;
               apply nat_trans_eq;
-              [ exact (homset_property SET)
+              [ exact (homset_property HSET)
               | intro G;
                 simpl;
                 apply funextsec; intro w;

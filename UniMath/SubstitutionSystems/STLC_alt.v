@@ -52,10 +52,14 @@ Local Open Scope cat.
 (** * The simply typed lambda calculus from a multisorted binding signature *)
 Section Lam.
 
-Variable (sort : hSet) (arr : sort → sort → sort).
+  Variable (sort : hSet) (arr : sort → sort → sort).
 
-Let sortToSet : category := [path_pregroupoid sort,SET].
-Let hs : has_homsets sortToSet := homset_property sortToSet.
+Local Lemma hsort : isofhlevel 3 sort.
+Proof.
+exact (isofhlevelssnset 1 sort (setproperty sort)).
+Defined.
+
+Let sortToSet : category := [path_pregroupoid sort hsort,HSET].
 
 Local Lemma TerminalSortToSet : Terminal sortToSet.
 Proof.
@@ -67,7 +71,7 @@ Proof.
 apply BinCoproducts_functor_precat, BinCoproductsHSET.
 Defined.
 
-Local Lemma BinProd : BinProducts [sortToSet,SET].
+Local Lemma BinProd : BinProducts [sortToSet,HSET].
 Proof.
 apply BinProducts_functor_precat, BinProductsHSET.
 Defined.
@@ -78,12 +82,11 @@ Local Notation "[]" := (@nil _) (at level 0, format "[]").
 Local Notation "a + b" := (setcoprod a b) : set.
 Local Notation "s ⇒ t" := (arr s t).
 Local Notation "'Id'" := (functor_identity _).
-Local Notation "a ⊕ b" := (BinCoproductObject _ (BinCoprodSortToSet a b)).
+Local Notation "a ⊕ b" := (BinCoproductObject (BinCoprodSortToSet a b)).
 Local Notation "'1'" := (TerminalObject TerminalSortToSet).
 Local Notation "F ⊗ G" := (BinProduct_of_functors BinProd F G).
 
 Let sortToSet2 := [sortToSet,sortToSet].
-Let hs2 : has_homsets sortToSet2 := homset_property sortToSet2.
 
 Local Lemma BinCoprodSortToSet2 : BinCoproducts sortToSet2.
 Proof.
@@ -101,25 +104,25 @@ use mkMultiSortedSig.
 Defined.
 
 (** The signature with strength for the simply typed lambda calculus *)
-Definition STLC_Signature : Signature sortToSet hs _ hs _ hs :=
-  MultiSortedSigToSignatureSet _ STLC_Sig.
+Definition STLC_Signature : Signature sortToSet _ _ :=
+  MultiSortedSigToSignatureSet sort hsort STLC_Sig.
 
 Definition STLC_Functor : functor sortToSet2 sortToSet2 :=
-  Id_H _ _ BinCoprodSortToSet STLC_Signature.
+  Id_H _ BinCoprodSortToSet STLC_Signature.
 
-Lemma STLC_Functor_Initial : Initial (FunctorAlg STLC_Functor hs2).
+Lemma STLC_Functor_Initial : Initial (FunctorAlg STLC_Functor).
 Proof.
 apply SignatureInitialAlgebra.
 - apply InitialHSET.
 - apply ColimsHSET_of_shape.
 - apply is_omega_cocont_MultiSortedSigToSignature.
   + apply ProductsHSET.
-  + apply Exponentials_functor_HSET, functor_category_has_homsets.
+  + apply Exponentials_functor_HSET.
   + apply ColimsHSET_of_shape.
 Defined.
 
 Definition STLC_Monad : Monad sortToSet :=
-  MultiSortedSigToMonadSet sort STLC_Sig.
+  MultiSortedSigToMonadSet sort hsort STLC_Sig.
 
 (** Extract the constructors of the STLC from the initial algebra *)
 Definition STLC_M : sortToSet2 :=
@@ -139,28 +142,28 @@ Let STLC_M_alg : algebra_ob STLC_Functor :=
 
 (** The variables *)
 Definition var_map : sortToSet2⟦Id,STLC_M⟧ :=
-  BinCoproductIn1 _ (BinCoprodSortToSet2 _ _) · STLC_M_mor.
+  BinCoproductIn1 (BinCoprodSortToSet2 _ _) · STLC_M_mor.
 
 (** The source of the application constructor *)
 Definition app_source (s t : sort) : functor sortToSet2 sortToSet2 :=
-    (post_comp_functor (projSortToSet sort (s ⇒ t)) ⊗ post_comp_functor (projSortToSet sort s))
-  ∙ (post_comp_functor (hat_functorSet sort t)).
+    (post_comp_functor (projSortToSet sort hsort (s ⇒ t)) ⊗ post_comp_functor (projSortToSet sort hsort s))
+  ∙ (post_comp_functor (hat_functorSet sort hsort t)).
 
 (** The application constructor *)
 Definition app_map (s t : sort) : sortToSet2⟦app_source s t STLC_M,STLC_M⟧ :=
-    CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _ (λ _, _)) (ii1 (s,,t))
-  · BinCoproductIn2 _ (BinCoprodSortToSet2 _ _)
+    CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ (λ _, _)) (ii1 (s,,t))
+  · BinCoproductIn2 (BinCoprodSortToSet2 _ _)
   · STLC_M_mor.
 
 (** The source of the lambda constructor *)
 Definition lam_source (s t : sort) : functor sortToSet2 sortToSet2 :=
-    pre_comp_functor (sorted_option_functorSet sort s)
-  ∙ post_comp_functor (projSortToC sort _ t)
-  ∙ post_comp_functor (hat_functorSet sort (s ⇒ t)).
+    pre_comp_functor (sorted_option_functorSet sort hsort s)
+  ∙ post_comp_functor (projSortToC sort hsort _ t)
+  ∙ post_comp_functor (hat_functorSet sort hsort (s ⇒ t)).
 
 Definition lam_map (s t : sort) : sortToSet2⟦lam_source s t STLC_M,STLC_M⟧ :=
-    CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ _ (λ _, _)) (ii2 (s,,t))
-  · BinCoproductIn2 _ (BinCoprodSortToSet2 _ _)
+    CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ (λ _, _)) (ii2 (s,,t))
+  · BinCoproductIn2 (BinCoprodSortToSet2 _ _)
   · STLC_M_mor.
 
 Definition make_STLC_M_Algebra X (fvar : sortToSet2⟦Id,X⟧)
@@ -168,7 +171,7 @@ Definition make_STLC_M_Algebra X (fvar : sortToSet2⟦Id,X⟧)
   (flam : ∏ s t, sortToSet2⟦lam_source s t X,X⟧) :
     algebra_ob STLC_Functor.
 Proof.
-apply (tpair _ X), (BinCoproductArrow _ _ fvar), CoproductArrow; intros b.
+apply (tpair _ X), (BinCoproductArrow _ fvar), CoproductArrow; intros b.
 induction b as [st|st]; induction st as [s t].
 - exact (fapp s t).
 - exact (flam s t).
@@ -210,7 +213,7 @@ etrans; [eapply cancel_postcomposition; rewrite <- assoc;
 rewrite <- !assoc.
 etrans; [apply maponpaths, maponpaths, BinCoproductIn2Commutes|].
 rewrite assoc.
-etrans; [apply cancel_postcomposition; use (CoproductOfArrowsIn _ _ (Coproducts_functor_precat _ _ _ _ _ (λ _, _)))|].
+etrans; [apply cancel_postcomposition; use (CoproductOfArrowsIn _ _ (Coproducts_functor_precat _ _ _ _ (λ _, _)))|].
 rewrite <- assoc.
 apply maponpaths.
 exact (CoproductInCommutes _ _ _ _ _ _ (inl (s,,t))).
@@ -232,7 +235,7 @@ etrans; [eapply cancel_postcomposition; rewrite <- assoc;
 rewrite <- !assoc.
 etrans; [apply maponpaths, maponpaths, BinCoproductIn2Commutes|].
 rewrite assoc.
-etrans; [apply cancel_postcomposition; use (CoproductOfArrowsIn _ _ (Coproducts_functor_precat _ _ _ _ _ (λ _, _)))|].
+etrans; [apply cancel_postcomposition; use (CoproductOfArrowsIn _ _ (Coproducts_functor_precat _ _ _ _ (λ _, _)))|].
 rewrite <- assoc.
 apply maponpaths.
 exact (CoproductInCommutes _ _ _ _ _ _ (inr (s,,t))).
@@ -244,17 +247,17 @@ Let STLC := STLC_Monad.
 
 (* Parallel substitution *)
 Definition psubst {X Y : sortToSet} (f : sortToSet⟦X, STLC Y ⟧) :
-  sortToSet⟦ STLC (X ⊕ Y), STLC Y ⟧ := monadSubstGen_instantiated _ _ _ f.
+  sortToSet⟦ STLC (X ⊕ Y), STLC Y ⟧ := monadSubstGen_instantiated _ _ _ _ f.
 
 (* Substitution of a single variable *)
 Definition subst {X : sortToSet} (f : sortToSet⟦ 1, STLC X ⟧) :
-  sortToSet⟦ STLC (1 ⊕ X), STLC X ⟧ := monadSubstGen_instantiated _ _ _ f.
+  sortToSet⟦ STLC (1 ⊕ X), STLC X ⟧ := monadSubstGen_instantiated _ _ _ _ f.
 
 Definition weak {X Y : sortToSet} : sortToSet⟦STLC Y,STLC (X ⊕ Y)⟧ :=
-  mweak_instantiated sort SET BinCoproductsHSET.
+  mweak_instantiated sort hsort HSET BinCoproductsHSET.
 
 Definition exch {X Y Z : sortToSet} : sortToSet⟦STLC (X ⊕ (Y ⊕ Z)), STLC (Y ⊕ (X ⊕ Z))⟧ :=
-  mexch_instantiated sort SET BinCoproductsHSET.
+  mexch_instantiated sort hsort HSET BinCoproductsHSET.
 
 Lemma psubst_interchange {X Y Z : sortToSet}
         (f : sortToSet⟦X,STLC (Y ⊕ Z)⟧) (g : sortToSet⟦Y, STLC Z⟧) :

@@ -69,9 +69,9 @@ Definition Monad_laws {C : precategory_data} (T : Monad_data C) : UU :=
 
 Section pointfree.
 
-  Context {C : precategory} (hs : has_homsets C) (T : Monad_data C).
+  Context (C : category) (T : Monad_data C).
 
-  Let EndC := [C, C, hs].
+  Let EndC := [C, C].
 
   Let η := η T.
   Let μ := μ T.
@@ -97,22 +97,22 @@ Proof.
   - intro H. induction H as [[H1 H2] H3].
     split.
     + split.
-      * apply nat_trans_eq; try exact hs. exact H1.
-      * apply nat_trans_eq; try exact hs. exact H2.
-    + apply nat_trans_eq; try exact hs. exact H3.
+      * apply nat_trans_eq_alt. exact H1.
+      * apply nat_trans_eq_alt. exact H2.
+    + apply nat_trans_eq; try apply homset_property. exact H3.
 Qed.
 
 Let T0' := (functor_from_functor_with_μ C T): EndC.
 Let η' := η: EndC⟦functor_identity C, T0'⟧.
-Let μ' := μ: EndC⟦functor_compose _ _ T0' T0', T0'⟧.
+Let μ' := μ: EndC⟦functor_compose T0' T0', T0'⟧.
 
 Definition Monad_laws_pointfree_in_functor_category : UU :=
     (
-      (#(pre_composition_functor _ _ _ _ _ T0') η' · μ' = identity(C:=EndC) T0')
+      (#(pre_composition_functor _ _ _ T0') η' · μ' = identity(C:=EndC) T0')
         ×
-      (#(post_composition_functor _ _ _ _ _ T0') η' · μ' = identity(C:=EndC) T0'))
+      (#(post_composition_functor _ _ _ T0') η' · μ' = identity(C:=EndC) T0'))
         ×
-      (#(post_composition_functor _ _ _ _ _ T0') μ' · μ' = (#(pre_composition_functor _ _ _ _ _ T0') μ') · μ').
+      (#(post_composition_functor _ _ _ T0') μ' · μ' = (#(pre_composition_functor _ _ _ T0') μ') · μ').
 
 (** the last variant of the laws is convertible with the one before *)
 Goal
@@ -123,11 +123,11 @@ Qed.
 
 End pointfree.
 
-Lemma isaprop_Monad_laws (C : precategory_data) (hs : has_homsets C) (T : Monad_data C) :
+Lemma isaprop_Monad_laws (C : category) (T : Monad_data C) :
    isaprop (Monad_laws T).
 Proof.
   repeat apply isapropdirprod;
-  apply impred; intro c; apply hs.
+  apply impred; intro c; apply homset_property.
 Qed.
 
 Definition Monad (C : precategory_data) : UU := ∑ T : Monad_data C, Monad_laws T.
@@ -217,12 +217,12 @@ Definition Monad_composition {C : precategory} {T T' T'' : Monad C}
   (α : Monad_Mor T T') (α' : Monad_Mor T' T'')
   : Monad_Mor T T'' := tpair _ _ (Monad_composition_laws α α').
 
-Definition Monad_Mor_equiv {C : precategory} (hs : has_homsets C)
+Definition Monad_Mor_equiv (C : category)
   {T T' : Monad_data C} (α β : Monad_Mor T T')
   : α = β ≃ (pr1 α = pr1 β).
 Proof.
   apply subtypeInjectivity; intro a.
-  apply isaprop_Monad_Mor_laws, hs.
+  apply isaprop_Monad_Mor_laws, homset_property.
 Defined.
 
 Definition precategory_Monad_ob_mor (C : precategory_data) : precategory_ob_mor.
@@ -238,45 +238,45 @@ Proof.
   exact (@Monad_composition C).
 Defined.
 
-Lemma precategory_Monad_axioms (C : precategory) (hs : has_homsets C)
+Lemma precategory_Monad_axioms (C : category)
   : is_precategory (precategory_Monad_data C).
 Proof.
   repeat split; simpl; intros.
-  - apply (invmap (Monad_Mor_equiv hs _ _ )).
-    apply (@id_left (functor_precategory C C hs)).
-  - apply (invmap (Monad_Mor_equiv hs _ _ )).
-    apply (@id_right (functor_precategory C C hs)).
-  - apply (invmap (Monad_Mor_equiv hs _ _ )).
-    apply (@assoc (functor_precategory C C hs)).
-  - apply (invmap (Monad_Mor_equiv hs _ _ )).
-    apply (@assoc' (functor_precategory C C hs)).
+  - apply (invmap (Monad_Mor_equiv _ _ _ )).
+    apply (@id_left (functor_category C C)).
+  - apply (invmap (Monad_Mor_equiv _ _ _ )).
+    apply (@id_right (functor_category C C)).
+  - apply (invmap (Monad_Mor_equiv _ _ _ )).
+    apply (@assoc (functor_category C C)).
+  - apply (invmap (Monad_Mor_equiv _ _ _ )).
+    apply (@assoc' (functor_category C C)).
 Qed.
 
-Definition precategory_Monad (C : precategory) (hs : has_homsets C) : precategory
-  := tpair _ _ (precategory_Monad_axioms C hs).
+Definition precategory_Monad (C : category) : precategory
+  := tpair _ _ (precategory_Monad_axioms C).
 
 
-Lemma has_homsets_precategory_Monad (C : precategory) (hs: has_homsets C) : has_homsets (precategory_Monad C hs).
+Lemma has_homsets_precategory_Monad (C : category) : has_homsets (precategory_Monad C).
 Proof.
   intros F G.
   simpl.
   unfold Monad_Mor.
   apply isaset_total2 .
   - apply isaset_nat_trans.
-    exact hs.
+    apply homset_property.
   - intro m.
     apply isasetaprop.
     apply isaprop_Monad_Mor_laws.
-    exact hs.
+    apply homset_property.
 Qed.
 
-Corollary has_homsets_Monad (C : category) : has_homsets (precategory_Monad C (homset_property C)).
+Corollary has_homsets_Monad (C : category) : has_homsets (precategory_Monad C).
 Proof.
-  exact (has_homsets_precategory_Monad C (homset_property C)).
+  exact (has_homsets_precategory_Monad C).
 Qed.
 
 Definition category_Monad (C : category) : category :=
-  (precategory_Monad C (homset_property C) ,, has_homsets_Monad C ).
+  (precategory_Monad C ,, has_homsets_Monad C ).
 
 
 Definition forgetfunctor_Monad (C : category) :
@@ -286,7 +286,7 @@ Proof.
   - use make_functor_data.
     + exact (λ M, pr1 M: functor C C).
     + exact (λ M N f, pr1 f).
-  - abstract (split; red; intros;  reflexivity).
+  - abstract (split; red; intros; reflexivity).
 Defined.
 
 Lemma forgetMonad_faithful C : faithful (forgetfunctor_Monad C).
@@ -338,20 +338,20 @@ End bind.
 (** * Operations for monads based on binary coproducts *)
 Section MonadsUsingCoproducts.
 
-Context {C : precategory} (T : Monad C) (BC : BinCoproducts C).
+Context {C : category} (T : Monad C) (BC : BinCoproducts C).
 
-Local Notation "a ⊕ b" := (BinCoproductObject _ (BC a b)).
+Local Notation "a ⊕ b" := (BinCoproductObject (BC a b)).
 
 (** operation of weakening in a monad *)
-Definition mweak (a b: C): C⟦T b, T (a ⊕ b)⟧ := bind (BinCoproductIn2 _ (BC _ _) · (η T _)).
+Definition mweak (a b: C): C⟦T b, T (a ⊕ b)⟧ := bind (BinCoproductIn2 (BC _ _) · (η T _)).
 
 (** operation of exchange in a monad *)
 Definition mexch (a b c:C): C⟦T (a ⊕ (b ⊕ c)), T (b ⊕ (a ⊕ c))⟧.
 Proof.
-  set (a1 := BinCoproductIn1 _ (BC _ _) · BinCoproductIn2 _ (BC _ _): C⟦a, b ⊕ (a ⊕ c)⟧).
-  set (a21 := BinCoproductIn1 _ (BC _ _): C⟦b, b ⊕ (a ⊕ c)⟧).
-  set (a22 := BinCoproductIn2 _ (BC _ _) · BinCoproductIn2 _ (BC _ _): C⟦c, b ⊕ (a ⊕ c)⟧).
-  exact (bind ((BinCoproductArrow _ _ a1 (BinCoproductArrow _ _ a21 a22)) · (η T _))).
+  set (a1 := BinCoproductIn1 (BC _ _) · BinCoproductIn2 (BC _ _): C⟦a, b ⊕ (a ⊕ c)⟧).
+  set (a21 := BinCoproductIn1 (BC _ _): C⟦b, b ⊕ (a ⊕ c)⟧).
+  set (a22 := BinCoproductIn2 (BC _ _) · BinCoproductIn2 (BC _ _): C⟦c, b ⊕ (a ⊕ c)⟧).
+  exact (bind ((BinCoproductArrow _ a1 (BinCoproductArrow _ a21 a22)) · (η T _))).
 Defined.
 
 (** * Substitution operation for monads *)
@@ -359,7 +359,7 @@ Section MonadSubst.
 
 
 Definition monadSubstGen {b:C} (a : C) (e : C⟦b,T a⟧) : C⟦T (b ⊕ a), T a⟧ :=
-  bind (BinCoproductArrow _ _ e (η T a)).
+  bind (BinCoproductArrow _ e (η T a)).
 
 Lemma subst_interchange_law_gen (c b a : C) (e : C⟦c,T (b ⊕ a)⟧) (f : C⟦b,T a⟧):
   (monadSubstGen _ e) · (monadSubstGen _ f) =
@@ -507,7 +507,7 @@ Section Monad_eq_helper.
 
   End Monad_Monad'_equiv.
 
-  Lemma Monad'_eq_raw_data {C : precategory} (hs : has_homsets C) (T T' : Monad' C) :
+  Lemma Monad'_eq_raw_data (C : category) (T T' : Monad' C) :
     pr1 (pr1 T) = pr1 (pr1 T') -> T = T'.
   Proof.
     intro e.
@@ -516,26 +516,26 @@ Section Monad_eq_helper.
     - apply subtypePath.
       + intro. apply isapropdirprod.
         * apply isapropdirprod.
-          -- apply (isaprop_is_functor C C hs).
-          -- apply (isaprop_is_nat_trans C C hs).
-        * apply (isaprop_is_nat_trans C C hs).
+          -- apply (isaprop_is_functor C C), homset_property.
+          -- apply (isaprop_is_nat_trans C C), homset_property.
+        * apply (isaprop_is_nat_trans C C), homset_property.
       + apply e.
   Qed.
 
-  Lemma Monad_eq_raw_data {C : precategory} (hs : has_homsets C) (T T' : Monad C) :
+  Lemma Monad_eq_raw_data (C : category) (T T' : Monad C) :
     Monad_to_raw_data T = Monad_to_raw_data T' -> T = T'.
   Proof.
     intro e.
     apply (invmaponpathsweq (_,, (isweq_iso _ _ (@Monad_to_Monad'_to_Monad C)
                                              (@Monad'_to_Monad_to_Monad' C)))).
-    now apply (Monad'_eq_raw_data hs).
+    now apply (Monad'_eq_raw_data C).
   Qed.
 
 End Monad_eq_helper.
 
 Section Monads_from_adjunctions.
 
-Definition functor_with_μ_from_adjunction {C D : precategory}
+Definition functor_with_μ_from_adjunction {C D : category}
   {L : functor C D} {R : functor D C} (H : are_adjoints L R) :
   functor_with_μ C.
 Proof.
@@ -544,7 +544,7 @@ Proof.
   - exact (pre_whisker L (post_whisker (adjcounit H) R)).
 Defined.
 
-Definition Monad_data_from_adjunction {C D : precategory} {L : functor C D}
+Definition Monad_data_from_adjunction {C D : category} {L : functor C D}
   {R : functor D C} (H : are_adjoints L R) : Monad_data C.
 Proof.
   use tpair.
@@ -553,7 +553,7 @@ Proof.
     exact (adjunit H).
 Defined.
 
-Definition Monad_from_adjunction {C D : precategory} {L : functor C D}
+Definition Monad_from_adjunction {C D : category} {L : functor C D}
   {R : functor D C} (H : are_adjoints L R) : Monad C.
 Proof.
   use tpair.

@@ -68,10 +68,13 @@ Defined.
 (** We assume a set of types with bool, nat and function types *)
 Variable (type : hSet) (Bool Nat : type) (arr : type → type → type).
 
-Let typeToSet : category := [path_pregroupoid type,SET].
-Let hs : has_homsets typeToSet := homset_property typeToSet.
+Local Lemma htype : isofhlevel 3 type.
+Proof.
+exact (isofhlevelssnset 1 type (setproperty type)).
+Defined.
+
+Let typeToSet : category := [path_pregroupoid type htype,HSET].
 Let typeToSet2 := [typeToSet,typeToSet].
-Let hs2 : has_homsets typeToSet2 := homset_property typeToSet2.
 
 Local Lemma BinCoprodTypeToSet : BinCoproducts typeToSet.
 Proof.
@@ -83,7 +86,7 @@ Proof.
 apply Terminal_functor_precat, TerminalHSET.
 Defined.
 
-Local Lemma BinProd : BinProducts [typeToSet,SET].
+Local Lemma BinProd : BinProducts [typeToSet,HSET].
 Proof.
 apply BinProducts_functor_precat, BinProductsHSET.
 Defined.
@@ -98,7 +101,7 @@ Local Infix "::" := (@cons _).
 Local Notation "[]" := (@nil _) (at level 0, format "[]").
 Local Notation "a + b" := (setcoprod a b) : set.
 Local Notation "'Id'" := (functor_identity _).
-Local Notation "a ⊕ b" := (BinCoproductObject _ (BinCoprodTypeToSet a b)).
+Local Notation "a ⊕ b" := (BinCoproductObject (BinCoprodTypeToSet a b)).
 Local Notation "'1'" := (TerminalObject TerminalTypeToSet).
 Local Notation "F ⊗ G" := (BinProduct_of_functors BinProd F G).
 Infix "++" := (SumMultiSortedSig _).
@@ -178,25 +181,25 @@ Definition PCF_App_Lam : MultiSortedSig type := STLC_Sig type arr.
 Definition PCF_Sig : MultiSortedSig type :=
   PCF_Consts ++ PCF_Bot_Y ++ PCF_App_Lam.
 
-Definition PCF_Signature : Signature typeToSet _ _ _ _ _ :=
-  MultiSortedSigToSignatureSet type PCF_Sig.
+Definition PCF_Signature : Signature typeToSet _ _ :=
+  MultiSortedSigToSignatureSet type htype PCF_Sig.
 
 Definition PCF_Functor : functor typeToSet2 typeToSet2 :=
-  Id_H _ _ BinCoprodTypeToSet PCF_Signature.
+  Id_H _ BinCoprodTypeToSet PCF_Signature.
 
-Lemma PCF_Functor_Initial : Initial (FunctorAlg PCF_Functor hs2).
+Lemma PCF_Functor_Initial : Initial (FunctorAlg PCF_Functor).
 Proof.
 apply SignatureInitialAlgebra.
 - apply InitialHSET.
 - apply ColimsHSET_of_shape.
 - apply is_omega_cocont_MultiSortedSigToSignature.
   + apply ProductsHSET.
-  + apply Exponentials_functor_HSET, functor_category_has_homsets.
+  + apply Exponentials_functor_HSET.
   + apply ColimsHSET_of_shape.
 Defined.
 
 Definition PCF_Monad : Monad typeToSet :=
-  MultiSortedSigToMonadSet type PCF_Sig.
+  MultiSortedSigToMonadSet type htype PCF_Sig.
 
 (** Extract the constructors from the initial algebra *)
 Definition PCF_M : typeToSet2 :=
@@ -210,7 +213,7 @@ Let PCF_M_alg : algebra_ob PCF_Functor :=
 
 (** The variables *)
 Definition var_map : typeToSet2⟦Id,PCF_M⟧ :=
-  BinCoproductIn1 _ (BinCoproducts_functor_precat _ _ _ _ _ _) · PCF_M_mor.
+  BinCoproductIn1 (BinCoproducts_functor_precat _ _ _ _ _) · PCF_M_mor.
 
 (* We can also extract the other constructors *)
 

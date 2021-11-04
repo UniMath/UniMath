@@ -20,13 +20,13 @@ Local Open Scope cat.
 Section A.
 
 (** For the whole file, fix a monoidal category. *)
-Context (Mon_V : monoidal_precat).
+Context (Mon_V : monoidal_cat).
 
-Let I        := monoidal_precat_unit Mon_V.
-Let tensor   := monoidal_precat_tensor Mon_V.
-Let α        := monoidal_precat_associator Mon_V.
-Let l_unitor := monoidal_precat_left_unitor Mon_V.
-Let r_unitor := monoidal_precat_right_unitor Mon_V.
+Let I        := monoidal_cat_unit Mon_V.
+Let tensor   := monoidal_cat_tensor Mon_V.
+Let α        := monoidal_cat_associator Mon_V.
+Let l_unitor := monoidal_cat_left_unitor Mon_V.
+Let r_unitor := monoidal_cat_right_unitor Mon_V.
 
 Declare Scope enriched.
 Notation "X ⊗ Y"  := (tensor (X , Y)) : enriched.

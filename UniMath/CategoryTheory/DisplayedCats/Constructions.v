@@ -70,14 +70,14 @@ Definition disp_full_sub_data (C : precategory_data) (P : C → UU)
   : disp_cat_data C
   :=  disp_full_sub_ob_mor C P,, disp_full_sub_id_comp C P.
 
-Definition disp_full_sub_axioms (C : precategory) (P : C → UU)
+Definition disp_full_sub_axioms (C : category) (P : C → UU)
   : disp_cat_axioms _ (disp_full_sub_data C P).
 Proof.
   repeat split; intros; try (apply proofirrelevance; apply isapropunit).
   apply isasetaprop; apply isapropunit.
 Qed.
 
-Definition disp_full_sub (C : precategory) (P : C → UU)
+Definition disp_full_sub (C : category) (P : C → UU)
   : disp_precat C := _ ,, disp_full_sub_axioms C P.
 
 Lemma disp_full_sub_univalent (C : category) (P : C → UU) :
@@ -1156,9 +1156,8 @@ Defined.
 
 Lemma is_univalent_fiber : is_univalent fiber_category.
 Proof.
-  split.
-  - apply is_univalent_fiber_cat.
-  - apply has_homsets_fiber_category.
+  intros a b.
+  apply is_univalent_fiber_cat.
 Defined.
 
 End Fiber.
@@ -1177,7 +1176,7 @@ Proof.
   apply is_univalent_disp_from_fibers.
   intros c xx xx'.
   specialize (H c).
-  set (w := make_weq _ (pr1 H xx xx')).
+  set (w := make_weq _ (H xx xx')).
   set (w' := weqcomp w (iso_disp_iso_fiber D _ xx xx')).
   apply (weqhomot _ w').
   intro e. induction e.

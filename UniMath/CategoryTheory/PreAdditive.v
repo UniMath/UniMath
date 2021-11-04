@@ -160,7 +160,8 @@ Section preadditive_with_zero.
   Proof.
     unfold ZeroArrow.
     rewrite <- (id_left (ZeroArrowFrom y)).
-    assert (X : identity Z = to_unel Z Z) by apply ZeroEndo_is_identity.
+    assert (X : identity Z = to_unel Z Z).
+    { apply ZeroEndo_is_identity. }
     rewrite -> X. clear X.
 
     set (Y := to_postmor_unel A Z (@ZeroArrowFrom A Z y)).
@@ -261,6 +262,7 @@ Section def_additive_kernel_cokernel.
     rewrite to_lunax'. apply idpath.
   Qed.
 
+
   Lemma KernelInOp {x y z : A} (f1 f2 : A⟦x, y⟧) (g : A⟦y, z⟧) (K : Kernel Z g)
         (H1 : f1 · g = ZeroArrow Z _ _) (H2 : f2 · g = ZeroArrow Z _ _) :
     KernelIn Z K _ (to_binop _ _ f1 f2) (KernelInOp_Eq f1 f2 g H1 H2) =
@@ -268,7 +270,7 @@ Section def_additive_kernel_cokernel.
   Proof.
     use KernelInsEq.
     rewrite KernelCommutes.
-    rewrite to_postmor_linear'.
+    rewrite (to_postmor_linear' (A:=A)).
     rewrite KernelCommutes.
     rewrite KernelCommutes.
     apply idpath.
@@ -307,7 +309,7 @@ Section monics_and_epis_in_preadditive.
   Proof.
     use make_isMonic.
     intros x0 g h X.
-    rewrite <- PreAdditive_invrcomp in X. rewrite <- PreAdditive_invrcomp in X.
+    rewrite <- (PreAdditive_invrcomp PA) in X. rewrite <- (PreAdditive_invrcomp PA) in X.
     apply cancel_inv in X. use isM. exact X.
   Qed.
 
@@ -861,14 +863,15 @@ Section preadditive_quotient.
         rewrite assoc'. apply idpath.
   Defined.
 
-  Definition Quotcategory : precategory :=
+  Definition Quotprecategory : precategory :=
     tpair _ _ is_precategory_Quotcategory_data.
 
-  Lemma has_homsets_Quotcategory : has_homsets Quotcategory.
+  Lemma has_homsets_Quotcategory : has_homsets Quotprecategory.
   Proof.
     intros a b. apply isasetsetquot.
   Qed.
 
+  Definition Quotcategory : category := make_category Quotprecategory has_homsets_Quotcategory.
 
   (** ** Quotient precategory of PreAdditive is PreAdditive *)
 
@@ -884,7 +887,6 @@ Section preadditive_quotient.
   Proof.
     use make_categoryWithAbgrops.
     - exact Quotcategory_binops.
-    - exact has_homsets_Quotcategory.
     - intros x y. exact (pr2 (subabgr_quot (PAS x y))).
   Defined.
   Set Kernel Term Sharing.
@@ -1043,13 +1045,15 @@ Proof.
   - exact (λ a b c, @to_postmor_monoid (pr1 M) (pr2 M) (j a) (j b) (j c)).
 Defined.
 
+
+
 Lemma induced_opposite_PreAdditive {M:PreAdditive} {X:Type} (j : X -> ob M) :
   oppositePreAdditive (induced_PreAdditive M j) =
   induced_PreAdditive (oppositePreAdditive M) (λ a, opp_ob (j a)).
 Proof.
   intros.
   compute.                    (* the following line bogs down without this one *)
-  reflexivity.                (* but the computation may make this proof fragile *)
+  apply idpath.                (* but the computation may make this proof fragile *)
 Defined.
 
 Section RewritingAids.

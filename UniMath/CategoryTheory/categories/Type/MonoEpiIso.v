@@ -21,7 +21,7 @@ Require Import UniMath.CategoryTheory.categories.Type.Core.
 Local Open Scope cat.
 
 (** ** Injective functions are monic [InjectivesAreMonic_type] *)
-
+(*
 Lemma InjectivesAreMonic_type {A B : UU} (f: type_precat⟦ A, B ⟧) :
       isInjective f -> isMonic f.
 Proof.
@@ -114,3 +114,4 @@ Proof.
   exists (type_precat_equiv_iso A B).
   apply type_equiv_iso_is_equiv.
 Defined.
+*)

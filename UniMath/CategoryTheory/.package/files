@@ -141,6 +141,7 @@ categories/modules.v
 categories/StandardCategories.v
 categories/Cats.v
 categories/preorder_categories.v
+
 categories/Type/Colimits.v
 categories/Type/Limits.v
 categories/Type/Structures.v
@@ -191,7 +192,6 @@ DisplayedCats/Projection.v
 DisplayedCats/SIP.v
 DisplayedCats/Limits.v
 DisplayedCats/Examples.v
-DisplayedCats/Examples/HLevel.v
 DisplayedCats/Examples/UnitalBinop.v
 DisplayedCats/FunctorCategory.v
 DisplayedCats/Adjunctions.v

@@ -58,14 +58,14 @@ Local Definition hcomp_functor := @hcomp_functor CAT.
 
 (** no more mismatch when using [functorial_composition] *)
 Local Lemma functorial_composition_as_hcomp_functor (A B C : category):
-  functorial_composition_data A B C (homset_property B) (homset_property C) = hcomp_functor_data A B C.
+  functorial_composition_data A B C = hcomp_functor_data A B C.
 Proof.
   apply idpath.
 Qed.
 
 (** as a corollary: *)
 Local Lemma functorial_composition_as_hcomp_functor_datawise (A B C : category):
-  functorial_composition (homset_property B) (homset_property C) = hcomp_functor A B C.
+  functorial_composition A B C = hcomp_functor A B C.
 Proof.
   use functor_eq.
   - apply functor_category_has_homsets.
@@ -77,13 +77,13 @@ Local Definition hcomp_vcomp := @hcomp_vcomp CAT.
 (** here, we obtain the result by inheriting from the abstract bicategorical development *)
 Lemma interchange_functorial_composition (A B C: category) (F1 G1 H1: A ⟶ B) (F2 G2 H2: B ⟶ C)
   (α1 : F1 ⟹ G1) (α2: F2 ⟹ G2) (β1: G1 ⟹ H1) (β2: G2 ⟹ H2):
-  # (functorial_composition (homset_property B) (homset_property C))
-    (precatbinprodmor ((α1:(functor_category A B)⟦F1,G1⟧) · β1)
+  # (functorial_composition A B C)
+    (catbinprodmor ((α1:(functor_category A B)⟦F1,G1⟧) · β1)
                       ((α2:(functor_category B C)⟦F2,G2⟧) · β2)) =
-    # (functorial_composition (homset_property B) (homset_property C))
-      (precatbinprodmor(C:=functor_category A B)(D:=functor_category B C) α1 α2) ·
-      # (functorial_composition (homset_property B) (homset_property C))
-      (precatbinprodmor(C:=functor_category A B)(D:=functor_category B C) β1 β2).
+    # (functorial_composition A B C)
+      (catbinprodmor(C:=functor_category A B)(D:=functor_category B C) α1 α2) ·
+      # (functorial_composition A B C)
+      (catbinprodmor(C:=functor_category A B)(D:=functor_category B C) β1 β2).
 Proof.
   exact (hcomp_vcomp A B C F1 G1 H1 F2 G2 H2 α1 α2 β1 β2).
 Qed.

@@ -368,7 +368,7 @@ Definition disp_2cellsisaprop
 Proof.
   use impred.
   intro.
-  apply (pr22 b).
+  apply homset_property.
 Qed.
 
 Definition kleisli_triple_disp_laws

@@ -41,22 +41,19 @@ Local Open Scope cat.
 
 Section binsum_of_signatures.
 
-Variable C : precategory.
-Variable hsC : has_homsets C.
-Variable D : precategory.
-Variable hs : has_homsets D.
-Variable D' : precategory.
-Variable hs' : has_homsets D'.
+Variable C : category.
+Variable D : category.
+Variable D' : category.
 Variable CD : BinCoproducts D.
 
 Section construction.
 
-Local Notation "'CCD'" := (BinCoproducts_functor_precat C D CD hs : BinCoproducts [C, D, hs]).
+Local Notation "'CCD'" := (BinCoproducts_functor_precat C D CD : BinCoproducts [C, D]).
 
-Variables H1 H2 : functor [C, D', hs'] [C, D, hs].
+Variables H1 H2 : functor [C, D'] [C, D].
 
-Variable θ1 : θ_source(hs := hsC) H1 ⟹ θ_target H1.
-Variable θ2 : θ_source(hs := hsC) H2 ⟹ θ_target H2.
+Variable θ1 : θ_source H1 ⟹ θ_target H1.
+Variable θ2 : θ_source H2 ⟹ θ_target H2.
 
 Variable S11 : θ_Strength1 θ1.
 Variable S12 : θ_Strength2 θ1.
@@ -65,12 +62,12 @@ Variable S22 : θ_Strength2 θ2.
 
 (** * Definition of the data of the sum of two signatures *)
 
-Definition H : functor [C, D', hs'] [C, D, hs] := BinCoproduct_of_functors _ _ CCD H1 H2.
+Definition H : functor [C, D'] [C, D] := BinCoproduct_of_functors _ _ CCD H1 H2.
 
 (* This becomes too slow: *)
 (* Definition H : functor [C, C, hs] [C, C, hs] := BinCoproduct_of_functors_alt CCC H1 H2. *)
 
-Local Definition θ_ob_fun (X : [C, D', hs']) (Z : precategory_Ptd C hsC) :
+Local Definition θ_ob_fun (X : [C, D']) (Z : category_Ptd C) :
    ∏ c : C,
     (functor_composite_data (pr1 Z)
      (BinCoproduct_of_functors_data C D CD (H1 X) (H2 X))) c
@@ -83,7 +80,7 @@ Proof.
   - exact (pr1 (θ2 (X ⊗ Z)) c).
 Defined.
 
-Local Lemma is_nat_trans_θ_ob_fun (X : [C, D', hs']) (Z : precategory_Ptd C hsC):
+Local Lemma is_nat_trans_θ_ob_fun (X : [C, D']) (Z : category_Ptd C):
    is_nat_trans _ _ (θ_ob_fun X Z).
 Proof.
   intros x x' f.
@@ -94,7 +91,7 @@ Proof.
   * apply (nat_trans_ax (θ2 (X ⊗ Z))).
 Qed.
 
-Definition θ_ob : ∏ XF, θ_source(hs := hsC) H XF --> θ_target H XF.
+Definition θ_ob : ∏ XF, θ_source H XF --> θ_target H XF.
 Proof.
   intros [X Z].
   exists (θ_ob_fun X Z).
@@ -108,7 +105,7 @@ Proof.
   assert (Hyp1:= nat_trans_ax θ1 _ _ αβ).
   assert (Hyp2:= nat_trans_ax θ2 _ _ αβ).
   apply nat_trans_eq.
-  - exact hs.
+  - apply homset_property.
   - intro c; simpl.
     destruct XZ as [X Z].
     destruct X'Z' as [X' Z'].
@@ -123,7 +120,7 @@ Proof.
     + apply (nat_trans_eq_pointwise Hyp2 c).
 Qed.
 
-Local Definition θ : θ_source(hs := hsC) H ⟹ θ_target H.
+Local Definition θ : θ_source H ⟹ θ_target H.
 Proof.
   exists θ_ob.
   apply is_nat_trans_θ_ob.
@@ -134,7 +131,7 @@ Defined.
 Lemma SumStrength1 : θ_Strength1 θ.
 Proof.
   intro X.
-  apply (nat_trans_eq hs).
+  apply nat_trans_eq_alt.
   intro x; simpl.
   eapply pathscomp0; [ apply BinCoproductOfArrows_comp |].
   apply pathsinv0, BinCoproduct_endo_is_identity.
@@ -155,7 +152,7 @@ Qed.
 Lemma SumStrength2 : θ_Strength2 θ.
 Proof.
   intros X Z Z' Y α.
-  apply (nat_trans_eq hs); intro x.
+  apply nat_trans_eq_alt; intro x.
   eapply pathscomp0; [ apply BinCoproductOfArrows_comp |].
   apply pathsinv0.
   eapply pathscomp0. apply cancel_postcomposition. simpl. apply BinCoproductOfArrows_comp.
@@ -180,7 +177,7 @@ Variable S22' : θ_Strength2_int θ2.
 Lemma SumStrength1' : θ_Strength1_int θ.
 Proof.
   clear S11 S12 S21 S22 S12' S22'; intro X.
-  apply (nat_trans_eq hs); intro x.
+  apply nat_trans_eq_alt; intro x.
   eapply pathscomp0. apply BinCoproductOfArrows_comp.
   apply pathsinv0, BinCoproduct_endo_is_identity.
   + rewrite BinCoproductOfArrowsIn1.
@@ -200,7 +197,7 @@ Qed.
 Lemma SumStrength2' : θ_Strength2_int θ.
 Proof.
   clear S11 S12 S21 S22 S11' S21'; intros X Z Z'.
-  apply (nat_trans_eq hs); intro x; simpl; rewrite id_left.
+  apply nat_trans_eq_alt; intro x; simpl; rewrite id_left.
   eapply pathscomp0. apply BinCoproductOfArrows_comp.
   apply pathsinv0.
   eapply pathscomp0. apply BinCoproductOfArrows_comp.
@@ -222,7 +219,7 @@ Qed.
 
 End construction.
 
-Definition BinSum_of_Signatures (S1 S2 : Signature C hsC D hs D' hs') : Signature C hsC D hs D' hs'.
+Definition BinSum_of_Signatures (S1 S2 : Signature C D D') : Signature C D D'.
 Proof.
   destruct S1 as [H1 [θ1 [S11' S12']]].
   destruct S2 as [H2 [θ2 [S21' S22']]].
@@ -233,15 +230,14 @@ Proof.
   + apply SumStrength2'; assumption.
 Defined.
 
-Lemma is_omega_cocont_BinSum_of_Signatures (S1 S2 : Signature C hsC D hs D' hs')
+Lemma is_omega_cocont_BinSum_of_Signatures (S1 S2 : Signature C D D')
   (h1 : is_omega_cocont S1) (h2 : is_omega_cocont S2) :
   is_omega_cocont (BinSum_of_Signatures S1 S2).
 Proof.
-destruct S1 as [F1 [F2 [F3 F4]]]; simpl in *.
-destruct S2 as [G1 [G2 [G3 G4]]]; simpl in *.
-unfold H.
-apply is_omega_cocont_BinCoproduct_of_functors; try assumption.
-apply functor_category_has_homsets.
+  destruct S1 as [F1 [F2 [F3 F4]]]; simpl in *.
+  destruct S2 as [G1 [G2 [G3 G4]]]; simpl in *.
+  unfold H.
+  apply is_omega_cocont_BinCoproduct_of_functors; try assumption.
 Defined.
 
 End binsum_of_signatures.

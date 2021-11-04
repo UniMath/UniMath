@@ -48,9 +48,9 @@ Let listFunctor : functor HSET HSET := pr1 L_A.
 Let is_omega_cocont_listFunctor : is_omega_cocont listFunctor := pr2 L_A.
 
 Lemma listFunctor_Initial :
-  Initial (precategory_FunctorAlg listFunctor has_homsets_HSET).
+  Initial (precategory_FunctorAlg listFunctor).
 Proof.
-apply (colimAlgInitial _ InitialHSET is_omega_cocont_listFunctor (ColimCoconeHSET _ _)).
+apply (colimAlgInitial InitialHSET is_omega_cocont_listFunctor (ColimCoconeHSET _ _)).
 Defined.
 
 (** The type of lists of A's *)
@@ -66,12 +66,12 @@ Let List_alg : algebra_ob listFunctor :=
   InitialObject listFunctor_Initial.
 
 Definition nil_map : HSET⟦unitHSET,μL_A⟧ :=
-  BinCoproductIn1 _ (BinCoproductsHSET _ _) · List_mor.
+  BinCoproductIn1 (BinCoproductsHSET _ _) · List_mor.
 
 Definition nil : List := nil_map tt.
 
 Definition cons_map : HSET⟦(A × μL_A)%set,μL_A⟧ :=
-  BinCoproductIn2 _ (BinCoproductsHSET _ _) · List_mor.
+  BinCoproductIn2 (BinCoproductsHSET _ _) · List_mor.
 
 Definition cons : pr1 A → List -> List := λ a l, cons_map (a,,l).
 
@@ -105,7 +105,7 @@ Defined.
 (* Maybe quantify over "λ _ : unit, x" instead of nil? *)
 Lemma foldr_nil (X : hSet) (x : X) (f : pr1 A → X -> X) : foldr X x f nil = x.
 Proof.
-assert (F := maponpaths (λ x, BinCoproductIn1 _ (BinCoproductsHSET _ _) · x)
+assert (F := maponpaths (λ x, BinCoproductIn1 (BinCoproductsHSET _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x (λ a, f (pr1 a) (pr2 a))))).
 apply (toforallpaths _ _ _ F tt).
 Qed.
@@ -114,7 +114,7 @@ Lemma foldr_cons (X : hSet) (x : X) (f : pr1 A → X -> X)
                  (a : pr1 A) (l : List) :
   foldr X x f (cons a l) = f a (foldr X x f l).
 Proof.
-assert (F := maponpaths (λ x, BinCoproductIn2 _ (BinCoproductsHSET _ _) · x)
+assert (F := maponpaths (λ x, BinCoproductIn2 (BinCoproductsHSET _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x (λ a, f (pr1 a) (pr2 a))))).
 assert (Fal := toforallpaths _ _ _ F (a,,l)).
 clear F.
@@ -398,7 +398,7 @@ End constprod_functor.
    Assumes that the category has coproducts *)
 Section constcoprod_functor.
 
-Variables (C : precategory) (hsC : has_homsets C) (x : C) (PC : BinCoproducts C).
+Variables (C : category) (x : C) (PC : BinCoproducts C).
 
 Definition constcoprod_functor : functor C C :=
   BinCoproduct_of_functors C C PC (constant_functor C C x) (functor_identity C).
@@ -409,10 +409,10 @@ intros hF c L ccL HcL cc.
 use tpair.
 - use tpair.
   + eapply BinCoproductArrow.
-    * exact (BinCoproductIn1 _ (PC x (dob hF 0)) · pr1 cc 0).
+    * exact (BinCoproductIn1 (PC x (dob hF 0)) · pr1 cc 0).
     * use (let ccHcL : cocone hF HcL := _ in _).
       { use make_cocone.
-        - intros n; exact (BinCoproductIn2 _ (PC x (dob hF n)) · pr1 cc n).
+        - intros n; exact (BinCoproductIn2 (PC x (dob hF n)) · pr1 cc n).
         -   abstract (
             intros m n e; destruct e; simpl;
             destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
@@ -433,7 +433,7 @@ use tpair.
 - abstract (
       destruct cc as [f hf]; simpl in *; unfold BinCoproduct_of_functors_ob in *;
       intro t; apply subtypePath; simpl;
-      [  intro g; apply impred; intro; apply hsC
+      [  intro g; apply impred; intro; apply C
        | destruct t as [t p]; destruct ccL as [t0 p0]; unfold is_cocone_mor in *;
          unfold constcoprod_functor, BinCoproduct_of_functors_mor in *; destruct t0 as [t0 p1]; simpl;
          apply BinCoproductArrowUnique;
@@ -441,8 +441,8 @@ use tpair.
             rewrite <- (p 0), assoc; unfold BinCoproduct_of_functors_mor;
             apply cancel_postcomposition; apply pathsinv0; etrans; [apply  BinCoproductOfArrowsIn1 |]; apply id_left
          |  use (let temp : ∑ x0 : C ⟦ c, HcL ⟧, ∏ v : nat,
-                                coconeIn L v · x0 = BinCoproductIn2 C (PC x (dob hF v)) · f v := _ in _);
-            [ apply (tpair _ (BinCoproductIn2 C (PC x c) · t));
+                                coconeIn L v · x0 = BinCoproductIn2 (PC x (dob hF v)) · f v := _ in _);
+            [ apply (tpair _ (BinCoproductIn2 (PC x c) · t));
               intro n; unfold coconeIn in p; simpl in p; rewrite <- (p n), !assoc;
               apply cancel_postcomposition; apply pathsinv0; etrans; [apply  BinCoproductOfArrowsIn2 |];
               apply idpath|];
@@ -465,17 +465,17 @@ Definition listFunctor : functor HSET HSET :=
 
 Lemma omega_cocont_listFunctor : is_omega_cocont listFunctor.
 Proof.
-apply (is_omega_cocont_functor_composite has_homsets_HSET).
+apply (is_omega_cocont_functor_composite).
 - apply omega_cocontConstProdFunctor.
 (* If I use this length doesn't compute with vm_compute... *)
 (* - apply (omega_cocont_constprod_functor1 _ _ has_homsets_HSET Exponentials_HSET). *)
-- apply (omega_cocontConstCoprodFunctor _ has_homsets_HSET).
+- apply (omega_cocontConstCoprodFunctor _).
 Defined.
 
 Lemma listFunctor_Initial :
-  Initial (precategory_FunctorAlg listFunctor has_homsets_HSET).
+  Initial (precategory_FunctorAlg listFunctor).
 Proof.
-apply (colimAlgInitial _ InitialHSET omega_cocont_listFunctor (ColimCoconeHSET _ _)).
+apply (colimAlgInitial InitialHSET omega_cocont_listFunctor (ColimCoconeHSET _ _)).
 Defined.
 
 Definition List : HSET :=
@@ -534,7 +534,7 @@ Defined.
 (* Maybe quantify over "λ _ : unit, x" instead of nil? *)
 Lemma foldr_nil (X : hSet) (x : X) (f : pr1 A × X -> X) : foldr X x f nil = x.
 Proof.
-assert (F := maponpaths (λ x, BinCoproductIn1 _ (BinCoproductsHSET _ _) · x)
+assert (F := maponpaths (λ x, BinCoproductIn1 (BinCoproductsHSET _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 apply (toforallpaths _ _ _ F tt).
 Qed.
@@ -543,7 +543,7 @@ Lemma foldr_cons (X : hSet) (x : X) (f : pr1 A × X -> X)
                  (a : pr1 A) (l : pr1 List) :
   foldr X x f (cons (a,,l)) = f (a,,foldr X x f l).
 Proof.
-assert (F := maponpaths (λ x, BinCoproductIn2 _ (BinCoproductsHSET _ _) · x)
+assert (F := maponpaths (λ x, BinCoproductIn2 (BinCoproductsHSET _ _) · x)
                         (algebra_mor_commutes _ _ _ (foldr_map X x f))).
 apply (toforallpaths _ _ _ F (a,,l)).
 Qed.

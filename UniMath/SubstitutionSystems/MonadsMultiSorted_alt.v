@@ -38,10 +38,9 @@ Local Open Scope cat.
 
 Section MonadInSortToC.
 
-Variables (sort : hSet) (C : category) (BC : BinCoproducts C) (TC : Terminal C).
+Variables (sort : hSet) (Hsort : isofhlevel 3 sort) (C : category) (BC : BinCoproducts C) (TC : Terminal C).
 
-Let sortToC : category := [path_pregroupoid sort,C].
-Let hs : has_homsets sortToC := homset_property sortToC.
+Let sortToC : category := [path_pregroupoid sort Hsort, C].
 
 Local Lemma BinCoproductsSortToC : BinCoproducts sortToC.
 Proof.
@@ -53,14 +52,14 @@ Proof.
 apply Terminal_functor_precat, TC.
 Defined.
 
-Local Notation "a ⊕ b" := (BinCoproductObject _ (BinCoproductsSortToC a b)).
+Local Notation "a ⊕ b" := (BinCoproductObject (BinCoproductsSortToC a b)).
 Local Notation "1" := (TerminalObject TerminalSortToC).
 
 Context {M : Monad sortToC}.
 
 (* We can instantiate the monad laws at a specific sort t *)
 Definition sortToC_fun {X Y : sortToC} (f : ∏ t, C⟦pr1 X t,pr1 Y t⟧) : sortToC⟦X,Y⟧ :=
-  nat_trans_functor_path_pregroupoid (homset_property _) f.
+  nat_trans_functor_path_pregroupoid f.
 
 Definition bind_fun {X Y : sortToC} (f : ∏ t, C⟦pr1 X t,pr1 (M Y) t⟧) :
   ∏ t, C⟦pr1 (M X) t,pr1 (M Y) t⟧ :=

@@ -24,6 +24,7 @@ Require Import UniMath.Bicategories.WkCatEnrichment.Notations.
 Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
 
 Local Open Scope cat.
+(*
 
 Local Notation "C  'c×'  D" := (precategory_binproduct C D)
  (at level 75, right associativity).
@@ -34,7 +35,7 @@ Variable C : prebicat.
 
 Definition bicate_ob_hom : prebicategory_ob_hom.
 Proof.
-  exists C. exact (λ a b : C, hom a b).
+  exists C. exact (λ a b : C, hom_precategory a b).
 Defined.
 
 Definition bicate_id_comp : prebicategory_id_comp.
@@ -56,12 +57,15 @@ Definition bicate_lassociator_fun {a b c d : bicate_id_comp}
 Lemma bicate_lassociator_fun_natural {a b c d : bicate_id_comp}
   : is_nat_trans
       (functor_composite
-         (pair_functor (functor_identity (hom a b)) (compose_functor b c d))
+         (pair_functor (functor_identity _) (compose_functor b c d))
          hcomp_functor)
       (functor_composite
-         (precategory_binproduct_assoc (hom a b) (hom b c) (hom c d))
+         (precategory_binproduct_assoc
+            (hom_precategory a b)
+            (hom_precategory b c)
+            (hom_precategory c d))
          (functor_composite
-            (pair_functor (compose_functor a b c) (functor_identity (hom c d)))
+            (pair_functor (compose_functor a b c) (functor_identity _))
             hcomp_functor)) bicate_lassociator_fun.
 Proof.
   red; cbn. intros (f1, (f2, f3)) (g1, (g2, g3)).
@@ -160,3 +164,4 @@ Proof.
 Defined.
 
 End Build_Bicategory.
+ *)

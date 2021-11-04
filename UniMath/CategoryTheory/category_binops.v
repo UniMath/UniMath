@@ -212,11 +212,11 @@ Section BINOP_category.
   Defined.
   Opaque binop_precategory_isweq.
 
-  Definition binop_precategory_is_univalent : is_univalent binop_precategory.
+  Definition binop_category : category := make_category _ has_homsets_BINOP.
+
+  Definition binop_precategory_is_univalent : is_univalent binop_category.
   Proof.
-    use make_dirprod.
-    - intros a b. exact (binop_precategory_isweq a b).
-    - exact has_homsets_BINOP.
+    intros a b. exact (binop_precategory_isweq a b).
   Defined.
 
 End BINOP_category.

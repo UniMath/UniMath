@@ -73,7 +73,6 @@ Proof.
   intro H1.
   set (XR := X (mapdiagram π d)).
   use is_iso_isLim.
-  - apply homset_property.
   - apply X.
   - match goal with |[ |- is_iso ?foo ] => set (T:= foo) end.
     destruct X as [[a L] isL]. cbn in isL.

@@ -42,69 +42,50 @@ Local Open Scope cat.
 Section UpstreamAux.
   (** this section presents auxiliary results that are even more abstracted from the situation at hand *)
 
-  Context {C A1 A2 A3 A4 : precategory}.
-  Context (hsA2 : has_homsets A2).
-  Context (hsA3 : has_homsets A3).
-  Context (hsA4 : has_homsets A4).
+  Context {C A1 A2 A3 A4 : category}.
 
   Lemma assoc_precomp_precomp_mor (G : A1 ⟶ A2)(G' : A2 ⟶ A3)(H1 H2 : A3 ⟶ A4)(η: H1 ⟹ H2):
-    # (pre_composition_functor _ _ _ hsA2 hsA4 G)
-      (# (pre_composition_functor _ _ _ hsA3 hsA4 G') η) =
-      # (pre_composition_functor _ _ _ hsA3 hsA4
-                                 (pre_composition_functor _ _ _ hsA2 hsA3 G G')) η.
+    # (pre_comp_functor G) (# (pre_comp_functor G') η) = # (pre_comp_functor (pre_comp_functor G G')) η.
   Proof.
     cbn.
-    apply nat_trans_eq; try exact hsA4.
+    apply nat_trans_eq; [apply (homset_property A4) |].
     intro a.
     apply idpath.
   Qed.
 
-  Corollary assoc_precomp_precomp_mor_special (G : A1 ⟶ A2)(G' : A2 ⟶ A3)(F : C ⟶ [A3, A4, hsA4])
+  Corollary assoc_precomp_precomp_mor_special (G : A1 ⟶ A2)(G' : A2 ⟶ A3)(F : C ⟶ [A3, A4])
             (c c': C) (f: C⟦c,c'⟧):
-    # (pre_composition_functor _ _ _ hsA2 hsA4 G)
-      (# (pre_composition_functor _ _ _ hsA3 hsA4 G') (# F f)) =
-      # (pre_composition_functor _ _ _ hsA3 hsA4
-                                 (pre_composition_functor _ _ _ hsA2 hsA3 G G'))
-        (# F f).
+    # (pre_comp_functor G) (# (pre_comp_functor G') (# F f)) =
+      # (pre_comp_functor (pre_comp_functor G G')) (# F f).
   Proof.
     apply assoc_precomp_precomp_mor.
   Qed.
 
 
   Lemma assoc_postcomp_postcomp_mor (H1 H2 : A1 ⟶ A2)(η: H1 ⟹ H2)(G : A2 ⟶ A3)(G' : A3 ⟶ A4):
-    # (post_composition_functor _ _ _ hsA3 hsA4 G')
-      (# (post_composition_functor _ _ _ hsA2 hsA3 G) η) =
-      # (post_composition_functor _ _ _ hsA2 hsA4
-                                  (post_composition_functor _ _ _ hsA3 hsA4 G' G)) η.
+    # (post_comp_functor G') (# (post_comp_functor G) η) = # (post_comp_functor (post_comp_functor G' G)) η.
     Proof.
     cbn.
-    apply nat_trans_eq; try exact hsA4.
+    apply nat_trans_eq; [apply (homset_property A4) |].
     intro a.
     apply idpath.
   Qed.
 
 
   Lemma exchange_postcomp_precomp_mor (G : A1 ⟶ A2)(H1 H2 : A2 ⟶ A3)(η: H1 ⟹ H2)(G' : A3 ⟶ A4):
-    # (post_composition_functor _ _ _ hsA3 hsA4 G')
-      (# (pre_composition_functor _ _ _ hsA2 hsA3 G) η) =
-      # (pre_composition_functor _ _ _ hsA2 hsA4 G)
-        (# (post_composition_functor _ _ _ hsA3 hsA4 G') η).
+    # (post_comp_functor G') (# (pre_comp_functor G) η) = # (pre_comp_functor G) (# (post_comp_functor G') η).
   Proof.
     cbn.
-    apply nat_trans_eq; try exact hsA4.
+    apply nat_trans_eq; [apply (homset_property A4) |].
     intro a.
     apply idpath.
   Qed.
 
-  Corollary exchange_postcomp_precomp_mor_special (G : A1 ⟶ A2)(F : C ⟶ [A2, A3, hsA3])(G' : A3 ⟶ A4)
+  Corollary exchange_postcomp_precomp_mor_special (G : A1 ⟶ A2)(F : C ⟶ [A2, A3])(G' : A3 ⟶ A4)
             (c c' : C)(f : C ⟦ c, c' ⟧):
-    # (pre_composition_functor A1 A2 A4 hsA2 hsA4 G)
-      (# (post_composition_functor A2 A3 A4 hsA3 hsA4 G') (# F f)) =
-      # (post_composition_functor A1 A3 A4 hsA3 hsA4 G')
-        (# (pr1
-              (functor_compose (functor_category_has_homsets A2 A3 hsA3)
-                               (functor_category_has_homsets A1 A3 hsA3) F
-                               (pre_composition_functor A1 A2 A3 hsA2 hsA3 G))) f).
+    # (pre_composition_functor A1 A2 A4 G) (# (post_composition_functor A2 A3 A4 G') (# F f)) =
+      # (post_composition_functor A1 A3 A4 G')
+        (# (pr1 (functor_compose F (pre_composition_functor A1 A2 A3 G))) f).
   Proof.
     intros.
     apply pathsinv0.
@@ -112,12 +93,9 @@ Section UpstreamAux.
   Qed.
 
 (** as background information only: *)
-  Lemma exchange_postcomp_precomp_ob_special (G : A1 ⟶ A2)(F : C ⟶ [A2, A3, hsA3])(G' : A3 ⟶ A4) (c: C):
-    (pre_composition_functor _ _ _ hsA2 hsA4 G) (post_composition_functor _ _ _ hsA3 hsA4 G' (F c)) =
-      (post_composition_functor _ _ _ hsA3 hsA4 G')
-        (pr1(functor_compose (functor_category_has_homsets A2 A3 hsA3)
-                                (functor_category_has_homsets A1 A3 hsA3)
-                                F (pre_composition_functor _ _ _  hsA2 hsA3 G)) c).
+  Lemma exchange_postcomp_precomp_ob_special (G : A1 ⟶ A2)(F : C ⟶ [A2, A3])(G' : A3 ⟶ A4) (c: C):
+    pre_comp_functor G (post_comp_functor G' (F c)) =
+      post_comp_functor G' (pr1(functor_compose F (pre_comp_functor  G)) c).
   Proof.
     cbn.
     apply pathsinv0, functor_assoc.
@@ -128,15 +106,14 @@ End UpstreamAux.
 Section Upstream.
   (** this section has nothing to do with monoidal categories but is dictated by the aims of this file *)
 
-  Context {C A A' : precategory}.
-  Context (hs : has_homsets A').
+  Context {C A A' : category}.
 
-  Context (H H' : C ⟶ [A, A', hs]).
+  Context (H H' : C ⟶ [A, A']).
 
   Definition trafotarget_disp_cat_ob_mor: disp_cat_ob_mor C.
   Proof.
     use make_disp_cat_ob_mor.
-    - intro c. exact ([A, A', hs]⟦(H c : A ⟶ A'), (H' c : A ⟶ A')⟧).
+    - intro c. exact ([A, A']⟦(H c : A ⟶ A'), (H' c : A ⟶ A')⟧).
     - intros c c' α β f.
       exact (α · (# H' f) = (# H f) · β).
   Defined.
@@ -168,7 +145,7 @@ Section Upstream.
     isaprop (xx -->[ f] yy).
   Proof.
     intros Hyp Hyp'.
-    apply (functor_category_has_homsets _ _ hs).
+    apply (functor_category_has_homsets _ _).
   Qed.
 
   Lemma trafotarget_disp_cat_axioms: disp_cat_axioms C trafotarget_disp_cat_data.
@@ -182,22 +159,24 @@ Section Upstream.
 
   Definition trafotarget_precat: precategory := total_precategory trafotarget_disp.
 
-  Definition has_homsets_trafotarget_precat (hsC: has_homsets C): has_homsets trafotarget_precat.
+  Definition has_homsets_trafotarget_precat: has_homsets trafotarget_precat.
   Proof.
-    apply (total_category_has_homsets(C:=C,,hsC) trafotarget_disp).
+    apply (total_category_has_homsets(C:=C) trafotarget_disp).
   Defined.
 
-  Definition forget_from_trafotarget: trafotarget_precat ⟶ C := pr1_category trafotarget_disp.
+  Definition trafotarget_cat: category := trafotarget_precat ,, has_homsets_trafotarget_precat.
+
+  Definition forget_from_trafotarget: trafotarget_cat ⟶ C := pr1_category trafotarget_disp.
 
   Section TheEquivalence.
 
     (** a naive specification of the target of the bijection *)
-    Definition trafotarget_with_eq: UU := ∑ N: C ⟶ trafotarget_precat,
+    Definition trafotarget_with_eq: UU := ∑ N: C ⟶ trafotarget_cat,
       functor_data_from_functor _ _ (functor_composite N forget_from_trafotarget) =
         functor_data_from_functor _ _ (functor_identity C).
 
     (** a "pedestrian" definition *)
-    Definition nat_trafo_to_functor (η: H ⟹ H'): C ⟶ trafotarget_precat.
+    Definition nat_trafo_to_functor (η: H ⟹ H'): C ⟶ trafotarget_cat.
     Proof.
       use make_functor.
       - use make_functor_data.
@@ -211,11 +190,11 @@ Section Upstream.
         + intro c.
           use total2_paths_f.
           * cbn. apply idpath.
-          * apply (functor_category_has_homsets _ _ hs).
+          * apply (functor_category_has_homsets _ _).
         + intros c1 c2 c3 f f'.
           use total2_paths_f.
           * cbn. apply idpath.
-          * apply (functor_category_has_homsets _ _ hs).
+          * apply (functor_category_has_homsets _ _).
     Defined.
 
     (** an immediate consequence *)
@@ -225,10 +204,9 @@ Section Upstream.
       apply idpath.
     Defined.
 
-    (** we can also use the infrastructure of displayed categories given homsets
-        (is that inherently necessary or only a limitation of the library?) *)
-    Definition nat_trafo_to_section_v1 (hsC: has_homsets C)(η: H ⟹ H'):
-      @functor_lifting (C,,hsC) (C,,hsC) trafotarget_disp (functor_identity C).
+    (** we can also use the infrastructure of displayed categories *)
+    Definition nat_trafo_to_section_v1 (η: H ⟹ H'):
+      @functor_lifting C C trafotarget_disp (functor_identity C).
     Proof.
       use tpair.
       - use tpair.
@@ -238,13 +216,13 @@ Section Upstream.
           apply pathsinv0, nat_trans_ax.
       - split.
         + intro c.
-          apply (functor_category_has_homsets _ _ hs).
+          apply (functor_category_has_homsets _ _).
         + intros c1 c2 c3 f f'.
-          apply (functor_category_has_homsets _ _ hs).
+          apply (functor_category_has_homsets _ _).
     Defined.
 
-    Definition nat_trafo_to_section (hsC: has_homsets C)(η: H ⟹ H'):
-      @section_disp (C,,hsC) trafotarget_disp.
+    Definition nat_trafo_to_section (η: H ⟹ H'):
+      @section_disp C trafotarget_disp.
     Proof.
       use tpair.
       - use tpair.
@@ -254,21 +232,21 @@ Section Upstream.
           apply pathsinv0, nat_trans_ax.
       - split.
         + intro c.
-          apply (functor_category_has_homsets _ _ hs).
+          apply (functor_category_has_homsets _ _).
         + intros c1 c2 c3 f f'.
-          apply (functor_category_has_homsets _ _ hs).
+          apply (functor_category_has_homsets _ _).
     Defined.
 
-    Definition nat_trafo_to_functor_through_section_v1 (hsC: has_homsets C)(η: H ⟹ H'): C ⟶ trafotarget_precat :=
-      @lifted_functor (C,,hsC) (C,,hsC) trafotarget_disp (functor_identity C) (nat_trafo_to_section_v1 hsC η).
+    Definition nat_trafo_to_functor_through_section_v1 (η: H ⟹ H'): C ⟶ trafotarget_precat :=
+      @lifted_functor C C trafotarget_disp (functor_identity C) (nat_trafo_to_section_v1 η).
 
-    Definition nat_trafo_to_functor_through_section (hsC: has_homsets C)(η: H ⟹ H'): C ⟶ trafotarget_precat :=
-      @section_functor (C,,hsC) trafotarget_disp (nat_trafo_to_section hsC η).
+    Definition nat_trafo_to_functor_through_section (η: H ⟹ H'): C ⟶ trafotarget_precat :=
+      @section_functor C trafotarget_disp (nat_trafo_to_section η).
 
     (** the analogous immediate consequence *)
-    Definition nat_trafo_to_functor_through_section_with_eq (hsC: has_homsets C) (η: H ⟹ H'): trafotarget_with_eq.
+    Definition nat_trafo_to_functor_through_section_with_eq (η: H ⟹ H'): trafotarget_with_eq.
     Proof.
-      exists (nat_trafo_to_functor_through_section hsC η).
+      exists (nat_trafo_to_functor_through_section η).
       apply idpath.
     Defined.
 
@@ -301,9 +279,9 @@ Section Upstream.
     Local Lemma roundtrip1_with_eq (η: H ⟹ H'):
       functor_to_nat_trafo_with_eq (nat_trafo_to_functor_with_eq η) = η.
   Proof.
-    apply (nat_trans_eq (functor_category_has_homsets _ _ hs)).
+    apply nat_trans_eq; [ apply (functor_category_has_homsets _ _) |].
     intro c.
-    apply (nat_trans_eq hs).
+    apply nat_trans_eq_alt.
     intro a.
     cbn.
     apply idpath.
@@ -315,8 +293,8 @@ Section Upstream.
 *)
 
     (** *** using sections in the framework display categories *)
-    Definition section_to_nat_trafo (hsC: has_homsets C):
-      @section_disp (C,,hsC) trafotarget_disp -> H ⟹ H'.
+    Definition section_to_nat_trafo:
+      @section_disp C trafotarget_disp -> H ⟹ H'.
     Proof.
       intro sd.
       induction sd as [[sdob sdmor] [sdid sdcomp]].
@@ -326,16 +304,16 @@ Section Upstream.
         assert (aux := sdmor c c' f). apply pathsinv0. exact aux.
     Defined.
 
-    Local Lemma roundtrip1_with_sections (hsC: has_homsets C) (η: H ⟹ H'):
-      section_to_nat_trafo hsC (nat_trafo_to_section hsC η) = η.
+    Local Lemma roundtrip1_with_sections (η: H ⟹ H'):
+      section_to_nat_trafo (nat_trafo_to_section η) = η.
     Proof.
-      apply (nat_trans_eq (functor_category_has_homsets _ _ hs)).
+      apply nat_trans_eq; [ apply (functor_category_has_homsets _ _) |].
       intro c.
       apply idpath.
     Qed.
 
-    Local Lemma roundtrip2_with_sections (hsC: has_homsets C) (sd: @section_disp (C,,hsC) trafotarget_disp):
-      nat_trafo_to_section hsC (section_to_nat_trafo hsC sd) = sd.
+    Local Lemma roundtrip2_with_sections (sd: @section_disp C trafotarget_disp):
+      nat_trafo_to_section (section_to_nat_trafo sd) = sd.
     Proof.
       induction sd as [[sdob sdmor] [sdid sdcomp]].
       unfold nat_trafo_to_section, section_to_nat_trafo.
@@ -357,10 +335,10 @@ Section Upstream.
           cbn in aux.
           match goal with [H: @paths ?ID _ _ |- _ ] => set (auxtype := ID); simpl in auxtype end. *)
           apply hlevelntosn.
-          apply (functor_category_has_homsets _ _ hs).
+          apply (functor_category_has_homsets _ _).
         + do 5 (apply impred; intro).
           apply hlevelntosn.
-          apply (functor_category_has_homsets _ _ hs).
+          apply (functor_category_has_homsets _ _).
     Qed.
 
     (** *** a "pedestrian" variant of the whole approach without type-level rewriting *)
@@ -403,13 +381,13 @@ Section Upstream.
       intros c c' f.
       cbn.
       unfold nat_trans_comp. cbn.
-      apply nat_trans_eq; try exact hs.
+      apply nat_trans_eq_alt.
       intro a.
       cbn.
       assert (aux : # H f · (# H (pr1 (pr2 HypN c')) ·
-               ((pr2 (N c') : [A, A', hs] ⟦ H (pr1 (N c')), H' (pr1 (N c'))⟧) · # H' (pr1 HypN c'))) =
+               ((pr2 (N c') : [A, A'] ⟦ H (pr1 (N c')), H' (pr1 (N c'))⟧) · # H' (pr1 HypN c'))) =
                     # H (pr1 (pr2 HypN c)) ·
-               ((pr2 (N c): [A, A', hs] ⟦ H (pr1 (N c)), H' (pr1 (N c))⟧) · # H' (pr1 HypN c)) · # H' f).
+               ((pr2 (N c): [A, A'] ⟦ H (pr1 (N c)), H' (pr1 (N c))⟧) · # H' (pr1 HypN c)) · # H' f).
       2: { apply (maponpaths pr1) in aux. apply toforallpaths in aux. apply aux. }
       set (α1 := # H f); set (F2 := pr1 (pr2 HypN c')); set (α2 := # H F2); set (α3 := pr2 (N c')); set (F4 := pr1 HypN c'); set (α4 := # H' F4).
       set (F5 := pr1 (pr2 HypN c)); set (α5 := # H F5); set (α6 := pr2 (N c)); set (F7 := pr1 HypN c); set (α7 := # H' F7); set (α8 := # H' f).
@@ -463,9 +441,9 @@ Section Upstream.
 
   Local Lemma roundtrip1 (η: H ⟹ H'): functor_to_nat_trafo_with_iso (nat_trafo_to_functor_with_iso η) = η.
   Proof.
-    apply nat_trans_eq; try exact (functor_category_has_homsets _ _ hs).
+    apply nat_trans_eq; [ apply (functor_category_has_homsets _ _) |].
     intro c.
-    apply nat_trans_eq; try exact hs.
+    apply nat_trans_eq_alt.
     intro a.
     cbn.
     rewrite (functor_id H).
@@ -492,7 +470,7 @@ Section Upstream.
    *)
 
   (** the object mapping of both functors is pointwise z_isomorphic *)
-  Definition roundtrip2_on_ob (hsC: has_homsets C) (Ne: trafotarget_with_iso) (c: C) : z_iso (pr111 (nat_trafo_to_functor_with_iso (functor_to_nat_trafo_with_iso Ne)) c) (pr111 Ne c).
+  Definition roundtrip2_on_ob (Ne: trafotarget_with_iso) (c: C) : z_iso (pr111 (nat_trafo_to_functor_with_iso (functor_to_nat_trafo_with_iso Ne)) c) (pr111 Ne c).
   Proof.
     induction Ne as [N HypN].
     use make_z_iso.
@@ -500,12 +478,12 @@ Section Upstream.
       use tpair.
       + exact (pr1 (pr2 HypN c)).
       + cbn.
-        apply nat_trans_eq; try exact hs.
+        apply nat_trans_eq_alt.
         intro a.
         cbn.
         do 2 rewrite <- assoc.
         apply maponpaths.
-        assert (aux: (pr2 (N c): [A, A', hs] ⟦ H (pr1 (N c)), H' (pr1 (N c))⟧) · (# H' (pr1 HypN c) · # H' (pr1 (pr2 HypN c))) = pr2 ((pr11 N) c)).
+        assert (aux: (pr2 (N c): [A, A'] ⟦ H (pr1 (N c)), H' (pr1 (N c))⟧) · (# H' (pr1 HypN c) · # H' (pr1 (pr2 HypN c))) = pr2 ((pr11 N) c)).
         2: { apply (maponpaths pr1) in aux. apply toforallpaths in aux. apply aux. }
         etrans.
         { apply maponpaths. apply pathsinv0, functor_comp. }
@@ -519,7 +497,7 @@ Section Upstream.
       use tpair.
       + exact (pr1 HypN c).
       + cbn.
-        apply nat_trans_eq; try exact hs.
+        apply nat_trans_eq_alt.
         intro a.
         cbn.
         do 2 rewrite assoc.
@@ -535,7 +513,7 @@ Section Upstream.
         rewrite functor_id in Hyp.
         rewrite Hyp.
         apply pathsinv0.
-        apply (id_left (pr2 (N c): [A, A', hs] ⟦ H (pr1 (N c)), H' (pr1 (N c))⟧)).
+        apply (id_left (pr2 (N c): [A, A'] ⟦ H (pr1 (N c)), H' (pr1 (N c))⟧)).
     - split.
       + (* show_id_type. *)
         use total2_paths_f.
@@ -544,13 +522,13 @@ Section Upstream.
           apply (z_iso_after_z_iso_inv theiso).
         * cbn.
           (* show_id_type. *)
-          apply (functor_category_has_homsets _ _ hs).
+          apply (functor_category_has_homsets _ _).
       + use total2_paths_f.
         * cbn.
           set (theiso := pr1 HypN c ,, pr2 HypN c: z_iso ((N ∙ forget_from_trafotarget) c) (functor_identity C c)).
           apply (z_iso_inv_after_z_iso theiso).
         * cbn.
-          apply (functor_category_has_homsets _ _ hs).
+          apply (functor_category_has_homsets _ _).
   Defined.
 
   (** roundtrip_on_mor will have to adapt everything by the iso given through roundtrip_on_mor *)
@@ -561,7 +539,7 @@ End Upstream.
 
   Section SameInBicat.
 
-Context {C0 : precategory}.
+Context {C0 : category}.
 Context {C : bicat}.
 Context (a a' : ob C).
 
@@ -602,7 +580,7 @@ Context (H H' : C0 ⟶ hom a a').
     isaprop (xx -->[ f] yy).
   Proof.
     intros Hyp Hyp'.
-    apply (homset_property (hom_category a a')).
+    apply (homset_property (hom a a')).
   Qed.
 
   Lemma trafotargetbicat_disp_cat_axioms: disp_cat_axioms C0 trafotargetbicat_disp_cat_data.
@@ -616,22 +594,23 @@ Context (H H' : C0 ⟶ hom a a').
 
   Definition trafotargetbicat_precat: precategory := total_precategory trafotargetbicat_disp.
 
-  Definition has_homsets_trafotargetbicat_precat (hsC0: has_homsets C0): has_homsets trafotargetbicat_precat.
+  Definition has_homsets_trafotargetbicat_precat: has_homsets trafotargetbicat_precat.
   Proof.
-    apply (total_category_has_homsets(C:=C0,,hsC0) trafotargetbicat_disp).
+    apply (total_category_has_homsets(C:=C0) trafotargetbicat_disp).
   Defined.
 
-  Definition forget_from_trafotargetbicat: trafotargetbicat_precat ⟶ C0 := pr1_category trafotargetbicat_disp.
+  Definition trafotargetbicat_cat: category := trafotargetbicat_precat ,, has_homsets_trafotargetbicat_precat.
+
+  Definition forget_from_trafotargetbicat: trafotargetbicat_cat ⟶ C0 := pr1_category trafotargetbicat_disp.
 
   End SameInBicat.
 
 Section Main.
 
-  Context (Mon_V : monoidal_precat).
-  Context (hsV : has_homsets Mon_V).
+  Context (Mon_V : monoidal_cat).
 
-Local Definition I := monoidal_precat_unit Mon_V.
-Local Definition tensor := monoidal_precat_tensor Mon_V.
+Local Definition I := monoidal_cat_unit Mon_V.
+Local Definition tensor := monoidal_cat_tensor Mon_V.
 Notation "X ⊗ Y" := (tensor (X , Y)).
 
 Section ActionViaBicat.
@@ -639,7 +618,7 @@ Section ActionViaBicat.
 Context {C : bicat}.
 Context (a0 : ob C).
 
-Context (FA: strong_monoidal_functor Mon_V (monoidal_precat_from_prebicat_and_ob a0)).
+Context (FA: strong_monoidal_functor Mon_V (monoidal_cat_from_bicat_and_ob a0)).
 
 End ActionViaBicat.
 
@@ -648,21 +627,19 @@ Section FunctorViaBicat.
 Context {C : bicat}.
 Context {a0 a0' : ob C}.
 
-Context (FA: strong_monoidal_functor Mon_V (monoidal_precat_from_prebicat_and_ob a0)).
-Context (FA': strong_monoidal_functor Mon_V (monoidal_precat_from_prebicat_and_ob a0')).
+Context (FA: strong_monoidal_functor Mon_V (monoidal_cat_from_bicat_and_ob a0)).
+Context (FA': strong_monoidal_functor Mon_V (monoidal_cat_from_bicat_and_ob a0')).
 
 Context (G : hom a0 a0').
 
 Definition H : functor Mon_V (hom a0 a0') :=
-  functor_compose (homset_property (hom_category a0' a0')) (homset_property (hom_category a0 a0'))
-                  (pr11 FA') (functor_fix_fst_arg _ _ _ hcomp_functor G).
+  functor_compose (pr11 FA') (functor_fix_fst_arg _ _ _ hcomp_functor G).
 
 Definition H' : functor Mon_V (hom a0 a0') :=
-  functor_compose (homset_property (hom_category a0 a0)) (homset_property (hom_category a0 a0'))
-                  (pr11 FA) (functor_fix_snd_arg _ _ _ hcomp_functor G).
+  functor_compose (pr11 FA) (functor_fix_snd_arg _ _ _ hcomp_functor G).
 
 Definition montrafotargetbicat_disp: disp_precat Mon_V := trafotargetbicat_disp a0 a0' H H'.
-Definition montrafotargetbicat_precat: precategory := trafotargetbicat_precat a0 a0' H H'.
+Definition montrafotargetbicat_precat: precategory := trafotargetbicat_cat a0 a0' H H'.
 
 (*
 Definition montrafotargetbicat_unit: montrafotargetbicat_precat.
@@ -678,48 +655,47 @@ End FunctorViaBicat.
 
 Section Functor.
 
-Context {A A': precategory}.
-Context (hsA : has_homsets A) (hsA' : has_homsets A').
+Context {A A': category}.
 
-Context (FA: strong_monoidal_functor Mon_V (monoidal_precat_of_endofunctors hsA)).
-Context (FA': strong_monoidal_functor Mon_V (monoidal_precat_of_endofunctors hsA')).
+Context (FA: strong_monoidal_functor Mon_V (monoidal_cat_of_endofunctors A)).
+Context (FA': strong_monoidal_functor Mon_V (monoidal_cat_of_endofunctors A')).
 
 Context (G : A ⟶ A').
 
-Local Definition precompG := pre_composition_functor _ _ _ hsA' hsA' G.
-Local Definition postcompG {C: precategory} := post_composition_functor C _ _ hsA hsA' G.
+Local Definition precompG := pre_composition_functor _ A' A' G.
+Local Definition postcompG {C: category} := post_composition_functor C A A' G.
 
-Let H := param_distributivity_dom Mon_V hsA' FA' G.
-Let H' := param_distributivity_codom Mon_V hsA hsA' FA G.
+Let H := param_distributivity_dom Mon_V _ _ FA' G.
+Let H' := param_distributivity_codom Mon_V _ _ FA G.
 
-Definition montrafotarget_disp: disp_precat Mon_V := trafotarget_disp hsA' H H'.
-Definition montrafotarget_precat: precategory := trafotarget_precat hsA' H H'.
+Definition montrafotarget_disp: disp_precat Mon_V := trafotarget_disp H H'.
+Definition montrafotarget_cat: category := trafotarget_cat H H'.
 
-Definition montrafotarget_unit: montrafotarget_precat.
+Definition montrafotarget_unit: montrafotarget_cat.
 Proof.
   exists I.
-  exact (param_distr_triangle_eq_variant0_RHS Mon_V hsA hsA' FA FA' G).
+  exact (param_distr_triangle_eq_variant0_RHS Mon_V _ _ FA FA' G).
 Defined.
 
 Lemma montrafotarget_tensor_comp_aux (v w v' w': Mon_V) (f: Mon_V⟦v,v'⟧) (g: Mon_V⟦w,w'⟧)
-      (η : trafotarget_disp hsA' H H' v) (π : trafotarget_disp hsA' H H' w)
-      (η' : trafotarget_disp hsA' H H' v') (π' : trafotarget_disp hsA' H H' w')
+      (η : trafotarget_disp H H' v) (π : trafotarget_disp H H' w)
+      (η' : trafotarget_disp H H' v') (π' : trafotarget_disp H H' w')
       (Hyp: η  -->[ f] η') (Hyp': π -->[ g] π'):
-  (param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v w η π:
-     pr1 (trafotarget_disp hsA' H H') (v ⊗ w))
+  (param_distr_pentagon_eq_body_variant_RHS Mon_V _ _ FA FA' G v w η π:
+     pr1 (trafotarget_disp H H') (v ⊗ w))
     -->[ # tensor (f,, g : pr1 Mon_V ⊠ pr1 Mon_V ⟦ v,, w, v',, w' ⟧)]
-    param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v' w' η' π'.
+    param_distr_pentagon_eq_body_variant_RHS Mon_V _ _ FA FA' G v' w' η' π'.
 Proof.
   unfold mor_disp in Hyp, Hyp' |- *.
   hnf in Hyp, Hyp' |- *.
   unfold param_distr_pentagon_eq_body_variant_RHS, param_distr_pentagon_eq_body_RHS.
-  change (ActionBasedStrength.precompF hsA' G) with precompG.
-  change (ActionBasedStrength.postcompF hsA hsA' G) with (postcompG(C:=A)).
+  change (ActionBasedStrength.precompF _ _ G) with precompG.
+  change (ActionBasedStrength.postcompF A A' G) with (postcompG(C:=A)).
   match goal with | [ |- ?Hαinv · (?Hγ · ?Hδ · ?Hβ) · ?Hε = _ ] => set (αinv := Hαinv);
      set (γ := Hγ); set (δ:= Hδ); set (β := Hβ); set (ε1 := Hε) end.
   match goal with | [ |- _ = ?Hε · (?Hαinv · (?Hγ · ?Hδ · ?Hβ)) ] => set (αinv' := Hαinv);
            set (γ' := Hγ); set (δ':= Hδ); set (β' := Hβ); set (ε2 := Hε) end.
-  set (αinviso := prewhisker_with_μ_inv_z_iso Mon_V hsA' FA' G v w).
+  set (αinviso := prewhisker_with_μ_inv_z_iso Mon_V _ _ FA' G v w).
   rewrite <- assoc.
   apply pathsinv0.
   apply (z_iso_inv_to_left _ _ _ αinviso).
@@ -731,9 +707,9 @@ Proof.
   simpl in μFA'natinst.
   assert (μFAnatinst := nat_trans_ax (lax_monoidal_functor_μ FA) _ _ fg).
   simpl in μFAnatinst.
-  change (# (functorial_composition hsA hsA) (# FA f #, # FA g) · lax_monoidal_functor_μ FA (v',, w') =
+  change (# (functorial_composition _ _ _) (# FA f #, # FA g) · lax_monoidal_functor_μ FA (v',, w') =
           lax_monoidal_functor_μ FA (v,, w) · # FA (# (MonoidalFunctors.tensor_C Mon_V) fg)) in μFAnatinst.
-  change (# (functorial_composition hsA' hsA') (# FA' f #, # FA' g) · lax_monoidal_functor_μ FA' (v',, w') =
+  change (# (functorial_composition _ _ _) (# FA' f #, # FA' g) · lax_monoidal_functor_μ FA' (v',, w') =
             lax_monoidal_functor_μ FA' (v,, w) · # FA' (# (MonoidalFunctors.tensor_C Mon_V) fg)) in μFA'natinst.
   set (ε2better := # precompG (# (functor_composite tensor FA') fg)).
   transparent assert (ε2betterok : (ε2 = ε2better)).
@@ -793,11 +769,11 @@ Proof.
   clear σ'.
   rewrite functor_comp.
   match goal with | [ |- ?Hσ'1 · ?Hσ'2 · _  = _ · ?Hσ ] => set (σ'1 := Hσ'1); set (σ'2 := Hσ'2); set (σ := Hσ) end.
-  apply (maponpaths (# (post_composition_functor A A' A' hsA' hsA' ((FA' w'): [A', A', hsA'])))) in Hyp.
+  apply (maponpaths (# (post_composition_functor A A' A' ((FA' w'): [A', A'])))) in Hyp.
   do 2 rewrite functor_comp in Hyp.
   apply pathsinv0 in Hyp.
-  assert (Hypvariant: σ'2 · γ' = # (post_composition_functor A A' A' hsA' hsA' (FA' w')) η
-                       · # (post_composition_functor A A' A' hsA' hsA' (FA' w')) (# H' f)).
+  assert (Hypvariant: σ'2 · γ' = # (post_composition_functor A A' A' (FA' w')) η
+                       · # (post_composition_functor A A' A' (FA' w')) (# H' f)).
   { etrans.
     2: { exact Hyp. }
     (* Fail apply cancel_postcomposition. *) use cancel_postcomposition.
@@ -809,7 +785,7 @@ Proof.
   rewrite Hypvariant.
   clear σ'2 γ' Hypvariant.
   unfold H', param_distributivity_codom.
-  change (ActionBasedStrength.postcompF hsA hsA' G) with (postcompG(C:=A)).
+  change (ActionBasedStrength.postcompF A A' G) with (postcompG(C:=A)).
   match goal with | [ |- _ · (?Hγw' · ?Hι') · _ = _ ] => set (γw' := Hγw'); set (ι' := Hι')  end.
   intermediate_path (((σ'1 · γw') · ι') · δ').
   { repeat rewrite <- assoc.
@@ -819,13 +795,13 @@ Proof.
   etrans.
   { do 2 apply cancel_postcomposition.
     apply pathsinv0.
-    assert (auxhorcomp := functorial_composition_pre_post _ _ _ hsA' hsA' _ _ _ _ η (# FA' g)).
-    assert (σ'1ok : σ'1 = # (pre_composition_functor A A' A' hsA' hsA' (H v)) (# FA' g)).
+    assert (auxhorcomp := functorial_composition_pre_post _ _ _ _ _ _ _ η (# FA' g)).
+    assert (σ'1ok : σ'1 = # (pre_composition_functor A A' A' (H v)) (# FA' g)).
     { apply assoc_precomp_precomp_mor. }
     rewrite σ'1ok. unfold γw'. apply auxhorcomp. }
   rewrite functorial_composition_post_pre.
   clear σ'1 γw'.
-  change (# (post_composition_functor A A' A' hsA' hsA' (FA' w)) η) with γ.
+  change (# (post_composition_functor A A' A' (FA' w)) η) with γ.
   rewrite <- assoc.
   match goal with | [ |- _ · ?Hν' · _ = _ ] => set (ν' := Hν')  end.
   intermediate_path (γ · (ν' · (ι' · δ'))).
@@ -834,7 +810,7 @@ Proof.
   intermediate_path (γ · (δ · σ)).
   2: { (* Fail apply assoc. *) use assoc. }
   apply maponpaths.
-  set (ν'better := # (pre_composition_functor A A' A' hsA' hsA' (H' v)) (# FA' g)).
+  set (ν'better := # (pre_composition_functor A A' A' (H' v)) (# FA' g)).
   change ν' with ν'better.
   clear ν'.
   unfold σ. rewrite functorial_composition_pre_post.
@@ -842,15 +818,15 @@ Proof.
   rewrite functor_comp.
   rewrite assoc.
   match goal with | [ |- _ = _ · (?Hσ1 · ?Hσ2) ] => set (σ1 := Hσ1); set (σ2 := Hσ2) end.
-  apply (maponpaths (# (pre_composition_functor A A A' hsA hsA' ((FA v): [A, A, hsA])))) in Hyp'.
+  apply (maponpaths (# (pre_composition_functor A A A' ((FA v): [A, A])))) in Hyp'.
   do 2 rewrite functor_comp in Hyp'.
-  assert (Hypvariant: δ · σ1 = # (pre_composition_functor A A A' hsA hsA' (FA v)) (# H g)
-       · # (pre_composition_functor A A A' hsA hsA' (FA v)) π').
+  assert (Hypvariant: δ · σ1 = # (pre_composition_functor A A A' (FA v)) (# H g)
+       · # (pre_composition_functor A A A' (FA v)) π').
   { etrans.
     2: { exact Hyp'. }
     apply maponpaths.
-    change (σ1 = # (pre_composition_functor A A A' hsA hsA' (FA v))
-                   (# (post_composition_functor A A A' hsA hsA' G) (# FA g))).
+    change (σ1 = # (pre_composition_functor A A A' (FA v))
+                   (# (post_composition_functor A A A' G) (# FA g))).
     apply exchange_postcomp_precomp_mor. }
   clear Hyp'.
   intermediate_path (δ · σ1 · σ2).
@@ -859,8 +835,8 @@ Proof.
   clear δ σ1 Hypvariant.
   match goal with | [ |- _ = ?Hν'variant · ?Hδ'π' · _] => set (ν'variant := Hν'variant); set (δ'π' := Hδ'π') end.
   assert (ν'variantok: ν'variant = ν'better).
-  { change (# (pre_composition_functor A A A' hsA hsA' (FA v)) (# (pre_composition_functor A A' A' hsA' hsA' G) (# FA' g)) =
-           # (pre_composition_functor A A' A' hsA' hsA' (pre_composition_functor A A A' hsA hsA' (FA v) G)) (# FA' g)).
+  { change (# (pre_composition_functor A A A' (FA v)) (# (pre_composition_functor A A' A' G) (# FA' g)) =
+           # (pre_composition_functor A A' A' (pre_composition_functor A A A' (FA v) G)) (# FA' g)).
     apply assoc_precomp_precomp_mor.
   }
   rewrite ν'variantok.
@@ -870,21 +846,19 @@ Proof.
   2: { (* Fail apply assoc. *) use assoc. }
   apply maponpaths.
   clear ν'better.
-  assert (auxhorcomp' := functorial_composition_pre_post _ _ _ hsA hsA' _ _ _ _ (# FA f) π').
+  assert (auxhorcomp' := functorial_composition_pre_post _ _ _ _ _ _ _ (# FA f) π').
   rewrite functorial_composition_post_pre in auxhorcomp'.
-  change (# (pre_composition_functor A A A' hsA hsA' (FA v')) π') with δ' in auxhorcomp'.
-  change (# (pre_composition_functor A A A' hsA hsA' (FA v)) π') with δ'π' in auxhorcomp'.
-  assert (ι'ok: ι' = # (post_composition_functor A A A' hsA hsA' (H w')) (# FA f)).
-  { change (# (post_composition_functor A A' A' hsA' hsA' (FA' w'))
-              (# (post_composition_functor A A A' hsA hsA' G) (# FA f)) =
-              # (post_composition_functor A A A' hsA hsA'
-                                          (post_composition_functor A A' A' hsA' hsA' (FA' w') G))
-                (# FA f)).
+  change (# (pre_composition_functor A A A' (FA v')) π') with δ' in auxhorcomp'.
+  change (# (pre_composition_functor A A A' (FA v)) π') with δ'π' in auxhorcomp'.
+  assert (ι'ok: ι' = # (post_composition_functor A A A' (H w')) (# FA f)).
+  { change (# (post_composition_functor A A' A' (FA' w'))
+              (# (post_composition_functor A A A' G) (# FA f)) =
+              # (post_composition_functor A A A'
+                       (post_composition_functor A A' A' (FA' w') G)) (# FA f)).
     apply assoc_postcomp_postcomp_mor.
   }
-  assert (σ2ok: σ2 = # (post_composition_functor A A A' hsA hsA' (H' w')) (# FA f)).
-  { change (σ2 = # (post_composition_functor A A A' hsA hsA'
-                                             (post_composition_functor _ _ _ hsA hsA' G (FA w'))) (# FA f)).
+  assert (σ2ok: σ2 = # (post_composition_functor A A A' (H' w')) (# FA f)).
+  { change (σ2 = # (post_composition_functor A A A' (post_comp_functor G (FA w'))) (# FA f)).
     apply assoc_postcomp_postcomp_mor. }
   rewrite ι'ok, σ2ok.
   clear ι' σ2 ι'ok σ2ok.
@@ -892,22 +866,22 @@ Proof.
 Qed.
 
 
-Definition montrafotarget_disp_tensor: displayed_tensor (tensor: categoryBinProduct (pr1 Mon_V,,hsV) (pr1 Mon_V,,hsV) ⟶ Mon_V) montrafotarget_disp.
+Definition montrafotarget_disp_tensor: displayed_tensor tensor montrafotarget_disp.
 Proof.
   use tpair.
   - use tpair.
     + intros [v w] [η π].
-      exact (param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v w η π).
+      exact (param_distr_pentagon_eq_body_variant_RHS Mon_V _ _ FA FA' G v w η π).
     + intros [v w] [v' w'] [η π] [η' π'] [f g] [Hyp Hyp'].
       apply montrafotarget_tensor_comp_aux; [exact Hyp | exact Hyp'].
   - cbv beta in |- *.
-    split; intros; apply (isaset_nat_trans hsA').
+    split; intros; apply (isaset_nat_trans (homset_property A')).
 Defined.
 
 Definition montrafotarget_tensor_aux := total_functor montrafotarget_disp_tensor.
 
 (** unfortunately, the data has to be reorganized, but this is independent of the concrete situation *)
-Definition montrafotarget_tensor: montrafotarget_precat ⊠ montrafotarget_precat ⟶ montrafotarget_precat.
+Definition montrafotarget_tensor: montrafotarget_cat ⊠ montrafotarget_cat ⟶ montrafotarget_cat.
 Proof.
   use make_functor.
   - use make_functor_data.
@@ -924,24 +898,24 @@ Proof.
         etrans.
         { apply maponpaths. apply binprod_id. }
         apply functor_id.
-      * apply (isaset_nat_trans hsA'). (** cheating: this depends on the precise situation *)
+      * apply (isaset_nat_trans (homset_property A')). (** cheating: this depends on the precise situation *)
     + intros [[v1 η1] [w1 π1]] [[v2 η2] [w2 π2]] [[v3 η3] [w3 π3]] [[f Hyp1] [g Hyp2]] [[f' Hyp1'] [g' Hyp2']].
       use total2_paths_f.
       * cbn.
         etrans.
         { apply maponpaths. apply binprod_comp. }
         apply functor_comp.
-      * apply (isaset_nat_trans hsA'). (** cheating: this depends on the precise situation *)
+      * apply (isaset_nat_trans (homset_property A')). (** cheating: this depends on the precise situation *)
 Defined.
 
 (** alternative "manual" definition *)
-Definition montrafotarget_tensor_alt_data: functor_data (montrafotarget_precat ⊠ montrafotarget_precat) montrafotarget_precat.
+Definition montrafotarget_tensor_alt_data: functor_data (montrafotarget_cat ⊠ montrafotarget_cat) montrafotarget_cat.
 Proof.
   use make_functor_data.
   + intro vηwπ.
     induction vηwπ as [[v η] [w π]].
     exists (v ⊗ w).
-    exact (param_distr_pentagon_eq_body_variant_RHS Mon_V hsA hsA' FA FA' G v w η π).
+    exact (param_distr_pentagon_eq_body_variant_RHS Mon_V _ _ FA FA' G v w η π).
   + intros vηwπ vηwπ' fgHyps. induction vηwπ as [[v η] [w π]]. induction vηwπ' as [[v' η'] [w' π']].
     induction fgHyps as [[f Hyp] [g Hyp']].
     use tpair.
@@ -960,18 +934,18 @@ Proof.
       etrans.
       { apply maponpaths. apply binprod_id. }
       apply functor_id.
-    * apply (isaset_nat_trans hsA').
+    * apply (isaset_nat_trans (homset_property A')).
   + intros vηwπ1 vηwπ2 vηwπ3 fgHyps fgHyps'.
     use total2_paths_f.
     * cbn.
       etrans.
       { apply maponpaths. apply binprod_comp. }
       apply functor_comp.
-    * apply (isaset_nat_trans hsA').
+    * apply (isaset_nat_trans (homset_property A')).
 Qed.
 
 
-Definition montrafotarget_tensor_alt: montrafotarget_precat ⊠ montrafotarget_precat ⟶ montrafotarget_precat :=
+Definition montrafotarget_tensor_alt: montrafotarget_cat ⊠ montrafotarget_cat ⟶ montrafotarget_cat :=
   montrafotarget_tensor_alt_data ,, montrafotarget_tensor_alt_data_is_functor.
 
 (** we have the definition of the tensor product, but there are also six pending statements for the justification
@@ -979,17 +953,17 @@ Definition montrafotarget_tensor_alt: montrafotarget_precat ⊠ montrafotarget_p
 
 
 Definition montrafotarget_monprecat_left_unitor_aux1_statement: UU :=
-  ∏ (vη : montrafotarget_precat),
+  ∏ (vη : montrafotarget_cat),
   pr2 (I_pretensor montrafotarget_tensor montrafotarget_unit vη)
-      -->[monoidal_precat_left_unitor Mon_V (pr1 vη)]
-      pr2 (functor_identity montrafotarget_precat vη).
+      -->[monoidal_cat_left_unitor Mon_V (pr1 vη)]
+      pr2 (functor_identity montrafotarget_cat vη).
 
 Lemma montrafotarget_monprecat_left_unitor_aux1: montrafotarget_monprecat_left_unitor_aux1_statement.
 Proof.
   intros ?.
   unfold mor_disp. unfold trafotarget_disp. hnf.
   induction vη as [v η].
-  change ([A, A', hsA']⟦H v, H' v⟧) in η.
+  change ([A, A']⟦H v, H' v⟧) in η.
   etrans.
   2: { apply maponpaths. cbn. apply idpath. }
   simpl. (* not cbn! *)
@@ -1000,9 +974,9 @@ Proof.
 Abort.
 
 Definition montrafotarget_monprecat_left_unitor_aux2_statement: UU :=
-  ∏ (vη : montrafotarget_precat),
-  pr2 (functor_identity montrafotarget_precat vη)
-      -->[pr1 (pr2 (monoidal_precat_left_unitor Mon_V) (pr1 vη))]
+  ∏ (vη : montrafotarget_cat),
+  pr2 (functor_identity montrafotarget_cat vη)
+      -->[pr1 (pr2 (monoidal_cat_left_unitor Mon_V) (pr1 vη))]
       pr2 (I_pretensor montrafotarget_tensor montrafotarget_unit vη).
 
 Lemma montrafotarget_monprecat_left_unitor_aux2: montrafotarget_monprecat_left_unitor_aux2_statement.
@@ -1010,7 +984,7 @@ Proof.
   intros ?.
   unfold mor_disp. unfold trafotarget_disp. hnf.
   induction vη as [v η].
-  change ([A, A', hsA']⟦H v, H' v⟧) in η.
+  change ([A, A']⟦H v, H' v⟧) in η.
   etrans.
   { apply cancel_postcomposition. cbn. apply idpath. }
   simpl. (* not cbn! *)
@@ -1023,17 +997,17 @@ Abort.
 
 
 Definition montrafotarget_monprecat_right_unitor_aux1_statement: UU :=
-  ∏ (vη : montrafotarget_precat),
+  ∏ (vη : montrafotarget_cat),
   pr2 (I_posttensor montrafotarget_tensor montrafotarget_unit vη)
-      -->[monoidal_precat_right_unitor Mon_V (pr1 vη)]
-      pr2 (functor_identity montrafotarget_precat vη).
+      -->[monoidal_cat_right_unitor Mon_V (pr1 vη)]
+      pr2 (functor_identity montrafotarget_cat vη).
 
 Lemma montrafotarget_monprecat_right_unitor_aux1: montrafotarget_monprecat_right_unitor_aux1_statement.
 Proof.
   intros ?.
   unfold mor_disp. unfold trafotarget_disp. hnf.
   induction vη as [v η].
-  change ([A, A', hsA']⟦H v, H' v⟧) in η.
+  change ([A, A']⟦H v, H' v⟧) in η.
   etrans.
   2: { apply maponpaths. cbn. apply idpath. }
   simpl. (* not cbn! *)
@@ -1044,9 +1018,9 @@ Proof.
 Abort.
 
 Definition montrafotarget_monprecat_right_unitor_aux2_statement: UU :=
-  ∏ (vη : montrafotarget_precat),
-  pr2 (functor_identity montrafotarget_precat vη)
-      -->[pr1 (pr2 (monoidal_precat_right_unitor Mon_V) (pr1 vη))]
+  ∏ (vη : montrafotarget_cat),
+  pr2 (functor_identity montrafotarget_cat vη)
+      -->[pr1 (pr2 (monoidal_cat_right_unitor Mon_V) (pr1 vη))]
       pr2 (I_posttensor montrafotarget_tensor montrafotarget_unit vη).
 
 Lemma montrafotarget_monprecat_right_unitor_aux2: montrafotarget_monprecat_right_unitor_aux2_statement.
@@ -1054,7 +1028,7 @@ Proof.
   intros ?.
   unfold mor_disp. unfold trafotarget_disp. hnf.
   induction vη as [v η].
-  change ([A, A', hsA']⟦H v, H' v⟧) in η.
+  change ([A, A']⟦H v, H' v⟧) in η.
   etrans.
   { apply cancel_postcomposition. cbn. apply idpath. }
   simpl. (* not cbn! *)
@@ -1066,9 +1040,9 @@ Proof.
 Abort.
 
 Definition montrafotarget_monprecat_associator_aux1_statement: UU :=
-  ∏ (vηs : (montrafotarget_precat ⊠ montrafotarget_precat) ⊠ montrafotarget_precat),
+  ∏ (vηs : (montrafotarget_cat ⊠ montrafotarget_cat) ⊠ montrafotarget_cat),
   pr2 (assoc_left montrafotarget_tensor vηs)
-      -->[monoidal_precat_associator Mon_V ((pr111 vηs,, pr121 vηs),, pr12 vηs)]
+      -->[monoidal_cat_associator Mon_V ((pr111 vηs,, pr121 vηs),, pr12 vηs)]
       pr2 (assoc_right montrafotarget_tensor vηs).
 
 Lemma montrafotarget_monprecat_associator_aux1: montrafotarget_monprecat_associator_aux1_statement.
@@ -1076,20 +1050,20 @@ Proof.
   intros ?.
   unfold mor_disp. unfold trafotarget_disp. hnf.
   induction vηs as [[[v1 η1] [v2 η2]] [v3 η3]].
-  change ([A, A', hsA']⟦H v1, H' v1⟧) in η1.
-  change ([A, A', hsA']⟦H v2, H' v2⟧) in η2.
-  change ([A, A', hsA']⟦H v3, H' v3⟧) in η3.
+  change ([A, A']⟦H v1, H' v1⟧) in η1.
+  change ([A, A']⟦H v2, H' v2⟧) in η2.
+  change ([A, A']⟦H v3, H' v3⟧) in η3.
   simpl. (* not cbn! *)
   unfold param_distr_pentagon_eq_body_variant_RHS, param_distr_triangle_eq_variant0_RHS, param_distr_pentagon_eq_body_RHS.
   do 2 rewrite functor_comp.
   match goal with | [ |- _ · (_ · ?Hlpart · _ · _) · _  = _] => set (lpart := Hlpart) end.
   set (lpartbetter :=
-         # (post_composition_functor A A' A' hsA' hsA' (FA' v3))
-           (# (post_composition_functor A A' A' hsA' hsA' (FA' v2)) η1) ·
-           # (post_composition_functor A A' A' hsA' hsA' (FA' v3))
-           (# (pre_composition_functor A A A' hsA hsA' (FA v1)) η2) ·
-           # (post_composition_functor A A' A' hsA' hsA' (FA' v3))
-           (# (ActionBasedStrength.postcompF hsA hsA' G) (lax_monoidal_functor_μ FA (v1,, v2)))).
+         # (post_composition_functor A A' A' (FA' v3))
+           (# (post_composition_functor A A' A' (FA' v2)) η1) ·
+           # (post_composition_functor A A' A' (FA' v3))
+           (# (pre_composition_functor A A A' (FA v1)) η2) ·
+           # (post_composition_functor A A' A' (FA' v3))
+           (# (ActionBasedStrength.postcompF A A' G) (lax_monoidal_functor_μ FA (v1,, v2)))).
   assert (lpartbetterok: lpart = lpartbetter).
   { unfold lpart, lpartbetter.
     etrans.
@@ -1104,12 +1078,12 @@ Proof.
   rewrite lpartbetterok. unfold lpartbetter. clear lpart lpartbetter lpartbetterok.
   match goal with | [ |- _ = _ · (_ · (_ · (_ · ?Hrpart) · _)) ] => set (rpart := Hrpart) end.
   set (rpartbetter :=
-         # (pre_composition_functor A A A' hsA hsA' (FA v1))
-           (# (post_composition_functor A A' A' hsA' hsA' (FA' v3)) η2) ·
-           # (pre_composition_functor A A A' hsA hsA' (FA v1))
-           (# (pre_composition_functor A A A' hsA hsA' (FA v2)) η3) ·
-           # (pre_composition_functor A A A' hsA hsA' (FA v1))
-           (# (ActionBasedStrength.postcompF hsA hsA' G) (lax_monoidal_functor_μ FA (v2,, v3)))).
+         # (pre_composition_functor A A A' (FA v1))
+           (# (post_composition_functor A A' A' (FA' v3)) η2) ·
+           # (pre_composition_functor A A A' (FA v1))
+           (# (pre_composition_functor A A A' (FA v2)) η3) ·
+           # (pre_composition_functor A A A' (FA v1))
+           (# (ActionBasedStrength.postcompF A A' G) (lax_monoidal_functor_μ FA (v2,, v3)))).
   assert (rpartbetterok: rpart = rpartbetter).
   { unfold rpart, rpartbetter.
     etrans.
@@ -1124,9 +1098,9 @@ Proof.
 Abort.
 
 Definition montrafotarget_monprecat_associator_aux2_statement: UU :=
-  ∏ (vηs : (montrafotarget_precat ⊠ montrafotarget_precat) ⊠ montrafotarget_precat),
+  ∏ (vηs : (montrafotarget_cat ⊠ montrafotarget_cat) ⊠ montrafotarget_cat),
   pr2 (assoc_right montrafotarget_tensor vηs)
-      -->[pr1 (pr2 (monoidal_precat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs))]
+      -->[pr1 (pr2 (monoidal_cat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs))]
       pr2 (assoc_left montrafotarget_tensor vηs).
 
 Lemma montrafotarget_monprecat_associator_aux2: montrafotarget_monprecat_associator_aux2_statement.
@@ -1134,20 +1108,20 @@ Proof.
   intros ?.
   unfold mor_disp. unfold trafotarget_disp. hnf.
   induction vηs as [[[v1 η1] [v2 η2]] [v3 η3]].
-  change ([A, A', hsA']⟦H v1, H' v1⟧) in η1.
-  change ([A, A', hsA']⟦H v2, H' v2⟧) in η2.
-  change ([A, A', hsA']⟦H v3, H' v3⟧) in η3.
+  change ([A, A']⟦H v1, H' v1⟧) in η1.
+  change ([A, A']⟦H v2, H' v2⟧) in η2.
+  change ([A, A']⟦H v3, H' v3⟧) in η3.
   simpl. (* not cbn! *)
   unfold param_distr_pentagon_eq_body_variant_RHS, param_distr_triangle_eq_variant0_RHS, param_distr_pentagon_eq_body_RHS.
   do 2 rewrite functor_comp.
   match goal with | [ |- _ · (_ · (_ · ?Hlpart) · _) · _  = _] => set (lpart := Hlpart) end.
   set (lpartbetter :=
-         # (pre_composition_functor A A A' hsA hsA' (FA v1))
-           (# (post_composition_functor A A' A' hsA' hsA' (FA' v3)) η2) ·
-           # (pre_composition_functor A A A' hsA hsA' (FA v1))
-           (# (pre_composition_functor A A A' hsA hsA' (FA v2)) η3) ·
-           # (pre_composition_functor A A A' hsA hsA' (FA v1))
-           (# (ActionBasedStrength.postcompF hsA hsA' G) (lax_monoidal_functor_μ FA (v2,, v3)))).
+         # (pre_composition_functor A A A' (FA v1))
+           (# (post_composition_functor A A' A' (FA' v3)) η2) ·
+           # (pre_composition_functor A A A' (FA v1))
+           (# (pre_composition_functor A A A' (FA v2)) η3) ·
+           # (pre_composition_functor A A A' (FA v1))
+           (# (ActionBasedStrength.postcompF A A' G) (lax_monoidal_functor_μ FA (v2,, v3)))).
   assert (lpartbetterok: lpart = lpartbetter).
   { unfold lpart, lpartbetter.
     etrans.
@@ -1158,12 +1132,12 @@ Proof.
   rewrite lpartbetterok. unfold lpartbetter. clear lpart lpartbetter lpartbetterok.
   match goal with | [ |- _ = _ · (_ · (_ · ?Hrpart · _ · _)) ] => set (rpart := Hrpart) end.
   set (rpartbetter :=
-         # (post_composition_functor A A' A' hsA' hsA' (FA' v3))
-           (# (post_composition_functor A A' A' hsA' hsA' (FA' v2)) η1) ·
-           # (post_composition_functor A A' A' hsA' hsA' (FA' v3))
-           (# (pre_composition_functor A A A' hsA hsA' (FA v1)) η2) ·
-           # (post_composition_functor A A' A' hsA' hsA' (FA' v3))
-           (# (ActionBasedStrength.postcompF hsA hsA' G) (lax_monoidal_functor_μ FA (v1,, v2)))).
+         # (post_composition_functor A A' A' (FA' v3))
+           (# (post_composition_functor A A' A' (FA' v2)) η1) ·
+           # (post_composition_functor A A' A' (FA' v3))
+           (# (pre_composition_functor A A A' (FA v1)) η2) ·
+           # (post_composition_functor A A' A' (FA' v3))
+           (# (ActionBasedStrength.postcompF A A' G) (lax_monoidal_functor_μ FA (v1,, v2)))).
   assert (rpartbetterok: rpart = rpartbetter).
   { unfold rpart, rpartbetter.
     etrans.
@@ -1198,25 +1172,25 @@ Proof.
   use make_nat_z_iso.
   + use make_nat_trans.
     * intro vη.
-      exists (monoidal_precat_left_unitor Mon_V (pr1 vη)).
+      exists (monoidal_cat_left_unitor Mon_V (pr1 vη)).
       (* another reasoning in functorial calculus needed *)
       apply Ax1.
     * intros vη vη' fg.
       use total2_paths_f.
-      -- cbn. apply (nat_trans_ax (monoidal_precat_left_unitor Mon_V)).
-      -- apply (isaset_nat_trans hsA').
+      -- cbn. apply (nat_trans_ax (monoidal_cat_left_unitor Mon_V)).
+      -- apply (isaset_nat_trans (homset_property A')).
   + intro vη.
     use make_is_z_isomorphism.
-    * exists (pr1 (pr2 (monoidal_precat_left_unitor Mon_V) (pr1 vη))).
+    * exists (pr1 (pr2 (monoidal_cat_left_unitor Mon_V) (pr1 vη))).
       (* another reasoning in functorial calculus needed *)
       apply Ax2.
     * split.
       -- use total2_paths_f.
-         ++ cbn. apply (pr2 (pr2 (monoidal_precat_left_unitor Mon_V) (pr1 vη))).
-         ++ apply (isaset_nat_trans hsA').
+         ++ cbn. apply (pr2 (pr2 (monoidal_cat_left_unitor Mon_V) (pr1 vη))).
+         ++ apply (isaset_nat_trans (homset_property A')).
       -- use total2_paths_f.
-         ++ cbn. apply (pr2 (pr2 (monoidal_precat_left_unitor Mon_V) (pr1 vη))).
-         ++ apply (isaset_nat_trans hsA').
+         ++ cbn. apply (pr2 (pr2 (monoidal_cat_left_unitor Mon_V) (pr1 vη))).
+         ++ apply (isaset_nat_trans (homset_property A')).
 Defined.
 
 (* the right unitor is analogous *)
@@ -1225,25 +1199,25 @@ Proof.
   use make_nat_z_iso.
   + use make_nat_trans.
     * intro vη.
-      exists (monoidal_precat_right_unitor Mon_V (pr1 vη)).
+      exists (monoidal_cat_right_unitor Mon_V (pr1 vη)).
       (* another reasoning in functorial calculus needed *)
       apply Ax3.
     * intros vη vη' fg.
       use total2_paths_f.
-      -- cbn. apply (nat_trans_ax (monoidal_precat_right_unitor Mon_V)).
-      -- apply (isaset_nat_trans hsA').
+      -- cbn. apply (nat_trans_ax (monoidal_cat_right_unitor Mon_V)).
+      -- apply (isaset_nat_trans (homset_property A')).
   + intro vη.
     use make_is_z_isomorphism.
-    * exists (pr1 (pr2 (monoidal_precat_right_unitor Mon_V) (pr1 vη))).
+    * exists (pr1 (pr2 (monoidal_cat_right_unitor Mon_V) (pr1 vη))).
       (* another reasoning in functorial calculus needed *)
       apply Ax4.
     * split.
       -- use total2_paths_f.
-         ++ cbn. apply (pr2 (pr2 (monoidal_precat_right_unitor Mon_V) (pr1 vη))).
-         ++ apply (isaset_nat_trans hsA').
+         ++ cbn. apply (pr2 (pr2 (monoidal_cat_right_unitor Mon_V) (pr1 vη))).
+         ++ apply (isaset_nat_trans (homset_property A')).
       -- use total2_paths_f.
-         ++ cbn. apply (pr2 (pr2 (monoidal_precat_right_unitor Mon_V) (pr1 vη))).
-         ++ apply (isaset_nat_trans hsA').
+         ++ cbn. apply (pr2 (pr2 (monoidal_cat_right_unitor Mon_V) (pr1 vη))).
+         ++ apply (isaset_nat_trans (homset_property A')).
 Defined.
 
 Definition montrafotarget_monprecat_associator: associator montrafotarget_tensor.
@@ -1251,26 +1225,26 @@ Proof.
   use make_nat_z_iso.
   + use make_nat_trans.
     * intro vηs.
-      exists (monoidal_precat_associator Mon_V ((pr111 vηs,,pr121 vηs),,pr12 vηs)).
+      exists (monoidal_cat_associator Mon_V ((pr111 vηs,,pr121 vηs),,pr12 vηs)).
       (* another reasoning in functorial calculus needed *)
       apply Ax5.
     * intros vηs vηs' fgs.
       use total2_paths_f.
-      -- cbn. exact (pr21 (monoidal_precat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs)
+      -- cbn. exact (pr21 (monoidal_cat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs)
                          ((pr111 vηs',, pr121 vηs'),, pr12 vηs') ((pr111 fgs,, pr121 fgs),, pr12 fgs)).
-      -- apply (isaset_nat_trans hsA').
+      -- apply (isaset_nat_trans (homset_property A')).
   + intro vηs.
     use make_is_z_isomorphism.
-    * exists (pr1 (pr2 (monoidal_precat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs))).
+    * exists (pr1 (pr2 (monoidal_cat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs))).
       (* another reasoning in functorial calculus needed *)
       apply Ax6.
     * split.
       -- use total2_paths_f.
-         ++ cbn. apply (pr2 (pr2 (monoidal_precat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs))).
-         ++ apply (isaset_nat_trans hsA').
+         ++ cbn. apply (pr2 (pr2 (monoidal_cat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs))).
+         ++ apply (isaset_nat_trans (homset_property A')).
       --  use total2_paths_f.
-          ++ cbn. apply (pr2 (pr2 (monoidal_precat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs))).
-          ++ apply (isaset_nat_trans hsA').
+          ++ cbn. apply (pr2 (pr2 (monoidal_cat_associator Mon_V) ((pr111 vηs,, pr121 vηs),, pr12 vηs))).
+          ++ apply (isaset_nat_trans (homset_property A')).
 Defined.
 
 Lemma montrafotarget_monprecat_triangle_eq: triangle_eq montrafotarget_tensor montrafotarget_unit
@@ -1278,40 +1252,40 @@ Lemma montrafotarget_monprecat_triangle_eq: triangle_eq montrafotarget_tensor mo
 Proof.
   intros vη wη'.
   use total2_paths_f.
-  + cbn. assert (triangleinst := pr1 (monoidal_precat_eq Mon_V) (pr1 vη) (pr1 wη')).
+  + cbn. assert (triangleinst := pr1 (monoidal_cat_eq Mon_V) (pr1 vη) (pr1 wη')).
     exact triangleinst.
-  + apply (isaset_nat_trans hsA').
+  + apply (isaset_nat_trans (homset_property A')).
 Qed.
 
 Lemma montrafotarget_monprecat_pentagon_eq: pentagon_eq montrafotarget_tensor montrafotarget_monprecat_associator.
 Proof.
   intros vη1 vη2 vη3 vη4.
   use total2_paths_f.
-  + cbn. assert (pentagoninst := pr2 (monoidal_precat_eq Mon_V) (pr1 vη1) (pr1 vη2) (pr1 vη3) (pr1 vη4)).
+  + cbn. assert (pentagoninst := pr2 (monoidal_cat_eq Mon_V) (pr1 vη1) (pr1 vη2) (pr1 vη3) (pr1 vη4)).
     exact pentagoninst.
-  + apply (isaset_nat_trans hsA').
+  + apply (isaset_nat_trans (homset_property A')).
 Qed.
 
-Definition montrafotarget_monprecat: monoidal_precat := mk_monoidal_precat montrafotarget_precat
+Definition montrafotarget_moncat: monoidal_cat := mk_monoidal_cat montrafotarget_cat
                montrafotarget_tensor montrafotarget_unit montrafotarget_monprecat_left_unitor
                montrafotarget_monprecat_right_unitor montrafotarget_monprecat_associator
                montrafotarget_monprecat_triangle_eq montrafotarget_monprecat_pentagon_eq.
 
 Section IntoMonoidalFunctor.
 
-  Context (δ: parameterized_distributivity_nat Mon_V hsA hsA' FA FA' G)
-          (δtr_eq: param_distr_triangle_eq Mon_V hsA hsA' FA FA' G δ)
-          (δpe_eq: param_distr_pentagon_eq Mon_V hsA hsA' FA FA' G δ).
+  Context (δ: parameterized_distributivity_nat Mon_V A A' FA FA' G)
+          (δtr_eq: param_distr_triangle_eq Mon_V A A' FA FA' G δ)
+          (δpe_eq: param_distr_pentagon_eq Mon_V A A' FA FA' G δ).
 
-Definition lmf_from_param_distr_functor: Mon_V ⟶ montrafotarget_monprecat.
+Definition lmf_from_param_distr_functor: Mon_V ⟶ montrafotarget_moncat.
 Proof.
-  apply (nat_trafo_to_functor hsA' H H' δ).
+  apply (nat_trafo_to_functor H H' δ).
 Defined.
 
 (** we come to an important element of the whole construction - the triangle law enters here *)
 Lemma lmf_from_param_distr_ε_aux:
-    pr2 (MonoidalFunctors.I_D montrafotarget_monprecat)
-    -->[ id pr1 (MonoidalFunctors.I_D montrafotarget_monprecat)]
+    pr2 (MonoidalFunctors.I_D montrafotarget_moncat)
+    -->[ id pr1 (MonoidalFunctors.I_D montrafotarget_moncat)]
     pr2 (lmf_from_param_distr_functor (MonoidalFunctors.I_C Mon_V)).
 Proof.
   unfold mor_disp. unfold trafotarget_disp. hnf.
@@ -1327,15 +1301,15 @@ Proof.
 Qed.
 
 Definition lmf_from_param_distr_ε:
-    pr1 montrafotarget_monprecat ⟦ MonoidalFunctors.I_D montrafotarget_monprecat,
+    pr1 montrafotarget_moncat ⟦ MonoidalFunctors.I_D montrafotarget_moncat,
                        lmf_from_param_distr_functor (MonoidalFunctors.I_C Mon_V) ⟧ :=
   (identity _),, lmf_from_param_distr_ε_aux.
 
 (** we come to the crucial element of the whole construction - the pentagon law enters here *)
 Lemma lmf_from_param_distr_μ_aux (vw : Mon_V ⊠ Mon_V):
-  pr2 (monoidal_functor_map_dom Mon_V montrafotarget_monprecat lmf_from_param_distr_functor vw)
-      -->[id pr1 (monoidal_functor_map_dom Mon_V montrafotarget_monprecat lmf_from_param_distr_functor vw)]
-  pr2 (monoidal_functor_map_codom Mon_V montrafotarget_monprecat lmf_from_param_distr_functor vw).
+  pr2 (monoidal_functor_map_dom Mon_V montrafotarget_moncat lmf_from_param_distr_functor vw)
+      -->[id pr1 (monoidal_functor_map_dom Mon_V montrafotarget_moncat lmf_from_param_distr_functor vw)]
+  pr2 (monoidal_functor_map_codom Mon_V montrafotarget_moncat lmf_from_param_distr_functor vw).
 Proof.
   unfold mor_disp. unfold trafotarget_disp. hnf.
   red in δpe_eq.
@@ -1351,8 +1325,8 @@ Proof.
 Qed.
 
 Definition lmf_from_param_distr_μ_data: nat_trans_data
-    (monoidal_functor_map_dom Mon_V montrafotarget_monprecat lmf_from_param_distr_functor)
-    (monoidal_functor_map_codom Mon_V montrafotarget_monprecat lmf_from_param_distr_functor).
+    (monoidal_functor_map_dom Mon_V montrafotarget_moncat lmf_from_param_distr_functor)
+    (monoidal_functor_map_codom Mon_V montrafotarget_moncat lmf_from_param_distr_functor).
 Proof.
   intro vw.
   exists (identity _).
@@ -1364,14 +1338,14 @@ Proof.
   intros vw vw' fg.
   use total2_paths_f.
   - cbn. rewrite id_left. apply id_right.
-  - apply (isaset_nat_trans hsA').
+  - apply (isaset_nat_trans (homset_property A')).
 Qed.
 
-Definition lmf_from_param_distr_μ: monoidal_functor_map Mon_V montrafotarget_monprecat lmf_from_param_distr_functor :=
+Definition lmf_from_param_distr_μ: monoidal_functor_map Mon_V montrafotarget_moncat lmf_from_param_distr_functor :=
   lmf_from_param_distr_μ_data ,, lmf_from_param_distr_μ_data_is_nat.
 
 Lemma lmf_from_param_distr_assoc: monoidal_functor_associativity Mon_V
-                              montrafotarget_monprecat lmf_from_param_distr_functor lmf_from_param_distr_μ.
+                              montrafotarget_moncat lmf_from_param_distr_functor lmf_from_param_distr_μ.
 Proof.
   intros u v w.
   use total2_paths_f.
@@ -1384,10 +1358,10 @@ Proof.
     2: { do 2 apply maponpaths. apply pathsinv0, binprod_id. }
     rewrite (functor_id tensor).
     rewrite id_right. apply id_left.
-  * apply (isaset_nat_trans hsA').
+  * apply (isaset_nat_trans (homset_property A')).
 Qed.
 
-Lemma lmf_from_param_distr_unital: monoidal_functor_unitality Mon_V montrafotarget_monprecat
+Lemma lmf_from_param_distr_unital: monoidal_functor_unitality Mon_V montrafotarget_moncat
               lmf_from_param_distr_functor lmf_from_param_distr_ε lmf_from_param_distr_μ.
 Proof.
   intro v. split.
@@ -1398,7 +1372,7 @@ Proof.
       2: { apply cancel_postcomposition. apply maponpaths. apply pathsinv0, binprod_id. }
       rewrite (functor_id tensor).
       apply pathsinv0, id_left.
-    + apply (isaset_nat_trans hsA').
+    + apply (isaset_nat_trans (homset_property A')).
   - use total2_paths_f.
     + cbn.
       rewrite id_right.
@@ -1406,16 +1380,16 @@ Proof.
       2: { apply cancel_postcomposition. apply maponpaths. apply pathsinv0, binprod_id. }
       rewrite (functor_id tensor).
       apply pathsinv0, id_left.
-    + apply (isaset_nat_trans hsA').
+    + apply (isaset_nat_trans (homset_property A')).
 Qed.
 
-Definition lmf_from_param_distr: lax_monoidal_functor Mon_V montrafotarget_monprecat :=
+Definition lmf_from_param_distr: lax_monoidal_functor Mon_V montrafotarget_moncat :=
   mk_lax_monoidal_functor _ _ lmf_from_param_distr_functor lmf_from_param_distr_ε lmf_from_param_distr_μ
                           lmf_from_param_distr_assoc lmf_from_param_distr_unital.
 
 (* now similar but not identical code to above for triangle *)
 Lemma smf_from_param_distr_is_strong1_aux: pr2 (lmf_from_param_distr (MonoidalFunctors.I_C Mon_V)) -->[id I]
-                                           pr2 (MonoidalFunctors.I_D montrafotarget_monprecat).
+                                           pr2 (MonoidalFunctors.I_D montrafotarget_moncat).
 Proof.
   unfold mor_disp. unfold trafotarget_disp. hnf.
   do 2 rewrite functor_id.
@@ -1427,8 +1401,8 @@ Proof.
   exact δtr_eq.
 Qed.
 
-Definition smf_from_param_distr_is_strong1_inv: pr1 montrafotarget_monprecat
-   ⟦ lmf_from_param_distr (MonoidalFunctors.I_C Mon_V), MonoidalFunctors.I_D montrafotarget_monprecat ⟧.
+Definition smf_from_param_distr_is_strong1_inv: pr1 montrafotarget_moncat
+   ⟦ lmf_from_param_distr (MonoidalFunctors.I_C Mon_V), MonoidalFunctors.I_D montrafotarget_moncat ⟧.
 Proof.
   exists (identity I).
   apply smf_from_param_distr_is_strong1_aux.
@@ -1440,10 +1414,10 @@ Proof.
   split.
   - use total2_paths_f.
     + cbn. apply id_right.
-    + apply (isaset_nat_trans hsA').
+    + apply (isaset_nat_trans (homset_property A')).
   - use total2_paths_f.
     + cbn. apply id_right.
-    + apply (isaset_nat_trans hsA').
+    + apply (isaset_nat_trans (homset_property A')).
 Qed.
 
 Definition smf_from_param_distr_is_strong1: is_z_isomorphism (lax_monoidal_functor_ϵ lmf_from_param_distr) :=
@@ -1452,9 +1426,9 @@ Definition smf_from_param_distr_is_strong1: is_z_isomorphism (lax_monoidal_funct
 
 (* now similar but not identical code to above for pentagon *)
 Lemma smf_from_param_distr_is_strong2_aux (vw : Mon_V ⊠ Mon_V):
-  pr2 (monoidal_functor_map_codom Mon_V montrafotarget_monprecat lmf_from_param_distr vw)
-      -->[id pr1 (monoidal_functor_map_codom Mon_V montrafotarget_monprecat lmf_from_param_distr vw)]
-  pr2 (monoidal_functor_map_dom Mon_V montrafotarget_monprecat lmf_from_param_distr vw).
+  pr2 (monoidal_functor_map_codom Mon_V montrafotarget_moncat lmf_from_param_distr vw)
+      -->[id pr1 (monoidal_functor_map_codom Mon_V montrafotarget_moncat lmf_from_param_distr vw)]
+  pr2 (monoidal_functor_map_dom Mon_V montrafotarget_moncat lmf_from_param_distr vw).
 Proof.
   unfold mor_disp. unfold trafotarget_disp. hnf.
   red in δpe_eq.
@@ -1469,9 +1443,9 @@ Proof.
   exact δpe_eqinst.
 Qed.
 
-Definition smf_from_param_distr_is_strong2_inv (vw : Mon_V ⊠ Mon_V): montrafotarget_monprecat
-   ⟦ monoidal_functor_map_codom Mon_V montrafotarget_monprecat lmf_from_param_distr vw,
-     monoidal_functor_map_dom Mon_V montrafotarget_monprecat lmf_from_param_distr vw ⟧.
+Definition smf_from_param_distr_is_strong2_inv (vw : Mon_V ⊠ Mon_V): montrafotarget_moncat
+   ⟦ monoidal_functor_map_codom Mon_V montrafotarget_moncat lmf_from_param_distr vw,
+     monoidal_functor_map_dom Mon_V montrafotarget_moncat lmf_from_param_distr vw ⟧.
 Proof.
   exists (identity _).
   apply smf_from_param_distr_is_strong2_aux.
@@ -1483,23 +1457,23 @@ Proof.
   split.
   - use total2_paths_f.
     + cbn. apply id_right.
-    + apply (isaset_nat_trans hsA').
+    + apply (isaset_nat_trans (homset_property A')).
   - use total2_paths_f.
     + cbn. apply id_right.
-    + apply (isaset_nat_trans hsA').
+    + apply (isaset_nat_trans (homset_property A')).
 Qed.
 
 
 Definition smf_from_param_distr_is_strong2: is_nat_z_iso (lax_monoidal_functor_μ lmf_from_param_distr) :=
   fun vw => (smf_from_param_distr_is_strong2_inv vw ,, smf_from_param_distr_is_strong2_inv_ok vw).
 
-Definition smf_from_param_distr_parts: strong_monoidal_functor Mon_V montrafotarget_monprecat :=
+Definition smf_from_param_distr_parts: strong_monoidal_functor Mon_V montrafotarget_moncat :=
   lmf_from_param_distr,, (smf_from_param_distr_is_strong1 ,, smf_from_param_distr_is_strong2).
 
 End IntoMonoidalFunctor.
 
 Definition smf_from_param_distr:
-  parameterized_distributivity Mon_V hsA hsA' FA FA' G -> strong_monoidal_functor Mon_V montrafotarget_monprecat.
+  parameterized_distributivity Mon_V A A' FA FA' G -> strong_monoidal_functor Mon_V montrafotarget_moncat.
 Proof.
   intro δs.
   induction δs as [δ [δtr_eq δpe_eq]].

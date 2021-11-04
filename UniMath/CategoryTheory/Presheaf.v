@@ -56,11 +56,11 @@ Require Import UniMath.CategoryTheory.limits.pullbacks.
 
 Local Open Scope cat.
 
-Notation "'PreShv' C" := [C^op,SET] (at level 4) : cat.
+Notation "'PreShv' C" := [C^op, HSET] (at level 4) : cat.
 
 Section basics.
 
-Lemma transportf_PreShv {C : precategory} (F : PreShv C) {x y z : C}
+Lemma transportf_PreShv {C : category} (F : PreShv C) {x y z : C}
   (e : x = y) (f : C⟦x,z⟧) (u : ((F : functor _ _) z : hSet)) :
   transportf (λ x, pr1 (pr1 F x)) e (# (pr1 F) f u) =
   # (pr1 F) (transportf (@precategory_morphisms C^op z) e f) u.
@@ -73,7 +73,7 @@ End basics.
 (** Various limits and colimits in PreShv C *)
 Section limits.
 
-Context {C : precategory}.
+Context {C : category}.
 
 (* This should be only small limits *)
 (* Lemma Lims_PreShv : Lims (PreShv C). *)
@@ -132,10 +132,10 @@ Proof.
 now apply FunctorcategoryPullbacks, PullbacksHSET.
 Defined.
 
-Lemma Exponentials_PreShv (hsC : has_homsets C) :
+Lemma Exponentials_PreShv :
   Exponentials BinProducts_PreShv.
 Proof.
-now apply Exponentials_functor_HSET, has_homsets_opp, hsC.
+now apply Exponentials_functor_HSET.
 Defined.
 
 End limits.
@@ -143,7 +143,7 @@ End limits.
 (** * Define some standard presheaves *)
 Section presheaves.
 
-Context {C : precategory}.
+Context {C : category}.
 
 Definition constant_PreShv (A : HSET) : PreShv C.
 Proof.
@@ -165,7 +165,7 @@ See: "Sheaves in Geometry and Logic" by Mac Lane and Moerdijk (page 37)
 (* TODO: Prove that Ω actually is the subobject classifier  *)
 Section Ω_PreShv.
 
-Context {C : precategory}.
+Context {C : category}.
 
 Definition sieve_def (c : C) : UU.
 Proof.
@@ -369,7 +369,7 @@ End Ω_PreShv.
 (** Construction of isomorphisms of functors between presheaf categories *)
 Section iso_presheaf.
 
-Context {C : precategory}.
+Context {C : category}.
 
 Local Definition make_PreShv_functor_iso_helper (F G : functor (PreShv C) (PreShv C))
       (set_iso : ∏ X c, iso (pr1 (F X) c) (pr1 (G X) c))
@@ -406,7 +406,7 @@ Proof.
                   apply nat_trans_eq; [ apply homset_property|];
                   intro x; simpl;
                   apply pathsinv0, (iso_inv_on_left _ _ _ _ (set_iso Y x));
-                  rewrite <- assoc; apply pathsinv0, (iso_inv_on_right (C:=SET));
+                  rewrite <- assoc; apply pathsinv0, (iso_inv_on_right (C:=HSET));
                   exact (eqtohomot (maponpaths pr1 (nat_in_X X Y α)) x)).
     + abstract (use make_is_inverse_in_precat;
                 [ apply nat_trans_eq; [ apply homset_property |]; intro X;

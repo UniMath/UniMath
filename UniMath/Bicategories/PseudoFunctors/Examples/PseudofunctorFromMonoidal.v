@@ -28,12 +28,10 @@ Local Open Scope cat.
 
 Section monoidal_functor_to_psfunctor.
 
-  Context (M N : monoidal_precat).
-  Context (hsM : has_homsets M).
-  Context (hsN : has_homsets N).
+  Context (M N : monoidal_cat).
 
-  Local Definition M_as_bicat := bicat_from_monoidal M hsM.
-  Local Definition N_as_bicat := bicat_from_monoidal N hsN.
+  Local Definition M_as_bicat := bicat_from_monoidal M.
+  Local Definition N_as_bicat := bicat_from_monoidal N.
 
   Context (smF : strong_monoidal_functor M N).
 
@@ -58,7 +56,7 @@ Proof.
   - intros H0 H1 a. apply (lax_monoidal_functor_unital smF a).
   - intros H0 H1 H2 H3 a b c.
     do 2 rewrite <- assoc. apply pathsinv0.
-    apply (z_iso_inv_on_right _ _ _ (nat_z_iso_pointwise_z_iso (monoidal_precat_associator N) ((smF a, smF b), smF c))).
+    apply (z_iso_inv_on_right _ _ _ (nat_z_iso_pointwise_z_iso (monoidal_cat_associator N) ((smF a, smF b), smF c))).
     do 2 rewrite assoc.
     etrans.
     2: { apply maponpaths. apply functor_on_inv_from_z_iso'. }
@@ -110,8 +108,8 @@ Context {D : bicat}.
 Context (psF: psfunctor C D).
 
 Local Definition d0 : D := psF c0.
-Local Definition M : monoidal_precat := monoidal_precat_from_prebicat_and_ob c0.
-Local Definition N : monoidal_precat := monoidal_precat_from_prebicat_and_ob d0.
+Local Definition M : monoidal_cat := monoidal_cat_from_bicat_and_ob c0.
+Local Definition N : monoidal_cat := monoidal_cat_from_bicat_and_ob d0.
 
 Definition psfunctor_to_lax_monoidal_functor_data: functor_data M N.
 Proof.

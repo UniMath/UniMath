@@ -55,7 +55,7 @@ Definition mapcochain {C D : precategory} (F : functor C D)
            (c : cochain C) : cochain D := mapdiagram F c.
 
 (** Any j > i gives a morphism in the cochain via composition *)
-Definition cochain_mor {C : precategory} (c : cochain C) {i j} :
+Definition cochain_mor {C : category} (c : cochain C) {i j} :
   i < j -> C⟦dob c j, dob c i⟧.
 Proof.
 induction j as [|j IHj].

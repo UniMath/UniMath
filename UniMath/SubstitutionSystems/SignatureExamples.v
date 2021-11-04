@@ -34,8 +34,7 @@ Local Open Scope cat.
 
 Section around_δ.
 
-Variable C : precategory.
-Variable hsC : has_homsets C.
+Context (C : category).
 
 (* G^n+1 *)
 Fixpoint iter_functor1 (G: functor C C) (n : nat) : functor C C := match n with
@@ -43,11 +42,10 @@ Fixpoint iter_functor1 (G: functor C C) (n : nat) : functor C C := match n with
   | S n' => functor_composite (iter_functor1 G n') G
   end.
 
-(** The precategory of pointed endofunctors on [C] *)
-Local Notation "'Ptd'" := (precategory_Ptd C hsC).
+(** The category of pointed endofunctors on [C] *)
+Local Notation "'Ptd'" := (category_Ptd C).
 (** The category of endofunctors on [C] *)
-Local Notation "'EndC'":= ([C, C, hsC]) .
-Let hsEndC : has_homsets EndC := functor_category_has_homsets C C hsC.
+Local Notation "'EndC'":= ([C, C]) .
 
 (** distributivity with laws as a simple form the strength with laws,
     for endofunctors on the base category *)
@@ -55,18 +53,18 @@ Section def_of_δ.
 
 Variable G : EndC.
 
-Definition δ_source : functor Ptd EndC := functor_compose hsEndC hsEndC (functor_ptd_forget C hsC)
-                                                          (post_composition_functor _ _ _ hsC hsC G).
+Definition δ_source : functor Ptd EndC :=
+  functor_compose (functor_ptd_forget C) (post_comp_functor G).
 
-Definition δ_target : functor Ptd EndC := functor_compose hsEndC hsEndC (functor_ptd_forget C hsC)
-                                                          (pre_composition_functor _ _ _ hsC hsC G).
+Definition δ_target : functor Ptd EndC :=
+  functor_compose (functor_ptd_forget C) (pre_comp_functor G).
 
 Section δ_laws.
 
 Variable δ : δ_source ⟹ δ_target.
 
 (* Should be ρ_G^-1 ∘ λ_G ? *)
-Definition δ_law1 : UU := δ (id_Ptd C hsC) = identity G.
+Definition δ_law1 : UU := δ (id_Ptd C) = identity G.
 Let D' Ze Ze' :=
   nat_trans_comp (α_functors (pr1 Ze) (pr1 Ze') G)
  (nat_trans_comp (pre_whisker (pr1 Ze) (δ Ze'))
@@ -78,8 +76,7 @@ Definition δ_law2 : UU := ∏ Ze Ze', δ (Ze p• Ze') = D' Ze Ze'.
 (** the following variant is more suitable for communication about the results *)
 Definition δ_law2_nicer : UU := ∏ Ze Ze',
     δ (Ze p• Ze') =
-      # (pre_composition_functor _ _ _ hsC hsC (pr1 Ze)) (δ Ze') ·
-        # (post_composition_functor _ _ _ hsC hsC (pr1 Ze')) (δ Ze).
+      # (pre_comp_functor (pr1 Ze)) (δ Ze') · # (post_comp_functor (pr1 Ze')) (δ Ze).
 
 Lemma δ_law2_implies_δ_law2_nicer: δ_law2 -> δ_law2_nicer.
 Proof.
@@ -87,7 +84,7 @@ Proof.
   assert (Hypinst := Hyp Ze Ze').
   etrans. { exact Hypinst. }
   unfold D'.
-  apply (nat_trans_eq hsC).
+  apply nat_trans_eq_alt.
   intro c.
   cbn.
   do 2 rewrite id_left.
@@ -101,7 +98,7 @@ Proof.
   assert (Hypinst := Hyp Ze Ze').
   etrans. { exact Hypinst. }
   unfold D'.
-  apply (nat_trans_eq hsC).
+  apply nat_trans_eq_alt.
   intro c.
   cbn.
   do 2 rewrite id_left.
@@ -111,10 +108,9 @@ Qed.
 
 End δ_laws.
 
-Definition DistributiveLaw : UU :=
-        ∑ δ : δ_source ⟹ δ_target , δ_law1 δ × δ_law2 δ.
+Definition DistributiveLaw : UU := ∑ δ : δ_source ⟹ δ_target, δ_law1 δ × δ_law2 δ.
 
-Definition δ (DL : DistributiveLaw) :  δ_source ⟹ δ_target := pr1 DL.
+Definition δ (DL : DistributiveLaw) : δ_source ⟹ δ_target := pr1 DL.
 
 Definition distributive_law1 (DL : DistributiveLaw) : δ_law1 _ := pr1 (pr2 DL).
 
@@ -133,10 +129,10 @@ use tpair; simpl.
       - intro y; simpl; apply identity.
       - abstract (now intros y y' f; rewrite id_left, id_right).
     }
-  * abstract ( intros y y' f; apply (nat_trans_eq hsC); intro z; simpl; rewrite id_left; apply id_right ).
+  * abstract ( intros y y' f; apply nat_trans_eq_alt; intro z; simpl; rewrite id_left; apply id_right ).
 + split.
-  * apply (nat_trans_eq hsC); intro c; simpl; apply idpath.
-  * intros Ze Ze'; apply (nat_trans_eq hsC); intro c; simpl. do 3 rewrite id_left.
+  * apply nat_trans_eq_alt; intro c; simpl; apply idpath.
+  * intros Ze Ze'; apply nat_trans_eq_alt; intro c; simpl. do 3 rewrite id_left.
     rewrite id_right. apply pathsinv0. apply functor_id.
 Defined.
 
@@ -150,19 +146,19 @@ Section θ_from_δ.
 Variable G : functor C C.
 Variable DL : DistributiveLaw G.
 
-Let precompG := (pre_composition_functor _ _ _ hsC hsC G).
+Let precompG := (pre_composition_functor _ C C G).
 
 (** See Lemma 11 of "From Signatures to Monads in UniMath" in Ahrens, Matthes and Mörtberg *)
-Definition θ_from_δ_mor (XZe : [C, C, hsC] ⊠ Ptd) :
-  [C, C, hsC] ⟦ θ_source precompG XZe, θ_target precompG XZe ⟧.
+Definition θ_from_δ_mor (XZe : [C, C] ⊠ Ptd) :
+  [C, C] ⟦ θ_source precompG XZe, θ_target precompG XZe ⟧.
 Proof.
   set (X := pr1 XZe); set (Z := pr1 (pr2 XZe)).
   set (F1 := α_functors G Z X).
-  set (F1' := pr1 (associator_of_endofunctors hsC) ((G,, Z),, X)).
+  set (F1' := pr1 (associator_of_endofunctors _) ((G,, Z),, X)).
   set (F2 := post_whisker (δ G DL (pr2 XZe)) X).
-  set (F2' := # (post_composition_functor _ _ _ hsC hsC X) (δ G DL (pr2 XZe))).
+  set (F2' := # (post_comp_functor X) (δ G DL (pr2 XZe))).
   set (F3 := α_functors_inv Z G X).
-  set (F3' := pr1 (pr2 (associator_of_endofunctors hsC) ((Z,, G),, X))).
+  set (F3' := pr1 (pr2 (associator_of_endofunctors _) ((Z,, G),, X))).
   set (obsolete := nat_trans_comp F3 (nat_trans_comp F2 F1)).
   exact (F3' · (F2' · F1')).
 Defined.
@@ -171,7 +167,7 @@ Lemma is_nat_trans_θ_from_δ_mor :
    is_nat_trans (θ_source precompG) (θ_target precompG) θ_from_δ_mor.
 Proof.
   intros H1 H2 αη; induction H1 as [F1 Ze1]; induction H2 as [F2 Ze2]; induction αη as [α η].
-  apply (nat_trans_eq hsC); intro c.
+  apply nat_trans_eq_alt; intro c.
   simpl; rewrite !id_right, !id_left.
   generalize (nat_trans_eq_pointwise (nat_trans_ax (δ G DL) Ze1 Ze2 η) c); simpl.
   intro H.
@@ -193,7 +189,7 @@ Definition θ_from_δ : PrestrengthForSignature precompG := tpair _ _ is_nat_tra
 Lemma θ_Strength1_int_from_δ : θ_Strength1_int θ_from_δ.
 Proof.
   intro F.
-  apply (nat_trans_eq hsC); intro c; simpl.
+  apply nat_trans_eq_alt; intro c; simpl.
   rewrite id_left, !id_right.
   etrans; [apply maponpaths, (nat_trans_eq_pointwise (distributive_law1 G DL) c)|].
   apply functor_id.
@@ -203,7 +199,7 @@ Lemma θ_Strength2_int_from_δ : θ_Strength2_int θ_from_δ.
 Proof.
   intros F Ze Ze'; simpl.
   set (Z := pr1 Ze); set (Z' := pr1 Ze').
-  apply (nat_trans_eq hsC); intro c; simpl.
+  apply nat_trans_eq; [apply homset_property |] ; intro c; simpl.
   generalize (nat_trans_eq_pointwise (distributive_law2 G DL Ze Ze') c); simpl.
   rewrite !id_left, !id_right; intro H.
   etrans; [apply maponpaths, H|].
@@ -213,42 +209,41 @@ Qed.
 Definition θ_precompG : StrengthForSignature precompG :=
   tpair _ θ_from_δ (θ_Strength1_int_from_δ ,, θ_Strength2_int_from_δ).
 
-Definition θ_from_δ_Signature : Signature C hsC C hsC C hsC :=
-  tpair _ precompG θ_precompG.
+Definition θ_from_δ_Signature : Signature C C C := tpair _ precompG θ_precompG.
 
 End θ_from_δ.
 
 (* Composition of δ's *)
 Section δ_mul.
 
-  Variable G1 : [C, C, hsC].
+  Variable G1 : [C, C].
   Variable DL1 : DistributiveLaw G1.
-  Variable G2 : [C, C, hsC].
+  Variable G2 : [C, C].
   Variable DL2 : DistributiveLaw G2.
 
-  Definition δ_comp_mor (Ze : ptd_obj C) : [C, C, hsC] ⟦pr1 (δ_source (functor_compose hsC hsC G1 G2)) Ze,
-                                                        pr1 (δ_target (functor_compose hsC hsC G1 G2)) Ze⟧.
+  Definition δ_comp_mor (Ze : ptd_obj C) : [C, C] ⟦pr1 (δ_source (functor_compose G1 G2)) Ze,
+                                                        pr1 (δ_target (functor_compose G1 G2)) Ze⟧.
 Proof.
   set (Z := pr1 Ze).
   set (F1 := α_functors_inv Z G1 G2).
-  set (F1' := pr1 (pr2 (associator_of_endofunctors hsC) ((Z,, G1),, G2))).
+  set (F1' := pr1 (pr2 (associator_of_endofunctors _) ((Z,, G1),, G2))).
   set (F2 := post_whisker (δ G1 DL1 Ze) G2).
-  set (F2' := # (post_composition_functor _ _ _ hsC hsC G2) (δ G1 DL1 Ze)).
+  set (F2' := # (post_comp_functor G2) (δ G1 DL1 Ze)).
   set (F3 := α_functors G1 Z G2).
-  set (F3' := pr1 (associator_of_endofunctors hsC) ((G1,, Z),, G2)).
+  set (F3' := pr1 (associator_of_endofunctors _) ((G1,, Z),, G2)).
   set (F4 := pre_whisker (pr1 G1) (δ G2 DL2 Ze)).
-  set (F4' := # (pre_composition_functor _ _ _ hsC hsC G1) (δ G2 DL2 Ze)).
+  set (F4' := # (pre_comp_functor G1) (δ G2 DL2 Ze)).
   set (F5 := α_functors_inv G1 G2 Z).
-  set (F5' := pr1 (pr2 (associator_of_endofunctors hsC) ((G1,, G2),, Z))).
+  set (F5' := pr1 (pr2 (associator_of_endofunctors _) ((G1,, G2),, Z))).
   set (obsolete := nat_trans_comp F1 (nat_trans_comp F2 (nat_trans_comp F3 (nat_trans_comp F4 F5)))).
   exact (F1' · (F2' · (F3' · (F4' · F5')))).
 Defined.
 
-Lemma is_nat_trans_δ_comp_mor : is_nat_trans (δ_source (functor_compose hsC hsC G1 G2))
-                                             (δ_target (functor_compose hsC hsC G1 G2)) δ_comp_mor.
+Lemma is_nat_trans_δ_comp_mor : is_nat_trans (δ_source (functor_compose G1 G2))
+                                             (δ_target (functor_compose G1 G2)) δ_comp_mor.
 Proof.
   intros Ze Z'e' αX; induction Ze as [Z e]; induction Z'e' as [Z' e']; induction αX as [α X]; simpl in *.
-  apply (nat_trans_eq hsC); intro c; simpl.
+  apply nat_trans_eq; [apply homset_property |]; intro c; simpl.
   rewrite !id_right, !id_left.
   generalize (nat_trans_eq_pointwise (nat_trans_ax (δ G1 DL1) (Z,,e) (Z',, e') (α,,X)) c).
   generalize (nat_trans_eq_pointwise (nat_trans_ax (δ G2 DL2) (Z,,e) (Z',, e') (α,,X)) (G1 c)).
@@ -266,13 +261,12 @@ Proof.
   apply assoc'.
 Qed.
 
-Definition δ_comp : δ_source (functor_compose hsC hsC G1 G2) ⟹
-                             δ_target (functor_compose hsC hsC G1 G2) :=
+Definition δ_comp : δ_source (functor_compose G1 G2) ⟹ δ_target (functor_compose G1 G2) :=
   tpair _ δ_comp_mor is_nat_trans_δ_comp_mor.
 
-Lemma δ_comp_law1 : δ_law1 (functor_compose hsC hsC G1 G2) δ_comp.
+Lemma δ_comp_law1 : δ_law1 (functor_compose G1 G2) δ_comp.
 Proof.
-  apply (nat_trans_eq hsC); intro c; simpl; rewrite !id_left, id_right.
+  apply nat_trans_eq_alt; intro c; simpl; rewrite !id_left, id_right.
   etrans.
   { apply maponpaths, (nat_trans_eq_pointwise (distributive_law1 G2 DL2) (pr1 G1 c)). }
   etrans.
@@ -280,10 +274,10 @@ Proof.
   now rewrite id_right; apply functor_id.
 Qed.
 
-Lemma δ_comp_law2 : δ_law2 (functor_compose hsC hsC G1 G2) δ_comp.
+Lemma δ_comp_law2 : δ_law2 (functor_compose G1 G2) δ_comp.
 Proof.
   intros Ze Ze'.
-  apply (nat_trans_eq hsC); intro c; simpl; rewrite !id_left, !id_right.
+  apply nat_trans_eq_alt; intro c; simpl; rewrite !id_left, !id_right.
   etrans.
   { apply cancel_postcomposition, maponpaths, (nat_trans_eq_pointwise (distributive_law2 G1 DL1 Ze Ze') c). }
   etrans.
@@ -300,7 +294,7 @@ Proof.
   now apply maponpaths, pathsinv0, functor_comp.
 Qed.
 
-Definition DL_comp : DistributiveLaw (functor_compose hsC hsC G1 G2).
+Definition DL_comp : DistributiveLaw (functor_compose G1 G2).
 Proof.
 use tpair.
   * exact δ_comp.
@@ -318,12 +312,12 @@ Section genoption_sig.
 
   Let genopt := constcoprod_functor1 CC A.
 
-Definition δ_genoption_mor (Ze : Ptd) (c : C) :  C ⟦ BinCoproductObject C (CC A (pr1 Ze c)),
-                                                  pr1 Ze (BinCoproductObject C (CC A c)) ⟧.
+Definition δ_genoption_mor (Ze : Ptd) (c : C) :  C ⟦ BinCoproductObject (CC A (pr1 Ze c)),
+                                                     pr1 Ze (BinCoproductObject (CC A c)) ⟧.
 Proof.
-  apply (@BinCoproductArrow _ _ _ (CC A (pr1 Ze c)) (pr1 Ze (BinCoproductObject C (CC A c)))).
-  - apply (BinCoproductIn1 _ (CC A c) · pr2 Ze (BinCoproductObject _ (CC A c))).
-  - apply (# (pr1 Ze) (BinCoproductIn2 _ (CC A c))).
+  apply (@BinCoproductArrow _ _ _ (CC A (pr1 Ze c)) (pr1 Ze (BinCoproductObject (CC A c)))).
+  - apply (BinCoproductIn1 (CC A c) · pr2 Ze (BinCoproductObject (CC A c))).
+  - apply (# (pr1 Ze) (BinCoproductIn2 (CC A c))).
 Defined.
 
 Lemma is_nat_trans_δ_genoption_mor (Ze : Ptd) :
@@ -355,12 +349,11 @@ Proof.
     now apply maponpaths, BinCoproductOfArrowsIn2.
 Qed.
 
-Lemma is_nat_trans_δ_genoption_mor_nat_trans : is_nat_trans (δ_source genopt)
-     (δ_target genopt)
+Lemma is_nat_trans_δ_genoption_mor_nat_trans : is_nat_trans (δ_source genopt) (δ_target genopt)
      (λ Ze : Ptd, δ_genoption_mor Ze,, is_nat_trans_δ_genoption_mor Ze).
 Proof.
   intro Ze; induction Ze as [Z e]; intro Z'e'; induction Z'e' as [Z' e']; intro αX; induction αX as [α X]; simpl in *.
-  apply (nat_trans_eq hsC); intro c; simpl.
+  apply nat_trans_eq; [apply homset_property |]; intro c; simpl.
   unfold BinCoproduct_of_functors_mor, BinCoproduct_of_functors_ob, δ_genoption_mor; simpl.
   rewrite precompWithBinCoproductArrow.
   apply pathsinv0, BinCoproductArrowUnique.
@@ -385,7 +378,7 @@ Defined.
 
 Lemma δ_law1_genoption : δ_law1 genopt δ_genoption.
 Proof.
-  apply (nat_trans_eq hsC); intro c; simpl.
+  apply nat_trans_eq_alt; intro c; simpl.
   unfold δ_genoption_mor, BinCoproduct_of_functors_ob; simpl.
   rewrite id_right.
   apply pathsinv0, BinCoproduct_endo_is_identity.
@@ -396,7 +389,7 @@ Qed.
 Lemma δ_law2_genoption : δ_law2 genopt δ_genoption.
 Proof.
   intros Ze Z'e'; induction Ze as [Z e]; induction Z'e' as [Z' e'].
-  apply (nat_trans_eq hsC); intro c; simpl.
+  apply nat_trans_eq_alt; intro c; simpl.
   unfold δ_genoption_mor, BinCoproduct_of_functors_ob; simpl.
   rewrite !id_left, id_right.
   apply pathsinv0, BinCoproductArrowUnique.
@@ -427,7 +420,7 @@ Proof.
   - exact δ_law2_genoption.
 Defined.
 
-Definition precomp_genoption_Signature : Signature C hsC C hsC C hsC :=
+Definition precomp_genoption_Signature : Signature C C C :=
   θ_from_δ_Signature genopt genoption_DistributiveLaw.
 
 End genoption_sig.
@@ -439,14 +432,11 @@ Section option_sig.
 
   Let opt := option_functor CC TC.
 
-  Definition δ_option: δ_source opt ⟹ δ_target opt :=
-    δ_genoption TC CC.
+  Definition δ_option: δ_source opt ⟹ δ_target opt := δ_genoption TC CC.
   Definition δ_law1_option :=  δ_law1_genoption TC CC.
   Definition δ_law2_option :=  δ_law2_genoption TC CC.
-  Definition option_DistributiveLaw : DistributiveLaw opt :=
-    genoption_DistributiveLaw TC CC.
-  Definition precomp_option_Signature : Signature C hsC C hsC C hsC :=
-    precomp_genoption_Signature TC CC.
+  Definition option_DistributiveLaw : DistributiveLaw opt := genoption_DistributiveLaw TC CC.
+  Definition precomp_option_Signature : Signature C C C := precomp_genoption_Signature TC CC.
 
 End option_sig.
 
@@ -471,10 +461,9 @@ End around_δ.
 
 Section id_signature.
 
-  Variable (C : precategory) (hsC : has_homsets C).
-  Variable (D : precategory) (hsD : has_homsets D).
+  Context (C D : category).
 
-Definition θ_functor_identity : StrengthForSignature(hs:=hsC) (functor_identity [C,D,hsD]).
+Definition θ_functor_identity : StrengthForSignature (functor_identity [C, D]).
 Proof.
   use tpair.
   + use tpair.
@@ -483,18 +472,17 @@ Proof.
         - intro y; simpl; apply identity.
         - abstract (now intros y y' f; rewrite id_left, id_right).
       }
-    * abstract (now intros y y' f; apply (nat_trans_eq hsD); intro z;
+    * abstract (now intros y y' f; apply nat_trans_eq_alt; intro z;
                 simpl; rewrite id_left, id_right).
   (* If this part is abstract the eval cbn for the LC doesn't reduce properly *)
-  + now split; intros x; intros; apply (nat_trans_eq hsD); intro c; simpl; rewrite !id_left.
+  + now split; intros x; intros; apply nat_trans_eq_alt; intro c; simpl; rewrite !id_left.
 Defined.
 
 (** Signature for the Id functor *)
-Definition IdSignature : Signature C hsC D hsD D hsD :=
-  tpair _ (functor_identity _) θ_functor_identity.
+Definition IdSignature : Signature C D D := tpair _ (functor_identity _) θ_functor_identity.
 (** an alternative approach would be to go through θ_from_δ_Signature, based on the
 observation that functor_identity [C,C,hsC] and
-pre_composition_functor _ _ _ hsC hsC (functor_identity C) are isomorphic;
+pre_comp_functor hsC hsC (functor_identity C) are isomorphic;
 however, they are probably not propositionally equal, and so the benefit is marginal *)
 
 End id_signature.
@@ -506,7 +494,7 @@ Section constantly_constant_signature.
 
   Let H := constant_functor (functor_category C D') (functor_category C D) (constant_functor C D d).
 
-Definition θ_const_const : StrengthForSignature (hs := homset_property C) H.
+Definition θ_const_const : StrengthForSignature H.
 Proof.
   use tpair; simpl.
   + use tpair; simpl.
@@ -520,8 +508,7 @@ Proof.
   + now split; intros x; intros; apply (nat_trans_eq (homset_property D)); intro c; simpl; rewrite !id_left.
 Defined.
 
-Definition ConstConstSignature : Signature _ (homset_property C) _ (homset_property D) _ (homset_property D') :=
-  tpair _ H θ_const_const.
+Definition ConstConstSignature : Signature C D D' := tpair _ H θ_const_const.
 
 End constantly_constant_signature.
 
@@ -534,46 +521,38 @@ End constantly_constant_signature.
  *)
 Section θ_for_postcomposition.
 
-Variable C : precategory.
-Variable hsC : has_homsets C.
-Variable D : precategory.
-Variable hsD : has_homsets D.
-Variable D' : precategory.
-Variable hsD' : has_homsets D'.
-Variable E : precategory.
-Variable hsE : has_homsets E.
+Context (C D D' E : category).
 
-(** The precategory of pointed endofunctors on [C] *)
-Local Notation "'Ptd'" := (precategory_Ptd C hsC).
+(** The category of pointed endofunctors on [C] *)
+Local Notation "'Ptd'" := (category_Ptd C).
 (** The category of endofunctors on [C] *)
-Local Notation "'EndC'":= ([C, C, hsC]) .
+Local Notation "'EndC'":= ([C, C]) .
 
-Variable S: Signature C hsC D hsD D' hsD'.
+Variable S: Signature C D D'.
 
-Let H : functor [C, D', hsD'] [C, D, hsD] := Signature_Functor S.
+Let H : functor [C, D'] [C, D] := Signature_Functor S.
 Let θ : nat_trans (θ_source H) (θ_target H) := theta S.
 Let θ_strength1 := Sig_strength_law1 S.
 Let θ_strength2 := Sig_strength_law2 S.
-Variable G : [D, E, hsE].
+Variable G : [D, E].
 
-Let GH : functor [C, D', hsD'] [C, E, hsE] := functor_composite H (post_composition_functor _ _ _ _ _ G).
+Let GH : functor [C, D'] [C, E] := functor_composite H (post_comp_functor G).
 
-Definition Gθ_mor (XZe : [C, D', hsD'] ⊠ Ptd) : [C, E, hsE] ⟦ θ_source GH XZe, θ_target GH XZe ⟧.
+Definition Gθ_mor (XZe : [C, D'] ⊠ Ptd) : [C, E] ⟦ θ_source GH XZe, θ_target GH XZe ⟧.
 Proof.
-  set (X := pr1 XZe); set (Z := pr1 (pr2 XZe) : [C, C, hsC]).
+  set (X := pr1 XZe); set (Z := pr1 (pr2 XZe) : [C, C]).
   set (F1 := α_functors_inv Z (H X) G).
-  set (F1' := pr1 (pr2 (associativity_as_nat_z_iso hsC hsD hsE) ((Z,, (H X:[C, D, hsD])),, G))).
+  set (F1' := pr1 (pr2 (associativity_as_nat_z_iso _ _ _ _) ((Z,, (H X:[C, D])),, G))).
   set (F2 := post_whisker (θ XZe) G).
-  set (F2' := # (post_composition_functor _ _ _ hsD hsE G) (θ XZe)).
+  set (F2' := # (post_comp_functor G) (θ XZe)).
   set (obsolete := nat_trans_comp F1 F2).
   exact (F1' · F2').
 Defined.
 
-Lemma is_nat_trans_Gθ_mor :
-   is_nat_trans (θ_source GH) (θ_target GH) Gθ_mor.
+Lemma is_nat_trans_Gθ_mor : is_nat_trans (θ_source GH) (θ_target GH) Gθ_mor.
 Proof.
   intros H1 H2 αX; induction H1 as [F1 X1]; induction H2 as [F2 X2].
-  apply (nat_trans_eq hsE); intro c; simpl.
+  apply nat_trans_eq_alt; intro c; simpl.
   do 2 rewrite id_left.
   rewrite <- assoc.
   etrans.
@@ -595,7 +574,7 @@ Definition Gθ : PrestrengthForSignature GH := tpair _ _ is_nat_trans_Gθ_mor.
 Lemma Gθ_Strength1_int : θ_Strength1_int Gθ.
 Proof.
   intro F.
-  apply (nat_trans_eq hsE); intro c; simpl.
+  apply nat_trans_eq_alt; intro c; simpl.
   rewrite <- assoc.
   rewrite id_left.
   etrans.
@@ -612,7 +591,7 @@ Lemma Gθ_Strength2_int : θ_Strength2_int Gθ.
 Proof.
   intros F Ze Ze'.
   set (Z := pr1 Ze); set (Z' := pr1 Ze').
-  apply (nat_trans_eq hsE); intro c; simpl.
+  apply nat_trans_eq_alt; intro c; simpl.
   do 4 rewrite id_left.
   etrans.
   { apply pathsinv0, functor_comp. }
@@ -625,10 +604,8 @@ Proof.
   apply pathsinv0, Hyp.
 Qed.
 
-Definition Gθ_with_laws : StrengthForSignature GH :=
-  tpair _ Gθ (Gθ_Strength1_int ,, Gθ_Strength2_int).
+Definition Gθ_with_laws : StrengthForSignature GH := tpair _ Gθ (Gθ_Strength1_int ,, Gθ_Strength2_int).
 
-Definition Gθ_Signature : Signature C hsC E hsE D' hsD' :=
-  tpair _ GH Gθ_with_laws.
+Definition Gθ_Signature : Signature C E D' := tpair _ GH Gθ_with_laws.
 
 End θ_for_postcomposition.
