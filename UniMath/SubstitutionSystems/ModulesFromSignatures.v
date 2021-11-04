@@ -111,11 +111,11 @@ Lemma strength_law2_pw :
   ((theta H) (X ⊗ (Z p• Z')) : nat_trans _ _) x =
   ((theta H) (X ⊗ Z') •• (U Z):nat_trans _ _) x
   ·
-  ((theta H) ((functor_compose _ _ _ (U Z') X) ⊗ Z):nat_trans _ _) x
+  ((theta H) ((functor_compose (U Z') X) ⊗ Z):nat_trans _ _) x
   ·
-  (# H (identity (functor_compose _ _ _ (U Z ∙ U Z') X)
-        : [C, C] ⟦ functor_compose _ _ _ (U Z) (U Z' ∙ X : [C, C]),
-          functor_compose _ _ _ (U Z ∙ U Z') X ⟧) : nat_trans _ _) x.
+  (# H (identity (functor_compose (U Z ∙ U Z') X)
+        : [C, C] ⟦ functor_compose (U Z) (U Z' ∙ X : [C, C]),
+          functor_compose (U Z ∙ U Z') X ⟧) : nat_trans _ _) x.
 Proof.
   intros X Z Z' x.
   etrans; revgoals.

@@ -344,7 +344,7 @@ Proof.
         apply assoc'.
 Qed.
 
-Local Notation "'T•T²'" := (functor_compose _ _ _ (functor_composite (`T) (`T)) (`T) : [C, C]).
+Local Notation "'T•T²'" := (functor_compose (functor_composite (`T) (`T)) (`T) : [C, C]).
 
 
 Local Notation "'T²∙T'" := (@functor_composite C C C
@@ -408,11 +408,11 @@ Proof.
       2: { apply maponpaths. apply (!HXX). }
       clear HXX.
       assert (Strength_2 :
-                ∏ α : functor_compose _ _ _ (functor_composite (`T) (`T))(`T) --> functor_composite (` T) (`T),
+                ∏ α : functor_compose (functor_composite (`T) (`T))(`T) --> functor_composite (` T) (`T),
                      pr1 (θ (`T ⊗ T_squared)) c · pr1 (# H α) c =
                      pr1 (θ ((`T) ⊗ (ptd_from_alg T))) ((pr1 (pr1 (pr1 T))) c)·
                      pr1 (θ (( ((`T) • (`T) : [_, _])) ⊗ (ptd_from_alg T))) c·
-                     pr1 (# H (α : functor_compose _ _ _ (`T) (functor_composite (`T) (` T))--> _)) c ).
+                     pr1 (# H (α : functor_compose (`T) (functor_composite (`T) (` T))--> _)) c ).
       { intro α;
           assert (HA := θ_Strength2_int_implies_θ_Strength2 _ θ_strength2_int);
           assert (HA' := HA (`T) (ptd_from_alg T) (ptd_from_alg T) _ α); clear HA;
@@ -462,7 +462,7 @@ Section third_monad_law_with_assoc.
 Lemma third_monad_law_from_hss :
   (`T ∘ μ_2 : EndC ⟦ functor_composite (functor_composite `T `T) `T , `T • `T ⟧) · μ_2
   =
-  (α_functors _ _ _ : functor_compose _ _ _ _ _  --> _) · (μ_2 •• `T) · μ_2.
+  (α_functors _ _ _ : functor_compose _ _  --> _) · (μ_2 •• `T) · μ_2.
 Proof.
   intermediate_path μ_3; [apply pathsinv0, μ_3_T_μ_2_μ_2 | ].
   apply pathsinv0.

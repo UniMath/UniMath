@@ -330,18 +330,18 @@ Section Param_Distr.
 
   (** a parameterized form of distributivity as strength *)
   Definition param_distributivity_dom : functor Mon_V [A, A'] :=
-    functor_compose _ _ _ (pr11 FA') precompF.
+    functor_compose (pr11 FA') precompF.
 
-  Goal ∏ v, param_distributivity_dom v = functor_compose _ _ _ F (FA' v).
+  Goal ∏ v, param_distributivity_dom v = functor_compose F (FA' v).
   Proof.
     intro v.
     apply idpath.
   Qed.
 
   Definition param_distributivity_codom : functor Mon_V [A, A'] :=
-    functor_compose _ _ _ (pr11 FA) postcompF.
+    functor_compose (pr11 FA) postcompF.
 
-  Goal ∏ v, param_distributivity_codom v = functor_compose _ _ _ (FA v) F.
+  Goal ∏ v, param_distributivity_codom v = functor_compose (FA v) F.
   Proof.
     intro v.
     apply idpath.
@@ -444,8 +444,8 @@ Section The_Laws.
         ⟦ precompF (monoidal_functor_map_dom Mon_V Mon_EndA' FA' (v,, w)),
           postcompF (monoidal_functor_map_codom Mon_V Mon_EndA FA (v,, w))⟧.
     Proof.
-      set (aux1 := # (post_composition_functor _ _ _ (FA' w)) dv).
-      set (aux2 := # (pre_composition_functor _ _ _ (FA v)) dw).
+      set (aux1 := # (post_comp_functor (FA' w)) dv).
+      set (aux2 := # (pre_comp_functor (FA v)) dw).
       set (aux3 := # postcompF (lax_monoidal_functor_μ FA (v,,w))).
       set (auxr := aux1 · aux2).
       exact (auxr · aux3).
