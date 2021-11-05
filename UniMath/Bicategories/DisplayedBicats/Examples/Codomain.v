@@ -489,45 +489,6 @@ Proof.
 Defined.
 
 
-(*
-Section UnivalenceOfCodomain.
-  Context (B : bicat).
-
-  Definition cod_univalent_2_1
-             (HB_2_1 : is_univalent_2_1 B)
-    : is_univalent_2_1 (total_bicat (cod_disp_bicat B)).
-  Proof.
-    use sigma_is_univalent_2_1.
-    - exact HB_2_1.
-    - use trivial_is_univalent_2_1.
-      exact HB_2_1.
-    - admit.
-  Admitted.
-
-
-  Definition cod_univalent_2_0
-             (HB_2_0 : is_univalent_2_0 B)
-             (HB_2_1 : is_univalent_2_1 B)
-    : is_univalent_2_0 (total_bicat (cod_disp_bicat B)).
-  Proof.
-    use sigma_is_univalent_2_0.
-    - split.
-      + exact HB_2_0.
-      + exact HB_2_1.
-    - split.
-      + use trivial_is_univalent_2_0.
-        * exact HB_2_1.
-        * exact HB_2_0.
-        * exact HB_2_1.
-      + use trivial_is_univalent_2_1.
-        exact HB_2_1.
-    - split.
-      + admit.
-      + admit.
-  Admitted.
-End UnivalenceOfCodomain.
- *)
-
 
 (** MOVE ??? *)
 Definition transportf_total2_paths_f
@@ -734,8 +695,330 @@ Section UnivalenceOfCodomain.
     exact (cod_1cell_path_help f₁ f₂ ∘ make_weq _ (HB_2_1 _ _ _ _))%weq.
   Defined.
 
-  Definition TODO {A : UU} : A.
-  Admitted.
+  Section AdjEquivToDispAdjEquiv.
+    Context {c : B}
+            {f₁ f₂ : cod_disp_bicat B c}
+            (e : adjoint_equivalence (pr1 f₁) (pr1 f₂))
+            (α : pr2 f₁ ==> pr1 e · pr2 f₂).
+
+    Definition cod_adj_equiv_to_disp_adj_equiv_map
+      : f₁ -->[ internal_adjoint_equivalence_identity c] f₂.
+    Proof.
+      use make_disp_1cell_cod.
+      - exact (pr1 e).
+      - exact (runitor _ • α).
+    Defined.
+
+    Definition cod_adj_equiv_to_disp_adj_equiv_right_adj
+      : f₂ -->[ internal_adjoint_equivalence_identity c] f₁.
+    Proof.
+      use make_disp_1cell_cod.
+      - exact (pr112 e).
+      - simpl.
+        refine (_ • (_ ◃ (inv_B _ _ _ _ α)^-1)).
+        refine (_ • rassociator _ _ _).
+        refine (_ • ((inv_B _ _ _ _ (pr2 (pr212 e)))^-1 ▹ _)).
+        exact (runitor _ • linvunitor _).
+    Defined.
+
+    Definition cod_adj_equiv_to_disp_adj_equiv_unit
+      : pr1 (id_disp f₁)
+        ==>
+        pr1 (cod_adj_equiv_to_disp_adj_equiv_map
+        ;;
+        cod_adj_equiv_to_disp_adj_equiv_right_adj)
+      := pr1 (pr212 e).
+
+    Definition cod_adj_equiv_to_disp_adj_equiv_unit_homot
+      : coherent_homot
+          (left_adjoint_unit (internal_adjoint_equivalence_identity c))
+          cod_adj_equiv_to_disp_adj_equiv_unit.
+    Proof.
+      unfold coherent_homot, cod_adj_equiv_to_disp_adj_equiv_unit ; cbn.
+      rewrite !vassocr.
+      refine (!_).
+      etrans.
+      {
+        do 4 apply maponpaths_2.
+        rewrite lwhisker_hcomp.
+        rewrite triangle_l_inv.
+        rewrite <- rwhisker_hcomp.
+        apply idpath.
+      }
+      rewrite !rwhisker_vcomp.
+      rewrite !vassocr.
+      rewrite rinvunitor_runitor.
+      rewrite id2_left.
+      rewrite !vassocl.
+      rewrite <- !lwhisker_vcomp.
+      rewrite !vassocl.
+      rewrite lwhisker_lwhisker.
+      rewrite !vassocr.
+      use vcomp_move_R_Mp.
+      {
+        is_iso.
+      }
+      cbn.
+      refine (!_).
+      etrans.
+      {
+        rewrite !vassocl.
+        rewrite vcomp_whisker.
+        etrans.
+        {
+          apply maponpaths.
+          rewrite !vassocr.
+          rewrite lwhisker_hcomp.
+          rewrite <- linvunitor_natural.
+          apply idpath.
+        }
+        rewrite !vassocr.
+        rewrite <- vcomp_runitor.
+        apply idpath.
+      }
+      rewrite !vassocl.
+      apply maponpaths ; clear α.
+      rewrite <- runitor_triangle.
+      rewrite !vassocl.
+      do 2 apply maponpaths.
+      refine (!_).
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite lwhisker_vcomp.
+        apply idpath.
+      }
+      rewrite !vassocr.
+      rewrite lwhisker_vcomp.
+      use vcomp_move_R_pM.
+      {
+        is_iso.
+      }
+      cbn.
+      refine (!_).
+
+      rewrite linvunitor_assoc.
+      rewrite !vassocl.
+      rewrite <- rwhisker_rwhisker_alt.
+      rewrite !vassocr.
+      etrans.
+      {
+        apply maponpaths_2.
+        rewrite !vassocl.
+        rewrite rwhisker_vcomp.
+        apply maponpaths.
+        assert (linvunitor (pr1 e) • (pr121 (pr2 e) ▹ pr1 e)
+                =
+                rinvunitor _ • (pr1 e ◃ (pr222 (pr2 e))^-1) • lassociator _ _ _)
+          as p.
+        {
+          refine (_ @ id2_left _).
+          use vcomp_move_L_Mp.
+          {
+            is_iso.
+          }
+          cbn.
+          rewrite !vassocr.
+          exact (pr1 (pr122 e)).
+        }
+        apply maponpaths.
+        exact p.
+      }
+      unfold left_adjoint_right_adjoint.
+      use vcomp_move_R_Mp.
+      {
+        is_iso.
+      }
+      cbn.
+      rewrite <- lassociator_lassociator.
+      rewrite <- !lwhisker_vcomp.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite <- !rwhisker_vcomp.
+      rewrite !vassocr.
+      apply maponpaths_2.
+      rewrite !vassocl.
+      refine (_ @ id2_right _).
+      use vcomp_move_L_pM.
+      {
+        is_iso.
+      }
+      cbn.
+      rewrite !vassocr.
+      rewrite rwhisker_lwhisker_rassociator.
+      rewrite !vassocl.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        apply maponpaths_2.
+        rewrite lunitor_lwhisker.
+        rewrite rwhisker_vcomp.
+        rewrite runitor_rinvunitor.
+        apply id2_rwhisker.
+      }
+      rewrite id2_left.
+      rewrite rwhisker_vcomp.
+      rewrite lwhisker_vcomp.
+      rewrite vcomp_rinv.
+      rewrite lwhisker_id2.
+      rewrite id2_rwhisker.
+      apply idpath.
+    Qed.
+
+    Definition cod_adj_equiv_to_disp_adj_equiv_counit
+      : pr1 (cod_adj_equiv_to_disp_adj_equiv_right_adj
+        ;;
+        cod_adj_equiv_to_disp_adj_equiv_map)
+        ==>
+        pr1 (id_disp f₂)
+      := pr2 (pr212 e).
+
+    Definition cod_adj_equiv_to_disp_adj_equiv_counit_homot
+      : coherent_homot
+          (left_adjoint_counit
+             (internal_adjoint_equivalence_identity c))
+          cod_adj_equiv_to_disp_adj_equiv_counit.
+    Proof.
+      unfold coherent_homot, cod_adj_equiv_to_disp_adj_equiv_counit ; cbn.
+      rewrite !vassocl.
+      rewrite <- rwhisker_vcomp.
+      rewrite !vassocr.
+      rewrite runitor_rwhisker.
+      rewrite !vassocl.
+      apply maponpaths.
+      rewrite !vassocr.
+      rewrite <- rwhisker_vcomp.
+      rewrite !vassocl.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite <- rwhisker_lwhisker_rassociator.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        rewrite lwhisker_vcomp.
+        rewrite !vassocr.
+        rewrite vcomp_runitor.
+        rewrite !vassocl.
+        rewrite vcomp_linv.
+        rewrite id2_right.
+        apply idpath.
+      }
+      rewrite <- rwhisker_vcomp.
+      rewrite !vassocl.
+      assert (rassociator (pr112 e) (pr1 e) (pr2 f₂) ▹ id₁ c
+              • rassociator (pr112 e) (pr1 e · pr2 f₂) (id₁ c)
+              • (pr112 e ◃ runitor (pr1 e · pr2 f₂))
+              • lassociator (pr112 e) (pr1 e) (pr2 f₂)
+              =
+              runitor _)
+        as p.
+      {
+        rewrite !vassocl.
+        rewrite !left_unit_assoc.
+        rewrite !vassocl.
+        rewrite <- vcomp_runitor.
+        etrans.
+        {
+          apply maponpaths.
+          rewrite !vassocr.
+          rewrite rassociator_lassociator.
+          rewrite id2_left.
+          apply idpath.
+        }
+        rewrite !vassocr.
+        rewrite rwhisker_vcomp.
+        rewrite rassociator_lassociator.
+        rewrite id2_rwhisker.
+        apply id2_left.
+      }
+      rewrite <- !rwhisker_vcomp.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocl.
+        apply maponpaths.
+        rewrite !vassocr.
+        apply maponpaths_2.
+        exact p.
+      }
+      rewrite <- vcomp_runitor.
+      etrans.
+      {
+        apply maponpaths.
+        rewrite !vassocr.
+        apply maponpaths_2.
+        rewrite !rwhisker_vcomp.
+        rewrite vcomp_linv.
+        rewrite !id2_rwhisker.
+        apply idpath.
+      }
+      rewrite id2_left.
+      rewrite vcomp_runitor.
+      apply idpath.
+    Qed.
+
+    Definition cod_adj_equiv_to_disp_adj_equiv_disp_adj
+      : disp_left_adjoint_equivalence
+          (internal_adjoint_equivalence_identity c)
+          cod_adj_equiv_to_disp_adj_equiv_map.
+    Proof.
+      simple refine (_ ,, (_ ,, _)).
+      - simple refine (_ ,, (_ ,, _)).
+        + apply cod_adj_equiv_to_disp_adj_equiv_right_adj.
+        + use make_disp_2cell_cod.
+          * apply cod_adj_equiv_to_disp_adj_equiv_unit.
+          * exact cod_adj_equiv_to_disp_adj_equiv_unit_homot.
+        + use make_disp_2cell_cod.
+          * apply cod_adj_equiv_to_disp_adj_equiv_counit.
+          * exact cod_adj_equiv_to_disp_adj_equiv_counit_homot.
+      - simple refine (_ ,, _).
+        + cbn.
+          use subtypePath.
+          {
+            intro.
+            apply B.
+          }
+          cbn.
+          etrans.
+          {
+            exact (pr1 (pr122 e)).
+          }
+          refine (!_).
+          refine (@pr1_transportf _ (λ _, _) _ _ _ _ _ @ _).
+          rewrite transportf_const.
+          apply idpath.
+        + cbn.
+          use subtypePath.
+          {
+            intro.
+            apply B.
+          }
+          cbn.
+          etrans.
+          {
+            exact (pr2 (pr122 e)).
+          }
+          refine (!_).
+          refine (@pr1_transportf _ (λ _, _) _ _ _ _ _ @ _).
+          rewrite transportf_const.
+          apply idpath.
+      - simple refine (_ ,, _) ;
+        apply disp_locally_groupoid_cod ;
+        exact inv_B.
+    Qed.
+
+    Definition cod_adj_equiv_to_disp_adj_equiv_help
+      : disp_adjoint_equivalence (internal_adjoint_equivalence_identity c) f₁ f₂.
+    Proof.
+      simple refine (_ ,, _).
+      - exact cod_adj_equiv_to_disp_adj_equiv_map.
+      - exact cod_adj_equiv_to_disp_adj_equiv_disp_adj.
+    Defined.
+  End AdjEquivToDispAdjEquiv.
 
   Definition cod_adj_equiv_to_disp_adj_equiv
              {c : B}
@@ -745,58 +1028,7 @@ Section UnivalenceOfCodomain.
       disp_adjoint_equivalence (internal_adjoint_equivalence_identity c) f₁ f₂.
   Proof.
     intro e.
-    induction e as [ e α ].
-    simple refine (_ ,, _).
-    - use make_disp_1cell_cod.
-      + exact (pr1 e).
-      + exact (runitor _ • α).
-    - simpl.
-      simple refine (_ ,, (_ ,, _)).
-      + simple refine (_ ,, (_ ,, _)).
-        * use make_disp_1cell_cod.
-          ** exact (pr112 e).
-          ** simpl.
-             refine (_ • (_ ◃ (inv_B _ _ _ _ α)^-1)).
-             refine (_ • rassociator _ _ _).
-             refine (_ • ((inv_B _ _ _ _ (pr2 (pr212 e)))^-1 ▹ _)).
-             exact (runitor _ • linvunitor _).
-        * use make_disp_2cell_cod.
-          ** exact (pr1 (pr212 e)).
-          ** cbn.
-             apply TODO.
-        * use make_disp_2cell_cod.
-          ** exact (pr2 (pr212 e)).
-          ** cbn.
-             unfold coherent_homot.
-             cbn.
-             rewrite !vassocl.
-             apply TODO.
-      + simple refine (_ ,, _).
-        * abstract
-            (cbn ;
-             use subtypePath ; [ intro ; apply B | ] ;
-             cbn ;
-             etrans ; [ exact (pr1 (pr122 e)) | ] ;
-             refine (!_) ;
-             refine (@pr1_transportf _ (λ _, _) _ _ _ _ _ @ _) ;
-             rewrite transportf_const ;
-             apply idpath).
-        * abstract
-            (cbn ;
-             use subtypePath ; [ intro ; apply B | ] ;
-             cbn ;
-             etrans ; [ exact (pr2 (pr122 e)) | ] ;
-             refine (!_) ;
-             refine (@pr1_transportf _ (λ _, _) _ _ _ _ _ @ _) ;
-             rewrite transportf_const ;
-             apply idpath).
-      + simple refine (_ ,, _).
-        * abstract
-            (apply disp_locally_groupoid_cod ;
-             exact inv_B).
-        * abstract
-            (apply disp_locally_groupoid_cod ;
-             exact inv_B).
+    exact (cod_adj_equiv_to_disp_adj_equiv_help (pr1 e) (pr2 e)).
   Defined.
 
   Definition cod_disp_adj_equiv_to_adj_equiv
@@ -886,7 +1118,7 @@ Section UnivalenceOfCodomain.
         exact HB_2_1.
     }
     cbn.
-    unfold make_disp_1cell_cod.
+    unfold cod_adj_equiv_to_disp_adj_equiv_map, make_disp_1cell_cod.
     use maponpaths.
     rewrite vassocr.
     rewrite runitor_rinvunitor.

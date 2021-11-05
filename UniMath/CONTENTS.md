@@ -423,6 +423,8 @@ The packages and files are listed here in logical order: each file depends only 
    - [DisplayedBicats/Examples/ContravariantFunctor.v](Bicategories/DisplayedBicats/Examples/ContravariantFunctor.v)
    - [DisplayedBicats/Examples/Cofunctormap.v](Bicategories/DisplayedBicats/Examples/Cofunctormap.v)
    - [DisplayedBicats/Examples/CwF.v](Bicategories/DisplayedBicats/Examples/CwF.v)
+   - [DisplayedBicats/Examples/Domain.v](Bicategories/DisplayedBicats/Examples/Domain.v)
+   - [DisplayedBicats/Examples/Codomain.v](Bicategories/DisplayedBicats/Examples/Codomain.v)
    - [DisplayedBicats/DispPseudofunctor.v](Bicategories/DisplayedBicats/DispPseudofunctor.v)
    - [Transformations/Examples/AlgebraMap.v](Bicategories/Transformations/Examples/AlgebraMap.v)
    - [DisplayedBicats/Examples/Monads.v](Bicategories/DisplayedBicats/Examples/Monads.v)
